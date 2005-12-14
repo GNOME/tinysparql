@@ -1,0 +1,14 @@
+<rdfq:rdfquery>
+  <rdfq:From eachResource="Files">
+    <rdfq:Select>
+      <rdfq:Condition>
+
+          <rdfq:greaterThan>
+            <rdfq:Property name="File.Modified" />
+            <rdf:String>2005-12-01 00:00:00</rdf:String> 
+          </rdfq:greaterThan>
+
+     </rdfq:Condition>
+   </rdfq:Select>
+  </rdfq:From>
+</rdfq:rdfquery>

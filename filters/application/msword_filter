@@ -1,0 +1,4 @@
+#!/bin/sh
+
+nice -n19 wvText $1 $2
+

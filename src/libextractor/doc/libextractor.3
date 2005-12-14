@@ -1,0 +1,81 @@
+.TH LIBEXTRACTOR 3 "Jul 14, 2005"
+.SH NAME
+libextractor \- meta\-information extraction library 0.5.2
+.SH SYNOPSIS
+
+\fB#include <extractor.h>
+
+ \fBtypedef struct EXTRACTOR_Keywords {
+   char * \fIkeyword\fB;
+   EXTRACTOR_KeywordType \fIkeywordType\fB;
+   struct EXTRACTOR_Keywords * \fInext\fB;
+ } EXTRACTOR_KeywordList;\FB
+
+
+ \fBEXTRACTOR_ExtractorList * EXTRACTOR_loadDefaultLibraries ();
+
+ \fBconst char * EXTRACTOR_getKeywordTypeAsString (const EXTRACTOR_KeywordType \fItype\fB);
+
+ \fBEXTRACTOR_ExtractorList * EXTRACTOR_loadConfigLibraries (EXTRACTOR_ExtractorList * \fIprev\fB, const char * \fIconfig\fB);
+
+ \fBEXTRACTOR_ExtractorList * EXTRACTOR_addLibrary (EXTRACTOR_ExtractorList * \fIprev\fB, const char * \fIlibrary\fB);
+
+ \fBEXTRACTOR_ExtractorList * EXTRACTOR_addLibraryLast (EXTRACTOR_ExtractorList * \fIprev\fB, const char * \fIlibrary\fB);
+
+ \fBEXTRACTOR_ExtractorList * EXTRACTOR_removeLibrary (EXTRACTOR_ExtractorList * \fIprev\fB, const char * \fIlibrary\fB);
+
+ \fBvoid EXTRACTOR_removeAll (EXTRACTOR_ExtractorList * \fIprev\fB);
+
+ \fBEXTRACTOR_KeywordList * EXTRACTOR_getKeywords (EXTRACTOR_ExtractorList * \fIextractor\fB, const char * \fIfilename\fB);
+
+ \fBEXTRACTOR_KeywordList * EXTRACTOR_getKeywords (EXTRACTOR_ExtractorList * \fIextractor\fB, const char * \fIdata\fB, size_t \fIsize\fB);
+
+ \fBEXTRACTOR_KeywordList * EXTRACTOR_removeEmptyKeywords (EXTRACTOR_KeywordList * \fIlist\fB);
+
+ \fBEXTRACTOR_KeywordList * EXTRACTOR_removeDuplicateKeywords (EXTRACTOR_KeywordList * \fIlist\fB, const unsigned int \fIoptions\fB);
+
+ \fBvoid EXTRACTOR_printKeywords (FILE * \fIhandle\fB, EXTRACTOR_KeywordList * \fIkeywords\fB);
+
+ \fBvoid EXTRACTOR_freeKeywords (EXTRACTOR_KeywordList * \fIkeywords\fB);
+
+ \fBconst char * EXTRACTOR_extractLast (const EXTRACTOR_KeywordType * \fItype\fB, EXTRACTOR_KeywordList * \fIkeywords\fB);
+
+ \fBconst char * EXTRACTOR_extractLastByString (const char * \fItype\fB, EXTRACTOR_KeywordList * \fIkeywords\fB);
+
+ \fBunsigned int EXTRACTOR_countKeywords (EXTRACTOR_KeywordList * \fIkeywords\fB);
+
+ \fBEXTRACTOR_DEFAULT_LIBRARIES
+
+ \fBEXTRACTOR_VERSION
+
+.SH DESCRIPTION
+.P
+libextractor is a simple library for keyword extraction.  libExtractor does not support all formats but supports a simple plugging mechanism such that you can quickly add extractors for additional formats, even without recompiling libExtractor.  libExtractor typically ships with one or more helper-libraries that can be used to obtain keywords from common file-types.  If you want to write your own extractor for some filetype, all you need to do is write a little library that implements a single method with this signature:
+
+ \fBEXTRACTOR_KeywordList * LIBRARYNAME_extract(const char * \fIfilename\fB,
+                                             char * \fIdata\fB,
+                                             size_t \fIsize\fB,
+                                             EXTRACTOR_KeywordList * \fIprev\fB);
+
+.P
+The filename is the name of the file, data is a pointer to the contents of the file and size is the size of the file.  The extract method must prepend keywords that it finds to the linked list 'prev' and return the new head. The library must allocate (malloc) the entry in the keyword list and the memory for the filename since both will be free'ed by libExtractor once the application calls freeKeywords. An example implementation can be found in \fImp3extractor.c\fP.  The application extract gives an example how to use libExtractor.
+
+.P
+The basic use of libextractor is to load the plugins (for example with \fBEXTRACTOR_loadDefaultLibraries\fP), then to extract the keyword list using \fBEXTRACTOR_getKeywords\fP, processing the list (using application specific code and possibly some of the postprocessing convenience functions like \fBEXTRACTOR_removeDuplicateKeywords\fP), freeing the keyword list (using \fBEXTRACTOR_freeKeywords\fP) and finally unloading the plugins (with \fBEXTRACTOR_removeAll\fP).
+.P
+The keywords obtained from libextractor are supposed to be UTF-8 encoded.  The EXTRACTOR_printKeywords function converts the UTF-8 keywords to the character set from the current locale before printing them.  Plugins are supposed to convert meta-data to UTF-8 if necessary.  
+.P
+.SH "SEE ALSO"
+extract(1)
+
+.SH LEGAL NOTICE
+libextractor is released under the GPL and a GNU project (http://www.gnu.org/).
+
+.SH BUGS
+A couple of file-formats (on the order of 10^3) are not recognized...
+
+.SH AUTHORS
+extract was originally written by Christian Grothoff <christian@grothoff.org> and Vidyut Samanta <vids@cs.ucla.edu>. Use <libextractor@gnu.org> to contact the current maintainer(s).
+
+.SH AVAILABILITY
+You can obtain the original author's latest version from http://gnunet.org/libextractor/.

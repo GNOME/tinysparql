@@ -1,0 +1,1293 @@
+# Irish translations for libextractor
+# Copyright (C) 2005 Free Software Foundation, Inc.
+# This file is distributed under the same license as the libextractor package.
+# Kevin Patrick Scannell <scannell@SLU.EDU>, 2005.
+msgid ""
+msgstr ""
+"Project-Id-Version: libextractor 0.5.6a\n"
+"Report-Msgid-Bugs-To: libextractor@gnu.org\n"
+"POT-Creation-Date: 2005-11-12 11:11-0800\n"
+"PO-Revision-Date: 2005-09-21 00:46-0700\n"
+"Last-Translator: Kevin Patrick Scannell <scannell@SLU.EDU>\n"
+"Language-Team: Irish <gaeilge-gnulinux@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/plugins/language/language-compiler.c:37
+#, c-format
+msgid "Please provide a list of klp files as arguments.\n"
+msgstr "Tabhair uait liosta de chomhaid klp mar argóintí, le do thoil.\n"
+
+#: src/plugins/language/language-compiler.c:48
+#: src/plugins/printable/dictionary-builder.c:113
+#, c-format
+msgid "Error opening file `%s': %s\n"
+msgstr "Earráid agus comhad `%s' á oscailt: %s\n"
+
+#: src/plugins/language/language-compiler.c:56
+#: src/plugins/printable/dictionary-builder.c:121
+#, c-format
+msgid ""
+"Error allocating: %s\n"
+"."
+msgstr ""
+"Earráid le linn dáilte: %s\n"
+"."
+
+#: src/plugins/language/language-compiler.c:68
+#: src/plugins/printable/dictionary-builder.c:135
+#, c-format
+msgid "Increase ALLOCSIZE (in %s).\n"
+msgstr "Méadaigh ALLOCSIZE (i %s).\n"
+
+#: src/plugins/rpm/rpmextractor.c:3048
+#, c-format
+msgid "Source RPM %d.%d"
+msgstr "RPM Foinse %d.%d"
+
+#: src/plugins/rpm/rpmextractor.c:3053
+#, c-format
+msgid "Binary RPM %d.%d"
+msgstr "RPM Dénártha %d.%d"
+
+#: src/plugins/printable/dictionary-builder.c:100
+#, c-format
+msgid ""
+"Please provide the name of the language you are building\n"
+"a dictionary for.  For example:\n"
+msgstr ""
+"Tabhair uait ainm na teanga ina bhfuil tú ag tógáil foclóra.\n"
+"Mar shampla:\n"
+
+#: src/plugins/manextractor.c:142
+msgid "Commands"
+msgstr "Orduithe"
+
+#: src/plugins/manextractor.c:147
+msgid "System calls"
+msgstr "Glaonna ar an chóras"
+
+#: src/plugins/manextractor.c:152
+msgid "Library calls"
+msgstr "Glaonna ar leabharlanna"
+
+#: src/plugins/manextractor.c:157
+msgid "Special files"
+msgstr "Comhaid speisialta"
+
+#: src/plugins/manextractor.c:162
+msgid "File formats and conventions"
+msgstr "Formáidí comhaid agus coinbhinsiúin"
+
+#: src/plugins/manextractor.c:167
+msgid "Games"
+msgstr "Cluichí"
+
+#: src/plugins/manextractor.c:172
+msgid "Conventions and miscellaneous"
+msgstr "Coinbhinsiúin agus rudaí eile"
+
+#: src/plugins/manextractor.c:177
+msgid "System management commands"
+msgstr "Orduithe bainistíochta an chórais"
+
+#: src/plugins/manextractor.c:182
+msgid "Kernel routines"
+msgstr "Feidhmeanna eithne"
+
+#: src/plugins/wavextractor.c:113 src/plugins/mp3extractor.c:434
+msgid "mono"
+msgstr "mona"
+
+#: src/plugins/wavextractor.c:113 src/plugins/mp3extractor.c:434
+msgid "stereo"
+msgstr "steirió"
+
+#: src/plugins/jpegextractor.c:178
+#, c-format
+msgid "%ux%u dots per inch"
+msgstr "%u×%u poncanna san orlach"
+
+#: src/plugins/jpegextractor.c:188
+#, c-format
+msgid "%ux%u dots per cm"
+msgstr "%u×%u poncanna sa cm"
+
+#: src/plugins/jpegextractor.c:198
+#, c-format
+msgid "%ux%u dots per inch?"
+msgstr "%u×%u poncanna san orlach?"
+
+#: src/plugins/riffextractor.c:167
+#, c-format
+msgid "codec: %s, %u fps, %u ms"
+msgstr "codec: %s, %u fss, %u ms"
+
+#: src/plugins/mp3extractor.c:49
+msgid "Blues"
+msgstr "Gormacha"
+
+#: src/plugins/mp3extractor.c:50
+msgid "Classic Rock"
+msgstr "Rac Clasaiceach"
+
+#: src/plugins/mp3extractor.c:51
+msgid "Country"
+msgstr "Ceolta Tuaithe"
+
+#: src/plugins/mp3extractor.c:52
+msgid "Dance"
+msgstr "Damhsa"
+
+#: src/plugins/mp3extractor.c:53
+msgid "Disco"
+msgstr "Dioscó"
+
+#: src/plugins/mp3extractor.c:54
+msgid "Funk"
+msgstr "Func"
+
+#: src/plugins/mp3extractor.c:55
+msgid "Grunge"
+msgstr "Gruinse"
+
+#: src/plugins/mp3extractor.c:56
+msgid "Hip-Hop"
+msgstr "Hip-Hap"
+
+#: src/plugins/mp3extractor.c:57
+msgid "Jazz"
+msgstr "Snagcheol"
+
+#: src/plugins/mp3extractor.c:58
+msgid "Metal"
+msgstr "Miotal"
+
+#: src/plugins/mp3extractor.c:59
+msgid "New Age"
+msgstr "Nua-Aoiseach"
+
+#: src/plugins/mp3extractor.c:60
+msgid "Oldies"
+msgstr "Seancheol"
+
+#: src/plugins/mp3extractor.c:61
+msgid "Other"
+msgstr "Eile"
+
+#: src/plugins/mp3extractor.c:62
+msgid "Pop"
+msgstr "Popcheol"
+
+#: src/plugins/mp3extractor.c:63
+msgid "R&B"
+msgstr "Rithim & Gormacha"
+
+#: src/plugins/mp3extractor.c:64
+msgid "Rap"
+msgstr "Rapcheol"
+
+#: src/plugins/mp3extractor.c:65
+msgid "Reggae"
+msgstr "Reggae"
+
+#: src/plugins/mp3extractor.c:66
+msgid "Rock"
+msgstr "Rac-Cheol"
+
+#: src/plugins/mp3extractor.c:67
+msgid "Techno"
+msgstr "Teicneo"
+
+#: src/plugins/mp3extractor.c:68
+msgid "Industrial"
+msgstr "Tionsclaíoch"
+
+#: src/plugins/mp3extractor.c:69
+msgid "Alternative"
+msgstr "Malartach"
+
+#: src/plugins/mp3extractor.c:70
+msgid "Ska"
+msgstr "Ska"
+
+#: src/plugins/mp3extractor.c:71
+msgid "Death Metal"
+msgstr "Básmhiotal"
+
+#: src/plugins/mp3extractor.c:72
+msgid "Pranks"
+msgstr "Cleasa"
+
+#: src/plugins/mp3extractor.c:73
+msgid "Soundtrack"
+msgstr "Fuaimrian"
+
+#: src/plugins/mp3extractor.c:74
+msgid "Euro-Techno"
+msgstr "Eora-Teicneo"
+
+#: src/plugins/mp3extractor.c:75
+msgid "Ambient"
+msgstr "Timpeallach"
+
+#: src/plugins/mp3extractor.c:76
+msgid "Trip-Hop"
+msgstr "Truip-Hap"
+
+#: src/plugins/mp3extractor.c:77
+msgid "Vocal"
+msgstr "Guthach"
+
+#: src/plugins/mp3extractor.c:78
+msgid "Jazz+Funk"
+msgstr "Snagcheol+Func"
+
+#: src/plugins/mp3extractor.c:79
+msgid "Fusion"
+msgstr "Comhleá"
+
+#: src/plugins/mp3extractor.c:80
+msgid "Trance"
+msgstr "Támhnéal"
+
+#: src/plugins/mp3extractor.c:81
+msgid "Classical"
+msgstr "Clasaiceach"
+
+#: src/plugins/mp3extractor.c:82
+msgid "Instrumental"
+msgstr "Ionstraimeach"
+
+#: src/plugins/mp3extractor.c:83
+msgid "Acid"
+msgstr "Aigéad"
+
+#: src/plugins/mp3extractor.c:84
+msgid "House"
+msgstr "Teach"
+
+#: src/plugins/mp3extractor.c:85
+msgid "Game"
+msgstr "Cluiche"
+
+#: src/plugins/mp3extractor.c:86
+msgid "Sound Clip"
+msgstr "Gearrthóg Fuaime"
+
+#: src/plugins/mp3extractor.c:87
+msgid "Gospel"
+msgstr "Ceol Gaspal"
+
+#: src/plugins/mp3extractor.c:88
+msgid "Noise"
+msgstr "Torann"
+
+#: src/plugins/mp3extractor.c:89
+msgid "Alt. Rock"
+msgstr "Rac-Cheol Mal."
+
+#: src/plugins/mp3extractor.c:90
+msgid "Bass"
+msgstr "Dord"
+
+#: src/plugins/mp3extractor.c:91
+msgid "Soul"
+msgstr "Anamcheol"
+
+#: src/plugins/mp3extractor.c:92
+msgid "Punk"
+msgstr "Punc"
+
+#: src/plugins/mp3extractor.c:93
+msgid "Space"
+msgstr "Spás"
+
+#: src/plugins/mp3extractor.c:94
+msgid "Meditative"
+msgstr "Machnamhach"
+
+#: src/plugins/mp3extractor.c:95
+msgid "Instrumental Pop"
+msgstr "Popcheol Ionstraimeach"
+
+#: src/plugins/mp3extractor.c:96
+msgid "Instrumental Rock"
+msgstr "Rac Ionstraimeach"
+
+#: src/plugins/mp3extractor.c:97
+msgid "Ethnic"
+msgstr "Eitneach"
+
+#: src/plugins/mp3extractor.c:98
+msgid "Gothic"
+msgstr "Gotach"
+
+#: src/plugins/mp3extractor.c:99
+msgid "Darkwave"
+msgstr "An Tonn Dhubh"
+
+#: src/plugins/mp3extractor.c:100
+msgid "Techno-Industrial"
+msgstr "Teicneo-Tionsclaíoch"
+
+#: src/plugins/mp3extractor.c:101
+msgid "Electronic"
+msgstr "Leictreonach"
+
+#: src/plugins/mp3extractor.c:102
+msgid "Pop-Folk"
+msgstr "Popcheol Tíre"
+
+#: src/plugins/mp3extractor.c:103
+msgid "Eurodance"
+msgstr "Eoradamhsa"
+
+#: src/plugins/mp3extractor.c:104
+msgid "Dream"
+msgstr "Aisling"
+
+#: src/plugins/mp3extractor.c:105
+msgid "Southern Rock"
+msgstr "Rac Deisceartach"
+
+#: src/plugins/mp3extractor.c:106
+msgid "Comedy"
+msgstr "Coiméide"
+
+#: src/plugins/mp3extractor.c:107
+msgid "Cult"
+msgstr "Cultas"
+
+#: src/plugins/mp3extractor.c:108
+msgid "Gangsta Rap"
+msgstr "Rapcheol Gangstaeir"
+
+#: src/plugins/mp3extractor.c:109
+msgid "Top 40"
+msgstr "Cnagshingilí"
+
+#: src/plugins/mp3extractor.c:110
+msgid "Christian Rap"
+msgstr "Rapcheol Críostaí"
+
+#: src/plugins/mp3extractor.c:111
+msgid "Pop/Funk"
+msgstr "Popcheol/Func"
+
+#: src/plugins/mp3extractor.c:112
+msgid "Jungle"
+msgstr "Dufair"
+
+#: src/plugins/mp3extractor.c:113
+msgid "Native American"
+msgstr "Indiach-Mheiriceánach"
+
+#: src/plugins/mp3extractor.c:114
+msgid "Cabaret"
+msgstr "Cabaret"
+
+#: src/plugins/mp3extractor.c:115
+msgid "New Wave"
+msgstr "Tonn Nua"
+
+#: src/plugins/mp3extractor.c:116
+msgid "Psychedelic"
+msgstr "Sícideileach"
+
+#: src/plugins/mp3extractor.c:117
+msgid "Rave"
+msgstr "Réibhcheol"
+
+#: src/plugins/mp3extractor.c:118
+msgid "Showtunes"
+msgstr "Seóthiúineanna"
+
+#: src/plugins/mp3extractor.c:119
+msgid "Trailer"
+msgstr "Tréiléar"
+
+#: src/plugins/mp3extractor.c:120
+msgid "Lo-Fi"
+msgstr "Ísle-Dílse"
+
+#: src/plugins/mp3extractor.c:121
+msgid "Tribal"
+msgstr "Treibheach"
+
+#: src/plugins/mp3extractor.c:122
+msgid "Acid Punk"
+msgstr "Punc Aigéadach"
+
+#: src/plugins/mp3extractor.c:123
+msgid "Acid Jazz"
+msgstr "Snagcheol Aigéadach"
+
+#: src/plugins/mp3extractor.c:124
+msgid "Polka"
+msgstr "Polca"
+
+#: src/plugins/mp3extractor.c:125
+msgid "Retro"
+msgstr "Aischeol"
+
+#: src/plugins/mp3extractor.c:126
+msgid "Musical"
+msgstr "Ceolra"
+
+#: src/plugins/mp3extractor.c:127
+msgid "Rock & Roll"
+msgstr "Rac Is Roll"
+
+#: src/plugins/mp3extractor.c:128
+msgid "Hard Rock"
+msgstr "Rac-Cheol Crua"
+
+#: src/plugins/mp3extractor.c:129
+msgid "Folk"
+msgstr "Ceol na nDaoine"
+
+#: src/plugins/mp3extractor.c:130
+msgid "Folk/Rock"
+msgstr "Ceol Tíre/Rac-Cheol"
+
+#: src/plugins/mp3extractor.c:131
+msgid "National Folk"
+msgstr "Ceol an Náisiúin"
+
+#: src/plugins/mp3extractor.c:132
+msgid "Swing"
+msgstr "Luasc-Cheol"
+
+#: src/plugins/mp3extractor.c:133
+msgid "Fast-Fusion"
+msgstr "Comhleá Tapa"
+
+#: src/plugins/mp3extractor.c:134
+msgid "Bebob"
+msgstr "Bap"
+
+#: src/plugins/mp3extractor.c:135
+msgid "Latin"
+msgstr "Laidineach"
+
+#: src/plugins/mp3extractor.c:136
+msgid "Revival"
+msgstr "Athbheochan"
+
+#: src/plugins/mp3extractor.c:137
+msgid "Celtic"
+msgstr "Ceilteach"
+
+#: src/plugins/mp3extractor.c:138
+msgid "Bluegrass"
+msgstr "Bluegrass"
+
+#: src/plugins/mp3extractor.c:139
+msgid "Avantgarde"
+msgstr "Avant garde"
+
+#: src/plugins/mp3extractor.c:140
+msgid "Gothic Rock"
+msgstr "Rac Gotach"
+
+#: src/plugins/mp3extractor.c:141
+msgid "Progressive Rock"
+msgstr "Rac Forásach"
+
+#: src/plugins/mp3extractor.c:142
+msgid "Psychedelic Rock"
+msgstr "Rac Sícideileach"
+
+#: src/plugins/mp3extractor.c:143
+msgid "Symphonic Rock"
+msgstr "Rac Siansach"
+
+#: src/plugins/mp3extractor.c:144
+msgid "Slow Rock"
+msgstr "Rac-Cheol Mall"
+
+#: src/plugins/mp3extractor.c:145
+msgid "Big Band"
+msgstr "Banna Mór"
+
+#: src/plugins/mp3extractor.c:146
+msgid "Chorus"
+msgstr "Cór"
+
+#: src/plugins/mp3extractor.c:147
+msgid "Easy Listening"
+msgstr "Récheol"
+
+#: src/plugins/mp3extractor.c:148
+msgid "Acoustic"
+msgstr "Fuaimiúil"
+
+#: src/plugins/mp3extractor.c:149
+msgid "Humour"
+msgstr "Greann"
+
+#: src/plugins/mp3extractor.c:150
+msgid "Speech"
+msgstr "Caint"
+
+#: src/plugins/mp3extractor.c:151
+msgid "Chanson"
+msgstr "Chanson"
+
+#: src/plugins/mp3extractor.c:152
+msgid "Opera"
+msgstr "Ceoldráma"
+
+#: src/plugins/mp3extractor.c:153
+msgid "Chamber Music"
+msgstr "Ceol Aireagail"
+
+#: src/plugins/mp3extractor.c:154
+msgid "Sonata"
+msgstr "Sonáid"
+
+#: src/plugins/mp3extractor.c:155
+msgid "Symphony"
+msgstr "Siansa"
+
+#: src/plugins/mp3extractor.c:156
+msgid "Booty Bass"
+msgstr "Dord Búití"
+
+#: src/plugins/mp3extractor.c:157
+msgid "Primus"
+msgstr "Primus"
+
+#: src/plugins/mp3extractor.c:158
+msgid "Porn Groove"
+msgstr "PornGrúibh"
+
+#: src/plugins/mp3extractor.c:159
+msgid "Satire"
+msgstr "Aoir"
+
+#: src/plugins/mp3extractor.c:160
+msgid "Slow Jam"
+msgstr "Seam Mall"
+
+#: src/plugins/mp3extractor.c:161
+msgid "Club"
+msgstr "Club"
+
+#: src/plugins/mp3extractor.c:162
+msgid "Tango"
+msgstr "Tangó"
+
+#: src/plugins/mp3extractor.c:163
+msgid "Samba"
+msgstr "Samba"
+
+#: src/plugins/mp3extractor.c:164
+msgid "Folklore"
+msgstr "Béaloideas"
+
+#: src/plugins/mp3extractor.c:165
+msgid "Ballad"
+msgstr "Bailéad"
+
+#: src/plugins/mp3extractor.c:166
+msgid "Power Ballad"
+msgstr "Bailéad Cumhachta"
+
+#: src/plugins/mp3extractor.c:167
+msgid "Rhythmic Soul"
+msgstr "Anamcheol Rithimeach"
+
+#: src/plugins/mp3extractor.c:168
+msgid "Freestyle"
+msgstr "Saorstíl"
+
+#: src/plugins/mp3extractor.c:169
+msgid "Duet"
+msgstr "Díséad"
+
+#: src/plugins/mp3extractor.c:170
+msgid "Punk Rock"
+msgstr "Punc-Rac"
+
+#: src/plugins/mp3extractor.c:171
+msgid "Drum Solo"
+msgstr "Aonréad Druma"
+
+#: src/plugins/mp3extractor.c:172
+msgid "A Cappella"
+msgstr "A Cappella"
+
+#: src/plugins/mp3extractor.c:173
+msgid "Euro-House"
+msgstr "Eora-Teach"
+
+#: src/plugins/mp3extractor.c:174
+msgid "Dance Hall"
+msgstr "Halla Damhsa"
+
+#: src/plugins/mp3extractor.c:175
+msgid "Goa"
+msgstr "Goa"
+
+#: src/plugins/mp3extractor.c:176
+msgid "Drum & Bass"
+msgstr "Druma & Dord"
+
+#: src/plugins/mp3extractor.c:177
+msgid "Club-House"
+msgstr "Clubtheach"
+
+#: src/plugins/mp3extractor.c:178
+msgid "Hardcore"
+msgstr "Fíorchrua"
+
+#: src/plugins/mp3extractor.c:179
+msgid "Terror"
+msgstr "Uafás"
+
+#: src/plugins/mp3extractor.c:180
+msgid "Indie"
+msgstr "Neamhspleách"
+
+#: src/plugins/mp3extractor.c:181
+msgid "BritPop"
+msgstr "BriotPhop"
+
+#: src/plugins/mp3extractor.c:182
+msgid "Negerpunk"
+msgstr "Negerpunk"
+
+#: src/plugins/mp3extractor.c:183
+msgid "Polsk Punk"
+msgstr "Punc Polannach"
+
+#: src/plugins/mp3extractor.c:184
+msgid "Beat"
+msgstr "Buille"
+
+#: src/plugins/mp3extractor.c:185
+msgid "Christian Gangsta Rap"
+msgstr "Rapcheol Críostaí Gangstaeir"
+
+#: src/plugins/mp3extractor.c:186
+msgid "Heavy Metal"
+msgstr "Ceol Trom-Mhiotalach"
+
+#: src/plugins/mp3extractor.c:187
+msgid "Black Metal"
+msgstr "Miotal Dubh"
+
+#: src/plugins/mp3extractor.c:188
+msgid "Crossover"
+msgstr "Trasach"
+
+#: src/plugins/mp3extractor.c:189
+msgid "Contemporary Christian"
+msgstr "Críostaí Comhaimseartha"
+
+#: src/plugins/mp3extractor.c:190
+msgid "Christian Rock"
+msgstr "Rac-Cheol Críostaí"
+
+#: src/plugins/mp3extractor.c:191
+msgid "Merengue"
+msgstr "Meireang"
+
+#: src/plugins/mp3extractor.c:192
+msgid "Salsa"
+msgstr "Salsa"
+
+#: src/plugins/mp3extractor.c:193
+msgid "Thrash Metal"
+msgstr "Miotal Traiseála"
+
+# no "é"
+#: src/plugins/mp3extractor.c:194
+msgid "Anime"
+msgstr "Anime"
+
+#: src/plugins/mp3extractor.c:195
+msgid "JPop"
+msgstr "JPap"
+
+#: src/plugins/mp3extractor.c:196
+msgid "Synthpop"
+msgstr "Popcheol sintéiseach"
+
+#: src/plugins/mp3extractor.c:435
+msgid "(variable bps)"
+msgstr "(bss athraitheach)"
+
+#: src/main/getopt.c:681
+#, c-format
+msgid "%s: option `%s' is ambiguous\n"
+msgstr "%s: Tá an rogha `%s' débhríoch\n"
+
+#: src/main/getopt.c:706
+#, c-format
+msgid "%s: option `--%s' doesn't allow an argument\n"
+msgstr "%s: ní cheadaítear argóint i ndiaidh na rogha `--%s'\n"
+
+#: src/main/getopt.c:712
+#, c-format
+msgid "%s: option `%c%s' doesn't allow an argument\n"
+msgstr "%s: ní cheadaítear argóint i ndiaidh na rogha `%c%s'\n"
+
+#: src/main/getopt.c:729 src/main/getopt.c:900
+#, c-format
+msgid "%s: option `%s' requires an argument\n"
+msgstr "%s: tá argóint de dhíth i ndiaidh na rogha `%s'\n"
+
+#: src/main/getopt.c:758
+#, c-format
+msgid "%s: unrecognized option `--%s'\n"
+msgstr "%s: rogha anaithnid `--%s'\n"
+
+#: src/main/getopt.c:762
+#, c-format
+msgid "%s: unrecognized option `%c%s'\n"
+msgstr "%s: rogha anaithnid `%c%s'\n"
+
+#: src/main/getopt.c:788
+#, c-format
+msgid "%s: illegal option -- %c\n"
+msgstr "%s: rogha neamhcheadaithe -- %c\n"
+
+#: src/main/getopt.c:790
+#, c-format
+msgid "%s: invalid option -- %c\n"
+msgstr "%s: rogha neamhbhailí -- %c\n"
+
+#: src/main/getopt.c:819 src/main/getopt.c:949
+#, c-format
+msgid "%s: option requires an argument -- %c\n"
+msgstr "%s: tá argóint de dhíth i ndiaidh na rogha -- %c\n"
+
+#: src/main/getopt.c:867
+#, c-format
+msgid "%s: option `-W %s' is ambiguous\n"
+msgstr "%s: Tá an rogha `-W %s' débhríoch\n"
+
+#: src/main/getopt.c:885
+#, c-format
+msgid "%s: option `-W %s' doesn't allow an argument\n"
+msgstr "%s: ní cheadaítear argóint i ndiaidh na rogha `-W %s'\n"
+
+#: src/main/extract.c:49
+#, c-format
+msgid ""
+"Usage: %s\n"
+"%s\n"
+"\n"
+msgstr ""
+"Úsáid: %s\n"
+"%s\n"
+"\n"
+
+#: src/main/extract.c:52
+#, c-format
+msgid ""
+"Arguments mandatory for long options are also mandatory for short options.\n"
+msgstr ""
+"Is riachtanach le rogha ghearr aon argóint atá riachtanach leis an rogha "
+"fhada.\n"
+
+#: src/main/extract.c:126
+msgid "do not remove any duplicates"
+msgstr "ná bain macasamhla amach"
+
+#: src/main/extract.c:128
+msgid "print output in bibtex format"
+msgstr "priontáil aschur i bhformáid bibtex"
+
+#: src/main/extract.c:130
+msgid ""
+"use the generic plaintext extractor for the language with the 2-letter "
+"language code LANG"
+msgstr ""
+"úsáid an t-asbhainteoir ginearálta téacs le haghaidh na teanga leis an chód "
+"LANG de réir ISO-639-1"
+
+#: src/main/extract.c:132
+msgid "remove duplicates only if types match"
+msgstr "bain macasamhla amach má mheaitseálann na cineálacha"
+
+#: src/main/extract.c:134
+msgid "use the filename as a keyword (loads filename-extractor plugin)"
+msgstr ""
+"úsáid an comhadainm mar lorgfhocal (luchtófar breiseán asbhainteora na "
+"gcomhadainmneacha)"
+
+#: src/main/extract.c:136
+msgid "print this help"
+msgstr "taispeáin an chabhair seo"
+
+#: src/main/extract.c:138
+msgid "compute hash using the given ALGORITHM (currently sha1 or md5)"
+msgstr "úsáid an tALGARTAM haiseála tugtha (sha1 nó md5 faoi láthair)"
+
+#: src/main/extract.c:140
+msgid "load an extractor plugin named LIBRARY"
+msgstr "luchtaigh breiseán asbhainteora darb ainm LIBRARY"
+
+#: src/main/extract.c:142
+msgid "list all keyword types"
+msgstr "taispeáin gach cineál lorgfhocail"
+
+#: src/main/extract.c:144
+msgid "do not use the default set of extractor plugins"
+msgstr "ná húsáid na breiseáin asbhainteora réamhshocraithe"
+
+#: src/main/extract.c:146
+msgid "print only keywords of the given TYPE (use -L to get a list)"
+msgstr ""
+"ná taispeáin ach lorgfhocail den CHINEÁL tugtha (úsáid -L chun liosta a "
+"fháil)"
+
+#: src/main/extract.c:148
+msgid "remove duplicates even if keyword types do not match"
+msgstr "bain macasamhla amach, fiú mura meaitseálann na cineálacha lorgfhocail"
+
+#: src/main/extract.c:150
+msgid "use keyword splitting (loads split-extractor plugin)"
+msgstr ""
+"úsáid scoilteadh lorgfhocal (luchtófar an breiseán asbhainteora scoilte)"
+
+#: src/main/extract.c:152
+msgid "print the version number"
+msgstr "taispeáin an leagan"
+
+#: src/main/extract.c:154
+msgid "be verbose"
+msgstr "bí foclach"
+
+#: src/main/extract.c:156
+msgid "do not print keywords of the given TYPE"
+msgstr "ná taispeáin lorgfhocail den CHINEÁL tugtha"
+
+#: src/main/extract.c:159
+msgid "extract [OPTIONS] [FILENAME]*"
+msgstr "extract [ROGHANNA] [COMHADAINM]*"
+
+#: src/main/extract.c:160
+msgid "Extract metadata from files."
+msgstr "Bain meiteashonraí as comhaid."
+
+#: src/main/extract.c:198 src/main/extractor.c:1121
+#, c-format
+msgid "%s - (binary)\n"
+msgstr "%s - (dénártha)\n"
+
+#: src/main/extract.c:204 src/main/extractor.c:1126
+#, c-format
+msgid "INVALID TYPE - %s\n"
+msgstr "CINEÁL NEAMHBHAILÍ - %s\n"
+
+#: src/main/extract.c:270 src/main/extractor.c:47
+msgid "title"
+msgstr "teideal"
+
+#: src/main/extract.c:272 src/main/extractor.c:45
+msgid "filename"
+msgstr "comhadainm"
+
+#: src/main/extract.c:277 src/main/extractor.c:48
+msgid "author"
+msgstr "údar"
+
+#: src/main/extract.c:281 src/main/extractor.c:50
+msgid "description"
+msgstr "cur síos"
+
+#: src/main/extract.c:283 src/main/extractor.c:62
+msgid "keywords"
+msgstr "lorgfhocail"
+
+#: src/main/extract.c:285 src/main/extractor.c:51
+msgid "comment"
+msgstr "nóta tráchta"
+
+#: src/main/extract.c:289 src/main/extractor.c:52
+msgid "date"
+msgstr "dáta"
+
+#: src/main/extract.c:291 src/main/extractor.c:74
+msgid "creation date"
+msgstr "dáta a cruthaíodh"
+
+#: src/main/extract.c:319 src/main/extractor.c:53
+msgid "publisher"
+msgstr "foilsitheoir"
+
+#: src/main/extract.c:323 src/main/extractor.c:59
+msgid "organization"
+msgstr "eagras"
+
+#: src/main/extract.c:327 src/main/extractor.c:61
+msgid "subject"
+msgstr "ábhar"
+
+#: src/main/extract.c:331 src/main/extractor.c:78
+msgid "page count"
+msgstr "líon na leathanach"
+
+#: src/main/extract.c:474
+#, c-format
+msgid "You must specify an argument for the `%s' option (option ignored).\n"
+msgstr ""
+"Ní mór duit argóint a thabhairt i ndiaidh na rogha `%s' (á ligean thart).\n"
+
+#: src/main/extract.c:541
+#, c-format
+msgid "Use --help to get a list of options.\n"
+msgstr "Bain úsáid as '--help' le haghaidh níos mó roghanna.\n"
+
+#: src/main/extract.c:600
+#, c-format
+msgid "%% BiBTeX file\n"
+msgstr "%% Comhad BiBTeX\n"
+
+#: src/main/extract.c:617
+#, c-format
+msgid "Keywords for file %s:\n"
+msgstr "Lorgfhocail do chomhad %s:\n"
+
+#: src/main/extractor.c:44
+msgid "unknown"
+msgstr "anaithnid"
+
+#: src/main/extractor.c:46
+msgid "mimetype"
+msgstr "Cineál MIME"
+
+#: src/main/extractor.c:49
+msgid "artist"
+msgstr "ealaíontóir"
+
+#: src/main/extractor.c:54
+msgid "language"
+msgstr "teanga"
+
+#: src/main/extractor.c:55
+msgid "album"
+msgstr "albam"
+
+#: src/main/extractor.c:56
+msgid "genre"
+msgstr "seánra"
+
+#: src/main/extractor.c:57
+msgid "location"
+msgstr "suíomh"
+
+#: src/main/extractor.c:58
+msgid "version"
+msgstr "leagan"
+
+#: src/main/extractor.c:60
+msgid "copyright"
+msgstr "cóipcheart"
+
+#: src/main/extractor.c:63
+msgid "contributor"
+msgstr "cuiditheoir"
+
+#: src/main/extractor.c:64
+msgid "resource-type"
+msgstr "cineál-acmhainne"
+
+#: src/main/extractor.c:65
+msgid "format"
+msgstr "formáid"
+
+#: src/main/extractor.c:66
+msgid "resource-identifier"
+msgstr "aitheantóir-acmhainne"
+
+#: src/main/extractor.c:67
+msgid "source"
+msgstr "foinse"
+
+#: src/main/extractor.c:68
+msgid "relation"
+msgstr "gaol"
+
+#: src/main/extractor.c:69
+msgid "coverage"
+msgstr "clúdach"
+
+#: src/main/extractor.c:70
+msgid "software"
+msgstr "bogearraí"
+
+#: src/main/extractor.c:71
+msgid "disclaimer"
+msgstr "séanadh"
+
+#: src/main/extractor.c:72
+msgid "warning"
+msgstr "rabhadh"
+
+#: src/main/extractor.c:73
+msgid "translated"
+msgstr "aistrithe"
+
+#: src/main/extractor.c:75
+msgid "modification date"
+msgstr "dáta mionathraithe"
+
+#: src/main/extractor.c:76
+msgid "creator"
+msgstr "cruthaitheoir"
+
+#: src/main/extractor.c:77
+msgid "producer"
+msgstr "táirgeoir"
+
+#: src/main/extractor.c:79
+msgid "page orientation"
+msgstr "treoshuíomh an leathanaigh"
+
+#: src/main/extractor.c:80
+msgid "paper size"
+msgstr "páipéarmhéid"
+
+#: src/main/extractor.c:81
+msgid "used fonts"
+msgstr "clófhoirne úsáidte"
+
+#: src/main/extractor.c:82
+msgid "page order"
+msgstr "ord na leathanach"
+
+#: src/main/extractor.c:83
+msgid "created for"
+msgstr "cruthaithe ar son"
+
+#: src/main/extractor.c:84
+msgid "magnification"
+msgstr "formhéadú"
+
+#: src/main/extractor.c:85
+msgid "release"
+msgstr "scaoileadh"
+
+#: src/main/extractor.c:86
+msgid "group"
+msgstr "grúpa"
+
+#: src/main/extractor.c:87
+msgid "size"
+msgstr "méid"
+
+#: src/main/extractor.c:88
+msgid "summary"
+msgstr "achoimre"
+
+#: src/main/extractor.c:89
+msgid "packager"
+msgstr "pacáisteoir"
+
+#: src/main/extractor.c:90
+msgid "vendor"
+msgstr "díoltóir"
+
+#: src/main/extractor.c:91
+msgid "license"
+msgstr "ceadúnas"
+
+#: src/main/extractor.c:92
+msgid "distribution"
+msgstr "dáileadh"
+
+#: src/main/extractor.c:93
+msgid "build-host"
+msgstr "óstríomhaire-tógála"
+
+#: src/main/extractor.c:94
+msgid "os"
+msgstr "córas"
+
+#: src/main/extractor.c:95
+msgid "dependency"
+msgstr "spleáchas"
+
+#: src/main/extractor.c:96
+msgid "MD4"
+msgstr "MD4"
+
+#: src/main/extractor.c:97
+msgid "MD5"
+msgstr "MD5"
+
+#: src/main/extractor.c:98
+msgid "SHA-0"
+msgstr "SHA-0"
+
+#: src/main/extractor.c:99
+msgid "SHA-1"
+msgstr "SHA-1"
+
+#: src/main/extractor.c:100
+msgid "RipeMD160"
+msgstr "RipeMD160"
+
+#: src/main/extractor.c:101
+msgid "resolution"
+msgstr "taifeach"
+
+#: src/main/extractor.c:102
+msgid "category"
+msgstr "catagóir"
+
+#: src/main/extractor.c:103
+msgid "book title"
+msgstr "teideal an leabhair"
+
+#: src/main/extractor.c:104
+msgid "priority"
+msgstr "tosaíocht"
+
+#: src/main/extractor.c:105
+msgid "conflicts"
+msgstr "coinbhleachtaí"
+
+#: src/main/extractor.c:106
+msgid "replaces"
+msgstr "ionadaíonn"
+
+#: src/main/extractor.c:107
+msgid "provides"
+msgstr "soláthraíonn"
+
+#: src/main/extractor.c:108
+msgid "conductor"
+msgstr "stiúrthóir"
+
+#: src/main/extractor.c:109
+msgid "interpreter"
+msgstr "léirmhínitheoir"
+
+#: src/main/extractor.c:110
+msgid "owner"
+msgstr "úinéir"
+
+#: src/main/extractor.c:111
+msgid "lyrics"
+msgstr "liricí"
+
+#: src/main/extractor.c:112
+msgid "media type"
+msgstr "cineál an mheáin"
+
+#: src/main/extractor.c:113
+msgid "contact"
+msgstr "teagmháil"
+
+#: src/main/extractor.c:114
+msgid "binary thumbnail data"
+msgstr "sonraí dénártha mionsamhla"
+
+#: src/main/extractor.c:115
+msgid "publication date"
+msgstr "dáta foilsithe"
+
+#: src/main/extractor.c:116
+msgid "camera make"
+msgstr "déantús an cheamara"
+
+#: src/main/extractor.c:117
+msgid "camera model"
+msgstr "déanamh an cheamara"
+
+#: src/main/extractor.c:118
+msgid "exposure"
+msgstr "nochtadh"
+
+#: src/main/extractor.c:119
+msgid "aperture"
+msgstr "cró"
+
+#: src/main/extractor.c:120
+msgid "exposure bias"
+msgstr "laofacht nochta"
+
+#: src/main/extractor.c:121
+msgid "flash"
+msgstr "splanc"
+
+#: src/main/extractor.c:122
+msgid "flash bias"
+msgstr "laofacht splaince"
+
+#: src/main/extractor.c:123
+msgid "focal length"
+msgstr "fad fócais"
+
+#: src/main/extractor.c:124
+msgid "focal length (35mm equivalent)"
+msgstr "fad fócais (35mm coibhéiseach)"
+
+#: src/main/extractor.c:125
+msgid "iso speed"
+msgstr "luas ISO"
+
+#: src/main/extractor.c:126
+msgid "exposure mode"
+msgstr "mód nochta"
+
+#: src/main/extractor.c:127
+msgid "metering mode"
+msgstr "mód méadrála"
+
+#: src/main/extractor.c:128
+msgid "macro mode"
+msgstr "mód macra"
+
+#: src/main/extractor.c:129
+msgid "image quality"
+msgstr "cáilíocht íomhá"
+
+#: src/main/extractor.c:130
+msgid "white balance"
+msgstr "cothromaíocht bhán"
+
+#: src/main/extractor.c:131
+msgid "orientation"
+msgstr "treoshuíomh"
+
+#: src/main/extractor.c:132
+#, fuzzy
+msgid "template"
+msgstr "ionadaíonn"
+
+#: src/main/extractor.c:226
+#, c-format
+msgid "Initialization of plugin mechanism failed: %s!\n"
+msgstr "Theip ar thúsú meicníocht na mbreiseán: %s!\n"
+
+#: src/main/extractor.c:375
+#, c-format
+msgid ""
+"Resolving symbol `%s' in library `%s' failed, so I tried `%s', but that "
+"failed also.  Errors are: `%s' and `%s'.\n"
+msgstr ""
+"Níorbh fhéidir siombail `%s' a réiteach i leabharlann `%s'.  Dá bhrí sin, "
+"bhain mé triail as `%s', ach theip ar an cheann sin freisin.  Na hearráidí: `"
+"%s' agus `%s'.\n"
+
+#: src/main/extractor.c:404
+#, c-format
+msgid "Loading `%s' plugin failed: %s\n"
+msgstr "Theip ar luchtú an bhreiseáin `%s': %s\n"
+
+#: src/main/extractor.c:609
+#, c-format
+msgid "Unloading plugin `%s' failed!\n"
+msgstr "Theip ar dhíluchtú an bhreiseáin `%s'!\n"
+
+#~ msgid "Fatal: could not allocate (%s at %s:%d).\n"
+#~ msgstr "Earráid mharfach: níorbh fhéidir dáileadh (%s ag %s:%d).\n"

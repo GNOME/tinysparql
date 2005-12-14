@@ -1,0 +1,74 @@
+# -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+# This file is part of Tracker.
+
+AC_PREREQ(2.57)
+AC_INIT([tracker],[0.0.1],[xdg@lists.freedesktop.org])
+AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])
+AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
+
+AC_SUBST(PACKAGE_URL, [http://www.freedesktop.org/Software/Tracker])
+
+# Checks for programs.
+ AC_PROG_CC
+ AC_HEADER_STDC
+ AC_PROG_LIBTOOL
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([extractor.h fam.h fcntl.h stdlib.h string.h sys/time.h unistd.h mysql/mysql.h])
+
+# Check for glib 2.0
+PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= 2.4.0 ] gthread-2.0 >= 2.4.0)
+AC_SUBST(GLIB2_CFLAGS)
+AC_SUBST(GLIB2_LIBS)
+
+# Check for Dbus 0.50 or higher
+PKG_CHECK_MODULES(DBUS, [dbus-1 >= 0.33 dbus-glib-1 >= 0.50 ])
+AC_SUBST(DBUS_CFLAGS)
+AC_SUBST(DBUS_LIBS)
+
+
+
+FAM_LIBS=
+FAM_CFLAGS=
+PKG_CHECK_MODULES(GAMIN, gamin, have_fam=yes, have_fam=no)
+if test x"$have_fam" = "xyes"
+then
+        FAM_CFLAGS="$GAMIN_CFLAGS"
+        FAM_LIBS="$GAMIN_LIBS"
+	AC_DEFINE(HAVE_FAM, [], [Define if we have FAM])
+else
+        AC_CHECK_LIB(FAM, FAMOpen,
+          [AC_CHECK_HEADERS(fam.h,
+            [AC_DEFINE(HAVE_FAM, [], [Define if we have FAM])
+             FAM_LIBS="-lfam"],
+            AC_MSG_WARN(*** FAM support will not be built (header files not found) $FAM_MISSING_WARNING ***))],
+          AC_MSG_WARN(*** FAM support will not be built (FAM library not found) $FAM_MISSING_WARNING ***))
+fi
+AC_SUBST(FAM_LIBS)
+AC_SUBST(FAM_CFLAGS)
+
+AC_CONFIG_SUBDIRS(src/libextractor)
+
+# ==========================================================================
+AC_CONFIG_FILES([
+Makefile 
+data/Makefile
+data/english/Makefile
+filters/Makefile
+filters/application/Makefile
+filters/text/Makefile
+thumbnailers/Makefile
+thumbnailers/application/Makefile
+src/Makefile
+src/text-filters/Makefile
+src/text-filters/html_converter/Makefile
+src/text-filters/ooo_converter/Makefile
+src/tracker-extract/Makefile
+src/trackerd/Makefile
+src/libtracker/Makefile
+])
+AC_OUTPUT
+
+# ==========================================================================

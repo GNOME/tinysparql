@@ -1,0 +1,13 @@
+# Htmless 1.2 -- run: make htmless
+
+htmless: htmless.o chckfile.o gettag.o 
+	gcc -o htmless htmless.o chckfile.o gettag.o
+
+htmless.o: htmless.c
+	gcc -c -O htmless.c 
+
+chckfile.o: chckfile.c
+	gcc -c -O chckfile.c
+
+gettag.o: gettag.c
+	gcc -c -O gettag.c

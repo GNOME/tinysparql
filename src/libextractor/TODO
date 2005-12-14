@@ -1,0 +1,54 @@
+FIX:
+* HTML-extractor now broken (!) Also crappy code. FIX?!
+* check exiv2 memory consumption on very large files; 
+  also investigate 500kb (!) allocation/leak in exiv2 on test/test.html
+  (reported by valgrind)
+* 500 kb leak for each load/unload of exiv2 plugin (glibc?)
+
+
+Core:
+* error reporting facilities
+* add support for different character sets (to 'all' extractors)
+
+'Unclean' code:
+* QT
+* ASF
+* RPM
+
+Incomplete code (missing features):
+* RIFF (idx1 attribute)
+* IDv2{3,4} (some attributes, make testcases in test/id3v2/ work)
+* StarOffice sdw (some attributes, see doc/)
+* man pages (interpret sections for authors, brief description)
+* pdf: full-text extraction!
+* EXIV2
+
+Desirable missing formats:
+* mbox / various e-mail formats
+* info pages (scan for 'Node: %s^?ID' - see end of .info files!)
+* sources (Java, C, C++, see doxygen!)
+* a.out (== ar?)
+* rtf 
+* EXE
+* APEv2 (MPC file format, www.personal.uni-jena.de/~pfk/mpp/sv8/apetag.html)
+* PRC (Palm module, http://web.mit.edu/tytso/www/pilot/prc-format.html)
+* KOffice
+* TGA
+
+==============
+
+UTF-8 conversion (only listing what is left to do):
+* DVI: special headers are in what format? (rest is ASCII)
+* SDW: needs to be done (need info about charsets)
+* JPEG: presumably ASCII (or not specified)
+* PS?
+* WAV?
+* ZIP?
+* TAR?
+* RIFF?
+* MAN: presumably ASCII/Utf-8
+* DEB: to be done
+* ASF: ?
+* HTML: to be done
+* OLE2: done
+* OO: to be done

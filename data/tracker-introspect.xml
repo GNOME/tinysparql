@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/org/freedesktop/file/metadata">
+	<interface name="org.freedesktop.file.metadata">
+		<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_client"/>
+		<method name="Ping">
+			<arg type="b" name="response" direction="out" />
+		</method>
+		<method name="GetMetadata">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="key" direction="in" />
+			<arg type="s" name="value" direction="out" />
+		</method>
+		<method name="SetMetadata">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="key" direction="in" />
+			<arg type="s" name="value" direction="in" />
+		</method>
+		<method name="RegisterMetadataType">
+			<arg type="s" name="name" direction="in" />
+			<arg type="i" name="datatype" direction="in" />
+		</method>
+		<method name="MetadataTypeExists">
+			<arg type="s" name="name" direction="in" />
+			<arg type="b" name="result" direction="out" />
+		</method>
+		<method name="GetMetadataTypes">
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="GetMultipleMetadata">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="a{ss}" name="values" direction="out" />
+		</method>
+		<method name="SetMultipleMetadata">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="a{ss}" name="values" direction="in" />
+		</method>
+		<method name="GetMetadataForFilesInFolder">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="a{sv}" name="values" direction="out" />
+		</method>
+		<method name="GetKeywords">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="as" name="value" direction="out" />
+		</method>
+		<method name="AddKeyword">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="value" direction="in" />
+		</method>
+		<method name="RemoveKeyword">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="keyword" direction="in" />
+		</method>
+		<method name="RefreshMetadata">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="b" name="basic" direction="in" />
+			<arg type="b" name="embedded" direction="in" />
+			<arg type="b" name="contents" direction="in" />
+			<arg type="b" name="thumbnails" direction="in" />
+		</method>
+		<method name="IsMetadataUpToDate">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="i" name="mtime" direction="in" />
+			<arg type="b" name="result" direction="out" />
+		</method>
+		<method name="SearchMetadataByQuery">
+			<arg type="s" name="rdfquery" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchMetadataByText">
+			<arg type="s" name="text" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchMetadataDetailed">
+			<arg type="s" name="rdfquery" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="a{sv}" name="values" direction="out" />
+		</method>
+		<signal name="BasicMetadataChanged">
+			<arg type="s" name="path"/>
+			<arg type="s" name="filename"/>
+			<arg type="a{ss}" name="metadata"/>
+		</signal>
+		<signal name="EmbeddedMetadataChanged">
+			<arg type="s" name="path"/>
+			<arg type="s" name="filename"/>
+			<arg type="a{ss}" name="metadata"/>
+		</signal>
+		<signal name="EditableMetadataChanged">
+			<arg type="s" name="path"/>
+			<arg type="s" name="filename"/>
+			<arg type="s" name="key"/>
+			<arg type="s" name="value"/>
+		</signal>
+		<signal name="ThumbnailChanged">
+			<arg type="s" name="path"/>
+			<arg type="s" name="filename"/>
+			<arg type="s" name="smallthumbpath"/>
+			<arg type="s" name="largethumbpath"/>
+		</signal>
+	</interface>
+</node>

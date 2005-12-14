@@ -1,0 +1,4 @@
+#!/bin/sh
+
+nice -n19 pdftotext -q -nopgbrk  $1 $2
+

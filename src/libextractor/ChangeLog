@@ -1,0 +1,495 @@
+Tue Dec  6 13:25:56 PST 2005
+	Fixed security problems in PDF extractor
+	(http://www.idefense.com/application/poi/display?id=344&type=vulnerabilities)
+	Releasing libextractor 0.5.8.
+
+Sun Dec  4 23:36:00 PST 2005
+	Fixed AVI mime-type to be video/x-msvideo.
+
+Sat Nov 12 10:50:46 PST 2005
+	Releasing libextractor 0.5.7.
+	
+Wed Nov  9 12:51:52 PST 2005
+	Fix in LE unload code (potential double-free, maybe BSD-specific).
+
+Tue Sep 27 11:01:57 PDT 2005
+	Again better Mime-type detection for OLE2 streams.
+
+Mon Sep 26 20:44:10 PDT 2005
+	Minor improvements to the PDF extractor:
+	- first change is to avoid outputting keywords with empty values
+  	  (for now the new check is only effective when the value is seen
+	  as a string of 8-bit characters; I'm not sure how to rewrite it
+	  for the Unicode case in the if branch just above.)
+        - second change is to remap PDF Creator as 'software' keyword
+          instead of 'creator'.
+
+Sun Sep 25 11:31:51 PDT 2005
+	Made sure extract returns error code (1) if some files could not
+	be accessed.
+
+Thu Sep 22 21:05:53 PDT 2005
+	Improved TAR extractor:
+	- it now accepts old-style (UNIX V7) archives
+	- it produces a mimetype for old-style archives
+	- it outputs the file names in the same order as in the TAR file
+	- its end-of-file mark detection is more robust
+	Updated German translation.
+
+Wed Sep 21 13:54:19 PDT 2005
+	Added Irish translation.
+
+Wed Sep 21 00:01:01 PDT 2005
+	Fixed gettext build problem.
+	Removed warning that the OLE2 extractor was printing.
+
+Sun Sep 18 19:34:48 PDT 2005
+	Major rewrite of the HTML extractor.  Should extract more, is
+	simpler and probably more robust.
+	Releasing libextractor 0.5.6.
+
+Fri Sep 16 16:41:04 PDT 2005
+	Made LE malloc file READ-ONLY.  This should help the VM conserve
+	memory, however this breaks the HTML extractor.
+
+Thu Sep 15 21:55:19 PDT 2005
+	Fixing compiler warnings given by gcc 4.0.
+	
+Thu Sep 15 00:56:51 PDT 2005
+	Fixed incorrectly handled integer overflow in png extractor.
+
+Wed Sep 14 15:02:49 PDT 2005
+	Avoid malloc/memcpy of file in exiv2 extractor (optimization, avoids
+	problems with very large files where malloc may run into problems).
+
+Wed Sep 14 13:50:15 PDT 2005
+	Changed code for backwards-compatibility with zlib 1.1 
+	(thanks to Ronan Melennec).
+
+Tue Sep 13 04:49:43 PDT 2005
+        Fixed segmentation fault in bz2 processing.
+
+Fri Sep  9 14:57:10 PDT 2005
+	Fixed bug in decompression code that occured if the compressed file
+	expanded to more than twice its original size.
+
+Wed Sep  7 21:41:35 PDT 2005
+	Added decompression of gz and bz2 streams to the LE core library
+	(avoids need to do this, possibly repeatedly, in plugins and makes
+	sure that all plugins work with compressed files).  Eliminated gz
+	decompression from man and tar extractors.
+	Releasing libextractor 0.5.5.
+
+Sun Sep  4 02:08:56 PDT 2005
+	Changed code to export fewer symbols (refactoring plus linker options,
+	goal is to address Mantis #925.  Changed debian extractor to no longer
+	require threads.  Dead code elimination in OO and OLE2 extractors.
+	Minor bugfixes ported from libgsf 1.12.2 to OLE2 extractor.
+
+Fri Sep  2 03:17:10 PDT 2005
+	Added support for Mime-types for Microsoft Office formats.
+
+Fri Aug 26 22:32:06 PDT 2005
+	Added workaround libstdc++ bug #23591 (Mantis bug #907).
+	Releasing libextractor 0.5.4.
+
+Tue Aug 23 15:39:37 PDT 2005
+	Fixed build on OS X.
+
+Tue Aug 23 12:35:35 PDT 2005
+	Fixed character set conversion in OLE2 extractor
+	(big thanks to Jody Goldberg).
+
+Sat Aug 20 21:27:17 PDT 2005
+	Fixed memory leak in thumbnail extractor.
+
+Thu Aug 18 21:18:28 PDT 2005
+	Made quotations match GNU standards.
+	
+Sat Aug 13 18:41:02 PDT 2005
+        Fixed problems with ole2 extractor.  Also removed
+	requirement for static version of glib (!).  
+	Releasing libextractor 0.5.3.
+
+Fri Aug 12 23:53:54 PDT 2005
+	Fixed bug in OO extractor that made it not work.
+	Fixed bug in exiv2 extractor that killed keywords
+	found by other extractors.
+	Improved OO extractor mime-type detection.
+
+Mon Aug  8 12:18:44 PDT 2005
+	Somehow addKeyword2 got lost.  Added (again?).
+	Fixed compilation problems with gcc-2.95.
+
+Thu Jul 14 18:52:17 CEST 2005
+	Bugfixes in exiv2 extractor fixing remaining issues.
+	Changed plugins to not use filename but always only
+	rely on mmapped memory.  Extended API with function
+	that allows running getKeywords on data in memory
+	(instead of filename).  Extended API with encode
+	and decode functions for binary metadata.
+	Releasing libextractor 0.5.2.
+
+Mon Jul  4 18:10:14 CEST 2005
+	Preliminary integration of exiv2 support (not enabled
+	by default due to bugs).  Moved Python and Java
+	bindings into separate packages.  
+	Releasing libextractor 0.5.1.
+	
+Wed Jun 29 15:37:51 CEST 2005
+	Finally found out how to disable building static libs.
+	This should cut down compile time and installed size
+	by about a factor of 2 -- especially good since the
+	static version of the plugins is pretty, well, useless.
+
+Sat Jun 18 14:56:38 EST 2005
+	Fixed a score of compiler warnings and some minor bugs,
+	none of which should have been observable.
+	
+Sat May 21 13:42:46 EST 2005
+	Releasing libextractor 0.5.0.
+
+Fri May  6 14:54:58 EST 2005
+	Added flag to disable building of printable extractors
+	(important for systems with not that much memory).
+
+Fri May  6 06:02:02 EST 2005
+        Added Python binding.
+
+Tue Apr  5 17:22:28 EST 2005
+	Added translation to Kinyarwanda.
+
+Thu Feb 24 00:32:44 EST 2005
+	Added extractor that extracts binary (!) thumbnails from
+	images using ImageMagick.  Decoder function for the binary
+	string is in the thumbnailextractor.c source.
+	Releasing libextractor 0.4.2.
+
+Wed Feb 23 22:42:08 EST 2005
+	Comment tag was not extracted from ID3 tags.  Fixed.
+	
+Sun Feb 20 16:36:17 EST 2005
+	Fixed similar problem in REAL extractor.  Added support
+	for new Helix/Real format to REAL extractor.
+
+Sun Feb 20 12:48:15 EST 2005
+	Fixed (rare) integer overflow bug in PNG extractor.
+
+Sat Feb 19 22:58:30 EST 2005
+	Fixed problems with wrong byteorder for Unicode decoding
+	in PDF meta-data.  Fixed minor problems with character
+	set conversion error handling.
+
+Wed Jan 26 19:31:04 EST 2005
+	Workaround possible bug in glib quarks (OLE2 extractor).
+	Improved QT support (?nam tag, support for description).
+	Releasing libextractor 0.4.1.
+
+Fri Jan 21 15:23:43 PST 2005
+	Adding support for creation date for tar files.
+	Fixed security problem in PDF extractor.
+
+Sun Jan  2 21:12:52 EST 2005
+	Fixing some linking problems.
+
+Fri Dec 31 20:26:43 EST 2004
+	Excluding executables from printable extractors.
+
+Sat Dec 25 19:24:54 CET 2004
+	PDF fixes.  Fixing mantis bug (PDF charset conversion
+	for UTF-8 console).  Releasing libextractor 0.4.0.
+
+Fri Dec 24 15:43:35 CET 2004
+	Adding support calling LE for python (draft, not
+	tested, possibly not working yet).
+
+Fri Dec 24 13:28:59 CET 2004
+	Added support for Unicode to the pdf extractor.
+
+Fri Dec 24 09:14:08 CET 2004
+	Improving mp3 (Id3v1): adding genres, minor
+	bugfixes.
+
+Fri Dec 24 07:23:03 CET 2004
+	Improving PNG: converting to utf-8 and handling
+	compressed comments.
+
+Thu Dec 23 18:14:10 CET 2004
+	Avoided exporting symbol OPEN (conflicts on OSX
+	with same symbol from GNUnet).  Added conversion
+	to utf8 to various plugqins (see todo) and
+	added conversion from utf8 to current locale to
+	print keywords.
+
+Sat Nov 13 13:23:23 EST 2004
+	Releasing libextractor 0.3.11.
+
+Fri Nov 12 19:20:37 EST 2004
+	Fixed bug in PDF extractor (extremely rare segfault).
+	Fixed #787.
+	Fixed bug in man extractor (undocumented return value running on
+	4 GB file not taken care of properly).
+
+Sat Oct 30 20:18:21 EST 2004
+	Fixing various problems on Sparc64 (bus errors). 
+	Workaround for re-load glib problem of OLE2 extractor.
+
+Sat Oct 23 13:21:23 EST 2004
+	Releasing libextractor 0.3.10.
+
+Fri Oct 22 22:22:28 EST 2004
+	Fixing memory leak after extensive valgrinding.
+	
+Fri Oct 22 19:18:38 EST 2004
+	id3v2.3 and id3v2.4 work.  Some bugfixes.
+
+Sun Oct 17 18:12:11 EST 2004
+	tar and tar.gz work.  Releasing libextractor 0.3.9.	
+
+Sun Oct 17 17:42:16 EST 2004
+	deb works.
+
+Sun Oct 17 13:52:25 EST 2004
+	man works.
+
+Tue Oct  5 14:29:31 EST 2004
+	Updated xpdf extractor (to fix Mantis #754).  Fixed bug in Id3v2
+	extractor (potential segfault).  Added support for extracting
+	image size from jpeg.  General code cleanup.  64-bit file 
+	support.
+
+Mon Oct  4 20:28:52 EST 2004
+	Fixed jpeg extractor to not hang on certain malformed JPEG files.
+
+Sat Oct  2 18:02:56 EST 2004
+	Added support for dvi.  Removed special code for OS X, 
+	normal libtool works fine now (and suddenly LE works for OS X).
+	Releasing libextractor 0.3.8.
+
+Sun Sep 26 19:25:10 EST 2004
+	Moved libextactor plugins to separate directory, building
+	plugins as plugins and not as libraries.
+
+Thu Sep 23 11:25:42 EST 2004
+	Added support for ID3v2.  Added support for StarOffice (OLE2).
+	Fixed some minor build issues.  Releasing libextractor 0.3.7.
+
+Tue Sep 14 21:25:22 EST 2004
+	Improved performance of the HTML extractor by avoiding parsing
+	after the header (factor of 25 improvement for a 4 MB HTML file
+	resulting in a total improvement for total extraction time for 
+	running all extractors of about 50%).  Improved performance
+	of the ZIP extractor for non-zip files by testing for the ZIP
+	header before trying to locate the central directory (for 5 MB
+	/dev/random time improves by a factor of about 15).  Same change
+	was also applied to the OO extractor (since OO is effectively a
+	zip).  Overall improvement for 5 MB /dev/random for running
+	all extractors is a factor of 10 (now takes 100ms on my machine
+	to run 720 times on the same 5 MB file passing that file as an
+	argument; the remaining time is pretty much doing 720x mmap and
+	related system calls).
+	
+Fri Sep 10 22:00:09 EST 2004
+	Added support for RipeMD-160.
+	
+Fri Sep 10 19:49:39 EST 2004
+	Added support for SHA-1 and MD5.  Releasing libextractor 0.3.6.
+	
+Fri Sep 10 10:35:27 EST 2004
+	Added support for OpenOffice documents (meta.xml in
+	zip-file).
+	
+Mon Aug 30 23:16:17 IST 2004
+	Added support for OLE2 (WinWord, Excel, PowerPoint).
+	Fixed various bugs (Segfault in elf, leaks in zip and RPM,
+	out-of-bounds access in QT).  Releasing libextractor 0.3.5.
+
+Wed Aug 25 18:42:11 IST 2004
+	Added support for GNU gettext.  Releasing libextractor 0.3.4.
+
+Fri Jul  2 20:10:54 IST 2004
+	Using mime-types to selectively disable parsing extractors
+	to increase performance.
+
+Wed Jun 23 13:37:02 IST 2004
+	Added support for wav.  Fixed problems in mpeg and riff
+	extractors.  Releasing libextractor 0.3.3.
+
+Sun Jun  6 18:42:28 IST 2004
+	Fixed segfault in qtextractor.
+	
+Mon May 31 18:19:07 EST 2004
+	Fixed more minor bugs.  Releasing libextractor 0.3.2.	
+	
+Mon May 31 17:14:55 EST 2004
+	Removed comment extraction from RIFF extractor (format
+	detection is not good enough to avoid garbage for non-RIFF
+	files).  Also fixed rare seg-fault in PDF-extractor (xpdf
+	author notified).
+	
+Mon May 24 13:40:27 EST 2004
+	Changed build system to avoid having an extra library
+	(libextractor_util is gone).
+	
+Wed Apr 28 19:28:39 EST 2004
+	Releasing libextractor 0.3.1.
+
+Wed Apr 28 01:26:53 EST 2004
+	Added ELF extractor.
+
+Sat Apr 24 00:07:31 EST 2004
+	Fixed memory leak in PDF-extractor.
+
+Mon Apr 12 01:30:20 EST 2004
+	Added Java binding.  If jni.h is present (and working!), 
+	libextractor is build with a couple of tiny additional
+	methods that are sufficient to build a Java class to
+	access libextractor.  The API is still incomplete but
+	already basically functional.  Releasing 0.3.0
+	
+Sat Apr 10 01:34:04 EST 2004
+	Added RIFF/AVI extractor based on AVInfo.
+	Fixed memory-leak and potential segfault in zipextractor.
+
+Sat Apr 10 00:30:19 EST 2004
+	Added MPEG (video) extractor based on AVInfo.  Improved 
+	output of mp3 extractor.
+	
+Fri Apr  9 22:58:51 EST 2004
+	Improved library initialization (and destruction) code.
+	
+Thu Apr  8 22:25:19 EST 2004
+	Revisited type signatures adding const where applicable.
+	Improved formatting of --help for extract.  Added some
+	testcases.  Updated man-pages.
+
+Wed Apr  7 00:26:29 EST 2004
+	Made HTML and ZIP extractors re-entrant.
+	Fixed minor problems in ZIP extractor (possible segfault,
+	possible memory leaks; both for invalid ZIP files).
+
+Sun Apr  4 20:24:39 EST 2004
+	Added TIFF extractor.  Fixed segfault in removeLibrary.
+	Port to mingw.  Releasing 0.2.7.
+
+Tue Oct 14 17:43:09 EST 2003
+	Fixed segfault in PDF and RPM extractors.
+	Fixed BSD compile errors.  Port to OSX.
+	Releasing 0.2.6.
+
+Sun Oct 12 18:05:37 EST 2003
+	Ported to OSX, fixing endianess issues with printable 
+	extractors.  
+
+Tue Jul 22 11:38:42 CET 2003
+	Fixed segfault with option -b for no keywords found.
+
+Wed Jul 16 13:41:34 EST 2003 
+	Releasing 0.2.5.
+
+Mon Jun 30 21:27:42 EST 2003
+	Releasing 0.2.4.
+
+Sun Jun 15 18:05:24 EST 2003
+	Added support for pspell to printableextractor.
+
+Sat Apr 19 04:11:14 EST 2003
+	Fixed missing delete operation in PDF extractor for
+	non-PDF files (caused memory leak and file-handle leak).
+	
+Thu Apr 10 23:54:17 EST 2003
+	Fixed segmentation violation in png extractor.
+
+Thu Apr 10 01:34:49 EST 2003
+	Rewrote RPM extractor to make it no longer depend on rpmlib.
+
+Fri Apr  4 21:39:55 EST 2003
+	Added QT extractor, but again not really tested due to lack of
+	QuickTime file with meta-data in it.
+
+Thu Apr  3 23:09:44 EST 2003
+	Added ASF extractor, but not really tested due to lack of
+	ASF file with meta-data in it.
+
+Thu Apr  3 04:04:19 EST 2003
+	Fixing ogg-extractor to work with new version of libvorbis that 
+	requires us to link against libvorbisfile.
+
+Wed Apr  2 22:22:16 EST 2003
+	Cleaned up plugin mechanism (ltdl).
+
+Wed Apr  2 12:09:27 EST 2003
+	zipextractor now works with self-extracting zip executables.
+
+Sat Feb 01 05:35:24 EST 2003
+	Changed loading of dynamic libraries to the more portable libltdl.
+
+Thu Jan 23 00:34:20 EST 2003
+	Wrote RPM extractor.
+
+Tue Jan 21 03:11:02 EST 2003
+	Fixed minor bug in ps extractor (now stops parsing at %%EndComments).
+
+Thu Jan  9 18:41:01 EST 2003
+	License changed to GPL (required for pdf extractor), releasing 0.1.4.
+
+Tue Jan  7 18:31:38 EST 2003
+	Added postscript (ps) extractor.
+
+Tue Dec 31 15:26:00 EST 2002
+	Added pdf extractor based on xpdf code.
+	
+Tue Dec 17 20:36:13 CET 2002 
+	Added MIME-extractor.
+
+Fri Nov 22 21:54:10 EST 2002
+	Fixed portability problems with the gifextractor, in particular
+	the code now ensures that C compilers that do not pack the structs
+	are still going to result in working code.
+
+Tue Oct  1 14:01:16 EST 2002
+	Fixed segmentation fault in ogg extractor.
+
+Fri Jul 26 16:25:38 EST 2002
+	Added EXTRACTOR_ to every symbol in the extractor API to
+	avoid name-clashes.
+
+Wed Jun 12 23:42:55 EST 2002
+	Added a dozen options to extract.
+
+Fri Jun  7 01:48:34 EST 2002
+	Added support for real (real.com).
+
+Fri Jun  7 00:21:40 EST 2002
+	Added support for GIF (what a crazy format).
+
+Tue Jun  4 23:21:38 EST 2002
+	Added support for PNG, no longer reading the
+	file again and again for each extractor (slight
+	interface change, mmapping).
+
+Sun Jun  2 22:49:17 EST 2002
+	Added support for JPEG and HTML. HTML does not
+	support concurrent use, though (inherent problem
+	with libhtmlparse). Released v0.0.2.
+	
+Sat May 25 16:56:59 EST 2002
+        Added building of a description from artist, 
+        title and album, fixed bugs.
+
+Tue May 21 22:24:07 EST 2002
+	Added removing of duplicates, splitting keywords,
+	extraction of keywords from filenames.	
+
+Sat May 18 16:33:28 EST 2002
+	more convenience methods ('configuration', default
+	set of libraries, remove all libraries)
+
+Sat May 18 02:33:28 EST 2002
+	ogg extractor works, mp3 extractor now always works
+
+Thu May 16 00:04:03 EST 2002
+	MP3 extractor mostly works.
+
+Wed May 15 23:38:31 EST 2002
+	The basics are there, let's write extractors!

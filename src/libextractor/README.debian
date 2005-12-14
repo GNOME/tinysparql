@@ -1,0 +1,28 @@
+This is a list of debian (sarge) packages that you may want to install
+prior to compiling libextractor.
+
+=====================================================================
+
+Basic compilation tools and dependencies:
+
+libtool
+gcc
+make
+g++ 
+libltdl3-dev
+libgtk2.0-dev
+libvorbis-dev
+zlib1g-dev
+libbz2-dev
+
+For Subversion access and compilation:
+
+subversion
+autoconf
+automake1.8
+
+==============================================
+
+Please notify us if we missed some dependencies
+(note that the list is supposed to only list direct
+dependencies, not transitive dependencies).

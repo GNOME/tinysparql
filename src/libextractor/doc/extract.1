@@ -1,0 +1,138 @@
+.TH EXTRACT 1 "April 28, 2005" "libextractor 0.4.2"
+.\" $Id
+.SH NAME
+extract
+\- determine meta-information about a file
+.SH SYNOPSIS
+.B extract
+[
+.B \-abdfhLnrsvV
+]
+[
+.B \-B
+.I language
+]
+[
+.B \-H
+.I hash\-algorithm
+]
+[
+.B \-l
+.I library
+]
+[
+.B \-p 
+.I type
+]
+[
+.B \-x
+.I type
+]
+.I file
+\&...
+.br
+.SH DESCRIPTION
+This manual page documents version 0.4.0 of the 
+.B extract 
+command.
+.PP
+.B extract
+tests each file specified in the argument list in an attempt to infer meta\-information from it.  Each file is subjected to the meta\-data extraction libraries from 
+.I libextractor. 
+.PP
+libextractor classifies meta\-information (also referred to as keywords) into types. A list of all types can be obtained with the 
+.B \-L 
+option. 
+
+.SH OPTIONS
+.TP 8
+.B \-a
+Do not remove any duplicates, even if the keywords match exactly and have the same type (i.e. because the same keyword was found by different extractor libraries).
+.TP 8
+.B \-b
+Display the output in BiBTeX format. This implies the 
+.B \-d 
+option
+.TP 8
+.B \-B LANG
+Use the generic plaintext extractor for the language with the 2\-letter language code LANG.  Supported languages are DA (Danish), DE (German), EN (English), ES (Spanish), IT (Italian) and NO (Norwegian).
+.TP 8
+.B \-d
+Remove duplicates only if the types match exactly. By default, duplicates are removed if the types match or if one of the types is \I unknown (in this case, the duplicate of unknown type is removed).
+.TP 8
+.B \-f
+add the filename(s) (without directory) to the list of keywords.
+.TP 8
+.B \-h
+Print a brief summary of the options.
+.TP 8
+.B \-H ALGORITHM
+Use the ALGORITHM to compute a hash of each file (possible algorithms are sha1 and md5).
+.TP 8
+.B \-L
+Print a list of all known keyword types.
+.TP 8
+.B \-n
+Do not use the default set of extractors (typically all standard extractors, currently mp3, ogg, jpg, gif, png, tiff, real, html, pdf and mime\-types), use only the extractors specified with the .B \-l option.
+.TP 8
+.B \-r
+Remove all duplicates disregarding differences in the keyword type.
+.TP 8
+.B \-s
+Split keywords at delimiters (space, comma, colon, etc.) and list split keywords to be of .I unknown type. This can also be done by loading the split\-library. Using this option guarantees that the splitting is performed after all other libraries have been run. It is always performed before duplicate elimination.
+.TP 8
+.B \-v
+Print the version number and exit.
+.TP 8
+.B \-V
+Be verbose.
+.TP 8
+.B \-B
+Run the printable extractor (costly, generic extractor for binaries)
+.TP 8
+.BI \-l " libraries"
+Use the specified libraries to extract keywords. The general format of libraries is .I [[\-]LIBRARYNAME[:[\-]LIBRARYNAME]*] where LIBRARYNAME is a libextractor compatible library and typically of the form .I libextractor_jpeg.so\. The minus before the libraryname indicates that this library should be run after all the libraries that were specified so far. If the minus is missing, the library is run before all previously specified libraries. 
+.TP 8
+.BI \-p " type"
+Print only the keywords matching the specified type. By default, all keywords that are found and not removed as duplicates are printed.
+.TP 8
+.BI \-x " type"
+Exclude keywords of the specified type from the output. By default, all keywords that are found and not removed as duplicates are printed.
+.SH SEE ALSO
+.BR libextractor (3)
+\- description of the libextractor library
+.br
+.SH EXAMPLES
+.nf
+$ extract test/test.jpg
+comment \- (C) 2001 by Christian Grothoff, using gimp 1.2 1
+mimetype \- image/jpeg
+
+$ extract \-Vf \-x comment test/test.jpg
+Keywords for file test/test.jpg:
+mimetype \- image/jpeg
+filename \- test.jpg
+
+$ extract \-p comment test/test.jpg
+comment \- (C) 2001 by Christian Grothoff, using gimp 1.2 1
+
+$ extract \-nV \-l libextractor_png.so \-p comment test/test.jpg test/test.png
+Keywords for file test/test.jpg:
+Keywords for file test/test.png:
+comment \- Testing keyword extraction
+
+.SH LEGAL NOTICE
+libextractor and the extract tool are released under the GPL.  libextractor is a GNU project.
+
+.SH BUGS
+A couple of file\-formats (on the order of 10^3) are not recognized...
+
+.SH AUTHORS
+.B extract
+was originally written by Christian Grothoff <christian@grothoff.org> and
+Vidyut Samanta <vids@cs.ucla.edu>. Use <libextractor@gnu.org>
+to contact the current maintainer(s).
+
+.SH AVAILABILITY
+You can obtain the original author's latest version from
+http://gnunet.org/libextractor/

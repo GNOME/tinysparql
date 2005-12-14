@@ -1,0 +1,66 @@
+Core Team:
+Vidyut Samanta <vids@cs.ucla.edu>
+Christian Grothoff <christian@grothoff.org>
+
+Formats:
+html      - core team with code from libhtmlparse 0.1.13, http://msalem.translator.cx/libhtmlparse.html
+jpeg      - core team
+mp3       - core team and James Blackwell <jblack@linuxguru.net>
+ogg       - core team using ogg-vorbis
+png       - core team
+gif       - core team
+real      - core team
+mime      - core team and Igor Wronsky <iwronsky@users.sourceforge.net>
+pdf       - core team with code form xpdf 0.93, http://www.foolabs.com/xpdf/
+ps        - core team
+tiff      - core team
+zip       - Julia Wolf <julia@virtadpt.net>
+rpm       - core team
+asf       - core team based on code from xine
+printable - core team based in part on code from GNUnet (bloom filters)
+avi       - core team based in part on code from avinfo 1.0.0 alpha 11 and bitcollider 0.6.0
+mpeg      - core team based in part on code from avinfo 1.0.0 alpha 11 and bitcollider 0.6.0
+ole2      - core team based on code from libgsf
+tar       - core team and Ronan MELENNEC <ronan.melennec@cena.fr>
+tar.gz    - core team using zlib
+deb       - core team using zlib
+man       - core team using zlib (for man.gz)
+id3v2     - core team with Milan <milan@skoid.org>
+hash      - core team using GNU coreutils/textutils and GPL'ed RMD160 code.
+translit  - Nils Durner <n.durner@t-online.de>
+thumbnail - core team using ImageMagick
+exiv2     - Andreas Huggel <ahuggel@gmx.net>
+language  - Roberto Cappuccio <roberto.cappuccio@gmail.com> (from libkat)
+
+General contributors:
+Yuri N. Sedunov <aris@altlinux.ru>
+Filip Pizlo <pizlo@purdue.edu>
+Blake Matheny <bmatheny@mobocracy.net>
+Bruno Haible <bruno@clisp.org>
+Nils Durner <n.durner@t-online.de>
+Heiko Wundram <modelnine@ceosg.de>
+Ronan MELENNEC <ronan.melennec@cena.fr>
+Vasil Dimov <vd@datamax.bg>
+
+Translations:
+German - Karl Eichwalder <ke@gnu.franken.de>
+Kinyarwanda - Steve Murphy <murf@e-tools.com>
+
+Specific contributions:
+catlib      - Christopher Adam Telfer
+html        - mooneer@translator.cx
+xpdf        - derekn@foolabs.com
+xine        - http://xinehq.de/
+avinfo      - (c) George Shuklin, gs]AT[shounen.ru, 2002-2004
+bitcollider - Mark Nelson [delirium] <delirium4u@theoffspring.net>
+libgsf      - Jody Goldberg <jody@gnome.org>
+rmd160      - Philip Howard <phil@ipal.org>
+md5         - Ulrich Drepper <drepper@gnu.ai.mit.edu>
+sha1        - Scott G. Miller and Robert Klep <robert@ilse.nl>
+
+Libraries used:
+libz        -
+ogg-vorbis  - 
+glib        - 
+libltdl     - 
+gtk (pixbuf)- 
