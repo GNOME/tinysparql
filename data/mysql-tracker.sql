@@ -38,8 +38,7 @@ create  table if not exists FileMetaData
 	MetaDataIntegerValue	int unsigned,	
 
 	Primary Key (FileID, MetaDataID),
-	key IValue (MetaDataID, MetaDataValue (32)),
-	key IIndexValue (MetaDataID, MetaDataIndexValue (32)),
+	key IValue (MetaDataID, MetaDataValue (20)),
 	key IIntValue (MetaDataID, MetaDataIntegerValue),
 	FullText (MetaDataIndexValue)
 
@@ -65,16 +64,13 @@ insert into MetaDataTypes (MetaName, DatatypeID, Indexable, Writeable) values
 ('File.Link', 0, 1, 0),
 ('File.Format', 0, 1, 0 ),
 ('File.Size', 1, 0, 0),
-('File.Owner', 0, 0, 0 ),
-('File.Group', 0, 0, 0 ),
 ('File.Permissions', 0, 0, 0),
 ('File.Content', 0, 1, 0),
 ('File.Description', 0, 1, 1),
 ('File.Keywords', 0, 1, 1),
 ('File.Rank', 1, 0, 1 ),
 ('File.IconPath', 0, 0, 1 ),
-('File.SmallThumbnailPath', 0, 0, 1),
-('File.LargeThumbnailPath', 0, 0, 1),
+('File.PreviewThumbnailPath', 0, 0, 1),
 ('File.Modified', 2, 0, 0),
 ('File.Accessed', 2, 0, 0 ),
 ('File.Other', 0, 1, 0 ),
@@ -128,12 +124,13 @@ create  table if not exists FileContexts
 /* allow aliasing of VFolders with nice names */
 create table if not exists VFolders
 (
-	VName			varchar (255) not null,
+	Path			varchar (200) not null,
+	Name			varchar (128) not null,
 	Query			text not null,
 	RDF			text,
 	UserDefined		bool,
 
-	primary key (VName)
+	primary key (Path, Name)
 
 );
 
@@ -157,6 +154,22 @@ insert into FileTypes values
 (6,'Conversations'),
 (7,'Contacts');
 
+
+/* table for files waiting to be processed */
+create table if not exists FilePending
+(
+	ID			int auto_increment not null,
+	FileID 			int default -1,
+	Action			tinyint default 0,
+	Counter			tinyint default 0,
+	FileUri			varchar (255) not null,
+	MimeType		varchar (64),
+	IsDir			bool default 0,
+
+	primary key (ID),
+	key (FileID),
+	key (Counter)
+);
 
 /* freedesktop .desktop files */
 create table if not exists DesktopFiles
@@ -182,7 +195,7 @@ create table if not exists Bookmarks
 	URL			varchar (255) not null, 
 
 	primary key (ID),
-	FullText (Title)
+	FullText (Title, URL)
 	
 );
 
@@ -196,7 +209,7 @@ create table if not exists History
 
 	primary key (ID),
 	key (HistoryDate),
-	FullText (Title)	
+	FullText (Title, URL)	
 );
 
 

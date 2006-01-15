@@ -24,130 +24,14 @@
 #define TRACKER_FILE_METADATA_OBJECT			"/org/freedesktop/file/metadata"
 #define TRACKER_FILE_METADATA_INTERFACE			"org.freedesktop.file.metadata"
 
-static DBusGProxy *proxy;
 
-static void
-tracker_search_metadata_by_text_reply (DBusGProxy *proxy, char **OUT_result, GError *error, gpointer userdata)
-{
-
-	(*(TrackerArrayReply) userdata) (OUT_result, error);
-	
-}
-
-char *
-tracker_get_metadata (const char *uri, const char *key, GError *error)
-{
-	char *str;
-
-	if (!org_freedesktop_file_metadata_get_metadata   (proxy, uri, key, &str, &error)) {
-	
-		g_warning ("method failed: %s", error->message);
-		g_error_free (error);
-
-	}
-	return str;
-
-}
-
-void
-tracker_set_metadata (const char *uri, const char *key, const char *value, GError *error)
-{
-	if (!org_freedesktop_file_metadata_get_metadata   (proxy, uri, key, value, &error)) {
-	
-		g_warning ("method failed: %s", error->message);
-		g_error_free (error);
-
-	}
-}
-
-void		
-tracker_register_metadata_type (const char *name, MetadataTypes type, GError *error)
-{
-	if (!org_freedesktop_file_metadata_register_metadata_type (proxy, name, type, &error)) {
-	
-		g_warning ("method failed: %s", error->message);
-		g_error_free (error);
-
-	}
-}
-
-
-GHashTable *	
-tracker_get_metadata_for_files_in_folder (const char *uri, char **keys, GError *error)
-{
-	GHashTable *table;
-
-	if (!org_freedesktop_file_metadata_get_metadata_for_files_in_folder (proxy, uri, keys, &table, &error)) {
-		g_warning ("method failed: %s", error->message);
-		g_error_free (error);
-		return NULL;
-	}
-
-	return table;
-}
-
-
-
-void
-tracker_search_metadata_async 	(const char *query, TrackerArrayReply callback) 
-{
-	org_freedesktop_file_metadata_search_metadata_by_text_async (proxy, query, tracker_search_metadata_by_text_reply, callback);
-}
-
-char **
-tracker_search_metadata	(const char *query,  GError *error)
-{
-
-	char **strs;
-
-	if (!org_freedesktop_file_metadata_search_metadata_by_text  (proxy, query, &strs, &error)) {
-	
-		g_warning ("method failed: %s", error->message);
-		g_error_free (error);
-		return NULL;
-	}
-	return strs;
-	
-}
-
-
-char **
-tracker_search_metadata_by_query (const char *query,  GError *error)
-{
-
-	char **strs;
-
-	if (!org_freedesktop_file_metadata_search_metadata_by_query  (proxy, query, &strs, &error)) {
-	
-		g_warning ("method failed: %s", error->message);
-		g_error_free (error);
-		return NULL;
-	}
-	return strs;
-	
-}
-
-static void
-tracker_search_metadata_by_query_reply (DBusGProxy *proxy, char **OUT_result, GError *error, gpointer userdata)
-{
-
-	(*(TrackerArrayReply) userdata) (OUT_result, error);
-	
-}
-
-
-void
-tracker_search_metadata_by_query_async 	(const char *query, TrackerArrayReply callback) 
-{
-	org_freedesktop_file_metadata_search_metadata_by_text_async (proxy, query, tracker_search_metadata_by_query_reply, callback);
-}
-
-
-gboolean
-tracker_init ()
+TrackerClient *
+tracker_connect ()
 {
 	DBusGConnection *connection;
 	GError *error = NULL;
+	TrackerClient *client = NULL;
+	DBusGProxy *proxy;
 
 	g_type_init ();
 
@@ -156,7 +40,7 @@ tracker_init ()
 	if (connection == NULL)	{
 		g_warning("Unable to connect to dbus: %s\n", error->message);
 		g_error_free (error);
-		return FALSE;
+		return NULL;
 	}
 
 	proxy = dbus_g_proxy_new_for_name (connection,
@@ -165,16 +49,190 @@ tracker_init ()
 			TRACKER_FILE_METADATA_INTERFACE);
 
 	if (!proxy) {
-		return FALSE;
+		g_warning ("could not create proxy");
+		return NULL;
 	}
 
+	
+	client = g_new (TrackerClient, 1);
+	client->proxy = proxy;
 
-	return TRUE;
+	return client;
 
 }
 
 void
-tracker_close ()
+tracker_disconnect (TrackerClient *client)
 {
-	g_object_unref (proxy);
+	g_object_unref (client->proxy);
+	client->proxy = NULL;
+	g_free (client);
 }
+
+void
+tracker_cancel_last_call (TrackerClient *client)
+{
+	dbus_g_proxy_cancel_call (client->proxy, client->last_pending_call);
+}
+
+
+
+/*synchronous calls */
+
+char *
+tracker_get_metadata (TrackerClient *client, const char *uri, const char *key, GError *error)
+{
+	char *str;
+
+	org_freedesktop_file_metadata_get_metadata   (client->proxy, uri, key, &str, &error);
+	
+	return str;
+
+}
+
+void
+tracker_set_metadata (TrackerClient *client, const char *uri, const char *key, const char *value, GError *error)
+{
+	org_freedesktop_file_metadata_set_metadata   (client->proxy, uri, key, value, &error);
+}
+
+void		
+tracker_register_metadata_type (TrackerClient *client, const char *name, MetadataTypes type, GError *error)
+{
+	org_freedesktop_file_metadata_register_metadata_type (client->proxy, name, type, &error);
+}
+
+
+GHashTable *	
+tracker_get_metadata_for_files_in_folder (TrackerClient *client, const char *uri, const char **keys, GError *error)
+{
+	GHashTable *table;
+
+	if (!org_freedesktop_file_metadata_get_metadata_for_files_in_folder (client->proxy, uri, keys, &table, &error)) {
+		return NULL;
+	}
+
+	return table;
+}
+
+
+
+
+
+char **
+tracker_search_metadata_by_text (TrackerClient *client, const char *query,  GError *error)
+{
+
+	char **strs;
+
+	if (!org_freedesktop_file_metadata_search_metadata_by_text  (client->proxy, query, &strs, &error)) {
+		return NULL;
+	}
+	return strs;
+	
+}
+
+
+char **
+tracker_search_metadata_by_text_and_mime (TrackerClient *client, const char *query, const char **mimes, GError *error)
+{
+	char **strs;
+
+	if (!org_freedesktop_file_metadata_search_metadata_by_text_and_mime (client->proxy, query, mimes, &strs, &error)) {
+		return NULL;
+	}
+	return strs;
+
+}
+
+
+char **
+tracker_search_metadata_by_text_and_mime_and_location (TrackerClient *client, const char *query, const char **mimes, const char *location, GError *error)
+{
+	char **strs;
+
+	if (!org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location (client->proxy, query, mimes, location, &strs, &error)) {
+		return NULL;
+	}
+	return strs;
+
+}
+
+
+
+char **
+tracker_search_metadata_by_text_and_location (TrackerClient *client, const char *query, const char *location, GError *error)
+{
+	char **strs;
+
+	if (!org_freedesktop_file_metadata_search_metadata_by_text_and_location (client->proxy, query, location, &strs, &error)) {
+		return NULL;
+	}
+	return strs;
+
+}
+
+char **
+tracker_search_metadata_by_query (TrackerClient *client, const char *query,  GError *error)
+{
+
+	char **strs;
+
+	if (!org_freedesktop_file_metadata_search_metadata_by_query  (client->proxy, query, &strs, &error)) {
+	
+		g_warning ("method failed: %s", error->message);
+		g_error_free (error);
+		return NULL;
+	}
+	return strs;
+	
+}
+
+
+
+/* asynchronous calls */
+
+static void
+tracker_array_reply (DBusGProxy *proxy, char **OUT_result, GError *error, gpointer userdata)
+{
+	(*(TrackerArrayReply) userdata) (OUT_result, error);
+}
+
+
+void
+tracker_search_metadata_by_text_async 	(TrackerClient *client, const char *query, TrackerArrayReply callback) 
+{
+	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_async (client->proxy, query, tracker_array_reply, callback);
+	
+}
+
+
+void
+tracker_search_metadata_by_text_and_mime_async (TrackerClient *client, const char *query, const char **mimes, TrackerArrayReply callback)
+{
+	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_and_mime_async (client->proxy, query, mimes, tracker_array_reply, callback);
+}
+
+
+void
+tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient *client, const char *query, const char **mimes, const char *location, TrackerArrayReply callback)
+{
+	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_async (client->proxy, query, mimes, location, tracker_array_reply, callback);
+}
+
+void
+tracker_search_metadata_by_text_and_location_async (TrackerClient *client, const char *query, const char *location, TrackerArrayReply callback)
+{
+	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_and_location_async (client->proxy, query, location, tracker_array_reply, callback);
+}
+
+
+
+void
+tracker_search_metadata_by_query_async 	(TrackerClient *client, const char *query, TrackerArrayReply callback) 
+{
+	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_async (client->proxy, query, tracker_array_reply, callback);
+}
+
+
+

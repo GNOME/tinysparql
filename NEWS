@@ -1,6 +1,15 @@
-15th Sept 2005 - Tracker project started.
+5 January 2006 
+	Added polling mechanism to watch files in absence of FAM/iNotify or when FAM/iNotify watch limits have been exceeded
 
 
-8th  Dec 2005 - Pre-release of Tracker launched
+13 December 2005 
+	imported Tracker into CVS
 
-13 December 2005 - imported Tracker into CVS
+
+8th  Dec 2005
+	Pre-release of Tracker launched
+
+15th Sept 2005
+	Tracker project started.
+
+

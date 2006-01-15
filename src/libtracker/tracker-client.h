@@ -202,6 +202,44 @@ static
 inline
 #endif
 gboolean
+org_freedesktop_file_metadata_get_metadata_types (DBusGProxy *proxy, char *** OUT_result, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetMetadataTypes", error, G_TYPE_INVALID, G_TYPE_STRV, OUT_result, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_file_metadata_get_metadata_types_reply) (DBusGProxy *proxy, char * *OUT_result, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_file_metadata_get_metadata_types_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = user_data;
+  GError *error = NULL;
+  char ** OUT_result;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
+  (*(org_freedesktop_file_metadata_get_metadata_types_reply)data->cb) (proxy, OUT_result, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_file_metadata_get_metadata_types_async (DBusGProxy *proxy, org_freedesktop_file_metadata_get_metadata_types_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "GetMetadataTypes", org_freedesktop_file_metadata_get_metadata_types_async_callback, stuff, g_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
 org_freedesktop_file_metadata_get_multiple_metadata (DBusGProxy *proxy, const char * IN_uri, const char ** IN_keys, GHashTable** OUT_values, GError **error)
 
 {
@@ -572,6 +610,120 @@ org_freedesktop_file_metadata_search_metadata_by_text_async (DBusGProxy *proxy, 
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SearchMetadataByText", org_freedesktop_file_metadata_search_metadata_by_text_async_callback, stuff, g_free, G_TYPE_STRING, IN_text, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_file_metadata_search_metadata_by_text_and_mime (DBusGProxy *proxy, const char * IN_text, const char ** IN_mimes, char *** OUT_result, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "SearchMetadataByTextAndMime", error, G_TYPE_STRING, IN_text, G_TYPE_STRV, IN_mimes, G_TYPE_INVALID, G_TYPE_STRV, OUT_result, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_file_metadata_search_metadata_by_text_and_mime_reply) (DBusGProxy *proxy, char * *OUT_result, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_file_metadata_search_metadata_by_text_and_mime_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = user_data;
+  GError *error = NULL;
+  char ** OUT_result;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
+  (*(org_freedesktop_file_metadata_search_metadata_by_text_and_mime_reply)data->cb) (proxy, OUT_result, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_file_metadata_search_metadata_by_text_and_mime_async (DBusGProxy *proxy, const char * IN_text, const char ** IN_mimes, org_freedesktop_file_metadata_search_metadata_by_text_and_mime_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "SearchMetadataByTextAndMime", org_freedesktop_file_metadata_search_metadata_by_text_and_mime_async_callback, stuff, g_free, G_TYPE_STRING, IN_text, G_TYPE_STRV, IN_mimes, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location (DBusGProxy *proxy, const char * IN_text, const char ** IN_mimes, const char * IN_location, char *** OUT_result, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "SearchMetadataByTextAndMimeAndLocation", error, G_TYPE_STRING, IN_text, G_TYPE_STRV, IN_mimes, G_TYPE_STRING, IN_location, G_TYPE_INVALID, G_TYPE_STRV, OUT_result, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_reply) (DBusGProxy *proxy, char * *OUT_result, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = user_data;
+  GError *error = NULL;
+  char ** OUT_result;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
+  (*(org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_reply)data->cb) (proxy, OUT_result, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_async (DBusGProxy *proxy, const char * IN_text, const char ** IN_mimes, const char * IN_location, org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "SearchMetadataByTextAndMimeAndLocation", org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_async_callback, stuff, g_free, G_TYPE_STRING, IN_text, G_TYPE_STRV, IN_mimes, G_TYPE_STRING, IN_location, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_file_metadata_search_metadata_by_text_and_location (DBusGProxy *proxy, const char * IN_text, const char * IN_location, char *** OUT_result, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "SearchMetadataByTextAndLocation", error, G_TYPE_STRING, IN_text, G_TYPE_STRING, IN_location, G_TYPE_INVALID, G_TYPE_STRV, OUT_result, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_file_metadata_search_metadata_by_text_and_location_reply) (DBusGProxy *proxy, char * *OUT_result, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_file_metadata_search_metadata_by_text_and_location_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = user_data;
+  GError *error = NULL;
+  char ** OUT_result;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
+  (*(org_freedesktop_file_metadata_search_metadata_by_text_and_location_reply)data->cb) (proxy, OUT_result, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_file_metadata_search_metadata_by_text_and_location_async (DBusGProxy *proxy, const char * IN_text, const char * IN_location, org_freedesktop_file_metadata_search_metadata_by_text_and_location_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "SearchMetadataByTextAndLocation", org_freedesktop_file_metadata_search_metadata_by_text_and_location_async_callback, stuff, g_free, G_TYPE_STRING, IN_text, G_TYPE_STRING, IN_location, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE

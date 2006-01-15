@@ -1,4 +1,4 @@
-INTORDUCTION
+INTRODUCTION
 
 Tracker is a powerful metadata framework that provides the ability to store, retrieve and search all types of file metadata including user defined ones.
 
@@ -60,6 +60,10 @@ If installed correctly, the tracker daemon (trackerd) can be started automatical
 On the first run, Tracker will automatically create a new database and start populating it with metadata by browsing through the user's home directory.
 
 On subsequent runs, Tracker will start up much much faster and will only ever incrementally index files (IE files that have changed since last index).
+
+you can also pass a directory root to be indexed as a command line parameter. EG
+
+"trackerd /home/jamie/Documents"
 
 
 

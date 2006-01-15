@@ -20,8 +20,17 @@
 #include <glib.h>
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
-#define FILE_PAUSE_PERIOD 5
-#define FILE_SCHEDULE_PERIOD 100
+#define FILE_PAUSE_PERIOD 1
+#define FILE_SCHEDULE_PERIOD 500
+
+static char *tracker_actions[] = {
+		"TRACKER_ACTION_IGNORE", "TRACKER_ACTION_CHECK",  "TRACKER_ACTION_DELETE", "TRACKER_ACTION_DELETE_SELF", "TRACKER_ACTION_CREATE","TRACKER_ACTION_MOVED_FROM",
+		"TRACKER_ACTION_MOVED_TO","TRACKER_ACTION_FILE_CHECK", "TRACKER_ACTION_FILE_CHANGED","TRACKER_ACTION_FILE_DELETED", "TRACKER_ACTION_FILE_CREATED",
+		"TRACKER_ACTION_FILE_MOVED_FROM", "TRACKER_ACTION_FILE_MOVED_TO", "TRACKER_ACTION_WRITABLE_FILE_CLOSED","TRACKER_ACTION_DIRECTORY_CHECK",
+		"TRACKER_ACTION_DIRECTORY_CREATED","TRACKER_ACTION_DIRECTORY_DELETED","TRACKER_ACTION_DIRECTORY_MOVED_FROM","TRACKER_ACTION_DIRECTORY_MOVED_TO",
+		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA", 
+		NULL};
+
 
 /* Actions can represent events from FAM/iNotify or be artificially created */
 typedef enum {
@@ -51,10 +60,13 @@ typedef enum {
 	TRACKER_ACTION_DIRECTORY_DELETED,
 	TRACKER_ACTION_DIRECTORY_MOVED_FROM,
 	TRACKER_ACTION_DIRECTORY_MOVED_TO,
-	TRACKER_ACTION_DIRECTORY_REFRESH 	/* re checks all files in folder */
+	TRACKER_ACTION_DIRECTORY_REFRESH, 	/* re checks all files in folder */
+
+	TRACKER_ACTION_EXTRACT_METADATA
 
 	
 } TrackerChangeAction;
+
 
 
 /* service type that the file represents */
@@ -84,8 +96,6 @@ typedef struct {
 
 	/* file name/path related info */
 	char 			*uri;
-	char			*path;
-	char 			*name;
 	long			file_id;
 
 	TrackerChangeAction  	action;
@@ -105,11 +115,8 @@ typedef struct {
 	char			*move_path;
 	char			*move_name;
 
-
 	char			*mime;
 	long			file_size;
-	char			*owner;
-	char			*group;
 	char			*permissions;
 	int			mtime;
 	int			atime;
@@ -147,7 +154,7 @@ gboolean 	tracker_is_directory 		(const char *dir);
 
 void 		tracker_get_dirs 		(const char *dir, GSList **file_list) ;
 
-char *	 	tracker_get_config_option 	(const char *key);
+void		tracker_load_config_file 	();
 
 GSList * 	tracker_get_watch_root_dirs 	();
 

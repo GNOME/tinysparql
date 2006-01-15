@@ -18,6 +18,7 @@
  */
 
 #include "tracker-dbus.h" 
+#include "tracker-utils.h"
 
 GAsyncQueue *user_request_queue;
 
@@ -109,7 +110,7 @@ message_func (DBusConnection *conn,
 	if (dbus_message_is_method_call (message, TRACKER_FILE_METADATA_INTERFACE, "test")) {
 		/* ref the message here because we are going to reply to it in a different thread */
 		dbus_message_ref (message);
-		rec->action = DBUS_ACTION_NONE;
+		rec->action = DBUS_ACTION_NONE; 
 		g_async_queue_push (user_request_queue, rec);
 
 	} else if (dbus_message_is_method_call (message, TRACKER_FILE_METADATA_INTERFACE, TRACKER_METHOD_GET_METADATA)) {
@@ -144,6 +145,24 @@ message_func (DBusConnection *conn,
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_BY_TEXT;
+		g_async_queue_push (user_request_queue, rec);
+
+	} else if (dbus_message_is_method_call (message, TRACKER_FILE_METADATA_INTERFACE, TRACKER_METHOD_SEARCH_METADATA_BY_TEXT_MIME)) {
+		
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_SEARCH_BY_TEXT_MIME;
+		g_async_queue_push (user_request_queue, rec);
+
+	} else if (dbus_message_is_method_call (message, TRACKER_FILE_METADATA_INTERFACE, TRACKER_METHOD_SEARCH_METADATA_BY_TEXT_MIME_LOCATION)) {
+		
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_SEARCH_BY_TEXT_MIME_LOCATION;
+		g_async_queue_push (user_request_queue, rec);
+
+	} else if (dbus_message_is_method_call (message, TRACKER_FILE_METADATA_INTERFACE, TRACKER_METHOD_SEARCH_METADATA_BY_TEXT_LOCATION)) {
+		
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_SEARCH_BY_TEXT_LOCATION;
 		g_async_queue_push (user_request_queue, rec);
 
 	} else if (dbus_message_is_method_call (message, TRACKER_FILE_METADATA_INTERFACE, TRACKER_METHOD_SEARCH_METADATA_BY_QUERY)) {

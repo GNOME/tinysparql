@@ -75,7 +75,36 @@
  *  asynchronous queue where multiple threads are waiting to process them. 
  */
 
+#define	FILE_POLL_PERIOD 15 * 60 * 1000
 
+
+
+/* global config options variables */
+
+extern	GSList 		*watch_directory_roots_list = NULL;
+extern	GSList 		*no_watch_directory_list = NULL;
+extern	gboolean	index_text_files = TRUE;
+extern	gboolean	index_documents = TRUE;
+extern	gboolean	index_source_code = TRUE;
+extern	gboolean	index_scripts = FALSE;
+extern	gboolean	index_html = TRUE;
+extern	gboolean	index_pdf = TRUE;
+extern	gboolean	index_application_help_files = TRUE;
+extern	gboolean	index_desktop_files = TRUE;
+extern	gboolean	index_epiphany_bookmarks = TRUE;
+extern	gboolean	index_epiphany_history = TRUE;
+extern	gboolean	index_firefox_bookmarks = TRUE;
+extern	gboolean	index_firefox_history = TRUE;
+extern	gboolean	store_text_file_contents_in_db = FALSE;
+extern	char		*db_buffer_memory_limit = "1M";
+
+
+/* list to store all directories to poll  */
+static 	GSList 		*poll_list;
+
+extern  DBConnection	*main_thread_db_con = NULL;
+
+extern 	GAsyncQueue 	*file_pending_queue;
 extern 	GAsyncQueue 	*file_process_queue;
 extern 	GAsyncQueue 	*user_request_queue;
 static 	GAsyncQueue 	*file_metadata_queue = NULL;
@@ -95,19 +124,19 @@ static 	GMutex 		*process_thread_mutex = NULL;
 static 	GMutex 		*metadata_thread_mutex = NULL;
 static 	GMutex 		*user_thread1_mutex = NULL;
 static 	GMutex 		*user_thread2_mutex = NULL;
+static 	GMutex 		*poll_thread_mutex = NULL;
 
-static char *tracker_actions[] = {
-		"TRACKER_ACTION_IGNORE", "TRACKER_ACTION_CHECK",  "TRACKER_ACTION_DELETE", "TRACKER_ACTION_DELETE_SELF", "TRACKER_ACTION_CREATE","TRACKER_ACTION_MOVED_FROM",
-		"TRACKER_ACTION_MOVED_TO","TRACKER_ACTION_FILE_CHECK", "TRACKER_ACTION_FILE_CHANGED","TRACKER_ACTION_FILE_DELETED", "TRACKER_ACTION_FILE_CREATED",
-		"TRACKER_ACTION_FILE_MOVED_FROM", "TRACKER_ACTION_FILE_MOVED_TO", "TRACKER_ACTION_WRITABLE_FILE_CLOSED","TRACKER_ACTION_DIRECTORY_CHECK",
-		"TRACKER_ACTION_DIRECTORY_CREATED","TRACKER_ACTION_DIRECTORY_DELETED","TRACKER_ACTION_DIRECTORY_MOVED_FROM","TRACKER_ACTION_DIRECTORY_MOVED_TO",
-		"TRACKER_ACTION_DIRECTORY_REFRESH", 
-		NULL};
+static	GThread 	*file_poll_thread = NULL;
 
 static void schedule_file_check (const char * uri);
 
-static void schedule_changed_file (FileInfo *info);
+//static void schedule_changed_file (FileInfo *info);
 
+static void delete_directory (DBConnection *db_con, FileInfo *info);
+
+static void delete_file (DBConnection *db_con, FileInfo *info);
+
+static void scan_directory (FileInfo *info);
 
 static void
 do_cleanup ()
@@ -133,17 +162,209 @@ do_cleanup ()
 	
 }
 
+static void
+poll_dir (const char *uri, DBConnection *db_con)
+{
+	FileInfo 	*info_dir;
+	char 		**files, **files_p, *str;
+	int 		i;
+	
+
+	
+
+	/* check for any deletions*/
+	files = tracker_db_get_files_in_folder (db_con, uri);
+
+	for (files_p = files; *files_p; files_p++) {
+		if (*files_p) {
+			FileInfo 	*info;
+				
+			str = *files_p;
+			tracker_log ("checking %s", str);
+
+	     		if (!tracker_file_is_valid  (str)) {
+				info = tracker_create_file_info (str, 1, 0, 0);
+				info = tracker_db_get_file_info (db_con, info);
+
+				if (!info->is_directory) {
+					delete_file (db_con, info);
+				} else {
+					delete_directory (db_con, info);
+				}
+				info = tracker_free_file_info (info); 
+			}
+		}
+	}
+
+	g_strfreev (files);
+
+	/* check for new subfolder additions */
+	GSList *file_list = NULL, *tmp;
+
+	file_list = tracker_get_files (uri, TRUE);
+
+	tmp = file_list;
+	while (tmp != NULL) {
+		FileInfo 	*info;
+		
+		str = (char *)tmp->data;
+		
+		info = tracker_create_file_info (str, TRACKER_ACTION_DIRECTORY_CREATED, 0, 0);
+		info = tracker_db_get_file_info (db_con, info);	
+		if (info->file_id == -1) {
+			g_async_queue_push (file_pending_queue, info);
+		} else {
+			info = tracker_free_file_info (info); 
+		}
+		tmp = tmp->next;
+	}
+
+
+	g_slist_foreach (file_list, (GFunc) g_free, NULL); 
+	g_slist_free (file_list);
+	
+
+
+	/* scan dir for changes in all other files */
+	info_dir = tracker_create_file_info (uri, 1, 0, 0);	
+	scan_directory (info_dir);
+	info_dir = tracker_free_file_info (info_dir); 
+
+}
+
+
+static void
+poll_directories (gpointer db_con)
+{	
+
+	g_return_if_fail (db_con);
+	tracker_log ("polling dirs");
+	if (g_slist_length (poll_list) > 0) { 
+		g_slist_foreach (poll_list, (GFunc) poll_dir, db_con);
+	}
+
+}
+
+
+
+
+static void
+remove_poll_dir (const char *dir) 
+{
+	const GSList *tmp;
+	char  *str, *str2;
+
+	tmp = poll_list;
+
+	str2 = g_strconcat (dir, "/", NULL);
+
+	while (tmp) {
+
+		str = tmp->data;
+
+		if (strcmp (dir, str) ==0) {
+			poll_list = g_slist_remove (poll_list, tmp->data);
+			g_free (str);
+			str = NULL;
+		}
+
+		/* check if subfolder of existing roots */
+
+		if (str && g_str_has_prefix (str, str2)) {
+			poll_list = g_slist_remove (poll_list, tmp->data);
+			g_free (str);			
+		}
+
+		tmp = tmp->next;
+	}
+
+	g_free (str2);
+
+}
+
+static void
+add_poll_dir (const char *dir) 
+{
+	g_return_if_fail (dir && tracker_is_directory (dir));
+
+	poll_list = g_slist_prepend (poll_list, g_strdup (dir));
+	tracker_log ("adding %s for polling (poll count is %d)", dir, g_slist_length (poll_list));
+}
+
+static void
+poll_files_thread () 
+{
+	DBConnection db_con;
+
+	/* set thread safe DB connection */
+	mysql_thread_init ();
+
+	db_con.db = tracker_db_connect ();
+
+	tracker_db_prepare_queries (&db_con);
+
+	while (is_running) {
+
+		/* we only poll if we cannot lock mutex */
+		if (g_mutex_trylock (poll_thread_mutex)) {
+			g_mutex_unlock (poll_thread_mutex);
+			g_usleep (1000000);
+			continue;
+		}			
+		
+		poll_directories (&db_con);
+		g_mutex_unlock (poll_thread_mutex);
+		
+	}
+
+	mysql_close (db_con.db);
+	mysql_thread_end ();
+
+}
+
+static gboolean
+start_poll (void)
+{
+	if (!file_poll_thread && g_slist_length (poll_list) > 0) {
+		file_poll_thread = g_thread_create ((GThreadFunc) poll_files_thread, NULL, FALSE, NULL); 
+		tracker_log ("started polling");
+	}
+
+	g_mutex_trylock (poll_thread_mutex);
+	return TRUE;
+}
+
 
 static void 
 add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs) 
 {
 	GSList *file_list = NULL;
+	gboolean start_polling = FALSE;
 	
 	g_return_if_fail (dir_list != NULL);
 
 	/* add sub directories breadth first recursively to avoid runnig out of file handles */
 	while (g_slist_length (dir_list) > 0) {
-		g_slist_foreach (dir_list, (GFunc) tracker_add_watch_dir, NULL); 
+		
+		if (!start_polling && ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < MAX_FILE_WATCHES )) {
+			char *str;
+			GSList *tmp = dir_list;
+
+			while (tmp != NULL) {
+			
+				str = (char *)tmp->data;
+
+				/* use polling if FAM or Inotify fails */ 
+				if (!tracker_add_watch_dir (str)) {
+					add_poll_dir (str);
+				}
+				tmp = tmp->next;
+			}
+
+		} else {
+			g_slist_foreach (dir_list, (GFunc) add_poll_dir, NULL); 
+		}
+
 		g_slist_foreach (dir_list, (GFunc) tracker_get_dirs, &file_list);
 		
 		if (check_dirs) {
@@ -154,12 +375,11 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs)
 		g_slist_free (dir_list);
 
 		if (tracker_count_watch_dirs () > MAX_FILE_WATCHES) {
-			g_slist_foreach (file_list, (GFunc) g_free, NULL); 
-			g_slist_free (file_list);
-			return;
-		} else {
-			dir_list = file_list;
+			start_polling = TRUE;
 		}
+
+		dir_list = file_list;
+	
 		file_list = NULL;
 	}
 } 
@@ -297,10 +517,16 @@ delete_directory (DBConnection *db_con, FileInfo *info)
 
 	str_file_id = g_strdup_printf ("%ld", info->file_id);
 
-	/* This paramter is for SQL like function (which uses % as a wildcard like * for files) */
-	str_path_like = g_build_filename (info->path, info->name, "%", NULL);
+	char *name = g_path_get_basename (info->uri);
+	char *path = g_path_get_dirname (info->uri);
 
-	str_path = g_build_filename (info->path, info->name,  NULL);
+	/* This paramter is for SQL like function (which uses % as a wildcard like * for files) */
+	str_path_like = g_build_filename (path, name, "%", NULL);
+
+	str_path = g_build_filename (path, name,  NULL);
+
+	g_free (name);
+	g_free (path);
 
 	tracker_db_exec_stmt (db_con->delete_file_stmt, 1, str_file_id);
 
@@ -311,6 +537,8 @@ delete_directory (DBConnection *db_con, FileInfo *info)
 	tracker_db_exec_stmt (db_con->delete_metadata_child_all_stmt, 2, str_path, str_path_like);
 
 	tracker_remove_watch_dir (info->uri, TRUE);
+
+	remove_poll_dir (info->uri);
 
 	tracker_log ("deleting directory %s and subdirs like %s", str_path, str_path_like);
 
@@ -350,6 +578,10 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 	meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
+	if (info->mime) {
+		g_free (info->mime);
+	}
+
 	if (!info->is_directory) {
 		info->mime = tracker_get_mime_type (info->uri);
 	} else {
@@ -371,13 +603,14 @@ index_file (DBConnection *db_con, FileInfo *info)
 	loctime = localtime (&time_stamp);
 	strftime (atime_buffer, 20, "%Y-%m-%d %H:%M:%S", loctime);
 
-	g_hash_table_insert (meta_table, g_strdup ("File.Path"), g_strdup (info->path));
-	g_hash_table_insert (meta_table, g_strdup ("File.Name"), g_strdup (info->name));
+	char *name = g_path_get_basename (info->uri);
+	char *path = g_path_get_dirname (info->uri);
+
+	g_hash_table_insert (meta_table, g_strdup ("File.Path"), g_strdup (path));
+	g_hash_table_insert (meta_table, g_strdup ("File.Name"), g_strdup (name));
 	g_hash_table_insert (meta_table, g_strdup ("File.Link"), g_strdup (str_link_uri));
 	g_hash_table_insert (meta_table, g_strdup ("File.Format"), g_strdup (info->mime));
 	g_hash_table_insert (meta_table, g_strdup ("File.Size"), g_strdup_printf ("%ld", info->file_size));
-	g_hash_table_insert (meta_table, g_strdup ("File.Owner"), g_strdup (info->owner));
-	g_hash_table_insert (meta_table, g_strdup ("File.Group"), g_strdup (info->group));
 	g_hash_table_insert (meta_table, g_strdup ("File.Permissions"), g_strdup (info->permissions));
 	g_hash_table_insert (meta_table, g_strdup ("File.Modified"), g_strdup (mtime_buffer));
 	g_hash_table_insert (meta_table, g_strdup ("File.Accessed"), g_strdup (atime_buffer));
@@ -390,7 +623,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 	/* work out whether to insert or update file (file_id of -1 means no existing record so insert) */
 	if (info->file_id == -1) {
 
-		result = tracker_db_exec_stmt (db_con->insert_file_stmt, 6, info->path, info->name, "0",
+		result = tracker_db_exec_stmt (db_con->insert_file_stmt, 6, path, name, "0",
 					       str_dir, str_link, str_mtime);
 		if (result == 1) {
 			/* get file_ID of saved file */
@@ -413,15 +646,17 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 	g_hash_table_destroy (meta_table);
 
+	g_free (name);
+	g_free (path);
+
 	g_free (str_file_id);
 	g_free (str_dir);
 	g_free (str_link);
 	g_free (str_link_uri);
 	g_free (str_mtime);
 
-	if (!info->is_directory && result == 1) {
-		info = tracker_inc_info_ref (info);
-		g_async_queue_push (file_metadata_queue, info);
+	if (!info->is_directory && result == 1 && info->file_id != -1) {
+		tracker_db_insert_pending_file 	(db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory);
 	}
 	
 }
@@ -436,8 +671,7 @@ schedule_file_check (const char *uri)
 
 	g_return_if_fail (tracker_file_info_is_valid (info));
 
-	g_async_queue_push (file_process_queue, info);
-
+	g_async_queue_push (file_pending_queue, info);
 }
 
 
@@ -461,163 +695,53 @@ scan_directory (FileInfo *info)
 }
 
 
-static void 
-schedule_changed_file (FileInfo *info) 
-{
-
-	FileInfo *orig_event = NULL;
-	int i;
-
-	/* info struct may have been deleted in transit here so check if still valid and intact */
-	g_return_if_fail ( tracker_file_info_is_valid (info));
-
-	g_mutex_lock (scheduler_mutex);
-	/* Check if there is an existing event for that uri already in the scheduler */
-	orig_event = g_hash_table_lookup (file_scheduler, info->uri);
-
-	//if (orig_event) tracker_log ("Detected existing event %s for %s, new event is %s", tracker_actions[orig_event->action], info->uri, tracker_actions[info->action]);
-
-	switch (info->action) {
-
-		case TRACKER_ACTION_FILE_CHECK:
-
-
-			/* inc counter for any existing event in the file_scheduler */
-			
-			if (orig_event) {
-				
-				if ((orig_event->action == TRACKER_ACTION_FILE_CHECK) || 
-				    (orig_event->action == TRACKER_ACTION_FILE_CREATED) ||
-				    (orig_event->action == TRACKER_ACTION_FILE_CHANGED)) {  
-					
-					orig_event->counter = info->counter;
-				} else {
-					if (orig_event->action == TRACKER_ACTION_WRITABLE_FILE_CLOSED) {
-						orig_event->counter = 0;
-					}
-				}
-
-				info = tracker_dec_info_ref (info);							
-
-			} else {
-				info = tracker_inc_info_ref (info);
-				//tracker_log ("scheduling check/refresh for %s with ref_count %d", info->uri, info->ref_count);
-				g_hash_table_insert (file_scheduler, g_strdup (info->uri), info);
-				
-			}
-			break;
-
-
-		case TRACKER_ACTION_DIRECTORY_REFRESH :
-		case TRACKER_ACTION_DIRECTORY_CHECK :
-
-			if (orig_event) {
-				
-				info = tracker_dec_info_ref (info);							
-
-			} else {
-
-				info = tracker_inc_info_ref (info);
-				//tracker_log ("scheduling check/refresh for %s with ref_count %d", info->uri, info->ref_count);
-				g_hash_table_insert (file_scheduler, g_strdup (info->uri), info);
-				
-			}
-			break;
-
-
-
-
-		case TRACKER_ACTION_FILE_CHANGED:
-		case TRACKER_ACTION_WRITABLE_FILE_CLOSED :
-
-
-			/* set counter and action for any existing event in the file_scheduler */
-			i = 0;
-			if (orig_event) {
-				i = orig_event->counter;
-				orig_event->counter = info->counter;
-				orig_event->action = TRACKER_ACTION_FILE_CHANGED;
-				info = tracker_dec_info_ref (info);
-			} else {
-				info = tracker_inc_info_ref (info);
-				g_hash_table_insert (file_scheduler, g_strdup (info->uri), info);
-			}
-
-			break;
-
-		case TRACKER_ACTION_FILE_DELETED :
-		case TRACKER_ACTION_FILE_CREATED :
-		case TRACKER_ACTION_DIRECTORY_DELETED :
-		case TRACKER_ACTION_DIRECTORY_CREATED :
-
-			/* overwrite any existing event in the file_scheduler */
-
-			if (orig_event) {
-				orig_event->action  = info->action;
-				orig_event->counter = info->counter;
-				info = tracker_dec_info_ref (info);
-			} else {
-				info = tracker_inc_info_ref (info);
-				g_hash_table_insert (file_scheduler, g_strdup (info->uri), info);
-			}
-
-			break;
-
-
-		case TRACKER_ACTION_IGNORE :
-			info = tracker_dec_info_ref (info);
-			break;
-
-		default :
-			break;
-	}
-
-	g_mutex_unlock (scheduler_mutex);
-
-}
-
-static gboolean
-process_scheduled_event    (gpointer       key,
-		      	    gpointer       value,
-		            gpointer       user_data) 
-{
-
-	FileInfo *info;
-
-	g_assert (user_data == NULL);
-
-	if (!key || !value) {
-		return TRUE;
-	}
-
-	info = value;
-
-	/* info struct may have been deleted in transit here so check if still valid and intact */
-	g_return_val_if_fail ( tracker_file_info_is_valid (info), TRUE);
-
-
-	info->counter--;
-	if (info->counter < 1) {
-
-		g_async_queue_push (file_process_queue, info);
-		info = tracker_dec_info_ref (info);
-		return TRUE;
-
-	} else {
-		return FALSE;
-	}
-}
-
-
 static gboolean
 process_scheduled_events (void)
 {	
+	FileInfo   *info;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row, end_row;
 
-	g_mutex_lock (scheduler_mutex);
-	g_hash_table_foreach_remove (file_scheduler, process_scheduled_event, NULL);
-	g_mutex_unlock (scheduler_mutex);
+	info = g_async_queue_try_pop (file_pending_queue);   
+
+	/* mark queued files to be processed as "pending" */ 
+	while (info) {
+		tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory);
+		info = tracker_free_file_info (info);
+		info = g_async_queue_try_pop (file_pending_queue); 	
+	}
+
+	/* decrement counters for pending files */
+	tracker_db_exec_stmt (main_thread_db_con->update_pending_files_counter_stmt, 0);
 
 	return TRUE;
+}
+
+static gboolean
+start_watching (gpointer data)
+{	
+
+	if (!tracker_start_watching ()) {
+		tracker_log ("File monitoring failed to start");
+		do_cleanup ();
+		exit (1);
+	} else { 
+//		mylist = tracker_get_watch_root_dirs ();
+		char *watch_folder;
+
+		if (data) {
+			watch_folder =  (char *)data;
+		} else {
+
+			watch_folder = g_strdup (g_get_home_dir ());
+		}
+	
+		watch_dir (watch_folder);
+		schedule_file_check (watch_folder);
+		g_free (watch_folder);
+		tracker_log ("waiting for file events...");
+	}
+	return FALSE;
 }
 
 static void
@@ -626,6 +750,9 @@ extract_metadata_thread ()
 	FileInfo   *info;
 	GHashTable *meta_table;
 	DBConnection db_con;
+	gboolean has_pending;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row, end_row;
 
 	/* set thread safe DB connection */
 	mysql_thread_init ();
@@ -641,7 +768,38 @@ extract_metadata_thread ()
 
 		g_mutex_unlock (metadata_thread_mutex);			
 		
-		info = g_async_queue_pop (file_metadata_queue);
+		info = g_async_queue_try_pop  (file_metadata_queue);
+
+		/* check pending table if we haven't got anything */
+		if (!info) {
+
+			has_pending = FALSE;
+			
+			tracker_exec_sql (db_con.db, CREATE_PENDING_FILES_METADATA);
+			tracker_exec_sql (db_con.db, DELETE_PENDING_FILES);
+			res = tracker_exec_sql (db_con.db, SELECT_PENDING_FILES);
+
+			if (res) {
+				while ((row = mysql_fetch_row (res))) {
+					FileInfo *info_tmp;
+
+					info_tmp = tracker_create_file_info (row[1], atoi(row[2]), 0, WATCH_OTHER);
+					info_tmp->file_id = atol (row[0]);
+					info_tmp->mime = g_strdup (row[3]);
+					g_async_queue_push (file_metadata_queue, info_tmp);
+					has_pending = TRUE;
+				}	
+				mysql_free_result (res);
+			}
+
+			tracker_exec_sql (db_con.db, DROP_PENDING_FILES);
+
+			if (!has_pending) {
+				g_usleep (200000);	
+			}
+			continue;
+		}
+
 	
 		g_mutex_lock (metadata_thread_mutex);
 
@@ -654,7 +812,14 @@ extract_metadata_thread ()
 					*large_thumb_file = NULL, 
 					*file_as_text = NULL;
 			
-				tracker_log ("Extracting Metadata for file %s", info->uri);
+				tracker_log ("Extracting Metadata for file %s with mime %s", info->uri, info->mime);
+
+				/* refresh stat data in case its changed */
+				info = tracker_get_file_info (info);
+			
+				if (info->file_id == -1) {
+					info->file_id = (long)tracker_db_get_file_id (&db_con, info->uri);
+				}
 
 				meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
@@ -781,8 +946,9 @@ process_files_thread ()
 	FileInfo   *info;
 	DBConnection db_con;
 	GSList *mylist = NULL, *moved_from_list = NULL; /* list to hold moved_from events whilst waiting for a matching moved_to event */
-	gboolean need_index = FALSE;
-
+	gboolean need_index = FALSE, has_pending = FALSE;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row, end_row;
 
 	/* set thread safe DB connection */
 	mysql_thread_init ();
@@ -798,7 +964,35 @@ process_files_thread ()
 
 		g_mutex_unlock (process_thread_mutex);		
 
-		info = g_async_queue_pop (file_process_queue);
+		info = g_async_queue_try_pop  (file_process_queue);
+
+		/* check pending table if we haven't got anything */
+		if (!info) {
+
+			has_pending = FALSE;
+			tracker_exec_sql (db_con.db, CREATE_PENDING_FILES);
+			tracker_exec_sql (db_con.db, DELETE_PENDING_FILES);
+			res = tracker_exec_sql (db_con.db, SELECT_PENDING_FILES);
+
+			if (res) {
+				while ((row = mysql_fetch_row (res))) {
+					FileInfo *info_tmp;
+					tracker_log ("processing %s with event %s", row[1], tracker_actions[atoi(row[2])]);
+					info_tmp = tracker_create_file_info (row[1], atoi(row[2]), 0, WATCH_OTHER);
+					g_async_queue_push (file_process_queue, info_tmp);
+					has_pending = TRUE;
+				}	
+				mysql_free_result (res);
+			}
+
+			tracker_exec_sql (db_con.db, DROP_PENDING_FILES);
+
+			if (!has_pending) {
+				g_usleep (200000);	
+			}
+			continue;
+		}
+
 
 		g_mutex_lock (process_thread_mutex);
 
@@ -829,18 +1023,6 @@ process_files_thread ()
 
 		//tracker_log ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
 
-		/* process actions to be scheduled */
-		if (info->counter > 0) {
-
-			//tracker_log ("rescheduling %s", info->uri);
-
-			/* reset mtime so we retrieve it again later as it might change whilst scheduled */
-			info->mtime = 0;
-
-			schedule_changed_file (info);
-
-			continue;
-		}
 
 		/* process deletions */
 
@@ -926,13 +1108,13 @@ process_files_thread ()
 			case TRACKER_ACTION_DIRECTORY_MOVED_TO :
 
 				need_index = TRUE;
-
+				tracker_log ("processing created directory %s", info->uri);
 	
 
 				/* add to watch folders (including subfolders) */
-				if (info->watch_type == WATCH_SUBFOLDER || info->watch_type == WATCH_ROOT) {
+				//if (info->watch_type == WATCH_SUBFOLDER || info->watch_type == WATCH_ROOT) {
 					watch_dir (info->uri);
-				}
+				//}
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
@@ -1052,6 +1234,23 @@ process_user_request_queue_thread (GMutex *mutex)
 				
 				break;
 
+			case DBUS_ACTION_SEARCH_BY_TEXT_MIME:
+
+				tracker_dbus_method_search_by_text_mime	(rec);
+				
+				break;
+
+			case DBUS_ACTION_SEARCH_BY_TEXT_MIME_LOCATION:
+
+				tracker_dbus_method_search_by_text_mime_location (rec);
+				
+				break;
+
+			case DBUS_ACTION_SEARCH_BY_TEXT_LOCATION:
+
+				tracker_dbus_method_search_by_text_location (rec);
+				
+				break;
 
 			case DBUS_ACTION_SEARCH_BY_QUERY:
 
@@ -1138,8 +1337,8 @@ main (int argc, char **argv)
 	log_file = g_build_filename (prefix, "tracker.log", NULL);
 
 	/* check if setup for NFS usage (and enable atomic NFS safe locking) */
-	lock_str = tracker_get_config_option ("NFSLocking");
-
+	//lock_str = tracker_get_config_option ("NFSLocking");
+	lock_str = NULL;
 	if (lock_str != NULL) {
 
 		use_nfs_safe_locking = ( strcmp (str , "1" ) == 0); 
@@ -1211,7 +1410,7 @@ main (int argc, char **argv)
 	server_options[3] = g_strdup ("--skip-bdb");
 	server_options[4] = g_strdup ("--skip-grant-tables");
 	server_options[5] = g_strdup ("--skip-innodb");
-	server_options[6] = g_strdup ("--key_buffer_size=8M");
+	server_options[6] = g_strdup ("--key_buffer_size=1M");
 	server_options[7] = g_strdup ("--character-set-server=utf8");
 	server_options[8] = g_strdup ("--ft_max_word_len=45");
 	server_options[9] = g_strdup ("--ft_min_word_len=3");
@@ -1239,44 +1438,54 @@ main (int argc, char **argv)
 
 	db_con.db = tracker_db_connect ();
 
+	tracker_db_prepare_queries (&db_con);
+
+	main_thread_db_con = &db_con;
+
+	/* clear pending files */
+	tracker_exec_sql (db_con.db, "delete from FilePending");
+
 	file_scheduler = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 	file_metadata_queue = g_async_queue_new ();
 	file_process_queue = g_async_queue_new ();
+	file_pending_queue = g_async_queue_new ();
 	user_request_queue = g_async_queue_new ();
 
 
-	/* periodically process the file scheduler table at lowest priority*/
+	/* periodically process pending files  table at lowest priority*/
 	g_timeout_add_full (G_PRIORITY_LOW, 
 			    FILE_SCHEDULE_PERIOD,
 		 	    (GSourceFunc) process_scheduled_events,	
 			    NULL, NULL	
 			   );
 
-  	loop = g_main_loop_new (NULL, TRUE);
+	/* periodically poll directories for changes */
+	g_timeout_add_full (G_PRIORITY_LOW, 
+			    FILE_POLL_PERIOD,
+		 	    (GSourceFunc) start_poll,	
+			    NULL, NULL	
+			   );
 
-	
-
-	if (!tracker_start_watching ()) {
-		tracker_log ("File monitoring failed to start");
-		do_cleanup ();
-		exit (1);
-	} else { 
-//		mylist = tracker_get_watch_root_dirs ();
-		char *watch_folder;
-
-		if (argv[1]) {
-			watch_folder = argv[1];
-		} else {
-
-			watch_folder = g_get_home_dir ();
-		}
-	
-		watch_dir (watch_folder);
-		schedule_file_check (watch_folder);
-
-		tracker_log ("waiting for file events...");
+	/* schedule the watching of directories so as not to delay start up time*/
+	if (argv[1]) {
+		g_timeout_add_full (G_PRIORITY_LOW, 
+				    500,
+			 	    (GSourceFunc) start_watching,	
+				    g_strdup (argv[1]), NULL	
+				   );
+	} else {
+		g_timeout_add_full (G_PRIORITY_LOW, 
+				    500,
+			 	    (GSourceFunc) start_watching,	
+				    NULL, NULL	
+				   );
 	}
+
+
+
+
+  	loop = g_main_loop_new (NULL, TRUE);
 
 	main_connection = tracker_dbus_init ();
 
@@ -1295,6 +1504,10 @@ main (int argc, char **argv)
 
 	g_assert (user_thread2_mutex == NULL);
 	user_thread2_mutex  = g_mutex_new ();
+
+	g_assert (poll_thread_mutex == NULL);
+	poll_thread_mutex = g_mutex_new ();
+
 
 	/* execute events and user requests to be processed and indexed in their own threads */
 	file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL); 

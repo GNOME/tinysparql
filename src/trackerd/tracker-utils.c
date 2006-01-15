@@ -39,9 +39,29 @@
 GMutex 	*log_access_mutex;
 char 	*log_file; 
 
+/* configuration options table */
+static 	GHashTable	*config_table;
+
 static int info_allocated = 0;
 static int info_deallocated = 0;
 
+/* global config variables */
+GSList 		*watch_directory_roots_list;
+GSList 		*no_watch_directory_list;
+gboolean	index_text_files;
+gboolean	index_documents;
+gboolean	index_source_code;
+gboolean	index_scripts;
+gboolean	index_html;
+gboolean	index_pdf;
+gboolean	index_application_help_files;
+gboolean	index_desktop_files;
+gboolean	index_epiphany_bookmarks;
+gboolean	index_epiphany_history;
+gboolean	index_firefox_bookmarks;
+gboolean	index_firefox_history;
+gboolean	store_text_file_contents_in_db;
+char		*db_buffer_memory_limit;
 
 void
 tracker_print_object_allocations ()
@@ -73,7 +93,7 @@ tracker_file_info_is_valid (FileInfo *info) {
 	}
 	
 	return TRUE;
-}
+} 
 
 FileInfo *
 tracker_create_file_info (const char *uri, TrackerChangeAction action, int counter, WatchTypes watch)
@@ -84,8 +104,7 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 
 	info->action = action;
 	info->uri = g_strdup (uri);
-	info->name = g_path_get_basename (info->uri);
-	info->path = g_path_get_dirname (info->uri);
+
 	info->counter = counter;
 	info->file_id = -1;
 
@@ -105,15 +124,12 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 
 	info->mime = NULL;
 	info->file_size = 0;
-	info->owner = g_strdup ("unknown");
-	info->group = g_strdup ("unknown");
 	info->permissions = g_strdup ("-r--r--r--");;
 	info->mtime = 0;
 	info->atime = 0;
 	info->indextime = 0;
 
 	info->ref_count = 1;
-	//tracker_log ("creating fileinfo for %s/%s", info->path, info->name);
 	info_allocated ++;
 	return info;
 }
@@ -123,21 +139,12 @@ FileInfo *
 tracker_free_file_info (FileInfo *info)
 {
 
-	if (!tracker_file_info_is_valid (info)) {
+	if (!info) {
 		return NULL;
 	}
 
 	if (info->uri) {
-		//tracker_log ("freeing %d, %s", &info->uri, info->uri);
 		g_free (info->uri);
-	}
-
-	if (info->path) {
-		g_free (info->path);
-	}
-
-	if (info->name) {
-		g_free (info->name);
 	}
 
 	if (info->link_path) {
@@ -150,14 +157,6 @@ tracker_free_file_info (FileInfo *info)
 
 	if (info->mime) {
 		g_free (info->mime);
-	}
-
-	if (info->owner) {
-		g_free (info->owner);
-	}
-
-	if (info->group) {
-		g_free (info->group);
 	}
 
 	if (info->move_path) {
@@ -205,12 +204,55 @@ tracker_dec_info_ref (FileInfo *info)
 	return info;
 }
 
+
+FileInfo *
+tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
+{
+	FileInfo *info;
+
+	info = g_new (FileInfo, 1);
+
+	info->action = action;
+	info->uri = g_strdup (uri);
+
+	info->counter = counter;
+	info->file_id = file_id;
+
+	info->file_type = FILE_ORIDNARY;
+
+	info->is_directory = is_directory;
+
+	info->is_link = FALSE;
+	info->link_id = -1;
+	info->link_path = NULL;
+	info->link_name = NULL;
+
+	info->is_moved = FALSE;
+	info->move_path = NULL;
+	info->move_name = NULL;
+
+	if (mime) {
+		info->mime = g_strdup (mime);
+	} else {
+		info->mime = NULL;
+	}
+
+	info->file_size = 0;
+	info->permissions = g_strdup ("-r--r--r--");;
+	info->mtime = 0;
+	info->atime = 0;
+	info->indextime = 0;
+
+	info->ref_count = 1;
+	info_allocated ++;
+	return info;
+}
+
+
 FileInfo *
 tracker_get_file_info (FileInfo *info)
 {
 	struct stat     finfo;
-	struct passwd   *pwd;
-	struct group    *grp;
 	char   		*str = NULL, *link_uri;
 	int    		n, bit;
 
@@ -245,15 +287,7 @@ tracker_get_file_info (FileInfo *info)
 		}
 	}
 
-	if ((pwd = getpwuid (finfo.st_uid)) != NULL) {
-		g_free (info->owner);
-        	info->owner = g_strdup (pwd->pw_name);	
-	}
-
-	if ((grp = getgrgid (finfo.st_gid)) != NULL) {
-		g_free (info->group);
-	        info->group = g_strdup (grp->gr_name);
-	}
+	
 	
 	/* create permissions string */
 	str = g_strdup ("?rwxrwxrwx");
@@ -465,104 +499,141 @@ tracker_get_dirs (const char *dir, GSList **file_list)
 	}
 }
 
-
-static void
-check_config_file ()
+static GSList *
+array_to_list (char **array) 
 {
+	GSList *list = NULL;
+	int i;
+
+	for (i = 0; array[i] != NULL; i++) {
+		list = g_slist_prepend	(list, g_strdup (array[i]));
+	}
+		
+	g_strfreev (array);
+	return list;
+
+}
+
+
+
+void
+tracker_load_config_file ()
+{
+	GKeyFile *key_file;
 	char *filename;
+
+	key_file = g_key_file_new ();
 
 	filename = g_build_filename (g_get_home_dir (), ".Tracker", "tracker.cfg", NULL);
 
 	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
 		char *contents;
-		contents  = g_strconcat ("[Tracker]\n", 
+		contents  = g_strconcat ("[Watches]\n", 
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
+					 "NoWatchDirectory=\n\n\n",
+					 "[Indexes]\n"
+					 "IndexTextFiles=true\n",
+					 "IndexDocuments=true\n",
+					 "IndexSourceCode=true\n",
+					 "IndexScripts=true\n",
+					 "IndexHTML=true\n",
+					 "IndexPDF=true\n",
+					 "IndexApplicationHelpFiles=true\n",
 					 "IndexDesktopFiles=true\n",
 					 "IndexEpiphanyBookmarks=true\n"
 					 "IndexEpiphanyHistory=true\n",
 					 "IndexFirefoxBookmarks=true\n",
-					 "IndexFirefoxHistory=true\n",
-					 "DBMemoryLimit=16M\n", NULL);
+					 "IndexFirefoxHistory=true\n\n",
+					 "[Database]\n",
+					 "StoreTextFileContentsInDB=false\n",					
+					 "DBBufferMemoryLimit=1M\n", NULL);
 		
 		g_file_set_contents (filename, contents, strlen (contents), NULL);
 		g_free (contents);
 	}	
 
-	g_free (filename);
-	
-}
-
-char * 
-tracker_get_config_option (const char *key)
-{
-	GKeyFile *key_file;
-	char *filename, *result = NULL;
-
-	key_file = g_key_file_new ();
-
-	check_config_file ();
-	
-	filename = g_build_filename (g_get_home_dir (), ".Tracker", "tracker.cfg", NULL);
-
-	if (g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
-
-		result =  g_key_file_get_string ( key_file,
-					          "Tracker",
-						  key,
- 				                  NULL);
-	}
-	g_free (filename);
-	g_key_file_free (key_file);
-	return result;
-}
-
-
-GSList * 
-tracker_get_watch_root_dirs ()
-{
-	GKeyFile *key_file;
-	GSList *list = NULL;
-	char *filename;
-	int i;
-
-	key_file = g_key_file_new ();
-
-	check_config_file ();
-
-	filename = g_build_filename (g_get_home_dir (), ".Tracker", "tracker.cfg", NULL);
-
-	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		goto novalues;
-	}	
-
+	/* load all options into hashtable for fast retrieval */
 	g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
+
 	char **values =  g_key_file_get_string_list ( key_file,
-				       	     	      "Tracker",
+				       	     	      "Watches",
 					              "WatchDirectoryRoots",
 					              NULL,
 					              NULL);
-	if (!values) {
-		goto novalues;
+
+	if (values) {
+		watch_directory_roots_list = array_to_list (values);
+	} else {
+		watch_directory_roots_list = g_slist_prepend (watch_directory_roots_list, g_strdup (g_get_home_dir ()));
+	}
+	
+
+	values =  g_key_file_get_string_list ( key_file,
+			       	     	      "Watches",
+				              "NoWatchDirectory",
+				              NULL,
+				              NULL);
+
+	if (values) {
+		no_watch_directory_list = array_to_list (values);
+	} else {
+		no_watch_directory_list = NULL;
+	}
+	
+	if (g_key_file_has_key (key_file, "Indexes", "IndexTextFiles", NULL)) {
+		index_text_files = g_key_file_get_boolean (key_file, "Indexes", "IndexTextFiles", NULL);
+	}
+	
+	if (g_key_file_has_key (key_file, "Indexes", "IndexDocuments", NULL)) {
+		index_documents = g_key_file_get_boolean (key_file, "Indexes", "IndexDocuments", NULL);
 	}
 
-	for (i = 0; values[i] != NULL; i++) {
-		list = g_slist_prepend	(list, g_strdup (values[i]));
+	if (g_key_file_has_key (key_file, "Indexes", "IndexSourceCode", NULL)) {
+		index_source_code = g_key_file_get_boolean (key_file, "Indexes", "IndexSourceCode", NULL);
 	}
-		
-	g_strfreev (values);
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexScripts", NULL)) {
+		index_scripts = g_key_file_get_boolean (key_file, "Indexes", "IndexScripts", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexHTML", NULL)) {
+		index_html = g_key_file_get_boolean (key_file, "Indexes", "IndexHTML", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexPDF", NULL)) {
+		index_pdf = g_key_file_get_boolean (key_file, "Indexes", "IndexPDF", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexApplicationHelpFiles", NULL)) {
+		index_application_help_files = g_key_file_get_boolean (key_file, "Indexes", "IndexApplicationHelpFiles", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexDesktopFiles", NULL)) {
+		index_desktop_files = g_key_file_get_boolean (key_file, "Indexes", "IndexDesktopFiles", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexEpiphanyBookmarks", NULL)) {
+		index_epiphany_bookmarks = g_key_file_get_boolean (key_file, "Indexes", "IndexEpiphanyBookmarks", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexEpiphanyHistory", NULL)) {
+		index_epiphany_history = g_key_file_get_boolean (key_file, "Indexes", "IndexEpiphanyHistory", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexFirefoxBookmarks", NULL)) {
+		index_firefox_bookmarks = g_key_file_get_boolean (key_file, "Indexes", "IndexFirefoxBookmarks", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexes", "IndexFirefoxHistory", NULL)) {
+		index_firefox_history = g_key_file_get_boolean (key_file, "Indexes", "IndexFirefoxHistory", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Database", "StoreTextFileContentsInDB", NULL)) {
+		store_text_file_contents_in_db = g_key_file_get_boolean (key_file, "Indexes", "StoreTextFileContentsInDB", NULL);
+	}
+
+	db_buffer_memory_limit = g_key_file_get_string ( key_file, "Database", "DBBufferMemoryLimit", NULL);
+
 	g_free (filename);
 	g_key_file_free (key_file);
-	return list;
-
-
-novalues:
-	list = g_slist_prepend	(list, g_strdup (g_get_home_dir ()));
-	g_free (filename);
-	g_key_file_free (key_file);
-	return list;	
-
-
 }
-
-

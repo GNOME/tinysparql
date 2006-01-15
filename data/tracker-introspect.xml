@@ -72,6 +72,22 @@
 			<arg type="s" name="text" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
+		<method name="SearchMetadataByTextAndMime">
+			<arg type="s" name="text" direction="in" />
+			<arg type="as" name="mimes" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchMetadataByTextAndMimeAndLocation">
+			<arg type="s" name="text" direction="in" />
+			<arg type="as" name="mimes" direction="in" />
+			<arg type="s" name="location" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchMetadataByTextAndLocation">
+			<arg type="s" name="text" direction="in" />
+			<arg type="s" name="location" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
 		<method name="SearchMetadataDetailed">
 			<arg type="s" name="rdfquery" direction="in" />
 			<arg type="as" name="keys" direction="in" />

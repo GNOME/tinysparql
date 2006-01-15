@@ -20,36 +20,70 @@
 #include <glib.h>
 #include "../libtracker/tracker.h" 
 
+static GMainLoop 	*loop;
+
+static void
+my_callback (char **result, GError *error)
+{
+	
+	char **p_strarray;
+
+	
+	if (error) {
+		g_warning ("An error has occured : %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
+	if (!result) {
+		g_print ("no results were found matching your query");
+		return;
+	}
+	
+	for (p_strarray = result; *p_strarray; p_strarray++) {
+    		 g_print ("%s\n", *p_strarray);
+	}
+
+	g_strfreev (result);
+
+	g_main_loop_quit (loop);
+
+}
+
 void 
 main (int argc, char **argv) 
 {
-	char **strarray;
-	char **p_strarray;
-	GError *error = NULL;
+
+	TrackerClient *client = NULL;
 
 	if (!argv[1]) {
 		g_print ("usage - tracker-search SearchTerm");
 	}
 
-	if (!tracker_init ()) {
+	client =  tracker_connect ();
+
+	if (!client) {
 		g_print ("Could not initialise Tracker - exiting...");
 		return;
 	}
 
-	strarray = tracker_search_metadata (argv[1], error);
+	loop = g_main_loop_new (NULL, TRUE);
 
-	if (!strarray) {
-		g_print ("no results were found matching your query");
-		return;
+	if (argv[2] && argv[3]) {
+		char **array;
+
+		array = g_new (char *, 3);
+		array[0] = argv[2];
+		array[1] = argv[3];
+		array[2] = NULL;
+		tracker_search_metadata_by_text_and_mime_async (client, argv[1], array, my_callback);
+	} else {
+		tracker_search_metadata_by_text_async (client, argv[1], my_callback);
 	}
-	
-	for (p_strarray = strarray; *p_strarray; p_strarray++) {
-    		 g_print ("%s\n", *p_strarray);
-	}
 
-	g_strfreev (strarray);
+	g_main_loop_run (loop);
 
-	tracker_close ();
+	tracker_disconnect (client);
 
 }
 

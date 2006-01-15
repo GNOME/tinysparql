@@ -39,48 +39,60 @@ typedef enum {
 	DATA_STRING_INDEXABLE
 } MetadataTypes;
 
-/* you must call this before making any other calls in libtracker */
-gboolean	tracker_init 	();
+typedef struct {
+	DBusGProxy 	*proxy;
+	DBusGProxyCall  *last_pending_call; 
+	
+} TrackerClient;
 
-/* you must call this when you have finished using libtracker */
-void		tracker_close 	();
+/* you can make multiple connections with tracker_connect and free them with tracker_disconnect */
+TrackerClient * tracker_connect ();
+void		tracker_disconnect (TrackerClient *client);
 
 /* synchronous calls */
 
-char *		tracker_get_metadata				(const char *uri, const char *key, GError *error);
-void		tracker_set_metadata				(const char *uri, const char *key, const char *value, GError *error);
-void		tracker_register_metadata_type			(const char *name, MetadataTypes type, GError *error);
-gboolean 	tracker_metadata_type_exists			(const char *name, GError *error);
-GHashTable *	tracker_get_multiple_metadata			(const char *uri, char **keys, GError *error);
-void		tracker_set_multiple_metadata			(const char *uri, GHashTable *values, GError *error);
-GHashTable *	tracker_get_metadata_for_files_in_folder	(const char *uri, char **keys, GError *error);
-char **		tracker_get_keywords				(const char *uri, GError *error);
-void		tracker_add_Keyword				(const char *uri, const char *value, GError *error);
-void		tracker_remove_keyword				(const char *uri, const char *value, GError *error);
-void		tracker_refresh_metadata			(const char *uri, GError *error);
-gboolean	tracker_is_metadata_up_to_date			(const char *uri, int mtime, GError *error);
-char ** 	tracker_search_metadata_by_query		(const char *query, GError *error);
-char **		tracker_search_metadata_by_text			(const char *query, GError *error);
-GHashTable *	tracker_search_metadata_detailed		(const char *query, char** keys, GError *error);
+char *		tracker_get_metadata					(TrackerClient *client, const char *uri, const char *key, GError *error);
+void		tracker_set_metadata					(TrackerClient *client, const char *uri, const char *key, const char *value, GError *error);
+void		tracker_register_metadata_type				(TrackerClient *client, const char *name, MetadataTypes type, GError *error);
+gboolean 	tracker_metadata_type_exists				(TrackerClient *client, const char *name, GError *error);
+GHashTable *	tracker_get_multiple_metadata				(TrackerClient *client, const char *uri, char **keys, GError *error);
+void		tracker_set_multiple_metadata				(TrackerClient *client, const char *uri, GHashTable *values, GError *error);
+GHashTable *	tracker_get_metadata_for_files_in_folder		(TrackerClient *client, const char *uri, const char **keys, GError *error);
+char **		tracker_get_keywords					(TrackerClient *client, const char *uri, GError *error);
+void		tracker_add_Keyword					(TrackerClient *client, const char *uri, const char *value, GError *error);
+void		tracker_remove_keyword					(TrackerClient *client, const char *uri, const char *value, GError *error);
+void		tracker_refresh_metadata				(TrackerClient *client, const char *uri, GError *error);
+gboolean	tracker_is_metadata_up_to_date				(TrackerClient *client, const char *uri, int mtime, GError *error);
+char ** 	tracker_search_metadata_by_query			(TrackerClient *client, const char *query, GError *error);
+char **		tracker_search_metadata_by_text				(TrackerClient *client, const char *query, GError *error);
+char **		tracker_search_metadata_by_text_and_mime		(TrackerClient *client, const char *query, const char **mimes, GError *error);
+char **		tracker_search_metadata_by_text_and_mime_and_location	(TrackerClient *client, const char *query, const char **mimes, const char *location, GError *error);
+char **		tracker_search_metadata_by_text_and_location		(TrackerClient *client, const char *query, const char *location, GError *error);
+GHashTable *	tracker_search_metadata_detailed			(TrackerClient *client, const char *query, char** keys, GError *error);
 
 
 /* asynchronous calls */
 
-void 		tracker_get_metadata_async 			(const char *uri, const char *key, TrackerStringReply callback);
-void		tracker_set_metadata_async 			(const char *uri, const char *key, const char *value, TrackerVoidReply callback);
-void		tracker_register_metadata_type_async		(const char *name, MetadataTypes type, TrackerVoidReply callback);
-void		tracker_metadata_type_exists_async		(const char *name, TrackerBooleanReply callback);
-void 		tracker_get_multiple_metadata_async 		(const char *uri, char **keys, TrackerHashTableReply callback);
-void		tracker_set_multiple_metadata_async 		(const char *uri, GHashTable *values, TrackerVoidReply callback);
-void 		tracker_get_metadata_for_files_in_folder_async 	(const char *uri, char **keys, TrackerHashTableReply callback);
-void 		tracker_get_keywords_async 			(const char *uri, TrackerArrayReply callback);
-void		tracker_add_Keyword_async 			(const char *uri, const char *value, TrackerVoidReply callback);
-void		tracker_remove_keyword_async 			(const char *uri, const char *value, TrackerVoidReply callback);
-void		tracker_refresh_metadata_async 			(const char *uri, TrackerVoidReply callback);
-void		tracker_is_metadata_up_to_date_async 		(const char *uri, int mtime, TrackerBooleanReply callback);
-void		tracker_search_metadata_by_query_async 		(const char *query, TrackerArrayReply callback);
-void		tracker_search_metadata_by_text_async 		(const char *query, TrackerArrayReply callback);
-void		tracker_search_metadata_detailed_async 		(const char *query, char **keys, TrackerHashTableReply callback);
+void tracker_get_metadata_async 			(TrackerClient *client, const char *uri, const char *key, TrackerStringReply callback);
+void tracker_set_metadata_async 			(TrackerClient *client, const char *uri, const char *key, const char *value, TrackerVoidReply callback);
+void tracker_register_metadata_type_async		(TrackerClient *client, const char *name, MetadataTypes type, TrackerVoidReply callback);
+void tracker_metadata_type_exists_async			(TrackerClient *client, const char *name, TrackerBooleanReply callback);
+void tracker_get_multiple_metadata_async 		(TrackerClient *client, const char *uri, char **keys, TrackerHashTableReply callback);
+void tracker_set_multiple_metadata_async 		(TrackerClient *client, const char *uri, GHashTable *values, TrackerVoidReply callback);
+void tracker_get_metadata_for_files_in_folder_async 	(TrackerClient *client, const char *uri, char **keys, TrackerHashTableReply callback);
+void tracker_get_keywords_async 			(TrackerClient *client, const char *uri, TrackerArrayReply callback);
+void tracker_add_Keyword_async 				(TrackerClient *client, const char *uri, const char *value, TrackerVoidReply callback);
+void tracker_remove_keyword_async 			(TrackerClient *client, const char *uri, const char *value, TrackerVoidReply callback);
+void tracker_refresh_metadata_async 			(TrackerClient *client, const char *uri, TrackerVoidReply callback);
+void tracker_is_metadata_up_to_date_async 		(TrackerClient *client, const char *uri, int mtime, TrackerBooleanReply callback);
+void tracker_search_metadata_by_query_async 		(TrackerClient *client, const char *query, TrackerArrayReply callback);
+
+void tracker_search_metadata_by_text_async 				(TrackerClient *client, const char *query, TrackerArrayReply callback);
+void tracker_search_metadata_by_text_and_mime_async			(TrackerClient *client, const char *query, const char **mimes, TrackerArrayReply callback);
+void tracker_search_metadata_by_text_and_mime_and_location_async	(TrackerClient *client, const char *query, const char **mimes, const char *location, TrackerArrayReply callback);
+void tracker_search_metadata_by_text_and_location_async			(TrackerClient *client, const char *query, const char *location, TrackerArrayReply callback);
+
+void tracker_search_metadata_detailed_async 		(TrackerClient *client, const char *query, char **keys, TrackerHashTableReply callback);
 
 
 

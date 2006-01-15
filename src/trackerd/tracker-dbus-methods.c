@@ -272,55 +272,7 @@ set_metadata (DBConnection *db_con, const char *file_id, const char *meta, const
 
 }
 
-static char **
-get_files_in_folder (DBConnection *db_con, const char *folder_uri)
-{
-	char 		***rows, ***res_str = NULL;
-	char 		**row, **array = NULL;	
-	int 		i, row_count;
 
-	g_return_val_if_fail (db_con && folder_uri && (strlen (folder_uri) > 0), NULL);
-
-	res_str = tracker_db_exec_stmt_result (db_con->select_file_child_stmt, 1, folder_uri);
-
-	if (res_str) {
-
-		row_count = get_row_count (res_str);
-		tracker_log ("got row count %d", row_count);		
-		if (row_count > 0) {
-
-			array = g_new (char *, row_count +1);
-
-			i = 0;
-
-			for (rows = res_str; *rows; rows++) {
-				row = *rows;
-				if (row  && row[1] && row[2]) {
-					array[i] = g_build_filename (row[1], row[2], NULL);
-					tracker_log ("found file %s", array[i]);
-				} else {
-					array[i] = NULL;
-				}
-				i++;
-			}
-			array [row_count] = NULL;
-			
-		} else {
-			tracker_log ("result set is empty");
-			array = g_new (char *, 1);
-			array[0] = NULL;
-		}
-
-		tracker_db_free_result (res_str);
-			
-	} else {
-		array = g_new (char *, 1);
-		array[0] = NULL;
-	}
-
-	return array;
-
-} 
 
 static void
 add_metadata_to_dict (MYSQL_RES *res, DBusMessageIter *iter_dict, int metadata_count)
@@ -704,6 +656,243 @@ tracker_dbus_method_search_by_text (DBusRec *rec)
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_INVALID);
 
 	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_stmt, 1, str);
+
+	if (res_str) {
+
+		row_count = get_row_count (res_str);
+
+		if (row_count > 0) {
+
+			array = g_new (char *, row_count);
+
+			i = 0;
+
+			for (rows = res_str; *rows; rows++) {
+				row = *rows;
+				if (row && row[0] && row[1]) {
+					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
+				}
+				i++;
+			}
+			
+		} else {
+			tracker_log ("result set is empty");
+		}
+
+		tracker_db_free_result (res_str);
+			
+	} else {
+		array = g_new (char *, 1);
+		array[0] = NULL;
+	}
+
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
+	  			  DBUS_TYPE_INVALID);
+
+	for (i = 0; i < row_count; i++) {
+        	g_free (array[i]);
+	}
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+}
+
+void 	
+tracker_dbus_method_search_by_text_mime	(DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	char **array = NULL, **row;	
+	char ***res_str = NULL, ***rows;
+	int row_count = 0, i = 0, n;
+	char *str, *mime_list;
+	GString *mimes = NULL;
+
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_INVALID);
+
+	/* build mimes string */
+	for (i=0; i<n; i++) {
+		if (array[i] && strlen (array[i]) > 0) {
+			if (mimes) {
+				g_string_append (mimes, ",");
+				g_string_append (mimes, array[i]);
+			} else {
+				mimes = g_string_new (array[i]);
+			}
+			//g_free (array[i]);
+		}
+	}
+
+	
+
+	mime_list = g_string_free (mimes, FALSE);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_stmt, 2, str, mime_list);
+
+	g_free (mime_list);
+
+	if (res_str) {
+
+		row_count = get_row_count (res_str);
+
+		if (row_count > 0) {
+
+			array = g_new (char *, row_count);
+
+			i = 0;
+
+			for (rows = res_str; *rows; rows++) {
+				row = *rows;
+				if (row && row[0] && row[1]) {
+					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
+				}
+				i++;
+			}
+			
+		} else {
+			tracker_log ("result set is empty");
+		}
+
+		tracker_db_free_result (res_str);
+			
+	} else {
+		array = g_new (char *, 1);
+		array[0] = NULL;
+	}
+
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
+	  			  DBUS_TYPE_INVALID);
+
+	for (i = 0; i < row_count; i++) {
+        	g_free (array[i]);
+	}
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+}
+
+void 	
+tracker_dbus_method_search_by_text_location (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	char **array = NULL, **row;	
+	char ***res_str = NULL, ***rows;
+	int row_count = 0, i = 0;
+	char *str, *str2, *location;
+
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_STRING, &str2, DBUS_TYPE_INVALID);
+
+	location = g_strconcat (str2, "/", "%", NULL);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_location_stmt, 2, location, str);
+
+	g_free (location);
+
+	if (res_str) {
+
+		row_count = get_row_count (res_str);
+
+		if (row_count > 0) {
+
+			array = g_new (char *, row_count);
+
+			i = 0;
+
+			for (rows = res_str; *rows; rows++) {
+				row = *rows;
+				if (row && row[0] && row[1]) {
+					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
+				}
+				i++;
+			}
+			
+		} else {
+			tracker_log ("result set is empty");
+		}
+
+		tracker_db_free_result (res_str);
+			
+	} else {
+		array = g_new (char *, 1);
+		array[0] = NULL;
+	}
+
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
+	  			  DBUS_TYPE_INVALID);
+
+	for (i = 0; i < row_count; i++) {
+        	g_free (array[i]);
+	}
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+}
+
+void
+tracker_dbus_method_search_by_text_mime_location (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	char **array = NULL, **row;	
+	char ***res_str = NULL, ***rows;
+	int row_count = 0, i = 0, n;
+	char *str, *str2, *mime_list, *location;
+	GString *mimes = NULL;
+
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_STRING, &str2, DBUS_TYPE_INVALID);
+
+	location = g_strconcat (str2, "/", "%", NULL);
+
+	/* build mimes string */
+	for (i=0; i<n; i++) {
+		if (array[i] && strlen (array[i]) > 0) {
+			if (mimes) {
+				g_string_append (mimes, ",");
+				g_string_append (mimes, array[i]);
+			} else {
+				mimes = g_string_new (array[i]);
+			}
+			//g_free (array[i]);
+		}
+	}
+
+	
+
+	mime_list = g_string_free (mimes, FALSE);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_location_stmt, 3, location, str, mime_list);
+
+	g_free (location);
+
+	g_free (mime_list);
 
 	if (res_str) {
 

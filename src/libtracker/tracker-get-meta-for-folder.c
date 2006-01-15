@@ -57,21 +57,30 @@ main (int argc, char **argv)
 	char *metadata[] = {"File.Format", "File.Size", "Doc.PageCount", NULL};
 	GHashTable *table = NULL;
 	GError *error = NULL;
+	TrackerClient *client = NULL;
+
 
 	if (!argv[1]) {
 		g_print ("usage - tracker-meta-folder FOLDER");
-		return;
+		return 1;
 	}
 
-	if (!tracker_init ()) {
+	client =  tracker_connect ();
+
+	if (!client) {
 		g_print ("Could not initialise Tracker - exiting...");
-		return;
+		return 1;
 	}
 
 
-	table =  tracker_get_metadata_for_files_in_folder (argv[1], metadata, error);
+	table =  tracker_get_metadata_for_files_in_folder (client, argv[1], metadata, error);
 	
+	if (error) {
+		g_warning ("An error has occured : %s", error->message);
+		g_error_free (error);
+	}
 
+	
 
 	if (table) {
 		g_print ("got %d values\n", g_hash_table_size (table));
@@ -81,7 +90,7 @@ main (int argc, char **argv)
 
 	
 
-	tracker_close ();
+	tracker_disconnect (client);
 
 }
 

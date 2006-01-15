@@ -30,9 +30,11 @@
 
 //#include "tracker-global.h"
 #include "tracker-fam.h"
-#include "tracker-utils.h"
+#include "tracker-db.h"
 
-GAsyncQueue *file_process_queue;
+GAsyncQueue 	*file_pending_queue;
+GAsyncQueue 	*file_process_queue;
+DBConnection	*main_thread_db_con;
 
 typedef struct {
 	char 	   *watch_directory;
@@ -110,6 +112,15 @@ tracker_end_watching (void)
 
 	g_hash_table_destroy  (watch_table);
 }
+
+static gboolean
+is_delete_event (TrackerChangeAction event_type)
+{
+	
+	return  (event_type == TRACKER_ACTION_DELETE || event_type == TRACKER_ACTION_DELETE_SELF ||event_type == TRACKER_ACTION_FILE_DELETED ||event_type == TRACKER_ACTION_DIRECTORY_DELETED );
+
+}
+
 
 
 static gboolean
@@ -189,10 +200,39 @@ fam_callback (GIOChannel *source,
 				continue;
 			}
 
+			int i = strlen (file_utf8_uri);
+
+			i--;
+			
+			/* ignore trash files */
+			if (file_utf8_uri [i] == '~') {
+				continue;
+			}
+
 			info = tracker_create_file_info (file_utf8_uri, event_type, counter, WATCH_OTHER);
 			if (tracker_file_info_is_valid (info)) {
-				g_async_queue_push (file_process_queue, info);		
+				
+				/* process deletions immediately - schedule (make pending) all others */
+				if (is_delete_event (event_type)) {
+					char *parent = g_path_get_basename (info->uri);
+						
+					if (tracker_is_directory_watched (parent) || tracker_is_directory_watched (info->uri)) {
+						g_async_queue_push (file_process_queue, info);	
+					} else {
+						info = tracker_free_file_info (info);					
+					}
+				} else { 
+
+					tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory);
+					info = tracker_free_file_info (info);
+			//		g_async_queue_push (file_pending_queue, info);	
+				}
+
+				/*tracker_log ("FAM: %s with event %s (pending queue length: %d, process queue length: %d)", 
+					     file_utf8_uri, tracker_actions[event_type],
+					     g_async_queue_length (file_process_queue), g_async_queue_length (file_process_queue));	*/
 			}
+
 			g_free (file_utf8_uri);
 		}
 	}

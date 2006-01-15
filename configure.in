@@ -54,6 +54,7 @@ AC_CONFIG_SUBDIRS(src/libextractor)
 # ==========================================================================
 AC_CONFIG_FILES([
 Makefile 
+tracker.pc
 data/Makefile
 data/english/Makefile
 filters/Makefile

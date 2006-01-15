@@ -60,6 +60,7 @@ tracker_db_prepare_statement (MYSQL *db, MYSQL_STMT **stmt, const char *query)
 
 	if (mysql_stmt_prepare (*stmt, query, strlen (query)) != 0) {
 		tracker_log (" mysql_stmt_prepare(), query failed due to %s", mysql_stmt_error (*stmt));
+		return -5;
 	}
 	return mysql_stmt_param_count (*stmt);
 }
@@ -424,7 +425,7 @@ tracker_db_prepare_queries (DBConnection *db_con)
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_id_stmt, SELECT_FILE_ID) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_child_stmt, SELECT_FILE_CHILD) == 1);
-	//g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_watches_stmt, SELECT_FILE_WATCHES) == 0);
+	tracker_db_prepare_statement (db_con->db, &db_con->select_file_watches_stmt, SELECT_FILE_WATCHES);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_file_stmt, INSERT_FILE) == 6);
 
@@ -454,6 +455,16 @@ tracker_db_prepare_queries (DBConnection *db_con)
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_type_stmt, INSERT_METADATA_TYPE) == 4);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_stmt, SELECT_SEARCH_TEXT) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_mime_stmt, SELECT_SEARCH_TEXT_MIME) == 2);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_mime_location_stmt, SELECT_SEARCH_TEXT_MIME_LOCATION) == 3);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_location_stmt, SELECT_SEARCH_TEXT_LOCATION) == 2);
+
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_pending_file_stmt, INSERT_PENDING_FILE) == 6);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_pending_file_by_uri_stmt, SELECT_PENDING_FILE_BY_URI) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_pending_file_stmt, UPDATE_PENDING_FILE) == 3);
+	tracker_db_prepare_statement (db_con->db, &db_con->update_pending_files_counter_stmt, UPDATE_PENDING_FILES_COUNTER);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_pending_file_by_uri_stmt, DELETE_PENDING_FILE_BY_URI) == 1);
+
 }
 
 
@@ -496,11 +507,14 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 {
 	char ***res_str = NULL;
 
-	if (!db_con || !info->path || !info->name || !tracker_file_info_is_valid (info)) {
+	if (!db_con || !info || !tracker_file_info_is_valid (info)) {
 		return info;
 	}
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_file_id_stmt, 2, info->path, info->name);	
+	char *name = g_path_get_basename (info->uri);
+	char *path = g_path_get_dirname (info->uri);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_file_id_stmt, 2, path, name);	
 		
 	if (res_str && res_str[0] && res_str[0][0]) {
 		info->file_id = atol (res_str[0][0]); 
@@ -516,6 +530,9 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 
 	tracker_db_free_result (res_str);
 
+	g_free (name);
+	g_free (path);
+
 	return info;
 
 }
@@ -527,7 +544,7 @@ tracker_exec_sql (MYSQL *db, const char *query)
 	GTimeVal before, after;
 	double elapsed;
 
-	tracker_log ("executing query:\n%s\n", query);
+	//tracker_log ("executing query:\n%s\n", query);
 	g_get_current_time (&before);
 	if (!lock_db ()) {
 		return NULL;
@@ -545,7 +562,7 @@ tracker_exec_sql (MYSQL *db, const char *query)
 
 	elapsed =  (1000 * (after.tv_sec - before.tv_sec))  +  ((after.tv_usec - before.tv_usec) / 1000);
 
-	tracker_log ("Query execution time is %f ms\n\n", elapsed);
+//	tracker_log ("Query execution time is %f ms\n\n", elapsed);
 
 	if (mysql_field_count (db) > 0) {
 	    	if (!(res = mysql_store_result (db))) {
@@ -870,7 +887,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 	if (bytes_read > 3) {
 		if (mysql_stmt_execute (db_con->insert_metadata_indexed_stmt) != 0) {
 			unlock_db ();
-			tracker_log ("query failed :%s", mysql_stmt_error (db_con->insert_metadata_indexed_stmt));
+			tracker_log ("insert metadata indexed query failed :%s", mysql_stmt_error (db_con->insert_metadata_indexed_stmt));
 		} else {
 			unlock_db ();
 			tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
@@ -882,6 +899,78 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 
 
 }
+
+static int
+get_row_count (char ***result)
+{
+	char ***rows;
+	int i;
+
+	if (!result) {
+		return 0;
+	}
+
+	i = 0;
+
+	for (rows = result; *rows; rows++) {
+		i++;			
+	}
+
+	return i;
+
+}
+
+char **
+tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
+{
+	char 		***rows, ***res_str = NULL;
+	char 		**row, **array = NULL;	
+	int 		i, row_count;
+	char		*str;
+
+	g_return_val_if_fail (db_con && folder_uri && (strlen (folder_uri) > 0), NULL);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_file_child_stmt, 1, folder_uri);
+	
+	if (res_str) {
+
+		row_count = get_row_count (res_str);
+	
+		if (row_count > 0) {
+
+			array = g_new (char *, row_count +1);
+
+			i = 0;
+
+			for (rows = res_str; *rows; rows++) {
+				row = *rows;
+				if (row  && row[1] && row[2]) {
+					array[i] = g_build_filename (row[1], row[2], NULL);
+
+				} else {
+					array[i] = NULL;
+				}
+				i++;
+			}
+			array [row_count] = NULL;
+			
+		} else {
+			tracker_log ("result set is empty");
+			array = g_new (char *, 1);
+			array[0] = NULL;
+		}
+
+		tracker_db_free_result (res_str);
+			
+	} else {
+		array = g_new (char *, 1);
+		array[0] = NULL;
+	}
+
+	return array;
+
+} 
+
 
 
 FieldDef *
@@ -934,5 +1023,140 @@ tracker_db_free_field_def (FieldDef *def)
 	}
 
 	g_free (def);
+
+}
+
+
+FileInfo *
+tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
+{
+	char ***res_str = NULL;
+	FileInfo *info = NULL;
+
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_pending_file_by_uri_stmt, 1, uri);	
+
+	if (res_str && res_str[0] && res_str[0][0] && res_str[0][1] && res_str[0][2] && res_str[0][3] && res_str[0][4]) {
+		info = tracker_create_file_info (uri, atoi(res_str[0][2]), 0, 0);
+		info->mime = g_strdup (res_str[0][3]);
+		info->is_directory =  (strcmp (res_str[0][4], "0") == 0);
+	}
+	
+	tracker_db_free_result (res_str);
+
+	return info;
+
+}
+
+
+static void
+make_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
+{
+	
+	char *str_file_id, *str_action, *str_is_directory, *str_counter;
+
+	str_file_id = g_strdup_printf ("%ld", file_id);
+	str_action = g_strdup_printf ("%d", action);
+	str_is_directory = g_strdup_printf ("%d", is_directory);
+	str_counter = g_strdup_printf ("%d", counter);
+
+	if (!mime) {
+		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
+	} else {
+		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  mime, str_is_directory);
+	}
+
+	g_free (str_file_id);
+	g_free (str_action);
+	g_free (str_counter);
+	g_free (str_is_directory);
+}
+
+
+void
+tracker_db_update_pending_file (DBConnection *db_con, const char* uri, int counter, TrackerChangeAction action)
+{
+
+	char *str_counter;
+	char *str_action;
+
+	str_counter = g_strdup_printf ("%d", counter);
+	str_action = g_strdup_printf ("%d", action);
+
+	tracker_db_exec_stmt (db_con->update_pending_file_stmt, 3, str_counter, str_action, uri);
+
+	g_free (str_counter);
+	g_free (str_action);
+
+
+}
+
+void 
+tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
+{
+	FileInfo *info = NULL;
+
+	/* check if uri already has a pending action and update accordingly */
+	info = tracker_db_get_pending_file (db_con, uri);
+
+	if (info) {
+		switch (action) {
+
+		case TRACKER_ACTION_FILE_CHECK:
+
+
+			/* update counter for any existing event in the file_scheduler */
+									
+			if ((info->action == TRACKER_ACTION_FILE_CHECK) || 
+			    (info->action == TRACKER_ACTION_FILE_CREATED) ||
+			    (info->action == TRACKER_ACTION_FILE_CHANGED)) {  
+					
+				tracker_db_update_pending_file (db_con, uri, counter, action);
+			}
+
+			break;
+
+
+		case TRACKER_ACTION_FILE_CHANGED:
+
+			tracker_db_update_pending_file (db_con, uri, counter, action);
+
+			break;
+
+
+		case TRACKER_ACTION_WRITABLE_FILE_CLOSED :
+
+			tracker_db_update_pending_file (db_con, uri, 0, action);
+						
+			break;
+
+		case TRACKER_ACTION_FILE_DELETED :
+		case TRACKER_ACTION_FILE_CREATED :
+		case TRACKER_ACTION_DIRECTORY_DELETED :
+		case TRACKER_ACTION_DIRECTORY_CREATED :
+
+			/* overwrite any existing event in the file_scheduler */
+			tracker_db_update_pending_file (db_con, uri, 0, action);
+
+			break;
+
+		case TRACKER_ACTION_EXTRACT_METADATA :
+
+			/* we only want to continue extracting metadata if file is not being changed/deleted in any way */
+			if (info->action == TRACKER_ACTION_FILE_CHECK)	{
+				tracker_db_update_pending_file (db_con, uri, 0, action);
+			}					
+
+			break;
+
+		default :
+			break;
+		}
+
+		info = tracker_free_file_info (info);
+
+	} else {
+		make_pending_file (db_con, file_id, uri, mime, counter, action, is_directory);
+	}
 
 }

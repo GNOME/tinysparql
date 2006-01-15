@@ -25,8 +25,9 @@
 
 /* queries for Files */
 #define SELECT_FILE_ID 		"SELECT ID, IndexTime, IsDirectory FROM Files WHERE Path = ? AND FileName = ?"
-#define SELECT_FILE_CHILD	"SELECT ID, Path, FileName FROM Files WHERE (Path = ?)"
-#define SELECT_FILE_WATCHES	"SELECT CONCAT (Path, '/',  FileName) FROM Files WHERE WatchType < 4 and IsWatched = 1"	
+#define SELECT_FILE_CHILD	"SELECT ID, Path, FileName FROM Files WHERE Path = ?"
+#define SELECT_FILE_WATCHES	"SELECT Path, FileName FROM Files WHERE WatchType < 4 and IsWatched = 1"	
+#define SELECT_FILE_WATCH_ROOTS	"SELECT CONCAT (Path, '/',  FileName) FROM Files WHERE WatchType = 0 and IsWatched = 1"	
 
 #define INSERT_FILE 		"INSERT INTO Files (Path, FileName, IsVFS, IsDirectory, IsLink, IndexTime) VALUES (?,?,?,?,?,?)" 
 
@@ -59,7 +60,28 @@
 #define INSERT_METADATA_TYPE	 	"INSERT INTO MetaDataTypes (MetaName, DataTypeID, Indexable, Writeable) VALUES (?,?,?,?)" 
 
 /* queries for searching files */
-#define SELECT_SEARCH_TEXT	"SELECT  F.Path, F.FileName FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)"
+#define SELECT_SEARCH_TEXT		 "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) LIMIT 512"
+#define SELECT_SEARCH_TEXT_MIME		 "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M, FileMetaData M2 WHERE F.ID = M.FileID AND F.ID = M2.FileID AND F.IsVFS = 0 AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, ?) LIMIT 512"
+#define SELECT_SEARCH_TEXT_LOCATION	 "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND F.Path like ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) LIMIT 512"
+#define SELECT_SEARCH_TEXT_MIME_LOCATION "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M, FileMetaData M2 WHERE F.ID = M.FileID AND F.ID = M2.FileID AND F.IsVFS = 0 AND F.Path like ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, ?) LIMIT 512"
+
+
+/* queries for processing pending files */
+
+#define INSERT_PENDING_FILE		"INSERT INTO FilePending (FileID, Action, Counter, FileUri, MimeType, IsDir) VALUES (?,?,?,?,?,?)"
+
+#define CREATE_PENDING_FILES		"CREATE TEMPORARY TABLE tmptable SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE Counter = 0 AND Action <> 20 ORDER BY ID LIMIT 400"
+#define CREATE_PENDING_FILES_METADATA	"CREATE TEMPORARY TABLE tmptable SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE Counter = 0 AND Action = 20 ORDER BY ID LIMIT 400"
+#define SELECT_PENDING_FILES		"SELECT FileID, FileUri, Action, MimeType, IsDir FROM tmptable ORDER BY ID"
+#define DELETE_PENDING_FILES		"DELETE FROM FilePending USING tmptable, FilePending WHERE FilePending.ID = tmptable.ID"
+#define DROP_PENDING_FILES		"DROP TEMPORARY TABLE tmptable"
+
+#define SELECT_PENDING_FILE_BY_URI	"SELECT  FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE FileUri = ?"
+
+#define UPDATE_PENDING_FILES_COUNTER	"UPDATE FilePending SET Counter=Counter-1 WHERE Counter > 0"
+#define UPDATE_PENDING_FILE		"UPDATE FilePending SET Counter = ?, Action = ? WHERE FileUri = ?"
+
+#define DELETE_PENDING_FILE_BY_URI	"DELETE FROM FilePending WHERE FileUri = ?"
 
 
 typedef struct {
@@ -101,7 +123,15 @@ typedef struct {
         MYSQL_STMT  	*insert_metadata_type_stmt;
 
         MYSQL_STMT  	*select_search_text_stmt;
+        MYSQL_STMT  	*select_search_text_mime_stmt;
+        MYSQL_STMT  	*select_search_text_mime_location_stmt;
+        MYSQL_STMT  	*select_search_text_location_stmt;
 
+        MYSQL_STMT  	*select_pending_file_by_uri_stmt;
+        MYSQL_STMT  	*insert_pending_file_stmt;
+        MYSQL_STMT  	*update_pending_file_stmt;
+	MYSQL_STMT  	*update_pending_files_counter_stmt;
+        MYSQL_STMT  	*delete_pending_file_by_uri_stmt;
 
 } DBConnection;
  
@@ -137,7 +167,11 @@ gboolean	tracker_db_save_file 		(FileInfo *info);
 void		tracker_db_save_metadata 	(DBConnection *db_con, GHashTable *table, long file_id);
 void		tracker_db_save_thumbs		(DBConnection *db_con, const char *small_thumb, const char *large_thumb, long file_id);
 void		tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long file_id);
+char **		tracker_db_get_files_in_folder 	(DBConnection *db_con, const char *folder_uri);
 FieldDef *	tracker_db_get_field_def	(DBConnection *db_con, const char *field_name);
 void		tracker_db_free_field_def 	(FieldDef *def);
+FileInfo *	tracker_db_get_pending_file 	(DBConnection *db_con, const char *uri);
+void		tracker_db_update_pending_file 	(DBConnection *db_con, const char* uri, int counter, TrackerChangeAction action);
+void		tracker_db_insert_pending_file 	(DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory);
 
  

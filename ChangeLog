@@ -1,5 +1,33 @@
-Sept 15th 2005 - Jamie McCracken (jamiemcc@gnome.org)
-Tracker Project Created
+2006-01-14  Jamie McCracken <jamiemcc@gnome.org>
 
-Dec  8Th 2005 - Jamie McCracken (jamiemcc@gnome.org)
-Pre-release of Tracker launched
+	* Updated libtracker to be more usable especially for Nautilus search
+
+
+2006-01-11  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Improved file change handling by creating a pending file
+	  queue and a pending File Database table. This allows changes 
+	  awaiting processing by the tracker daemon to be handled much
+	  more efficiently with respect to memory usage.
+
+
+2006-01-06  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Added fallback polling mechanism to trackerd.c. This kicks
+	  in if iNotify/FAM is not available (IE if home directory
+	  is on an NFS mount) or if iNotify/FAM watch limits have
+	  been exceeded.
+
+
+2005-12-13  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Imported initial version of Tracker into CVS
+
+
+2005-09-15 Jamie McCracken <jamiemcc@gnome.org>
+
+	* Tracker Project started
+
+
+
+

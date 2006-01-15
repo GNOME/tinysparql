@@ -31,9 +31,12 @@ main (int argc, char **argv)
 	char **strarray;
 	char **p_strarray;
 	GError *error = NULL;
+	TrackerClient *client = NULL;
 
 	
-	if (!tracker_init ()) {
+	client =  tracker_connect ();
+
+	if (!client) {
 		g_print ("Could not initialise Tracker - exiting...");
 		return;
 	}
@@ -46,7 +49,7 @@ main (int argc, char **argv)
 	
 	buffer[bytes_read] = '\0';
 
-	strarray = tracker_search_metadata_by_query (buffer, error);
+	strarray = tracker_search_metadata_by_query (client, buffer, error);
 
 	if (!strarray) {
 		g_print ("no results were found matching your query");
@@ -59,7 +62,7 @@ main (int argc, char **argv)
 
 	g_strfreev (strarray);
 
-	tracker_close ();	
+	tracker_disconnect (client);	
 
 	return 0;
 
