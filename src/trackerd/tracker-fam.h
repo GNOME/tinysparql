@@ -17,7 +17,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#define MAX_FILE_WATCHES 400
+#define MAX_FILE_WATCHES 40
 
 gboolean 	tracker_start_watching 		(void);
 void     	tracker_end_watching 		(void);
