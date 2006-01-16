@@ -731,14 +731,15 @@ start_watching (gpointer data)
 
 		if (data) {
 			watch_folder =  (char *)data;
+			watch_dir (watch_folder);
+			schedule_file_check (watch_folder);
+			g_free (watch_folder);
 		} else {
-
-			watch_folder = g_strdup (g_get_home_dir ());
+			g_slist_foreach (watch_directory_roots_list, (GFunc) watch_dir, NULL);
+ 			g_slist_foreach (watch_directory_roots_list, (GFunc) schedule_file_check, NULL);
 		}
+
 	
-		watch_dir (watch_folder);
-		schedule_file_check (watch_folder);
-		g_free (watch_folder);
 		tracker_log ("waiting for file events...");
 	}
 	return FALSE;
@@ -1229,7 +1230,7 @@ process_user_request_queue_thread (GMutex *mutex)
 				break;
 		
 			case DBUS_ACTION_SEARCH_BY_TEXT:
-
+				tracker_log ("request search_by_text");
 				tracker_dbus_method_search_by_text (rec);
 				
 				break;
@@ -1399,6 +1400,8 @@ main (int argc, char **argv)
 	sigaction (SIGUSR1,  &act, NULL);
 	sigaction (SIGINT, &act, NULL);
 
+
+	tracker_load_config_file ();
 
 	str = g_strdup (DATADIR "/tracker/english");
 

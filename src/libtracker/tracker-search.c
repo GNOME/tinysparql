@@ -23,11 +23,10 @@
 static GMainLoop 	*loop;
 
 static void
-my_callback (char **result, GError *error)
+my_callback (char **result, GError *error, gpointer user_data)
 {
 	
 	char **p_strarray;
-
 	
 	if (error) {
 		g_warning ("An error has occured : %s", error->message);
@@ -60,7 +59,7 @@ main (int argc, char **argv)
 		g_print ("usage - tracker-search SearchTerm");
 	}
 
-	client =  tracker_connect ();
+	client =  tracker_connect (FALSE);
 
 	if (!client) {
 		g_print ("Could not initialise Tracker - exiting...");
@@ -76,9 +75,9 @@ main (int argc, char **argv)
 		array[0] = argv[2];
 		array[1] = argv[3];
 		array[2] = NULL;
-		tracker_search_metadata_by_text_and_mime_async (client, argv[1], array, my_callback);
+		tracker_search_metadata_by_text_and_mime_async (client, argv[1], array, my_callback, NULL);
 	} else {
-		tracker_search_metadata_by_text_async (client, argv[1], my_callback);
+		tracker_search_metadata_by_text_async (client, argv[1], my_callback, NULL);
 	}
 
 	g_main_loop_run (loop);

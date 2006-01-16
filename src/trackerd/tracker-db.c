@@ -232,7 +232,7 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 	va_list 	args;
 	MYSQL_BIND 	bind[16];
 	unsigned long 	length[16];
-	char 		params[16][255];
+	char 		params[16][2048];
 	int 		i;
 	char 		*str;
 
@@ -250,17 +250,17 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 
 		str = va_arg (args, char *);
 		
-		if (strlen(str) > 255) {
+		if (strlen(str) > 2048) {
 			tracker_log ("Warning - length of parameter %s is too long", str);
 		}
 
-		strncpy (params[i], str, 255);
+		strncpy (params[i], str, 2048);
 		length[i] = strlen (params[i]);
 	
 	  	/* Bind input buffers */
 		bind[i].buffer_type = MYSQL_TYPE_STRING;
 		bind[i].buffer = (char *)params[i];
-		bind[i].buffer_length = 255;
+		bind[i].buffer_length = 2048;
 		bind[i].is_null = 0;
 		bind[i].length = &length[i];
 
