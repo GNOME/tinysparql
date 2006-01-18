@@ -111,10 +111,10 @@ lock_db ()
 	tmp_file = g_strdup_printf ("%s_%ld.lock", tmp, (long)getpid ());
 	g_free (tmp);
 
-	for ( attempt=0; attempt < 1000; ++attempt) {
+	for ( attempt=0; attempt < 10000; ++attempt) {
 		
-		/* delete existing lock file if older than 10 secs */
-		if (g_file_test (lock_file, G_FILE_TEST_EXISTS) && ( time((time_t *)NULL) - get_mtime (lock_file)) > 10) {
+		/* delete existing lock file if older than 5 mins */
+		if (g_file_test (lock_file, G_FILE_TEST_EXISTS) && ( time((time_t *)NULL) - get_mtime (lock_file)) > 300) {
 			unlink (lock_file); 
 		}
 
@@ -122,10 +122,10 @@ lock_db ()
 		if (fd >= 0) {
 		
 			/* create host specific file and link to lock file */
-			link ( lock_file, tmp_file);
+			link (lock_file, tmp_file);
 			
-			/* for atomic NFS safe locks, stat links = 2 if file locked. If greater than 2 then we have a race condition */
-			if ( get_nlinks (lock_file) == 2) {
+			/* for atomic NFS-safe locks, stat links = 2 if file locked. If greater than 2 then we have a race condition */
+			if (get_nlinks (lock_file) == 2) {
 				close (fd);
 				g_free (lock_file);
 				g_free (tmp_file);
@@ -139,6 +139,8 @@ lock_db ()
 		}
 	}
 	tracker_log ("lock failure");
+	g_free (lock_file);
+	g_free (tmp_file);
 	return FALSE;
 }
 
