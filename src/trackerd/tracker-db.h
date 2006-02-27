@@ -26,6 +26,7 @@
 /* queries for Files */
 #define SELECT_FILE_ID 		"SELECT ID, IndexTime, IsDirectory FROM Files WHERE Path = ? AND FileName = ?"
 #define SELECT_FILE_CHILD	"SELECT ID, Path, FileName FROM Files WHERE Path = ?"
+#define SELECT_FILE_SUB_FOLDERS	"SELECT ID, Path, FileName FROM Files WHERE (Path = ? or Path like ?) AND IsDirectory = 1"
 #define SELECT_FILE_WATCHES	"SELECT Path, FileName FROM Files WHERE WatchType < 4 and IsWatched = 1"	
 #define SELECT_FILE_WATCH_ROOTS	"SELECT CONCAT (Path, '/',  FileName) FROM Files WHERE WatchType = 0 and IsWatched = 1"	
 
@@ -33,6 +34,9 @@
 
 #define UPDATE_FILE		"UPDATE Files SET IndexTime = ? WHERE ID = ?"
 #define UPDATE_FILE_MOVE	"UPDATE Files SET Path = ?, FileName = ?, IndexTime = ? WHERE ID = ?"
+#define UPDATE_FILE_MOVE_CHILD	"UPDATE Files SET Path = ? WHERE Path = ?"
+#define UPDATE_FILE_MOVE_CHILD2	"UPDATE Files SET Path = REPLACE(path,?,?) WHERE Path like ?"
+
 #define UPDATE_FILE_WATCH	"UPDATE Files SET IsWatched = ?, WatchType = ? WHERE ID = ?"
 #define UPDATE_FILE_WATCH_CHILD	"UPDATE Files SET IsWatched = ?, WatchType = ? WHERE (Path = ?) OR (Path like ?)"
 
@@ -84,6 +88,18 @@
 #define DELETE_PENDING_FILE_BY_URI	"DELETE FROM FilePending WHERE FileUri = ?"
 
 
+/* queries for inotify watches */
+
+#define  CREATE_WATCH_TABLE 	"CREATE Table IF NOT EXISTS TMP_WATCH (URI varchar(255) not null, WatchID int not null, primary key (URI), key (WatchID))"
+#define  SELECT_URI   		"select URI from TMP_WATCH where WatchID = ?"
+#define  SELECT_WATCH  		"select WatchID from TMP_WATCH where URI = ?"
+#define  SELECT_SUBWATCHES	"select WatchID from TMP_WATCH where URI like ?"
+#define  SELECT_WATCH_COUNT	"select COUNT(URI) from TMP_WATCH where (WatchID > -1)"
+#define  DELETE_WATCH  		"delete from TMP_WATCH where URI = ?"
+#define  DELETE_SUBWATCHES	"delete from TMP_WATCH where URI like ?"
+#define  INSERT_WATCH  		"insert into TMP_WATCH (URI, WatchID) values (?,?)"
+
+
 typedef struct {
 	MYSQL 		*db;
 
@@ -91,18 +107,27 @@ typedef struct {
         MYSQL_STMT  	*select_file_id_stmt;
         MYSQL_STMT  	*select_file_index_time_stmt;
         MYSQL_STMT  	*select_file_child_stmt;
+        MYSQL_STMT  	*select_file_sub_folders_stmt;
         MYSQL_STMT  	*select_file_watches_stmt;
 
         MYSQL_STMT  	*insert_file_stmt;
 
         MYSQL_STMT  	*update_file_stmt;
         MYSQL_STMT  	*update_file_move_stmt;
+        MYSQL_STMT  	*update_file_move_child_stmt;
+        MYSQL_STMT  	*update_file_move_child2_stmt;
         MYSQL_STMT  	*update_file_watch_stmt;
         MYSQL_STMT  	*update_file_watch_child_stmt;
 
         MYSQL_STMT  	*delete_file_stmt;
         MYSQL_STMT  	*delete_file_child_stmt;
 
+	MYSQL_STMT  	*select_uri_stmt;
+	MYSQL_STMT  	*select_watch_stmt;
+	MYSQL_STMT  	*select_subwatches_stmt;
+	MYSQL_STMT  	*delete_watch_stmt;
+	MYSQL_STMT  	*delete_subwatches_stmt;
+	MYSQL_STMT  	*insert_watch_stmt;
 
         MYSQL_STMT  	*select_metadata_stmt;
         MYSQL_STMT  	*select_metadata_indexed_stmt;

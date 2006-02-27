@@ -146,6 +146,9 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 			g_free (argv[2]);
 			return NULL;
 		}
+
+	} else {
+		g_free (text_filter_file);
 	}
 	
 	return NULL;

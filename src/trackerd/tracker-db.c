@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <mysql/mysql.h>
 #include "tracker-db.h"
 
 
@@ -260,7 +260,7 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 		length[i] = strlen (params[i]);
 	
 	  	/* Bind input buffers */
-		bind[i].buffer_type = MYSQL_TYPE_STRING;
+		bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
 		bind[i].buffer = (char *)params[i];
 		bind[i].buffer_length = 2048;
 		bind[i].is_null = 0;
@@ -328,7 +328,7 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 		length[i] = strlen (params[i]);
 	
 	  	/* Bind input buffers */
-		bind[i].buffer_type = MYSQL_TYPE_STRING;
+		bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
 		bind[i].buffer = (char *)params[i];
 		bind[i].buffer_length = 255;
 		bind[i].is_null = 0;
@@ -359,7 +359,7 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 
 
 	for (i = 0; i < column_count; i++ ) {
-		bind[i].buffer_type= MYSQL_TYPE_STRING;
+		bind[i].buffer_type= MYSQL_TYPE_VAR_STRING;
 		bind[i].buffer= (char *)params[i];
 		bind[i].buffer_length= 255;
 		bind[i].is_null = (my_bool*) &is_null[i];
@@ -424,20 +424,29 @@ tracker_db_prepare_queries (DBConnection *db_con)
 {
 
 	/* prepare queries to be used */
-
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_id_stmt, SELECT_FILE_ID) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_child_stmt, SELECT_FILE_CHILD) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_sub_folders_stmt, SELECT_FILE_SUB_FOLDERS) == 2);
 	tracker_db_prepare_statement (db_con->db, &db_con->select_file_watches_stmt, SELECT_FILE_WATCHES);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_file_stmt, INSERT_FILE) == 6);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_stmt, UPDATE_FILE) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_stmt, UPDATE_FILE_MOVE) == 4);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_child_stmt, UPDATE_FILE_MOVE_CHILD) == 2);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_child2_stmt, UPDATE_FILE_MOVE_CHILD2) == 3);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_watch_stmt, UPDATE_FILE_WATCH) == 3);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_watch_child_stmt, UPDATE_FILE_WATCH_CHILD) == 4);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_file_stmt, DELETE_FILE) == 1);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_file_child_stmt, DELETE_FILE_CHILD) == 2);
+
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_uri_stmt, SELECT_URI) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_watch_stmt, SELECT_WATCH) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_subwatches_stmt, SELECT_SUBWATCHES) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_watch_stmt, DELETE_WATCH) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_subwatches_stmt, DELETE_SUBWATCHES) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_watch_stmt, INSERT_WATCH) == 2);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_stmt, SELECT_METADATA) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_indexed_stmt, SELECT_METADATA_INDEXED) == 2);
@@ -814,17 +823,17 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 
 	memset (bind, 0, sizeof(bind));
 
-	bind[0].buffer_type= MYSQL_TYPE_STRING;
+	bind[0].buffer_type= MYSQL_TYPE_VAR_STRING;
 	bind[0].buffer= str_file_id;
 	bind[0].is_null= 0;
 	bind[0].length = &file_id_length;
 
-	bind[1].buffer_type= MYSQL_TYPE_STRING;
+	bind[1].buffer_type= MYSQL_TYPE_VAR_STRING;
 	bind[1].buffer= str_meta_id;
 	bind[1].is_null= 0;
 	bind[1].length = &meta_id_length;
 
-	bind[2].buffer_type= MYSQL_TYPE_STRING;
+	bind[2].buffer_type= MYSQL_TYPE_VAR_STRING;
 	bind[2].length= &length;
 	bind[2].is_null= 0;
 
@@ -832,6 +841,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 	/* Bind the buffers */
 	if (mysql_stmt_bind_param (db_con->insert_metadata_indexed_stmt, bind)) {
 		tracker_log ("binding error : %s\n", mysql_stmt_error (db_con->insert_metadata_indexed_stmt));
+		g_free (str_meta_id);
 		g_free (str_file_id);
 		fclose (file);
 		
@@ -872,7 +882,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 		if (mysql_stmt_send_long_data (db_con->insert_metadata_indexed_stmt, 2, buffer, strlen (buffer)) != 0) {	
 
 			tracker_log ("error sending data : %s\n", mysql_stmt_error (db_con->insert_metadata_indexed_stmt));
-	
+			g_free (str_meta_id);
 			g_free (str_file_id);
 			fclose (file);
 			return;
@@ -882,6 +892,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 
 	if (!lock_db ()) {
 		g_free (str_file_id);
+		g_free (str_meta_id);
 		fclose (file);
 		return;
 	}
@@ -895,7 +906,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 			tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
 		}
 	}
-
+	g_free (str_meta_id);
 	g_free (str_file_id);	
 	fclose (file);
 

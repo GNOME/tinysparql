@@ -99,6 +99,7 @@ typedef struct {
 	long			file_id;
 
 	TrackerChangeAction  	action;
+	guint32        		cookie;
 	int  		     	counter;
 	FileTypes		file_type;
 	WatchTypes		watch_type;
@@ -109,11 +110,6 @@ typedef struct {
 	long			link_id;
 	char			*link_path;
 	char			*link_name;
-
-	/* fields to store file move related info */
-	gboolean		is_moved;
-	char			*move_path;
-	char			*move_name;
 
 	char			*mime;
 	long			file_size;
@@ -126,10 +122,6 @@ typedef struct {
 	int			ref_count;
 
 } FileInfo;
-
-
-
-
 
 
 FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);	
@@ -158,4 +150,10 @@ void		tracker_load_config_file 	();
 
 GSList * 	tracker_get_watch_root_dirs 	();
 
+gboolean	tracker_ignore_file 		(const char *uri);
+
 void		tracker_print_object_allocations ();
+
+void		tracker_add_poll_dir 		(const char *dir);
+void		tracker_remove_poll_dir 	(const char *dir);  
+gboolean	tracker_is_dir_polled 		(const char *dir);

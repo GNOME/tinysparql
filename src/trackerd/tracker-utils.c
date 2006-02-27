@@ -36,8 +36,9 @@
 #include "tracker-utils.h"
 #include "xdgmime.h"
 
-GMutex 	*log_access_mutex;
-char 	*log_file; 
+GMutex 		*log_access_mutex;
+char 		*log_file; 
+GSList		*poll_list;
 
 /* configuration options table */
 static 	GHashTable	*config_table;
@@ -118,10 +119,6 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 	info->link_path = NULL;
 	info->link_name = NULL;
 
-	info->is_moved = FALSE;
-	info->move_path = NULL;
-	info->move_name = NULL;
-
 	info->mime = NULL;
 	info->file_size = 0;
 	info->permissions = g_strdup ("-r--r--r--");;
@@ -157,14 +154,6 @@ tracker_free_file_info (FileInfo *info)
 
 	if (info->mime) {
 		g_free (info->mime);
-	}
-
-	if (info->move_path) {
-		g_free (info->move_path);
-	}
-
-	if (info->move_name) {
-		g_free (info->move_name);
 	}
 
 	if (info->permissions) {
@@ -226,10 +215,6 @@ tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, 
 	info->link_id = -1;
 	info->link_path = NULL;
 	info->link_name = NULL;
-
-	info->is_moved = FALSE;
-	info->move_path = NULL;
-	info->move_name = NULL;
 
 	if (mime) {
 		info->mime = g_strdup (mime);
@@ -515,6 +500,35 @@ array_to_list (char **array)
 }
 
 
+gboolean
+tracker_ignore_file (const char *uri)
+{
+	int i;
+	char *name;
+
+	if (!uri || strlen (uri) == 0) {
+		return TRUE;
+	}	
+
+	name = g_path_get_basename (uri);
+
+	if (name[0] == '.') {
+		g_free (name);
+		return TRUE;
+	}
+
+	/* ignore trash files */
+	i = strlen (name);
+	i--;
+	if (name [i] == '~') {
+		g_free (name);
+		return TRUE;
+	}	
+
+	g_free (name);
+	return FALSE;
+}
+
 
 void
 tracker_load_config_file ()
@@ -636,4 +650,68 @@ tracker_load_config_file ()
 
 	g_free (filename);
 	g_key_file_free (key_file);
+}
+
+
+void
+tracker_remove_poll_dir (const char *dir) 
+{
+	const GSList *tmp;
+	char  *str, *str2;
+
+	tmp = poll_list;
+
+	str2 = g_strconcat (dir, "/", NULL);
+
+	while (tmp) {
+
+		str = tmp->data;
+
+		if (strcmp (dir, str) ==0) {
+			poll_list = g_slist_remove (poll_list, tmp->data);
+			g_free (str);
+			str = NULL;
+		}
+
+		/* check if subfolder of existing roots */
+
+		if (str && g_str_has_prefix (str, str2)) {
+			poll_list = g_slist_remove (poll_list, tmp->data);
+			g_free (str);			
+		}
+
+		tmp = tmp->next;
+	}
+
+	g_free (str2);
+
+}
+
+void
+tracker_add_poll_dir (const char *dir) 
+{
+	g_return_if_fail (dir && tracker_is_directory (dir));
+
+	poll_list = g_slist_prepend (poll_list, g_strdup (dir));
+	tracker_log ("adding %s for polling (poll count is %d)", dir, g_slist_length (poll_list));
+}
+
+
+gboolean
+tracker_is_dir_polled (const char *dir)
+{
+	GSList *tmp;
+	char *str;
+
+	tmp = poll_list;
+	while (tmp != NULL) {
+		str = (char *)tmp->data;
+		if (strcmp (dir, str) == 0) {
+			return TRUE;
+		}	
+	
+		tmp = tmp->next;
+	}
+
+	return FALSE;
 }

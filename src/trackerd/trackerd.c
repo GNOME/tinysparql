@@ -19,6 +19,7 @@
 
 #define DBUS_API_SUBJECT_TO_CHANGE
 
+#include "config.h"
 #include <mysql/mysql.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -34,11 +35,26 @@
 #include <fcntl.h>
 #include <glib/gstdio.h>
 
-#include "tracker-db.h"
+
+#ifdef HAVE_INOTIFY
+#include "tracker-inotify.h"
+#else
+#ifdef HAVE_FAM	
 #include "tracker-fam.h"
+#endif
+#endif
+
+#ifndef HAVE_INOTIFY
+#ifndef HAVE_FAM
+#define POLL_ONLY
+#include "tracker-db.h" 
+#endif
+#endif
+
+
 #include "tracker-metadata.h"
 #include "tracker-dbus-methods.h"
-
+ 
 /* 
  *   The workflow to process files and notified file change events are as follows:
  *
@@ -100,13 +116,18 @@ extern	char		*db_buffer_memory_limit = "1M";
 
 
 /* list to store all directories to poll  */
-static 	GSList 		*poll_list;
-
-extern  DBConnection	*main_thread_db_con = NULL;
-
+#ifdef POLL_ONLY
+static 	GAsyncQueue 	*file_pending_queue;
+static 	GAsyncQueue 	*file_process_queue;
+#else
 extern 	GAsyncQueue 	*file_pending_queue;
 extern 	GAsyncQueue 	*file_process_queue;
+#endif
+
 extern 	GAsyncQueue 	*user_request_queue;
+extern 	GSList 		*poll_list;
+extern  DBConnection	*main_thread_db_con = NULL;
+
 static 	GAsyncQueue 	*file_metadata_queue = NULL;
 
 extern 	GMutex 		*log_access_mutex;
@@ -130,13 +151,27 @@ static	GThread 	*file_poll_thread = NULL;
 
 static void schedule_file_check (const char * uri);
 
-//static void schedule_changed_file (FileInfo *info);
-
 static void delete_directory (DBConnection *db_con, FileInfo *info);
 
 static void delete_file (DBConnection *db_con, FileInfo *info);
 
 static void scan_directory (FileInfo *info);
+
+
+#ifdef POLL_ONLY
+
+#define MAX_FILE_WATCHES -1
+
+ gboolean 	tracker_start_watching 		(void){return TRUE;}
+ void     	tracker_end_watching 		(void){return;}
+
+ gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection	*db_con){return FALSE;}
+ void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, DBConnection	*db_con) {return;}
+
+ gboolean 	tracker_is_directory_watched 	(const char * dir, DBConnection	*db_con) {return FALSE;}
+ int		tracker_count_watch_dirs 	(void) {return 0;}
+#endif
+
 
 static void
 do_cleanup ()
@@ -248,48 +283,6 @@ poll_directories (gpointer db_con)
 
 
 
-static void
-remove_poll_dir (const char *dir) 
-{
-	const GSList *tmp;
-	char  *str, *str2;
-
-	tmp = poll_list;
-
-	str2 = g_strconcat (dir, "/", NULL);
-
-	while (tmp) {
-
-		str = tmp->data;
-
-		if (strcmp (dir, str) ==0) {
-			poll_list = g_slist_remove (poll_list, tmp->data);
-			g_free (str);
-			str = NULL;
-		}
-
-		/* check if subfolder of existing roots */
-
-		if (str && g_str_has_prefix (str, str2)) {
-			poll_list = g_slist_remove (poll_list, tmp->data);
-			g_free (str);			
-		}
-
-		tmp = tmp->next;
-	}
-
-	g_free (str2);
-
-}
-
-static void
-add_poll_dir (const char *dir) 
-{
-	g_return_if_fail (dir && tracker_is_directory (dir));
-
-	poll_list = g_slist_prepend (poll_list, g_strdup (dir));
-	tracker_log ("adding %s for polling (poll count is %d)", dir, g_slist_length (poll_list));
-}
 
 static void
 poll_files_thread () 
@@ -336,7 +329,7 @@ start_poll (void)
 
 
 static void 
-add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs) 
+add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_con)
 {
 	GSList *file_list = NULL;
 	gboolean start_polling = FALSE;
@@ -355,14 +348,14 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs)
 				str = (char *)tmp->data;
 
 				/* use polling if FAM or Inotify fails */ 
-				if (!tracker_add_watch_dir (str)) {
-					add_poll_dir (str);
+				if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && !tracker_is_dir_polled (str)) {
+					tracker_add_poll_dir (str);
 				}
 				tmp = tmp->next;
 			}
 
 		} else {
-			g_slist_foreach (dir_list, (GFunc) add_poll_dir, NULL); 
+			g_slist_foreach (dir_list, (GFunc) tracker_add_poll_dir, NULL); 
 		}
 
 		g_slist_foreach (dir_list, (GFunc) tracker_get_dirs, &file_list);
@@ -385,7 +378,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs)
 } 
 
 static gboolean
-watch_dir (const char* dir)
+watch_dir (const char* dir, DBConnection *db_con)
 {
 	char *dir_utf8 = NULL;
 	GSList *mylist = NULL;
@@ -414,13 +407,13 @@ watch_dir (const char* dir)
 	}
 
 
-	if (tracker_is_directory_watched (dir_utf8)) {
+	if (tracker_is_directory_watched (dir_utf8, db_con)) {
 		g_free (dir_utf8);
 		return FALSE;
 	}
 
 	mylist = g_slist_prepend (mylist, dir_utf8);
-	add_dirs_to_watch_list (mylist, TRUE);
+	add_dirs_to_watch_list (mylist, TRUE, db_con);
 	return TRUE;
 
 } 
@@ -536,9 +529,9 @@ delete_directory (DBConnection *db_con, FileInfo *info)
 
 	tracker_db_exec_stmt (db_con->delete_metadata_child_all_stmt, 2, str_path, str_path_like);
 
-	tracker_remove_watch_dir (info->uri, TRUE);
+	tracker_remove_watch_dir (info->uri, TRUE, db_con);
 
-	remove_poll_dir (info->uri);
+	tracker_remove_poll_dir (info->uri);
 
 	tracker_log ("deleting directory %s and subdirs like %s", str_path, str_path_like);
 
@@ -731,11 +724,11 @@ start_watching (gpointer data)
 
 		if (data) {
 			watch_folder =  (char *)data;
-			watch_dir (watch_folder);
+			watch_dir (watch_folder, main_thread_db_con);
 			schedule_file_check (watch_folder);
 			g_free (watch_folder);
 		} else {
-			g_slist_foreach (watch_directory_roots_list, (GFunc) watch_dir, NULL);
+			g_slist_foreach (watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
  			g_slist_foreach (watch_directory_roots_list, (GFunc) schedule_file_check, NULL);
 		}
 
@@ -1114,7 +1107,7 @@ process_files_thread ()
 
 				/* add to watch folders (including subfolders) */
 				//if (info->watch_type == WATCH_SUBFOLDER || info->watch_type == WATCH_ROOT) {
-					watch_dir (info->uri);
+					watch_dir (info->uri, &db_con);
 				//}
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
@@ -1406,23 +1399,33 @@ main (int argc, char **argv)
 	str = g_strdup (DATADIR "/tracker/english");
 
 	/* initialise embedded mysql with options*/
-	server_options = g_new (char *, 12);
+	server_options = g_new (char *, 11);
   	server_options[0] = g_strdup ("anything");
   	server_options[1] = g_strconcat  ("--datadir=", tracker_data_dir, NULL);
   	server_options[2] = g_strconcat ("--language=", str,  NULL);
-	server_options[3] = g_strdup ("--skip-bdb");
-	server_options[4] = g_strdup ("--skip-grant-tables");
-	server_options[5] = g_strdup ("--skip-innodb");
-	server_options[6] = g_strdup ("--key_buffer_size=1M");
-	server_options[7] = g_strdup ("--character-set-server=utf8");
-	server_options[8] = g_strdup ("--ft_max_word_len=45");
-	server_options[9] = g_strdup ("--ft_min_word_len=3");
-	server_options[10] = g_strdup ("--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt");
-	server_options[11] = NULL;
+//	server_options[2] = g_strdup ("--skip-bdb");
+	server_options[3] = g_strdup ("--skip-grant-tables");
+	server_options[4] = g_strdup ("--skip-innodb");
+	server_options[5] = g_strdup ("--key_buffer_size=1M");
+	server_options[6] = g_strdup ("--character-set-server=utf8");
+	server_options[7] = g_strdup ("--ft_max_word_len=45");
+	server_options[8] = g_strdup ("--ft_min_word_len=3");
+	server_options[9] = g_strdup ("--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt");
+	server_options[10] = NULL;
 
 
-	mysql_server_init ( 11, server_options, server_groups);
-	
+	mysql_server_init ( 10, server_options, server_groups);
+
+	if (mysql_get_client_version () < 40100) {
+		g_warning ("The currently installed version of mysql is too outdated (you need 4.1.* or higher). Exiting...");
+		return 1;
+	}
+
+	if (mysql_get_client_version () >= 50000) {
+		g_warning ("This version of Tracker is not currently compatible with version 5 or higher of mysql (you need 4.1.* or higher)");
+		return 1;
+	}
+		
 	tracker_log ("DB initialised");
 
 	g_free (str);
@@ -1441,12 +1444,14 @@ main (int argc, char **argv)
 
 	db_con.db = tracker_db_connect ();
 
+	/* clear pending files and watch tables*/
+	tracker_exec_sql (db_con.db, "TRUNCATE TABLE FilePending");
+	tracker_exec_sql (db_con.db, CREATE_WATCH_TABLE);
+	tracker_exec_sql (db_con.db, "TRUNCATE TABLE TMP_WATCH");
+
 	tracker_db_prepare_queries (&db_con);
 
 	main_thread_db_con = &db_con;
-
-	/* clear pending files */
-	tracker_exec_sql (db_con.db, "delete from FilePending");
 
 	file_scheduler = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 

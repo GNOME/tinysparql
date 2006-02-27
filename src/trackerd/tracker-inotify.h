@@ -18,7 +18,7 @@
  */
 
 #include "tracker-db.h"
-#define MAX_FILE_WATCHES 400
+#define MAX_FILE_WATCHES 8190
 
 gboolean 	tracker_start_watching 		(void);
 void     	tracker_end_watching 		(void);
@@ -28,6 +28,5 @@ void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, D
 
 gboolean 	tracker_is_directory_watched 	(const char * dir, DBConnection	*db_con);
 int		tracker_count_watch_dirs 	();
-
 
 

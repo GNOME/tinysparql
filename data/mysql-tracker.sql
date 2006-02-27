@@ -164,7 +164,7 @@ create table if not exists FilePending
 	Counter			tinyint default 0,
 	FileUri			varchar (255) not null,
 	MimeType		varchar (64),
-	IsDir			bool default 0,
+	IsDir			tinyint default 0,
 
 	primary key (ID),
 	key (FileID),

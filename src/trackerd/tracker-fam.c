@@ -30,7 +30,7 @@
 
 //#include "tracker-global.h"
 #include "tracker-fam.h"
-#include "tracker-db.h"
+
 
 GAsyncQueue 	*file_pending_queue;
 GAsyncQueue 	*file_process_queue;
@@ -51,7 +51,7 @@ static GHashTable *watch_table;
 
 
 gboolean 
-tracker_is_directory_watched (const char * dir)
+tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 {
 	DirWatch *watch;
 
@@ -214,9 +214,9 @@ fam_callback (GIOChannel *source,
 				
 				/* process deletions immediately - schedule (make pending) all others */
 				if (is_delete_event (event_type)) {
-					char *parent = g_path_get_basename (info->uri);
+					char *parent = g_path_get_dirname (info->uri);
 						
-					if (tracker_is_directory_watched (parent) || tracker_is_directory_watched (info->uri)) {
+					if (tracker_is_directory_watched (parent, NULL) || tracker_is_directory_watched (info->uri, NULL)) {
 						g_async_queue_push (file_process_queue, info);	
 					} else {
 						info = tracker_free_file_info (info);					
@@ -266,7 +266,7 @@ tracker_start_watching (void)
 
 
 gboolean
-tracker_add_watch_dir (const char *dir) 
+tracker_add_watch_dir (const char *dir, DBConnection *db_con) 
 {
 	
 	DirWatch *fwatch;
@@ -282,10 +282,6 @@ tracker_add_watch_dir (const char *dir)
 		return FALSE;
 	}
 
-
-	if (tracker_is_directory_watched (dir)) {
-		return FALSE;
-	}
 
 	if (g_hash_table_size (watch_table) >= MAX_FILE_WATCHES) {
 		tracker_log ("Watch Limit has been exceeded - unable to watch any more directories");
@@ -347,7 +343,7 @@ tracker_count_watch_dirs (void)
 
 
 void
-tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs) 
+tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection	*db_con) 
 {
 	char *str;
 

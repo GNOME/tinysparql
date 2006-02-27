@@ -7,7 +7,7 @@ INCLUDES =				\
 lib_LTLIBRARIES = libtracker.la
 
 libtracker_la_LIBADD = $(GLIB2_LIBS) 	\
-	    	       $(DBU
+	    	       $(DBUS_LIBS)
 
 libtracker_la_SOURCES = tracker.c
 include_HEADERS = tracker.h tracker-client.h		

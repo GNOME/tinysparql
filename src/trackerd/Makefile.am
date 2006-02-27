@@ -1,19 +1,35 @@
-mysql_flags = -D_THREAD_SAFE -D_REENTRANT
-mysql_libs = -L$(libdir) -lmysqld -lz -lm -lcrypt -lstdc++ -lpthread
+additional_mysql_flags = -D_THREAD_SAFE -D_REENTRANT
+
 
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	$(GLIB2_CFLAGS)			\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
-	$(mysql_flags)			\
+	$(MYSQL_CFLAGS)			\
+	$(additional_mysql_flags)	\
 	-g -W -Wall 
+
+if HAVE_INOTIFY
+inotify_sources = \
+	linux-inotify-syscalls.h \
+	tracker-inotify.c	\
+	tracker-inotify.h	
+else
+if HAVE_FAM
+fam_sources = \
+	tracker-fam.c \
+	tracker-fam.h
+endif
+endif
 
 
 
 bin_PROGRAMS = trackerd
 
 trackerd_SOURCES =		\
+	$(inotify_sources)	\
+	$(fam_sources)		\
 	trackerd.c		\
 	tracker-db.c		\
 	tracker-db.h		\
@@ -21,8 +37,6 @@ trackerd_SOURCES =		\
 	tracker-dbus.h		\
 	tracker-dbus-methods.c	\
 	tracker-dbus-methods.h	\
-	tracker-fam.c		\
-	tracker-fam.h		\
 	tracker-metadata.c	\
 	tracker-metadata.h	\
 	tracker-rdf-query.c	\
@@ -32,16 +46,23 @@ trackerd_SOURCES =		\
 	xdgmime.c		\
 	xdgmime.h		\
 	xdgmimealias.c 		\
+	xdgmimealias.h		\
 	xdgmimecache.c 		\
+	xdgmimecache.h		\
 	xdgmimeglob.c 		\
+	xdgmimeglob.h		\
 	xdgmimeint.c 		\
+	xdgmimeint.h		\
 	xdgmimemagic.c 		\
-	xdgmimeparent.c
-		
+	xdgmimemagic.h		\
+	xdgmimeparent.c		\
+	xdgmimeparent.h		
+
+
 
 trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(FAM_LIBS)	\
 		 $(DBUS_LIBS)	\
-		 $(mysql_libs)	
+		 $(MYSQL_LIBS)	\
+		 -lstdc++
 
-EXTRA_DIST =

@@ -1,3 +1,13 @@
+2006-02-27  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Added inotify support
+	* Optimised inotify move support
+	* Improved Build system
+	* Can use an external libextractor if found during compilation
+	* Fixed some leaks
+	* Fixed threading issues with new inotify backend
+
+
 2006-01-14  Jamie McCracken <jamiemcc@gnome.org>
 
 	* Updated libtracker to be more usable especially for Nautilus search

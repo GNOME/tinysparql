@@ -1,6 +1,6 @@
 INTRODUCTION
 
-Tracker is a powerful metadata framework that provides the ability to store, retrieve and search all types of file metadata including user defined ones.
+Tracker is a powerful metadata framework that provides the ability to store, retrieve and search all types of file metadata including user defined ones. Tracker is super efficient with your systems memory when compared with some other competing frameworks, which offer less functionality too.
 
 Tracker's features include:
 
@@ -26,7 +26,9 @@ INSTALLATION (from source):
 
 You will need to make sure you have the following dependencies installed : 
 
-libmysqld.a (version 4.1 or higher) - this is the embedded mysql server lib found in Debian package libmysqlclientXX-dev. RPMs (look for embedded server) can be found at : http://dev.mysql.com/downloads/mysql/4.1.html
+libmysqld.a (version 4.1 or higher but not version 5) - this is the embedded mysql server lib found in Debian package libmysqlclient14-dev. RPMs (look for embedded server) can be found at : http://dev.mysql.com/downloads/mysql/4.1.html
+
+(NB tracker does not work with the client.server versions of mysql so you must have the correct embedded server package installed)
 
 libdbus (0.50 +)
 
@@ -38,7 +40,15 @@ zlib
 
 libvorbisfile3 (1.1+) 
 
+Recommended packages:
 
+libextractor (0.5.9+) (tracker has a version inlined)
+wv (1.0.2+)
+poppler (pdftotext)
+
+
+
+COMPILATION
 
 To compile Tracker uses the following commands :
 
@@ -49,6 +59,18 @@ sudo make install
 If you install using any other prefix then you might have problems with files not being installed correctly.
 
 (You may need to copy the dbus service file to the correct directory and/or might need to update ldconf if you install into non standard directories.)
+
+
+
+Compile Options
+
+Tracker has several compiler options to enable/disable certain features. The following is available (all options should be passed as command line parameters to autogen.sh EG ./autogen.sh --disable-fam)
+
+--disable-fam : this option omits support of FAM/GAMIN with tracker
+
+--disable-inotify : this option omits support for inotify with tracker
+
+--enable-libextractor  : this option forces the use of the prepackaged version of libextractor in tracker
 
 
 
@@ -65,6 +87,20 @@ you can also pass a directory root to be indexed as a command line parameter. EG
 
 "trackerd /home/jamie/Documents"
 
+You can make sure that tracker only indexes a subset of your home directory by editing the tracker.cfg file in ~/.Tracker (which is created when you first run trackerd) and setting WatchDirectoryRoots to a semi-colon delimited list of directories (full path required!) EG: WatchDirectoryRoots=directory1;directory2;directory3
+
+
+
+Tracker And Nautilus Search
+
+Once you have installed Tracker and have some indexed contents, you should now compile Nautilus (ver 2.13.4 or higher) which should auto detect that tracker is installed and automatically compile in tracker support. You are now ready to appreciate a powerful and super efficient c based indexer in all its glory... happy hunting!
+
+To make sure trackerd always start when you login to Gnome, you will need to add it to Gnome-session (select sessions from preferences menu, select startup program tab and then add /usr/bin/trackerd). For non-gnome installations, see the desktop docs for how to auto start an application for your particular desktop.
+
+Tracker and Deskbar applet
+
+Tracker is also integrated in gnome's deskbar applet. Please see them for more info.
+
 
 
 COMMAND LINE TOOLS
@@ -75,6 +111,6 @@ Tracker comes with a number of command line apps that you can use:
 
 "tracker-search SEARCHTERM" - this perfoms a google like search using SEARCHTERM to retrieve all matching files where SEARCHTERM appears in any searchable metadata
 
-"tracker-query" - this reads from STDIN an RDF Query that specifies the search criteria for various fields. It prints to STDOUT all matching files.
+"tracker-query" - this reads from STDIN an RDF Query that specifies the search criteria for various fields. It prints to STDOUT all matching files. You can see some example queries in the RDF-Query-examples folder
 
 
