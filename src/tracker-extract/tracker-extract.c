@@ -473,5 +473,6 @@ main (int argc, char **argv)
 	}
 
 	EXTRACTOR_removeAll (plugins);
+	return 0;
 }
 

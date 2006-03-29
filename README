@@ -66,7 +66,7 @@ libvorbisfile3 (1.1+)
 
 Recommended packages:
 
-libextractor (0.5.9+) (tracker has a version inlined)
+libextractor (0.5.9+) (tracker has a streamlined version inlined)
 wv (1.0.2+)
 poppler (pdftotext)
 
@@ -93,7 +93,7 @@ Tracker has several compiler options to enable/disable certain features. The fol
 
 --disable-inotify : this option omits support for inotify with tracker
 
---enable-libextractor  : this option forces the use of the prepackaged version of libextractor in tracker
+--enable-libextractor  : this option forces the use of the prepackaged streamlined version of libextractor in tracker
 
 
 
