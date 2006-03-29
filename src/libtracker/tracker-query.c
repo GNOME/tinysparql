@@ -49,7 +49,14 @@ main (int argc, char **argv)
 	
 	buffer[bytes_read] = '\0';
 
-	strarray = tracker_search_metadata_by_query (client, buffer, error);
+	strarray = tracker_search_files_by_query (client, buffer, 512, FALSE, error);
+
+	if (error) {
+		g_warning ("An error has occured : %s", error->message);
+		g_error_free (error);
+		return;
+	}
+
 
 	if (!strarray) {
 		g_print ("no results were found matching your query");

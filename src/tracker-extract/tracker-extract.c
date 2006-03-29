@@ -105,6 +105,10 @@ get_metadata_type (const char *mime)
 {
 	int i;
 	int num_elements;
+
+	if (!mime) {
+		return NO_METADATA;
+	}
 	
 	if (g_str_has_prefix (mime, "image")) {
 		return IMAGE_METADATA;		
@@ -367,8 +371,10 @@ tracker_get_file_metadata (const char *uri, char *mime)
 
 	meta_type = get_metadata_type (mime);
 
+	
+
 	/* don't bother with video metadata - its really really slow to extract + there's bugger all metadata anyhow! */
-	if (g_str_has_prefix (mime, "video")) {
+	if (mime && g_str_has_prefix (mime, "video")) {
 		EXTRACTOR_freeKeywords (keywords);
 		return NULL;		
 	}

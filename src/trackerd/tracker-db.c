@@ -423,7 +423,7 @@ void
 tracker_db_prepare_queries (DBConnection *db_con)
 {
 
-	/* prepare queries to be used */
+	/* prepare queries to be used and bomb out if queries contain sql errors or erroneous parameter counts */
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_id_stmt, SELECT_FILE_ID) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_child_stmt, SELECT_FILE_CHILD) == 1);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_sub_folders_stmt, SELECT_FILE_SUB_FOLDERS) == 2);
@@ -434,7 +434,7 @@ tracker_db_prepare_queries (DBConnection *db_con)
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_stmt, UPDATE_FILE) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_stmt, UPDATE_FILE_MOVE) == 4);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_child_stmt, UPDATE_FILE_MOVE_CHILD) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_child2_stmt, UPDATE_FILE_MOVE_CHILD2) == 3);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_path_stmt, UPDATE_FILE_MOVE_PATH) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_watch_stmt, UPDATE_FILE_WATCH) == 3);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_watch_child_stmt, UPDATE_FILE_WATCH_CHILD) == 4);
 
@@ -456,6 +456,10 @@ tracker_db_prepare_queries (DBConnection *db_con)
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_indexed_stmt, INSERT_METADATA_INDEXED) == 3);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_integer_stmt, INSERT_METADATA_INTEGER) == 3);
 
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_metadata_stmt, UPDATE_METADATA) == 3);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_metadata_indexed_stmt, UPDATE_METADATA_INDEXED) == 3);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_metadata_integer_stmt, UPDATE_METADATA_INTEGER) == 3);
+
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_metadata_derived_stmt, DELETE_METADATA_DERIVED) == 1);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_metadata_all_stmt, DELETE_METADATA_ALL) == 1);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_metadata_child_all_stmt, DELETE_METADATA_CHILD_ALL) == 2);
@@ -466,9 +470,11 @@ tracker_db_prepare_queries (DBConnection *db_con)
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_type_stmt, INSERT_METADATA_TYPE) == 4);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_stmt, SELECT_SEARCH_TEXT) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_sorted_stmt, SELECT_SEARCH_TEXT_SORTED) == 2);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_sorted_bool_stmt, SELECT_SEARCH_TEXT_SORTED_BOOL) == 2);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_mime_stmt, SELECT_SEARCH_TEXT_MIME) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_mime_location_stmt, SELECT_SEARCH_TEXT_MIME_LOCATION) == 3);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_location_stmt, SELECT_SEARCH_TEXT_LOCATION) == 2);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_mime_location_stmt, SELECT_SEARCH_TEXT_MIME_LOCATION) == 4);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_location_stmt, SELECT_SEARCH_TEXT_LOCATION) == 3);
 
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_pending_file_stmt, INSERT_PENDING_FILE) == 6);
 	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_pending_file_by_uri_stmt, SELECT_PENDING_FILE_BY_URI) == 1);

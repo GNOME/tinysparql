@@ -1,4 +1,4 @@
-/* Tracker - FAM interface
+/* Tracker - Inotify interface
  * Copyright (C) 2005, Mr Jamie McCracken
  *
  * This library is free software; you can redistribute it and/or
@@ -115,16 +115,19 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		info->is_directory = is_dir;	
 
 		if (is_delete_event (action)) {
-
+			
 			char *parent = g_path_get_dirname (info->uri);
-						
-			if (tracker_is_directory_watched (parent, main_thread_db_con) || tracker_is_directory_watched (info->uri, main_thread_db_con)) {
+			
+			if (tracker_file_is_valid (parent)) {
 				g_async_queue_push (file_process_queue, info);	
 			} else {
-				info = tracker_free_file_info (info);					
+				info = tracker_free_file_info (info);
+			}
+			
+			if (parent) {
+				g_free (parent);
 			}
 
-			g_free (parent);
 			return;
 		}
 
@@ -187,15 +190,18 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 					
 					/* update db so that fileID reflects new uri */
 					tracker_db_exec_stmt (main_thread_db_con->update_file_move_stmt, 4, path, name, index_time, str_file_id);
-						
+					
+					/* update File.Path and File.Filename metadata */
+					tracker_db_exec_stmt (main_thread_db_con->update_metadata_indexed_stmt, 3, path,  "File.Path", str_file_id);
+					tracker_db_exec_stmt (main_thread_db_con->update_metadata_indexed_stmt, 3, name,  "File.Name", str_file_id);
+	
 					g_free (str_file_id);
 					g_free (index_time);
 					g_free (name);
 					g_free (path);	
 
 					if (tracker_is_directory (moved_to_info->uri)) {
-						//tracker_log ("matched pair is a dir");
-
+						
 						/* update all childs of the moved directory */
 						char *modified_path = g_strconcat (moved_to_info->uri, "/", NULL);
 						char *old_path = g_strconcat (moved_from_info->uri, "/", NULL);
@@ -203,22 +209,29 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 						
 						char ***res_str = NULL, ***rows, **row;	
 
+						tracker_log ("moved file is a dir");
+
 						/* stop watching old dir, start watching new dir */
-						if (tracker_is_directory_watched (moved_from_info->uri, main_thread_db_con)) {
-							tracker_remove_watch_dir (moved_from_info->uri, TRUE, main_thread_db_con);
-						} else {
-							tracker_remove_poll_dir (moved_from_info->uri);
-						}
-						
+						tracker_remove_watch_dir (moved_from_info->uri, TRUE, main_thread_db_con);
+						tracker_remove_poll_dir (moved_from_info->uri);
+				
 						if (tracker_count_watch_dirs () < MAX_FILE_WATCHES) { 
 							tracker_add_watch_dir (moved_to_info->uri, main_thread_db_con); 
 						} else {
 							tracker_add_poll_dir (moved_to_info->uri);
 						}
 
+
+						/* update all changed File.Path metadata */
+						tracker_db_exec_stmt (main_thread_db_con->update_file_move_path_stmt, 2, moved_to_info->uri, moved_from_info->uri);
+
+
+
+						/* for each subfolder, we must do the same as above */						
+
 						/* get all sub folders that were moved and add watches */
 						res_str = tracker_db_exec_stmt_result (main_thread_db_con->select_file_sub_folders_stmt, 2, moved_from_info->uri, match_path);
-						
+
 						if (res_str) {
 
 							for (rows = res_str; *rows; rows++) {
@@ -229,14 +242,19 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 									char *dir_name = g_strconcat (row[1], "/", row[2], NULL);
 							
 									char *sep = str_get_after_prefix (dir_name, old_path);
-      									//tracker_log ("sep is %s", sep);
+      									
 									if (sep) {
 										char *new_path = g_strconcat (moved_to_info->uri, "/", sep, NULL);
 										g_free (sep);
-			
-										/* move all subfolders and contained files to new path */
-										tracker_log ("subfolder %s moved to %s", dir_name, new_path);
+
+										tracker_log ("moving subfolder %s to %s", dir_name, new_path);
+
+										/* update all changed File.Path metadata for all files in this subfolder*/
+										tracker_db_exec_stmt (main_thread_db_con->update_file_move_path_stmt, 2, new_path, dir_name);
+
+										/* update all subfolders and contained files to new path */
 										tracker_db_exec_stmt (main_thread_db_con->update_file_move_child_stmt, 2, new_path, dir_name);
+										
 										if (tracker_count_watch_dirs () < MAX_FILE_WATCHES) { 
 											tracker_add_watch_dir (new_path, main_thread_db_con); 
 										} else {
@@ -252,16 +270,11 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 							tracker_db_free_result (res_str);
 
 						}	
-							
+
+
 						/* update uri path of all files in moved folder */						
 						tracker_db_exec_stmt (main_thread_db_con->update_file_move_child_stmt, 2, moved_to_info->uri, moved_from_info->uri);
-						//tracker_db_exec_stmt (main_thread_db_con->update_file_move_child2_stmt, 3, match_path, modified_path, match_path);
-
-						//char *s = g_strconcat ("select Path, Filename from Files where (Path = '", moved_to_info->uri, "') or (Path like '", moved_to_info->uri ,"/%')", NULL);
 							
-						//tracker_log_sql (main_thread_db_con->db, s);
-						//g_free (s);
-
 						g_free (modified_path);
 						g_free (old_path);
 						g_free (match_path);

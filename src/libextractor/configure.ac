@@ -244,7 +244,7 @@ fi
 
 
 
-printable=1
+printable=0
 AC_MSG_CHECKING([whether to enable printable extractors])
 AC_ARG_ENABLE(printable,
  [AC_HELP_STRING([--enable-printable],[Enable printable support])
@@ -294,7 +294,6 @@ src/plugins/ole2/Makefile
 src/plugins/oo/Makefile
 src/plugins/pdf/Makefile
 src/plugins/rpm/Makefile
-src/plugins/printable/Makefile
 src/plugins/hash/Makefile
 src/plugins/thumbnail/Makefile
 src/plugins/exiv2/Makefile

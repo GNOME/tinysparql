@@ -20,17 +20,43 @@
 #include "tracker-client.h"
 #include "tracker.h"
 
-#define TRACKER_FILE_METADATA_SERVICE                   "org.freedesktop.file.metadata"
-#define TRACKER_FILE_METADATA_OBJECT			"/org/freedesktop/file/metadata"
-#define TRACKER_FILE_METADATA_INTERFACE			"org.freedesktop.file.metadata"
+#define TRACKER_Tracker_SERVICE                 "org.freedesktop.Tracker"
+#define TRACKER_Tracker_OBJECT			"/org/freedesktop/tracker"
+#define TRACKER_Tracker_INTERFACE		"org.freedesktop.Tracker"
 
 typedef struct {
 	TrackerArrayReply callback;
 	gpointer	  data;
 } ArrayCallBackStruct;
 
+
+char *metadata_types[] = {
+	"index",
+	"string",
+	"int",
+	"date",
+};
+
+char *service_types[] = {
+"Files",
+"Documents",
+"Images",
+"Music",
+"Playlists",
+"Applications",
+"People",
+"Emails",
+"Conversations",
+"Appointments",
+"Tasks",
+"Bookmarks",
+"History",
+"Projects"
+};
+
+
 TrackerClient *
-tracker_connect (gboolean integrate_main_loop)
+tracker_connect (gboolean enable_warnings)
 {
 	DBusGConnection *connection;
 	GError *error = NULL;
@@ -42,22 +68,22 @@ tracker_connect (gboolean integrate_main_loop)
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 	
 	if (connection == NULL)	{
-		g_warning("Unable to connect to dbus: %s\n", error->message);
+		if (enable_warnings) {
+			g_warning("Unable to connect to dbus: %s\n", error->message);
+		}
 		g_error_free (error);
 		return NULL;
 	}
 
-	if (integrate_main_loop) {
-		dbus_connection_setup_with_g_main (connection, NULL);
-	}
-
 	proxy = dbus_g_proxy_new_for_name (connection,
-			TRACKER_FILE_METADATA_SERVICE,
-			TRACKER_FILE_METADATA_OBJECT,
-			TRACKER_FILE_METADATA_INTERFACE);
+			TRACKER_Tracker_SERVICE,
+			TRACKER_Tracker_OBJECT,
+			TRACKER_Tracker_INTERFACE);
 
 	if (!proxy) {
-		g_warning ("could not create proxy");
+		if (enable_warnings) {
+			g_warning ("could not create proxy");
+		}
 		return NULL;
 	}
 
@@ -87,29 +113,38 @@ tracker_cancel_last_call (TrackerClient *client)
 
 
 
-/*synchronous calls */
-
 char *
-tracker_get_metadata (TrackerClient *client, const char *uri, const char *key, GError *error)
+tracker_get_metadata (TrackerClient *client, ServiceType service, const char *id, const char *key, GError *error)
 {
 	char *str;
 
-	org_freedesktop_file_metadata_get_metadata   (client->proxy, uri, key, &str, &error);
+	char *service_str = service_types[service];
+
+	if (!org_freedesktop_Tracker_get_metadata (client->proxy, service_str, id, key, &str, &error)) {
+		return NULL;
+	}
 	
 	return str;
 
 }
 
 void
-tracker_set_metadata (TrackerClient *client, const char *uri, const char *key, const char *value, GError *error)
+tracker_set_metadata (TrackerClient *client, ServiceType service, const char *id, const char *key, const char *value, GError *error)
 {
-	org_freedesktop_file_metadata_set_metadata   (client->proxy, uri, key, value, &error);
+
+	char *service_str = service_types[service];
+
+	org_freedesktop_Tracker_set_metadata (client->proxy, service_str, id, key, value, &error);
+		
+	
 }
 
 void		
 tracker_register_metadata_type (TrackerClient *client, const char *name, MetadataTypes type, GError *error)
 {
-	org_freedesktop_file_metadata_register_metadata_type (client->proxy, name, type, &error);
+	char *type_str = metadata_types[type];
+
+	org_freedesktop_Tracker_register_metadata_type (client->proxy, name, type_str, &error);
 }
 
 
@@ -118,7 +153,7 @@ tracker_get_metadata_for_files_in_folder (TrackerClient *client, const char *uri
 {
 	GHashTable *table;
 
-	if (!org_freedesktop_file_metadata_get_metadata_for_files_in_folder (client->proxy, uri, keys, &table, &error)) {
+	if (!org_freedesktop_Tracker_get_metadata_for_files_in_folder (client->proxy, uri, keys, &table, &error)) {
 		return NULL;
 	}
 
@@ -126,6 +161,19 @@ tracker_get_metadata_for_files_in_folder (TrackerClient *client, const char *uri
 }
 
 
+char **
+tracker_search_metadata_text (TrackerClient *client, ServiceType service, const char *text, int max_hits, gboolean sort_by_relevance, GError *error)
+{
+
+	char **strs;
+	char *service_str = service_types[service];
+
+	if (!org_freedesktop_Tracker_search_metadata_text (client->proxy, service_str, text, max_hits, sort_by_relevance, &strs, &error)) {
+		return NULL;
+	}
+	return strs;
+	
+}
 
 
 
@@ -135,7 +183,7 @@ tracker_search_metadata_by_text (TrackerClient *client, const char *query,  GErr
 
 	char **strs;
 
-	if (!org_freedesktop_file_metadata_search_metadata_by_text  (client->proxy, query, &strs, &error)) {
+	if (!org_freedesktop_Tracker_search_metadata_text (client->proxy, "Files", query, 512, FALSE, &strs, &error)) {
 		return NULL;
 	}
 	return strs;
@@ -148,7 +196,7 @@ tracker_search_metadata_by_text_and_mime (TrackerClient *client, const char *que
 {
 	char **strs;
 
-	if (!org_freedesktop_file_metadata_search_metadata_by_text_and_mime (client->proxy, query, mimes, &strs, &error)) {
+	if (!org_freedesktop_Tracker_search_files_by_text_and_mime (client->proxy, query, mimes, &strs, &error)) {
 		return NULL;
 	}
 	return strs;
@@ -161,7 +209,7 @@ tracker_search_metadata_by_text_and_mime_and_location (TrackerClient *client, co
 {
 	char **strs;
 
-	if (!org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location (client->proxy, query, mimes, location, &strs, &error)) {
+	if (!org_freedesktop_Tracker_search_files_by_text_and_mime_and_location (client->proxy, query, mimes, location, &strs, &error)) {
 		return NULL;
 	}
 	return strs;
@@ -175,7 +223,7 @@ tracker_search_metadata_by_text_and_location (TrackerClient *client, const char 
 {
 	char **strs;
 
-	if (!org_freedesktop_file_metadata_search_metadata_by_text_and_location (client->proxy, query, location, &strs, &error)) {
+	if (!org_freedesktop_Tracker_search_files_by_text_and_location (client->proxy, query, location, &strs, &error)) {
 		return NULL;
 	}
 	return strs;
@@ -183,15 +231,12 @@ tracker_search_metadata_by_text_and_location (TrackerClient *client, const char 
 }
 
 char **
-tracker_search_metadata_by_query (TrackerClient *client, const char *query,  GError *error)
+tracker_search_files_by_query (TrackerClient *client, const char *query, int max_hits, gboolean sort_by_relevance, GError *error)
 {
 
 	char **strs;
 
-	if (!org_freedesktop_file_metadata_search_metadata_by_query  (client->proxy, query, &strs, &error)) {
-	
-		g_warning ("method failed: %s", error->message);
-		g_error_free (error);
+	if (!org_freedesktop_Tracker_search_file_query  (client->proxy, query, max_hits, sort_by_relevance, &strs, &error)) {
 		return NULL;
 	}
 	return strs;
@@ -225,10 +270,24 @@ tracker_search_metadata_by_text_async 	(TrackerClient *client, const char *query
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_async (client->proxy, query, tracker_array_reply, callback_struct);
+	client->last_pending_call = org_freedesktop_Tracker_search_metadata_text_async (client->proxy, "Files", query, 512, FALSE, tracker_array_reply, callback_struct);
 	
 }
 
+void
+tracker_search_metadata_text_async (TrackerClient *client, ServiceType service, const char *text, int max_hits, gboolean sort_by_relevance, TrackerArrayReply callback, gpointer user_data) 
+{
+	ArrayCallBackStruct *callback_struct;
+
+	callback_struct = g_new (ArrayCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	char *service_str = service_types[service];
+
+	client->last_pending_call = org_freedesktop_Tracker_search_metadata_text_async (client->proxy, service_str, text, max_hits, sort_by_relevance, tracker_array_reply, callback_struct);
+	
+}
 
 void
 tracker_search_metadata_by_text_and_mime_async (TrackerClient *client, const char *query, const char **mimes, TrackerArrayReply callback, gpointer user_data)
@@ -239,7 +298,7 @@ tracker_search_metadata_by_text_and_mime_async (TrackerClient *client, const cha
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_and_mime_async (client->proxy, query, mimes, tracker_array_reply, callback_struct);
+	client->last_pending_call = org_freedesktop_Tracker_search_files_by_text_and_mime_async (client->proxy, query, mimes, tracker_array_reply, callback_struct);
 }
 
 
@@ -252,7 +311,7 @@ tracker_search_metadata_by_text_and_mime_and_location_async (TrackerClient *clie
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_and_mime_and_location_async (client->proxy, query, mimes, location, tracker_array_reply, callback_struct);
+	client->last_pending_call = org_freedesktop_Tracker_search_files_by_text_and_mime_and_location_async (client->proxy, query, mimes, location, tracker_array_reply, callback_struct);
 }
 
 void
@@ -264,13 +323,13 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient *client, const
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_and_location_async (client->proxy, query, location, tracker_array_reply, callback_struct);
+	client->last_pending_call = org_freedesktop_Tracker_search_files_by_text_and_location_async (client->proxy, query, location, tracker_array_reply, callback_struct);
 }
 
 
 
 void
-tracker_search_metadata_by_query_async 	(TrackerClient *client, const char *query, TrackerArrayReply callback, gpointer user_data) 
+tracker_search_files_by_query_async (TrackerClient *client, const char *query, int max_hits, gboolean sort_by_relevance, TrackerArrayReply callback, gpointer user_data)
 {
 	ArrayCallBackStruct *callback_struct;
 
@@ -278,7 +337,7 @@ tracker_search_metadata_by_query_async 	(TrackerClient *client, const char *quer
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	client->last_pending_call = org_freedesktop_file_metadata_search_metadata_by_text_async (client->proxy, query, tracker_array_reply, callback_struct);
+	client->last_pending_call = org_freedesktop_Tracker_search_metadata_text_async (client->proxy, "Files", query, max_hits, sort_by_relevance, tracker_array_reply, callback_struct);
 }
 
 

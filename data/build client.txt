@@ -1,3 +1,3 @@
 build client
 
-dbus-binding-tool --prefix=server_object --mode=glib-client trackerd-info.xml >tracker-client.h
+dbus-binding-tool --prefix=client_object --mode=glib-client tracker-introspect.xml >tracker-client.h

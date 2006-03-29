@@ -407,10 +407,11 @@ watch_dir (const char* dir, DBConnection *db_con)
 	}
 
 
-	if (tracker_is_directory_watched (dir_utf8, db_con)) {
+/*	if (tracker_is_directory_watched (dir_utf8, db_con)) {
 		g_free (dir_utf8);
 		return FALSE;
 	}
+*/
 
 	mylist = g_slist_prepend (mylist, dir_utf8);
 	add_dirs_to_watch_list (mylist, TRUE, db_con);
@@ -1175,20 +1176,16 @@ process_user_request_queue_thread (GMutex *mutex)
 
 		switch (rec->action) {
 
-			case DBUS_ACTION_NONE:
+			case DBUS_ACTION_PING:
 				
-				dbus_message_get_args  (rec->message, NULL,
-			       				DBUS_TYPE_STRING, &str2,
-			       				DBUS_TYPE_INVALID);
-	
-				tracker_log ("got method call test with input %s", str2);
+				
 	
 				reply = dbus_message_new_method_return (rec->message);
 	
-				str = g_strconcat ("test is a success - echoing ", str2, "\n", NULL);
+				gboolean result = TRUE;
 
 				dbus_message_append_args (reply,
-				  			  DBUS_TYPE_STRING, &str,
+				  			  DBUS_TYPE_BOOLEAN, &result,
 				  			  DBUS_TYPE_INVALID);
 
 				dbus_connection_send (rec->connection, reply, NULL);
@@ -1222,33 +1219,32 @@ process_user_request_queue_thread (GMutex *mutex)
 
 				break;
 		
-			case DBUS_ACTION_SEARCH_BY_TEXT:
-				tracker_log ("request search_by_text");
-				tracker_dbus_method_search_by_text (rec);
+			case DBUS_ACTION_SEARCH_METADATA_TEXT:
+				tracker_dbus_method_search_metadata_text (rec);
+			
+				break;
+
+			case DBUS_ACTION_SEARCH_FILES_BY_TEXT_MIME:
+
+				tracker_dbus_method_search_files_by_text_mime (rec);
 				
 				break;
 
-			case DBUS_ACTION_SEARCH_BY_TEXT_MIME:
+			case DBUS_ACTION_SEARCH_FILES_BY_TEXT_MIME_LOCATION:
 
-				tracker_dbus_method_search_by_text_mime	(rec);
+				tracker_dbus_method_search_files_by_text_mime_location (rec);
+				
 				
 				break;
 
-			case DBUS_ACTION_SEARCH_BY_TEXT_MIME_LOCATION:
-
-				tracker_dbus_method_search_by_text_mime_location (rec);
+			case DBUS_ACTION_SEARCH_FILES_BY_TEXT_LOCATION:
+				tracker_dbus_method_search_files_by_text_location (rec);
 				
 				break;
 
-			case DBUS_ACTION_SEARCH_BY_TEXT_LOCATION:
+			case DBUS_ACTION_SEARCH_FILES_QUERY:
 
-				tracker_dbus_method_search_by_text_location (rec);
-				
-				break;
-
-			case DBUS_ACTION_SEARCH_BY_QUERY:
-
-				tracker_dbus_method_search_by_query (rec);
+				tracker_dbus_method_search_files_query (rec);
 				
 				break;
 
@@ -1397,13 +1393,15 @@ main (int argc, char **argv)
 	tracker_load_config_file ();
 
 	str = g_strdup (DATADIR "/tracker/english");
+	if (!tracker_file_is_valid (str)) {
+		g_warning ("could not open myswl language file %s", str);
+	}
 
 	/* initialise embedded mysql with options*/
-	server_options = g_new (char *, 11);
+	server_options = g_new (char *, 12);
   	server_options[0] = g_strdup ("anything");
   	server_options[1] = g_strconcat  ("--datadir=", tracker_data_dir, NULL);
   	server_options[2] = g_strconcat ("--language=", str,  NULL);
-//	server_options[2] = g_strdup ("--skip-bdb");
 	server_options[3] = g_strdup ("--skip-grant-tables");
 	server_options[4] = g_strdup ("--skip-innodb");
 	server_options[5] = g_strdup ("--key_buffer_size=1M");
@@ -1411,10 +1409,10 @@ main (int argc, char **argv)
 	server_options[7] = g_strdup ("--ft_max_word_len=45");
 	server_options[8] = g_strdup ("--ft_min_word_len=3");
 	server_options[9] = g_strdup ("--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt");
-	server_options[10] = NULL;
+	server_options[10] = g_strdup ("--myisam-recover=FORCE");
+	server_options[11] = NULL;
 
-
-	mysql_server_init ( 10, server_options, server_groups);
+	mysql_server_init ( 11, server_options, server_groups);
 
 	if (mysql_get_client_version () < 40100) {
 		g_warning ("The currently installed version of mysql is too outdated (you need 4.1.* or higher). Exiting...");
@@ -1425,7 +1423,8 @@ main (int argc, char **argv)
 		g_warning ("This version of Tracker is not currently compatible with version 5 or higher of mysql (you need 4.1.* or higher)");
 		return 1;
 	}
-		
+	
+	
 	tracker_log ("DB initialised");
 
 	g_free (str);

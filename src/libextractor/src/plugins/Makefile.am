@@ -7,15 +7,13 @@ thumbdir=thumbnail
 endif
 endif
 
-if HAVE_PRINTABLE
- printdir=printable
-endif
+
 
 if HAVE_EXIV2
  exiv2dir=exiv2
 endif
 
-SUBDIRS = . oo $(printdir) hash $(oledir) rpm pdf $(thumbdir) $(exiv2dir)
+SUBDIRS = . oo hash $(oledir) rpm pdf $(thumbdir) $(exiv2dir)
 
 if HAVE_VORBISFILE
  extraogg = libextractor_ogg.la

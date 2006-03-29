@@ -35,7 +35,7 @@
 #define UPDATE_FILE		"UPDATE Files SET IndexTime = ? WHERE ID = ?"
 #define UPDATE_FILE_MOVE	"UPDATE Files SET Path = ?, FileName = ?, IndexTime = ? WHERE ID = ?"
 #define UPDATE_FILE_MOVE_CHILD	"UPDATE Files SET Path = ? WHERE Path = ?"
-#define UPDATE_FILE_MOVE_CHILD2	"UPDATE Files SET Path = REPLACE(path,?,?) WHERE Path like ?"
+#define UPDATE_FILE_MOVE_PATH	"UPDATE FileMetaData, Files set FileMetaData.MetaDataIndexValue = ? WHERE FileMetaData.FileID = Files.ID AND Files.Path = ? AND FileMetaData.MetaDataID = (select ID FROM MetaDataTypes WHERE MetaName = 'File.Path')"
 
 #define UPDATE_FILE_WATCH	"UPDATE Files SET IsWatched = ?, WatchType = ? WHERE ID = ?"
 #define UPDATE_FILE_WATCH_CHILD	"UPDATE Files SET IsWatched = ?, WatchType = ? WHERE (Path = ?) OR (Path like ?)"
@@ -51,6 +51,10 @@
 #define INSERT_METADATA 	"INSERT INTO FileMetaData (FileID, MetaDataID, MetaDataValue) VALUES (?,?,?)"
 #define INSERT_METADATA_INDEXED	"INSERT INTO FileMetaData (FileID, MetaDataID, MetaDataIndexValue) VALUES (?,?,?)"
 #define INSERT_METADATA_INTEGER	"INSERT INTO FileMetaData (FileID, MetaDataID, MetaDataIntegerValue) VALUES (?,?,?)"
+
+#define UPDATE_METADATA 	"UPDATE FileMetaData set MetaDataValue = ? WHERE MetaDataID = (select ID FROM MetaDataTypes WHERE MetaName = ?) AND FileID = ?"
+#define UPDATE_METADATA_INDEXED	"UPDATE FileMetaData set MetaDataIndexValue = ? WHERE MetaDataID = (select ID FROM MetaDataTypes WHERE MetaName = ?) AND FileID = ?"
+#define UPDATE_METADATA_INTEGER "UPDATE FileMetaData set MetaDataIntegerValue = ? WHERE MetaDataID = (select ID FROM MetaDataTypes WHERE MetaName = ?) AND FileID = ?"
  
 #define DELETE_METADATA_DERIVED		"DELETE FROM FileMetaData WHERE FileID = ? AND MetaDataID IN (SELECT ID FROM MetaDataTypes WHERE Writeable = 0)" 
 #define DELETE_METADATA_ALL		"DELETE FROM FileMetaData WHERE FileID = ?"
@@ -65,9 +69,15 @@
 
 /* queries for searching files */
 #define SELECT_SEARCH_TEXT		 "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) LIMIT 512"
+
+#define SELECT_SEARCH_TEXT_SORTED	 "SELECT  F.Path, F.FileName,   MATCH (M.MetaDataIndexValue) AGAINST (?) FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND MATCH (M.MetaDataIndexValue) AGAINST (?) LIMIT 32"
+
+#define SELECT_SEARCH_TEXT_SORTED_BOOL	 "SELECT  F.Path, F.FileName,   MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) As Relevancy FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) ORDER BY Relevancy DESC LIMIT 32"
+ 
+
 #define SELECT_SEARCH_TEXT_MIME		 "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M, FileMetaData M2 WHERE F.ID = M.FileID AND F.ID = M2.FileID AND F.IsVFS = 0 AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, ?) LIMIT 512"
-#define SELECT_SEARCH_TEXT_LOCATION	 "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND F.Path like ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) LIMIT 512"
-#define SELECT_SEARCH_TEXT_MIME_LOCATION "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M, FileMetaData M2 WHERE F.ID = M.FileID AND F.ID = M2.FileID AND F.IsVFS = 0 AND F.Path like ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, ?) LIMIT 512"
+#define SELECT_SEARCH_TEXT_LOCATION	 "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M WHERE F.ID = M.FileID AND F.IsVFS = 0 AND (F.Path like ? OR F.Path = ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) LIMIT 512"
+#define SELECT_SEARCH_TEXT_MIME_LOCATION "SELECT  F.Path, F.FileName FROM Files F, FileMetaData M, FileMetaData M2 WHERE F.ID = M.FileID AND F.ID = M2.FileID AND F.IsVFS = 0 AND (F.Path like ? OR F.Path = ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, ?) LIMIT 512"
 
 
 /* queries for processing pending files */
@@ -90,7 +100,7 @@
 
 /* queries for inotify watches */
 
-#define  CREATE_WATCH_TABLE 	"CREATE Table IF NOT EXISTS TMP_WATCH (URI varchar(255) not null, WatchID int not null, primary key (URI), key (WatchID))"
+#define  CREATE_WATCH_TABLE 	"CREATE Table IF NOT EXISTS TMP_WATCH (WatchID int not null, URI varchar(255) not null,  primary key (WatchID), unique (URI))"
 #define  SELECT_URI   		"select URI from TMP_WATCH where WatchID = ?"
 #define  SELECT_WATCH  		"select WatchID from TMP_WATCH where URI = ?"
 #define  SELECT_SUBWATCHES	"select WatchID from TMP_WATCH where URI like ?"
@@ -115,7 +125,7 @@ typedef struct {
         MYSQL_STMT  	*update_file_stmt;
         MYSQL_STMT  	*update_file_move_stmt;
         MYSQL_STMT  	*update_file_move_child_stmt;
-        MYSQL_STMT  	*update_file_move_child2_stmt;
+        MYSQL_STMT  	*update_file_move_path_stmt;
         MYSQL_STMT  	*update_file_watch_stmt;
         MYSQL_STMT  	*update_file_watch_child_stmt;
 
@@ -137,6 +147,10 @@ typedef struct {
 	MYSQL_STMT  	*insert_metadata_indexed_stmt;
 	MYSQL_STMT  	*insert_metadata_integer_stmt;
 
+        MYSQL_STMT  	*update_metadata_stmt;
+	MYSQL_STMT  	*update_metadata_indexed_stmt;
+	MYSQL_STMT  	*update_metadata_integer_stmt;
+
         MYSQL_STMT  	*delete_metadata_derived_stmt;
         MYSQL_STMT  	*delete_metadata_all_stmt;
         MYSQL_STMT  	*delete_metadata_child_all_stmt;
@@ -148,6 +162,8 @@ typedef struct {
         MYSQL_STMT  	*insert_metadata_type_stmt;
 
         MYSQL_STMT  	*select_search_text_stmt;
+        MYSQL_STMT  	*select_search_text_sorted_stmt;
+        MYSQL_STMT  	*select_search_text_sorted_bool_stmt;
         MYSQL_STMT  	*select_search_text_mime_stmt;
         MYSQL_STMT  	*select_search_text_mime_location_stmt;
         MYSQL_STMT  	*select_search_text_location_stmt;

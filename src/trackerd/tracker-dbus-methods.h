@@ -24,9 +24,10 @@ void	tracker_dbus_method_set_metadata 			(DBusRec *rec);
 void	tracker_dbus_method_register_metadata_type 		(DBusRec *rec);
 void	tracker_dbus_method_get_metadata_for_files_in_folder 	(DBusRec *rec);
 
-void 	tracker_dbus_method_search_by_text 			(DBusRec *rec);
-void 	tracker_dbus_method_search_by_text_mime			(DBusRec *rec);
-void 	tracker_dbus_method_search_by_text_location		(DBusRec *rec);
-void 	tracker_dbus_method_search_by_text_mime_location	(DBusRec *rec);
+void 	tracker_dbus_method_search_metadata_text		(DBusRec *rec);
 
-void 	tracker_dbus_method_search_by_query 			(DBusRec *rec);
+void 	tracker_dbus_method_search_files_by_text_mime		(DBusRec *rec);
+void 	tracker_dbus_method_search_files_by_text_location	(DBusRec *rec);
+void 	tracker_dbus_method_search_files_by_text_mime_location	(DBusRec *rec);
+
+void 	tracker_dbus_method_search_files_query 			(DBusRec *rec);

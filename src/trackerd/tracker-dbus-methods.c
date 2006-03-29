@@ -26,7 +26,24 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-rdf-query.h"
 
-#define DATA_STRING_INDEXABLE 3
+char *type_array[] =   {"index", "string", "int", "date", NULL};
+
+
+int str_in_array (const char *str, char **array)
+{
+	int i = 0;
+	char *st;
+	for (st = (char *) *array; *st; st++) {
+		if (strcmp (st, str) == 0) {
+			return TRUE;
+		}
+		i++;
+	}
+
+	return -1;
+	
+
+}
 
 
 static int
@@ -99,7 +116,7 @@ set_error (DBusRec 	  *rec,
   	va_end (args);
 
 	reply = dbus_message_new_error (rec->message,
-					"org.freedesktop.tracker.error",
+					"org.freedesktop.Tracker.Error",
 					msg);
 
 	if (reply == NULL || !dbus_connection_send (rec->connection, reply, NULL)) {
@@ -351,25 +368,75 @@ add_metadata_to_dict (MYSQL_RES *res, DBusMessageIter *iter_dict, int metadata_c
 
 }
 
+static char *
+format_search_terms (const char *str, gboolean *do_bool_search)
+{
+
+	*do_bool_search = FALSE;
+
+	/* if already has quotes then do nothing */
+	if (strchr (str, '"')) {
+		*do_bool_search = TRUE;
+		return g_strdup (str);
+	}
+
+	if (!strstr (str, "-")) {
+		return g_strdup (str);
+	}
+
+	char **terms = g_strsplit (str, " ", -1);
+	
+	if (terms) {
+		GString *search_term = g_string_new (" ");
+		char **st;
+		for (st = terms; *st; st++) {
+			if (strchr (*st, '-')) {
+				*do_bool_search = TRUE;
+				char *st_1 = g_strconcat ("\"", *st, "\"", NULL);
+				g_string_append (search_term, st_1);
+				g_free (st_1);
+			} else {
+				g_string_append (search_term, *st);
+			}
+		}
+		g_strfreev (terms);
+		return g_string_free (search_term, FALSE);		
+	}
+
+	return g_strdup (str);
+}
+
 
 void
 tracker_dbus_method_get_metadata (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	char 		*uri, *meta, *file_id, *value = NULL;
+	char 		*service, *uri, *meta, *file_id, *value = NULL;
 	int		id;
 
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
+
+	/*	<method name="GetMetadata">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="s" name="key" direction="in" />
+			<arg type="s" name="value" direction="out" />
+	*/
+
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &uri, DBUS_TYPE_STRING, &meta, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_STRING, &meta, DBUS_TYPE_INVALID);
+
+	if (strcmp (service, "Files") != 0) {
+		set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
+		return;
+	}
 
 	id = tracker_db_get_file_id (db_con, uri);
 	if (id == -1) {
-
 		set_error (rec, "File %s not found in DB", uri);
 		return;		
 	}
@@ -399,15 +466,28 @@ tracker_dbus_method_set_metadata (DBusRec *rec)
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
 	int 	 	id;
-	char 		*uri, *meta, *file_id, *value;
+	char 		*uri, *service, *meta, *file_id, *value = NULL;
 
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &uri, DBUS_TYPE_STRING, &meta, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
+	/* <method name="SetMetadata">
+		<arg type="s" name="service" direction="in" />
+		<arg type="s" name="id" direction="in" />
+		<arg type="s" name="key" direction="in" />
+		<arg type="s" name="value" direction="in" />
+	   </method>
+	*/
+
+	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_STRING, &meta, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
 		
+	if (strcmp (service, "Files") != 0) {
+		set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
+		return;
+	}
+
 	if (!uri || strlen (uri) == 0) {
 		set_error (rec, "URI is invalid");
 		return;
@@ -446,35 +526,41 @@ tracker_dbus_method_register_metadata_type (DBusRec *rec)
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
 	char 		*meta, *type_id;
-	int		type;
+	char		*type;
+	int 		i;
 
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &meta, DBUS_TYPE_INT32, &type, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &meta, DBUS_TYPE_STRING, &type, DBUS_TYPE_INVALID);
 		
 	if (!meta || strlen (meta) < 3 || (strchr (meta, '.') == NULL) ) {
 		set_error (rec, "Metadata type name is invalid. All names must be in the format 'class.name' ");
 		return;
 	}
 
-	
-	if (type < 0 || type > 3) {
+	i = str_in_array (type, type_array);
+	if (i == -1) {
 		set_error (rec, "Invalid metadata type id specified");
 		return;
 	}
 
-	type_id = g_strdup_printf ("%d", type);
-
-	if (type == DATA_STRING_INDEXABLE) {
+	/* check if new metadata type is indexable */
+	if (i == 0) {
 		tracker_db_exec_stmt (db_con->insert_metadata_type_stmt, 4, meta, "0", "1", "1");
 	} else {
+		/* 
+			data type enum 0 = string, 1 = int, 2 = date
+		*/
+		i--;
+		type_id = g_strdup_printf ("%d", i);
 		tracker_db_exec_stmt (db_con->insert_metadata_type_stmt, 4, meta, type_id, "0", "1");
+		g_free (type_id);
 	}
 
-	g_free (type_id);
+
 
 	reply = dbus_message_new_method_return (rec->message);
 	
@@ -639,35 +725,77 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 
 
 void
-tracker_dbus_method_search_by_text (DBusRec *rec)
+tracker_dbus_method_search_metadata_text (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
 	char **array = NULL, **row;	
 	char ***res_str = NULL, ***rows;
 	int row_count = 0, i = 0;
-	char *str;
-
+	int limit;
+	char *str = NULL, *service = NULL, *search_term = NULL;
+	gboolean sort_results = FALSE, use_boolean_search = FALSE;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &service,
+				DBUS_TYPE_STRING, &str,  DBUS_TYPE_INT32, &limit,
+				DBUS_TYPE_BOOLEAN, &sort_results,
+				DBUS_TYPE_INVALID);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_stmt, 1, str);
+	
+
+
+	if (!service)  {
+		set_error (rec, "No service was specified");	
+		return;
+	}
+
+	if (strcmp (service, "Files") != 0) {
+		set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
+		return;
+	}
+
+	if ( !str || strlen (str) == 0) {
+		set_error (rec, "No search term was specified");	
+		return;
+	}
+
+	if (limit < 0) {
+		limit = 1024;
+	}
+
+	/* check search string for embedded special chars like hyphens and format appropriately */
+	search_term = format_search_terms (str, &use_boolean_search);
+
+	if (sort_results) {
+		if (!use_boolean_search) {
+			res_str = tracker_db_exec_stmt_result (db_con->select_search_text_sorted_stmt, 2, search_term, search_term);
+		} else {
+			res_str = tracker_db_exec_stmt_result (db_con->select_search_text_sorted_bool_stmt, 2, search_term, search_term);
+		}
+	} else {
+		res_str = tracker_db_exec_stmt_result (db_con->select_search_text_stmt, 1, search_term);
+	}
+
+	g_free (search_term);
 
 	if (res_str) {
 
 		row_count = get_row_count (res_str);
 
 		if (row_count > 0) {
-
-			array = g_new (char *, row_count);
+			if (row_count < limit) {
+				array = g_new (char *, row_count);
+			} else {
+				array = g_new (char *, limit);
+			}
 
 			i = 0;
 
-			for (rows = res_str; *rows; rows++) {
+			for (rows = res_str; (i<limit) && (*rows); rows++) {
 				row = *rows;
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
@@ -702,16 +830,16 @@ tracker_dbus_method_search_by_text (DBusRec *rec)
 }
 
 void 	
-tracker_dbus_method_search_by_text_mime	(DBusRec *rec)
+tracker_dbus_method_search_files_by_text_mime (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
 	char **array = NULL, **row;	
 	char ***res_str = NULL, ***rows;
 	int row_count = 0, i = 0, n;
-	char *str, *mime_list;
+	char *str, *mime_list, *search_term = NULL;
 	GString *mimes = NULL;
-
+	gboolean use_boolean_search = TRUE;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -736,7 +864,12 @@ tracker_dbus_method_search_by_text_mime	(DBusRec *rec)
 
 	mime_list = g_string_free (mimes, FALSE);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_stmt, 2, str, mime_list);
+	/* check search string for embedded special chars like hyphens and format appropriately */
+	search_term = format_search_terms (str, &use_boolean_search);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_stmt, 2, search_term , mime_list);
+
+	g_free (search_term);
 
 	g_free (mime_list);
 
@@ -785,15 +918,15 @@ tracker_dbus_method_search_by_text_mime	(DBusRec *rec)
 }
 
 void 	
-tracker_dbus_method_search_by_text_location (DBusRec *rec)
+tracker_dbus_method_search_files_by_text_location (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
 	char **array = NULL, **row;	
 	char ***res_str = NULL, ***rows;
 	int row_count = 0, i = 0;
-	char *str, *str2, *location;
-
+	char *str, *str2, *location, *search_term = NULL;
+	gboolean use_boolean_search = TRUE;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -803,7 +936,13 @@ tracker_dbus_method_search_by_text_location (DBusRec *rec)
 
 	location = g_strconcat (str2, "/", "%", NULL);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_location_stmt, 2, location, str);
+	search_term = format_search_terms (str, &use_boolean_search);
+
+	//g_print ("search term is before %s and after %s with location %s\n\n", str, search_term, location);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_location_stmt, 3, location, str2, search_term);
+
+	g_free (search_term);
 
 	g_free (location);
 
@@ -852,16 +991,16 @@ tracker_dbus_method_search_by_text_location (DBusRec *rec)
 }
 
 void
-tracker_dbus_method_search_by_text_mime_location (DBusRec *rec)
+tracker_dbus_method_search_files_by_text_mime_location (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
 	char **array = NULL, **row;	
 	char ***res_str = NULL, ***rows;
 	int row_count = 0, i = 0, n;
-	char *str, *str2, *mime_list, *location;
+	char *str, *str2, *mime_list, *location, *search_term = NULL;
 	GString *mimes = NULL;
-
+	gboolean use_boolean_search = TRUE;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -888,7 +1027,13 @@ tracker_dbus_method_search_by_text_mime_location (DBusRec *rec)
 
 	mime_list = g_string_free (mimes, FALSE);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_location_stmt, 3, location, str, mime_list);
+	search_term = format_search_terms (str, &use_boolean_search);
+
+	//g_print ("search term is before %s and after %s\n\n", str, search_term);
+
+	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_location_stmt, 4, location, str2, search_term, mime_list);
+
+	g_free (search_term);
 
 	g_free (location);
 
@@ -939,21 +1084,28 @@ tracker_dbus_method_search_by_text_mime_location (DBusRec *rec)
 }
 
 void
-tracker_dbus_method_search_by_query (DBusRec *rec)
+tracker_dbus_method_search_files_query (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
 	char **array = NULL;				
-	int row_count = 0, i = 0, table_count;
+	int row_count = 0, i = 0, table_count, limit;
 	MYSQL_ROW  row = NULL;
-	char *str, *str2, *query;
+	char *str, *str2, *query, *limit_str;
 	GString *sql;
+	gboolean sort_results;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &query, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &query, DBUS_TYPE_INT32, &limit,
+				DBUS_TYPE_BOOLEAN, &sort_results, DBUS_TYPE_INVALID);
+
+	if (limit < 0) {
+		limit = 1024;
+	}
+
 
 	if (query) {
 
@@ -1014,8 +1166,10 @@ tracker_dbus_method_search_by_query (DBusRec *rec)
 				g_free (str2);
 			}
 
-			str = g_strdup ("select F.Path, F.FileName from Files F, TMP0 T where F.ID = T.FileID");
-
+			limit_str = g_strdup_printf ("%d", limit);
+			str = g_strconcat ("select F.Path, F.FileName from Files F, TMP0 T where F.ID = T.FileID LIMIT ", limit_str, NULL);
+			g_free (limit_str);
+	
 			MYSQL_RES *res = tracker_exec_sql (db_con->db, str);
 				
 			g_free (str);

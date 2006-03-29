@@ -1,23 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<node name="/org/freedesktop/file/metadata">
-	<interface name="org.freedesktop.file.metadata">
+<node name="/org/freedesktop/tracker">
+	<interface name="org.freedesktop.Tracker">
 		<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_client"/>
+
+
+		<!-- 
+
+		"service" input parameters are a string representing the service type.
+
+		Service types will include the following (only "files" is currently implemented):
+
+		Files
+		Documents
+		Images
+		Music
+		Playlists
+		Applications
+		People
+		Emails
+		Conversations
+		Appointments
+		Tasks
+		Bookmarks
+		History
+		Projects
+			
+
+		"id" input parameters can represent, in the case of a file, the full path and name of the file. 
+
+		In other cases, "id" can also be an URI or an integer based id for the specified service.
+		 -->
+
+
 		<method name="Ping">
 			<arg type="b" name="response" direction="out" />
 		</method>
+
 		<method name="GetMetadata">
-			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
 			<arg type="s" name="key" direction="in" />
 			<arg type="s" name="value" direction="out" />
 		</method>
 		<method name="SetMetadata">
-			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
 			<arg type="s" name="key" direction="in" />
 			<arg type="s" name="value" direction="in" />
 		</method>
+		<method name="GetMultipleMetadata">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="a{ss}" name="values" direction="out" />
+		</method>
+		<method name="SetMultipleMetadata">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="a{ss}" name="values" direction="in" />
+		</method>
+		
+		<!--
+			datatype argument for RegisterMetadataType should be one of the following:
+			"index"  (a string which is stored in a full text index for searching )
+			"string" (a non-indexable string which will not show up in searches )
+			"int"
+			"date"
+			
+		-->
 		<method name="RegisterMetadataType">
 			<arg type="s" name="name" direction="in" />
-			<arg type="i" name="datatype" direction="in" />
+			<arg type="s" name="datatype" direction="in" />
 		</method>
 		<method name="MetadataTypeExists">
 			<arg type="s" name="name" direction="in" />
@@ -26,90 +79,106 @@
 		<method name="GetMetadataTypes">
 			<arg type="as" name="result" direction="out" />
 		</method>
-		<method name="GetMultipleMetadata">
-			<arg type="s" name="uri" direction="in" />
-			<arg type="as" name="keys" direction="in" />
-			<arg type="a{ss}" name="values" direction="out" />
+		
+		<!-- calls for tags/keywords for any service object or file -->
+		<method name="GetKeywords">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="value" direction="out" />
 		</method>
-		<method name="SetMultipleMetadata">
-			<arg type="s" name="uri" direction="in" />
-			<arg type="a{ss}" name="values" direction="in" />
+		<method name="AddKeywords">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="values" direction="in" />
 		</method>
+		<method name="RemoveKeywords">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="keywords" direction="in" />
+		</method>
+
+
+		<method name="SearchMetadataQuery">
+			<arg type="s" name="service" direction="in" />
+			<arg type="as" name="fields" direction="in" />
+			<arg type="s" name="query_condition" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="b" name="sort_by_relevance" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+		<method name="SearchMetadataText">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="text" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="b" name="sort_by_relevance" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+
+<!--
+		File Specific calls
+-->
 		<method name="GetMetadataForFilesInFolder">
 			<arg type="s" name="uri" direction="in" />
 			<arg type="as" name="keys" direction="in" />
 			<arg type="a{sv}" name="values" direction="out" />
 		</method>
-		<method name="GetKeywords">
-			<arg type="s" name="uri" direction="in" />
-			<arg type="as" name="value" direction="out" />
-		</method>
-		<method name="AddKeyword">
-			<arg type="s" name="uri" direction="in" />
-			<arg type="s" name="value" direction="in" />
-		</method>
-		<method name="RemoveKeyword">
-			<arg type="s" name="uri" direction="in" />
-			<arg type="s" name="keyword" direction="in" />
-		</method>
-		<method name="RefreshMetadata">
+		<method name="RefreshFileMetadata">
 			<arg type="s" name="uri" direction="in" />
 			<arg type="b" name="basic" direction="in" />
 			<arg type="b" name="embedded" direction="in" />
 			<arg type="b" name="contents" direction="in" />
 			<arg type="b" name="thumbnails" direction="in" />
 		</method>
-		<method name="IsMetadataUpToDate">
+		<method name="IsFileMetadataUpToDate">
 			<arg type="s" name="uri" direction="in" />
 			<arg type="i" name="mtime" direction="in" />
 			<arg type="b" name="result" direction="out" />
 		</method>
-		<method name="SearchMetadataByQuery">
-			<arg type="s" name="rdfquery" direction="in" />
-			<arg type="as" name="result" direction="out" />
-		</method>
-		<method name="SearchMetadataByText">
-			<arg type="s" name="text" direction="in" />
-			<arg type="as" name="result" direction="out" />
-		</method>
-		<method name="SearchMetadataByTextAndMime">
+		
+		<!-- deprecated file specific calls (mostly used by Nautilus Search)-->
+		<method name="SearchFilesByTextAndMime">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
 			<arg type="s" name="text" direction="in" />
 			<arg type="as" name="mimes" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
-		<method name="SearchMetadataByTextAndMimeAndLocation">
+		<method name="SearchFilesByTextAndMimeAndLocation">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
 			<arg type="s" name="text" direction="in" />
 			<arg type="as" name="mimes" direction="in" />
 			<arg type="s" name="location" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
-		<method name="SearchMetadataByTextAndLocation">
+		<method name="SearchFilesByTextAndLocation">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
 			<arg type="s" name="text" direction="in" />
 			<arg type="s" name="location" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
-		<method name="SearchMetadataDetailed">
+
+		<method name="SearchFileQuery">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
 			<arg type="s" name="rdfquery" direction="in" />
-			<arg type="as" name="keys" direction="in" />
-			<arg type="a{sv}" name="values" direction="out" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="b" name="sort_by_relevance" direction="in" />
+			<arg type="as" name="result" direction="out" />
 		</method>
-		<signal name="BasicMetadataChanged">
+		<!-- end deprecated calls section-->
+
+
+		<!-- File metadata signals -->
+		<signal name="FileChanged">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
-			<arg type="a{ss}" name="metadata"/>
 		</signal>
-		<signal name="EmbeddedMetadataChanged">
-			<arg type="s" name="path"/>
-			<arg type="s" name="filename"/>
-			<arg type="a{ss}" name="metadata"/>
-		</signal>
-		<signal name="EditableMetadataChanged">
+		<signal name="FileMetadataChanged">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
 			<arg type="s" name="key"/>
 			<arg type="s" name="value"/>
 		</signal>
-		<signal name="ThumbnailChanged">
+		<signal name="FileThumbnailChanged">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
 			<arg type="s" name="smallthumbpath"/>
