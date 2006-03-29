@@ -1,3 +1,18 @@
+2006-03-28  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Redesigned Dbus Interface to be more generic and cleaned up code
+	* Corrected search results of hyphenated search terms
+	* Added support for maximum hit count to search queries
+	* Added optional support for sorting search results by relevance score
+
+2006-03-12  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Updated to latest XDGMime
+	* Fixed bugs with filename metadata type not being updated in a file move operation
+	* Improved speed of some intoify operations
+
+
+
 2006-02-27  Jamie McCracken <jamiemcc@gnome.org>
 
 	* Added inotify support

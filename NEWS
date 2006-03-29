@@ -1,3 +1,8 @@
+
+28th Mar
+	Made Dbus interface more generic	
+
+
 27th Feb
 	Added full support for Inotify with optimisations for detected moves.
 	Also updated build system, fixed leaks and improved stability.

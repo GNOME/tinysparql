@@ -1,12 +1,36 @@
 INTRODUCTION
 
-Tracker is a powerful metadata framework that provides the ability to store, retrieve and search all types of file metadata including user defined ones. Tracker is super efficient with your systems memory when compared with some other competing frameworks, which offer less functionality too.
+Tracker is a powerful metadata database and indexer framework that provides the ability to index, store, retrieve and search all types of file metadata including user defined ones. Tracker is super efficient with your systems memory when compared with some other competing frameworks, which offer less functionality too.
+
+
+NEW FEATURES
+
+* Redesigned DBus Api to be more generic
+
+* Corrected search results of hyphenated search terms
+
+* Added support for limiting no. of hits for searches
+
+* Added optional support for sorting search results by relevance score
+
+* A few minor bug fixes (Updating file name metadata correctly during move, correcting use of hyphenated search terms)
+
 
 Tracker's features include:
+
+* Very memory efficient and non-leaking (typical RAM usage 4 - 6 MB). Unlike some other indexers, tracker is designed and built to run well on lower memory systems with typically 128MB or 256MB memory. It should even be efficient enough to use on some mobile devices.
+
+* Non-bloated and written in C for maximum efficiency.
+
+* Fast indexing and unobtrusive - no need to index stuff overnight. Tracker runs at nice+10 so it should have a minimal impact on your system. 
+
+* Integrated as a Nautilus search backend and as a Deskbar applet backend.
 
 * Implements the freedesktop specification for metadata http://freedesktop.org/wiki/Standards_2fshared_2dfilemetadata_2dspec
 
 * Extracts embedded File, Image, Document and Audio type metadata from files.
+
+* Extracts embedded metadata from HTML, PDF, PS, OLE2 (DOC, XLS, PPT), OpenOffice (sxw), StarOffice (sdw), DVI, MAN, MP3 (ID3v1 and ID3v2), OGG, WAV, EXIV2, JPEG, GIF, PNG, TIFF, DEB, RPM, TAR(.GZ), ZIP, ELF, REAL, RIFF (AVI), MPEG, QT and ASF files
 
 * Supports the WC3's RDF Query syntax for querying metadata
 
@@ -18,6 +42,8 @@ Tracker's features include:
 
 * Can extract a file's contents as plain text and index them
 
+* Provides text filters for PDF, MS Office, OpenOffice (all versions), HTML and PS files.
+
 * Can provide thumbnailing on the fly
 
 
@@ -26,9 +52,7 @@ INSTALLATION (from source):
 
 You will need to make sure you have the following dependencies installed : 
 
-libmysqld.a (version 4.1 or higher but not version 5) - this is the embedded mysql server lib found in Debian package libmysqlclient14-dev. RPMs (look for embedded server) can be found at : http://dev.mysql.com/downloads/mysql/4.1.html
-
-(NB tracker does not work with the client.server versions of mysql so you must have the correct embedded server package installed)
+libmysqld.a (version 4.1 or higher but not version 5) - this is the embedded mysql server library. This can be found in Debian/Ubuntu package libmysqlclient14-dev. RPMs (look for embedded server) can be found at : http://dev.mysql.com/downloads/mysql/4.1.html (NB tracker does not work with the client/server versions of mysql so you must have the correct *embedded server* package installed). You do not have to setup anything as the embedded library is ued in-process and therefore needs no user accounts or authentication and will work straight out of the box.
 
 libdbus (0.50 +)
 
@@ -58,8 +82,7 @@ sudo make install
 
 If you install using any other prefix then you might have problems with files not being installed correctly.
 
-(You may need to copy the dbus service file to the correct directory and/or might need to update ldconf if you install into non standard directories.)
-
+(You may need to copy and amend the dbus service file to the correct directory and/or might need to update ldconf if you install into non standard directories.)
 
 
 Compile Options
@@ -74,21 +97,26 @@ Tracker has several compiler options to enable/disable certain features. The fol
 
 
 
-
 RUNNING TRACKER
 
-If installed correctly, the tracker daemon (trackerd) can be started automatically via Dbus activation.
 
-On the first run, Tracker will automatically create a new database and start populating it with metadata by browsing through the user's home directory.
+To run tracker, you need to manually start the tracker daemon trackerd. By default trackerd will index your entire home directory.
 
-On subsequent runs, Tracker will start up much much faster and will only ever incrementally index files (IE files that have changed since last index).
-
-you can also pass a directory root to be indexed as a command line parameter. EG
+You can also pass a directory root to be indexed as a command line parameter if you dont want your entire home directory indexed. EG
 
 "trackerd /home/jamie/Documents"
 
-You can make sure that tracker only indexes a subset of your home directory by editing the tracker.cfg file in ~/.Tracker (which is created when you first run trackerd) and setting WatchDirectoryRoots to a semi-colon delimited list of directories (full path required!) EG: WatchDirectoryRoots=directory1;directory2;directory3
+You can make sure that tracker only indexes a subset of your home directory and also specify folders not in your home directory by editing the tracker.cfg file in ~/.Tracker (which is created when you first run trackerd) and setting WatchDirectoryRoots to a semicolon delimited list of directories (full path required!) 
 
+EG: 
+
+WatchDirectoryRoots=directory1;directory2;directory3
+
+On the first run, Tracker will automatically create a new database and start populating it with metadata by browsing through the user's home directory (or the root folder(s) specified).
+
+On subsequent runs, Tracker will start up much much faster and will only ever incrementally index files (IE files that have changed since last index).
+
+If installed correctly, the tracker daemon (trackerd) can also be started automatically via Dbus activation.
 
 
 Tracker And Nautilus Search
@@ -99,7 +127,7 @@ To make sure trackerd always start when you login to Gnome, you will need to add
 
 Tracker and Deskbar applet
 
-Tracker is also integrated in gnome's deskbar applet. Please see them for more info.
+Tracker is also integrated in gnome's deskbar applet. Please see that applet for more info.
 
 
 
@@ -111,6 +139,6 @@ Tracker comes with a number of command line apps that you can use:
 
 "tracker-search SEARCHTERM" - this perfoms a google like search using SEARCHTERM to retrieve all matching files where SEARCHTERM appears in any searchable metadata
 
-"tracker-query" - this reads from STDIN an RDF Query that specifies the search criteria for various fields. It prints to STDOUT all matching files. You can see some example queries in the RDF-Query-examples folder
+"tracker-query" - this reads from STDIN an RDF Query that specifies the search criteria for various fields. It prints to STDOUT all matching files. You can see some example queries in the RDF-Query-examples folder. You can run the examples as "tracker-query < RDFFILE"
 
 

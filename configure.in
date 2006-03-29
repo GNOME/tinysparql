@@ -3,7 +3,7 @@
 # This file is part of Tracker.
 
 AC_PREREQ(2.57)
-AC_INIT([tracker],[0.0.2],[xdg@lists.freedesktop.org])
+AC_INIT([tracker],[0.0.3],[xdg@lists.freedesktop.org])
 AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
