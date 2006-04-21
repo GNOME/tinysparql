@@ -488,7 +488,7 @@ namespace Exiv2 {
         //! Destructor. Releases all managed memory
         ~MemIo() {if (isMalloced_) free(data_);}
 
-		void MemIo::wrap(const byte *data, long size);
+		void wrap(const byte *data, long size);
 
         //@}
 
