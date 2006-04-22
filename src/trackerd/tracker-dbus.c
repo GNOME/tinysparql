@@ -30,6 +30,9 @@ static DBusHandlerResult  message_func (DBusConnection *conn, DBusMessage *messa
 static DBusObjectPathVTable tracker_vtable = {
 	unregistered_func,
 	message_func,
+	NULL, 
+	NULL, 
+	NULL,
 	NULL
 };
 

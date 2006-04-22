@@ -737,11 +737,8 @@ text_handler (GMarkupParseContext *context,
 		     gpointer user_data,
 		     GError **error)
 {
-	int i;
 	ParserData   *data;
 	ParseState    state;
-	
-	char *str;
 
 	data = user_data;
 	state = peek_state (data);

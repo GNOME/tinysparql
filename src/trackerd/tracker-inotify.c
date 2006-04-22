@@ -541,7 +541,7 @@ inotify_watch_func( GIOChannel *source, GIOCondition condition, gpointer data )
  
 	buffer_i = 0;
 	
-	while (buffer_i < r) {
+	while (buffer_i < (size_t)r) {
 		/* Parse events and process them ! */
 		pevent = (struct inotify_event *)&buffer[buffer_i];
 		event_size = sizeof(struct inotify_event) + pevent->len;

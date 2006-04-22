@@ -303,7 +303,7 @@ add_metadata_to_dict (MYSQL_RES *res, DBusMessageIter *iter_dict, int metadata_c
 
 	if (row_count > 0) {
 
-		while (row = mysql_fetch_row (res)) {
+		while ((row = mysql_fetch_row (res)) != NULL) {
 
 			if (row[0] && row[1] &&row[2]) {
 				key = g_strconcat (row[1], "/",  row[2], NULL);
@@ -580,7 +580,7 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	int 		i, id, n, table_count;
-	char 		**array, **values = NULL, *folder,  *field, *str, *mid; 
+	char 		**array, *folder,  *field, *str, *mid; 
 	GString 	*sql;
 	MYSQL_RES 	*res;
 
@@ -1180,7 +1180,7 @@ tracker_dbus_method_search_files_query (DBusRec *rec)
 					array = g_new (char *, row_count);
 					i = 0;
 
-					while (row = mysql_fetch_row (res)) {
+					while ((row = mysql_fetch_row (res)) != NULL) {
 
 						if (row[0] && row[1]) {
 							array[i] = g_strconcat (row[0], "/",  row[1], NULL);
@@ -1221,4 +1221,3 @@ tracker_dbus_method_search_files_query (DBusRec *rec)
 	dbus_connection_send (rec->connection, reply, NULL);
 	dbus_message_unref (reply);
 }
-

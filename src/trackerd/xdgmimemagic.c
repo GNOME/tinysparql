@@ -315,7 +315,7 @@ _xdg_mime_magic_parse_magic_line (FILE              *magic_file,
   int c;
   int end_of_file;
   int indent = 0;
-  int bytes_read;
+  unsigned int bytes_read;
 
   assert (magic_file != NULL);
 
@@ -460,6 +460,8 @@ _xdg_mime_magic_parse_magic_line (FILE              *magic_file,
 	  _xdg_mime_magic_matchlet_free (matchlet);
 	  return XDG_MIME_MAGIC_EOF;
 	}
+	
+      /* XXXX: Not possible |range_length| is of type |unsigned int| */
       if (matchlet->range_length == -1)
 	{
 	  _xdg_mime_magic_matchlet_free (matchlet);
@@ -474,7 +476,7 @@ _xdg_mime_magic_parse_magic_line (FILE              *magic_file,
       /* We clean up the matchlet, byte swapping if needed */
       if (matchlet->word_size > 1)
 	{
-	  int i;
+	  xdg_uint32_t i;
 	  if (matchlet->value_length % matchlet->word_size != 0)
 	    {
 	      _xdg_mime_magic_matchlet_free (matchlet);
@@ -519,7 +521,7 @@ _xdg_mime_magic_matchlet_compare_to_data (XdgMimeMagicMatchlet *matchlet,
 					  const void           *data,
 					  size_t                len)
 {
-  int i, j;
+  xdg_uint32_t i, j;
   for (i = matchlet->offset; i < matchlet->offset + matchlet->range_length; i++)
     {
       int valid_matchlet = TRUE;

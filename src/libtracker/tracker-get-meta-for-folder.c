@@ -54,7 +54,7 @@ int
 main (int argc, char **argv) 
 {
 	
-	char *metadata[] = {"File.Format", "File.Size", "Doc.PageCount", NULL};
+	const char *metadata[] = {"File.Format", "File.Size", "Doc.PageCount", NULL};
 	GHashTable *table = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
@@ -91,7 +91,7 @@ main (int argc, char **argv)
 	
 
 	tracker_disconnect (client);
-
+	return 0;
 }
 
 

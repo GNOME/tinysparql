@@ -38,7 +38,7 @@ main (int argc, char **argv)
 
 	if (!client) {
 		g_print ("Could not initialise Tracker - exiting...");
-		return;
+		return 1;
 	}
 
 	bytes_read = fread(buffer, 1, 2047, stdin);
@@ -54,13 +54,13 @@ main (int argc, char **argv)
 	if (error) {
 		g_warning ("An error has occured : %s", error->message);
 		g_error_free (error);
-		return;
+		return 1;
 	}
 
 
 	if (!strarray) {
 		g_print ("no results were found matching your query");
-		return;
+		return 1;
 	}
 	
 	for (p_strarray = strarray; *p_strarray; p_strarray++) {

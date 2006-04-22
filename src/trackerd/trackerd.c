@@ -202,9 +202,6 @@ poll_dir (const char *uri, DBConnection *db_con)
 {
 	FileInfo 	*info_dir;
 	char 		**files, **files_p, *str;
-	int 		i;
-	
-
 	
 
 	/* check for any deletions*/
@@ -693,8 +690,6 @@ static gboolean
 process_scheduled_events (void)
 {	
 	FileInfo   *info;
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row, end_row;
 
 	info = g_async_queue_try_pop (file_pending_queue);   
 
@@ -747,7 +742,7 @@ extract_metadata_thread ()
 	DBConnection db_con;
 	gboolean has_pending;
 	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row, end_row;
+	MYSQL_ROW  row;
 
 	/* set thread safe DB connection */
 	mysql_thread_init ();
@@ -940,10 +935,10 @@ process_files_thread ()
 {
 	FileInfo   *info;
 	DBConnection db_con;
-	GSList *mylist = NULL, *moved_from_list = NULL; /* list to hold moved_from events whilst waiting for a matching moved_to event */
+	GSList *moved_from_list = NULL; /* list to hold moved_from events whilst waiting for a matching moved_to event */
 	gboolean need_index = FALSE, has_pending = FALSE;
 	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row, end_row;
+	MYSQL_ROW  row;
 
 	/* set thread safe DB connection */
 	mysql_thread_init ();
@@ -1161,10 +1156,6 @@ process_user_request_queue_thread (GMutex *mutex)
 	while (is_running) {
 
 		DBusMessage *reply;
-		char **array = NULL;				
-		int row_count = 0, i = 0;
-		MYSQL_ROW  row = NULL;
-		char *str, *str2;
 
 		g_mutex_unlock (mutex);
 	
@@ -1190,7 +1181,6 @@ process_user_request_queue_thread (GMutex *mutex)
 
 				dbus_connection_send (rec->connection, reply, NULL);
 				dbus_message_unref (reply);
-				g_free (str);	
 				break;
 
 			case DBUS_ACTION_GET_METADATA:
@@ -1280,7 +1270,6 @@ main (int argc, char **argv)
 	sigset_t 	empty_mask;
 	char 		*prefix, *lock_file, *str, *lock_str, *tracker_data_dir;
 	GThread 	*file_metadata_thread, *file_process_thread, *user_request_thread1, *user_request_thread2; 
-	GSList 		*mylist = NULL;
 	gboolean 	need_setup = FALSE;
 	DBConnection 	db_con;
 	GMainLoop 	*loop;

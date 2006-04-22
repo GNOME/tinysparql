@@ -199,7 +199,6 @@ process_metadata (GHashTable *meta_table)
 	char *str, *key;
 	char *sep = NULL, *label = NULL;
 	char tmp_buf[20];
-	int i;
 	
 	/* make sure dates are in the correct format (yyyy-mm-dd hh:mm:ss) */
 	if (g_hash_table_lookup_extended  (meta_table, "Doc.Created", (gpointer)&key, (gpointer)&str)) {
@@ -475,4 +474,3 @@ main (int argc, char **argv)
 	EXTRACTOR_removeAll (plugins);
 	return 0;
 }
-

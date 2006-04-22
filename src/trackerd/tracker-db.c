@@ -99,7 +99,7 @@ get_mtime (const char *name)
 static gboolean 
 lock_db ()
 {
-	int attempt, fd, fd2;	
+	int attempt, fd;
 	char *lock_file, *tmp, *tmp_file;
 	
 	if (!use_nfs_safe_locking) {
@@ -945,7 +945,6 @@ tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 	char 		***rows, ***res_str = NULL;
 	char 		**row, **array = NULL;	
 	int 		i, row_count;
-	char		*str;
 
 	g_return_val_if_fail (db_con && folder_uri && (strlen (folder_uri) > 0), NULL);
 
@@ -997,7 +996,6 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 {
 	FieldDef *def;
 	char ***res_str = NULL;
-	char *field = NULL;
 
 	def = g_new (FieldDef, 1);
 

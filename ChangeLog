@@ -1,3 +1,7 @@
+2006-04-22  Nate Nielsen  <nielsen@memberwewbs.com>
+
+	* Fix compile warnings, crasher.
+
 2006-03-28  Jamie McCracken <jamiemcc@gnome.org>
 
 	* Redesigned Dbus Interface to be more generic and cleaned up code

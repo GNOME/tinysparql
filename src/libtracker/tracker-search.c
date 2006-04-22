@@ -49,7 +49,7 @@ my_callback (char **result, GError *error, gpointer user_data)
 
 }
 
-void 
+int 
 main (int argc, char **argv) 
 {
 
@@ -57,13 +57,14 @@ main (int argc, char **argv)
 
 	if (!argv[1]) {
 		g_print ("usage - tracker-search SearchTerm");
+		return 1;
 	}
 
 	client =  tracker_connect (FALSE);
 
 	if (!client) {
 		g_print ("Could not initialise Tracker - exiting...");
-		return;
+		return 1;
 	}
 
 	loop = g_main_loop_new (NULL, TRUE);
@@ -75,7 +76,7 @@ main (int argc, char **argv)
 		array[0] = argv[2];
 		array[1] = argv[3];
 		array[2] = NULL;
-		tracker_search_metadata_by_text_and_mime_async (client, argv[1], array, my_callback, NULL);
+		tracker_search_metadata_by_text_and_mime_async (client, argv[1], (const char**)array, my_callback, NULL);
 	} else {
 		tracker_search_metadata_by_text_async (client, argv[1], my_callback, NULL);
 	}
@@ -84,6 +85,7 @@ main (int argc, char **argv)
 
 	tracker_disconnect (client);
 
+	return 0;
 }
 
 

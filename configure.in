@@ -9,6 +9,8 @@ AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
 AC_SUBST(PACKAGE_URL, [http://www.freedesktop.org/Software/Tracker])
 
+CFLAGS="$CFLAGS -Wno-unused-parameter"
+
 # Checks for programs.
  AC_PROG_CC
  AC_HEADER_STDC
