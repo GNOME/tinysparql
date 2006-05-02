@@ -55,9 +55,10 @@ main (int argc, char **argv)
 
 	TrackerClient *client = NULL;
 
-	if (!argv[1]) {
-		g_print ("usage - tracker-search SearchTerm");
+	if (argc < 2) {
+		g_print ("usage - tracker-search SearchTerm [mimetype]");
 		return 1;
+
 	}
 
 	client =  tracker_connect (FALSE);
@@ -69,7 +70,7 @@ main (int argc, char **argv)
 
 	loop = g_main_loop_new (NULL, TRUE);
 
-	if (argv[2] && argv[3]) {
+	if (argc ==3) {
 		char **array;
 
 		array = g_new (char *, 3);
@@ -87,6 +88,3 @@ main (int argc, char **argv)
 
 	return 0;
 }
-
-
-		
