@@ -67,7 +67,7 @@ static struct metadata_format audio_keywords[] =
 	{"Audio.Title", EXTRACTOR_TITLE},
 	{"Audio.Artist", EXTRACTOR_ARTIST},
 	{"Audio.Album", EXTRACTOR_ALBUM},
-	{"Audio.Year", EXTRACTOR_DATE},
+	{"Audio.ReleaseDate", EXTRACTOR_DATE},
 	{"Audio.Comment", EXTRACTOR_COMMENT},
 	{"Audio.Genre", EXTRACTOR_GENRE},
 	{"Audio.Codec", EXTRACTOR_RESOURCE_TYPE},
@@ -198,74 +198,7 @@ process_metadata (GHashTable *meta_table)
 {
 	char *str, *key;
 	char *sep = NULL, *label = NULL;
-	char tmp_buf[20];
-	
-	/* make sure dates are in the correct format (yyyy-mm-dd hh:mm:ss) */
-	if (g_hash_table_lookup_extended  (meta_table, "Doc.Created", (gpointer)&key, (gpointer)&str)) {
 
-		char *new_date = g_strstrip (g_strdup (str));
-
-		/* replace 'T' with space in OpenOffice date formats EG 2005-11-19T11:21:33 */ 
-      		sep = strchr (new_date, 'T');
-      		if (sep) {
-			*sep = ' ';
-		}
-
-		/* strip any time zone info from dates */
-		sep = strchr (new_date, 'Z');
-      		if (sep) {
-			*sep = '\0';
-		}
-		sep = strchr (new_date, '-');
-      		if (sep) {
-			*sep = '\0';
-		}
-		sep = strchr (new_date, '+');
-      		if (sep) {
-			*sep = '\0';
-		}
-
-		/* format pdf dates which look like yyyymmddhhmmss EG. 20030415145048 */
-      		if (strlen (new_date) == 14) {
-
-			tmp_buf[0] = new_date[0];
-			tmp_buf[1] = new_date[1];
-			tmp_buf[2] = new_date[2];
-			tmp_buf[3] = new_date[3];
-			tmp_buf[4] = '-';
-			tmp_buf[5] = new_date[4];
-			tmp_buf[6] = new_date[5];
-			tmp_buf[7] = '-';
-			tmp_buf[8] = new_date[6];
-			tmp_buf[9] = new_date[7];
-			tmp_buf[10] = ' ';
-			tmp_buf[11] = new_date[8];
-			tmp_buf[12] = new_date[9];
-			tmp_buf[13] = ':';
-			tmp_buf[14] = new_date[10];
-			tmp_buf[15] = new_date[11];
-			tmp_buf[16] = ':';
-			tmp_buf[17] = new_date[12];
-			tmp_buf[18] = new_date[13];
-			tmp_buf[19] = '\0';
-			
-			g_free (new_date);
-			new_date = g_strdup (tmp_buf);
-			
-		}
-	
-		/* remove invalid length dates */
-		if (strlen (new_date) != 19) {
-			g_hash_table_remove (meta_table, key);
-		} else {
-			if (strcmp (new_date, str) != 0) {
-				g_hash_table_remove (meta_table, key);
-				g_hash_table_insert (meta_table, g_strdup ("Doc.Created"), g_strdup (new_date));
-				g_free (new_date);
-			}
-		}
-
-	}
 
 
 	/* split up image size field into height & width */
@@ -452,7 +385,7 @@ main (int argc, char **argv)
 	GHashTable *meta;
 
 
-	if (!argv[1]) {
+	if ((argc == 1) || (argc > 3)) {
 		g_print ("usage: tracker-extract file [mimetype]\n");
 		return 0;
 	}
@@ -460,7 +393,7 @@ main (int argc, char **argv)
 	/* initialise metadata plugins */
 	plugins = EXTRACTOR_loadDefaultLibraries();
 
-	if (argv[2]) {
+	if (argc == 3) {
 		meta = tracker_get_file_metadata (argv[1], g_strdup (argv[2]));
 	} else {
 		meta = tracker_get_file_metadata (argv[1], NULL);
