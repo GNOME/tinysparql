@@ -1,6 +1,33 @@
+
+2006-05-01  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Migrated embedded database to mysql 5
+	* Removed all parameterized queries and replaced with stored procedures
+	* New stored procedures to encapsulate DB functionality and remove most DB logic from application
+	* Simplified C code when interfacing with DB
+	* Added support for parsing dates in various formats including conversion to/from ISO 8601 format
+	* Fixed MsWord filter to prevent looping (WvText causes inotify to report file write change causing endless looping)
+	* Redesigned DB structure to be more generic and service orientated
+	* Added support for service types (first class objects) to DB
+	* Renamed tables to be more service orientated
+	* Added DB versioning data to DB so future DB changes can be implemented painlessly (and without requiring a rebuild of all indexed data)
+
+
+2006-04-22  Dan Nicolaescu <dann@ics.uci.edu>
+
+	* Patch to fix correct use of argv
+	* Ensure correct message printed if wrong no of arguments supplied
+
+
+2006-04-22  Dan Nicolaescu <dann@ics.uci.edu>
+
+	* Patch to fix build for Fedora Core 5
+
+
 2006-04-22  Nate Nielsen  <nielsen@memberwewbs.com>
 
 	* Fix compile warnings, crasher.
+
 
 2006-03-28  Jamie McCracken <jamiemcc@gnome.org>
 

@@ -128,7 +128,7 @@ fam_callback (GIOChannel *source,
 	      GIOCondition condition,
 	      gpointer data)
 {
-	int counter;
+	int counter = 1;
 
 	while (&fc != NULL && FAMPending (&fc)) {
 

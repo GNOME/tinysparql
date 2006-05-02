@@ -3,7 +3,7 @@
 # This file is part of Tracker.
 
 AC_PREREQ(2.57)
-AC_INIT([tracker],[0.0.3],[xdg@lists.freedesktop.org])
+AC_INIT([tracker],[0.0.4],[xdg@lists.freedesktop.org])
 AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
@@ -53,13 +53,13 @@ fi
 # Check to make sure we have MySQL >= 4.1.0
 MYSQL_VERSION=`$MYSQL_CONFIG --version`
 
-AX_COMPARE_VERSION("$MYSQL_VERSION", [ge], [4.1.0], 
-        AC_MSG_RESULT(checking mysql version >= 4.1.0... yes),
-        AC_MSG_ERROR([Tracker requires version 4.1.* of the embedded MySQL. Please install correct version and then restart compilation]))
+AX_COMPARE_VERSION("$MYSQL_VERSION", [ge], [5.0.19], 
+         AC_MSG_RESULT(checking mysql version >= 5.0.19... yes),
+	 AC_MSG_ERROR([Tracker requires version 5.0.19 or higher of the embedded MySQL library. Please install correct version and then restart compilation]))
 
-AX_COMPARE_VERSION("$MYSQL_VERSION", [lt], [5.0.0], 
-        AC_MSG_RESULT(checking mysql version < 5.0.0... yes),
-        AC_MSG_ERROR([Tracker requires version 4.1.* of the embedded MySQL (it will not work with version 5 or higher). Please install correct version and then restart compilation]))
+#AX_COMPARE_VERSION("$MYSQL_VERSION", [lt], [5.0.0], 
+#        AC_MSG_RESULT(checking mysql version < 5.0.0... yes),
+#        AC_MSG_ERROR([Tracker requires version 4.1.* of the embedded MySQL (it will not work with version 5 or higher). Please install correct version and then restart compilation]))
 
 # Now make sure we've got mysqld
 MYSQL_LIBS=`$MYSQL_CONFIG --libmysqld-libs`
@@ -67,7 +67,6 @@ if test $? != 0 ; then
     AC_MSG_ERROR(Could not find the MySQL Embedded-server libraries.)
 fi
 MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
-
 MYSQL_CFLAGS=`eval echo $MYSQL_CFLAGS`
 MYSQL_LIBS=`eval echo $MYSQL_LIBS`
 

@@ -9,6 +9,7 @@
 #include "tracker-db.h"
 
 
+
 typedef struct {
 
 	DBConnection 	*db_con;
@@ -33,7 +34,7 @@ db_connect (const char* dbname)
 	mysql_options (db, MYSQL_OPT_USE_EMBEDDED_CONNECTION, NULL);
 
 
-	if (!mysql_real_connect (db, NULL, "root", NULL, dbname, 0, NULL, 0)) {
+	if (!mysql_real_connect (db, NULL, "root", NULL, dbname, 0, NULL, CLIENT_MULTI_STATEMENTS)) {
     		tracker_log ("Fatal error : mysql_real_connect failed: %s", mysql_error (db));
 		exit (1);
 	}
@@ -244,6 +245,8 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 		return -1;
 	}
 
+	
+
 	memset(bind, 0, sizeof(bind));
 
 	va_start(args, param_count);
@@ -286,7 +289,14 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 	unlock_db ();  
 	va_end (args);
 
-	return mysql_stmt_affected_rows (stmt);
+	int result = mysql_stmt_affected_rows (stmt);
+	if (mysql_stmt_free_result (stmt)) {
+		tracker_log ("ERROR Freeing statement %s", mysql_stmt_error (stmt));
+	}
+
+	//mysql_stmt_reset (stmt);
+
+	return result;
 	
 }
 
@@ -310,6 +320,8 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 		tracker_log ("Too many parameters to execute query");
 		return NULL;
 	}
+
+	
 
 	memset(bind, 0, sizeof(bind));
 
@@ -413,8 +425,14 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 
 
 	/* Free the prepared result metadata */
-	mysql_free_result(prepare_meta_result);
-	mysql_stmt_free_result (stmt);
+	mysql_free_result (prepare_meta_result);
+
+	if (mysql_stmt_free_result (stmt)) {
+		tracker_log ("ERROR Freeing statement");
+	}
+
+	//mysql_stmt_reset (stmt);
+
 	return (char ***)result;
 }
  
@@ -422,137 +440,43 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 void
 tracker_db_prepare_queries (DBConnection *db_con)
 {
-
+	
 	/* prepare queries to be used and bomb out if queries contain sql errors or erroneous parameter counts */
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_id_stmt, SELECT_FILE_ID) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_child_stmt, SELECT_FILE_CHILD) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_file_sub_folders_stmt, SELECT_FILE_SUB_FOLDERS) == 2);
-	tracker_db_prepare_statement (db_con->db, &db_con->select_file_watches_stmt, SELECT_FILE_WATCHES);
 
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_file_stmt, INSERT_FILE) == 6);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_stmt, UPDATE_FILE) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_stmt, UPDATE_FILE_MOVE) == 4);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_child_stmt, UPDATE_FILE_MOVE_CHILD) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_move_path_stmt, UPDATE_FILE_MOVE_PATH) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_watch_stmt, UPDATE_FILE_WATCH) == 3);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_file_watch_child_stmt, UPDATE_FILE_WATCH_CHILD) == 4);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_file_stmt, DELETE_FILE) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_file_child_stmt, DELETE_FILE_CHILD) == 2);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_uri_stmt, SELECT_URI) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_watch_stmt, SELECT_WATCH) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_subwatches_stmt, SELECT_SUBWATCHES) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_watch_stmt, DELETE_WATCH) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_subwatches_stmt, DELETE_SUBWATCHES) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_watch_stmt, INSERT_WATCH) == 2);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_stmt, SELECT_METADATA) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_indexed_stmt, SELECT_METADATA_INDEXED) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_integer_stmt, SELECT_METADATA_INTEGER) == 2);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_stmt, INSERT_METADATA) == 3);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_indexed_stmt, INSERT_METADATA_INDEXED) == 3);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_integer_stmt, INSERT_METADATA_INTEGER) == 3);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_metadata_stmt, UPDATE_METADATA) == 3);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_metadata_indexed_stmt, UPDATE_METADATA_INDEXED) == 3);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_metadata_integer_stmt, UPDATE_METADATA_INTEGER) == 3);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_metadata_derived_stmt, DELETE_METADATA_DERIVED) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_metadata_all_stmt, DELETE_METADATA_ALL) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_metadata_child_all_stmt, DELETE_METADATA_CHILD_ALL) == 2);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_type_stmt, SELECT_METADATA_TYPE) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_type_like_stmt, SELECT_METADATA_TYPE_LIKE) == 1);	
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_metadata_type_file_stmt, SELECT_METADATA_TYPE_FILE) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_metadata_type_stmt, INSERT_METADATA_TYPE) == 4);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_stmt, SELECT_SEARCH_TEXT) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_sorted_stmt, SELECT_SEARCH_TEXT_SORTED) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_sorted_bool_stmt, SELECT_SEARCH_TEXT_SORTED_BOOL) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_mime_stmt, SELECT_SEARCH_TEXT_MIME) == 2);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_mime_location_stmt, SELECT_SEARCH_TEXT_MIME_LOCATION) == 4);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_search_text_location_stmt, SELECT_SEARCH_TEXT_LOCATION) == 3);
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_pending_file_stmt, INSERT_PENDING_FILE) == 6);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->select_pending_file_by_uri_stmt, SELECT_PENDING_FILE_BY_URI) == 1);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->update_pending_file_stmt, UPDATE_PENDING_FILE) == 3);
-	tracker_db_prepare_statement (db_con->db, &db_con->update_pending_files_counter_stmt, UPDATE_PENDING_FILES_COUNTER);
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->delete_pending_file_by_uri_stmt, DELETE_PENDING_FILE_BY_URI) == 1);
+	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_contents_stmt, INSERT_CONTENTS) == 3);
 
 }
 
 
-int
-tracker_db_get_file_id (DBConnection *db_con, const char* uri)
-{
-	char ***res_str = NULL;
-	char *path;
-	char *name;
-	int id;
 
-	if (!db_con || !uri) {
-		return -1;
+char *
+tracker_db_get_id (DBConnection *db_con, const char* service, const char *uri)
+{
+
+	int service_id = tracker_str_in_array (service, serice_index_array);
+
+	if ( service_id == -1) {
+		return NULL;
 	}
 
-	/* TO DO  - file might contain a file uri header (file://) that needs filtering out*/
-	path = g_path_get_dirname (uri);
-	name = g_path_get_basename (uri);
-	
-	res_str = tracker_db_exec_stmt_result (db_con->select_file_id_stmt, 2, path, name);	
-		
-	if (res_str && res_str[0] && res_str[0][0]) {
-		id = atoi (res_str[0][0]); 
-	} else {
-		id = -1;
-	}			
-
-	g_free (path);
-	g_free (name);
-	
-	tracker_db_free_result (res_str);
-	
-	return id;
-
-}
-
-
-FileInfo *
-tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
-{
-	char ***res_str = NULL;
-
-	if (!db_con || !info || !tracker_file_info_is_valid (info)) {
-		return info;
+	if (tracker_str_in_array (service, implemented_services) == -1) {
+		return NULL;
 	}
 
-	char *name = g_path_get_basename (info->uri);
-	char *path = g_path_get_dirname (info->uri);
+	if (tracker_str_in_array (service, file_service_array) != -1) {
+		int id = tracker_db_get_file_id (db_con, uri);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_file_id_stmt, 2, path, name);	
-		
-	if (res_str && res_str[0] && res_str[0][0]) {
-		info->file_id = atol (res_str[0][0]); 
-	}			
+		if (id != -1) {
+			return g_strdup_printf ("%d", id);
+		}
+	}
 
-	if (res_str && res_str[0] && res_str[0][1]) {
-		info->indextime = atoi (res_str[0][1]); 
-	}			
 
-	if (res_str && res_str[0] && res_str[0][2]) {
-		info->is_directory = (strcmp (res_str[0][2], "1") == 0) ; 
-	}			
-
-	tracker_db_free_result (res_str);
-
-	g_free (name);
-	g_free (path);
-
-	return info;
+	return NULL;
 
 }
+
+
 
 MYSQL_RES *
 tracker_exec_sql (MYSQL *db, const char *query)
@@ -590,6 +514,228 @@ tracker_exec_sql (MYSQL *db, const char *query)
 
 }
 
+char *
+tracker_escape_string (MYSQL *db, const char *in)
+{
+	char *str, *str2;
+	int i,j;
+
+	if (!in) {
+		return NULL;
+	}
+
+	i = strlen (in);
+
+	str = g_new (char, (i*2)+1);
+	
+	j = mysql_real_escape_string (db, str, in, i);
+	
+	str2 = g_strndup (str, j);
+	
+	g_free (str);
+	
+	return str2;
+
+} 
+
+MYSQL_RES *
+tracker_exec_proc (MYSQL *db, const char *procedure, int param_count, ...)
+{
+	va_list 	args;
+	int 		i;
+	char 		*str, *param, *query_str;
+	GString 	*query;
+	MYSQL_RES 	*result;		
+
+
+	va_start (args, param_count);
+
+	query = g_string_new ("Call ");
+
+	g_string_append (query, procedure);
+
+	g_string_append (query, "(");
+	
+	for (i = 0; i < param_count; i++ ) {
+
+		str = va_arg (args, char *);
+		
+		if (!str) {
+			tracker_log ("Warning - parameter %d is null", i);
+			param = NULL;	
+		} else {
+			param = tracker_escape_string (db, str);
+		}
+
+		if (i > 0) {
+			g_string_append (query, ", ");
+		}
+
+		if (param) {
+			g_string_append (query, "'");
+
+			g_string_append (query, param);
+
+			g_string_append (query, "'");
+		
+			g_free (param);
+
+		} else {
+			g_string_append (query, "NULL ");		
+		}
+
+		
+	}
+ 	
+	va_end (args);
+
+	g_string_append (query, ")");
+
+	query_str =  g_string_free (query, FALSE);
+
+	result = tracker_exec_sql (db, query_str);
+
+	g_free (query_str);
+
+	return result;
+
+}
+
+
+int
+tracker_db_get_file_id (DBConnection *db_con, const char* uri)
+{
+	
+	char *path;
+	char *name;
+	int id;
+
+	if (!db_con || !uri) {
+		return -1;
+	}
+
+	/* TO DO  - file might contain a file uri header (file://) that needs filtering out */
+	path = g_path_get_dirname (uri);
+	name = g_path_get_basename (uri);
+
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
+
+
+	res = tracker_exec_proc  (db_con->db, "GetServiceID", 2, path, name);
+
+	if (res) {
+		
+		row = mysql_fetch_row (res);
+
+		if (row[0]) {
+			id = atoi (row[0]); 
+		} else {
+			id = -1;
+		}
+
+		mysql_free_result (res);
+	}			
+ 
+
+	g_free (path);
+	g_free (name);
+
+	return id;
+
+}
+
+
+
+FileInfo *
+tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
+{
+	if (!db_con || !info || !tracker_file_info_is_valid (info)) {
+		return info;
+	}
+
+	char *name = g_path_get_basename (info->uri);
+	char *path = g_path_get_dirname (info->uri);
+
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
+
+	char* apath = tracker_escape_string (db_con->db, path);
+	char* aname = tracker_escape_string (db_con->db, name);
+
+	char *query = g_strconcat ("SELECT ID, IndexTime, IsDirectory FROM Files WHERE Path = '", apath ,"'  AND FileName = '", aname , "'", NULL);
+
+	g_free (aname);
+	g_free (apath);
+
+	res = tracker_exec_proc  (db_con->db, "GetServiceID", 2, path, name);
+	g_free (query);
+
+	if (res) {
+
+		row = mysql_fetch_row (res);
+
+		if (row && row[0]) {
+			info->file_id = atol (row[0]); 
+		}			
+
+		if (row && row[1]) {
+			info->indextime = atoi (row[1]); 
+		}			
+
+		if (row && row[2]) {
+			info->is_directory = (strcmp (row[2], "1") == 0) ; 
+		}			
+
+		mysql_free_result (res);
+	}
+
+
+	g_free (name);
+	g_free (path);
+
+	return info;
+
+}
+
+static void
+create_system_db ()
+{
+	MYSQL *db;
+	char  *sql_file;
+	char *query;
+	char **queries, **queries_p ;
+
+
+	tracker_log ("Creating system database...");
+	db = db_connect (NULL);
+	tracker_exec_sql (db, "CREATE DATABASE mysql");
+	mysql_close (db);
+	db = db_connect ("mysql");
+
+	sql_file = g_strdup (DATADIR "/tracker/mysql-system.sql");
+	
+	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
+		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file); 
+		g_assert (FALSE);
+	} else {
+		queries = g_strsplit_set (query, ";", -1);
+		for (queries_p = queries; *queries_p; queries_p++) {
+			if (*queries_p) {
+		     		tracker_exec_sql (db, *queries_p);
+			}
+		}
+		
+		g_strfreev (queries);
+		g_free (query);
+	} 	
+	
+	g_free (sql_file);
+
+	mysql_close (db);
+
+}
+
 
 void
 tracker_create_db ()
@@ -599,7 +745,9 @@ tracker_create_db ()
 	char *query;
 	char **queries, **queries_p ;
 
-	tracker_log ("creating database");
+	create_system_db ();
+
+	tracker_log ("Creating tracker database...");
 	db = db_connect (NULL);
 	tracker_exec_sql (db, "CREATE DATABASE tracker");
 	mysql_close (db);
@@ -607,7 +755,8 @@ tracker_create_db ()
 	sql_file = g_strdup (DATADIR "/tracker/mysql-tracker.sql");
 	
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
-		tracker_log ("Unable to load sql query file %s", sql_file); 
+		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file); 
+		g_assert (FALSE);
 	} else {
 		queries = g_strsplit_set (query, ";", -1);
 		for (queries_p = queries; *queries_p; queries_p++) {
@@ -616,11 +765,12 @@ tracker_create_db ()
 			}
 		}
 		g_strfreev (queries);
+		g_free (query);
 		
 	} 	
 	
 	g_free (sql_file);
-	g_free (query);
+
 	mysql_close (db);
 	
 }
@@ -667,26 +817,113 @@ tracker_log_sql	 (MYSQL *db, const char *query)
 	mysql_free_result (res);
 }
 
-
-static char *
-escape_string (MYSQL *db, const char *in)
+gboolean
+tracker_update_db (MYSQL *db)
 {
-	char *str, *str2;
-	int i,j;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;	
+	char  *sql_file;
+	char *query;
+	char **queries, **queries_p;
 
-	i = strlen (in);
 
-	str = g_new (char, (i*2)+1);
-	
-	j = mysql_real_escape_string (db, str, in, i);
-	
-	str2 = g_strndup (str, j);
-	
-	g_free (str);
-	
-	return str2;
+	res = tracker_exec_sql  (db, "show tables");
+	tracker_log ("Checking for Options table...");
 
+	gboolean found_options = FALSE;
+	if (res) {
+		
+		while ((row = mysql_fetch_row (res))) {
+			if (((row[0]) && (strcmp (row[0], "Options") == 0))) {
+				tracker_log ("Options table is present");
+				found_options = TRUE;
+				break;
+			}	
+		}
+		
+		mysql_free_result (res);
+
+		if (!found_options) {
+			tracker_log ("Cannot find Options table - your database is out of date and will need to be rebuilt");
+			tracker_exec_sql (db, "Drop Database tracker");
+			tracker_create_db ();
+			return TRUE;
+		}
+	}
+
+	res = tracker_exec_sql (db, "SELECT OptionValue FROM Options WHERE OptionKey = 'DBVersion'");
+	
+	if (!res) {
+		return FALSE;
+	}
+
+	row = mysql_fetch_row (res);
+	
+	if (!row[0]) {
+		mysql_free_result (res);
+		return FALSE;
+	}
+
+	char* version =  row[0];
+	int i = atoi (version);
+	mysql_free_result (res);
+
+	tracker_log ("Checking tracker DB version...Current version is %d and needed version is %d", i, TRACKER_DB_VERSION_REQUIRED);
+
+
+	/* apply and table changes for each version update */
+	while (i < TRACKER_DB_VERSION_REQUIRED) {
+			
+		i++;
+
+		sql_file = g_strconcat (DATADIR, "/tracker/tracker-db-table-update", version, ".sql", NULL);
+		
+		tracker_log ("Please wait while database is being updated to the latest version");	
+
+		if (g_file_get_contents (sql_file, &query, NULL, NULL)) {
+
+			queries = g_strsplit_set (query, ";", -1);
+			for (queries_p = queries; *queries_p; queries_p++) {
+				if (*queries_p) {
+					tracker_exec_sql (db, *queries_p);
+				}
+			}
+			g_strfreev (queries);
+			g_free (query);		
+		} 	
+	
+		g_free (sql_file);
+
+			
+	}
+
+	/* regenerate SPs */
+	tracker_log ("Creating stored procedures...");
+	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
+	
+	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
+		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file); 
+		g_assert (FALSE);
+	} else {
+		queries = g_strsplit_set (query, "|", -1);
+		for (queries_p = queries; *queries_p; queries_p++) {
+			if (*queries_p) {
+		     		tracker_exec_sql (db, *queries_p);
+			}
+		}
+		g_strfreev (queries);
+		g_free (query);
+	} 	
+	
+	g_free (sql_file);
+	
+
+
+
+	return FALSE;
 }
+
+
 
 static void
 get_meta_table_data (gpointer key,
@@ -694,44 +931,39 @@ get_meta_table_data (gpointer key,
 		     gpointer user_data)
 {
 	DatabaseAction *db_action;	
-	FieldDef *def;
-	char *mtype, *mvalue, *avalue;
+	char *mtype, *mvalue, *avalue, *dvalue, *evalue;
 	
 	mtype = (char *)key;
 	avalue = (char *)value;
 
 	db_action = user_data;
 
-	mvalue = escape_string (db_action->db_con->db, avalue);
-
 	g_return_if_fail (mtype != NULL && mvalue != NULL);
 
-	g_assert (db_action->db_con);
-	g_assert (db_action->db_con->select_metadata_type_stmt);
-
-	def = tracker_db_get_field_def (db_action->db_con, mtype); 
-
-	if (def && def->id) {
-	
-		if (def->indexable) {
-			//tracker_log ("saving indexable %s : %s", key, mvalue);
-			tracker_db_exec_stmt (db_action->db_con->insert_metadata_indexed_stmt, 3, db_action->file_id, def->id, mvalue);
-		
-		} else if (def->type != DATA_INTEGER) {
-			//tracker_log ("saving normal %s : %s", key, mvalue);
-			tracker_db_exec_stmt (db_action->db_con->insert_metadata_stmt, 3, db_action->file_id, def->id, mvalue);	
-				
-		} else {
-			tracker_db_exec_stmt (db_action->db_con->insert_metadata_integer_stmt, 3, db_action->file_id, def->id, mvalue);
+	if (tracker_metadata_is_date (db_action->db_con, mtype)) {
+		dvalue = tracker_format_date (avalue);		
+		evalue = tracker_long_to_str (tracker_str_to_date (dvalue));
+		//tracker_log ("saving %s with value %s for date %s", mtype, evalue, dvalue);
+		if (dvalue) {
+			g_free (dvalue);
 		}
-
+	} else {
+		evalue = g_strdup (avalue);
 	}
-	
+
+	mvalue = tracker_escape_string (db_action->db_con->db, evalue);
+
+	if (evalue) {
+		g_free (evalue);
+	}
+ 
+	tracker_exec_proc  (db_action->db_con->db, "SetMetadata", 5, "Files", db_action->file_id, mtype, mvalue, "1");
+
 	if (mvalue) {
 		g_free (mvalue);
 	}
 
-	tracker_db_free_field_def (def);
+
 
 }
 
@@ -762,32 +994,27 @@ tracker_db_save_thumbs	(DBConnection *db_con, const char *small_thumb, const cha
 	char *str_file_id;
 	char *small_thumb_file;
 	char *large_thumb_file;
-	FieldDef *def;
-
-	small_thumb_file = escape_string (db_con->db, small_thumb);
-	large_thumb_file = escape_string (db_con->db, large_thumb);
 
 	str_file_id = g_strdup_printf ("%ld", file_id);
 
-	def = tracker_db_get_field_def (db_con, "File.SmallThumbnailPath"); 
-
-	if (def) {
-		tracker_db_exec_stmt (db_con->insert_metadata_stmt, 3,  str_file_id, def->id, small_thumb_file);
-
-		tracker_db_free_field_def (def);				
+	if (small_thumb) {
+		small_thumb_file = tracker_escape_string (db_con->db, small_thumb);
+		tracker_exec_proc  (db_con->db, "SetMetadata", 5, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1");	
+		g_free (small_thumb_file);
 	}
 
-	def = tracker_db_get_field_def (db_con, "File.LargeThumbnailPath"); 
 
-	if (def) {
-		tracker_db_exec_stmt (db_con->insert_metadata_stmt, 3,  str_file_id, def->id, large_thumb_file);
 
-		tracker_db_free_field_def (def);
+	if (large_thumb) {
+		large_thumb_file = tracker_escape_string (db_con->db, large_thumb);
+		tracker_exec_proc  (db_con->db, "SetMetadata", 5, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, "1");	
+		g_free (large_thumb_file);
 	}
+
 
 	g_free (str_file_id);
-	g_free (small_thumb_file);
-	g_free (large_thumb_file);
+	
+
 
 }
 
@@ -820,7 +1047,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 	}
 
 	str_meta_id = g_strdup (def->id);
-	tracker_db_free_field_def (def);
+
 
 	str_file_id = g_strdup_printf ("%ld", file_id);
 	file_id_length = strlen (str_file_id);
@@ -845,8 +1072,8 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 
 
 	/* Bind the buffers */
-	if (mysql_stmt_bind_param (db_con->insert_metadata_indexed_stmt, bind)) {
-		tracker_log ("binding error : %s\n", mysql_stmt_error (db_con->insert_metadata_indexed_stmt));
+	if (mysql_stmt_bind_param (db_con->insert_contents_stmt, bind)) {
+		tracker_log ("binding error : %s\n", mysql_stmt_error (db_con->insert_contents_stmt));
 		g_free (str_meta_id);
 		g_free (str_file_id);
 		fclose (file);
@@ -885,9 +1112,9 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 
 		bytes_read += strlen (buffer);
 
-		if (mysql_stmt_send_long_data (db_con->insert_metadata_indexed_stmt, 2, buffer, strlen (buffer)) != 0) {	
+		if (mysql_stmt_send_long_data (db_con->insert_contents_stmt, 2, buffer, strlen (buffer)) != 0) {	
 
-			tracker_log ("error sending data : %s\n", mysql_stmt_error (db_con->insert_metadata_indexed_stmt));
+			tracker_log ("error sending data : %s\n", mysql_stmt_error (db_con->insert_contents_stmt));
 			g_free (str_meta_id);
 			g_free (str_file_id);
 			fclose (file);
@@ -904,55 +1131,45 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 	}
 
 	if (bytes_read > 3) {
-		if (mysql_stmt_execute (db_con->insert_metadata_indexed_stmt) != 0) {
-			unlock_db ();
-			tracker_log ("insert metadata indexed query failed :%s", mysql_stmt_error (db_con->insert_metadata_indexed_stmt));
+		if (mysql_stmt_execute (db_con->insert_contents_stmt) != 0) {
+	
+			tracker_log ("insert metadata indexed query failed :%s", mysql_stmt_error (db_con->insert_contents_stmt));
 		} else {
-			unlock_db ();
+	
 			tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
 		}
 	}
+	unlock_db ();
 	g_free (str_meta_id);
 	g_free (str_file_id);	
 	fclose (file);
+	
+
+	if (mysql_stmt_free_result (db_con->insert_contents_stmt)) {
+		tracker_log ("ERROR Freeing file contents statement");
+	}
 
 
 }
 
-static int
-get_row_count (char ***result)
-{
-	char ***rows;
-	int i;
-
-	if (!result) {
-		return 0;
-	}
-
-	i = 0;
-
-	for (rows = result; *rows; rows++) {
-		i++;			
-	}
-
-	return i;
-
-}
 
 char **
 tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 {
-	char 		***rows, ***res_str = NULL;
-	char 		**row, **array = NULL;	
+
 	int 		i, row_count;
+	char		 **array = NULL;
 
 	g_return_val_if_fail (db_con && folder_uri && (strlen (folder_uri) > 0), NULL);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_file_child_stmt, 1, folder_uri);
-	
-	if (res_str) {
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
 
-		row_count = get_row_count (res_str);
+	res = tracker_exec_proc  (db_con->db, "SelectFileChild", 1, folder_uri);	
+
+	if (res) {
+
+		row_count = mysql_num_rows (res);
 	
 		if (row_count > 0) {
 
@@ -960,9 +1177,9 @@ tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 
 			i = 0;
 
-			for (rows = res_str; *rows; rows++) {
-				row = *rows;
-				if (row  && row[1] && row[2]) {
+			while ((row = mysql_fetch_row (res))) {
+				
+				if (row[1] && row[2]) {
 					array[i] = g_build_filename (row[1], row[2], NULL);
 
 				} else {
@@ -973,17 +1190,17 @@ tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 			array [row_count] = NULL;
 			
 		} else {
-			tracker_log ("result set is empty");
 			array = g_new (char *, 1);
 			array[0] = NULL;
 		}
 
-		tracker_db_free_result (res_str);
+		mysql_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
 		array[0] = NULL;
 	}
+
 
 	return array;
 
@@ -995,36 +1212,43 @@ FieldDef *
 tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 {
 	FieldDef *def;
-	char ***res_str = NULL;
+
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
+
 
 	def = g_new (FieldDef, 1);
 
-	/* get metadata typeID and whether its an indexable type of metadata */
-	res_str = tracker_db_exec_stmt_result (db_con->select_metadata_type_stmt, 1, field_name);	
-	
-	// ID, DataTypeID, Indexable, Writeable, Field
-	
-	if (res_str && res_str[0] && res_str[0][0]) {
-		def->id = g_strdup (res_str[0][0]); 
+	res = tracker_exec_proc  (db_con->db, "GetMetadataTypeInfo", 1, field_name);	
+
+	if (res) {
+		row = mysql_fetch_row (res);
+	}
+
+	if (res && row && row[0]) {
+		def->id = g_strdup (row[0]); 
 	} else {
 		g_free (def);
-		tracker_db_free_result (res_str);
+		mysql_free_result (res);
 		return NULL;
 	}			
 
-	if (res_str && res_str[0] && res_str[0][1]) {
-		def->type = atoi (res_str[0][1]); 
+	if (res && row && row[1]) {
+		def->type = atoi (row[1]); 
 	}			
 
-	if (res_str && res_str[0] && res_str[0][2]) {
-		def->indexable = (strcmp ("1" , res_str[0][2]) == 0); 
+	if (res && row && row[2]) {
+		def->embedded = (strcmp ("1" , row[2]) == 0); 
 	}			
 
-	if (res_str && res_str[0] && res_str[0][3]) {
-		def->writeable = (strcmp ("1" , res_str[0][3]) == 0); 
+	if (res && row && row[3]) {
+		def->writeable = (strcmp ("1" , row[3]) == 0); 
 	}			
 
-	tracker_db_free_result (res_str);
+	
+		
+	mysql_free_result (res);
+
 
 	return def;
 }
@@ -1044,22 +1268,43 @@ tracker_db_free_field_def (FieldDef *def)
 }
 
 
+gboolean
+tracker_metadata_is_date (DBConnection *db_con, const char* meta) 
+{
+	FieldDef *def;	
+	gboolean res = FALSE;
+
+	def = tracker_db_get_field_def (db_con, meta);
+
+	res = (def->type == DATA_DATE);
+
+	tracker_db_free_field_def (def);
+
+	return res;
+
+}
+
 FileInfo *
 tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 {
-	char ***res_str = NULL;
 	FileInfo *info = NULL;
 
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_pending_file_by_uri_stmt, 1, uri);	
+	res = tracker_exec_proc  (db_con->db, "SelectPendingByUri", 1, uri);	
 
-	if (res_str && res_str[0] && res_str[0][0] && res_str[0][1] && res_str[0][2] && res_str[0][3] && res_str[0][4]) {
-		info = tracker_create_file_info (uri, atoi(res_str[0][2]), 0, 0);
-		info->mime = g_strdup (res_str[0][3]);
-		info->is_directory =  (strcmp (res_str[0][4], "0") == 0);
+	if (res) {
+		row = mysql_fetch_row (res);
+
+		if (row && row[0] &&  row[1] && row[2] && row[3] && row[4]) {
+			info = tracker_create_file_info (uri, atoi(row[2]), 0, 0);
+			info->mime = g_strdup (row[3]);
+			info->is_directory =  (strcmp (row[4], "0") == 0);
+		}	
 	}
-	
-	tracker_db_free_result (res_str);
+		
+	mysql_free_result (res);
 
 	return info;
 
@@ -1077,10 +1322,15 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 	str_is_directory = g_strdup_printf ("%d", is_directory);
 	str_counter = g_strdup_printf ("%d", counter);
 
+
+	
+
 	if (!mime) {
-		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
+		tracker_exec_proc  (db_con->db, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
+//		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
 	} else {
-		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  mime, str_is_directory);
+		tracker_exec_proc  (db_con->db, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  mime, str_is_directory);
+//		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  mime, str_is_directory);
 	}
 
 	g_free (str_file_id);
@@ -1100,7 +1350,7 @@ tracker_db_update_pending_file (DBConnection *db_con, const char* uri, int count
 	str_counter = g_strdup_printf ("%d", counter);
 	str_action = g_strdup_printf ("%d", action);
 
-	tracker_db_exec_stmt (db_con->update_pending_file_stmt, 3, str_counter, str_action, uri);
+	tracker_exec_proc  (db_con->db, "UpdatePendingFile", 3, str_counter, str_action, uri);
 
 	g_free (str_counter);
 	g_free (str_action);

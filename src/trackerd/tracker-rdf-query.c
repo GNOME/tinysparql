@@ -49,7 +49,7 @@
 */
 
 #define SQL_METADATA_START		" CREATE Temporary Table TMP" 
-#define SQL_METADATA_END		" ENGINE = MEMORY SELECT FileID From FileMetaData WHERE MetaDataID = "
+#define SQL_METADATA_END		" ENGINE = MEMORY SELECT ServiceID From ServiceMetaData WHERE MetaDataID = "
 #define SQL_CONTAINS_INDEXABLE_START	" (MATCH (MetaDataIndexValue) AGAINST ('"
 #define SQL_CONTAINS_INDEXABLE_END	"' IN BOOLEAN MODE)) "
 
@@ -179,7 +179,7 @@ is_end_operator (ParseState state)
 
 }
 
-
+/*
 static gboolean
 is_value (ParseState state)
 {
@@ -195,6 +195,7 @@ is_end_value (ParseState state)
 	return state == STATE_END_INTEGER || state == STATE_END_STRING || state == STATE_END_DATE;
 
 }
+*/
 
 static gboolean
 is_logic (ParseState state)
@@ -506,7 +507,7 @@ static gboolean
 build_sql (ParserData *data)
 {
 	ParseState	state;
-	char 		*query, *tmp_no, *value, *str, *str2, *field_name, *sub = NULL;;
+	char 		*query, *tmp_no, *avalue, *value, *str, *str2, *field_name, *sub = NULL;;
 	FieldDef 	*def;
 	gboolean	is_indexable_metadata;
 	
@@ -515,7 +516,7 @@ build_sql (ParserData *data)
 
 	state = peek_state (data);
 
-	value = get_value (data->current_value, state != STATE_END_INTEGER);
+	avalue = get_value (data->current_value, state != STATE_END_INTEGER);
 
 	data->temp_table_count ++;
 
@@ -523,13 +524,20 @@ build_sql (ParserData *data)
 
 	def = tracker_db_get_field_def	(data->db_con, data->current_field);
 
-	if (def->indexable) {
+	if (!def) {
+		g_free (tmp_no);
+		g_free (avalue);
+
+		return FALSE;
+	}
+
+	if (def->type == DATA_INDEX_STRING) {	
 
 		is_indexable_metadata = TRUE;
 
 		field_name = g_strdup ("MetaDataIndexValue");
 
-	} else if (def->type != DATA_INTEGER) {
+	} else if (def->type == DATA_STRING) {
 
 		is_indexable_metadata = FALSE;
 
@@ -537,9 +545,21 @@ build_sql (ParserData *data)
 	} else {
 		is_indexable_metadata = FALSE;
 
-		field_name = g_strdup ("MetaDataIntegerValue");
-
+		field_name = g_strdup ("MetaDataNumericValue");
 	}
+
+	if (def->type == DATA_DATE) {
+		char *bvalue = tracker_format_date (avalue);
+		value = tracker_long_to_str (tracker_str_to_date (bvalue));
+	//	tracker_log ("rdf query metadata value for %s is %s and %s", avalue, bvalue, value);
+		g_free (bvalue);
+	} else {
+		value = g_strdup (avalue);
+	}
+
+
+	
+	g_free (avalue);
 
 	str = g_strconcat (SQL_METADATA_START, def->id, SQL_METADATA_END , " AND ", NULL);
 	
@@ -615,6 +635,8 @@ build_sql (ParserData *data)
 	g_free (str2);
 
 	tracker_exec_sql (data->db_con->db, query);
+
+	tracker_log (query);
 
 	g_free (data->current_field);
 	data->current_field = NULL;

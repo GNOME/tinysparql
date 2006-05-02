@@ -60,7 +60,7 @@ main (int argc, char **argv)
 	TrackerClient *client = NULL;
 
 
-	if (!argv[1]) {
+	if (argc != 2) {
 		g_print ("usage - tracker-meta-folder FOLDER");
 		return 1;
 	}
@@ -93,6 +93,3 @@ main (int argc, char **argv)
 	tracker_disconnect (client);
 	return 0;
 }
-
-
-		

@@ -36,10 +36,48 @@ typedef enum {
 
 
 /* document mime type specific metadata groups - NB mime types below may be prefixes */
-char *doc_mime_types[] = {"application/msword","application/pdf", "application/postscript","application/x-dvi",
-				  "application/vnd.ms-excel", "vnd.ms-powerpoint", "application/vnd.oasis",
-				  "application/vnd.sun.xml",  "application/vnd.stardivision", "application/x-abiword",
-				  "text/html","text/sgml", "text/xml" }; 
+char *doc_mime_types[] = {
+			  "application/rtf",
+			  "application/msword",
+			  "application/pdf", 
+			  "application/postscript",
+			  "application/x-dvi",
+			  "application/vnd.ms-excel",
+			  "vnd.ms-powerpoint",
+			  "application/vnd.oasis.opendocument",
+			  "application/vnd.sun.xml",  
+			  "application/vnd.stardivision",
+			  "application/x-abiword",
+			  "text/html",
+			  "text/sgml", 
+			  "application/x-mswrite", 
+			  "application/x-applix-word",
+			  "application/docbook+xml",
+		          "application/x-kword",
+	    	  	  "application/x-kword-crypt",
+	    		  "application/x-lyx",
+			  "application/vnd.lotus-1-2-3",
+	    		  "application/x-applix-spreadsheet",
+	    		  "application/x-gnumeric",
+	    		  "application/x-kspread",
+	    		  "application/x-kspread-crypt",
+	    		  "application/x-quattropro",
+	    		  "application/x-sc",
+	    		  "application/x-siag",
+			  "application/x-magicpoint",
+	    		  "application/x-kpresenter",
+			  "application/illustrator",
+	  	          "application/vnd.corel-draw",
+	    		  "application/vnd.stardivision.draw",
+	    		  "application/vnd.oasis.opendocument.graphics",
+	    		  "application/x-dia-diagram",
+	    		  "application/x-karbon",
+	    		  "application/x-killustrator",
+	    		  "application/x-kivio",
+	    		  "application/x-kontour",
+	    		  "application/x-wpg"
+
+}; 
 
 char *text_mime_types[] = {"text/plain","text/x-h", "text/x-c","text/x-script" , "text/css" , "text/x-java-source" ,
 			   "text/x-pascal", "text/pascal"};
@@ -50,14 +88,14 @@ tracker_get_metadata_type (const char *mime)
 	int i;
 	int num_elements;
 	
-	if (g_str_has_prefix (mime, "image")) {
+	if (g_str_has_prefix (mime, "image") || (strcmp (mime, "application/vnd.oasis.opendocument.image") == 0) || (strcmp (mime, "application/x-krita") == 0)) {
 		return IMAGE_METADATA;		
 
 	} else 	if (g_str_has_prefix (mime, "video")) {
 			/* don't bother with video metadata - its really really slow to extract + there's bugger all metadata anyhow! */
 			return IGNORE_METADATA;		
 
-	} else 	if (g_str_has_prefix (mime, "audio")) {
+	} else 	if (g_str_has_prefix (mime, "audio") || (strcmp (mime, "application/ogg") == 0)) {
 			return AUDIO_METADATA;	
 	
 	} else { 
@@ -77,6 +115,51 @@ tracker_get_metadata_type (const char *mime)
 	}
 	return NO_METADATA;
 }
+
+
+char *
+tracker_get_service_type_for_mime (const char *mime)
+{
+
+	MetadataFileType stype = tracker_get_metadata_type (mime);
+
+	switch (stype) {
+
+			case IGNORE_METADATA:
+				if (g_str_has_prefix (mime, "video")) {
+					return g_strdup ("Videos");
+				} else {
+					return NULL;
+				}
+				break;
+
+			case NO_METADATA:
+			case TEXT_METADATA:
+				return NULL;
+				break;
+
+			case DOC_METADATA:
+				return g_strdup ("Documents");
+				break;
+
+			case IMAGE_METADATA:
+				return g_strdup ("Images");
+				break;
+
+			case VIDEO_METADATA:
+				return g_strdup ("Videos");
+				break;
+
+			case AUDIO_METADATA:
+				return g_strdup ("Music");
+				break;
+
+	}
+
+	return NULL;
+
+}
+
 
 
 char *

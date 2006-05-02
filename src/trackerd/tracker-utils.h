@@ -17,19 +17,26 @@
  * Boston, MA 02111-1307, USA.
  */
 
+extern  char *type_array[]; 
+extern  char *implemented_services[];
+extern  char *file_service_array[] ;
+extern  char *serice_index_array[];
+extern  char *service_table_names[];
+extern  char *service_metadata_table_names[];
+extern  char *service_metadata_join_names[];
+
+extern char *tracker_actions[];
+
+#ifndef _TRACKER_UTILS_H_
+#define _TRACKER_UTILS_H_
+
 #include <glib.h>
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD 1
 #define FILE_SCHEDULE_PERIOD 500
-
-static const char const *tracker_actions[] = {
-		"TRACKER_ACTION_IGNORE", "TRACKER_ACTION_CHECK",  "TRACKER_ACTION_DELETE", "TRACKER_ACTION_DELETE_SELF", "TRACKER_ACTION_CREATE","TRACKER_ACTION_MOVED_FROM",
-		"TRACKER_ACTION_MOVED_TO","TRACKER_ACTION_FILE_CHECK", "TRACKER_ACTION_FILE_CHANGED","TRACKER_ACTION_FILE_DELETED", "TRACKER_ACTION_FILE_CREATED",
-		"TRACKER_ACTION_FILE_MOVED_FROM", "TRACKER_ACTION_FILE_MOVED_TO", "TRACKER_ACTION_WRITABLE_FILE_CLOSED","TRACKER_ACTION_DIRECTORY_CHECK",
-		"TRACKER_ACTION_DIRECTORY_CREATED","TRACKER_ACTION_DIRECTORY_DELETED","TRACKER_ACTION_DIRECTORY_MOVED_FROM","TRACKER_ACTION_DIRECTORY_MOVED_TO",
-		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA", 
-		NULL};
+#define TRACKER_DB_VERSION_REQUIRED 1
+#define TRACKER_VERSION	"0.0.4"
 
 
 /* Actions can represent events from FAM/iNotify or be artificially created */
@@ -114,16 +121,22 @@ typedef struct {
 	char			*mime;
 	long			file_size;
 	char			*permissions;
-	int			mtime;
-	int			atime;
-	int			indextime;
+	long			mtime;
+	long			atime;
+	long			indextime;
 
 	/* we ref count FileInfo as it has a complex lifespan and is tossed between various threads, lists, queues and hash tables */
 	int			ref_count;
 
 } FileInfo;
 
-
+char *		tracker_int_to_str		(int i);
+char *		tracker_long_to_str		(long i);
+char *		tracker_format_date 		(const char *time_string);
+time_t		tracker_str_to_date 		(const char *time_string);
+char *		tracker_date_to_str 		(long date_time);
+int		tracker_str_in_array 		(const char *str, char **array);
+int		tracker_get_row_count 		(char ***result);
 FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);	
 FileInfo * 	tracker_get_file_info  	 	(FileInfo *info);
 FileInfo * 	tracker_copy_file_info   	(FileInfo *info);
@@ -133,6 +146,10 @@ FileInfo *	tracker_dec_info_ref 		(FileInfo *info);
 FileInfo *	tracker_free_file_info   	(FileInfo *info);
 
 gboolean	tracker_file_info_is_valid 	(FileInfo *info);
+
+char *		tracker_get_vfs_path 		(const char* uri);
+
+char *		tracker_get_vfs_name 		(const char* uri);
 
 char * 		tracker_get_mime_type 	 	(const char* uri);
 
@@ -157,3 +174,5 @@ void		tracker_print_object_allocations ();
 void		tracker_add_poll_dir 		(const char *dir);
 void		tracker_remove_poll_dir 	(const char *dir);  
 gboolean	tracker_is_dir_polled 		(const char *dir);
+
+#endif

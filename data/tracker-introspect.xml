@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<node name="/org/freedesktop/tracker">
-	<interface name="org.freedesktop.Tracker">
-		<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_client"/>
-
 
 		<!-- 
 
 		"service" input parameters are a string representing the service type.
 
-		Service types will include the following (only "files" is currently implemented):
+		A list of service types can be obtained by calling method GetServices and will *potentially* include the following :
 
 		Files
 		Documents
 		Images
 		Music
+		Videos
+		VFSFiles
+		VFSDocuments
+		VFSImages
+		VFSMusic
+		VFSVideos
 		Playlists
+		Notes
 		Applications
 		People
 		Emails
@@ -25,88 +28,160 @@
 		History
 		Projects
 			
+		
+		Services may also have a corresponding metadata class associated with them (EG Files has "File" class, Documents "Doc" etc see 
+		the spec at http://freedesktop.org/wiki/Standards/shared-filemetadata-spec for more details on metadata classes)
 
 		"id" input parameters can represent, in the case of a file, the full path and name of the file. 
 
-		In other cases, "id" can also be an URI or an integer based id for the specified service.
+		In other cases, "id" can also be a unique name or URI for the specified service.
+
+		The "id" field uniquely identifies the entity only in a particular service
+
+		The combination "service" and "id" uniquely identifies a specific entity in Tracker
 		 -->
 
 
+
+<node name="/org/freedesktop/tracker">
+
+	<interface name="org.freedesktop.Tracker">
+		<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_client"/>
+
+		<!-- Test method -->
 		<method name="Ping">
 			<arg type="b" name="response" direction="out" />
 		</method>
 
-		<method name="GetMetadata">
-			<arg type="s" name="service" direction="in" />
-			<arg type="s" name="id" direction="in" />
-			<arg type="s" name="key" direction="in" />
-			<arg type="s" name="value" direction="out" />
+
+		<!-- Gets all implemented services and also any corresponding metdata type class for the service (IE "File", "Doc", "Image" etc) -->
+		<method name="GetServices">
+			<arg type="as" name="service_array" direction="out" />
+			<arg type="as" name="metadata_class_array" direction="out" />
 		</method>
-		<method name="SetMetadata">
-			<arg type="s" name="service" direction="in" />
-			<arg type="s" name="id" direction="in" />
-			<arg type="s" name="key" direction="in" />
-			<arg type="s" name="value" direction="in" />
-		</method>
-		<method name="GetMultipleMetadata">
+
+	</interface>
+
+	<interface name="org.freedesktop.Tracker.Metadata">
+
+		<!-- Retrieves an array of metadata values for the specified array of metadata keys for a service and id pair-->
+		<method name="Get">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="id" direction="in" />
 			<arg type="as" name="keys" direction="in" />
-			<arg type="a{ss}" name="values" direction="out" />
+			<arg type="as" name="values" direction="out" />
 		</method>
-		<method name="SetMultipleMetadata">
+
+		<!-- Sets specified metadata keys to the specified metadata values for a service and id pair-->
+		<method name="Set">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="id" direction="in" />
-			<arg type="a{ss}" name="values" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="as" name="values" direction="in" />
 		</method>
 		
 		<!--
-			datatype argument for RegisterMetadataType should be one of the following:
+			Registers a new metadata type. The metadata name must be namespaced with an appropriate  class in the format "class.name"
+
+			datatype argument for RegisterType should be one of the following:
 			"index"  (a string which is stored in a full text index for searching )
 			"string" (a non-indexable string which will not show up in searches )
-			"int"
-			"date"
+			"numeric" (a signed number which can be either an integer or a float)
+			"date"   (format should be "yyyy-mm-dd hh:mm:ss")
+
+			Metadata defined here is considered non-embeddable and writable
 			
 		-->
-		<method name="RegisterMetadataType">
+		<method name="RegisterType">
 			<arg type="s" name="name" direction="in" />
 			<arg type="s" name="datatype" direction="in" />
 		</method>
-		<method name="MetadataTypeExists">
+
+
+		<!-- Gets all details of a named metadata type -->		
+		<method name="GetTypeDetails">
 			<arg type="s" name="name" direction="in" />
-			<arg type="b" name="result" direction="out" />
+			<arg type="s" name="data_type" direction="out" />
+			<arg type="b" name="is_embedded" direction="out" />
+			<arg type="b" name="is_writable" direction="out" />
 		</method>
-		<method name="GetMetadataTypes">
+
+		<!-- returns an array of all metadata types that are registered for a certain class
+		     You can enter "*" as the class to get all metadat types for all classes
+		-->
+		<method name="GetRegisteredTypes">
+			<arg type="s" name="metadata_class" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
+
+
+		<!-- returns an array of all metadata types that are writeable and registered for a certain class
+		     You can enter "*" as the class to get all metadat types for all classes that are writeable
+		-->
+		<method name="GetWriteableTypes">
+			<arg type="s" name="metadata_class" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- returns an array of all metadata type classes that are registered -->
+		<method name="GetRegisteredClasses">
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+
 		
-		<!-- calls for tags/keywords for any service object or file -->
-		<method name="GetKeywords">
+
+	</interface>
+
+	<interface name="org.freedesktop.Tracker.Keywords">
+	<!-- calls for tags/keywords for any service object or file -->
+
+		<!-- gets all unique keywords/tags for specified service and id -->
+		<method name="Get">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="id" direction="in" />
 			<arg type="as" name="value" direction="out" />
 		</method>
-		<method name="AddKeywords">
+
+		<!-- Adds new keywords/tags for specified service and id -->
+		<method name="Add">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="id" direction="in" />
 			<arg type="as" name="values" direction="in" />
 		</method>
-		<method name="RemoveKeywords">
+
+		<!-- removes all specified keywords/tags for specified service and id -->
+		<method name="Remove">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="id" direction="in" />
 			<arg type="as" name="keywords" direction="in" />
 		</method>
 
+		<!-- searches specified service for matching keyword/tag and returns an array of matching id values for the service-->
+		<method name="Search">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="keywords" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
 
-		<method name="SearchMetadataQuery">
+	</interface>
+
+
+	<interface name="org.freedesktop.Tracker.Search">
+
+		<!-- searches specified service using an xml rdf query for the query_condition parameter and returns the fields for all matching entities -->
+		<method name="Query">
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="fields" direction="in" />
 			<arg type="s" name="query_condition" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="b" name="sort_by_relevance" direction="in" />
-			<arg type="aas" name="result" direction="out" />
+			<arg type="a{sv}" name="result" direction="out" />
 		</method>
-		<method name="SearchMetadataText">
+
+
+		<!-- searches specified service for entities that match the specified text. Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
+		<method name="Text">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
@@ -115,74 +190,198 @@
 		</method>
 
 
+		<!-- searches specified service for matching text and returns an array of matching id values for the service complete with text extract and basic file info suitable for use in a search gui-->
+		<method name="TextDetailed">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="text" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="b" name="sort_by_relevance" direction="in" />
+			<arg type="a{sv}" name="result" direction="out" />
+		</method>
+
+	</interface>
+
+
+
 <!--
 		File Specific calls
 -->
-		<method name="GetMetadataForFilesInFolder">
+	<interface name="org.freedesktop.Tracker.Files">
+
+		<method name="Create">
 			<arg type="s" name="uri" direction="in" />
-			<arg type="as" name="keys" direction="in" />
-			<arg type="a{sv}" name="values" direction="out" />
+			<arg type="s" name="mime" direction="in" />
+			<arg type="i" name="size" direction="in" />
+			<arg type="i" name="mtime" direction="in" />
 		</method>
-		<method name="RefreshFileMetadata">
+	
+
+		<method name="Delete">
+			<arg type="s" name="uri" direction="in" />
+		</method>
+
+		<method name="GetFileContents">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="i" name="offset"  direction="in" />
+			<arg type="i" name="max_length"  direction="in" />				
+			<arg type="s" name="result" direction="out" />
+		</method>
+
+
+		<!--
+		Retrieves all files that match a service description
+		Valid file_service types for GetByServiceType are: "Music", "Documents", "Images", "Videos", "VFSMusic", "VFSDocuments", "VFSImages", "VFSVideos"
+		-->
+		<method name="GetByServiceType">
+			<arg type="s" name="file_service" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>	
+
+		<!-- Retrieves all non-vfs files of the specified mime type(s) -->
+		<method name="GetByMimeType">
+			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>	
+
+		<!-- Retrieves all vfs files of the specified mime type(s) -->
+		<method name="GetByMimeTypeVFS">
+			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- Refreshes various speicfied metadata for a file including basic metadata (stuff derived from stat calls), embedded tags, text contents and/or thumbnails  -->
+		<method name="RefreshMetadata">
 			<arg type="s" name="uri" direction="in" />
 			<arg type="b" name="basic" direction="in" />
 			<arg type="b" name="embedded" direction="in" />
 			<arg type="b" name="contents" direction="in" />
 			<arg type="b" name="thumbnails" direction="in" />
 		</method>
-		<method name="IsFileMetadataUpToDate">
+
+		<!-- returns true if file's metadata is up to date -->
+		<method name="IsUpToDate">
 			<arg type="s" name="uri" direction="in" />
 			<arg type="i" name="mtime" direction="in" />
 			<arg type="b" name="result" direction="out" />
 		</method>
-		
-		<!-- deprecated file specific calls (mostly used by Nautilus Search)-->
-		<method name="SearchFilesByTextAndMime">
-			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-			<arg type="s" name="text" direction="in" />
-			<arg type="as" name="mimes" direction="in" />
-			<arg type="as" name="result" direction="out" />
-		</method>
-		<method name="SearchFilesByTextAndMimeAndLocation">
-			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-			<arg type="s" name="text" direction="in" />
-			<arg type="as" name="mimes" direction="in" />
-			<arg type="s" name="location" direction="in" />
-			<arg type="as" name="result" direction="out" />
-		</method>
-		<method name="SearchFilesByTextAndLocation">
-			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-			<arg type="s" name="text" direction="in" />
-			<arg type="s" name="location" direction="in" />
-			<arg type="as" name="result" direction="out" />
+
+		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata -->
+		<method name="GetMetadataForFilesInFolder">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="a{sv}" name="values" direction="out" />
 		</method>
 
-		<method name="SearchFileQuery">
+		
+		<!-- deprecated file specific calls (mostly used by Nautilus Search)-->
+		<method name="SearchByTextAndMime">
 			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-			<arg type="s" name="rdfquery" direction="in" />
-			<arg type="i" name="max_hits" direction="in" />
-			<arg type="b" name="sort_by_relevance" direction="in" />
+			<arg type="s" name="text" direction="in" />
+			<arg type="as" name="mimes" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchByTextAndMimeAndLocation">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+			<arg type="s" name="text" direction="in" />
+			<arg type="as" name="mimes" direction="in" />
+			<arg type="s" name="location" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchByTextAndLocation">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+			<arg type="s" name="text" direction="in" />
+			<arg type="s" name="location" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
 		<!-- end deprecated calls section-->
 
 
-		<!-- File metadata signals -->
-		<signal name="FileChanged">
+		<!-- File signals -->
+
+		<signal name="Created">
+			<arg type="s" name="path"/>
+			<arg type="s" name="filename"/>
+			<arg type="s" name="mime_type"/>
+		</signal>
+
+		<signal name="Deleted">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
 		</signal>
-		<signal name="FileMetadataChanged">
+
+		<signal name="Moved">
+			<arg type="s" name="move_from_path"/>
+			<arg type="s" name="move_from_filename"/>
+			<arg type="s" name="move_to_path"/>
+			<arg type="s" name="move_to_filename"/>
+		</signal>
+
+		<signal name="Changed">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
-			<arg type="s" name="key"/>
-			<arg type="s" name="value"/>
 		</signal>
-		<signal name="FileThumbnailChanged">
+
+		<signal name="MetadataChanged">
+			<arg type="s" name="path"/>
+			<arg type="s" name="filename"/>
+			<arg type="as" name="keys"/>
+			<arg type="as" name="values"/>
+		</signal>
+
+		<signal name="ThumbnailChanged">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
 			<arg type="s" name="smallthumbpath"/>
 			<arg type="s" name="largethumbpath"/>
 		</signal>
 	</interface>
+
+
+	<interface name="org.freedesktop.Tracker.PlayLists">
+
+		<method name="Create">
+			<arg type="s" name="list_name" direction="in" />
+		</method>	
+
+		<method name="Delete">
+			<arg type="s" name="list_name" direction="in" />
+		</method>
+
+		<method name="Rename">
+			<arg type="s" name="old_list_name" direction="in" />
+			<arg type="s" name="new_list_name" direction="in" />
+		</method>		
+
+		<method name="Get">
+			<arg type="as" name="list_names" direction="out" />
+		</method>	
+	
+		<method name="AddMediaFile">
+			<arg type="s" name="list_name" direction="in" />
+			<arg type="s" name="media_file_uri" direction="in" />
+		</method>
+
+		<method name="RemoveMediaFile">
+			<arg type="s" name="list_name" direction="in" />
+			<arg type="s" name="media_file_uri" direction="in" />
+		</method>
+
+		<method name="GetMediaFiles">
+			<arg type="s" name="list_name" direction="in" />
+			<arg type="as" name="media_file_uris" direction="out" />
+		</method>	
+
+		<method name="GetMediaFilesWithMetadata">
+			<arg type="s" name="list_name" direction="in" />
+			<arg type="as" name="metadata_fields" direction="in" />
+			<arg type="a{sv}" name="results" direction="out" />
+		</method>	
+	
+
+	</interface>
+
+
 </node>

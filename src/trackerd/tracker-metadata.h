@@ -22,6 +22,8 @@
 #define THUMB_SMALL "128"
 #define THUMB_LARGE "640"
 
-void			tracker_metadata_get_embedded 	(const char *uri, const char *mime, GHashTable *table);
-char *			tracker_metadata_get_text_file 	(const char *uri, const char *mime);
-char *			tracker_metadata_get_thumbnail 	(const char *uri, const char *mime, const char *max_size);
+void			tracker_metadata_get_embedded 	  (const char *uri, const char *mime, GHashTable *table);
+char *			tracker_metadata_get_text_file 	  (const char *uri, const char *mime);
+char *			tracker_metadata_get_thumbnail 	  (const char *uri, const char *mime, const char *max_size);
+char *			tracker_get_service_type_for_mime (const char *mime);
+

@@ -1,4 +1,9 @@
 
+1 May
+	Made database more gweeric
+	Upgraded to mysql 5
+	Converted DB logic to stored procedures	
+
 28th Mar
 	Made Dbus interface more generic	
 

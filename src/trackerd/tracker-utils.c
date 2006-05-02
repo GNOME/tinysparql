@@ -4,7 +4,7 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
+ * License as published by the free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */ 
 
@@ -40,29 +40,536 @@ GMutex 		*log_access_mutex;
 char 		*log_file; 
 GSList		*poll_list;
 
-/* configuration options table */
-static 	GHashTable	*config_table;
+char *implemented_services[] = {"Files", "Documents", "Images", "Music", "Videos", NULL};
+char *file_service_array[] =   {"Files", "Documents", "Images", "Music", "Videos", "VFSFiles", "VFSDocuments", "VFSImages", "VFSMusic", "VFSVideos", NULL};
+char *serice_index_array[] = {"Files", "Documents", "Images", "Music", "Videos", "VFSFiles", "VFSDocuments", "VFSImages", "VFSMusic", "VFSVideos", "Notes", "Playlists", "Applications", "People", "Emails", "Conversations", "Appointments", "Tasks", "Bookmarks", "History", "Projects", NULL};
+
+
+char *tracker_actions[] = {
+		"TRACKER_ACTION_IGNORE", "TRACKER_ACTION_CHECK",  "TRACKER_ACTION_DELETE", "TRACKER_ACTION_DELETE_SELF", "TRACKER_ACTION_CREATE","TRACKER_ACTION_MOVED_FROM",
+		"TRACKER_ACTION_MOVED_TO","TRACKER_ACTION_FILE_CHECK", "TRACKER_ACTION_FILE_CHANGED","TRACKER_ACTION_FILE_DELETED", "TRACKER_ACTION_FILE_CREATED",
+		"TRACKER_ACTION_FILE_MOVED_FROM", "TRACKER_ACTION_FILE_MOVED_TO", "TRACKER_ACTION_WRITABLE_FILE_CLOSED","TRACKER_ACTION_DIRECTORY_CHECK",
+		"TRACKER_ACTION_DIRECTORY_CREATED","TRACKER_ACTION_DIRECTORY_DELETED","TRACKER_ACTION_DIRECTORY_MOVED_FROM","TRACKER_ACTION_DIRECTORY_MOVED_TO",
+		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA", 
+		NULL};
+
 
 static int info_allocated = 0;
 static int info_deallocated = 0;
 
 /* global config variables */
-GSList 		*watch_directory_roots_list;
-GSList 		*no_watch_directory_list;
-gboolean	index_text_files;
-gboolean	index_documents;
-gboolean	index_source_code;
-gboolean	index_scripts;
-gboolean	index_html;
-gboolean	index_pdf;
-gboolean	index_application_help_files;
-gboolean	index_desktop_files;
-gboolean	index_epiphany_bookmarks;
-gboolean	index_epiphany_history;
-gboolean	index_firefox_bookmarks;
-gboolean	index_firefox_history;
-gboolean	store_text_file_contents_in_db;
-char		*db_buffer_memory_limit;
+extern	GSList 		*watch_directory_roots_list;
+extern	GSList 		*no_watch_directory_list;
+extern	gboolean	index_text_files;
+extern	gboolean	index_documents;
+extern	gboolean	index_source_code;
+extern	gboolean	index_scripts;
+extern	gboolean	index_html;
+extern	gboolean	index_pdf;
+extern	gboolean	index_application_help_files;
+extern	gboolean	index_desktop_files;
+extern	gboolean	index_epiphany_bookmarks;
+extern	gboolean	index_epiphany_history;
+extern	gboolean	index_firefox_bookmarks;
+extern	gboolean	index_firefox_history;
+extern	gboolean	store_text_file_contents_in_db;
+extern	char		*db_buffer_memory_limit;
+
+
+static const char *months[] = {
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
+
+static const char imonths[] = {
+	'1', '2', '3',  '4', '5',
+	'6', '7', '8', '9', '0', '1', '2'
+};
+
+/* Do not internationalize */
+static const char *days[] = {
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+};
+
+
+static const char numbers[] = {
+	'1', '2', '3',  '4', '5',
+	'6', '7', '8', '9', '0'
+
+};
+
+static gboolean
+is_int (const char *in) {
+
+	int i, j, len, is_a_number;
+	
+	if (!in) {
+		return 0;
+	}
+
+	len = strlen (in);
+
+	for (i = 0; i < len; i++) {
+
+		is_a_number = 0;
+
+		for (j = 0; j < 10; j++) {
+
+			if (in[i] == numbers[j]) {
+				is_a_number = 1;
+				break;
+			} 
+
+		}
+
+		if (is_a_number == 0) {	
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+
+}
+
+static int
+parse_month (const char *month)
+{
+	int i;
+
+	for (i = 0; i < 12; i++) {
+		if (!strncmp (month, months[i], 3))
+			return i;
+	}
+	return -1;
+}
+
+char *
+tracker_format_date (const char *time_string)
+{
+	char tmp_buf[30];
+	char *timestamp;
+	int len = 0;
+
+	g_return_val_if_fail (time_string, NULL);
+
+	/* determine date format and convert to ISO 8601 format*/
+
+	timestamp = g_strdup (time_string);
+	len = strlen (timestamp);
+
+	/* check for year only dates (EG ID3 music tags might have Auido.Year as 4 digit year) */
+
+	if (len == 4) {
+		if (is_int (timestamp)) {
+
+			tmp_buf[0] = timestamp[0];
+			tmp_buf[1] = timestamp[1];
+			tmp_buf[2] = timestamp[2];
+			tmp_buf[3] = timestamp[3];
+			tmp_buf[4] = '-';
+			tmp_buf[5] = '0';
+			tmp_buf[6] = '1';
+			tmp_buf[7] = '-';
+			tmp_buf[8] = '0';
+			tmp_buf[9] = '1';
+			tmp_buf[10] = 'T';
+			tmp_buf[11] = '0';
+			tmp_buf[12] = '0';
+			tmp_buf[13] = ':';
+			tmp_buf[14] = '0';
+			tmp_buf[15] = '0';
+			tmp_buf[16] = ':';
+			tmp_buf[17] = '0';
+			tmp_buf[18] = '0';
+			tmp_buf[19] = '\0';
+			
+			g_free (timestamp);
+			timestamp = g_strdup (tmp_buf);
+
+
+		} else {
+			g_free (timestamp);
+			return NULL;
+		}
+	
+
+	/* check for date part only YYYY-MM-DD*/
+
+	} else if (len == 10)  {
+
+			tmp_buf[0] = timestamp[0];
+			tmp_buf[1] = timestamp[1];
+			tmp_buf[2] = timestamp[2];
+			tmp_buf[3] = timestamp[3];
+			tmp_buf[4] = '-';
+			tmp_buf[5] = timestamp[5];
+			tmp_buf[6] = timestamp[6];
+			tmp_buf[7] = '-';
+			tmp_buf[8] = timestamp[8];
+			tmp_buf[9] = timestamp[9];
+			tmp_buf[10] = 'T';
+			tmp_buf[11] = '0';
+			tmp_buf[12] = '0';
+			tmp_buf[13] = ':';
+			tmp_buf[14] = '0';
+			tmp_buf[15] = '0';
+			tmp_buf[16] = ':';
+			tmp_buf[17] = '0';
+			tmp_buf[18] = '0';
+			tmp_buf[19] = '\0';
+			
+			g_free (timestamp);
+			timestamp = g_strdup (tmp_buf);
+
+			
+	
+	
+
+	/* check for pdf format EG 20050315113224-08'00' or 20050216111533Z  */
+	
+	} else if (len == 14) {
+
+			tmp_buf[0] = timestamp[0];
+			tmp_buf[1] = timestamp[1];
+			tmp_buf[2] = timestamp[2];
+			tmp_buf[3] = timestamp[3];
+			tmp_buf[4] = '-';
+			tmp_buf[5] = timestamp[4];
+			tmp_buf[6] = timestamp[5];
+			tmp_buf[7] = '-';
+			tmp_buf[8] = timestamp[6];
+			tmp_buf[9] = timestamp[7];
+			tmp_buf[10] = 'T';
+			tmp_buf[11] = timestamp[8];
+			tmp_buf[12] = timestamp[9];
+			tmp_buf[13] = ':';
+			tmp_buf[14] = timestamp[10];
+			tmp_buf[15] = timestamp[11];
+			tmp_buf[16] = ':';
+			tmp_buf[17] = timestamp[12];
+			tmp_buf[18] = timestamp[13];
+			tmp_buf[19] = '\0';
+			
+			g_free (timestamp);
+			timestamp = g_strdup (tmp_buf);
+
+			
+	} else if (len == 15 && timestamp[14] == 'Z') {
+
+			tmp_buf[0] = timestamp[0];
+			tmp_buf[1] = timestamp[1];
+			tmp_buf[2] = timestamp[2];
+			tmp_buf[3] = timestamp[3];
+			tmp_buf[4] = '-';
+			tmp_buf[5] = timestamp[4];
+			tmp_buf[6] = timestamp[5];
+			tmp_buf[7] = '-';
+			tmp_buf[8] = timestamp[6];
+			tmp_buf[9] = timestamp[7];
+			tmp_buf[10] = 'T';
+			tmp_buf[11] = timestamp[8];
+			tmp_buf[12] = timestamp[9];
+			tmp_buf[13] = ':';
+			tmp_buf[14] = timestamp[10];
+			tmp_buf[15] = timestamp[11];
+			tmp_buf[16] = ':';
+			tmp_buf[17] = timestamp[12];
+			tmp_buf[18] = timestamp[13];
+			tmp_buf[19] = 'Z';
+			tmp_buf[20] = '\0';
+			
+			g_free (timestamp);
+			timestamp = g_strdup (tmp_buf);
+
+
+	} else if (len == 21 && (timestamp[14] == '-' || timestamp[14] == '+' )) {
+
+			tmp_buf[0] = timestamp[0];
+			tmp_buf[1] = timestamp[1];
+			tmp_buf[2] = timestamp[2];
+			tmp_buf[3] = timestamp[3];
+			tmp_buf[4] = '-';
+			tmp_buf[5] = timestamp[4];
+			tmp_buf[6] = timestamp[5];
+			tmp_buf[7] = '-';
+			tmp_buf[8] = timestamp[6];
+			tmp_buf[9] = timestamp[7];
+			tmp_buf[10] = 'T';
+			tmp_buf[11] = timestamp[8];
+			tmp_buf[12] = timestamp[9];	char tmp_buf[30];
+			tmp_buf[13] = ':';
+			tmp_buf[14] = timestamp[10];
+			tmp_buf[15] = timestamp[11];
+			tmp_buf[16] = ':';
+			tmp_buf[17] = timestamp[12];
+			tmp_buf[18] = timestamp[13];
+			tmp_buf[19] = timestamp[14];
+			tmp_buf[20] = timestamp[15];
+			tmp_buf[21] =  timestamp[16];
+			tmp_buf[22] =  ':';
+			tmp_buf[23] =  timestamp[18];
+			tmp_buf[24] = timestamp[19];
+			tmp_buf[25] = '\0';
+			
+			g_free (timestamp);
+			timestamp = g_strdup (tmp_buf);
+
+
+	
+	
+	
+
+	/* check for msoffice date format "Mon Feb  9 10:10:00 2004" */
+	} else if ((len == 24) && (timestamp[3] == ' ')) {
+			
+			int num_month = parse_month (timestamp + 4);
+
+			char mon1 = imonths[num_month];
+			char day1;
+
+			if (timestamp[8] == ' ') {
+				day1 = '0';
+			} else {
+				day1 = timestamp[8];
+			}
+			
+			tmp_buf[0] = timestamp[20];
+			tmp_buf[1] = timestamp[21];
+			tmp_buf[2] = timestamp[22];
+			tmp_buf[3] = timestamp[23];
+			tmp_buf[4] = '-';
+			
+			if (num_month < 10) {
+				tmp_buf[5] = '0';
+				tmp_buf[6] = mon1;
+			} else {
+				tmp_buf[5] = '1';
+				tmp_buf[6] = mon1;
+			}
+
+			tmp_buf[7] = '-';
+			tmp_buf[8] = day1;
+			tmp_buf[9] = timestamp[9];
+			tmp_buf[10] = 'T';
+			tmp_buf[11] = timestamp[11];
+			tmp_buf[12] = timestamp[12];
+			tmp_buf[13] = ':';
+			tmp_buf[14] = timestamp[14];
+			tmp_buf[15] = timestamp[15];
+			tmp_buf[16] = ':';
+			tmp_buf[17] = timestamp[17];
+			tmp_buf[18] = timestamp[18];
+			tmp_buf[19] = '\0';
+
+			g_free (timestamp);
+			timestamp = g_strdup (tmp_buf);
+
+		 
+	
+	/* check for Exif date format "2005:04:29 14:56:54" */
+	
+	} else if ((len == 19) && (timestamp[4] == ':') && (timestamp[7] == ':')) {
+			
+			tmp_buf[0] = timestamp[0];
+			tmp_buf[1] = timestamp[1];
+			tmp_buf[2] = timestamp[2];
+			tmp_buf[3] = timestamp[3];
+			tmp_buf[4] = '-';
+			tmp_buf[5] = timestamp[5];
+			tmp_buf[6] = timestamp[6];
+			tmp_buf[7] = '-';
+			tmp_buf[8] = timestamp[8];
+			tmp_buf[9] = timestamp[9];
+			tmp_buf[10] = 'T';
+			tmp_buf[11] = timestamp[11];
+			tmp_buf[12] = timestamp[12];
+			tmp_buf[13] = ':';
+			tmp_buf[14] = timestamp[14];
+			tmp_buf[15] = timestamp[15];
+			tmp_buf[16] = ':';
+			tmp_buf[17] = timestamp[17];
+			tmp_buf[18] = timestamp[18];
+			tmp_buf[19] = '\0';
+			
+			g_free (timestamp);
+			timestamp = g_strdup (tmp_buf);
+	}
+
+	return timestamp;
+
+}
+
+
+time_t
+tracker_str_to_date (const char *time_string)
+{
+	struct tm tm;
+	long val;
+	time_t tt;
+	int has_time_zone = 0;
+	char *timestamp;
+	
+	g_return_val_if_fail (time_string, -1);
+
+	timestamp = g_strdup (time_string);
+
+	/* we should have a valid iso 8601 date format */
+
+	val = strtoul (timestamp, (char **)&timestamp, 10);
+
+	if (*timestamp == '-') {
+		// YYYY-MM-DD
+		tm.tm_year = val - 1900;
+		timestamp++;
+		tm.tm_mon = strtoul (timestamp, (char **)&timestamp, 10) -1;
+
+		if (*timestamp++ != '-') {
+			g_free (timestamp);
+			return -1;
+		}
+		tm.tm_mday = strtoul (timestamp, (char **)&timestamp, 10);
+
+	} 
+
+
+	if (*timestamp++ != 'T' ) {
+		tracker_log ("date validation failed for %s st %c", timestamp, *timestamp );
+		g_free (timestamp);
+		return -1;
+	}
+	
+	val = strtoul (timestamp, (char **)&timestamp, 10);
+	if (*timestamp == ':') {
+		// hh:mm:ss
+		tm.tm_hour = val;
+		timestamp++;
+		tm.tm_min = strtoul (timestamp, (char **)&timestamp, 10);
+		if (*timestamp++ != ':') {
+			g_free (timestamp);
+			return -1;
+		}
+		tm.tm_sec = strtoul (timestamp, (char **)&timestamp, 10);
+
+	}
+
+	tt = mktime (&tm);
+	if (*timestamp == '+' || *timestamp == '-') {
+
+		has_time_zone = 1;
+
+		int sign = (*timestamp == '+') ? -1 : 1;
+
+		int num_length = (int) timestamp + 1;
+
+		val = strtoul (timestamp +1, (char **)&timestamp, 10);
+
+		num_length = (int) (timestamp - num_length);  
+
+		if (*timestamp == ':' || *timestamp == '\'') {
+			val = 3600 * val + (60 * strtoul (timestamp + 1, NULL, 10));
+		} else {
+			if (num_length == 4) { 
+				val = (3600 * (val / 100)) + (60 * (val % 100));
+			} else if (num_length == 2) {
+				val = 3600 * val;	
+			}
+		}
+		tt += sign * val;
+	} else {
+		if (*timestamp == 'Z') {
+			/* no need to do anything if utc */
+			has_time_zone = 1;
+		}
+	}
+
+	/* make datetime reflect user's timezone if no explicit timezone present */
+	if (has_time_zone == 0) {
+		tzset();
+		tt += timezone;
+	}
+	return tt;
+}
+
+
+
+char *
+tracker_date_to_str (long date_time)
+{
+	char  		buffer[30];
+	time_t 		time_stamp;
+	struct tm 	loctime;
+
+	memset (buffer, '\0', sizeof (buffer));
+	memset (&loctime, 0, sizeof (struct tm));
+
+	time_stamp = (time_t) date_time;
+
+	localtime_r (&time_stamp, &loctime);
+
+	/* output is ISO 8160 format : "YYYY-MM-DDThh:mm:ss+zz:zz" */
+	size_t count = strftime (buffer, sizeof (buffer), "%FT%T%z", &loctime);
+
+	if (count > 0) {
+		return g_strdup (buffer);
+	} else {
+		return NULL;
+	}
+
+}
+
+
+char *
+tracker_int_to_str (int i)
+{
+	return g_strdup_printf ("%d", i);
+}
+
+char *
+tracker_long_to_str (long i)
+{
+	return g_strdup_printf ("%ld", i);
+}
+
+
+
+int 
+tracker_str_in_array (const char *str, char **array)
+{
+	int i = 0;
+	char *st;
+	for (st = (char *) *array; *st; st++) {
+		if (strcmp (st, str) == 0) {
+			return TRUE;
+		}
+		i++;
+	}
+
+	return -1;
+	
+
+}
+
+
+int
+tracker_get_row_count (char ***result)
+{
+	char ***rows;
+	int i;
+
+	if (!result) {
+		return 0;
+	}
+
+	i = 0;
+
+	for (rows = result; *rows; rows++) {
+		i++;			
+	}
+
+	return i;
+
+}
+
 
 void
 tracker_print_object_allocations ()
@@ -367,6 +874,86 @@ tracker_get_mime_type (const char* uri)
 		}
 	}
 	return g_strdup("unknown");
+}
+
+
+char *
+tracker_get_vfs_path (const char* uri)
+{
+
+	if (uri != NULL && strchr (uri, '/') != NULL) {
+		char *p;
+		guint len;
+
+		len = strlen (uri);
+		p = GINT_TO_POINTER (uri +  (len - 1));
+
+		/* Skip trailing slashes  */
+		while (p != uri && *p == '/')
+			p--;
+
+		/* Search backwards to the next slash.  */
+		while (p != uri && *p != '/')
+			p--;
+
+		/* Get the parent without slashes  */
+		while (p > uri + 1 && p[-1] == '/')
+			p--;
+
+		if (p[1] != '\0') {
+
+			char *new_uri_text;
+			int length;
+
+			/* build a new parent text */
+			length = p - uri;			
+			if (length == 0) {
+				new_uri_text = g_strdup ("/");
+			} else {
+				new_uri_text = g_malloc (length + 1);
+				memcpy (new_uri_text, uri, length);
+				new_uri_text[length] = '\0';
+			}
+			
+			return new_uri_text;
+		}
+	}
+
+	return "/";
+
+
+}
+
+char *
+tracker_get_vfs_name (const char* uri)
+{
+
+	if (uri != NULL && strchr (uri, '/') != NULL) {
+		gchar *p, *res;
+		guint len;
+
+		len = strlen (uri);
+		p = GINT_TO_POINTER (uri + (len - 1));
+
+		/* Skip trailing slashes  */
+		while (p != uri && *p == '/')
+			p--;
+
+		/* Search backwards to the next slash.  */
+		while (p != uri && *p != '/')
+			p--;
+
+		res = p+1;
+
+		if (res && res[0] != '\0') {
+			return g_strdup (res);
+		}
+				
+	}
+
+	return " ";
+
+
 }
 
 gboolean 

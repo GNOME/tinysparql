@@ -24,88 +24,14 @@
 
 
 #include "tracker-dbus-methods.h"
+#include "tracker-metadata.h"
 #include "tracker-rdf-query.h"
 
-char *type_array[] =   {"index", "string", "int", "date", NULL};
 
-
-int str_in_array (const char *str, char **array)
-{
-	int i = 0;
-	char *st;
-	for (st = (char *) *array; *st; st++) {
-		if (strcmp (st, str) == 0) {
-			return TRUE;
-		}
-		i++;
-	}
-
-	return -1;
-	
-
-}
-
-
-static int
-get_row_count (char ***result)
-{
-	char ***rows;
-	int i;
-
-	if (!result) {
-		return 0;
-	}
-
-	i = 0;
-
-	for (rows = result; *rows; rows++) {
-		i++;			
-	}
-
-	return i;
-
-}
-
-static void
-result_to_file_array (char ***result)
-{
-	char ***rows;
-	char **row;
-	char *str = NULL, *tmp = NULL, *value;
-	
-	if (!result) {
-		return;
-	}
-
-	for (rows = result; *rows; rows++) {
-		if (*rows) {
-			for (row = *rows; *row; row++) {
-				value = *row;
-				if (!value) {
-					value = "NULL";
-				}
-				if (str) {
-					tmp = g_strdup (str);
-					g_free (str);
-					str = g_strconcat (tmp, ", ", value, NULL);
-					g_free (tmp);
-				} else {
-					str = g_strconcat (value, NULL);
-				} 	
-			}
-			tracker_log (str);
-			g_free (str);
-			str = NULL;
-			
-		}
-	}
-
-}
-
-static void
-set_error (DBusRec 	  *rec,
-	   const char	  *fmt, 
-	   ...)
+void
+tracker_set_error (DBusRec 	  *rec,
+	   	   const char	  *fmt, 
+	   	   ...)
 {
 	char *msg;
     	va_list args;
@@ -129,8 +55,12 @@ set_error (DBusRec 	  *rec,
 	dbus_message_unref (reply);
 }
 
-static int
-get_file_id (DBConnection *db_con, const char *uri, gboolean create_record)
+
+
+
+
+int
+tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_record)
 {
 	int 		id, result;
 	char 		*path, *name;
@@ -144,12 +74,14 @@ get_file_id (DBConnection *db_con, const char *uri, gboolean create_record)
 
 		/* file not found in DB - so we must insert a new file record */
 
-		name = g_path_get_basename (uri);
-		path = g_path_get_dirname (uri);
+
 
 		if (uri[0] == '/' && (lstat (uri, &finfo) != -1)) {
 			
 			char *is_dir, *is_link;
+
+			name = g_path_get_basename (uri);
+			path = g_path_get_dirname (uri);
 
 			if (S_ISDIR (finfo.st_mode)) {
 				is_dir = "1";
@@ -164,22 +96,37 @@ get_file_id (DBConnection *db_con, const char *uri, gboolean create_record)
 				is_link = "0";
 			}
 
-				
-			result = tracker_db_exec_stmt (db_con->insert_file_stmt, 6, path, name, "0",
-						       is_dir, is_link, "0");
+			char *mime = tracker_get_mime_type (uri);
 
+			char *service_name = tracker_get_service_type_for_mime (mime);
+
+			char *str_mtime = g_strdup_printf ("%ld", finfo.st_mtime);
+
+			tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, service_name, is_dir, is_link, "0", "0", str_mtime);
+
+			g_free (service_name);
+
+			g_free (mime);
+
+			g_free (str_mtime);
+
+			result = tracker_db_get_file_id (db_con, uri);
+			
 
 		} else {
+
 			/* we assume its a non-local vfs so dont care about whether its a dir or a link */
-			result = tracker_db_exec_stmt (db_con->insert_file_stmt, 6, path, name, "1",
-						       "0", "0", "0");
+
+			name = tracker_get_vfs_name (uri);
+			path = tracker_get_vfs_path (uri);
+
+			tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, "VFSFiles", "0", "0", "0", "0", "unknown");
+
+			result = tracker_db_get_file_id (db_con, uri);
 		}
 
 
-		if (result == 1) {
-			/* get file_ID of saved file */
-			id = (int) mysql_stmt_insert_id (db_con->insert_file_stmt);
-		}
+		id = result;
 		
 		g_free (path);
 		g_free (name);
@@ -188,111 +135,11 @@ get_file_id (DBConnection *db_con, const char *uri, gboolean create_record)
 	return id;
 }
 
-static char *
-get_metadata (DBConnection *db_con, const char *file_id, const char *meta) 
-{
-	FieldDef 	*def;
-	int 	 	row_count = 0;
-	char 		**row;	
-	char 		***res_str = NULL;
-	char 		*value;
-
-	g_return_val_if_fail (db_con && file_id && (strlen (file_id) > 0), NULL);
-
-	value = g_strdup (" ");
-
-	def = tracker_db_get_field_def (db_con, meta);
-	if (!def) {
-
-		return value;
-	}
-
-	if (def->indexable) {
-
-		res_str = tracker_db_exec_stmt_result (db_con->select_metadata_indexed_stmt, 2, file_id, def->id);
-
-	} else if (def->type != DATA_INTEGER) {
-
-		res_str = tracker_db_exec_stmt_result (db_con->select_metadata_stmt, 2, file_id, def->id);
-
-	} else {
-
-		res_str = tracker_db_exec_stmt_result  (db_con->select_metadata_integer_stmt, 2, file_id, def->id);
-
-	}
-
-
-	tracker_db_free_field_def (def);
-
-	if (res_str) {
-
-		row_count = get_row_count (res_str);
-
-		if (row_count > 0) {
-
-			row = *res_str;
-			if (row && row[0]) {
-				g_free (value);
-				value = g_strdup (row[0]);				
-			}
-			
-		} else {
-			tracker_log ("result set is empty");
-		}
-
-		tracker_db_free_result (res_str);	
-	} 
-
-	tracker_log ("metadata %s is %s", meta, value);
-	return value;
-
-}
-
-
-static void
-set_metadata (DBConnection *db_con, const char *file_id, const char *meta, const char *value)
-{
-	FieldDef 	*def;
-	int		result;
-
-	g_return_if_fail (db_con && file_id && (strlen (file_id) > 0) && meta && (strlen (meta) > 0));
-
-	def = tracker_db_get_field_def (db_con, meta);
-	if (!def) {
-
-		/* metadata field not found in database so we must create it */
-		result = tracker_db_exec_stmt (db_con->insert_metadata_type_stmt, 4, meta, "0", "0","1" );
-		if (result != 1) {
-			return;
-		} else {
-			def = tracker_db_get_field_def (db_con, meta);
-		}
-	}
-
-
-	/* save metadata based on type and whether metadata is indexable */
-	if (def->indexable) {
-
-		tracker_db_exec_stmt (db_con->insert_metadata_indexed_stmt, 3, file_id, def->id, value);
-
-	} else if (def->type != DATA_INTEGER) {
-
-		tracker_db_exec_stmt (db_con->insert_metadata_stmt, 3, file_id, def->id, value);
-
-	} else {
-
-		tracker_db_exec_stmt (db_con->insert_metadata_integer_stmt, 3, file_id, def->id, value);
-
-	}
-
-	tracker_db_free_field_def (def);
-
-}
 
 
 
-static void
-add_metadata_to_dict (MYSQL_RES *res, DBusMessageIter *iter_dict, int metadata_count)
+void
+tracker_add_metadata_to_dict (MYSQL_RES *res, DBusMessageIter *iter_dict, int metadata_count)
 {
 					
 	char *key, *value;
@@ -375,7 +222,7 @@ format_search_terms (const char *str, gboolean *do_bool_search)
 	*do_bool_search = FALSE;
 
 	/* if already has quotes then do nothing */
-	if (strchr (str, '"')) {
+	if (strchr (str, '"') || strchr (str, '*')) {
 		*do_bool_search = TRUE;
 		return g_strdup (str);
 	}
@@ -407,169 +254,7 @@ format_search_terms (const char *str, gboolean *do_bool_search)
 }
 
 
-void
-tracker_dbus_method_get_metadata (DBusRec *rec)
-{
-	DBConnection 	*db_con;
-	DBusMessage 	*reply;
-	char 		*service, *uri, *meta, *file_id, *value = NULL;
-	int		id;
 
-
-	g_return_if_fail (rec && rec->user_data);
-
-	db_con = rec->user_data;
-
-	/*	<method name="GetMetadata">
-			<arg type="s" name="service" direction="in" />
-			<arg type="s" name="id" direction="in" />
-			<arg type="s" name="key" direction="in" />
-			<arg type="s" name="value" direction="out" />
-	*/
-
-	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_STRING, &meta, DBUS_TYPE_INVALID);
-
-	if (strcmp (service, "Files") != 0) {
-		set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
-		return;
-	}
-
-	id = tracker_db_get_file_id (db_con, uri);
-	if (id == -1) {
-		set_error (rec, "File %s not found in DB", uri);
-		return;		
-	}
-	
-	file_id = g_strdup_printf ("%d", id);
-
-	value = get_metadata (db_con, file_id, meta);
-
-	g_free (file_id);
-
-	reply = dbus_message_new_method_return (rec->message);
-	
-	dbus_message_append_args (reply, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
-
-	if (value) {
-	       	g_free (value);
-	}
-
-	dbus_connection_send (rec->connection, reply, NULL);
-	dbus_message_unref (reply);
-}
-
-
-void
-tracker_dbus_method_set_metadata (DBusRec *rec)
-{
-	DBConnection 	*db_con;
-	DBusMessage 	*reply;
-	int 	 	id;
-	char 		*uri, *service, *meta, *file_id, *value = NULL;
-
-
-	g_return_if_fail (rec && rec->user_data);
-
-	db_con = rec->user_data;
-	
-	/* <method name="SetMetadata">
-		<arg type="s" name="service" direction="in" />
-		<arg type="s" name="id" direction="in" />
-		<arg type="s" name="key" direction="in" />
-		<arg type="s" name="value" direction="in" />
-	   </method>
-	*/
-
-	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_STRING, &meta, DBUS_TYPE_STRING, &value, DBUS_TYPE_INVALID);
-		
-	if (strcmp (service, "Files") != 0) {
-		set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
-		return;
-	}
-
-	if (!uri || strlen (uri) == 0) {
-		set_error (rec, "URI is invalid");
-		return;
-	}
-
-	if (!meta || strlen (meta) < 3 || (strchr (meta, '.') == NULL) ) {
-		set_error (rec, "Metadata type name is invalid. All names must be in the format 'class.name' ");
-		return;
-	}
-
-	id = get_file_id (db_con, uri, TRUE);	
-
-	if (id == -1) {
-		set_error (rec, "Cannot find or create file");
-		return;
-	}
-
-	file_id = g_strdup_printf ("%d", id);
-	
-	set_metadata (db_con, file_id, meta, value);
-
-	g_free (file_id);
-
-	reply = dbus_message_new_method_return (rec->message);
-	
-	dbus_connection_send (rec->connection, reply, NULL);
-	
-	dbus_message_unref (reply);
-	
-}
-
-
-void
-tracker_dbus_method_register_metadata_type (DBusRec *rec)
-{
-	DBConnection 	*db_con;
-	DBusMessage 	*reply;
-	char 		*meta, *type_id;
-	char		*type;
-	int 		i;
-
-
-	g_return_if_fail (rec && rec->user_data);
-
-	db_con = rec->user_data;
-	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &meta, DBUS_TYPE_STRING, &type, DBUS_TYPE_INVALID);
-		
-	if (!meta || strlen (meta) < 3 || (strchr (meta, '.') == NULL) ) {
-		set_error (rec, "Metadata type name is invalid. All names must be in the format 'class.name' ");
-		return;
-	}
-
-	i = str_in_array (type, type_array);
-	if (i == -1) {
-		set_error (rec, "Invalid metadata type id specified");
-		return;
-	}
-
-	/* check if new metadata type is indexable */
-	if (i == 0) {
-		tracker_db_exec_stmt (db_con->insert_metadata_type_stmt, 4, meta, "0", "1", "1");
-	} else {
-		/* 
-			data type enum 0 = string, 1 = int, 2 = date
-		*/
-		i--;
-		type_id = g_strdup_printf ("%d", i);
-		tracker_db_exec_stmt (db_con->insert_metadata_type_stmt, 4, meta, type_id, "0", "1");
-		g_free (type_id);
-	}
-
-
-
-	reply = dbus_message_new_method_return (rec->message);
-	
-	dbus_connection_send (rec->connection, reply, NULL);
-	
-	dbus_message_unref (reply);
-	
-	
-}
 
 
 void
@@ -591,17 +276,17 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 	
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &folder, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_INVALID);
 
-	id = get_file_id (db_con, folder, FALSE);	
+	id = tracker_get_file_id (db_con, folder, FALSE);	
 
 	if (id == -1) {
-		set_error (rec, "Cannot find folder %s in Tracker database", folder);
+		tracker_set_error (rec, "Cannot find folder %s in Tracker database", folder);
 		return;
 	}
 
 
 
 	/* build SELECT clause */
-	sql = g_string_new (" SELECT DISTINCT F.ID, F.Path, F.FileName ");
+	sql = g_string_new (" SELECT DISTINCT F.ID, F.Path, F.Name ");
 
 	table_count = 0;
 
@@ -612,17 +297,17 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 		def = tracker_db_get_field_def (db_con, array[i]);
 		if (def) {
 
-			if (def->indexable) {			
+			if (def->type == DATA_INDEX_STRING) {			
 		
 				field = g_strdup ("MetaDataIndexValue");
 		
-			} else if (def->type != DATA_INTEGER) {
+			} else if (def->type == DATA_STRING) {
 
 				field = g_strdup ("MetaDataValue");
 
 			} else {
 
-				field = g_strdup ("MetaDataIntegerValue");
+				field = g_strdup ("MetaDataNumericValue");
 
 			}
 	
@@ -634,7 +319,7 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 
 		table_count++;
 
-		mid = g_strdup_printf ("%d", table_count);
+		mid = tracker_int_to_str (table_count);
 
 		str = g_strconcat (", M", mid, ".", field, NULL); 
 		g_string_append (sql, str );
@@ -650,7 +335,7 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 
 
 	/* build FROM clause */
-	g_string_append (sql, " FROM Files F ");
+	g_string_append (sql, " FROM Services F ");
 	
 	table_count = 0;
 	
@@ -670,9 +355,9 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 
 		table_count++;
 
-		mid = g_strdup_printf ("%d", table_count);
+		mid = tracker_int_to_str (table_count);
 
-		str = g_strconcat (" LEFT OUTER JOIN FileMetaData M", mid, " ON M", mid, ".FileID = F.ID ", " AND M", mid, ".MetaDataID = ", meta_id, NULL);
+		str = g_strconcat (" LEFT OUTER JOIN ServiceMetaData M", mid, " ON M", mid, ".ServiceID = F.ID ", " AND M", mid, ".MetaDataID = ", meta_id, NULL);
 		g_string_append (sql, str );
 
 		g_free (meta_id);
@@ -710,7 +395,7 @@ tracker_dbus_method_get_metadata_for_files_in_folder (DBusRec *rec)
 
 
 	if (res) {
-		add_metadata_to_dict (res, &iter_dict, n);
+		tracker_add_metadata_to_dict (res, &iter_dict, n);
 	}
 
 
@@ -729,12 +414,13 @@ tracker_dbus_method_search_metadata_text (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	char **array = NULL, **row;	
-	char ***res_str = NULL, ***rows;
+	char **array = NULL;	
 	int row_count = 0, i = 0;
 	int limit;
 	char *str = NULL, *service = NULL, *search_term = NULL;
 	gboolean sort_results = FALSE, use_boolean_search = FALSE;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -749,17 +435,17 @@ tracker_dbus_method_search_metadata_text (DBusRec *rec)
 
 
 	if (!service)  {
-		set_error (rec, "No service was specified");	
+		tracker_set_error (rec, "No service was specified");	
 		return;
 	}
 
 	if (strcmp (service, "Files") != 0) {
-		set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
+		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
 		return;
 	}
 
 	if ( !str || strlen (str) == 0) {
-		set_error (rec, "No search term was specified");	
+		tracker_set_error (rec, "No search term was specified");	
 		return;
 	}
 
@@ -770,33 +456,31 @@ tracker_dbus_method_search_metadata_text (DBusRec *rec)
 	/* check search string for embedded special chars like hyphens and format appropriately */
 	search_term = format_search_terms (str, &use_boolean_search);
 
-	if (sort_results) {
-		if (!use_boolean_search) {
-			res_str = tracker_db_exec_stmt_result (db_con->select_search_text_sorted_stmt, 2, search_term, search_term);
-		} else {
-			res_str = tracker_db_exec_stmt_result (db_con->select_search_text_sorted_bool_stmt, 2, search_term, search_term);
-		}
-	} else {
-		res_str = tracker_db_exec_stmt_result (db_con->select_search_text_stmt, 1, search_term);
-	}
+	char *str_limit = tracker_int_to_str (limit);
+	char *str_sort = tracker_int_to_str (sort_results);
+	char *str_bool =  tracker_int_to_str (use_boolean_search);
+	
+	tracker_log ("Executing search with params %s, %s. %s, %s, %s", service, search_term, str_limit, str_sort, str_bool );
+	
+	res = tracker_exec_proc  (db_con->db, "SearchText", 5, service, search_term, str_limit, str_sort, str_bool);	
 
 	g_free (search_term);
+	g_free (str_limit);
+	g_free (str_bool);
+	g_free (str_sort);
+	
+	if (res) {
 
-	if (res_str) {
-
-		row_count = get_row_count (res_str);
+		row_count = mysql_num_rows (res);
 
 		if (row_count > 0) {
-			if (row_count < limit) {
-				array = g_new (char *, row_count);
-			} else {
-				array = g_new (char *, limit);
-			}
+			
+			array = g_new (char *, row_count);
 
 			i = 0;
 
-			for (rows = res_str; (i<limit) && (*rows); rows++) {
-				row = *rows;
+			while ((row = mysql_fetch_row (res))) {
+				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
 				}
@@ -804,10 +488,11 @@ tracker_dbus_method_search_metadata_text (DBusRec *rec)
 			}
 			
 		} else {
-			tracker_log ("result set is empty");
+			tracker_log ("search returned no results" );
 		}
-
-		tracker_db_free_result (res_str);
+	
+		
+		mysql_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
@@ -825,6 +510,8 @@ tracker_dbus_method_search_metadata_text (DBusRec *rec)
         	g_free (array[i]);
 	}
 
+	g_free (array);
+
 	dbus_connection_send (rec->connection, reply, NULL);
 	dbus_message_unref (reply);
 }
@@ -834,12 +521,14 @@ tracker_dbus_method_search_files_by_text_mime (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	char **array = NULL, **row;	
-	char ***res_str = NULL, ***rows;
+	char **array = NULL;
 	int row_count = 0, i = 0, n;
 	char *str, *mime_list, *search_term = NULL;
 	GString *mimes = NULL;
 	gboolean use_boolean_search = TRUE;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
+
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -856,7 +545,7 @@ tracker_dbus_method_search_files_by_text_mime (DBusRec *rec)
 			} else {
 				mimes = g_string_new (array[i]);
 			}
-			//g_free (array[i]);
+			
 		}
 	}
 
@@ -867,24 +556,24 @@ tracker_dbus_method_search_files_by_text_mime (DBusRec *rec)
 	/* check search string for embedded special chars like hyphens and format appropriately */
 	search_term = format_search_terms (str, &use_boolean_search);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_stmt, 2, search_term , mime_list);
+	res = tracker_exec_proc  (db_con->db, "SearchTextMime", 2, search_term , mime_list);
 
 	g_free (search_term);
 
 	g_free (mime_list);
 
-	if (res_str) {
+	if (res) {
 
-		row_count = get_row_count (res_str);
+		row_count = mysql_num_rows (res);
 
 		if (row_count > 0) {
-
+			
 			array = g_new (char *, row_count);
 
 			i = 0;
 
-			for (rows = res_str; *rows; rows++) {
-				row = *rows;
+			while ((row = mysql_fetch_row (res))) {
+				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
 				}
@@ -895,7 +584,7 @@ tracker_dbus_method_search_files_by_text_mime (DBusRec *rec)
 			tracker_log ("result set is empty");
 		}
 
-		tracker_db_free_result (res_str);
+		mysql_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
@@ -922,42 +611,38 @@ tracker_dbus_method_search_files_by_text_location (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	char **array = NULL, **row;	
-	char ***res_str = NULL, ***rows;
+	char **array = NULL;
 	int row_count = 0, i = 0;
-	char *str, *str2, *location, *search_term = NULL;
+	char *str, *location, *search_term = NULL;
 	gboolean use_boolean_search = TRUE;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_STRING, &str2, DBUS_TYPE_INVALID);
-
-	location = g_strconcat (str2, "/", "%", NULL);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_STRING, &location, DBUS_TYPE_INVALID);
 
 	search_term = format_search_terms (str, &use_boolean_search);
 
-	//g_print ("search term is before %s and after %s with location %s\n\n", str, search_term, location);
-
-	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_location_stmt, 3, location, str2, search_term);
+	res = tracker_exec_proc  (db_con->db, "SearchTextLocation", 2, search_term , location);
 
 	g_free (search_term);
 
-	g_free (location);
 
-	if (res_str) {
+	if (res) {
 
-		row_count = get_row_count (res_str);
+		row_count = mysql_num_rows (res);
 
 		if (row_count > 0) {
-
+			
 			array = g_new (char *, row_count);
 
 			i = 0;
 
-			for (rows = res_str; *rows; rows++) {
-				row = *rows;
+			while ((row = mysql_fetch_row (res))) {
+				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
 				}
@@ -968,7 +653,7 @@ tracker_dbus_method_search_files_by_text_location (DBusRec *rec)
 			tracker_log ("result set is empty");
 		}
 
-		tracker_db_free_result (res_str);
+		mysql_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
@@ -995,20 +680,19 @@ tracker_dbus_method_search_files_by_text_mime_location (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	char **array = NULL, **row;	
-	char ***res_str = NULL, ***rows;
+	char **array = NULL;
 	int row_count = 0, i = 0, n;
-	char *str, *str2, *mime_list, *location, *search_term = NULL;
+	char *str, *mime_list, *location, *search_term = NULL;
 	GString *mimes = NULL;
 	gboolean use_boolean_search = TRUE;
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_STRING, &str2, DBUS_TYPE_INVALID);
-
-	location = g_strconcat (str2, "/", "%", NULL);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_STRING, &location, DBUS_TYPE_INVALID);
 
 	/* build mimes string */
 	for (i=0; i<n; i++) {
@@ -1031,26 +715,24 @@ tracker_dbus_method_search_files_by_text_mime_location (DBusRec *rec)
 
 	//g_print ("search term is before %s and after %s\n\n", str, search_term);
 
-	res_str = tracker_db_exec_stmt_result (db_con->select_search_text_mime_location_stmt, 4, location, str2, search_term, mime_list);
+	res = tracker_exec_proc  (db_con->db, "SearchTextLocation", 2, search_term , mime_list, location);
 
 	g_free (search_term);
 
-	g_free (location);
-
 	g_free (mime_list);
 
-	if (res_str) {
+	if (res) {
 
-		row_count = get_row_count (res_str);
+		row_count = mysql_num_rows (res);
 
 		if (row_count > 0) {
-
+			
 			array = g_new (char *, row_count);
 
 			i = 0;
 
-			for (rows = res_str; *rows; rows++) {
-				row = *rows;
+			while ((row = mysql_fetch_row (res))) {
+				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
 				}
@@ -1061,12 +743,13 @@ tracker_dbus_method_search_files_by_text_mime_location (DBusRec *rec)
 			tracker_log ("result set is empty");
 		}
 
-		tracker_db_free_result (res_str);
+		mysql_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
 		array[0] = NULL;
 	}
+
 
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -1115,7 +798,7 @@ tracker_dbus_method_search_files_query (DBusRec *rec)
 
 		if (table_count > 0) {
 	
-			sql = g_string_new (" CREATE Temporary Table TMP0 ENGINE = MEMORY SELECT T1.FileID FROM ");
+			sql = g_string_new (" CREATE Temporary Table TMP0 ENGINE = MEMORY SELECT T1.ServiceID FROM ");
 
 			for (i=1; i<table_count+1; i++) {
 			
@@ -1140,9 +823,9 @@ tracker_dbus_method_search_files_query (DBusRec *rec)
 				}
 
 				if (i != table_count) {
-					str2 = g_strconcat ("T1.FileID = T", str, ".FileID and ", NULL);
+					str2 = g_strconcat ("T1.ServiceID = T", str, ".ServiceID and ", NULL);
 				} else {
-					str2 = g_strconcat ("T1.FileID = T", str, ".FileID", NULL);
+					str2 = g_strconcat ("T1.ServiceID = T", str, ".ServiceID", NULL);
 				}
 				g_string_append (sql, str2);
 				g_free (str);
@@ -1167,7 +850,7 @@ tracker_dbus_method_search_files_query (DBusRec *rec)
 			}
 
 			limit_str = g_strdup_printf ("%d", limit);
-			str = g_strconcat ("select F.Path, F.FileName from Files F, TMP0 T where F.ID = T.FileID LIMIT ", limit_str, NULL);
+			str = g_strconcat ("select F.Path, F.Name from Services F, TMP0 T where F.ID = T.ServiceID LIMIT ", limit_str, NULL);
 			g_free (limit_str);
 	
 			MYSQL_RES *res = tracker_exec_sql (db_con->db, str);

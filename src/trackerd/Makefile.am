@@ -37,6 +37,8 @@ trackerd_SOURCES =		\
 	tracker-dbus.h		\
 	tracker-dbus-methods.c	\
 	tracker-dbus-methods.h	\
+	tracker-dbus-metadata.c	\
+	tracker-dbus-metadata.h	\
 	tracker-metadata.c	\
 	tracker-metadata.h	\
 	tracker-rdf-query.c	\
