@@ -453,20 +453,20 @@ END|
 
 
 
-DROP PROCEDURE if exists CountPendingFiles;|
+DROP PROCEDURE if exists ExistsPendingFiles;|
 
-CREATE PROCEDURE CountPendingFiles ()
+CREATE PROCEDURE ExistsPendingFiles ()
 BEGIN
-	select count(*) from FilePending Where Counter = 0 AND Action <> 20;
+	select 1 From DUAL Where Exists (select ID from FilePending where Action <> 20);
 END|
 
 
 
 DROP PROCEDURE if exists InsertPendingFile;|
 
-CREATE PROCEDURE InsertPendingFile (pFileID int unsigned,pAction int,pCounter int,pFileUri varchar(255),pMimeType varchar(80) ,pIsDir bool)
+CREATE PROCEDURE InsertPendingFile (pFileID int ,pAction int,pCounter int,pFileUri varchar(255),pMimeType varchar(80) ,pIsDir bool)
 BEGIN
-    	INSERT INTO FilePending (FileID, Action, Counter, FileUri, MimeType, IsDir) VALUES (pFileID,pAction,pCounter,pFileUri,pMimeType,pIsDir);
+    	INSERT INTO FilePending (FileID, Action, PendingDate, FileUri, MimeType, IsDir) VALUES (pFileID,pAction, UTC_TIMESTAMP() + pCounter, pFileUri,pMimeType,pIsDir);
 END|
 
 
@@ -474,7 +474,7 @@ DROP PROCEDURE if exists GetPendingFiles;|
 
 CREATE PROCEDURE GetPendingFiles ()
 BEGIN
-	CREATE TEMPORARY TABLE tmpfiles SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE Counter = 0 AND Action <> 20 ORDER BY ID LIMIT 300;
+	CREATE TEMPORARY TABLE tmpfiles SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE NOT (PendingDate > (UTC_TIMESTAMP() + 0))  AND Action <> 20 ORDER BY ID LIMIT 300;
 	
 	DELETE FROM FilePending USING tmpfiles, FilePending WHERE FilePending.ID = tmpfiles.ID AND FilePending.Action <> 20;
 
@@ -497,15 +497,18 @@ DROP PROCEDURE if exists CountPendingMetadataFiles;|
 
 CREATE PROCEDURE CountPendingMetadataFiles ()
 BEGIN
-	select count(*) from FilePending Where Counter = 0 AND Action = 20;
+	select 1 From DUAL Where Exists (select ID from FilePending where Action = 20);
 END|
+
+
+
 
 
 DROP PROCEDURE if exists GetPendingMetadataFiles;|
 
 CREATE PROCEDURE GetPendingMetadataFiles ()
 BEGIN
-	CREATE TEMPORARY TABLE tmpmetadata SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE Counter = 0 AND Action = 20 ORDER BY ID LIMIT 100;
+	CREATE TEMPORARY TABLE tmpmetadata SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE NOT (PendingDate > (UTC_TIMESTAMP() + 0))  AND Action = 20 ORDER BY ID LIMIT 100;
 	
 	DELETE FROM FilePending USING tmpmetadata, FilePending WHERE FilePending.ID = tmpmetadata.ID AND FilePending.Action = 20;
 
@@ -536,17 +539,9 @@ DROP PROCEDURE if exists UpdatePendingFile;|
 
 CREATE PROCEDURE UpdatePendingFile (pFileUri varchar(255), pAction int, pCounter int)
 BEGIN
-	UPDATE FilePending SET Counter = pCounter, Action = pAction WHERE FileUri = pFileUri;
+	UPDATE FilePending SET PendingDate = UTC_TIMESTAMP() + pCounter, Action = pAction WHERE FileUri = pFileUri;
 END|
 
-
-
-DROP PROCEDURE if exists UpdatePendingFileCounter;|
-
-CREATE PROCEDURE UpdatePendingFileCounter ()
-BEGIN
-	UPDATE FilePending SET Counter=Counter-1 WHERE Counter > 0;
-END|
 
 
 DROP PROCEDURE if exists DeletePendingFile;|

@@ -401,17 +401,14 @@ tracker_format_date (const char *time_string)
 
 
 time_t
-tracker_str_to_date (const char *time_string)
+tracker_str_to_date (const char *timestamp)
 {
 	struct tm tm;
 	long val;
 	time_t tt;
 	int has_time_zone = 0;
-	char *timestamp;
 	
-	g_return_val_if_fail (time_string, -1);
-
-	timestamp = g_strdup (time_string);
+	g_return_val_if_fail (timestamp, -1);
 
 	/* we should have a valid iso 8601 date format */
 
@@ -424,7 +421,6 @@ tracker_str_to_date (const char *time_string)
 		tm.tm_mon = strtoul (timestamp, (char **)&timestamp, 10) -1;
 
 		if (*timestamp++ != '-') {
-			g_free (timestamp);
 			return -1;
 		}
 		tm.tm_mday = strtoul (timestamp, (char **)&timestamp, 10);
@@ -434,7 +430,6 @@ tracker_str_to_date (const char *time_string)
 
 	if (*timestamp++ != 'T' ) {
 		tracker_log ("date validation failed for %s st %c", timestamp, *timestamp );
-		g_free (timestamp);
 		return -1;
 	}
 	
@@ -445,7 +440,7 @@ tracker_str_to_date (const char *time_string)
 		timestamp++;
 		tm.tm_min = strtoul (timestamp, (char **)&timestamp, 10);
 		if (*timestamp++ != ':') {
-			g_free (timestamp);
+
 			return -1;
 		}
 		tm.tm_sec = strtoul (timestamp, (char **)&timestamp, 10);
@@ -487,6 +482,8 @@ tracker_str_to_date (const char *time_string)
 		tzset();
 		tt += timezone;
 	}
+
+
 	return tt;
 }
 

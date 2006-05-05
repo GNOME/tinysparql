@@ -149,15 +149,15 @@ fam_callback (GIOChannel *source,
 
 			case FAMChanged:
 				event_type = TRACKER_ACTION_CHECK;
-				counter = FILE_PAUSE_PERIOD;
+				counter = 1;
 				break;
 			case FAMDeleted:
 				event_type = TRACKER_ACTION_DELETE;
-				counter = 1;
+				counter = 0;
 				break;
 			case FAMCreated:
 				event_type = TRACKER_ACTION_CREATE;		
-				counter =  FILE_PAUSE_PERIOD;
+				counter =  1;
 				break;
 
 			case FAMStartExecuting:

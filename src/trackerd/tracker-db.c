@@ -8,7 +8,8 @@
 #include <mysql/mysql.h>
 #include "tracker-db.h"
 
-
+GMutex		*metadata_available_mutex;
+GMutex		*files_available_mutex;
 
 typedef struct {
 
@@ -859,7 +860,7 @@ tracker_update_db (MYSQL *db)
 
 	row = mysql_fetch_row (res);
 	
-	if (!row[0]) {
+	if (!row || !row[0]) {
 		mysql_free_result (res);
 		return FALSE;
 	}
@@ -908,7 +909,11 @@ tracker_update_db (MYSQL *db)
 		queries = g_strsplit_set (query, "|", -1);
 		for (queries_p = queries; *queries_p; queries_p++) {
 			if (*queries_p) {
-		     		tracker_exec_sql (db, *queries_p);
+		     		res = tracker_exec_sql (db, *queries_p);
+
+				if (res) {
+					mysql_free_result (res);
+				}
 			}
 		}
 		g_strfreev (queries);
@@ -932,13 +937,17 @@ get_meta_table_data (gpointer key,
 {
 	DatabaseAction *db_action;	
 	char *mtype, *mvalue, *avalue, *dvalue, *evalue;
-	
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;	
+
 	mtype = (char *)key;
 	avalue = (char *)value;
 
 	db_action = user_data;
 
-	g_return_if_fail (mtype != NULL && mvalue != NULL);
+	if (mtype == NULL || mvalue == NULL) {
+		return;
+	}
 
 	if (tracker_metadata_is_date (db_action->db_con, mtype)) {
 		dvalue = tracker_format_date (avalue);		
@@ -957,7 +966,18 @@ get_meta_table_data (gpointer key,
 		g_free (evalue);
 	}
  
-	tracker_exec_proc  (db_action->db_con->db, "SetMetadata", 5, "Files", db_action->file_id, mtype, mvalue, "1");
+	res = tracker_exec_proc  (db_action->db_con->db, "SetMetadata", 5, "Files", db_action->file_id, mtype, mvalue, "1");
+
+	if (res) {
+		
+		if ((row = mysql_fetch_row (res))) {
+			if (row[0]) {
+				tracker_log ("Error %s saving metadata %s with value %s", row[0], mtype, mvalue);
+			}
+
+		}
+		mysql_free_result (res);
+	}
 
 	if (mvalue) {
 		g_free (mvalue);
@@ -1045,6 +1065,8 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 		tracker_log ("Could not get metadata for File.Content");
 		return; 
 	}
+	
+	tracker_db_free_field_def (def);
 
 	str_meta_id = g_strdup (def->id);
 
@@ -1311,26 +1333,33 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 }
 
 
+
 static void
 make_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
 {
 	
 	char *str_file_id, *str_action, *str_is_directory, *str_counter;
 
+	g_return_if_fail (uri);
+
 	str_file_id = g_strdup_printf ("%ld", file_id);
 	str_action = g_strdup_printf ("%d", action);
 	str_is_directory = g_strdup_printf ("%d", is_directory);
 	str_counter = g_strdup_printf ("%d", counter);
 
-
-	
-
 	if (!mime) {
 		tracker_exec_proc  (db_con->db, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
-//		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
 	} else {
 		tracker_exec_proc  (db_con->db, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  mime, str_is_directory);
-//		tracker_db_exec_stmt (db_con->insert_pending_file_stmt, 6, str_file_id, str_action, str_counter, uri,  mime, str_is_directory);
+	}
+
+	//tracker_log ("inserting pending file for %s with action %s", uri, tracker_actions[action]);
+
+	/* signal respective thread that data is available if its waiting */
+	if (action == TRACKER_ACTION_EXTRACT_METADATA) {
+		g_mutex_trylock (metadata_available_mutex);
+	} else {
+		g_mutex_trylock (files_available_mutex);
 	}
 
 	g_free (str_file_id);
@@ -1365,7 +1394,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *
 
 	/* check if uri already has a pending action and update accordingly */
 	info = tracker_db_get_pending_file (db_con, uri);
-
+	
 	if (info) {
 		switch (action) {
 

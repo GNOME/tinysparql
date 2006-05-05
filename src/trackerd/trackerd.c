@@ -92,7 +92,7 @@
  *  asynchronous queue where multiple threads are waiting to process them. 
  */
 
-#define	FILE_POLL_PERIOD 15 * 60 * 1000
+#define	FILE_POLL_PERIOD 30 * 60 * 1000
 
 char *type_array[] =   {"index", "string", "numeric", "date", NULL};
 
@@ -116,7 +116,10 @@ gboolean	store_text_file_contents_in_db = FALSE;
 char		*db_buffer_memory_limit = "1M";
 
 
-
+typedef struct {
+	DBConnection 	*db_con;
+	FileInfo 	*info;
+} ScheduleInfo;
 
 /* list to store all directories to poll  */
 #ifdef POLL_ONLY
@@ -130,6 +133,9 @@ extern 	GAsyncQueue 	*file_process_queue;
 extern GAsyncQueue 	*user_request_queue;
 extern GSList 		*poll_list;
 extern DBConnection	*main_thread_db_con;
+
+extern GMutex		*metadata_available_mutex;
+extern GMutex		*files_available_mutex;
 
 static 	GAsyncQueue 	*file_metadata_queue = NULL;
 
@@ -150,18 +156,17 @@ static 	GMutex 		*user_thread1_mutex = NULL;
 static 	GMutex 		*user_thread2_mutex = NULL;
 static 	GMutex 		*poll_thread_mutex = NULL;
 
-static GMutex 		*metadata_available_mutex = NULL;
-static GMutex 		*files_available_mutex = NULL;
+
 
 static	GThread 	*file_poll_thread = NULL;
 
-static void schedule_file_check (const char * uri);
+static void schedule_file_check (const char * uri, DBConnection	*db_con);
 
 static void delete_directory (DBConnection *db_con, FileInfo *info);
 
 static void delete_file (DBConnection *db_con, FileInfo *info);
 
-static void scan_directory (FileInfo *info);
+static void scan_directory (ScheduleInfo *schedule_info);
 
 static GMainLoop 	*loop;
 
@@ -269,8 +274,16 @@ poll_dir (const char *uri, DBConnection *db_con)
 
 	/* scan dir for changes in all other files */
 	info_dir = tracker_create_file_info (uri, 1, 0, 0);	
-	scan_directory (info_dir);
-	info_dir = tracker_free_file_info (info_dir); 
+		
+	ScheduleInfo *sinfo = g_new (ScheduleInfo, 1);
+	sinfo->db_con = db_con;
+	sinfo->info = info_dir;
+
+	scan_directory (sinfo);
+
+//	g_idle_add ((GSourceFunc) scan_directory, sinfo);
+
+//	info_dir = tracker_free_file_info (info_dir); 
 
 }
 
@@ -368,7 +381,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 		g_slist_foreach (dir_list, (GFunc) tracker_get_dirs, &file_list);
 		
 		if (check_dirs) {
-			g_slist_foreach (file_list, (GFunc) schedule_file_check, NULL);
+			g_slist_foreach (file_list, (GFunc) schedule_file_check, db_con);
 		}
 
 		g_slist_foreach (dir_list, (GFunc) g_free, NULL); 
@@ -413,12 +426,6 @@ watch_dir (const char* dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-
-/*	if (tracker_is_directory_watched (dir_utf8, db_con)) {
-		g_free (dir_utf8);
-		return FALSE;
-	}
-*/
 
 	mylist = g_slist_prepend (mylist, dir_utf8);
 	add_dirs_to_watch_list (mylist, TRUE, db_con);
@@ -646,77 +653,49 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 	if (!info->is_directory && info->file_id != -1) {
 		tracker_db_insert_pending_file 	(db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory);
-
-		/* set mutex so metadata extraction thread knows there is data pending */
-		g_mutex_trylock (metadata_available_mutex);
 	}
 	
 }
 
 
 static void
-schedule_file_check (const char *uri)
+schedule_file_check (const char *uri, DBConnection *db_con)
 {
-	FileInfo *info;
-	
-	info = tracker_create_file_info (uri, TRACKER_ACTION_CHECK, FILE_PAUSE_PERIOD, WATCH_OTHER);
+	g_return_if_fail (uri);
+	g_return_if_fail (db_con);
 
-	g_return_if_fail (tracker_file_info_is_valid (info));
-
-	g_async_queue_push (file_pending_queue, info);
-
+	tracker_db_insert_pending_file 	(db_con, -1, uri, "unknown", 0, TRACKER_ACTION_CHECK, 0);	
 }
 
 
 static void
-scan_directory (FileInfo *info)
+scan_directory (ScheduleInfo *sinfo)
 {
 	GSList *file_list = NULL;
 
+	g_return_if_fail (sinfo);
+
+	g_return_if_fail (sinfo->db_con);
+
+	g_return_if_fail (sinfo->info);
+
 	/* info struct may have been deleted in transit here so check if still valid and intact */
-	g_return_if_fail (tracker_file_info_is_valid (info));
+	g_return_if_fail (tracker_file_info_is_valid (sinfo->info));
 
-	g_return_if_fail (tracker_is_directory (info->uri));
+	g_return_if_fail (tracker_is_directory (sinfo->info->uri));
 
-	file_list = tracker_get_files (info->uri, FALSE);
-	g_slist_foreach (file_list, (GFunc) schedule_file_check, NULL);
+	file_list = tracker_get_files (sinfo->info->uri, FALSE);
+	g_slist_foreach (file_list, (GFunc) schedule_file_check, sinfo->db_con);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL); 
 	g_slist_free (file_list);
 	
 	/* recheck directory to update its mtime if its changed whilst scanning */
-	schedule_file_check (info->uri);
+	schedule_file_check (sinfo->info->uri, sinfo->db_con);
+
+	sinfo->info = tracker_dec_info_ref (sinfo->info);
+	g_free (sinfo);
 }
 
-
-static gboolean
-process_scheduled_events (void)
-{	
-	FileInfo   *info;
-	gboolean has_pending = FALSE;
-
-
-	info = g_async_queue_try_pop (file_pending_queue);   
-
-	/* mark queued files to be processed as "pending" */ 
-	while (info) {
-		has_pending = TRUE;
-		tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory);
-		info = tracker_free_file_info (info);
-		info = g_async_queue_try_pop (file_pending_queue); 	
-	}
-
-	/* decrement counters for pending files */
-	tracker_exec_proc  (main_thread_db_con->db, "UpdatePendingFileCounter", 0);
-
-	if (mysql_affected_rows (main_thread_db_con->db) > 0){
-
-		/* file might be availlable for processing now so set mutex */	
-		g_mutex_trylock (files_available_mutex);
-	}
-
-
-	return TRUE;
-}
 
 static gboolean
 start_watching (gpointer data)
@@ -733,11 +712,11 @@ start_watching (gpointer data)
 		if (data) {
 			watch_folder =  (char *)data;
 			watch_dir (watch_folder, main_thread_db_con);
-			schedule_file_check (watch_folder);
+			schedule_file_check (watch_folder,  main_thread_db_con);
 			g_free (watch_folder);
 		} else {
 			g_slist_foreach (watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
- 			g_slist_foreach (watch_directory_roots_list, (GFunc) schedule_file_check, NULL);
+ 			g_slist_foreach (watch_directory_roots_list, (GFunc) schedule_file_check,  main_thread_db_con);
 		}
 
 	
@@ -809,13 +788,14 @@ extract_metadata_thread ()
 
 				row = mysql_fetch_row (res);
 
-				int pending_file_count  = atoi (row[0]);
+				if (row && row[0]) {
+					int pending_file_count  = atoi (row[0]);
 
-				if (pending_file_count  > 0) {
-					g_mutex_trylock (metadata_available_mutex);
-					tracker_log ("%d files still pending metadata extraction...",  pending_file_count);
-				}
-
+					if (pending_file_count  > 0) {
+						g_mutex_trylock (metadata_available_mutex);
+						tracker_log ("%d files still pending metadata extraction...",  pending_file_count);
+					}
+				}	
 				mysql_free_result (res);
 			}
 
@@ -976,6 +956,7 @@ process_files_thread ()
 	DBConnection db_con;
 	GSList *moved_from_list = NULL; /* list to hold moved_from events whilst waiting for a matching moved_to event */
 	gboolean need_index = FALSE, has_pending = FALSE;
+	ScheduleInfo *sinfo;
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW  row;
 
@@ -1025,17 +1006,19 @@ process_files_thread ()
 
 
 			/* relock mutex if more files still available */
-			res = tracker_exec_proc (db_con.db, "CountPendingFiles", 0); 
+			res = tracker_exec_proc (db_con.db, "ExistsPendingFiles", 0); 
 
 			if (res) {
 
 				row = mysql_fetch_row (res);
+				
+				if (row && row[0]) {
+					int pending_file_count  = atoi (row[0]);
 
-				int pending_file_count  = atoi (row[0]);
-
-				if (pending_file_count  > 0) {
-					g_mutex_trylock (files_available_mutex);
-					tracker_log ("%d files still pending indexing...",  pending_file_count);
+					if (pending_file_count  > 0) {
+						g_mutex_trylock (files_available_mutex);
+						
+					}
 				}
 
 				mysql_free_result (res);
@@ -1140,19 +1123,28 @@ process_files_thread ()
 			case TRACKER_ACTION_DIRECTORY_CHECK :
 
 				if (need_index) {
-
-					scan_directory (info);
+				
+					sinfo = g_new (ScheduleInfo, 1);
+					info = tracker_inc_info_ref (info);
+					sinfo->db_con = &db_con;
+					sinfo->info = info;
+					scan_directory (sinfo);
+					//g_idle_add ((GSourceFunc) scan_directory, sinfo);
+					
 				}
 			
 				break;
 
 			case TRACKER_ACTION_DIRECTORY_REFRESH :
 
-				//tracker_log ("Refreshing directory %s", info->uri);
-
-				scan_directory (info);
-		
-					
+				sinfo = g_new (ScheduleInfo, 1);
+				
+				info = tracker_inc_info_ref (info);
+				sinfo->db_con = &db_con;
+				sinfo->info = info;
+				scan_directory (sinfo);
+				//g_idle_add ((GSourceFunc) scan_directory, sinfo);
+							
 				break;
 
 			case TRACKER_ACTION_DIRECTORY_CREATED :
@@ -1163,13 +1155,18 @@ process_files_thread ()
 	
 
 				/* add to watch folders (including subfolders) */
-				//if (info->watch_type == WATCH_SUBFOLDER || info->watch_type == WATCH_ROOT) {
-					watch_dir (info->uri, &db_con);
-				//}
+				watch_dir (info->uri, &db_con);
+				
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
-					scan_directory (info);				
+					sinfo = g_new (ScheduleInfo, 1);
+					
+					info = tracker_inc_info_ref (info);
+					sinfo->db_con = &db_con;
+					sinfo->info = info;
+					scan_directory (sinfo);
+					//g_idle_add ((GSourceFunc) scan_directory, sinfo);		
 					
 				}
 				
@@ -1539,37 +1536,12 @@ main (int argc, char **argv)
 	user_request_queue = g_async_queue_new ();
 
 
-	/* periodically process pending files  table at lowest priority */
-	g_timeout_add_full (G_PRIORITY_LOW, 
-			    FILE_SCHEDULE_PERIOD,
-		 	    (GSourceFunc) process_scheduled_events,	
-			    NULL, NULL	
-			   );
-
 	/* periodically poll directories for changes */ 
 	g_timeout_add_full (G_PRIORITY_LOW, 
 			    FILE_POLL_PERIOD,
 		 	    (GSourceFunc) start_poll,	 
 			    NULL, NULL	
 			   );
-
-
-	/* schedule the watching of directories so as not to delay start up time*/
-
-	if (argc >= 2) {
-		g_timeout_add_full (G_PRIORITY_LOW, 
-				    1000,
-			 	    (GSourceFunc) start_watching,	
-				    g_strdup (argv[1]), NULL	
-				   );
-	} else {
-		g_timeout_add_full (G_PRIORITY_LOW, 
-				    1000,
-			 	    (GSourceFunc) start_watching,	
-				    NULL, NULL	
-				   );
-	}
-
 
 
 
@@ -1597,18 +1569,32 @@ main (int argc, char **argv)
 	poll_thread_mutex = g_mutex_new ();
 
 	/* data available mutexes */
-	g_assert (metadata_available_mutex == NULL);
 	metadata_available_mutex = g_mutex_new ();
-
-	g_assert (files_available_mutex == NULL);
 	files_available_mutex = g_mutex_new ();
 	
+
+	/* schedule the watching of directories so as not to delay start up time*/
+
+	if (argc >= 2) {
+		g_timeout_add_full (G_PRIORITY_LOW, 
+				    500,
+			 	    (GSourceFunc) start_watching,	
+				    g_strdup (argv[1]), NULL	
+				   );
+	} else {
+		g_timeout_add_full (G_PRIORITY_LOW, 
+				    500,
+			 	    (GSourceFunc) start_watching,	
+				    NULL, NULL	
+				   );
+	}
+
+
 
 	/* execute events and user requests to be processed and indexed in their own threads */
 	file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL); 
 	file_metadata_thread = g_thread_create ((GThreadFunc) extract_metadata_thread, NULL, FALSE, NULL); 
 	user_request_thread1 =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, user_thread1_mutex, FALSE, NULL); 
-//	user_request_thread2 =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, user_thread2_mutex, FALSE, NULL); 
 
 	g_main_loop_run (loop);
 

@@ -142,7 +142,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		if (action == TRACKER_ACTION_DIRECTORY_CREATED) {
 			info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 			info->is_directory = TRUE;
-			tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, 1, info->action, info->is_directory);
+			tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory);
 			info = tracker_free_file_info (info);
 			return;
 			
@@ -305,13 +305,13 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			} else {
 				info->action = TRACKER_ACTION_FILE_CREATED;
 			}
-			tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, 1, info->action, info->is_directory);
+			tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory);
 			info = tracker_free_file_info (info);
 			return;
 
 		} else if (action == TRACKER_ACTION_WRITABLE_FILE_CLOSED) {
 			tracker_log ("File %s has finished changing", info->uri);
-			tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, 1, info->action, info->is_directory);
+			tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory);
 			info = tracker_free_file_info (info);
 			return;
 		

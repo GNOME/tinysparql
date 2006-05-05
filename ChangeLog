@@ -1,3 +1,9 @@
+2006-05-05  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Hugely optimised indexing when many files are waiting to be indexed
+	* Mass queueing of files no longer blocks the main thread
+	* Fixed minor memory leak in new date parser
+
 
 2006-05-01  Jamie McCracken <jamiemcc@gnome.org>
 

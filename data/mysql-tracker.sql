@@ -248,14 +248,15 @@ create table if not exists FilePending
 	ID			int auto_increment not null,
 	FileID 			int default -1,
 	Action			tinyint default 0,
-	Counter			tinyint default 0,
+	PendingDate		BIGINT,
 	FileUri			varchar (255) not null,
 	MimeType		varchar (64),
 	IsDir			tinyint default 0,
 
 	primary key (ID),
 	key (FileID, Action),
-	key (Counter)
+	key (PendingDate),
+	key (FileUri)
 );
 
 
