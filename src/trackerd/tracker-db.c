@@ -1066,10 +1066,9 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 		return; 
 	}
 	
+	str_meta_id = g_strdup (def->id); 
+
 	tracker_db_free_field_def (def);
-
-	str_meta_id = g_strdup (def->id);
-
 
 	str_file_id = g_strdup_printf ("%ld", file_id);
 	file_id_length = strlen (str_file_id);
