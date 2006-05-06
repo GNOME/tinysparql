@@ -63,18 +63,13 @@
  *   1) File scan or file notification change (as reported by FAM/iNotify). 
  *   2) File Scheduler (we wait until a file's changes have stabilised  (NB not neccesary with inotify))
  *   3) We process a file's basic metadata (stat) and determine what needs doing in a seperate thread.
- *   4)	We extract embedded metadata/text/thumbnail in another thread and save changes to the DB
+ *   4)	We extract CPU intensive embedded metadata/text/thumbnail in another thread and save changes to the DB
  *
- *  The HashTable file_scheduler maintains notified file changes and holds a counter value for 
- *  each file so that we wait a certain period of time for a file's changes to settle down 
- *  before we process them. The counter is increased further if a file undergoes further 
- *  change whilst in this "pause" phase. If using inotify we can just use the 
- *  "writable file close" event instead of this.
  *
  *  Three threads are used to fully process a file event. Files or events to be processed are placed on 
  *  asynchronous queues where another thread takes over the work. 
  *
- *  The main thread is very lightweight and no cpu intensive or file I/O or DB access is permitted 
+ *  The main thread is very lightweight and no cpu intensive or heavy file I/O (or heavy DB access) is permitted 
  *  here after initialisation of the daemon. This ensures the main thread can handle events and DBUS
  *  requests in a timely low latency manner. 
  *
@@ -90,7 +85,7 @@
  *  Finally all metadata (including file's text contents and path to thumbnails) is saved to the DB.
  *
  *  All responses including user initiated requests are queued by the main thread onto an 
- *  asynchronous queue where multiple threads are waiting to process them. 
+ *  asynchronous queue where potentially multiple threads are waiting to process them. 
  */
 
 #define	FILE_POLL_PERIOD 30 * 60 * 1000
@@ -116,11 +111,6 @@ gboolean	index_firefox_history = TRUE;
 gboolean	store_text_file_contents_in_db = FALSE;
 char		*db_buffer_memory_limit = "1M";
 
-
-typedef struct {
-	DBConnection 	*db_con;
-	FileInfo 	*info;
-} ScheduleInfo;
 
 /* list to store all directories to poll  */
 #ifdef POLL_ONLY
@@ -167,7 +157,7 @@ static void delete_directory (DBConnection *db_con, FileInfo *info);
 
 static void delete_file (DBConnection *db_con, FileInfo *info);
 
-static void scan_directory (ScheduleInfo *schedule_info);
+static void scan_directory (const char * uri, DBConnection *db_con);
 
 static GMainLoop 	*loop;
 
@@ -216,7 +206,6 @@ do_cleanup ()
 static void
 poll_dir (const char *uri, DBConnection *db_con)
 {
-	FileInfo 	*info_dir;
 	char 		**files, **files_p, *str;
 	
 
@@ -274,17 +263,8 @@ poll_dir (const char *uri, DBConnection *db_con)
 
 
 	/* scan dir for changes in all other files */
-	info_dir = tracker_create_file_info (uri, 1, 0, 0);	
-		
-	ScheduleInfo *sinfo = g_new (ScheduleInfo, 1);
-	sinfo->db_con = db_con;
-	sinfo->info = info_dir;
 
-	scan_directory (sinfo);
-
-//	g_idle_add ((GSourceFunc) scan_directory, sinfo);
-
-//	info_dir = tracker_free_file_info (info_dir); 
+	scan_directory (uri, db_con);
 
 }
 
@@ -668,31 +648,24 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 
 
 static void
-scan_directory (ScheduleInfo *sinfo)
+scan_directory (const char *uri, DBConnection *db_con)
 {
 	GSList *file_list = NULL;
 
-	g_return_if_fail (sinfo);
+	g_return_if_fail (db_con);
 
-	g_return_if_fail (sinfo->db_con);
+	g_return_if_fail (uri);
 
-	g_return_if_fail (sinfo->info);
+	g_return_if_fail (tracker_is_directory (uri));
 
-	/* info struct may have been deleted in transit here so check if still valid and intact */
-	g_return_if_fail (tracker_file_info_is_valid (sinfo->info));
-
-	g_return_if_fail (tracker_is_directory (sinfo->info->uri));
-
-	file_list = tracker_get_files (sinfo->info->uri, FALSE);
-	g_slist_foreach (file_list, (GFunc) schedule_file_check, sinfo->db_con);
+	file_list = tracker_get_files (uri, FALSE);
+	g_slist_foreach (file_list, (GFunc) schedule_file_check, db_con);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL); 
 	g_slist_free (file_list);
 	
 	/* recheck directory to update its mtime if its changed whilst scanning */
-	schedule_file_check (sinfo->info->uri, sinfo->db_con);
+	schedule_file_check (uri, db_con);
 
-	sinfo->info = tracker_dec_info_ref (sinfo->info);
-	g_free (sinfo);
 }
 
 
@@ -963,7 +936,6 @@ process_files_thread ()
 	DBConnection db_con;
 	GSList *moved_from_list = NULL; /* list to hold moved_from events whilst waiting for a matching moved_to event */
 	gboolean need_index = FALSE, has_pending = FALSE;
-	ScheduleInfo *sinfo;
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW  row;
 
@@ -1129,13 +1101,8 @@ process_files_thread ()
 			case TRACKER_ACTION_DIRECTORY_CHECK :
 
 				if (need_index) {
-				
-					sinfo = g_new (ScheduleInfo, 1);
-					info = tracker_inc_info_ref (info);
-					sinfo->db_con = &db_con;
-					sinfo->info = info;
-					scan_directory (sinfo);
-					//g_idle_add ((GSourceFunc) scan_directory, sinfo);
+
+					scan_directory (info->uri, &db_con);
 					
 				}
 			
@@ -1143,13 +1110,7 @@ process_files_thread ()
 
 			case TRACKER_ACTION_DIRECTORY_REFRESH :
 
-				sinfo = g_new (ScheduleInfo, 1);
-				
-				info = tracker_inc_info_ref (info);
-				sinfo->db_con = &db_con;
-				sinfo->info = info;
-				scan_directory (sinfo);
-				//g_idle_add ((GSourceFunc) scan_directory, sinfo);
+				scan_directory (info->uri, &db_con);
 							
 				break;
 
@@ -1166,14 +1127,7 @@ process_files_thread ()
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
-					sinfo = g_new (ScheduleInfo, 1);
-					
-					info = tracker_inc_info_ref (info);
-					sinfo->db_con = &db_con;
-					sinfo->info = info;
-					scan_directory (sinfo);
-					//g_idle_add ((GSourceFunc) scan_directory, sinfo);		
-					
+					scan_directory (info->uri, &db_con);		
 				}
 				
 	
