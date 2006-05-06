@@ -86,43 +86,25 @@ static const char imonths[] = {
 	'6', '7', '8', '9', '0', '1', '2'
 };
 
-/* Do not internationalize */
-static const char *days[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-};
-
-
-static const char numbers[] = {
-	'1', '2', '3',  '4', '5',
-	'6', '7', '8', '9', '0'
-
-};
 
 static gboolean
 is_int (const char *in) {
 
-	int i, j, len, is_a_number;
+	int i, len;
 	
 	if (!in) {
-		return 0;
+		return FALSE;
 	}
 
 	len = strlen (in);
 
+	if (len < 1) {
+		return FALSE;
+	}
+
 	for (i = 0; i < len; i++) {
 
-		is_a_number = 0;
-
-		for (j = 0; j < 10; j++) {
-
-			if (in[i] == numbers[j]) {
-				is_a_number = 1;
-				break;
-			} 
-
-		}
-
-		if (is_a_number == 0) {	
+		if ( !g_ascii_isdigit (in[i]) ) {
 			return FALSE;
 		}
 	}
@@ -143,21 +125,28 @@ parse_month (const char *month)
 	return -1;
 }
 
+
+/* determine date format and convert to ISO 8601 format*/
+
 char *
-tracker_format_date (const char *time_string)
+tracker_format_date (const char *timestamp)
 {
 	char tmp_buf[30];
-	char *timestamp;
 	int len = 0;
 
-	g_return_val_if_fail (time_string, NULL);
+	if (!timestamp) {
+		return NULL;
+	}
 
-	/* determine date format and convert to ISO 8601 format*/
-
-	timestamp = g_strdup (time_string);
 	len = strlen (timestamp);
 
-	/* check for year only dates (EG ID3 music tags might have Auido.Year as 4 digit year) */
+	/* we cannot format a date without at least a four digit year */
+	if (len < 4) {
+		return NULL;
+	}
+
+	
+	/* check for year only dates (EG ID3 music tags might have Auido.ReleaseDate as 4 digit year) */
 
 	if (len == 4) {
 		if (is_int (timestamp)) {
@@ -183,12 +172,9 @@ tracker_format_date (const char *time_string)
 			tmp_buf[18] = '0';
 			tmp_buf[19] = '\0';
 			
-			g_free (timestamp);
-			timestamp = g_strdup (tmp_buf);
-
+			return g_strdup (tmp_buf);
 
 		} else {
-			g_free (timestamp);
 			return NULL;
 		}
 	
@@ -218,8 +204,7 @@ tracker_format_date (const char *time_string)
 			tmp_buf[18] = '0';
 			tmp_buf[19] = '\0';
 			
-			g_free (timestamp);
-			timestamp = g_strdup (tmp_buf);
+			return g_strdup (tmp_buf);
 
 			
 	
@@ -250,8 +235,7 @@ tracker_format_date (const char *time_string)
 			tmp_buf[18] = timestamp[13];
 			tmp_buf[19] = '\0';
 			
-			g_free (timestamp);
-			timestamp = g_strdup (tmp_buf);
+			return g_strdup (tmp_buf);
 
 			
 	} else if (len == 15 && timestamp[14] == 'Z') {
@@ -278,8 +262,7 @@ tracker_format_date (const char *time_string)
 			tmp_buf[19] = 'Z';
 			tmp_buf[20] = '\0';
 			
-			g_free (timestamp);
-			timestamp = g_strdup (tmp_buf);
+			return g_strdup (tmp_buf);
 
 
 	} else if (len == 21 && (timestamp[14] == '-' || timestamp[14] == '+' )) {
@@ -296,7 +279,7 @@ tracker_format_date (const char *time_string)
 			tmp_buf[9] = timestamp[7];
 			tmp_buf[10] = 'T';
 			tmp_buf[11] = timestamp[8];
-			tmp_buf[12] = timestamp[9];	char tmp_buf[30];
+			tmp_buf[12] = timestamp[9];	
 			tmp_buf[13] = ':';
 			tmp_buf[14] = timestamp[10];
 			tmp_buf[15] = timestamp[11];
@@ -311,12 +294,8 @@ tracker_format_date (const char *time_string)
 			tmp_buf[24] = timestamp[19];
 			tmp_buf[25] = '\0';
 			
-			g_free (timestamp);
-			timestamp = g_strdup (tmp_buf);
+			return g_strdup (tmp_buf);
 
-
-	
-	
 	
 
 	/* check for msoffice date format "Mon Feb  9 10:10:00 2004" */
@@ -361,8 +340,7 @@ tracker_format_date (const char *time_string)
 			tmp_buf[18] = timestamp[18];
 			tmp_buf[19] = '\0';
 
-			g_free (timestamp);
-			timestamp = g_strdup (tmp_buf);
+			return g_strdup (tmp_buf);
 
 		 
 	
@@ -391,11 +369,132 @@ tracker_format_date (const char *time_string)
 			tmp_buf[18] = timestamp[18];
 			tmp_buf[19] = '\0';
 			
-			g_free (timestamp);
-			timestamp = g_strdup (tmp_buf);
+			return g_strdup (tmp_buf);
 	}
 
-	return timestamp;
+	return g_strdup (timestamp);
+
+}
+
+
+static gboolean
+is_valid_8601_datetime (const char *timestamp)
+{
+
+	int len = strlen (timestamp);
+
+	
+	if (len < 19) {
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[0]) ) {
+		return FALSE;
+	}
+		
+	if ( !g_ascii_isdigit (timestamp[1]) ){
+		return FALSE;
+	}
+
+  
+	if ( !g_ascii_isdigit (timestamp[2]) ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[3]) ){
+		return FALSE;
+	}
+
+	if ( (timestamp[4] != '-') ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[5]) ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[6]) ){
+		return FALSE;
+	}
+
+	if ( (timestamp[7] != '-') ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[8]) ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[9]) ){
+		return FALSE;
+	}
+
+	if ( (timestamp[10] != 'T') ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[11]) ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[12]) ){
+		return FALSE;
+	}
+
+	if ( (timestamp[13] != ':') ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[14]) ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[15]) ){
+		return FALSE;
+	}
+
+	if ( (timestamp[16] != ':') ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[17]) ){
+		return FALSE;
+	}
+
+	if ( !g_ascii_isdigit (timestamp[18]) ){
+		return FALSE;
+	}
+
+	if (len == 20) {
+		if ( (timestamp[19] != 'Z') ){
+			return FALSE;
+		}
+	} else {
+
+		if (len > 20) {
+
+			/* format must be YYYY-MM-DDThh:mm:ss+xx  or YYYY-MM-DDThh:mm:ss+xx:yy */
+
+			if (len != 22 || len != 25) {
+				return FALSE;
+			}
+
+			if ( (timestamp[19] != '+') || (timestamp[19] != '-')  ){
+				return FALSE;
+			}
+
+			if ( !g_ascii_isdigit (timestamp[20]) ){
+				return FALSE;
+			}
+
+			if ( !g_ascii_isdigit (timestamp[21]) ){
+				return FALSE;
+			}
+		}
+	}
+
+	return TRUE;
+
 
 }
 
@@ -408,9 +507,17 @@ tracker_str_to_date (const char *timestamp)
 	time_t tt;
 	int has_time_zone = 0;
 	
-	g_return_val_if_fail (timestamp, -1);
+	if (!timestamp) {
+		return -1;
+	}
 
-	/* we should have a valid iso 8601 date format */
+	/* we should have a valid iso 8601 date in format YYYY-MM-DDThh:mm:ss with optional TZ*/
+	
+	if (!is_valid_8601_datetime (timestamp) ) {
+		return -1;
+	}
+
+
 
 	val = strtoul (timestamp, (char **)&timestamp, 10);
 
@@ -448,6 +555,7 @@ tracker_str_to_date (const char *timestamp)
 	}
 
 	tt = mktime (&tm);
+
 	if (*timestamp == '+' || *timestamp == '-') {
 
 		has_time_zone = 1;
@@ -479,7 +587,6 @@ tracker_str_to_date (const char *timestamp)
 
 	/* make datetime reflect user's timezone if no explicit timezone present */
 	if (has_time_zone == 0) {
-		tzset();
 		tt += timezone;
 	}
 
@@ -823,20 +930,24 @@ tracker_get_file_info (FileInfo *info)
 static gboolean
 is_text_file  (const char* uri)
 {
-	char buffer[32];
+	char buffer[65566];
 	FILE* file = NULL;
-	int bytes_read;
+	gboolean data_read = FALSE;
 
-	file = g_fopen (uri, "r");
+	file = fopen (uri, "r");
 	
 	if (file != NULL) {
-	
-		bytes_read = fread (buffer, 1, 32, file);
-		fclose (file);
-		if (bytes_read < 0) {
-			return FALSE;
+
+		if (fgets (buffer, 65565, file)) {
+			data_read = TRUE;
 		}
-		return g_utf8_validate ( (gchar *)buffer, 32, NULL);
+
+		fclose (file);
+		
+		
+		if (data_read) {
+			return g_utf8_validate ( (gchar *)buffer, -1, NULL);
+		}
 		
 	}
 
@@ -874,36 +985,36 @@ tracker_get_mime_type (const char* uri)
 }
 
 
+
 char *
 tracker_get_vfs_path (const char* uri)
 {
 
 	if (uri != NULL && strchr (uri, '/') != NULL) {
 		char *p;
-		guint len;
+		int len;
 
 		len = strlen (uri);
-		p = GINT_TO_POINTER (uri +  (len - 1));
+		p =  (char *) (uri +  (len - 1));
 
-		/* Skip trailing slashes  */
-		while (p != uri && *p == '/')
+		/* Skip trailing slash  */
+		if (p != uri && *p == '/')
+		{
 			p--;
+		}
 
 		/* Search backwards to the next slash.  */
-		while (p != uri && *p != '/')
+		while (p != uri && *p != '/') {
 			p--;
+		}
+		
 
-		/* Get the parent without slashes  */
-		while (p > uri + 1 && p[-1] == '/')
-			p--;
-
-		if (p[1] != '\0') {
+		if (p[0] != '\0') {
 
 			char *new_uri_text;
 			int length;
-
-			/* build a new parent text */
-			length = p - uri;			
+			
+			length =  p - uri;			
 			if (length == 0) {
 				new_uri_text = g_strdup ("/");
 			} else {
@@ -913,10 +1024,12 @@ tracker_get_vfs_path (const char* uri)
 			}
 			
 			return new_uri_text;
+		} else {
+			return g_strdup ("/");
 		}
 	}
 
-	return "/";
+	return NULL;
 
 
 }
@@ -926,25 +1039,37 @@ tracker_get_vfs_name (const char* uri)
 {
 
 	if (uri != NULL && strchr (uri, '/') != NULL) {
-		gchar *p, *res;
-		guint len;
+		char *p, *res;
+		int len;
 
 		len = strlen (uri);
-		p = GINT_TO_POINTER (uri + (len - 1));
 
-		/* Skip trailing slashes  */
-		while (p != uri && *p == '/')
-			p--;
+		char *tmp = g_strdup (uri);
+
+		p =  (tmp + (len - 1));			
+
+		/* Skip trailing slash  */
+		if (p != tmp && *p == '/') {
+			*p = '\0';
+			
+		}
 
 		/* Search backwards to the next slash.  */
-		while (p != uri && *p != '/')
+		while (p != tmp && *p != '/') {
 			p--;
+		}
 
 		res = p+1;
 
 		if (res && res[0] != '\0') {
+
+			g_free (tmp);
+
 			return g_strdup (res);
+
 		}
+
+		g_free (tmp);
 				
 	}
 
@@ -952,6 +1077,7 @@ tracker_get_vfs_name (const char* uri)
 
 
 }
+
 
 gboolean 
 tracker_is_directory (const char *dir) 

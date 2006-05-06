@@ -360,30 +360,47 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 
 					if (*values_p) {
 						
-						meta_name = g_strdup (g_strstrip(*values_p));
+						char *meta_data = g_strdup (g_strstrip (*values_p));
 						
-						sep = strchr (meta_name, '=');
+						sep = strchr (meta_data, '=');
       						
 						if (sep) {
-							*sep = '\0';
+							meta_name = g_strndup (meta_data, (int) (sep - meta_data));
 							meta_value = g_strdup (sep + 1);
-								
-							if (meta_value) {
-
-								char *st = NULL;
+											
+							if (meta_name) {
+								if (meta_value) {
+									char *st = NULL;
 					
-								st = g_hash_table_lookup (table, meta_name);
+									st = g_hash_table_lookup (table, meta_name);
 						
-								if (st == NULL) {
-									tracker_log ("%s = %s", meta_name, meta_value);
-									g_hash_table_insert (table, g_strdup (meta_name), g_strdup (meta_value));
+									if (st == NULL) {
+	
+										char *utf_value;
+	
+										if (!g_utf8_validate (meta_value, -1, NULL)) {
+	
+											utf_value = g_locale_to_utf8 (meta_value, -1, NULL, NULL, NULL);
+								      		} else {
+											utf_value = g_strdup (meta_value);
+										}
+
+										tracker_log ("%s = %s", meta_name, utf_value);
+
+										g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
+
+										g_free (utf_value);
+									}
+									g_free (meta_value);						
 								}
-						
-								g_free (meta_value);
+								g_free (meta_name);
+
 							}
 						
 						}
-						g_free (meta_name);
+
+						g_free (meta_data);
+
 					}
 				}
 
@@ -399,6 +416,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 		g_free (argv[0]);
 		g_free (argv[1]);
 		g_free (argv[2]);
+		
 		}
 		
 	}

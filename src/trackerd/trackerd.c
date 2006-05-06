@@ -34,6 +34,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <fcntl.h>
+#include <time.h>
 #include <glib/gstdio.h>
 
 #ifdef HAVE_INOTIFY
@@ -313,8 +314,6 @@ poll_files_thread ()
 	mysql_thread_init ();
 
 	db_con.db = tracker_db_connect ();
-
-	tracker_db_prepare_queries (&db_con);
 
 	while (is_running) {
 
@@ -706,14 +705,22 @@ start_watching (gpointer data)
 		do_cleanup ();
 		exit (1);
 	} else { 
-//		mylist = tracker_get_watch_root_dirs ();
+
 		char *watch_folder;
 
 		if (data) {
 			watch_folder =  (char *)data;
+
+			int len = strlen (watch_folder);
+			
+			if (watch_folder[len-1] == '/') {
+ 				watch_folder[len-1] = '\0';
+			}
+
 			watch_dir (watch_folder, main_thread_db_con);
 			schedule_file_check (watch_folder,  main_thread_db_con);
 			g_free (watch_folder);
+
 		} else {
 			g_slist_foreach (watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
  			g_slist_foreach (watch_directory_roots_list, (GFunc) schedule_file_check,  main_thread_db_con);
@@ -968,7 +975,6 @@ process_files_thread ()
 
 	db_con.db = tracker_db_connect ();
 	
-	tracker_db_prepare_queries (&db_con);
 
 	while (is_running) {
 
@@ -1335,6 +1341,8 @@ main (int argc, char **argv)
 	DBConnection 	db_con;
 	
 
+	/* set timezone info */
+	tzset();
 
 	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken\n\n", TRACKER_VERSION);
 	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
@@ -1523,8 +1531,6 @@ main (int argc, char **argv)
 	/* clear pending files and watch tables*/
 	tracker_exec_sql (db_con.db, "TRUNCATE TABLE FilePending");
 	tracker_exec_sql (db_con.db, "TRUNCATE TABLE FileWatches");
-
-	tracker_db_prepare_queries (&db_con);
 
 	main_thread_db_con = &db_con;
 

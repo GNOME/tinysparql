@@ -936,7 +936,7 @@ get_meta_table_data (gpointer key,
 		     gpointer user_data)
 {
 	DatabaseAction *db_action;	
-	char *mtype, *mvalue, *avalue, *dvalue, *evalue;
+	char *mtype, *mvalue, *avalue, *dvalue = NULL, *evalue;
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW  row;	
 
@@ -945,17 +945,31 @@ get_meta_table_data (gpointer key,
 
 	db_action = user_data;
 
-	if (mtype == NULL || mvalue == NULL) {
+	if (mtype == NULL || avalue == NULL) {
 		return;
 	}
 
 	if (tracker_metadata_is_date (db_action->db_con, mtype)) {
+
 		dvalue = tracker_format_date (avalue);		
-		evalue = tracker_long_to_str (tracker_str_to_date (dvalue));
-		//tracker_log ("saving %s with value %s for date %s", mtype, evalue, dvalue);
+		
 		if (dvalue) {
+
+			time_t l = tracker_str_to_date (dvalue);
+
 			g_free (dvalue);
+
+			if (l == -1) {
+				return;
+			} else {
+				evalue = tracker_long_to_str (l);
+			}
+
+		} else {
+			return;
 		}
+
+		
 	} else {
 		evalue = g_strdup (avalue);
 	}
