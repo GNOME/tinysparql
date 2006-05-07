@@ -12,7 +12,6 @@ INCLUDES =				\
 
 if HAVE_INOTIFY
 inotify_sources = \
-	linux-inotify-syscalls.h \
 	tracker-inotify.c	\
 	tracker-inotify.h	
 else
@@ -28,9 +27,9 @@ endif
 bin_PROGRAMS = trackerd
 
 trackerd_SOURCES =		\
+	trackerd.c		\
 	$(inotify_sources)	\
 	$(fam_sources)		\
-	trackerd.c		\
 	tracker-db.c		\
 	tracker-db.h		\
 	tracker-dbus.c		\

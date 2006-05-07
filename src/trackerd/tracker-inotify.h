@@ -17,6 +17,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include "config.h"
+
+#ifdef HAVE_INOTIFY_LINUX
+#include <linux/inotify.h>
+#include "linux-inotify-syscalls.h"
+#else
+#include <sys/inotify.h>
+#endif
+
 #include "tracker-db.h"
 #define MAX_FILE_WATCHES 8190
 

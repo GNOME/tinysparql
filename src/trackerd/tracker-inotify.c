@@ -26,9 +26,10 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <linux/inotify.h>
 
-#include "linux-inotify-syscalls.h"
+
+
+
 #include "tracker-inotify.h"
 
 

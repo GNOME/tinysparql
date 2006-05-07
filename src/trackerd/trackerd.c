@@ -37,6 +37,7 @@
 #include <time.h>
 #include <glib/gstdio.h>
 
+
 #ifdef HAVE_INOTIFY
 #include "tracker-inotify.h"
 #else

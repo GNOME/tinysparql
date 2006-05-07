@@ -1,3 +1,11 @@
+2006-05-07  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Fixed crasher in date parser
+	* Improved UTF-8 conversion of metadata
+	* Improved Inotify header checks (now looks for sys/inotify.h as well as linux/inotify.h)
+	* Fixed build issues on FC5
+
+
 2006-05-05  Jamie McCracken <jamiemcc@gnome.org>
 
 	* Hugely optimised indexing when many files are waiting to be indexed
