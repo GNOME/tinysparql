@@ -7,7 +7,14 @@ CREATE FUNCTION GetServiceTypeID (pService varchar (32))
 RETURNS int
 BEGIN
 	Declare result int;
-	select TypeID into result From ServiceTypes where TypeName = pService;
+
+	IF (pService = 'FileOther') THEN
+		Set result = 0;
+	ELSEIF (pService = 'VFSOther') THEN
+		Set result = 5;
+	ELSE
+		select TypeID into result From ServiceTypes where TypeName = pService;
+	END IF;
 
 	return result;
 END|
@@ -25,6 +32,10 @@ BEGIN
 		Set result = 4;
 	ELSEIF (pService = 'VFSFiles') THEN
 		Set result = 9;
+	ELSEIF (pService = 'FileOther') THEN
+		Set result = 0;
+	ELSEIF (pService = 'VFSOther') THEN
+		Set result = 5;
 	ELSE
 		Set result = GetServiceTypeID (pService);		
 	END IF;

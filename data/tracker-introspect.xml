@@ -6,16 +6,18 @@
 
 		A list of service types can be obtained by calling method GetServices and will *potentially* include the following :
 
-		Files
-		Documents
-		Images
-		Music
-		Videos
+		Files   
+		Documents*
+		Images*
+		Music*
+		Videos*
+		FilesOther*
 		VFSFiles
-		VFSDocuments
-		VFSImages
-		VFSMusic
-		VFSVideos
+		VFSDocuments**
+		VFSImages**
+		VFSMusic**
+		VFSVideos**
+		VFSOther**
 		Playlists
 		Notes
 		Applications
@@ -29,6 +31,9 @@
 		Projects
 			
 		
+		(*) - these services are a subset of "Files" service.
+		(**) - these services are a subset of "VFSFiles" service.
+
 		Services may also have a corresponding metadata class associated with them (EG Files has "File" class, Documents "Doc" etc see 
 		the spec at http://freedesktop.org/wiki/Standards/shared-filemetadata-spec for more details on metadata classes)
 
@@ -36,9 +41,8 @@
 
 		In other cases, "id" can also be a unique name or URI for the specified service.
 
-		The "id" field uniquely identifies the entity only in a particular service
+		The "id" field uniquely identifies an entity in Tracker regardless of its service type
 
-		The combination "service" and "id" uniquely identifies a specific entity in Tracker
 		 -->
 
 
