@@ -1,3 +1,9 @@
+2006-05-14  Jamie McCracken <jamiemcc@gnome.org>
+
+	* Improved metadata support for Exif fields
+	* Created new stats for indexed files
+	* Created new file orientated services
+
 2006-05-07  Jamie McCracken <jamiemcc@gnome.org>
 
 	* Fixed crasher in date parser

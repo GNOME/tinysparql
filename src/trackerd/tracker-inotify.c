@@ -300,7 +300,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			}
 			
 			/* matching pair not found so treat as a create action */
-			tracker_log ("no matching pair found");
+			tracker_log ("no matching pair found for inotify move event");
 			if (tracker_is_directory (info->uri)) {
 				info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 			} else {
@@ -343,11 +343,18 @@ process_moved_events ()
 		
 		/* make it a DELETE if we have not received a corresponding MOVED_TO event after a certain period */
 		if ((info->counter < 1) && ((info->action == TRACKER_ACTION_FILE_MOVED_FROM)|| (info->action == TRACKER_ACTION_DIRECTORY_MOVED_FROM))) {
-			if (info->action == TRACKER_ACTION_DIRECTORY_MOVED_FROM) {
-				process_event (info->uri, TRUE, TRACKER_ACTION_DIRECTORY_DELETED, 0);
-			} else {
-				process_event (info->uri, FALSE, TRACKER_ACTION_FILE_DELETED, 0);
+
+			/* make sure file no longer exists before issuing a "delete" */
+			
+			if (!tracker_file_is_valid (info->uri)) {
+
+				if (info->action == TRACKER_ACTION_DIRECTORY_MOVED_FROM) {
+					process_event (info->uri, TRUE, TRACKER_ACTION_DIRECTORY_DELETED, 0);
+				} else {
+					process_event (info->uri, FALSE, TRACKER_ACTION_FILE_DELETED, 0);
+				}
 			}
+
 			tmp = tmp->next;
 			move_list = g_slist_remove (move_list, info);
 			info = tracker_free_file_info (info);

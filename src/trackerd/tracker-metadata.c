@@ -31,6 +31,7 @@ typedef enum {
 	IMAGE_METADATA,
 	VIDEO_METADATA,
 	AUDIO_METADATA,
+	DEVEL_METADATA,
 	TEXT_METADATA
 } MetadataFileType;
 
@@ -38,6 +39,7 @@ typedef enum {
 /* document mime type specific metadata groups - NB mime types below may be prefixes */
 char *doc_mime_types[] = {
 			  "application/rtf",
+			  "text/richtext"
 			  "application/msword",
 			  "application/pdf", 
 			  "application/postscript",
@@ -79,8 +81,51 @@ char *doc_mime_types[] = {
 
 }; 
 
-char *text_mime_types[] = {"text/plain","text/x-h", "text/x-c","text/x-script" , "text/css" , "text/x-java-source" ,
-			   "text/x-pascal", "text/pascal"};
+char *text_mime_types[] = {
+		"text/plain",
+		"text/x-authors",
+		"text/x-copying",
+		"text/x-credits",
+		"text/x-install",
+		"text/x-readme"
+};
+		
+
+
+char *development_mime_types[] = {
+				"application/x-perl",
+				"application/x-shellscript",
+				"application/x-php",
+				"application/x-java",
+				"application/x-javascript",
+				"application/x-glade",
+				"application/x-csh",
+				"application/x-class-file",
+				"application/x-awk",
+				"text/x-adasrc", 
+				"text/x-c++hdr",
+				"text/x-chdr",
+				"text/x-csharp", 
+				"text/x-c++src",
+				"text/x-csrc",
+				"text/x-dcl",
+				"text/x-dsrc",
+				"text/x-emacs-lisp",
+				"text/x-fortran",
+				"text/x-haskell",
+				"text/x-literate-haskell",
+				"text/x-java",
+				"text/x-java-source" ,
+				"text/x-makefile",
+				"text/x-objcsrc",
+				"text/x-pascal",
+				"text/x-patch",
+				"text/x-python",
+				"text/x-scheme",
+				"text/x-sql",
+				"text/x-tcl"
+};
+
 
 static MetadataFileType
 tracker_get_metadata_type (const char *mime)
@@ -88,6 +133,11 @@ tracker_get_metadata_type (const char *mime)
 	int i;
 	int num_elements;
 	
+
+	if (strcmp (mime, "text/plain") == 0) {
+		return TEXT_METADATA;	
+	}
+
 	if (g_str_has_prefix (mime, "image") || (strcmp (mime, "application/vnd.oasis.opendocument.image") == 0) || (strcmp (mime, "application/x-krita") == 0)) {
 		return IMAGE_METADATA;		
 
@@ -106,13 +156,23 @@ tracker_get_metadata_type (const char *mime)
 			}
 		}
 	}
-		
-	num_elements = sizeof (text_mime_types) / sizeof (char *);
+
+	
+	num_elements = sizeof (development_mime_types) / sizeof (char *);
 	for (i =0; i < num_elements; i++ ) {
-		if (g_str_has_prefix (mime, text_mime_types [i] )) {
-			return TEXT_METADATA;	
+		if (strcmp (mime, development_mime_types[i]) == 0 ) {
+			return DEVEL_METADATA;
 		}
 	}
+
+	
+	num_elements = sizeof (text_mime_types) / sizeof (char *);
+	for (i =0; i < num_elements; i++ ) {
+		if (strcmp (mime, text_mime_types[i]) == 0 ) {
+			return TEXT_METADATA;
+		}
+	}
+
 	return NO_METADATA;
 }
 
@@ -129,13 +189,16 @@ tracker_get_service_type_for_mime (const char *mime)
 				if (g_str_has_prefix (mime, "video")) {
 					return g_strdup ("Videos");
 				} else {
-					return NULL;
+					return g_strdup ("Other Files");
 				}
 				break;
 
 			case NO_METADATA:
+				return g_strdup ("Other Files");
+				break;
+
 			case TEXT_METADATA:
-				return NULL;
+				return g_strdup ("Text Files");
 				break;
 
 			case DOC_METADATA:
@@ -154,9 +217,15 @@ tracker_get_service_type_for_mime (const char *mime)
 				return g_strdup ("Music");
 				break;
 
+			case DEVEL_METADATA:
+				return g_strdup ("Development Files");
+				break;
+
+
+
 	}
 
-	return NULL;
+	return g_strdup ("Other Files");
 
 }
 
@@ -167,8 +236,13 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 {
 	char *tmp, *text_filter_file;
 
+	MetadataFileType ftype;
+
+	ftype = tracker_get_metadata_type (mime);
+
 	/* no need to filter text based files - index em directly */
-	if (tracker_get_metadata_type (mime) == TEXT_METADATA) {
+
+	if (ftype == TEXT_METADATA || ftype  == DEVEL_METADATA) {
 
 		return g_strdup (uri);
 	

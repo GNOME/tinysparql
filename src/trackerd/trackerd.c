@@ -218,7 +218,7 @@ poll_dir (const char *uri, DBConnection *db_con)
 			FileInfo 	*info;
 				
 			str = *files_p;
-			tracker_log ("checking %s", str);
+			tracker_log ("polling %s", str);
 
 	     		if (!tracker_file_is_valid  (str)) {
 				info = tracker_create_file_info (str, 1, 0, 0);
@@ -593,15 +593,22 @@ index_file (DBConnection *db_con, FileInfo *info)
 	/* work out whether to insert or update file (file_id of -1 means no existing record so insert) */
 	if (info->file_id == -1) {
 
-		char *service_name = tracker_get_service_type_for_mime (info->mime);
-
-		if (!service_name) {
-			service_name = g_strdup ("Files");
+		
+		char *service_name;
+	
+		if (info->is_directory) {
+			service_name = g_strdup ("Folders");
+		} else {
+		 	service_name = tracker_get_service_type_for_mime (info->mime);
 		}
 
 		tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, service_name, str_dir, str_link, "0", "0", str_mtime);
 
+		//tracker_log ("processed file %s with mime %s and service %s", info->uri, info->mime, service_name); 
+
 		g_free (service_name);
+
+ 
 
 		info->file_id = tracker_db_get_file_id (db_con, info->uri);
 
@@ -616,8 +623,11 @@ index_file (DBConnection *db_con, FileInfo *info)
 		tracker_exec_proc  (db_con->db, "DeleteEmbeddedServiceMetadata", 1, str_file_id);
 
 	}	
-			
-	tracker_db_save_metadata (db_con, meta_table, info->file_id);	
+		
+
+	if (info->file_id != -1) {	
+		tracker_db_save_metadata (db_con, meta_table, info->file_id);	
+	}
 
 
 	g_hash_table_destroy (meta_table);
@@ -633,6 +643,10 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 	if (!info->is_directory && info->file_id != -1) {
 		tracker_db_insert_pending_file 	(db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory);
+	}
+
+	if (info->file_id == -1) {
+		tracker_log ("FILE %s NOT FOUND IN DB!", info->uri);
 	}
 	
 }
@@ -774,7 +788,7 @@ extract_metadata_thread ()
 
 					if (pending_file_count  > 0) {
 						g_mutex_trylock (metadata_available_mutex);
-						tracker_log ("%d files still pending metadata extraction...",  pending_file_count);
+						//tracker_log ("%d files still pending metadata extraction...",  pending_file_count);
 					}
 				}	
 				mysql_free_result (res);
@@ -839,7 +853,7 @@ extract_metadata_thread ()
 				file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);
 				
 				if (file_as_text) {
-					tracker_log ("text file is %s", file_as_text);
+					//tracker_log ("text file is %s", file_as_text);
 					
 					/* to do - we need a setting for an upper limit to how much text we read in */
 					tracker_db_save_file_contents (&db_con, file_as_text, info->file_id);
@@ -973,8 +987,14 @@ process_files_thread ()
 			if (res) {
 				while ((row = mysql_fetch_row (res))) {
 					FileInfo *info_tmp;
-					tracker_log ("processing %s with event %s", row[1], tracker_actions[atoi(row[2])]);
-					info_tmp = tracker_create_file_info (row[1], atoi(row[2]), 0, WATCH_OTHER);
+
+					TrackerChangeAction tmp_action = atoi(row[2]);
+
+					if (tmp_action != TRACKER_ACTION_CHECK) {
+						tracker_log ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
+					}
+
+					info_tmp = tracker_create_file_info (row[1], tmp_action, 0, WATCH_OTHER);
 					g_async_queue_push (file_process_queue, info_tmp);
 					has_pending = TRUE;
 				}	
@@ -1299,10 +1319,10 @@ main (int argc, char **argv)
 	/* set timezone info */
 	tzset();
 
-	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken\n\n", TRACKER_VERSION);
+	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken (jamiemcc@gnome.org)\n\n", TRACKER_VERSION);
 	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
 
-	g_print ("Services supported by this version of tracker: %s, %s, %s, %s\n\n", implemented_services[0],  implemented_services[1],  implemented_services[2],  implemented_services[3]);
+	//g_print ("Services supported by this version of tracker: %s, %s, %s, %s\n\n", implemented_services[0],  implemented_services[1],  implemented_services[2],  implemented_services[3]);
 
 	g_print ("Initialising tracker...\n");
 
@@ -1486,6 +1506,31 @@ main (int argc, char **argv)
 	/* clear pending files and watch tables*/
 	tracker_exec_sql (db_con.db, "TRUNCATE TABLE FilePending");
 	tracker_exec_sql (db_con.db, "TRUNCATE TABLE FileWatches");
+
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
+
+	res = tracker_exec_proc  (db_con.db, "GetStats", 0);	
+
+	if (res) {
+		tracker_log ("-----------------------");
+		tracker_log ("Fetching index stats...");
+	
+		while ((row = mysql_fetch_row (res))) {
+				
+			if (row[1] && row[2]) {
+				tracker_log ("%s : %s", row[1], row[2]);
+			}
+		}
+
+		mysql_free_result (res);
+
+		tracker_log ("-----------------------\n");
+			
+	} 
+
+
+	
 
 	main_thread_db_con = &db_con;
 

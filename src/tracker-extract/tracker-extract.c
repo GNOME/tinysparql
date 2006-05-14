@@ -36,7 +36,7 @@ typedef enum {
 
 struct metadata_format
 {
-  char metadata_name[20];
+  char metadata_name[25];
   EXTRACTOR_KeywordType key;
 }; 
 
@@ -96,6 +96,16 @@ static struct metadata_format image_keywords[] =
 	{"Image.Software", EXTRACTOR_SOFTWARE},
 	{"Image.CameraMake", EXTRACTOR_CAMERA_MAKE},
 	{"Image.CameraModel", EXTRACTOR_CAMERA_MODEL},
+	{"Image.Orientation", EXTRACTOR_ORIENTATION},
+	{"Image.RAW_ExposureTime", EXTRACTOR_EXPOSURE},
+	{"Image.FNumber", EXTRACTOR_APERTURE},
+	{"Image.RAW_Flash", EXTRACTOR_FLASH},
+	{"Image.RAW_FocalLength", EXTRACTOR_FOCAL_LENGTH},
+	{"Image.ISOSpeed", EXTRACTOR_ISO_SPEED},
+	{"Image.ExposureProgram", EXTRACTOR_EXPOSURE_MODE},
+	{"Image.MeteringMode", EXTRACTOR_METERING_MODE},
+	{"Image.WhiteBalance", EXTRACTOR_WHITE_BALANCE},
+	{"Image.Copyright", EXTRACTOR_COPYRIGHT},
 	{"EOF", EXTRACTOR_UNKNOWN}
 };
 
@@ -218,6 +228,75 @@ process_metadata (GHashTable *meta_table)
 		g_free (image_size);
 		g_hash_table_remove (meta_table, key);
 	}
+
+
+	/* remove chars from image numeric fields */
+	if (g_hash_table_lookup_extended  (meta_table, "Image.RAW_FocalLength", (gpointer)&key, (gpointer)&str)) {
+
+		if (str) {
+
+			sep = strstr (str, "mm");
+
+			char* s = g_strndup (str, (sep - str));
+		
+			g_hash_table_insert (meta_table, g_strdup ("Image.FocalLength"), s);
+
+		}
+		g_hash_table_remove (meta_table, key);
+
+	}
+
+	if (g_hash_table_lookup_extended  (meta_table, "Image.FNumber", (gpointer)&key, (gpointer)&str)) {
+
+		if (str && str[0] == 'F') {
+			str[0] = ' ';
+		}
+
+		
+
+	}
+
+
+	if (g_hash_table_lookup_extended  (meta_table, "Image.RAW_Flash", (gpointer)&key, (gpointer)&str)) {
+
+		if (str) {
+
+			if (g_str_has_prefix (str, "No")) {
+				g_hash_table_insert (meta_table, g_strdup ("Image.Flash"), g_strdup ("0"));
+			} else {
+				g_hash_table_insert (meta_table, g_strdup ("Image.Flash"), g_strdup ("1"));
+			}
+		}
+		g_hash_table_remove (meta_table, key);
+		
+	}
+
+
+	if (g_hash_table_lookup_extended  (meta_table, "Image.RAW_ExposureTime", (gpointer)&key, (gpointer)&str)) {
+
+			
+		sep = strchr (str, '/');
+
+		if (sep) {
+			
+			gdouble fraction = g_ascii_strtod (sep+1, NULL);
+			
+			if (fraction > 0) {	
+				gdouble val = 1.0f/fraction;
+				char str_value[30];
+	
+				g_ascii_dtostr (str_value, 30, val); 
+		
+				g_hash_table_insert (meta_table, g_strdup ("Image.ExposureTime"), g_strdup (str_value));
+				
+
+			}
+		}
+
+		g_hash_table_remove (meta_table, key);
+		
+	}
+
 
 	/* split up Audio.Format into bitrate, samplerate, length and channels: 128 kbps, 44100 hz, 5m15 stereo */
 	if (g_hash_table_lookup_extended  (meta_table, "Audio.Format", (gpointer)&key, (gpointer)&str)) {

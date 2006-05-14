@@ -1067,7 +1067,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 	FieldDef 	*def;
 
 	file = fopen (file_name,"r");
-	tracker_log ("saving text to db with file_id %ld", file_id);
+	//tracker_log ("saving text to db with file_id %ld", file_id);
 
 	if (!file) {
 		tracker_log ("Could not open file %s", file_name);
@@ -1171,7 +1171,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 			tracker_log ("insert metadata indexed query failed :%s", mysql_stmt_error (db_con->insert_contents_stmt));
 		} else {
 	
-			tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
+			//tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
 		}
 	}
 	unlock_db ();
@@ -1337,9 +1337,11 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 			info->mime = g_strdup (row[3]);
 			info->is_directory =  (strcmp (row[4], "0") == 0);
 		}	
+
+		mysql_free_result (res);
 	}
 		
-	mysql_free_result (res);
+
 
 	return info;
 

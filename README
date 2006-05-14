@@ -1,6 +1,6 @@
 INTRODUCTION
 
-Tracker is a powerful desktop-neutral first class object database framework and indexer. 
+Tracker is a powerful desktop-neutral first class object database, tag/metadata database, search tool and indexer. 
 
 Tracker is also extremely fast and super efficient with your systems memory when compared with some other competing frameworks and is by far the fastest and most memory efficient Nautilus search and Deskbar backends currently availble.
 
@@ -15,13 +15,16 @@ First class object support includes : Files, Documents, Music, Images, Videos, P
 (* these services are not currently indexed at the moment but will be in later versions)
 
 
+All discussion related to tracker happens on the tracker mailing list (http://mail.gnome.org/mailman/listinfo/tracker-list)
+
+
 USE CASES
 
 Tracker is the most powerful open source metadata database and indexer framework currently available and because it is built around a combination indexer and sql database and not a dedicated indexer it has much more powerful use cases:
 
 * Provide search and indexing facilities similiar to those on other systems
 
-* Common database storage for all first class objects (EG a common music/photo/contacts/email database) complete with additional metadata and tags/keywords
+* Common database storage for all first class objects (EG a common music/photo/contacts/email/bookmarks/history database) complete with additional metadata and tags/keywords
 
 * Comprehensive one stop solution for all applications needing an object database, powerful search (via RDF Query), first class methods, related metadata and user definable metadata/tags
 
@@ -34,6 +37,18 @@ Tracker is the most powerful open source metadata database and indexer framework
 
 
 NEW CHANGES
+
+* Hugely optimised indexing when many files are waiting to be indexed (especailly when you first run trackerd)
+
+* Mass queueing of files no longer blocks the main thread meaning super fast searches can still be performed during heavy indexing
+
+* Eliminated cpu bottlenecks and improved thread synchronisations so Tracker now hits the ground running when indexing (approx 500+ files indexed per minute on inotify enabled systems)
+
+* Extended metadata support for more Exif fields
+
+* Added more service types
+
+* Imporved build and support for FC5 (includes RPMs)
 
 * Redesigned Database around version 5 of the *embedded* in-process mysql database library
 
@@ -96,11 +111,13 @@ INSTALLATION (from source):
 
 The following build dependency is needed:
 
-libmysqld.a version 5.0.19 or higher is required -  this is the embedded mysql server library. This library is always statically linked so it is not a runtime dependency. It can be found in Debian/Ubuntu package libmysqlclient15-dev. Other distros should check their mysql client libs to see if it is present.
+lThe embedded mysql library ibmysqld.a version 5.0.19 or higher is required complete with corresponding header files and the mysql_config program. The libmysqld.a library is always statically linked so it is not a runtime dependency. It can be found in Debian/Ubuntu package libmysqlclient15-dev. Other distros should check their mysql client libs to see if it is present.
 
 If not present you can compile libmysqld.a by downloading source tarball for an appropriate version (5.0.19+) from the bottom of page http://dev.mysql.com/downloads/mysql/5.0.html
 
 The following configure flags are reccommended if building mysqld.a from source: --without-server --with-embedded-server --enable-assembler --with-mysqld-ldflags --with-client-ldflags 
+
+Generic RPMs and tarballs are also provided for the embedded mysql library and another for the development headers at  http://www.gnome.org/~jamiemcc/tracker/
 
 
 Run time dependencies (also needed for build) :
@@ -128,13 +145,15 @@ COMPILATION
 
 To compile Tracker uses the following commands :
 
-./configure --prefix=/usr
+./configure --prefix=/usr --enable-static --with-pic CFLAGS=-I/usr/include/exiv2
 make
 sudo make install
 
 If you install using any other prefix then you might have problems with files not being installed correctly.
 
-(You may need to copy and amend the dbus service file to the correct directory and/or might need to update ldconf if you install into non standard directories.)
+(You may need to copy and amend the dbus service file to the correct directory and/or might need to update ld_conf if you install into non standard directories.)
+
+
 
 
 Compile Options

@@ -6,15 +6,10 @@ DROP FUNCTION if exists GetServiceTypeID;|
 CREATE FUNCTION GetServiceTypeID (pService varchar (32))
 RETURNS int
 BEGIN
-	Declare result int;
+	Declare result int default 0;
 
-	IF (pService = 'FileOther') THEN
-		Set result = 0;
-	ELSEIF (pService = 'VFSOther') THEN
-		Set result = 5;
-	ELSE
-		select TypeID into result From ServiceTypes where TypeName = pService;
-	END IF;
+	select TypeID into result From ServiceTypes where TypeName = pService;
+
 
 	return result;
 END|
@@ -26,16 +21,12 @@ DROP FUNCTION if exists GetMaxServiceTypeID;|
 CREATE FUNCTION GetMaxServiceTypeID (pService varchar (32))
 RETURNS int
 BEGIN
-	Declare result int;
+	Declare result int default 0;
 
 	IF (pService = 'Files') THEN
-		Set result = 4;
-	ELSEIF (pService = 'VFSFiles') THEN
-		Set result = 9;
-	ELSEIF (pService = 'FileOther') THEN
-		Set result = 0;
-	ELSEIF (pService = 'VFSOther') THEN
-		Set result = 5;
+		Set result = GetServiceTypeID ('Other Files');
+	ELSEIF (pService = 'VFS Files') THEN
+		Set result =  GetServiceTypeID ('VFS Other Files');
 	ELSE
 		Set result = GetServiceTypeID (pService);		
 	END IF;
@@ -62,14 +53,15 @@ BEGIN
 	Declare pID int unsigned;
 	Declare pServiceTypeID int;
 
-	SELECT TypeID INTO pServiceTypeID From ServiceTypes where TypeName = pServiceType;
+	Set pServiceTypeID = GetServiceTypeID (pServiceType);
+
+	
 
 	UPDATE sequence SET id=LAST_INSERT_ID(id+1);
 	SELECT LAST_INSERT_ID() into pID;
 
-	IF (pServiceType != 'Emails') THEN
-		INSERT INTO Services (ID, Path, Name, ServiceTypeID, IsDirectory, IsLink,  IsServiceSource, Offset, IndexTime) VALUES (pID, pPath,pName,pServiceTypeID,pIsDirectory,pIsLink, pIsServiceSource, pOffset, pIndexTime); 
-	END IF;
+	INSERT INTO Services (ID, Path, Name, ServiceTypeID, IsDirectory, IsLink,  IsServiceSource, Offset, IndexTime) VALUES (pID, pPath,pName,pServiceTypeID,pIsDirectory,pIsLink, pIsServiceSource, pOffset, pIndexTime); 
+
 END|
 
 
@@ -624,6 +616,16 @@ BEGIN
 END|
 
 
+
+-- stats
+DROP PROCEDURE if exists GetStats;|
+
+CREATE PROCEDURE GetStats ()
+BEGIN
+	select 0, 'Total files indexed', count(*) from Services where ServiceTypeID between 0 and 8 
+	union
+	select  T.TypeID, T.TypeName, count(*) from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeID, T.TypeName; 
+END|
 
 
 
