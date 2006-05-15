@@ -1,6 +1,10 @@
+14 May
+	Improved support for Fedora Core 5
+	Improved EXIF metadata
+	Added new File based services
 
 1 May
-	Made database more gweeric
+	Made database more generic
 	Upgraded to mysql 5
 	Converted DB logic to stored procedures	
 
