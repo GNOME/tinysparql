@@ -1,0 +1,1 @@
+shlibs:Depends=libc6 (>= 2.3.4-1), libdbus-1-2 (>= 0.60), libdbus-glib-1-2 (>= 0.60), libextractor1c2a (>= 0.5.7-1), libglib2.0-0 (>= 2.9.3), libstdc++6 (>= 4.0.2-4), libwrap0, zlib1g (>= 1:1.2.1)

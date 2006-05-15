@@ -1,0 +1,15 @@
+Source: tracker
+Section: utils
+Priority: optional
+Maintainer: Jamie McCracken <jamiemcc@gnome.org>
+Build-Depends: debhelper (>= 4.0.0), autotools-dev, libmysqlclient15-dev (>= 5.0.19), libextractor-dev (>= 0.5.0), libdbus-glib-1-dev
+Standards-Version: 3.6.1
+
+Package: tracker
+Architecture: any
+Depends: libc6 (>= 2.3.4-1), libglib2.0-0 (>= 2.10.0), libdbus-1-2 (>= 0.60), libdbus-glib-1-2 (>= 0.60), shared-mime-info, libextractor1c2a (>= 0.5.0)
+Description: Metadata database and indexing search tool.
+ Tracker is an advanced framework for first class objects with 
+ associated metadata and tags. It provides a one stop solution for
+ all metadata, tags, shared object databases, search tools and indexing.
+
