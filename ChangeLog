@@ -1,3 +1,8 @@
+2006-05-17  Gergan Penkov <gpp666_999@yahoo.de>
+	
+	* Fix for conifgure.in (added ssl linking due to bug in mysql)
+
+
 2006-05-14  Jamie McCracken <jamiemcc@gnome.org>
 
 	* Improved metadata support for Exif fields
