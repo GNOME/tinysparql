@@ -3,7 +3,7 @@
 # This file is part of Tracker.
 
 AC_PREREQ(2.57)
-AC_INIT([tracker],[0.0.4],[xdg@lists.freedesktop.org])
+AC_INIT([tracker],[0.0.4],[tracker-list@gnome.org])
 AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
@@ -47,7 +47,7 @@ AC_ARG_WITH(mysql,
 # Try to find the mysql_config program
 AC_PATH_PROG(MYSQL_CONFIG, mysql_config, no, $mysql_dir $PATH )
 if test "$MYSQL_CONFIG" = no ; then
-   AC_MSG_ERROR([cannot find mysql_config])
+   AC_MSG_ERROR([cannot find mysql_config...Please make sure you have the mysql development files installed])
 fi
 
 # Check to make sure we have MySQL >= 4.1.0
@@ -57,18 +57,23 @@ AX_COMPARE_VERSION("$MYSQL_VERSION", [ge], [5.0.19],
          AC_MSG_RESULT(checking mysql version >= 5.0.19... yes),
 	 AC_MSG_ERROR([Tracker requires version 5.0.19 or higher of the embedded MySQL library. Please install correct version and then restart compilation]))
 
-#AX_COMPARE_VERSION("$MYSQL_VERSION", [lt], [5.0.0], 
-#        AC_MSG_RESULT(checking mysql version < 5.0.0... yes),
-#        AC_MSG_ERROR([Tracker requires version 4.1.* of the embedded MySQL (it will not work with version 5 or higher). Please install correct version and then restart compilation]))
-
 # Now make sure we've got mysqld
 MYSQL_LIBS=`$MYSQL_CONFIG --libmysqld-libs`
 if test $? != 0 ; then
     AC_MSG_ERROR(Could not find the MySQL Embedded-server libraries.)
 fi
+
+# this is a bug in the embedded mysql - it should not need ssl!
+PKG_CHECK_MODULES(SSL, [ openssl >= 0.9.6 ])
+AC_SUBST(SSL_CFLAGS)
+AC_SUBST(SSL_LIBS)
+
 MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
 MYSQL_CFLAGS=`eval echo $MYSQL_CFLAGS`
 MYSQL_LIBS=`eval echo $MYSQL_LIBS`
+
+MYSQL_CFLAGS="$MYSQL_CFLAGS $SSL_CFLAGS"
+MYSQL_LIBS="$MYSQL_LIBS $SSL_LIBS"
 
 # Now test that we can actually build with MySQL
 save_CPPFLAGS="$CPPFLAGS"
