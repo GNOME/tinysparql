@@ -378,9 +378,19 @@
 			<arg type="as" name="media_file_uris" direction="out" />
 		</method>	
 
-		<method name="GetMediaFilesWithMetadata">
+
+		<!-- Returns unique list of all *audio only* media tracks in a Playlist
+		     Output format is array of track uri's followed by the following metadata:
+		 	
+			Audio.Title
+		 	Audio.Artist
+			Audio.Album
+			Audio.Duration
+			Audio.PlayCount
+ 		     	
+		-->
+		<method name="GetMediaFilesDetailed">
 			<arg type="s" name="list_name" direction="in" />
-			<arg type="as" name="metadata_fields" direction="in" />
 			<arg type="a{sv}" name="results" direction="out" />
 		</method>	
 	
