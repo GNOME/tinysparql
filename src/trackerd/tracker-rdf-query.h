@@ -19,4 +19,4 @@
 
 #include "tracker-db.h"
 
-int 	tracker_rdf_query_parse (DBConnection *db_con, const char *query);
+char *	tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, gboolean sort_by_service, int limit, GError *error);

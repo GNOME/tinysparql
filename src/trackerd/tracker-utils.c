@@ -40,9 +40,20 @@ GMutex 		*log_access_mutex;
 char 		*log_file; 
 GSList		*poll_list;
 
-char *implemented_services[] = {"Files", "Documents", "Images", "Music", "Videos", NULL};
-char *file_service_array[] =   {"Files", "Documents", "Images", "Music", "Videos", "VFSFiles", "VFSDocuments", "VFSImages", "VFSMusic", "VFSVideos", NULL};
-char *serice_index_array[] = {"Files", "Documents", "Images", "Music", "Videos", "VFSFiles", "VFSDocuments", "VFSImages", "VFSMusic", "VFSVideos", "Notes", "Playlists", "Applications", "People", "Emails", "Conversations", "Appointments", "Tasks", "Bookmarks", "History", "Projects", NULL};
+
+
+char *implemented_services[] = {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files", 
+				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files", 
+				NULL};
+
+char *file_service_array[] =   {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files", 
+				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files", 
+				NULL};
+
+char *serice_index_array[] = {	"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files", 
+				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files", 
+				"Conversations", "Playlists", "Applications", "Contacts", "Emails", "EmailAttachments", "Notes", "Appointments", 
+				"Tasks", "Bookmarks", "History", "Projects", NULL};
 
 
 char *tracker_actions[] = {
@@ -85,6 +96,26 @@ static const char imonths[] = {
 	'1', '2', '3',  '4', '5',
 	'6', '7', '8', '9', '0', '1', '2'
 };
+
+
+
+char **
+tracker_make_array_null_terminated (char **array, int length)
+{
+	char **res = NULL;
+	int i;
+
+	res = g_new (char *, length +1);
+
+	for (i = 0; i < length; i++) {
+		res[i] = array[i];
+	}
+
+	res[length] = NULL;
+
+	return res;
+
+}
 
 
 static gboolean
@@ -654,6 +685,45 @@ tracker_str_in_array (const char *str, char **array)
 }
 
 
+char *
+tracker_format_search_terms (const char *str, gboolean *do_bool_search)
+{
+
+	*do_bool_search = FALSE;
+
+	/* if already has quotes then do nothing */
+	if (strchr (str, '"') || strchr (str, '*')) {
+		*do_bool_search = TRUE;
+		return g_strdup (str);
+	}
+
+	if (!strstr (str, "-")) {
+		return g_strdup (str);
+	}
+
+	char **terms = g_strsplit (str, " ", -1);
+	
+	if (terms) {
+		GString *search_term = g_string_new (" ");
+		char **st;
+		for (st = terms; *st; st++) {
+			if (strchr (*st, '-')) {
+				*do_bool_search = TRUE;
+				char *st_1 = g_strconcat ("\"", *st, "\"", NULL);
+				g_string_append (search_term, st_1);
+				g_free (st_1);
+			} else {
+				g_string_append (search_term, *st);
+			}
+		}
+		g_strfreev (terms);
+		return g_string_free (search_term, FALSE);		
+	}
+
+	return g_strdup (str);
+}
+
+
 int
 tracker_get_row_count (char ***result)
 {
@@ -706,6 +776,25 @@ tracker_file_info_is_valid (FileInfo *info) {
 	
 	return TRUE;
 } 
+
+void
+tracker_free_array (char **array, int row_count)
+{
+	int i;
+
+	if (array && (row_count > 0)) {
+
+		for (i = 0; i < row_count; i++) {
+			if (array[i]) {
+	        		g_free (array[i]);
+			}
+		}
+
+		g_free (array);
+	}
+
+}
+
 
 FileInfo *
 tracker_create_file_info (const char *uri, TrackerChangeAction action, int counter, WatchTypes watch)
@@ -1159,10 +1248,11 @@ tracker_get_files (const char *dir, gboolean dir_only)
 				continue;
 			}
 
+
 			mystr = g_strconcat (dir,"/", str , NULL);
 			g_free (str);
 		
-     			if (!dir_only || (dir_only && tracker_is_directory (mystr))) {
+     			 if (!dir_only || (dir_only && tracker_is_directory (mystr))) {
 				file_list = g_slist_prepend (file_list, g_strdup (mystr));
 			}
 			

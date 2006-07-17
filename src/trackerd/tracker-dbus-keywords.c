@@ -23,6 +23,62 @@
 #include <string.h>
 #include <stdlib.h>
 #include "tracker-dbus-methods.h"
+#include "tracker-dbus-keywords.h"
+
+
+static void
+update_keywords_metadata (DBConnection 	*db_con, const char *path, const char *name) 
+{
+	char *tmp = g_strconcat (path, "/", name, NULL);
+	char *id = tracker_db_get_id (db_con, "Files", tmp);
+	int i;
+
+	g_free (tmp);
+
+	if (!id) {
+		return;	
+	}
+	
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetKeywords", 2, path, name);
+
+	if (res) {
+
+		MYSQL_ROW  row;
+
+		GString *words = g_string_new (" ");
+		
+		i = 0;
+		
+			
+				
+		while ((row = mysql_fetch_row (res))) {
+
+			if (row[0]) {
+
+				if (i!=0) {
+					words = g_string_append (words, "," );					
+				} 
+
+				words = g_string_append (words, row[0]);
+				i++;
+				
+			}
+			
+		}
+
+		mysql_free_result (res);
+
+		char *keywords = g_string_free (words, FALSE);
+		
+		tracker_set_metadata (db_con, "Files", id, "File.Keywords", keywords , TRUE);
+
+		g_free (keywords);
+
+	
+	}
+
+	g_free (id);
+}
 
 
 void
@@ -30,9 +86,10 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
+	DBusMessageIter iter;
+	DBusMessageIter iter_dict;
 	char 		*service;
-	char 		**array = NULL;
-	int 		row_count = 0;
+
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -40,10 +97,11 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 	
 /*
 		<!-- gets a list of all unique keywords/tags that are in use by the specified service irrespective of the uri or id of the entity
+		     Returns dict/hashtable with the keyword as the key and the total usage count of the keyword as the variant part
 		-->
 		<method name="GetList">
 			<arg type="s" name="service" direction="in" />
-			<arg type="as" name="value" direction="out" />
+			<arg type="a{sv}" name="value" direction="out" />
 		</method>
 */
 		
@@ -55,33 +113,35 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 		return;
 	}
 
-	
-	if (!id || strlen (id) == 0) {
-		tracker_set_error (rec, "ID is invalid");
-		return;
-	}
-
 
 	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetKeywordList", 1, service);
 				
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_message_iter_init_append (reply, &iter);
+
+	dbus_message_iter_open_container (&iter, 
+					  DBUS_TYPE_ARRAY,
+					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+					  DBUS_TYPE_STRING_AS_STRING
+					  DBUS_TYPE_VARIANT_AS_STRING
+					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+					  &iter_dict);
+
+
+
 	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_add_query_result_to_dict (res, &iter_dict);
+		mysql_free_result (res);
 	}
 
 
-
-	reply = dbus_message_new_method_return (rec->message);
-	
-	
-	dbus_message_append_args (reply,
-	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
-	  			  DBUS_TYPE_INVALID);
-
-	tracker_free_array (array, row_count);
+	dbus_message_iter_close_container (&iter, &iter_dict);
 
 	dbus_connection_send (rec->connection, reply, NULL);
+
 	dbus_message_unref (reply);
+
 
 	
 }
@@ -92,7 +152,7 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	char 		*id, *service;
+	char 		*uri, *service,*name, *path;
 	char 		**array = NULL;
 	int 		row_count = 0;
 
@@ -110,7 +170,7 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &id,  DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri,  DBUS_TYPE_INVALID);
 		
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
@@ -118,13 +178,24 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 	}
 
 	
-	if (!id || strlen (id) == 0) {
-		tracker_set_error (rec, "ID is invalid");
+	if (!uri || strlen (uri) == 0) {
+		tracker_set_error (rec, "Uri is invalid");
 		return;
 	}
 
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetKeywords", 1, id);
+	if (uri[0] == '/') {
+		name = g_path_get_basename (uri);
+		path = g_path_get_dirname (uri);
+	} else {
+		name = tracker_get_vfs_name (uri);
+		path = tracker_get_vfs_path (uri);
+	}
+
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetKeywords", 2, path, name);
+
+	g_free (name);
+	g_free (path);
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
@@ -153,7 +224,7 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	char 		*id, *service;
+	char 		*uri, *service, *name, *path;
 	char 		**array = NULL;
 	int 		row_count = 0;
 
@@ -171,7 +242,7 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &id, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INVALID);
 		
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
@@ -179,11 +250,18 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 	}
 
 	
-	if (!id || strlen (id) == 0) {
-		tracker_set_error (rec, "ID is invalid");
+	if (!uri || strlen (uri) == 0) {
+		tracker_set_error (rec, "URI is invalid");
 		return;
 	}
 
+	if (uri[0] == '/') {
+		name = g_path_get_basename (uri);
+		path = g_path_get_dirname (uri);
+	} else {
+		name = tracker_get_vfs_name (uri);
+		path = tracker_get_vfs_path (uri);
+	}
 
 	int i;
 
@@ -191,10 +269,16 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 
 		for (i = 0; i < row_count; i++) {
 			if (array[i]) {
-				tracker_exec_proc  (db_con->db,  "AddKeyword", 2, id, array[i]);	
+				tracker_exec_proc  (db_con->db,  "AddKeyword", 3, path, name, array[i]);	
 			}
 		}
 	}
+
+
+	update_keywords_metadata (db_con, path, name);
+
+	g_free (name);
+	g_free (path);
 
 	reply = dbus_message_new_method_return (rec->message);
 	
@@ -208,7 +292,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	char 		*id, *service;
+	char 		*uri, *service, *name, *path;
 	char 		**array = NULL;
 	int 		row_count = 0;
 
@@ -226,7 +310,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &id, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INVALID);
 		
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
@@ -236,11 +320,19 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 
 
 	
-	if (!id || strlen (id) == 0) {
+	if (!uri || strlen (uri) == 0) {
 		tracker_set_error (rec, "ID is invalid");
 		return;
 	}
 
+
+	if (uri[0] == '/') {
+		name = g_path_get_basename (uri);
+		path = g_path_get_dirname (uri);
+	} else {
+		name = tracker_get_vfs_name (uri);
+		path = tracker_get_vfs_path (uri);
+	}
 
 	int i;
 
@@ -248,10 +340,15 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 
 		for (i = 0; i < row_count; i++) {
 			if (array[i]) {
-				tracker_exec_proc  (db_con->db,  "RemoveKeyword", 2, id, array[i]);	
+				tracker_exec_proc  (db_con->db,  "RemoveKeyword", 3, path, name, array[i]);	
 			}
 		}
 	}
+
+	update_keywords_metadata (db_con, path, name);
+
+	g_free (name);
+	g_free (path);
 
 	reply = dbus_message_new_method_return (rec->message);
 	
@@ -265,7 +362,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	char 		*id, *service;
+	char 		*uri, *service,  *name, *path;
 
 
 	g_return_if_fail (rec && rec->user_data);
@@ -282,7 +379,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &id, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_INVALID);
 		
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
@@ -291,12 +388,25 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 
 
 	
-	if (!id || strlen (id) == 0) {
-		tracker_set_error (rec, "ID is invalid");
+	if (!uri || strlen (uri) == 0) {
+		tracker_set_error (rec, "URI is invalid");
 		return;
 	}
 
-	tracker_exec_proc  (db_con->db,  "RemoveAllKeywords", 1, id);	
+	if (uri[0] == '/') {
+		name = g_path_get_basename (uri);
+		path = g_path_get_dirname (uri);
+	} else {
+		name = tracker_get_vfs_name (uri);
+		path = tracker_get_vfs_path (uri);
+	}
+
+	tracker_exec_proc  (db_con->db,  "RemoveAllKeywords", 2, path, name);	
+
+	update_keywords_metadata (db_con, path, name);
+
+	g_free (name);
+	g_free (path);
 
 	reply = dbus_message_new_method_return (rec->message);
 	

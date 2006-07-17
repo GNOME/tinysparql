@@ -23,20 +23,27 @@
 
 
 
+
+
+
 void	tracker_set_error 		(DBusRec 	  *rec,
 					 const char	  *fmt, 
 	   	 			 ...);
 
-int	tracker_get_file_id 		(DBConnection *db_con, const char *uri, gboolean create_record);
+char *	tracker_get_metadata 		(DBConnection *db_con, const char *service, const char *id, const char *key);
 
-void	tracker_add_metadata_to_dict 	(MYSQL_RES *res, DBusMessageIter *iter_dict, int metadata_count);
+void	tracker_set_metadata 		(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
 
-void	tracker_dbus_method_get_metadata_for_files_in_folder 	(DBusRec *rec);
+int	tracker_get_file_id 			(DBConnection *db_con, const char *uri, gboolean create_record);
 
-void 	tracker_dbus_method_search_metadata_text		(DBusRec *rec);
+void	tracker_add_query_result_to_dict 	(MYSQL_RES *res, DBusMessageIter *iter_dict);
 
-void 	tracker_dbus_method_search_files_by_text_mime		(DBusRec *rec);
-void 	tracker_dbus_method_search_files_by_text_location	(DBusRec *rec);
-void 	tracker_dbus_method_search_files_by_text_mime_location	(DBusRec *rec);
+char *	tracker_format_search_terms 		(const char *str, gboolean *do_bool_search);
 
-void 	tracker_dbus_method_search_files_query 			(DBusRec *rec);
+
+char **	tracker_get_query_result_as_array 	(MYSQL_RES *res, int *row_count);
+
+void	tracker_dbus_method_get_stats	 	(DBusRec *rec);
+void	tracker_dbus_method_get_services 	(DBusRec *rec);
+void	tracker_dbus_method_get_version 	(DBusRec *rec);
+

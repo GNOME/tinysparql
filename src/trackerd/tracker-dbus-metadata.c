@@ -23,64 +23,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "tracker-dbus-methods.h"
-
-static char *
-get_metadata (DBConnection *db_con, const char *service, const char *id, const char *key) 
-{
-
-	int 	 	row_count = 0;
-	char 		*value;
-	MYSQL_RES 	*res = NULL;
-	MYSQL_ROW  	row;
+#include "tracker-dbus-metadata.h"
 
 
-	g_return_val_if_fail (db_con && id && (strlen (id) > 0), NULL);
-
-	value = g_strdup (" ");
-
-	res = tracker_exec_proc  (db_con->db, "GetMetadata", 3, service, id, key);	
-
-	if (res) {
-
-		row_count = mysql_num_rows (res);
-	
-		if (row_count > 0) {
-
-			row = mysql_fetch_row (res);
-
-			if (row && row[0]) {
-				g_free (value);
-				value = g_strdup (row[0]);				
-			}
-			
-		} else {
-			tracker_log ("result set is empty");
-		}
-
-		mysql_free_result (res);
-	} 
-
-	tracker_log ("metadata %s is %s", key, value);
-	return value;
-
-}
-
-
-static void  
-set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite)
-{
-	char *str_write;	
-
-	if (overwrite) {
-		str_write = "1";
-	} else {
-		str_write = "0";
-	}
-
-	tracker_exec_proc  (db_con->db, "SetMetadata", 5, service, id, key, value, str_write);	
-	
-
-}
 
 
 void
@@ -88,7 +33,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	int 	 	service_id, i, key_count, value_count;
+	int 	 	 i, key_count, value_count;
 	char 		*uri, *service, *meta, *id, *value = NULL;
 	char		**keys, **values;
 	gboolean	is_local_file = FALSE;
@@ -109,15 +54,8 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 
 	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &keys, &key_count, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &values, &value_count, DBUS_TYPE_INVALID);
 		
-	service_id = tracker_str_in_array (service, serice_index_array);
-	if ( service_id == -1) {
-		tracker_set_error (rec, "Invalid service %s", service);	
-		return;
-	}
-
-
-	if (tracker_str_in_array (service, implemented_services) == -1) {
-		tracker_set_error (rec, "Service %s has not been implemented yet", service);	
+	if (!tracker_is_valid_service (db_con, service)) {
+		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
 		return;
 	}
 
@@ -158,9 +96,15 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		}
 
 
-		
+		if (strcmp (meta, "File.Keywords") == 0) {
+			tracker_set_error (rec, "File.Keywords can only be set from the Keywords Interface");
+			g_free (id);
+			return;
+		}
 
-		set_metadata (db_con, service, id, meta, value, !is_local_file);
+
+
+		tracker_set_metadata (db_con, service, id, meta, value, !is_local_file);
 
 	}
 
@@ -180,7 +124,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	int 		service_id, i, key_count, table_count, row_count = 0;
+	int 		 i, key_count, table_count, row_count = 0;
 	char 		**keys = NULL, **array,  *uri, *id,  *field, *str, *mid, *service; 
 	GString 	*sql;
 	MYSQL_RES 	*res;
@@ -201,17 +145,11 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &service, DBUS_TYPE_STRING, &uri, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &keys, &key_count, DBUS_TYPE_INVALID);
 
-	service_id = tracker_str_in_array (service, serice_index_array);
-	if ( service_id == -1) {
-		tracker_set_error (rec, "Invalid service %s", service);	
+	if (!tracker_is_valid_service (db_con, service)) {
+		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
 		return;
 	}
 
-
-	if (tracker_str_in_array (service, implemented_services) == -1) {
-		tracker_set_error (rec, "Service %s has not been implemented yet", service);	
-		return;
-	}
 
 	if (key_count == 0) {
 		tracker_set_error (rec, "No Metadata was specified");
@@ -402,20 +340,8 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, key_count,
 	  			  DBUS_TYPE_INVALID);
 
-	if (row_count > 0) {
-
-		for (i = 0; i < key_count; i++) {
-        		g_free (array[i]);
-		}
-
-		g_free (array);
-	}
-
-	for (i = 0; i < key_count; i++) {
-       		g_free (date_array[i]);
-	}
-
-	g_free (date_array);
+	tracker_free_array (array, row_count);
+	tracker_free_array (date_array, key_count);
 
 
 
@@ -429,7 +355,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 
 void
-tracker_dbus_method_register_metadata_type (DBusRec *rec)
+tracker_dbus_method_metadata_register_type (DBusRec *rec)
 {
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
@@ -449,11 +375,6 @@ tracker_dbus_method_register_metadata_type (DBusRec *rec)
 		return;
 	}
 
-	i = tracker_str_in_array (type, type_array);
-	if (i == -1) {
-		tracker_set_error (rec, "Invalid metadata data type specified");
-		return;
-	}
 
 
 	type_id = g_strdup_printf ("%d", i);
@@ -470,4 +391,221 @@ tracker_dbus_method_register_metadata_type (DBusRec *rec)
 	dbus_message_unref (reply);
 	
 	
+}
+
+
+
+void
+tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	MYSQL_ROW  row = NULL;
+	char *meta, *data_type = NULL;
+	gboolean is_embedded = FALSE, is_writable = FALSE;
+
+
+/*
+		<method name="GetTypeDetails">
+			<arg type="s" name="name" direction="in" />
+			<arg type="s" name="data_type" direction="out" />
+			<arg type="b" name="is_embedded" direction="out" />
+			<arg type="b" name="is_writable" direction="out" />
+		</method>
+*/
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &meta, DBUS_TYPE_INVALID);
+
+	if (meta) {
+
+		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetMetadataTypeInfo", 1, meta);
+				
+		if (res) {
+			row = mysql_fetch_row (res);
+	
+			if (row && row[1] && row[2] && row[3]) {
+				
+				int i = atoi (row[1]);
+				
+				if (i >3 || i < 0) {
+					tracker_set_error (rec, "Data type for %s in invalid", meta);
+					return;
+				}
+				
+				data_type = type_array[i];
+				is_embedded = (strcmp (row[2], "1") == 0);
+				is_writable = (strcmp (row[3], "1") == 0);
+			
+			}	
+			mysql_free_result (res);				
+
+		}
+
+	}
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	dbus_message_append_args (reply,
+				  DBUS_TYPE_STRING, &data_type,
+				  DBUS_TYPE_BOOLEAN, &is_embedded,
+				  DBUS_TYPE_BOOLEAN, &is_writable,
+	  			  DBUS_TYPE_INVALID);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+
+}
+
+
+void
+tracker_dbus_method_metadata_get_registered_types (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	char *class = NULL, **array = NULL;
+	int row_count = 0;
+
+
+/*
+		<!-- returns an array of all metadata types that are registered for a certain class -->
+		<method name="GetRegisteredTypes">
+			<arg type="s" name="metadata_class" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+*/
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &class, DBUS_TYPE_INVALID);
+
+	if (class) {
+
+		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SelectMetadataTypes", 2, class, "0");
+				
+		if (res) {
+			array = tracker_get_query_result_as_array (res, &row_count);
+			mysql_free_result (res);	
+		}
+
+	}
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
+	  			  DBUS_TYPE_INVALID);
+
+	tracker_free_array (array, row_count);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+
+}
+
+
+
+void
+tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	char *class = NULL, **array = NULL;
+	int row_count = 0;
+
+
+/*
+
+		<!-- returns an array of all metadata types that are writeable and registered for a certain class
+		     You can enter "*" as the class to get all metadat types for all classes that are writeable
+		-->
+		<method name="GetWriteableTypes">
+			<arg type="s" name="metadata_class" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+*/
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &class, DBUS_TYPE_INVALID);
+
+	if (class) {
+
+		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SelectMetadataTypes", 2, class, "1");
+				
+		if (res) {
+			array = tracker_get_query_result_as_array (res, &row_count);
+			mysql_free_result (res);	
+		}
+
+	}
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
+	  			  DBUS_TYPE_INVALID);
+
+	tracker_free_array (array, row_count);
+
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+
+}
+
+
+void
+tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	char **array = NULL;
+	int row_count = 0;
+
+
+/*
+
+		<!-- returns an array of all metadata type classes that are registered -->
+		<method name="GetRegisteredClasses">
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+*/
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SelectMetadataClasses", 0);
+				
+	if (res) {
+		array = tracker_get_query_result_as_array (res, &row_count);
+		mysql_free_result (res);	
+	}
+
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
+	  			  DBUS_TYPE_INVALID);
+
+	tracker_free_array (array, row_count);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+
 }

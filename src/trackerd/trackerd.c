@@ -57,7 +57,10 @@
 #include "tracker-metadata.h"
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
- 
+#include "tracker-dbus-keywords.h"
+#include "tracker-dbus-search.h"
+#include "tracker-dbus-files.h" 
+
 /* 
  *   The workflow to process files and notified file change events are as follows:
  *
@@ -336,7 +339,8 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 	
 	g_return_if_fail (dir_list != NULL);
 
-	/* add sub directories breadth first recursively to avoid runnig out of file handles */
+
+	/* add sub directories breadth first recursively to avoid running out of file handles */
 	while (g_slist_length (dir_list) > 0) {
 		
 		if (!start_polling && ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < MAX_FILE_WATCHES )) {
@@ -406,9 +410,10 @@ watch_dir (const char* dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-
-	mylist = g_slist_prepend (mylist, dir_utf8);
-	add_dirs_to_watch_list (mylist, TRUE, db_con);
+	if (g_slist_find_custom (no_watch_directory_list, dir_utf8, (GCompareFunc) strcmp) != 0) {
+		mylist = g_slist_prepend (mylist, dir_utf8);
+		add_dirs_to_watch_list (mylist, TRUE, db_con);
+	}
 	return TRUE;
 
 } 
@@ -1223,6 +1228,27 @@ process_user_request_queue_thread (GMutex *mutex)
 				dbus_message_unref (reply);
 				break;
 
+			case DBUS_ACTION_GET_STATS:
+			
+				tracker_dbus_method_get_stats (rec);
+
+				break;
+
+			case DBUS_ACTION_GET_SERVICES:
+			
+				tracker_dbus_method_get_services (rec);
+
+				break;
+
+			case DBUS_ACTION_GET_VERSION:
+			
+				tracker_dbus_method_get_version (rec);
+
+				break;
+
+
+
+
 			case DBUS_ACTION_METADATA_GET:
 			
 				tracker_dbus_method_metadata_get (rec);
@@ -1234,50 +1260,193 @@ process_user_request_queue_thread (GMutex *mutex)
 				tracker_dbus_method_metadata_set(rec);
 
 				break;
-		
 
-			case DBUS_ACTION_REGISTER_METADATA:
+
+			case DBUS_ACTION_METADATA_REGISTER_TYPE:
 			
-				tracker_dbus_method_register_metadata_type (rec);
-
-				break;
-		
-
-			case DBUS_ACTION_METADATA_GET_FOR_FILES:
-			
-				tracker_dbus_method_get_metadata_for_files_in_folder (rec);
+				tracker_dbus_method_metadata_register_type (rec);
 
 				break;
 		
-			case DBUS_ACTION_SEARCH_METADATA_TEXT:
-				tracker_dbus_method_search_metadata_text (rec);
+
+
+			case DBUS_ACTION_METADATA_GET_TYPE_DETAILS:
 			
+				tracker_dbus_method_metadata_get_type_details  (rec);
+
 				break;
 
-			case DBUS_ACTION_SEARCH_FILES_BY_TEXT_MIME:
 
-				tracker_dbus_method_search_files_by_text_mime (rec);
+			case DBUS_ACTION_METADATA_GET_REGISTERED_TYPES:
+			
+				tracker_dbus_method_metadata_get_registered_types (rec);
+
+				break;
+
+
+			case DBUS_ACTION_METADATA_GET_WRITEABLE_TYPES:
+			
+				tracker_dbus_method_metadata_get_writeable_types (rec);
+
+				break;
+
+
+			case DBUS_ACTION_METADATA_GET_REGISTERED_CLASSES:
+			
+				tracker_dbus_method_metadata_get_registered_classes (rec);
+
+				break;
+
+
+			case DBUS_ACTION_KEYWORDS_GET_LIST:
+			
+				tracker_dbus_method_keywords_get_list (rec);
+
+				break;
+
+			case DBUS_ACTION_KEYWORDS_GET:
+			
+				tracker_dbus_method_keywords_get (rec);
+
+				break;
+
+			case DBUS_ACTION_KEYWORDS_ADD:
+			
+				tracker_dbus_method_keywords_add (rec);
+
+				break;
+
+			case DBUS_ACTION_KEYWORDS_REMOVE:
+			
+				tracker_dbus_method_keywords_remove (rec);
+
+				break;
+
+			case DBUS_ACTION_KEYWORDS_REMOVE_ALL:
+			
+				tracker_dbus_method_keywords_remove_all (rec);
+
+				break;
+
+			case DBUS_ACTION_KEYWORDS_SEARCH:
+			
+				tracker_dbus_method_keywords_search (rec);
+
+				break;
+
+			
+
+			case DBUS_ACTION_SEARCH_TEXT:
+			
+				tracker_dbus_method_search_text (rec);
+
+				break;
+
+
+			case DBUS_ACTION_SEARCH_FILES_BY_TEXT:
+			
+				tracker_dbus_method_search_files_by_text (rec);
+
+				break;
+
+			case DBUS_ACTION_SEARCH_METADATA:
+			
+				tracker_dbus_method_search_metadata (rec);
+
+				break;
+
+			case DBUS_ACTION_SEARCH_MATCHING_FIELDS:
+			
+				tracker_dbus_method_search_matching_fields (rec);
+
+				break;
+
+			case DBUS_ACTION_SEARCH_QUERY:
+			
+				tracker_dbus_method_search_query (rec);
+
+				break;
+
+
+	
+
+			case DBUS_ACTION_FILES_CREATE:
+			
+				tracker_dbus_method_files_create (rec);
+
+				break;
+
+
+
+			case DBUS_ACTION_FILES_DELETE:
+			
+				tracker_dbus_method_files_delete (rec);
+
+				break;
+
+			case DBUS_ACTION_FILES_GET_TEXT_CONTENTS:
+			
+				tracker_dbus_method_files_get_text_contents (rec);
+
+				break;
+
+			case DBUS_ACTION_FILES_SEARCH_TEXT_CONTENTS:
+			
+				tracker_dbus_method_files_search_text_contents (rec);
+
+				break;
+
+			case DBUS_ACTION_FILES_GET_BY_SERVICE_TYPE:
+			
+				tracker_dbus_method_files_get_by_service_type (rec);
+
+				break;
+
+			case DBUS_ACTION_FILES_GET_BY_MIME_TYPE:
+			
+				tracker_dbus_method_files_get_by_mime_type (rec);
+
+				break;
+
+
+			case DBUS_ACTION_FILES_GET_BY_MIME_TYPE_VFS:
+			
+				tracker_dbus_method_files_get_by_mime_type_vfs (rec);
+
+				break;
+
+			case DBUS_ACTION_FILES_GET_MTIME:
+			
+				tracker_dbus_method_files_get_mtime (rec);
+
+				break;
+
+			case DBUS_ACTION_FILES_GET_METADATA_FOLDER_FILES:
+			
+				tracker_dbus_method_files_get_metadata_for_files_in_folder (rec);
+
+				break;
+
+
+
+			case DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME:
+
+				tracker_dbus_method_files_search_by_text_mime (rec);
 				
 				break;
 
-			case DBUS_ACTION_SEARCH_FILES_BY_TEXT_MIME_LOCATION:
+			case DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME_LOCATION:
 
-				tracker_dbus_method_search_files_by_text_mime_location (rec);
+				tracker_dbus_method_files_search_by_text_mime_location(rec);
 				
 				
 				break;
 
-			case DBUS_ACTION_SEARCH_FILES_BY_TEXT_LOCATION:
-				tracker_dbus_method_search_files_by_text_location (rec);
+			case DBUS_ACTION_FILES_SEARCH_BY_TEXT_LOCATION:
+
+				tracker_dbus_method_files_search_by_text_location (rec);
 				
 				break;
-
-			case DBUS_ACTION_SEARCH_FILES_QUERY:
-
-				tracker_dbus_method_search_files_query (rec);
-				
-				break;
-
 
 
 			default :
@@ -1518,9 +1687,12 @@ main (int argc, char **argv)
 	
 		while ((row = mysql_fetch_row (res))) {
 				
-			if (row[1] && row[2]) {
-				tracker_log ("%s : %s", row[1], row[2]);
+			if (row[2]) { 
+				tracker_log ("%s : %s (%s%s)", row[0], row[1], row[2], "%");
+			} else {
+				tracker_log ("%s : %s", row[0], row[1]);
 			}
+			
 		}
 
 		mysql_free_result (res);
@@ -1528,9 +1700,14 @@ main (int argc, char **argv)
 		tracker_log ("-----------------------\n");
 			
 	} 
-
-
-	
+/*
+	//const char *query = " <rdfq:Condition> <rdfq:or><rdfq:and><rdfq:greaterThan><rdfq:Property name=\"Audio.ReleaseDate\" /><rdf:Integer>1979</rdf:Integer></rdfq:greaterThan></rdfq:and> <rdfq:contains><rdfq:Property name=\"Audio.Title\" /><rdf:String>Rain</rdf:String></rdfq:contains></rdfq:or></rdfq:Condition>";
+	const char *query = " <rdfq:Condition><rdfq:contains><rdfq:Property name=\"File.Name\" /><rdf:String>Rain</rdf:String></rdfq:contains></rdfq:Condition>";
+	char *stsql = tracker_rdf_query_to_sql (&db_con, query, "Files", NULL, 0, "mp3", FALSE, 100 , NULL);
+	tracker_log (stsql); 
+	tracker_log_sql (db_con.db, g_strconcat ("Explain ", stsql, NULL)); 
+	tracker_log_sql (db_con.db, stsql); 
+*/
 
 	main_thread_db_con = &db_con;
 

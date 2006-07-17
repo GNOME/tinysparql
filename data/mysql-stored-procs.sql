@@ -1,15 +1,81 @@
 
 -- general purpose functions --
 
+
+DROP FUNCTION if exists GetServiceName;|
+
+CREATE FUNCTION GetServiceName (pServiceTypeID int)
+RETURNS varchar(32)
+BEGIN
+	Declare result varchar(32) default 'Unknown';
+
+	select TypeName into result From ServiceTypes where TypeID = pServiceTypeID;
+
+	return result;
+END|
+
+
+
+DROP FUNCTION if exists GetMetaDataName;|
+
+CREATE FUNCTION GetMetaDataName (pMetadataID int)
+RETURNS varchar(128)
+BEGIN
+	Declare result varchar(128) default 'Unknown';
+
+	select MetaName into result From MetaDataTypes where ID = pMetadataID;
+
+	return result;
+END|
+
+
+DROP FUNCTION if exists GetMetaDataTypeID;|
+
+CREATE FUNCTION GetMetaDataTypeID (pMetaData varchar (128))
+RETURNS int
+BEGIN
+	Declare result int default -1;
+
+	select ID into result From MetaDataTypes where MetaName = pMetaData;
+
+	return result;
+END|
+
+
+DROP FUNCTION if exists GetMetaDataType;|
+
+CREATE FUNCTION GetMetaDataType (pMetaData varchar (128))
+RETURNS int
+BEGIN
+	Declare result int default -1;
+
+	select DataTypeID into result From MetaDataTypes where MetaName = pMetaData;
+
+	return result;
+END|
+
+
 DROP FUNCTION if exists GetServiceTypeID;|
 
 CREATE FUNCTION GetServiceTypeID (pService varchar (32))
 RETURNS int
 BEGIN
-	Declare result int default 0;
+	Declare result int default -1;
 
 	select TypeID into result From ServiceTypes where TypeName = pService;
 
+	return result;
+END|
+
+
+DROP FUNCTION if exists GetServiceIDNum;|
+
+CREATE FUNCTION GetServiceIDNum (pPath varchar(200), pName varchar(200))
+RETURNS int unsigned
+BEGIN
+	Declare result int unsigned default 0;
+
+	select ID into result From Services where Path = pPath and Name  = pName;
 
 	return result;
 END|
@@ -35,7 +101,68 @@ BEGIN
 END|
 
 
+
+/* prepared queries */
+
+DROP PROCEDURE if exists PrepareQueries;|
+
+CREATE PROCEDURE PrepareQueries ()
+BEGIN
+	PREPARE SEARCH_TEXT_UNSORTED FROM 'SELECT  DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?';
+	PREPARE SEARCH_TEXT_SORTED FROM 'SELECT  DISTINCT F.Path, F.Name,   MATCH (M.MetaDataIndexValue) AGAINST (?) FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (?) LIMIT ?';
+	PREPARE SEARCH_TEXT_SORTED_BOOL FROM 'SELECT  DISTINCT F.Path, F.Name ,   MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) As Relevancy FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) ORDER BY Relevancy LIMIT ?';
+
+
+	PREPARE SEARCH_INDEXED_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?';
+	PREPARE SEARCH_STRING_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND M.MetaDataValue = ?  LIMIT ?';
+	PREPARE SEARCH_NUMERIC_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND M.MetaDataNumericValue = ?  LIMIT ?';
+
+	PREPARE SEARCH_FILES_TEXT FROM 'SELECT DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri, GetServiceName(F.ServiceTypeID) as sname, M1.MetaDataIndexValue as mimetype, M2.MetaDataNumericValue as FileSize, M3.MetaDataNumericValue as FileRank, M4.MetaDataNumericValue as  FileModified FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID LEFT OUTER JOIN ServiceMetaData M1 on F.ID = M1.ServiceID LEFT OUTER JOIN ServiceMetaData M2 on F.ID = M2.ServiceID LEFT OUTER JOIN ServiceMetaData M3 on F.ID = M3.ServiceID LEFT OUTER JOIN ServiceMetaData M4 on F.ID = M4.ServiceID WHERE (F.ServiceTypeID between ? and ?) AND (M1.MetaDataID = GetMetaDataTypeID(''File.Format''))  AND (M2.MetaDataID = GetMetaDataTypeID(''File.Size''))  AND (M3.MetaDataID = GetMetaDataTypeID(''File.Rank''))  AND (M4.MetaDataID = GetMetaDataTypeID(''File.Modified'')) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?';
+	PREPARE SEARCH_FILES_TEXT_SORTED FROM 'SELECT  DISTINCT Concat(F.Path, \'/\', F.Name) as uri, GetServiceName(F.ServiceTypeID) as sname, M1.MetaDataIndexValue as mimetype, M2.MetaDataNumericValue as FileSize, M3.MetaDataNumericValue as FileRank, M4.MetaDataNumericValue as  FileModified FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID LEFT OUTER JOIN ServiceMetaData M1 on F.ID = M1.ServiceID LEFT OUTER JOIN ServiceMetaData M2 on F.ID = M2.ServiceID LEFT OUTER JOIN ServiceMetaData M3 on F.ID = M3.ServiceID LEFT OUTER JOIN ServiceMetaData M4 on F.ID = M4.ServiceID WHERE (F.ServiceTypeID between ? and ?) AND (M1.MetaDataID = GetMetaDataTypeID(''File.Format''))  AND (M2.MetaDataID = GetMetaDataTypeID(''File.Size''))  AND (M3.MetaDataID = GetMetaDataTypeID(''File.Rank''))  AND (M4.MetaDataID = GetMetaDataTypeID(''File.Modified'')) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) order by sname, uri  LIMIT ?';
+
+	PREPARE SEARCH_MATCHING_FIELDS FROM 'SELECT  DISTINCT GetMetaDataName(M.MetaDataID) as metaname,  M.MetaDataIndexValue FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (M.MetaDataID != GetMetaDataTypeID(''File.Content'')) AND (F.ServiceTypeID between ? and ?) AND F.PATH = ? AND F.NAME = ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  UNION SELECT  DISTINCT GetMetaDataName(M.MetaDataID) as metaname,  SUBSTRING(M.MetaDataIndexValue, LOCATE(? ,M.MetaDataIndexValue), 30) FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (M.MetaDataID = GetMetaDataTypeID(''File.Content'')) AND (F.ServiceTypeID between ? and ?) AND F.PATH = ? AND F.NAME = ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)';
+	
+	PREPARE GET_FILES_SERVICE_TYPE FROM 'SELECT  DISTINCT Concat(F.Path, \'/\', F.Name) as uri  FROM Services F WHERE (F.ServiceTypeID between ? and ?) LIMIT ?';
+
+	PREPARE GET_FILES_MIME FROM 'SELECT DISTINCT Concat(F.Path, \'/\', F.Name) as uri FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = GetMetaDataTypeID(''File.Format'') AND FIND_IN_SET(M.MetaDataIndexValue, ?) AND (F.ServiceTypeID between 0 and 8) LIMIT ?';
+	PREPARE GET_VFS_FILES_MIME FROM 'SELECT DISTINCT Concat(F.Path, \'/\', F.Name) as uri FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = GetMetaDataTypeID(''File.Format'') AND FIND_IN_SET(M.MetaDataIndexValue, ?) AND (F.ServiceTypeID between 9 and 17) LIMIT ?';
+
+	PREPARE GET_FILE_MTIME FROM 'SELECT M.MetaDataNumericValue  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = GetMetaDataTypeID(''File.Modified'') ';
+
+	PREPARE SEARCH_KEYWORDS FROM 'Select Concat(S.Path, \'/\', S.Name) as uri from Services  S INNER JOIN ServiceKeywords K ON K.ServiceID = S.ID WHERE (S.ServiceTypeID between ? and ?) and K.Keyword = ? limit ?';
+
+END|
+
+
 -- service SPs --
+
+DROP PROCEDURE if exists GetServices;|
+
+CREATE PROCEDURE GetServices (pMainServiceOnly Bit) 
+BEGIN 
+
+
+	IF (pMainServiceOnly = 0) THEN
+		SELECT TypeName, MetadataClass, Description  FROM ServiceTypes ORDER BY TypeID;
+	ELSE
+		SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = 1 ORDER BY TypeID;
+	END IF;
+END|
+
+
+DROP PROCEDURE if exists ValidService;|
+
+CREATE PROCEDURE ValidService (pService varchar (32))
+BEGIN 
+	IF (GetServiceTypeID (pService) > -1) THEN
+		select 1;
+	ELSE
+     		select 0;
+	END IF;
+
+END|
+
+
 
 DROP PROCEDURE if exists GetServiceID;|
 
@@ -73,6 +200,7 @@ BEGIN
 	DELETE FROM Services WHERE ID = pID;
 	DELETE FROM ServiceMetaData WHERE ServiceID = pID;
 	DELETE FROM ServiceLinks WHERE (ServiceID = pID or LinkID = pID);
+	DELETE FROM ServiceKeywords WHERE ServiceID = pID;
 	
 END|
 
@@ -88,6 +216,73 @@ END|
 
 
 -- File SPs --
+
+
+DROP PROCEDURE if exists GetFilesByMimeType|
+
+CREATE PROCEDURE GetFilesByMimeType (pMimeTypes varchar(512), pMaxHits int) 
+BEGIN 
+		
+	Set @MimeTypes = pMimeTypes;
+	Set @MaxHits = pMaxHits;
+	
+	EXECUTE GET_FILES_MIME USING  @MimeTypes, @MaxHits;
+END|
+
+
+
+DROP PROCEDURE if exists GetVFSFilesByMimeType|
+
+CREATE PROCEDURE GetVFSFilesByMimeType (pMimeTypes varchar(512), pMaxHits int) 
+BEGIN 
+		
+	Set @MimeTypes = pMimeTypes;
+	Set @MaxHits = pMaxHits;
+	
+	EXECUTE GET_VFS_FILES_MIME USING  @MimeTypes, @MaxHits;
+END|
+
+
+DROP PROCEDURE if exists GetFileMTime|
+
+CREATE PROCEDURE GetFileMTime (pPath varchar(200), pName varchar(200)) 
+BEGIN 
+	SELECT M.MetaDataNumericValue  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE F.Path = pPath and F.Name = pName and M.MetaDataID = GetMetaDataTypeID('File.Modified');
+END|
+
+
+
+
+DROP PROCEDURE if exists GetFileContents|
+
+CREATE PROCEDURE GetFileContents (pPath varchar(200), pName varchar(200), pOffset int, pLength int) 
+BEGIN 
+	
+	SELECT SUBSTRING(MetaDataIndexValue, pOffset, pLength) FROM ServiceMetaData WHERE ServiceID = GetServiceIDNum(pPath, pName) AND MetaDataID = GetMetaDataTypeID('File.Content');
+END|
+
+DROP PROCEDURE if exists SearchFileContents|
+
+CREATE PROCEDURE SearchFileContents (pPath varchar(200), pName varchar(200), ptext varchar(128), pLength int) 
+BEGIN 
+	
+	SELECT SUBSTRING(MetaDataIndexValue, LOCATE(ptext ,MetaDataIndexValue), pLength)  FROM ServiceMetaData WHERE ServiceID = GetServiceIDNum(pPath, pName) AND MetaDataID = GetMetaDataTypeID('File.Content');
+END|
+
+
+DROP PROCEDURE if exists GetFilesByServiceType|
+
+CREATE PROCEDURE GetFilesByServiceType (pService varchar(64), pMaxHits int) 
+BEGIN 
+		
+	Set @MaxHits = pMaxHits;
+	Set @MinServiceTypeID = GetServiceTypeID (pService);
+	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
+	
+	EXECUTE GET_FILES_SERVICE_TYPE USING  @MinServiceTypeID, @MaxServiceTypeID, @MaxHits;
+END|
+
+
 
 DROP PROCEDURE if exists SelectFileChild;|
 
@@ -154,6 +349,7 @@ BEGIN
 	DELETE FROM FileContexts WHERE FileID = pID;
 	DELETE FROM FilePending WHERE FileID = pID;
 	DELETE FROM ServiceLinks WHERE (ServiceID = pID or LinkID = pID);
+	DELETE FROM ServiceKeywords WHERE (ServiceID = pID);
 END|
 
 
@@ -169,6 +365,7 @@ BEGIN
 	DELETE M FROM ServiceMetaData M, Services F WHERE M.ServiceID = F.ID AND ((F.Path = pPath) OR (F.Path like pPathLike));
 	DELETE M FROM FileContexts M, Services F WHERE M.FileID = F.ID AND ((F.Path = pPath) OR (F.Path like pPathLike));
 	DELETE M FROM FilePending M, Services F WHERE M.FileID = F.ID AND ((F.Path = pPath) OR (F.Path like pPathLike));
+	DELETE M FROM ServiceKeywords M, Services F WHERE M.ServiceID = F.ID AND ((F.Path = pPath) OR (F.Path like pPathLike));
 	DELETE FROM Services WHERE (Path = pPath) OR (Path like pPathLike);
 
 	DELETE FROM Services WHERE ID = pID;
@@ -176,41 +373,17 @@ BEGIN
 	DELETE FROM FileContexts WHERE FileID = pID;
 	DELETE FROM FilePending WHERE FileID = pID;
 	DELETE FROM ServiceLinks WHERE (ServiceID = pID or LinkID = pID);
+	DELETE FROM ServiceKeywords WHERE (ServiceID = pID);
 
 END|
 
 -- Keywords SPs --
 
 
-DROP PROCEDURE if exists GetKeywords;|
+DROP PROCEDURE if exists GetKeywordList;|
 
-CREATE PROCEDURE GetKeywords (pID int unsigned) 
+CREATE PROCEDURE GetKeywordList (pService varchar(32)) 
 BEGIN 
-	Select Keyword from ServiceKeywords where ServiceID = pID;
-END|
-
-
-DROP PROCEDURE if exists AddKeyword;|
-
-CREATE PROCEDURE AddKeyword (pID int unsigned, pValue varchar(32)) 
-BEGIN 
-	insert into ServiceKeywords (ServiceID, Keyword) values (pID, pValue);
-END|
-
-
-DROP PROCEDURE if exists RemoveKeyword;|
-
-CREATE PROCEDURE RemoveKeyword (pID int unsigned, pValue varchar(32)) 
-BEGIN 
-	delete from ServiceKeywords where ServiceID = pID and Keyword = pValue;
-END|
-
-
-DROP PROCEDURE if exists SearchKeywords;|
-
-CREATE PROCEDURE SearchKeywords (pService varchar(32), pValue varchar(32), pMaxHits int) 
-BEGIN 
-
 	Declare pMinServiceTypeID int;
 	Declare pMaxServiceTypeID int;
 
@@ -218,8 +391,56 @@ BEGIN
 	Set pMaxServiceTypeID = GetMaxServiceTypeID (pService);
 
 	IF (pService != 'Emails') THEN
-		Select S.ID, S.Path, S.Name from Services S, ServiceKeywords K where K.ServiceID = S.ID AND (S.ServiceTypeID between pMinServiceTypeID and pMaxServiceTypeID) and K.Keyword = pValue;
+		Select distinct K.Keyword, count(*) from Services S, ServiceKeywords K where K.ServiceID = S.ID AND (S.ServiceTypeID between pMinServiceTypeID and pMaxServiceTypeID) group by K.Keyword;
 	END IF;
+END|
+
+
+
+DROP PROCEDURE if exists GetKeywords;|
+
+CREATE PROCEDURE GetKeywords (pPath varchar(200), pName varchar(200))
+BEGIN 
+	Select Keyword from ServiceKeywords where ServiceID = GetServiceIDNum(pPath, pName);
+END|
+
+
+DROP PROCEDURE if exists AddKeyword;|
+
+CREATE PROCEDURE AddKeyword (pPath varchar(200), pName varchar(200), pValue varchar(32)) 
+BEGIN 
+	insert into ServiceKeywords (ServiceID, Keyword) values (GetServiceIDNum(pPath, pName), pValue);
+END|
+
+
+DROP PROCEDURE if exists RemoveKeyword;|
+
+CREATE PROCEDURE RemoveKeyword (pPath varchar(200), pName varchar(200), pValue varchar(32)) 
+BEGIN 
+	delete from ServiceKeywords where ServiceID = GetServiceIDNum(pPath, pName) and Keyword = pValue;
+END|
+
+
+DROP PROCEDURE if exists RemoveAllKeywords;|
+
+CREATE PROCEDURE RemoveAllKeywords (pPath varchar(200), pName varchar(200)) 
+BEGIN 
+	delete from ServiceKeywords where ServiceID = GetServiceIDNum(pPath, pName);
+END|
+
+
+DROP PROCEDURE if exists SearchKeywords;|
+
+CREATE PROCEDURE SearchKeywords (pService varchar(32), pValue varchar(255), pMaxHits int) 
+BEGIN 
+
+	Set @MinServiceTypeID = GetServiceTypeID (pService);
+	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
+	Set @keyword = pValue;
+	Set @MaxHits = pMaxHits;
+
+	EXECUTE SEARCH_KEYWORDS USING @MinServiceTypeID, @MaxServiceTypeID, @keyword, @MaxHits;
+	
 END|
 
 
@@ -366,6 +587,14 @@ END|
 
 
 
+DROP PROCEDURE if exists SelectMetadataClasses;|
+
+CREATE PROCEDURE  SelectMetadataClasses ()
+BEGIN
+	SELECT DISTINCT SUBSTRING_INDEX(MetaName, '.', 1) FROM MetaDataTypes;
+END|
+
+
 DROP PROCEDURE if exists InsertMetadataType;|
 
 CREATE PROCEDURE InsertMetadataType (pMetaName varchar(64), pDataTypeID int, pEmbedded bool, pWriteable bool)
@@ -378,14 +607,65 @@ END|
 -- search SPs
 
 
-DROP PROCEDURE if exists PrepareQueries;|
 
-CREATE PROCEDURE PrepareQueries ()
+
+
+DROP PROCEDURE if exists SearchFilesText;|
+
+CREATE PROCEDURE SearchFilesText (pText varchar(255), pMaxHits int, pSorted bool)
 BEGIN
-	PREPARE SEARCH_TEXT_UNSORTED FROM 'SELECT  DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?';
-	PREPARE SEARCH_TEXT_SORTED FROM 'SELECT  DISTINCT F.Path, F.Name,   MATCH (M.MetaDataIndexValue) AGAINST (?) FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (?) LIMIT ?';
-	PREPARE SEARCH_TEXT_SORTED_BOOL FROM 'SELECT  DISTINCT F.Path, F.Name,   MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) As Relevancy FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) ORDER BY Relevancy LIMIT ?';
+	
+	Set @SearchText = pText;
+	Set @MaxHits = pMaxHits;
+	Set @MinServiceTypeID = GetServiceTypeID ('Files');
+	Set @MaxServiceTypeID = GetMaxServiceTypeID ('Files');
+	
+
+
+	IF (pSorted = 0) THEN
+		EXECUTE SEARCH_FILES_TEXT USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @MaxHits;
+	ELSE 
+		EXECUTE SEARCH_FILES_TEXT_SORTED USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @MaxHits;
+	END IF; 
 END|
+
+
+
+
+DROP PROCEDURE if exists SearchMetaData;|
+
+CREATE PROCEDURE SearchMetaData (pService varchar(32), pMetaData varchar(128), pText varchar(255), pMaxHits int)
+BEGIN
+	
+	Set @SearchText = pText;
+	Set @MaxHits = pMaxHits;
+	Set @SearchMetadataID = GetMetaDataTypeID (pMetaData);
+	Set @MinServiceTypeID = GetServiceTypeID (pService);
+	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
+	
+	IF (GetMetaDataType(pMetaData) = 0) THEN
+		EXECUTE SEARCH_INDEXED_METADATA  USING @MinServiceTypeID, @MaxServiceTypeID, @SearchMetadataID,  @SearchText, @MaxHits;
+	END IF;
+		
+END|
+
+
+DROP PROCEDURE if exists SearchMatchingMetaData;|
+
+CREATE PROCEDURE SearchMatchingMetaData (pService varchar(32), pPath varchar(255), pName varchar(255), pText varchar(255))
+BEGIN
+	
+	Set @SearchText = pText;
+	Set @Path = pPath;
+	Set @Name = pName;
+	Set @MinServiceTypeID = GetServiceTypeID (pService);
+	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
+
+	EXECUTE SEARCH_MATCHING_FIELDS  USING @MinServiceTypeID, @MaxServiceTypeID,@Path, @Name,  @SearchText, @SearchText, @MinServiceTypeID, @MaxServiceTypeID,@Path, @Name,  @SearchText;
+
+		
+END|
+
 
 
 
@@ -450,6 +730,30 @@ BEGIN
 
 	SELECT DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M, ServiceMetaData M2 WHERE F.ID = M.ServiceID AND F.ID = M2.ServiceID AND (F.Path like pLocationLike OR F.Path = pLocation) AND MATCH (M.MetaDataIndexValue) AGAINST (pText IN BOOLEAN MODE) AND (F.ServiceTypeID between 0 and 4) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, pMimes) LIMIT 512;
 END|
+
+
+-- Playlists SPs
+
+
+DROP PROCEDURE if exists RenamePlayList;|
+
+CREATE PROCEDURE RenamePlayList (pOldName varchar(255), pNewName varchar(255))
+BEGIN
+
+	Update Services set Name = pNewName where Name = pOldName and ServiceTypeID = GetServiceTypeID('Playlists');
+	Update ServiceMetaData set MetaDataIndexValue = pNewName where MetaDataID = GetMetaDataTypeID('Playlist.Name') and  MetaDataIndexValue = pOldName;
+
+END|
+
+
+DROP PROCEDURE if exists GetAllPlaylists;|
+
+CREATE PROCEDURE GetAllPlaylists ()
+BEGIN
+	select distinct Name from Services where ServiceTypeID = GetServiceTypeID('Playlists');
+END|
+
+
 
 
 -- pending files SPs
@@ -622,9 +926,16 @@ DROP PROCEDURE if exists GetStats;|
 
 CREATE PROCEDURE GetStats ()
 BEGIN
-	select 0, 'Total files indexed', count(*) from Services where ServiceTypeID between 0 and 8 
+	select 'Total files indexed', 
+		count(*) as n, NULL
+        from Services where ServiceTypeID between 0 and 8 
 	union
-	select  T.TypeID, T.TypeName, count(*) from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeID, T.TypeName; 
+	select  T.TypeName, 
+		count(*) as n,
+		ROUND(COUNT(*)
+                / (SELECT COUNT(*) FROM Services)
+                * 100, 2)
+		from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName; 
 END|
 
 

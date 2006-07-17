@@ -6,29 +6,36 @@
 
 		A list of service types can be obtained by calling method GetServices and will *potentially* include the following :
 
-		Files   
-		Documents*
-		Images*
-		Music*
-		Videos*
-		FilesOther*
-		VFSFiles
-		VFSDocuments**
-		VFSImages**
-		VFSMusic**
-		VFSVideos**
-		VFSOther**
-		Playlists
-		Notes
-		Applications
-		People
-		Emails
-		Conversations
-		Appointments
-		Tasks
-		Bookmarks
-		History
-		Projects
+		"Files" 
+		"Folders" *
+		"Documents" *
+		"Images" *
+		"Music" *
+		"Videos" *
+		"Text Files" *
+		"Development Files" *
+		"Other Files" *
+		"VFS Files"
+		"VFS Folders" **
+		"VFS Documents" **
+		"VFS Images" **
+		"VFS Music" **
+		"VFS Videos" **
+		"VFS Text Files" **
+		"VFS Development Files" **
+		"VFS Other Files" **
+		"Conversations"
+		"Playlists"
+		"Applications"	
+		"Contacts"
+		"Emails"	
+		"EmailAttachments"
+		"Notes"
+		"Appointments"
+		"Tasks"
+		"Bookmarks"
+		"History"
+		"Projects"
 			
 		
 		(*) - these services are a subset of "Files" service.
@@ -52,17 +59,27 @@
 	<interface name="org.freedesktop.Tracker">
 		<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_client"/>
 
-		<!-- Test method -->
-		<method name="Ping">
-			<arg type="b" name="response" direction="out" />
+		<!-- Returns the version number of tracker as an integer as XXXXXX where each XX pair represents part of the version
+		     (EG "100" is returned for version 0.1.0 and "14523" would represent version 1.45.23) -->
+		<method name="GetVersion">
+			<arg type="i" name="version" direction="out" />
 		</method>
 
 
-		<!-- Gets all implemented services and also any corresponding metdata type class for the service (IE "File", "Doc", "Image" etc) -->
+		<!-- Gets all implemented services and also returns any corresponding metadata type class for the service (IE "File", "Doc", "Image" etc)
+		     If main_services_only is set to true then only the major services are returned
+		     Output is in dict format: (service -> metadata class, description)  -->			
 		<method name="GetServices">
-			<arg type="as" name="service_array" direction="out" />
-			<arg type="as" name="metadata_class_array" direction="out" />
+			<arg type="b" name="main_services_only" direction="in" />
+			<arg type="a{sv}" name="result" direction="out" />
 		</method>
+
+
+		<!-- Get statistics for services that have been indexed. Output is in dict format: (service -> no of entities, percentage)  -->
+		<method name="GetStats">
+			<arg type="a{sv}" name="service_stats" direction="out" />
+		</method>
+
 
 	</interface>
 
@@ -132,6 +149,15 @@
 			<arg type="as" name="result" direction="out" />
 		</method>
 
+		<!-- signal emitted whenever metadata for a service entity is changed. The keys are the metadata names that have changed -->
+		<signal name="Changed">
+			<arg type="s" name="service"/>
+			<arg type="s" name="uri_path"/>
+			<arg type="s" name="uri_name"/>
+			<arg type="as" name="keys"/>
+			<arg type="as" name="values"/>
+		</signal>
+
 
 		
 
@@ -139,6 +165,15 @@
 
 	<interface name="org.freedesktop.Tracker.Keywords">
 	<!-- calls for tags/keywords for any service object or file -->
+
+		<!-- gets a list of all unique keywords/tags that are in use by the specified service irrespective of the uri or id of the entity
+		     Returns dict/hashtable with the keyword as the key and the total usage count of the keyword as the variant part
+		-->
+		<method name="GetList">
+			<arg type="s" name="service" direction="in" />
+			<arg type="a{sv}" name="value" direction="out" />
+		</method>
+
 
 		<!-- gets all unique keywords/tags for specified service and id -->
 		<method name="Get">
@@ -161,47 +196,106 @@
 			<arg type="as" name="keywords" direction="in" />
 		</method>
 
+		<!-- removes all keywords/tags for specified service and id -->
+		<method name="RemoveAll">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+		</method>
+
 		<!-- searches specified service for matching keyword/tag and returns an array of matching id values for the service-->
 		<method name="Search">
 			<arg type="s" name="service" direction="in" />
-			<arg type="s" name="keywords" direction="in" />
+			<arg type="as" name="keywords" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
+
+		<!-- emitted whenever tags on an entity change -->
+		<signal name="Changed">
+			<arg type="s" name="service"/>
+			<arg type="s" name="id"/>
+		</signal>
+
+
+
 
 	</interface>
 
 
 	<interface name="org.freedesktop.Tracker.Search">
-
-		<!-- searches specified service using an xml rdf query for the query_condition parameter and returns the fields for all matching entities -->
-		<method name="Query">
-			<arg type="s" name="service" direction="in" />
-			<arg type="as" name="fields" direction="in" />
-			<arg type="s" name="query_condition" direction="in" />
-			<arg type="i" name="max_hits" direction="in" />
-			<arg type="a{sv}" name="result" direction="out" />
-		</method>
+		<!-- generic search interface (see other interfaces for file/keyword specific searches)-->
 
 
-		<!-- searches specified service for entities that match the specified text. Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
+		<!-- searches specified service for entities that match the specified search_text. 
+		     Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
 		<method name="Text">
 			<arg type="s" name="service" direction="in" />
-			<arg type="s" name="text" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="b" name="sort_by_relevance" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
 
 
-		<!-- searches specified service for matching text and returns an array of matching id values for the service complete with text extract and basic file info suitable for use in a search gui-->
-		<method name="TextDetailed">
-			<arg type="s" name="service" direction="in" />
-			<arg type="s" name="text" direction="in" />
+		<!-- searches all file based entities that match the specified search_text. 
+		     Returns dict/hashtable with the uri as key and the following fields as the variant part in order: file service category, File.Format, File.Size, File.Rank, File.Modified
+		     If group_results is True then results are sorted and grouped by service type.
+		     -->
+		<method name="FilesByText">
+			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="b" name="sort_by_relevance" direction="in" />
+			<arg type="b" name="group_results" direction="in" />
 			<arg type="a{sv}" name="result" direction="out" />
 		</method>
+
+
+		<!-- searches a specific metadata field (field parameter) for a search term (search_text).
+		     The result is an array of uri/id's 
+		 -->
+		<method name="Metadata">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="field" direction="in" />
+			<arg type="s" name="search_text"  direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+
+
+		<!-- Retrieves matching metadata fields for a search term on a specific service and entity.
+		     The result is a dict/hashtable with the metadata name as the key and the corresponding metadata value as the variant
+		     If the metadata result is a large field (like File.Content) then only a small chunk of the matching text is returned
+		     Only indexable metadata fields are searched and returned.
+		 -->
+		<method name="MatchingFields">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="s" name="search_text"  direction="in" />
+			<arg type="a{sv}" name="result" direction="out" />
+		</method>
+
+
+
+		<!-- searches specified service for matching entities.
+		     The service parameter specifies the service which the query will be performed on
+		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null			
+		     The search_text paramter specifies the text to search for in a full text search of all indexed fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
+		     The query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results - this parameter can be null if the search_text is not null (in which case only the search_text parameter is used to find matches)
+		     The max_hits parameter limits the size of the result set.
+		     The sort_by_service parameter optionally sorts results by their service category (if FALSE no service sorting is done)
+		     The result is a hashtable/dict with the id of the matching entity as the key fields.
+		     The variant part of the result is the service category followed by list of supplied fields as specified in the fields parameter
+		-->
+		<method name="Query">
+			<arg type="s" name="service" direction="in" />
+			<arg type="as" name="fields" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="s" name="query_condition" direction="in" />
+			<arg type="b" name="sort_by_service" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="a{sv}" name="result" direction="out" />
+		</method>
+
 
 	</interface>
 
@@ -212,29 +306,41 @@
 -->
 	<interface name="org.freedesktop.Tracker.Files">
 
+		<!-- creates a new entry for a file in tracker's database. This method is ueful when you want to tell Tracker about a file which it cannot see (EG a VFS file) or
+		     the file is located outside the watch/crawl path -->
 		<method name="Create">
 			<arg type="s" name="uri" direction="in" />
+			<arg type="b" name="is_directory" direction="in" />
 			<arg type="s" name="mime" direction="in" />
 			<arg type="i" name="size" direction="in" />
 			<arg type="i" name="mtime" direction="in" />
 		</method>
 	
-
+		<!-- Removes the file entry from tracker's database-->
 		<method name="Delete">
 			<arg type="s" name="uri" direction="in" />
 		</method>
 
-		<method name="GetFileContents">
+		<!-- Get the "File.Content" field for a file and allows you to specify the offset and amount of text to retrieve  -->
+		<method name="GetTextContents">
 			<arg type="s" name="uri" direction="in" />
 			<arg type="i" name="offset"  direction="in" />
 			<arg type="i" name="max_length"  direction="in" />				
+			<arg type="s" name="result" direction="out" />
+		</method>
+	
+
+		<!-- Retrieves a chunk of matching text of specified length that contains the search text in the File.Content field -->
+		<method name="SearchTextContents">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="text"  direction="in" />
+			<arg type="i" name="length"  direction="in" />
 			<arg type="s" name="result" direction="out" />
 		</method>
 
 
 		<!--
 		Retrieves all files that match a service description
-		Valid file_service types for GetByServiceType are: "Music", "Documents", "Images", "Videos", "VFSMusic", "VFSDocuments", "VFSImages", "VFSVideos"
 		-->
 		<method name="GetByServiceType">
 			<arg type="s" name="file_service" direction="in" />
@@ -265,17 +371,16 @@
 			<arg type="b" name="thumbnails" direction="in" />
 		</method>
 
-		<!-- returns true if file's metadata is up to date -->
-		<method name="IsUpToDate">
+		<!-- returns mtime of file in seconds since epoch -->
+		<method name="GetMTime">
 			<arg type="s" name="uri" direction="in" />
-			<arg type="i" name="mtime" direction="in" />
-			<arg type="b" name="result" direction="out" />
+			<arg type="i" name="result" direction="out" />
 		</method>
 
-		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata -->
+		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata fields. Hashtable/dict output is uri as key and field metadata as the variant -->
 		<method name="GetMetadataForFilesInFolder">
 			<arg type="s" name="uri" direction="in" />
-			<arg type="as" name="keys" direction="in" />
+			<arg type="as" name="fields" direction="in" />
 			<arg type="a{sv}" name="values" direction="out" />
 		</method>
 
@@ -311,10 +416,15 @@
 			<arg type="s" name="mime_type"/>
 		</signal>
 
-		<signal name="Deleted">
+		<signal name="FileDeleted">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
 		</signal>
+
+		<signal name="DirectoryDeleted">
+			<arg type="s" name="directory"/>
+		</signal>
+
 
 		<signal name="Moved">
 			<arg type="s" name="move_from_path"/>
@@ -323,17 +433,11 @@
 			<arg type="s" name="move_to_filename"/>
 		</signal>
 
-		<signal name="Changed">
+		<signal name="Edited">
 			<arg type="s" name="path"/>
 			<arg type="s" name="filename"/>
 		</signal>
 
-		<signal name="MetadataChanged">
-			<arg type="s" name="path"/>
-			<arg type="s" name="filename"/>
-			<arg type="as" name="keys"/>
-			<arg type="as" name="values"/>
-		</signal>
 
 		<signal name="ThumbnailChanged">
 			<arg type="s" name="path"/>
@@ -342,60 +446,4 @@
 			<arg type="s" name="largethumbpath"/>
 		</signal>
 	</interface>
-
-
-	<interface name="org.freedesktop.Tracker.PlayLists">
-
-		<method name="Create">
-			<arg type="s" name="list_name" direction="in" />
-		</method>	
-
-		<method name="Delete">
-			<arg type="s" name="list_name" direction="in" />
-		</method>
-
-		<method name="Rename">
-			<arg type="s" name="old_list_name" direction="in" />
-			<arg type="s" name="new_list_name" direction="in" />
-		</method>		
-
-		<method name="Get">
-			<arg type="as" name="list_names" direction="out" />
-		</method>	
-	
-		<method name="AddMediaFile">
-			<arg type="s" name="list_name" direction="in" />
-			<arg type="s" name="media_file_uri" direction="in" />
-		</method>
-
-		<method name="RemoveMediaFile">
-			<arg type="s" name="list_name" direction="in" />
-			<arg type="s" name="media_file_uri" direction="in" />
-		</method>
-
-		<method name="GetMediaFiles">
-			<arg type="s" name="list_name" direction="in" />
-			<arg type="as" name="media_file_uris" direction="out" />
-		</method>	
-
-
-		<!-- Returns unique list of all *audio only* media tracks in a Playlist
-		     Output format is array of track uri's followed by the following metadata:
-		 	
-			Audio.Title
-		 	Audio.Artist
-			Audio.Album
-			Audio.Duration
-			Audio.PlayCount
- 		     	
-		-->
-		<method name="GetMediaFilesDetailed">
-			<arg type="s" name="list_name" direction="in" />
-			<arg type="a{sv}" name="results" direction="out" />
-		</method>	
-	
-
-	</interface>
-
-
 </node>

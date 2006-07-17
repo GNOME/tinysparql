@@ -34,10 +34,16 @@ trackerd_SOURCES =		\
 	tracker-db.h		\
 	tracker-dbus.c		\
 	tracker-dbus.h		\
+	tracker-dbus-files.c	\
+	tracker-dbus-files.h	\
 	tracker-dbus-methods.c	\
 	tracker-dbus-methods.h	\
 	tracker-dbus-metadata.c	\
 	tracker-dbus-metadata.h	\
+	tracker-dbus-keywords.h \
+	tracker-dbus-keywords.c \
+	tracker-dbus-search.h   \
+	tracker-dbus-search.c   \
 	tracker-metadata.c	\
 	tracker-metadata.h	\
 	tracker-rdf-query.c	\
@@ -66,4 +72,5 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(DBUS_LIBS)	\
 		 $(MYSQL_LIBS)	\
 		 -lstdc++
+
 

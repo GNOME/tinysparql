@@ -22,4 +22,9 @@
 void	tracker_dbus_method_metadata_get 			(DBusRec *rec);
 void	tracker_dbus_method_metadata_set 			(DBusRec *rec);
 
-void	tracker_dbus_method_register_metadata_type 		(DBusRec *rec);
+void	tracker_dbus_method_metadata_register_type 		(DBusRec *rec);
+
+void	tracker_dbus_method_metadata_get_type_details 		(DBusRec *rec);
+void	tracker_dbus_method_metadata_get_registered_types	(DBusRec *rec);
+void	tracker_dbus_method_metadata_get_writeable_types	(DBusRec *rec);
+void	tracker_dbus_method_metadata_get_registered_classes	(DBusRec *rec);

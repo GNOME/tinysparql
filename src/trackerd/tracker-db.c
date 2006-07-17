@@ -460,9 +460,7 @@ tracker_db_get_id (DBConnection *db_con, const char* service, const char *uri)
 		return NULL;
 	}
 
-	if (tracker_str_in_array (service, implemented_services) == -1) {
-		return NULL;
-	}
+	
 
 	if (tracker_str_in_array (service, file_service_array) != -1) {
 		int id = tracker_db_get_file_id (db_con, uri);
@@ -615,9 +613,13 @@ tracker_db_get_file_id (DBConnection *db_con, const char* uri)
 		return -1;
 	}
 
-	/* TO DO  - file might contain a file uri header (file://) that needs filtering out */
-	path = g_path_get_dirname (uri);
-	name = g_path_get_basename (uri);
+	if (uri[0] == '/') {
+		name = g_path_get_basename (uri);
+		path = g_path_get_dirname (uri);
+	} else {
+		name = tracker_get_vfs_name (uri);
+		path = tracker_get_vfs_path (uri);
+	}
 
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW  row;
@@ -629,7 +631,7 @@ tracker_db_get_file_id (DBConnection *db_con, const char* uri)
 		
 		row = mysql_fetch_row (res);
 
-		if (row[0]) {
+		if (row && row[0]) {
 			id = atoi (row[0]); 
 		} else {
 			id = -1;
@@ -1469,5 +1471,31 @@ tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *
 	} else {
 		make_pending_file (db_con, file_id, uri, mime, counter, action, is_directory);
 	}
+
+}
+
+
+gboolean
+tracker_is_valid_service (DBConnection *db_con, const char *service)
+{
+	MYSQL_RES *res = NULL;
+	MYSQL_ROW  row;
+	gboolean result = FALSE;
+
+	res = tracker_exec_proc  (db_con->db, "ValidService", 1, service);	
+
+	if (res) {
+		row = mysql_fetch_row (res);
+
+		if (row && row[0]) {
+			if (strcmp (row[0], "1") == 0) {  
+				result = TRUE;
+			}
+		}	
+
+		mysql_free_result (res);
+	}
+
+	return result;
 
 }

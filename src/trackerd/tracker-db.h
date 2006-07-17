@@ -68,6 +68,7 @@ void		tracker_db_free_result 		(char ***result);
 void		tracker_db_log_result 		(char ***result);
 FileInfo *	tracker_db_get_file_info 	(DBConnection *db_con, FileInfo *info);
 int		tracker_db_get_file_id	 	(DBConnection *db_con, const char* uri);
+gboolean	tracker_is_valid_service 	(DBConnection *db_con, const char *service);
 char *		tracker_db_get_id	 	(DBConnection *db_con, const char* service, const char *uri);
 MYSQL_RES *	tracker_exec_sql   		(MYSQL *db, const char *query);
 void		tracker_log_sql	   		(MYSQL *db, const char *query);

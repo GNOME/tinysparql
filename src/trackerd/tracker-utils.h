@@ -35,9 +35,9 @@ extern char *tracker_actions[];
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD 1
 #define FILE_SCHEDULE_PERIOD 500
-#define TRACKER_DB_VERSION_REQUIRED 1
-#define TRACKER_VERSION	"0.0.4"
-
+#define TRACKER_DB_VERSION_REQUIRED 2
+#define TRACKER_VERSION	"0.1.0"
+#define TRACKER_VERSION_INT 100
 
 /* Actions can represent events from FAM/iNotify or be artificially created */
 typedef enum {
@@ -130,12 +130,19 @@ typedef struct {
 
 } FileInfo;
 
+
+char **		tracker_make_array_null_terminated (char **array, int length);
+
+void		tracker_free_array 		(char **array, int row_count);
 char *		tracker_int_to_str		(int i);
 char *		tracker_long_to_str		(long i);
 char *		tracker_format_date 		(const char *time_string);
 time_t		tracker_str_to_date 		(const char *time_string);
 char *		tracker_date_to_str 		(long date_time);
 int		tracker_str_in_array 		(const char *str, char **array);
+
+char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
+
 int		tracker_get_row_count 		(char ***result);
 FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);	
 FileInfo * 	tracker_get_file_info  	 	(FileInfo *info);
