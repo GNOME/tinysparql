@@ -55,39 +55,60 @@ int
 main (int argc, char **argv) 
 {
 
-	int bytes_read;
-	char buffer[2048];
+	char *buffer;
 	GHashTable *table = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
 
 	
-	client =  tracker_connect (FALSE);
-
-	if (!client) {
-		g_print ("Could not initialise Tracker - exiting...");
+	if (argc < 2) {
+		g_print ("usage - tracker-query File [Metadata Fields...]\n");
 		return 1;
 	}
 
-	bytes_read = fread(buffer, 1, 2047, stdin);
 
-	if(!bytes_read) {
-		return 0;
+	if (!g_file_get_contents (argv[1], &buffer, NULL, NULL)) {
+		g_print ("Could not read file %s", argv[1]);
+		return 1;	
 	}
-	
-	buffer[bytes_read] = '\0';
 
-	table = tracker_search_query (client, -1, SERVICE_FILES, NULL, NULL, buffer, 512, FALSE, error);
+	client =  tracker_connect (FALSE);
+
+	if (!client) {
+		g_print ("Could not initialise Tracker over dbus connection - exiting...\n");
+		return 1; 
+	}
+
+	int i;
+	char **meta_fields;
+
+
+	if (argc > 2) {
+		meta_fields = g_new (char *, (argc-1));
+		for (i=0; i < (argc-2); i++) {
+			meta_fields[i] = argv[i+2];
+		}
+		meta_fields[argc-2] = NULL;
+	}
+
+
+	if (argc ==2) {
+		char *fields[]  = { "File.Format", NULL};
+	
+		table = tracker_search_query (client, -1, SERVICE_FILES, fields, NULL, buffer, 512, FALSE, error);
+	} else {
+		table = tracker_search_query (client, -1, SERVICE_FILES, meta_fields, NULL, buffer, 512, FALSE, error);
+	}
 
 	if (error) {
-		g_warning ("An error has occured : %s", error->message);
+		g_warning ("An error has occured : %s\n", error->message);
 		g_error_free (error);
 		return 1;
 	}
 
 
 	if (table) {
-		g_print ("got %d values\n", g_hash_table_size (table));
+		g_print ("got %d values\n\n", g_hash_table_size (table));
 		g_hash_table_foreach (table, get_meta_table_data, NULL);
 		g_hash_table_destroy (table);	
 	}

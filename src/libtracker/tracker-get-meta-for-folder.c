@@ -32,7 +32,7 @@ get_meta_table_data (gpointer key,
 	char **meta, **meta_p;
 
 	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
-		g_warning ("fatal communication error");
+		g_warning ("fatal communication error\n");
 		return;
 	}
 
@@ -54,26 +54,49 @@ int
 main (int argc, char **argv) 
 {
 	
-	const char *metadata[] = {"File.Format", "File.Size", NULL};
 	GHashTable *table = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
 
 
-	if (argc != 2) {
-		g_print ("usage - tracker-meta-folder FOLDER");
+	if (argc < 2) {
+		g_print ("usage - tracker-meta-folder FOLDER [Metadata1...]\n");
 		return 1;
 	}
 
 	client =  tracker_connect (FALSE);
 
 	if (!client) {
-		g_print ("Could not initialise Tracker - exiting...");
+		g_print ("Could not initialise Tracker - exiting...\n");
 		return 1;
 	}
 
 
-	table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], metadata, error);
+
+
+
+	if (argc ==2) {
+		char *fields[]  = {NULL};
+	
+		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], fields, error);
+	} else {
+
+		int i;
+		char **meta_fields;
+
+
+		if (argc > 2) {
+			meta_fields = g_new (char *, (argc-1));
+			for (i=0; i < (argc-2); i++) {
+				meta_fields[i] = argv[i+2];
+			}
+			meta_fields[argc-2] = NULL;
+		}
+		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], meta_fields, error);
+	}
+
+
+	
 	
 	if (error) {
 		g_warning ("An error has occured : %s", error->message);

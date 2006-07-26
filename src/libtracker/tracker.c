@@ -679,7 +679,7 @@ tracker_files_get_mtime	(TrackerClient *client, const char *uri, GError *error)
 
 
 GHashTable *	
-tracker_files_get_metadata_for_files_in_folder	(TrackerClient *client, int live_query_id, const char *uri, const char **fields, GError *error)
+tracker_files_get_metadata_for_files_in_folder	(TrackerClient *client, int live_query_id, const char *uri, char **fields, GError *error)
 {
 	GHashTable *table;
 
@@ -1220,7 +1220,7 @@ tracker_files_get_mtime_async	(TrackerClient *client, const char *uri, TrackerIn
 
 
 void
-tracker_files_get_metadata_for_files_in_folder_async	(TrackerClient *client, int live_query_id, const char *uri, const char **fields, TrackerHashTableReply callback, gpointer user_data)
+tracker_files_get_metadata_for_files_in_folder_async	(TrackerClient *client, int live_query_id, const char *uri, char **fields, TrackerHashTableReply callback, gpointer user_data)
 {
 	HashTableCallBackStruct *callback_struct;
 

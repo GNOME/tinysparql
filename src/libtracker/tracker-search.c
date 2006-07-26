@@ -35,7 +35,7 @@ my_callback (char **result, GError *error, gpointer user_data)
 	}
 
 	if (!result) {
-		g_print ("no results were found matching your query");
+		g_print ("no results were found matching your query\n");
 		return;
 	}
 	
@@ -54,10 +54,10 @@ main (int argc, char **argv)
 {
 
 	TrackerClient *client = NULL;
-	char *search_term;
+
 
 	if (argc < 2) {
-		g_print ("usage - tracker-search SearchTerm1  [Searchterm2...]");
+		g_print ("usage - tracker-search SearchTerm1  [Searchterm2...]\n");
 		return 1;
 
 	}
@@ -65,14 +65,27 @@ main (int argc, char **argv)
 	client =  tracker_connect (FALSE);
 
 	if (!client) {
-		g_print ("Could not initialise Tracker - exiting...");
+		g_print ("Could not initialise Tracker - exiting...\n");
 		return 1;
 	}
 
 	loop = g_main_loop_new (NULL, TRUE);
+	
+	if (argc > 2) {
 
+		GString *str = g_string_new (argv[1]);
+		int i;
 
-	tracker_search_text_async  (client, -1, SERVICE_FILES, argv[1], 512, FALSE, my_callback, NULL);
+		for (i=0; i<(argc-2); i++) {
+			g_string_append_printf (str, " %s", argv[i+2]);
+		}
+
+		char *search = g_string_free (str, FALSE);
+		tracker_search_text_async  (client, -1, SERVICE_FILES, search,  512, FALSE, my_callback, NULL);
+
+	} else {
+		tracker_search_text_async  (client, -1, SERVICE_FILES, argv[1], 512, FALSE, my_callback, NULL);
+	}
 
 	g_main_loop_run (loop);
 

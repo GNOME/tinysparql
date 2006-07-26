@@ -132,7 +132,7 @@ char **		tracker_files_get_by_mime_type			(TrackerClient *client,  int live_quer
 char **		tracker_files_get_by_mime_type_vfs		(TrackerClient *client,  int live_query_id, char **mimes, int max_hits, GError *error);
 
 int		tracker_files_get_mtime				(TrackerClient *client, const char *uri, GError *error);
-GHashTable *	tracker_files_get_metadata_for_files_in_folder	(TrackerClient *client, int live_query_id, const char *uri, const char **fields, GError *error);
+GHashTable *	tracker_files_get_metadata_for_files_in_folder	(TrackerClient *client, int live_query_id, const char *uri, char **fields, GError *error);
 
 
 /* Deprecated calls - Following API specific for nautilus search use only */
@@ -183,7 +183,7 @@ void		tracker_files_get_by_mime_type_async 			(TrackerClient *client,  int live_
 void		tracker_files_get_by_mime_type_vfs_async 		(TrackerClient *client,  int live_query_id, char **mimes, int max_hits, TrackerArrayReply callback, gpointer user_data);
 
 void		tracker_files_get_mtime_async 				(TrackerClient *client, const char *uri, TrackerIntReply callback, gpointer user_data);
-void		tracker_files_get_metadata_for_files_in_folder_async 	(TrackerClient *client, int live_query_id, const char *uri, const char **fields, TrackerHashTableReply callback, gpointer user_data);
+void		tracker_files_get_metadata_for_files_in_folder_async 	(TrackerClient *client, int live_query_id, const char *uri, char **fields, TrackerHashTableReply callback, gpointer user_data);
 
 
 
