@@ -22,14 +22,42 @@
 #include <glib.h>
 #include "../libtracker/tracker.h" 
 
+
+static void
+get_meta_table_data (gpointer key,
+   		     gpointer value,
+		     gpointer user_data)
+{
+
+	char **meta, **meta_p;
+
+	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
+		g_warning ("fatal communication error");
+		return;
+	}
+
+
+	g_print ("%s \n", (char *)key);
+
+	meta = g_value_get_boxed (value);
+
+	for (meta_p = meta; *meta_p; meta_p++) {
+		if (*meta_p) {
+	     		 g_print ("%s, ",  (char *)*meta_p);
+		}
+	}	
+	g_print ("\n\n");
+}
+
+
+
 int
 main (int argc, char **argv) 
 {
 
 	int bytes_read;
 	char buffer[2048];
-	char **strarray;
-	char **p_strarray;
+	GHashTable *table = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
 
@@ -49,7 +77,7 @@ main (int argc, char **argv)
 	
 	buffer[bytes_read] = '\0';
 
-	strarray = tracker_search_files_by_query (client, buffer, 512, FALSE, error);
+	table = tracker_search_query (client, -1, SERVICE_FILES, NULL, NULL, buffer, 512, FALSE, error);
 
 	if (error) {
 		g_warning ("An error has occured : %s", error->message);
@@ -58,16 +86,12 @@ main (int argc, char **argv)
 	}
 
 
-	if (!strarray) {
-		g_print ("no results were found matching your query");
-		return 1;
-	}
-	
-	for (p_strarray = strarray; *p_strarray; p_strarray++) {
-    		 g_print ("%s\n", *p_strarray);
+	if (table) {
+		g_print ("got %d values\n", g_hash_table_size (table));
+		g_hash_table_foreach (table, get_meta_table_data, NULL);
+		g_hash_table_destroy (table);	
 	}
 
-	g_strfreev (strarray);
 
 	tracker_disconnect (client);	
 

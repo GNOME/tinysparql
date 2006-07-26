@@ -54,9 +54,10 @@ main (int argc, char **argv)
 {
 
 	TrackerClient *client = NULL;
+	char *search_term;
 
 	if (argc < 2) {
-		g_print ("usage - tracker-search SearchTerm [mimetype]");
+		g_print ("usage - tracker-search SearchTerm1  [Searchterm2...]");
 		return 1;
 
 	}
@@ -70,17 +71,8 @@ main (int argc, char **argv)
 
 	loop = g_main_loop_new (NULL, TRUE);
 
-	if (argc ==3) {
-		char **array;
 
-		array = g_new (char *, 3);
-		array[0] = argv[2];
-		array[1] = argv[3];
-		array[2] = NULL;
-		tracker_search_metadata_by_text_and_mime_async (client, argv[1], (const char**)array, my_callback, NULL);
-	} else {
-		tracker_search_metadata_by_text_async (client, argv[1], my_callback, NULL);
-	}
+	tracker_search_text_async  (client, -1, SERVICE_FILES, argv[1], 512, FALSE, my_callback, NULL);
 
 	g_main_loop_run (loop);
 

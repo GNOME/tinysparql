@@ -422,7 +422,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL;
-	int 		limit, row_count = 0;
+	int 		limit, row_count = 0, query_id;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -433,6 +433,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 		Retrieves all files that match a service description
 		-->
 		<method name="GetByServiceType">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="file_service" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
@@ -440,7 +441,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL,  
+	dbus_message_get_args  (rec->message, NULL,   DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_STRING, &service, 
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
@@ -491,7 +492,7 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL, **mimes = NULL;
-	int 		limit, row_count = 0;
+	int 		limit, row_count = 0, query_id;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -500,6 +501,7 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 /*
 		<!-- Retrieves all non-vfs files of the specified mime type(s) -->
 		<method name="GetByMimeType">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
@@ -508,7 +510,7 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 		
 	int n;
 
-	dbus_message_get_args  (rec->message, NULL,  
+	dbus_message_get_args  (rec->message, NULL,   DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &mimes, &n,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
@@ -566,7 +568,7 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL, **mimes = NULL;
-	int 		limit, row_count = 0;
+	int 		limit, row_count = 0, query_id;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -575,6 +577,7 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 /*
 		<!-- Retrieves all vfs files of the specified mime type(s) -->
 		<method name="GetByMimeTypeVFS">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
@@ -583,7 +586,7 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 		
 	int n;
 
-	dbus_message_get_args  (rec->message, NULL,  
+	dbus_message_get_args  (rec->message, NULL,   DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &mimes, &n,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
@@ -641,7 +644,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	DBusMessage 	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
-	int 		i, id, n, table_count;
+	int 		i, id, n, table_count, query_id;
 	char 		**array, *folder,  *field, *str, *mid; 
 	GString 	*sql;
 	MYSQL_RES 	*res;
@@ -651,7 +654,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	db_con = rec->user_data;
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &folder, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id, DBUS_TYPE_STRING, &folder, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_INVALID);
 
 	id = tracker_get_file_id (db_con, folder, FALSE);	
 

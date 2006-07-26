@@ -376,13 +376,20 @@ tracker_dbus_method_metadata_register_type (DBusRec *rec)
 	}
 
 
+	if (strcmp ("index", type) == 0) {
+		type_id = "0";
+	} else if (strcmp ("string", type) == 0) {
+		type_id = "1";
+	} else if (strcmp ("numeric", type) == 0) {
+		type_id = "2";
+	} else if (strcmp ("date", type) == 0) {
+		type_id = "3";	
+	} else {
+		tracker_set_error (rec, "Invalid Metadata Type specified");
+		return;
+	}
 
-	type_id = g_strdup_printf ("%d", i);
 	tracker_exec_proc  (db_con->db, "InsertMetadataType", 4, meta, type_id, "0", "1");
-	g_free (type_id);
-
-
-
 
 	reply = dbus_message_new_method_return (rec->message);
 	

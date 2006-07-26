@@ -424,7 +424,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL;
-	int 		row_count = 0, limit;
+	int 		row_count = 0, limit, query_id;
 	MYSQL_RES 	*res;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -434,6 +434,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 /*
 		<!-- searches specified service for matching keyword/tag and returns an array of matching id values for the service-->
 		<method name="Search">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="keywords" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
@@ -442,7 +443,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL,  DBUS_TYPE_STRING, &service, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INT32, &limit,  DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id, DBUS_TYPE_STRING, &service, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INT32, &limit,  DBUS_TYPE_INVALID);
 		
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	

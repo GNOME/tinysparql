@@ -50,6 +50,12 @@
 
 		The "id" field uniquely identifies an entity in Tracker regardless of its service type
 
+		The live_query_id parameters in some search and retrieval methods is used to indicate whether the query should be "live". Liveness means
+		the query can receive signals in real time to remove hits that are no longer valid and add new ones that are. These signals are emitted 
+		in response to file or volume notifications. A value of -1 should be passed if live query functionality is not desired. A live_query_id 
+		can be obtained in the future from the LiveQuery Interface.
+		
+
 		 -->
 
 
@@ -204,6 +210,7 @@
 
 		<!-- searches specified service for matching keyword/tag and returns an array of matching id values for the service-->
 		<method name="Search">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="keywords" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
@@ -229,6 +236,7 @@
 		<!-- searches specified service for entities that match the specified search_text. 
 		     Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
 		<method name="Text">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
@@ -242,6 +250,7 @@
 		     If group_results is True then results are sorted and grouped by service type.
 		     -->
 		<method name="FilesByText">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="b" name="group_results" direction="in" />
@@ -287,6 +296,7 @@
 		     The variant part of the result is the service category followed by list of supplied fields as specified in the fields parameter
 		-->
 		<method name="Query">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="fields" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
@@ -343,6 +353,7 @@
 		Retrieves all files that match a service description
 		-->
 		<method name="GetByServiceType">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="file_service" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
@@ -350,13 +361,15 @@
 
 		<!-- Retrieves all non-vfs files of the specified mime type(s) -->
 		<method name="GetByMimeType">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>	
 
 		<!-- Retrieves all vfs files of the specified mime type(s) -->
-		<method name="GetByMimeTypeVFS">
+		<method name="GetByMimeTypeVfs">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
@@ -379,6 +392,7 @@
 
 		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata fields. Hashtable/dict output is uri as key and field metadata as the variant -->
 		<method name="GetMetadataForFilesInFolder">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="uri" direction="in" />
 			<arg type="as" name="fields" direction="in" />
 			<arg type="a{sv}" name="values" direction="out" />

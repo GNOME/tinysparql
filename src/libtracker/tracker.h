@@ -19,48 +19,68 @@
 
 #include "tracker-client.h"
 
-#define TRACKER_SIGNAL_FILE_NOTIFICATION_CHANGED	"FileNotificationChanged"
-#define TRACKER_SIGNAL_BASIC_METADATA_CHANGED		"FileBasicMetaDataChanged"
-#define TRACKER_SIGNAL_EMBEDDED_METADATA_CHANGED	"FileEmbeddedMetaDataChanged"
-#define TRACKER_SIGNAL_EDITABLE_METADATA_CHANGED	"FileEditableMetaDataChanged"
-#define TRACKER_SIGNAL_THUMBNAIL_CHANGED		"FileThumbnailChanged"
-
 typedef void (*TrackerArrayReply) (char **result, GError *error, gpointer user_data);
-typedef void (*TrackerArrayArrayReply) (char ***result, GError *error, gpointer user_data);
 typedef void (*TrackerHashTableReply) (GHashTable *result, GError *error, gpointer user_data);
-typedef void (*TrackerBooleanReply) (gboolean *result, GError *error, gpointer user_data);
+typedef void (*TrackerBooleanReply) (gboolean result, GError *error, gpointer user_data);
 typedef void (*TrackerStringReply) (char *result, GError *error, gpointer user_data);
+typedef void (*TrackerIntReply) (int result, GError *error, gpointer user_data);
 typedef void (*TrackerVoidReply) (GError *error, gpointer user_data);
 
 
 typedef enum {
 	DATA_STRING_INDEXABLE,
 	DATA_STRING,
-	DATA_INTEGER,
+	DATA_NUMERIC,
 	DATA_DATE
 } MetadataTypes;
 
 typedef enum {
-	SERVICE_FILES,
-	SERVICE_DOCUMENTS,
-	SERVICE_IMAGES,
-	SERVICE_MUSIC,
-	SERVICE_PLAYLISTS,
-	SERVICE_APPLICATIONS,
-	SERVICE_PEOPLE,
-	SERVICE_EMAILS,
-	SERVICE_CONVERSATIONS,
-	SERVICE_APPOINTMENTS,
-	SERVICE_TASKS,
-	SERVICE_BOOKMARKS,
-	SERVICE_HISTORY,
-	SERVICE_PROJECTS
+        SERVICE_FILES,
+        SERVICE_FOLDERS,
+        SERVICE_DOCUMENTS,
+        SERVICE_IMAGES,
+        SERVICE_MUSIC,
+        SERVICE_VIDEOS,
+        SERVICE_TEXT_FILES,
+        SERVICE_DEVELOPMENT_FILES,
+        SERVICE_OTHER_FILES,
+        SERVICE_VFS_FILES,
+        SERVICE_VFS_FOLDERS,
+        SERVICE_VFS_DOCUMENTS,
+        SERVICE_VFS_IMAGES,
+        SERVICE_VFS_MUSIC,
+        SERVICE_VFS_VIDEOS,
+        SERVICE_VFS_TEXT_FILES,
+        SERVICE_VFS_DEVELOPMENT_FILES,
+        SERVICE_VFS_OTHER_FILES,
+        SERVICE_CONVERSATIONS,
+        SERVICE_PLAYLISTS,
+        SERVICE_APPLICATIONS,
+        SERVICE_CONTACTS,
+        SERVICE_EMAILS,
+        SERVICE_EMAILATTACHMENTS,
+        SERVICE_APPOINTMENTS,
+        SERVICE_TASKS,
+        SERVICE_BOOKMARKS,
+        SERVICE_HISTORY,
+        SERVICE_PROJECTS
 } ServiceType;
 
+
+typedef struct {
+	char *	 	type;
+	gboolean 	is_embedded;
+	gboolean 	is_writeable;
+
+} MetaDataTypeDetails;
 
 
 typedef struct {
 	DBusGProxy 	*proxy;
+	DBusGProxy 	*proxy_metadata;
+	DBusGProxy 	*proxy_keywords;
+	DBusGProxy 	*proxy_search;
+	DBusGProxy 	*proxy_files;
 	DBusGProxyCall  *last_pending_call; 
 } TrackerClient;
 
@@ -74,30 +94,48 @@ void		tracker_disconnect (TrackerClient *client);
 
 /* synchronous calls */
 
-char *		tracker_get_metadata					(TrackerClient *client, ServiceType service, const char *id, const char *key, GError *error);
-void		tracker_set_metadata					(TrackerClient *client, ServiceType service, const char *id, const char *key, const char *value, GError *error);
-GHashTable *	tracker_get_multiple_metadata				(TrackerClient *client, ServiceType service, const char *id, char **keys, GError *error);
-void		tracker_set_multiple_metadata				(TrackerClient *client, ServiceType service, const char *id, GHashTable *values, GError *error);
-
-void		tracker_register_metadata_type				(TrackerClient *client, const char *name, MetadataTypes type, GError *error);
-gboolean 	tracker_metadata_type_exists				(TrackerClient *client, const char *name, GError *error);
-char **		tracker_get_metadata_types				(TrackerClient *client, GError *error);
-
-char **		tracker_get_keywords					(TrackerClient *client, ServiceType service, const char *id, GError *error);
-void		tracker_add_Keywords					(TrackerClient *client, ServiceType service, const char *id, char **values, GError *error);
-void		tracker_remove_keywords					(TrackerClient *client, ServiceType service, const char *id, char **values, GError *error);
-
-char *** 	tracker_search_metadata_query				(TrackerClient *client, const char *query, int max_hits, gboolean sort_by_relevance, GError *error);
-char **		tracker_search_metadata_text				(TrackerClient *client, ServiceType service, const char *text, int max_hits, gboolean sort_by_relevance, GError *error);
+int		tracker_get_version				(TrackerClient *client, GError *error);
+GHashTable *	tracker_get_services				(TrackerClient *client, gboolean main_services_only, GError *error);
+GHashTable *	tracker_get_stats				(TrackerClient *client, GError *error);
 
 
-/* file specific calls */
-GHashTable *	tracker_get_metadata_for_files_in_folder		(TrackerClient *client, const char *uri, const char **keys, GError *error);
-void		tracker_refresh_file_metadata				(TrackerClient *client, const char *uri, gboolean basic, gboolean embedded, gboolean contents, gboolean thumbnail, GError *error);
-gboolean	tracker_is_file_metadata_up_to_date			(TrackerClient *client, const char *uri, int mtime, GError *error);
+char **			tracker_metadata_get				(TrackerClient *client, ServiceType service, const char *id, char **keys, GError *error);
+void			tracker_metadata_set				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, GError *error);
+void			tracker_metadata_register_type			(TrackerClient *client, const char *name, MetadataTypes type, GError *error);
+MetaDataTypeDetails *	tracker_metadata_get_type_details		(TrackerClient *client, const char *name, GError *error);
+char **			tracker_metadata_get_registered_types		(TrackerClient *client, const char *class, GError *error);
+char **			tracker_metadata_get_writeable_types		(TrackerClient *client, const char *class, GError *error);
+char **			tracker_metadata_get_registered_classes		(TrackerClient *client, GError *error);
+
+
+GHashTable *	tracker_keywords_get_list			(TrackerClient *client, ServiceType service, GError *error);
+char **		tracker_keywords_get				(TrackerClient *client, ServiceType service, const char *id, GError *error);
+void		tracker_Keywords_add				(TrackerClient *client, ServiceType service, const char *id, char **values, GError *error);
+void		tracker_keywords_remove				(TrackerClient *client, ServiceType service, const char *id, char **values, GError *error);
+void		tracker_keywords_remove_all			(TrackerClient *client, ServiceType service, const char *id, GError *error);
+char **		tracker_keywords_search				(TrackerClient *client, int live_query_id, ServiceType service, char **keywords, int max_hits, GError *error);
+
+
+char **		tracker_search_text				(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int max_hits, gboolean sort_by_relevance, GError *error);
+GHashTable *	tracker_search_files_by_text			(TrackerClient *client, int live_query_id, const char *search_text, int max_hits, gboolean group_results, GError *error);
+char **		tracker_search_metadata				(TrackerClient *client, ServiceType service, const char *field, const char* search_text, int max_hits, GError *error);
+GHashTable *	tracker_search_matching_fields			(TrackerClient *client, ServiceType service, const char *id, const char *search_text, GError *error);
+GHashTable * 	tracker_search_query				(TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, const char *query, int max_hits, gboolean sort_by_service, GError *error);
+
+
+void		tracker_files_create				(TrackerClient *client,  const char *uri, gboolean is_directory, const char *mime, int size, int mtime, GError *error);
+void		tracker_files_delete				(TrackerClient *client,  const char *uri, GError *error);
+char *		tracker_files_get_text_contents			(TrackerClient *client,  const char *uri, int offset, int max_length, GError *error);
+char *		tracker_files_search_text_contents		(TrackerClient *client,  const char *uri, const char *search_text, int length, GError *error);
+char **		tracker_files_get_by_service_type		(TrackerClient *client,  int live_query_id, ServiceType service, int max_hits, GError *error);
+char **		tracker_files_get_by_mime_type			(TrackerClient *client,  int live_query_id, char **mimes, int max_hits, GError *error);
+char **		tracker_files_get_by_mime_type_vfs		(TrackerClient *client,  int live_query_id, char **mimes, int max_hits, GError *error);
+
+int		tracker_files_get_mtime				(TrackerClient *client, const char *uri, GError *error);
+GHashTable *	tracker_files_get_metadata_for_files_in_folder	(TrackerClient *client, int live_query_id, const char *uri, const char **fields, GError *error);
+
 
 /* Deprecated calls - Following API specific for nautilus search use only */
-char **		tracker_search_files_by_query				(TrackerClient *client, const char *query, int max_hits, gboolean sort_by_relevance, GError *error);
 char **		tracker_search_metadata_by_text				(TrackerClient *client, const char *query, GError *error);
 char **		tracker_search_metadata_by_text_and_mime		(TrackerClient *client, const char *query, const char **mimes, GError *error);
 char **		tracker_search_metadata_by_text_and_mime_and_location	(TrackerClient *client, const char *query, const char **mimes, const char *location, GError *error);
@@ -107,30 +145,50 @@ char **		tracker_search_metadata_by_text_and_location		(TrackerClient *client, c
 
 /* asynchronous calls */
 
-void tracker_get_metadata_async 			(TrackerClient *client, ServiceType service, const char *id, const char *key, TrackerStringReply callback, gpointer user_data);
-void tracker_set_metadata_async 			(TrackerClient *client, ServiceType service, const char *id, const char *key, const char *value, TrackerVoidReply callback, gpointer user_data);
-void tracker_get_multiple_metadata_async 		(TrackerClient *client, ServiceType service, const char *id, char **keys, TrackerHashTableReply callback, gpointer user_data);
-void tracker_set_multiple_metadata_async 		(TrackerClient *client, ServiceType service, const char *id, GHashTable *values, TrackerVoidReply callback, gpointer user_data);
 
-void tracker_register_metadata_type_async		(TrackerClient *client, const char *name, MetadataTypes type, TrackerVoidReply callback, gpointer user_data);
-void tracker_metadata_type_exists_async			(TrackerClient *client, const char *name, TrackerBooleanReply callback, gpointer user_data);
-void tracker_get_metadata_types_async			(TrackerClient *client, TrackerArrayReply callback, gpointer user_data);
+void		tracker_get_version_async 				(TrackerClient *client,  TrackerIntReply callback, gpointer user_data);
+void		tracker_get_services_async 				(TrackerClient *client,  gboolean main_services_only,  TrackerHashTableReply callback, gpointer user_data);
+void		tracker_get_stats_async 				(TrackerClient *client,  TrackerHashTableReply callback, gpointer user_data);
 
-void tracker_get_keywords_async 			(TrackerClient *client, ServiceType service, const char *id, TrackerArrayReply callback, gpointer user_data);
-void tracker_add_Keywords_async 			(TrackerClient *client, ServiceType service, const char *id, char **values, TrackerVoidReply callback, gpointer user_data);
-void tracker_remove_keywords_async 			(TrackerClient *client, ServiceType service, const char *id, char **values, TrackerVoidReply callback, gpointer user_data);
 
-void tracker_search_metadata_by_query_async 		(TrackerClient *client, const char *query, int max_hits, gboolean sort_by_relevance, TrackerArrayArrayReply callback, gpointer user_data);
-void tracker_search_metadata_text_async 		(TrackerClient *client, ServiceType service, const char *text, int max_hits, gboolean sort_by_relevance, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_get_async 				(TrackerClient *client, ServiceType service, const char *id, char **keys, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_set_async 				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, TrackerVoidReply callback, gpointer user_data);
+void		tracker_metadata_register_type_async 			(TrackerClient *client, const char *name, MetadataTypes type, TrackerVoidReply callback, gpointer user_data);
+void		tracker_metadata_get_registered_types_async 		(TrackerClient *client, const char *class, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_get_writeable_types_async 		(TrackerClient *client, const char *class, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_get_registered_classes_async 		(TrackerClient *client, TrackerArrayReply callback, gpointer user_data);
 
-/* file specific calls */
-void tracker_get_metadata_for_files_in_folder_async 			(TrackerClient *client, const char *uri, char **keys, TrackerHashTableReply callback, gpointer user_data);
-void tracker_refresh_metadata_async 					(TrackerClient *client, const char *uri,  gboolean basic, gboolean embedded, gboolean contents, gboolean thumbnail, TrackerVoidReply callback, gpointer user_data);
-void tracker_is_metadata_up_to_date_async 				(TrackerClient *client, const char *uri, int mtime, TrackerBooleanReply callback, gpointer user_data);
+
+void		tracker_keywords_get_list_async 			(TrackerClient *client, ServiceType service, TrackerHashTableReply callback, gpointer user_data);
+void		tracker_keywords_get_async 				(TrackerClient *client, ServiceType service, const char *id, TrackerArrayReply callback, gpointer user_data);
+void		tracker_Keywords_add_async 				(TrackerClient *client, ServiceType service, const char *id, char **values, TrackerVoidReply callback, gpointer user_data);
+void		tracker_keywords_remove_async 				(TrackerClient *client, ServiceType service, const char *id, char **values, TrackerVoidReply callback, gpointer user_data);
+void		tracker_keywords_remove_all_async 			(TrackerClient *client, ServiceType service, const char *id, TrackerVoidReply callback, gpointer user_data);
+void		tracker_keywords_search_async 				(TrackerClient *client, int live_query_id, ServiceType service, char **keywords, int max_hits, TrackerArrayReply callback, gpointer user_data);
+
+
+void		tracker_search_text_async 				(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int max_hits, gboolean sort_by_relevance, TrackerArrayReply callback, gpointer user_data);
+void		tracker_search_files_by_text_async 			(TrackerClient *client, int live_query_id, const char *search_text, int max_hits, gboolean group_results, TrackerHashTableReply callback, gpointer user_data);
+void		tracker_search_metadata_async 				(TrackerClient *client, ServiceType service, const char *field, const char* search_text, int max_hits, TrackerArrayReply callback, gpointer user_data);
+void		tracker_search_matching_fields_async 			(TrackerClient *client, ServiceType service, const char *id, const char *search_text, TrackerHashTableReply callback, gpointer user_data);
+void	 	tracker_search_query_async 				(TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, const char *query, int max_hits, gboolean sort_by_service, TrackerHashTableReply callback, gpointer user_data);
+
+
+void		tracker_files_create_async 				(TrackerClient *client,  const char *uri, gboolean is_directory, const char *mime, int size, int mtime, TrackerVoidReply callback, gpointer user_data);
+void		tracker_files_delete_async 				(TrackerClient *client,  const char *uri, TrackerVoidReply callback, gpointer user_data);
+void		tracker_files_get_text_contents_async 			(TrackerClient *client,  const char *uri, int offset, int max_length, TrackerStringReply callback, gpointer user_data);
+void		tracker_files_search_text_contents_async 		(TrackerClient *client,  const char *uri, const char *search_text, int length, TrackerStringReply callback, gpointer user_data);
+void		tracker_files_get_by_service_type_async 		(TrackerClient *client,  int live_query_id, ServiceType service, int max_hits, TrackerArrayReply callback, gpointer user_data);
+void		tracker_files_get_by_mime_type_async 			(TrackerClient *client,  int live_query_id, char **mimes, int max_hits, TrackerArrayReply callback, gpointer user_data);
+void		tracker_files_get_by_mime_type_vfs_async 		(TrackerClient *client,  int live_query_id, char **mimes, int max_hits, TrackerArrayReply callback, gpointer user_data);
+
+void		tracker_files_get_mtime_async 				(TrackerClient *client, const char *uri, TrackerIntReply callback, gpointer user_data);
+void		tracker_files_get_metadata_for_files_in_folder_async 	(TrackerClient *client, int live_query_id, const char *uri, const char **fields, TrackerHashTableReply callback, gpointer user_data);
+
+
 
 
 /* Deprecated calls - API specific for nautilus search use only. New code should use tracker_search_metadata_matching_text_async instead */
-void tracker_search_files_by_query_async				(TrackerClient *client, const char *query, int max_hits, gboolean sort_by_relevance, TrackerArrayReply callback, gpointer user_data);
 void tracker_search_metadata_by_text_async 				(TrackerClient *client, const char *query, TrackerArrayReply callback, gpointer user_data);
 void tracker_search_metadata_by_text_and_mime_async			(TrackerClient *client, const char *query, const char **mimes, TrackerArrayReply callback, gpointer user_data);
 void tracker_search_metadata_by_text_and_mime_and_location_async	(TrackerClient *client, const char *query, const char **mimes, const char *location, TrackerArrayReply callback, gpointer user_data);

@@ -32,7 +32,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	DBusMessage *reply;
 	char **array = NULL;	
 	int row_count = 0, i = 0;
-	int limit;
+	int limit, query_id;
 	char *str = NULL, *service = NULL, *search_term = NULL;
 	gboolean sort_results = FALSE, use_boolean_search = FALSE;
 	MYSQL_RES *res = NULL;
@@ -47,6 +47,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		<!-- searches specified service for entities that match the specified search_text. 
 		     Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
 		<method name="Text">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
@@ -55,7 +56,8 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		</method>
 */
 	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &service,
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
+				DBUS_TYPE_STRING, &service,
 				DBUS_TYPE_STRING, &str,  DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_BOOLEAN, &sort_results,
 				DBUS_TYPE_INVALID);
@@ -156,7 +158,7 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	char 		*text;
-	int		limit;
+	int		limit, query_id;
 	gboolean	sort = FALSE;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -169,6 +171,7 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 		     If group_results is True then results are sorted and grouped by service type.
 		     -->
 		<method name="FilesByText">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="b" name="group_results" direction="in" />
@@ -178,7 +181,7 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL,  
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id, 
 			 	DBUS_TYPE_STRING, &text, 
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_BOOLEAN, &sort,
@@ -405,7 +408,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	char **fields = NULL;				
-	int  limit, row_count;
+	int  limit, row_count, query_id;
 	MYSQL_RES *res = NULL;
 	char *str, *query, *search_text, *service;
 	gboolean sort_results = FALSE;
@@ -417,9 +420,9 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	
 /*
 		<!-- searches specified service for matching entities.
-		     The services parameter takes an array of service types names which the query will be performed on
+		     The service parameter specifies the service which the query will be performed on
 		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null			
-		     The search_text paramter specifies the text to search for in a full text search of all fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
+		     The search_text paramter specifies the text to search for in a full text search of all indexed fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
 		     The query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results - this parameter can be null if the search_text is not null (in which case only the search_text parameter is used to find matches)
 		     The max_hits parameter limits the size of the result set.
 		     The sort_by_service parameter optionally sorts results by their service category (if FALSE no service sorting is done)
@@ -427,6 +430,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		     The variant part of the result is the service category followed by list of supplied fields as specified in the fields parameter
 		-->
 		<method name="Query">
+			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="fields" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
@@ -437,7 +441,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args  (rec->message, NULL, 
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_STRING, &service,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &fields, &row_count,
 				DBUS_TYPE_STRING, &search_text,

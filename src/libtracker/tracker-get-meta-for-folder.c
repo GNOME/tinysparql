@@ -54,7 +54,7 @@ int
 main (int argc, char **argv) 
 {
 	
-	const char *metadata[] = {"File.Format", "File.Size", "Doc.PageCount", NULL};
+	const char *metadata[] = {"File.Format", "File.Size", NULL};
 	GHashTable *table = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
@@ -73,7 +73,7 @@ main (int argc, char **argv)
 	}
 
 
-	table =  tracker_get_metadata_for_files_in_folder (client, argv[1], metadata, error);
+	table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], metadata, error);
 	
 	if (error) {
 		g_warning ("An error has occured : %s", error->message);
