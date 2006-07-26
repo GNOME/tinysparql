@@ -1,21 +1,15 @@
-<rdfq:rdfquery>
-  <rdfq:From eachResource="Files">
-    <rdfq:Select>
-      <rdfq:Condition>
-        <rdfq:and>
+<rdfq:Condition>
+  <rdfq:and>
 
-          <rdfq:inSet>
-            <rdfq:Property name="File.Format" />
-            <rdf:String>application/msword,application/pdf,application/vnd.ms-excel,application/vnd.oasis.opendocument.text,application/vnd.sun.xml.writer</rdf:String> 
-          </rdfq:inSet>
+    <rdfq:inSet>
+      <rdfq:Property name="File.Format" />
+      <rdf:String>application/msword,application/pdf,application/vnd.ms-excel,application/vnd.oasis.opendocument.text,application/vnd.sun.xml.writer</rdf:String> 
+    </rdfq:inSet>
 
-	  <rdfq:greaterThan>
-            <rdfq:Property name="Doc.PageCount" />
-            <rdf:Integer>10</rdf:Integer> 
-          </rdfq:greaterThan>
+    <rdfq:greaterThan>
+      <rdfq:Property name="Doc.PageCount" />
+      <rdf:Integer>10</rdf:Integer> 
+    </rdfq:greaterThan>
 
-	</rdfq:and>
-     </rdfq:Condition>
-   </rdfq:Select>
-  </rdfq:From>
-</rdfq:rdfquery>
+  </rdfq:and>
+</rdfq:Condition>

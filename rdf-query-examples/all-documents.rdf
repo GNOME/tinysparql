@@ -1,14 +1,8 @@
-<rdfq:rdfquery>
-  <rdfq:From eachResource="Files">
-    <rdfq:Select>
-      <rdfq:Condition>
+<rdfq:Condition>
 
-        <rdfq:inSet>
-          <rdfq:Property name="File.Format" />
-          <rdf:String>application/msword,application/pdf,application/vnd.ms-excel,application/vnd.oasis.opendocument.text,application/vnd.sun.xml.writer</rdf:String> 
-        </rdfq:inSet>
+  <rdfq:inSet>
+    <rdfq:Property name="File.Format" />
+    <rdf:String>application/msword,application/pdf,application/vnd.ms-excel,application/vnd.oasis.opendocument.text,application/vnd.sun.xml.writer</rdf:String> 
+  </rdfq:inSet>
 
-     </rdfq:Condition>
-   </rdfq:Select>
-  </rdfq:From>
-</rdfq:rdfquery>
+</rdfq:Condition>
