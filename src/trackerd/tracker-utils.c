@@ -1061,7 +1061,8 @@ tracker_get_mime_type (const char* uri)
 		return g_strdup("unknown");
 	}
 
-	result = xdg_mime_get_mime_type_from_file_name (uri);
+	result = xdg_mime_get_mime_type_for_file (uri, NULL);
+
 
 	if (result != NULL && result != XDG_MIME_TYPE_UNKNOWN) {
 		return g_strdup (result);

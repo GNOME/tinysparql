@@ -18,7 +18,7 @@
  */
 
 #define DBUS_API_SUBJECT_TO_CHANGE
-#define I_AM_MAIN
+#define I_AM_MAIN 
 
 #include "config.h"
 #include <mysql/mysql.h>

@@ -183,6 +183,14 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		return;
 	}
 
+	char* id = tracker_db_get_id (db_con, service, uri);
+
+	if (!id) {
+		tracker_set_error (rec, "Entity %s not found in database", uri);
+		return;	
+	}
+
+	g_free (id);
 
 	if (uri[0] == '/') {
 		name = g_path_get_basename (uri);
@@ -255,6 +263,17 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		return;
 	}
 
+	char* id = tracker_db_get_id (db_con, service, uri);
+
+	if (!id) {
+		tracker_set_error (rec, "Entity %s not found in database", uri);
+		return;	
+	}
+
+	tracker_log ("adding keywords to %s with id %s", uri, id);
+
+	g_free (id);
+
 	if (uri[0] == '/') {
 		name = g_path_get_basename (uri);
 		path = g_path_get_dirname (uri);
@@ -325,6 +344,14 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		return;
 	}
 
+	char* id = tracker_db_get_id (db_con, service, uri);
+
+	if (!id) {
+		tracker_set_error (rec, "Entity %s not found in database", uri);
+		return;	
+	}
+
+	g_free (id);
 
 	if (uri[0] == '/') {
 		name = g_path_get_basename (uri);
@@ -393,6 +420,16 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		return;
 	}
 
+
+	char* id = tracker_db_get_id (db_con, service, uri);
+
+	if (!id) {
+		tracker_set_error (rec, "Entity %s not found in database", uri);
+		return;	
+	}
+
+	g_free (id);
+
 	if (uri[0] == '/') {
 		name = g_path_get_basename (uri);
 		path = g_path_get_dirname (uri);
@@ -458,27 +495,39 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 		return;
 	}
 
-	if (row_count == 1) {
-		res = tracker_exec_proc  (db_con->db,  "SearchKeywords", 3, service, array[0], limit);
-	} else {
-		char **null_array = tracker_make_array_null_terminated (array, row_count);
-		
-		char *keys = g_strjoinv (",", null_array);
+	
+	int i;
 
-		g_strfreev (null_array);
+	GString *str_words = g_string_new (array[0]);
+	for (i=1; i<row_count; i++) {
+		g_string_append_printf (str_words, ", %s", array[i]);
+	}
+	tracker_log ("executing keyword search on %s", str_words->str);
+	g_string_free (str_words, TRUE);
 
-		char *limit_str = tracker_int_to_str (limit);
 
-		char *query = g_strconcat ("Select Concat(S.Path, '/', S.Name) as EntityName from Services S, ServiceKeywords K where K.ServiceID = S.ID AND (S.ServiceTypeID between pMinServiceTypeID and pMaxServiceTypeID) and FIND_IN_SET(K.Keyword, '", keys, "') limit ", limit_str, NULL);
+	GString *str_select = g_string_new (" Select distinct Concat(S.Path, '/', S.Name) as EntityName from Services S ");
+	GString *str_where = g_string_new ("");
 
-		g_free (limit_str);
-		res = tracker_exec_sql (db_con->db, query);
+	g_string_printf (str_where, " where  (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) ", service, service);
 
-		g_free (query);
-		g_free (keys);
+	for (i=0; i<row_count; i++) {
+		g_string_append_printf (str_select, " INNER JOIN ServiceKeywords K%d on S.ID = K%d.ServiceID ", i, i);
+		g_string_append_printf (str_where, " And K%d.Keyword = '%s' ", i, array[i]);
+	}
 
-	}		
+	g_string_append_printf (str_where, " Limit %d ", limit);
 
+	char *query_sel = g_string_free (str_select, FALSE);
+	char *query_where = g_string_free (str_where, FALSE);
+	char *query = g_strconcat (query_sel, query_where, NULL);
+
+	
+	res = tracker_exec_sql (db_con->db, query);
+
+	g_free (query_sel);
+	g_free (query_where);
+	g_free (query);
 
 
 	

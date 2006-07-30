@@ -129,7 +129,7 @@ BEGIN
 
 	PREPARE GET_FILE_MTIME FROM 'SELECT M.MetaDataNumericValue  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = GetMetaDataTypeID(''File.Modified'') ';
 
-	PREPARE SEARCH_KEYWORDS FROM 'Select Concat(S.Path, \'/\', S.Name) as uri from Services  S INNER JOIN ServiceKeywords K ON K.ServiceID = S.ID WHERE (S.ServiceTypeID between ? and ?) and K.Keyword = ? limit ?';
+	PREPARE SEARCH_KEYWORDS FROM 'Select Concat(S.Path, ''/'', S.Name) as uri from Services  S INNER JOIN ServiceKeywords K ON K.ServiceID = S.ID WHERE (S.ServiceTypeID between ? and ?) and K.Keyword = ? limit ?';
 
 END|
 
@@ -715,7 +715,7 @@ BEGIN
 
 	SELECT CONCAT(pLocation, '/%') into pLocationLike;
 
-	SELECT DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.Path like pLocationLike OR F.Path = pLocation) AND MATCH (M.MetaDataIndexValue) AGAINST (pText IN BOOLEAN MODE) AND (F.ServiceTypeID between 0 and 4) LIMIT 512;
+	SELECT DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.Path like pLocationLike OR F.Path = pLocation) AND MATCH (M.MetaDataIndexValue) AGAINST (pText IN BOOLEAN MODE) AND (F.ServiceTypeID between 0 and 8) LIMIT 512;
 END|
 
 
@@ -728,7 +728,7 @@ BEGIN
 
 	SELECT CONCAT(pLocation, '/%') into pLocationLike;
 
-	SELECT DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M, ServiceMetaData M2 WHERE F.ID = M.ServiceID AND F.ID = M2.ServiceID AND (F.Path like pLocationLike OR F.Path = pLocation) AND MATCH (M.MetaDataIndexValue) AGAINST (pText IN BOOLEAN MODE) AND (F.ServiceTypeID between 0 and 4) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, pMimes) LIMIT 512;
+	SELECT DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M, ServiceMetaData M2 WHERE F.ID = M.ServiceID AND F.ID = M2.ServiceID AND (F.Path like pLocationLike OR F.Path = pLocation) AND MATCH (M.MetaDataIndexValue) AGAINST (pText IN BOOLEAN MODE) AND (F.ServiceTypeID between 0 and 8) AND M2.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = 'File.Format') AND FIND_IN_SET(M2.MetaDataIndexValue, pMimes) LIMIT 512;
 END|
 
 

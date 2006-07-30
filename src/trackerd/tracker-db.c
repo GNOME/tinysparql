@@ -637,6 +637,10 @@ tracker_db_get_file_id (DBConnection *db_con, const char* uri)
 			id = -1;
 		}
 
+		if (id < 1) {
+			id = -1;
+		}
+
 		mysql_free_result (res);
 	}			
  

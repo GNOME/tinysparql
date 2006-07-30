@@ -188,20 +188,6 @@ static void error_handler (GMarkupParseContext *context,
 
 
 
-static gboolean 
-is_type  (ParseState state)
-{
-	return state == STATE_INTEGER || STATE_FLOAT || STATE_STRING || STATE_DATE;
-
-}
-
-static gboolean 
-is_end_type  (ParseState state)
-{
-	return state == STATE_END_INTEGER || STATE_END_FLOAT || STATE_END_STRING || STATE_END_DATE;
-
-}
-
  
 
 static gboolean
@@ -1087,7 +1073,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	}
   
 	memset (&data, 0, sizeof (data));
-  
+  	data.db_con = db_con;
 	data.statement_count = 0;
 
 	data.sql_select = g_string_new ("Select DISTINCT Concat(S.Path, '/', S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ");  
@@ -1110,7 +1096,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 
 	
 	
-	if (search_text) {
+	if (search_text && (strlen (search_text) > 2)) {
 		gboolean	use_boolean_search;
 		stext = tracker_format_search_terms (search_text, &use_boolean_search);
 		data.sql_from = g_string_new  (" FROM Services S INNER JOIN ServiceMetaData M ON S.ID = M.ServiceID ");  
@@ -1146,7 +1132,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	data.parser->end_element = end_element_handler;
 	data.parser->error = error_handler;
 
-	data.db_con = db_con;
+	
 	data.current_operator = OP_NONE;
 	data.current_logic_operator = LOP_NONE;
 	data.query_okay = FALSE;

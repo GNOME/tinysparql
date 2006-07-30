@@ -163,7 +163,7 @@ cache_magic_matchlet_compare_to_data (XdgMimeCache *cache,
   xdg_uint32_t data_offset = GET_UINT32 (cache->buffer, offset + 16);
   xdg_uint32_t mask_offset = GET_UINT32 (cache->buffer, offset + 20);
   
-  xdg_uint32_t i, j;
+  int i, j;
 
   for (i = range_start; i <= range_start + range_length; i++)
     {
@@ -212,7 +212,7 @@ cache_magic_matchlet_compare (XdgMimeCache *cache,
   xdg_uint32_t n_children = GET_UINT32 (cache->buffer, offset + 24);
   xdg_uint32_t child_offset = GET_UINT32 (cache->buffer, offset + 28);
 
-  xdg_uint32_t i;
+  int i;
   
   if (cache_magic_matchlet_compare_to_data (cache, offset, data, len))
     {
@@ -242,7 +242,7 @@ cache_magic_compare_to_data (XdgMimeCache *cache,
   xdg_uint32_t n_matchlets = GET_UINT32 (cache->buffer, offset + 8);
   xdg_uint32_t matchlet_offset = GET_UINT32 (cache->buffer, offset + 12);
 
-  xdg_uint32_t i;
+  int i;
 
   for (i = 0; i < n_matchlets; i++)
     {
@@ -270,8 +270,7 @@ cache_magic_lookup_data (XdgMimeCache *cache,
   xdg_uint32_t n_entries;
   xdg_uint32_t offset;
 
-  xdg_uint32_t j;
-  int n;
+  int j, n;
 
   *prio = 0;
 
@@ -395,8 +394,7 @@ cache_glob_lookup_fnmatch (const char *file_name,
   const char *mime_type;
   const char *ptr;
 
-  xdg_uint32_t i, j;
-  int n;
+  int i, j, n;
 
   n = 0;
   for (i = 0; _caches[i]; i++)
@@ -440,8 +438,7 @@ cache_glob_node_lookup_suffix (XdgMimeCache *cache,
   xdg_uint32_t n_children;
   xdg_uint32_t child_offset; 
 
-  xdg_uint32_t min, max, mid, i;
-  int n;
+  int min, max, mid, n, i;
 
   character = _xdg_utf8_to_ucs4 (suffix);
   if (ignore_case)
@@ -532,8 +529,7 @@ cache_glob_lookup_suffix (const char *suffix,
 static void
 find_stopchars (char *stopchars)
 {
-  xdg_uint32_t j;
-  int i, k, l;
+  int i, j, k, l;
  
   k = 0;
   for (i = 0; _caches[i]; i++)
@@ -551,7 +547,7 @@ find_stopchars (char *stopchars)
 	  if (match_char < 128)
 	    {
 	      for (l = 0; l < k; l++)
-		if (stopchars[l] == (char)match_char)
+		if (stopchars[l] == match_char)
 		  break;
 	      if (l == k)
 		{
@@ -772,8 +768,7 @@ _xdg_mime_cache_mime_type_subclass (const char *mime,
 {
   const char *umime, *ubase;
 
-  xdg_uint32_t j;
-  int i, min, max, med, cmp;
+  int i, j, min, max, med, cmp;
   
   umime = _xdg_mime_cache_unalias_mime_type (mime);
   ubase = _xdg_mime_cache_unalias_mime_type (base);
@@ -855,7 +850,7 @@ _xdg_mime_cache_unalias_mime_type (const char *mime)
 char **
 _xdg_mime_cache_list_mime_parents (const char *mime)
 {
-  xdg_uint32_t i, j, p;
+  int i, j, p;
   char *all_parents[128]; /* we'll stop at 128 */ 
   char **result;
 
@@ -890,3 +885,4 @@ _xdg_mime_cache_list_mime_parents (const char *mime)
 
   return result;
 }
+

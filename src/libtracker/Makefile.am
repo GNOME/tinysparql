@@ -12,7 +12,7 @@ libmetatracker_la_LIBADD = $(GLIB2_LIBS) 	\
 libmetatracker_la_SOURCES = tracker.c
 include_HEADERS = tracker.h tracker-client.h		
 
-bin_PROGRAMS = tracker-search tracker-query tracker-meta-folder
+bin_PROGRAMS = tracker-search tracker-query tracker-meta-folder tracker-stats tracker-tag
 
 tracker_search_SOURCES = tracker-search.c
 
@@ -31,6 +31,18 @@ tracker_meta_folder_SOURCES = tracker-get-meta-for-folder.c
 tracker_meta_folder_LDADD = 	$(GLIB2_LIBS) 	\
 		 		$(DBUS_LIBS)	\
 				$(top_builddir)/src/libtracker/libmetatracker.la
+
+tracker_stats_SOURCES = tracker-stats.c
+
+tracker_stats_LDADD = 	$(GLIB2_LIBS) 	\
+		 	$(DBUS_LIBS)	\
+			$(top_builddir)/src/libtracker/libmetatracker.la
+
+tracker_tag_SOURCES = tracker-tag.c
+
+tracker_tag_LDADD = 	$(GLIB2_LIBS) 	\
+		 	$(DBUS_LIBS)	\
+			$(top_builddir)/src/libtracker/libmetatracker.la
  
 install-exec-hook:
 	ln -fs $(libdir)/libmetatracker.so $(libdir)/libtracker.so

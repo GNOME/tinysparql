@@ -78,7 +78,7 @@ main (int argc, char **argv)
 	if (argc ==2) {
 		char *fields[]  = {NULL};
 	
-		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], fields, error);
+		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], fields, &error);
 	} else {
 
 		int i;
@@ -92,7 +92,7 @@ main (int argc, char **argv)
 			}
 			meta_fields[argc-2] = NULL;
 		}
-		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], meta_fields, error);
+		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], meta_fields, &error);
 	}
 
 
