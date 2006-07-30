@@ -18,10 +18,12 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <glib.h>
 #include "../libtracker/tracker.h" 
 
+static char *tmp;
 
 static void
 get_meta_table_data (gpointer key,
@@ -65,10 +67,11 @@ main (int argc, char **argv)
 		g_print ("usage - tracker-query File [Metadata Fields...]\n");
 		return 1;
 	}
+	
+	char *str_path = realpath (argv[1], tmp);
 
-
-	if (!g_file_get_contents (argv[1], &buffer, NULL, NULL)) {
-		g_print ("Could not read file %s", argv[1]);
+	if (!g_file_get_contents (str_path, &buffer, NULL, NULL)) {
+		g_print ("Could not read file %s\n", str_path);
 		return 1;	
 	}
 

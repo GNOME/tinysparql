@@ -1,3 +1,7 @@
+2006-06-31 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added realpath for file parameters in command line tools
+
 
 2006-06-30 Marcus Fritzsch <fritschy@googlemail.com>
 	

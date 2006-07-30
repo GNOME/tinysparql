@@ -17,6 +17,7 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <glib.h>
 #include "../libtracker/tracker.h" 
@@ -35,7 +36,7 @@ tracker-tag -s Tags  \t\t: Search files for specified tags\n
 */
 
 
-
+static char *tmp;
 
 
 int 
@@ -72,7 +73,7 @@ main (int argc, char **argv)
 			char **tags;
 
 
-			char *str_path = realpath (argv[2]);
+			char *str_path = realpath (argv[2], tmp);
 
 			
 			tags = g_new (char *, (argc-2));
@@ -105,8 +106,9 @@ main (int argc, char **argv)
 
 			
 			char **tags = NULL;
+			char *str_path = realpath (argv[2], tmp);
 
-			tags = tracker_keywords_get (client, SERVICE_FILES, argv[2],  &error);
+			tags = tracker_keywords_get (client, SERVICE_FILES, str_path,  &error);
 			char **p_strarray;
 	
 			if (error) {
@@ -140,6 +142,7 @@ main (int argc, char **argv)
 
 			int i;
 			char **tags;
+			char *str_path = realpath (argv[2], tmp);
 
 			tags = g_new (char *, (argc-2));
 			for (i=0; i < (argc-3); i++) {
@@ -147,7 +150,7 @@ main (int argc, char **argv)
 			}
 			tags[argc-3] = NULL;
 
-			tracker_keywords_remove (client,  SERVICE_FILES, argv[2], tags, &error);
+			tracker_keywords_remove (client,  SERVICE_FILES, str_path, tags, &error);
 		}
 
 	} else if (strcmp (argv[1], "-R") == 0)  {
@@ -158,10 +161,11 @@ main (int argc, char **argv)
 	
 		} else {
 
-		
+			char *str_path = realpath (argv[2], tmp);
+
 			
 
-			tracker_keywords_remove_all (client,  SERVICE_FILES, argv[2], &error);
+			tracker_keywords_remove_all (client,  SERVICE_FILES, str_path, &error);
 		}
 
 	} else if (strcmp (argv[1], "-s") == 0)  {
