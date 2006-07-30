@@ -1,3 +1,9 @@
+
+2006-06-30 Marcus Fritzsch <fritschy@googlemail.com>
+	
+	* Patch to make build more debian friendly
+
+
 2006-06-30 Jedy Wang <Jedy.Wang@Sun.COM>
 	
 	* Patch to fix crasher on solaris
