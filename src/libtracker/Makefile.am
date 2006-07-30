@@ -45,4 +45,4 @@ tracker_tag_LDADD = 	$(GLIB2_LIBS) 	\
 			$(top_builddir)/src/libtracker/libmetatracker.la
  
 install-exec-hook:
-	ln -fs $(libdir)/libmetatracker.so $(libdir)/libtracker.so
+	ln -fs $(DESTDIR)/$(libdir)/libmetatracker.so $(DESTDIR)/$(libdir)/libtracker.so
