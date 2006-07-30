@@ -350,10 +350,13 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 			while (tmp != NULL) {
 			
 				str = (char *)tmp->data;
+				
+				if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) strcmp) == NULL) {
 
-				/* use polling if FAM or Inotify fails */ 
-				if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && !tracker_is_dir_polled (str)) {
-					tracker_add_poll_dir (str);
+					/* use polling if FAM or Inotify fails */ 
+					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && !tracker_is_dir_polled (str)) {
+						tracker_add_poll_dir (str);
+					}
 				}
 				tmp = tmp->next;
 			}
@@ -410,7 +413,7 @@ watch_dir (const char* dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-	if (g_slist_find_custom (no_watch_directory_list, dir_utf8, (GCompareFunc) strcmp) != 0) {
+	if (g_slist_find_custom (no_watch_directory_list, dir_utf8, (GCompareFunc) strcmp) == NULL) {
 		mylist = g_slist_prepend (mylist, dir_utf8);
 		add_dirs_to_watch_list (mylist, TRUE, db_con);
 	}

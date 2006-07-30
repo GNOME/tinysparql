@@ -58,6 +58,7 @@
 
 /* extension operators - "contains" does a substring or full text match, "in_Set" does string in list match */
 #define ELEMENT_RDF_CONTAINS 		"rdfq:contains"
+#define ELEMENT_RDF_REGEX        "rdfq:regex"
 #define ELEMENT_RDF_STARTS_WITH 	"rdfq:startsWith"
 #define ELEMENT_RDF_IN_SET		"rdfq:inSet"
 
@@ -97,6 +98,8 @@ typedef enum {
 	STATE_END_LESS_OR_EQUAL,
 	STATE_CONTAINS,
 	STATE_END_CONTAINS,
+	STATE_REGEX,
+	STATE_END_REGEX,
 	STATE_STARTS_WITH,
 	STATE_END_STARTS_WITH,
 	STATE_IN_SET,
@@ -119,6 +122,7 @@ typedef enum {
 	OP_LESS,
 	OP_LESS_EQUAL,
 	OP_CONTAINS,
+	OP_REGEX,
 	OP_SET,
 	OP_STARTS
 } Operators;
@@ -196,7 +200,7 @@ is_operator (ParseState state)
 	
 	return state == STATE_EQUALS || state == STATE_GREATER_THAN || state == STATE_LESS_THAN ||
 			state == STATE_CONTAINS || state == STATE_IN_SET || STATE_LESS_OR_EQUAL || 
-			STATE_GREATER_OR_EQUAL || state == STATE_STARTS_WITH;
+			STATE_GREATER_OR_EQUAL || state == STATE_STARTS_WITH || state == STATE_REGEX;
 
 }
 
@@ -206,7 +210,7 @@ is_end_operator (ParseState state)
 	
 	return state == STATE_END_EQUALS || state == STATE_END_GREATER_THAN || state == STATE_END_LESS_THAN ||
 			state == STATE_END_CONTAINS || state == STATE_END_IN_SET || STATE_END_LESS_OR_EQUAL || 
-			STATE_END_GREATER_OR_EQUAL || state == STATE_END_STARTS_WITH;
+			STATE_END_GREATER_OR_EQUAL || state == STATE_END_STARTS_WITH || state == STATE_REGEX;
 
 }
 
@@ -628,6 +632,17 @@ start_element_handler (GMarkupParseContext *context,
 		data->current_operator = OP_CONTAINS;		
 		push_stack (data, STATE_CONTAINS);
 
+	} else if (ELEMENT_IS (ELEMENT_RDF_REGEX)) {
+		
+		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
+					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
+					 context,  "REGEX element not expected here", error)) {
+			return;
+		}
+
+		data->current_operator = OP_REGEX;		
+		push_stack (data, STATE_REGEX);
+
 	} else if (ELEMENT_IS (ELEMENT_RDF_STARTS_WITH)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
@@ -839,6 +854,12 @@ build_sql (ParserData *data)
 
 			break;
 
+		case OP_REGEX :
+
+			str = g_strconcat (" (", field_data->meta_field, " REGEXP '", data->current_value, "')) ", NULL);
+
+			break;
+
 		case OP_SET :
 
 			str = g_strconcat (" (FIND_IN_SET(", field_data->meta_field, ", '", data->current_value, "')) ", NULL);
@@ -974,6 +995,15 @@ end_element_handler (GMarkupParseContext *context,
 		}
 
 		push_stack (data, STATE_END_CONTAINS);
+
+	} else if (ELEMENT_IS (ELEMENT_RDF_REGEX)) {
+
+		if (!build_sql (data)) {
+			set_error (error, context, 1, "parse error");
+			return;
+		}
+
+		push_stack (data, STATE_END_REGEX);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_STARTS_WITH)) {
 

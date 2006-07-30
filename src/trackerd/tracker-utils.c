@@ -1253,7 +1253,7 @@ tracker_get_files (const char *dir, gboolean dir_only)
 			mystr = g_strconcat (dir,"/", str , NULL);
 			g_free (str);
 		
-     			 if (!dir_only || (dir_only && tracker_is_directory (mystr))) {
+			if ((!dir_only || tracker_is_directory (mystr)) ) {
 				file_list = g_slist_prepend (file_list, g_strdup (mystr));
 			}
 			
@@ -1331,6 +1331,12 @@ tracker_ignore_file (const char *uri)
 }
 
 
+static void
+display_list_values (const char *uri)
+{
+	tracker_log ("setting no watch directory %s", uri);
+}
+
 void
 tracker_load_config_file ()
 {
@@ -1391,6 +1397,8 @@ tracker_load_config_file ()
 
 	if (values) {
 		no_watch_directory_list = array_to_list (values);
+
+		g_slist_foreach (no_watch_directory_list,(GFunc) display_list_values, NULL);
 	} else {
 		no_watch_directory_list = NULL;
 	}
