@@ -856,7 +856,7 @@ build_sql (ParserData *data)
 
 		case OP_REGEX :
 
-			str = g_strconcat (" (", field_data->meta_field, " REGEXP '", data->current_value, "')) ", NULL);
+			str = g_strconcat (" (", field_data->meta_field, " REGEXP '", data->current_value, "') ", NULL);
 
 			break;
 
