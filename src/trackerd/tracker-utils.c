@@ -1272,7 +1272,7 @@ tracker_get_files (const char *dir, gboolean dir_only)
 		
 			if (!dir_only || tracker_is_directory (mystr)) {
 
-				if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
+				if (g_slist_find_custom (no_watch_directory_list, mystr, (GCompareFunc) has_prefix) == NULL) {
 					file_list = g_slist_prepend (file_list, g_strdup (mystr));
 				}
 			}

@@ -207,6 +207,22 @@ do_cleanup ()
 	
 }
 
+static int 
+has_prefix (const char *str1, const char *str2)
+{
+	if (strcmp (str1, str2) == 0) {
+		return 0;
+	} else {
+		char *compare_str = g_strconcat (str1, "/", NULL);
+		if (g_str_has_prefix (str2, compare_str)) {
+			return 0;
+		}
+		g_free (compare_str);
+	}
+	return 1;
+}
+
+
 static void
 poll_dir (const char *uri, DBConnection *db_con)
 {
@@ -267,8 +283,12 @@ poll_dir (const char *uri, DBConnection *db_con)
 
 
 	/* scan dir for changes in all other files */
-
-	scan_directory (uri, db_con);
+	if (g_slist_find_custom (no_watch_directory_list, uri, (GCompareFunc) has_prefix) == NULL) {
+		scan_directory (uri, db_con);
+	} else {
+		tracker_log ("blocked scan of directory %s as its in the no watch list", uri);
+	}
+	
 
 }
 
@@ -330,20 +350,6 @@ start_poll (void)
 	return TRUE;
 }
 
-static int 
-has_prefix (const char *str1, const char *str2)
-{
-	if (strcmp (str1, str2) == 0) {
-		return 0;
-	} else {
-		char *compare_str = g_strconcat (str1, "/", NULL);
-		if (g_str_has_prefix (str2, compare_str)) {
-			return 0;
-		}
-		g_free (compare_str);
-	}
-	return 1;
-}
 
 static void 
 add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_con)
@@ -1177,17 +1183,23 @@ process_files_thread ()
 
 			case TRACKER_ACTION_DIRECTORY_CHECK :
 
-				if (need_index) {
-
-					scan_directory (info->uri, &db_con);
-					
+				if (need_index ) {
+					if (g_slist_find_custom (no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+						scan_directory (info->uri, &db_con);
+					} else {
+						tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
+					}
 				}
 			
 				break;
 
 			case TRACKER_ACTION_DIRECTORY_REFRESH :
 
-				scan_directory (info->uri, &db_con);
+				if (g_slist_find_custom (no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+					scan_directory (info->uri, &db_con);
+				} else {
+					tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
+				}
 							
 				break;
 
@@ -1204,7 +1216,11 @@ process_files_thread ()
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
-					scan_directory (info->uri, &db_con);		
+					if (g_slist_find_custom (no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+						scan_directory (info->uri, &db_con);		
+					} else {
+						tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
+					}
 				}
 				
 	
