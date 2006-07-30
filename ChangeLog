@@ -1,3 +1,6 @@
+2006-06-30 Christoph Laimburg <christoph.laimburg@rolmail.net>
+	
+	* Patch to replace deprecated dbus call (dbus_connection_disconnect)
 
 
 2006-06-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
