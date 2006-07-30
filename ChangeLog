@@ -1,3 +1,66 @@
+
+
+2006-06-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+	
+	* Patch to add RegExp rdf query extension support
+
+
+2006-06-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+	
+	* Modified patch to make no watch directories parameter functional
+	
+
+
+2006-06-30 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added new command line tools (tracker-tag)
+	* Fixed bugs in tracker-search methods
+	* Fixed bugs in tracker-query
+
+
+2006-06-25 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Sorted out libtracker
+	* updated to reflect new dbus interfaces
+	* Added new command line tools
+
+
+2006-07-22  Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Created new dbus interface for Search and Files
+	* Added new methods to create richer dbus functionality
+	* Ported over existing metadata methods to new interface
+
+
+2006-07-18  Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Created new dbus interface for Keywords
+	* Added new methods for adding, removing and searching keywords
+
+
+2006-07-11  Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Created new dbus interface for Metadata
+	* Added new methods for registering and querying metadata types
+	* Ported over existing metadata methods to new interface
+
+
+
+2006-06-30  Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added New Dbus Interface Methods
+	* Added GetStats, GetServices and GetVersion
+
+
+
+2006-06-12  Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Reworked rdf query functionality
+	* Optimised it for performamce
+	* Added new extensions for Contains and StartsWith
+
+
+
 2006-05-17  Gergan Penkov <gpp666_999@yahoo.de>
 	
 	* Fix for conifgure.in (added ssl linking due to bug in mysql)
