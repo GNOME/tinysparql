@@ -1226,6 +1226,24 @@ tracker_log (const char* fmt, ...)
 
 }
 
+
+static int 
+has_prefix (const char *str1, const char *str2)
+{
+	if (strcmp (str1, str2) == 0) {
+		return 0;
+	} else {
+		char *compare_str = g_strconcat (str1, "/", NULL);
+		if (g_str_has_prefix (str2, compare_str)) {
+			tracker_log ("compared %s with prefix %s", str2, compare_str);
+			return 0;
+		}
+		g_free (compare_str);
+	}
+	return 1;
+}
+
+
 GSList *
 tracker_get_files (const char *dir, gboolean dir_only) 
 {
@@ -1253,8 +1271,11 @@ tracker_get_files (const char *dir, gboolean dir_only)
 			mystr = g_strconcat (dir,"/", str , NULL);
 			g_free (str);
 		
-			if ((!dir_only || tracker_is_directory (mystr)) ) {
-				file_list = g_slist_prepend (file_list, g_strdup (mystr));
+			if (!dir_only || tracker_is_directory (mystr)) {
+
+				if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
+					file_list = g_slist_prepend (file_list, g_strdup (mystr));
+				}
 			}
 			
 			g_free (mystr);

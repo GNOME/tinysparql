@@ -330,6 +330,20 @@ start_poll (void)
 	return TRUE;
 }
 
+static int 
+has_prefix (const char *str1, const char *str2)
+{
+	if (strcmp (str1, str2) == 0) {
+		return 0;
+	} else {
+		char *compare_str = g_strconcat (str1, "/", NULL);
+		if (g_str_has_prefix (str2, compare_str)) {
+			return 0;
+		}
+		g_free (compare_str);
+	}
+	return 1;
+}
 
 static void 
 add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_con)
@@ -351,7 +365,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 			
 				str = (char *)tmp->data;
 				
-				if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) strcmp) == NULL) {
+				if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
 
 					/* use polling if FAM or Inotify fails */ 
 					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && !tracker_is_dir_polled (str)) {
@@ -413,7 +427,7 @@ watch_dir (const char* dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-	if (g_slist_find_custom (no_watch_directory_list, dir_utf8, (GCompareFunc) strcmp) == NULL) {
+	if (g_slist_find_custom (no_watch_directory_list, dir_utf8, (GCompareFunc) has_prefix) == NULL) {
 		mylist = g_slist_prepend (mylist, dir_utf8);
 		add_dirs_to_watch_list (mylist, TRUE, db_con);
 	}
@@ -550,6 +564,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 		return;
 	}
  	
+
 	/* refresh DB data as previous stuff might be out of date by the time we get here */
 	info = tracker_db_get_file_info (db_con, info);
 	
@@ -660,6 +675,36 @@ index_file (DBConnection *db_con, FileInfo *info)
 }
 
 
+
+static GSList *
+remove_no_watch_dirs (GSList *list) 
+{
+	const GSList *tmp;
+	char  *str;
+
+	tmp = list;
+
+	
+
+	while (tmp) {
+
+		str = tmp->data;
+		
+		if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
+			tracker_log ("removing %s from scan list", str);
+			tmp = tmp->next;
+			list = g_slist_remove (list, str);
+			g_free (str);
+			str = NULL;
+		} else {
+			tmp = tmp->next;
+		}
+	}
+
+	return list;
+
+}
+
 static void
 schedule_file_check (const char *uri, DBConnection *db_con)
 {
@@ -682,6 +727,9 @@ scan_directory (const char *uri, DBConnection *db_con)
 	g_return_if_fail (tracker_is_directory (uri));
 
 	file_list = tracker_get_files (uri, FALSE);
+
+	
+
 	g_slist_foreach (file_list, (GFunc) schedule_file_check, db_con);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL); 
 	g_slist_free (file_list);
