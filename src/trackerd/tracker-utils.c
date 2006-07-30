@@ -1235,7 +1235,6 @@ has_prefix (const char *str1, const char *str2)
 	} else {
 		char *compare_str = g_strconcat (str1, "/", NULL);
 		if (g_str_has_prefix (str2, compare_str)) {
-			tracker_log ("compared %s with prefix %s", str2, compare_str);
 			return 0;
 		}
 		g_free (compare_str);

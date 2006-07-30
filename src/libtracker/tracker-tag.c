@@ -71,15 +71,20 @@ main (int argc, char **argv)
 			int i;
 			char **tags;
 
+
+			char *str_path = realpath (argv[2]);
+
+			
 			tags = g_new (char *, (argc-2));
 			for (i=0; i < (argc-3); i++) {
 				tags[i] = argv[i+3];
-				g_print ("adding tag %s to %s\n", tags[i], argv[2]);
+				g_print ("adding tag %s to %s\n", tags[i], str_path);
 			}
 
 			tags[argc-3] = NULL;
 
-			tracker_keywords_add (client,  SERVICE_FILES, argv[2], tags, &error);
+
+			tracker_keywords_add (client,  SERVICE_FILES, str_path, tags, &error);
 			
 			if (error) {
 				g_warning ("An error has occured : %s\n", error->message);

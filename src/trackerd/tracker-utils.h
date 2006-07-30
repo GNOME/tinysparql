@@ -36,8 +36,8 @@ extern char *tracker_actions[];
 #define FILE_PAUSE_PERIOD 1
 #define FILE_SCHEDULE_PERIOD 500
 #define TRACKER_DB_VERSION_REQUIRED 2
-#define TRACKER_VERSION	"0.1.0"
-#define TRACKER_VERSION_INT 100
+#define TRACKER_VERSION	"0.5.0"
+#define TRACKER_VERSION_INT 500
 
 /* Actions can represent events from FAM/iNotify or be artificially created */
 typedef enum {
