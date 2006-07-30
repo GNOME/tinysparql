@@ -88,7 +88,7 @@ tracker_dbus_shutdown (DBusConnection *conn)
 		return;
 	}
 	
-	dbus_connection_disconnect (conn);
+	dbus_connection_close (conn);
 	dbus_connection_unref (conn);
 }
 
