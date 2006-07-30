@@ -34,9 +34,9 @@
 
 
 /* project wide global vars */
-GAsyncQueue 	*file_pending_queue;
-GAsyncQueue 	*file_process_queue;
-DBConnection	*main_thread_db_con;
+
+extern GAsyncQueue 	*file_process_queue;
+extern DBConnection	*main_thread_db_con;
 
 /* list to temporarily store moved_from events so they can be matched against moved_to events */
 static	GSList 		*move_list;

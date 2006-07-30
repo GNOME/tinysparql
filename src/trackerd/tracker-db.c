@@ -8,8 +8,8 @@
 #include <mysql/mysql.h>
 #include "tracker-db.h"
 
-GMutex		*metadata_available_mutex;
-GMutex		*files_available_mutex;
+extern GMutex		*metadata_available_mutex;
+extern GMutex		*files_available_mutex;
 
 typedef struct {
 

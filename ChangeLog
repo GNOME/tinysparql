@@ -1,3 +1,9 @@
+2006-06-30 Jedy Wang <Jedy.Wang@Sun.COM>
+	
+	* Patch to fix crasher on solaris
+
+
+
 2006-06-30 Christoph Laimburg <christoph.laimburg@rolmail.net>
 	
 	* Patch to replace deprecated dbus call (dbus_connection_disconnect)

@@ -36,9 +36,9 @@
 #include "tracker-utils.h"
 #include "xdgmime.h"
 
-GMutex 		*log_access_mutex;
-char 		*log_file; 
-GSList		*poll_list;
+extern GMutex 		*log_access_mutex;
+extern char 		*log_file; 
+extern GSList		*poll_list;
 
 
 

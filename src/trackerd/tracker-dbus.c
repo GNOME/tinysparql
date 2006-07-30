@@ -20,7 +20,7 @@
 #include "tracker-dbus.h" 
 #include "tracker-utils.h"
 
-GAsyncQueue *user_request_queue;
+extern GAsyncQueue *user_request_queue;
 
 
 static void  unregistered_func (DBusConnection *conn, gpointer data);

@@ -117,25 +117,27 @@ char		*db_buffer_memory_limit = "1M";
 
 
 /* list to store all directories to poll  */
-#ifdef POLL_ONLY
+
 static 	GAsyncQueue 	*file_pending_queue;
+
+#ifdef POLL_ONLY
 static 	GAsyncQueue 	*file_process_queue;
 #else
-extern 	GAsyncQueue 	*file_pending_queue;
-extern 	GAsyncQueue 	*file_process_queue;
+GAsyncQueue 	*file_process_queue;
 #endif
 
-extern GAsyncQueue 	*user_request_queue;
-extern GSList 		*poll_list;
-extern DBConnection	*main_thread_db_con;
+GAsyncQueue 	*user_request_queue;
 
-extern GMutex		*metadata_available_mutex;
-extern GMutex		*files_available_mutex;
+GSList 		*poll_list;
+DBConnection	*main_thread_db_con;
+
+GMutex		*metadata_available_mutex;
+GMutex		*files_available_mutex;
 
 static 	GAsyncQueue 	*file_metadata_queue = NULL;
 
-extern GMutex 		*log_access_mutex;
-extern char	 	*log_file; 
+GMutex 		*log_access_mutex;
+char	 	*log_file; 
 
 gboolean	use_nfs_safe_locking;
 
@@ -1687,19 +1689,19 @@ main (int argc, char **argv)
 	}
 
 	/* initialise embedded mysql with options*/
-	server_options = g_new (char *, 12);
-  	server_options[0] = g_strdup ("anything");
+	server_options = g_new (char *, 11);
+  	server_options[0] = "anything";
   	server_options[1] = g_strconcat  ("--datadir=", tracker_data_dir, NULL);
-  	server_options[2] = g_strdup ("--myisam-recover=FORCE");
-	server_options[3] = g_strdup ("--skip-grant-tables");
-	server_options[4] = g_strdup ("--skip-innodb");
-	server_options[5] = g_strdup ("--key_buffer_size=1M");
-	server_options[6] = g_strdup ("--character-set-server=utf8");
-	server_options[7] = g_strdup ("--ft_max_word_len=45");
-	server_options[8] = g_strdup ("--ft_min_word_len=3");
-	server_options[9] = g_strdup ("--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt");
+  	server_options[2] = "--myisam-recover=FORCE";
+	server_options[3] = "--skip-grant-tables";
+	server_options[4] = "--skip-innodb";
+	server_options[5] = "--key_buffer_size=1M";
+	server_options[6] = "--character-set-server=utf8";
+	server_options[7] = "--ft_max_word_len=45";
+	server_options[8] = "--ft_min_word_len=3";
+	server_options[9] = "--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt";
 	server_options[10] =  g_strconcat ("--language=", str,  NULL);
-	server_options[11] = NULL;
+
 
 	mysql_server_init ( 11, server_options, server_groups);
 
@@ -1714,7 +1716,7 @@ main (int argc, char **argv)
 
 	g_free (str);
 	g_free (tracker_data_dir);
-	g_strfreev (server_options);
+
 
 
 

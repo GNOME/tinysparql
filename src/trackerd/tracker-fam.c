@@ -32,9 +32,9 @@
 #include "tracker-fam.h"
 
 
-GAsyncQueue 	*file_pending_queue;
-GAsyncQueue 	*file_process_queue;
-DBConnection	*main_thread_db_con;
+
+extern GAsyncQueue 	*file_process_queue;
+extern DBConnection	*main_thread_db_con;
 
 typedef struct {
 	char 	   *watch_directory;
@@ -225,12 +225,9 @@ fam_callback (GIOChannel *source,
 
 					tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory);
 					info = tracker_free_file_info (info);
-			//		g_async_queue_push (file_pending_queue, info);	
+
 				}
 
-				/*tracker_log ("FAM: %s with event %s (pending queue length: %d, process queue length: %d)", 
-					     file_utf8_uri, tracker_actions[event_type],
-					     g_async_queue_length (file_process_queue), g_async_queue_length (file_process_queue));	*/
 			}
 
 			g_free (file_utf8_uri);
