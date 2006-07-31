@@ -690,6 +690,11 @@ tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 {
 
 	*do_bool_search = FALSE;
+	char *def_prefix = "+";
+
+	if (strlen (str) < 3) {
+		return g_strdup (str);
+	}
 
 	/* if already has quotes then do nothing */
 	if (strchr (str, '"') || strchr (str, '*')) {
@@ -697,24 +702,37 @@ tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 		return g_strdup (str);
 	}
 
-	if (!strstr (str, "-")) {
-		return g_strdup (str);
+
+	if (strstr (str, " or ") ) {
+		def_prefix = " ";
 	}
+	
 
 	char **terms = g_strsplit (str, " ", -1);
+
 	
 	if (terms) {
 		GString *search_term = g_string_new (" ");
 		char **st;
+		char *prefix;
 		for (st = terms; *st; st++) {
-			if (strchr (*st, '-')) {
+
+			
+			if (*st[0] == '-') {
+				prefix = " ";
+			} else {
+				prefix = def_prefix;
+			}
+
+			if ((*st[0] != '-') && strchr (*st, '-')) {
 				*do_bool_search = TRUE;
 				char *st_1 = g_strconcat ("\"", *st, "\"", NULL);
 				g_string_append (search_term, st_1);
 				g_free (st_1);
 			} else {
-				g_string_append (search_term, *st);
-			}
+				
+				g_string_append_printf (search_term, " %s%s ", prefix, *st);
+			} 
 		}
 		g_strfreev (terms);
 		return g_string_free (search_term, FALSE);		
