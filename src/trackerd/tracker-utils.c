@@ -32,7 +32,7 @@
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
-
+ 
 #include "tracker-utils.h"
 #include "xdgmime.h"
 

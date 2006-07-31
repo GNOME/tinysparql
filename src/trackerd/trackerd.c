@@ -1642,7 +1642,7 @@ main (int argc, char **argv)
 	g_free (str);
 	 
 	/* prevent muliple instances  */
-	lfp = open (lock_file, O_RDWR|O_CREAT, 0640);
+	lfp = open (lock_file, O_RDWR|O_CREAT, 0640); 
 	g_free (lock_file); 
 
 	if (lfp < 0) {
