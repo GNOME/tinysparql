@@ -1,9 +1,16 @@
+2006-06-31 Jedy Wang <Jedy.Wang@Sun.COM>
+	
+	* Patch to improve compilation on Solaris
+
+
+
 2006-06-31 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added realpath for file parameters in command line tools
 	* Improved search terms to *and* them by default
 	* added support for OR in search terms
 	* added support for excluding a search term
+	* added bugfixed XDGMIME from Beagle to prevent crashes
 
 2006-06-30 Marcus Fritzsch <fritschy@googlemail.com>
 	
