@@ -1,4 +1,4 @@
-INCLUDES = $(GLIB2_CFLAGS) -g -W -Wall 
+INCLUDES = $(GLIB2_CFLAGS) $(CFLAGS) -g 
 
 bin_PROGRAMS = tracker-extract
 

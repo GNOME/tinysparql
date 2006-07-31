@@ -108,7 +108,7 @@ AM_CONDITIONAL(CYGWIN, test "$build_os" = "cygwin")
 AM_CONDITIONAL(MINGW, test "$build_os" = "mingw32")
 
 # use '-fno-strict-aliasing', but only if the compiler can take it
-if gcc -fno-strict-aliasing -S -o /dev/null -xc /dev/null >/dev/null 2>&1; 
+if $CC -fno-strict-aliasing -S -o /dev/null -xc /dev/null >/dev/null 2>&1; 
 then
  CFLAGS="-fno-strict-aliasing $CFLAGS"
 fi

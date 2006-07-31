@@ -8,7 +8,8 @@ INCLUDES =				\
 	$(DBUS_CFLAGS)			\
 	$(MYSQL_CFLAGS)			\
 	$(additional_mysql_flags)	\
-	-g -W -Wall 
+	$(CFLAGS) 			\
+	-g 
 
 if HAVE_INOTIFY
 inotify_sources = \

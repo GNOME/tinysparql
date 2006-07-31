@@ -2,7 +2,8 @@ INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	$(GLIB2_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
-	-g -W -Wall 
+	$(CFLAGS) 			\
+	-g
 
 lib_LTLIBRARIES = libmetatracker.la
 

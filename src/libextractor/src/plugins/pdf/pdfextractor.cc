@@ -325,10 +325,18 @@ extern "C" {
 
 
 
+#ifdef __GNUC__
 void __attribute__ ((constructor)) xpdf_init(void) {
+#else
+void xpdf_init(void) {
+#endif
   initParams(".xpdfrc", ".xpdfrc");
 }
 
+#ifdef __GNUC__
 void __attribute__ ((destructor)) xpdf_done(void) {
+#else
+void xpdf_done(void) {
+#endif
   freeParams();
 }

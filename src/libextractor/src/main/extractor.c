@@ -211,7 +211,11 @@ const char * EXTRACTOR_getDefaultLibraries() {
 static char * old_dlsearchpath = NULL;
 
 /* using libtool, needs init! */
+#ifdef __GNUC__
 void __attribute__ ((constructor)) le_ltdl_init(void) {
+#else
+void le_ltdl_init(void) {
+#endif
   int err;
 
 #if ENABLE_NLS
@@ -244,8 +248,11 @@ void __attribute__ ((constructor)) le_ltdl_init(void) {
   InitWinEnv();
 #endif
 }
-
+#ifdef __GNUC__
 void __attribute__ ((destructor)) le_ltdl_fini(void) {
+#else
+void le_ltdl_fini(void) {
+#endif
   lt_dlsetsearchpath(old_dlsearchpath);
   if (old_dlsearchpath != NULL) {
     free(old_dlsearchpath);

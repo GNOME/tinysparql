@@ -38,7 +38,11 @@ typedef struct{
   UINT32                      preroll;
   UINT32                      duration;
   UINT8                       stream_name_size;
+#ifdef __GNUC__
   UINT8 data[0]; /* variable length section */
+#else
+  UINT8 *data; /* variable length section */
+#endif
   /*
     UINT8[stream_name_size]     stream_name;
     UINT8                       mime_type_size;
@@ -53,7 +57,11 @@ typedef struct {
   UINT32     size;
   UINT16      object_version; /* must be 0 */
   UINT16    title_len;
+#ifdef __GNUC__
   UINT8 data[0]; /* variable length section */
+#else
+  UINT8 *data; /* variable length section */
+#endif
   /*
     UINT8[title_len]  title;
     UINT16    author_len;
