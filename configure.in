@@ -48,7 +48,7 @@ if test "$warning_support" = "yes";
 then
 	CFLAGS="\
 	-Wall \
-	-Wchar-subscripts -Wmissing-declarations \
+	-Wchar-subscripts \
 	-Wnested-externs -Wpointer-arith \
 	-Wsign-compare \
 	$CFLAGS"

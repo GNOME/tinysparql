@@ -32,7 +32,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	DBusMessage *reply;
 	char **array = NULL;	
 	int row_count = 0, i = 0;
-	int limit, query_id;
+	int limit, query_id, offset;
 	char *str = NULL, *service = NULL, *search_term = NULL;
 	gboolean sort_results = FALSE, use_boolean_search = FALSE;
 	MYSQL_RES *res = NULL;
@@ -50,6 +50,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="b" name="sort_by_relevance" direction="in" />
 			<arg type="as" name="result" direction="out" />
@@ -58,7 +59,9 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_STRING, &service,
-				DBUS_TYPE_STRING, &str,  DBUS_TYPE_INT32, &limit,
+				DBUS_TYPE_STRING, &str,  
+				DBUS_TYPE_INT32, &offset,
+				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_BOOLEAN, &sort_results,
 				DBUS_TYPE_INVALID);
 
@@ -88,15 +91,17 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	search_term = tracker_format_search_terms (str, &use_boolean_search);
 
 	char *str_limit = tracker_int_to_str (limit);
+	char *str_offset = tracker_int_to_str (offset);
 	char *str_sort = tracker_int_to_str (sort_results);
 	char *str_bool =  tracker_int_to_str (use_boolean_search);
 	
 	tracker_log ("Executing search with params %s, %s. %s, %s, %s", service, search_term, str_limit, str_sort, str_bool );
 	
-	res = tracker_exec_proc  (db_con->db, "SearchText", 5, service, search_term, str_limit, str_sort, str_bool);	
+	res = tracker_exec_proc  (db_con->db, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);	
 
 	g_free (search_term);
 	g_free (str_limit);
+	g_free (str_offset);
 	g_free (str_bool);
 	g_free (str_sort);
 	
@@ -158,7 +163,7 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	char 		*text;
-	int		limit, query_id;
+	int		limit, query_id, offset;
 	gboolean	sort = FALSE;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -183,21 +188,23 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id, 
 			 	DBUS_TYPE_STRING, &text, 
+				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_BOOLEAN, &sort,
 				DBUS_TYPE_INVALID);
 
-
+	char *str_offset = tracker_int_to_str (offset);
 	char *str_limit = tracker_int_to_str (limit);
 	char *str_sort = tracker_int_to_str (sort);
 	
 	gboolean na;
 	char *search_term = tracker_format_search_terms (text, &na);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchFilesText", 3, search_term, str_limit, str_sort);
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchFilesText", 4, search_term, str_offset, str_limit, str_sort);
 		
 	g_free (search_term);			
 	g_free (str_limit);
+	g_free (str_offset);
 	g_free (str_sort);
 
 	if (res) {
@@ -237,7 +244,7 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		 *service, *field, *text;
 	char 		**array = NULL;
-	int 		limit, row_count = 0;
+	int 		limit, row_count = 0, offset;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -261,6 +268,7 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 				DBUS_TYPE_STRING, &service, 
 				DBUS_TYPE_STRING, &field,  
 				DBUS_TYPE_STRING, &text, 
+				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
 		
@@ -270,15 +278,16 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 	}
 
 	
-	
+	char *str_offset = tracker_int_to_str (offset);	
 	char *str_limit = tracker_int_to_str (limit);
 	gboolean na;
 	char *search_term = tracker_format_search_terms (text, &na);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchMetaData", 4, service, field, search_term, str_limit);
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchMetaData", 5, service, field, search_term, str_offset, str_limit);
 		
 	g_free (search_term);		
 	g_free (str_limit);
+	g_free (str_offset);
 
 				
 	if (res) {
@@ -408,7 +417,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	char **fields = NULL;				
-	int  limit, row_count, query_id;
+	int  limit, row_count, query_id, offset;
 	MYSQL_RES *res = NULL;
 	char *str, *query, *search_text, *service;
 	gboolean sort_results = FALSE;
@@ -419,11 +428,13 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	db_con = rec->user_data;
 	
 /*
+
 		<!-- searches specified service for matching entities.
 		     The service parameter specifies the service which the query will be performed on
 		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null			
 		     The search_text paramter specifies the text to search for in a full text search of all indexed fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
 		     The query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results - this parameter can be null if the search_text is not null (in which case only the search_text parameter is used to find matches)
+		     The Offset parameter sets the start row of the returned result set (useful for paging/cursors). A value of 0 should be passed to get rows from the beginning.
 		     The max_hits parameter limits the size of the result set.
 		     The sort_by_service parameter optionally sorts results by their service category (if FALSE no service sorting is done)
 		     The result is a hashtable/dict with the id of the matching entity as the key fields.
@@ -436,17 +447,19 @@ tracker_dbus_method_search_query (DBusRec *rec)
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="s" name="query_condition" direction="in" />
 			<arg type="b" name="sort_by_service" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="a{sv}" name="result" direction="out" />
 		</method>
 */
-
+ 
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_STRING, &service,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &fields, &row_count,
 				DBUS_TYPE_STRING, &search_text,
 				DBUS_TYPE_STRING, &query,
 				DBUS_TYPE_BOOLEAN, &sort_results,
+				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
 
@@ -467,7 +480,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		gboolean na;
 		char *search_term = tracker_format_search_terms (search_text, &na);
 
-		str = tracker_rdf_query_to_sql (db_con, query, service, fields, row_count, search_term, sort_results, limit , NULL);
+		str = tracker_rdf_query_to_sql (db_con, query, service, fields, row_count, search_term, sort_results, offset, limit , NULL);
 
 		g_free (search_term);
 		tracker_log ("translated rdf query is %s\n", str);

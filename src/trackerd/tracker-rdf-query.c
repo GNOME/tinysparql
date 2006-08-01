@@ -1087,7 +1087,7 @@ error_handler (GMarkupParseContext *context,
 
 
 char *
-tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, gboolean sort_by_service, int limit, GError *error)
+tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, gboolean sort_by_service, int offset, int limit, GError *error)
 {
 	ParserData data;
 	int 	   i;
@@ -1152,13 +1152,11 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 		data.sql_order = g_string_new (" LIMIT ");  
 	}
 	
-	char *limit_str = tracker_int_to_str (limit);
-	data.sql_order =  g_string_append (data.sql_order, limit_str);
-	g_free (limit_str);
+	g_string_append_printf (data.sql_order, "%d,%d ", offset, limit);
 
 	data.parser = g_new0 (GMarkupParser, 1);
 	data.parser->start_element = start_element_handler;
-	data.parser->text = text_handler;
+	data.parser->text = text_handler; 
 	data.parser->end_element = end_element_handler;
 	data.parser->error = error_handler;
 

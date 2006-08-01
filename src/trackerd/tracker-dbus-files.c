@@ -422,7 +422,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL;
-	int 		limit, row_count = 0, query_id;
+	int 		limit, row_count = 0, query_id, offset;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -435,14 +435,16 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 		<method name="GetByServiceType">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="file_service" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
-		</method>
+		</method>	
 */
-		
+		 
 
 	dbus_message_get_args  (rec->message, NULL,   DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_STRING, &service, 
+				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
 		
@@ -454,10 +456,11 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 	
 	
 	char *str_limit = tracker_int_to_str (limit);
+	char *str_offset = tracker_int_to_str (offset);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFilesByServiceType", 2, service, str_limit);
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFilesByServiceType", 3, service, str_offset, str_limit);
 		
-
+	g_free (str_offset);
 	g_free (str_limit);
 
 				
@@ -492,17 +495,19 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL, **mimes = NULL;
-	int 		limit, row_count = 0, query_id;
+	int 		limit, row_count = 0, query_id, offset;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
 /*
+
 		<!-- Retrieves all non-vfs files of the specified mime type(s) -->
 		<method name="GetByMimeType">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>	
@@ -512,6 +517,7 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 
 	dbus_message_get_args  (rec->message, NULL,   DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &mimes, &n,
+				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
 		
@@ -531,12 +537,13 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 	g_free (keys);
 
 	char *str_limit = tracker_int_to_str (limit);
+	char *str_offset = tracker_int_to_str (offset);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFilesByMimeType", 2, str_mimes, str_limit);
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFilesByMimeType", 3, str_mimes, str_offset, str_limit);
 		
 	g_free (str_mimes);
 	g_free (str_limit);
-
+	g_free (str_offset);
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
@@ -568,17 +575,19 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL, **mimes = NULL;
-	int 		limit, row_count = 0, query_id;
+	int 		limit, row_count = 0, query_id, offset;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
 	
 /*
+
 		<!-- Retrieves all vfs files of the specified mime type(s) -->
-		<method name="GetByMimeTypeVFS">
+		<method name="GetByMimeTypeVfs">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
@@ -588,6 +597,7 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 
 	dbus_message_get_args  (rec->message, NULL,   DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &mimes, &n,
+				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
 		
@@ -607,12 +617,13 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 	g_free (keys);
 
 	char *str_limit = tracker_int_to_str (limit);
+	char *str_offset = tracker_int_to_str (offset);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetVFSFilesByMimeType", 2, str_mimes, str_limit);
+	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetVFSFilesByMimeType", 3, str_mimes, str_offset, str_limit);
 		
 	g_free (str_mimes);
+	g_free (str_offset);
 	g_free (str_limit);
-
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);

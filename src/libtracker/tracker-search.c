@@ -81,10 +81,10 @@ main (int argc, char **argv)
 		}
 
 		char *search = g_string_free (str, FALSE);
-		tracker_search_text_async  (client, -1, SERVICE_FILES, search,  512, FALSE, my_callback, NULL);
+		tracker_search_text_async  (client, -1, SERVICE_FILES, search,  0, 512, FALSE, my_callback, NULL);
 
 	} else {
-		tracker_search_text_async  (client, -1, SERVICE_FILES, argv[1], 512, FALSE, my_callback, NULL);
+		tracker_search_text_async  (client, -1, SERVICE_FILES, argv[1], 0, 512, FALSE, my_callback, NULL);
 	}
 
 	g_main_loop_run (loop);

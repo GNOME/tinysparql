@@ -461,7 +461,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array = NULL;
-	int 		row_count = 0, limit, query_id;
+	int 		row_count = 0, limit, query_id, offset;
 	MYSQL_RES 	*res;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -480,14 +480,16 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 */
 		
 
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id, DBUS_TYPE_STRING, &service, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INT32, &limit,  DBUS_TYPE_INVALID);
+	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_INT32, &query_id, DBUS_TYPE_STRING, &service, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING,  &array, &row_count, DBUS_TYPE_INT32, &offset, DBUS_TYPE_INT32, &limit,  DBUS_TYPE_INVALID);
 		
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
 		return;
 	}
 
-	
+	if (offset < 0) {
+		offset = 0;
+	}
 	
 	if (row_count < 1) {
 
@@ -516,7 +518,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 		g_string_append_printf (str_where, " And K%d.Keyword = '%s' ", i, array[i]);
 	}
 
-	g_string_append_printf (str_where, " Limit %d ", limit);
+	g_string_append_printf (str_where, " Limit %d,%d", offset, limit);
 
 	char *query_sel = g_string_free (str_select, FALSE);
 	char *query_where = g_string_free (str_where, FALSE);

@@ -185,7 +185,7 @@ main (int argc, char **argv)
 			}
 			tags[argc-2] = NULL;
 
-			char **results = tracker_keywords_search (client, -1, SERVICE_FILES, tags, 512, &error);
+			char **results = tracker_keywords_search (client, -1, SERVICE_FILES, tags, 0, 512, &error);
 			char **p_strarray;
 	
 			if (error) {

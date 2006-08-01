@@ -98,9 +98,9 @@ main (int argc, char **argv)
 	if (argc ==2) {
 		char *fields[]  = { "File.Format", NULL};
 	
-		table = tracker_search_query (client, -1, SERVICE_FILES, fields, NULL, buffer, 512, FALSE, &error);
+		table = tracker_search_query (client, -1, SERVICE_FILES, fields, NULL, buffer, 0, 512, FALSE, &error);
 	} else {
-		table = tracker_search_query (client, -1, SERVICE_FILES, meta_fields, NULL, buffer, 512, FALSE, &error);
+		table = tracker_search_query (client, -1, SERVICE_FILES, meta_fields, NULL, buffer, 0, 512, FALSE, &error);
 	}
 
 	if (error) {

@@ -7,7 +7,7 @@ create  table if not exists Options
 );
 
 insert into Options (OptionKey, OptionValue) values 
-('DBVersion', '1');
+('DBVersion', '2');
 
 
 create procedure GetVersion() SELECT OptionValue FROM Options WHERE OptionKey = 'DBVersion';
@@ -57,7 +57,19 @@ insert into ServiceTypes (TypeID, TypeName, MetadataClass, Description, MainServ
 
 
 CREATE TABLE sequence (id int unsigned NOT NULL);
-INSERT INTO sequence VALUES (0);
+INSERT INTO sequence VALUES (1);
+
+/* store volume and HAL info here for files */
+create table if not exists Volumes
+{
+	VolumeID 	int auto_increment not null,
+	UDI		varchar (64),
+	VolumeName	varchar (255),
+	MountPath	varchar (255),
+	Enabled		bool default 0,
+
+	primary key (VolumeID)
+}
 
 
 /* basic file info for a file or service object */
@@ -67,10 +79,12 @@ create  table if not exists Services
 	ServiceTypeID		tinyint unsigned default 0, /* see ServiceTypes table above for ID values */
 	Path 			varchar (200) character set utf8 not null, /* non-file objects should use service name here */
 	Name	 		varchar (128) character set utf8, /* name of file or object - the combination path and name must be unique for all objects */
+	Enabled			bool default 1,
 	IsServiceSource		bool default 0,
 	IsDirectory   		bool default 0,
 	IsWatchedDirectory	bool default 0,
     	IsLink        		bool default 0,
+	VolumeID		int default -1,	 /* link to Volumes table */
 	Misc			varchar(255), 
 	MiscInt			int,
 	MiscDate		DateTime,
@@ -79,7 +93,8 @@ create  table if not exists Services
 
     	primary key (ID),
     	unique key (Path, Name),
-	key (ServiceTypeID)
+	key (ServiceTypeID),
+	key (VolumeID)
 
 );
 

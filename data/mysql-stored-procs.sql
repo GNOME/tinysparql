@@ -108,28 +108,28 @@ DROP PROCEDURE if exists PrepareQueries;|
 
 CREATE PROCEDURE PrepareQueries ()
 BEGIN
-	PREPARE SEARCH_TEXT_UNSORTED FROM 'SELECT  DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?';
-	PREPARE SEARCH_TEXT_SORTED FROM 'SELECT  DISTINCT F.Path, F.Name,   MATCH (M.MetaDataIndexValue) AGAINST (?) FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (?) LIMIT ?';
-	PREPARE SEARCH_TEXT_SORTED_BOOL FROM 'SELECT  DISTINCT F.Path, F.Name ,   MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) As Relevancy FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) ORDER BY Relevancy LIMIT ?';
+	PREPARE SEARCH_TEXT_UNSORTED FROM 'SELECT  DISTINCT F.Path, F.Name FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?,?';
+	PREPARE SEARCH_TEXT_SORTED FROM 'SELECT  DISTINCT F.Path, F.Name,   MATCH (M.MetaDataIndexValue) AGAINST (?) FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (?) LIMIT ?,?';
+	PREPARE SEARCH_TEXT_SORTED_BOOL FROM 'SELECT  DISTINCT F.Path, F.Name ,   MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) As Relevancy FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID  AND (F.ServiceTypeID between ? and ?) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) ORDER BY Relevancy LIMIT ?,?';
 
 
-	PREPARE SEARCH_INDEXED_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?';
-	PREPARE SEARCH_STRING_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND M.MetaDataValue = ?  LIMIT ?';
-	PREPARE SEARCH_NUMERIC_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND M.MetaDataNumericValue = ?  LIMIT ?';
+	PREPARE SEARCH_INDEXED_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?,?';
+	PREPARE SEARCH_STRING_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND M.MetaDataValue = ?  LIMIT ?,?';
+	PREPARE SEARCH_NUMERIC_METADATA FROM 'SELECT  DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri  FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (F.ServiceTypeID between ? and ?) AND M.MetaDataID = ? AND M.MetaDataNumericValue = ?  LIMIT ?,?';
 
-	PREPARE SEARCH_FILES_TEXT FROM 'SELECT DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri, GetServiceName(F.ServiceTypeID) as sname, M1.MetaDataIndexValue as mimetype, M2.MetaDataNumericValue as FileSize, M3.MetaDataNumericValue as FileRank, M4.MetaDataNumericValue as  FileModified FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID LEFT OUTER JOIN ServiceMetaData M1 on F.ID = M1.ServiceID LEFT OUTER JOIN ServiceMetaData M2 on F.ID = M2.ServiceID LEFT OUTER JOIN ServiceMetaData M3 on F.ID = M3.ServiceID LEFT OUTER JOIN ServiceMetaData M4 on F.ID = M4.ServiceID WHERE (F.ServiceTypeID between ? and ?) AND (M1.MetaDataID = GetMetaDataTypeID(''File.Format''))  AND (M2.MetaDataID = GetMetaDataTypeID(''File.Size''))  AND (M3.MetaDataID = GetMetaDataTypeID(''File.Rank''))  AND (M4.MetaDataID = GetMetaDataTypeID(''File.Modified'')) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?';
-	PREPARE SEARCH_FILES_TEXT_SORTED FROM 'SELECT  DISTINCT Concat(F.Path, \'/\', F.Name) as uri, GetServiceName(F.ServiceTypeID) as sname, M1.MetaDataIndexValue as mimetype, M2.MetaDataNumericValue as FileSize, M3.MetaDataNumericValue as FileRank, M4.MetaDataNumericValue as  FileModified FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID LEFT OUTER JOIN ServiceMetaData M1 on F.ID = M1.ServiceID LEFT OUTER JOIN ServiceMetaData M2 on F.ID = M2.ServiceID LEFT OUTER JOIN ServiceMetaData M3 on F.ID = M3.ServiceID LEFT OUTER JOIN ServiceMetaData M4 on F.ID = M4.ServiceID WHERE (F.ServiceTypeID between ? and ?) AND (M1.MetaDataID = GetMetaDataTypeID(''File.Format''))  AND (M2.MetaDataID = GetMetaDataTypeID(''File.Size''))  AND (M3.MetaDataID = GetMetaDataTypeID(''File.Rank''))  AND (M4.MetaDataID = GetMetaDataTypeID(''File.Modified'')) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) order by sname, uri  LIMIT ?';
+	PREPARE SEARCH_FILES_TEXT FROM 'SELECT DISTINCT CONCAT(F.Path, \'/\', F.Name) as uri, GetServiceName(F.ServiceTypeID) as sname, M1.MetaDataIndexValue as mimetype, M2.MetaDataNumericValue as FileSize, M3.MetaDataNumericValue as FileRank, M4.MetaDataNumericValue as  FileModified FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID LEFT OUTER JOIN ServiceMetaData M1 on F.ID = M1.ServiceID LEFT OUTER JOIN ServiceMetaData M2 on F.ID = M2.ServiceID LEFT OUTER JOIN ServiceMetaData M3 on F.ID = M3.ServiceID LEFT OUTER JOIN ServiceMetaData M4 on F.ID = M4.ServiceID WHERE (F.ServiceTypeID between ? and ?) AND (M1.MetaDataID = GetMetaDataTypeID(''File.Format''))  AND (M2.MetaDataID = GetMetaDataTypeID(''File.Size''))  AND (M3.MetaDataID = GetMetaDataTypeID(''File.Rank''))  AND (M4.MetaDataID = GetMetaDataTypeID(''File.Modified'')) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  LIMIT ?,?';
+	PREPARE SEARCH_FILES_TEXT_SORTED FROM 'SELECT  DISTINCT Concat(F.Path, \'/\', F.Name) as uri, GetServiceName(F.ServiceTypeID) as sname, M1.MetaDataIndexValue as mimetype, M2.MetaDataNumericValue as FileSize, M3.MetaDataNumericValue as FileRank, M4.MetaDataNumericValue as  FileModified FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID LEFT OUTER JOIN ServiceMetaData M1 on F.ID = M1.ServiceID LEFT OUTER JOIN ServiceMetaData M2 on F.ID = M2.ServiceID LEFT OUTER JOIN ServiceMetaData M3 on F.ID = M3.ServiceID LEFT OUTER JOIN ServiceMetaData M4 on F.ID = M4.ServiceID WHERE (F.ServiceTypeID between ? and ?) AND (M1.MetaDataID = GetMetaDataTypeID(''File.Format''))  AND (M2.MetaDataID = GetMetaDataTypeID(''File.Size''))  AND (M3.MetaDataID = GetMetaDataTypeID(''File.Rank''))  AND (M4.MetaDataID = GetMetaDataTypeID(''File.Modified'')) AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE) order by sname, uri  LIMIT ?,?';
 
 	PREPARE SEARCH_MATCHING_FIELDS FROM 'SELECT  DISTINCT GetMetaDataName(M.MetaDataID) as metaname,  M.MetaDataIndexValue FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (M.MetaDataID != GetMetaDataTypeID(''File.Content'')) AND (F.ServiceTypeID between ? and ?) AND F.PATH = ? AND F.NAME = ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)  UNION SELECT  DISTINCT GetMetaDataName(M.MetaDataID) as metaname,  SUBSTRING(M.MetaDataIndexValue, LOCATE(? ,M.MetaDataIndexValue), 30) FROM Services F, ServiceMetaData M WHERE F.ID = M.ServiceID AND (M.MetaDataID = GetMetaDataTypeID(''File.Content'')) AND (F.ServiceTypeID between ? and ?) AND F.PATH = ? AND F.NAME = ? AND MATCH (M.MetaDataIndexValue) AGAINST (? IN BOOLEAN MODE)';
 	
-	PREPARE GET_FILES_SERVICE_TYPE FROM 'SELECT  DISTINCT Concat(F.Path, \'/\', F.Name) as uri  FROM Services F WHERE (F.ServiceTypeID between ? and ?) LIMIT ?';
+	PREPARE GET_FILES_SERVICE_TYPE FROM 'SELECT  DISTINCT Concat(F.Path, \'/\', F.Name) as uri  FROM Services F WHERE (F.ServiceTypeID between ? and ?) LIMIT ?,?';
 
-	PREPARE GET_FILES_MIME FROM 'SELECT DISTINCT Concat(F.Path, \'/\', F.Name) as uri FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = GetMetaDataTypeID(''File.Format'') AND FIND_IN_SET(M.MetaDataIndexValue, ?) AND (F.ServiceTypeID between 0 and 8) LIMIT ?';
-	PREPARE GET_VFS_FILES_MIME FROM 'SELECT DISTINCT Concat(F.Path, \'/\', F.Name) as uri FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = GetMetaDataTypeID(''File.Format'') AND FIND_IN_SET(M.MetaDataIndexValue, ?) AND (F.ServiceTypeID between 9 and 17) LIMIT ?';
+	PREPARE GET_FILES_MIME FROM 'SELECT DISTINCT Concat(F.Path, \'/\', F.Name) as uri FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = GetMetaDataTypeID(''File.Format'') AND FIND_IN_SET(M.MetaDataIndexValue, ?) AND (F.ServiceTypeID between 0 and 8) LIMIT ?,?';
+	PREPARE GET_VFS_FILES_MIME FROM 'SELECT DISTINCT Concat(F.Path, \'/\', F.Name) as uri FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = GetMetaDataTypeID(''File.Format'') AND FIND_IN_SET(M.MetaDataIndexValue, ?) AND (F.ServiceTypeID between 9 and 17) LIMIT ?,?';
 
 	PREPARE GET_FILE_MTIME FROM 'SELECT M.MetaDataNumericValue  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = GetMetaDataTypeID(''File.Modified'') ';
 
-	PREPARE SEARCH_KEYWORDS FROM 'Select Concat(S.Path, ''/'', S.Name) as uri from Services  S INNER JOIN ServiceKeywords K ON K.ServiceID = S.ID WHERE (S.ServiceTypeID between ? and ?) and K.Keyword = ? limit ?';
+	PREPARE SEARCH_KEYWORDS FROM 'Select Concat(S.Path, ''/'', S.Name) as uri from Services  S INNER JOIN ServiceKeywords K ON K.ServiceID = S.ID WHERE (S.ServiceTypeID between ? and ?) and K.Keyword = ? limit ?,?';
 
 END|
 
@@ -220,26 +220,28 @@ END|
 
 DROP PROCEDURE if exists GetFilesByMimeType|
 
-CREATE PROCEDURE GetFilesByMimeType (pMimeTypes varchar(512), pMaxHits int) 
+CREATE PROCEDURE GetFilesByMimeType (pMimeTypes varchar(512), pOffset int, pMaxHits int) 
 BEGIN 
 		
 	Set @MimeTypes = pMimeTypes;
 	Set @MaxHits = pMaxHits;
+	Set @Offset = pOffset;
 	
-	EXECUTE GET_FILES_MIME USING  @MimeTypes, @MaxHits;
+	EXECUTE GET_FILES_MIME USING  @MimeTypes, @Offset, @MaxHits;
 END|
 
 
 
 DROP PROCEDURE if exists GetVFSFilesByMimeType|
 
-CREATE PROCEDURE GetVFSFilesByMimeType (pMimeTypes varchar(512), pMaxHits int) 
+CREATE PROCEDURE GetVFSFilesByMimeType (pMimeTypes varchar(512), pOffset int, pMaxHits int) 
 BEGIN 
 		
 	Set @MimeTypes = pMimeTypes;
 	Set @MaxHits = pMaxHits;
+	Set @Offset = pOffset;
 	
-	EXECUTE GET_VFS_FILES_MIME USING  @MimeTypes, @MaxHits;
+	EXECUTE GET_VFS_FILES_MIME USING  @MimeTypes, @Offset, @MaxHits;
 END|
 
 
@@ -272,14 +274,15 @@ END|
 
 DROP PROCEDURE if exists GetFilesByServiceType|
 
-CREATE PROCEDURE GetFilesByServiceType (pService varchar(64), pMaxHits int) 
+CREATE PROCEDURE GetFilesByServiceType (pService varchar(64), pOffset int, pMaxHits int) 
 BEGIN 
 		
 	Set @MaxHits = pMaxHits;
+	Set @Offset = pOffset;
 	Set @MinServiceTypeID = GetServiceTypeID (pService);
 	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
 	
-	EXECUTE GET_FILES_SERVICE_TYPE USING  @MinServiceTypeID, @MaxServiceTypeID, @MaxHits;
+	EXECUTE GET_FILES_SERVICE_TYPE USING  @MinServiceTypeID, @MaxServiceTypeID, @Offset, @MaxHits;
 END|
 
 
@@ -431,15 +434,16 @@ END|
 
 DROP PROCEDURE if exists SearchKeywords;|
 
-CREATE PROCEDURE SearchKeywords (pService varchar(32), pValue varchar(255), pMaxHits int) 
+CREATE PROCEDURE SearchKeywords (pService varchar(32), pValue varchar(255), pOffset int, pMaxHits int) 
 BEGIN 
 
 	Set @MinServiceTypeID = GetServiceTypeID (pService);
 	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
 	Set @keyword = pValue;
 	Set @MaxHits = pMaxHits;
+	Set @Offset = pOffset;
 
-	EXECUTE SEARCH_KEYWORDS USING @MinServiceTypeID, @MaxServiceTypeID, @keyword, @MaxHits;
+	EXECUTE SEARCH_KEYWORDS USING @MinServiceTypeID, @MaxServiceTypeID, @keyword, @Offset, @MaxHits;
 	
 END|
 
@@ -612,20 +616,19 @@ END|
 
 DROP PROCEDURE if exists SearchFilesText;|
 
-CREATE PROCEDURE SearchFilesText (pText varchar(255), pMaxHits int, pSorted bool)
+CREATE PROCEDURE SearchFilesText (pText varchar(255), pOffset int, pMaxHits int, pSorted bool)
 BEGIN
 	
 	Set @SearchText = pText;
 	Set @MaxHits = pMaxHits;
 	Set @MinServiceTypeID = GetServiceTypeID ('Files');
 	Set @MaxServiceTypeID = GetMaxServiceTypeID ('Files');
-	
-
+	Set @Offset = pOffset;
 
 	IF (pSorted = 0) THEN
-		EXECUTE SEARCH_FILES_TEXT USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @MaxHits;
+		EXECUTE SEARCH_FILES_TEXT USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @Offset, @MaxHits;
 	ELSE 
-		EXECUTE SEARCH_FILES_TEXT_SORTED USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @MaxHits;
+		EXECUTE SEARCH_FILES_TEXT_SORTED USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @Offset, @MaxHits;
 	END IF; 
 END|
 
@@ -634,7 +637,7 @@ END|
 
 DROP PROCEDURE if exists SearchMetaData;|
 
-CREATE PROCEDURE SearchMetaData (pService varchar(32), pMetaData varchar(128), pText varchar(255), pMaxHits int)
+CREATE PROCEDURE SearchMetaData (pService varchar(32), pMetaData varchar(128), pText varchar(255), pOffset int, pMaxHits int)
 BEGIN
 	
 	Set @SearchText = pText;
@@ -642,9 +645,10 @@ BEGIN
 	Set @SearchMetadataID = GetMetaDataTypeID (pMetaData);
 	Set @MinServiceTypeID = GetServiceTypeID (pService);
 	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
+	Set @Offset = pOffset;
 	
 	IF (GetMetaDataType(pMetaData) = 0) THEN
-		EXECUTE SEARCH_INDEXED_METADATA  USING @MinServiceTypeID, @MaxServiceTypeID, @SearchMetadataID,  @SearchText, @MaxHits;
+		EXECUTE SEARCH_INDEXED_METADATA  USING @MinServiceTypeID, @MaxServiceTypeID, @SearchMetadataID,  @SearchText, @Offset, @MaxHits;
 	END IF;
 		
 END|
@@ -672,23 +676,23 @@ END|
 DROP PROCEDURE if exists SearchText;|
 
 
-CREATE PROCEDURE SearchText (pService varchar(32), pText varchar(255), pMaxHits int, pSorted bool, pBooleanMode bool)
+CREATE PROCEDURE SearchText (pService varchar(32), pText varchar(255), pOffset int, pMaxHits int, pSorted bool, pBooleanMode bool)
 BEGIN
 	
 	Set @SearchText = pText;
 	Set @MaxHits = pMaxHits;
 	Set @MinServiceTypeID = GetServiceTypeID (pService);
 	Set @MaxServiceTypeID = GetMaxServiceTypeID (pService);
-	
+	Set @Offset = pOffset;
 
 
 	IF (pSorted = 0) THEN
-		EXECUTE SEARCH_TEXT_UNSORTED USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @MaxHits;
+		EXECUTE SEARCH_TEXT_UNSORTED USING @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @Offset, @MaxHits;
 	ELSE 
 		IF (pBooleanMode = 0) THEN
-			EXECUTE SEARCH_TEXT_SORTED USING @SearchText, @MinServiceTypeID,  @MaxServiceTypeID, @SearchText, @MaxHits;
+			EXECUTE SEARCH_TEXT_SORTED USING @SearchText, @MinServiceTypeID,  @MaxServiceTypeID, @SearchText, @Offset, @MaxHits;
 		ELSE
-			EXECUTE SEARCH_TEXT_SORTED_BOOL USING @SearchText, @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @MaxHits;
+			EXECUTE SEARCH_TEXT_SORTED_BOOL USING @SearchText, @MinServiceTypeID, @MaxServiceTypeID, @SearchText, @Offset, @MaxHits;
 		END IF;
 	END IF; 
 END|

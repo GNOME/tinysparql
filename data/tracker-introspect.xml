@@ -213,6 +213,7 @@
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="keywords" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
@@ -239,6 +240,7 @@
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="b" name="sort_by_relevance" direction="in" />
 			<arg type="as" name="result" direction="out" />
@@ -252,6 +254,7 @@
 		<method name="FilesByText">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="b" name="group_results" direction="in" />
 			<arg type="a{sv}" name="result" direction="out" />
@@ -265,6 +268,7 @@
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="field" direction="in" />
 			<arg type="s" name="search_text"  direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
@@ -290,6 +294,7 @@
 		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null			
 		     The search_text paramter specifies the text to search for in a full text search of all indexed fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
 		     The query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results - this parameter can be null if the search_text is not null (in which case only the search_text parameter is used to find matches)
+		     The Offset parameter sets the start row of the returned result set (useful for paging/cursors). A value of 0 should be passed to get rows from the beginning.
 		     The max_hits parameter limits the size of the result set.
 		     The sort_by_service parameter optionally sorts results by their service category (if FALSE no service sorting is done)
 		     The result is a hashtable/dict with the id of the matching entity as the key fields.
@@ -302,6 +307,7 @@
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="s" name="query_condition" direction="in" />
 			<arg type="b" name="sort_by_service" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="a{sv}" name="result" direction="out" />
 		</method>
@@ -355,6 +361,7 @@
 		<method name="GetByServiceType">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="file_service" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>	
@@ -363,6 +370,7 @@
 		<method name="GetByMimeType">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>	
@@ -371,6 +379,7 @@
 		<method name="GetByMimeTypeVfs">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
