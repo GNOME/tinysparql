@@ -714,7 +714,7 @@ _xdg_mime_mime_type_subclass (const char *mime,
   parents = _xdg_mime_parent_list_lookup (parent_list, umime);
   for (; parents && *parents; parents++)
     {
-      if (xdg_mime_mime_type_subclass (*parents, ubase))
+      if (_xdg_mime_mime_type_subclass (*parents, ubase))
 	return 1;
     }
 
