@@ -394,7 +394,7 @@ BEGIN
 	Set pMaxServiceTypeID = GetMaxServiceTypeID (pService);
 
 	IF (pService != 'Emails') THEN
-		Select distinct K.Keyword, count(*) from Services S, ServiceKeywords K where K.ServiceID = S.ID AND (S.ServiceTypeID between pMinServiceTypeID and pMaxServiceTypeID) group by K.Keyword;
+		Select distinct K.Keyword, count(*) from Services S, ServiceKeywords K where K.ServiceID = S.ID AND (S.ServiceTypeID between pMinServiceTypeID and pMaxServiceTypeID) group by K.Keyword order by 2,1 desc;
 	END IF;
 END|
 

@@ -22,7 +22,7 @@
 #include <glib.h>
 #include "../libtracker/tracker.h" 
 
-#define USAGE "usage: \ntracker-tag -a File Tag1 [Tag2...]\t: Add Tags to File\ntracker-tag -l File \t\t: List all tags on a File\ntracker-tag -r File Tag1 [Tag2...] \t: Remove Tags from File\ntracker-tag -R File  \t\t: Remove all tags from File\ntracker-tag -s Tag1 [Tag2...] \t\t: Search files for specified tags. Multiple tags are always ANDed in the search\n"
+#define USAGE "usage: \ntracker-tag\t\t\t\t: Gets stats for all tags\ntracker-tag -a File Tag1 [Tag2...]\t: Add Tags to File\ntracker-tag -l File \t\t\t: List all tags on a File\ntracker-tag -r File Tag1 [Tag2...] \t: Remove Tags from File\ntracker-tag -R File  \t\t\t: Remove all tags from File\ntracker-tag -s Tag1 [Tag2...] \t\t: Search files for specified tags. Multiple tags are always ANDed in the search\n"
 
 
 
@@ -38,6 +38,32 @@ tracker-tag -s Tags  \t\t: Search files for specified tags\n
 
 static char *tmp;
 
+static void
+get_meta_table_data (gpointer key,
+   		     gpointer value,
+		     gpointer user_data)
+{
+
+	char **meta, **meta_p;
+
+	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
+		g_warning ("fatal communication error\n");
+		return;
+	}
+
+
+	g_print ("%s ", (char *)key);
+
+	meta = g_value_get_boxed (value);
+
+	for (meta_p = meta; *meta_p; meta_p++) {
+		if (*meta_p) {
+	     		 g_print ("(%s)",  (char *)*meta_p);
+		}
+	}	
+	g_print ("\n");
+}
+
 
 int 
 main (int argc, char **argv) 
@@ -45,13 +71,6 @@ main (int argc, char **argv)
 
 	TrackerClient *client = NULL;
 	GError *error = NULL;
-
-	if (argc < 3) {
-		g_print (USAGE);
-		return 1;
-
-	}
-
 
 
 	client =  tracker_connect (FALSE);
@@ -61,8 +80,25 @@ main (int argc, char **argv)
 		return 1;
 	}
 
+	if  (argc == 1) {
+
+		GHashTable *table = NULL;
+
+		table =	tracker_keywords_get_list (client, SERVICE_FILES, &error);
+		
+		if (error) {
+			g_warning ("An error has occured : %s", error->message);
+			g_error_free (error);
+		}
+
 	
-	if (strcmp (argv[1], "-a") == 0) {
+
+		if (table) {
+			g_hash_table_foreach (table, get_meta_table_data, NULL);
+			g_hash_table_destroy (table);	
+		}
+
+	} else 	if (strcmp (argv[1], "-a") == 0) {
 
 		if (argc < 4) {
 			g_print (USAGE);
@@ -207,7 +243,7 @@ main (int argc, char **argv)
 
 		}
 
-	}  else {
+	} else {
 		g_print (USAGE);
 		return 1;
 	}

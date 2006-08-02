@@ -1,3 +1,7 @@
+2006-07-02 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added new command line tool tracker-files
+
 
 2006-07-02 Edward Duffy <eduffy@gmail.com>
 	
@@ -14,8 +18,6 @@
 2006-07-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
 	
 	* Patch to fix sql
-
-
 
 
 2006-07-01 Jamie McCracken <jamiemcc@gnome.org>
