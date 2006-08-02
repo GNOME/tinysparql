@@ -1,3 +1,21 @@
+
+2006-07-02 Jedy Wang <Jedy.Wang@Sun.COM>
+	
+	* Patch to add build instructions for Solaris to README file
+
+
+
+2006-07-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
+	
+	* Patch to fix sql
+
+
+2006-07-01 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added offset parameter to search methods
+
+
+
 2006-06-31 Jedy Wang <Jedy.Wang@Sun.COM>
 	
 	* Patch to improve compilation on Solaris
@@ -11,6 +29,7 @@
 	* added support for OR in search terms
 	* added support for excluding a search term
 	* added bugfixed XDGMIME from Beagle to prevent crashes
+
 
 2006-06-30 Marcus Fritzsch <fritschy@googlemail.com>
 	

@@ -155,6 +155,19 @@ If you install using any other prefix then you might have problems with files no
 
 (You may need to copy and amend the dbus service file to the correct directory and/or might need to update ld_conf if you install into non standard directories.)
 
+Notes to build tracker on Solaris
+
+To compile Tracker with GCC on Solaris uses the following commands :
+./configure --prefix=/usr --enable-static --with-pic CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
+make
+login as root
+make install
+
+To compile Tracker with SUN Studio on Solaris uses the following commands, because there are some problems to compile exiv2 using SUN C++ compiler:
+./configure --prefix=/usr --enable-static --with-pic --disable-warnings --disable-exiv2 CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
+make
+login as root
+make install
 
 
 
