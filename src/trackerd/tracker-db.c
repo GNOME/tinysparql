@@ -28,7 +28,7 @@ db_connect (const char* dbname)
 	MYSQL *db = mysql_init (NULL);
 	
 	if (!db) {
-		tracker_log ( "Fatal error - mysql_init failed due to no memory available");
+		tracker_log ( "Fatal error - mysql_init failed");
 		exit (1);
 	}
 
@@ -743,16 +743,50 @@ create_system_db ()
 
 }
 
-
 void
-tracker_create_db ()
+tracker_db_load_stored_procs (MYSQL *db)
+{
+	char  *sql_file;
+	char *query;
+	char **queries, **queries_p ;
+	MYSQL_RES *res = NULL;
+
+	tracker_log ("Creating stored procedures...");
+	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
+	
+	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
+		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file); 
+		g_assert (FALSE);
+	} else {
+		queries = g_strsplit_set (query, "|", -1);
+		for (queries_p = queries; *queries_p; queries_p++) {
+			if (*queries_p) {
+		     		res = tracker_exec_sql (db, *queries_p);
+
+				if (res) {
+					mysql_free_result (res);
+				}
+			}
+		}
+		g_strfreev (queries);
+		g_free (query);
+	} 	
+	
+	g_free (sql_file);
+
+
+}
+
+
+static void
+create_tracker_db ()
 {
 	MYSQL *db;
 	char  *sql_file;
 	char *query;
 	char **queries, **queries_p ;
 
-	create_system_db ();
+	
 
 	tracker_log ("Creating tracker database...");
 	db = db_connect (NULL);
@@ -760,7 +794,7 @@ tracker_create_db ()
 	mysql_close (db);
 	db = db_connect ("tracker");
 	sql_file = g_strdup (DATADIR "/tracker/mysql-tracker.sql");
-	
+	tracker_log ("Creating tables...");
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
 		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file); 
 		g_assert (FALSE);
@@ -780,6 +814,15 @@ tracker_create_db ()
 
 	mysql_close (db);
 	
+}
+
+
+
+void
+tracker_create_db ()
+{
+	create_system_db ();
+	create_tracker_db ();
 }
 
 
@@ -832,7 +875,7 @@ tracker_update_db (MYSQL *db)
 	char  *sql_file;
 	char *query;
 	char **queries, **queries_p;
-
+	gboolean refresh = FALSE;
 
 	res = tracker_exec_sql  (db, "show tables");
 	tracker_log ("Checking for Options table...");
@@ -876,10 +919,16 @@ tracker_update_db (MYSQL *db)
 	mysql_free_result (res);
 
 	tracker_log ("Checking tracker DB version...Current version is %d and needed version is %d", i, TRACKER_DB_VERSION_REQUIRED);
-
+	if (i < 3) {
+		tracker_log ("Your database is out of date and will need to be rebuilt and all your files reindexed.\nThis may take a while...please wait...");
+		tracker_exec_sql (db, "Drop Database tracker");
+		create_tracker_db ();
+		return TRUE;
+		
+	}
 
 	/* apply and table changes for each version update */
-	while (i < TRACKER_DB_VERSION_REQUIRED) {
+/*	while (i < TRACKER_DB_VERSION_REQUIRED) {
 			
 		i++;
 
@@ -903,7 +952,7 @@ tracker_update_db (MYSQL *db)
 
 			
 	}
-
+*/
 	/* regenerate SPs */
 	tracker_log ("Creating stored procedures...");
 	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
@@ -928,10 +977,7 @@ tracker_update_db (MYSQL *db)
 	
 	g_free (sql_file);
 	
-
-
-
-	return FALSE;
+	return refresh;
 }
 
 

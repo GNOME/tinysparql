@@ -7,7 +7,7 @@ create  table if not exists Options
 );
 
 insert into Options (OptionKey, OptionValue) values 
-('DBVersion', '2');
+('DBVersion', '3');
 
 
 create procedure GetVersion() SELECT OptionValue FROM Options WHERE OptionKey = 'DBVersion';
@@ -139,7 +139,7 @@ create table if not exists Keywords
 	Description		varchar (255),
 	CustomEmblem		varchar (255),
 	IsFavouriteTag		bool default 0,
-
+	
 	primary key (Keyword)
 
 );
@@ -261,7 +261,11 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable) values
 ('PlayList.DateCreated', 3, 0, 1),
 ('PlayList.LastPlay', 3, 0, 1),
 ('PlayList.PlayCount', 2, 0, 1),
-('PlayList.Description', 0, 0, 1);
+('PlayList.Description', 0, 0, 1),
+('PlayList.RDFQuery', 1, 0, 1),
+('PlayList.Name', 0, 0, 1),
+('PlayList.Rank', 2, 0, 1),
+('PlayList.Keywords', 0, 0, 1);
 
 
 /* optional contextual file data - gives a nice audit trail for a file */

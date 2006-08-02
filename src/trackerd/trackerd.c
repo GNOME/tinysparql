@@ -1737,6 +1737,7 @@ main (int argc, char **argv)
 		/* refresh connection as DB might have been rebuilt */
 		mysql_close (db_con.db);
 		db_con.db = tracker_db_connect ();
+		tracker_db_load_stored_procs (db_con.db);
 	}
 
 

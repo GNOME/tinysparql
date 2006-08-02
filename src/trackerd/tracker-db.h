@@ -73,6 +73,7 @@ char *		tracker_db_get_id	 	(DBConnection *db_con, const char* service, const ch
 MYSQL_RES *	tracker_exec_sql   		(MYSQL *db, const char *query);
 void		tracker_log_sql	   		(MYSQL *db, const char *query);
 void		tracker_create_db  		();
+void		tracker_db_load_stored_procs 	(MYSQL *db);
 gboolean	tracker_db_save_file 		(FileInfo *info);
 void		tracker_db_save_metadata 	(DBConnection *db_con, GHashTable *table, long file_id);
 void		tracker_db_save_thumbs		(DBConnection *db_con, const char *small_thumb, const char *large_thumb, long file_id);
