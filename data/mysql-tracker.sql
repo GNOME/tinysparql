@@ -63,7 +63,7 @@ INSERT INTO sequence VALUES (1);
 create table if not exists Volumes
 (
 	VolumeID 	int auto_increment not null,
-	UDI		varchar (64),
+	UDI		varchar (255),
 	VolumeName	varchar (255),
 	MountPath	varchar (255),
 	Enabled		bool default 0,
@@ -125,7 +125,7 @@ insert into ServiceLinkTypes (Type) Values ('PlayListItem');
 create  table if not exists ServiceKeywords
 (
 	ServiceID		int unsigned not null,
-	Keyword     		varchar (32) character set utf8 not null, 
+	Keyword     		varchar (255) character set utf8 not null, 
 
 	Primary Key (ServiceID, Keyword),
 	Key (Keyword)
@@ -135,12 +135,12 @@ create  table if not exists ServiceKeywords
 
 create table if not exists Keywords
 (
-	KeywordID		int unsigned auto_increment not null,
 	Keyword			varchar (255) character set utf8 not null, 
 	Description		varchar (255),
 	CustomEmblem		varchar (255),
+	IsFavouriteTag		bool default 0,
 
-	primary key (KeywordID)
+	primary key (Keyword)
 
 );
 
@@ -155,7 +155,7 @@ create  table if not exists ServiceMetaData
 	MetaDataNumericValue	double, 	
 
 	Primary Key (ServiceID, MetaDataID),
-	Key (MetaDataIndexValue (24)),
+	Key (MetaDataIndexValue (32)),
 	key INumericValue (MetaDataID, MetaDataNumericValue),
 	FullText (MetaDataIndexValue)
 
@@ -189,6 +189,7 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable) values
 ('File.Publisher', 0, 1, 1),
 ('File.Content', 0, 1, 0),
 ('File.Description', 0, 0, 1),
+('File.License', 0, 1, 0),
 ('File.Keywords', 0, 0, 1),
 ('File.Rank', 2, 0, 1),
 ('File.IconPath', 1, 0, 1 ),

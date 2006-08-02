@@ -1,4 +1,10 @@
 
+2006-07-02 Edward Duffy <eduffy@gmail.com>
+	
+	* Patch for small fix to XdgMime
+
+
+
 2006-07-02 Jedy Wang <Jedy.Wang@Sun.COM>
 	
 	* Patch to add build instructions for Solaris to README file
@@ -8,6 +14,8 @@
 2006-07-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
 	
 	* Patch to fix sql
+
+
 
 
 2006-07-01 Jamie McCracken <jamiemcc@gnome.org>
