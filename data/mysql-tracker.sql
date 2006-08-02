@@ -61,7 +61,7 @@ INSERT INTO sequence VALUES (1);
 
 /* store volume and HAL info here for files */
 create table if not exists Volumes
-{
+(
 	VolumeID 	int auto_increment not null,
 	UDI		varchar (64),
 	VolumeName	varchar (255),
@@ -69,7 +69,7 @@ create table if not exists Volumes
 	Enabled		bool default 0,
 
 	primary key (VolumeID)
-}
+);
 
 
 /* basic file info for a file or service object */
@@ -132,6 +132,17 @@ create  table if not exists ServiceKeywords
 );
 
 
+
+create table if not exists Keywords
+(
+	KeywordID		int unsigned auto_increment not null,
+	Keyword			varchar (255) character set utf8 not null, 
+	Description		varchar (255),
+	CustomEmblem		varchar (255),
+
+	primary key (KeywordID)
+
+);
 
 
 /* store all metadata here. */
