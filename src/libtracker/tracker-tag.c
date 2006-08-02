@@ -1,5 +1,5 @@
-/* Tracker Search
- * Copyright (C) 2005, Mr Jamie McCracken (jamiemcc@gnome.org)	
+/* Tracker Tag
+ * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)	
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -22,7 +22,7 @@
 #include <glib.h>
 #include "../libtracker/tracker.h" 
 
-#define USAGE "usage: \ntracker-tag -a File Tags\t: Add Tags to File\ntracker-tag -l File \t\t: List all tags on a File\ntracker-tag -r File Tags \t: Remove Tags from File\ntracker-tag -R File  \t\t: Remove all tags from File\ntracker-tag -s Tags  \t\t: Search files for specified tags\n"
+#define USAGE "usage: \ntracker-tag -a File Tag1 [Tag2...]\t: Add Tags to File\ntracker-tag -l File \t\t: List all tags on a File\ntracker-tag -r File Tag1 [Tag2...] \t: Remove Tags from File\ntracker-tag -R File  \t\t: Remove all tags from File\ntracker-tag -s Tag1 [Tag2...] \t\t: Search files for specified tags. Multiple tags are always ANDed in the search\n"
 
 
 

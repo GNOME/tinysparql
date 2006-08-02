@@ -493,7 +493,6 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	char 		*service;
 	char 		**array = NULL, **mimes = NULL;
 	int 		limit, row_count = 0, query_id, offset;
 
@@ -502,7 +501,6 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 	db_con = rec->user_data;
 	
 /*
-
 		<!-- Retrieves all non-vfs files of the specified mime type(s) -->
 		<method name="GetByMimeType">
 			<arg type="i" name="live_query_id" direction="in" />
@@ -521,23 +519,29 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
 		
-	if (!tracker_is_valid_service (db_con, service)) {
-		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
+
+	if (n < 1) {
+		tracker_set_error (rec, "No mimes specified");	
 		return;
 	}
 
-	char **null_array = tracker_make_array_null_terminated (mimes, n);
-		
-	char *keys = g_strjoinv (",", null_array);
+	int i;
 
-	g_strfreev (null_array);
+	GString *str = g_string_new ("");
+	str = g_string_append (str, mimes[0]);
 
-	char *str_mimes = g_strconcat ("'", keys, "'", NULL);
+	for (i=1; i<n; i++) {
+		g_string_append_printf (str, ",%s", mimes[i]); 
+
+	}
+
+
+	char *str_mimes = g_string_free (str, FALSE);
 	
-	g_free (keys);
-
 	char *str_limit = tracker_int_to_str (limit);
 	char *str_offset = tracker_int_to_str (offset);
+
+	tracker_log ("Executing GetFilesByMimeType with param %s", str_mimes);
 
 	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFilesByMimeType", 3, str_mimes, str_offset, str_limit);
 		
@@ -573,7 +577,6 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 
 	DBConnection 	*db_con;
 	DBusMessage 	*reply;
-	char 		*service;
 	char 		**array = NULL, **mimes = NULL;
 	int 		limit, row_count = 0, query_id, offset;
 
@@ -601,10 +604,6 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 				DBUS_TYPE_INT32, &limit,
 				DBUS_TYPE_INVALID);
 		
-	if (!tracker_is_valid_service (db_con, service)) {
-		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);	
-		return;
-	}
 
 	char **null_array = tracker_make_array_null_terminated (mimes, n);
 		

@@ -57,7 +57,7 @@ main (int argc, char **argv)
 
 
 	if (argc < 2) {
-		g_print ("usage - tracker-search SearchTerm1  [Searchterm2...]\n");
+		g_print ("usage - tracker-search SearchTerm1  [Searchterm2...]\nMultiple search terms are ANDed by default\n");
 		return 1;
 
 	}

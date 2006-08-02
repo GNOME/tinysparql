@@ -1,4 +1,4 @@
-/* Tracker Extract - extracts embedded metadata from files
+/* Tracker Meta Folder
  *
  * Copyright (C) 2005, Mr Jamie McCracken (jamiemcc@gnome.org)	
  *

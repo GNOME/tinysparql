@@ -64,7 +64,7 @@ main (int argc, char **argv)
 
 	
 	if (argc < 2) {
-		g_print ("usage - tracker-query File [Metadata Fields...]\n");
+		g_print ("usage - tracker-query File [Metadata Fields1...]\nMetadata fields are defined at http://freedesktop.org/wiki/Standards/shared-filemetadata-spec\nExample usage: tracker-query file.rdf File.Format File.Size\n");
 		return 1;
 	}
 	
