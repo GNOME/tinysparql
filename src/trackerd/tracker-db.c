@@ -484,6 +484,9 @@ tracker_exec_sql (MYSQL *db, const char *query)
 	GTimeVal before, after;
 	double elapsed;
 
+
+	g_return_val_if_fail (query, NULL);
+
 	//tracker_log ("executing query:\n%s\n", query);
 	g_get_current_time (&before);
 	if (!lock_db ()) {

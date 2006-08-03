@@ -28,6 +28,124 @@
 
 
 void
+tracker_dbus_method_files_exists (DBusRec *rec)
+{	
+	DBusMessage *reply;
+	DBConnection *db_con;
+	char *mime = NULL, *uri = NULL, *name, *path, *service;
+	gboolean auto_create;
+	gboolean file_valid = FALSE;
+	gboolean result = FALSE;
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+
+
+/*
+		<!-- Determines if the file is in tracker's database. The option auto_create if set to TRUE will register the file in the database if not already present -->
+		<method name="Exists">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="b" name="auto_create" direction="in" />
+			<arg type="b" name="result" direction="out" />
+		</method>
+*/
+	
+	dbus_message_get_args  (rec->message, NULL, 
+				DBUS_TYPE_STRING, &uri,
+				DBUS_TYPE_BOOLEAN, &auto_create,			
+				DBUS_TYPE_INVALID);
+
+	
+	if (!uri)  {
+		tracker_set_error (rec, "No file was specified");	
+		return;
+	}
+
+	long file_id = tracker_db_get_file_id (db_con, uri);
+	result = (file_id > 0);
+
+	if (!result && auto_create) {
+
+		char *str_size;
+		char *str_mtime;
+		const char *str_is_dir;
+
+		if (uri[0] == '/') {
+			if (!tracker_file_is_valid (uri)) {
+				file_valid = FALSE;	
+			} else {
+				file_valid = TRUE;
+				name = g_path_get_basename (uri);
+				path = g_path_get_dirname (uri);
+				mime = tracker_get_mime_type (uri);
+				service = tracker_get_service_type_for_mime (mime);
+				FileInfo *info = tracker_create_file_info (uri, 1, 0, 0);
+				info = tracker_get_file_info (info);
+				if (info) {
+					str_size = tracker_long_to_str (info->file_size);
+					str_mtime = tracker_long_to_str (info->mtime);
+					if (info->is_directory) {
+						str_is_dir = "1";
+					} else {
+						str_is_dir = "0";
+					}
+					info = tracker_free_file_info (info);
+				} 
+				
+			}
+		
+
+		} else {
+			name = tracker_get_vfs_name (uri);
+			path = tracker_get_vfs_path (uri);
+			file_valid = TRUE;
+			mime = g_strdup ("unknown");
+			service = g_strdup ("VFS Files");
+			str_size = g_strdup ("0");
+			str_mtime = g_strdup ("0");
+			str_is_dir = "0";
+		
+		}
+		
+		if (file_valid) {
+			tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, service, str_is_dir, "0", "0", "0",  str_mtime);	
+		}
+
+		file_id = tracker_db_get_file_id (db_con, uri);
+		char *str_file_id = tracker_long_to_str (file_id);
+
+		if (file_id > 0) {
+			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Modified",  str_mtime, "1");	
+			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Size",  str_size, "1");
+			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Name",  name, "1");		
+			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Path",  path, "1");
+			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Format",  mime, "1");
+		}
+
+		g_free (mime);
+		g_free (service);
+		g_free (str_mtime);
+		g_free (str_size);
+		g_free (name);
+		g_free (path);
+		g_free (str_file_id);
+	}
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	dbus_message_append_args (reply,
+				  DBUS_TYPE_BOOLEAN, &result,
+				  DBUS_TYPE_INVALID);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+
+}
+	
+
+
+void
 tracker_dbus_method_files_create (DBusRec *rec)
 {
 	DBConnection *db_con;
@@ -180,6 +298,68 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 
 }
 
+
+
+void
+tracker_dbus_method_files_get_service_type (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage *reply;
+	char *uri;
+
+
+/*
+		<!-- Get the Service subtype for the file -->
+		<method name="GetServiceType">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="result" direction="out" />
+		</method>
+*/
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+	
+	dbus_message_get_args  (rec->message, NULL, 
+				DBUS_TYPE_STRING, &uri, 
+				DBUS_TYPE_INVALID);
+
+
+	if (!uri)  {
+		tracker_set_error (rec, "No file was specified");	
+		return;
+	}
+
+	long id = tracker_db_get_file_id (db_con, uri);
+
+	if (id < 1) {
+		tracker_set_error (rec, "File %s was not found in Tracker's database", uri);	
+		return;
+	}
+
+	char *str_id = tracker_long_to_str (id);
+
+	char *mime = tracker_get_metadata (db_con, "Files", str_id, "File.Format"); 
+
+	char *result = tracker_get_service_type_for_mime (mime);
+
+	g_free (mime);
+
+	g_free (str_id);
+
+	reply = dbus_message_new_method_return (rec->message);
+	
+	dbus_message_append_args (reply,
+				  DBUS_TYPE_STRING, &result,
+				  DBUS_TYPE_INVALID);
+
+
+	g_free (result);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+		
+}
 
 void
 tracker_dbus_method_files_get_text_contents (DBusRec *rec)

@@ -1,3 +1,13 @@
+2006-07-03 Marcus Fritzsch <fritschy@googlemail.com>
+	
+	* Patch to make sure query is not null in tracker_exec_sql
+
+
+2006-07-03 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added new Dbus methods for File.Exists and File.GetServiceType
+
+
 2006-07-02 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added new command line tool tracker-files

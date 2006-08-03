@@ -271,7 +271,11 @@ message_func (DBusConnection *conn,
 
 
 
-
+	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_EXISTS)) {
+		
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_FILES_EXISTS;
+		g_async_queue_push (user_request_queue, rec);
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_CREATE)) {
 		
@@ -286,6 +290,11 @@ message_func (DBusConnection *conn,
 		rec->action = DBUS_ACTION_FILES_DELETE;
 		g_async_queue_push (user_request_queue, rec);
 
+	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_SERVICE_TYPE)) {
+		
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_FILES_GET_SERVICE_TYPE;
+		g_async_queue_push (user_request_queue, rec);
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_TEXT_CONTENTS )) {
 		

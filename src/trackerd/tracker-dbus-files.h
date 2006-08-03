@@ -19,8 +19,10 @@
 
 #include "tracker-dbus.h"
 
+void		tracker_dbus_method_files_exists 		(DBusRec *rec);
 void		tracker_dbus_method_files_create		(DBusRec *rec);
 void		tracker_dbus_method_files_delete		(DBusRec *rec);
+void		tracker_dbus_method_files_get_service_type 	(DBusRec *rec);
 void		tracker_dbus_method_files_get_text_contents	(DBusRec *rec);
 void		tracker_dbus_method_files_search_text_contents	(DBusRec *rec);
 void		tracker_dbus_method_files_get_mtime		(DBusRec *rec);

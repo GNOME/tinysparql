@@ -1437,7 +1437,14 @@ process_user_request_queue_thread (GMutex *mutex)
 				break;
 
 
-	
+
+
+
+			case DBUS_ACTION_FILES_EXISTS:
+			
+				tracker_dbus_method_files_exists (rec);
+
+				break;	
 
 			case DBUS_ACTION_FILES_CREATE:
 			
@@ -1450,6 +1457,12 @@ process_user_request_queue_thread (GMutex *mutex)
 			case DBUS_ACTION_FILES_DELETE:
 			
 				tracker_dbus_method_files_delete (rec);
+
+				break;
+
+			case DBUS_ACTION_FILES_GET_SERVICE_TYPE:
+			
+				tracker_dbus_method_files_get_service_type (rec);
 
 				break;
 

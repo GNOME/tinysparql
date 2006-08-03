@@ -53,3 +53,4 @@ tracker_files_LDADD = 	$(GLIB2_LIBS) 	\
  
 install-exec-hook:
 	ln -fs $(DESTDIR)/$(libdir)/libmetatracker.so $(DESTDIR)/$(libdir)/libtracker.so
+	ln -fs $(DESTDIR)/$(libdir)/libmetatracker.so.0 $(DESTDIR)/$(libdir)/libtracker.so.0

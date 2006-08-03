@@ -322,6 +322,13 @@
 -->
 	<interface name="org.freedesktop.Tracker.Files">
 
+		<!-- Determines if the file is in tracker's database. The option auto_create if set to TRUE will register the file in the database if not already present -->
+		<method name="Exists">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="b" name="auto_create" direction="in" />
+			<arg type="b" name="result" direction="out" />
+		</method>
+
 		<!-- creates a new entry for a file in tracker's database. This method is ueful when you want to tell Tracker about a file which it cannot see (EG a VFS file) or
 		     the file is located outside the watch/crawl path -->
 		<method name="Create">
@@ -335,6 +342,13 @@
 		<!-- Removes the file entry from tracker's database-->
 		<method name="Delete">
 			<arg type="s" name="uri" direction="in" />
+		</method>
+
+
+		<!-- Get the Service subtype for the file -->
+		<method name="GetServiceType">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="result" direction="out" />
 		</method>
 
 		<!-- Get the "File.Content" field for a file and allows you to specify the offset and amount of text to retrieve  -->
