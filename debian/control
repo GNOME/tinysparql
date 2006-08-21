@@ -2,14 +2,59 @@ Source: tracker
 Section: utils
 Priority: optional
 Maintainer: Jamie McCracken <jamiemcc@gnome.org>
-Build-Depends: debhelper (>= 4.0.0), autotools-dev, libmysqlclient15-dev (>= 5.0.19), libextractor-dev (>= 0.5.0), libdbus-glib-1-dev
-Standards-Version: 3.6.1
+Build-Depends: debhelper (>= 5.0.0), autotools-dev, libextractor-dev (>= 0.5.0), libdbus-glib-1-dev
+Standards-Version: 3.7.2
 
-Package: tracker
+Package: meta-tracker
 Architecture: any
-Depends: libc6 (>= 2.3.4-1), libglib2.0-0 (>= 2.10.0), libdbus-1-2 (>= 0.60), libdbus-glib-1-2 (>= 0.60), shared-mime-info, libextractor1c2a (>= 0.5.0)
-Description: Metadata database and indexing search tool.
- Tracker is an advanced framework for first class objects with 
- associated metadata and tags. It provides a one stop solution for
- all metadata, tags, shared object databases, search tools and indexing.
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: meta-tracker-utils
+Description: Metadata database and indexing search tool
+ Tracker is an advanced framework for first class objects with associated
+ metadata and tags. It provides a one stop solution for all metadata, tags,
+ shared object databases, search tools and indexing.
 
+Package: libmetatracker0
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}, meta-tracker (= ${Source-Version})
+Description: Library for accessing Tracker
+ This library allow programmers accessing Tracker daemon and performing
+ searches.
+ .
+ Tracker is an advanced framework for first class objects with associated
+ metadata and tags. It provides a one stop solution for all metadata, tags,
+ shared object databases, search tools and indexing.
+
+Package: libmetatracker0-dev
+Architecture: any
+Section: devel
+Depends: libmetatracker0 (= ${Source-Version})
+Description: Development files for Tracker
+ This package contains the headers and other development files not included in
+ the libmetatracker0 package for developing with it.
+ .
+ Tracker is an advanced framework for first class objects with associated
+ metadata and tags. It provides a one stop solution for all metadata, tags,
+ shared object databases, search tools and indexing.
+
+Package: meta-tracker-utils
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Utilities for Tracker
+ Included utilities for Tracker:
+  * tracker-files: get files based on a ServiceType (Documents, Music, Images,
+    Videos, Text, Development, Other), or on specified mime types.
+  * tracker-meta-folder: get metadata for files in a folder.
+  * tracker-query: this reads from STDIN an RDF Query that specifies the search
+    criteria for various fields. It prints to STDOUT all matching files. Some
+    examples are included in this package.
+  * tracker-search: this perfoms a google like search using SEARCHTERM to
+    retrieve all matching files where SEARCHTERM appears in any searchable
+    metadata.
+  * tracker-stats: retreive some statistics.
+  * tracker-tag: tool to manage tags on files.
+ .
+ Tracker is an advanced framework for first class objects with associated
+ metadata and tags. It provides a one stop solution for all metadata, tags,
+ shared object databases, search tools and indexing.

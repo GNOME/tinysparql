@@ -31,9 +31,7 @@
 //#include "tracker-global.h"
 #include "tracker-fam.h"
 
-
-
-extern GAsyncQueue 	*file_process_queue;
+extern Tracker 		*tracker;
 extern DBConnection	*main_thread_db_con;
 
 typedef struct {
@@ -217,7 +215,7 @@ fam_callback (GIOChannel *source,
 					char *parent = g_path_get_dirname (info->uri);
 						
 					if (tracker_is_directory_watched (parent, NULL) || tracker_is_directory_watched (info->uri, NULL)) {
-						g_async_queue_push (file_process_queue, info);	
+						g_async_queue_push (tracker->file_process_queue, info);	
 					} else {
 						info = tracker_free_file_info (info);					
 					}

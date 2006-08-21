@@ -19,10 +19,14 @@
  */ 
  
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
+
+
+
 
 typedef enum {
 	IGNORE_METADATA,
@@ -228,6 +232,9 @@ tracker_get_service_type_for_mime (const char *mime)
 	return g_strdup ("Other Files");
 
 }
+
+
+
 
 
 

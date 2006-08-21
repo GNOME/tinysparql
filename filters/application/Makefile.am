@@ -9,7 +9,5 @@ thumbappbin_SCRIPTS = 	pdf_filter \
 			vnd.sun.xml.calc_filter \
 			vnd.sun.xml.impress_filter \
 			vnd.sun.xml.writer_filter
-			
 
-
-
+EXTRA_DIST = $(thumbappbin_SCRIPTS)

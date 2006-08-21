@@ -134,6 +134,13 @@ BEGIN
 END|
 
 
+DROP PROCEDURE if exists IndexIDExists;|
+
+CREATE PROCEDURE IndexIDExists (ID int unsigned)
+BEGIN
+	select 1 where exists (select IndexID from ServiceMetaData where IndexID = ID);
+END|
+
 -- service SPs --
 
 DROP PROCEDURE if exists GetServices;|

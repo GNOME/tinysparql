@@ -20,7 +20,7 @@
 #include "tracker-dbus.h" 
 #include "tracker-utils.h"
 
-extern GAsyncQueue *user_request_queue;
+extern Tracker *tracker;
 
 
 static void  unregistered_func (DBusConnection *conn, gpointer data);
@@ -110,30 +110,31 @@ message_func (DBusConnection *conn,
 	rec->connection = conn;
 	rec->message = message;
 
+	if (!tracker->is_running) return;
+
 	if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_PING)) {
 		/* ref the message here because we are going to reply to it in a different thread */
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_PING; 
-		g_async_queue_push (user_request_queue, rec);
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_GET_STATS)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_GET_STATS;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_GET_SERVICES)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_GET_SERVICES;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_GET_VERSION)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_GET_VERSION;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 
@@ -143,49 +144,49 @@ message_func (DBusConnection *conn,
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_METADATA_GET;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_SET)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_METADATA_SET;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_REGISTER_TYPE)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_METADATA_REGISTER_TYPE;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_GET_TYPE_DETAILS )) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_METADATA_GET_TYPE_DETAILS;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_GET_REGISTERED_TYPES)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_METADATA_GET_REGISTERED_TYPES;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_GET_WRITEABLE_TYPES)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_METADATA_GET_WRITEABLE_TYPES;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_GET_REGISTERED_CLASSES)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_METADATA_GET_REGISTERED_CLASSES;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 
@@ -194,39 +195,39 @@ message_func (DBusConnection *conn,
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_KEYWORDS_GET_LIST;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_KEYWORDS, TRACKER_METHOD_KEYWORDS_GET)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_KEYWORDS_GET;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_KEYWORDS, TRACKER_METHOD_KEYWORDS_ADD)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_KEYWORDS_ADD;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_KEYWORDS, TRACKER_METHOD_KEYWORDS_REMOVE)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_KEYWORDS_REMOVE;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_KEYWORDS, TRACKER_METHOD_KEYWORDS_REMOVE_ALL)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_KEYWORDS_REMOVE_ALL;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_KEYWORDS, TRACKER_METHOD_KEYWORDS_SEARCH)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_KEYWORDS_SEARCH;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 
@@ -236,7 +237,7 @@ message_func (DBusConnection *conn,
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_TEXT;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 
@@ -244,14 +245,14 @@ message_func (DBusConnection *conn,
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_FILES_BY_TEXT;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_SEARCH, TRACKER_METHOD_SEARCH_METADATA)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_METADATA;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 
@@ -259,14 +260,14 @@ message_func (DBusConnection *conn,
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_MATCHING_FIELDS;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_SEARCH, TRACKER_METHOD_SEARCH_QUERY)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_QUERY;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 
@@ -275,99 +276,99 @@ message_func (DBusConnection *conn,
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_EXISTS;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_CREATE)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_CREATE;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_DELETE)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_DELETE;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_SERVICE_TYPE)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_GET_SERVICE_TYPE;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_TEXT_CONTENTS )) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_GET_TEXT_CONTENTS ;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_SEARCH_TEXT_CONTENTS)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_SEARCH_TEXT_CONTENTS;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_BY_SERVICE_TYPE)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_GET_BY_SERVICE_TYPE;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_BY_MIME_TYPE)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_GET_BY_MIME_TYPE;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_BY_MIME_TYPE_VFS)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_GET_BY_MIME_TYPE_VFS;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_REFRESH_METADATA)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_REFRESH_METADATA;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_MTIME)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_GET_MTIME;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_GET_METADATA_FOLDER_FILES)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_GET_METADATA_FOLDER_FILES;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_SEARCH_BY_TEXT_MIME)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_SEARCH_BY_TEXT_MIME_LOCATION)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME_LOCATION;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_FILES, TRACKER_METHOD_FILES_SEARCH_BY_TEXT_LOCATION)) {
 		
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_FILES_SEARCH_BY_TEXT_LOCATION;
-		g_async_queue_push (user_request_queue, rec);
+		
 
 
 
@@ -376,6 +377,10 @@ message_func (DBusConnection *conn,
 		return DBUS_HANDLER_RESULT_NOT_YET_HANDLED;
 	}
 	
+
+	g_async_queue_push (tracker->user_request_queue, rec);
+	
+	tracker_notify_request_data_available ();
 
 	return DBUS_HANDLER_RESULT_HANDLED;
 

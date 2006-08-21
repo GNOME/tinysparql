@@ -63,23 +63,23 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 
 	int 	 	row_count = 0;
 	char 		*value;
-	MYSQL_RES 	*res = NULL;
-	MYSQL_ROW  	row;
+	char 	***res = NULL;
+	char**  	row;
 
 
 	g_return_val_if_fail (db_con && id && (strlen (id) > 0), NULL);
 
 	value = g_strdup (" ");
 
-	res = tracker_exec_proc  (db_con->db, "GetMetadata", 3, service, id, key);	
+	res = tracker_exec_proc  (db_con, "GetMetadata", 3, service, id, key);	
 
 	if (res) {
 
-		row_count = mysql_num_rows (res);
+		row_count = tracker_get_row_count (res);
 	
 		if (row_count > 0) {
 
-			row = mysql_fetch_row (res);
+			row = tracker_db_get_row (res, 0);
 
 			if (row && row[0]) {
 				g_free (value);
@@ -90,7 +90,7 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 			tracker_log ("result set is empty");
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	} 
 
 	tracker_log ("metadata %s is %s", key, value);
@@ -110,7 +110,7 @@ tracker_set_metadata (DBConnection *db_con, const char *service, const char *id,
 		str_write = "0";
 	}
 
-	tracker_exec_proc  (db_con->db, "SetMetadata", 5, service, id, key, value, str_write);	
+	tracker_exec_proc  (db_con, "SetMetadata", 5, service, id, key, value, str_write);	
 	
 
 }
@@ -161,7 +161,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 
 			char *str_mtime = g_strdup_printf ("%ld", finfo.st_mtime);
 
-			tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, service_name, is_dir, is_link, "0", "0", str_mtime);
+			tracker_exec_proc  (db_con, "CreateService", 8, path, name, service_name, is_dir, is_link, "0", "0", str_mtime);
 
 			g_free (service_name);
 
@@ -179,7 +179,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 			name = tracker_get_vfs_name (uri);
 			path = tracker_get_vfs_path (uri);
 
-			tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, "VFSFiles", "0", "0", "0", "0", "unknown");
+			tracker_exec_proc  (db_con, "CreateService", 8, path, name, "VFSFiles", "0", "0", "0", "0", "unknown");
 
 			result = tracker_db_get_file_id (db_con, uri);
 		}
@@ -198,22 +198,26 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 
 
 void
-tracker_add_query_result_to_dict (MYSQL_RES *res, DBusMessageIter *iter_dict)
+tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 {
 					
 	char *key, *value;
 	int i, row_count, field_count;
-	MYSQL_ROW  row = NULL;
+	char**  row = NULL;
 
 	g_return_if_fail (res);
 
-	row_count = mysql_num_rows (res);
+	row_count = tracker_get_row_count (res);
 
 	if (row_count > 0) {
 
-		field_count =  mysql_num_fields (res);
+		field_count =  tracker_get_field_count (res);
 
-		while ((row = mysql_fetch_row (res)) != NULL) {
+		int k = 0;
+
+		while ((row = tracker_db_get_row (res, k)) != NULL) {
+
+			k++;
 
 			if (row[0]) {
 				key = row[0];
@@ -278,14 +282,14 @@ tracker_add_query_result_to_dict (MYSQL_RES *res, DBusMessageIter *iter_dict)
 
 
 char **
-tracker_get_query_result_as_array (MYSQL_RES *res, int *row_count)
+tracker_get_query_result_as_array (char ***res, int *row_count)
 {
 					
 	char **array;
 	int i;
-	MYSQL_ROW  row = NULL;
+	char**  row = NULL;
 
-	*row_count = mysql_num_rows (res);
+	*row_count = tracker_get_row_count (res);
 
 	if (*row_count > 0) {
 
@@ -293,7 +297,7 @@ tracker_get_query_result_as_array (MYSQL_RES *res, int *row_count)
 
 		i = 0;
 
-		while ((row = mysql_fetch_row (res))) {
+		while ((row = tracker_db_get_row (res, i))) {
 				
 			if (row && row[0]) {
 				array[i] = g_strdup (row[0]);
@@ -331,7 +335,7 @@ tracker_dbus_method_get_services (DBusRec *rec)
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	gboolean main_only;
-	MYSQL_RES *res = NULL;
+	char ***res = NULL;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -342,9 +346,9 @@ tracker_dbus_method_get_services (DBusRec *rec)
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_BOOLEAN, &main_only, DBUS_TYPE_INVALID);
 	
 	if (main_only) {
-		res = tracker_exec_proc  (db_con->db, "GetServices", 1, "1" );	
+		res = tracker_exec_proc  (db_con, "GetServices", 1, "1" );	
 	} else {
-		res = tracker_exec_proc  (db_con->db, "GetServices", 1, "0");	
+		res = tracker_exec_proc  (db_con, "GetServices", 1, "0");	
 	}
 
 	
@@ -362,7 +366,7 @@ tracker_dbus_method_get_services (DBusRec *rec)
 
 	if (res) {
 		tracker_add_query_result_to_dict (res, &iter_dict);
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	}
 
 	dbus_message_iter_close_container (&iter, &iter_dict);
@@ -379,7 +383,7 @@ tracker_dbus_method_get_stats (DBusRec *rec)
 	DBusMessage *reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
-	MYSQL_RES *res = NULL;
+	char ***res = NULL;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -387,7 +391,7 @@ tracker_dbus_method_get_stats (DBusRec *rec)
 	
 	tracker_log ("Executing GetStats Dbus Call");
 	
-	res = tracker_exec_proc  (db_con->db, "GetStats", 0);	
+	res = tracker_exec_proc  (db_con, "GetStats", 0);	
 	
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -405,7 +409,7 @@ tracker_dbus_method_get_stats (DBusRec *rec)
 
 	if (res) {
 		tracker_add_query_result_to_dict (res, &iter_dict);
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	}
 
 

@@ -109,18 +109,18 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 		}
 		
 		if (file_valid) {
-			tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, service, str_is_dir, "0", "0", "0",  str_mtime);	
+			tracker_exec_proc  (db_con, "CreateService", 8, path, name, service, str_is_dir, "0", "0", "0",  str_mtime);	
 		}
 
 		file_id = tracker_db_get_file_id (db_con, uri);
 		char *str_file_id = tracker_long_to_str (file_id);
 
 		if (file_id > 0) {
-			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Modified",  str_mtime, "1");	
-			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Size",  str_size, "1");
-			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Name",  name, "1");		
-			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Path",  path, "1");
-			tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Format",  mime, "1");
+			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Modified",  str_mtime, "1");	
+			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Size",  str_size, "1");
+			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Name",  name, "1");		
+			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Path",  path, "1");
+			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Format",  mime, "1");
 		}
 
 		g_free (mime);
@@ -202,17 +202,17 @@ tracker_dbus_method_files_create (DBusRec *rec)
 		path = tracker_get_vfs_path (uri);
 	}
 
-	tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, service, str_is_dir, "0", "0", "0",  str_mtime);	
+	tracker_exec_proc  (db_con, "CreateService", 8, path, name, service, str_is_dir, "0", "0", "0",  str_mtime);	
 
 	long file_id = tracker_db_get_file_id (db_con, uri);
 	char *str_file_id = tracker_long_to_str (file_id);
 
 	if (file_id != -1) {
-		tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Modified",  str_mtime, "1");	
-		tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Size",  str_size, "1");
-		tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Name",  name, "1");		
-		tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Path",  path, "1");
-		tracker_exec_proc  (db_con->db, "SetMetadata", 5,  service, str_file_id, "File.Format",  mime, "1");
+		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Modified",  str_mtime, "1");	
+		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Size",  str_size, "1");
+		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Name",  name, "1");		
+		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Path",  path, "1");
+		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Format",  mime, "1");
 
 	}
 
@@ -232,7 +232,7 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 {
 	DBConnection *db_con;
 	char *uri = NULL, *path, *name;
-	MYSQL_ROW  row = NULL;
+	char**  row = NULL;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -271,23 +271,23 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 	char *str_file_id = tracker_long_to_str (file_id);
 	gboolean is_dir = FALSE;
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetServiceID", 2, path, name);
+	char ***res = tracker_exec_proc  (db_con,  "GetServiceID", 2, path, name);
 
 	if (res) {
 
-		row = mysql_fetch_row (res);
+		row = tracker_db_get_row (res, 0);
 
 		if (row && row[2] ) {
 			is_dir = (strcmp (row[2], "1") == 0); 
 		}
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	}
 
 	if (file_id != -1) {
 		if (is_dir) {
-			tracker_exec_proc  (db_con->db, "DeleteDirectory", 2, str_file_id, path);	
+			tracker_exec_proc  (db_con, "DeleteDirectory", 2, str_file_id, path);	
 		} else {
-			tracker_exec_proc  (db_con->db, "DeleteFile", 1, str_file_id);	
+			tracker_exec_proc  (db_con, "DeleteFile", 1, str_file_id);	
 		}
 	}
 
@@ -366,7 +366,7 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	MYSQL_ROW  row = NULL;
+	char**  row = NULL;
 	char *uri, *path, *name;
 	const char *result;
 	int offset, max_length;
@@ -406,7 +406,7 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 		char *str_offset = tracker_int_to_str (offset);
 		char *str_max_length = tracker_int_to_str (max_length);
 
-		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFileContents", 4, path, name, str_offset, str_max_length);
+		char ***res = tracker_exec_proc  (db_con,  "GetFileContents", 4, path, name, str_offset, str_max_length);
 			
 		g_free (str_offset);
 		g_free (str_max_length);
@@ -414,7 +414,7 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 		g_free (name);	
 
 		if (res) {
-			row = mysql_fetch_row (res);
+			row = tracker_db_get_row (res, 0);
 	
 			if (row && row[0]) {
 				
@@ -429,7 +429,7 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 				dbus_message_unref (reply);
 			
 			}	
-			mysql_free_result (res);				
+			tracker_db_free_result (res);				
 
 		}
 
@@ -445,7 +445,7 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	MYSQL_ROW  row = NULL;
+	char**  row = NULL;
 	char *uri, *path, *name, *text;
 	const char *result;
 	int  max_length;
@@ -485,14 +485,14 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 
 		char *str_max_length = tracker_int_to_str (max_length);
 
-		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchFileContents", 4, path, name, text, str_max_length);
+		char ***res = tracker_exec_proc  (db_con,  "SearchFileContents", 4, path, name, text, str_max_length);
 			
 		g_free (str_max_length);
 		g_free (path);
 		g_free (name);	
 
 		if (res) {
-			row = mysql_fetch_row (res);
+			row = tracker_db_get_row (res, 0);
 	
 			if (row && row[0]) {
 				
@@ -507,7 +507,7 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 				dbus_message_unref (reply);
 			
 			}	
-			mysql_free_result (res);				
+			tracker_db_free_result (res);				
 
 		}
 
@@ -523,7 +523,7 @@ tracker_dbus_method_files_get_mtime (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	MYSQL_ROW  row = NULL;
+	char**  row = NULL;
 	char *uri, *path, *name;
 	int result;
 
@@ -559,14 +559,14 @@ tracker_dbus_method_files_get_mtime (DBusRec *rec)
 
 
 
-		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFileMTime", 2, path, name);
+		char ***res = tracker_exec_proc  (db_con,  "GetFileMTime", 2, path, name);
 			
 
 		g_free (path);
 		g_free (name);	
 
 		if (res) {
-			row = mysql_fetch_row (res);
+			row = tracker_db_get_row (res, 0);
 	
 			if (row && row[0]) {
 				
@@ -581,7 +581,7 @@ tracker_dbus_method_files_get_mtime (DBusRec *rec)
 				dbus_message_unref (reply);
 			
 			}	
-			mysql_free_result (res);				
+			tracker_db_free_result (res);				
 
 		}
 
@@ -638,7 +638,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 	char *str_limit = tracker_int_to_str (limit);
 	char *str_offset = tracker_int_to_str (offset);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFilesByServiceType", 3, service, str_offset, str_limit);
+	char ***res = tracker_exec_proc  (db_con,  "GetFilesByServiceType", 3, service, str_offset, str_limit);
 		
 	g_free (str_offset);
 	g_free (str_limit);
@@ -646,7 +646,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_db_free_result (res);	
 	}
 
 
@@ -723,7 +723,7 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 
 	tracker_log ("Executing GetFilesByMimeType with param %s", str_mimes);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetFilesByMimeType", 3, str_mimes, str_offset, str_limit);
+	char ***res = tracker_exec_proc  (db_con,  "GetFilesByMimeType", 3, str_mimes, str_offset, str_limit);
 		
 	g_free (str_mimes);
 	g_free (str_limit);
@@ -731,7 +731,7 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_db_free_result (res);	
 	}
 
 
@@ -798,7 +798,7 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 	char *str_limit = tracker_int_to_str (limit);
 	char *str_offset = tracker_int_to_str (offset);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetVFSFilesByMimeType", 3, str_mimes, str_offset, str_limit);
+	char ***res = tracker_exec_proc  (db_con,  "GetVFSFilesByMimeType", 3, str_mimes, str_offset, str_limit);
 		
 	g_free (str_mimes);
 	g_free (str_offset);
@@ -806,7 +806,7 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_db_free_result (res);	
 	}
 
 
@@ -837,7 +837,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	int 		i, id, n, table_count, query_id;
 	char 		**array, *folder,  *field, *str, *mid; 
 	GString 	*sql;
-	MYSQL_RES 	*res;
+	char 	***res;
 
 
 	g_return_if_fail (rec && rec->user_data);
@@ -946,7 +946,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	
 	str = g_string_free (sql, FALSE);
 	tracker_log (str);
-	res = tracker_exec_sql (db_con->db, str);
+	res = tracker_exec_sql (db_con, str);
 
 	g_free (str);
 
@@ -966,7 +966,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	if (res) {
 		tracker_add_query_result_to_dict (res, &iter_dict);
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	}
 
 
@@ -992,8 +992,8 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 	char *str, *mime_list, *search_term = NULL;
 	GString *mimes = NULL;
 	gboolean use_boolean_search = TRUE;
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
 
 
 	g_return_if_fail (rec && rec->user_data);
@@ -1022,7 +1022,7 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 	/* check search string for embedded special chars like hyphens and format appropriately */
 	search_term = tracker_format_search_terms (str, &use_boolean_search);
 
-	res = tracker_exec_proc  (db_con->db, "SearchTextMime", 2, search_term , mime_list);
+	res = tracker_exec_proc  (db_con, "SearchTextMime", 2, search_term , mime_list);
 
 	g_free (search_term);
 
@@ -1030,7 +1030,7 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 
 	if (res) {
 
-		row_count = mysql_num_rows (res);
+		row_count = tracker_get_row_count (res);
 
 		if (row_count > 0) {
 			
@@ -1038,7 +1038,7 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 
 			i = 0;
 
-			while ((row = mysql_fetch_row (res))) {
+			while ((row = tracker_db_get_row (res, i))) {
 				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
@@ -1050,7 +1050,7 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 			tracker_log ("result set is empty");
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
@@ -1081,8 +1081,8 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 	int row_count = 0, i = 0;
 	char *str, *location, *search_term = NULL;
 	gboolean use_boolean_search = TRUE;
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -1092,14 +1092,14 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 
 	search_term = tracker_format_search_terms (str, &use_boolean_search);
 
-	res = tracker_exec_proc  (db_con->db, "SearchTextLocation", 2, search_term , location);
+	res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , location);
 
 	g_free (search_term);
 
 
 	if (res) {
 
-		row_count = mysql_num_rows (res);
+		row_count = tracker_get_row_count (res);
 
 		if (row_count > 0) {
 			
@@ -1107,7 +1107,7 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 
 			i = 0;
 
-			while ((row = mysql_fetch_row (res))) {
+			while ((row = tracker_db_get_row (res, i))) {
 				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
@@ -1119,7 +1119,7 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 			tracker_log ("result set is empty");
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
@@ -1151,8 +1151,8 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 	char *str, *mime_list, *location, *search_term = NULL;
 	GString *mimes = NULL;
 	gboolean use_boolean_search = TRUE;
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -1181,7 +1181,7 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 
 	//g_print ("search term is before %s and after %s\n\n", str, search_term);
 
-	res = tracker_exec_proc  (db_con->db, "SearchTextLocation", 2, search_term , mime_list, location);
+	res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , mime_list, location);
 
 	g_free (search_term);
 
@@ -1189,7 +1189,7 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 
 	if (res) {
 
-		row_count = mysql_num_rows (res);
+		row_count = tracker_get_row_count (res);
 
 		if (row_count > 0) {
 			
@@ -1197,7 +1197,7 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 
 			i = 0;
 
-			while ((row = mysql_fetch_row (res))) {
+			while ((row = tracker_db_get_row (res, i))) {
 				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
@@ -1209,7 +1209,7 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 			tracker_log ("result set is empty");
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);

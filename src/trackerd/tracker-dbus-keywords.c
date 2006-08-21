@@ -39,11 +39,11 @@ update_keywords_metadata (DBConnection 	*db_con, const char *path, const char *n
 		return;	
 	}
 	
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetKeywords", 2, path, name);
+	char ***res = tracker_exec_proc  (db_con,  "GetKeywords", 2, path, name);
 
 	if (res) {
 
-		MYSQL_ROW  row;
+		char**  row;
 
 		GString *words = g_string_new (" ");
 		
@@ -51,7 +51,7 @@ update_keywords_metadata (DBConnection 	*db_con, const char *path, const char *n
 		
 			
 				
-		while ((row = mysql_fetch_row (res))) {
+		while ((row = tracker_db_get_row (res, i))) {
 
 			if (row[0]) {
 
@@ -66,7 +66,7 @@ update_keywords_metadata (DBConnection 	*db_con, const char *path, const char *n
 			
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 
 		char *keywords = g_string_free (words, FALSE);
 		
@@ -114,7 +114,7 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 	}
 
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetKeywordList", 1, service);
+	char ***res = tracker_exec_proc  (db_con,  "GetKeywordList", 1, service);
 				
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -132,7 +132,7 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 
 	if (res) {
 		tracker_add_query_result_to_dict (res, &iter_dict);
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	}
 
 
@@ -200,14 +200,14 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		path = tracker_get_vfs_path (uri);
 	}
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetKeywords", 2, path, name);
+	char ***res = tracker_exec_proc  (db_con,  "GetKeywords", 2, path, name);
 
 	g_free (name);
 	g_free (path);
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_db_free_result (res);	
 	}
 
 
@@ -288,7 +288,7 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 
 		for (i = 0; i < row_count; i++) {
 			if (array[i]) {
-				tracker_exec_proc  (db_con->db,  "AddKeyword", 3, path, name, array[i]);	
+				tracker_exec_proc  (db_con,  "AddKeyword", 3, path, name, array[i]);	
 			}
 		}
 	}
@@ -367,7 +367,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 
 		for (i = 0; i < row_count; i++) {
 			if (array[i]) {
-				tracker_exec_proc  (db_con->db,  "RemoveKeyword", 3, path, name, array[i]);	
+				tracker_exec_proc  (db_con,  "RemoveKeyword", 3, path, name, array[i]);	
 			}
 		}
 	}
@@ -438,7 +438,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		path = tracker_get_vfs_path (uri);
 	}
 
-	tracker_exec_proc  (db_con->db,  "RemoveAllKeywords", 2, path, name);	
+	tracker_exec_proc  (db_con,  "RemoveAllKeywords", 2, path, name);	
 
 	update_keywords_metadata (db_con, path, name);
 
@@ -462,7 +462,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	char 		*service;
 	char 		**array = NULL;
 	int 		row_count = 0, limit, query_id, offset;
-	MYSQL_RES 	*res;
+	char 	***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -525,7 +525,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	char *query = g_strconcat (query_sel, query_where, NULL);
 
 	
-	res = tracker_exec_sql (db_con->db, query);
+	res = tracker_exec_sql (db_con, query);
 
 	g_free (query_sel);
 	g_free (query_where);
@@ -535,7 +535,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_db_free_result (res);	
 	} 
 
 

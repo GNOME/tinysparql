@@ -84,10 +84,8 @@ create  table if not exists Services
 	IsDirectory   		bool default 0,
 	IsWatchedDirectory	bool default 0,
     	IsLink        		bool default 0,
+	IsVfs			bool default 0,
 	VolumeID		int default -1,	 /* link to Volumes table */
-	Misc			varchar(255), 
-	MiscInt			int,
-	MiscDate		DateTime,
 	IndexTime  		int unsigned, /* should equal st_mtime for file if up-to-date */
 	Offset			int unsigned, /* last used disk offset for indexable files that always grow (like chat logs) */
 
@@ -97,6 +95,9 @@ create  table if not exists Services
 	key (VolumeID)
 
 );
+
+
+
 
 /* provides links from one service entity to another */
 create table if not exists ServiceLinks
@@ -119,6 +120,7 @@ create table if not exists ServiceLinkTypes
 );
 
 insert into ServiceLinkTypes (Type) Values ('PlayListItem');
+
 
 
 /* store all keywords here. */
@@ -148,18 +150,38 @@ create table if not exists Keywords
 /* store all metadata here. */
 create  table if not exists ServiceMetaData 
 (
+	IndexID			int unsigned auto_increment not null,
 	ServiceID		int unsigned not null,
 	MetaDataID 		smallint unsigned not null,
 	MetaDataValue     	Text character set utf8, 
 	MetaDataIndexValue	MediumText character set utf8,
 	MetaDataNumericValue	double, 	
 
-	Primary Key (ServiceID, MetaDataID),
+	Primary Key (IndexID),
+	Key (ServiceID, MetaDataID),
 	Key (MetaDataIndexValue (32)),
 	key INumericValue (MetaDataID, MetaDataNumericValue),
-	FullText (MetaDataIndexValue)
+	FullText INDEX (MetaDataIndexValue)
 
 );
+
+
+
+
+/* store all indexable metadata here. */
+create  table if not exists ServiceIndexMetaData 
+(
+	ServiceID		int unsigned not null,
+	MetaDataID 		smallint unsigned not null,
+	IndexerID		int unsigned,
+	MetaDataIndexValue	varchar (255),
+	MetaDataIndexBlob	MediumText,
+
+	Primary Key (ServiceID, MetaDataID),
+	Key (MetaDataID, MetaDataIndexValue (32))
+
+);
+
 
 
 
@@ -169,9 +191,10 @@ create  table if not exists MetaDataTypes
 (
 	ID	 		smallint unsigned auto_increment not null,
 	MetaName		varchar (128) not null, 
-	DataTypeID		tinyint unsigned, /* 0=full text indexable string, 1=string, 2=numeric, 3=datetime (as string) */
-	Embedded		bool, /* if the metadata is embedded in the file */
-	Writeable		bool, /* is metadata writable */
+	DataTypeID		tinyint unsigned not null, /* 0=full text indexable string (max 255 long), 1=string or Blob, 2=numeric, 3=datetime, 4==IndexBlob (99=special case)*/
+	Embedded		bool not null, /* if the metadata is embedded in the file */
+	Writeable		bool not null, /* is metadata writable */
+	Weight			tinyint unsigned default 1 not null,  /* weight of metdata type in ranking */
 
 	Primary Key (ID),
 	Unique (MetaName)
@@ -179,93 +202,90 @@ create  table if not exists MetaDataTypes
 
 
 /* built in metadata types */
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable) values 
-('File.Name', 0, 1, 0),
-('File.Path', 0, 1, 0),
-('File.Link', 1, 1, 0),
-('File.Format', 0, 1, 0 ),
-('File.Size', 2, 1, 0),
-('File.Permissions', 1, 1, 0),
-('File.Publisher', 0, 1, 1),
-('File.Content', 0, 1, 0),
-('File.Description', 0, 0, 1),
-('File.License', 0, 1, 0),
-('File.Keywords', 0, 0, 1),
-('File.Rank', 2, 0, 1),
-('File.IconPath', 1, 0, 1 ),
-('File.SmallThumbnailPath', 1, 0, 1),
-('File.LargeThumbnailPath', 1, 0, 1),
-('File.Modified', 3, 1, 0),
-('File.Accessed', 3, 1, 0 ),
-('File.Other', 0, 1, 0 ),
-('Audio.Title', 0, 1, 1),
-('Audio.Artist', 0, 1, 1),
-('Audio.Album', 0, 1, 1),
-('Audio.AlbumArtist', 0, 1, 1),
-('Audio.AlbumTrackCount', 2, 1, 1),
-('Audio.TrackNo', 2, 1, 1),
-('Audio.DiscNo', 2, 1, 1),
-('Audio.Performer', 0, 1, 1),
-('Audio.TrackGain', 2, 1, 1),
-('Audio.TrackPeakGain', 2, 1, 1),
-('Audio.AlbumGain', 2, 1, 1),
-('Audio.AlbumPeakGain', 2, 1, 1),
-('Audio.Duration', 2, 1, 0),
-('Audio.ReleaseDate', 3, 1, 1),
-('Audio.Comment', 0, 1, 1),
-('Audio.Genre', 0, 1, 1),
-('Audio.Codec', 0, 1, 1),
-('Audio.CodecVersion', 1, 1, 1),
-('Audio.Samplerate', 2, 1, 1),
-('Audio.Bitrate', 2, 1, 1),
-('Audio.Channels', 2, 1, 1),
-('Audio.LastPlay', 3, 0, 1),
-('Audio.PlayCount', 2, 0, 1),
-('Audio.IsNew', 2, 0, 1),
-('Audio.MBAlbumID', 1, 0, 1),
-('Audio.MBArtistID', 1, 0, 1),
-('Audio.MBAlbumArtistID', 1, 0, 1),
-('Audio.MBTrackID', 1, 0, 1),
-('Audio.Lyrics', 0, 0, 1),
-('Audio.CoverAlbumThumbnailPath', 1, 0, 1),
-('Doc.Title', 0, 1, 0),
-('Doc.Subject', 0, 1, 0),
-('Doc.Author', 0, 1, 0),
-('Doc.Keywords', 0, 1, 0),
-('Doc.Comments', 0, 1, 0),
-('Doc.PageCount', 2, 1, 0),
-('Doc.WordCount', 2, 1, 0),
-('Doc.Created', 3, 1, 0),
-('Image.Height', 2, 1, 0),
-('Image.Width', 2, 1, 0),
-('Image.Title', 0, 1, 0),
-('Image.Album', 0, 0, 1),
-('Image.Date', 3, 1, 0),
-('Image.Keywords', 0, 1, 0),
-('Image.Creator', 0, 1, 0),
-('Image.Comments', 0, 1, 0),
-('Image.Description', 0, 1, 0),
-('Image.Software', 0, 1, 0),
-('Image.CameraMake', 0, 1, 0),
-('Image.CameraModel', 0, 1, 0),
-('Image.Orientation', 1, 1, 0),
-('Image.ExposureProgram', 1, 1, 0),
-('Image.ExposureTime', 2, 1, 0),
-('Image.FNumber', 2 , 1, 0),
-('Image.Flash', 2, 1, 0),
-('Image.FocalLength', 2, 1, 0),
-('Image.ISOSpeed', 2, 1, 0),
-('Image.MeteringMode', 1, 1, 0),
-('Image.WhiteBalance', 1, 1, 0),
-('Image.Copyright', 0, 1, 0),
-('PlayList.DateCreated', 3, 0, 1),
-('PlayList.LastPlay', 3, 0, 1),
-('PlayList.PlayCount', 2, 0, 1),
-('PlayList.Description', 0, 0, 1),
-('PlayList.RDFQuery', 1, 0, 1),
-('PlayList.Name', 0, 0, 1),
-('PlayList.Rank', 2, 0, 1),
-('PlayList.Keywords', 0, 0, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values 
+
+('File.Content', 0, 1, 0, 1),
+('File.Name', 0, 1, 0, 5),
+('File.Path', 0, 1, 0, 1),
+('File.Ext', 0, 1, 0, 50),
+('File.Link', 1, 1, 0, 0),
+('File.Format', 0, 1, 0, 15),
+('File.Size', 2, 1, 0, 0),
+('File.Origin', 0, 0, 1, 5),
+('File.OriginURI', 1, 0, 1, 0),
+('File.Permissions', 1, 1, 0, 0),
+('File.Publisher', 0, 0, 1, 20),
+('File.Description', 0, 0, 1, 25),
+('File.License', 4, 1, 0, 10),
+('File.Keywords', 99, 0, 0, 100),
+('File.Rank', 2, 0, 1, 0),
+('File.IconPath', 1, 0, 1, 0 ),
+('File.SmallThumbnailPath', 1, 0, 1, 0),
+('File.LargeThumbnailPath', 1, 0, 1, 0),
+('File.Modified', 3, 1, 0, 0),
+('File.Accessed', 3, 1, 0, 0),
+('File.Other', 0, 1, 0, 5),
+('Audio.Title', 0, 1, 1, 50),
+('Audio.Artist', 0, 1, 1, 50),
+('Audio.Album', 0, 1, 1, 50),
+('Audio.AlbumArtist', 0, 1, 1, 25),
+('Audio.AlbumTrackCount', 2, 1, 1, 0),
+('Audio.TrackNo', 2, 1, 1, 0),
+('Audio.DiscNo', 2, 1, 1, 0),
+('Audio.Performer', 0, 1, 1, 70),
+('Audio.TrackGain', 2, 1, 1, 0),
+('Audio.TrackPeakGain', 2, 1, 1, 0),
+('Audio.AlbumGain', 2, 1, 1, 0),
+('Audio.AlbumPeakGain', 2, 1, 1, 0),
+('Audio.Duration', 2, 1, 0, 0),
+('Audio.ReleaseDate', 3, 1, 1, 0),
+('Audio.Comment', 0, 1, 1, 25),
+('Audio.Genre', 0, 1, 1, 90),
+('Audio.Codec', 0, 1, 1, 1),
+('Audio.CodecVersion', 1, 1, 1, 0),
+('Audio.Samplerate', 2, 1, 1, 0),
+('Audio.Bitrate', 2, 1, 1, 0),
+('Audio.Channels', 2, 1, 1, 0),
+('Audio.LastPlay', 3, 0, 1, 0),
+('Audio.PlayCount', 2, 0, 1, 0),
+('Audio.IsNew', 2, 0, 1, 0),
+('Audio.MBAlbumID', 1, 0, 1, 0),
+('Audio.MBArtistID', 1, 0, 1, 0),
+('Audio.MBAlbumArtistID', 1, 0, 1, 0),
+('Audio.MBTrackID', 1, 0, 1, 0),
+('Audio.Lyrics', 0, 0, 1, 4),
+('Audio.CoverAlbumThumbnailPath', 1, 0, 1, 0),
+('Doc.Title', 0, 1, 0, 90),
+('Doc.Subject', 0, 1, 0, 100),
+('Doc.Author', 0, 1, 0, 90),
+('Doc.Keywords', 0, 1, 0, 100),
+('Doc.Comments', 0, 1, 0, 80),
+('Doc.PageCount', 2, 1, 0, 0),
+('Doc.WordCount', 2, 1, 0, 0),
+('Doc.Created', 3, 1, 0, 0),
+('Doc.Text', 4, 1, 0, 5),
+('Image.Height', 2, 1, 0, 0),
+('Image.Width', 2, 1, 0, 0),
+('Image.Title', 0, 1, 0, 60),
+('Image.Album', 0, 0, 1, 30),
+('Image.Date', 3, 1, 0, 0),
+('Image.Keywords', 0, 1, 0, 100),
+('Image.Creator', 0, 1, 0, 50),
+('Image.Comments', 0, 1, 0, 20),
+('Image.Description', 0, 1, 0, 15),
+('Image.Software', 0, 1, 0, 1),
+('Image.CameraMake', 0, 1, 0, 1),
+('Image.CameraModel', 0, 1, 0, 10),
+('Image.Orientation', 1, 1, 0, 0),
+('Image.ExposureProgram', 1, 1, 0, 0),
+('Image.ExposureTime', 2, 1, 0, 0),
+('Image.FNumber', 2 , 1, 0, 0),
+('Image.Flash', 2, 1, 0, 0),
+('Image.FocalLength', 2, 1, 0, 0),
+('Image.ISOSpeed', 2, 1, 0, 0),
+('Image.MeteringMode', 1, 1, 0, 0),
+('Image.WhiteBalance', 1, 1, 0, 0),
+('Image.Copyright', 0, 1, 0, 1);
 
 
 /* optional contextual file data - gives a nice audit trail for a file */

@@ -27,15 +27,12 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-
-
-
 #include "tracker-inotify.h"
 
 
 /* project wide global vars */
 
-extern GAsyncQueue 	*file_process_queue;
+extern Tracker		*tracker;
 extern DBConnection	*main_thread_db_con;
 
 /* list to temporarily store moved_from events so they can be matched against moved_to events */
@@ -44,22 +41,28 @@ static	GQueue 		*inotify_queue;
 static int inotify_monitor_fd = -1;
 static int inotify_count = 0;
 
+static GIOChannel *gio;
+
 gboolean 
 tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 {
 	
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
+
+	if (!tracker->is_running) {
+		return FALSE;
+	}
 
 	if (!dir || strlen (dir) == 0 || dir[0] != '/') {
 		return FALSE;
 	}
 
-	res = tracker_exec_proc  (db_con->db, "GetWatchID", 1, dir);	
+	res = tracker_exec_proc  (db_con, "GetWatchID", 1, dir);	
 
 	if (res) {
 
-		row = mysql_fetch_row (res);
+		row = tracker_db_get_row (res, 0);
 
 		if (row && row[0]) {
 			if (atoi (row[0]) > -1)  {
@@ -67,7 +70,7 @@ tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 			}
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	}
 	
 
@@ -127,7 +130,9 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			char *parent = g_path_get_dirname (info->uri);
 			
 			if (tracker_file_is_valid (parent)) {
-				g_async_queue_push (file_process_queue, info);	
+				g_async_queue_push (tracker->file_process_queue, info);	
+				
+				tracker_notify_file_data_available ();
 			} else {
 				info = tracker_free_file_info (info);
 			}
@@ -197,11 +202,11 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 					
 					/* update db so that fileID reflects new uri */
-					tracker_exec_proc  (main_thread_db_con->db, "UpdateFileMove", 4, str_file_id, path, name, index_time);
+					tracker_exec_proc  (main_thread_db_con, "UpdateFileMove", 4, str_file_id, path, name, index_time);
 					
 					/* update File.Path and File.Filename metadata */
-					tracker_exec_proc  (main_thread_db_con->db, "SetMetadata", 5, "Files", str_file_id, "File.Path", path, "1");
-					tracker_exec_proc  (main_thread_db_con->db, "SetMetadata", 5, "Files", str_file_id, "File.Name", name, "1");
+					tracker_exec_proc  (main_thread_db_con, "SetMetadata", 5, "Files", str_file_id, "File.Path", path, "1");
+					tracker_exec_proc  (main_thread_db_con, "SetMetadata", 5, "Files", str_file_id, "File.Name", name, "1");
 	
 					g_free (str_file_id);
 					g_free (index_time);
@@ -215,8 +220,8 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 						char *old_path = g_strconcat (moved_from_info->uri, "/", NULL);
 						char *match_path = g_strconcat (old_path, "%", NULL);
 						
-						MYSQL_RES *res = NULL;
-						MYSQL_ROW  row;
+						char ***res = NULL;
+						char**  row;
 
 						tracker_log ("moved file is a dir");
 
@@ -232,19 +237,21 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 
 						/* update all changed File.Path metadata */
-						tracker_exec_proc  (main_thread_db_con->db, "UpdateFileMovePath", 2, moved_to_info->uri, moved_from_info->uri);
+						tracker_exec_proc  (main_thread_db_con, "UpdateFileMovePath", 2, moved_to_info->uri, moved_from_info->uri);
 
 
 						/* for each subfolder, we must do the same as above */						
 
 						/* get all sub folders that were moved and add watches */
-						res = tracker_exec_proc  (main_thread_db_con->db, "SelectFileSubFolders", 1, moved_from_info->uri);
+						res = tracker_exec_proc  (main_thread_db_con, "SelectFileSubFolders", 1, moved_from_info->uri);
 
 						if (res) {
 
-							while ((row = mysql_fetch_row (res))) {
+							int k =0;
 
-								
+							while ((row = tracker_db_get_row (res, k))) {
+
+								k++;
 								if (row  && row[0] && row[1] && row[2]) {
 
 									char *dir_name = g_strconcat (row[1], "/", row[2], NULL);
@@ -258,10 +265,10 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 										tracker_log ("moving subfolder %s to %s", dir_name, new_path);
 
 										/* update all changed File.Path metadata for all files in this subfolder*/
-										tracker_exec_proc  (main_thread_db_con->db, "UpdateFileMovePath", 2, new_path, dir_name);
+										tracker_exec_proc  (main_thread_db_con, "UpdateFileMovePath", 2, new_path, dir_name);
 
 										/* update all subfolders and contained files to new path */
-										tracker_exec_proc  (main_thread_db_con->db, "UpdateFileMoveChild", 2, new_path, dir_name);
+										tracker_exec_proc  (main_thread_db_con, "UpdateFileMoveChild", 2, new_path, dir_name);
 
 										
 										if (tracker_count_watch_dirs () < MAX_FILE_WATCHES) { 
@@ -276,13 +283,13 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 								} 
 							}
 
-							mysql_free_result (res);
+							tracker_db_free_result (res);
 
 						}	
 
 
 						/* update uri path of all files in moved folder */		
-						tracker_exec_proc  (main_thread_db_con->db, "UpdateFileMoveChild", 2, moved_to_info->uri, moved_from_info->uri);
+						tracker_exec_proc  (main_thread_db_con, "UpdateFileMoveChild", 2, moved_to_info->uri, moved_from_info->uri);
 							
 						g_free (modified_path);
 						g_free (old_path);
@@ -311,7 +318,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			return;
 
 		} else if (action == TRACKER_ACTION_WRITABLE_FILE_CLOSED) {
-			tracker_log ("File %s has finished changing", info->uri);
+			//tracker_log ("File %s has finished changing", info->uri);
 			tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory);
 			info = tracker_free_file_info (info);
 			return;
@@ -329,6 +336,10 @@ process_moved_events ()
 {
 	FileInfo *info;
 	const GSList *tmp;
+
+	if (!tracker->is_running) {
+		return FALSE;
+	}
 
 	if (!move_list) {
 		return TRUE;
@@ -446,6 +457,10 @@ process_inotify_events (void)
 
 		struct inotify_event *event;
 
+		if (!tracker->is_running) {
+			return FALSE;
+		}
+
 		event = g_queue_pop_head (inotify_queue);
 
 		if (!event) {
@@ -466,16 +481,16 @@ process_inotify_events (void)
 		
 		char *str_wd = g_strdup_printf ("%d", event->wd);
 
-		MYSQL_RES *res = NULL;
-		MYSQL_ROW  row;
+		char ***res = NULL;
+		char**  row;
 
-		res = tracker_exec_proc (main_thread_db_con->db, "GetWatchUri", 1, str_wd);	
+		res = tracker_exec_proc (main_thread_db_con, "GetWatchUri", 1, str_wd);	
 
 		g_free (str_wd);
 
 		if (res) {
 
-			row = mysql_fetch_row (res);
+			row = tracker_db_get_row (res, 0);
 
 			if (row && row[0]) {
 				monitor_name = g_strdup (row[0]);
@@ -484,7 +499,7 @@ process_inotify_events (void)
 				free_inotify_event (event);
 				continue;
 			}
-			mysql_free_result (res);
+			tracker_db_free_result (res);
 		}
 		
 
@@ -566,6 +581,11 @@ inotify_watch_func( GIOChannel *source, GIOCondition condition, gpointer data )
 	
 	while (buffer_i < (size_t)r) {
 		/* Parse events and process them ! */
+
+		if (!tracker->is_running) {
+			return FALSE;
+		}
+
 		pevent = (struct inotify_event *)&buffer[buffer_i];
 		event_size = sizeof(struct inotify_event) + pevent->len;
 		event = malloc(event_size);
@@ -583,7 +603,7 @@ gboolean
 tracker_start_watching (void) 
 {
 
-	GIOChannel *gio;
+	
 
  	if (inotify_monitor_fd != -1) {
 		return FALSE;
@@ -629,6 +649,11 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 	int wd;
 	char *str_wd;
 
+
+	if (!tracker->is_running) {
+		return FALSE;
+	}
+
 	if (!dir || strlen (dir) == 0 || dir[0] != '/') {
 		return FALSE;
 	}
@@ -648,7 +673,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 			return FALSE;
 		} else {
 			str_wd = g_strdup_printf ("%d", wd);	
-			tracker_exec_proc (db_con->db, "InsertWatch",  2, dir, str_wd);
+			tracker_exec_proc (db_con, "InsertWatch",  2, dir, str_wd);
 			g_free (str_wd);
 			inotify_count++;
 			tracker_log ("Watching directory %s (total watches = %d)", dir, inotify_count);
@@ -662,8 +687,8 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 static gboolean
 delete_watch 	(const char *dir, DBConnection *db_con)
 {
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
 
 	int wd = -1;
 
@@ -672,19 +697,19 @@ delete_watch 	(const char *dir, DBConnection *db_con)
 	}
 
 
-	res = tracker_exec_proc  (db_con->db, "GetWatchID", 1,  dir);	
+	res = tracker_exec_proc  (db_con, "GetWatchID", 1,  dir);	
 
 	gboolean found = FALSE;	
 
 	if (res) {
-		row = mysql_fetch_row (res);
+		row = tracker_db_get_row (res, 0);
 		if (row && row[0]) {
 			wd = atoi (row[0]);
 			found = TRUE;
 		} else {
 			found = FALSE;
 		}
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	} else {
 		found = FALSE;
 	}	
@@ -694,7 +719,7 @@ delete_watch 	(const char *dir, DBConnection *db_con)
 		return FALSE;
 	}
 	
-	tracker_exec_proc  (db_con->db, "DeleteWatch", 1,  dir);	
+	tracker_exec_proc  (db_con, "DeleteWatch", 1,  dir);	
 
 	if (wd > -1) {
 		inotify_rm_watch (inotify_monitor_fd, wd);
@@ -720,15 +745,18 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 	if (delete_subdirs) {
 
 		int wd = -1;
-		MYSQL_RES *res = NULL;
-		MYSQL_ROW  row;	
+		char ***res = NULL;
+		char**  row;	
 
-		res = tracker_exec_proc  (db_con->db, "GetSubWatches", 1,  dir);		
+		res = tracker_exec_proc  (db_con, "GetSubWatches", 1,  dir);		
 	
 
 		if (res) {
+			int k = 0;
 
-			while ((row = mysql_fetch_row (res))) {
+			while ((row = tracker_db_get_row (res, k))) {
+				k++;
+
 				if (row  && row[0]) {
 					wd = atoi (row[0]);
 					if (wd > -1) {
@@ -739,8 +767,8 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 				} 
 			}
 
-			mysql_free_result (res);
-			tracker_exec_proc  (db_con->db, "DeleteSubWatches", 1,  dir);
+			tracker_db_free_result (res);
+			tracker_exec_proc  (db_con, "DeleteSubWatches", 1,  dir);
 		}	
 
 
@@ -755,6 +783,7 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 void
 tracker_end_watching (void) 
 {
+	g_io_channel_shutdown (gio, TRUE, NULL);
 }
 
 

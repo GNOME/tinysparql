@@ -4,6 +4,8 @@ additional_mysql_flags = -D_THREAD_SAFE -D_REENTRANT
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	$(GLIB2_CFLAGS)			\
+	$(PANGO_CFLAGS)			\
+	$(QDBM_CFLAGS)			\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
 	$(MYSQL_CFLAGS)			\
@@ -13,6 +15,7 @@ INCLUDES =				\
 
 if HAVE_INOTIFY
 inotify_sources = \
+	linux-inotify-syscalls.h \
 	tracker-inotify.c	\
 	tracker-inotify.h	
 else
@@ -23,9 +26,21 @@ fam_sources = \
 endif
 endif
 
+if USING_SQLITE
+db_sources = \
+	tracker-indexer.c	\
+	tracker-indexer.h	\
+	tracker-parser.c	\
+	tracker-parser.h	\
+	tracker-db-sqlite.h	\
+	tracker-db-sqlite.c	
+else
+db_sources = \
+	tracker-db-mysql.h	\
+	tracker-db-mysql.c	
+endif
 
-
-bin_PROGRAMS = trackerd
+bin_PROGRAMS = trackerd tracker-convert-file
 
 trackerd_SOURCES =		\
 	trackerd.c		\
@@ -45,10 +60,13 @@ trackerd_SOURCES =		\
 	tracker-dbus-keywords.c \
 	tracker-dbus-search.h   \
 	tracker-dbus-search.c   \
+	$(db_sources)		\
 	tracker-metadata.c	\
 	tracker-metadata.h	\
 	tracker-rdf-query.c	\
 	tracker-rdf-query.h	\
+	tracker-stemmer.c	\
+	tracker-stemmer.h	\
 	tracker-utils.c		\
 	tracker-utils.h		\
 	xdgmime.c		\
@@ -72,6 +90,11 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(FAM_LIBS)	\
 		 $(DBUS_LIBS)	\
 		 $(MYSQL_LIBS)	\
-		 -lstdc++
+ 		 $(PANGO_LIBS) 	\
+		 $(QDBM_LIBS) 	\
+		 -lstdc++	\
+		-lmagic
 
+tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-parser.c tracker-stemmer.c
 
+tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) -lmagic

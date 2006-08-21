@@ -21,7 +21,6 @@
 #define I_AM_MAIN 
 
 #include "config.h"
-#include <mysql/mysql.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,29 +36,35 @@
 #include <time.h>
 #include <glib/gstdio.h>
 
-
 #ifdef HAVE_INOTIFY
-#include "tracker-inotify.h"
+#   include "tracker-inotify.h"
 #else
-#ifdef HAVE_FAM	
-#include "tracker-fam.h"
-#endif
+#   ifdef HAVE_FAM
+#      include "tracker-fam.h"
+#   endif
 #endif
 
 #ifndef HAVE_INOTIFY
-#ifndef HAVE_FAM
-#define POLL_ONLY
+#   ifndef HAVE_FAM
+#      define POLL_ONLY
+#   endif
+#endif
+
 #include "tracker-db.h" 
-#endif
-#endif
-
-
 #include "tracker-metadata.h"
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
 #include "tracker-dbus-keywords.h"
 #include "tracker-dbus-search.h"
 #include "tracker-dbus-files.h" 
+
+
+Tracker *tracker;
+
+static 	DBusConnection  *main_connection;
+DBConnection		*main_thread_db_con;
+
+static gboolean shutdown = FALSE;
 
 /* 
  *   The workflow to process files and notified file change events are as follows:
@@ -92,70 +97,12 @@
  *  asynchronous queue where potentially multiple threads are waiting to process them. 
  */
 
-#define	FILE_POLL_PERIOD 30 * 60 * 1000
+#define	FILE_POLL_PERIOD (30 * 60 * 1000)
 
 char *type_array[] =   {"index", "string", "numeric", "date", NULL};
 
-/* global config options variables */
+//Indexer		*file_indexer;
 
-GSList 		*watch_directory_roots_list = NULL;
-GSList 		*no_watch_directory_list = NULL;
-gboolean	index_text_files = TRUE;
-gboolean	index_documents = TRUE;
-gboolean	index_source_code = TRUE;
-gboolean	index_scripts = FALSE;
-gboolean	index_html = TRUE;
-gboolean	index_pdf = TRUE;
-gboolean	index_application_help_files = TRUE;
-gboolean	index_desktop_files = TRUE;
-gboolean	index_epiphany_bookmarks = TRUE;
-gboolean	index_epiphany_history = TRUE;
-gboolean	index_firefox_bookmarks = TRUE;
-gboolean	index_firefox_history = TRUE;
-gboolean	store_text_file_contents_in_db = FALSE;
-char		*db_buffer_memory_limit = "1M";
-
-
-/* list to store all directories to poll  */
-
-static 	GAsyncQueue 	*file_pending_queue;
-
-#ifdef POLL_ONLY
-static 	GAsyncQueue 	*file_process_queue;
-#else
-GAsyncQueue 	*file_process_queue;
-#endif
-
-GAsyncQueue 	*user_request_queue;
-
-GSList 		*poll_list;
-DBConnection	*main_thread_db_con;
-
-GMutex		*metadata_available_mutex;
-GMutex		*files_available_mutex;
-
-static 	GAsyncQueue 	*file_metadata_queue = NULL;
-
-GMutex 		*log_access_mutex;
-char	 	*log_file; 
-
-gboolean	use_nfs_safe_locking;
-
-static 	DBusConnection  *main_connection;
-static 	GHashTable  	*file_scheduler = NULL;
-static 	GMutex 		*scheduler_mutex = NULL;
-
-static 	gboolean 	is_running = FALSE;
-
-static 	GMutex 		*process_thread_mutex = NULL;
-static 	GMutex 		*metadata_thread_mutex = NULL;
-static 	GMutex 		*user_thread1_mutex = NULL;
-static 	GMutex 		*user_thread2_mutex = NULL;
-static 	GMutex 		*poll_thread_mutex = NULL;
-
-
-
-static	GThread 	*file_poll_thread = NULL;
 
 static void schedule_file_check (const char * uri, DBConnection	*db_con);
 
@@ -165,12 +112,12 @@ static void delete_file (DBConnection *db_con, FileInfo *info);
 
 static void scan_directory (const char * uri, DBConnection *db_con);
 
-static GMainLoop 	*loop;
+
 
 
 #ifdef POLL_ONLY
 
-#define MAX_FILE_WATCHES -1
+#define MAX_FILE_WATCHES (-1)
 
  gboolean 	tracker_start_watching 		(void){return TRUE;}
  void     	tracker_end_watching 		(void){return;}
@@ -180,33 +127,76 @@ static GMainLoop 	*loop;
 
  gboolean 	tracker_is_directory_watched 	(const char * dir, DBConnection	*db_con) {return FALSE;}
  int		tracker_count_watch_dirs 	(void) {return 0;}
-#endif
-
+#endif /* POLL_ONLY */
 
 static void
+my_yield ()
+{
+	while (g_main_context_iteration (NULL, FALSE)) {
+		;
+	}
+}
+
+
+static gboolean
 do_cleanup ()
 {
 
-	
 	tracker_print_object_allocations ();
 
+	tracker_log ("starting shutdown...");
+
+	shutdown = TRUE;
+
+
+
+	/* clear pending files and watch tables*/
+	tracker_db_clear_temp (main_thread_db_con);
+
+
 	/* stop threads from further processing of events if possible */
-	is_running = FALSE;
 
-	/* acquire thread mutexes - we wait until all threads have been stopped and DB connections closed */
+	tracker_dbus_shutdown (main_connection);
 
-	g_mutex_lock (process_thread_mutex);
-	g_mutex_lock (metadata_thread_mutex);
-	g_mutex_lock (user_thread1_mutex);
-	g_mutex_lock (user_thread2_mutex);
+	//tracker_indexer_close (file_indexer);
+
+
+	tracker_log ("shutting down threads");
+	/* send signals to each thread to wake them up and then stop them */
+
+	g_mutex_lock (tracker->poll_signal_mutex);
+	g_cond_signal (tracker->poll_thread_signal);
+	g_mutex_unlock (tracker->poll_signal_mutex);
+
+	g_mutex_lock (tracker->request_signal_mutex);
+	g_cond_signal (tracker->request_thread_signal);
+	g_mutex_unlock (tracker->request_signal_mutex);
+
+	g_mutex_lock (tracker->metadata_signal_mutex);
+	g_cond_signal (tracker->metadata_thread_signal);
+	g_mutex_unlock (tracker->metadata_signal_mutex);
+
+	g_mutex_lock (tracker->files_signal_mutex);
+	g_cond_signal (tracker->file_thread_signal);
+	g_mutex_unlock (tracker->files_signal_mutex);
+
+
+	/* wait for threads to exit */
+	g_mutex_lock (tracker->request_stopped_mutex);
+	g_mutex_lock (tracker->metadata_stopped_mutex);
+	g_mutex_lock (tracker->files_stopped_mutex);
+	g_mutex_lock (tracker->poll_stopped_mutex);
+
+	tracker_db_close (main_thread_db_con);
 	
-	tracker_end_watching ();
-
-	g_main_loop_quit (loop);
-
-	/* This must be called after all other mysql functions */
-	mysql_server_end ();
+	/* This must be called after all other db functions */
+	tracker_db_finalize ();
 	
+	tracker_log ("shutting down main thread");
+	g_main_loop_quit (tracker->loop);
+	exit (EXIT_SUCCESS);
+
+	return FALSE;
 }
 
 static int 
@@ -228,8 +218,9 @@ has_prefix (const char *str1, const char *str2)
 static void
 poll_dir (const char *uri, DBConnection *db_con)
 {
-	char 		**files, **files_p, *str;
+	char 	**files, **files_p, *str;
 	
+	if (!tracker->is_running) return;
 
 	/* check for any deletions*/
 	files = tracker_db_get_files_in_folder (db_con, uri);
@@ -266,12 +257,13 @@ poll_dir (const char *uri, DBConnection *db_con)
 	while (tmp != NULL) {
 		FileInfo 	*info;
 		
+		if (!tracker->is_running) return;
 		str = (char *)tmp->data;
 		
 		info = tracker_create_file_info (str, TRACKER_ACTION_DIRECTORY_CREATED, 0, 0);
 		info = tracker_db_get_file_info (db_con, info);	
 		if (info->file_id == -1) {
-			g_async_queue_push (file_pending_queue, info);
+			tracker_db_insert_pending_file 	(db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory);
 		} else {
 			info = tracker_free_file_info (info); 
 		}
@@ -285,7 +277,7 @@ poll_dir (const char *uri, DBConnection *db_con)
 
 
 	/* scan dir for changes in all other files */
-	if (g_slist_find_custom (no_watch_directory_list, uri, (GCompareFunc) has_prefix) == NULL) {
+	if (g_slist_find_custom (tracker->no_watch_directory_list, uri, (GCompareFunc) has_prefix) == NULL) {
 		scan_directory (uri, db_con);
 	} else {
 		tracker_log ("blocked scan of directory %s as its in the no watch list", uri);
@@ -301,9 +293,12 @@ poll_directories (gpointer db_con)
 
 	g_return_if_fail (db_con);
 	tracker_log ("polling dirs");
-	if (g_slist_length (poll_list) > 0) { 
-		g_slist_foreach (poll_list, (GFunc) poll_dir, db_con);
+	
+
+	if (g_slist_length (tracker->poll_list) > 0) { 
+		g_slist_foreach (tracker->poll_list, (GFunc) poll_dir, db_con);
 	}
+
 
 }
 
@@ -314,41 +309,79 @@ poll_directories (gpointer db_con)
 static void
 poll_files_thread () 
 {
-	DBConnection db_con;
+	DBConnection *db_con;
+
+	g_mutex_lock (tracker->poll_signal_mutex);
+	g_mutex_lock (tracker->poll_stopped_mutex);
 
 	/* set thread safe DB connection */
-	mysql_thread_init ();
+	tracker_db_thread_init ();
 
-	db_con.db = tracker_db_connect ();
+	db_con = tracker_db_connect ();
 
-	while (is_running) {
 
-		/* we only poll if we cannot lock mutex */
-		if (g_mutex_trylock (poll_thread_mutex)) {
-			g_mutex_unlock (poll_thread_mutex);
-			g_usleep (1000000);
-			continue;
-		}			
+	while (TRUE) {
 		
-		poll_directories (&db_con);
-		g_mutex_unlock (poll_thread_mutex);
+
+		/* make thread sleep if first part of the shutdown process has been activated */
+		if (!tracker->is_running) {
+
+			tracker_log ("poll thread going to deep sleep...");
+
+			g_cond_wait (tracker->poll_thread_signal , tracker->poll_signal_mutex);
+
+			/* determine if wake up call is new stuff or a shutdown signal */
+			if (!shutdown) {
+				continue;
+			} else {
+				break;
+			}
+
+		}
+
+		
+		poll_directories (db_con);
+
+		/* sleep until notified again */
+		tracker_log ("poll thread sleeping");
+		g_cond_wait (tracker->poll_thread_signal , tracker->poll_signal_mutex);
+		tracker_log ("poll thread awoken");	
+
+		/* determine if wake up call is a shutdown signal or a request to poll again */
+		if (!shutdown) {
+			continue;
+		} else {
+			break;
+		}
 		
 	}
 
-	mysql_close (db_con.db);
-	mysql_thread_end ();
+	tracker_db_close (db_con);
+	tracker_db_thread_end ();
+
+	tracker_log ("poll thread has exited successfully");
+
+	g_mutex_unlock (tracker->poll_stopped_mutex);
 
 }
 
 static gboolean
 start_poll (void)
 {
-	if (!file_poll_thread && g_slist_length (poll_list) > 0) {
-		file_poll_thread = g_thread_create ((GThreadFunc) poll_files_thread, NULL, FALSE, NULL); 
+	if (!tracker->file_poll_thread && g_slist_length (tracker->poll_list) > 0) {
+		tracker->file_poll_thread = g_thread_create ((GThreadFunc) poll_files_thread, NULL, FALSE, NULL); 
 		tracker_log ("started polling");
+	} else {
+
+		/* wake up poll thread and start polling */
+		if (tracker->file_poll_thread && g_slist_length (tracker->poll_list) > 0) {
+			if (g_mutex_trylock (tracker->poll_signal_mutex)) {
+				g_cond_signal (tracker->poll_thread_signal);
+				g_mutex_unlock (tracker->poll_signal_mutex);
+			}
+		}
 	}
 
-	g_mutex_trylock (poll_thread_mutex);
 	return TRUE;
 }
 
@@ -359,6 +392,8 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 	GSList *file_list = NULL;
 	gboolean start_polling = FALSE;
 	
+	if (!tracker->is_running) return;
+
 	g_return_if_fail (dir_list != NULL);
 
 
@@ -373,11 +408,13 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 			
 				str = (char *)tmp->data;
 				
-				if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
+				if (g_slist_find_custom (tracker->no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
 
 					/* use polling if FAM or Inotify fails */ 
 					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && !tracker_is_dir_polled (str)) {
-						tracker_add_poll_dir (str);
+						if (tracker->is_running) {
+							tracker_add_poll_dir (str);
+						}
 					}
 				}
 				tmp = tmp->next;
@@ -412,6 +449,8 @@ watch_dir (const char* dir, DBConnection *db_con)
 	char *dir_utf8 = NULL;
 	GSList *mylist = NULL;
 
+	if (!tracker->is_running) return TRUE;
+
 	g_assert (dir);
 
 	if (!g_utf8_validate (dir, -1, NULL)) {
@@ -435,7 +474,7 @@ watch_dir (const char* dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-	if (g_slist_find_custom (no_watch_directory_list, dir_utf8, (GCompareFunc) has_prefix) == NULL) {
+	if (g_slist_find_custom (tracker->no_watch_directory_list, dir_utf8, (GCompareFunc) has_prefix) == NULL) {
 		mylist = g_slist_prepend (mylist, dir_utf8);
 		add_dirs_to_watch_list (mylist, TRUE, db_con);
 	}
@@ -448,7 +487,7 @@ static void
 signal_handler (int signo) 
 {
 	
-	
+	if (!tracker->is_running) return;
 
 	static gboolean in_loop = FALSE;
 
@@ -465,26 +504,34 @@ signal_handler (int signo)
   		case SIGFPE:
   		case SIGPIPE:
 		case SIGABRT:
-			if (log_file) {
+			if (tracker->log_file) {
 	   			tracker_log ("Received fatal signal %s so now aborting.",g_strsignal (signo));
 			}
-    			do_cleanup ();
+			tracker->is_running = FALSE;
+			tracker_end_watching ();
+			do_cleanup ();	 
 			exit (1);
     			break;
   
 		case SIGTERM:
 		case SIGINT:
-			if (log_file) {
+			if (tracker->log_file) {
    				tracker_log ("Received termination signal %s so now exiting", g_strsignal (signo));
 			}
-			do_cleanup();  
-			exit (0);
+			tracker->is_running = FALSE;
+			tracker_end_watching ();
+			g_timeout_add_full (G_PRIORITY_LOW, 
+			     100,
+		 	    (GSourceFunc) do_cleanup,	 
+			    NULL, NULL	
+			   );
+
 			break;
 
 
 
 		default:
-			if (log_file) {
+			if (tracker->log_file) {
 	   			tracker_log ("Received signal %s ", g_strsignal (signo));
 			}
 			in_loop = FALSE;
@@ -498,6 +545,8 @@ delete_file (DBConnection *db_con, FileInfo *info)
 {
 	char *str_file_id;
 
+	//if (!tracker->is_running) return;
+
 	/* info struct may have been deleted in transit here so check if still valid and intact */
 	g_return_if_fail ( tracker_file_info_is_valid (info));
 
@@ -508,7 +557,7 @@ delete_file (DBConnection *db_con, FileInfo *info)
 
 	str_file_id = tracker_long_to_str (info->file_id);
 
-	tracker_exec_proc  (db_con->db, "DeleteFile", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile", 1,  str_file_id);
 
 	g_free (str_file_id);
 
@@ -522,6 +571,8 @@ static void
 delete_directory (DBConnection *db_con, FileInfo *info)
 {
 	char *str_file_id, *str_path;
+
+	//if (!tracker->is_running) return;
 
 	/* info struct may have been deleted in transit here so check if still valid and intact */
 	g_return_if_fail ( tracker_file_info_is_valid (info));
@@ -541,7 +592,7 @@ delete_directory (DBConnection *db_con, FileInfo *info)
 	g_free (name);
 	g_free (path);
 
-	tracker_exec_proc  (db_con->db, "DeleteDirectory", 2,  str_file_id, str_path);
+	tracker_exec_proc  (db_con, "DeleteDirectory", 2,  str_file_id, str_path);
 
 	tracker_remove_watch_dir (info->uri, TRUE, db_con);
 
@@ -563,9 +614,11 @@ index_file (DBConnection *db_con, FileInfo *info)
 	char 		*str_dir, *str_link, *str_link_uri, *str_mtime, *str_file_id;
 	GHashTable 	*meta_table;
 
+	if (!tracker->is_running) return;
 
 	/* the file being indexed or info struct may have been deleted in transit so check if still valid and intact */
 	g_return_if_fail ( tracker_file_info_is_valid (info));
+
 
 	if (!tracker_file_is_valid (info->uri)) {
 		tracker_log ("Warning - file %s no longer exists - abandoning index on this file", info->uri);
@@ -633,7 +686,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 		 	service_name = tracker_get_service_type_for_mime (info->mime);
 		}
 
-		tracker_exec_proc  (db_con->db, "CreateService", 8, path, name, service_name, str_dir, str_link, "0", "0", str_mtime);
+		tracker_exec_proc  (db_con, "CreateService", 8, path, name, service_name, str_dir, str_link, "0", "0", str_mtime);
 
 		//tracker_log ("processed file %s with mime %s and service %s", info->uri, info->mime, service_name); 
 
@@ -648,10 +701,10 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 		tracker_log ("updating file %s ", info->uri);
 
-		tracker_exec_proc  (db_con->db, "UpdateFile", 2, str_file_id, str_mtime);
+		tracker_exec_proc  (db_con, "UpdateFile", 2, str_file_id, str_mtime);
 
 		/* delete all derived metadata in DB for an updated file */
-		tracker_exec_proc  (db_con->db, "DeleteEmbeddedServiceMetadata", 1, str_file_id);
+		tracker_exec_proc  (db_con, "DeleteEmbeddedServiceMetadata", 1, str_file_id);
 
 	}	
 		
@@ -692,13 +745,13 @@ remove_no_watch_dirs (GSList *list)
 
 	tmp = list;
 
-	
+	if (!tracker->is_running) return NULL;
 
 	while (tmp) {
 
 		str = tmp->data;
 		
-		if (g_slist_find_custom (no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
+		if (g_slist_find_custom (tracker->no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
 			tracker_log ("removing %s from scan list", str);
 			tmp = tmp->next;
 			list = g_slist_remove (list, str);
@@ -719,6 +772,10 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 	g_return_if_fail (uri);
 	g_return_if_fail (db_con);
 
+	if (!tracker->is_running) return;
+
+	/* keep mainloop responsive */
+	my_yield ();
 	tracker_db_insert_pending_file 	(db_con, -1, uri, "unknown", 0, TRACKER_ACTION_CHECK, 0);	
 }
 
@@ -728,16 +785,19 @@ scan_directory (const char *uri, DBConnection *db_con)
 {
 	GSList *file_list = NULL;
 
+	if (!tracker->is_running) return;
+
 	g_return_if_fail (db_con);
 
 	g_return_if_fail (uri);
 
 	g_return_if_fail (tracker_is_directory (uri));
 
+	/* keep mainloop responsive */
+	my_yield ();
+
 	file_list = tracker_get_files (uri, FALSE);
-
 	
-
 	g_slist_foreach (file_list, (GFunc) schedule_file_check, db_con);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL); 
 	g_slist_free (file_list);
@@ -751,6 +811,7 @@ scan_directory (const char *uri, DBConnection *db_con)
 static gboolean
 start_watching (gpointer data)
 {	
+	if (!tracker->is_running) return FALSE;
 
 	if (!tracker_start_watching ()) {
 		tracker_log ("File monitoring failed to start");
@@ -774,8 +835,8 @@ start_watching (gpointer data)
 			g_free (watch_folder);
 
 		} else {
-			g_slist_foreach (watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
- 			g_slist_foreach (watch_directory_roots_list, (GFunc) schedule_file_check,  main_thread_db_con);
+			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
+ 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_file_check,  main_thread_db_con);
 		}
 
 	
@@ -789,80 +850,111 @@ extract_metadata_thread ()
 {
 	FileInfo   *info;
 	GHashTable *meta_table;
-	DBConnection db_con;
+	DBConnection *db_con;
 	gboolean has_pending = FALSE;
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
+	
+
+	g_mutex_lock (tracker->metadata_signal_mutex);
+	g_mutex_lock (tracker->metadata_stopped_mutex);
 
 	/* set thread safe DB connection */
-	mysql_thread_init ();
+	tracker_db_thread_init ();
 
-	/* set mutex so we know if the thread is still processing */
-	g_mutex_lock (metadata_thread_mutex);
+	db_con = tracker_db_connect ();
 
-	db_con.db = tracker_db_connect ();
+	db_con->thread = "extract";
 
-	tracker_db_prepare_queries (&db_con);
+	tracker_db_prepare_queries (db_con);
 
-	while (is_running) {
-
-		g_mutex_unlock (metadata_thread_mutex);			
+	while (TRUE) {
 		
-		info = g_async_queue_try_pop  (file_metadata_queue);
+		/* make thread sleep if first part of the shutdown process has been activated */
+		if (!tracker->is_running) {
+
+			tracker_log ("metadata thread going to deep sleep...");
+
+			g_cond_wait (tracker->metadata_thread_signal , tracker->metadata_signal_mutex);
+
+			/* determine if wake up call is new stuff or a shutdown signal */
+			if (!shutdown) {
+				continue;
+			} else {
+				break;
+			}
+
+		}
+
+
+		info = g_async_queue_try_pop  (tracker->file_metadata_queue);
 
 		/* check pending table if we haven't got anything */
 		if (!info) {
 
-						
-			/* we only check pending if we cannot lock mutex */
-			if (g_mutex_trylock (metadata_available_mutex)) {
-				g_mutex_unlock (metadata_available_mutex);
-				g_usleep (100000);
-				continue;
-			}	
+			/* set mutex to indicate we are in "check" state */
+			g_mutex_lock (tracker->metadata_check_mutex);
 
-			g_mutex_unlock (metadata_available_mutex);
+			res = tracker_exec_proc (db_con, "CountPendingMetadataFiles", 0); 
 
-			res = tracker_exec_proc (db_con.db, "GetPendingMetadataFiles", 0);
+			has_pending = FALSE;
 
 			if (res) {
-				while ((row = mysql_fetch_row (res))) {
-					FileInfo *info_tmp;
 
+				row = tracker_db_get_row (res, 0);
+				
+				if (row && row[0]) {
+					int pending_file_count  = atoi (row[0]);
+							
+					has_pending = (pending_file_count  > 0);
+				}
+					
+				tracker_db_free_result (res);
+
+			}
+
+			if (has_pending) {
+				g_mutex_unlock (tracker->metadata_check_mutex);
+			} else {
+			//	tracker_log ("metadata thread sleeping");
+
+				/* we have no stuff to process so sleep until awoken by a new signal */	
+				g_cond_wait (tracker->metadata_thread_signal , tracker->metadata_signal_mutex);
+				g_mutex_unlock (tracker->metadata_check_mutex);
+			//	tracker_log ("metadata thread awoken");	
+				/* determine if wake up call is new stuff or a shutdown signal */
+				if (!shutdown) {
+					continue;
+				} else {
+					break;
+				}
+				
+			}
+
+			res = tracker_exec_proc (db_con, "GetPendingMetadataFiles", 0);
+
+			int k = 0;
+
+			if (res) {
+				while ((row = tracker_db_get_row (res, k))) {
+					FileInfo *info_tmp;
+					
+					k++;
 					info_tmp = tracker_create_file_info (row[1], atoi(row[2]), 0, WATCH_OTHER);
 					info_tmp->file_id = atol (row[0]);
 					info_tmp->mime = g_strdup (row[3]);
-					g_async_queue_push (file_metadata_queue, info_tmp);
-					has_pending = TRUE;
+					g_async_queue_push (tracker->file_metadata_queue, info_tmp);
+					
 				}	
-				mysql_free_result (res);
+				tracker_db_free_result (res);
 			}
 
-			tracker_exec_proc (db_con.db, "RemovePendingMetadataFiles", 0);
-
-			/* relock mutex if more files still available */
-			res = tracker_exec_proc (db_con.db, "CountPendingMetadataFiles", 0); 
-
-			if (res) {
-
-				row = mysql_fetch_row (res);
-
-				if (row && row[0]) {
-					int pending_file_count  = atoi (row[0]);
-
-					if (pending_file_count  > 0) {
-						g_mutex_trylock (metadata_available_mutex);
-						//tracker_log ("%d files still pending metadata extraction...",  pending_file_count);
-					}
-				}	
-				mysql_free_result (res);
-			}
+			tracker_exec_proc (db_con, "RemovePendingMetadataFiles", 0);
 
 			continue;
 		}
 
-	
-		g_mutex_lock (metadata_thread_mutex);
+
 
 		/* info struct may have been deleted in transit here so check if still valid and intact */
 		g_return_if_fail ( tracker_file_info_is_valid (info));
@@ -879,7 +971,7 @@ extract_metadata_thread ()
 				info = tracker_get_file_info (info);
 			
 				if (info->file_id == -1) {
-					info->file_id = (long)tracker_db_get_file_id (&db_con, info->uri);
+					info->file_id = (long)tracker_db_get_file_id (db_con, info->uri);
 				}
 
 				meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -887,7 +979,7 @@ extract_metadata_thread ()
 				tracker_metadata_get_embedded (info->uri, info->mime, meta_table);
 
 				if (g_hash_table_size (meta_table) > 0) {
-					tracker_db_save_metadata (&db_con, meta_table, info->file_id);			
+					tracker_db_save_metadata (db_con, meta_table, info->file_id);			
 	
 					/* to do - emit dbus signal here for EmbeddedMetadataChanged */
 
@@ -904,7 +996,7 @@ extract_metadata_thread ()
 				
 					if (large_thumb_file) {
 
-						tracker_db_save_thumbs	(&db_con, small_thumb_file, large_thumb_file, info->file_id);
+						tracker_db_save_thumbs	(db_con, small_thumb_file, large_thumb_file, info->file_id);
 
 						/* to do - emit dbus signal ThumbNailChanged */
 
@@ -919,8 +1011,10 @@ extract_metadata_thread ()
 				if (file_as_text) {
 					//tracker_log ("text file is %s", file_as_text);
 					
+					
+
 					/* to do - we need a setting for an upper limit to how much text we read in */
-					tracker_db_save_file_contents (&db_con, file_as_text, info->file_id);
+					tracker_db_save_file_contents (db_con, file_as_text, info->file_id);
 
 					/* clear up if text contents are in a temp file */
 					if (g_str_has_prefix (file_as_text, "/tmp/")) {
@@ -936,12 +1030,13 @@ extract_metadata_thread ()
 			info = tracker_dec_info_ref (info);
 		}
 	}
+	tracker_db_close (db_con);
+	tracker_db_thread_end ();
 
-	mysql_close (db_con.db);
-	mysql_thread_end ();
+	tracker_log ("metadata thread has exited successfully");
+	g_mutex_unlock (tracker->metadata_stopped_mutex);
+	
 
-	/* unlock mutex so we know thread has exited */
-	g_mutex_unlock (metadata_thread_mutex);
 }
 
 
@@ -1012,45 +1107,95 @@ static void
 process_files_thread ()
 {
 	FileInfo   *info;
-	DBConnection db_con;
+	DBConnection *db_con;
 	GSList *moved_from_list = NULL; /* list to hold moved_from events whilst waiting for a matching moved_to event */
 	gboolean need_index = FALSE, has_pending = FALSE;
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
+
+	g_mutex_lock (tracker->files_signal_mutex);
+	g_mutex_lock (tracker->files_stopped_mutex);
 
 	/* set thread safe DB connection */
-	mysql_thread_init ();
+	tracker_db_thread_init ();
 
-	/* used to indicate if no db action is occuring in thread */
-	g_mutex_lock (process_thread_mutex);
+	db_con = tracker_db_connect ();
 
-	db_con.db = tracker_db_connect ();
+	db_con->thread = "files";
 	
+	while (TRUE) {
+		
+		/* make thread sleep if first part of the shutdown process has been activated */
+		if (!tracker->is_running) {
 
-	while (is_running) {
+			tracker_log ("files thread going to deep sleep...");
 
-		g_mutex_unlock (process_thread_mutex);		
+			g_cond_wait (tracker->file_thread_signal , tracker->files_signal_mutex);
 
-		info = g_async_queue_try_pop  (file_process_queue);
+			/* determine if wake up call is new stuff or a shutdown signal */
+			if (!shutdown) {
+				continue;
+			} else {
+				break;
+			}
+
+		}
+
+
+		info = g_async_queue_try_pop  (tracker->file_process_queue);
 
 		/* check pending table if we haven't got anything */
 		if (!info) {
 
+			/* set mutex to indicate we are in "check" state */
+			g_mutex_lock (tracker->files_check_mutex);
 
-			/* we only check pending if we cannot lock mutex (this mutex is used as a flag to indicate if data could be available) */
-			if (g_mutex_trylock (files_available_mutex)) {
-				g_mutex_unlock (files_available_mutex);
-				g_usleep (100000);
-				continue;
-			}	
+			res = tracker_exec_proc (db_con, "ExistsPendingFiles", 0); 
 
-			g_mutex_unlock (files_available_mutex);
-
-			res = tracker_exec_proc (db_con.db, "GetPendingFiles", 0); 
+			has_pending = FALSE;
 
 			if (res) {
-				while ((row = mysql_fetch_row (res))) {
+
+				row = tracker_db_get_row (res, 0);
+				
+				if (row && row[0]) {
+					int pending_file_count  = atoi (row[0]);
+							
+					has_pending = (pending_file_count  > 0);
+				}
+					
+				tracker_db_free_result (res);
+
+			}
+
+			if (has_pending) {
+				g_mutex_unlock (tracker->files_check_mutex);
+			} else {
+				//tracker_log ("File thread sleeping");
+
+				/* we have no stuff to process so sleep until awoken by a new signal */	
+				g_cond_wait (tracker->file_thread_signal , tracker->files_signal_mutex);
+				g_mutex_unlock (tracker->files_check_mutex);
+				//tracker_log ("File thread awoken");	
+				/* determine if wake up call is new stuff or a shutdown signal */
+				if (!shutdown) {
+					continue;
+				} else {
+					break;
+				}
+				
+			}
+
+
+			res = tracker_exec_proc (db_con, "GetPendingFiles", 0); 
+
+			int k = 0;
+
+			if (res) {
+				while ((row = tracker_db_get_row (res, k))) {
 					FileInfo *info_tmp;
+
+					k++;
 
 					TrackerChangeAction tmp_action = atoi(row[2]);
 
@@ -1059,39 +1204,17 @@ process_files_thread ()
 					}
 
 					info_tmp = tracker_create_file_info (row[1], tmp_action, 0, WATCH_OTHER);
-					g_async_queue_push (file_process_queue, info_tmp);
-					has_pending = TRUE;
+					g_async_queue_push (tracker->file_process_queue, info_tmp);
+					
 				}	
-				mysql_free_result (res);
+				tracker_db_free_result (res);
 			}
 
-			tracker_exec_proc (db_con.db, "RemovePendingFiles", 0); 
-
-
-			/* relock mutex if more files still available */
-			res = tracker_exec_proc (db_con.db, "ExistsPendingFiles", 0); 
-
-			if (res) {
-
-				row = mysql_fetch_row (res);
-				
-				if (row && row[0]) {
-					int pending_file_count  = atoi (row[0]);
-
-					if (pending_file_count  > 0) {
-						g_mutex_trylock (files_available_mutex);
-						
-					}
-				}
-
-				mysql_free_result (res);
-			}
+			tracker_exec_proc (db_con, "RemovePendingFiles", 0); 
 
 			continue;
 		}
 
-
-		g_mutex_lock (process_thread_mutex);
 
 		/* info struct may have been deleted in transit here so check if still valid and intact */
 		if (!tracker_file_info_is_valid (info)) {
@@ -1105,7 +1228,7 @@ process_files_thread ()
 		if (info->file_id == -1 && info->action != TRACKER_ACTION_CREATE && 
 		    info->action != TRACKER_ACTION_DIRECTORY_CREATED && info->action != TRACKER_ACTION_FILE_CREATED) {
 			
-			info = tracker_db_get_file_info (&db_con, info);
+			info = tracker_db_get_file_info (db_con, info);
 
 		}
 
@@ -1125,7 +1248,7 @@ process_files_thread ()
 
 		if (info->action == TRACKER_ACTION_FILE_DELETED || info->action == TRACKER_ACTION_FILE_MOVED_FROM) {
 
-			delete_file (&db_con, info);
+			delete_file (db_con, info);
 
 			if (info->action == TRACKER_ACTION_FILE_MOVED_FROM) {
 				moved_from_list = g_slist_prepend (moved_from_list, info);				
@@ -1138,7 +1261,7 @@ process_files_thread ()
 		} else {
 			if (info->action == TRACKER_ACTION_DIRECTORY_DELETED || info->action ==  TRACKER_ACTION_DIRECTORY_MOVED_FROM) {
 
-				delete_directory (&db_con, info);
+				delete_directory (db_con, info);
 
 				if (info->action == TRACKER_ACTION_DIRECTORY_MOVED_FROM) {
 					moved_from_list = g_slist_prepend (moved_from_list, info);				
@@ -1186,8 +1309,8 @@ process_files_thread ()
 			case TRACKER_ACTION_DIRECTORY_CHECK :
 
 				if (need_index ) {
-					if (g_slist_find_custom (no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
-						scan_directory (info->uri, &db_con);
+					if (g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+						scan_directory (info->uri, db_con);
 					} else {
 						tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
 					}
@@ -1197,8 +1320,8 @@ process_files_thread ()
 
 			case TRACKER_ACTION_DIRECTORY_REFRESH :
 
-				if (g_slist_find_custom (no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
-					scan_directory (info->uri, &db_con);
+				if (g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+					scan_directory (info->uri, db_con);
 				} else {
 					tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
 				}
@@ -1213,13 +1336,13 @@ process_files_thread ()
 	
 
 				/* add to watch folders (including subfolders) */
-				watch_dir (info->uri, &db_con);
+				watch_dir (info->uri, db_con);
 				
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
-					if (g_slist_find_custom (no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
-						scan_directory (info->uri, &db_con);		
+					if (g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+						scan_directory (info->uri, db_con);		
 					} else {
 						tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
 					}
@@ -1235,49 +1358,86 @@ process_files_thread ()
 		}
 
 		if (need_index) {
-			index_file (&db_con, info);
+			index_file (db_con, info);
 
 		}
 
 		info = tracker_dec_info_ref (info);	
 
 	}
+	tracker_db_close (db_con);
+	tracker_db_thread_end ();
+	tracker_log ("files thread has exited successfully");
+	g_mutex_unlock (tracker->files_stopped_mutex);
+	
 
-	mysql_close (db_con.db);
-	mysql_thread_end ();
-
-	/* unlock mutex so we know thread has exited */
-	g_mutex_unlock (process_thread_mutex);
 }
 
 static void
-process_user_request_queue_thread (GMutex *mutex)
+process_user_request_queue_thread ()
 {
 	DBusRec *rec;
-	DBConnection db_con;
+	DBConnection  *db_con;
+
+	g_mutex_lock (tracker->request_signal_mutex);
+	g_mutex_lock (tracker->request_stopped_mutex);
 
 	/* set thread safe DB connection */
-	mysql_thread_init ();
+	tracker_db_thread_init ();
 
-	/* set mutex so we know if the thread is still processing */
-	g_mutex_lock (mutex);
+	db_con = tracker_db_connect ();
 
-	db_con.db = tracker_db_connect ();
+	db_con->thread = "request";
 
-	tracker_exec_proc  (db_con.db, "PrepareQueries", 0);	
+	tracker_exec_proc  (db_con, "PrepareQueries", 0);	
 
-
-	while (is_running) {
-
+	while (TRUE) {
+		
 		DBusMessage *reply;
 
-		g_mutex_unlock (mutex);
-	
-		rec = g_async_queue_pop (user_request_queue);
+		/* make thread sleep if first part of the shutdown process has been activated */
+		if (!tracker->is_running) {
 
-		rec->user_data = &db_con;
+			tracker_log ("request thread going to deep sleep...");
 
-		g_mutex_lock (mutex);
+			g_cond_wait (tracker->request_thread_signal , tracker->request_signal_mutex);
+
+			/* determine if wake up call is new stuff or a shutdown signal */
+			if (!shutdown) {
+				continue;
+			} else {
+				break;
+			}
+
+		}
+
+		/* lock check mutex to prevent race condition when a request is submitted after popping queue but prior to sleeping */
+		g_mutex_lock (tracker->request_check_mutex);
+
+		rec = g_async_queue_try_pop  (tracker->user_request_queue);
+
+		if (!rec) {
+
+			//tracker_log ("request thread sleeping");
+			g_cond_wait (tracker->request_thread_signal , tracker->request_signal_mutex);
+			g_mutex_unlock (tracker->request_check_mutex);
+			//tracker_log ("request thread awoken");	
+
+			/* determine if wake up call is new stuff or a shutdown signal */
+			if (!shutdown) {
+				continue;
+			} else {
+				break;
+			}
+			
+		}
+
+
+		/* thread will not sleep without another iteration so race condition no longer applies */
+		g_mutex_unlock (tracker->request_check_mutex);
+		
+
+		rec->user_data = db_con;
 
 		switch (rec->action) {
 
@@ -1545,11 +1705,14 @@ process_user_request_queue_thread (GMutex *mutex)
 
 	}
 
-	mysql_close (db_con.db);
-	mysql_thread_end ();
+	tracker_db_close (db_con);
+	tracker_db_thread_end ();
+
+	tracker_log ("request thread has exited successfully");
 
 	/* unlock mutex so we know thread has exited */
-	g_mutex_unlock (mutex);
+	g_mutex_unlock (tracker->request_check_mutex);
+	g_mutex_unlock (tracker->request_stopped_mutex);
 }
 
 
@@ -1561,10 +1724,10 @@ main (int argc, char **argv)
 	sigset_t 	empty_mask;
 	char 		*prefix, *lock_file, *str, *lock_str, *tracker_data_dir;
 
-	GThread 	*file_metadata_thread, *file_process_thread, *user_request_thread1; 
+
 
 	gboolean 	need_setup = FALSE;
-	DBConnection 	db_con;
+	DBConnection 	*db_con;
 	
 
 	/* set timezone info */
@@ -1577,9 +1740,7 @@ main (int argc, char **argv)
 
 	g_print ("Initialising tracker...\n");
 
-	/* mysql vars */
-	static char **server_options;
-	static char *server_groups[] = {"libmysqd_server", "libmysqd_client", NULL};
+	
 
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
@@ -1587,11 +1748,43 @@ main (int argc, char **argv)
 
 	dbus_g_thread_init ();	
 
-	/* Set up mutexes for initialisation */
-	g_assert (log_access_mutex == NULL);
-	log_access_mutex = g_mutex_new ();
-	g_assert (scheduler_mutex == NULL);
-	scheduler_mutex = g_mutex_new ();
+	tracker = g_new (Tracker, 1);
+
+	tracker->watch_directory_roots_list = NULL;
+	tracker->no_watch_directory_list = NULL;
+	tracker->poll_list = NULL;
+	tracker->use_nfs_safe_locking = FALSE;
+
+ 	tracker->is_running = FALSE;
+
+	tracker->poll_access_mutex = g_mutex_new ();
+
+	tracker->files_check_mutex = g_mutex_new ();
+	tracker->metadata_check_mutex = g_mutex_new ();
+	tracker->request_check_mutex = g_mutex_new ();
+
+	tracker->files_stopped_mutex = g_mutex_new ();
+	tracker->metadata_stopped_mutex = g_mutex_new ();
+	tracker->request_stopped_mutex = g_mutex_new ();
+	tracker->poll_stopped_mutex = g_mutex_new ();
+
+	tracker->file_metadata_thread = NULL;
+	tracker->file_process_thread = NULL;
+	tracker->user_request_thread = NULL;;
+	tracker->file_poll_thread = NULL;
+
+	tracker->file_thread_signal = g_cond_new ();	
+	tracker->metadata_thread_signal = g_cond_new ();	
+	tracker->request_thread_signal = g_cond_new ();	
+	tracker->poll_thread_signal = g_cond_new ();	
+
+	tracker->metadata_signal_mutex = g_mutex_new ();
+	tracker->files_signal_mutex = g_mutex_new ();
+	tracker->request_signal_mutex = g_mutex_new ();
+	tracker->poll_signal_mutex = g_mutex_new ();	
+
+	tracker->log_access_mutex = g_mutex_new ();
+	tracker->scheduler_mutex = g_mutex_new ();
 
 
 	/* check user data files */
@@ -1623,19 +1816,16 @@ main (int argc, char **argv)
 
 	umask(077); 
 	
-
-
-
 	prefix = g_build_filename (g_get_home_dir (), ".Tracker", NULL);
 	str = g_strconcat ( g_get_user_name (), "_tracker_lock", NULL);
-	log_file = g_build_filename (prefix, "tracker.log", NULL);
+	tracker->log_file = g_build_filename (prefix, "tracker.log", NULL);
 
 	/* check if setup for NFS usage (and enable atomic NFS safe locking) */
 	//lock_str = tracker_get_config_option ("NFSLocking");
 	lock_str = NULL;
 	if (lock_str != NULL) {
 
-		use_nfs_safe_locking = ( strcmp (str , "1" ) == 0); 
+		tracker->use_nfs_safe_locking = ( strcmp (str , "1" ) == 0); 
 
 		/* place lock file in tmp dir to allow multiple sessions on NFS */
 		lock_file = g_build_filename ("/tmp",  str , NULL);
@@ -1644,7 +1834,7 @@ main (int argc, char **argv)
 		
 	} else {
 
-		use_nfs_safe_locking = FALSE;
+		tracker->use_nfs_safe_locking = FALSE;
 
 		/* place lock file in home dir to prevent multiple sessions on NFS (as standard locking might be broken on NFS) */
 		lock_file = g_build_filename (prefix ,  str , NULL);
@@ -1673,8 +1863,8 @@ main (int argc, char **argv)
 
 
 	/* reset log file */
-	if (g_file_test (log_file, G_FILE_TEST_EXISTS)) {
-		unlink (log_file); 
+	if (g_file_test (tracker->log_file, G_FILE_TEST_EXISTS)) {
+		unlink (tracker->log_file); 
 	}
 
 
@@ -1682,7 +1872,7 @@ main (int argc, char **argv)
 	sigemptyset (&empty_mask);
 	act.sa_handler = signal_handler;
 	act.sa_mask    = empty_mask;
-	act.sa_flags   = 0;
+	act.sa_flags   = SA_NODEFER;
 	sigaction (SIGTERM,  &act, NULL);
 	sigaction (SIGILL,  &act, NULL);
 	sigaction (SIGBUS,  &act, NULL);
@@ -1696,38 +1886,16 @@ main (int argc, char **argv)
 
 	tracker_load_config_file ();
 
-	str = g_strdup (DATADIR "/tracker/english");
-	if (!tracker_file_is_valid (str)) {
-		g_warning ("could not open mysql language file %s", str);
-	}
-
-	/* initialise embedded mysql with options*/
-	server_options = g_new (char *, 11);
-  	server_options[0] = "anything";
-  	server_options[1] = g_strconcat  ("--datadir=", tracker_data_dir, NULL);
-  	server_options[2] = "--myisam-recover=FORCE";
-	server_options[3] = "--skip-grant-tables";
-	server_options[4] = "--skip-innodb";
-	server_options[5] = "--key_buffer_size=1M";
-	server_options[6] = "--character-set-server=utf8";
-	server_options[7] = "--ft_max_word_len=45";
-	server_options[8] = "--ft_min_word_len=3";
-	server_options[9] = "--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt";
-	server_options[10] =  g_strconcat ("--language=", str,  NULL);
-
-
-	mysql_server_init ( 11, server_options, server_groups);
-
-	if (mysql_get_client_version () < 50019) {
-		g_warning ("The currently installed version of mysql is too outdated (you need 5.0.19 or higher). Exiting...");
+	
+	if (!tracker_db_initialize (tracker_data_dir) ) {
+		tracker_log ("Failed to initialise database engine - exiting...");
 		return 1;
 	}
 
-		
-	
-	tracker_log ("DB initialised - embedded mysql version is %d", mysql_get_client_version () );
+	/* create and initialise indexer */
+	//file_indexer = tracker_indexer_open ("Files");
 
-	g_free (str);
+	
 	g_free (tracker_data_dir);
 
 
@@ -1741,35 +1909,43 @@ main (int argc, char **argv)
 	
 	
 	/* set thread safe DB connection */
-	mysql_thread_init ();
+	tracker_db_thread_init ();
 
-	db_con.db = tracker_db_connect ();
+	db_con = tracker_db_connect ();
+	db_con->thread = "main";
 
-	if (tracker_update_db (db_con.db)) {
+	
+
+	if (tracker_update_db (db_con)) {
 
 		/* refresh connection as DB might have been rebuilt */
-		mysql_close (db_con.db);
-		db_con.db = tracker_db_connect ();
-		tracker_db_load_stored_procs (db_con.db);
+		tracker_db_close (db_con);
+		db_con = tracker_db_connect ();
+		db_con->thread = "main";
+		tracker_db_load_stored_procs (db_con);
 	}
 
 
 	
 	/* clear pending files and watch tables*/
-	tracker_exec_sql (db_con.db, "TRUNCATE TABLE FilePending");
-	tracker_exec_sql (db_con.db, "TRUNCATE TABLE FileWatches");
+	tracker_exec_sql (db_con, "TRUNCATE TABLE FilePending");
+	tracker_exec_sql (db_con, "TRUNCATE TABLE FileWatches");
 
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
 
-	res = tracker_exec_proc  (db_con.db, "GetStats", 0);	
+	res = tracker_exec_proc  (db_con, "GetStats", 0);	
 
 	if (res) {
 		tracker_log ("-----------------------");
 		tracker_log ("Fetching index stats...");
 	
-		while ((row = mysql_fetch_row (res))) {
-				
+		int k = 0;
+
+		while ((row = tracker_db_get_row (res, k))) {
+
+			k++;	
+
 			if (row[2]) { 
 				tracker_log ("%s : %s (%s%s)", row[0], row[1], row[2], "%");
 			} else {
@@ -1778,28 +1954,32 @@ main (int argc, char **argv)
 			
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 
 		tracker_log ("-----------------------\n");
 			
 	} 
+
+
+	tracker_db_check_tables (db_con);
 /*
 	//const char *query = " <rdfq:Condition> <rdfq:or><rdfq:and><rdfq:greaterThan><rdfq:Property name=\"Audio.ReleaseDate\" /><rdf:Integer>1979</rdf:Integer></rdfq:greaterThan></rdfq:and> <rdfq:contains><rdfq:Property name=\"Audio.Title\" /><rdf:String>Rain</rdf:String></rdfq:contains></rdfq:or></rdfq:Condition>";
 	const char *query = " <rdfq:Condition><rdfq:contains><rdfq:Property name=\"File.Name\" /><rdf:String>Rain</rdf:String></rdfq:contains></rdfq:Condition>";
-	char *stsql = tracker_rdf_query_to_sql (&db_con, query, "Files", NULL, 0, "mp3", FALSE, 100 , NULL);
+	char *stsql = tracker_rdf_query_to_sql (db_con, query, "Files", NULL, 0, "mp3", FALSE, 100 , NULL);
 	tracker_log (stsql); 
-	tracker_log_sql (db_con.db, g_strconcat ("Explain ", stsql, NULL)); 
-	tracker_log_sql (db_con.db, stsql); 
+	tracker_log_sql (db_con, g_strconcat ("Explain ", stsql, NULL)); 
+	tracker_log_sql (db_con, stsql); 
 */
 
-	main_thread_db_con = &db_con;
 
-	file_scheduler = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	file_metadata_queue = g_async_queue_new ();
-	file_process_queue = g_async_queue_new ();
-	file_pending_queue = g_async_queue_new ();
-	user_request_queue = g_async_queue_new ();
+	main_thread_db_con = db_con;
+
+	tracker->file_scheduler = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+	tracker->file_metadata_queue = g_async_queue_new ();
+	tracker->file_process_queue = g_async_queue_new ();
+	tracker->user_request_queue = g_async_queue_new ();
 
 
 	/* periodically poll directories for changes */ 
@@ -1811,32 +1991,14 @@ main (int argc, char **argv)
 
 
 
-  	loop = g_main_loop_new (NULL, TRUE);
+  	tracker->loop = g_main_loop_new (NULL, TRUE);
 
 	main_connection = tracker_dbus_init ();
 
 	/* this var is used to tell the threads when to quit */
-	is_running = TRUE;
+	tracker->is_running = TRUE;
 
-	/* thread mutexes - so we know when a thread is not busy */
-	g_assert (process_thread_mutex == NULL);
-	process_thread_mutex  = g_mutex_new ();
 
-	g_assert (metadata_thread_mutex == NULL);
-	metadata_thread_mutex  = g_mutex_new ();
-
-	g_assert (user_thread1_mutex == NULL);
-	user_thread1_mutex  = g_mutex_new ();
-
-	g_assert (user_thread2_mutex == NULL);
-	user_thread2_mutex  = g_mutex_new ();
-
-	g_assert (poll_thread_mutex == NULL);
-	poll_thread_mutex = g_mutex_new ();
-
-	/* data available mutexes */
-	metadata_available_mutex = g_mutex_new ();
-	files_available_mutex = g_mutex_new ();
 	
 
 	/* schedule the watching of directories so as not to delay start up time*/
@@ -1858,19 +2020,22 @@ main (int argc, char **argv)
 
 
 	/* execute events and user requests to be processed and indexed in their own threads */
-	file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL); 
-	file_metadata_thread = g_thread_create ((GThreadFunc) extract_metadata_thread, NULL, FALSE, NULL); 
-	user_request_thread1 =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, user_thread1_mutex, FALSE, NULL); 
+	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, TRUE, NULL); 
+	tracker->file_metadata_thread = g_thread_create ((GThreadFunc) extract_metadata_thread, NULL, TRUE, NULL); 
+	tracker->user_request_thread =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, TRUE, NULL); 
 
-	g_main_loop_run (loop);
+	g_main_loop_run (tracker->loop);
 
-	mysql_close (db_con.db);
+	/* the following should never be reached in practice */
+	tracker_log ("we should never get this message");
+	
+	tracker_db_close (db_con);
 
-	mysql_thread_end ();
+	tracker_db_thread_end ();
 
 	tracker_dbus_shutdown (main_connection);
 
 	do_cleanup ();
 
-	return 0;
+	return EXIT_SUCCESS;
 }

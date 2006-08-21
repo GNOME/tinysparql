@@ -22,7 +22,11 @@
 #include <string.h> 
 #include <unistd.h>
 #include <glib.h>
+#ifndef USING_INTERNAL_LIBEXTRACTOR
+#include <extractor.h>
+#else
 #include "../libextractor/src/include/extractor.h"
+#endif
 
 
 typedef enum {

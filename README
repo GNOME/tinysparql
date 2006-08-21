@@ -117,7 +117,7 @@ lThe embedded mysql library ibmysqld.a version 5.0.19 or higher is required comp
 
 If not present you can compile libmysqld.a by downloading source tarball for an appropriate version (5.0.19+) from the bottom of page http://dev.mysql.com/downloads/mysql/5.0.html
 
-The following configure flags are reccommended if building mysqld.a from source: --without-server --with-embedded-server --enable-assembler 
+The following configure flags are reccommended if building mysqld.a from source: --without-server --with-embedded-server --enable-assembler --without-debug --without-query-cache  --without-geometry --without-extra-tools --without-docs --without-man --without-bench --without-innodb --with-senna
 
 Generic RPMs and tarballs are also provided for the embedded mysql library and another for the development headers at  http://www.gnome.org/~jamiemcc/tracker/
 

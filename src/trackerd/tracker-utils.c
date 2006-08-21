@@ -36,11 +36,7 @@
 #include "tracker-utils.h"
 #include "xdgmime.h"
 
-extern GMutex 		*log_access_mutex;
-extern char 		*log_file; 
-extern GSList		*poll_list;
-
-
+extern Tracker	*tracker;
 
 char *implemented_services[] = {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files", 
 				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files", 
@@ -67,24 +63,6 @@ char *tracker_actions[] = {
 
 static int info_allocated = 0;
 static int info_deallocated = 0;
-
-/* global config variables */
-extern	GSList 		*watch_directory_roots_list;
-extern	GSList 		*no_watch_directory_list;
-extern	gboolean	index_text_files;
-extern	gboolean	index_documents;
-extern	gboolean	index_source_code;
-extern	gboolean	index_scripts;
-extern	gboolean	index_html;
-extern	gboolean	index_pdf;
-extern	gboolean	index_application_help_files;
-extern	gboolean	index_desktop_files;
-extern	gboolean	index_epiphany_bookmarks;
-extern	gboolean	index_epiphany_history;
-extern	gboolean	index_firefox_bookmarks;
-extern	gboolean	index_firefox_history;
-extern	gboolean	store_text_file_contents_in_db;
-extern	char		*db_buffer_memory_limit;
 
 
 static const char *months[] = {
@@ -742,25 +720,7 @@ tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 }
 
 
-int
-tracker_get_row_count (char ***result)
-{
-	char ***rows;
-	int i;
 
-	if (!result) {
-		return 0;
-	}
-
-	i = 0;
-
-	for (rows = result; *rows; rows++) {
-		i++;			
-	}
-
-	return i;
-
-}
 
 
 void
@@ -1219,13 +1179,13 @@ tracker_log (const char* fmt, ...)
 	}
 
 	/* ensure file logging is thread safe */
-	g_mutex_lock (log_access_mutex);
+	g_mutex_lock (tracker->log_access_mutex);
 
-	fd = fopen (log_file, "a");
+	fd = fopen (tracker->log_file, "a");
 
 	if (!fd) {
-		g_mutex_unlock (log_access_mutex);
-		g_warning ("could not open %s", log_file);
+		g_mutex_unlock (tracker->log_access_mutex);
+		g_warning ("could not open %s", tracker->log_file);
 		g_free (msg);
 		return;
 	}
@@ -1240,7 +1200,7 @@ tracker_log (const char* fmt, ...)
 	g_free (msg);
 	g_free (output);
 	fclose (fd);
-	g_mutex_unlock (log_access_mutex);
+	g_mutex_unlock (tracker->log_access_mutex);
 
 }
 
@@ -1272,6 +1232,10 @@ tracker_get_files (const char *dir, gboolean dir_only)
    	if ((dirp = opendir (dir)) != NULL) {
    		while ((entry = readdir (dirp)) != NULL) {
 
+			if (!tracker->is_running) {
+				return NULL;
+			}
+
 			char  *mystr = NULL, *str = NULL;
 
      			if (entry->d_name[0] == '.') {
@@ -1290,7 +1254,7 @@ tracker_get_files (const char *dir, gboolean dir_only)
 		
 			if (!dir_only || tracker_is_directory (mystr)) {
 
-				if (g_slist_find_custom (no_watch_directory_list, mystr, (GCompareFunc) has_prefix) == NULL) {
+				if (g_slist_find_custom (tracker->no_watch_directory_list, mystr, (GCompareFunc) has_prefix) == NULL) {
 					file_list = g_slist_prepend (file_list, g_strdup (mystr));
 				}
 			}
@@ -1301,6 +1265,11 @@ tracker_get_files (const char *dir, gboolean dir_only)
 		g_free (entry);
  		closedir (dirp);
 	}
+
+	if (!tracker->is_running) {
+		return NULL;
+	}
+
 	return file_list;
 }			
 
@@ -1421,9 +1390,9 @@ tracker_load_config_file ()
 					              NULL);
 
 	if (values) {
-		watch_directory_roots_list = array_to_list (values);
+		tracker->watch_directory_roots_list = array_to_list (values);
 	} else {
-		watch_directory_roots_list = g_slist_prepend (watch_directory_roots_list, g_strdup (g_get_home_dir ()));
+		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir ()));
 	}
 	
 
@@ -1434,13 +1403,14 @@ tracker_load_config_file ()
 				              NULL);
 
 	if (values) {
-		no_watch_directory_list = array_to_list (values);
+		tracker->no_watch_directory_list = array_to_list (values);
 
-		g_slist_foreach (no_watch_directory_list,(GFunc) display_list_values, NULL);
+		g_slist_foreach (tracker->no_watch_directory_list,(GFunc) display_list_values, NULL);
 	} else {
-		no_watch_directory_list = NULL;
+		tracker->no_watch_directory_list = NULL;
 	}
 	
+/*
 	if (g_key_file_has_key (key_file, "Indexes", "IndexTextFiles", NULL)) {
 		index_text_files = g_key_file_get_boolean (key_file, "Indexes", "IndexTextFiles", NULL);
 	}
@@ -1492,8 +1462,8 @@ tracker_load_config_file ()
 	if (g_key_file_has_key (key_file, "Database", "StoreTextFileContentsInDB", NULL)) {
 		store_text_file_contents_in_db = g_key_file_get_boolean (key_file, "Indexes", "StoreTextFileContentsInDB", NULL);
 	}
-
-	db_buffer_memory_limit = g_key_file_get_string ( key_file, "Database", "DBBufferMemoryLimit", NULL);
+*/
+	//db_buffer_memory_limit = g_key_file_get_string ( key_file, "Database", "DBBufferMemoryLimit", NULL);
 
 	g_free (filename);
 	g_key_file_free (key_file);
@@ -1506,7 +1476,7 @@ tracker_remove_poll_dir (const char *dir)
 	const GSList *tmp;
 	char  *str, *str2;
 
-	tmp = poll_list;
+	tmp = tracker->poll_list;
 
 	str2 = g_strconcat (dir, "/", NULL);
 
@@ -1515,7 +1485,9 @@ tracker_remove_poll_dir (const char *dir)
 		str = tmp->data;
 
 		if (strcmp (dir, str) ==0) {
-			poll_list = g_slist_remove (poll_list, tmp->data);
+			g_mutex_lock (tracker->poll_access_mutex);
+			tracker->poll_list = g_slist_remove (tracker->poll_list, tmp->data);
+			g_mutex_unlock (tracker->poll_access_mutex);
 			g_free (str);
 			str = NULL;
 		}
@@ -1523,7 +1495,9 @@ tracker_remove_poll_dir (const char *dir)
 		/* check if subfolder of existing roots */
 
 		if (str && g_str_has_prefix (str, str2)) {
-			poll_list = g_slist_remove (poll_list, tmp->data);
+			g_mutex_lock (tracker->poll_access_mutex);
+			tracker->poll_list = g_slist_remove (tracker->poll_list, tmp->data);
+			g_mutex_unlock (tracker->poll_access_mutex);
 			g_free (str);			
 		}
 
@@ -1539,8 +1513,12 @@ tracker_add_poll_dir (const char *dir)
 {
 	g_return_if_fail (dir && tracker_is_directory (dir));
 
-	poll_list = g_slist_prepend (poll_list, g_strdup (dir));
-	tracker_log ("adding %s for polling (poll count is %d)", dir, g_slist_length (poll_list));
+	if (!tracker->is_running) return;
+	
+	g_mutex_lock (tracker->poll_access_mutex);
+	tracker->poll_list = g_slist_prepend (tracker->poll_list, g_strdup (dir));
+	g_mutex_unlock (tracker->poll_access_mutex);
+	tracker_log ("adding %s for polling (poll count is %d)", dir, g_slist_length (tracker->poll_list));
 }
 
 
@@ -1550,7 +1528,7 @@ tracker_is_dir_polled (const char *dir)
 	GSList *tmp;
 	char *str;
 
-	tmp = poll_list;
+	tmp = tracker->poll_list;
 	while (tmp != NULL) {
 		str = (char *)tmp->data;
 		if (strcmp (dir, str) == 0) {
@@ -1562,3 +1540,146 @@ tracker_is_dir_polled (const char *dir)
 
 	return FALSE;
 }
+
+
+void
+tracker_notify_file_data_available ()
+{
+
+
+
+	/* if file thread is asleep then we just need to wake it up! */
+	if (g_mutex_trylock (tracker->files_signal_mutex)) {
+		g_cond_signal (tracker->file_thread_signal);
+		g_mutex_unlock (tracker->files_signal_mutex);
+		return;
+	}		
+
+	/* if busy - check if async queue has new stuff as we do not need to notify then */
+	if (g_async_queue_length (tracker->file_process_queue) > 0) {
+		return;
+	}
+
+	/* if file thread not in check phase then we need do nothing */
+	if (g_mutex_trylock (tracker->files_check_mutex)) {
+		g_mutex_unlock (tracker->files_check_mutex);
+		return;
+	}
+
+	/* we are in check phase - we need to wait until either check_mutex is unlocked or file thread is asleep then awaken it */
+	while (TRUE) {
+		
+		if (g_mutex_trylock (tracker->files_check_mutex)) {
+			g_mutex_unlock (tracker->files_check_mutex);
+			return;
+		}
+
+		if (g_mutex_trylock (tracker->files_signal_mutex)) {
+			g_cond_signal (tracker->file_thread_signal);
+			g_mutex_unlock (tracker->files_signal_mutex);
+			return;
+		}
+		
+		g_thread_yield ();
+		g_usleep (10);		
+		
+
+	}
+
+}
+
+
+
+void
+tracker_notify_meta_data_available ()
+{
+
+
+
+	/* if metadata thread is asleep then we just need to wake it up! */
+	if (g_mutex_trylock (tracker->metadata_signal_mutex)) {
+		g_cond_signal (tracker->metadata_thread_signal);
+		g_mutex_unlock (tracker->metadata_signal_mutex);
+		return;
+	}		
+
+	/* if busy - check if async queue has new stuff as we do not need to notify then */
+	if (g_async_queue_length (tracker->file_metadata_queue) > 0) {
+		return;
+	}
+
+	/* if metadata thread not in check phase then we need do nothing */
+	if (g_mutex_trylock (tracker->metadata_check_mutex)) {
+		g_mutex_unlock (tracker->metadata_check_mutex);
+		return;
+	}
+
+	/* we are in check phase - we need to wait until either check_mutex is unlocked or until metadata thread is asleep then we awaken it */
+	while (TRUE) {
+		
+		if (g_mutex_trylock (tracker->metadata_check_mutex)) {
+			g_mutex_unlock (tracker->metadata_check_mutex);
+			return;
+		}
+
+		if (g_mutex_trylock (tracker->metadata_signal_mutex)) {
+			g_cond_signal (tracker->metadata_thread_signal);
+			g_mutex_unlock (tracker->metadata_signal_mutex);
+			return;
+		}
+		
+		g_thread_yield ();
+		g_usleep (10);		
+		
+
+	}
+
+}
+
+
+void
+tracker_notify_request_data_available ()
+{
+
+
+
+	/* if thread is asleep then we just need to wake it up! */
+	if (g_mutex_trylock (tracker->request_signal_mutex)) {
+		g_cond_signal (tracker->request_thread_signal);
+		g_mutex_unlock (tracker->request_signal_mutex);
+		return;
+	}		
+
+	/* if busy - check if async queue has new stuff as we do not need to notify then */
+	if (g_async_queue_length (tracker->user_request_queue) > 0) {
+		return;
+	}
+
+	/* if thread not in check phase then we need do nothing */
+	if (g_mutex_trylock (tracker->request_check_mutex)) {
+		g_mutex_unlock (tracker->request_check_mutex);
+		return;
+	}
+
+	/* we are in check phase - we need to wait until either check_mutex is unlocked or thread is asleep then awaken it */
+	while (TRUE) {
+		
+		if (g_mutex_trylock (tracker->request_check_mutex)) {
+			g_mutex_unlock (tracker->request_check_mutex);
+			return;
+		}
+
+		if (g_mutex_trylock (tracker->request_signal_mutex)) {
+			g_cond_signal (tracker->request_thread_signal);
+			g_mutex_unlock (tracker->request_signal_mutex);
+			return;
+		}
+		
+		g_thread_yield ();
+		g_usleep (10);		
+		
+	}
+
+}
+
+

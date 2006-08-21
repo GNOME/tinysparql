@@ -24,15 +24,20 @@ else
 	CFLAGS += -O2
 endif
 
-config.status: configure
+# Ensure the build aborts when there are still references to undefined
+# symbols.
+LDFLAGS += -Wl,-z,defs
+
+configure: configure-stamp
+configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	#CFLAGS="$(CFLAGS) -Wl,-z,defs" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
-	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr 
+	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr
+	touch configure-stamp
 
 build: build-stamp
 
-build-stamp:  config.status
+build-stamp:  configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
@@ -44,7 +49,7 @@ build-stamp:  config.status
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
+	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
 	-$(MAKE) distclean
@@ -64,9 +69,10 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tracker.
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/tracker
+	# Add here commands to install the package into debian/tmp.
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
+	dh_install
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -104,4 +110,4 @@ binary-arch: build install
 	dh_builddeb
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
+.PHONY: build clean binary-indep binary-arch binary install

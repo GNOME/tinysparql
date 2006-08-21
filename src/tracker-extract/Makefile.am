@@ -11,5 +11,3 @@ extractor_ldadd = -lextractor
 endif
 
 tracker_extract_LDADD = $(GLIB2_LIBS) $(extractor_ldadd)
-
-		

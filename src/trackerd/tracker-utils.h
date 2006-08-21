@@ -39,6 +39,55 @@ extern char *tracker_actions[];
 #define TRACKER_VERSION	"0.5.0"
 #define TRACKER_VERSION_INT 500
 
+
+typedef struct {
+	GSList 		*watch_directory_roots_list;
+	GSList 		*no_watch_directory_list;
+	GSList 		*poll_list;
+	gboolean	use_nfs_safe_locking;
+
+ 	GHashTable  	*file_scheduler;
+ 	GMutex 		*scheduler_mutex;
+
+ 	gboolean 	is_running;
+	GMainLoop 	*loop;
+
+	GMutex 		*log_access_mutex;
+	char	 	*log_file;
+
+	GAsyncQueue 	*file_process_queue;
+	GAsyncQueue 	*file_metadata_queue;
+	GAsyncQueue 	*user_request_queue;
+
+	GMutex		*files_check_mutex;
+	GMutex		*metadata_check_mutex;
+	GMutex		*request_check_mutex;
+
+	GMutex		*poll_access_mutex;
+
+	GMutex		*files_stopped_mutex;
+	GMutex		*metadata_stopped_mutex;
+	GMutex		*request_stopped_mutex;
+	GMutex		*poll_stopped_mutex;
+
+	GThread 	*file_metadata_thread;
+	GThread 	*file_process_thread;
+	GThread 	*user_request_thread;
+	GThread 	*file_poll_thread;
+
+	GCond 		*file_thread_signal;	
+	GCond 		*metadata_thread_signal;
+	GCond 		*request_thread_signal;
+	GCond 		*poll_thread_signal;
+
+	GMutex		*metadata_signal_mutex;
+	GMutex		*files_signal_mutex;
+	GMutex		*request_signal_mutex;
+	GMutex		*poll_signal_mutex;
+
+} Tracker;
+
+
 /* Actions can represent events from FAM/iNotify or be artificially created */
 typedef enum {
 
@@ -143,7 +192,7 @@ int		tracker_str_in_array 		(const char *str, char **array);
 
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
 
-int		tracker_get_row_count 		(char ***result);
+
 FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);	
 FileInfo * 	tracker_get_file_info  	 	(FileInfo *info);
 FileInfo * 	tracker_copy_file_info   	(FileInfo *info);
@@ -181,5 +230,11 @@ void		tracker_print_object_allocations ();
 void		tracker_add_poll_dir 		(const char *dir);
 void		tracker_remove_poll_dir 	(const char *dir);  
 gboolean	tracker_is_dir_polled 		(const char *dir);
+
+void		tracker_notify_file_data_available ();
+void		tracker_notify_meta_data_available ();
+void		tracker_notify_request_data_available ();
+
+//GHashTable *	tracker_parse_text 		(const char *text, int min_word_length, GHashTable *stop_words, gboolean use_stemmer, int weight);
 
 #endif

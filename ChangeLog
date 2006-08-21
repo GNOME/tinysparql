@@ -1,48 +1,88 @@
-2006-07-03 Marcus Fritzsch <fritschy@googlemail.com>
+2006-08-21 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Improved thread synchronisation using G_COND and g_cond_signal and g_cond_wait
+	* Eliminated redundant mutexes (file available/metadata available)
+	* Restructured threads to be more efficient 
+	* Added two phase program halt so that stuff ends gracefully and all threads are exited smoothly
+
+
+2006-08-21 Laurent Aguerreche <laurent.aguerreche@free.fr>
+		
+	* Patch to fix signal handling amongst threads
+	* Jamie McCracken heavily modified this patch to make sure it avoids deadlocks and race conditions
+
+
+2006-08-19 Laurent Aguerreche <laurent.aguerreche@free.fr>
+	
+	* Patch to fix debain build 
+	* split up tracker into several debs
+	* Fixed make dist in autofoo
+
+
+2006-08-19 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Abstracted all mysql specific stuff into tracker-db-mysql
+	* Paved the way to support alternative backends like sqlite/qdbm
+
+
+2006-08-13 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added new tracker-file-convert to convert text file into list of unique words with associated counts
+	* Added support for stemming
+	* Added new parsing word breaker
+	* Added experimental (but currently disabled) qdbm indexing (tracker-indexer.c)
+
+
+2006-08-13 Marcus Fritzsch <fritschy@googlemail.com>
+	
+	* Patch to make sure a dbus reply is sent if the rdf query string is NULL or erroneous
+
+
+2006-08-03 Marcus Fritzsch <fritschy@googlemail.com>
 	
 	* Patch to make sure query is not null in tracker_exec_sql
 
 
-2006-07-03 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-03 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added new Dbus methods for File.Exists and File.GetServiceType
 
 
-2006-07-02 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-02 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added new command line tool tracker-files
 
 
-2006-07-02 Edward Duffy <eduffy@gmail.com>
+2006-08-02 Edward Duffy <eduffy@gmail.com>
 	
 	* Patch for small fix to XdgMime
 
 
 
-2006-07-02 Jedy Wang <Jedy.Wang@Sun.COM>
+2006-08-02 Jedy Wang <Jedy.Wang@Sun.COM>
 	
 	* Patch to add build instructions for Solaris to README file
 
 
 
-2006-07-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-08-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
 	
 	* Patch to fix sql
 
 
-2006-07-01 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-01 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added offset parameter to search methods
 
 
 
-2006-06-31 Jedy Wang <Jedy.Wang@Sun.COM>
+2006-07-31 Jedy Wang <Jedy.Wang@Sun.COM>
 	
 	* Patch to improve compilation on Solaris
 
 
 
-2006-06-31 Jamie McCracken <jamiemcc@gnome.org>
+2006-07-31 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added realpath for file parameters in command line tools
 	* Improved search terms to *and* them by default
@@ -51,41 +91,41 @@
 	* added bugfixed XDGMIME from Beagle to prevent crashes
 
 
-2006-06-30 Marcus Fritzsch <fritschy@googlemail.com>
+2006-07-30 Marcus Fritzsch <fritschy@googlemail.com>
 	
 	* Patch to make build more debian friendly
 
 
-2006-06-30 Jedy Wang <Jedy.Wang@Sun.COM>
+2006-07-30 Jedy Wang <Jedy.Wang@Sun.COM>
 	
 	* Patch to fix crasher on solaris
 
 
 
-2006-06-30 Christoph Laimburg <christoph.laimburg@rolmail.net>
+2006-07-30 Christoph Laimburg <christoph.laimburg@rolmail.net>
 	
 	* Patch to replace deprecated dbus call (dbus_connection_disconnect)
 
 
-2006-06-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-07-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
 	
 	* Patch to add RegExp rdf query extension support
 
 
-2006-06-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-07-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
 	
 	* Modified patch to make no watch directories parameter functional
 	
 
 
-2006-06-30 Jamie McCracken <jamiemcc@gnome.org>
+2006-07-30 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added new command line tools (tracker-tag)
 	* Fixed bugs in tracker-search methods
 	* Fixed bugs in tracker-query
 
 
-2006-06-25 Jamie McCracken <jamiemcc@gnome.org>
+2006-07-25 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Sorted out libtracker
 	* updated to reflect new dbus interfaces

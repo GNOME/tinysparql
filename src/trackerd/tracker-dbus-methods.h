@@ -17,13 +17,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <mysql/mysql.h>
 #include "tracker-dbus.h"
 #include "tracker-db.h"
-
-
-
-
 
 
 void	tracker_set_error 		(DBusRec 	  *rec,
@@ -36,12 +31,12 @@ void	tracker_set_metadata 		(DBConnection *db_con, const char *service, const ch
 
 int	tracker_get_file_id 			(DBConnection *db_con, const char *uri, gboolean create_record);
 
-void	tracker_add_query_result_to_dict 	(MYSQL_RES *res, DBusMessageIter *iter_dict);
+void	tracker_add_query_result_to_dict 	(char ***res, DBusMessageIter *iter_dict);
 
 char *	tracker_format_search_terms 		(const char *str, gboolean *do_bool_search);
 
 
-char **	tracker_get_query_result_as_array 	(MYSQL_RES *res, int *row_count);
+char **	tracker_get_query_result_as_array 	(char ***res, int *row_count);
 
 void	tracker_dbus_method_get_stats	 	(DBusRec *rec);
 void	tracker_dbus_method_get_services 	(DBusRec *rec);

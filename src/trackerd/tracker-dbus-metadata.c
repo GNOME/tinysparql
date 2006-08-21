@@ -127,8 +127,8 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	int 		 i, key_count, table_count, row_count = 0;
 	char 		**keys = NULL, **array,  *uri, *id,  *field, *str, *mid, *service; 
 	GString 	*sql;
-	MYSQL_RES 	*res;
-	MYSQL_ROW  	row = NULL;
+	char 	***res;
+	char**  	row = NULL;
 	char		**date_array;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -283,7 +283,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	
 	str = g_string_free (sql, FALSE);
 	tracker_log (str);
-	res = tracker_exec_sql (db_con->db, str);
+	res = tracker_exec_sql (db_con, str);
 
 	g_free (str);
 
@@ -296,7 +296,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 	if (res) {
 
-		row_count = mysql_num_rows (res);
+		row_count = tracker_get_row_count (res);
 
 		i = 0;
 
@@ -304,7 +304,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 			array = g_new (char *, key_count);
 
-			row = mysql_fetch_row (res);
+			row = tracker_db_get_row (res, 0);
 
 			for (i = 0; i < key_count; i++) {
 
@@ -328,7 +328,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 			array[0] = NULL;
 		}
 
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
@@ -361,7 +361,7 @@ tracker_dbus_method_metadata_register_type (DBusRec *rec)
 	DBusMessage 	*reply;
 	char 		*meta, *type_id;
 	char		*type;
-	int 		i;
+
 
 
 	g_return_if_fail (rec && rec->user_data);
@@ -389,7 +389,7 @@ tracker_dbus_method_metadata_register_type (DBusRec *rec)
 		return;
 	}
 
-	tracker_exec_proc  (db_con->db, "InsertMetadataType", 4, meta, type_id, "0", "1");
+	tracker_exec_proc  (db_con, "InsertMetadataType", 4, meta, type_id, "0", "1");
 
 	reply = dbus_message_new_method_return (rec->message);
 	
@@ -407,7 +407,7 @@ tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage *reply;
-	MYSQL_ROW  row = NULL;
+	char**  row = NULL;
 	char *meta, *data_type = NULL;
 	gboolean is_embedded = FALSE, is_writable = FALSE;
 
@@ -429,10 +429,10 @@ tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 
 	if (meta) {
 
-		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "GetMetadataTypeInfo", 1, meta);
+		char ***res = tracker_exec_proc  (db_con,  "GetMetadataTypeInfo", 1, meta);
 				
 		if (res) {
-			row = mysql_fetch_row (res);
+			row = tracker_db_get_row (res, 0);
 	
 			if (row && row[1] && row[2] && row[3]) {
 				
@@ -448,7 +448,7 @@ tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 				is_writable = (strcmp (row[3], "1") == 0);
 			
 			}	
-			mysql_free_result (res);				
+			tracker_db_free_result (res);				
 
 		}
 
@@ -494,11 +494,11 @@ tracker_dbus_method_metadata_get_registered_types (DBusRec *rec)
 
 	if (class) {
 
-		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SelectMetadataTypes", 2, class, "0");
+		char ***res = tracker_exec_proc  (db_con,  "SelectMetadataTypes", 2, class, "0");
 				
 		if (res) {
 			array = tracker_get_query_result_as_array (res, &row_count);
-			mysql_free_result (res);	
+			tracker_db_free_result (res);	
 		}
 
 	}
@@ -548,11 +548,11 @@ tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
 
 	if (class) {
 
-		MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SelectMetadataTypes", 2, class, "1");
+		char ***res = tracker_exec_proc  (db_con,  "SelectMetadataTypes", 2, class, "1");
 				
 		if (res) {
 			array = tracker_get_query_result_as_array (res, &row_count);
-			mysql_free_result (res);	
+			tracker_db_free_result (res);	
 		}
 
 	}
@@ -595,11 +595,11 @@ tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
 
 	db_con = rec->user_data;
 	
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SelectMetadataClasses", 0);
+	char ***res = tracker_exec_proc  (db_con,  "SelectMetadataClasses", 0);
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_db_free_result (res);	
 	}
 
 

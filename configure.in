@@ -13,20 +13,31 @@ CFLAGS="$CFLAGS"
 
 
 
-
 # Checks for programs.
  AC_PROG_CC
  AC_HEADER_STDC
- AC_PROG_LIBTOOL
+#AC_PROG_LIBTOOL
+
+AM_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h magic.h])
 
 # Check for glib 2.0
 PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= 2.4.0 ] gthread-2.0 >= 2.4.0)
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
+
+Check for pango
+PKG_CHECK_MODULES(PANGO, [ pango >= 1.0.0 ])
+AC_SUBST(PANGO_CFLAGS)
+AC_SUBST(PANGO_LIBS)
+
+# Check for QDBM
+#PKG_CHECK_MODULES(QDBM, [ qdbm >= 1.8.0 ])
+#AC_SUBST(QDBM_CFLAGS)
+#AC_SUBST(QDBM_LIBS)
 
 # Check for Dbus 0.50 or higher
 PKG_CHECK_MODULES(DBUS, [dbus-1 >= 0.50 dbus-glib-1 >= 0.50 ])
@@ -58,6 +69,9 @@ fi
 ####################################################################
 # Embedded Mysql checks
 ####################################################################
+
+AM_CONDITIONAL(USING_SQLITE, false)
+
 mysql_dir=""
 AC_ARG_WITH(mysql,
 	    AC_HELP_STRING([--with-mysql=PATH], [directory where mysql is installed]),

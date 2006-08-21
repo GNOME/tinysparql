@@ -35,8 +35,8 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	int limit, query_id, offset;
 	char *str = NULL, *service = NULL, *search_term = NULL;
 	gboolean sort_results = FALSE, use_boolean_search = FALSE;
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  row;
+	char ***res = NULL;
+	char**  row;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -97,7 +97,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	
 	tracker_log ("Executing search with params %s, %s. %s, %s, %s", service, search_term, str_limit, str_sort, str_bool );
 	
-	res = tracker_exec_proc  (db_con->db, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);	
+	res = tracker_exec_proc  (db_con, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);	
 
 	g_free (search_term);
 	g_free (str_limit);
@@ -107,7 +107,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	
 	if (res) {
 
-		row_count = mysql_num_rows (res);
+		row_count = tracker_get_row_count (res);
 
 		if (row_count > 0) {
 			
@@ -115,7 +115,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 
 			i = 0;
 
-			while ((row = mysql_fetch_row (res))) {
+			while ((row = tracker_db_get_row (res, i))) {
 				
 				if (row && row[0] && row[1]) {
 					array[i] = g_strconcat (row[0], "/",  row[1], NULL);
@@ -128,7 +128,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		}
 	
 		
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 			
 	} else {
 		array = g_new (char *, 1);
@@ -200,7 +200,7 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 	gboolean na;
 	char *search_term = tracker_format_search_terms (text, &na);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchFilesText", 4, search_term, str_offset, str_limit, str_sort);
+	char ***res = tracker_exec_proc  (db_con,  "SearchFilesText", 4, search_term, str_offset, str_limit, str_sort);
 		
 	g_free (search_term);			
 	g_free (str_limit);
@@ -223,7 +223,7 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 
 	
 		tracker_add_query_result_to_dict (res, &iter_dict);
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 
 	} else {
 		return;
@@ -283,7 +283,7 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 	gboolean na;
 	char *search_term = tracker_format_search_terms (text, &na);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchMetaData", 5, service, field, search_term, str_offset, str_limit);
+	char ***res = tracker_exec_proc  (db_con,  "SearchMetaData", 5, service, field, search_term, str_offset, str_limit);
 		
 	g_free (search_term);		
 	g_free (str_limit);
@@ -292,7 +292,7 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
-		mysql_free_result (res);	
+		tracker_db_free_result (res);	
 	}
 
 
@@ -373,7 +373,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 	gboolean na;
 	char *search_term = tracker_format_search_terms (text, &na);
 
-	MYSQL_RES *res = tracker_exec_proc  (db_con->db,  "SearchMatchingMetaData", 4, service, path, name, search_term);
+	char ***res = tracker_exec_proc  (db_con,  "SearchMatchingMetaData", 4, service, path, name, search_term);
 	
 	g_free (search_term);			
 	g_free (name);
@@ -397,7 +397,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 
 	
 		tracker_add_query_result_to_dict (res, &iter_dict);
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 
 		dbus_message_iter_close_container (&iter, &iter_dict);
 		dbus_connection_send (rec->connection, reply, NULL);
@@ -418,7 +418,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	DBusMessageIter iter_dict;
 	char **fields = NULL;				
 	int  limit, row_count, query_id, offset;
-	MYSQL_RES *res = NULL;
+	char ***res = NULL;
 	char *str, *query, *search_text, *service;
 	gboolean sort_results = FALSE;
 	GError *error;
@@ -482,9 +482,28 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 		str = tracker_rdf_query_to_sql (db_con, query, service, fields, row_count, search_term, sort_results, offset, limit , NULL);
 
+		if (! str) {
+			g_free (search_term);
+			reply = dbus_message_new_method_return (rec->message);
+			dbus_message_iter_init_append (reply, &iter);
+
+			dbus_message_iter_open_container (&iter, 
+							  DBUS_TYPE_ARRAY,
+							  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+							  DBUS_TYPE_STRING_AS_STRING
+							  DBUS_TYPE_VARIANT_AS_STRING
+							  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+							  &iter_dict);
+			dbus_message_iter_close_container (&iter, &iter_dict);
+
+			dbus_connection_send (rec->connection, reply, NULL);
+			dbus_message_unref (reply);
+			g_return_if_fail (str); /* show us a warning */
+		}
+
 		g_free (search_term);
 		tracker_log ("translated rdf query is %s\n", str);
-		res = tracker_exec_sql (db_con->db, str);
+		res = tracker_exec_sql (db_con, str);
 		
 		g_free (str);
 	} else {
@@ -505,7 +524,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 	if (res) {
 		tracker_add_query_result_to_dict (res, &iter_dict);
-		mysql_free_result (res);
+		tracker_db_free_result (res);
 	}
 
 	dbus_message_iter_close_container (&iter, &iter_dict);
