@@ -1,3 +1,7 @@
+2006-08-21 Gergan Penkov <gergan@gmail.com>
+	
+	* Fix sql for an SP
+
 2006-08-21 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Improved thread synchronisation using G_COND and g_cond_signal and g_cond_wait
