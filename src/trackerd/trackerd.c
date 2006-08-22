@@ -176,16 +176,24 @@ do_cleanup ()
 	g_cond_signal (tracker->metadata_thread_signal);
 	g_mutex_unlock (tracker->metadata_signal_mutex);
 
+	g_mutex_unlock (tracker->files_check_mutex);
 	g_mutex_lock (tracker->files_signal_mutex);
 	g_cond_signal (tracker->file_thread_signal);
 	g_mutex_unlock (tracker->files_signal_mutex);
 
 
-	/* wait for threads to exit */
-	g_mutex_lock (tracker->request_stopped_mutex);
-	g_mutex_lock (tracker->metadata_stopped_mutex);
-	g_mutex_lock (tracker->files_stopped_mutex);
+	/* wait for threads to exit and unlock check mutexes to prevent any deadlocks*/
+
 	g_mutex_lock (tracker->poll_stopped_mutex);
+
+	g_mutex_unlock (tracker->request_check_mutex);	
+	g_mutex_lock (tracker->request_stopped_mutex);
+
+	g_mutex_unlock (tracker->metadata_check_mutex);	
+	g_mutex_lock (tracker->metadata_stopped_mutex);
+
+	g_mutex_unlock (tracker->files_check_mutex);
+	g_mutex_lock (tracker->files_stopped_mutex);
 
 	tracker_db_close (main_thread_db_con);
 	
@@ -521,7 +529,7 @@ signal_handler (int signo)
 			tracker->is_running = FALSE;
 			tracker_end_watching ();
 			g_timeout_add_full (G_PRIORITY_LOW, 
-			     100,
+			     500,
 		 	    (GSourceFunc) do_cleanup,	 
 			    NULL, NULL	
 			   );

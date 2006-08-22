@@ -20,16 +20,32 @@
 #ifndef _TRACKER_SQLITE_DB_H_
 #define _TRACKER_SQLITE_DB_H_
 
+#include <sqlite3.h>
 #include <glib.h>
+#include "tracker-utils.h"
+
+
 
 typedef struct {
+	sqlite3 	*files_db; 
+	sqlite3 	*emails_db; 
 
-	GHashTable *statements;
+	Indexer		*file_indexer;
+	Indexer		*email_indexer;
+
+	char 		*err;
+  	int 		rc;
+
+	GHashTable 	*statements;
 
 } DBConnection;
+
  
-
-
+gboolean	tracker_db_initialize		(const char *data_dir);
+void		tracker_db_thread_init 		();
+void		tracker_db_thread_end 		();
+void		tracker_db_close 		(DBConnection *db_con);
+void		tracker_db_finalize 		();
 DBConnection * 	tracker_db_connect 		();
 gboolean	tracker_update_db 		();
 char *		tracker_escape_string 		(DBConnection *db_con, const char *in);
@@ -40,6 +56,6 @@ void		tracker_log_sql	   		(DBConnection *db_con, const char *query);
 void		tracker_create_db  		();
 void		tracker_db_load_stored_procs 	(DBConnection *db_con);
 void		tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long file_id);
-
- 
+void		tracker_db_clear_temp 		(DBConnection *db_con);
+void		tracker_db_check_tables 	(DBConnection *db_con);
 #endif

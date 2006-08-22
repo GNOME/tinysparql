@@ -7,78 +7,36 @@
 #include <fcntl.h>
 
 #include "tracker-db-sqlite.h"
-
 #include "tracker-indexer.h"
-extern Indexer	*file_indexer;
+
+extern ;
 
 gboolean
 tracker_db_initialize (const char *datadir)
 {
-	/* mysql vars */
-	static char **server_options;
-	static char *server_groups[] = {"libmysqd_server", "libmysqd_client", NULL};
-
-	char *str = g_strdup (DATADIR "/tracker/english");
-
-	if (!tracker_file_is_valid (str)) {
-		g_warning ("could not open mysql language file %s", str);
-		return FALSE;
-	}
-
-	/* initialise embedded mysql with options*/
-	server_options = g_new (char *, 11);
-  	server_options[0] = "anything";
-  	server_options[1] = g_strconcat  ("--datadir=", tracker_data_dir, NULL);
-  	server_options[2] = "--myisam-recover=FORCE";
-	server_options[3] = "--skip-grant-tables";
-	server_options[4] = "--skip-innodb";
-	server_options[5] = "--key_buffer_size=1M";
-	server_options[6] = "--character-set-server=utf8";
-	server_options[7] = "--ft_max_word_len=45";
-	server_options[8] = "--ft_min_word_len=3";
-	server_options[9] = "--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt";
-	server_options[10] =  g_strconcat ("--language=", str,  NULL);
-
-
-	mysql_server_init ( 11, server_options, server_groups);
-
-	if (mysql_get_client_version () < 50019) {
-		g_warning ("The currently installed version of mysql is too outdated (you need 5.0.19 or higher). Exiting...");
-		return FALSE;
-	}
-
-
-
-	g_free (str);
-		
-	
-	tracker_log ("DB initialised - embedded mysql version is %d", mysql_get_client_version () );
-
+	tracker_log ("Using Sqlite version %s", sqlite3_version);
 	return TRUE;
-
 }
 
 
 void
 tracker_db_thread_init ()
 {
-	mysql_thread_init ();
-
+	return;
 }
 
 
 void
 tracker_db_thread_end ()
 {
-	mysql_thread_end ();
-
+	sqlite3_thread_cleanup ();
 }
 
 
 void
 tracker_db_finalize ()
 {
-	mysql_server_end ();
+	return;
 
 }
 
@@ -86,59 +44,33 @@ tracker_db_finalize ()
 void
 tracker_db_close (DBConnection *db_con)
 {
-	mysql_close (db_con->db);
+	sqlite3_close (db_con->files_db);
 
 }
 
 
-static DBConnection *
-db_connect (const char* dbname)
-{
-	
 
-	DBConnection *db_con = g_new (DBConnection, 1);
-
-	db_con->db = mysql_init (NULL);
-	
-	if (!db_con->db) {
-		tracker_log ( "Fatal error - mysql_init failed");
-		exit (1);
-	}
-
-	mysql_options (db_con->db, MYSQL_OPT_USE_EMBEDDED_CONNECTION, NULL);
-
-
-	if (!mysql_real_connect (db_con->db, NULL, "root", NULL, dbname, 0, NULL, CLIENT_MULTI_STATEMENTS)) {
-    		tracker_log ("Fatal error : mysql_real_connect failed: %s", mysql_error (db_con->db));
-		exit (1);
-	}
-	
-	return db_con;
-}
 
 DBConnection *
 tracker_db_connect ()
 {
-	return db_connect ("tracker");
-}
+	DBConnection *db_con = g_new (DBConnection, 1);
 
-static int
-tracker_db_prepare_statement (MYSQL *db, MYSQL_STMT **stmt, const char *query) 
-{
+	char *dbname = g_build_filename (g_get_home_dir (), ".Tracker", "files.db", NULL);
 
-	*stmt = mysql_stmt_init (db);
-
-	if (!*stmt) {
-		tracker_log (" mysql_stmt_init(), out of memory");
-  		exit (0);
+	if (!sqlite3_open (dbname, &db_con->files_db)) {
+		tracker_log ("Fatal Error : Can't open database: %s", sqlite3_errmsg (db_con->files_db);
+		exit (1);
 	}
 
-	if (mysql_stmt_prepare (*stmt, query, strlen (query)) != 0) {
-		tracker_log (" mysql_stmt_prepare(), query failed due to %s", mysql_stmt_error (*stmt));
-		return -5;
-	}
-	return mysql_stmt_param_count (*stmt);
+	g_free (dbname);
+
+	/* todo need to set sqlite busy handler */
+
+	
+	return db_con;
 }
+
 
 /* get no of links to a file - used for safe NFS atomic file locking */
 static int 
@@ -244,266 +176,15 @@ unlock_db ()
 
 
 
-static int
-tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
-{
-
-	va_list 	args;
-	MYSQL_BIND 	bind[16];
-	unsigned long 	length[16];
-	char 		params[16][2048];
-	int 		i;
-	char 		*str;
-
-
-	if (param_count > 16) {
-		tracker_log ("Too many parameters to execute query");
-		return -1;
-	}
-
-	
-
-	memset(bind, 0, sizeof(bind));
-
-	va_start(args, param_count);
-	
-	for (i = 0; i < param_count; i++ ) {
-
-		str = va_arg (args, char *);
-		
-		if (strlen(str) > 2048) {
-			tracker_log ("Warning - length of parameter %s is too long", str);
-		}
-
-		strncpy (params[i], str, 2048);
-		length[i] = strlen (params[i]);
-	
-	  	/* Bind input buffers */
-		bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-		bind[i].buffer = (char *)params[i];
-		bind[i].buffer_length = 2048;
-		bind[i].is_null = 0;
-		bind[i].length = &length[i];
-
-	} 	
-	
-  	if (mysql_stmt_bind_param (stmt, bind)) {
-		tracker_log ("bind failed");
-		return -1;
-	}
-
-
-  	/* Execute the select statement */
-	if (!lock_db ()) {
-		return -1;
-	}
-  	if (mysql_stmt_execute (stmt)) {
-		unlock_db ();
-		tracker_log ("error %s occured whilst executing stmt",  mysql_stmt_error (stmt));
-		return -1;
-	}
-	unlock_db ();  
-	va_end (args);
-
-	int result = mysql_stmt_affected_rows (stmt);
-	if (mysql_stmt_free_result (stmt)) {
-		tracker_log ("ERROR Freeing statement %s", mysql_stmt_error (stmt));
-	}
-
-	//mysql_stmt_reset (stmt);
-
-	return result;
-	
-}
-
-
-
-static char ***
-tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
-{
-
-	va_list 	args;
-	MYSQL_BIND 	bind[16];
-	unsigned long 	length[16];
-	gboolean	is_null[16];
-	char 		params[16][255];
-	MYSQL_RES     	*prepare_meta_result;
-	int 		i,  column_count, row_count, row_num;
-	char 		*str, **result;
-
-
-	if (param_count > 16) {
-		tracker_log ("Too many parameters to execute query");
-		return NULL;
-	}
-
-	
-
-	memset(bind, 0, sizeof(bind));
-
-	va_start(args, param_count);
-	
-	for (i = 0; i < param_count; i++ ) {
-
-		str = va_arg (args, char *);
-		
-		if (strlen(str) > 254) {
-			tracker_log ("Warning - length of parameter %s is too long", str);
-		}
-
-		strncpy (params[i], str, 255);
-
-		length[i] = strlen (params[i]);
-	
-	  	/* Bind input buffers */
-		bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-		bind[i].buffer = (char *)params[i];
-		bind[i].buffer_length = 255;
-		bind[i].is_null = 0;
-		bind[i].length = &length[i];
-
-	} 	
-	
-  	if (mysql_stmt_bind_param (stmt, bind)) {
-		tracker_log ("bind failed");
-	}
-
-	prepare_meta_result = mysql_stmt_result_metadata (stmt);
-
-	column_count = mysql_num_fields (prepare_meta_result);
-
-  	/* Execute the select statement */
-	if (!lock_db ()) {
-		return NULL;
-	}
-  	if (mysql_stmt_execute (stmt)) {
-		tracker_log ("error executing stmt");
-	}
-	unlock_db ();
-  
-	va_end (args);
-
-	memset(bind, 0, sizeof(bind));
-
-
-	for (i = 0; i < column_count; i++ ) {
-		bind[i].buffer_type= MYSQL_TYPE_VAR_STRING;
-		bind[i].buffer= (char *)params[i];
-		bind[i].buffer_length= 255;
-		bind[i].is_null = (my_bool*) &is_null[i];
-		bind[i].length = &length[i];
-	}
-
- 	/* Bind the result buffers */
-	if (mysql_stmt_bind_result (stmt, bind)) {
-  		tracker_log (" mysql_stmt_bind_result() failed");
-		tracker_log ( " %s", mysql_stmt_error(stmt));
-		return NULL;
-	}
-
-	/* Now buffer all results to client */
-	if (mysql_stmt_store_result (stmt)) {
-		tracker_log ( " mysql_stmt_store_result() failed");
-		tracker_log ( " %s", mysql_stmt_error(stmt));
-		return NULL;
-	}
-
-	/* prepare result set string array */
-	row_count = mysql_stmt_num_rows (stmt);
-
-	if (!row_count > 0) {
-		mysql_free_result (prepare_meta_result);
-		mysql_stmt_free_result (stmt);
-		return NULL;
-	}
-
-	result = g_new ( char *, row_count + 1);
-	result [row_count] = NULL;
-
-	/* Fetch all rows */
-	row_num = 0;
-
-	while (!mysql_stmt_fetch (stmt)) {
-		char **row = g_new (char *, column_count + 1);
-		row [column_count] = NULL;
-
-		for (i = 0; i < column_count; i++ ) {
-			if (length[i] > 10000) {
-				row[i] = g_strndup (params[i], 10000);
-			} else {
-				row[i] = g_strndup (params[i], length[i]);
-			}
-		}
-	
-		result[row_num]  = (gpointer)row;
-		row_num++;
-	}
-
-
-	/* Free the prepared result metadata */
-	mysql_free_result (prepare_meta_result);
-
-	if (mysql_stmt_free_result (stmt)) {
-		tracker_log ("ERROR Freeing statement");
-	}
-
-	//mysql_stmt_reset (stmt);
-
-	return (char ***)result;
-}
- 
 
 void
 tracker_db_prepare_queries (DBConnection *db_con)
 {
 	
-	/* prepare queries to be used and bomb out if queries contain sql errors or erroneous parameter counts */
-
-	g_assert (tracker_db_prepare_statement (db_con->db, &db_con->insert_contents_stmt, INSERT_CONTENTS) == 3);
+	return;
 
 }
 
-
-
-
-static MYSQL_RES *
-tracker_mysql_exec_sql (MYSQL *db, const char *query)
-{
-	MYSQL_RES *res = NULL;
-	GTimeVal before, after;
-	double elapsed;
-
-
-	g_return_val_if_fail (query, NULL);
-
-	//tracker_log ("executing query:\n%s\n", query);
-	g_get_current_time (&before);
-	if (!lock_db ()) {
-		return NULL;
-	}
-
-
-	if (mysql_query (db, query) != 0) {
-		unlock_db ();
-    		tracker_log ("tracker_exec_sql failed: %s [%s]", mysql_error (db), query);
-		return res;
-	}
-	unlock_db ();
-
-	g_get_current_time (&after);
-
-	elapsed =  (1000 * (after.tv_sec - before.tv_sec))  +  ((after.tv_usec - before.tv_usec) / 1000);
-
-//	tracker_log ("Query execution time is %f ms\n\n", elapsed);
-
-	if (mysql_field_count (db) > 0) {
-	    	if (!(res = mysql_store_result (db))) {
-			tracker_log ("tracker_exec_sql failed: %s [%s]", mysql_error (db), query);
-		} 
-	}
-	return res;
-
-}
 
 
 
@@ -513,17 +194,30 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 
 	MYSQL_RES *res = NULL;
 	MYSQL_ROW  myrow;
+	char **array = NULL;
 	char ***result = NULL;
+	int cols, rows;
+	char *msg;
 
-	res = tracker_mysql_exec_sql (db_con->db, const char *query);
+	g_return_val_if_fail (query, NULL);
 
-	if (res) {
-		
-		int column_count = mysql_num_fields(res);
-	   	int row_count = mysql_num_rows (res);
+	if (!lock_db ()) {
+		return NULL;
+	}
 
-		result = g_new ( char *, row_count + 1);
-		result [row_count] = NULL;	
+	if (sqlite3_get_table (db_con->files_db, query, &array, &rows, &cols, &msg) != SQLITE_OK) {
+		tracker_log ("query %s failed with error : %s", query, msg);
+		g_free (msg);
+	}
+
+
+	unlock_db ();
+	
+	int column_count = mysql_num_fields(res);
+	int row_count = mysql_num_rows (res);
+
+	result = g_new ( char *, row_count + 1);
+	result [row_count] = NULL;	
 
 		while ((myrow = mysql_fetch_row (res))) {
 
