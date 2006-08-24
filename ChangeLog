@@ -1,3 +1,9 @@
+2006-08-25 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Improved thread synchronisation speed
+	* Fixed potential deadlock as pointed out by Laurent Aguerreche <laurent.aguerreche@free.fr>
+	* Improved exiting
+
 2006-08-21 Gergan Penkov <gergan@gmail.com>
 	
 	* Fix sql for an SP
