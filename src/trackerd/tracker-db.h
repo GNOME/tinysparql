@@ -65,6 +65,7 @@ FileInfo *	tracker_db_get_pending_file 	(DBConnection *db_con, const char *uri);
 void		tracker_db_update_pending_file 	(DBConnection *db_con, const char* uri, int counter, TrackerChangeAction action);
 void		tracker_db_insert_pending_file 	(DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory);
 gboolean	tracker_db_index_id_exists 	(DBConnection *db_con, unsigned int id);
+gboolean	tracker_db_has_pending_files 	(DBConnection *db_con);
 
  
 #endif

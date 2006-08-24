@@ -1546,7 +1546,7 @@ void
 tracker_notify_file_data_available ()
 {
 
-
+	if (!tracker->is_running) return;
 
 	/* if file thread is asleep then we just need to wake it up! */
 	if (g_mutex_trylock (tracker->files_signal_mutex)) {
@@ -1594,7 +1594,7 @@ void
 tracker_notify_meta_data_available ()
 {
 
-
+	if (!tracker->is_running) return;
 
 	/* if metadata thread is asleep then we just need to wake it up! */
 	if (g_mutex_trylock (tracker->metadata_signal_mutex)) {

@@ -139,20 +139,19 @@ my_yield ()
 
 
 static gboolean
-do_cleanup ()
+do_cleanup (const char *sig_msg)
 {
+
+	if (tracker->log_file) {
+		tracker_log ("Received signal %s so now shuting down", sig_msg);
+	}		
 
 	tracker_print_object_allocations ();
 
-	tracker_log ("starting shutdown...");
-
 	shutdown = TRUE;
-
-
 
 	/* clear pending files and watch tables*/
 	tracker_db_clear_temp (main_thread_db_con);
-
 
 	/* stop threads from further processing of events if possible */
 
@@ -177,6 +176,7 @@ do_cleanup ()
 	g_mutex_unlock (tracker->metadata_signal_mutex);
 
 	g_mutex_unlock (tracker->files_check_mutex);
+
 	g_mutex_lock (tracker->files_signal_mutex);
 	g_cond_signal (tracker->file_thread_signal);
 	g_mutex_unlock (tracker->files_signal_mutex);
@@ -512,27 +512,30 @@ signal_handler (int signo)
   		case SIGFPE:
   		case SIGPIPE:
 		case SIGABRT:
-			if (tracker->log_file) {
-	   			tracker_log ("Received fatal signal %s so now aborting.",g_strsignal (signo));
-			}
+			
 			tracker->is_running = FALSE;
 			tracker_end_watching ();
-			do_cleanup ();	 
+
+			g_timeout_add_full (G_PRIORITY_LOW, 
+			     		    500,
+		 	    		    (GSourceFunc) do_cleanup,	 
+			     		    g_strdup (g_strsignal (signo)), NULL	
+			   		    );
+
 			exit (1);
     			break;
   
 		case SIGTERM:
 		case SIGINT:
-			if (tracker->log_file) {
-   				tracker_log ("Received termination signal %s so now exiting", g_strsignal (signo));
-			}
+			
 			tracker->is_running = FALSE;
 			tracker_end_watching ();
+
 			g_timeout_add_full (G_PRIORITY_LOW, 
-			     500,
-		 	    (GSourceFunc) do_cleanup,	 
-			    NULL, NULL	
-			   );
+			     		    500,
+		 	    		    (GSourceFunc) do_cleanup,	 
+			     		    g_strdup (g_strsignal (signo)), NULL	
+			   		    );
 
 			break;
 
@@ -823,7 +826,7 @@ start_watching (gpointer data)
 
 	if (!tracker_start_watching ()) {
 		tracker_log ("File monitoring failed to start");
-		do_cleanup ();
+		do_cleanup ("File watching failure");
 		exit (1);
 	} else { 
 
@@ -1117,7 +1120,7 @@ process_files_thread ()
 	FileInfo   *info;
 	DBConnection *db_con;
 	GSList *moved_from_list = NULL; /* list to hold moved_from events whilst waiting for a matching moved_to event */
-	gboolean need_index = FALSE, has_pending = FALSE;
+	gboolean need_index = FALSE;
 	char ***res = NULL;
 	char**  row;
 
@@ -1158,25 +1161,8 @@ process_files_thread ()
 			/* set mutex to indicate we are in "check" state */
 			g_mutex_lock (tracker->files_check_mutex);
 
-			res = tracker_exec_proc (db_con, "ExistsPendingFiles", 0); 
 
-			has_pending = FALSE;
-
-			if (res) {
-
-				row = tracker_db_get_row (res, 0);
-				
-				if (row && row[0]) {
-					int pending_file_count  = atoi (row[0]);
-							
-					has_pending = (pending_file_count  > 0);
-				}
-					
-				tracker_db_free_result (res);
-
-			}
-
-			if (has_pending) {
+			if (tracker_db_has_pending_files (db_con)) {
 				g_mutex_unlock (tracker->files_check_mutex);
 			} else {
 				//tracker_log ("File thread sleeping");
@@ -1184,7 +1170,9 @@ process_files_thread ()
 				/* we have no stuff to process so sleep until awoken by a new signal */	
 				g_cond_wait (tracker->file_thread_signal , tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
+
 				//tracker_log ("File thread awoken");	
+
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
 					continue;
@@ -1207,6 +1195,8 @@ process_files_thread ()
 
 					TrackerChangeAction tmp_action = atoi(row[2]);
 
+					if (!tracker->is_running) break;
+
 					if (tmp_action != TRACKER_ACTION_CHECK) {
 						tracker_log ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
 					}
@@ -1216,9 +1206,17 @@ process_files_thread ()
 					
 				}	
 				tracker_db_free_result (res);
+
 			}
 
-			tracker_exec_proc (db_con, "RemovePendingFiles", 0); 
+			if (!tracker->is_running) continue;
+
+			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM) */
+			if (k == 0) {
+				g_usleep (100000);
+			} else {
+				tracker_exec_proc (db_con, "RemovePendingFiles", 0); 
+			}
 
 			continue;
 		}
@@ -2043,7 +2041,7 @@ main (int argc, char **argv)
 
 	tracker_dbus_shutdown (main_connection);
 
-	do_cleanup ();
+	do_cleanup (" ");
 
 	return EXIT_SUCCESS;
 }

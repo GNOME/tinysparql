@@ -216,6 +216,7 @@ fam_callback (GIOChannel *source,
 						
 					if (tracker_is_directory_watched (parent, NULL) || tracker_is_directory_watched (info->uri, NULL)) {
 						g_async_queue_push (tracker->file_process_queue, info);	
+						tracker_notify_file_data_available ();
 					} else {
 						info = tracker_free_file_info (info);					
 					}

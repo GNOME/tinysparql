@@ -693,6 +693,35 @@ tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *
 
 }
 
+gboolean 
+tracker_db_has_pending_files (DBConnection *db_con)
+{
+	char ***res = NULL;
+	char **  row;
+	gboolean has_pending = FALSE;
+	
+	res = tracker_exec_proc (db_con, "ExistsPendingFiles", 0); 
+
+
+	if (res) {
+
+		row = tracker_db_get_row (res, 0);
+				
+		if (row && row[0]) {
+			int pending_file_count  = atoi (row[0]);
+							
+			has_pending = (pending_file_count  > 0);
+		}
+					
+		tracker_db_free_result (res);
+
+	}
+
+	return has_pending;
+
+}
+
+
 
 gboolean
 tracker_is_valid_service (DBConnection *db_con, const char *service)
