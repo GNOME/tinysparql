@@ -575,7 +575,24 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 
 	if (!mime) {
 		if (tracker->is_running) {
-			tracker_exec_proc  (db_con, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
+			if ( (counter > 0) 
+	  		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > 500 || tracker_db_has_pending_metadata (db_con)))
+	  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > 500 || tracker_db_has_pending_files (db_con))) ) {
+
+				tracker_exec_proc  (db_con, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
+			} else {
+
+				FileInfo *info = tracker_create_file_info (uri, action, 0, WATCH_OTHER);
+
+				info->is_directory = is_directory;
+				info->mime = g_strdup ("unknown");	
+
+				if (action != TRACKER_ACTION_EXTRACT_METADATA) {
+					g_async_queue_push (tracker->file_process_queue, info);	
+				} else {
+					g_async_queue_push (tracker->file_metadata_queue, info);	
+				}
+			}
 		} else {
 			return;
 		}
@@ -710,6 +727,34 @@ tracker_db_has_pending_files (DBConnection *db_con)
 		if (row && row[0]) {
 			int pending_file_count  = atoi (row[0]);
 							
+			has_pending = (pending_file_count  > 0);
+		}
+					
+		tracker_db_free_result (res);
+
+	}
+
+	return has_pending;
+
+}
+
+
+gboolean 
+tracker_db_has_pending_metadata (DBConnection *db_con)
+{
+	char ***res = NULL;
+	char **  row;
+	gboolean has_pending = FALSE;
+	
+	res = tracker_exec_proc (db_con, "CountPendingMetadataFiles", 0); 
+
+	if (res) {
+
+		row = tracker_db_get_row (res, 0);
+				
+		if (row && row[0]) {
+			int pending_file_count  = atoi (row[0]);
+						
 			has_pending = (pending_file_count  > 0);
 		}
 					

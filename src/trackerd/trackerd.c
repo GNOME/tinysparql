@@ -862,7 +862,6 @@ extract_metadata_thread ()
 	FileInfo   *info;
 	GHashTable *meta_table;
 	DBConnection *db_con;
-	gboolean has_pending = FALSE;
 	char ***res = NULL;
 	char**  row;
 	
@@ -905,26 +904,8 @@ extract_metadata_thread ()
 
 			/* set mutex to indicate we are in "check" state */
 			g_mutex_lock (tracker->metadata_check_mutex);
-
-			res = tracker_exec_proc (db_con, "CountPendingMetadataFiles", 0); 
-
-			has_pending = FALSE;
-
-			if (res) {
-
-				row = tracker_db_get_row (res, 0);
-				
-				if (row && row[0]) {
-					int pending_file_count  = atoi (row[0]);
-							
-					has_pending = (pending_file_count  > 0);
-				}
-					
-				tracker_db_free_result (res);
-
-			}
-
-			if (has_pending) {
+		
+			if (tracker_db_has_pending_metadata (db_con)) {
 				g_mutex_unlock (tracker->metadata_check_mutex);
 			} else {
 			//	tracker_log ("metadata thread sleeping");
