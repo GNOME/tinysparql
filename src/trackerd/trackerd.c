@@ -151,7 +151,7 @@ do_cleanup (const char *sig_msg)
 	shutdown = TRUE;
 
 	/* clear pending files and watch tables*/
-	tracker_db_clear_temp (main_thread_db_con);
+	//tracker_db_clear_temp (main_thread_db_con);
 
 	/* stop threads from further processing of events if possible */
 
@@ -318,6 +318,12 @@ static void
 poll_files_thread () 
 {
 	DBConnection *db_con;
+	sigset_t signal_set;
+        
+        /* block all signals in this thread */
+        sigfillset (&signal_set);
+	sigprocmask (SIG_BLOCK, &signal_set, NULL);
+
 
 	g_mutex_lock (tracker->poll_signal_mutex);
 	g_mutex_lock (tracker->poll_stopped_mutex);
@@ -517,7 +523,7 @@ signal_handler (int signo)
 			tracker_end_watching ();
 
 			g_timeout_add_full (G_PRIORITY_LOW, 
-			     		    500,
+			     		    5,
 		 	    		    (GSourceFunc) do_cleanup,	 
 			     		    g_strdup (g_strsignal (signo)), NULL	
 			   		    );
@@ -532,7 +538,7 @@ signal_handler (int signo)
 			tracker_end_watching ();
 
 			g_timeout_add_full (G_PRIORITY_LOW, 
-			     		    500,
+			     		    5,
 		 	    		    (GSourceFunc) do_cleanup,	 
 			     		    g_strdup (g_strsignal (signo)), NULL	
 			   		    );
@@ -866,6 +872,14 @@ extract_metadata_thread ()
 	char**  row;
 	
 
+	sigset_t signal_set;
+        
+        /* block all signals in this thread */
+        sigfillset (&signal_set);
+        sigprocmask (SIG_BLOCK, &signal_set, NULL);
+
+
+
 	g_mutex_lock (tracker->metadata_signal_mutex);
 	g_mutex_lock (tracker->metadata_stopped_mutex);
 
@@ -1104,6 +1118,11 @@ process_files_thread ()
 	gboolean need_index = FALSE;
 	char ***res = NULL;
 	char**  row;
+	sigset_t signal_set;
+        
+        /* block all signals in this thread */
+        sigfillset (&signal_set);
+        sigprocmask (SIG_BLOCK, &signal_set, NULL);
 
 	g_mutex_lock (tracker->files_signal_mutex);
 	g_mutex_lock (tracker->files_stopped_mutex);
@@ -1365,6 +1384,12 @@ process_user_request_queue_thread ()
 {
 	DBusRec *rec;
 	DBConnection  *db_con;
+
+	sigset_t signal_set;
+        
+        /* block all signals in this thread */
+        sigfillset (&signal_set);
+        sigprocmask (SIG_BLOCK, &signal_set, NULL);
 
 	g_mutex_lock (tracker->request_signal_mutex);
 	g_mutex_lock (tracker->request_stopped_mutex);
@@ -1859,7 +1884,7 @@ main (int argc, char **argv)
 	sigemptyset (&empty_mask);
 	act.sa_handler = signal_handler;
 	act.sa_mask    = empty_mask;
-	act.sa_flags   = SA_NODEFER;
+	act.sa_flags   = 0;
 	sigaction (SIGTERM,  &act, NULL);
 	sigaction (SIGILL,  &act, NULL);
 	sigaction (SIGBUS,  &act, NULL);
