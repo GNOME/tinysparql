@@ -783,7 +783,9 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 void
 tracker_end_watching (void) 
 {
-	g_io_channel_shutdown (gio, TRUE, NULL);
+	if (gio) {
+		g_io_channel_shutdown (gio, TRUE, NULL);
+	}
 }
 
 

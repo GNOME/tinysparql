@@ -143,7 +143,7 @@ do_cleanup (const char *sig_msg)
 {
 
 	if (tracker->log_file) {
-		tracker_log ("Received signal %s so now shuting down", sig_msg);
+		tracker_log ("Received signal %s so now shutting down", sig_msg);
 	}		
 
 	tracker_print_object_allocations ();
@@ -322,7 +322,7 @@ poll_files_thread ()
         
         /* block all signals in this thread */
         sigfillset (&signal_set);
-	sigprocmask (SIG_BLOCK, &signal_set, NULL);
+	pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
 
 
 	g_mutex_lock (tracker->poll_signal_mutex);
@@ -876,7 +876,7 @@ extract_metadata_thread ()
         
         /* block all signals in this thread */
         sigfillset (&signal_set);
-        sigprocmask (SIG_BLOCK, &signal_set, NULL);
+        pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
 
 
 
@@ -1122,7 +1122,7 @@ process_files_thread ()
         
         /* block all signals in this thread */
         sigfillset (&signal_set);
-        sigprocmask (SIG_BLOCK, &signal_set, NULL);
+        pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
 
 	g_mutex_lock (tracker->files_signal_mutex);
 	g_mutex_lock (tracker->files_stopped_mutex);
@@ -1389,7 +1389,7 @@ process_user_request_queue_thread ()
         
         /* block all signals in this thread */
         sigfillset (&signal_set);
-        sigprocmask (SIG_BLOCK, &signal_set, NULL);
+        pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
 
 	g_mutex_lock (tracker->request_signal_mutex);
 	g_mutex_lock (tracker->request_stopped_mutex);

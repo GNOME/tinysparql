@@ -191,13 +191,11 @@ tracker_db_prepare_queries (DBConnection *db_con)
 char ***
 tracker_exec_sql (DBConnection *db_con, const char *query)
 {
-
-	MYSQL_RES *res = NULL;
-	MYSQL_ROW  myrow;
 	char **array = NULL;
 	char ***result = NULL;
 	int cols, rows;
 	char *msg;
+	char **row;
 
 	g_return_val_if_fail (query, NULL);
 
@@ -205,37 +203,47 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 		return NULL;
 	}
 
-	if (sqlite3_get_table (db_con->files_db, query, &array, &rows, &cols, &msg) != SQLITE_OK) {
-		tracker_log ("query %s failed with error : %s", query, msg);
-		g_free (msg);
+	int i =  sqlite3_get_table (db_con->files_db, query, &array, &rows, &cols, &msg);
+
+	while (i == SQLITE_BUSY) {
+		g_usleep (1000);
+		i = sqlite3_get_table (db_con->files_db, query, &array, &rows, &cols, &msg);
 	}
 
+	if (i != SQLITE_OK) {
+		unlock_db ();
+		tracker_log ("query %s failed with error : %s", query, msg);
+		g_free (msg);
+		return;
+	} 
 
 	unlock_db ();
 	
-	int column_count = mysql_num_fields(res);
-	int row_count = mysql_num_rows (res);
-
-	result = g_new ( char *, row_count + 1);
-	result [row_count] = NULL;	
-
-		while ((myrow = mysql_fetch_row (res))) {
+	if 
 
 
-			char **row = g_new (char *, column_count + 1);
-			row [column_count] = NULL;
+	result = g_new ( char *, rows);
+	result [rows] = NULL;	
 
-			for (i = 0; i < column_count; i++ ) {
-				row[i] = g_strdup (myrow[i]);
-			}
+	int totalrows = (rows+1) * cols;
+	int k = 0;
 
-			result[row_num]  = (gpointer)row;
+	for (i=cols; i < totalrows; i+cols) {
 
+		char **row = g_new (char *, cols + 1);
+		row [cols] = NULL;
+
+		for (j = 0; j < cols; j++ ) {
+			row[j] = g_strdup (array[i+j+1]);
 		}
-	
-		mysql_free_result (res);
+
+
+		result[k]  = (gpointer)row;
+		k++;
 
 	}
+	
+	sqlite3_free_table (array);
 
 	return result;
 
