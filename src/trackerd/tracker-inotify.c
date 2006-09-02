@@ -645,6 +645,7 @@ tracker_count_watch_dirs (void)
 gboolean
 tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 {
+	char *dir_in_locale = NULL;
 	guint32	mask = IN_CLOSE_WRITE | IN_MOVE	| IN_CREATE | IN_DELETE| IN_DELETE_SELF | IN_MOVE_SELF;
 	int wd;
 	char *str_wd;
@@ -663,10 +664,14 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 		return FALSE;	
 	}
 
-	/* check directory permissions are okay */
-	if (access (dir, F_OK) == 0 && access (dir, R_OK) == 0) {
+	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
 
-		wd = inotify_add_watch (inotify_monitor_fd, dir, mask);
+	/* check directory permissions are okay */
+	if (access (dir_in_locale, F_OK) == 0 && access (dir_in_locale, R_OK) == 0) {
+
+		wd = inotify_add_watch (inotify_monitor_fd, dir_in_locale, mask);
+
+		g_free (dir_in_locale);
 
 	 	if (wd < 0) {
 			tracker_log ("Inotify watch on %s has failed", dir);
@@ -680,12 +685,15 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 			return TRUE;
 		}
 	}
+
+	g_free (dir_in_locale);
+
 	return FALSE;
 }
 
 
 static gboolean
-delete_watch 	(const char *dir, DBConnection *db_con)
+delete_watch (const char *dir, DBConnection *db_con)
 {
 	char ***res = NULL;
 	char**  row;
@@ -769,15 +777,8 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 
 			tracker_db_free_result (res);
 			tracker_exec_proc  (db_con, "DeleteSubWatches", 1,  dir);
-		}	
-
-
-
+		}
 	}
-
-	
-
-
 }
 
 void
@@ -787,6 +788,3 @@ tracker_end_watching (void)
 		g_io_channel_shutdown (gio, TRUE, NULL);
 	}
 }
-
-
-

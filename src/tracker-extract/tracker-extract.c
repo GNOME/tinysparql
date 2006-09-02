@@ -18,14 +18,16 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include <locale.h>
 #include <stdlib.h>
 #include <string.h> 
 #include <unistd.h>
 #include <glib.h>
+
 #ifndef USING_INTERNAL_LIBEXTRACTOR
-#include <extractor.h>
+#   include <extractor.h>
 #else
-#include "../libextractor/src/include/extractor.h"
+#   include "../libextractor/src/include/extractor.h"
 #endif
 
 
@@ -365,24 +367,35 @@ tracker_get_file_metadata (const char *uri, char *mime)
 	MetadataFileType 	meta_type;
 	GHashTable 		*meta_table;
 	char 			*meta_name;
+	char			*uri_in_locale = NULL;
 
 	
 	if (!uri) {
 		return NULL;
 	}
 
-	if (!g_file_test (uri, G_FILE_TEST_EXISTS)) {
+	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (!uri_in_locale) {
 		return NULL;
 	}
 
-	keywords = EXTRACTOR_getKeywords (plugins, uri);
-	EXTRACTOR_removeEmptyKeywords (keywords);
+	if (!g_file_test (uri_in_locale, G_FILE_TEST_EXISTS)) {
+		g_free (uri_in_locale);
+		return NULL;
+	}
+
+	keywords = EXTRACTOR_getKeywords (plugins, uri_in_locale);
+
+	g_free (uri_in_locale);
+
+	keywords = EXTRACTOR_removeEmptyKeywords (keywords);
 
 	if (!mime) {
 		mime = g_strdup (EXTRACTOR_extractLast (EXTRACTOR_MIMETYPE, keywords));
 	}
 
-	EXTRACTOR_removeKeywordsOfType (keywords, EXTRACTOR_MIMETYPE);
+	keywords = EXTRACTOR_removeKeywordsOfType (keywords, EXTRACTOR_MIMETYPE);
 
 	meta_type = get_metadata_type (mime);
 
@@ -400,11 +413,7 @@ tracker_get_file_metadata (const char *uri, char *mime)
 
 	while (keywords != NULL) {
  
-		if (!g_utf8_validate (keywords->keyword, -1, NULL)) {
-			value = g_locale_to_utf8 (keywords->keyword, -1, NULL, NULL, NULL);
-      		} else {
-			value = g_strdup (keywords->keyword);
-		}
+		value = g_locale_to_utf8 (keywords->keyword, -1, NULL, NULL, NULL);
 
      		if (value) {
 	
@@ -466,7 +475,9 @@ main (int argc, char **argv)
 {
 
 	GHashTable *meta;
+	char *filename;
 
+	setlocale (LC_ALL, "");
 
 	if ((argc == 1) || (argc > 3)) {
 		g_print ("usage: tracker-extract file [mimetype]\n");
@@ -476,11 +487,28 @@ main (int argc, char **argv)
 	/* initialise metadata plugins */
 	plugins = EXTRACTOR_loadDefaultLibraries();
 
-	if (argc == 3) {
-		meta = tracker_get_file_metadata (argv[1], g_strdup (argv[2]));
-	} else {
-		meta = tracker_get_file_metadata (argv[1], NULL);
+	filename = g_filename_to_utf8 (argv[1], -1, NULL, NULL, NULL);
+
+	if (!filename) {
+		g_warning ("locale to UTF8 failed for filename!");
+		return 1;
 	}
+
+	if (argc == 3) {
+		char *mime = g_locale_to_utf8 (argv[2], -1, NULL, NULL, NULL);
+
+		if (!mime) {
+			g_warning ("locale to UTF8 failed for mime!");
+			return 1;
+		}
+
+		/* mime will be free in tracker_get_file_metadata() */
+		meta = tracker_get_file_metadata (filename, mime);
+	} else {
+		meta = tracker_get_file_metadata (filename, NULL);
+	}
+
+	g_free (filename);
 
 	if (meta) {
 		g_hash_table_foreach (meta, get_meta_table_data, NULL);

@@ -17,13 +17,16 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include <locale.h>
+#include <sys/param.h>
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
+#include <glib-object.h>
+
 #include "../libtracker/tracker.h" 
 
 #define USAGE "usage: \ntracker-tag\t\t\t\t: Gets stats for all tags\ntracker-tag -a File Tag1 [Tag2...]\t: Add Tags to File\ntracker-tag -l File \t\t\t: List all tags on a File\ntracker-tag -r File Tag1 [Tag2...] \t: Remove Tags from File\ntracker-tag -R File  \t\t\t: Remove all tags from File\ntracker-tag -s Tag1 [Tag2...] \t\t: Search files for specified tags. Multiple tags are always ANDed in the search\n"
-
 
 
 /*
@@ -35,8 +38,26 @@ tracker-tag -R File  \t\t: Remove all tags from File\n
 tracker-tag -s Tags  \t\t: Search files for specified tags\n
 */
 
+static char *
+realpath_in_utf8 (const char *path)
+{
+	char *str_path_tmp = NULL, *str_path = NULL;
 
-static char *tmp;
+	str_path_tmp = realpath (path, NULL);
+
+	if (str_path_tmp) {
+		str_path = g_filename_to_utf8 (str_path_tmp, -1, NULL, NULL, NULL);
+
+		g_free (str_path_tmp);
+	}
+
+	if (!str_path) {
+		g_warning ("realpath_in_utf8(): locale to UTF8 failed!");
+		return NULL;
+	}
+
+	return str_path;
+}
 
 static void
 get_meta_table_data (gpointer key,
@@ -52,15 +73,13 @@ get_meta_table_data (gpointer key,
 	}
 
 
-	g_print ("%s ", (char *)key);
+	g_print ("%s ", (char *) key);
 
 	meta = g_value_get_boxed (value);
 
 	for (meta_p = meta; *meta_p; meta_p++) {
-		if (*meta_p) {
-	     		 g_print ("(%s)",  (char *)*meta_p);
-		}
-	}	
+		g_print ("(%s)", *meta_p);
+	}
 	g_print ("\n");
 }
 
@@ -70,8 +89,9 @@ main (int argc, char **argv)
 {
 
 	TrackerClient *client = NULL;
-	GError *error = NULL;
 
+
+	setlocale (LC_ALL, "");
 
 	client =  tracker_connect (FALSE);
 
@@ -83,15 +103,15 @@ main (int argc, char **argv)
 	if  (argc == 1) {
 
 		GHashTable *table = NULL;
+		GError *error = NULL;
 
 		table =	tracker_keywords_get_list (client, SERVICE_FILES, &error);
 		
 		if (error) {
 			g_warning ("An error has occured : %s", error->message);
 			g_error_free (error);
+			return 1;
 		}
-
-	
 
 		if (table) {
 			g_hash_table_foreach (table, get_meta_table_data, NULL);
@@ -107,30 +127,43 @@ main (int argc, char **argv)
 
 			int i;
 			char **tags;
+			char *str_path = NULL;
+			GError *error = NULL;
 
+			str_path = realpath_in_utf8 (argv[2]);
 
-			char *str_path = realpath (argv[2], tmp);
-
-			
-			tags = g_new (char *, (argc-2));
-			for (i=0; i < (argc-3); i++) {
-				tags[i] = argv[i+3];
-				g_print ("adding tag %s to %s\n", tags[i], str_path);
+			if (!str_path) {
+				return 1;
 			}
 
+			tags = g_new (char *, (argc-2));
+
+			for (i=0; i < (argc-3); i++) {
+				tags[i] = g_locale_to_utf8 (argv[i+3], -1, NULL, NULL, NULL);
+				g_print ("adding tag %s to %s\n", tags[i], str_path);
+			}
 			tags[argc-3] = NULL;
 
 
 			tracker_keywords_add (client,  SERVICE_FILES, str_path, tags, &error);
-			
+
+			g_free (str_path);
+
 			if (error) {
 				g_warning ("An error has occured : %s\n", error->message);
 				g_error_free (error);
 				return 1;
 			} else {
-				g_print ("All tags added to %s\n", argv[2]);
+				char *dir = NULL;
+
+				dir = g_filename_to_utf8 (argv[2], -1, NULL, NULL, NULL);
+
+				g_print ("All tags added to %s\n", dir);
+
+				g_free (dir);
 			}
-			
+
+			g_strfreev (tags);
 		}
 
 	} else if (strcmp (argv[1], "-l") == 0)  {
@@ -139,14 +172,21 @@ main (int argc, char **argv)
 			g_print (USAGE);
 			return 1;
 		} else {
-
 			
 			char **tags = NULL;
-			char *str_path = realpath (argv[2], tmp);
+			char *str_path = NULL;
+			GError *error = NULL;
 
-			tags = tracker_keywords_get (client, SERVICE_FILES, str_path,  &error);
-			char **p_strarray;
-	
+			str_path = realpath_in_utf8 (argv[2]);
+
+			if (!str_path) {
+				return 1;
+			}
+
+			tags = tracker_keywords_get (client, SERVICE_FILES, str_path, &error);
+
+			g_free (str_path);
+
 			if (error) {
 				g_warning ("An error has occured : %s", error->message);
 				g_error_free (error);
@@ -157,15 +197,14 @@ main (int argc, char **argv)
 				g_print ("no results were found matching your query\n");
 				return 1;
 			}
-	
+
+			char **p_strarray;
+
 			for (p_strarray = tags; *p_strarray; p_strarray++) {
-				if (*p_strarray) {
-	   				g_print ("%s\n", *p_strarray);
-				}
+				g_print ("%s\n", *p_strarray);
 			}
 
 			g_strfreev (tags);
-
 		}
 
 	} else if (strcmp (argv[1], "-r") == 0)  {
@@ -178,15 +217,33 @@ main (int argc, char **argv)
 
 			int i;
 			char **tags;
-			char *str_path = realpath (argv[2], tmp);
+			char *str_path = NULL;
+			GError *error = NULL;
+
+			str_path = realpath_in_utf8 (argv[2]);
+
+			if (!str_path) {
+				return 1;
+			}
 
 			tags = g_new (char *, (argc-2));
+
 			for (i=0; i < (argc-3); i++) {
-				tags[i] = argv[i+3];
+				tags[i] = g_locale_to_utf8 (argv[i+3], -1, NULL, NULL, NULL);
 			}
 			tags[argc-3] = NULL;
 
 			tracker_keywords_remove (client,  SERVICE_FILES, str_path, tags, &error);
+
+			g_free (str_path);
+
+			g_strfreev (tags);
+
+			if (error) {
+				g_warning ("An error has occured : %s", error->message);
+				g_error_free (error);
+				return 1;
+			}
 		}
 
 	} else if (strcmp (argv[1], "-R") == 0)  {
@@ -197,11 +254,24 @@ main (int argc, char **argv)
 	
 		} else {
 
-			char *str_path = realpath (argv[2], tmp);
+			char *str_path = NULL;
+			GError *error = NULL;
 
-			
+			str_path = realpath_in_utf8 (argv[2]);
+
+			if (!str_path) {
+				return 1;
+			}
 
 			tracker_keywords_remove_all (client,  SERVICE_FILES, str_path, &error);
+
+			g_free (str_path);
+
+			if (error) {
+				g_warning ("An error has occured : %s", error->message);
+				g_error_free (error);
+				return 1;
+			}
 		}
 
 	} else if (strcmp (argv[1], "-s") == 0)  {
@@ -214,16 +284,19 @@ main (int argc, char **argv)
 
 			int i;
 			char **tags;
+			GError *error = NULL;
 
 			tags = g_new (char *, (argc-1));
+
 			for (i=0; i < (argc-2); i++) {
-				tags[i] = argv[i+2];
+				tags[i] = g_locale_to_utf8 (argv[i+2], -1, NULL, NULL, NULL);
 			}
 			tags[argc-2] = NULL;
 
 			char **results = tracker_keywords_search (client, -1, SERVICE_FILES, tags, 0, 512, &error);
-			char **p_strarray;
-	
+
+			g_strfreev (tags);
+
 			if (error) {
 				g_warning ("An error has occured : %s", error->message);
 				g_error_free (error);
@@ -234,20 +307,21 @@ main (int argc, char **argv)
 				g_print ("no results were found matching your query\n");
 				return 1;
 			}
-	
+
+			char **p_strarray;
+
 			for (p_strarray = results; *p_strarray; p_strarray++) {
-    				g_print ("%s\n", *p_strarray);
+				g_print ("%s\n", *p_strarray);
 			}
 
 			g_strfreev (results);
-
 		}
 
 	} else {
 		g_print (USAGE);
 		return 1;
 	}
-	
+
 
 	tracker_disconnect (client);
 

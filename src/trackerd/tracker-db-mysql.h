@@ -37,6 +37,13 @@ typedef struct {
 
 } DBConnection;
  
+
+char **		tracker_db_get_row 		(char ***result, int num);
+void		tracker_db_free_result 		(char ***result);
+void		tracker_db_log_result 		(char ***result);
+int		tracker_get_row_count 		(char ***result);
+int		tracker_get_field_count		(char ***result);
+
 gboolean	tracker_db_initialize		(const char *data_dir);
 void		tracker_db_thread_init 		();
 void		tracker_db_thread_end 		();
@@ -54,4 +61,31 @@ void		tracker_db_load_stored_procs 	(DBConnection *db_con);
 void		tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long file_id);
 void		tracker_db_clear_temp 		(DBConnection *db_con);
 void		tracker_db_check_tables 	(DBConnection *db_con);
+
+char ***	tracker_db_search_text 		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean sort);
+char ***	tracker_db_search_files_by_text (DBConnection *db_con, const char *text, int offset, int limit, gboolean sort);
+char ***	tracker_db_search_metadata 	(DBConnection *db_con, const char *service, const char *field, const char *text, int offset, int limit);
+char ***	tracker_db_search_matching_metadata (DBConnection *db_con, const char *service, const char *id, const char *text);
+
+char ***	tracker_db_get_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key);
+void 		tracker_db_set_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
+
+void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const char *name, const char *service,  gboolean is_dir, gboolean is_link, 
+					   	 gboolean is_source,  int offset, long mtime);
+
+void		tracker_db_delete_file 		(DBConnection *db_con, long file_id);
+void		tracker_db_delete_directory 	(DBConnection *db_con, long file_id, const char *uri);
+void		tracker_db_update_file 		(DBConnection *db_con, long file_id, long mtime);
+
+gboolean 	tracker_db_has_pending_files 	(DBConnection *db_con);
+gboolean 	tracker_db_has_pending_metadata (DBConnection *db_con);
+char ***	tracker_db_get_pending_files 	(DBConnection *db_con);
+void		tracker_db_remove_pending_files (DBConnection *db_con);
+char ***	tracker_db_get_pending_metadata (DBConnection *db_con);
+void		tracker_db_remove_pending_metadata (DBConnection *db_con);
+
+
+
+
+
 #endif

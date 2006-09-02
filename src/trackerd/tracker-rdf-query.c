@@ -569,8 +569,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_EQUALS)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "EQUALS element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "EQUALS element not expected here", error)) {
 			return;
 		}
 
@@ -580,8 +581,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_GREATER_THAN)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "GREATERTHAN element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "GREATERTHAN element not expected here", error)) {
 			return;
 		}
 
@@ -591,8 +593,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_GREATER_OR_EQUAL)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "GREATEROREQUAL element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "GREATEROREQUAL element not expected here", error)) {
 			return;
 		}
 
@@ -602,8 +605,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_LESS_THAN )) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "LESSTHAN element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "LESSTHAN element not expected here", error)) {
 			return;
 		}
 
@@ -613,8 +617,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_LESS_OR_EQUAL )) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "LESSOREQUAL element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "LESSOREQUAL element not expected here", error)) {
 			return;
 		}
 
@@ -624,8 +629,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_CONTAINS)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "CONTAINS element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "CONTAINS element not expected here", error)) {
 			return;
 		}
 
@@ -635,8 +641,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_REGEX)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "REGEX element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "REGEX element not expected here", error)) {
 			return;
 		}
 
@@ -646,8 +653,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_STARTS_WITH)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "STARTSWITH element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "STARTSWITH element not expected here", error)) {
 			return;
 		}
 
@@ -657,8 +665,9 @@ start_element_handler (GMarkupParseContext *context,
 	} else if (ELEMENT_IS (ELEMENT_RDF_IN_SET)) {
 		
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
-					((data->current_logic_operator == LOP_AND) && (is_end_operator (state)) ),
-					 context,  "IN SET element not expected here", error)) {
+					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
+					 && is_end_operator (state)),
+					context,  "IN SET element not expected here", error)) {
 			return;
 		}
 

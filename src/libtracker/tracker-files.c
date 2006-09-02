@@ -18,22 +18,19 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include <locale.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <glib.h>
+
 #include "../libtracker/tracker.h" 
-
-
 
 #define USAGE "usage: \ntracker-files -s ServiceType\t: Gets files with ServiceType (Documents, Music, Images, Videos, Text, Development, Other)\ntracker-files -m Mime1 [Mime2...] : Get all files that match one of the specified mime types\n"
 
-static char *tmp;
 
-static  ServiceType
+static ServiceType
 get_service_type (const char* service)
 {
-
 	if (g_ascii_strcasecmp (service, "Documents") ==0) {
 		return SERVICE_DOCUMENTS;
 	} else 	if (g_ascii_strcasecmp (service, "Music") ==0) {
@@ -52,9 +49,7 @@ get_service_type (const char* service)
 }
 
 
-
-
-int 
+int
 main (int argc, char **argv) 
 {
 
@@ -62,22 +57,21 @@ main (int argc, char **argv)
 	GError *error = NULL;
 	ServiceType type;
 
+
+	setlocale (LC_ALL, "");
+
 	if (argc < 3) {
 		g_print (USAGE);
 		return 1;
-
 	}
 
-
-
-	client =  tracker_connect (FALSE);
+	client = tracker_connect (FALSE);
 
 	if (!client) {
 		g_print ("Could not initialise Tracker - exiting...\n");
 		return 1;
 	}
 
-	
 	if (strcmp (argv[1], "-s") == 0) {
 
 		if (argc != 3) {
@@ -85,12 +79,11 @@ main (int argc, char **argv)
 			return 1;
 		} else {
 
-
 			type = get_service_type (argv[2]);
 
 			char **array = NULL;
-		
-			array = tracker_files_get_by_service_type (client,  -1, type, 0, 512, &error);
+
+			array = tracker_files_get_by_service_type (client, -1, type, 0, 512, &error);
 
 			if (error) {
 				g_warning ("An error has occured : %s", error->message);
@@ -106,16 +99,10 @@ main (int argc, char **argv)
 			char **p_strarray;
 
 			for (p_strarray = array; *p_strarray; p_strarray++) {
-				if (*p_strarray) {
-	   				g_print ("%s\n", *p_strarray);
-				}
+				g_print ("%s\n", *p_strarray);
 			}
 
 			g_strfreev (array);
-
-
-
-	
 		}
 
 	} else if (strcmp (argv[1], "-m") == 0)  {
@@ -125,18 +112,20 @@ main (int argc, char **argv)
 			return 1;
 		} else {
 
-			
 			char **mimes = NULL;
 			char **array = NULL;
 			int i;
 
 			mimes = g_new (char *, (argc-1));
+
 			for (i=0; i < (argc-2); i++) {
-				mimes[i] = argv[i+2];
+				mimes[i] = g_locale_to_utf8 (argv[i+2], -1, NULL, NULL, NULL);
 			}
 			mimes[argc-2] = NULL;
 		
-			array = tracker_files_get_by_mime_type (client,  -1, mimes, 0, 512, &error);
+			array = tracker_files_get_by_mime_type (client, -1, mimes, 0, 512, &error);
+
+			g_strfreev (mimes);
 
 			if (error) {
 				g_warning ("An error has occured : %s", error->message);
@@ -152,20 +141,16 @@ main (int argc, char **argv)
 			char **p_strarray;
 
 			for (p_strarray = array; *p_strarray; p_strarray++) {
-				if (*p_strarray) {
-	   				g_print ("%s\n", *p_strarray);
-				}
+				g_print ("%s\n", *p_strarray);
 			}
 
 			g_strfreev (array);
 		}
 
-
 	}  else {
 		g_print (USAGE);
 		return 1;
 	}
-	
 
 	tracker_disconnect (client);
 

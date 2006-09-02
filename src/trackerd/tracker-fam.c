@@ -28,7 +28,6 @@
 #include <sys/stat.h>
 #include <fam.h>
 
-//#include "tracker-global.h"
 #include "tracker-fam.h"
 
 extern Tracker 		*tracker;
@@ -63,7 +62,7 @@ tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 }
 
 
-WatchTypes
+static WatchTypes
 tracker_get_directory_watch_type (const char * dir)
 {
 	DirWatch *watch;
@@ -118,7 +117,6 @@ is_delete_event (TrackerChangeAction event_type)
 	return  (event_type == TRACKER_ACTION_DELETE || event_type == TRACKER_ACTION_DELETE_SELF ||event_type == TRACKER_ACTION_FILE_DELETED ||event_type == TRACKER_ACTION_DIRECTORY_DELETED );
 
 }
-
 
 
 static gboolean
@@ -212,8 +210,19 @@ fam_callback (GIOChannel *source,
 				
 				/* process deletions immediately - schedule (make pending) all others */
 				if (is_delete_event (event_type)) {
-					char *parent = g_path_get_dirname (info->uri);
-						
+					char *uri_in_locale = NULL, *parent = NULL;
+
+					uri_in_locale = g_filename_from_utf8 (info->uri, -1, NULL, NULL, NULL);
+
+					if (!uri_in_locale) {
+						tracker_log ("******ERROR**** FAM uri could not be converted to locale format");
+						return FALSE;
+					}
+
+					parent = g_path_get_dirname (uri_in_locale);
+
+					g_free (uri_in_locale);
+
 					if (tracker_is_directory_watched (parent, NULL) || tracker_is_directory_watched (info->uri, NULL)) {
 						g_async_queue_push (tracker->file_process_queue, info);	
 						tracker_notify_file_data_available ();
@@ -254,17 +263,17 @@ tracker_start_watching (void)
 				       fam_callback, &fc);
 	g_io_channel_unref (ioc);
 
-	watch_table =  g_hash_table_new_full (g_str_hash, g_str_equal, g_free,  free_watch_func);
+	watch_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, free_watch_func);
 
 	return TRUE;
 }
- 
 
 
 gboolean
-tracker_add_watch_dir (const char *dir, DBConnection *db_con) 
+tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 {
-	
+
+	char *dir_in_locale = NULL;
 	DirWatch *fwatch;
 	FAMRequest *fr;
 	int rc;
@@ -284,15 +293,23 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 		return FALSE;	
 	}
 
+	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
+
+	if (!dir_in_locale) {
+		tracker_log ("******ERROR**** FAM dir could not be converted to locale format");
+		return FALSE;
+	}
 
 	/* check directory permissions are okay */
-	if (access (dir, F_OK) == 0 && access (dir, R_OK) == 0) {
+	if (access (dir_in_locale, F_OK) == 0 && access (dir_in_locale, R_OK) == 0) {
+
 		fwatch = g_new (DirWatch, 1);
 		fr = g_new (FAMRequest, 1);
 		fwatch->watch_directory = g_strdup (dir);
 		fwatch->fr = fr;
 		rc = -1;
-		rc = FAMMonitorDirectory (&fc, dir, fr, fwatch);
+		rc = FAMMonitorDirectory (&fc, dir_in_locale, fr, fwatch);
+
 	 	if (rc > 0) {
 			tracker_log ("FAM watch on %s has failed", dir);
 			free_watch_func (fwatch);
@@ -303,6 +320,9 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 			return TRUE;
 		}
 	}
+
+	g_free (dir_in_locale);
+
 	return FALSE;
 }
 
@@ -355,7 +375,3 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 	}
 	g_free (str);
 }
-
-
-
-

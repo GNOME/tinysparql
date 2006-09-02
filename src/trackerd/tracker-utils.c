@@ -26,13 +26,13 @@
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <glib.h>
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
- 
+
 #include "tracker-utils.h"
 #include "xdgmime.h"
 
@@ -739,19 +739,19 @@ tracker_file_info_is_valid (FileInfo *info) {
 		return FALSE;
 
 	} else {
-	
+
 		if ( !g_utf8_validate (info->uri, -1, NULL) || info->action == TRACKER_ACTION_IGNORE) {
-			
+
 			if (info->action != TRACKER_ACTION_IGNORE) {
 				tracker_log ("************** Warning UTF8 Validation of FileInfo URI has failed (possible corruption) *****************");
 			}
-			
-			info = tracker_free_file_info (info);
+
+			tracker_free_file_info (info);
 
 			return FALSE;
 		}
 	}
-	
+
 	return TRUE;
 } 
 
@@ -779,7 +779,7 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 {
 	FileInfo *info;
 
-	info = g_new (FileInfo, 1);
+	info = g_slice_new (FileInfo);
 
 	info->action = action;
 	info->uri = g_strdup (uri);
@@ -787,7 +787,7 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 	info->counter = counter;
 	info->file_id = -1;
 
-	info->file_type = FILE_ORIDNARY;
+	info->file_type = FILE_ORDINARY;
 
 	info->watch_type = watch;
 	info->is_directory = FALSE;
@@ -838,7 +838,7 @@ tracker_free_file_info (FileInfo *info)
 		g_free (info->permissions);
 	}
 
-	g_free (info);
+	g_slice_free (FileInfo, info);
 
 	info_deallocated ++;
 
@@ -877,7 +877,7 @@ tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, 
 {
 	FileInfo *info;
 
-	info = g_new (FileInfo, 1);
+	info = g_slice_new (FileInfo);
 
 	info->action = action;
 	info->uri = g_strdup (uri);
@@ -885,7 +885,7 @@ tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, 
 	info->counter = counter;
 	info->file_id = file_id;
 
-	info->file_type = FILE_ORIDNARY;
+	info->file_type = FILE_ORDINARY;
 
 	info->is_directory = is_directory;
 
@@ -916,7 +916,7 @@ FileInfo *
 tracker_get_file_info (FileInfo *info)
 {
 	struct stat     finfo;
-	char   		*str = NULL, *link_uri;
+	char   		*uri_in_locale = NULL, *str = NULL, *link_uri;
 	int    		n, bit;
 
 
@@ -924,15 +924,26 @@ tracker_get_file_info (FileInfo *info)
 		return info;
 	}
 
-	if (lstat (info->uri, &finfo) == -1){
-		return info;
+	uri_in_locale = g_filename_from_utf8 (info->uri, -1, NULL, NULL, NULL);
+
+	if (uri_in_locale) {
+		if (g_lstat (uri_in_locale, &finfo) == -1) {
+			g_free (uri_in_locale);
+
+			return info;
+		}
+
+	} else {
+		tracker_log ("******ERROR**** info->uri could not be converted to locale format");
+
+		return NULL;
 	}
 
 	info->is_directory = S_ISDIR (finfo.st_mode);	 
 	info->is_link = S_ISLNK (finfo.st_mode);
 	
 	if (info->is_link && !info->link_name) {
-		str = g_file_read_link (info->uri, NULL);
+		str = g_file_read_link (uri_in_locale, NULL);
 		if (str) {
 			link_uri = g_filename_to_utf8 (str, -1, NULL, NULL, NULL);
 			info->link_name = g_path_get_basename (link_uri);
@@ -941,6 +952,8 @@ tracker_get_file_info (FileInfo *info)
 			g_free (str); 
 		}
 	}
+
+	g_free (uri_in_locale);
 
 	if (!info->is_directory) {
 		info->file_size =  (long)finfo.st_size;
@@ -1000,10 +1013,20 @@ is_text_file  (const char* uri)
 	char buffer[65566];
 	FILE* file = NULL;
 	gboolean data_read = FALSE;
+	char *uri_in_locale = NULL;
 
-	file = fopen (uri, "r");
-	
-	if (file != NULL) {
+	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (!uri_in_locale) {
+		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		return FALSE;
+	}
+
+	file = fopen (uri_in_locale, "r");
+
+	g_free (uri_in_locale);
+
+	if (file) {
 
 		if (fgets (buffer, 65565, file)) {
 			data_read = TRUE;
@@ -1013,21 +1036,49 @@ is_text_file  (const char* uri)
 		
 		
 		if (data_read) {
-			return g_utf8_validate ( (gchar *)buffer, -1, NULL);
+			char *s = g_locale_to_utf8 (buffer, 65565, NULL, NULL, NULL);
+
+			if (!s) {
+				return FALSE;
+			} else {
+				gboolean ret;
+
+				/* if file contains text then it will be in correct utf8 but
+				   it isn't clear whether some binary files will be identified
+				   as text files too if they aren't in UTF-8! */
+				ret = g_utf8_validate (s, -1, NULL);
+
+				g_free (s);
+
+				return ret;
+			}
 		}
 		
 	}
 
 	return FALSE;
 }
- 
+
 
 gboolean 
 tracker_file_is_valid (const char *uri)
 {
-	
-	return g_file_test (uri, G_FILE_TEST_EXISTS);
+	gboolean convert_ok;
+	char *uri_in_locale = NULL;
 
+	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (!uri_in_locale) {
+		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		return FALSE;
+	}
+
+	/* g_file_test(file,G_FILE_TEST_EXISTS) uses the access() system call and so needs locale filenames. */
+	convert_ok = g_file_test (uri_in_locale, G_FILE_TEST_EXISTS);
+
+	g_free (uri_in_locale);
+
+	return convert_ok;
 }
 
 char *
@@ -1142,19 +1193,27 @@ tracker_get_vfs_name (const char* uri)
 	}
 
 	return " ";
-
-
 }
 
-
-gboolean 
-tracker_is_directory (const char *dir) 
+gboolean
+tracker_is_directory (const char *dir)
 {
 	struct stat finfo;
+	char *dir_in_locale = NULL;
 
-	lstat (dir, &finfo);
-	return S_ISDIR (finfo.st_mode); 
+	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
 
+	if (dir_in_locale) {
+		g_lstat (dir_in_locale, &finfo);
+
+		g_free (dir_in_locale);
+
+		return S_ISDIR (finfo.st_mode);
+	} else {
+		tracker_log ("******ERROR**** dir could not be converted to locale format");
+
+		return FALSE;
+	}
 }
 
 void 
@@ -1228,11 +1287,22 @@ tracker_get_files (const char *dir, gboolean dir_only)
 	DIR *dirp;
 	struct dirent *entry;
 	GSList *file_list = NULL;
+	char *dir_in_locale = NULL;
 
-   	if ((dirp = opendir (dir)) != NULL) {
+	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
+
+	if (!dir_in_locale) {
+		tracker_log ("******ERROR**** dir could not be converted to utf8 format");
+		g_free (dir_in_locale);
+		return NULL;
+	}
+
+   	if ((dirp = opendir (dir_in_locale)) != NULL) {
    		while ((entry = readdir (dirp)) != NULL) {
 
 			if (!tracker->is_running) {
+				g_free (dir_in_locale);
+				closedir (dirp);
 				return NULL;
 			}
 
@@ -1262,9 +1332,11 @@ tracker_get_files (const char *dir, gboolean dir_only)
 			g_free (mystr);
 
 		}
-		g_free (entry);
+
  		closedir (dirp);
 	}
+
+	g_free (dir_in_locale);
 
 	if (!tracker->is_running) {
 		return NULL;

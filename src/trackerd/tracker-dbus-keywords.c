@@ -70,7 +70,7 @@ update_keywords_metadata (DBConnection 	*db_con, const char *path, const char *n
 
 		char *keywords = g_string_free (words, FALSE);
 		
-		tracker_set_metadata (db_con, "Files", id, "File.Keywords", keywords , TRUE);
+		tracker_db_set_metadata (db_con, "Files", id, "File.Keywords", keywords , TRUE);
 
 		g_free (keywords);
 

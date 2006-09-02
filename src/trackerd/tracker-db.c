@@ -19,126 +19,7 @@ typedef struct {
 
 
 
-char **
-tracker_db_get_row (char ***result, int num)
-{
 
-	if (!result) {
-		return NULL;
-	}
-
-	if (result[num]) {
-		return result[num];
-	}
-
-	return NULL;
-
-}
-
-
-void
-tracker_db_log_result (char ***result)
-{
-	char ***rows;
-	char **row;
-	char *str = NULL, *tmp = NULL, *value;
-	
-	if (!result) {
-		return;
-	}
-
-	for (rows = result; *rows; rows++) {
-		if (*rows) {
-			for (row = *rows; *row; row++) {
-				value = *row;
-				if (!value) {
-					value = "NULL";
-				}
-				if (str) {
-					tmp = g_strdup (str);
-					g_free (str);
-					str = g_strconcat (tmp, ", ", value, NULL);
-					g_free (tmp);
-				} else {
-					str = g_strconcat (value, NULL);
-				} 	
-			}
-			tracker_log (str);
-			g_free (str);
-			str = NULL;
-			
-		}
-	}
-
-
-}
-
-void
-tracker_db_free_result (char ***result)
-{
-	char ***rows;
-
-	if (!result) {
-		return;
-	}
-
-	for (rows = result; *rows; rows++) {
-		if (*rows) {
-			g_strfreev  (*rows);
-		}
-	}
-
-	g_free (result);
-
-}
-
-
-int
-tracker_get_row_count (char ***result)
-{
-	char ***rows;
-	int i;
-
-	if (!result) {
-		return 0;
-	}
-
-	i = 0;
-
-	for (rows = result; *rows; rows++) {
-		i++;			
-	}
-
-	return i;
-
-}
-
-
-int
-tracker_get_field_count (char ***result)
-{
-	char **p;
-	int i;
-
-	if (!result || (tracker_get_row_count == 0)) {
-		return 0;
-	}
-
-	i = 0;
-
-	char **row = tracker_db_get_row (result, 0);
-
-	if (!row) {
-		return 0;
-	}
-
-	for (p = row; *p; p++) {
-		i++;			
-	}
-
-	return i;
-
-}
 
 
 char *
@@ -238,13 +119,10 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	char* apath = tracker_escape_string (db_con, path);
 	char* aname = tracker_escape_string (db_con, name);
 
-	char *query = g_strconcat ("SELECT ID, IndexTime, IsDirectory FROM Files WHERE Path = '", apath ,"'  AND FileName = '", aname , "'", NULL);
-
 	g_free (aname);
 	g_free (apath);
 
 	res = tracker_exec_proc  (db_con, "GetServiceID", 2, path, name);
-	g_free (query);
 
 	if (res) {
 
@@ -463,7 +341,7 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 	char **  row;
 
 
-	def = g_new (FieldDef, 1);
+	def = g_slice_new (FieldDef);
 
 	res = tracker_exec_proc  (db_con, "GetMetadataTypeInfo", 1, field_name);	
 
@@ -509,7 +387,7 @@ tracker_db_free_field_def (FieldDef *def)
 		g_free (def->id);
 	}
 
-	g_free (def);
+	g_slice_free (FieldDef, def);
 
 }
 
@@ -710,61 +588,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *
 
 }
 
-gboolean 
-tracker_db_has_pending_files (DBConnection *db_con)
-{
-	char ***res = NULL;
-	char **  row;
-	gboolean has_pending = FALSE;
-	
-	res = tracker_exec_proc (db_con, "ExistsPendingFiles", 0); 
 
-
-	if (res) {
-
-		row = tracker_db_get_row (res, 0);
-				
-		if (row && row[0]) {
-			int pending_file_count  = atoi (row[0]);
-							
-			has_pending = (pending_file_count  > 0);
-		}
-					
-		tracker_db_free_result (res);
-
-	}
-
-	return has_pending;
-
-}
-
-
-gboolean 
-tracker_db_has_pending_metadata (DBConnection *db_con)
-{
-	char ***res = NULL;
-	char **  row;
-	gboolean has_pending = FALSE;
-	
-	res = tracker_exec_proc (db_con, "CountPendingMetadataFiles", 0); 
-
-	if (res) {
-
-		row = tracker_db_get_row (res, 0);
-				
-		if (row && row[0]) {
-			int pending_file_count  = atoi (row[0]);
-						
-			has_pending = (pending_file_count  > 0);
-		}
-					
-		tracker_db_free_result (res);
-
-	}
-
-	return has_pending;
-
-}
 
 
 

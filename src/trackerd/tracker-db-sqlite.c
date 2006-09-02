@@ -9,7 +9,7 @@
 #include "tracker-db-sqlite.h"
 #include "tracker-indexer.h"
 
-extern ;
+static GHashTable *prepared_queries;
 
 gboolean
 tracker_db_initialize (const char *datadir)
@@ -64,8 +64,6 @@ tracker_db_connect ()
 	}
 
 	g_free (dbname);
-
-	/* todo need to set sqlite busy handler */
 
 	
 	return db_con;
@@ -219,8 +217,10 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 
 	unlock_db ();
 	
-	if 
 
+	if (!array) {
+		return NULL;
+	}
 
 	result = g_new ( char *, rows);
 	result [rows] = NULL;	
@@ -249,6 +249,7 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 
 }
 
+
 char *
 tracker_escape_string (DBConnection *db_con, const char *in)
 {
@@ -262,8 +263,10 @@ tracker_escape_string (DBConnection *db_con, const char *in)
 	i = strlen (in);
 
 	str = g_new (char, (i*2)+1);
+
+	j = g_strdup (in);
 	
-	j = mysql_real_escape_string (db_con->db, str, in, i);
+	//j = mysql_real_escape_string (db_con->db, str, in, i);
 	
 	str2 = g_strndup (str, j);
 	
@@ -279,18 +282,21 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	va_list 	args;
 	int 		i;
 	char 		*str, *param, *query_str;
-	GString 	*query;
+	char 	 	*query;
 	MYSQL_RES 	*result;		
 
 
 	va_start (args, param_count);
 
-	query = g_string_new ("Call ");
-
-	g_string_append (query, procedure);
-
-	g_string_append (query, "(");
+	query = g_hash_table_lookup (prepared_queries, procedure);
 	
+	if (!query) {
+		tracker_log ("ERROR : query %s not found", procedure);
+		return NULL;
+	}
+
+	
+
 	for (i = 0; i < param_count; i++ ) {
 
 		str = va_arg (args, char *);
@@ -336,46 +342,6 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 
 }
 
-static void
-create_system_db ()
-{
-
-	DBConnection *db_con;
-	char  *sql_file;
-	char *query;
-	char **queries, **queries_p ;
-
-
-	tracker_log ("Creating system database...");
-	db_con = db_connect (NULL);
-	tracker_exec_sql (db, "CREATE DATABASE mysql");
-	mysql_close (db);
-	db_con = db_connect ("mysql");
-
-	sql_file = g_strdup (DATADIR "/tracker/mysql-system.sql");
-	
-	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file); 
-		g_assert (FALSE);
-	} else {
-		queries = g_strsplit_set (query, ";", -1);
-		for (queries_p = queries; *queries_p; queries_p++) {
-			if (*queries_p) {
-		     		tracker_mysql_exec_sql (db_con->db, *queries_p);
-			}
-		}
-		
-		g_strfreev (queries);
-		g_free (query);
-	} 	
-	
-	g_free (sql_file);
-
-	mysql_close (db_con->db);
-
-	g_free (db_con);
-
-}
 
 void
 tracker_db_load_stored_procs (DBConnection *db_con)
@@ -383,23 +349,36 @@ tracker_db_load_stored_procs (DBConnection *db_con)
 	char  *sql_file;
 	char *query;
 	char **queries, **queries_p ;
-	MYSQL_RES *res = NULL;
+	char ***res;
 
-	tracker_log ("Creating stored procedures...");
-	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
+	tracker_log ("loading queries...");
+	sql_file = g_strdup (DATADIR "/tracker/sqlite-stored-procs.sql");
 	
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
 		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file); 
 		g_assert (FALSE);
 	} else {
-		queries = g_strsplit_set (query, "|", -1);
-		for (queries_p = queries; *queries_p; queries_p++) {
-			if (*queries_p) {
-		     		res = tracker_mysql_exec_sql (db_con->db, *queries_p);
 
-				if (res) {
-					mysql_free_result (res);
+		prepared_queries = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+		queries = g_strsplit_set (query, "\n", -1);
+
+		for (queries_p = queries; *queries_p; queries_p++) {
+
+			if (*queries_p && (strlen (*queries_p) > 10)) {
+				
+				char *str = g_strdup (g_strstrip (*queries_p));
+				char *sep;
+		
+				sep = strchr (str, ' ');
+      						
+				if (sep) {
+					char *name = g_strndup (str, (int) (sep - str));
+				 	char *query_body  = g_strdup (sep + 1);
+					g_hash_table_insert (prepared_queries, name, query_body);
 				}
+
+				g_free (str):
 			}
 		}
 		g_strfreev (queries);
@@ -412,8 +391,10 @@ tracker_db_load_stored_procs (DBConnection *db_con)
 }
 
 
-static void
-create_tracker_db ()
+
+
+void
+tracker_create_db ()
 {
 	DBConnection *db_con;
 	char  *sql_file;
@@ -448,16 +429,6 @@ create_tracker_db ()
 
 	mysql_close (db_con->db);
 	g_free (db_con);
-	
-}
-
-
-
-void
-tracker_create_db ()
-{
-	create_system_db ();
-	create_tracker_db ();
 }
 
 

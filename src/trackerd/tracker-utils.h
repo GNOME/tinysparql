@@ -127,7 +127,7 @@ typedef enum {
 
 /* service type that the file represents */
 typedef enum {
-	FILE_ORIDNARY,
+	FILE_ORDINARY,
 	FILE_DESKTOP,
 	FILE_BOOKMARKS,
 	FILE_SMARTBOOKMARKS,

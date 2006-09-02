@@ -33,10 +33,11 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	char **array = NULL;	
 	int row_count = 0, i = 0;
 	int limit, query_id, offset;
-	char *str = NULL, *service = NULL, *search_term = NULL;
-	gboolean sort_results = FALSE, use_boolean_search = FALSE;
+	char *service = NULL;
+	gboolean sort_results = FALSE;
 	char ***res = NULL;
-	char**  row;
+	char **row;
+	char *str;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -87,23 +88,15 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		limit = 1024;
 	}
 
-	/* check search string for embedded special chars like hyphens and format appropriately */
-	search_term = tracker_format_search_terms (str, &use_boolean_search);
-
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_offset = tracker_int_to_str (offset);
-	char *str_sort = tracker_int_to_str (sort_results);
-	char *str_bool =  tracker_int_to_str (use_boolean_search);
 	
-	tracker_log ("Executing search with params %s, %s. %s, %s, %s", service, search_term, str_limit, str_sort, str_bool );
 	
-	res = tracker_exec_proc  (db_con, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);	
+	tracker_log ("Executing search with params %s, %s", service, str);
 
-	g_free (search_term);
-	g_free (str_limit);
-	g_free (str_offset);
-	g_free (str_bool);
-	g_free (str_sort);
+	res = tracker_db_search_text (db_con, service, str, offset, limit, sort_results);	
+	
+//	res = tracker_exec_proc  (db_con, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);	
+
+
 	
 	if (res) {
 
@@ -193,19 +186,10 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 				DBUS_TYPE_BOOLEAN, &sort,
 				DBUS_TYPE_INVALID);
 
-	char *str_offset = tracker_int_to_str (offset);
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_sort = tracker_int_to_str (sort);
-	
-	gboolean na;
-	char *search_term = tracker_format_search_terms (text, &na);
 
-	char ***res = tracker_exec_proc  (db_con,  "SearchFilesText", 4, search_term, str_offset, str_limit, str_sort);
-		
-	g_free (search_term);			
-	g_free (str_limit);
-	g_free (str_offset);
-	g_free (str_sort);
+	char ***res = tracker_db_search_files_by_text (db_con, text, offset, limit, sort);
+
+
 
 	if (res) {
 
@@ -277,17 +261,7 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 		return;
 	}
 
-	
-	char *str_offset = tracker_int_to_str (offset);	
-	char *str_limit = tracker_int_to_str (limit);
-	gboolean na;
-	char *search_term = tracker_format_search_terms (text, &na);
-
-	char ***res = tracker_exec_proc  (db_con,  "SearchMetaData", 5, service, field, search_term, str_offset, str_limit);
-		
-	g_free (search_term);		
-	g_free (str_limit);
-	g_free (str_offset);
+	char ***res = tracker_db_search_metadata (db_con, service, field, text, offset,  limit);
 
 				
 	if (res) {
@@ -321,7 +295,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 	DBusMessage 	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
-	char 		*text, *service, *id, *path, *name;
+	char 		*text, *service, *id;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -361,23 +335,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 	}
 
 	
-
-	if (id[0] == '/') {
-		name = g_path_get_basename (id);
-		path = g_path_get_dirname (id);
-	} else {
-		name = tracker_get_vfs_name (id);
-		path = tracker_get_vfs_path (id);
-	}
-
-	gboolean na;
-	char *search_term = tracker_format_search_terms (text, &na);
-
-	char ***res = tracker_exec_proc  (db_con,  "SearchMatchingMetaData", 4, service, path, name, search_term);
-	
-	g_free (search_term);			
-	g_free (name);
-	g_free (path);
+	char ***res = tracker_db_search_matching_metadata (db_con, service, id, text);
 
 
 

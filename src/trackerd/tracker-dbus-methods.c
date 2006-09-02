@@ -63,7 +63,7 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 
 	int 	 	row_count = 0;
 	char 		*value;
-	char 	***res = NULL;
+	char 		***res = NULL;
 	char**  	row;
 
 
@@ -71,7 +71,7 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 
 	value = g_strdup (" ");
 
-	res = tracker_exec_proc  (db_con, "GetMetadata", 3, service, id, key);	
+	res = tracker_db_get_metadata (db_con, service, id, key);	
 
 	if (res) {
 
@@ -99,22 +99,6 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 }
 
 
-void  
-tracker_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite)
-{
-	char *str_write;	
-
-	if (overwrite) {
-		str_write = "1";
-	} else {
-		str_write = "0";
-	}
-
-	tracker_exec_proc  (db_con, "SetMetadata", 5, service, id, key, value, str_write);	
-	
-
-}
-
 
 
 
@@ -124,6 +108,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 	int 		id, result;
 	char 		*path, *name;
 	struct stat     finfo;
+	gboolean 	is_dir, is_link;
 
 	g_return_val_if_fail (db_con && uri && (strlen(uri) > 0), -1);
 
@@ -137,37 +122,24 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 
 		if (uri[0] == '/' && (lstat (uri, &finfo) != -1)) {
 			
-			char *is_dir, *is_link;
-
 			name = g_path_get_basename (uri);
 			path = g_path_get_dirname (uri);
 
-			if (S_ISDIR (finfo.st_mode)) {
-				is_dir = "1";
-			} else {
-				is_dir = "0";
-			}
-	 
+			is_dir = S_ISDIR (finfo.st_mode);	
 
-			if (S_ISLNK (finfo.st_mode)) {
-				is_link = "1";
-			} else {
-				is_link = "0";
-			}
+			is_link = S_ISLNK (finfo.st_mode);
 
 			char *mime = tracker_get_mime_type (uri);
 
 			char *service_name = tracker_get_service_type_for_mime (mime);
 
-			char *str_mtime = g_strdup_printf ("%ld", finfo.st_mtime);
+			long mtime = finfo.st_mtime;
 
-			tracker_exec_proc  (db_con, "CreateService", 8, path, name, service_name, is_dir, is_link, "0", "0", str_mtime);
+			tracker_db_create_service (db_con,  path, name, service_name, is_dir, is_link, FALSE, 0, mtime);
 
 			g_free (service_name);
 
 			g_free (mime);
-
-			g_free (str_mtime);
 
 			result = tracker_db_get_file_id (db_con, uri);
 			
@@ -179,7 +151,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 			name = tracker_get_vfs_name (uri);
 			path = tracker_get_vfs_path (uri);
 
-			tracker_exec_proc  (db_con, "CreateService", 8, path, name, "VFSFiles", "0", "0", "0", "0", "unknown");
+			tracker_db_create_service (db_con,  path, name, "VFS Files", FALSE, FALSE, FALSE, 0, 0);
 
 			result = tracker_db_get_file_id (db_con, uri);
 		}

@@ -18,17 +18,17 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include <stdio.h>
+#include <locale.h>
 #include <glib.h>
-#include "../libtracker/tracker.h" 
+#include <glib-object.h>
 
+#include "../libtracker/tracker.h" 
 
 static void
 get_meta_table_data (gpointer key,
    		     gpointer value,
 		     gpointer user_data)
 {
-
 	char **meta, **meta_p;
 
 	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
@@ -36,15 +36,12 @@ get_meta_table_data (gpointer key,
 		return;
 	}
 
-
-	g_print ("%s \n", (char *)key);
+	g_print ("%s \n", (char *) key);
 
 	meta = g_value_get_boxed (value);
 
 	for (meta_p = meta; *meta_p; meta_p++) {
-		if (*meta_p) {
-	     		 g_print ("%s, ",  (char *)*meta_p);
-		}
+		g_print ("%s, ", *meta_p);
 	}	
 	g_print ("\n\n");
 }
@@ -59,6 +56,8 @@ main (int argc, char **argv)
 	TrackerClient *client = NULL;
 
 
+	setlocale (LC_ALL, "");
+
 	if (argc < 2) {
 		g_print ("usage - tracker-meta-folder FOLDER [Metadata1...]\n");
 		return 1;
@@ -72,38 +71,36 @@ main (int argc, char **argv)
 	}
 
 
+	char **meta_fields = NULL;
 
+	if (argc == 2) {
+		meta_fields = g_new (char *, 1);
 
+		meta_fields[0] = NULL;
 
-	if (argc ==2) {
-		char *fields[]  = {NULL};
-	
-		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], fields, &error);
-	} else {
-
+	} else if (argc > 2) {
 		int i;
-		char **meta_fields;
 
+		meta_fields = g_new (char *, (argc-1));
 
-		if (argc > 2) {
-			meta_fields = g_new (char *, (argc-1));
-			for (i=0; i < (argc-2); i++) {
-				meta_fields[i] = argv[i+2];
-			}
-			meta_fields[argc-2] = NULL;
+		for (i=0; i < (argc-2); i++) {
+			meta_fields[i] = g_locale_to_utf8 (argv[i+2], -1, NULL, NULL, NULL);
 		}
-		table =  tracker_files_get_metadata_for_files_in_folder (client, -1, argv[1], meta_fields, &error);
+		meta_fields[argc-2] = NULL;
 	}
 
+	char *folder = g_filename_to_utf8 (argv[1], -1, NULL, NULL, NULL);
 
-	
-	
+	table = tracker_files_get_metadata_for_files_in_folder (client, -1, folder, meta_fields, &error);
+
+	g_free (folder);
+
+	g_strfreev (meta_fields);
+
 	if (error) {
 		g_warning ("An error has occured : %s", error->message);
 		g_error_free (error);
 	}
-
-	
 
 	if (table) {
 		g_print ("got %d values\n", g_hash_table_size (table));
@@ -111,8 +108,8 @@ main (int argc, char **argv)
 		g_hash_table_destroy (table);	
 	}
 
-	
 
 	tracker_disconnect (client);
+
 	return 0;
 }

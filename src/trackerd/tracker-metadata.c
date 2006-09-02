@@ -279,12 +279,18 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 		}
 
 		argv[0] = g_strdup (text_filter_file);
-		argv[1] = g_strdup (uri);
+		argv[1] = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 		argv[2] = g_strdup (temp_file_name);
 		argv[3] = NULL;
 
-
 		g_free (text_filter_file);
+
+		if (!argv[1]) {
+			tracker_log ("******ERROR**** uri could not be converted to locale format");
+			g_free (argv[0]);
+			g_free (argv[2]);
+			return NULL;
+		}
 
 		tracker_log ("extracting text for %s using filter %s", argv[1], argv[0]);
 	
@@ -354,11 +360,20 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 		}
 
 		argv[0] = g_strdup (thumbnailer);
-		argv[1] = g_strdup (uri);
+		argv[1] = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 		argv[2] = g_strdup (tmp_file);
 		argv[3] = g_strdup (max_size);
 		argv[4] = NULL;
-		
+
+		if (!argv[1]) {
+			tracker_log ("******ERROR**** uri could not be converted to locale format");
+			g_free (argv[0]);
+			g_free (argv[2]);
+			g_free (argv[3]);
+			return NULL;
+		}
+
+
 		tracker_log ("Extracting thumbnail for %s using %s", argv[1], argv[0] );
 
 		if (g_spawn_sync (NULL,
@@ -411,9 +426,25 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 		/* we extract metadata out of process using pipes */
 
 		argv[0] = g_strdup ("tracker-extract");
-		argv[1] = g_strdup (uri);
-		argv[2] = g_strdup (mime);
+		argv[1] = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+		argv[2] = g_locale_from_utf8 (mime, -1, NULL, NULL, NULL);
 		argv[3] = NULL;
+
+		if (!argv[1] || !argv[2]) {
+			tracker_log ("******ERROR**** uri or mime could not be converted to locale format");
+
+			g_free (argv[0]);
+
+			if (argv[1]) {
+				g_free (argv[1]);
+			}
+
+			if (argv[2]) {
+				g_free (argv[2]);
+			}
+
+			return;
+		}
 
 		if (g_spawn_sync (NULL,
 				  argv,
@@ -434,55 +465,52 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 				char *meta_value = NULL;
 				char *sep;
 				char **values, **values_p;
-				
+
 				values = g_strsplit_set (value, ";", -1);
 
 				for (values_p = values; *values_p; values_p++) {
 
-					if (*values_p) {
-						
-						char *meta_data = g_strdup (g_strstrip (*values_p));
-						
-						sep = strchr (meta_data, '=');
-      						
-						if (sep) {
-							meta_name = g_strndup (meta_data, (int) (sep - meta_data));
-							meta_value = g_strdup (sep + 1);
-											
-							if (meta_name) {
-								if (meta_value) {
-									char *st = NULL;
-					
-									st = g_hash_table_lookup (table, meta_name);
-						
-									if (st == NULL) {
-	
-										char *utf_value;
-	
-										if (!g_utf8_validate (meta_value, -1, NULL)) {
-	
-											utf_value = g_locale_to_utf8 (meta_value, -1, NULL, NULL, NULL);
-								      		} else {
-											utf_value = g_strdup (meta_value);
-										}
+					char *meta_data = g_strdup (g_strstrip (*values_p));
 
-										tracker_log ("%s = %s", meta_name, utf_value);
+					sep = strchr (meta_data, '=');
 
-										g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
+					if (sep) {
+						meta_name = g_strndup (meta_data, (int) (sep - meta_data));
+						meta_value = g_strdup (sep + 1);
 
-										g_free (utf_value);
+						if (meta_name) {
+							if (meta_value) {
+								char *st = NULL;
+
+								st = g_hash_table_lookup (table, meta_name);
+
+								if (st == NULL) {
+
+									char *utf_value;
+
+									if (!g_utf8_validate (meta_value, -1, NULL)) {
+
+										utf_value = g_locale_to_utf8 (meta_value, -1, NULL, NULL, NULL);
+									} else {
+										utf_value = g_strdup (meta_value);
 									}
-									g_free (meta_value);						
-								}
-								g_free (meta_name);
 
+									tracker_log ("%s = %s", meta_name, utf_value);
+
+									g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
+
+									g_free (utf_value);
+								}
+								g_free (meta_value);
 							}
-						
+							g_free (meta_name);
+
 						}
 
-						g_free (meta_data);
-
 					}
+
+					g_free (meta_data);
+
 				}
 
 				g_strfreev (values);
@@ -490,15 +518,16 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 
 
 
-		if (value) { 
-			g_free (value);		
+			if (value) {
+				g_free (value);
+			}
+
+			g_free (argv[0]);
+			g_free (argv[1]);
+			g_free (argv[2]);
+
 		}
 
-		g_free (argv[0]);
-		g_free (argv[1]);
-		g_free (argv[2]);
-		
-		}
-		
 	}
+
 }

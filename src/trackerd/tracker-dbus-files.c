@@ -465,6 +465,9 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
+
+	tracker_set_error (rec, "Method not imploemented yet");	
+	return;
 	
 	dbus_message_get_args  (rec->message, NULL, 
 				DBUS_TYPE_STRING, &uri, 
@@ -485,8 +488,9 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 
 		char *str_max_length = tracker_int_to_str (max_length);
 
-		char ***res = tracker_exec_proc  (db_con,  "SearchFileContents", 4, path, name, text, str_max_length);
-			
+		char ***res = NULL;
+		//tracker_exec_proc  (db_con,  "SearchFileContents", 4, path, name, text, str_max_length);
+					
 		g_free (str_max_length);
 		g_free (path);
 		g_free (name);	

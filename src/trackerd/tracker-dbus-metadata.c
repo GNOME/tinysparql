@@ -104,7 +104,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 
 
 
-		tracker_set_metadata (db_con, service, id, meta, value, !is_local_file);
+		tracker_db_set_metadata (db_con, service, id, meta, value, !is_local_file);
 
 	}
 

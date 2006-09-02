@@ -18,11 +18,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
+#include <locale.h>
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #include "tracker-parser.h"
 
@@ -30,24 +28,27 @@
 
 
 static char *
-load_text_from_file (const char *filename)
+load_text_from_file (const char *filename_in_locale)
 {
 
-	char *text, *value;
+	char *text;
+	gsize length;
 
-	if (!g_file_get_contents (filename, &text, NULL, NULL)) {
-		g_print ("could not open file %s", filename);
+	if (!g_file_get_contents (filename_in_locale, &text, &length, NULL)) {
+		g_warning ("could not open file %s", filename_in_locale);
     		return NULL;
 	}
 
 
 	if (!g_utf8_validate (text, -1, NULL)) {
 
+		char *value;
+
 		/* attempt to convert from locale */
-		value = g_locale_to_utf8 (text, -1, NULL, NULL, NULL);
+		value = g_locale_to_utf8 (text, length, NULL, NULL, NULL);
 
 		if (!value) {
-			g_print ("Cannot convert file to valid utf-8\n");	
+			g_warning ("Cannot convert file to valid utf-8\n");	
 			return NULL;
 		}
 		
@@ -71,14 +72,12 @@ write_data (gpointer key,
 	GString *str = user_data;
 
 	g_string_append_printf (str, "%d %s\n", score, word);
-		
-	
+
 }
 
 
-
 static void
-save_words_to_file (const char *filename, GHashTable *table)
+save_words_to_file (const char *filename_in_locale, GHashTable *table)
 {
 
 	GString *str = g_string_new ("");
@@ -88,18 +87,20 @@ save_words_to_file (const char *filename, GHashTable *table)
 		g_hash_table_destroy (table);	
 	}
 
-	g_file_set_contents (filename, g_string_free (str, FALSE), -1, NULL);
+	g_file_set_contents (filename_in_locale, g_string_free (str, FALSE), -1, NULL);
 		
 }
 
 
 int
-main (int    argc,
-      char **argv)
+main (int argc, char **argv)
 {
 	char *text;
 	GHashTable *table;
-	
+
+
+	setlocale (LC_ALL, "");
+
 	if (argc < 3) {
 		g_print ("must give two filenames on the command line\n");
   		return 1;
@@ -114,8 +115,9 @@ main (int    argc,
 
 	table = tracker_parse_text (text, 3, NULL, NULL, TRUE , 1);
 
+	g_free (text);
+
   	save_words_to_file (argv[2], table);
   
 	return 0;
 }
-

@@ -17,7 +17,9 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include <locale.h>
 #include <glib.h>
+
 #include "../libtracker/tracker.h" 
 
 static GMainLoop 	*loop;
@@ -40,14 +42,22 @@ my_callback (char **result, GError *error, gpointer user_data)
 	}
 	
 	for (p_strarray = result; *p_strarray; p_strarray++) {
-    		 g_print ("%s\n", *p_strarray);
+		char *s = NULL;
+
+		s = g_locale_from_utf8 (*p_strarray, -1, NULL, NULL, NULL);
+
+		if (s) {
+			g_print ("%s\n", *p_strarray);
+
+			g_free (s);
+		}
 	}
 
 	g_strfreev (result);
 
 	g_main_loop_quit (loop);
-
 }
+
 
 int 
 main (int argc, char **argv) 
@@ -56,10 +66,11 @@ main (int argc, char **argv)
 	TrackerClient *client = NULL;
 
 
+	setlocale (LC_ALL, "");
+
 	if (argc < 2) {
 		g_print ("usage - tracker-search SearchTerm1  [Searchterm2...]\nMultiple search terms are ANDed by default\n");
 		return 1;
-
 	}
 
 	client =  tracker_connect (FALSE);
@@ -77,14 +88,31 @@ main (int argc, char **argv)
 		int i;
 
 		for (i=0; i<(argc-2); i++) {
-			g_string_append_printf (str, " %s", argv[i+2]);
+			char *s = NULL;
+
+			s = g_locale_to_utf8 (argv[i+2], -1, NULL, NULL, NULL);
+
+			if (s) {
+				g_string_append_printf (str, " %s", s);
+
+				g_free (s);
+			}
 		}
 
 		char *search = g_string_free (str, FALSE);
-		tracker_search_text_async  (client, -1, SERVICE_FILES, search,  0, 512, FALSE, my_callback, NULL);
+
+		tracker_search_text_async (client, -1, SERVICE_FILES, search, 0, 512, FALSE, my_callback, NULL);
 
 	} else {
-		tracker_search_text_async  (client, -1, SERVICE_FILES, argv[1], 0, 512, FALSE, my_callback, NULL);
+		char *s = NULL;
+
+		s = g_locale_to_utf8 (argv[1], -1, NULL, NULL, NULL);
+
+		if (s) {
+			tracker_search_text_async (client, -1, SERVICE_FILES, s, 0, 512, FALSE, my_callback, NULL);
+
+			g_free (s);
+		}
 	}
 
 	g_main_loop_run (loop);

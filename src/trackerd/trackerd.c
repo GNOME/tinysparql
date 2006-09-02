@@ -21,6 +21,8 @@
 #define I_AM_MAIN 
 
 #include "config.h"
+
+#include <locale.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -560,10 +562,6 @@ signal_handler (int signo)
 static void 
 delete_file (DBConnection *db_con, FileInfo *info)
 {
-	char *str_file_id;
-
-	//if (!tracker->is_running) return;
-
 	/* info struct may have been deleted in transit here so check if still valid and intact */
 	g_return_if_fail ( tracker_file_info_is_valid (info));
 
@@ -572,11 +570,7 @@ delete_file (DBConnection *db_con, FileInfo *info)
 		return;
 	}
 
-	str_file_id = tracker_long_to_str (info->file_id);
-
-	tracker_exec_proc  (db_con, "DeleteFile", 1,  str_file_id);
-
-	g_free (str_file_id);
+	tracker_db_delete_file (db_con, info->file_id);
 
 	tracker_log ("deleting file %s", info->uri);
 
@@ -587,7 +581,6 @@ delete_file (DBConnection *db_con, FileInfo *info)
 static void 
 delete_directory (DBConnection *db_con, FileInfo *info)
 {
-	char *str_file_id, *str_path;
 
 	//if (!tracker->is_running) return;
 
@@ -599,27 +592,14 @@ delete_directory (DBConnection *db_con, FileInfo *info)
 		return;
 	}
 
-	str_file_id = tracker_long_to_str (info->file_id);
-
-	char *name = g_path_get_basename (info->uri);
-	char *path = g_path_get_dirname (info->uri);
-
-	str_path = g_build_filename (path, name,  NULL);
-
-	g_free (name);
-	g_free (path);
-
-	tracker_exec_proc  (db_con, "DeleteDirectory", 2,  str_file_id, str_path);
+	tracker_db_delete_directory (db_con, info->file_id, info->uri);
 
 	tracker_remove_watch_dir (info->uri, TRUE, db_con);
 
 	tracker_remove_poll_dir (info->uri);
 
-	tracker_log ("deleting directory %s and subdirs", str_path);
+	tracker_log ("deleting directory %s and subdirs", info->uri);
 
-	g_free (str_path);
-
-	g_free (str_file_id);
 
 	return;
 }
@@ -628,7 +608,7 @@ delete_directory (DBConnection *db_con, FileInfo *info)
 static void
 index_file (DBConnection *db_con, FileInfo *info)
 {
-	char 		*str_dir, *str_link, *str_link_uri, *str_mtime, *str_file_id;
+	char 		*str_link_uri, *str_file_id;
 	GHashTable 	*meta_table;
 
 	if (!tracker->is_running) return;
@@ -668,7 +648,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 	}
 
 
-	str_mtime = tracker_date_to_str (info->mtime);
+	char *str_mtime = tracker_date_to_str (info->mtime);
 	char *str_atime = tracker_date_to_str (info->atime);
 
 	char *name = g_path_get_basename (info->uri);
@@ -687,9 +667,6 @@ index_file (DBConnection *db_con, FileInfo *info)
 	g_free (str_atime);
 
 	str_file_id = tracker_long_to_str (info->file_id);
-	str_dir = tracker_int_to_str (info->is_directory);
-	str_link = tracker_int_to_str (info->is_link);
-	str_mtime = tracker_long_to_str (info->mtime);
 
 	/* work out whether to insert or update file (file_id of -1 means no existing record so insert) */
 	if (info->file_id == -1) {
@@ -702,23 +679,20 @@ index_file (DBConnection *db_con, FileInfo *info)
 		} else {
 		 	service_name = tracker_get_service_type_for_mime (info->mime);
 		}
-
-		tracker_exec_proc  (db_con, "CreateService", 8, path, name, service_name, str_dir, str_link, "0", "0", str_mtime);
+		tracker_db_create_service (db_con, path, name, service_name, info->is_directory, info->is_link, FALSE, 0, info->mtime);
 
 		//tracker_log ("processed file %s with mime %s and service %s", info->uri, info->mime, service_name); 
 
 		g_free (service_name);
 
- 
-
-		info->file_id = tracker_db_get_file_id (db_con, info->uri);
+ 		info->file_id = tracker_db_get_file_id (db_con, info->uri);
 
 				
 	} else {
 
 		tracker_log ("updating file %s ", info->uri);
 
-		tracker_exec_proc  (db_con, "UpdateFile", 2, str_file_id, str_mtime);
+		tracker_db_update_file (db_con, info->file_id, info->mtime);
 
 		/* delete all derived metadata in DB for an updated file */
 		tracker_exec_proc  (db_con, "DeleteEmbeddedServiceMetadata", 1, str_file_id);
@@ -737,10 +711,8 @@ index_file (DBConnection *db_con, FileInfo *info)
 	g_free (path);
 
 	g_free (str_file_id);
-	g_free (str_dir);
-	g_free (str_link);
 	g_free (str_link_uri);
-	g_free (str_mtime);
+
 
 	if (!info->is_directory && info->file_id != -1) {
 		tracker_db_insert_pending_file 	(db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory);
@@ -869,7 +841,7 @@ extract_metadata_thread ()
 	GHashTable *meta_table;
 	DBConnection *db_con;
 	char ***res = NULL;
-	char**  row;
+	char **row;
 	
 
 	sigset_t signal_set;
@@ -937,7 +909,7 @@ extract_metadata_thread ()
 				
 			}
 
-			res = tracker_exec_proc (db_con, "GetPendingMetadataFiles", 0);
+			res = tracker_db_get_pending_metadata (db_con);
 
 			int k = 0;
 
@@ -955,7 +927,7 @@ extract_metadata_thread ()
 				tracker_db_free_result (res);
 			}
 
-			tracker_exec_proc (db_con, "RemovePendingMetadataFiles", 0);
+			tracker_db_remove_pending_metadata (db_con);
 
 			continue;
 		}
@@ -1183,7 +1155,7 @@ process_files_thread ()
 			}
 
 
-			res = tracker_exec_proc (db_con, "GetPendingFiles", 0); 
+			res = tracker_db_get_pending_files (db_con); 
 
 			int k = 0;
 
@@ -1215,7 +1187,7 @@ process_files_thread ()
 			if (k == 0) {
 				g_usleep (100000);
 			} else {
-				tracker_exec_proc (db_con, "RemovePendingFiles", 0); 
+				tracker_db_remove_pending_files (db_con); 
 			}
 
 			continue;
@@ -1401,7 +1373,7 @@ process_user_request_queue_thread ()
 
 	db_con->thread = "request";
 
-	tracker_exec_proc  (db_con, "PrepareQueries", 0);	
+	tracker_db_prepare_queries (db_con);	
 
 	while (TRUE) {
 		
@@ -1736,19 +1708,17 @@ main (int argc, char **argv)
 	sigset_t 	empty_mask;
 	char 		*prefix, *lock_file, *str, *lock_str, *tracker_data_dir;
 
-
-
 	gboolean 	need_setup = FALSE;
 	DBConnection 	*db_con;
-	
+
+
+	setlocale (LC_ALL, "");
 
 	/* set timezone info */
 	tzset();
 
 	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken (jamiemcc@gnome.org)\n\n", TRACKER_VERSION);
 	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
-
-	//g_print ("Services supported by this version of tracker: %s, %s, %s, %s\n\n", implemented_services[0],  implemented_services[1],  implemented_services[2],  implemented_services[3]);
 
 	g_print ("Initialising tracker...\n");
 
@@ -1940,8 +1910,7 @@ main (int argc, char **argv)
 
 	
 	/* clear pending files and watch tables*/
-	tracker_exec_sql (db_con, "TRUNCATE TABLE FilePending");
-	tracker_exec_sql (db_con, "TRUNCATE TABLE FileWatches");
+	tracker_db_clear_temp (db_con);
 
 	char ***res = NULL;
 	char**  row;

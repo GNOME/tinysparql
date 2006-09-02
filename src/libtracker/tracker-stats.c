@@ -18,11 +18,12 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include <stdio.h>
+#include <locale.h>
 #include <string.h>
 #include <glib.h>
-#include "../libtracker/tracker.h" 
+#include <glib-object.h>
 
+#include "../libtracker/tracker.h" 
 
 #define TOTAL_COUNT "Total files indexed"
 
@@ -32,35 +33,35 @@ get_meta_table_data (char *key,
    		     gpointer value)
 		    
 {
-
 	char **meta, **meta_p;
 
 	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
 		g_warning ("fatal communication error\n");
 		return;
 	}
-	
+
 	g_print ("%s : ", key);
 
 	meta = g_value_get_boxed (value);
-	
-	int i =0;
+
+	int i = 0;
 	for (meta_p = meta; *meta_p; meta_p++) {
-		
-		if (*meta_p) {
-	     		if (i == 0) g_print ("%s ",  (char *)*meta_p);
-	     		if (i == 1 && (strcmp (key, TOTAL_COUNT) != 0)) g_print ("(%s\%)",  (char *)*meta_p);
+
+		if (i == 0) {
+			g_print ("%s ", *meta_p);
+
+		} else if (i == 1 && (strcmp (key, TOTAL_COUNT) != 0)) {
+			g_print ("(%s\%)", *meta_p);
 		}
 		i++;
-	}	
+	}
 	g_print ("\n");
 }
 
-
 static void
 get_meta_table_data_for_each (gpointer key,
-	   		     gpointer value,
-			     gpointer user_data)
+			      gpointer value,
+			      gpointer user_data)
 {
 	if (strcmp ((char* )key, TOTAL_COUNT) != 0) {
 		get_meta_table_data ((char *)key, value);
@@ -77,6 +78,8 @@ main (int argc, char **argv)
 	TrackerClient *client = NULL;
 
 
+	setlocale (LC_ALL, "");
+
 	if (argc > 1) {
 		g_print ("usage - tracker-stats\n");
 		return 1;
@@ -90,14 +93,13 @@ main (int argc, char **argv)
 	}
 
 	table =  tracker_get_stats (client, &error);
-	
-	
+
+
 	if (error) {
 		g_warning ("An error has occured : %s", error->message);
 		g_error_free (error);
 	}
 
-	
 
 	if (table) {
 
@@ -115,8 +117,8 @@ main (int argc, char **argv)
 		g_hash_table_destroy (table);	
 	}
 
-	
 
 	tracker_disconnect (client);
+
 	return 0;
 }
