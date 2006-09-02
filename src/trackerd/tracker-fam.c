@@ -98,9 +98,10 @@ void
 tracker_end_watching (void) 
 {
 
-	if (&fc) {
-		FAMClose (&fc);
-	}
+
+	FAMClose (&fc);
+
+	
 
 	if (fam_watch_id > 0) {
 		g_source_remove (fam_watch_id);
@@ -126,7 +127,7 @@ fam_callback (GIOChannel *source,
 {
 	int counter = 1;
 
-	while (&fc != NULL && FAMPending (&fc)) {
+	while (FAMPending (&fc)) {
 
 		FAMEvent ev;
 		DirWatch *watch;
