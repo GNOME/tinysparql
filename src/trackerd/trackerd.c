@@ -1181,13 +1181,13 @@ process_files_thread ()
 
 			}
 
+			tracker_db_remove_pending_files (db_con); 
+
 			if (!tracker->is_running) continue;
 
 			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM) */
 			if (k == 0) {
 				g_usleep (100000);
-			} else {
-				tracker_db_remove_pending_files (db_con); 
 			}
 
 			continue;
