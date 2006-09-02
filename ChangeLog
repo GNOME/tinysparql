@@ -1,3 +1,20 @@
+2006-09-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
+	
+	* Fix for Rdf-query parser to allow "contains" function to be called more easily 
+
+
+2006-09-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
+	
+	* Added locale handling for non utf-8 files
+	* Made sure all filenames passed to posix system calls are translated to user's locale
+	* made sure all results are displayed in user's locale
+	* cleaned up code
+
+
+2006-09-02 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added more abstractions for db calls
+
 2006-08-25 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Improved thread synchronisation speed
