@@ -194,7 +194,6 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 						
 					char *str_file_id = g_strdup_printf ("%ld", moved_from_info->file_id);
-					char *index_time = g_strdup_printf ("%ld", moved_from_info->indextime);
 					char *name = g_path_get_basename (moved_to_info->uri);
 					char *path = g_path_get_dirname (moved_to_info->uri);
 
@@ -202,14 +201,13 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 					
 					/* update db so that fileID reflects new uri */
-					tracker_exec_proc  (main_thread_db_con, "UpdateFileMove", 4, str_file_id, path, name, index_time);
-					
+					tracker_db_update_file_move (main_thread_db_con, moved_from_info->file_id, path, name, moved_from_info->indextime);
+										
 					/* update File.Path and File.Filename metadata */
-					tracker_exec_proc  (main_thread_db_con, "SetMetadata", 5, "Files", str_file_id, "File.Path", path, "1");
-					tracker_exec_proc  (main_thread_db_con, "SetMetadata", 5, "Files", str_file_id, "File.Name", name, "1");
+					tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id, "File.Path", path, TRUE);
+					tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id,  "File.Name", name, TRUE);
 	
 					g_free (str_file_id);
-					g_free (index_time);
 					g_free (name);
 					g_free (path);	
 
@@ -237,13 +235,14 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 
 						/* update all changed File.Path metadata */
+						
 						tracker_exec_proc  (main_thread_db_con, "UpdateFileMovePath", 2, moved_to_info->uri, moved_from_info->uri);
 
 
 						/* for each subfolder, we must do the same as above */						
 
 						/* get all sub folders that were moved and add watches */
-						res = tracker_exec_proc  (main_thread_db_con, "SelectFileSubFolders", 1, moved_from_info->uri);
+						res = tracker_db_get_file_subfolders (main_thread_db_con, moved_from_info->uri);
 
 						if (res) {
 

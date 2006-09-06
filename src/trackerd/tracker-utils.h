@@ -174,6 +174,12 @@ typedef struct {
 	long			atime;
 	long			indextime;
 
+	/* options */
+	char			*move_from_uri;
+	gboolean		extract_embedded;
+	gboolean		extract_contents;
+	gboolean		extract_thumbs;
+
 	/* we ref count FileInfo as it has a complex lifespan and is tossed between various threads, lists, queues and hash tables */
 	int			ref_count;
 

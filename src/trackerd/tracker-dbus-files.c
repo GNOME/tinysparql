@@ -109,18 +109,19 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 		}
 		
 		if (file_valid) {
-			tracker_exec_proc  (db_con, "CreateService", 8, path, name, service, str_is_dir, "0", "0", "0",  str_mtime);	
+			tracker_db_create_service (db_con, path, name, service, FALSE, FALSE, FALSE, 0,  0);
 		}
 
 		file_id = tracker_db_get_file_id (db_con, uri);
 		char *str_file_id = tracker_long_to_str (file_id);
 
 		if (file_id > 0) {
-			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Modified",  str_mtime, "1");	
-			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Size",  str_size, "1");
-			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Name",  name, "1");		
-			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Path",  path, "1");
-			tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Format",  mime, "1");
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified",  str_mtime, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Size",  str_size, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id,  "File.Name",  name, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Path",  path, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Format",  mime, TRUE);
+	
 		}
 
 		g_free (mime);
@@ -201,19 +202,18 @@ tracker_dbus_method_files_create (DBusRec *rec)
 		name = tracker_get_vfs_name (uri);
 		path = tracker_get_vfs_path (uri);
 	}
-
-	tracker_exec_proc  (db_con, "CreateService", 8, path, name, service, str_is_dir, "0", "0", "0",  str_mtime);	
+	
+	tracker_db_create_service (db_con, path, name, service, is_dir, FALSE, FALSE, 0, mtime);
 
 	long file_id = tracker_db_get_file_id (db_con, uri);
 	char *str_file_id = tracker_long_to_str (file_id);
 
 	if (file_id != -1) {
-		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Modified",  str_mtime, "1");	
-		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Size",  str_size, "1");
-		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Name",  name, "1");		
-		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Path",  path, "1");
-		tracker_exec_proc  (db_con, "SetMetadata", 5,  service, str_file_id, "File.Format",  mime, "1");
-
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified",  str_mtime, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Size",  str_size, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id,  "File.Name",  name, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Path",  path, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Format",  mime, TRUE);
 	}
 
 	g_free (service);
@@ -285,9 +285,10 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 
 	if (file_id != -1) {
 		if (is_dir) {
-			tracker_exec_proc  (db_con, "DeleteDirectory", 2, str_file_id, path);	
+			tracker_db_delete_directory (db_con, file_id, path);
 		} else {
-			tracker_exec_proc  (db_con, "DeleteFile", 1, str_file_id);	
+			tracker_db_delete_file (db_con, file_id);
+
 		}
 	}
 
@@ -406,8 +407,9 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 		char *str_offset = tracker_int_to_str (offset);
 		char *str_max_length = tracker_int_to_str (max_length);
 
-		char ***res = tracker_exec_proc  (db_con,  "GetFileContents", 4, path, name, str_offset, str_max_length);
-			
+		///char ***res = tracker_exec_proc  (db_con,  "GetFileContents", 4, path, name, str_offset, str_max_length);
+		char ***res = NULL;
+	
 		g_free (str_offset);
 		g_free (str_max_length);
 		g_free (path);
@@ -639,13 +641,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 
 	
 	
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_offset = tracker_int_to_str (offset);
-
-	char ***res = tracker_exec_proc  (db_con,  "GetFilesByServiceType", 3, service, str_offset, str_limit);
-		
-	g_free (str_offset);
-	g_free (str_limit);
+	char ***res = tracker_db_get_files_by_service (db_con, service, offset, limit);
 
 				
 	if (res) {
@@ -709,29 +705,11 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 		return;
 	}
 
-	int i;
 
-	GString *str = g_string_new ("");
-	str = g_string_append (str, mimes[0]);
-
-	for (i=1; i<n; i++) {
-		g_string_append_printf (str, ",%s", mimes[i]); 
-
-	}
+	char ***res = tracker_db_get_files_by_mime (db_con, mimes, n, offset, limit, FALSE);
 
 
-	char *str_mimes = g_string_free (str, FALSE);
-	
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_offset = tracker_int_to_str (offset);
 
-	tracker_log ("Executing GetFilesByMimeType with param %s", str_mimes);
-
-	char ***res = tracker_exec_proc  (db_con,  "GetFilesByMimeType", 3, str_mimes, str_offset, str_limit);
-		
-	g_free (str_mimes);
-	g_free (str_limit);
-	g_free (str_offset);
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
@@ -789,24 +767,7 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 				DBUS_TYPE_INVALID);
 		
 
-	char **null_array = tracker_make_array_null_terminated (mimes, n);
-		
-	char *keys = g_strjoinv (",", null_array);
-
-	g_strfreev (null_array);
-
-	char *str_mimes = g_strconcat ("'", keys, "'", NULL);
-	
-	g_free (keys);
-
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_offset = tracker_int_to_str (offset);
-
-	char ***res = tracker_exec_proc  (db_con,  "GetVFSFilesByMimeType", 3, str_mimes, str_offset, str_limit);
-		
-	g_free (str_mimes);
-	g_free (str_offset);
-	g_free (str_limit);
+	char ***res = tracker_db_get_files_by_mime (db_con, mimes, n, offset, limit, TRUE);
 				
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
@@ -993,9 +954,8 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 	DBusMessage *reply;
 	char **array = NULL;
 	int row_count = 0, i = 0, n;
-	char *str, *mime_list, *search_term = NULL;
+	char *str;
 	GString *mimes = NULL;
-	gboolean use_boolean_search = TRUE;
 	char ***res = NULL;
 	char**  row;
 
@@ -1006,32 +966,9 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 	
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_INVALID);
 
-	/* build mimes string */
-	for (i=0; i<n; i++) {
-		if (array[i] && strlen (array[i]) > 0) {
-			if (mimes) {
-				g_string_append (mimes, ",");
-				g_string_append (mimes, array[i]);
-			} else {
-				mimes = g_string_new (array[i]);
-			}
-			
-		}
-	}
-
+	res = tracker_db_search_text_mime (db_con, str, array, n);
 	
-
-	mime_list = g_string_free (mimes, FALSE);
-
-	/* check search string for embedded special chars like hyphens and format appropriately */
-	search_term = tracker_format_search_terms (str, &use_boolean_search);
-
-	res = tracker_exec_proc  (db_con, "SearchTextMime", 2, search_term , mime_list);
-
-	g_free (search_term);
-
-	g_free (mime_list);
-
+	
 	if (res) {
 
 		row_count = tracker_get_row_count (res);
@@ -1083,8 +1020,7 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 	DBusMessage *reply;
 	char **array = NULL;
 	int row_count = 0, i = 0;
-	char *str, *location, *search_term = NULL;
-	gboolean use_boolean_search = TRUE;
+	char *str, *location;
 	char ***res = NULL;
 	char**  row;
 
@@ -1094,12 +1030,8 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 	
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_STRING, &location, DBUS_TYPE_INVALID);
 
-	search_term = tracker_format_search_terms (str, &use_boolean_search);
-
-	res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , location);
-
-	g_free (search_term);
-
+	
+	res = tracker_db_search_text_location (db_con, str, location);
 
 	if (res) {
 
@@ -1152,9 +1084,7 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 	DBusMessage *reply;
 	char **array = NULL;
 	int row_count = 0, i = 0, n;
-	char *str, *mime_list, *location, *search_term = NULL;
-	GString *mimes = NULL;
-	gboolean use_boolean_search = TRUE;
+	char *str, *location;
 	char ***res = NULL;
 	char**  row;
 
@@ -1164,32 +1094,7 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 	
 	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_STRING, &str, DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n, DBUS_TYPE_STRING, &location, DBUS_TYPE_INVALID);
 
-	/* build mimes string */
-	for (i=0; i<n; i++) {
-		if (array[i] && strlen (array[i]) > 0) {
-			if (mimes) {
-				g_string_append (mimes, ",");
-				g_string_append (mimes, array[i]);
-			} else {
-				mimes = g_string_new (array[i]);
-			}
-			//g_free (array[i]);
-		}
-	}
-
-	
-
-	mime_list = g_string_free (mimes, FALSE);
-
-	search_term = tracker_format_search_terms (str, &use_boolean_search);
-
-	//g_print ("search term is before %s and after %s\n\n", str, search_term);
-
-	res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , mime_list, location);
-
-	g_free (search_term);
-
-	g_free (mime_list);
+	res = tracker_db_search_text_mime_location (db_con, str, array, n, location);
 
 	if (res) {
 

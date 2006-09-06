@@ -76,6 +76,7 @@ void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const
 void		tracker_db_delete_file 		(DBConnection *db_con, long file_id);
 void		tracker_db_delete_directory 	(DBConnection *db_con, long file_id, const char *uri);
 void		tracker_db_update_file 		(DBConnection *db_con, long file_id, long mtime);
+void		tracker_db_update_file_move	(DBConnection *db_con, long file_id, const char *path, const char *name, long mtime);
 
 gboolean 	tracker_db_has_pending_files 	(DBConnection *db_con);
 gboolean 	tracker_db_has_pending_metadata (DBConnection *db_con);
@@ -83,9 +84,14 @@ char ***	tracker_db_get_pending_files 	(DBConnection *db_con);
 void		tracker_db_remove_pending_files (DBConnection *db_con);
 char ***	tracker_db_get_pending_metadata (DBConnection *db_con);
 void		tracker_db_remove_pending_metadata (DBConnection *db_con);
+void		tracker_db_insert_pending	(DBConnection *db_con, const char *id, const char *action, const char *counter, const char *uri, const char *mime, gboolean is_dir);
+void		tracker_db_update_pending 	(DBConnection *db_con, const char *counter, const char *action, const char *uri);
 
+char ***	tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int offset, int limit);
+char ***	tracker_db_get_files_by_mime 	(DBConnection *db_con, char **mimes, int n, int offset, int limit, gboolean vfs);
+char ***	tracker_db_search_text_mime  	(DBConnection *db_con, const char *text , char **mime_array, int n);
+char ***	tracker_db_search_text_location	(DBConnection *db_con, const char *text ,const char *location);
+char ***	tracker_db_search_text_mime_location  (DBConnection *db_con, const char *text , char **mime_array, int n, const char *location);
 
-
-
-
+char ***	tracker_db_get_file_subfolders 	(DBConnection *db_con, const char *uri);
 #endif

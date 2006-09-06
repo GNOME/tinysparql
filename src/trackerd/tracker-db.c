@@ -160,9 +160,7 @@ get_meta_table_data (gpointer key,
 {
 	DatabaseAction *db_action;	
 	char *mtype, *mvalue, *avalue, *dvalue = NULL, *evalue;
-	char ***res = NULL;
-	char ** row;	
-
+	
 	mtype = (char *)key;
 	avalue = (char *)value;
 
@@ -203,19 +201,9 @@ get_meta_table_data (gpointer key,
 		g_free (evalue);
 	}
  
-	res = tracker_exec_proc  (db_action->db_con, "SetMetadata", 5, "Files", db_action->file_id, mtype, mvalue, "1");
+	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE);
 
-	if (res) {
-		
-		if ((row = tracker_db_get_row (res, 0))) {
-			if (row[0]) {
-				tracker_log ("Error %s saving metadata %s with value %s", row[0], mtype, mvalue);
-			}
-
-		}
-		tracker_db_free_result (res);
-	}
-
+	
 	if (mvalue) {
 		g_free (mvalue);
 	}
@@ -256,7 +244,8 @@ tracker_db_save_thumbs	(DBConnection *db_con, const char *small_thumb, const cha
 
 	if (small_thumb) {
 		small_thumb_file = tracker_escape_string (db_con, small_thumb);
-		tracker_exec_proc  (db_con, "SetMetadata", 5, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1");	
+		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE);
+//		tracker_exec_proc  (db_con, "SetMetadata", 5, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1");	
 		g_free (small_thumb_file);
 	}
 
@@ -264,7 +253,8 @@ tracker_db_save_thumbs	(DBConnection *db_con, const char *small_thumb, const cha
 
 	if (large_thumb) {
 		large_thumb_file = tracker_escape_string (db_con, large_thumb);
-		tracker_exec_proc  (db_con, "SetMetadata", 5, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, "1");	
+		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, TRUE);
+//		tracker_exec_proc  (db_con, "SetMetadata", 5, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, "1");	
 		g_free (large_thumb_file);
 	}
 
@@ -442,13 +432,12 @@ static void
 make_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
 {
 	
-	char *str_file_id, *str_action, *str_is_directory, *str_counter;
+	char *str_file_id, *str_action,  *str_counter;
 
 	g_return_if_fail (uri);
 
 	str_file_id = g_strdup_printf ("%ld", file_id);
 	str_action = g_strdup_printf ("%d", action);
-	str_is_directory = g_strdup_printf ("%d", is_directory);
 	str_counter = g_strdup_printf ("%d", counter);
 
 	if (!mime) {
@@ -457,7 +446,7 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 	  		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > 500 || tracker_db_has_pending_metadata (db_con)))
 	  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > 500 || tracker_db_has_pending_files (db_con))) ) {
 
-				tracker_exec_proc  (db_con, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  "unknown", str_is_directory);
+				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri,  "unknown", is_directory);
 			} else {
 
 				FileInfo *info = tracker_create_file_info (uri, action, 0, WATCH_OTHER);
@@ -476,7 +465,7 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 		}
 	} else {
 		if (tracker->is_running) {
-			tracker_exec_proc  (db_con, "InsertPendingFile", 6, str_file_id, str_action, str_counter, uri,  mime, str_is_directory);
+			tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri,  mime, is_directory);
 		} else {
 			return;
 		}
@@ -494,7 +483,7 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 	g_free (str_file_id);
 	g_free (str_action);
 	g_free (str_counter);
-	g_free (str_is_directory);
+
 }
 
 
@@ -509,7 +498,7 @@ tracker_db_update_pending_file (DBConnection *db_con, const char* uri, int count
 	str_action = g_strdup_printf ("%d", action);
 
 	if (tracker->is_running) {
-		tracker_exec_proc  (db_con, "UpdatePendingFile", 3, str_counter, str_action, uri);
+		tracker_db_update_pending (db_con, str_counter, str_action, uri);
 	}
 
 	g_free (str_counter);

@@ -1487,5 +1487,181 @@ tracker_db_remove_pending_metadata (DBConnection *db_con)
 	tracker_exec_proc (db_con, "RemovePendingMetadataFiles", 0);
 }
 
+void
+tracker_db_insert_pending (DBConnection *db_con, const char *id, const char *action, const char *counter, const char *uri, const char *mime, gboolean is_dir)
+{
+
+	if (is_dir) {
+		tracker_exec_proc  (db_con, "InsertPendingFile", 6, id, action, counter, uri, mime, "1");
+	} else {
+		tracker_exec_proc  (db_con, "InsertPendingFile", 6, id, action, counter, uri,  mime, "0");
+	}
+}	
+
+
+void
+tracker_db_update_pending (DBConnection *db_con, const char *counter, const char *action, const char *uri )
+{
+	tracker_exec_proc  (db_con, "UpdatePendingFile", 3, counter, action, uri);
+}
+
+
+char ***
+tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int offset, int limit)
+{
+
+	char *str_limit = tracker_int_to_str (limit);
+	char *str_offset = tracker_int_to_str (offset);
+
+	char ***res = tracker_exec_proc  (db_con,  "GetFilesByServiceType", 3, service, str_offset, str_limit);
+		
+	g_free (str_offset);
+	g_free (str_limit);
+
+	return res;
+
+}
+
+
+char ***
+tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int offset, int limit, gboolean vfs)
+{
+	int i;
+	char ***res = NULL;
+
+	GString *str = g_string_new ("");
+
+	str = g_string_append (str, mimes[0]);
+
+	for (i=1; i<n; i++) {
+		g_string_append_printf (str, ",%s", mimes[i]); 
+	}
+
+
+	char *str_mimes = g_string_free (str, FALSE);
+	char *str_limit = tracker_int_to_str (limit);
+	char *str_offset = tracker_int_to_str (offset);
+
+	if (!vfs) {
+		res = tracker_exec_proc  (db_con,  "GetFilesByMimeType", 3, str_mimes, str_offset, str_limit);
+	} else {
+		res = tracker_exec_proc  (db_con,  "GetVFSFilesByMimeType", 3, str_mimes, str_offset, str_limit);
+	}
+		
+	g_free (str_mimes);
+	g_free (str_limit);
+	g_free (str_offset);
+
+	return res;
+}
+
+
+
+char ***
+tracker_db_search_text_mime  (DBConnection *db_con, const char *text , char **mime_array, int n)
+{
+	gboolean use_boolean_search;
+	int i;
+
+	/* check search string for embedded special chars like hyphens and format appropriately */
+	char *search_term = tracker_format_search_terms (text, &use_boolean_search);
+
+	GString *mimes = NULL;
+
+	/* build mimes string */
+	for (i=0; i<n; i++) {
+		if (mime_array[i] && strlen (mime_array[i]) > 0) {
+			if (mimes) {
+				g_string_append (mimes, ",");
+				g_string_append (mimes, mime_array[i]);
+			} else {
+				mimes = g_string_new (mime_array[i]);
+			}
+			
+		}
+	}
+
+	char *mime_list = g_string_free (mimes, FALSE);
+
+	char ***res = tracker_exec_proc  (db_con, "SearchTextMime", 2, search_term , mime_list);
+
+	g_free (search_term);	
+	g_free (mime_list);
+
+	return res;
+	
+}
+
+
+char ***
+tracker_db_search_text_location  (DBConnection *db_con, const char *text ,const char *location)
+{
+	gboolean use_boolean_search;
+
+	char *search_term = tracker_format_search_terms (text, &use_boolean_search);
+
+	char ***res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , location);
+
+	g_free (search_term);
+
+	return res;
+
+}
+
+
+char ***
+tracker_db_search_text_mime_location  (DBConnection *db_con, const char *text , char **mime_array, int n, const char *location)
+{
+	gboolean use_boolean_search;
+	int i;
+	/* check search string for embedded special chars like hyphens and format appropriately */
+	char *search_term = tracker_format_search_terms (text, &use_boolean_search);
+
+	GString *mimes = NULL;
+
+	/* build mimes string */
+	for (i=0; i<n; i++) {
+		if (mime_array[i] && strlen (mime_array[i]) > 0) {
+			if (mimes) {
+				g_string_append (mimes, ",");
+				g_string_append (mimes, mime_array[i]);
+			} else {
+				mimes = g_string_new (mime_array[i]);
+			}
+			
+		}
+	}
+	
+	char *mime_list = g_string_free (mimes, FALSE);
+
+	char ***res = tracker_exec_proc  (db_con, "SearchTextMimeLocation", 3, search_term , mime_list, location);
+
+	g_free (search_term);	
+	g_free (mime_list);
+
+	return res;
+	
+}
+
+
+
+void
+tracker_db_update_file_move (DBConnection *db_con, long file_id, const char *path, const char *name, long mtime)
+{
+	char *str_file_id = g_strdup_printf ("%ld", file_id);
+	char *index_time = g_strdup_printf ("%ld", mtime);
+
+	tracker_exec_proc  (db_con, "UpdateFileMove", 4, str_file_id, path, name, index_time);
+
+	g_free (str_file_id);
+	g_free (index_time);
+}
+
+char ***
+tracker_db_get_file_subfolders (DBConnection *db_con, const char *uri)
+{
+	return tracker_exec_proc (db_con, "SelectFileSubFolders", 1, uri);
+}
+
 
 
