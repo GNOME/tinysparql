@@ -17,9 +17,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _TRACKER_METADATA_H_
+#define _TRACKER_METADATA_H_
+
 #include <glib.h>
 
-#define THUMB_SMALL "128" 
+#define THUMB_SMALL "128"
 #define THUMB_LARGE "640"
 
 void			tracker_metadata_get_embedded 	  	(const char *uri, const char *mime, GHashTable *table);
@@ -28,3 +31,4 @@ void			tracker_metadata_parse_text_contents 	(const char *file_as_text, unsigned
 char *			tracker_metadata_get_thumbnail 	  	(const char *uri, const char *mime, const char *max_size);
 char *			tracker_get_service_type_for_mime 	(const char *mime);
 
+#endif

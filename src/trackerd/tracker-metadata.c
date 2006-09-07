@@ -1,8 +1,8 @@
-/* Tracker 
+/* Tracker
  * utility routines
  * Copyright (C) 2005, Mr Jamie McCracken
  *
- * This library is free software; you can redistribute it and/or 
+ * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
@@ -15,17 +15,15 @@
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
- */ 
- 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+ * Boston, MA 02111-1307, USA.
+ */
+
 #include <unistd.h>
+#include <string.h>
+#include <glib/gstdio.h>
+
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
-
-
 
 
 typedef enum {
@@ -45,18 +43,18 @@ char *doc_mime_types[] = {
 			  "application/rtf",
 			  "text/richtext"
 			  "application/msword",
-			  "application/pdf", 
+			  "application/pdf",
 			  "application/postscript",
 			  "application/x-dvi",
 			  "application/vnd.ms-excel",
 			  "vnd.ms-powerpoint",
 			  "application/vnd.oasis.opendocument",
-			  "application/vnd.sun.xml",  
+			  "application/vnd.sun.xml",
 			  "application/vnd.stardivision",
 			  "application/x-abiword",
 			  "text/html",
-			  "text/sgml", 
-			  "application/x-mswrite", 
+			  "text/sgml",
+			  "application/x-mswrite",
 			  "application/x-applix-word",
 			  "application/docbook+xml",
 		          "application/x-kword",
@@ -82,8 +80,8 @@ char *doc_mime_types[] = {
 	    		  "application/x-kivio",
 	    		  "application/x-kontour",
 	    		  "application/x-wpg"
+};
 
-}; 
 
 char *text_mime_types[] = {
 		"text/plain",
@@ -93,7 +91,6 @@ char *text_mime_types[] = {
 		"text/x-install",
 		"text/x-readme"
 };
-		
 
 
 char *development_mime_types[] = {
@@ -106,10 +103,10 @@ char *development_mime_types[] = {
 				"application/x-csh",
 				"application/x-class-file",
 				"application/x-awk",
-				"text/x-adasrc", 
+				"text/x-adasrc",
 				"text/x-c++hdr",
 				"text/x-chdr",
-				"text/x-csharp", 
+				"text/x-csharp",
 				"text/x-c++src",
 				"text/x-csrc",
 				"text/x-dcl",
@@ -136,42 +133,41 @@ tracker_get_metadata_type (const char *mime)
 {
 	int i;
 	int num_elements;
-	
 
 	if (strcmp (mime, "text/plain") == 0) {
-		return TEXT_METADATA;	
+		return TEXT_METADATA;
 	}
 
 	if (g_str_has_prefix (mime, "image") || (strcmp (mime, "application/vnd.oasis.opendocument.image") == 0) || (strcmp (mime, "application/x-krita") == 0)) {
-		return IMAGE_METADATA;		
+		return IMAGE_METADATA;
 
 	} else 	if (g_str_has_prefix (mime, "video")) {
 			/* don't bother with video metadata - its really really slow to extract + there's bugger all metadata anyhow! */
-			return IGNORE_METADATA;		
+			return IGNORE_METADATA;
 
 	} else 	if (g_str_has_prefix (mime, "audio") || (strcmp (mime, "application/ogg") == 0)) {
-			return AUDIO_METADATA;	
-	
-	} else { 
+			return AUDIO_METADATA;
+
+	} else {
 		num_elements = sizeof (doc_mime_types) / sizeof (char *);
-		for (i =0; i < num_elements; i++ ) {
+		for (i = 0; i < num_elements; i++ ) {
 			if (g_str_has_prefix (mime, doc_mime_types [i] )) {
 				return DOC_METADATA;
 			}
 		}
 	}
 
-	
 	num_elements = sizeof (development_mime_types) / sizeof (char *);
-	for (i =0; i < num_elements; i++ ) {
+
+	for (i = 0; i < num_elements; i++ ) {
 		if (strcmp (mime, development_mime_types[i]) == 0 ) {
 			return DEVEL_METADATA;
 		}
 	}
 
-	
 	num_elements = sizeof (text_mime_types) / sizeof (char *);
-	for (i =0; i < num_elements; i++ ) {
+
+	for (i = 0; i < num_elements; i++ ) {
 		if (strcmp (mime, text_mime_types[i]) == 0 ) {
 			return TEXT_METADATA;
 		}
@@ -184,8 +180,9 @@ tracker_get_metadata_type (const char *mime)
 char *
 tracker_get_service_type_for_mime (const char *mime)
 {
+	MetadataFileType stype;
 
-	MetadataFileType stype = tracker_get_metadata_type (mime);
+	stype = tracker_get_metadata_type (mime);
 
 	switch (stype) {
 
@@ -224,47 +221,36 @@ tracker_get_service_type_for_mime (const char *mime)
 			case DEVEL_METADATA:
 				return g_strdup ("Development Files");
 				break;
-
-
-
 	}
 
 	return g_strdup ("Other Files");
-
 }
-
-
-
-
 
 
 char *
 tracker_metadata_get_text_file (const char *uri, const char *mime)
 {
-	char *tmp, *text_filter_file;
-
 	MetadataFileType ftype;
+	char *tmp, *text_filter_file;
 
 	ftype = tracker_get_metadata_type (mime);
 
 	/* no need to filter text based files - index em directly */
 
-	if (ftype == TEXT_METADATA || ftype  == DEVEL_METADATA) {
+	if (ftype == TEXT_METADATA || ftype == DEVEL_METADATA) {
 
 		return g_strdup (uri);
-	
+
 	} else {
 
 		tmp = g_strdup (DATADIR "/tracker/filters/");
-	
+
 		text_filter_file = g_strconcat (tmp, mime, "_filter", NULL);
 
 		g_free (tmp);
-
 	}
-	
-	if (g_file_test (text_filter_file, G_FILE_TEST_EXISTS)) {
 
+	if (g_file_test (text_filter_file, G_FILE_TEST_EXISTS)) {
 		char *argv[4];
 		char *temp_file_name;
 		int fd;
@@ -293,10 +279,10 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 		}
 
 		tracker_log ("extracting text for %s using filter %s", argv[1], argv[0]);
-	
+
 		if (g_spawn_sync (NULL,
 				  argv,
-				  NULL, 
+				  NULL,
 				  G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
 				  NULL,
 				  NULL,
@@ -308,26 +294,29 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 			g_free (argv[0]);
 			g_free (argv[1]);
 			g_free (argv[2]);
+
 			return temp_file_name;
 
 		} else {
 			g_free (argv[0]);
 			g_free (argv[1]);
 			g_free (argv[2]);
+
 			return NULL;
 		}
 
 	} else {
 		g_free (text_filter_file);
 	}
-	
+
 	return NULL;
 }
+
 
 char *
 tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *max_size)
 {
-	char *tmp, *tmp_file,  *thumbnailer;
+	char *tmp, *tmp_file, *thumbnailer;
 
 	tmp = g_strdup (DATADIR "/tracker/thumbnailers/");
 
@@ -336,20 +325,19 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 	g_free (tmp);
 
 	if (g_file_test (thumbnailer, G_FILE_TEST_EXISTS)) {
-
 		char *argv[5];
 		int fd;
-	
-		tmp = g_build_filename ( g_get_home_dir (), ".Tracker", "thumbs", NULL);
-		
+
+		tmp = g_build_filename (g_get_home_dir (), ".Tracker", "thumbs", NULL);
+
 		g_mkdir_with_parents (tmp, 0700);
-		
-		tmp_file = g_strconcat (tmp, "/", "thumb_XXXXXX", NULL);
+
+		tmp_file = g_build_filename (tmp, "thumb_XXXXXX", NULL);
 		g_free (tmp);
 
-		
 
 		fd = g_mkstemp (tmp_file);
+
   		if (fd == -1) {
 			g_warning ("make thumb file %s failed", tmp_file);
 			g_free (thumbnailer);
@@ -372,7 +360,6 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 			g_free (argv[3]);
 			return NULL;
 		}
-
 
 		tracker_log ("Extracting thumbnail for %s using %s", argv[1], argv[0] );
 
@@ -402,24 +389,25 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 			g_free (argv[3]);
 		}
 	}
+
 	g_free (thumbnailer);
-	return NULL;	
+
+	return NULL;
 }
 
 
 void
 tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *table)
 {
-	MetadataFileType meta_type; 
+	MetadataFileType meta_type;
 
 	if (!uri || !mime || !table) {
 		return;
-	} 
+	}
 
 	meta_type = tracker_get_metadata_type (mime);
 
 	if (meta_type == DOC_METADATA || meta_type == IMAGE_METADATA || meta_type == AUDIO_METADATA) {
-		
 		char *argv[4];
 		char *value;
 
@@ -456,36 +444,37 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 				  NULL,
 				  NULL,
 				  NULL)) {
-			
+
 			/* parse returned stdout (value) and extract keys and associated metadata values */
 
-			if (value && strchr (value, '=') && strchr (value, ';') ) {
-				
-				char *meta_name = NULL;
-				char *meta_value = NULL;
-				char *sep;
+			if (value && strchr (value, '=') && strchr (value, ';')) {
 				char **values, **values_p;
 
 				values = g_strsplit_set (value, ";", -1);
 
 				for (values_p = values; *values_p; values_p++) {
+					char *meta_data, *sep;
 
-					char *meta_data = g_strdup (g_strstrip (*values_p));
+					meta_data = g_strdup (g_strstrip (*values_p));
 
 					sep = strchr (meta_data, '=');
 
 					if (sep) {
+						char *meta_name;
+
 						meta_name = g_strndup (meta_data, (int) (sep - meta_data));
-						meta_value = g_strdup (sep + 1);
 
 						if (meta_name) {
+							char *meta_value;
+
+							meta_value = g_strdup (sep + 1);
+
 							if (meta_value) {
-								char *st = NULL;
+								char *st;
 
 								st = g_hash_table_lookup (table, meta_name);
 
 								if (st == NULL) {
-
 									char *utf_value;
 
 									if (!g_utf8_validate (meta_value, -1, NULL)) {
@@ -501,12 +490,12 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 
 									g_free (utf_value);
 								}
+
 								g_free (meta_value);
 							}
+
 							g_free (meta_name);
-
 						}
-
 					}
 
 					g_free (meta_data);
@@ -516,8 +505,6 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 				g_strfreev (values);
 			}
 
-
-
 			if (value) {
 				g_free (value);
 			}
@@ -525,9 +512,6 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 			g_free (argv[0]);
 			g_free (argv[1]);
 			g_free (argv[2]);
-
 		}
-
 	}
-
 }

@@ -26,15 +26,16 @@
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib.h>
 
-#define TRACKER_SERVICE                 "org.freedesktop.Tracker"
-#define TRACKER_OBJECT			"/org/freedesktop/tracker"
-#define TRACKER_INTERFACE		"org.freedesktop.Tracker"
-#define TRACKER_INTERFACE_METADATA	"org.freedesktop.Tracker.Metadata"
-#define TRACKER_INTERFACE_KEYWORDS	"org.freedesktop.Tracker.Keywords"
-#define TRACKER_INTERFACE_SEARCH	"org.freedesktop.Tracker.Search"
-#define TRACKER_INTERFACE_FILES		"org.freedesktop.Tracker.Files"
-#define TRACKER_INTERFACE_MUSIC		"org.freedesktop.Tracker.Music"
-#define TRACKER_INTERFACE_PLAYLISTS	"org.freedesktop.Tracker.PlayLists"
+
+#define TRACKER_SERVICE					"org.freedesktop.Tracker"
+#define TRACKER_OBJECT					"/org/freedesktop/tracker"
+#define TRACKER_INTERFACE				"org.freedesktop.Tracker"
+#define TRACKER_INTERFACE_METADATA			"org.freedesktop.Tracker.Metadata"
+#define TRACKER_INTERFACE_KEYWORDS			"org.freedesktop.Tracker.Keywords"
+#define TRACKER_INTERFACE_SEARCH			"org.freedesktop.Tracker.Search"
+#define TRACKER_INTERFACE_FILES				"org.freedesktop.Tracker.Files"
+#define TRACKER_INTERFACE_MUSIC				"org.freedesktop.Tracker.Music"
+#define TRACKER_INTERFACE_PLAYLISTS			"org.freedesktop.Tracker.PlayLists"
 
 /* main service interface */
 #define TRACKER_METHOD_PING		               	"Ping"
@@ -96,7 +97,9 @@
 #define TRACKER_SIGNAL_FILE_EDITED			"Edited"
 #define TRACKER_SIGNAL_FILE_THUMBNAIL_CHANGED		"ThumbnailChanged"
 
+
 typedef enum {
+
 	DBUS_ACTION_NONE,
 
 	DBUS_ACTION_PING,
@@ -140,11 +143,9 @@ typedef enum {
 
 	DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME,
 	DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME_LOCATION,
-	DBUS_ACTION_FILES_SEARCH_BY_TEXT_LOCATION,
+	DBUS_ACTION_FILES_SEARCH_BY_TEXT_LOCATION
 
 } DBusAction;
-
-
 
 
 typedef struct {

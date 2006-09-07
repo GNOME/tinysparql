@@ -1,3 +1,16 @@
+2006-09-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
+	
+	* Handled Dbus Connection shutdown gracefully
+	* tracker deamon now shuts down smoothly when dbus session bus is stopped
+	* Big code cleanup
+
+
+2006-09-06 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Finishsed db abstractions
+	* Added initial sqlite support
+
+
 2006-09-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
 	
 	* Fix for Rdf-query parser to allow "contains" function to be called more easily 

@@ -22,6 +22,7 @@
 
 #include <mysql/mysql.h>
 #include <glib.h>
+
 #include "tracker-utils.h"
 
 /* Paramterised queries : */
@@ -36,7 +37,7 @@ typedef struct {
 	char		*thread;
 
 } DBConnection;
- 
+
 
 char **		tracker_db_get_row 		(char ***result, int num);
 void		tracker_db_free_result 		(char ***result);
@@ -45,18 +46,18 @@ int		tracker_get_row_count 		(char ***result);
 int		tracker_get_field_count		(char ***result);
 
 gboolean	tracker_db_initialize		(const char *data_dir);
-void		tracker_db_thread_init 		();
-void		tracker_db_thread_end 		();
+void		tracker_db_thread_init 		(void);
+void		tracker_db_thread_end 		(void);
 void		tracker_db_close 		(DBConnection *db_con);
-void		tracker_db_finalize 		();
-DBConnection * 	tracker_db_connect 		();
-gboolean	tracker_update_db 		();
+void		tracker_db_finalize 		(void);
+DBConnection * 	tracker_db_connect 		(void);
+gboolean	tracker_update_db 		(DBConnection *db_con);
 char *		tracker_escape_string 		(DBConnection *db_con, const char *in);
 void		tracker_db_prepare_queries 	(DBConnection *db_con);
 char ***	tracker_exec_proc 		(DBConnection *db_con, const char *procedure, int param_count, ...);
 char ***	tracker_exec_sql   		(DBConnection *db_con, const char *query);
 void		tracker_log_sql	   		(DBConnection *db_con, const char *query);
-void		tracker_create_db  		();
+void		tracker_create_db  		(void);
 void		tracker_db_load_stored_procs 	(DBConnection *db_con);
 void		tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long file_id);
 void		tracker_db_clear_temp 		(DBConnection *db_con);
@@ -70,8 +71,8 @@ char ***	tracker_db_search_matching_metadata (DBConnection *db_con, const char *
 char ***	tracker_db_get_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key);
 void 		tracker_db_set_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
 
-void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const char *name, const char *service,  gboolean is_dir, gboolean is_link, 
-					   	 gboolean is_source,  int offset, long mtime);
+void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const char *name, const char *service, gboolean is_dir, gboolean is_link,
+					   	 gboolean is_source, int offset, long mtime);
 
 void		tracker_db_delete_file 		(DBConnection *db_con, long file_id);
 void		tracker_db_delete_directory 	(DBConnection *db_con, long file_id, const char *uri);
@@ -91,7 +92,8 @@ char ***	tracker_db_get_files_by_service (DBConnection *db_con, const char *serv
 char ***	tracker_db_get_files_by_mime 	(DBConnection *db_con, char **mimes, int n, int offset, int limit, gboolean vfs);
 char ***	tracker_db_search_text_mime  	(DBConnection *db_con, const char *text , char **mime_array, int n);
 char ***	tracker_db_search_text_location	(DBConnection *db_con, const char *text ,const char *location);
-char ***	tracker_db_search_text_mime_location  (DBConnection *db_con, const char *text , char **mime_array, int n, const char *location);
+char ***	tracker_db_search_text_mime_location (DBConnection *db_con, const char *text , char **mime_array, int n, const char *location);
 
 char ***	tracker_db_get_file_subfolders 	(DBConnection *db_con, const char *uri);
+
 #endif

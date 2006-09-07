@@ -1,4 +1,4 @@
-/* Tracker 
+/* Tracker
  * utility routines
  * Copyright (C) 2005, Mr Jamie McCracken
  *
@@ -16,48 +16,46 @@
  * License along with this library; if not, write to the
  * free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */ 
+ */
 
 #include <sys/types.h>
-#include <pwd.h>
-#include <grp.h>
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
-#include <glib.h>
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 
+#include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "xdgmime.h"
 
+
 extern Tracker	*tracker;
 
-char *implemented_services[] = {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files", 
-				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files", 
+char *implemented_services[] = {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
+				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
 				NULL};
 
-char *file_service_array[] =   {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files", 
-				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files", 
+char *file_service_array[] =   {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
+				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
 				NULL};
 
-char *serice_index_array[] = {	"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files", 
-				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files", 
-				"Conversations", "Playlists", "Applications", "Contacts", "Emails", "EmailAttachments", "Notes", "Appointments", 
+char *serice_index_array[] = {	"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
+				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
+				"Conversations", "Playlists", "Applications", "Contacts", "Emails", "EmailAttachments", "Notes", "Appointments",
 				"Tasks", "Bookmarks", "History", "Projects", NULL};
 
 
 char *tracker_actions[] = {
-		"TRACKER_ACTION_IGNORE", "TRACKER_ACTION_CHECK",  "TRACKER_ACTION_DELETE", "TRACKER_ACTION_DELETE_SELF", "TRACKER_ACTION_CREATE","TRACKER_ACTION_MOVED_FROM",
+		"TRACKER_ACTION_IGNORE", "TRACKER_ACTION_CHECK", "TRACKER_ACTION_DELETE", "TRACKER_ACTION_DELETE_SELF", "TRACKER_ACTION_CREATE","TRACKER_ACTION_MOVED_FROM",
 		"TRACKER_ACTION_MOVED_TO","TRACKER_ACTION_FILE_CHECK", "TRACKER_ACTION_FILE_CHANGED","TRACKER_ACTION_FILE_DELETED", "TRACKER_ACTION_FILE_CREATED",
 		"TRACKER_ACTION_FILE_MOVED_FROM", "TRACKER_ACTION_FILE_MOVED_TO", "TRACKER_ACTION_WRITABLE_FILE_CLOSED","TRACKER_ACTION_DIRECTORY_CHECK",
 		"TRACKER_ACTION_DIRECTORY_CREATED","TRACKER_ACTION_DIRECTORY_DELETED","TRACKER_ACTION_DIRECTORY_MOVED_FROM","TRACKER_ACTION_DIRECTORY_MOVED_TO",
-		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA", 
+		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA",
 		NULL};
 
 
@@ -71,17 +69,16 @@ static const char *months[] = {
 };
 
 static const char imonths[] = {
-	'1', '2', '3',  '4', '5',
+	'1', '2', '3', '4', '5',
 	'6', '7', '8', '9', '0', '1', '2'
 };
-
 
 
 char **
 tracker_make_array_null_terminated (char **array, int length)
 {
 	char **res = NULL;
-	int i;
+	int  i;
 
 	res = g_new (char *, length +1);
 
@@ -92,15 +89,14 @@ tracker_make_array_null_terminated (char **array, int length)
 	res[length] = NULL;
 
 	return res;
-
 }
 
 
 static gboolean
-is_int (const char *in) {
-
+is_int (const char *in)
+{
 	int i, len;
-	
+
 	if (!in) {
 		return FALSE;
 	}
@@ -119,8 +115,8 @@ is_int (const char *in) {
 	}
 
 	return TRUE;
-
 }
+
 
 static int
 parse_month (const char *month)
@@ -141,7 +137,7 @@ char *
 tracker_format_date (const char *timestamp)
 {
 	char tmp_buf[30];
-	int len = 0;
+	int  len;
 
 	if (!timestamp) {
 		return NULL;
@@ -154,7 +150,6 @@ tracker_format_date (const char *timestamp)
 		return NULL;
 	}
 
-	
 	/* check for year only dates (EG ID3 music tags might have Auido.ReleaseDate as 4 digit year) */
 
 	if (len == 4) {
@@ -180,13 +175,12 @@ tracker_format_date (const char *timestamp)
 			tmp_buf[17] = '0';
 			tmp_buf[18] = '0';
 			tmp_buf[19] = '\0';
-			
+
 			return g_strdup (tmp_buf);
 
 		} else {
 			return NULL;
 		}
-	
 
 	/* check for date part only YYYY-MM-DD*/
 
@@ -212,15 +206,11 @@ tracker_format_date (const char *timestamp)
 			tmp_buf[17] = '0';
 			tmp_buf[18] = '0';
 			tmp_buf[19] = '\0';
-			
+
 			return g_strdup (tmp_buf);
 
-			
-	
-	
-
 	/* check for pdf format EG 20050315113224-08'00' or 20050216111533Z  */
-	
+
 	} else if (len == 14) {
 
 			tmp_buf[0] = timestamp[0];
@@ -243,10 +233,10 @@ tracker_format_date (const char *timestamp)
 			tmp_buf[17] = timestamp[12];
 			tmp_buf[18] = timestamp[13];
 			tmp_buf[19] = '\0';
-			
+
 			return g_strdup (tmp_buf);
 
-			
+
 	} else if (len == 15 && timestamp[14] == 'Z') {
 
 			tmp_buf[0] = timestamp[0];
@@ -270,7 +260,7 @@ tracker_format_date (const char *timestamp)
 			tmp_buf[18] = timestamp[13];
 			tmp_buf[19] = 'Z';
 			tmp_buf[20] = '\0';
-			
+
 			return g_strdup (tmp_buf);
 
 
@@ -288,7 +278,7 @@ tracker_format_date (const char *timestamp)
 			tmp_buf[9] = timestamp[7];
 			tmp_buf[10] = 'T';
 			tmp_buf[11] = timestamp[8];
-			tmp_buf[12] = timestamp[9];	
+			tmp_buf[12] = timestamp[9];
 			tmp_buf[13] = ':';
 			tmp_buf[14] = timestamp[10];
 			tmp_buf[15] = timestamp[11];
@@ -302,31 +292,32 @@ tracker_format_date (const char *timestamp)
 			tmp_buf[23] =  timestamp[18];
 			tmp_buf[24] = timestamp[19];
 			tmp_buf[25] = '\0';
-			
+
 			return g_strdup (tmp_buf);
 
-	
-
 	/* check for msoffice date format "Mon Feb  9 10:10:00 2004" */
-	} else if ((len == 24) && (timestamp[3] == ' ')) {
-			
-			int num_month = parse_month (timestamp + 4);
 
-			char mon1 = imonths[num_month];
+	} else if ((len == 24) && (timestamp[3] == ' ')) {
+			int  num_month;
+			char mon1;
 			char day1;
+
+			num_month = parse_month (timestamp + 4);
+
+			mon1 = imonths[num_month];
 
 			if (timestamp[8] == ' ') {
 				day1 = '0';
 			} else {
 				day1 = timestamp[8];
 			}
-			
+
 			tmp_buf[0] = timestamp[20];
 			tmp_buf[1] = timestamp[21];
 			tmp_buf[2] = timestamp[22];
 			tmp_buf[3] = timestamp[23];
 			tmp_buf[4] = '-';
-			
+
 			if (num_month < 10) {
 				tmp_buf[5] = '0';
 				tmp_buf[6] = mon1;
@@ -351,12 +342,10 @@ tracker_format_date (const char *timestamp)
 
 			return g_strdup (tmp_buf);
 
-		 
-	
 	/* check for Exif date format "2005:04:29 14:56:54" */
-	
+
 	} else if ((len == 19) && (timestamp[4] == ':') && (timestamp[7] == ':')) {
-			
+
 			tmp_buf[0] = timestamp[0];
 			tmp_buf[1] = timestamp[1];
 			tmp_buf[2] = timestamp[2];
@@ -377,22 +366,21 @@ tracker_format_date (const char *timestamp)
 			tmp_buf[17] = timestamp[17];
 			tmp_buf[18] = timestamp[18];
 			tmp_buf[19] = '\0';
-			
+
 			return g_strdup (tmp_buf);
 	}
 
 	return g_strdup (timestamp);
-
 }
 
 
 static gboolean
 is_valid_8601_datetime (const char *timestamp)
 {
+	int len;
 
-	int len = strlen (timestamp);
+	len = strlen (timestamp);
 
-	
 	if (len < 19) {
 		return FALSE;
 	}
@@ -400,73 +388,72 @@ is_valid_8601_datetime (const char *timestamp)
 	if ( !g_ascii_isdigit (timestamp[0]) ) {
 		return FALSE;
 	}
-		
-	if ( !g_ascii_isdigit (timestamp[1]) ){
+
+	if ( !g_ascii_isdigit (timestamp[1]) ) {
 		return FALSE;
 	}
 
-  
-	if ( !g_ascii_isdigit (timestamp[2]) ){
+	if ( !g_ascii_isdigit (timestamp[2]) ) {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[3]) ){
+	if ( !g_ascii_isdigit (timestamp[3]) ) {
 		return FALSE;
 	}
 
-	if ( (timestamp[4] != '-') ){
+	if (timestamp[4] != '-') {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[5]) ){
+	if ( !g_ascii_isdigit (timestamp[5]) ) {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[6]) ){
+	if ( !g_ascii_isdigit (timestamp[6]) ) {
 		return FALSE;
 	}
 
-	if ( (timestamp[7] != '-') ){
+	if (timestamp[7] != '-') {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[8]) ){
+	if ( !g_ascii_isdigit (timestamp[8]) ) {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[9]) ){
+	if ( !g_ascii_isdigit (timestamp[9]) ) {
 		return FALSE;
 	}
 
-	if ( (timestamp[10] != 'T') ){
+	if ( (timestamp[10] != 'T') ) {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[11]) ){
+	if ( !g_ascii_isdigit (timestamp[11]) ) {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[12]) ){
+	if ( !g_ascii_isdigit (timestamp[12]) ) {
 		return FALSE;
 	}
 
-	if ( (timestamp[13] != ':') ){
+	if (timestamp[13] != ':') {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[14]) ){
+	if ( !g_ascii_isdigit (timestamp[14]) ) {
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[15]) ){
+	if ( !g_ascii_isdigit (timestamp[15]) ) {
 		return FALSE;
 	}
 
-	if ( (timestamp[16] != ':') ){
+	if (timestamp[16] != ':'){
 		return FALSE;
 	}
 
-	if ( !g_ascii_isdigit (timestamp[17]) ){
+	if ( !g_ascii_isdigit (timestamp[17]) ) {
 		return FALSE;
 	}
 
@@ -475,7 +462,7 @@ is_valid_8601_datetime (const char *timestamp)
 	}
 
 	if (len == 20) {
-		if ( (timestamp[19] != 'Z') ){
+		if (timestamp[19] != 'Z') {
 			return FALSE;
 		}
 	} else {
@@ -488,45 +475,43 @@ is_valid_8601_datetime (const char *timestamp)
 				return FALSE;
 			}
 
-			if ( (timestamp[19] != '+') || (timestamp[19] != '-')  ){
+			if ( (timestamp[19] != '+') || (timestamp[19] != '-') ) {
 				return FALSE;
 			}
 
-			if ( !g_ascii_isdigit (timestamp[20]) ){
+			if ( !g_ascii_isdigit (timestamp[20]) ) {
 				return FALSE;
 			}
 
-			if ( !g_ascii_isdigit (timestamp[21]) ){
+			if ( !g_ascii_isdigit (timestamp[21]) ) {
 				return FALSE;
 			}
 		}
 	}
 
 	return TRUE;
-
-
 }
 
 
 time_t
 tracker_str_to_date (const char *timestamp)
 {
-	struct tm tm;
-	long val;
-	time_t tt;
-	int has_time_zone = 0;
-	
+	struct tm	tm;
+	long		val;
+	time_t		tt;
+	gboolean	has_time_zone;
+
+	has_time_zone = FALSE;
+
 	if (!timestamp) {
 		return -1;
 	}
 
 	/* we should have a valid iso 8601 date in format YYYY-MM-DDThh:mm:ss with optional TZ*/
-	
-	if (!is_valid_8601_datetime (timestamp) ) {
+
+	if (!is_valid_8601_datetime (timestamp)) {
 		return -1;
 	}
-
-
 
 	val = strtoul (timestamp, (char **)&timestamp, 10);
 
@@ -539,17 +524,17 @@ tracker_str_to_date (const char *timestamp)
 		if (*timestamp++ != '-') {
 			return -1;
 		}
+
 		tm.tm_mday = strtoul (timestamp, (char **)&timestamp, 10);
+	}
 
-	} 
-
-
-	if (*timestamp++ != 'T' ) {
-		tracker_log ("date validation failed for %s st %c", timestamp, *timestamp );
+	if (*timestamp++ != 'T') {
+		tracker_log ("date validation failed for %s st %c", timestamp, *timestamp);
 		return -1;
 	}
-	
+
 	val = strtoul (timestamp, (char **)&timestamp, 10);
+
 	if (*timestamp == ':') {
 		// hh:mm:ss
 		tm.tm_hour = val;
@@ -560,49 +545,47 @@ tracker_str_to_date (const char *timestamp)
 			return -1;
 		}
 		tm.tm_sec = strtoul (timestamp, (char **)&timestamp, 10);
-
 	}
 
 	tt = mktime (&tm);
 
 	if (*timestamp == '+' || *timestamp == '-') {
+		int sign, num_length;
 
-		has_time_zone = 1;
+		has_time_zone = TRUE;
 
-		int sign = (*timestamp == '+') ? -1 : 1;
+		sign = (*timestamp == '+') ? -1 : 1;
 
-		int num_length = (int) timestamp + 1;
+		num_length = (int) timestamp + 1;
 
 		val = strtoul (timestamp +1, (char **)&timestamp, 10);
 
-		num_length = (int) (timestamp - num_length);  
+		num_length = (int) (timestamp - num_length);
 
 		if (*timestamp == ':' || *timestamp == '\'') {
 			val = 3600 * val + (60 * strtoul (timestamp + 1, NULL, 10));
 		} else {
-			if (num_length == 4) { 
+			if (num_length == 4) {
 				val = (3600 * (val / 100)) + (60 * (val % 100));
 			} else if (num_length == 2) {
-				val = 3600 * val;	
+				val = 3600 * val;
 			}
 		}
 		tt += sign * val;
 	} else {
 		if (*timestamp == 'Z') {
 			/* no need to do anything if utc */
-			has_time_zone = 1;
+			has_time_zone = TRUE;
 		}
 	}
 
 	/* make datetime reflect user's timezone if no explicit timezone present */
-	if (has_time_zone == 0) {
+	if (!has_time_zone) {
 		tt += timezone;
 	}
 
-
 	return tt;
 }
-
 
 
 char *
@@ -611,6 +594,7 @@ tracker_date_to_str (long date_time)
 	char  		buffer[30];
 	time_t 		time_stamp;
 	struct tm 	loctime;
+	size_t		count;
 
 	memset (buffer, '\0', sizeof (buffer));
 	memset (&loctime, 0, sizeof (struct tm));
@@ -620,14 +604,13 @@ tracker_date_to_str (long date_time)
 	localtime_r (&time_stamp, &loctime);
 
 	/* output is ISO 8160 format : "YYYY-MM-DDThh:mm:ss+zz:zz" */
-	size_t count = strftime (buffer, sizeof (buffer), "%FT%T%z", &loctime);
+	count = strftime (buffer, sizeof (buffer), "%FT%T%z", &loctime);
 
 	if (count > 0) {
 		return g_strdup (buffer);
 	} else {
 		return NULL;
 	}
-
 }
 
 
@@ -637,6 +620,7 @@ tracker_int_to_str (int i)
 	return g_strdup_printf ("%d", i);
 }
 
+
 char *
 tracker_long_to_str (long i)
 {
@@ -644,12 +628,14 @@ tracker_long_to_str (long i)
 }
 
 
-
-int 
+int
 tracker_str_in_array (const char *str, char **array)
 {
-	int i = 0;
+	int  i;
 	char *st;
+
+	i = 0;
+
 	for (st = (char *) *array; *st; st++) {
 		if (strcmp (st, str) == 0) {
 			return TRUE;
@@ -658,17 +644,18 @@ tracker_str_in_array (const char *str, char **array)
 	}
 
 	return -1;
-	
-
 }
 
 
 char *
 tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 {
+	char *def_prefix;
+	char **terms;
 
 	*do_bool_search = FALSE;
-	char *def_prefix = "+";
+
+	def_prefix = "+";
 
 	if (strlen (str) < 3) {
 		return g_strdup (str);
@@ -680,22 +667,21 @@ tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 		return g_strdup (str);
 	}
 
-
-	if (strstr (str, " or ") ) {
+	if (strstr (str, " or ")) {
 		def_prefix = " ";
 	}
-	
 
-	char **terms = g_strsplit (str, " ", -1);
+	terms = g_strsplit (str, " ", -1);
 
-	
 	if (terms) {
-		GString *search_term = g_string_new (" ");
-		char **st;
-		char *prefix;
+		GString *search_term;
+		char	**st;
+		char	*prefix;
+
+		search_term = g_string_new (" ");
+
 		for (st = terms; *st; st++) {
 
-			
 			if (*st[0] == '-') {
 				prefix = " ";
 			} else {
@@ -703,35 +689,40 @@ tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 			}
 
 			if ((*st[0] != '-') && strchr (*st, '-')) {
+				char *s;
+
 				*do_bool_search = TRUE;
-				char *st_1 = g_strconcat ("\"", *st, "\"", NULL);
-				g_string_append (search_term, st_1);
-				g_free (st_1);
+
+				s = g_strconcat ("\"", *st, "\"", NULL);
+
+				g_string_append (search_term, s);
+
+				g_free (s);
+
 			} else {
-				
 				g_string_append_printf (search_term, " %s%s ", prefix, *st);
-			} 
+			}
 		}
+
 		g_strfreev (terms);
-		return g_string_free (search_term, FALSE);		
+
+		return g_string_free (search_term, FALSE);
 	}
 
 	return g_strdup (str);
 }
 
 
-
-
-
 void
 tracker_print_object_allocations ()
 {
-	tracker_log ("total allocations = %d , total deallocations = %d", info_allocated, info_deallocated);
+	tracker_log ("total allocations = %d, total deallocations = %d", info_allocated, info_deallocated);
 }
 
-gboolean	
-tracker_file_info_is_valid (FileInfo *info) {
 
+gboolean
+tracker_file_info_is_valid (FileInfo *info)
+{
 	if (!info || !info->uri) {
 
 		tracker_log ("************** Warning Invalid Info struct detected *****************");
@@ -753,14 +744,14 @@ tracker_file_info_is_valid (FileInfo *info) {
 	}
 
 	return TRUE;
-} 
+}
+
 
 void
 tracker_free_array (char **array, int row_count)
 {
-	int i;
-
 	if (array && (row_count > 0)) {
+		int i;
 
 		for (i = 0; i < row_count; i++) {
 			if (array[i]) {
@@ -770,7 +761,6 @@ tracker_free_array (char **array, int row_count)
 
 		g_free (array);
 	}
-
 }
 
 
@@ -799,21 +789,21 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 
 	info->mime = NULL;
 	info->file_size = 0;
-	info->permissions = g_strdup ("-r--r--r--");;
+	info->permissions = g_strdup ("-r--r--r--");
 	info->mtime = 0;
 	info->atime = 0;
 	info->indextime = 0;
 
 	info->ref_count = 1;
 	info_allocated ++;
+
 	return info;
 }
 
 
-FileInfo * 
+FileInfo *
 tracker_free_file_info (FileInfo *info)
 {
-
 	if (!info) {
 		return NULL;
 	}
@@ -843,8 +833,8 @@ tracker_free_file_info (FileInfo *info)
 	info_deallocated ++;
 
 	return NULL;
-
 }
+
 
 /* ref count FileInfo instances */
 FileInfo *
@@ -853,8 +843,10 @@ tracker_inc_info_ref (FileInfo *info)
 	if (info) {
 		g_atomic_int_inc (&info->ref_count);
 	}
+
 	return info;
 }
+
 
 FileInfo *
 tracker_dec_info_ref (FileInfo *info)
@@ -901,13 +893,14 @@ tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, 
 	}
 
 	info->file_size = 0;
-	info->permissions = g_strdup ("-r--r--r--");;
+	info->permissions = g_strdup ("-r--r--r--");
 	info->mtime = 0;
 	info->atime = 0;
 	info->indextime = 0;
 
 	info->ref_count = 1;
 	info_allocated ++;
+
 	return info;
 }
 
@@ -916,9 +909,8 @@ FileInfo *
 tracker_get_file_info (FileInfo *info)
 {
 	struct stat     finfo;
-	char   		*uri_in_locale = NULL, *str = NULL, *link_uri;
+	char   		*uri_in_locale, *str;
 	int    		n, bit;
-
 
 	if (!info || !info->uri) {
 		return info;
@@ -939,35 +931,36 @@ tracker_get_file_info (FileInfo *info)
 		return NULL;
 	}
 
-	info->is_directory = S_ISDIR (finfo.st_mode);	 
+	info->is_directory = S_ISDIR (finfo.st_mode);
 	info->is_link = S_ISLNK (finfo.st_mode);
-	
+
 	if (info->is_link && !info->link_name) {
 		str = g_file_read_link (uri_in_locale, NULL);
+
 		if (str) {
+			char *link_uri;
+
 			link_uri = g_filename_to_utf8 (str, -1, NULL, NULL, NULL);
 			info->link_name = g_path_get_basename (link_uri);
 			info->link_path = g_path_get_dirname (link_uri);
 			g_free (link_uri);
-			g_free (str); 
+			g_free (str);
 		}
 	}
 
 	g_free (uri_in_locale);
 
 	if (!info->is_directory) {
-		info->file_size =  (long)finfo.st_size;
+		info->file_size = (long) finfo.st_size;
 	} else {
 		if (info->watch_type == WATCH_OTHER) {
 			info->watch_type = WATCH_SUBFOLDER;
 		}
 	}
 
-	
-	
 	/* create permissions string */
 	str = g_strdup ("?rwxrwxrwx");
-  	
+
 	switch (finfo.st_mode & S_IFMT) {
 		case S_IFSOCK: str[0] = 's'; break;
 		case S_IFIFO: str[0] = 'p'; break;
@@ -980,7 +973,7 @@ tracker_get_file_info (FileInfo *info)
 
 	for (bit = 0400, n = 1 ; bit ; bit >>= 1, ++n) {
 		if (!(finfo.st_mode & bit)) {
-			str[n] = '-'; 
+			str[n] = '-';
 		}
 	}
 
@@ -993,7 +986,7 @@ tracker_get_file_info (FileInfo *info)
 	}
 
 	if (finfo.st_mode & S_ISVTX) {
-		str[9] = (finfo.st_mode & S_IXOTH) ? 't' : 'T'; 
+		str[9] = (finfo.st_mode & S_IXOTH) ? 't' : 'T';
 	}
 
 	g_free (info->permissions);
@@ -1006,14 +999,11 @@ tracker_get_file_info (FileInfo *info)
 }
 
 
-
 static gboolean
-is_text_file  (const char* uri)
+is_text_file (const char* uri)
 {
-	char buffer[65566];
-	FILE* file = NULL;
-	gboolean data_read = FALSE;
-	char *uri_in_locale = NULL;
+	FILE *file;
+	char *uri_in_locale;
 
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
@@ -1022,21 +1012,26 @@ is_text_file  (const char* uri)
 		return FALSE;
 	}
 
-	file = fopen (uri_in_locale, "r");
+	file = g_fopen (uri_in_locale, "r");
 
 	g_free (uri_in_locale);
 
 	if (file) {
+		char	 buffer[65566];
+		gboolean data_read;
+
+		data_read = FALSE;
 
 		if (fgets (buffer, 65565, file)) {
 			data_read = TRUE;
 		}
 
 		fclose (file);
-		
-		
+
 		if (data_read) {
-			char *s = g_locale_to_utf8 (buffer, 65565, NULL, NULL, NULL);
+			char *s;
+
+			s = g_locale_to_utf8 (buffer, 65565, NULL, NULL, NULL);
 
 			if (!s) {
 				return FALSE;
@@ -1053,18 +1048,17 @@ is_text_file  (const char* uri)
 				return ret;
 			}
 		}
-		
 	}
 
 	return FALSE;
 }
 
 
-gboolean 
+gboolean
 tracker_file_is_valid (const char *uri)
 {
 	gboolean convert_ok;
-	char *uri_in_locale = NULL;
+	char	 *uri_in_locale;
 
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
@@ -1081,100 +1075,96 @@ tracker_file_is_valid (const char *uri)
 	return convert_ok;
 }
 
+
 char *
 tracker_get_mime_type (const char* uri)
 {
 	const char *result;
 
 	if (!tracker_file_is_valid (uri)) {
-		return g_strdup("unknown");
+		return g_strdup ("unknown");
 	}
 
 	result = xdg_mime_get_mime_type_for_file (uri, NULL);
 
-
 	if (result != NULL && result != XDG_MIME_TYPE_UNKNOWN) {
 		return g_strdup (result);
+
 	} else {
 		if (is_text_file (uri)) {
 			return g_strdup ("text/plain");
 		}
 	}
+
 	return g_strdup("unknown");
 }
-
 
 
 char *
 tracker_get_vfs_path (const char* uri)
 {
-
-	if (uri != NULL && strchr (uri, '/') != NULL) {
+	if (uri != NULL && strchr (uri, G_DIR_SEPARATOR) != NULL) {
 		char *p;
-		int len;
+		int  len;
 
 		len = strlen (uri);
-		p =  (char *) (uri +  (len - 1));
+		p = (char *) (uri + (len - 1));
 
 		/* Skip trailing slash  */
-		if (p != uri && *p == '/')
-		{
+		if (p != uri && *p == G_DIR_SEPARATOR) {
 			p--;
 		}
 
 		/* Search backwards to the next slash.  */
-		while (p != uri && *p != '/') {
+		while (p != uri && *p != G_DIR_SEPARATOR) {
 			p--;
 		}
-		
 
 		if (p[0] != '\0') {
 
 			char *new_uri_text;
-			int length;
-			
-			length =  p - uri;			
+			int  length;
+
+			length = p - uri;
+
 			if (length == 0) {
-				new_uri_text = g_strdup ("/");
+				new_uri_text = g_strdup (G_DIR_SEPARATOR_S);
 			} else {
 				new_uri_text = g_malloc (length + 1);
 				memcpy (new_uri_text, uri, length);
 				new_uri_text[length] = '\0';
 			}
-			
+
 			return new_uri_text;
 		} else {
-			return g_strdup ("/");
+			return g_strdup (G_DIR_SEPARATOR_S);
 		}
 	}
 
 	return NULL;
-
-
 }
+
 
 char *
 tracker_get_vfs_name (const char* uri)
 {
-
-	if (uri != NULL && strchr (uri, '/') != NULL) {
-		char *p, *res;
-		int len;
+	if (uri != NULL && strchr (uri, G_DIR_SEPARATOR) != NULL) {
+		char *p, *res, *tmp;
+		int  len;
 
 		len = strlen (uri);
 
-		char *tmp = g_strdup (uri);
+		tmp = g_strdup (uri);
 
-		p =  (tmp + (len - 1));			
+		p = (tmp + (len - 1));
 
 		/* Skip trailing slash  */
-		if (p != tmp && *p == '/') {
+		if (p != tmp && *p == G_DIR_SEPARATOR) {
 			*p = '\0';
-			
 		}
 
 		/* Search backwards to the next slash.  */
-		while (p != tmp && *p != '/') {
+		while (p != tmp && *p != G_DIR_SEPARATOR) {
 			p--;
 		}
 
@@ -1185,30 +1175,31 @@ tracker_get_vfs_name (const char* uri)
 			g_free (tmp);
 
 			return g_strdup (res);
-
 		}
 
 		g_free (tmp);
-				
 	}
 
-	return " ";
+	return g_strdup (" ");
 }
+
 
 gboolean
 tracker_is_directory (const char *dir)
 {
-	struct stat finfo;
-	char *dir_in_locale = NULL;
+	char *dir_in_locale;
 
 	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
 
 	if (dir_in_locale) {
+		struct stat finfo;
+
 		g_lstat (dir_in_locale, &finfo);
 
 		g_free (dir_in_locale);
 
 		return S_ISDIR (finfo.st_mode);
+
 	} else {
 		tracker_log ("******ERROR**** dir could not be converted to locale format");
 
@@ -1216,23 +1207,23 @@ tracker_is_directory (const char *dir)
 	}
 }
 
-void 
-tracker_log (const char* fmt, ...) 
+
+void
+tracker_log (const char* fmt, ...)
 {
-	
-	FILE *fd;
-	time_t now;
-	char buffer[64], buffer2[20];
-	char *output;
- 	char *msg;
-    	va_list args;
-	struct tm *loctime;
-	GTimeVal start;
-  
+	FILE		*fd;
+	time_t		now;
+	char		buffer1[64], buffer2[20];
+	char		*output;
+ 	char		*msg;
+    	va_list		args;
+	struct tm	*loctime;
+	GTimeVal	start;
+
   	va_start (args, fmt);
   	msg = g_strdup_vprintf (fmt, args);
   	va_end (args);
-	
+
 	if (msg) {
 		g_print ("%s\n", msg);
 	}
@@ -1240,7 +1231,7 @@ tracker_log (const char* fmt, ...)
 	/* ensure file logging is thread safe */
 	g_mutex_lock (tracker->log_access_mutex);
 
-	fd = fopen (tracker->log_file, "a");
+	fd = g_fopen (tracker->log_file, "a");
 
 	if (!fd) {
 		g_mutex_unlock (tracker->log_access_mutex);
@@ -1250,44 +1241,52 @@ tracker_log (const char* fmt, ...)
 	}
 
         g_get_current_time (&start);
-    	now = time((time_t *)NULL);
-	loctime = localtime (&now);
-	strftime (buffer, 64, "%d %b %Y, %H:%M:%S:", loctime);
-	g_sprintf (buffer2, "%ld", start.tv_usec / 1000);
-	output = g_strconcat (buffer, buffer2,  " - ", msg, NULL);
-	fprintf(fd,"%s\n",output);
-	g_free (msg);
-	g_free (output);
-	fclose (fd);
-	g_mutex_unlock (tracker->log_access_mutex);
 
+    	now = time ((time_t *) NULL);
+
+	loctime = localtime (&now);
+
+	strftime (buffer1, 64, "%d %b %Y, %H:%M:%S:", loctime);
+
+	g_sprintf (buffer2, "%ld", start.tv_usec / 1000);
+
+	output = g_strconcat (buffer1, buffer2, " - ", msg, NULL);
+	g_free (msg);
+
+	g_fprintf (fd, "%s\n", output);
+	g_free (output);
+
+	fclose (fd);
+
+	g_mutex_unlock (tracker->log_access_mutex);
 }
 
 
-static int 
+static int
 has_prefix (const char *str1, const char *str2)
 {
 	if (strcmp (str1, str2) == 0) {
 		return 0;
 	} else {
-		char *compare_str = g_strconcat (str1, "/", NULL);
+		char *compare_str;
+
+		compare_str = g_strconcat (str1, G_DIR_SEPARATOR_S, NULL);
+
 		if (g_str_has_prefix (str2, compare_str)) {
 			return 0;
 		}
 		g_free (compare_str);
+		return 1;
 	}
-	return 1;
 }
 
 
 GSList *
-tracker_get_files (const char *dir, gboolean dir_only) 
+tracker_get_files (const char *dir, gboolean dir_only)
 {
-
-	DIR *dirp;
-	struct dirent *entry;
-	GSList *file_list = NULL;
-	char *dir_in_locale = NULL;
+	GDir	*dirp;
+	GSList	*file_list;
+	char	*dir_in_locale;
 
 	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
 
@@ -1297,56 +1296,64 @@ tracker_get_files (const char *dir, gboolean dir_only)
 		return NULL;
 	}
 
-   	if ((dirp = opendir (dir_in_locale)) != NULL) {
-   		while ((entry = readdir (dirp)) != NULL) {
+	file_list = NULL;
+
+   	if ((dirp = g_dir_open (dir_in_locale, 0, NULL))) {
+		const char *name;
+
+   		while ((name = g_dir_read_name (dirp))) {
+			char  *mystr, *str;
 
 			if (!tracker->is_running) {
 				g_free (dir_in_locale);
-				closedir (dirp);
+				g_dir_close (dirp);
 				return NULL;
 			}
 
-			char  *mystr = NULL, *str = NULL;
-
-     			if (entry->d_name[0] == '.') {
-       				continue;
-			}
-
-			str = g_filename_to_utf8 (entry->d_name, -1, NULL, NULL, NULL);
+			str = g_filename_to_utf8 (name, -1, NULL, NULL, NULL);
 
 			if (!str) {
 				continue;
 			}
 
+			if (tracker_ignore_file (str)) {
+				g_free (str);
+				continue;
+			}
 
-			mystr = g_strconcat (dir,"/", str , NULL);
+			mystr = g_build_filename (dir, str, NULL);
 			g_free (str);
-		
+
 			if (!dir_only || tracker_is_directory (mystr)) {
 
 				if (g_slist_find_custom (tracker->no_watch_directory_list, mystr, (GCompareFunc) has_prefix) == NULL) {
 					file_list = g_slist_prepend (file_list, g_strdup (mystr));
 				}
 			}
-			
-			g_free (mystr);
 
+			g_free (mystr);
 		}
 
- 		closedir (dirp);
+ 		g_dir_close (dirp);
 	}
 
 	g_free (dir_in_locale);
 
 	if (!tracker->is_running) {
+		if (file_list) {
+			g_slist_foreach (file_list, (GFunc) g_free, NULL);
+			g_slist_free (file_list);
+		}
+
 		return NULL;
 	}
 
 	return file_list;
-}			
+}
 
-void 
-tracker_get_dirs (const char *dir, GSList **file_list) 
+
+void
+tracker_get_dirs (const char *dir, GSList **file_list)
 {
 	GSList *tmp_list;
 
@@ -1355,6 +1362,7 @@ tracker_get_dirs (const char *dir, GSList **file_list)
 	}
 
 	tmp_list = tracker_get_files (dir, TRUE);
+
 	if (g_slist_length (tmp_list) > 0) {
 		if (g_slist_length (*file_list) > 0) {
 			*file_list = g_slist_concat (*file_list, tmp_list);
@@ -1364,31 +1372,34 @@ tracker_get_dirs (const char *dir, GSList **file_list)
 	}
 }
 
+
 static GSList *
-array_to_list (char **array) 
+array_to_list (char **array)
 {
-	GSList *list = NULL;
-	int i;
+	GSList  *list;
+	int	i;
+
+	list = NULL;
 
 	for (i = 0; array[i] != NULL; i++) {
-		list = g_slist_prepend	(list, g_strdup (array[i]));
+		list = g_slist_prepend (list, g_strdup (array[i]));
 	}
-		
-	g_strfreev (array);
-	return list;
 
+	g_strfreev (array);
+
+	return list;
 }
 
 
 gboolean
 tracker_ignore_file (const char *uri)
 {
-	int i;
+	int  i;
 	char *name;
 
 	if (!uri || strlen (uri) == 0) {
 		return TRUE;
-	}	
+	}
 
 	name = g_path_get_basename (uri);
 
@@ -1403,9 +1414,10 @@ tracker_ignore_file (const char *uri)
 	if (name [i] == '~') {
 		g_free (name);
 		return TRUE;
-	}	
+	}
 
 	g_free (name);
+
 	return FALSE;
 }
 
@@ -1416,11 +1428,13 @@ display_list_values (const char *uri)
 	tracker_log ("setting no watch directory %s", uri);
 }
 
+
 void
 tracker_load_config_file ()
 {
 	GKeyFile *key_file;
-	char *filename;
+	char	 *filename;
+	char	 **values;
 
 	key_file = g_key_file_new ();
 
@@ -1428,7 +1442,8 @@ tracker_load_config_file ()
 
 	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
 		char *contents;
-		contents  = g_strconcat ("[Watches]\n", 
+
+		contents  = g_strconcat ("[Watches]\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
 					 "NoWatchDirectory=\n\n\n",
 					 "[Indexes]\n"
@@ -1445,30 +1460,29 @@ tracker_load_config_file ()
 					 "IndexFirefoxBookmarks=true\n",
 					 "IndexFirefoxHistory=true\n\n",
 					 "[Database]\n",
-					 "StoreTextFileContentsInDB=false\n",					
+					 "StoreTextFileContentsInDB=false\n",
 					 "DBBufferMemoryLimit=1M\n", NULL);
-		
+
 		g_file_set_contents (filename, contents, strlen (contents), NULL);
 		g_free (contents);
-	}	
+	}
 
 	/* load all options into hashtable for fast retrieval */
 	g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
 
-	char **values =  g_key_file_get_string_list ( key_file,
-				       	     	      "Watches",
-					              "WatchDirectoryRoots",
-					              NULL,
-					              NULL);
+	values =  g_key_file_get_string_list (key_file,
+					      "Watches",
+					      "WatchDirectoryRoots",
+					      NULL,
+					      NULL);
 
 	if (values) {
 		tracker->watch_directory_roots_list = array_to_list (values);
 	} else {
 		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir ()));
 	}
-	
 
-	values =  g_key_file_get_string_list ( key_file,
+	values =  g_key_file_get_string_list (key_file,
 			       	     	      "Watches",
 				              "NoWatchDirectory",
 				              NULL,
@@ -1481,12 +1495,12 @@ tracker_load_config_file ()
 	} else {
 		tracker->no_watch_directory_list = NULL;
 	}
-	
+
 /*
 	if (g_key_file_has_key (key_file, "Indexes", "IndexTextFiles", NULL)) {
 		index_text_files = g_key_file_get_boolean (key_file, "Indexes", "IndexTextFiles", NULL);
 	}
-	
+
 	if (g_key_file_has_key (key_file, "Indexes", "IndexDocuments", NULL)) {
 		index_documents = g_key_file_get_boolean (key_file, "Indexes", "IndexDocuments", NULL);
 	}
@@ -1538,55 +1552,54 @@ tracker_load_config_file ()
 	//db_buffer_memory_limit = g_key_file_get_string ( key_file, "Database", "DBBufferMemoryLimit", NULL);
 
 	g_free (filename);
+
 	g_key_file_free (key_file);
 }
 
 
 void
-tracker_remove_poll_dir (const char *dir) 
+tracker_remove_poll_dir (const char *dir)
 {
-	const GSList *tmp;
-	char  *str, *str2;
+	GSList *tmp;
+	char   *str1;
 
-	tmp = tracker->poll_list;
+	str1 = g_strconcat (dir, G_DIR_SEPARATOR_S, NULL);
 
-	str2 = g_strconcat (dir, "/", NULL);
+	for (tmp = tracker->poll_list; tmp; tmp = tmp->next) {
+		char *str2;
 
-	while (tmp) {
+		str2 = tmp->data;
 
-		str = tmp->data;
-
-		if (strcmp (dir, str) ==0) {
+		if (strcmp (dir, str2) == 0) {
 			g_mutex_lock (tracker->poll_access_mutex);
 			tracker->poll_list = g_slist_remove (tracker->poll_list, tmp->data);
 			g_mutex_unlock (tracker->poll_access_mutex);
-			g_free (str);
-			str = NULL;
+			g_free (str2);
 		}
 
 		/* check if subfolder of existing roots */
 
-		if (str && g_str_has_prefix (str, str2)) {
+		if (str2 && g_str_has_prefix (str2, str1)) {
 			g_mutex_lock (tracker->poll_access_mutex);
 			tracker->poll_list = g_slist_remove (tracker->poll_list, tmp->data);
 			g_mutex_unlock (tracker->poll_access_mutex);
-			g_free (str);			
+			g_free (str2);
 		}
-
-		tmp = tmp->next;
 	}
 
-	g_free (str2);
-
+	g_free (str1);
 }
 
+
 void
-tracker_add_poll_dir (const char *dir) 
+tracker_add_poll_dir (const char *dir)
 {
 	g_return_if_fail (dir && tracker_is_directory (dir));
 
-	if (!tracker->is_running) return;
-	
+	if (!tracker->is_running) {
+		return;
+	}
+
 	g_mutex_lock (tracker->poll_access_mutex);
 	tracker->poll_list = g_slist_prepend (tracker->poll_list, g_strdup (dir));
 	g_mutex_unlock (tracker->poll_access_mutex);
@@ -1598,16 +1611,15 @@ gboolean
 tracker_is_dir_polled (const char *dir)
 {
 	GSList *tmp;
-	char *str;
 
-	tmp = tracker->poll_list;
-	while (tmp != NULL) {
-		str = (char *)tmp->data;
+	for (tmp = tracker->poll_list; tmp; tmp = tmp->next) {
+		char *str;
+
+		str = (char *) tmp->data;
+
 		if (strcmp (dir, str) == 0) {
 			return TRUE;
-		}	
-	
-		tmp = tmp->next;
+		}
 	}
 
 	return FALSE;
@@ -1615,17 +1627,18 @@ tracker_is_dir_polled (const char *dir)
 
 
 void
-tracker_notify_file_data_available ()
+tracker_notify_file_data_available (void)
 {
-
-	if (!tracker->is_running) return;
+	if (!tracker->is_running) {
+		return;
+	}
 
 	/* if file thread is asleep then we just need to wake it up! */
 	if (g_mutex_trylock (tracker->files_signal_mutex)) {
 		g_cond_signal (tracker->file_thread_signal);
 		g_mutex_unlock (tracker->files_signal_mutex);
 		return;
-	}		
+	}
 
 	/* if busy - check if async queue has new stuff as we do not need to notify then */
 	if (g_async_queue_length (tracker->file_process_queue) > 0) {
@@ -1640,7 +1653,7 @@ tracker_notify_file_data_available ()
 
 	/* we are in check phase - we need to wait until either check_mutex is unlocked or file thread is asleep then awaken it */
 	while (TRUE) {
-		
+
 		if (g_mutex_trylock (tracker->files_check_mutex)) {
 			g_mutex_unlock (tracker->files_check_mutex);
 			return;
@@ -1651,29 +1664,26 @@ tracker_notify_file_data_available ()
 			g_mutex_unlock (tracker->files_signal_mutex);
 			return;
 		}
-		
+
 		g_thread_yield ();
-		g_usleep (10);		
-		
-
+		g_usleep (10);
 	}
-
 }
 
 
-
 void
-tracker_notify_meta_data_available ()
+tracker_notify_meta_data_available (void)
 {
-
-	if (!tracker->is_running) return;
+	if (!tracker->is_running) {
+		return;
+	}
 
 	/* if metadata thread is asleep then we just need to wake it up! */
 	if (g_mutex_trylock (tracker->metadata_signal_mutex)) {
 		g_cond_signal (tracker->metadata_thread_signal);
 		g_mutex_unlock (tracker->metadata_signal_mutex);
 		return;
-	}		
+	}
 
 	/* if busy - check if async queue has new stuff as we do not need to notify then */
 	if (g_async_queue_length (tracker->file_metadata_queue) > 0) {
@@ -1688,7 +1698,7 @@ tracker_notify_meta_data_available ()
 
 	/* we are in check phase - we need to wait until either check_mutex is unlocked or until metadata thread is asleep then we awaken it */
 	while (TRUE) {
-		
+
 		if (g_mutex_trylock (tracker->metadata_check_mutex)) {
 			g_mutex_unlock (tracker->metadata_check_mutex);
 			return;
@@ -1699,28 +1709,22 @@ tracker_notify_meta_data_available ()
 			g_mutex_unlock (tracker->metadata_signal_mutex);
 			return;
 		}
-		
+
 		g_thread_yield ();
-		g_usleep (10);		
-		
-
+		g_usleep (10);
 	}
-
 }
 
 
 void
-tracker_notify_request_data_available ()
+tracker_notify_request_data_available (void)
 {
-
-
-
 	/* if thread is asleep then we just need to wake it up! */
 	if (g_mutex_trylock (tracker->request_signal_mutex)) {
 		g_cond_signal (tracker->request_thread_signal);
 		g_mutex_unlock (tracker->request_signal_mutex);
 		return;
-	}		
+	}
 
 	/* if busy - check if async queue has new stuff as we do not need to notify then */
 	if (g_async_queue_length (tracker->user_request_queue) > 0) {
@@ -1735,7 +1739,7 @@ tracker_notify_request_data_available ()
 
 	/* we are in check phase - we need to wait until either check_mutex is unlocked or thread is asleep then awaken it */
 	while (TRUE) {
-		
+
 		if (g_mutex_trylock (tracker->request_check_mutex)) {
 			g_mutex_unlock (tracker->request_check_mutex);
 			return;
@@ -1746,12 +1750,8 @@ tracker_notify_request_data_available ()
 			g_mutex_unlock (tracker->request_signal_mutex);
 			return;
 		}
-		
+
 		g_thread_yield ();
-		g_usleep (10);		
-		
+		g_usleep (10);
 	}
-
 }
-
-

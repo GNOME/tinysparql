@@ -17,27 +17,29 @@
  * Boston, MA 02111-1307, USA.
  */
 
-extern  char *type_array[]; 
-extern  char *implemented_services[];
-extern  char *file_service_array[] ;
-extern  char *serice_index_array[];
-extern  char *service_table_names[];
-extern  char *service_metadata_table_names[];
-extern  char *service_metadata_join_names[];
-
-extern char *tracker_actions[];
 
 #ifndef _TRACKER_UTILS_H_
 #define _TRACKER_UTILS_H_
 
+extern char *type_array[];
+extern char *implemented_services[];
+extern char *file_service_array[] ;
+extern char *serice_index_array[];
+extern char *service_table_names[];
+extern char *service_metadata_table_names[];
+extern char *service_metadata_join_names[];
+
+extern char *tracker_actions[];
+
+
 #include <glib.h>
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
-#define FILE_PAUSE_PERIOD 1
-#define FILE_SCHEDULE_PERIOD 500
-#define TRACKER_DB_VERSION_REQUIRED 3
-#define TRACKER_VERSION	"0.5.0"
-#define TRACKER_VERSION_INT 500
+#define FILE_PAUSE_PERIOD		1
+#define FILE_SCHEDULE_PERIOD		500
+#define TRACKER_DB_VERSION_REQUIRED	3
+#define TRACKER_VERSION			"0.5.0"
+#define TRACKER_VERSION_INT		500
 
 
 typedef struct {
@@ -75,7 +77,7 @@ typedef struct {
 	GThread 	*user_request_thread;
 	GThread 	*file_poll_thread;
 
-	GCond 		*file_thread_signal;	
+	GCond 		*file_thread_signal;
 	GCond 		*metadata_thread_signal;
 	GCond 		*request_thread_signal;
 	GCond 		*poll_thread_signal;
@@ -91,13 +93,13 @@ typedef struct {
 /* Actions can represent events from FAM/iNotify or be artificially created */
 typedef enum {
 
-	TRACKER_ACTION_IGNORE,  			/* do nothing for this action */
+	TRACKER_ACTION_IGNORE,  		/* do nothing for this action */
 
 	/* actions for when we dont know whether they are on a file or a directory */
 	TRACKER_ACTION_CHECK,
-	TRACKER_ACTION_DELETE,			
+	TRACKER_ACTION_DELETE,
 	TRACKER_ACTION_DELETE_SELF,		/* actual file/dir being watched was deleted */
-	TRACKER_ACTION_CREATE,			
+	TRACKER_ACTION_CREATE,
 	TRACKER_ACTION_MOVED_FROM,		/* file or dir was moved from (must be a pair with MOVED_TO action)*/
 	TRACKER_ACTION_MOVED_TO,		/* file or dir was moved to */
 //6
@@ -120,9 +122,7 @@ typedef enum {
 
 	TRACKER_ACTION_EXTRACT_METADATA
 
-	
 } TrackerChangeAction;
-
 
 
 /* service type that the file represents */
@@ -199,7 +199,7 @@ int		tracker_str_in_array 		(const char *str, char **array);
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
 
 
-FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);	
+FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);
 FileInfo * 	tracker_get_file_info  	 	(FileInfo *info);
 FileInfo * 	tracker_copy_file_info   	(FileInfo *info);
 FileInfo *	tracker_inc_info_ref 		(FileInfo *info);
@@ -209,13 +209,13 @@ FileInfo *	tracker_free_file_info   	(FileInfo *info);
 
 gboolean	tracker_file_info_is_valid 	(FileInfo *info);
 
-char *		tracker_get_vfs_path 		(const char* uri);
+char *		tracker_get_vfs_path 		(const char *uri);
 
-char *		tracker_get_vfs_name 		(const char* uri);
+char *		tracker_get_vfs_name 		(const char *uri);
 
-char * 		tracker_get_mime_type 	 	(const char* uri);
+char * 		tracker_get_mime_type 	 	(const char *uri);
 
-void 		tracker_log  			(const char* fmt, ...);
+void 		tracker_log  			(const char *fmt, ...);
 
 GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
 
@@ -225,21 +225,21 @@ gboolean 	tracker_is_directory 		(const char *dir);
 
 void 		tracker_get_dirs 		(const char *dir, GSList **file_list) ;
 
-void		tracker_load_config_file 	();
+void		tracker_load_config_file 	(void);
 
-GSList * 	tracker_get_watch_root_dirs 	();
+GSList * 	tracker_get_watch_root_dirs 	(void);
 
 gboolean	tracker_ignore_file 		(const char *uri);
 
-void		tracker_print_object_allocations ();
+void		tracker_print_object_allocations (void);
 
 void		tracker_add_poll_dir 		(const char *dir);
-void		tracker_remove_poll_dir 	(const char *dir);  
+void		tracker_remove_poll_dir 	(const char *dir);
 gboolean	tracker_is_dir_polled 		(const char *dir);
 
-void		tracker_notify_file_data_available ();
-void		tracker_notify_meta_data_available ();
-void		tracker_notify_request_data_available ();
+void		tracker_notify_file_data_available (void);
+void		tracker_notify_meta_data_available (void);
+void		tracker_notify_request_data_available (void);
 
 //GHashTable *	tracker_parse_text 		(const char *text, int min_word_length, GHashTable *stop_words, gboolean use_stemmer, int weight);
 
