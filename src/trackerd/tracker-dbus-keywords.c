@@ -506,8 +506,15 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	g_string_free (str_words, TRUE);
 
 
-	str_select = g_string_new (" Select distinct Concat(S.Path, '/', S.Name) as EntityName from Services S ");
+	str_select = g_string_new (" Select distinct Concat(S.Path, '");
+
+	str_select = g_string_append (str_select, G_DIR_SEPARATOR_S);
+
+	str_select = g_string_append (str_select, "', S.Name) as EntityName from Services S ");
+
+
 	str_where = g_string_new ("");
+
 
 	g_string_printf (str_where, " where  (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) ", service, service);
 

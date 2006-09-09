@@ -25,6 +25,21 @@
 #include "tracker-utils.h"
 
 
+typedef enum {
+	DATA_INDEX_STRING,
+	DATA_STRING,
+	DATA_NUMERIC,
+	DATA_DATE
+} DataTypes;
+
+
+typedef struct {
+	char		*id;
+	DataTypes	type;
+	gboolean	writeable;
+	gboolean	embedded;
+
+} FieldDef;
 
 typedef struct {
 	GMutex		*write_mutex;
@@ -100,5 +115,10 @@ char ***	tracker_db_search_text_location	(DBConnection *db_con, const char *text
 char ***	tracker_db_search_text_mime_location  (DBConnection *db_con, const char *text , char **mime_array, int n, const char *location);
 
 char ***	tracker_db_get_file_subfolders 	(DBConnection *db_con, const char *uri);
+
+char ***	tracker_db_get_metadata_types 	(DBConnection *db_con, const char *class, gboolean writeable);
+
+char ***	tracker_db_get_sub_watches 	(DBConnection *db_con, const char *dir);
+char ***	tracker_db_delete_sub_watches 	(DBConnection *db_con, const char *dir);
 
 #endif

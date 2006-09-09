@@ -17,25 +17,29 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _TRACKER_INOTIFY_H_
+#define _TRACKER_INOTIFY_H_
+
 #include "config.h"
 
 #ifdef HAVE_INOTIFY_LINUX
-#include <linux/inotify.h>
-#include "linux-inotify-syscalls.h"
+#   include <linux/inotify.h>
+#   include "linux-inotify-syscalls.h"
 #else
-#include <sys/inotify.h>
+#   include <sys/inotify.h>
 #endif
 
 #include "tracker-db.h"
+
 #define MAX_FILE_WATCHES 8190
 
 gboolean 	tracker_start_watching 		(void);
 void     	tracker_end_watching 		(void);
 
-gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection	*db_con);
-void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, DBConnection	*db_con);  
+gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection *db_con);
+void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, DBConnection *db_con);
 
-gboolean 	tracker_is_directory_watched 	(const char * dir, DBConnection	*db_con);
-int		tracker_count_watch_dirs 	();
+gboolean 	tracker_is_directory_watched 	(const char *dir, DBConnection *db_con);
+int		tracker_count_watch_dirs 	(void);
 
-
+#endif

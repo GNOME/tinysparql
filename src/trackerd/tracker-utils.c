@@ -1020,8 +1020,6 @@ is_text_file (const char* uri)
 		char	 buffer[65566];
 		gboolean data_read;
 
-		data_read = FALSE;
-
 		if (fgets (buffer, 65565, file)) {
 			data_read = TRUE;
 		}
@@ -1031,7 +1029,7 @@ is_text_file (const char* uri)
 		if (data_read) {
 			char *s;
 
-			s = g_locale_to_utf8 (buffer, 65565, NULL, NULL, NULL);
+			s = g_locale_to_utf8 (buffer, -1, NULL, NULL, NULL);
 
 			if (!s) {
 				return FALSE;
@@ -1079,10 +1077,27 @@ tracker_file_is_valid (const char *uri)
 char *
 tracker_get_mime_type (const char* uri)
 {
-	const char *result;
+	struct stat finfo;
+	char	    *uri_in_locale;
+	const char  *result;
 
 	if (!tracker_file_is_valid (uri)) {
 		return g_strdup ("unknown");
+	}
+
+	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (!uri_in_locale) {
+		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		return FALSE;
+	}
+
+	g_lstat (uri_in_locale, &finfo);
+
+	g_free (uri_in_locale);
+
+	if (S_ISLNK (finfo.st_mode)) {
+		return g_strdup ("symlink");
 	}
 
 	result = xdg_mime_get_mime_type_for_file (uri, NULL);

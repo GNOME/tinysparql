@@ -30,6 +30,61 @@
 
 gboolean use_nfs_safe_locking;
 
+FieldDef *
+tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
+{
+	FieldDef *def;
+	char	 ***res;
+	char	 **row;
+
+	def = g_slice_new (FieldDef);
+
+	res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, field_name);
+
+	row = NULL;
+
+	if (res) {
+		row = tracker_db_get_row (res, 0);
+	}
+
+	if (res && row && row[0]) {
+		def->id = g_strdup (row[0]);
+	} else {
+		g_free (def);
+		tracker_db_free_result (res);
+		return NULL;
+	}
+
+	if (res && row && row[1]) {
+		def->type = atoi (row[1]);
+	}
+
+	if (res && row && row[2]) {
+		def->embedded = (strcmp ("1", row[2]) == 0);
+	}
+
+	if (res && row && row[3]) {
+		def->writeable = (strcmp ("1", row[3]) == 0);
+	}
+
+	tracker_db_free_result (res);
+
+	return def;
+}
+
+
+void
+tracker_db_free_field_def (FieldDef *def)
+{
+	g_return_if_fail (def);
+
+	if (def->id) {
+		g_free (def->id);
+	}
+
+	g_slice_free (FieldDef, def);
+}
+
 
 char **
 tracker_db_get_row (char ***result, int num)
@@ -1542,6 +1597,39 @@ tracker_db_update_pending (DBConnection *db_con, const char *counter, const char
 }
 
 
+
+
+char ***
+tracker_db_get_metadata_types (DBConnection *db_con, const char *class, gboolean writeable) 
+{
+	char *str;
+
+	if (writeable) {
+		str = "1";
+	} else {
+		str = "0";
+	}
+	
+	return tracker_exec_proc (db_con, "SelectMetadataTypes", 2, class, str);
+
+}
+
+
+char ***
+tracker_db_get_sub_watches (DBConnection *db_con, const char *dir) 
+{
+	return tracker_exec_proc (db_con, "GetSubWatches", 1, dir);
+
+}
+
+char ***
+tracker_db_delete_sub_watches (DBConnection *db_con, const char *dir) 
+{
+	return tracker_exec_proc (db_con, "DeleteSubWatches", 1, dir);
+
+}
+
+
 char ***
 tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int offset, int limit)
 {
@@ -1707,3 +1795,4 @@ tracker_db_get_file_subfolders (DBConnection *db_con, const char *uri)
 {
 	return tracker_exec_proc (db_con, "SelectFileSubFolders", 1, uri);
 }
+

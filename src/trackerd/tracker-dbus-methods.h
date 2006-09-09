@@ -17,17 +17,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _TRACKER_DBUS_METHODS_H_
+#define _TRACKER_DBUS_METHODS_H_
+
 #include "tracker-dbus.h"
 #include "tracker-db.h"
 
 
-void	tracker_set_error 		(DBusRec 	  *rec,
-					 const char	  *fmt, 
-	   	 			 ...);
+void	tracker_set_error			(DBusRec *rec, const char *fmt, ...);
 
-char *	tracker_get_metadata 		(DBConnection *db_con, const char *service, const char *id, const char *key);
+char *	tracker_get_metadata			(DBConnection *db_con, const char *service, const char *id, const char *key);
 
-void	tracker_set_metadata 		(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
+void	tracker_set_metadata			(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
 
 int	tracker_get_file_id 			(DBConnection *db_con, const char *uri, gboolean create_record);
 
@@ -42,3 +43,4 @@ void	tracker_dbus_method_get_stats	 	(DBusRec *rec);
 void	tracker_dbus_method_get_services 	(DBusRec *rec);
 void	tracker_dbus_method_get_version 	(DBusRec *rec);
 
+#endif

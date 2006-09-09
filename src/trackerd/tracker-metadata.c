@@ -57,29 +57,29 @@ char *doc_mime_types[] = {
 			  "application/x-mswrite",
 			  "application/x-applix-word",
 			  "application/docbook+xml",
-		          "application/x-kword",
-	    	  	  "application/x-kword-crypt",
-	    		  "application/x-lyx",
+			  "application/x-kword",
+			  "application/x-kword-crypt",
+			  "application/x-lyx",
 			  "application/vnd.lotus-1-2-3",
-	    		  "application/x-applix-spreadsheet",
-	    		  "application/x-gnumeric",
-	    		  "application/x-kspread",
-	    		  "application/x-kspread-crypt",
-	    		  "application/x-quattropro",
-	    		  "application/x-sc",
-	    		  "application/x-siag",
+			  "application/x-applix-spreadsheet",
+			  "application/x-gnumeric",
+			  "application/x-kspread",
+			  "application/x-kspread-crypt",
+			  "application/x-quattropro",
+			  "application/x-sc",
+			  "application/x-siag",
 			  "application/x-magicpoint",
-	    		  "application/x-kpresenter",
+			  "application/x-kpresenter",
 			  "application/illustrator",
-	  	          "application/vnd.corel-draw",
-	    		  "application/vnd.stardivision.draw",
-	    		  "application/vnd.oasis.opendocument.graphics",
-	    		  "application/x-dia-diagram",
-	    		  "application/x-karbon",
-	    		  "application/x-killustrator",
-	    		  "application/x-kivio",
-	    		  "application/x-kontour",
-	    		  "application/x-wpg"
+			  "application/vnd.corel-draw",
+			  "application/vnd.stardivision.draw",
+			  "application/vnd.oasis.opendocument.graphics",
+			  "application/x-dia-diagram",
+			  "application/x-karbon",
+			  "application/x-killustrator",
+			  "application/x-kivio",
+			  "application/x-kontour",
+			  "application/x-wpg"
 };
 
 
@@ -231,7 +231,9 @@ char *
 tracker_metadata_get_text_file (const char *uri, const char *mime)
 {
 	MetadataFileType ftype;
-	char *tmp, *text_filter_file;
+	char		 *text_filter_file;
+
+	text_filter_file = NULL;
 
 	ftype = tracker_get_metadata_type (mime);
 
@@ -242,6 +244,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 		return g_strdup (uri);
 
 	} else {
+		char *tmp;
 
 		tmp = g_strdup (DATADIR "/tracker/filters/");
 
@@ -250,17 +253,17 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 		g_free (tmp);
 	}
 
-	if (g_file_test (text_filter_file, G_FILE_TEST_EXISTS)) {
+	if (text_filter_file && g_file_test (text_filter_file, G_FILE_TEST_EXISTS)) {
 		char *argv[4];
 		char *temp_file_name;
-		int fd;
+		int  fd;
 
 		fd = g_file_open_tmp (NULL, &temp_file_name, NULL);
 
-  		if (fd == -1) {
+		if (fd == -1) {
 			g_warning ("make thumb file %s failed", temp_file_name);
 			return NULL;
-      		} else {
+		} else {
 			close (fd);
 		}
 
@@ -316,7 +319,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 char *
 tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *max_size)
 {
-	char *tmp, *tmp_file, *thumbnailer;
+	char *tmp, *thumbnailer;
 
 	tmp = g_strdup (DATADIR "/tracker/thumbnailers/");
 
@@ -326,7 +329,8 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 
 	if (g_file_test (thumbnailer, G_FILE_TEST_EXISTS)) {
 		char *argv[5];
-		int fd;
+		char *tmp_file;
+		int  fd;
 
 		tmp = g_build_filename (g_get_home_dir (), ".Tracker", "thumbs", NULL);
 
@@ -338,12 +342,12 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 
 		fd = g_mkstemp (tmp_file);
 
-  		if (fd == -1) {
+		if (fd == -1) {
 			g_warning ("make thumb file %s failed", tmp_file);
 			g_free (thumbnailer);
 			g_free (tmp_file);
 			return NULL;
-      		} else {
+		} else {
 			close (fd);
 		}
 

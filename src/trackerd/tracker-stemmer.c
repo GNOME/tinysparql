@@ -65,9 +65,11 @@ static int cons(stemmer * z, int i)
 */
 
 static int m(stemmer * z)
-{  int n = 0;
-   int i = 0;
-   int j = z->j;
+{  int n, i, j;
+
+   n = 0;
+   i = 0;
+   j = z->j;
    while(TRUE)
    {  if (i > j) return n;
       if (! cons(z, i)) break; i++;
@@ -94,8 +96,9 @@ static int m(stemmer * z)
 
 static int vowelinstem(stemmer * z)
 {
-   int j = z->j;
-   int i; for (i = 0; i <= j; i++) if (! cons(z, i)) return TRUE;
+   int j, i;
+   j = z->j;
+   for (i = 0; i <= j; i++) if (! cons(z, i)) return TRUE;
    return FALSE;
 }
 
@@ -103,7 +106,8 @@ static int vowelinstem(stemmer * z)
 
 static int doublec(stemmer * z, int j)
 {
-   char * b = z->b;
+   char * b;
+   b = z->b;
    if (j < 1) return FALSE;
    if (b[j] != b[j - 1]) return FALSE;
    return cons(z, j);
@@ -120,7 +124,8 @@ static int doublec(stemmer * z, int j)
 
 static int cvc(stemmer * z, int i)
 {  if (i < 2 || !cons(z, i) || cons(z, i - 1) || !cons(z, i - 2)) return FALSE;
-   {  int ch = z->b[i];
+   {  int ch;
+      ch = z->b[i];
       if (ch  == 'w' || ch == 'x' || ch == 'y') return FALSE;
    }
    return TRUE;
@@ -129,9 +134,12 @@ static int cvc(stemmer * z, int i)
 /* ends(z, s) is TRUE <=> 0,...k ends with the string s. */
 
 static int ends(stemmer * z, char * s)
-{  int length = s[0];
-   char * b = z->b;
-   int k = z->k;
+{  int length;
+   char * b;
+   int k;
+   length = s[0];
+   b = z->b;
+   k = z->k;
    if (s[length] != b[k]) return FALSE; /* tiny speed-up */
    if (length > k + 1) return FALSE;
    if (memcmp(b + k - length + 1, s + 1, length) != 0) return FALSE;
@@ -143,8 +151,10 @@ static int ends(stemmer * z, char * s)
    k. */
 
 static void setto(stemmer * z, char * s)
-{  int length = s[0];
-   int j = z->j;
+{  int length;
+   int j;
+   length = s[0];
+   j = z->j;
    memmove(z->b + j + 1, s + 1, length);
    z->k = j+length;
 }
@@ -177,8 +187,8 @@ static void r(stemmer * z, char * s) { if (m(z) > 0) setto(z, s); }
 
 static void step1ab(stemmer * z)
 {
-   char * b = z->b;
-
+   char * b;
+   b = z->b;
 
    if (b[z->k] == 's')
    {  if (ends(z, "\04" "sses")) z->k -= 2; else
@@ -193,7 +203,8 @@ static void step1ab(stemmer * z)
       if (ends(z, "\02" "iz")) setto(z, "\03" "ize"); else
       if (doublec(z, z->k))
       {  z->k--;
-         {  int ch = b[z->k];
+         {  int ch;
+            ch = b[z->k];
             if (ch == 'l' || ch == 's' || ch == 'z') z->k++;
          }
       }
@@ -303,11 +314,13 @@ static void step4(stemmer * z)
 
 static void step5(stemmer * z)
 {
-   char * b = z->b;
+   char * b;
+   b = z->b;
    z->j = z->k;
    if (b[z->k] == 'e')
-   {  int a = m(z);
-      if (a > 1 || a == 1 && !cvc(z, z->k - 1)) z->k--;
+   {  int a;
+      a = m(z);
+      if (a > 1 || (a == 1 && !cvc(z, z->k - 1))) z->k--;
    }
    if (b[z->k] == 'l' && doublec(z, z->k) && m(z) > 1) z->k--;
 }
@@ -322,11 +335,11 @@ static void step5(stemmer * z)
 char * tracker_stem (char * b, int k)
 {
 
-	stemmer Stemmer;
+  stemmer Stemmer;
+  char *result;
 
-   if (k <= 1) return g_strdup(b); /*-DEPARTURE-*/
- 
-	
+  if (k <= 1) return g_strdup(b); /*-DEPARTURE-*/
+
   Stemmer.b = g_strdup (b);
   Stemmer.k = k; /* copy the parameters into z */
   Stemmer.j = 0;
@@ -338,10 +351,8 @@ char * tracker_stem (char * b, int k)
 
    step1ab(&Stemmer); step1c(&Stemmer); step2(&Stemmer); step3(&Stemmer); step4(&Stemmer); step5(&Stemmer);
 
-   char * result = g_strndup (Stemmer.b, Stemmer.k+1);
+   result = g_strndup (Stemmer.b, Stemmer.k+1);
    g_free (Stemmer.b);
 
    return result;
-
 }
-

@@ -17,6 +17,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _TRACKER_DBUS_METADATA_H_
+#define _TRACKER_DBUS_METADATA_H_
+
 #include "tracker-dbus.h"
 
 void	tracker_dbus_method_metadata_get 			(DBusRec *rec);
@@ -28,3 +31,5 @@ void	tracker_dbus_method_metadata_get_type_details 		(DBusRec *rec);
 void	tracker_dbus_method_metadata_get_registered_types	(DBusRec *rec);
 void	tracker_dbus_method_metadata_get_writeable_types	(DBusRec *rec);
 void	tracker_dbus_method_metadata_get_registered_classes	(DBusRec *rec);
+
+#endif

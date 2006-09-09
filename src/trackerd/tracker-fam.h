@@ -17,17 +17,20 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _TRACKER_FAM_H_
+#define _TRACKER_FAM_H_
+
 #include "tracker-db.h"
+
 #define MAX_FILE_WATCHES 170
 
 gboolean 	tracker_start_watching 		(void);
 void     	tracker_end_watching 		(void);
 
-gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection	*db_con);
-void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, DBConnection	*db_con);  
+gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection *db_con);
+void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, DBConnection *db_con);
 
-gboolean 	tracker_is_directory_watched 	(const char * dir, DBConnection	*db_con);
-int		tracker_count_watch_dirs 	();
+gboolean 	tracker_is_directory_watched 	(const char *dir, DBConnection *db_con);
+int		tracker_count_watch_dirs 	(void);
 
-
-
+#endif

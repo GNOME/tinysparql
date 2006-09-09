@@ -33,21 +33,6 @@
 #endif
 
 
-typedef enum {
-	DATA_INDEX_STRING,
-	DATA_STRING,
-	DATA_NUMERIC,
-	DATA_DATE
-} DataTypes;
-
-
-typedef struct {
-	char		*id;
-	DataTypes	type;
-	gboolean	writeable;
-	gboolean	embedded;
-
-} FieldDef;
 
 
 FileInfo *	tracker_db_get_file_info 	(DBConnection *db_con, FileInfo *info);

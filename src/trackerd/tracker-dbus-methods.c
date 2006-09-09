@@ -17,11 +17,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <string.h>
-
+#include <glib/gstdio.h>
 
 #include "tracker-dbus-methods.h"
 #include "tracker-metadata.h"
@@ -30,16 +27,16 @@
 
 void
 tracker_set_error (DBusRec 	  *rec,
-	   	   const char	  *fmt, 
+	   	   const char	  *fmt,
 	   	   ...)
 {
-	char *msg;
-    	va_list args;
+	char	    *msg;
+	va_list	    args;
 	DBusMessage *reply;
 
 	va_start (args, fmt);
-  	msg = g_strdup_vprintf (fmt, args);
-  	va_end (args);
+	msg = g_strdup_vprintf (fmt, args);
+	va_end (args);
 
 	reply = dbus_message_new_error (rec->message,
 					"org.freedesktop.Tracker.Error",
@@ -48,7 +45,7 @@ tracker_set_error (DBusRec 	  *rec,
 	if (reply == NULL || !dbus_connection_send (rec->connection, reply, NULL)) {
 		tracker_log ("Warning - out of memory");
 	}
-	
+
 	tracker_log ("The following error has happened : %s", msg);
 	g_free (msg);
 
@@ -56,138 +53,144 @@ tracker_set_error (DBusRec 	  *rec,
 }
 
 
-
 char *
-tracker_get_metadata (DBConnection *db_con, const char *service, const char *id, const char *key) 
+tracker_get_metadata (DBConnection *db_con, const char *service, const char *id, const char *key)
 {
-
-	int 	 	row_count = 0;
-	char 		*value;
-	char 		***res = NULL;
-	char**  	row;
-
+	char ***res;
+	char *value;
 
 	g_return_val_if_fail (db_con && id && (strlen (id) > 0), NULL);
 
 	value = g_strdup (" ");
 
-	res = tracker_db_get_metadata (db_con, service, id, key);	
+	res = tracker_db_get_metadata (db_con, service, id, key);
 
 	if (res) {
+		int  row_count;
 
 		row_count = tracker_get_row_count (res);
-	
+
 		if (row_count > 0) {
+			char **row;
 
 			row = tracker_db_get_row (res, 0);
 
 			if (row && row[0]) {
 				g_free (value);
-				value = g_strdup (row[0]);				
+				value = g_strdup (row[0]);
 			}
-			
+
 		} else {
 			tracker_log ("result set is empty");
 		}
 
 		tracker_db_free_result (res);
-	} 
+	}
 
 	tracker_log ("metadata %s is %s", key, value);
+
 	return value;
-
 }
-
-
-
 
 
 int
 tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_record)
 {
-	int 		id, result;
-	char 		*path, *name;
-	struct stat     finfo;
-	gboolean 	is_dir, is_link;
+	int id;
 
 	g_return_val_if_fail (db_con && uri && (strlen(uri) > 0), -1);
 
 	id = tracker_db_get_file_id (db_con, uri);
 
 	if (id == -1 && create_record) {
+		char	    *uri_in_locale;
+		struct stat finfo;
+		int	    result;
+
+		uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+		if (!uri_in_locale) {
+			tracker_log ("******ERROR**** info->uri could not be converted to locale format");
+			return -1;
+		}
 
 		/* file not found in DB - so we must insert a new file record */
 
+		if (uri[0] == G_DIR_SEPARATOR && (g_lstat (uri_in_locale, &finfo) != -1)) {
+			char	 *path, *name, *mime, *service_name;
+			gboolean is_dir, is_link;
+			long	 mtime;
 
-
-		if (uri[0] == '/' && (lstat (uri, &finfo) != -1)) {
-			
 			name = g_path_get_basename (uri);
 			path = g_path_get_dirname (uri);
 
-			is_dir = S_ISDIR (finfo.st_mode);	
+			is_dir = S_ISDIR (finfo.st_mode);
 
 			is_link = S_ISLNK (finfo.st_mode);
 
-			char *mime = tracker_get_mime_type (uri);
+			mime = tracker_get_mime_type (uri);
 
-			char *service_name = tracker_get_service_type_for_mime (mime);
+			service_name = tracker_get_service_type_for_mime (mime);
 
-			long mtime = finfo.st_mtime;
+			mtime = finfo.st_mtime;
 
-			tracker_db_create_service (db_con,  path, name, service_name, is_dir, is_link, FALSE, 0, mtime);
+			tracker_db_create_service (db_con, path, name, service_name, is_dir, is_link, FALSE, 0, mtime);
 
+			g_free (path);
+			g_free (name);
 			g_free (service_name);
-
 			g_free (mime);
 
 			result = tracker_db_get_file_id (db_con, uri);
-			
 
 		} else {
+			char *path, *name;
 
 			/* we assume its a non-local vfs so dont care about whether its a dir or a link */
 
 			name = tracker_get_vfs_name (uri);
 			path = tracker_get_vfs_path (uri);
 
-			tracker_db_create_service (db_con,  path, name, "VFS Files", FALSE, FALSE, FALSE, 0, 0);
+			tracker_db_create_service (db_con, path, name, "VFS Files", FALSE, FALSE, FALSE, 0, 0);
+
+			g_free (path);
+			g_free (name);
 
 			result = tracker_db_get_file_id (db_con, uri);
 		}
 
+		g_free (uri_in_locale);
 
 		id = result;
-		
-		g_free (path);
-		g_free (name);
 	}
 
 	return id;
 }
 
 
-
-
 void
 tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 {
-					
-	char *key, *value;
-	int i, row_count, field_count;
-	char**  row = NULL;
+	int  row_count;
 
 	g_return_if_fail (res);
 
 	row_count = tracker_get_row_count (res);
 
 	if (row_count > 0) {
+		char **row;
+		int  field_count;
+		int  k;
 
 		field_count =  tracker_get_field_count (res);
 
-		int k = 0;
+		k = 0;
 
 		while ((row = tracker_db_get_row (res, k)) != NULL) {
+			DBusMessageIter iter_dict_entry;
+			DBusMessageIter iter_var, iter_array;
+			char		*key;
+			int		i;
 
 			k++;
 
@@ -196,18 +199,14 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 			} else {
 				continue;
 			}
-			
-			DBusMessageIter iter_dict_entry;
 
 			dbus_message_iter_open_container (iter_dict,
 						  	  DBUS_TYPE_DICT_ENTRY,
 						  	  NULL,
 							  &iter_dict_entry);
-			
+
 			dbus_message_iter_append_basic (&iter_dict_entry, DBUS_TYPE_STRING, &key);
 
-
-			DBusMessageIter iter_var, iter_array;
 
 			dbus_message_iter_open_container (&iter_dict_entry,
 							  DBUS_TYPE_VARIANT,
@@ -219,11 +218,11 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 							  DBUS_TYPE_ARRAY,
 							  DBUS_TYPE_STRING_AS_STRING,
 							  &iter_array);
-	
-			/* append additional fields to the variant */
-			for (i = 1; i < (field_count); i++) {
 
-				
+			/* append additional fields to the variant */
+			for (i = 1; i < field_count; i++) {
+				char *value;
+
 				if (row[i]) {
 					value = g_strdup (row[i]);
 				} else {
@@ -231,7 +230,7 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 					value = g_strdup (" ");
 				}
 
-				dbus_message_iter_append_basic (&iter_array, 
+				dbus_message_iter_append_basic (&iter_array,
 								DBUS_TYPE_STRING,
 								&value);
 
@@ -241,36 +240,31 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 			dbus_message_iter_close_container (&iter_var, &iter_array);
 			dbus_message_iter_close_container (&iter_dict_entry, &iter_var);
 			dbus_message_iter_close_container (iter_dict, &iter_dict_entry);
-		}	
-		
-
+		}
 
 	} else {
 		tracker_log ("result set is empty");
 	}
-
-
 }
 
 
 char **
 tracker_get_query_result_as_array (char ***res, int *row_count)
 {
-					
 	char **array;
-	int i;
-	char**  row = NULL;
 
 	*row_count = tracker_get_row_count (res);
 
 	if (*row_count > 0) {
+		char **row;
+		int  i;
 
 		array = g_new (char *, *row_count);
 
 		i = 0;
 
 		while ((row = tracker_db_get_row (res, i))) {
-				
+
 			if (row && row[0]) {
 				array[i] = g_strdup (row[0]);
 			} else {
@@ -278,57 +272,46 @@ tracker_get_query_result_as_array (char ***res, int *row_count)
 			}
 			i++;
 		}
-			
-	
+
 	} else {
 		array = g_new (char *, 1);
+
 		array[0] = NULL;
 	}
 
 	return array;
-
 }
-
-
-
-
-
-
-
-
-
 
 
 void
 tracker_dbus_method_get_services (DBusRec *rec)
 {
-	DBConnection *db_con;
-	DBusMessage *reply;
+	DBConnection	*db_con;
+	DBusMessage	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
-	gboolean main_only;
-	char ***res = NULL;
+	gboolean	main_only;
+	char		***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
-	
+
 	tracker_log ("Executing GetServices Dbus Call");
-	
-	dbus_message_get_args  (rec->message, NULL, DBUS_TYPE_BOOLEAN, &main_only, DBUS_TYPE_INVALID);
-	
+
+	dbus_message_get_args (rec->message, NULL, DBUS_TYPE_BOOLEAN, &main_only, DBUS_TYPE_INVALID);
+
 	if (main_only) {
-		res = tracker_exec_proc  (db_con, "GetServices", 1, "1" );	
+		res = tracker_exec_proc (db_con, "GetServices", 1, "1");
 	} else {
-		res = tracker_exec_proc  (db_con, "GetServices", 1, "0");	
+		res = tracker_exec_proc (db_con, "GetServices", 1, "0");
 	}
 
-	
 	reply = dbus_message_new_method_return (rec->message);
 
 	dbus_message_iter_init_append (reply, &iter);
 
-	dbus_message_iter_open_container (&iter, 
+	dbus_message_iter_open_container (&iter,
 					  DBUS_TYPE_ARRAY,
 					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
 					  DBUS_TYPE_STRING_AS_STRING
@@ -344,32 +327,31 @@ tracker_dbus_method_get_services (DBusRec *rec)
 	dbus_message_iter_close_container (&iter, &iter_dict);
 	dbus_connection_send (rec->connection, reply, NULL);
 	dbus_message_unref (reply);
-
 }
 
 
 void
 tracker_dbus_method_get_stats (DBusRec *rec)
 {
-	DBConnection *db_con;
-	DBusMessage *reply;
+	DBConnection	*db_con;
+	DBusMessage	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
-	char ***res = NULL;
+	char		***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
-	
+
 	tracker_log ("Executing GetStats Dbus Call");
-	
-	res = tracker_exec_proc  (db_con, "GetStats", 0);	
-	
+
+	res = tracker_exec_proc (db_con, "GetStats", 0);
+
 	reply = dbus_message_new_method_return (rec->message);
 
 	dbus_message_iter_init_append (reply, &iter);
 
-	dbus_message_iter_open_container (&iter, 
+	dbus_message_iter_open_container (&iter,
 					  DBUS_TYPE_ARRAY,
 					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
 					  DBUS_TYPE_STRING_AS_STRING
@@ -377,20 +359,14 @@ tracker_dbus_method_get_stats (DBusRec *rec)
 					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
 					  &iter_dict);
 
-
-
 	if (res) {
 		tracker_add_query_result_to_dict (res, &iter_dict);
 		tracker_db_free_result (res);
 	}
 
-
 	dbus_message_iter_close_container (&iter, &iter_dict);
-
 	dbus_connection_send (rec->connection, reply, NULL);
-
 	dbus_message_unref (reply);
-
 }
 
 
@@ -398,7 +374,7 @@ void
 tracker_dbus_method_get_version (DBusRec *rec)
 {
 	DBusMessage *reply;
-	int i;	
+	int	    i;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -407,13 +383,11 @@ tracker_dbus_method_get_version (DBusRec *rec)
 	reply = dbus_message_new_method_return (rec->message);
 
 	dbus_message_append_args (reply,
-	  			  DBUS_TYPE_INT32, 
+	  			  DBUS_TYPE_INT32,
 				  &i,
 	  			  DBUS_TYPE_INVALID);
-	
+
 	dbus_connection_send (rec->connection, reply, NULL);
 
 	dbus_message_unref (reply);
-
 }
-

@@ -317,60 +317,6 @@ tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 }
 
 
-FieldDef *
-tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
-{
-	FieldDef *def;
-	char	 ***res;
-	char	 **row;
-
-	def = g_slice_new (FieldDef);
-
-	res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, field_name);
-
-	row = NULL;
-
-	if (res) {
-		row = tracker_db_get_row (res, 0);
-	}
-
-	if (res && row && row[0]) {
-		def->id = g_strdup (row[0]);
-	} else {
-		g_free (def);
-		tracker_db_free_result (res);
-		return NULL;
-	}
-
-	if (res && row && row[1]) {
-		def->type = atoi (row[1]);
-	}
-
-	if (res && row && row[2]) {
-		def->embedded = (strcmp ("1", row[2]) == 0);
-	}
-
-	if (res && row && row[3]) {
-		def->writeable = (strcmp ("1", row[3]) == 0);
-	}
-
-	tracker_db_free_result (res);
-
-	return def;
-}
-
-
-void
-tracker_db_free_field_def (FieldDef *def)
-{
-	g_return_if_fail (def);
-
-	if (def->id) {
-		g_free (def->id);
-	}
-
-	g_slice_free (FieldDef, def);
-}
 
 
 gboolean
@@ -431,8 +377,8 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 	if (!mime) {
 		if (tracker->is_running) {
 			if ( (counter > 0)
-	  		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > 500 || tracker_db_has_pending_metadata (db_con)))
-	  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > 500 || tracker_db_has_pending_files (db_con))) ) {
+	  		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > 50 ))
+	  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > 500 )) ) {
 
 				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, "unknown", is_directory);
 			} else {

@@ -17,21 +17,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include <string.h>
+#include <unistd.h>
+#include <fam.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fam.h>
 
 #include "tracker-fam.h"
 
-extern Tracker 		*tracker;
-extern DBConnection	*main_thread_db_con;
+
+extern Tracker 	    *tracker;
+extern DBConnection *main_thread_db_con;
+
 
 typedef struct {
 	char 	   *watch_directory;
@@ -39,16 +36,16 @@ typedef struct {
 	WatchTypes watch_type;
 } DirWatch;
 
-static gint fam_watch_id = 0;
+
+static gint	     fam_watch_id = 0;
 static FAMConnection fc;
 
 /* table to store all active directory watches  */
-static GHashTable *watch_table;
+static GHashTable    *watch_table;
 
 
-
-gboolean 
-tracker_is_directory_watched (const char * dir, DBConnection *db_con)
+gboolean
+tracker_is_directory_watched (const char *dir, DBConnection *db_con)
 {
 	DirWatch *watch;
 
@@ -63,7 +60,7 @@ tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 
 
 static WatchTypes
-tracker_get_directory_watch_type (const char * dir)
+tracker_get_directory_watch_type (const char *dir)
 {
 	DirWatch *watch;
 
@@ -72,15 +69,18 @@ tracker_get_directory_watch_type (const char * dir)
 	if (watch != NULL) {
 		return watch->watch_type;
 	}
-	return WATCH_OTHER;
 
+	return WATCH_OTHER;
 }
 
+
 static void
-free_watch_func (gpointer user_data) 
+free_watch_func (gpointer user_data)
 {
-	
-	DirWatch *fw = user_data;
+	DirWatch *fw;
+
+	fw = user_data;
+
 	if (fw->fr) {
 		g_free (fw->fr);
 	}
@@ -94,14 +94,11 @@ free_watch_func (gpointer user_data)
 	}
 }
 
+
 void
-tracker_end_watching (void) 
+tracker_end_watching (void)
 {
-
-
 	FAMClose (&fc);
-
-	
 
 	if (fam_watch_id > 0) {
 		g_source_remove (fam_watch_id);
@@ -111,12 +108,14 @@ tracker_end_watching (void)
 	g_hash_table_destroy  (watch_table);
 }
 
+
 static gboolean
 is_delete_event (TrackerChangeAction event_type)
 {
-	
-	return  (event_type == TRACKER_ACTION_DELETE || event_type == TRACKER_ACTION_DELETE_SELF ||event_type == TRACKER_ACTION_FILE_DELETED ||event_type == TRACKER_ACTION_DIRECTORY_DELETED );
-
+	return (event_type == TRACKER_ACTION_DELETE ||
+		event_type == TRACKER_ACTION_DELETE_SELF ||
+		event_type == TRACKER_ACTION_FILE_DELETED ||
+		event_type == TRACKER_ACTION_DIRECTORY_DELETED);
 }
 
 
@@ -125,16 +124,16 @@ fam_callback (GIOChannel *source,
 	      GIOCondition condition,
 	      gpointer data)
 {
-	int counter = 1;
+	int counter;
+
+	counter = 1;
 
 	while (FAMPending (&fc)) {
-
-		FAMEvent ev;
-		DirWatch *watch;
+		FAMEvent	    ev;
+		DirWatch	    *watch;
 		TrackerChangeAction event_type;
-		
 
-		if (FAMNextEvent(&fc, &ev) != 1) {
+		if (FAMNextEvent (&fc, &ev) != 1) {
 			tracker_end_watching ();
 			return FALSE;
 		}
@@ -153,8 +152,8 @@ fam_callback (GIOChannel *source,
 				counter = 0;
 				break;
 			case FAMCreated:
-				event_type = TRACKER_ACTION_CREATE;		
-				counter =  1;
+				event_type = TRACKER_ACTION_CREATE;
+				counter = 1;
 				break;
 
 			case FAMStartExecuting:
@@ -163,32 +162,36 @@ fam_callback (GIOChannel *source,
 			case FAMExists:
 			case FAMEndExist:
 			case FAMMoved:
-				continue;	
+				continue;
 				break;
-
 		}
 
 		if (event_type != TRACKER_ACTION_IGNORE) {
-			char *file_uri, *file_utf8_uri = NULL;
+			char	 *file_uri, *file_utf8_uri;
 			FileInfo *info;
 
-			if ( !ev.filename || strlen(ev.filename) == 0) {
+			if ( !ev.filename || strlen (ev.filename) == 0) {
 				continue;
 			}
 
-			if (ev.filename[0] == '/') {
+			if (ev.filename[0] == G_DIR_SEPARATOR) {
 				file_uri = g_strdup (ev.filename);
 			} else {
+				char *s;
 
-				/* ignore hidden files	*/
-				if ( ev.filename[0] == '.') {
+				s = g_filename_to_utf8 (ev.filename, -1, NULL, NULL, NULL);
+
+				if (tracker_ignore_file (s)) {
+					g_free (s);
 					continue;
 				} else {
 					file_uri = g_build_filename (watch->watch_directory, ev.filename, NULL);
 				}
+
+				g_free (s);
 			}
 
-			file_utf8_uri = g_filename_to_utf8 (file_uri, -1, NULL,NULL,NULL);
+			file_utf8_uri = g_filename_to_utf8 (file_uri, -1, NULL, NULL, NULL);
 
 			g_free (file_uri);
 
@@ -197,21 +200,13 @@ fam_callback (GIOChannel *source,
 				continue;
 			}
 
-			int i = strlen (file_utf8_uri);
-
-			i--;
-			
-			/* ignore trash files */
-			if (file_utf8_uri [i] == '~') {
-				continue;
-			}
-
 			info = tracker_create_file_info (file_utf8_uri, event_type, counter, WATCH_OTHER);
+
 			if (tracker_file_info_is_valid (info)) {
-				
+
 				/* process deletions immediately - schedule (make pending) all others */
 				if (is_delete_event (event_type)) {
-					char *uri_in_locale = NULL, *parent = NULL;
+					char *uri_in_locale, *parent;
 
 					uri_in_locale = g_filename_from_utf8 (info->uri, -1, NULL, NULL, NULL);
 
@@ -225,18 +220,16 @@ fam_callback (GIOChannel *source,
 					g_free (uri_in_locale);
 
 					if (tracker_is_directory_watched (parent, NULL) || tracker_is_directory_watched (info->uri, NULL)) {
-						g_async_queue_push (tracker->file_process_queue, info);	
+						g_async_queue_push (tracker->file_process_queue, info);
 						tracker_notify_file_data_available ();
 					} else {
-						info = tracker_free_file_info (info);					
+						tracker_free_file_info (info);
 					}
-				} else { 
 
-					tracker_db_insert_pending_file 	(main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory);
-					info = tracker_free_file_info (info);
-
+				} else {
+					tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory);
+					tracker_free_file_info (info);
 				}
-
 			}
 
 			g_free (file_utf8_uri);
@@ -244,13 +237,12 @@ fam_callback (GIOChannel *source,
 	}
 
 	return TRUE;
-
 }
 
-gboolean 
-tracker_start_watching (void) 
-{
 
+gboolean
+tracker_start_watching (void)
+{
 	GIOChannel *ioc;
 
 	if (FAMOpen2 (&fc, "Tracker") != 0) {
@@ -258,7 +250,7 @@ tracker_start_watching (void)
 	}
 
 	ioc = g_io_channel_unix_new (FAMCONNECTION_GETFD (&fc));
-	
+
 	fam_watch_id = g_io_add_watch (ioc,
 				       G_IO_IN | G_IO_HUP | G_IO_ERR,
 				       fam_callback, &fc);
@@ -273,13 +265,8 @@ tracker_start_watching (void)
 gboolean
 tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 {
+	char *dir_in_locale;
 
-	char *dir_in_locale = NULL;
-	DirWatch *fwatch;
-	FAMRequest *fr;
-	int rc;
-
-	
 	if (!tracker_file_is_valid (dir)) {
 		return FALSE;
 	}
@@ -291,7 +278,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 
 	if (g_hash_table_size (watch_table) >= MAX_FILE_WATCHES) {
 		tracker_log ("Watch Limit has been exceeded - unable to watch any more directories");
-		return FALSE;	
+		return FALSE;
 	}
 
 	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
@@ -302,7 +289,10 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 	}
 
 	/* check directory permissions are okay */
-	if (access (dir_in_locale, F_OK) == 0 && access (dir_in_locale, R_OK) == 0) {
+	if (g_access (dir_in_locale, F_OK) == 0 && g_access (dir_in_locale, R_OK) == 0) {
+		DirWatch   *fwatch;
+		FAMRequest *fr;
+		int	   rc;
 
 		fwatch = g_new (DirWatch, 1);
 		fr = g_new (FAMRequest, 1);
@@ -327,32 +317,38 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 	return FALSE;
 }
 
-static gboolean
-delete_watch 	(gpointer       key,
-		 gpointer       value,
-		 gpointer       user_data) 
-{
 
-	DirWatch *fwatch = value;
-	const char *dir = user_data;
-	char *dir_part;
-		
-	
+static gboolean
+delete_watch 	(gpointer key,
+		 gpointer value,
+		 gpointer user_data)
+{
+	DirWatch   *fwatch;
+	const char *dir;
+
+	dir = user_data;
+	fwatch = value;
+
 	if (fwatch && dir) {
-		dir_part = g_strconcat (dir, "/", NULL);
-		/* need to delete subfolders of dir as well */ 
-		if ((strcmp (fwatch->watch_directory, dir) == 0) || (g_str_has_prefix (fwatch->watch_directory, dir_part))) { 
+		char *dir_part;
+
+		dir_part = g_strconcat (dir, G_DIR_SEPARATOR_S, NULL);
+
+		/* need to delete subfolders of dir as well */
+		if ((strcmp (fwatch->watch_directory, dir) == 0) || (g_str_has_prefix (fwatch->watch_directory, dir_part))) {
 			FAMCancelMonitor (&fc, fwatch->fr);
 			g_free (dir_part);
 			return TRUE;
 		}
+
 		g_free (dir_part);
 	}
+
 	return FALSE;
 }
 
 
-int	
+int
 tracker_count_watch_dirs (void)
 {
 	return g_hash_table_size (watch_table);
@@ -360,7 +356,7 @@ tracker_count_watch_dirs (void)
 
 
 void
-tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection	*db_con) 
+tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection *db_con)
 {
 	char *str;
 
@@ -369,10 +365,12 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 	if (delete_subdirs) {
 		g_hash_table_foreach_remove (watch_table, delete_watch, str);
 	} else {
-		DirWatch *fwatch = g_hash_table_lookup (watch_table, dir);
+		DirWatch *fwatch;
+
+		fwatch = g_hash_table_lookup (watch_table, dir);
 		FAMCancelMonitor (&fc, fwatch->fr);
 		g_hash_table_remove (watch_table, dir);
-		
 	}
+
 	g_free (str);
 }

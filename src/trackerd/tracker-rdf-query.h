@@ -17,6 +17,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _TRACKER_RDF_QUERY_H_
+#define _TRACKER_RDF_QUERY_H_
+
+#include <glib.h>
+
 #include "tracker-db.h"
 
+
 char *	tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, gboolean sort_by_service, int offset, int limit, GError *error);
+
+#endif

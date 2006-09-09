@@ -5,11 +5,71 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "tracker-db-sqlite.h"
 #include "tracker-indexer.h"
 
 static GHashTable *prepared_queries;
+static GMutex *sequence_mutex;
+
+
+
+
+FieldDef *
+tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
+{
+	FieldDef *def;
+	char	 ***res;
+	char	 **row;
+
+	def = g_slice_new (FieldDef);
+
+	res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, field_name);
+
+	row = NULL;
+
+	if (res) {
+		row = tracker_db_get_row (res, 0);
+	}
+
+	if (res && row && row[0]) {
+		def->id = g_strdup (row[0]);
+	} else {
+		g_free (def);
+		tracker_db_free_result (res);
+		return NULL;
+	}
+
+	if (res && row && row[1]) {
+		def->type = atoi (row[1]);
+	}
+
+	if (res && row && row[2]) {
+		def->embedded = (strcmp ("1", row[2]) == 0);
+	}
+
+	if (res && row && row[3]) {
+		def->writeable = (strcmp ("1", row[3]) == 0);
+	}
+
+	tracker_db_free_result (res);
+
+	return def;
+}
+
+
+void
+tracker_db_free_field_def (FieldDef *def)
+{
+	g_return_if_fail (def);
+
+	if (def->id) {
+		g_free (def->id);
+	}
+
+	g_slice_free (FieldDef, def);
+}
 
 
 char **
@@ -142,6 +202,8 @@ tracker_db_initialize (const char *datadir)
 	char 	buffer[8192];
 
 	tracker_log ("Using Sqlite version %s", sqlite3_version);
+
+	sequence_mutex = g_mutex_new ();
 
 	/* load prepared queries */
 	prepared_queries = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -497,30 +559,22 @@ tracker_escape_string (DBConnection *db_con, const char *in)
 } 
 
 
-char ***
-tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count, ...)
+static sqlite3_stmt *
+get_prepared_query (DBConnection *db_con, const char *procedure)
 {
-	va_list 	args;
-	int 		i;
-	char 		*str, *param, *query, *s;
-	sqlite3_stmt 	*stmt = 0;
-	char 		***res = NULL;
-
-	va_start (args, param_count);
-
+	sqlite3_stmt 	*stmt;
+	
 	/* check if query is already prepared (ie is in table) */
 	stmt = g_hash_table_lookup (db_con->statements, procedure);
 
 	/* check if query is in list and prepare it if so */
 	if (!stmt) {
+
 		query = g_hash_table_lookup (prepared_queries, procedure);
 		
 		if (!query) {
-
-			tracker_log ("FATAL ERROR : prepared query %s not found", procedure);
-
-			g_assert (FALSE);
-
+			tracker_log ("ERROR : prepared query %s not found", procedure);
+			return NULL;
 		} else {
 	
 			/* prepare the query */	
@@ -531,13 +585,33 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 				tracker_log ("successfully prepared query %s", procedure);
 				g_hash_table_insert (db_con->statements, procedure, stmt);
 			} else {
-				tracker_log ("FATAL ERROR : failed to prepare query %s with sql %s", procedure, query);
-				g_assert (FALSE);
+				tracker_log ("ERROR : failed to prepare query %s with sql %s", procedure, query);
+				return NULL;
 			}
 		}
+	} else {
+		sqlite3_reset (stmt);
 	}
 
-	sqlite3_reset (stmt);
+	return stmt;
+}
+
+
+
+char ***
+tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count, ...)
+{
+	va_list 	args;
+	int 		i;
+	char 		*str, *param, *query, *s;
+	sqlite3_stmt 	*stmt;
+	char 		***res = NULL;
+
+
+
+	stmt = get_prepared_query (db_con, procedure);
+
+	va_start (args, param_count);
 
 	for (i = 0; i < param_count; i++ ) {
 
@@ -545,12 +619,9 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		
 		if (!str) {
 			tracker_log ("Warning - parameter %d is null", i);
-			param = g_strdup (" ");	
-		} else {
-			param = tracker_escape_string (db_con, str);
-		}
+		} 
 
-		sqlite3_bind_text (stmt, i, param, strlen (param), g_free);
+		sqlite3_bind_text (stmt, i, str, strlen (str), SQLITE_TRANSIENT);
 		
 	}
  	
@@ -564,7 +635,11 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 
 	while (TRUE) {
 		
-		lock_db ();
+		
+		if (!lock_db ()) {
+			return NULL;
+		}
+
 		rc = sqlite3_step (stmt);
 		
 		if (rc == SQLITE_BUSY) {
@@ -621,6 +696,39 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	return res;
 
 }
+
+
+
+static void
+get_service_id_range (DBConnection *db_con, const char *service, int *min, int *max)
+{
+
+	*min = -1;
+	*max = -1;
+
+	if (strcmp (service, "Files") == 0) {
+		*min = 0;
+		*max = 8;
+	} else if (strcmp (service, "VFS Files") == 0) {
+		*min = 9;
+		*max = 17;
+	} else {
+		char ***res;
+	
+		res = tracker_exec_proc  (db_con, "GetServiceTypeID", 1, service);	
+
+		if (res) {
+			if (res[0][0]) {
+				*min = atoi (res[0][0]);
+				*max = atoi (res[0][0]);
+			}
+			tracker_db_free_result (res);
+		}
+	}
+
+
+}
+
 
 
 void
@@ -868,18 +976,16 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 {
 
 	FILE 		*file;
-	char 		buffer[16384];
-	int  		bytes_read = 0;
-	unsigned long 	file_id_length, meta_id_length;
-	MYSQL_BIND 	bind[3];
-	unsigned long  	length;
+	char 		buffer[65565];
+	int  		bytes_read = 0, buffer_length;
 	char		*str_file_id, *str_meta_id, *value;
 	FieldDef 	*def;
+	GString 	*str;
+	sqlite3_stmt 	*stmt;
 
-
-	tracker_log ("parsing file");
-	tracker_metadata_parse_text_contents (file_as_text, file_id);
-	tracker_log ("parsing finished");
+	//tracker_log ("parsing file");
+	//tracker_metadata_parse_text_contents (file_as_text, file_id);
+	//tracker_log ("parsing finished");
 
 
 	file = fopen (file_name,"r");
@@ -901,80 +1007,101 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 	tracker_db_free_field_def (def);
 
 	str_file_id = g_strdup_printf ("%ld", file_id);
-	file_id_length = strlen (str_file_id);
-	meta_id_length = strlen (str_meta_id);
 	
+	str = g_string_new ("");
 
+	while ((feof (file) == 0)) {
 	
-	/* Supply file's text in chunks to server as it could be huge */
-	/* to do - need a gconf setting to define max bytes to be read */
-	while ( (feof (file) == 0) && (bytes_read < (1024 * 2048)) ) {
-	
-		/* leave 2x space in buffer so that potential utf8 conversion can fit */
-		fgets (buffer, 8192, file);
+		fgets (buffer, 65565, file);
 
-		if (strlen (buffer) < 2) {
+		buffer_length = strlen (buffer);
+
+		if (buffer_length < 3) {
 			continue;
 		}
 
-		if (!g_utf8_validate (buffer, -1, NULL)) {
+		if (!g_utf8_validate (buffer, buffer_length, NULL)) {
 		
-			/* attempt to convert it into valid utf8 using locale */
-			value = g_locale_to_utf8 (buffer, -1, NULL, NULL, NULL);
+			value = g_locale_to_utf8 (buffer, buffer_length, NULL, NULL, NULL);
 			
 			if (!value) {
 				continue;
-			} else {
-				if (strlen (value) > 16383) {
-					g_free (value);
-					continue;
-				} else {
-				 	strncpy (buffer, value, 16384);
-					g_free (value);
-				}
 			}
-		} 
+			
+			str = g_string_append (str, value);
+			g_free (value);
+			bytes_read += strlen (value);
+			
+		} else {
+			str = g_string_append (str, buffer);
+			bytes_read += buffer_length;
+		}
 
-		bytes_read += strlen (buffer);
 		
-		
 
-		if (mysql_stmt_send_long_data (db_con->insert_contents_stmt, 2, buffer, strlen (buffer)) != 0) {	
-
-			tracker_log ("error sending data : %s\n", mysql_stmt_error (db_con->insert_contents_stmt));
-			g_free (str_meta_id);
-			g_free (str_file_id);
-			fclose (file);
-			return;
-
-		} 
+		/* set upper limit on text we read in to approx 1MB (to do - make size a configurable option) */
+		if (bytes_read > 1048576) {
+			break;
+		}		
 	}
+
+	value = g_string_free (str, FALSE);
+
+	fclose (file);
 
 	if (!lock_db ()) {
 		g_free (str_file_id);
 		g_free (str_meta_id);
-		fclose (file);
+		if (value) {
+			g_free (value);
+		}
 		return;
 	}
 
 	if (bytes_read > 3) {
-		if (mysql_stmt_execute (db_con->insert_contents_stmt) != 0) {
-	
-			tracker_log ("insert metadata indexed query failed :%s", mysql_stmt_error (db_con->insert_contents_stmt));
-		} else {
-	
-			//tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
+
+		stmt = get_prepared_query (db_con, "SaveFileContents");
+
+		sqlite3_bind_text (stmt, 0, str_file_id, strlen (str_file_id), SQLITE_STATIC);
+		sqlite3_bind_text (stmt, 1, str_meta_id, strlen (str_meta_id), SQLITE_STATIC);
+		sqlite3_bind_text (stmt, 2, value, bytes_read, SQLITE_STATIC);
+
+		while (TRUE) {
+		
+		
+			if (!lock_db ()) {
+				g_free (str_file_id);
+				g_free (str_meta_id);
+				if (value) {
+					g_free (value);
+				}
+				return;
+			}
+
+			rc = sqlite3_step (stmt);
+
+			if (rc == SQL_BUSY) {
+				unlock_db ();
+				g_usleep (1000);
+				continue;
+			}
+
+			unlock_db ();
+			break;
 		}
+
+		if (rc == SQLITE_DONE) {
+			tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
+		}
+		
+		
 	}
-	unlock_db ();
+
+	if (value) {
+		g_free (value);
+	}
 	g_free (str_meta_id);
 	g_free (str_file_id);	
-	fclose (file);
-	
-
-	if (mysql_stmt_free_result (db_con->insert_contents_stmt)) {
-		tracker_log ("ERROR Freeing file contents statement");
-	}
 
 
 }
@@ -983,18 +1110,15 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 void
 tracker_db_clear_temp (DBConnection *db_con)
 {
-	tracker_exec_sql (db_con, "Flush Table FilePending");
-	tracker_exec_sql (db_con, "Flush Table FileWatches");
-	tracker_exec_sql (db_con, "TRUNCATE TABLE FilePending");
-	tracker_exec_sql (db_con, "TRUNCATE TABLE FileWatches");
+	tracker_exec_sql (db_con, "DELETE FROM FilePending");
+	tracker_exec_sql (db_con, "DELETE FROM FileWatches");
 }
 
 
 void
 tracker_db_check_tables (DBConnection *db_con)
 {
-	tracker_exec_sql (db_con, "select * from sequence limit 1");
-	tracker_exec_sql (db_con, "select * from ServiceMetaData limit 1");
+
 }
 
 
@@ -1002,24 +1126,8 @@ char ***
 tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean sort)
 {
 	char ***result;
-	gboolean use_boolean_search = FALSE;
 
-	/* check search string for embedded special chars like hyphens and format appropriately */
-	char *search_term = tracker_format_search_terms (search_string, &use_boolean_search);
-
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_offset = tracker_int_to_str (offset);
-	char *str_sort = tracker_int_to_str (sort);
-	char *str_bool =  tracker_int_to_str (use_boolean_search);
-
-
-	result = tracker_exec_proc  (db_con, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);	
-
-	g_free (search_term);
-	g_free (str_limit);
-	g_free (str_offset);
-	g_free (str_bool);
-	g_free (str_sort);
+	result = NULL;
 
 	return result;
 
@@ -1030,39 +1138,22 @@ char ***
 tracker_db_search_files_by_text (DBConnection *db_con, const char *text, int offset, int limit, gboolean sort)
 {
 
-	char *str_offset = tracker_int_to_str (offset);
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_sort = tracker_int_to_str (sort);
-	
-	gboolean na;
-	char *search_term = tracker_format_search_terms (text, &na);
+	char ***result;
 
-	char ***res = tracker_exec_proc  (db_con,  "SearchFilesText", 4, search_term, str_offset, str_limit, str_sort);
+	result = NULL;
 
-	g_free (search_term);			
-	g_free (str_limit);
-	g_free (str_offset);
-	g_free (str_sort);
-
-	return res;
+	return result;
 }
 
 char ***
 tracker_db_search_metadata (DBConnection *db_con, const char *service, const char *field, const char *text, int offset, int limit)
 {
 
-	char *str_offset = tracker_int_to_str (offset);	
-	char *str_limit = tracker_int_to_str (limit);
-	gboolean na;
-	char *search_term = tracker_format_search_terms (text, &na);
+	char ***result;
 
-	char ***res = tracker_exec_proc  (db_con,  "SearchMetaData", 5, service, field, search_term, str_offset, str_limit);
-		
-	g_free (search_term);		
-	g_free (str_limit);
-	g_free (str_offset);
+	result = NULL;
 
-	return res;
+	return result;
 }
 
 char ***
@@ -1070,51 +1161,91 @@ tracker_db_search_matching_metadata (DBConnection *db_con, const char *service, 
 {
 	g_return_val_if_fail (id, NULL);
 
-	char *name, *path;
+	char ***result;
 
-	if (id[0] == '/') {
-		name = g_path_get_basename (id);
-		path = g_path_get_dirname (id);
-	} else {
-		name = tracker_get_vfs_name (id);
-		path = tracker_get_vfs_path (id);
-	}
+	result = NULL;
 
-	gboolean na;
-	char *search_term = tracker_format_search_terms (text, &na);
-
-	char ***res = tracker_exec_proc  (db_con,  "SearchMatchingMetaData", 4, service, path, name, search_term);
-	
-	g_free (search_term);			
-	g_free (name);
-	g_free (path);
-	
-	return res;
+	return result;
 }
 
+
+static int
+get_metadata_type (DBConnection *db_con, const char *meta)
+{
+	char ***res;
+	int result;
+
+	res = tracker_exec_proc  (db_con, "GetMetaDataTypeID", 1, meta);	
+
+	if (res && res[0][0]) {
+		result = atoi (res[0][0]);
+		tracker_db_free_result (res);
+	} else {
+		result = -1;
+	}
+
+	return result;
+}
 
 
 char ***
 tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *id, const char *key)
 {
+	FieldDef *def;
+	char ***res;
+
 	g_return_val_if_fail (id, NULL);
 
-	return tracker_exec_proc  (db_con, "GetMetadata", 3, service, id, key);	
+	def = tracker_db_get_field_def (db_con, key);
+
+	if (!def) {
+		return NULL;
+	}
+
+	switch (def->type) {
+
+		case 0: res = tracker_exec_proc  (db_con, "GetMetadataIndex", 2, id, def->id); break;	
+		case 1: res = tracker_exec_proc  (db_con, "GetMetadataString", 2, id, def->id); break;	
+		case 2: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, def->id); break;			
+		case 3: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, def->id); break;
+		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;	
+	}
+
+	tracker_db_free_field_def (def);
+
+	return res;
 }
 
 
 void 
 tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite)
 {
-	char *str_write;	
+	FieldDef *def;
 
-	if (overwrite) {
-		str_write = "1";
-	} else {
-		str_write = "0";
+	g_return_val_if_fail (id, NULL);
+
+	def = tracker_db_get_field_def (db_con, key);
+
+	if (!def) {
+		return NULL;
 	}
 
-	tracker_exec_proc  (db_con, "SetMetadata", 5, service, id, key, value, str_write);	
+	if ((!def->writeable) && (!overwrite)) {
+		tracker_db_free_field_def (def);
+		return;
+	} 
+	
+	switch (def->type) {
+
+		case 0: tracker_exec_proc  (db_con, "SetMetadataIndex", 3, id, def->id, value); break;	
+		case 1: tracker_exec_proc  (db_con, "SetMetadataString", 3, id, def->id, value); break;	
+		case 2: tracker_exec_proc  (db_con, "SetMetadataNumeric", 3, id, def->id, value); break;			
+		case 3: tracker_exec_proc  (db_con, "SetMetadataNumeric", 3, id, def->id, value); break;	
+		default: tracker_log ("Error: metadata could not be set as type %d is not supported", def->type);	
+	}
+
+	tracker_db_free_field_def (def);
+	
 }
 
 void 
@@ -1122,8 +1253,39 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 			   gboolean is_source,  int offset, long mtime)
 {
 	char *str_is_dir, *str_is_link, *str_is_source, *str_offset;
+	char ***res;
+	char *sid;
+	char *str_mtime;
+	int i;
 
-	char *str_mtime = g_strdup_printf ("%ld", mtime);
+	/* get a new unique ID for the service - use mutex to prevent race conditions */
+
+	g_mutex_lock (sequence_mutex);
+	
+	res = tracker_exec_proc (db_con, "GetNewID", 0);
+	
+	if (!res) { 
+		g_mutex_unlock (sequence_mutex);
+		tracker_log ("ERROR : could not create service - GetNewID failed");
+		return;
+	}
+	
+	if (!res[0][0]) {
+		g_mutex_unlock (sequence_mutex);
+		tracker_db_free_result (res);
+		tracker_log ("ERROR : could not create service - GetNewID failed");
+		return;
+	}
+
+
+	i = atoi (res[0][0]);
+	i++;
+	sid = tracker_int_to_str (i);
+	tracker_exec_proc (db_con, "UpdateNewID",1, sid);
+	g_mutex_unlock (sequence_mutex);
+	tracker_db_free_result (res);
+	
+	str_mtime = g_strdup_printf ("%ld", mtime);
 
 	if (is_dir) {
 		str_is_dir = "1";
@@ -1146,10 +1308,10 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 
 	str_offset = tracker_int_to_str (offset);
 
-	tracker_exec_proc  (db_con, "CreateService", 8, path, name, service, str_is_dir, str_is_link, str_is_source, str_offset,  str_mtime);
+	tracker_exec_proc  (db_con, "CreateService", 9, sid, path, name, service, str_is_dir, str_is_link, str_is_source, str_offset,  str_mtime);
 
+	g_free (sid);
 	g_free (str_mtime);
-
 	g_free (str_offset);
 
 }
@@ -1160,7 +1322,12 @@ tracker_db_delete_file (DBConnection *db_con, long file_id)
 {
 	char *str_file_id = tracker_long_to_str (file_id);
 
-	tracker_exec_proc  (db_con, "DeleteFile", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile1", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile2", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile3", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile4", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile5", 2,  str_file_id, str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile6", 1,  str_file_id);
 
 	g_free (str_file_id);
 }
@@ -1170,8 +1337,21 @@ tracker_db_delete_directory (DBConnection *db_con, long file_id, const char *uri
 {
 	char *str_file_id = tracker_long_to_str (file_id);
 
-	tracker_exec_proc  (db_con, "DeleteDirectory", 2,  str_file_id, uri);
+	char *uri_prefix =  g_strconcat (uri, G_DIR_SEPARATOR_S, '*', NULL);
 
+	tracker_exec_proc  (db_con, "DeleteDirectory1", 2,  uri, uri_prefix);
+	tracker_exec_proc  (db_con, "DeleteDirectory2", 2,  uri, uri_prefix);
+	tracker_exec_proc  (db_con, "DeleteDirectory3", 2,  uri, uri_prefix);
+	tracker_exec_proc  (db_con, "DeleteDirectory4", 2,  uri, uri_prefix);
+	tracker_exec_proc  (db_con, "DeleteDirectory5", 2,  uri, uri_prefix);
+	tracker_exec_proc  (db_con, "DeleteDirectory6", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteDirectory7", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteDirectory8", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteDirectory9", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteDirectory10", 2,  str_file_id, str_file_id);
+	tracker_exec_proc  (db_con, "DeleteDirectory11", 1,  str_file_id);
+
+	g_free (uri_prefix);
 	g_free (str_file_id);
 }
 
@@ -1183,7 +1363,7 @@ tracker_db_update_file (DBConnection *db_con, long file_id, long mtime)
 	char *str_file_id = tracker_long_to_str (file_id);
 	char *str_mtime = tracker_long_to_str (mtime);
 
-	tracker_exec_proc  (db_con, "UpdateFile", 2, str_file_id, str_mtime);
+	tracker_exec_proc  (db_con, "UpdateFile", 2, str_mtime, str_file_id);
 
 	g_free (str_file_id);
 	g_free (str_mtime);
@@ -1249,14 +1429,34 @@ tracker_db_has_pending_metadata (DBConnection *db_con)
 char ***
 tracker_db_get_pending_files (DBConnection *db_con)
 {
-	return tracker_exec_proc (db_con, "GetPendingFiles", 0);
+
+	char *str;
+	char *time_str;
+
+	time_t time_now;
+
+	time (&time_now);
+
+	time_str = tracker_long_to_str (time_now);
+	
+
+	str = g_strconcat ("CREATE TEMPORARY TABLE tmpfiles SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE NOT (PendingDate > ", time_str, " )  AND Action <> 20 ORDER BY ID LIMIT 300"
+
+	tracker_exec_sql (db_con, str);
+
+	g_free (str);
+	g_free (time_str);
+
+	tracker_exec_sql (db_con, "DELETE FROM FilePending WHERE ID in (select ID from tmpfiles) AND Action <> 20");
+
+	return tracker_exec_sql (db_con, "SELECT FileID, FileUri, Action, MimeType, IsDir FROM tmpfiles ORDER BY ID");
 }
 
 
 void
 tracker_db_remove_pending_files (DBConnection *db_con)
 {
-	tracker_exec_proc (db_con, "RemovePendingFiles", 0);
+	tracker_exec_sql (db_con, "DROP TABLE if exists tmpfiles");
 }
 
 
@@ -1264,32 +1464,60 @@ tracker_db_remove_pending_files (DBConnection *db_con)
 char ***
 tracker_db_get_pending_metadata (DBConnection *db_con)
 {
-	return tracker_exec_proc (db_con, "GetPendingMetadataFiles", 0);
+	
+	tracker_exec_sql (db_con, "CREATE TEMPORARY TABLE tmpmetadata SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE Action = 20 ORDER BY ID LIMIT 100");
+	
+	tracker_exec_sql (db_con, "DELETE FROM FilePending WHERE ID in (select ID from tmpmetadata) AND Action = 20");
+
+	return tracker_exec_sql (db_con, "SELECT FileID, FileUri, Action, MimeType, IsDir FROM tmpmetadata ORDER BY ID");
+
+
 }
 
 
 void
 tracker_db_remove_pending_metadata (DBConnection *db_con)
 {
-	tracker_exec_proc (db_con, "RemovePendingMetadataFiles", 0);
+	tracker_exec_sql (db_con, "DROP TABLE if exists tmpmetadata");
 }
 
 void
 tracker_db_insert_pending (DBConnection *db_con, const char *id, const char *action, const char *counter, const char *uri, const char *mime, gboolean is_dir)
 {
+	char 	*time_str;
+	time_t  time_now;
+	int	i;
+
+	time (&time_now);
+	i = atoi (counter);
+
+	time_str = tracker_long_to_str (time_now + i);
 
 	if (is_dir) {
-		tracker_exec_proc  (db_con, "InsertPendingFile", 6, id, action, counter, uri, mime, "1");
+		tracker_exec_proc  (db_con, "InsertPendingFile", 6, id, action, time_str, uri, mime, "1");
 	} else {
-		tracker_exec_proc  (db_con, "InsertPendingFile", 6, id, action, counter, uri,  mime, "0");
+		tracker_exec_proc  (db_con, "InsertPendingFile", 6, id, action, time_str, uri,  mime, "0");
 	}
+
+	g_free (time_str);
 }	
 
 
 void
 tracker_db_update_pending (DBConnection *db_con, const char *counter, const char *action, const char *uri )
 {
-	tracker_exec_proc  (db_con, "UpdatePendingFile", 3, counter, action, uri);
+	char 	*time_str;
+	time_t  time_now;
+	int	i;
+
+	time (&time_now);
+	i = atoi (counter);
+
+	time_str = tracker_long_to_str (time_now + i);
+
+	tracker_exec_proc  (db_con, "UpdatePendingFile", 3, time_str, action, uri);
+
+	g_free (time_str);
 }
 
 
@@ -1297,11 +1525,20 @@ char ***
 tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int offset, int limit)
 {
 
+	int min, max;
+
 	char *str_limit = tracker_int_to_str (limit);
 	char *str_offset = tracker_int_to_str (offset);
 
-	char ***res = tracker_exec_proc  (db_con,  "GetFilesByServiceType", 3, service, str_offset, str_limit);
+	get_service_id_range (db_con, service, &min, &max);
+
+	char *str_min = tracker_int_to_str (min);
+	char *str_max = tracker_int_to_str (max);
+
+	char ***res = tracker_exec_proc  (db_con,  "GetFilesByServiceType", 4, str_min, str_max, str_offset, str_limit);
 		
+	g_free (str_min);
+	g_free (str_max);	
 	g_free (str_offset);
 	g_free (str_limit);
 
@@ -1313,31 +1550,36 @@ tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int 
 char ***
 tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int offset, int limit, gboolean vfs)
 {
-	int i;
+	int min, max;
 	char ***res = NULL;
+	char *query;
+	GString *str;
 
-	GString *str = g_string_new ("");
+	g_return_val_if_fail (mimes, NULL):
 
-	str = g_string_append (str, mimes[0]);
+	if (vfs) {
+		min = 9;
+		max = 17;
+	} else {
+		min = 0;
+		max = 8;
+	}
+
+	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Format') AND (M.MetaDataIndexValue in ");
+
+	g_string_append_printf (str, "('%s'", mimes[0]);
 
 	for (i=1; i<n; i++) {
-		g_string_append_printf (str, ",%s", mimes[i]); 
+		g_string_append_printf (str, ", '%s'", mimes[i]); 
 	}
 
+	g_string_append_printf (str, ")) AND (F.ServiceTypeID between %d and %d) LIMIT %d,%d", min, max, offset, limit);
 
-	char *str_mimes = g_string_free (str, FALSE);
-	char *str_limit = tracker_int_to_str (limit);
-	char *str_offset = tracker_int_to_str (offset);
+	query = g_string_free (str, FALSE);
 
-	if (!vfs) {
-		res = tracker_exec_proc  (db_con,  "GetFilesByMimeType", 3, str_mimes, str_offset, str_limit);
-	} else {
-		res = tracker_exec_proc  (db_con,  "GetVFSFilesByMimeType", 3, str_mimes, str_offset, str_limit);
-	}
-		
-	g_free (str_mimes);
-	g_free (str_limit);
-	g_free (str_offset);
+	res = tracker_exec_sql (db_con, query);
+
+	g_free (query);
 
 	return res;
 }
@@ -1370,7 +1612,9 @@ tracker_db_search_text_mime  (DBConnection *db_con, const char *text , char **mi
 
 	char *mime_list = g_string_free (mimes, FALSE);
 
-	char ***res = tracker_exec_proc  (db_con, "SearchTextMime", 2, search_term , mime_list);
+	char ***res = NULL
+
+	//tracker_exec_proc  (db_con, "SearchTextMime", 2, search_term , mime_list);
 
 	g_free (search_term);	
 	g_free (mime_list);
@@ -1387,11 +1631,12 @@ tracker_db_search_text_location  (DBConnection *db_con, const char *text ,const 
 
 	char *search_term = tracker_format_search_terms (text, &use_boolean_search);
 
-	char ***res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , location);
+	//char ***res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , location);
 
+	
 	g_free (search_term);
 
-	return res;
+	return NULL;
 
 }
 
@@ -1421,13 +1666,59 @@ tracker_db_search_text_mime_location  (DBConnection *db_con, const char *text , 
 	
 	char *mime_list = g_string_free (mimes, FALSE);
 
-	char ***res = tracker_exec_proc  (db_con, "SearchTextMimeLocation", 3, search_term , mime_list, location);
+//	char ***res = tracker_exec_proc  (db_con, "SearchTextMimeLocation", 3, search_term , mime_list, location);
 
 	g_free (search_term);	
 	g_free (mime_list);
 
-	return res;
+	return NULL;
 	
+}
+
+
+char ***
+tracker_db_get_metadata_types (DBConnection *db_con, const char *class, gboolean writeable) 
+{
+	if (writeable) {
+		return tracker_exec_proc (db_con, "GetWriteableMetadataTypes", 2, class);
+	} else {
+		return tracker_exec_proc (db_con, "GetMetadataTypes", 2, class);
+	}
+}
+
+
+
+char ***
+tracker_db_get_sub_watches (DBConnection *db_con, const char *dir) 
+{
+	char ***res;
+	char *folder;
+
+	folder = g_strconcat (dir, "/%", NULL);
+	
+	res = tracker_exec_proc (db_con, "GetSubWatches", 1, folder);
+
+	g_free (folder);
+
+	return res;
+
+}
+
+
+char ***
+tracker_db_delete_sub_watches (DBConnection *db_con, const char *dir) 
+{
+	char ***res;
+	char *folder;
+
+	folder = g_strconcat (dir, "/%", NULL);
+	
+	res = tracker_exec_proc (db_con, "DeleteSubWatches", 1, folder);
+
+	g_free (folder);
+
+	return res;
+
 }
 
 
@@ -1438,7 +1729,7 @@ tracker_db_update_file_move (DBConnection *db_con, long file_id, const char *pat
 	char *str_file_id = g_strdup_printf ("%ld", file_id);
 	char *index_time = g_strdup_printf ("%ld", mtime);
 
-	tracker_exec_proc  (db_con, "UpdateFileMove", 4, str_file_id, path, name, index_time);
+	tracker_exec_proc  (db_con, "UpdateFileMove", 4,  path, name, index_time, str_file_id);
 
 	g_free (str_file_id);
 	g_free (index_time);
@@ -1447,8 +1738,17 @@ tracker_db_update_file_move (DBConnection *db_con, long file_id, const char *pat
 char ***
 tracker_db_get_file_subfolders (DBConnection *db_con, const char *uri)
 {
-	return tracker_exec_proc (db_con, "SelectFileSubFolders", 1, uri);
-}
+	char ***res;
+	char *folder;
 
+	folder = g_strconcat (dir, "/%", NULL);
+	
+	res = tracker_exec_proc (db_con, "SelectFileSubFolders", 2, uri, folder);
+
+	g_free (folder);
+
+	return res;
+
+}
 
 

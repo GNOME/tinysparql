@@ -17,21 +17,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <glib.h>
 
 #include "tracker-rdf-query.h"
+
 
 /* RDF Query Condition
 <rdfq:Condition>
 	<rdfq:and>
         	<rdfq:greaterThan>
             		<rdfq:Property name="File.Size" />
-            		<rdf:Integer>1000000</rdf:Integer> 
+            		<rdf:Integer>1000000</rdf:Integer>
           	</rdfq:greaterThan>
           	<rdfq:equals>
              		<rdfq:Property name="File.Path" />
@@ -70,16 +66,18 @@
 
 #define ELEMENT_IS(name) (strcmp (element_name, (name)) == 0)
 
+
 enum {
 	NO_ERROR,
 	PARSE_ERROR,
 };
 
+
 typedef enum {
 	STATE_START,
 	STATE_CONDITION,
 	STATE_END_CONDITION,
-	STATE_PROPERTY, 
+	STATE_PROPERTY,
 	STATE_AND,
 	STATE_END_AND,
 	STATE_OR,
@@ -114,6 +112,7 @@ typedef enum {
 	STATE_END_DATE
 } ParseState;
 
+
 typedef enum {
 	OP_NONE,
 	OP_EQUALS,
@@ -127,12 +126,12 @@ typedef enum {
 	OP_STARTS
 } Operators;
 
+
 typedef enum {
 	LOP_NONE,
 	LOP_AND,
 	LOP_OR
 } LogicOperators;
-
 
 
 typedef struct {
@@ -144,6 +143,7 @@ typedef struct {
 	gboolean 	is_select;
 	gboolean 	is_condition;
 } FieldData;
+
 
 typedef struct {
 	GMarkupParseContext 	*context;
@@ -165,20 +165,20 @@ typedef struct {
 } ParserData;
 
 
-static GQuark error_quark; 
+static GQuark error_quark;
 
 
 static void start_element_handler (GMarkupParseContext *context,
-			      const gchar *element_name,
-			      const gchar **attribute_names,
-			      const gchar **attribute_values,
-			      gpointer user_data,
-			      GError **error);
+				   const gchar *element_name,
+				   const gchar **attribute_names,
+				   const gchar **attribute_values,
+				   gpointer user_data,
+				   GError **error);
 
 static void end_element_handler (GMarkupParseContext *context,
-			    const gchar *element_name,
-			    gpointer user_data,
-			    GError **error);
+				 const gchar *element_name,
+				 gpointer user_data,
+				 GError **error);
 
 static void text_handler (GMarkupParseContext *context,
 		     const gchar *text,
@@ -191,25 +191,21 @@ static void error_handler (GMarkupParseContext *context,
 		      gpointer user_data);
 
 
-
- 
-
 static gboolean
 is_operator (ParseState state)
 {
-	
 	return state == STATE_EQUALS || state == STATE_GREATER_THAN || state == STATE_LESS_THAN ||
-			state == STATE_CONTAINS || state == STATE_IN_SET || STATE_LESS_OR_EQUAL || 
+			state == STATE_CONTAINS || state == STATE_IN_SET || STATE_LESS_OR_EQUAL ||
 			STATE_GREATER_OR_EQUAL || state == STATE_STARTS_WITH || state == STATE_REGEX;
 
 }
 
+
 static gboolean
 is_end_operator (ParseState state)
 {
-	
 	return state == STATE_END_EQUALS || state == STATE_END_GREATER_THAN || state == STATE_END_LESS_THAN ||
-			state == STATE_END_CONTAINS || state == STATE_END_IN_SET || STATE_END_LESS_OR_EQUAL || 
+			state == STATE_END_CONTAINS || state == STATE_END_IN_SET || STATE_END_LESS_OR_EQUAL ||
 			STATE_END_GREATER_OR_EQUAL || state == STATE_END_STARTS_WITH || state == STATE_REGEX;
 
 }
@@ -218,19 +214,15 @@ is_end_operator (ParseState state)
 static gboolean
 is_logic (ParseState state)
 {
-	
 	return state == STATE_AND || state == STATE_OR || state == STATE_NOT;
-
 }
+
 
 static gboolean
 is_end_logic (ParseState state)
 {
-	
 	return state == STATE_END_AND || state == STATE_END_NOT || state == STATE_END_OR;
-
 }
-
 
 
 static void
@@ -240,25 +232,25 @@ set_error (GError              **err,
            const char           *format,
            ...)
 {
-	int line, ch;
-	va_list   args;
-	char     *str;
-  
+	int	line, ch;
+	va_list args;
+	char    *str;
+
 	g_markup_parse_context_get_position (context, &line, &ch);
-  
+
 	va_start (args, format);
 	str = g_strdup_vprintf (format, args);
 	va_end (args);
 
 	g_set_error (err, error_quark, error_code, "Line %d character %d: %s", line, ch, str);
-  
+
 	g_free (str);
 }
+
 
 static gboolean
 set_error_on_fail (gboolean condition, GMarkupParseContext *context, const char *msg, GError **err)
 {
-	
 	if (!condition) {
 		set_error (err, context, 1, msg);
 		return TRUE;
@@ -267,12 +259,15 @@ set_error_on_fail (gboolean condition, GMarkupParseContext *context, const char 
 	return FALSE;
 }
 
+
 static const char *
-get_attribute_value (const char  *name,
+get_attribute_value (const char *name,
 		     const char **names,
 		     const char **values)
 {
-	int i = 0;
+	int i;
+
+	i = 0;
 
 	while (names[i]) {
 		if (strcmp (name, names[i]) == 0) {
@@ -284,10 +279,11 @@ get_attribute_value (const char  *name,
 	return NULL;
 }
 
+
 static const char *
-get_attribute_value_required (GMarkupParseContext  *context,
-			      const char           *tag,
-			      const char           *name,
+get_attribute_value_required (GMarkupParseContext *context,
+			      const char          *tag,
+			      const char          *name,
 			      const char          **names,
 			      const char          **values,
 			      GError              **error)
@@ -295,6 +291,7 @@ get_attribute_value_required (GMarkupParseContext  *context,
 	const char *value;
 
 	value = get_attribute_value (name, names, values);
+
 	if (!value) {
 		set_error (error, context, PARSE_ERROR,
 			   "%s must have \"%s\" attribute",
@@ -308,8 +305,9 @@ get_attribute_value_required (GMarkupParseContext  *context,
 static void
 push_stack (ParserData *data, ParseState  state)
 {
-	data->stack = g_slist_prepend (data->stack,  GINT_TO_POINTER (state));
+	data->stack = g_slist_prepend (data->stack, GINT_TO_POINTER (state));
 }
+
 
 static void
 pop_stack (ParserData *data)
@@ -317,10 +315,7 @@ pop_stack (ParserData *data)
 	g_return_if_fail (data->stack != NULL);
 
 	data->stack = g_slist_remove (data->stack, data->stack->data);
- 
 }
-
-
 
 
 static ParseState
@@ -329,56 +324,61 @@ peek_state (ParserData *data)
 	g_return_val_if_fail (data->stack != NULL, STATE_START);
 
 	return GPOINTER_TO_INT (data->stack->data);
-
 }
-
-
 
 
 static void
 pop_stack_until (ParserData *data, ParseState state)
 {
-	
 	while (data->stack != NULL) {
 
 		if (state == peek_state (data)) {
 			pop_stack (data);
-			break;			
+			break;
 		}
+
 		pop_stack (data);
 	}
-
 }
+
 
 static void
 free_metadata_field (FieldData *field_data)
 {
 	g_return_if_fail (field_data);
 
-	if (field_data->alias) g_free (field_data->alias);
-	if (field_data->field_name) g_free (field_data->field_name);
-	if (field_data->meta_field) g_free (field_data->meta_field);
-	if (field_data->id_field) g_free (field_data->id_field);
+	if (field_data->alias) {
+		g_free (field_data->alias);
+	}
+
+	if (field_data->field_name) {
+		g_free (field_data->field_name);
+	}
+
+	if (field_data->meta_field) {
+		g_free (field_data->meta_field);
+	}
+
+	if (field_data->id_field) {
+		g_free (field_data->id_field);
+	}
 
 	g_free (field_data);
-
 }
 
 
 static FieldData *
-add_metadata_field (ParserData *data, const char* field_name, gboolean is_select, gboolean is_condition)
+add_metadata_field (ParserData *data, const char *field_name, gboolean is_select, gboolean is_condition)
 {
-
-
-	gboolean field_exists = FALSE;
-	FieldData *field_data = NULL, *tmp_field;
+	gboolean     field_exists;
+	FieldData    *field_data;
 	const GSList *tmp;
-	char *st;
 
-	// check if field is already in list 
-	tmp = data->fields;
+	field_exists = FALSE;
 
-	while (tmp) {
+	// check if field is already in list
+	for (tmp = data->fields; tmp; tmp = tmp->next) {
+		FieldData *tmp_field;
 
 		tmp_field = tmp->data;
 
@@ -389,57 +389,56 @@ add_metadata_field (ParserData *data, const char* field_name, gboolean is_select
 				break;
 			}
 		}
-
-
-		tmp = tmp->next;
 	}
-	
 
+	field_data = NULL;
 
 	if (!field_exists) {
+		FieldDef *def;
+		char	 *istr;
+		int	 i;
 
 		field_data = g_new0 (FieldData, 1);
 
 		field_data->is_select = is_select;
-		field_data->is_condition = is_condition;	
+		field_data->is_condition = is_condition;
 		field_data->field_name = g_strdup (field_name);
 
-		int i = g_slist_length (data->fields);
+		i = g_slist_length (data->fields);
 
-		char *istr = tracker_int_to_str (i);
+		istr = tracker_int_to_str (i);
 
-		field_data->alias =  g_strconcat ("M", istr , NULL);
+		field_data->alias = g_strconcat ("M", istr, NULL);
 		g_free (istr);
 
-		FieldDef *def = tracker_db_get_field_def (data->db_con, field_name);
+		def = tracker_db_get_field_def (data->db_con, field_name);
 
 		if (def) {
-			
-			if (def->type == DATA_INDEX_STRING) {	
+			const char *st;
 
+			if (def->type == DATA_INDEX_STRING) {
 				st = "MetaDataIndexValue";
-
 			} else if (def->type == DATA_STRING) {
-
 				st = "MetaDataValue";
-			} else { 
+			} else {
 				st = "MetaDataNumericValue";
 			}
-		
+
 			field_data->data_type = def->type;
-			field_data->meta_field = g_strconcat (field_data->alias, ".", st,  NULL);
+			field_data->meta_field = g_strconcat (field_data->alias, ".", st, NULL);
 			field_data->id_field = g_strdup (def->id);
 			tracker_db_free_field_def (def);
 
 			data->fields = g_slist_prepend (data->fields, field_data);
-			
+
 			if (is_select) {
-				char *str = g_strconcat (", ", field_data->meta_field, NULL);
+				char *str;
+
+				str = g_strconcat (", ", field_data->meta_field, NULL);
 				data->sql_select = g_string_append (data->sql_select, str);
 				g_free (str);
 			}
-		
-			
+
 		} else {
 			g_free (field_data);
 			return NULL;
@@ -452,44 +451,42 @@ add_metadata_field (ParserData *data, const char* field_name, gboolean is_select
 	}
 
 	return field_data;
-
-}	
+}
 
 
 static void
 start_element_handler (GMarkupParseContext *context,
-			      const gchar *element_name,
-			      const gchar **attribute_names,
-			      const gchar **attribute_values,
-			      gpointer user_data,
-			      GError **error)
+		       const gchar	   *element_name,
+		       const gchar	   **attribute_names,
+		       const gchar	   **attribute_values,
+		       gpointer		   user_data,
+		       GError		   **error)
 {
-
-	ParserData   *data;
-	ParseState   state;
+	ParserData *data;
+	ParseState state;
 
 	data = user_data;
-	state = peek_state (data);	
+	state = peek_state (data);
 
 	if (ELEMENT_IS (ELEMENT_RDF_CONDITION)) {
 
-		if (set_error_on_fail ((state == STATE_START), context, "Condition element not expected here",error)) {
+		if (set_error_on_fail ((state == STATE_START), context, "Condition element not expected here", error)) {
 			return;
 		}
 
 		push_stack (data, STATE_CONDITION);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_PROPERTY)) {
-	
-		const char *name = NULL;
+		const char *name;
 
-		if (set_error_on_fail ( is_operator (state), context,  "Property element not expected here",error)) {
+		if (set_error_on_fail ( is_operator (state), context,  "Property element not expected here", error)) {
 			return;
 		}
 
 		name = get_attribute_value_required (context, "<rdfq:Property>", "name",
 						     attribute_names, attribute_values,
 						     error);
+
 		if (!name) {
 			return;
 		} else {
@@ -497,17 +494,17 @@ start_element_handler (GMarkupParseContext *context,
 			if (data->current_operator == OP_NONE ) {
 				set_error (error, context, PARSE_ERROR, "no operator found for Property \"%s\"", name);
 				return;
-			} 
+			}
 
 			data->current_field =  g_strdup (name);
 
 			push_stack (data, STATE_PROPERTY);
-
 		}
-		
+
 	} else if (ELEMENT_IS (ELEMENT_RDF_AND)) {
-		
-		if (set_error_on_fail ((state == STATE_CONDITION || is_logic (state) || is_end_logic (state) || is_end_operator (state)), context,  "AND element not expected here",error)) {
+
+		if (set_error_on_fail ((state == STATE_CONDITION || is_logic (state) || is_end_logic (state) || is_end_operator (state)),
+				       context, "AND element not expected here", error)) {
 			return;
 		}
 
@@ -527,8 +524,9 @@ start_element_handler (GMarkupParseContext *context,
 		push_stack (data, STATE_AND);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_OR)) {
-		
-		if (set_error_on_fail ((state == STATE_CONDITION || is_logic (state) || is_end_logic (state) || is_end_operator (state)), context,  "OR element not expected here",error)) {
+
+		if (set_error_on_fail ((state == STATE_CONDITION || is_logic (state) || is_end_logic (state) || is_end_operator (state)),
+				       context, "OR element not expected here", error)) {
 			return;
 		}
 
@@ -546,11 +544,11 @@ start_element_handler (GMarkupParseContext *context,
 		data->sql_where = g_string_append (data->sql_where, " ( ");
 		data->current_logic_operator = LOP_OR;
 		push_stack (data, STATE_OR);
-		
-		
+
 	} else if (ELEMENT_IS (ELEMENT_RDF_NOT)) {
 
-		if (set_error_on_fail ((state == STATE_CONDITION || is_logic (state) || is_end_logic (state) || is_end_operator (state)), context,   "NOT element not expected here",error)) {
+		if (set_error_on_fail ((state == STATE_CONDITION || is_logic (state) || is_end_logic (state) || is_end_operator (state)),
+				       context, "NOT element not expected here", error)) {
 			return;
 		}
 
@@ -567,11 +565,11 @@ start_element_handler (GMarkupParseContext *context,
 		push_stack (data, STATE_NOT);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_EQUALS)) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "EQUALS element not expected here", error)) {
+					context, "EQUALS element not expected here", error)) {
 			return;
 		}
 
@@ -579,7 +577,7 @@ start_element_handler (GMarkupParseContext *context,
 		push_stack (data, STATE_EQUALS);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_GREATER_THAN)) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
@@ -591,11 +589,11 @@ start_element_handler (GMarkupParseContext *context,
 		push_stack (data, STATE_GREATER_THAN);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_GREATER_OR_EQUAL)) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "GREATEROREQUAL element not expected here", error)) {
+					context, "GREATEROREQUAL element not expected here", error)) {
 			return;
 		}
 
@@ -603,82 +601,81 @@ start_element_handler (GMarkupParseContext *context,
 		push_stack (data, STATE_GREATER_OR_EQUAL);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_LESS_THAN )) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "LESSTHAN element not expected here", error)) {
+					context, "LESSTHAN element not expected here", error)) {
 			return;
 		}
 
-		data->current_operator = OP_LESS;		
+		data->current_operator = OP_LESS;
 		push_stack (data, STATE_LESS_THAN);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_LESS_OR_EQUAL )) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "LESSOREQUAL element not expected here", error)) {
+					context, "LESSOREQUAL element not expected here", error)) {
 			return;
 		}
 
-		data->current_operator = OP_LESS_EQUAL;		
+		data->current_operator = OP_LESS_EQUAL;
 		push_stack (data, STATE_LESS_OR_EQUAL);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_CONTAINS)) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "CONTAINS element not expected here", error)) {
+					context, "CONTAINS element not expected here", error)) {
 			return;
 		}
 
-		data->current_operator = OP_CONTAINS;		
+		data->current_operator = OP_CONTAINS;
 		push_stack (data, STATE_CONTAINS);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_REGEX)) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "REGEX element not expected here", error)) {
+					context, "REGEX element not expected here", error)) {
 			return;
 		}
 
-		data->current_operator = OP_REGEX;		
+		data->current_operator = OP_REGEX;
 		push_stack (data, STATE_REGEX);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_STARTS_WITH)) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "STARTSWITH element not expected here", error)) {
+					context, "STARTSWITH element not expected here", error)) {
 			return;
 		}
 
-		data->current_operator = OP_STARTS;		
+		data->current_operator = OP_STARTS;
 		push_stack (data, STATE_STARTS_WITH);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_IN_SET)) {
-		
+
 		if (set_error_on_fail ( state == STATE_CONDITION || is_logic (state) ||
 					((data->current_logic_operator == LOP_AND || data->current_logic_operator == LOP_OR)
 					 && is_end_operator (state)),
-					context,  "IN SET element not expected here", error)) {
+					context, "IN SET element not expected here", error)) {
 			return;
 		}
 
-		data->current_operator = OP_SET;		
+		data->current_operator = OP_SET;
 		push_stack (data, STATE_IN_SET);
 
 
-
 	} else if (ELEMENT_IS (ELEMENT_RDF_INTEGER)) {
-		
-		if (set_error_on_fail (state == STATE_PROPERTY, context,  "INTEGER element not expected here",error)) {
+
+		if (set_error_on_fail (state == STATE_PROPERTY, context, "INTEGER element not expected here", error)) {
 			return;
 		}
 
@@ -686,8 +683,8 @@ start_element_handler (GMarkupParseContext *context,
 
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_DATE)) {
-		
-		if (set_error_on_fail (state == STATE_PROPERTY, context,  "DATE element not expected here",error)) {
+
+		if (set_error_on_fail (state == STATE_PROPERTY, context, "DATE element not expected here", error)) {
 			return;
 		}
 
@@ -696,59 +693,52 @@ start_element_handler (GMarkupParseContext *context,
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_STRING)) {
 
-		if (set_error_on_fail (state == STATE_PROPERTY, context,  "STRING element not expected here",error)) {
+		if (set_error_on_fail (state == STATE_PROPERTY, context, "STRING element not expected here", error)) {
 			return;
 		}
-	
+
 		push_stack (data, STATE_STRING);
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_FLOAT)) {
 
-		if (set_error_on_fail (state == STATE_PROPERTY, context,  "FLOAT element not expected here",error)) {
+		if (set_error_on_fail (state == STATE_PROPERTY, context, "FLOAT element not expected here", error)) {
 			return;
 		}
-	
-		push_stack (data, STATE_FLOAT);
 
+		push_stack (data, STATE_FLOAT);
 	}
 }
-
 
 
 static char *
 get_value (const char *value, gboolean quote)
 {
-	char *str;
-
 	if (quote) {
-		str = g_strconcat (" '", value, "' ", NULL);
-		return str;
+		return g_strconcat (" '", value, "' ", NULL);
 	} else {
 		return g_strdup (value);
 	}
-
 }
-
 
 
 static gboolean
 build_sql (ParserData *data)
 {
-	ParseState	state;
-	char 		*avalue, *value, *str, *sub = NULL;;
-	gboolean	is_indexable_metadata;
-	
+	ParseState state;
+	char 	   *avalue, *value, *str, *sub;
+	gboolean   is_indexable_metadata;
+	FieldData  *field_data;
 
 	g_return_val_if_fail (data->current_field && data->current_operator != OP_NONE && data->current_value, FALSE);
 
-	data->statement_count++; 
+	data->statement_count++;
 
 	state = peek_state (data);
 
 	avalue = get_value (data->current_value, (state != STATE_END_INTEGER && state != STATE_END_FLOAT));
 
-	FieldData *field_data = add_metadata_field (data, data->current_field, FALSE, TRUE);
-	
+	field_data = add_metadata_field (data, data->current_field, FALSE, TRUE);
+
 	if (!field_data) {
 		g_free (avalue);
 		g_free (data->current_field);
@@ -758,12 +748,13 @@ build_sql (ParserData *data)
 
 	is_indexable_metadata = (field_data->data_type == DATA_INDEX_STRING);
 
-
 	if (field_data->data_type ==  DATA_DATE) {
+		char *bvalue;
+		long cvalue;
 
-		char *bvalue = tracker_format_date (avalue);
+		bvalue = tracker_format_date (avalue);
 		tracker_log (bvalue);
-		long cvalue = tracker_str_to_date (bvalue);
+		cvalue = tracker_str_to_date (bvalue);
 		tracker_log ("%d", cvalue);
 		value = tracker_long_to_str (cvalue);
 		g_free (bvalue);
@@ -771,11 +762,8 @@ build_sql (ParserData *data)
 		value = g_strdup (avalue);
 	}
 
-
-	
 	g_free (avalue);
 
-	
 	if (data->statement_count > 1) {
 		if (data->current_logic_operator == LOP_AND) {
 			data->sql_where = g_string_append (data->sql_where, " AND ");
@@ -784,16 +772,15 @@ build_sql (ParserData *data)
 				data->sql_where = g_string_append (data->sql_where, " OR ");
 			}
 		}
-	
-	} 
-
+	}
 
 	switch (data->current_operator) {
 
-		case OP_EQUALS :
+		case OP_EQUALS:
 
 			/* replace * wildcard with SQL's like wildcard "%" */
 			sub = strchr (data->current_value, '*');
+
 			if (sub) {
 				*sub = '%';
 				str = g_strconcat (" (", field_data->meta_field, " like '", data->current_value, "' ) ", NULL);
@@ -803,36 +790,37 @@ build_sql (ParserData *data)
 
 			break;
 
-		case OP_GREATER :
+		case OP_GREATER:
 
 			str = g_strconcat (" (", field_data->meta_field,  " > ", value, ") ", NULL);
 
 			break;
 
-		case OP_GREATER_EQUAL :
+		case OP_GREATER_EQUAL:
 
 			str = g_strconcat (" (", field_data->meta_field,  " >= ", value, ") ", NULL);
 
 			break;
 
-		case OP_LESS :
+		case OP_LESS:
 
 			str = g_strconcat (" (", field_data->meta_field,  " < ", value, ")", NULL);
 
 			break;
 
-		case OP_LESS_EQUAL :
+		case OP_LESS_EQUAL:
 
 			str = g_strconcat (" (", field_data->meta_field,  " <= ", value, ")", NULL);
 
 			break;
 
-		case OP_CONTAINS :
+		case OP_CONTAINS:
 
 			if (!is_indexable_metadata) {
 
 				/* replace * wildcard with SQL's like wildcard "%" */
 				sub = strchr (data->current_value, '*');
+
 				if (sub) {
 					*sub = '%';
 					str = g_strconcat (" (", field_data->meta_field, " like '%", data->current_value, "' ) ", NULL);
@@ -845,12 +833,13 @@ build_sql (ParserData *data)
 
 			break;
 
-		case OP_STARTS :
+		case OP_STARTS:
 
 			if (!is_indexable_metadata) {
 
 				/* replace * wildcard with SQL's like wildcard "%" */
 				sub = strchr (data->current_value, '*');
+
 				if (sub) {
 					*sub = '%';
 					str = g_strconcat (" (", field_data->meta_field, " like '", data->current_value, "' ) ", NULL);
@@ -863,24 +852,21 @@ build_sql (ParserData *data)
 
 			break;
 
-		case OP_REGEX :
+		case OP_REGEX:
 
 			str = g_strconcat (" (", field_data->meta_field, " REGEXP '", data->current_value, "') ", NULL);
 
 			break;
 
-		case OP_SET :
+		case OP_SET:
 
 			str = g_strconcat (" (FIND_IN_SET(", field_data->meta_field, ", '", data->current_value, "')) ", NULL);
-		
-			break;
-
-		default :
-
-			
 
 			break;
-	
+
+		default:
+
+			break;
 	}
 
 	if (str) {
@@ -893,20 +879,20 @@ build_sql (ParserData *data)
 
 	g_free (data->current_value);
 	data->current_value = NULL;
-	
+
 	g_free (value);
-	
+
 	return TRUE;
 }
 
+
 static void
 end_element_handler (GMarkupParseContext *context,
-			    const gchar *element_name,
-			    gpointer user_data,
-			    GError **error)
+		     const gchar	 *element_name,
+		     gpointer		 user_data,
+		     GError		 **error)
 {
-	ParserData   *data;
-
+	ParserData *data;
 
 	data = user_data;
 
@@ -914,13 +900,13 @@ end_element_handler (GMarkupParseContext *context,
 
 		push_stack (data, STATE_END_CONDITION);
 		data->query_okay = TRUE;
-	
+
 	} else if (ELEMENT_IS (ELEMENT_RDF_AND)) {
-		
+
 		data->sql_where = g_string_append (data->sql_where, " ) ");
 
 		pop_stack_until (data, STATE_AND);
-		
+
 		if (peek_state (data) != STATE_AND) {
 			if (peek_state (data) == STATE_OR) {
 				data->current_logic_operator = LOP_OR;
@@ -930,11 +916,11 @@ end_element_handler (GMarkupParseContext *context,
 		}
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_OR)) {
-		
+
 		data->sql_where = g_string_append (data->sql_where, " ) ");
 
 		pop_stack_until (data, STATE_OR);
-		
+
 		if (peek_state (data) != STATE_OR) {
 			if (peek_state (data) == STATE_AND) {
 				data->current_logic_operator = LOP_AND;
@@ -943,14 +929,11 @@ end_element_handler (GMarkupParseContext *context,
 			}
 		}
 
-	
 	} else if (ELEMENT_IS (ELEMENT_RDF_NOT)) {
-		
+
 		data->sql_where = g_string_append (data->sql_where, " ) ");
 		pop_stack_until (data, STATE_NOT);
 
-
-		
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_EQUALS)) {
 
@@ -996,6 +979,7 @@ end_element_handler (GMarkupParseContext *context,
 
 		push_stack (data, STATE_END_LESS_OR_EQUAL );
 
+
 	} else if (ELEMENT_IS (ELEMENT_RDF_CONTAINS)) {
 
 		if (!build_sql (data)) {
@@ -1023,7 +1007,6 @@ end_element_handler (GMarkupParseContext *context,
 
 		push_stack (data, STATE_END_STARTS_WITH);
 
-
 	} else if (ELEMENT_IS (ELEMENT_RDF_IN_SET)) {
 
 		if (!build_sql (data)) {
@@ -1035,61 +1018,59 @@ end_element_handler (GMarkupParseContext *context,
 
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_INTEGER)) {
-		
+
 		push_stack (data, STATE_END_INTEGER);
 
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_DATE)) {
-		
+
 		push_stack (data, STATE_END_DATE);
 
 
 	} else if (ELEMENT_IS (ELEMENT_RDF_STRING)) {
-		
+
 		push_stack (data, STATE_END_STRING);
 
 	}  else if (ELEMENT_IS (ELEMENT_RDF_FLOAT)) {
-		
-		push_stack (data, STATE_END_FLOAT);
 
+		push_stack (data, STATE_END_FLOAT);
 	}
 }
 
+
 static void
 text_handler (GMarkupParseContext *context,
-		     const gchar *text,
-		     gsize text_len,
-		     gpointer user_data,
-		     GError **error)
+	      const gchar	  *text,
+	      gsize		  text_len,
+	      gpointer		  user_data,
+	      GError		  **error)
 {
-	ParserData   *data;
-	ParseState    state;
+	ParserData *data;
+	ParseState state;
 
 	data = user_data;
 	state = peek_state (data);
-	
+
 	switch (state) {
 
-		case STATE_INTEGER :
-		case STATE_STRING :
-		case STATE_DATE :
-		case STATE_FLOAT :
+		case STATE_INTEGER:
+		case STATE_STRING:
+		case STATE_DATE:
+		case STATE_FLOAT:
 
 			data->current_value = g_strstrip (g_strndup (text, text_len));
 			break;
 
 		default :
 			break;
-	
 	}
-
-		
 }
+
 
 static void
 error_handler (GMarkupParseContext *context,
-		      GError *error,
-		      gpointer user_data)
+	       GError		   *error,
+	       gpointer		   user_data)
 {
 	tracker_log ("Error in rdf query parse: %s", error->message);
 }
@@ -1098,85 +1079,92 @@ error_handler (GMarkupParseContext *context,
 char *
 tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, gboolean sort_by_service, int offset, int limit, GError *error)
 {
-	ParserData data;
-	int 	   i;
-	char       *str, *stext, *result = NULL;
 	static     gboolean inited = FALSE;
-  
-	g_return_val_if_fail (query != NULL, NULL);
+	ParserData data;
+	char       *result;
 
+	g_return_val_if_fail (query != NULL, NULL);
 
 	if (!inited) {
 		error_quark = g_quark_from_static_string ("RDF-parser-error-quark");
 		inited = TRUE;
 	}
-  
+
 	memset (&data, 0, sizeof (data));
-  	data.db_con = db_con;
+	data.db_con = db_con;
 	data.statement_count = 0;
 
-	data.sql_select = g_string_new ("Select DISTINCT Concat(S.Path, '/', S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ");  
+	data.sql_select = g_string_new ("Select DISTINCT Concat(S.Path, '");
+
+	data.sql_select = g_string_append (data.sql_select, G_DIR_SEPARATOR_S);
+
+	data.sql_select = g_string_append (data.sql_select, "', S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ");
 
 	if (field_count > 0) {
+		int i;
 
-		for (i=0; i<field_count; i++) {
-			FieldData *field_data = add_metadata_field (&data, fields[i], TRUE, FALSE);
+		for (i = 0; i < field_count; i++) {
+			FieldData *field_data;
+
+			field_data = add_metadata_field (&data, fields[i], TRUE, FALSE);
 
 			if (!field_data) {
 				tracker_log ("RDF Query failed : field %s not found", fields[i]);
-				g_slist_foreach (data.fields, (GFunc) free_metadata_field, NULL); 
+				g_slist_foreach (data.fields, (GFunc) free_metadata_field, NULL);
 				g_slist_free (data.fields);
 				g_string_free (data.sql_select, TRUE);
 				return NULL;
 			}
-		}		
+		}
 	}
 
 
-	
-	
 	if (search_text && (strlen (search_text) > 2)) {
-		gboolean	use_boolean_search;
+		char	 *str, *stext;
+		gboolean use_boolean_search;
+
 		stext = tracker_format_search_terms (search_text, &use_boolean_search);
-		data.sql_from = g_string_new  (" FROM Services S INNER JOIN ServiceMetaData M ON S.ID = M.ServiceID ");  
+		data.sql_from = g_string_new  (" FROM Services S INNER JOIN ServiceMetaData M ON S.ID = M.ServiceID ");
 		str = g_strconcat (" WHERE  (S.ServiceTypeID between GetServiceTypeID('", service, "') and GetMaxServiceTypeID('", service ,"')) AND (MATCH (M.MetaDataIndexValue) AGAINST ('", stext, "' IN BOOLEAN MODE)) AND " , NULL);
-		data.sql_where = g_string_new (str);	
+		data.sql_where = g_string_new (str);
 		g_free (stext);
 		g_free (str);
 	} else {
-		data.sql_from = g_string_new  (" FROM Services S ");  
+		char *str;
+
+		data.sql_from = g_string_new  (" FROM Services S ");
 		str = g_strconcat (" WHERE (S.ServiceTypeID between GetServiceTypeID('", service, "') and GetMaxServiceTypeID('", service ,"')) AND ", NULL);
 		data.sql_where = g_string_new (str);
 		g_free (str);
 	}
-  
 
 	if (limit < 1) {
 		limit = 1024;
 	}
 
 	if (sort_by_service) {
-		data.sql_order = g_string_new (" ORDER BY S.ServiceTypeID, uri LIMIT ");  
+		data.sql_order = g_string_new (" ORDER BY S.ServiceTypeID, uri LIMIT ");
 	} else {
-		data.sql_order = g_string_new (" LIMIT ");  
+		data.sql_order = g_string_new (" LIMIT ");
 	}
-	
+
 	g_string_append_printf (data.sql_order, "%d,%d ", offset, limit);
 
 	data.parser = g_new0 (GMarkupParser, 1);
 	data.parser->start_element = start_element_handler;
-	data.parser->text = text_handler; 
+	data.parser->text = text_handler;
 	data.parser->end_element = end_element_handler;
 	data.parser->error = error_handler;
 
-	
 	data.current_operator = OP_NONE;
 	data.current_logic_operator = LOP_NONE;
 	data.query_okay = FALSE;
 
 	data.context = g_markup_parse_context_new (data.parser, 0, &data, NULL);
 
-  	push_stack (&data, STATE_START);
+	push_stack (&data, STATE_START);
+
+	result = NULL;
 
 	if (!g_markup_parse_context_parse (data.context, query, -1, &error)) {
 
@@ -1186,14 +1174,11 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 		g_string_free (data.sql_order, TRUE);
 
 	} else {
-
 		const GSList *tmp;
-		FieldData *tmp_field;
-		char *st = NULL;
+		FieldData    *tmp_field;
 
-		tmp = data.fields;
-
-		while (tmp) {
+		for (tmp = data.fields; tmp; tmp = tmp->next) {
+			char *st;
 
 			tmp_field = tmp->data;
 
@@ -1201,27 +1186,26 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 			data.sql_where = g_string_append (data.sql_where, st);
 			g_free (st);
 
-
 			if (tmp_field->is_condition) {
+				char *s;
 
-				st = g_strconcat ( " INNER JOIN ServiceMetaData ", tmp_field->alias, " ON S.ID = ", tmp_field->alias ,".ServiceID ",  NULL);
-				data.sql_from = g_string_append (data.sql_from, st);
-				g_free (st);
+				s = g_strconcat ( " INNER JOIN ServiceMetaData ", tmp_field->alias, " ON S.ID = ", tmp_field->alias ,".ServiceID ",  NULL);
+				data.sql_from = g_string_append (data.sql_from, s);
+				g_free (s);
 
 			} else {
-				st = g_strconcat ( " LEFT OUTER JOIN ServiceMetaData ", tmp_field->alias, " ON S.ID = ", tmp_field->alias ,".ServiceID ",  NULL);
-				data.sql_from = g_string_append (data.sql_from, st);
-				g_free (st);
-			}			
+				char *s;
 
-			tmp = tmp->next;
+				s = g_strconcat ( " LEFT OUTER JOIN ServiceMetaData ", tmp_field->alias, " ON S.ID = ", tmp_field->alias ,".ServiceID ",  NULL);
+				data.sql_from = g_string_append (data.sql_from, s);
+				g_free (s);
+			}
 		}
 
 		result = g_strconcat (g_string_free (data.sql_select, FALSE), " ", g_string_free (data.sql_from, FALSE), " ", g_string_free (data.sql_where, FALSE), " ", g_string_free (data.sql_order, FALSE), NULL);
 	}
-	
 
-	g_slist_foreach (data.fields, (GFunc) free_metadata_field, NULL); 
+	g_slist_foreach (data.fields, (GFunc) free_metadata_field, NULL);
 	g_slist_free (data.fields);
 
 	g_slist_free (data.stack);
@@ -1241,26 +1225,24 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 }
 
 
-
-
-/* returns number of tmp tables created 
-int 
+/* returns number of tmp tables created
+int
 tracker_rdf_query_parse (DBConnection *db_con, const char *query)
 {
 	ParserData data;
 	int 	   result;
 
 	static     gboolean inited = FALSE;
-  
+
 	g_return_val_if_fail (query != NULL, -1);
 
 	if (!inited) {
 		error_quark = g_quark_from_static_string ("RDF-parser-error-quark");
 		inited = TRUE;
 	}
-  
+
 	memset (&data, 0, sizeof (data));
-  
+
 	data.parser = g_new0 (GMarkupParser, 1);
 
 	data.parser->start_element = start_element_handler;
@@ -1277,12 +1259,12 @@ tracker_rdf_query_parse (DBConnection *db_con, const char *query)
 
 	data.context = g_markup_parse_context_new (data.parser, 0, &data, NULL);
 
-  	push_stack (&data, STATE_START);
+	push_stack (&data, STATE_START);
 
 	if (!g_markup_parse_context_parse (data.context, query, -1, NULL)) {
 		result = -1;
 	} else {
-		result = data.temp_table_count; 
+		result = data.temp_table_count;
 	}
 
 	g_slist_free (data.stack);

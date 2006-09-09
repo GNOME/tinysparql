@@ -17,7 +17,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-
 #ifndef _TRACKER_PARSER_H_
 #define _TRACKER_PARSER_H_
 
