@@ -1,3 +1,14 @@
+2006-09-10 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added rough sqlite support
+
+
+2006-09-10 Laurent Aguerreche <laurent.aguerreche@free.fr>
+	
+	* Fixed symlink problem 
+	* More code cleanup
+
+
 2006-09-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
 	
 	* Handled Dbus Connection shutdown gracefully

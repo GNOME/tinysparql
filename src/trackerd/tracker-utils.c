@@ -1096,7 +1096,7 @@ tracker_get_mime_type (const char* uri)
 
 	g_free (uri_in_locale);
 
-	if (S_ISLNK (finfo.st_mode)) {
+	if (S_ISLNK (finfo.st_mode) && S_ISDIR (finfo.st_mode)) {
 		return g_strdup ("symlink");
 	}
 
@@ -1111,7 +1111,7 @@ tracker_get_mime_type (const char* uri)
 		}
 	}
 
-	return g_strdup("unknown");
+	return g_strdup ("unknown");
 }
 
 
