@@ -18,312 +18,208 @@
  */
 
 #include <locale.h>
-#include <sys/param.h>
 #include <stdlib.h>
-#include <string.h>
 #include <glib.h>
-#include <glib-object.h>
 
 #include "../libtracker/tracker.h" 
 
-#define USAGE "usage: \ntracker-tag\t\t\t\t: Gets stats for all tags\ntracker-tag -a File Tag1 [Tag2...]\t: Add Tags to File\ntracker-tag -l File \t\t\t: List all tags on a File\ntracker-tag -r File Tag1 [Tag2...] \t: Remove Tags from File\ntracker-tag -R File  \t\t\t: Remove all tags from File\ntracker-tag -s Tag1 [Tag2...] \t\t: Search files for specified tags. Multiple tags are always ANDed in the search\n"
+static gchar **add = NULL;
+static gchar **delete = NULL;
+static gchar **search = NULL;
+static gchar **files = NULL;
+static gboolean remove_all = FALSE;
+static gboolean list = FALSE;
 
+static GOptionEntry entries[] = {
+	{"add", 'a', 0, G_OPTION_ARG_STRING_ARRAY, &add, "add tags to a file", "tag"},
+	{"remove", 'r', 0, G_OPTION_ARG_STRING_ARRAY, &delete, "remove tags from a file", "tag"},
+	{"remove-all", 'R', 0, G_OPTION_ARG_NONE, &remove_all, "remove all tags from  a file", NULL},
+	{"list", 'l', 0, G_OPTION_ARG_NONE, &list, "list tags", NULL},
+	{"search", 's', 0, G_OPTION_ARG_STRING_ARRAY, &search, "search for files with tags", "tag"},
+	{G_OPTION_REMAINING, 0, G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING_ARRAY, &files, "files to tag", NULL},
+	{NULL}
+};
 
-/*
-
-tracker-tag -a File Tags\t\t: Add Tags to File\n
-tracker-tag -l File \t\t: List all tags on a File\n
-tracker-tag -r File Tags \t\t: Remove Tags from File\n
-tracker-tag -R File  \t\t: Remove all tags from File\n
-tracker-tag -s Tags  \t\t: Search files for specified tags\n
-*/
-
-static char *
-realpath_in_utf8 (const char *path)
-{
-	char *str_path_tmp = NULL, *str_path = NULL;
-
-	str_path_tmp = realpath (path, NULL);
-
-	if (str_path_tmp) {
-		str_path = g_filename_to_utf8 (str_path_tmp, -1, NULL, NULL, NULL);
-
-		g_free (str_path_tmp);
-	}
-
-	if (!str_path) {
-		g_warning ("realpath_in_utf8(): locale to UTF8 failed!");
-		return NULL;
-	}
-
-	return str_path;
-}
 
 static void
-get_meta_table_data (gpointer key,
-   		     gpointer value,
-		     gpointer user_data)
+get_meta_table_data (gpointer key, gpointer value, gpointer user_data)
 {
-
-	char **meta, **meta_p;
+	char **meta;
+	int i;
 
 	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
-		g_warning ("fatal communication error\n");
+		g_warning ("fatal communication error");
 		return;
 	}
-
 
 	g_print ("%s ", (char *) key);
 
 	meta = g_value_get_boxed (value);
 
-	for (meta_p = meta; *meta_p; meta_p++) {
-		g_print ("(%s)", *meta_p);
-	}
+	for (i = 0; meta[i] != NULL; i++)
+		g_print ("(%s)", meta[i]);
+
 	g_print ("\n");
 }
-
 
 int 
 main (int argc, char **argv) 
 {
-
 	TrackerClient *client = NULL;
-
+	GOptionContext *context = NULL;
+	GError *error = NULL;
+	int i = 0;
 
 	setlocale (LC_ALL, "");
 
-	client =  tracker_connect (FALSE);
+	context = g_option_context_new ("file1 file2 ... - manipulate tags on files");
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_parse (context, &argc, &argv, &error);
 
-	if (!client) {
-		g_print ("Could not initialise Tracker - exiting...\n");
+	if (error) {
+		g_printerr ("%s\n", error->message);
 		return 1;
 	}
 
-	if  (argc == 1) {
+	if (((add || delete || remove_all) && !files) || (remove_all && (add || delete)) || (search && files)) {
+		g_printerr ("invalid arguments - type 'tracker-tag --help' for info\n");
+		return 1;
+	}
+
+
+	client = tracker_connect (FALSE);
+
+	if (!client) {
+		g_printerr ("could not initialise Tracker\n");
+		return 1;
+	}
+
+
+	if (files)
+		for (i = 0; files[i] != NULL; i++) {
+			gchar *tmp = realpath (files[i], NULL);
+			gchar *utf = g_filename_to_utf8(tmp, -1, NULL, NULL, NULL);
+			g_free(files[i]);
+			g_free(tmp);
+			files[i] = utf;
+		}
+
+	if (add || delete || remove_all) {
+
+		if (add)
+			for (i = 0; add[i] != NULL; i++) {
+				gchar *tmp = g_locale_to_utf8 (add[i], -1, NULL, NULL, NULL);
+				g_free (add[i]);
+				add[i] = tmp;
+			}
+
+		if (delete)
+			for (i = 0; delete[i] != NULL; i++) {
+				gchar *tmp = g_locale_to_utf8 (delete[i], -1, NULL, NULL, NULL);
+				g_free (delete[i]);
+				delete[i] = tmp;
+			}
+
+
+		for (i = 0; files[i] != NULL; i++) {
+
+			if (remove_all) {
+				tracker_keywords_remove_all (client, SERVICE_FILES, files[i], &error);
+
+				if (error)
+					g_printerr ("tracker threw error: %s\n", error->message);
+			}
+
+			if (add) {
+				tracker_keywords_add (client, SERVICE_FILES, files[i], add, &error);
+
+				if (error)
+					g_printerr ("tracker threw error: %s\n", error->message);
+			}
+
+			if (delete) {
+				tracker_keywords_remove (client, SERVICE_FILES, files[i], delete, &error);
+
+				if (error)
+					g_printerr ("tracker threw error: %s\n", error->message);
+			}
+
+		}
+
+	}
+
+	if (((list && !files) || (!files && (!remove_all && !delete && !add))) && !search) {
 
 		GHashTable *table = NULL;
-		GError *error = NULL;
 
 		table =	tracker_keywords_get_list (client, SERVICE_FILES, &error);
-		
-		if (error) {
-			g_warning ("An error has occured : %s", error->message);
-			g_error_free (error);
-			return 1;
-		}
+
+		if (error)
+			goto error;
 
 		if (table) {
 			g_hash_table_foreach (table, get_meta_table_data, NULL);
 			g_hash_table_destroy (table);	
 		}
 
-	} else 	if (strcmp (argv[1], "-a") == 0) {
-
-		if (argc < 4) {
-			g_print (USAGE);
-			return 1;
-		} else {
-
-			int i;
-			char **tags;
-			char *str_path = NULL;
-			GError *error = NULL;
-
-			str_path = realpath_in_utf8 (argv[2]);
-
-			if (!str_path) {
-				return 1;
-			}
-
-			tags = g_new (char *, (argc-2));
-
-			for (i=0; i < (argc-3); i++) {
-				tags[i] = g_locale_to_utf8 (argv[i+3], -1, NULL, NULL, NULL);
-				g_print ("adding tag %s to %s\n", tags[i], str_path);
-			}
-			tags[argc-3] = NULL;
-
-
-			tracker_keywords_add (client,  SERVICE_FILES, str_path, tags, &error);
-
-			g_free (str_path);
-
-			if (error) {
-				g_warning ("An error has occured : %s\n", error->message);
-				g_error_free (error);
-				return 1;
-			} else {
-				char *dir = NULL;
-
-				dir = g_filename_to_utf8 (argv[2], -1, NULL, NULL, NULL);
-
-				g_print ("All tags added to %s\n", dir);
-
-				g_free (dir);
-			}
-
-			g_strfreev (tags);
-		}
-
-	} else if (strcmp (argv[1], "-l") == 0)  {
-
-		if (argc != 3) {
-			g_print (USAGE);
-			return 1;
-		} else {
-			
-			char **tags = NULL;
-			char *str_path = NULL;
-			GError *error = NULL;
-
-			str_path = realpath_in_utf8 (argv[2]);
-
-			if (!str_path) {
-				return 1;
-			}
-
-			tags = tracker_keywords_get (client, SERVICE_FILES, str_path, &error);
-
-			g_free (str_path);
-
-			if (error) {
-				g_warning ("An error has occured : %s", error->message);
-				g_error_free (error);
-				return 1;
-			}
-
-			if (!tags) {
-				g_print ("no results were found matching your query\n");
-				return 1;
-			}
-
-			char **p_strarray;
-
-			for (p_strarray = tags; *p_strarray; p_strarray++) {
-				g_print ("%s\n", *p_strarray);
-			}
-
-			g_strfreev (tags);
-		}
-
-	} else if (strcmp (argv[1], "-r") == 0)  {
-
-		if (argc < 4) {
-			g_print (USAGE);
-			return 1;
-	
-		} else {
-
-			int i;
-			char **tags;
-			char *str_path = NULL;
-			GError *error = NULL;
-
-			str_path = realpath_in_utf8 (argv[2]);
-
-			if (!str_path) {
-				return 1;
-			}
-
-			tags = g_new (char *, (argc-2));
-
-			for (i=0; i < (argc-3); i++) {
-				tags[i] = g_locale_to_utf8 (argv[i+3], -1, NULL, NULL, NULL);
-			}
-			tags[argc-3] = NULL;
-
-			tracker_keywords_remove (client,  SERVICE_FILES, str_path, tags, &error);
-
-			g_free (str_path);
-
-			g_strfreev (tags);
-
-			if (error) {
-				g_warning ("An error has occured : %s", error->message);
-				g_error_free (error);
-				return 1;
-			}
-		}
-
-	} else if (strcmp (argv[1], "-R") == 0)  {
-
-		if (argc != 3) {
-			g_print (USAGE);
-			return 1;
-	
-		} else {
-
-			char *str_path = NULL;
-			GError *error = NULL;
-
-			str_path = realpath_in_utf8 (argv[2]);
-
-			if (!str_path) {
-				return 1;
-			}
-
-			tracker_keywords_remove_all (client,  SERVICE_FILES, str_path, &error);
-
-			g_free (str_path);
-
-			if (error) {
-				g_warning ("An error has occured : %s", error->message);
-				g_error_free (error);
-				return 1;
-			}
-		}
-
-	} else if (strcmp (argv[1], "-s") == 0)  {
-
-		if (argc < 3) {
-			g_print (USAGE);
-			return 1;
-	
-		} else {
-
-			int i;
-			char **tags;
-			GError *error = NULL;
-
-			tags = g_new (char *, (argc-1));
-
-			for (i=0; i < (argc-2); i++) {
-				tags[i] = g_locale_to_utf8 (argv[i+2], -1, NULL, NULL, NULL);
-			}
-			tags[argc-2] = NULL;
-
-			char **results = tracker_keywords_search (client, -1, SERVICE_FILES, tags, 0, 512, &error);
-
-			g_strfreev (tags);
-
-			if (error) {
-				g_warning ("An error has occured : %s", error->message);
-				g_error_free (error);
-				return 1;
-			}
-
-			if (!results) {
-				g_print ("no results were found matching your query\n");
-				return 1;
-			}
-
-			char **p_strarray;
-
-			for (p_strarray = results; *p_strarray; p_strarray++) {
-				g_print ("%s\n", *p_strarray);
-			}
-
-			g_strfreev (results);
-		}
-
-	} else {
-		g_print (USAGE);
-		return 1;
 	}
 
+	if ((list && files) || (files && (!remove_all && !delete && !add))) {
+			
+		int i = 0;
+
+		for (i = 0; files[i] != NULL; i++) {
+
+			int j = 0;
+			gchar **tags = tracker_keywords_get (client, SERVICE_FILES, files[i], &error);
+
+			if (error)
+				g_printerr ("tracker threw error: %s\n", error->message);
+
+			if (!tags)
+				continue;
+
+			g_print ("%s:", files[i]);
+			for (j = 0; tags[j] != NULL; j++)
+				g_print (" %s", tags[j]);
+			g_print ("\n");
+
+			g_strfreev (tags);
+
+		}
+
+	}
+
+	if (search) {
+
+		int i = 0;
+
+		for (i = 0; search[i] != NULL; i++) {
+			gchar *tmp = g_locale_to_utf8 (search[i], -1, NULL, NULL, NULL);
+			g_free (search[i]);
+			search[i] = tmp;
+		}
+
+		gchar **results = tracker_keywords_search (client, -1, SERVICE_FILES, search, 0, 512, &error);
+
+		if (error)
+			goto error;
+
+		if (!results)
+			g_print ("no results found matching your query\n");
+		else
+			for (i = 0; results[i] != NULL; i++)
+				g_print ("%s\n", results[i]);
+
+		g_strfreev (results);
+
+	}
 
 	tracker_disconnect (client);
-
 	return 0;
+
+error:
+	g_printerr ("tracker threw error: %s\n", error->message);
+	tracker_disconnect (client);
+	return 1;	
 }

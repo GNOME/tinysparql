@@ -23,6 +23,7 @@
 #include <sqlite3.h>
 #include <glib.h>
 #include "tracker-utils.h"
+//include "tracker-indexer.h"
 
 
 typedef enum {
@@ -45,11 +46,12 @@ typedef struct {
 	GMutex		*write_mutex;
 	sqlite3 	*db; 
 
-	Indexer		*file_indexer;
-	Indexer		*email_indexer;
+	//Indexer		*file_indexer;
+	//Indexer		*email_indexer;
 
 	char 		*err;
   	int 		rc;
+	char		*thread;
 
 	GHashTable 	*statements;
 
@@ -63,6 +65,7 @@ void		tracker_db_log_result 		(char ***result);
 int		tracker_get_row_count 		(char ***result);
 int		tracker_get_field_count		(char ***result);
 
+gboolean	tracker_db_needs_setup 		();
 gboolean	tracker_db_initialize		(const char *data_dir);
 void		tracker_db_thread_init 		();
 void		tracker_db_thread_end 		();

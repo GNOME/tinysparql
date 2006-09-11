@@ -1,3 +1,20 @@
+
+2006-09-11 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+	
+	* Patch to add Goption support for tracker-tag
+
+
+2006-09-11 Laurent Aguerreche <laurent.aguerreche@free.fr>
+	
+	* Added option to disable thumbnail generation
+
+
+2006-09-11 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* Added bug fixes to sqlite functionality
+
+
+
 2006-09-10 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Added rough sqlite support

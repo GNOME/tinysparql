@@ -4,7 +4,9 @@ configdir = $(datadir)/tracker
 
 config_DATA =   tracker-introspect.xml \
 		mysql-tracker.sql \
+		sqlite-tracker.sql \
 		mysql-stored-procs.sql \
+		sqlite-stored-procs.sql \
 		mysql-system.sql \
 		tracker.cfg \
 		tracker-stop-words.txt

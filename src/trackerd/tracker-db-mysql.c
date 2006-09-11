@@ -691,6 +691,41 @@ tracker_mysql_exec_sql (MYSQL *db, const char *query)
 	return res;
 }
 
+gboolean
+tracker_db_needs_setup ()
+{
+	char *str, *tracker_db_dir, *tracker_data_dir;
+	gboolean need_setup;
+
+	need_setup = FALSE;
+
+	str = g_build_filename (g_get_home_dir (), ".Tracker", NULL);
+	tracker_data_dir = g_build_filename (str, "data", NULL);
+	tracker_db_dir = g_build_filename (tracker_data_dir, "tracker", NULL);
+
+
+
+	if (!g_file_test (str, G_FILE_TEST_IS_DIR)) {
+		need_setup = TRUE;
+		g_mkdir (str, 0700);
+	}
+
+	if (!g_file_test (tracker_data_dir, G_FILE_TEST_IS_DIR)) {
+		need_setup = TRUE;
+		g_mkdir (tracker_data_dir, 0700);
+	}
+
+
+	if (!g_file_test (tracker_db_dir, G_FILE_TEST_IS_DIR)) {
+		need_setup = TRUE;
+	}
+
+	g_free (tracker_db_dir);
+	g_free (tracker_data_dir);
+	g_free (str);
+
+	return need_setup;
+}
 
 char ***
 tracker_exec_sql (DBConnection *db_con, const char *query)

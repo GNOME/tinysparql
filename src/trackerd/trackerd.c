@@ -921,7 +921,7 @@ extract_metadata_thread (void)
 		if (info) {
 			if (info->uri) {
 				GHashTable *meta_table;
-				char	   *small_thumb_file, *file_as_text;
+				char	   *file_as_text;
 
 				tracker_log ("Extracting Metadata for file %s with mime %s", info->uri, info->mime);
 
@@ -944,25 +944,29 @@ extract_metadata_thread (void)
 
 				g_hash_table_destroy (meta_table);
 
-				/* see if there is a thumbnailer script for the file's mime type */
+				if (tracker->do_thumbnails) {
+					char *small_thumb_file;
 
-				small_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, THUMB_SMALL);
+					/* see if there is a thumbnailer script for the file's mime type */
 
-				if (small_thumb_file) {
-					char *large_thumb_file;
+					small_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, THUMB_SMALL);
 
-					large_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, THUMB_LARGE);
+					if (small_thumb_file) {
+						char *large_thumb_file;
 
-					if (large_thumb_file) {
+						large_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, THUMB_LARGE);
 
-						tracker_db_save_thumbs (db_con, small_thumb_file, large_thumb_file, info->file_id);
+						if (large_thumb_file) {
 
-						/* to do - emit dbus signal ThumbNailChanged */
+							tracker_db_save_thumbs (db_con, small_thumb_file, large_thumb_file, info->file_id);
 
-						g_free (large_thumb_file);
+							/* to do - emit dbus signal ThumbNailChanged */
+
+							g_free (large_thumb_file);
+						}
+
+						g_free (small_thumb_file);
 					}
-
-					g_free (small_thumb_file);
 				}
 
 				file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);
@@ -1177,6 +1181,7 @@ process_files_thread (void)
 
 			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM) */
 			if (k == 0) {
+				tracker_log ("files not ready so sleeping");
 				g_usleep (100000);
 			}
 
@@ -1715,7 +1720,7 @@ main (int argc, char **argv)
 	int 		lfp;
   	struct 		sigaction act;
 	sigset_t 	empty_mask;
-	char 		*prefix, *lock_file, *str, *lock_str, *tracker_data_dir, *tracker_db_dir;
+	char 		*prefix, *lock_file, *str, *lock_str, *tracker_data_dir;
 
 	gboolean 	need_setup;
 	DBConnection 	*db_con;
@@ -1783,30 +1788,8 @@ main (int argc, char **argv)
 
 
 	/* check user data files */
-	str = g_build_filename (g_get_home_dir (), ".Tracker", NULL);
-	tracker_data_dir = g_build_filename (str, "data", NULL);
-	tracker_db_dir = g_build_filename (tracker_data_dir, "tracker", NULL);
 
-
-
-	if (!g_file_test (str, G_FILE_TEST_IS_DIR)) {
-		need_setup = TRUE;
-		g_mkdir (str, 0700);
-	}
-
-	if (!g_file_test (tracker_data_dir, G_FILE_TEST_IS_DIR)) {
-		need_setup = TRUE;
-		g_mkdir (tracker_data_dir, 0700);
-	}
-
-
-	if (!g_file_test (tracker_db_dir, G_FILE_TEST_IS_DIR)) {
-		need_setup = TRUE;
-	}
-
-	g_free (tracker_db_dir);
-
-	g_free (str);
+	need_setup = tracker_db_needs_setup ();
 
 	umask (077);
 
@@ -1882,6 +1865,7 @@ main (int argc, char **argv)
 
 	tracker_load_config_file ();
 
+	tracker_data_dir = g_build_filename (g_get_home_dir (), ".Tracker", "data", NULL);
 
 	if (!tracker_db_initialize (tracker_data_dir)) {
 		tracker_log ("Failed to initialise database engine - exiting...");
@@ -1921,31 +1905,30 @@ main (int argc, char **argv)
 	/* clear pending files and watch tables*/
 	tracker_db_clear_temp (db_con);
 
+	if (!need_setup) {
+		res = tracker_exec_proc (db_con, "GetStats", 0);
 
-	res = tracker_exec_proc (db_con, "GetStats", 0);
+		if (res && res[0][0]) {
+			char **row;
+			int  k;
 
-	if (res) {
-		char **row;
-		int  k;
+			tracker_log ("-----------------------");
+			tracker_log ("Fetching index stats...");
 
-		tracker_log ("-----------------------");
-		tracker_log ("Fetching index stats...");
+			k = 0;
 
-		k = 0;
+			while ((row = tracker_db_get_row (res, k))) {
 
-		while ((row = tracker_db_get_row (res, k))) {
+				k++;
 
-			k++;
-
-			if (row[2]) {
-				tracker_log ("%s : %s (%s%s)", row[0], row[1], row[2], "%");
-			} else {
-				tracker_log ("%s : %s", row[0], row[1]);
+				if (row && row[0] && row[1]) {
+					tracker_log ("%s : %s", row[0], row[1]);
+				
+				}
 			}
+
+			tracker_db_free_result (res);
 		}
-
-		tracker_db_free_result (res);
-
 		tracker_log ("-----------------------\n");
 	}
 

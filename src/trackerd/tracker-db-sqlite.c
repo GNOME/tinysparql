@@ -13,7 +13,7 @@
 static GHashTable *prepared_queries;
 static GMutex *sequence_mutex;
 
-
+gboolean use_nfs_safe_locking = FALSE;
 
 
 FieldDef *
@@ -238,7 +238,7 @@ tracker_db_initialize (const char *datadir)
 			char *query = g_strdup (sep + 1);
 			char *name = g_strdup (buffer);					
 
-			tracker_log ("installing query %s with sql %s", name, query);
+			//tracker_log ("installing query %s with sql %s", name, query);
 			g_hash_table_insert (prepared_queries, name, query);
 
 		} else {
@@ -264,7 +264,7 @@ tracker_db_thread_init ()
 void
 tracker_db_thread_end ()
 {
-	sqlite3_thread_cleanup ();
+	//sqlite3_thread_cleanup ();
 }
 
 
@@ -275,24 +275,7 @@ tracker_db_finalize ()
 
 }
 
-static void
-get_meta_table_data (gpointer key,
-   		     gpointer value,
-		     gpointer user_data)
-{
-	DatabaseAction *db_action;	
-	char *mtype, *mvalue, *avalue, *dvalue = NULL, *evalue;
-	
-	mtype = (char *)key;
-	avalue = (char *)value;
 
-	db_action = user_data;
-
-	
-
-
-
-}
 
 static void
 finalize_statement (gpointer key,
@@ -301,13 +284,19 @@ finalize_statement (gpointer key,
 {
 	sqlite3_stmt *stmt = value;
 
-	sqlite3_finalize (stmt);	
+	if (stmt) {
+		sqlite3_finalize (stmt);	
+	}
 	
 }
 
 void
 tracker_db_close (DBConnection *db_con)
 {
+	if (!db_con->thread) {
+		db_con->thread = "main";
+	}
+
 	/* clear prepared queries */
 	if (db_con->statements) {
 		g_hash_table_foreach (db_con->statements, finalize_statement, NULL);
@@ -315,9 +304,13 @@ tracker_db_close (DBConnection *db_con)
 
 	g_mutex_free (db_con->write_mutex);
 
-	g_hash_table_free (db_con->statements);
+	g_hash_table_destroy (db_con->statements);
 
-	sqlite3_close (db_con->db);
+	if (sqlite3_close (db_con->db) != SQLITE_OK) {
+		tracker_log ("ERROR : Database close operation failed for thread %s due to %s", db_con->thread, sqlite3_errmsg (db_con->db));
+	} else {
+		tracker_log ("Database closed for thread %s", db_con->thread);
+	}
 
 }
 
@@ -329,18 +322,24 @@ tracker_db_connect ()
 {
 	DBConnection *db_con = g_new (DBConnection, 1);
 
-	char *dbname = g_build_filename (g_get_home_dir (), ".Tracker", "tracker.db", NULL);
+	char *dbname = g_build_filename (g_get_home_dir (), ".Tracker", "database", NULL);
 
-	if (!sqlite3_open (dbname, &db_con->db)) {
-		tracker_log ("Fatal Error : Can't open database: %s", sqlite3_errmsg (db_con->db);
+
+	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
+		tracker_log ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
 	g_free (dbname);
 
-	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 	db_con->write_mutex = g_mutex_new ();
+
+	tracker_exec_sql (db_con, "PRAGMA synchronous = OFF");
+	tracker_exec_sql (db_con, "PRAGMA count_changes = 0");
+
+	db_con->thread = NULL;
 	
 	return db_con;
 }
@@ -466,10 +465,10 @@ char ***
 tracker_exec_sql (DBConnection *db_con, const char *query)
 {
 	char **array = NULL;
-	char ***result = NULL;
+	char **result = NULL;
 	int cols, rows;
 	char *msg;
-	char **row;
+
 
 	g_return_val_if_fail (query, NULL);
 
@@ -480,6 +479,7 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 	int i =  sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
 
 	while (i == SQLITE_BUSY) {
+		//tracker_log ("sqlite busy");
 		unlock_db ();
 		g_usleep (1000);
 		lock_db ();
@@ -490,29 +490,35 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 		unlock_db ();
 		tracker_log ("query %s failed with error : %s", query, msg);
 		g_free (msg);
-		return;
+		return NULL;
 	} 
 
 	unlock_db ();
 	
 
-	if (!array) {
+	if (!array || rows == 0 || cols ==0) {
 		return NULL;
 	}
 
-	result = g_new ( char *, rows);
+	result = g_new (char *, rows+1);
 	result [rows] = NULL;	
 
 	int totalrows = (rows+1) * cols;
-	int k = 0;
 
-	for (i=cols; i < totalrows; i+cols) {
+	//tracker_log ("totalrows is %d", totalrows);
+	//for (i=0;i<totalrows;i++) tracker_log (array[i]);
+
+	int k = 0;
+	int j;
+
+	for (i=cols; i < totalrows; i=i+cols) {
 
 		char **row = g_new (char *, cols + 1);
 		row [cols] = NULL;
 
 		for (j = 0; j < cols; j++ ) {
-			row[j] = g_strdup (array[i+j+1]);
+			row[j] = g_strdup (array[i+j]);
+	//		tracker_log ("data for row %d, col %d is %s", k, j, row[j]);
 		}
 
 
@@ -523,7 +529,7 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 	
 	sqlite3_free_table (array);
 
-	return result;
+	return (char ***) result;
 
 }
 
@@ -563,7 +569,8 @@ static sqlite3_stmt *
 get_prepared_query (DBConnection *db_con, const char *procedure)
 {
 	sqlite3_stmt 	*stmt;
-	
+	char *query;
+
 	/* check if query is already prepared (ie is in table) */
 	stmt = g_hash_table_lookup (db_con->statements, procedure);
 
@@ -579,13 +586,13 @@ get_prepared_query (DBConnection *db_con, const char *procedure)
 	
 			/* prepare the query */	
 			
-			int rc = sqlite3_prepare (db, query, -1, &stmt, 0);
+			int rc = sqlite3_prepare (db_con->db, query, -1, &stmt, 0);
 
 			if (rc == SQLITE_OK && stmt != NULL) {
 				tracker_log ("successfully prepared query %s", procedure);
-				g_hash_table_insert (db_con->statements, procedure, stmt);
+				g_hash_table_insert (db_con->statements, g_strdup (procedure), stmt);
 			} else {
-				tracker_log ("ERROR : failed to prepare query %s with sql %s", procedure, query);
+				tracker_log ("ERROR : failed to prepare query %s with sql %s due to %s", procedure, query, sqlite3_errmsg (db_con->db));
 				return NULL;
 			}
 		}
@@ -603,9 +610,9 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 {
 	va_list 	args;
 	int 		i;
-	char 		*str, *param, *query, *s;
+	char 		*str;
 	sqlite3_stmt 	*stmt;
-	char 		***res = NULL;
+	char 		**res = NULL;
 
 
 
@@ -620,8 +627,10 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		if (!str) {
 			tracker_log ("Warning - parameter %d is null", i);
 		} 
-
-		sqlite3_bind_text (stmt, i, str, strlen (str), SQLITE_TRANSIENT);
+		
+		if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
+			tracker_log ("ERROR : paramter %d could not be bound to %s", i, procedure);
+		}
 		
 	}
  	
@@ -650,15 +659,20 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 
 		if (rc == SQLITE_ROW) {
 	
-			char **new_row = g_new (char *, cols);
+			char **new_row = g_new (char *, cols+1);
 			new_row [cols] = NULL;
 
 			unlock_db ();
 
 			for (i = 0; i < cols; i++) {
-				new_row[i] = sqlite3_column_text (stmt, i);
+				const char *st = (char *)sqlite3_column_text (stmt, i);
+				if (st) {
+					new_row[i] = g_strdup (st);
+					//tracker_log ("%s : row %d, col %d is %s", procedure, row, i, st);
+				}
 			}
 
+			
 			result = g_slist_prepend (result, new_row);
 
 			row++;
@@ -671,17 +685,21 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		break;
 	}
 
+	if (rc != SQLITE_DONE) {
+		tracker_log ("ERROR : prepared query %s failed due to %s", procedure, sqlite3_errmsg (db_con->db));
+	}
+
 	if (!result || row == 0) {
 		return NULL;
 	}
 
 	result = g_slist_reverse (result);
 
-	row++;
-	res = g_new ( char *, row);
+	
+	res = g_new ( char *, row+1);
 	res[row] = NULL;	
 
-	GSlist *tmp = result;
+	GSList *tmp = result;
 
 	for (i=0; i < row; i++) {
 		
@@ -693,7 +711,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	
 	g_slist_free (result);
 
-	return res;
+	return (char ***)res;
 
 }
 
@@ -762,9 +780,13 @@ tracker_create_db ()
 		queries = g_strsplit_set (query, ";", -1);
 		for (queries_p = queries; *queries_p; queries_p++) {
 			if (*queries_p) {
+				//tracker_log ("creating table %s", *queries_p);
 		     		tracker_exec_sql (db_con, *queries_p);
+				//tracker_log ("Table created");
 			}
 		}
+
+		tracker_log ("finished creating tables");
 		g_strfreev (queries);
 		g_free (query);
 		
@@ -774,6 +796,8 @@ tracker_create_db ()
 
 	tracker_db_close (db_con);
 	g_free (db_con);
+
+
 }
 
 
@@ -793,13 +817,41 @@ tracker_log_sql	 (DBConnection *db_con, const char *query)
 	tracker_db_free_result (res);
 }
 
+
+gboolean
+tracker_db_needs_setup ()
+{
+	char *str, *dbname;
+	gboolean need_setup;
+
+	need_setup = FALSE;
+
+	str = g_build_filename (g_get_home_dir (), ".Tracker", NULL);
+	dbname = g_build_filename (str, "database", NULL);
+
+
+	if (!g_file_test (str, G_FILE_TEST_IS_DIR)) {
+		need_setup = TRUE;
+		g_mkdir (str, 0700);
+	}
+
+
+	if (!g_file_test (dbname, G_FILE_TEST_EXISTS)) {
+		need_setup = TRUE;
+	}
+
+	g_free (dbname);
+	g_free (str);
+
+	return need_setup;
+}
+
+
 gboolean
 tracker_update_db (DBConnection *db_con)
 {
 	char ***res;
-	char  *sql_file;
-	char *query;
-	char **queries, **queries_p;
+	char **row;
 
 
 	res = tracker_exec_sql (db_con, "SELECT OptionValue FROM Options WHERE OptionKey = 'DBVersion'");
@@ -829,11 +881,11 @@ tracker_update_db (DBConnection *db_con)
 
 		tracker_db_close (db_con);
 
-		char *db_name = g_build_filename (g_get_home_dir (), ".Tracker", "tracker.db", NULL);
+		char *db_name = g_build_filename (g_get_home_dir (), ".Tracker", "database", NULL);
 		unlink (db_name);
 		g_free (db_name);
 	
-		create_tracker_db ();
+		tracker_create_db ();
 
 		return TRUE;
 		
@@ -870,7 +922,7 @@ tracker_update_db (DBConnection *db_con)
 	return FALSE;
 }
 
-
+/*
 static void
 tracker_metadata_parse_text_contents (const char *file_as_text, unsigned int  ID)
 {
@@ -885,7 +937,7 @@ tracker_metadata_parse_text_contents (const char *file_as_text, unsigned int  ID
 
   		if (fd == -1) {
 			g_warning ("make thumb file %s failed", temp_file_name);
-			return NULL;
+			return;
       		} else {
 			close (fd);
 		}
@@ -968,7 +1020,7 @@ tracker_metadata_parse_text_contents (const char *file_as_text, unsigned int  ID
 
 
 }
-
+*/
 
 
 void
@@ -982,6 +1034,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 	FieldDef 	*def;
 	GString 	*str;
 	sqlite3_stmt 	*stmt;
+	int 		rc;
 
 	//tracker_log ("parsing file");
 	//tracker_metadata_parse_text_contents (file_as_text, file_id);
@@ -1080,7 +1133,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 
 			rc = sqlite3_step (stmt);
 
-			if (rc == SQL_BUSY) {
+			if (rc == SQLITE_BUSY) {
 				unlock_db ();
 				g_usleep (1000);
 				continue;
@@ -1222,12 +1275,12 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 {
 	FieldDef *def;
 
-	g_return_val_if_fail (id, NULL);
+	g_return_if_fail (id);
 
 	def = tracker_db_get_field_def (db_con, key);
 
 	if (!def) {
-		return NULL;
+		return;
 	}
 
 	if ((!def->writeable) && (!overwrite)) {
@@ -1308,7 +1361,22 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 
 	str_offset = tracker_int_to_str (offset);
 
-	tracker_exec_proc  (db_con, "CreateService", 9, sid, path, name, service, str_is_dir, str_is_link, str_is_source, str_offset,  str_mtime);
+	res = tracker_exec_proc (db_con, "GetServiceTypeID", 1, service);
+	char *service_type_id;
+	if (res) {
+		if (res[0][0]) {
+			service_type_id = res[0][0];
+		} else {
+			service_type_id = "8";
+		}
+	
+	}
+
+	tracker_exec_proc  (db_con, "CreateService", 9, sid, path, name, service_type_id, str_is_dir, str_is_link, str_is_source, str_offset,  str_mtime);
+
+	if (res[0][0]) {
+		tracker_db_free_result (res);
+	}
 
 	g_free (sid);
 	g_free (str_mtime);
@@ -1385,7 +1453,7 @@ tracker_db_has_pending_files (DBConnection *db_con)
 				
 		if (row && row[0]) {
 			int pending_file_count  = atoi (row[0]);
-							
+			tracker_log ("%d files are pending", pending_file_count);				
 			has_pending = (pending_file_count  > 0);
 		}
 					
@@ -1438,25 +1506,34 @@ tracker_db_get_pending_files (DBConnection *db_con)
 	time (&time_now);
 
 	time_str = tracker_long_to_str (time_now);
-	
 
-	str = g_strconcat ("CREATE TEMPORARY TABLE tmpfiles SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE NOT (PendingDate > ", time_str, " )  AND Action <> 20 ORDER BY ID LIMIT 300"
-
+	tracker_exec_sql (db_con, "delete from FileTemp");
+	str = g_strconcat ("Insert into FileTemp (ID, FileID, Action, FileUri, MimeType, IsDir) select ID, FileID, Action, FileUri, MimeType, IsDir From FilePending WHERE (PendingDate < ", time_str, " )  AND (Action <> 20) LIMIT 100", NULL);
 	tracker_exec_sql (db_con, str);
+
+	tracker_exec_sql (db_con, "DELETE FROM FilePending where ID in (select ID from FileTemp)");
+
+	char ***res = tracker_exec_sql (db_con, "select count (*) from FileTemp");
+
+	if (res) {
+		if (res[0][0]) {
+			tracker_log ("there are %s files in tmpfiles", res[0][0]);
+		}
+		tracker_db_free_result (res);
+	}
 
 	g_free (str);
 	g_free (time_str);
 
-	tracker_exec_sql (db_con, "DELETE FROM FilePending WHERE ID in (select ID from tmpfiles) AND Action <> 20");
+	return tracker_exec_sql (db_con, "SELECT FileID, FileUri, Action, MimeType, IsDir FROM FileTemp ORDER BY ID");
 
-	return tracker_exec_sql (db_con, "SELECT FileID, FileUri, Action, MimeType, IsDir FROM tmpfiles ORDER BY ID");
 }
 
 
 void
 tracker_db_remove_pending_files (DBConnection *db_con)
 {
-	tracker_exec_sql (db_con, "DROP TABLE if exists tmpfiles");
+	tracker_exec_sql (db_con, "Delete from FileTemp");
 }
 
 
@@ -1465,12 +1542,24 @@ char ***
 tracker_db_get_pending_metadata (DBConnection *db_con)
 {
 	
-	tracker_exec_sql (db_con, "CREATE TEMPORARY TABLE tmpmetadata SELECT ID, FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE Action = 20 ORDER BY ID LIMIT 100");
+	tracker_exec_sql (db_con, "delete from MetadataTemp");
+
+	char *str = "Insert into MetadataTemp (ID, FileID, Action, FileUri, MimeType, IsDir) select ID, FileID, Action, FileUri, MimeType, IsDir From FilePending WHERE Action = 20 LIMIT 100";
+	tracker_exec_sql (db_con, str);
+
+	tracker_exec_sql (db_con, "DELETE FROM FilePending where ID in (select ID from MetadataTemp)");
+
+	char ***res = tracker_exec_sql (db_con, "select count (*) from MetadataTemp");
+
+	if (res) {
+		if (res[0][0]) {
+			tracker_log ("there are %s files in MetadataTemp", res[0][0]);
+		}
+		tracker_db_free_result (res);
+	}
+
+	return tracker_exec_sql (db_con, "SELECT FileID, FileUri, Action, MimeType, IsDir FROM MetadataTemp ORDER BY ID");
 	
-	tracker_exec_sql (db_con, "DELETE FROM FilePending WHERE ID in (select ID from tmpmetadata) AND Action = 20");
-
-	return tracker_exec_sql (db_con, "SELECT FileID, FileUri, Action, MimeType, IsDir FROM tmpmetadata ORDER BY ID");
-
 
 }
 
@@ -1478,7 +1567,7 @@ tracker_db_get_pending_metadata (DBConnection *db_con)
 void
 tracker_db_remove_pending_metadata (DBConnection *db_con)
 {
-	tracker_exec_sql (db_con, "DROP TABLE if exists tmpmetadata");
+	tracker_exec_sql (db_con, "Delete from MetadataTemp");
 }
 
 void
@@ -1491,7 +1580,14 @@ tracker_db_insert_pending (DBConnection *db_con, const char *id, const char *act
 	time (&time_now);
 	i = atoi (counter);
 
-	time_str = tracker_long_to_str (time_now + i);
+	if (i==0) {
+		time_str = tracker_int_to_str (i);
+	} else {
+		time_str = tracker_long_to_str (time_now + i);
+		
+	}
+
+	//tracker_log ("inserting time of %s", time_str);
 
 	if (is_dir) {
 		tracker_exec_proc  (db_con, "InsertPendingFile", 6, id, action, time_str, uri, mime, "1");
@@ -1550,12 +1646,12 @@ tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int 
 char ***
 tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int offset, int limit, gboolean vfs)
 {
-	int min, max;
+	int i, min, max;
 	char ***res = NULL;
 	char *query;
 	GString *str;
 
-	g_return_val_if_fail (mimes, NULL):
+	g_return_val_if_fail (mimes, NULL);
 
 	if (vfs) {
 		min = 9;
@@ -1612,7 +1708,7 @@ tracker_db_search_text_mime  (DBConnection *db_con, const char *text , char **mi
 
 	char *mime_list = g_string_free (mimes, FALSE);
 
-	char ***res = NULL
+	char ***res = NULL;
 
 	//tracker_exec_proc  (db_con, "SearchTextMime", 2, search_term , mime_list);
 
@@ -1741,7 +1837,7 @@ tracker_db_get_file_subfolders (DBConnection *db_con, const char *uri)
 	char ***res;
 	char *folder;
 
-	folder = g_strconcat (dir, "/%", NULL);
+	folder = g_strconcat (uri, "/%", NULL);
 	
 	res = tracker_exec_proc (db_con, "SelectFileSubFolders", 2, uri, folder);
 

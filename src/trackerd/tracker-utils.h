@@ -48,6 +48,8 @@ typedef struct {
 	GSList 		*poll_list;
 	gboolean	use_nfs_safe_locking;
 
+	gboolean	do_thumbnails;
+
  	GHashTable  	*file_scheduler;
  	GMutex 		*scheduler_mutex;
 

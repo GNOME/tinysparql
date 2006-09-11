@@ -521,9 +521,17 @@ process_inotify_events (void)
 
 		}
 
-		g_free (monitor_name);
-		g_free (str);
-		g_free (file_utf8_uri);
+		if (monitor_name) {
+			g_free (monitor_name);
+		}
+
+		if (str) {
+			g_free (str);
+		}
+
+		if (file_utf8_uri) {
+			g_free (file_utf8_uri);
+		}
 
 		if (dir_utf8_uri) {
 			g_free (dir_utf8_uri);

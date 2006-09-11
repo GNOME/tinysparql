@@ -1476,7 +1476,10 @@ tracker_load_config_file ()
 					 "IndexFirefoxHistory=true\n\n",
 					 "[Database]\n",
 					 "StoreTextFileContentsInDB=false\n",
-					 "DBBufferMemoryLimit=1M\n", NULL);
+					 "DBBufferMemoryLimit=1M\n",
+					 "[Thumbnails]\n"
+					 "DoThumbnails=true\n",
+					 NULL);
 
 		g_file_set_contents (filename, contents, strlen (contents), NULL);
 		g_free (contents);
@@ -1563,8 +1566,15 @@ tracker_load_config_file ()
 	if (g_key_file_has_key (key_file, "Database", "StoreTextFileContentsInDB", NULL)) {
 		store_text_file_contents_in_db = g_key_file_get_boolean (key_file, "Indexes", "StoreTextFileContentsInDB", NULL);
 	}
+
+	db_buffer_memory_limit = g_key_file_get_string (key_file, "Database", "DBBufferMemoryLimit", NULL);
 */
-	//db_buffer_memory_limit = g_key_file_get_string ( key_file, "Database", "DBBufferMemoryLimit", NULL);
+
+	if (g_key_file_has_key (key_file, "Thumbnails", "DoThumbnails", NULL)) {
+		tracker->do_thumbnails = g_key_file_get_boolean (key_file, "Thumbnails", "DoThumbnails", NULL);
+	} else {
+		tracker->do_thumbnails = TRUE;
+	}
 
 	g_free (filename);
 

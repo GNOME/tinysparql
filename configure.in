@@ -11,12 +11,9 @@ AC_SUBST(PACKAGE_URL, [http://www.freedesktop.org/Software/Tracker])
 
 CFLAGS="$CFLAGS"
 
-
-
 # Checks for programs.
- AC_PROG_CC
- AC_HEADER_STDC
-#AC_PROG_LIBTOOL
+AC_PROG_CC
+AC_HEADER_STDC
 
 AM_PROG_LIBTOOL
 
@@ -29,15 +26,12 @@ PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= 2.4.0 ] gthread-2.0 >= 2.4.0)
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
-Check for pango
+#Check for pango
 PKG_CHECK_MODULES(PANGO, [ pango >= 1.0.0 ])
 AC_SUBST(PANGO_CFLAGS)
 AC_SUBST(PANGO_LIBS)
 
-# Check for QDBM
-#PKG_CHECK_MODULES(QDBM, [ qdbm >= 1.8.0 ])
-#AC_SUBST(QDBM_CFLAGS)
-#AC_SUBST(QDBM_LIBS)
+
 
 # Check for Dbus 0.50 or higher
 PKG_CHECK_MODULES(DBUS, [dbus-1 >= 0.50 dbus-glib-1 >= 0.50 ])
@@ -66,14 +60,47 @@ then
 
 fi
 
+
 ####################################################################
-# Embedded Mysql checks
+# Optional database/indexer component checks
 ####################################################################
 
-AM_CONDITIONAL(USING_SQLITE, false)
+use_sqlite=no
+use_mysql=yes
 
-mysql_dir=""
-AC_ARG_WITH(mysql,
+AC_ARG_ENABLE(sqlite3, [--enable-sqlite3          build using sqlite and QDBM for indexing],
+			 [
+				AC_DEFINE(USING_SQLITE, [], [Define if we are using sqlite])
+				use_sqlite=yes
+				use_mysql=no
+			 ]
+	 	)
+
+if test "$use_sqlite" = "yes"; 
+then
+	AM_CONDITIONAL(USING_SQLITE, true)
+	DB_ENGINE=SQLite
+
+	# Check for SQLite3
+	PKG_CHECK_MODULES(SQLITE3, [ sqlite3 >= 3.2 ])
+	AC_SUBST(SQLITE3_CFLAGS)
+	AC_SUBST(SQLITE3_LIBS)
+
+	# Check for QDBM
+	PKG_CHECK_MODULES(QDBM, [ qdbm >= 1.8.0 ])
+	AC_SUBST(QDBM_CFLAGS)
+	AC_SUBST(QDBM_LIBS)
+
+else
+
+	# Embedded Mysql checks
+
+	AM_CONDITIONAL(USING_SQLITE, false)
+
+	DB_ENGINE=MySQL
+
+	mysql_dir=""
+	AC_ARG_WITH(mysql,
 	    AC_HELP_STRING([--with-mysql=PATH], [directory where mysql is installed]),
 	    [if test "$with_mysql" = no ; then
 	       AC_MSG_ERROR(you need MySQL for this package. Sorry.)
@@ -81,50 +108,50 @@ AC_ARG_WITH(mysql,
 	       mysql_dir="$with_mysql/bin"
 	     fi ])
 
-# Try to find the mysql_config program
-AC_PATH_PROG(MYSQL_CONFIG, mysql_config, no, $mysql_dir $PATH )
-if test "$MYSQL_CONFIG" = no ; then
-   AC_MSG_ERROR([cannot find mysql_config...Please make sure you have the mysql development files installed])
-fi
+	# Try to find the mysql_config program
+	AC_PATH_PROG(MYSQL_CONFIG, mysql_config, no, $mysql_dir $PATH )
+	if test "$MYSQL_CONFIG" = no ; then
+	   AC_MSG_ERROR([cannot find mysql_config...Please make sure you have the mysql development files installed])
+	fi
 
-# Check to make sure we have MySQL >= 4.1.0
-MYSQL_VERSION=`$MYSQL_CONFIG --version`
+	# Check to make sure we have MySQL
+	DB_VERSION=`$MYSQL_CONFIG --version`
 
-AX_COMPARE_VERSION("$MYSQL_VERSION", [ge], [5.0.19], 
+	AX_COMPARE_VERSION("$DB_VERSION", [ge], [5.0.19], 
          AC_MSG_RESULT(checking mysql version >= 5.0.19... yes),
 	 AC_MSG_ERROR([Tracker requires version 5.0.19 or higher of the embedded MySQL library. Please install correct version and then restart compilation]))
 
-# Now make sure we've got mysqld
-MYSQL_LIBS=`$MYSQL_CONFIG --libmysqld-libs`
-if test $? != 0 ; then
-    AC_MSG_ERROR(Could not find the MySQL Embedded-server libraries.)
+	# Now make sure we've got mysqld
+	MYSQL_LIBS=`$MYSQL_CONFIG --libmysqld-libs`
+	if test $? != 0 ; then
+	    AC_MSG_ERROR(Could not find the MySQL Embedded-server libraries.)
+	fi
+
+	# this is a bug in the embedded mysql - it should not need ssl!
+	PKG_CHECK_MODULES(SSL, [ openssl >= 0.9.6 ])
+	AC_SUBST(SSL_CFLAGS)
+	AC_SUBST(SSL_LIBS)
+
+	MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
+	MYSQL_CFLAGS=`eval echo $MYSQL_CFLAGS`
+	MYSQL_LIBS=`eval echo $MYSQL_LIBS`
+
+	MYSQL_CFLAGS="$MYSQL_CFLAGS $SSL_CFLAGS"
+	MYSQL_LIBS="$MYSQL_LIBS $SSL_LIBS"
+
+	# Now test that we can actually build with MySQL
+	save_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $MYSQL_CFLAGS"
+
+	AC_CHECK_HEADER([mysql/mysql.h],,AC_MSG_ERROR([unable to find MySQL header files]))
+
+	save_LIBS="$LIBS"
+	LIBS="$LIBS $MYSQL_LIBS"
+	CPPFLAGS="$save_CPPFLAGS"
+	LIBS="$save_LIBS"
+	AC_SUBST(MYSQL_CFLAGS)
+	AC_SUBST(MYSQL_LIBS)
 fi
-
-# this is a bug in the embedded mysql - it should not need ssl!
-PKG_CHECK_MODULES(SSL, [ openssl >= 0.9.6 ])
-AC_SUBST(SSL_CFLAGS)
-AC_SUBST(SSL_LIBS)
-
-MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
-MYSQL_CFLAGS=`eval echo $MYSQL_CFLAGS`
-MYSQL_LIBS=`eval echo $MYSQL_LIBS`
-
-MYSQL_CFLAGS="$MYSQL_CFLAGS $SSL_CFLAGS"
-MYSQL_LIBS="$MYSQL_LIBS $SSL_LIBS"
-
-# Now test that we can actually build with MySQL
-save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS $MYSQL_CFLAGS"
-
-AC_CHECK_HEADER([mysql/mysql.h],,AC_MSG_ERROR([unable to find MySQL header files]))
-
-save_LIBS="$LIBS"
-LIBS="$LIBS $MYSQL_LIBS"
-CPPFLAGS="$save_CPPFLAGS"
-LIBS="$save_LIBS"
-AC_SUBST(MYSQL_CFLAGS)
-AC_SUBST(MYSQL_LIBS)
-
 
 ###############################################################################
 # Check for file monitor backends
@@ -248,7 +275,7 @@ AC_ARG_ENABLE(libextractor, [  --enable-libextractor          build with interna
 
 if test "$compile_libextractor" = "yes"; 
 then
-	echo "buidling libextractor ...."
+	echo "building libextractor ...."
 	AC_CONFIG_SUBDIRS(src/libextractor)
 fi
 
@@ -286,7 +313,8 @@ Tracker-$VERSION:
 	source code location:			${srcdir}
 	compiler:				${CC}
 	enable gcc warnings:			$warning_support
-	embedded mysql version :		$MYSQL_VERSION
+	database and indexing engine :		$DB_ENGINE
+	database version :			$DB_VERSION
 	libextractor build:			$extractor_support			
 	available file mointor backends :	$fs_monitor_backends
 	file monitor backend to be used :	$primary_backend

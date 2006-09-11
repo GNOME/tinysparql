@@ -1,4 +1,8 @@
-additional_mysql_flags = -D_THREAD_SAFE -D_REENTRANT
+if USING_SQLITE
+additional_mysql_flags=
+else
+additional_mysql_flags= -D_THREAD_SAFE -D_REENTRANT	
+endif
 
 
 INCLUDES =				\
@@ -6,6 +10,7 @@ INCLUDES =				\
 	$(GLIB2_CFLAGS)			\
 	$(PANGO_CFLAGS)			\
 	$(QDBM_CFLAGS)			\
+	$(SQLITE3_CFLAGS)		\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
 	$(MYSQL_CFLAGS)			\
@@ -92,6 +97,7 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(MYSQL_LIBS)	\
  		 $(PANGO_LIBS) 	\
 		 $(QDBM_LIBS) 	\
+		 $(SQLITE3_LIBS) \
 		 -lstdc++	\
 		-lmagic
 
