@@ -227,8 +227,11 @@ tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, long file_id)
 	db_action.file_id = g_strdup_printf ("%ld", file_id);
 
 	if (table) {
+		tracker_db_start_transaction (db_con);
 		g_hash_table_foreach (table, get_meta_table_data, &db_action);
+		tracker_db_end_transaction (db_con);
 	}
+
 
 	g_free (db_action.file_id);
 }

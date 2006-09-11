@@ -83,7 +83,8 @@ void		tracker_db_load_stored_procs 	(DBConnection *db_con);
 void		tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long file_id);
 void		tracker_db_clear_temp 		(DBConnection *db_con);
 void		tracker_db_check_tables 	(DBConnection *db_con);
-
+void		tracker_db_start_transaction 	(DBConnection *db_con);
+void		tracker_db_end_transaction 	(DBConnection *db_con);
 
 
 char ***	tracker_db_search_text 		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean sort);

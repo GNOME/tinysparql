@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 
 #include "tracker-db-sqlite.h"
 #include "tracker-indexer.h"
@@ -413,7 +415,7 @@ lock_db ()
 	
 			} else {
 				close (fd);
-				g_usleep (5000); 
+				g_usleep (g_random_int_range (1000, 100000));
 			}
 			
 		}
@@ -468,8 +470,7 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 	char **result = NULL;
 	int cols, rows;
 	char *msg;
-
-
+	
 	g_return_val_if_fail (query, NULL);
 
 	if (!lock_db ()) {
@@ -479,9 +480,8 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 	int i =  sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
 
 	while (i == SQLITE_BUSY) {
-		//tracker_log ("sqlite busy");
 		unlock_db ();
-		g_usleep (1000);
+		g_usleep (g_random_int_range (100, 10000));
 		lock_db ();
 		i = sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
 	}
@@ -653,7 +653,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		
 		if (rc == SQLITE_BUSY) {
 			unlock_db ();
-			g_usleep (1000);
+			g_usleep (g_random_int_range (100, 10000));
 			continue;
 		}
 
@@ -1135,7 +1135,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long
 
 			if (rc == SQLITE_BUSY) {
 				unlock_db ();
-				g_usleep (1000);
+				g_usleep (g_random_int_range (100, 10000));
 				continue;
 			}
 
@@ -1165,6 +1165,20 @@ tracker_db_clear_temp (DBConnection *db_con)
 {
 	tracker_exec_sql (db_con, "DELETE FROM FilePending");
 	tracker_exec_sql (db_con, "DELETE FROM FileWatches");
+}
+
+
+void
+tracker_db_start_transaction (DBConnection *db_con)
+{
+	tracker_exec_sql (db_con, "BEGIN EXCLUSIVE TRANSACTION");
+}
+
+
+void
+tracker_db_end_transaction (DBConnection *db_con)
+{
+	tracker_exec_sql (db_con, "END TRANSACTION");
 }
 
 

@@ -691,6 +691,21 @@ tracker_mysql_exec_sql (MYSQL *db, const char *query)
 	return res;
 }
 
+
+void
+tracker_db_start_transaction (DBConnection *db_con)
+{
+
+}
+
+
+void
+tracker_db_end_transaction (DBConnection *db_con)
+{
+
+}
+
+
 gboolean
 tracker_db_needs_setup ()
 {
