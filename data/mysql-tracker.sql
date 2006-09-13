@@ -7,7 +7,7 @@ create  table if not exists Options
 );
 
 insert into Options (OptionKey, OptionValue) values 
-('DBVersion', '3');
+('DBVersion', '4');
 
 
 create procedure GetVersion() SELECT OptionValue FROM Options WHERE OptionKey = 'DBVersion';
@@ -202,90 +202,104 @@ create  table if not exists MetaDataTypes
 
 
 /* built in metadata types */
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values 
 
-('File.Content', 0, 1, 0, 1),
-('File.Name', 0, 1, 0, 5),
-('File.Path', 0, 1, 0, 1),
-('File.Ext', 0, 1, 0, 50),
-('File.Link', 1, 1, 0, 0),
-('File.Format', 0, 1, 0, 15),
-('File.Size', 2, 1, 0, 0),
-('File.Origin', 0, 0, 1, 5),
-('File.OriginURI', 1, 0, 1, 0),
-('File.Permissions', 1, 1, 0, 0),
-('File.Publisher', 0, 0, 1, 20),
-('File.Description', 0, 0, 1, 25),
-('File.License', 4, 1, 0, 10),
-('File.Keywords', 99, 0, 0, 100),
-('File.Rank', 2, 0, 1, 0),
-('File.IconPath', 1, 0, 1, 0 ),
-('File.SmallThumbnailPath', 1, 0, 1, 0),
-('File.LargeThumbnailPath', 1, 0, 1, 0),
-('File.Modified', 3, 1, 0, 0),
-('File.Accessed', 3, 1, 0, 0),
-('File.Other', 0, 1, 0, 5),
-('Audio.Title', 0, 1, 1, 50),
-('Audio.Artist', 0, 1, 1, 50),
-('Audio.Album', 0, 1, 1, 50),
-('Audio.AlbumArtist', 0, 1, 1, 25),
-('Audio.AlbumTrackCount', 2, 1, 1, 0),
-('Audio.TrackNo', 2, 1, 1, 0),
-('Audio.DiscNo', 2, 1, 1, 0),
-('Audio.Performer', 0, 1, 1, 70),
-('Audio.TrackGain', 2, 1, 1, 0),
-('Audio.TrackPeakGain', 2, 1, 1, 0),
-('Audio.AlbumGain', 2, 1, 1, 0),
-('Audio.AlbumPeakGain', 2, 1, 1, 0),
-('Audio.Duration', 2, 1, 0, 0),
-('Audio.ReleaseDate', 3, 1, 1, 0),
-('Audio.Comment', 0, 1, 1, 25),
-('Audio.Genre', 0, 1, 1, 90),
-('Audio.Codec', 0, 1, 1, 1),
-('Audio.CodecVersion', 1, 1, 1, 0),
-('Audio.Samplerate', 2, 1, 1, 0),
-('Audio.Bitrate', 2, 1, 1, 0),
-('Audio.Channels', 2, 1, 1, 0),
-('Audio.LastPlay', 3, 0, 1, 0),
-('Audio.PlayCount', 2, 0, 1, 0),
-('Audio.IsNew', 2, 0, 1, 0),
-('Audio.MBAlbumID', 1, 0, 1, 0),
-('Audio.MBArtistID', 1, 0, 1, 0),
-('Audio.MBAlbumArtistID', 1, 0, 1, 0),
-('Audio.MBTrackID', 1, 0, 1, 0),
-('Audio.Lyrics', 0, 0, 1, 4),
-('Audio.CoverAlbumThumbnailPath', 1, 0, 1, 0),
-('Doc.Title', 0, 1, 0, 90),
-('Doc.Subject', 0, 1, 0, 100),
-('Doc.Author', 0, 1, 0, 90),
-('Doc.Keywords', 0, 1, 0, 100),
-('Doc.Comments', 0, 1, 0, 80),
-('Doc.PageCount', 2, 1, 0, 0),
-('Doc.WordCount', 2, 1, 0, 0),
-('Doc.Created', 3, 1, 0, 0),
-('Doc.Text', 4, 1, 0, 5),
-('Image.Height', 2, 1, 0, 0),
-('Image.Width', 2, 1, 0, 0),
-('Image.Title', 0, 1, 0, 60),
-('Image.Album', 0, 0, 1, 30),
-('Image.Date', 3, 1, 0, 0),
-('Image.Keywords', 0, 1, 0, 100),
-('Image.Creator', 0, 1, 0, 50),
-('Image.Comments', 0, 1, 0, 20),
-('Image.Description', 0, 1, 0, 15),
-('Image.Software', 0, 1, 0, 1),
-('Image.CameraMake', 0, 1, 0, 1),
-('Image.CameraModel', 0, 1, 0, 10),
-('Image.Orientation', 1, 1, 0, 0),
-('Image.ExposureProgram', 1, 1, 0, 0),
-('Image.ExposureTime', 2, 1, 0, 0),
-('Image.FNumber', 2 , 1, 0, 0),
-('Image.Flash', 2, 1, 0, 0),
-('Image.FocalLength', 2, 1, 0, 0),
-('Image.ISOSpeed', 2, 1, 0, 0),
-('Image.MeteringMode', 1, 1, 0, 0),
-('Image.WhiteBalance', 1, 1, 0, 0),
-('Image.Copyright', 0, 1, 0, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Keywords', 99, 0, 0, 100);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Content', 0, 1, 0, 1);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Name', 0, 1, 0, 5);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Path', 0, 1, 0, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Ext', 0, 1, 0, 50);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Link', 1, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Format', 0, 1, 0, 15);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Size', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Origin', 0, 0, 1, 5);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.OriginURI', 1, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Permissions', 1, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Description', 0, 0, 1, 25);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rank', 2, 0, 1, 0);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Publisher', 0, 0, 1, 20);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.License', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Contributer', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rights', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Relation', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Source', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Language', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Identifier', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Coverage', 0, 0, 1, 10);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.IconPath', 1, 0, 1, 0 );
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.SmallThumbnailPath', 1, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.LargeThumbnailPath', 1, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Modified', 3, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Accessed', 3, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Other', 0, 1, 0, 5);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Title', 0, 1, 1, 50);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Artist', 0, 1, 1, 50);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Album', 0, 1, 1, 50);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.AlbumArtist', 0, 1, 1, 25);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.AlbumTrackCount', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.TrackNo', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.DiscNo', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Performer', 0, 1, 1, 70);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.TrackGain', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.TrackPeakGain', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.AlbumGain', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.AlbumPeakGain', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Duration', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.ReleaseDate', 3, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Comment', 0, 1, 1, 25);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Genre', 0, 1, 1, 90);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Codec', 0, 1, 1, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.CodecVersion', 1, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Samplerate', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Bitrate', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Channels', 2, 1, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.LastPlay', 3, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.PlayCount', 2, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.IsNew', 2, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBAlbumID', 1, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBArtistID', 1, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBAlbumArtistID', 1, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBTrackID', 1, 0, 1, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Lyrics', 0, 0, 1, 4);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.CoverAlbumThumbnailPath', 1, 0, 1, 0);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Title', 0, 1, 0, 90);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Subject', 0, 1, 0, 100);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Author', 0, 1, 0, 90);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Keywords', 0, 1, 0, 100);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Comments', 0, 1, 0, 80);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.PageCount', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.WordCount', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Created', 3, 1, 0, 0);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Height', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Width', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Title', 0, 1, 0, 60);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Album', 0, 0, 1, 30);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Date', 3, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Keywords', 0, 1, 0, 100);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Creator', 0, 1, 0, 50);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Comments', 0, 1, 0, 20);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Description', 0, 1, 0, 15);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Software', 0, 1, 0, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.CameraMake', 0, 1, 0, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.CameraModel', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Orientation', 1, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.ExposureProgram', 1, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.ExposureTime', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.FNumber', 2 , 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Flash', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.FocalLength', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.ISOSpeed', 2, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.MeteringMode', 1, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.WhiteBalance', 1, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Copyright', 0, 1, 0, 1);
+
 
 
 /* optional contextual file data - gives a nice audit trail for a file */

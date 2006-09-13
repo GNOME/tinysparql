@@ -1101,7 +1101,7 @@ tracker_update_db (DBConnection *db_con)
 
 	tracker_log ("Checking tracker DB version...Current version is %d and needed version is %d", i, TRACKER_DB_VERSION_REQUIRED);
 
-	if (i < 3) {
+	if (i < 4) {
 		tracker_log ("Your database is out of date and will need to be rebuilt and all your files reindexed.\nThis may take a while...please wait...");
 		tracker_exec_sql (db_con, "Drop Database tracker");
 		create_tracker_db ();
@@ -1166,8 +1166,9 @@ tracker_update_db (DBConnection *db_con)
 }
 
 
+
 void
-tracker_db_save_file_contents (DBConnection *db_con, const char *file_name, long file_id)
+tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, FileInfo *info)
 {
 	FILE 		*file;
 	int  		bytes_read;
@@ -1216,7 +1217,7 @@ tracker_db_save_file_contents (DBConnection *db_con, const char *file_name, long
 		return;
 	}
 
-	str_file_id = g_strdup_printf ("%ld", file_id);
+	str_file_id = g_strdup_printf ("%ld", info->file_id);
 	file_id_length = strlen (str_file_id);
 	meta_id_length = strlen (str_meta_id);
 
@@ -1453,6 +1454,7 @@ void
 tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite)
 {
 	char *str_write;
+	char ***res;
 
 	if (overwrite) {
 		str_write = "1";
@@ -1460,8 +1462,23 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 		str_write = "0";
 	}
 
-	tracker_exec_proc (db_con, "SetMetadata", 5, service, id, key, value, str_write);
+
+	res = tracker_exec_proc (db_con, "SetMetadata", 5, service, id, key, value, str_write);
+
+	if (res && res[0][0]) {
+		tracker_log ("Warning: Metadata could not be set for %s with value %s due to %s", key, value, res[0][0]);
+		tracker_db_free_result (res);
+	}
 }
+
+void
+tracker_db_update_keywords (DBConnection *db_con, const char *service, const char *id, const char *value)
+{
+		tracker_exec_proc (db_con, "SetKeywordMetadata", 3,  "Files", id, value);
+}
+
+
+
 
 
 void

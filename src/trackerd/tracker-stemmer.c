@@ -32,7 +32,7 @@
 #include <string.h>  /* for memcmp, memmove */
 #include <glib.h>
 
-#include "tracker-stemmer.h"
+#include "tracker-stemmer-english.h"
 
 typedef struct  {
    char *b;       /* buffer for word to be stemmed */
@@ -332,7 +332,7 @@ static void step5(stemmer * z)
    length, so 0 <= k' <= k.
 */
 
-char * tracker_stem (char * b, int k)
+char * tracker_stem_eng (char * b, int k)
 {
 
   stemmer Stemmer;

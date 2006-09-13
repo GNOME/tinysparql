@@ -485,6 +485,7 @@ sproc:BEGIN
 			WHEN 2 THEN SELECT MetaDataNumericValue FROM ServiceMetaData WHERE ServiceID = pID AND MetaDataID = pMID;
 
 			WHEN 3 THEN SELECT MetaDataNumericValue FROM ServiceMetaData WHERE ServiceID = pID AND MetaDataID = pMID;
+
 		END CASE;
 	END IF;
 END;	
@@ -553,7 +554,18 @@ END;
 END|
 
 
+DROP PROCEDURE if exists SetKeywordMetadata;|
 
+CREATE PROCEDURE SetKeywordMetadata (pService varchar(32), pID int unsigned, pValue Text)
+BEGIN 
+	Declare pMID int;
+
+	select ID into pMID FROM MetaDataTypes WHERE MetaName = 'Keywords'; 
+
+	IF (pService != 'Emails') THEN
+		INSERT INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataIndexValue) VALUES (pID,pMID,pValue) ON DUPLICATE KEY UPDATE MetaDataIndexValue = pValue;
+	END IF;
+END|
 
 
 -- Metadata Type SPs --

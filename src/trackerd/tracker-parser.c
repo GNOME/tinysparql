@@ -20,36 +20,10 @@
 
 #include <string.h>
 #include <pango/pango.h>
-#include <magic.h>
 
 #include "tracker-parser.h"
 #include "tracker-stemmer.h"
 
-
-static gboolean
-is_ascii (const char* text)
-{
-	magic_t	   m;
-	int	   len;
-	const char *str;
-
-	len = strlen (text);
-
-	m = magic_open (MAGIC_NONE);
-
-	magic_load (m, NULL);
-
-	str = magic_buffer (m, text, len);
-
-	if (strstr (str, "ASCII")) {
-		magic_close (m);
-		return TRUE;
-	}
-
-	magic_close (m);
-
-	return FALSE;
-}
 
 
 static char *
@@ -124,34 +98,28 @@ word_is_alpha (const char *word)
 
 
 GHashTable *
-tracker_parse_text (const char *text, int min_word_length, GHashTable *stop_words, GHashTable *aux_stop_words, gboolean use_stemmer, int weight)
+tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text, int weight)
 {
-	GHashTable *table;
-	gboolean   ascii;
+
 	char	   *delimit_text;
 	char	   **words;
 	gboolean   pango_delimited;
 
 	g_return_val_if_fail (text, NULL);
 
-	table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+	if (!word_table) {	
+		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	}
 
 	delimit_text = (char *) text;
 
-	ascii = FALSE;
-	pango_delimited = FALSE;
-
-	if (is_ascii (text) ) {
-		ascii = TRUE;
-
-	} else {
-
-		/* crude hack to determine if we need to break words up with unbelivably slow pango */
-		if (!strchr (text, ' ')) {
-		  	delimit_text = delimit_utf8_string (text);
-			pango_delimited = TRUE;
-		}
+	/* crude hack to determine if we need to break words up with unbelivably slow pango word breaking */
+	if (!strchr (text, ' ') && !strchr (text, ',') && !strchr (text, '.') && !strchr (text, '/') ) {
+	  	delimit_text = delimit_utf8_string (text);
+		pango_delimited = TRUE;
 	}
+	
 
 	/* break text into words */
 
@@ -164,58 +132,45 @@ tracker_parse_text (const char *text, int min_word_length, GHashTable *stop_word
 			char *word;
 			int  word_len, count;
 
-			/* rermove words that dont contain at least one alpha char */
+			/* remove words that dont contain at least one alpha char */
 			if (!word_is_valid (*p)) {
 				continue;
 			}
 
-			/* ignore all words less than min word length */
-
+			/* ignore all words less than min word length unless pango delimited as it may be CJK language */
 			word_len = g_utf8_strlen (*p, -1);
-
-			if ( word_len < min_word_length) {
+			if ( !pango_delimited && (word_len < parser->min_word_length)) {
 				continue;
 			}
 
-			/* normalize word */
-			if (ascii) {
-				word = g_ascii_strdown (*p, -1);
 
-			} else {
-				char *s2;
-
-				s2 = g_utf8_strdown (*p, -1);
-				word = g_utf8_normalize (s2, -1, G_NORMALIZE_ALL);
-				g_free (s2);
-			}
+			/* normalize word */			
+			char *s2;
+			s2 = g_utf8_strdown (*p, -1);
+			word = g_utf8_normalize (s2, -1, G_NORMALIZE_ALL);
+			g_free (s2);
+			
 
 			if (!word) {
 				continue;
 			}
 
 			/* ignore all stop words */
-			if (stop_words) {
-				if (g_hash_table_lookup (stop_words, word)) {
+			if (parser->stop_words) {
+				if (g_hash_table_lookup (parser->stop_words, word)) {
 					g_free (word);
 					continue;
 				}
 			}
-
-			if (aux_stop_words) {
-				if (g_hash_table_lookup (aux_stop_words, word)) {
-					g_free (word);
-					continue;
-				}
-			}
-
 
 			word_len = strlen (word);
 
-			/* truncate words more than 30 bytes */
-			if (word_len > 30) {
+			/* truncate words more than max word length in bytes */
+			if (word_len > parser->max_word_length) {
 
-				word[29] = '\0';
-				word_len = 29;
+				word_len = parser->max_word_length -1;
+
+				word[word_len] = '\0';
 
 				while (word_len != 0) {
 
@@ -228,29 +183,29 @@ tracker_parse_text (const char *text, int min_word_length, GHashTable *stop_word
 				}
 			}
 
-			/* stem words if ascii */
-			if (use_stemmer && word_is_alpha (word)) {
+			/* stem words if word only contains alpha chars */
+			if (parser->use_stemmer && word_is_alpha (word)) {
 				char *aword;
 
-				aword = tracker_stem ( word , strlen(word)-1);
+				aword = tracker_stem_eng (word , strlen(word)-1);
 
 				g_free (word);
 				word = aword;
 			}
 
 			/* count dupes */
-			count = GPOINTER_TO_INT (g_hash_table_lookup (table, word));
+			count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
 
-			if (!g_hash_table_lookup (table, word)) {
-				g_hash_table_insert (table, g_strdup (word), GINT_TO_POINTER (weight));
+			if (!g_hash_table_lookup (word_table, word)) {
+				g_hash_table_insert (word_table, word, GINT_TO_POINTER (weight));
 			} else {
 				int r;
 
 				r = count + weight;
-				g_hash_table_replace (table, g_strdup (word), GINT_TO_POINTER (r));
+				g_hash_table_replace (word_table, word, GINT_TO_POINTER (r));
 			}
 
-			g_free (word);
+
 		}
 
 		g_strfreev  (words);
@@ -260,5 +215,5 @@ tracker_parse_text (const char *text, int min_word_length, GHashTable *stop_word
 		g_free (delimit_text);
 	}
 
-	return table;
+	return word_table;
 }

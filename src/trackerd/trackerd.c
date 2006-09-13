@@ -154,13 +154,15 @@ has_prefix (const char *str1, const char *str2)
 static gboolean
 do_cleanup (const char *sig_msg)
 {
+		
+
 	if (tracker->log_file) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
 	}
 
 	tracker_print_object_allocations ();
 
-	shutdown = TRUE;
+	
 
 	/* clear pending files and watch tables*/
 	//tracker_db_clear_temp (main_thread_db_con);
@@ -170,10 +172,29 @@ do_cleanup (const char *sig_msg)
 	tracker_dbus_shutdown (main_connection);
 
 	//tracker_indexer_close (file_indexer);
+	//tracker_db_clear_temp (main_thread_db_con);
+
+	/* wait for files thread to sleep */
+	while (!g_mutex_trylock (tracker->files_signal_mutex)) {
+		g_usleep (100);
+	}
+	
+	g_mutex_unlock (tracker->files_signal_mutex);
 
 
-	tracker_log ("shutting down threads");
+	while (!g_mutex_trylock (tracker->metadata_signal_mutex)) {
+		g_usleep (100);
+	}
+
+	g_mutex_unlock (tracker->metadata_signal_mutex);
+
+	if (tracker->log_file) {
+		tracker_log ("shutting down threads");
+	}
+
 	/* send signals to each thread to wake them up and then stop them */
+
+	shutdown = TRUE;
 
 	g_mutex_lock (tracker->poll_signal_mutex);
 	g_cond_signal (tracker->poll_thread_signal);
@@ -212,7 +233,9 @@ do_cleanup (const char *sig_msg)
 	/* This must be called after all other db functions */
 	tracker_db_finalize ();
 
-	tracker_log ("shutting down main thread");
+	if (tracker->log_file) {
+		tracker_log ("shutting down main thread");
+	}
 
 	g_main_loop_quit (tracker->loop);
 
@@ -525,7 +548,7 @@ signal_handler (int signo)
 			tracker_end_watching ();
 
 			g_timeout_add_full (G_PRIORITY_LOW,
-			     		    5,
+			     		    1,
 		 	    		    (GSourceFunc) do_cleanup,
 			     		    g_strdup (g_strsignal (signo)), NULL
 			   		    );
@@ -540,7 +563,7 @@ signal_handler (int signo)
 			tracker_end_watching ();
 
 			g_timeout_add_full (G_PRIORITY_LOW,
-			     		    5,
+			     		    1,
 		 	    		    (GSourceFunc) do_cleanup,
 			     		    g_strdup (g_strsignal (signo)), NULL
 			   		    );
@@ -875,12 +898,12 @@ extract_metadata_thread (void)
 			if (tracker_db_has_pending_metadata (db_con)) {
 				g_mutex_unlock (tracker->metadata_check_mutex);
 			} else {
-			//	tracker_log ("metadata thread sleeping");
+				//tracker_log ("metadata thread sleeping");
 
 				/* we have no stuff to process so sleep until awoken by a new signal */
 				g_cond_wait (tracker->metadata_thread_signal, tracker->metadata_signal_mutex);
 				g_mutex_unlock (tracker->metadata_check_mutex);
-			//	tracker_log ("metadata thread awoken");
+				//tracker_log ("metadata thread awoken");
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
 					continue;
@@ -899,6 +922,10 @@ extract_metadata_thread (void)
 				while ((row = tracker_db_get_row (res, k))) {
 					FileInfo *info_tmp;
 
+					if (!tracker->is_running) {
+						break;
+					}
+
 					k++;
 					info_tmp = tracker_create_file_info (row[1], atoi(row[2]), 0, WATCH_OTHER);
 					info_tmp->file_id = atol (row[0]);
@@ -906,10 +933,14 @@ extract_metadata_thread (void)
 					g_async_queue_push (tracker->file_metadata_queue, info_tmp);
 				}
 
-				tracker_db_free_result (res);
+				if (tracker->is_running) {	
+					tracker_db_free_result (res);
+				}
 			}
 
-			tracker_db_remove_pending_metadata (db_con);
+			if (tracker->is_running) {
+				tracker_db_remove_pending_metadata (db_con);
+			}
 
 			continue;
 		}
@@ -978,7 +1009,7 @@ extract_metadata_thread (void)
 					//tracker_log ("text file is %s", file_as_text);
 
 					/* to do - we need a setting for an upper limit to how much text we read in */
-					tracker_db_save_file_contents (db_con, file_as_text, info->file_id);
+					tracker_db_save_file_contents (db_con, file_as_text, info);
 
 					tmp_dir = g_get_tmp_dir ();
 
@@ -1153,14 +1184,15 @@ process_files_thread (void)
 					FileInfo	    *info_tmp;
 					TrackerChangeAction tmp_action;
 
+					if (!tracker->is_running) {
+						break;
+					}
+
 					k++;
 
 					tmp_action = atoi(row[2]);
 
-					if (!tracker->is_running) {
-						tracker_db_free_result (res);
-						break;
-					}
+
 
 					if (tmp_action != TRACKER_ACTION_CHECK) {
 						tracker_log ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
@@ -1170,14 +1202,16 @@ process_files_thread (void)
 					g_async_queue_push (tracker->file_process_queue, info_tmp);
 				}
 
-				tracker_db_free_result (res);
+				if (tracker->is_running) {
+					tracker_db_free_result (res);
+				}
 			}
-
-			tracker_db_remove_pending_files (db_con);
 
 			if (!tracker->is_running) {
 				continue;
 			}
+
+			tracker_db_remove_pending_files (db_con);
 
 			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM) */
 			if (k == 0) {
@@ -1384,10 +1418,10 @@ process_user_request_queue_thread (void)
 		rec = g_async_queue_try_pop (tracker->user_request_queue);
 
 		if (!rec) {
-			//tracker_log ("request thread sleeping");
+			tracker_log ("request thread sleeping");
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 			g_mutex_unlock (tracker->request_check_mutex);
-			//tracker_log ("request thread awoken");
+			tracker_log ("request thread awoken");
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {

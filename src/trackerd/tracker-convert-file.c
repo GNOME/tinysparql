@@ -113,7 +113,15 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-	table = tracker_parse_text (text, 3, NULL, NULL, TRUE , 1);
+	TextParser *parser = g_new (TextParser, 1);
+
+	parser->min_word_length = 3;
+	parser->max_word_length = 30;
+	parser->use_stemmer = TRUE;
+	parser->stem_language = STEM_ENG;
+	parser->stop_words = NULL;
+
+	table = tracker_parse_text (parser, NULL, text, 1);
 
 	g_free (text);
 

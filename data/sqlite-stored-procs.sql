@@ -49,22 +49,19 @@ UpdateFileMovePath UPDATE ServiceMetaData set MetaDataIndexValue = ? WHERE Servi
 
 DeleteFile1 DELETE FROM Services WHERE ID = ?;
 DeleteFile2 DELETE FROM ServiceMetaData WHERE ServiceID = ?;
-DeleteFile3 DELETE FROM FileContexts WHERE FileID = ?;
-DeleteFile4 DELETE FROM FilePending WHERE FileID = ?;
-DeleteFile5 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
-DeleteFile6 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
+DeleteFile3 DELETE FROM FilePending WHERE FileID = ?;
+DeleteFile4 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
+DeleteFile5 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
 
-DeleteDirectory1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services where (F.Path = ?) OR (F.Path glob ?));
-DeleteDirectory2 DELETE FROM FileContexts WHERE FileID in (select ID FROM Services where (F.Path = ?) OR (F.Path glob ?));
-DeleteDirectory3 DELETE FROM FilePending  WHERE FileID = in (select ID FROM Services where (F.Path = ?) OR (F.Path glob ?));
-DeleteDirectory4 DELETE FROM ServiceKeywords  WHERE ServiceID in (select ID FROM Services where (F.Path = ?) OR (F.Path glob ?));
-DeleteDirectory5 DELETE FROM Services WHERE (Path = ?) OR (Path glob ?);
-DeleteDirectory6 DELETE FROM Services WHERE ID = ?;
-DeleteDirectory7 DELETE FROM ServiceMetaData WHERE ServiceID = ?;
-DeleteDirectory8 DELETE FROM FileContexts WHERE FileID = ?;
-DeleteDirectory9 DELETE FROM FilePending WHERE FileID = ?;
-DeleteDirectory10 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
-DeleteDirectory11 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
+DeleteDirectory1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
+DeleteDirectory2 DELETE FROM FilePending  WHERE FileID in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
+DeleteDirectory3 DELETE FROM ServiceKeywords  WHERE ServiceID in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
+DeleteDirectory4 DELETE FROM Services WHERE (Path = ?) OR (Path glob ?);
+DeleteDirectory5 DELETE FROM Services WHERE ID = ?;
+DeleteDirectory6 DELETE FROM ServiceMetaData WHERE ServiceID = ?;
+DeleteDirectory7 DELETE FROM FilePending WHERE FileID = ?;
+DeleteDirectory8 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
+DeleteDirectory9 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
 
 SaveFileContents insert into ServiceMetaData (ServiceID, MetaDataID, MetaDataIndexValue) values (?,?,?);
 
@@ -106,11 +103,11 @@ SelectMetadataClasses SELECT DISTINCT SUBSTRING_INDEX(MetaName, '.', 1) FROM Met
 
 InsertMetadataType INSERT INTO MetaDataTypes (MetaName, DataTypeID, Embedded, Writeable) VALUES (?,?,?,?); 
 
-ExistsPendingFiles select count(*) from FilePending where Action <> 20;
+ExistsPendingFiles select count (*) from FilePending where Action <> 20;
 
 InsertPendingFile INSERT INTO FilePending (FileID, Action, PendingDate, FileUri, MimeType, IsDir) VALUES (?,?,?,?,?,?);
 
-CountPendingMetadataFiles select 1 Where Exists (select ID from FilePending where Action = 20);
+CountPendingMetadataFiles select count (*) from FilePending where Action = 20;
 
 SelectPendingByUri SELECT  FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE FileUri = ?;
 

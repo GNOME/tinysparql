@@ -24,7 +24,7 @@
 
 
 static void
-update_keywords_metadata (DBConnection *db_con, const char *path, const char *name)
+update_keywords_metadata (DBConnection *db_con, const char* service, const char *path, const char *name)
 {
 	char ***res;
 	char *tmp;
@@ -32,7 +32,7 @@ update_keywords_metadata (DBConnection *db_con, const char *path, const char *na
 	char *keywords;
 
 	tmp = g_build_filename (path, name, NULL);
-	id = tracker_db_get_id (db_con, "Files", tmp);
+	id = tracker_db_get_id (db_con, service, tmp);
 
 	g_free (tmp);
 
@@ -66,7 +66,7 @@ update_keywords_metadata (DBConnection *db_con, const char *path, const char *na
 
 		keywords = g_string_free (words, FALSE);
 
-		tracker_db_set_metadata (db_con, "Files", id, "File.Keywords", keywords, TRUE);
+		tracker_db_update_keywords (db_con, service, id, keywords);
 
 		g_free (keywords);
 	}
@@ -284,7 +284,7 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		}
 	}
 
-	update_keywords_metadata (db_con, path, name);
+	update_keywords_metadata (db_con, service, path, name);
 
 	g_free (name);
 	g_free (path);
@@ -364,7 +364,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		}
 	}
 
-	update_keywords_metadata (db_con, path, name);
+	update_keywords_metadata (db_con, service, path, name);
 
 	g_free (name);
 	g_free (path);
@@ -431,7 +431,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 
 	tracker_exec_proc (db_con, "RemoveAllKeywords", 2, path, name);
 
-	update_keywords_metadata (db_con, path, name);
+	update_keywords_metadata (db_con, service, path, name);
 
 	g_free (name);
 	g_free (path);

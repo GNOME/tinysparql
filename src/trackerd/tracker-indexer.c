@@ -30,7 +30,7 @@ Indexer *
 tracker_indexer_open (const char *name)
 {
 	char *base_dir, *word_index_name, *blob_index_name;
-	CURIA *word_index ;
+	DEPOT *word_index;
 	VILLA *blob_index;
 	Indexer *result;
 
@@ -48,12 +48,12 @@ tracker_indexer_open (const char *name)
 		g_mkdir_with_parents (blob_index_name, 00755);
 	}
 
-	word_index = cropen (word_index_name, CR_OWRITER | CR_OCREAT | CR_ONOLCK, INDEXBNUM, 2);
+	word_index = dpopen (word_index_name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, INDEXBNUM);
 
 	if (!word_index) {
 		tracker_log ("word index was not closed properly - attempting repair");
-		if (crrepair (word_index_name)) {
-			word_index = cropen (word_index_name, CR_OWRITER | CR_OCREAT | CR_ONOLCK, INDEXBNUM, 2);
+		if (dprepair (word_index_name)) {
+			word_index = dpopen (word_index_name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, INDEXBNUM);
 		} else {
 			g_assert ("indexer is dead");
 		}
@@ -73,8 +73,8 @@ tracker_indexer_open (const char *name)
 	result->mutex = g_mutex_new ();
 	result->search_waiting_mutex = g_mutex_new ();
 
-	crsetalign (word_index , INDEXALIGN);
-	//crsetfbpsiz (word_index, OD_INDEXFBP);
+	dpsetalign (word_index , INDEXALIGN);
+	//dpsetfbpsiz (word_index, OD_INDEXFBP);
 
 	return result;
 }
@@ -88,7 +88,7 @@ tracker_indexer_close (Indexer *indexer)
 	g_mutex_lock (indexer->mutex);
 
 	vlclose (indexer->blob_index);
-	crclose (indexer->word_index);
+	dpclose (indexer->word_index);
 
 	g_mutex_unlock (indexer->mutex);
 	g_mutex_free (indexer->mutex);
@@ -156,11 +156,11 @@ tracker_indexer_sweep (Indexer *indexer)
 
 	LOCK (indexer);
 
-	if ((rnum = crrnum (indexer->word_index)) < 1) {
+	if ((rnum = dprnum (indexer->word_index)) < 1) {
 		return;
 	}
 
-	if (!criterinit (indexer->word_index)) {
+	if (!dpiterinit (indexer->word_index)) {
 		return;
 	}
 
@@ -169,19 +169,19 @@ tracker_indexer_sweep (Indexer *indexer)
 	tnum = 0;
 
 	while (TRUE){
-		WordPair *pairs;
+		SearchHit *pairs;
 		char	 *kbuf, *vbuf;
 		int	 i, ksiz, vsiz, pnum, wi;
 
 		/* give priority to other threads waiting */
 		RELOCK (indexer);
 
-		if (!(kbuf = criternext(indexer->word_index, &ksiz))){
+		if (!(kbuf = dpiternext(indexer->word_index, &ksiz))){
 			UNLOCK (indexer);
 			return;
 		}
 
-		if (!(vbuf = crget (indexer->word_index, kbuf, ksiz, 0, -1, &vsiz))){
+		if (!(vbuf = dpget (indexer->word_index, kbuf, ksiz, 0, -1, &vsiz))){
 			g_free (kbuf);
 			UNLOCK (indexer);
 			return;
@@ -189,8 +189,8 @@ tracker_indexer_sweep (Indexer *indexer)
 
 		UNLOCK (indexer);
 
-		pairs = (WordPair *) vbuf;
-		pnum = vsiz / sizeof (WordPair);
+		pairs = (SearchHit *) vbuf;
+		pnum = vsiz / sizeof (SearchHit);
 
 		wi = 0;
 
@@ -205,14 +205,14 @@ tracker_indexer_sweep (Indexer *indexer)
 		RELOCK (indexer);
 
 		if (wi > 0) {
-			if (!crput (indexer->word_index, kbuf, ksiz, vbuf, wi * sizeof (WordPair), CR_DOVER)){
+			if (!dpput (indexer->word_index, kbuf, ksiz, vbuf, wi * sizeof (SearchHit), DP_DOVER)){
 				g_free (vbuf);
 				g_free (kbuf);
 				UNLOCK (indexer);
 				return;
 			}
 		} else {
-			if (!crout (indexer->word_index, kbuf, ksiz)){
+			if (!dpout (indexer->word_index, kbuf, ksiz)){
 				g_free (vbuf);
 				g_free (kbuf);
 				UNLOCK (indexer);
@@ -235,7 +235,7 @@ tracker_indexer_sweep (Indexer *indexer)
 gboolean
 tracker_indexer_optimize (Indexer *indexer)
 {
-	if (!croptimize (indexer->word_index, INDEXBNUM)) {
+	if (!dpoptimize (indexer->word_index, INDEXBNUM)) {
 		return FALSE;
 	}
 
@@ -258,19 +258,19 @@ tracker_indexer_insert_word (Indexer *indexer, unsigned int id, const char *word
 	RELOCK (indexer);
 
 	/* check if existing record is there and append and sort word/score pairs if necessary */
-	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = dpget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
 
 		UNLOCK (indexer);
 
-		if (tsiz >= (int) sizeof (WordPair)) {
-			WordPair *current_pairs, *pairs;
+		if (tsiz >= (int) sizeof (SearchHit)) {
+			SearchHit *current_pairs, *pairs;
 			int	 pnum;
 
-			current_pairs = (WordPair *) tmp;
+			current_pairs = (SearchHit *) tmp;
 
-			pnum = tsiz / sizeof (WordPair);
+			pnum = tsiz / sizeof (SearchHit);
 
-			pairs = g_new (WordPair, pnum +1);
+			pairs = g_new (SearchHit, pnum +1);
 
 			if ((pnum > 0) && (score > current_pairs[pnum -1].score)) {
 				div_t	 t;
@@ -325,7 +325,7 @@ tracker_indexer_insert_word (Indexer *indexer, unsigned int id, const char *word
 
 			RELOCK (indexer);
 
-			if (!crput (indexer->word_index, word, -1, (char *) pairs, (tsiz + sizeof (WordPair)), CR_DOVER)) {
+			if (!dpput (indexer->word_index, word, -1, (char *) pairs, (tsiz + sizeof (SearchHit)), DP_DOVER)) {
 				g_free (tmp);
 				g_free (pairs);
 				UNLOCK (indexer);
@@ -337,12 +337,12 @@ tracker_indexer_insert_word (Indexer *indexer, unsigned int id, const char *word
 		}
 
 	} else {
-		WordPair pair;
+		SearchHit pair;
 
 		pair.id = id;
 		pair.score =score;
 
-		if (!crput (indexer->word_index, word, -1, (char *) &pair, sizeof (pair), CR_DOVER)) {
+		if (!dpput (indexer->word_index, word, -1, (char *) &pair, sizeof (pair), DP_DOVER)) {
 			UNLOCK (indexer);
 			return FALSE;
 		}
@@ -354,7 +354,7 @@ tracker_indexer_insert_word (Indexer *indexer, unsigned int id, const char *word
 }
 
 
-WordPair *
+SearchHit *
 tracker_indexer_get_hits (Indexer *indexer, const char *word, int offset, int limit, int *count)
 {
 	int  tsiz;
@@ -368,14 +368,14 @@ tracker_indexer_get_hits (Indexer *indexer, const char *word, int offset, int li
 		g_mutex_unlock (indexer->search_waiting_mutex);
 	}
 
-	if (!(tmp = crget (indexer->word_index, word, -1, (offset * sizeof (WordPair)), limit, &tsiz))) {
+	if (!(tmp = dpget (indexer->word_index, word, -1, (offset * sizeof (SearchHit)), limit, &tsiz))) {
 		UNLOCK (indexer);
 		return NULL;
 	}
 
 	UNLOCK (indexer);
 
-	*count = tsiz / sizeof (WordPair);
+	*count = tsiz / sizeof (SearchHit);
 
-	return (WordPair *)tmp;
+	return (SearchHit *)tmp;
 }

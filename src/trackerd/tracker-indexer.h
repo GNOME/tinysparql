@@ -21,7 +21,6 @@
 #define _TRACKER_INDEXER_H
 
 #include <depot.h>
-#include <curia.h>
 #include <cabin.h>
 #include <vista.h>
 #include <stdlib.h>
@@ -31,19 +30,18 @@
 #include "tracker-db.h"
 
 
-typedef struct {                         /* type of structure for a database handle */
-	CURIA *word_index;                  /* database handle for the inverted index */
-	VILLA *blob_index;                   /* database handle for the docs contents */
+typedef struct {	
+	DEPOT *word_index;                  /* database handle for the inverted word index */
+	DEPOT *service_index;		    /* database handle for the serviceID -> uri table */
+	VILLA *blob_index;                  /* database handle for the docs contents or unique word list*/
+	
 	GMutex *mutex;
 	GMutex *search_waiting_mutex;
 	DBConnection *db_con;
 } Indexer;
 
 
-typedef struct {                         /* type of structure for an element of search result */
-	unsigned int 	id;              /* Index ID number of the document's metadata */
-	int 		score;           /* Score of the word in the document's metadata */
-} WordPair;
+
 
 
 typedef struct {                         /* type of structure for an element of search result */
@@ -61,7 +59,7 @@ gboolean	tracker_indexer_optimize		(Indexer *indexer);
 /* Indexing api */
 
 gboolean	tracker_indexer_insert_word 		(Indexer *indexer, unsigned int id, const char *word, int score);
-WordPair *	tracker_indexer_get_hits		(Indexer *indexer, const char *word, int offset, int limit, int *count);
+SearchHit *	tracker_indexer_get_hits		(Indexer *indexer, const char *word, int offset, int limit, int *count);
 
 
 /* blob api */

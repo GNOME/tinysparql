@@ -19,7 +19,6 @@ CREATE TABLE  ServiceTypes
 
 );
 
-
 insert into ServiceTypes (TypeID, TypeName, MetadataClass, Description, MainService) values (0, 'Files', 'File', 'all local files', 1);
 insert into ServiceTypes (TypeID, TypeName, MetadataClass, Description, MainService) values (1, 'Folders', 'File', 'folders only', 0 );
 insert into ServiceTypes (TypeID, TypeName, MetadataClass, Description, MainService) values (2, 'Documents', 'Doc, File', 'documents only', 1);
@@ -141,7 +140,7 @@ CREATE TABLE  ServiceMetaData
 	MetaDataID 		Integer  not null,
 	MetaDataValue     	Text, 
 	MetaDataIndexValue	Text,
-	MetaDataNumericValue	double
+	MetaDataNumericValue	double,
 
 );
 
@@ -167,27 +166,42 @@ CREATE TABLE  MetaDataTypes
 
 /* built in metadata types */
 
+begin transaction;
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Keywords', 99, 0, 0, 100);
+
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Content', 0, 1, 0, 1);
+
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Name', 0, 1, 0, 5);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Path', 0, 1, 0, 1);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Ext', 0, 1, 0, 50);
+
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Link', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Format', 0, 1, 0, 15);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Size', 2, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Origin', 0, 0, 1, 5);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.OriginURI', 1, 0, 1, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Permissions', 1, 1, 0, 0);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Publisher', 0, 0, 1, 20);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Description', 0, 0, 1, 25);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.License', 4, 1, 0, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Keywords', 99, 0, 0, 100);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rank', 2, 0, 1, 0);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Publisher', 0, 0, 1, 20);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.License', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Contributer', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rights', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Relation', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Source', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Language', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Identifier', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Coverage', 0, 0, 1, 10);
+
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.IconPath', 1, 0, 1, 0 );
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.SmallThumbnailPath', 1, 0, 1, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.LargeThumbnailPath', 1, 0, 1, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Modified', 3, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Accessed', 3, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Other', 0, 1, 0, 5);
+
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Title', 0, 1, 1, 50);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Artist', 0, 1, 1, 50);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Album', 0, 1, 1, 50);
@@ -218,6 +232,7 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBTrackID', 1, 0, 1, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Lyrics', 0, 0, 1, 4);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.CoverAlbumThumbnailPath', 1, 0, 1, 0);
+
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Title', 0, 1, 0, 90);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Subject', 0, 1, 0, 100);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Author', 0, 1, 0, 90);
@@ -226,7 +241,7 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.PageCount', 2, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.WordCount', 2, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Created', 3, 1, 0, 0);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Text', 4, 1, 0, 5);
+
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Height', 2, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Width', 2, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Title', 0, 1, 0, 60);
@@ -250,7 +265,7 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.WhiteBalance', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Copyright', 0, 1, 0, 1);
 
-
+end transaction;
 
 
 

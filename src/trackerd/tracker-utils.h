@@ -37,7 +37,7 @@ extern char *tracker_actions[];
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
 #define FILE_SCHEDULE_PERIOD		500
-#define TRACKER_DB_VERSION_REQUIRED	3
+#define TRACKER_DB_VERSION_REQUIRED	4
 #define TRACKER_VERSION			"0.5.0"
 #define TRACKER_VERSION_INT		500
 
@@ -170,6 +170,7 @@ typedef struct {
 	char			*link_name;
 
 	char			*mime;
+	char 			*service;
 	long			file_size;
 	char			*permissions;
 	long			mtime;
@@ -242,7 +243,5 @@ gboolean	tracker_is_dir_polled 		(const char *dir);
 void		tracker_notify_file_data_available (void);
 void		tracker_notify_meta_data_available (void);
 void		tracker_notify_request_data_available (void);
-
-//GHashTable *	tracker_parse_text 		(const char *text, int min_word_length, GHashTable *stop_words, gboolean use_stemmer, int weight);
 
 #endif

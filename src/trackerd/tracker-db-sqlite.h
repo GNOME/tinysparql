@@ -80,7 +80,7 @@ char ***	tracker_exec_sql   		(DBConnection *db_con, const char *query);
 void		tracker_log_sql	   		(DBConnection *db_con, const char *query);
 void		tracker_create_db  		();
 void		tracker_db_load_stored_procs 	(DBConnection *db_con);
-void		tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, long file_id);
+void		tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, FileInfo *info);
 void		tracker_db_clear_temp 		(DBConnection *db_con);
 void		tracker_db_check_tables 	(DBConnection *db_con);
 void		tracker_db_start_transaction 	(DBConnection *db_con);
@@ -94,6 +94,7 @@ char ***	tracker_db_search_matching_metadata (DBConnection *db_con, const char *
 
 char ***	tracker_db_get_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key);
 void 		tracker_db_set_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
+void		tracker_db_update_keywords 	(DBConnection *db_con, const char *service, const char *id, const char *value);
 
 void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const char *name, const char *service,  gboolean is_dir, gboolean is_link, 
 					   	 gboolean is_source,  int offset, long mtime);
