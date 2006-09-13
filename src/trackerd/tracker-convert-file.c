@@ -87,6 +87,7 @@ save_words_to_file (const char *filename_in_locale, GHashTable *table)
 		g_hash_table_destroy (table);	
 	}
 
+
 	g_file_set_contents (filename_in_locale, g_string_free (str, FALSE), -1, NULL);
 		
 }
@@ -123,9 +124,13 @@ main (int argc, char **argv)
 
 	table = tracker_parse_text (parser, NULL, text, 1);
 
-	g_free (text);
+
 
   	save_words_to_file (argv[2], table);
+
+	if (text) {
+		g_free (text);
+	}
   
 	return 0;
 }

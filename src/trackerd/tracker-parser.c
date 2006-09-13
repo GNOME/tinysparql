@@ -103,7 +103,7 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 
 	char	   *delimit_text;
 	char	   **words;
-	gboolean   pango_delimited;
+	gboolean   pango_delimited = FALSE;
 
 	g_return_val_if_fail (text, NULL);
 
@@ -116,6 +116,7 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 
 	/* crude hack to determine if we need to break words up with unbelivably slow pango word breaking */
 	if (!strchr (text, ' ') && !strchr (text, ',') && !strchr (text, '.') && !strchr (text, '/') ) {
+		g_print ("word breaks not detected\n");
 	  	delimit_text = delimit_utf8_string (text);
 		pango_delimited = TRUE;
 	}
@@ -189,6 +190,7 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 
 				aword = tracker_stem_eng (word , strlen(word)-1);
 
+				//g_print ("stemmed %s to %s\n", word, aword);
 				g_free (word);
 				word = aword;
 			}
