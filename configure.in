@@ -280,6 +280,20 @@ then
 fi
 
 
+##################################################################
+# check for GTK dependencies to build tracker's GUI
+##################################################################
+
+GTK_REQUIRED=2.8
+LIBGLADE_REQUIRED=2.5
+
+PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= $GTK_REQUIRED libglade-2.0 >= $LIBGLADE_REQUIRED], [have_gtk=yes] , [have_gtk=no])
+
+AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
+
+
 #####################################################
 
 AM_CONFIG_HEADER(src/trackerd/config.h)
@@ -301,6 +315,7 @@ AC_CONFIG_FILES([
 	src/tracker-extract/Makefile
 	src/trackerd/Makefile
 	src/libtracker/Makefile
+	src/tracker-gui/Makefile
 ])
 
 
@@ -319,6 +334,7 @@ Tracker-$VERSION:
 	available file mointor backends :	$fs_monitor_backends
 	file monitor backend to be used :	$primary_backend
 	inotify header location :		$inotify_header
+	GTK front-end :         		$have_gtk
 
 "
 
