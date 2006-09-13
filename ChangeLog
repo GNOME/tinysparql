@@ -1,3 +1,9 @@
+2006-09-11 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+	
+	* Patch to fix sending of null values on Dbus
+	* Also fix for erroneous g_free on a g_slice allocation
+
+
 2006-09-13 Jamie McCracken <jamiemcc@gnome.org>
 	
 	* Tidied up tracker-GUI
@@ -9,6 +15,7 @@
 2006-09-13 Edward Duffy <eduffy@gmail.com>
 	
 	* Enhanced tracker GUI
+	* fixed display of sexy icon entry
 
 2006-09-13 Jaime Frutos Morales <acidborg@gmail.com>
 	

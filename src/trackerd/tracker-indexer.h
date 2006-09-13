@@ -31,8 +31,8 @@
 
 
 typedef struct {	
-	DEPOT *word_index;                  /* database handle for the inverted word index */
-	DEPOT *service_index;		    /* database handle for the serviceID -> uri table */
+	DEPOT *word_index;                  /* database handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
+	DEPOT *service_index;		    /* database handle for the serviceID -> {uri} table (not sure if we really need this as it can be done with sqlite?)*/
 	VILLA *blob_index;                  /* database handle for the docs contents or unique word list*/
 	
 	GMutex *mutex;

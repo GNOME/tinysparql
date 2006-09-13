@@ -18,7 +18,11 @@ tracker_gui_SOURCES = 	tracker-gui.c 		\
 tracker_gui_LDADD = 	$(GTK_LIBS)	\
 			$(GLIB2_LIBS) 	\
 		 	$(DBUS_LIBS)	\
-			$(top_builddir)/src/libtracker/libmetatracker.la
+			$(top_builddir)/src/libtracker/libmetatracker.la 
 
+tracker_gui_LDFLAGS = -Wl,--export-dynamic
 
+configdir = $(datadir)/tracker
+
+config_DATA =   tracker.glade
 

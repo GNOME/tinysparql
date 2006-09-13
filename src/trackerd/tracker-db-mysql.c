@@ -30,6 +30,18 @@
 
 gboolean use_nfs_safe_locking;
 
+void
+tracker_db_free_field_def (FieldDef *def)
+{
+	g_return_if_fail (def);
+
+	if (def->id) {
+		g_free (def->id);
+	}
+
+	g_slice_free (FieldDef, def);
+}
+
 FieldDef *
 tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 {
@@ -50,7 +62,7 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 	if (res && row && row[0]) {
 		def->id = g_strdup (row[0]);
 	} else {
-		g_free (def);
+		tracker_db_free_field_def (def);
 		tracker_db_free_result (res);
 		return NULL;
 	}
@@ -73,17 +85,7 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 }
 
 
-void
-tracker_db_free_field_def (FieldDef *def)
-{
-	g_return_if_fail (def);
 
-	if (def->id) {
-		g_free (def->id);
-	}
-
-	g_slice_free (FieldDef, def);
-}
 
 
 char **

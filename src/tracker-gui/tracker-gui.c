@@ -18,10 +18,11 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include "sexy-icon-entry.h"
 #include <string.h>
 #include <gtk/gtk.h> 
 #include <glade/glade.h>
-#include "sexy-icon-entry.h"
+
 #include "../libtracker/tracker.h"
 
 static void
@@ -68,7 +69,16 @@ int main (int argc, char *argv[])
 
     
     	/*Glade stuff*/
-    	glade = glade_xml_new ("tracker.glade", NULL, NULL);
+ 
+	char *glade_file;
+
+	glade_file = "tracker.glade";
+
+	if (!g_file_test (glade_file, G_FILE_TEST_EXISTS)) {
+		glade_file = DATADIR "/tracker/tracker.glade";
+	}
+
+    	glade = glade_xml_new (glade_file, NULL, NULL);
     	glade_xml_signal_autoconnect (glade);
 
     	main_window = glade_xml_get_widget (glade, "main_window");

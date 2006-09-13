@@ -302,7 +302,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 						array[i] = g_strdup (row[i]);
 					}
 				} else {
-					array[i] = NULL;
+					array[i] = "";
 				}
 			}
 
