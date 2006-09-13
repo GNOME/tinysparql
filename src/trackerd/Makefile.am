@@ -98,8 +98,8 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
  		 $(PANGO_LIBS) 	\
 		 $(QDBM_LIBS) 	\
 		 $(SQLITE3_LIBS) \
-		 -lstdc++	\
-		-lmagic
+		 -lstdc++	
+
 
 tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-parser.c tracker-stemmer.c
 
