@@ -49,7 +49,7 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 	char	 ***res;
 	char	 **row;
 
-	def = g_slice_new (FieldDef);
+	def = g_slice_new0 (FieldDef);
 
 	res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, field_name);
 

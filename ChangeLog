@@ -1,3 +1,10 @@
+2006-09-12 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+	
+	* Patch to fix segfault when retrieveing metadata
+	* Patch to use g_slice_new0 instead of g_slice_new
+
+
+
 2006-09-11 Samuel Cormier-Iijima <ciyoshi@gmail.com>
 	
 	* Patch to fix sending of null values on Dbus

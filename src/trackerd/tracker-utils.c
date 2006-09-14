@@ -769,7 +769,7 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 {
 	FileInfo *info;
 
-	info = g_slice_new (FileInfo);
+	info = g_slice_new0 (FileInfo);
 
 	info->action = action;
 	info->uri = g_strdup (uri);
@@ -869,7 +869,7 @@ tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, 
 {
 	FileInfo *info;
 
-	info = g_slice_new (FileInfo);
+	info = g_slice_new0 (FileInfo);
 
 	info->action = action;
 	info->uri = g_strdup (uri);

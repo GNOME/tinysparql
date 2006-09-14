@@ -302,7 +302,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 						array[i] = g_strdup (row[i]);
 					}
 				} else {
-					array[i] = "";
+					array[i] = g_strdup ("");
 				}
 			}
 
@@ -408,35 +408,43 @@ tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 	is_embedded = FALSE;
 	is_writable = FALSE;
 
-	if (meta) {
-		char ***res;
-
-		res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, meta);
-
-		if (res) {
-			char **row;
-
-			row = tracker_db_get_row (res, 0);
-
-			if (row && row[1] && row[2] && row[3]) {
-				int i;
-
-				i = atoi (row[1]);
-
-				if (i >3 || i < 0) {
-					tracker_set_error (rec, "Data type for %s in invalid", meta);
-					return;
-				}
-
-				data_type = type_array[i];
-				is_embedded = (strcmp (row[2], "1") == 0);
-				is_writable = (strcmp (row[3], "1") == 0);
-			}
-
-			tracker_db_free_result (res);
-		}
-
+	if (!meta) {
+		tracker_set_error (rec, "Unknown metadata type %s", meta);
+		return;
 	}
+
+	char ***res;
+
+	res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, meta);
+
+	if (!res) {
+		tracker_set_error (rec, "Unknown metadata type %s", meta);
+		return;
+	}
+
+	char **row;
+
+	row = tracker_db_get_row (res, 0);
+
+	if (!(row && row[1] && row[2] && row[3])) {
+		tracker_set_error (rec, "Bad info for metadata type %s", meta);
+		return;
+	}
+
+	int i;
+
+	i = atoi (row[1]);
+
+	if (i > 3 || i < 0) {
+		tracker_set_error (rec, "Bad info for metadata type %s", meta);
+		return;
+	}
+
+	data_type = type_array[i];
+	is_embedded = (strcmp (row[2], "1") == 0);
+	is_writable = (strcmp (row[3], "1") == 0);
+
+	tracker_db_free_result (res);
 
 	reply = dbus_message_new_method_return (rec->message);
 
