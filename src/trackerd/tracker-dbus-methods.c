@@ -223,9 +223,9 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 			for (i = 1; i < field_count; i++) {
 				char *value;
 
-				if (row[i]) {
+				if (row[i] && (strlen (row[i]) > 0)) {
 					value = g_strdup (row[i]);
-				} else {
+					} else {
 					/* dbus does not like NULLs */
 					value = g_strdup (" ");
 				}

@@ -789,6 +789,56 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 }
 
 
+char ***
+tracker_exec_sql_ignore_nulls (DBConnection *db_con, const char *query)
+{
+	MYSQL_RES *res;
+	char	  **result;
+
+	result = NULL;
+
+	res = tracker_mysql_exec_sql (db_con->db, query);
+
+	if (res) {
+		MYSQL_ROW myrow;
+		int column_count, row_count, row_num;
+
+		column_count = mysql_num_fields (res);
+	   	row_count = mysql_num_rows (res);
+
+		result = g_new ( char *, row_count + 1);
+		result [row_count] = NULL;
+
+		row_num = -1;
+
+		while ((myrow = mysql_fetch_row (res))) {
+			char **row;
+			int  i;
+
+			row_num++;
+
+			row = g_new (char *, column_count + 1);
+			row[column_count] = NULL;
+
+			for (i = 0; i < column_count; i++) {
+				if (myrow[i]) {
+					row[i] = g_strdup (myrow[i]);
+				} else {
+					row[i] = g_strdup ("");
+				}
+			}
+
+			result[row_num] = (gpointer) row;
+		}
+
+		mysql_free_result (res);
+	}
+
+	return (char ***) result;
+}
+
+
+
 char *
 tracker_escape_string (DBConnection *db_con, const char *in)
 {

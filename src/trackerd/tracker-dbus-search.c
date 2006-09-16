@@ -441,7 +441,9 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 		g_free (search_term);
 		tracker_log ("translated rdf query is %s\n", str);
-		res = tracker_exec_sql (db_con, str);
+		res = tracker_exec_sql_ignore_nulls (db_con, str);
+//		tracker_log_sql (db_con, str);
+
 
 		g_free (str);
 	} else {

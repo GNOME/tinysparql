@@ -471,11 +471,11 @@ is_valid_8601_datetime (const char *timestamp)
 
 			/* format must be YYYY-MM-DDThh:mm:ss+xx  or YYYY-MM-DDThh:mm:ss+xx:yy */
 
-			if (len != 22 || len != 25) {
+			if (len < 22 || len > 25) {
 				return FALSE;
 			}
 
-			if ( (timestamp[19] != '+') || (timestamp[19] != '-') ) {
+			if ( (timestamp[19] != '+') && (timestamp[19] != '-') ) {
 				return FALSE;
 			}
 

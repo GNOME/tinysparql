@@ -1185,30 +1185,43 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 		const GSList *tmp;
 		FieldData    *tmp_field;
 
+
+
 		for (tmp = data.fields; tmp; tmp = tmp->next) {
 			char *st;
 
 			tmp_field = tmp->data;
 
-			st = g_strconcat ( " AND (", tmp_field->alias, ".MetaDataID = ", tmp_field->id_field ," ) ",  NULL);
-			data.sql_where = g_string_append (data.sql_where, st);
-			g_free (st);
+			if (!tmp_field->is_condition) {
+				char *s;
+
+				s = g_strconcat ( " LEFT OUTER JOIN ServiceMetaData ", tmp_field->alias, " ON (S.ID = ", tmp_field->alias ,".ServiceID and ", tmp_field->alias , ".MetaDataID = ", tmp_field->id_field ," ) ",  NULL);
+				data.sql_from = g_string_append (data.sql_from, s);
+				g_free (s);
+			}
+		}
+
+
+		for (tmp = data.fields; tmp; tmp = tmp->next) {
+			char *st;
+
+			tmp_field = tmp->data;
+
 
 			if (tmp_field->is_condition) {
 				char *s;
+
+				st = g_strconcat ( " AND (", tmp_field->alias, ".MetaDataID = ", tmp_field->id_field ," ) ",  NULL);
+				data.sql_where = g_string_append (data.sql_where, st);
+				g_free (st);
 
 				s = g_strconcat ( " INNER JOIN ServiceMetaData ", tmp_field->alias, " ON S.ID = ", tmp_field->alias ,".ServiceID ",  NULL);
 				data.sql_from = g_string_append (data.sql_from, s);
 				g_free (s);
 
-			} else {
-				char *s;
-
-				s = g_strconcat ( " LEFT OUTER JOIN ServiceMetaData ", tmp_field->alias, " ON S.ID = ", tmp_field->alias ,".ServiceID ",  NULL);
-				data.sql_from = g_string_append (data.sql_from, s);
-				g_free (s);
 			}
 		}
+
 
 		result = g_strconcat (g_string_free (data.sql_select, FALSE), " ", g_string_free (data.sql_from, FALSE), " ", g_string_free (data.sql_where, FALSE), " ", g_string_free (data.sql_order, FALSE), NULL);
 	}

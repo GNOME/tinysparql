@@ -73,6 +73,7 @@ char *		tracker_escape_string 		(DBConnection *db_con, const char *in);
 void		tracker_db_prepare_queries 	(DBConnection *db_con);
 char ***	tracker_exec_proc 		(DBConnection *db_con, const char *procedure, int param_count, ...);
 char ***	tracker_exec_sql   		(DBConnection *db_con, const char *query);
+char ***	tracker_exec_sql_ignore_nulls 	(DBConnection *db_con, const char *query);
 void		tracker_log_sql	   		(DBConnection *db_con, const char *query);
 void		tracker_create_db  		(void);
 void		tracker_db_load_stored_procs 	(DBConnection *db_con);

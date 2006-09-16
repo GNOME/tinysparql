@@ -177,13 +177,17 @@ get_meta_table_data (gpointer key,
 	if (tracker_metadata_is_date (db_action->db_con, mtype)) {
 		char *dvalue;
 
-		dvalue = tracker_format_date (avalue);
+		
 
+		dvalue = tracker_format_date (avalue);
+		
 		if (dvalue) {
 
 			time_t time;
 
 			time = tracker_str_to_date (dvalue);
+
+			//tracker_log ("processing date %s with format %s and time %ld", avalue, dvalue, time);
 
 			g_free (dvalue);
 
@@ -191,7 +195,9 @@ get_meta_table_data (gpointer key,
 				return;
 			} else {
 				evalue = tracker_long_to_str (time);
+			//	tracker_log ("date is %s", evalue);
 			}
+			
 
 		} else {
 			return;
@@ -206,6 +212,8 @@ get_meta_table_data (gpointer key,
 	if (evalue) {
 		g_free (evalue);
 	}
+
+
 
 	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE);
 

@@ -103,21 +103,7 @@ tracker_indexer_close (Indexer *indexer)
 }
 
 
-static gboolean
-WAITING (Indexer *indexer)
-{
-	gboolean result;
 
-	g_return_val_if_fail (indexer, FALSE);
-
-	result = g_mutex_trylock (indexer->search_waiting_mutex);
-
-	if (result) {
-		g_mutex_unlock (indexer->search_waiting_mutex);
-	}
-
-	return !result;
-}
 
 
 static void
@@ -138,19 +124,6 @@ UNLOCK (Indexer *indexer)
 }
 
 
-static void
-RELOCK (Indexer *indexer)
-{
-	g_return_if_fail (indexer);
-
-	/* give priority to other threads waiting */
-	g_mutex_lock (indexer->search_waiting_mutex);
-	g_mutex_unlock (indexer->search_waiting_mutex);
-
-	LOCK (indexer);
-}
-
-
 
 
 gboolean
@@ -164,9 +137,48 @@ tracker_indexer_optimize (Indexer *indexer)
 }
 
 
+
+static inline guint8
+get_score (WordDetails *details)
+{
+	return (details->amalgamated >> 24) & 0xFF;
+}
+
+static inline guint8
+get_service_type (WordDetails *details)
+{
+	return score = details->amalgamated & 0xFF;
+}
+
+static inline guint16
+get_metadata_type (WordDetails *details)
+{
+	unsigned char a[2];
+
+	a[0] = (details->amalgamated >> 16) & 0xFF;
+	a[1] = (details->amalgamated >> 8) & 0xFF;
+
+	return (a[0] << 8) | (a[1]);
+
+}
+
+
+static WordDetails *
+create_word_details (int service_id, int score, int service_type, int metadata_type)
+{
+	unsigned char a[4];
+
+	a[0] = score;
+	a[1] = (metadata_type >> 8 ) & 0xFF ;
+	a[2] = metadata_type & 0xFF ;
+	a[3] = service_type;
+	
+}
+
+
 /* indexing api */
 gboolean
-tracker_indexer_insert_word (Indexer *indexer, guint32 service_id, guint16 metadata_id, guint8 type_id, guint8 score, const char *word)
+tracker_indexer_insert_word (Indexer *indexer, IndexWord *index_word)
 {
 	int  tsiz;
 	char *tmp;
@@ -174,10 +186,6 @@ tracker_indexer_insert_word (Indexer *indexer, guint32 service_id, guint16 metad
 	g_return_val_if_fail ((indexer && word), FALSE);
 
 	tracker_log ("inserting word %s with score %d into ID %d", word, score, id);
-
-	/* give priority to other threads waiting */
-	RELOCK (indexer);
-
 
 	guint8 score = 200,  StypeID = 3;
 	guint16 MID = 1024;
@@ -200,8 +208,11 @@ tracker_indexer_insert_word (Indexer *indexer, guint32 service_id, guint16 metad
   	StypeID = i & 0xFF ;
 
 
+
+	LOCK (indexer);
+
 	/* check if existing record is there and append and sort word/score pairs if necessary */
-	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = crget (indexer->word_index, index_word->word, -1, 0, -1, &tsiz)) != NULL) {
 
 		UNLOCK (indexer);
 

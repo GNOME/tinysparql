@@ -27,6 +27,9 @@
 
 #include "../libtracker/tracker.h" 
 
+
+static int field_count;
+
 static char *
 realpath_in_utf8 (const char *path)
 {
@@ -64,9 +67,19 @@ get_meta_table_data (gpointer key,
 
 	meta = g_value_get_boxed (value);
 
-	for (meta_p = meta; *meta_p; meta_p++) {
-		g_print ("%s, ", *meta_p);
+	int i;
+
+	for (i=0; i<field_count; i++) {
+		if (meta[i]) {
+			g_print ("%s, ", meta[i]);	
+		} else {
+			g_print ("null, ");
+		}
 	}
+
+//	for (meta_p = meta; *meta_p; meta_p++) {
+//		g_print ("%s, ", *meta_p);
+//	}
 	g_print ("\n\n");
 }
 
@@ -123,11 +136,15 @@ main (int argc, char **argv)
 	if (argc == 2) {
 		meta_fields = g_new (char *, 2);
 
+		field_count = 1;
+
 		meta_fields[0] = g_strdup ("File.Format");
 		meta_fields[1] = NULL;
 
 	} else if (argc > 2) {
 		int i;
+
+		field_count = argc-1;
 
 		meta_fields = g_new (char *, (argc-1));
 

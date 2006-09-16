@@ -1,30 +1,35 @@
 
-2006-09-12 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-09-16 Jamie McCracken <jamiemcc at gnome org>
+	
+	* Fixed erroneous rdf query where returned values were null
+
+
+2006-09-16 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Patch to fix sqlite sql
 	* Patch to fix race condition in request thread
 
 
-2006-09-16 Jamie McCracken <jamiemcc@gnome.org>
+2006-09-16 Jamie McCracken <jamiemcc at gnome org>
 	
 	* More work on tracker-indexer
 
 
 
-2006-09-12 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-09-12 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Patch to fix segfault when retrieveing metadata
 	* Patch to use g_slice_new0 instead of g_slice_new
 
 
 
-2006-09-11 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-09-11 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Patch to fix sending of null values on Dbus
 	* Also fix for erroneous g_free on a g_slice allocation
 
 
-2006-09-13 Jamie McCracken <jamiemcc@gnome.org>
+2006-09-13 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Tidied up tracker-GUI
 	* Inline libsexy widget
@@ -32,62 +37,63 @@
 	* added more functionality to new indexer
 
 
-2006-09-13 Edward Duffy <eduffy@gmail.com>
+2006-09-13 Edward Duffy <eduffy at gmail com>
 	
 	* Enhanced tracker GUI
 	* fixed display of sexy icon entry
 
-2006-09-13 Jaime Frutos Morales <acidborg@gmail.com>
+
+2006-09-13 Jaime Frutos Morales <acidborg at gmail com>
 	
 	* Patch to add skeleton for tracker GUI
 
 
-2006-09-11 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-09-11 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Patch to add Goption support for tracker-tag
 
 
-2006-09-11 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-09-11 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Added option to disable thumbnail generation
 
 
-2006-09-11 Jamie McCracken <jamiemcc@gnome.org>
+2006-09-11 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added bug fixes to sqlite functionality
 
 
 
-2006-09-10 Jamie McCracken <jamiemcc@gnome.org>
+2006-09-10 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added rough sqlite support
 
 
-2006-09-10 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-09-10 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Fixed symlink problem 
 	* More code cleanup
 
 
-2006-09-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-09-07 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Handled Dbus Connection shutdown gracefully
 	* tracker deamon now shuts down smoothly when dbus session bus is stopped
 	* Big code cleanup
 
 
-2006-09-06 Jamie McCracken <jamiemcc@gnome.org>
+2006-09-06 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Finishsed db abstractions
 	* Added initial sqlite support
 
 
-2006-09-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-09-02 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Fix for Rdf-query parser to allow "contains" function to be called more easily 
 
 
-2006-09-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-09-02 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Added locale handling for non utf-8 files
 	* Made sure all filenames passed to posix system calls are translated to user's locale
@@ -95,21 +101,21 @@
 	* cleaned up code
 
 
-2006-09-02 Jamie McCracken <jamiemcc@gnome.org>
+2006-09-02 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added more abstractions for db calls
 
-2006-08-25 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-25 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Improved thread synchronisation speed
-	* Fixed potential deadlock as pointed out by Laurent Aguerreche <laurent.aguerreche@free.fr>
+	* Fixed potential deadlock as pointed out by Laurent Aguerreche <laurent aguerreche at free fr>
 	* Improved exiting
 
-2006-08-21 Gergan Penkov <gergan@gmail.com>
+2006-08-21 Gergan Penkov <gergan at gmail com>
 	
 	* Fix sql for an SP
 
-2006-08-21 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-21 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Improved thread synchronisation using G_COND and g_cond_signal and g_cond_wait
 	* Eliminated redundant mutexes (file available/metadata available)
@@ -117,83 +123,83 @@
 	* Added two phase program halt so that stuff ends gracefully and all threads are exited smoothly
 
 
-2006-08-21 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-08-21 Laurent Aguerreche <laurent aguerreche at free fr>
 		
 	* Patch to fix signal handling amongst threads
 	* Jamie McCracken heavily modified this patch to make sure it avoids deadlocks and race conditions
 
 
-2006-08-19 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-08-19 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Patch to fix debain build 
 	* split up tracker into several debs
 	* Fixed make dist in autofoo
 
 
-2006-08-19 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-19 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Abstracted all mysql specific stuff into tracker-db-mysql
 	* Paved the way to support alternative backends like sqlite/qdbm
 
 
-2006-08-13 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-13 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added new tracker-file-convert to convert text file into list of unique words with associated counts
 	* Added support for stemming
 	* Added new parsing word breaker
-	* Added experimental (but currently disabled) qdbm indexing (tracker-indexer.c)
+	* Added experimental (but currently disabled) qdbm indexing (tracker-indexer c)
 
 
-2006-08-13 Marcus Fritzsch <fritschy@googlemail.com>
+2006-08-13 Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Patch to make sure a dbus reply is sent if the rdf query string is NULL or erroneous
 
 
-2006-08-03 Marcus Fritzsch <fritschy@googlemail.com>
+2006-08-03 Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Patch to make sure query is not null in tracker_exec_sql
 
 
-2006-08-03 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-03 Jamie McCracken <jamiemcc at gnome org>
 	
-	* Added new Dbus methods for File.Exists and File.GetServiceType
+	* Added new Dbus methods for File Exists and File GetServiceType
 
 
-2006-08-02 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-02 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added new command line tool tracker-files
 
 
-2006-08-02 Edward Duffy <eduffy@gmail.com>
+2006-08-02 Edward Duffy <eduffy at gmail com>
 	
 	* Patch for small fix to XdgMime
 
 
 
-2006-08-02 Jedy Wang <Jedy.Wang@Sun.COM>
+2006-08-02 Jedy Wang <Jedy Wang at Sun COM>
 	
 	* Patch to add build instructions for Solaris to README file
 
 
 
-2006-08-02 Laurent Aguerreche <laurent.aguerreche@free.fr>
+2006-08-02 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Patch to fix sql
 
 
-2006-08-01 Jamie McCracken <jamiemcc@gnome.org>
+2006-08-01 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added offset parameter to search methods
 
 
 
-2006-07-31 Jedy Wang <Jedy.Wang@Sun.COM>
+2006-07-31 Jedy Wang <Jedy Wang at Sun COM>
 	
 	* Patch to improve compilation on Solaris
 
 
 
-2006-07-31 Jamie McCracken <jamiemcc@gnome.org>
+2006-07-31 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added realpath for file parameters in command line tools
 	* Improved search terms to *and* them by default
@@ -202,61 +208,61 @@
 	* added bugfixed XDGMIME from Beagle to prevent crashes
 
 
-2006-07-30 Marcus Fritzsch <fritschy@googlemail.com>
+2006-07-30 Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Patch to make build more debian friendly
 
 
-2006-07-30 Jedy Wang <Jedy.Wang@Sun.COM>
+2006-07-30 Jedy Wang <Jedy Wang at Sun COM>
 	
 	* Patch to fix crasher on solaris
 
 
 
-2006-07-30 Christoph Laimburg <christoph.laimburg@rolmail.net>
+2006-07-30 Christoph Laimburg <christoph laimburg at rolmail net>
 	
 	* Patch to replace deprecated dbus call (dbus_connection_disconnect)
 
 
-2006-07-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-07-30 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Patch to add RegExp rdf query extension support
 
 
-2006-07-30 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+2006-07-30 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Modified patch to make no watch directories parameter functional
 	
 
 
-2006-07-30 Jamie McCracken <jamiemcc@gnome.org>
+2006-07-30 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added new command line tools (tracker-tag)
 	* Fixed bugs in tracker-search methods
 	* Fixed bugs in tracker-query
 
 
-2006-07-25 Jamie McCracken <jamiemcc@gnome.org>
+2006-07-25 Jamie McCracken <jamiemcc at gnome org>
 	
 	* Sorted out libtracker
 	* updated to reflect new dbus interfaces
 	* Added new command line tools
 
 
-2006-07-22  Jamie McCracken <jamiemcc@gnome.org>
+2006-07-22  Jamie McCracken <jamiemcc at gnome org>
 	
 	* Created new dbus interface for Search and Files
 	* Added new methods to create richer dbus functionality
 	* Ported over existing metadata methods to new interface
 
 
-2006-07-18  Jamie McCracken <jamiemcc@gnome.org>
+2006-07-18  Jamie McCracken <jamiemcc at gnome org>
 	
 	* Created new dbus interface for Keywords
 	* Added new methods for adding, removing and searching keywords
 
 
-2006-07-11  Jamie McCracken <jamiemcc@gnome.org>
+2006-07-11  Jamie McCracken <jamiemcc at gnome org>
 	
 	* Created new dbus interface for Metadata
 	* Added new methods for registering and querying metadata types
@@ -264,14 +270,14 @@
 
 
 
-2006-06-30  Jamie McCracken <jamiemcc@gnome.org>
+2006-06-30  Jamie McCracken <jamiemcc at gnome org>
 	
 	* Added New Dbus Interface Methods
 	* Added GetStats, GetServices and GetVersion
 
 
 
-2006-06-12  Jamie McCracken <jamiemcc@gnome.org>
+2006-06-12  Jamie McCracken <jamiemcc at gnome org>
 	
 	* Reworked rdf query functionality
 	* Optimised it for performamce
@@ -279,33 +285,33 @@
 
 
 
-2006-05-17  Gergan Penkov <gpp666_999@yahoo.de>
+2006-05-17  Gergan Penkov <gpp666_999 at yahoo de>
 	
-	* Fix for conifgure.in (added ssl linking due to bug in mysql)
+	* Fix for conifgure in (added ssl linking due to bug in mysql)
 
 
-2006-05-14  Jamie McCracken <jamiemcc@gnome.org>
+2006-05-14  Jamie McCracken <jamiemcc at gnome org>
 
 	* Improved metadata support for Exif fields
 	* Created new stats for indexed files
 	* Created new file orientated services
 
-2006-05-07  Jamie McCracken <jamiemcc@gnome.org>
+2006-05-07  Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed crasher in date parser
 	* Improved UTF-8 conversion of metadata
-	* Improved Inotify header checks (now looks for sys/inotify.h as well as linux/inotify.h)
+	* Improved Inotify header checks (now looks for sys/inotify h as well as linux/inotify h)
 	* Fixed build issues on FC5
 
 
-2006-05-05  Jamie McCracken <jamiemcc@gnome.org>
+2006-05-05  Jamie McCracken <jamiemcc at gnome org>
 
 	* Hugely optimised indexing when many files are waiting to be indexed
 	* Mass queueing of files no longer blocks the main thread
 	* Fixed minor memory leak in new date parser
 
 
-2006-05-01  Jamie McCracken <jamiemcc@gnome.org>
+2006-05-01  Jamie McCracken <jamiemcc at gnome org>
 
 	* Migrated embedded database to mysql 5
 	* Removed all parameterized queries and replaced with stored procedures
@@ -319,30 +325,30 @@
 	* Added DB versioning data to DB so future DB changes can be implemented painlessly (and without requiring a rebuild of all indexed data)
 
 
-2006-04-22  Dan Nicolaescu <dann@ics.uci.edu>
+2006-04-22  Dan Nicolaescu <dann at ics uci edu>
 
 	* Patch to fix correct use of argv
 	* Ensure correct message printed if wrong no of arguments supplied
 
 
-2006-04-22  Dan Nicolaescu <dann@ics.uci.edu>
+2006-04-22  Dan Nicolaescu <dann at ics uci edu>
 
 	* Patch to fix build for Fedora Core 5
 
 
-2006-04-22  Nate Nielsen  <nielsen@memberwewbs.com>
+2006-04-22  Nate Nielsen  <nielsen at memberwewbs com>
 
-	* Fix compile warnings, crasher.
+	* Fix compile warnings, crasher 
 
 
-2006-03-28  Jamie McCracken <jamiemcc@gnome.org>
+2006-03-28  Jamie McCracken <jamiemcc at gnome org>
 
 	* Redesigned Dbus Interface to be more generic and cleaned up code
 	* Corrected search results of hyphenated search terms
 	* Added support for maximum hit count to search queries
 	* Added optional support for sorting search results by relevance score
 
-2006-03-12  Jamie McCracken <jamiemcc@gnome.org>
+2006-03-12  Jamie McCracken <jamiemcc at gnome org>
 
 	* Updated to latest XDGMime
 	* Fixed bugs with filename metadata type not being updated in a file move operation
@@ -350,7 +356,7 @@
 
 
 
-2006-02-27  Jamie McCracken <jamiemcc@gnome.org>
+2006-02-27  Jamie McCracken <jamiemcc at gnome org>
 
 	* Added inotify support
 	* Optimised inotify move support
@@ -360,33 +366,33 @@
 	* Fixed threading issues with new inotify backend
 
 
-2006-01-14  Jamie McCracken <jamiemcc@gnome.org>
+2006-01-14  Jamie McCracken <jamiemcc at gnome org>
 
 	* Updated libtracker to be more usable especially for Nautilus search
 
 
-2006-01-11  Jamie McCracken <jamiemcc@gnome.org>
+2006-01-11  Jamie McCracken <jamiemcc at gnome org>
 
 	* Improved file change handling by creating a pending file
-	  queue and a pending File Database table. This allows changes 
+	  queue and a pending File Database table  This allows changes 
 	  awaiting processing by the tracker daemon to be handled much
-	  more efficiently with respect to memory usage.
+	  more efficiently with respect to memory usage 
 
 
-2006-01-06  Jamie McCracken <jamiemcc@gnome.org>
+2006-01-06  Jamie McCracken <jamiemcc at gnome org>
 
-	* Added fallback polling mechanism to trackerd.c. This kicks
+	* Added fallback polling mechanism to trackerd c  This kicks
 	  in if iNotify/FAM is not available (IE if home directory
 	  is on an NFS mount) or if iNotify/FAM watch limits have
-	  been exceeded.
+	  been exceeded 
 
 
-2005-12-13  Jamie McCracken <jamiemcc@gnome.org>
+2005-12-13  Jamie McCracken <jamiemcc at gnome org>
 
 	* Imported initial version of Tracker into CVS
 
 
-2005-09-15 Jamie McCracken <jamiemcc@gnome.org>
+2005-09-15 Jamie McCracken <jamiemcc at gnome org>
 
 	* Tracker Project started
 
