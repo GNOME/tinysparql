@@ -375,6 +375,7 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 	const GSList *tmp;
 
 	field_exists = FALSE;
+	field_data = NULL;
 
 	// check if field is already in list
 	for (tmp = data->fields; tmp; tmp = tmp->next) {
@@ -391,7 +392,7 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 		}
 	}
 
-	field_data = NULL;
+	
 
 	if (!field_exists) {
 		FieldDef *def;

@@ -1747,6 +1747,22 @@ add_local_dbus_connection_monitoring (DBusConnection *connection)
 	}
 }
 
+static inline void
+int_to_bytes( unsigned char *pb, unsigned int val )
+{
+  *pb++ = (val >> 24) & 0xFF ;
+  *pb++ = (val >> 16) & 0xFF ;
+  *pb++ = (val >> 8 ) & 0xFF ;
+  *pb++ = val & 0xFF ;
+}
+
+static inline void
+bytes_to_int( unsigned int *value, unsigned char *pb )
+{
+  *value = (*pb << 24) | (*(pb+1)<<16) | (*(pb+2)<<8) | *(pb+3) ;
+}
+
+
 
 int
 main (int argc, char **argv)
