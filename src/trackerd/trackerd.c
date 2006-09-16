@@ -663,8 +663,8 @@ index_file (DBConnection *db_con, FileInfo *info)
 	}
 
 
-	str_mtime = tracker_date_to_str (info->mtime);
-	str_atime = tracker_date_to_str (info->atime);
+	str_mtime = tracker_long_to_str (info->mtime);
+	str_atime = tracker_long_to_str (info->atime);
 
 	name = g_path_get_basename (info->uri);
 	path = g_path_get_dirname (info->uri);

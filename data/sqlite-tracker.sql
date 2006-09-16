@@ -140,13 +140,13 @@ CREATE TABLE  ServiceMetaData
 	MetaDataID 		Integer  not null,
 	MetaDataValue     	Text, 
 	MetaDataIndexValue	Text,
-	MetaDataNumericValue	double,
+	MetaDataNumericValue	double
 
 );
 
 CREATE INDEX  ServiceMetaDataServiceID ON ServiceMetaData (ServiceID, MetaDataID);
-
-
+CREATE INDEX  ServiceMetaDataIndex ON ServiceMetaData (MetaDataIndexValue);
+CREATE INDEX  ServiceMetaDataNumericIndex ON ServiceMetaData (MetaDataNumericValue);
 
 
 /* describes the types of metadata */
@@ -264,6 +264,16 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.MeteringMode', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.WhiteBalance', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Copyright', 0, 1, 0, 1);
+
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.MessageID', 1, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Date', 3, 1, 0, 0);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Sender', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.To', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.CC', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Subject', 0, 1, 0, 50);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Body', 0, 1, 0, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.HTML', 1, 1, 0, 1);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Attachments', 0, 1, 0, 20);
 
 end transaction;
 

@@ -1751,11 +1751,7 @@ tracker_notify_request_data_available (void)
 		return;
 	}
 
-	/* if busy - check if async queue has new stuff as we do not need to notify then */
-	if (g_async_queue_length (tracker->user_request_queue) > 0) {
-		return;
-	}
-
+	
 	/* if thread not in check phase then we need do nothing */
 	if (g_mutex_trylock (tracker->request_check_mutex)) {
 		g_mutex_unlock (tracker->request_check_mutex);

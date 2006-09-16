@@ -1,3 +1,16 @@
+
+2006-09-12 Samuel Cormier-Iijima <ciyoshi@gmail.com>
+	
+	* Patch to fix sqlite sql
+	* Patch to fix race condition in request thread
+
+
+2006-09-16 Jamie McCracken <jamiemcc@gnome.org>
+	
+	* More work on tracker-indexer
+
+
+
 2006-09-12 Samuel Cormier-Iijima <ciyoshi@gmail.com>
 	
 	* Patch to fix segfault when retrieveing metadata

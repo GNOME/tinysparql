@@ -142,6 +142,7 @@ typedef struct {
 	DataTypes	data_type;
 	gboolean 	is_select;
 	gboolean 	is_condition;
+
 } FieldData;
 
 
@@ -387,6 +388,15 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 			if (strcmp (tmp_field->field_name, field_name) == 0) {
 				field_exists = TRUE;
 				field_data = tmp_field;
+			
+				if (is_condition) {
+					field_data->is_condition = TRUE;
+				}
+
+				if (is_select) {
+					field_data->is_select = TRUE;
+				}
+
 				break;
 			}
 		}
@@ -445,11 +455,8 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 			return NULL;
 		}
 
-	} else {
-		if (is_condition) {
-			field_data->is_condition = TRUE;
-		}
-	}
+	} 
+	
 
 	return field_data;
 }

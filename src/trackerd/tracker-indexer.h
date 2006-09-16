@@ -31,40 +31,52 @@
 
 
 typedef struct {	
-	DEPOT *word_index;                  /* database handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
-	DEPOT *service_index;		    /* database handle for the serviceID -> {uri} table (not sure if we really need this as it can be done with sqlite?)*/
+	CURIA *word_index;                  /* database handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
 	VILLA *blob_index;                  /* database handle for the docs contents or unique word list*/
-	
-	GMutex *mutex;
-	GMutex *search_waiting_mutex;
+	GMutex *word_mutex;
+	GMutex *blob_mutex;
 	DBConnection *db_con;
 } Indexer;
 
 
-
-
-
-typedef struct {                         /* type of structure for an element of search result */
-	unsigned int 	id;              /* Index ID number of the document's metadata */
-	int 		score;           /* Score of the word in the document's metadata */
+typedef struct {                         	 /* type of structure for an element of search result */
+	guint32 	service_id;              /* ServiceID of the document */
+	guint32 	metadata_id;             /* Metadata Id of the document */
+	guint32 	service_type_id;         /* Service type ID of the document */
+	guint32 	score;            	 /* Score/rank */
 } SearchHit;
+
+
+typedef struct {                         	
+	char		*word;			 /* word to be indexed */
+	guint32 	service_id;              /* ServiceID of the document */
+	guint32 	metadata_id;             /* Metadata Id of the document */
+	guint32 	service_type_id;         /* Service type ID of the document */
+	guint32 	score;            	 /* Score/rank */
+} IndexWord;
+
 
 
 Indexer * 	tracker_indexer_open 			(const char *name);
 void		tracker_indexer_close 			(Indexer *indexer);
-void		tracker_indexer_sweep			(Indexer *indexer);
 gboolean	tracker_indexer_optimize		(Indexer *indexer);
 
 
 /* Indexing api */
 
-gboolean	tracker_indexer_insert_word 		(Indexer *indexer, unsigned int id, const char *word, int score);
-SearchHit *	tracker_indexer_get_hits		(Indexer *indexer, const char *word, int offset, int limit, int *count);
+gboolean	tracker_indexer_insert_word 			(Indexer *indexer, IndexWord *index_word);
+gboolean	tracker_indexer_remove_word 			(Indexer *indexer, IndexWord *index_word);
+gboolean	tracker_indexer_remove_word_for_id 		(Indexer *indexer, guint32 service_id, const char *word);
+gboolean	tracker_indexer_remove_word_by_meta_ids		(Indexer *indexer, guint32 service_id, const char *word, GSList *meta_ids);
 
+GSList *	tracker_indexer_get_hits			(Indexer *indexer, char **words, int service_type_min, int service_type_max, int metadata_type, int offset, int limit, int *total_count);
+GHashTable *	tracker_indexer_get_hit_count_by_service	(Indexer *indexer, char **words,  int *total_count);
 
 /* blob api */
-gboolean	tracker_indexer_insert_blob		(Indexer *indexer, const char *text, unsigned int id);
-void		tracker_indexer_delete_blob		(Indexer *indexer, unsigned int id);
-char *		tracker_indexer_get_blob		(Indexer *indexer, unsigned int id);
+gboolean	tracker_indexer_insert_blob		(Indexer *indexer, const char *text, guint32 id);
+void		tracker_indexer_delete_blob		(Indexer *indexer, guint32 id);
+
+char *		tracker_indexer_get_blob		(Indexer *indexer, guint32 id, int offset, int limit);
+char *		tracker_indexer_get_blob_snippet	(Indexer *indexer, guint32 id, const char *word);
 
 #endif
