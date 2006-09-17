@@ -28,8 +28,119 @@
 
 typedef struct {                         /* type of structure for an element of search result */
 	guint32 	id;              /* Service ID number of the document */
-	int 		amalgamated;      /* amalgamation of metadata_is, service_type_id and score of the word in the document's metadata */
+	int 		amalgamated;      /* amalgamation of metadata_is, service_type and score of the word in the document's metadata */
 } WordDetails;
+
+
+
+static inline guint8
+get_score (WordDetails *details)
+{
+	return (details->amalgamated >> 24) & 0xFF;
+}
+
+static inline guint8
+get_service_type (WordDetails *details)
+{
+	return details->amalgamated & 0xFF;
+}
+
+static inline guint16
+get_metadata_type (WordDetails *details)
+{
+	unsigned char a[2];
+
+	a[0] = (details->amalgamated >> 16) & 0xFF;
+	a[1] = (details->amalgamated >> 8) & 0xFF;
+
+	return (a[0] << 8) | (a[1]);
+
+}
+
+
+static inline guint32
+calc_amalgamated (IndexWord *word)
+{
+
+	unsigned char a[4];
+	guint8 score8, service_type;
+	guint16 metadata_id;
+
+	if (word->score > 255) {
+		score8 = 255;
+	} else {
+		score8 = (guint8) word->score;
+	}
+
+	service_type = (guint8) word->service_type;
+	metadata_id = (guint16) word->metadata_id;
+
+	/* amalgamate and combine score, service_type and metadata_type into a single 32-bit int for compact storage */	
+
+	a[0] = score8;
+	a[1] = (metadata_id >> 8 ) & 0xFF ;
+	a[2] = metadata_id & 0xFF ;
+	a[3] = service_type;
+	
+	return  (a[0] << 24) | (a[1] << 16) | (a[2] << 8) | a[3];
+	
+}
+
+
+
+
+static SearchHit *
+word_details_to_search_hit (WordDetails *details)
+{
+	SearchHit *hit;
+
+	hit = g_slice_new (SearchHit, hit);
+
+	hit->service_id = details->service_id;
+	hit->metadata_id = get_metadata_type (details);
+	hit->service_type = get_service_type (details);
+	hit->score = get_score (details);
+
+	return hit;
+}
+
+void
+tracker_index_free_search_hit (SearchHit *hit)
+{
+	g_slice_free (SearchHit, hit);
+
+}
+
+
+IndexWord *
+tracker_indexer_create_index_word (const char *word, guint32 service_id, guint32 metadata_id, guint32 service_type, guint32 score)
+{
+	IndexWord *word;
+
+	word = g_slice_new (IndexWord, word);
+
+	word->word = g_strdup (word);
+	word->service_id = service_id;
+	word->metadata_id = metadata_id;
+	word->service_type = service_type;
+	word->score = score;
+
+	return word;
+
+}
+
+
+void
+tracker_indexer_free_index_word (IndexWord *word)
+{
+	if (word->word) {
+		g_free (word->word);
+	}
+
+	g_slice_free (IndexWord, word);
+
+}
+
 
 Indexer *
 tracker_indexer_open (const char *name)
@@ -53,7 +164,7 @@ tracker_indexer_open (const char *name)
 		g_mkdir_with_parents (blob_index_name, 00755);
 	}
 
-	word_index = cropen (word_index_name, CR_OWRITER | CR_OCREAT | CR_ONOLCK, INDEXBNUM, 2);
+	word_index = cropen (word_index_name, CR_OWRITER | CR_OCREAT | CR_ONOLCK, INDEXBNUM, 8);
 
 	if (!word_index) {
 		tracker_log ("word index was not closed properly - attempting repair");
@@ -76,14 +187,23 @@ tracker_indexer_open (const char *name)
 	result->blob_index = blob_index;
 
 	result->word_mutex = g_mutex_new ();
-	result->search_waiting_mutex = g_mutex_new ();
+	result->blob_mutex = g_mutex_new ();
 
 	crsetalign (word_index , INDEXALIGN);
-	//crsetfbpsiz (word_index, OD_INDEXFBP);
+
+	/* re optimize database if bucket count < (2 * rec count) */
+	int buckets, records;
+	
+	buckets = crbnum (result->word_index);
+	records = crrnum (result->word_index);
+
+	if (buckets < (2 * records)) {
+		tracker_log ("Optimizing word index - this may take a while...");
+		tracker_indexer_optimize (result->word_index);
+	}
 
 	return result;
 }
-
 
 void
 tracker_indexer_close (Indexer *indexer)
@@ -91,40 +211,16 @@ tracker_indexer_close (Indexer *indexer)
 	g_return_if_fail (indexer);
 
 	g_mutex_lock (indexer->word_mutex);
-
-	vlclose (indexer->blob_index);
 	crclose (indexer->word_index);
 
-	g_mutex_unlock (indexer->word_mutex);
+	g_mutex_lock (indexer->blob_mutex);
+	vlclose (indexer->blob_index);
+		
 	g_mutex_free (indexer->word_mutex);
 	g_mutex_free (indexer->search_waiting_mutex);
 
 	g_free (indexer);
 }
-
-
-
-
-
-static void
-LOCK (Indexer *indexer)
-{
-	g_return_if_fail (indexer);
-
-	g_mutex_lock (indexer->word_mutex);
-}
-
-
-static void
-UNLOCK (Indexer *indexer)
-{
-	g_return_if_fail (indexer);
-
-	g_mutex_unlock (indexer->word_mutex);
-}
-
-
-
 
 gboolean
 tracker_indexer_optimize (Indexer *indexer)
@@ -137,96 +233,41 @@ tracker_indexer_optimize (Indexer *indexer)
 }
 
 
-
-static inline guint8
-get_score (WordDetails *details)
-{
-	return (details->amalgamated >> 24) & 0xFF;
-}
-
-static inline guint8
-get_service_type (WordDetails *details)
-{
-	return score = details->amalgamated & 0xFF;
-}
-
-static inline guint16
-get_metadata_type (WordDetails *details)
-{
-	unsigned char a[2];
-
-	a[0] = (details->amalgamated >> 16) & 0xFF;
-	a[1] = (details->amalgamated >> 8) & 0xFF;
-
-	return (a[0] << 8) | (a[1]);
-
-}
-
-
-static WordDetails *
-create_word_details (int service_id, int score, int service_type, int metadata_type)
-{
-	unsigned char a[4];
-
-	a[0] = score;
-	a[1] = (metadata_type >> 8 ) & 0xFF ;
-	a[2] = metadata_type & 0xFF ;
-	a[3] = service_type;
-	
-}
-
-
 /* indexing api */
 gboolean
-tracker_indexer_insert_word (Indexer *indexer, IndexWord *index_word)
+tracker_indexer_add_word (Indexer *indexer, IndexWord *word)
 {
 	int  tsiz;
 	char *tmp;
 
-	g_return_val_if_fail ((indexer && word), FALSE);
+	g_return_val_if_fail ((indexer && word && word->word), FALSE);
 
-	tracker_log ("inserting word %s with score %d into ID %d", word, score, id);
+	tracker_log ("inserting word %s with score %d into Service ID %d and Metadata ID %d and service type %d",
+		 	word->word, 
+			word->score, 
+			word->service_id, 	
+			word->metadata_id,
+			word->service_type);
 
-	guint8 score = 200,  StypeID = 3;
-	guint16 MID = 1024;
-
-	guint32 i;
-	unsigned char a[4];
-	
-	a[0] = score;
-	a[1] = (MID >> 8 ) & 0xFF ;
-	a[2] = MID & 0xFF ;
-	a[3] = StypeID;
-
-	i = (a[0] << 24) | (a[1] << 16) | (a[2] << 8) | a[3] ;
-
-
-
-
-	score = (i >> 24) & 0xFF ;
-	MID = (a[1] << 8) | a[2] ;
-  	StypeID = i & 0xFF ;
-
-
-
-	LOCK (indexer);
+	g_mutex_lock (indexer->word_mutex);
 
 	/* check if existing record is there and append and sort word/score pairs if necessary */
-	if ((tmp = crget (indexer->word_index, index_word->word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = crget (indexer->word_index, word->word, -1, 0, -1, &tsiz)) != NULL) {
 
-		UNLOCK (indexer);
+		g_mutex_unlock (indexer->word_mutex);
 
 		if (tsiz >= (int) sizeof (WordDetails)) {
+
 			WordDetails *current_pairs, *pairs;
 			int	 pnum;
 
 			current_pairs = (WordDetails *) tmp;
 
+			/* ensure we alocate for existing size + 1 to make room for the stuff we are inserting */
 			pnum = tsiz / sizeof (WordDetails);
-
 			pairs = g_new (WordDetails, pnum +1);
 
-			if ((pnum > 0) && (score > current_pairs[pnum -1].score)) {
+			if ((pnum > 0) && (word->score > get_score (current_pairs[pnum -1]))) {
 				div_t	 t;
 				gboolean unsorted;
 				int	 i, j;
@@ -240,12 +281,12 @@ tracker_indexer_insert_word (Indexer *indexer, IndexWord *index_word)
 
 				while (unsorted) {
 
-					if (score == current_pairs[i].score) {
+					if (word->score == get_score (current_pairs[i])) {
 						unsorted = FALSE;
 
-					} else if (score > current_pairs[i].score) {
+					} else if (word->score > get_score (current_pairs[i])) {
 
-						if ((i == 0) || ((i > 0) && (score < current_pairs[i-1].score))) {
+						if ((i == 0) || ((i > 0) && (word->score < get_score (current_pairs[i-1])))) {
 							unsorted = FALSE;
 						}
 
@@ -253,7 +294,7 @@ tracker_indexer_insert_word (Indexer *indexer, IndexWord *index_word)
 
 					} else {
 
-						if ((i == pnum-1) || ((i < pnum-1) && (score > current_pairs[i+1].score))) {
+						if ((i == pnum-1) || ((i < pnum-1) && (word->score > get_score (current_pairs[i+1])))) {
 							unsorted = FALSE;
 						} else {
 							i++;
@@ -266,7 +307,7 @@ tracker_indexer_insert_word (Indexer *indexer, IndexWord *index_word)
 				}
 
 				pairs[i+1].id = id;
-				pairs[i+1].score = score;
+				pairs[i+1].almagamated = calc_amalgamated (word);
 
 				for (j = 0; j < i+1; j++) {
 					pairs[j] = current_pairs[j];
@@ -274,18 +315,18 @@ tracker_indexer_insert_word (Indexer *indexer, IndexWord *index_word)
 
 			} else {
 				pairs[pnum].id = id;
-				pairs[pnum].score = score;
+				pairs[pnum].almagamated = calc_amalgamated (word);
 			}
 
-			RELOCK (indexer);
+			g_mutex_lock (indexer->word_mutex);
 
-			if (!crput (indexer->word_index, word, -1, (char *) pairs, (tsiz + sizeof (WordDetails)), CR_DOVER)) {
+			if (!crput (indexer->word_index, word->word, -1, (char *) pairs, (tsiz + sizeof (WordDetails)), CR_DOVER)) {
+				g_mutex_unlock (indexer->word_mutex);
 				g_free (tmp);
 				g_free (pairs);
-				UNLOCK (indexer);
 				return FALSE;
 			}
-
+			g_mutex_unlock (indexer->word_mutex);
 			g_free (tmp);
 			g_free (pairs);
 		}
@@ -294,40 +335,308 @@ tracker_indexer_insert_word (Indexer *indexer, IndexWord *index_word)
 		WordDetails pair;
 
 		pair.id = id;
-		pair.score =score;
+		pair.almagamated = calc_amalgamated (word);
 
-		if (!crput (indexer->word_index, word, -1, (char *) &pair, sizeof (pair), CR_DOVER)) {
-			UNLOCK (indexer);
+		if (!crput (indexer->word_index, word->word, -1, (char *) &pair, sizeof (pair), CR_DOVER)) {
+			g_mutex_unlock (indexer->word_mutex);
 			return FALSE;
 		}
+		g_mutex_unlock (indexer->word_mutex);
+		
 	}
 
-	UNLOCK (indexer);
+	
 
 	return TRUE;
 }
 
 
-WordDetails *
-tracker_indexer_get_hits (Indexer *indexer, const char *word, int offset, int limit, int *count)
+gboolean
+tracker_indexer_update_word_score (Indexer *indexer, IndexWord *word, gboolean replace_score)
 {
 	int  tsiz;
 	char *tmp;
 
-	g_return_val_if_fail ((indexer && word), NULL);
+	g_return_val_if_fail ((indexer && word && word->word), FALSE);
 
-	if (!g_mutex_trylock (indexer->word_mutex)) {
-		g_mutex_lock (indexer->search_waiting_mutex);
-		g_mutex_lock (indexer->word_mutex);
-		g_mutex_unlock (indexer->search_waiting_mutex);
+	g_mutex_lock (indexer->word_mutex);
+
+	/* check if existing record is there  */
+	if ((tmp = crget (indexer->word_index, word->word, -1, 0, -1, &tsiz)) != NULL) {
+
+		g_mutex_unlock (indexer->word_mutex);
+
+		if (tsiz >= (int) sizeof (WordDetails)) {
+
+			WordDetails *details;
+			int i, pnum;
+
+			details = (WordDetails *) tmp;
+			pnum = tsiz / sizeof (WordDetails);
+
+			for (i=0; i<pnum; i++) {
+
+				if (details[i].id == word->service_id) {
+					
+					if (get_metadata_type (details[i]) == word->metadata_id) {
+						
+						if (!replace_score) {
+							word->score += get_score (details[i]);
+						}
+						
+						details[i].amalgamated = calc_amalgamated (word);
+
+						g_mutex_lock (indexer->word_mutex);
+						crput (indexer->word_index, word->word, -1, (char *) details, tsiz, CR_DOVER);
+						g_mutex_unlock (indexer->word_mutex);	
+					
+						g_free (tmp);
+
+						return TRUE;
+					}
+				}
+			}
+		}
+ 
+	}  else {
+		g_mutex_unlock (indexer->word_mutex);
 	}
 
-	if (!(tmp = crget (indexer->word_index, word, -1, (offset * sizeof (WordDetails)), limit, &tsiz))) {
-		UNLOCK (indexer);
+	g_free (tmp);
+
+	return FALSE;
+}
+
+gboolean
+tracker_indexer_remove_word (Indexer *indexer, IndexWord *word, gboolean remove_all)
+{
+	int  tsiz;
+	char *tmp;
+
+	g_return_val_if_fail ((indexer && word && word->word), FALSE);
+
+	g_mutex_lock (indexer->word_mutex);
+
+	/* check if existing record is there  */
+	if ((tmp = crget (indexer->word_index, word->word, -1, 0, -1, &tsiz)) != NULL) {
+
+		g_mutex_unlock (indexer->word_mutex);
+
+		if (tsiz >= (int) sizeof (WordDetails)) {
+
+			WordDetails *details;
+			int wi, i, pnum;
+			gboolean delete_this;
+
+			details = (WordDetails *) tmp;
+			pnum = tsiz / sizeof (WordDetails);
+
+			wi =0;
+	
+			for (i=0; i<pnum; i++) {
+
+				delete_this = FALSE;
+			
+				if (details[i].id == word->service_id) {	
+
+					if (remove_all) {
+						delete_this = TRUE;
+					} else {
+						delete_this = (get_metadata_type (details[i]) == word->metadata_id);
+					}
+
+				} 
+				
+				if (G_LIKELY (!delete_this)) {
+					details[wi] = details[i];
+					wi++;
+				} 
+			}
+			
+			if (wi > 0) {
+	
+				g_mutex_lock (indexer->word_mutex);
+				crput (indexer->word_index, word->word, -1, (char *) details, wi * sizeof (WordDetails), CR_DOVER);
+				g_mutex_unlock (indexer->word_mutex);	
+
+			} else {
+				g_mutex_lock (indexer->word_mutex);
+				crout (indexer->word_index, word->word, -1);
+				g_mutex_unlock (indexer->word_mutex);	
+			}
+		}				
+		g_free (tmp);
+
+		return TRUE;
+		
+
+	} else {
+		g_mutex_unlock (indexer->word_mutex);
+	}
+
+	g_free (tmp);
+
+	return FALSE;
+}
+
+gboolean
+tracker_indexer_remove_word_by_meta_ids (Indexer *indexer, IndexWord *word, int *meta_ids)
+{
+	int  tsiz;
+	char *tmp;
+
+	g_return_val_if_fail ((indexer && word && word->word), FALSE);
+
+	g_mutex_lock (indexer->word_mutex);
+
+	/* check if existing record is there  */
+	if ((tmp = crget (indexer->word_index, word->word, -1, 0, -1, &tsiz)) != NULL) {
+
+		g_mutex_unlock (indexer->word_mutex);
+
+		if (tsiz >= (int) sizeof (WordDetails)) {
+
+			WordDetails *details;
+			int wi, i, pnum, j;
+			gboolean delete_this;
+
+			details = (WordDetails *) tmp;
+	
+			pnum = tsiz / sizeof (WordDetails);
+
+			wi =0;
+				
+			for (i=0; i<pnum; i++) {
+
+				delete_this = FALSE;
+			
+				if (details[i].id == word->service_id) {	
+
+					j = 0;
+					while (*meta_ids[j] != -1) {
+						if (get_metadata_type (details[i]) == *meta_ids[j]) {
+							delete_this = TRUE;	
+							break;
+						} else {
+							j++ ;
+						}
+					}
+				} 
+				
+				if (G_LIKELY (!delete_this)) {
+					details[wi] = details[i];
+					wi++;
+				} 
+			}
+			
+			if (wi > 0) {
+	
+				g_mutex_lock (indexer->word_mutex);
+				crput (indexer->word_index, word->word, -1, (char *) details, wi * sizeof (WordDetails), CR_DOVER);
+				g_mutex_unlock (indexer->word_mutex);	
+
+			} else {
+				g_mutex_lock (indexer->word_mutex);
+				crout (indexer->word_index, word->word, -1);
+				g_mutex_unlock (indexer->word_mutex);	
+			}
+		}				
+		g_free (tmp);
+
+		return TRUE;
+		
+
+	} else {
+		g_mutex_unlock (indexer->word_mutex);
+	}
+
+	g_free (tmp);
+
+	return FALSE;
+}
+
+
+
+static inline int
+count_hits_for_word (Indexer *indexer, const char *word)
+{
+	int  tsiz;
+
+	g_mutex_lock (indexer->word_mutex);	
+	tsiz = crcrvsiz (indexer->word_index, word, -1);
+	g_mutex_unlock (indexer->word_mutex);	
+
+	return tsiz;
+	
+}
+
+
+static GSList *
+get_hits_for_word (Indexer *indexer, const char *word, int service_type_min, int service_type_max, int metadata_type, int offset, int limit, int *total_count)
+{
+	int  tsiz;
+	char *tmp;
+	GSList *result;
+	
+	g_mutex_lock (indexer->word_mutex);
+
+	if ((tmp = crget (indexer->word_index, word->word, -1, 0, -1, &tsiz)) != NULL) {
+
+		g_mutex_unlock (indexer->word_mutex);
+
+		if (tsiz >= (int) sizeof (WordDetails)) {
+
+			WordDetails *details;
+			int wi, i, pnum, j;
+			gboolean delete_this;
+
+			details = (WordDetails *) tmp;
+	
+			*total_count = tsiz / sizeof (WordDetails);
+
+			wi =0;
+				
+			for (i=0; i<pnum; i++) {
+
+
+
+	} else {
+
+		g_mutex_unlock (indexer->word_mutex);
 		return NULL;
 	}
 
-	UNLOCK (indexer);
+}
+
+
+
+
+GSList *
+tracker_indexer_get_hits (Indexer *indexer, char **words, int service_type_min, int service_type_max, int metadata_type, int offset, int limit, int *total_count)
+{
+	int  tsiz;
+	char *tmp;
+	GSList *result;
+	
+	
+
+	g_return_val_if_fail ((indexer && words && words[0]), NULL);
+
+	/* do simple case - one search word */
+
+	if (!words[1]) {
+				
+		
+	}
+
+	g_mutex_lock (indexer->word_mutex);
+
+	if (!(tmp = crget (indexer->word_index, word, -1, (offset * sizeof (WordDetails)), limit, &tsiz))) {
+		g_mutex_unlock (indexer->word_mutex);
+		return NULL;
+	}
+
+	g_mutex_unlock (indexer->word_mutex);
 
 	*count = tsiz / sizeof (WordDetails);
 

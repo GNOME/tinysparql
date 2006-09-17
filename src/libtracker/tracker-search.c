@@ -22,35 +22,44 @@
 
 #include "../libtracker/tracker.h" 
 
-static GMainLoop 	*loop;
+static GMainLoop *loop;
+
+static gint limit = 0;
+static gchar **terms = NULL;
+
+static GOptionEntry entries[] = {
+	{"limit", 'l', 0, G_OPTION_ARG_INT, &limit, "limit the number of results showed", "limit"},
+	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &terms, "search terms", NULL},
+	{NULL}
+};
 
 static void
-my_callback (char **result, GError *error, gpointer user_data)
+callback (char **result, GError *error, gpointer user_data)
 {
 	
 	char **p_strarray;
 	
 	if (error) {
-		g_warning ("An error has occured : %s", error->message);
+		g_printerr ("tracker raised error: %s\n", error->message);
 		g_error_free (error);
 		return;
 	}
 
 	if (!result) {
-		g_print ("no results were found matching your query\n");
+		g_printerr ("no results found\n");
 		return;
 	}
 	
 	for (p_strarray = result; *p_strarray; p_strarray++) {
-		char *s = NULL;
 
-		s = g_locale_from_utf8 (*p_strarray, -1, NULL, NULL, NULL);
+		char *s = g_locale_from_utf8 (*p_strarray, -1, NULL, NULL, NULL);
 
-		if (s) {
-			g_print ("%s\n", *p_strarray);
+		if (!s)
+			continue;
 
-			g_free (s);
-		}
+		g_print ("%s\n", *p_strarray);
+		g_free (s);
+
 	}
 
 	g_strfreev (result);
@@ -62,62 +71,44 @@ my_callback (char **result, GError *error, gpointer user_data)
 int 
 main (int argc, char **argv) 
 {
-
+	GOptionContext *context = NULL;
 	TrackerClient *client = NULL;
-
+	GError *error = NULL;
+	gchar *search;
 
 	setlocale (LC_ALL, "");
 
-	if (argc < 2) {
-		g_print ("usage - tracker-search SearchTerm1  [Searchterm2...]\nMultiple search terms are ANDed by default\n");
+	context = g_option_context_new ("search terms ... - search files for certain terms (ANDed)");
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_parse (context, &argc, &argv, &error);
+
+	if (error) {
+		g_printerr ("invalid arguments: %s\n", error->message);
 		return 1;
 	}
 
-	client =  tracker_connect (FALSE);
+	if (!terms) {
+		g_printerr ("missing search terms, try --help for help\n");
+		return 1;
+	}
+
+	if (limit <= 0)
+		limit = 512;
+
+	client = tracker_connect (FALSE);
 
 	if (!client) {
-		g_print ("Could not initialise Tracker - exiting...\n");
+		g_printerr ("could not connect to Tracker\n");
 		return 1;
 	}
 
+	search = g_strjoinv (" ", terms);
+	tracker_search_text_async (client, -1, SERVICE_FILES, search, 0, limit, FALSE, callback, NULL);
+	g_free (search);
+
 	loop = g_main_loop_new (NULL, TRUE);
-	
-	if (argc > 2) {
-
-		GString *str = g_string_new (argv[1]);
-		int i;
-
-		for (i=0; i<(argc-2); i++) {
-			char *s = NULL;
-
-			s = g_locale_to_utf8 (argv[i+2], -1, NULL, NULL, NULL);
-
-			if (s) {
-				g_string_append_printf (str, " %s", s);
-
-				g_free (s);
-			}
-		}
-
-		char *search = g_string_free (str, FALSE);
-
-		tracker_search_text_async (client, -1, SERVICE_FILES, search, 0, 512, FALSE, my_callback, NULL);
-
-	} else {
-		char *s = NULL;
-
-		s = g_locale_to_utf8 (argv[1], -1, NULL, NULL, NULL);
-
-		if (s) {
-			tracker_search_text_async (client, -1, SERVICE_FILES, s, 0, 512, FALSE, my_callback, NULL);
-
-			g_free (s);
-		}
-	}
-
 	g_main_loop_run (loop);
 
 	tracker_disconnect (client);
-
 	return 0;
 }
