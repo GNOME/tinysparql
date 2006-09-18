@@ -22,59 +22,28 @@
 
 #include "../libtracker/tracker.h" 
 
-static GMainLoop *loop;
-
 static gint limit = 0;
 static gchar **terms = NULL;
+static gchar *service = NULL;
 
 static GOptionEntry entries[] = {
 	{"limit", 'l', 0, G_OPTION_ARG_INT, &limit, "limit the number of results showed", "limit"},
+	{"service", 's', 0, G_OPTION_ARG_STRING, &service, "search from a specific service", "service"},
 	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &terms, "search terms", NULL},
 	{NULL}
 };
 
-static void
-callback (char **result, GError *error, gpointer user_data)
-{
-	
-	char **p_strarray;
-	
-	if (error) {
-		g_printerr ("tracker raised error: %s\n", error->message);
-		g_error_free (error);
-		return;
-	}
 
-	if (!result) {
-		g_printerr ("no results found\n");
-		return;
-	}
-	
-	for (p_strarray = result; *p_strarray; p_strarray++) {
-
-		char *s = g_locale_from_utf8 (*p_strarray, -1, NULL, NULL, NULL);
-
-		if (!s)
-			continue;
-
-		g_print ("%s\n", *p_strarray);
-		g_free (s);
-
-	}
-
-	g_strfreev (result);
-
-	g_main_loop_quit (loop);
-}
-
-
-int 
+int
 main (int argc, char **argv) 
 {
 	GOptionContext *context = NULL;
 	TrackerClient *client = NULL;
 	GError *error = NULL;
+	ServiceType type;
 	gchar *search;
+	gchar **result;
+	char **p_strarray;
 
 	setlocale (LC_ALL, "");
 
@@ -102,13 +71,51 @@ main (int argc, char **argv)
 		return 1;
 	}
 
+	if (!service) {
+		type = SERVICE_FILES;
+	} else if (g_ascii_strcasecmp (service, "Documents") == 0) {
+		type = SERVICE_DOCUMENTS;
+	} else if (g_ascii_strcasecmp (service, "Music") == 0) {
+		type = SERVICE_MUSIC;
+	} else if (g_ascii_strcasecmp (service, "Images") == 0) {
+		type = SERVICE_IMAGES;
+	} else if (g_ascii_strcasecmp (service, "Videos") == 0) {
+		type = SERVICE_VIDEOS;
+	} else if (g_ascii_strcasecmp (service, "Text") == 0) {
+		type = SERVICE_TEXT_FILES;
+	} else if (g_ascii_strcasecmp (service, "Development") == 0) {
+		type = SERVICE_DEVELOPMENT_FILES;
+	} else {
+		g_printerr ("service not recognized, searching in Other Files...\n");
+		type = SERVICE_OTHER_FILES;
+	}
+
 	search = g_strjoinv (" ", terms);
-	tracker_search_text_async (client, -1, SERVICE_FILES, search, 0, limit, FALSE, callback, NULL);
+	result = tracker_search_text (client, -1, type, search, 0, limit, FALSE, &error);
 	g_free (search);
 
-	loop = g_main_loop_new (NULL, TRUE);
-	g_main_loop_run (loop);
+	if (error) {
+		g_printerr ("tracker raised error: %s\n", error->message);
+		g_error_free (error);
+		return 1;
+	}
 
+	if (!result) {
+		g_printerr ("no results found\n");
+		return 0;
+	}
+	
+	for (p_strarray = result; *p_strarray; p_strarray++) {
+		char *s = g_locale_from_utf8 (*p_strarray, -1, NULL, NULL, NULL);
+
+		if (!s)
+			continue;
+
+		g_print ("%s\n", s);
+		g_free (s);
+	}
+
+	g_strfreev (result);
 	tracker_disconnect (client);
 	return 0;
 }
