@@ -34,6 +34,16 @@ extern char *tracker_actions[];
 
 #include <glib.h>
 
+#ifdef USING_SQLITE
+#include <depot.h>
+
+typedef struct {	
+	DEPOT  *word_index;                  /* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
+	GMutex *word_mutex;
+} Indexer;
+
+#endif
+
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
 #define FILE_SCHEDULE_PERIOD		500
@@ -41,13 +51,15 @@ extern char *tracker_actions[];
 #define TRACKER_VERSION			"0.5.0"
 #define TRACKER_VERSION_INT		500
 
-
 typedef struct {
 	GSList 		*watch_directory_roots_list;
 	GSList 		*no_watch_directory_list;
 	GSList 		*poll_list;
 	gboolean	use_nfs_safe_locking;
 
+	gboolean	index_emails;
+	gboolean	index_evolution_emails;
+	GSList		*additional_mboxes_to_index;
 	gboolean	do_thumbnails;
 
  	GHashTable  	*file_scheduler;
@@ -55,6 +67,11 @@ typedef struct {
 
  	gboolean 	is_running;
 	GMainLoop 	*loop;
+	
+#ifdef USING_SQLITE
+	Indexer		*file_indexer;
+	Indexer		*email_indexer;
+#endif
 
 	GMutex 		*log_access_mutex;
 	char	 	*log_file;
@@ -240,8 +257,12 @@ void		tracker_add_poll_dir 		(const char *dir);
 void		tracker_remove_poll_dir 	(const char *dir);
 gboolean	tracker_is_dir_polled 		(const char *dir);
 
-void		tracker_notify_file_data_available (void);
-void		tracker_notify_meta_data_available (void);
-void		tracker_notify_request_data_available (void);
+void		tracker_notify_file_data_available 	(void);
+void		tracker_notify_meta_data_available 	(void);
+void		tracker_notify_request_data_available 	(void);
+
+GTimeVal *	tracker_timer_start ();
+void		tracker_timer_end (GTimeVal *before, const char *str);
+
 
 #endif

@@ -177,10 +177,8 @@ get_meta_table_data (gpointer key,
 	if (tracker_metadata_is_date (db_action->db_con, mtype)) {
 		char *dvalue;
 
-		
-
 		dvalue = tracker_format_date (avalue);
-		
+
 		if (dvalue) {
 
 			time_t time;
@@ -197,7 +195,6 @@ get_meta_table_data (gpointer key,
 				evalue = tracker_long_to_str (time);
 			//	tracker_log ("date is %s", evalue);
 			}
-			
 
 		} else {
 			return;
@@ -214,12 +211,28 @@ get_meta_table_data (gpointer key,
 	}
 
 
-
 	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE);
 
 	if (mvalue) {
 		g_free (mvalue);
 	}
+}
+
+
+off_t
+tracker_db_get_last_mbox_offset (DBConnection *db_con, const char *mbox_uri)
+{
+	/* FIXME */
+	return 0;
+}
+
+
+void
+tracker_db_update_mbox_offset (DBConnection *db_con, MailBox *mb)
+{
+	/* FIXME
+	 * new offset is in mb->next_email_offset
+	 */
 }
 
 
@@ -240,8 +253,22 @@ tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, long file_id)
 		tracker_db_end_transaction (db_con);
 	}
 
-
 	g_free (db_action.file_id);
+}
+
+
+void
+tracker_db_save_email (DBConnection *db_con, MailMessage *mm)
+{
+	if (!mm) {
+		return;
+	}
+
+	/*
+	 * FIXME
+	 */
+
+	tracker_log ("Saving email with mbox's uri \"%s\" and id \"%s\".", mm->mbox_uri, mm->message_id);
 }
 
 
@@ -328,8 +355,6 @@ tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 }
 
 
-
-
 gboolean
 tracker_metadata_is_date (DBConnection *db_con, const char *meta)
 {
@@ -361,7 +386,7 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 
 		row = tracker_db_get_row (res, 0);
 
-		if (row && row[0] &&  row[1] && row[2] && row[3] && row[4]) {
+		if (row && row[0] && row[1] && row[2] && row[3] && row[4]) {
 			info = tracker_create_file_info (uri, atoi (row[2]), 0, 0);
 			info->mime = g_strdup (row[3]);
 			info->is_directory = (strcmp (row[4], "0") == 0);

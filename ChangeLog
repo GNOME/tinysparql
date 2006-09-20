@@ -1,3 +1,26 @@
+2006-09-21 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* Added initial email indexing support
+	* Added indexing of evolution emails
+	* Added indexing of email attachments
+
+
+2006-09-21 Jamie McCracken <jamiemcc at gnome org>
+	
+	* Created Test suite for new indexer
+	* fixed bugs in indexer
+
+
+2006-09-19 Jamie McCracken <jamiemcc at gnome org>
+	
+	* Finished tracker's new indexer
+
+
+2006-09-19 Fabien VALLON <fabien at sonappart net>
+	
+	* Added retrieval of tracke number to tracker-extract
+
+
 2006-09-18 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Added search by service option to tracker-search

@@ -48,6 +48,7 @@
 #endif
 
 #include "tracker-db.h"
+#include "tracker-mbox.h"
 #include "tracker-metadata.h"
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
@@ -154,15 +155,11 @@ has_prefix (const char *str1, const char *str2)
 static gboolean
 do_cleanup (const char *sig_msg)
 {
-		
-
 	if (tracker->log_file) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
+
+		tracker_print_object_allocations ();
 	}
-
-	tracker_print_object_allocations ();
-
-	
 
 	/* clear pending files and watch tables*/
 	//tracker_db_clear_temp (main_thread_db_con);
@@ -178,7 +175,7 @@ do_cleanup (const char *sig_msg)
 	while (!g_mutex_trylock (tracker->files_signal_mutex)) {
 		g_usleep (100);
 	}
-	
+
 	g_mutex_unlock (tracker->files_signal_mutex);
 
 
@@ -227,6 +224,8 @@ do_cleanup (const char *sig_msg)
 
 	g_mutex_unlock (tracker->files_check_mutex);
 	g_mutex_lock (tracker->files_stopped_mutex);
+
+	tracker_end_email_watching ();
 
 	tracker_db_close (main_thread_db_con);
 
@@ -622,9 +621,10 @@ static void
 index_file (DBConnection *db_con, FileInfo *info)
 {
 	char	   *str_link_uri, *str_file_id;
-	char	   *str_mtime, *str_atime;
 	char	   *name, *path;
 	GHashTable *meta_table;
+
+	gboolean is_a_mbox, is_an_email_attachment;
 
 	if (!tracker->is_running) {
 		return;
@@ -632,6 +632,20 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 	/* the file being indexed or info struct may have been deleted in transit so check if still valid and intact */
 	g_return_if_fail (tracker_file_info_is_valid (info));
+
+	is_a_mbox = FALSE;
+	is_an_email_attachment = FALSE;
+
+	if (tracker_is_in_a_application_mail_dir (info->uri)) {
+		if (tracker_is_a_handled_mbox_file (info->uri)) {
+			is_a_mbox = TRUE;
+		} else {
+			/* we get a non mbox file */
+			return;
+		}
+	} else if (tracker_is_an_email_attachment (info->uri)) {
+		is_an_email_attachment = TRUE;
+	}
 
 	if (!tracker_file_is_valid (info->uri)) {
 		tracker_log ("Warning - file %s no longer exists - abandoning index on this file", info->uri);
@@ -643,17 +657,24 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 	tracker_log ("indexing file %s", info->uri);
 
-	meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-
 	if (info->mime) {
 		g_free (info->mime);
 	}
 
-	if (!info->is_directory) {
+	if (is_a_mbox || is_an_email_attachment) {
+		if (info->is_directory) {
+			tracker_log ("******ERROR**** a mbox or an email attachment is detected as directory");
+			return;
+		}
+
 		info->mime = tracker_get_mime_type (info->uri);
 	} else {
-		info->mime = g_strdup ("Folder");
-		info->file_size = 0;
+		if (!info->is_directory) {
+			info->mime = tracker_get_mime_type (info->uri);
+		} else {
+			info->mime = g_strdup ("Folder");
+			info->file_size = 0;
+		}
 	}
 
 	if (info->is_link) {
@@ -662,24 +683,32 @@ index_file (DBConnection *db_con, FileInfo *info)
 		str_link_uri = g_strdup (" ");
 	}
 
-
-	str_mtime = tracker_date_to_str (info->mtime);
-	str_atime = tracker_date_to_str (info->atime);
-
 	name = g_path_get_basename (info->uri);
 	path = g_path_get_dirname (info->uri);
 
-	g_hash_table_insert (meta_table, g_strdup ("File.Path"), g_strdup (path));
-	g_hash_table_insert (meta_table, g_strdup ("File.Name"), g_strdup (name));
-	g_hash_table_insert (meta_table, g_strdup ("File.Link"), g_strdup (str_link_uri));
-	g_hash_table_insert (meta_table, g_strdup ("File.Format"), g_strdup (info->mime));
-	g_hash_table_insert (meta_table, g_strdup ("File.Size"), tracker_long_to_str (info->file_size));
-	g_hash_table_insert (meta_table, g_strdup ("File.Permissions"), g_strdup (info->permissions));
-	g_hash_table_insert (meta_table, g_strdup ("File.Modified"), g_strdup (str_mtime));
-	g_hash_table_insert (meta_table, g_strdup ("File.Accessed"), g_strdup (str_atime));
+	if (!is_a_mbox) {
+		char *str_mtime, *str_atime;
 
-	g_free (str_mtime);
-	g_free (str_atime);
+		str_mtime = tracker_date_to_str (info->mtime);
+		str_atime = tracker_date_to_str (info->atime);
+
+		meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+		g_hash_table_insert (meta_table, g_strdup ("File.Path"), g_strdup (path));
+		g_hash_table_insert (meta_table, g_strdup ("File.Name"), g_strdup (name));
+		g_hash_table_insert (meta_table, g_strdup ("File.Link"), g_strdup (str_link_uri));
+		g_hash_table_insert (meta_table, g_strdup ("File.Format"), g_strdup (info->mime));
+		g_hash_table_insert (meta_table, g_strdup ("File.Size"), tracker_long_to_str (info->file_size));
+		g_hash_table_insert (meta_table, g_strdup ("File.Permissions"), g_strdup (info->permissions));
+		g_hash_table_insert (meta_table, g_strdup ("File.Modified"), g_strdup (str_mtime));
+		g_hash_table_insert (meta_table, g_strdup ("File.Accessed"), g_strdup (str_atime));
+
+		g_free (str_mtime);
+		g_free (str_atime);
+
+	} else {
+		meta_table = NULL;
+	}
 
 	str_file_id = tracker_long_to_str (info->file_id);
 
@@ -687,11 +716,18 @@ index_file (DBConnection *db_con, FileInfo *info)
 	if (info->file_id == -1) {
 		char *service_name;
 
-		if (info->is_directory) {
-			service_name = g_strdup ("Folders");
+		if (is_a_mbox) {
+			service_name = g_strdup ("Email");
+		} else if (is_an_email_attachment) {
+			service_name = g_strdup ("EmailAttachments");
 		} else {
-		 	service_name = tracker_get_service_type_for_mime (info->mime);
+			if (info->is_directory) {
+				service_name = g_strdup ("Folders");
+			} else {
+				service_name = tracker_get_service_type_for_mime (info->mime);
+			}
 		}
+
 		tracker_db_create_service (db_con, path, name, service_name, info->is_directory, info->is_link, FALSE, 0, info->mtime);
 
 		//tracker_log ("processed file %s with mime %s and service %s", info->uri, info->mime, service_name);
@@ -701,7 +737,6 @@ index_file (DBConnection *db_con, FileInfo *info)
  		info->file_id = tracker_db_get_file_id (db_con, info->uri);
 
 	} else {
-
 		tracker_log ("updating file %s ", info->uri);
 
 		tracker_db_update_file (db_con, info->file_id, info->mtime);
@@ -712,11 +747,47 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 
 	if (info->file_id != -1) {
-		tracker_db_save_metadata (db_con, meta_table, info->file_id);
+		if (is_a_mbox) {
+			off_t	    offset;
+			MailBox	    *mb;
+			MailMessage *msg;
+
+			offset = tracker_db_get_last_mbox_offset (db_con, info->uri);
+
+			mb = tracker_mbox_parse_from_offset (info->uri, offset);
+
+			while ((msg = tracker_mbox_parse_next (mb))) {
+
+				if (!tracker->is_running) {
+					tracker_free_mail_message (msg);
+					tracker_close_mbox_and_free_memory (mb);
+
+					g_free (name);
+					g_free (path);
+
+					g_free (str_file_id);
+					g_free (str_link_uri);
+
+					return;
+				}
+
+				tracker_db_update_mbox_offset (db_con, mb);
+
+				tracker_db_save_email (db_con, msg);
+
+				tracker_index_each_email_attachment (db_con, msg);
+
+				tracker_free_mail_message (msg);
+			}
+
+			tracker_close_mbox_and_free_memory (mb);
+
+		} else {
+			tracker_db_save_metadata (db_con, meta_table, info->file_id);
+
+			g_hash_table_destroy (meta_table);
+		}
 	}
-
-
-	g_hash_table_destroy (meta_table);
 
 	g_free (name);
 	g_free (path);
@@ -725,7 +796,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 	g_free (str_link_uri);
 
 
-	if (!info->is_directory && info->file_id != -1) {
+	if (!info->is_directory && info->file_id != -1 && !is_a_mbox) {
 		tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory);
 	}
 
@@ -816,6 +887,11 @@ start_watching (gpointer data)
 		do_cleanup ("File watching failure");
 		exit (1);
 	} else {
+
+		/* start emails watching */
+		if (tracker->index_emails) {
+			tracker_watch_emails (main_thread_db_con);
+		}
 
 		if (data) {
 			char *watch_folder;
@@ -933,7 +1009,7 @@ extract_metadata_thread (void)
 					g_async_queue_push (tracker->file_metadata_queue, info_tmp);
 				}
 
-				if (tracker->is_running) {	
+				if (tracker->is_running) {
 					tracker_db_free_result (res);
 				}
 			}
@@ -951,8 +1027,9 @@ extract_metadata_thread (void)
 
 		if (info) {
 			if (info->uri) {
+				char *file_as_text;
+
 				GHashTable *meta_table;
-				char	   *file_as_text;
 
 				tracker_log ("Extracting Metadata for file %s with mime %s", info->uri, info->mime);
 
@@ -960,7 +1037,7 @@ extract_metadata_thread (void)
 				info = tracker_get_file_info (info);
 
 				if (info->file_id == -1) {
-					info->file_id = (long) tracker_db_get_file_id (db_con, info->uri);
+					info->file_id = tracker_db_get_file_id (db_con, info->uri);
 				}
 
 				meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -992,12 +1069,12 @@ extract_metadata_thread (void)
 							tracker_db_save_thumbs (db_con, small_thumb_file, large_thumb_file, info->file_id);
 
 							/* to do - emit dbus signal ThumbNailChanged */
-
 							g_free (large_thumb_file);
 						}
 
 						g_free (small_thumb_file);
 					}
+		
 				}
 
 				file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);
@@ -1008,7 +1085,6 @@ extract_metadata_thread (void)
 
 					//tracker_log ("text file is %s", file_as_text);
 
-					/* to do - we need a setting for an upper limit to how much text we read in */
 					tracker_db_save_file_contents (db_con, file_as_text, info);
 
 					tmp_dir = g_get_tmp_dir ();
@@ -1023,6 +1099,10 @@ extract_metadata_thread (void)
 					g_free (dir);
 
 					g_free (file_as_text);
+				}
+
+				if (tracker_is_an_email_attachment (info->uri)) {
+					tracker_unlink_email_attachment (info->uri);
 				}
 			}
 
@@ -1923,8 +2003,12 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-	/* create and initialise indexer */
-	//file_indexer = tracker_indexer_open ("Files");
+
+
+	
+
+
+	/* end test */
 
 
 	g_free (tracker_data_dir);

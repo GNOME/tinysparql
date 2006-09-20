@@ -1243,6 +1243,10 @@ tracker_log (const char* fmt, ...)
 		g_print ("%s\n", msg);
 	}
 
+	if (!tracker) {
+		return;
+	}
+
 	/* ensure file logging is thread safe */
 	g_mutex_lock (tracker->log_access_mutex);
 
@@ -1460,7 +1464,7 @@ tracker_load_config_file ()
 
 		contents  = g_strconcat ("[Watches]\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
-					 "NoWatchDirectory=\n\n\n",
+					 "NoWatchDirectory=\n\n",
 					 "[Indexes]\n"
 					 "IndexTextFiles=true\n",
 					 "IndexDocuments=true\n",
@@ -1473,10 +1477,14 @@ tracker_load_config_file ()
 					 "IndexEpiphanyBookmarks=true\n"
 					 "IndexEpiphanyHistory=true\n",
 					 "IndexFirefoxBookmarks=true\n",
-					 "IndexFirefoxHistory=true\n\n",
+					 "IndexFirefoxHistory=true\n",
+					 "IndexEmails=false\n",
+					 "IndexEvolutionEmails=false\n\n",
 					 "[Database]\n",
 					 "StoreTextFileContentsInDB=false\n",
-					 "DBBufferMemoryLimit=1M\n",
+					 "DBBufferMemoryLimit=1M\n\n",
+					 "[eMails]\n",
+					 "AdditionalMBoxesToIndex=;\n\n"
 					 "[Thumbnails]\n"
 					 "DoThumbnails=true\n",
 					 NULL);
@@ -1562,13 +1570,48 @@ tracker_load_config_file ()
 	if (g_key_file_has_key (key_file, "Indexes", "IndexFirefoxHistory", NULL)) {
 		index_firefox_history = g_key_file_get_boolean (key_file, "Indexes", "IndexFirefoxHistory", NULL);
 	}
+*/
 
+	if (g_key_file_has_key (key_file, "Indexes", "IndexEMails", NULL)) {
+		tracker->index_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEMails", NULL);
+	} else {
+		tracker->index_emails = FALSE;
+	}
+
+	if (tracker->index_emails) {
+		if (g_key_file_has_key (key_file, "Indexes", "IndexEvolutionEMails", NULL)) {
+			tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEvolutionEMails", NULL);
+		} else {
+			tracker->index_evolution_emails = FALSE;
+		}
+	} else {
+		tracker->index_evolution_emails = FALSE;
+	}
+
+/*
 	if (g_key_file_has_key (key_file, "Database", "StoreTextFileContentsInDB", NULL)) {
 		store_text_file_contents_in_db = g_key_file_get_boolean (key_file, "Indexes", "StoreTextFileContentsInDB", NULL);
 	}
 
 	db_buffer_memory_limit = g_key_file_get_string (key_file, "Database", "DBBufferMemoryLimit", NULL);
 */
+
+	/* e-mails */
+
+	tracker->additional_mboxes_to_index = NULL;
+
+	if (tracker->index_emails) {
+		if (g_key_file_has_key (key_file, "eMails", "AdditionalMBoxesToIndex", NULL)) {
+			char **additional_mboxes;
+
+			additional_mboxes = g_key_file_get_string_list (key_file, "eMails", "AdditionalMBoxesToIndex", NULL, NULL);
+
+			tracker->additional_mboxes_to_index = array_to_list (additional_mboxes);
+		}
+	}
+
+
+	/* thumbnails */
 
 	if (g_key_file_has_key (key_file, "Thumbnails", "DoThumbnails", NULL)) {
 		tracker->do_thumbnails = g_key_file_get_boolean (key_file, "Thumbnails", "DoThumbnails", NULL);
@@ -1751,7 +1794,6 @@ tracker_notify_request_data_available (void)
 		return;
 	}
 
-	
 	/* if thread not in check phase then we need do nothing */
 	if (g_mutex_trylock (tracker->request_check_mutex)) {
 		g_mutex_unlock (tracker->request_check_mutex);
@@ -1775,4 +1817,33 @@ tracker_notify_request_data_available (void)
 		g_thread_yield ();
 		g_usleep (10);
 	}
+}
+
+GTimeVal *
+tracker_timer_start () 
+{
+	GTimeVal  *before;
+
+	before = g_new0 (GTimeVal, 1);
+	
+	g_get_current_time (before);
+
+	return before;
+}
+
+
+void		
+tracker_timer_end (GTimeVal *before, const char *str)
+{
+	GTimeVal  after;
+	double	  elapsed;
+
+	g_get_current_time (&after);
+
+	elapsed = (1000 * (after.tv_sec - before->tv_sec))  +  ((after.tv_usec - before->tv_usec) / 1000);
+
+	g_free (before);
+
+	tracker_log ("%s %f ms", str, elapsed);
+
 }

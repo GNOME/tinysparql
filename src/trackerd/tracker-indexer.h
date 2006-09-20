@@ -24,14 +24,11 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include "depot.h"
-#include "tracker-db.h"
+#include <depot.h>
+#include "tracker-utils.h"
 
 
-typedef struct {	
-	DEPOT  *word_index;                  /* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
-	GMutex *word_mutex;
-} Indexer;
+
 
 typedef struct {                         	 
 	guint32 	service_id;              /* Service ID of the document */

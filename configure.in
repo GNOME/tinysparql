@@ -31,7 +31,10 @@ PKG_CHECK_MODULES(PANGO, [ pango >= 1.0.0 ])
 AC_SUBST(PANGO_CFLAGS)
 AC_SUBST(PANGO_LIBS)
 
-
+# Check fo GMime
+PKG_CHECK_MODULES(GMIME, [ gmime-2.0 >= 2.1.0 ])
+AC_SUBST(GMIME_CFLAGS)
+AC_SUBST(GMIME_LIBS)
 
 # Check for Dbus 0.50 or higher
 PKG_CHECK_MODULES(DBUS, [dbus-1 >= 0.50 dbus-glib-1 >= 0.50 ])
@@ -67,6 +70,13 @@ fi
 
 use_sqlite=no
 use_mysql=yes
+AM_CONDITIONAL(BUILD_TEST, false)
+
+AC_ARG_ENABLE(sqlite3, [--enable-test          build test suite],
+			 [
+				AM_CONDITIONAL(BUILD_TEST, true)
+			 ]
+	 	)
 
 AC_ARG_ENABLE(sqlite3, [--enable-sqlite3          build using sqlite and QDBM for indexing],
 			 [

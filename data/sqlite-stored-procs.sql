@@ -127,5 +127,4 @@ DeleteSubWatches delete from FileWatches where URI glob ?;
 
 InsertWatch insert into FileWatches (URI, WatchID) values (?,?);
 
-GetStats select 'Total files indexed', 	count(*) as n from Services where ServiceTypeID between 0 and 8 union select  
-T.TypeName, count(*) as n,	((COUNT(*) / (SELECT COUNT(*) FROM Services)) * 100) from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName; 
+GetStats select 'Total files indexed', 	count(*) as n from Services where ServiceTypeID between 0 and 8 union select T.TypeName, count(*) as n from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName; 

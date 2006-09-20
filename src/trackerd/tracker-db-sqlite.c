@@ -225,6 +225,9 @@ tracker_db_initialize (const char *datadir)
 	file = fopen (sql_file, "r");
 	g_free (sql_file);
 
+	GTimeVal *tv;
+	tv = tracker_timer_start ();
+
 	while (feof (file) == 0)  {
 	
 		fgets (buffer, 8192, file);
@@ -254,6 +257,17 @@ tracker_db_initialize (const char *datadir)
 	}
 	fclose (file);
 
+	tracker_timer_end (tv, "File loaded in ");
+
+	
+
+	tracker_log ("initialising the indexer");
+	/* create and initialise indexer */
+	tracker->file_indexer = tracker_indexer_open ("Files");
+
+
+
+	/* end tracker test */
 
 	return TRUE;
 }
@@ -475,8 +489,8 @@ tracker_db_prepare_queries (DBConnection *db_con)
 
 
 
-char ***
-tracker_exec_sql (DBConnection *db_con, const char *query)
+static char ***
+exec_sql  (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 {
 	char **array = NULL;
 	char **result = NULL;
@@ -555,6 +569,23 @@ tracker_exec_sql (DBConnection *db_con, const char *query)
 	sqlite3_free_table (array);
 
 	return (char ***) result;
+
+}
+
+
+
+char ***
+tracker_exec_sql (DBConnection *db_con, const char *query)
+{
+	return exec_sql (db_con, query, FALSE);
+}
+
+
+
+char ***
+tracker_exec_sql_ignore_nulls (DBConnection *db_con, const char *query)
+{
+	return exec_sql (db_con, query, TRUE);
 
 }
 
@@ -862,6 +893,8 @@ tracker_log_sql	 (DBConnection *db_con, const char *query)
 
 	tracker_db_free_result (res);
 }
+
+
 
 
 gboolean

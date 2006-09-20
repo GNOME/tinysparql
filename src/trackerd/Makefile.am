@@ -9,6 +9,7 @@ INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	$(GLIB2_CFLAGS)			\
 	$(PANGO_CFLAGS)			\
+	$(GMIME_CFLAGS)			\
 	$(QDBM_CFLAGS)			\
 	$(SQLITE3_CFLAGS)		\
 	$(FAM_CFLAGS)			\
@@ -45,7 +46,30 @@ db_sources = \
 	tracker-db-mysql.c	
 endif
 
-bin_PROGRAMS = trackerd tracker-convert-file
+if BUILD_TEST
+bin_PROGRAMS = trackerd tracker-convert-file test-tracker-indexer
+test_tracker_indexer_SOURCES =	tracker-indexer.c test-tracker-indexer.c \
+	tracker-utils.c		\
+	tracker-utils.h		\
+	xdgmime.c		\
+	xdgmime.h		\
+	xdgmimealias.c 		\
+	xdgmimealias.h		\
+	xdgmimecache.c 		\
+	xdgmimecache.h		\
+	xdgmimeglob.c 		\
+	xdgmimeglob.h		\
+	xdgmimeint.c 		\
+	xdgmimeint.h		\
+	xdgmimemagic.c 		\
+	xdgmimemagic.h		\
+	xdgmimeparent.c		\
+	xdgmimeparent.h			
+
+test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS) 
+else
+bin_PROGRAMS = trackerd tracker-convert-file 
+endif
 
 trackerd_SOURCES =		\
 	trackerd.c		\
@@ -66,11 +90,16 @@ trackerd_SOURCES =		\
 	tracker-dbus-search.h   \
 	tracker-dbus-search.c   \
 	$(db_sources)		\
+	tracker-mbox-evolution.c \
+	tracker-mbox-evolution.h \
+	tracker-mbox.c		\
+	tracker-mbox.h		\
 	tracker-metadata.c	\
 	tracker-metadata.h	\
 	tracker-rdf-query.c	\
 	tracker-rdf-query.h	\
-	tracker-stemmer.c	\
+	tracker-stemmer-english.c	\
+	tracker-stemmer-english.h	\
 	tracker-stemmer.h	\
 	tracker-utils.c		\
 	tracker-utils.h		\
@@ -95,12 +124,13 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(FAM_LIBS)	\
 		 $(DBUS_LIBS)	\
 		 $(MYSQL_LIBS)	\
- 		 $(PANGO_LIBS) 	\
+		 $(PANGO_LIBS)	\
+		 $(GMIME_LIBS)	\
 		 $(QDBM_LIBS) 	\
 		 $(SQLITE3_LIBS) \
-		 -lstdc++	
+		 -lstdc++
 
 
-tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-parser.c tracker-stemmer.c
+tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-parser.c tracker-stemmer-english.c
 
-tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) -lmagic
+tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) 
