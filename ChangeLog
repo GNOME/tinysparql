@@ -3,6 +3,7 @@
 	
 	* Inotify patch to clean up code
 	* Also made sure inotify timeout for file move detection is removed when no moved files are pending (this prevents tracker from peridoically waking up)
+	* added g_message support for logging messages
 
 2006-09-21 Laurent Aguerreche <laurent aguerreche at free fr>
 	
