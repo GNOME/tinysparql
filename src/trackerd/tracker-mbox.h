@@ -59,21 +59,23 @@ typedef struct {
 
 
 typedef struct {
-        char    *mbox_uri;
-        guint64 offset;			/* start address of the email */
-        char    *message_id;
-        char    **references;		/* array of message_ids */
-        char    *reply_to_id;		/* message_id of email that it replies to */
-        long    date;
-        char    *mail_from;
-        GSList  *mail_to;
-        GSList  *mail_cc;
-        GSList  *mail_bcc;
-        char    *subject;
-        char    *content_type;		/* text/plain or text/html etc. */
-        char    *body;
-	char	*path_to_attachments;
-        GSList  *attachments;		/* names of all attachments */
+	char	 *mbox_uri;
+	guint64	 offset;		/* start address of the email */
+	char	 *message_id;
+	gboolean deleted;
+	gboolean junk;
+	char	 **references;		/* array of message_ids */
+	char	 *reply_to_id;		/* message_id of email that it replies to */
+	long	 date;
+	char	 *mail_from;
+	GSList	 *mail_to;
+	GSList	 *mail_cc;
+	GSList	 *mail_bcc;
+	char	 *subject;
+	char	 *content_type;		/* text/plain or text/html etc. */
+	char	 *body;
+	char	 *path_to_attachments;
+	GSList   *attachments;		/* names of all attachments */
 } MailMessage;
 
 

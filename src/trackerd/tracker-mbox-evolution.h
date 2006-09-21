@@ -22,6 +22,9 @@
 #define _TRACKER_MBOX_EVOLUTION_H_
 
 #include <glib.h>
+#include <gmime/gmime.h>
+
+#include "tracker-mbox.h"
 
 #include "config.h"
 
@@ -37,7 +40,8 @@
  *
  */
 
-GSList *	watch_emails_of_evolution	(DBConnection *db_con);
-gboolean	is_in_a_evolution_mail_dir	(const char *uri);
+GSList *	watch_emails_of_evolution		(DBConnection *db_con);
+void		tracker_get_status_of_evolution_email	(GMimeMessage *g_m_message, MailMessage *msg);
+gboolean	is_in_a_evolution_mail_dir		(const char *uri);
 
 #endif

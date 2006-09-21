@@ -1,3 +1,8 @@
+2006-09-21 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* Added detection of deleted and junk messages to email indexing
+
+
 2006-09-21 Edward Duffy <eduffy at gmail com>
 	
 	* added jpeg and png thumbnailers

@@ -18,6 +18,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <glib/gstdio.h>
@@ -37,6 +38,18 @@ extern Tracker *tracker;
 
 
 #define EVOLUTION_MAIL_DIR ".evolution/mail"
+
+enum {
+	EVOLUTION_MESSAGE_ANSWERED	= 1 << 0,
+	EVOLUTION_MESSAGE_DELETED	= 1 << 1,
+	EVOLUTION_MESSAGE_DRAFT		= 1 << 2,
+	EVOLUTION_MESSAGE_FLAGGED	= 1 << 3,
+	EVOLUTION_MESSAGE_SEEN		= 1 << 4,
+	EVOLUTION_MESSAGE_ATTACHMENTS	= 1 << 5,
+	EVOLUTION_MESSAGE_ANSWERED_ALL	= 1 << 6,
+	EVOLUTION_MESSAGE_JUNK		= 1 << 7,
+	EVOLUTION_MESSAGE_SECURE	= 1 << 8
+};
 
 
 static GSList *
@@ -118,18 +131,57 @@ watch_emails_of_evolution (DBConnection *db_con)
 }
 
 
+void
+tracker_get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
+{
+	const char *field;
+	char	   **parts;
+	guint32	   flags;
+
+	if (!g_m_message || !msg) {
+		return;
+	}
+
+	field = g_mime_message_get_header (g_m_message, "X-Evolution");
+
+	if (!field) {
+		return;
+	}
+
+	parts = g_strsplit (field, "-", -1);
+
+	/* we want to split lines with that form: 00001fd3-0100 into 00001fd3 and 0100 */
+	if (!parts || !parts[0] || !parts[1]) {
+		g_strfreev (parts);
+		return;
+	}
+
+	msg->deleted = FALSE;
+	msg->junk = FALSE;
+
+	flags = atoi (parts[1]);
+
+	if ((flags & EVOLUTION_MESSAGE_DELETED) == EVOLUTION_MESSAGE_DELETED) {
+		msg->deleted = TRUE;
+	}
+
+	if ((flags & EVOLUTION_MESSAGE_JUNK) == EVOLUTION_MESSAGE_JUNK) {
+		msg->junk = TRUE;
+	}
+
+	g_strfreev (parts);
+}
+
+
 gboolean
 is_in_a_evolution_mail_dir (const char *uri)
 {
 	char	 *path;
-	int	 len;
 	gboolean ret;
 
 	path = g_build_filename (g_get_home_dir (), EVOLUTION_MAIL_DIR, NULL);
 
-	len = strlen (path);
-
-	ret = (strncmp (uri, path, len) == 0);
+	ret = g_str_has_prefix (uri, path);
 
 	g_free (path);
 

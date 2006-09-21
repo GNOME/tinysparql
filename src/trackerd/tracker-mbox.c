@@ -302,7 +302,37 @@ tracker_mbox_parse_next (MailBox *mb)
 	msg->mbox_uri = g_strdup (mb->mbox_uri);
 	msg->offset = msg_offset;
 	msg->message_id = g_strdup (g_mime_message_get_message_id (message));
+
+
+	/* we try to obtain email status (deleted, junk...) and it needs to read special fields in headers */
+	switch (mb->mail_app) {
+
+	case MAIL_APP_EVOLUTION:
+		tracker_get_status_of_evolution_email (message, msg);
+		break;
+
+	case MAIL_APP_KMAIL:
+		/* FIXME */
+
+		break;
+
+	case MAIL_APP_THUNDERBIRD:
+		/* FIXME */
+
+		break;
+
+	case MAIL_APP_UNKNOWN:
+		/* we don't know anything about this email so we will be nice with it */
+		msg->deleted = FALSE;
+		msg->junk = FALSE;
+
+		break;
+	}
+
+
+	/* FIXME */
 	msg->references = NULL;
+
 
 	/* In-Reply-To header looks like <string>, we want string directly */
 	tmp = g_mime_message_get_header (message, "In-Reply-To");
@@ -467,15 +497,11 @@ tracker_free_person (Person *p)
 gboolean
 tracker_is_an_email_attachment (const char *uri)
 {
-	int len;
-
 	if (!uri || !base_path_for_attachments) {
 		return FALSE;
 	}
 
-	len = strlen (base_path_for_attachments);
-
-	return (strncmp (uri, base_path_for_attachments, len) == 0);
+	return g_str_has_prefix (uri, base_path_for_attachments);
 }
 
 
