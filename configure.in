@@ -318,6 +318,7 @@ AC_CONFIG_FILES([
 	filters/text/Makefile
 	thumbnailers/Makefile
 	thumbnailers/application/Makefile
+	thumbnailers/image/Makefile
 	src/Makefile
 	src/text-filters/Makefile
 	src/text-filters/html_converter/Makefile

@@ -1,1 +1,1 @@
-SUBDIRS = application
+SUBDIRS = application image
