@@ -51,6 +51,9 @@ typedef struct {
 #define TRACKER_VERSION			"0.5.0"
 #define TRACKER_VERSION_INT		500
 
+/* just for now, make tracker_log actually call g_message */
+#define tracker_log g_message
+
 typedef struct {
 	GSList 		*watch_directory_roots_list;
 	GSList 		*no_watch_directory_list;
@@ -234,8 +237,6 @@ char *		tracker_get_vfs_path 		(const char *uri);
 char *		tracker_get_vfs_name 		(const char *uri);
 
 char * 		tracker_get_mime_type 	 	(const char *uri);
-
-void 		tracker_log  			(const char *fmt, ...);
 
 GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
 

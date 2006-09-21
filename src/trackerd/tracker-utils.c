@@ -1223,63 +1223,6 @@ tracker_is_directory (const char *dir)
 }
 
 
-void
-tracker_log (const char* fmt, ...)
-{
-	FILE		*fd;
-	time_t		now;
-	char		buffer1[64], buffer2[20];
-	char		*output;
- 	char		*msg;
-    	va_list		args;
-	struct tm	*loctime;
-	GTimeVal	start;
-
-  	va_start (args, fmt);
-  	msg = g_strdup_vprintf (fmt, args);
-  	va_end (args);
-
-	if (msg) {
-		g_print ("%s\n", msg);
-	}
-
-	if (!tracker) {
-		return;
-	}
-
-	/* ensure file logging is thread safe */
-	g_mutex_lock (tracker->log_access_mutex);
-
-	fd = g_fopen (tracker->log_file, "a");
-
-	if (!fd) {
-		g_mutex_unlock (tracker->log_access_mutex);
-		g_warning ("could not open %s", tracker->log_file);
-		g_free (msg);
-		return;
-	}
-
-        g_get_current_time (&start);
-
-    	now = time ((time_t *) NULL);
-
-	loctime = localtime (&now);
-
-	strftime (buffer1, 64, "%d %b %Y, %H:%M:%S:", loctime);
-
-	g_sprintf (buffer2, "%ld", start.tv_usec / 1000);
-
-	output = g_strconcat (buffer1, buffer2, " - ", msg, NULL);
-	g_free (msg);
-
-	g_fprintf (fd, "%s\n", output);
-	g_free (output);
-
-	fclose (fd);
-
-	g_mutex_unlock (tracker->log_access_mutex);
-}
-
 
 static int
 has_prefix (const char *str1, const char *str2)

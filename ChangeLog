@@ -1,3 +1,9 @@
+
+2006-09-21 Samuel Cormier-Iijima <sciyoshi at gmail com>
+	
+	* Inotify patch to clean up code
+	* Also made sure inotify timeout for file move detection is removed when no moved files are pending (this prevents tracker from peridoically waking up)
+
 2006-09-21 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Added initial email indexing support

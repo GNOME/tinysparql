@@ -1827,21 +1827,52 @@ add_local_dbus_connection_monitoring (DBusConnection *connection)
 	}
 }
 
-static inline void
-int_to_bytes( unsigned char *pb, unsigned int val )
-{
-  *pb++ = (val >> 24) & 0xFF ;
-  *pb++ = (val >> 16) & 0xFF ;
-  *pb++ = (val >> 8 ) & 0xFF ;
-  *pb++ = val & 0xFF ;
-}
 
-static inline void
-bytes_to_int( unsigned int *value, unsigned char *pb )
-{
-  *value = (*pb << 24) | (*(pb+1)<<16) | (*(pb+2)<<8) | *(pb+3) ;
-}
 
+void
+log_handler (const gchar *domain, GLogLevelFlags levels, const char* message, gpointer data)
+{
+	FILE		*fd;
+	time_t		now;
+	char		buffer1[64], buffer2[20];
+	char		*output;
+	struct tm	*loctime;
+	GTimeVal	start;
+
+	if (message) {
+		g_print ("%s\n", message);
+	}
+
+	/* ensure file logging is thread safe */
+	g_mutex_lock (tracker->log_access_mutex);
+
+	fd = g_fopen (tracker->log_file, "a");
+
+	if (!fd) {
+		g_mutex_unlock (tracker->log_access_mutex);
+		g_warning ("could not open %s", tracker->log_file);
+		return;
+	}
+
+	g_get_current_time (&start);
+
+	now = time ((time_t *) NULL);
+
+	loctime = localtime (&now);
+
+	strftime (buffer1, 64, "%d %b %Y, %H:%M:%S:", loctime);
+
+	g_sprintf (buffer2, "%ld", start.tv_usec / 1000);
+
+	output = g_strconcat (buffer1, buffer2, " - ", message, NULL);
+
+	g_fprintf (fd, "%s\n", output);
+	g_free (output);
+
+	fclose (fd);
+
+	g_mutex_unlock (tracker->log_access_mutex);
+}
 
 
 int
@@ -1871,6 +1902,8 @@ main (int argc, char **argv)
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
+
+	g_log_set_handler (NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, (GLogFunc) log_handler, NULL);
 
 	dbus_g_thread_init ();
 
