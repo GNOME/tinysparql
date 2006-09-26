@@ -135,7 +135,9 @@ typedef struct {
 
 void tracker_metadata_extract_oasis (gchar *, GHashTable *);
 void tracker_metadata_extract_ps    (gchar *, GHashTable *);
+#ifdef HAVE_POPPLER
 void tracker_metadata_extract_pdf   (gchar *, GHashTable *);
+#endif
 void tracker_metadata_extract_abw   (gchar *, GHashTable *);
 void tracker_metadata_extract_vorbis   (gchar *, GHashTable *);
 
@@ -146,7 +148,9 @@ MimeToExtractor internal_metadata_extractors[] = {
 	{ "application/vnd.oasis.opendocument.graphics",     tracker_metadata_extract_oasis },
 	{ "application/vnd.oasis.opendocument.presentation", tracker_metadata_extract_oasis },
 	{ "application/postscript",                          tracker_metadata_extract_ps    },
+#ifdef HAVE_POPPLER
 	{ "application/pdf",                                 tracker_metadata_extract_pdf   },
+#endif
 	{ "application/x-abiword",                           tracker_metadata_extract_abw   },
    /* Video extractors */
 	//{ "video/x-theora+ogg",                              tracker_metadata_extract_theora   },

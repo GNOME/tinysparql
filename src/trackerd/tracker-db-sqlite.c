@@ -1671,15 +1671,16 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 	def = tracker_db_get_field_def (db_con, key);
 
 	if (!def) {
+		tracker_log ("metadata not found for id %s and type %s", id, key);
 		return NULL;
 	}
 
 	switch (def->type) {
 
-		case 0: res = tracker_exec_proc  (db_con, "GetMetadataIndex", 2, id, def->id); break;	
-		case 1: res = tracker_exec_proc  (db_con, "GetMetadataString", 2, id, def->id); break;	
-		case 2: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, def->id); break;			
-		case 3: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, def->id); break;
+		case 0: res = tracker_exec_proc  (db_con, "GetMetadataIndex", 2, id, key); break;	
+		case 1: res = tracker_exec_proc  (db_con, "GetMetadataString", 2, id, key); break;	
+		case 2: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, key); break;			
+		case 3: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, key); break;
 		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;	
 	}
 

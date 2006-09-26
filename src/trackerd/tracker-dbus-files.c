@@ -337,6 +337,8 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 
 	result = tracker_get_service_type_for_mime (mime);
 
+	tracker_log ("info for file %s is : id=%ld, mime=%s, service=%s", uri, file_id, mime, result); 
+
 	g_free (mime);
 
 	g_free (str_id);
