@@ -647,12 +647,13 @@ int
 tracker_str_in_array (const char *str, char **array)
 {
 	int  i;
-	char *st;
+	char **st;
 
 	i = 0;
 
-	for (st = (char *) *array; *st; st++) {
-		if (strcmp (st, str) == 0) {
+	for (st = array; *st; st++) {
+
+		if (strcasecmp (*st, str) == 0) {
 			return i;
 		}
 		i++;
