@@ -1,5 +1,5 @@
 /* Tracker
- * utility routines
+ * metadata routines
  * Copyright (C) 2005, Mr Jamie McCracken
  *
  * This library is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@
 
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
-
 
 typedef enum {
 	IGNORE_METADATA,
@@ -127,6 +126,35 @@ char *development_mime_types[] = {
 				"text/x-tcl"
 };
 
+
+typedef void (*MetadataExtractFunc)(gchar *, GHashTable *);
+typedef struct {
+	char                 *mime;
+	MetadataExtractFunc  extractor;
+} MimeToExtractor;
+
+void tracker_metadata_extract_oasis (gchar *, GHashTable *);
+void tracker_metadata_extract_ps    (gchar *, GHashTable *);
+void tracker_metadata_extract_pdf   (gchar *, GHashTable *);
+void tracker_metadata_extract_abw   (gchar *, GHashTable *);
+void tracker_metadata_extract_vorbis   (gchar *, GHashTable *);
+
+MimeToExtractor internal_metadata_extractors[] = {
+   /* Document extractors */
+	{ "application/vnd.oasis.opendocument.text",         tracker_metadata_extract_oasis },
+	{ "application/vnd.oasis.opendocument.spreadsheet",  tracker_metadata_extract_oasis },
+	{ "application/vnd.oasis.opendocument.graphics",     tracker_metadata_extract_oasis },
+	{ "application/vnd.oasis.opendocument.presentation", tracker_metadata_extract_oasis },
+	{ "application/postscript",                          tracker_metadata_extract_ps    },
+	{ "application/pdf",                                 tracker_metadata_extract_pdf   },
+	{ "application/x-abiword",                           tracker_metadata_extract_abw   },
+   /* Video extractors */
+	//{ "video/x-theora+ogg",                              tracker_metadata_extract_theora   },
+   /* Audio extractors */
+	{ "audio/x-vorbis+ogg",                              tracker_metadata_extract_vorbis   },
+   /* Image extractors */
+	{ "",                                                NULL                           }
+};
 
 static MetadataFileType
 tracker_get_metadata_type (const char *mime)
@@ -399,15 +427,32 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 	return NULL;
 }
 
+static void log_metadata_cb (gpointer key, gpointer value, gpointer user_data)
+{
+	tracker_log ("%s = %s", (gchar *)key, (gchar *)value);
+}
 
 void
 tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *table)
 {
+	MimeToExtractor  *p;
 	MetadataFileType meta_type;
+	gboolean         found;
 
 	if (!uri || !mime || !table) {
 		return;
 	}
+
+	found = FALSE;
+	for (p = internal_metadata_extractors; p->extractor; ++p) {
+		if (strcmp (p->mime, mime) == 0) {
+			found = TRUE;
+			(*p->extractor)(uri, table);
+			g_hash_table_foreach (table, log_metadata_cb, NULL);
+		}
+	}
+	if (found)
+		return;
 
 	meta_type = tracker_get_metadata_type (mime);
 

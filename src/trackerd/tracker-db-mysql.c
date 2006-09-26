@@ -1503,7 +1503,7 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 
 
 void
-tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite)
+tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite, gboolean index)
 {
 	char *str_write;
 	char ***res;

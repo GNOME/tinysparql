@@ -26,6 +26,7 @@
 
 #include "tracker-mbox.h"
 #include "tracker-mbox-evolution.h"
+#include "tracker-mbox-thunderbird.h"
 
 
 extern Tracker *tracker;
@@ -66,6 +67,10 @@ tracker_watch_emails (DBConnection *db_con)
 	if (tracker->index_evolution_emails) {
 		mboxes = g_slist_concat (mboxes, watch_emails_of_evolution (db_con));
 	}
+
+	if (tracker->index_thunderbird_emails) {
+		mboxes = g_slist_concat (mboxes, watch_emails_of_thunderbird (db_con));
+	}
 }
 
 
@@ -88,7 +93,8 @@ tracker_end_email_watching (void)
 gboolean
 tracker_is_in_a_application_mail_dir (const char *uri)
 {
-	return (is_in_a_evolution_mail_dir (uri));
+	return (is_in_a_evolution_mail_dir (uri) ||
+		is_in_a_thunderbird_mail_dir (uri));
 }
 
 
@@ -163,6 +169,10 @@ tracker_mbox_parse_from_offset (const char *uri, off_t offset)
 
 	if (is_in_a_evolution_mail_dir (uri)) {
 		mb->mail_app = MAIL_APP_EVOLUTION;
+
+	} else if (is_in_a_thunderbird_mail_dir (uri)) {
+		mb->mail_app = MAIL_APP_THUNDERBIRD;
+
 	} else {
 		mb->mail_app = MAIL_APP_UNKNOWN;
 	}
@@ -229,7 +239,8 @@ find_attachment (GMimeObject *obj, gpointer data)
 
 	/* test whether it is a mail attachment */
 	if (content_disposition &&
-	    strcmp (content_disposition, GMIME_DISPOSITION_ATTACHMENT) == 0) {
+	    (strcmp (content_disposition, GMIME_DISPOSITION_ATTACHMENT) == 0 ||
+	     strcmp (content_disposition, GMIME_DISPOSITION_INLINE) == 0)) {
 		const GMimeContentType *content_type;
 		MailAttachment	       *ma;
 		FILE		       *f;
@@ -313,12 +324,10 @@ tracker_mbox_parse_next (MailBox *mb)
 
 	case MAIL_APP_KMAIL:
 		/* FIXME */
-
 		break;
 
 	case MAIL_APP_THUNDERBIRD:
-		/* FIXME */
-
+		tracker_get_status_of_thunderbird_email (message, msg);
 		break;
 
 	case MAIL_APP_UNKNOWN:

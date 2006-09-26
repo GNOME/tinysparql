@@ -1,10 +1,10 @@
 
 CREATE TABLE Options (	
-	OptionKey 	Text not null,	
-	OptionValue	Text
+	OptionKey 	Text COLLATE NOCASE not null,	
+	OptionValue	Text COLLATE NOCASE
 );
 
-insert into Options (OptionKey, OptionValue) values ('DBVersion', '4');
+insert into Options (OptionKey, OptionValue) values ('DBVersion', '5');
 insert into Options (OptionKey, OptionValue) values ('Sequence', '0');
 
 
@@ -12,9 +12,9 @@ CREATE TABLE  ServiceTypes
 (
 	TypeID 			Integer Primary Key not null,
 	ParentID		Integer ,
-	TypeName		Text,
-	MetadataClass		Text,
-	Description		Text,
+	TypeName		Text COLLATE NOCASE,
+	MetadataClass		Text COLLATE NOCASE,
+	Description		Text COLLATE NOCASE,
 	MainService	  	Integer  default 0
 
 );
@@ -86,6 +86,16 @@ CREATE TABLE  Services
 CREATE INDEX  ServiceIndex ON Services (ServiceTypeID);
 
 
+CREATE TABLE ServiceContents
+(
+	ServiceID 		Int primary key not null,
+	Content			Text,
+	ContainsWordScores	int
+);
+
+
+
+
 /* provides links from one service entity to another */
 CREATE TABLE  ServiceLinks
 (
@@ -100,7 +110,7 @@ CREATE TABLE  ServiceLinks
 CREATE TABLE  ServiceLinkTypes
 (
 	ID			Integer primary key AUTOINCREMENT not null,
-	Type			Text
+	Type			Text  COLLATE NOCASE
 
 );
 
@@ -135,16 +145,16 @@ CREATE TABLE  Keywords
 /* store all metadata here. */
 CREATE TABLE  ServiceMetaData 
 (
-	IndexID			Integer Primary key AUTOINCREMENT not null,
 	ServiceID		Integer not null,
 	MetaDataID 		Integer  not null,
 	MetaDataValue     	Text, 
 	MetaDataIndexValue	Text,
-	MetaDataNumericValue	double
-
+	MetaDataNumericValue	real,
+	deleted			int default 0,
+	
+	primary key (ServiceID, MetaDataID)
 );
 
-CREATE INDEX  ServiceMetaDataServiceID ON ServiceMetaData (ServiceID, MetaDataID);
 CREATE INDEX  ServiceMetaDataIndex ON ServiceMetaData (MetaDataIndexValue);
 CREATE INDEX  ServiceMetaDataNumericIndex ON ServiceMetaData (MetaDataNumericValue);
 
@@ -153,7 +163,7 @@ CREATE INDEX  ServiceMetaDataNumericIndex ON ServiceMetaData (MetaDataNumericVal
 CREATE TABLE  MetaDataTypes 
 (
 	ID	 		Integer primary key AUTOINCREMENT not null,
-	MetaName		Text  not null, 
+	MetaName		Text  not null  COLLATE NOCASE, 
 	DataTypeID		Integer  not null, /* 0=full text indexable string (max 255 long), 1=string or Blob, 2=numeric, 3=datetime, 4==IndexBlob (99=special case)*/
 	Embedded		Integer not null, /* if the metadata is embedded in the file */
 	Writeable		Integer not null, /* is metadata writable */
@@ -174,8 +184,6 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Name', 0, 1, 0, 5);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Path', 0, 1, 0, 1);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Ext', 0, 1, 0, 50);
-
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Link', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Format', 0, 1, 0, 15);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Size', 2, 1, 0, 0);
@@ -184,17 +192,19 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Permissions', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Description', 0, 0, 1, 25);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rank', 2, 0, 1, 0);
-
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Publisher', 0, 0, 1, 20);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.License', 0, 1, 0, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Contributer', 0, 0, 1, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rights', 0, 1, 0, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Relation', 0, 0, 1, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Source', 0, 0, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Contributer', 0, 1, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rights', 0, 1, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Relation', 0, 1, 1, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Source', 0, 1, 1, 10);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Language', 0, 1, 0, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Identifier', 0, 0, 1, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Coverage', 0, 0, 1, 10);
-
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Identifier', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Coverage', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Copyright', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Creator', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Location', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Organization', 0, 1, 0, 10);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.IconPath', 1, 0, 1, 0 );
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.SmallThumbnailPath', 1, 0, 1, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.LargeThumbnailPath', 1, 0, 1, 0);
@@ -265,17 +275,94 @@ insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.WhiteBalance', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Copyright', 0, 1, 0, 1);
 
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.MessageID', 1, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Date', 3, 1, 0, 0);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Sender', 0, 1, 0, 10);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.To', 0, 1, 0, 10);
 insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.CC', 0, 1, 0, 10);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Subject', 0, 1, 0, 50);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Body', 0, 1, 0, 1);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.HTML', 1, 1, 0, 1);
-insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Attachments', 0, 1, 0, 20);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.BCC', 0, 1, 0, 10);
+insert into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Subject', 0, 1, 0, 30);
+
 
 end transaction;
+
+
+CREATE TABLE People
+(
+	ID		Integer primary key AUTOINCREMENT not null,
+	EmailAddress	text not null COLLATE NOCASE,
+	Name		text
+
+);
+
+CREATE Unique INDEX  PeopleEmailAddress ON People (EmailAddress);
+
+
+CREATE TABLE MBoxes
+(
+	ID		Integer primary key AUTOINCREMENT not null,
+	Path		Text not null,
+	Type		Integer default 0, /* 0=unknown, 1=evolution, 2=thunderbird, 3=kmail */
+	Offset		Integer,
+	MessageCount 	Integer,
+	MBoxSize	Integer,
+	Mtime		Integer
+);
+
+
+CREATE TABLE Emails
+(
+	ID		Integer primary key AUTOINCREMENT not null,
+	MBoxID		Integer Not Null,
+	ReceivedDate	Integer not null,
+	MessageID	Text Not Null,
+	Type		integer, /* 0 = text, 1 = html */
+	Offset		Integer Not Null,
+	ReplyID		Integer	
+);
+
+CREATE INDEX  EmailMessageID ON Emails (MessageID);
+
+
+
+CREATE TABLE EmailMetaData
+(
+	EmailID			Integer not null,
+	MetaDataID 		Integer not null,
+	MetaDataIndexValue	Text,
+	MetaDataNumericValue	real,
+	
+	primary key (EmailID, MetaDataID)
+);
+
+CREATE INDEX  EmailMetaDataIndex ON EmailMetaData (MetaDataIndexValue);
+CREATE INDEX  EmailMetaDataNumericIndex ON EmailMetaData (MetaDataNumericValue);
+
+
+
+CREATE TABLE EmailAttachments
+(
+	ID		Integer primary key AUTOINCREMENT not null,
+	EmailID		Integer Not Null,
+	FileID		Integer Not Null	
+);
+
+CREATE INDEX  AttachEmailID ON EmailAttachments (EmailID);
+
+
+
+CREATE TABLE EmailPeople
+(
+	EmailID		Integer Not Null,
+	PeopleID	Integer Not Null,
+	IsSender	Integer default 0,
+	IsTo		Integer default 0,
+	IsCC		Integer default 0,
+	IsBCC		Integer default 0,
+
+	primary key (EmailID, PeopleID)
+);
+
+CREATE INDEX  EmailPeopleID ON EmailPeople (PeopleID, EmailID);
 
 
 
@@ -288,7 +375,11 @@ CREATE TABLE  FilePending
 	PendingDate		Integer,
 	FileUri			Text  not null,
 	MimeType		Text ,
-	IsDir			Integer default 0
+	IsDir			Integer default 0,
+	IsNew			Integer default 0,
+	RefreshEmbedded		Integer default 0,
+	RefreshContents		Integer default 0,	
+	ServiceTypeID		Integer default 0
 );
 
 
@@ -300,7 +391,11 @@ CREATE TABLE  FileTemp
 	Action			Integer default 0,
 	FileUri			Text  not null,
 	MimeType		Text ,
-	IsDir			Integer default 0
+	IsDir			Integer default 0,
+	IsNew			Integer default 0,
+	RefreshEmbedded		Integer default 0,
+	RefreshContents		Integer default 0,	
+	ServiceTypeID		Integer default 0
 );
 
 CREATE TABLE  MetadataTemp
@@ -310,7 +405,11 @@ CREATE TABLE  MetadataTemp
 	Action			Integer default 0,
 	FileUri			Text  not null,
 	MimeType		Text ,
-	IsDir			Integer default 0
+	IsDir			Integer default 0,
+	IsNew			Integer default 0,
+	RefreshEmbedded		Integer default 0,
+	RefreshContents		Integer default 0,	
+	ServiceTypeID		Integer default 0
 );
 
 

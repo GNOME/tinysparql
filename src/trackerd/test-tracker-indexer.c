@@ -21,17 +21,17 @@ static char *words6[] = {"word6", NULL};
 
 static Indexer *file_indexer;
 static int fail_count;
+static GTimeVal *tv;
 
 static GSList *
 do_search (char** wordarray, int offset, int limit)
 {
-	GTimeVal *tv;
 	GSList *list;
 	int i;
 
 	char *st = g_strjoinv (", ", wordarray); 
 
-	tracker_log ("\n\nCHECKING: search for %s with offset %d and limit %d", st, offset, limit);
+	tracker_log ("CHECKING: search for %s with offset %d and limit %d", st, offset, limit);
 
 	tv = tracker_timer_start ();
 	list = tracker_indexer_get_hits (file_indexer, wordarray, 0, 5, offset, limit, TRUE, &i);
@@ -51,9 +51,8 @@ do_search (char** wordarray, int offset, int limit)
 }
 
 
-
 static void
-check_list (GSList *list, int pos, int sid, int score, const char *txt)
+check_list (GSList *list, int pos, int sid, int score)
 {
 	GSList *l;
 
@@ -70,18 +69,31 @@ check_list (GSList *list, int pos, int sid, int score, const char *txt)
 
 		if (sid > 0 && sid != hit->service_id) {
 			fail_count++;
-			tracker_log ("FAIL : expected service id %d not found at position %d (%s was found instead)", sid, pos, hit->service_id);
+			tracker_log ("FAIL : expected service id %d not found at position %d (%d was found instead)", sid, pos, hit->service_id);
 			return;
 		}
 
 		if (score > 0 && score != hit->score) {
 			fail_count++;
-			tracker_log ("FAIL : expected score %s for service id %d is the worng value (%d was found instead)", score, sid, hit->score);
+			tracker_log ("FAIL : expected score %d for service id %d is the worng value (%d was found instead)", score, sid, hit->score);
 			return;
 		}
+	} else {
+		
+		for (l=list; l; l=l->next) {
+			SearchHit *hit = l->data;
+	
+			if (hit->service_id == sid ) {
+				tracker_log ("FAIL : service id %d was not expected in list", sid);	
+			}
+		}
+
+		
+		
+
 	}
 
-	tracker_log ("SUCESS : expected values found in list");
+	tracker_log ("SUCESS : expected value %d found in correct place %d in list with score %d", sid, pos, score);
 	
 
 }
@@ -101,32 +113,16 @@ check_count (GSList *list, int count)
 
 }
 
-int
-main (int argc, char **argv)
+static void
+load_data ()
 {
 	int a;
-	
-	tracker = NULL;
-
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
-
-	unlink ("/home/jamie/.Tracker/Indexes/test");
-
-	file_indexer = tracker_indexer_open ("test");
-
-	fail_count = 0;
-	
-	/* load word data */
-	GTimeVal *tv;
-	tv = tracker_timer_start ();
 
 	for (a = 1; a<11; a++) {
 
 		if (!tracker_indexer_append_word (file_indexer, "word1", a, 1, a)) tracker_log ("ERROR - could not add word") ;
 		if (!tracker_indexer_append_word (file_indexer, "word1", a+10, 1, a+10)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word1", a+20, 2, a+200)) tracker_log ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word1", a+20, 2, a+20)) tracker_log ("ERROR - could not add word") ;
 		if (!tracker_indexer_append_word (file_indexer, "word1", a+30, 3, a+30)) tracker_log ("ERROR - could not add word") ;
 		if (!tracker_indexer_append_word (file_indexer, "word1", a+40, 4, a+40)) tracker_log ("ERROR - could not add word") ;
 
@@ -157,8 +153,110 @@ main (int argc, char **argv)
 	}
 
 	
+}
 
-	tracker_log ("\n\nStarting checks - testing single word retrievals...\n\n");
+
+
+static void
+do_updates_check ()
+{
+	tracker_log ("\n\nStarting update checks\n\n");
+
+	GSList *l;
+
+	l = do_search (words1,  0, 10);
+
+	/* check and manipulate a value in the middle of the list */
+
+	tracker_log ("\n\nUPDATING: middle value 5's score by +100");
+	tracker_indexer_update_word (file_indexer, "word1", 5, 1,  100, FALSE);
+	l = do_search (words1,  0, 10);
+	check_list (l, 0, 5, 105);
+
+	tracker_log ("\n\nUPDATING: middle value 5's score by -100");
+	tracker_indexer_update_word (file_indexer, "word1", 5, 1, -100, FALSE);
+	l = do_search (words1,  40, 10);
+	check_list (l, 5, 5, 5);
+
+	tracker_log ("\n\nUPDATING: middle value 5's score by -5 ");
+	tracker_indexer_update_word (file_indexer, "word1", 5, 1, -5, FALSE);
+	l = do_search (words1,  40, 10);
+	check_list (l, -1, 5, 0);
+
+	tracker_log ("\n\nUPDATING: middle value 5's score by 5 ");
+	tracker_indexer_update_word (file_indexer, "word1", 5, 1, 5, FALSE);
+	l = do_search (words1,  40, 10);
+	check_list (l, 5, 5, 5);
+
+
+	/* check and manipulate the first value in the list */
+	tracker_log ("\n\nUPDATING: first value 1's score by +100");
+	tracker_indexer_update_word (file_indexer, "word1", 1, 1, 100, FALSE);
+	l = do_search (words1,  0, 10);
+	check_list (l, 0, 1, 101);
+
+	tracker_log ("\n\nUPDATING: first value 1's score by -100");
+	tracker_indexer_update_word (file_indexer, "word1", 1,  1, -100, FALSE);
+	l = do_search (words1,  40, 10);
+	check_list (l, 9, 1, 1);
+
+	tracker_log ("\n\nUPDATING: first value 1's score by -1 ");
+	tracker_indexer_update_word (file_indexer, "word1", 1, 1, -1, FALSE);
+	l = do_search (words1,  40, 10);
+	check_list (l, -1, 1, 0);
+	
+	tracker_log ("\n\nUPDATING: first value 1's score by +1");
+	tracker_indexer_update_word (file_indexer, "word1", 1, 1, +1, FALSE);
+	l = do_search (words1,  40, 10);
+	check_list (l, 9, 1, 1);
+
+
+
+	/* check and manipulate the last value in the list */
+	tracker_log ("\n\nUPDATING: last value 50's score by +100");
+	tracker_indexer_update_word (file_indexer, "word1", 50, 1, 100, FALSE);
+	l = do_search (words1,  0, 10);
+	check_list (l, 0, 50, 150);
+
+	tracker_log ("\n\nUPDATING: last value 50's score by -100");
+	tracker_indexer_update_word (file_indexer, "word1", 50,  1, -100, FALSE);
+	l = do_search (words1,  0, 10);
+	check_list (l, 0, 50, 50);
+
+	tracker_log ("\n\nUPDATING: last value 50's score by -1 ");
+	tracker_indexer_update_word (file_indexer, "word1", 50, 1, -50, FALSE);
+	l = do_search (words1,  0, 10);
+	check_list (l, -1, 50, 0);
+	
+	tracker_log ("\n\nUPDATING: last value 50's score by +1");
+	tracker_indexer_update_word (file_indexer, "word1", 50, 1, +50, FALSE);
+	l = do_search (words1,  0, 10);
+	check_list (l, 0, 50, 50);
+
+
+	/* test explicit word removal */
+	tracker_log ("\n\nRemoving first value");
+	tracker_indexer_update_word (file_indexer, "word1", 1,  1, 1, TRUE);
+	l = do_search (words1,  40, 10);
+	check_list (l, -1, 1, 1);
+
+	tracker_log ("\n\nRemoving 5 value");
+	tracker_indexer_update_word (file_indexer, "word1", 5,  1, -1, TRUE);
+	l = do_search (words1,  40, 10);
+	check_list (l, -1, 5, 2);
+
+	tracker_log ("\n\nRemoving last value");
+	tracker_indexer_update_word (file_indexer, "word1", 50,  1, 0, TRUE);
+	l = do_search (words1,  0, 10);
+	check_list (l, -1, 50, 3);
+
+}
+
+
+static void
+do_search_checks ()
+{
+	tracker_log ("\n\nStarting search checks\n\n");
 
 	GSList *l;
 
@@ -211,9 +309,48 @@ main (int argc, char **argv)
 
 
 
+}
 
-	tracker_indexer_close (file_indexer);
+
+
+
+
+int
+main (int argc, char **argv)
+{
+	int a;
 	
+	tracker = NULL;
+
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
+
+	unlink ("/home/jamie/.Tracker/Indexes/test");
+
+	file_indexer = tracker_indexer_open ("test");
+
+	fail_count = 0;
+	
+	/* do update/delete test */
+
+	load_data ();
+
+	do_updates_check ();
+
+	tracker_indexer_close (file_indexer);	
+
+	unlink ("/home/jamie/.Tracker/Indexes/test");
+
+	file_indexer = tracker_indexer_open ("test");
+
+	load_data ();
+
+	//do_search_checks ();
+
+	tracker_indexer_close (file_indexer);	
+
+		
 
 	if (fail_count == 0) {
 		tracker_log ("\n\n\nSUCESS : Test passed all results :))))");

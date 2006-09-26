@@ -758,7 +758,7 @@ build_sql (ParserData *data)
 
 	if (field_data->data_type ==  DATA_DATE) {
 		char *bvalue;
-		long cvalue;
+		int cvalue;
 
 		bvalue = tracker_format_date (avalue);
 		tracker_log (bvalue);
@@ -1188,8 +1188,6 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 
 
 		for (tmp = data.fields; tmp; tmp = tmp->next) {
-			char *st;
-
 			tmp_field = tmp->data;
 
 			if (!tmp_field->is_condition) {

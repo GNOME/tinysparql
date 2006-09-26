@@ -60,4 +60,6 @@ typedef struct {
  */
 GHashTable *	tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text,  int weight);
 
+char **		tracker_parse_text_into_array (TextParser *parser, const char *text);
+
 #endif

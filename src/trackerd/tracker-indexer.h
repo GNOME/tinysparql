@@ -24,11 +24,7 @@
 #include <stdlib.h>
 #include <glib.h>
 
-#include <depot.h>
 #include "tracker-utils.h"
-
-
-
 
 typedef struct {                         	 
 	guint32 	service_id;              /* Service ID of the document */

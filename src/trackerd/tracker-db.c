@@ -38,7 +38,7 @@ tracker_db_get_id (DBConnection *db_con, const char *service, const char *uri)
 {
 	int service_id;
 
-	service_id = tracker_str_in_array (service, serice_index_array);
+	service_id = tracker_get_id_for_service (service);
 
 	if ( service_id == -1) {
 		return NULL;
@@ -210,13 +210,100 @@ get_meta_table_data (gpointer key,
 		g_free (evalue);
 	}
 
-
-	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE);
+//tracker_log ("**** saving metadata %s with value %s for fileID %s ****",  mtype, mvalue, db_action->file_id);
+	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, TRUE);
 
 	if (mvalue) {
 		g_free (mvalue);
 	}
 }
+
+static void
+get_meta_table_data_new (gpointer key,
+   		     	 gpointer value,
+		     	 gpointer user_data)
+{
+	DatabaseAction *db_action;
+	char	       *mtype, *mvalue, *avalue, *evalue;
+
+	mtype = (char *) key;
+	avalue = (char *) value;
+
+	if (mtype == NULL || avalue == NULL) {
+		return;
+	}
+
+	db_action = user_data;
+
+	evalue = NULL;
+
+	if (tracker_metadata_is_date (db_action->db_con, mtype)) {
+		char *dvalue;
+
+		dvalue = tracker_format_date (avalue);
+
+		if (dvalue) {
+
+			time_t time;
+
+			time = tracker_str_to_date (dvalue);
+
+			//tracker_log ("processing date %s with format %s and time %ld", avalue, dvalue, time);
+
+			g_free (dvalue);
+
+			if (time == -1) {
+				return;
+			} else {
+				evalue = tracker_long_to_str (time);
+			//	tracker_log ("date is %s", evalue);
+			}
+
+		} else {
+			return;
+		}
+
+	} else {
+		evalue = g_strdup (avalue);
+	}
+
+	mvalue = tracker_escape_string (db_action->db_con, evalue);
+
+	if (evalue) {
+		g_free (evalue);
+	}
+
+	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, FALSE);
+
+	if (mvalue) {
+		g_free (mvalue);
+	}
+}
+
+void
+tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, long file_id, gboolean new_file)
+{
+	DatabaseAction db_action;
+
+	g_return_if_fail (file_id != -1 || table || db_con);
+
+	db_action.db_con = db_con;
+
+	db_action.file_id = g_strdup_printf ("%ld", file_id);
+
+	if (table) {
+		tracker_db_start_transaction (db_con);
+		if (new_file) {
+			g_hash_table_foreach (table, get_meta_table_data_new, &db_action);
+		} else {
+			g_hash_table_foreach (table, get_meta_table_data, &db_action);
+		}
+		tracker_db_end_transaction (db_con);
+	}
+
+	g_free (db_action.file_id);
+}
+
 
 
 off_t
@@ -233,27 +320,6 @@ tracker_db_update_mbox_offset (DBConnection *db_con, MailBox *mb)
 	/* FIXME
 	 * new offset is in mb->next_email_offset
 	 */
-}
-
-
-void
-tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, long file_id)
-{
-	DatabaseAction db_action;
-
-	g_return_if_fail (file_id != -1 || table || db_con);
-
-	db_action.db_con = db_con;
-
-	db_action.file_id = g_strdup_printf ("%ld", file_id);
-
-	if (table) {
-		tracker_db_start_transaction (db_con);
-		g_hash_table_foreach (table, get_meta_table_data, &db_action);
-		tracker_db_end_transaction (db_con);
-	}
-
-	g_free (db_action.file_id);
 }
 
 
@@ -285,7 +351,7 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 		char *small_thumb_file;
 
 		small_thumb_file = tracker_escape_string (db_con, small_thumb);
-		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE);
+		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE, FALSE);
 //		tracker_exec_proc (db_con, "SetMetadata", 5, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1");
 		g_free (small_thumb_file);
 	}
@@ -294,7 +360,7 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 		char *large_thumb_file;
 
 		large_thumb_file = tracker_escape_string (db_con, large_thumb);
-		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, TRUE);
+		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, TRUE, FALSE);
 //		tracker_exec_proc (db_con, "SetMetadata", 5, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, "1");
 		g_free (large_thumb_file);
 	}
@@ -386,10 +452,14 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 
 		row = tracker_db_get_row (res, 0);
 
-		if (row && row[0] && row[1] && row[2] && row[3] && row[4]) {
+		if (row && row[0] && row[1] && row[2] && row[3] && row[4] && row[5] && row[6] && row[7] && row[8]) {
 			info = tracker_create_file_info (uri, atoi (row[2]), 0, 0);
 			info->mime = g_strdup (row[3]);
-			info->is_directory = (strcmp (row[4], "0") == 0);
+			info->is_directory = (strcmp (row[4], "1") == 0);
+			info->is_new = (strcmp (row[5], "1") == 0);
+			info->extract_embedded = (strcmp (row[6], "1") == 0);
+			info->extract_contents = (strcmp (row[7], "1") == 0);
+			info->service_type_id = atoi (row[8]);
 		}
 
 		tracker_db_free_result (res);
@@ -400,7 +470,7 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 
 
 static void
-make_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
+make_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new)
 {
 	char *str_file_id, *str_action, *str_counter;
 
@@ -410,37 +480,41 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 	str_action = g_strdup_printf ("%d", action);
 	str_counter = g_strdup_printf ("%d", counter);
 
-	if (!mime) {
-		if (tracker->is_running) {
-			if ( (counter > 0)
-	  		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > 50 ))
-	  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > 500 )) ) {
+	if (tracker->is_running) {
+		if ( (counter > 0)  
+		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > 50 ))
+  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > 500 )) ) {
 
-				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, "unknown", is_directory);
+			//tracker_log ("************ counter for pending file %s is %d ***********", uri, counter);
+			if (!mime) {
+				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, "unknown", is_directory, is_new);
 			} else {
-				FileInfo *info;
-
-				info = tracker_create_file_info (uri, action, 0, WATCH_OTHER);
-
-				info->is_directory = is_directory;
-				info->mime = g_strdup ("unknown");
-
-				if (action != TRACKER_ACTION_EXTRACT_METADATA) {
-					g_async_queue_push (tracker->file_process_queue, info);
-				} else {
-					g_async_queue_push (tracker->file_metadata_queue, info);
-				}
+				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, mime, is_directory, is_new);
 			}
+
 		} else {
-			return;
+
+			FileInfo *info;
+
+			info = tracker_create_file_info (uri, action, 0, WATCH_OTHER);
+
+			info->is_directory = is_directory;
+			info->is_new = is_new;
+			if (!mime) {
+				info->mime = g_strdup ("unknown");
+			} else {
+				info->mime = g_strdup (mime);
+			}
+
+			if (action != TRACKER_ACTION_EXTRACT_METADATA) {
+				g_async_queue_push (tracker->file_process_queue, info);
+			} else {
+				g_async_queue_push (tracker->file_metadata_queue, info);
+			}
 		}
 
 	} else {
-		if (tracker->is_running) {
-			tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, mime, is_directory);
-		} else {
-			return;
-		}
+		return;
 	}
 
 	//tracker_log ("inserting pending file for %s with action %s", uri, tracker_actions[action]);
@@ -477,7 +551,7 @@ tracker_db_update_pending_file (DBConnection *db_con, const char *uri, int count
 
 
 void
-tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
+tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new)
 {
 	FileInfo *info;
 
@@ -538,7 +612,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *
 		tracker_free_file_info (info);
 
 	} else {
-		make_pending_file (db_con, file_id, uri, mime, counter, action, is_directory);
+		make_pending_file (db_con, file_id, uri, mime, counter, action, is_directory, is_new);
 	}
 }
 

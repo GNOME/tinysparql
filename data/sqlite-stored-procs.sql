@@ -1,6 +1,8 @@
+ValidService select 1 where exists ( select TypeID From ServiceTypes where TypeName = ?);
+
 GetServiceType select TypeName From ServiceTypes where TypeID = ?;
 
-GetMetaDataName	select MetaName  From MetaDataTypes where ID = ?;
+GetMetaDataName	  SELECT MetaName From MetaDataTypes where ID = ?;
 
 GetMetaDataTypeID select ID From MetaDataTypes where MetaName = ?;
 
@@ -10,13 +12,15 @@ GetServiceTypeID select TypeID From ServiceTypes where TypeName = ?;
 
 GetServiceIDNum select ID From Services where Path = ? and Name  = ?;
 
+GetServiceTypeIDForFile select ServiceTypeID FROM Services where ID = ?;
+
 GetFilesByServiceType SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Services F WHERE (F.ServiceTypeID between ? and ?) LIMIT ?,?;
+
+GetFileByID SELECT  DISTINCT Path , Name as uri  FROM Services WHERE ID = ?;
 
 GetFileMTime SELECT M.MetaDataNumericValue  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Modified');
 
-IndexIDExists select 1 where exists (select IndexID from ServiceMetaData where IndexID = ?);
-
-GetMainServices	SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = 1 ORDER BY TypeID;
+GetMainServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = 1 ORDER BY TypeID;
 
 GetServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes ORDER BY TypeID;
 
@@ -37,7 +41,9 @@ DeleteEmbeddedServiceMetadata DELETE FROM ServiceMetaData WHERE ServiceID = ? AN
 	
 SelectFileChild SELECT ID, Path, Name FROM Services WHERE Path = ?;
 
-SelectFileSubFolders SELECT ID, Path, Name, IsDirectory FROM Services WHERE (Path = ?  or Path glob ?) Having IsDirectory = 1;
+SelectFileSubFolders SELECT ID, Path, Name, IsDirectory FROM Services WHERE (Path = ?  or Path glob ?) And IsDirectory = 1;
+
+SelectSubFileIDs SELECT ID FROM Services WHERE (Path = ?  or Path glob ?);
 
 UpdateFile UPDATE Services SET IndexTime = ? WHERE ID = ?; 
 
@@ -63,7 +69,9 @@ DeleteDirectory7 DELETE FROM FilePending WHERE FileID = ?;
 DeleteDirectory8 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
 DeleteDirectory9 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
 
-SaveFileContents insert into ServiceMetaData (ServiceID, MetaDataID, MetaDataIndexValue) values (?,?,?);
+SaveFileContents REPLACE into ServiceContents (ServiceID, Content, ContainsWordScores) values (?,?,?);
+
+GetFileContents Select uncompress (Content), ContainsWordScores from ServiceContents where ServiceID = ? and Content is not null
 
 GetKeywordList Select distinct K.Keyword, count(*) from Services S, ServiceKeywords K where K.ServiceID = S.ID AND (S.ServiceTypeID between ? and ?) group by K.Keyword order by 2,1 desc;
 
@@ -77,6 +85,8 @@ RemoveAllKeywords delete from ServiceKeywords where ServiceID = (select ID From 
 
 SearchKeywords Select Distinct S.Path || '/' || S.Name as uri  from Services  S INNER JOIN ServiceKeywords K ON K.ServiceID = S.ID WHERE (S.ServiceTypeID between ? and ?) and K.Keyword = ? limit ?,?;
 
+GetAllIndexable  SELECT S.MetaDataIndexValue, M.Weight FROM ServiceMetaData S, MetaDataTypes M WHERE  S.MetaDataID = M.ID AND S.ServiceID = ? And S.MetaDataIndexValue is not null and M.DatatypeID = 0;
+
 GetMetadataIndex SELECT MetaDataIndexValue FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = (select ID from MetaDataTypes where MetaName = ?);
 
 GetMetadataString SELECT MetaDataValue FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = (select ID from MetaDataTypes where MetaName = ?);
@@ -89,27 +99,27 @@ SetMetadataString REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataV
 
 SetMetadataNumeric REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataNumericValue) VALUES (?,?,?);
 
-GetMetadataTypeInfo SELECT  ID, DataTypeID, Embedded, Writeable  FROM MetaDataTypes where MetaName = ?;
+GetMetadataTypeInfo SELECT  ID, DataTypeID, Embedded, Writeable, Weight  FROM MetaDataTypes where MetaName = ?;
 
-GetMetadataTypes SELECT MetaName, ID, DataTypeID, Embedded, Writeable  FROM MetaDataTypes;
+GetMetadataTypes SELECT MetaName, ID, DataTypeID, Embedded, Writeable, Weight  FROM MetaDataTypes;
 
-GetMetadataTypesLike SELECT MetaName, ID, DataTypeID, Embedded, Writeable  FROM MetaDataTypes WHERE MetaName glob ?;
+GetMetadataTypesLike SELECT MetaName, ID, DataTypeID, Embedded, Writeable, Weight  FROM MetaDataTypes WHERE MetaName glob ?;
 
-GetWriteableMetadataTypes SELECT MetaName, ID, DataTypeID, Embedded, Writeable  FROM MetaDataTypes where writeable = 1;
+GetWriteableMetadataTypes SELECT MetaName, ID, DataTypeID, Embedded, Writeable, Weight  FROM MetaDataTypes where writeable = 1;
 
-GetWriteableMetadataTypesLike SELECT MetaName, ID, DataTypeID, Embedded, Writeable  FROM MetaDataTypes WHERE MetaName glob ? and  writeable = 1;
+GetWriteableMetadataTypesLike SELECT MetaName, ID, DataTypeID, Embedded, Writeable, Weight  FROM MetaDataTypes WHERE MetaName glob ? and  writeable = 1;
 
-SelectMetadataClasses SELECT DISTINCT SUBSTRING_INDEX(MetaName, '.', 1) FROM MetaDataTypes;
+SelectMetadataClasses SELECT DISTINCT MetaName FROM MetaDataTypes;
 
 InsertMetadataType INSERT INTO MetaDataTypes (MetaName, DataTypeID, Embedded, Writeable) VALUES (?,?,?,?); 
 
 ExistsPendingFiles select count (*) from FilePending where Action <> 20;
 
-InsertPendingFile INSERT INTO FilePending (FileID, Action, PendingDate, FileUri, MimeType, IsDir) VALUES (?,?,?,?,?,?);
+InsertPendingFile INSERT INTO FilePending (FileID, Action, PendingDate, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) VALUES (?,?,?,?,?,?,?,?,?,?);
 
 CountPendingMetadataFiles select count (*) from FilePending where Action = 20;
 
-SelectPendingByUri SELECT  FileID, FileUri, Action, MimeType, IsDir FROM FilePending WHERE FileUri = ?;
+SelectPendingByUri SELECT  FileID, FileUri, Action, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FilePending WHERE FileUri = ?;
 
 UpdatePendingFile UPDATE FilePending SET PendingDate = ?, Action = ? WHERE FileUri = ?;
 

@@ -1,3 +1,24 @@
+
+2006-09-25 Jamie McCracken <jamiemcc at gnome org>
+	
+	* Integrated new indexer and parser into tracker/sqlite
+	* Added support for insert, update and delete
+	* performs differential indexing for updates
+	* got tracker-search to function with it
+
+2006-09-25 Edward Duffy <eduffy at gmail com>
+	
+	* added internal extractors for pdf, OpenDocument, Abiword and Postscript
+
+2006-09-25 Fabien VALLON <fabien at sonappart net>
+	
+	* Did an initial ogg extractor 
+
+2006-09-25 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* Added thunderbird email support
+	* Added fixes for detecting deleted and junk emails in Evolution mail parser
+
 2006-09-21 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Added detection of deleted and junk messages to email indexing

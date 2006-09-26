@@ -97,6 +97,63 @@ word_is_alpha (const char *word)
 }
 
 
+static void
+get_value (gpointer key,
+   	   gpointer value,
+	   gpointer user_data)
+{
+	GString *str = user_data;
+
+	g_string_append_printf (str, "%s,", (char *)key);
+}
+
+
+
+char **
+tracker_parse_text_into_array (TextParser *parser, const char *text)
+{
+	GHashTable *table;
+	char **array, *s;
+	int count;
+	GString *str;
+
+	table = tracker_parse_text (parser, NULL, text, 1);
+
+	if (!table || g_hash_table_size (table) == 0) {
+		return NULL;
+	}
+
+	count = g_hash_table_size (table);
+
+	array = g_new (char *, count + 1);
+
+	array[count] = NULL;
+	
+	str = g_string_new ("");
+
+	g_hash_table_foreach (table, get_value, str);
+	
+	s = g_string_free (str, FALSE);
+
+	count = strlen (s);
+
+	if (count > 0) {
+		s[strlen(s)-1] = '\0';
+	}
+
+	array =  g_strsplit (s, ",", -1);
+
+	g_free (s);
+
+	if (table) {
+		g_hash_table_destroy (table);
+	}
+
+	return array;
+
+}
+
+
 GHashTable *
 tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text, int weight)
 {
@@ -114,13 +171,13 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 
 	delimit_text = (char *) text;
 
-	/* crude hack to determine if we need to break words up with unbelivably slow pango word breaking */
+	/* crude hack to determine if we need to break words up with unbelivably slow pango word breaking 
 	if (!strchr (text, ' ') && !strchr (text, ',') && !strchr (text, '.') && !strchr (text, '/') ) {
 		g_print ("word breaks not detected\n");
 	  	delimit_text = delimit_utf8_string (text);
 		pango_delimited = TRUE;
 	}
-	
+	*/
 
 	/* break text into words */
 
@@ -197,15 +254,8 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 
 			/* count dupes */
 			count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
+			g_hash_table_insert (word_table, word, GINT_TO_POINTER (count + weight));
 
-			if (!g_hash_table_lookup (word_table, word)) {
-				g_hash_table_insert (word_table, word, GINT_TO_POINTER (weight));
-			} else {
-				int r;
-
-				r = count + weight;
-				g_hash_table_replace (word_table, word, GINT_TO_POINTER (r));
-			}
 
 
 		}

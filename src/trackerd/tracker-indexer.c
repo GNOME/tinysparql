@@ -17,15 +17,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+
 #include "tracker-indexer.h"
-#include "tracker-utils.h"
+
 
 
 #define INDEXBNUM       262144            /* initial bucket number of word index */
 #define INDEXALIGN      -2                /* alignment of inverted index */
 #define INDEXFBP        32                /* size of free block pool of inverted index */
-#define COMPACT_AT_SIZE 1750000000	  /* size above which we try to automatically compact */
-
 
 typedef struct {                         /* type of structure for an element of search result */
 	guint32 	id;              /* Service ID number of the document */
@@ -39,6 +38,8 @@ typedef struct {
 } SearchWord;
 
 
+
+static gboolean shutdown;
 
 static inline guint8
 get_score (WordDetails *details)
@@ -177,10 +178,12 @@ tracker_indexer_open (const char *name)
 	DEPOT *word_index;
 	Indexer *result;
 
-	base_dir = g_build_filename (g_get_home_dir(), ".Tracker", "Indexes",  NULL);
+	shutdown = FALSE;
+
+	base_dir = g_build_filename (g_get_home_dir(), ".Tracker", "databases",  NULL);
 	word_dir = g_build_filename (base_dir, name, NULL);
 
-	tracker_log ("Word index is %s", word_dir);
+	tracker_log ("Opening index %s", word_dir);
 
 	if (!tracker_file_is_valid (base_dir)) {
 		g_mkdir_with_parents (base_dir, 00755);
@@ -201,7 +204,7 @@ tracker_indexer_open (const char *name)
 	g_free (base_dir);
 	g_free (word_dir);
 
-	result = g_new (Indexer, 1);
+	result = g_new0 (Indexer, 1);
 
 	result->word_index = word_index;
 
@@ -215,7 +218,7 @@ tracker_indexer_open (const char *name)
 	buckets = dpbnum (result->word_index);
 	records = dprnum (result->word_index);
 
-	if ((buckets < (2 * records)) || (dpfsiz (result->word_index) > COMPACT_AT_SIZE))  {
+	if (buckets < (2 * records)) {
 		tracker_log ("Optimizing word index - this may take a while...");
 		tracker_indexer_optimize (result);
 	}
@@ -228,8 +231,11 @@ tracker_indexer_close (Indexer *indexer)
 {
 	g_return_if_fail (indexer);
 
+	shutdown = TRUE;
+
 	g_mutex_lock (indexer->word_mutex);
 	dpclose (indexer->word_index);
+
 	g_mutex_unlock (indexer->word_mutex);
 	g_mutex_free (indexer->word_mutex);
 
@@ -239,6 +245,8 @@ tracker_indexer_close (Indexer *indexer)
 gboolean
 tracker_indexer_optimize (Indexer *indexer)
 {
+
+	if (shutdown) return FALSE;
 
 	g_mutex_lock (indexer->word_mutex);
 	if (!dpoptimize (indexer->word_index, INDEXBNUM)) {
@@ -257,27 +265,24 @@ gboolean
 tracker_indexer_append_word (Indexer *indexer, const char *word, guint32 id, int service, int score)
 {
 
+	if (shutdown) return FALSE;
+
 	g_return_val_if_fail ((indexer && word), FALSE);
 
-	/* tracker_log ("inserting word %s with score %d into Service ID %d and service type %d",
-		 	word, 
-			score, 
-			id, 	
-			service);
-	*/
-		
 	WordDetails pair;
 
 	pair.id = id;
 	pair.amalgamated = calc_amalgamated (service, score);
 
 	g_mutex_lock (indexer->word_mutex);
-	if (!dpput (indexer->word_index, word, -1, (char *) &pair, sizeof (pair), DP_DCAT)) {
+	if (!dpput (indexer->word_index, word, -1, (char *) &pair, sizeof (WordDetails), DP_DCAT)) {
 		g_mutex_unlock (indexer->word_mutex);
 		return FALSE;
 	}
 	g_mutex_unlock (indexer->word_mutex);
 	
+	//tracker_log ("Added word %s to ID %d with score %d", word, id, score);
+
 	return TRUE;
 }
 
@@ -289,10 +294,14 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 {
 	int  tsiz;
 	char *tmp;
-	
+
+	if (shutdown) return FALSE;
+
 	g_return_val_if_fail ((indexer && word), FALSE);
 
 	g_mutex_lock (indexer->word_mutex);
+
+	//tracker_log ("updating word %s with score %d in ID %d", word, score, id);
 
 	/* check if existing record is there  */
 	if ((tmp = dpget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
@@ -316,26 +325,17 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 					score += get_score (&details[i]);
 									
 					if (score < 1 || remove_word) {
-						GString *result;
+						
+						int k;
 
-						result = g_string_new ("");
-
-						if (i > 0) {
-							result = g_string_append_len (result, tmp,  sizeof (WordDetails) * i);			
+						/* shift all subsequent records in array down one place */
+						for (k=i+1; k<pnum; k++) {
+							details[k-1] = details[k];
 						}
 
-						char *s;
+						/* make size of array one size smaller */
+						tsiz -= sizeof (WordDetails); 
 
-						s = (char *) (tmp + (sizeof (WordDetails) * (i+1)));
-
-						g_free (tmp);
-
-						result = g_string_append (result, s);
-
-						tmp = g_string_free (result, FALSE);
-
-						details = (WordDetails *) tmp;
-						
 					} else {
 						details[i].amalgamated = calc_amalgamated (service, score);
 					}
@@ -395,6 +395,10 @@ get_hits_for_single_word (Indexer *indexer,
 	GSList *result;
 	gboolean single_search_complete;
 	
+	if (shutdown) return NULL;
+
+	tracker_log ("searching for %s with smin %d and smax %d, offset %d and limit %d", word, service_type_min, service_type_max, offset, limit);
+
 	single_search_complete = FALSE;
 
 	result = NULL;
@@ -414,6 +418,8 @@ get_hits_for_single_word (Indexer *indexer,
 			details = (WordDetails *) tmp;
 			
 			pnum = tsiz / sizeof (WordDetails);
+
+			tracker_log ("total hit count is %d", pnum);
 
 			if (offset >= pnum) {
 				*hit_count = pnum;
@@ -449,6 +455,8 @@ get_hits_for_single_word (Indexer *indexer,
 					}
 
 					hit = word_details_to_search_hit (&details[i]);
+
+					//tracker_log ("adding hit %d", details[i].id);
 
 					result = g_slist_prepend (result, hit);
 
@@ -488,6 +496,8 @@ get_intermediate_hits (Indexer *indexer,
 	int  tsiz;
 	char *tmp;
 	GHashTable *result;
+
+	if (shutdown) return NULL;
 
 	result = g_hash_table_new (NULL, NULL);
 
@@ -529,32 +539,12 @@ get_intermediate_hits (Indexer *indexer,
 
 						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GINT_TO_POINTER (score));   	
 
-					
-						/*GSList *l;
-						for (l = match_list; l; l=l->next) {
-						
-							hit = l->data;
-							if (hit->service_id  ==  details[i].id) {
-									
-								hit->score += get_score (&details[i]);
-								
-								match_list = g_slist_delete_link (match_list, l);
-
-								result = g_slist_prepend (result, hit);
-								
-								//tracker_log ("found matching hit for sid %d with new score of %d", hit->service_id, hit->score);
-								//tracker_log ("result list is now %d and match list is %d", g_slist_length (result),g_slist_length (match_list));
-								break;
-							}
-						}*/
-
 					} else {
 						SearchHit *hit;
 
 						hit = word_details_to_search_hit (&details[i]);
 			
 						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GINT_TO_POINTER ((int) get_score (&details[i]))); 						
-						//result = g_slist_prepend (result, hit);
 						
 					}
 				}
@@ -595,6 +585,12 @@ get_final_hits (Indexer *indexer,
 	*hit_count = 0;
 	list = NULL;
 
+	if (shutdown) return NULL;
+
+	if (!match_table || g_hash_table_size (match_table) < 1) {
+		return NULL;
+	}
+
 	g_mutex_lock (indexer->word_mutex);
 
 	if ((tmp = dpget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
@@ -604,13 +600,15 @@ get_final_hits (Indexer *indexer,
 		if (tsiz >= (int) sizeof (WordDetails)) {
 
 			WordDetails *details;
-			int count;
+			int size, count;
 
 			details = (WordDetails *) tmp;
 			
 			count = tsiz / sizeof (WordDetails);
+	
+			size = g_hash_table_size (match_table);
 
-			result = g_malloc (sizeof(SearchHit) * g_hash_table_size (match_table) + 1);
+			result = g_malloc0 ((sizeof (SearchHit) * size) +1);
 				
 			int i;
 			for (i=0; i<count; i++) {
@@ -639,12 +637,10 @@ get_final_hits (Indexer *indexer,
 				}
 			}
 
-			g_hash_table_destroy (match_table);
-
 			qsort (result, rnum, sizeof (SearchHit), compare_search_hits);
 
 			if (offset >= rnum) {
-				tracker_log ("offset is too big - no results will be returned");
+				tracker_log ("WARNING: offset is too big - no results will be returned");
 				g_free (tmp);
 				g_free (result);
 				return NULL;
@@ -686,6 +682,9 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int service_type_min, 
 	GHashTable *table;
 	GSList *result;
 	SearchWord search_word[6];
+
+	
+	if (shutdown) return NULL;
 	
 	*total_count = 0;
 
@@ -733,7 +732,6 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int service_type_min, 
 	/* qsort stores results in desc order so we must go from end value to start value to start from word with fewest hits*/
 	for (i=word_count-1; i>-1; i--) {
 
-		tracker_log ("getting hits for %s with hits %ld", search_word[i].word, search_word[i].word_hits);
 
 		if (i != 0) {
 			table = get_intermediate_hits (indexer, table, search_word[i].word, service_type_min, service_type_max);
@@ -745,6 +743,9 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int service_type_min, 
 
 		} else {
 			result = get_final_hits (indexer, table, search_word[i].word, service_type_min, service_type_max, offset, limit, &hit_count);
+			if (table) {
+				g_hash_table_destroy (table);
+			}
 			*total_count = hit_count;	
 			return result;
 		}

@@ -60,6 +60,7 @@ typedef struct {
  
 
 char **		tracker_db_get_row 		(char ***result, int num);
+unsigned int	tracker_db_get_last_id 		(DBConnection *db_con);
 void		tracker_db_free_result 		(char ***result);
 void		tracker_db_log_result 		(char ***result);
 int		tracker_get_row_count 		(char ***result);
@@ -77,6 +78,7 @@ char *		tracker_escape_string 		(DBConnection *db_con, const char *in);
 void		tracker_db_prepare_queries 	(DBConnection *db_con);
 char ***	tracker_exec_proc 		(DBConnection *db_con, const char *procedure, int param_count, ...);
 char ***	tracker_exec_sql   		(DBConnection *db_con, const char *query);
+char ***	tracker_exec_sql_ignore_nulls 	(DBConnection *db_con, const char *query);
 void		tracker_log_sql	   		(DBConnection *db_con, const char *query);
 void		tracker_create_db  		();
 void		tracker_db_load_stored_procs 	(DBConnection *db_con);
@@ -86,6 +88,8 @@ void		tracker_db_check_tables 	(DBConnection *db_con);
 void		tracker_db_start_transaction 	(DBConnection *db_con);
 void		tracker_db_end_transaction 	(DBConnection *db_con);
 
+void		tracker_db_update_indexes_for_new_service 	(DBConnection *db_con, guint32 service_id, GHashTable *table);
+void		tracker_db_update_differential_index 		(DBConnection *db_con, GHashTable *old_table, GHashTable *new_table, const char *id, const char *service);
 
 char ***	tracker_db_search_text 		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean sort);
 char ***	tracker_db_search_files_by_text (DBConnection *db_con, const char *text, int offset, int limit, gboolean sort);
@@ -93,16 +97,16 @@ char ***	tracker_db_search_metadata 	(DBConnection *db_con, const char *service,
 char ***	tracker_db_search_matching_metadata (DBConnection *db_con, const char *service, const char *id, const char *text);
 
 char ***	tracker_db_get_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key);
-void 		tracker_db_set_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
+void 		tracker_db_set_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite, gboolean index);
 void		tracker_db_update_keywords 	(DBConnection *db_con, const char *service, const char *id, const char *value);
 
 void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const char *name, const char *service,  gboolean is_dir, gboolean is_link, 
-					   	 gboolean is_source,  int offset, long mtime);
+					   	 gboolean is_source,  int offset, guint32 mtime);
 
-void		tracker_db_delete_file 		(DBConnection *db_con, long file_id);
-void		tracker_db_delete_directory 	(DBConnection *db_con, long file_id, const char *uri);
-void		tracker_db_update_file 		(DBConnection *db_con, long file_id, long mtime);
-void		tracker_db_update_file_move	(DBConnection *db_con, long file_id, const char *path, const char *name, long mtime);
+void		tracker_db_delete_file 		(DBConnection *db_con, guint32 file_id);
+void		tracker_db_delete_directory 	(DBConnection *db_con, guint32 file_id, const char *uri);
+void		tracker_db_update_file 		(DBConnection *db_con, guint32 file_id, guint32 mtime);
+void		tracker_db_update_file_move	(DBConnection *db_con, guint32 file_id, const char *path, const char *name, guint32 mtime);
 
 gboolean 	tracker_db_has_pending_files 	(DBConnection *db_con);
 gboolean 	tracker_db_has_pending_metadata (DBConnection *db_con);
@@ -110,7 +114,7 @@ char ***	tracker_db_get_pending_files 	(DBConnection *db_con);
 void		tracker_db_remove_pending_files (DBConnection *db_con);
 char ***	tracker_db_get_pending_metadata (DBConnection *db_con);
 void		tracker_db_remove_pending_metadata (DBConnection *db_con);
-void		tracker_db_insert_pending	(DBConnection *db_con, const char *id, const char *action, const char *counter, const char *uri, const char *mime, gboolean is_dir);
+void		tracker_db_insert_pending	(DBConnection *db_con, const char *id, const char *action, const char *counter, const char *uri, const char *mime, gboolean is_dir, gboolean is_new);
 void		tracker_db_update_pending 	(DBConnection *db_con, const char *counter, const char *action, const char *uri);
 
 char ***	tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int offset, int limit);

@@ -28,6 +28,7 @@
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <bzlib.h>
 
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
@@ -44,7 +45,7 @@ char *file_service_array[] =   {"Files", "Folders", "Documents", "Images", "Musi
 				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
 				NULL};
 
-char *serice_index_array[] = {	"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
+char *service_index_array[] = {	"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
 				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
 				"Conversations", "Playlists", "Applications", "Contacts", "Emails", "EmailAttachments", "Notes", "Appointments",
 				"Tasks", "Bookmarks", "History", "Projects", NULL};
@@ -72,6 +73,20 @@ static const char imonths[] = {
 	'1', '2', '3', '4', '5',
 	'6', '7', '8', '9', '0', '1', '2'
 };
+
+
+const char *
+tracker_get_service_by_id (int service_type_id)
+{
+	return service_index_array[service_type_id];
+}
+
+int
+tracker_get_id_for_service (const char *service)
+{
+	return tracker_str_in_array (service, service_index_array);
+}
+
 
 
 char **
@@ -638,7 +653,7 @@ tracker_str_in_array (const char *str, char **array)
 
 	for (st = (char *) *array; *st; st++) {
 		if (strcmp (st, str) == 0) {
-			return TRUE;
+			return i;
 		}
 		i++;
 	}
@@ -1408,7 +1423,7 @@ tracker_load_config_file ()
 		contents  = g_strconcat ("[Watches]\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
 					 "NoWatchDirectory=\n\n",
-					 "[Indexes]\n"
+					 "[Indexes]\n",
 					 "IndexTextFiles=true\n",
 					 "IndexDocuments=true\n",
 					 "IndexSourceCode=true\n",
@@ -1422,7 +1437,8 @@ tracker_load_config_file ()
 					 "IndexFirefoxBookmarks=true\n",
 					 "IndexFirefoxHistory=true\n",
 					 "IndexEmails=false\n",
-					 "IndexEvolutionEmails=false\n\n",
+					 "IndexEvolutionEmails=false\n",
+					 "IndexThunderbirdEmails=false\n\n",
 					 "[Database]\n",
 					 "StoreTextFileContentsInDB=false\n",
 					 "DBBufferMemoryLimit=1M\n\n",
@@ -1515,20 +1531,30 @@ tracker_load_config_file ()
 	}
 */
 
-	if (g_key_file_has_key (key_file, "Indexes", "IndexEMails", NULL)) {
-		tracker->index_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEMails", NULL);
+	if (g_key_file_has_key (key_file, "Indexes", "IndexEmails", NULL)) {
+		tracker->index_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEmails", NULL);
 	} else {
 		tracker->index_emails = FALSE;
 	}
 
 	if (tracker->index_emails) {
-		if (g_key_file_has_key (key_file, "Indexes", "IndexEvolutionEMails", NULL)) {
-			tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEvolutionEMails", NULL);
+		if (g_key_file_has_key (key_file, "Indexes", "IndexEvolutionEmails", NULL)) {
+			tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEvolutionEmails", NULL);
 		} else {
 			tracker->index_evolution_emails = FALSE;
 		}
 	} else {
 		tracker->index_evolution_emails = FALSE;
+	}
+
+	if (tracker->index_emails) {
+		if (g_key_file_has_key (key_file, "Indexes", "IndexThunderbirdEmails", NULL)) {
+			tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexThunderbirdEmails", NULL);
+		} else {
+			tracker->index_thunderbird_emails = FALSE;
+		}
+	} else {
+		tracker->index_thunderbird_emails = FALSE;
 	}
 
 /*
@@ -1789,4 +1815,145 @@ tracker_timer_end (GTimeVal *before, const char *str)
 
 	tracker_log ("%s %f ms", str, elapsed);
 
+}
+
+
+char *
+tracker_compress (const char *ptr, int size, int *compressed_size)
+{
+	bz_stream zs;
+	char *buf, *swap, obuf[8192];
+	int rv, asiz, bsiz, osiz;
+
+	if (size < 0) {
+		size = strlen (ptr);
+	}
+
+	zs.bzalloc = NULL;
+	zs.bzfree = NULL;
+	zs.opaque = NULL;
+
+	if (BZ2_bzCompressInit (&zs, 9, 0, 30) != BZ_OK) {
+		return NULL;
+	}
+
+	asiz = size + 16;
+	if (asiz < 8192) {
+		asiz = 8192;
+	}
+
+	if(!(buf = malloc (asiz))) {
+		BZ2_bzCompressEnd (&zs);
+		return NULL;
+	}
+
+	bsiz = 0;
+
+	zs.next_in = (char *)ptr;
+	zs.avail_in = size;
+	zs.next_out = obuf;
+	zs.avail_out = 8192;
+	while ((rv = BZ2_bzCompress (&zs, BZ_FINISH)) == BZ_FINISH_OK) {
+		osiz = 8192 - zs.avail_out;
+		if (bsiz + osiz > asiz){
+			asiz = asiz * 2 + osiz;
+			if (!(swap = realloc (buf, asiz))){
+				free (buf);
+				BZ2_bzCompressEnd (&zs);
+				return NULL;
+			}
+			buf = swap;
+		}
+		memcpy (buf + bsiz, obuf, osiz);
+		bsiz += osiz;
+		zs.next_out = obuf;
+		zs.avail_out = 8192;
+	}
+
+	if (rv != BZ_STREAM_END) {
+		free (buf);
+		BZ2_bzCompressEnd (&zs);
+		return NULL;
+	}
+
+	osiz = 8192 - zs.avail_out;
+	if (bsiz + osiz + 1 > asiz) {
+		asiz = asiz * 2 + osiz;
+		if (!(swap = realloc (buf, asiz))){
+			free (buf);
+			BZ2_bzCompressEnd (&zs);
+			return NULL;
+		}
+		buf = swap;
+	}
+
+	memcpy (buf + bsiz, obuf, osiz);
+	bsiz += osiz;
+	buf[bsiz] = '\0';
+	*compressed_size = bsiz;
+	BZ2_bzCompressEnd (&zs);
+
+	return buf;
+}
+
+
+char *
+tracker_uncompress (const char *ptr, int size, int *uncompressed_size)
+{
+	bz_stream zs;
+	char *buf, *swap, obuf[8192];
+	int rv, asiz, bsiz, osiz;
+	zs.bzalloc = NULL;
+	zs.bzfree = NULL;
+	zs.opaque = NULL;
+
+	if (BZ2_bzDecompressInit (&zs, 0, 0) != BZ_OK) return NULL;
+	asiz = size * 2 + 16;
+	if (asiz < 8192) asiz = 8192;
+	if (!(buf = malloc (asiz))){
+		BZ2_bzDecompressEnd (&zs);
+		return NULL;
+	}
+	bsiz = 0;
+	zs.next_in = (char *)ptr;
+	zs.avail_in = size;
+	zs.next_out = obuf;
+	zs.avail_out = 8192;
+	while ((rv = BZ2_bzDecompress (&zs)) == BZ_OK){
+		osiz = 8192 - zs.avail_out;
+		if (bsiz + osiz >= asiz){
+			asiz = asiz * 2 + osiz;
+			if(!(swap = realloc (buf, asiz))){
+				free (buf);
+				BZ2_bzDecompressEnd (&zs);
+				return NULL;
+			}
+			buf = swap; 
+		}
+		memcpy (buf + bsiz, obuf, osiz);
+		bsiz += osiz;
+		zs.next_out = obuf;
+		zs.avail_out = 8192;
+	}
+	if (rv != BZ_STREAM_END){
+		free (buf);
+		BZ2_bzDecompressEnd (&zs);
+		return NULL;
+	}
+	osiz = 8192 - zs.avail_out;
+	if (bsiz + osiz >= asiz){
+		asiz = asiz * 2 + osiz;
+		if (! (swap = realloc (buf, asiz))){
+			free (buf);
+			BZ2_bzDecompressEnd (&zs);
+			return NULL;
+		}
+		buf = swap;
+	}
+	memcpy (buf + bsiz, obuf, osiz);
+	bsiz += osiz;
+	buf[bsiz] = '\0';
+	if (uncompressed_size) *uncompressed_size = bsiz;
+	BZ2_bzDecompressEnd (&zs);
+	return buf;
 }

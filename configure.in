@@ -19,7 +19,7 @@ AM_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h bzlib.h])
 
 # Check for glib 2.0
 PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= 2.4.0 ] gthread-2.0 >= 2.4.0)
@@ -68,26 +68,28 @@ fi
 # Optional database/indexer component checks
 ####################################################################
 
-use_sqlite=no
-use_mysql=yes
+use_sqlite=yes
+use_mysql=no
 AM_CONDITIONAL(BUILD_TEST, false)
 
 AC_ARG_ENABLE(sqlite3, [--enable-test          build test suite],
 			 [
 				AM_CONDITIONAL(BUILD_TEST, true)
+				AC_DEFINE(BUILD_TEST, [], [Define if we are building test stuff])
 			 ]
 	 	)
 
-AC_ARG_ENABLE(sqlite3, [--enable-sqlite3          build using sqlite and QDBM for indexing],
-			 [
-				AC_DEFINE(USING_SQLITE, [], [Define if we are using sqlite])
-				use_sqlite=yes
-				use_mysql=no
-			 ]
-	 	)
+#AC_ARG_ENABLE(sqlite3, [--enable-sqlite3          build using sqlite and QDBM for indexing],
+#			 [
+#				
+#				use_sqlite=yes
+#				use_mysql=no
+#			 ]
+#	 	)
 
 if test "$use_sqlite" = "yes"; 
 then
+	AC_DEFINE(USING_SQLITE, [], [Define if we are using sqlite])
 	AM_CONDITIONAL(USING_SQLITE, true)
 	DB_ENGINE=SQLite
 
@@ -303,6 +305,47 @@ AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
+##################################################################
+# check for poppler's glib bingings
+##################################################################
+
+POPPLER_GLIB_REQUIRED=0.5.0
+CAIRO_REQUIRED=1.0
+GDK_REQUIRED=1.0
+
+PKG_CHECK_MODULES(POPPLER_GLIB, [poppler-glib >= $POPPLER_GLIB_REQUIRED cairo >= $CAIRO_REQUIRED gdk-2.0 >= $GDK_REQUIRED], [have_poppler=yes] , [have_poppler=no])
+
+AM_CONDITIONAL(HAVE_POPPLER_GLIB, test "$have_poppler" = "yes")
+AC_SUBST(POPPLER_GLIB_CFLAGS)
+AC_SUBST(POPPLER_GLIB_LIBS)
+test "$have_poppler" = "yes" && AC_DEFINE(HAVE_POPPLER, [], [Define if we have poppler])
+
+##################################################################
+# check for ogg/vorbis
+##################################################################
+
+VORBIS_REQUIRED=1.1
+
+PKG_CHECK_MODULES(VORBIS, [vorbisfile >= $VORBIS_REQUIRED], [have_vorbis=yes] , [have_vorbis=no])
+
+AM_CONDITIONAL(HAVE_VORBIS, test "$have_vorbis" = "yes")
+AC_SUBST(VORBIS_CFLAGS)
+AC_SUBST(VORBIS_LIBS)
+test "$have_vorbis" = "yes" && AC_DEFINE(HAVE_VORBIS, [], [Define if we have libvorbis])
+
+##################################################################
+# check for ogg/theora
+##################################################################
+
+THEORA_REQUIRED=1.1
+
+PKG_CHECK_MODULES(THEORA, [theora >= $THEORA_REQUIRED], [have_theora=yes] , [have_theora=no])
+
+AM_CONDITIONAL(HAVE_THEORA, test "$have_theora" = "yes")
+AC_SUBST(THEORA_CFLAGS)
+AC_SUBST(THEORA_LIBS)
+test "$have_theora" = "yes" && AC_DEFINE(HAVE_THEORA, [], [Define if we have libtheora])
+
 
 #####################################################
 
@@ -347,5 +390,10 @@ Tracker-$VERSION:
 	inotify header location :		$inotify_header
 	GTK front-end :         		$have_gtk
 
+Metadata extractors:
+
+	pdf :					$have_poppler
+	ogg/vorbis :				$have_vorbis
+	ogg/theora :				$have_theora
 "
 

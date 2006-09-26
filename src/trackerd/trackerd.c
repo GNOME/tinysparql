@@ -50,12 +50,14 @@
 #include "tracker-db.h"
 #include "tracker-mbox.h"
 #include "tracker-metadata.h"
+
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
 #include "tracker-dbus-keywords.h"
 #include "tracker-dbus-search.h"
 #include "tracker-dbus-files.h"
 
+#include  "tracker-indexer.h"
 
 Tracker		       *tracker;
 DBConnection	       *main_thread_db_con;
@@ -167,6 +169,8 @@ do_cleanup (const char *sig_msg)
 	/* stop threads from further processing of events if possible */
 
 	tracker_dbus_shutdown (main_connection);
+
+	tracker_indexer_close (tracker->file_indexer);
 
 	//tracker_indexer_close (file_indexer);
 	//tracker_db_clear_temp (main_thread_db_con);
@@ -300,7 +304,7 @@ poll_dir (const char *uri, DBConnection *db_con)
 		info = tracker_db_get_file_info (db_con, info);
 
 		if (info->file_id == -1) {
-			tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory);
+			tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE);
 		} else {
 			tracker_free_file_info (info);
 		}
@@ -655,8 +659,6 @@ index_file (DBConnection *db_con, FileInfo *info)
 	/* refresh DB data as previous stuff might be out of date by the time we get here */
 	info = tracker_db_get_file_info (db_con, info);
 
-	tracker_log ("indexing file %s", info->uri);
-
 	if (info->mime) {
 		g_free (info->mime);
 	}
@@ -730,24 +732,31 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 		tracker_db_create_service (db_con, path, name, service_name, info->is_directory, info->is_link, FALSE, 0, info->mtime);
 
-		//tracker_log ("processed file %s with mime %s and service %s", info->uri, info->mime, service_name);
+		
+		info->file_id = tracker_db_get_last_id (db_con);
+		info->service_type_id = tracker_get_id_for_service (service_name);
+
+ 		//info->file_id = tracker_db_get_file_id (db_con, info->uri);
+
+		//tracker_log ("created new service ID %d for %s with mime %s and service %s and mtime %d", info->file_id, info->uri, info->mime, service_name, info->mtime);
 
 		g_free (service_name);
 
- 		info->file_id = tracker_db_get_file_id (db_con, info->uri);
+
+		info->is_new = TRUE;
 
 	} else {
-		tracker_log ("updating file %s ", info->uri);
-
+		info->is_new = FALSE;
 		tracker_db_update_file (db_con, info->file_id, info->mtime);
 
 		/* delete all derived metadata in DB for an updated file */
-		tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata", 1, str_file_id);
+		//tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata", 1, str_file_id);
 	}
 
 
 	if (info->file_id != -1) {
 		if (is_a_mbox) {
+
 			off_t	    offset;
 			MailBox	    *mb;
 			MailMessage *msg;
@@ -783,7 +792,14 @@ index_file (DBConnection *db_con, FileInfo *info)
 			tracker_close_mbox_and_free_memory (mb);
 
 		} else {
-			tracker_db_save_metadata (db_con, meta_table, info->file_id);
+
+			if (info->is_new) {
+				tracker_log ("saving basic metadata for *new* file %s", info->uri);
+			} else {
+				tracker_log ("saving basic metadata for *existing* file %s", info->uri);
+			}
+
+			tracker_db_save_metadata (db_con, meta_table, info->file_id, info->is_new);
 
 			g_hash_table_destroy (meta_table);
 		}
@@ -796,12 +812,18 @@ index_file (DBConnection *db_con, FileInfo *info)
 	g_free (str_link_uri);
 
 
-	if (!info->is_directory && info->file_id != -1 && !is_a_mbox) {
-		tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory);
+	if (!info->is_directory && info->file_id != -1 && !is_a_mbox && (info->service_type_id <= 7)) {
+		tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory, info->is_new);
+		return;
 	}
+	
 
 	if (info->file_id == -1) {
 		tracker_log ("FILE %s NOT FOUND IN DB!", info->uri);
+	} else {
+		if (info->is_new) {
+			tracker_db_update_indexes_for_new_service (db_con, info->file_id, NULL);
+		}
 	}
 }
 
@@ -844,7 +866,7 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 
 	/* keep mainloop responsive */
 	my_yield ();
-	tracker_db_insert_pending_file (db_con, -1, uri, "unknown", 0, TRACKER_ACTION_CHECK, 0);
+	tracker_db_insert_pending_file (db_con, -1, uri, "unknown", 0, TRACKER_ACTION_CHECK, 0, FALSE);
 }
 
 
@@ -1006,6 +1028,8 @@ extract_metadata_thread (void)
 					info_tmp = tracker_create_file_info (row[1], atoi(row[2]), 0, WATCH_OTHER);
 					info_tmp->file_id = atol (row[0]);
 					info_tmp->mime = g_strdup (row[3]);
+					info_tmp->is_new = (strcmp (row[5], "1") == 0);
+
 					g_async_queue_push (tracker->file_metadata_queue, info_tmp);
 				}
 
@@ -1023,7 +1047,9 @@ extract_metadata_thread (void)
 
 
 		/* info struct may have been deleted in transit here so check if still valid and intact */
-		g_return_if_fail (tracker_file_info_is_valid (info));
+		if (!tracker_file_info_is_valid (info)) {
+			continue;
+		}
 
 		if (info) {
 			if (info->uri) {
@@ -1031,7 +1057,11 @@ extract_metadata_thread (void)
 
 				GHashTable *meta_table;
 
-				tracker_log ("Extracting Metadata for file %s with mime %s", info->uri, info->mime);
+				if (info->is_new) {
+					tracker_log ("Extracting Metadata for *new* file %s with mime %s", info->uri, info->mime);
+				} else {
+					tracker_log ("Extracting Metadata for *existing* file %s with mime %s", info->uri, info->mime);
+				}
 
 				/* refresh stat data in case its changed */
 				info = tracker_get_file_info (info);
@@ -1045,7 +1075,7 @@ extract_metadata_thread (void)
 				tracker_metadata_get_embedded (info->uri, info->mime, meta_table);
 
 				if (g_hash_table_size (meta_table) > 0) {
-					tracker_db_save_metadata (db_con, meta_table, info->file_id);
+					tracker_db_save_metadata (db_con, meta_table, info->file_id, info->is_new);
 
 					/* to do - emit dbus signal here for EmbeddedMetadataChanged */
 				}
@@ -1084,7 +1114,7 @@ extract_metadata_thread (void)
 					char	   *dir;
 
 					//tracker_log ("text file is %s", file_as_text);
-
+			
 					tracker_db_save_file_contents (db_con, file_as_text, info);
 
 					tmp_dir = g_get_tmp_dir ();
@@ -1099,7 +1129,14 @@ extract_metadata_thread (void)
 					g_free (dir);
 
 					g_free (file_as_text);
+
+				} else {
+					if (info->is_new) {
+						tracker_db_update_indexes_for_new_service (db_con, info->file_id, NULL);
+					}
 				}
+
+				
 
 				if (tracker_is_an_email_attachment (info->uri)) {
 					tracker_unlink_email_attachment (info->uri);
@@ -1272,7 +1309,7 @@ process_files_thread (void)
 
 					tmp_action = atoi(row[2]);
 
-
+					
 
 					if (tmp_action != TRACKER_ACTION_CHECK) {
 						tracker_log ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
@@ -1308,7 +1345,6 @@ process_files_thread (void)
 			continue;
 		}
 
-		//tracker_log ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
 
 		/* get file ID and other interesting fields from Database if not previously fetched or is newly created */
 
@@ -1318,11 +1354,17 @@ process_files_thread (void)
 			info = tracker_db_get_file_info (db_con, info);
 		}
 
+
 		/* Get more file info if db retrieval returned nothing */
 		if (info->file_id == -1 && info->action != TRACKER_ACTION_DELETE &&
 		    info->action != TRACKER_ACTION_DIRECTORY_DELETED && info->action != TRACKER_ACTION_FILE_DELETED) {
 
 			info = tracker_get_file_info (info);
+
+			info->is_new = TRUE;
+
+		} else {
+			info->is_new = FALSE;
 		}
 
 		/* preprocess ambiguous actions when we need to work out if its a file or a directory that the action relates to */
@@ -1367,7 +1409,6 @@ process_files_thread (void)
 
 		/* check if file needs indexing */
 		need_index = (info->mtime > info->indextime);
-
 
 		switch (info->action) {
 
@@ -1498,10 +1539,10 @@ process_user_request_queue_thread (void)
 		rec = g_async_queue_try_pop (tracker->user_request_queue);
 
 		if (!rec) {
-			tracker_log ("request thread sleeping");
+			//tracker_log ("request thread sleeping");
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 			g_mutex_unlock (tracker->request_check_mutex);
-			tracker_log ("request thread awoken");
+			//tracker_log ("request thread awoken");
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
@@ -1897,7 +1938,22 @@ main (int argc, char **argv)
 
 	g_print ("Initialising tracker...\n");
 
+	/* trap signals */
+	sigemptyset (&empty_mask);
+	act.sa_handler = signal_handler;
+	act.sa_mask    = empty_mask;
+	act.sa_flags   = 0;
+	sigaction (SIGTERM, &act, NULL);
+	sigaction (SIGILL,  &act, NULL);
+	sigaction (SIGBUS,  &act, NULL);
+	sigaction (SIGFPE,  &act, NULL);
+	sigaction (SIGHUP,  &act, NULL);
+	sigaction (SIGSEGV, &act, NULL);
+	sigaction (SIGABRT, &act, NULL);
+	sigaction (SIGUSR1, &act, NULL);
+	sigaction (SIGINT,  &act, NULL);
 
+	g_type_init ();
 
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
@@ -2011,20 +2067,6 @@ main (int argc, char **argv)
 
 
 
-	/* trap signals */
-	sigemptyset (&empty_mask);
-	act.sa_handler = signal_handler;
-	act.sa_mask    = empty_mask;
-	act.sa_flags   = 0;
-	sigaction (SIGTERM, &act, NULL);
-	sigaction (SIGILL,  &act, NULL);
-	sigaction (SIGBUS,  &act, NULL);
-	sigaction (SIGFPE,  &act, NULL);
-	sigaction (SIGHUP,  &act, NULL);
-	sigaction (SIGSEGV, &act, NULL);
-	sigaction (SIGABRT, &act, NULL);
-	sigaction (SIGUSR1, &act, NULL);
-	sigaction (SIGINT,  &act, NULL);
 
 
 	tracker_load_config_file ();
@@ -2036,22 +2078,12 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-
-
-	
-
-
-	/* end test */
-
-
 	g_free (tracker_data_dir);
-
 
 	/* create database if needed */
 	if (need_setup) {
 		tracker_create_db ();
 	}
-
 
 	/* set thread safe DB connection */
 	tracker_db_thread_init ();
@@ -2110,6 +2142,15 @@ main (int argc, char **argv)
 	tracker->file_metadata_queue = g_async_queue_new ();
 	tracker->file_process_queue = g_async_queue_new ();
 	tracker->user_request_queue = g_async_queue_new ();
+
+	tracker->parser = g_new (TextParser, 1);
+
+	tracker->parser->min_word_length = 3;
+	tracker->parser->max_word_length = 30;
+	tracker->parser->use_stemmer = TRUE;
+	tracker->parser->stem_language = STEM_ENG;
+	tracker->parser->stop_words = NULL;
+
 
 
 	/* periodically poll directories for changes */

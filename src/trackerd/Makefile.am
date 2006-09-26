@@ -15,6 +15,9 @@ INCLUDES =				\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
 	$(MYSQL_CFLAGS)			\
+	$(POPPLER_GLIB_CFLAGS)			\
+	$(VORBIS_CFLAGS)			\
+	$(THEORA_CFLAGS)			\
 	$(additional_mysql_flags)	\
 	$(CFLAGS) 			\
 	-g 
@@ -66,7 +69,7 @@ test_tracker_indexer_SOURCES =	tracker-indexer.c test-tracker-indexer.c \
 	xdgmimeparent.c		\
 	xdgmimeparent.h			
 
-test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS) 
+test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS) -lbz2		
 else
 bin_PROGRAMS = trackerd tracker-convert-file 
 endif
@@ -92,10 +95,17 @@ trackerd_SOURCES =		\
 	$(db_sources)		\
 	tracker-mbox-evolution.c \
 	tracker-mbox-evolution.h \
+	tracker-mbox-thunderbird.c \
+	tracker-mbox-thunderbird.h \
 	tracker-mbox.c		\
 	tracker-mbox.h		\
 	tracker-metadata.c	\
 	tracker-metadata.h	\
+	tracker-metadata-oasis.c	\
+	tracker-metadata-ps.c	\
+	tracker-metadata-pdf.c	\
+	tracker-metadata-abw.c	\
+	tracker-metadata-vorbis.c	\
 	tracker-rdf-query.c	\
 	tracker-rdf-query.h	\
 	tracker-stemmer-english.c	\
@@ -128,9 +138,13 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(GMIME_LIBS)	\
 		 $(QDBM_LIBS) 	\
 		 $(SQLITE3_LIBS) \
+ 		 $(POPPLER_GLIB_LIBS) \
+ 		 $(VORBIS_LIBS) \
+ 		 $(THEORA_LIBS) \
+		 -lbz2		\
 		 -lstdc++
 
 
 tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-parser.c tracker-stemmer-english.c
 
-tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) 
+tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) -lbz2	

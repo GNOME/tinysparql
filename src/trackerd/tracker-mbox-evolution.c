@@ -57,19 +57,10 @@ find_evolution_mboxes (const char *evolution_dir)
 {
 	GSList *file_list;
 	char   *filenames[] = {"Inbox", "Sent", NULL};
-	char   *dir, **filename;
-	size_t len;
+	char   **filename;
 
 	if (!evolution_dir) {
 		return NULL;
-	}
-
-	len = strlen (evolution_dir);
-
-	if (len && evolution_dir[len - 1] == G_DIR_SEPARATOR) {
-		dir = g_strndup (evolution_dir, len - 1);
-	} else {
-		dir = g_strdup (evolution_dir);
 	}
 
 	file_list = NULL;
@@ -77,14 +68,14 @@ find_evolution_mboxes (const char *evolution_dir)
 	for (filename = filenames; *filename; filename++) {
 		char *file;
 
-		file = g_build_filename (dir, "local", *filename, NULL);
+		file = g_build_filename (evolution_dir, "local", *filename, NULL);
 
 		if (!g_access (file, F_OK) && !g_access (file, R_OK)) {
 			file_list = g_slist_prepend (file_list, file);
+		} else {
+			g_free (file);
 		}
 	}
-
-	g_free (dir);
 
 	return file_list;
 }
@@ -134,9 +125,9 @@ watch_emails_of_evolution (DBConnection *db_con)
 void
 tracker_get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
 {
-	const char *field;
-	char	   **parts;
-	guint32	   flags;
+	const char	  *field;
+	char		  **parts;
+	unsigned long int flags;
 
 	if (!g_m_message || !msg) {
 		return;
@@ -148,9 +139,9 @@ tracker_get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *m
 		return;
 	}
 
+	/* we want to split lines with that form: 00001fd3-0100 into 00001fd3 and 0100 */
 	parts = g_strsplit (field, "-", -1);
 
-	/* we want to split lines with that form: 00001fd3-0100 into 00001fd3 and 0100 */
 	if (!parts || !parts[0] || !parts[1]) {
 		g_strfreev (parts);
 		return;
@@ -159,7 +150,7 @@ tracker_get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *m
 	msg->deleted = FALSE;
 	msg->junk = FALSE;
 
-	flags = atoi (parts[1]);
+	flags = strtoul (parts[1], NULL, 16);
 
 	if ((flags & EVOLUTION_MESSAGE_DELETED) == EVOLUTION_MESSAGE_DELETED) {
 		msg->deleted = TRUE;

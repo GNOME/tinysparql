@@ -33,16 +33,18 @@ extern char *tracker_actions[];
 
 
 #include <glib.h>
-
-#ifdef USING_SQLITE
+#include "config.h"
 #include <depot.h>
+//include <curia.h>
 
-typedef struct {	
+#include "tracker-parser.h"
+
+typedef struct {
 	DEPOT  *word_index;                  /* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
 	GMutex *word_mutex;
 } Indexer;
 
-#endif
+
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
@@ -62,6 +64,7 @@ typedef struct {
 
 	gboolean	index_emails;
 	gboolean	index_evolution_emails;
+	gboolean	index_thunderbird_emails;
 	GSList		*additional_mboxes_to_index;
 	gboolean	do_thumbnails;
 
@@ -71,10 +74,9 @@ typedef struct {
  	gboolean 	is_running;
 	GMainLoop 	*loop;
 	
-#ifdef USING_SQLITE
 	Indexer		*file_indexer;
 	Indexer		*email_indexer;
-#endif
+	TextParser	*parser;
 
 	GMutex 		*log_access_mutex;
 	char	 	*log_file;
@@ -142,7 +144,9 @@ typedef enum {
 	TRACKER_ACTION_DIRECTORY_MOVED_TO,
 	TRACKER_ACTION_DIRECTORY_REFRESH, 	/* re checks all files in folder */
 
-	TRACKER_ACTION_EXTRACT_METADATA
+	TRACKER_ACTION_EXTRACT_METADATA,
+
+	TRACKER_ACTION_FORCE_REFRESH
 
 } TrackerChangeAction;
 
@@ -174,8 +178,9 @@ typedef struct {
 
 	/* file name/path related info */
 	char 			*uri;
-	long			file_id;
+	gint32			file_id;
 
+	gboolean		is_new;
 	TrackerChangeAction  	action;
 	guint32        		cookie;
 	int  		     	counter;
@@ -185,17 +190,17 @@ typedef struct {
 
 	/* symlink info - File ID of link might not be in DB so need to store path/filename too */
 	gboolean		is_link;
-	long			link_id;
+	gint32			link_id;
 	char			*link_path;
 	char			*link_name;
 
 	char			*mime;
-	char 			*service;
-	long			file_size;
+	int			service_type_id;
+	guint32			file_size;
 	char			*permissions;
-	long			mtime;
-	long			atime;
-	long			indextime;
+	guint32			mtime;
+	guint32			atime;
+	guint32			indextime;
 
 	/* options */
 	char			*move_from_uri;
@@ -207,6 +212,9 @@ typedef struct {
 	int			ref_count;
 
 } FileInfo;
+
+int		tracker_get_id_for_service 		(const char *service);
+const char *	tracker_get_service_by_id 		(int service_type_id);
 
 
 char **		tracker_make_array_null_terminated (char **array, int length);
@@ -262,8 +270,11 @@ void		tracker_notify_file_data_available 	(void);
 void		tracker_notify_meta_data_available 	(void);
 void		tracker_notify_request_data_available 	(void);
 
-GTimeVal *	tracker_timer_start ();
-void		tracker_timer_end (GTimeVal *before, const char *str);
+GTimeVal *	tracker_timer_start 		();
+void		tracker_timer_end 		(GTimeVal *before, const char *str);
+
+char *		tracker_compress 		(const char *ptr, int size, int *compressed_size);
+char *		tracker_uncompress 		(const char *ptr, int size, int *uncompressed_size);
 
 
 #endif

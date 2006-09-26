@@ -113,11 +113,11 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 		str_file_id = tracker_long_to_str (file_id);
 
 		if (file_id > 0) {
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Name", name, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Name", name, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE);
 		}
 
 		if (name) {
@@ -210,11 +210,11 @@ tracker_dbus_method_files_create (DBusRec *rec)
 	str_file_id = tracker_long_to_str (file_id);
 
 	if (file_id != -1) {
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id,  "File.Name", name, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id,  "File.Name", name, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE);
 	}
 
 	g_free (service);
