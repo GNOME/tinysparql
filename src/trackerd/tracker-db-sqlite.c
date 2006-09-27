@@ -1045,7 +1045,7 @@ tracker_update_db (DBConnection *db_con)
 		return FALSE;
 	}
 
-	row = tracker_db_get_row (res, 1);
+	row = tracker_db_get_row (res, 0);
 	
 	if (!row || !row[0]) {
 		tracker_db_free_result (res);
@@ -1061,15 +1061,22 @@ tracker_update_db (DBConnection *db_con)
 
 	tracker_log ("Checking tracker DB version...Current version is %d and needed version is %d", i, TRACKER_DB_VERSION_REQUIRED);
 
-	if (i < 4) {
+	if (i < TRACKER_DB_VERSION_REQUIRED) {
 		tracker_log ("Your database is out of date and will need to be rebuilt and all your files reindexed.\nThis may take a while...please wait...");
 
 		tracker_db_close (db_con);
+		tracker_indexer_close (tracker->file_indexer);
 
 		char *db_name = g_build_filename (g_get_home_dir (), ".Tracker", "databases", "data", NULL);
 		unlink (db_name);
 		g_free (db_name);
-	
+
+		db_name = g_build_filename (g_get_home_dir (), ".Tracker", "databases", "Files", NULL);
+		unlink (db_name);
+		g_free (db_name);
+
+		g_hash_table_destroy (prepared_queries);
+		tracker_db_initialize ("");
 		tracker_create_db ();
 
 		return TRUE;
@@ -1620,12 +1627,30 @@ tracker_db_search_files_by_text (DBConnection *db_con, const char *text, int off
 char ***
 tracker_db_search_metadata (DBConnection *db_con, const char *service, const char *field, const char *text, int offset, int limit)
 {
+	FieldDef *def;
+	char ***res;
 
-	char ***result;
+	g_return_val_if_fail ((service && field && text), NULL);
 
-	result = NULL;
+	def = tracker_db_get_field_def (db_con, field);
 
-	return result;
+	if (!def) {
+		tracker_log ("metadata not found for type %s", field);
+		return NULL;
+	}
+
+	switch (def->type) {
+
+		case 0: res = tracker_exec_proc  (db_con, "SearchMetadataIndex", 2, def->id, text); break;	
+		case 1: res = tracker_exec_proc  (db_con, "SearchMetadataString", 2, def->id, text); break;	
+		case 2: res = tracker_exec_proc  (db_con, "SearchMetadataNumeric", 2, def->id, text); break;			
+		case 3: res = tracker_exec_proc  (db_con, "SearchMetadataNumeric", 2, def->id, text); break;
+		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;	
+	}
+
+	tracker_db_free_field_def (def);
+
+	return res;
 }
 
 char ***
@@ -1819,7 +1844,7 @@ tracker_db_update_keywords (DBConnection *db_con,  const char *service, const ch
 
 
 void 
-tracker_db_create_service (DBConnection *db_con, const char *path, const char *name, const char *service,  gboolean is_dir, gboolean is_link, 
+tracker_db_create_service (DBConnection *db_con, const char *path, const char *name, const char *service, const char *mime, gboolean is_dir, gboolean is_link, 
 			   gboolean is_source,  int offset, guint32 mtime)
 {
 	char *str_is_dir, *str_is_link, *str_is_source, *str_offset;
@@ -1883,7 +1908,7 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 	
 	}
 
-	tracker_exec_proc  (db_con, "CreateService", 9, sid, path, name, service_type_id, str_is_dir, str_is_link, str_is_source, str_offset,  str_mtime);
+	tracker_exec_proc  (db_con, "CreateService", 10, sid, path, name, service_type_id, mime, str_is_dir, str_is_link, str_is_source, str_offset,  str_mtime);
 
 	if (res[0][0]) {
 		tracker_db_free_result (res);
@@ -2273,37 +2298,89 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 char ***
 tracker_db_search_text_mime  (DBConnection *db_con, const char *text , char **mime_array, int n)
 {
-	gboolean use_boolean_search;
-	int i;
+	char 		**result, **array;
+	GSList 		*hit_list, *result_list;
+	SearchHit	*hit;
+	int 		count, i;
 
-	/* check search string for embedded special chars like hyphens and format appropriately */
-	char *search_term = tracker_format_search_terms (text, &use_boolean_search);
+	result = NULL;
+	result_list = NULL;
 
-	GString *mimes = NULL;
+	array = tracker_parse_text_into_array (tracker->parser, text);
 
-	/* build mimes string */
-	for (i=0; i<n; i++) {
-		if (mime_array[i] && strlen (mime_array[i]) > 0) {
-			if (mimes) {
-				g_string_append (mimes, ",");
-				g_string_append (mimes, mime_array[i]);
-			} else {
-				mimes = g_string_new (mime_array[i]);
+	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
+
+	g_strfreev (array);
+
+	GSList *l;
+	count = 0;
+
+	for (l=hit_list; l; l=l->next) {
+
+		char **row;
+		char ***res;
+		char *str_id;
+
+		hit = l->data;
+		
+		str_id = tracker_int_to_str (hit->service_id);
+
+		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+
+		g_free (str_id);
+
+		if (res) {
+			if (res[0][0] && res[0][1] && res[0][2]) {
+				
+				for (i=0; i<n; i++) {
+
+					if (strcasecmp (mime_array[i], res[0][2]) == 0) {
+
+						row = g_new (char *, 3);
+
+						row[0] = g_strdup (res[0][0]);
+						row[1] = g_strdup (res[0][1]);
+						//tracker_log ("hit is %s", row[1]);
+						row[2] = NULL;
+
+						result_list = g_slist_prepend (result_list, row);
+
+						count++;
+
+						break;
+						
+					}
+				}
 			}
-			
-		}
+
+			tracker_db_free_result (res);
+		}	
+		
+		if (count > 511) break;
 	}
 
-	char *mime_list = g_string_free (mimes, FALSE);
 
-	char ***res = NULL;
+	tracker_index_free_hit_list (hit_list);
 
-	//tracker_exec_proc  (db_con, "SearchTextMime", 2, search_term , mime_list);
+	if (!result_list) {
+		return NULL;
+	}
 
-	g_free (search_term);	
-	g_free (mime_list);
+	count = g_slist_length (result_list);
+	result_list = g_slist_reverse (result_list);
 
-	return res;
+	result = g_new ( char *, count + 1);
+	result[count] = NULL;
+
+	count = 0;
+	for (l=result_list; l; l=l->next) {
+		result[count] = (char *)l->data;
+		count++;
+	}
+
+	g_slist_free (result_list);
+
+	return (char ***)result;
 	
 }
 
@@ -2311,16 +2388,85 @@ tracker_db_search_text_mime  (DBConnection *db_con, const char *text , char **mi
 char ***
 tracker_db_search_text_location  (DBConnection *db_con, const char *text ,const char *location)
 {
-	gboolean use_boolean_search;
+	char 		**result, **array, *location_prefix;
+	GSList 		*hit_list, *result_list;
+	SearchHit	*hit;
+	int 		count;
 
-	char *search_term = tracker_format_search_terms (text, &use_boolean_search);
+	result = NULL;
+	result_list = NULL;
 
-	//char ***res = tracker_exec_proc  (db_con, "SearchTextLocation", 2, search_term , location);
+	location_prefix = g_strconcat (location, "/", NULL);
 
-	
-	g_free (search_term);
+	array = tracker_parse_text_into_array (tracker->parser, text);
 
-	return NULL;
+	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
+
+	g_strfreev (array);
+
+	GSList *l;
+	count = 0;
+
+	for (l=hit_list; l; l=l->next) {
+
+		char **row;
+		char ***res;
+		char *str_id;
+
+		hit = l->data;
+		
+		str_id = tracker_int_to_str (hit->service_id);
+
+		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+
+		g_free (str_id);
+
+		if (res) {
+			if (res[0][0] && res[0][1]) {
+				
+				if (g_str_has_prefix (res[0][0], location_prefix) || (strcmp (res[0][0], location) == 0)) {			
+					row = g_new (char *, 3);
+
+					row[0] = g_strdup (res[0][0]);
+					row[1] = g_strdup (res[0][1]);
+					//tracker_log ("hit is %s", row[1]);
+					row[2] = NULL;
+
+					result_list = g_slist_prepend (result_list, row);
+
+					count++;
+					
+				}
+			}
+
+			tracker_db_free_result (res);
+		}	
+		
+		if (count > 511) break;
+	}
+
+	g_free (location_prefix);
+	tracker_index_free_hit_list (hit_list);
+
+	if (!result_list) {
+		return NULL;
+	}
+
+	count = g_slist_length (result_list);
+	result_list = g_slist_reverse (result_list);
+
+	result = g_new ( char *, count + 1);
+	result[count] = NULL;
+
+	count = 0;
+	for (l=result_list; l; l=l->next) {
+		result[count] = (char *)l->data;
+		count++;
+	}
+
+	g_slist_free (result_list);
+
+	return (char ***)result;
 
 }
 
@@ -2328,34 +2474,94 @@ tracker_db_search_text_location  (DBConnection *db_con, const char *text ,const 
 char ***
 tracker_db_search_text_mime_location  (DBConnection *db_con, const char *text , char **mime_array, int n, const char *location)
 {
-	gboolean use_boolean_search;
-	int i;
-	/* check search string for embedded special chars like hyphens and format appropriately */
-	char *search_term = tracker_format_search_terms (text, &use_boolean_search);
+	char 		**result, **array, *location_prefix;
+	GSList 		*hit_list, *result_list;
+	SearchHit	*hit;
+	int		count, i;
 
-	GString *mimes = NULL;
+	result = NULL;
+	result_list = NULL;
 
-	/* build mimes string */
-	for (i=0; i<n; i++) {
-		if (mime_array[i] && strlen (mime_array[i]) > 0) {
-			if (mimes) {
-				g_string_append (mimes, ",");
-				g_string_append (mimes, mime_array[i]);
-			} else {
-				mimes = g_string_new (mime_array[i]);
-			}
-			
-		}
-	}
+	location_prefix = g_strconcat (location, "/", NULL);
+
+	array = tracker_parse_text_into_array (tracker->parser, text);
+
+	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
+
+	g_strfreev (array);
+
+	GSList *l;
+	count = 0;
+
+	for (l=hit_list; l; l=l->next) {
+
+		char **row;
+		char ***res;
+		char *str_id;
+
+		hit = l->data;
+		
+		str_id = tracker_int_to_str (hit->service_id);
+
+		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+
+		g_free (str_id);
+
+		if (res) {
+			if (res[0][0] && res[0][1] && res[0][2]) {
+				
+				if (g_str_has_prefix (res[0][0], location_prefix) || (strcmp (res[0][0], location) == 0)) {
+
+					for (i=0; i<n; i++) {
+
+						if ((mime_array[i]) && (res[0][2] != 0) && (strcasecmp (mime_array[i], res[0][2]) == 0)) {
 	
-	char *mime_list = g_string_free (mimes, FALSE);
+							row = g_new (char *, 3);
 
-//	char ***res = tracker_exec_proc  (db_con, "SearchTextMimeLocation", 3, search_term , mime_list, location);
+							row[0] = g_strdup (res[0][0]);
+							row[1] = g_strdup (res[0][1]);
+							//tracker_log ("hit is %s", row[1]);
+							row[2] = NULL;
 
-	g_free (search_term);	
-	g_free (mime_list);
+							result_list = g_slist_prepend (result_list, row);
 
-	return NULL;
+							count++;
+
+							break;
+						}			
+					}
+				}
+			
+			}
+
+			tracker_db_free_result (res);
+		}	
+		
+		if (count > 511) break;
+	}
+
+	g_free (location_prefix);
+	tracker_index_free_hit_list (hit_list);
+
+	if (!result_list) {
+		return NULL;
+	}
+
+	count = g_slist_length (result_list);
+	result_list = g_slist_reverse (result_list);
+
+	result = g_new ( char *, count + 1);
+	result[count] = NULL;
+
+	count = 0;
+	for (l=result_list; l; l=l->next) {
+		result[count] = (char *)l->data;
+		count++;
+	}
+
+	g_slist_free (result_list);
+
+	return (char ***)result;
 	
 }
 

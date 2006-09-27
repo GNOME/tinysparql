@@ -100,7 +100,7 @@ char ***	tracker_db_get_metadata 	(DBConnection *db_con, const char *service, co
 void 		tracker_db_set_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite, gboolean index);
 void		tracker_db_update_keywords 	(DBConnection *db_con, const char *service, const char *id, const char *value);
 
-void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const char *name, const char *service,  gboolean is_dir, gboolean is_link, 
+void 		tracker_db_create_service 	(DBConnection *db_con, const char *path, const char *name, const char *service,  const char *mime, gboolean is_dir, gboolean is_link, 
 					   	 gboolean is_source,  int offset, guint32 mtime);
 
 void		tracker_db_delete_file 		(DBConnection *db_con, guint32 file_id);

@@ -1,3 +1,16 @@
+
+2006-09-27 Edward Duffy <eduffy at gmail com>
+	
+	* made internal extractors external and intgrated into tracker-extract
+	* added extractors for images
+
+2006-09-27 Jamie McCracken <jamiemcc at gnome org>
+
+	* fix bug with search text (correct no of results now returned)
+	* got search mime , search location and search mime location working
+	
+
+
 2006-09-26 Samuel Cormier-Iijima <sciyoshi at gmail com>
 	
 	* Added #ifdefs to make libpoppler usage optional

@@ -130,7 +130,7 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(GMIME_LIBS)	\
 		 $(QDBM_LIBS) 	\
 		 $(SQLITE3_LIBS) \
-		 -lbz2		\
+		 -lz	\
 		 -lstdc++
 
 

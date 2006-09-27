@@ -730,7 +730,11 @@ index_file (DBConnection *db_con, FileInfo *info)
 			}
 		}
 
-		tracker_db_create_service (db_con, path, name, service_name, info->is_directory, info->is_link, FALSE, 0, info->mtime);
+		if (!info->mime) {
+			info->mime = g_strdup ("unknown");
+		}
+
+		tracker_db_create_service (db_con, path, name, service_name, info->mime, info->is_directory, info->is_link, FALSE, 0, info->mtime);
 
 		
 		info->file_id = tracker_db_get_last_id (db_con);
@@ -1952,8 +1956,6 @@ main (int argc, char **argv)
 	sigaction (SIGABRT, &act, NULL);
 	sigaction (SIGUSR1, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
-
-	g_type_init ();
 
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);

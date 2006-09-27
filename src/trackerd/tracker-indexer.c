@@ -419,7 +419,7 @@ get_hits_for_single_word (Indexer *indexer,
 			
 			pnum = tsiz / sizeof (WordDetails);
 
-			tracker_log ("total hit count is %d", pnum);
+			tracker_log ("total hit count (excluding service divisions) is %d", pnum);
 
 			if (offset >= pnum) {
 				*hit_count = pnum;
@@ -439,34 +439,38 @@ get_hits_for_single_word (Indexer *indexer,
 			}
 
 			int i;
-			for (i=offset; i<count; i++) {
+			for (i=0; i<pnum; i++) {
 				int service;
 
 				service = get_service_type (&details[i]);
 
 				if ((service >= service_type_min) && (service <= service_type_max)) {
-					SearchHit *hit;
-					
+
 					total_count++;
-					
-					/* check if we have reached limit but want to continue to get full count */
-					if (single_search_complete) {
+
+					if (offset != 0) {
+						offset--;
 						continue;
 					}
 
-					hit = word_details_to_search_hit (&details[i]);
+					if (limit > 0) {
 
-					//tracker_log ("adding hit %d", details[i].id);
+						SearchHit *hit;
 
-					result = g_slist_prepend (result, hit);
+						hit = word_details_to_search_hit (&details[i]);
 
-					single_search_complete = (total_count >= (limit + offset));		
+						result = g_slist_prepend (result, hit);
+		
+						limit--;
 
-					if (single_search_complete && !get_count) {					
-						break;
+					} else {
+						continue;
 					}
 				}
 			}
+
+			tracker_log ("total hit count for service is %d", total_count);
+
 		}
 
 	} else {
@@ -640,7 +644,7 @@ get_final_hits (Indexer *indexer,
 			qsort (result, rnum, sizeof (SearchHit), compare_search_hits);
 
 			if (offset >= rnum) {
-				tracker_log ("WARNING: offset is too big - no results will be returned");
+				tracker_log ("WARNING: offset is too big - no results will be returned for search!");
 				g_free (tmp);
 				g_free (result);
 				return NULL;

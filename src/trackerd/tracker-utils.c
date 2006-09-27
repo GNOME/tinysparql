@@ -28,7 +28,7 @@
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
-#include <bzlib.h>
+#include <zlib.h>
 
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
@@ -59,6 +59,8 @@ char *tracker_actions[] = {
 		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA",
 		NULL};
 
+
+#define ZLIBBUFSIZ 131072
 
 static int info_allocated = 0;
 static int info_deallocated = 0;
@@ -1822,45 +1824,37 @@ tracker_timer_end (GTimeVal *before, const char *str)
 char *
 tracker_compress (const char *ptr, int size, int *compressed_size)
 {
-	bz_stream zs;
-	char *buf, *swap, obuf[8192];
+	z_stream zs;
+	char *buf, *swap;
+	unsigned char obuf[ZLIBBUFSIZ];
 	int rv, asiz, bsiz, osiz;
+	if (size < 0) size = strlen (ptr);
+	zs.zalloc = Z_NULL;
+	zs.zfree = Z_NULL;
+	zs.opaque = Z_NULL;
 
-	if (size < 0) {
-		size = strlen (ptr);
-	}
-
-	zs.bzalloc = NULL;
-	zs.bzfree = NULL;
-	zs.opaque = NULL;
-
-	if (BZ2_bzCompressInit (&zs, 9, 0, 30) != BZ_OK) {
+	if (deflateInit2 (&zs, 6, Z_DEFLATED, 15, 6, Z_DEFAULT_STRATEGY) != Z_OK) {
 		return NULL;
 	}
 
 	asiz = size + 16;
-	if (asiz < 8192) {
-		asiz = 8192;
-	}
-
-	if(!(buf = malloc (asiz))) {
-		BZ2_bzCompressEnd (&zs);
+	if (asiz < ZLIBBUFSIZ) asiz = ZLIBBUFSIZ;
+	if (!(buf = malloc (asiz))) {
+		deflateEnd (&zs);
 		return NULL;
 	}
-
 	bsiz = 0;
-
-	zs.next_in = (char *)ptr;
+	zs.next_in = (unsigned char *)ptr;
 	zs.avail_in = size;
 	zs.next_out = obuf;
-	zs.avail_out = 8192;
-	while ((rv = BZ2_bzCompress (&zs, BZ_FINISH)) == BZ_FINISH_OK) {
-		osiz = 8192 - zs.avail_out;
-		if (bsiz + osiz > asiz){
+	zs.avail_out = ZLIBBUFSIZ;
+	while ( (rv = deflate (&zs, Z_FINISH)) == Z_OK) {
+		osiz = ZLIBBUFSIZ - zs.avail_out;
+		if (bsiz + osiz > asiz) {
 			asiz = asiz * 2 + osiz;
-			if (!(swap = realloc (buf, asiz))){
+			if (!(swap = realloc (buf, asiz))) {
 				free (buf);
-				BZ2_bzCompressEnd (&zs);
+				deflateEnd (&zs);
 				return NULL;
 			}
 			buf = swap;
@@ -1868,21 +1862,22 @@ tracker_compress (const char *ptr, int size, int *compressed_size)
 		memcpy (buf + bsiz, obuf, osiz);
 		bsiz += osiz;
 		zs.next_out = obuf;
-		zs.avail_out = 8192;
+		zs.avail_out = ZLIBBUFSIZ;
 	}
-
-	if (rv != BZ_STREAM_END) {
+	if (rv != Z_STREAM_END) {
 		free (buf);
-		BZ2_bzCompressEnd (&zs);
+		deflateEnd (&zs);
 		return NULL;
 	}
 
-	osiz = 8192 - zs.avail_out;
+	osiz = ZLIBBUFSIZ - zs.avail_out;
+
 	if (bsiz + osiz + 1 > asiz) {
 		asiz = asiz * 2 + osiz;
-		if (!(swap = realloc (buf, asiz))){
+
+		if (!(swap = realloc (buf, asiz))) {
 			free (buf);
-			BZ2_bzCompressEnd (&zs);
+			deflateEnd (&zs);
 			return NULL;
 		}
 		buf = swap;
@@ -1891,8 +1886,10 @@ tracker_compress (const char *ptr, int size, int *compressed_size)
 	memcpy (buf + bsiz, obuf, osiz);
 	bsiz += osiz;
 	buf[bsiz] = '\0';
+
 	*compressed_size = bsiz;
-	BZ2_bzCompressEnd (&zs);
+
+	deflateEnd (&zs);
 
 	return buf;
 }
@@ -1901,52 +1898,54 @@ tracker_compress (const char *ptr, int size, int *compressed_size)
 char *
 tracker_uncompress (const char *ptr, int size, int *uncompressed_size)
 {
-	bz_stream zs;
-	char *buf, *swap, obuf[8192];
+	z_stream zs;
+	char *buf, *swap;
+	unsigned char obuf[ZLIBBUFSIZ];
 	int rv, asiz, bsiz, osiz;
-	zs.bzalloc = NULL;
-	zs.bzfree = NULL;
-	zs.opaque = NULL;
-
-	if (BZ2_bzDecompressInit (&zs, 0, 0) != BZ_OK) return NULL;
+	zs.zalloc = Z_NULL;
+	zs.zfree = Z_NULL;
+	zs.opaque = Z_NULL;
+	
+	if (inflateInit2 (&zs, 15) != Z_OK) return NULL;
+	
 	asiz = size * 2 + 16;
-	if (asiz < 8192) asiz = 8192;
-	if (!(buf = malloc (asiz))){
-		BZ2_bzDecompressEnd (&zs);
+	if (asiz < ZLIBBUFSIZ) asiz = ZLIBBUFSIZ;
+	if (!(buf = malloc (asiz))) {
+		inflateEnd (&zs);
 		return NULL;
 	}
 	bsiz = 0;
-	zs.next_in = (char *)ptr;
+	zs.next_in = (unsigned char *)ptr;
 	zs.avail_in = size;
 	zs.next_out = obuf;
-	zs.avail_out = 8192;
-	while ((rv = BZ2_bzDecompress (&zs)) == BZ_OK){
-		osiz = 8192 - zs.avail_out;
-		if (bsiz + osiz >= asiz){
+	zs.avail_out = ZLIBBUFSIZ;
+	while ( (rv = inflate (&zs, Z_NO_FLUSH)) == Z_OK) {
+		osiz = ZLIBBUFSIZ - zs.avail_out;
+		if (bsiz + osiz >= asiz) {
 			asiz = asiz * 2 + osiz;
-			if(!(swap = realloc (buf, asiz))){
+			if (!(swap = realloc (buf, asiz))) {
 				free (buf);
-				BZ2_bzDecompressEnd (&zs);
+				inflateEnd (&zs);
 				return NULL;
 			}
-			buf = swap; 
+			buf = swap;
 		}
 		memcpy (buf + bsiz, obuf, osiz);
 		bsiz += osiz;
 		zs.next_out = obuf;
-		zs.avail_out = 8192;
+		zs.avail_out = ZLIBBUFSIZ;
 	}
-	if (rv != BZ_STREAM_END){
+	if (rv != Z_STREAM_END) {
 		free (buf);
-		BZ2_bzDecompressEnd (&zs);
+		inflateEnd (&zs);
 		return NULL;
 	}
-	osiz = 8192 - zs.avail_out;
-	if (bsiz + osiz >= asiz){
+	osiz = ZLIBBUFSIZ - zs.avail_out;
+	if (bsiz + osiz >= asiz) {
 		asiz = asiz * 2 + osiz;
-		if (! (swap = realloc (buf, asiz))){
+		if (!(swap = realloc (buf, asiz))) {
 			free (buf);
-			BZ2_bzDecompressEnd (&zs);
+			inflateEnd (&zs);
 			return NULL;
 		}
 		buf = swap;
@@ -1954,7 +1953,7 @@ tracker_uncompress (const char *ptr, int size, int *uncompressed_size)
 	memcpy (buf + bsiz, obuf, osiz);
 	bsiz += osiz;
 	buf[bsiz] = '\0';
-	if (uncompressed_size) *uncompressed_size = bsiz;
-	BZ2_bzDecompressEnd (&zs);
+	*uncompressed_size = bsiz;
+	inflateEnd (&zs);
 	return buf;
 }

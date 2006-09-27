@@ -30,6 +30,7 @@
 #   include "../libextractor/src/include/extractor.h"
 #endif
 
+#include "config.h"
 
 typedef enum {
 	IGNORE_METADATA,
@@ -116,6 +117,62 @@ static struct metadata_format image_keywords[] =
 	{"EOF", EXTRACTOR_UNKNOWN}
 };
 
+typedef void (*MetadataExtractFunc)(gchar *, GHashTable *);
+typedef struct {
+	char                 *mime;
+	MetadataExtractFunc  extractor;
+} MimeToExtractor;
+
+void tracker_extract_oasis (gchar *, GHashTable *);
+void tracker_extract_ps    (gchar *, GHashTable *);
+#ifdef HAVE_POPPLER
+void tracker_extract_pdf   (gchar *, GHashTable *);
+#endif
+void tracker_extract_abw   (gchar *, GHashTable *);
+#ifdef HAVE_VORBIS
+void tracker_extract_vorbis   (gchar *, GHashTable *);
+#endif
+#ifdef HAVE_LIBPNG
+void tracker_extract_png   (gchar *, GHashTable *);
+#endif
+#ifdef HAVE_LIBEXIF
+void tracker_extract_exif   (gchar *, GHashTable *);
+#endif
+
+MimeToExtractor extractors[] = {
+   /* Document extractors */
+	{ "application/vnd.oasis.opendocument.text",         tracker_extract_oasis },
+	{ "application/vnd.oasis.opendocument.spreadsheet",  tracker_extract_oasis },
+	{ "application/vnd.oasis.opendocument.graphics",     tracker_extract_oasis },
+	{ "application/vnd.oasis.opendocument.presentation", tracker_extract_oasis },
+	{ "application/postscript",                          tracker_extract_ps    },
+#ifdef HAVE_POPPLER
+	{ "application/pdf",                                 tracker_extract_pdf   },
+#endif
+	{ "application/x-abiword",                           tracker_extract_abw   },
+
+
+   /* Video extractors */
+#ifdef HAVE_THEORA
+	{ "video/x-theora+ogg",                              tracker_extract_theora   },
+#endif
+
+
+   /* Audio extractors */
+#ifdef HAVE_VORBIS
+	{ "audio/x-vorbis+ogg",                              tracker_extract_vorbis   },
+#endif
+
+
+   /* Image extractors */
+#ifdef HAVE_LIBPNG
+	{ "image/png",                                       tracker_extract_png   },
+#endif
+#ifdef HAVE_LIBEXIF
+	{ "image/jpeg",                                       tracker_extract_exif   },
+#endif
+	{ "",                                                NULL                           }
+};
 
 static MetadataFileType
 get_metadata_type (const char *mime)
@@ -386,6 +443,21 @@ tracker_get_file_metadata (const char *uri, char *mime)
 		return NULL;
 	}
 
+	meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);	
+
+	if (mime) {
+		MimeToExtractor  *p;
+		for (p = extractors; p->extractor; ++p) {
+			if (strcmp (p->mime, mime) == 0) {
+				(*p->extractor)(uri_in_locale, meta_table);
+				return meta_table;
+			}
+		}
+		fprintf (stderr, "Mime %s not found, falling back on libextractor\n", mime);
+	}
+
+
+	/* Fallback to libextractor */
 	keywords = EXTRACTOR_getKeywords (plugins, uri_in_locale);
 
 	g_free (uri_in_locale);
@@ -409,8 +481,6 @@ tracker_get_file_metadata (const char *uri, char *mime)
 	}
 
 
-
-	meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);	
 
 	while (keywords != NULL) {
  
@@ -478,6 +548,7 @@ main (int argc, char **argv)
 	GHashTable *meta;
 	char *filename;
 
+	g_set_application_name ("tracker-extract");
 	setlocale (LC_ALL, "");
 
 	if ((argc == 1) || (argc > 3)) {

@@ -4,7 +4,7 @@ CREATE TABLE Options (
 	OptionValue	Text COLLATE NOCASE
 );
 
-insert into Options (OptionKey, OptionValue) values ('DBVersion', '5');
+insert into Options (OptionKey, OptionValue) values ('DBVersion', '8');
 insert into Options (OptionKey, OptionValue) values ('Sequence', '0');
 
 
@@ -69,6 +69,7 @@ CREATE TABLE  Services
 	ServiceTypeID		Integer  default 0, /* see ServiceTypes table above for ID values */
 	Path 			Text  not null, /* non-file objects should use service name here */
 	Name	 		Text , /* name of file or object - the combination path and name must be unique for all objects */
+	Mime			Text,
 	Enabled			Integer default 1,
 	IsServiceSource		Integer default 0,
 	IsDirectory   		Integer default 0,

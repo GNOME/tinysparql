@@ -347,6 +347,34 @@ AC_SUBST(THEORA_LIBS)
 test "$have_theora" = "yes" && AC_DEFINE(HAVE_THEORA, [], [Define if we have libtheora])
 
 
+##################################################################
+# check for libpng
+##################################################################
+
+LIBPNG_REQUIRED=1.2
+
+PKG_CHECK_MODULES(LIBPNG, [libpng >= $LIBPNG_REQUIRED], [have_libpng=yes] , [have_png=no])
+
+AM_CONDITIONAL(HAVE_LIBPNG, test "$have_libpng" = "yes")
+AC_SUBST(LIBPNG_CFLAGS)
+AC_SUBST(LIBPNG_LIBS)
+test "$have_libpng" = "yes" && AC_DEFINE(HAVE_LIBPNG, [], [Define if we have libpng])
+
+
+##################################################################
+# check for libexif
+##################################################################
+
+LIBEXIF_REQUIRED=0.6
+
+PKG_CHECK_MODULES(LIBEXIF, [libexif >= $LIBEXIF_REQUIRED], [have_libexif=yes] , [have_libexif=no])
+
+AM_CONDITIONAL(HAVE_LIBEXIF, test "$have_libexif" = "yes")
+AC_SUBST(LIBEXIF_CFLAGS)
+AC_SUBST(LIBEXIF_LIBS)
+test "$have_libexif" = "yes" && AC_DEFINE(HAVE_LIBEXIF, [], [Define if we have libexif])
+
+
 #####################################################
 
 AM_CONFIG_HEADER(src/trackerd/config.h)
@@ -395,5 +423,7 @@ Metadata extractors:
 	pdf :					$have_poppler
 	ogg/vorbis :				$have_vorbis
 	ogg/theora :				$have_theora
+	png :					$have_libpng
+	exif (jpeg) :				$have_libexif
 "
 

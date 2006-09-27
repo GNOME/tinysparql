@@ -16,7 +16,7 @@ GetServiceTypeIDForFile select ServiceTypeID FROM Services where ID = ?;
 
 GetFilesByServiceType SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Services F WHERE (F.ServiceTypeID between ? and ?) LIMIT ?,?;
 
-GetFileByID SELECT  DISTINCT Path , Name as uri  FROM Services WHERE ID = ?;
+GetFileByID  SELECT  DISTINCT Path , Name, Mime   FROM Services WHERE ID = ?;
 
 GetFileMTime SELECT M.MetaDataNumericValue  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Modified');
 
@@ -30,7 +30,7 @@ GetNewID SELECT OptionValue FROM Options WHERE OptionKey = 'Sequence';
 
 UpdateNewID UPDATE Options set OptionValue = ? WHERE OptionKey = 'Sequence';
 
-CreateService INSERT INTO Services (ID, Path, Name, ServiceTypeID, IsDirectory, IsLink,  IsServiceSource, Offset, IndexTime) VALUES (?,?,?,?,?,?,?,?,?); 
+CreateService INSERT INTO Services (ID, Path, Name, ServiceTypeID, Mime, IsDirectory, IsLink,  IsServiceSource, Offset, IndexTime) VALUES (?,?,?,?,?,?,?,?,?,?); 
 
 DeleteService1 	DELETE FROM Services WHERE ID = ?;
 DeleteService2 	DELETE FROM ServiceMetaData WHERE ServiceID = ?;
@@ -98,6 +98,11 @@ SetMetadataIndex REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataIn
 SetMetadataString REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
 
 SetMetadataNumeric REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataNumericValue) VALUES (?,?,?);
+
+SearchMetadataIndex select Path, Name, ID from Services where ID in (select ServiceID from ServiceMetaData where MetaDataID = ? and MetaDataIndexValue = ?);
+SearchMetadataString select Path, Name, ID from Services where ID in (select ServiceID from ServiceMetaData where MetaDataID = ? and MetaDataValue = ?);
+SearchMetadataNumeric select Path, Name, ID from Services where ID in (select ServiceID from ServiceMetaData where MetaDataID = ? and MetaDataNumericValue = ?);
+
 
 GetMetadataTypeInfo SELECT  ID, DataTypeID, Embedded, Writeable, Weight  FROM MetaDataTypes where MetaName = ?;
 

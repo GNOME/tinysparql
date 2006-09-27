@@ -49,7 +49,7 @@ typedef struct {
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
 #define FILE_SCHEDULE_PERIOD		500
-#define TRACKER_DB_VERSION_REQUIRED	4
+#define TRACKER_DB_VERSION_REQUIRED	5
 #define TRACKER_VERSION			"0.5.0"
 #define TRACKER_VERSION_INT		500
 
