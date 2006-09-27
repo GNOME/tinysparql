@@ -15,9 +15,6 @@ INCLUDES =				\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
 	$(MYSQL_CFLAGS)			\
-	$(POPPLER_GLIB_CFLAGS)			\
-	$(VORBIS_CFLAGS)			\
-	$(THEORA_CFLAGS)			\
 	$(additional_mysql_flags)	\
 	$(CFLAGS) 			\
 	-g 
@@ -101,11 +98,6 @@ trackerd_SOURCES =		\
 	tracker-mbox.h		\
 	tracker-metadata.c	\
 	tracker-metadata.h	\
-	tracker-metadata-oasis.c	\
-	tracker-metadata-ps.c	\
-	tracker-metadata-pdf.c	\
-	tracker-metadata-abw.c	\
-	tracker-metadata-vorbis.c	\
 	tracker-rdf-query.c	\
 	tracker-rdf-query.h	\
 	tracker-stemmer-english.c	\
@@ -138,9 +130,6 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(GMIME_LIBS)	\
 		 $(QDBM_LIBS) 	\
 		 $(SQLITE3_LIBS) \
- 		 $(POPPLER_GLIB_LIBS) \
- 		 $(VORBIS_LIBS) \
- 		 $(THEORA_LIBS) \
 		 -lbz2		\
 		 -lstdc++
 
