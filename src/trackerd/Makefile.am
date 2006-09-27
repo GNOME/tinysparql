@@ -66,7 +66,7 @@ test_tracker_indexer_SOURCES =	tracker-indexer.c test-tracker-indexer.c \
 	xdgmimeparent.c		\
 	xdgmimeparent.h			
 
-test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS) -lbz2		
+test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS)	
 else
 bin_PROGRAMS = trackerd tracker-convert-file 
 endif

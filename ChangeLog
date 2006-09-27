@@ -8,6 +8,7 @@
 
 	* fix bug with search text (correct no of results now returned)
 	* got search mime , search location and search mime location working
+	* replaced bzip compression with zlib
 	
 
 

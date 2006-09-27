@@ -477,7 +477,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 								st = g_hash_table_lookup (table, meta_name);
 
 								if (st == NULL) {
-									char *utf_value;
+									char *utf_value; 
 
 									if (!g_utf8_validate (meta_value, -1, NULL)) {
 
