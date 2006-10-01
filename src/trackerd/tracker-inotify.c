@@ -141,7 +141,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 		info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 		info->is_directory = TRUE;
-		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE);
+		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 
@@ -187,12 +187,12 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 				moved_from_info = tracker_db_get_file_info (main_thread_db_con, moved_from_info);
 
 				/* if orig file not in DB, treat it as a create action */
-				if (moved_from_info->file_id == -1) {
+				if (moved_from_info->file_id == 0) {
 					tracker_log ("warning original file %s not found in DB", moved_from_info->uri);
 					break;
 				}
 
-				str_file_id = g_strdup_printf ("%ld", moved_from_info->file_id);
+				str_file_id = tracker_uint_to_str (moved_from_info->file_id);
 				name = g_path_get_basename (moved_to_info->uri);
 				path = g_path_get_dirname (moved_to_info->uri);
 
@@ -200,8 +200,8 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 				tracker_db_update_file_move (main_thread_db_con, moved_from_info->file_id, path, name, moved_from_info->indextime);
 
 				/* update File.Path and File.Filename metadata */
-				tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id, "File.Path", path, TRUE, TRUE);
-				tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id, "File.Name", name, TRUE, TRUE);
+				tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id, "File.Path", path, TRUE, TRUE, TRUE);
+				tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id, "File.Name", name, TRUE, TRUE, TRUE);
 
 				g_free (str_file_id);
 				g_free (name);
@@ -301,20 +301,20 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		}
 
 		/* matching pair not found so treat as a create action */
-		tracker_log ("no matching pair found for inotify move event");
+		tracker_log ("no matching pair found for inotify move event for %s", info->uri);
 		if (tracker_is_directory (info->uri)) {
 			info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 		} else {
 			info->action = TRACKER_ACTION_FILE_CREATED;
 		}
-		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE);
+		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 5, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 
 	} else if (action == TRACKER_ACTION_WRITABLE_FILE_CLOSED) {
 
-		//tracker_log ("File %s has finished changing", info->uri);
-		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, FALSE);
+		tracker_log ("File %s has finished changing", info->uri);
+		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 

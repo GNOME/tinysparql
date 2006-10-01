@@ -21,6 +21,9 @@
 #ifndef _TRACKER_UTILS_H_
 #define _TRACKER_UTILS_H_
 
+/* set this to DEBUG to enable enhanced debug output */
+#define DEBUG1
+
 extern char *type_array[];
 extern char *implemented_services[];
 extern char *file_service_array[] ;
@@ -35,36 +38,68 @@ extern char *tracker_actions[];
 #include <glib.h>
 #include "config.h"
 #include <depot.h>
-//include <curia.h>
+#include <curia.h>
 
 #include "tracker-parser.h"
 
 typedef struct {
-	DEPOT  *word_index;                  /* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
+	CURIA  *word_index;			/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
 	GMutex *word_mutex;
 } Indexer;
+
 
 
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
 #define FILE_SCHEDULE_PERIOD		500
-#define TRACKER_DB_VERSION_REQUIRED	5
+
+#define TRACKER_DB_VERSION_REQUIRED	9
 #define TRACKER_VERSION			"0.5.0"
 #define TRACKER_VERSION_INT		500
+
+/* default performance options */
+#define MAX_INDEX_TEXT_LENGTH		1048576
+#define MAX_PROCESS_QUEUE_SIZE		1500
+#define MAX_EXTRACT_QUEUE_SIZE		1250
+#define	OPTIMIZATION_COUNT		10000
+
+/* default indexer options */
+#define MIN_INDEX_BUCKET_COUNT		32768    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
+#define INDEX_DIVISIONS		        4        /* no. of divisions of file */
+#define MAX_INDEX_BUCKET_COUNT 		131072	 /* max no of buckets to use per division */
+#define INDEX_BUCKET_RATIO 		2	 /* desired ratio of unused bucukets to have */
 
 /* just for now, make tracker_log actually call g_message */
 #define tracker_log g_message
 
 typedef struct {
+
+	/* options */
 	GSList 		*watch_directory_roots_list;
 	GSList 		*no_watch_directory_list;
 	GSList 		*poll_list;
 	gboolean	use_nfs_safe_locking;
 
+	/* performance and memory usage options */
+	int		max_index_text_length;
+	int		max_process_queue_size;
+	int		max_extract_queue_size;
+	int		optimization_count;
+
+	/* indexing options */
+	int	 	max_index_bucket_count;
+	int	 	index_bucket_ratio; /* 0 = 50%, 1 = 100%, 2 = 200%, 3 = 300%, 4+ = 400% */
+	int		min_index_bucket_count;
+	int		index_divisions;
+
+	gboolean	first_time_index;
+	gboolean	do_optimize;
+
 	gboolean	index_emails;
 	gboolean	index_evolution_emails;
 	gboolean	index_thunderbird_emails;
+	gboolean	index_kmail_emails;
 	GSList		*additional_mboxes_to_index;
 	gboolean	do_thumbnails;
 
@@ -73,7 +108,7 @@ typedef struct {
 
  	gboolean 	is_running;
 	GMainLoop 	*loop;
-	
+
 	Indexer		*file_indexer;
 	Indexer		*email_indexer;
 	TextParser	*parser;
@@ -178,7 +213,7 @@ typedef struct {
 
 	/* file name/path related info */
 	char 			*uri;
-	gint32			file_id;
+	guint32			file_id;
 
 	gboolean		is_new;
 	TrackerChangeAction  	action;
@@ -198,9 +233,9 @@ typedef struct {
 	int			service_type_id;
 	guint32			file_size;
 	char			*permissions;
-	guint32			mtime;
-	guint32			atime;
-	guint32			indextime;
+	gint32			mtime;
+	gint32			atime;
+	gint32			indextime;
 
 	/* options */
 	char			*move_from_uri;
@@ -221,14 +256,15 @@ char **		tracker_make_array_null_terminated (char **array, int length);
 
 void		tracker_free_array 		(char **array, int row_count);
 char *		tracker_int_to_str		(int i);
-char *		tracker_long_to_str		(long i);
+char *		tracker_uint_to_str		(int i);
 char *		tracker_format_date 		(const char *time_string);
 time_t		tracker_str_to_date 		(const char *time_string);
-char *		tracker_date_to_str 		(long date_time);
+char *		tracker_date_to_str 		(gint32 date_time);
 int		tracker_str_in_array 		(const char *str, char **array);
 
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
 
+gint32		tracker_get_file_mtime 		(const char *uri);
 
 FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);
 FileInfo * 	tracker_get_file_info  	 	(FileInfo *info);
