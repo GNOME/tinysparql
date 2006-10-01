@@ -18,26 +18,39 @@ GetFilesByServiceType SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Serv
 
 GetFileByID  SELECT  DISTINCT Path , Name, Mime   FROM Services WHERE ID = ?;
 
-GetFileMTime SELECT M.MetaDataNumericValue  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Modified');
+GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Modified');
 
 GetMainServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = 1 ORDER BY TypeID;
 
 GetServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes ORDER BY TypeID;
 
-GetServiceID SELECT ID, IndexTime, IsDirectory FROM Services WHERE Path = ? AND Name = ?;
+GetServiceID SELECT ID, IndexTime, IsDirectory, ServiceTypeID FROM Services WHERE Path = ? AND Name = ?;
 
 GetNewID SELECT OptionValue FROM Options WHERE OptionKey = 'Sequence';
-
 UpdateNewID UPDATE Options set OptionValue = ? WHERE OptionKey = 'Sequence';
 
-CreateService INSERT INTO Services (ID, Path, Name, ServiceTypeID, Mime, IsDirectory, IsLink,  IsServiceSource, Offset, IndexTime) VALUES (?,?,?,?,?,?,?,?,?,?); 
+GetUpdateCount SELECT OptionValue FROM Options WHERE OptionKey = 'UpdateCount';
+SetUpdateCount UPDATE Options set OptionValue = ?  WHERE OptionKey = 'UpdateCount';
+
+CreateService INSERT INTO Services (ID, Path, Name, ServiceTypeID, Mime, Size, IsDirectory, IsLink, Offset, IndexTime) VALUES (?,?,?,?,?,?,?,?,?,?); 
 
 DeleteService1 	DELETE FROM Services WHERE ID = ?;
 DeleteService2 	DELETE FROM ServiceMetaData WHERE ServiceID = ?;
 DeleteService3 	DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
 DeleteService4 	DELETE FROM ServiceKeywords WHERE ServiceID = ?;
+DeleteService5 	DELETE FROM ServiceIndexMetaData WHERE ServiceID = ?;
+DeleteService6 	DELETE FROM ServiceNumericMetaData WHERE ServiceID = ?;
 
-DeleteEmbeddedServiceMetadata DELETE FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID IN (SELECT ID FROM MetaDataTypes WHERE Embedded = 1);
+
+MarkEmbeddedServiceMetadata1 update ServiceMetaData set DeleteFlag = 1 where ServiceID = ? AND EmbeddedFlag = 1;
+MarkEmbeddedServiceMetadata2 update ServiceNumericMetaData set DeleteFlag = 1 where ServiceID = ? AND EmbeddedFlag = 1;
+MarkEmbeddedServiceMetadata3 update ServiceIndexMetaData set DeleteFlag = 1 where ServiceID = ? AND EmbeddedFlag = 1;
+MarkEmbeddedServiceMetadata4 delete from ServiceKeywords where ServiceID = ? AND EmbeddedFlag = 1;
+
+DeleteEmbeddedServiceMetadata1 DELETE FROM ServiceMetaData WHERE ServiceID = ? AND DeleteFlag = 1 AND EmbeddedFlag = 1;
+DeleteEmbeddedServiceMetadata2 DELETE FROM ServiceIndexMetaData WHERE ServiceID = ? AND DeleteFlag = 1 AND EmbeddedFlag = 1;
+DeleteEmbeddedServiceMetadata3 DELETE FROM ServiceNumericMetaData WHERE ServiceID = ? AND DeleteFlag = 1 AND EmbeddedFlag = 1;
+
 	
 SelectFileChild SELECT ID, Path, Name FROM Services WHERE Path = ?;
 
@@ -51,26 +64,25 @@ UpdateFileMove 	UPDATE Services SET Path = ?, Name = ?, IndexTime = ? WHERE ID =
 
 UpdateFileMoveChild UPDATE Services SET Path = ? WHERE Path = ?; 
 
-UpdateFileMovePath UPDATE ServiceMetaData set MetaDataIndexValue = ? WHERE ServiceID in (select ID FROM Services where Path = ?) AND MetaDataID = (select ID FROM MetaDataTypes WHERE MetaName = 'File.Path');
+UpdateFileMovePath UPDATE ServiceIndexMetaData set MetaDataValue = ? WHERE ServiceID in (select ID FROM Services where Path = ?) AND MetaDataID = (select ID FROM MetaDataTypes WHERE MetaName = 'File.Path');
 
 DeleteFile1 DELETE FROM Services WHERE ID = ?;
 DeleteFile2 DELETE FROM ServiceMetaData WHERE ServiceID = ?;
 DeleteFile3 DELETE FROM FilePending WHERE FileID = ?;
 DeleteFile4 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
 DeleteFile5 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
+DeleteFile6 DELETE FROM ServiceIndexMetaData WHERE ServiceID = ?;
+DeleteFile7 DELETE FROM ServiceNumericMetaData WHERE ServiceID = ?;
 
 DeleteDirectory1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory2 DELETE FROM FilePending  WHERE FileID in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory3 DELETE FROM ServiceKeywords  WHERE ServiceID in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory4 DELETE FROM Services WHERE (Path = ?) OR (Path glob ?);
-DeleteDirectory5 DELETE FROM Services WHERE ID = ?;
-DeleteDirectory6 DELETE FROM ServiceMetaData WHERE ServiceID = ?;
-DeleteDirectory7 DELETE FROM FilePending WHERE FileID = ?;
-DeleteDirectory8 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
-DeleteDirectory9 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
+DeleteDirectory5 DELETE FROM ServiceIndexMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
+DeleteDirectory6 DELETE FROM ServiceNumericMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 
 SaveFileContents REPLACE into ServiceContents (ServiceID, Content, ContainsWordScores) values (?,?,?);
-
+DeleteFileContents DELETE FROM ServiceContents where ServiceID = ?;
 GetFileContents Select uncompress (Content), ContainsWordScores from ServiceContents where ServiceID = ? and Content is not null
 
 GetKeywordList Select distinct K.Keyword, count(*) from Services S, ServiceKeywords K where K.ServiceID = S.ID AND (S.ServiceTypeID between ? and ?) group by K.Keyword order by 2,1 desc;
@@ -79,30 +91,31 @@ GetKeywords Select Keyword from ServiceKeywords where ServiceID = (select ID Fro
 
 AddKeyword insert into ServiceKeywords (ServiceID, Keyword) values ((select ID From Services where Path = ? and Name  = ?), ?);
 
+AddEmbeddedKeyword insert into ServiceKeywords (ServiceID, Keyword, EmbeddedFlag) values (?,?,1);
+
 RemoveKeyword delete from ServiceKeywords where ServiceID = (select ID From Services where Path = ? and Name  = ?) and Keyword = ?;
 
 RemoveAllKeywords delete from ServiceKeywords where ServiceID = (select ID From Services where Path = ? and Name  = ?);
 
 SearchKeywords Select Distinct S.Path || '/' || S.Name as uri  from Services  S INNER JOIN ServiceKeywords K ON K.ServiceID = S.ID WHERE (S.ServiceTypeID between ? and ?) and K.Keyword = ? limit ?,?;
 
-GetAllIndexable  SELECT S.MetaDataIndexValue, M.Weight FROM ServiceMetaData S, MetaDataTypes M WHERE  S.MetaDataID = M.ID AND S.ServiceID = ? And S.MetaDataIndexValue is not null and M.DatatypeID = 0;
+GetAllIndexable  SELECT S.MetaDataValue, M.Weight FROM ServiceIndexMetaData S, MetaDataTypes M WHERE  S.MetaDataID = M.ID AND S.ServiceID = ? And S.MetaDataValue is not null and M.DatatypeID = 0;
 
-GetMetadataIndex SELECT MetaDataIndexValue FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = (select ID from MetaDataTypes where MetaName = ?);
+GetMetadataIndex SELECT MetaDataValue FROM ServiceIndexMetaData WHERE ServiceID = ? AND MetaDataID = (select ID from MetaDataTypes where MetaName = ?);
 
 GetMetadataString SELECT MetaDataValue FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = (select ID from MetaDataTypes where MetaName = ?);
 
-GetMetadataNumeric SELECT MetaDataNumericValue FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = (select ID from MetaDataTypes where MetaName = ?);
+GetMetadataNumeric SELECT MetaDataValue FROM ServiceNumericMetaData WHERE ServiceID = ? AND MetaDataID = (select ID from MetaDataTypes where MetaName = ?);
 
-SetMetadataIndex REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataIndexValue) VALUES (?,?,?);
+SetMetadataIndex REPLACE INTO ServiceIndexMetaData (ServiceID, MetaDataID, MetaDataValue, EmbeddedFlag, DeleteFlag) VALUES (?,?,?,?,0);
 
-SetMetadataString REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
+SetMetadataString REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue, EmbeddedFlag, DeleteFlag) VALUES (?,?,?,?,0);
 
-SetMetadataNumeric REPLACE INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataNumericValue) VALUES (?,?,?);
+SetMetadataNumeric REPLACE INTO ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue, EmbeddedFlag, DeleteFlag) VALUES (?,?,?,?,0);
 
-SearchMetadataIndex select Path, Name, ID from Services where ID in (select ServiceID from ServiceMetaData where MetaDataID = ? and MetaDataIndexValue = ?);
+SearchMetadataIndex select Path, Name, ID from Services where ID in (select ServiceID from ServiceIndexMetaData where MetaDataID = ? and MetaDataValue = ?);
 SearchMetadataString select Path, Name, ID from Services where ID in (select ServiceID from ServiceMetaData where MetaDataID = ? and MetaDataValue = ?);
-SearchMetadataNumeric select Path, Name, ID from Services where ID in (select ServiceID from ServiceMetaData where MetaDataID = ? and MetaDataNumericValue = ?);
-
+SearchMetadataNumeric select Path, Name, ID from Services where ID in (select ServiceID from ServiceNUmericMetaData where MetaDataID = ? and MetaDataValue = ?);
 
 GetMetadataTypeInfo SELECT  ID, DataTypeID, Embedded, Writeable, Weight  FROM MetaDataTypes where MetaName = ?;
 

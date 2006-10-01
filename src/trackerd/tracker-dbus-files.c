@@ -34,7 +34,7 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 	gboolean     auto_create;
 	gboolean     file_valid;
 	gboolean     result;
-	long	     file_id;
+	guint32	     file_id, fsize;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -88,8 +88,9 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 				info = tracker_get_file_info (info);
 
 				if (info) {
-					str_size = tracker_long_to_str (info->file_size);
-					str_mtime = tracker_long_to_str (info->mtime);
+					str_size = tracker_uint_to_str (info->file_size);
+					fsize = info->file_size;
+					str_mtime = tracker_uint_to_str (info->mtime);
 
 					tracker_free_file_info (info);
 				}
@@ -103,21 +104,22 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 			service = g_strdup ("VFS Files");
 			str_mtime = g_strdup ("0");
 			str_size = g_strdup ("0");
+			fsize = 0;
 		}
 
 		if (file_valid) {
-			tracker_db_create_service (db_con, path, name, service, mime, FALSE, FALSE, FALSE, 0, 0);
+			tracker_db_create_service (db_con, path, name, service, mime, fsize, FALSE, FALSE, 0, 0);
 		}
 
 		file_id = tracker_db_get_file_id (db_con, uri);
-		str_file_id = tracker_long_to_str (file_id);
+		str_file_id = tracker_uint_to_str (file_id);
 
 		if (file_id > 0) {
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Name", name, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Name", name, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE, TRUE);
 		}
 
 		if (name) {
@@ -161,7 +163,7 @@ tracker_dbus_method_files_create (DBusRec *rec)
 	char	     *uri, *name, *path, *mime, *service, *str_mtime, *str_size, *str_file_id;
 	gboolean     is_dir;
 	int	     size, mtime;
-	long	     file_id;
+	guint32	     file_id;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -193,8 +195,8 @@ tracker_dbus_method_files_create (DBusRec *rec)
 	}
 
 	service = tracker_get_service_type_for_mime (mime);
-	str_mtime = tracker_int_to_str (mtime);
-	str_size = tracker_int_to_str (size);
+	str_mtime = tracker_uint_to_str (mtime);
+	str_size = tracker_uint_to_str (size);
 
 	if (uri[0] == G_DIR_SEPARATOR) {
 		name = g_path_get_basename (uri);
@@ -204,17 +206,17 @@ tracker_dbus_method_files_create (DBusRec *rec)
 		path = tracker_get_vfs_path (uri);
 	}
 
-	tracker_db_create_service (db_con, path, name, service, mime, is_dir, FALSE, FALSE, 0, mtime);
+	tracker_db_create_service (db_con, path, name, service, mime, size, is_dir,  FALSE, 0, mtime);
 
 	file_id = tracker_db_get_file_id (db_con, uri);
-	str_file_id = tracker_long_to_str (file_id);
+	str_file_id = tracker_uint_to_str (file_id);
 
-	if (file_id != -1) {
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id,  "File.Name", name, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE);
+	if (file_id != 0) {
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id,  "File.Name", name, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE, TRUE);
 	}
 
 	g_free (service);
@@ -231,7 +233,7 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 {
 	DBConnection *db_con;
 	char	     *uri, *name, *path, *str_file_id;
-	long	     file_id;
+	guint32	     file_id;
 	gboolean     is_dir;
 	char	     ***res;
 
@@ -264,7 +266,7 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 	}
 
 	file_id = tracker_db_get_file_id (db_con, uri);
-	str_file_id = tracker_long_to_str (file_id);
+	str_file_id = tracker_uint_to_str (file_id);
 	is_dir = FALSE;
 
 	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
@@ -281,11 +283,11 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 		tracker_db_free_result (res);
 	}
 
-	if (file_id != -1) {
+	if (file_id != 0) {
 		if (is_dir) {
-			tracker_db_delete_directory (db_con, file_id, path);
+			tracker_db_insert_pending_file (db_con, file_id, uri, g_strdup ("unknown"), 0, TRACKER_ACTION_DIRECTORY_DELETED, TRUE, FALSE, -1);
 		} else {
-			tracker_db_delete_file (db_con, file_id);
+			tracker_db_insert_pending_file (db_con, file_id, uri, g_strdup ("unknown"), 0, TRACKER_ACTION_FILE_DELETED, FALSE, FALSE, -1);
 		}
 	}
 
@@ -301,7 +303,7 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 	DBConnection *db_con;
 	DBusMessage  *reply;
 	char	     *uri, *str_id, *mime, *result;
-	long	     file_id;
+	guint32	     file_id;
 
 /*
 		<!-- Get the Service subtype for the file -->
@@ -331,13 +333,13 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 		return;
 	}
 
-	str_id = tracker_long_to_str (file_id);
+	str_id = tracker_uint_to_str (file_id);
 
 	mime = tracker_get_metadata (db_con, "Files", str_id, "File.Format");
 
 	result = tracker_get_service_type_for_mime (mime);
 
-	tracker_log ("info for file %s is : id=%ld, mime=%s, service=%s", uri, file_id, mime, result); 
+	tracker_log ("info for file %s is : id=%u, mime=%s, service=%s", uri, file_id, mime, result); 
 
 	g_free (mime);
 
@@ -790,7 +792,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	file_id = tracker_get_file_id (db_con, folder, FALSE);
 
-	if (file_id == -1) {
+	if (file_id == 0) {
 		tracker_set_error (rec, "Cannot find folder %s in Tracker database", folder);
 		return;
 	}

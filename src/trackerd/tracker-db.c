@@ -37,33 +37,29 @@ char *
 tracker_db_get_id (DBConnection *db_con, const char *service, const char *uri)
 {
 	int service_id;
+	guint32 id;
 
 	service_id = tracker_get_id_for_service (service);
 
 	if ( service_id == -1) {
 		return NULL;
 	}
+	
+	id = tracker_db_get_file_id (db_con, uri);
 
-	if (tracker_str_in_array (service, file_service_array) != -1) {
-		int id;
-
-		id = tracker_db_get_file_id (db_con, uri);
-
-		if (id != -1) {
-			return g_strdup_printf ("%d", id);
-		}
+	if (id != 0) {
+		return tracker_uint_to_str (id);
 	}
 
 	return NULL;
 }
 
-
-int
-tracker_db_get_file_id (DBConnection *db_con, const char *uri)
+gboolean
+tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *id)
 {
 	char *path, *name;
 	char ***res;
-	int  id;
+	gint32 index_time;
 
 	if (!db_con || !uri) {
 		return -1;
@@ -77,9 +73,67 @@ tracker_db_get_file_id (DBConnection *db_con, const char *uri)
 		path = tracker_get_vfs_path (uri);
 	}
 
+
 	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
 
-	id = -1;
+	g_free (path);
+	g_free (name);
+
+	index_time = 0;
+	*id = 0;
+
+	if (res) {
+		char **row;
+
+		row = tracker_db_get_row (res, 0);
+
+		if (row && row[0]) {
+			*id = (guint32) atoll (row[0]);
+		} 
+
+		if (row && row[1]) {
+			index_time = atoi (row[1]);
+		}
+
+		tracker_db_free_result (res);
+
+	} else {
+		return FALSE;
+	}
+
+	
+
+	if (index_time < (gint32) tracker_get_file_mtime (uri)) {
+		return FALSE;
+	}
+
+	return TRUE;
+
+
+}
+
+guint32
+tracker_db_get_file_id (DBConnection *db_con, const char *uri)
+{
+	char *path, *name;
+	char ***res;
+	guint32  id;
+
+	if (!db_con || !uri) {
+		return 0;
+	}
+
+	if (uri[0] == G_DIR_SEPARATOR) {
+		name = g_path_get_basename (uri);
+		path = g_path_get_dirname (uri);
+	} else {
+		name = tracker_get_vfs_name (uri);
+		path = tracker_get_vfs_path (uri);
+	}
+
+	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
+
+	id = 0;
 
 	if (res) {
 		char **row;
@@ -88,13 +142,7 @@ tracker_db_get_file_id (DBConnection *db_con, const char *uri)
 
 		if (row && row[0]) {
 			id = atoi (row[0]);
-		} else {
-			id = -1;
-		}
-
-		if (id < 1) {
-			id = -1;
-		}
+		} 
 
 		tracker_db_free_result (res);
 	}
@@ -135,6 +183,7 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 
 		if (row && row[0]) {
 			info->file_id = atol (row[0]);
+			info->is_new = FALSE;
 		}
 
 		if (row && row[1]) {
@@ -145,6 +194,11 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 			info->is_directory = (strcmp (row[2], "1") == 0) ;
 		}
 
+		if (row && row[3]) {
+			info->service_type_id = atoi (row[3]);
+		}
+
+
 		tracker_db_free_result (res);
 	}
 
@@ -152,6 +206,30 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	g_free (path);
 
 	return info;
+}
+
+
+static void
+tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, const char *keywords)
+{
+	char **array, **tags;
+	char *tag;
+	
+	array = g_strsplit (keywords, "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]", -1);
+
+	for (tags = array; *tags; ++tags) {
+
+		tag = *tags;
+		tag = g_strstrip (tag);
+
+		if (strlen (tag) > 2) {
+			tracker_log ("Auto-tagging file with %s", tag);
+			tracker_exec_proc (db_con, "AddEmbeddedKeyword", 2, file_id, tag);
+		}
+	}
+
+	g_strfreev (array);
+
 }
 
 
@@ -192,7 +270,7 @@ get_meta_table_data (gpointer key,
 			if (time == -1) {
 				return;
 			} else {
-				evalue = tracker_long_to_str (time);
+				evalue = tracker_int_to_str (time);
 			//	tracker_log ("date is %s", evalue);
 			}
 
@@ -210,8 +288,12 @@ get_meta_table_data (gpointer key,
 		g_free (evalue);
 	}
 
-//tracker_log ("**** saving metadata %s with value %s for fileID %s ****",  mtype, mvalue, db_action->file_id);
-	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, TRUE);
+	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, TRUE, TRUE);
+
+	/* auto-tag keyword related metadata */	
+	if ( (strcasecmp (mtype, "Doc.Keywords") == 0) || (strcasecmp (mtype, "Image.Keywords") == 0) ) {
+		tracker_db_add_embedded_keywords (db_action->db_con, db_action->file_id, mvalue);
+	}
 
 	if (mvalue) {
 		g_free (mvalue);
@@ -255,7 +337,7 @@ get_meta_table_data_new (gpointer key,
 			if (time == -1) {
 				return;
 			} else {
-				evalue = tracker_long_to_str (time);
+				evalue = tracker_int_to_str (time);
 			//	tracker_log ("date is %s", evalue);
 			}
 
@@ -273,7 +355,12 @@ get_meta_table_data_new (gpointer key,
 		g_free (evalue);
 	}
 
-	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, FALSE);
+	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, FALSE, TRUE);
+
+	/* auto-tag keyword related metadata */	
+	if ( (strcasecmp (mtype, "Doc.Keywords") == 0) || (strcasecmp (mtype, "Image.Keywords") == 0) ) {
+		tracker_db_add_embedded_keywords (db_action->db_con, db_action->file_id, mvalue);
+	}
 
 	if (mvalue) {
 		g_free (mvalue);
@@ -281,15 +368,15 @@ get_meta_table_data_new (gpointer key,
 }
 
 void
-tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, long file_id, gboolean new_file)
+tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, guint32 file_id, gboolean new_file)
 {
 	DatabaseAction db_action;
 
-	g_return_if_fail (file_id != -1 || table || db_con);
+	g_return_if_fail (file_id != 0 || table || db_con);
 
 	db_action.db_con = db_con;
 
-	db_action.file_id = g_strdup_printf ("%ld", file_id);
+	db_action.file_id = tracker_uint_to_str ( file_id);
 
 	if (table) {
 		tracker_db_start_transaction (db_con);
@@ -326,6 +413,10 @@ tracker_db_update_mbox_offset (DBConnection *db_con, MailBox *mb)
 void
 tracker_db_save_email (DBConnection *db_con, MailMessage *mm)
 {
+	GString	     *s;
+	const GSList *tmp;
+	char	     *to_print;
+
 	if (!mm) {
 		return;
 	}
@@ -334,16 +425,91 @@ tracker_db_save_email (DBConnection *db_con, MailMessage *mm)
 	 * FIXME
 	 */
 
-	tracker_log ("Saving email with mbox's uri \"%s\" and id \"%s\".", mm->mbox_uri, mm->message_id);
+	s = g_string_new ("");
+
+	g_string_append_printf (s,
+				"Saving email with mbox's uri \"%s\" and id \"%s\":\n"
+				"- offset: %lld\n"
+				"- deleted?: %d\n"
+				"- junk?: %d\n",
+				mm->mbox_uri, mm->message_id,
+				mm->offset,
+				mm->deleted,
+				mm->junk);
+
+	g_string_append (s, "- references: ");
+	for (tmp = mm->references; tmp; tmp = g_slist_next (tmp)) {
+		g_string_append_printf (s, "%s * ", (char *) tmp->data);
+	}
+	g_string_append (s, "\n");
+
+	g_string_append (s, "- reply-to-id: ");
+	for (tmp = mm->reply_to_id; tmp; tmp = g_slist_next (tmp)) {
+		g_string_append_printf (s, "%s * ", (char *) tmp->data);
+	}
+	g_string_append (s, "\n");
+
+	g_string_append_printf (s,
+				"- date: %s\n"
+				"- mail_from: %s\n",
+				ctime (&mm->date),
+				mm->mail_from);
+
+	g_string_append (s, "- mail_to: ");
+	for (tmp = mm->mail_to; tmp; tmp = g_slist_next (tmp)) {
+		Person *p;
+		p = (Person *) tmp->data;
+		g_string_append_printf (s, "name:%s, addr:%s ** ", p->name, p->addr);
+	}
+	g_string_append (s, "\n");
+
+	g_string_append (s, "- mail_cc: ");
+	for (tmp = mm->mail_cc; tmp; tmp = g_slist_next (tmp)) {
+		Person *p;
+		p = (Person *) tmp->data;
+		g_string_append_printf (s, "name:%s, addr:%s ** ", p->name, p->addr);
+	}
+	g_string_append (s, "\n");
+
+	g_string_append (s, "- mail_bcc: ");
+	for (tmp = mm->mail_bcc; tmp; tmp = g_slist_next (tmp)) {
+		Person *p;
+		p = (Person *) tmp->data;
+		g_string_append_printf (s, "name:%s, addr:%s ** ", p->name, p->addr);
+	}
+	g_string_append (s, "\n");
+
+	g_string_append_printf (s,
+				"- subject: %s\n"
+				"- content_type: %s\n"
+				"- body: %s\n"
+				"- path_to_attachments: %s\n",
+				mm->subject,
+				mm->content_type,
+				mm->body,
+				mm->path_to_attachments);
+
+	g_string_append (s, "- attachments: ");
+	for (tmp = mm->attachments; tmp; tmp = g_slist_next (tmp)) {
+		g_string_append_printf (s, "%s * ", (char *) tmp->data);
+	}
+	g_string_append (s, "\n");
+
+
+	to_print = g_string_free (s, FALSE);
+
+	tracker_log ("%s\n", to_print);
+
+	g_free (to_print);
 }
 
 
 void
-tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const char *large_thumb, long file_id)
+tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const char *large_thumb, guint32 file_id)
 {
 	char *str_file_id;
 
-	str_file_id = g_strdup_printf ("%ld", file_id);
+	str_file_id = tracker_uint_to_str (file_id);
 
 	g_return_if_fail (str_file_id);
 
@@ -351,7 +517,7 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 		char *small_thumb_file;
 
 		small_thumb_file = tracker_escape_string (db_con, small_thumb);
-		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE, FALSE);
+		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE, FALSE, TRUE);
 //		tracker_exec_proc (db_con, "SetMetadata", 5, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1");
 		g_free (small_thumb_file);
 	}
@@ -360,7 +526,7 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 		char *large_thumb_file;
 
 		large_thumb_file = tracker_escape_string (db_con, large_thumb);
-		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, TRUE, FALSE);
+		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, TRUE, FALSE, TRUE);
 //		tracker_exec_proc (db_con, "SetMetadata", 5, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, "1");
 		g_free (large_thumb_file);
 	}
@@ -470,26 +636,26 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 
 
 static void
-make_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new)
+make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
 {
 	char *str_file_id, *str_action, *str_counter;
 
 	g_return_if_fail (uri);
 
-	str_file_id = g_strdup_printf ("%ld", file_id);
-	str_action = g_strdup_printf ("%d", action);
-	str_counter = g_strdup_printf ("%d", counter);
+	str_file_id = tracker_uint_to_str ( file_id);
+	str_action = tracker_int_to_str (action);
+	str_counter = tracker_int_to_str (counter);
 
 	if (tracker->is_running) {
 		if ( (counter > 0)  
-		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > 50 ))
-  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > 500 )) ) {
+		  || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > tracker->max_extract_queue_size))
+  		  || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > tracker->max_process_queue_size)) ) {
 
 			//tracker_log ("************ counter for pending file %s is %d ***********", uri, counter);
 			if (!mime) {
-				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, "unknown", is_directory, is_new);
+				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, "unknown", is_directory, is_new, service_type_id);
 			} else {
-				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, mime, is_directory, is_new);
+				tracker_db_insert_pending (db_con, str_file_id, str_action, str_counter, uri, mime, is_directory, is_new, service_type_id);
 			}
 
 		} else {
@@ -511,6 +677,7 @@ make_pending_file (DBConnection *db_con, long file_id, const char *uri, const ch
 			} else {
 				g_async_queue_push (tracker->file_metadata_queue, info);
 			}
+
 		}
 
 	} else {
@@ -538,8 +705,8 @@ tracker_db_update_pending_file (DBConnection *db_con, const char *uri, int count
 	char *str_counter;
 	char *str_action;
 
-	str_counter = g_strdup_printf ("%d", counter);
-	str_action = g_strdup_printf ("%d", action);
+	str_counter = tracker_int_to_str (counter);
+	str_action = tracker_int_to_str (action);
 
 	if (tracker->is_running) {
 		tracker_db_update_pending (db_con, str_counter, str_action, uri);
@@ -549,11 +716,44 @@ tracker_db_update_pending_file (DBConnection *db_con, const char *uri, int count
 	g_free (str_action);
 }
 
+void 
+tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info) 
+{
+	if (g_async_queue_length (tracker->file_metadata_queue) < tracker->max_extract_queue_size) {
+
+		/* inc ref count to prevent it being deleted */
+		info = tracker_inc_info_ref (info);
+
+		g_async_queue_push (tracker->file_metadata_queue, info);
+
+	} else {
+		tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory, info->is_new, info->service_type_id);
+	}
+
+	tracker_notify_meta_data_available ();
+}
+
+
 
 void
-tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new)
+tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
 {
 	FileInfo *info;
+
+	/* if a check action then then discard if up to date */
+	if (action == TRACKER_ACTION_CHECK || action == TRACKER_ACTION_FILE_CHECK || action == TRACKER_ACTION_DIRECTORY_CHECK) {
+		
+		guint32 id;
+	
+		if (tracker_db_is_file_up_to_date (db_con, uri, &id)) {
+			return;
+		}
+
+		if (file_id == 0) {
+			file_id = id;
+		}
+
+	}
 
 	/* check if uri already has a pending action and update accordingly */
 	info = tracker_db_get_pending_file (db_con, uri);
@@ -612,7 +812,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *
 		tracker_free_file_info (info);
 
 	} else {
-		make_pending_file (db_con, file_id, uri, mime, counter, action, is_directory, is_new);
+		make_pending_file (db_con, file_id, uri, mime, counter, action, is_directory, is_new, service_type_id);
 	}
 }
 
@@ -620,57 +820,12 @@ tracker_db_insert_pending_file (DBConnection *db_con, long file_id, const char *
 gboolean
 tracker_is_valid_service (DBConnection *db_con, const char *service)
 {
-	char	 ***res;
-	gboolean result;
 
-	res = tracker_exec_proc (db_con, "ValidService", 1, service);
-
-	if (res) {
-		char **row;
-
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[0]) {
-			if (strcmp (row[0], "1") == 0) {
-				result = TRUE;
-			}
-		}
-
-		tracker_db_free_result (res);
+	if (tracker_get_id_for_service (service) != -1) {
+		return TRUE;
 	}
 
-	return result;
+	return FALSE;
 }
 
 
-gboolean
-tracker_db_index_id_exists (DBConnection *db_con, unsigned int id)
-{
-	char	 ***res;
-	char	 *id_str;
-	gboolean result;
-
-	result = FALSE;
-
-	id_str = tracker_int_to_str (id);
-
-	res = tracker_exec_proc (db_con, "IndexIDExists", 1, id_str);
-
-	g_free (id_str);
-
-	if (res) {
-		char **row;
-
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[0]) {
-			if (strcmp (row[0], "1") == 0) {
-				result = TRUE;
-			}
-		}
-
-		tracker_db_free_result (res);
-	}
-
-	return result;
-}

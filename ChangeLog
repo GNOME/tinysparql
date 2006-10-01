@@ -1,4 +1,21 @@
 
+2006-10-01 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* Added Kmail email support
+	* Added fixes for sqlite 
+
+
+2006-10-01 Jamie McCracken <jamiemcc at gnome org>
+
+	* restructured database
+	* Used Curia instead of Depot for inverted index as its more scalable
+	* Fixed issues with new indexer
+	* Fixed keywords to update indexer properly
+	* Fixed keyword search and list methods
+	* Added auto tag support for Doc.Keywords and Image.Keywords (based on patch by Edward Duffy)
+	* Auto optimize index after first run and automatically after user settable no of updates
+
+
 2006-09-27 Edward Duffy <eduffy at gmail com>
 	
 	* made internal extractors external and intgrated into tracker-extract

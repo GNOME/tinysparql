@@ -198,6 +198,18 @@ find_thunderbird_mboxes (GSList *list_of_mboxes, const char *profile_dir)
 }
 
 
+void
+init_thunderbird_mboxes_module (void)
+{
+}
+
+
+void
+finalize_thunderbird_mboxes_module (void)
+{
+}
+
+
 GSList *
 watch_emails_of_thunderbird (DBConnection *db_con)
 {
@@ -322,7 +334,7 @@ watch_emails_of_thunderbird (DBConnection *db_con)
 
 
 void
-tracker_get_status_of_thunderbird_email (GMimeMessage *g_m_message, MailMessage *msg)
+get_status_of_thunderbird_email (GMimeMessage *g_m_message, MailMessage *msg)
 {
 }
 
@@ -332,6 +344,10 @@ is_in_a_thunderbird_mail_dir (const char *uri)
 {
 	char	 *path;
 	gboolean ret;
+
+	if (!uri) {
+		return FALSE;
+	}
 
 	path = g_build_filename (g_get_home_dir (), THUNDERBIRD_MAIL_DIR, NULL);
 

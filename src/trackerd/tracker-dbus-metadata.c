@@ -102,7 +102,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 			return;
 		}
 
-		tracker_db_set_metadata (db_con, service, id, meta, value, !is_local_file, TRUE);
+		tracker_db_set_metadata (db_con, service, id, meta, value, !is_local_file, TRUE, FALSE);
 	}
 
 	g_free (id);

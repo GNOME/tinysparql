@@ -606,7 +606,7 @@ tracker_str_to_date (const char *timestamp)
 
 
 char *
-tracker_date_to_str (long date_time)
+tracker_date_to_str (gint32 date_time)
 {
 	char  		buffer[30];
 	time_t 		time_stamp;
@@ -630,6 +630,11 @@ tracker_date_to_str (long date_time)
 	}
 }
 
+char *
+tracker_uint_to_str (int i)
+{
+	return g_strdup_printf ("%u", i);
+}
 
 char *
 tracker_int_to_str (int i)
@@ -637,12 +642,6 @@ tracker_int_to_str (int i)
 	return g_strdup_printf ("%d", i);
 }
 
-
-char *
-tracker_long_to_str (long i)
-{
-	return g_strdup_printf ("%ld", i);
-}
 
 
 int
@@ -793,7 +792,7 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 	info->uri = g_strdup (uri);
 
 	info->counter = counter;
-	info->file_id = -1;
+	info->file_id = 0;
 
 	info->file_type = FILE_ORDINARY;
 
@@ -801,7 +800,7 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 	info->is_directory = FALSE;
 
 	info->is_link = FALSE;
-	info->link_id = -1;
+	info->link_id = 0;
 	info->link_path = NULL;
 	info->link_name = NULL;
 
@@ -811,6 +810,9 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 	info->mtime = 0;
 	info->atime = 0;
 	info->indextime = 0;
+
+	info->is_new = TRUE;
+	info->service_type_id = -1;
 
 	info->ref_count = 1;
 	info_allocated ++;
@@ -883,7 +885,7 @@ tracker_dec_info_ref (FileInfo *info)
 
 
 FileInfo *
-tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
+tracker_get_pending_file_info (guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory)
 {
 	FileInfo *info;
 
@@ -900,7 +902,7 @@ tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, 
 	info->is_directory = is_directory;
 
 	info->is_link = FALSE;
-	info->link_id = -1;
+	info->link_id = 0;
 	info->link_path = NULL;
 	info->link_name = NULL;
 
@@ -916,10 +918,41 @@ tracker_get_pending_file_info (long file_id, const char *uri, const char *mime, 
 	info->atime = 0;
 	info->indextime = 0;
 
+	info->service_type_id = -1;
+	info->is_new = TRUE;
+
 	info->ref_count = 1;
 	info_allocated ++;
 
 	return info;
+}
+
+
+gint32
+tracker_get_file_mtime (const char *uri)
+{
+	struct stat  	finfo;
+	char 		*uri_in_locale;
+
+	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (uri_in_locale) {
+		if (g_lstat (uri_in_locale, &finfo) == -1) {
+			g_free (uri_in_locale);
+
+			return 0;
+		}
+
+	} else {
+		tracker_log ("******ERROR**** uri could not be converted to locale format");
+
+		return 0;
+	}
+
+	g_free (uri_in_locale);
+
+	return (gint32) finfo.st_mtime;
+
 }
 
 
@@ -969,7 +1002,7 @@ tracker_get_file_info (FileInfo *info)
 	g_free (uri_in_locale);
 
 	if (!info->is_directory) {
-		info->file_size = (long) finfo.st_size;
+		info->file_size = (guint32) finfo.st_size;
 	} else {
 		if (info->watch_type == WATCH_OTHER) {
 			info->watch_type = WATCH_SUBFOLDER;
@@ -1017,59 +1050,6 @@ tracker_get_file_info (FileInfo *info)
 }
 
 
-static gboolean
-is_text_file (const char* uri)
-{
-	FILE *file;
-	char *uri_in_locale;
-
-	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-
-	if (!uri_in_locale) {
-		tracker_log ("******ERROR**** uri could not be converted to locale format");
-		return FALSE;
-	}
-
-	file = g_fopen (uri_in_locale, "r");
-
-	g_free (uri_in_locale);
-
-	if (file) {
-		char	 buffer[65566];
-		gboolean data_read;
-
-		if (fgets (buffer, 65565, file)) {
-			data_read = TRUE;
-		}
-
-		fclose (file);
-
-		if (data_read) {
-			char *s;
-
-			s = g_locale_to_utf8 (buffer, -1, NULL, NULL, NULL);
-
-			if (!s) {
-				return FALSE;
-			} else {
-				gboolean ret;
-
-				/* if file contains text then it will be in correct utf8 but
-				   it isn't clear whether some binary files will be identified
-				   as text files too if they aren't in UTF-8! */
-				ret = g_utf8_validate (s, -1, NULL);
-
-				g_free (s);
-
-				return ret;
-			}
-		}
-	}
-
-	return FALSE;
-}
-
-
 gboolean
 tracker_file_is_valid (const char *uri)
 {
@@ -1090,6 +1070,77 @@ tracker_file_is_valid (const char *uri)
 
 	return convert_ok;
 }
+
+
+static gboolean
+is_text_file (const char *uri)
+{
+	FILE 	 *file;
+	char 	 *uri_in_locale, *value;
+	char	 buffer[65565];
+	int 	 bytes_read;
+	gboolean result;
+
+	result = FALSE;
+
+	bytes_read = 0;
+
+	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (!uri_in_locale) {
+		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		return FALSE;
+	}
+
+	file = g_fopen (uri_in_locale, "r");
+
+	g_free (uri_in_locale);
+
+	if (!file) {
+ 		return FALSE;
+	}
+
+	while (fgets (buffer, 65565, file)) {
+	
+		bytes_read += strlen (buffer);
+
+		/* if text is too small skip line */
+		if (bytes_read < 3) {
+			continue;
+		}
+
+		if (!g_utf8_validate (buffer, bytes_read, NULL)) {
+		
+			value = g_locale_to_utf8 (buffer, bytes_read, NULL, NULL, NULL);
+			
+			if (!value) {
+				fclose (file);
+				return FALSE;
+			}
+			
+			g_free (value);
+			
+		} 
+		
+		result = TRUE;		
+		
+		/* check first 4kb only */
+		if (bytes_read > 4096) {
+			break;
+		}
+
+	}
+
+	fclose (file);
+
+	return result;
+
+}
+
+
+
+
+
 
 
 char *
@@ -1122,7 +1173,6 @@ tracker_get_mime_type (const char* uri)
 
 	if (result != NULL && result != XDG_MIME_TYPE_UNKNOWN) {
 		return g_strdup (result);
-
 	} else {
 		if (is_text_file (uri)) {
 			return g_strdup ("text/plain");
@@ -1441,7 +1491,8 @@ tracker_load_config_file ()
 					 "IndexFirefoxHistory=true\n",
 					 "IndexEmails=false\n",
 					 "IndexEvolutionEmails=false\n",
-					 "IndexThunderbirdEmails=false\n\n",
+					 "IndexThunderbirdEmails=false\n",
+					 "IndexKmailEmails=false\n\n",
 					 "[Database]\n",
 					 "StoreTextFileContentsInDB=false\n",
 					 "DBBufferMemoryLimit=1M\n\n",
@@ -1558,6 +1609,16 @@ tracker_load_config_file ()
 		}
 	} else {
 		tracker->index_thunderbird_emails = FALSE;
+	}
+
+	if (tracker->index_emails) {
+		if (g_key_file_has_key (key_file, "Indexes", "IndexKmailEmails", NULL)) {
+			tracker->index_kmail_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexKmailEmails", NULL);
+		} else {
+			tracker->index_kmail_emails = FALSE;
+		}
+	} else {
+		tracker->index_kmail_emails = FALSE;
 	}
 
 /*
@@ -1681,7 +1742,7 @@ tracker_notify_file_data_available (void)
 	}
 
 	/* if busy - check if async queue has new stuff as we do not need to notify then */
-	if (g_async_queue_length (tracker->file_process_queue) > 0) {
+	if (g_async_queue_length (tracker->file_process_queue) > 1) {
 		return;
 	}
 
@@ -1726,7 +1787,7 @@ tracker_notify_meta_data_available (void)
 	}
 
 	/* if busy - check if async queue has new stuff as we do not need to notify then */
-	if (g_async_queue_length (tracker->file_metadata_queue) > 0) {
+	if (g_async_queue_length (tracker->file_metadata_queue) > 1) {
 		return;
 	}
 
@@ -1752,6 +1813,7 @@ tracker_notify_meta_data_available (void)
 
 		g_thread_yield ();
 		g_usleep (10);
+		tracker_log ("in check phase");
 	}
 }
 

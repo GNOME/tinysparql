@@ -307,7 +307,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		} else {
 			info->action = TRACKER_ACTION_FILE_CREATED;
 		}
-		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 5, info->action, info->is_directory, TRUE, -1);
+		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 1, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 

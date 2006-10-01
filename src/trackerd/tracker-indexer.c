@@ -20,11 +20,10 @@
 
 #include "tracker-indexer.h"
 
+extern Tracker *tracker;
 
-
-#define INDEXBNUM       262144            /* initial bucket number of word index */
-#define INDEXALIGN      -2                /* alignment of inverted index */
-#define INDEXFBP        32                /* size of free block pool of inverted index */
+#define INDEXALIGN      -2               /* alignment of inverted index */
+#define INDEXFBP        32               /* size of free block pool of inverted index */
 
 typedef struct {                         /* type of structure for an element of search result */
 	guint32 	id;              /* Service ID number of the document */
@@ -40,6 +39,7 @@ typedef struct {
 
 
 static gboolean shutdown;
+static int update_count;
 
 static inline guint8
 get_score (WordDetails *details)
@@ -171,11 +171,14 @@ tracker_index_free_hit_list (GSList *hit_list)
 
 
 
+
+
+
 Indexer *
 tracker_indexer_open (const char *name)
 {
 	char *base_dir, *word_dir;
-	DEPOT *word_index;
+	CURIA *word_index;
 	Indexer *result;
 
 	shutdown = FALSE;
@@ -189,12 +192,12 @@ tracker_indexer_open (const char *name)
 		g_mkdir_with_parents (base_dir, 00755);
 	}
 
-	word_index = dpopen (word_dir, DP_OWRITER | DP_OCREAT | DP_ONOLCK, INDEXBNUM);
+	word_index = cropen (word_dir, CR_OWRITER | CR_OCREAT | CR_ONOLCK, tracker->min_index_bucket_count, tracker->index_divisions);
 
 	if (!word_index) {
 		tracker_log ("%s index was not closed properly - attempting repair", word_dir);
-		if (dprepair (word_dir)) {
-			word_index = dpopen (word_dir, DP_OWRITER | DP_OCREAT | DP_ONOLCK, INDEXBNUM);
+		if (crrepair (word_dir)) {
+			word_index = cropen (word_dir, CR_OWRITER | CR_OCREAT | CR_ONOLCK, tracker->min_index_bucket_count, tracker->index_divisions);
 		} else {
 			g_assert ("Fatal : index file is dead (suggest delete index file and restart trackerd)");
 		}
@@ -210,15 +213,11 @@ tracker_indexer_open (const char *name)
 
 	result->word_mutex = g_mutex_new ();
 
-	dpsetalign (word_index , INDEXALIGN);
+	crsetalign (word_index , INDEXALIGN);
 
-	/* re optimize database if bucket count < (2 * rec count) */
-	int buckets, records;
-	
-	buckets = dpbnum (result->word_index);
-	records = dprnum (result->word_index);
+	/* re optimize database if bucket count < rec count */
 
-	if (buckets < (2 * records)) {
+	if (crbnum (result->word_index) < crrnum (result->word_index)) {
 		tracker_log ("Optimizing word index - this may take a while...");
 		tracker_indexer_optimize (result);
 	}
@@ -234,7 +233,7 @@ tracker_indexer_close (Indexer *indexer)
 	shutdown = TRUE;
 
 	g_mutex_lock (indexer->word_mutex);
-	dpclose (indexer->word_index);
+	crclose (indexer->word_index);
 
 	g_mutex_unlock (indexer->word_mutex);
 	g_mutex_free (indexer->word_mutex);
@@ -248,12 +247,33 @@ tracker_indexer_optimize (Indexer *indexer)
 
 	if (shutdown) return FALSE;
 
+	int num;
+
+	/* set bucket count to bucket_ratio times no. of recs divided by no. of divisions */
+	num = (crrnum (indexer->word_index) * tracker->index_bucket_ratio) / tracker->index_divisions;
+
+	if (num > tracker->max_index_bucket_count) {
+		num = tracker->max_index_bucket_count;
+	}
+
+	if (num < tracker->min_index_bucket_count) {
+		num = tracker->min_index_bucket_count;
+	}
+
+	tracker_log ("Please wait while optimization of indexes takes place...");
+	tracker_log ("Index has file size %10.0f and bucket count of %d of which %d are used...", crfsizd (indexer->word_index), crbnum (indexer->word_index), crbusenum (indexer->word_index));
+	
 	g_mutex_lock (indexer->word_mutex);
-	if (!dpoptimize (indexer->word_index, INDEXBNUM)) {
+	if (!croptimize (indexer->word_index, num)) {
+
 		g_mutex_unlock (indexer->word_mutex);
+		tracker_log ("Optimization has failed!");
 		return FALSE;
 	}
 	g_mutex_unlock (indexer->word_mutex);
+	tracker_log ("Index has been successfully optimized to file size %10.0f and with bucket count of %d of which %d are used...", crfsizd (indexer->word_index), crbnum (indexer->word_index), crbusenum (indexer->word_index));
+	
+	
 	return TRUE;
 }
 
@@ -275,7 +295,7 @@ tracker_indexer_append_word (Indexer *indexer, const char *word, guint32 id, int
 	pair.amalgamated = calc_amalgamated (service, score);
 
 	g_mutex_lock (indexer->word_mutex);
-	if (!dpput (indexer->word_index, word, -1, (char *) &pair, sizeof (WordDetails), DP_DCAT)) {
+	if (!crput (indexer->word_index, word, -1, (char *) &pair, sizeof (WordDetails), CR_DCAT)) {
 		g_mutex_unlock (indexer->word_mutex);
 		return FALSE;
 	}
@@ -304,7 +324,7 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 	//tracker_log ("updating word %s with score %d in ID %d", word, score, id);
 
 	/* check if existing record is there  */
-	if ((tmp = dpget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
 
 		g_mutex_unlock (indexer->word_mutex);
 
@@ -341,7 +361,7 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 					}
 
 					g_mutex_lock (indexer->word_mutex);
-					dpput (indexer->word_index, word, -1, (char *) details, tsiz, DP_DOVER);
+					crput (indexer->word_index, word, -1, (char *) details, tsiz, CR_DOVER);
 					g_mutex_unlock (indexer->word_mutex);	
 										
 					g_free (tmp);
@@ -371,7 +391,7 @@ count_hit_size_for_word (Indexer *indexer, const char *word)
 	int  tsiz;
 
 	g_mutex_lock (indexer->word_mutex);	
-	tsiz = dpvsiz (indexer->word_index, word, -1);
+	tsiz = crvsiz (indexer->word_index, word, -1);
 	g_mutex_unlock (indexer->word_mutex);	
 
 	return tsiz;
@@ -407,7 +427,7 @@ get_hits_for_single_word (Indexer *indexer,
 
 	g_mutex_lock (indexer->word_mutex);
 
-	if ((tmp = dpget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
 
 		g_mutex_unlock (indexer->word_mutex);
 
@@ -507,7 +527,7 @@ get_intermediate_hits (Indexer *indexer,
 
 	g_mutex_lock (indexer->word_mutex);
 
-	if ((tmp = dpget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
 
 		g_mutex_unlock (indexer->word_mutex);
 
@@ -597,7 +617,7 @@ get_final_hits (Indexer *indexer,
 
 	g_mutex_lock (indexer->word_mutex);
 
-	if ((tmp = dpget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
 
 		g_mutex_unlock (indexer->word_mutex);
 
@@ -735,7 +755,6 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int service_type_min, 
 
 	/* qsort stores results in desc order so we must go from end value to start value to start from word with fewest hits*/
 	for (i=word_count-1; i>-1; i--) {
-
 
 		if (i != 0) {
 			table = get_intermediate_hits (indexer, table, search_word[i].word, service_type_min, service_type_max);

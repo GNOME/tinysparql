@@ -40,8 +40,10 @@
  *
  */
 
+void		init_thunderbird_mboxes_module		(void);
+void		finalize_thunderbird_mboxes_module	(void);
 GSList *	watch_emails_of_thunderbird		(DBConnection *db_con);
-void		tracker_get_status_of_thunderbird_email	(GMimeMessage *g_m_message, MailMessage *msg);
+void		get_status_of_thunderbird_email		(GMimeMessage *g_m_message, MailMessage *msg);
 gboolean	is_in_a_thunderbird_mail_dir		(const char *uri);
 
 #endif

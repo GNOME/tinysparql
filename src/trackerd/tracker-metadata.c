@@ -40,7 +40,7 @@ typedef enum {
 /* document mime type specific metadata groups - NB mime types below may be prefixes */
 char *doc_mime_types[] = {
 			  "application/rtf",
-			  "text/richtext"
+			  "text/richtext",
 			  "application/msword",
 			  "application/pdf",
 			  "application/postscript",
@@ -85,6 +85,7 @@ char *doc_mime_types[] = {
 char *text_mime_types[] = {
 		"text/plain",
 		"text/x-authors",
+		"text/x-changelog",
 		"text/x-copying",
 		"text/x-credits",
 		"text/x-install",
@@ -397,6 +398,9 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 
 	return NULL;
 }
+
+
+
 
 void
 tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *table)

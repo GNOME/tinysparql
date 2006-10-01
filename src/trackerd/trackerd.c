@@ -1389,6 +1389,7 @@ process_files_thread (void)
 	DBConnection *db_con;
 	DBConnection *blob_db_con;
 	GSList	     *moved_from_list; /* list to hold moved_from events whilst waiting for a matching moved_to event */
+	gboolean pushed_events;
 
         /* block all signals in this thread */
         sigfillset (&signal_set);
@@ -1403,6 +1404,8 @@ process_files_thread (void)
 	db_con = tracker_db_connect ();
 	blob_db_con = tracker_db_connect_full_text ();
 	db_con->thread = "files";
+
+	pushed_events = FALSE;
 
 	moved_from_list = NULL;
 
@@ -1460,6 +1463,7 @@ process_files_thread (void)
 			res = tracker_db_get_pending_files (db_con);
 
 			k = 0;
+			pushed_events = FALSE;
 
 			if (res) {
 				char **row;
@@ -1484,6 +1488,7 @@ process_files_thread (void)
 
 					info_tmp = tracker_create_file_info (row[1], tmp_action, 0, WATCH_OTHER);
 					g_async_queue_push (tracker->file_process_queue, info_tmp);
+					pushed_events = TRUE;
 				}
 
 				if (tracker->is_running) {
@@ -1497,8 +1502,8 @@ process_files_thread (void)
 
 			tracker_db_remove_pending_files (db_con);
 
-			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM) */
-			if (k == 0) {
+			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM or inotify move/create) */
+			if (!pushed_events && (k == 0)) {
 				tracker_log ("files not ready so sleeping");
 				g_usleep (100000);
 			}

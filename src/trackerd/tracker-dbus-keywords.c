@@ -69,6 +69,9 @@ update_keywords_metadata (DBConnection *db_con, const char* service, const char 
 		tracker_db_update_keywords (db_con, service, id, keywords);
 
 		g_free (keywords);
+
+	} else {
+		tracker_db_update_keywords (db_con, service, id, " ");
 	}
 
 	g_free (id);
@@ -108,7 +111,7 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 		return;
 	}
 
-	res = tracker_exec_proc (db_con, "GetKeywordList", 1, service);
+	res = tracker_db_get_keyword_list (db_con, service);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -506,17 +509,34 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	g_string_free (str_words, TRUE);
 
 
-	str_select = g_string_new (" Select distinct Concat(S.Path, '");
+	str_select = g_string_new (" Select distinct S.Path || '");
 
 	str_select = g_string_append (str_select, G_DIR_SEPARATOR_S);
 
-	str_select = g_string_append (str_select, "', S.Name) as EntityName from Services S ");
+	str_select = g_string_append (str_select, "' || S.Name as EntityName from Services S ");
 
 
 	str_where = g_string_new ("");
 
+	int smin, smax;
+	char *str_min, *str_max;
+	
+	smin = tracker_get_id_for_service (service);
 
-	g_string_printf (str_where, " where  (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) ", service, service);
+	if (smin == 0) {
+		smax = 8;
+	} else {
+		smax = smin;
+	}
+
+	str_min = tracker_int_to_str (smin);
+	str_max = tracker_int_to_str (smax);
+
+
+	g_string_printf (str_where, " where  (S.ServiceTypeID between %s and %s) ", str_min, str_max);
+
+	g_free (str_min);
+	g_free (str_max);
 
 	for (i = 0; i < row_count; i++) {
 		g_string_append_printf (str_select, " INNER JOIN ServiceKeywords K%d on S.ID = K%d.ServiceID ", i, i);

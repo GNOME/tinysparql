@@ -81,6 +81,18 @@ find_evolution_mboxes (const char *evolution_dir)
 }
 
 
+void
+init_evolution_mboxes_module (void)
+{
+}
+
+
+void
+finalize_evolution_mboxes_module (void)
+{
+}
+
+
 GSList *
 watch_emails_of_evolution (DBConnection *db_con)
 {
@@ -123,7 +135,7 @@ watch_emails_of_evolution (DBConnection *db_con)
 
 
 void
-tracker_get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
+get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
 {
 	const char	  *field;
 	char		  **parts;
@@ -169,6 +181,10 @@ is_in_a_evolution_mail_dir (const char *uri)
 {
 	char	 *path;
 	gboolean ret;
+
+	if (!uri) {
+		return FALSE;
+	}
 
 	path = g_build_filename (g_get_home_dir (), EVOLUTION_MAIL_DIR, NULL);
 

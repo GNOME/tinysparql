@@ -252,11 +252,12 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 				word = aword;
 			}
 
+			
+
 			/* count dupes */
 			count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
 			g_hash_table_insert (word_table, word, GINT_TO_POINTER (count + weight));
-
-
+			
 
 		}
 

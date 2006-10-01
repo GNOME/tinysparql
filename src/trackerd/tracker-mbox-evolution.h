@@ -40,8 +40,10 @@
  *
  */
 
+void		init_evolution_mboxes_module		(void);
+void		finalize_evolution_mboxes_module	(void);
 GSList *	watch_emails_of_evolution		(DBConnection *db_con);
-void		tracker_get_status_of_evolution_email	(GMimeMessage *g_m_message, MailMessage *msg);
+void		get_status_of_evolution_email		(GMimeMessage *g_m_message, MailMessage *msg);
 gboolean	is_in_a_evolution_mail_dir		(const char *uri);
 
 #endif

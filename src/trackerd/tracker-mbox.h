@@ -64,8 +64,8 @@ typedef struct {
 	char	 *message_id;
 	gboolean deleted;
 	gboolean junk;
-	char	 **references;		/* array of message_ids */
-	char	 *reply_to_id;		/* message_id of email that it replies to */
+	GSList	 *references;		/* message_ids */
+	GSList	 *reply_to_id;		/* message_id of emails that it replies to */
 	long	 date;
 	char	 *mail_from;
 	GSList	 *mail_to;

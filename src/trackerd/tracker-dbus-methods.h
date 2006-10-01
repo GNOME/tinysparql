@@ -30,7 +30,7 @@ char *	tracker_get_metadata			(DBConnection *db_con, const char *service, const 
 
 void	tracker_set_metadata			(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite);
 
-int	tracker_get_file_id 			(DBConnection *db_con, const char *uri, gboolean create_record);
+guint32	tracker_get_file_id 			(DBConnection *db_con, const char *uri, gboolean create_record);
 
 void	tracker_add_query_result_to_dict 	(char ***res, DBusMessageIter *iter_dict);
 

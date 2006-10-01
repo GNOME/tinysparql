@@ -94,6 +94,8 @@ trackerd_SOURCES =		\
 	tracker-mbox-evolution.h \
 	tracker-mbox-thunderbird.c \
 	tracker-mbox-thunderbird.h \
+	tracker-mbox-kmail.c	\
+	tracker-mbox-kmail.h	\
 	tracker-mbox.c		\
 	tracker-mbox.h		\
 	tracker-metadata.c	\

@@ -93,16 +93,16 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 }
 
 
-int
+guint32
 tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_record)
 {
 	int id;
 
-	g_return_val_if_fail (db_con && uri && (strlen(uri) > 0), -1);
+	g_return_val_if_fail (db_con && uri && (strlen(uri) > 0), 0);
 
 	id = tracker_db_get_file_id (db_con, uri);
 
-	if (id == -1 && create_record) {
+	if (id == 0 && create_record) {
 		char	    *uri_in_locale;
 		struct stat finfo;
 		int	    result;
@@ -111,7 +111,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 
 		if (!uri_in_locale) {
 			tracker_log ("******ERROR**** info->uri could not be converted to locale format");
-			return -1;
+			return 0;
 		}
 
 		/* file not found in DB - so we must insert a new file record */
@@ -119,7 +119,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 		if (uri[0] == G_DIR_SEPARATOR && (g_lstat (uri_in_locale, &finfo) != -1)) {
 			char	 *path, *name, *mime, *service_name;
 			gboolean is_dir, is_link;
-			long	 mtime;
+			gint32	 mtime;
 
 			name = g_path_get_basename (uri);
 			path = g_path_get_dirname (uri);

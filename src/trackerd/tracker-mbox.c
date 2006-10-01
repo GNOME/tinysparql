@@ -27,6 +27,7 @@
 #include "tracker-mbox.h"
 #include "tracker-mbox-evolution.h"
 #include "tracker-mbox-thunderbird.h"
+#include "tracker-mbox-kmail.h"
 
 
 extern Tracker *tracker;
@@ -65,11 +66,18 @@ tracker_watch_emails (DBConnection *db_con)
 	mboxes = NULL;
 
 	if (tracker->index_evolution_emails) {
+		init_evolution_mboxes_module ();
 		mboxes = g_slist_concat (mboxes, watch_emails_of_evolution (db_con));
 	}
 
 	if (tracker->index_thunderbird_emails) {
+		init_thunderbird_mboxes_module ();
 		mboxes = g_slist_concat (mboxes, watch_emails_of_thunderbird (db_con));
+	}
+
+	if (tracker->index_kmail_emails) {
+		init_kmail_mboxes_module ();
+		mboxes = g_slist_concat (mboxes, watch_emails_of_kmail (db_con));
 	}
 }
 
@@ -86,6 +94,18 @@ tracker_end_email_watching (void)
 		base_path_for_attachments = NULL;
 	}
 
+	if (tracker->index_evolution_emails) {
+		finalize_evolution_mboxes_module ();
+	}
+
+	if (tracker->index_thunderbird_emails) {
+		finalize_thunderbird_mboxes_module ();
+	}
+
+	if (tracker->index_kmail_emails) {
+		finalize_kmail_mboxes_module ();
+	}
+
 	g_mime_shutdown ();
 }
 
@@ -94,7 +114,8 @@ gboolean
 tracker_is_in_a_application_mail_dir (const char *uri)
 {
 	return (is_in_a_evolution_mail_dir (uri) ||
-		is_in_a_thunderbird_mail_dir (uri));
+		is_in_a_thunderbird_mail_dir (uri) ||
+		is_in_a_kmail_mail_dir (uri));
 }
 
 
@@ -188,11 +209,42 @@ tracker_mbox_parse_from_offset (const char *uri, off_t offset)
 void
 tracker_close_mbox_and_free_memory (MailBox *mb)
 {
-	if (mb) {
-		g_free (mb->mbox_uri);
-		g_object_unref (mb->parser);
-		g_object_unref (mb->stream);
+	if (!mb) {
+		return;
 	}
+
+	g_free (mb->mbox_uri);
+	g_object_unref (mb->parser);
+	g_object_unref (mb->stream);
+}
+
+
+static GSList *
+add_gmime_references (GSList *list, GMimeMessage *message, const char *header)
+{
+	const char *tmp;
+
+	tmp = g_mime_message_get_header (message, header);
+	if (tmp) {
+		GMimeReferences *refs;
+		const GMimeReferences *tmp_ref;
+
+		refs = g_mime_references_decode (tmp);
+
+		for (tmp_ref = refs; tmp_ref; tmp_ref = tmp_ref->next) {
+			const char *msgid;
+
+			msgid = tmp_ref->msgid;
+
+			if (msgid && msgid[0] != '\0') {
+				list = g_slist_prepend (list, g_strdup (msgid));
+			}
+		}
+
+		g_mime_references_clear (&refs);
+	}
+
+	return list;
 }
 
 
@@ -209,7 +261,7 @@ add_recipients (GSList *list, GMimeMessage *message, const char *type)
 		p->name = g_strdup (addrs_list->address->name);
 		p->addr = g_strdup (addrs_list->address->value.addr);
 
-		list = g_slist_append (list, p);
+		list = g_slist_prepend (list, p);
 	}
 
 	return list;
@@ -289,7 +341,6 @@ tracker_mbox_parse_next (MailBox *mb)
 	MailMessage  *msg;
 	guint64	     msg_offset;
 	GMimeMessage *message;
-	const char   *tmp;
 	time_t	     date;
 	int	     gmt_offset;
 	gboolean     is_html;
@@ -319,15 +370,15 @@ tracker_mbox_parse_next (MailBox *mb)
 	switch (mb->mail_app) {
 
 	case MAIL_APP_EVOLUTION:
-		tracker_get_status_of_evolution_email (message, msg);
+		get_status_of_evolution_email (message, msg);
 		break;
 
 	case MAIL_APP_KMAIL:
-		/* FIXME */
+		get_status_of_kmail_email (message, msg);
 		break;
 
 	case MAIL_APP_THUNDERBIRD:
-		tracker_get_status_of_thunderbird_email (message, msg);
+		get_status_of_thunderbird_email (message, msg);
 		break;
 
 	case MAIL_APP_UNKNOWN:
@@ -339,26 +390,11 @@ tracker_mbox_parse_next (MailBox *mb)
 	}
 
 
-	/* FIXME */
-	msg->references = NULL;
+	msg->references = add_gmime_references (NULL, message, "References");
 
 
-	/* In-Reply-To header looks like <string>, we want string directly */
-	tmp = g_mime_message_get_header (message, "In-Reply-To");
-	if (tmp) {
-		int len;
+	msg->reply_to_id = add_gmime_references (NULL, message, "In-Reply-To");
 
-		len = strlen (tmp);
-
-		if (len > 2) {
-			msg->reply_to_id = g_strndup (tmp + 1, len - 2);
-		} else {
-			/* two characters at least: < and >. Otherwise we don't know what we have! */
-			msg->reply_to_id = NULL;
-		}
-	} else {
-		msg->reply_to_id = NULL;
-	}
 
 	g_mime_message_get_date (message, &date, &gmt_offset);
 	msg->date = (long) (date + gmt_offset);
@@ -388,8 +424,15 @@ tracker_mbox_parse_next (MailBox *mb)
 	g_object_unref (message);
 
 	if (!msg->attachments) {
+
 		/* no attachment found, so we remove directory immediately */
 		g_rmdir (msg->path_to_attachments);
+
+		/* and we say there is not a path to attachments */
+		if (msg->path_to_attachments) {
+			g_free (msg->path_to_attachments);
+			msg->path_to_attachments = NULL;
+		}
 	}
 
 	return msg;
@@ -412,11 +455,13 @@ tracker_free_mail_message (MailMessage *msg)
 	}
 
 	if (msg->references) {
-		g_strfreev (msg->references);
+		g_slist_foreach (msg->references, (GFunc) g_free, NULL);
+		g_slist_free (msg->references);
 	}
 
 	if (msg->reply_to_id) {
-		g_free (msg->reply_to_id);
+		g_slist_foreach (msg->reply_to_id, (GFunc) g_free, NULL);
+		g_slist_free (msg->reply_to_id);
 	}
 
 	if (msg->mail_from) {
