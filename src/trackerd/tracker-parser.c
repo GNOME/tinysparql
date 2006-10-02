@@ -25,7 +25,7 @@
 #include "tracker-stemmer.h"
 
 
-
+/*
 static char *
 delimit_utf8_string (const gchar *str)
 {
@@ -64,7 +64,7 @@ delimit_utf8_string (const gchar *str)
 
 	return g_string_free (strs, FALSE);
 }
-
+*/
 
 /* check word starts with alpha char or underscore */
 static gboolean

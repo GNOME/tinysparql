@@ -29,51 +29,34 @@
 
 
 static void
-get_meta_table_data (char *key,
-   		     gpointer value)
+get_meta_table_data (gpointer value)
 		    
 {
 	char **meta, **meta_p;
 
-	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
-		g_warning ("fatal communication error\n");
-		return;
-	}
-
-	g_print ("%s : ", key);
-
-	meta = g_value_get_boxed (value);
+	meta = (char **)value;
 
 	int i = 0;
 	for (meta_p = meta; *meta_p; meta_p++) {
 
 		if (i == 0) {
-			g_print ("%s ", *meta_p);
+			g_print ("%s : ", *meta_p);
 
-		} else if (i == 1 && (strcmp (key, TOTAL_COUNT) != 0)) {
-			g_print ("(%s\%)", *meta_p);
+		} else {
+			g_print ("%s ", *meta_p);
 		}
 		i++;
 	}
 	g_print ("\n");
 }
 
-static void
-get_meta_table_data_for_each (gpointer key,
-			      gpointer value,
-			      gpointer user_data)
-{
-	if (strcmp ((char* )key, TOTAL_COUNT) != 0) {
-		get_meta_table_data ((char *)key, value);
-	}
-}
 
 
 int 
 main (int argc, char **argv) 
 {
 	
-	GHashTable *table = NULL;
+	GPtrArray *out_array = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
 
@@ -92,7 +75,7 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-	table =  tracker_get_stats (client, &error);
+	out_array = tracker_get_stats (client, &error);
 
 
 	if (error) {
@@ -101,20 +84,13 @@ main (int argc, char **argv)
 	}
 
 
-	if (table) {
+	if (out_array) {
 
 		g_print ("\n-------fetching index stats---------\n\n");
-		
-		gpointer ptr = g_hash_table_lookup (table, TOTAL_COUNT);
-
-		if (ptr) {
-			get_meta_table_data (TOTAL_COUNT, ptr);
-			g_print ("\n");
-		}
-
-		g_hash_table_foreach (table, get_meta_table_data_for_each, NULL);
+		g_ptr_array_foreach (out_array, (GFunc)get_meta_table_data, NULL);
+		g_ptr_array_free (out_array, TRUE);
 		g_print ("------------------------------------\n\n");
-		g_hash_table_destroy (table);	
+
 	}
 
 

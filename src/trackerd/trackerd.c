@@ -868,6 +868,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata2", 1, str_file_id);
 		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata3", 1, str_file_id);
 		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata4", 1, str_file_id);
+		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata5", 1, str_file_id);
 		tracker_db_end_transaction (db_con);
 	}
 
@@ -952,7 +953,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 	}
 }
 
-
+/*
 static GSList *
 remove_no_watch_dirs (GSList *list)
 {
@@ -977,7 +978,7 @@ remove_no_watch_dirs (GSList *list)
 
 	return list;
 }
-
+*/
 
 static void
 schedule_file_check (const char *uri, DBConnection *db_con)
@@ -1300,6 +1301,7 @@ extract_metadata_thread (void)
 					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata1", 1, str_id);
 					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata2", 1, str_id);
 					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata3", 1, str_id);
+					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata4", 1, str_id);
 					g_free (str_id);
 				}
 

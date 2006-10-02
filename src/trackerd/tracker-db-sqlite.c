@@ -8,7 +8,7 @@
 #include <time.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include <bzlib.h>
+#include <regex.h>
 
 #include "tracker-db-sqlite.h"
 #include "tracker-indexer.h"
@@ -22,13 +22,13 @@ static GMutex *sequence_mutex;
 gboolean use_nfs_safe_locking = FALSE;
 
 
+/* sqlite user defined functions for use in sql */
+
+/* converts date/time in UTC format to ISO 8160 format for display */
 static void 
-uncompress (sqlite3_context *context, int argc, sqlite3_value **argv) {
-	
-	int len1, len2;
-	char *output;
-
-
+sqlite3_date_to_str (sqlite3_context *context, int argc, sqlite3_value **argv) 
+{
+	const char *output;
 
 	switch (sqlite3_value_type (argv[0])) {
 
@@ -38,7 +38,54 @@ uncompress (sqlite3_context *context, int argc, sqlite3_value **argv) {
     		}
 	
 		default:{
+			output = tracker_date_to_str (sqlite3_value_double (argv[0]));
+			sqlite3_result_text (context, output, strlen (output), g_free);
+		}		
+	}
+}
 
+
+/* implements regexp functionality */
+static void 
+sqlite3_regexp (sqlite3_context *context, int argc, sqlite3_value **argv)
+{
+	int ret;
+	regex_t regex;
+
+	if (argc != 2) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	ret = regcomp (&regex, (char *) sqlite3_value_text(argv[0]), REG_EXTENDED | REG_NOSUB);
+
+	if (ret != 0) {
+		sqlite3_result_error (context, "error compiling regular expression", -1);
+		return;
+	}
+
+	ret = regexec (&regex, (char *) sqlite3_value_text(argv[1]), 0, NULL, 0);
+	regfree (&regex);
+
+	sqlite3_result_int (context, (ret == REG_NOMATCH) ? 0 : 1 );
+}
+
+
+/* unzips data */
+static void 
+sqlite3_uncompress (sqlite3_context *context, int argc, sqlite3_value **argv) 
+{
+	int len1, len2;
+	char *output;
+
+	switch (sqlite3_value_type (argv[0])) {
+
+		case SQLITE_NULL: {
+			sqlite3_result_null (context);
+	      		break;
+    		}
+	
+		default:{
 				
 			len1 = sqlite3_value_bytes (argv[0]);
 
@@ -51,8 +98,72 @@ uncompress (sqlite3_context *context, int argc, sqlite3_value **argv) {
 			}
 		}		
 	}
+}
+
+
+static void 
+sqlite3_get_service_name (sqlite3_context *context, int argc, sqlite3_value **argv) 
+{
+	const char *output;
+
+	switch (sqlite3_value_type (argv[0])) {
+
+		case SQLITE_NULL: {
+			sqlite3_result_null (context);
+	      		break;
+    		}
+	
+		default:{
+			output = tracker_get_service_by_id (sqlite3_value_int (argv[0]));
+			sqlite3_result_text (context, output, strlen (output), NULL);
+		}		
+	}
 	
 }
+
+static void 
+sqlite3_get_service_type (sqlite3_context *context, int argc, sqlite3_value **argv) 
+{
+	int output;
+
+	switch (sqlite3_value_type (argv[0])) {
+
+		case SQLITE_NULL: {
+			sqlite3_result_null (context);
+	      		break;
+    		}
+	
+		default:{
+			output = tracker_get_id_for_service ((char *) sqlite3_value_text (argv[0]));
+			sqlite3_result_int (context, output);
+		}		
+	}
+}
+
+
+static void 
+sqlite3_get_max_service_type (sqlite3_context *context, int argc, sqlite3_value **argv) 
+{
+	int output;
+
+	switch (sqlite3_value_type (argv[0])) {
+
+		case SQLITE_NULL: {
+			sqlite3_result_null (context);
+	      		break;
+    		}
+	
+		default:{
+			output = tracker_get_id_for_service ((char *) sqlite3_value_text (argv[0]));
+			if (output == 0) {
+				output = 8;
+			}
+
+			sqlite3_result_int (context, output);
+		}		
+	}
+}
+
 
 
 FieldDef *
@@ -431,6 +542,13 @@ tracker_db_connect ()
 	tracker_exec_sql (db_con, "PRAGMA synchronous = OFF");
 	tracker_exec_sql (db_con, "PRAGMA count_changes = 0");
 
+	/* create user defined functions that can be used in sql */
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg(db_con->db));
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg(db_con->db));
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg(db_con->db));
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg(db_con->db));
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg(db_con->db));
+
 	db_con->thread = NULL;
 
 	return db_con;
@@ -479,7 +597,7 @@ tracker_db_connect_full_text ()
 		tracker_exec_sql (db_con, "CREATE TABLE ServiceContents (ServiceID Int primary key not null, Content Text, ContainsWordScores int, Compressed int default 1)");
 	}
 
-	sqlite3_create_function (db_con->db, "uncompress", 1, SQLITE_ANY, NULL, &uncompress, NULL, NULL);
+	sqlite3_create_function (db_con->db, "uncompress", 1, SQLITE_ANY, NULL, &sqlite3_uncompress, NULL, NULL);
 
 	db_con->thread = NULL;
 	
@@ -671,7 +789,11 @@ exec_sql  (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 		row [cols] = NULL;
 
 		for (j = 0; j < cols; j++ ) {
-			row[j] = g_strdup (array[i+j]);
+			if (ignore_nulls && !array[i+j]) {
+				row[j] = g_strdup ("");
+			} else {
+				row[j] = g_strdup (array[i+j]);
+			}
 	//		tracker_log ("data for row %d, col %d is %s", k, j, row[j]);
 		}
 
@@ -1197,6 +1319,25 @@ get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table
 		tracker_db_free_result (res);
 	}
 
+
+	res = tracker_exec_proc (db_con, "GetAllIndexableBlob", 1, str_id);
+	
+	if (res) {
+		char **row;
+
+		k=0;
+
+		while ((row = tracker_db_get_row (res, k))) {
+
+			k++;
+			
+			if (row[0] && row[1]) {
+				table = tracker_parse_text (tracker->parser, table, row[0], atoi (row[1]));
+			}
+		}
+		tracker_db_free_result (res);
+	}
+
 	g_free (str_id);
 
 	return table;
@@ -1405,9 +1546,9 @@ tracker_db_check_tables (DBConnection *db_con)
 
 
 char ***
-tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean sort)
+tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results)
 {
-	char 		**result, **array, *str_id;
+	char 		**result, **array;
 	GSList 		*hit_list;
 	SearchHit	*hit;
 	int 		service_type_min, service_type_max, count;
@@ -1428,23 +1569,44 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 
 	g_strfreev (array);
 
-	count = g_slist_length (hit_list);
 
-	result = g_new ( char *, count + 1);
-	result[count] = NULL;
+	if (!save_results) {
+		count = g_slist_length (hit_list);
+		result = g_new ( char *, count + 1);
+		result[count] = NULL;
+		
+	} else {
+		tracker_db_start_transaction (db_con);
+		tracker_exec_proc (db_con, "DeleteSearchResults1", 0);
+	}
 
 	GSList *l;
 
 	count = 0;
 
 	for (l=hit_list; l; l=l->next) {
-
-		char **row;
-		char ***res;
+		char *str_id;
 
 		hit = l->data;
-		
+
 		str_id = tracker_uint_to_str (hit->service_id);
+
+		/* we save results into SearchResults table instead of returing an array of array of strings */
+		if (save_results) {
+			char *str_score;
+
+			str_score = tracker_int_to_str (hit->score);			
+
+			tracker_exec_proc (db_con, "InsertSearchResult1", 2, str_id, str_score);
+			
+			g_free (str_id);
+			g_free (str_score);
+
+			continue;
+		}
+		
+		char **row;
+		char ***res;
 
 		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
 
@@ -1466,6 +1628,10 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		}	
 
 		count++;
+	}
+
+	if (save_results) {
+		tracker_db_end_transaction (db_con);
 	}
 
 	tracker_index_free_hit_list (hit_list);
@@ -1568,6 +1734,7 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 		case 1: res = tracker_exec_proc  (db_con, "GetMetadataString", 2, id, key); break;	
 		case 2: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, key); break;			
 		case 3: res = tracker_exec_proc  (db_con, "GetMetadataNumeric", 2, id, key); break;
+		case 4: res = tracker_exec_proc  (db_con, "GetMetadataBlob", 2, id, key); break;
 		case 99: res = tracker_exec_proc  (db_con, "GetMetadataIndex", 2, id, key); break;	
 		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;	
 	}
@@ -1692,7 +1859,16 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 		case 1: tracker_exec_proc  (db_con, "SetMetadataString", 4, id, def->id, value, str_embedded);  break;	
 		case 2: tracker_exec_proc  (db_con, "SetMetadataNumeric", 4, id, def->id, value, str_embedded); break;			
 		case 3: tracker_exec_proc  (db_con, "SetMetadataNumeric", 4, id, def->id, value, str_embedded); break;	
-		default: tracker_log ("Error: metadata could not be set as type %d is not supported", def->type);	
+		case 4: 
+			if (index) {
+				update_file_index (db_con, id, service, key, value);
+			}
+
+			tracker_exec_proc  (db_con, "SetMetadataBlob", 4, id, def->id, value, str_embedded); 
+
+			break;	
+
+		default: tracker_log ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);	
 	}
 
 	tracker_db_free_field_def (def);
@@ -1838,6 +2014,7 @@ tracker_db_delete_file (DBConnection *db_con, DBConnection *blob_db_con, guint32
 	tracker_exec_proc  (db_con, "DeleteFile5", 1,  str_file_id);
 	tracker_exec_proc  (db_con, "DeleteFile6", 1,  str_file_id);
 	tracker_exec_proc  (db_con, "DeleteFile7", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile8", 1,  str_file_id);
 	tracker_db_end_transaction (db_con);
 
 	g_free (str_file_id);
@@ -1881,6 +2058,7 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 	tracker_exec_proc  (db_con, "DeleteDirectory4", 2,  uri, uri_prefix);
 	tracker_exec_proc  (db_con, "DeleteDirectory5", 2,  uri, uri_prefix);
 	tracker_exec_proc  (db_con, "DeleteDirectory6", 2,  uri, uri_prefix);
+	tracker_exec_proc  (db_con, "DeleteDirectory7", 2,  uri, uri_prefix);
 	tracker_exec_proc  (db_con, "DeleteFile1", 1,  str_file_id);
 	tracker_exec_proc  (db_con, "DeleteFile2", 1,  str_file_id);
 	tracker_exec_proc  (db_con, "DeleteFile3", 1,  str_file_id);
@@ -1888,6 +2066,7 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 	tracker_exec_proc  (db_con, "DeleteFile5", 1,  str_file_id);
 	tracker_exec_proc  (db_con, "DeleteFile6", 1,  str_file_id);
 	tracker_exec_proc  (db_con, "DeleteFile7", 1,  str_file_id);
+	tracker_exec_proc  (db_con, "DeleteFile8", 1,  str_file_id);
 	tracker_db_end_transaction (db_con);
 
 	g_free (uri_prefix);
@@ -1995,7 +2174,7 @@ tracker_db_get_pending_files (DBConnection *db_con)
 
 	tracker_db_start_transaction (db_con);
 	tracker_exec_sql (db_con, "delete from FileTemp");
-	str = g_strconcat ("Insert into FileTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) select ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID From FilePending WHERE (PendingDate < ", time_str, " )  AND (Action <> 20) LIMIT 100", NULL);
+	str = g_strconcat ("Insert into FileTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) select ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID From FilePending WHERE (PendingDate < ", time_str, " )  AND (Action <> 20) LIMIT 250", NULL);
 	tracker_exec_sql (db_con, str);
 	tracker_exec_sql (db_con, "DELETE FROM FilePending where ID in (select ID from FileTemp)");
 	tracker_db_end_transaction (db_con);
@@ -2026,7 +2205,7 @@ tracker_db_get_pending_metadata (DBConnection *db_con)
 
 	tracker_db_start_transaction (db_con);
 	tracker_exec_sql (db_con, "delete from MetadataTemp");
-	char *str = "Insert into MetadataTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) select ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID From FilePending WHERE Action = 20 LIMIT 100";
+	char *str = "Insert into MetadataTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) select ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID From FilePending WHERE Action = 20 LIMIT 250";
 	tracker_exec_sql (db_con, str);
 	tracker_exec_sql (db_con, "DELETE FROM FilePending where ID in (select ID from MetadataTemp)");
 	tracker_db_end_transaction (db_con);
@@ -2560,7 +2739,7 @@ update_index_data (gpointer key,
 
 }
 
-
+/*
 static void
 view_index_data (gpointer key,
 	       	   gpointer value,
@@ -2572,7 +2751,7 @@ view_index_data (gpointer key,
 	g_debug ("word %s has score %d", word, score);
 	
 }
-
+*/
 
 void
 tracker_db_update_indexes_for_new_service (DBConnection *db_con, guint32 service_id, int service_type_id, GHashTable *table)

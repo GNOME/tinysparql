@@ -91,7 +91,7 @@ main (int argc, char **argv)
 	}
 
 	search = g_strjoinv (" ", terms);
-	result = tracker_search_text (client, -1, type, search, 0, limit, FALSE, &error);
+	result = tracker_search_text (client, -1, type, search, 0, limit, &error);
 	g_free (search);
 
 	if (error) {

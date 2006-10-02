@@ -169,6 +169,69 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 
 
 void
+tracker_dbus_reply_with_query_result (DBusRec *rec, char ***res)
+{
+	DBusMessage	*reply;
+	DBusMessageIter iter;
+	DBusMessageIter iter2;
+	char **row;
+	int  k;
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_message_iter_init_append (reply, &iter);
+
+	dbus_message_iter_open_container (&iter,
+					  DBUS_TYPE_ARRAY, 
+					  "as",
+					  &iter2);
+
+	k = 0;
+
+	while ((row = tracker_db_get_row (res, k)) != NULL) {
+
+		DBusMessageIter iter_array;
+		char 		**values;	
+
+		k++;
+
+		dbus_message_iter_open_container (&iter2,
+						  DBUS_TYPE_ARRAY,
+						  DBUS_TYPE_STRING_AS_STRING,
+						  &iter_array);
+
+		/* append fields to the array */
+		for (values = row; *values; values++) {
+			char *value;
+
+			if (strlen (*values) > 0) {
+				value = *values;
+				tracker_log (value);
+			} else {
+				/* dbus does not like NULLs */
+				value = " ";
+			}
+
+			dbus_message_iter_append_basic (&iter_array,
+							DBUS_TYPE_STRING,
+							&value);
+		}
+
+
+		dbus_message_iter_close_container (&iter2, &iter_array);
+
+	}
+
+
+	dbus_message_iter_close_container (&iter, &iter2);
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+
+}
+
+
+
+void
 tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 {
 	int  row_count;
@@ -182,7 +245,7 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 		int  field_count;
 		int  k;
 
-		field_count =  tracker_get_field_count (res);
+		field_count = tracker_get_field_count (res);
 
 		k = 0;
 
@@ -334,9 +397,6 @@ void
 tracker_dbus_method_get_stats (DBusRec *rec)
 {
 	DBConnection	*db_con;
-	DBusMessage	*reply;
-	DBusMessageIter iter;
-	DBusMessageIter iter_dict;
 	char		***res;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -346,27 +406,11 @@ tracker_dbus_method_get_stats (DBusRec *rec)
 	tracker_log ("Executing GetStats Dbus Call");
 
 	res = tracker_exec_proc (db_con, "GetStats", 0);
+	
+	tracker_dbus_reply_with_query_result (rec, res);
 
-	reply = dbus_message_new_method_return (rec->message);
+	tracker_db_free_result (res);
 
-	dbus_message_iter_init_append (reply, &iter);
-
-	dbus_message_iter_open_container (&iter,
-					  DBUS_TYPE_ARRAY,
-					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
-					  DBUS_TYPE_STRING_AS_STRING
-					  DBUS_TYPE_VARIANT_AS_STRING
-					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
-					  &iter_dict);
-
-	if (res) {
-		tracker_add_query_result_to_dict (res, &iter_dict);
-		tracker_db_free_result (res);
-	}
-
-	dbus_message_iter_close_container (&iter, &iter_dict);
-	dbus_connection_send (rec->connection, reply, NULL);
-	dbus_message_unref (reply);
 }
 
 

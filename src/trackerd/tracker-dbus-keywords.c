@@ -82,9 +82,6 @@ void
 tracker_dbus_method_keywords_get_list (DBusRec *rec)
 {
 	DBConnection 	*db_con;
-	DBusMessage 	*reply;
-	DBusMessageIter iter;
-	DBusMessageIter iter_dict;
 	char 		*service;
 	char		***res;
 
@@ -94,12 +91,13 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 
 /*
 		<!-- gets a list of all unique keywords/tags that are in use by the specified service irrespective of the uri or id of the entity
-		     Returns dict/hashtable with the keyword as the key and the total usage count of the keyword as the variant part
+		     Returns an array of string arrays with the keyword and the total usage count of the keyword as the string array
 		-->
 		<method name="GetList">
 			<arg type="s" name="service" direction="in" />
-			<arg type="a{sv}" name="value" direction="out" />
+			<arg type="aas" name="value" direction="out" />
 		</method>
+
 */
 
 	dbus_message_get_args (rec->message, NULL,
@@ -113,29 +111,9 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 
 	res = tracker_db_get_keyword_list (db_con, service);
 
-	reply = dbus_message_new_method_return (rec->message);
+	tracker_dbus_reply_with_query_result (rec, res);
 
-	dbus_message_iter_init_append (reply, &iter);
-
-	dbus_message_iter_open_container (&iter,
-					  DBUS_TYPE_ARRAY,
-					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
-					  DBUS_TYPE_STRING_AS_STRING
-					  DBUS_TYPE_VARIANT_AS_STRING
-					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
-					  &iter_dict);
-
-	if (res) {
-		tracker_add_query_result_to_dict (res, &iter_dict);
-		tracker_db_free_result (res);
-	}
-
-
-	dbus_message_iter_close_container (&iter, &iter_dict);
-
-	dbus_connection_send (rec->connection, reply, NULL);
-
-	dbus_message_unref (reply);
+	tracker_db_free_result (res);
 }
 
 

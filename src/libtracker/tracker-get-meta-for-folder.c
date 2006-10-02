@@ -24,34 +24,36 @@
 
 #include "../libtracker/tracker.h" 
 
+
 static void
-get_meta_table_data (gpointer key,
-   		     gpointer value,
-		     gpointer user_data)
+get_meta_table_data (gpointer value)
+		    
 {
 	char **meta, **meta_p;
 
-	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
-		g_warning ("fatal communication error\n");
-		return;
-	}
+	meta = (char **)value;
 
-	g_print ("%s \n", (char *) key);
-
-	meta = g_value_get_boxed (value);
-
+	int i = 0;
 	for (meta_p = meta; *meta_p; meta_p++) {
-		g_print ("%s, ", *meta_p);
-	}	
-	g_print ("\n\n");
+
+		if (i == 0) {
+			g_print ("%s : ", *meta_p);
+
+		} else {
+			g_print ("%s ", *meta_p);
+		}
+		i++;
+	}
+	g_print ("\n");
 }
+
 
 
 int 
 main (int argc, char **argv) 
 {
 	
-	GHashTable *table = NULL;
+	GPtrArray *out_array = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
 
@@ -71,7 +73,7 @@ main (int argc, char **argv)
 	}
 
 
-	char **meta_fields = NULL;
+	char **meta_fields = NULL; 
 
 	if (argc == 2) {
 		meta_fields = g_new (char *, 1);
@@ -91,7 +93,7 @@ main (int argc, char **argv)
 
 	char *folder = g_filename_to_utf8 (argv[1], -1, NULL, NULL, NULL);
 
-	table = tracker_files_get_metadata_for_files_in_folder (client, -1, folder, meta_fields, &error);
+	out_array = tracker_files_get_metadata_for_files_in_folder (client, -1, folder, meta_fields, &error);
 
 	g_free (folder);
 
@@ -102,10 +104,9 @@ main (int argc, char **argv)
 		g_error_free (error);
 	}
 
-	if (table) {
-		g_print ("got %d values\n", g_hash_table_size (table));
-		g_hash_table_foreach (table, get_meta_table_data, NULL);
-		g_hash_table_destroy (table);	
+	if (out_array) {
+		g_ptr_array_foreach (out_array, (GFunc)get_meta_table_data, NULL);
+		g_ptr_array_free (out_array, TRUE);
 	}
 
 

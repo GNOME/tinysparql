@@ -81,9 +81,9 @@
 		</method>
 
 
-		<!-- Get statistics for services that have been indexed. Output is in dict format: (service -> no of entities, percentage)  -->
+		<!-- Get statistics for services that have been indexed. Output is in string array format: [service, no of entities]  -->
 		<method name="GetStats">
-			<arg type="a{sv}" name="service_stats" direction="out" />
+			<arg type="aas" name="service_stats" direction="out" />
 		</method>
 
 
@@ -173,11 +173,11 @@
 	<!-- calls for tags/keywords for any service object or file -->
 
 		<!-- gets a list of all unique keywords/tags that are in use by the specified service irrespective of the uri or id of the entity
-		     Returns dict/hashtable with the keyword as the key and the total usage count of the keyword as the variant part
+		     Returns an array of string arrays in format [Keyword, KeywordCount] 
 		-->
 		<method name="GetList">
 			<arg type="s" name="service" direction="in" />
-			<arg type="a{sv}" name="value" direction="out" />
+			<arg type="aas" name="value" direction="out" />
 		</method>
 
 
@@ -233,7 +233,6 @@
 	<interface name="org.freedesktop.Tracker.Search">
 		<!-- generic search interface (see other interfaces for file/keyword specific searches)-->
 
-
 		<!-- searches specified service for entities that match the specified search_text. 
 		     Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
 		<method name="Text">
@@ -242,23 +241,9 @@
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="b" name="sort_by_relevance" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
 
-
-		<!-- searches all file based entities that match the specified search_text. 
-		     Returns dict/hashtable with the uri as key and the following fields as the variant part in order: file service category, File.Format, File.Size, File.Rank, File.Modified
-		     If group_results is True then results are sorted and grouped by service type.
-		     -->
-		<method name="FilesByText">
-			<arg type="i" name="live_query_id" direction="in" />
-			<arg type="s" name="search_text" direction="in" />
-			<arg type="i" name="offset" direction="in" />
-			<arg type="i" name="max_hits" direction="in" />
-			<arg type="b" name="group_results" direction="in" />
-			<arg type="a{sv}" name="result" direction="out" />
-		</method>
 
 
 		<!-- searches a specific metadata field (field parameter) for a search term (search_text).
@@ -275,41 +260,29 @@
 
 
 
-		<!-- Retrieves matching metadata fields for a search term on a specific service and entity.
-		     The result is a dict/hashtable with the metadata name as the key and the corresponding metadata value as the variant
-		     If the metadata result is a large field (like File.Content) then only a small chunk of the matching text is returned
-		     Only indexable metadata fields are searched and returned.
-		 -->
-		<method name="MatchingFields">
-			<arg type="s" name="service" direction="in" />
-			<arg type="s" name="id" direction="in" />
-			<arg type="s" name="search_text"  direction="in" />
-			<arg type="a{sv}" name="result" direction="out" />
-		</method>
-
-
-
 		<!-- searches specified service for matching entities.
 		     The service parameter specifies the service which the query will be performed on
 		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null			
-		     The search_text paramter specifies the text to search for in a full text search of all indexed fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
-		     The query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results - this parameter can be null if the search_text is not null (in which case only the search_text parameter is used to find matches)
+		     The optional search_text paramter specifies the text to search for in a full text search of all indexed fields
+		     The optional keyword search - a single keyword may be used here to filter the results.				
+		     The optional query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results 
 		     The Offset parameter sets the start row of the returned result set (useful for paging/cursors). A value of 0 should be passed to get rows from the beginning.
 		     The max_hits parameter limits the size of the result set.
 		     The sort_by_service parameter optionally sorts results by their service category (if FALSE no service sorting is done)
-		     The result is a hashtable/dict with the id of the matching entity as the key fields.
-		     The variant part of the result is the service category followed by list of supplied fields as specified in the fields parameter
+		     The result is a array of stringarrays in format [uri, service, field1, field2...] where field1 is the first specified field in the fields paramter and so on
+
 		-->
 		<method name="Query">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="fields" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
+			<arg type="s" name="keyword" direction="in" />
 			<arg type="s" name="query_condition" direction="in" />
 			<arg type="b" name="sort_by_service" direction="in" />
 			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="a{sv}" name="result" direction="out" />
+			<arg type="aas" name="result" direction="out" />
 		</method>
 
 
@@ -413,12 +386,12 @@
 			<arg type="i" name="result" direction="out" />
 		</method>
 
-		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata fields. Hashtable/dict output is uri as key and field metadata as the variant -->
+		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata fields. StringArray output is [uri, field1, field2...]  -->
 		<method name="GetMetadataForFilesInFolder">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="uri" direction="in" />
 			<arg type="as" name="fields" direction="in" />
-			<arg type="a{sv}" name="values" direction="out" />
+			<arg type="aas" name="values" direction="out" />
 		</method>
 
 		

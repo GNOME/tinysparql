@@ -163,7 +163,7 @@ cache_magic_matchlet_compare_to_data (XdgMimeCache *cache,
   xdg_uint32_t data_offset = GET_UINT32 (cache->buffer, offset + 16);
   xdg_uint32_t mask_offset = GET_UINT32 (cache->buffer, offset + 20);
   
-  int i, j;
+  unsigned int i, j;
 
   for (i = range_start; i <= range_start + range_length; i++)
     {
@@ -212,7 +212,7 @@ cache_magic_matchlet_compare (XdgMimeCache *cache,
   xdg_uint32_t n_children = GET_UINT32 (cache->buffer, offset + 24);
   xdg_uint32_t child_offset = GET_UINT32 (cache->buffer, offset + 28);
 
-  int i;
+  unsigned int i;
   
   if (cache_magic_matchlet_compare_to_data (cache, offset, data, len))
     {
@@ -242,7 +242,7 @@ cache_magic_compare_to_data (XdgMimeCache *cache,
   xdg_uint32_t n_matchlets = GET_UINT32 (cache->buffer, offset + 8);
   xdg_uint32_t matchlet_offset = GET_UINT32 (cache->buffer, offset + 12);
 
-  int i;
+  unsigned int i;
 
   for (i = 0; i < n_matchlets; i++)
     {
@@ -270,7 +270,8 @@ cache_magic_lookup_data (XdgMimeCache *cache,
   xdg_uint32_t n_entries;
   xdg_uint32_t offset;
 
-  int j, n;
+  unsigned int j;
+  int n;
 
   *prio = 0;
 
@@ -394,7 +395,8 @@ cache_glob_lookup_fnmatch (const char *file_name,
   const char *mime_type;
   const char *ptr;
 
-  int i, j, n;
+  int i, n;
+  unsigned int j;
 
   n = 0;
   for (i = 0; _caches[i]; i++)
@@ -438,7 +440,8 @@ cache_glob_node_lookup_suffix (XdgMimeCache *cache,
   xdg_uint32_t n_children;
   xdg_uint32_t child_offset; 
 
-  int min, max, mid, n, i;
+  int min, max, mid, n;
+  unsigned int i;
 
   character = _xdg_utf8_to_ucs4 (suffix);
   if (ignore_case)
@@ -529,8 +532,9 @@ cache_glob_lookup_suffix (const char *suffix,
 static void
 find_stopchars (char *stopchars)
 {
-  int i, j, k, l;
- 
+  int i, k, l;
+  unsigned int j;
+
   k = 0;
   for (i = 0; _caches[i]; i++)
     {
@@ -547,8 +551,15 @@ find_stopchars (char *stopchars)
 	  if (match_char < 128)
 	    {
 	      for (l = 0; l < k; l++)
-		if (stopchars[l] == match_char)
-		  break;
+		{
+		  xdg_uint32_t character;
+
+		  character = stopchars[l];
+
+		  if (character == match_char)
+		    break;
+		}
+
 	      if (l == k)
 		{
 		  stopchars[k] = (char) match_char;
@@ -768,8 +779,9 @@ _xdg_mime_cache_mime_type_subclass (const char *mime,
 {
   const char *umime, *ubase;
 
-  int i, j, min, max, med, cmp;
-  
+  int i, min, max, med, cmp;
+  unsigned int j;
+
   umime = _xdg_mime_cache_unalias_mime_type (mime);
   ubase = _xdg_mime_cache_unalias_mime_type (base);
 
@@ -850,7 +862,8 @@ _xdg_mime_cache_unalias_mime_type (const char *mime)
 char **
 _xdg_mime_cache_list_mime_parents (const char *mime)
 {
-  int i, j, p;
+  int i, p;
+  unsigned int j;
   char *all_parents[128]; /* we'll stop at 128 */ 
   char **result;
 

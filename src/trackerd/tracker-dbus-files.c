@@ -760,9 +760,6 @@ void
 tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 {
 	DBConnection	*db_con;
-	DBusMessage	*reply;
-	DBusMessageIter iter;
-	DBusMessageIter iter_dict;
 	int		i, query_id, folder_name_len, file_id, n, table_count;
 	char		*tmp_folder, *folder, *str;
 	char		**array;
@@ -772,6 +769,17 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	g_return_if_fail (rec && rec->user_data);
 
 	db_con = rec->user_data;
+
+/*
+		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata fields. An array of stringarrays is outpout with uri and field metadata as part of the array  -->
+		<method name="GetMetadataForFilesInFolder">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="uri" direction="in" />
+			<arg type="as" name="fields" direction="in" />
+			<arg type="aas" name="values" direction="out" />
+		</method>
+*/
+
 
 	dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_INT32, &query_id,
@@ -798,44 +806,18 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	}
 
 	/* build SELECT clause */
-	sql = g_string_new (" SELECT concat( F.Path, '");
+	sql = g_string_new (" SELECT F.Path || ");
 
-	sql = g_string_append (sql, G_DIR_SEPARATOR_S);
-
-	sql = g_string_append (sql, "',  F.Name) as PathName ");
+	g_string_append_printf (sql, "'%s' || F.Name) as PathName ", G_DIR_SEPARATOR_S);
 
 	table_count = 0;
 
 	for (i = 0; i < n; i++) {
-		FieldDef   *def;
-		char	   *mid, *s;
-		const char *field;
-
-		def = tracker_db_get_field_def (db_con, array[i]);
-
-		if (def) {
-			if (def->type == DATA_INDEX_STRING) {
-				field = "MetaDataIndexValue";
-			} else if (def->type == DATA_STRING) {
-				field = "MetaDataValue";
-			} else {
-				field = "MetaDataNumericValue";
-			}
-
-			tracker_db_free_field_def (def);
-		} else {
-			continue;
-		}
 
 		table_count++;
 
-		mid = tracker_int_to_str (table_count);
+		g_string_append_printf (sql, ", M%d.MetaDataValue ", table_count);
 
-		s = g_strconcat (", M", mid, ".", field, NULL);
-		g_string_append (sql, s);
-
-		g_free (mid);
-		g_free (s);
 	}
 
 
@@ -846,64 +828,47 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	for (i = 0; i < n; i++) {
 		FieldDef *def;
-		char	 *meta_id, *mid, *s;
+		const char *table;
 
 		def = tracker_db_get_field_def (db_con, array[i]);
 
-		if (def) {
-			meta_id = g_strdup (def->id);
-			tracker_db_free_field_def (def);
+		if (def->type == DATA_INDEX_STRING) {
+			table = "ServiceIndexMetaData";
+		} else if (def->type == DATA_STRING) {
+			table = "ServiceMetaData";
+		} else if (def->type == DATA_INDEX_BLOB) {
+			table = "ServiceBlobMetaData";
 		} else {
+			table = "ServiceNumericMetaData";
+		}
+
+		if (!def) {
 			continue;
 		}
 
 		table_count++;
 
-		mid = tracker_int_to_str (table_count);
+		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON F.ID = M%d.ServiceID AND M%d.MetaDataID = %s ", table, table_count, table_count, table_count, def->id);
 
-		s = g_strconcat (" LEFT OUTER JOIN ServiceMetaData M", mid, " ON M", mid, ".ServiceID = F.ID ", " AND M", mid, ".MetaDataID = ", meta_id, NULL);
-		g_string_append (sql, s);
-
-		g_free (meta_id);
-		g_free (mid);
-		g_free (s);
+		tracker_db_free_field_def (def);
+		
 	}
 
 	/* build WHERE clause */
-	str = g_strconcat (" WHERE F.Path = '", folder, "' ", NULL);
 
-	g_string_append (sql, str);
-
-	g_free (str);
-
+	g_string_append_printf (sql, " WHERE F.Path = '%s' ", folder);
 
 	str = g_string_free (sql, FALSE);
+
 	tracker_log (str);
-	res = tracker_exec_sql (db_con, str);
+
+	res = tracker_exec_sql_ignore_nulls (db_con, str);
 
 	g_free (str);
 
-	reply = dbus_message_new_method_return (rec->message);
+	tracker_dbus_reply_with_query_result (rec, res);
 
-	dbus_message_iter_init_append (reply, &iter);
-
-	dbus_message_iter_open_container (&iter,
-					  DBUS_TYPE_ARRAY,
-					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
-					  DBUS_TYPE_STRING_AS_STRING
-					  DBUS_TYPE_VARIANT_AS_STRING
-					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
-					  &iter_dict);
-
-	if (res) {
-		tracker_add_query_result_to_dict (res, &iter_dict);
-		tracker_db_free_result (res);
-	}
-
-	dbus_message_iter_close_container (&iter, &iter_dict);
-
-	dbus_connection_send (rec->connection, reply, NULL);
-	dbus_message_unref (reply);
+	tracker_db_free_result (res);
 }
 
 

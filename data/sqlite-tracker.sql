@@ -4,7 +4,7 @@ CREATE TABLE Options (
 	OptionValue	Text COLLATE NOCASE
 );
 
-insert Into Options (OptionKey, OptionValue) values ('DBVersion', '9');
+insert Into Options (OptionKey, OptionValue) values ('DBVersion', '10');
 insert Into Options (OptionKey, OptionValue) values ('Sequence', '0');
 insert Into Options (OptionKey, OptionValue) values ('UpdateCount', '0');
 
@@ -178,13 +178,26 @@ CREATE TABLE  ServiceNumericMetaData
 
 CREATE INDEX  ServiceNumericMetaDataIndex ON ServiceNumericMetaData (MetaDataID, MetaDataValue);
 
+CREATE TABLE  ServiceBlobMetaData 
+(
+	ServiceID		Integer not null,
+	MetaDataID 		Integer  not null,
+	MetaDataValue		text,
+	EmbeddedFlag		Integer default 0,
+	DeleteFlag		Integer default 0,
+	
+	primary key (ServiceID, MetaDataID)
+);
+
+
+
 
 /* describes the types of metadata */
 CREATE TABLE  MetaDataTypes 
 (
 	ID	 		Integer primary key AUTOINCREMENT not null,
 	MetaName		Text  not null  COLLATE NOCASE, 
-	DataTypeID		Integer  not null, /* 0=full text indexable string (max 255 long), 1=string or Blob, 2=numeric, 3=datetime, 4==IndexBlob (99=special case)*/
+	DataTypeID		Integer  not null, /* 0=full text indexable string (max 255 long), 1=string or Blob, 2=numeric, 3=datetime, 4== fulltext Indexable Blob, (99=read only indexable) */
 	Embedded		Integer not null, /* if the metadata is normally embedded in the file */
 	Writeable		Integer not null, /* is metadata writable */
 	Weight			Integer  default 1 not null,  /* weight of metdata type in ranking */
@@ -205,21 +218,21 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Link', 1, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Format', 0, 1, 0, 15);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Size', 2, 1, 0, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Origin', 0, 0, 1, 5);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Origin', 4, 0, 1, 5);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.OriginURI', 1, 0, 1, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Permissions', 1, 1, 0, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Description', 0, 0, 1, 25);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Description', 4, 0, 1, 25);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rank', 2, 0, 1, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Publisher', 0, 0, 1, 20);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.License', 0, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.License', 4, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Contributer', 0, 1, 1, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rights', 0, 1, 1, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Rights', 4, 1, 1, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Relation', 0, 1, 1, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Source', 0, 1, 1, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Language', 0, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Identifier', 0, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Coverage', 0, 1, 0, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Copyright', 0, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Copyright', 4, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Creator', 0, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Location', 0, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Organization', 0, 1, 0, 10);
@@ -228,7 +241,7 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.LargeThumbnailPath', 1, 0, 1, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Modified', 3, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Accessed', 3, 1, 0, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Other', 0, 1, 0, 5);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('File.Other', 4, 1, 0, 5);
 
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Title', 0, 1, 1, 50);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Artist', 0, 1, 1, 50);
@@ -244,7 +257,7 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.AlbumPeakGain', 2, 1, 1, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Duration', 2, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.ReleaseDate', 3, 1, 1, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Comment', 0, 1, 1, 25);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Comment', 4, 1, 1, 25);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Genre', 0, 1, 1, 90);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Codec', 0, 1, 1, 1);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.CodecVersion', 1, 1, 1, 0);
@@ -258,14 +271,14 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBArtistID', 1, 0, 1, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBAlbumArtistID', 1, 0, 1, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.MBTrackID', 1, 0, 1, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Lyrics', 0, 0, 1, 4);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.Lyrics', 4, 0, 1, 4);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Audio.CoverAlbumThumbnailPath', 1, 0, 1, 0);
 
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Title', 0, 1, 0, 90);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Subject', 0, 1, 0, 100);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Author', 0, 1, 0, 90);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Keywords', 0, 1, 0, 100);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Comments', 0, 1, 0, 80);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Keywords', 4, 1, 0, 100);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Comments', 4, 1, 0, 80);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.PageCount', 2, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.WordCount', 2, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Doc.Created', 3, 1, 0, 0);
@@ -275,10 +288,10 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Title', 0, 1, 0, 60);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Album', 0, 0, 1, 30);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Date', 3, 1, 0, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Keywords', 0, 1, 0, 100);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Keywords', 4, 1, 0, 100);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Creator', 0, 1, 0, 50);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Comments', 0, 1, 0, 20);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Description', 0, 1, 0, 15);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Comments', 4, 1, 0, 20);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Description', 4, 1, 0, 15);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Software', 0, 1, 0, 1);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.CameraMake', 0, 1, 0, 1);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.CameraModel', 0, 1, 0, 10);
@@ -291,13 +304,13 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.ISOSpeed', 2, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.MeteringMode', 1, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.WhiteBalance', 1, 1, 0, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Copyright', 0, 1, 0, 1);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Copyright', 4, 1, 0, 1);
 
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Date', 3, 1, 0, 0);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Sender', 0, 1, 0, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.To', 0, 1, 0, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.CC', 0, 1, 0, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.BCC', 0, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Sender', 4, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.To', 4, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.CC', 4, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.BCC', 4, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Subject', 0, 1, 0, 30);
 
 
@@ -341,6 +354,14 @@ CREATE TABLE Emails
 
 CREATE INDEX  EmailMessageID ON Emails (MessageID);
 
+CREATE TABLE EmailRefs
+(
+	EmailID			int not null,
+	ReferenceEmailID	int not null,
+	RefType			int default 0 /* 0 = reference, 1= additional reply to */
+);
+
+
 CREATE TABLE EmailAttachments
 (
 	ID		Integer primary key AUTOINCREMENT not null,
@@ -366,6 +387,49 @@ CREATE TABLE EmailPeople
 
 CREATE INDEX  EmailPeopleID ON EmailPeople (PeopleID, EmailID);
 
+
+CREATE TABLE LiveQueries
+(
+	ID		Integer primary key AUTOINCREMENT not null,
+	Type		int default 0, /* 0 = no liveness */
+	Service		Text,
+	SearchTerms	Text,
+	Keywords	Text,
+	Mimes		Text,
+	Folder		Text,	
+	Sql		Text,
+	CheckSql	Text,
+	Offset		int,
+	Limit		int,
+	FileInsertEvent	int,
+	FileDeleteEvent	int,
+	FileMoveEvent	int,
+	FileChangeEvent	int,
+	KeywordsEvent	int,
+	MetadataEvent	int
+);
+
+CREATE TABLE LiveQueryResults
+(
+	QueryID		integer not null,
+	URI		text not null,
+
+	primary key (QueryID, URI)
+);
+
+
+CREATE TABLE SearchResults1
+(
+	SID		Integer primary key not null,
+	Score		Integer
+);
+
+
+CREATE TABLE SearchResults2
+(
+	SID		Integer primary key not null,
+	Score		Integer
+);
 
 
 /* table for files waiting to be processed */

@@ -85,7 +85,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 
 	tracker_log ("Executing search with params %s, %s", service, str);
 
-	res = tracker_db_search_text (db_con, service, str, offset, limit, sort_results);
+	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE);
 
 //	res = tracker_exec_proc (db_con, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);
 
@@ -348,13 +348,10 @@ void
 tracker_dbus_method_search_query (DBusRec *rec)
 {
 	DBConnection	*db_con;
-	DBusMessage	*reply;
-	DBusMessageIter iter;
-	DBusMessageIter iter_dict;
 	char		**fields;
 	int		limit, row_count, query_id, offset;
 	char		***res;
-	char		*query, *search_text, *service;
+	char		*query, *search_text, *service, *keyword;
 	gboolean	sort_results;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -363,12 +360,12 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 	sort_results = FALSE;
 /*
-
 		<!-- searches specified service for matching entities.
 		     The service parameter specifies the service which the query will be performed on
-		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null
-		     The search_text paramter specifies the text to search for in a full text search of all indexed fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
-		     The query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results - this parameter can be null if the search_text is not null (in which case only the search_text parameter is used to find matches)
+		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null			
+		     The optional search_text paramter specifies the text to search for in a full text search of all indexed fields - this parameter can be null if the query_condition is not null (in which case only the query condition is used to find matches)
+		     The optional keyword search - a single keyword may be used here to filter the results.				
+		     The optional query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results - this parameter can be null if the search_text is not null (in which case only the search_text parameter is used to find matches)
 		     The Offset parameter sets the start row of the returned result set (useful for paging/cursors). A value of 0 should be passed to get rows from the beginning.
 		     The max_hits parameter limits the size of the result set.
 		     The sort_by_service parameter optionally sorts results by their service category (if FALSE no service sorting is done)
@@ -380,19 +377,20 @@ tracker_dbus_method_search_query (DBusRec *rec)
 			<arg type="s" name="service" direction="in" />
 			<arg type="as" name="fields" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
+			<arg type="s" name="keyword" direction="in" />
 			<arg type="s" name="query_condition" direction="in" />
 			<arg type="b" name="sort_by_service" direction="in" />
 			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="a{sv}" name="result" direction="out" />
+			<arg type="aas" name="result" direction="out" />
 		</method>
 */
-
 	dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_INT32, &query_id,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &fields, &row_count,
 			       DBUS_TYPE_STRING, &search_text,
+			       DBUS_TYPE_STRING, &keyword,
 			       DBUS_TYPE_STRING, &query,
 			       DBUS_TYPE_BOOLEAN, &sort_results,
 			       DBUS_TYPE_INT32, &offset,
@@ -411,16 +409,20 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	res = NULL;
 
 	if (query) {
-		gboolean na;
-		char	 *str, *search_term;
+		char	 *str;
+		GError	 *error = NULL;
 
-		tracker_log ("executing rdf query %s\n", query);
+		tracker_log ("executing rdf query %s\n with search term %s and keyword %s", query, search_text, keyword);
 
-		search_term = tracker_format_search_terms (search_text, &na);
+		str = tracker_rdf_query_to_sql (db_con, query, service, fields, row_count, search_text, keyword, sort_results, offset, limit, error);
 
-		str = tracker_rdf_query_to_sql (db_con, query, service, fields, row_count, search_term, sort_results, offset, limit, NULL);
+		if (error) {
+			tracker_set_error (rec, "Invalid rdf query produced following error: %s", error->message);
+			g_error_free (error);		
+			return;
+		}
 
-		if (!str) {
+		/*if (!str) {
 			g_free (search_term);
 			reply = dbus_message_new_method_return (rec->message);
 			dbus_message_iter_init_append (reply, &iter);
@@ -436,38 +438,26 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 			dbus_connection_send (rec->connection, reply, NULL);
 			dbus_message_unref (reply);
-			g_return_if_fail (str); /* show us a warning */
+			g_return_if_fail (str); 
+		}*/
+
+		tracker_log ("translated rdf query is \n%s\n", str);
+
+		if (search_text && (strlen (search_text) > 0)) {
+			tracker_db_search_text (db_con, service, search_text, 0, 999999, TRUE);
+
+			tracker_log_sql (db_con, "select * from searchresults1");
 		}
 
-		g_free (search_term);
-		tracker_log ("translated rdf query is %s\n", str);
 		res = tracker_exec_sql_ignore_nulls (db_con, str);
-//		tracker_log_sql (db_con, str);
-
 
 		g_free (str);
+
 	} else {
 		return;
 	}
 
-	reply = dbus_message_new_method_return (rec->message);
+	tracker_dbus_reply_with_query_result (rec, res);
 
-	dbus_message_iter_init_append (reply, &iter);
-
-	dbus_message_iter_open_container (&iter,
-					  DBUS_TYPE_ARRAY,
-					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
-					  DBUS_TYPE_STRING_AS_STRING
-					  DBUS_TYPE_VARIANT_AS_STRING
-					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
-					  &iter_dict);
-
-	if (res) {
-		tracker_add_query_result_to_dict (res, &iter_dict);
-		tracker_db_free_result (res);
-	}
-
-	dbus_message_iter_close_container (&iter, &iter_dict);
-	dbus_connection_send (rec->connection, reply, NULL);
-	dbus_message_unref (reply);
+	tracker_db_free_result (res);
 }

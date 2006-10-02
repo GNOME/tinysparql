@@ -30,7 +30,8 @@ typedef enum {
 	DATA_INDEX_STRING,
 	DATA_STRING,
 	DATA_NUMERIC,
-	DATA_DATE
+	DATA_DATE,
+	DATA_INDEX_BLOB
 } DataTypes;
 
 
@@ -89,7 +90,7 @@ void		tracker_db_end_transaction 	(DBConnection *db_con);
 void		tracker_db_update_indexes_for_new_service 	(DBConnection *db_con, guint32 service_id, int service_type_id, GHashTable *table);
 void		tracker_db_update_differential_index 		(GHashTable *old_table, GHashTable *new_table, const char *id, int service_type_id);
 
-char ***	tracker_db_search_text 		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean sort);
+char ***	tracker_db_search_text 		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results);
 char ***	tracker_db_search_files_by_text (DBConnection *db_con, const char *text, int offset, int limit, gboolean sort);
 char ***	tracker_db_search_metadata 	(DBConnection *db_con, const char *service, const char *field, const char *text, int offset, int limit);
 char ***	tracker_db_search_matching_metadata (DBConnection *db_con, const char *service, const char *id, const char *text);

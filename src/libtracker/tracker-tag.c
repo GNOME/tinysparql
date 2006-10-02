@@ -42,23 +42,24 @@ static GOptionEntry entries[] = {
 
 
 static void
-get_meta_table_data (gpointer key, gpointer value, gpointer user_data)
+get_meta_table_data (gpointer value)
+		    
 {
-	char **meta;
-	int i;
+	char **meta, **meta_p;
 
-	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
-		g_warning ("fatal communication error");
-		return;
+	meta = (char **)value;
+
+	int i = 0;
+	for (meta_p = meta; *meta_p; meta_p++) {
+
+		if (i == 0) {
+			g_print ("%s : ", *meta_p);
+
+		} else {
+			g_print ("%s ", *meta_p);
+		}
+		i++;
 	}
-
-	g_print ("%s ", (char *) key);
-
-	meta = g_value_get_boxed (value);
-
-	for (i = 0; meta[i] != NULL; i++)
-		g_print ("(%s)", meta[i]);
-
 	g_print ("\n");
 }
 
@@ -150,16 +151,16 @@ main (int argc, char **argv)
 
 	if (((list && !files) || (!files && (!remove_all && !delete && !add))) && !search) {
 
-		GHashTable *table = NULL;
+		GPtrArray *out_array = NULL;
 
-		table =	tracker_keywords_get_list (client, SERVICE_FILES, &error);
+		out_array = tracker_keywords_get_list (client, SERVICE_FILES, &error);
 
 		if (error)
 			goto error;
 
-		if (table) {
-			g_hash_table_foreach (table, get_meta_table_data, NULL);
-			g_hash_table_destroy (table);	
+		if (out_array) {
+			g_ptr_array_foreach (out_array, (GFunc)get_meta_table_data, NULL);
+			g_ptr_array_free (out_array, TRUE);
 		}
 
 	}

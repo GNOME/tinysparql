@@ -54,7 +54,7 @@
 
 /* extension operators - "contains" does a substring or full text match, "in_Set" does string in list match */
 #define ELEMENT_RDF_CONTAINS 		"rdfq:contains"
-#define ELEMENT_RDF_REGEX        "rdfq:regex"
+#define ELEMENT_RDF_REGEX        	"rdfq:regex"
 #define ELEMENT_RDF_STARTS_WITH 	"rdfq:startsWith"
 #define ELEMENT_RDF_IN_SET		"rdfq:inSet"
 
@@ -138,6 +138,7 @@ typedef struct {
 	char 		*alias;
 	char 	 	*field_name;
 	char	 	*meta_field;
+	char	 	*table_name;
 	char	 	*id_field;
 	DataTypes	data_type;
 	gboolean 	is_select;
@@ -360,6 +361,10 @@ free_metadata_field (FieldData *field_data)
 		g_free (field_data->meta_field);
 	}
 
+	if (field_data->table_name) {
+		g_free (field_data->table_name);
+	}
+
 	if (field_data->id_field) {
 		g_free (field_data->id_field);
 	}
@@ -426,29 +431,35 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 
 		if (def) {
 			const char *st;
-
+			
 			if (def->type == DATA_INDEX_STRING) {
-				st = "MetaDataIndexValue";
+				st = "ServiceIndexMetaData";
 			} else if (def->type == DATA_STRING) {
-				st = "MetaDataValue";
+				st = "ServiceMetaData";
+			} else if (def->type == DATA_INDEX_BLOB) {
+				st = "ServiceBlobMetaData";
 			} else {
-				st = "MetaDataNumericValue";
+				st = "ServiceNumericMetaData";
 			}
 
 			field_data->data_type = def->type;
-			field_data->meta_field = g_strconcat (field_data->alias, ".", st, NULL);
+			field_data->meta_field = g_strconcat (field_data->alias, ".MetaDataValue", NULL);
+			field_data->table_name = g_strdup (st);
 			field_data->id_field = g_strdup (def->id);
-			tracker_db_free_field_def (def);
-
+			
 			data->fields = g_slist_prepend (data->fields, field_data);
 
 			if (is_select) {
-				char *str;
 
-				str = g_strconcat (", ", field_data->meta_field, NULL);
-				data->sql_select = g_string_append (data->sql_select, str);
-				g_free (str);
+				if (def->type == DATA_DATE) {
+					g_string_append_printf (data->sql_select, ", FormatDate(%s)", field_data->meta_field);
+				} else {
+					g_string_append_printf (data->sql_select, ", %s", field_data->meta_field);
+				}
+
 			}
+
+			tracker_db_free_field_def (def);
 
 		} else {
 			g_free (field_data);
@@ -733,17 +744,19 @@ static gboolean
 build_sql (ParserData *data)
 {
 	ParseState state;
-	char 	   *avalue, *value, *str, *sub;
-	gboolean   is_indexable_metadata;
+	char 	   *avalue, *value, *sub;
 	FieldData  *field_data;
+	GString    *str;
 
 	g_return_val_if_fail (data->current_field && data->current_operator != OP_NONE && data->current_value, FALSE);
+
+	str = g_string_new ("");
 
 	data->statement_count++;
 
 	state = peek_state (data);
 
-	avalue = get_value (data->current_value, (state != STATE_END_INTEGER && state != STATE_END_FLOAT));
+	avalue = get_value (data->current_value, (state != STATE_END_DATE && state != STATE_END_INTEGER && state != STATE_END_FLOAT));
 
 	field_data = add_metadata_field (data, data->current_field, FALSE, TRUE);
 
@@ -753,8 +766,6 @@ build_sql (ParserData *data)
 		g_free (data->current_value);
 		return FALSE;
 	}
-
-	is_indexable_metadata = (field_data->data_type == DATA_INDEX_STRING);
 
 	if (field_data->data_type ==  DATA_DATE) {
 		char *bvalue;
@@ -774,101 +785,98 @@ build_sql (ParserData *data)
 
 	if (data->statement_count > 1) {
 		if (data->current_logic_operator == LOP_AND) {
-			data->sql_where = g_string_append (data->sql_where, " AND ");
+			data->sql_where = g_string_append (data->sql_where, "\n AND ");
 		} else {
 			if (data->current_logic_operator == LOP_OR) {
-				data->sql_where = g_string_append (data->sql_where, " OR ");
+				data->sql_where = g_string_append (data->sql_where, "\n OR ");
 			}
 		}
 	}
+
+	char **s;
 
 	switch (data->current_operator) {
 
 		case OP_EQUALS:
 
-			/* replace * wildcard with SQL's like wildcard "%" */
 			sub = strchr (data->current_value, '*');
-
 			if (sub) {
-				*sub = '%';
-				str = g_strconcat (" (", field_data->meta_field, " like '", data->current_value, "' ) ", NULL);
+				g_string_append_printf (str, " (%s glob '%s') ", field_data->meta_field, data->current_value);
 			} else {
-				str = g_strconcat (" (", field_data->meta_field, " = ", value, " ) ", NULL);
+				g_string_append_printf (str, " (%s = %s) ", field_data->meta_field, value);
 			}
 
 			break;
 
 		case OP_GREATER:
 
-			str = g_strconcat (" (", field_data->meta_field,  " > ", value, ") ", NULL);
+			g_string_append_printf (str, " (%s > %s) ", field_data->meta_field, value);
 
 			break;
 
 		case OP_GREATER_EQUAL:
 
-			str = g_strconcat (" (", field_data->meta_field,  " >= ", value, ") ", NULL);
+			g_string_append_printf (str, " (%s >= %s) ", field_data->meta_field, value);
 
 			break;
 
 		case OP_LESS:
 
-			str = g_strconcat (" (", field_data->meta_field,  " < ", value, ")", NULL);
+			g_string_append_printf (str, " (%s < %s) ", field_data->meta_field, value);
 
 			break;
 
 		case OP_LESS_EQUAL:
 
-			str = g_strconcat (" (", field_data->meta_field,  " <= ", value, ")", NULL);
+			g_string_append_printf (str, " (%s <= %s) ", field_data->meta_field, value);
 
 			break;
 
 		case OP_CONTAINS:
 
-			if (!is_indexable_metadata) {
+			sub = strchr (data->current_value, '*');
 
-				/* replace * wildcard with SQL's like wildcard "%" */
-				sub = strchr (data->current_value, '*');
-
-				if (sub) {
-					*sub = '%';
-					str = g_strconcat (" (", field_data->meta_field, " like '%", data->current_value, "' ) ", NULL);
-				} else {
-					str = g_strconcat (" (", field_data->meta_field,  " like '%", data->current_value, "%' ) ", NULL);
-				}
+			if (sub) {
+				g_string_append_printf (str, " (%s glob '*%s') ", field_data->meta_field, data->current_value);
 			} else {
-				str = g_strconcat (" ("," MATCH (", field_data->meta_field, ") AGAINST ('", data->current_value, "' IN BOOLEAN MODE)) ", NULL);
+				g_string_append_printf (str, " (%s glob  '*%s*') ", field_data->meta_field, data->current_value);
 			}
 
 			break;
 
 		case OP_STARTS:
+			
+			sub = strchr (data->current_value, '*');
 
-			if (!is_indexable_metadata) {
-
-				/* replace * wildcard with SQL's like wildcard "%" */
-				sub = strchr (data->current_value, '*');
-
-				if (sub) {
-					*sub = '%';
-					str = g_strconcat (" (", field_data->meta_field, " like '", data->current_value, "' ) ", NULL);
-				} else {
-					str = g_strconcat (" (", field_data->meta_field,  " like '", data->current_value, "%' ) ", NULL);
-				}
+			if (sub) {
+				g_string_append_printf (str, " (%s glob '%s') ", field_data->meta_field, data->current_value);
 			} else {
-				str = g_strconcat (" ("," MATCH (", field_data->meta_field, ") AGAINST ('", data->current_value, "*' IN BOOLEAN MODE)) ", NULL);
+				g_string_append_printf (str, " (%s glob '%s*') ", field_data->meta_field, data->current_value);
 			}
-
+			
 			break;
 
 		case OP_REGEX:
 
-			str = g_strconcat (" (", field_data->meta_field, " REGEXP '", data->current_value, "') ", NULL);
+			g_string_append_printf (str, " (%s REGEXP '%s') ", field_data->meta_field, data->current_value);
 
 			break;
 
 		case OP_SET:
 
-			str = g_strconcat (" (FIND_IN_SET(", field_data->meta_field, ", '", data->current_value, "')) ", NULL);
+			s = g_strsplit (data->current_value, ",", 0);
+			
+			if (s && s[0]) {
+
+				g_string_append_printf (str, " (%s in ('%s'", field_data->meta_field, s[0]);
+
+				char **p;
+				for (p = s+1; *p; p++) {
+					g_string_append_printf (str, ",'%s'", *p); 					
+				}
+				g_string_append_printf (str, ") ) " ); 					
+					
+			}
 
 			break;
 
@@ -877,10 +885,9 @@ build_sql (ParserData *data)
 			break;
 	}
 
-	if (str) {
-		data->sql_where = g_string_append (data->sql_where, str);
-		g_free (str);
-	}
+	data->sql_where = g_string_append (data->sql_where, str->str);
+
+	g_string_free (str, TRUE);
 
 	g_free (data->current_field);
 	data->current_field = NULL;
@@ -1083,9 +1090,41 @@ error_handler (GMarkupParseContext *context,
 	tracker_log ("Error in rdf query parse: %s", error->message);
 }
 
+static GString *
+get_select_header (const char *service) 
+{
+	GString *result;
+	int type;
+		
+	result = g_string_new ("");
+	type = tracker_get_id_for_service (service);
+
+	switch (type) {
+
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+		case 7:		
+		case 8:
+			g_string_append_printf (result, " Select DISTINCT (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S); 
+			break;
+
+		default :
+			break;
+	}
+	
+	return result;
+
+}
+	
+
 
 char *
-tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, gboolean sort_by_service, int offset, int limit, GError *error)
+tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, const char *keyword, gboolean sort_by_service, int offset, int limit, GError *error)
 {
 	static     gboolean inited = FALSE;
 	ParserData data;
@@ -1102,11 +1141,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	data.db_con = db_con;
 	data.statement_count = 0;
 
-	data.sql_select = g_string_new ("Select DISTINCT Concat(S.Path, '");
-
-	data.sql_select = g_string_append (data.sql_select, G_DIR_SEPARATOR_S);
-
-	data.sql_select = g_string_append (data.sql_select, "', S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ");
+	data.sql_select = get_select_header (service);
 
 	if (field_count > 0) {
 		int i;
@@ -1126,34 +1161,52 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 		}
 	}
 
+	char *table_name;
+	gboolean do_search = FALSE;
 
-	if (search_text && (strlen (search_text) > 2)) {
-		char	 *str, *stext;
-		gboolean use_boolean_search;
-
-		stext = tracker_format_search_terms (search_text, &use_boolean_search);
-		data.sql_from = g_string_new  (" FROM Services S INNER JOIN ServiceMetaData M ON S.ID = M.ServiceID ");
-		str = g_strconcat (" WHERE  (S.ServiceTypeID between GetServiceTypeID('", service, "') and GetMaxServiceTypeID('", service ,"')) AND (MATCH (M.MetaDataIndexValue) AGAINST ('", stext, "' IN BOOLEAN MODE)) AND " , NULL);
-		data.sql_where = g_string_new (str);
-		g_free (stext);
-		g_free (str);
+	if (strcmp (service, "Emails") == 0) {
+		table_name = "Emails";
 	} else {
-		char *str;
-
-		data.sql_from = g_string_new  (" FROM Services S ");
-		str = g_strconcat (" WHERE (S.ServiceTypeID between GetServiceTypeID('", service, "') and GetMaxServiceTypeID('", service ,"')) AND ", NULL);
-		data.sql_where = g_string_new (str);
-		g_free (str);
+		table_name = "Services";
 	}
+
+	data.sql_from = g_string_new ("");
+
+	tracker_log ("search term is %s", search_text);
+
+
+	if (search_text && (strlen (search_text) > 0)) {
+		do_search = TRUE;
+		g_string_append_printf (data.sql_from, "\n FROM %s S INNER JOIN SearchResults1 M ON S.ID = M.SID ", table_name);
+	} else {
+		g_string_append_printf (data.sql_from, "\n FROM %s S ", table_name);
+	}
+
+	if (keyword && strlen (keyword) > 0) {
+		g_string_append_printf (data.sql_from, "\n INNER JOIN ServiceKeywords K ON S.ID = K.ServiceID and K.Keyword = '%s' ", keyword);
+	} 
+
+	data.sql_where = g_string_new ("");
+	g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) AND ", service, service);
 
 	if (limit < 1) {
 		limit = 1024;
 	}
 
 	if (sort_by_service) {
-		data.sql_order = g_string_new (" ORDER BY S.ServiceTypeID, uri LIMIT ");
+		if (do_search) {
+			data.sql_order = g_string_new ("\n ORDER BY M.Score desc, S.ServiceTypeID, uri LIMIT ");
+		} else {
+			data.sql_order = g_string_new ("\n ORDER BY S.ServiceTypeID, uri LIMIT ");
+		}
+
 	} else {
-		data.sql_order = g_string_new (" LIMIT ");
+		if (do_search) {
+			data.sql_order = g_string_new ("\n ORDER BY M.Score desc LIMIT ");
+		} else {
+			data.sql_order = g_string_new ("\n  LIMIT ");
+		}
+
 	}
 
 	g_string_append_printf (data.sql_order, "%d,%d ", offset, limit);
@@ -1185,43 +1238,22 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 		const GSList *tmp;
 		FieldData    *tmp_field;
 
-
-
 		for (tmp = data.fields; tmp; tmp = tmp->next) {
 			tmp_field = tmp->data;
 
 			if (!tmp_field->is_condition) {
-				char *s;
-
-				s = g_strconcat ( " LEFT OUTER JOIN ServiceMetaData ", tmp_field->alias, " ON (S.ID = ", tmp_field->alias ,".ServiceID and ", tmp_field->alias , ".MetaDataID = ", tmp_field->id_field ," ) ",  NULL);
-				data.sql_from = g_string_append (data.sql_from, s);
-				g_free (s);
+				g_string_append_printf (data.sql_from, "\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, tmp_field->id_field);
+			} else {
+				g_string_append_printf (data.sql_from, "\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, tmp_field->id_field);
 			}
 		}
 
-
-		for (tmp = data.fields; tmp; tmp = tmp->next) {
-			char *st;
-
-			tmp_field = tmp->data;
-
-
-			if (tmp_field->is_condition) {
-				char *s;
-
-				st = g_strconcat ( " AND (", tmp_field->alias, ".MetaDataID = ", tmp_field->id_field ," ) ",  NULL);
-				data.sql_where = g_string_append (data.sql_where, st);
-				g_free (st);
-
-				s = g_strconcat ( " INNER JOIN ServiceMetaData ", tmp_field->alias, " ON S.ID = ", tmp_field->alias ,".ServiceID ",  NULL);
-				data.sql_from = g_string_append (data.sql_from, s);
-				g_free (s);
-
-			}
-		}
-
-
-		result = g_strconcat (g_string_free (data.sql_select, FALSE), " ", g_string_free (data.sql_from, FALSE), " ", g_string_free (data.sql_where, FALSE), " ", g_string_free (data.sql_order, FALSE), NULL);
+		result = g_strconcat (data.sql_select->str, " ", data.sql_from->str, " ", data.sql_where->str, " ", data.sql_order->str, NULL);
+		
+		g_string_free (data.sql_select, TRUE);
+		g_string_free (data.sql_from, TRUE);
+		g_string_free (data.sql_where, TRUE);
+		g_string_free (data.sql_order, TRUE);
 	}
 
 	g_slist_foreach (data.fields, (GFunc) free_metadata_field, NULL);
@@ -1244,61 +1276,3 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 }
 
 
-/* returns number of tmp tables created
-int
-tracker_rdf_query_parse (DBConnection *db_con, const char *query)
-{
-	ParserData data;
-	int 	   result;
-
-	static     gboolean inited = FALSE;
-
-	g_return_val_if_fail (query != NULL, -1);
-
-	if (!inited) {
-		error_quark = g_quark_from_static_string ("RDF-parser-error-quark");
-		inited = TRUE;
-	}
-
-	memset (&data, 0, sizeof (data));
-
-	data.parser = g_new0 (GMarkupParser, 1);
-
-	data.parser->start_element = start_element_handler;
-	data.parser->text = text_handler;
-	data.parser->end_element = end_element_handler;
-	data.parser->error = error_handler;
-
-	data.db_con = db_con;
-	data.current_operator = OP_NONE;
-	data.current_and = FALSE;
-	data.current_not = FALSE;
-	data.query_okay = FALSE;
-	data.temp_table_count = 0;
-
-	data.context = g_markup_parse_context_new (data.parser, 0, &data, NULL);
-
-	push_stack (&data, STATE_START);
-
-	if (!g_markup_parse_context_parse (data.context, query, -1, NULL)) {
-		result = -1;
-	} else {
-		result = data.temp_table_count;
-	}
-
-	g_slist_free (data.stack);
-	g_markup_parse_context_free (data.context);
-
-	if (data.current_field) {
-		g_free (data.current_field);
-	}
-
-	if (data.current_value) {
-		g_free (data.current_value);
-	}
-
-	g_free (data.parser);
-
-	return result;
-}
-*/

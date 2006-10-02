@@ -39,7 +39,6 @@ typedef struct {
 
 
 static gboolean shutdown;
-static int update_count;
 
 static inline guint8
 get_score (WordDetails *details)

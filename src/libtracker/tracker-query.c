@@ -27,6 +27,19 @@
 
 #include "../libtracker/tracker.h" 
 
+static gchar *search = NULL;
+static gchar **fields = NULL;
+static gchar *service = NULL;
+static gchar *keyword = NULL;
+
+static GOptionEntry entries[] = {
+	{"service", 's', 0, G_OPTION_ARG_STRING, &service, "search from a specific service", "service"},
+	{"search-term", 't', 0, G_OPTION_ARG_STRING, &search, "adds a fulltext search filter", "search-term"},
+	{"keyword", 'k', 0, G_OPTION_ARG_STRING, &keyword, "adds a keyword filter", "keyword"},
+	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &fields, "Metadata Fields", NULL},
+	{NULL}
+};
+
 
 static int field_count;
 
@@ -52,57 +65,85 @@ realpath_in_utf8 (const char *path)
 }
 
 static void
-get_meta_table_data (gpointer key,
-   		     gpointer value,
-		     gpointer user_data)
+get_meta_table_data (gpointer value)
+		    
 {
 	char **meta, **meta_p;
 
-	if (!G_VALUE_HOLDS (value, G_TYPE_STRV)) {
-		g_warning ("fatal communication error");
-		return;
-	}
+	meta = (char **)value;
 
-	g_print ("%s \n", (char *) key);
+	int i = 0;
+	for (meta_p = meta; *meta_p; meta_p++) {
 
-	meta = g_value_get_boxed (value);
+		char *str;
 
-	int i;
+		str = g_filename_from_utf8 (*meta_p, -1, NULL, NULL, NULL);
 
-	for (i=0; i<field_count; i++) {
-		if (meta[i]) {
-			g_print ("%s, ", meta[i]);	
+		if (i == 0) {
+			g_print ("%s : ", str);
+
 		} else {
-			g_print ("null, ");
+			g_print ("%s, ", *meta_p);
 		}
+		i++;
 	}
-
-//	for (meta_p = meta; *meta_p; meta_p++) {
-//		g_print ("%s, ", *meta_p);
-//	}
-	g_print ("\n\n");
+	g_print ("\n");
 }
+
 
 
 int
 main (int argc, char **argv) 
 {
+	GOptionContext *context = NULL;
+	ServiceType type;
+	char **p_strarray;
 
 	char *buffer, *tmp;
 	gsize buffer_length;
-	GHashTable *table = NULL;
+	GPtrArray *out_array = NULL;
 	GError *error = NULL;
 	TrackerClient *client = NULL;
 
 
 	setlocale (LC_ALL, "");
-	
-	if (argc < 2) {
-		g_print ("usage - tracker-query File [Metadata Fields1...]\nMetadata fields are defined at http://freedesktop.org/wiki/Standards/shared-filemetadata-spec\nExample usage: tracker-query file.rdf File.Format File.Size\n");
+
+	context = g_option_context_new ("RDFQueryFile [MetaDataField...] ... - perform an rdf query and return results witrh specified metadata fields");
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_parse (context, &argc, &argv, &error);
+
+	if (error) {
+		g_printerr ("invalid arguments: %s\n", error->message);
+		return 1;
+	}
+
+	if (!fields) {
+		g_printerr ("missing input rdf query file, try --help for help\n");
 		return 1;
 	}
 	
-	char *str_path = realpath_in_utf8 (argv[1]);
+
+	if (!service) {
+		type = SERVICE_FILES;
+	} else if (g_ascii_strcasecmp (service, "Documents") == 0) {
+		type = SERVICE_DOCUMENTS;
+	} else if (g_ascii_strcasecmp (service, "Music") == 0) {
+		type = SERVICE_MUSIC;
+	} else if (g_ascii_strcasecmp (service, "Images") == 0) {
+		type = SERVICE_IMAGES;
+	} else if (g_ascii_strcasecmp (service, "Videos") == 0) {
+		type = SERVICE_VIDEOS;
+	} else if (g_ascii_strcasecmp (service, "Text") == 0) {
+		type = SERVICE_TEXT_FILES;
+	} else if (g_ascii_strcasecmp (service, "Development") == 0) {
+		type = SERVICE_DEVELOPMENT_FILES;
+	} else {
+		g_printerr ("service not recognized, searching in Other Files...\n");
+		type = SERVICE_OTHER_FILES;
+	}
+
+	
+	char *str_path = realpath_in_utf8 (fields[0]);
 
 	if (!str_path) {
 		return 1;
@@ -133,28 +174,27 @@ main (int argc, char **argv)
 
 	char **meta_fields = NULL;
 
-	if (argc == 2) {
+	g_free (fields[0]);
+	int i = 0;
+	for (p_strarray = fields+1; *p_strarray; p_strarray++) {
+		fields[i] = *p_strarray;
+		i++;
+	}
+	fields[i] = NULL;
+
+
+	if (i == 0) {
 		meta_fields = g_new (char *, 2);
 
 		field_count = 1;
 
 		meta_fields[0] = g_strdup ("File.Format");
 		meta_fields[1] = NULL;
+		g_strfreev  (fields);
+		fields = meta_fields;
+	} 
 
-	} else if (argc > 2) {
-		int i;
-
-		field_count = argc-1;
-
-		meta_fields = g_new (char *, (argc-1));
-
-		for (i=0; i < (argc-2); i++) {
-			meta_fields[i] = g_locale_to_utf8 (argv[i+2], -1, NULL, NULL, NULL);
-		}
-		meta_fields[argc-2] = NULL;
-	}
-
-	table = tracker_search_query (client, -1, SERVICE_FILES, meta_fields, NULL, buffer, 0, 512, FALSE, &error);
+	out_array = tracker_search_query (client, -1, SERVICE_FILES, fields, search, keyword, buffer, 0, 512, FALSE, &error);
 
 	g_strfreev (meta_fields);
 
@@ -165,10 +205,9 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-	if (table) {
-		g_print ("got %d values\n\n", g_hash_table_size (table));
-		g_hash_table_foreach (table, get_meta_table_data, NULL);
-		g_hash_table_destroy (table);	
+	if (out_array) {
+		g_ptr_array_foreach (out_array, (GFunc)get_meta_table_data, NULL);
+		g_ptr_array_free (out_array, TRUE);
 	}
 
 

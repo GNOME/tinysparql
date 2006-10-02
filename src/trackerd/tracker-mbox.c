@@ -407,7 +407,7 @@ tracker_mbox_parse_next (MailBox *mb)
 
 	msg->subject = g_strdup (g_mime_message_get_subject (message));
 
-	msg->body = g_mime_message_get_body (message, FALSE, &is_html);
+	msg->body = g_mime_message_get_body (message, TRUE, &is_html);
 	msg->content_type = g_strdup (is_html ? "text/html" : "text/plain");
 
 	/* make directory to save attachment */
