@@ -374,6 +374,38 @@ AC_SUBST(LIBEXIF_CFLAGS)
 AC_SUBST(LIBEXIF_LIBS)
 test "$have_libexif" = "yes" && AC_DEFINE(HAVE_LIBEXIF, [], [Define if we have libexif])
 
+##################################################################
+# check for libgsf
+##################################################################
+
+LIBGSF_REQUIRED=1.13
+
+PKG_CHECK_MODULES(LIBGSF, [libgsf-1 >= $LIBGSF_REQUIRED], [have_libgsf=yes] , [have_libgsf=no])
+
+AM_CONDITIONAL(HAVE_LIBGSF, test "$have_libgsf" = "yes")
+AC_SUBST(LIBGSF_CFLAGS)
+AC_SUBST(LIBGSF_LIBS)
+test "$have_libgsf" = "yes" && AC_DEFINE(HAVE_LIBGSF, [], [Define if we have libgsf])
+
+####################################################################
+# Check ioprio support
+####################################################################
+
+AC_MSG_CHECKING([[checking ioprio support]])
+ioprio_support=no
+AC_RUN_IFELSE([ AC_LANG_PROGRAM([[
+#include <stdlib.h>
+#include <errno.h> 
+#include <linux/unistd.h> 
+   ]], [[
+_syscall2(int, ioprio_get, int, which, int, who); 
+int main()
+{
+	exit(ioprio_get(1,0));
+}
+   ]]) ], 
+   [ AC_DEFINE(IOPRIO_SUPPORT,[],[Define ioprio support]) ioprio_support=yes ])
+AC_MSG_RESULT([$ioprio_support])
 
 #####################################################
 
@@ -416,6 +448,7 @@ Tracker-$VERSION:
 	available file mointor backends :	$fs_monitor_backends
 	file monitor backend to be used :	$primary_backend
 	inotify header location :		$inotify_header
+	ioprio support : 			$ioprio_support
 	GTK front-end :         		$have_gtk
 
 Metadata extractors:
@@ -425,5 +458,6 @@ Metadata extractors:
 	ogg/theora :				$have_theora
 	png :					$have_libpng
 	exif (jpeg) :				$have_libexif
+	gsf :					$have_libgsf
 "
 

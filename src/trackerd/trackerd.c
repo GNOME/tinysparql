@@ -2250,7 +2250,9 @@ main (int argc, char **argv)
 	}
 
 	nice (10);
-
+	#ifdef IOPRIO_SUPPORT
+	ioprio ();
+	#endif
 
 	/* reset log file */
 	if (g_file_test (tracker->log_file, G_FILE_TEST_EXISTS)) {

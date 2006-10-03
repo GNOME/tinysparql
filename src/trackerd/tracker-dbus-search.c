@@ -445,8 +445,6 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 		if (search_text && (strlen (search_text) > 0)) {
 			tracker_db_search_text (db_con, service, search_text, 0, 999999, TRUE);
-
-			tracker_log_sql (db_con, "select * from searchresults1");
 		}
 
 		res = tracker_exec_sql_ignore_nulls (db_con, str);

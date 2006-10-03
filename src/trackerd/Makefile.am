@@ -107,6 +107,8 @@ trackerd_SOURCES =		\
 	tracker-stemmer.h	\
 	tracker-utils.c		\
 	tracker-utils.h		\
+	tracker-ioprio.c	\
+	tracker-ioprio.h	\
 	xdgmime.c		\
 	xdgmime.h		\
 	xdgmimealias.c 		\
