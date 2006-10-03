@@ -215,7 +215,7 @@ tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, con
 	char **array, **tags;
 	char *tag;
 	
-	array = g_strsplit (keywords, "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]", -1);
+	array = g_strsplit_set (keywords, "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]", -1);
 
 	for (tags = array; *tags; ++tags) {
 
