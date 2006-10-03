@@ -2330,7 +2330,7 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 		max = 8;
 	}
 
-	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Services F inner join ServiceMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Format') AND (M.MetaDataIndexValue in ");
+	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Services F inner join ServiceIndexMetaData M on F.ID = M.ServiceID WHERE M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Format') AND (M.MetaDataValue in ");
 
 	g_string_append_printf (str, "('%s'", mimes[0]);
 
@@ -2341,6 +2341,8 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 	g_string_append_printf (str, ")) AND (F.ServiceTypeID between %d and %d) LIMIT %d,%d", min, max, offset, limit);
 
 	query = g_string_free (str, FALSE);
+
+	tracker_log ("getting files with mimes using sql %s", query);
 
 	res = tracker_exec_sql (db_con, query);
 

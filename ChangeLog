@@ -1,6 +1,8 @@
 2006-10-03 Jamie McCracken <jamiemcc at gnome org>
 
 	* fixed retrieval of metadata types
+	* fixed Metadata.Get method
+	* fixed Files.GetByMimeType
 
 
 2006-10-03 Edward Duffy <eduffy at gmail com>
@@ -8,6 +10,7 @@
 	* added libgsf extractor for ms office files
 	* added open document thumbnailers
 	* fix for sqlite sql
+	* fixed auto tagging
 
 
 2006-10-03 Anders Aagaard <aagaande at gmail com>

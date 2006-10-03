@@ -126,6 +126,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	GString 	*sql;
 	char		***res;
 	char		**date_array;
+	const char 	*table;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -163,7 +164,8 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	}
 
 
-	date_array = g_new (char *, key_count);
+	date_array = g_new (char *, key_count+1);
+	date_array [key_count] = NULL;
 
 	/* build SELECT clause */
 	sql = g_string_new (" SELECT DISTINCT ");
@@ -171,8 +173,8 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	table_count = 0;
 
 	for (i = 0; i < key_count; i++) {
-		char	   *metadata, *mid;
-		const char *field;
+		char *metadata;
+
 		FieldDef   *def;
 
 		metadata = keys[i];
@@ -181,22 +183,12 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 		if (def) {
 
-			if (def->type == DATA_INDEX_STRING) {
-				field = "MetaDataIndexValue";
-			} else if (def->type == DATA_STRING) {
-				field = "MetaDataValue";
-			} else {
-				field = "MetaDataNumericValue";
-			}
-
 			if (def->type == DATA_DATE) {
 				date_array[i] = g_strdup ("1");
 			} else {
 				date_array[i] = g_strdup ("0");
 			}
 
-			tracker_db_free_field_def (def);
-
 		} else {
 			tracker_set_error (rec, "Invalid or non-existant metadata type %s was specified", metadata);
 			g_string_free (sql, TRUE);
@@ -206,70 +198,65 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 		table_count++;
 
-		mid = g_strdup_printf ("%d", table_count);
-
 		if (table_count == 1) {
-			str = g_strconcat (" M", mid, ".", field, NULL);
+			g_string_append_printf (sql, " M%d.MetaDataValue ", table_count);
 		} else {
-			str = g_strconcat (", M", mid, ".", field, NULL);
+			g_string_append_printf (sql, ", M%d.MetaDataValue ", table_count);
 		}
 
-		g_string_append (sql, str );
-
-		g_free (mid);
-		g_free (str);
+		tracker_db_free_field_def (def);
 	}
 
 
 	/* build FROM clause */
-	g_string_append (sql, " FROM Services F");
+	g_string_append (sql, "\n FROM Services F ");
 
 	table_count = 0;
 
 	for (i = 0; i < key_count; i++) {
 		FieldDef *def;
-		char	 *meta_id, *metadata, *mid, *s;
+		char	 *metadata;
 
 		metadata = keys[i];
-
+		
 		def = tracker_db_get_field_def (db_con, metadata);
 
 		if (def) {
-			meta_id = g_strdup( def->id);
-			tracker_db_free_field_def (def);
+			
+			if (def->type == DATA_INDEX_STRING) {
+				table = "ServiceIndexMetaData";
+			} else if (def->type == DATA_STRING) {
+				table = "ServiceMetaData";
+			} else if (def->type == DATA_INDEX_BLOB) {
+				table = "ServiceBlobMetaData";
+			} else {
+				table = "ServiceNumericMetaData";
+			}
 
+	
 		} else {
 			tracker_set_error (rec, "Invalid or non-existant metadata type %s was specified", metadata);
 			g_string_free (sql, TRUE);
-			g_free (id);
 			return;
 		}
 
 		table_count++;
 
-		mid = g_strdup_printf ("%d", table_count);
+		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON M%d.ServiceID = F.ID AND M%d.MetaDataID = %s ", table, table_count, table_count, table_count, def->id);
 
-		s = g_strconcat (" LEFT OUTER JOIN "," ServiceMetaData", " M", mid, " ON M", mid, ".", "ServiceID", " = F.ID ", " AND M", mid, ".MetaDataID = ", meta_id, NULL);
-		g_string_append (sql, s);
-
-		g_free (meta_id);
-		g_free (mid);
-		g_free (s);
+		tracker_db_free_field_def (def);
 	}
 
 
 	/* build WHERE clause */
-	str = g_strconcat (" WHERE F.ID = ", id, " ", NULL);
 
-	g_string_append (sql, str);
-
-	g_free (str);
+	g_string_append_printf (sql, " WHERE F.ID = %s", id );
 
 	str = g_string_free (sql, FALSE);
 
 	tracker_log (str);
 
-	res = tracker_exec_sql (db_con, str);
+	res = tracker_exec_sql_ignore_nulls (db_con, str);
 
 	g_free (str);
 	g_free (id);
@@ -308,17 +295,19 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 		} else {
 			tracker_log ("result set is empty");
-
+			row_count = 1;
 			array = g_new (char *, 1);
+			array[0] = g_strdup ("");
 
-			array[0] = NULL;
 		}
 
 		tracker_db_free_result (res);
 
 	} else {
+		row_count = 1;
 		array = g_new (char *, 1);
-		array[0] = NULL;
+		array[0] = g_strdup ("");
+
 	}
 
 	dbus_message_append_args (reply,
