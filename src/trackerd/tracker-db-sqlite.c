@@ -2625,11 +2625,23 @@ tracker_db_search_text_mime_location  (DBConnection *db_con, const char *text , 
 char ***
 tracker_db_get_metadata_types (DBConnection *db_con, const char *class, gboolean writeable) 
 {
-	if (writeable) {
-		return tracker_exec_proc (db_con, "GetWriteableMetadataTypes", 2, class);
+
+	if (strcmp (class, "*") ==0 ) {
+		if (writeable) {
+			return tracker_exec_proc (db_con, "GetWriteableMetadataTypes", 0);
+		} else {
+			return tracker_exec_proc (db_con, "GetMetadataTypes", 0);
+		}
+
 	} else {
-		return tracker_exec_proc (db_con, "GetMetadataTypes", 2, class);
-	}
+
+		if (writeable) {
+			return tracker_exec_proc (db_con, "GetWriteableMetadataTypesLike", 1, class);
+		} else {
+			return tracker_exec_proc (db_con, "GetMetadataTypesLike", 1, class);
+		}
+
+	}	
 }
 
 
@@ -2640,7 +2652,7 @@ tracker_db_get_sub_watches (DBConnection *db_con, const char *dir)
 	char ***res;
 	char *folder;
 
-	folder = g_strconcat (dir, "/%", NULL);
+	folder = g_strconcat (dir, "/*", NULL);
 	
 	res = tracker_exec_proc (db_con, "GetSubWatches", 1, folder);
 
@@ -2657,7 +2669,7 @@ tracker_db_delete_sub_watches (DBConnection *db_con, const char *dir)
 	char ***res;
 	char *folder;
 
-	folder = g_strconcat (dir, "/%", NULL);
+	folder = g_strconcat (dir, "/*", NULL);
 	
 	res = tracker_exec_proc (db_con, "DeleteSubWatches", 1, folder);
 
@@ -2687,7 +2699,7 @@ tracker_db_get_file_subfolders (DBConnection *db_con, const char *uri)
 	char ***res;
 	char *folder;
 
-	folder = g_strconcat (uri, "/%", NULL);
+	folder = g_strconcat (uri, "/*", NULL);
 	
 	res = tracker_exec_proc (db_con, "SelectFileSubFolders", 2, uri, folder);
 

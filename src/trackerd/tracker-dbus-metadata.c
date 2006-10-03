@@ -515,7 +515,7 @@ tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusMessage  *reply;
-	char	     *class, **array;
+	char	     *class, *class_formatted, **array;
 	int	     row_count;
 
 /*
@@ -542,7 +542,11 @@ tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
 	if (class) {
 		char ***res;
 
-		res = tracker_db_get_metadata_types (db_con, class, TRUE);
+		class_formatted = g_strconcat (class, ".*", NULL);
+
+		res = tracker_db_get_metadata_types (db_con, class_formatted, TRUE);
+
+		g_free (class_formatted);
 
 		if (res) {
 			array = tracker_get_query_result_as_array (res, &row_count);

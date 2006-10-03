@@ -20,9 +20,8 @@ GetFileByID  SELECT  DISTINCT Path , Name, Mime   FROM Services WHERE ID = ?;
 
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Modified');
 
-GetMainServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = 1 ORDER BY TypeID;
 
-GetServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes ORDER BY TypeID;
+GetServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = ? ORDER BY TypeID;
 
 GetServiceID SELECT ID, IndexTime, IsDirectory, ServiceTypeID FROM Services WHERE Path = ? AND Name = ?;
 
