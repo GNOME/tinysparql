@@ -16,7 +16,8 @@ tracker_extract_SOURCES = tracker-extract.c \
 	tracker-extract-vorbis.c	\
 	tracker-extract-png.c \
 	tracker-extract-exif.c	\
-	tracker-extract-msoffice.c
+	tracker-extract-msoffice.c \
+	tracker-extract-imagemagick.c 
 
 if USING_INTERNAL_LIBEXTRACTOR
 extractor_ldadd = $(top_builddir)/src/libextractor/src/main/libextractor.la

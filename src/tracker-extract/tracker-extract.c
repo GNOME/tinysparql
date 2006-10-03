@@ -141,45 +141,43 @@ void tracker_extract_png   (gchar *, GHashTable *);
 #ifdef HAVE_LIBEXIF
 void tracker_extract_exif   (gchar *, GHashTable *);
 #endif
+void tracker_extract_imagemagick   (gchar *, GHashTable *);
 
 MimeToExtractor extractors[] = {
    /* Document extractors */
-	{ "application/vnd.oasis.opendocument.text",         tracker_extract_oasis },
-	{ "application/vnd.oasis.opendocument.spreadsheet",  tracker_extract_oasis },
-	{ "application/vnd.oasis.opendocument.graphics",     tracker_extract_oasis },
-	{ "application/vnd.oasis.opendocument.presentation", tracker_extract_oasis },
-	{ "application/postscript",                          tracker_extract_ps    },
+	{ "application/vnd.oasis.opendocument.*",       tracker_extract_oasis       },
+	{ "application/postscript",                     tracker_extract_ps          },
 #ifdef HAVE_POPPLER
-	{ "application/pdf",                                 tracker_extract_pdf   },
+	{ "application/pdf",                            tracker_extract_pdf         },
 #endif
-	{ "application/x-abiword",                           tracker_extract_abw   },
+	{ "application/x-abiword",                      tracker_extract_abw         },
 #ifdef HAVE_LIBGSF
-	{ "application/msword",                              tracker_extract_msoffice   },
-	{ "application/vnd.ms-excel",                        tracker_extract_msoffice   },
-	{ "application/vnd.ms-powerpoint",                   tracker_extract_msoffice   },
+	{ "application/msword",                         tracker_extract_msoffice    },
+	{ "application/vnd.ms-*",                       tracker_extract_msoffice    },
 #endif
 
 
    /* Video extractors */
 #ifdef HAVE_THEORA
-	{ "video/x-theora+ogg",                              tracker_extract_theora   },
+	{ "video/x-theora+ogg",                         tracker_extract_theora      },
 #endif
 
 
    /* Audio extractors */
 #ifdef HAVE_VORBIS
-	{ "audio/x-vorbis+ogg",                              tracker_extract_vorbis   },
+	{ "audio/x-vorbis+ogg",                         tracker_extract_vorbis      },
 #endif
 
 
    /* Image extractors */
 #ifdef HAVE_LIBPNG
-	{ "image/png",                                       tracker_extract_png   },
+	{ "image/png",                                  tracker_extract_png         },
 #endif
 #ifdef HAVE_LIBEXIF
-	{ "image/jpeg",                                       tracker_extract_exif   },
+	{ "image/jpeg",                                 tracker_extract_exif        },
 #endif
-	{ "",                                                NULL                           }
+	{ "image/*",                                    tracker_extract_imagemagick },
+	{ "",                                           NULL                        }
 };
 
 static MetadataFileType
@@ -456,7 +454,7 @@ tracker_get_file_metadata (const char *uri, char *mime)
 	if (mime) {
 		MimeToExtractor  *p;
 		for (p = extractors; p->extractor; ++p) {
-			if (strcmp (p->mime, mime) == 0) {
+			if (g_pattern_match_simple (p->mime, mime)) {
 				(*p->extractor)(uri_in_locale, meta_table);
 				return meta_table;
 			}
