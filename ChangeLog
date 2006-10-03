@@ -1,3 +1,13 @@
+2006-10-03 Edward Duffy <eduffy at gmail com>
+	
+	* added libgsf extractor for ms office files
+
+
+2006-10-03 Anders Aagaard <aagaande at gmail com>
+	
+	* added ionice support
+
+
 2006-10-02 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* Force email body to return plain text instead of html
