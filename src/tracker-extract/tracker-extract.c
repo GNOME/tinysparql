@@ -129,6 +129,9 @@ void tracker_extract_ps    (gchar *, GHashTable *);
 void tracker_extract_pdf   (gchar *, GHashTable *);
 #endif
 void tracker_extract_abw   (gchar *, GHashTable *);
+#ifdef HAVE_LIBGSF
+void tracker_extract_msoffice   (gchar *, GHashTable *);
+#endif
 #ifdef HAVE_VORBIS
 void tracker_extract_vorbis   (gchar *, GHashTable *);
 #endif
@@ -150,6 +153,11 @@ MimeToExtractor extractors[] = {
 	{ "application/pdf",                                 tracker_extract_pdf   },
 #endif
 	{ "application/x-abiword",                           tracker_extract_abw   },
+#ifdef HAVE_LIBGSF
+	{ "application/msword",                              tracker_extract_msoffice   },
+	{ "application/vnd.ms-excel",                        tracker_extract_msoffice   },
+	{ "application/vnd.ms-powerpoint",                   tracker_extract_msoffice   },
+#endif
 
 
    /* Video extractors */
