@@ -3,6 +3,9 @@
 	* fixed retrieval of metadata types
 	* fixed Metadata.Get method
 	* fixed Files.GetByMimeType
+	* added python stuff to repository 
+	* added lyrics.py ripped from rhythmbox and modded by Samuel Cormier-Iijima
+	* added nautilus tag tabs written by Edward Duffy
 
 
 2006-10-03 Edward Duffy <eduffy at gmail com>
