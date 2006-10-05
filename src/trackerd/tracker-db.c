@@ -595,6 +595,8 @@ tracker_metadata_is_date (DBConnection *db_con, const char *meta)
 
 	def = tracker_db_get_field_def (db_con, meta);
 
+	g_return_val_if_fail (def != NULL, FALSE);
+
 	res = (def->type == DATA_DATE);
 
 	tracker_db_free_field_def (def);
