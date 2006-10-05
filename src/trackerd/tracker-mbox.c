@@ -1,6 +1,6 @@
 /* Tracker
  * mbox routines
- * Copyright (C) 2005, Mr Jamie McCracken
+ * Copyright (C) 2006, Laurent Aguerreche
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -31,13 +31,6 @@
 
 
 extern Tracker *tracker;
-
-
-typedef struct {
-	char *attachment_name;
-	char *mime;
-	char *tmp_decoded_file;
-} MailAttachment;
 
 
 static char   *base_path_for_attachments = NULL;
@@ -193,6 +186,9 @@ tracker_mbox_parse_from_offset (const char *uri, off_t offset)
 
 	} else if (is_in_a_thunderbird_mail_dir (uri)) {
 		mb->mail_app = MAIL_APP_THUNDERBIRD;
+
+	} else if (is_in_a_kmail_mail_dir (uri)) {
+		mb->mail_app = MAIL_APP_KMAIL;
 
 	} else {
 		mb->mail_app = MAIL_APP_UNKNOWN;
@@ -359,26 +355,27 @@ tracker_mbox_parse_next (MailBox *mb)
 		return NULL;
 	}
 
-	msg = g_new (MailMessage, 1);
+	msg = g_new0 (MailMessage, 1);
 
-	msg->mbox_uri = g_strdup (mb->mbox_uri);
+	msg->parent_mbox = mb;
 	msg->offset = msg_offset;
 	msg->message_id = g_strdup (g_mime_message_get_message_id (message));
 
-
-	/* we try to obtain email status (deleted, junk...) and it needs to read special fields in headers */
 	switch (mb->mail_app) {
 
 	case MAIL_APP_EVOLUTION:
 		get_status_of_evolution_email (message, msg);
+		get_uri_of_evolution_email (message, msg);
 		break;
 
 	case MAIL_APP_KMAIL:
 		get_status_of_kmail_email (message, msg);
+		get_uri_of_kmail_email (message, msg);
 		break;
 
 	case MAIL_APP_THUNDERBIRD:
 		get_status_of_thunderbird_email (message, msg);
+		get_uri_of_thunderbird_email (message, msg);
 		break;
 
 	case MAIL_APP_UNKNOWN:
@@ -411,7 +408,7 @@ tracker_mbox_parse_next (MailBox *mb)
 	msg->content_type = g_strdup (is_html ? "text/html" : "text/plain");
 
 	/* make directory to save attachment */
-	msg->path_to_attachments = g_build_filename (base_path_for_attachments, msg->mbox_uri, msg->message_id, NULL);
+	msg->path_to_attachments = g_build_filename (base_path_for_attachments, msg->parent_mbox->mbox_uri, msg->message_id, NULL);
 	g_mkdir_with_parents (msg->path_to_attachments, 0700);
 
 	msg->attachments = NULL;
@@ -446,8 +443,10 @@ tracker_free_mail_message (MailMessage *msg)
 		return;
 	}
 
-	if (msg->mbox_uri) {
-		g_free (msg->mbox_uri);
+	/* we do not free parent_mbox of course... */
+
+	if (msg->uri) {
+		g_free (msg->uri);
 	}
 
 	if (msg->message_id) {

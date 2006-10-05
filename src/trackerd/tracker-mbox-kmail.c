@@ -1,6 +1,6 @@
 /* Tracker
  * mbox routines
- * Copyright (C) 2005, Mr Jamie McCracken
+ * Copyright (C) 2006, Laurent Aguerreche
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <glib/gstdio.h>
 
 #include "tracker-mbox-kmail.h"
@@ -353,6 +354,68 @@ watch_emails_of_kmail (DBConnection *db_con)
 void
 get_status_of_kmail_email (GMimeMessage *g_m_message, MailMessage *msg)
 {
+}
+
+
+void
+get_uri_of_kmail_email (GMimeMessage *g_m_message, MailMessage *msg)
+{
+	const char *field;
+	char	   *tmp_from, *from;
+
+	if (!g_m_message || !msg || !msg->parent_mbox) {
+		return;
+	}
+
+	/* We need that line:
+	   From laurent.aguerreche@free.fr Fri Sep 22 00:58:37 2006
+	   and we need ALL the line (i.e. "From " + email address + date).
+
+	   This line is at the beginning of each header but GMIME does not give access to it so we reproduce it.
+	*/
+
+	field = g_mime_message_get_header (g_m_message, "From");
+
+	tmp_from = g_strdup (field);
+
+	from = NULL;
+
+	if (tmp_from) {
+		char *email_addr_beg;
+
+		email_addr_beg = strchr (tmp_from, '<');
+
+		if (email_addr_beg) {
+			size_t len;
+
+			email_addr_beg++;
+
+			len = strlen (email_addr_beg);
+
+			if (len > 1) {
+				from = g_strndup (email_addr_beg, len - 1);
+			}
+		} else {
+			from = g_strdup (tmp_from);
+		}
+
+		g_free (tmp_from);
+	}
+
+
+	msg->uri = NULL;
+
+	if (from) {
+		char   *uri;
+		time_t date;
+		int    gmt_offset;
+
+		g_mime_message_get_date (g_m_message, &date, &gmt_offset);
+
+		msg->uri = g_strdup_printf ("mbox:%s/From %s %s", msg->parent_mbox->mbox_uri, from, ctime (&date));
+
+		g_free (from);
+	}
 }
 
 

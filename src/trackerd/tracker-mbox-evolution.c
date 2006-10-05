@@ -1,6 +1,6 @@
 /* Tracker
  * mbox routines
- * Copyright (C) 2005, Mr Jamie McCracken
+ * Copyright (C) 2006, Laurent Aguerreche
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -145,6 +145,7 @@ get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
 		return;
 	}
 
+
 	field = g_mime_message_get_header (g_m_message, "X-Evolution");
 
 	if (!field) {
@@ -159,10 +160,9 @@ get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
 		return;
 	}
 
-	msg->deleted = FALSE;
-	msg->junk = FALSE;
+	flags = strtoul (parts[0], NULL, 16);
 
-	flags = strtoul (parts[1], NULL, 16);
+	g_strfreev (parts);
 
 	if ((flags & EVOLUTION_MESSAGE_DELETED) == EVOLUTION_MESSAGE_DELETED) {
 		msg->deleted = TRUE;
@@ -171,8 +171,44 @@ get_status_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
 	if ((flags & EVOLUTION_MESSAGE_JUNK) == EVOLUTION_MESSAGE_JUNK) {
 		msg->junk = TRUE;
 	}
+}
+
+
+void
+get_uri_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
+{
+	const char	  *field;
+	char		  **parts;
+	unsigned long int uid;
+	char		  *mbox_name;
+
+	if (!g_m_message || !msg || !msg->parent_mbox) {
+		return;
+	}
+
+	field = g_mime_message_get_header (g_m_message, "X-Evolution");
+
+	if (!field) {
+		return;
+	}
+
+	/* we want to split lines with that form: 00001fd3-0100 into 00001fd3 and 0100 */
+	parts = g_strsplit (field, "-", -1);
+
+	if (!parts || !parts[0] || !parts[1]) {
+		g_strfreev (parts);
+		return;
+	}
+
+	uid = strtoul (parts[1], NULL, 16);
 
 	g_strfreev (parts);
+
+	mbox_name = g_path_get_basename (msg->parent_mbox->mbox_uri);
+
+	msg->uri = g_strdup_printf ("email://local@local/%s;uid=%ld", mbox_name, uid);
+
+	g_free (mbox_name);
 }
 
 

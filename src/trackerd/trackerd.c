@@ -792,7 +792,7 @@ index_file (DBConnection *db_con, FileInfo *info)
 		char *service_name;
 
 		if (is_a_mbox) {
-			service_name = g_strdup ("Email");
+			service_name = g_strdup ("Emails");
 		} else if (is_an_email_attachment) {
 			service_name = g_strdup ("EmailAttachments");
 		} else {
@@ -807,41 +807,39 @@ index_file (DBConnection *db_con, FileInfo *info)
 			info->mime = g_strdup ("unknown");
 		}
 
-		
 		if (!tracker->do_optimize && !tracker->first_time_index) {
-
 			char ***res;
-			res = tracker_exec_proc  (db_con, "GetUpdateCount", 0); 
+
+			res = tracker_exec_proc (db_con, "GetUpdateCount", 0);
 
 			if (res) {
 				if (res[0] && res[0][0]) {
-					int count;
+					int  count;
+					char *str_count;
+
 					count = atoi (res[0][0]);
 
 					if (count > tracker->optimization_count) {
 
-						tracker->do_optimize = TRUE;						
+						tracker->do_optimize = TRUE;
 						count = 0;
 						g_timeout_add (5000, (GSourceFunc) optimize_when_indexing_finished, NULL);
+
 					} else {
-					
 						count++;
 					}
 
-					char *str_count;
 					str_count = tracker_int_to_str (count);
-					tracker_exec_proc  (db_con, "SetUpdateCount", 1, str_count);
+					tracker_exec_proc (db_con, "SetUpdateCount", 1, str_count);
 					g_free (str_count);
-
 				}
-				tracker_db_free_result (res);
-			} 
-		}
 
+				tracker_db_free_result (res);
+			}
+		}
 
 		tracker_db_create_service (db_con, path, name, service_name, info->mime, info->file_size, info->is_directory, info->is_link, 0, info->mtime);
 
-		
 		info->file_id = tracker_db_get_last_id (db_con);
 		info->service_type_id = tracker_get_id_for_service (service_name);
 
@@ -874,8 +872,8 @@ index_file (DBConnection *db_con, FileInfo *info)
 
 
 	if (info->file_id != 0) {
-		if (is_a_mbox) {
 
+		if (is_a_mbox) {
 			off_t	    offset;
 			MailBox	    *mb;
 			MailMessage *msg;

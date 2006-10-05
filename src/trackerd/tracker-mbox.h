@@ -1,6 +1,6 @@
 /* Tracker
  * mbox routines
- * Copyright (C) 2005, Mr Jamie McCracken
+ * Copyright (C) 2006, Laurent Aguerreche
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -59,23 +59,31 @@ typedef struct {
 
 
 typedef struct {
-	char	 *mbox_uri;
-	guint64	 offset;		/* start address of the email */
-	char	 *message_id;
-	gboolean deleted;
-	gboolean junk;
-	GSList	 *references;		/* message_ids */
-	GSList	 *reply_to_id;		/* message_id of emails that it replies to */
-	long	 date;
-	char	 *mail_from;
-	GSList	 *mail_to;
-	GSList	 *mail_cc;
-	GSList	 *mail_bcc;
-	char	 *subject;
-	char	 *content_type;		/* text/plain or text/html etc. */
-	char	 *body;
-	char	 *path_to_attachments;
-	GSList   *attachments;		/* names of all attachments */
+	char *attachment_name;
+	char *mime;
+	char *tmp_decoded_file;
+} MailAttachment;
+
+
+typedef struct {
+	MailBox		*parent_mbox;
+	char		*uri;
+	guint64		offset;		/* start address of the email */
+	char		*message_id;
+	gboolean	deleted;
+	gboolean	junk;
+	GSList		*references;	/* message_ids */
+	GSList		*reply_to_id;	/* message_id of emails that it replies to */
+	long		date;
+	char		*mail_from;
+	GSList		*mail_to;
+	GSList		*mail_cc;
+	GSList		*mail_bcc;
+	char		*subject;
+	char		*content_type;	/* text/plain or text/html etc. */
+	char		*body;
+	char		*path_to_attachments;
+	GSList		*attachments;	/* names of all attachments */
 } MailMessage;
 
 

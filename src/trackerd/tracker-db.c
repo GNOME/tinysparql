@@ -392,7 +392,6 @@ tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, guint32 file_
 }
 
 
-
 off_t
 tracker_db_get_last_mbox_offset (DBConnection *db_con, const char *mbox_uri)
 {
@@ -429,10 +428,12 @@ tracker_db_save_email (DBConnection *db_con, MailMessage *mm)
 
 	g_string_append_printf (s,
 				"Saving email with mbox's uri \"%s\" and id \"%s\":\n"
+				"- uri: %s\n"
 				"- offset: %lld\n"
 				"- deleted?: %d\n"
 				"- junk?: %d\n",
-				mm->mbox_uri, mm->message_id,
+				mm->parent_mbox->mbox_uri, mm->message_id,
+				mm->uri,
 				mm->offset,
 				mm->deleted,
 				mm->junk);
@@ -491,7 +492,11 @@ tracker_db_save_email (DBConnection *db_con, MailMessage *mm)
 
 	g_string_append (s, "- attachments: ");
 	for (tmp = mm->attachments; tmp; tmp = g_slist_next (tmp)) {
-		g_string_append_printf (s, "%s * ", (char *) tmp->data);
+		MailAttachment *ma;
+
+		ma = (MailAttachment *) tmp->data;
+
+		g_string_append_printf (s, "%s * ", ma->attachment_name);
 	}
 	g_string_append (s, "\n");
 
@@ -595,7 +600,7 @@ tracker_metadata_is_date (DBConnection *db_con, const char *meta)
 
 	def = tracker_db_get_field_def (db_con, meta);
 
-	g_return_val_if_fail (def != NULL, FALSE);
+	g_return_val_if_fail (def, FALSE);
 
 	res = (def->type == DATA_DATE);
 

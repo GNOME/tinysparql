@@ -1,6 +1,6 @@
 /* Tracker
  * mbox routines
- * Copyright (C) 2005, Mr Jamie McCracken
+ * Copyright (C) 2006, Laurent Aguerreche
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -335,6 +335,12 @@ watch_emails_of_thunderbird (DBConnection *db_con)
 
 void
 get_status_of_thunderbird_email (GMimeMessage *g_m_message, MailMessage *msg)
+{
+}
+
+
+void
+get_uri_of_thunderbird_email (GMimeMessage *g_m_message, MailMessage *msg)
 {
 }
 
