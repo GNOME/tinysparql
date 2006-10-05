@@ -1,3 +1,14 @@
+
+2006-10-05 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* Email uri fixes
+
+
+2006-10-05 Jamie McCracken <jamiemcc at gnome org>
+
+	* blocked extraction of non-regular files
+
+
 2006-10-05 Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Patch to make sure NULL is returned if no date is available in tracker_db_get_field_def 
