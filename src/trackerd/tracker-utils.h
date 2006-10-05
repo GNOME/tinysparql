@@ -286,7 +286,10 @@ GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
 
 gboolean 	tracker_file_is_valid 		(const char *uri);
 
+gboolean	tracker_file_is_indexable 	(const char *uri);
+
 gboolean 	tracker_is_directory 		(const char *dir);
+
 
 void 		tracker_get_dirs 		(const char *dir, GSList **file_list) ;
 

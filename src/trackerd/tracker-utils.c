@@ -1072,6 +1072,34 @@ tracker_file_is_valid (const char *uri)
 }
 
 
+
+gboolean
+tracker_file_is_indexable (const char *uri)
+{
+	char	 *uri_in_locale;
+	struct stat finfo;
+	gboolean convert_ok;
+
+	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (!uri_in_locale) {
+		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		return FALSE;
+	}
+
+	g_lstat (uri_in_locale, &finfo);
+
+	g_free (uri_in_locale); 
+
+	convert_ok = (!S_ISDIR (finfo.st_mode) && S_ISREG (finfo.st_mode));
+
+	if (convert_ok) tracker_log ("file %s is indexable", uri);
+
+	return convert_ok;
+}
+
+
+
 static gboolean
 is_text_file (const char *uri)
 {
@@ -1080,6 +1108,10 @@ is_text_file (const char *uri)
 	char	 buffer[65565];
 	int 	 bytes_read;
 	gboolean result;
+
+	if (!tracker_file_is_indexable (uri)) {
+		return FALSE;
+	}
 
 	result = FALSE;
 
@@ -1277,17 +1309,17 @@ tracker_is_directory (const char *dir)
 	if (dir_in_locale) {
 		struct stat finfo;
 
-		g_lstat (dir_in_locale, &finfo);
+		g_stat (dir_in_locale, &finfo);
 
 		g_free (dir_in_locale);
 
-		return S_ISDIR (finfo.st_mode);
+		return S_ISDIR (finfo.st_mode); 
 
 	} else {
 		tracker_log ("******ERROR**** dir could not be converted to locale format");
-
-		return FALSE;
 	}
+
+	return FALSE;
 }
 
 

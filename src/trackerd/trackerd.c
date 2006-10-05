@@ -934,16 +934,17 @@ index_file (DBConnection *db_con, FileInfo *info)
 		info->mime = g_strdup ("unknown");
 	}
 
+	gboolean is_file_known, is_file_indexable, service_has_metadata;
 
-	if (!info->is_directory && info->file_id != 0 && !is_a_mbox && (strcmp (info->mime, "symlink") != 0) && (strcmp (info->mime, "unknown") != 0)) {
+	is_file_known =	(info->file_id != 0 && (strcmp (info->mime, "unknown") != 0) && (strcmp (info->mime, "symlink") != 0));
+	is_file_indexable = (tracker_file_is_indexable (info->uri) && !is_a_mbox && !info->is_directory);
+	service_has_metadata = (((info->service_type_id <= 7) && (info->service_type_id >= 2)) || (info->service_type_id == 18 ) || (info->service_type_id == 23));
 
-		if ( ((info->service_type_id <= 7) && (info->service_type_id >= 2)) || (info->service_type_id == 18 ) || (info->service_type_id == 23 )) {
-			tracker_db_add_to_extract_queue (db_con, info);
-			return;
-		}
+	if (is_file_known && is_file_indexable && service_has_metadata) {
+		tracker_db_add_to_extract_queue (db_con, info);
+		return;
 	}
 	
-
 	if (info->file_id == 0) {
 		tracker_log ("FILE %s NOT FOUND IN DB!", info->uri);
 	} else {
