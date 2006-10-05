@@ -1,8 +1,12 @@
+GNOME_CFLAGS=$(shell pkg-config --cflags libgnomeui-2.0)
+GNOME_LIBS=$(shell pkg-config --libs libgnomeui-2.0)
+
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	$(GTK_CFLAGS)			\
 	$(GLIB2_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
+   $(GNOME_CFLAGS)   \
 	$(CFLAGS) 			\
 	-g
 
@@ -20,7 +24,8 @@ tracker_gui_LDADD = 	$(GTK_LIBS)	\
 		 	$(DBUS_LIBS)	\
 			$(top_builddir)/src/libtracker/libmetatracker.la 
 
-tracker_gui_LDFLAGS = -Wl,--export-dynamic
+tracker_gui_LDFLAGS = -Wl,--export-dynamic   \
+		 	$(GNOME_LIBS)
 
 configdir = $(datadir)/tracker
 
