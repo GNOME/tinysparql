@@ -809,7 +809,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 			} else {
 				row[j] = g_strdup (array[i+j]);
 			}
-			tracker_log ("data for row %d, col %d is %s", k, j, row[j]);
+			//tracker_log ("data for row %d, col %d is %s", k, j, row[j]);
 		}
 
 		result[k] = (gpointer) row;
@@ -932,7 +932,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		str = va_arg (args, char *);
 
 		if (!str) {
-			tracker_log ("Warning - parameter %d is null", i);
+			tracker_log ("Warning - parameter %d is null when executing SP %s", i, procedure);
 		}
 
 		if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
