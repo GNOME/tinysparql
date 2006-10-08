@@ -2,7 +2,6 @@ Utilitiesdir = $(datadir)/applications
 icondir = $(datadir)/pixmaps/tracker
 icon_DATA = thumbnail_frame.png 
 
-EXTRA_DIST = $(icon_DATA)
 #SUBDIRS = data help
 
 INCLUDES = 	\
