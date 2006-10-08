@@ -490,11 +490,17 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 										utf_value = g_strdup (meta_value);
 									}
 
-									tracker_log ("%s = %s", meta_name, utf_value);
+									if (utf_value) {
+										int length = strlen (utf_value);
 
-									g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
+										if ((length > 0) && (length >= strlen (meta_value))) {
+	 							
+											tracker_log ("%s = %s", meta_name, utf_value);
+											g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
 
-									g_free (utf_value);
+										}
+										g_free (utf_value);
+									}
 								}
 
 								g_free (meta_value);

@@ -1104,16 +1104,16 @@ static gboolean
 is_text_file (const char *uri)
 {
 	FILE 	 *file;
-	char 	 *uri_in_locale, *value;
+	char 	 *uri_in_locale;
 	char	 buffer[65565];
-	int 	 bytes_read;
+	gsize 	 bytes_read;
 	gboolean result;
 
 	if (!tracker_file_is_indexable (uri)) {
 		return FALSE;
 	}
 
-	result = FALSE;
+	result = TRUE;
 
 	bytes_read = 0;
 
@@ -1132,29 +1132,53 @@ is_text_file (const char *uri)
  		return FALSE;
 	}
 
-	while (fgets (buffer, 65565, file)) {
-	
-		bytes_read += strlen (buffer);
+	while (fgets (buffer, 65536, file)) {
 
+		bytes_read += strlen (buffer);
+	
 		/* if text is too small skip line */
 		if (bytes_read < 3) {
 			continue;
 		}
 
 		if (!g_utf8_validate (buffer, bytes_read, NULL)) {
-		
-			value = g_locale_to_utf8 (buffer, bytes_read, NULL, NULL, NULL);
-			
-			if (!value) {
-				fclose (file);
-				return FALSE;
+
+			GError *err = NULL;
+			char *value = NULL;
+			gsize bytes_converted = 0;
+
+//			tracker_log ("%s is not a text file with valid utf-8. Tryiong to convert from locale...", uri);
+
+			value = g_locale_to_utf8 (buffer, bytes_read, NULL, NULL, &err);
+
+			if (value) {
+				bytes_converted = strlen (value);
+
+				if ((bytes_converted < 3) || (bytes_converted < bytes_read)) {
+					result = FALSE;
+					g_free (value);
+					break;
+				} 
+
+				g_free (value);
+
+			} else {
+				result = FALSE;
+				break;
 			}
+
+			if (err) {
+				g_error_free (err);
+				result = FALSE;
+				break;
+			}
+
+			tracker_log ("****************************** %s is a text file for current locale ***************************", uri);
 			
-			g_free (value);
 			
 		} 
 		
-		result = TRUE;		
+			
 		
 		/* check first 4kb only */
 		if (bytes_read > 4096) {
@@ -1164,6 +1188,15 @@ is_text_file (const char *uri)
 	}
 
 	fclose (file);
+
+	if (result) {
+		if (bytes_read < 3) {
+			result = FALSE;
+		}
+
+	} else {
+		tracker_log ("%s is not a text file", uri);
+	}
 
 	return result;
 

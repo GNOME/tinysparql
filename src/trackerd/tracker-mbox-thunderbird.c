@@ -151,6 +151,63 @@ prefjs_parser (const char *filename)
 
 
 static GSList *
+add_inbox_mbox_of_dir (GSList *list_of_mboxes, const char *dir)
+{
+	GQueue *queue;
+
+	queue = g_queue_new ();
+
+	g_queue_push_tail (queue, g_strdup (dir));
+
+	while (!g_queue_is_empty (queue)) {
+		char *m_dir;
+		GDir *dirp;
+
+		m_dir = g_queue_pop_head (queue);
+
+		if ((dirp = g_dir_open (m_dir, 0, NULL))) {
+			const char *file;
+
+			while ((file = g_dir_read_name (dirp))) {
+				char *tmp_inbox, *inbox;
+
+				if (!g_str_has_suffix (file, ".msf")) {
+					continue;
+				}
+
+				/* we've found a mork file so it has a corresponding Inbox file and there
+				   is perhaps a new directory to explore */
+
+				tmp_inbox = g_strndup (file, strstr (file, ".msf") - file);
+
+				inbox = g_build_filename (m_dir, tmp_inbox, NULL);
+
+				g_free (tmp_inbox);
+
+				if (inbox) {
+					char *dir_to_explore;
+
+					if (!g_access (inbox, F_OK) && !g_access (inbox, R_OK)) {
+						list_of_mboxes = g_slist_prepend (list_of_mboxes, inbox);
+					}
+
+					dir_to_explore = g_strdup_printf ("%s.sbd", inbox);
+
+					g_queue_push_tail (queue, dir_to_explore);
+				}
+			}
+		}
+
+		g_free (m_dir);
+	}
+
+	g_queue_free (queue);
+
+	return list_of_mboxes;
+}
+
+
+static GSList *
 find_thunderbird_mboxes (GSList *list_of_mboxes, const char *profile_dir)
 {
 	char		 *profile;
@@ -173,23 +230,41 @@ find_thunderbird_mboxes (GSList *list_of_mboxes, const char *profile_dir)
 
 
 	for (mail_dir = prefs->mail_dirs; mail_dir; mail_dir = g_slist_next (mail_dir)) {
-		char	   *filenames[] = {"Inbox", "Sent", NULL};
-		char	   **filename;
-		const char *dir;
+		const char *tmp_dir;
+		char	   *dir, *inbox, *sent, *inbox_dir;
 
-		dir = (char *) mail_dir->data;
+		tmp_dir = (char *) mail_dir->data;
 
-		for (filename = filenames; *filename; filename++) {
-			char *file;
+		dir = g_build_filename (profile_dir, "Mail", tmp_dir, NULL);
 
-			file = g_build_filename (profile_dir, "Mail", dir, *filename, NULL);
+		/* on first level, we should have Inbox and Sent as mboxes, so we add them if they are present */
 
-			if (!g_access (file, F_OK) && !g_access (file, R_OK)) {
-				list_of_mboxes = g_slist_prepend (list_of_mboxes, file);
-			} else {
-				g_free (file);
-			}
+		/* Inbox */
+		inbox = g_build_filename (dir, "Inbox", NULL);
+
+		if (!g_access (inbox, F_OK) && !g_access (inbox, R_OK)) {
+			list_of_mboxes = g_slist_prepend (list_of_mboxes, inbox);
+		} else {
+			g_free (inbox);
 		}
+
+		/* Sent */
+		sent = g_build_filename (dir, "Sent", NULL);
+
+		if (!g_access (sent, F_OK) && !g_access (sent, R_OK)) {
+			list_of_mboxes = g_slist_prepend (list_of_mboxes, sent);
+		} else {
+			g_free (sent);
+		}
+
+		/* now we recursively find other "Inbox" mboxes */
+		inbox_dir = g_build_filename (dir, "Inbox.sbd", NULL);
+
+		list_of_mboxes = add_inbox_mbox_of_dir (list_of_mboxes, inbox_dir);
+
+		g_free (inbox_dir);
+
+		g_free (dir);
 	}
 
 	free_thunderbirdprefs_struct (prefs);

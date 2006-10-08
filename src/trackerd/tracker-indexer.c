@@ -22,7 +22,7 @@
 
 extern Tracker *tracker;
 
-#define INDEXALIGN      -2               /* alignment of inverted index */
+#define INDEXALIGN      32              /* alignment of inverted index */
 #define INDEXFBP        32               /* size of free block pool of inverted index */
 
 typedef struct {                         /* type of structure for an element of search result */
@@ -169,7 +169,27 @@ tracker_index_free_hit_list (GSList *hit_list)
 }
 
 
+static int
+get_preferred_bucket_count (Indexer *indexer)
+{
+	int result;
 
+	if (tracker->index_bucket_ratio < 1) {
+
+		result = (crrnum (indexer->word_index)/2);
+
+	} else if (tracker->index_bucket_ratio > 3) {
+
+		result = (crrnum (indexer->word_index) * 4);
+
+	} else {
+		result = (tracker->index_bucket_ratio * crrnum (indexer->word_index));
+	}
+
+	tracker_log ("preferred bucket count is %d", result);
+	return  result;
+
+}
 
 
 
@@ -216,9 +236,19 @@ tracker_indexer_open (const char *name)
 
 	/* re optimize database if bucket count < rec count */
 
-	if (crbnum (result->word_index) < crrnum (result->word_index)) {
-		tracker_log ("Optimizing word index - this may take a while...");
-		tracker_indexer_optimize (result);
+	int bucket_count, rec_count;
+
+	bucket_count = crbnum (result->word_index);
+	rec_count = crrnum (result->word_index);
+
+	tracker_log ("Bucket count (max is %d) is %d and Record Count is %d", tracker->max_index_bucket_count, bucket_count, rec_count);
+
+	if ((bucket_count < get_preferred_bucket_count (result)) && (bucket_count < tracker->max_index_bucket_count)) {
+
+		if (bucket_count < ((rec_count)/2)) {
+			tracker_log ("Optimizing word index - this may take a while...");
+			tracker_indexer_optimize (result);
+		}
 	}
 
 	return result;
@@ -246,10 +276,10 @@ tracker_indexer_optimize (Indexer *indexer)
 
 	if (shutdown) return FALSE;
 
-	int num;
+	int num, b_count;
 
 	/* set bucket count to bucket_ratio times no. of recs divided by no. of divisions */
-	num = (crrnum (indexer->word_index) * tracker->index_bucket_ratio) / tracker->index_divisions;
+	num =  (get_preferred_bucket_count (indexer));
 
 	if (num > tracker->max_index_bucket_count) {
 		num = tracker->max_index_bucket_count;
@@ -259,11 +289,14 @@ tracker_indexer_optimize (Indexer *indexer)
 		num = tracker->min_index_bucket_count;
 	}
 
+	b_count = (num / tracker->index_divisions);
+	tracker_log ("no of buckets per division is %d", b_count);
+
 	tracker_log ("Please wait while optimization of indexes takes place...");
 	tracker_log ("Index has file size %10.0f and bucket count of %d of which %d are used...", crfsizd (indexer->word_index), crbnum (indexer->word_index), crbusenum (indexer->word_index));
 	
 	g_mutex_lock (indexer->word_mutex);
-	if (!croptimize (indexer->word_index, num)) {
+	if (!croptimize (indexer->word_index, b_count)) {
 
 		g_mutex_unlock (indexer->word_mutex);
 		tracker_log ("Optimization has failed!");

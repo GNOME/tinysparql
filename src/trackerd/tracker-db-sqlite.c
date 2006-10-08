@@ -838,8 +838,8 @@ tracker_exec_sql_ignore_nulls (DBConnection *db_con, const char *query)
 char *
 tracker_escape_string (DBConnection *db_con, const char *in)
 {
-	GString	*str;
-	int	len, i;
+
+	GString *gs;
 
 	if (!in) {
 		return NULL;
@@ -849,23 +849,20 @@ tracker_escape_string (DBConnection *db_con, const char *in)
 		return g_strdup (in);
 	}
 
-	str = g_string_new ("");
+	gs = g_string_new ("");
 
-	len = strlen (in);
-
-	/* only need to escape single quotes */
-	for (i = 0; i < len; i++) {
-
-		if (in[i] == '\'') {
-			str = g_string_append (str, "''");
-		} else {
-			str = g_string_append_c (str, in[i]);
+	for(; *in; in++) {
+		if (*in == '\'') {
+			g_string_append (gs, "'\\''");
+		}
+		else {
+			g_string_append_c (gs, *in);
 		}
 	}
 
-	return g_string_free (str, FALSE);
-}
+	return g_string_free (gs, FALSE);
 
+}
 
 static sqlite3_stmt *
 get_prepared_query (DBConnection *db_con, const char *procedure)
@@ -933,10 +930,14 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 
 		if (!str) {
 			tracker_log ("Warning - parameter %d is null when executing SP %s", i, procedure);
-		}
+			if  (sqlite3_bind_null (stmt, i+1)) {
+				tracker_log ("ERROR : null parameter %d could not be bound to %s", i, procedure);
+			}
+		} else {
 
-		if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
-			tracker_log ("ERROR : parameter %d could not be bound to %s", i, procedure);
+			if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
+				tracker_log ("ERROR : parameter %d could not be bound to %s", i, procedure);
+			}
 		}
 	}
 
@@ -1364,7 +1365,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 	bytes_read = 0;
 
 	while (fgets (buffer, 65565, file)) {
-		int buffer_length;
+		unsigned int buffer_length;
 
 		buffer_length = strlen (buffer);
 
@@ -1378,6 +1379,11 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 
 			if (!value) {
 				continue;
+			}
+
+			if ((strlen (value) < buffer_length)) {
+				g_free (value);
+				continue;	
 			}
 
 			str = g_string_append (str, value);

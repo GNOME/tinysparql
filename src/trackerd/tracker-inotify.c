@@ -110,7 +110,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 {
 	FileInfo *info;
 
-	g_return_if_fail (uri);
+	g_return_if_fail (uri && (uri[0] == '/'));
 
 	info = tracker_create_file_info (uri, action, 1, WATCH_OTHER);
 

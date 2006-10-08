@@ -22,7 +22,10 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h zlib.h])
 
 # Check for glib 2.0
-PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= 2.4.0 ] gthread-2.0 >= 2.4.0)
+
+GLIB_REQUIRED=2.9.1
+
+PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= 2.9.1 ])
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
@@ -293,17 +296,56 @@ fi
 
 
 ##################################################################
-# check for GTK dependencies to build tracker's GUI
+# check for GNOME/GTK dependencies to build tracker search tool (Gnome client)
 ##################################################################
 
-GTK_REQUIRED=2.8
-LIBGLADE_REQUIRED=2.5
 
-PKG_CHECK_MODULES(GTK, [gtk+-2.0 >= $GTK_REQUIRED libglade-2.0 >= $LIBGLADE_REQUIRED], [have_gtk=yes] , [have_gtk=no])
+GTK_REQUIRED=2.8.0
+LIBGNOME_DESKTOP_REQUIRED=2.9.91
+LIBGNOME_REQUIRED=2.13.2
+LIBGNOMEUI_REQUIRED=2.13.7
+LIBGLADE_REQUIRED=2.5.0
+GNOMEVFS_REQUIRED=2.8.4
 
-AM_CONDITIONAL(HAVE_GTK, test "$have_gtk" = "yes")
-AC_SUBST(GTK_CFLAGS)
-AC_SUBST(GTK_LIBS)
+have_gnome=yes
+
+PKG_CHECK_MODULES(GNOME_UTILS, [gtk+-2.0 >= $GTK_REQUIRED libgnome-2.0 >= $LIBGNOME_REQUIRED libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED], [] , [have_gnome=no])
+
+PKG_CHECK_MODULES(GNOMEVFS, [gnome-vfs-2.0 >= $GNOMEVFS_REQUIRED gnome-vfs-module-2.0 >= $GNOMEVFS_REQUIRED], [] , [have_gnome=no])
+
+PKG_CHECK_MODULES(GNOMEDESKTOP, [gnome-desktop-2.0 >= $LIBGNOME_DESKTOP_REQUIRED], [] , [have_gnome=no])
+
+
+AM_CONDITIONAL(HAVE_GNOME, test "$have_gnome" = "yes")
+AC_SUBST(GNOME_UTILS_CFLAGS)
+AC_SUBST(GNOME_UTILS_LIBS)
+AC_SUBST(GNOMEDESKTOP_CFLAGS)
+AC_SUBST(GNOMEDESKTOP_LIBS)
+AC_SUBST(GNOMEVFS_CFLAGS)
+AC_SUBST(GNOMEVFS_LIBS)
+
+if test "$have_gnome" = "yes"; 
+then
+GNOME_COMMON_INIT
+
+AM_GCONF_SOURCE_2
+
+GETTEXT_PACKAGE=gnome-utils-2.0
+AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], "$GETTEXT_PACKAGE", [Define the gettext
+package to use])
+AC_SUBST(GETTEXT_PACKAGE)
+AM_GLIB_GNU_GETTEXT
+
+# AM_GLIB_GNU_GETTEXT above substs $DATADIRNAME
+# this is the directory where the *.{mo,gmo} files are installed
+gnomeutilslocaledir='${prefix}/${DATADIRNAME}/locale'
+AC_SUBST(gnomeutilslocaledir)
+
+
+fi
+
+
+
 
 ##################################################################
 # check for poppler's glib bingings
@@ -429,7 +471,7 @@ AC_CONFIG_FILES([
 	src/tracker-extract/Makefile
 	src/trackerd/Makefile
 	src/libtracker/Makefile
-	src/tracker-gui/Makefile
+	src/tracker-search-tool/Makefile
 ])
 
 
@@ -449,7 +491,7 @@ Tracker-$VERSION:
 	file monitor backend to be used :	$primary_backend
 	inotify header location :		$inotify_header
 	ioprio support : 			$ioprio_support
-	GTK front-end :         		$have_gtk
+	builr search tool (GNOME)  :    	$have_gnome
 
 Metadata extractors:
 

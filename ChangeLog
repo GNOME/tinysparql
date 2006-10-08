@@ -1,3 +1,15 @@
+2006-10-08 Jamie McCracken <jamiemcc at gnome org>
+
+	* Created tracker-search-tool (based on gnome-search-tool)
+	* Bug fix for handling uri's without a leading backslash in indexing
+	* tuned indexer
+	
+
+
+2006-10-07 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* Made Thunderbird backend aware of vfolders
+
 
 2006-10-05 Laurent Aguerreche <laurent aguerreche at free fr>
 	

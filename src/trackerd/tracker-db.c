@@ -61,8 +61,8 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 	char ***res;
 	gint32 index_time;
 
-	if (!db_con || !uri) {
-		return -1;
+	if (!db_con || !uri || uri[0] != '/') {
+		return FALSE;
 	}
 
 	if (uri[0] == G_DIR_SEPARATOR) {
@@ -73,6 +73,7 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 		path = tracker_get_vfs_path (uri);
 	}
 
+	
 
 	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
 
@@ -647,7 +648,7 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 {
 	char *str_file_id, *str_action, *str_counter;
 
-	g_return_if_fail (uri);
+	g_return_if_fail (uri && (uri[0] == '/'));
 
 	str_file_id = tracker_uint_to_str ( file_id);
 	str_action = tracker_int_to_str (action);
@@ -712,6 +713,8 @@ tracker_db_update_pending_file (DBConnection *db_con, const char *uri, int count
 	char *str_counter;
 	char *str_action;
 
+	g_return_if_fail (uri && (uri[0] == '/'));
+
 	str_counter = tracker_int_to_str (counter);
 	str_action = tracker_int_to_str (action);
 
@@ -726,6 +729,10 @@ tracker_db_update_pending_file (DBConnection *db_con, const char *uri, int count
 void 
 tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info) 
 {
+
+	g_return_if_fail (info && info->uri && (info->uri[0] == '/'));
+
+
 	if (g_async_queue_length (tracker->file_metadata_queue) < tracker->max_extract_queue_size) {
 
 		/* inc ref count to prevent it being deleted */
@@ -746,6 +753,8 @@ void
 tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
 {
 	FileInfo *info;
+
+	g_return_if_fail (uri && (uri[0] == '/'));
 
 	/* if a check action then then discard if up to date */
 	if (action == TRACKER_ACTION_CHECK || action == TRACKER_ACTION_FILE_CHECK || action == TRACKER_ACTION_DIRECTORY_CHECK) {

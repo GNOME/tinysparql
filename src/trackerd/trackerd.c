@@ -710,6 +710,8 @@ index_file (DBConnection *db_con, FileInfo *info)
 	/* the file being indexed or info struct may have been deleted in transit so check if still valid and intact */
 	g_return_if_fail (tracker_file_info_is_valid (info));
 
+	g_return_if_fail (info->uri && (info->uri[0] == '/'));
+
 	is_a_mbox = FALSE;
 	is_an_email_attachment = FALSE;
 
@@ -985,8 +987,7 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 	if (!tracker->is_running) {
 		return;
 	}
-
-	g_return_if_fail (uri);
+	g_return_if_fail (uri && (uri[0] == '/'));
 	g_return_if_fail (db_con);
 
 	/* keep mainloop responsive */
@@ -1005,7 +1006,7 @@ scan_directory (const char *uri, DBConnection *db_con)
 	}
 
 	g_return_if_fail (db_con);
-	g_return_if_fail (uri);
+	g_return_if_fail (uri && (uri[0] == '/'));
 	g_return_if_fail (tracker_is_directory (uri));
 
 	/* keep mainloop responsive */
@@ -1047,11 +1048,17 @@ start_watching (gpointer data)
 
 			watch_folder = (char *) data;
 
+			if (!watch_folder || watch_folder[0] != '/') {
+				g_free (watch_folder);
+				return FALSE;
+			} 
+
 			len = strlen (watch_folder);
 
 			if (watch_folder[len-1] == G_DIR_SEPARATOR) {
  				watch_folder[len-1] = '\0';
 			}
+			
 
 			watch_dir (watch_folder, main_thread_db_con);
 			schedule_file_check (watch_folder, main_thread_db_con);
@@ -1190,7 +1197,7 @@ extract_metadata_thread (void)
 		}
 
 		if (info) {
-			if (info->uri) {
+			if (info->uri && (info->uri[0] == '/')) {
 				char *file_as_text;
 
 				GHashTable *meta_table;
@@ -1518,6 +1525,10 @@ process_files_thread (void)
 			continue;
 		}
 
+		if (!info->uri || (info->uri[0] != '/')) {
+			tracker_free_file_info (info);
+			continue;
+		}
 
 		/* get file ID and other interesting fields from Database if not previously fetched or is newly created */
 

@@ -5,8 +5,8 @@ else
 extractor_dir =
 endif
 
-if HAVE_GTK
-tracker_gui_dir = tracker-gui
+if HAVE_GNOME
+tracker_gui_dir = tracker-search-tool
 else
 tracker_gui_dir =
 endif
