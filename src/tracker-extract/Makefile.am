@@ -13,20 +13,15 @@ tracker_extract_SOURCES = tracker-extract.c \
 	tracker-extract-ps.c	\
 	tracker-extract-pdf.c	\
 	tracker-extract-abw.c	\
-	tracker-extract-vorbis.c	\
+	tracker-extract-vorbis.c \
 	tracker-extract-mp3.c	\
 	tracker-extract-png.c \
 	tracker-extract-exif.c	\
 	tracker-extract-msoffice.c \
 	tracker-extract-imagemagick.c 
 
-if USING_INTERNAL_LIBEXTRACTOR
-extractor_ldadd = $(top_builddir)/src/libextractor/src/main/libextractor.la
-else
-extractor_ldadd = -lextractor
-endif
 
-tracker_extract_LDADD = $(GLIB2_LIBS) $(extractor_ldadd) \
+tracker_extract_LDADD = $(GLIB2_LIBS)  \
  		 $(POPPLER_GLIB_LIBS) \
  		 $(VORBIS_LIBS) \
  		 $(THEORA_LIBS) \
