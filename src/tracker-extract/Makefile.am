@@ -14,6 +14,7 @@ tracker_extract_SOURCES = tracker-extract.c \
 	tracker-extract-pdf.c	\
 	tracker-extract-abw.c	\
 	tracker-extract-vorbis.c	\
+	tracker-extract-mp3.c	\
 	tracker-extract-png.c \
 	tracker-extract-exif.c	\
 	tracker-extract-msoffice.c \

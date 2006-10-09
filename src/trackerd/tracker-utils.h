@@ -60,15 +60,15 @@ typedef struct {
 
 /* default performance options */
 #define MAX_INDEX_TEXT_LENGTH		1048576
-#define MAX_PROCESS_QUEUE_SIZE		1500
-#define MAX_EXTRACT_QUEUE_SIZE		1250
+#define MAX_PROCESS_QUEUE_SIZE		500
+#define MAX_EXTRACT_QUEUE_SIZE		400
 #define	OPTIMIZATION_COUNT		10000
 
 /* default indexer options */
-#define MIN_INDEX_BUCKET_COUNT		131072    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
+#define MIN_INDEX_BUCKET_COUNT		65536    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
 #define INDEX_DIVISIONS		        4        /* no. of divisions of file */
-#define MAX_INDEX_BUCKET_COUNT 		1048576	 /* max no of buckets to use  */
-#define INDEX_BUCKET_RATIO 		2	 /* desired ratio of unused bucukets to have */
+#define MAX_INDEX_BUCKET_COUNT 		524288	 /* max no of buckets to use  */
+#define INDEX_BUCKET_RATIO 		1	 /* desired ratio of unused bucukets to have */
 
 /* just for now, make tracker_log actually call g_message */
 #define tracker_log g_message

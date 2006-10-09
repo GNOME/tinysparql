@@ -261,7 +261,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 		fd = g_file_open_tmp (NULL, &temp_file_name, NULL);
 
 		if (fd == -1) {
-			g_warning ("make thumb file %s failed", temp_file_name);
+			g_warning ("make tmp file %s failed", temp_file_name);
 			return NULL;
 		} else {
 			close (fd);
@@ -281,7 +281,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 			return NULL;
 		}
 
-		tracker_log ("extracting text for %s using filter %s", argv[1], argv[0]);
+		g_debug ("extracting text for %s using filter %s", argv[1], argv[0]);
 
 		if (g_spawn_sync (NULL,
 				  argv,

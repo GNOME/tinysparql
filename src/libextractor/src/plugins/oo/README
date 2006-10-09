@@ -1,6 +1,0 @@
-This is an extractor for OpenOffice formats.
-
-OO uses 'zip' files that contain a file 'meta.xml' which
-in turn contains the data we care about.
-
-The plugin uses zlib to get to the zip-contents.
