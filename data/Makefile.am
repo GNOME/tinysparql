@@ -1,4 +1,4 @@
-SUBDIRS = english
+SUBDIRS = languages
 
 configdir = $(datadir)/tracker
 
@@ -7,9 +7,7 @@ config_DATA =   tracker-introspect.xml \
 		sqlite-tracker.sql \
 		mysql-stored-procs.sql \
 		sqlite-stored-procs.sql \
-		mysql-system.sql \
-		tracker.cfg \
-		tracker-stop-words.txt
+		mysql-system.sql
 
 servicedir       = $(prefix)/share/dbus-1/services
 service_in_files = tracker.service.in

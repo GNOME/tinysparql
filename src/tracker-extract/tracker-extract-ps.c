@@ -1,8 +1,71 @@
 #define _GNU_SOURCE
 
+#include <config.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+
+#if !HAVE_GETLINE
+#include <stddef.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <errno.h>
+
+static ssize_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
+{
+	static const int GROWBY = 80; /* how large we will grow strings by */
+	int ch;
+	int idx = 0;
+
+	if ((file == NULL || linebuf==NULL || *linebuf == NULL || *linebufsz == 0)
+			&& !(*linebuf == NULL && *linebufsz ==0 )) {
+		errno=EINVAL;
+		return -1;
+	}
+
+	if (*linebuf == NULL && *linebufsz == 0){
+		*linebuf = malloc(GROWBY);
+		if (!*linebuf) {
+			errno=ENOMEM;
+			return -1;
+		}
+		*linebufsz += GROWBY;
+	}
+
+	while (1) {
+		ch = fgetc(file);
+		if (ch == EOF)
+			break;
+		/* grow the line buffer as necessary */
+		while (idx > *linebufsz-2) {
+			*linebuf = realloc(*linebuf, *linebufsz += GROWBY);
+			if (!*linebuf) {
+				errno=ENOMEM;
+				return -1;
+			}
+		}
+		(*linebuf)[idx++] = (char)ch;
+		if ((char)ch == delimiter)
+			break;
+	}
+
+	if (idx != 0)
+		(*linebuf)[idx] = 0;
+	else if ( ch == EOF )
+		return -1;
+	return idx;
+}
+
+
+
+
+
+int getline(char **s, unsigned int *lim, FILE *stream)
+{
+	return getdelim(s, lim, '\n', stream);
+}
+#endif
 
 void tracker_extract_ps (gchar *filename, GHashTable *metadata)
 {

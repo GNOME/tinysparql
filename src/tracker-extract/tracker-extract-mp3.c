@@ -266,6 +266,16 @@ int freq_table[4][3]={
 #define SYSERR     1
 #define INVALID_ID3 2
 
+static char *
+get_utf8 (const char *txt, int size, gpointer p1, gpointer p2, gpointer p3)
+{
+	if (!g_utf8_validate (txt, size, NULL)) {
+		return g_locale_to_utf8 (txt, size, NULL, NULL, NULL);
+	} else {
+		return g_strndup (txt, size);
+	}
+}
+
 static int get_id3 (const char * data,
 		    size_t size,
 		    id3tag * id3) {
@@ -284,22 +294,22 @@ static int get_id3 (const char * data,
 
 	pos += 3;
 
-	id3->title = g_locale_to_utf8 (pos,
+	id3->title = get_utf8 (pos,
 				     30,
 				      NULL, NULL, NULL); 
 	pos += 30;
-	id3->artist = g_locale_to_utf8 (pos,
+	id3->artist = get_utf8 (pos,
 				      30,
 				       NULL, NULL, NULL); 
 	pos += 30;
-	id3->album = g_locale_to_utf8 (pos,
+	id3->album = get_utf8 (pos,
 				      30,
 				       NULL, NULL, NULL);
   	pos += 30;
-  	id3->year = g_locale_to_utf8 (pos, 4, NULL, NULL, NULL);
+  	id3->year = get_utf8 (pos, 4, NULL, NULL, NULL);
 
   	pos += 4;
-  	id3->comment = g_locale_to_utf8 (pos,
+  	id3->comment = get_utf8 (pos,
 				       30,
 				        NULL, NULL, NULL);
   	pos += 30;
@@ -595,17 +605,17 @@ get_id3v24_tags (const char *data, size_t size, GHashTable *metadata)
 				 if it fails, then forget it */
 				switch (data[pos+10]) {
 					case 0x00 :
-						word = g_locale_to_utf8 ((const char*) &data[pos+11],
+						word = get_utf8 ((const char*) &data[pos+11],
 						 csize,
 						  NULL, NULL, NULL);
 						break;
 					case 0x01 :
-						word = g_locale_to_utf8((const char*) &data[pos+11],
+						word = get_utf8((const char*) &data[pos+11],
 						 csize,
 						  NULL, NULL, NULL);
 						break;
 					case 0x02 :
-						word = g_locale_to_utf8((const char*) &data[pos+11],
+						word = get_utf8((const char*) &data[pos+11],
 						 csize,
 						 NULL, NULL, NULL);
 						break;
@@ -620,7 +630,7 @@ get_id3v24_tags (const char *data, size_t size, GHashTable *metadata)
 					default:
 						/* bad encoding byte,
 						 try to convert from iso-8859-1 */
-						word = g_locale_to_utf8((const char*) &data[pos+11],
+						word = get_utf8((const char*) &data[pos+11],
 							 csize,
 							 NULL, NULL, NULL);
 						break;
@@ -628,6 +638,13 @@ get_id3v24_tags (const char *data, size_t size, GHashTable *metadata)
 				pos++;
 				csize--;
 				if ((word != NULL) && (strlen(word) > 0)) {
+
+					if (strcmp (tmap[i].text, "COMM") == 0) {
+						char *s = g_strdup (word+strlen(word)+1);
+						g_free (word);
+						word = s;
+					}
+
 					g_hash_table_insert (metadata, g_strdup (tmap[i].type), g_strdup (word));
 				} else {
 					g_free (word);
@@ -662,7 +679,6 @@ get_id3v23_tags (const char *data, size_t size, GHashTable *metadata)
 		{"TALB", "Audio.Album"},
 		{"TLAN", "File.Language"},
 		{"TIT2", "Audio.Title"},
-		{"TIT3", "Audio.Comment"},
 		{"WCOP", "File.License"},
 		{NULL, 0},
 	};
@@ -758,19 +774,19 @@ get_id3v23_tags (const char *data, size_t size, GHashTable *metadata)
 			
 				switch (data[pos+10]) {
 					case 0x00 :
-						word = g_locale_to_utf8((const char*) &data[pos+11],
+						word = get_utf8((const char*) &data[pos+11],
 						 csize,
 						NULL, NULL, NULL);
 						break;
 					case 0x01 :
-						word = g_locale_to_utf8((const char*) &data[pos+11],
+						word = get_utf8((const char*) &data[pos+11],
 						 csize,
 						 NULL, NULL, NULL);
 						break;
 					default:
 						/* bad encoding byte,
 						 try to convert from iso-8859-1 */
-						word = g_locale_to_utf8((const char*) &data[pos+11],
+						word = get_utf8((const char*) &data[pos+11],
 						 csize,
 						NULL, NULL, NULL);
 						break;
@@ -778,6 +794,13 @@ get_id3v23_tags (const char *data, size_t size, GHashTable *metadata)
 
 				pos++;
 				if ((word != NULL) && (strlen(word) > 0)) {
+					
+					if (strcmp (tmap[i].text, "COMM") == 0) {
+						char *s = g_strdup (word+strlen(word)+1);
+						g_free (word);
+						word = s;
+					}
+
 					g_hash_table_insert (metadata, g_strdup (tmap[i].type), g_strdup (word));
 				} else {
 					g_free (word);
@@ -885,7 +908,7 @@ get_id3v2_tags (const char *data, size_t size, GHashTable *metadata)
 
 				switch (data[pos+6]) {
 					case 0x00:
-						word = g_locale_to_utf8((const char*) &data[pos+7],
+						word = get_utf8((const char*) &data[pos+7],
 						 csize,
 						 NULL, NULL, NULL);
 					break;
@@ -893,7 +916,7 @@ get_id3v2_tags (const char *data, size_t size, GHashTable *metadata)
 					default:
 						/* bad encoding byte,
 						 try to convert from iso-8859-1 */
-						word = g_locale_to_utf8((const char*) &data[pos+7],
+						word = get_utf8((const char*) &data[pos+7],
 						 csize,
 						 NULL, NULL, NULL);
 						break;
@@ -902,6 +925,13 @@ get_id3v2_tags (const char *data, size_t size, GHashTable *metadata)
 				csize--;
 
 				if ((word != NULL) && (strlen(word) > 0)) {
+
+					if (strcmp (tmap[i].text, "COM") == 0) {
+						char *s = g_strdup (word+strlen(word)+1);
+						g_free (word);
+						word = s;
+					}
+
 					g_hash_table_insert (metadata, g_strdup (tmap[i].type), g_strdup (word));
 				} else {
 					g_free (word);

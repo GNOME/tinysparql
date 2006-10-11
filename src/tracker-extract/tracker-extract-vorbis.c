@@ -146,6 +146,9 @@ tracker_extract_vorbis (const char *filename, GHashTable *metadata)
 		bitrate = vi->bitrate_nominal/1000;
 		str_bitrate = g_strdup_printf ("%d", bitrate);
 		g_hash_table_insert (metadata, g_strdup ("Audio.Bitrate"), str_bitrate);
+		g_hash_table_insert (metadata, g_strdup ("Audio.CodecVersion"), g_strdup_printf ("%d", vi->version));
+		g_hash_table_insert (metadata, g_strdup ("Audio.Channels"), g_strdup_printf ("%d", vi->channels));
+		g_hash_table_insert (metadata, g_strdup ("Audio.Samplerate"), g_strdup_printf ("%ld", vi->rate));
 	}
 
 	

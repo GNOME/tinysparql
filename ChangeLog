@@ -1,3 +1,20 @@
+
+2006-10-11 Jamie McCracken <jamiemcc at gnome org>
+
+	* Created command line options for trackerd
+	* Created more extensive options for tuning performance/memory and disk space usage - new config file format
+	* Removed LibExtractor dependency
+	* created new mp3 extractor for id3 id3v21, id3v22, id3v23 and id3v24
+	* added snowball stemmers (as a static library)
+	* added multi language stopword files
+	* added support for determining which language to use by default based on locale
+	* made sure only lstat is used to prevent symlink directories from being followed
+
+2006-10-11 Jedy Wang <Jedy Wang at Sun COM>
+	
+	* Patch to improve compilation on Solaris
+
+
 2006-10-08 Jamie McCracken <jamiemcc at gnome org>
 
 	* Created tracker-search-tool (based on gnome-search-tool)

@@ -41,6 +41,7 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 	if (keywords && strlen (keywords))
 		g_hash_table_insert (metadata, g_strdup ("Doc.Keywords"), g_strdup (keywords));
 
+
 #if 0
 	GTimeVal creation_date_val = { creation_date, 0 };
 	g_hash_table_insert (metadata, g_strdup ("Doc.Created"),

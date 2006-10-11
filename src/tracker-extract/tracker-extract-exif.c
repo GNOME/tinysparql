@@ -3,7 +3,7 @@
 
 #ifdef HAVE_LIBEXIF
 
-#include <exif-data.h>
+#include <libexif/exif-data.h>
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>

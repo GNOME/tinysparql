@@ -19,7 +19,10 @@ AM_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h zlib.h])
+AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h linux/unistd.h zlib.h])
+
+# Checks for functions
+AC_CHECK_FUNCS([getline])
 
 # Check for glib 2.0
 
@@ -28,6 +31,16 @@ GLIB_REQUIRED=2.9.1
 PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= 2.9.1 ])
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
+
+# Check for gthread 2.0
+PKG_CHECK_MODULES(GTHREAD, [ gthread-2.0 >= 2.9.1 ])
+AC_SUBST(GTHREAD_CFLAGS)
+AC_SUBST(GTHREAD_LIBS)
+
+# Check for gobject 2.0
+PKG_CHECK_MODULES(GOBJECT, [ gobject-2.0 >= 2.9.1 ])
+AC_SUBST(GOBJECT_CFLAGS)
+AC_SUBST(GOBJECT_LIBS)
 
 #Check for pango
 PKG_CHECK_MODULES(PANGO, [ pango >= 1.0.0 ])
@@ -429,7 +442,7 @@ AC_CONFIG_FILES([
 	Makefile	 
 	tracker.pc
 	data/Makefile
-	data/english/Makefile
+	data/languages/Makefile
 	filters/Makefile
 	filters/application/Makefile
 	filters/text/Makefile
@@ -437,6 +450,7 @@ AC_CONFIG_FILES([
 	thumbnailers/application/Makefile
 	thumbnailers/image/Makefile
 	src/Makefile
+	src/libstemmer/Makefile
 	src/text-filters/Makefile
 	src/text-filters/html_converter/Makefile
 	src/text-filters/ooo_converter/Makefile
