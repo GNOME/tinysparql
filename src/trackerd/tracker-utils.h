@@ -21,8 +21,6 @@
 #ifndef _TRACKER_UTILS_H_
 #define _TRACKER_UTILS_H_
 
-/* set this to DEBUG to enable enhanced debug output */
-#define DEBUG1
 
 extern char *type_array[];
 extern char *implemented_services[];
@@ -36,18 +34,17 @@ extern char *tracker_actions[];
 
 
 #include <glib.h>
-#include "config.h"
 #include <depot.h>
 #include <curia.h>
 
+#include "config.h"
 #include "tracker-parser.h"
+#include "../libstemmer/include/libstemmer.h"
 
 typedef struct {
-	CURIA  *word_index;			/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
+	CURIA  *word_index;	/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
 	GMutex *word_mutex;
 } Indexer;
-
-
 
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
@@ -68,40 +65,70 @@ typedef struct {
 #define MIN_INDEX_BUCKET_COUNT		65536    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
 #define INDEX_DIVISIONS		        4        /* no. of divisions of file */
 #define MAX_INDEX_BUCKET_COUNT 		524288	 /* max no of buckets to use  */
-#define INDEX_BUCKET_RATIO 		1	 /* desired ratio of unused bucukets to have */
+#define INDEX_BUCKET_RATIO 		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
+#define INDEX_PADDING	 		2
 
 /* just for now, make tracker_log actually call g_message */
 #define tracker_log g_message
 
 typedef struct {
 
-	/* options */
+	/* config options */
 	GSList 		*watch_directory_roots_list;
 	GSList 		*no_watch_directory_list;
-	GSList 		*poll_list;
-	gboolean	use_nfs_safe_locking;
+	GSList		*no_index_file_types;
+
+	gboolean	enable_indexing;
+	gboolean	enable_watching; /* can disable all forms of directory watching */
+	gboolean	enable_content_indexing; /* enables indexing of a file's text contents */
+	gboolean	enable_thumbnails;
+
+	guint32		watch_limit;
+	guint32		poll_interval;
 
 	/* performance and memory usage options */
-	int		max_index_text_length;
+	int		max_index_text_length; /* max size of file's text contents to index */
 	int		max_process_queue_size;
 	int		max_extract_queue_size;
-	int		optimization_count;
+	int		optimization_count;   /* no of updates or inserts to be performed before optimizing hashtable */
 
 	/* indexing options */
 	int	 	max_index_bucket_count;
 	int	 	index_bucket_ratio; /* 0 = 50%, 1 = 100%, 2 = 200%, 3 = 300%, 4+ = 400% */
 	int		min_index_bucket_count;
 	int		index_divisions;
+	int 		padding; /* values 1-8 */
+
+	int		min_word_length;  	/* words shorter than this are not parsed */
+	int		max_word_length;  	/* words longer than this are cropped */
+	gboolean	use_stemmer;	 	/* enables stemming support */
+	char		*language;		/* the language specific stemmer and stopwords to use */	
+	gpointer	stemmer;		/* pointer to stemmer */
+	GHashTable	*stop_words;	  	/* table of stop words that are to be ignored by the parser */
+	gboolean	use_pango_word_break;
 
 	gboolean	first_time_index;
 	gboolean	do_optimize;
 
-	gboolean	index_emails;
+	/* email config options */
 	gboolean	index_evolution_emails;
 	gboolean	index_thunderbird_emails;
 	gboolean	index_kmail_emails;
 	GSList		*additional_mboxes_to_index;
-	gboolean	do_thumbnails;
+
+	/* nfs options */
+	gboolean	use_nfs_safe_locking; /* use safer but much slower external lock file when users home dir is on an nfs systems */
+
+
+	/* debug option for more verbose (but slower) logging */
+	gboolean	enable_debug;
+
+
+	/* application run time values */
+	GSList 		*poll_list;
+	
+	int		file_update_count;
+	int		email_update_count;
 
  	GHashTable  	*file_scheduler;
  	GMutex 		*scheduler_mutex;
@@ -111,7 +138,6 @@ typedef struct {
 
 	Indexer		*file_indexer;
 	Indexer		*email_indexer;
-	TextParser	*parser;
 
 	GMutex 		*log_access_mutex;
 	char	 	*log_file;
@@ -210,6 +236,12 @@ typedef enum {
 
 
 typedef struct {
+	char *lang;
+	char *name;
+} Matches;
+
+
+typedef struct {
 
 	/* file name/path related info */
 	char 			*uri;
@@ -251,8 +283,8 @@ typedef struct {
 int		tracker_get_id_for_service 		(const char *service);
 const char *	tracker_get_service_by_id 		(int service_type_id);
 
-
-char **		tracker_make_array_null_terminated (char **array, int length);
+GSList *	tracker_array_to_list 			(char **array);
+char **		tracker_make_array_null_terminated 	(char **array, int length);
 
 void		tracker_free_array 		(char **array, int row_count);
 char *		tracker_int_to_str		(int i);
@@ -263,6 +295,9 @@ char *		tracker_date_to_str 		(gint32 date_time);
 int		tracker_str_in_array 		(const char *str, char **array);
 
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
+
+gboolean	tracker_is_supported_lang 	(const char *lang);
+void		tracker_set_language		(const char *language, gboolean create_stemmer);
 
 gint32		tracker_get_file_mtime 		(const char *uri);
 

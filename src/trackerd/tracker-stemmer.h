@@ -20,8 +20,7 @@
 #ifndef _TRACKER_STEMMER_H_
 #define _TRACKER_STEMMER_H_
 
-#include "tracker-stemmer-english.h"
+char * 	tracker_stem (const char *word);
 
-char * tracker_stem_eng (char * b, int k);
 
 #endif

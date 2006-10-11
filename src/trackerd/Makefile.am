@@ -17,6 +17,7 @@ INCLUDES =				\
 	$(MYSQL_CFLAGS)			\
 	$(additional_mysql_flags)	\
 	$(CFLAGS) 			\
+	-I$(top_builddir)/src/libstemmer \
 	-g 
 
 if HAVE_INOTIFY
@@ -68,7 +69,8 @@ test_tracker_indexer_SOURCES =	tracker-indexer.c test-tracker-indexer.c \
 
 test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS)	
 else
-bin_PROGRAMS = trackerd tracker-convert-file 
+bin_PROGRAMS = trackerd 
+#tracker-convert-file 
 endif
 
 trackerd_SOURCES =		\
@@ -102,8 +104,7 @@ trackerd_SOURCES =		\
 	tracker-metadata.h	\
 	tracker-rdf-query.c	\
 	tracker-rdf-query.h	\
-	tracker-stemmer-english.c	\
-	tracker-stemmer-english.h	\
+	tracker-stemmer.c	\
 	tracker-stemmer.h	\
 	tracker-utils.c		\
 	tracker-utils.h		\
@@ -134,10 +135,11 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(GMIME_LIBS)	\
 		 $(QDBM_LIBS) 	\
 		 $(SQLITE3_LIBS) \
+		 $(GTHREAD_LIBS) \
 		 -lz	\
-		 -lstdc++
+		 $(top_builddir)/src/libstemmer/libstemmer-private.la
 
 
-tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-parser.c tracker-stemmer-english.c
+#tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-utils.c tracker-parser.c tracker-stemmer-english.c
 
-tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) -lbz2	
+#tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) -lbz2	

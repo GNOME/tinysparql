@@ -22,7 +22,6 @@
 
 extern Tracker *tracker;
 
-#define INDEXALIGN      32              /* alignment of inverted index */
 #define INDEXFBP        32               /* size of free block pool of inverted index */
 
 typedef struct {                         /* type of structure for an element of search result */
@@ -232,7 +231,7 @@ tracker_indexer_open (const char *name)
 
 	result->word_mutex = g_mutex_new ();
 
-	crsetalign (word_index , INDEXALIGN);
+	crsetalign (word_index , tracker->padding * 8);
 
 	/* re optimize database if bucket count < rec count */
 
@@ -471,7 +470,7 @@ get_hits_for_single_word (Indexer *indexer,
 			
 			pnum = tsiz / sizeof (WordDetails);
 
-			tracker_log ("total hit count (excluding service divisions) is %d", pnum);
+			g_debug ("total hit count (excluding service divisions) is %d", pnum);
 
 			if (offset >= pnum) {
 				*hit_count = pnum;
@@ -521,7 +520,7 @@ get_hits_for_single_word (Indexer *indexer,
 				}
 			}
 
-			tracker_log ("total hit count for service is %d", total_count);
+			g_debug ("total hit count for service is %d", total_count);
 
 		}
 

@@ -31,8 +31,6 @@
 
 #include "tracker-db.h"
 
-#define MAX_FILE_WATCHES 8190
-
 gboolean 	tracker_start_watching 		(void);
 void     	tracker_end_watching 		(void);
 

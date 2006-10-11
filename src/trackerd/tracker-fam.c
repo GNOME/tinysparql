@@ -258,6 +258,10 @@ tracker_start_watching (void)
 
 	watch_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, free_watch_func);
 
+	if (tracker->watch_limit == 0) {
+		tracker->watch_limit = 300;
+	}
+
 	return TRUE;
 }
 
@@ -276,7 +280,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 	}
 
 
-	if (g_hash_table_size (watch_table) >= MAX_FILE_WATCHES) {
+	if (g_hash_table_size (watch_table) >= tracker->watch_limit) {
 		tracker_log ("Watch Limit has been exceeded - unable to watch any more directories");
 		return FALSE;
 	}

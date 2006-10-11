@@ -860,7 +860,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	str = g_string_free (sql, FALSE);
 
-	tracker_log (str);
+	g_debug (str);
 
 	res = tracker_exec_sql_ignore_nulls (db_con, str);
 

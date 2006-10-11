@@ -22,7 +22,9 @@
 #include <errno.h>
 #include <glib/gstdio.h>
 #include <tracker-utils.h>
-#include <linux/unistd.h> 
+#ifdef HAVE_LINUX_UNISTD_H
+#include <linux/unistd.h>
+#endif
 #include "tracker-ioprio.h"
 
 #ifdef IOPRIO_SUPPORT

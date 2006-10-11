@@ -97,7 +97,7 @@ static DBusConnection  *main_connection;
  *  asynchronous queue where potentially multiple threads are waiting to process them.
  */
 
-#define FILE_POLL_PERIOD (30 * 60 * 1000)
+#define FILE_POLL_PERIOD (60 * 60)
 
 char *type_array[] =   {"index", "string", "numeric", "date", NULL};
 
@@ -113,9 +113,7 @@ static void scan_directory (const char *uri, DBConnection *db_con);
 
 #ifdef POLL_ONLY
 
-#define MAX_FILE_WATCHES (-1)
-
- gboolean 	tracker_start_watching 		(void){return TRUE;}
+ gboolean 	tracker_start_watching 		(void){tracker->watch_limit = 0; return TRUE;}
  void     	tracker_end_watching 		(void){return;}
 
  gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection *db_con){return FALSE;}
@@ -124,6 +122,25 @@ static void scan_directory (const char *uri, DBConnection *db_con);
  gboolean 	tracker_is_directory_watched 	(const char *dir, DBConnection *db_con) {return FALSE;}
  int		tracker_count_watch_dirs 	(void) {return 0;}
 #endif /* POLL_ONLY */
+
+static char **no_watch_dirs = NULL;
+static char **watch_dirs = NULL;
+static char *language = NULL;
+static gboolean disable_indexing = FALSE;
+static gboolean enable_debug, enable_evolution, enable_thunderbird, enable_kmail;
+
+static GOptionEntry entries[] = {
+	{"ignore-dirs", 0, 0, G_OPTION_ARG_STRING, &no_watch_dirs, "Directory roots to ignore seperated by semicolons (must specify full path)", "ignore-dirs"},
+	{"disable-indexing", 0, 0, G_OPTION_ARG_NONE, &disable_indexing, "prevents any indexing or watching taking place", NULL },
+	{"enable-debug", 0, 0, G_OPTION_ARG_NONE, &enable_debug, "Enables more verbose debug messages", NULL },
+	{"enable-evolution", 0, 0, G_OPTION_ARG_NONE, &enable_evolution, "Enables indexing of Evolution emails", NULL },
+	{"enable-thunderbird", 0, 0, G_OPTION_ARG_NONE, &enable_thunderbird, "Enables indexing of Thunderbird emails", NULL },
+	{"enable-kmail", 0, 0, G_OPTION_ARG_NONE, &enable_kmail, "Enables indexing of K-Mail emails", NULL },
+	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, "Specifies 2 character language code to use for stemmer and stop words list", NULL },
+	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, "full path of directory roots to watch and index", NULL},
+	{NULL}
+};
+
 
 
 static void
@@ -138,6 +155,11 @@ my_yield (void)
 static int
 has_prefix (const char *str1, const char *str2)
 {
+
+	if (!str1 || !str2) {
+		return -1;
+	}
+
 	if (strcmp (str1, str2) == 0) {
 		return 0;
 	} else {
@@ -228,17 +250,12 @@ do_cleanup (const char *sig_msg)
 		tracker_print_object_allocations ();
 	}
 
-	/* clear pending files and watch tables*/
-	//tracker_db_clear_temp (main_thread_db_con);
 
 	/* stop threads from further processing of events if possible */
 
 	tracker_dbus_shutdown (main_connection);
 
 	tracker_indexer_close (tracker->file_indexer);
-
-	//tracker_indexer_close (file_indexer);
-	//tracker_db_clear_temp (main_thread_db_con);
 
 	/* wait for files thread to sleep */
 	while (!g_mutex_trylock (tracker->files_signal_mutex)) {
@@ -382,10 +399,10 @@ poll_dir (const char *uri, DBConnection *db_con)
 
 
 	/* scan dir for changes in all other files */
-	if (g_slist_find_custom (tracker->no_watch_directory_list, uri, (GCompareFunc) has_prefix) == NULL) {
+	if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, uri, (GCompareFunc) has_prefix) == NULL) {
 		scan_directory (uri, db_con);
 	} else {
-		tracker_log ("blocked scan of directory %s as its in the no watch list", uri);
+		g_debug ("blocked scan of directory %s as its in the no watch list", uri);
 	}
 }
 
@@ -446,9 +463,9 @@ poll_files_thread (void)
 		poll_directories (db_con);
 
 		/* sleep until notified again */
-		tracker_log ("poll thread sleeping");
+		g_debug ("poll thread sleeping");
 		g_cond_wait (tracker->poll_thread_signal, tracker->poll_signal_mutex);
-		tracker_log ("poll thread awoken");
+		g_debug ("poll thread awoken");
 
 		/* determine if wake up call is a shutdown signal or a request to poll again */
 		if (!shutdown) {
@@ -462,7 +479,7 @@ poll_files_thread (void)
 	tracker_db_close (blob_db_con);
 	tracker_db_thread_end ();
 
-	tracker_log ("poll thread has exited successfully");
+	g_debug ("poll thread has exited successfully");
 
 	g_mutex_unlock (tracker->poll_stopped_mutex);
 }
@@ -508,7 +525,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 		file_list = NULL;
 
-		if (!start_polling && ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < MAX_FILE_WATCHES)) {
+		if (!start_polling && ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < tracker->watch_limit)) {
 			GSList *tmp;
 
 			for (tmp = dir_list; tmp; tmp = tmp->next) {
@@ -540,7 +557,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 		g_slist_foreach (dir_list, (GFunc) g_free, NULL);
 		g_slist_free (dir_list);
 
-		if (tracker_count_watch_dirs () > MAX_FILE_WATCHES) {
+		if (tracker_count_watch_dirs () > (int) tracker->watch_limit) {
 			start_polling = TRUE;
 		}
 
@@ -1038,7 +1055,7 @@ start_watching (gpointer data)
 	} else {
 
 		/* start emails watching */
-		if (tracker->index_emails) {
+		if (tracker->index_evolution_emails || tracker->index_thunderbird_emails || tracker->index_kmail_emails) {
 			tracker_watch_emails (main_thread_db_con);
 		}
 
@@ -1115,7 +1132,7 @@ extract_metadata_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			tracker_log ("metadata thread going to deep sleep...");
+			g_debug ("metadata thread going to deep sleep...");
 
 			g_cond_wait (tracker->metadata_thread_signal, tracker->metadata_signal_mutex);
 
@@ -1140,12 +1157,12 @@ extract_metadata_thread (void)
 			if (tracker_db_has_pending_metadata (db_con)) {
 				g_mutex_unlock (tracker->metadata_check_mutex);
 			} else {
-				tracker_log ("metadata thread sleeping");
+				g_debug ("metadata thread sleeping");
 
 				/* we have no stuff to process so sleep until awoken by a new signal */
 				g_cond_wait (tracker->metadata_thread_signal, tracker->metadata_signal_mutex);
 				g_mutex_unlock (tracker->metadata_check_mutex);
-				tracker_log ("metadata thread awoken");
+				g_debug ("metadata thread awoken");
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
 					continue;
@@ -1245,7 +1262,7 @@ extract_metadata_thread (void)
 
 
 
-				if (tracker->do_thumbnails) {
+				if (tracker->enable_thumbnails) {
 					char *small_thumb_file;
 
 					/* see if there is a thumbnailer script for the file's mime type */
@@ -1272,12 +1289,10 @@ extract_metadata_thread (void)
 
 				file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);
 
-				if (file_as_text) {
+				if (tracker->enable_content_indexing && file_as_text) {
 					const char *tmp_dir;
 					char	   *dir;
 
-					//tracker_log ("text file is %s", file_as_text);
-			
 					tracker_db_save_file_contents (db_con, blob_db_con, file_as_text, info);
 
 					tmp_dir = g_get_tmp_dir ();
@@ -1324,7 +1339,7 @@ extract_metadata_thread (void)
 	tracker_db_close (blob_db_con);
 	tracker_db_thread_end ();
 
-	tracker_log ("metadata thread has exited successfully");
+	g_debug ("metadata thread has exited successfully");
 	g_mutex_unlock (tracker->metadata_stopped_mutex);
 }
 
@@ -1426,7 +1441,7 @@ process_files_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			tracker_log ("files thread going to deep sleep...");
+			g_debug ("files thread going to deep sleep...");
 
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
@@ -1452,13 +1467,13 @@ process_files_thread (void)
 			if (tracker_db_has_pending_files (db_con)) {
 				g_mutex_unlock (tracker->files_check_mutex);
 			} else {
-				//tracker_log ("File thread sleeping");
+				//g_debug ("File thread sleeping");
 
 				/* we have no stuff to process so sleep until awoken by a new signal */
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
 
-				//tracker_log ("File thread awoken");
+				//g_debug ("File thread awoken");
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
@@ -1491,7 +1506,7 @@ process_files_thread (void)
 					
 
 					if (tmp_action != TRACKER_ACTION_CHECK) {
-						tracker_log ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
+						g_debug ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
 					}
 
 					info_tmp = tracker_create_file_info (row[1], tmp_action, 0, WATCH_OTHER);
@@ -1512,7 +1527,7 @@ process_files_thread (void)
 
 			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM or inotify move/create) */
 			if (!pushed_events && (k == 0)) {
-				tracker_log ("files not ready so sleeping");
+				g_debug ("files not ready so sleeping");
 				g_usleep (100000);
 			}
 
@@ -1554,7 +1569,7 @@ process_files_thread (void)
 		/* preprocess ambiguous actions when we need to work out if its a file or a directory that the action relates to */
 		verify_action (info);
 
-		//tracker_log ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
+		//g_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
 
 
 		/* process deletions */
@@ -1619,10 +1634,10 @@ process_files_thread (void)
 			case TRACKER_ACTION_DIRECTORY_CHECK:
 
 				if (need_index) {
-					if (g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+					if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
 						scan_directory (info->uri, db_con);
 					} else {
-						tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
+						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
 					}
 				}
 
@@ -1630,10 +1645,10 @@ process_files_thread (void)
 
 			case TRACKER_ACTION_DIRECTORY_REFRESH:
 
-				if (g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+				if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
 					scan_directory (info->uri, db_con);
 				} else {
-					tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
+					g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
 				}
 
 				break;
@@ -1642,17 +1657,17 @@ process_files_thread (void)
 			case TRACKER_ACTION_DIRECTORY_MOVED_TO:
 
 				need_index = TRUE;
-				tracker_log ("processing created directory %s", info->uri);
+				g_debug ("processing created directory %s", info->uri);
 
 				/* add to watch folders (including subfolders) */
 				watch_dir (info->uri, db_con);
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
-					if (g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+					if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
 						scan_directory (info->uri, db_con);
 					} else {
-						tracker_log ("blocked scan of directory %s as its in the no watch list", info->uri);
+						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
 					}
 				}
 
@@ -1672,7 +1687,7 @@ process_files_thread (void)
 	tracker_db_close (db_con);
 	tracker_db_close (blob_db_con);
 	tracker_db_thread_end ();
-	tracker_log ("files thread has exited successfully");
+	g_debug ("files thread has exited successfully");
 	g_mutex_unlock (tracker->files_stopped_mutex);
 }
 
@@ -1706,7 +1721,7 @@ process_user_request_queue_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			tracker_log ("request thread going to deep sleep...");
+			g_debug ("request thread going to deep sleep...");
 
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 
@@ -1724,10 +1739,10 @@ process_user_request_queue_thread (void)
 		rec = g_async_queue_try_pop (tracker->user_request_queue);
 
 		if (!rec) {
-			//tracker_log ("request thread sleeping");
+			//g_debug ("request thread sleeping");
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 			g_mutex_unlock (tracker->request_check_mutex);
-			//tracker_log ("request thread awoken");
+			//g_debug ("request thread awoken");
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
@@ -1997,7 +2012,7 @@ process_user_request_queue_thread (void)
 	tracker_db_close (db_con);
 	tracker_db_thread_end ();
 
-	tracker_log ("request thread has exited successfully");
+	g_debug ("request thread has exited successfully");
 
 	/* unlock mutex so we know thread has exited */
 	g_mutex_unlock (tracker->request_check_mutex);
@@ -2065,11 +2080,11 @@ log_handler (const gchar *domain, GLogLevelFlags levels, const char* message, gp
 	struct tm	*loctime;
 	GTimeVal	start;
 
-#ifndef DEBUG
-	if (levels & G_LOG_LEVEL_DEBUG) {
+
+	if ((levels & G_LOG_LEVEL_DEBUG) && (!tracker->enable_debug)) {
 		return;
 	}
-#endif
+
 
 	if (message) {
 		g_print ("%s\n", message);
@@ -2107,6 +2122,101 @@ log_handler (const gchar *domain, GLogLevelFlags levels, const char* message, gp
 }
 
 
+static void
+set_defaults ()
+{
+
+	tracker->watch_directory_roots_list = NULL;
+	tracker->no_watch_directory_list = NULL;
+	tracker->poll_list = NULL;
+	tracker->use_nfs_safe_locking = FALSE;
+
+	tracker->enable_indexing = TRUE;
+	tracker->enable_watching = TRUE;
+	tracker->enable_content_indexing = TRUE;
+	tracker->enable_thumbnails = FALSE;
+
+	tracker->watch_limit = 0;
+	tracker->poll_interval = FILE_POLL_PERIOD;
+	
+	tracker->max_index_text_length = MAX_INDEX_TEXT_LENGTH;
+	tracker->max_process_queue_size = MAX_PROCESS_QUEUE_SIZE;
+	tracker->max_extract_queue_size = MAX_EXTRACT_QUEUE_SIZE;
+	tracker->optimization_count = OPTIMIZATION_COUNT;
+
+	tracker->max_index_bucket_count = MAX_INDEX_BUCKET_COUNT;
+	tracker->min_index_bucket_count = MIN_INDEX_BUCKET_COUNT;
+	tracker->index_bucket_ratio = INDEX_BUCKET_RATIO;
+	tracker->index_divisions = INDEX_DIVISIONS;
+	tracker->padding = INDEX_PADDING;
+
+	tracker->index_evolution_emails = FALSE;
+	tracker->index_thunderbird_emails = FALSE;
+	tracker->index_kmail_emails = FALSE;
+
+	tracker->enable_debug = FALSE;
+
+	tracker->min_word_length = 3;
+	tracker->max_word_length = 30;
+	tracker->use_stemmer = TRUE;
+	tracker->language = g_strdup ("en");
+	tracker->stop_words = NULL;
+	tracker->use_pango_word_break = FALSE;
+	
+}
+
+
+static void
+sanity_check_option_values ()
+{
+
+	if (tracker->poll_interval < 1000) tracker->poll_interval = 1000;
+	if (tracker->max_index_text_length < 0) tracker->max_index_text_length = 0;
+	if (tracker->optimization_count < 1000) tracker->optimization_count = 1000;
+	if (tracker->max_index_bucket_count < 1000) tracker->max_index_bucket_count= 1000;
+	if (tracker->min_index_bucket_count < 1000) tracker->min_index_bucket_count= 1000;
+	if (tracker->index_divisions < 1) tracker->index_divisions = 1;
+	if (tracker->index_divisions > 64) tracker->index_divisions = 64;
+	if (tracker->index_bucket_ratio < 1) tracker->index_bucket_ratio = 0;
+ 	if (tracker->index_bucket_ratio > 4) tracker->index_bucket_ratio = 4;
+	if (tracker->padding < 0) tracker->padding = 0;
+	if (tracker->padding > 8) tracker->padding = 8;
+
+	if (tracker->min_word_length < 1) tracker->min_word_length = 1;
+
+	if (!tracker_is_supported_lang (tracker->language)) {
+		tracker_set_language ("en", TRUE);
+	} else {
+		tracker_set_language (tracker->language, TRUE);
+	}
+
+	if (!tracker->watch_directory_roots_list) {
+		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir()));
+	}
+
+
+	char *bools[] = {"no", "yes"};
+
+	tracker_log ("\nTracker configuration options :");
+	tracker_log ("Debug mode enabled : \t\t\t%s", bools[tracker->enable_debug]);
+	tracker_log ("Indexing enabled : \t\t\t%s", bools[tracker->enable_indexing]);
+	tracker_log ("Watching enabled : \t\t\t%s", bools[tracker->enable_watching]);
+	tracker_log ("File content indexing enabled : \t%s", bools[tracker->enable_content_indexing]);
+	tracker_log ("Thumbnailing enabled : \t\t\t%s", bools[tracker->enable_thumbnails]);
+	tracker_log ("Evolution email indexing enabled : \t%s", bools[tracker->index_evolution_emails]);
+	tracker_log ("Thunderbird email indexing enabled : \t%s", bools[tracker->index_thunderbird_emails]);
+	tracker_log ("K-Mail indexing enabled : \t\t%s\n", bools[tracker->index_kmail_emails]);
+
+	tracker_log ("Tracker indexer parameters :");
+	tracker_log ("Indexer language code : \t\t%s", tracker->language);
+	tracker_log ("Minimum index word length : \t\t%d", tracker->min_word_length);
+	tracker_log ("Maximum index word length : \t\t%d", tracker->max_word_length);
+	tracker_log ("Stemmer enabled : \t\t\t%s", bools[tracker->use_stemmer]);
+	tracker_log ("Using Pango word breaking : \t\t%s\n", bools[tracker->use_pango_word_break]);
+
+}
+
+
 int
 main (int argc, char **argv)
 {
@@ -2114,7 +2224,7 @@ main (int argc, char **argv)
   	struct 		sigaction act;
 	sigset_t 	empty_mask;
 	char 		*prefix, *lock_file, *str, *lock_str, *tracker_data_dir;
-
+	GOptionContext *context = NULL;
 	gboolean 	need_setup;
 	DBConnection 	*db_con;
 	char		***res;
@@ -2123,6 +2233,12 @@ main (int argc, char **argv)
 
 	/* set timezone info */
 	tzset ();
+
+	GError *error = NULL;
+	context = g_option_context_new ("tracker daemon for indexing, search and storage of metadata");
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_parse (context, &argc, &argv, &error);
+
 
 	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken (jamiemcc@gnome.org)\n\n", TRACKER_VERSION);
 	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
@@ -2157,23 +2273,6 @@ main (int argc, char **argv)
 	shutdown = FALSE;
 
 	tracker = g_new (Tracker, 1);
-
-	tracker->watch_directory_roots_list = NULL;
-	tracker->no_watch_directory_list = NULL;
-	tracker->poll_list = NULL;
-	tracker->use_nfs_safe_locking = FALSE;
-
-	/* performance options */
-	tracker->max_index_text_length = MAX_INDEX_TEXT_LENGTH;
-	tracker->max_process_queue_size = MAX_PROCESS_QUEUE_SIZE;
-	tracker->max_extract_queue_size = MAX_EXTRACT_QUEUE_SIZE;
-	tracker->optimization_count = OPTIMIZATION_COUNT;
-
-	/* index options */
-	tracker->min_index_bucket_count = MIN_INDEX_BUCKET_COUNT;
-	tracker->max_index_bucket_count = MAX_INDEX_BUCKET_COUNT;
-	tracker->index_bucket_ratio = INDEX_BUCKET_RATIO; 
-	tracker->index_divisions = INDEX_DIVISIONS;
 
  	tracker->is_running = FALSE;
 	tracker->first_time_index = FALSE;
@@ -2260,16 +2359,59 @@ main (int argc, char **argv)
 	}
 
 	nice (10);
-	#ifdef IOPRIO_SUPPORT
+
+#ifdef IOPRIO_SUPPORT
 	ioprio ();
-	#endif
+#endif
 
 	/* reset log file */
 	if (g_file_test (tracker->log_file, G_FILE_TEST_EXISTS)) {
 		g_unlink (tracker->log_file);
 	}
 
+	/* deal with config options with defaults, config file and option params */
+	set_defaults ();
 	tracker_load_config_file ();
+
+	if (error) {
+		g_printerr ("invalid arguments: %s\n", error->message);
+		return 1;
+	}
+
+	if (no_watch_dirs) {
+		tracker->no_watch_directory_list = tracker_array_to_list (no_watch_dirs);
+	}
+
+	if (watch_dirs) {
+	 	tracker->watch_directory_roots_list = tracker_array_to_list (watch_dirs);
+	}
+
+	if (disable_indexing) {
+		tracker->enable_indexing = FALSE;
+	}
+
+	if (language) {
+		tracker->language = language;
+	}
+
+
+	if (enable_debug) {
+		tracker->enable_debug = TRUE;
+	}
+
+	if (enable_evolution) {
+		tracker->index_evolution_emails = TRUE;
+	}
+
+	if (enable_thunderbird) {
+		tracker->index_thunderbird_emails = TRUE;
+	}
+
+	if (enable_kmail) {
+		tracker->index_kmail_emails = TRUE;
+	}
+
+	sanity_check_option_values ();
 
 	tracker_data_dir = g_build_filename (g_get_home_dir (), ".Tracker", "data", NULL);
 
@@ -2344,19 +2486,10 @@ main (int argc, char **argv)
 	tracker->file_process_queue = g_async_queue_new ();
 	tracker->user_request_queue = g_async_queue_new ();
 
-	tracker->parser = g_new (TextParser, 1);
-
-	tracker->parser->min_word_length = 3;
-	tracker->parser->max_word_length = 30;
-	tracker->parser->use_stemmer = TRUE;
-	tracker->parser->stem_language = STEM_ENG;
-	tracker->parser->stop_words = NULL;
-
-
 
 	/* periodically poll directories for changes */
 	g_timeout_add_full (G_PRIORITY_LOW,
-			    FILE_POLL_PERIOD,
+			    tracker->poll_interval * 1000,
 		 	    (GSourceFunc) start_poll,
 			    NULL, NULL
 			    );
@@ -2376,13 +2509,7 @@ main (int argc, char **argv)
 
 	/* schedule the watching of directories so as not to delay start up time*/
 
-	if (argc >= 2) {
-		g_timeout_add_full (G_PRIORITY_LOW,
-				    500,
-			 	    (GSourceFunc) start_watching,
-				    g_strdup (argv[1]), NULL
-				    );
-	} else {
+	if (tracker->enable_indexing) {
 		g_timeout_add_full (G_PRIORITY_LOW,
 				    500,
 			 	    (GSourceFunc) start_watching,
@@ -2390,7 +2517,22 @@ main (int argc, char **argv)
 				    );
 	}
 
-
+	/*	if (tracker->watch_directory_roots_list) {
+			g_timeout_add_full (G_PRIORITY_LOW,
+				    500,
+			 	    (GSourceFunc) start_watching,
+				    g_strdup (argv[1]), NULL
+				    );
+		} else {
+			if (tracker->enable_indexing) {
+				g_timeout_add_full (G_PRIORITY_LOW,
+				    500,
+			 	    (GSourceFunc) start_watching,
+				    NULL, NULL
+				    );
+			}
+		}
+	*/	
 
 	/* execute events and user requests to be processed and indexed in their own threads */
 	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, TRUE, NULL);

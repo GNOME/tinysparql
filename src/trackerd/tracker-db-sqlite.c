@@ -1268,7 +1268,7 @@ get_file_contents_words (DBConnection *db_con, guint32 id)
 
 			unlock_db ();
 
-			old_table = tracker_parse_text (tracker->parser, old_table, st, 1);
+			old_table = tracker_parse_text (old_table, st, 1);
 
 			continue;
 		}
@@ -1302,7 +1302,7 @@ get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table
 		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
 
 			if (row[0] && row[1]) {
-				table = tracker_parse_text (tracker->parser, table, row[0], atoi (row[1]));
+				table = tracker_parse_text (table, row[0], atoi (row[1]));
 			}
 		}
 
@@ -1319,7 +1319,7 @@ get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table
 		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
 
 			if (row[0] && row[1]) {
-				table = tracker_parse_text (tracker->parser, table, row[0], atoi (row[1]));
+				table = tracker_parse_text (table, row[0], atoi (row[1]));
 			}
 		}
 
@@ -1388,14 +1388,14 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 
 			str = g_string_append (str, value);
 
-			new_table = tracker_parse_text (tracker->parser, new_table, value, 1);
+			new_table = tracker_parse_text (new_table, value, 1);
 
 			bytes_read += strlen (value);
 			g_free (value);
 
 		} else {
 			str = g_string_append (str, buffer);
-			new_table = tracker_parse_text (tracker->parser, new_table, buffer, 1);
+			new_table = tracker_parse_text (new_table, buffer, 1);
 			bytes_read += buffer_length;
 		}
 
@@ -1452,7 +1452,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 	compressed = tracker_compress (value, bytes_read, &bytes_compressed);
 
 	if (compressed) {
-		tracker_log ("compressed full text size of %d to %d", bytes_read, bytes_compressed);
+		g_debug ("compressed full text size of %d to %d", bytes_read, bytes_compressed);
 		g_free (value);
 		value = compressed;
 		bytes_read = bytes_compressed;
@@ -1561,7 +1561,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		service_type_max = service_type_min;
 	}
 
-	array = tracker_parse_text_into_array (tracker->parser, search_string);
+	array = tracker_parse_text_into_array (search_string);
 
 	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, service_type_min, service_type_max, offset, limit, FALSE, &count);
 
@@ -1794,14 +1794,14 @@ update_file_index (DBConnection *db_con, const char *id, const char *service, co
 		row = tracker_db_get_row (res, 0);
 
 		if (row && row[0]) {
-			old_table = tracker_parse_text (tracker->parser, old_table, row[0], weight);
+			old_table = tracker_parse_text (old_table, row[0], weight);
 		}
 
 		tracker_db_free_result (res);
 	}
 
 	/* parse new metadata value */
-	new_table = tracker_parse_text (tracker->parser, new_table, meta_value, weight);
+	new_table = tracker_parse_text ( new_table, meta_value, weight);
 
 	/* we only do differential updates so only changed words scores are updated */
 	if (new_table) {
@@ -1996,7 +1996,6 @@ delete_index_for_service (DBConnection *db_con, DBConnection *blob_db_con, guint
 		g_hash_table_destroy (table);
 	}
 
-	g_debug ("deleted word index for id %d", id);
 }
 
 
@@ -2151,7 +2150,7 @@ tracker_db_has_pending_metadata (DBConnection *db_con)
 			int pending_file_count;
 
 			pending_file_count = atoi (row[0]);
-			tracker_log ("metadata queue has %d rows pending", atoi (row[0]));
+			g_debug ("metadata queue has %d rows pending", atoi (row[0]));
 			has_pending = (pending_file_count > 0);
 		}
 
@@ -2367,7 +2366,7 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 	result = NULL;
 	result_list = NULL;
 
-	array = tracker_parse_text_into_array (tracker->parser, text);
+	array = tracker_parse_text_into_array ( text);
 
 	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
 
@@ -2458,7 +2457,7 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
-	array = tracker_parse_text_into_array (tracker->parser, text);
+	array = tracker_parse_text_into_array ( text);
 
 	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
 
@@ -2547,7 +2546,7 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
-	array = tracker_parse_text_into_array (tracker->parser, text);
+	array = tracker_parse_text_into_array ( text);
 
 	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
 
@@ -2739,7 +2738,7 @@ append_index_data (gpointer key,
 		tracker_indexer_append_word (tracker->file_indexer, word, info->service_id, info->service_type_id, score);
 	}
 
-	g_debug ("added word %s with score %d to index for ID %d and ServiceType %d", word, score, info->service_id, info->service_type_id);
+
 }
 
 
@@ -2757,7 +2756,7 @@ update_index_data (gpointer key,
 	info = user_data;
 
 	if (score != 0) {
-		g_debug ("updated word %s with score %d to index for ID %d and ServiceType %d", word, score, info->service_id, info->service_type_id);
+		//g_debug ("updated word %s with score %d to index for ID %d and ServiceType %d", word, score, info->service_id, info->service_type_id);
 		tracker_indexer_update_word (tracker->file_indexer, word, info->service_id, info->service_type_id, score, FALSE);
 	}
 }
@@ -2816,7 +2815,7 @@ cmp_data (gpointer key,
 
 	lookup_score = GPOINTER_TO_INT (g_hash_table_lookup (new_table, word));
 
-	g_debug ("word %s has old score %d and new score %d so updating with total score %d", word, score, lookup_score, lookup_score-score);
+	//g_debug ("word %s has old score %d and new score %d so updating with total score %d", word, score, lookup_score, lookup_score-score);
 
 	/* subtract scores so only words with score != 0 are updated (when score is zero, old word score is same as new word so no updating necessary)
 	   negative scores mean either word exists in old but no new data or has a lower score in new than old */

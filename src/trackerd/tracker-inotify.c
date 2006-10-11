@@ -222,7 +222,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 					tracker_remove_watch_dir (moved_from_info->uri, TRUE, main_thread_db_con);
 					tracker_remove_poll_dir (moved_from_info->uri);
 
-					if (tracker_count_watch_dirs () < MAX_FILE_WATCHES) {
+					if (tracker_count_watch_dirs () < (int) tracker->watch_limit) {
 						tracker_add_watch_dir (moved_to_info->uri, main_thread_db_con);
 					} else {
 						tracker_add_poll_dir (moved_to_info->uri);
@@ -272,7 +272,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 							/* update all subfolders and contained files to new path */
 							tracker_exec_proc (main_thread_db_con, "UpdateFileMoveChild", 2, new_path, dir_name);
 
-							if (tracker_count_watch_dirs () < MAX_FILE_WATCHES) {
+							if (tracker_count_watch_dirs () < (int) tracker->watch_limit) {
 								tracker_add_watch_dir (new_path, main_thread_db_con);
 							} else {
 								tracker_add_poll_dir (new_path);
@@ -598,6 +598,10 @@ tracker_start_watching (void)
 
 	inotify_queue = g_queue_new ();
 
+	if (tracker->watch_limit == 0) {
+		tracker->watch_limit = 8191;
+	}
+
 	gio = g_io_channel_unix_new (inotify_monitor_fd);
 	g_io_add_watch (gio, G_IO_IN, inotify_watch_func, NULL);
 	g_io_channel_set_flags (gio, G_IO_FLAG_NONBLOCK, NULL);
@@ -626,7 +630,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-	if (tracker_count_watch_dirs () >= MAX_FILE_WATCHES) {
+	if (tracker_count_watch_dirs () >= (int) tracker->watch_limit) {
 		tracker_log ("Inotify Watch Limit has been exceeded - unable to watch any more directories");
 		return FALSE;
 	}

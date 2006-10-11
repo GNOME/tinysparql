@@ -114,8 +114,6 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-	TextParser *parser = g_new (TextParser, 1);
-
 	parser->min_word_length = 3;
 	parser->max_word_length = 30;
 	parser->use_stemmer = TRUE;

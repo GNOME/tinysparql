@@ -41,7 +41,7 @@ static GSList *mboxes = NULL;
 void
 tracker_watch_emails (DBConnection *db_con)
 {
-	if (!tracker->index_emails) {
+	if (!tracker->index_evolution_emails && !tracker->index_thunderbird_emails && !tracker->index_kmail_emails) {
 		return;
 	}
 

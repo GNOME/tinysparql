@@ -772,9 +772,9 @@ build_sql (ParserData *data)
 		int cvalue;
 
 		bvalue = tracker_format_date (avalue);
-		tracker_log (bvalue);
+		g_debug (bvalue);
 		cvalue = tracker_str_to_date (bvalue);
-		tracker_log ("%d", cvalue);
+		g_debug ("%d", cvalue);
 		value = tracker_int_to_str (cvalue);
 		g_free (bvalue);
 	} else {
@@ -1172,7 +1172,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 
 	data.sql_from = g_string_new ("");
 
-	tracker_log ("search term is %s", search_text);
+	g_debug ("search term is %s", search_text);
 
 
 	if (search_text && (strlen (search_text) > 0)) {

@@ -22,10 +22,11 @@
 #include <pango/pango.h>
 
 #include "tracker-parser.h"
+#include "tracker-utils.h"
 #include "tracker-stemmer.h"
 
+extern Tracker *tracker;
 
-/*
 static char *
 delimit_utf8_string (const gchar *str)
 {
@@ -64,7 +65,7 @@ delimit_utf8_string (const gchar *str)
 
 	return g_string_free (strs, FALSE);
 }
-*/
+
 
 /* check word starts with alpha char or underscore */
 static gboolean
@@ -110,14 +111,14 @@ get_value (gpointer key,
 
 
 char **
-tracker_parse_text_into_array (TextParser *parser, const char *text)
+tracker_parse_text_into_array (const char *text)
 {
 	GHashTable *table;
 	char **array, *s;
 	int count;
 	GString *str;
 
-	table = tracker_parse_text (parser, NULL, text, 1);
+	table = tracker_parse_text (NULL, text, 1);
 
 	if (!table || g_hash_table_size (table) == 0) {
 		return NULL;
@@ -155,12 +156,11 @@ tracker_parse_text_into_array (TextParser *parser, const char *text)
 
 
 GHashTable *
-tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text, int weight)
+tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 {
 
 	char	   *delimit_text;
 	char	   **words;
-	gboolean   pango_delimited = FALSE;
 
 	g_return_val_if_fail (text, NULL);
 
@@ -171,13 +171,10 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 
 	delimit_text = (char *) text;
 
-	/* crude hack to determine if we need to break words up with unbelivably slow pango word breaking 
-	if (!strchr (text, ' ') && !strchr (text, ',') && !strchr (text, '.') && !strchr (text, '/') ) {
-		g_print ("word breaks not detected\n");
+
+	if (tracker->use_pango_word_break) {
 	  	delimit_text = delimit_utf8_string (text);
-		pango_delimited = TRUE;
 	}
-	*/
 
 	/* break text into words */
 
@@ -197,7 +194,7 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 
 			/* ignore all words less than min word length unless pango delimited as it may be CJK language */
 			word_len = g_utf8_strlen (*p, -1);
-			if ( !pango_delimited && (word_len < parser->min_word_length)) {
+			if (!tracker->use_pango_word_break && (word_len < tracker->min_word_length)) {
 				continue;
 			}
 
@@ -214,8 +211,8 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 			}
 
 			/* ignore all stop words */
-			if (parser->stop_words) {
-				if (g_hash_table_lookup (parser->stop_words, word)) {
+			if (tracker->stop_words) {
+				if (g_hash_table_lookup (tracker->stop_words, word)) {
 					g_free (word);
 					continue;
 				}
@@ -224,9 +221,9 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 			word_len = strlen (word);
 
 			/* truncate words more than max word length in bytes */
-			if (word_len > parser->max_word_length) {
+			if (word_len > tracker->max_word_length) {
 
-				word_len = parser->max_word_length -1;
+				word_len = tracker->max_word_length -1;
 
 				word[word_len] = '\0';
 
@@ -242,10 +239,10 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 			}
 
 			/* stem words if word only contains alpha chars */
-			if (parser->use_stemmer && word_is_alpha (word)) {
+			if (tracker->stemmer && tracker->use_stemmer && word_is_alpha (word)) {
 				char *aword;
 
-				aword = tracker_stem_eng (word , strlen(word)-1);
+				aword = tracker_stem (word);
 
 				//g_print ("stemmed %s to %s\n", word, aword);
 				g_free (word);
@@ -264,7 +261,7 @@ tracker_parse_text (TextParser *parser, GHashTable *word_table, const char *text
 		g_strfreev  (words);
 	}
 
-	if (pango_delimited ) {
+	if (tracker->use_pango_word_break) {
 		g_free (delimit_text);
 	}
 

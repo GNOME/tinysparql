@@ -1093,7 +1093,7 @@ tracker_file_is_indexable (const char *uri)
 
 	convert_ok = (!S_ISDIR (finfo.st_mode) && S_ISREG (finfo.st_mode));
 
-	if (convert_ok) tracker_log ("file %s is indexable", uri);
+	if (convert_ok) g_debug ("file %s is indexable", uri);
 
 	return convert_ok;
 }
@@ -1195,7 +1195,7 @@ is_text_file (const char *uri)
 		}
 
 	} else {
-		tracker_log ("%s is not a text file", uri);
+		g_debug ("%s is not a text file", uri);
 	}
 
 	return result;
@@ -1342,7 +1342,7 @@ tracker_is_directory (const char *dir)
 	if (dir_in_locale) {
 		struct stat finfo;
 
-		g_stat (dir_in_locale, &finfo);
+		g_lstat (dir_in_locale, &finfo);
 
 		g_free (dir_in_locale);
 
@@ -1468,6 +1468,7 @@ tracker_get_dirs (const char *dir, GSList **file_list)
 }
 
 
+
 static GSList *
 array_to_list (char **array)
 {
@@ -1477,12 +1478,22 @@ array_to_list (char **array)
 	list = NULL;
 
 	for (i = 0; array[i] != NULL; i++) {
-		list = g_slist_prepend (list, g_strdup (array[i]));
+		if (strlen (array[i]) > 0) {
+			list = g_slist_prepend (list, g_strdup (array[i]));
+		}
 	}
 
 	g_strfreev (array);
 
 	return list;
+}
+
+
+
+GSList *
+tracker_array_to_list (char **array)
+{
+	return array_to_list (array);
 }
 
 
@@ -1524,6 +1535,170 @@ display_list_values (const char *uri)
 }
 
 
+
+static Matches tmap[] = {
+		{"da", "danish"},
+		{"nl", "dutch"},
+		{"en", "english"},
+ 		{"fi", "finnish"}, 
+		{"fr", "french"}, 
+		{"de", "german"}, 
+		{"it", "italian"}, 
+		{"nb", "norwegian"}, 
+		{"pt", "portuguese"}, 
+		{"ru", "russian"}, 
+		{"es", "spanish"}, 
+		{"sv", "swedish"}, 
+		{NULL, 0},
+};
+
+
+gboolean
+tracker_is_supported_lang (const char *lang)
+{
+	int i;
+
+	for (i=0; tmap[i].lang; i++) {
+		if (g_str_has_prefix (lang, tmap[i].lang)) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+
+static char *
+get_default_language_code (gboolean *use_pango)
+{
+	char **langs, **plangs, *result;
+
+	char *pango_langs[] = {"th", "hi", "ko", "km", "ja", "zh", NULL};
+
+	*use_pango = FALSE;
+
+
+	/* get langauges for user's locale */
+	langs = (char**) g_get_language_names ();
+
+	int i;
+
+	for (plangs = langs; *plangs; plangs++) {
+		if (strlen (*plangs) > 1) {
+			for (i=0; tmap[i].lang; i++) {
+				if (g_str_has_prefix (*plangs, tmap[i].lang)) {
+					result = g_strndup (*plangs, 2);
+					return result;
+				}
+
+			}
+		}
+	}
+
+	/* if its a language that does not have western word breaks then force pango usage */
+	if (langs && langs[0]) {
+		for (i=0; pango_langs[i]; i++) {
+				if (g_str_has_prefix (langs[0], pango_langs[i])) {
+					*use_pango = TRUE;
+					break;
+				}
+
+			}
+	}
+
+	return g_strdup ("en");
+
+
+
+}
+
+
+void		
+tracker_set_language (const char *language, gboolean create_stemmer)
+{
+
+	gboolean use_pango;
+
+	if (!language || strlen (language) < 2) {
+
+		g_free (tracker->language);
+		tracker->language = get_default_language_code (&use_pango);
+		tracker_log ("setting default language code to %s based on user's locale", language);
+
+	} else {
+		int i;
+		for (i=0; tmap[i].lang; i++) {
+
+			if (g_str_has_prefix (language, tmap[i].lang)) {
+				g_free (tracker->language);
+				tracker->language = g_strndup (tmap[i].lang, 2);
+				break;
+			}
+		}
+
+	}
+
+	/* set stopwords list and create stemmer for language */
+	tracker_log ("setting stopword list for language code %s", language);
+
+	char *stopword_path, *stopword_file;
+	char *stopwords;
+
+	stopword_path = g_build_filename (DATADIR, "tracker", "languages", "stopwords", NULL);
+	stopword_file = g_strconcat (stopword_path, ".", language, NULL);
+	g_free (stopword_path);
+
+	if (!g_file_get_contents (stopword_file, &stopwords, NULL, NULL)) {
+		tracker_log ("Warning : Tracker cannot read stopword file %s", stopword_file);
+	} else {
+		
+		tracker->stop_words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+		char **words = g_strsplit_set (stopwords, "\n" , -1);
+		char **pwords;
+
+		for (pwords = words; *pwords; pwords++) {
+			g_hash_table_insert (tracker->stop_words, g_strdup (g_strstrip (*pwords)), GINT_TO_POINTER (1));
+		}
+
+		g_strfreev (words);
+
+	}
+	g_free (stopwords);
+	g_free (stopword_file);
+	
+	
+	if (!tracker->use_stemmer || !create_stemmer) {
+		return;
+	}
+
+	char *stem_language;
+
+	/* set default language */
+	stem_language = "english";
+
+	if (language) {
+		int i;
+		
+		for (i=0; tmap[i].lang; i++) {
+			if ((strcasecmp (tmap[i].lang, language) == 0)) {
+				stem_language = tmap[i].name;
+				break;
+			}
+		}
+	}
+
+	tracker->stemmer = sb_stemmer_new (stem_language, NULL);
+
+	if (!tracker->stemmer) {
+		tracker_log ("Warning : No stemmer could be found for language %s", language);
+	} else {
+		tracker_log ("Using stemmer for language %s", language);
+	}	
+
+}
+
+
 void
 tracker_load_config_file ()
 {
@@ -1536,43 +1711,95 @@ tracker_load_config_file ()
 	filename = g_build_filename (g_get_home_dir (), ".Tracker", "tracker.cfg", NULL);
 
 	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		char *contents;
+		char *contents, *language, *enable_pango, *min_word;
+		gboolean use_pango;
+		
+		language = get_default_language_code (&use_pango);
 
-		contents  = g_strconcat ("[Watches]\n",
+		if (use_pango) {
+			enable_pango = "true";
+			min_word = "1";
+		} else {
+			enable_pango = "false";
+			min_word = "3";
+		}
+
+		contents  = g_strconcat (						
+					 "[General]\n",
+					 "# Set to true to enable more verbose logging in the log file (setting to false will make indexing faster)\n",
+					 "EnableDebugLogging=false\n\n",
+					 "# Poll Interval in seconds - determines how often polling is performed when intoify/fam is not available or watch limit is exceeded\n",
+					 "PollInterval=3600\n\n",
+					 "[Watches]\n",
+					 "# List of directory roots to index and watch seperated by semicolons\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
-					 "NoWatchDirectory=\n\n",
-					 "[Indexes]\n",
-					 "IndexTextFiles=true\n",
-					 "IndexDocuments=true\n",
-					 "IndexSourceCode=true\n",
-					 "IndexScripts=true\n",
-					 "IndexHTML=true\n",
-					 "IndexPDF=true\n",
-					 "IndexApplicationHelpFiles=true\n",
-					 "IndexDesktopFiles=true\n",
-					 "IndexEpiphanyBookmarks=true\n"
-					 "IndexEpiphanyHistory=true\n",
-					 "IndexFirefoxBookmarks=true\n",
-					 "IndexFirefoxHistory=true\n",
-					 "IndexEmails=false\n",
+					 "# List of directory roots to not index and not watch seperated by semicolons\n",
+					 "NoWatchDirectory=\n",
+					 "# Set to false to prevent watching of any kind\n",
+					 "EnableWatching=true\n\n",
+					 "[Indexing]\n",
+					 "# Disables the indexing process\n",
+					 "EnableIndexing=true\n",
+					 "# Enables indexing of a file's text contents\n",
+					 "EnableFileContentIndexing=true\n",
+					 "# Enables generation of thumbnails\n",
+					 "EnableThumbnails=false\n",
+					 "# List of partial file patterns (glob) seperated by semicolons that specify files to not index (basic stat info is only indexed for files that match these patterns)\n",
+					 "NoIndexFileTypes=;\n\n",
+					  "# Sets minimum length of words to index\n",
+					 "MinWordLength=", min_word,"\n",
+					  "# Sets maximum length of words to index (words are cropped if bigger than this)\n",
+					 "MaxWordLength=30\n",
+					  "# Sets the language specific stemmer and stopword list to use \n",
+					  "# Valid values are 'en' (english), 'da' (danish), 'nl' (dutch), 'fi' (finnish), 'fr' (french), 'de' (german), 'it' (italien), 'nb' (norwegian), 'pt' (portugese), 'ru' (russian), 'es' (spanish), 'sv' (swedish)\n",
+					 "Language=", language, "\n",
+					  "# Enables use of language specific stemmer\n",
+					 "EnableStemmer=true\n",
+					  "# Sets whether to use the slower pango word break algortihm (only set this for CJK languages which dont contain western styke word breaks)\n",
+					 "EnablePangoWordBreaks=", enable_pango, "\n\n",
+					 "[Services]\n",
 					 "IndexEvolutionEmails=false\n",
 					 "IndexThunderbirdEmails=false\n",
 					 "IndexKmailEmails=false\n\n",
-					 "[Database]\n",
-					 "StoreTextFileContentsInDB=false\n",
-					 "DBBufferMemoryLimit=1M\n\n",
-					 "[eMails]\n",
-					 "AdditionalMBoxesToIndex=;\n\n"
-					 "[Thumbnails]\n"
-					 "DoThumbnails=true\n",
+					 "[Emails]\n",
+					 "AdditionalMBoxesToIndex=;\n\n",
+					 "[Performance]\n",
+					 "# Maximum size of text in bytes to index from a file's text contents\n",
+					 "MaxTextToIndex=1048576\n",
+					 "# Specifies the no of entities to index before determining whether to perform index optimization\n",
+					 "OptimizationSweepCount=10000\n",
+					 "# Sets the maximum bucket count for the indexer\n",
+					 "MaxBucketCount=524288\n",
+					 "# Sets the minimum bucket count\n",						
+					 "MinBucketCount=65536\n",
+					 "# Sets no. of divisions of the index file\n",
+					 "Dvisions=4\n",
+					 "# Selects the desired ratio of used records to buckets to be used when optimizing index (should be a value between 0 and 4) \n",
+					 "BucketRatio=1\n",
+					 "# Alters how much padding is used to prevent index relocations. Higher values improve indexing speed but waste more disk space. Value should be in range (1..8)\n",
+					 "Padding=2\n",
 					 NULL);
 
 		g_file_set_contents (filename, contents, strlen (contents), NULL);
 		g_free (contents);
 	}
 
-	/* load all options into hashtable for fast retrieval */
+	/* load all options into tracker struct */
 	g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
+
+	/* general options */
+	if (g_key_file_has_key (key_file, "General", "EnableDebugLogging", NULL)) {
+		tracker->enable_debug = g_key_file_get_boolean (key_file, "General", "EnableDebugLogging", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "General", "PollInterval", NULL)) {
+		tracker->poll_interval = g_key_file_get_integer (key_file, "General", "PollInterval", NULL);
+
+		
+
+	}
+
+	/* Watch options */
 
 	values =  g_key_file_get_string_list (key_file,
 					      "Watches",
@@ -1600,122 +1827,129 @@ tracker_load_config_file ()
 		tracker->no_watch_directory_list = NULL;
 	}
 
-/*
-	if (g_key_file_has_key (key_file, "Indexes", "IndexTextFiles", NULL)) {
-		index_text_files = g_key_file_get_boolean (key_file, "Indexes", "IndexTextFiles", NULL);
+
+	if (g_key_file_has_key (key_file, "Watches", "EnableWatching", NULL)) {
+		tracker->enable_watching = g_key_file_get_boolean (key_file, "Watches", "EnableWatching", NULL);
 	}
 
-	if (g_key_file_has_key (key_file, "Indexes", "IndexDocuments", NULL)) {
-		index_documents = g_key_file_get_boolean (key_file, "Indexes", "IndexDocuments", NULL);
+
+	/* Indexing options */
+
+	if (g_key_file_has_key (key_file, "Indexing", "EnableIndexing", NULL)) {
+		tracker->enable_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableIndexing", NULL);
 	}
 
-	if (g_key_file_has_key (key_file, "Indexes", "IndexSourceCode", NULL)) {
-		index_source_code = g_key_file_get_boolean (key_file, "Indexes", "IndexSourceCode", NULL);
+	if (g_key_file_has_key (key_file, "Indexing", "EnableFileContentIndexing", NULL)) {
+		tracker->enable_content_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableFileContentIndexing", NULL);
 	}
 
-	if (g_key_file_has_key (key_file, "Indexes", "IndexScripts", NULL)) {
-		index_scripts = g_key_file_get_boolean (key_file, "Indexes", "IndexScripts", NULL);
+	if (g_key_file_has_key (key_file, "Indexing", "EnableThumbnails", NULL)) {
+		tracker->enable_thumbnails = g_key_file_get_boolean (key_file, "Indexing", "EnableThumbnails", NULL);
+
+		/* temporarily disable thumb generation as it is not compliant with fdo spec */
+		tracker->enable_thumbnails = FALSE;
 	}
 
-	if (g_key_file_has_key (key_file, "Indexes", "IndexHTML", NULL)) {
-		index_html = g_key_file_get_boolean (key_file, "Indexes", "IndexHTML", NULL);
-	}
+	values =  g_key_file_get_string_list (key_file,
+			       	     	      "Indexing",
+				              "NoIndexFileTypes",
+				              NULL,
+				              NULL);
 
-	if (g_key_file_has_key (key_file, "Indexes", "IndexPDF", NULL)) {
-		index_pdf = g_key_file_get_boolean (key_file, "Indexes", "IndexPDF", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexes", "IndexApplicationHelpFiles", NULL)) {
-		index_application_help_files = g_key_file_get_boolean (key_file, "Indexes", "IndexApplicationHelpFiles", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexes", "IndexDesktopFiles", NULL)) {
-		index_desktop_files = g_key_file_get_boolean (key_file, "Indexes", "IndexDesktopFiles", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexes", "IndexEpiphanyBookmarks", NULL)) {
-		index_epiphany_bookmarks = g_key_file_get_boolean (key_file, "Indexes", "IndexEpiphanyBookmarks", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexes", "IndexEpiphanyHistory", NULL)) {
-		index_epiphany_history = g_key_file_get_boolean (key_file, "Indexes", "IndexEpiphanyHistory", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexes", "IndexFirefoxBookmarks", NULL)) {
-		index_firefox_bookmarks = g_key_file_get_boolean (key_file, "Indexes", "IndexFirefoxBookmarks", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexes", "IndexFirefoxHistory", NULL)) {
-		index_firefox_history = g_key_file_get_boolean (key_file, "Indexes", "IndexFirefoxHistory", NULL);
-	}
-*/
-
-	if (g_key_file_has_key (key_file, "Indexes", "IndexEmails", NULL)) {
-		tracker->index_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEmails", NULL);
+	if (values) {
+		tracker->no_index_file_types = array_to_list (values);
 	} else {
-		tracker->index_emails = FALSE;
+		tracker->no_index_file_types = NULL;
 	}
 
-	if (tracker->index_emails) {
-		if (g_key_file_has_key (key_file, "Indexes", "IndexEvolutionEmails", NULL)) {
-			tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexEvolutionEmails", NULL);
-		} else {
-			tracker->index_evolution_emails = FALSE;
-		}
-	} else {
-		tracker->index_evolution_emails = FALSE;
+
+	if (g_key_file_has_key (key_file, "Indexing", "MinWordLength", NULL)) {
+		tracker->min_word_length = g_key_file_get_integer (key_file, "Indexing", "MinWordLength", NULL);
+
 	}
 
-	if (tracker->index_emails) {
-		if (g_key_file_has_key (key_file, "Indexes", "IndexThunderbirdEmails", NULL)) {
-			tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexThunderbirdEmails", NULL);
-		} else {
-			tracker->index_thunderbird_emails = FALSE;
-		}
-	} else {
-		tracker->index_thunderbird_emails = FALSE;
+	if (g_key_file_has_key (key_file, "Indexing", "MaxWordLength", NULL)) {
+		tracker->max_word_length = g_key_file_get_integer (key_file, "Indexing", "MaxWordLength", NULL);
+
 	}
 
-	if (tracker->index_emails) {
-		if (g_key_file_has_key (key_file, "Indexes", "IndexKmailEmails", NULL)) {
-			tracker->index_kmail_emails = g_key_file_get_boolean (key_file, "Indexes", "IndexKmailEmails", NULL);
-		} else {
-			tracker->index_kmail_emails = FALSE;
-		}
-	} else {
-		tracker->index_kmail_emails = FALSE;
+	if (g_key_file_has_key (key_file, "Indexing", "EnableStemmer", NULL)) {
+		tracker->use_stemmer = g_key_file_get_boolean (key_file, "Indexing", "EnableStemmer", NULL);
 	}
 
-/*
-	if (g_key_file_has_key (key_file, "Database", "StoreTextFileContentsInDB", NULL)) {
-		store_text_file_contents_in_db = g_key_file_get_boolean (key_file, "Indexes", "StoreTextFileContentsInDB", NULL);
+	if (g_key_file_has_key (key_file, "Indexing", "Language", NULL)) {
+		tracker->language = g_key_file_get_string (key_file, "Indexing", "Language", NULL);
 	}
 
-	db_buffer_memory_limit = g_key_file_get_string (key_file, "Database", "DBBufferMemoryLimit", NULL);
-*/
+	if (g_key_file_has_key (key_file, "Indexing", "EnablePangoWordBreaks", NULL)) {
+		tracker->use_pango_word_break = g_key_file_get_boolean (key_file, "Indexing", "EnablePangoWordBreaks", NULL);
+	}
+	
+	
+	/* Service Options */
 
-	/* e-mails */
+	if (g_key_file_has_key (key_file, "Services", "IndexEvolutionEmails", NULL)) {
+		tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Services", "IndexEvolutionEmails", NULL);
+	}
 
+	if (g_key_file_has_key (key_file, "Services", "IndexThunderbirdEmails", NULL)) {
+		tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Services", "IndexThunderbirdEmails", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Services", "IndexKmailEmails", NULL)) {
+		tracker->index_kmail_emails = g_key_file_get_boolean (key_file, "Services", "IndexKmailEmails", NULL);
+	}
+
+	/* Emails config */
+			
 	tracker->additional_mboxes_to_index = NULL;
 
-	if (tracker->index_emails) {
-		if (g_key_file_has_key (key_file, "eMails", "AdditionalMBoxesToIndex", NULL)) {
-			char **additional_mboxes;
+	if (g_key_file_has_key (key_file, "Emails", "AdditionalMBoxesToIndex", NULL)) {
+		char **additional_mboxes;
 
-			additional_mboxes = g_key_file_get_string_list (key_file, "eMails", "AdditionalMBoxesToIndex", NULL, NULL);
+		additional_mboxes = g_key_file_get_string_list (key_file, "Emails", "AdditionalMBoxesToIndex", NULL, NULL);
 
-			tracker->additional_mboxes_to_index = array_to_list (additional_mboxes);
-		}
+		tracker->additional_mboxes_to_index = array_to_list (additional_mboxes);
+	}
+	
+
+	/* Performance options */
+
+	if (g_key_file_has_key (key_file, "Performance", "MaxTextToIndex", NULL)) {
+		tracker->max_index_text_length = g_key_file_get_integer (key_file, "Performance", "MaxTextToIndex", NULL);
+
 	}
 
+	if (g_key_file_has_key (key_file, "Performance", "OptimizationSweepCount", NULL)) {
+		tracker->optimization_count = g_key_file_get_integer (key_file, "Performance", "OptimizationSweepCount", NULL);
 
-	/* thumbnails */
-
-	if (g_key_file_has_key (key_file, "Thumbnails", "DoThumbnails", NULL)) {
-		tracker->do_thumbnails = g_key_file_get_boolean (key_file, "Thumbnails", "DoThumbnails", NULL);
-	} else {
-		tracker->do_thumbnails = TRUE;
 	}
+
+	if (g_key_file_has_key (key_file, "Performance", "MaxBucketCount", NULL)) {
+		tracker->max_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MaxBucketCount", NULL);
+
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "MinBucketCount", NULL)) {
+		tracker->min_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MinBucketCount", NULL);
+
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "Dvisions", NULL)) {
+		tracker->index_divisions = g_key_file_get_integer (key_file, "Performance", "Dvisions", NULL);
+
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "BucketRatio", NULL)) {
+		tracker->index_bucket_ratio = g_key_file_get_integer (key_file, "Performance", "BucketRatio", NULL);
+
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "Padding", NULL)) {
+		tracker->padding = g_key_file_get_integer (key_file, "Performance", "Padding", NULL);
+
+	}
+
 
 	g_free (filename);
 
@@ -1878,7 +2112,7 @@ tracker_notify_meta_data_available (void)
 
 		g_thread_yield ();
 		g_usleep (10);
-		tracker_log ("in check phase");
+		g_debug ("in check phase");
 	}
 }
 

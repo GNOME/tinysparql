@@ -365,7 +365,7 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 			return NULL;
 		}
 
-		tracker_log ("Extracting thumbnail for %s using %s", argv[1], argv[0] );
+		g_debug ("Extracting thumbnail for %s using %s", argv[1], argv[0] );
 
 		if (g_spawn_sync (NULL,
 				  argv,
@@ -478,11 +478,15 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 							if (meta_value) {
 								char *st;
 
+
+								//tracker_log ("testing %s = %s", meta_name, meta_value);
 								st = g_hash_table_lookup (table, meta_name);
 
 								if (st == NULL) {
 									char *utf_value; 
 
+
+									
 									if (!g_utf8_validate (meta_value, -1, NULL)) {
 
 										utf_value = g_locale_to_utf8 (meta_value, -1, NULL, NULL, NULL);
@@ -491,11 +495,11 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 									}
 
 									if (utf_value) {
-										int length = strlen (utf_value);
+										guint32 length = strlen (utf_value);
 
 										if ((length > 0) && (length >= strlen (meta_value))) {
 	 							
-											tracker_log ("%s = %s", meta_name, utf_value);
+											g_debug ("%s = %s", meta_name, utf_value);
 											g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
 
 										}

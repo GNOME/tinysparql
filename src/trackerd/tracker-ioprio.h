@@ -18,7 +18,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <linux/unistd.h> 
+#ifdef HAVE_LINUX_UNISTD_H
+#include <linux/unistd.h>
+#endif
 
 #ifndef TRACKER_IOPRIO_H
 #define TRACKER_IOPRIO_H

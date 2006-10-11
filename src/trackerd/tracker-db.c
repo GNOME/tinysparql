@@ -729,11 +729,13 @@ tracker_db_update_pending_file (DBConnection *db_con, const char *uri, int count
 void 
 tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info) 
 {
+	int i;
 
 	g_return_if_fail (info && info->uri && (info->uri[0] == '/'));
 
+	i = g_async_queue_length (tracker->file_metadata_queue);
 
-	if (g_async_queue_length (tracker->file_metadata_queue) < tracker->max_extract_queue_size) {
+	if (i < tracker->max_extract_queue_size) {
 
 		/* inc ref count to prevent it being deleted */
 		info = tracker_inc_info_ref (info);
@@ -745,6 +747,7 @@ tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info)
 	}
 
 	tracker_notify_meta_data_available ();
+
 }
 
 
