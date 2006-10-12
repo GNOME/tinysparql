@@ -155,6 +155,21 @@ tracker_parse_text_into_array (const char *text)
 }
 
 
+static void
+update_word_count (GHashTable *word_table, const char *word, int weight)
+{
+	int count;
+
+	g_return_if_fail (word || (weight > 0));
+
+	/* count dupes */
+	count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
+	g_hash_table_insert (word_table, g_strdup (word), GINT_TO_POINTER (count + weight));
+
+}
+
+
+
 GHashTable *
 tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 {
@@ -185,7 +200,7 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 
 		for (p = words; *p; p++) {
 			char *word;
-			int  word_len, count;
+			int  word_len;
 
 			/* remove words that dont contain at least one alpha char */
 			if (!word_is_valid (*p)) {
@@ -205,8 +220,9 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 			word = g_utf8_normalize (s2, -1, G_NORMALIZE_ALL);
 			g_free (s2);
 			
+			word_len = strlen (word);
 
-			if (!word) {
+			if (!word || (word_len == 0)) {
 				continue;
 			}
 
@@ -218,7 +234,7 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				}
 			}
 
-			word_len = strlen (word);
+
 
 			/* truncate words more than max word length in bytes */
 			if (word_len > tracker->max_word_length) {
@@ -229,12 +245,16 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 
 				while (word_len != 0) {
 
-					if (g_utf8_validate (word, -1, NULL)) {
+					word_len--;
+
+					if ((word_len > 0) && (word_len  <= tracker->max_word_length) && (g_utf8_validate (word, word_len, NULL))) {
+						word[word_len-1] = '\0';
 						break;
 					}
+				}
 
-					word[word_len-1] = '\0';
-					word_len--;
+				if (!word) {
+					continue;
 				}
 			}
 
@@ -247,14 +267,12 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				//g_print ("stemmed %s to %s\n", word, aword);
 				g_free (word);
 				word = aword;
+
+			
 			}
 
-			
-
-			/* count dupes */
-			count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
-			g_hash_table_insert (word_table, word, GINT_TO_POINTER (count + weight));
-			
+			update_word_count (word_table, word, weight);
+			g_free (word);
 
 		}
 

@@ -738,6 +738,45 @@ tracker_print_object_allocations ()
 
 
 gboolean
+tracker_file_is_no_watched (const char* uri)
+{
+
+	if (!tracker->no_watch_directory_list) {
+		return FALSE;
+	}
+
+	if (!uri || uri[0] != '/') {
+		return TRUE;
+	}
+
+	char *compare_uri;
+	GSList *l;
+	for (l=tracker->no_watch_directory_list; l; l=l->next) {
+
+		compare_uri = (char *) l->data;
+
+		/* check if equal or a prefix with an appended '/' */
+		if (strcmp (uri, compare_uri) == 0) {
+			g_debug ("blocking watch of %s", uri); 
+			return TRUE;
+		}
+
+		char *prefix = g_strconcat (compare_uri, G_DIR_SEPARATOR_S, NULL);
+		if (g_str_has_prefix (uri, prefix)) {
+			g_debug ("blocking prefix watch of %s", uri); 
+			return TRUE;
+		}
+
+		g_free (prefix);
+		
+	}
+
+	return FALSE;
+	
+}
+
+
+gboolean
 tracker_file_info_is_valid (FileInfo *info)
 {
 	if (!info || !info->uri) {
@@ -1421,7 +1460,7 @@ tracker_get_files (const char *dir, gboolean dir_only)
 
 			if (!dir_only || tracker_is_directory (mystr)) {
 
-				if (g_slist_find_custom (tracker->no_watch_directory_list, mystr, (GCompareFunc) has_prefix) == NULL) {
+				if (!tracker_file_is_no_watched (mystr)) {
 					file_list = g_slist_prepend (file_list, g_strdup (mystr));
 				}
 			}
@@ -1526,15 +1565,6 @@ tracker_ignore_file (const char *uri)
 
 	return FALSE;
 }
-
-
-static void
-display_list_values (const char *uri)
-{
-	tracker_log ("setting no watch directory %s", uri);
-}
-
-
 
 static Matches tmap[] = {
 		{"da", "danish"},
@@ -1821,8 +1851,7 @@ tracker_load_config_file ()
 
 	if (values) {
 		tracker->no_watch_directory_list = array_to_list (values);
-
-		g_slist_foreach (tracker->no_watch_directory_list,(GFunc) display_list_values, NULL);
+		
 	} else {
 		tracker->no_watch_directory_list = NULL;
 	}

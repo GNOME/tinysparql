@@ -103,7 +103,9 @@ typedef struct {
 	int		max_word_length;  	/* words longer than this are cropped */
 	gboolean	use_stemmer;	 	/* enables stemming support */
 	char		*language;		/* the language specific stemmer and stopwords to use */	
-	gpointer	stemmer;		/* pointer to stemmer */
+	gpointer	stemmer;		/* pointer to stemmer */	
+	GMutex		*stemmer_mutex;
+
 	GHashTable	*stop_words;	  	/* table of stop words that are to be ignored by the parser */
 	gboolean	use_pango_word_break;
 
@@ -325,6 +327,7 @@ gboolean	tracker_file_is_indexable 	(const char *uri);
 
 gboolean 	tracker_is_directory 		(const char *dir);
 
+gboolean	tracker_file_is_no_watched 	(const char* uri);
 
 void 		tracker_get_dirs 		(const char *dir, GSList **file_list) ;
 

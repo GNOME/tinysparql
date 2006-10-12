@@ -130,7 +130,7 @@ static gboolean disable_indexing = FALSE;
 static gboolean enable_debug, enable_evolution, enable_thunderbird, enable_kmail;
 
 static GOptionEntry entries[] = {
-	{"ignore-dirs", 0, 0, G_OPTION_ARG_STRING, &no_watch_dirs, "Directory roots to ignore seperated by semicolons (must specify full path)", "ignore-dirs"},
+	{"ignore-dirs", 0, 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, "Directory roots to ignore (must specify full path)", "ignore-dirs"},
 	{"disable-indexing", 0, 0, G_OPTION_ARG_NONE, &disable_indexing, "prevents any indexing or watching taking place", NULL },
 	{"enable-debug", 0, 0, G_OPTION_ARG_NONE, &enable_debug, "Enables more verbose debug messages", NULL },
 	{"enable-evolution", 0, 0, G_OPTION_ARG_NONE, &enable_evolution, "Enables indexing of Evolution emails", NULL },
@@ -152,28 +152,6 @@ my_yield (void)
 }
 
 
-static int
-has_prefix (const char *str1, const char *str2)
-{
-
-	if (!str1 || !str2) {
-		return -1;
-	}
-
-	if (strcmp (str1, str2) == 0) {
-		return 0;
-	} else {
-		char *compare_str;
-
-		compare_str = g_strconcat (str1, G_DIR_SEPARATOR_S, NULL);
-
-		if (g_str_has_prefix (str2, compare_str)) {
-			return 0;
-		}
-		g_free (compare_str);
-		return 1;
-	}
-}
 
 
 static void
@@ -399,7 +377,7 @@ poll_dir (const char *uri, DBConnection *db_con)
 
 
 	/* scan dir for changes in all other files */
-	if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, uri, (GCompareFunc) has_prefix) == NULL) {
+	if (!tracker_file_is_no_watched (uri)) {
 		scan_directory (uri, db_con);
 	} else {
 		g_debug ("blocked scan of directory %s as its in the no watch list", uri);
@@ -533,14 +511,17 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 				str = (char *) tmp->data;
 
-				if (g_slist_find_custom (tracker->no_watch_directory_list, str, (GCompareFunc) has_prefix) == NULL) {
+				if (!tracker_file_is_no_watched (str)) {
 
 					/* use polling if FAM or Inotify fails */
 					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && !tracker_is_dir_polled (str)) {
 						if (tracker->is_running) {
 							tracker_add_poll_dir (str);
 						}
-					}
+					} 
+
+				} else {
+					g_debug ("blocked directory %s as its in the no watch list", str);
 				}
 			}
 
@@ -598,7 +579,7 @@ watch_dir (const char* dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-	if (g_slist_find_custom (tracker->no_watch_directory_list, dir_utf8, (GCompareFunc) has_prefix) == NULL) {
+	if (!tracker_file_is_no_watched (dir_utf8)) {
 		GSList *mylist;
 
 		mylist = NULL;
@@ -1633,8 +1614,11 @@ process_files_thread (void)
 
 			case TRACKER_ACTION_DIRECTORY_CHECK:
 
+
+
+
 				if (need_index) {
-					if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+					if (!tracker_file_is_no_watched (info->uri)) {
 						scan_directory (info->uri, db_con);
 					} else {
 						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
@@ -1645,7 +1629,7 @@ process_files_thread (void)
 
 			case TRACKER_ACTION_DIRECTORY_REFRESH:
 
-				if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+				if (!tracker_file_is_no_watched (info->uri)) {
 					scan_directory (info->uri, db_con);
 				} else {
 					g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
@@ -1664,7 +1648,7 @@ process_files_thread (void)
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
-					if (!tracker->no_watch_directory_list || g_slist_find_custom (tracker->no_watch_directory_list, info->uri, (GCompareFunc) has_prefix) == NULL) {
+					if (!tracker_file_is_no_watched (info->uri)) {
 						scan_directory (info->uri, db_con);
 					} else {
 						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
@@ -2212,7 +2196,23 @@ sanity_check_option_values ()
 	tracker_log ("Minimum index word length : \t\t%d", tracker->min_word_length);
 	tracker_log ("Maximum index word length : \t\t%d", tracker->max_word_length);
 	tracker_log ("Stemmer enabled : \t\t\t%s", bools[tracker->use_stemmer]);
-	tracker_log ("Using Pango word breaking : \t\t%s\n", bools[tracker->use_pango_word_break]);
+	tracker_log ("Using Pango word breaking : \t\t%s\n\n", bools[tracker->use_pango_word_break]);
+
+	GSList *l;
+	tracker_log ("Setting watch directory roots to:");
+	for (l = tracker->watch_directory_roots_list; l; l=l->next) {
+		tracker_log ((char *) l->data);
+	}
+	tracker_log ("\t");
+
+	if (tracker->no_watch_directory_list) {
+
+		tracker_log ("Setting no watch directory roots to:");
+		for (l = tracker->no_watch_directory_list; l; l=l->next) {
+			tracker_log ((char *) l->data);
+		}
+		tracker_log ("\t");
+	}
 
 }
 
@@ -2235,7 +2235,7 @@ main (int argc, char **argv)
 	tzset ();
 
 	GError *error = NULL;
-	context = g_option_context_new ("tracker daemon for indexing, search and storage of metadata");
+	context = g_option_context_new ("[WatchDirectory1 WatchDirectory2...]");
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 
@@ -2305,6 +2305,8 @@ main (int argc, char **argv)
 
 	tracker->log_access_mutex = g_mutex_new ();
 	tracker->scheduler_mutex = g_mutex_new ();
+
+	tracker->stemmer_mutex = g_mutex_new ();
 
 
 	/* check user data files */
