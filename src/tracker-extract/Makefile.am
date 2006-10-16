@@ -18,7 +18,8 @@ tracker_extract_SOURCES = tracker-extract.c \
 	tracker-extract-png.c \
 	tracker-extract-exif.c	\
 	tracker-extract-msoffice.c \
-	tracker-extract-imagemagick.c 
+	tracker-extract-imagemagick.c \
+	tracker-extract-mplayer.c 
 
 
 tracker_extract_LDADD = $(GLIB2_LIBS)  \

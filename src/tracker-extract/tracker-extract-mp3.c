@@ -996,27 +996,27 @@ tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 	}
 
 
-	if (strlen (info.title) > 0) {
+	if (info.title && strlen (info.title) > 0) {
 		g_hash_table_insert (metadata, g_strdup ("Audio.Title"), g_strdup (info.title));
 	}
 
-	if (strlen (info.artist) > 0) {
+	if (info.artist && strlen (info.artist) > 0) {
 		g_hash_table_insert (metadata, g_strdup ("Audio.Artist"), g_strdup (info.artist));
 	}
 
-	if (strlen (info.album) > 0) {
+	if (info.album && strlen (info.album) > 0) {
 		g_hash_table_insert (metadata, g_strdup ("Audio.Album"), g_strdup (info.album));
 	}
 
-	if (strlen (info.year) > 0) {
+	if (info.year && strlen (info.year) > 0) {
 		g_hash_table_insert (metadata, g_strdup ("Audio.ReleaseDate"), g_strdup (info.year));
 	}
 
-	if (strlen (info.genre) > 0) {
+	if (info.genre && strlen (info.genre) > 0) {
 		g_hash_table_insert (metadata, g_strdup ("Audio.Genre"), g_strdup (info.genre));
 	}
 
-	if (strlen (info.comment) > 0) {
+	if (info.comment && strlen (info.comment) > 0) {
 		g_hash_table_insert (metadata, g_strdup ("Audio.Comment"), g_strdup (info.comment));
 	}
 

@@ -70,45 +70,45 @@ void tracker_extract_png   (gchar *, GHashTable *);
 void tracker_extract_exif   (gchar *, GHashTable *);
 #endif
 void tracker_extract_imagemagick   (gchar *, GHashTable *);
+void tracker_extract_mplayer   (gchar *, GHashTable *);
 
 MimeToExtractor extractors[] = {
-   /* Document extractors */
-	{ "application/vnd.oasis.opendocument.*",       tracker_extract_oasis       },
-	{ "application/postscript",                     tracker_extract_ps          },
+	/* Document extractors */
+	{ "application/vnd.oasis.opendocument.*",  tracker_extract_oasis       },
+	{ "application/postscript",                tracker_extract_ps          },
 #ifdef HAVE_POPPLER
-	{ "application/pdf",                            tracker_extract_pdf         },
+	{ "application/pdf",                       tracker_extract_pdf         },
 #endif
-	{ "application/x-abiword",                      tracker_extract_abw         },
+	{ "application/x-abiword",                 tracker_extract_abw         },
 #ifdef HAVE_LIBGSF
-	{ "application/msword",                         tracker_extract_msoffice    },
-	{ "application/vnd.ms-*",                       tracker_extract_msoffice    },
+	{ "application/msword",                    tracker_extract_msoffice    },
+	{ "application/vnd.ms-*",                  tracker_extract_msoffice    },
 #endif
 
 
-   /* Video extractors */
-#ifdef HAVE_THEORA
-	{ "video/x-theora+ogg",                         tracker_extract_theora      },
-#endif
+	/* Video extractors */
+	{ "video/*",                               tracker_extract_mplayer     },
 
 
-   /* Audio extractors */
-	{ "audio/mpeg",		                        tracker_extract_mp3      },
-	{ "audio/x-mp3",	                        tracker_extract_mp3      },
-	{ "audio/x-mpeg",	                        tracker_extract_mp3      },
+	/* Audio extractors */
+	{ "audio/mpeg",                            tracker_extract_mp3         },
+	{ "audio/x-mp3",                           tracker_extract_mp3         },
+	{ "audio/x-mpeg",                          tracker_extract_mp3         },
 #ifdef HAVE_VORBIS
-	{ "audio/x-vorbis+ogg",                         tracker_extract_vorbis      },
+	{ "audio/x-vorbis+ogg",                    tracker_extract_vorbis      },
 #endif
+	{ "audio/*",                               tracker_extract_mplayer     },
 
 
    /* Image extractors */
 #ifdef HAVE_LIBPNG
-	{ "image/png",                                  tracker_extract_png         },
+	{ "image/png",                             tracker_extract_png         },
 #endif
 #ifdef HAVE_LIBEXIF
-	{ "image/jpeg",                                 tracker_extract_exif        },
+	{ "image/jpeg",                            tracker_extract_exif        },
 #endif
-	{ "image/*",                                    tracker_extract_imagemagick },
-	{ "",                                           NULL                        }
+	{ "image/*",                               tracker_extract_imagemagick },
+	{ "",                                      NULL                        }
 };
 
 static MetadataFileType
@@ -125,7 +125,7 @@ get_metadata_type (const char *mime)
 		return IMAGE_METADATA;		
 	} else { 
 		if (g_str_has_prefix (mime, "video")) {
-			return IGNORE_METADATA;		
+			return VIDEO_METADATA;		
 		} else { 
 			if (g_str_has_prefix (mime, "audio")) {
 				return AUDIO_METADATA;		
@@ -174,6 +174,8 @@ tracker_get_file_metadata (const char *uri, char *mime)
 		for (p = extractors; p->extractor; ++p) {
 			if (g_pattern_match_simple (p->mime, mime)) {
 				(*p->extractor)(uri_in_locale, meta_table);
+				if (g_hash_table_size (meta_table) == 0)
+					continue;
 				g_free (uri_in_locale);
 				g_free (mime);
 				return meta_table;
