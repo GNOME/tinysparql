@@ -31,16 +31,20 @@ typedef struct {
 	guint32 	score;            	 /* Ranking score */
 } SearchHit;
 
+
+
+guint32		tracker_indexer_calc_amalgamated 	(int service, int score);
 void		tracker_index_free_hit_list		(GSList *hit_list);
 
 Indexer * 	tracker_indexer_open 			(const char *name);
 void		tracker_indexer_close 			(Indexer *indexer);
 gboolean	tracker_indexer_optimize		(Indexer *indexer);
-
+void		tracker_indexer_sync 			(Indexer *indexer);
 
 /* Indexing api */
-gboolean	tracker_indexer_append_word 	(Indexer *indexer, const char *word, guint32 id, int service, int score);
-gboolean	tracker_indexer_update_word 	(Indexer *indexer, const char *word, guint32 id, int service, int score, gboolean remove_word);
+gboolean	tracker_indexer_append_word_chunk 	(Indexer *indexer, const char *word, WordDetails *details, int word_detail_count);
+gboolean	tracker_indexer_append_word 		(Indexer *indexer, const char *word, guint32 id, int service, int score);
+gboolean	tracker_indexer_update_word 		(Indexer *indexer, const char *word, guint32 id, int service, int score, gboolean remove_word);
 
 /* returns a GSList containing SearchHit structs */
 GSList *	tracker_indexer_get_hits	(Indexer *indexer, char **words, int service_type_min, int service_type_max, int offset, int limit, gboolean get_count, int *total_count);

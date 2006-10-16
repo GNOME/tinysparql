@@ -57,8 +57,8 @@ typedef struct {
 
 /* default performance options */
 #define MAX_INDEX_TEXT_LENGTH		1048576
-#define MAX_PROCESS_QUEUE_SIZE		500
-#define MAX_EXTRACT_QUEUE_SIZE		400
+#define MAX_PROCESS_QUEUE_SIZE		100
+#define MAX_EXTRACT_QUEUE_SIZE		500
 #define	OPTIMIZATION_COUNT		10000
 
 /* default indexer options */
@@ -70,6 +70,13 @@ typedef struct {
 
 /* just for now, make tracker_log actually call g_message */
 #define tracker_log g_message
+
+typedef struct {                         /* type of structure for an element of search result */
+	guint32 	id;              /* Service ID number of the document */
+	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
+} WordDetails;
+
+
 
 typedef struct {
 
@@ -125,8 +132,25 @@ typedef struct {
 	/* debug option for more verbose (but slower) logging */
 	gboolean	enable_debug;
 
+	gboolean	turbo;
+	gboolean	slow;
 
 	/* application run time values */
+	gboolean	is_indexing;
+	gboolean	in_flush;
+	int		index_count;
+	int		index_counter;
+	int		update_count;
+
+	/* use these to control how many common words are cached and flushed to qdbm when indexing finishes */
+	int		cache_word_limit;
+	int		cache_word_min;
+	int		number_of_cached_words;
+	int		flush_count;
+	int		min_flush;
+	int		flush_by_file;
+	
+
 	GSList 		*poll_list;
 	
 	int		file_update_count;
@@ -139,7 +163,6 @@ typedef struct {
 	GMainLoop 	*loop;
 
 	Indexer		*file_indexer;
-	Indexer		*email_indexer;
 
 	GMutex 		*log_access_mutex;
 	char	 	*log_file;
@@ -241,6 +264,9 @@ typedef struct {
 	char *lang;
 	char *name;
 } Matches;
+
+
+
 
 
 typedef struct {

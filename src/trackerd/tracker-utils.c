@@ -60,7 +60,7 @@ char *tracker_actions[] = {
 		NULL};
 
 
-#define ZLIBBUFSIZ 131072
+#define ZLIBBUFSIZ 8196
 
 static int info_allocated = 0;
 static int info_deallocated = 0;

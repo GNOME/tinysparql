@@ -24,12 +24,6 @@ extern Tracker *tracker;
 
 #define INDEXFBP        32               /* size of free block pool of inverted index */
 
-typedef struct {                         /* type of structure for an element of search result */
-	guint32 	id;              /* Service ID number of the document */
-	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
-} WordDetails;
-
-
 typedef struct {                        
 	char 	*word;    
 	int 	word_hits;
@@ -59,8 +53,8 @@ get_service_type (WordDetails *details)
 
 
 
-static inline guint32
-calc_amalgamated (int service, int score)
+guint32
+tracker_indexer_calc_amalgamated (int service, int score)
 {
 
 	unsigned char a[4];
@@ -231,7 +225,7 @@ tracker_indexer_open (const char *name)
 
 	result->word_mutex = g_mutex_new ();
 
-	crsetalign (word_index , tracker->padding * 8);
+	crsetalign (word_index , -2);
 
 	/* re optimize database if bucket count < rec count */
 
@@ -267,6 +261,17 @@ tracker_indexer_close (Indexer *indexer)
 	g_mutex_free (indexer->word_mutex);
 
 	g_free (indexer);
+}
+
+
+void
+tracker_indexer_sync (Indexer *indexer)
+{
+	if (shutdown) return;
+
+	g_mutex_lock (indexer->word_mutex);
+	crsync (indexer->word_index);
+	g_mutex_unlock (indexer->word_mutex);
 }
 
 gboolean
@@ -311,7 +316,33 @@ tracker_indexer_optimize (Indexer *indexer)
 
 /* indexing api */
 
-/* use for fast word insertion when doc is new */
+/* use for fast insertion of a word for multiple documents at a time */
+
+gboolean
+tracker_indexer_append_word_chunk (Indexer *indexer, const char *word, WordDetails *details, int word_detail_count)
+{
+	if (shutdown) return FALSE;
+
+	g_return_val_if_fail ((indexer && word && details && (word_detail_count > 0)), FALSE);
+
+	if (word_detail_count == 1) {
+		return tracker_indexer_append_word (indexer, word, details[0].id, get_service_type (&details[0]), get_score (&details[0]));
+	} 
+
+	g_mutex_lock (indexer->word_mutex);
+	if (!crput (indexer->word_index, word, -1, (char *) details, (word_detail_count * sizeof (WordDetails)), CR_DCAT)) {
+		g_mutex_unlock (indexer->word_mutex);
+		return FALSE;
+	}
+	g_mutex_unlock (indexer->word_mutex);
+
+	return TRUE;	
+	
+}
+
+
+/* append individual word for a document */
+
 gboolean
 tracker_indexer_append_word (Indexer *indexer, const char *word, guint32 id, int service, int score)
 {
@@ -323,7 +354,7 @@ tracker_indexer_append_word (Indexer *indexer, const char *word, guint32 id, int
 	WordDetails pair;
 
 	pair.id = id;
-	pair.amalgamated = calc_amalgamated (service, score);
+	pair.amalgamated = tracker_indexer_calc_amalgamated (service, score);
 
 	g_mutex_lock (indexer->word_mutex);
 	if (!crput (indexer->word_index, word, -1, (char *) &pair, sizeof (WordDetails), CR_DCAT)) {
@@ -331,11 +362,12 @@ tracker_indexer_append_word (Indexer *indexer, const char *word, guint32 id, int
 		return FALSE;
 	}
 	g_mutex_unlock (indexer->word_mutex);
-	
-	//tracker_log ("Added word %s to ID %d with score %d", word, id, score);
 
 	return TRUE;
 }
+
+
+
 
 
 
@@ -352,12 +384,8 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 
 	g_mutex_lock (indexer->word_mutex);
 
-	//tracker_log ("updating word %s with score %d in ID %d", word, score, id);
-
 	/* check if existing record is there  */
 	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
-
-		g_mutex_unlock (indexer->word_mutex);
 
 		if (tsiz >= (int) sizeof (WordDetails)) {
 
@@ -388,10 +416,9 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 						tsiz -= sizeof (WordDetails); 
 
 					} else {
-						details[i].amalgamated = calc_amalgamated (service, score);
+						details[i].amalgamated = tracker_indexer_calc_amalgamated (service, score);
 					}
 
-					g_mutex_lock (indexer->word_mutex);
 					crput (indexer->word_index, word, -1, (char *) details, tsiz, CR_DOVER);
 					g_mutex_unlock (indexer->word_mutex);	
 										
@@ -401,14 +428,14 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 				
 				}
 			}
-		}
+		} 
+
+		g_free (tmp);
  
-	}  else {
-		g_mutex_unlock (indexer->word_mutex);
-	}
-
-	g_free (tmp);
-
+	} 
+	
+	g_mutex_unlock (indexer->word_mutex);
+	
 	return (tracker_indexer_append_word (indexer, word, id, service, score));
 
 }

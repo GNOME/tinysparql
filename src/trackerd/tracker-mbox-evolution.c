@@ -179,7 +179,7 @@ get_uri_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
 {
 	const char	  *field;
 	char		  **parts;
-	unsigned long int uid;
+	unsigned long int  uid;
 	char		  *mbox_name;
 
 	if (!g_m_message || !msg || !msg->parent_mbox) {
@@ -202,11 +202,15 @@ get_uri_of_evolution_email (GMimeMessage *g_m_message, MailMessage *msg)
 
 	uid = strtoul (parts[1], NULL, 16);
 
+	if (!uid) {
+		return;
+	}
+
 	g_strfreev (parts);
 
 	mbox_name = g_path_get_basename (msg->parent_mbox->mbox_uri);
 
-	msg->uri = g_strdup_printf ("email://local@local/%s;uid=%ld", mbox_name, uid);
+	msg->uri = g_strdup_printf ("email://local@local/%s;uid=%X", mbox_name, (unsigned int) uid);
 
 	g_free (mbox_name);
 }

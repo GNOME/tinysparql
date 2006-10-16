@@ -759,7 +759,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 
 	g_return_if_fail (uri && (uri[0] == '/'));
 
-	/* if a check action then then discard if up to date */
+	/* if a check action then then discard if up to date 
 	if (action == TRACKER_ACTION_CHECK || action == TRACKER_ACTION_FILE_CHECK || action == TRACKER_ACTION_DIRECTORY_CHECK) {
 		
 		guint32 id;
@@ -773,7 +773,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 		}
 
 	}
-
+*/
 	/* check if uri already has a pending action and update accordingly */
 	info = tracker_db_get_pending_file (db_con, uri);
 

@@ -806,7 +806,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	}
 
 	/* build SELECT clause */
-	sql = g_string_new (" SELECT F.Path || ");
+	sql = g_string_new (" SELECT (F.Path || ");
 
 	g_string_append_printf (sql, "'%s' || F.Name) as PathName ", G_DIR_SEPARATOR_S);
 

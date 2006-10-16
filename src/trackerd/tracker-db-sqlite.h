@@ -51,7 +51,7 @@ typedef struct {
 	char		*err;
 	int		rc;
 	char		*thread;
-
+	gpointer	user_data;
 	GHashTable	*statements;
 } DBConnection;
 
@@ -71,23 +71,28 @@ void		tracker_db_close		(DBConnection *db_con);
 void		tracker_db_finalize		(void);
 DBConnection *	tracker_db_connect		(void);
 DBConnection *	tracker_db_connect_full_text	(void);
+DBConnection *	tracker_db_connect_cache 	(void);
 gboolean	tracker_update_db		(DBConnection *db_con);
 char *		tracker_escape_string		(DBConnection *db_con, const char *in);
 void		tracker_db_prepare_queries	(DBConnection *db_con);
 char ***	tracker_exec_proc		(DBConnection *db_con, const char *procedure, int param_count, ...);
 char ***	tracker_exec_sql		(DBConnection *db_con, const char *query);
 char ***	tracker_exec_sql_ignore_nulls	(DBConnection *db_con, const char *query);
+void		tracker_db_exec_no_reply 	(DBConnection *db_con, const char *query);
 void		tracker_log_sql			(DBConnection *db_con, const char *query);
 void		tracker_create_db		(void);
 void		tracker_db_load_stored_procs	(DBConnection *db_con);
-void		tracker_db_save_file_contents	(DBConnection *db_con, DBConnection *blob_db_con, const char *file_name, FileInfo *info);
+void		tracker_db_save_file_contents	(DBConnection *db_con, DBConnection *blob_db_con, DBConnection *cache_db_con, const char *file_name, FileInfo *info);
 void		tracker_db_clear_temp		(DBConnection *db_con);
 void		tracker_db_check_tables		(DBConnection *db_con);
 void		tracker_db_start_transaction	(DBConnection *db_con);
 void		tracker_db_end_transaction	(DBConnection *db_con);
 
-void		tracker_db_update_indexes_for_new_service	(DBConnection *db_con, guint32 service_id, int service_type_id, GHashTable *table);
-void		tracker_db_update_differential_index		(GHashTable *old_table, GHashTable *new_table, const char *id, int service_type_id);
+void		tracker_db_update_indexes_for_new_service	(DBConnection *db_con, DBConnection *cache_db_con, guint32 service_id, int service_type_id, GHashTable *table);
+void		tracker_db_update_differential_index		(DBConnection *db_con, GHashTable *old_table, GHashTable *new_table, const char *id, int service_type_id);
+int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
+
+void		tracker_db_release_memory 	();
 
 char ***	tracker_db_search_text		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results);
 char ***	tracker_db_search_files_by_text	(DBConnection *db_con, const char *text, int offset, int limit, gboolean sort);

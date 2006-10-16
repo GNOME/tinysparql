@@ -406,7 +406,7 @@ get_uri_of_kmail_email (GMimeMessage *g_m_message, MailMessage *msg)
 	msg->uri = NULL;
 
 	if (from) {
-		char   *uri;
+		//char   *uri;
 		time_t date;
 		int    gmt_offset;
 

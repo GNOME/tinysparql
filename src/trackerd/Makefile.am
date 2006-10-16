@@ -48,7 +48,7 @@ db_sources = \
 endif
 
 if BUILD_TEST
-bin_PROGRAMS = trackerd tracker-convert-file test-tracker-indexer
+bin_PROGRAMS = trackerd test-tracker-indexer
 test_tracker_indexer_SOURCES =	tracker-indexer.c test-tracker-indexer.c \
 	tracker-utils.c		\
 	tracker-utils.h		\
@@ -70,7 +70,6 @@ test_tracker_indexer_SOURCES =	tracker-indexer.c test-tracker-indexer.c \
 test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS)	
 else
 bin_PROGRAMS = trackerd 
-#tracker-convert-file 
 endif
 
 trackerd_SOURCES =		\
@@ -140,6 +139,3 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(top_builddir)/src/libstemmer/libstemmer-private.la
 
 
-#tracker_convert_file_SOURCES =	tracker-convert-file.c	tracker-utils.c tracker-parser.c tracker-stemmer-english.c
-
-#tracker_convert_file_LDADD = $(GLIB2_LIBS) $(PANGO_LIBS) -lbz2	

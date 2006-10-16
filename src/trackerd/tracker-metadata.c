@@ -143,7 +143,7 @@ tracker_get_metadata_type (const char *mime)
 
 	} else 	if (g_str_has_prefix (mime, "video")) {
 			/* don't bother with video metadata - its really really slow to extract + there's bugger all metadata anyhow! */
-			return IGNORE_METADATA;
+			return VIDEO_METADATA;
 
 	} else 	if (g_str_has_prefix (mime, "audio") || (strcmp (mime, "application/ogg") == 0)) {
 			return AUDIO_METADATA;
@@ -413,7 +413,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 
 	meta_type = tracker_get_metadata_type (mime);
 
-	if (meta_type == DOC_METADATA || meta_type == IMAGE_METADATA || meta_type == AUDIO_METADATA) {
+	if (meta_type == DOC_METADATA || meta_type == IMAGE_METADATA || meta_type == AUDIO_METADATA || meta_type == VIDEO_METADATA) {
 		char *argv[4];
 		char *value;
 
