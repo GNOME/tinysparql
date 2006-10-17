@@ -74,6 +74,7 @@ DeleteFile5 DELETE FROM ServiceKeywords WHERE (ServiceID = ?);
 DeleteFile6 DELETE FROM ServiceIndexMetaData WHERE ServiceID = ?;
 DeleteFile7 DELETE FROM ServiceNumericMetaData WHERE ServiceID = ?;
 DeleteFile8 DELETE FROM ServiceBlobMetaData WHERE ServiceID = ?;
+DeleteFile9 DELETE FROM ServiceWords WHERE ServiceID = ?;
 
 DeleteDirectory1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory2 DELETE FROM FilePending  WHERE FileID in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
@@ -82,6 +83,8 @@ DeleteDirectory4 DELETE FROM Services WHERE (Path = ?) OR (Path glob ?);
 DeleteDirectory5 DELETE FROM ServiceIndexMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory6 DELETE FROM ServiceNumericMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory7 DELETE FROM ServiceBlobMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
+DeleteDirectory8 DELETE FROM ServiceWords  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
+
 
 SaveFileContents REPLACE into ServiceContents (ServiceID, Content, ContainsWordScores) values (?,?,?);
 DeleteFileContents DELETE FROM ServiceContents where ServiceID = ?;
@@ -164,5 +167,21 @@ InsertWatch insert into FileWatches (URI, WatchID) values (?,?);
 
 InsertSearchResult1 insert into SearchResults1 (SID, Score) values (?,?);
 DeleteSearchResults1 delete from SearchResults1;
+
+GetWordID select WordID, WordCount from Words where Word =? and WordCount > 0;
+DeleteWord delete from Words where WordID = ?;
+InsertWord insert into Words (Word, WordCount) Values (?,1);
+UpdateWordCount update Words set WordCount = ? where WordID = ?;
+GetWordsTop select distinct WordID, Word from Words where WordCount > 0 order by WordCount asc limit ?;
+GetWords select distinct W.WordID, W.Word from Words W where exists (select 1 from ServiceWords S where S.WordID = W.WordID);
+GetWordCount select count(*) from Words W where WordCount > 0;
+
+InsertServiceWord insert into  ServiceWords (WordID, ServiceID, ServiceType, score) values (?,?,?,?);
+UpdateServiceWord update  ServiceWords  set score = ? where WordID = (select WordID from Words where Word = ?) and ServiceID = ?;
+DeleteServiceWordForID delete from ServiceWords where ServiceID = ?;
+DeleteServiceWords delete from ServiceWords where WordID = ?;
+GetServiceWord select ServiceID, ServiceType, Score from ServiceWords where WordID = ? and serviceID > 0 and servicetype > 0 and score > 0;
+ServiceCached select 1 from ServiceWords where ServiceID = ? and WordID = (select WordID from Words where Word = ?);
+GetServiceWordCount select count(*) from ServiceWords where WordID = ?;
 
 GetStats select 'Total files indexed', 	count(*) as n from Services where ServiceTypeID between 0 and 8 union select T.TypeName, count(*) as n from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName order by 2; 

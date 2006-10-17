@@ -306,11 +306,18 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.WhiteBalance', 1, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Image.Copyright', 4, 1, 0, 1);
 
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Title', 0, 1, 0, 1);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Author', 0, 1, 0, 1);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Comment', 4, 1, 0, 1);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Height', 2, 1, 0, 100);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Width', 2, 1, 0, 100);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.FrameRate', 2, 1, 0, 100);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Codec', 4, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Bitrate', 2, 1, 0, 100);
+
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Date', 3, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Sender', 4, 1, 0, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.To', 4, 1, 0, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.CC', 4, 1, 0, 10);
-insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.BCC', 4, 1, 0, 10);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.SentTo', 4, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Subject', 0, 1, 0, 30);
 
 
@@ -344,15 +351,15 @@ CREATE TABLE MBoxes
 CREATE TABLE Emails
 (
 	ID		Integer primary key not null,
+	URI		Text,
 	MBoxID		Integer Not Null,
 	ReceivedDate	Integer not null,
-	MessageID	Text Not Null,
 	Type		Integer, /* 0 = text, 1 = html */
 	Offset		Integer Not Null,
 	ReplyID		Integer	
 );
 
-CREATE INDEX  EmailMessageID ON Emails (MessageID);
+CREATE INDEX  EmailMessageID ON Emails (URI);
 
 CREATE TABLE EmailRefs
 (
@@ -487,6 +494,8 @@ CREATE TABLE  FileWatches
 	primary key (WatchID), 
 	unique (URI)
 );
+
+
 
 
 

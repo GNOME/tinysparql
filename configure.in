@@ -361,20 +361,6 @@ AC_SUBST(VORBIS_LIBS)
 test "$have_vorbis" = "yes" && AC_DEFINE(HAVE_VORBIS, [], [Define if we have libvorbis])
 
 ##################################################################
-# check for ogg/theora
-##################################################################
-
-THEORA_REQUIRED=1.1
-
-PKG_CHECK_MODULES(THEORA, [theora >= $THEORA_REQUIRED], [have_theora=yes] , [have_theora=no])
-
-AM_CONDITIONAL(HAVE_THEORA, test "$have_theora" = "yes")
-AC_SUBST(THEORA_CFLAGS)
-AC_SUBST(THEORA_LIBS)
-test "$have_theora" = "yes" && AC_DEFINE(HAVE_THEORA, [], [Define if we have libtheora])
-
-
-##################################################################
 # check for libpng
 ##################################################################
 
@@ -481,7 +467,6 @@ Metadata extractors:
 
 	pdf :					$have_poppler
 	ogg/vorbis :				$have_vorbis
-	ogg/theora :				$have_theora
 	png :					$have_libpng
 	exif (jpeg) :				$have_libexif
 	gsf :					$have_libgsf

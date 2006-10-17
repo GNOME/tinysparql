@@ -1,4 +1,19 @@
 
+2006-10-16 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added optional periodic fsync and fast mode to make tracker more background friendly
+	* Added intermediate temp storage of words so that most common words are applied at the end to prevent fragmentation
+	* Added sheduling
+	* Made sure tracker daemon is now really smooth
+	* fixed a few leaks
+
+2006-10-16 Edward Duffy <eduffy at gmail com>
+	
+	* Made an mplayer extractor
+	* Fix for potential crasher in tracker-extract
+	* Fix for autotools
+
+
 2006-10-11 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed crasher by applying a mutex to guard non-threadsafe stemmer

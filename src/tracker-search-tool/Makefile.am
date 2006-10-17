@@ -47,13 +47,7 @@ tracker_search_tool_LDADD =   \
 #Utilities_DATA = $(Utilities_in_files:.desktop.in=.desktop)
 
 
-EXTRA_DIST = \
-	$(Utilities_in_files) \
-	$(Utilities_DATA) \
-	$(schema_in_file) \
-	$(schema_DATA) \
-	$(icon_DATA)	\
-	$(man_MANS)
+#EXTRA_DIST = $(Utilities_in_files) $(Utilities_DATA) $(schema_in_file) $(schema_DATA) $(icon_DATA) $(man_MANS)
 
 #if GCONF_SCHEMAS_INSTALL
 #install-data-local:
