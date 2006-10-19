@@ -1090,7 +1090,7 @@ tracker_search_icon_lookup (GSearchWindow * gsearch,
 
 //	if ((enable_thumbnails == TRUE) && (gsearch->show_thumbnails == TRUE)) {
 		if ((strncmp (file_info->mime_type, "image/", 6) != 0) ||
-	    	    (file_info->size < gsearch->show_thumbnails_file_size_limit)) {
+	    	    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
 		    	if (gsearch->thumbnail_factory == NULL) {
 			    	gsearch->thumbnail_factory = gnome_thumbnail_factory_new (GNOME_THUMBNAIL_SIZE_NORMAL);
 			}
@@ -1149,7 +1149,7 @@ get_file_pixbuf (GSearchWindow * gsearch,
 		
 
 			if ((strncmp (file_info->mime_type, "image/", 6) != 0) ||
-	    		    (file_info->size < gsearch->show_thumbnails_file_size_limit)) {
+	    		    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
 
 				if (strcmp (icon_name, file) == 0) {
 					pixbuf = gdk_pixbuf_new_from_file_at_scale (file, ICON_SIZE, ICON_SIZE, TRUE, NULL);

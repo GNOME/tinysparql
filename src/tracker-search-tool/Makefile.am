@@ -39,7 +39,7 @@ tracker_search_tool_LDADD =   \
 	$(GNOMEVFS_LIBS)    \
 	$(GNOMEDESKTOP_LIBS) \
 	$(DBUS_LIBS)	\
-	$(top_builddir)/src/libtracker/libmetatracker.la 
+	$(top_builddir)/src/libtracker/libtrackerclient.la 
 
 #man_MANS = tracker-search-tool.1
 

@@ -71,7 +71,7 @@ store_window_state_and_geometry (GSearchWindow *gsearch)
 static void
 quit_application (GSearchWindow * gsearch)
 {
-	GSearchCommandDetails * command_details = gsearch->command_details;
+	//GSearchCommandDetails * command_details = gsearch->command_details;
 	store_window_state_and_geometry (gsearch);
 	gtk_main_quit ();
 }
@@ -179,6 +179,7 @@ size_allocate_cb (GtkWidget * widget,
  	gtk_widget_set_size_request (button, allocation->width, -1);
 }
 
+/*
 void
 add_constraint_cb (GtkWidget * widget,
                    gpointer data)
@@ -189,6 +190,7 @@ add_constraint_cb (GtkWidget * widget,
 	index = gtk_combo_box_get_active (GTK_COMBO_BOX (gsearch->available_options_combo_box));
 	add_constraint (gsearch, index, NULL, FALSE);
 }
+*/
 
 void
 remove_constraint_cb (GtkWidget * widget,
@@ -211,7 +213,7 @@ remove_constraint_cb (GtkWidget * widget,
 	gsearch->available_options_selected_list =
 	    g_list_remove (gsearch->available_options_selected_list, constraint);
 
-	set_constraint_selected_state (gsearch, constraint->constraint_id, FALSE);
+	//set_constraint_selected_state (gsearch, constraint->constraint_id, FALSE);
 	set_constraint_gconf_boolean (constraint->constraint_id, FALSE);
 	g_slice_free (GSearchConstraint, constraint);
 	g_list_free (list);

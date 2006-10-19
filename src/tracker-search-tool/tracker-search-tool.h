@@ -36,7 +36,7 @@ extern "C" {
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
 
-#define MAX_SEARCH_RESULTS 20
+#define MAX_SEARCH_RESULTS 10
 
 #define GSEARCH_TYPE_WINDOW            (gsearch_window_get_type ())
 #define GSEARCH_WINDOW(obj)            (GTK_CHECK_CAST((obj), GSEARCH_TYPE_WINDOW, GSearchWindow))
@@ -92,9 +92,14 @@ struct _GSearchWindow {
 	gboolean                is_window_accessible;
 
 	GtkWidget             * search_entry;
+	int			offset;
+	GtkWidget	      * combo;
+	GtkListStore  	      * combo_model;
 	GtkWidget             * look_in_folder_button;
 	GtkWidget             * name_and_folder_table;
 	GtkWidget             * find_button;
+	GtkWidget             * back_button;
+	GtkWidget             * forward_button;
 	GtkWidget             * stop_button;
 	GtkWidget             * focus;
 
@@ -105,7 +110,7 @@ struct _GSearchWindow {
 	GtkWidget             * available_options_add_button;
 	GtkSizeGroup          * available_options_button_size_group;
 	GList                 * available_options_selected_list;
-
+	
 	GtkWidget             * files_found_label;
 	GtkWidget             * search_results_vbox;
 	GtkWidget             * search_results_popup_menu;
@@ -129,6 +134,7 @@ struct _GSearchWindow {
 	gchar                 * save_results_as_default_filename;
 
 	GSearchCommandDetails * command_details;
+	char		      * search_term;
 };
 
 struct _GSearchCommandDetails {
@@ -189,6 +195,11 @@ remove_constraint (gint constraint_id);
 void
 set_constraint_gconf_boolean (gint constraint_id,
                               gboolean flag);
+void
+click_find_cb (GtkWidget * widget,
+               gpointer data);
+
+
 void
 set_constraint_selected_state (GSearchWindow * gsearch,
                                gint constraint_id,
