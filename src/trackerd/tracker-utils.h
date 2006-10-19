@@ -34,8 +34,8 @@ extern char *tracker_actions[];
 
 
 #include <glib.h>
-#include <depot.h>
-#include <curia.h>
+#include "depot.h"
+#include "curia.h"
 
 #include "config.h"
 #include "tracker-parser.h"
@@ -76,6 +76,11 @@ typedef struct {                         /* type of structure for an element of 
 	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
 } WordDetails;
 
+
+typedef struct {                         
+	int	 	id;              /* word ID of the cached word */
+	int 		count;     	 /* cummulative count of the cached word */
+} CacheWord;
 
 
 typedef struct {
@@ -134,6 +139,7 @@ typedef struct {
 
 	gboolean	turbo;
 	gboolean	slow;
+	gboolean	use_extra_memory;
 
 	/* application run time values */
 	gboolean	is_indexing;
@@ -146,6 +152,8 @@ typedef struct {
 	int		cache_word_limit;
 	int		cache_word_min;
 	int		number_of_cached_words;
+	GHashTable	*cached_word_table;
+	GMutex		*cached_word_table_mutex;
 	int		flush_count;
 	int		min_flush;
 	int		flush_by_file;
@@ -378,6 +386,8 @@ void		tracker_timer_end 		(GTimeVal *before, const char *str);
 
 char *		tracker_compress 		(const char *ptr, int size, int *compressed_size);
 char *		tracker_uncompress 		(const char *ptr, int size, int *uncompressed_size);
+
+char *		tracker_get_snippet 		(const char *txt, const char *term, int length);
 
 
 #endif

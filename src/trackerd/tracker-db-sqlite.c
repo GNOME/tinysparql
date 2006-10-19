@@ -24,7 +24,7 @@ gboolean use_nfs_safe_locking = FALSE;
 
 /* sqlite user defined functions for use in sql */
 
-/* converts date/time in UTC format to ISO 8160 format for display */
+/* converts date/time in UTC format to ISO 8160 standardised format for display */
 static void
 sqlite3_date_to_str (sqlite3_context *context, int argc, sqlite3_value **argv)
 {
@@ -550,12 +550,18 @@ tracker_db_connect (void)
 		tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
 	}
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
+
+	if (tracker->use_extra_memory) {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2500");
+	} else {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 500");
+	}
+
 	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
 
 	/* create user defined functions that can be used in sql */
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
 		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
@@ -622,7 +628,13 @@ tracker_db_connect_full_text (void)
 	}
 	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 8192");
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 100");
+
+	if (tracker->use_extra_memory) {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 256");
+	} else {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 32");
+	}
+
 	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
 
 	if (create_table) {
@@ -674,7 +686,14 @@ tracker_db_connect_cache (void)
 
 	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 512");
+
+	if (tracker->use_extra_memory) {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
+	} else {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 200");
+	}
+
+
 	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
 
 	if (create_table) {
@@ -1690,7 +1709,7 @@ tracker_db_check_tables (DBConnection *db_con)
 
 
 char ***
-tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results)
+tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results, gboolean detailed)
 {
 	char 		**result, **array;
 	GSList 		*hit_list;
@@ -1748,22 +1767,39 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 			continue;
 		}
 
-		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+		if (detailed) {
+			res = tracker_exec_proc (db_con, "GetFileByID2", 1, str_id);
+		} else {
+			res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+		}
 
 		g_free (str_id);
 
 		if (res) {
 			if (res[0] && res[0][0] && res[0][1]) {
+
 				char **row;
 
-				row = g_new (char *, 3);
+				if (detailed) {
+					 if (res[0][2]) {
 
-				row[0] = g_strdup (res[0][0]);
-				row[1] = g_strdup (res[0][1]);
-				row[2] = NULL;
+						row = g_new (char *, 4);
 
-				//tracker_log ("hit is %s", row[1]);
+						row[0] = g_strdup (res[0][0]);
+						row[1] = g_strdup (res[0][1]);
+						row[2] = g_strdup (res[0][2]);
+						row[3] = NULL;
+					}
 
+				} else {
+
+					row = g_new (char *, 3);
+
+					row[0] = g_strdup (res[0][0]);
+					row[1] = g_strdup (res[0][1]);
+					row[2] = NULL;
+				}
+				
 				result[count] = (char *) row;
 			}
 
@@ -2885,12 +2921,38 @@ typedef struct {
 } ServiceTypeInfo;
 
 
+
+static inline void
+add_word_to_hash (const char *word, int id, int count)
+{
+		CacheWord *cache_word = g_slice_new (CacheWord);
+
+		cache_word->id = id;
+		cache_word->count = count;
+		g_mutex_lock (tracker->cached_word_table_mutex);
+		g_hash_table_insert (tracker->cached_word_table, g_strdup (word), cache_word);
+		g_mutex_unlock (tracker->cached_word_table_mutex);
+}
+
 static char *
 cache_word_exists (DBConnection *db_con, const char *word) 
 {
 	char ***res;
 	char *word_id = NULL;
-	int  count = 1;
+	int  count = 1, id;
+
+	if (tracker->use_extra_memory) {
+		CacheWord *cache_word;
+
+		g_mutex_lock (tracker->cached_word_table_mutex);
+		cache_word = (g_hash_table_lookup (tracker->cached_word_table, word));
+		g_mutex_unlock (tracker->cached_word_table_mutex);
+
+		if (cache_word) {
+			cache_word->count++;
+			return tracker_int_to_str (cache_word->id);
+		}
+	}
 
 	res = tracker_exec_proc (db_con, "GetWordID", 1, word);
 
@@ -2898,6 +2960,7 @@ cache_word_exists (DBConnection *db_con, const char *word)
 
 		if (res[0] && res[0][0]) {
 			word_id = g_strdup (res[0][0]);
+			id = atoi (res[0][0]);
 
 			if (res[0][1]) {
 				count = atoi (res[0][1]);
@@ -2911,21 +2974,31 @@ cache_word_exists (DBConnection *db_con, const char *word)
 
 		count ++;
 
-		char *str_count = tracker_uint_to_str (count);
+		if (tracker->use_extra_memory) {
+			add_word_to_hash (word, id, count);
 
-		tracker_exec_proc (db_con, "UpdateWordCount", 2, str_count, word_id);
+		} else {
+			char *str_count = tracker_uint_to_str (count);
 
-		g_free (str_count);
+			tracker_exec_proc (db_con, "UpdateWordCount", 2, str_count, word_id);
+
+			g_free (str_count);
+		}
 
 		return word_id;
 
 	} else {
-	//tracker_log ("inserting word %s (total word count is %d)", word, tracker->number_of_cached_words);
 		tracker_exec_proc (db_con, "InsertWord", 1, word);
 		tracker->number_of_cached_words++;
 	}
 
-	return tracker_int_to_str (tracker_db_get_last_id (db_con));
+	id = tracker_db_get_last_id (db_con);
+
+	if (tracker->use_extra_memory) {
+			add_word_to_hash (word, id, count);
+	}
+
+	return tracker_int_to_str (id);
 }
 
 
@@ -2963,6 +3036,32 @@ update_cache_word (DBConnection *db_con, const char *word, guint32 service_id, i
 	g_free (str_score);
 }
 
+
+static void
+update_counts	 (gpointer key,
+		  gpointer value,
+		  gpointer user_data)
+{
+	DBConnection *db_con = user_data;
+	CacheWord *cache_word = (CacheWord *) value;
+
+	if (cache_word) {
+		char *str_count = tracker_int_to_str (cache_word->count);
+		char *str_id  =  tracker_int_to_str (cache_word->id);
+
+		tracker_exec_proc (db_con, "UpdateWordCount", 2, str_count, str_id);
+
+		g_free (str_count);
+		g_free (str_id);
+
+		g_slice_free (CacheWord, cache_word);
+
+		cache_word = NULL;
+
+	}
+}
+
+
 int
 tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit) 
 {
@@ -2971,6 +3070,15 @@ tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit)
 	char *str_limit = tracker_int_to_str (limit);
 	int result = 0, rc, count = 0;
 	WordDetails *word_details;
+
+	if (tracker->use_extra_memory) {
+		/* update word counts */
+		g_mutex_lock (tracker->cached_word_table_mutex);
+		g_hash_table_foreach (tracker->cached_word_table, update_counts, db_con);
+		g_hash_table_destroy (tracker->cached_word_table);
+		tracker->cached_word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		g_mutex_unlock (tracker->cached_word_table_mutex);
+	}
 
 	res = tracker_exec_proc (db_con, "GetWordsTop", 1, str_limit);
 	
@@ -3122,10 +3230,13 @@ update_index_data (gpointer key,
 	word = (char *) key;
 	score = GPOINTER_TO_INT (value);
 	info = user_data;
+	char *str_service_id = tracker_uint_to_str (info->service_id);
 
 	if (score != 0) {
 
-		res = tracker_exec_proc (info->db_con, "ServiceCached", 0);
+		res = tracker_exec_proc (info->db_con, "ServiceCached", 2, str_service_id, word);
+
+		g_free (str_service_id);
 
 		if (res) {
 			if (res[0] && res[0][0]) {

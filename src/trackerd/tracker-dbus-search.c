@@ -32,7 +32,6 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	int	     row_count, i;
 	int	     limit, query_id, offset;
 	char	     *service;
-	gboolean     sort_results;
 	char	     ***res;
 	char	     *str;
 
@@ -40,18 +39,15 @@ tracker_dbus_method_search_text (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	sort_results = FALSE;
-
 /*
-		<!-- searches specified service for entities that match the specified search_text.
-		     Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
+		<!-- searches specified service for entities that match the specified search_text. 
+		     Returns uri of all hits. -->
 		<method name="Text">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="b" name="sort_by_relevance" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
 */
@@ -61,7 +57,6 @@ tracker_dbus_method_search_text (DBusRec *rec)
 			       DBUS_TYPE_STRING, &str,
 			       DBUS_TYPE_INT32, &offset,
 			       DBUS_TYPE_INT32, &limit,
-			       DBUS_TYPE_BOOLEAN, &sort_results,
 			       DBUS_TYPE_INVALID);
 
 	if (!service)  {
@@ -85,9 +80,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 
 	tracker_log ("Executing search with params %s, %s", service, str);
 
-	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE);
-
-//	res = tracker_exec_proc (db_con, "SearchText", 6, service, search_term, str_offset, str_limit, str_sort, str_bool);
+	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, FALSE);
 
 	row_count = 0;
 	array = NULL;
@@ -139,6 +132,168 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	dbus_connection_send (rec->connection, reply, NULL);
 	dbus_message_unref (reply);
 }
+
+
+
+void
+tracker_dbus_method_search_text_detailed (DBusRec *rec)
+{
+	DBConnection *db_con;
+	int	     limit, query_id, offset;
+	char	     *service;
+	char	     ***res;
+	char	     *str;
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+
+
+/*
+		More detailed version of above. Searches specified service for entities that match the specified search_text. 
+		Returns hits in array format [uri, service, mime]  -->
+		<method name="TextDetailed">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+*/
+
+	dbus_message_get_args (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
+			       DBUS_TYPE_STRING, &service,
+			       DBUS_TYPE_STRING, &str,
+			       DBUS_TYPE_INT32, &offset,
+			       DBUS_TYPE_INT32, &limit,
+			       DBUS_TYPE_INVALID);
+
+	if (!service)  {
+		tracker_set_error (rec, "No service was specified");
+		return;
+	}
+
+	if (!tracker_is_valid_service (db_con, service)) {
+		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
+		return;
+	}
+
+	if (!str || strlen (str) == 0) {
+		tracker_set_error (rec, "No search term was specified");
+		return;
+	}
+
+	if (limit < 0) {
+		limit = 1024;
+	}
+
+	tracker_log ("Executing detailed search with params %s, %s, %d, %d", service, str, offset, limit);
+
+	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, TRUE);
+
+	tracker_dbus_reply_with_query_result (rec, res);
+
+	tracker_db_free_result (res);
+}
+
+
+void
+tracker_dbus_method_search_get_snippet (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusMessage  *reply;
+	char	     *service, *uri, *str;
+	char	     *snippet, *service_id;
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+
+/*
+		<!-- Returns a search snippet of text with matchinhg text enclosed in bold tags -->
+		<method name="GetSnippet">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="s" name="result" direction="out" />
+		</method>
+
+*/
+
+	dbus_message_get_args (rec->message, NULL, 
+			       DBUS_TYPE_STRING, &service,
+			       DBUS_TYPE_STRING, &uri,
+			       DBUS_TYPE_STRING, &str,
+			       DBUS_TYPE_INVALID);
+
+	if (!service)  {
+		tracker_set_error (rec, "No service was specified");
+		return;
+	}
+
+	if (!tracker_is_valid_service (db_con, service)) {
+		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
+		return;
+	}
+
+	if (!str || strlen (str) == 0) {
+		tracker_set_error (rec, "No search term was specified");
+		return;
+	}
+
+
+	//tracker_log ("Getting snippet with params %s, %s, %s", service, uri, str);
+
+	service_id = tracker_db_get_id (db_con, service, uri);
+
+	if (!service_id) {
+		g_free (service_id);
+		tracker_set_error (rec, "Service uri %s not found", uri);
+		return;		
+	}
+
+	char ***res;
+	const char *txt;
+
+	snippet = NULL;
+
+	res = tracker_exec_proc (db_con->user_data, "GetFileContents", 1, service_id);
+	g_free (service_id);
+	
+	if (res) {
+		if (res[0][0]) {
+			txt = res[0][0];
+
+			char **array = 	tracker_parse_text_into_array (str);
+
+			if (array && array[0]) {
+				snippet = tracker_get_snippet (txt, array[0], 120);
+			}
+
+			g_strfreev (array);
+				
+		}
+		tracker_db_free_result (res);
+	}
+
+	/* do not pass NULL to dbus or it will crash */
+	if (!snippet) {
+		snippet = g_strdup (" ");
+	}
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_STRING, &snippet,
+	  			  DBUS_TYPE_INVALID);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+
+	g_free (snippet);
+}
+
 
 
 void
@@ -444,7 +599,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		tracker_log ("translated rdf query is \n%s\n", str);
 
 		if (search_text && (strlen (search_text) > 0)) {
-			tracker_db_search_text (db_con, service, search_text, 0, 999999, TRUE);
+			tracker_db_search_text (db_con, service, search_text, 0, 999999, TRUE, FALSE);
 		}
 
 		res = tracker_exec_sql_ignore_nulls (db_con, str);

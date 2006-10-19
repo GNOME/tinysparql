@@ -128,17 +128,15 @@ static char **no_watch_dirs = NULL;
 static char **watch_dirs = NULL;
 static char *language = NULL;
 static gboolean disable_indexing = FALSE;
-static gboolean turbo, enable_debug, enable_evolution, enable_thunderbird, enable_kmail;
+static gboolean low_memory, turbo, enable_debug, enable_evolution, enable_thunderbird, enable_kmail;
 
 
 static GOptionEntry entries[] = {
 	{"ignore-dirs", 0, 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, "Directory roots to ignore (must specify full path)", "ignore-dirs"},
 	{"disable-indexing", 0, 0, G_OPTION_ARG_NONE, &disable_indexing, "prevents any indexing or watching taking place", NULL },
 	{"enable-debug", 0, 0, G_OPTION_ARG_NONE, &enable_debug, "Enables more verbose debug messages", NULL },
-	{"enable-evolution", 0, 0, G_OPTION_ARG_NONE, &enable_evolution, "Enables indexing of Evolution emails", NULL },
-	{"enable-thunderbird", 0, 0, G_OPTION_ARG_NONE, &enable_thunderbird, "Enables indexing of Thunderbird emails", NULL },
-	{"enable-kmail", 0, 0, G_OPTION_ARG_NONE, &enable_kmail, "Enables indexing of K-Mail emails", NULL },
 	{"turbo", 't', 0, G_OPTION_ARG_NONE, &turbo, "Enables faster indexing but may degrade performance of rest of system", NULL },
+	{"enable-low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, "Enables use of less memory at the expense of slower indexing", NULL },
 	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, "Specifies 2 character language code to use for stemmer and stop words list", NULL },
 	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, "full path of directory roots to watch and index", NULL},
 	{NULL}
@@ -213,7 +211,7 @@ flush_data ()
 		} else if (words_left > 120) {
 			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 50);
 		} else if (words_left > 30) {
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 25);
+			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 20);
 		} else if (words_left > 11) {
 			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 5);
 		} else if (words_left > 0) {
@@ -384,21 +382,18 @@ do_cleanup (const char *sig_msg)
 	tracker_end_email_watching ();
 
 	tracker_db_close (main_thread_db_con);
-	//tracker_db_close (main_thread_cache_con);
-
-
-	/* remove temp table */
-	char *temp_file = g_build_filename (g_get_tmp_dir (), ".Tracker", g_get_home_dir(), "cache", NULL);
-	unlink (temp_file);
-	g_free (temp_file);
-
-
+	
 	/* This must be called after all other db functions */
 	tracker_db_finalize ();
 
 	if (tracker->log_file) {
 		tracker_log ("shutting down main thread");
 	}
+
+	/* remove temp table */
+	char *temp_file = g_build_filename (g_get_tmp_dir (), ".Tracker", g_get_home_dir(), "cache", NULL);
+	unlink (temp_file);
+	g_free (temp_file);
 
 	g_main_loop_quit (tracker->loop);
 
@@ -727,7 +722,6 @@ signal_handler (int signo)
 			     		    g_strdup (g_strsignal (signo)), NULL
 			   		    );
 
-			exit (1);
     			break;
 
 		case SIGTERM:
@@ -1242,18 +1236,18 @@ extract_metadata_thread (void)
 			int words_left;
 			tracker_log ("Please wait while data is being flushed to the inverted word index...");
 			tracker->in_flush = TRUE;
-			
+
 			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 2000);
 
 			while (tracker->number_of_cached_words > tracker->cache_word_min) {
 				
 
-				if (words_left > 1200) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
+				if (words_left > 1500) {
+					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 1000);
 				} else if (words_left > 1000) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 250);
+					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
 				} else if (words_left > 500) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 100);
+					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 250);
 				} else {
 					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 50);
 				}
@@ -1946,10 +1940,10 @@ process_user_request_queue_thread (void)
 		rec = g_async_queue_try_pop (tracker->user_request_queue);
 
 		if (!rec) {
-			//g_debug ("request thread sleeping");
+			g_debug ("request thread sleeping");
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 			g_mutex_unlock (tracker->request_check_mutex);
-			//g_debug ("request thread awoken");
+			g_debug ("request thread awoken");
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
@@ -2090,6 +2084,21 @@ process_user_request_queue_thread (void)
 				tracker_dbus_method_search_text (rec);
 
 				break;
+
+
+			case DBUS_ACTION_SEARCH_TEXT_DETAILED:
+
+				tracker_dbus_method_search_text_detailed (rec);
+
+				break;
+
+
+			case DBUS_ACTION_SEARCH_GET_SNIPPET:
+
+				tracker_dbus_method_search_get_snippet (rec);
+
+				break;
+
 
 			case DBUS_ACTION_SEARCH_FILES_BY_TEXT:
 
@@ -2359,8 +2368,8 @@ set_defaults ()
 	tracker->index_bucket_ratio = INDEX_BUCKET_RATIO;
 	tracker->index_divisions = INDEX_DIVISIONS;
 	tracker->padding = INDEX_PADDING;
-	tracker->cache_word_limit = 5000;
-	tracker->cache_word_min = 250;
+	tracker->cache_word_limit = 7000;
+	tracker->cache_word_min = 450;
 
 	tracker->flush_count = 0;
 	tracker->min_flush = 1048576;
@@ -2374,6 +2383,9 @@ set_defaults ()
 	tracker->enable_debug = FALSE;
 	tracker->turbo = FALSE;
 	tracker->slow = FALSE;
+	tracker->use_extra_memory = TRUE;
+
+	tracker->cached_word_table = NULL;
 
 	tracker->min_word_length = 3;
 	tracker->max_word_length = 30;
@@ -2427,6 +2439,8 @@ sanity_check_option_values ()
 
 	tracker_log ("\nTracker configuration options :");
 	tracker_log ("Debug mode enabled : \t\t\t%s", bools[tracker->enable_debug]);
+	tracker_log ("Low memory mode : \t\t\t%s", bools[!tracker->use_extra_memory]);
+	tracker_log ("Faster indexing : \t\t\t%s", bools[tracker->turbo]);
 	tracker_log ("Indexing enabled : \t\t\t%s", bools[tracker->enable_indexing]);
 	tracker_log ("Watching enabled : \t\t\t%s", bools[tracker->enable_watching]);
 	tracker_log ("File content indexing enabled : \t%s", bools[tracker->enable_content_indexing]);
@@ -2441,6 +2455,13 @@ sanity_check_option_values ()
 	tracker_log ("Maximum index word length : \t\t%d", tracker->max_word_length);
 	tracker_log ("Stemmer enabled : \t\t\t%s", bools[tracker->use_stemmer]);
 	tracker_log ("Using Pango word breaking : \t\t%s\n\n", bools[tracker->use_pango_word_break]);
+
+	if (tracker->use_extra_memory) {
+		tracker->max_process_queue_size = 2000;
+		tracker->max_extract_queue_size = 5000;
+		tracker->cached_word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	}
+
 
 	GSList *l;
 	tracker_log ("Setting watch directory roots to:");
@@ -2457,6 +2478,8 @@ sanity_check_option_values ()
 		}
 		tracker_log ("\t");
 	}
+
+
 
 }
 
@@ -2552,6 +2575,8 @@ main (int argc, char **argv)
 	tracker->scheduler_mutex = g_mutex_new ();
 
 	tracker->stemmer_mutex = g_mutex_new ();
+
+	tracker->cached_word_table_mutex = g_mutex_new ();
 
 
 	/* check user data files */
@@ -2662,6 +2687,10 @@ main (int argc, char **argv)
 		tracker->turbo = TRUE;
 	}
 
+	if (low_memory) {
+		tracker->use_extra_memory = FALSE;
+	}
+
 	sanity_check_option_values ();
 
 	tracker_data_dir = g_build_filename (g_get_home_dir (), ".Tracker", "data", NULL);
@@ -2710,6 +2739,7 @@ main (int argc, char **argv)
 	}
 
 
+
 	/* clear pending files and watch tables*/
 	tracker_db_clear_temp (db_con);
 
@@ -2744,6 +2774,10 @@ main (int argc, char **argv)
 	tracker_db_check_tables (db_con);
 
 	main_thread_db_con = db_con;
+
+	main_thread_cache_con = tracker_db_connect_cache ();
+
+	main_thread_db_con->user_data = main_thread_cache_con;
 
 	tracker->update_count = get_update_count (main_thread_db_con);
 

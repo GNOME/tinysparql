@@ -23,6 +23,8 @@
 #include "tracker-dbus.h"
 
 void	tracker_dbus_method_search_text 			(DBusRec *rec);
+void	tracker_dbus_method_search_text_detailed		(DBusRec *rec);
+void	tracker_dbus_method_search_get_snippet 			(DBusRec *rec);
 void	tracker_dbus_method_search_files_by_text 		(DBusRec *rec);
 void	tracker_dbus_method_search_metadata 			(DBusRec *rec);
 void	tracker_dbus_method_search_matching_fields 		(DBusRec *rec);

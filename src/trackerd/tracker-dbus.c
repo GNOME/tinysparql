@@ -235,6 +235,18 @@ message_func (DBusConnection *conn,
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_TEXT;
 
+	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_SEARCH, TRACKER_METHOD_SEARCH_TEXT_DETAILED)) {
+
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_SEARCH_TEXT_DETAILED;
+
+
+	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_SEARCH, TRACKER_METHOD_SEARCH_GET_SNIPPET)) {
+
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_SEARCH_GET_SNIPPET;
+
+
 
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_SEARCH, TRACKER_METHOD_SEARCH_FILES_BY_TEXT )) {

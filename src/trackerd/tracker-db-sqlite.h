@@ -94,7 +94,7 @@ int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
 
 void		tracker_db_release_memory 	();
 
-char ***	tracker_db_search_text		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results);
+char ***	tracker_db_search_text		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results, gboolean detailed);
 char ***	tracker_db_search_files_by_text	(DBConnection *db_con, const char *text, int offset, int limit, gboolean sort);
 char ***	tracker_db_search_metadata	(DBConnection *db_con, const char *service, const char *field, const char *text, int offset, int limit);
 char ***	tracker_db_search_matching_metadata (DBConnection *db_con, const char *service, const char *id, const char *text);

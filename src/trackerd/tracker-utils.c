@@ -1212,7 +1212,7 @@ is_text_file (const char *uri)
 				break;
 			}
 
-			tracker_log ("****************************** %s is a text file for current locale ***************************", uri);
+			g_debug ("****************************** %s is a text file for current locale ***************************", uri);
 			
 			
 		} 
@@ -2346,4 +2346,189 @@ tracker_uncompress (const char *ptr, int size, int *uncompressed_size)
 	*uncompressed_size = bsiz;
 	inflateEnd (&zs);
 	return buf;
+}
+
+
+static inline gboolean
+is_match (const char *a, const char *b) 
+{
+	int len = strlen (b);
+
+	char *str1 = g_utf8_casefold (a, len);
+        char *str2 = g_utf8_casefold (b, len);                                 
+
+	gboolean result = (strcmp (str1, str2) == 0);
+
+	g_free (str1);
+	g_free (str2);
+
+	return result;
+}
+
+
+const char *
+substring_utf8 (const char *a, const char *b)
+{
+
+        const char  *ptr, *found_ptr;
+	gunichar c, lower, upper;
+	int len;
+	gboolean got_match = FALSE;
+
+	len = strlen (b);
+
+	c = g_utf8_get_char (b);
+	
+	lower = g_unichar_tolower (c);
+	upper = g_unichar_toupper (c);
+
+	ptr = a;	
+	found_ptr = a;
+	/* check lowercase first */
+	while (found_ptr) {
+			
+		found_ptr = g_utf8_strchr (ptr, -1, lower);
+				
+		if (found_ptr) {
+			ptr = g_utf8_find_next_char (found_ptr, NULL);
+			if (is_match (found_ptr, b)) {
+				got_match = TRUE;
+				break;
+			} 	
+		} else { 
+			break;
+		}
+	}
+	
+	if (!got_match) {
+		ptr = a;
+		found_ptr = a;
+		while (found_ptr) {
+			
+			found_ptr = g_utf8_strchr (ptr, -1, upper);
+					
+			if (found_ptr) {
+				ptr = g_utf8_find_next_char (found_ptr, NULL);
+				if (is_match (found_ptr, b)) {
+					break;
+				} 	
+			} else {
+
+			}
+		}
+	}
+
+	return found_ptr;
+}
+
+static char *
+highlight_terms (const char *str, const char *term)
+{
+	const char *ptr, *txt;
+	GString *st;
+	int term_length;
+
+	if (!str || !term) {
+		return NULL;
+	}
+
+	st = g_string_new ("");
+
+	txt = str;
+	
+	while ((ptr = substring_utf8 (txt, term))) {
+		char *pre_snip;
+				
+		pre_snip = g_strndup (txt, (ptr - txt));
+
+		term_length = strlen (term);
+		
+		txt = ptr + term_length;
+
+		g_string_append_printf (st, "%s<b>%s</b>", pre_snip, term);
+
+		g_free (pre_snip);
+
+	}
+
+	if (txt) {
+		g_string_append (st, txt);
+	}
+
+	return g_string_free (st, FALSE);
+}
+
+
+char *
+tracker_get_snippet (const char *txt, const char *term, int length)
+{
+
+	const char *ptr = NULL, *end_ptr,  *tmp;
+	int before_length, i;
+
+	if (!txt || !term) {
+		return NULL;
+	}
+
+	ptr = substring_utf8 (txt, term);
+
+	if (ptr) {
+		tmp = ptr;
+
+		i = 0;
+		while ((ptr-- > txt) && (i < length)) {
+			if (*ptr == '\n') {
+				break;
+			}
+			i++;
+		}
+		ptr = g_utf8_next_char (ptr);
+		
+
+		before_length = i;
+
+		end_ptr = tmp;
+		i = 0;
+		while (*end_ptr++ && (i < length)) {
+			i++;	
+			if (*end_ptr == '\n') {
+				break;
+			}
+		}
+
+		if (end_ptr+1) {
+			end_ptr = g_utf8_next_char (end_ptr);
+		}
+
+		char *snip, *esc_snip,  *highlight_snip;
+
+		snip = g_strndup (ptr,  end_ptr - ptr);
+
+//g_print ("snip is %s\n", snip);
+
+		esc_snip = g_markup_escape_text (snip, strlen (snip));
+
+		g_free (snip);
+
+		highlight_snip = highlight_terms (esc_snip, term);
+
+		g_free (esc_snip);
+
+		return highlight_snip;
+	}
+
+	ptr = txt;
+	i = 0;
+	while (*ptr++ && (i < length)) {
+		i++;	
+		if (*ptr == '\n') {
+			break;
+		}
+		
+	}
+	if (ptr +1) {
+		ptr = g_utf8_prev_char (ptr);
+	}
+
+	return g_strndup (txt, ptr - txt);
 }

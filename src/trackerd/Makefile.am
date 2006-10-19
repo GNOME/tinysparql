@@ -10,7 +10,6 @@ INCLUDES =				\
 	$(GLIB2_CFLAGS)			\
 	$(PANGO_CFLAGS)			\
 	$(GMIME_CFLAGS)			\
-	$(QDBM_CFLAGS)			\
 	$(SQLITE3_CFLAGS)		\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
@@ -67,7 +66,7 @@ test_tracker_indexer_SOURCES =	tracker-indexer.c test-tracker-indexer.c \
 	xdgmimeparent.c		\
 	xdgmimeparent.h			
 
-test_tracker_indexer_LDADD = $(GLIB2_LIBS) $(QDBM_LIBS)	
+test_tracker_indexer_LDADD = $(GLIB2_LIBS)
 else
 bin_PROGRAMS = trackerd 
 endif
@@ -76,6 +75,12 @@ trackerd_SOURCES =		\
 	trackerd.c		\
 	$(inotify_sources)	\
 	$(fam_sources)		\
+	depot.c			\
+	depot.h			\
+	curia.c			\
+	curia.h			\
+	myconf.h		\
+	myconf.c		\
 	tracker-db.c		\
 	tracker-db.h		\
 	tracker-dbus.c		\
@@ -132,7 +137,6 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(MYSQL_LIBS)	\
 		 $(PANGO_LIBS)	\
 		 $(GMIME_LIBS)	\
-		 $(QDBM_LIBS) 	\
 		 $(SQLITE3_LIBS) \
 		 $(GTHREAD_LIBS) \
 		 -lz	\
