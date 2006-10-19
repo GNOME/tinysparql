@@ -118,6 +118,8 @@ char **		tracker_keywords_search				(TrackerClient *client, int live_query_id, S
 
 
 char **		tracker_search_text				(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, GError **error);
+GPtrArray * 	tracker_search_text_detailed 			(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, GError **error);
+char *		tracker_search_get_snippet			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, GError **error);
 char **		tracker_search_metadata				(TrackerClient *client, ServiceType service, const char *field, const char* search_text, int offset, int max_hits, GError **error);
 GPtrArray * 	tracker_search_query				(TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, const char *keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, GError **error);
 
@@ -167,6 +169,8 @@ void		tracker_keywords_search_async 				(TrackerClient *client, int live_query_i
 
 
 void		tracker_search_text_async 				(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data);
+void		tracker_search_text_detailed_async 			(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data);
+void		tracker_search_get_snippet_async			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data);
 void		tracker_search_metadata_async 				(TrackerClient *client, ServiceType service, const char *field, const char* search_text, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data);
 void	 	tracker_search_query_async 				(TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, const char *keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, TrackerGPtrArrayReply callback, gpointer user_data);
 

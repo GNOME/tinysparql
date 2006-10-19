@@ -1,3 +1,17 @@
+2006-10-16 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed gui
+	* added buttons
+	* cleaned up code
+	* created dbus methods to get snippets
+
+
+2006-10-17 Edward Duffy <eduffy at gmail com>
+	
+	* Made a totem extractor
+	* Fix for pdf extractor
+
+
 
 2006-10-16 Jamie McCracken <jamiemcc at gnome org>
 

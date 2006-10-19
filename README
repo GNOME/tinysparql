@@ -40,38 +40,13 @@ Tracker is the most powerful open source metadata database and indexer framework
 
 NEW CHANGES
 
-* Hugely optimised indexing when many files are waiting to be indexed (especailly when you first run trackerd)
+* Imporved indexing speed
 
-* Mass queueing of files no longer blocks the main thread meaning super fast searches can still be performed during heavy indexing
+* Removed libextractor dependency and created a suite of metadata extractors instead
 
-* Eliminated cpu bottlenecks and improved thread synchronisations so Tracker now hits the ground running when indexing (approx 500+ files indexed per minute on inotify enabled systems)
+* Redesigned around Sqlite DB and QDBM inverted word index
 
-* Extended metadata support for more Exif fields
-
-* Added more service types
-
-* Imporved build and support for FC5 (includes RPMs)
-
-* Redesigned Database around version 5 of the *embedded* in-process mysql database library
-
-* Now uses the auto repair facility provided by mysql to automatically repair damaged database files so you need never worry about losing your precious data.
-
-* Moved virtually all DB logic into stored procedures which provides a clean seperation of DB logic and application logic
-
-* Added support for parsing dates in various formats including conversion to/from ISO 8601 format
-
-* Fixed MsWord filter to prevent looping (WvText causes inotify to report file write change causing endless looping)
-
-* Redesigned DB structure to be more generic and service orientated
-
-* Added support for service types (first class objects) to DB
-
-* Cleaned up code warnings and fixed potential crasher (thanks to patch from Nate Nielsen)
-
-* Fixed issues with argv handling (thanks to patch from  Dan Nicolaescu)
-
-* Fixed build issue for Fedora Core 5 (thanks to patch from  Dan Nicolaescu)
-
+* New Tracker search tool (GUI)
 
 
 FEATURES
@@ -89,8 +64,6 @@ FEATURES
 * Implements the freedesktop specification for metadata http://freedesktop.org/wiki/Standards/shared-filemetadata-spec
 
 * Extracts embedded File, Image, Document and Audio type metadata from files.
-
-* Extracts embedded metadata from HTML, PDF, PS, OLE2 (DOC, XLS, PPT), OpenOffice (sxw), StarOffice (sdw), DVI, MAN, MP3 (ID3v1 and ID3v2), OGG, WAV, EXIV2, JPEG, GIF, PNG, TIFF, DEB, RPM, TAR(.GZ), ZIP, ELF, REAL, RIFF (AVI), MPEG, QT and ASF files
 
 * Supports the WC3's RDF Query syntax for querying metadata
 
@@ -111,18 +84,11 @@ FEATURES
 INSTALLATION (from source):
 
 
-The following build dependency is needed:
-
-lThe embedded mysql library ibmysqld.a version 5.0.19 or higher is required complete with corresponding header files and the mysql_config program. The libmysqld.a library is always statically linked so it is not a runtime dependency. It can be found in Debian/Ubuntu package libmysqlclient15-dev. Other distros should check their mysql client libs to see if it is present.
-
-If not present you can compile libmysqld.a by downloading source tarball for an appropriate version (5.0.19+) from the bottom of page http://dev.mysql.com/downloads/mysql/5.0.html
-
-The following configure flags are reccommended if building mysqld.a from source: --without-server --with-embedded-server --enable-assembler --without-debug --without-query-cache  --without-geometry --without-extra-tools --without-docs --without-man --without-bench --without-innodb --with-senna
-
-Generic RPMs and tarballs are also provided for the embedded mysql library and another for the development headers at  http://www.gnome.org/~jamiemcc/tracker/
 
 
 Run time dependencies (also needed for build) :
+
+Sqlite 3.2+
 
 libdbus (0.50 +)
 
@@ -132,22 +98,22 @@ glib (2.6+)
 
 zlib
 
-libvorbisfile3 (1.1+) 
+GMime
 
 
 Additional recommended packages:
 
-libextractor (0.5.9+) (tracker has a streamlined version inlined)
 wv (1.0.2+)
 poppler (pdftotext)
-
+libvorbis
+GTK and Gnome stack for GUI tools
 
 
 COMPILATION
 
 To compile Tracker uses the following commands :
 
-./configure --prefix=/usr --enable-static --with-pic CFLAGS=-I/usr/include/exiv2
+./configure --prefix=/usr
 make
 sudo make install
 
@@ -158,13 +124,13 @@ If you install using any other prefix then you might have problems with files no
 Notes to build tracker on Solaris
 
 To compile Tracker with GCC on Solaris uses the following commands :
-./configure --prefix=/usr --enable-static --with-pic CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
+./configure --prefix=/usr --with-pic CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
 make
 login as root
 make install
 
 To compile Tracker with SUN Studio on Solaris uses the following commands, because there are some problems to compile exiv2 using SUN C++ compiler:
-./configure --prefix=/usr --enable-static --with-pic --disable-warnings --disable-exiv2 CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
+./configure --prefix=/usr --with-pic --disable-warnings --disable-exiv2 CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
 make
 login as root
 make install
@@ -179,8 +145,6 @@ Tracker has several compiler options to enable/disable certain features. The fol
 
 --disable-inotify : this option omits support for inotify with tracker
 
---enable-libextractor  : this option forces the use of the prepackaged streamlined version of libextractor in tracker
-
 
 
 RUNNING TRACKER
@@ -191,6 +155,14 @@ To run tracker, you need to manually start the tracker daemon trackerd. By defau
 You can also pass a directory root to be indexed as a command line parameter if you dont want your entire home directory indexed. EG
 
 "trackerd /home/jamie/Documents"
+
+You can disable indexing by passing --disable-indexing
+
+You can enable a low memory usage mode (recommended for machines with less than 256MB of RAM) by passing --enable-low-memory
+
+You can enable turbo indexing by passing --turbo
+
+You can specify directory roots not to be watched or indexed by passing  --ignore-dirs=dir1 for each directory root
 
 You can make sure that tracker only indexes a subset of your home directory and also specify folders not in your home directory by editing the tracker.cfg file in ~/.Tracker (which is created when you first run trackerd) and setting WatchDirectoryRoots to a semicolon delimited list of directories (full path required!) 
 
@@ -221,10 +193,12 @@ COMMAND LINE TOOLS
 
 Tracker comes with a number of command line apps that you can use:
 
+"tracker-tag" for setting and searching tags/keywords
+
 "tracker-extract FILE" - this extracts embedded metadata from FILE and prints to stdout
 
 "tracker-search SEARCHTERM" - this perfoms a google like search using SEARCHTERM to retrieve all matching files where SEARCHTERM appears in any searchable metadata
 
-"tracker-query" - this reads from STDIN an RDF Query that specifies the search criteria for various fields. It prints to STDOUT all matching files. You can see some example queries in the RDF-Query-examples folder. You can run the examples as "tracker-query < RDFFILE"
+"tracker-query" - this reads an RDF Query that specifies the search criteria for various fields. It prints to STDOUT all matching files. You can see some example queries in the RDF-Query-examples folder. You can run the examples as "tracker-query < RDFFILE"
 
 

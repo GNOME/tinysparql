@@ -4,7 +4,7 @@ CREATE TABLE Options (
 	OptionValue	Text COLLATE NOCASE
 );
 
-insert Into Options (OptionKey, OptionValue) values ('DBVersion', '10');
+insert Into Options (OptionKey, OptionValue) values ('DBVersion', '11');
 insert Into Options (OptionKey, OptionValue) values ('Sequence', '0');
 insert Into Options (OptionKey, OptionValue) values ('UpdateCount', '0');
 

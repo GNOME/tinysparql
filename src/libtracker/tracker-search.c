@@ -25,14 +25,42 @@
 static gint limit = 0;
 static gchar **terms = NULL;
 static gchar *service = NULL;
+static gboolean detailed;
 
 static GOptionEntry entries[] = {
 	{"limit", 'l', 0, G_OPTION_ARG_INT, &limit, "limit the number of results showed", "limit"},
 	{"service", 's', 0, G_OPTION_ARG_STRING, &service, "search from a specific service", "service"},
+	{"detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed, "Show more detailed results with service and mime type as well", NULL},
 	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &terms, "search terms", NULL},
 	{NULL}
 };
 
+
+static void
+get_meta_table_data (gpointer value)
+		    
+{
+	char **meta, **meta_p;
+
+	meta = (char **)value;
+
+	int i = 0;
+	for (meta_p = meta; *meta_p; meta_p++) {
+
+		char *str;
+
+		str = g_filename_from_utf8 (*meta_p, -1, NULL, NULL, NULL);
+
+		if (i == 0) {
+			g_print ("%s : ", str);
+
+		} else {
+			g_print ("%s, ", *meta_p);
+		}
+		i++;
+	}
+	g_print ("\n");
+}
 
 int
 main (int argc, char **argv) 
@@ -44,6 +72,7 @@ main (int argc, char **argv)
 	gchar *search;
 	gchar **result;
 	char **p_strarray;
+	GPtrArray *out_array = NULL;
 
 	setlocale (LC_ALL, "");
 
@@ -91,8 +120,15 @@ main (int argc, char **argv)
 	}
 
 	search = g_strjoinv (" ", terms);
-	result = tracker_search_text (client, -1, type, search, 0, limit, &error);
+
+	if (!detailed) {
+		result = tracker_search_text (client, -1, type, search, 0, limit, &error);
+	} else  {
+		out_array = tracker_search_text_detailed (client, -1, type, search, 0, limit, &error);
+	}
+	
 	g_free (search);
+
 
 	if (error) {
 		g_printerr ("tracker raised error: %s\n", error->message);
@@ -104,6 +140,17 @@ main (int argc, char **argv)
 		g_printerr ("no results found\n");
 		return 0;
 	}
+
+	if (detailed) {
+		if (out_array) {
+			g_ptr_array_foreach (out_array, (GFunc)get_meta_table_data, NULL);
+			g_ptr_array_free (out_array, TRUE);
+		}
+		tracker_disconnect (client);
+		return 0;
+	} 
+
+
 	
 	for (p_strarray = result; *p_strarray; p_strarray++) {
 		char *s = g_locale_from_utf8 (*p_strarray, -1, NULL, NULL, NULL);
@@ -116,6 +163,8 @@ main (int argc, char **argv)
 	}
 
 	g_strfreev (result);
+
 	tracker_disconnect (client);
 	return 0;
+
 }

@@ -106,6 +106,9 @@
 			<arg type="as" name="keys" direction="in" />
 			<arg type="as" name="values" direction="in" />
 		</method>
+
+		
+
 		
 		<!--
 			Registers a new metadata type. The metadata name must be namespaced with an appropriate  class in the format "class.name"
@@ -234,7 +237,7 @@
 		<!-- generic search interface (see other interfaces for file/keyword specific searches)-->
 
 		<!-- searches specified service for entities that match the specified search_text. 
-		     Returns id field of all hits. sort_by_relevance returns results sorted with the biggest hits first (as sorting is slower, you might want to disable this for fast queries) -->
+		     Returns uri of all hits. -->
 		<method name="Text">
 			<arg type="i" name="live_query_id" direction="in" />
 			<arg type="s" name="service" direction="in" />
@@ -242,6 +245,26 @@
 			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- More detailed version of above. Searches specified service for entities that match the specified search_text. 
+		     Returns hits in array format [uri, service, mime]  -->
+		<method name="TextDetailed">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+
+
+		<!-- Returns a search snippet of text with matchinhg text enclosed in bold tags -->
+		<method name="GetSnippet">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="s" name="result" direction="out" />
 		</method>
 
 

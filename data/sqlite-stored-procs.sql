@@ -18,6 +18,8 @@ GetFilesByServiceType SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Serv
 
 GetFileByID  SELECT  DISTINCT Path , Name, Mime   FROM Services WHERE ID = ?;
 
+GetFileByID2  SELECT DISTINCT (Path || '/' || Name) as uri, GetServiceName (ServiceTypeID), Mime FROM Services WHERE ID = ?;
+
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Modified');
 
 
@@ -84,7 +86,6 @@ DeleteDirectory5 DELETE FROM ServiceIndexMetaData  WHERE ServiceID  in (select I
 DeleteDirectory6 DELETE FROM ServiceNumericMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory7 DELETE FROM ServiceBlobMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory8 DELETE FROM ServiceWords  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
-
 
 SaveFileContents REPLACE into ServiceContents (ServiceID, Content, ContainsWordScores) values (?,?,?);
 DeleteFileContents DELETE FROM ServiceContents where ServiceID = ?;

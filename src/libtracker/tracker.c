@@ -537,6 +537,34 @@ tracker_search_text (TrackerClient *client, int live_query_id, ServiceType servi
 	return array;
 }
 
+GPtrArray * 	
+tracker_search_text_detailed (TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, GError **error)
+{
+	GPtrArray *array;
+	char *service_str = service_types[service];
+
+	if (!org_freedesktop_Tracker_Search_text_detailed (client->proxy_search, live_query_id, service_str, search_text,  offset, max_hits, &array, &*error)) {
+		return NULL;
+	}
+
+	return array;
+}
+
+char *		
+tracker_search_get_snippet (TrackerClient *client, ServiceType service, const char *uri, const char *search_text, GError **error)
+{
+	char *result;
+	char *service_str = service_types[service];
+
+	if (!org_freedesktop_Tracker_Search_get_snippet (client->proxy_search, service_str, uri, search_text, &result, &*error)) {
+		return NULL;
+	}
+
+	return result;
+	
+
+}
+
 
 
 char **		
@@ -1019,6 +1047,40 @@ tracker_search_text_async (TrackerClient *client, int live_query_id, ServiceType
 	client->last_pending_call = org_freedesktop_Tracker_Search_text_async (client->proxy_search, live_query_id, service_str, search_text, offset, max_hits, tracker_array_reply, callback_struct);
 	
 }
+
+
+void	
+tracker_search_text_detailed_async (TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data)
+{
+
+	GPtrArrayCallBackStruct *callback_struct;
+
+	callback_struct = g_new (GPtrArrayCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+	
+	char *service_str = service_types[service];
+
+	client->last_pending_call = org_freedesktop_Tracker_Search_text_detailed_async (client->proxy_search, live_query_id, service_str, search_text, offset, max_hits, tracker_GPtrArray_reply, callback_struct);
+	
+}
+
+
+void
+tracker_search_get_snippet_async (TrackerClient *client, ServiceType service, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data)
+{
+	StringCallBackStruct *callback_struct;
+
+	callback_struct = g_new (StringCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+	
+	char *service_str = service_types[service];
+
+	client->last_pending_call = org_freedesktop_Tracker_Search_get_snippet_async (client->proxy_search, service_str, uri, search_text, tracker_string_reply, callback_struct);	
+
+}
+
 
 void	
 tracker_search_metadata_async	(TrackerClient *client, ServiceType service, const char *field, const char* search_text, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data)
