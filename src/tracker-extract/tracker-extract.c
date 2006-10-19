@@ -71,6 +71,7 @@ void tracker_extract_exif   (gchar *, GHashTable *);
 #endif
 void tracker_extract_imagemagick   (gchar *, GHashTable *);
 void tracker_extract_mplayer   (gchar *, GHashTable *);
+void tracker_extract_totem   (gchar *, GHashTable *);
 
 MimeToExtractor extractors[] = {
 	/* Document extractors */
@@ -88,6 +89,7 @@ MimeToExtractor extractors[] = {
 
 	/* Video extractors */
 	{ "video/*",                               tracker_extract_mplayer     },
+	{ "video/*",                               tracker_extract_totem       },
 
 
 	/* Audio extractors */

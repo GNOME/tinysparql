@@ -5,7 +5,7 @@
 #include <string.h>
 #include <glib.h>
 
-gchar *video_tags[][2] = {
+static gchar *video_tags[][2] = {
       { "ID_VIDEO_HEIGHT",  "Video.Height"     },
       { "ID_VIDEO_WIDTH",   "Video.Width"      },
       { "ID_VIDEO_FPS",     "Video.FrameRate"  },
@@ -14,7 +14,7 @@ gchar *video_tags[][2] = {
       { NULL,               NULL               }
    };
 
-gchar *audio_tags[][2] = {
+static gchar *audio_tags[][2] = {
       { "ID_AUDIO_BITRATE", "Audio.Bitrate"    },
       { "ID_AUDIO_RATE",    "Audio.Samplerate" },
       { "ID_AUDIO_CODEC",   "Audio.Codec"      },
@@ -22,7 +22,7 @@ gchar *audio_tags[][2] = {
       { NULL,               NULL               }
    };
 
-gchar *info_tags[][2] = {
+static gchar *info_tags[][2] = {
       { "comments",     "Video.Comment"        },
       { "name",         "Video.Title"          },
       { "author",       "Video.Author"         },

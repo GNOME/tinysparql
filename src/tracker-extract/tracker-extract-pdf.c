@@ -18,6 +18,7 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 	GTime            creation_date;
 	GError          *error = NULL;
 
+	g_type_init ();
 	tmp = g_strconcat ("file://", filename, NULL);
 	document = poppler_document_new_from_file (tmp, NULL, &error);
 	g_free (tmp);
