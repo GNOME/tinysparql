@@ -7,6 +7,6 @@ Name: tracker
 Description: Tracker : Indexer, metadata harvester and metadata database
 Version: @VERSION@
 Requires: glib-2.0 dbus-1 dbus-glib-1
-Libs: -L${libdir} -lmetatracker
+Libs: -L${libdir} -ltrackerclient
 Cflags: -DDBUS_API_SUBJECT_TO_CHANGE -I${includedir}
 
