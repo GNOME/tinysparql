@@ -3159,15 +3159,15 @@ tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit)
 						tracker_indexer_append_word_chunk (tracker->file_indexer, word, word_details, count);
 						tracker->update_count++;
 					} else {
-						tracker_log ("flush failure");
+						tracker_log ("flush failure - ignoring suspect data");
 					}
 
 					g_free (word_details);
-
-					tracker_exec_proc (db_con, "DeleteServiceWords", 1, word_id);
-					tracker_exec_proc (db_con, "DeleteWord", 1, word_id);
-
+				
 				}	
+
+				tracker_exec_proc (db_con, "DeleteServiceWords", 1, word_id);
+				tracker_exec_proc (db_con, "DeleteWord", 1, word_id);
 
 			} 
 				

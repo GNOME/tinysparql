@@ -1237,17 +1237,17 @@ extract_metadata_thread (void)
 			tracker_log ("Please wait while data is being flushed to the inverted word index...");
 			tracker->in_flush = TRUE;
 
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 2000);
+			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
 
 			while (tracker->number_of_cached_words > tracker->cache_word_min) {
 				
 
 				if (words_left > 1500) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 1000);
-				} else if (words_left > 1000) {
 					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
+				} else if (words_left > 1000) {
+					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 300);
 				} else if (words_left > 500) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 250);
+					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 200);
 				} else {
 					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 50);
 				}
