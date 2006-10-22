@@ -2,22 +2,22 @@ Source: tracker
 Section: utils
 Priority: optional
 Maintainer: Jamie McCracken <jamiemcc@gnome.org>
-Build-Depends: debhelper (>= 5.0.0), autotools-dev, libextractor-dev (>= 0.5.0), libdbus-glib-1-dev
+Build-Depends: debhelper (>= 5.0.0), autotools-dev, libdbus-glib-1-dev
 Standards-Version: 3.7.2
 
-Package: meta-tracker
+Package: tracker
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: meta-tracker-utils
+Recommends: tracker-utils
 Description: Metadata database and indexing search tool
  Tracker is an advanced framework for first class objects with associated
  metadata and tags. It provides a one stop solution for all metadata, tags,
  shared object databases, search tools and indexing.
 
-Package: libmetatracker0
+Package: libtrackerclient0
 Architecture: any
 Section: libs
-Depends: ${shlibs:Depends}, ${misc:Depends}, meta-tracker (= ${Source-Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, tracker (= ${Source-Version})
 Description: Library for accessing Tracker
  This library allow programmers accessing Tracker daemon and performing
  searches.
@@ -26,21 +26,21 @@ Description: Library for accessing Tracker
  metadata and tags. It provides a one stop solution for all metadata, tags,
  shared object databases, search tools and indexing.
 
-Package: libmetatracker0-dev
+Package: libtrackerclient0-dev
 Architecture: any
 Section: devel
-Depends: libmetatracker0 (= ${Source-Version})
+Depends: libtrackerclient0 (= ${Source-Version})
 Description: Development files for Tracker
  This package contains the headers and other development files not included in
- the libmetatracker0 package for developing with it.
+ the libtrackerclient0 package for developing with it.
  .
  Tracker is an advanced framework for first class objects with associated
  metadata and tags. It provides a one stop solution for all metadata, tags,
  shared object databases, search tools and indexing.
 
-Package: meta-tracker-utils
+Package: tracker-utils
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libtrackerclient0 (= ${Source-Version})
 Description: Utilities for Tracker
  Included utilities for Tracker:
   * tracker-files: get files based on a ServiceType (Documents, Music, Images,
@@ -58,3 +58,4 @@ Description: Utilities for Tracker
  Tracker is an advanced framework for first class objects with associated
  metadata and tags. It provides a one stop solution for all metadata, tags,
  shared object databases, search tools and indexing.
+

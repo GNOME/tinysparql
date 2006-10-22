@@ -1,0 +1,6 @@
+debian/tmp/usr/bin/tracker-files
+debian/tmp/usr/bin/tracker-meta-folder
+debian/tmp/usr/bin/tracker-query
+debian/tmp/usr/bin/tracker-search
+debian/tmp/usr/bin/tracker-stats
+debian/tmp/usr/bin/tracker-tag
