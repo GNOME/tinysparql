@@ -637,9 +637,6 @@ add_file_to_search_results (const gchar * file,
 
 	utf8_base_name = g_locale_to_utf8 (base_name, -1, NULL, NULL, NULL);
 	utf8_dir_name = g_locale_to_utf8 (dir_name, -1, NULL, NULL, NULL);
-	
-	char *mark_name = g_markup_escape_text (utf8_base_name, -1);
-	char *mark_dir =  g_markup_escape_text (utf8_dir_name, -1);
 
 	char *snippet;
 	char *search_term;
@@ -655,8 +652,8 @@ add_file_to_search_results (const gchar * file,
 	gtk_list_store_append (GTK_LIST_STORE (store), iter);
 	gtk_list_store_set (GTK_LIST_STORE (store), iter,
 			    COLUMN_ICON, pixbuf,
-			    COLUMN_NAME, mark_name,
-			    COLUMN_PATH, mark_dir,
+			    COLUMN_NAME, utf8_base_name,
+			    COLUMN_PATH, utf8_dir_name,
 			    COLUMN_SERVICE, 0,
 			    COLUMN_SNIPPET, snippet,
 			    COLUMN_TYPE, (description != NULL) ? description : mime,
@@ -664,8 +661,6 @@ add_file_to_search_results (const gchar * file,
 			    -1);
 
 	g_free (snippet);
-	g_free (mark_name);
-	g_free (mark_dir);
 
 	monitor = g_slice_new0 (GSearchMonitor);
 	if (monitor) {
@@ -1416,7 +1411,13 @@ filename_cell_data_func (GtkTreeViewColumn * column,
 	gtk_tree_model_get (model, iter, COLUMN_PATH, &fpath, -1);
 	gtk_tree_model_get (model, iter, COLUMN_TYPE, &type, -1);
 
-	markup = g_strconcat ("<b>", name, "</b>\n", fpath, "\n", type,  NULL); 	
+	char *mark_name = g_markup_escape_text (name, -1);
+	char *mark_dir =  g_markup_escape_text (fpath, -1);
+
+	markup = g_strconcat ("<b>", mark_name, "</b>\n", mark_dir, "\n", type,  NULL);
+
+	g_free (mark_name);
+	g_free (mark_dir);
 
 	g_free (fpath);
 	g_free (name);
