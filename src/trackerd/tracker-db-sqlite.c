@@ -1736,7 +1736,6 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	if (!save_results) {
 		count = g_slist_length (hit_list);
 		result = g_new ( char *, count + 1);
-		result[count] = NULL;
 	} else {
 		tracker_db_start_transaction (db_con);
 		tracker_exec_proc (db_con, "DeleteSearchResults1", 0);
@@ -1801,13 +1800,14 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 				}
 				
 				result[count] = (char *) row;
+				count++;
 			}
 
 			tracker_db_free_result (res);
 		}
 
-		count++;
 	}
+	result[count] = NULL;
 
 	if (save_results) {
 		tracker_db_end_transaction (db_con);
