@@ -58,5 +58,5 @@ tracker_files_LDADD = 	$(GLIB2_LIBS) 	\
 			$(top_builddir)/src/libtracker/libtrackerclient.la
  
 install-exec-hook:
-	ln -fs $(DESTDIR)/$(libdir)/libtrackerclient.so $(DESTDIR)/$(libdir)/libtracker.so
-	ln -fs $(DESTDIR)/$(libdir)/libtrackerclient.so.0 $(DESTDIR)/$(libdir)/libtracker.so.0
+	cd $(DESTDIR)/$(libdir) && rm -f libtracker.so && ln -s libtrackerclient.so libtracker.so
+	cd $(DESTDIR)/$(libdir) && rm -f libtracker.so.0 && ln -s libtrackerclient.so.0 libtracker.so.0

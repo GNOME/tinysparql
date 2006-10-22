@@ -8,19 +8,19 @@ debian_files = \
 	debian/compat \
 	debian/control \
 	debian/copyright \
-	debian/libmetatracker0-dev.docs \
-	debian/libmetatracker0-dev.install \
-	debian/libmetatracker0-dev.links \
-	debian/libmetatracker0.docs \
-	debian/libmetatracker0.install \
-	debian/libmetatracker0.links \
-	debian/meta-tracker-dev.docs \
-	debian/meta-tracker-dev.install \
-	debian/meta-tracker.docs \
-	debian/meta-tracker.install \
-	debian/meta-tracker-utils.docs \
-	debian/meta-tracker-utils.examples \
-	debian/meta-tracker-utils.install \
+	debian/libtrackerclient0-dev.docs \
+	debian/libtrackerclient0-dev.install \
+	debian/libtrackerclient0-dev.links \
+	debian/libtrackerclient0.docs \
+	debian/libtrackerclient0.install \
+	debian/libtrackerclient0.links \
+	debian/tracker-dev.docs \
+	debian/tracker-dev.install \
+	debian/tracker.docs \
+	debian/tracker.install \
+	debian/tracker-utils.docs \
+	debian/tracker-utils.examples \
+	debian/tracker-utils.install \
 	debian/rules
 
 EXTRA_DIST = \
