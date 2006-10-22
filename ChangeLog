@@ -1,3 +1,6 @@
+2006-10-22 Quirky <quirky@zoom.co.uk>
+
+	* fixed potential crasher in tracker_db_search_text
 
 2006-10-22 Jamie McCracken <jamiemcc at gnome org>
 
@@ -10,6 +13,7 @@
 
 	* build fix for make dist
 	* fix for tracker-search-tool's handling of filenames by escaping them 
+
 
 2006-10-16 Jamie McCracken <jamiemcc at gnome org>
 
