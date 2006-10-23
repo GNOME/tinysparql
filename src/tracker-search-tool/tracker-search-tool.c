@@ -1923,6 +1923,7 @@ get_meta_table_data (gpointer value, gpointer data)
 
 	if (meta[0] && meta[1] && meta[2]) {
 		add_file_to_search_results (meta[0], meta[2], gsearch->search_results_list_store, &gsearch->search_results_iter, gsearch);
+		gsearch->hit_count++;
 	}
 
 }
@@ -1937,12 +1938,14 @@ click_find_cb (GtkWidget * widget,
 	GtkTreeIter iter;
 	int type;
 
+	gsearch->hit_count = 0;
+
 	if (widget == gsearch->forward_button) {
 		gsearch->offset += MAX_SEARCH_RESULTS;
+	} else if (widget == gsearch->back_button) {
+		gsearch->offset -= MAX_SEARCH_RESULTS;
 	} else {
-		if (widget == gsearch->back_button) {
-			gsearch->offset -= MAX_SEARCH_RESULTS;
-		}
+		gsearch->offset = 0;
 	}
 
 	if (gsearch->offset < 0) {
@@ -1992,6 +1995,12 @@ click_find_cb (GtkWidget * widget,
 		} else {
 			gtk_widget_set_sensitive (gsearch->forward_button, FALSE);
 		}
+
+
+	}
+
+	if (gsearch->hit_count < MAX_SEARCH_RESULTS) {
+		gtk_widget_set_sensitive (gsearch->forward_button, FALSE);
 	}
 
 	if (gsearch->offset > 0) {

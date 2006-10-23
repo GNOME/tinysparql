@@ -93,6 +93,7 @@ struct _GSearchWindow {
 
 	GtkWidget             * search_entry;
 	int			offset;
+	int			hit_count;
 	GtkWidget	      * combo;
 	GtkListStore  	      * combo_model;
 	GtkWidget             * look_in_folder_button;
