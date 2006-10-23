@@ -206,7 +206,7 @@ tracker_dbus_reply_with_query_result (DBusRec *rec, char ***res)
 
 			if (strlen (*values) > 0) {
 				value = *values;
-				tracker_log (value);
+				//tracker_log (value);
 			} else {
 				/* dbus does not like NULLs */
 				value = " ";
