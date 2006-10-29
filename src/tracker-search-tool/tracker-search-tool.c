@@ -639,6 +639,7 @@ add_file_to_search_results (const gchar * file,
 	utf8_dir_name = g_locale_to_utf8 (dir_name, -1, NULL, NULL, NULL);
 
 	char *snippet;
+	char *snippet_markup;
 	char *search_term;
 
 	if (gsearch->search_term) {
@@ -648,6 +649,8 @@ add_file_to_search_results (const gchar * file,
 	}
 
 	snippet = tracker_search_get_snippet (tracker_client, SERVICE_FILES, file, search_term, NULL);
+	snippet_markup = g_strdup_printf ("<span foreground='darkgrey' size='small'>%s</span>", snippet);
+	g_free (snippet);
 
 	gtk_list_store_append (GTK_LIST_STORE (store), iter);
 	gtk_list_store_set (GTK_LIST_STORE (store), iter,
@@ -655,13 +658,13 @@ add_file_to_search_results (const gchar * file,
 			    COLUMN_NAME, utf8_base_name,
 			    COLUMN_PATH, utf8_dir_name,
 			    COLUMN_SERVICE, 0,
-			    COLUMN_SNIPPET, snippet,
+			    COLUMN_SNIPPET, snippet_markup,
 			    COLUMN_TYPE, (description != NULL) ? description : mime,
 			    COLUMN_NO_FILES_FOUND, FALSE,
 			    -1);
 
-	g_free (snippet);
-
+	g_free (snippet_markup);
+	
 	monitor = g_slice_new0 (GSearchMonitor);
 	if (monitor) {
 		path = gtk_tree_model_get_path (GTK_TREE_MODEL (store), iter);
