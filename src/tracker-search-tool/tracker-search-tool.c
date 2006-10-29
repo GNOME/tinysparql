@@ -1541,7 +1541,6 @@ create_search_results_section (GSearchWindow * gsearch)
 	window = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (window), GTK_SHADOW_IN);
 	gtk_container_set_border_width (GTK_CONTAINER (window), 0);
-	gtk_widget_set_size_request (window, 530, 160);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (window),
                                         GTK_POLICY_AUTOMATIC,
                                         GTK_POLICY_AUTOMATIC);
@@ -2035,8 +2034,8 @@ gsearch_app_create (GSearchWindow * gsearch)
 			  G_CALLBACK (gsearch_window_size_allocate),
 			  gsearch);
 	gsearch->command_details = g_slice_new0 (GSearchCommandDetails);
-	gsearch->window_geometry.min_height = MINIMUM_WINDOW_HEIGHT;
-	gsearch->window_geometry.min_width  = MINIMUM_WINDOW_WIDTH;
+	gsearch->window_geometry.min_height = -1;
+	gsearch->window_geometry.min_width  = -1;
 
 	gtk_window_set_position (GTK_WINDOW (gsearch->window), GTK_WIN_POS_CENTER);
 	gtk_window_set_geometry_hints (GTK_WINDOW (gsearch->window), GTK_WIDGET (gsearch->window),

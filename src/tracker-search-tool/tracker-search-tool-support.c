@@ -1519,6 +1519,6 @@ tracker_search_get_stored_window_geometry (gint * width,
 		saved_height = DEFAULT_WINDOW_HEIGHT;
 	}
 
-	*width = MAX (saved_width, MINIMUM_WINDOW_WIDTH);
-	*height = MAX (saved_height, MINIMUM_WINDOW_HEIGHT);
+	*width = saved_width;
+	*height = saved_height;
 }

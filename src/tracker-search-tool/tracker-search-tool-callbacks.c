@@ -57,9 +57,6 @@ gboolean row_selected_by_button_press_event;
 static void
 store_window_state_and_geometry (GSearchWindow *gsearch)
 {
-	gsearch->window_width = MAX (gsearch->window_width, MINIMUM_WINDOW_WIDTH);
-	gsearch->window_height = MAX (gsearch->window_height, MINIMUM_WINDOW_HEIGHT);
-
 	tracker_search_gconf_set_int ("/apps/tracker-search-tool/default_window_width",
 	                           gsearch->window_width);
 	tracker_search_gconf_set_int ("/apps/tracker-search-tool/default_window_height",
@@ -159,7 +156,7 @@ click_expander_cb (GObject * object,
 		                               GDK_HINT_MIN_SIZE);
 	}
 	else {
-		GdkGeometry default_geometry = {MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT};
+		GdkGeometry default_geometry = {DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT};
 
 		gtk_widget_hide (gsearch->available_options_vbox);
 		gtk_window_set_geometry_hints (GTK_WINDOW (gsearch->window),

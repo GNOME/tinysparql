@@ -47,8 +47,6 @@ extern "C" {
 
 #define TRACKER_SEARCH_TOOL_ICON "tracker-searchtool"
 
-#define MINIMUM_WINDOW_WIDTH   420
-#define MINIMUM_WINDOW_HEIGHT  400
 #define DEFAULT_WINDOW_WIDTH   500
 #define DEFAULT_WINDOW_HEIGHT  450
 #define WINDOW_HEIGHT_STEP      35
