@@ -1,3 +1,13 @@
+2006-10-29 Mikkel Kamstrup Erlandsen <mikkel kamstrup gmail com>
+
+	* added grey lettering for snippet
+
+
+2006-10-29 Baptiste Mille-Mathias <baptiste.millemathias gmail com>
+	
+	* added initial manpages for the tracker command line tools
+
+
 2006-10-22 Richard Quirk <quirky@zoom.co.uk>
 
 	* fixed potential crasher in tracker_db_search_text
