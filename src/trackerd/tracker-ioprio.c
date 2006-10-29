@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <glib/gstdio.h>
 #include <tracker-utils.h>
+#include <sys/syscall.h>
 #ifdef HAVE_LINUX_UNISTD_H
 #include <linux/unistd.h>
 #endif
@@ -44,8 +45,15 @@ enum {
 
 #define IOPRIO_CLASS_SHIFT	13
 
-_syscall2(int, ioprio_get, int, which, int, who); 
-_syscall3(int, ioprio_set, int, which, int, who, int, ioprio); 
+static inline int ioprio_set (int which, int who, int ioprio)
+{
+	return syscall (__NR_ioprio_set, which, who, ioprio);
+}
+
+static inline int ioprio_get (int which, int who)
+{
+	return syscall (__NR_ioprio_get, which, who);
+}
 
 void ioprio()
 {

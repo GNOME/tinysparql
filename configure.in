@@ -439,13 +439,14 @@ ioprio_support=no
 AC_RUN_IFELSE([ AC_LANG_PROGRAM([[
 #include <stdlib.h>
 #include <errno.h> 
-#include <linux/unistd.h> 
-   ]], [[
-_syscall2(int, ioprio_get, int, which, int, who); 
-int main()
+#include <sys/syscall.h>
+#include <unistd.h>
+inline int ioprio_get (int which, int who)
 {
-	exit(ioprio_get(1,0));
+	return syscall (__NR_ioprio_get, which, who);
 }
+   ]], [[
+exit(ioprio_get(1,0));
    ]]) ], 
    [ AC_DEFINE(IOPRIO_SUPPORT,[],[Define ioprio support]) ioprio_support=yes ])
 AC_MSG_RESULT([$ioprio_support])
@@ -457,6 +458,7 @@ AM_CONFIG_HEADER(src/trackerd/config.h)
 AC_CONFIG_FILES([
 	Makefile	 
 	tracker.pc
+	docs/MakeFile
 	data/Makefile
 	data/languages/Makefile
 	filters/Makefile

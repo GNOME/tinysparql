@@ -1,4 +1,0 @@
-debian/tmp/usr/include/
-debian/tmp/usr/lib/libmetatracker.{so,a,la}
-debian/tmp/usr/lib/libtracker.so
-debian/tmp/usr/lib/pkgconfig/
