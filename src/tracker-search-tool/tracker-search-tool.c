@@ -2068,9 +2068,6 @@ gsearch_app_create (GSearchWindow * gsearch)
 	hbox = gtk_hbox_new (FALSE, 12);
 	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 0);
 
-	vbox = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (hbox), vbox, FALSE, FALSE, 0);
-
 	gsearch->name_and_folder_table = gtk_table_new (1, 4, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (gsearch->name_and_folder_table), 6);
 	gtk_table_set_col_spacings (GTK_TABLE (gsearch->name_and_folder_table), 12);
@@ -2095,8 +2092,11 @@ gsearch_app_create (GSearchWindow * gsearch)
 	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), gsearch->combo, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
 	
 
+	hbox = gtk_hbutton_box_new ();
+	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), hbox, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
+
 	gsearch->find_button = gtk_button_new_from_stock (GTK_STOCK_FIND);
-	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), gsearch->find_button, 3, 4, 0, 1, GTK_FILL, 0, 0, 1);
+	gtk_container_add (GTK_CONTAINER (hbox), gsearch->find_button);
 
 	if (GTK_IS_ACCESSIBLE (gtk_widget_get_accessible (gsearch->search_entry))) {
 		gsearch->is_window_accessible = TRUE;
@@ -2141,16 +2141,10 @@ gsearch_app_create (GSearchWindow * gsearch)
 		add_atk_namedesc (GTK_WIDGET (gsearch->find_button), NULL, _("Click to perform a search."));
 	}
 
-	vbox = gtk_hbox_new (FALSE, 2);
-	gtk_box_pack_start (GTK_BOX (container), vbox, FALSE, FALSE, 0);
-
-	widget = gtk_button_new_with_mnemonic ("_Next");
-	image = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
-	gtk_button_set_image (GTK_BUTTON (widget), image);
-	gsearch->forward_button = widget;
-	g_signal_connect (G_OBJECT (gsearch->forward_button), "clicked",
-	                  G_CALLBACK (click_find_cb), (gpointer) gsearch);
-	gtk_box_pack_end (GTK_BOX (vbox), widget, FALSE, FALSE, 2);
+	hbox = gtk_hbutton_box_new ();
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_END);
+	gtk_box_set_spacing (GTK_BOX (hbox), 6);
+	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 0);
 
 	widget = gtk_button_new_with_mnemonic ("_Previous");
 	image = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON);
@@ -2158,8 +2152,15 @@ gsearch_app_create (GSearchWindow * gsearch)
 	gsearch->back_button = widget;
 	g_signal_connect (G_OBJECT (gsearch->back_button), "clicked",
 	                  G_CALLBACK (click_find_cb), (gpointer) gsearch);
-	gtk_box_pack_end (GTK_BOX (vbox), widget, FALSE, FALSE, 2);
+	gtk_container_add (GTK_CONTAINER (hbox), widget);
 
+	widget = gtk_button_new_with_mnemonic ("_Next");
+	image = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
+	gtk_button_set_image (GTK_BUTTON (widget), image);
+	gsearch->forward_button = widget;
+	g_signal_connect (G_OBJECT (gsearch->forward_button), "clicked",
+	                  G_CALLBACK (click_find_cb), (gpointer) gsearch);
+	gtk_container_add (GTK_CONTAINER (hbox), widget);
 
 //	widget = gtk_label_new ("");
 //	gtk_box_pack_end (GTK_BOX (vbox), widget, TRUE, TRUE, 2);
