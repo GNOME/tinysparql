@@ -52,6 +52,7 @@ typedef struct {
 	int		rc;
 	char		*thread;
 	gpointer	user_data;
+	gpointer	user_data2;
 	GHashTable	*statements;
 } DBConnection;
 

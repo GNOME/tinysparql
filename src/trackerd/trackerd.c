@@ -33,6 +33,10 @@
 #include <time.h>
 #include <glib/gstdio.h>
 
+#ifdef IOPRIO_SUPPORT
+#include "tracker-ioprio.h"
+#endif
+
 #ifdef HAVE_INOTIFY
 #   include "tracker-inotify.h"
 #else
@@ -1896,7 +1900,7 @@ static void
 process_user_request_queue_thread (void)
 {
 	sigset_t     signal_set;
-	DBConnection *db_con, *blob_db_con;
+	DBConnection *db_con, *blob_db_con, *cache_db_con;
 
         /* block all signals in this thread */
         sigfillset (&signal_set);
@@ -1910,8 +1914,11 @@ process_user_request_queue_thread (void)
 
 	db_con = tracker_db_connect ();
 	blob_db_con = tracker_db_connect_full_text ();
+	cache_db_con = tracker_db_connect_cache ();
+
 	db_con->thread = "request";
-	db_con->user_data = blob_db_con;
+	db_con->user_data2 = blob_db_con;
+	db_con->user_data = cache_db_con;
 
 	tracker_db_prepare_queries (db_con);
 
