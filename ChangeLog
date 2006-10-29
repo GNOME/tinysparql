@@ -1,3 +1,15 @@
+2006-10-29 Ulrik Mikaelsson <ulrik mikaelsson gmail com>
+
+	* fixed leak in GetMetadataForFilesInFolder
+	* fixed field checking in GetMetadataForFilesInFolder
+	* added dbus argument error handling 
+
+
+2006-10-29 tobutaz <tobutaz gmail com>
+
+	* imporved ioprio detection and operation
+
+
 2006-10-29 Mikkel Kamstrup Erlandsen <mikkel kamstrup gmail com>
 
 	* added grey lettering for snippet
