@@ -69,7 +69,7 @@ main (int argc, char **argv)
 	TrackerClient *client = NULL;
 	GOptionContext *context = NULL;
 	GError *error = NULL;
-	int i = 0;
+	int i = 0, k;
 
 	setlocale (LC_ALL, "");
 
@@ -99,10 +99,17 @@ main (int argc, char **argv)
 	if (files)
 		for (i = 0; files[i] != NULL; i++) {
 			gchar *tmp = realpath (files[i], NULL);
-			gchar *utf = g_filename_to_utf8(tmp, -1, NULL, NULL, NULL);
-			g_free(files[i]);
-			g_free(tmp);
-			files[i] = utf;
+			if (tmp) {
+				gchar *utf = g_filename_to_utf8 (tmp, -1, NULL, NULL, NULL);
+				g_free (files[i]);
+				g_free (tmp);
+				files[i] = utf;
+			} else {
+				g_printerr ("%s: file not found\n", files[i]);
+				for (k = i; files[k] != NULL; k++)
+					files[k] = files[k+1];
+				i--; // Make sure we run over this file again
+			}
 		}
 
 	if (add || delete || remove_all) {

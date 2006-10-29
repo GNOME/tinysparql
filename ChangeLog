@@ -3,6 +3,7 @@
 	* fixed leak in GetMetadataForFilesInFolder
 	* fixed field checking in GetMetadataForFilesInFolder
 	* added dbus argument error handling 
+	* fixed issue with tracker-tag not reporting file not found
 
 
 2006-10-29 tobutaz <tobutaz gmail com>

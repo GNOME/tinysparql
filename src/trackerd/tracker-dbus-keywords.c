@@ -82,6 +82,7 @@ void
 tracker_dbus_method_keywords_get_list (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError    dbus_error;
 	char 		*service;
 	char		***res;
 
@@ -100,9 +101,14 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -121,6 +127,7 @@ void
 tracker_dbus_method_keywords_get (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	char 		*id, *uri, *service, *name, *path;
 	char 		**array;
@@ -140,10 +147,15 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -177,6 +189,7 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 	g_free (name);
 	g_free (path);
 
+	dbus_free_string_array (array);
 	row_count = 0;
 	array = NULL;
 
@@ -202,6 +215,7 @@ void
 tracker_dbus_method_keywords_add (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	char 		*id, *uri, *service, *name, *path;
 	char 		**array = NULL;
@@ -220,11 +234,16 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &row_count,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -265,6 +284,8 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		}
 	}
 
+	dbus_free_string_array(array);
+	
 	update_keywords_metadata (db_con, service, path, name);
 
 	g_free (name);
@@ -282,6 +303,7 @@ void
 tracker_dbus_method_keywords_remove (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	char 		*id, *uri, *service, *name, *path;
 	char 		**array;
@@ -302,11 +324,16 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &row_count,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -345,6 +372,8 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		}
 	}
 
+	dbus_free_string_array (array);
+	
 	update_keywords_metadata (db_con, service, path, name);
 
 	g_free (name);
@@ -362,6 +391,7 @@ void
 tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	char 		*id, *uri, *service, *name, *path;
 
@@ -378,10 +408,15 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -429,6 +464,7 @@ void
 tracker_dbus_method_keywords_search (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array;
@@ -453,13 +489,18 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_INT32, &query_id,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &row_count,
 			       DBUS_TYPE_INT32, &offset,
 			       DBUS_TYPE_INT32, &limit,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -534,6 +575,10 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	g_free (query_where);
 	g_free (query);
 
+	dbus_free_string_array(array);
+	row_count = 0;
+	array = NULL;
+	
 	if (res) {
 		array = tracker_get_query_result_as_array (res, &row_count);
 		tracker_db_free_result (res);

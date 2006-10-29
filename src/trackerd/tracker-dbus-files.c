@@ -30,6 +30,7 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 {
 	DBusMessage  *reply;
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	char	     *uri;
 	gboolean     auto_create;
 	gboolean     file_valid;
@@ -49,10 +50,16 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_BOOLEAN, &auto_create,
-			       DBUS_TYPE_INVALID);
+				   DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
+
 
 	if (!uri)  {
 		tracker_set_error (rec, "No file was specified");
@@ -160,6 +167,7 @@ void
 tracker_dbus_method_files_create (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	char	     *uri, *name, *path, *mime, *service, *str_mtime, *str_size, *str_file_id;
 	gboolean     is_dir;
 	int	     size, mtime;
@@ -181,13 +189,18 @@ tracker_dbus_method_files_create (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_BOOLEAN, &is_dir,
 			       DBUS_TYPE_STRING, &mime,
 			       DBUS_TYPE_INT32, &size,
 			       DBUS_TYPE_INT32, &mtime,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (!uri) {
 		tracker_set_error (rec, "No file was specified");
@@ -232,6 +245,7 @@ void
 tracker_dbus_method_files_delete (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	char	     *uri, *name, *path, *str_file_id;
 	guint32	     file_id;
 	gboolean     is_dir;
@@ -248,9 +262,14 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args  (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args  (rec->message, &dbus_error,
 				DBUS_TYPE_STRING, &uri,
-				DBUS_TYPE_INVALID);
+				DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (!uri) {
 		tracker_set_error (rec, "No file was specified");
@@ -301,6 +320,7 @@ void
 tracker_dbus_method_files_get_service_type (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *uri, *str_id, *mime, *result;
 	guint32	     file_id;
@@ -317,9 +337,14 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &uri,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (!uri)  {
 		tracker_set_error (rec, "No file was specified");
@@ -363,6 +388,7 @@ void
 tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	char	     *uri;
 	int	     offset, max_length;
 
@@ -380,11 +406,16 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args  (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args  (rec->message, &dbus_error,
 				DBUS_TYPE_STRING, &uri,
 				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &max_length,
-				DBUS_TYPE_INVALID);
+				DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (uri) {
 		char *name, *path, *str_offset, *str_max_length;
@@ -439,6 +470,7 @@ void
 tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	char	     *uri, *text;
 	int	     max_length;
 
@@ -461,11 +493,16 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 
 	/* ******************************************************************** */
 
-	dbus_message_get_args  (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args  (rec->message, &dbus_error,
 				DBUS_TYPE_STRING, &uri,
 				DBUS_TYPE_STRING, &text,
 				DBUS_TYPE_INT32, &max_length,
-				DBUS_TYPE_INVALID);
+				DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (uri) {
 		char *path, *name, *str_max_length;
@@ -519,6 +556,7 @@ void
 tracker_dbus_method_files_get_mtime (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	char	     *uri;
 
 /*
@@ -533,9 +571,14 @@ tracker_dbus_method_files_get_mtime (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &uri,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (uri) {
 		char *path, *name;
@@ -584,6 +627,7 @@ void
 tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	int 	     query_id, limit, offset, row_count;
 	char 	     *service;
@@ -607,12 +651,17 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args  (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args  (rec->message, &dbus_error,
 				DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_STRING, &service,
 				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
-				DBUS_TYPE_INVALID);
+				DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -647,6 +696,7 @@ void
 tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	int	     query_id, n, offset, limit, row_count;
 	char	     **array, **mimes;
@@ -667,12 +717,17 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args  (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args  (rec->message, &dbus_error,
 				DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &mimes, &n,
 				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
-				DBUS_TYPE_INVALID);
+				DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	if (n < 1) {
 		tracker_set_error (rec, "No mimes specified");
@@ -706,6 +761,7 @@ void
 tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	int	     query_id, n, offset, limit, row_count;
 	char	     **array, **mimes;
@@ -726,12 +782,17 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args  (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args  (rec->message, &dbus_error,
 				DBUS_TYPE_INT32, &query_id,
 				DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &mimes, &n,
 				DBUS_TYPE_INT32, &offset,
 				DBUS_TYPE_INT32, &limit,
-				DBUS_TYPE_INVALID);
+				DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	res = tracker_db_get_files_by_mime (db_con, mimes, n, offset, limit, TRUE);
 
@@ -760,7 +821,8 @@ void
 tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 {
 	DBConnection	*db_con;
-	int		i, query_id, folder_name_len, file_id, n, table_count;
+	DBusError		dbus_error;
+	int		i, query_id, folder_name_len, file_id, n;
 	char		*tmp_folder, *folder, *str;
 	char		**array;
 	GString		*sql;
@@ -781,11 +843,16 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 */
 
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_INT32, &query_id,
 			       DBUS_TYPE_STRING, &tmp_folder,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	folder_name_len = strlen (tmp_folder);
 
@@ -810,27 +877,24 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	g_string_append_printf (sql, "'%s' || F.Name) as PathName ", G_DIR_SEPARATOR_S);
 
-	table_count = 0;
-
-	for (i = 0; i < n; i++) {
-
-		table_count++;
-
-		g_string_append_printf (sql, ", M%d.MetaDataValue ", table_count);
-
+	for (i = 1; i <= n; i++) {
+		g_string_append_printf (sql, ", M%d.MetaDataValue ", i);
 	}
 
 
 	/* build FROM clause */
 	g_string_append (sql, " FROM Services F ");
 
-	table_count = 0;
-
 	for (i = 0; i < n; i++) {
 		FieldDef *def;
 		const char *table;
 
 		def = tracker_db_get_field_def (db_con, array[i]);
+
+		if (!def){
+			tracker_set_error (rec, "Not a supported field: %s", array[i]);
+			return;
+		}
 
 		if (def->type == DATA_INDEX_STRING) {
 			table = "ServiceIndexMetaData";
@@ -842,18 +906,13 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 			table = "ServiceNumericMetaData";
 		}
 
-		if (!def) {
-			continue;
-		}
-
-		table_count++;
-
-		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON F.ID = M%d.ServiceID AND M%d.MetaDataID = %s ", table, table_count, table_count, table_count, def->id);
+		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON F.ID = M%d.ServiceID AND M%d.MetaDataID = %s ", table, i+1, i+1, i+1, def->id);
 
 		tracker_db_free_field_def (def);
-		
 	}
 
+	dbus_free_string_array(array);
+	
 	/* build WHERE clause */
 
 	g_string_append_printf (sql, " WHERE F.Path = '%s' ", folder);
@@ -876,6 +935,7 @@ void
 tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *str;
 	char	     **array;
@@ -886,10 +946,15 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &str,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	res = tracker_db_search_text_mime (db_con, str, array, n);
 
@@ -946,6 +1011,7 @@ void
 tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *str, *location;
 	char	     **array;
@@ -956,10 +1022,15 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &str,
 			       DBUS_TYPE_STRING, &location,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	res = tracker_db_search_text_location (db_con, str, location);
 
@@ -1016,6 +1087,7 @@ void
 tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *str, *location;
 	char	     **array;
@@ -1026,11 +1098,16 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init(&dbus_error);
+	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &str,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, &n,
 			       DBUS_TYPE_STRING, &location,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free(&dbus_error);
+		return;
+	}
 
 	res = tracker_db_search_text_mime_location (db_con, str, array, n, location);
 
