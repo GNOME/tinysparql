@@ -1,0 +1,47 @@
+.TH trackerd 1 "September 2006" "Version 0.5"
+.SH NAME
+trackerd \- indexer daemon for tracker search tool
+.SH SYNOPSIS
+.B trackerd
+[--disable-indexing] [\-t|--turbo] [--enable-debug] [--enable-evolution]
+[--enable-thunderbird] [--enable-kmail] [WatchDirectory1 WatchDirectory2...]
+.SH DESCRIPTION
+.B trackerd
+indexes documents and extract metadata to provide quick search capabilities.
+By default, trackerd will index the documents stored on the folders defined in
+the file ~/.Tracker/tracker.cfg; if a folder is provided as parameter, trackerd
+will index all the documents stored under this folder, and its sub-folders.
+.SH OPTIONS
+.TP
+\-t
+Index the documents faster, but use more ressources.
+.TP
+\--enable-evolution
+Enable indexing of Evolution emails.
+.TP
+\--enable-thunderbird
+Enable indexing of Thunderbird emails.
+.TP
+\--enable-kmail
+Enable indexing of K-Mail emails.
+.TP
+\--enable-debug
+Enable more verbose debug messages
+.TP
+\--disable-indexing
+Prevents any indexing or watching taking place
+.TP
+\--ignore-dirs=directory1;directory2;...
+Prevent indexing of directory; You can provide a list of directories, each
+separated by a semicolon.
+.TP
+\-l|--language
+Allow to specify a 2 character language code to use for stemmer
+.SH FILES
+.I ~/.Tracker/tracker.cfg
+.RS
+Trackerd user configuration file. See
+.BR tracker.cfg(5)
+for further details.
+.SH AUTHOR
+Baptiste Mille-Mathias <baptiste.millemathias@gmail.com>
