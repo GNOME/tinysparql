@@ -39,8 +39,9 @@ Description: Development files for Tracker
  shared object databases, search tools and indexing.
 
 Package: tracker-utils
+Priority: optional
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libtrackerclient0 (= ${Source-Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Utilities for Tracker
  Included utilities for Tracker:
   * tracker-files: get files based on a ServiceType (Documents, Music, Images,
@@ -59,3 +60,15 @@ Description: Utilities for Tracker
  metadata and tags. It provides a one stop solution for all metadata, tags,
  shared object databases, search tools and indexing.
 
+Package: tracker-gnome-search-tool
+Priority: optional
+Section: gnome
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tracker search tool for GNOME
+ This package provides a graphical Tracker search tool dedicated to GNOME,
+ the "GNU Network Object Model Environment".
+ .
+ Tracker is an advanced framework for first class objects with associated
+ metadata and tags. It provides a one stop solution for all metadata, tags,
+ shared object databases, search tools and indexing.

@@ -28,11 +28,24 @@ endif
 # symbols.
 LDFLAGS += -Wl,-z,defs
 
+# Only link shared libraries that have used symbols
+LDFLAGS += Wl,--as-needed
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	CFLAGS="$(CFLAGS)" ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr
+
+	# To avoid implicit parameter -Wl,--rpath
+	# It is necessary for "old" automake versions since "--disable-rpath" is not handle in configure
+	sed < libtool > libtool-2 \
+	-e 's/^hardcode_libdir_flag_spec.*$$/hardcode_libdir_flag_spec=" -D__LIBTOOL_IS_A_FOOL__ "/' \
+	-e '/^archive_cmds="/s/"$$/ \\$$deplibs"/' \
+	-e 's/^hardcode_into_libs.*$$/hardcode_into_libs=no/'
+	mv libtool-2 libtool
+	chmod 755 libtool
+
 	touch configure-stamp
 
 build: build-stamp
@@ -72,6 +85,12 @@ install: build
 	# Add here commands to install the package into debian/tmp.
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
+	# Install linda overrides file
+	install -c -D -m 444 $(CURDIR)/debian/libtrackerclient0.linda-overrides $(CURDIR)/debian/tmp/usr/share/linda/overrides/libtrackerclient0
+	install -c -D -m 444 $(CURDIR)/debian/libtrackerclient0-dev.linda-overrides $(CURDIR)/debian/tmp/usr/share/linda/overrides/libtrackerclient0-dev
+	install -c -D -m 444 $(CURDIR)/debian/tracker-utils.linda-overrides $(CURDIR)/debian/tmp/usr/share/linda/overrides/tracker-utils
+	install -c -D -m 444 $(CURDIR)/debian/tracker-gnome-search-tool.linda-overrides $(CURDIR)/debian/tmp/usr/share/linda/overrides/tracker-gnome-search-tool
+
 	dh_install
 
 # Build architecture-independent files here.
@@ -87,7 +106,7 @@ binary-arch: build install
 	dh_installexamples
 #	dh_install
 #	dh_installmenu
-#	dh_installdebconf	
+#	dh_installdebconf
 #	dh_installlogrotate
 #	dh_installemacsen
 #	dh_installpam
