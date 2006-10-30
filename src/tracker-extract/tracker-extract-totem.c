@@ -58,8 +58,9 @@ tracker_extract_totem (gchar *filename, GHashTable *metadata)
 					g_hash_table_insert (metadata, 
 						g_strdup (tags[i][1]), 
 						g_strdup ((*line) + strlen (tags[i][0]) + 1));
+					break;
                 	  	}
-               	}
+			}
 		}
 	}
 }
