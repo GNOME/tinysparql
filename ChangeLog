@@ -1,3 +1,13 @@
+2006-10-29 Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed tag error when setting a new tag on a file
+
+
+2006-10-29 Eskil Bylund <eskil at letterboxes org>
+
+	* fixed window sizing of tracker-search-tool
+	* added buttonbox for prev/next buttons in t-s-t
+
 2006-10-29 Ulrik Mikaelsson <ulrik mikaelsson gmail com>
 
 	* fixed leak in GetMetadataForFilesInFolder

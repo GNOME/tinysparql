@@ -28,6 +28,7 @@ void
 tracker_dbus_method_metadata_set (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError		dbus_error;
 	DBusMessage 	*reply;
 	int 	 	i, key_count, value_count;
 	char 		*uri, *service, *id;
@@ -47,12 +48,17 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &keys, &key_count,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &values, &value_count,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -119,6 +125,7 @@ void
 tracker_dbus_method_metadata_get (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError		dbus_error;
 	DBusMessage 	*reply;
 	int 		i, key_count, table_count, row_count;
 	char 		**keys, **array;
@@ -140,11 +147,16 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		</method>
 	*/
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &keys, &key_count,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -327,6 +339,7 @@ void
 tracker_dbus_method_metadata_register_type (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char 	     *meta, *type_id;
 	char	     *type;
@@ -335,10 +348,15 @@ tracker_dbus_method_metadata_register_type (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &meta,
 			       DBUS_TYPE_STRING, &type,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!meta || strlen (meta) < 3 || (strchr (meta, '.') == NULL) ) {
 		tracker_set_error (rec, "Metadata name is invalid. All names must be in the format 'class.name' ");
@@ -372,6 +390,7 @@ void
 tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *meta, *data_type;
 	gboolean     is_embedded, is_writable;
@@ -389,9 +408,14 @@ tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &meta,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	data_type = NULL;
 	is_embedded = FALSE;
@@ -452,6 +476,7 @@ void
 tracker_dbus_method_metadata_get_registered_types (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *class, **array;
 	int	     row_count;
@@ -468,9 +493,14 @@ tracker_dbus_method_metadata_get_registered_types (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &class,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	array = NULL;
 	row_count = 0;
@@ -503,6 +533,7 @@ void
 tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *class, *class_formatted, **array;
 	int	     row_count;
@@ -521,9 +552,14 @@ tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &class,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	array = NULL;
 	row_count = 0;
@@ -560,6 +596,7 @@ void
 tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     **array;
 	int	     row_count;

@@ -27,6 +27,7 @@ void
 tracker_dbus_method_search_text (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     **array;
 	int	     row_count, i;
@@ -52,12 +53,17 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &str,
 			       DBUS_TYPE_INT32, &offset,
 			       DBUS_TYPE_INT32, &limit,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!service)  {
 		tracker_set_error (rec, "No service was specified");
@@ -139,6 +145,7 @@ void
 tracker_dbus_method_search_text_detailed (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	int	     limit, query_id, offset;
 	char	     *service;
 	char	     ***res;
@@ -162,12 +169,17 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_INT32, &query_id,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &str,
 			       DBUS_TYPE_INT32, &offset,
 			       DBUS_TYPE_INT32, &limit,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!service)  {
 		tracker_set_error (rec, "No service was specified");
@@ -202,6 +214,7 @@ void
 tracker_dbus_method_search_get_snippet (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *service, *uri, *str;
 	char	     *snippet, *service_id;
@@ -221,11 +234,16 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 
 */
 
-	dbus_message_get_args (rec->message, NULL, 
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL, 
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_STRING, &str,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!service)  {
 		tracker_set_error (rec, "No service was specified");
@@ -300,6 +318,7 @@ void
 tracker_dbus_method_search_files_by_text (DBusRec *rec)
 {
 	DBConnection 	*db_con;
+	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
@@ -329,13 +348,18 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_INT32, &query_id,
 			       DBUS_TYPE_STRING, &text,
 			       DBUS_TYPE_INT32, &offset,
 			       DBUS_TYPE_INT32, &limit,
 			       DBUS_TYPE_BOOLEAN, &sort,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	res = tracker_db_search_files_by_text (db_con, text, offset, limit, sort);
 
@@ -370,6 +394,7 @@ void
 tracker_dbus_method_search_metadata (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char 	     *service, *field, *text;
 	char 	     **array;
@@ -393,13 +418,18 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 		</method>
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &field,
 			       DBUS_TYPE_STRING, &text,
 			       DBUS_TYPE_INT32, &offset,
 			       DBUS_TYPE_INT32, &limit,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -432,6 +462,7 @@ void
 tracker_dbus_method_search_matching_fields (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusError    dbus_error;
 	char 	     *text, *service, *id;
 	char	     ***res;
 
@@ -454,11 +485,16 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 
 */
 
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &id,
 			       DBUS_TYPE_STRING, &text,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
@@ -503,6 +539,7 @@ void
 tracker_dbus_method_search_query (DBusRec *rec)
 {
 	DBConnection	*db_con;
+	DBusError    dbus_error;
 	char		**fields;
 	int		limit, row_count, query_id, offset;
 	char		***res;
@@ -540,7 +577,8 @@ tracker_dbus_method_search_query (DBusRec *rec)
 			<arg type="aas" name="result" direction="out" />
 		</method>
 */
-	dbus_message_get_args (rec->message, NULL,
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_INT32, &query_id,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &fields, &row_count,
@@ -550,7 +588,11 @@ tracker_dbus_method_search_query (DBusRec *rec)
 			       DBUS_TYPE_BOOLEAN, &sort_results,
 			       DBUS_TYPE_INT32, &offset,
 			       DBUS_TYPE_INT32, &limit,
-			       DBUS_TYPE_INVALID);
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
 
 	if (!tracker_is_valid_service (db_con, service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);

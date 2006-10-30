@@ -350,7 +350,8 @@ void
 tracker_dbus_method_get_services (DBusRec *rec)
 {
 	DBConnection	*db_con;
-	DBusMessage	*reply;
+	DBusError		dbus_error;
+	DBusMessage		*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	gboolean	main_only;
@@ -362,8 +363,13 @@ tracker_dbus_method_get_services (DBusRec *rec)
 
 	tracker_log ("Executing GetServices Dbus Call");
 
-	dbus_message_get_args (rec->message, NULL, DBUS_TYPE_BOOLEAN, &main_only, DBUS_TYPE_INVALID);
-
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_BOOLEAN, &main_only, DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
+	
 	if (main_only) {
 		res = tracker_exec_proc (db_con, "GetServices", 1, "1");
 	} else {
