@@ -9,7 +9,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -30,6 +29,11 @@ LDFLAGS += -Wl,-z,defs
 
 # Only link shared libraries that have used symbols
 LDFLAGS += Wl,--as-needed
+
+# Get package version from the changelog
+package_version=$(shell head -n 1 $(CURDIR)/debian/changelog | sed \
+			-e 's/^tracker (\([[:digit:]]\+.*\))[[:space:]]\+\w\+;[[:space:]]\+\w\+=\w\+/\1/')
+
 
 configure: configure-stamp
 configure-stamp:
@@ -74,12 +78,12 @@ ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 endif
 
 
-	dh_clean 
+	dh_clean
 
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_clean -k
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tmp.
@@ -124,6 +128,13 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
+
+	# Turn dependencies to libtrackerclient0 into dependencies to something like libtrackerclient0 (= 0.5.0)
+	for f in $(CURDIR)/debian/*.substvars; do \
+		sed -e "s/libtrackerclient0[^,]*/libtrackerclient0 (= $(package_version))/g" $$f > $$f-2; \
+		mv $$f-2 $$f; \
+	done
+
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
