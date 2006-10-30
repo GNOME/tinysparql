@@ -1,3 +1,8 @@
+2006-10-30 Samuel Cormier-Iijima <sciyoshi at gmail com>
+
+	* created python based notification applet for tracker
+
+
 2006-10-29 Bastien Nocera <hadess hadess net>
 
 	* totem parsing speedup
@@ -7,7 +12,7 @@
 	
 	* Updated debian build 
 	* cleaned up process
-	* added new package fortracker-search-tool
+	* added new package for tracker-search-tool
 
 
 2006-10-29 Jamie McCracken <jamiemcc at gnome org>
