@@ -1,3 +1,10 @@
+2006-10-29 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* Updated debian build 
+	* cleaned up process
+	* added new package fortracker-search-tool
+
+
 2006-10-29 Jamie McCracken <jamiemcc at gnome org>
 
 	* fixed tag error when setting a new tag on a file
@@ -14,6 +21,7 @@
 	* fixed field checking in GetMetadataForFilesInFolder
 	* added dbus argument error handling 
 	* fixed issue with tracker-tag not reporting file not found
+	* added comamnd line args to t-s-t
 
 
 2006-10-29 tobutaz <tobutaz gmail com>
