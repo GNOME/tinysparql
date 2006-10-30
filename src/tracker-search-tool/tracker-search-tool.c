@@ -61,6 +61,15 @@
 static GObjectClass * parent_class;
 static TrackerClient *tracker_client;
 
+static gchar **terms = NULL;
+static gchar *service = NULL;
+
+static GOptionEntry options[] = {
+	{"service", 's', 0, G_OPTION_ARG_STRING, &service, "search from a specific service", "service"},
+	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &terms, "search terms", NULL},
+	{NULL}
+};
+
 typedef enum {
 	SEARCH_CONSTRAINT_TYPE_BOOLEAN,
 	SEARCH_CONSTRAINT_TYPE_NUMERIC,
@@ -2248,16 +2257,47 @@ tracker_search_setup_gconf_notifications (GSearchWindow * gsearch)
 	g_free (click_to_activate_pref);
 }
 
+static gboolean tracker_search_select_service_type_by_string (GtkComboBox *combo, gchar *service)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gchar *current_value;
+	
+	model = gtk_combo_box_get_model (combo);
+	if (!gtk_tree_model_get_iter_first (model, &iter))
+		return FALSE;
+
+	do {
+		gtk_tree_model_get (model, &iter, 1, &current_value, -1);
+		if (!strcmp (service, current_value)) {
+			gtk_combo_box_set_active_iter (combo, &iter);
+			return TRUE;
+		}
+	} while (gtk_tree_model_iter_next (model, &iter));
+
+	return FALSE;
+}
+
 int
 main (int argc,
       char * argv[])
 {
 	GSearchWindow * gsearch;
-	//GOptionContext * context;
+	GOptionContext * option_context;
+	GError *error = NULL;
 	GnomeProgram * program;
 	GnomeClient * client;
 	GtkWidget * window;
+	gchar * search_string;
 
+	option_context = g_option_context_new ("tracker-search-tool");
+	g_option_context_add_main_entries (option_context, options, NULL);
+
+	if (error) {
+		g_printerr ("invalid arguments: %s\n", error->message);
+		return 1;
+	}
+	
 	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
@@ -2267,7 +2307,8 @@ main (int argc,
 	                              LIBGNOMEUI_MODULE,
 	                              argc, argv,
 	                              GNOME_PARAM_APP_DATADIR, DATADIR,
-	                              NULL);
+	                              GNOME_PARAM_GOPTION_CONTEXT, option_context,
+	                              GNOME_PARAM_NONE);
 
 	g_set_application_name (_("Desktop Search"));
 	gtk_window_set_default_icon_name (TRACKER_SEARCH_TOOL_ICON);
@@ -2308,6 +2349,18 @@ main (int argc,
 
 	add_no_files_found_message (gsearch);
 
+	if (service && !(tracker_search_select_service_type_by_string (GTK_COMBO_BOX (gsearch->combo), service))) {
+		g_printerr ("invalid service type: %s\n", service);
+		return 1;
+	}
+
+	if (terms) {
+		search_string = g_strjoinv(" ", terms);
+		gtk_entry_set_text (GTK_ENTRY (gsearch->search_entry), search_string);
+		g_free (search_string);
+		gtk_button_clicked (GTK_BUTTON(gsearch->find_button));
+	}
+	
 	gtk_main ();
 	return 0;
 }
