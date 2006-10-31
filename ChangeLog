@@ -1,3 +1,10 @@
+
+2006-10-30 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* fixed and cleaned debian build 
+	* fixed build of man pages
+
+
 2006-10-30 Samuel Cormier-Iijima <sciyoshi at gmail com>
 
 	* created python based notification applet for tracker
