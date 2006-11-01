@@ -282,6 +282,7 @@ static int get_id3 (const char * data,
 
 	const char * pos;
 
+
 	if (size < 128) return INVALID_ID3;
 
 	pos = &data[size - 128];
@@ -295,8 +296,8 @@ static int get_id3 (const char * data,
 	pos += 3;
 
 	id3->title = get_utf8 (pos,
-				     30,
-				      NULL, NULL, NULL); 
+			       30,
+			       NULL, NULL, NULL); 
 	pos += 30;
 	id3->artist = get_utf8 (pos,
 				      30,
@@ -958,7 +959,12 @@ tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 	size_t size;
   	id3tag info;
 
-	//g_print ("in mp3 extractor\n");
+	info.title = NULL;
+	info.artist = NULL;
+	info.album = NULL;
+	info.year = NULL;
+	info.comment = NULL;
+	info.genre = NULL;
 
 	file = open (filename, O_RDONLY, 0);
 
