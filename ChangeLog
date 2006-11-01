@@ -1,3 +1,6 @@
+2006-11-01  Luca Ferretti  <elle uca at libero it>
+
+	* fixed build (Makefile, not MakeFile)
 
 2006-10-30 Laurent Aguerreche <laurent aguerreche at free fr>
 	

@@ -458,7 +458,7 @@ AM_CONFIG_HEADER(src/trackerd/config.h)
 AC_CONFIG_FILES([
 	Makefile	 
 	tracker.pc
-	docs/MakeFile
+	docs/Makefile
 	data/Makefile
 	data/languages/Makefile
 	filters/Makefile
