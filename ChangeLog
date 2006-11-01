@@ -1,3 +1,10 @@
+2006-11-01  Jamie McCracken <jamiemcc at gnome org>
+
+	* emebedded sqlite with threadsafe mode enabled
+	* inlined sqlite code and made it a prvate non-installable lib which is statically linked in
+	* fixed initilaisations of vars in mp3-extract to prevent segfaults
+
+
 2006-11-01  Luca Ferretti  <elle uca at libero it>
 
 	* fixed build (Makefile, not MakeFile)
