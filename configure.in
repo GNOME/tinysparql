@@ -109,10 +109,11 @@ then
 	AM_CONDITIONAL(USING_SQLITE, true)
 	DB_ENGINE=SQLite
 
+	
 	# Check for SQLite3
-	PKG_CHECK_MODULES(SQLITE3, [ sqlite3 >= 3.2 ])
-	AC_SUBST(SQLITE3_CFLAGS)
-	AC_SUBST(SQLITE3_LIBS)
+	#PKG_CHECK_MODULES(SQLITE3, [ sqlite3 >= 3.2 ])
+	#AC_SUBST(SQLITE3_CFLAGS)
+	#AC_SUBST(SQLITE3_LIBS)
 
 	# Check for QDBM
 	#PKG_CHECK_MODULES(QDBM, [ qdbm >= 1.8.0 ])
@@ -456,7 +457,7 @@ AC_MSG_RESULT([$ioprio_support])
 AM_CONFIG_HEADER(src/trackerd/config.h)
 
 AC_CONFIG_FILES([
-	Makefile	 
+	Makefile
 	tracker.pc
 	docs/Makefile
 	data/Makefile
@@ -469,6 +470,7 @@ AC_CONFIG_FILES([
 	thumbnailers/image/Makefile
 	src/Makefile
 	src/libstemmer/Makefile
+	src/sqlite3/Makefile
 	src/text-filters/Makefile
 	src/text-filters/html_converter/Makefile
 	src/text-filters/ooo_converter/Makefile
