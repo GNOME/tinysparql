@@ -20,7 +20,7 @@
 #ifndef _TRACKER_SQLITE_DB_H_
 #define _TRACKER_SQLITE_DB_H_
 
-#include <sqlite3.h>
+#include "../sqlite3/sqlite3.h"
 #include <glib.h>
 
 #include "tracker-utils.h"
@@ -35,6 +35,14 @@ typedef enum {
 } DataTypes;
 
 
+typedef enum {
+	DB_DATA,
+	DB_BLOB,
+	DB_CACHE
+} DBTypes;
+
+
+
 typedef struct {
 	char		*id;
 	DataTypes	type;
@@ -47,6 +55,7 @@ typedef struct {
 typedef struct {
 	GMutex		*write_mutex;
 	sqlite3		*db;
+	DBTypes		db_type;
 	gpointer	data;
 	char		*err;
 	int		rc;

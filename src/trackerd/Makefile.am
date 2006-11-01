@@ -7,16 +7,25 @@ endif
 
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
+	-D_XOPEN_SOURCE_EXTENDED=1	\
+	-D_GNU_SOURCE=1			\
+	-D__EXTENSIONS__=1		\
+	-D_HPUX_SOURCE=1		\
+	-D_POSIX_MAPPED_FILES=1		\
+	-D_POSIX_SYNCHRONIZED_IO=1	\
+	-DPIC=1				\
+	-D_REENTRANT=1			\
+	-DNDEBUG 			\
 	$(GLIB2_CFLAGS)			\
 	$(PANGO_CFLAGS)			\
 	$(GMIME_CFLAGS)			\
-	$(SQLITE3_CFLAGS)		\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
 	$(MYSQL_CFLAGS)			\
 	$(additional_mysql_flags)	\
 	$(CFLAGS) 			\
 	-I$(top_builddir)/src/libstemmer \
+	-I$(top_builddir)/src/sqlite3 \
 	-g 
 
 if HAVE_INOTIFY
@@ -140,6 +149,7 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(SQLITE3_LIBS) \
 		 $(GTHREAD_LIBS) \
 		 -lz	\
-		 $(top_builddir)/src/libstemmer/libstemmer-private.la
+		 $(top_builddir)/src/libstemmer/libstemmer-private.la \
+		 $(top_builddir)/src/sqlite3/libsqlite-private.la
 
 

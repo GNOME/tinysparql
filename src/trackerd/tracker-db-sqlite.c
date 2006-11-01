@@ -18,6 +18,9 @@ extern Tracker *tracker;
 
 static GHashTable *prepared_queries;
 static GMutex *sequence_mutex;
+static GMutex *data_mutex;
+static GMutex *blob_mutex;
+static GMutex *cache_mutex;
 
 gboolean use_nfs_safe_locking = FALSE;
 
@@ -343,6 +346,38 @@ tracker_get_field_count (char ***result)
 	return i;
 }
 
+static inline void
+lock_connection (DBConnection *db_con) 
+{
+/*	if (db_con) {
+		if (db_con->db_type == DB_DATA) {
+			g_mutex_lock (data_mutex);
+		} else if (db_con->db_type == DB_BLOB) {
+			g_mutex_lock (blob_mutex);
+		} else {
+			g_mutex_lock (cache_mutex);
+		}
+	}
+*/
+}
+
+
+static inline void
+unlock_connection (DBConnection *db_con) 
+{
+/*
+	if (db_con) {
+		if (db_con->db_type == DB_DATA) {
+			g_mutex_unlock (data_mutex);
+		} else if (db_con->db_type == DB_BLOB) {
+			g_mutex_unlock (blob_mutex);
+		} else {
+			g_mutex_unlock (cache_mutex);
+		}
+	}
+*/
+}
+
 
 gboolean
 tracker_db_initialize (const char *datadir)
@@ -354,6 +389,9 @@ tracker_db_initialize (const char *datadir)
 	tracker_log ("Using Sqlite version %s", sqlite3_version);
 
 	sequence_mutex = g_mutex_new ();
+	data_mutex = g_mutex_new ();
+	blob_mutex = g_mutex_new ();
+	cache_mutex = g_mutex_new ();
 
 	/* load prepared queries */
 	prepared_queries = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -538,6 +576,8 @@ tracker_db_connect (void)
 
 	g_free (dbname);
 
+	db_con->db_type = DB_DATA;
+
 	sqlite3_busy_timeout (db_con->db, 10000);
 	
 	db_con->user_data = NULL;
@@ -617,6 +657,8 @@ tracker_db_connect_full_text (void)
 
 	g_free (dbname);
 
+	db_con->db_type = DB_BLOB;
+
 	sqlite3_busy_timeout (db_con->db, 10000);
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -679,6 +721,8 @@ tracker_db_connect_cache (void)
 	}
 
 	g_free (dbname);
+
+	db_con->db_type = DB_CACHE;
 
 	sqlite3_busy_timeout (db_con->db, 10000);
 
@@ -881,12 +925,15 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 
 	busy_count = 0;
 
+	lock_connection (db_con);
+
 	i = sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
+
+	unlock_connection (db_con);
 
 	while (i == SQLITE_BUSY) {
 
-		unlock_db ();
-
+		
 		if (array) {
 			sqlite3_free_table (array);
 			array = NULL;
@@ -910,9 +957,11 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 			g_usleep (100);
 		}
 
-		lock_db ();
+		lock_connection (db_con);
 
 		i = sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
+
+		unlock_connection (db_con);
 	}
 
 	if (i != SQLITE_OK) {
@@ -923,6 +972,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 	}
 
 	unlock_db ();
+
 	if (msg) {
 		g_free (msg);
 	}
@@ -1093,25 +1143,28 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 
 	va_end (args);
 
-
 	cols = sqlite3_column_count (stmt);
 
 	busy_count = 0;
 	row = 0;
 
 	result = NULL;
-
+	
+	lock_connection (db_con);
 	while (TRUE) {
 
 		if (!lock_db ()) {
+			unlock_connection (db_con);	
 			return NULL;
 		}
 
+		
 		rc = sqlite3_step (stmt);
+		
 
 		if (rc == SQLITE_BUSY) {
 			unlock_db ();
-
+			unlock_connection (db_con);
 			busy_count++;
 
 			if (busy_count > 1000) {
@@ -1125,6 +1178,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 				g_usleep (100);
 			}
 
+			lock_connection (db_con);
 			continue;
 		}
 
@@ -1135,6 +1189,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 			new_row[cols] = NULL;
 
 			unlock_db ();
+			
 
 			for (i = 0; i < cols; i++) {
 				const char *st;
@@ -1158,9 +1213,10 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		}
 
 		unlock_db ();
-
 		break;
 	}
+
+	unlock_connection (db_con);
 
 	if (rc != SQLITE_DONE) {
 		tracker_log ("ERROR : prepared query %s failed due to %s", procedure, sqlite3_errmsg (db_con->db));
@@ -1387,17 +1443,22 @@ get_file_contents_words (DBConnection *db_con, guint32 id)
 
 	busy_count = 0;
 
+	lock_connection (db_con);
 	while (TRUE) {
 
 		if (!lock_db ()) {
+			unlock_connection (db_con);
 			g_free (str_file_id);
 			return NULL;
 		}
 
+		
 		rc = sqlite3_step (stmt);
+		
 
 		if (rc == SQLITE_BUSY) {
 			unlock_db ();
+			unlock_connection (db_con);
 			busy_count++;
 
 			if (busy_count > 1000) {
@@ -1410,7 +1471,7 @@ get_file_contents_words (DBConnection *db_con, guint32 id)
 			} else {
 				g_usleep (100);
 			}
-
+			lock_connection (db_con);
 			continue;
 		}
 
@@ -1430,6 +1491,7 @@ get_file_contents_words (DBConnection *db_con, guint32 id)
 		unlock_db ();
 		break;
 	}
+	unlock_connection (db_con);
 
 	if (rc != SQLITE_DONE) {
 		tracker_log ("WARNING: retrieval of text contents has failed");
@@ -1628,6 +1690,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 
 
 	busy_count = 0;
+	lock_connection (blob_db_con);
 
 	while (TRUE) {
 
@@ -1640,13 +1703,18 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 				g_free (value);
 			}
 
+			unlock_connection (blob_db_con);
+
 			return;
 		}
 
+		
 		rc = sqlite3_step (stmt);
+		
 
 		if (rc == SQLITE_BUSY) {
 			unlock_db ();
+			unlock_connection (blob_db_con);
 			busy_count++;
 
 			if (busy_count > 1000000) {
@@ -1660,13 +1728,15 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 			} else {
 				g_usleep (100);
 			}
-
+			lock_connection (blob_db_con);
 			continue;
 		}
 
 		unlock_db ();
 		break;
 	}
+
+	unlock_connection (blob_db_con);
 
 	if (rc != SQLITE_DONE) {
 		tracker_log ("WARNING: Failed to update contents for %s", info->uri);
@@ -3122,12 +3192,17 @@ tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit)
 				
 					int i = 0;
 
+					lock_connection (db_con);
 					while (TRUE) {
 
+						
 						rc = sqlite3_step (stmt);
+						
 
 						if (rc == SQLITE_BUSY) {
+							unlock_connection (db_con);
 							g_usleep (100);
+							lock_connection (db_con);
 							continue;
 						}
 
@@ -3155,6 +3230,7 @@ tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit)
 						}
 
 					}
+					unlock_connection (db_con);
 
 					if (i == count) {
 						tracker_indexer_append_word_chunk (tracker->file_indexer, word, word_details, count);

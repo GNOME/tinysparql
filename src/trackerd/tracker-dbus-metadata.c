@@ -596,7 +596,6 @@ void
 tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
 {
 	DBConnection *db_con;
-	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     **array;
 	int	     row_count;
