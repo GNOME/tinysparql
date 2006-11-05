@@ -170,6 +170,8 @@ typedef struct {
  	gboolean 	is_running;
 	GMainLoop 	*loop;
 
+	char		*sys_tmp_root_dir;
+
 	Indexer		*file_indexer;
 
 	GMutex 		*log_access_mutex;

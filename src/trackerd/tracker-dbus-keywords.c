@@ -189,7 +189,6 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 	g_free (name);
 	g_free (path);
 
-	dbus_free_string_array (array);
 	row_count = 0;
 	array = NULL;
 
@@ -575,7 +574,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	g_free (query_where);
 	g_free (query);
 
-	dbus_free_string_array(array);
+	dbus_free_string_array (array);
 	row_count = 0;
 	array = NULL;
 	

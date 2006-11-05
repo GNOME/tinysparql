@@ -305,6 +305,56 @@ flush_when_indexing_finished (void)
 }
 
 
+static void
+recur_rm_dirs (const char *root_dir)
+{
+	GQueue *dirs;
+	GSList *dirs_to_remove;
+
+	dirs = g_queue_new ();
+
+	g_queue_push_tail (dirs, g_strdup (root_dir));
+
+	dirs_to_remove = NULL;
+
+	while (!g_queue_is_empty (dirs)) {
+		char *dir;
+		GDir *dirp;
+
+		dir = g_queue_pop_head (dirs);
+
+		dirs_to_remove = g_slist_prepend (dirs_to_remove, dir);
+
+		if ((dirp = g_dir_open (dir, 0, NULL))) {
+			const char *file;
+
+			while ((file = g_dir_read_name (dirp))) {
+				char *full_filename;
+
+				full_filename = g_build_filename (dir, file, NULL);
+
+				if (g_file_test (full_filename, G_FILE_TEST_IS_DIR)) {
+					g_queue_push_tail (dirs, full_filename);
+				} else {
+					g_unlink (full_filename);
+					g_free (full_filename);
+				}
+			}
+
+			g_dir_close (dirp);
+		}
+	}
+
+	g_queue_free (dirs);
+
+	/* remove directories (now they are empty) */
+	g_slist_foreach (dirs_to_remove, (GFunc) g_rmdir, NULL);
+
+	g_slist_foreach (dirs_to_remove, (GFunc) g_free, NULL);
+
+	g_slist_free (dirs_to_remove);
+}
+
 
 static gboolean
 do_cleanup (const char *sig_msg)
@@ -394,10 +444,10 @@ do_cleanup (const char *sig_msg)
 		tracker_log ("shutting down main thread");
 	}
 
-	/* remove temp table */
-	char *temp_file = g_build_filename (g_get_tmp_dir (), ".Tracker", g_get_home_dir(), "cache", NULL);
-	unlink (temp_file);
-	g_free (temp_file);
+	/* remove sys tmp directory */
+	if (tracker->sys_tmp_root_dir) {
+		recur_rm_dirs (tracker->sys_tmp_root_dir);
+	}
 
 	g_main_loop_quit (tracker->loop);
 
@@ -2348,6 +2398,7 @@ log_handler (const gchar *domain, GLogLevelFlags levels, const char* message, gp
 static void
 set_defaults ()
 {
+	tracker->sys_tmp_root_dir = NULL;
 
 	tracker->watch_directory_roots_list = NULL;
 	tracker->no_watch_directory_list = NULL;
@@ -2364,7 +2415,7 @@ set_defaults ()
 	tracker->index_counter = 0;
 	tracker->index_count = 0;
 	tracker->update_count = 0;
-	
+
 	tracker->max_index_text_length = MAX_INDEX_TEXT_LENGTH;
 	tracker->max_process_queue_size = MAX_PROCESS_QUEUE_SIZE;
 	tracker->max_extract_queue_size = MAX_EXTRACT_QUEUE_SIZE;
@@ -2400,13 +2451,30 @@ set_defaults ()
 	tracker->language = g_strdup ("en");
 	tracker->stop_words = NULL;
 	tracker->use_pango_word_break = FALSE;
-	
 }
 
 
 static void
 sanity_check_option_values ()
 {
+	/* Make a temporary directory for Tracker into g_get_tmp_dir() directory */
+
+	char *tmp_dir;
+
+	tmp_dir = g_strdup_printf ("Tracker-%s.%u", g_get_user_name (), getpid());
+
+	tracker->sys_tmp_root_dir = g_build_filename (g_get_tmp_dir (), tmp_dir, NULL);
+
+	g_free (tmp_dir);
+
+	/* remove an existing one */
+	if (g_file_test (tracker->sys_tmp_root_dir, G_FILE_TEST_EXISTS)) {
+		recur_rm_dirs (tracker->sys_tmp_root_dir);
+	}
+
+	g_mkdir (tracker->sys_tmp_root_dir, 00755);
+
+
 	/* emails not fully working yet so disable them */
 	tracker->index_evolution_emails = FALSE;
 	tracker->index_thunderbird_emails = FALSE;
@@ -2722,15 +2790,10 @@ main (int argc, char **argv)
 	db_con->thread = "main";
 
 	/* initialize other databases */
-	DBConnection  *db1, *db2; 
+	DBConnection *db1, *db2;
 
 	db1 = tracker_db_connect_full_text ();
 	tracker_db_close (db1);
-
-	/* remove temp table */
-	char *temp_file = g_build_filename (g_get_tmp_dir (), ".Tracker", g_get_home_dir(), "cache", NULL);
-	unlink (temp_file);
-	g_free (temp_file);
 
 	db2 = tracker_db_connect_cache ();
 	tracker_db_close (db2);

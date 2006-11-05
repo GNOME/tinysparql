@@ -41,6 +41,8 @@ static GSList *mboxes = NULL;
 void
 tracker_watch_emails (DBConnection *db_con)
 {
+	g_return_if_fail (tracker && tracker->sys_tmp_root_dir);
+
 	if (!tracker->index_evolution_emails && !tracker->index_thunderbird_emails && !tracker->index_kmail_emails) {
 		return;
 	}
@@ -49,7 +51,7 @@ tracker_watch_emails (DBConnection *db_con)
 		char *pid;
 
 		pid = g_strdup_printf ("%d", getpid ());
-		base_path_for_attachments = g_build_filename (g_get_tmp_dir (), pid, "attachment", NULL);
+		base_path_for_attachments = g_build_filename (tracker->sys_tmp_root_dir, "mail-attachments", NULL);
 		g_free (pid);
 	}
 
@@ -413,7 +415,7 @@ tracker_mbox_parse_next (MailBox *mb)
 
 	msg->attachments = NULL;
 
-	/* find then save attachments in g_get_tmp_dir() and save entries in MailMessage struct */
+	/* find then save attachments in sys tmp directory of Tracker and save entries in MailMessage struct */
 	g_mime_message_foreach_part (message,
 				     find_attachment,
 				     msg);

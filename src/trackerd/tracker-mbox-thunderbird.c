@@ -196,6 +196,8 @@ add_inbox_mbox_of_dir (GSList *list_of_mboxes, const char *dir)
 					g_queue_push_tail (queue, dir_to_explore);
 				}
 			}
+
+			g_dir_close (dirp);
 		}
 
 		g_free (m_dir);

@@ -699,8 +699,13 @@ tracker_db_connect_cache (void)
 	DBConnection *db_con;
 
 	create_table = FALSE;
-	
-	base_dir = g_build_filename (g_get_tmp_dir (), ".Tracker", g_get_home_dir(), NULL);
+
+	if (!tracker || !tracker->sys_tmp_root_dir) {
+		tracker_log ("Fatal Error : system TMP dir for cache set to NULL");
+		exit (1);
+	}
+
+	base_dir = g_build_filename (tracker->sys_tmp_root_dir, g_get_home_dir(), NULL);
 	dbname = g_build_filename (base_dir, "cache", NULL);
 
 	if (!tracker_file_is_valid (base_dir)) {
