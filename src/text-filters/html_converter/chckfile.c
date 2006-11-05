@@ -16,16 +16,20 @@
  *
  */
 #include "htmless.h"
+#include <unistd.h>
 
 /* Function to verify if a file already exists.  Returns true if it doesn't exist */
 /* or if it's ok to overwrite the existing file */
 int filexist (char *string)              	/* Function takes filename */
 {
+#if 0
 	FILE *fileptr;                        	/* Pointer to filename */
 	char overwrite;                       	/* Yes or no for overwrite */
 
-
 		return TRUE;                       		/* File doesn't exist */
+#endif
+	/* assume that supplied string is localised */
+	return (access (string, F_OK) || !access (string, W_OK));
 }
 
 /* 	Function to get file name (or any string) from user using getchar()
@@ -35,6 +39,7 @@ int filexist (char *string)              	/* Function takes filename */
 *	Call the function like so: getfname(myString);
 *	The function return the number of characters read. Neat-o!
 */
+#if 0
 int getfname (char *string)
 {
 	int c;
@@ -55,10 +60,10 @@ int getfname (char *string)
 
 	return strlen(string);
 }
-
+#endif //0
 int checkfile (char *string)                      /* Function checks validity of filename */
 {
-	int length=0,x;
+	int length=0;
 																  /* Determine length of input string */
 	length=strlen(string);                         /* DOS Test.  No filenames > 8 chars */
 
@@ -73,66 +78,5 @@ int checkfile (char *string)                      /* Function checks validity of
 		return FALSE;                   
 	}
 
-	for (x=0;x<length;x++)      	 /* Walk through each char of the string */
-	{
-		switch (string[x])          /* Unacceptabel for both Win95 and 8.3 filenames */
-		{
-/*			case '\\':
-         			printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;  */
-			case '/':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-/*			case ':':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case '*':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case '?':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;    */
-			case '"':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-/*			case '<':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case '>':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case '|':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;  */
-			case '	':                               /* Tab character */
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;    
-            	/* Win 95 can handle all these below here */
-/*			case '.':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;   */
-			case ' ':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case ',':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case ';':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case '[':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case ']':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case '+':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-			case '=':
-				printf("\n'%c' is not a legal filename character.\n",string[x]);
-				return FALSE;
-		}
-	}
 	return TRUE;                        
 }
