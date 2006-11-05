@@ -23,9 +23,7 @@
 #include <glib/gstdio.h>
 #include <tracker-utils.h>
 #include <sys/syscall.h>
-#ifdef HAVE_LINUX_UNISTD_H
-#include <linux/unistd.h>
-#endif
+#include <unistd.h>
 #include "tracker-ioprio.h"
 
 #ifdef IOPRIO_SUPPORT

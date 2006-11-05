@@ -1395,7 +1395,7 @@ tracker_is_directory (const char *dir)
 }
 
 
-
+/*
 static int
 has_prefix (const char *str1, const char *str2)
 {
@@ -1413,7 +1413,7 @@ has_prefix (const char *str1, const char *str2)
 		return 1;
 	}
 }
-
+*/
 
 GSList *
 tracker_get_files (const char *dir, gboolean dir_only)

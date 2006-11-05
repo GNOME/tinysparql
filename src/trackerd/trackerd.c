@@ -368,7 +368,7 @@ do_cleanup (const char *sig_msg)
 
 	/* stop threads from further processing of events if possible */
 
-	tracker_dbus_shutdown (main_connection);
+//	tracker_dbus_shutdown (main_connection);
 
 
 	tracker->in_flush = TRUE;

@@ -180,6 +180,7 @@ tracker_int_reply (DBusGProxy *proxy, int OUT_result, GError *error, gpointer us
 	g_free (callback_struct);
 }
 
+/*
 static void
 tracker_boolean_reply (DBusGProxy *proxy, gboolean OUT_result, GError *error, gpointer user_data)
 {
@@ -192,7 +193,7 @@ tracker_boolean_reply (DBusGProxy *proxy, gboolean OUT_result, GError *error, gp
 
 	g_free (callback_struct);
 }
-
+*/
 
 
 static void

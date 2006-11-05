@@ -36,13 +36,12 @@ typedef enum {
 } MetadataFileType;
 
 
-/* document mime type specific metadata groups - NB mime types below are prefixes */
+/* document mime type specific metadata groups - NB mime types below are prefixes 
 static  char *doc_mime_types[] = {"application/msword","application/pdf", "application/postscript","application/x-dvi",
 				  "application/vnd.ms-excel", "vnd.ms-powerpoint", "application/vnd.oasis",
 				  "application/vnd.sun.xml",  "application/vnd.stardivision", "application/x-abiword",
 				  "text/html","text/sgml", "text/xml" };
-
-
+*/
 
 typedef void (*MetadataExtractFunc)(gchar *, GHashTable *);
 typedef struct {
@@ -113,6 +112,7 @@ MimeToExtractor extractors[] = {
 	{ "",                                      NULL                        }
 };
 
+/*
 static MetadataFileType
 get_metadata_type (const char *mime)
 {
@@ -143,7 +143,7 @@ get_metadata_type (const char *mime)
 	}
 	return NO_METADATA;
 }
-
+*/
 
 
 static GHashTable *

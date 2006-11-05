@@ -86,7 +86,6 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 			} else {
 				FileInfo *info;
 
-				file_valid = TRUE;
 				name = g_path_get_basename (uri);
 				path = g_path_get_dirname (uri);
 				mime = tracker_get_mime_type (uri);
@@ -95,12 +94,15 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 				info = tracker_get_file_info (info);
 
 				if (info) {
+					file_valid = TRUE;
 					str_size = tracker_uint_to_str (info->file_size);
 					fsize = info->file_size;
 					str_mtime = tracker_uint_to_str (info->mtime);
 
 					tracker_free_file_info (info);
 				}
+				else
+					file_valid = FALSE;
 			}
 
 		} else {
@@ -432,7 +434,7 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 		str_offset = tracker_int_to_str (offset);
 		str_max_length = tracker_int_to_str (max_length);
 
-		//char ***res = tracker_exec_proc (db_con, "GetFileContents", 4, path, name, str_offset, str_max_length);
+		res = tracker_exec_proc (db_con, "GetFileContents", 4, path, name, str_offset, str_max_length);
 
 		g_free (str_offset);
 		g_free (str_max_length);

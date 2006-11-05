@@ -125,6 +125,7 @@ main (int argc, char **argv)
 		result = tracker_search_text (client, -1, type, search, 0, limit, &error);
 	} else  {
 		out_array = tracker_search_text_detailed (client, -1, type, search, 0, limit, &error);
+		result = NULL;
 	}
 	
 	g_free (search);
@@ -136,10 +137,11 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-	if (!result) {
-		g_printerr ("no results found\n");
-		return 0;
-	}
+	if ((!detailed && !result) || (detailed && !out_array)) {
+ 		g_printerr ("no results found\n");
+		tracker_disconnect (client);
+ 		return 0;
+ 	}
 
 	if (detailed) {
 		if (out_array) {

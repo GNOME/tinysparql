@@ -479,6 +479,9 @@ process_inotify_events (void)
 			}
 
 			tracker_db_free_result (res);
+		} else {
+			g_free (event);
+			continue;
 		}
 
 		if (action_type == TRACKER_ACTION_IGNORE) {
@@ -503,6 +506,7 @@ process_inotify_events (void)
 
 		if (file_utf8_uri[0] == G_DIR_SEPARATOR) {
 			str = g_strdup (file_utf8_uri);
+			dir_utf8_uri = NULL;
 		} else {
 
 			dir_utf8_uri = g_filename_to_utf8 (monitor_name, -1, NULL, NULL, NULL);
