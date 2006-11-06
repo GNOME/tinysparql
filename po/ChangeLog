@@ -1,0 +1,7 @@
+2006-11-06  Luca Ferretti  <elle.uca@libero.it>
+
+	* POTFILES.in:
+	* POTFILES.skip;
+	* ChangeLog
+	New files for l10n.
+
