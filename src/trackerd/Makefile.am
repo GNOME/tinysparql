@@ -1,7 +1,9 @@
-if USING_SQLITE
-additional_mysql_flags=
+if USING_EXTERNAL_SQLITE
+additional_flags= $(SQLITE3_CFLAGS)
+additional_libs= $(SQLITE3_LIBS)
 else
-additional_mysql_flags= -D_THREAD_SAFE -D_REENTRANT	
+additional_flags= -I$(top_builddir)/src/sqlite3
+additional_libs= $(top_builddir)/src/sqlite3/libsqlite-private.la
 endif
 
 
@@ -21,11 +23,9 @@ INCLUDES =				\
 	$(GMIME_CFLAGS)			\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
-	$(MYSQL_CFLAGS)			\
-	$(additional_mysql_flags)	\
+	$(additional_flags)		\
 	$(CFLAGS) 			\
 	-I$(top_builddir)/src/libstemmer \
-	-I$(top_builddir)/src/sqlite3 \
 	-g 
 
 if HAVE_INOTIFY
@@ -41,7 +41,7 @@ fam_sources = \
 endif
 endif
 
-if USING_SQLITE
+
 db_sources = \
 	tracker-indexer.c	\
 	tracker-indexer.h	\
@@ -49,11 +49,7 @@ db_sources = \
 	tracker-parser.h	\
 	tracker-db-sqlite.h	\
 	tracker-db-sqlite.c	
-else
-db_sources = \
-	tracker-db-mysql.h	\
-	tracker-db-mysql.c	
-endif
+
 
 if BUILD_TEST
 bin_PROGRAMS = trackerd test-tracker-indexer
@@ -146,10 +142,10 @@ trackerd_LDADD = $(GLIB2_LIBS) 	\
 		 $(MYSQL_LIBS)	\
 		 $(PANGO_LIBS)	\
 		 $(GMIME_LIBS)	\
-		 $(SQLITE3_LIBS) \
+		 $(additional_libs) \
 		 $(GTHREAD_LIBS) \
 		 -lz	\
-		 $(top_builddir)/src/libstemmer/libstemmer-private.la \
-		 $(top_builddir)/src/sqlite3/libsqlite-private.la
+		 $(top_builddir)/src/libstemmer/libstemmer-private.la
+		 
 
 
