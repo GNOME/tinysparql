@@ -1,6 +1,6 @@
 /* Tracker Extract - extracts embedded metadata from files
  *
- * Copyright (C) 2005, Mr Jamie McCracken (jamiemcc@gnome.org)	
+ * Copyright (C) 2005, Mr Jamie McCracken (jamiemcc@gnome.org)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -14,13 +14,13 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330, 
- * Boston, MA 02111-1307, USA. 
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <locale.h>
 #include <stdlib.h>
-#include <string.h> 
+#include <string.h>
 #include <unistd.h>
 #include <glib.h>
 
@@ -36,114 +36,99 @@ typedef enum {
 } MetadataFileType;
 
 
-/* document mime type specific metadata groups - NB mime types below are prefixes 
-static  char *doc_mime_types[] = {"application/msword","application/pdf", "application/postscript","application/x-dvi",
-				  "application/vnd.ms-excel", "vnd.ms-powerpoint", "application/vnd.oasis",
-				  "application/vnd.sun.xml",  "application/vnd.stardivision", "application/x-abiword",
-				  "text/html","text/sgml", "text/xml" };
-*/
 
 typedef void (*MetadataExtractFunc)(gchar *, GHashTable *);
+ 
 typedef struct {
-	char                 *mime;
-	MetadataExtractFunc  extractor;
+ 	char			*mime;
+ 	MetadataExtractFunc	extractor;
 } MimeToExtractor;
-
-void tracker_extract_oasis (gchar *, GHashTable *);
-void tracker_extract_ps    (gchar *, GHashTable *);
+  
+void tracker_extract_oasis	(gchar *, GHashTable *);
+void tracker_extract_ps		(gchar *, GHashTable *);
 #ifdef HAVE_POPPLER
-void tracker_extract_pdf   (gchar *, GHashTable *);
+void tracker_extract_pdf	(gchar *, GHashTable *);
 #endif
-void tracker_extract_abw   (gchar *, GHashTable *);
+void tracker_extract_abw	(gchar *, GHashTable *);
 #ifdef HAVE_LIBGSF
-void tracker_extract_msoffice   (gchar *, GHashTable *);
+void tracker_extract_msoffice	(gchar *, GHashTable *);
 #endif
-void tracker_extract_mp3   (gchar *, GHashTable *);
+void tracker_extract_mp3	(gchar *, GHashTable *);
 #ifdef HAVE_VORBIS
-void tracker_extract_vorbis   (gchar *, GHashTable *);
+void tracker_extract_vorbis	(gchar *, GHashTable *);
 #endif
 #ifdef HAVE_LIBPNG
-void tracker_extract_png   (gchar *, GHashTable *);
+void tracker_extract_png	(gchar *, GHashTable *);
 #endif
 #ifdef HAVE_LIBEXIF
-void tracker_extract_exif   (gchar *, GHashTable *);
+void tracker_extract_exif	(gchar *, GHashTable *);
 #endif
-void tracker_extract_imagemagick   (gchar *, GHashTable *);
-void tracker_extract_mplayer   (gchar *, GHashTable *);
-void tracker_extract_totem   (gchar *, GHashTable *);
-
+void tracker_extract_imagemagick (gchar *, GHashTable *);
+#ifdef HAVE_GSTREAMER
+void tracker_extract_gstreamer	(gchar *, GHashTable *);
+#else
+#ifdef HAVE_LIBXINE
+void tracker_extract_xine	(gchar *, GHashTable *);
+#else
+#ifdef USING_EXTERNAL_VIDEO_PLAYER
+void tracker_extract_mplayer	(gchar *, GHashTable *);
+void tracker_extract_totem	(gchar *, GHashTable *);
+#endif
+#endif
+#endif
+  
 MimeToExtractor extractors[] = {
 	/* Document extractors */
-	{ "application/vnd.oasis.opendocument.*",  tracker_extract_oasis       },
-	{ "application/postscript",                tracker_extract_ps          },
+ 	{ "application/vnd.oasis.opendocument.*",	tracker_extract_oasis		},
+ 	{ "application/postscript",			tracker_extract_ps		},
 #ifdef HAVE_POPPLER
-	{ "application/pdf",                       tracker_extract_pdf         },
+ 	{ "application/pdf",				tracker_extract_pdf		},
 #endif
-	{ "application/x-abiword",                 tracker_extract_abw         },
+	{ "application/x-abiword",			tracker_extract_abw		},
 #ifdef HAVE_LIBGSF
-	{ "application/msword",                    tracker_extract_msoffice    },
-	{ "application/vnd.ms-*",                  tracker_extract_msoffice    },
+ 	{ "application/msword",				tracker_extract_msoffice	},
+ 	{ "application/vnd.ms-*",			tracker_extract_msoffice	},
 #endif
-
-
-	/* Video extractors */
-	{ "video/*",                               tracker_extract_mplayer     },
-	{ "video/*",                               tracker_extract_totem       },
-
-
-	/* Audio extractors */
-	{ "audio/mpeg",                            tracker_extract_mp3         },
-	{ "audio/x-mp3",                           tracker_extract_mp3         },
-	{ "audio/x-mpeg",                          tracker_extract_mp3         },
-#ifdef HAVE_VORBIS
-	{ "audio/x-vorbis+ogg",                    tracker_extract_vorbis      },
+  
+  	/* Video extractors */
+#ifdef HAVE_GSTREAMER
+ 	{ "video/*",					tracker_extract_gstreamer	},
+#else
+#ifdef HAVE_LIBXINE
+ 	{ "video/*",					tracker_extract_xine		},
+#else
+#ifdef USING_EXTERNAL_VIDEO_PLAYER
+ 	{ "video/*",					tracker_extract_mplayer		},
+ 	{ "video/*",					tracker_extract_totem		},
 #endif
-	{ "audio/*",                               tracker_extract_mplayer     },
-
-
-   /* Image extractors */
+#endif
+#endif
+  
+  	/* Audio extractors */
+#ifdef HAVE_GSTREAMER
+	{ "audio/*",					tracker_extract_gstreamer	},
+#else
+#ifdef HAVE_LIBXINE
+	{ "audio/*",					tracker_extract_xine		},
+#else
+#ifdef USING_EXTERNAL_VIDEO_PLAYER
+ 	{ "audio/*",					tracker_extract_mplayer		},
+ 	{ "audio/*",					tracker_extract_totem		},
+#endif
+#endif
+#endif
+  
+     /* Image extractors */
 #ifdef HAVE_LIBPNG
-	{ "image/png",                             tracker_extract_png         },
+	{ "image/png",					tracker_extract_png		},
 #endif
 #ifdef HAVE_LIBEXIF
-	{ "image/jpeg",                            tracker_extract_exif        },
+	{ "image/jpeg",					tracker_extract_exif		},
 #endif
-	{ "image/*",                               tracker_extract_imagemagick },
-	{ "",                                      NULL                        }
+	{ "image/*",					tracker_extract_imagemagick	},
+	{ "",						NULL				}
 };
-
-/*
-static MetadataFileType
-get_metadata_type (const char *mime)
-{
-	int i;
-	int num_elements;
-
-	if (!mime) {
-		return NO_METADATA;
-	}
-	
-	if (g_str_has_prefix (mime, "image")) {
-		return IMAGE_METADATA;		
-	} else { 
-		if (g_str_has_prefix (mime, "video")) {
-			return VIDEO_METADATA;		
-		} else { 
-			if (g_str_has_prefix (mime, "audio")) {
-				return AUDIO_METADATA;		
-			} else { 
-				num_elements = sizeof (doc_mime_types) / sizeof (char *);
-				for (i =0; i < num_elements; i++ ) {
-					if (g_str_has_prefix (mime, doc_mime_types [i] )) {
-						return DOC_METADATA;
-					}
-				}
-			}
-		}
-	}
-	return NO_METADATA;
-}
-*/
+  
 
 
 static GHashTable *
@@ -151,7 +136,7 @@ tracker_get_file_metadata (const char *uri, char *mime)
 {
 
 	GHashTable 		*meta_table;
-	char			*uri_in_locale = NULL;
+	char			*uri_in_locale;
 
 	
 	if (!uri) {
@@ -169,20 +154,26 @@ tracker_get_file_metadata (const char *uri, char *mime)
 		return NULL;
 	}
 
-	meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);	
+	meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
 	if (mime) {
-		MimeToExtractor  *p;
+		MimeToExtractor *p;
+
 		for (p = extractors; p->extractor; ++p) {
 			if (g_pattern_match_simple (p->mime, mime)) {
 				(*p->extractor)(uri_in_locale, meta_table);
-				if (g_hash_table_size (meta_table) == 0)
+
+				if (g_hash_table_size (meta_table) == 0) {
 					continue;
+				}
+
 				g_free (uri_in_locale);
 				g_free (mime);
+
 				return meta_table;
 			}
 		}
+
 		g_free (mime);
 	}
 
@@ -191,44 +182,46 @@ tracker_get_file_metadata (const char *uri, char *mime)
 	return NULL;
 }
 
+
 static void
 get_meta_table_data (gpointer pkey, gpointer pvalue, gpointer user_data)
 {
+	char *value;
 
 	g_return_if_fail (pkey || pvalue);
-	
-	char *value = g_locale_to_utf8 ((char *)  pvalue, -1, NULL, NULL, NULL);
 
-	if (value && (strlen (value) > 0)) {
-	
-		/* replace any embedded semicolons or "=" as we use them for delimiters */
-		value = g_strdelimit (value, ";", ',');
-		value = g_strdelimit (value, "=", '-');
-		value = g_strstrip (value);
+	value = g_locale_to_utf8 ((char *) pvalue, -1, NULL, NULL, NULL);
 
-		g_print ("%s=%s;\n", (char *)pkey, value);
+	if (value) {
+		if (value[0] != '\0') {
+			/* replace any embedded semicolons or "=" as we use them for delimiters */
+			value = g_strdelimit (value, ";", ',');
+			value = g_strdelimit (value, "=", '-');
+			value = g_strstrip (value);
+
+			g_print ("%s=%s;\n", (char *) pkey, value);
+		}
+
 		g_free (value);
 	}
-
-
-	
 }
 
-int
-main (int argc, char **argv) 
-{
 
-	GHashTable *meta;
-	char *filename;
+int
+main (int argc, char **argv)
+{
+	GHashTable	*meta;
+	char		*filename;
 
 	g_set_application_name ("tracker-extract");
+
 	setlocale (LC_ALL, "");
 
 	if ((argc == 1) || (argc > 3)) {
 		g_print ("usage: tracker-extract file [mimetype]\n");
 		return 0;
 	}
-	
+
 	filename = g_filename_to_utf8 (argv[1], -1, NULL, NULL, NULL);
 
 	if (!filename) {
@@ -237,7 +230,9 @@ main (int argc, char **argv)
 	}
 
 	if (argc == 3) {
-		char *mime = g_locale_to_utf8 (argv[2], -1, NULL, NULL, NULL);
+		char *mime;
+
+		mime = g_locale_to_utf8 (argv[2], -1, NULL, NULL, NULL);
 
 		if (!mime) {
 			g_warning ("locale to UTF8 failed for mime!");

@@ -1,3 +1,14 @@
+2006-11-05 <tpgww@onepost.net>
+
+	* cleanups to remove compiler warnings
+
+2006-11-05 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* improved use of tmp directory
+	* added gstreamer based extractor for audio and video tags
+	* cleaned up other extractors
+
+
 2006-11-01  Jamie McCracken <jamiemcc at gnome org>
 
 	* emebedded sqlite with threadsafe mode enabled
