@@ -1,0 +1,289 @@
+# Italian translation of Tracker
+# Copyright (C) 2006, Free Software Foundation, Inc
+# This file is distributed under the same license as the tracker package.
+# Luca Ferretti <elle.uca@libero.it>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tracker\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-11-06 11:17+0100\n"
+"PO-Revision-Date: 2006-11-06 11:28+0100\n"
+"Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
+"Language-Team: Italian <tp@lists.linux.it>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural= ( n != 1 );\n"
+
+#: ../src/libtracker/tracker-search.c:33
+msgid "Limit the number of results showed"
+msgstr "Limita il numero di risultati mostrati"
+
+#: ../src/libtracker/tracker-search.c:33
+msgid "LIMIT"
+msgstr "LIMITE"
+
+#: ../src/libtracker/tracker-search.c:34
+#: ../src/tracker-search-tool/tracker-search-tool.c:66
+msgid "Search from a specific service"
+msgstr "Cerca per uno specifico servizio"
+
+#: ../src/libtracker/tracker-search.c:34
+#: ../src/tracker-search-tool/tracker-search-tool.c:66
+msgid "SERVICE"
+msgstr "SERVIZIO"
+
+#: ../src/libtracker/tracker-search.c:35
+msgid "Show more detailed results with service and mime type as well"
+msgstr "Mostra risultati più dettagliati con servizio e tipo MIME"
+
+#: ../src/libtracker/tracker-search.c:85
+msgid "TERM1 [TERM2...] - search files for certain terms (ANDed)"
+msgstr "TERMINE1 [TERMINE2...]  - cerca determinate parole nei file (in AND)"
+
+#: ../src/libtracker/tracker-search.c:90
+#, c-format
+msgid "Invalid arguments: %s\n"
+msgstr "Argomenti non validi: %s\n"
+
+#: ../src/libtracker/tracker-search.c:95
+#, c-format
+msgid "Missing search terms, try '%s --help' for help\n"
+msgstr "Termini di ricerca mancanti, provare \"%s --help' per informazioni\n"
+
+#: ../src/libtracker/tracker-search.c:105
+msgid "could not connect to Tracker\n"
+msgstr "Impossibile connettersi a Tracker\n"
+
+#: ../src/libtracker/tracker-search.c:124
+msgid "Service not recognized, searching in Other Files...\n"
+msgstr "Servizio non riconosciuto, ricerca in \"altri\" file...\n"
+
+#: ../src/libtracker/tracker-search.c:141
+#, c-format
+msgid "tracker raised error: %s\n"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:147
+msgid "No results found\n"
+msgstr "Nessun risultato trovato\n"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:99
+msgid "All files"
+msgstr "Tutti i file"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:100
+msgid "Development"
+msgstr "Sviluppo"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:101
+msgid "Documents"
+msgstr "Documenti"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:102
+msgid "Images"
+msgstr "Immagini"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:103
+msgid "Music"
+msgstr "Musica"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:104
+msgid "Plain text"
+msgstr "Testo semplice"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:105
+msgid "Videos"
+msgstr "Video"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:111
+msgid "Contains the _text"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:113
+msgid "_Date modified less than"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:113
+#: ../src/tracker-search-tool/tracker-search-tool.c:114
+msgid "days"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:114
+msgid "Date modified more than"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:116
+msgid "S_ize at least"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:116
+#: ../src/tracker-search-tool/tracker-search-tool.c:117
+msgid "kilobytes"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:117
+msgid "Si_ze at most"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:118
+msgid "File is empty"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:120
+msgid "Owned by _user"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:121
+msgid "Owned by _group"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:122
+msgid "Owner is unrecognized"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:124
+msgid "Na_me does not contain"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:125
+msgid "Name matches regular e_xpression"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:127
+msgid "Show hidden and backup files"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:128
+msgid "Follow symbolic links"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:129
+msgid "Include other filesystems"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:169
+msgid "_Open"
+msgstr "_Apri"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:170
+msgid "O_pen Folder"
+msgstr "A_pri cartella"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:171
+msgid "Mo_ve to Trash"
+msgstr "_Sposta nel cestino"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:172
+msgid "_Save Results As..."
+msgstr "_Salva risultati come..."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:273
+#, c-format
+msgid "Character set conversion failed for \"%s\""
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:297
+msgid "Searching..."
+msgstr "Ricerca..."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:297
+msgid "Search Tool"
+msgstr "Strumento di ricerca"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:719
+#: ../src/tracker-search-tool/tracker-search-tool.c:745
+msgid "No files found"
+msgstr "Nessun file trovato"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:738
+msgid "(stopped)"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:744
+msgid "No Files Found"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:749
+#, c-format
+msgid "%d File Found"
+msgid_plural "%d Files Found"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:753
+#, c-format
+msgid "%d file found"
+msgid_plural "%d files found"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:770
+#: ../src/tracker-search-tool/tracker-search-tool.c:1053
+msgid "Search for Files"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:886
+msgid "Entry changed called for a non entry option!"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1539
+msgid "S_earch results:"
+msgstr "_Risultati di ricerca:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1575
+msgid "List View"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1640
+msgid "Icon"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1652
+msgid "Name"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1674
+msgid "Text"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2083
+msgid "_Search:"
+msgstr "C_erca:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2110
+#: ../src/tracker-search-tool/tracker-search-tool.c:2111
+msgid "Enter a search term with multiple words seperated with spaces."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2111
+msgid "search_entry"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2118
+msgid "Select more _options"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2148
+msgid "Click to perform a search."
+msgstr ""
+
+# risultati, quindi plurale -Luca
+#: ../src/tracker-search-tool/tracker-search-tool.c:2156
+msgid "_Previous"
+msgstr "_Precedenti"
+
+# risultati, quindi plurale -Luca
+#: ../src/tracker-search-tool/tracker-search-tool.c:2164
+msgid "_Next"
+msgstr "_Successivi"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2311
+msgid "Desktop Search"
+msgstr "Ricerca desktop"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2351
+#, c-format
+msgid "Invalid service type: %s\n"
+msgstr "Tipo di servizio non valido: %s\n"

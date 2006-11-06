@@ -1,5 +1,10 @@
 2006-11-06  Luca Ferretti  <elle.uca@libero.it>
 
+	* it.po: Added Italian translation. We need at least
+	one to test if l10n works :-)
+
+2006-11-06  Luca Ferretti  <elle.uca@libero.it>
+
 	* POTFILES.in:
 	Remove ../ from sources.
 
