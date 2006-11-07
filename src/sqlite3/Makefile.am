@@ -14,7 +14,10 @@ noinst_LTLIBRARIES=libsqlite-private.la
 
 libsqlite_private_la_LIBADD = -lpthread
 
+
 libsqlite_private_la_SOURCES = \
+	sqlite3.h \
+	sqlite3ext.h \
 	alter.c \
 	analyze.c \
 	attach.c \
@@ -38,6 +41,8 @@ libsqlite_private_la_SOURCES = \
 	opcodes.h \
 	opcodes.c \
 	os.c \
+	os.h \
+	os_common.h \
 	os_unix.c \
 	os_win.c \
 	os_os2.c \
@@ -51,7 +56,6 @@ libsqlite_private_la_SOURCES = \
 	random.c \
 	select.c \
 	shell.c \
-	sqlite.h \
 	sqliteInt.h \
 	table.c \
 	tokenize.c \

@@ -6,5 +6,12 @@ else
 tracker_gui_dir =
 endif
 
-SUBDIRS = libstemmer sqlite3 text-filters trackerd libtracker tracker-extract $(tracker_gui_dir)
-DIST_SUBDIRS = libstemmer sqlite3 text-filters trackerd libtracker tracker-extract $(tracker_gui_dir)
+if USING_EXTERNAL_SQLITE
+sqlite_dir = 
+else
+sqlite_dir = sqlite3
+endif
+
+
+SUBDIRS = libstemmer $(sqlite_dir) text-filters trackerd libtracker tracker-extract $(tracker_gui_dir)
+DIST_SUBDIRS = libstemmer $(sqlite_dir) text-filters trackerd libtracker tracker-extract $(tracker_gui_dir)
