@@ -444,8 +444,6 @@ AC_MSG_RESULT([$ioprio_support])
 
 #####################################################
 
-AM_CONFIG_HEADER(src/trackerd/config.h)
-
 AC_CONFIG_FILES([
 	Makefile
 	tracker.pc
