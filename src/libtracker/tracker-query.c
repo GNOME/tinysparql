@@ -194,8 +194,8 @@ main (int argc, char **argv)
 		fields = meta_fields;
 	} 
 
-	out_array = tracker_search_query (client, -1, SERVICE_FILES, fields, search, keyword, buffer, 0, 512, FALSE, &error);
-
+	out_array = tracker_search_query (client, -1, type, fields, search, keyword, buffer, 0, 512, FALSE, &error);
+	
 	g_strfreev (meta_fields);
 
 	if (error) {
