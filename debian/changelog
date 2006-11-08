@@ -1,3 +1,9 @@
+tracker (0.5.1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Jamie McCracken <jamiemcc@gnome.org>  Mon,  6 Nov 2006 23:57:21 +0100
+
 tracker (0.5.0) unstable; urgency=low
 
   * New upstream release.

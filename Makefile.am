@@ -1,4 +1,4 @@
-SUBDIRS = data src filters thumbnailers docs
+SUBDIRS = data src filters thumbnailers docs po
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tracker.pc

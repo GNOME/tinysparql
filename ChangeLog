@@ -1,3 +1,24 @@
+2006-11-07 Luca Ferretti <elle uca libero it>
+
+	* added internationlisation support to tracker and t-s-t
+
+2006-11-07 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* fixed bad comment tag in mplayer extractor
+
+
+2006-11-07  Julien <julienc psychologie-fr org>
+
+	* fixed bug in tracker-query so that service types are enabled
+
+
+
+2006-11-07  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed bug in plain text sniffer
+
+
+
 2006-11-05 <tpgww@onepost.net>
 
 	* cleanups to remove compiler warnings

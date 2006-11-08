@@ -26,9 +26,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
+#include <config.h>
 
 #include <fnmatch.h>
 #ifndef FNM_CASEFOLD
@@ -65,7 +63,7 @@ static gchar **terms = NULL;
 static gchar *service = NULL;
 
 static GOptionEntry options[] = {
-	{"service", 's', 0, G_OPTION_ARG_STRING, &service, "search from a specific service", "service"},
+	{"service", 's', 0, G_OPTION_ARG_STRING, &service, N_("Search from a specific service"), N_("SERVICE")},
 	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &terms, "search terms", NULL},
 	{NULL}
 };
@@ -98,14 +96,14 @@ struct _GSearchOptionTemplate {
 };
 
 static service_info_t services[8] = {
-   { "Files",             "system-file-manager",      SERVICE_FILES         },
-   { "Development Files", "applications-development", SERVICE_DEVELOPMENT_FILES },
-   { "Documents",         "x-office-document",        SERVICE_DOCUMENTS     },
-   { "Images",            "image",         	      SERVICE_IMAGES        },
-   { "Music",             "audio-x-generic",          SERVICE_MUSIC         },
-   { "Text Files",        "text-x-generic",           SERVICE_TEXT_FILES    },
-   { "Videos",            "video-x-generic",          SERVICE_VIDEOS        },
-   { NULL,                NULL,                       -1                    }
+   { N_("All files"),    "system-file-manager",       SERVICE_FILES         },
+   { N_("Development"),  "applications-development",  SERVICE_DEVELOPMENT_FILES },
+   { N_("Documents"),    "x-office-document",         SERVICE_DOCUMENTS     },
+   { N_("Images"),       "image",         	      SERVICE_IMAGES        },
+   { N_("Music"),        "audio-x-generic",           SERVICE_MUSIC         },
+   { N_("Plain text"),   "text-x-generic",            SERVICE_TEXT_FILES    },
+   { N_("Videos"),       "video-x-generic",           SERVICE_VIDEOS        },
+   { NULL,               NULL,                        -1                    }
 };
 
 
@@ -254,7 +252,7 @@ fill_services_combo_box (GSearchWindow * gsearch, GtkComboBox *combo)
                                          GTK_ICON_LOOKUP_USE_BUILTIN,
                                          &error);
 	   	gtk_list_store_append (store, &iter);
-	   	gtk_list_store_set (store, &iter, 0, pixbuf, 1, service->service, 2, service->service_type, -1);
+	   	gtk_list_store_set (store, &iter, 0, pixbuf, 1, _(service->service), 2, service->service_type, -1);
    	}
 
    	gtk_combo_box_set_active (combo, 0);
@@ -2155,7 +2153,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	gtk_box_set_spacing (GTK_BOX (hbox), 6);
 	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 0);
 
-	widget = gtk_button_new_with_mnemonic ("_Previous");
+	widget = gtk_button_new_with_mnemonic (_("_Previous"));
 	image = gtk_image_new_from_stock (GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON);
 	gtk_button_set_image (GTK_BUTTON (widget), image);
 	gsearch->back_button = widget;
@@ -2163,7 +2161,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	                  G_CALLBACK (click_find_cb), (gpointer) gsearch);
 	gtk_container_add (GTK_CONTAINER (hbox), widget);
 
-	widget = gtk_button_new_with_mnemonic ("_Next");
+	widget = gtk_button_new_with_mnemonic (_("_Next"));
 	image = gtk_image_new_from_stock (GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
 	gtk_button_set_image (GTK_BUTTON (widget), image);
 	gsearch->forward_button = widget;
@@ -2298,7 +2296,7 @@ main (int argc,
 		return 1;
 	}
 	
-	bindtextdomain (GETTEXT_PACKAGE, GNOMELOCALEDIR);
+	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
@@ -2350,7 +2348,7 @@ main (int argc,
 	add_no_files_found_message (gsearch);
 
 	if (service && !(tracker_search_select_service_type_by_string (GTK_COMBO_BOX (gsearch->combo), service))) {
-		g_printerr ("invalid service type: %s\n", service);
+		g_printerr (_("Invalid service type: %s\n"), service);
 		return 1;
 	}
 

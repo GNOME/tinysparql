@@ -17,8 +17,10 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include <locale.h>
+#include <config.h>
+
 #include <glib.h>
+#include <glib/gi18n.h>
 
 #include "../libtracker/tracker.h" 
 
@@ -28,9 +30,9 @@ static gchar *service = NULL;
 static gboolean detailed;
 
 static GOptionEntry entries[] = {
-	{"limit", 'l', 0, G_OPTION_ARG_INT, &limit, "limit the number of results showed", "limit"},
-	{"service", 's', 0, G_OPTION_ARG_STRING, &service, "search from a specific service", "service"},
-	{"detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed, "Show more detailed results with service and mime type as well", NULL},
+	{"limit", 'l', 0, G_OPTION_ARG_INT, &limit, N_("Limit the number of results showed"), N_("LIMIT")},
+	{"service", 's', 0, G_OPTION_ARG_STRING, &service, N_("Search from a specific service"), N_("SERVICE")},
+	{"detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed, N_("Show more detailed results with service and mime type as well"), NULL},
 	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &terms, "search terms", NULL},
 	{NULL}
 };
@@ -74,19 +76,21 @@ main (int argc, char **argv)
 	char **p_strarray;
 	GPtrArray *out_array = NULL;
 
-	setlocale (LC_ALL, "");
+	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
+        bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+        textdomain (GETTEXT_PACKAGE);
 
-	context = g_option_context_new ("search terms ... - search files for certain terms (ANDed)");
+	context = g_option_context_new (_("TERM1 [TERM2...] - search files for certain terms (ANDed)"));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 
 	if (error) {
-		g_printerr ("invalid arguments: %s\n", error->message);
+		g_printerr (_("Invalid arguments: %s\n"), error->message);
 		return 1;
 	}
 
 	if (!terms) {
-		g_printerr ("missing search terms, try --help for help\n");
+		g_printerr (_("Missing search terms, try '%s --help' for help\n"), argv[0]);
 		return 1;
 	}
 
@@ -96,7 +100,7 @@ main (int argc, char **argv)
 	client = tracker_connect (FALSE);
 
 	if (!client) {
-		g_printerr ("could not connect to Tracker\n");
+		g_printerr (_("could not connect to Tracker\n"));
 		return 1;
 	}
 
@@ -115,7 +119,7 @@ main (int argc, char **argv)
 	} else if (g_ascii_strcasecmp (service, "Development") == 0) {
 		type = SERVICE_DEVELOPMENT_FILES;
 	} else {
-		g_printerr ("service not recognized, searching in Other Files...\n");
+		g_printerr (_("Service not recognized, searching in Other Files...\n"));
 		type = SERVICE_OTHER_FILES;
 	}
 
@@ -132,13 +136,13 @@ main (int argc, char **argv)
 
 
 	if (error) {
-		g_printerr ("tracker raised error: %s\n", error->message);
+		g_printerr (_("tracker raised error: %s\n"), error->message);
 		g_error_free (error);
 		return 1;
 	}
 
 	if ((!detailed && !result) || (detailed && !out_array)) {
- 		g_printerr ("no results found\n");
+ 		g_printerr (_("No results found\n"));
 		tracker_disconnect (client);
  		return 0;
  	}
