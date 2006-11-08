@@ -39,12 +39,11 @@ static gchar *audio_tags[][2] = {
 	{ NULL,			NULL			}
 };
 
-/* Some of "info_tags" tags can belong to Audio or/and video, so 3 cases :
+/* Some of "info_tags" tags can belong to Audio or/and video or none, so 3 cases :
  * 1/ tag does not belong to audio nor video, it is a general tag ;
  * 2/ tag only belongs to audio ;
- * 3/ tag can belong to audio and video, so we should test if the current media has video, but
- *    it would need to find "ID_VIDEO_ID" tag and perhaps go throw each tag to find it... So we
- *    decide to duplicate data to Audio and Video.
+ * 3/ tag can belong to audio and video. If current media has video we will associate
+ *    tag to Video, otherwise to Audio if it has audio.
  */
 static gchar *info_tags[][3] = {
 	{ "Comment",		"Audio.Comment",	"Video.Comment"	},
