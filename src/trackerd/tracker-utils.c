@@ -1145,7 +1145,7 @@ is_text_file (const char *uri)
 	FILE 	 *file;
 	char 	 *uri_in_locale;
 	char	 buffer[65565];
-	gsize 	 bytes_read;
+	gsize 	 bytes_read, total_bytes_read;
 	gboolean result;
 
 	if (!tracker_file_is_indexable (uri)) {
@@ -1155,6 +1155,7 @@ is_text_file (const char *uri)
 	result = TRUE;
 
 	bytes_read = 0;
+	total_bytes_read = 0;
 
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
@@ -1173,7 +1174,8 @@ is_text_file (const char *uri)
 
 	while (fgets (buffer, 65536, file)) {
 
-		bytes_read += strlen (buffer);
+		bytes_read = strlen (buffer);
+		total_bytes_read += bytes_read;
 	
 		/* if text is too small skip line */
 		if (bytes_read < 3) {
@@ -1186,7 +1188,7 @@ is_text_file (const char *uri)
 			char *value = NULL;
 			gsize bytes_converted = 0;
 
-//			tracker_log ("%s is not a text file with valid utf-8. Tryiong to convert from locale...", uri);
+			g_debug ("%s is not a text file with valid utf-8. Tryiong to convert from locale...", uri);
 
 			value = g_locale_to_utf8 (buffer, bytes_read, NULL, NULL, &err);
 
@@ -1220,7 +1222,7 @@ is_text_file (const char *uri)
 			
 		
 		/* check first 4kb only */
-		if (bytes_read > 4096) {
+		if (total_bytes_read > 4096) {
 			break;
 		}
 
@@ -1229,7 +1231,7 @@ is_text_file (const char *uri)
 	fclose (file);
 
 	if (result) {
-		if (bytes_read < 3) {
+		if (total_bytes_read < 3) {
 			result = FALSE;
 		}
 
