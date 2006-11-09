@@ -1,3 +1,7 @@
+2006-11-09  Luca Ferretti  <elle uca libero it>
+
+	* fixed "make dist" for intltool-* stuff (Laurent Aguerreche)
+
 2006-11-07 Luca Ferretti <elle uca libero it>
 
 	* added internationlisation support to tracker and t-s-t

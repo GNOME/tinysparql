@@ -33,4 +33,12 @@ EXTRA_DIST = \
 	ChangeLog \
 	configure.in \
 	rdf-query-examples/*.rdf \
+	intltool-extract.in \
+	intltool-merge.in \
+	intltool-update.in \
 	$(debian_files)
+
+DISTCLEANFILES = \
+	intltool-extract \
+	intltool-merge \
+	intltool-update
