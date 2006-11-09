@@ -1,3 +1,9 @@
+2006-11-09  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/libtracker/tracker-search.c:
+	Restore "setlocale" call. Now localization shoul work at runtime for
+	this tool.
+
 2006-11-09  Luca Ferretti  <elle uca libero it>
 
 	* fixed "make dist" for intltool-* stuff (Laurent Aguerreche)

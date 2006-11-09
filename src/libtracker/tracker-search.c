@@ -80,6 +80,8 @@ main (int argc, char **argv)
         bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
         textdomain (GETTEXT_PACKAGE);
 
+	setlocale (LC_ALL, "");
+
 	context = g_option_context_new (_("TERM1 [TERM2...] - search files for certain terms (ANDed)"));
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
