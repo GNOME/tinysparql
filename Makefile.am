@@ -18,10 +18,12 @@ debian_files = \
 	debian/libtrackerclient0.linda-overrides \
 	debian/tracker.docs \
 	debian/tracker.install \
+	debian/tracker.manpages \
 	debian/tracker-utils.docs \
 	debian/tracker-utils.examples \
 	debian/tracker-utils.install \
 	debian/tracker-utils.linda-overrides \
+	debian/tracker-utils.manpages \
 	debian/tracker-gnome-search-tool.install \
 	debian/tracker-gnome-search-tool.docs \
 	debian/tracker-gnome-search-tool.linda-overrides \

@@ -1,3 +1,11 @@
+2006-11-09  Luca Ferretti  <elle.uca@libero.it>
+
+	* Makefile.am:
+	* debian/tracker-utils.manpages:
+	* dedian/tracker.manpages:
+	Add missing manpages for deb packages which have to be
+	distributed by "make dist" (patch by Laurent Aguerreche)
+
 2006-11-09  Hendrik Richter  <hendrikr@gnome.org>
 
 	* configure.in: Added "de" to ALL_LINGUAS
@@ -5,12 +13,12 @@
 2006-11-09  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/libtracker/tracker-search.c:
-	Restore "setlocale" call. Now localization shoul work at runtime for
-	this tool.
+	Restore "setlocale" call. Now localization should work at runtime
+	for this tool (by Laurent Aguerreche)
 
 2006-11-09  Luca Ferretti  <elle uca libero it>
 
-	* fixed "make dist" for intltool-* stuff (Laurent Aguerreche)
+	* fixed "make dist" for intltool-* stuff (by Laurent Aguerreche)
 
 2006-11-07 Luca Ferretti <elle uca libero it>
 

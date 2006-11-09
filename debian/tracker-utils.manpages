@@ -1,0 +1,5 @@
+debian/tmp/usr/share/man/man1/tracker-files.1
+debian/tmp/usr/share/man/man1/tracker-meta-folder.1
+debian/tmp/usr/share/man/man1/tracker-query.1
+debian/tmp/usr/share/man/man1/tracker-search.1
+debian/tmp/usr/share/man/man1/tracker-stats.1
