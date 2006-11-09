@@ -1,5 +1,11 @@
 2006-11-09  Luca Ferretti  <elle.uca@libero.it>
 
+	* src/libtracker/tracker-search.c:
+	Restore #include <locale.h> (maybe needed on some systems) and
+	move setlocale() before *textdomain() (from Laurent Aguerreche)
+
+2006-11-09  Luca Ferretti  <elle.uca@libero.it>
+
 	* Makefile.am:
 	* debian/tracker-utils.manpages:
 	* dedian/tracker.manpages:

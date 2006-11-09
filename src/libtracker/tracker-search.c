@@ -19,6 +19,7 @@
 
 #include <config.h>
 
+#include <locale.h>
 #include <glib.h>
 #include <glib/gi18n.h>
 
@@ -76,11 +77,11 @@ main (int argc, char **argv)
 	char **p_strarray;
 	GPtrArray *out_array = NULL;
 
+	setlocale (LC_ALL, "");
+
 	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
         bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
         textdomain (GETTEXT_PACKAGE);
-
-	setlocale (LC_ALL, "");
 
 	context = g_option_context_new (_("TERM1 [TERM2...] - search files for certain terms (ANDed)"));
 	g_option_context_add_main_entries (context, entries, NULL);
