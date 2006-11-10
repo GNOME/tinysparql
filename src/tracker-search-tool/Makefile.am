@@ -1,8 +1,9 @@
-Utilitiesdir = $(datadir)/applications
-icondir = $(datadir)/pixmaps/tracker
-icon_DATA = thumbnail_frame.png 
-
 #SUBDIRS = data help
+
+@INTLTOOL_DESKTOP_RULE@
+
+Desktopdir = $(datadir)/applications
+icondir = $(datadir)/pixmaps/tracker
 
 INCLUDES = 	\
 	$(GLIB2_CFLAGS)						\
@@ -43,12 +44,15 @@ tracker_search_tool_LDADD =   \
 
 #man_MANS = tracker-search-tool.1
 
-#Utilities_in_files = tracker-search-tool.desktop.in 
-#Utilities_DATA = $(Utilities_in_files:.desktop.in=.desktop)
+Desktop_in_files = tracker-search-tool.desktop.in
+Desktop_files = $(Desktop_in_files:.desktop.in=.desktop)
+ 
+Desktop_DATA = $(Desktop_files)
+icon_DATA = thumbnail_frame.png 
 
 
 #EXTRA_DIST = $(Utilities_in_files) $(Utilities_DATA) $(schema_in_file) $(schema_DATA) $(icon_DATA) $(man_MANS)
-EXTRA_DIST = $(icon_DATA)
+EXTRA_DIST = $(Desktop_in_files) $(icon_DATA)
 
 #if GCONF_SCHEMAS_INSTALL
 #install-data-local:
@@ -62,7 +66,7 @@ EXTRA_DIST = $(icon_DATA)
 #endif
 
 CLEANFILES = 				\
-	tracker-search-tool.desktop	\
+	$(Desktop_DATA)			\
 	tracker-search-tool.schemas
 
 disthook:
