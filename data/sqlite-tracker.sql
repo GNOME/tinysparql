@@ -314,6 +314,7 @@ insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) va
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.FrameRate', 2, 1, 0, 100);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Codec', 4, 1, 0, 10);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Bitrate', 2, 1, 0, 100);
+insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Video.Duration', 2, 1, 0, 100);
 
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Date', 3, 1, 0, 0);
 insert Into MetaDataTypes (MetaName, DatatypeID, Embedded, Writeable, Weight) values  ('Email.Sender', 4, 1, 0, 10);
