@@ -1,5 +1,13 @@
 2006-11-10  Luca Ferretti  <elle.uca@libero.it>
 
+	* configure.in:
+	Replace AM_GLIB_DEFINE_LOCALEDIR with a custom test and AC_DEFINE
+	due to the bug #343825 (glib vs. autoconf >= 2.60). See also
+	http://lists.debian.org/debian-gtk-gnome/2006/06/msg00001.html
+	(from Laurent Aguerreche)	
+
+2006-11-10  Luca Ferretti  <elle.uca@libero.it>
+
 	* debian/tracker-dev.docs:
 	* debian/tracker-dev.install:
 	Removed from cvs (from Laurent Aguerreche)
