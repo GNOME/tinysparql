@@ -372,7 +372,7 @@ fi
 # check for poppler's glib bingings
 ##################################################################
 
-POPPLER_GLIB_REQUIRED=0.5.0
+POPPLER_GLIB_REQUIRED=0.4.5
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
 
