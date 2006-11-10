@@ -1,3 +1,9 @@
+2006-11-10  Luca Ferretti  <elle.uca@libero.it>
+
+	* debian/tracker-dev.docs:
+	* debian/tracker-dev.install:
+	Removed from cvs (from Laurent Aguerreche)
+
 2006-11-09  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/libtracker/tracker-search.c:
