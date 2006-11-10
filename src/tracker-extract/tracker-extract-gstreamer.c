@@ -568,7 +568,7 @@ poll_for_state_change (MetadataExtractor *extractor, GstState state)
 		GstMessage *message;
 		GstElement *src;
 
-		message = gst_bus_poll (bus, events, -1);
+		message = gst_bus_poll (bus, events, GST_SECOND * 5);
 
 		if (!message) {
 			goto timed_out;
