@@ -1112,8 +1112,9 @@ get_select_header (const char *service)
 		case 8:
 			g_string_append_printf (result, " Select DISTINCT (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S); 
 			break;
-
+		
 		default :
+			g_string_append_printf (result, " Select DISTINCT (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S); 
 			break;
 	}
 	
