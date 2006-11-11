@@ -1,3 +1,9 @@
+2006-11-11  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed bug in rdf query so that non file objects are supported by default
+	* fixed gstreamer extractor to time out after a few seconds (this prevents it hanging with some movie files)
+	
+
 2006-11-10 Edward Duffy <eduffy at gmail com>
 	
 	* Downgraded libpoppler requirements
