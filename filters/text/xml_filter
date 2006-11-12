@@ -1,6 +1,6 @@
 #!/bin/sh
 
-nice -n19 xsltproc - "$1" <<EOF
+nice -n19 xsltproc - "$1" > "$2" <<EOF
 <?xml version="1.0"?>
 <xsl:stylesheet 
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
