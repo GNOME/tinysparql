@@ -76,8 +76,10 @@ out:
 	if (dbus_error_is_set (&error)) {
 		dbus_error_free (&error);
 	}
-
-	dbus_connection_set_exit_on_disconnect (connection, FALSE);
+	
+	if (connection != NULL) {
+		dbus_connection_set_exit_on_disconnect (connection, FALSE);
+	}
 
 	return connection;
 }
