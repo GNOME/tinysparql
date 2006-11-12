@@ -226,8 +226,14 @@ fam_callback (GIOChannel *source,
 						tracker_free_file_info (info);
 					}
 
+					g_free (parent);
+
 				} else {
-					tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory);
+					if (event_type == TRACKER_ACTION_CREATE) {
+						tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory, TRUE, -1);
+					} else {
+						tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory, FALSE, -1);
+					}
 					tracker_free_file_info (info);
 				}
 			}
