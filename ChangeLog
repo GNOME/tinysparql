@@ -1,3 +1,7 @@
+2006-11-12 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* changed html filter to use w3m
+
 2006-11-12 Gergan Penkov <gergan at gmail com>
 
 	* fixed dbus warning
