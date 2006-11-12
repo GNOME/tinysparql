@@ -1,3 +1,7 @@
+2006-11-12  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed fam backend
+
 2006-11-11  Jamie McCracken <jamiemcc at gnome org>
 
 	* fixed bug in rdf query so that non file objects are supported by default
