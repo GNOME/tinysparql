@@ -1,3 +1,8 @@
+2006-11-16  Luca Ferretti  <elle.uca@libero.it>
+
+	* POTFILES.in:
+	Add tracker-tag.c
+
 2006-11-09  Hendrik Richter  <hendrikr@gnome.org>
 
 	* de.po: Updated German translation.

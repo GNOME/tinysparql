@@ -1,3 +1,9 @@
+2006-11-16  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/libtracker/tracker-tag.c:
+	Add l10n/i18n support, changing some messages for a better
+	translation experience.
+
 2006-11-15 Edward Duffy <eduffy at gmail com>
 	
 	* added xdg-open to t-s-t with fallback to gnome-open
@@ -5,7 +11,6 @@
 2006-11-15 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* added desktop files to debs
-
 
 2006-11-15  Luca Ferretti  <elle.uca@libero.it> 	 
   	 

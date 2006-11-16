@@ -2,4 +2,5 @@
 # Please keep this file sorted alphabetically.
 [encoding: UTF-8]
 src/libtracker/tracker-search.c
+src/libtracker/tracker-tag.c
 src/tracker-search-tool/tracker-search-tool.c

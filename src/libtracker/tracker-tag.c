@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* Tracker Tag
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)	
  *
@@ -17,9 +18,12 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+#include <config.h>
+
 #include <locale.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <glib/gi18n.h>
 
 #include "../libtracker/tracker.h" 
 
@@ -31,12 +35,12 @@ static gboolean remove_all = FALSE;
 static gboolean list = FALSE;
 
 static GOptionEntry entries[] = {
-	{"add", 'a', 0, G_OPTION_ARG_STRING_ARRAY, &add, "add tags to a file", "tag"},
-	{"remove", 'r', 0, G_OPTION_ARG_STRING_ARRAY, &delete, "remove tags from a file", "tag"},
-	{"remove-all", 'R', 0, G_OPTION_ARG_NONE, &remove_all, "remove all tags from  a file", NULL},
-	{"list", 'l', 0, G_OPTION_ARG_NONE, &list, "list tags", NULL},
-	{"search", 's', 0, G_OPTION_ARG_STRING_ARRAY, &search, "search for files with tags", "tag"},
-	{G_OPTION_REMAINING, 0, G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING_ARRAY, &files, "files to tag", NULL},
+	{"add", 'a', 0, G_OPTION_ARG_STRING_ARRAY, &add, N_("Add specified tag to a file"), N_("TAG")},
+	{"remove", 'r', 0, G_OPTION_ARG_STRING_ARRAY, &delete, N_("Remove specified tag from a file"), N_("TAG")},
+	{"remove-all", 'R', 0, G_OPTION_ARG_NONE, &remove_all, N_("Remove all tags from  a file"), NULL},
+	{"list", 'l', 0, G_OPTION_ARG_NONE, &list, N_("List all defined tags"), NULL},
+	{"search", 's', 0, G_OPTION_ARG_STRING_ARRAY, &search, N_("Search for files with specified tag"), N_("TAG")},
+	{G_OPTION_REMAINING, 0, G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING_ARRAY, &files, N_("FILE..."), NULL},
 	{NULL}
 };
 
@@ -69,21 +73,45 @@ main (int argc, char **argv)
 	TrackerClient *client = NULL;
 	GOptionContext *context = NULL;
 	GError *error = NULL;
+	gchar *example;
 	int i = 0, k;
 
 	setlocale (LC_ALL, "");
 
-	context = g_option_context_new ("file1 file2 ... - manipulate tags on files");
+	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
+        bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+        textdomain (GETTEXT_PACKAGE);
+
+	/* Translators: this messagge will apper immediately after the  */
+	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
+	context = g_option_context_new (_("FILE... - manipulate tags on files"));
+
+	example = g_strconcat ("-a ", _("TAG"), " -a ", _("TAG"), " -a ", _("TAG"), NULL);
+
+	/* Translators: this message will appear after the usage string */
+	/* and before the list of options, showing an usage example.    */
+	g_option_context_set_summary (context,
+				      g_strconcat(_("To add, remove, or search for multiple tags "
+						    "at the same time, join multiple options like:"), 
+						  "\n\n\t", 
+						  example, NULL));
+
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 
+	g_option_context_free (context);
+	g_free (example);
+	
 	if (error) {
 		g_printerr ("%s\n", error->message);
 		return 1;
 	}
 
 	if (((add || delete || remove_all) && !files) || (remove_all && (add || delete)) || (search && files)) {
-		g_printerr ("invalid arguments - type 'tracker-tag --help' for info\n");
+		g_printerr (_("%s: invalid arguments"), argv[0]);
+		g_printerr ("\n");
+		g_printerr (_("Try \"%s --help\" for more information."), argv[0]);
+		g_printerr ("\n");
 		return 1;
 	}
 
@@ -91,7 +119,10 @@ main (int argc, char **argv)
 	client = tracker_connect (FALSE);
 
 	if (!client) {
-		g_printerr ("could not initialise Tracker\n");
+		g_printerr (_("%s: no connection to tracker daemon"), argv[0]);
+		g_printerr ("\n");
+		g_printerr (_("Ensure \"trackerd\" is running before launch this command."));
+		g_printerr ("\n");
 		return 1;
 	}
 
@@ -105,7 +136,8 @@ main (int argc, char **argv)
 				g_free (tmp);
 				files[i] = utf;
 			} else {
-				g_printerr ("%s: file not found\n", files[i]);
+				g_printerr (_("%s: file %s not found"), argv[0], files[i]);
+				g_printerr ("\n");
 				for (k = i; files[k] != NULL; k++)
 					files[k] = files[k+1];
 				i--; // Make sure we run over this file again
@@ -134,22 +166,28 @@ main (int argc, char **argv)
 			if (remove_all) {
 				tracker_keywords_remove_all (client, SERVICE_FILES, files[i], &error);
 
-				if (error)
-					g_printerr ("tracker threw error: %s\n", error->message);
+				if (error) {
+					g_printerr (_("%s: internal tracker error: %s"), argv[0], error->message);
+					g_printerr ("\n");
+				}
 			}
 
 			if (add) {
 				tracker_keywords_add (client, SERVICE_FILES, files[i], add, &error);
 
-				if (error)
-					g_printerr ("tracker threw error: %s\n", error->message);
+				if (error) {
+					g_printerr (_("%s: internal tracker error: %s"), argv[0], error->message);
+					g_printerr ("\n");
+				}
 			}
 
 			if (delete) {
 				tracker_keywords_remove (client, SERVICE_FILES, files[i], delete, &error);
 
-				if (error)
-					g_printerr ("tracker threw error: %s\n", error->message);
+				if (error) {
+					g_printerr (_("%s: internal tracker error: %s"), argv[0], error->message);
+					g_printerr ("\n");
+				} 
 			}
 
 		}
@@ -181,8 +219,10 @@ main (int argc, char **argv)
 			int j = 0;
 			gchar **tags = tracker_keywords_get (client, SERVICE_FILES, files[i], &error);
 
-			if (error)
-				g_printerr ("tracker threw error: %s\n", error->message);
+			if (error) {
+				g_printerr (_("%s: internal tracker error: %s"), argv[0], error->message);
+				g_printerr ("\n");
+			}
 
 			if (!tags)
 				continue;
@@ -213,8 +253,11 @@ main (int argc, char **argv)
 		if (error)
 			goto error;
 
-		if (!results)
-			g_print ("no results found matching your query\n");
+		if (!results) {
+			/* FIXME!! coreutilus don't print anything on no-results */
+			g_print (_("No results found matching your query"));
+			g_print ("\n");
+		}
 		else
 			for (i = 0; results[i] != NULL; i++)
 				g_print ("%s\n", results[i]);
@@ -227,7 +270,8 @@ main (int argc, char **argv)
 	return 0;
 
 error:
-	g_printerr ("tracker threw error: %s\n", error->message);
+	g_printerr (_("%s: internal tracker error: %s"), argv[0], error->message);
+	g_printerr ("\n");
 	tracker_disconnect (client);
 	return 1;	
 }
