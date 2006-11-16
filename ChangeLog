@@ -1,3 +1,18 @@
+2006-11-16 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* added missing OOO templates to our filters
+
+
+2006-11-16 Eugenio <me at eugesoftware com>
+	
+	* added fuse based trackerdfs to our python tools
+
+
+2006-11-16 Edward Duffy <eduffy at gmail com>
+	
+	* added timeout to all external processes used by tracker
+
+
 2006-11-16  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/libtracker/tracker-tag.c:
