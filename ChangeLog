@@ -1,3 +1,7 @@
+2006-11-15 Edward Duffy <eduffy at gmail com>
+	
+	* added xdg-open to t-s-t with fallback to gnome-open
+
 2006-11-15 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* added desktop files to debs

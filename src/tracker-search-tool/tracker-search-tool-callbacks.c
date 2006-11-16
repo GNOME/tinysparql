@@ -455,8 +455,10 @@ open_file_cb (GtkAction * action,
 
 					if (g_file_test (locale_file, G_FILE_TEST_IS_DIR)) {
 
-						if (open_file_with_nautilus (gsearch->window, locale_file) == FALSE) {
-							display_dialog_could_not_open_folder (gsearch->window, utf8_name);
+						if (open_file_with_xdg_open (gsearch->window, locale_file) == FALSE) {
+							if (open_file_with_nautilus (gsearch->window, locale_file) == FALSE) {
+								display_dialog_could_not_open_folder (gsearch->window, utf8_name);
+							}
 						}
 					}
 					else {

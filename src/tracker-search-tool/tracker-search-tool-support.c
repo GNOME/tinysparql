@@ -1226,6 +1226,17 @@ get_file_pixbuf (GSearchWindow * gsearch,
 }
 
 gboolean
+open_file_with_xdg_open (GtkWidget * window,
+                         const gchar * file)
+{
+	gboolean  result;
+	gchar    *command = g_strconcat ("xdg-open '", file, "'", NULL);
+	result = g_spawn_command_line_async (command, NULL);
+	g_free (command);
+	return result;
+}
+
+gboolean
 open_file_with_nautilus (GtkWidget * window,
                          const gchar * file)
 {

@@ -105,6 +105,9 @@ get_file_pixbuf (GSearchWindow * gsearch,
                  const gchar * file,
                  GnomeVFSFileInfo * file_info);
 gboolean
+open_file_with_xdg_open (GtkWidget * window,
+                         const gchar * file);
+gboolean
 open_file_with_nautilus (GtkWidget * window,
                          const gchar * file);
 gboolean
