@@ -1247,9 +1247,10 @@ extract_metadata_thread (void)
 	DBConnection *blob_db_con;
 	DBConnection *cache_db_con;
 
-        /* block all signals in this thread */
-        sigfillset (&signal_set);
-        pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
+	/* block all signals in this thread, except SIGALRM */
+	sigfillset (&signal_set);
+	sigdelset (&signal_set, SIGALRM);
+	pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
 
 	g_mutex_lock (tracker->metadata_signal_mutex);
 	g_mutex_lock (tracker->metadata_stopped_mutex);

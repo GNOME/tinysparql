@@ -127,6 +127,11 @@ char *development_mime_types[] = {
 				"text/x-tcl"
 };
 
+static void
+set_child_timeout_cb (gpointer user_data)
+{
+	alarm (30);
+}
 
 static MetadataFileType
 tracker_get_metadata_type (const char *mime)
@@ -287,7 +292,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 				  argv,
 				  NULL,
 				  G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
-				  NULL,
+				  set_child_timeout_cb,
 				  NULL,
 				  NULL,
 				  NULL,
@@ -371,7 +376,7 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 				  argv,
 				  NULL,
 				  G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
-				  NULL,
+				  set_child_timeout_cb,
 				  NULL,
 				  NULL,
 				  NULL,
@@ -444,7 +449,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 				  argv,
 				  NULL,
 				  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-				  NULL,
+				  set_child_timeout_cb,
 				  NULL,
 				  &value,
 				  NULL,
