@@ -1,0 +1,4 @@
+debian/tmp/etc/xdg/autostart/trackerd.desktop
+debian/tmp/usr/share/autostart/trackerd-kde.desktop
+debian/tmp/usr/share/locale/
+debian/tmp/usr/share/linda/overrides/tracker-data

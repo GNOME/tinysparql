@@ -16,6 +16,9 @@ debian_files = \
 	debian/libtrackerclient0.install \
 	debian/libtrackerclient0.links \
 	debian/libtrackerclient0.linda-overrides \
+	debian/tracker-data.docs \
+	debian/tracker-data.install \
+	debian/tracker-data.linda-overrides \
 	debian/tracker.docs \
 	debian/tracker.install \
 	debian/tracker.manpages \
@@ -35,6 +38,8 @@ EXTRA_DIST = \
 	ChangeLog \
 	configure.in \
 	rdf-query-examples/*.rdf \
+	trackerd.desktop \
+	trackerd-kde.desktop \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
