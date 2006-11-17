@@ -18,6 +18,7 @@ INCLUDES =				\
 	-DPIC=1				\
 	-D_REENTRANT=1			\
 	-DNDEBUG 			\
+	-DHAVE_MMAP			\
 	$(GLIB2_CFLAGS)			\
 	$(PANGO_CFLAGS)			\
 	$(GMIME_CFLAGS)			\
