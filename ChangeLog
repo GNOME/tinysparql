@@ -1,3 +1,9 @@
+2006-11-18 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* added more tmeplate filters
+	* improved use of tmp directory for temporary stuff
+
+
 2006-11-16 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* added missing OOO templates to our filters
