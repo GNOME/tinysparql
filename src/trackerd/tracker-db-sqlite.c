@@ -705,7 +705,7 @@ tracker_db_connect_cache (void)
 		exit (1);
 	}
 
-	base_dir = g_build_filename (tracker->sys_tmp_root_dir, g_get_home_dir(), NULL);
+	base_dir = g_build_filename (tracker->sys_tmp_root_dir, "sqlite3-base", NULL);
 	dbname = g_build_filename (base_dir, "cache", NULL);
 
 	if (!tracker_file_is_valid (base_dir)) {

@@ -2473,7 +2473,7 @@ sanity_check_option_values ()
 		recur_rm_dirs (tracker->sys_tmp_root_dir);
 	}
 
-	g_mkdir (tracker->sys_tmp_root_dir, 00755);
+	g_mkdir (tracker->sys_tmp_root_dir, 00700);
 
 
 	/* emails not fully working yet so disable them */

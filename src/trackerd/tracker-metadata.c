@@ -25,6 +25,10 @@
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
 
+
+extern Tracker *tracker;
+
+
 typedef enum {
 	IGNORE_METADATA,
 	NO_METADATA,
@@ -127,11 +131,13 @@ char *development_mime_types[] = {
 				"text/x-tcl"
 };
 
+
 static void
 set_child_timeout_cb (gpointer user_data)
 {
 	alarm (30);
 }
+
 
 static MetadataFileType
 tracker_get_metadata_type (const char *mime)
@@ -147,7 +153,6 @@ tracker_get_metadata_type (const char *mime)
 		return IMAGE_METADATA;
 
 	} else 	if (g_str_has_prefix (mime, "video")) {
-			/* don't bother with video metadata - its really really slow to extract + there's bugger all metadata anyhow! */
 			return VIDEO_METADATA;
 
 	} else 	if (g_str_has_prefix (mime, "audio") || (strcmp (mime, "application/ogg") == 0)) {
@@ -263,7 +268,9 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 		char *temp_file_name;
 		int  fd;
 
-		fd = g_file_open_tmp (NULL, &temp_file_name, NULL);
+		temp_file_name = g_build_filename (tracker->sys_tmp_root_dir, "tmp_text_file_XXXXXX", NULL);
+
+		fd = g_mkstemp (temp_file_name);
 
 		if (fd == -1) {
 			g_warning ("make tmp file %s failed", temp_file_name);
@@ -306,6 +313,8 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 			return temp_file_name;
 
 		} else {
+			g_free (temp_file_name);
+
 			g_free (argv[0]);
 			g_free (argv[1]);
 			g_free (argv[2]);
@@ -387,11 +396,14 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 			g_free (argv[1]);
 			g_free (argv[2]);
 			g_free (argv[3]);
+
 			g_free (thumbnailer);
+
 			return tmp_file;
 
 		} else {
 			g_free (tmp_file);
+
 			g_free (argv[0]);
 			g_free (argv[1]);
 			g_free (argv[2]);
@@ -403,8 +415,6 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 
 	return NULL;
 }
-
-
 
 
 void
@@ -473,7 +483,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 					if (sep) {
 						char *meta_name;
 
-						meta_name = g_strndup (meta_data, (int) (sep - meta_data));
+						meta_name = g_strndup (meta_data, sep - meta_data);
 
 						if (meta_name) {
 							char *meta_value;
@@ -483,15 +493,12 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 							if (meta_value) {
 								char *st;
 
-
 								//tracker_log ("testing %s = %s", meta_name, meta_value);
 								st = g_hash_table_lookup (table, meta_name);
 
 								if (st == NULL) {
-									char *utf_value; 
+									char *utf_value;
 
-
-									
 									if (!g_utf8_validate (meta_value, -1, NULL)) {
 
 										utf_value = g_locale_to_utf8 (meta_value, -1, NULL, NULL, NULL);
@@ -503,11 +510,11 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 										guint32 length = strlen (utf_value);
 
 										if ((length > 0) && (length >= strlen (meta_value))) {
-	 							
+
 											g_debug ("%s = %s", meta_name, utf_value);
 											g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
-
 										}
+
 										g_free (utf_value);
 									}
 								}
@@ -520,7 +527,6 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 					}
 
 					g_free (meta_data);
-
 				}
 
 				g_strfreev (values);
