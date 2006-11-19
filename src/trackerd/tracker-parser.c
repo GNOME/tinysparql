@@ -216,8 +216,8 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 
 			/* normalize word */			
 			char *s2;
-			s2 = g_utf8_strdown (*p, -1);
-			word = g_utf8_normalize (s2, -1, G_NORMALIZE_ALL);
+			s2 = g_utf8_casefold (*p, -1);
+			word = g_utf8_normalize (s2, -1, G_NORMALIZE_NFD);
 			g_free (s2);
 			
 			word_len = strlen (word);

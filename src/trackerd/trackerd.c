@@ -1331,7 +1331,7 @@ extract_metadata_thread (void)
 			}
 		}
 
-		if (tracker->index_counter > 41) {
+		if (tracker->index_counter > 81) {
 			tracker->index_counter = 0;
 			if (!tracker->turbo && !tracker->slow) {
 				tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
@@ -1340,7 +1340,7 @@ extract_metadata_thread (void)
 		
 
 			/* periodically set fsync on to throttle tracker and prevent high IOWait from huge dirty buffers building up */
-			if (tracker->index_counter > 40) {
+			if (tracker->index_counter > 80) {
 				if (!tracker->turbo && !tracker->slow) {
 					tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 1");
 				}
@@ -1764,7 +1764,7 @@ process_files_thread (void)
 		}
 
 		
-		if (tracker->index_counter > 41) {
+		if (tracker->index_counter > 81) {
 			tracker->index_counter = 0;
 			if (!tracker->turbo && !tracker->slow) {
 				tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
@@ -1773,7 +1773,7 @@ process_files_thread (void)
 		
 
 			/* periodically set fsync on to throttle tracker and prevent high IOWait from huge dirty buffers building up */
-			if (tracker->index_counter > 40) {
+			if (tracker->index_counter > 80) {
 				if (!tracker->turbo && !tracker->slow) {
 					tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 1");
 				}

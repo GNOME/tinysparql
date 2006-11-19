@@ -389,7 +389,7 @@ void		tracker_timer_end 		(GTimeVal *before, const char *str);
 char *		tracker_compress 		(const char *ptr, int size, int *compressed_size);
 char *		tracker_uncompress 		(const char *ptr, int size, int *uncompressed_size);
 
-char *		tracker_get_snippet 		(const char *txt, const char *term, int length);
+char *		tracker_get_snippet 		(const char *txt, char **terms, int length);
 
 
 #endif

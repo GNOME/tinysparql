@@ -135,7 +135,7 @@ char *development_mime_types[] = {
 static void
 set_child_timeout_cb (gpointer user_data)
 {
-	alarm (30);
+	alarm (GPOINTER_TO_INT (user_data));
 }
 
 
@@ -300,7 +300,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 				  NULL,
 				  G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
 				  set_child_timeout_cb,
-				  NULL,
+				  GINT_TO_POINTER (30),
 				  NULL,
 				  NULL,
 				  NULL,
@@ -386,7 +386,7 @@ tracker_metadata_get_thumbnail (const char *uri, const char *mime, const char *m
 				  NULL,
 				  G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
 				  set_child_timeout_cb,
-				  NULL,
+				  GINT_TO_POINTER (10),
 				  NULL,
 				  NULL,
 				  NULL,
@@ -460,7 +460,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 				  NULL,
 				  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
 				  set_child_timeout_cb,
-				  NULL,
+				  GINT_TO_POINTER (10),
 				  &value,
 				  NULL,
 				  NULL,

@@ -2359,12 +2359,94 @@ is_match (const char *a, const char *b)
 	char *str1 = g_utf8_casefold (a, len);
         char *str2 = g_utf8_casefold (b, len);                                 
 
-	gboolean result = (strcmp (str1, str2) == 0);
+	char *normal1 = g_utf8_normalize (str1, -1, G_NORMALIZE_NFD);
+	char *normal2 = g_utf8_normalize (str2, -1, G_NORMALIZE_NFD);
+
+	gboolean result = (strcmp (normal1, normal2) == 0);
 
 	g_free (str1);
 	g_free (str2);
+	g_free (normal1);
+	g_free (normal2);
 
 	return result;
+}
+
+
+
+static const gchar *
+pointer_from_offset_skipping_decomp (const gchar *str, gint offset)
+{
+	gchar *casefold, *normal;
+	const gchar *p, *q;
+
+	p = str;
+	while (offset > 0)
+	{
+		q = g_utf8_next_char (p);
+		casefold = g_utf8_casefold (p, q - p);
+		normal = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFD);
+		offset -= g_utf8_strlen (normal, -1);
+		g_free (casefold);
+		g_free (normal);
+		p = q;
+	}
+	return p;
+}
+
+static const char *
+g_utf8_strcasestr (const gchar *haystack, gchar **needles)
+{
+	gsize needle_len;
+	gsize haystack_len;
+	const char *ret = NULL, *needle;
+	char **array;
+	char *p;
+	char *casefold;
+	char *caseless_haystack;
+	int i;
+
+	g_return_val_if_fail (haystack != NULL, NULL);
+
+	casefold = g_utf8_casefold (haystack, -1);
+	caseless_haystack = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFD);
+	g_free (casefold);
+
+	haystack_len = g_utf8_strlen (caseless_haystack, -1);
+
+	for (array=needles; *array; array++)
+	{
+		needle = *array;
+		needle_len = g_utf8_strlen (needle, -1);
+
+		if (needle_len == 0) {
+			continue;
+		}
+
+		if (haystack_len < needle_len) {
+			continue;		
+		}
+
+		p = (gchar *) caseless_haystack;
+		needle_len = strlen (needle);
+		i = 0;
+
+		while (*p) {
+
+			if ((strncmp (p, needle, needle_len) == 0)) {
+				ret = pointer_from_offset_skipping_decomp (haystack, i);
+				goto finally_1;
+			}
+
+			p = g_utf8_next_char (p);
+			i++;
+		}
+	}
+
+finally_1:
+	g_free (caseless_haystack);
+
+	return ret;
 }
 
 
@@ -2386,6 +2468,7 @@ substring_utf8 (const char *a, const char *b)
 
 	ptr = a;	
 	found_ptr = a;
+
 	/* check lowercase first */
 	while (found_ptr) {
 			
@@ -2423,56 +2506,96 @@ substring_utf8 (const char *a, const char *b)
 	return found_ptr;
 }
 
-static char *
-highlight_terms (const char *str, const char *term)
+
+static int
+get_word_break (const char *a)
 {
-	const char *ptr, *txt;
+	char **words = g_strsplit_set (a, "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]" , -1);
+
+	if (!words) return 0;
+
+	int ret = strlen (words[0]);
+
+	g_strfreev  (words);
+
+	return ret;
+}
+
+
+static char *
+highlight_terms (const char *str, char **terms)
+{
+	const char *ptr;
+	char *txt;
 	GString *st;
 	int term_length;
 
-	if (!str || !term) {
+	if (!str || !terms) {
 		return NULL;
 	}
 
-	st = g_string_new ("");
-
-	txt = str;
 	
-	while ((ptr = substring_utf8 (txt, term))) {
-		char *pre_snip;
+
+	char **array;
+	txt = g_strdup (str);
+
+	for (array = terms; *array; array++) {
+		char **single_term;
+
+		single_term = g_new( char *, 2);
+		single_term[0] = g_strdup (*array);
+		single_term[1] = NULL;
+	
+		st = g_string_new ("");
+
+		const char *ptxt = txt;
+	
+		while ((ptr = g_utf8_strcasestr  (ptxt, single_term))) {
+			char *pre_snip, *term;
 				
-		pre_snip = g_strndup (txt, (ptr - txt));
+			pre_snip = g_strndup (ptxt, (ptr - ptxt));
 
-		term_length = strlen (term);
+			term_length = get_word_break (ptr);
+
+			term = g_strndup (ptr, term_length);
 		
-		txt = ptr + term_length;
+			ptxt = ptr + term_length;
 
-		g_string_append_printf (st, "%s<b>%s</b>", pre_snip, term);
+			g_string_append_printf (st, "%s<b>%s</b>", pre_snip, term);
 
-		g_free (pre_snip);
+			g_free (pre_snip);
+			g_free (term);
 
+		}
+
+		if (ptxt) {
+			g_string_append (st, ptxt);
+
+		}
+
+		g_strfreev  (single_term);
+		g_free (txt);
+
+		txt = g_string_free (st, FALSE);
 	}
 
-	if (txt) {
-		g_string_append (st, txt);
-	}
-
-	return g_string_free (st, FALSE);
+	return txt;
 }
 
 
 char *
-tracker_get_snippet (const char *txt, const char *term, int length)
+tracker_get_snippet (const char *txt, char **terms, int length)
 {
 
 	const char *ptr = NULL, *end_ptr,  *tmp;
 	int before_length, i;
 
-	if (!txt || !term) {
+	if (!txt || !terms) {
 		return NULL;
 	}
 
-	ptr = substring_utf8 (txt, term);
+
+	ptr = g_utf8_strcasestr (txt, terms);
 
 	if (ptr) {
 		tmp = ptr;
@@ -2512,7 +2635,7 @@ tracker_get_snippet (const char *txt, const char *term, int length)
 
 		g_free (snip);
 
-		highlight_snip = highlight_terms (esc_snip, term);
+		highlight_snip = highlight_terms (esc_snip, terms);
 
 		g_free (esc_snip);
 

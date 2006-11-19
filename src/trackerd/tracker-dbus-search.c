@@ -286,7 +286,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 			char **array = 	tracker_parse_text_into_array (str);
 
 			if (array && array[0]) {
-				snippet = tracker_get_snippet (txt, array[0], 120);
+				snippet = tracker_get_snippet (txt, array, 120);
 			}
 
 			g_strfreev (array);
