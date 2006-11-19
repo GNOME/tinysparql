@@ -1188,7 +1188,12 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	} 
 
 	data.sql_where = g_string_new ("");
-	g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) AND ", service, service);
+
+	if (strlen (query) < 10) {
+		g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) ", service, service);
+	} else {
+		g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) AND ", service, service);
+	}
 
 	if (limit < 1) {
 		limit = 1024;
