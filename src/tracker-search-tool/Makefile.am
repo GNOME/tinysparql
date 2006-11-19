@@ -48,7 +48,7 @@ Desktop_in_files = tracker-search-tool.desktop.in
 Desktop_files = $(Desktop_in_files:.desktop.in=.desktop)
  
 Desktop_DATA = $(Desktop_files)
-icon_DATA = thumbnail_frame.png 
+icon_DATA = thumbnail_frame.png tracker.png
 
 
 #EXTRA_DIST = $(Utilities_in_files) $(Utilities_DATA) $(schema_in_file) $(schema_DATA) $(icon_DATA) $(man_MANS)

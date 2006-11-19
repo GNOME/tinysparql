@@ -834,20 +834,6 @@ get_file_type_description (const gchar * file,
 	return desc;
 }
 
-static gchar *
-tracker_search_pixmap_file (const gchar * partial_path)
-{
-	gchar * path;
-
-	path = g_build_filename (DATADIR "/pixmaps/tracker", partial_path, NULL);
-	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
-		return path;
-	} else {
-		return g_strdup (partial_path);
-	}
-	g_free (path);
-	return NULL;
-}
 
 static GdkPixbuf *
 tracker_search_load_thumbnail_frame (void)

@@ -294,8 +294,8 @@ start_animation (GSearchWindow * gsearch, gboolean first_pass)
 
 		gchar *title = NULL;
 
-		title = g_strconcat (_("Searching..."), " - ", _("Search Tool"), NULL);
-		gtk_window_set_title (GTK_WINDOW (gsearch->window), title);
+//		title = g_strconcat (_("Searching..."), " - ", _("Search Tool"), NULL);
+//		gtk_window_set_title (GTK_WINDOW (gsearch->window), title);
 
 		gtk_label_set_text (GTK_LABEL (gsearch->files_found_label), "");
 		
@@ -656,7 +656,7 @@ add_file_to_search_results (const gchar * file,
 	}
 
 	snippet = tracker_search_get_snippet (tracker_client, SERVICE_FILES, file, search_term, NULL);
-	snippet_markup = g_strdup_printf ("<span foreground='darkgrey' size='small'>%s</span>", snippet);
+	snippet_markup = g_strdup_printf ("<span foreground='DimGrey' size='small'>%s</span>", snippet);
 	g_free (snippet);
 
 	gtk_list_store_append (GTK_LIST_STORE (store), iter);
@@ -1424,7 +1424,8 @@ filename_cell_data_func (GtkTreeViewColumn * column,
 	char *mark_name = g_markup_escape_text (name, -1);
 	char *mark_dir =  g_markup_escape_text (fpath, -1);
 
-	markup = g_strconcat ("<b>", mark_name, "</b>\n", mark_dir, "\n", type,  NULL);
+	markup = g_strconcat ("<b>", mark_name, "</b>\n", "<span foreground='DimGrey' size='small'>", mark_dir,"</span>\n",
+			      "<span foreground='DimGrey' size='small'>",type, "</span>", NULL);
 
 	g_free (mark_name);
 	g_free (mark_dir);
@@ -1473,8 +1474,8 @@ snippet_cell_data_func (GtkTreeViewColumn * column,
                          GtkTreeIter * iter,
                          GSearchWindow * gsearch)
 {
-	//GtkTreePath * path;
 	char *snippet;
+	int width;
 
 	gtk_tree_model_get (model, iter, COLUMN_SNIPPET, &snippet, -1);
 
@@ -1483,6 +1484,16 @@ snippet_cell_data_func (GtkTreeViewColumn * column,
 	              NULL);
 
 	g_free (snippet);
+
+	/* set length of word wrap to available col size */
+
+	width = gtk_tree_view_column_get_width (column);
+
+	if (width > 20) {
+		g_object_set (renderer, "wrap_width", width - 3, "wrap-mode",  PANGO_WRAP_WORD, NULL);
+	}
+
+
 	
 
 }
@@ -1680,8 +1691,6 @@ create_search_results_section (GSearchWindow * gsearch)
 	gtk_tree_view_column_set_cell_data_func (column, renderer,
 	                                         (GtkTreeCellDataFunc) snippet_cell_data_func,
 						 gsearch, NULL);	
-
-	g_object_set (renderer, "wrap_width", 450, "wrap-mode",  PANGO_WRAP_WORD, NULL);
 
 	gtk_tree_view_column_set_reorderable (column, TRUE);
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
@@ -1915,7 +1924,6 @@ gsearch_window_size_allocate (GtkWidget * widget,
 	if (gsearch->is_window_maximized == FALSE) {
 		gsearch->window_width = allocation->width;
 		gsearch->window_height = allocation->height;
-	
 	}
 
 }
@@ -2255,7 +2263,8 @@ tracker_search_setup_gconf_notifications (GSearchWindow * gsearch)
 	g_free (click_to_activate_pref);
 }
 
-static gboolean tracker_search_select_service_type_by_string (GtkComboBox *combo, gchar *service)
+static gboolean 
+tracker_search_select_service_type_by_string (GtkComboBox *combo, gchar *service)
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
@@ -2275,6 +2284,22 @@ static gboolean tracker_search_select_service_type_by_string (GtkComboBox *combo
 
 	return FALSE;
 }
+
+gchar *
+tracker_search_pixmap_file (const gchar * partial_path)
+{
+	gchar * path;
+
+	path = g_build_filename (DATADIR "/pixmaps/tracker", partial_path, NULL);
+	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
+		return path;
+	} else {
+		return g_strdup (partial_path);
+	}
+	g_free (path);
+	return NULL;
+}
+
 
 int
 main (int argc,
@@ -2309,13 +2334,21 @@ main (int argc,
 	                              GNOME_PARAM_NONE);
 
 	g_set_application_name (_("Desktop Search"));
-	gtk_window_set_default_icon_name (TRACKER_SEARCH_TOOL_ICON);
+
 
 	tracker_search_init_stock_icons ();
 
 	window = g_object_new (GSEARCH_TYPE_WINDOW, NULL);
 	gsearch = GSEARCH_WINDOW (window);
+
 	tracker_search_ui_manager (gsearch);
+
+	gtk_window_set_icon_name (GTK_WINDOW (gsearch->window), "gnome-searchtool");
+
+	gchar * icon_path;
+	icon_path = tracker_search_pixmap_file ("tracker.png");
+	gtk_window_set_default_icon_from_file (icon_path, NULL);
+	g_free (icon_path);
 
 	gtk_window_set_wmclass (GTK_WINDOW (gsearch->window), "tracker-search-tool", "tracker-search-tool");
 	gtk_window_set_policy (GTK_WINDOW (gsearch->window), TRUE, TRUE, TRUE);

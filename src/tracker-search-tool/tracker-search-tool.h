@@ -175,6 +175,9 @@ GType
 gsearch_window_get_type (void);
 
 gchar *
+tracker_search_pixmap_file (const gchar * partial_path);
+
+gchar *
 build_search_command (GSearchWindow * gsearch,
                       gboolean first_pass);
 void
