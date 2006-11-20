@@ -2602,6 +2602,7 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 
 		i = 0;
 		while ((ptr-- > txt) && (i < length)) {
+
 			if (*ptr == '\n') {
 				break;
 			}
@@ -2609,27 +2610,26 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 		}
 		ptr = g_utf8_next_char (ptr);
 		
-
 		before_length = i;
 
 		end_ptr = tmp;
 		i = 0;
-		while (*end_ptr++ && (i < length)) {
-			i++;	
+		while ((end_ptr) && (end_ptr+1) && (i < length)) {
+			i++;
+			end_ptr++;	
 			if (*end_ptr == '\n') {
 				break;
 			}
 		}
 
-		if (end_ptr+1) {
-			end_ptr = g_utf8_next_char (end_ptr);
-		}
-
+		
 		char *snip, *esc_snip,  *highlight_snip;
 
 		snip = g_strndup (ptr,  end_ptr - ptr);
 
-		esc_snip = g_markup_escape_text (snip, strlen (snip));
+		i = strlen (snip);
+
+		esc_snip = g_markup_escape_text (snip, i);
 
 		g_free (snip);
 
