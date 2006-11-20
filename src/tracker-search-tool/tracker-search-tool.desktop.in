@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-_Name=Tracker
+_Name=Desktop Search
 _Comment=Tracker Search Tool
 Exec=tracker-search-tool
 Icon=gnome-searchtool
