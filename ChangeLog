@@ -1,3 +1,13 @@
+2006-11-19  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed snippets so that multiple terms are highlighted
+	* used a copied version of function g_utf8_strcasestr from gtksourceview to provide caseless utf-8 searching
+	* used utf-8 casefold and normalization in parser
+	* tidied up t-s-t
+	* made font colour of snippet much clearer
+	* made snippets wrap around when resizing t-s-t
+	* added icon to both t-s-t and desktop file
+
 2006-11-18 Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* added more tmeplate filters
