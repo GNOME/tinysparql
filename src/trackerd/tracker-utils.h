@@ -52,8 +52,8 @@ typedef struct {
 #define FILE_SCHEDULE_PERIOD		300
 
 #define TRACKER_DB_VERSION_REQUIRED	10
-#define TRACKER_VERSION			"0.5.0"
-#define TRACKER_VERSION_INT		500
+#define TRACKER_VERSION			"0.5.2"
+#define TRACKER_VERSION_INT		502
 
 /* default performance options */
 #define MAX_INDEX_TEXT_LENGTH		1048576

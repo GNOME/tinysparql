@@ -349,33 +349,12 @@ tracker_get_field_count (char ***result)
 static inline void
 lock_connection (DBConnection *db_con) 
 {
-/*	if (db_con) {
-		if (db_con->db_type == DB_DATA) {
-			g_mutex_lock (data_mutex);
-		} else if (db_con->db_type == DB_BLOB) {
-			g_mutex_lock (blob_mutex);
-		} else {
-			g_mutex_lock (cache_mutex);
-		}
-	}
-*/
 }
 
 
 static inline void
 unlock_connection (DBConnection *db_con) 
 {
-/*
-	if (db_con) {
-		if (db_con->db_type == DB_DATA) {
-			g_mutex_unlock (data_mutex);
-		} else if (db_con->db_type == DB_BLOB) {
-			g_mutex_unlock (blob_mutex);
-		} else {
-			g_mutex_unlock (cache_mutex);
-		}
-	}
-*/
 }
 
 
@@ -592,9 +571,9 @@ tracker_db_connect (void)
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2500");
-	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 500");
+	} else {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 100");
 	}
 
 	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
@@ -737,7 +716,7 @@ tracker_db_connect_cache (void)
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 500");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 200");
 	}
