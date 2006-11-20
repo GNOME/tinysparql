@@ -1,3 +1,11 @@
+2006-11-20  Luca Ferretti  <elle.uca@libero.i>
+
+	* configure.in: Add a check for glib >= 2.12.0 and
+	define HAVE_RECENT_GLIB.
+
+	* src/libtracker/tracker-tag.c: Use g_option_context_set_summary
+	only if HAVE_RECENT_GLIB is defined.
+
 2006-11-20  Jamie McCracken <jamiemcc at gnome org>
 
 	* updateded desktop files

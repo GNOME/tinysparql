@@ -113,6 +113,19 @@ AC_DEFINE_UNQUOTED(TRACKER_LOCALEDIR, "$TRACKER_LOCALEDIR",
 # end of AM_GLIB_DEFINE_LOCALEDIR(TRACKER_LOCALEDIR) replacement
 
 ####################################################################
+# check for newer glib (>= 2.12.0) for g_option_context_set_summary ()
+# availability
+####################################################################
+RECENT_GLIB=2.12.0
+
+PKG_CHECK_MODULES(glib2, [
+               glib-2.0 >= RECENT_GLIB],
+               [have_recent_glib=yes] , [have_recent_glib=no])
+
+AM_CONDITIONAL(HAVE_RECENT_GLIB, test "$have_recent_glib" = "yes")
+test "$have_recent_glib" = "yes" && AC_DEFINE(HAVE_RECENT_GLIB, [], [Define if we have recent glib])
+
+####################################################################
 # check for GStreamer or Xine. Otherwise, call an external video
 # player (Totem or MPlayer).
 ####################################################################
