@@ -12,6 +12,8 @@
 	* fixed t-s-t to let back/forward buttons to remain sensitive if applicable
 	* fixed resizing of columns in t-s-t
 	* improved snippet generation
+	* made snippet call async in t-s-t
+	* made use of tracker's mime instead of slower Gnome-vfs mime detection in t-s-t
 
 2006-11-19  Jamie McCracken <jamiemcc at gnome org>
 
