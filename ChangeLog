@@ -1,3 +1,10 @@
+2006-11-20  Jamie McCracken <jamiemcc at gnome org>
+
+	* updateded desktop files
+	* fixed t-s-t to let back/forward buttons to remain sensitive if applicable
+	* fixed resizing of columns in t-s-t
+	* improved snippet generation
+
 2006-11-19  Jamie McCracken <jamiemcc at gnome org>
 
 	* fixed snippets so that multiple terms are highlighted

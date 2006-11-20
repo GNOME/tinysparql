@@ -2629,8 +2629,6 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 
 		snip = g_strndup (ptr,  end_ptr - ptr);
 
-//g_print ("snip is %s\n", snip);
-
 		esc_snip = g_markup_escape_text (snip, strlen (snip));
 
 		g_free (snip);
@@ -2652,7 +2650,7 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 		
 	}
 	if (ptr +1) {
-		ptr = g_utf8_prev_char (ptr);
+		ptr = g_utf8_next_char (ptr);
 	}
 
 	return g_strndup (txt, ptr - txt);
