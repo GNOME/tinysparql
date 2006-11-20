@@ -2,7 +2,7 @@
 /*
  * TRACKER Search Tool - modfied from Gnome search tool
  *
- *  File:  tracker_search.c 
+ *  File:  tracker_search_tool.c 
  *  (C) Me Jamie McCracken
  *
  *  Original Copyright:
@@ -304,8 +304,8 @@ start_animation (GSearchWindow * gsearch, gboolean first_pass)
 		gsearch->focus = gtk_window_get_focus (GTK_WINDOW (gsearch->window));
 
 		gtk_widget_set_sensitive (gsearch->find_button, FALSE);
-		gtk_widget_set_sensitive (gsearch->forward_button, FALSE);
-		gtk_widget_set_sensitive (gsearch->back_button, FALSE);
+//		gtk_widget_set_sensitive (gsearch->forward_button, FALSE);
+//		gtk_widget_set_sensitive (gsearch->back_button, FALSE);
 		gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, FALSE);
 		gtk_widget_set_sensitive (gsearch->search_results_vbox, TRUE);
 		gtk_widget_set_sensitive (GTK_WIDGET (gsearch->search_results_tree_view), TRUE);
@@ -326,7 +326,7 @@ stop_animation (GSearchWindow * gsearch)
 	gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, TRUE);
 	gtk_widget_show (gsearch->find_button);
 	gtk_widget_set_sensitive (gsearch->forward_button, TRUE);
-	gtk_widget_set_sensitive (gsearch->back_button, FALSE);
+	//gtk_widget_set_sensitive (gsearch->back_button, FALSE);
 
 
 	if (gtk_window_get_focus (GTK_WINDOW (gsearch->window)) == NULL) {
@@ -1669,7 +1669,10 @@ create_search_results_section (GSearchWindow * gsearch)
 					     NULL);
 
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-	gtk_tree_view_column_set_resizable (column, TRUE);
+
+
+	
+
 	gtk_tree_view_column_set_sort_column_id (column, COLUMN_NAME);
 	gtk_tree_view_column_set_reorderable (column, TRUE);
 
@@ -1678,6 +1681,9 @@ create_search_results_section (GSearchWindow * gsearch)
 						 gsearch, NULL);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->search_results_tree_view), column);
+
+	gtk_tree_view_column_set_min_width (column, 200);
+	gtk_tree_view_column_set_max_width (column, 400);
 
 	/* create the snippet column */
 	renderer = gtk_cell_renderer_text_new ();
@@ -2021,7 +2027,9 @@ click_find_cb (GtkWidget * widget,
 	}
 
 	if (gsearch->offset > 0) {
-			gtk_widget_set_sensitive (gsearch->back_button, TRUE);
+		gtk_widget_set_sensitive (gsearch->back_button, TRUE);
+	} else {
+		gtk_widget_set_sensitive (gsearch->back_button, FALSE);
 	}
 	
 }
