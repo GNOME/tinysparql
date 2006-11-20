@@ -21,10 +21,15 @@
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/resource.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <glib.h>
 
 #include "config.h"
+
+#define MAX_MEM 1
 
 typedef enum {
 	IGNORE_METADATA,
@@ -212,11 +217,21 @@ main (int argc, char **argv)
 {
 	GHashTable	*meta;
 	char		*filename;
+	struct 		rlimit rl;
+
+	/* Obtain the current limits memory usage limits */
+	getrlimit (RLIMIT_AS, &rl);
+
+	/* Set virtual memory usage to max limit (128MB) - most extractors use mmap() so only virtual memory can be effectively limited */
+ 	rl.rlim_cur = 128*1024*1024;
+	if (setrlimit (RLIMIT_AS, &rl) != 0) g_printerr ("Error trying to set resource limit for tracker-extract\n");
+
 
 	g_set_application_name ("tracker-extract");
 
 	setlocale (LC_ALL, "");
 
+	
 	if ((argc == 1) || (argc > 3)) {
 		g_print ("usage: tracker-extract file [mimetype]\n");
 		return 0;

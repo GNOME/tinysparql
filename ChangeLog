@@ -7,11 +7,14 @@
 	* made font colour of snippet much clearer
 	* made snippets wrap around when resizing t-s-t
 	* added icon to both t-s-t and desktop file
+	* reduced sqlite cache usage
+	
 
 2006-11-18  Jamie McCracken <jamiemcc at gnome org>
 
 	* Limited tracker-extracts memory usage using setrlimit
 	* prevents unreasonable memory usage (especially mistaken treatment of large binary files as video files) 
+	* fixed rdf bug where a search term without a query could not be executed
 
 2006-11-18 Laurent Aguerreche <laurent aguerreche at free fr>
 	
