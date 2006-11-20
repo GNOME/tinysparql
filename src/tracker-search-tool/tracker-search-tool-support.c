@@ -791,15 +791,16 @@ tracker_search_strdup_strftime (const gchar * format,
 
 gchar *
 get_file_type_description (const gchar * file,
+			   const char *mime,
                            GnomeVFSFileInfo * file_info)
 {
 	gchar * desc;
 
-	if (file == NULL || file_info->mime_type == NULL) {
+	if (file == NULL || mime == NULL) {
 		return g_strdup (gnome_vfs_mime_get_description (GNOME_VFS_MIME_TYPE_UNKNOWN));
 	}
 
-	desc = g_strdup (gnome_vfs_mime_get_description (file_info->mime_type));
+	desc = g_strdup (gnome_vfs_mime_get_description (mime));
 
 	if (file_info->symlink_name != NULL) {
 
@@ -818,15 +819,15 @@ get_file_type_description (const gchar * file,
 		}
 
 		if (g_file_test (absolute_symlink, G_FILE_TEST_EXISTS) != TRUE) {
-                       if ((g_ascii_strcasecmp (file_info->mime_type, "x-special/socket") != 0) &&
-                           (g_ascii_strcasecmp (file_info->mime_type, "x-special/fifo") != 0)) {
+                       if ((g_ascii_strcasecmp (mime, "x-special/socket") != 0) &&
+                           (g_ascii_strcasecmp (mime, "x-special/fifo") != 0)) {
 				g_free (absolute_symlink);
 				g_free (desc);
 				return g_strdup (_("link (broken)"));
 			}
 		}
 
-		str = g_strdup_printf (_("link to %s"), (desc != NULL) ? desc : file_info->mime_type);
+		str = g_strdup_printf (_("link to %s"), (desc != NULL) ? desc : mime);
 		g_free (absolute_symlink);
 		g_free (desc);
 		return str;
@@ -1075,7 +1076,7 @@ tracker_search_icon_lookup (GSearchWindow * gsearch,
 	uri = gnome_vfs_get_uri_from_local_path (file);
 
 //	if ((enable_thumbnails == TRUE) && (gsearch->show_thumbnails == TRUE)) {
-		if ((strncmp (file_info->mime_type, "image/", 6) != 0) ||
+		if ((strncmp (mime, "image/", 6) != 0) ||
 	    	    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
 		    	if (gsearch->thumbnail_factory == NULL) {
 			    	gsearch->thumbnail_factory = gnome_thumbnail_factory_new (GNOME_THUMBNAIL_SIZE_NORMAL);
@@ -1100,32 +1101,33 @@ tracker_search_icon_lookup (GSearchWindow * gsearch,
 GdkPixbuf *
 get_file_pixbuf (GSearchWindow * gsearch,
                  const gchar * file,
+		 const char *mime,
                  GnomeVFSFileInfo * file_info)
 {
 	GdkPixbuf * pixbuf;
 	gchar * icon_name = NULL;
 
-	if (file == NULL || file_info->mime_type == NULL) {
+	if (file == NULL || mime == NULL) {
 		icon_name = g_strdup (ICON_THEME_REGULAR_ICON);
 	}
 	else if ((g_file_test (file, G_FILE_TEST_IS_EXECUTABLE)) &&
-	         (g_ascii_strcasecmp (file_info->mime_type, "application/x-executable-binary") == 0)) {
+	         (g_ascii_strcasecmp (mime, "application/x-executable-binary") == 0)) {
 		icon_name = g_strdup (ICON_THEME_EXECUTABLE_ICON);
 	}
-	else if (g_ascii_strcasecmp (file_info->mime_type, "x-special/device-char") == 0) {
+	else if (g_ascii_strcasecmp (mime, "x-special/device-char") == 0) {
 		icon_name = g_strdup (ICON_THEME_CHAR_DEVICE);
 	}
-	else if (g_ascii_strcasecmp (file_info->mime_type, "x-special/device-block") == 0) {
+	else if (g_ascii_strcasecmp (mime, "x-special/device-block") == 0) {
 		icon_name = g_strdup (ICON_THEME_BLOCK_DEVICE);
 	}
-	else if (g_ascii_strcasecmp (file_info->mime_type, "x-special/socket") == 0) {
+	else if (g_ascii_strcasecmp (mime, "x-special/socket") == 0) {
 		icon_name = g_strdup (ICON_THEME_SOCKET);
 	}
-	else if (g_ascii_strcasecmp (file_info->mime_type, "x-special/fifo") == 0) {
+	else if (g_ascii_strcasecmp (mime, "x-special/fifo") == 0) {
 		icon_name = g_strdup (ICON_THEME_FIFO);
 	}
 	else {
-		icon_name = tracker_search_icon_lookup (gsearch, file, file_info->mime_type, file_info, TRUE);
+		icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, TRUE);
 	}
 
 	pixbuf = (GdkPixbuf *) g_hash_table_lookup (gsearch->search_results_filename_hash_table, icon_name);
@@ -1134,14 +1136,14 @@ get_file_pixbuf (GSearchWindow * gsearch,
 
 		
 
-			if ((strncmp (file_info->mime_type, "image/", 6) != 0) ||
+			if ((strncmp (mime, "image/", 6) != 0) ||
 	    		    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
 
 				if (strcmp (icon_name, file) == 0) {
 					pixbuf = gdk_pixbuf_new_from_file_at_scale (file, ICON_SIZE, ICON_SIZE, TRUE, NULL);
 
 					if (pixbuf == NULL) {
-						icon_name = tracker_search_icon_lookup (gsearch, file, file_info->mime_type, file_info, FALSE);
+						icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, FALSE);
 					}
 				}
 

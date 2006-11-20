@@ -99,10 +99,12 @@ tracker_search_strdup_strftime (const gchar * format,
                              struct tm * time_pieces);
 gchar *
 get_file_type_description (const gchar * file,
+			   const char *mime,
                            GnomeVFSFileInfo * file_info);
 GdkPixbuf *
 get_file_pixbuf (GSearchWindow * gsearch,
                  const gchar * file,
+		 const char * mime,
                  GnomeVFSFileInfo * file_info);
 gboolean
 open_file_with_xdg_open (GtkWidget * window,

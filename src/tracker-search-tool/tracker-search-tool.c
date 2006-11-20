@@ -86,6 +86,12 @@ typedef struct {
    ServiceType   service_type;
 } service_info_t;
 
+typedef struct {
+	GSearchWindow * gsearch;
+	char  * path;
+	char  * name; 
+} SnippetRow;
+
 
 struct _GSearchOptionTemplate {
 	GSearchConstraintType type; /* The available option type */
@@ -591,6 +597,52 @@ build_search_command (GSearchWindow * gsearch,
 }
 
 static void
+set_snippet (char * snippet,  GError *error, gpointer user_data)
+{
+	char *snippet_markup;
+	GtkTreeIter iter;
+	SnippetRow *snippet_row = user_data;
+
+	snippet_markup = g_strdup_printf ("<span foreground='DimGrey' size='small'>%s</span>", snippet);
+
+	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (snippet_row->gsearch->search_results_list_store), &iter)) {
+
+		while (TRUE) {
+
+			gchar * utf8_base_name;
+			gchar * utf8_dir_name;
+
+			gtk_tree_model_get (GTK_TREE_MODEL (snippet_row->gsearch->search_results_list_store), &iter,
+				   	    COLUMN_NAME, &utf8_base_name,
+			    		    COLUMN_PATH, &utf8_dir_name,
+					    -1);
+
+			if ( (strcmp (snippet_row->name, utf8_base_name) == 0) && (strcmp (snippet_row->path, utf8_dir_name) == 0)) {
+				gtk_list_store_set (GTK_LIST_STORE (snippet_row->gsearch->search_results_list_store), &iter, COLUMN_SNIPPET, snippet_markup, -1);
+				g_free (utf8_base_name);
+				g_free (utf8_dir_name);
+				break;
+			} else {
+				g_free (utf8_base_name);
+				g_free (utf8_dir_name);
+
+				if (!gtk_tree_model_iter_next (GTK_TREE_MODEL (snippet_row->gsearch->search_results_list_store), &iter)) {
+					break;
+				}
+			}
+		}			
+
+	}
+ 
+	
+
+	g_free (snippet_row->path);
+	g_free (snippet_row->name);
+	g_free (snippet_row);
+	g_free (snippet_markup);
+}
+
+static void
 add_file_to_search_results (const gchar * file,
 			    const char * mime,
 			    GtkListStore * store,
@@ -630,12 +682,10 @@ add_file_to_search_results (const gchar * file,
 
 	gnome_vfs_get_file_info (escape_path_string, vfs_file_info,
 	                         GNOME_VFS_FILE_INFO_DEFAULT |
-	                         GNOME_VFS_FILE_INFO_GET_MIME_TYPE |
-	                         GNOME_VFS_FILE_INFO_FORCE_SLOW_MIME_TYPE |
 	                         GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
 
-	pixbuf = get_file_pixbuf (gsearch, file, vfs_file_info);
-	description = get_file_type_description (file, vfs_file_info);
+	pixbuf = get_file_pixbuf (gsearch, file, mime, vfs_file_info);
+	description = get_file_type_description (file, mime, vfs_file_info);
 
 	if (!description) description = g_strdup (mime); 
 	
@@ -645,8 +695,8 @@ add_file_to_search_results (const gchar * file,
 	utf8_base_name = g_locale_to_utf8 (base_name, -1, NULL, NULL, NULL);
 	utf8_dir_name = g_locale_to_utf8 (dir_name, -1, NULL, NULL, NULL);
 
-	char *snippet;
-	char *snippet_markup;
+	//char *snippet;
+	//char *snippet_markup;
 	char *search_term;
 
 	if (gsearch->search_term) {
@@ -655,9 +705,10 @@ add_file_to_search_results (const gchar * file,
 		search_term = "";
 	}
 
-	snippet = tracker_search_get_snippet (tracker_client, SERVICE_FILES, file, search_term, NULL);
-	snippet_markup = g_strdup_printf ("<span foreground='DimGrey' size='small'>%s</span>", snippet);
-	g_free (snippet);
+
+	//snippet = tracker_search_get_snippet (tracker_client, SERVICE_FILES, file, search_term, NULL);
+	//snippet_markup = g_strdup_printf ("<span foreground='DimGrey' size='small'>%s</span>", snippet);
+	//g_free (snippet);
 
 	gtk_list_store_append (GTK_LIST_STORE (store), iter);
 	gtk_list_store_set (GTK_LIST_STORE (store), iter,
@@ -665,12 +716,19 @@ add_file_to_search_results (const gchar * file,
 			    COLUMN_NAME, utf8_base_name,
 			    COLUMN_PATH, utf8_dir_name,
 			    COLUMN_SERVICE, 0,
-			    COLUMN_SNIPPET, snippet_markup,
+//			    COLUMN_SNIPPET, snippet_markup,
 			    COLUMN_TYPE, (description != NULL) ? description : mime,
 			    COLUMN_NO_FILES_FOUND, FALSE,
 			    -1);
 
-	g_free (snippet_markup);
+	SnippetRow *snippet_row;
+
+	snippet_row = g_new (SnippetRow, 1);
+	snippet_row->gsearch = gsearch;
+	snippet_row->path = g_strdup (utf8_dir_name);
+	snippet_row->name = g_strdup (utf8_base_name);
+	tracker_search_get_snippet_async (tracker_client, SERVICE_FILES, file, search_term, set_snippet, snippet_row);
+//	g_free (snippet_markup);
 	
 	monitor = g_slice_new0 (GSearchMonitor);
 	if (monitor) {
