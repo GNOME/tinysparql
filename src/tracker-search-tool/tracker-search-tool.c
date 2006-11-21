@@ -114,25 +114,25 @@ static service_info_t services[8] = {
 
 
 static GSearchOptionTemplate GSearchOptionTemplates[] = {
-	{ SEARCH_CONSTRAINT_TYPE_TEXT, NULL, N_("Contains the _text"), NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_TEXT, NULL, "Contains the _text", NULL, FALSE },
 	{ SEARCH_CONSTRAINT_TYPE_SEPARATOR, NULL, NULL, NULL, TRUE },
-	{ SEARCH_CONSTRAINT_TYPE_DATE_BEFORE, "-mtime -%d", N_("_Date modified less than"), N_("days"), FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_DATE_AFTER, "\\( -mtime +%d -o -mtime %d \\)", N_("Date modified more than"), N_("days"), FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_DATE_BEFORE, "-mtime -%d", "_Date modified less than", "days", FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_DATE_AFTER, "\\( -mtime +%d -o -mtime %d \\)", "Date modified more than", "days", FALSE },
 	{ SEARCH_CONSTRAINT_TYPE_SEPARATOR, NULL, NULL, NULL, TRUE },
-	{ SEARCH_CONSTRAINT_TYPE_NUMERIC, "\\( -size %uc -o -size +%uc \\)", N_("S_ize at least"), N_("kilobytes"), FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_NUMERIC, "\\( -size %uc -o -size -%uc \\)", N_("Si_ze at most"), N_("kilobytes"), FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "-size 0c \\( -type f -o -type d \\)", N_("File is empty"), NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_NUMERIC, "\\( -size %uc -o -size +%uc \\)", "S_ize at least", "kilobytes", FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_NUMERIC, "\\( -size %uc -o -size -%uc \\)", "Si_ze at most", "kilobytes", FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "-size 0c \\( -type f -o -type d \\)", "File is empty", NULL, FALSE },
 	{ SEARCH_CONSTRAINT_TYPE_SEPARATOR, NULL, NULL, NULL, TRUE },
-	{ SEARCH_CONSTRAINT_TYPE_TEXT, "-user '%s'", N_("Owned by _user"), NULL, FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_TEXT, "-group '%s'", N_("Owned by _group"), NULL, FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "\\( -nouser -o -nogroup \\)", N_("Owner is unrecognized"), NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_TEXT, "-user '%s'", "Owned by _user", NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_TEXT, "-group '%s'", "Owned by _group", NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "\\( -nouser -o -nogroup \\)", "Owner is unrecognized", NULL, FALSE },
 	{ SEARCH_CONSTRAINT_TYPE_SEPARATOR, NULL, NULL, NULL, TRUE },
-	{ SEARCH_CONSTRAINT_TYPE_TEXT, "'!' -name '*%s*'", N_("Na_me does not contain"), NULL, FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_TEXT, "-regex '%s'", N_("Name matches regular e_xpression"), NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_TEXT, "'!' -name '*%s*'", "Na_me does not contain", NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_TEXT, "-regex '%s'", "Name matches regular e_xpression", NULL, FALSE },
 	{ SEARCH_CONSTRAINT_TYPE_SEPARATOR, NULL, NULL, NULL, TRUE },
-	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "SHOW_HIDDEN_FILES", N_("Show hidden and backup files"), NULL, FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "-follow", N_("Follow symbolic links"), NULL, FALSE },
-	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "INCLUDE_OTHER_FILESYSTEMS", N_("Include other filesystems"), NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "SHOW_HIDDEN_FILES", "Show hidden and backup files", NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "-follow", "Follow symbolic links", NULL, FALSE },
+	{ SEARCH_CONSTRAINT_TYPE_BOOLEAN, "INCLUDE_OTHER_FILESYSTEMS", "Include other filesystems", NULL, FALSE },
 	{ SEARCH_CONSTRAINT_TYPE_NONE, NULL, NULL, NULL, FALSE}
 };
 
@@ -196,36 +196,36 @@ pid_t locate_database_check_command_pid;
 
 
 
-/*
-static gboolean
-has_additional_constraints (GSearchWindow * gsearch)
-{
-	GList * list;
 
-	if (gsearch->available_options_selected_list != NULL) {
+/* static gboolean */
+/* has_additional_constraints (GSearchWindow * gsearch) */
+/* { */
+/* 	GList * list; */
 
-		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) {
+/* 	if (gsearch->available_options_selected_list != NULL) { */
 
-			GSearchConstraint * constraint = list->data;
+/* 		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) { */
 
-			switch (GSearchOptionTemplates[constraint->constraint_id].type) {
-			case SEARCH_CONSTRAINT_TYPE_BOOLEAN:
-			case SEARCH_CONSTRAINT_TYPE_NUMERIC:
-			case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE:
-			case SEARCH_CONSTRAINT_TYPE_DATE_AFTER:
-				return TRUE;
-			case SEARCH_CONSTRAINT_TYPE_TEXT:
-				if (strlen (constraint->data.text) > 0) {
-					return TRUE;
-				}
-			default:
-				break;
-			}
-		}
-	}
-	return FALSE;
-}
-*/
+/* 			GSearchConstraint * constraint = list->data; */
+
+/* 			switch (GSearchOptionTemplates[constraint->constraint_id].type) { */
+/* 			case SEARCH_CONSTRAINT_TYPE_BOOLEAN: */
+/* 			case SEARCH_CONSTRAINT_TYPE_NUMERIC: */
+/* 			case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE: */
+/* 			case SEARCH_CONSTRAINT_TYPE_DATE_AFTER: */
+/* 				return TRUE; */
+/* 			case SEARCH_CONSTRAINT_TYPE_TEXT: */
+/* 				if (strlen (constraint->data.text) > 0) { */
+/* 					return TRUE; */
+/* 				} */
+/* 			default: */
+/* 				break; */
+/* 			} */
+/* 		} */
+/* 	} */
+/* 	return FALSE; */
+/* } */
+
 
 static void 
 fill_services_combo_box (GSearchWindow * gsearch, GtkComboBox *combo)
@@ -300,8 +300,8 @@ start_animation (GSearchWindow * gsearch, gboolean first_pass)
 
 		gchar *title = NULL;
 
-//		title = g_strconcat (_("Searching..."), " - ", _("Search Tool"), NULL);
-//		gtk_window_set_title (GTK_WINDOW (gsearch->window), title);
+/* 		title = g_strconcat (_("Searching..."), " - ", _("Search Tool"), NULL); */
+/* 		gtk_window_set_title (GTK_WINDOW (gsearch->window), title); */
 
 		gtk_label_set_text (GTK_LABEL (gsearch->files_found_label), "");
 		
@@ -310,13 +310,13 @@ start_animation (GSearchWindow * gsearch, gboolean first_pass)
 		gsearch->focus = gtk_window_get_focus (GTK_WINDOW (gsearch->window));
 
 		gtk_widget_set_sensitive (gsearch->find_button, FALSE);
-//		gtk_widget_set_sensitive (gsearch->forward_button, FALSE);
-//		gtk_widget_set_sensitive (gsearch->back_button, FALSE);
+/* 		gtk_widget_set_sensitive (gsearch->forward_button, FALSE); */
+/* 		gtk_widget_set_sensitive (gsearch->back_button, FALSE); */
 		gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, FALSE);
 		gtk_widget_set_sensitive (gsearch->search_results_vbox, TRUE);
 		gtk_widget_set_sensitive (GTK_WIDGET (gsearch->search_results_tree_view), TRUE);
-		//gtk_widget_set_sensitive (gsearch->available_options_vbox, FALSE);
-		//gtk_widget_set_sensitive (gsearch->show_more_options_expander, FALSE);
+/* 		gtk_widget_set_sensitive (gsearch->available_options_vbox, FALSE); */
+/* 		gtk_widget_set_sensitive (gsearch->show_more_options_expander, FALSE); */
 		gtk_widget_set_sensitive (gsearch->name_and_folder_table, FALSE);
 	}
 }
@@ -325,14 +325,14 @@ static void
 stop_animation (GSearchWindow * gsearch)
 {
 	gtk_window_set_default (GTK_WINDOW (gsearch->window), gsearch->find_button);
-	//gtk_widget_set_sensitive (gsearch->available_options_vbox, TRUE);
-	//gtk_widget_set_sensitive (gsearch->show_more_options_expander, TRUE);
+/* 	gtk_widget_set_sensitive (gsearch->available_options_vbox, TRUE); */
+/* 	gtk_widget_set_sensitive (gsearch->show_more_options_expander, TRUE); */
 	gtk_widget_set_sensitive (gsearch->name_and_folder_table, TRUE);
 	gtk_widget_set_sensitive (gsearch->find_button, TRUE);
 	gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, TRUE);
 	gtk_widget_show (gsearch->find_button);
 	gtk_widget_set_sensitive (gsearch->forward_button, TRUE);
-	//gtk_widget_set_sensitive (gsearch->back_button, FALSE);
+/* 	gtk_widget_set_sensitive (gsearch->back_button, FALSE); */
 
 
 	if (gtk_window_get_focus (GTK_WINDOW (gsearch->window)) == NULL) {
@@ -383,36 +383,36 @@ build_search_command (GSearchWindow * gsearch,
 		return NULL;
 	}
 
-	/*look_in_folder_utf8 = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gsearch->look_in_folder_button));
+/* 	look_in_folder_utf8 = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gsearch->look_in_folder_button)); */
 
-	if (look_in_folder_utf8 != NULL) {
-		look_in_folder_locale = g_locale_from_utf8 (look_in_folder_utf8, -1, NULL, NULL, &error);
-		if (look_in_folder_locale == NULL) {
-			stop_animation (gsearch);
-			display_dialog_character_set_conversion_error (gsearch->window, look_in_folder_utf8, error);
-			g_free (look_in_folder_utf8);
-			g_error_free (error);
-			return NULL;
-		}
-		g_free (look_in_folder_utf8);
-	}
-	else {
+/* 	if (look_in_folder_utf8 != NULL) { */
+/* 		look_in_folder_locale = g_locale_from_utf8 (look_in_folder_utf8, -1, NULL, NULL, &error); */
+/* 		if (look_in_folder_locale == NULL) { */
+/* 			stop_animation (gsearch); */
+/* 			display_dialog_character_set_conversion_error (gsearch->window, look_in_folder_utf8, error); */
+/* 			g_free (look_in_folder_utf8); */
+/* 			g_error_free (error); */
+/* 			return NULL; */
+/* 		} */
+/* 		g_free (look_in_folder_utf8); */
+/* 	} */
+/* 	else { */
 		
-		look_in_folder_locale = g_strdup (g_get_home_dir ());
-		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gsearch->look_in_folder_button), look_in_folder_locale);
-	}
+/* 		look_in_folder_locale = g_strdup (g_get_home_dir ()); */
+/* 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gsearch->look_in_folder_button), look_in_folder_locale); */
+/* 	} */
 
-	if (!g_str_has_suffix (look_in_folder_locale, G_DIR_SEPARATOR_S)) {
-		gchar *tmp;
+/* 	if (!g_str_has_suffix (look_in_folder_locale, G_DIR_SEPARATOR_S)) { */
+/* 		gchar *tmp; */
 
-		tmp = look_in_folder_locale;
-		look_in_folder_locale = g_strconcat (look_in_folder_locale, G_DIR_SEPARATOR_S, NULL);
-		g_free (tmp);
-	}
-	g_free (gsearch->command_details->look_in_folder_string);
+/* 		tmp = look_in_folder_locale; */
+/* 		look_in_folder_locale = g_strconcat (look_in_folder_locale, G_DIR_SEPARATOR_S, NULL); */
+/* 		g_free (tmp); */
+/* 	} */
+/* 	g_free (gsearch->command_details->look_in_folder_string); */
 
-	gsearch->command_details->look_in_folder_string = g_strdup (look_in_folder_locale);
-*/
+/* 	gsearch->command_details->look_in_folder_string = g_strdup (look_in_folder_locale); */
+
 	command = g_string_new (file_is_named_utf8);
 
 
@@ -430,169 +430,167 @@ build_search_command (GSearchWindow * gsearch,
 	gsearch->show_thumbnails = TRUE;
 	gsearch->show_thumbnails_file_size_limit = tracker_search_gconf_get_int ("/apps/nautilus/preferences/thumbnail_limit");
 
-/*
+/* 	if ((GTK_WIDGET_VISIBLE (gsearch->available_options_vbox) == FALSE) || */
+/* 	    (has_additional_constraints (gsearch) == FALSE)) { */
 
-	if ((GTK_WIDGET_VISIBLE (gsearch->available_options_vbox) == FALSE) ||
-	    (has_additional_constraints (gsearch) == FALSE)) {
+/* 		file_is_named_backslashed = backslash_special_characters (file_is_named_locale); */
+/* 		file_is_named_escaped = escape_single_quotes (file_is_named_backslashed); */
+/* 		gsearch->command_details->name_contains_pattern_string = g_strdup (file_is_named_utf8); */
 
-		file_is_named_backslashed = backslash_special_characters (file_is_named_locale);
-		file_is_named_escaped = escape_single_quotes (file_is_named_backslashed);
-		gsearch->command_details->name_contains_pattern_string = g_strdup (file_is_named_utf8);
+/* 		if (gsearch->command_details->is_command_first_pass == TRUE) { */
 
-		if (gsearch->command_details->is_command_first_pass == TRUE) {
+/* 			gchar * locate; */
+/* 			gchar * show_thumbnails_string; */
+/* 			gboolean disable_quick_search; */
 
-			gchar * locate;
-			gchar * show_thumbnails_string;
-			gboolean disable_quick_search;
+/* 			locate = g_find_program_in_path ("locate"); */
+/* 			disable_quick_search = tracker_search_gconf_get_boolean ("/apps/tracker-search-tool/disable_quick_search"); */
+/* 			gsearch->command_details->is_command_second_pass_enabled = !tracker_search_gconf_get_boolean ("/apps/tracker-search-tool/disable_quick_search_second_scan"); */
 
-			locate = g_find_program_in_path ("locate");
-			disable_quick_search = tracker_search_gconf_get_boolean ("/apps/tracker-search-tool/disable_quick_search");
-			gsearch->command_details->is_command_second_pass_enabled = !tracker_search_gconf_get_boolean ("/apps/tracker-search-tool/disable_quick_search_second_scan");
+/* 			show_thumbnails_string = tracker_search_gconf_get_string ("/apps/nautilus/preferences/show_image_thumbnails"); */
+/* 			if ((show_thumbnails_string != NULL) && */
+/* 			    ((strcmp (show_thumbnails_string, "always") == 0) || */
+/* 			     (strcmp (show_thumbnails_string, "local_only") == 0))) { */
+/* 			    	gsearch->show_thumbnails = TRUE; */
+/* 				gsearch->show_thumbnails_file_size_limit = tracker_search_gconf_get_int ("/apps/nautilus/preferences/thumbnail_limit"); */
+/* 			} */
+/* 			else { */
+/* 				gsearch->show_thumbnails = FALSE; */
+/* 				gsearch->show_thumbnails_file_size_limit = 0; */
+/* 			} */
 
-			show_thumbnails_string = tracker_search_gconf_get_string ("/apps/nautilus/preferences/show_image_thumbnails");
-			if ((show_thumbnails_string != NULL) &&
-			    ((strcmp (show_thumbnails_string, "always") == 0) ||
-			     (strcmp (show_thumbnails_string, "local_only") == 0))) {
-			    	gsearch->show_thumbnails = TRUE;
-				gsearch->show_thumbnails_file_size_limit = tracker_search_gconf_get_int ("/apps/nautilus/preferences/thumbnail_limit");
-			}
-			else {
-				gsearch->show_thumbnails = FALSE;
-				gsearch->show_thumbnails_file_size_limit = 0;
-			}
+/* 			if ((disable_quick_search == FALSE) */
+/* 			    && (gsearch->is_locate_database_available == TRUE) */
+/* 			    && (locate != NULL) */
+/* 			    && (is_quick_search_excluded_path (look_in_folder_locale) == FALSE)) { */
 
-			if ((disable_quick_search == FALSE)
-			    && (gsearch->is_locate_database_available == TRUE)
-			    && (locate != NULL)
-			    && (is_quick_search_excluded_path (look_in_folder_locale) == FALSE)) {
+/* 					g_string_append_printf (command, "%s %s '%s*%s'", */
+/* 							locate, */
+/* 							locate_command_default_options, */
+/* 							look_in_folder_locale, */
+/* 							file_is_named_escaped); */
+/* 					gsearch->command_details->is_command_using_quick_mode = TRUE; */
+/* 			} */
+/* 			else { */
+/* 				g_string_append_printf (command, "find \"%s\" %s '%s' -xdev -print", */
+/* 							look_in_folder_locale, */
+/* 							find_command_default_name_argument, */
+/* 							file_is_named_escaped); */
+/* 			} */
+/* 			g_free (locate); */
+/* 			g_free (show_thumbnails_string); */
+/* 		} */
+/* 		else { */
+/* 			g_string_append_printf (command, "find \"%s\" %s '%s' -xdev -print", */
+/* 						look_in_folder_locale, */
+/* 						find_command_default_name_argument, */
+/* 						file_is_named_escaped); */
+/* 		} */
+/* 	} */
+/* 	else { */
+/* 		GList * list; */
+/* 		gboolean disable_mount_argument = FALSE; */
 
-					g_string_append_printf (command, "%s %s '%s*%s'",
-							locate,
-							locate_command_default_options,
-							look_in_folder_locale,
-							file_is_named_escaped);
-					gsearch->command_details->is_command_using_quick_mode = TRUE;
-			}
-			else {
-				g_string_append_printf (command, "find \"%s\" %s '%s' -xdev -print",
-							look_in_folder_locale,
-							find_command_default_name_argument,
-							file_is_named_escaped);
-			}
-			g_free (locate);
-			g_free (show_thumbnails_string);
-		}
-		else {
-			g_string_append_printf (command, "find \"%s\" %s '%s' -xdev -print",
-						look_in_folder_locale,
-						find_command_default_name_argument,
-						file_is_named_escaped);
-		}
-	}
-	else {
-		GList * list;
-		gboolean disable_mount_argument = FALSE;
-
-		gsearch->command_details->is_command_regex_matching_enabled = FALSE;
-		file_is_named_backslashed = backslash_special_characters (file_is_named_locale);
-		file_is_named_escaped = escape_single_quotes (file_is_named_backslashed);
+/* 		gsearch->command_details->is_command_regex_matching_enabled = FALSE; */
+/* 		file_is_named_backslashed = backslash_special_characters (file_is_named_locale); */
+/* 		file_is_named_escaped = escape_single_quotes (file_is_named_backslashed); */
 
 
-		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) {
+/* 		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) { */
 
-			GSearchConstraint * constraint = list->data;
+/* 			GSearchConstraint * constraint = list->data; */
 
-			switch (GSearchOptionTemplates[constraint->constraint_id].type) {
-			case SEARCH_CONSTRAINT_TYPE_BOOLEAN:
-				if (strcmp (GSearchOptionTemplates[constraint->constraint_id].option, "INCLUDE_OTHER_FILESYSTEMS") == 0) {
-					disable_mount_argument = TRUE;
-				}
-				else if (strcmp (GSearchOptionTemplates[constraint->constraint_id].option, "SHOW_HIDDEN_FILES") == 0) {
-					gsearch->command_details->is_command_show_hidden_files_enabled = TRUE;
-				}
-				else {
-					g_string_append_printf (command, "%s ",
-						GSearchOptionTemplates[constraint->constraint_id].option);
-				}
-				break;
-			case SEARCH_CONSTRAINT_TYPE_TEXT:
-				if (strcmp (GSearchOptionTemplates[constraint->constraint_id].option, "-regex '%s'") == 0) {
+/* 			switch (GSearchOptionTemplates[constraint->constraint_id].type) { */
+/* 			case SEARCH_CONSTRAINT_TYPE_BOOLEAN: */
+/* 				if (strcmp (GSearchOptionTemplates[constraint->constraint_id].option, "INCLUDE_OTHER_FILESYSTEMS") == 0) { */
+/* 					disable_mount_argument = TRUE; */
+/* 				} */
+/* 				else if (strcmp (GSearchOptionTemplates[constraint->constraint_id].option, "SHOW_HIDDEN_FILES") == 0) { */
+/* 					gsearch->command_details->is_command_show_hidden_files_enabled = TRUE; */
+/* 				} */
+/* 				else { */
+/* 					g_string_append_printf (command, "%s ", */
+/* 						GSearchOptionTemplates[constraint->constraint_id].option); */
+/* 				} */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_TYPE_TEXT: */
+/* 				if (strcmp (GSearchOptionTemplates[constraint->constraint_id].option, "-regex '%s'") == 0) { */
 
-					gchar * escaped;
-					gchar * regex;
+/* 					gchar * escaped; */
+/* 					gchar * regex; */
 
-					escaped = backslash_special_characters (constraint->data.text);
-					regex = escape_single_quotes (escaped);
+/* 					escaped = backslash_special_characters (constraint->data.text); */
+/* 					regex = escape_single_quotes (escaped); */
 
-					if (regex != NULL) {
-						gsearch->command_details->is_command_regex_matching_enabled = TRUE;
-						gsearch->command_details->name_contains_regex_string = g_locale_from_utf8 (regex, -1, NULL, NULL, NULL);
-					}
+/* 					if (regex != NULL) { */
+/* 						gsearch->command_details->is_command_regex_matching_enabled = TRUE; */
+/* 						gsearch->command_details->name_contains_regex_string = g_locale_from_utf8 (regex, -1, NULL, NULL, NULL); */
+/* 					} */
 
-					g_free (escaped);
-					g_free (regex);
-				}
-				else {
-					gchar * escaped;
-					gchar * backslashed;
-					gchar * locale;
+/* 					g_free (escaped); */
+/* 					g_free (regex); */
+/* 				} */
+/* 				else { */
+/* 					gchar * escaped; */
+/* 					gchar * backslashed; */
+/* 					gchar * locale; */
 
-					backslashed = backslash_special_characters (constraint->data.text);
-					escaped = escape_single_quotes (backslashed);
+/* 					backslashed = backslash_special_characters (constraint->data.text); */
+/* 					escaped = escape_single_quotes (backslashed); */
 
-					locale = g_locale_from_utf8 (escaped, -1, NULL, NULL, NULL);
+/* 					locale = g_locale_from_utf8 (escaped, -1, NULL, NULL, NULL); */
 
-					if (strlen (locale) != 0) {
-						g_string_append_printf (command,
-							  	        GSearchOptionTemplates[constraint->constraint_id].option,
-						  		        locale);
+/* 					if (strlen (locale) != 0) { */
+/* 						g_string_append_printf (command, */
+/* 							  	        GSearchOptionTemplates[constraint->constraint_id].option, */
+/* 						  		        locale); */
 
-						g_string_append_c (command, ' ');
-					}
+/* 						g_string_append_c (command, ' '); */
+/* 					} */
 
-					g_free (escaped);
-					g_free (backslashed);
-					g_free (locale);
-				}
-				break;
-			case SEARCH_CONSTRAINT_TYPE_NUMERIC:
-				g_string_append_printf (command,
-					  		GSearchOptionTemplates[constraint->constraint_id].option,
-							(constraint->data.number * 1024),
-					  		(constraint->data.number * 1024));
-				g_string_append_c (command, ' ');
-				break;
-			case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE:
-				g_string_append_printf (command,
-					 		GSearchOptionTemplates[constraint->constraint_id].option,
-					  		constraint->data.time);
-				g_string_append_c (command, ' ');
-				break;
-			case SEARCH_CONSTRAINT_TYPE_DATE_AFTER:
-				g_string_append_printf (command,
-					 		GSearchOptionTemplates[constraint->constraint_id].option,
-					  		constraint->data.time,
-					  		constraint->data.time);
-				g_string_append_c (command, ' ');
-				break;
-			default:
-		        	break;
-			}
-		}
-		gsearch->command_details->name_contains_pattern_string = g_strdup ("*");
+/* 					g_free (escaped); */
+/* 					g_free (backslashed); */
+/* 					g_free (locale); */
+/* 				} */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_TYPE_NUMERIC: */
+/* 				g_string_append_printf (command, */
+/* 					  		GSearchOptionTemplates[constraint->constraint_id].option, */
+/* 							(constraint->data.number * 1024), */
+/* 					  		(constraint->data.number * 1024)); */
+/* 				g_string_append_c (command, ' '); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE: */
+/* 				g_string_append_printf (command, */
+/* 					 		GSearchOptionTemplates[constraint->constraint_id].option, */
+/* 					  		constraint->data.time); */
+/* 				g_string_append_c (command, ' '); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_TYPE_DATE_AFTER: */
+/* 				g_string_append_printf (command, */
+/* 					 		GSearchOptionTemplates[constraint->constraint_id].option, */
+/* 					  		constraint->data.time, */
+/* 					  		constraint->data.time); */
+/* 				g_string_append_c (command, ' '); */
+/* 				break; */
+/* 			default: */
+/* 		        	break; */
+/* 			} */
+/* 		} */
+/* 		gsearch->command_details->name_contains_pattern_string = g_strdup ("*"); */
 
-		if (disable_mount_argument != TRUE) {
-			g_string_append (command, "-xdev ");
-		}
+/* 		if (disable_mount_argument != TRUE) { */
+/* 			g_string_append (command, "-xdev "); */
+/* 		} */
 
-		g_string_append (command, "-print ");
-	}
-	g_free (file_is_named_locale);
-	g_free (file_is_named_utf8);
-	g_free (file_is_named_backslashed);
-	g_free (file_is_named_escaped);
-	g_free (look_in_folder_locale);
-*/
+/* 		g_string_append (command, "-print "); */
+/* 	} */
+/* 	g_free (file_is_named_locale); */
+/* 	g_free (file_is_named_utf8); */
+/* 	g_free (file_is_named_backslashed); */
+/* 	g_free (file_is_named_escaped); */
+/* 	g_free (look_in_folder_locale); */
+
 	return g_string_free (command, FALSE);
 }
 
@@ -695,8 +693,8 @@ add_file_to_search_results (const gchar * file,
 	utf8_base_name = g_locale_to_utf8 (base_name, -1, NULL, NULL, NULL);
 	utf8_dir_name = g_locale_to_utf8 (dir_name, -1, NULL, NULL, NULL);
 
-	//char *snippet;
-	//char *snippet_markup;
+/* 	char *snippet; */
+/* 	char *snippet_markup; */
 	char *search_term;
 
 	if (gsearch->search_term) {
@@ -706,9 +704,9 @@ add_file_to_search_results (const gchar * file,
 	}
 
 
-	//snippet = tracker_search_get_snippet (tracker_client, SERVICE_FILES, file, search_term, NULL);
-	//snippet_markup = g_strdup_printf ("<span foreground='DimGrey' size='small'>%s</span>", snippet);
-	//g_free (snippet);
+/* 	snippet = tracker_search_get_snippet (tracker_client, SERVICE_FILES, file, search_term, NULL); */
+/* 	snippet_markup = g_strdup_printf ("<span foreground='DimGrey' size='small'>%s</span>", snippet); */
+/* 	g_free (snippet); */
 
 	gtk_list_store_append (GTK_LIST_STORE (store), iter);
 	gtk_list_store_set (GTK_LIST_STORE (store), iter,
@@ -716,7 +714,7 @@ add_file_to_search_results (const gchar * file,
 			    COLUMN_NAME, utf8_base_name,
 			    COLUMN_PATH, utf8_dir_name,
 			    COLUMN_SERVICE, 0,
-//			    COLUMN_SNIPPET, snippet_markup,
+/* 			    COLUMN_SNIPPET, snippet_markup, */
 			    COLUMN_TYPE, (description != NULL) ? description : mime,
 			    COLUMN_NO_FILES_FOUND, FALSE,
 			    -1);
@@ -728,7 +726,7 @@ add_file_to_search_results (const gchar * file,
 	snippet_row->path = g_strdup (utf8_dir_name);
 	snippet_row->name = g_strdup (utf8_base_name);
 	tracker_search_get_snippet_async (tracker_client, SERVICE_FILES, file, search_term, set_snippet, snippet_row);
-//	g_free (snippet_markup);
+/* 	g_free (snippet_markup); */
 	
 	monitor = g_slice_new0 (GSearchMonitor);
 	if (monitor) {
@@ -836,27 +834,27 @@ update_search_counts (GSearchWindow * gsearch)
 	g_free (stopped_string);
 }
 
-/*
-static void
-intermediate_file_count_update (GSearchWindow * gsearch)
-{
-	gchar * string;
-	gint count;
 
-	count = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (gsearch->search_results_list_store), NULL);
+/* static void */
+/* intermediate_file_count_update (GSearchWindow * gsearch) */
+/* { */
+/* 	gchar * string; */
+/* 	gint count; */
 
-	if (count > 0) {
+/* 	count = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (gsearch->search_results_list_store), NULL); */
 
-		string = g_strdup_printf (ngettext ("%d file found",
-		                                    "%d files found",
-		                                    count),
-		                          count);
+/* 	if (count > 0) { */
 
-		gtk_label_set_text (GTK_LABEL (gsearch->files_found_label), string);
-		g_free (string);
-	}
-}
-*/
+/* 		string = g_strdup_printf (ngettext ("%d file found", */
+/* 		                                    "%d files found", */
+/* 		                                    count), */
+/* 		                          count); */
+
+/* 		gtk_label_set_text (GTK_LABEL (gsearch->files_found_label), string); */
+/* 		g_free (string); */
+/* 	} */
+/* } */
+
 
 gboolean
 tree_model_iter_free_monitor (GtkTreeModel * model,
@@ -877,53 +875,53 @@ tree_model_iter_free_monitor (GtkTreeModel * model,
 	return FALSE;
 }
 
-/*
-static GtkTreeModel *
-gsearch_create_list_of_templates (void)
-{
-	GtkListStore * store;
-	GtkTreeIter iter;
-	gint index;
 
-	store = gtk_list_store_new (1, G_TYPE_STRING);
+/* static GtkTreeModel * */
+/* gsearch_create_list_of_templates (void) */
+/* { */
+/* 	GtkListStore * store; */
+/* 	GtkTreeIter iter; */
+/* 	gint index; */
 
-	for (index = 0; GSearchOptionTemplates[index].type != SEARCH_CONSTRAINT_TYPE_NONE; index++) {
+/* 	store = gtk_list_store_new (1, G_TYPE_STRING); */
 
-		if (GSearchOptionTemplates[index].type == SEARCH_CONSTRAINT_TYPE_SEPARATOR) {
-		        gtk_list_store_append (store, &iter);
-		        gtk_list_store_set (store, &iter, 0, "separator", -1);
-		}
-		else {
-			gchar * text = remove_mnemonic_character (_(GSearchOptionTemplates[index].desc));
-			gtk_list_store_append (store, &iter);
-		        gtk_list_store_set (store, &iter, 0, text, -1);
-			g_free (text);
-		}
-	}
-	return GTK_TREE_MODEL (store);
-}
+/* 	for (index = 0; GSearchOptionTemplates[index].type != SEARCH_CONSTRAINT_TYPE_NONE; index++) { */
 
-static void
-set_constraint_info_defaults (GSearchConstraint * opt)
-{
-	switch (GSearchOptionTemplates[opt->constraint_id].type) {
-	case SEARCH_CONSTRAINT_TYPE_BOOLEAN:
-		break;
-	case SEARCH_CONSTRAINT_TYPE_TEXT:
-		opt->data.text = "";
-		break;
-	case SEARCH_CONSTRAINT_TYPE_NUMERIC:
-		opt->data.number = 0;
-		break;
-	case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE:
-	case SEARCH_CONSTRAINT_TYPE_DATE_AFTER:
-		opt->data.time = 0;
-		break;
-	default:
-	        break;
-	}
-}
-*/
+/* 		if (GSearchOptionTemplates[index].type == SEARCH_CONSTRAINT_TYPE_SEPARATOR) { */
+/* 		        gtk_list_store_append (store, &iter); */
+/* 		        gtk_list_store_set (store, &iter, 0, "separator", -1); */
+/* 		} */
+/* 		else { */
+/* 			gchar * text = remove_mnemonic_character (_(GSearchOptionTemplates[index].desc)); */
+/* 			gtk_list_store_append (store, &iter); */
+/* 		        gtk_list_store_set (store, &iter, 0, text, -1); */
+/* 			g_free (text); */
+/* 		} */
+/* 	} */
+/* 	return GTK_TREE_MODEL (store); */
+/* } */
+
+/* static void */
+/* set_constraint_info_defaults (GSearchConstraint * opt) */
+/* { */
+/* 	switch (GSearchOptionTemplates[opt->constraint_id].type) { */
+/* 	case SEARCH_CONSTRAINT_TYPE_BOOLEAN: */
+/* 		break; */
+/* 	case SEARCH_CONSTRAINT_TYPE_TEXT: */
+/* 		opt->data.text = ""; */
+/* 		break; */
+/* 	case SEARCH_CONSTRAINT_TYPE_NUMERIC: */
+/* 		opt->data.number = 0; */
+/* 		break; */
+/* 	case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE: */
+/* 	case SEARCH_CONSTRAINT_TYPE_DATE_AFTER: */
+/* 		opt->data.time = 0; */
+/* 		break; */
+/* 	default: */
+/* 	        break; */
+/* 	} */
+/* } */
+
 
 void
 update_constraint_info (GSearchConstraint * constraint,
@@ -946,30 +944,30 @@ update_constraint_info (GSearchConstraint * constraint,
 	}
 }
 
-/*
-void
-set_constraint_selected_state (GSearchWindow * gsearch,
-                               gint constraint_id,
-			       gboolean state)
-{
-	gint index;
 
-	GSearchOptionTemplates[constraint_id].is_selected = state;
+/* void */
+/* set_constraint_selected_state (GSearchWindow * gsearch, */
+/*                                gint constraint_id, */
+/* 			       gboolean state) */
+/* { */
+/* 	gint index; */
 
-	for (index = 0; GSearchOptionTemplates[index].type != SEARCH_CONSTRAINT_TYPE_NONE; index++) {
-		if (GSearchOptionTemplates[index].is_selected == FALSE) {
-			gtk_combo_box_set_active (GTK_COMBO_BOX (gsearch->available_options_combo_box), index);
-			gtk_widget_set_sensitive (gsearch->available_options_add_button, TRUE);
-			gtk_widget_set_sensitive (gsearch->available_options_combo_box, TRUE);
-			gtk_widget_set_sensitive (gsearch->available_options_label, TRUE);
-			return;
-		}
-	}
-	gtk_widget_set_sensitive (gsearch->available_options_add_button, FALSE);
-	gtk_widget_set_sensitive (gsearch->available_options_combo_box, FALSE);
-	gtk_widget_set_sensitive (gsearch->available_options_label, FALSE);
-}
-*/
+/* 	GSearchOptionTemplates[constraint_id].is_selected = state; */
+
+/* 	for (index = 0; GSearchOptionTemplates[index].type != SEARCH_CONSTRAINT_TYPE_NONE; index++) { */
+/* 		if (GSearchOptionTemplates[index].is_selected == FALSE) { */
+/* 			gtk_combo_box_set_active (GTK_COMBO_BOX (gsearch->available_options_combo_box), index); */
+/* 			gtk_widget_set_sensitive (gsearch->available_options_add_button, TRUE); */
+/* 			gtk_widget_set_sensitive (gsearch->available_options_combo_box, TRUE); */
+/* 			gtk_widget_set_sensitive (gsearch->available_options_label, TRUE); */
+/* 			return; */
+/* 		} */
+/* 	} */
+/* 	gtk_widget_set_sensitive (gsearch->available_options_add_button, FALSE); */
+/* 	gtk_widget_set_sensitive (gsearch->available_options_combo_box, FALSE); */
+/* 	gtk_widget_set_sensitive (gsearch->available_options_label, FALSE); */
+/* } */
+
 
 void
 set_constraint_gconf_boolean (gint constraint_id,
@@ -1073,30 +1071,30 @@ add_atk_namedesc (GtkWidget * widget,
  * Description: This function establishes Atk Relation between two given
  *              objects.
  */
-/*
-static void
-add_atk_relation (GtkWidget * obj1,
-		  GtkWidget * obj2,
-		  AtkRelationType rel_type)
-{
-	AtkObject * atk_obj1, * atk_obj2;
-	AtkRelationSet * relation_set;
-	AtkRelation * relation;
 
-	g_assert (GTK_IS_WIDGET (obj1));
-	g_assert (GTK_IS_WIDGET (obj2));
+/* static void */
+/* add_atk_relation (GtkWidget * obj1, */
+/* 		  GtkWidget * obj2, */
+/* 		  AtkRelationType rel_type) */
+/* { */
+/* 	AtkObject * atk_obj1, * atk_obj2; */
+/* 	AtkRelationSet * relation_set; */
+/* 	AtkRelation * relation; */
 
-	atk_obj1 = gtk_widget_get_accessible (obj1);
+/* 	g_assert (GTK_IS_WIDGET (obj1)); */
+/* 	g_assert (GTK_IS_WIDGET (obj2)); */
 
-	atk_obj2 = gtk_widget_get_accessible (obj2);
+/* 	atk_obj1 = gtk_widget_get_accessible (obj1); */
 
-	relation_set = atk_object_ref_relation_set (atk_obj1);
-	relation = atk_relation_new (&atk_obj2, 1, rel_type);
-	atk_relation_set_add (relation_set, relation);
-	g_object_unref (G_OBJECT (relation));
+/* 	atk_obj2 = gtk_widget_get_accessible (obj2); */
 
-}
-*/
+/* 	relation_set = atk_object_ref_relation_set (atk_obj1); */
+/* 	relation = atk_relation_new (&atk_obj2, 1, rel_type); */
+/* 	atk_relation_set_add (relation_set, relation); */
+/* 	g_object_unref (G_OBJECT (relation)); */
+
+/* } */
+
 
 gchar *
 get_desktop_item_name (GSearchWindow * gsearch)
@@ -1117,350 +1115,348 @@ get_desktop_item_name (GSearchWindow * gsearch)
 	g_string_append_printf (gs, "named=%s", file_is_named_locale);
 	g_free (file_is_named_locale);
 
-	/*look_in_folder_utf8 = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (gsearch->look_in_folder_button));
-	look_in_folder_locale = g_locale_from_utf8 (look_in_folder_utf8 != NULL ? look_in_folder_utf8 : "",
-	                                            -1, NULL, NULL, NULL);
-	g_string_append_printf (gs, "&path=%s", look_in_folder_locale);
-	g_free (look_in_folder_locale);
-	g_free (look_in_folder_utf8);
+/* 	look_in_folder_utf8 = gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (gsearch->look_in_folder_button)); */
+/* 	look_in_folder_locale = g_locale_from_utf8 (look_in_folder_utf8 != NULL ? look_in_folder_utf8 : "", */
+/* 	                                            -1, NULL, NULL, NULL); */
+/* 	g_string_append_printf (gs, "&path=%s", look_in_folder_locale); */
+/* 	g_free (look_in_folder_locale); */
+/* 	g_free (look_in_folder_utf8); */
 	
 
-	if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox)) {
-		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) {
-			GSearchConstraint * constraint = list->data;
-			gchar * locale = NULL;
+/* 	if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox)) { */
+/* 		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) { */
+/* 			GSearchConstraint * constraint = list->data; */
+/* 			gchar * locale = NULL; */
 
-			switch (constraint->constraint_id) {
-			case SEARCH_CONSTRAINT_CONTAINS_THE_TEXT:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				g_string_append_printf (gs, "&contains=%s", locale);
-				break;
-			case SEARCH_CONSTRAINT_DATE_MODIFIED_BEFORE:
-				g_string_append_printf (gs, "&mtimeless=%d", constraint->data.time);
-				break;
-			case SEARCH_CONSTRAINT_DATE_MODIFIED_AFTER:
-				g_string_append_printf (gs, "&mtimemore=%d", constraint->data.time);
-				break;
-			case SEARCH_CONSTRAINT_SIZE_IS_MORE_THAN:
-				g_string_append_printf (gs, "&sizemore=%u", constraint->data.number);
-				break;
-			case SEARCH_CONSTRAINT_SIZE_IS_LESS_THAN:
-				g_string_append_printf (gs, "&sizeless=%u", constraint->data.number);
-				break;
-			case SEARCH_CONSTRAINT_FILE_IS_EMPTY:
-				g_string_append (gs, "&empty");
-				break;
-			case SEARCH_CONSTRAINT_OWNED_BY_USER:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				g_string_append_printf (gs, "&user=%s", locale);
-				break;
-			case SEARCH_CONSTRAINT_OWNED_BY_GROUP:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				g_string_append_printf (gs, "&group=%s", locale);
-				break;
-			case SEARCH_CONSTRAINT_OWNER_IS_UNRECOGNIZED:
-				g_string_append (gs, "&nouser");
-				break;
-			case SEARCH_CONSTRAINT_FILE_IS_NOT_NAMED:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				g_string_append_printf (gs, "&notnamed=%s", locale);
-				break;
-			case SEARCH_CONSTRAINT_FILE_MATCHES_REGULAR_EXPRESSION:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				g_string_append_printf (gs, "&regex=%s", locale);
-				break;
-			case SEARCH_CONSTRAINT_SHOW_HIDDEN_FILES_AND_FOLDERS:
-				g_string_append (gs, "&hidden");
-				break;
-			case SEARCH_CONSTRAINT_FOLLOW_SYMBOLIC_LINKS:
-				g_string_append (gs, "&follow");
-				break;
-			case SEARCH_CONSTRAINT_SEARCH_OTHER_FILESYSTEMS:
-				g_string_append (gs, "&allmounts");
-				break;
-			default:
-				break;
-			}
-		g_free (locale);
-		}
-	}*/
+/* 			switch (constraint->constraint_id) { */
+/* 			case SEARCH_CONSTRAINT_CONTAINS_THE_TEXT: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				g_string_append_printf (gs, "&contains=%s", locale); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_DATE_MODIFIED_BEFORE: */
+/* 				g_string_append_printf (gs, "&mtimeless=%d", constraint->data.time); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_DATE_MODIFIED_AFTER: */
+/* 				g_string_append_printf (gs, "&mtimemore=%d", constraint->data.time); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SIZE_IS_MORE_THAN: */
+/* 				g_string_append_printf (gs, "&sizemore=%u", constraint->data.number); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SIZE_IS_LESS_THAN: */
+/* 				g_string_append_printf (gs, "&sizeless=%u", constraint->data.number); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FILE_IS_EMPTY: */
+/* 				g_string_append (gs, "&empty"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_OWNED_BY_USER: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				g_string_append_printf (gs, "&user=%s", locale); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_OWNED_BY_GROUP: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				g_string_append_printf (gs, "&group=%s", locale); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_OWNER_IS_UNRECOGNIZED: */
+/* 				g_string_append (gs, "&nouser"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FILE_IS_NOT_NAMED: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				g_string_append_printf (gs, "&notnamed=%s", locale); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FILE_MATCHES_REGULAR_EXPRESSION: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				g_string_append_printf (gs, "&regex=%s", locale); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SHOW_HIDDEN_FILES_AND_FOLDERS: */
+/* 				g_string_append (gs, "&hidden"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FOLLOW_SYMBOLIC_LINKS: */
+/* 				g_string_append (gs, "&follow"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SEARCH_OTHER_FILESYSTEMS: */
+/* 				g_string_append (gs, "&allmounts"); */
+/* 				break; */
+/* 			default: */
+/* 				break; */
+/* 			} */
+/* 		g_free (locale); */
+/* 		} */
+/* 	} */
 	g_string_append_c (gs, ')');
 	return g_string_free (gs, FALSE);
 }
 
 
 
-/*
-static GtkWidget *
-create_constraint_box (GSearchWindow * gsearch,
-                       GSearchConstraint * opt,
-                       gchar * value)
-{
-	GtkWidget * hbox;
-	GtkWidget * label;
-	GtkWidget * entry;
-	GtkWidget * entry_hbox;
-	GtkWidget * button;
+/* static GtkWidget * */
+/* create_constraint_box (GSearchWindow * gsearch, */
+/*                        GSearchConstraint * opt, */
+/*                        gchar * value) */
+/* { */
+/* 	GtkWidget * hbox; */
+/* 	GtkWidget * label; */
+/* 	GtkWidget * entry; */
+/* 	GtkWidget * entry_hbox; */
+/* 	GtkWidget * button; */
 
-	hbox = gtk_hbox_new (FALSE, 12);
+/* 	hbox = gtk_hbox_new (FALSE, 12); */
 
-	switch (GSearchOptionTemplates[opt->constraint_id].type) {
-	case SEARCH_CONSTRAINT_TYPE_BOOLEAN:
-		{
-			gchar * text = remove_mnemonic_character (GSearchOptionTemplates[opt->constraint_id].desc);
-			gchar * desc = g_strconcat (LEFT_LABEL_SPACING, _(text), ".", NULL);
-			label = gtk_label_new (desc);
-			gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-			g_free (desc);
-			g_free (text);
-		}
-		break;
-	case SEARCH_CONSTRAINT_TYPE_TEXT:
-	case SEARCH_CONSTRAINT_TYPE_NUMERIC:
-	case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE:
-	case SEARCH_CONSTRAINT_TYPE_DATE_AFTER:
-		{
-			gchar * desc = g_strconcat (LEFT_LABEL_SPACING, _(GSearchOptionTemplates[opt->constraint_id].desc), ":", NULL);
-			label = gtk_label_new_with_mnemonic (desc);
-			g_free (desc);
-		}
-
-
-		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0);
-
-		if (GSearchOptionTemplates[opt->constraint_id].type == SEARCH_CONSTRAINT_TYPE_TEXT) {
-			entry = gtk_entry_new ();
-			if (value != NULL) {
-				gtk_entry_set_text (GTK_ENTRY (entry), value);
-				opt->data.text = value;
-			}
-		}
-		else {
-			entry = gtk_spin_button_new_with_range (0, 999999999, 1);
-			if (value != NULL) {
-				gtk_spin_button_set_value (GTK_SPIN_BUTTON (entry), atoi (value));
-				opt->data.time = atoi (value);
-				opt->data.number = atoi (value);
-			}
-		}
-
-		if (gsearch->is_window_accessible) {
-			gchar * text = remove_mnemonic_character (GSearchOptionTemplates[opt->constraint_id].desc);
-			gchar * name;
-			gchar * desc;
-
-			if (GSearchOptionTemplates[opt->constraint_id].units == NULL) {
-				name = g_strdup (_(text));
-				desc = g_strdup_printf (_("Enter a text value for the \"%s\" search option."), _(text));
-			}
-			else {
-				name = g_strdup_printf (_("\"%s\" in %s"), _(text),
-				                        _(GSearchOptionTemplates[opt->constraint_id].units));
-				desc = g_strdup_printf (_("Enter a value in %s for the \"%s\" search option."),
-				                        _(GSearchOptionTemplates[opt->constraint_id].units),
-				                        _(text));
-			}
-			add_atk_namedesc (GTK_WIDGET (entry), name, desc);
-			g_free (name);
-			g_free (desc);
-			g_free (text);
-		}
-
-		gtk_label_set_mnemonic_widget (GTK_LABEL (label), GTK_WIDGET (entry));
-
-		g_signal_connect (G_OBJECT (entry), "changed",
-			 	  G_CALLBACK (constraint_update_info_cb), opt);
-
-		g_signal_connect (G_OBJECT (entry), "activate",
-				  G_CALLBACK (constraint_activate_cb),
-				  (gpointer) gsearch);
+/* 	switch (GSearchOptionTemplates[opt->constraint_id].type) { */
+/* 	case SEARCH_CONSTRAINT_TYPE_BOOLEAN: */
+/* 		{ */
+/* 			gchar * text = remove_mnemonic_character (GSearchOptionTemplates[opt->constraint_id].desc); */
+/* 			gchar * desc = g_strconcat (LEFT_LABEL_SPACING, _(text), ".", NULL); */
+/* 			label = gtk_label_new (desc); */
+/* 			gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0); */
+/* 			g_free (desc); */
+/* 			g_free (text); */
+/* 		} */
+/* 		break; */
+/* 	case SEARCH_CONSTRAINT_TYPE_TEXT: */
+/* 	case SEARCH_CONSTRAINT_TYPE_NUMERIC: */
+/* 	case SEARCH_CONSTRAINT_TYPE_DATE_BEFORE: */
+/* 	case SEARCH_CONSTRAINT_TYPE_DATE_AFTER: */
+/* 		{ */
+/* 			gchar * desc = g_strconcat (LEFT_LABEL_SPACING, _(GSearchOptionTemplates[opt->constraint_id].desc), ":", NULL); */
+/* 			label = gtk_label_new_with_mnemonic (desc); */
+/* 			g_free (desc); */
+/* 		} */
 
 
-		entry_hbox = gtk_hbox_new (FALSE, 6);
-		gtk_box_pack_start (GTK_BOX (hbox), entry_hbox, TRUE, TRUE, 0);
-		gtk_box_pack_start (GTK_BOX (entry_hbox), entry, TRUE, TRUE, 0);
+/* 		gtk_box_pack_start (GTK_BOX (hbox), label, FALSE, FALSE, 0); */
+
+/* 		if (GSearchOptionTemplates[opt->constraint_id].type == SEARCH_CONSTRAINT_TYPE_TEXT) { */
+/* 			entry = gtk_entry_new (); */
+/* 			if (value != NULL) { */
+/* 				gtk_entry_set_text (GTK_ENTRY (entry), value); */
+/* 				opt->data.text = value; */
+/* 			} */
+/* 		} */
+/* 		else { */
+/* 			entry = gtk_spin_button_new_with_range (0, 999999999, 1); */
+/* 			if (value != NULL) { */
+/* 				gtk_spin_button_set_value (GTK_SPIN_BUTTON (entry), atoi (value)); */
+/* 				opt->data.time = atoi (value); */
+/* 				opt->data.number = atoi (value); */
+/* 			} */
+/* 		} */
+
+/* 		if (gsearch->is_window_accessible) { */
+/* 			gchar * text = remove_mnemonic_character (GSearchOptionTemplates[opt->constraint_id].desc); */
+/* 			gchar * name; */
+/* 			gchar * desc; */
+
+/* 			if (GSearchOptionTemplates[opt->constraint_id].units == NULL) { */
+/* 				name = g_strdup (_(text)); */
+/* 				desc = g_strdup_printf (_("Enter a text value for the \"%s\" search option."), _(text)); */
+/* 			} */
+/* 			else { */
+/* 				name = g_strdup_printf (_("\"%s\" in %s"), _(text), */
+/* 				                        _(GSearchOptionTemplates[opt->constraint_id].units)); */
+/* 				desc = g_strdup_printf (_("Enter a value in %s for the \"%s\" search option."), */
+/* 				                        _(GSearchOptionTemplates[opt->constraint_id].units), */
+/* 				                        _(text)); */
+/* 			} */
+/* 			add_atk_namedesc (GTK_WIDGET (entry), name, desc); */
+/* 			g_free (name); */
+/* 			g_free (desc); */
+/* 			g_free (text); */
+/* 		} */
+
+/* 		gtk_label_set_mnemonic_widget (GTK_LABEL (label), GTK_WIDGET (entry)); */
+
+/* 		g_signal_connect (G_OBJECT (entry), "changed", */
+/* 			 	  G_CALLBACK (constraint_update_info_cb), opt); */
+
+/* 		g_signal_connect (G_OBJECT (entry), "activate", */
+/* 				  G_CALLBACK (constraint_activate_cb), */
+/* 				  (gpointer) gsearch); */
 
 
-		if (GSearchOptionTemplates[opt->constraint_id].units != NULL)
-		{
-			label = gtk_label_new_with_mnemonic (_(GSearchOptionTemplates[opt->constraint_id].units));
-			gtk_box_pack_start (GTK_BOX (entry_hbox), label, FALSE, FALSE, 0);
-		}
-
-		break;
-	default:
-
-		label = gtk_label_new ("???");
-		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0);
-	        break;
-	}
-
-	button = gtk_button_new_from_stock (GTK_STOCK_REMOVE);
-	GTK_WIDGET_UNSET_FLAGS (button, GTK_CAN_DEFAULT);
-
-	{
-		GList * list = NULL;
-
-		list = g_list_append (list, (gpointer) gsearch);
-		list = g_list_append (list, (gpointer) opt);
-
-		g_signal_connect (G_OBJECT (button), "clicked",
-		                  G_CALLBACK (remove_constraint_cb),
-		                  (gpointer) list);
-
-	}
-	gtk_size_group_add_widget (gsearch->available_options_button_size_group, button);
-	gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 0);
-
-	if (gsearch->is_window_accessible) {
-		gchar * text = remove_mnemonic_character (GSearchOptionTemplates[opt->constraint_id].desc);
-		gchar * name = g_strdup_printf (_("Remove \"%s\""), _(text));
-		gchar * desc = g_strdup_printf (_("Click to remove the \"%s\" search option."), _(text));
-		add_atk_namedesc (GTK_WIDGET (button), name, desc);
-		g_free (name);
-		g_free (desc);
-		g_free (text);
-	}
-	return hbox;
-
-}
-
-void
-add_constraint (GSearchWindow * gsearch,
-                gint constraint_id,
-                gchar * value,
-                gboolean show_constraint)
-{
-	GSearchConstraint * constraint = g_slice_new (GSearchConstraint);
-	GtkWidget * widget;
-
-	if (show_constraint) {
-		if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox) == FALSE) {
-			gtk_expander_set_expanded (GTK_EXPANDER (gsearch->show_more_options_expander), TRUE);
-			gtk_widget_show (gsearch->available_options_vbox);
-		}
-	}
-
-	gsearch->window_geometry.min_height += WINDOW_HEIGHT_STEP;
-
-	if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox)) {
-		gtk_window_set_geometry_hints (GTK_WINDOW (gsearch->window),
-		                               GTK_WIDGET (gsearch->window),
-		                               &gsearch->window_geometry,
-		                               GDK_HINT_MIN_SIZE);
-	}
-
-	constraint->constraint_id = constraint_id;
-	set_constraint_info_defaults (constraint);
-	set_constraint_gconf_boolean (constraint->constraint_id, TRUE);
-
-	widget = create_constraint_box (gsearch, constraint, value);
-	gtk_box_pack_start (GTK_BOX (gsearch->available_options_vbox), widget, FALSE, FALSE, 0);
-	gtk_widget_show_all (widget);
-
-	gsearch->available_options_selected_list =
-		g_list_append (gsearch->available_options_selected_list, constraint);
-
-	set_constraint_selected_state (gsearch, constraint->constraint_id, TRUE);
-
-}
+/* 		entry_hbox = gtk_hbox_new (FALSE, 6); */
+/* 		gtk_box_pack_start (GTK_BOX (hbox), entry_hbox, TRUE, TRUE, 0); */
+/* 		gtk_box_pack_start (GTK_BOX (entry_hbox), entry, TRUE, TRUE, 0); */
 
 
-static void
-set_sensitive (GtkCellLayout * cell_layout,
-               GtkCellRenderer * cell,
-               GtkTreeModel * tree_model,
-               GtkTreeIter * iter,
-               gpointer data)
-{
-	GtkTreePath * path;
-	gint index;
+/* 		if (GSearchOptionTemplates[opt->constraint_id].units != NULL) */
+/* 		{ */
+/* 			label = gtk_label_new_with_mnemonic (_(GSearchOptionTemplates[opt->constraint_id].units)); */
+/* 			gtk_box_pack_start (GTK_BOX (entry_hbox), label, FALSE, FALSE, 0); */
+/* 		} */
 
-	path = gtk_tree_model_get_path (tree_model, iter);
-	index = gtk_tree_path_get_indices (path)[0];
-	gtk_tree_path_free (path);
+/* 		break; */
+/* 	default: */
 
-	g_object_set (cell, "sensitive", !(GSearchOptionTemplates[index].is_selected), NULL);
-}
+/* 		label = gtk_label_new ("???"); */
+/* 		gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 0); */
+/* 	        break; */
+/* 	} */
 
-static gboolean
-is_separator (GtkTreeModel * model,
-              GtkTreeIter * iter,
-              gpointer data)
-{
-	GtkTreePath * path;
-	gint index;
+/* 	button = gtk_button_new_from_stock (GTK_STOCK_REMOVE); */
+/* 	GTK_WIDGET_UNSET_FLAGS (button, GTK_CAN_DEFAULT); */
 
-	path = gtk_tree_model_get_path (model, iter);
-	index = gtk_tree_path_get_indices (path)[0];
-	gtk_tree_path_free (path);
+/* 	{ */
+/* 		GList * list = NULL; */
 
-	return (GSearchOptionTemplates[index].type == SEARCH_CONSTRAINT_TYPE_SEPARATOR);
-}
+/* 		list = g_list_append (list, (gpointer) gsearch); */
+/* 		list = g_list_append (list, (gpointer) opt); */
 
-static void
-create_additional_constraint_section (GSearchWindow * gsearch)
-{
-	GtkCellRenderer * renderer;
-	GtkTreeModel * model;
-	GtkWidget * hbox;
-	gchar * desc;
+/* 		g_signal_connect (G_OBJECT (button), "clicked", */
+/* 		                  G_CALLBACK (remove_constraint_cb), */
+/* 		                  (gpointer) list); */
 
-	gsearch->available_options_vbox = gtk_vbox_new (FALSE, 6);
+/* 	} */
+/* 	gtk_size_group_add_widget (gsearch->available_options_button_size_group, button); */
+/* 	gtk_box_pack_end (GTK_BOX (hbox), button, FALSE, FALSE, 0); */
 
-	hbox = gtk_hbox_new (FALSE, 12);
-	gtk_box_pack_end (GTK_BOX (gsearch->available_options_vbox), hbox, FALSE, FALSE, 0);
+/* 	if (gsearch->is_window_accessible) { */
+/* 		gchar * text = remove_mnemonic_character (GSearchOptionTemplates[opt->constraint_id].desc); */
+/* 		gchar * name = g_strdup_printf (_("Remove \"%s\""), _(text)); */
+/* 		gchar * desc = g_strdup_printf (_("Click to remove the \"%s\" search option."), _(text)); */
+/* 		add_atk_namedesc (GTK_WIDGET (button), name, desc); */
+/* 		g_free (name); */
+/* 		g_free (desc); */
+/* 		g_free (text); */
+/* 	} */
+/* 	return hbox; */
 
-	desc = g_strconcat (LEFT_LABEL_SPACING, _("A_vailable options:"), NULL);
-	gsearch->available_options_label = gtk_label_new_with_mnemonic (desc);
-	g_free (desc);
+/* } */
 
-	gtk_box_pack_start (GTK_BOX (hbox), gsearch->available_options_label, FALSE, FALSE, 0);
+/* void */
+/* add_constraint (GSearchWindow * gsearch, */
+/*                 gint constraint_id, */
+/*                 gchar * value, */
+/*                 gboolean show_constraint) */
+/* { */
+/* 	GSearchConstraint * constraint = g_slice_new (GSearchConstraint); */
+/* 	GtkWidget * widget; */
 
-	model = gsearch_create_list_of_templates ();
-	gsearch->available_options_combo_box = gtk_combo_box_new_with_model (model);
-	g_object_unref (model);
+/* 	if (show_constraint) { */
+/* 		if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox) == FALSE) { */
+/* 			gtk_expander_set_expanded (GTK_EXPANDER (gsearch->show_more_options_expander), TRUE); */
+/* 			gtk_widget_show (gsearch->available_options_vbox); */
+/* 		} */
+/* 	} */
 
-	gtk_label_set_mnemonic_widget (GTK_LABEL (gsearch->available_options_label), GTK_WIDGET (gsearch->available_options_combo_box));
-	gtk_combo_box_set_active (GTK_COMBO_BOX (gsearch->available_options_combo_box), 0);
-	gtk_box_pack_start (GTK_BOX (hbox), gsearch->available_options_combo_box, TRUE, TRUE, 0);
+/* 	gsearch->window_geometry.min_height += WINDOW_HEIGHT_STEP; */
 
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (gsearch->available_options_combo_box),
-	                            renderer,
-	                            TRUE);
-	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (gsearch->available_options_combo_box), renderer,
-	                                "text", 0,
-	                                NULL);
-	gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (gsearch->available_options_combo_box),
-	                                    renderer,
-	                                    set_sensitive,
-	                                    NULL, NULL);
-	gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (gsearch->available_options_combo_box),
-	                                      is_separator, NULL, NULL);
+/* 	if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox)) { */
+/* 		gtk_window_set_geometry_hints (GTK_WINDOW (gsearch->window), */
+/* 		                               GTK_WIDGET (gsearch->window), */
+/* 		                               &gsearch->window_geometry, */
+/* 		                               GDK_HINT_MIN_SIZE); */
+/* 	} */
 
-	if (gsearch->is_window_accessible) {
-		add_atk_namedesc (GTK_WIDGET (gsearch->available_options_combo_box), _("Available options"),
-				  _("Select a search option from the drop-down list."));
-	}
+/* 	constraint->constraint_id = constraint_id; */
+/* 	set_constraint_info_defaults (constraint); */
+/* 	set_constraint_gconf_boolean (constraint->constraint_id, TRUE); */
 
-	gsearch->available_options_add_button = gtk_button_new_from_stock (GTK_STOCK_ADD);
-	GTK_WIDGET_UNSET_FLAGS (gsearch->available_options_add_button, GTK_CAN_DEFAULT);
-	gsearch->available_options_button_size_group = gtk_size_group_new (GTK_SIZE_GROUP_BOTH);
-	gtk_size_group_add_widget (gsearch->available_options_button_size_group, gsearch->available_options_add_button);
+/* 	widget = create_constraint_box (gsearch, constraint, value); */
+/* 	gtk_box_pack_start (GTK_BOX (gsearch->available_options_vbox), widget, FALSE, FALSE, 0); */
+/* 	gtk_widget_show_all (widget); */
 
-	g_signal_connect (G_OBJECT (gsearch->available_options_add_button),"clicked",
-			  G_CALLBACK (add_constraint_cb), (gpointer) gsearch);
+/* 	gsearch->available_options_selected_list = */
+/* 		g_list_append (gsearch->available_options_selected_list, constraint); */
 
-	if (gsearch->is_window_accessible) {
-		add_atk_namedesc (GTK_WIDGET (gsearch->available_options_add_button), _("Add search option"),
-				  _("Click to add the selected available search option."));
-	}
+/* 	set_constraint_selected_state (gsearch, constraint->constraint_id, TRUE); */
 
-	gtk_box_pack_end (GTK_BOX (hbox), gsearch->available_options_add_button, FALSE, FALSE, 0);
+/* } */
 
-}
-*/
+
+/* static void */
+/* set_sensitive (GtkCellLayout * cell_layout, */
+/*                GtkCellRenderer * cell, */
+/*                GtkTreeModel * tree_model, */
+/*                GtkTreeIter * iter, */
+/*                gpointer data) */
+/* { */
+/* 	GtkTreePath * path; */
+/* 	gint index; */
+
+/* 	path = gtk_tree_model_get_path (tree_model, iter); */
+/* 	index = gtk_tree_path_get_indices (path)[0]; */
+/* 	gtk_tree_path_free (path); */
+
+/* 	g_object_set (cell, "sensitive", !(GSearchOptionTemplates[index].is_selected), NULL); */
+/* } */
+
+/* static gboolean */
+/* is_separator (GtkTreeModel * model, */
+/*               GtkTreeIter * iter, */
+/*               gpointer data) */
+/* { */
+/* 	GtkTreePath * path; */
+/* 	gint index; */
+
+/* 	path = gtk_tree_model_get_path (model, iter); */
+/* 	index = gtk_tree_path_get_indices (path)[0]; */
+/* 	gtk_tree_path_free (path); */
+
+/* 	return (GSearchOptionTemplates[index].type == SEARCH_CONSTRAINT_TYPE_SEPARATOR); */
+/* } */
+
+/* static void */
+/* create_additional_constraint_section (GSearchWindow * gsearch) */
+/* { */
+/* 	GtkCellRenderer * renderer; */
+/* 	GtkTreeModel * model; */
+/* 	GtkWidget * hbox; */
+/* 	gchar * desc; */
+
+/* 	gsearch->available_options_vbox = gtk_vbox_new (FALSE, 6); */
+
+/* 	hbox = gtk_hbox_new (FALSE, 12); */
+/* 	gtk_box_pack_end (GTK_BOX (gsearch->available_options_vbox), hbox, FALSE, FALSE, 0); */
+
+/* 	desc = g_strconcat (LEFT_LABEL_SPACING, _("A_vailable options:"), NULL); */
+/* 	gsearch->available_options_label = gtk_label_new_with_mnemonic (desc); */
+/* 	g_free (desc); */
+
+/* 	gtk_box_pack_start (GTK_BOX (hbox), gsearch->available_options_label, FALSE, FALSE, 0); */
+
+/* 	model = gsearch_create_list_of_templates (); */
+/* 	gsearch->available_options_combo_box = gtk_combo_box_new_with_model (model); */
+/* 	g_object_unref (model); */
+
+/* 	gtk_label_set_mnemonic_widget (GTK_LABEL (gsearch->available_options_label), GTK_WIDGET (gsearch->available_options_combo_box)); */
+/* 	gtk_combo_box_set_active (GTK_COMBO_BOX (gsearch->available_options_combo_box), 0); */
+/* 	gtk_box_pack_start (GTK_BOX (hbox), gsearch->available_options_combo_box, TRUE, TRUE, 0); */
+
+/* 	renderer = gtk_cell_renderer_text_new (); */
+/* 	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (gsearch->available_options_combo_box), */
+/* 	                            renderer, */
+/* 	                            TRUE); */
+/* 	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (gsearch->available_options_combo_box), renderer, */
+/* 	                                "text", 0, */
+/* 	                                NULL); */
+/* 	gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (gsearch->available_options_combo_box), */
+/* 	                                    renderer, */
+/* 	                                    set_sensitive, */
+/* 	                                    NULL, NULL); */
+/* 	gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (gsearch->available_options_combo_box), */
+/* 	                                      is_separator, NULL, NULL); */
+
+/* 	if (gsearch->is_window_accessible) { */
+/* 		add_atk_namedesc (GTK_WIDGET (gsearch->available_options_combo_box), _("Available options"), */
+/* 				  _("Select a search option from the drop-down list.")); */
+/* 	} */
+
+/* 	gsearch->available_options_add_button = gtk_button_new_from_stock (GTK_STOCK_ADD); */
+/* 	GTK_WIDGET_UNSET_FLAGS (gsearch->available_options_add_button, GTK_CAN_DEFAULT); */
+/* 	gsearch->available_options_button_size_group = gtk_size_group_new (GTK_SIZE_GROUP_BOTH); */
+/* 	gtk_size_group_add_widget (gsearch->available_options_button_size_group, gsearch->available_options_add_button); */
+
+/* 	g_signal_connect (G_OBJECT (gsearch->available_options_add_button),"clicked", */
+/* 			  G_CALLBACK (add_constraint_cb), (gpointer) gsearch); */
+
+/* 	if (gsearch->is_window_accessible) { */
+/* 		add_atk_namedesc (GTK_WIDGET (gsearch->available_options_add_button), _("Add search option"), */
+/* 				  _("Click to add the selected available search option.")); */
+/* 	} */
+
+/* 	gtk_box_pack_end (GTK_BOX (hbox), gsearch->available_options_add_button, FALSE, FALSE, 0); */
+
+/* } */
 
 static void
 filename_cell_data_func (GtkTreeViewColumn * column,
@@ -1836,90 +1832,90 @@ set_clone_command (GSearchWindow * gsearch,
 	g_free (tmp);
 	g_free (file_is_named_locale);
 
-/*	if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox)) {
-		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) {
-			GSearchConstraint * constraint = list->data;
-			gchar * locale = NULL;
+/*	if (GTK_WIDGET_VISIBLE (gsearch->available_options_vbox)) { */
+/* 		for (list = gsearch->available_options_selected_list; list != NULL; list = g_list_next (list)) { */
+/* 			GSearchConstraint * constraint = list->data; */
+/* 			gchar * locale = NULL; */
 
-			switch (constraint->constraint_id) {
-			case SEARCH_CONSTRAINT_CONTAINS_THE_TEXT:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				if (escape_values)
-					tmp = g_shell_quote (locale);
-				else
-					tmp = g_strdup (locale);
-				argv[i++] = g_strdup_printf ("--contains=%s", tmp);
-				g_free (tmp);
-				break;
-			case SEARCH_CONSTRAINT_DATE_MODIFIED_BEFORE:
-				argv[i++] = g_strdup_printf ("--mtimeless=%d", constraint->data.time);
-				break;
-			case SEARCH_CONSTRAINT_DATE_MODIFIED_AFTER:
-				argv[i++] = g_strdup_printf ("--mtimemore=%d", constraint->data.time);
-				break;
-			case SEARCH_CONSTRAINT_SIZE_IS_MORE_THAN:
-				argv[i++] = g_strdup_printf ("--sizemore=%u", constraint->data.number);
-				break;
-			case SEARCH_CONSTRAINT_SIZE_IS_LESS_THAN:
-				argv[i++] = g_strdup_printf ("--sizeless=%u", constraint->data.number);
-				break;
-			case SEARCH_CONSTRAINT_FILE_IS_EMPTY:
-				argv[i++] = g_strdup ("--empty");
-				break;
-			case SEARCH_CONSTRAINT_OWNED_BY_USER:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				if (escape_values)
-					tmp = g_shell_quote (locale);
-				else
-					tmp = g_strdup (locale);
-				argv[i++] = g_strdup_printf ("--user=%s", tmp);
-				g_free (tmp);
-				break;
-			case SEARCH_CONSTRAINT_OWNED_BY_GROUP:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				if (escape_values)
-					tmp = g_shell_quote (locale);
-				else
-					tmp = g_strdup (locale);
-				argv[i++] = g_strdup_printf ("--group=%s", tmp);
-				g_free (tmp);
-				break;
-			case SEARCH_CONSTRAINT_OWNER_IS_UNRECOGNIZED:
-				argv[i++] = g_strdup ("--nouser");
-				break;
-			case SEARCH_CONSTRAINT_FILE_IS_NOT_NAMED:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				if (escape_values)
-					tmp = g_shell_quote (locale);
-				else
-					tmp = g_strdup (locale);
-				argv[i++] = g_strdup_printf ("--notnamed=%s", tmp);
-				g_free (tmp);
-				break;
-			case SEARCH_CONSTRAINT_FILE_MATCHES_REGULAR_EXPRESSION:
-				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL);
-				if (escape_values)
-					tmp = g_shell_quote (locale);
-				else
-					tmp = g_strdup (locale);
-				argv[i++] = g_strdup_printf ("--regex=%s", tmp);
-				g_free (tmp);
-				break;
-			case SEARCH_CONSTRAINT_SHOW_HIDDEN_FILES_AND_FOLDERS:
-				argv[i++] = g_strdup ("--hidden");
-				break;
-			case SEARCH_CONSTRAINT_FOLLOW_SYMBOLIC_LINKS:
-				argv[i++] = g_strdup ("--follow");
-				break;
-			case SEARCH_CONSTRAINT_SEARCH_OTHER_FILESYSTEMS:
-				argv[i++] = g_strdup ("--allmounts");
-				break;
-			default:
-				break;
-			}
-			g_free (locale);
-		}
-	}*/
+/* 			switch (constraint->constraint_id) { */
+/* 			case SEARCH_CONSTRAINT_CONTAINS_THE_TEXT: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				if (escape_values) */
+/* 					tmp = g_shell_quote (locale); */
+/* 				else */
+/* 					tmp = g_strdup (locale); */
+/* 				argv[i++] = g_strdup_printf ("--contains=%s", tmp); */
+/* 				g_free (tmp); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_DATE_MODIFIED_BEFORE: */
+/* 				argv[i++] = g_strdup_printf ("--mtimeless=%d", constraint->data.time); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_DATE_MODIFIED_AFTER: */
+/* 				argv[i++] = g_strdup_printf ("--mtimemore=%d", constraint->data.time); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SIZE_IS_MORE_THAN: */
+/* 				argv[i++] = g_strdup_printf ("--sizemore=%u", constraint->data.number); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SIZE_IS_LESS_THAN: */
+/* 				argv[i++] = g_strdup_printf ("--sizeless=%u", constraint->data.number); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FILE_IS_EMPTY: */
+/* 				argv[i++] = g_strdup ("--empty"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_OWNED_BY_USER: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				if (escape_values) */
+/* 					tmp = g_shell_quote (locale); */
+/* 				else */
+/* 					tmp = g_strdup (locale); */
+/* 				argv[i++] = g_strdup_printf ("--user=%s", tmp); */
+/* 				g_free (tmp); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_OWNED_BY_GROUP: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				if (escape_values) */
+/* 					tmp = g_shell_quote (locale); */
+/* 				else */
+/* 					tmp = g_strdup (locale); */
+/* 				argv[i++] = g_strdup_printf ("--group=%s", tmp); */
+/* 				g_free (tmp); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_OWNER_IS_UNRECOGNIZED: */
+/* 				argv[i++] = g_strdup ("--nouser"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FILE_IS_NOT_NAMED: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				if (escape_values) */
+/* 					tmp = g_shell_quote (locale); */
+/* 				else */
+/* 					tmp = g_strdup (locale); */
+/* 				argv[i++] = g_strdup_printf ("--notnamed=%s", tmp); */
+/* 				g_free (tmp); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FILE_MATCHES_REGULAR_EXPRESSION: */
+/* 				locale = g_locale_from_utf8 (constraint->data.text, -1, NULL, NULL, NULL); */
+/* 				if (escape_values) */
+/* 					tmp = g_shell_quote (locale); */
+/* 				else */
+/* 					tmp = g_strdup (locale); */
+/* 				argv[i++] = g_strdup_printf ("--regex=%s", tmp); */
+/* 				g_free (tmp); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SHOW_HIDDEN_FILES_AND_FOLDERS: */
+/* 				argv[i++] = g_strdup ("--hidden"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_FOLLOW_SYMBOLIC_LINKS: */
+/* 				argv[i++] = g_strdup ("--follow"); */
+/* 				break; */
+/* 			case SEARCH_CONSTRAINT_SEARCH_OTHER_FILESYSTEMS: */
+/* 				argv[i++] = g_strdup ("--allmounts"); */
+/* 				break; */
+/* 			default: */
+/* 				break; */
+/* 			} */
+/* 			g_free (locale); */
+/* 		} */
+/* 	} */
 	*argvp = argv;
 	*argcp = i;
 }
@@ -2096,18 +2092,18 @@ click_find_cb (GtkWidget * widget,
 static GtkWidget *
 gsearch_app_create (GSearchWindow * gsearch)
 {
-//	GtkTargetEntry drag_types[] = {{ "text/uri-list", 0, 0 }};
-//	gchar * locale_string;
-//	gchar * utf8_string;
+/* 	GtkTargetEntry drag_types[] = {{ "text/uri-list", 0, 0 }}; */
+/* 	gchar * locale_string; */
+/* 	gchar * utf8_string; */
 	GtkWidget * hbox;
 	GtkWidget * vbox;
 	GtkWidget * entry;
 	GtkWidget * label;
 	GtkWidget * image;
-//	GtkWidget * button;
+/*	GtkWidget * button; */
 	GtkWidget * container;
 	GtkWidget * main_container;
-//	GdkPixbuf * pixbuf;
+/*      GdkPixbuf * pixbuf; */
 
 	gsearch->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gsearch->is_window_maximized = tracker_search_gconf_get_boolean ("/apps/tracker-search-tool/default_window_maximized");
@@ -2189,19 +2185,19 @@ gsearch_app_create (GSearchWindow * gsearch)
 			  G_CALLBACK (name_contains_activate_cb),
 			  (gpointer) gsearch);
 
-	gsearch->show_more_options_expander = gtk_expander_new_with_mnemonic (_("Select more _options"));
-	//gtk_box_pack_start (GTK_BOX (container), gsearch->show_more_options_expander, FALSE, FALSE, 0);
-	//g_signal_connect (G_OBJECT (gsearch->show_more_options_expander), "notify::expanded",
-	//		  G_CALLBACK (click_expander_cb), (gpointer) gsearch);
+	gsearch->show_more_options_expander = gtk_expander_new_with_mnemonic ("Select more _options");
+/* 	gtk_box_pack_start (GTK_BOX (container), gsearch->show_more_options_expander, FALSE, FALSE, 0); */
+/* 	g_signal_connect (G_OBJECT (gsearch->show_more_options_expander), "notify::expanded", */
+/* 			  G_CALLBACK (click_expander_cb), (gpointer) gsearch); */
 
-	//create_additional_constraint_section (gsearch);
-	//gtk_box_pack_start (GTK_BOX (container), GTK_WIDGET (gsearch->available_options_vbox), FALSE, FALSE, 0);
+/* 	create_additional_constraint_section (gsearch); */
+/* 	gtk_box_pack_start (GTK_BOX (container), GTK_WIDGET (gsearch->available_options_vbox), FALSE, FALSE, 0); */
 
-	//if (gsearch->is_window_accessible) {
-	//	add_atk_namedesc (GTK_WIDGET (gsearch->show_more_options_expander), _("Select more options"), _("Click to expand or collapse the list of available options."));
-	//	add_atk_relation (GTK_WIDGET (gsearch->available_options_vbox), GTK_WIDGET (gsearch->show_more_options_expander), ATK_RELATION_CONTROLLED_BY);
-	//	add_atk_relation (GTK_WIDGET (gsearch->show_more_options_expander), GTK_WIDGET (gsearch->available_options_vbox), ATK_RELATION_CONTROLLER_FOR);
-	//}
+/* 	if (gsearch->is_window_accessible) { */
+/* 		add_atk_namedesc (GTK_WIDGET (gsearch->show_more_options_expander), _("Select more options"), _("Click to expand or collapse the list of available options.")); */
+/* 		add_atk_relation (GTK_WIDGET (gsearch->available_options_vbox), GTK_WIDGET (gsearch->show_more_options_expander), ATK_RELATION_CONTROLLED_BY); */
+/* 		add_atk_relation (GTK_WIDGET (gsearch->show_more_options_expander), GTK_WIDGET (gsearch->available_options_vbox), ATK_RELATION_CONTROLLER_FOR); */
+/* 	} */
 
 	vbox = gtk_vbox_new (FALSE, 12);
 	gtk_box_pack_start (GTK_BOX (container), vbox, TRUE, TRUE, 0);
@@ -2215,8 +2211,8 @@ gsearch_app_create (GSearchWindow * gsearch)
 
 	g_signal_connect (G_OBJECT (gsearch->find_button), "clicked",
 	                  G_CALLBACK (click_find_cb), (gpointer) gsearch);
-    	//g_signal_connect (G_OBJECT (gsearch->find_button), "size_allocate",
-	 //                 G_CALLBACK (size_allocate_cb), (gpointer) gsearch->available_options_add_button);
+/*     	g_signal_connect (G_OBJECT (gsearch->find_button), "size_allocate", */
+/* 	                  G_CALLBACK (size_allocate_cb), (gpointer) gsearch->available_options_add_button); */
 
 	if (gsearch->is_window_accessible) {
 		add_atk_namedesc (GTK_WIDGET (gsearch->find_button), NULL, _("Click to perform a search."));
@@ -2243,17 +2239,17 @@ gsearch_app_create (GSearchWindow * gsearch)
 	                  G_CALLBACK (click_find_cb), (gpointer) gsearch);
 	gtk_container_add (GTK_CONTAINER (hbox), widget);
 
-//	widget = gtk_label_new ("");
-//	gtk_box_pack_end (GTK_BOX (vbox), widget, TRUE, TRUE, 2);
+/* 	widget = gtk_label_new (""); */
+/* 	gtk_box_pack_end (GTK_BOX (vbox), widget, TRUE, TRUE, 2); */
 	
 
-	//widget = gtk_expander_new_with_mnemonic (_("Selected document _details:"));
-	//gtk_box_pack_start (GTK_BOX (container), widget, FALSE, FALSE, 0);
-//	g_signal_connect (G_OBJECT (gsearch->show_more_options_expander), "notify::expanded",
-//			  G_CALLBACK (click_expander_cb), (gpointer) gsearch);
+/* 	widget = gtk_expander_new_with_mnemonic (_("Selected document _details:")); */
+/* 	gtk_box_pack_start (GTK_BOX (container), widget, FALSE, FALSE, 0); */
+/* 	g_signal_connect (G_OBJECT (gsearch->show_more_options_expander), "notify::expanded", */
+/* 			  G_CALLBACK (click_expander_cb), (gpointer) gsearch); */
 
 	gtk_widget_show_all (main_container);
-	//gtk_widget_hide (gsearch->available_options_vbox);
+/*	gtk_widget_hide (gsearch->available_options_vbox); */
 
 	gtk_widget_set_sensitive (gsearch->forward_button, FALSE);
 	gtk_widget_set_sensitive (gsearch->back_button, FALSE);
@@ -2311,7 +2307,7 @@ tracker_search_setup_gconf_notifications (GSearchWindow * gsearch)
 	gchar * click_to_activate_pref = NULL;
 
 	/* Get value of nautilus click behavior (single or double click to activate items) */
-	//click_to_activate_pref = tracker_search_gconf_get_string ("/apps/nautilus/preferences/click_policy");
+/*      click_to_activate_pref = tracker_search_gconf_get_string ("/apps/nautilus/preferences/click_policy"); */
 
 	if (click_to_activate_pref == NULL) {
 		gsearch->is_search_results_single_click_to_activate = FALSE;
@@ -2399,7 +2395,7 @@ main (int argc,
 	                              GNOME_PARAM_GOPTION_CONTEXT, option_context,
 	                              GNOME_PARAM_NONE);
 
-	g_set_application_name (_("Desktop Search"));
+	g_set_application_name (_("Tracker Search Tool"));
 
 
 	tracker_search_init_stock_icons ();

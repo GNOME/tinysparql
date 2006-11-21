@@ -1,5 +1,13 @@
 2006-11-21  Luca Ferretti  <elle.uca@libero.it>
 
+	* src/libtracker/tracker-search-tool.c:
+	Reduce the number of translable messages using C style comment
+	blocks to exclude unused functions and remove _() macros from
+	unused strings.
+	Change the window title to match the launcher label.
+
+2006-11-21  Luca Ferretti  <elle.uca@libero.it>
+
 	* src/libtracker/tracker-tag.c:
 	* src/libtracker/tracker-search.c:
 	Fix a couple of typos in translatable messages.
