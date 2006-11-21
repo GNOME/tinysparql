@@ -107,7 +107,10 @@ main (int argc, char **argv)
 	g_free (example);
 	
 	if (error) {
-		g_printerr ("%s\n", error->message);
+		g_printerr ("%s: %s", argv[0], error->message);
+		g_printerr ("\n");
+		g_printerr (_("Try \"%s --help\" for more information."), argv[0]);
+		g_printerr ("\n");
 		return 1;
 	}
 

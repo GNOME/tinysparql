@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* Tracker Search
  * Copyright (C) 2005, Mr Jamie McCracken (jamiemcc@gnome.org)	
  *
@@ -31,8 +32,8 @@ static gchar *service = NULL;
 static gboolean detailed;
 
 static GOptionEntry entries[] = {
-	{"limit", 'l', 0, G_OPTION_ARG_INT, &limit, N_("Limit the number of results showed"), N_("LIMIT")},
-	{"service", 's', 0, G_OPTION_ARG_STRING, &service, N_("Search from a specific service"), N_("SERVICE")},
+	{"limit", 'l', 0, G_OPTION_ARG_INT, &limit, N_("Limit the number of results showed to N"), N_("N")},
+	{"service", 's', 0, G_OPTION_ARG_STRING, &service, N_("Search for a specific service"), N_("SERVICE")},
 	{"detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed, N_("Show more detailed results with service and mime type as well"), NULL},
 	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &terms, "search terms", NULL},
 	{NULL}
@@ -73,6 +74,7 @@ main (int argc, char **argv)
 	GError *error = NULL;
 	ServiceType type;
 	gchar *search;
+	gchar *summary;
 	gchar **result;
 	char **p_strarray;
 	GPtrArray *out_array = NULL;
@@ -83,17 +85,43 @@ main (int argc, char **argv)
         bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
         textdomain (GETTEXT_PACKAGE);
 
-	context = g_option_context_new (_("TERM1 [TERM2...] - search files for certain terms (ANDed)"));
+	/* Translators: this messagge will apper immediately after the  */
+        /* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
+	context = g_option_context_new (_("TERM... - search files for certain terms"));
+
+	/* Translators: this message will appear after the usage string */
+        /* and before the list of options.                              */
+	summary = g_strconcat (_("Specifying more then one term, will be "
+				 "showed items containing ALL the specified "
+				 "terms (term1 AND term2 - logical conjunction)"), 
+			       "\n\n",
+			       _("The list of recognized services is:"),
+			       "\n\tDocuments Music Images Videos Text Development",			       
+			       NULL);
+
+#ifdef HAVE_RECENT_GLIB
+	g_option_context_set_summary (context, summary);
+#endif /* HAVE_RECENT_GLIB */
+
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 
+	g_option_context_free (context);
+	g_free (summary);
+
 	if (error) {
-		g_printerr (_("Invalid arguments: %s\n"), error->message);
+		g_printerr ("%s: %s", argv[0], error->message);
+		g_printerr ("\n");
+		g_printerr (_("Try \"%s --help\" for more information."), argv[0]);
+		g_printerr ("\n");
 		return 1;
 	}
 
 	if (!terms) {
-		g_printerr (_("Missing search terms, try '%s --help' for help\n"), argv[0]);
+		g_printerr (_("%s: missing search terms"), argv[0]);
+		g_printerr ("\n");
+		g_printerr (_("Try \"%s --help\" for more information."), argv[0]);
+		g_printerr ("\n");
 		return 1;
 	}
 
@@ -103,7 +131,11 @@ main (int argc, char **argv)
 	client = tracker_connect (FALSE);
 
 	if (!client) {
-		g_printerr (_("could not connect to Tracker\n"));
+		g_printerr (_("%s: no connection to tracker daemon"), argv[0]);
+                g_printerr ("\n");
+                g_printerr (_("Ensure \"trackerd\" is running before launch thisx command."));
+                g_printerr ("\n");
+
 		return 1;
 	}
 
@@ -139,13 +171,17 @@ main (int argc, char **argv)
 
 
 	if (error) {
-		g_printerr (_("tracker raised error: %s\n"), error->message);
+		g_printerr (_("%s: internal tracker error: %s"), 
+			    argv[0], error->message);
+		g_printerr ("\n");
 		g_error_free (error);
 		return 1;
 	}
 
 	if ((!detailed && !result) || (detailed && !out_array)) {
- 		g_printerr (_("No results found\n"));
+		/* FIXME!! coreutilus don't print anything on no-results */
+ 		g_print (_("No results found matching your query"));
+		g_print ("\n");
 		tracker_disconnect (client);
  		return 0;
  	}
