@@ -4,3 +4,4 @@
 src/libtracker/tracker-search.c
 src/libtracker/tracker-tag.c
 src/tracker-search-tool/tracker-search-tool.c
+src/tracker-search-tool/tracker-search-tool.desktop.in

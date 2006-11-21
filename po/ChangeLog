@@ -1,3 +1,9 @@
+2006-11-21  Luca Ferretti  <elle.uca@libero.it>
+
+	* POTFILES.in: Add tracker-search-tool.desktop.in
+
+	* it.po: Updated Italian translation.
+
 2006-11-16  Luca Ferretti  <elle.uca@libero.it>
 
 	* POTFILES.in:

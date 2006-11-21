@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-06 11:17+0100\n"
-"PO-Revision-Date: 2006-11-06 11:28+0100\n"
+"POT-Creation-Date: 2006-11-21 09:15+0100\n"
+"PO-Revision-Date: 2006-11-21 09:16+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -16,274 +16,355 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural= ( n != 1 );\n"
 
-#: ../src/libtracker/tracker-search.c:33
-msgid "Limit the number of results showed"
-msgstr "Limita il numero di risultati mostrati"
+#: ../src/libtracker/tracker-search.c:35
+msgid "Limit the number of results showed to N"
+msgstr "Limita il numero di risultati mostrati a N"
 
-#: ../src/libtracker/tracker-search.c:33
-msgid "LIMIT"
-msgstr "LIMITE"
+#: ../src/libtracker/tracker-search.c:35
+msgid "N"
+msgstr "N"
 
-#: ../src/libtracker/tracker-search.c:34
-#: ../src/tracker-search-tool/tracker-search-tool.c:66
-msgid "Search from a specific service"
+#: ../src/libtracker/tracker-search.c:36
+msgid "Search for a specific service"
 msgstr "Cerca per uno specifico servizio"
 
-#: ../src/libtracker/tracker-search.c:34
+#: ../src/libtracker/tracker-search.c:36
 #: ../src/tracker-search-tool/tracker-search-tool.c:66
 msgid "SERVICE"
 msgstr "SERVIZIO"
 
-#: ../src/libtracker/tracker-search.c:35
+#: ../src/libtracker/tracker-search.c:37
 msgid "Show more detailed results with service and mime type as well"
 msgstr "Mostra risultati più dettagliati con servizio e tipo MIME"
 
-#: ../src/libtracker/tracker-search.c:85
-msgid "TERM1 [TERM2...] - search files for certain terms (ANDed)"
-msgstr "TERMINE1 [TERMINE2...]  - cerca determinate parole nei file (in AND)"
-
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-search.c:90
+msgid "TERM... - search files for certain terms"
+msgstr "TERMINE...  - cerca determinate termini nei file"
+
+#. Translators: this message will appear after the usage string
+#. and before the list of options.
+#: ../src/libtracker/tracker-search.c:94
+msgid ""
+"Specifying more then one term, will be showed items containing ALL the "
+"specified terms (term1 AND term2 - logical conjunction)"
+msgstr ""
+"Specificando più di un termine, saranno mostrati gli elementi che contengono "
+"TUTTI i termini specificati (termine1 AND termine2 - congiunzione logica)"
+
+#: ../src/libtracker/tracker-search.c:98
+msgid "The list of recognized services is:"
+msgstr "L'elenco di servizi riconosciuti è:"
+
+#: ../src/libtracker/tracker-search.c:115
+#: ../src/libtracker/tracker-search.c:123 ../src/libtracker/tracker-tag.c:112
+#: ../src/libtracker/tracker-tag.c:120
 #, c-format
-msgid "Invalid arguments: %s\n"
-msgstr "Argomenti non validi: %s\n"
+msgid "Try \"%s --help\" for more information."
+msgstr "Provare \"%s --help\" per maggiori informazioni."
 
-#: ../src/libtracker/tracker-search.c:95
+#: ../src/libtracker/tracker-search.c:121
 #, c-format
-msgid "Missing search terms, try '%s --help' for help\n"
-msgstr "Termini di ricerca mancanti, provare \"%s --help' per informazioni\n"
+msgid "%s: missing search terms"
+msgstr "%s: termini da cercare mancanti"
 
-#: ../src/libtracker/tracker-search.c:105
-msgid "could not connect to Tracker\n"
-msgstr "Impossibile connettersi a Tracker\n"
+#: ../src/libtracker/tracker-search.c:134 ../src/libtracker/tracker-tag.c:129
+#, c-format
+msgid "%s: no connection to tracker daemon"
+msgstr "%s: nessuna connessione al demone tracker"
 
-#: ../src/libtracker/tracker-search.c:124
+#: ../src/libtracker/tracker-search.c:136 ../src/libtracker/tracker-tag.c:131
+msgid "Ensure \"trackerd\" is running before launch this command."
+msgstr ""
+"Assicurarsi che \"trackerd\" sia in esecuzione prima di avviare questo "
+"comando."
+
+#: ../src/libtracker/tracker-search.c:157
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Servizio non riconosciuto, ricerca in \"altri\" file...\n"
 
-#: ../src/libtracker/tracker-search.c:141
+#: ../src/libtracker/tracker-search.c:174 ../src/libtracker/tracker-tag.c:177
+#: ../src/libtracker/tracker-tag.c:186 ../src/libtracker/tracker-tag.c:195
+#: ../src/libtracker/tracker-tag.c:230 ../src/libtracker/tracker-tag.c:280
 #, c-format
-msgid "tracker raised error: %s\n"
+msgid "%s: internal tracker error: %s"
+msgstr "%s: errore interno di tracker: %s"
+
+#. FIXME!! coreutilus don't print anything on no-results
+#: ../src/libtracker/tracker-search.c:183 ../src/libtracker/tracker-tag.c:265
+msgid "No results found matching your query"
+msgstr "Nessun risultato trovato che corrisponda all'interrogazione"
+
+#: ../src/libtracker/tracker-tag.c:38
+msgid "Add specified tag to a file"
+msgstr "Aggiunge l'etichetta specificata a un file"
+
+#: ../src/libtracker/tracker-tag.c:38 ../src/libtracker/tracker-tag.c:39
+#: ../src/libtracker/tracker-tag.c:42 ../src/libtracker/tracker-tag.c:89
+msgid "TAG"
+msgstr "ETICHETTA"
+
+#: ../src/libtracker/tracker-tag.c:39
+msgid "Remove specified tag from a file"
+msgstr "Rimuove l'etichetta specificata da un file"
+
+#: ../src/libtracker/tracker-tag.c:40
+msgid "Remove all tags from a file"
+msgstr "Rimuove tutte le etichette da un file"
+
+#: ../src/libtracker/tracker-tag.c:41
+msgid "List all defined tags"
+msgstr "Elenca tutte le etichette definite"
+
+#: ../src/libtracker/tracker-tag.c:42
+msgid "Search for files with specified tag"
+msgstr "Ricera i file con l'etichetta specificata"
+
+#: ../src/libtracker/tracker-tag.c:43
+msgid "FILE..."
+msgstr "FILE..."
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-tag.c:87
+msgid "FILE... - manipulate tags on files"
+msgstr "FILE... - manipole le etichette applicate ai file"
+
+#: ../src/libtracker/tracker-tag.c:96
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options like:"
 msgstr ""
+"Per aggiungere, rimuovere o cercare etichette multiple in una sola volta, "
+"unire più opzioni come in:"
 
-#: ../src/libtracker/tracker-search.c:147
-msgid "No results found\n"
-msgstr "Nessun risultato trovato\n"
+#: ../src/libtracker/tracker-tag.c:118
+#, c-format
+msgid "%s: invalid arguments"
+msgstr "%s: argomenti non validi"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:99
+#: ../src/libtracker/tracker-tag.c:146
+#, c-format
+msgid "%s: file %s not found"
+msgstr "%s: file %s non trovato"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:66
+msgid "Search from a specific service"
+msgstr "Cerca per uno specifico servizio"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:105
 msgid "All files"
 msgstr "Tutti i file"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:100
+#: ../src/tracker-search-tool/tracker-search-tool.c:106
 msgid "Development"
 msgstr "Sviluppo"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:101
+#: ../src/tracker-search-tool/tracker-search-tool.c:107
 msgid "Documents"
 msgstr "Documenti"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:102
+#: ../src/tracker-search-tool/tracker-search-tool.c:108
 msgid "Images"
 msgstr "Immagini"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:103
+#: ../src/tracker-search-tool/tracker-search-tool.c:109
 msgid "Music"
 msgstr "Musica"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:104
+#: ../src/tracker-search-tool/tracker-search-tool.c:110
 msgid "Plain text"
 msgstr "Testo semplice"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:105
+#: ../src/tracker-search-tool/tracker-search-tool.c:111
 msgid "Videos"
 msgstr "Video"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:111
+#: ../src/tracker-search-tool/tracker-search-tool.c:117
 msgid "Contains the _text"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:113
+#: ../src/tracker-search-tool/tracker-search-tool.c:119
 msgid "_Date modified less than"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:113
-#: ../src/tracker-search-tool/tracker-search-tool.c:114
+#: ../src/tracker-search-tool/tracker-search-tool.c:119
+#: ../src/tracker-search-tool/tracker-search-tool.c:120
 msgid "days"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:114
+#: ../src/tracker-search-tool/tracker-search-tool.c:120
 msgid "Date modified more than"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:116
+#: ../src/tracker-search-tool/tracker-search-tool.c:122
 msgid "S_ize at least"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:116
-#: ../src/tracker-search-tool/tracker-search-tool.c:117
+#: ../src/tracker-search-tool/tracker-search-tool.c:122
+#: ../src/tracker-search-tool/tracker-search-tool.c:123
 msgid "kilobytes"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:117
+#: ../src/tracker-search-tool/tracker-search-tool.c:123
 msgid "Si_ze at most"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:118
+#: ../src/tracker-search-tool/tracker-search-tool.c:124
 msgid "File is empty"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:120
+#: ../src/tracker-search-tool/tracker-search-tool.c:126
 msgid "Owned by _user"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:121
+#: ../src/tracker-search-tool/tracker-search-tool.c:127
 msgid "Owned by _group"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:122
+#: ../src/tracker-search-tool/tracker-search-tool.c:128
 msgid "Owner is unrecognized"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:124
+#: ../src/tracker-search-tool/tracker-search-tool.c:130
 msgid "Na_me does not contain"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:125
+#: ../src/tracker-search-tool/tracker-search-tool.c:131
 msgid "Name matches regular e_xpression"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:127
+#: ../src/tracker-search-tool/tracker-search-tool.c:133
 msgid "Show hidden and backup files"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:128
+#: ../src/tracker-search-tool/tracker-search-tool.c:134
 msgid "Follow symbolic links"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:129
+#: ../src/tracker-search-tool/tracker-search-tool.c:135
 msgid "Include other filesystems"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:169
+#: ../src/tracker-search-tool/tracker-search-tool.c:175
 msgid "_Open"
 msgstr "_Apri"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:170
+#: ../src/tracker-search-tool/tracker-search-tool.c:176
 msgid "O_pen Folder"
 msgstr "A_pri cartella"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:171
+#: ../src/tracker-search-tool/tracker-search-tool.c:177
 msgid "Mo_ve to Trash"
 msgstr "_Sposta nel cestino"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:172
+#: ../src/tracker-search-tool/tracker-search-tool.c:178
 msgid "_Save Results As..."
 msgstr "_Salva risultati come..."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:273
+#: ../src/tracker-search-tool/tracker-search-tool.c:279
 #, c-format
 msgid "Character set conversion failed for \"%s\""
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:297
-msgid "Searching..."
-msgstr "Ricerca..."
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:297
-msgid "Search Tool"
-msgstr "Strumento di ricerca"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:719
-#: ../src/tracker-search-tool/tracker-search-tool.c:745
+#: ../src/tracker-search-tool/tracker-search-tool.c:777
+#: ../src/tracker-search-tool/tracker-search-tool.c:803
 msgid "No files found"
 msgstr "Nessun file trovato"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:738
+#: ../src/tracker-search-tool/tracker-search-tool.c:796
 msgid "(stopped)"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:744
+#: ../src/tracker-search-tool/tracker-search-tool.c:802
 msgid "No Files Found"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:749
+#: ../src/tracker-search-tool/tracker-search-tool.c:807
 #, c-format
 msgid "%d File Found"
 msgid_plural "%d Files Found"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:753
+#: ../src/tracker-search-tool/tracker-search-tool.c:811
 #, c-format
 msgid "%d file found"
 msgid_plural "%d files found"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:770
-#: ../src/tracker-search-tool/tracker-search-tool.c:1053
+#: ../src/tracker-search-tool/tracker-search-tool.c:828
+#: ../src/tracker-search-tool/tracker-search-tool.c:1111
 msgid "Search for Files"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:886
+#: ../src/tracker-search-tool/tracker-search-tool.c:944
 msgid "Entry changed called for a non entry option!"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1539
+#: ../src/tracker-search-tool/tracker-search-tool.c:1608
 msgid "S_earch results:"
 msgstr "_Risultati di ricerca:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1575
+#: ../src/tracker-search-tool/tracker-search-tool.c:1644
 msgid "List View"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1640
+#: ../src/tracker-search-tool/tracker-search-tool.c:1709
 msgid "Icon"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1652
+#: ../src/tracker-search-tool/tracker-search-tool.c:1721
 msgid "Name"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1674
+#: ../src/tracker-search-tool/tracker-search-tool.c:1749
 msgid "Text"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2083
+#: ../src/tracker-search-tool/tracker-search-tool.c:2157
 msgid "_Search:"
 msgstr "C_erca:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2110
-#: ../src/tracker-search-tool/tracker-search-tool.c:2111
+#: ../src/tracker-search-tool/tracker-search-tool.c:2184
+#: ../src/tracker-search-tool/tracker-search-tool.c:2185
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2111
+#: ../src/tracker-search-tool/tracker-search-tool.c:2185
 msgid "search_entry"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2118
+#: ../src/tracker-search-tool/tracker-search-tool.c:2192
 msgid "Select more _options"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2148
+#: ../src/tracker-search-tool/tracker-search-tool.c:2222
 msgid "Click to perform a search."
-msgstr ""
+msgstr "Fare clic per eseguire una ricerca."
 
 # risultati, quindi plurale -Luca
-#: ../src/tracker-search-tool/tracker-search-tool.c:2156
+#: ../src/tracker-search-tool/tracker-search-tool.c:2230
 msgid "_Previous"
 msgstr "_Precedenti"
 
 # risultati, quindi plurale -Luca
-#: ../src/tracker-search-tool/tracker-search-tool.c:2164
+#: ../src/tracker-search-tool/tracker-search-tool.c:2238
 msgid "_Next"
 msgstr "_Successivi"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2311
+#: ../src/tracker-search-tool/tracker-search-tool.c:2402
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
 msgid "Desktop Search"
 msgstr "Ricerca desktop"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2351
+#: ../src/tracker-search-tool/tracker-search-tool.c:2450
 #, c-format
 msgid "Invalid service type: %s\n"
 msgstr "Tipo di servizio non valido: %s\n"
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Strumento di ricerca Tracker"
