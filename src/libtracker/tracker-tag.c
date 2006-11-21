@@ -37,7 +37,7 @@ static gboolean list = FALSE;
 static GOptionEntry entries[] = {
 	{"add", 'a', 0, G_OPTION_ARG_STRING_ARRAY, &add, N_("Add specified tag to a file"), N_("TAG")},
 	{"remove", 'r', 0, G_OPTION_ARG_STRING_ARRAY, &delete, N_("Remove specified tag from a file"), N_("TAG")},
-	{"remove-all", 'R', 0, G_OPTION_ARG_NONE, &remove_all, N_("Remove all tags from  a file"), NULL},
+	{"remove-all", 'R', 0, G_OPTION_ARG_NONE, &remove_all, N_("Remove all tags from a file"), NULL},
 	{"list", 'l', 0, G_OPTION_ARG_NONE, &list, N_("List all defined tags"), NULL},
 	{"search", 's', 0, G_OPTION_ARG_STRING_ARRAY, &search, N_("Search for files with specified tag"), N_("TAG")},
 	{G_OPTION_REMAINING, 0, G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING_ARRAY, &files, N_("FILE..."), NULL},

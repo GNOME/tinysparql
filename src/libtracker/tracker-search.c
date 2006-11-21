@@ -133,7 +133,7 @@ main (int argc, char **argv)
 	if (!client) {
 		g_printerr (_("%s: no connection to tracker daemon"), argv[0]);
                 g_printerr ("\n");
-                g_printerr (_("Ensure \"trackerd\" is running before launch thisx command."));
+                g_printerr (_("Ensure \"trackerd\" is running before launch this command."));
                 g_printerr ("\n");
 
 		return 1;

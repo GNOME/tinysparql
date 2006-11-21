@@ -2,6 +2,12 @@
 
 	* src/libtracker/tracker-tag.c:
 	* src/libtracker/tracker-search.c:
+	Fix a couple of typos in translatable messages.
+
+2006-11-21  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/libtracker/tracker-tag.c:
+	* src/libtracker/tracker-search.c:
 	Standardized error messages.
 
 2006-11-20  Luca Ferretti  <elle.uca@libero.i>
