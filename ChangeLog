@@ -1,3 +1,9 @@
+2006-11-12  Deji Akingunola <dakingun gmail com>
+
+	* removed extra trackerd.desktop file
+	* fixed t-s-t desktop file
+
+
 2006-11-21  Luca Ferretti  <elle.uca@libero.it>
 
 	* python/FUSE/trackerfs.py:

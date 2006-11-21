@@ -6,6 +6,5 @@ Exec=tracker-search-tool
 Icon=gnome-searchtool
 Terminal=false
 Type=Application
-Categories=GTK;Application;Utility;
+Categories=GTK;Utility;
 StartupNotify=true
-NoDisplay=true 

@@ -1,7 +1,9 @@
 SUBDIRS = data src filters thumbnailers docs po
 
 pkgconfigdir = $(libdir)/pkgconfig
+xdgconfigdir = $(sysconfdir)/xdg/autostart
 pkgconfig_DATA = tracker.pc
+xdgconfig_DATA = trackerd.desktop
 
 debian_files = \
 	debian/changelog \
@@ -34,12 +36,11 @@ debian_files = \
 
 EXTRA_DIST = \
 	$(pkgconfig_DATA) \
+	$(xdgconfig_DATA) \
 	AUTHORS NEWS INSTALL COPYING README \
 	ChangeLog \
 	configure.in \
 	rdf-query-examples/*.rdf \
-	trackerd.desktop \
-	trackerd-kde.desktop \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
