@@ -1,5 +1,10 @@
 2006-11-21  Luca Ferretti  <elle.uca@libero.it>
 
+	* python/FUSE/trackerfs.py:
+	Updated by Eugenio Cutolo.
+
+2006-11-21  Luca Ferretti  <elle.uca@libero.it>
+
 	* src/libtracker/tracker-search-tool.c:
 	Reduce the number of translable messages using C style comment
 	blocks to exclude unused functions and remove _() macros from

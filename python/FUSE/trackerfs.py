@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+#    Created by Eugenio Cutolo  <me@eugesoftware.com>
+#
 #    This program can be distributed under the terms of the GNU GPL.
+#    See the file COPYING.
+#
 
 from fuse import Fuse
 from optparse import OptionParser
@@ -8,20 +12,13 @@ from stat import *
 import os,statvfs,thread,logging,dbus
 
 
-# Set up logging
-log = logging.getLogger("trackerfs")
-log.setLevel(logging.DEBUG)
-fh = logging.StreamHandler()
-fh.setLevel(logging.DEBUG)
-#create formatter
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-fh.setFormatter(formatter)
-log.addHandler(fh)
-
 class TrackerFs (Fuse):
 
-	def __init__(self,*args, **kw):
-		Fuse.__init__(self,*args,**kw)
+	def __init__(self,args,options):
+		Fuse.__init__(self,args,{})
+		
+		#Use internals parameters dictionaries
+		self.params = options
 		
 		#Initialize dbus session and tracker interfaces
 		bus = dbus.SessionBus()
@@ -33,8 +30,8 @@ class TrackerFs (Fuse):
 		self.filesdb = dbus.Interface(obj, 'org.freedesktop.Tracker.Files')
 		
 		log.debug("mountpoint: %s" % repr(self.mountpoint))
-		log.debug("unnamed mount options: %s" % self.optlist)
-		log.debug("named mount options: %s" % self.optdict)
+		#log.debug("unnamed mount options: %s" % self.optlist)
+		#log.debug("named mount options: %s" % self.optdict)
 		
 		self.filelist = []
 		self.tmplist = []
@@ -47,19 +44,19 @@ class TrackerFs (Fuse):
 
 
 	def _refresh_filelist(self):
-		if self.optdict.has_key("tag"):
+		if self.params.tag != None:
 			log.debug("Use Tag")
-			self.filelist = self.keywords.Search(-1,'Files',self.optdict['tag'].split("+"),-1,-1)
+			self.filelist = self.keywords.Search(-1,'Files',self.params.tag.split("+"),-1,-1)
 			self.filelist = map(lambda x: str(x),self.filelist)
 		#Command Line support for query soon will be move to d-bus
-		elif self.optdict.has_key("query"):
+		elif self.params.query != None:
 			log.debug("Use Query")
-			self.filelist = os.popen("/usr/bin/tracker-query "+self.optdict['query'],"r").readlines();
+			self.filelist = os.popen("/usr/bin/tracker-query "+self.params.query,"r").readlines();
 			self.filelist = map(lambda x:(x.split(' : ')),self.filelist)
 			self.filelist = map(lambda x:(x[0].strip(' \t\r\n')),self.filelist)
-		elif self.optdict.has_key("search"):
+		elif self.params.search != None:
 			log.debug("Use Search")
-			self.filelist = self.search.Text(-1, "Files",self.optdict['search'], 0, 512, False)
+			self.filelist = self.search.Text(-1, "Files",self.params.search, 0, 512, False)
 			self.filelist = map(lambda x: str(x),self.filelist)
 		else:
 			print 'You must specify a tag or a query'
@@ -195,6 +192,31 @@ class TrackerFs (Fuse):
 		return 0
 
 if __name__ == '__main__':
-	server = TrackerFs()
+	usage = "usage: %prog mountpoint [options]"
+	
+	parser = OptionParser(usage)
+	parser.add_option("-s", "--search", dest="keys",help="Use a key to find the contents of mounted dir", metavar="key")
+	parser.add_option("-t", "--tag",dest="tag",help="Use a tag/s to find the contents of mounted dir", metavar="tag")
+	parser.add_option("-q", "--query",dest="file",help="Use a rdf file to find the contents of mounted dir", metavar="path")
+	parser.add_option("-v", "--verbose",action="store_true",help="Verbose the output", dest="verbose", default=False)
+	options, args = parser.parse_args()
+	
+	# Set up logging
+	level = logging.ERROR
+
+	if options.verbose != False:
+		level = logging.DEBUG
+		
+	log = logging.getLogger("trackerfs")
+	log.setLevel(level)
+	fh = logging.StreamHandler()
+	fh.setLevel(level)
+	
+	#create formatter
+	formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+	fh.setFormatter(formatter)
+	log.addHandler(fh)
+	
+	server = TrackerFs(args,options)
 	server.multithreaded = 0;
 	server.main()
