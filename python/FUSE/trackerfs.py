@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#    Created by Eugenio Cutolo  <me@eugesoftware.com>
+#    Created by Eugenio Cutolo  me at eugesoftware dot com
 #
 #    This program can be distributed under the terms of the GNU GPL.
 #    See the file COPYING.
@@ -9,87 +9,166 @@ from fuse import Fuse
 from optparse import OptionParser
 from errno import *
 from stat import *
-import os,statvfs,thread,logging,dbus
+import os,statvfs,logging,dbus
 
+#Simple class to interface with tracker dbus function
+class TrackerClient:
 
-class TrackerFs (Fuse):
-
-	def __init__(self,args,options):
-		Fuse.__init__(self,args,{})
-		
-		#Use internals parameters dictionaries
-		self.params = options
-		
+	def __init__(self):
 		#Initialize dbus session and tracker interfaces
 		bus = dbus.SessionBus()
 		obj = bus.get_object('org.freedesktop.Tracker','/org/freedesktop/tracker')
 		
-		self.tracker = dbus.Interface(obj, 'org.freedesktop.Tracker')
-		self.keywords = dbus.Interface(obj, 'org.freedesktop.Tracker.Keywords')
-		self.search = dbus.Interface(obj, 'org.freedesktop.Tracker.Search')
-		self.filesdb = dbus.Interface(obj, 'org.freedesktop.Tracker.Files')
+		self.tracker_iface = dbus.Interface(obj, 'org.freedesktop.Tracker')
+		self.keywords_iface = dbus.Interface(obj, 'org.freedesktop.Tracker.Keywords')
+		self.search_iface = dbus.Interface(obj, 'org.freedesktop.Tracker.Search')
+		self.files_iface = dbus.Interface(obj, 'org.freedesktop.Tracker.Files')
 		
-		log.debug("mountpoint: %s" % repr(self.mountpoint))
-		#log.debug("unnamed mount options: %s" % self.optlist)
-		#log.debug("named mount options: %s" % self.optdict)
+		self.version = self.tracker_iface.GetVersion()
+		self.query_id = -1
+
+	def search(self,text,service='Files',offset=0,max_hits=-1):
+		self.resultlist = self.search_iface.Text(self.query_id, service, text, offset, max_hits)
+		self.resultlist = map(lambda x: str(x),self.resultlist)
 		
-		self.filelist = []
-		self.tmplist = []
+	def search_by_tag(self,tag,service='Files',offset=0,max_hits=-1):
+		self.resultlist = self.keywords_iface.Search(self.query_id, service,tag,offset,max_hits)
+		self.resultlist = map(lambda x: str(x),self.resultlist)
+
+	def add_db_files(self,path):
+		self.files_iface.Exists(path,True)
+		return self.files_iface.Exists(path,False)
+
+	def add_tag(self,path,tags,service='Files'):
+		self.keywords_iface.Add(service,path,tags)
+		return
+
+	#In future will be implemented live_query support
+	def on_tracker_reply(self, results):
+		print results
+		
+	def on_tracker_error(self, e):
+		print "Error:"+e
+
+#This class it's an extension of Fuse and TrackerClient
+class TrackerFs (Fuse,TrackerClient):
+
+	def __init__(self):
+		#Initialize tracker client
+		TrackerClient.__init__(self)
+		
+		#Shell inteface
+		usage = "usage: %prog mountpoint [options]"
+		
+		self.parser = OptionParser(usage)
+		self.parser.add_option("-s", "--search", dest="keys",help="Use a key to find the contents of mounted dir", metavar="key")
+		self.parser.add_option("-t", "--tag",dest="tag",help="Use a tag/s to find the contents of mounted dir", metavar="tag")
+		self.parser.add_option("-q", "--query",dest="query",help="Use a rdf file to find the contents of mounted dir", metavar="path")
+		self.parser.add_option("-v", "--verbose",action="store_true",help="Verbose the output", dest="verbose", default=False)
+		self.params, args = self.parser.parse_args()
+		
+		#Init fuse
+		Fuse.__init__(self,args,{})
+
+		#Setup logger
+		self.log = logging.getLogger("trackerfs");self.log.setLevel(logging.DEBUG)
+		fh = logging.StreamHandler();fh.setLevel(logging.DEBUG)
+		formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+		fh.setFormatter(formatter)
+		self.log.addHandler(fh)
+		
+		#This is the path when file will be "really" created
+		self.realdir = os.environ["HOME"]+"/.documents/"
+		
+		if os.path.exists(self.realdir) == False:
+			self.log.debug("Create target directory")
+			os.mkdir(self.realdir)
+
+		self.log.debug("mountpoint: %s" % repr(self.mountpoint))
+		#self.log.debug("unnamed mount options: %s" % self.optlist)
+		#self.log.debug("named mount options: %s" % self.optdict)
+
 		self._refresh_filelist()
 		pass
 
 	def mythread(self):
-		log.debug("Start Thread")
-		#In future this thread refresh the filelist and tmplist
+		self.log.debug("Start Thread")
 
-
+#Refresh file list calling the TrackerClient function
 	def _refresh_filelist(self):
 		if self.params.tag != None:
-			log.debug("Use Tag")
-			self.filelist = self.keywords.Search(-1,'Files',self.params.tag.split("+"),-1,-1)
-			self.filelist = map(lambda x: str(x),self.filelist)
+			self.log.debug("Use Tag")
+			self.search_by_tag(self.params.tag.split("+"))
 		#Command Line support for query soon will be move to d-bus
 		elif self.params.query != None:
-			log.debug("Use Query")
-			self.filelist = os.popen("/usr/bin/tracker-query "+self.params.query,"r").readlines();
-			self.filelist = map(lambda x:(x.split(' : ')),self.filelist)
-			self.filelist = map(lambda x:(x[0].strip(' \t\r\n')),self.filelist)
-		elif self.params.search != None:
-			log.debug("Use Search")
-			self.filelist = self.search.Text(-1, "Files",self.params.search, 0, 512, False)
-			self.filelist = map(lambda x: str(x),self.filelist)
+			self.log.debug("Use Query")
+			self.resultlist = os.popen("/usr/bin/tracker-query "+self.params.query,"r").readlines();
+			self.resultlist = map(lambda x:(x.split(' : ')),self.resultlist)
+			self.resultlist = map(lambda x:(x[0].strip(' \t\r\n')),self.resultlist)
+		elif self.params.keys != None:
+			self.log.debug("Use Search")
+			self.search(self.params.keys)#.search,self.params.service)
 		else:
-			print 'You must specify a tag or a query'
+			print 'You must specify an options'
 			return 0
-		self.filelist.extend(self.tmplist)
-		log.debug("Refresh Filelist")
-		#self.filelist.pop()
+		self.log.debug("Refresh Filelist")
 
 	def _get_file_path(self,filename):
 		if os.path.dirname(filename) == "/":
-			for file in self.filelist:
+			for file in self.resultlist:
 				if filename== "/"+os.path.basename(file):
 					return file
 		else:
 			path = filename.split("/")
 			relpath = filename.replace("/"+path[1],"")
-			for file in self.filelist:
+			for file in self.resultlist:
 				if path[1] == os.path.basename(file):
 					return file+relpath
 		return filename
 
+	def create_file_or_dir(self,type,path,mode):
+		if os.path.dirname(path) == "/" and self.params.tag != None:
+			path = self.realdir+os.path.basename(path)
+		elif os.path.dirname(path) != "/":
+			path = self._get_file_path(path)
+		else:
+			self.log.error("Fs based on Search and Query doesen't have write access")
+			return 0
+		if S_ISREG(mode) and type == 0:
+			self.log.debug("MkFile:"+path)
+			res = os.open(path, os.O_CREAT | os.O_WRONLY,mode);
+		elif type == 1:	
+			self.log.debug("MkDir:"+path)
+			res = os.mkdir(path,mode)
+		else:
+			return -EINVAL
+		if os.path.dirname(path) == "/":
+			self.add_to_fs(path)
+		self._refresh_filelist()
+		self.getdir("/")
+		return res
+
+#Add file/dir to the tracker database and tag it with used tag
+	def add_to_fs(self,path):
+		if self.add_db_files(path):
+			self.log.debug("Added "+os.path.basename(path)+" to tracker database")
+			self.add_tag(path,self.params.tag.split("+"))
+			self.log.debug("Added "+os.path.basename(path)+" to fs")
+		else:
+			self.log.debug("Falied to add "+path+"to tracker database")
+
 	def getattr(self,path):
-		log.debug("GetAttr:"+self._get_file_path(path))
+		self.log.debug("GetAttr:"+self._get_file_path(path))
 		return os.lstat(self._get_file_path(path))
 
 	def readlink(self, path):
-		log.debug("ReadLink:"+self._get_file_path(path))
+		self.log.debug("ReadLink:"+self._get_file_path(path))
 		return os.readlink(self._get_file_path(path))
 
 	def getdir(self, path):
 		if path == "/":
 			self._refresh_filelist()
-			return map(lambda x: (os.path.basename(x),0),self.filelist)
+			return map(lambda x: (os.path.basename(x),0),self.resultlist)
 		else:
 			return map(lambda x: (os.path.basename(x),0),os.listdir(self._get_file_path(path)))
 
@@ -118,32 +197,11 @@ class TrackerFs (Fuse):
 		f = open(self._get_file_path(path), "w+")
 		return f.truncate(size)
 
-#For now when you move or copy a file in the mounted dir it will be moved
-#to ~/.documents dir and the path will be added to the tmplist
-
 	def mknod(self, path, mode, dev):
-		if os.path.dirname(path) == "/":
-			path = os.environ["HOME"]+"/.documents/"+os.path.basename(path)		
-			if S_ISREG(mode):
-				self.tmplist.append(path)
-				self._refresh_filelist()
-				self.getdir("/")
-				res = os.open(path, os.O_CREAT | os.O_WRONLY,mode);
-				log.debug("MkNod:"+path)
-				#restat = os.fstat(res);
-				#self.filesdb.Create(path,False,'image/png',dbus.Int32(restat[ST_SIZE]),restat[ST_MTIME])
-			else:
-				return -EINVAL
-#See over
+		res = self.create_file_or_dir(0,path,mode)
 
 	def mkdir(self, path, mode):
-		path = os.environ["HOME"]+"/.documents/"+os.path.basename(path)
-		res = os.mkdir(path,mode)
-		self.tmplist.append(path)
-		self._refresh_filelist()
-		self.getdir("/")
-		log.debug("MkDir:"+path)
-		return res
+		return self.create_file_or_dir(1,path,mode)
 
 	def utime(self, path, times):
 		return os.utime(self._get_file_path(path), times)
@@ -151,20 +209,20 @@ class TrackerFs (Fuse):
 	def open(self, path, flags):
 		path = self._get_file_path(path)
 		res = os.open(path,flags)
-		log.debug("open"+path)
+		self.log.debug("open"+path)
 		os.close(res)
 		return 0
 
 	def read(self, path, length, offset):
 		path = self._get_file_path(path)
-		log.debug("read:"+ path)
+		self.log.debug("read:"+ path)
 		f = open(self._get_file_path(path), "r")
 		f.seek(offset)
 		return f.read(length)
 
 	def write(self, path, buf, off):
 		path = self._get_file_path(path)
-		log.debug(":write:"+path)
+		self.log.debug(":write:"+path)
 		f = open(path, "w")
 		f.seek(off)
 		f.write(buf)
@@ -172,12 +230,12 @@ class TrackerFs (Fuse):
 		return 0
 
 	def release(self, path, flags):
-		log.debug("release: %s %s" % (self._get_file_path(path), flags))
+		self.log.debug("release: %s %s" % (self._get_file_path(path), flags))
 		return 0
 
 	def statfs(self):
-		self.sysconst = os.statvfs(os.environ["HOME"])
-		log.debug(":statfs: returning user's home value ")
+		self.sysconst = os.statvfs(self.realdir)
+		self.log.debug("statfs: returning user's home value ")
 		block_size = self.sysconst[statvfs.F_BSIZE]
 		blocks = self.sysconst[statvfs.F_BLOCKS]
 		blocks_free = self.sysconst[statvfs.F_BFREE]
@@ -188,35 +246,10 @@ class TrackerFs (Fuse):
 		return (block_size, blocks, blocks_free, blocks_avail, files, files_free, namelen)
 
 	def fsync(self, path, isfsyncfile):
-		log.debug("fsync: path=%s, isfsyncfile=%s" % (path, isfsyncfile))
+		self.log.debug("fsync: path=%s, isfsyncfile=%s" % (path, isfsyncfile))
 		return 0
 
-if __name__ == '__main__':
-	usage = "usage: %prog mountpoint [options]"
-	
-	parser = OptionParser(usage)
-	parser.add_option("-s", "--search", dest="keys",help="Use a key to find the contents of mounted dir", metavar="key")
-	parser.add_option("-t", "--tag",dest="tag",help="Use a tag/s to find the contents of mounted dir", metavar="tag")
-	parser.add_option("-q", "--query",dest="file",help="Use a rdf file to find the contents of mounted dir", metavar="path")
-	parser.add_option("-v", "--verbose",action="store_true",help="Verbose the output", dest="verbose", default=False)
-	options, args = parser.parse_args()
-	
-	# Set up logging
-	level = logging.ERROR
-
-	if options.verbose != False:
-		level = logging.DEBUG
-		
-	log = logging.getLogger("trackerfs")
-	log.setLevel(level)
-	fh = logging.StreamHandler()
-	fh.setLevel(level)
-	
-	#create formatter
-	formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-	fh.setFormatter(formatter)
-	log.addHandler(fh)
-	
-	server = TrackerFs(args,options)
-	server.multithreaded = 0;
-	server.main()
+if __name__ == '__main__':	
+	fs = TrackerFs()
+	fs.multithreaded = 0;
+	fs.main()
