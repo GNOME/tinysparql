@@ -1,4 +1,8 @@
-2006-11-12  Deji Akingunola <dakingun gmail com>
+2006-11-26 Gergan Penkov <gergan at gmail com>
+
+	* Updated configure.in to support more distro firendly options 
+
+2006-11-21  Deji Akingunola <dakingun gmail com>
 
 	* removed extra trackerd.desktop file
 	* fixed t-s-t desktop file

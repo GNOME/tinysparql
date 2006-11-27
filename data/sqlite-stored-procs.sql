@@ -22,7 +22,6 @@ GetFileByID2  SELECT DISTINCT (Path || '/' || Name) as uri, GetServiceName (Serv
 
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File.Modified');
 
-
 GetServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = ? ORDER BY TypeID;
 
 GetServiceID SELECT ID, IndexTime, IsDirectory, ServiceTypeID FROM Services WHERE Path = ? AND Name = ?;
