@@ -2588,12 +2588,13 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 {
 
 	const char *ptr = NULL, *end_ptr,  *tmp;
-	int before_length, i;
+	int before_length, i, txt_len;
 
 	if (!txt || !terms) {
 		return NULL;
 	}
 
+	txt_len = strlen (txt);
 
 	ptr = g_utf8_strcasestr (txt, terms);
 
@@ -2601,28 +2602,41 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 		tmp = ptr;
 
 		i = 0;
-		while ((ptr-- > txt) && (i < length)) {
+
+		while ((ptr = g_utf8_prev_char (ptr)) && (ptr >= txt) && (i < length)) {
 
 			if (*ptr == '\n') {
 				break;
 			}
 			i++;
 		}
+
 		ptr = g_utf8_next_char (ptr);
-		
+
+		if (!ptr || ptr < txt) {
+			return NULL;
+		}
+
 		before_length = i;
 
 		end_ptr = tmp;
 		i = 0;
-		while ((end_ptr) && (end_ptr+1) && (i < length)) {
+	
+		while ((end_ptr = g_utf8_next_char (end_ptr)) && (end_ptr <= txt_len + txt) && (i < length)) {
 			i++;
-			end_ptr++;	
 			if (*end_ptr == '\n') {
 				break;
 			}
 		}
 
-		
+		while (end_ptr > txt_len + txt) {
+			end_ptr = g_utf8_prev_char (end_ptr);
+		}
+
+		if (!end_ptr || !ptr) {
+			return NULL;
+		}
+
 		char *snip, *esc_snip,  *highlight_snip;
 
 		snip = g_strndup (ptr,  end_ptr - ptr);
@@ -2642,16 +2656,20 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 
 	ptr = txt;
 	i = 0;
-	while (*ptr++ && (i < length)) {
+	while ((ptr = g_utf8_next_char (ptr)) && (ptr <= txt_len + txt) && (i < length)) {
 		i++;	
 		if (*ptr == '\n') {
 			break;
 		}
-		
-	}
-	if (ptr +1) {
-		ptr = g_utf8_next_char (ptr);
 	}
 
-	return g_strndup (txt, ptr - txt);
+	if (ptr > txt_len + txt) {
+		ptr = g_utf8_prev_char (ptr);
+	}
+
+	if (ptr) {
+		return g_strndup (txt, ptr - txt);
+	} else {
+		return NULL;
+	}
 }
