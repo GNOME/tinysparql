@@ -1,3 +1,7 @@
+2006-11-27  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed crasher in snippet generator and made itmore utf-8 friendly
+
 2006-11-26 Eugenio <me at eugesoftware com>
 	
 	* updated fuse based trackerdfs 
