@@ -1473,28 +1473,18 @@ extract_metadata_thread (void)
 
 
 				if (tracker->enable_thumbnails) {
-					char *small_thumb_file;
+					char *small_thumb_file = NULL, *large_thumb_file = NULL;
 
-					/* see if there is a thumbnailer script for the file's mime type */
+					small_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, "normal");
 
-					small_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, THUMB_SMALL);
+					tracker_db_save_thumbs (db_con, small_thumb_file, large_thumb_file, info->file_id);
 
+					/* to do - emit dbus signal ThumbNailChanged */
 					if (small_thumb_file) {
-						char *large_thumb_file;
-
-						large_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, THUMB_LARGE);
-
-						if (large_thumb_file) {
-
-							tracker_db_save_thumbs (db_con, small_thumb_file, large_thumb_file, info->file_id);
-
-							/* to do - emit dbus signal ThumbNailChanged */
-							g_free (large_thumb_file);
-						}
-
 						g_free (small_thumb_file);
 					}
-		
+
+
 				}
 
 				file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);

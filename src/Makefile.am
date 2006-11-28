@@ -13,5 +13,5 @@ sqlite_dir = sqlite3
 endif
 
 
-SUBDIRS = libstemmer $(sqlite_dir) text-filters trackerd libtracker tracker-extract $(tracker_gui_dir)
-DIST_SUBDIRS = libstemmer $(sqlite_dir) text-filters trackerd libtracker tracker-extract $(tracker_gui_dir)
+SUBDIRS = libstemmer $(sqlite_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(tracker_gui_dir)
+DIST_SUBDIRS = libstemmer $(sqlite_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(tracker_gui_dir)

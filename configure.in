@@ -62,6 +62,11 @@ PKG_CHECK_MODULES(DBUS, [ dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_REQUIRED
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
+# Check for libpng 1.2 or higher
+PKG_CHECK_MODULES(LIBPNG, [libpng >= 1.2])
+AC_SUBST(LIBPNG_CFLAGS)
+AC_SUBST(LIBPNG_LIBS)
+
 ####################################################################
 # Compiler warning checks
 ####################################################################
@@ -518,6 +523,7 @@ AC_CONFIG_FILES([
 	src/text-filters/html_converter/Makefile
 	src/text-filters/ooo_converter/Makefile
 	src/tracker-extract/Makefile
+	src/tracker-thumbnailer/Makefile
 	src/trackerd/Makefile
 	src/libtracker/Makefile
 	src/tracker-search-tool/Makefile

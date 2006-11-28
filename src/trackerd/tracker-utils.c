@@ -1876,9 +1876,6 @@ tracker_load_config_file ()
 
 	if (g_key_file_has_key (key_file, "Indexing", "EnableThumbnails", NULL)) {
 		tracker->enable_thumbnails = g_key_file_get_boolean (key_file, "Indexing", "EnableThumbnails", NULL);
-
-		/* temporarily disable thumb generation as it is not compliant with fdo spec */
-		tracker->enable_thumbnails = FALSE;
 	}
 
 	values =  g_key_file_get_string_list (key_file,
