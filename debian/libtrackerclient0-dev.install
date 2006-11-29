@@ -1,5 +1,0 @@
-debian/tmp/usr/include/
-debian/tmp/usr/lib/libtrackerclient.{so,a,la}
-debian/tmp/usr/lib/libtracker.so
-debian/tmp/usr/lib/pkgconfig/
-debian/tmp/usr/share/linda/overrides/libtrackerclient0-dev
