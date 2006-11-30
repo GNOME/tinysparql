@@ -1,6 +1,11 @@
 2006-11-30  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/trackerd/trackerd.c:
+	Add a missing : in --help message to match other tools.
+
+2006-11-30  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/trackerd/trackerd.c:
 	Change command line options and enable i18n. Fore more info
 	about changes, see http://mail.gnome.org/archives/tracker-list/2006-November/msg00382.html
 

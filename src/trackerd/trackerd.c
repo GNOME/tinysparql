@@ -2589,7 +2589,7 @@ main (int argc, char **argv)
         /* and before the list of options, showing an usage example.    */
         g_option_context_set_summary (context,
                                       g_strconcat(_("To include or exclude multiple directories "
-                                                    "at the same time, join multiple options like"),
+                                                    "at the same time, join multiple options like:"),
  
                                                   "\n\n\t", 
                                                   example, NULL));
