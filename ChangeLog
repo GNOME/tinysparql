@@ -4,6 +4,12 @@
 	* removed debian subfolder from cvs
 	* fixed make dist
 
+2006-11-29  Jamie McCracken <jamiemcc at gnome org>
+
+	* Cleaned up Makefiles
+	* set executable scripts to libdir and not datadir
+	* added missing license/copyright info to files
+	
 
 2006-11-27 Edward Duffy <eduffy at gmail com>
 	

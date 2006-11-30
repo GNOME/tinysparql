@@ -30,8 +30,8 @@
 #include <png.h>
 #include "md5.h"
 
-#ifndef DATADIR
-#define DATADIR "/usr/share"
+#ifndef LIBDIR
+#define LIBDIR "/usr/lib"
 #endif
 
 /* argv[1] == full path of file to be nailed
@@ -130,7 +130,7 @@ int main (int argc, char *argv[])
 	/* thumbnail either doesn't exist or is invalid; contiue... */
 
 	/* do we have a thumbnailer for this mime type? */
-	thumbnailer = g_strconcat (DATADIR "/tracker/thumbnailers/",
+	thumbnailer = g_strconcat (LIBDIR "/tracker/thumbnailers/",
 	                           argv[2], "_thumbnailer", NULL);
 
 	if (!g_file_test (thumbnailer, G_FILE_TEST_EXISTS)) {

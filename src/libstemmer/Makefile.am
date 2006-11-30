@@ -1,7 +1,3 @@
-INCLUDES =				\
-	$(CFLAGS) 			\
-	-static				\
-	-g
 
 noinst_LTLIBRARIES=libstemmer-private.la
 

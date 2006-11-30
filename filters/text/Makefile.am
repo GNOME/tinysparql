@@ -1,4 +1,4 @@
-filterbindir = $(datadir)/tracker/filters/text
+filterbindir = $(libdir)/tracker/filters/text
 
 filterbin_SCRIPTS = html_filter \
 			xml_filter

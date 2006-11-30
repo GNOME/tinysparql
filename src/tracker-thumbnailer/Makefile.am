@@ -1,5 +1,6 @@
-INCLUDES = $(GLIB2_CFLAGS) $(CFLAGS) -g		\
-	$(LIBPNG_CFLAGS)
+INCLUDES = $(GLIB2_CFLAGS)	\
+	$(LIBPNG_CFLAGS) 	\
+	-DLIBDIR=\""$(libdir)"\" 
 
 bin_PROGRAMS = tracker-thumbnailer
 

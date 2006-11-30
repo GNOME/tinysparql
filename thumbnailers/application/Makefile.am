@@ -1,4 +1,4 @@
-thumbappbindir = $(datadir)/tracker/thumbnailers/application
+thumbappbindir = $(libdir)/tracker/thumbnailers/application
 
 thumbappbin_SCRIPTS = pdf_thumbnailer \
 			vnd.oasis.opendocument.graphics_thumbnailer \

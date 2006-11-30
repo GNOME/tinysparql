@@ -256,7 +256,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 	} else {
 		char *tmp;
 
-		tmp = g_strdup (DATADIR "/tracker/filters/");
+		tmp = g_strdup (LIBDIR "/tracker/filters/");
 
 		text_filter_file = g_strconcat (tmp, mime, "_filter", NULL);
 

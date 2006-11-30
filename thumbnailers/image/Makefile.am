@@ -1,4 +1,4 @@
-thumbappbindir = $(datadir)/tracker/thumbnailers/image
+thumbappbindir = $(libdir)/tracker/thumbnailers/image
 
 thumbappbin_SCRIPTS = png_thumbnailer jpeg_thumbnailer
 
