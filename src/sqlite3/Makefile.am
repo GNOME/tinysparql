@@ -1,14 +1,12 @@
 INCLUDES =				\
-	$(CFLAGS) 			\
 	 -DOS_UNIX=1			\
 	 -DHAVE_USLEEP=1 		\
 	 -DHAVE_FDATASYNC=1 		\
 	 -DNDEBUG			\
 	 -DTHREADSAFE=1			\
 	 -DSQLITE_THREAD_OVERRIDE_LOCK=-1	\
-	 -DSQLITE_OMIT_CURSOR 		\
-	-static				\
-	-g
+	 -DSQLITE_OMIT_CURSOR 		
+
 
 noinst_LTLIBRARIES=libsqlite-private.la
 

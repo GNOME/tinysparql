@@ -295,8 +295,11 @@ if test "x$enable_file_monitoring" = "xauto"; then
 		else
 			inotify_header="sys/inotify.h"
 		fi
-		AC_ARG_ENABLE(debug, [  --enable-inotify-debug  turn on inotify debugging],
-        	      [AC_DEFINE(LIBINOTIFY_DEBUG,, [is debugging enabled?])],)
+
+		AC_ARG_ENABLE(debug, 
+			AC_HELP_STRING([--enable-inotify-debug], [turn on inotify debugging]),
+        	      	[AC_DEFINE(LIBINOTIFY_DEBUG,, [is debugging enabled?])],)
+
 	elif test "$fam_support" = "yes"; then
 		if test "$fam_type" = "gamin"; then
 			primary_backend="gamin"

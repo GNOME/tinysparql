@@ -13,6 +13,7 @@ servicedir       = $(prefix)/share/dbus-1/services
 service_in_files = tracker.service.in
 service_DATA     = tracker.service
 
+CLEANFILES = $(service_DATA)
 EXTRA_DIST = $(config_DATA) $(service_in_files)
 
 %.service: %.service.in

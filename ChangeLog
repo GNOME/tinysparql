@@ -1,3 +1,10 @@
+2006-11-29 Patch from Michael Biebl <mbiebl at gmail com>
+	
+	* cleaned up makefiles for debian compliance
+	* removed debian subfolder from cvs
+	* fixed make dist
+
+
 2006-11-27 Edward Duffy <eduffy at gmail com>
 	
 	* made thumbnailing fdo compliant

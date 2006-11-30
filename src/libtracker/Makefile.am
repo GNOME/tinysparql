@@ -1,9 +1,7 @@
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	$(GLIB2_CFLAGS)			\
-	$(DBUS_CFLAGS)			\
-	$(CFLAGS) 			\
-	-g
+	$(DBUS_CFLAGS)			
 
 lib_LTLIBRARIES = libtrackerclient.la
 
@@ -57,6 +55,3 @@ tracker_files_LDADD = 	$(GLIB2_LIBS) 	\
 		 	$(GOBJECT_LIBS)	\
 			$(top_builddir)/src/libtracker/libtrackerclient.la
  
-install-exec-hook:
-	cd $(DESTDIR)/$(libdir) && rm -f libtracker.so && ln -s libtrackerclient.so libtracker.so
-	cd $(DESTDIR)/$(libdir) && rm -f libtracker.so.0 && ln -s libtrackerclient.so.0 libtracker.so.0

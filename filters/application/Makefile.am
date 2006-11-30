@@ -1,4 +1,4 @@
-thumbappbindir = $(datadir)/tracker/filters/application
+thumbappbindir = $(libdir)/tracker/filters/application
 
 thumbappbin_SCRIPTS = 	pdf_filter \
 			msword_filter \

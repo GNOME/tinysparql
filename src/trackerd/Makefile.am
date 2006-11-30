@@ -25,9 +25,8 @@ INCLUDES =				\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
 	$(additional_flags)		\
-	$(CFLAGS) 			\
-	-I$(top_builddir)/src/libstemmer \
-	-g 
+	-I$(top_builddir)/src/libstemmer 
+
 
 if HAVE_INOTIFY
 inotify_sources = \
