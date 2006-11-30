@@ -9,6 +9,8 @@ libtrackerclient_la_LIBADD = $(GLIB2_LIBS) 	\
 	    	       $(DBUS_LIBS)
 
 libtrackerclient_la_SOURCES = tracker.c
+libtrackerclient_la_LDFLAGS = -version-info 0:0:0
+
 include_HEADERS = tracker.h tracker-client.h		
 
 bin_PROGRAMS = tracker-search tracker-query tracker-meta-folder tracker-stats tracker-tag tracker-files
