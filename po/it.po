@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-21 09:15+0100\n"
-"PO-Revision-Date: 2006-11-21 09:16+0100\n"
+"POT-Creation-Date: 2006-11-30 14:22+0100\n"
+"PO-Revision-Date: 2006-11-30 14:22+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -181,72 +181,6 @@ msgstr "Testo semplice"
 msgid "Videos"
 msgstr "Video"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:117
-msgid "Contains the _text"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:119
-msgid "_Date modified less than"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:119
-#: ../src/tracker-search-tool/tracker-search-tool.c:120
-msgid "days"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:120
-msgid "Date modified more than"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:122
-msgid "S_ize at least"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:122
-#: ../src/tracker-search-tool/tracker-search-tool.c:123
-msgid "kilobytes"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:123
-msgid "Si_ze at most"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:124
-msgid "File is empty"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:126
-msgid "Owned by _user"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:127
-msgid "Owned by _group"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:128
-msgid "Owner is unrecognized"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:130
-msgid "Na_me does not contain"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:131
-msgid "Name matches regular e_xpression"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:133
-msgid "Show hidden and backup files"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:134
-msgid "Follow symbolic links"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:135
-msgid "Include other filesystems"
-msgstr ""
-
 #: ../src/tracker-search-tool/tracker-search-tool.c:175
 msgid "_Open"
 msgstr "_Apri"
@@ -268,103 +202,156 @@ msgstr "_Salva risultati come..."
 msgid "Character set conversion failed for \"%s\""
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:777
-#: ../src/tracker-search-tool/tracker-search-tool.c:803
+#: ../src/tracker-search-tool/tracker-search-tool.c:775
+#: ../src/tracker-search-tool/tracker-search-tool.c:801
 msgid "No files found"
 msgstr "Nessun file trovato"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:796
+#: ../src/tracker-search-tool/tracker-search-tool.c:794
 msgid "(stopped)"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:802
+#: ../src/tracker-search-tool/tracker-search-tool.c:800
 msgid "No Files Found"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:807
+#: ../src/tracker-search-tool/tracker-search-tool.c:805
 #, c-format
 msgid "%d File Found"
 msgid_plural "%d Files Found"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:811
+#: ../src/tracker-search-tool/tracker-search-tool.c:809
 #, c-format
 msgid "%d file found"
 msgid_plural "%d files found"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:828
-#: ../src/tracker-search-tool/tracker-search-tool.c:1111
+#: ../src/tracker-search-tool/tracker-search-tool.c:826
+#: ../src/tracker-search-tool/tracker-search-tool.c:1109
 msgid "Search for Files"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:944
+#: ../src/tracker-search-tool/tracker-search-tool.c:942
 msgid "Entry changed called for a non entry option!"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1608
+#: ../src/tracker-search-tool/tracker-search-tool.c:1604
 msgid "S_earch results:"
 msgstr "_Risultati di ricerca:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1644
+#: ../src/tracker-search-tool/tracker-search-tool.c:1640
 msgid "List View"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1709
+#: ../src/tracker-search-tool/tracker-search-tool.c:1705
 msgid "Icon"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1721
+#: ../src/tracker-search-tool/tracker-search-tool.c:1717
 msgid "Name"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1749
+#: ../src/tracker-search-tool/tracker-search-tool.c:1745
 msgid "Text"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2157
+#: ../src/tracker-search-tool/tracker-search-tool.c:2153
 msgid "_Search:"
 msgstr "C_erca:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2184
-#: ../src/tracker-search-tool/tracker-search-tool.c:2185
+#: ../src/tracker-search-tool/tracker-search-tool.c:2180
+#: ../src/tracker-search-tool/tracker-search-tool.c:2181
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2185
+#: ../src/tracker-search-tool/tracker-search-tool.c:2181
 msgid "search_entry"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2192
-msgid "Select more _options"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2222
+#: ../src/tracker-search-tool/tracker-search-tool.c:2218
 msgid "Click to perform a search."
 msgstr "Fare clic per eseguire una ricerca."
 
 # risultati, quindi plurale -Luca
-#: ../src/tracker-search-tool/tracker-search-tool.c:2230
+#: ../src/tracker-search-tool/tracker-search-tool.c:2226
 msgid "_Previous"
 msgstr "_Precedenti"
 
 # risultati, quindi plurale -Luca
-#: ../src/tracker-search-tool/tracker-search-tool.c:2238
+#: ../src/tracker-search-tool/tracker-search-tool.c:2234
 msgid "_Next"
 msgstr "_Successivi"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2402
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
-msgid "Desktop Search"
-msgstr "Ricerca desktop"
+#: ../src/tracker-search-tool/tracker-search-tool.c:2398
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Strumento di ricerca Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2450
+#: ../src/tracker-search-tool/tracker-search-tool.c:2446
 #, c-format
 msgid "Invalid service type: %s\n"
 msgstr "Tipo di servizio non valido: %s\n"
 
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
-msgid "Tracker Search Tool"
-msgstr "Strumento di ricerca Tracker"
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
+msgid "Desktop Search"
+msgstr "Ricerca desktop"
+
+#: ../src/trackerd/trackerd.c:140
+msgid "Directory to exclude from indexing"
+msgstr "Directory da escludere dall'indicizzazione"
+
+#: ../src/trackerd/trackerd.c:140 ../src/trackerd/trackerd.c:141
+msgid "/PATH/DIR"
+msgstr "/PERCORSO/DIR"
+
+#: ../src/trackerd/trackerd.c:141
+msgid "Directory to include in indexing"
+msgstr "Directory da includere nell'indicizzazione"
+
+#: ../src/trackerd/trackerd.c:142
+msgid "Disable any indexing or watching taking place"
+msgstr "Disabilita l'esecuzione di ogni indicizzazione o monitoraggio"
+
+#: ../src/trackerd/trackerd.c:143
+msgid "Enables more verbose debug messages"
+msgstr "Abilita messaggi di debug più prolissi"
+
+#: ../src/trackerd/trackerd.c:144
+msgid "Faster indexing, use more memory and CPU"
+msgstr "Indicizzazione più veloce, usa più memoria e CPU"
+
+#: ../src/trackerd/trackerd.c:145
+msgid "Slower indexing, use less memory and CPU"
+msgstr "Indicizzazione più lenta, usa meno memoria e CPU"
+
+#: ../src/trackerd/trackerd.c:146
+msgid ""
+"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+"Linguaggio da usare per lo stemmer e le parole da escudere (codice 2 "
+"caratteri ISO 639-1)"
+
+#: ../src/trackerd/trackerd.c:146
+msgid "LANG"
+msgstr "LINGUA"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND <THIS_MESSAGE>
+#: ../src/trackerd/trackerd.c:2581
+msgid "- start the tracker daemon"
+msgstr "- avvia il demone di Tracker"
+
+#: ../src/trackerd/trackerd.c:2582 ../src/trackerd/trackerd.c:2583
+msgid "DIRECTORY"
+msgstr "DIRECTORY"
+
+#: ../src/trackerd/trackerd.c:2591
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
+msgstr ""
+"Per includere o escludere directory multiple in una sola volta, unire più "
+"opzioni come in:"
