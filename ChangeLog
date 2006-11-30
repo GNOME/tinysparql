@@ -1,3 +1,9 @@
+2006-11-30  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/trackerd/trackerd.c:
+	Change command line options and enable i18n. Fore more info
+	about changes, see http://mail.gnome.org/archives/tracker-list/2006-November/msg00382.html
+
 2006-11-29 Patch from Michael Biebl <mbiebl at gmail com>
 	
 	* cleaned up makefiles for debian compliance

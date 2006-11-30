@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <glib/gstdio.h>
+#include <glib/gi18n.h>
 
 #ifdef IOPRIO_SUPPORT
 #include "tracker-ioprio.h"
@@ -136,13 +137,13 @@ static gboolean low_memory, turbo, enable_debug, enable_evolution, enable_thunde
 
 
 static GOptionEntry entries[] = {
-	{"ignore-dirs", 0, 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, "Directory roots to ignore (must specify full path)", "ignore-dirs"},
-	{"disable-indexing", 0, 0, G_OPTION_ARG_NONE, &disable_indexing, "prevents any indexing or watching taking place", NULL },
-	{"enable-debug", 0, 0, G_OPTION_ARG_NONE, &enable_debug, "Enables more verbose debug messages", NULL },
-	{"turbo", 't', 0, G_OPTION_ARG_NONE, &turbo, "Enables faster indexing but may degrade performance of rest of system", NULL },
-	{"enable-low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, "Enables use of less memory at the expense of slower indexing", NULL },
-	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, "Specifies 2 character language code to use for stemmer and stop words list", NULL },
-	{G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, "full path of directory roots to watch and index", NULL},
+	{"exclude-dir", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, N_("Directory to exclude from indexing"), N_("/PATH/DIR")},
+	{"include-dir", 'i', 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, N_("Directory to include in indexing"), N_("/PATH/DIR")},
+	{"no-indexing", 0, 0, G_OPTION_ARG_NONE, &disable_indexing, N_("Disable any indexing or watching taking place"), NULL },
+	{"debug", 0, 0, G_OPTION_ARG_NONE, &enable_debug, N_("Enables more verbose debug messages"), NULL },
+	{"turbo", 't', 0, G_OPTION_ARG_NONE, &turbo, N_("Faster indexing, use more memory and CPU"), NULL },
+	{"low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, N_("Slower indexing, use less memory and CPU"), NULL },
+	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, N_("Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"), N_("LANG")},
 	{NULL}
 };
 
@@ -2558,21 +2559,48 @@ main (int argc, char **argv)
   	struct 		sigaction act;
 	sigset_t 	empty_mask;
 	char 		*prefix, *lock_file, *str, *lock_str, *tracker_data_dir;
-	GOptionContext *context = NULL;
+	GOptionContext  *context = NULL;
+	GError          *error = NULL;
+	gchar           *example;
 	gboolean 	need_setup;
 	DBConnection 	*db_con;
 	char		***res;
 
 	setlocale (LC_ALL, "");
 
+	
+	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
+        bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+        textdomain (GETTEXT_PACKAGE);
+
 	/* set timezone info */
 	tzset ();
 
-	GError *error = NULL;
-	context = g_option_context_new ("[WatchDirectory1 WatchDirectory2...]");
+        /* Translators: this messagge will apper immediately after the  */
+        /* usage string - Usage: COMMAND <THIS_MESSAGE>     */
+	context = g_option_context_new (_("- start the tracker daemon"));
+        example = g_strconcat ("-i ", _("DIRECTORY"), " -i ", _("DIRECTORY"),
+			       " -e ", _("DIRECTORY"), " -e ", _("DIRECTORY"),
+			       NULL);
+
+
+#ifdef HAVE_RECENT_GLIB
+        /* Translators: this message will appear after the usage string */
+        /* and before the list of options, showing an usage example.    */
+        g_option_context_set_summary (context,
+                                      g_strconcat(_("To include or exclude multiple directories "
+                                                    "at the same time, join multiple options like"),
+ 
+                                                  "\n\n\t", 
+                                                  example, NULL));
+
+#endif /* HAVE_RECENT_GLIB */
+
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 
+	g_option_context_free (context);
+	g_free (example);
 
 	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken (jamiemcc@gnome.org)\n\n", TRACKER_VERSION);
 	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
