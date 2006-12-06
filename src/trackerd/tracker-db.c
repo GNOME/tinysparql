@@ -689,6 +689,9 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 		}
 
 	} else {
+		g_free (str_file_id);
+		g_free (str_action);
+		g_free (str_counter);
 		return;
 	}
 
