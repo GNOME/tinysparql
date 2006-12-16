@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-30 14:22+0100\n"
-"PO-Revision-Date: 2006-11-30 14:22+0100\n"
+"POT-Creation-Date: 2006-12-16 13:39+0100\n"
+"PO-Revision-Date: 2006-12-16 13:41+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -197,46 +197,22 @@ msgstr "_Sposta nel cestino"
 msgid "_Save Results As..."
 msgstr "_Salva risultati come..."
 
+# appare su console, g_warning, ecco perché "" e non «»  -Luca
 #: ../src/tracker-search-tool/tracker-search-tool.c:279
 #, c-format
 msgid "Character set conversion failed for \"%s\""
-msgstr ""
+msgstr "Conversione del set di caratteri fallita per \"%s\""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:775
-#: ../src/tracker-search-tool/tracker-search-tool.c:801
 msgid "No files found"
 msgstr "Nessun file trovato"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:794
-msgid "(stopped)"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:800
-msgid "No Files Found"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:805
-#, c-format
-msgid "%d File Found"
-msgid_plural "%d Files Found"
-msgstr[0] ""
-msgstr[1] ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:809
-#, c-format
-msgid "%d file found"
-msgid_plural "%d files found"
-msgstr[0] ""
-msgstr[1] ""
-
 #: ../src/tracker-search-tool/tracker-search-tool.c:826
 #: ../src/tracker-search-tool/tracker-search-tool.c:1109
-msgid "Search for Files"
-msgstr ""
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:942
-msgid "Entry changed called for a non entry option!"
-msgstr ""
+#: ../src/tracker-search-tool/tracker-search-tool.c:2398
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Strumento di ricerca Tracker"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1604
 msgid "S_earch results:"
@@ -244,19 +220,19 @@ msgstr "_Risultati di ricerca:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1640
 msgid "List View"
-msgstr ""
+msgstr "Vista a elenco"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1705
 msgid "Icon"
-msgstr ""
+msgstr "Icona"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1717
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1745
 msgid "Text"
-msgstr ""
+msgstr "Testo"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2153
 msgid "_Search:"
@@ -265,11 +241,11 @@ msgstr "C_erca:"
 #: ../src/tracker-search-tool/tracker-search-tool.c:2180
 #: ../src/tracker-search-tool/tracker-search-tool.c:2181
 msgid "Enter a search term with multiple words seperated with spaces."
-msgstr ""
+msgstr "Inserire un termine di ricerca con diverse parole separate da spazi."
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2181
 msgid "search_entry"
-msgstr ""
+msgstr "inserimento_ricerca"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2218
 msgid "Click to perform a search."
@@ -284,11 +260,6 @@ msgstr "_Precedenti"
 #: ../src/tracker-search-tool/tracker-search-tool.c:2234
 msgid "_Next"
 msgstr "_Successivi"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2398
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
-msgid "Tracker Search Tool"
-msgstr "Strumento di ricerca Tracker"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2446
 #, c-format
