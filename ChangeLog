@@ -1,5 +1,11 @@
 2006-12-16  Luca Ferretti  <elle.uca@libero.it>
 
+	* src/tracker-search-tool/tracker-search-tool.desktop.in:
+
+	Update launcher description to match GNOME HIG.
+
+2006-12-16  Luca Ferretti  <elle.uca@libero.it>
+
 	* src/tracker-search-tool/tracker-search-tool.c:
 	(update_search_counts), (update_constraint_info),
 	(get_desktop_item_name):
