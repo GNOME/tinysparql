@@ -791,25 +791,25 @@ update_search_counts (GSearchWindow * gsearch)
 	gint total_files;
 
 	if (gsearch->command_details->command_status == ABORTED) {
-		stopped_string = g_strdup (_("(stopped)"));
+/* 		stopped_string = g_strdup (_("(stopped)")); */
 	}
 
 	total_files = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (gsearch->search_results_list_store), NULL);
 
 	if (total_files == 0) {
-		title_bar_string = g_strdup (_("No Files Found"));
-		message_string = g_strdup (_("No files found"));
+/* 		title_bar_string = g_strdup (_("No Files Found")); */
+/* 		message_string = g_strdup (_("No files found")); */
 		add_no_files_found_message (gsearch);
 	}
 	else {
-		title_bar_string = g_strdup_printf (ngettext ("%d File Found",
-					                      "%d Files Found",
-					                      total_files),
-						    total_files);
-		message_string = g_strdup_printf (ngettext ("%d file found",
-					                    "%d files found",
-					                    total_files),
-						  total_files);
+/* 		title_bar_string = g_strdup_printf (ngettext ("%d File Found", */
+/* 					                      "%d Files Found", */
+/* 					                      total_files), */
+/* 						    total_files); */
+/* 		message_string = g_strdup_printf (ngettext ("%d file found", */
+/* 					                    "%d files found", */
+/* 					                    total_files), */
+/* 						  total_files); */
 	}
 
 	if (stopped_string != NULL) {
@@ -823,7 +823,7 @@ update_search_counts (GSearchWindow * gsearch)
 	}
 
 	tmp = title_bar_string;
-	title_bar_string = g_strconcat (title_bar_string, " - ", _("Search for Files"), NULL);
+ 	title_bar_string = g_strconcat (title_bar_string, " - ", _("Tracker Search Tool"), NULL);
 	gtk_window_set_title (GTK_WINDOW (gsearch->window), title_bar_string);
 	g_free (tmp);
 
@@ -939,7 +939,7 @@ update_constraint_info (GSearchConstraint * constraint,
 		sscanf (info, "%d", &constraint->data.time);
 		break;
 	default:
-		g_warning (_("Entry changed called for a non entry option!"));
+		g_warning ("Entry changed called for a non entry option!");
 		break;
 	}
 }
@@ -1106,7 +1106,7 @@ get_desktop_item_name (GSearchWindow * gsearch)
 	//GList * list;
 
 	gs = g_string_new ("");
-	g_string_append (gs, _("Search for Files"));
+	g_string_append (gs, _("Tracker Search Tool"));
 	g_string_append (gs, " (");
 
 	file_is_named_utf8 = (gchar *) gtk_entry_get_text (GTK_ENTRY (gsearch->search_entry));
