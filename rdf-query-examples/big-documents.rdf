@@ -2,12 +2,12 @@
   <rdfq:and>
 
     <rdfq:inSet>
-      <rdfq:Property name="File.Format" />
+      <rdfq:Property name="File:Mime" />
       <rdf:String>application/msword,application/pdf,application/vnd.ms-excel,application/vnd.oasis.opendocument.text,application/vnd.sun.xml.writer</rdf:String> 
     </rdfq:inSet>
 
     <rdfq:greaterThan>
-      <rdfq:Property name="Doc.PageCount" />
+      <rdfq:Property name="Doc:PageCount" />
       <rdf:Integer>10</rdf:Integer> 
     </rdfq:greaterThan>
 

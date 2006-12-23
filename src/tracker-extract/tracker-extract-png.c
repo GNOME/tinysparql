@@ -31,15 +31,15 @@ static struct {
 	char *name;
 	char *type;
 } tagmap[] = {
-	{ "Author" , "Image.Creator"},
-	{ "Creator" , "Image.Creator"},
-   	{ "Description" , "Image.Description"},
-   	{ "Comment", "Image.Comments"},
-   	{ "Copyright", "Image.Copyright"},
-   	{ "Creation Time", "Image.Date"},
-   	{ "Title", "Image.Title"},
-   	{ "Software", "Image.Software"},
-   	{ "Disclaimer", "Image.License"},
+	{ "Author" , "Image:Creator"},
+	{ "Creator" , "Image:Creator"},
+   	{ "Description" , "Image:Description"},
+   	{ "Comment", "Image:Comments"},
+   	{ "Copyright", "File:Copyright"},
+   	{ "Creation Time", "Image:Date"},
+   	{ "Title", "Image:Title"},
+   	{ "Software", "Image:Software"},
+   	{ "Disclaimer", "File:License"},
 	{ NULL, NULL},
 };
 
@@ -76,9 +76,9 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
 		/* read header bits */
 		if (png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth,
 		                 &color_type, &interlace_type, &compression_type, &filter_type)) {
-			g_hash_table_insert (metadata, g_strdup ("Image.Width"),
+			g_hash_table_insert (metadata, g_strdup ("Image:Width"),
 			                     g_strdup_printf ("%ld", width));
-			g_hash_table_insert (metadata, g_strdup ("Image.Height"),
+			g_hash_table_insert (metadata, g_strdup ("Image:Height"),
 			                     g_strdup_printf ("%ld", height));
 		}
 

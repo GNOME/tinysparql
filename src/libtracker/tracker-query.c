@@ -188,7 +188,7 @@ main (int argc, char **argv)
 
 		field_count = 1;
 
-		meta_fields[0] = g_strdup ("File.Format");
+		meta_fields[0] = g_strdup ("File:Mime");
 		meta_fields[1] = NULL;
 		g_strfreev  (fields);
 		fields = meta_fields;

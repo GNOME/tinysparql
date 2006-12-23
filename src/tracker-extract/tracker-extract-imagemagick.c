@@ -50,9 +50,9 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 	                 NULL)) {
 
 		lines = g_strsplit (identify, ";\n", 4);
-		g_hash_table_insert (metadata, g_strdup ("Image.Width"), g_strdup (lines[0]));
-		g_hash_table_insert (metadata, g_strdup ("Image.Height"), g_strdup (lines[1]));
-		g_hash_table_insert (metadata, g_strdup ("Image.Comments"), g_strdup (g_strescape (lines[2], "")));
+		g_hash_table_insert (metadata, g_strdup ("Image:Width"), g_strdup (lines[0]));
+		g_hash_table_insert (metadata, g_strdup ("Image:Height"), g_strdup (lines[1]));
+		g_hash_table_insert (metadata, g_strdup ("Image:Comments"), g_strdup (g_strescape (lines[2], "")));
 	}
 }
 

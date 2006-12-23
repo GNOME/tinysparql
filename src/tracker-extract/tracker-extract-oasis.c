@@ -132,11 +132,11 @@ void start_element_handler (GMarkupParseContext *context,
 		for(a=attribute_names,v=attribute_values; *a; ++a,++v) {
 			if (strcmp (*a, "meta:word-count") == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup("Doc.WordCount"), g_strdup (*v));
+					g_strdup("Doc:WordCount"), g_strdup (*v));
 			}
 			else if (strcmp (*a, "meta:page-count") == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup("Doc.PageCount"), g_strdup (*v));
+					g_strdup("Doc:PageCount"), g_strdup (*v));
 			}
 		}
 		((ODTParseInfo *)user_data)->current = READ_STATS;
@@ -170,33 +170,33 @@ void text_handler (GMarkupParseContext *context,
 
 	switch(((ODTParseInfo *)user_data)->current) {
 		case READ_TITLE:
-			g_hash_table_insert (metadata, g_strdup("Doc.Title"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup("Doc:Title"), g_strdup (text));
 			break;
 		case READ_SUBJECT:
-			g_hash_table_insert (metadata, g_strdup("Doc.Subject"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup("Doc:Subject"), g_strdup (text));
 			break;
 		case READ_AUTHOR:
-			g_hash_table_insert (metadata, g_strdup("Doc.Author"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup("Doc:Author"), g_strdup (text));
 			break;
 		case READ_KEYWORDS: {
 				gchar *keywords;
-				if ((keywords = g_hash_table_lookup (metadata, "Doc.Keywords"))) {
-					g_hash_table_replace (metadata, "Doc.Keywords",
+				if ((keywords = g_hash_table_lookup (metadata, "Doc:Keywords"))) {
+					g_hash_table_replace (metadata, "Doc:Keywords",
 							g_strconcat (keywords, ",", text, NULL));
 				}
 				else {
-					g_hash_table_insert (metadata, g_strdup("Doc.Keywords"), g_strdup (text));
+					g_hash_table_insert (metadata, g_strdup("Doc:Keywords"), g_strdup (text));
 				}
 			}
 			break;
 		case READ_COMMENTS:
-			g_hash_table_insert (metadata, g_strdup("Doc.Comments"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup("Doc:Comments"), g_strdup (text));
 			break;
 		case READ_CREATED:
-			g_hash_table_insert (metadata, g_strdup("Doc.Created"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup("Doc:Created"), g_strdup (text));
 			break;
 		case READ_FILE_OTHER:
-			g_hash_table_insert (metadata, g_strdup("File.Other"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup("File:Other"), g_strdup (text));
 			break;
 
 		default:

@@ -91,31 +91,31 @@ metadata_cb (gpointer key, gpointer value, gpointer user_data)
 	val = gsf_doc_prop_get_val (property);
 
 	if (strcmp (name, "dc:title") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.Title", val);
+		add_gvalue_in_hash_table (metadata, "Doc:Title", val);
 	}
 	else if (strcmp (name, "dc:subject") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.Subject", val);
+		add_gvalue_in_hash_table (metadata, "Doc:Subject", val);
 	}
 	else if (strcmp (name, "dc:creator") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.Author", val);
+		add_gvalue_in_hash_table (metadata, "Doc:Author", val);
 	}
 	else if (strcmp (name, "dc:keywords") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.Keywords", val);
+		add_gvalue_in_hash_table (metadata, "Doc:Keywords", val);
 	}
 	else if (strcmp (name, "dc:description") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.Comment", val);
+		add_gvalue_in_hash_table (metadata, "Doc:Comments", val);
 	}
 	else if (strcmp (name, "gsf:page-count") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.PageCount", val);
+		add_gvalue_in_hash_table (metadata, "Doc:PageCount", val);
 	}
 	else if (strcmp (name, "gsf:word-count") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.WordCount", val);
+		add_gvalue_in_hash_table (metadata, "Doc:WordCount", val);
 	}
 	else if (strcmp (name, "meta:creation-date") == 0) {
-		add_gvalue_in_hash_table (metadata, "Doc.Created", val);
+		add_gvalue_in_hash_table (metadata, "Doc:Created", val);
 	}
 	else if (strcmp (name, "meta:generator") == 0) {
-		add_gvalue_in_hash_table (metadata, "File.Other", val);
+		add_gvalue_in_hash_table (metadata, "File:Other", val);
 	}
 }
 

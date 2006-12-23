@@ -78,29 +78,29 @@ typedef struct {
 } TagType;
 
 TagType tags[] = {
-	{ EXIF_TAG_PIXEL_Y_DIMENSION, "Image.Height", NULL },
-	{ EXIF_TAG_PIXEL_X_DIMENSION, "Image.Width", NULL },
-	{ EXIF_TAG_RELATED_IMAGE_WIDTH, "Image.Width", NULL },
-	{ EXIF_TAG_DOCUMENT_NAME, "Image.Title", NULL },
-	/* { -1, "Image.Album", NULL }, */
-	{ EXIF_TAG_DATE_TIME, "Image.Date", NULL },
-	/* { -1, "Image.Keywords", NULL }, */
-	{ EXIF_TAG_ARTIST, "Image.Creator", NULL },
-	{ EXIF_TAG_USER_COMMENT, "Image.Comments", NULL },
-	{ EXIF_TAG_IMAGE_DESCRIPTION, "Image.Description", NULL },
-	{ EXIF_TAG_SOFTWARE, "Image.Software", NULL },
-	{ EXIF_TAG_MAKE, "Image.CameraMake", NULL },
-	{ EXIF_TAG_MODEL, "Image.CameraModel", NULL },
-	{ EXIF_TAG_ORIENTATION, "Image.Orientation", NULL },
-	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image.ExposureProgram", NULL },
-	{ EXIF_TAG_EXPOSURE_TIME, "Image.ExposureTime", fix_exposure_time },
-	{ EXIF_TAG_FNUMBER, "Image.Fnumber", fix_fnumber },
-	{ EXIF_TAG_FLASH, "Image.Flash", fix_flash },
-	{ EXIF_TAG_FOCAL_LENGTH, "Image.FocalLength", fix_focal_length },
-	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image.ISOSpeed", NULL },
-	{ EXIF_TAG_METERING_MODE, "Image.MeteringMode", NULL },
-	{ EXIF_TAG_WHITE_BALANCE, "Image.WhiteBalance", NULL },
-	{ EXIF_TAG_COPYRIGHT, "Image.Copyright", NULL },
+	{ EXIF_TAG_PIXEL_Y_DIMENSION, "Image:Height", NULL },
+	{ EXIF_TAG_PIXEL_X_DIMENSION, "Image:Width", NULL },
+	{ EXIF_TAG_RELATED_IMAGE_WIDTH, "Image:Width", NULL },
+	{ EXIF_TAG_DOCUMENT_NAME, "Image:Title", NULL },
+	/* { -1, "Image:Album", NULL }, */
+	{ EXIF_TAG_DATE_TIME, "Image:Date", NULL },
+	/* { -1, "Image:Keywords", NULL }, */
+	{ EXIF_TAG_ARTIST, "Image:Creator", NULL },
+	{ EXIF_TAG_USER_COMMENT, "Image:Comments", NULL },
+	{ EXIF_TAG_IMAGE_DESCRIPTION, "Image:Description", NULL },
+	{ EXIF_TAG_SOFTWARE, "Image:Software", NULL },
+	{ EXIF_TAG_MAKE, "Image:CameraMake", NULL },
+	{ EXIF_TAG_MODEL, "Image:CameraModel", NULL },
+	{ EXIF_TAG_ORIENTATION, "Image:Orientation", NULL },
+	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", NULL },
+	{ EXIF_TAG_EXPOSURE_TIME, "Image:ExposureTime", fix_exposure_time },
+	{ EXIF_TAG_FNUMBER, "Image:Fnumber", fix_fnumber },
+	{ EXIF_TAG_FLASH, "Image:Flash", fix_flash },
+	{ EXIF_TAG_FOCAL_LENGTH, "Image:FocalLength", fix_focal_length },
+	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", NULL },
+	{ EXIF_TAG_METERING_MODE, "Image:MeteringMode", NULL },
+	{ EXIF_TAG_WHITE_BALANCE, "Image:WhiteBalance", NULL },
+	{ EXIF_TAG_COPYRIGHT, "File:Copyright", NULL },
 	{ -1, NULL, NULL }
 };
 

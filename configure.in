@@ -85,6 +85,20 @@ if test "x$enable_warnings" = "xyes"; then
 fi
 
 ####################################################################
+# Compiler generate debug code
+####################################################################
+
+
+AC_ARG_ENABLE(debug_code, 
+	AC_HELP_STRING(
+		[--enable-debug-code],
+		[build with debug symbols]),[enable_debug_code=yes],[enable_debug_code=no])
+
+if test "x$enable_debug_code" = "xyes"; then
+	CFLAGS="-g $CFLAGS"
+fi
+
+####################################################################
 # gettext/intltool support 
 ####################################################################
 
@@ -295,10 +309,6 @@ if test "x$enable_file_monitoring" = "xauto"; then
 		else
 			inotify_header="sys/inotify.h"
 		fi
-
-		AC_ARG_ENABLE(debug, 
-			AC_HELP_STRING([--enable-inotify-debug], [turn on inotify debugging]),
-        	      	[AC_DEFINE(LIBINOTIFY_DEBUG,, [is debugging enabled?])],)
 
 	elif test "$fam_support" = "yes"; then
 		if test "$fam_type" = "gamin"; then
@@ -542,6 +552,7 @@ Tracker-$VERSION:
 	source code location:			${srcdir}
 	compiler:				${CC}
 	enable gcc warnings:			$enable_warnings
+	build with debug symbols:		$enable_debug_code
 	database engine:			SQLite
 	file monitor backend to be used:	$primary_backend
 	inotify header location:		$inotify_header

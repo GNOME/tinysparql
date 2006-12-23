@@ -457,23 +457,23 @@ extract_metadata (MetadataExtractor *extractor, GHashTable *metadata)
 
 
 	if (extractor->audio_channels >= 0) {
-		add_uint_info (metadata, g_strdup ("Audio.Channels"), (guint) extractor->audio_channels);
+		add_uint_info (metadata, g_strdup ("Audio:Channels"), (guint) extractor->audio_channels);
 	}
 
 	if (extractor->audio_samplerate >= 0) {
-		add_uint_info (metadata, g_strdup ("Audio.Samplerate"), (guint) extractor->audio_samplerate);
+		add_uint_info (metadata, g_strdup ("Audio:Samplerate"), (guint) extractor->audio_samplerate);
 	}
 
 	if (extractor->video_height >= 0) {
-		add_uint_info (metadata, g_strdup ("Video.Height"), (guint) extractor->video_height);
+		add_uint_info (metadata, g_strdup ("Video:Height"), (guint) extractor->video_height);
 	}
 
 	if (extractor->video_width >= 0) {
-		add_uint_info (metadata, g_strdup ("Video.Width"), (guint) extractor->video_width);
+		add_uint_info (metadata, g_strdup ("Video:Width"), (guint) extractor->video_width);
 	}
 
 	if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
-		add_uint_info (metadata, g_strdup ("Video.FrameRate"),
+		add_uint_info (metadata, g_strdup ("Video:FrameRate"),
 			       (guint) ((extractor->video_fps_n + extractor->video_fps_d / 2) / extractor->video_fps_d));
 	}
 
@@ -481,61 +481,60 @@ extract_metadata (MetadataExtractor *extractor, GHashTable *metadata)
 		gint64 duration;
 
 		/* audio */
-		add_string_gst_tag (metadata, "Audio.Album", extractor->tagcache, GST_TAG_ALBUM);
-		add_uint_gst_tag (metadata, "Audio.AlbumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
-		add_uint_gst_tag (metadata, "Audio.TrackNo", extractor->tagcache, GST_TAG_TRACK_NUMBER);
-		add_uint_gst_tag (metadata, "Audio.DiscNo", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
-		add_string_gst_tag (metadata, "Audio.Performer", extractor->tagcache, GST_TAG_PERFORMER);
-		add_double_gst_tag (metadata, "Audio.TrackGain", extractor->tagcache, GST_TAG_TRACK_GAIN);
-		add_double_gst_tag (metadata, "Audio.TrackPeakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
-		add_double_gst_tag (metadata, "Audio.AlbumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
-		add_double_gst_tag (metadata, "Audio.AlbumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
-		add_year_of_gdate_gst_tag (metadata, "Audio.ReleaseDate", extractor->tagcache, GST_TAG_DATE);
-		add_string_gst_tag (metadata, "Audio.Genre", extractor->tagcache, GST_TAG_GENRE);
-		add_string_gst_tag (metadata, "Audio.Codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
+		add_string_gst_tag (metadata, "Audio:Album", extractor->tagcache, GST_TAG_ALBUM);
+		add_uint_gst_tag (metadata, "Audio:AlbumTrackCount", extractor->tagcache, GST_TAG_TRACK_COUNT);
+		add_uint_gst_tag (metadata, "Audio:TrackNo", extractor->tagcache, GST_TAG_TRACK_NUMBER);
+		add_uint_gst_tag (metadata, "Audio:DiscNo", extractor->tagcache, GST_TAG_ALBUM_VOLUME_NUMBER);
+		add_string_gst_tag (metadata, "Audio:Performer", extractor->tagcache, GST_TAG_PERFORMER);
+		add_double_gst_tag (metadata, "Audio:TrackGain", extractor->tagcache, GST_TAG_TRACK_GAIN);
+		add_double_gst_tag (metadata, "Audio:TrackPeakGain", extractor->tagcache, GST_TAG_TRACK_PEAK);
+		add_double_gst_tag (metadata, "Audio:AlbumGain", extractor->tagcache, GST_TAG_ALBUM_GAIN);
+		add_double_gst_tag (metadata, "Audio:AlbumPeakGain", extractor->tagcache, GST_TAG_ALBUM_PEAK);
+		add_year_of_gdate_gst_tag (metadata, "Audio:ReleaseDate", extractor->tagcache, GST_TAG_DATE);
+		add_string_gst_tag (metadata, "Audio:Genre", extractor->tagcache, GST_TAG_GENRE);
+		add_string_gst_tag (metadata, "Audio:Codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
 
 		/* video */
-		add_string_gst_tag (metadata, "Video.Codec", extractor->tagcache, GST_TAG_VIDEO_CODEC);
+		add_string_gst_tag (metadata, "Video:Codec", extractor->tagcache, GST_TAG_VIDEO_CODEC);
 
 		/* general */
-		add_string_gst_tag (metadata, "File.Copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
-		add_string_gst_tag (metadata, "File.License", extractor->tagcache, GST_TAG_LICENSE);
-		add_string_gst_tag (metadata, "File.Organization", extractor->tagcache, GST_TAG_ORGANIZATION);
-		add_string_gst_tag (metadata, "File.Location", extractor->tagcache, GST_TAG_LOCATION);
+		add_string_gst_tag (metadata, "File:Copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
+		add_string_gst_tag (metadata, "File:License", extractor->tagcache, GST_TAG_LICENSE);
+		add_string_gst_tag (metadata, "DC:Coverage", extractor->tagcache, GST_TAG_LOCATION);
 
 		duration = get_media_duration (extractor);
 
 
 		/* Sometimes it is unclear to what a tag belongs to! */
 		if (extractor->has_video) {
-			add_string_gst_tag (metadata, "Video.Title", extractor->tagcache, GST_TAG_TITLE);
-			add_string_gst_tag (metadata, "Video.Comment", extractor->tagcache, GST_TAG_COMMENT);
+			add_string_gst_tag (metadata, "Video:Title", extractor->tagcache, GST_TAG_TITLE);
+			add_string_gst_tag (metadata, "Video:Comments", extractor->tagcache, GST_TAG_COMMENT);
 			/* FIXME: is it a good idea to use GST_TAG_ARTIST as author?! */
-			add_string_gst_tag (metadata, "Video.Author", extractor->tagcache, GST_TAG_ARTIST);
-			add_string_gst_tag (metadata, "Video.Copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
+			add_string_gst_tag (metadata, "Video:Author", extractor->tagcache, GST_TAG_ARTIST);
+			add_string_gst_tag (metadata, "File:Copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
 
 			if (duration >= 0) {
-				add_int64_info (metadata, g_strdup ("Video.Duration"), duration);
+				add_int64_info (metadata, g_strdup ("Video:Duration"), duration);
 			}
 
 		} else if (extractor->has_audio) {
 			/* No video? So we assume we are treating a song */
-			add_string_gst_tag (metadata, "Audio.Title", extractor->tagcache, GST_TAG_TITLE);
-			add_string_gst_tag (metadata, "Audio.Artist", extractor->tagcache, GST_TAG_ARTIST);
-			add_string_gst_tag (metadata, "Audio.Comment", extractor->tagcache, GST_TAG_COMMENT);
+			add_string_gst_tag (metadata, "Audio:Title", extractor->tagcache, GST_TAG_TITLE);
+			add_string_gst_tag (metadata, "Audio:Artist", extractor->tagcache, GST_TAG_ARTIST);
+			add_string_gst_tag (metadata, "Audio:Comment", extractor->tagcache, GST_TAG_COMMENT);
 
 			if (duration >= 0) {
-				add_int64_info (metadata, g_strdup ("Audio.Duration"), duration);
+				add_int64_info (metadata, g_strdup ("Audio:Duration"), duration);
 			}
 		}
 	}
 
 	if (extractor->audiotags) {
-		add_uint_gst_tag (metadata, "Audio.Bitrate", extractor->tagcache, GST_TAG_BITRATE);
+		add_uint_gst_tag (metadata, "Audio:Bitrate", extractor->tagcache, GST_TAG_BITRATE);
 	}
 
 	if (extractor->videotags) {
-		add_uint_gst_tag (metadata, "Video.Bitrate", extractor->tagcache, GST_TAG_BITRATE);
+		add_uint_gst_tag (metadata, "Video:Bitrate", extractor->tagcache, GST_TAG_BITRATE);
 	}
 }
 

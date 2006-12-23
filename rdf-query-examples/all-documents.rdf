@@ -1,7 +1,7 @@
 <rdfq:Condition>
 
   <rdfq:inSet>
-    <rdfq:Property name="File.Format" />
+    <rdfq:Property name="File:Mime" />
     <rdf:String>application/msword,application/pdf,application/vnd.ms-excel,application/vnd.oasis.opendocument.text,application/vnd.sun.xml.writer</rdf:String> 
   </rdfq:inSet>
 

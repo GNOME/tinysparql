@@ -2,12 +2,12 @@
   <rdfq:and>	
 
     <rdfq:greaterThan>
-      <rdfq:Property name="Image.Width" />
+      <rdfq:Property name="Image:Width" />
       <rdf:Integer>1023</rdf:Integer> 
     </rdfq:greaterThan>
 
     <rdfq:greaterThan>
-      <rdfq:Property name="Image.Height" />
+      <rdfq:Property name="Image:Height" />
       <rdf:Integer>767</rdf:Integer> 
     </rdfq:greaterThan>
 

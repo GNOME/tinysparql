@@ -104,29 +104,29 @@ void tracker_extract_ps (gchar *filename, GHashTable *metadata)
 			if (!header_finished
 					&& strncmp (line, "%%Copyright:", 12) == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup ("File.Other"), g_strdup (line+13));
+					g_strdup ("File:Other"), g_strdup (line+13));
 			}
 			else if (!header_finished
 					&& strncmp (line, "%%Title:", 8) == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup ("Doc.Title"), g_strdup (line+9));
+					g_strdup ("Doc:Title"), g_strdup (line+9));
 			}
 			else if (!header_finished
 					&& strncmp (line, "%%Creator:", 10) == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup ("Doc.Author"), g_strdup (line+11));
+					g_strdup ("Doc:Author"), g_strdup (line+11));
 			}
 			else if (!header_finished
 					&& strncmp (line, "%%CreationDate:", 15) == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup ("Doc.Created"), g_strdup (line+16));
+					g_strdup ("Doc:Created"), g_strdup (line+16));
 			}
 			else if (strncmp (line, "%%Pages:", 8) == 0) {
 				if (strcmp (line+9, "(atend)") == 0)
 					pageno_atend = TRUE;
 				else
 					g_hash_table_insert (metadata,
-						g_strdup ("Doc.PageCount"), g_strdup (line+9));
+						g_strdup ("Doc:PageCount"), g_strdup (line+9));
 			}
 			else if (strncmp (line, "%%EndComments", 14) == 0) {
 				header_finished = TRUE;

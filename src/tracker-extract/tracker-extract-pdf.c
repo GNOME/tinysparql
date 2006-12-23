@@ -54,13 +54,13 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 		NULL);
 
 	if (title && strlen (title))
-		g_hash_table_insert (metadata, g_strdup ("Doc.Title"), g_strdup (title));
+		g_hash_table_insert (metadata, g_strdup ("Doc:Title"), g_strdup (title));
 	if (author && strlen (author))
-		g_hash_table_insert (metadata, g_strdup ("Doc.Author"), g_strdup (author));
+		g_hash_table_insert (metadata, g_strdup ("Doc:Author"), g_strdup (author));
 	if (subject && strlen (subject))
-		g_hash_table_insert (metadata, g_strdup ("Doc.Subject"), g_strdup (subject));
+		g_hash_table_insert (metadata, g_strdup ("Doc:Subject"), g_strdup (subject));
 	if (keywords && strlen (keywords))
-		g_hash_table_insert (metadata, g_strdup ("Doc.Keywords"), g_strdup (keywords));
+		g_hash_table_insert (metadata, g_strdup ("Doc:Keywords"), g_strdup (keywords));
 
 
 #if 0
@@ -69,7 +69,7 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 		g_time_val_to_iso8601 (creation_date_val));
 #endif
 
-	g_hash_table_insert (metadata, g_strdup ("Doc.PageCount"),
+	g_hash_table_insert (metadata, g_strdup ("Doc:PageCount"),
 		g_strdup_printf ("%d", poppler_document_get_n_pages (document)));
 
 	g_free (title);

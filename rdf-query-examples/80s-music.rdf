@@ -2,12 +2,12 @@
   <rdfq:and>	
 
     <rdfq:greaterThan>
-      <rdfq:Property name="Audio.ReleaseDate" />
+      <rdfq:Property name="Audio:ReleaseDate" />
       <rdf:Integer>1979</rdf:Integer> 
     </rdfq:greaterThan>
 
     <rdfq:lessThan>
-      <rdfq:Property name="Audio.ReleaseDate" />
+      <rdfq:Property name="Audio:ReleaseDate" />
       <rdf:Integer>1990</rdf:Integer> 
     </rdfq:lessThan>
     
