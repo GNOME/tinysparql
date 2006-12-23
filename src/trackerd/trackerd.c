@@ -1,5 +1,5 @@
-/* Tracker
- * Copyright (C) 2005, Mr Jamie McCracken (jamiemcc@gnome.org)
+/* Tracker - indexer and metadata database engine
+ * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -9,13 +9,14 @@
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
+ * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
  */
+
 
 #define DBUS_API_SUBJECT_TO_CHANGE
 #define I_AM_MAIN
@@ -877,12 +878,22 @@ index_file (DBConnection *db_con, DBConnection *cache_db_con, FileInfo *info)
 
 
 		/* delimit file uri so hyphens and underscores are removed so that they can be indexed separately */
+		if (strchr (info->uri, '_') || strchr (info->uri, '-')) {
+			delimited = g_strdup (info->uri);
+			delimited =  g_strdelimit (delimited, "-_" , ' ');
+			g_debug ("delimited file name is %s", delimited);
+			g_hash_table_insert (meta_table, g_strdup ("File:NameDelimited"), g_strdup (delimited));
+			g_free (delimited);
+		}
 
-		delimited = g_strdup (info->uri);
+		const char *ext = strrchr (info->uri, '.');
+		if (ext) {
+			ext++;
+			g_debug ("file extension is %s", ext);
+			g_hash_table_insert (meta_table, g_strdup ("File:Ext"), g_strdup (ext));
+		}
 
-		delimited =  g_strdelimit (delimited, "-_" , ' ');
-
-		g_hash_table_insert (meta_table, g_strdup ("File:NameDelimited"), g_strdup (delimited));
+		
 		g_hash_table_insert (meta_table, g_strdup ("File:Path"), g_strdup (path));
 		g_hash_table_insert (meta_table, g_strdup ("File:Name"), g_strdup (name));
 		g_hash_table_insert (meta_table, g_strdup ("File:Link"), g_strdup (str_link_uri));
@@ -892,7 +903,7 @@ index_file (DBConnection *db_con, DBConnection *cache_db_con, FileInfo *info)
 		g_hash_table_insert (meta_table, g_strdup ("File:Modified"), g_strdup (str_mtime));
 		g_hash_table_insert (meta_table, g_strdup ("File:Accessed"), g_strdup (str_atime));
 
-		g_free (delimited);
+
 		g_free (str_mtime);
 		g_free (str_atime);
 

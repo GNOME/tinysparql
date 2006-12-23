@@ -40,13 +40,15 @@ Tracker is the most powerful open source metadata database and indexer framework
 
 NEW CHANGES
 
-* Imporved indexing speed
+* New metadata engine sporting metadata relationships and support for multiple values
 
-* Removed libextractor dependency and created a suite of metadata extractors instead
+* Support for more RDF style semantics and Dublin Core metadata
 
-* Redesigned around Sqlite DB and QDBM inverted word index
+* Fixed memory leaks when indexing so total memory usage (in MBs) should stay in single figures 
 
-* New Tracker search tool (GUI)
+* Now indexes meaningful numbers of 5 of more consecutive digits only (suitable for tel no.s, bank accounts, ISBN etc)
+
+* File names now indexed as delimited parts for more accurate matching
 
 
 FEATURES
