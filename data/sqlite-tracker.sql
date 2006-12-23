@@ -413,6 +413,7 @@ CREATE TABLE MBoxes
 	Path		Text not null,
 	Type		Integer default 0, /* 0=unknown, 1=evolution, 2=thunderbird, 3=kmail */
 	Offset		Integer,
+	LastUri		text,
 	MessageCount 	Integer,
 	MBoxSize	Integer,
 	Mtime		Integer
