@@ -51,9 +51,9 @@ typedef struct {
 #define FILE_PAUSE_PERIOD		1
 #define FILE_SCHEDULE_PERIOD		300
 
-#define TRACKER_DB_VERSION_REQUIRED	10
-#define TRACKER_VERSION			"0.5.2"
-#define TRACKER_VERSION_INT		502
+#define TRACKER_DB_VERSION_REQUIRED	13
+#define TRACKER_VERSION			"0.5.3"
+#define TRACKER_VERSION_INT		503
 
 /* default performance options */
 #define MAX_INDEX_TEXT_LENGTH		1048576
@@ -97,6 +97,11 @@ typedef struct {
 
 	guint32		watch_limit;
 	guint32		poll_interval;
+
+	/* data directories */
+	char 		*data_dir;
+	char		*backup_dir;
+	char		*sys_tmp_root_dir;
 
 	/* performance and memory usage options */
 	int		max_index_text_length; /* max size of file's text contents to index */
@@ -170,7 +175,7 @@ typedef struct {
  	gboolean 	is_running;
 	GMainLoop 	*loop;
 
-	char		*sys_tmp_root_dir;
+	
 
 	Indexer		*file_indexer;
 
@@ -332,6 +337,10 @@ time_t		tracker_str_to_date 		(const char *time_string);
 char *		tracker_date_to_str 		(gint32 date_time);
 int		tracker_str_in_array 		(const char *str, char **array);
 
+char *		tracker_escape_metadata 	(const char *str);
+char *		tracker_unescape_metadata 	(const char *str);
+
+void		tracker_remove_dirs 		(const char *root_dir);
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
 
 gboolean	tracker_is_supported_lang 	(const char *lang);

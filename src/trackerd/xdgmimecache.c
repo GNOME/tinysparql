@@ -123,7 +123,7 @@ _xdg_mime_cache_new_from_file (const char *file_name)
   if (fstat (fd, &st) < 0 || st.st_size < 4)
     goto done;
 
-  buffer = (char *) mmap (NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+  buffer = (char *) mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
   if (buffer == MAP_FAILED)
     goto done;

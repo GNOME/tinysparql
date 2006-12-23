@@ -22,7 +22,7 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-keywords.h"
 
-
+/*
 static void
 update_keywords_metadata (DBConnection *db_con, const char* service, const char *path, const char *name)
 {
@@ -66,6 +66,7 @@ update_keywords_metadata (DBConnection *db_con, const char* service, const char 
 
 		keywords = g_string_free (words, FALSE);
 
+
 		tracker_db_update_keywords (db_con, service, id, keywords);
 
 		g_free (keywords);
@@ -76,7 +77,7 @@ update_keywords_metadata (DBConnection *db_con, const char* service, const char 
 
 	g_free (id);
 }
-
+*/
 
 void
 tracker_dbus_method_keywords_get_list (DBusRec *rec)
@@ -129,7 +130,7 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	DBusMessage 	*reply;
-	char 		*id, *uri, *service, *name, *path;
+	char 		*id, *uri, *service;
 	char 		**array;
 	char		***res;
 	int 		row_count;
@@ -174,20 +175,9 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		return;
 	}
 
+	res = tracker_db_get_metadata_values (db_con, service, id, "DC:Keywords");
+
 	g_free (id);
-
-	if (uri[0] == G_DIR_SEPARATOR) {
-		name = g_path_get_basename (uri);
-		path = g_path_get_dirname (uri);
-	} else {
-		name = tracker_get_vfs_name (uri);
-		path = tracker_get_vfs_path (uri);
-	}
-
-	res = tracker_exec_proc (db_con, "GetKeywords", 2, path, name);
-
-	g_free (name);
-	g_free (path);
 
 	row_count = 0;
 	array = NULL;
@@ -216,7 +206,7 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	DBusMessage 	*reply;
-	char 		*id, *uri, *service, *name, *path;
+	char 		*id, *uri, *service;
 	char 		**array = NULL;
 	int 		row_count = 0;
 
@@ -233,7 +223,8 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		</method>
 */
 
-	dbus_error_init(&dbus_error);
+	dbus_error_init (&dbus_error);
+
 	if (!dbus_message_get_args (rec->message, NULL,
 			       DBUS_TYPE_STRING, &service,
 			       DBUS_TYPE_STRING, &uri,
@@ -261,34 +252,22 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		return;
 	}
 
-	tracker_log ("adding keywords to %s with id %s", uri, id);
-
-	g_free (id);
-
-	if (uri[0] == G_DIR_SEPARATOR) {
-		name = g_path_get_basename (uri);
-		path = g_path_get_dirname (uri);
-	} else {
-		name = tracker_get_vfs_name (uri);
-		path = tracker_get_vfs_path (uri);
-	}
-
+		
 	if (array && (row_count > 0)) {
 		int i;
 
 		for (i = 0; i < row_count; i++) {
 			if (array[i]) {
-				tracker_exec_proc (db_con, "AddKeyword", 3, path, name, array[i]);
+				tracker_db_set_metadata (db_con, service, id, "DC:Keywords", array[i], TRUE, TRUE, FALSE);
 			}
 		}
 	}
 
 	dbus_free_string_array(array);
-	
-	update_keywords_metadata (db_con, service, path, name);
 
-	g_free (name);
-	g_free (path);
+	tracker_log ("adding keywords to %s with id %s", uri, id);
+
+	g_free (id);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -304,7 +283,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	DBusMessage 	*reply;
-	char 		*id, *uri, *service, *name, *path;
+	char 		*id, *uri, *service;
 	char 		**array;
 	int 		row_count = 0;
 
@@ -351,32 +330,20 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		return;
 	}
 
-	g_free (id);
-
-	if (uri[0] == G_DIR_SEPARATOR) {
-		name = g_path_get_basename (uri);
-		path = g_path_get_dirname (uri);
-	} else {
-		name = tracker_get_vfs_name (uri);
-		path = tracker_get_vfs_path (uri);
-	}
-
 	if (array && (row_count > 0)) {
 		int i;
 
 		for (i = 0; i < row_count; i++) {
 			if (array[i]) {
-				tracker_exec_proc (db_con, "RemoveKeyword", 3, path, name, array[i]);
+				tracker_log ("deleting keyword %s from %s with ID %s", array[i], uri, id);
+				tracker_db_delete_metadata_value (db_con, service, id, "DC:Keywords", array[i], FALSE);
 			}
 		}
 	}
 
 	dbus_free_string_array (array);
-	
-	update_keywords_metadata (db_con, service, path, name);
 
-	g_free (name);
-	g_free (path);
+	g_free (id);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -392,7 +359,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	DBusMessage 	*reply;
-	char 		*id, *uri, *service, *name, *path;
+	char 		*id, *uri, *service;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -434,23 +401,10 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		return;
 	}
 
+	tracker_db_delete_metadata (db_con, service, id, "DC:Keywords");
+	
 	g_free (id);
-
-	if (uri[0] == G_DIR_SEPARATOR) {
-		name = g_path_get_basename (uri);
-		path = g_path_get_dirname (uri);
-	} else {
-		name = tracker_get_vfs_name (uri);
-		path = tracker_get_vfs_path (uri);
-	}
-
-	tracker_exec_proc (db_con, "RemoveAllKeywords", 2, path, name);
-
-	update_keywords_metadata (db_con, service, path, name);
-
-	g_free (name);
-	g_free (path);
-
+	
 	reply = dbus_message_new_method_return (rec->message);
 
 	dbus_connection_send (rec->connection, reply, NULL);
@@ -516,25 +470,30 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 		return;
 	}
 
-	str_words = g_string_new (array[0]);
+	str_words = g_string_new ("");
+	g_string_append_printf (str_words, "'%s'", array[0]);
 
 	for (i = 1; i < row_count; i++) {
-		g_string_append_printf (str_words, ", %s", array[i]);
+		g_string_append_printf (str_words, ", '%s'", array[i]);
 	}
 
 	tracker_log ("executing keyword search on %s", str_words->str);
-
-	g_string_free (str_words, TRUE);
-
 
 	str_select = g_string_new (" Select distinct S.Path || '");
 
 	str_select = g_string_append (str_select, G_DIR_SEPARATOR_S);
 
-	str_select = g_string_append (str_select, "' || S.Name as EntityName from Services S ");
+	str_select = g_string_append (str_select, "' || S.Name as EntityName from Services S, ServiceKeywordMetaData M ");
 
+	char *related_metadata = tracker_get_related_metadata_names (db_con, "DC:Keywords");
 
 	str_where = g_string_new ("");
+
+	g_string_append_printf (str_where, " where S.ID = M.ServiceID and M.MetaDataID in (%s) and M.MetaDataValue in (%s) ", related_metadata, str_words->str);
+
+	g_free (related_metadata);
+
+	g_string_free (str_words, TRUE);
 
 	int smin, smax;
 	char *str_min, *str_max;
@@ -551,15 +510,11 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	str_max = tracker_int_to_str (smax);
 
 
-	g_string_printf (str_where, " where  (S.ServiceTypeID between %s and %s) ", str_min, str_max);
+	g_string_append_printf (str_where, "  and  (S.ServiceTypeID between %s and %s) ", str_min, str_max);
+
 
 	g_free (str_min);
 	g_free (str_max);
-
-	for (i = 0; i < row_count; i++) {
-		g_string_append_printf (str_select, " INNER JOIN ServiceKeywords K%d on S.ID = K%d.ServiceID ", i, i);
-		g_string_append_printf (str_where, " And K%d.Keyword = '%s' ", i, array[i]);
-	}
 
 	g_string_append_printf (str_where, " Limit %d,%d", offset, limit);
 
@@ -568,6 +523,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	query_where = g_string_free (str_where, FALSE);
 	query = g_strconcat (query_sel, query_where, NULL);
 
+	tracker_log (query);
 	res = tracker_exec_sql (db_con, query);
 
 	g_free (query_sel);

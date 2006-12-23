@@ -66,14 +66,44 @@ delimit_utf8_string (const gchar *str)
 	return g_string_free (strs, FALSE);
 }
 
+/* check word either contains at least one alpha char or is a number of at least 5 consecutive digits (we want to index meaningful numbers only like telephone no.s, bank accounts, ISBN etc) */
+static gboolean 
+numbered_word_is_valid (const char *word)
+{
+	const char *p;
+	gunichar   c;
+	int i = 0;
 
-/* check word starts with alpha char or underscore */
+	for (p = word; *p; p = g_utf8_next_char (p)) {
+
+		i++;
+
+		c = g_utf8_get_char (p);
+
+		if (g_unichar_isalpha (c) ) {
+			return TRUE;
+		}
+
+		if (!g_unichar_isdigit (c) ) {
+			return FALSE;
+		}	
+	}
+
+	return (i > 4);
+
+}
+
+/* check word starts with alphanumeric char or underscore and only numbers of 5 or more digits are indexed */
 static gboolean
 word_is_valid (const char *word)
 {
 	gunichar c;
 
 	c = g_utf8_get_char (word);
+
+	if (g_unichar_isalnum (c)) {
+		return numbered_word_is_valid (word);
+	} 
 
 	return (g_unichar_isalpha (c) || word[0] == '_');
 }
@@ -177,8 +207,7 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 	char	   *delimit_text;
 	char	   **words;
 
-	g_return_val_if_fail (text, NULL);
-
+	if (!text) return g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 	if (!word_table) {	
 		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);

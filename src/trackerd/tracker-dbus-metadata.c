@@ -97,13 +97,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		value = values[i];
 
 		if (!meta || strlen (meta) < 3 || (strchr (meta, '.') == NULL) ) {
-			tracker_set_error (rec, "Metadata type name %s is invalid. All names must be in the format 'class.name' ", meta);
-			g_free (id);
-			return;
-		}
-
-		if (strcmp (meta, "File.Keywords") == 0) {
-			tracker_set_error (rec, "File.Keywords can only be set from the Keywords Interface");
+			tracker_set_error (rec, "Metadata type name %s is invalid. All names must be registered in tracker", meta);
 			g_free (id);
 			return;
 		}
@@ -133,7 +127,6 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	GString 	*sql;
 	char		***res;
 	char		**date_array;
-	const char 	*table;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -227,7 +220,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 	for (i = 0; i < key_count; i++) {
 		FieldDef *def;
-		char	 *metadata;
+		char	 *metadata, *table;
 
 		metadata = keys[i];
 		
@@ -235,16 +228,13 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 		if (def) {
 			
-			if (def->type == DATA_INDEX_STRING) {
-				table = "ServiceIndexMetaData";
-			} else if (def->type == DATA_STRING) {
-				table = "ServiceMetaData";
-			} else if (def->type == DATA_INDEX_BLOB) {
-				table = "ServiceBlobMetaData";
+			if (def->multiple_values) {
+				table = g_strdup ("ServiceMetaDataDisplay");
 			} else {
-				table = "ServiceNumericMetaData";
+				table = tracker_get_metadata_table (def->type);
 			}
 
+		
 	
 		} else {
 			tracker_set_error (rec, "Invalid or non-existant metadata type %s was specified", metadata);
@@ -255,6 +245,8 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		table_count++;
 
 		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON M%d.ServiceID = F.ID AND M%d.MetaDataID = %s ", table, table_count, table_count, table_count, def->id);
+
+		g_free (table);
 
 		tracker_db_free_field_def (def);
 	}

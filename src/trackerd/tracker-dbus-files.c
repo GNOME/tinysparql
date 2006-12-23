@@ -124,11 +124,11 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 		str_file_id = tracker_uint_to_str (file_id);
 
 		if (file_id > 0) {
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Name", name, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File:Name", name, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File:Path", path, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File:Format", mime, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File:Modified", str_mtime, TRUE, TRUE, TRUE);
+			tracker_db_set_metadata (db_con, service, str_file_id, "File:Size", str_size, TRUE, TRUE, TRUE);
 		}
 
 		if (name) {
@@ -227,11 +227,11 @@ tracker_dbus_method_files_create (DBusRec *rec)
 	str_file_id = tracker_uint_to_str (file_id);
 
 	if (file_id != 0) {
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Modified", str_mtime, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Size", str_size, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id,  "File.Name", name, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Path", path, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File.Format", mime, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File:Modified", str_mtime, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File:Size", str_size, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id,  "File:Name", name, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File:Path", path, TRUE, TRUE, TRUE);
+		tracker_db_set_metadata (db_con, service, str_file_id, "File:Format", mime, TRUE, TRUE, TRUE);
 	}
 
 	g_free (service);
@@ -362,7 +362,7 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 
 	str_id = tracker_uint_to_str (file_id);
 
-	mime = tracker_get_metadata (db_con, "Files", str_id, "File.Format");
+	mime = tracker_get_metadata (db_con, "Files", str_id, "File:Mime");
 
 	result = tracker_get_service_type_for_mime (mime);
 
@@ -889,7 +889,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	for (i = 0; i < n; i++) {
 		FieldDef *def;
-		const char *table;
+		char *table;
 
 		def = tracker_db_get_field_def (db_con, array[i]);
 
@@ -898,17 +898,15 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 			return;
 		}
 
-		if (def->type == DATA_INDEX_STRING) {
-			table = "ServiceIndexMetaData";
-		} else if (def->type == DATA_STRING) {
-			table = "ServiceMetaData";
-		} else if (def->type == DATA_INDEX_BLOB) {
-			table = "ServiceBlobMetaData";
+		if (def->multiple_values) {
+			table = g_strdup ("ServiceMetaDataDisplay");
 		} else {
-			table = "ServiceNumericMetaData";
+			table = tracker_get_metadata_table (def->type);
 		}
 
 		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON F.ID = M%d.ServiceID AND M%d.MetaDataID = %s ", table, i+1, i+1, i+1, def->id);
+
+		g_free (table);
 
 		tracker_db_free_field_def (def);
 	}

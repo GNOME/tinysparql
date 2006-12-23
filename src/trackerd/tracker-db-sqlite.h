@@ -27,11 +27,12 @@
 
 
 typedef enum {
-	DATA_INDEX_STRING,
+	DATA_INDEX,
 	DATA_STRING,
 	DATA_NUMERIC,
 	DATA_DATE,
-	DATA_INDEX_BLOB
+	DATA_BLOB,
+	DATA_KEYWORD
 } DataTypes;
 
 
@@ -46,8 +47,8 @@ typedef enum {
 typedef struct {
 	char		*id;
 	DataTypes	type;
-	gboolean	writeable;
-	gboolean	embedded;
+	gboolean	multiple_values;
+	int		weight;
 
 } FieldDef;
 
@@ -104,13 +105,28 @@ int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
 
 void		tracker_db_release_memory 	();
 
+
+char *		tracker_get_related_metadata_names 	(DBConnection *db_con, const char *name);
+char *		tracker_get_metadata_table 		(DataTypes type);
+
 char ***	tracker_db_search_text		(DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results, gboolean detailed);
 char ***	tracker_db_search_files_by_text	(DBConnection *db_con, const char *text, int offset, int limit, gboolean sort);
 char ***	tracker_db_search_metadata	(DBConnection *db_con, const char *service, const char *field, const char *text, int offset, int limit);
 char ***	tracker_db_search_matching_metadata (DBConnection *db_con, const char *service, const char *id, const char *text);
 
+/* gets metadata as a single row (with multiple values delimited by semicolons) */
 char ***	tracker_db_get_metadata		(DBConnection *db_con, const char *service, const char *id, const char *key);
-void		tracker_db_set_metadata		(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite, gboolean index, gboolean embedded);
+
+/* gets metadata using a separate row for each value it has */
+char ***	tracker_db_get_metadata_values 	(DBConnection *db_con, const char *service, const char *id, const char *key);
+
+void		tracker_db_set_metadata		 (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean generate_display_metadata, gboolean index, gboolean embedded);
+void		tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean embedded);
+void 		tracker_db_delete_metadata 	 (DBConnection *db_con, const char *service, const char *id, const char *key);
+
+char *		tracker_db_refresh_display_metadata 	(DBConnection *db_con, const char *id,  const char *metadata_id, int data_type, const char *key);
+void		tracker_db_refresh_all_display_metadata (DBConnection *db_con, const char *id);
+
 void		tracker_db_update_keywords	(DBConnection *db_con, const char *service, const char *id, const char *value);
 
 void		tracker_db_create_service	(DBConnection *db_con, const char *path, const char *name, const char *service, const char *mime, guint32 filesize, gboolean is_dir, gboolean is_link, int offset, guint32 mtime);

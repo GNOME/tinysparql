@@ -26,11 +26,11 @@
 <rdfq:Condition>
 	<rdfq:and>
         	<rdfq:greaterThan>
-            		<rdfq:Property name="File.Size" />
+            		<rdfq:Property name="File:Size" />
             		<rdf:Integer>1000000</rdf:Integer>
           	</rdfq:greaterThan>
           	<rdfq:equals>
-             		<rdfq:Property name="File.Path" />
+             		<rdfq:Property name="File:Path" />
              		<rdf:String>/home/jamie</rdf:String>
            	</rdfq:equals>
 	</rdfq:and>
@@ -141,6 +141,7 @@ typedef struct {
 	char	 	*table_name;
 	char	 	*id_field;
 	DataTypes	data_type;
+	gboolean	multiple_values;
 	gboolean 	is_select;
 	gboolean 	is_condition;
 
@@ -391,18 +392,24 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 
 		if (tmp_field && tmp_field->field_name) {
 			if (strcmp (tmp_field->field_name, field_name) == 0) {
-				field_exists = TRUE;
+
 				field_data = tmp_field;
-			
-				if (is_condition) {
-					field_data->is_condition = TRUE;
-				}
+		
+				if ((field_data->multiple_values && field_data->is_condition && is_select) || (field_data->multiple_values && field_data->is_select && is_condition) ) {
+					field_exists = FALSE;
+				} else {
+					field_exists = TRUE;
+	
+					if (is_condition) {
+						field_data->is_condition = TRUE;
+					} 
 
-				if (is_select) {
-					field_data->is_select = TRUE;
-				}
+					if (is_select) {
+						field_data->is_select = TRUE;
+					}
 
-				break;
+					break;
+				}
 			}
 		}
 	}
@@ -430,34 +437,35 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 		def = tracker_db_get_field_def (data->db_con, field_name);
 
 		if (def) {
-			const char *st;
+			char *st;
 			
-			if (def->type == DATA_INDEX_STRING) {
-				st = "ServiceIndexMetaData";
-			} else if (def->type == DATA_STRING) {
-				st = "ServiceMetaData";
-			} else if (def->type == DATA_INDEX_BLOB) {
-				st = "ServiceBlobMetaData";
+			if (is_select && def->multiple_values) {
+				st = g_strdup ("ServiceMetaDataDisplay");
 			} else {
-				st = "ServiceNumericMetaData";
+				st = tracker_get_metadata_table (def->type);
 			}
 
 			field_data->data_type = def->type;
 			field_data->meta_field = g_strconcat (field_data->alias, ".MetaDataValue", NULL);
 			field_data->table_name = g_strdup (st);
 			field_data->id_field = g_strdup (def->id);
+			field_data->multiple_values = def->multiple_values;
 			
 			data->fields = g_slist_prepend (data->fields, field_data);
 
 			if (is_select) {
 
-				if (def->type == DATA_DATE) {
-					g_string_append_printf (data->sql_select, ", FormatDate(%s)", field_data->meta_field);
-				} else {
-					g_string_append_printf (data->sql_select, ", %s", field_data->meta_field);
-				}
+			/* leave datetime fields as integers (seconds from epoch) so clients can format as they wish */
+
+//				if (def->type == DATA_DATE) {
+//					g_string_append_printf (data->sql_select, ", FormatDate(%s)", field_data->meta_field);
+//				} else {
+				g_string_append_printf (data->sql_select, ", %s", field_data->meta_field);
+//				}
 
 			}
+
+			g_free (st);
 
 			tracker_db_free_field_def (def);
 
@@ -803,7 +811,11 @@ build_sql (ParserData *data)
 			if (sub) {
 				g_string_append_printf (str, " (%s glob '%s') ", field_data->meta_field, data->current_value);
 			} else {
-				g_string_append_printf (str, " (%s = %s) ", field_data->meta_field, value);
+				if (field_data->data_type == DATA_DATE || field_data->data_type == DATA_NUMERIC) {
+					g_string_append_printf (str, " (%s = %s) ", field_data->meta_field, value);
+				} else {
+					g_string_append_printf (str, " (%s = '%s') ", field_data->meta_field, value);
+				}
 			}
 
 			break;
@@ -1165,11 +1177,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	char *table_name;
 	gboolean do_search = FALSE;
 
-	if (strcmp (service, "Emails") == 0) {
-		table_name = "Emails";
-	} else {
-		table_name = "Services";
-	}
+	table_name = "Services";
 
 	data.sql_from = g_string_new ("");
 
@@ -1184,7 +1192,9 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	}
 
 	if (keyword && strlen (keyword) > 0) {
-		g_string_append_printf (data.sql_from, "\n INNER JOIN ServiceKeywords K ON S.ID = K.ServiceID and K.Keyword = '%s' ", keyword);
+		char *keyword_metadata = tracker_get_related_metadata_names (db_con, "DC:Keywords");
+		g_string_append_printf (data.sql_from, "\n INNER JOIN ServiceKeywordMetaData K ON S.ID = K.ServiceID and K.MetaDataID in (%s) and K.MetaDataValue = '%s' ", keyword_metadata, keyword);
+		g_free (keyword_metadata);
 	} 
 
 	data.sql_where = g_string_new ("");
@@ -1250,7 +1260,9 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 			if (!tmp_field->is_condition) {
 				g_string_append_printf (data.sql_from, "\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, tmp_field->id_field);
 			} else {
-				g_string_append_printf (data.sql_from, "\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, tmp_field->id_field);
+				char *related_metadata = tracker_get_related_metadata_names (db_con, tmp_field->field_name);
+				g_string_append_printf (data.sql_from, "\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, related_metadata);
+				g_free (related_metadata);
 			}
 		}
 

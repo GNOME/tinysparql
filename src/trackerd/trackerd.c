@@ -306,55 +306,6 @@ flush_when_indexing_finished (void)
 }
 
 
-static void
-recur_rm_dirs (const char *root_dir)
-{
-	GQueue *dirs;
-	GSList *dirs_to_remove;
-
-	dirs = g_queue_new ();
-
-	g_queue_push_tail (dirs, g_strdup (root_dir));
-
-	dirs_to_remove = NULL;
-
-	while (!g_queue_is_empty (dirs)) {
-		char *dir;
-		GDir *dirp;
-
-		dir = g_queue_pop_head (dirs);
-
-		dirs_to_remove = g_slist_prepend (dirs_to_remove, dir);
-
-		if ((dirp = g_dir_open (dir, 0, NULL))) {
-			const char *file;
-
-			while ((file = g_dir_read_name (dirp))) {
-				char *full_filename;
-
-				full_filename = g_build_filename (dir, file, NULL);
-
-				if (g_file_test (full_filename, G_FILE_TEST_IS_DIR)) {
-					g_queue_push_tail (dirs, full_filename);
-				} else {
-					g_unlink (full_filename);
-					g_free (full_filename);
-				}
-			}
-
-			g_dir_close (dirp);
-		}
-	}
-
-	g_queue_free (dirs);
-
-	/* remove directories (now they are empty) */
-	g_slist_foreach (dirs_to_remove, (GFunc) g_rmdir, NULL);
-
-	g_slist_foreach (dirs_to_remove, (GFunc) g_free, NULL);
-
-	g_slist_free (dirs_to_remove);
-}
 
 
 static gboolean
@@ -447,7 +398,7 @@ do_cleanup (const char *sig_msg)
 
 	/* remove sys tmp directory */
 	if (tracker->sys_tmp_root_dir) {
-		recur_rm_dirs (tracker->sys_tmp_root_dir);
+		tracker_remove_dirs (tracker->sys_tmp_root_dir);
 	}
 
 	g_main_loop_quit (tracker->loop);
@@ -917,22 +868,31 @@ index_file (DBConnection *db_con, DBConnection *cache_db_con, FileInfo *info)
 	path = g_path_get_dirname (info->uri);
 
 	if (!is_a_mbox) {
-		char *str_mtime, *str_atime;
+		char *str_mtime, *str_atime, *delimited;
 
 		str_mtime = tracker_date_to_str (info->mtime);
 		str_atime = tracker_date_to_str (info->atime);
 
 		meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
-		g_hash_table_insert (meta_table, g_strdup ("File.Path"), g_strdup (path));
-		g_hash_table_insert (meta_table, g_strdup ("File.Name"), g_strdup (name));
-		g_hash_table_insert (meta_table, g_strdup ("File.Link"), g_strdup (str_link_uri));
-		g_hash_table_insert (meta_table, g_strdup ("File.Format"), g_strdup (info->mime));
-		g_hash_table_insert (meta_table, g_strdup ("File.Size"), tracker_uint_to_str (info->file_size));
-		g_hash_table_insert (meta_table, g_strdup ("File.Permissions"), g_strdup (info->permissions));
-		g_hash_table_insert (meta_table, g_strdup ("File.Modified"), g_strdup (str_mtime));
-		g_hash_table_insert (meta_table, g_strdup ("File.Accessed"), g_strdup (str_atime));
 
+		/* delimit file uri so hyphens and underscores are removed so that they can be indexed separately */
+
+		delimited = g_strdup (info->uri);
+
+		delimited =  g_strdelimit (delimited, "-_" , ' ');
+
+		g_hash_table_insert (meta_table, g_strdup ("File:NameDelimited"), g_strdup (delimited));
+		g_hash_table_insert (meta_table, g_strdup ("File:Path"), g_strdup (path));
+		g_hash_table_insert (meta_table, g_strdup ("File:Name"), g_strdup (name));
+		g_hash_table_insert (meta_table, g_strdup ("File:Link"), g_strdup (str_link_uri));
+		g_hash_table_insert (meta_table, g_strdup ("File:Mime"), g_strdup (info->mime));
+		g_hash_table_insert (meta_table, g_strdup ("File:Size"), tracker_uint_to_str (info->file_size));
+		g_hash_table_insert (meta_table, g_strdup ("File:Permissions"), g_strdup (info->permissions));
+		g_hash_table_insert (meta_table, g_strdup ("File:Modified"), g_strdup (str_mtime));
+		g_hash_table_insert (meta_table, g_strdup ("File:Accessed"), g_strdup (str_atime));
+
+		g_free (delimited);
 		g_free (str_mtime);
 		g_free (str_atime);
 
@@ -1023,7 +983,7 @@ index_file (DBConnection *db_con, DBConnection *cache_db_con, FileInfo *info)
 		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata2", 1, str_file_id);
 		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata3", 1, str_file_id);
 		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata4", 1, str_file_id);
-		tracker_exec_proc (db_con, "MarkEmbeddedServiceMetadata5", 1, str_file_id);
+
 		tracker_db_end_transaction (db_con);
 	}
 
@@ -1517,17 +1477,21 @@ extract_metadata_thread (void)
 
 				//tracker_indexer_sync (tracker->file_indexer);
 
+				char *str_id;
+				str_id = tracker_uint_to_str (info->file_id);
+
 				/* delete any old metadata that was not updated  */
 				if (!info->is_new) {
-					char *str_id;
-
-					str_id = tracker_uint_to_str (info->file_id);
 					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata1", 1, str_id);
 					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata2", 1, str_id);
 					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata3", 1, str_id);
 					tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata4", 1, str_id);
-					g_free (str_id);
 				}
+
+				/* update metadata display table */
+				tracker_db_refresh_all_display_metadata (db_con, str_id);
+
+				g_free (str_id);				
 
 				if (tracker_is_an_email_attachment (info->uri)) {
 					tracker_unlink_email_attachment (info->uri);
@@ -2456,12 +2420,22 @@ sanity_check_option_values ()
 	tmp_dir = g_strdup_printf ("Tracker-%s.%u", g_get_user_name (), getpid());
 
 	tracker->sys_tmp_root_dir = g_build_filename (g_get_tmp_dir (), tmp_dir, NULL);
-
+	tracker->data_dir = g_build_filename (g_get_home_dir (), ".Tracker", "databases", NULL);
+	tracker->backup_dir = g_build_filename (g_get_home_dir (), ".Tracker", "backup", NULL);
+	
 	g_free (tmp_dir);
 
 	/* remove an existing one */
 	if (g_file_test (tracker->sys_tmp_root_dir, G_FILE_TEST_EXISTS)) {
-		recur_rm_dirs (tracker->sys_tmp_root_dir);
+		tracker_remove_dirs (tracker->sys_tmp_root_dir);
+	}
+
+	if (!g_file_test (tracker->data_dir, G_FILE_TEST_EXISTS)) {
+		g_mkdir_with_parents (tracker->data_dir, 00755);
+	}
+
+	if (!g_file_test (tracker->backup_dir, G_FILE_TEST_EXISTS)) {
+		g_mkdir_with_parents (tracker->backup_dir, 00755);
 	}
 
 	g_mkdir (tracker->sys_tmp_root_dir, 00700);
@@ -2603,7 +2577,7 @@ main (int argc, char **argv)
 	g_free (example);
 
 	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken (jamiemcc@gnome.org)\n\n", TRACKER_VERSION);
-	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
+	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 or later of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
 
 	g_print ("Initialising tracker...\n");
 
@@ -2822,6 +2796,9 @@ main (int argc, char **argv)
 
 		/* refresh connection as DB might have been rebuilt */
 		tracker_db_close (db_con);
+		need_setup = tracker_db_needs_setup ();
+		tracker->first_time_index = TRUE;
+		tracker_create_db ();
 		db_con = tracker_db_connect ();
 		db_con->thread = "main";
 		tracker_db_load_stored_procs (db_con);

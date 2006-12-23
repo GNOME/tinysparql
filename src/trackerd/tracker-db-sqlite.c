@@ -218,11 +218,11 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 	}
 
 	if (res && row && row[2]) {
-		def->embedded = (strcmp ("1", row[2]) == 0);
+		def->multiple_values = (strcmp ("1", row[2]) == 0);
 	}
 
 	if (res && row && row[3]) {
-		def->writeable = (strcmp ("1", row[3]) == 0);
+		def->weight = atoi (row[3]);
 	}
 
 	tracker_db_free_result (res);
@@ -553,18 +553,10 @@ test_data (gpointer key,
 DBConnection *
 tracker_db_connect (void)
 {
-	char	     *base_dir, *dbname;
+	char	     *dbname;
 	DBConnection *db_con;
 
-	base_dir = g_build_filename (g_get_home_dir (), ".Tracker", "databases", NULL);
-	dbname = g_build_filename (base_dir, "data", NULL);
-
-	if (!tracker_file_is_valid (base_dir)) {
-		g_mkdir_with_parents (base_dir, 00755);
-	}
-
-	g_free (base_dir);
-
+	dbname = g_build_filename (tracker->data_dir, "data", NULL);
 
 	db_con = g_new (DBConnection, 1);
 
@@ -625,19 +617,13 @@ DBConnection *
 tracker_db_connect_full_text (void)
 {
 	gboolean     create_table;
-	char	     *base_dir, *dbname;
+	char	     *dbname;
 	DBConnection *db_con;
 
 	create_table = FALSE;
 
-	base_dir = g_build_filename (g_get_home_dir (), ".Tracker", "databases", NULL);
-	dbname = g_build_filename (base_dir, "fulltext", NULL);
+	dbname = g_build_filename (tracker->data_dir, "fulltext", NULL);
 
-	if (!tracker_file_is_valid (base_dir)) {
-		g_mkdir_with_parents (base_dir, 00755);
-	}
-
-	g_free (base_dir);
 
 	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
 		tracker_log ("database file %s is not present - will create", dbname);
@@ -694,7 +680,7 @@ DBConnection *
 tracker_db_connect_cache (void)
 {
 	gboolean     create_table;
-	char	     *base_dir, *dbname;
+	char	     *dbname;
 	DBConnection *db_con;
 
 	create_table = FALSE;
@@ -704,14 +690,7 @@ tracker_db_connect_cache (void)
 		exit (1);
 	}
 
-	base_dir = g_build_filename (tracker->sys_tmp_root_dir, "sqlite3-base", NULL);
-	dbname = g_build_filename (base_dir, "cache", NULL);
-
-	if (!tracker_file_is_valid (base_dir)) {
-		g_mkdir_with_parents (base_dir, 00755);
-	}
-
-	g_free (base_dir);
+	dbname = g_build_filename (tracker->sys_tmp_root_dir, "cache", NULL);
 
 	if (!tracker_file_is_valid (dbname)) {
 		create_table = TRUE;
@@ -1393,8 +1372,9 @@ tracker_update_db (DBConnection *db_con)
 	tracker_log ("Checking tracker DB version...Current version is %d and needed version is %d", i, TRACKER_DB_VERSION_REQUIRED);
 
 	if (i < TRACKER_DB_VERSION_REQUIRED) {
-		tracker_log ("FATAL ERROR : Your database is too out of date and will need to be rebuilt and all your files reindexed.\nPlease delete $HOME/.Tracker/databases directory and all files in it and restart trackerd\n");
-		exit (1);
+		tracker_log ("Your database is too out of date and will need to be rebuilt and all your files reindexed.\nPlease wait while we reindex...\n");
+		tracker_remove_dirs (tracker->data_dir);
+		return TRUE;
 	}
 
 	/* apply and table changes for each version update */
@@ -1530,7 +1510,7 @@ get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table
 	}
 
 
-	res = tracker_exec_proc (db_con, "GetAllIndexableBlob", 1, str_id);
+	res = tracker_exec_proc (db_con, "GetAllIndexableKeywords", 1, str_id);
 
 	if (res) {
 		int  k;
@@ -1922,10 +1902,14 @@ tracker_db_search_metadata (DBConnection *db_con, const char *service, const cha
 
 	switch (def->type) {
 
-		case 0: res = tracker_exec_proc (db_con, "SearchMetadataIndex", 2, def->id, text); break;
+		case 0: 
 		case 1: res = tracker_exec_proc (db_con, "SearchMetadataString", 2, def->id, text); break;
-		case 2: res = tracker_exec_proc (db_con, "SearchMetadataNumeric", 2, def->id, text); break;
+
+		case 2:
 		case 3: res = tracker_exec_proc (db_con, "SearchMetadataNumeric", 2, def->id, text); break;
+
+		case 5: res = tracker_exec_proc (db_con, "SearchMetadataKeywords", 2, def->id, text); break;
+
 		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
 	}
 
@@ -1969,6 +1953,7 @@ get_metadata_type (DBConnection *db_con, const char *meta)
 */
 
 
+/* gets specified metadata value as a single row (multple values for a metadata type are returned delimited by a semicolon) */
 char ***
 tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *id, const char *key)
 {
@@ -1984,14 +1969,23 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 		return NULL;
 	}
 
+	if (def->multiple_values && def->type != 4) {			
+	 	res = tracker_exec_proc (db_con, "GetMetadataDisplay", 2, id, key); 
+		tracker_db_free_field_def (def);
+		return res;
+	}
+
+
 	switch (def->type) {
 
-		case 0: res = tracker_exec_proc (db_con, "GetMetadataIndex", 2, id, key); break;
+		case 0:
 		case 1: res = tracker_exec_proc (db_con, "GetMetadataString", 2, id, key); break;
-		case 2: res = tracker_exec_proc (db_con, "GetMetadataNumeric", 2, id, key); break;
+
+		case 2:
 		case 3: res = tracker_exec_proc (db_con, "GetMetadataNumeric", 2, id, key); break;
-		case 4: res = tracker_exec_proc (db_con, "GetMetadataBlob", 2, id, key); break;
-		case 99: res = tracker_exec_proc (db_con, "GetMetadataIndex", 2, id, key); break;
+
+		case 5: res = tracker_exec_proc (db_con, "GetMetadataKeyword", 2, id, key); break;
+
 		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
 	}
 
@@ -2001,8 +1995,47 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 }
 
 
+/* gets specified metadata value with as many rows as needed (if it has multiple values then one row is returned for each value) */
+char ***
+tracker_db_get_metadata_values (DBConnection *db_con, const char *service, const char *id, const char *key)
+{
+	FieldDef *def;
+	char	 ***res;
+
+	g_return_val_if_fail (id, NULL);
+
+	def = tracker_db_get_field_def (db_con, key);
+
+	if (!def) {
+		tracker_log ("metadata not found for id %s and type %s", id, key);
+		return NULL;
+	}
+
+	
+	switch (def->type) {
+
+		case 0:
+		case 1: res = tracker_exec_proc (db_con, "GetMetadataString", 2, id, key); break;
+
+		case 2:
+		case 3: res = tracker_exec_proc (db_con, "GetMetadataNumeric", 2, id, key); break;
+
+		case 5: res = tracker_exec_proc (db_con, "GetMetadataKeyword", 2, id, key); break;
+
+		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
+	}
+
+	tracker_db_free_field_def (def);
+
+	return res;
+}
+
+
+
+
+
 static void
-update_file_index (DBConnection *db_con, const char *id, const char *service, const char *meta_name, const char *meta_value)
+update_metadata_index (DBConnection *db_con, const char *id, const char *service, const char *meta_name, const char *old_value, const char *new_value) 
 {
 	int	   weight;
 	char	   ***res;
@@ -2018,8 +2051,8 @@ update_file_index (DBConnection *db_con, const char *id, const char *service, co
 
 		row = tracker_db_get_row (res, 0);
 
-		if (row && row[0] && row[1] && row[2] && row[3] && row[4]) {
-			weight = atoi (row[4]);
+		if (row && row[0] && row[1] && row[2] && row[3]) {
+			weight = atoi (row[3]);
 		} else {
 			tracker_db_free_result (res);
 			tracker_log ("Error : Cannot find details for metadata type %s", meta_name);
@@ -2040,23 +2073,10 @@ update_file_index (DBConnection *db_con, const char *id, const char *service, co
 	old_table = NULL;
 	new_table = NULL;
 
-	/* get existing metadata for that field if any and parse it */
-	res = tracker_db_get_metadata (db_con, service, id, meta_name);
-
-	if (res) {
-		char **row;
-
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[0]) {
-			old_table = tracker_parse_text (old_table, row[0], weight);
-		}
-
-		tracker_db_free_result (res);
-	}
+	old_table = tracker_parse_text (old_table, old_value, weight);
 
 	/* parse new metadata value */
-	new_table = tracker_parse_text ( new_table, meta_value, weight);
+	new_table = tracker_parse_text (new_table, new_value, weight);
 
 	/* we only do differential updates so only changed words scores are updated */
 	if (new_table) {
@@ -2077,11 +2097,392 @@ update_file_index (DBConnection *db_con, const char *id, const char *service, co
 }
 
 
+
+static void
+update_file_index (DBConnection *db_con, const char *id, const char *service, const char *meta_name, const char *meta_value)
+{
+	char *old_value = NULL;
+	
+	char ***res = tracker_db_get_metadata (db_con, service, id, meta_name);
+
+	if (res) {
+		char **row;
+
+		row = tracker_db_get_row (res, 0);
+
+		if (row && row[0]) {
+			old_value = g_strdup (row[0]);
+		}
+
+		tracker_db_free_result (res);
+	}
+
+	update_metadata_index (db_con, id, service, meta_name, old_value, meta_value);
+
+	g_free (old_value);
+
+}
+
+
+char *
+tracker_get_related_metadata_names (DBConnection *db_con, const char *name)
+{
+	char	 ***res = NULL;
+
+	res = tracker_exec_proc (db_con, "GetMetadataAliasesForName", 2, name, name);
+
+	int k = 0;
+	GString *str;
+
+	str = g_string_new ("");
+
+	if (res) {
+		char **row;
+
+		while ((row = tracker_db_get_row (res, k))) {
+			if (row[1]) {
+				if (k==0) {
+					g_string_append (str, row[1]);
+				} else {
+					g_string_append_printf (str, ", %s", row[1]);
+				}
+			}
+		
+			k++;
+		}
+
+		char *value = g_string_free (str, FALSE);
+		
+		tracker_db_free_result (res);
+
+		return value;
+	}
+
+	return NULL;
+}
+
+
+
+static char *
+generate_display_metadata (DBConnection *db_con, const char *id,  const char *metadata_id, int data_type, const char *key)
+{
+	char	 ***res = NULL;
+
+	switch (data_type) {
+
+		case 0:
+		case 1: res = tracker_exec_proc (db_con, "GetMetadataString", 2, id, key); break;
+
+		case 2:
+		case 3: res = tracker_exec_proc (db_con, "GetMetadataNumeric", 2, id, key); break;
+
+		case 5: res = tracker_exec_proc (db_con, "GetMetadataKeyword", 2, id, key); break;
+
+	}
+
+	int k = 0;
+	GString *str;
+
+	str = g_string_new ("");
+
+	if (res) {
+		char **row;
+			
+
+		while ((row = tracker_db_get_row (res, k))) {
+			if (row[0]) {
+				char *val = tracker_escape_metadata (row[0]);
+
+				if (k==0) {
+					g_string_append (str, val);
+				} else {
+					g_string_append_c (str, ';');
+					g_string_append (str, val);
+				}
+
+				g_free (val);
+			}
+		
+			k++;
+		}
+		
+	}		
+
+	return g_string_free (str, FALSE);
+
+
+}
+
+
+char *
+tracker_db_refresh_display_metadata (DBConnection *db_con, const char *id,  const char *metadata_id, int data_type, const char *key)
+{
+
+	char *value;
+
+	tracker_exec_proc (db_con, "DeleteMetadataDisplay", 2, id, metadata_id);
+
+	value = generate_display_metadata (db_con, id, metadata_id, data_type, key);
+		
+	tracker_exec_proc (db_con, "SetMetadataDisplay", 4, id, metadata_id, value, "0");
+	
+	return value;
+}
+
+
 void
-tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean overwrite, gboolean index, gboolean embedded)
+tracker_db_refresh_all_display_metadata (DBConnection *db_con, const char *id)
+{
+	char ***res;
+
+	tracker_db_start_transaction (db_con);
+
+	tracker_exec_proc (db_con, "DeleteAllDisplayMetadata", 1, id);
+
+	res = tracker_exec_proc (db_con, "GetAllDisplayMetadataTypes", 3, id, id, id);
+
+	if (res) {
+		char **row;
+
+		int k = 0;
+
+		while ((row = tracker_db_get_row (res, k))) {
+			if (row[0] && row[1] && row[2]) {
+				char *value;
+
+				value = generate_display_metadata (db_con, id, row[0], atoi (row[2]), row[1]);	
+		
+				tracker_exec_proc (db_con, "SetMetadataDisplay", 4, id, row[0], value, "0");
+			
+				g_free (value);
+			}
+		
+			k++;
+		}
+		tracker_db_free_result (res);
+		
+	}
+
+	tracker_db_end_transaction (db_con);
+}
+
+
+
+char *
+tracker_get_metadata_table (DataTypes type)
+{
+	switch (type) {
+
+		case DATA_INDEX:
+		case DATA_STRING:
+			return g_strdup ("ServiceMetaData");
+
+		case DATA_NUMERIC:
+		case DATA_DATE:
+			return g_strdup ("ServiceNumericMetaData");
+
+		case DATA_BLOB: return g_strdup("ServiceBlobMetaData");
+
+		case DATA_KEYWORD: return g_strdup("ServiceKeywordMetaData");
+	}
+
+	return NULL;
+}
+
+
+
+void 
+tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean embedded) 
+{
+
+	char 		*old_value = NULL, *new_value = NULL;
+	FieldDef	*def;
+	gboolean 	update_index = FALSE;
+
+	g_return_if_fail (id && key && service && db_con);
+
+	tracker_db_start_transaction (db_con);
+
+	/* get type details */
+	def = tracker_db_get_field_def (db_con, key);
+
+	if (!def) {
+		return;
+	}
+
+
+	/* get current value */	
+	char ***res = tracker_db_get_metadata (db_con, service, id, key);
+
+	if (res) {
+		char **row;
+
+		row = tracker_db_get_row (res, 0);
+
+		if (row && row[0]) {
+			old_value = g_strdup (row[0]);
+		}
+
+		tracker_db_free_result (res);
+	}
+
+
+	
+	
+	/* perform deletion */
+	switch (def->type) {
+
+		case DATA_INDEX:
+			update_index = TRUE;
+
+		case DATA_STRING:
+
+			tracker_exec_proc (db_con, "DeleteMetadataStringValue", 3, id, def->id, value); 
+			
+			if (def->multiple_values) {
+				new_value = tracker_db_refresh_display_metadata (db_con, id, def->id, def->type, key);
+			} else {
+				new_value = g_strdup (value);
+			}
+	 	
+			break;
+
+		
+		case DATA_NUMERIC:
+		case DATA_DATE:
+
+			tracker_exec_proc (db_con, "DeleteMetadataNumericValue", 3, id, def->id, value);  
+
+			if (def->multiple_values) {
+				new_value = tracker_db_refresh_display_metadata (db_con, id, def->id, def->type, key);
+			} else {
+				new_value = g_strdup (value);			
+			}
+
+			break;
+
+		case DATA_BLOB :
+			
+			tracker_log ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
+			break;
+
+		case DATA_KEYWORD:
+
+			update_index = TRUE;
+
+			tracker_exec_proc (db_con, "DeleteMetadataKeywordValue", 3, id, def->id, value); 
+
+			if (def->multiple_values) {
+				new_value = tracker_db_refresh_display_metadata (db_con, id, def->id, def->type, key);
+			} else {
+				new_value = g_strdup (value);			
+			}
+
+			break;
+
+
+	}
+
+//	tracker_log ("replacing old value %s with new value %s for key %s", old_value, new_value, key);
+	
+	/* update fulltext index differentially with current and new values */
+	if (update_index) {
+		update_metadata_index (db_con, id, service, key, old_value, new_value);
+	}
+
+	g_free (new_value);
+	g_free (old_value);
+	tracker_db_free_field_def (def);	
+}
+
+
+void 
+tracker_db_delete_metadata (DBConnection *db_con, const char *service, const char *id, const char *key) 
+{
+	char 		*old_value = NULL;
+	FieldDef	*def;
+	gboolean 	update_index = FALSE;
+
+	g_return_if_fail (id && key && service && db_con);
+
+
+	/* get type details */
+	def = tracker_db_get_field_def (db_con, key);
+
+	if (!def) {
+		return;
+	}
+
+
+	/* get current value */	
+	char ***res = tracker_db_get_metadata (db_con, service, id, key);
+
+	if (res) {
+		char **row;
+
+		row = tracker_db_get_row (res, 0);
+
+		if (row && row[0]) {
+			old_value = g_strdup (row[0]);
+		}
+
+		tracker_db_free_result (res);
+	}
+
+	if (def->multiple_values) {
+		tracker_exec_proc (db_con, "DeleteMetadataDisplay", 2, id, def->id);
+	}
+	
+	
+	/* perform deletion */
+	switch (def->type) {
+
+		case DATA_INDEX:
+			update_index = TRUE;
+
+		case DATA_STRING:
+			tracker_exec_proc (db_con, "DeleteMetadataString", 2, id, def->id); 
+			break;
+
+		case DATA_NUMERIC:
+		case DATA_DATE:
+			tracker_exec_proc (db_con, "DeleteMetadataNumeric", 2, id, def->id);  
+			break;
+
+		case DATA_BLOB :
+			tracker_log ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
+			break;
+
+		case DATA_KEYWORD:
+			update_index = TRUE;
+
+			tracker_exec_proc (db_con, "DeleteMetadataKeyword", 2, id, def->id); 
+			break;
+
+
+	}
+
+	
+	/* update fulltext index differentially with old values and NULL */
+	if (update_index) {
+		update_metadata_index (db_con, id, service, key, old_value, " ");
+	}
+
+	
+	g_free (old_value);
+
+
+}
+
+
+
+void
+tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean generate_display_metadata, gboolean index, gboolean embedded)
 {
 	FieldDef   *def;
+	char *old_value = NULL, *new_value = NULL;
 	const char *str_embedded;
+	gboolean update_index = FALSE;
 
 	g_return_if_fail (id);
 
@@ -2091,10 +2492,24 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 		return;
 	}
 
-	if (!def->writeable && !overwrite) {
-		tracker_db_free_field_def (def);
-		return;
+
+	/* get old value */
+	char ***res = tracker_db_get_metadata (db_con, service, id, key);
+
+	if (res) {
+		char **row;
+
+		row = tracker_db_get_row (res, 0);
+
+		if (row && row[0]) {
+			old_value = g_strdup (row[0]);
+		}
+
+		tracker_db_free_result (res);
 	}
+
+
+
 
 	if (embedded) {
 		str_embedded = "1";
@@ -2102,53 +2517,73 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 		str_embedded = "0";
 	}
 
+
+
+
 	switch (def->type) {
 
-		case 0:
+		case DATA_INDEX:
 			if (index) {
-				update_file_index (db_con, id, service, key, value);
+				update_index = TRUE;
 			}
 
-			tracker_exec_proc (db_con, "SetMetadataIndex", 4, id, def->id, value, str_embedded);
+		case DATA_STRING:
+
+			tracker_exec_proc (db_con, "SetMetadataString", 4, id, def->id, value, str_embedded); 
+			
+			if (generate_display_metadata && def->multiple_values) {
+				new_value = tracker_db_refresh_display_metadata (db_con, id, def->id, def->type, key);
+			} else {
+				new_value = g_strdup (value);
+			}
+	 	
+			break;
+
+		
+		case DATA_NUMERIC:
+		case DATA_DATE:
+
+			tracker_exec_proc (db_con, "SetMetadataNumeric", 4, id, def->id, value, str_embedded); 
+
+			if (generate_display_metadata && def->multiple_values) {
+				new_value = tracker_db_refresh_display_metadata (db_con, id, def->id, def->type, key);
+			} else {
+				new_value = g_strdup (value);
+			}
 
 			break;
 
-		case 1: tracker_exec_proc (db_con, "SetMetadataString", 4, id, def->id, value, str_embedded);  break;
-		case 2: tracker_exec_proc (db_con, "SetMetadataNumeric", 4, id, def->id, value, str_embedded); break;
-		case 3: tracker_exec_proc (db_con, "SetMetadataNumeric", 4, id, def->id, value, str_embedded); break;
-		case 4:
-			if (index) {
-				update_file_index (db_con, id, service, key, value);
-			}
-
-			tracker_exec_proc (db_con, "SetMetadataBlob", 4, id, def->id, value, str_embedded);
-
+		case DATA_BLOB :
+			
+			tracker_log ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
 			break;
 
-		default: tracker_log ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
+		case DATA_KEYWORD:
+
+			if (index) {
+				update_index = TRUE;
+			}
+
+			tracker_exec_proc (db_con, "SetMetadataKeyword", 4, id, def->id, value, str_embedded);
+
+			if (generate_display_metadata && def->multiple_values) {
+				new_value = tracker_db_refresh_display_metadata (db_con, id, def->id, def->type, key);
+			} else {
+				new_value = g_strdup (value);
+			}
+
+			break;
 	}
 
-	tracker_db_free_field_def (def);
-}
-
-
-void
-tracker_db_update_keywords (DBConnection *db_con, const char *service, const char *id, const char *value)
-{
-	FieldDef *def;
-
-	g_return_if_fail (id);
-
-	def = tracker_db_get_field_def (db_con, "Keywords");
-
-	if (!def) {
-		return;
+//	tracker_log ("replacing old value %s with new value %s for key %s", old_value, new_value, key);
+	
+	/* update fulltext index differentially with current and new values */
+	if (update_index) {
+		update_metadata_index (db_con, id, service, key, old_value, new_value);
 	}
 
-	update_file_index (db_con, id, service, "Keywords", value);
-
-	tracker_exec_proc (db_con, "SetMetadataIndex", 4, id, def->id, value, "0");
-
+	g_free (new_value);
+	g_free (old_value);
 	tracker_db_free_field_def (def);
 }
 
@@ -2276,9 +2711,10 @@ tracker_db_delete_file (DBConnection *db_con, DBConnection *blob_db_con, guint32
 	tracker_exec_proc (db_con, "DeleteFile6", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile7", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile8", 1, str_file_id);
+	tracker_exec_proc (db_con, "DeleteFile9", 1, str_file_id);
 
 	if (db_con->user_data) {
-		tracker_exec_proc (db_con->user_data, "DeleteFile9", 1, str_file_id);
+		tracker_exec_proc (db_con->user_data, "DeleteFile10", 1, str_file_id);
 	} else {
 		tracker_log ("WARNING: Cache DB not found");
 	}
@@ -2324,7 +2760,14 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 		tracker_db_free_result (res);
 	}
 
+	if (db_con->user_data) {
+		tracker_exec_proc (db_con->user_data, "DeleteDirectory9", 1, uri, uri_prefix);
+		tracker_exec_proc (db_con->user_data, "DeleteFile10", 1, str_file_id);
+	}
+
+
 	tracker_db_start_transaction (db_con);
+
 	tracker_exec_proc (db_con, "DeleteDirectory1", 2, uri, uri_prefix);
 	tracker_exec_proc (db_con, "DeleteDirectory2", 2, uri, uri_prefix);
 	tracker_exec_proc (db_con, "DeleteDirectory3", 2, uri, uri_prefix);
@@ -2332,6 +2775,7 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 	tracker_exec_proc (db_con, "DeleteDirectory5", 2, uri, uri_prefix);
 	tracker_exec_proc (db_con, "DeleteDirectory6", 2, uri, uri_prefix);
 	tracker_exec_proc (db_con, "DeleteDirectory7", 2, uri, uri_prefix);
+	tracker_exec_proc (db_con, "DeleteDirectory8", 2, uri, uri_prefix);
 	
 	tracker_exec_proc (db_con, "DeleteFile1", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile2", 1, str_file_id);
@@ -2341,9 +2785,7 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 	tracker_exec_proc (db_con, "DeleteFile6", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile7", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile8", 1, str_file_id);
-	if (db_con->user_data) {
-		tracker_exec_proc (db_con->user_data, "DeleteFile9", 1, str_file_id);
-	}
+	tracker_exec_proc (db_con, "DeleteFile9", 1, str_file_id);
 	tracker_db_end_transaction (db_con);
 
 	g_free (uri_prefix);
@@ -2607,7 +3049,7 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 		max = 8;
 	}
 
-	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name AS uri FROM Services F INNER JOIN ServiceIndexMetaData M ON F.ID = M.ServiceID WHERE M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File.Format') AND (M.MetaDataValue IN ");
+	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name AS uri FROM Services F INNER JOIN ServiceIndexMetaData M ON F.ID = M.ServiceID WHERE M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Mime') AND (M.MetaDataValue IN ");
 
 	g_string_append_printf (str, "('%s'", mimes[0]);
 
@@ -3082,6 +3524,8 @@ append_cache_word (DBConnection *db_con, const char *word, guint32 service_id, i
 {
 	char *word_id, *str_service_id, *str_service_type, *str_score;
 
+//	tracker_log ("appending word %s", word);
+
 	word_id = cache_word_exists (db_con, word);
 
 	str_service_id = tracker_uint_to_str (service_id);
@@ -3285,7 +3729,6 @@ append_index_data (gpointer key,
 	word = (char *) key;
 	score = GPOINTER_TO_INT (value);
 	info = user_data;
-	//db_con = info->db_con;
 
 	if (score != 0) {
 		/* cache word update */
@@ -3376,7 +3819,7 @@ cmp_data (gpointer key,
 
 	lookup_score = GPOINTER_TO_INT (g_hash_table_lookup (new_table, word));
 
-	//g_debug ("word %s has old score %d and new score %d so updating with total score %d", word, score, lookup_score, lookup_score-score);
+	tracker_log ("word %s has old score %d and new score %d so updating with total score %d", word, score, lookup_score, lookup_score-score);
 
 	/* subtract scores so only words with score != 0 are updated (when score is zero, old word score is same as new word so no updating necessary)
 	   negative scores mean either word exists in old but no new data or has a lower score in new than old */
@@ -3389,7 +3832,7 @@ tracker_db_update_differential_index (DBConnection *db_con, GHashTable *old_tabl
 {
 	ServiceTypeInfo *info;
 
-	g_return_if_fail (new_table || id || service_type_id > -1);
+	g_return_if_fail (id || service_type_id > -1);
 
 	if (!new_table) {
 		new_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);

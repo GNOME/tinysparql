@@ -211,7 +211,7 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 
 
 static void
-tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, const char *keywords)
+tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, const char *keyword_type, const char *keywords, gboolean index)
 {
 	char **array, **tags;
 	char *tag;
@@ -223,9 +223,10 @@ tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, con
 		tag = *tags;
 		tag = g_strstrip (tag);
 
-		if (strlen (tag) > 2) {
+		if (strlen (tag) > 0) {
 			tracker_log ("Auto-tagging file with %s", tag);
-			tracker_exec_proc (db_con, "AddEmbeddedKeyword", 2, file_id, tag);
+			tracker_db_set_metadata (db_con, "Files", file_id, keyword_type, tag, FALSE, index, TRUE);
+//			tracker_exec_proc (db_con, "AddEmbeddedKeyword", 3, file_id, keyword_type, tag);
 		}
 	}
 
@@ -289,12 +290,15 @@ get_meta_table_data (gpointer key,
 		g_free (evalue);
 	}
 
-	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, TRUE, TRUE);
+	
 
 	/* auto-tag keyword related metadata */	
-	if ( (strcasecmp (mtype, "Doc.Keywords") == 0) || (strcasecmp (mtype, "Image.Keywords") == 0) ) {
-		tracker_db_add_embedded_keywords (db_action->db_con, db_action->file_id, mvalue);
+	if ( (strcasecmp (mtype, "Doc:Keywords") == 0) || (strcasecmp (mtype, "Image:Keywords") == 0) ) {
+		tracker_db_add_embedded_keywords (db_action->db_con, db_action->file_id, mtype, mvalue, TRUE);
+	} else {
+		tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, FALSE, TRUE, TRUE);
 	}
+
 
 	if (mvalue) {
 		g_free (mvalue);
@@ -356,11 +360,13 @@ get_meta_table_data_new (gpointer key,
 		g_free (evalue);
 	}
 
-	tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, TRUE, FALSE, TRUE);
+	
 
 	/* auto-tag keyword related metadata */	
-	if ( (strcasecmp (mtype, "Doc.Keywords") == 0) || (strcasecmp (mtype, "Image.Keywords") == 0) ) {
-		tracker_db_add_embedded_keywords (db_action->db_con, db_action->file_id, mvalue);
+	if ( (strcasecmp (mtype, "Doc:Keywords") == 0) || (strcasecmp (mtype, "Image:Keywords") == 0) ) {
+		tracker_db_add_embedded_keywords (db_action->db_con, db_action->file_id, mtype, mvalue, FALSE);
+	} else {
+		tracker_db_set_metadata (db_action->db_con, "Files", db_action->file_id, mtype, mvalue, FALSE, FALSE, TRUE);
 	}
 
 	if (mvalue) {
@@ -523,7 +529,7 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 		char *small_thumb_file;
 
 		small_thumb_file = tracker_escape_string (db_con, small_thumb);
-		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE, FALSE, TRUE);
+		//tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE, FALSE, TRUE);
 //		tracker_exec_proc (db_con, "SetMetadata", 5, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1");
 		g_free (small_thumb_file);
 	}
@@ -532,8 +538,7 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 		char *large_thumb_file;
 
 		large_thumb_file = tracker_escape_string (db_con, large_thumb);
-		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, TRUE, FALSE, TRUE);
-//		tracker_exec_proc (db_con, "SetMetadata", 5, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, "1");
+//		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.LargeThumbnailPath", large_thumb_file, TRUE, FALSE, TRUE);
 		g_free (large_thumb_file);
 	}
 
@@ -600,6 +605,11 @@ tracker_metadata_is_date (DBConnection *db_con, const char *meta)
 	gboolean res;
 
 	def = tracker_db_get_field_def (db_con, meta);
+
+	if (!def) {
+		tracker_log ("failed to get info for metadata type %s", meta);
+		return FALSE;
+	}
 
 	g_return_val_if_fail (def, FALSE);
 
