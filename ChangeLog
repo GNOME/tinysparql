@@ -1,3 +1,22 @@
+
+2006-12-23  Jamie McCracken <jamiemcc at gnome org>
+
+	* Added debug compile option
+	* Made Database changes to support new Metadata engine
+	* Changed metadata to reflect RDF style (using colon instead of fullstop for class/metadata)
+	* Added Dublin Core metadata
+	* modified code to use new metadata names and also Dublin Core
+	* added support for metadata relationships
+	* made metadata support more than one value per item
+	* made keywords use the new metadata engine.
+	* changed keyword metadata to "DC:Keywords"
+	* Applied some Dublin Core relationships to existing metadata
+	* Made RDF QUery function with new metadata engine and also metadata relationships
+	* Used file command to check to see if files are plain text or not
+	* split filenames by hyphen and underscore so individual parts will show up in searches
+	* index meaningful numbers (IE all numbers at least 5 digits long so searchers can now be done for things like telephone no.s, bank accounts, ISBN etc)
+	* modified snippet to start/end on a word break if possible
+
 2006-12-19  Francisco Javier F. Serrador  <serrador@openshine.com>
 
 	* configure.in: Added 'es' to ALL_LINGUAS
