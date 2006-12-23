@@ -770,7 +770,11 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int service_type_min, 
 	
 	*total_count = 0;
 
-	g_return_val_if_fail ((indexer && words && words[0] && (limit > 0)), NULL);
+	g_return_val_if_fail ((indexer && (limit > 0)), NULL);
+
+	if (!words || !words[0]) {
+		return NULL;
+	}
 
 	/* do simple case of only one search word fast */
 	if (!words[1]) {

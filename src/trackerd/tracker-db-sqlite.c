@@ -3819,7 +3819,7 @@ cmp_data (gpointer key,
 
 	lookup_score = GPOINTER_TO_INT (g_hash_table_lookup (new_table, word));
 
-	tracker_log ("word %s has old score %d and new score %d so updating with total score %d", word, score, lookup_score, lookup_score-score);
+	g_debug ("word %s has old score %d and new score %d so updating with total score %d", word, score, lookup_score, lookup_score-score);
 
 	/* subtract scores so only words with score != 0 are updated (when score is zero, old word score is same as new word so no updating necessary)
 	   negative scores mean either word exists in old but no new data or has a lower score in new than old */
