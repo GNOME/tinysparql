@@ -2,6 +2,7 @@
 2006-12-23  Jamie McCracken <jamiemcc at gnome org>
 
 	* Added debug compile option
+	* fixed memory leaks during indexing
 	* Made Database changes to support new Metadata engine
 	* Changed metadata to reflect RDF style (using colon instead of fullstop for class/metadata)
 	* Added Dublin Core metadata

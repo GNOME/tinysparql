@@ -91,20 +91,19 @@ INSTALLATION (from source):
 Run time dependencies (also needed for build) :
 
 Sqlite 3.2+
-
 libdbus (0.50 +)
-
 dbus-glib bndings (0.50 +)
-
 glib (2.6+)
-
 zlib
-
 GMime
 
 
 Additional recommended packages:
 
+gstremer 0.10 + plugins for audio/video files to be indexed
+xsltproc
+w3m
+file
 wv (1.0.2+)
 poppler (pdftotext)
 libvorbis
@@ -156,15 +155,18 @@ To run tracker, you need to manually start the tracker daemon trackerd. By defau
 
 You can also pass a directory root to be indexed as a command line parameter if you dont want your entire home directory indexed. EG
 
-"trackerd /home/jamie/Documents"
+"trackerd -i /home/jamie/Documents"
 
-You can disable indexing by passing --disable-indexing
+(if you want your home directory indexed when explicily specifying index directory roots then you must add your home directory to the arguements :
+EG trackerd -i /home/jamie -i /mnt/share)
+
+You can disable indexing by passing --no-indexing
 
 You can enable a low memory usage mode (recommended for machines with less than 256MB of RAM) by passing --enable-low-memory
 
 You can enable turbo indexing by passing --turbo
 
-You can specify directory roots not to be watched or indexed by passing  --ignore-dirs=dir1 for each directory root
+You can specify directory roots to be excluded from being watched or indexed by passing  -e directory for each directory root
 
 You can make sure that tracker only indexes a subset of your home directory and also specify folders not in your home directory by editing the tracker.cfg file in ~/.Tracker (which is created when you first run trackerd) and setting WatchDirectoryRoots to a semicolon delimited list of directories (full path required!) 
 

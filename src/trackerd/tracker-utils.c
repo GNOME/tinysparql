@@ -1261,6 +1261,10 @@ is_text_file (const char *uri)
 				result = TRUE; 
 				g_debug ("uri %s is a text file", uri);
 			}
+
+			if (value) {
+				g_free (value);
+			}
 		} else {
 			result = TRUE;
 		}

@@ -583,7 +583,7 @@ tracker_db_connect (void)
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 500");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1500");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 100");
 	}
@@ -715,7 +715,7 @@ tracker_db_connect_cache (void)
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 500");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 200");
 	}
