@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-12-13 10:30+0100\n"
-"PO-Revision-Date: 2006-12-13 12:24+0100\n"
+"POT-Creation-Date: 2006-12-19 03:16+0000\n"
+"PO-Revision-Date: 2006-12-25 18:01+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -202,40 +202,15 @@ msgid "Character set conversion failed for \"%s\""
 msgstr "Konvertering av teckenkodning misslyckades för \"%s\""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:775
-#: ../src/tracker-search-tool/tracker-search-tool.c:801
 msgid "No files found"
 msgstr "Inga filer hittades"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:794
-msgid "(stopped)"
-msgstr "(stoppad)"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:800
-msgid "No Files Found"
-msgstr "Inga filer hittades"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:805
-#, c-format
-msgid "%d File Found"
-msgid_plural "%d Files Found"
-msgstr[0] "%d fil hittades"
-msgstr[1] "%d filer hittades"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:809
-#, c-format
-msgid "%d file found"
-msgid_plural "%d files found"
-msgstr[0] "%d fil hittades"
-msgstr[1] "%d filer hittades"
-
 #: ../src/tracker-search-tool/tracker-search-tool.c:826
 #: ../src/tracker-search-tool/tracker-search-tool.c:1109
-msgid "Search for Files"
-msgstr "Sök efter filer"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:942
-msgid "Entry changed called for a non entry option!"
-msgstr "Inmatning ändrad anropad för en icke-inmatningsflagga!"
+#: ../src/tracker-search-tool/tracker-search-tool.c:2398
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Sökverktyget Tracker"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1604
 msgid "S_earch results:"
@@ -282,19 +257,14 @@ msgstr "_Föregående"
 msgid "_Next"
 msgstr "_Nästa"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2398
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
-msgid "Tracker Search Tool"
-msgstr "Sökverktyget Tracker"
-
 #: ../src/tracker-search-tool/tracker-search-tool.c:2446
 #, c-format
 msgid "Invalid service type: %s\n"
 msgstr "Ogiltig tjänstetyp: %s\n"
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
-msgid "Desktop Search"
-msgstr "Skrivbordssökning"
+msgid "Locate documents and folders on this computer by name or content using Tracker"
+msgstr "Hitta dokument och mappar på den här datorn efter namn eller innehåll med Tracker"
 
 #: ../src/trackerd/trackerd.c:140
 msgid "Directory to exclude from indexing"
@@ -348,156 +318,95 @@ msgstr "KATALOG"
 msgid "To include or exclude multiple directories at the same time, join multiple options like:"
 msgstr "För att inkludera eller undanta flera kataloger samtidigt kan flera flaggor sättas samman som:"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:127
-msgid "Could not open help document."
-msgstr "Kunde inte öppna hjälpdokumentet."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:264
-#, c-format
-msgid "Are you sure you want to open %d document?"
-msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] "Är du säker på att du vill öppna %d dokument?"
-msgstr[1] "Är du säker på att du vill öppna %d dokument?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:269
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:496
-#, c-format
-msgid "This will open %d separate window."
-msgid_plural "This will open %d separate windows."
-msgstr[0] "Det här kommer att öppna %d separat fönster."
-msgstr[1] "Det här kommer att öppna %d separata fönster."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:309
-#, c-format
-msgid "Could not open document \"%s\"."
-msgstr "Kunde inte öppna dokumentet \"%s\"."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:338
-#, c-format
-msgid "Could not open folder \"%s\"."
-msgstr "Kunde inte öppna mappen \"%s\"."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:346
-msgid "The nautilus file manager is not running."
-msgstr "Filhanteraren Nautilus kör inte."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:449
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:798
-msgid "The document does not exist."
-msgstr "Dokumentet finns inte."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:466
-msgid "There is no installed viewer capable of displaying the document."
-msgstr "Det finns ingen visare installerad som kan visa dokumentet."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:491
-#, c-format
-msgid "Are you sure you want to open %d folder?"
-msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] "Är du säker på att du vill öppna %d mapp?"
-msgstr[1] "Är du säker på att du vill öppna %d mappar?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:623
-#, c-format
-msgid "Could not move \"%s\" to trash."
-msgstr "Kunde inte flytta \"%s\" till papperskorgen."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:654
-#, c-format
-msgid "Do you want to delete \"%s\" permanently?"
-msgstr "Vill du permanent ta bort \"%s\"?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:657
-#, c-format
-msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr "Papperskorgen är inte tillgänglig.  Kunde inte flytta \"%s\" till papperskorgen."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:696
-#, c-format
-msgid "Could not delete \"%s\"."
-msgstr "Kunde inte ta bort \"%s\"."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:819
-#, c-format
-msgid "Moving \"%s\" failed: %s."
-msgstr "Flyttning av \"%s\" misslyckades: %s."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:853
-#, c-format
-msgid "Deleting \"%s\" failed: %s."
-msgstr "Borttagning av \"%s\" misslyckades: %s."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1291
-msgid "Save Search Results As..."
-msgstr "Spara sökresultat som..."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1322
-msgid "Could not save document."
-msgstr "Kunde inte spara dokument."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1323
-msgid "You did not select a document name."
-msgstr "Du valde ingen dokumentnamn."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1353
-#, c-format
-msgid "Could not save \"%s\" document to \"%s\"."
-msgstr "Kunde inte spara \"%s\"-dokumentet till \"%s\"."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1387
-#, c-format
-msgid "The document \"%s\" already exists.  Would you like to replace it?"
-msgstr "Dokumentet \"%s\" finns redan.  Vill du ersätta det?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1391
-msgid "If you replace an existing file, its contents will be overwritten."
-msgstr "Om du ersätter en befintlig fil kommer dess innehåll att skrivas över."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1406
-msgid "_Replace"
-msgstr "_Ersätt"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1456
-msgid "The document name you selected is a folder."
-msgstr "Dokumentnamnet du valde är en mapp."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1505
-msgid "You may not have write permissions to the document."
-msgstr "Du kanske inte har skrivrättigheter till dokumentet."
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:71
-#, c-format
-msgid ""
-"GConf error:\n"
-"  %s"
-msgstr ""
-"GConf-fel:\n"
-"  %s"
-
-#. Translators:  Below are the strings displayed in the 'Date Modified'
-#. column of the list view.  The format of this string can vary depending
-#. on age of a file.  Please modify the format of the timestamp to match
-#. your locale.  For example, to display 24 hour time replace the '%-I'
-#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:640
-msgid "today at %-I:%M %p"
-msgstr "idag klockan %H.%M"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:642
-msgid "yesterday at %-I:%M %p"
-msgstr "igår klockan %H.%M"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:644
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:646
-msgid "%A, %B %-d %Y at %-I:%M:%S %p"
-msgstr "%A %d %B %Y klockan %H.%M.%S"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:826
-msgid "link (broken)"
-msgstr "länk (trasig)"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:830
-#, c-format
-msgid "link to %s"
-msgstr "länk till %s"
+#~ msgid "(stopped)"
+#~ msgstr "(stoppad)"
+#~ msgid "No Files Found"
+#~ msgstr "Inga filer hittades"
+#~ msgid "%d File Found"
+#~ msgid_plural "%d Files Found"
+#~ msgstr[0] "%d fil hittades"
+#~ msgstr[1] "%d filer hittades"
+#~ msgid "%d file found"
+#~ msgid_plural "%d files found"
+#~ msgstr[0] "%d fil hittades"
+#~ msgstr[1] "%d filer hittades"
+#~ msgid "Search for Files"
+#~ msgstr "Sök efter filer"
+#~ msgid "Entry changed called for a non entry option!"
+#~ msgstr "Inmatning ändrad anropad för en icke-inmatningsflagga!"
+#~ msgid "Desktop Search"
+#~ msgstr "Skrivbordssökning"
+#~ msgid "Could not open help document."
+#~ msgstr "Kunde inte öppna hjälpdokumentet."
+#~ msgid "Are you sure you want to open %d document?"
+#~ msgid_plural "Are you sure you want to open %d documents?"
+#~ msgstr[0] "Är du säker på att du vill öppna %d dokument?"
+#~ msgstr[1] "Är du säker på att du vill öppna %d dokument?"
+#~ msgid "This will open %d separate window."
+#~ msgid_plural "This will open %d separate windows."
+#~ msgstr[0] "Det här kommer att öppna %d separat fönster."
+#~ msgstr[1] "Det här kommer att öppna %d separata fönster."
+#~ msgid "Could not open document \"%s\"."
+#~ msgstr "Kunde inte öppna dokumentet \"%s\"."
+#~ msgid "Could not open folder \"%s\"."
+#~ msgstr "Kunde inte öppna mappen \"%s\"."
+#~ msgid "The nautilus file manager is not running."
+#~ msgstr "Filhanteraren Nautilus kör inte."
+#~ msgid "The document does not exist."
+#~ msgstr "Dokumentet finns inte."
+#~ msgid "There is no installed viewer capable of displaying the document."
+#~ msgstr "Det finns ingen visare installerad som kan visa dokumentet."
+#~ msgid "Are you sure you want to open %d folder?"
+#~ msgid_plural "Are you sure you want to open %d folders?"
+#~ msgstr[0] "Är du säker på att du vill öppna %d mapp?"
+#~ msgstr[1] "Är du säker på att du vill öppna %d mappar?"
+#~ msgid "Could not move \"%s\" to trash."
+#~ msgstr "Kunde inte flytta \"%s\" till papperskorgen."
+#~ msgid "Do you want to delete \"%s\" permanently?"
+#~ msgstr "Vill du permanent ta bort \"%s\"?"
+#~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+#~ msgstr ""
+#~ "Papperskorgen är inte tillgänglig.  Kunde inte flytta \"%s\" till "
+#~ "papperskorgen."
+#~ msgid "Could not delete \"%s\"."
+#~ msgstr "Kunde inte ta bort \"%s\"."
+#~ msgid "Moving \"%s\" failed: %s."
+#~ msgstr "Flyttning av \"%s\" misslyckades: %s."
+#~ msgid "Deleting \"%s\" failed: %s."
+#~ msgstr "Borttagning av \"%s\" misslyckades: %s."
+#~ msgid "Save Search Results As..."
+#~ msgstr "Spara sökresultat som..."
+#~ msgid "Could not save document."
+#~ msgstr "Kunde inte spara dokument."
+#~ msgid "You did not select a document name."
+#~ msgstr "Du valde ingen dokumentnamn."
+#~ msgid "Could not save \"%s\" document to \"%s\"."
+#~ msgstr "Kunde inte spara \"%s\"-dokumentet till \"%s\"."
+#~ msgid "The document \"%s\" already exists.  Would you like to replace it?"
+#~ msgstr "Dokumentet \"%s\" finns redan.  Vill du ersätta det?"
+#~ msgid "If you replace an existing file, its contents will be overwritten."
+#~ msgstr ""
+#~ "Om du ersätter en befintlig fil kommer dess innehåll att skrivas över."
+#~ msgid "_Replace"
+#~ msgstr "_Ersätt"
+#~ msgid "The document name you selected is a folder."
+#~ msgstr "Dokumentnamnet du valde är en mapp."
+#~ msgid "You may not have write permissions to the document."
+#~ msgstr "Du kanske inte har skrivrättigheter till dokumentet."
+#~ msgid ""
+#~ "GConf error:\n"
+#~ "  %s"
+#~ msgstr ""
+#~ "GConf-fel:\n"
+#~ "  %s"
+#~ msgid "today at %-I:%M %p"
+#~ msgstr "idag klockan %H.%M"
+#~ msgid "yesterday at %-I:%M %p"
+#~ msgstr "igår klockan %H.%M"
+#~ msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+#~ msgstr "%A %d %B %Y klockan %H.%M.%S"
+#~ msgid "link (broken)"
+#~ msgstr "länk (trasig)"
+#~ msgid "link to %s"
+#~ msgstr "länk till %s"
 
