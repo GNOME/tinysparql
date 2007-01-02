@@ -73,6 +73,7 @@ DeleteFile3 DELETE FROM FilePending WHERE FileID = ?;
 DeleteFile4 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
 DeleteFile5 DELETE FROM ServiceKeywordMetaData WHERE (ServiceID = ?);
 DeleteFile6 DELETE FROM ServiceMetaDataDisplay WHERE ServiceID = ?;
+
 DeleteFile7 DELETE FROM ServiceNumericMetaData WHERE ServiceID = ?;
 DeleteFile8 DELETE FROM ServiceBlobMetaData WHERE ServiceID = ?;
 DeleteFile9 DELETE FROM ServiceMetaDataDisplay WHERE ServiceID = ?;
@@ -173,7 +174,7 @@ DeleteWord delete from Words where WordID = ?;
 InsertWord insert into Words (Word, WordCount) Values (?,1);
 UpdateWordCount update Words set WordCount = ? where WordID = ?;
 GetWordsTop select distinct WordID, Word from Words where WordCount > 0 order by WordCount asc limit ?;
-GetWords select distinct W.WordID, W.Word from Words W where exists (select 1 from ServiceWords S where S.WordID = W.WordID);
+GetWords select distinct W.WordID, W.Word from Words W where exists (select 1 from ServiceWords S where S.WordID = W.WordID limit 1);
 GetWordCount select count(*) from Words W where WordCount > 0;
 
 InsertServiceWord insert into  ServiceWords (WordID, ServiceID, ServiceType, score) values (?,?,?,?);
@@ -184,4 +185,8 @@ GetServiceWord select ServiceID, ServiceType, Score from ServiceWords where Word
 ServiceCached select 1 from ServiceWords where ServiceID = ? and WordID = (select WordID from Words where Word = ?);
 GetServiceWordCount select count(*) from ServiceWords where WordID = ?;
 
-GetStats select 'Total files indexed', 	count(*) as n from Services where ServiceTypeID between 0 and 8 union select T.TypeName, count(*) as n from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName order by 2; 
+GetMBoxDetails select Type, Offset, LastUri, MessageCount, MBoxSize, Mtime from MBoxes where path = ?;
+InsertMboxDetails insert into MBoxes (Path, Type, Offset, LastUri, MessageCount, MBoxSize, Mtime) values (?,?,0,NULL,0,0,0);
+UpdateMboxDetails update MBoxes set Offset = ?, LastUri = ?, MessageCount = ?, MBoxSize = ?, Mtime =? where Path = ?;
+
+GetStats select 'Total entities indexed', count(*) as n from Services  union select T.TypeName, count(*) as n from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName order by 2; 
