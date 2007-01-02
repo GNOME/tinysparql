@@ -40,7 +40,7 @@ FileInfo *	tracker_db_get_file_info	(DBConnection *db_con, FileInfo *info);
 guint32		tracker_db_get_file_id		(DBConnection *db_con, const char *uri);
 gboolean	tracker_is_valid_service	(DBConnection *db_con, const char *service);
 char *		tracker_db_get_id		(DBConnection *db_con, const char *service, const char *uri);
-off_t		tracker_db_get_last_mbox_offset	(DBConnection *db_con, const char *mbox_uri);
+int		tracker_db_get_last_mbox_offset	(DBConnection *db_con, const char *mbox_uri);
 void		tracker_db_update_mbox_offset	(DBConnection *db_con, MailBox *mb);
 void		tracker_db_save_metadata	(DBConnection *db_con, GHashTable *table, guint32 file_id, gboolean new_file);
 void		tracker_db_save_email		(DBConnection *db_con, MailMessage *mm);

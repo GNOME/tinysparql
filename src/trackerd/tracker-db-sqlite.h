@@ -34,7 +34,8 @@ typedef enum {
 	DATA_NUMERIC,
 	DATA_DATE,
 	DATA_BLOB,
-	DATA_KEYWORD
+	DATA_KEYWORD,
+	DATA_FULLTEXT
 } DataTypes;
 
 
@@ -121,7 +122,7 @@ char ***	tracker_db_get_metadata		(DBConnection *db_con, const char *service, co
 
 /* gets metadata using a separate row for each value it has */
 char ***	tracker_db_get_metadata_values 	(DBConnection *db_con, const char *service, const char *id, const char *key);
-
+void		tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value);
 void		tracker_db_set_metadata		 (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean generate_display_metadata, gboolean index, gboolean embedded);
 void		tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean embedded);
 void 		tracker_db_delete_metadata 	 (DBConnection *db_con, const char *service, const char *id, const char *key);

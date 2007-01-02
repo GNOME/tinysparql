@@ -70,7 +70,7 @@ typedef struct {
 typedef struct {
 	MailBox		*parent_mbox;
 	char		*uri;
-	guint64		offset;		/* start address of the email */
+	guint32		offset;		/* start address of the email */
 	char		*message_id;
 	gboolean	deleted;
 	gboolean	junk;

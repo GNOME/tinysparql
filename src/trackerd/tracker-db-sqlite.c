@@ -583,7 +583,7 @@ tracker_db_connect (void)
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1500");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2000");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 100");
 	}
@@ -711,11 +711,12 @@ tracker_db_connect_cache (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
+	tracker_db_exec_no_reply (db_con, "PRAGMA auto_vacuum = 1");
 	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2000");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 200");
 	}
@@ -1285,6 +1286,7 @@ tracker_create_db (void)
 		}
 
 		tracker_log ("finished creating tables");
+		tracker_exec_sql (db_con, "ANALYZE");
 		g_strfreev (queries);
 		g_free (query);
 	}
@@ -1375,6 +1377,13 @@ tracker_update_db (DBConnection *db_con)
 		tracker_log ("Your database is too out of date and will need to be rebuilt and all your files reindexed.\nPlease wait while we reindex...\n");
 		tracker_remove_dirs (tracker->data_dir);
 		return TRUE;
+	}
+
+	if (i < 14) {
+		tracker_exec_sql (db_con, "insert Into MetaDataTypes (MetaName, DatatypeID, MultipleValues, Weight) values  ('File:Contents', 6, 0, 1)");
+		tracker_exec_sql (db_con, "insert Into MetaDataTypes (MetaName, DatatypeID, MultipleValues, Weight) values  ('Email:Body', 6, 0, 1)");
+		tracker_exec_sql (db_con, "update Options set OptionValue = '14' where OptionKey = 'DBVersion'");
+		tracker_exec_sql (db_con, "ANALYZE");
 	}
 
 	/* apply and table changes for each version update */
@@ -1532,6 +1541,86 @@ get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table
 }
 
 
+static void
+save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *text, int length)
+{
+	char		*value;
+	sqlite3_stmt 	*stmt;
+	char		*compressed;
+	int		bytes_compressed;
+	int		busy_count;
+	int		rc;
+
+	stmt = get_prepared_query (blob_db_con, "SaveFileContents");
+
+	compressed = tracker_compress (text, length, &bytes_compressed);
+
+	if (compressed) {
+		g_debug ("compressed full text size of %d to %d", length, bytes_compressed);
+		value = compressed;
+		
+	} else {
+		tracker_log ("WARNING: compression of %s has failed", value);
+		value = g_strdup (text);
+	}
+
+	sqlite3_bind_text (stmt, 1, str_file_id, strlen (str_file_id), SQLITE_STATIC);
+	sqlite3_bind_text (stmt, 2, value, length, SQLITE_STATIC);
+	sqlite3_bind_int (stmt, 3, 0);
+
+	busy_count = 0;
+	lock_connection (blob_db_con);
+
+	while (TRUE) {
+
+		if (!lock_db ()) {
+			
+
+			if (value) {
+				g_free (value);
+			}
+
+			unlock_connection (blob_db_con);
+
+			return;
+		}
+
+		
+		rc = sqlite3_step (stmt);
+		
+
+		if (rc == SQLITE_BUSY) {
+			unlock_db ();
+			unlock_connection (blob_db_con);
+			busy_count++;
+
+			if (busy_count > 1000000) {
+				tracker_log ("Warning: excessive busy count in query %s and thread %s", "save file contents", blob_db_con->thread);
+				busy_count = 0;
+			}
+			
+
+			if (busy_count > 50) {
+				g_usleep (g_random_int_range (1000, busy_count * 200));
+			} else {
+				g_usleep (100);
+			}
+			lock_connection (blob_db_con);
+			continue;
+		}
+
+		unlock_db ();
+		break;
+	}
+
+	unlock_connection (blob_db_con);
+
+	if (rc != SQLITE_DONE) {
+		tracker_log ("WARNING: Failed to update contents ");
+	}
+}
+
+
 void
 tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, DBConnection *cache_db_con, const char *file_name, FileInfo *info)
 {
@@ -1540,12 +1629,8 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 	int  		bytes_read;
 	char		*str_file_id, *value;
 	GString 	*str;
-	sqlite3_stmt 	*stmt;
 	GHashTable 	*new_table;
-	char		*compressed;
-	int		bytes_compressed;
-	int		busy_count;
-	int		rc;
+
 
 	file = g_fopen (file_name, "r");
 
@@ -1654,77 +1739,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 		return;
 	}
 
-
-	stmt = get_prepared_query (blob_db_con, "SaveFileContents");
-
-	compressed = tracker_compress (value, bytes_read, &bytes_compressed);
-
-	if (compressed) {
-		g_debug ("compressed full text size of %d to %d", bytes_read, bytes_compressed);
-		g_free (value);
-		value = compressed;
-		bytes_read = bytes_compressed;
-	} else {
-		tracker_log ("WARNING: compression of %s has failed", value);
-	}
-
-	sqlite3_bind_text (stmt, 1, str_file_id, strlen (str_file_id), SQLITE_STATIC);
-	sqlite3_bind_text (stmt, 2, value, bytes_read, SQLITE_STATIC);
-	sqlite3_bind_int (stmt, 3, 0);
-
-
-	busy_count = 0;
-	lock_connection (blob_db_con);
-
-	while (TRUE) {
-
-		if (!lock_db ()) {
-			if (str_file_id) {
-				g_free (str_file_id);
-			}
-
-			if (value) {
-				g_free (value);
-			}
-
-			unlock_connection (blob_db_con);
-
-			return;
-		}
-
-		
-		rc = sqlite3_step (stmt);
-		
-
-		if (rc == SQLITE_BUSY) {
-			unlock_db ();
-			unlock_connection (blob_db_con);
-			busy_count++;
-
-			if (busy_count > 1000000) {
-				tracker_log ("Warning: excessive busy count in query %s and thread %s", "save file contents", blob_db_con->thread);
-				busy_count = 0;
-			}
-			
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-			lock_connection (blob_db_con);
-			continue;
-		}
-
-		unlock_db ();
-		break;
-	}
-
-	unlock_connection (blob_db_con);
-
-	if (rc != SQLITE_DONE) {
-		tracker_log ("WARNING: Failed to update contents for %s", info->uri);
-	}
+	save_full_text (blob_db_con, str_file_id, value, bytes_read);
 
 	g_free (str_file_id);
 
@@ -1985,6 +2000,9 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 		case 3: res = tracker_exec_proc (db_con, "GetMetadataNumeric", 2, id, key); break;
 
 		case 5: res = tracker_exec_proc (db_con, "GetMetadataKeyword", 2, id, key); break;
+
+		case DATA_FULLTEXT: res = tracker_exec_proc (db_con, "GetFileContents", 1, id); break;
+			
 
 		default: tracker_log ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
 	}
@@ -2284,6 +2302,8 @@ tracker_get_metadata_table (DataTypes type)
 		case DATA_BLOB: return g_strdup("ServiceBlobMetaData");
 
 		case DATA_KEYWORD: return g_strdup("ServiceKeywordMetaData");
+
+		case DATA_FULLTEXT: return NULL;
 	}
 
 	return NULL;
@@ -2300,8 +2320,6 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 	gboolean 	update_index = FALSE;
 
 	g_return_if_fail (id && key && service && db_con);
-
-	tracker_db_start_transaction (db_con);
 
 	/* get type details */
 	def = tracker_db_get_field_def (db_con, key);
@@ -2362,6 +2380,7 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 			break;
 
 		case DATA_BLOB :
+		case DATA_FULLTEXT:
 			
 			tracker_log ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
 			break;
@@ -2459,6 +2478,13 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 			tracker_exec_proc (db_con, "DeleteMetadataKeyword", 2, id, def->id); 
 			break;
 
+		case DATA_FULLTEXT:
+
+			update_index = TRUE;
+
+			tracker_exec_proc (db_con, "DeleteFileContents", 1, id); 
+						
+
 
 	}
 
@@ -2475,6 +2501,58 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 }
 
 
+/* fast insert of embedded metadata for new values only (no checks for overwriting, multiple values or support for indexing) */ 
+void
+tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value)
+{
+	FieldDef   *def;
+
+	g_return_if_fail (id);
+
+	def = tracker_db_get_field_def (db_con, key);
+
+	if (!def) {
+		tracker_log ("metadata type %s not found", key);
+		return;
+	}
+
+	switch (def->type) {
+
+		case DATA_INDEX:
+		case DATA_STRING:
+
+			tracker_exec_proc (db_con, "SetMetadataString", 4, id, def->id, value, "1"); 
+			break;
+
+		case DATA_NUMERIC:
+		case DATA_DATE:
+
+			tracker_exec_proc (db_con, "SetMetadataNumeric", 4, id, def->id, value, "1"); 
+
+			break;
+
+		case DATA_BLOB :
+			
+			tracker_log ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
+			break;
+
+		case DATA_KEYWORD:
+
+			tracker_exec_proc (db_con, "SetMetadataKeyword", 4, id, def->id, value, "1");
+			break;
+
+		case DATA_FULLTEXT:
+	
+			save_full_text (db_con->user_data2, id, value, strlen (value));
+			break;
+	}
+
+
+	tracker_db_free_field_def (def);
+
+	
+}
+
 
 void
 tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean generate_display_metadata, gboolean index, gboolean embedded)
@@ -2489,25 +2567,40 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 	def = tracker_db_get_field_def (db_con, key);
 
 	if (!def) {
+		tracker_log ("metadata type %s not found", key);
 		return;
 	}
 
 
-	/* get old value */
-	char ***res = tracker_db_get_metadata (db_con, service, id, key);
-
-	if (res) {
-		char **row;
-
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[0]) {
-			old_value = g_strdup (row[0]);
-		}
-
-		tracker_db_free_result (res);
+	if (def->type != DATA_INDEX && def->type != DATA_KEYWORD && def->type !=  DATA_FULLTEXT) { 
+		index = FALSE;
 	}
 
+
+	/* get old value for comparison if indexing  */
+
+	if (index) {
+
+		char ***res = tracker_db_get_metadata (db_con, service, id, key);
+
+		if (res) {
+			char **row;
+
+			row = tracker_db_get_row (res, 0);
+
+			if (row && row[0]) {
+				old_value = g_strdup (row[0]);
+			}
+
+			tracker_db_free_result (res);
+		}
+	}
+
+
+	/* delete old value if metadata does not support multiple values */
+	if (!def->multiple_values) {
+		tracker_db_delete_metadata (db_con, service, id, key);
+	}
 
 
 
@@ -2573,6 +2666,16 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 			}
 
 			break;
+
+		case DATA_FULLTEXT:
+
+			if (index) {
+				update_index = TRUE;
+			}
+
+			new_value = g_strdup (value);
+			save_full_text (db_con->user_data2, id, value, strlen (value));
+
 	}
 
 //	tracker_log ("replacing old value %s with new value %s for key %s", old_value, new_value, key);

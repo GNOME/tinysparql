@@ -210,7 +210,9 @@ flush_data ()
 
 	while (words_left > 0) {
 
-		if (words_left > 1500) {
+		if (words_left > 3000) {
+			words_left =  tracker_db_flush_words_to_qdbm (cache_db_con, 2000);
+		} else if (words_left > 1500) {
 			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 1000);
 		} else if (words_left > 600) {
 			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
@@ -241,6 +243,8 @@ flush_data ()
 		tracker->do_optimize = FALSE;
 		tracker->first_time_index = FALSE;
 		tracker->update_count = 0;
+
+
 	}
 	
 }
@@ -274,7 +278,7 @@ is_sleeping ()
 
 
 static gboolean
-flush_when_indexing_finished (void)
+flush_when_indexing_finished ()
 {
 	gboolean sleep_count;
 
@@ -296,6 +300,15 @@ flush_when_indexing_finished (void)
 		
 		tracker->is_indexing = FALSE;
 		tracker->in_flush = TRUE;
+
+		if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
+			tracker_log ("updating database stats...please wait...");
+			
+			tracker_db_start_transaction (main_thread_db_con);
+			tracker_exec_sql (main_thread_db_con, "ANALYZE");
+			tracker_db_end_transaction (main_thread_db_con);
+		}
+
 		g_thread_create ((GThreadFunc) flush_data , NULL, FALSE, NULL);
 		
 		return FALSE;
