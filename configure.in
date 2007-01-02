@@ -102,7 +102,7 @@ fi
 # gettext/intltool support 
 ####################################################################
 
-ALL_LINGUAS="de en_GB es fi fr it sv"
+ALL_LINGUAS="de en_GB es fi fr it sl sv"
 AC_SUBST(ALL_LINGUAS)
 
 GETTEXT_PACKAGE=AC_PACKAGE_NAME
