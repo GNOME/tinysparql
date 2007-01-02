@@ -56,6 +56,7 @@ char *doc_mime_types[] = {
 			  "application/x-abiword",
 			  "text/html",
 			  "text/sgml",
+			  "text/x-tex",
 			  "application/x-mswrite",
 			  "application/x-applix-word",
 			  "application/docbook+xml",

@@ -1,11 +1,13 @@
+2007-01-01  Patch from Bjoern Gruening <bjoern at gruenings eu>
+
+	* Added tex filter support
+
 2007-01-01  Jamie McCracken <jamiemcc at gnome org>
 
 	* Added db support for emails
 	* added indexing support for emails
 	* optimised metadata insertion
 	
-
-
 2007-01-01  David Lodge <dave@cirt.net>
 
 	* configure.in: Added en_GB
