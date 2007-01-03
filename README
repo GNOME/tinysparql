@@ -90,7 +90,7 @@ INSTALLATION (from source):
 
 Run time dependencies (also needed for build) :
 
-Sqlite 3.2+
+Sqlite 3.2+ (this is statically-linked due to the lack of guarantee of threadsafety in distro versions)
 libdbus (0.50 +)
 dbus-glib bndings (0.50 +)
 glib (2.6+)
