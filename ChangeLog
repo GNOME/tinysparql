@@ -1,3 +1,12 @@
+
+2007-01-03 Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* improved email support
+	* added imap support
+	* linked in db email support
+	
+
+
 2007-01-02  Jamie McCracken <jamiemcc at gnome org>
 
 	* Added new crawler to speed up indexing
