@@ -510,8 +510,8 @@ tracker_db_close (DBConnection *db_con)
 		g_hash_table_foreach (db_con->statements, finalize_statement, db_con);
 	}
 
-
 	g_hash_table_destroy (db_con->statements);
+	db_con->statements = NULL;
 
 	if (sqlite3_close (db_con->db) != SQLITE_OK) {
 		tracker_log ("ERROR : Database close operation failed for thread %s due to %s", db_con->thread, sqlite3_errmsg (db_con->db));
@@ -1170,7 +1170,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		if (rc == SQLITE_ROW) {
 			char **new_row;
 
-			new_row = g_new (char *, cols+1);
+			new_row = g_new0 (char *, cols+1);
 			new_row[cols] = NULL;
 
 			unlock_db ();
@@ -1213,7 +1213,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 
 	result = g_slist_reverse (result);
 
-	res = g_new (char *, row+1);
+	res = g_new0 (char *, row+1);
 	res[row] = NULL;
 
 	tmp = result;
@@ -2551,8 +2551,10 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 			break;
 
 		case DATA_FULLTEXT:
-	
-			save_full_text (db_con->user_data2, id, value, strlen (value));
+
+			if (value) {
+				save_full_text (db_con->user_data2, id, value, strlen (value));
+			}
 			break;
 	}
 

@@ -374,6 +374,7 @@ get_meta_table_data_new (gpointer key,
 	}
 }
 
+
 void
 tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, guint32 file_id, gboolean new_file)
 {
@@ -396,164 +397,6 @@ tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, guint32 file_
 	}
 
 	g_free (db_action.file_id);
-}
-
-
-
-static int
-get_mbox_offset (DBConnection *db_con, const char *mbox_uri)
-{
-	char ***res;
-	char **row;
-	int	offset;
-
-	res = tracker_exec_proc (db_con, "GetMBoxDetails", 1, mbox_uri);
-
-	if (!res) {
-		return -1;
-	}
-
-	row = tracker_db_get_row (res, 0);
-
-	/* create mbox entry in DB if mbox if not already registered */
-
-	if (!(row && row[0] && row[1])) {
-		tracker_exec_proc (db_con, "InsertMboxDetails", 2, mbox_uri, "0");
-		return 0;
-	} else {
-		offset = atoi (row[1]);
-	}
-
-	tracker_db_free_result (res);
-
-	return offset;
-
-}
-
-int
-tracker_db_get_last_mbox_offset (DBConnection *db_con, const char *mbox_uri)
-{
-	int offset;
-
-	offset = get_mbox_offset (db_con, mbox_uri);
-
-	if (offset == -1) {
-		tracker_log ("ERROR: Could not create entry in DB for mbox file %s", mbox_uri);
-		return 0;
-	}
-
-	return offset;	
-
-	
-}
-
-
-void
-tracker_db_update_mbox_offset (DBConnection *db_con, MailBox *mb)
-{
-	
-	char *str_offset;
-
-	if (!mb || !mb->mbox_uri) {
-		tracker_log ("Error invalid mbox");
-		return;
-	}
-
-	str_offset = tracker_uint_to_str (mb->next_email_offset);
-
-	/* make sure mbox is registered in DB before doing an update */
-	if (get_mbox_offset (db_con, mb->mbox_uri) != -1) {
-		tracker_exec_proc (db_con, "UpdateMboxDetails", 6, str_offset, " ", "0", "0", "0", mb->mbox_uri);
-	} else {
-		tracker_log ("Error invalid mbox");
-	}
-
-	g_free (str_offset);
-
-}
-
-
-void
-tracker_db_save_email (DBConnection *db_con, MailMessage *mm)
-{
-
-	const GSList *tmp;
-	char	     *to_print, *name, *path;
-	int      id;
-
-	if (!mm || !mm->uri || mm->deleted || mm->junk) {
-		return;
-	}
-
-	
-
-	name = tracker_get_vfs_name (mm->uri);
-	path = tracker_get_vfs_path (mm->uri);
-	
-	tracker_db_create_service (db_con, path, name, "Emails", "email", 0, FALSE, FALSE, mm->offset, 0);
-
-	id = tracker_db_get_file_id (db_con, mm->uri);
-
-	if (id != -1) {
-
-		tracker_log ("saving email with uri %s and subject %s from %s", mm->uri, mm->subject, mm->mail_from);
-
-		char *str_id = tracker_int_to_str (id);
-
-		char *str_date = tracker_int_to_str (mm->date);
-
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->mail_from);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject);
-
-		g_free (str_date);
-
-		for (tmp = mm->mail_to; tmp; tmp = g_slist_next (tmp)) {
-			Person *p;
-			p = (Person *) tmp->data;
-
-			char *str = g_strconcat (p->name, ":", p->addr, NULL);
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", str);
-			g_free (str);
-
-		}
-
-		for (tmp = mm->mail_cc; tmp; tmp = g_slist_next (tmp)) {
-			Person *p;
-			p = (Person *) tmp->data;
-
-			char *str = g_strconcat (p->name, ":", p->addr, NULL);
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", str);
-			g_free (str);
-		}
-
-
-		for (tmp = mm->attachments; tmp; tmp = g_slist_next (tmp)) {
-			MailAttachment *ma;
-
-			ma = (MailAttachment *) tmp->data;
-
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", ma->attachment_name);
-
-			/* delimit attachment names so hyphens and underscores are removed so that they can be indexed separately */
-			if (strchr (ma->attachment_name, '_') || strchr (ma->attachment_name, '-')) {
-
-				char *delimited;
-
-				delimited = g_strdup (ma->attachment_name);
-				delimited =  g_strdelimit (delimited, "-_" , ' ');
-				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:AttachmentsDelimted", delimited);
-				g_free (delimited);
-			}
-		}
-
-		tracker_db_update_indexes_for_new_service (db_con, db_con->user_data, id, tracker_get_id_for_service ("Emails"), NULL);
-	
-		tracker_db_refresh_all_display_metadata (db_con, str_id);
-
-		g_free (str_id);
-	}
 }
 
 
@@ -752,9 +595,7 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 	if (action == TRACKER_ACTION_EXTRACT_METADATA) {
 		tracker_notify_meta_data_available ();
 	} else {
-		if (!db_con->thread  || (strcmp (db_con->thread, "files")!=0)) {
-			tracker_notify_file_data_available ();
-		}
+		tracker_notify_file_data_available ();
 	}
 
 	g_free (str_file_id);

@@ -202,32 +202,31 @@ update_word_count (GHashTable *word_table, const char *word, int weight)
 GHashTable *
 tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 {
+	char *delimit_text;
+	char **words;
 
-	char	   *delimit_text;
-	char	   **words;
+	if (!text) {
+		return g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	}
 
-	if (!text) return g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
-	if (!word_table) {	
+	if (!word_table) {
 		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 	}
 
-	delimit_text = (char *) text;
-
-
 	if (tracker->use_pango_word_break) {
-	  	delimit_text = delimit_utf8_string (text);
+		delimit_text = delimit_utf8_string (text);
+	} else {
+		delimit_text = (char *) text;
 	}
 
 	/* break text into words */
-
 	words = g_strsplit_set (delimit_text, "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]" , -1);
 
 	if (words) {
 		char **p;
 
 		for (p = words; *p; p++) {
-			char *word;
+			char *word, *s2;
 			int  word_len;
 
 			/* remove words that dont contain at least one alpha char */
@@ -241,16 +240,12 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				continue;
 			}
 
-
-			/* normalize word */			
-			char *s2;
+			/* normalize word */
 			s2 = g_utf8_casefold (*p, -1);
 			word = g_utf8_normalize (s2, -1, G_NORMALIZE_NFD);
 			g_free (s2);
-			
-			word_len = strlen (word);
 
-			if (!word || (word_len == 0)) {
+			if (!word || word[0] == '\0') {
 				continue;
 			}
 
@@ -262,7 +257,7 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				}
 			}
 
-
+			word_len = strlen (word);
 
 			/* truncate words more than max word length in bytes */
 			if (word_len > tracker->max_word_length) {
@@ -295,13 +290,10 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				//g_print ("stemmed %s to %s\n", word, aword);
 				g_free (word);
 				word = aword;
-
-			
 			}
 
 			update_word_count (word_table, word, weight);
 			g_free (word);
-
 		}
 
 		g_strfreev  (words);

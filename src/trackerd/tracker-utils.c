@@ -629,18 +629,39 @@ tracker_date_to_str (gint32 date_time)
 	}
 }
 
-char *
-tracker_uint_to_str (int i)
-{
-	return g_strdup_printf ("%u", i);
-}
 
 char *
-tracker_int_to_str (int i)
+tracker_int_to_str (gint i)
 {
 	return g_strdup_printf ("%d", i);
 }
 
+
+char *
+tracker_uint_to_str (guint i)
+{
+	return g_strdup_printf ("%u", i);
+}
+
+
+gboolean
+tracker_str_to_uint (const char *s, guint *ret)
+{
+	unsigned long int n;
+
+	g_return_val_if_fail (s, FALSE);
+
+	n = strtoul (s, NULL, 10);
+
+	if (n > G_MAXUINT) {
+		*ret = 0;
+		return FALSE;
+
+	} else {
+		*ret = (guint) n;
+		return TRUE;
+	}
+}
 
 
 int
@@ -660,6 +681,20 @@ tracker_str_in_array (const char *str, char **array)
 	}
 
 	return -1;
+}
+
+
+char *
+tracker_get_radix_by_suffix (const char *str, const char *suffix)
+{
+	g_return_val_if_fail (str, NULL);
+	g_return_val_if_fail (suffix, NULL);
+
+	if (g_str_has_suffix (str, suffix)) {
+		return g_strndup (str, g_strrstr (str, suffix) - str);
+	} else {
+		return NULL;
+	}
 }
 
 

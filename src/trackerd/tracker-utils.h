@@ -215,7 +215,6 @@ typedef struct {
 	GMutex		*request_signal_mutex;
 	GMutex		*poll_signal_mutex;
 
-
 } Tracker;
 
 
@@ -334,12 +333,15 @@ GSList *	tracker_array_to_list 			(char **array);
 char **		tracker_make_array_null_terminated 	(char **array, int length);
 
 void		tracker_free_array 		(char **array, int row_count);
-char *		tracker_int_to_str		(int i);
-char *		tracker_uint_to_str		(int i);
+char *		tracker_int_to_str		(gint i);
+char *		tracker_uint_to_str		(guint i);
+gboolean	tracker_str_to_uint		(const char *s, guint *ret);
 char *		tracker_format_date 		(const char *time_string);
 time_t		tracker_str_to_date 		(const char *time_string);
 char *		tracker_date_to_str 		(gint32 date_time);
 int		tracker_str_in_array 		(const char *str, char **array);
+
+char *		tracker_get_radix_by_suffix	(const char *str, const char *suffix);
 
 char *		tracker_escape_metadata 	(const char *str);
 char *		tracker_unescape_metadata 	(const char *str);
