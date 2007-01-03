@@ -1,6 +1,12 @@
+2007-01-02  Jamie McCracken <jamiemcc at gnome org>
+
+	* Added new crawler to speed up indexing
+
+
 2007-01-02  Matic Zgur <mr.zgur@gmail.com>
 
 	* configure.in: Added sl to ALL_LINGUAS.
+
 
 2007-01-01  Patch from Bjoern Gruening <bjoern at gruenings eu>
 
