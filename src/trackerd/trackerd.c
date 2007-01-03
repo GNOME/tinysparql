@@ -600,6 +600,21 @@ start_poll (void)
 
 
 static void
+schedule_dir_check (const char *uri, DBConnection *db_con)
+{
+	if (!tracker->is_running) {
+		return;
+	}
+	g_return_if_fail (uri && (uri[0] == '/'));
+	g_return_if_fail (db_con);
+
+	/* keep mainloop responsive */
+	my_yield ();
+	tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_DIRECTORY_CHECK, TRUE, FALSE, -1);
+}
+
+
+static void
 add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_con)
 {
 	gboolean start_polling;
@@ -647,7 +662,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 		g_slist_foreach (dir_list, (GFunc) tracker_get_dirs, &file_list);
 
 		if (check_dirs) {
-			g_slist_foreach (file_list, (GFunc) schedule_file_check, db_con);
+			g_slist_foreach (file_list, (GFunc) schedule_dir_check, db_con);
 		}
 
 		g_slist_foreach (dir_list, (GFunc) g_free, NULL);
@@ -1131,8 +1146,48 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 
 	/* keep mainloop responsive */
 	my_yield ();
-	tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_CHECK, 0, FALSE, -1);
+
+	if (!tracker_is_directory (uri)) {
+		tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_CHECK, 0, FALSE, -1);
+	}
 }
+
+static void
+queue_file (const char *uri)
+{
+	FileInfo *info;
+
+	info = tracker_create_file_info (uri, TRACKER_ACTION_CHECK, 0, 0);
+
+	g_async_queue_push (tracker->file_process_queue, info);
+}
+
+
+static void
+check_directory (const char *uri, DBConnection *db_con)
+{
+	GSList *file_list;
+
+	if (!tracker->is_running) {
+		return;
+	}
+
+	g_return_if_fail (db_con);
+	g_return_if_fail (uri && (uri[0] == '/'));
+	g_return_if_fail (tracker_is_directory (uri));
+
+	/* keep mainloop responsive */
+	my_yield ();
+
+	file_list = tracker_get_files (uri, FALSE);
+	g_debug ("checking %s for %d files", uri, g_slist_length(file_list));
+
+	g_slist_foreach (file_list, (GFunc) queue_file, NULL);
+	g_slist_foreach (file_list, (GFunc) g_free, NULL);
+	g_slist_free (file_list);
+
+}
+
 
 
 static void
@@ -1152,13 +1207,15 @@ scan_directory (const char *uri, DBConnection *db_con)
 	my_yield ();
 
 	file_list = tracker_get_files (uri, FALSE);
+	g_debug ("scanning %s for %d files", uri, g_slist_length(file_list));
 
 	g_slist_foreach (file_list, (GFunc) schedule_file_check, db_con);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL);
 	g_slist_free (file_list);
 
 	/* recheck directory to update its mtime if its changed whilst scanning */
-	schedule_file_check (uri, db_con);
+	schedule_dir_check (uri, db_con);
+	g_debug ("finished scanning");
 }
 
 
@@ -1208,6 +1265,8 @@ start_watching (gpointer data)
  			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_file_check, main_thread_db_con);
 		}
 
+		tracker_notify_file_data_available ();
+
 		tracker_log ("waiting for file events...");
 
 		/*if (tracker->first_time_index) {
@@ -1221,7 +1280,21 @@ start_watching (gpointer data)
 }
 
 
+static void
+file_crawler_thread (void)
+{
+	sigset_t     signal_set;
 
+	/* block all signals in this thread, except SIGALRM */
+	sigfillset (&signal_set);
+	pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
+
+	while (tracker->is_running) { 
+
+	}
+	
+
+}
 
 
 static void
@@ -1633,6 +1706,11 @@ process_files_thread (void)
 		FileInfo *info;
 		gboolean need_index;
 
+		/* sleep for 100ms to throttle back indexing */
+		if (!tracker->turbo) {
+			;//g_usleep (100000);
+		}
+
 		need_index = FALSE;
 
 		/* make thread sleep if first part of the shutdown process has been activated */
@@ -1657,6 +1735,8 @@ process_files_thread (void)
 			char ***res;
 			int  k;
 
+			g_debug ("Checking for pending files...");
+
 			/* set mutex to indicate we are in "check" state */
 			g_mutex_lock (tracker->files_check_mutex);
 
@@ -1664,13 +1744,38 @@ process_files_thread (void)
 			if (tracker_db_has_pending_files (db_con)) {
 				g_mutex_unlock (tracker->files_check_mutex);
 			} else {
-				//g_debug ("File thread sleeping");
+				
 
+				/* check dir_queue in case there are directories waiting to be indexed */
+				
+				if (g_async_queue_length (tracker->dir_queue) > 0) {
+
+					char *uri;
+
+					uri = g_async_queue_try_pop (tracker->dir_queue);
+		
+					if (uri) {
+
+						g_debug ("processing queued directory %s - %d items left", uri, g_async_queue_length (tracker->dir_queue));
+
+						check_directory (uri, db_con);
+
+						g_free (uri);
+
+						g_mutex_unlock (tracker->files_check_mutex);
+
+						continue;
+					}
+				} 
+
+				
 				/* we have no stuff to process so sleep until awoken by a new signal */
+				g_debug ("File thread sleeping");			
+
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
 
-				//g_debug ("File thread awoken");
+				g_debug ("File thread awoken");
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
@@ -1726,7 +1831,9 @@ process_files_thread (void)
 			if (!pushed_events && (k == 0)) {
 				g_debug ("files not ready so sleeping");
 				g_usleep (100000);
-			}
+			} 
+
+
 
 			continue;
 		}
@@ -1858,12 +1965,11 @@ process_files_thread (void)
 
 			case TRACKER_ACTION_DIRECTORY_CHECK:
 
-
-
-
 				if (need_index) {
 					if (!tracker_file_is_no_watched (info->uri)) {
-						scan_directory (info->uri, db_con);
+						g_debug ("queueing directory %s", info->uri);
+						g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
+						//scan_directory (info->uri, db_con);
 					} else {
 						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
 					}
@@ -1875,6 +1981,8 @@ process_files_thread (void)
 
 				if (!tracker_file_is_no_watched (info->uri)) {
 					scan_directory (info->uri, db_con);
+				
+
 				} else {
 					g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
 				}
@@ -2669,6 +2777,8 @@ main (int argc, char **argv)
 	tracker->stemmer_mutex = g_mutex_new ();
 
 	tracker->cached_word_table_mutex = g_mutex_new ();
+
+	tracker->dir_queue = g_async_queue_new ();
 
 
 	/* check user data files */

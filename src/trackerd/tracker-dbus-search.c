@@ -290,9 +290,11 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 			}
 
 			g_strfreev (array);
+
+			tracker_db_free_result (res);
 				
 		}
-		tracker_db_free_result (res);
+		
 	}
 
 	/* do not pass NULL to dbus or it will crash */

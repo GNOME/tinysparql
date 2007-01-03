@@ -752,7 +752,9 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 	if (action == TRACKER_ACTION_EXTRACT_METADATA) {
 		tracker_notify_meta_data_available ();
 	} else {
-		tracker_notify_file_data_available ();
+		if (!db_con->thread  || (strcmp (db_con->thread, "files")!=0)) {
+			tracker_notify_file_data_available ();
+		}
 	}
 
 	g_free (str_file_id);

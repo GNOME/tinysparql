@@ -117,6 +117,7 @@ sqlite3_uncompress (sqlite3_context *context, int argc, sqlite3_value **argv)
 				sqlite3_result_text (context, output, len2, g_free);
 			} else {
 				tracker_log ("decompression failed");
+				sqlite3_result_text (context, sqlite3_value_blob (argv[0]), len1, NULL);
 			}
 		}
 	}
@@ -711,7 +712,7 @@ tracker_db_connect_cache (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA auto_vacuum = 1");
+	tracker_db_exec_no_reply (db_con, "PRAGMA auto_vacuum = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
@@ -1476,7 +1477,10 @@ get_file_contents_words (DBConnection *db_con, guint32 id)
 
 			unlock_db ();
 
-			old_table = tracker_parse_text (old_table, st, 1);
+			if (st) {
+
+				old_table = tracker_parse_text (old_table, st, 1);
+			}
 
 			continue;
 		}
@@ -1562,10 +1566,11 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	} else {
 		tracker_log ("WARNING: compression of %s has failed", value);
 		value = g_strdup (text);
+		bytes_compressed = length;
 	}
 
 	sqlite3_bind_text (stmt, 1, str_file_id, strlen (str_file_id), SQLITE_STATIC);
-	sqlite3_bind_text (stmt, 2, value, length, SQLITE_STATIC);
+	sqlite3_bind_text (stmt, 2, value, bytes_compressed, SQLITE_STATIC);
 	sqlite3_bind_int (stmt, 3, 0);
 
 	busy_count = 0;
@@ -1614,6 +1619,10 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	}
 
 	unlock_connection (blob_db_con);
+
+	if (value) {
+		g_free (value);
+	}
 
 	if (rc != SQLITE_DONE) {
 		tracker_log ("WARNING: Failed to update contents ");

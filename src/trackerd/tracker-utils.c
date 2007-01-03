@@ -1173,6 +1173,7 @@ tracker_file_is_valid (const char *uri)
 
 	if (!uri_in_locale) {
 		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		g_free (uri_in_locale);
 		return FALSE;
 	}
 
