@@ -1,6 +1,13 @@
+2007-01-07  Tshepang Lekhonkhobe <tshepang@gmail.com>
+
+	* README: Ensured all lines over 79 colums were reduced for readability
+	* README: Added xdg-utils, libpng, libexif, and libgsf as dependencies
+   	* t-s-t: Added xdg-open to 'Open Folder' with a fallback to gnome-open
+
 2007-01-07  Priit Laes  <plaes@svn.gnome.org>
 
     * configure.in: Added 'et' (Estonian) to LINGUAS.
+
 
 2007-01-03  Tshepang Lekhonkhobe <tshepang@gmail.com>
 
