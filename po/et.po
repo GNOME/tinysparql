@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Tracker HEAD\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-01-05 03:18+0000\n"
-"PO-Revision-Date: 2007-01-07 00:35+0200\n"
+"PO-Revision-Date: 2007-01-07 22:58+0200\n"
 "Last-Translator: Ivar Smolin <okul@linux.ee>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
 "MIME-Version: 1.0\n"
@@ -62,7 +62,7 @@ msgstr ""
 #: ../src/libtracker/tracker-tag.c:119
 #, c-format
 msgid "Try \"%s --help\" for more information."
-msgstr ""
+msgstr "Rohkema teabe jaoks proovi \"%s --help\"."
 
 #: ../src/libtracker/tracker-search.c:120
 #, c-format
@@ -92,11 +92,11 @@ msgstr ""
 #. FIXME!! coreutilus don't print anything on no-results
 #: ../src/libtracker/tracker-search.c:182 ../src/libtracker/tracker-tag.c:264
 msgid "No results found matching your query"
-msgstr ""
+msgstr "Sinu päringule sobivaid vasteid ei leitud"
 
 #: ../src/libtracker/tracker-tag.c:37
 msgid "Add specified tag to a file"
-msgstr ""
+msgstr "Määratud sildi lisamine failile"
 
 #: ../src/libtracker/tracker-tag.c:37 ../src/libtracker/tracker-tag.c:38
 #: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:88
@@ -109,15 +109,15 @@ msgstr "Määratud sildi eemaldamine failist"
 
 #: ../src/libtracker/tracker-tag.c:39
 msgid "Remove all tags from a file"
-msgstr ""
+msgstr "Kõikide siltide eemaldamine failist"
 
 #: ../src/libtracker/tracker-tag.c:40
 msgid "List all defined tags"
-msgstr ""
+msgstr "Kõigi määratud siltide kuvamine"
 
 #: ../src/libtracker/tracker-tag.c:41
 msgid "Search for files with specified tag"
-msgstr ""
+msgstr "Määratud sildiga failide otsimine"
 
 #: ../src/libtracker/tracker-tag.c:42
 msgid "FILE..."
@@ -179,11 +179,11 @@ msgstr "Videod"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:173
 msgid "_Open"
-msgstr ""
+msgstr "_Ava"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:174
 msgid "O_pen Folder"
-msgstr ""
+msgstr "Ava _kataloog"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:175
 msgid "Mo_ve to Trash"
@@ -200,7 +200,7 @@ msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:773
 msgid "No files found"
-msgstr ""
+msgstr "Faile ei leitud"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:824
 #: ../src/tracker-search-tool/tracker-search-tool.c:1107
@@ -211,7 +211,7 @@ msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1602
 msgid "S_earch results:"
-msgstr ""
+msgstr "Otsingu_tulemused:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1638
 msgid "List View"
@@ -244,15 +244,15 @@ msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2216
 msgid "Click to perform a search."
-msgstr ""
+msgstr "Klõpsa otsingu läbiviimiseks."
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2224
 msgid "_Previous"
-msgstr ""
+msgstr "_Eelmine"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2232
 msgid "_Next"
-msgstr ""
+msgstr "_Järgmine"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2444
 #, c-format
@@ -300,13 +300,13 @@ msgstr ""
 
 #: ../src/trackerd/trackerd.c:147
 msgid "LANG"
-msgstr ""
+msgstr "KEEL"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
 #: ../src/trackerd/trackerd.c:2627
 msgid "- start the tracker daemon"
-msgstr ""
+msgstr "- jälgimisdeemoni käivitamine"
 
 #: ../src/trackerd/trackerd.c:2628 ../src/trackerd/trackerd.c:2629
 msgid "DIRECTORY"
