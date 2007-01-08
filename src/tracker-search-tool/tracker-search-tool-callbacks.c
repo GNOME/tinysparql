@@ -571,10 +571,11 @@ open_folder_cb (GtkAction * action,
 
 		folder_locale = g_filename_from_utf8 (folder_utf8, -1, NULL, NULL, NULL);
 
-		if (open_file_with_nautilus (gsearch->window, folder_locale) == FALSE) {
+		if (open_file_with_xdg_open (gsearch->window, folder_locale) == FALSE) {
+			if (open_file_with_nautilus (gsearch->window, folder_locale) == FALSE) {
 
-			display_dialog_could_not_open_folder (gsearch->window, folder_utf8);
-
+				display_dialog_could_not_open_folder (gsearch->window, folder_utf8);
+			}
 			g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
 			g_list_free (list);
 			g_free (folder_locale);
