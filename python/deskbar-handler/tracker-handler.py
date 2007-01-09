@@ -10,7 +10,7 @@ import gnome
 import gobject
 from gettext import gettext as _
 
-import re
+import re,urllib
 import os.path
 import dbus
 
@@ -172,7 +172,7 @@ class TrackerLiveFileMatch (Match):
 
 	def action(self, text=None):
 		print "Opening Tracker hit:", self.result['uri']
-		gnome.url_show ('file://' + self.result['uri'])
+		gnome.url_show ("file://"+urllib.quote(self.result['uri']))
 		
 	def get_category (self):
 		try:
