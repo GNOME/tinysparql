@@ -1,3 +1,7 @@
+2007-01-09  Ignacio Casal Quinteiro  <nacho.resa@gmail.com>
+
+	* configure.in: Added 'gl' to ALL_LINGUAS.
+
 2007-01-07  Tshepang Lekhonkhobe <tshepang@gmail.com>
 
 	* README: Ensured all lines over 79 colums were reduced for readability

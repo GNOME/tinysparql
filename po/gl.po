@@ -1,0 +1,317 @@
+# translation of gl.po to Galego
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Ignacio Casal Quinteiro <icq@cvs.gnome.org>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: gl\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-01-09 01:44+0100\n"
+"PO-Revision-Date: 2007-01-09 01:58+0100\n"
+"Last-Translator: Ignacio Casal Quinteiro <icq@cvs.gnome.org>\n"
+"Language-Team: Galego <trasno@ceu.fi.udc.es>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "Limit the number of results showed to N"
+msgstr "Limitar o número de resultados amosados a N"
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "N"
+msgstr "N"
+
+#: ../src/libtracker/tracker-search.c:35
+msgid "Search for a specific service"
+msgstr "Procurar un servizo específico"
+
+#: ../src/libtracker/tracker-search.c:35
+#: ../src/tracker-search-tool/tracker-search-tool.c:64
+msgid "SERVICE"
+msgstr "SERVIZO"
+
+#: ../src/libtracker/tracker-search.c:36
+msgid "Show more detailed results with service and mime type as well"
+msgstr "Amosar resultados máis detallados co tipo de servizo e tipo mime"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-search.c:89
+msgid "TERM... - search files for certain terms"
+msgstr "TERMO... - procurar nos ficheiros un termo específico"
+
+#. Translators: this message will appear after the usage string
+#. and before the list of options.
+#: ../src/libtracker/tracker-search.c:93
+msgid ""
+"Specifying more then one term, will be showed items containing ALL the "
+"specified terms (term1 AND term2 - logical conjunction)"
+msgstr "Se especifica máis dun termo, amosaranse os elementos que conteñen TODOS os termos especificados (termo1 E termo2 - conxunción lóxica)"
+
+#: ../src/libtracker/tracker-search.c:97
+msgid "The list of recognized services is:"
+msgstr "A lista de servizos recoñecidos é:"
+
+#: ../src/libtracker/tracker-search.c:114
+#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-tag.c:111
+#: ../src/libtracker/tracker-tag.c:119
+#, c-format
+msgid "Try \"%s --help\" for more information."
+msgstr "Tente \"%s --help\" para mís información."
+
+#: ../src/libtracker/tracker-search.c:120
+#, c-format
+msgid "%s: missing search terms"
+msgstr "%s: faltan os termos de busca"
+
+#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-tag.c:128
+#, c-format
+msgid "%s: no connection to tracker daemon"
+msgstr "%s: non hai conexión ao demonio de tracker"
+
+#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-tag.c:130
+msgid "Ensure \"trackerd\" is running before launch this command."
+msgstr "Asegúrese de que \"trackerd\" esté funcionando antes de lanzar este comando."
+
+#: ../src/libtracker/tracker-search.c:156
+msgid "Service not recognized, searching in Other Files...\n"
+msgstr "Servizo non recoñecido, procurando Noutros ficheiros...\n"
+
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:176
+#: ../src/libtracker/tracker-tag.c:185 ../src/libtracker/tracker-tag.c:194
+#: ../src/libtracker/tracker-tag.c:229 ../src/libtracker/tracker-tag.c:279
+#, c-format
+msgid "%s: internal tracker error: %s"
+msgstr "%s: erro interno de tracker: %s"
+
+#. FIXME!! coreutilus don't print anything on no-results
+#: ../src/libtracker/tracker-search.c:182 ../src/libtracker/tracker-tag.c:264
+msgid "No results found matching your query"
+msgstr "Non se atoparon resultados coincidintes coa súa consulta"
+
+#: ../src/libtracker/tracker-tag.c:37
+msgid "Add specified tag to a file"
+msgstr "Engadir etiqueta especificada a un ficheiro"
+
+#: ../src/libtracker/tracker-tag.c:37 ../src/libtracker/tracker-tag.c:38
+#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:88
+msgid "TAG"
+msgstr "ETIQUETA"
+
+#: ../src/libtracker/tracker-tag.c:38
+msgid "Remove specified tag from a file"
+msgstr "Eliminar etiqueta especificada dun ficheiro"
+
+#: ../src/libtracker/tracker-tag.c:39
+msgid "Remove all tags from a file"
+msgstr "Eliminar tódalas etiquetas dun ficheiro"
+
+#: ../src/libtracker/tracker-tag.c:40
+msgid "List all defined tags"
+msgstr "Listar tódalas etiquetas definidas"
+
+#: ../src/libtracker/tracker-tag.c:41
+msgid "Search for files with specified tag"
+msgstr "Procurar ficheiros coa etiqueta especificada"
+
+#: ../src/libtracker/tracker-tag.c:42
+msgid "FILE..."
+msgstr "FICHEIRO..."
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-tag.c:86
+msgid "FILE... - manipulate tags on files"
+msgstr "FICHEIRO... - manipular etiquetas nos ficheiros"
+
+#: ../src/libtracker/tracker-tag.c:95
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options like:"
+msgstr "Para engadir, eliminar, ou procurar etiquetas múltiples ao mesmo tempo, unir múltiples opcións como:"
+
+#: ../src/libtracker/tracker-tag.c:117
+#, c-format
+msgid "%s: invalid arguments"
+msgstr "%s: argumentos inválidos"
+
+#: ../src/libtracker/tracker-tag.c:145
+#, c-format
+msgid "%s: file %s not found"
+msgstr "%s: non atopado o ficheiro %s"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:64
+msgid "Search from a specific service"
+msgstr "Procurar nun servizo específico"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:103
+msgid "All files"
+msgstr "Tódolos ficheiros"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:104
+msgid "Development"
+msgstr "Desenvolvemento"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:105
+msgid "Documents"
+msgstr "Documentos"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:106
+msgid "Images"
+msgstr "Imaxes"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:107
+msgid "Music"
+msgstr "Música"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:108
+msgid "Plain text"
+msgstr "Texto plano"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:109
+msgid "Videos"
+msgstr "Vídeos"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:173
+msgid "_Open"
+msgstr "_Abrir"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:174
+msgid "O_pen Folder"
+msgstr "A_brir cartafol"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:175
+msgid "Mo_ve to Trash"
+msgstr "Mo_ver ao lixo"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:176
+msgid "_Save Results As..."
+msgstr "_Gardar resultados como..."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:277
+#, c-format
+msgid "Character set conversion failed for \"%s\""
+msgstr "Fallou a conversión do conxunto de caracteres para \"%s\""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:773
+msgid "No files found"
+msgstr "Non se atoparon ficheiros"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:824
+#: ../src/tracker-search-tool/tracker-search-tool.c:1107
+#: ../src/tracker-search-tool/tracker-search-tool.c:2396
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Ferramenta de busca Tracker"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1602
+msgid "S_earch results:"
+msgstr "Resultados da _busca:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1638
+msgid "List View"
+msgstr "Ver como lista"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1703
+msgid "Icon"
+msgstr "Icona"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1715
+msgid "Name"
+msgstr "Nome"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1743
+msgid "Text"
+msgstr "Texto"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2151
+msgid "_Search:"
+msgstr "_Procurar:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2178
+#: ../src/tracker-search-tool/tracker-search-tool.c:2179
+msgid "Enter a search term with multiple words seperated with spaces."
+msgstr "Introduza un termo de busca con varias palabras separadas por espazos."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2179
+msgid "search_entry"
+msgstr "estrada_busca"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2216
+msgid "Click to perform a search."
+msgstr "Prema para realizar unha busca."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2224
+msgid "_Previous"
+msgstr "_Anterior"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2232
+msgid "_Next"
+msgstr "_Seguinte"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2444
+#, c-format
+msgid "Invalid service type: %s\n"
+msgstr "Tipo de servizo inválido: %s\n"
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr "Localizar documentos e cartafoles neste computador por nome ou contido usando Tracker"
+
+#: ../src/trackerd/trackerd.c:141
+msgid "Directory to exclude from indexing"
+msgstr "Directorio a excluír do indexado"
+
+#: ../src/trackerd/trackerd.c:141 ../src/trackerd/trackerd.c:142
+msgid "/PATH/DIR"
+msgstr "/RUTA/DIR"
+
+#: ../src/trackerd/trackerd.c:142
+msgid "Directory to include in indexing"
+msgstr "Directorio a incluír no indexado"
+
+#: ../src/trackerd/trackerd.c:143
+msgid "Disable any indexing or watching taking place"
+msgstr "Desactivar calquer indexado ou vista que se esté realizando"
+
+#: ../src/trackerd/trackerd.c:144
+msgid "Enables more verbose debug messages"
+msgstr "Activar mensaxes de depuración detalladas"
+
+#: ../src/trackerd/trackerd.c:145
+msgid "Faster indexing, use more memory and CPU"
+msgstr "Indexado máis rápido, usa máis memoria e CPU"
+
+#: ../src/trackerd/trackerd.c:146
+msgid "Slower indexing, use less memory and CPU"
+msgstr "Indexado máis lento, usa menos memoria e CPU"
+
+#: ../src/trackerd/trackerd.c:147
+msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr "Lingua a usar para stemmer e lista de palabras detida (código de caracteres ISO 639-1 2"
+
+#: ../src/trackerd/trackerd.c:147
+msgid "LANG"
+msgstr "LANG"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND <THIS_MESSAGE>
+#: ../src/trackerd/trackerd.c:2627
+msgid "- start the tracker daemon"
+msgstr "- iniciar o demonio tracker"
+
+#: ../src/trackerd/trackerd.c:2628 ../src/trackerd/trackerd.c:2629
+msgid "DIRECTORY"
+msgstr "DIRECTORIO"
+
+#: ../src/trackerd/trackerd.c:2637
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
+msgstr "Para incluír ou excluír directorios múltiples ao mesmo tempo, unir varias opcións como:"
+
