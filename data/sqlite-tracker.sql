@@ -418,7 +418,9 @@ CREATE TABLE MBoxes
 	LastUri		text,
 	MessageCount 	Integer,
 	MBoxSize	Integer,
-	Mtime		Integer
+	Mtime		Integer,
+
+	unique (Path)
 );
 
 

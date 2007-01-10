@@ -32,7 +32,7 @@ UpdateNewID UPDATE Options set OptionValue = ? WHERE OptionKey = 'Sequence';
 GetUpdateCount SELECT OptionValue FROM Options WHERE OptionKey = 'UpdateCount';
 SetUpdateCount UPDATE Options set OptionValue = ?  WHERE OptionKey = 'UpdateCount';
 
-CreateService INSERT INTO Services (ID, Path, Name, ServiceTypeID, Mime, Size, IsDirectory, IsLink, Offset, IndexTime) VALUES (?,?,?,?,?,?,?,?,?,?); 
+CreateService INSERT INTO Services (ID, Path, Name, ServiceTypeID, Mime, Size, IsDirectory, IsLink, Offset, IndexTime, AuxilaryID) VALUES (?,?,?,?,?,?,?,?,?,?,?); 
 
 DeleteService1 	DELETE FROM Services WHERE ID = ?;
 DeleteService2 	DELETE FROM ServiceMetaData WHERE ServiceID = ?;
@@ -59,7 +59,7 @@ SelectFileSubFolders SELECT ID, Path, Name, IsDirectory FROM Services WHERE (Pat
 
 SelectSubFileIDs SELECT ID FROM Services WHERE (Path = ?  or Path glob ?);
 
-UpdateFile UPDATE Services SET IndexTime = ? WHERE ID = ?; 
+UpdateFile UPDATE Services SET ServiceTypeID=?, Path=?, Name=?, Mime=?, Size=?, IndexTime =?, Offset=? WHERE ID = ?; 
 
 UpdateFileMove 	UPDATE Services SET Path = ?, Name = ?, IndexTime = ? WHERE ID = ?;
 
@@ -73,7 +73,6 @@ DeleteFile3 DELETE FROM FilePending WHERE FileID = ?;
 DeleteFile4 DELETE FROM ServiceLinks WHERE (ServiceID = ? or LinkID = ?);
 DeleteFile5 DELETE FROM ServiceKeywordMetaData WHERE (ServiceID = ?);
 DeleteFile6 DELETE FROM ServiceMetaDataDisplay WHERE ServiceID = ?;
-
 DeleteFile7 DELETE FROM ServiceNumericMetaData WHERE ServiceID = ?;
 DeleteFile8 DELETE FROM ServiceBlobMetaData WHERE ServiceID = ?;
 DeleteFile9 DELETE FROM ServiceMetaDataDisplay WHERE ServiceID = ?;
@@ -186,7 +185,17 @@ ServiceCached select 1 from ServiceWords where ServiceID = ? and WordID = (selec
 GetServiceWordCount select count(*) from ServiceWords where WordID = ?;
 
 GetMBoxDetails select Type, Offset, LastUri, MessageCount, MBoxSize, Mtime from MBoxes where path = ?;
+GetMboxID select ID from MBoxes where path = ?;
 InsertMboxDetails insert into MBoxes (Path, Type, Offset, LastUri, MessageCount, MBoxSize, Mtime) values (?,?,0,NULL,0,0,0);
 UpdateMboxDetails update MBoxes set Offset = ?, LastUri = ?, MessageCount = ?, MBoxSize = ?, Mtime =? where Path = ?;
+GetMboxCount select count(*) from services where AuxiliaryID = (select ID FROM MBoxes where Path = ?) and ServiceTypeID = (select TypeID from ServiceTypes where TypeName = 'Emails');
+
+DeleteMbox1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
+DeleteMbox2 DELETE FROM ServiceKeywordMetaData  WHERE ServiceID in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
+DeleteMbox3 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
+DeleteMbox4 DELETE FROM ServiceNumericMetaData  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
+DeleteMbox5 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
+DeleteMbox6 DELETE FROM ServiceWords  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
+DeleteMbox7 DELETE FROM Services WHERE F.AuxiliaryID = ? AND ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments'));
 
 GetStats select 'Total entities indexed', count(*) as n from Services  union select T.TypeName, count(*) as n from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName order by 2; 

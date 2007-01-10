@@ -1,3 +1,18 @@
+
+2007-01-10  Jamie McCracken <jamiemcc at gnome org>
+
+	* Merged all extraction into one thread to lessen queueing overhead
+	* disabled some code in the emails section
+	* added some more email db support routines
+	* improved support for email attachments indexing
+
+2007-01-10  Patch from Saleem Abdulrasool <compnerd at gentoo org>
+
+	* Build fixes
+	* fixed build of test suite
+	* fixed --enable-debug-code configure arg
+	* made libpng a mandatory dependency
+
 2007-01-09  Ignacio Casal Quinteiro  <nacho.resa@gmail.com>
 
 	* configure.in: Added 'gl' to ALL_LINGUAS.
@@ -22,8 +37,6 @@
 	* improved email support
 	* added imap support
 	* linked in db email support
-	
-
 
 2007-01-02  Jamie McCracken <jamiemcc at gnome org>
 

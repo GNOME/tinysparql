@@ -61,9 +61,7 @@ void tracker_extract_mp3	(gchar *, GHashTable *);
 #ifdef HAVE_VORBIS
 void tracker_extract_vorbis	(gchar *, GHashTable *);
 #endif
-#ifdef HAVE_LIBPNG
 void tracker_extract_png	(gchar *, GHashTable *);
-#endif
 #ifdef HAVE_LIBEXIF
 void tracker_extract_exif	(gchar *, GHashTable *);
 #endif
@@ -123,9 +121,7 @@ MimeToExtractor extractors[] = {
 #endif
   
      /* Image extractors */
-#ifdef HAVE_LIBPNG
 	{ "image/png",					tracker_extract_png		},
-#endif
 #ifdef HAVE_LIBEXIF
 	{ "image/jpeg",					tracker_extract_exif		},
 #endif

@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_LIBPNG
-
 #include <stdio.h>
 #include <glib.h>
 #include <png.h>
@@ -32,13 +30,13 @@ static struct {
 } tagmap[] = {
 	{ "Author" , "Image:Creator"},
 	{ "Creator" , "Image:Creator"},
-   	{ "Description" , "Image:Description"},
-   	{ "Comment", "Image:Comments"},
-   	{ "Copyright", "File:Copyright"},
-   	{ "Creation Time", "Image:Date"},
-   	{ "Title", "Image:Title"},
-   	{ "Software", "Image:Software"},
-   	{ "Disclaimer", "File:License"},
+	{ "Description" , "Image:Description"},
+	{ "Comment", "Image:Comments"},
+	{ "Copyright", "File:Copyright"},
+	{ "Creation Time", "Image:Date"},
+	{ "Title", "Image:Title"},
+	{ "Software", "Image:Software"},
+	{ "Disclaimer", "File:License"},
 	{ NULL, NULL},
 };
 
@@ -93,14 +91,10 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
 					}
 				}
 			}
-  		}
+		}
 
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 		
 		fclose (png);
 	}
 }
-
-#else
-#warning "Not building PNG metadata extractor."
-#endif  /* HAVE_LIBPNG */
