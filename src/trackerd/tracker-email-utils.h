@@ -86,7 +86,7 @@ void		email_free_root_path_for_attachments		(void);
 typedef void (* LoadHelperFct) (GMimeMessage *g_m_message, MailMessage *msg);
 
 gboolean	email_parse_and_save_mail_message		(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper);
-gboolean	email_parse_mail_file_and_save_emails		(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper);
+gboolean	email_parse_mail_file_and_save_new_emails	(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper);
 
 gboolean	email_mh_is_in_a_mh_dir				(const char *path);
 void		email_mh_watch_mail_messages			(DBConnection *db_con, const char *path);

@@ -84,7 +84,6 @@ typedef struct {
 	int 		count;     	 /* cummulative count of the cached word */
 } CacheWord;
 
-
 typedef struct {
 
 	/* config options */
@@ -130,6 +129,13 @@ typedef struct {
 
 	gboolean	first_time_index;
 	gboolean	do_optimize;
+
+	/* service/mime directory table - this is used to either store the service name or a pseudo mime type for all files under a certain directory root 
+	 * pseduo mime types always start with "service/" followed by a unique name all in lowercase - EG "service/tomboy" 
+	 * if the directory root represents a built in service which is handled by tracker then it will simply contain the service name - EG "Emails", "Conversations" etc 
+	*/
+	GHashTable	*service_directory_table;
+	GSList		*service_directory_list;
 
 	/* email config options */
 	gboolean	index_evolution_emails;
@@ -314,6 +320,7 @@ typedef struct {
 	gint32			mtime;
 	gint32			atime;
 	gint32			indextime;
+	gint32			offset;
 
 	/* options */
 	char			*move_from_uri;
@@ -353,6 +360,9 @@ gboolean	tracker_is_supported_lang 	(const char *lang);
 void		tracker_set_language		(const char *language, gboolean create_stemmer);
 
 gint32		tracker_get_file_mtime 		(const char *uri);
+
+void		tracker_add_service_path 	(const char *service, const char *path);
+char *		tracker_get_service_for_uri 	(const char *uri);
 
 FileInfo *	tracker_create_file_info 	(const char *uri, TrackerChangeAction action, int counter, WatchTypes watch);
 FileInfo * 	tracker_get_file_info  	 	(FileInfo *info);

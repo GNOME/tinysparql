@@ -31,6 +31,33 @@ add_new_mbox (DBConnection *db_con, const char *mbox_uri)
 }
 
 
+int
+get_mbox_id (DBConnection *db_con, const char *mbox_uri)
+{
+	char	***res;
+	char	**row;
+	int	id;
+
+	res = tracker_exec_proc (db_con, "GetMboxID", 1, mbox_uri);
+
+	if (!res) {
+		return -1;
+	}
+
+	row = tracker_db_get_row (res, 0);
+
+	if (!(row && row[0])) {
+		return -1;
+	} else {
+		id = atoi (row[0]);
+	}
+
+	tracker_db_free_result (res);
+
+	return id;
+}
+
+
 static off_t
 get_mbox_offset (DBConnection *db_con, const char *mbox_uri)
 {
@@ -85,6 +112,43 @@ tracker_db_email_get_last_mbox_offset (DBConnection *db_con, const char *mbox_fi
 }
 
 
+guint
+tracker_db_email_get_nb_emails_in_mbox (DBConnection *db_con, const char *mbox_file_path)
+{
+	char	***res;
+	char	**row;
+	int	count;
+
+	g_return_val_if_fail (db_con, 0);
+	g_return_val_if_fail (mbox_file_path, 0);
+
+	res = tracker_exec_proc (db_con, "GetMboxCount", 1, mbox_file_path);
+
+	if (!res) {
+		return 0;
+	}
+
+	row = tracker_db_get_row (res, 0);
+
+	if (!(row && row[0])) {
+		return 0;
+	} else {
+		count = atoi (row[0]);
+	}
+
+	tracker_db_free_result (res);
+
+	return count;
+}
+
+
+guint
+tracker_db_email_get_nb_emails_in_dir (DBConnection *db_con, const char *dir_path)
+{
+	return tracker_db_email_get_nb_emails_in_mbox (db_con, dir_path);
+}
+
+
 void
 tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 {
@@ -93,45 +157,58 @@ tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 	g_return_if_fail (db_con);
 	g_return_if_fail (mf);
 
-	return;
-
 	if (!mf->path) {
 		tracker_log ("Error invalid mbox (empty path!)");
 		return;
 	}
 
 	str_offset = tracker_uint_to_str (mf->next_email_offset);
+	str_offset = tracker_uint_to_str (mf->next_email_offset);
 
 	/* make sure mbox is registered in DB before doing an update */
 	if (get_mbox_offset (db_con, mf->path) != -1) {
+
+		str_offset = tracker_uint_to_str (mf->next_email_offset);
 		tracker_exec_proc (db_con, "UpdateMboxDetails", 6, str_offset, " ", "0", "0", "0", mf->path);
+
+		g_free (str_offset);
+
 	} else {
 		tracker_log ("Error invalid mbox \"%s\"", mf->path);
 	}
 
-	g_free (str_offset);
+
 }
+
+
 
 
 void
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
-/* 	GString	     *s; */
+/* 	GString	     *s;  */
 	const GSList	*tmp;
 	char		/* *to_print, */ *name, *path;
-	int		id;
+	int		mbox_id, id;
 
 	g_return_if_fail (db_con);
 	g_return_if_fail (mm);
 
-	if (!mm->uri || mm->deleted || mm->junk) {
+	if (!mm->uri || mm->deleted || mm->junk || mm->parent_mail_file || mm->parent_mail_file->path) {
+		return;
+	}
+
+	mbox_id = get_mbox_id (db_con, mm->parent_mail_file->path);
+
+	if (mbox_id == -1) {
+		tracker_log ("No mbox is registered for email %s", mm->uri);
 		return;
 	}
 
 	name = tracker_get_vfs_name (mm->uri);
 	path = tracker_get_vfs_path (mm->uri);
 
-	tracker_db_create_service (db_con, path, name, "Emails", "email", 0, FALSE, FALSE, mm->offset, 0);
+	tracker_db_create_service (db_con, path, name, "Emails", "email", 0, FALSE, FALSE, mm->offset, 0, mbox_id);
 
 	id = tracker_db_get_file_id (db_con, mm->uri);
 
@@ -294,3 +371,39 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 /* 	g_free (to_print); */
 }
+
+
+void
+tracker_db_email_update_email (DBConnection *db_con, MailMessage *mm)
+{
+	g_return_if_fail (db_con);
+	g_return_if_fail (mm);
+
+	tracker_log ("update email with uri \"%s\" and subject \"%s\" from \"%s\"", mm->uri, mm->subject, mm->from);
+
+	/* FIXME: add code... */
+}
+
+
+void
+tracker_db_email_delete_emails_of_mbox (DBConnection *db_con, const char *mbox_file_path)
+{
+	g_return_if_fail (db_con);
+	g_return_if_fail (mbox_file_path);
+
+	/* FIXME: add code... */
+}
+
+
+void
+tracker_db_email_delete_emails_of_dir (DBConnection *db_con, const char *dir_path)
+{
+	g_return_if_fail (db_con);
+	g_return_if_fail (dir_path);
+
+	tracker_db_email_delete_emails_of_mbox (db_con, dir_path);
+
+
+}
+
+

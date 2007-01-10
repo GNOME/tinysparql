@@ -958,6 +958,7 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 	info->mtime = 0;
 	info->atime = 0;
 	info->indextime = 0;
+	info->offset = 0;
 
 	info->is_new = TRUE;
 	info->service_type_id = -1;
@@ -1065,6 +1066,7 @@ tracker_get_pending_file_info (guint32 file_id, const char *uri, const char *mim
 	info->mtime = 0;
 	info->atime = 0;
 	info->indextime = 0;
+	info->offset = 0;
 
 	info->service_type_id = -1;
 	info->is_new = TRUE;
@@ -1195,6 +1197,49 @@ tracker_get_file_info (FileInfo *info)
 	info->atime =  finfo.st_atime;
 
 	return info;
+}
+
+void
+tracker_add_service_path (const char *service, const char *path)
+{
+
+	if (!service || !path || !tracker_file_is_valid (path)) {
+		return;
+	}
+
+	char *dir_path = g_strdup (path);
+	char *service_type = g_strdup (service);
+
+	tracker->service_directory_list = g_slist_prepend (tracker->service_directory_list, dir_path);
+
+	g_hash_table_insert (tracker->service_directory_table, dir_path, service_type);
+	
+}
+
+
+
+
+char *
+tracker_get_service_for_uri (const char *uri)
+{
+	GSList *tmp;
+
+	/* check service dir list to see if a prefix */
+	for (tmp = tracker->service_directory_list; tmp; tmp = tmp->next) {
+		char *prefix;
+
+		prefix = (char *) tmp->data;
+		if (g_str_has_prefix (uri, prefix)) {	
+			return g_strdup (g_hash_table_lookup (tracker->service_directory_table, prefix));
+		}
+	}
+
+	if (g_str_has_prefix (uri, g_get_tmp_dir ())) {
+		return NULL;
+	}
+
+	return g_strdup ("Files");
+
 }
 
 

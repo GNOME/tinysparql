@@ -54,8 +54,10 @@ typedef struct {
 
 typedef struct {
 	char		*kmailrc_path;
-	char		*cache_dir;
 	char		*local_dir;
+	char		*cache_dir;
+	char		*imap_cache;
+	char		*dimap_cache;
 	GSList		*accounts;
 } KMailConfig;
 
@@ -99,10 +101,9 @@ kmail_init_module (void)
 
 	if (load_kmail_config (&conf)) {
 		kmail_config = conf;
-		return TRUE;
-	} else {
-		return FALSE;
 	}
+
+	return kmail_module_is_running ();
 }
 
 
@@ -123,15 +124,14 @@ kmail_finalize_module (void)
 	free_kmail_config (kmail_config);
 	kmail_config = NULL;
 
-	return TRUE;
+	return !kmail_module_is_running ();
 }
 
 
 void
 kmail_watch_emails (DBConnection *db_con)
 {
-	const GSList	*account;
-	char		*imap_dir_path;
+	const GSList *account;
 
 	g_return_if_fail (db_con);
 	g_return_if_fail (kmail_config);
@@ -147,10 +147,7 @@ kmail_watch_emails (DBConnection *db_con)
 	}
 
 	watch_local_files (db_con, kmail_config->local_dir);
-
-	imap_dir_path = g_build_filename (kmail_config->cache_dir, "imap", NULL);
-	watch_imap_cache (db_con, imap_dir_path);
-	g_free (imap_dir_path);
+	watch_imap_cache (db_con, kmail_config->imap_cache);
 }
 
 
@@ -191,11 +188,10 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 
 	if (strcmp (info->mime, "application/mbox") == 0) {
 
-		/* be careful in the if/else-if order because dir local_dir can be into dir cache_dir! */
 		if (g_str_has_prefix (info->uri, kmail_config->local_dir)) {
-			email_parse_mail_file_and_save_emails (db_con, MAIL_APP_KMAIL, info->uri, load_uri_of_mbox_mail_message);
+			email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_KMAIL, info->uri, load_uri_of_mbox_mail_message);
 
-		} else if (g_str_has_prefix (info->uri, kmail_config->cache_dir)) {
+		} else if (g_str_has_prefix (info->uri, kmail_config->imap_cache)) {
 			off_t		offset;
 			MailFile	*mf;
 			MailMessage	*mail_msg;
@@ -299,6 +295,8 @@ load_kmail_config (KMailConfig **conf)
 
 	m_conf->kmailrc_path = g_build_filename (g_get_home_dir (), ".kde/share/config/kmailrc", NULL);
 	m_conf->cache_dir = g_build_filename (g_get_home_dir (), ".kde/share/apps/kmail", NULL);
+	m_conf->imap_cache = g_build_filename (m_conf->cache_dir, "imap", NULL);
+	m_conf->dimap_cache = g_build_filename (m_conf->cache_dir, "dimap", NULL);
 
 	if (g_file_test (m_conf->kmailrc_path, G_FILE_TEST_EXISTS)) {
 		GKeyFile *key_file;
@@ -411,12 +409,20 @@ free_kmail_config (KMailConfig *conf)
 		g_free (conf->kmailrc_path);
 	}
 
+	if (conf->local_dir) {
+		g_free (conf->local_dir);
+	}
+
 	if (conf->cache_dir) {
 		g_free (conf->cache_dir);
 	}
 
-	if (conf->local_dir) {
-		g_free (conf->local_dir);
+	if (conf->imap_cache) {
+		g_free (conf->imap_cache);
+	}
+
+	if (conf->dimap_cache) {
+		g_free (conf->dimap_cache);
 	}
 
 	g_slist_foreach (conf->accounts, (GFunc) free_kmail_account, NULL);
@@ -720,9 +726,7 @@ load_uri_of_mbox_mail_message (GMimeMessage *g_m_message, MailMessage *msg)
 		int	gmt_offset;
 
 		g_mime_message_get_date (g_m_message, &date, &gmt_offset);
-
 		msg->uri = g_strdup_printf ("mbox:%s/From %s %s", msg->parent_mail_file->path, from, ctime (&date));
-
 		g_free (from);
 	}
 }

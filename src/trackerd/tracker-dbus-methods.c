@@ -134,7 +134,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 
 			mtime = finfo.st_mtime;
 
-			tracker_db_create_service (db_con, path, name, service_name, mime, is_dir, is_link, FALSE, 0, mtime);
+			tracker_db_create_service (db_con, path, name, service_name, mime, is_dir, is_link, FALSE, 0, mtime, -1);
 
 			g_free (path);
 			g_free (name);
@@ -151,7 +151,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 			name = tracker_get_vfs_name (uri);
 			path = tracker_get_vfs_path (uri);
 
-			tracker_db_create_service (db_con, path, name, "VFS Files", "unknown", FALSE, FALSE, FALSE, 0, 0);
+			tracker_db_create_service (db_con, path, name, "VFS Files", "unknown", FALSE, FALSE, FALSE, 0, 0, -1);
 
 			g_free (path);
 			g_free (name);

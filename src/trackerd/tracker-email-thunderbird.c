@@ -223,7 +223,7 @@ thunderbird_index_file (DBConnection *db_con, FileInfo *info)
 	g_return_if_fail (db_con && info);
 
 	if (strcmp (info->mime, "application/mbox") == 0) {
-		email_parse_mail_file_and_save_emails (db_con, MAIL_APP_THUNDERBIRD, info->uri, NULL);
+		email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_THUNDERBIRD, info->uri, NULL);
 
 	} else if (strcmp (info->mime, "message/rfc822") == 0) {
 		email_parse_and_save_mail_message (db_con, MAIL_APP_THUNDERBIRD, info->uri, NULL);

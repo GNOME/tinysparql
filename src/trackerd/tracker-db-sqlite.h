@@ -132,11 +132,11 @@ void		tracker_db_refresh_all_display_metadata (DBConnection *db_con, const char 
 
 void		tracker_db_update_keywords	(DBConnection *db_con, const char *service, const char *id, const char *value);
 
-void		tracker_db_create_service	(DBConnection *db_con, const char *path, const char *name, const char *service, const char *mime, guint32 filesize, gboolean is_dir, gboolean is_link, int offset, guint32 mtime);
+guint32		tracker_db_create_service	(DBConnection *db_con, const char *path, const char *name, const char *service, const char *mime, guint32 filesize, gboolean is_dir, gboolean is_link, int offset, guint32 mtime, guint aux_id);
 
 void		tracker_db_delete_file		(DBConnection *db_con, DBConnection *blob_db_con, guint32 file_id);
 void		tracker_db_delete_directory	(DBConnection *db_con, DBConnection *blob_db_con, guint32 file_id, const char *uri);
-void		tracker_db_update_file		(DBConnection *db_con, guint32 file_id, guint32 mtime);
+void		tracker_db_update_file		(DBConnection *db_con, FileInfo *info);
 void		tracker_db_update_file_move	(DBConnection *db_con, guint32 file_id, const char *path, const char *name, guint32 mtime);
 
 gboolean	tracker_db_has_pending_files	(DBConnection *db_con);

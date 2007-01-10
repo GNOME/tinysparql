@@ -69,12 +69,6 @@ typedef enum {
 	EVOLUTION_MAIL_PROTOCOL_MAILDIR
 } EvolutionMailProtocol;
 
-typedef enum {
-	ACTION_SAVE_ALL_EMAILS,
-	ACTION_SAVE_NEW_EMAIL,
-	ACTION_SAVE_MODIFIED_EMAIL
-} ActionEvoEMail;
-
 enum {
 	EVOLUTION_MESSAGE_ANSWERED	= 1 << 0,
 	EVOLUTION_MESSAGE_DELETED	= 1 << 1,
@@ -137,8 +131,9 @@ static void	account_end_element_handler		(GMarkupParseContext	*context,
 							 gpointer			user_data,
 							 GError			**error);
 
-static gboolean	is_in_dir_in_imap			(const char *dir);
-static gboolean	is_in_dir_in_imap4			(const char *dir);
+static gboolean	is_in_dir_local				(const char *dir);
+static gboolean	is_in_dir_imap				(const char *dir);
+static gboolean	is_in_dir_imap4				(const char *dir);
 
 static void	watch_files_for_mbox			(DBConnection *db_con, const char *dir_path);
 static void	watch_files_for_imap_account		(DBConnection *db_con, const char *dir_path);
@@ -157,17 +152,19 @@ static gboolean	open_summary_file			(const char *path, SummaryFile **summary);
 static void	free_summary_file			(SummaryFile *summary);
 static gboolean	load_summary_file_header		(SummaryFile *summary, SummaryFileHeader **header);
 static void	free_summary_file_header		(SummaryFileHeader *header);
-static gboolean	load_summary_file_meta_header		(SummaryFile *summary, SummaryFileHeader *header);
+static gboolean	load_summary_file_meta_header_for_local	(SummaryFile *summary, SummaryFileHeader *header);
+static gboolean	load_summary_file_meta_header_for_imap	(SummaryFile *summary, SummaryFileHeader *header);
 
-typedef gboolean (* MailMsgLoaderFct) (SummaryFile *, MailMessage **);
-
-static gboolean	apply_action_on_each_mail_message	(DBConnection *db_con,
-							 SummaryFile *summary, SummaryFileHeader *header, MailMsgLoaderFct load_mail_msg,
-							 ActionEvoEMail action);
+//static gboolean	load_mail_message_for_local 		(SummaryFile *summary, MailMessage **mail_msg);
+//static gboolean	skip_mail_message_for_local		(SummaryFile *summary);
 static gboolean	load_mail_message_for_imap		(SummaryFile *summary, MailMessage **mail_msg);
+static gboolean	skip_mail_message_for_imap		(SummaryFile *summary);
 static gboolean	load_mail_message_for_imap4		(SummaryFile *summary, MailMessage **mail_msg);
+static gboolean	skip_mail_message_for_imap4		(SummaryFile *summary);
 static gboolean	do_load_mail_message_for_imap		(SummaryFile *summary, MailMessage **mail_msg, gboolean do_skipping_of_content_info);
+static gboolean	do_skip_mail_message_for_imap		(SummaryFile *summary, gboolean do_skipping_of_content_info);
 static gboolean	load_mail_message			(SummaryFile *summary, MailMessage *mail_msg, EvolutionAdHocInfos *adhoc_infos);
+static gboolean	skip_mail_message			(SummaryFile *summary);
 static void	free_evolution_adhoc_infos		(EvolutionAdHocInfos *adhoc_infos);
 static gboolean	try_to_save_ondisk_email_message	(DBConnection *db_con, const char *path);
 static GSList *	add_persons_from_internet_address_list_string_parsing	(GSList *list, const char *s);
@@ -177,8 +174,11 @@ static gboolean	do_skip_loading_content_info		(SummaryFile *summary);
 static inline gboolean	decode_gint32		(FILE *f, gint32 *n);
 static inline gboolean	skip_gint32_decoding	(FILE *f);
 static inline gboolean	decode_guint32		(FILE *f, guint32 *n);
+static inline gboolean	skip_guint32_decoding	(FILE *f);
 static inline gboolean	decode_time_t		(FILE *f, time_t *t);
+static inline gboolean	skip_time_t_decoding	(FILE *f);
 static inline gboolean	decode_off_t		(FILE *f, off_t *t);
+static inline gboolean	skip_off_t_decoding	(FILE *f);
 static inline gboolean	decode_string		(FILE *f, char **str);
 static inline gboolean	skip_string_decoding	(FILE *f);
 static inline gboolean	skip_token_decoding	(FILE *f);
@@ -203,10 +203,9 @@ evolution_init_module (void)
 
 	if (load_evolution_config (&conf)) {
 		evolution_config = conf;
-		return TRUE;
-	} else {
-		return FALSE;
 	}
+
+	return evolution_module_is_running ();
 }
 
 
@@ -227,7 +226,7 @@ evolution_finalize_module (void)
 	free_evolution_config (evolution_config);
 	evolution_config = NULL;
 
-	return TRUE;
+	return !evolution_module_is_running ();
 }
 
 
@@ -301,16 +300,6 @@ evolution_file_is_interesting (DBConnection *db_con, FileInfo *info)
 }
 
 
-static gboolean
-new_email_detected_in_summary_file (DBConnection *db_con, SummaryFile *summary)
-{
-	g_return_val_if_fail (db_con, FALSE);
-	g_return_val_if_fail (summary, FALSE);
-
-	return TRUE;
-}
-
-
 void
 evolution_index_file (DBConnection *db_con, FileInfo *info)
 {
@@ -321,66 +310,211 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
 	file_name = g_path_get_basename (info->uri);
 
-	if (g_str_has_suffix (file_name, ".ev-summary")) {
-		/* a MBox file has changed */
-
-		char *mbox_file;
+	if (is_in_dir_local (info->uri) && g_str_has_suffix (file_name, ".ev-summary")) {
+		/* a MBox file changed */
+		char		*mbox_file;
+		SummaryFile	*summary;
 
 		mbox_file = tracker_get_radix_by_suffix (info->uri, ".ev-summary");
-		email_parse_mail_file_and_save_emails (db_con, MAIL_APP_EVOLUTION, mbox_file, load_uri_and_status_of_mbox_mail_message);
-		g_free (mbox_file);
-
-		/* FIXME: two cases:
-		   1/ state of an existing mail message changed (or has been deleted?);
-		   2/ a new email has been added.
-		*/
-
-	} else if (strcmp (file_name, "summary") == 0) {
-		SummaryFile *summary;
 
 		summary = NULL;
 
-		if (open_summary_file (info->uri, &summary)) {
+		if (open_summary_file (mbox_file, &summary)) {
 			SummaryFileHeader	*header;
-			ActionEvoEMail		action;
+			guint			tmp_nb_emails_in_db;
+			gint32			nb_emails_in_db;
 
 			header = NULL;
 
 			if (!load_summary_file_header (summary, &header)) {
 				free_summary_file (summary);
-				return;
+				goto end_index;
 			}
 
-			if (!load_summary_file_meta_header (summary, header)) {
-				free_summary_file (summary);
+			if (!load_summary_file_meta_header_for_local (summary, header)) {
 				free_summary_file_header (header);
-				return;
+				free_summary_file (summary);
+				goto end_index;
 			}
 
-			if (info->is_new) {
-				action = ACTION_SAVE_ALL_EMAILS;
-			} else {
-				if (new_email_detected_in_summary_file (db_con, summary)) {
-					action = ACTION_SAVE_NEW_EMAIL;
-				} else {
-					/* we have a modification (status of an email has been modified or an email has been deleted) */
-					action = ACTION_SAVE_MODIFIED_EMAIL;
+			tmp_nb_emails_in_db = tracker_db_email_get_nb_emails_in_mbox (db_con, mbox_file);
+			if (tmp_nb_emails_in_db > G_MAXINT32) {
+				tracker_log ("ERROR: number of emails in MBox file is too big (> G_MAXINT32)");
+				free_summary_file_header (header);
+				free_summary_file (summary);
+				goto end_index;
+			}
+
+			nb_emails_in_db = (gint32) tmp_nb_emails_in_db, 0, G_MAXINT32;
+
+			if (header->saved_count == nb_emails_in_db) {
+				/* some emails changed their status */
+				//gint32 i;
+
+				/* It is time consuming to find the changed email, so it is prefered
+				   to update status of each email.
+				for (i = 0; i < header->saved_count; i++) {
+					MailMessage *mail_msg;
+
+					mail_msg = NULL;
+					if (load_mail_message_for_local (summary, &mail_msg)) {
+						tracker_db_email_update_email (db_con, mail_msg);
+						email_free_mail_message (mail_msg);
+					}
 				}
-			}
+				*/
 
-			if (is_in_dir_in_imap4 (info->uri)) {
-				apply_action_on_each_mail_message (db_con, summary, header, load_mail_message_for_imap4, action);
+			} else if (header->saved_count < nb_emails_in_db) {
+				/* some emails removed. It is easiest to do a new full MBox indexing */
+				tracker_db_email_delete_emails_of_mbox (db_con, mbox_file);
+				email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_EVOLUTION, mbox_file, load_uri_and_status_of_mbox_mail_message);
 			} else {
-				apply_action_on_each_mail_message (db_con, summary, header, load_mail_message_for_imap, action);
+				/* new emails received */
+				email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_EVOLUTION, mbox_file, load_uri_and_status_of_mbox_mail_message);
 			}
 
-			free_summary_file (summary);
 			free_summary_file_header (header);
+			free_summary_file (summary);
 		}
 
-	} else if (is_in_dir_in_imap (info->uri) && g_str_has_suffix (file_name, ".")) {
-		/* a new mail message in an IMAP directory */
-		try_to_save_ondisk_email_message (db_con, info->uri);
+		g_free (mbox_file);
+
+	} else if (is_in_dir_imap (info->uri) || is_in_dir_imap4 (info->uri)) {
+
+		if (strcmp (file_name, "summary") == 0) {
+			/* Evolution has received a new email, modified status of an old one, or deleted some of them in IMAP */
+			SummaryFile *summary;
+
+			summary = NULL;
+
+			if (open_summary_file (info->uri, &summary)) {
+				SummaryFileHeader	*header;
+				gboolean		in_imap, in_imap4;
+				gint32			nb_emails_in_db;
+				guint			tmp_nb_emails_in_db;
+				char			*imap_dir;
+
+				header = NULL;
+
+				if (!load_summary_file_header (summary, &header)) {
+					free_summary_file (summary);
+					goto end_index;
+				}
+
+				if (!load_summary_file_meta_header_for_imap (summary, header)) {
+					free_summary_file_header (header);
+					free_summary_file (summary);
+					goto end_index;
+				}
+
+				if (is_in_dir_imap4 (info->uri)) {
+					in_imap = FALSE;
+					in_imap4 = TRUE;
+				} else {
+					in_imap = TRUE;
+					in_imap4 = FALSE;
+				}
+
+				tmp_nb_emails_in_db = tracker_db_email_get_nb_emails_in_dir (db_con, imap_dir);
+				if (tmp_nb_emails_in_db > G_MAXINT32) {
+					tracker_log ("ERROR: number of emails in IMAP directory is too big (> G_MAXINT32)");
+					free_summary_file_header (header);
+					free_summary_file (summary);
+					goto end_index;
+				}
+
+				nb_emails_in_db = (gint32) tmp_nb_emails_in_db, 0, G_MAXINT32;
+
+				imap_dir = g_path_get_dirname (info->uri);
+
+				if (header->saved_count == nb_emails_in_db) {
+					/* some emails changed their status */
+					//gint32 i;
+
+					/* It is time consuming to find the changed email, so it is prefered
+					   to update status of each email. 
+					for (i = 0; i < header->saved_count; i++) {
+						MailMessage *mail_msg;
+
+						mail_msg = NULL;
+						if ((in_imap && load_mail_message_for_imap (summary, &mail_msg)) ||
+						    (in_imap4 && load_mail_message_for_imap4 (summary, &mail_msg))) {
+
+							tracker_db_email_update_email (db_con, mail_msg);
+							email_free_mail_message (mail_msg);
+						}
+					}
+
+					*/
+				/* we should only do this if we are sure count is accurate */	
+				} else if (header->saved_count < nb_emails_in_db) {
+					/* some emails removed. It is easiest to do a new full summary indexing */
+					gint32 i;
+
+					tracker_db_email_delete_emails_of_dir (db_con, imap_dir);
+
+					for (i = 0; i < header->saved_count; i++) {
+						MailMessage *mail_msg;
+
+						mail_msg = NULL;
+						if ((in_imap && load_mail_message_for_imap (summary, &mail_msg)) ||
+						    (in_imap4 && load_mail_message_for_imap4 (summary, &mail_msg))) {
+
+							if (!try_to_save_ondisk_email_message (db_con, mail_msg->path)) {
+								/* we do not have all infos but we still save them */
+								tracker_db_email_save_email (db_con, mail_msg);
+							}
+							email_free_mail_message (mail_msg);
+						}
+					}
+
+				} else {
+					/* new emails received */
+					gint32 i;
+
+					for (i = 0; i < nb_emails_in_db; i++) {
+						if ((in_imap && !skip_mail_message_for_imap (summary)) ||
+						    (in_imap4 && !skip_mail_message_for_imap4 (summary))) {
+							return;
+						}
+					}
+
+					/* now we will read the new emails */
+					for (; i < header->saved_count; i++) {
+						MailMessage *mail_msg;
+
+						mail_msg = NULL;
+						if ((in_imap && !load_mail_message_for_imap (summary, &mail_msg)) ||
+						    (in_imap4 && !load_mail_message_for_imap4 (summary, &mail_msg))) {
+							return;
+						}
+
+						if (!try_to_save_ondisk_email_message (db_con, mail_msg->path)) {
+							/* we do not have all infos but we still save them */
+							tracker_db_email_save_email (db_con, mail_msg);
+						}
+						email_free_mail_message (mail_msg);
+					}
+				}
+
+				free_summary_file (summary);
+				free_summary_file_header (header);
+
+				g_free (imap_dir);
+			}
+
+		} else if (info->mime && strcmp (info->mime, "message/rfc822") == 0 && g_str_has_suffix (file_name, ".")) {
+			/* Evolution has downloaded body of an email */
+			if (tracker_file_is_indexable (info->uri)) {
+				MailMessage *ondisk_msg;
+
+				ondisk_msg = email_parse_mail_message_by_path (MAIL_APP_EVOLUTION, info->uri, NULL);
+				if (ondisk_msg) {
+					//tracker_db_email_update_email (db_con, ondisk_msg);
+					email_free_mail_message (ondisk_msg);
+				}
+			}
+		}
 
 	} else if (info->mime && strcmp (info->mime, "message/rfc822") == 0) {
 		/* for MH and maildir we can only check mime type of each file to know what we have */
@@ -395,6 +529,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 		}
 	}
 
+ end_index:
 	g_free (file_name);
 }
 
@@ -747,7 +882,16 @@ account_end_element_handler (GMarkupParseContext	*context,
 
 
 static gboolean
-is_in_dir_in_imap (const char *path)
+is_in_dir_local (const char *path)
+{
+	g_return_val_if_fail (path, FALSE);
+
+	return strstr (path, G_DIR_SEPARATOR_S "local") != NULL;
+}
+
+
+static gboolean
+is_in_dir_imap (const char *path)
 {
 	g_return_val_if_fail (path, FALSE);
 
@@ -756,7 +900,7 @@ is_in_dir_in_imap (const char *path)
 
 
 static gboolean
-is_in_dir_in_imap4 (const char *path)
+is_in_dir_imap4 (const char *path)
 {
 	g_return_val_if_fail (path, FALSE);
 
@@ -1117,7 +1261,27 @@ free_summary_file_header (SummaryFileHeader *header)
 
 
 static gboolean
-load_summary_file_meta_header (SummaryFile *summary, SummaryFileHeader *header)
+load_summary_file_meta_header_for_local (SummaryFile *summary, SummaryFileHeader *header)
+{
+	FILE	*f;
+	gint32	dummy;
+
+	g_return_val_if_fail (summary, FALSE);
+
+	f = summary->f;
+
+	if (!decode_gint32 (f, &dummy) ||	/* major */
+	    !decode_gint32 (f, &dummy) ||	/* minor */
+	    !decode_gint32 (f, &dummy)) {	/* uid_len */
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+static gboolean
+load_summary_file_meta_header_for_imap (SummaryFile *summary, SummaryFileHeader *header)
 {
 	FILE	*f;
 	guint32	dummy0;
@@ -1190,85 +1354,46 @@ try_to_save_ondisk_email_message (DBConnection *db_con, const char *path)
 	return FALSE;
 }
 
-
+/*
 static gboolean
-apply_action_on_each_mail_message (DBConnection *db_con,
-				   SummaryFile *summary, SummaryFileHeader *header, MailMsgLoaderFct load_mail_msg,
-				   ActionEvoEMail action)
+load_mail_message_for_local (SummaryFile *summary, MailMessage **mail_msg)
 {
-	gboolean ret;
+	off_t offset;
 
-	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (summary, FALSE);
-	g_return_val_if_fail (header, FALSE);
 
-	ret = TRUE;
-
-	switch (action) {
-
-		case ACTION_SAVE_NEW_EMAIL: {
-			MailMessage	*mail_msg;
-			gint32		i;
-
-			/* last message is at the end of the summary file so we iterate each mail message */
-			for (i = 0; i < header->saved_count - 1; i++) {
-				mail_msg = NULL;
-
-				if ((*load_mail_msg) (summary, &mail_msg)) {
-					email_free_mail_message (mail_msg);
-				} else {
-					return FALSE;
-				}
-			}
-
-			/* now we will read the new email */
-			mail_msg = NULL;
-
-			if (!(*load_mail_msg) (summary, &mail_msg)) {
-				return FALSE;
-			}
-
-			if (!try_to_save_ondisk_email_message (db_con, mail_msg->path)) {
-				/* we do not have all infos but we still save them */
-				tracker_db_email_save_email (db_con, mail_msg);
-			}
-
-			email_free_mail_message (mail_msg);
-
-			break;
-		}
-
-		case ACTION_SAVE_ALL_EMAILS:
-		case ACTION_SAVE_MODIFIED_EMAIL: {
-			gint32 i;
-
-			for (i = 0; i < header->saved_count; i++) {
-				MailMessage *mail_msg;
-
-				mail_msg = NULL;
-
-				if ((ret = (*load_mail_msg) (summary, &mail_msg))) {
-
-					if (!try_to_save_ondisk_email_message (db_con, mail_msg->path)) {
-						/* we do not have all infos but we still save them */
-						tracker_db_email_save_email (db_con, mail_msg);
-					}
-				}
-
-				email_free_mail_message (mail_msg);
-			}
-
-			break;
-		}
-
-		default:
-			tracker_log ("******ERROR**** unknown action to apply on each mail message");
-			g_return_val_if_reached (FALSE);
+	if (*mail_msg) {
+		email_free_mail_message (*mail_msg);
 	}
 
-	return ret;
+	*mail_msg = email_allocate_mail_message ();
+
+	if (!load_mail_message (summary, *mail_msg, NULL)) {
+		goto error;
+	}
+
+	if (!decode_off_t (summary->f, &offset)) {
+		goto error;
+	}
+
+	return TRUE;
+
+ error:
+	email_free_mail_message (*mail_msg);
+	*mail_msg = NULL;
+	return FALSE;
 }
 
+
+static gboolean
+skip_mail_message_for_local (SummaryFile *summary)
+{
+	g_return_val_if_fail (summary, FALSE);
+
+	return (skip_mail_message (summary) &&
+		skip_off_t_decoding (summary->f));
+}
+*/
 
 static gboolean
 load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg)
@@ -1278,9 +1403,23 @@ load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg)
 
 
 static gboolean
+skip_mail_message_for_imap (SummaryFile *summary)
+{
+	return do_skip_mail_message_for_imap (summary, TRUE);
+}
+
+
+static gboolean
 load_mail_message_for_imap4 (SummaryFile *summary, MailMessage **mail_msg)
 {
 	return do_load_mail_message_for_imap (summary, mail_msg, FALSE);
+}
+
+
+static gboolean
+skip_mail_message_for_imap4 (SummaryFile *summary)
+{
+	return do_skip_mail_message_for_imap (summary, TRUE);
 }
 
 
@@ -1313,7 +1452,6 @@ do_load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg, gbo
 			goto error;
 		}
 	}
-
 
 	if (adhoc_infos->mail_uid) {
 		char *dir_sum_file, *account_name;
@@ -1353,6 +1491,29 @@ do_load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg, gbo
 	email_free_mail_message (*mail_msg);
 	*mail_msg = NULL;
 	return FALSE;
+}
+
+
+static gboolean
+do_skip_mail_message_for_imap (SummaryFile *summary, gboolean do_skipping_of_content_info)
+{
+	g_return_val_if_fail (summary, FALSE);
+
+	if (!skip_mail_message (summary)) {
+		return FALSE;
+	}
+
+	if (!skip_guint32_decoding (summary->f)) {
+		return FALSE;
+	}
+
+	if (do_skipping_of_content_info) {
+		if (!skip_loading_content_info (summary)) {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
 }
 
 
@@ -1403,6 +1564,69 @@ load_mail_message (SummaryFile *summary, MailMessage *mail_msg, EvolutionAdHocIn
 
 	mail_msg->to = add_persons_from_internet_address_list_string_parsing (NULL, to);
 	mail_msg->cc = add_persons_from_internet_address_list_string_parsing (NULL, cc);
+
+	skip_gint32_decoding (f);	/* mi->message_id.id.part.hi */
+	skip_gint32_decoding (f);	/* mi->message_id.id.part.lo */
+
+	/* references */
+	if (decode_guint32 (f, &count) && count <= 500) {
+		guint32 i;
+		for (i = 0; i < count; i++) {
+			skip_gint32_decoding (f);	/* mi->references->references[i].id.part.hi */
+			skip_gint32_decoding (f);	/* mi->references->references[i].id.part.lo */
+		}
+	} else {
+		return FALSE;
+	}
+
+	/* user flags */
+	if (decode_guint32 (f, &count) && count <= 500) {
+		guint32 i;
+		for (i = 0; i < count; i++) {
+			skip_string_decoding (f);	/* a flag */
+		}
+	} else {
+		return FALSE;
+	}
+
+	/* user tags */
+	if (decode_guint32 (f, &count) && count <= 500) {
+		guint32 i;
+		for (i = 0; i < count; i++) {
+			skip_string_decoding (f);	/* tag name */
+			skip_string_decoding (f);	/* tag value */
+		}
+	} else {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+static gboolean
+skip_mail_message (SummaryFile *summary)
+{
+	FILE	*f;
+	guint32	count;
+
+	g_return_val_if_fail (summary, FALSE);
+
+	f = summary->f;
+
+	if (!skip_string_decoding (f) ||	/* uid */
+	    !skip_guint32_decoding (f) ||	/* flags */
+	    !skip_guint32_decoding (f) ||	/* size */
+	    !skip_time_t_decoding (f) ||	/* date_sent */
+	    !skip_time_t_decoding (f) ||	/* date_received */
+	    !skip_string_decoding (f) ||	/* subject */
+	    !skip_string_decoding (f) ||	/* from */
+	    !skip_string_decoding (f) ||	/* to */
+	    !skip_string_decoding (f) ||	/* cc */
+	    !skip_string_decoding (f)) {	/* mlist */
+
+		return FALSE;
+	}
 
 	skip_gint32_decoding (f);	/* mi->message_id.id.part.hi */
 	skip_gint32_decoding (f);	/* mi->message_id.id.part.lo */
@@ -1556,6 +1780,13 @@ do_skip_loading_content_info (SummaryFile *summary)
   Functions to decode summary (or ev-summary) files.
 ***/
 
+#define MAKE_SKIP_DECODING_FCT(type,size)		\
+	static inline gboolean				\
+	skip_##type##_decoding (FILE *f)		\
+	{						\
+		return fseek (f, size, SEEK_CUR) > 0;	\
+	}
+
 
 static inline gboolean
 decode_gint32 (FILE *f, gint32 *n)
@@ -1572,11 +1803,7 @@ decode_gint32 (FILE *f, gint32 *n)
 }
 
 
-static inline gboolean
-skip_gint32_decoding (FILE *f)
-{
-	return fseek (f, 4, SEEK_CUR) > 0;
-}
+MAKE_SKIP_DECODING_FCT (gint32, 4);
 
 
 static inline gboolean
@@ -1605,6 +1832,16 @@ decode_guint32 (FILE *f, guint32 *n)
 
 
 static inline gboolean
+skip_guint32_decoding (FILE *f)
+{
+	guint32 n;
+
+	/* FIXME: use only fseek() */
+	return decode_guint32 (f, &n);
+}
+
+
+static inline gboolean
 decode_time_t (FILE *f, time_t *t)
 {
 	if (fread (t, sizeof (time_t), 1, f) == 0) {
@@ -1620,6 +1857,9 @@ decode_time_t (FILE *f, time_t *t)
 
 	return TRUE;
 }
+
+
+MAKE_SKIP_DECODING_FCT (time_t, sizeof (time_t));
 
 
 static inline gboolean
@@ -1638,6 +1878,9 @@ decode_off_t (FILE *f, off_t *t)
 
 	return TRUE;
 }
+
+
+MAKE_SKIP_DECODING_FCT (off_t, sizeof (off_t));
 
 
 static inline gboolean

@@ -7,7 +7,7 @@ additional_libs= $(top_builddir)/src/sqlite3/libsqlite-private.la
 endif
 
 
-INCLUDES =	-g			\
+INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	-DLIBDIR=\""$(libdir)"\"	\
 	-D_XOPEN_SOURCE_EXTENDED=1	\
@@ -53,9 +53,14 @@ db_sources =				\
 	tracker-db-email.h
 
 
-if BUILD_TEST
-bin_PROGRAMS = trackerd test-tracker-indexer
+bin_PROGRAMS = trackerd
+check_PROGRAMS = test-tracker-indexer
+
 test_tracker_indexer_SOURCES =		\
+	depot.c				\
+	depot.h				\
+	curia.c				\
+	curia.h				\
 	tracker-indexer.c		\
 	test-tracker-indexer.c		\
 	tracker-utils.c			\
@@ -74,10 +79,11 @@ test_tracker_indexer_SOURCES =		\
 	xdgmimemagic.h			\
 	xdgmimeparent.c			\
 	xdgmimeparent.h
-test_tracker_indexer_LDADD = $(GLIB2_LIBS)
-else
-bin_PROGRAMS = trackerd
-endif
+test_tracker_indexer_LDADD = 		\
+	$(GLIB2_LIBS)			\
+	$(GTHREAD_LIBS)			\
+	-lz				\
+	$(top_builddir)/src/libstemmer/libstemmer-private.la
 
 trackerd_SOURCES =			\
 	trackerd.c			\

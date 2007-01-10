@@ -109,7 +109,7 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 
 
 gboolean
-email_parse_mail_file_and_save_emails (DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper)
+email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper)
 {
 	off_t		offset;
 	MailFile	*mf;
@@ -535,10 +535,7 @@ email_parse_mail_message_by_path (MailApplication mail_app, const char *path, Lo
 	g_return_val_if_fail (path, NULL);
 
 	mf = email_open_mail_file_at_offset (mail_app, path, 0, FALSE);
-
-	if (!mf) {
-		return NULL;
-	}
+	g_return_val_if_fail (mf, NULL);
 
 	mail_msg = email_mail_file_parse_next (mf, load_helper);
 
@@ -690,16 +687,29 @@ find_attachment (GMimeObject *obj, gpointer data)
 	MailMessage *mail_msg;
 	const char  *content_disposition;
 
-	if (!data) {
+	g_return_if_fail (obj);
+	g_return_if_fail (data);
+
+	if (GMIME_IS_MESSAGE_PART (obj)) {
+		GMimeMessage *g_msg;
+
+		g_msg = g_mime_message_part_get_message (GMIME_MESSAGE_PART (obj));
+		if (g_msg) {
+			g_mime_message_foreach_part (g_msg, find_attachment, data);
+			g_object_unref (g_msg);
+		}
 		return;
+
+	} else if (GMIME_IS_MULTIPART (obj)) {
+		g_mime_multipart_foreach (GMIME_MULTIPART (obj), find_attachment, data);
+		return;
+
+	} else if (!GMIME_IS_PART (obj)) {
+		/* What's this object?! */
+		g_return_if_reached ();
 	}
 
 	part = GMIME_PART (obj);
-
-	if (!GMIME_IS_PART (part)) {
-		return;
-	}
-
 	mail_msg = data;
 
 	content_disposition = g_mime_part_get_content_disposition (part);
@@ -715,6 +725,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 		content_type = g_mime_part_get_content_type (part);
 
 		if (!content_type->params) {
+			/* we are unable to identify mime type */
 			return;
 		}
 

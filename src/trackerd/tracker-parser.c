@@ -204,6 +204,9 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 {
 	char *delimit_text;
 	char **words;
+	int total_words;
+
+	total_words = 0;
 
 	if (!text) {
 		return g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -211,6 +214,8 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 
 	if (!word_table) {
 		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	} else {
+		total_words = g_hash_table_size (word_table);
 	}
 
 	if (tracker->use_pango_word_break) {
@@ -292,7 +297,16 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				word = aword;
 			}
 
-			update_word_count (word_table, word, weight);
+			total_words++;
+
+			if (total_words < 10000) {
+				update_word_count (word_table, word, weight);
+			} else {
+				//tracker_log ("Number of unique words in this indexable content exceeds 10,000 - cropping index..."); 
+				g_free (word);
+				break;
+			}
+
 			g_free (word);
 		}
 

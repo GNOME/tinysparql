@@ -576,11 +576,8 @@ tracker_db_connect (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	if (tracker->slow) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 1");
-	} else {
-		tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-	}
+	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
+
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
@@ -649,11 +646,7 @@ tracker_db_connect_full_text (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	if (tracker->slow) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 1");
-	} else {
-		tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-	}
+	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 8192");
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
@@ -1699,14 +1692,8 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 		}
 	}
 
-	if (bytes_read > 524288) {
-			if (!tracker->turbo && !tracker->slow) {
-				tracker_db_exec_no_reply (blob_db_con, "PRAGMA synchronous = 1");
-			}
-	} else {
-		tracker->flush_count += bytes_read;
-	}
-
+	tracker->flush_count += bytes_read;
+	
 	value = g_string_free (str, FALSE);
 
 	//tracker_log ("text is %s", value);
@@ -2702,15 +2689,15 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 }
 
 
-void
-tracker_db_create_service (DBConnection *db_con, const char *path, const char *name, const char *service, const char *mime, guint32 filesize, gboolean is_dir, gboolean is_link, int offset, guint32 mtime)
+guint32
+tracker_db_create_service (DBConnection *db_con, const char *path, const char *name, const char *service, const char *mime, guint32 filesize, gboolean is_dir, gboolean is_link, int offset, guint32 mtime, guint aux_id)
 {
 	char	   ***res;
 	int	   i;
 	char	   *sid;
 	char	   *str_mtime;
 	const char *str_is_dir, *str_is_link;
-	char	   *str_filesize, *str_offset;
+	char	   *str_filesize, *str_offset, *str_aux;
 	int	   service_type_id;
 	char	   *str_service_type_id;
 
@@ -2723,7 +2710,7 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 	if (!res || !res[0] || !res[0][0]) {
 		g_mutex_unlock (sequence_mutex);
 		tracker_log ("ERROR : could not create service - GetNewID failed");
-		return;
+		return 0;
 	}
 
 	i = atoi (res[0][0]);
@@ -2755,15 +2742,20 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 	service_type_id = tracker_get_id_for_service (service);
 	str_service_type_id = tracker_int_to_str (service_type_id);
 
+	str_aux = tracker_int_to_str (aux_id);
+
 	if (service_type_id != -1) {
-		tracker_exec_proc (db_con, "CreateService", 10, sid, path, name, str_service_type_id, mime, str_filesize, str_is_dir, str_is_link, str_offset, str_mtime);
+		tracker_exec_proc (db_con, "CreateService", 11, sid, path, name, str_service_type_id, mime, str_filesize, str_is_dir, str_is_link, str_offset, str_mtime, str_aux);
 	}
 
+	g_free (str_aux);
 	g_free (str_service_type_id);
 	g_free (sid);
 	g_free (str_filesize);
 	g_free (str_mtime);
 	g_free (str_offset);
+
+	return sqlite3_last_insert_rowid (db_con->db);
 }
 
 
@@ -2875,7 +2867,7 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 	}
 
 	if (db_con->user_data) {
-		tracker_exec_proc (db_con->user_data, "DeleteDirectory9", 1, uri, uri_prefix);
+		tracker_exec_proc (db_con->user_data, "DeleteDirectory9", 2, uri, uri_prefix);
 		tracker_exec_proc (db_con->user_data, "DeleteFile10", 1, str_file_id);
 	}
 
@@ -2908,16 +2900,31 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 
 
 void
-tracker_db_update_file (DBConnection *db_con, guint32 file_id, guint32 mtime)
+tracker_db_update_file (DBConnection *db_con, FileInfo *info)
 {
 	char *str_file_id;
+	char *str_service_type_id;
+	char *str_size;
 	char *str_mtime;
+	char *str_offset;
+	char *name, *path;
 
-	str_file_id = tracker_uint_to_str (file_id);
-	str_mtime = tracker_int_to_str (mtime);
+	str_file_id = tracker_uint_to_str (info->file_id);
+	str_service_type_id = tracker_int_to_str (info->service_type_id);
+	str_size = tracker_int_to_str (info->file_size);
+	str_mtime = tracker_int_to_str (info->mtime);
+	str_offset = tracker_int_to_str (info->offset);
 
-	tracker_exec_proc (db_con, "UpdateFile", 2, str_mtime, str_file_id);
+	name = g_path_get_basename (info->uri);
+	path = g_path_get_dirname (info->uri);
 
+	tracker_exec_proc (db_con, "UpdateFile", 8, str_service_type_id, path, name, info->mime, str_size, str_mtime, str_offset, str_file_id);
+	
+	g_free (str_service_type_id);
+	g_free (str_size);
+	g_free (str_offset);
+	g_free (name);
+ 	g_free (path);
 	g_free (str_file_id);
 	g_free (str_mtime);
 }
