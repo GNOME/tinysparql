@@ -805,11 +805,13 @@ move_to_trash_cb (GtkAction * action,
 			GnomeVFSResult result;
 			gchar * destination;
 			gchar * basename;
+			gchar * source_uri;;
 
+			source_uri = g_filename_to_uri (locale_filename, NULL, NULL);
 			basename = g_locale_from_utf8 (utf8_basename, -1, NULL, NULL, NULL);
 			destination = g_build_filename (trash_path, basename, NULL);
 
-			result = gnome_vfs_move (locale_filename, destination, TRUE);
+			result = gnome_vfs_move (source_uri, destination, TRUE);
 			gtk_tree_selection_unselect_iter (GTK_TREE_SELECTION (gsearch->search_results_selection), &iter);
 
 			if (result == GNOME_VFS_OK) {
@@ -827,6 +829,7 @@ move_to_trash_cb (GtkAction * action,
  				                                        message);
 				g_free (message);
 			}
+			g_free (source_uri);
 			g_free (basename);
 			g_free (destination);
 		}
