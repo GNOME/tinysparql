@@ -2565,7 +2565,7 @@ sanity_check_option_values ()
 
 
 	/* emails not fully working yet so disable them */
-	tracker->index_evolution_emails = TRUE;
+	tracker->index_evolution_emails = FALSE;
 	tracker->index_thunderbird_emails = FALSE;
 	tracker->index_kmail_emails = FALSE;
 
