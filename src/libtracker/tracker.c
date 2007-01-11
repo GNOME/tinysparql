@@ -18,7 +18,7 @@
  */
 
 #include "tracker.h"
-
+#include <string.h>
 #define TRACKER_SERVICE                 "org.freedesktop.Tracker"
 #define TRACKER_OBJECT			"/org/freedesktop/tracker"
 #define TRACKER_INTERFACE		"org.freedesktop.Tracker"
@@ -1252,21 +1252,28 @@ tracker_files_get_metadata_for_files_in_folder_async	(TrackerClient *client, int
 }
 
 
-
-
-
 void
 tracker_search_metadata_by_text_async (TrackerClient *client, const char *query,  TrackerArrayReply callback, gpointer user_data)
 {
 	ArrayCallBackStruct *callback_struct;
-
+ 
 	callback_struct = g_new (ArrayCallBackStruct, 1);
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
-	
-
-	client->last_pending_call = org_freedesktop_Tracker_Search_text_async (client->proxy_search, -1, "Files", query,  0, 512, tracker_array_reply, callback_struct);
-	
+ 
+	char *metadata;
+	char *keywords[2];
+ 
+	if(strstr(query, ":") > 0){
+		metadata = strtok (query, ":");
+		if(strcoll(metadata,"tag") == 0){
+			keywords[0] = strtok (NULL, ":");
+			keywords[1] = NULL;
+			client->last_pending_call = org_freedesktop_Tracker_Keywords_search_async (client->proxy_keywords, -1, "Files",keywords, 0, 512, tracker_array_reply, callback_struct);
+		}
+	}else{
+		client->last_pending_call = org_freedesktop_Tracker_Search_text_async (client->proxy_search, -1, "Files", query,  0, 512, tracker_array_reply, callback_struct);
+	}
 }
 
 
