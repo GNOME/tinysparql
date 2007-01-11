@@ -4,3 +4,5 @@ umask 077
 cp "$1" /tmp/tempfile.$$ 
 nice -n19 wvText /tmp/tempfile.$$ "$2"
 rm /tmp/tempfile.$$
+# remove temporary included image files left by wvText
+rm `pwd "$2"`/tempfile.$$*
