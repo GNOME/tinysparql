@@ -33,6 +33,34 @@
 #define LIBDIR "/usr/lib"
 #endif
 
+guint
+create_thumbnails_dir (const gchar * const subdir)
+{
+	gchar *thumbnails_dir = NULL;
+	thumbnails_dir = g_build_filename (g_get_home_dir(), ".thumbnails", NULL);
+
+	/* Ensure that ~/.thumbnails is not a file if it exists */
+	if (g_file_test (thumbnails_dir, G_FILE_TEST_EXISTS) &&
+			!g_file_test (thumbnails_dir, G_FILE_TEST_IS_DIR)) {
+		g_printerr ("%s exists but is not a directory.\n", thumbnails_dir);
+		goto error;
+	}
+
+	g_free (thumbnails_dir);
+	thumbnails_dir = g_build_filename (g_get_home_dir(), ".thumbnails", subdir, NULL);
+	if (g_mkdir_with_parents (thumbnails_dir, 00775) == -1) {
+		g_printerr ("failed: g_mkdir_with_parents (%s)\n", thumbnails_dir);
+		goto error;
+	}
+
+	g_free (thumbnails_dir);
+	return 0;
+
+error:
+	g_free (thumbnails_dir);
+	return -1;
+}
+
 /* argv[1] == full path of file to be nailed
  * argv[2] == mime type of said file
  * argv[3] == requested size: "normal", "large", "preview"
@@ -68,6 +96,9 @@ int main (int argc, char *argv[])
 		g_printerr ("Only normal sized thumbnails are supported\n");
 		return EXIT_FAILURE;
 	}
+
+	if (create_thumbnails_dir (argv[3]) != 0)
+		return EXIT_FAILURE;
 
 	/* make sure the actual file exists */
 	if (!g_file_test (argv[1], G_FILE_TEST_EXISTS)) {

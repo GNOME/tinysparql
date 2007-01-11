@@ -1,3 +1,7 @@
+2007-01-10  B Berteh <berteh at hotmail com>
+
+	* added README for deskbar handler and nautilus tags
+
 
 2007-01-10  Jamie McCracken <jamiemcc at gnome org>
 
@@ -12,6 +16,7 @@
 	* fixed build of test suite
 	* fixed --enable-debug-code configure arg
 	* made libpng a mandatory dependency
+	* added check for thumbnail directory and create it if necessary
 
 2007-01-09  Ignacio Casal Quinteiro  <nacho.resa@gmail.com>
 
