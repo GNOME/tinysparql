@@ -6,7 +6,7 @@ config_DATA =   tracker-introspect.xml \
 		sqlite-tracker.sql \
 		sqlite-stored-procs.sql
 
-servicedir       = $(prefix)/share/dbus-1/services
+servicedir       = $(DBUS_SERVICES_DIR)
 service_in_files = tracker.service.in
 service_DATA     = tracker.service
 

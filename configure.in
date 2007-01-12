@@ -66,6 +66,23 @@ AC_SUBST(LIBPNG_CFLAGS)
 AC_SUBST(LIBPNG_LIBS)
 
 ####################################################################
+# DBus Service
+####################################################################
+
+dnl DBus services dir
+AC_ARG_WITH([session_bus_services_dir],
+            AC_HELP_STRING([--with-session-bus-services-dir], [Path to DBus services directory]))
+
+if test "x$with_session_bus_services_dir" = "x" ; then
+   services_dir="`pkg-config --variable session_bus_services_dir dbus-1`"
+else
+   services_dir="$with_session_bus_services_dir"
+fi
+
+DBUS_SERVICES_DIR="$services_dir"
+AC_SUBST(DBUS_SERVICES_DIR)
+
+####################################################################
 # Compiler warning checks
 ####################################################################
 AC_ARG_ENABLE(warnings,

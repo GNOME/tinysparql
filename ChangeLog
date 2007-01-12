@@ -1,3 +1,7 @@
+2007-01-11  Patch from Saleem Abdulrasool <compnerd at gentoo org>
+
+	* Detect dbus service directory
+
 2007-01-11 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* based on patch from Saleem Abdulrasool <compnerd at gentoo org>
