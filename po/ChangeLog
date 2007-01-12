@@ -1,3 +1,8 @@
+2007-01-12  Daniel Nylander <po@danielnylander.se>
+
+	* sv.po: Updated Swedish translation.
+	* POTFILES.in: Added 5 missing files.
+
 2007-01-09  Ignacio Casal Quinteiro  <nacho.resa@gmail.com>
 
 	* gl.po: Updated Galician Translation.
