@@ -1,3 +1,11 @@
+2007-01-11 Patch from Michael Biebl <mbiebl at gmail com>
+
+	* based on patch from Saleem Abdulrasool <compnerd at gentoo org>
+	* removed mysql files
+	* cleaned up build for sqlite
+
+
+
 2007-01-10  B Berteh <berteh at hotmail com>
 
 	* added README for deskbar handler and nautilus tags

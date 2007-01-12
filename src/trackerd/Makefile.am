@@ -1,12 +1,3 @@
-if USING_EXTERNAL_SQLITE
-additional_flags= $(SQLITE3_CFLAGS)
-additional_libs= $(SQLITE3_LIBS)
-else
-additional_flags= -I$(top_builddir)/src/sqlite3
-additional_libs= $(top_builddir)/src/sqlite3/libsqlite-private.la
-endif
-
-
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	-DLIBDIR=\""$(libdir)"\"	\
@@ -24,8 +15,7 @@ INCLUDES =				\
 	$(GMIME_CFLAGS)			\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
-	$(additional_flags)		\
-	-I$(top_builddir)/src/libstemmer
+	$(SQLITE3_CFLAGS)
 
 
 if HAVE_INOTIFY
@@ -150,10 +140,9 @@ trackerd_LDADD =			\
 	$(GLIB2_LIBS)			\
 	$(FAM_LIBS)			\
 	$(DBUS_LIBS)			\
-	$(MYSQL_LIBS)			\
 	$(PANGO_LIBS)			\
 	$(GMIME_LIBS)			\
-	$(additional_libs)		\
+	$(SQLITE3_LIBS)			\
 	$(GTHREAD_LIBS)			\
 	-lz				\
 	$(top_builddir)/src/libstemmer/libstemmer-private.la

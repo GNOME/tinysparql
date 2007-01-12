@@ -25,11 +25,7 @@
 
 #include "config.h"
 
-#ifdef USING_SQLITE
-#   include "tracker-db-sqlite.h"
-#else
-#   include "tracker-db-mysql.h"
-#endif
+#include "tracker-db-sqlite.h"
 
 void		tracker_email_watch_emails		(DBConnection *db_con);
 void		tracker_email_end_email_watching	(void);

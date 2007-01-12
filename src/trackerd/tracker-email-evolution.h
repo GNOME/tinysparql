@@ -26,11 +26,7 @@
 
 #include "config.h"
 
-#ifdef USING_SQLITE
-#   include "tracker-db-sqlite.h"
-#else
-#   include "tracker-db-mysql.h"
-#endif
+#include "tracker-db-sqlite.h"
 
 
 /*

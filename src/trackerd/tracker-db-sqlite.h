@@ -22,7 +22,7 @@
 #ifndef _TRACKER_SQLITE_DB_H_
 #define _TRACKER_SQLITE_DB_H_
 
-#include "../sqlite3/sqlite3.h"
+#include <sqlite3.h>
 #include <glib.h>
 
 #include "tracker-utils.h"

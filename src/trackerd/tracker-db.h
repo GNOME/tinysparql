@@ -28,11 +28,7 @@
 
 #include "config.h"
 
-#ifdef USING_SQLITE
 #include "tracker-db-sqlite.h"
-#else
-#include "tracker-db-mysql.h"
-#endif
 
 gboolean	tracker_db_is_file_up_to_date 	(DBConnection *db_con, const char *uri, guint32 *id);
 FileInfo *	tracker_db_get_file_info	(DBConnection *db_con, FileInfo *info);
