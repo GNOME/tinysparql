@@ -1253,15 +1253,17 @@ start_watching (gpointer data)
 			
 
 			watch_dir (watch_folder, main_thread_db_con);
-			schedule_file_check (watch_folder, main_thread_db_con);
+			schedule_dir_check (watch_folder, main_thread_db_con);
 			g_free (watch_folder);
 
 		} else {
 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
- 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_file_check, main_thread_db_con);
+ 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
 		}
 
 		tracker_notify_file_data_available ();
+
+		tracker->is_dir_scan = FALSE;
 
 		tracker_log ("waiting for file events...");
 
@@ -1951,7 +1953,11 @@ process_files_thread (void)
 					if (!tracker_file_is_no_watched (info->uri)) {
 						g_debug ("queueing directory %s", info->uri);
 						g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
-						//scan_directory (info->uri, db_con);
+
+						if (tracker->is_dir_scan) {
+							need_index = FALSE;
+						}
+
 					} else {
 						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
 					}
@@ -2645,7 +2651,7 @@ sanity_check_option_values ()
 		tracker_log ("\t");
 	}
 
-
+	tracker->is_dir_scan = TRUE;
 
 }
 

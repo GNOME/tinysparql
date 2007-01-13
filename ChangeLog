@@ -1,3 +1,10 @@
+2007-01-12  Jamie McCracken <jamiemcc at gnome org>
+
+	* Sped up word breaker and made it use less memory
+	* Fixed bug where root dirs were not getting indexed properly
+	* Added some sleeping to reduce stress on machine when heavily indexing
+
+
 2007-01-11  Patch from Saleem Abdulrasool <compnerd at gentoo org>
 
 	* Detect dbus service directory
@@ -7,8 +14,6 @@
 	* based on patch from Saleem Abdulrasool <compnerd at gentoo org>
 	* removed mysql files
 	* cleaned up build for sqlite
-
-
 
 2007-01-10  B Berteh <berteh at hotmail com>
 

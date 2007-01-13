@@ -181,9 +181,8 @@ typedef struct {
  	GMutex 		*scheduler_mutex;
 
  	gboolean 	is_running;
+	gboolean	is_dir_scan;
 	GMainLoop 	*loop;
-
-	
 
 	Indexer		*file_indexer;
 
