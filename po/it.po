@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-05 15:16+0100\n"
-"PO-Revision-Date: 2007-01-05 15:17+0100\n"
+"POT-Creation-Date: 2007-01-13 15:15+0100\n"
+"PO-Revision-Date: 2007-01-13 15:30+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -266,11 +266,167 @@ msgstr "_Successivi"
 msgid "Invalid service type: %s\n"
 msgstr "Tipo di servizio non valido: %s\n"
 
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:130
+msgid "Could not open help document."
+msgstr "Impossibile aprire il documento di aiuto."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:267
+#, c-format
+msgid "Are you sure you want to open %d document?"
+msgid_plural "Are you sure you want to open %d documents?"
+msgstr[0] "Aprire veramente %d documento?"
+msgstr[1] "Aprire veramente %d documenti?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:272
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:499
+#, c-format
+msgid "This will open %d separate window."
+msgid_plural "This will open %d separate windows."
+msgstr[0] "Proseguendo, verrà aperta %d finestra separata."
+msgstr[1] "Proseguendo, verranno aperte %d finestre separate."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:312
+#, c-format
+msgid "Could not open document \"%s\"."
+msgstr "Impossibile aprire il documento «%s»."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:341
+#, c-format
+msgid "Could not open folder \"%s\"."
+msgstr "Impossibile aprire la cartella «%s»."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:349
+msgid "The nautilus file manager is not running."
+msgstr "Il file manager Nautilus non è in esecuzione."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:452
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:802
+msgid "The document does not exist."
+msgstr "Il documento non esiste."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:469
+msgid "There is no installed viewer capable of displaying the document."
+msgstr "Non è installato alcun visualizzatore in grado di mostrare il documento."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:494
+#, c-format
+msgid "Are you sure you want to open %d folder?"
+msgid_plural "Are you sure you want to open %d folders?"
+msgstr[0] "Aprire veramente %d cartella?"
+msgstr[1] "Aprire veramente %d cartelle?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:627
+#, c-format
+msgid "Could not move \"%s\" to trash."
+msgstr "Impossibile spostare «%s» nel cestino."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:658
+#, c-format
+msgid "Do you want to delete \"%s\" permanently?"
+msgstr "Eliminare «%s» in modo permanente?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:661
+#, c-format
+msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+msgstr "Cestino non disponibile. Impossibile spostare «%s» nel cestino."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:700
+#, c-format
+msgid "Could not delete \"%s\"."
+msgstr "Impossibile eliminare «%s»."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:825
+#, c-format
+msgid "Moving \"%s\" failed: %s."
+msgstr "Spostamento di «%s» fallito: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:860
+#, c-format
+msgid "Deleting \"%s\" failed: %s."
+msgstr "Eliminazione di «%s» fallita: %s"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1298
+msgid "Save Search Results As..."
+msgstr "Salva risultati di ricerca come..."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1329
+msgid "Could not save document."
+msgstr "Impossibile salvare il documento."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1330
+msgid "You did not select a document name."
+msgstr "Non è stato selezionato alcun nome di documento."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1360
+#, c-format
+msgid "Could not save \"%s\" document to \"%s\"."
+msgstr "Impossibile salvare il documento «%s» in «%s»."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1394
+#, c-format
+msgid "The document \"%s\" already exists.  Would you like to replace it?"
+msgstr "Il documento «%s» esiste già. Sostituirlo?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1398
+msgid "If you replace an existing file, its contents will be overwritten."
+msgstr "Sostituendo un file esistente, il suo contenuto verrà sovrascritto."
+
+# controllare nelle GTK+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1413
+msgid "_Replace"
+msgstr "S_ostituisci"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1463
+msgid "The document name you selected is a folder."
+msgstr "Il nome di documento selezionato è una cartella."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1512
+msgid "You may not have write permissions to the document."
+msgstr "È possibile che non si possieda il permesso di scrittura sul documento."
+
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
 msgid ""
 "Locate documents and folders on this computer by name or content using "
 "Tracker"
-msgstr "Individua documenti e cartelle su questo computer per nome o contenuto usando Tracker"
+msgstr ""
+"Individua documenti e cartelle su questo computer per nome o contenuto "
+"usando Tracker"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:74
+#, c-format
+msgid ""
+"GConf error:\n"
+"  %s"
+msgstr ""
+"Errore di GConf:\n"
+"  %s"
+
+#. Translators:  Below are the strings displayed in the 'Date Modified'
+#. column of the list view.  The format of this string can vary depending
+#. on age of a file.  Please modify the format of the timestamp to match
+#. your locale.  For example, to display 24 hour time replace the '%-I'
+#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:643
+msgid "today at %-I:%M %p"
+msgstr "oggi alle %-H.%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:645
+msgid "yesterday at %-I:%M %p"
+msgstr "ieri alle %-H.%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:647
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:649
+msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+msgstr "%A, %-d %B %Y alle %-H.%M.%S"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:829
+msgid "link (broken)"
+msgstr "collegamento (interrotto)"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:833
+#, c-format
+msgid "link to %s"
+msgstr "collegamento a %s"
 
 #: ../src/trackerd/trackerd.c:141
 msgid "Directory to exclude from indexing"
@@ -313,18 +469,16 @@ msgstr "LINGUA"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2627
+#: ../src/trackerd/trackerd.c:2686
 msgid "- start the tracker daemon"
 msgstr "- avvia il demone di Tracker"
 
-#: ../src/trackerd/trackerd.c:2628 ../src/trackerd/trackerd.c:2629
+#: ../src/trackerd/trackerd.c:2687 ../src/trackerd/trackerd.c:2688
 msgid "DIRECTORY"
 msgstr "DIRECTORY"
 
-#: ../src/trackerd/trackerd.c:2637
+#: ../src/trackerd/trackerd.c:2696
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
-msgstr ""
-"Per includere o escludere directory multiple in una sola volta, unire più "
-"opzioni come in:"
+msgstr "Per includere o escludere directory multiple in una sola volta, unire più opzioni come in:"
