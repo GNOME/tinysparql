@@ -7,9 +7,6 @@ xdgconfig_DATA = trackerd.desktop
 
 EXTRA_DIST = \
 	$(xdgconfig_DATA) \
-	AUTHORS NEWS INSTALL COPYING README \
-	ChangeLog \
-	configure.in \
 	rdf-query-examples/80s-music.rdf \
 	rdf-query-examples/90s-music.rdf \
 	rdf-query-examples/all-documents.rdf \

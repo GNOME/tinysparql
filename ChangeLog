@@ -2,6 +2,7 @@
 
 	* Fixed make distcheck
 	* added bzip2 build
+	* fix for configure.in -> configure.ac move
 
 
 2007-01-12  Jamie McCracken <jamiemcc at gnome org>
