@@ -23,3 +23,6 @@ DISTCLEANFILES = \
 	intltool-extract \
 	intltool-merge \
 	intltool-update
+
+DISTCHECK_CONFIGURE_FLAGS = \
+	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services

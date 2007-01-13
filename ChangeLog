@@ -1,3 +1,8 @@
+2007-01-12 Patch from Michael Biebl <mbiebl at gmail com>
+
+	* Fixed make distcheck
+
+
 2007-01-12  Jamie McCracken <jamiemcc at gnome org>
 
 	* Sped up word breaker and made it use less memory
