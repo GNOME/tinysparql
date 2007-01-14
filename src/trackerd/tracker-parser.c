@@ -359,7 +359,8 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				} else {
 					start = NULL;
 				}
-				
+
+			
 			}
 
 		}

@@ -135,14 +135,15 @@ static char **watch_dirs = NULL;
 static char *language = NULL;
 static gboolean disable_indexing = FALSE;
 static gboolean low_memory, turbo, enable_debug, enable_evolution, enable_thunderbird, enable_kmail;
-static int throttle = 5;
+static int throttle = 5, throttle_battery = 15;
 
 static GOptionEntry entries[] = {
 	{"exclude-dir", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, N_("Directory to exclude from indexing"), N_("/PATH/DIR")},
 	{"include-dir", 'i', 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, N_("Directory to include in indexing"), N_("/PATH/DIR")},
 	{"no-indexing", 0, 0, G_OPTION_ARG_NONE, &disable_indexing, N_("Disable any indexing or watching taking place"), NULL },
 	{"debug", 0, 0, G_OPTION_ARG_NONE, &enable_debug, N_("Enables more verbose debug messages"), NULL },
-	{"throttle", 0, 0, G_OPTION_ARG_INT, &throttle, N_("Throttles indexing speed. Values in range 0-20 (default 5) with lower values increasing indexing speed"), NULL },
+	{"throttle", 0, 0, G_OPTION_ARG_INT, &throttle, N_("Value to use for throttling indexing. Value must be in range 0-20 (default 5) with lower values increasing indexing speed"), N_("value") },
+	{"battery-throttle", 0, 0, G_OPTION_ARG_INT, &throttle_battery, N_("Value to use for throttling indexing and on battery power . Value must be in range 0-20 (default 15) with lower values increasing indexing speed"), N_("value") },
 	{"turbo", 't', 0, G_OPTION_ARG_NONE, &turbo, N_("Faster indexing, use more memory and CPU. Equivalent to --throttle=0"), NULL },
 	{"low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, N_("Minimizes the use of memory but may slow indexing down"), NULL },
 	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, N_("Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"), N_("LANG")},
@@ -1686,10 +1687,6 @@ process_files_thread (void)
 			}
 		}
 		
-		/* sleep  to throttle back indexing */
-		tracker_throttle (5000);
-		
-
 		if (!tracker->in_flush && (tracker->number_of_cached_words > tracker->cache_word_limit)) {
 			int words_left;
 			tracker->in_flush = TRUE;
@@ -1721,12 +1718,6 @@ process_files_thread (void)
 					tracker_indexer_sync (tracker->file_indexer);
 				}
 			}	
-
-
-			if (first_run) {
-				tracker_db_exec_no_reply (cache_db_con, "ANALYZE");
-				first_run = FALSE;
-			}
 
 			tracker->in_flush = FALSE;
 			
@@ -1882,6 +1873,11 @@ process_files_thread (void)
 
 		/* preprocess ambiguous actions when we need to work out if its a file or a directory that the action relates to */
 		verify_action (info);
+
+		if (!info->is_directory) {
+			/* sleep  to throttle back indexing */
+			tracker_throttle (10000);
+		}
 
 		//g_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
 
