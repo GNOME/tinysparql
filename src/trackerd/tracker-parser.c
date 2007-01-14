@@ -307,7 +307,7 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 	start = NULL;
 	i=0;
 	j=0;
-
+	
 	while (TRUE) {
 	
 		if (text[i] && valid_char (text[i])) {	
@@ -335,7 +335,7 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 				index_word = process_word (word);
 
 				//tracker_log ("word is %s and indexed word is %s", word, index_word);
-
+				
 				g_free (word);
 
 				if (!index_word) {
@@ -360,7 +360,7 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 					start = NULL;
 				}
 
-			
+				
 			}
 
 		}

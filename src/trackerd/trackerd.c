@@ -206,6 +206,8 @@ flush_data ()
 
 	cache_db_con = tracker_db_connect_cache ();
 
+	cache_db_con->thread = g_strdup ("FlushThread");
+
 	tracker_log ("Total entities index : %d", tracker->index_count);
 
 	tracker_log ("Please wait while remaining data is flushed to the inverted word index. This may take some time...");
@@ -304,14 +306,6 @@ flush_when_indexing_finished ()
 		
 		tracker->is_indexing = FALSE;
 		tracker->in_flush = TRUE;
-
-		if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
-			tracker_log ("updating database stats...please wait...");
-			
-			tracker_db_start_transaction (main_thread_db_con);
-			tracker_exec_sql (main_thread_db_con, "ANALYZE");
-			tracker_db_end_transaction (main_thread_db_con);
-		}
 
 		g_thread_create ((GThreadFunc) flush_data , NULL, FALSE, NULL);
 		
@@ -1104,6 +1098,11 @@ index_entity (DBConnection *db_con, FileInfo *info)
 
 	g_return_if_fail (info->uri && (info->uri[0] == '/'));
 
+	if (!info->is_directory) {
+		/* sleep  to throttle back indexing */
+		tracker_throttle (10000);
+	}
+
 	if (!tracker_file_is_valid (info->uri)) {
 		tracker_log ("Warning - file %s no longer exists - abandoning index on this file", info->uri);
 		return;
@@ -1356,9 +1355,10 @@ extract_metadata_thread (void)
 
 				tracker->number_of_cached_words = words_left;
 				tracker_log ("flushing data (%d words left) to inverted word index - please wait", words_left);
-				if (!tracker->turbo) {
+				/*if (!tracker->turbo) {
 					tracker_indexer_sync (tracker->file_indexer);
-				}
+				}*/
+
 			}		
 
 			tracker->in_flush = FALSE;
@@ -1714,9 +1714,6 @@ process_files_thread (void)
 
 				tracker->number_of_cached_words = words_left;
 				tracker_log ("flushing data (%d words left) to inverted word index - please wait", words_left);
-				if (!tracker->turbo) {
-					tracker_indexer_sync (tracker->file_indexer);
-				}
 			}	
 
 			tracker->in_flush = FALSE;
@@ -1874,10 +1871,7 @@ process_files_thread (void)
 		/* preprocess ambiguous actions when we need to work out if its a file or a directory that the action relates to */
 		verify_action (info);
 
-		if (!info->is_directory) {
-			/* sleep  to throttle back indexing */
-			tracker_throttle (10000);
-		}
+
 
 		//g_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
 
@@ -2743,8 +2737,6 @@ main (int argc, char **argv)
 	tracker = g_new (Tracker, 1);
 
  	tracker->is_running = FALSE;
-	tracker->first_time_index = FALSE;
-
 	tracker->poll_access_mutex = g_mutex_new ();
 
 	tracker->files_check_mutex = g_mutex_new ();
@@ -2910,6 +2902,8 @@ main (int argc, char **argv)
 	if (need_setup) {
 		tracker->first_time_index = TRUE;
 		tracker_create_db ();
+	} else {
+		tracker->first_time_index = FALSE;
 	}
 
 	/* set thread safe DB connection */
@@ -2945,7 +2939,17 @@ main (int argc, char **argv)
 	/* clear pending files and watch tables*/
 	tracker_db_clear_temp (db_con);
 
+
+
 	if (!need_setup) {
+
+		tracker_log ("updating database stats...please wait...");
+			
+		tracker_db_start_transaction (db_con);
+		tracker_exec_sql (db_con, "ANALYZE");
+		tracker_db_end_transaction (db_con);
+
+
 		res = tracker_exec_proc (db_con, "GetStats", 0);
 
 		if (res && res[0] && res[0][0]) {
@@ -2971,6 +2975,8 @@ main (int argc, char **argv)
 		}
 		tracker_log ("-----------------------\n");
 	}
+
+
 
 
 	tracker_db_check_tables (db_con);

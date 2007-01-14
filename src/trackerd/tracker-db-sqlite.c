@@ -1628,7 +1628,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 {
 	FILE 		*file;
 	char 		buffer[65565];
-	int  		bytes_read;
+	int  		bytes_read, throttle_count;
 	char		*str_file_id, *value;
 	GString 	*str;
 	GHashTable 	*new_table;
@@ -1650,6 +1650,8 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 	new_table = NULL;
 
 	bytes_read = 0;
+
+	throttle_count = 0;
 
 	while (fgets (buffer, 65565, file)) {
 		unsigned int buffer_length;
@@ -1684,6 +1686,12 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 			str = g_string_append (str, buffer);
 			new_table = tracker_parse_text (new_table, buffer, 1);
 			bytes_read += buffer_length;
+		}
+
+		throttle_count++;
+		if (throttle_count > (10 + (20 - tracker->throttle))) {
+			tracker_throttle (10);
+			throttle_count= 0;
 		}
 
 		/* set upper limit on text we read in to approx 1MB */
@@ -3807,7 +3815,7 @@ tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit)
 						tracker_indexer_append_word_chunk (tracker->file_indexer, word, word_details, count);
 						tracker->update_count++;
 					} else {
-						tracker_log ("flush failure - ignoring suspect data");
+						tracker_log ("flush failure - ignoring suspect data. Expected row count is %d but actual is %d", i, count);
 					}
 
 					g_free (word_details);
@@ -3816,7 +3824,7 @@ tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit)
 
 				tracker_exec_proc (db_con, "DeleteServiceWords", 1, word_id);
 				tracker_exec_proc (db_con, "DeleteWord", 1, word_id);
-
+				
 			} 
 				
 		}
