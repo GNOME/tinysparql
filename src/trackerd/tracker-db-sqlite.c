@@ -2859,15 +2859,17 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 				if (db_con->user_data) {
 					tracker_exec_proc (db_con->user_data, "DeleteServiceWordForID", 1, row[0]);
 				}
+
 				
 			}
+
+
 		}
 
 		tracker_db_free_result (res);
 	}
 
 	if (db_con->user_data) {
-		tracker_exec_proc (db_con->user_data, "DeleteDirectory9", 2, uri, uri_prefix);
 		tracker_exec_proc (db_con->user_data, "DeleteFile10", 1, str_file_id);
 	}
 

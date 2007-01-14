@@ -1974,6 +1974,8 @@ tracker_load_config_file ()
 					 "# Set to false to prevent watching of any kind\n",
 					 "EnableWatching=true\n\n",
 					 "[Indexing]\n",
+					 "# Throttles the indexing process. Allowable values are 0-20. Lower values increase indexing speed but may degrade system performance\n",
+					 "Throttle=5\n",
 					 "# Disables the indexing process\n",
 					 "EnableIndexing=true\n",
 					 "# Enables indexing of a file's text contents\n",
@@ -2069,6 +2071,12 @@ tracker_load_config_file ()
 
 
 	/* Indexing options */
+
+	if (g_key_file_has_key (key_file, "Indexing", "Throttle", NULL)) {
+		tracker->throttle = g_key_file_get_integer (key_file, "Indexing", "Throttle", NULL);
+	} else {
+		tracker->throttle = 5;
+	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "EnableIndexing", NULL)) {
 		tracker->enable_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableIndexing", NULL);
@@ -2257,6 +2265,22 @@ tracker_is_dir_polled (const char *dir)
 	return FALSE;
 }
 
+
+void
+tracker_throttle (int multiplier)
+{
+	int throttle;
+	
+	if (tracker->turbo) {
+		return;
+	}
+
+	throttle = tracker->throttle * multiplier;
+
+	if (throttle > 0) {
+		g_usleep (throttle);
+	}
+}
 
 void
 tracker_notify_file_data_available (void)

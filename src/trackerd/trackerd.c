@@ -135,15 +135,16 @@ static char **watch_dirs = NULL;
 static char *language = NULL;
 static gboolean disable_indexing = FALSE;
 static gboolean low_memory, turbo, enable_debug, enable_evolution, enable_thunderbird, enable_kmail;
-
+static int throttle = 5;
 
 static GOptionEntry entries[] = {
 	{"exclude-dir", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, N_("Directory to exclude from indexing"), N_("/PATH/DIR")},
 	{"include-dir", 'i', 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, N_("Directory to include in indexing"), N_("/PATH/DIR")},
 	{"no-indexing", 0, 0, G_OPTION_ARG_NONE, &disable_indexing, N_("Disable any indexing or watching taking place"), NULL },
 	{"debug", 0, 0, G_OPTION_ARG_NONE, &enable_debug, N_("Enables more verbose debug messages"), NULL },
-	{"turbo", 't', 0, G_OPTION_ARG_NONE, &turbo, N_("Faster indexing, use more memory and CPU"), NULL },
-	{"low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, N_("Slower indexing, use less memory and CPU"), NULL },
+	{"throttle", 0, 0, G_OPTION_ARG_INT, &throttle, N_("Throttles indexing speed. Values in range 0-20 (default 5) with lower values increasing indexing speed"), NULL },
+	{"turbo", 't', 0, G_OPTION_ARG_NONE, &turbo, N_("Faster indexing, use more memory and CPU. Equivalent to --throttle=0"), NULL },
+	{"low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, N_("Minimizes the use of memory but may slow indexing down"), NULL },
 	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, N_("Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"), N_("LANG")},
 	{NULL}
 };
@@ -612,7 +613,7 @@ schedule_dir_check (const char *uri, DBConnection *db_con)
 
 	/* keep mainloop responsive */
 	my_yield ();
-	tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_DIRECTORY_CHECK, TRUE, FALSE, -1);
+	tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_DIRECTORY_REFRESH, TRUE, FALSE, -1);
 }
 
 
@@ -1061,9 +1062,9 @@ index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachment)
 //	tracker_log ("file %s has fulltext %d, %d, %d", info->uri, (tracker_str_in_array (service_name, services_with_text) != -1), service_has_fulltext, is_file_known);
 	index_service (db_con, info, service_name, meta_table, is_attachment, service_has_metadata, service_has_fulltext, service_has_thumbs);
 
-	/* add extra delay to throttle back indexing of large files */
-	if (!tracker->turbo && service_has_fulltext && (info->file_size > 10000)) {
-		g_usleep (50000);
+	/* add extra delay to throttle back indexing of larger files */
+	if (service_has_fulltext && (info->file_size > 10000)) {
+		tracker_throttle (5000);
 	}
 
 	if (is_attachment) {
@@ -1147,10 +1148,12 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 
 	if (!tracker_is_directory (uri)) {
 		tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_CHECK, 0, FALSE, -1);
+	} else {
+		schedule_dir_check (uri, db_con);
 	}
 }
 
-static void
+static inline void
 queue_file (const char *uri)
 {
 	FileInfo *info;
@@ -1162,7 +1165,7 @@ queue_file (const char *uri)
 
 
 static void
-check_directory (const char *uri, DBConnection *db_con)
+check_directory (const char *uri)
 {
 	GSList *file_list;
 
@@ -1170,7 +1173,6 @@ check_directory (const char *uri, DBConnection *db_con)
 		return;
 	}
 
-	g_return_if_fail (db_con);
 	g_return_if_fail (uri && (uri[0] == '/'));
 	g_return_if_fail (tracker_is_directory (uri));
 
@@ -1183,6 +1185,8 @@ check_directory (const char *uri, DBConnection *db_con)
 	g_slist_foreach (file_list, (GFunc) queue_file, NULL);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL);
 	g_slist_free (file_list);
+
+	queue_file (uri);
 
 }
 
@@ -1682,10 +1686,9 @@ process_files_thread (void)
 			}
 		}
 		
-		/* sleep for 50ms to throttle back indexing */
-		if (!tracker->turbo ) {
-			g_usleep (50000);
-		}
+		/* sleep  to throttle back indexing */
+		tracker_throttle (5000);
+		
 
 		if (!tracker->in_flush && (tracker->number_of_cached_words > tracker->cache_word_limit)) {
 			int words_left;
@@ -1721,7 +1724,7 @@ process_files_thread (void)
 
 
 			if (first_run) {
-				tracker_db_exec_no_reply (cache_db_con, "ANALYSE");
+				tracker_db_exec_no_reply (cache_db_con, "ANALYZE");
 				first_run = FALSE;
 			}
 
@@ -1761,7 +1764,7 @@ process_files_thread (void)
 
 						g_debug ("processing queued directory %s - %d items left", uri, g_async_queue_length (tracker->dir_queue));
 
-						check_directory (uri, db_con);
+						check_directory (uri);
 
 						g_free (uri);
 
@@ -1949,28 +1952,19 @@ process_files_thread (void)
 
 			case TRACKER_ACTION_DIRECTORY_CHECK:
 
-				if (need_index) {
-					if (!tracker_file_is_no_watched (info->uri)) {
-						g_debug ("queueing directory %s", info->uri);
-						g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
-
-						if (tracker->is_dir_scan) {
-							need_index = FALSE;
-						}
-
-					} else {
-						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
-					}
+				if (need_index && !tracker_file_is_no_watched (info->uri)) {
+					g_debug ("queueing directory %s", info->uri);
+					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
 				}
 
 				break;
 
 			case TRACKER_ACTION_DIRECTORY_REFRESH:
-
-				if (!tracker_file_is_no_watched (info->uri)) {
-					scan_directory (info->uri, db_con);
-				} else {
-					g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
+			
+				if (need_index && !tracker_file_is_no_watched (info->uri)) {
+					g_debug ("queueing directory %s", info->uri);
+					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
+					need_index = FALSE;
 				}
 
 				break;
@@ -2528,6 +2522,8 @@ set_defaults ()
 	tracker->slow = FALSE;
 	tracker->use_extra_memory = TRUE;
 
+	tracker->throttle = 5;
+
 	tracker->cached_word_table = NULL;
 
 	tracker->min_word_length = 3;
@@ -2651,7 +2647,16 @@ sanity_check_option_values ()
 		tracker_log ("\t");
 	}
 
-	tracker->is_dir_scan = TRUE;
+	if (tracker->throttle > 20) {
+		tracker->throttle = 20;
+	} else 	if (tracker->throttle < 0) {
+		tracker->throttle = 0;
+	}
+
+	if (tracker->throttle == 0) {
+		tracker->turbo = TRUE;
+	}
+
 
 }
 
@@ -2883,6 +2888,8 @@ main (int argc, char **argv)
 	if (enable_kmail) {
 		tracker->index_kmail_emails = TRUE;
 	}
+
+	tracker->throttle = throttle;
 
 	if (turbo) {
 		tracker->turbo = TRUE;

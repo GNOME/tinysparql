@@ -109,6 +109,9 @@ typedef struct {
 	int		max_process_queue_size;
 	int		max_extract_queue_size;
 	int		optimization_count;   /* no of updates or inserts to be performed before optimizing hashtable */
+	int		throttle;
+	int		default_throttle;
+	int		battery_throttle;
 
 	/* indexing options */
 	int	 	max_index_bucket_count;
@@ -129,6 +132,8 @@ typedef struct {
 
 	gboolean	first_time_index;
 	gboolean	do_optimize;
+
+	
 
 	/* service/mime directory table - this is used to either store the service name or a pseudo mime type for all files under a certain directory root 
 	 * pseduo mime types always start with "service/" followed by a unique name all in lowercase - EG "service/tomboy" 
@@ -402,6 +407,8 @@ void		tracker_print_object_allocations (void);
 void		tracker_add_poll_dir 		(const char *dir);
 void		tracker_remove_poll_dir 	(const char *dir);
 gboolean	tracker_is_dir_polled 		(const char *dir);
+
+void		tracker_throttle 		(int multiplier);
 
 void		tracker_notify_file_data_available 	(void);
 void		tracker_notify_meta_data_available 	(void);
