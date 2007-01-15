@@ -1,3 +1,14 @@
+2007-01-14  Jamie McCracken <jamiemcc at gnome org>
+
+	* added throttling param to control speed of indexing (--throttle)
+	* adjusted default throttling so that cpu ~50% during heavy indexin
+	* throttled tracker daemon at strategic points
+	* removed erroneous cache word deletion when delete_directry
+	* removed problem statement that was somehow deleting the cache db
+	* Improved word breaker and fixed index roots not being indexed
+	* changed shared mmap to private for qdbm to work on FUSE
+
+
 2007-01-12 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* Fixed make distcheck
