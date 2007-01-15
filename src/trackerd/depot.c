@@ -263,7 +263,7 @@ DEPOT *dpopen(const char *name, int omode, int bnum){
     return NULL;
   }
   msiz = DP_HEADSIZ + bnum * sizeof(int);
-  map = mmap(0, msiz, PROT_READ | ((mode & DP_OWRITER) ? PROT_WRITE : 0), MAP_SHARED, fd, 0);
+  map = mmap(0, msiz, PROT_READ | ((mode & DP_OWRITER) ? PROT_WRITE : 0), MAP_PRIVATE, fd, 0);
   if(map == MAP_FAILED){
     close(fd);
     dpecodeset(DP_EMAP, __FILE__, __LINE__);
@@ -900,7 +900,7 @@ int dpoptimize(DEPOT *depot, int bnum){
     depot->fbpool[i+1] = -1;
   }
   depot->msiz = tdepot->msiz;
-  depot->map = mmap(0, depot->msiz, PROT_READ | PROT_WRITE, MAP_SHARED, depot->fd, 0);
+  depot->map = mmap(0, depot->msiz, PROT_READ | PROT_WRITE, MAP_PRIVATE, depot->fd, 0);
   if(depot->map == MAP_FAILED){
     dpecodeset(DP_EMAP, __FILE__, __LINE__);
     depot->fatal = TRUE;
@@ -1299,7 +1299,7 @@ char *dpsnaffle(const char *name, const char* kbuf, int ksiz, int *sp){
     return NULL;
   }
   msiz = DP_HEADSIZ + bnum * sizeof(int);
-  map = mmap(0, msiz, PROT_READ, MAP_SHARED, fd, 0);
+  map = mmap(0, msiz, PROT_READ, MAP_PRIVATE, fd, 0);
   if(map == MAP_FAILED){
     close(fd);
     dpecodeset(DP_EMAP, __FILE__, __LINE__);
