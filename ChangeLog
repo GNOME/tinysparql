@@ -1,3 +1,13 @@
+2007-01-19  Jamie McCracken <jamiemcc at gnome org>
+
+	* changed mmap back to shared as optimisation would destroy the index
+	* made indexing super fast
+	* smoothed out indexing so that it (virtually) never slows the system down
+	* made default full throttle (turbo) 
+	* Added new high speed index flusher
+	* Improved word descriminator
+
+
 2007-01-14  Jamie McCracken <jamiemcc at gnome org>
 
 	* added throttling param to control speed of indexing (--throttle)

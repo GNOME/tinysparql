@@ -86,7 +86,7 @@ DeleteDirectory5 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select
 DeleteDirectory6 DELETE FROM ServiceNumericMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory7 DELETE FROM ServiceBlobMetaData  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
 DeleteDirectory8 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
-DeleteDirectory9 DELETE FROM ServiceWords  WHERE ServiceID  in (select ID FROM Services F where (F.Path = ?) OR (F.Path glob ?));
+
 
 SaveFileContents REPLACE into ServiceContents (ServiceID, Content, ContainsWordScores) values (?,?,?);
 DeleteFileContents DELETE FROM ServiceContents where ServiceID = ?;
