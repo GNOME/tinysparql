@@ -10,6 +10,7 @@ INCLUDES =				\
 	-DPIC=1				\
 	-D_REENTRANT=1			\
 	-DNDEBUG 			\
+	-DMYNOMMAP			\
 	$(GLIB2_CFLAGS)			\
 	$(PANGO_CFLAGS)			\
 	$(GMIME_CFLAGS)			\
