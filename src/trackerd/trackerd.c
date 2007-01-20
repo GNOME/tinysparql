@@ -135,7 +135,7 @@ static char **watch_dirs = NULL;
 static char *language = NULL;
 static gboolean disable_indexing = FALSE;
 static gboolean low_memory, turbo, enable_debug, enable_evolution, enable_thunderbird, enable_kmail;
-static int throttle = 5, throttle_battery = 15;
+static int throttle = 0, throttle_battery = 10;
 
 static GOptionEntry entries[] = {
 	{"exclude-dir", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, N_("Directory to exclude from indexing"), N_("/PATH/DIR")},
@@ -1221,9 +1221,9 @@ scan_directory (const char *uri, DBConnection *db_con)
 }
 
 
-
+/*
 static gboolean
-start_watching (gpointer data)
+start_watching ()
 {
 	if (!tracker->is_running) {
 		return FALSE;
@@ -1235,52 +1235,19 @@ start_watching (gpointer data)
 		exit (1);
 	} else {
 
-		/* start emails watching */
+
 		//tracker_email_watch_emails (main_thread_db_con);
 		
-		if (data) {
-			char *watch_folder;
-			int  len;
-
-			watch_folder = (char *) data;
-
-			if (!watch_folder || watch_folder[0] != '/') {
-				g_free (watch_folder);
-				return FALSE;
-			} 
-
-			len = strlen (watch_folder);
-
-			if (watch_folder[len-1] == G_DIR_SEPARATOR) {
- 				watch_folder[len-1] = '\0';
-			}
-			
-
-			watch_dir (watch_folder, main_thread_db_con);
-			schedule_dir_check (watch_folder, main_thread_db_con);
-			g_free (watch_folder);
-
-		} else {
-			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
- 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
-		}
+		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
+ 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
 
 		tracker_notify_file_data_available ();
-
-		tracker->is_dir_scan = FALSE;
-
-		tracker_log ("waiting for file events...");
-
-		/*if (tracker->first_time_index) {
-			tracker->do_optimize = TRUE;
-			g_timeout_add (5000, (GSourceFunc) optimize_when_indexing_finished, NULL);
-		}*/
 
 	}
 
 	return FALSE;
 }
-
+*/
 
 static void
 extract_metadata_thread (void)
@@ -1444,7 +1411,7 @@ extract_metadata_thread (void)
 
 				if (!tracker->is_indexing) {
 					tracker->is_indexing = TRUE;
-					g_timeout_add (3000, (GSourceFunc) flush_when_indexing_finished, NULL);
+					//g_timeout_add (3000, (GSourceFunc) flush_when_indexing_finished, NULL);
 				}
 
 				if (info->service_type_id == -1) {
@@ -1686,7 +1653,13 @@ process_files_thread (void)
 				break;
 			}
 		}
+
 		
+		if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
+			tracker_flush_rare_words ();
+		}
+
+	/*
 		if (!tracker->in_flush && (tracker->number_of_cached_words > tracker->cache_word_limit)) {
 			int words_left;
 			tracker->in_flush = TRUE;
@@ -1715,12 +1688,15 @@ process_files_thread (void)
 				tracker->number_of_cached_words = words_left;
 				tracker_log ("flushing data (%d words left) to inverted word index - please wait", words_left);
 			}	
-
+			if (tracker->first_time_index && tracker->first_flush) {
+				tracker->first_flush = FALSE;
+				tracker_db_exec_no_reply (cache_db_con, "ANALYZE");
+			}
 			tracker->in_flush = FALSE;
 			
 		}
 
-
+*/
 
 		info = g_async_queue_try_pop (tracker->file_process_queue);
 
@@ -1763,6 +1739,19 @@ process_files_thread (void)
 				} 
 
 				
+				/* flush all words if nothing left to do before sleeping */
+				tracker_flush_all_words ();
+
+				if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
+
+					tracker_indexer_optimize (tracker->file_indexer);
+
+					tracker->do_optimize = FALSE;
+					tracker->first_time_index = FALSE;
+					tracker->update_count = 0;
+	
+				}
+
 				/* we have no stuff to process so sleep until awoken by a new signal */
 				g_debug ("File thread sleeping");			
 
@@ -1773,7 +1762,7 @@ process_files_thread (void)
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
-					continue;
+					
 				} else {
 					break;
 				}
@@ -1985,10 +1974,7 @@ process_files_thread (void)
 
 		if (need_index) {
 
-			if (!tracker->is_indexing) {
-				tracker->is_indexing = TRUE;
-				g_timeout_add (5000, (GSourceFunc) flush_when_indexing_finished, NULL);
-			}
+			
 
 			index_entity (db_con, info);
 		}
@@ -2522,6 +2508,9 @@ set_defaults ()
 	tracker->language = g_strdup ("en");
 	tracker->stop_words = NULL;
 	tracker->use_pango_word_break = FALSE;
+	tracker->index_numbers = FALSE;
+
+	tracker->first_flush = TRUE;
 }
 
 
@@ -2612,12 +2601,27 @@ sanity_check_option_values ()
 	tracker_log ("Stemmer enabled : \t\t\t%s", bools[tracker->use_stemmer]);
 	tracker_log ("Using Pango word breaking : \t\t%s\n\n", bools[tracker->use_pango_word_break]);
 
+	tracker->word_count = 0;
+	tracker->word_detail_count = 0;
+
 	if (tracker->use_extra_memory) {
 		tracker->max_process_queue_size = 5000;
 		tracker->max_extract_queue_size = 5000;
 		tracker->cached_word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 		tracker->cache_word_limit = 20000;
 		tracker->cache_word_min = 1000;
+
+		tracker->cached_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);	
+
+		tracker->word_detail_limit = 200000;
+		tracker->word_detail_min = 100000;
+		tracker->word_count_limit = 20000;
+		tracker->word_count_min = 1000;
+	} else {
+		tracker->word_detail_limit = 100000;
+		tracker->word_detail_min = 50000;
+		tracker->word_count_limit = 10000;
+		tracker->word_count_min = 500;
 	}
 
 
@@ -3028,16 +3032,27 @@ main (int argc, char **argv)
 
 	/* schedule the watching of directories so as not to delay start up time*/
 
+
 	if (tracker->enable_indexing) {
-		g_timeout_add_full (G_PRIORITY_LOW,
-				    500,
-			 	    (GSourceFunc) start_watching,
-				    NULL, NULL
-				    );
+		
+		if (!tracker_start_watching ()) {
+			tracker_log ("File monitoring failed to start");
+			do_cleanup ("File watching failure");
+			exit (1);
+		} else {
+
+
+			//tracker_email_watch_emails (main_thread_db_con);
+		
+			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
+	 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
+		
+			tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
+
+		}
 	}
 
-	/* execute events and user requests to be processed and indexed in their own threads */
-	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
+
 	//tracker->file_metadata_thread = g_thread_create ((GThreadFunc) extract_metadata_thread, NULL, FALSE, NULL);
 	tracker->user_request_thread =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
 

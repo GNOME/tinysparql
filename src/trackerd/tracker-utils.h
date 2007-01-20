@@ -130,7 +130,10 @@ typedef struct {
 	GHashTable	*stop_words;	  	/* table of stop words that are to be ignored by the parser */
 	gboolean	use_pango_word_break;
 
+	gboolean	index_numbers;
+
 	gboolean	first_time_index;
+	gboolean	first_flush;
 	gboolean	do_optimize;
 
 	
@@ -175,7 +178,16 @@ typedef struct {
 	int		flush_count;
 	int		min_flush;
 	int		flush_by_file;
-	
+
+	/* cache words when we can use extra memory */
+	GHashTable	*cached_table;
+	GMutex		*cache_table_mutex;
+	int		word_detail_limit;
+	int		word_detail_count;
+	int		word_detail_min;
+	int		word_count;
+	int		word_count_limit;
+	int		word_count_min;
 
 	GSList 		*poll_list;
 	
@@ -409,6 +421,9 @@ void		tracker_remove_poll_dir 	(const char *dir);
 gboolean	tracker_is_dir_polled 		(const char *dir);
 
 void		tracker_throttle 		(int multiplier);
+
+void		tracker_flush_all_words 	();
+void		tracker_flush_rare_words 	();
 
 void		tracker_notify_file_data_available 	(void);
 void		tracker_notify_meta_data_available 	(void);

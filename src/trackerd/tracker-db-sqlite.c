@@ -724,6 +724,7 @@ tracker_db_connect_cache (void)
 		tracker_db_exec_no_reply (db_con, "CREATE INDEX  WordWord ON Words (Word)");
 		tracker_db_exec_no_reply (db_con, "CREATE INDEX  WordWordCount ON Words (WordCount)");
 		tracker_db_exec_no_reply (db_con, "CREATE INDEX  ServiceWordID ON ServiceWords (ServiceID)");
+		tracker_db_exec_no_reply (db_con, "ANALYZE");
 	}
 
 	db_con->thread = NULL;
@@ -2806,6 +2807,45 @@ delete_index_for_service (DBConnection *db_con, DBConnection *blob_db_con, guint
 
 }
 
+static gint
+delete_id_from_list (gpointer         key,
+		     gpointer         value,
+		     gpointer         data)
+{
+	
+  	GSList *list, *l;
+	WordDetails *wd;
+	guint32 file_id = GPOINTER_TO_UINT (data);
+
+	list = value;
+	
+	for (l=list;l;l=l->next) {
+		wd = l->data;
+		if (wd->id == file_id) {
+			
+			list = g_slist_remove (list, l->data);
+			g_slice_free (WordDetails, wd);
+			value = list;
+			tracker->word_detail_count--;
+
+			if (g_slist_length (list) == 0) {
+				tracker->word_count--;
+			}
+
+			return 1;
+		}
+	}
+
+  	return 1;
+}
+
+
+static void
+delete_cache_words (guint32 file_id)
+{
+  	g_hash_table_foreach (tracker->cached_table, (GHFunc) delete_id_from_list, GUINT_TO_POINTER (file_id));	
+}
+
 
 void
 tracker_db_delete_file (DBConnection *db_con, DBConnection *blob_db_con, guint32 file_id)
@@ -2827,12 +2867,14 @@ tracker_db_delete_file (DBConnection *db_con, DBConnection *blob_db_con, guint32
 	tracker_exec_proc (db_con, "DeleteFile8", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile9", 1, str_file_id);
 
-	if (db_con->user_data) {
+	delete_cache_words (file_id);
+
+/*	if (db_con->user_data) {
 		tracker_exec_proc (db_con->user_data, "DeleteFile10", 1, str_file_id);
 	} else {
 		tracker_log ("WARNING: Cache DB not found");
 	}
-
+*/
 	tracker_db_end_transaction (db_con);
 
 	g_free (str_file_id);
@@ -2864,10 +2906,12 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 
 				id = atoi (row[0]);
 				delete_index_for_service (db_con, blob_db_con, id);
-				if (db_con->user_data) {
+				delete_cache_words (id);
+
+/*				if (db_con->user_data) {
 					tracker_exec_proc (db_con->user_data, "DeleteServiceWordForID", 1, row[0]);
 				}
-
+*/
 				
 			}
 
@@ -3582,6 +3626,8 @@ add_word_to_hash (const char *word, int id, int count)
 		g_mutex_unlock (tracker->cached_word_table_mutex);
 }
 
+
+
 static char *
 cache_word_exists (DBConnection *db_con, const char *word) 
 {
@@ -3600,6 +3646,7 @@ cache_word_exists (DBConnection *db_con, const char *word)
 			cache_word->count++;
 			return tracker_int_to_str (cache_word->id);
 		}
+
 	}
 
 	res = tracker_exec_proc (db_con, "GetWordID", 1, word);
@@ -3657,6 +3704,31 @@ append_cache_word (DBConnection *db_con, const char *word, guint32 service_id, i
 
 //	tracker_log ("appending word %s", word);
 
+
+	if (tracker->use_extra_memory) {
+		WordDetails *word_details;
+		GSList *list;
+
+		word_details = g_slice_new (WordDetails);
+
+		word_details->id = service_id;
+		word_details->amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
+
+		list = g_hash_table_lookup (tracker->cached_table, word);
+
+		if (!list) {
+			tracker->word_count++;
+		}
+
+		list = g_slist_prepend (list, word_details);			
+		g_hash_table_insert (tracker->cached_table, g_strdup (word), list);
+
+
+		tracker->word_detail_count++;
+
+		return;
+	}
+
 	word_id = cache_word_exists (db_con, word);
 
 	str_service_id = tracker_uint_to_str (service_id);
@@ -3671,11 +3743,48 @@ append_cache_word (DBConnection *db_con, const char *word, guint32 service_id, i
 	g_free (str_score);
 }
 
+static inline guint8
+get_service_type_from_detail (WordDetails *details)
+{
+	return (details->amalgamated >> 24) & 0xFF;
+}
 
-static void
+static inline guint16
+get_score_from_detail (WordDetails *details)
+{
+	unsigned char a[2];
+
+	a[0] = (details->amalgamated >> 16) & 0xFF;
+	a[1] = (details->amalgamated >> 8) & 0xFF;
+
+	return (a[0] << 8) | (a[1]);
+	
+}
+
+
+static gboolean
 update_cache_word (DBConnection *db_con, const char *word, guint32 service_id, int score) 
 {
 	char *str_service_id, *str_score;
+
+	if (tracker->use_extra_memory) {
+		WordDetails *word_details;
+		GSList *list, *l;
+
+		list = g_hash_table_lookup (tracker->cached_table, word);
+
+		for (l = list; l; l=l->next) {
+			word_details = l->data;
+			if (word_details->id == service_id) {
+				score += get_score_from_detail (word_details);
+				word_details->amalgamated = tracker_indexer_calc_amalgamated (get_service_type_from_detail (word_details), score);
+				return TRUE;
+			}
+		}
+		
+		return FALSE;
+	}
+	
 
 	str_service_id = tracker_uint_to_str (service_id);
 	str_score = tracker_int_to_str (score);
@@ -3684,6 +3793,8 @@ update_cache_word (DBConnection *db_con, const char *word, guint32 service_id, i
 
 	g_free (str_service_id);
 	g_free (str_score);
+
+	return FALSE;
 }
 
 
@@ -3885,13 +3996,18 @@ update_index_data (gpointer key,
 	word = (char *) key;
 	score = GPOINTER_TO_INT (value);
 	info = user_data;
+
+	if (!update_cache_word (info->db_con, word, info->service_id, score)) {
+		tracker_indexer_update_word (tracker->file_indexer, word, info->service_id, info->service_type_id, score, FALSE);
+	}
+
+	return;
+
 	char *str_service_id = tracker_uint_to_str (info->service_id);
 
 	if (score != 0) {
 
 		res = tracker_exec_proc (info->db_con, "ServiceCached", 2, str_service_id, word);
-
-		g_free (str_service_id);
 
 		if (res) {
 			if (res[0] && res[0][0]) {
@@ -3909,6 +4025,8 @@ update_index_data (gpointer key,
 			update_cache_word (info->db_con, word, info->service_id, score);
 		}
 	}
+
+	g_free (str_service_id);
 }
 
 

@@ -32,7 +32,7 @@ typedef struct {
 
 static gboolean shutdown;
 
-static inline guint8
+static inline guint16
 get_score (WordDetails *details)
 {
 	unsigned char a[2];

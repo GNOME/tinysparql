@@ -31,7 +31,9 @@
 
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
+#include "tracker-indexer.h"
 #include "xdgmime.h"
+
 
 
 extern Tracker	*tracker;
@@ -2075,7 +2077,7 @@ tracker_load_config_file ()
 	if (g_key_file_has_key (key_file, "Indexing", "Throttle", NULL)) {
 		tracker->throttle = g_key_file_get_integer (key_file, "Indexing", "Throttle", NULL);
 	} else {
-		tracker->throttle = 5;
+		tracker->throttle = 0;
 	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "EnableIndexing", NULL)) {
@@ -2943,3 +2945,144 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 		return NULL;
 	}
 }
+
+
+static gint
+prepend_key_pointer (gpointer         key,
+		     gpointer         value,
+		     gpointer         data)
+{
+  	GSList **plist = data;
+  	*plist = g_slist_prepend (*plist, key);
+  	return 1;
+}
+
+
+static GSList * 
+g_hash_table_key_slist (GHashTable *table)
+{
+  	GSList *rv = NULL;
+  	g_hash_table_foreach (table, (GHFunc) prepend_key_pointer, &rv);
+  	return rv;
+}
+
+
+static gint
+sort_func (char *a, char *b)
+{
+	GSList *lista, *listb;
+
+	lista = g_hash_table_lookup (tracker->cached_table, a);
+	listb = g_hash_table_lookup (tracker->cached_table, b);
+	
+	return (g_slist_length (lista) - g_slist_length (listb));
+}
+
+
+static void
+flush_list (GSList *list, const char *word)
+{
+	WordDetails *word_details, *wd;
+	int i, count;
+	GSList *l;
+
+	count = g_slist_length (list);
+
+//	tracker_log ("flushing 	word %s with count %d", word, count);
+
+	word_details = g_malloc (sizeof (WordDetails) * count);
+
+	i = 0;
+	for (l=list; (l && i<count); l=l->next) {
+		
+		wd = l->data;
+		word_details[i].id = wd->id;
+		word_details[i].amalgamated = wd->amalgamated;
+		i++;
+		g_slice_free (WordDetails, wd);
+		
+		
+	}
+
+	g_slist_free (list);
+
+	tracker_indexer_append_word_chunk (tracker->file_indexer, word, word_details, count);
+
+	g_free (word_details);
+	
+	tracker->update_count++;
+	tracker->word_detail_count -= count;
+	tracker->word_count--;
+
+}
+
+
+static inline gboolean
+is_min_flush_done ()
+{
+	return (tracker->word_detail_count <= tracker->word_detail_min) && (tracker->word_count <= tracker->word_count_min);
+
+}
+
+static void 
+delete_word_detail (WordDetails *wd)
+{
+	g_slice_free (WordDetails, wd);
+
+}
+
+void
+tracker_flush_rare_words ()
+{
+	
+	GSList *list, *l, *l2;
+
+	tracker_log ("flushing rare words");
+
+	list = g_hash_table_key_slist (tracker->cached_table);
+
+	list = g_slist_sort (list, (GCompareFunc) sort_func);
+
+	for (l = list; (l && !is_min_flush_done ()); l=l->next) {
+		char *word = l->data;		
+
+		l2 = g_hash_table_lookup (tracker->cached_table, word);
+
+		flush_list (l2, word);	
+
+		g_hash_table_remove (tracker->cached_table, word);	
+
+	}
+
+	g_slist_free (list);
+
+}
+
+
+static gint
+flush_all (gpointer         key,
+	   gpointer         value,
+	   gpointer         data)
+{
+	
+	flush_list (value, key);
+	
+  	return 1;
+}
+
+
+void
+tracker_flush_all_words ()
+{
+	tracker_log ("flushing all words");
+	
+	g_hash_table_foreach (tracker->cached_table, (GHFunc) flush_all, NULL);
+
+	g_hash_table_destroy (tracker->cached_table);
+
+	tracker->cached_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);	
+
+	
+
+}
+

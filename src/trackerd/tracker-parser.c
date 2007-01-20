@@ -100,7 +100,8 @@ word_is_valid (const char *word)
 
 	c = g_utf8_get_char (word);
 
-	if (g_unichar_isalnum (c)) {
+	if (tracker->index_numbers && g_unichar_isalnum (c)) {
+		
 		return numbered_word_is_valid (word);
 	} 
 
