@@ -1,0 +1,486 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-01-21 10:54+0100\n"
+"PO-Revision-Date: 2007-01-21 10:59+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "Limit the number of results showed to N"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "N"
+msgstr "N"
+
+#: ../src/libtracker/tracker-search.c:35
+msgid "Search for a specific service"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:35
+#: ../src/tracker-search-tool/tracker-search-tool.c:64
+msgid "SERVICE"
+msgstr "TJENESTE"
+
+#: ../src/libtracker/tracker-search.c:36
+msgid "Show more detailed results with service and mime type as well"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-search.c:89
+msgid "TERM... - search files for certain terms"
+msgstr ""
+
+#. Translators: this message will appear after the usage string
+#. and before the list of options.
+#: ../src/libtracker/tracker-search.c:93
+msgid ""
+"Specifying more then one term, will be showed items containing ALL the "
+"specified terms (term1 AND term2 - logical conjunction)"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:97
+msgid "The list of recognized services is:"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:114
+#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-tag.c:111
+#: ../src/libtracker/tracker-tag.c:119
+#, c-format
+msgid "Try \"%s --help\" for more information."
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:120
+#, c-format
+msgid "%s: missing search terms"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-tag.c:128
+#, c-format
+msgid "%s: no connection to tracker daemon"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-tag.c:130
+msgid "Ensure \"trackerd\" is running before launch this command."
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:156
+msgid "Service not recognized, searching in Other Files...\n"
+msgstr ""
+
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:176
+#: ../src/libtracker/tracker-tag.c:185 ../src/libtracker/tracker-tag.c:194
+#: ../src/libtracker/tracker-tag.c:229 ../src/libtracker/tracker-tag.c:279
+#, c-format
+msgid "%s: internal tracker error: %s"
+msgstr ""
+
+#. FIXME!! coreutilus don't print anything on no-results
+#: ../src/libtracker/tracker-search.c:182 ../src/libtracker/tracker-tag.c:264
+msgid "No results found matching your query"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:37
+msgid "Add specified tag to a file"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:37 ../src/libtracker/tracker-tag.c:38
+#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:88
+msgid "TAG"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:38
+msgid "Remove specified tag from a file"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:39
+msgid "Remove all tags from a file"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:40
+msgid "List all defined tags"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:41
+msgid "Search for files with specified tag"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:42
+msgid "FILE..."
+msgstr "FIL..."
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-tag.c:86
+msgid "FILE... - manipulate tags on files"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:95
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options like:"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:117
+#, c-format
+msgid "%s: invalid arguments"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:145
+#, c-format
+msgid "%s: file %s not found"
+msgstr "%s: fil %s ble ikke funnet"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:64
+msgid "Search from a specific service"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:103
+msgid "All files"
+msgstr "Alle filer"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:104
+msgid "Development"
+msgstr "Utvikling"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:105
+msgid "Documents"
+msgstr "Dokumenter"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:106
+msgid "Images"
+msgstr "Bilder"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:107
+msgid "Music"
+msgstr "Musikk"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:108
+msgid "Plain text"
+msgstr "Vanlig tekst"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:109
+msgid "Videos"
+msgstr "Videoer"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:173
+msgid "_Open"
+msgstr "_Åpne"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:174
+msgid "O_pen Folder"
+msgstr "Å_pne mappe"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:175
+msgid "Mo_ve to Trash"
+msgstr "_Flytt til papirkurv"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:176
+msgid "_Save Results As..."
+msgstr "_Lagre resultat som..."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:277
+#, c-format
+msgid "Character set conversion failed for \"%s\""
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:773
+msgid "No files found"
+msgstr "Ingen filer funnet"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:824
+#: ../src/tracker-search-tool/tracker-search-tool.c:1107
+#: ../src/tracker-search-tool/tracker-search-tool.c:2396
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
+msgid "Tracker Search Tool"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1602
+msgid "S_earch results:"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1638
+msgid "List View"
+msgstr "Listevisning"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1703
+msgid "Icon"
+msgstr "Ikon"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1715
+msgid "Name"
+msgstr "Navn"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1743
+msgid "Text"
+msgstr "Text"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2151
+msgid "_Search:"
+msgstr "_Søk:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2178
+#: ../src/tracker-search-tool/tracker-search-tool.c:2179
+msgid "Enter a search term with multiple words seperated with spaces."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2179
+msgid "search_entry"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2216
+msgid "Click to perform a search."
+msgstr "Klikk for å utføre et søk."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2224
+msgid "_Previous"
+msgstr "_Forrige"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2232
+msgid "_Next"
+msgstr "_Neste"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2444
+#, c-format
+msgid "Invalid service type: %s\n"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:130
+msgid "Could not open help document."
+msgstr "Kunne ikke åpne hjelpdokument."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:267
+#, c-format
+msgid "Are you sure you want to open %d document?"
+msgid_plural "Are you sure you want to open %d documents?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:272
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:499
+#, c-format
+msgid "This will open %d separate window."
+msgid_plural "This will open %d separate windows."
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:312
+#, c-format
+msgid "Could not open document \"%s\"."
+msgstr "Kunne ikke åpne dokument «%s»."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:341
+#, c-format
+msgid "Could not open folder \"%s\"."
+msgstr "Kunne ikke åpne mappe «%s»."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:349
+msgid "The nautilus file manager is not running."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:452
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:802
+msgid "The document does not exist."
+msgstr "Dokumentet eksisterer ikke."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:469
+msgid "There is no installed viewer capable of displaying the document."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:494
+#, c-format
+msgid "Are you sure you want to open %d folder?"
+msgid_plural "Are you sure you want to open %d folders?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:627
+#, c-format
+msgid "Could not move \"%s\" to trash."
+msgstr "Kunne ikke flytte «%s» til papirkurven."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:658
+#, c-format
+msgid "Do you want to delete \"%s\" permanently?"
+msgstr "Vil du slette «%s» permanent?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:661
+#, c-format
+msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:700
+#, c-format
+msgid "Could not delete \"%s\"."
+msgstr "Kunne ikke slette «%s»."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:825
+#, c-format
+msgid "Moving \"%s\" failed: %s."
+msgstr "Flytting av «%s» feilet: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:860
+#, c-format
+msgid "Deleting \"%s\" failed: %s."
+msgstr "Sletting av «%s» feilet: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1298
+msgid "Save Search Results As..."
+msgstr "Lagre søkeresultat som..."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1329
+msgid "Could not save document."
+msgstr "Kunne ikke lagre dokument."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1330
+msgid "You did not select a document name."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1360
+#, c-format
+msgid "Could not save \"%s\" document to \"%s\"."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1394
+#, c-format
+msgid "The document \"%s\" already exists.  Would you like to replace it?"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1398
+msgid "If you replace an existing file, its contents will be overwritten."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1413
+msgid "_Replace"
+msgstr "E_rstatt"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1463
+msgid "The document name you selected is a folder."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1512
+msgid "You may not have write permissions to the document."
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:74
+#, c-format
+msgid ""
+"GConf error:\n"
+"  %s"
+msgstr ""
+"GConf-feil:\n"
+"  %s"
+
+#. Translators:  Below are the strings displayed in the 'Date Modified'
+#. column of the list view.  The format of this string can vary depending
+#. on age of a file.  Please modify the format of the timestamp to match
+#. your locale.  For example, to display 24 hour time replace the '%-I'
+#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:643
+msgid "today at %-I:%M %p"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:645
+msgid "yesterday at %-I:%M %p"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:647
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:649
+msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:829
+msgid "link (broken)"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:833
+#, c-format
+msgid "link to %s"
+msgstr "lenke til %s"
+
+#: ../src/trackerd/trackerd.c:141
+msgid "Directory to exclude from indexing"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:141 ../src/trackerd/trackerd.c:142
+msgid "/PATH/DIR"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:142
+msgid "Directory to include in indexing"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:143
+msgid "Disable any indexing or watching taking place"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:144
+msgid "Enables more verbose debug messages"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:145
+msgid ""
+"Value to use for throttling indexing. Value must be in range 0-20 (default "
+"5) with lower values increasing indexing speed"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:145 ../src/trackerd/trackerd.c:146
+msgid "value"
+msgstr "verdi"
+
+#: ../src/trackerd/trackerd.c:146
+msgid ""
+"Value to use for throttling indexing and on battery power . Value must be in "
+"range 0-20 (default 15) with lower values increasing indexing speed"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:147
+msgid "Faster indexing, use more memory and CPU. Equivalent to --throttle=0"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:148
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:149
+msgid ""
+"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:149
+msgid "LANG"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND <THIS_MESSAGE>
+#: ../src/trackerd/trackerd.c:2685
+msgid "- start the tracker daemon"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:2686 ../src/trackerd/trackerd.c:2687
+msgid "DIRECTORY"
+msgstr "KATALOG"
+
+#: ../src/trackerd/trackerd.c:2695
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
+msgstr ""
