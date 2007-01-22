@@ -1,3 +1,8 @@
+2007-01-22 Patch from Michael Biebl <mbiebl at gmail com>
+
+	* Fix to get test suite built
+
+
 2007-01-22  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/libtracker/tracker-stats.c:
