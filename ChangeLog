@@ -1,6 +1,16 @@
+
+2007-01-21  Jamie McCracken <jamiemcc at gnome org>
+
+	* Completed optimisation of indexing
+	* Added a verbosity command line param
+	* Made sure all indeixng occurs under a single transaction
+	* removed superflous code
+	
+
 2007-01-21  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* configure.ac: Added nb to ALL_LINGUAS.
+
 
 2007-01-19  Jamie McCracken <jamiemcc at gnome org>
 
