@@ -3037,7 +3037,7 @@ tracker_flush_rare_words ()
 	
 	GSList *list, *l, *l2;
 
-	tracker_log ("flushing rare words");
+	g_debug ("flushing rare words");
 
 	list = g_hash_table_key_slist (tracker->cached_table);
 

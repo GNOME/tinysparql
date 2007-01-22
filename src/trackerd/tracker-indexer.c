@@ -206,7 +206,7 @@ tracker_indexer_open (const char *name)
 	word_index = cropen (word_dir, CR_OWRITER | CR_OCREAT | CR_ONOLCK, tracker->min_index_bucket_count, tracker->index_divisions);
 
 	if (!word_index) {
-		tracker_log ("%s index was not closed properly - attempting repair", word_dir);
+		tracker_log ("%s index was not closed properly and caused error %s- attempting repair", word_dir, dperrmsg (dpecode));
 		if (crrepair (word_dir)) {
 			word_index = cropen (word_dir, CR_OWRITER | CR_OCREAT | CR_ONOLCK, tracker->min_index_bucket_count, tracker->index_divisions);
 		} else {
@@ -254,7 +254,9 @@ tracker_indexer_close (Indexer *indexer)
 	shutdown = TRUE;
 
 	g_mutex_lock (indexer->word_mutex);
-	crclose (indexer->word_index);
+	if (!crclose (indexer->word_index)) {
+		tracker_log ("Index closure has failed due to %s", dperrmsg (dpecode));
+	}
 
 	g_mutex_unlock (indexer->word_mutex);
 	g_mutex_free (indexer->word_mutex);
@@ -302,7 +304,7 @@ tracker_indexer_optimize (Indexer *indexer)
 	if (!croptimize (indexer->word_index, b_count)) {
 
 		g_mutex_unlock (indexer->word_mutex);
-		tracker_log ("Optimization has failed!");
+		tracker_log ("Optimization has failed due to %s", dperrmsg (dpecode));
 		return FALSE;
 	}
 	g_mutex_unlock (indexer->word_mutex);

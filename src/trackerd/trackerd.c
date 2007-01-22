@@ -1196,6 +1196,8 @@ process_files_thread (void)
 
 	moved_from_list = NULL;
 
+	tracker_log ("starting indexing...");
+
 	while (TRUE) {
 		FileInfo *info;
 		gboolean need_index;
@@ -1359,6 +1361,10 @@ process_files_thread (void)
 		}
 
 		tracker->index_count++;
+
+		if ( (tracker->index_count == 1 || tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 0)) {
+			tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
+		} 
 
 		/* get file ID and other interesting fields from Database if not previously fetched or is newly created */
 
