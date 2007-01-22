@@ -45,7 +45,12 @@ typedef enum {
 	DB_CACHE
 } DBTypes;
 
-
+typedef enum {
+	METADATA_INDEX,
+	METADATA_REINDEX,
+	METADATA_USER,
+	METADATA_USER_REPLACE
+} MetadataAction;
 
 typedef struct {
 	char		*id;
@@ -96,14 +101,15 @@ void		tracker_db_exec_no_reply 	(DBConnection *db_con, const char *query);
 void		tracker_log_sql			(DBConnection *db_con, const char *query);
 void		tracker_create_db		(void);
 void		tracker_db_load_stored_procs	(DBConnection *db_con);
-void		tracker_db_save_file_contents	(DBConnection *db_con, DBConnection *blob_db_con, DBConnection *cache_db_con, const char *file_name, FileInfo *info);
+void		tracker_db_save_file_contents	(DBConnection *db_con, DBConnection *blob_db_con, GHashTable *index_table, const char *file_name, FileInfo *info);
 void		tracker_db_clear_temp		(DBConnection *db_con);
 void		tracker_db_check_tables		(DBConnection *db_con);
 void		tracker_db_start_transaction	(DBConnection *db_con);
 void		tracker_db_end_transaction	(DBConnection *db_con);
 
-void		tracker_db_update_indexes_for_new_service	(DBConnection *db_con, DBConnection *cache_db_con, guint32 service_id, int service_type_id, GHashTable *table);
-void		tracker_db_update_differential_index		(DBConnection *db_con, GHashTable *old_table, GHashTable *new_table, const char *id, int service_type_id);
+void		tracker_db_update_indexes_for_new_service	(guint32 service_id, int service_type_id, GHashTable *table);
+void		tracker_db_update_differential_index		(GHashTable *old_table, GHashTable *new_table, const char *id, int service_type_id);
+void		tracker_db_update_index_file_contents 		(DBConnection *blob_db_con, GHashTable *index_table);
 int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
 
 void		tracker_db_release_memory 	();
@@ -122,10 +128,10 @@ char ***	tracker_db_get_metadata		(DBConnection *db_con, const char *service, co
 
 /* gets metadata using a separate row for each value it has */
 char ***	tracker_db_get_metadata_values 	(DBConnection *db_con, const char *service, const char *id, const char *key);
-void		tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value);
+void		tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, GHashTable *table);
 void		tracker_db_set_metadata		 (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean generate_display_metadata, gboolean index, gboolean embedded);
 void		tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean embedded);
-void 		tracker_db_delete_metadata 	 (DBConnection *db_con, const char *service, const char *id, const char *key);
+void 		tracker_db_delete_metadata 	 (DBConnection *db_con, const char *service, const char *id, const char *key, gboolean update_indexes); 
 
 char *		tracker_db_refresh_display_metadata 	(DBConnection *db_con, const char *id,  const char *metadata_id, int data_type, const char *key);
 void		tracker_db_refresh_all_display_metadata (DBConnection *db_con, const char *id);
@@ -162,5 +168,7 @@ char ***	tracker_db_get_sub_watches	(DBConnection *db_con, const char *dir);
 char ***	tracker_db_delete_sub_watches	(DBConnection *db_con, const char *dir);
 
 char ***	tracker_db_get_keyword_list	(DBConnection *db_con, const char *service);
+
+
 
 #endif

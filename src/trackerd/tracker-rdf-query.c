@@ -849,9 +849,9 @@ build_sql (ParserData *data)
 			sub = strchr (data->current_value, '*');
 
 			if (sub) {
-				g_string_append_printf (str, " (%s glob '*%s') ", field_data->meta_field, data->current_value);
+				g_string_append_printf (str, " (%s like '%s%s%s') ", field_data->meta_field, "%", data->current_value, "%");
 			} else {
-				g_string_append_printf (str, " (%s glob  '*%s*') ", field_data->meta_field, data->current_value);
+				g_string_append_printf (str, " (%s like '%s%s%s') ", field_data->meta_field, "%", data->current_value, "%");
 			}
 
 			break;
@@ -861,9 +861,9 @@ build_sql (ParserData *data)
 			sub = strchr (data->current_value, '*');
 
 			if (sub) {
-				g_string_append_printf (str, " (%s glob '%s') ", field_data->meta_field, data->current_value);
+				g_string_append_printf (str, " (%s like '%s') ", field_data->meta_field, data->current_value);
 			} else {
-				g_string_append_printf (str, " (%s glob '%s*') ", field_data->meta_field, data->current_value);
+				g_string_append_printf (str, " (%s like '%s%s') ", field_data->meta_field, data->current_value, "%");
 			}
 			
 			break;

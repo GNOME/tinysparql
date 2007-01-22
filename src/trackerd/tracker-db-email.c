@@ -190,6 +190,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	const GSList	*tmp;
 	char		/* *to_print, */ *name, *path;
 	int		mbox_id, id;
+	GHashTable	*index_table;
 
 	g_return_if_fail (db_con);
 	g_return_if_fail (mm);
@@ -207,6 +208,8 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 	name = tracker_get_vfs_name (mm->uri);
 	path = tracker_get_vfs_path (mm->uri);
+	
+	tracker_db_start_transaction (db_con);
 
 	tracker_db_create_service (db_con, path, name, "Emails", "email", 0, FALSE, FALSE, mm->offset, 0, mbox_id);
 
@@ -217,13 +220,14 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		tracker_log ("saving email with uri \"%s\" and subject \"%s\" from \"%s\"", mm->uri, mm->subject, mm->from);
 
+		index_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 		str_id = tracker_int_to_str (id);
 		str_date = tracker_int_to_str (mm->date);
 
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->from);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject);
+		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body, index_table);
+		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date, index_table);
+		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->from, index_table);
+		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject, index_table);
 
 		g_free (str_date);
 
@@ -234,7 +238,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			mp = tmp->data;
 
 			str = g_strconcat (mp->name, ":", mp->addr, NULL);
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", str);
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", str, index_table);
 			g_free (str);
 		}
 
@@ -245,7 +249,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			mp = tmp->data;
 
 			str = g_strconcat (mp->name, ":", mp->addr, NULL);
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", str);
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", str, index_table);
 			g_free (str);
 		}
 
@@ -254,7 +258,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 			ma = tmp->data;
 
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", ma->attachment_name);
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", ma->attachment_name, index_table);
 
 			/* delimit attachment names so hyphens and underscores are removed so that they can be indexed separately */
 			if (strchr (ma->attachment_name, '_') || strchr (ma->attachment_name, '-')) {
@@ -262,19 +266,23 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 				delimited = g_strdup (ma->attachment_name);
 				delimited =  g_strdelimit (delimited, "-_" , ' ');
-				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:AttachmentsDelimted", delimited);
+				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:AttachmentsDelimted", delimited, index_table);
 				g_free (delimited);
 			}
 		}
 
-		tracker_db_update_indexes_for_new_service (db_con, db_con->user_data, id, tracker_get_id_for_service ("Emails"), NULL);
-
 		tracker_db_refresh_all_display_metadata (db_con, str_id);
 
+		tracker_db_end_transaction (db_con);
+
+		tracker_db_update_indexes_for_new_service (id, tracker_get_id_for_service ("Emails"), index_table);
+
 		g_free (str_id);
+
+		return;
 	}
 
-
+	tracker_db_end_transaction (db_con);
 
 	/* sometimes we will create a new record, sometimes we will update previous entries */
 

@@ -148,7 +148,7 @@ tracker_parse_text_into_array (const char *text)
 	int count;
 	GString *str;
 
-	table = tracker_parse_text (NULL, text, 1);
+	table = tracker_parse_text (NULL, text, 1, TRUE);
 
 	if (!table || g_hash_table_size (table) == 0) {
 		return NULL;
@@ -280,7 +280,7 @@ process_word (const char *index_word)
 
 
 GHashTable *
-tracker_parse_text (GHashTable *word_table, const char *text, int weight)
+tracker_parse_text (GHashTable *word_table, const char *text, int weight, gboolean filter_words)
 {
 	char *delimit_text;
 	int  i, j, total_words;
@@ -333,11 +333,12 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight)
 
 				word = g_strndup (start, i-j);
 
-				index_word = process_word (word);
-
-				//tracker_log ("word is %s and indexed word is %s", word, index_word);
-				
-				g_free (word);
+				if (filter_words) {
+					index_word = process_word (word);
+					g_free (word);
+				} else {
+					index_word = word;
+				}
 
 				if (!index_word) {
 					start = NULL;

@@ -401,7 +401,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		return;
 	}
 
-	tracker_db_delete_metadata (db_con, service, id, "DC:Keywords");
+	tracker_db_delete_metadata (db_con, service, id, "DC:Keywords", TRUE);
 	
 	g_free (id);
 	

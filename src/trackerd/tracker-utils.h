@@ -99,6 +99,8 @@ typedef struct {
 	guint32		watch_limit;
 	guint32		poll_interval;
 
+	int		verbosity;
+
 	/* data directories */
 	char 		*data_dir;
 	char		*backup_dir;
