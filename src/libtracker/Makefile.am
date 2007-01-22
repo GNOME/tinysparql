@@ -20,40 +20,40 @@ tracker_search_SOURCES = tracker-search.c
 tracker_search_LDADD = 	$(GLIB2_LIBS) 	\
 		 	$(DBUS_LIBS)	\
 		 	$(GOBJECT_LIBS)	\
-			$(top_builddir)/src/libtracker/libtrackerclient.la
+			libtrackerclient.la
 
 tracker_query_SOURCES = tracker-query.c
 
 tracker_query_LDADD = 	$(GLIB2_LIBS) 	\
 		 	$(DBUS_LIBS)	\
 		 	$(GOBJECT_LIBS)	\
-			$(top_builddir)/src/libtracker/libtrackerclient.la
+			libtrackerclient.la
 
 tracker_meta_folder_SOURCES = tracker-get-meta-for-folder.c
 
 tracker_meta_folder_LDADD = 	$(GLIB2_LIBS) 	\
 		 		$(DBUS_LIBS)	\
 		 		$(GOBJECT_LIBS)	\
-				$(top_builddir)/src/libtracker/libtrackerclient.la
+				libtrackerclient.la
 
 tracker_stats_SOURCES = tracker-stats.c
 
 tracker_stats_LDADD = 	$(GLIB2_LIBS) 	\
 		 	$(DBUS_LIBS)	\
 		 	$(GOBJECT_LIBS)	\
-			$(top_builddir)/src/libtracker/libtrackerclient.la
+			libtrackerclient.la
 
 tracker_tag_SOURCES = tracker-tag.c
 
 tracker_tag_LDADD = 	$(GLIB2_LIBS) 	\
 		 	$(DBUS_LIBS)	\
 		 	$(GOBJECT_LIBS)	\
-			$(top_builddir)/src/libtracker/libtrackerclient.la
+			libtrackerclient.la
 
 tracker_files_SOURCES = tracker-files.c
 
 tracker_files_LDADD = 	$(GLIB2_LIBS) 	\
 		 	$(DBUS_LIBS)	\
 		 	$(GOBJECT_LIBS)	\
-			$(top_builddir)/src/libtracker/libtrackerclient.la
+			libtrackerclient.la
  

@@ -1,3 +1,7 @@
+2007-01-21 Patch from Daniel Fullmer <cgibreak at gmail com>
+	
+	* fix for parallel make
+
 2007-01-21 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* Updated License info
