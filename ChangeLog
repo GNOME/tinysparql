@@ -1,3 +1,10 @@
+2007-01-22  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/libtracker/tracker-stats.c:
+	
+	Port tracker-stats to GOption and mark translatable strings.
+	Fix bug 397940.
+
 2007-01-21 Patch from Daniel Fullmer <cgibreak at gmail com>
 	
 	* fix for parallel make

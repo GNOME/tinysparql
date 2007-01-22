@@ -17,15 +17,17 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <config.h>
+
 #include <locale.h>
 #include <string.h>
 #include <glib.h>
 #include <glib-object.h>
+#include <glib/gi18n.h>
 
 #include "../libtracker/tracker.h" 
 
 #define TOTAL_COUNT "Total files indexed"
-
 
 static void
 get_meta_table_data (gpointer value)
@@ -57,38 +59,61 @@ main (int argc, char **argv)
 	
 	GPtrArray *out_array = NULL;
 	GError *error = NULL;
+	GOptionContext *context = NULL;
 	TrackerClient *client = NULL;
-
 
 	setlocale (LC_ALL, "");
 
-	if (argc > 1) {
-		g_print ("usage - tracker-stats\n");
-		return 1;
-	}
+        bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
+        bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+        textdomain (GETTEXT_PACKAGE);
+
+        /* Translators: this messagge will apper immediately after the  */
+        /* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
+        context = g_option_context_new (_(" - show number of indexed files for each service"));
+
+	g_option_context_parse (context, &argc, &argv, &error);
+
+        g_option_context_free (context);
+
+        if (error) {
+                g_printerr ("%s: %s", argv[0], error->message);
+                g_printerr ("\n");
+                g_printerr (_("Try \"%s --help\" for more information."), argv[0]);
+                g_printerr ("\n");
+                return 1;
+        }
 
 	client =  tracker_connect (FALSE);
 
-	if (!client) {
-		g_print ("Could not initialise Tracker - exiting...\n");
-		return 1;
-	}
+        if (!client) {
+                g_printerr (_("%s: no connection to tracker daemon"), argv[0]);
+                g_printerr ("\n");
+                g_printerr (_("Ensure \"trackerd\" is running before launch this command."));
+                g_printerr ("\n");
+                return 1;
+        }
 
 	out_array = tracker_get_stats (client, &error);
 
-
 	if (error) {
-		g_warning ("An error has occured : %s", error->message);
+		g_warning ("%s: an error has occured: %s", argv[0], error->message);
 		g_error_free (error);
 	}
 
 
 	if (out_array) {
+		gchar *tmp;
 
-		g_print ("\n-------fetching index stats---------\n\n");
+		tmp = g_strconcat("\n-------", _("fetching index stats"),
+				  "---------\n\n", NULL);
+
+		g_print (tmp);
 		g_ptr_array_foreach (out_array, (GFunc)get_meta_table_data, NULL);
 		g_ptr_array_free (out_array, TRUE);
 		g_print ("------------------------------------\n\n");
+		
+		g_free (tmp);
 
 	}
 
