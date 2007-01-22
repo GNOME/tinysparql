@@ -319,14 +319,18 @@ int
 main (int argc, char **argv)
 {
 	int a;
-	
-	tracker = NULL;
+	char *test_db;
+
+	tracker = g_new (Tracker, 1);
 
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
 
-	unlink ("/home/jamie/.Tracker/Indexes/test");
+	test_db = g_build_filename (g_get_home_dir(), ".Tracker", "databases", "test", NULL);
+
+	// TODO Delete directory recursively
+	g_rmdir (test_db);
 
 	file_indexer = tracker_indexer_open ("test");
 
@@ -340,7 +344,8 @@ main (int argc, char **argv)
 
 	tracker_indexer_close (file_indexer);	
 
-	unlink ("/home/jamie/.Tracker/Indexes/test");
+	// TODO Delete directory recursively
+	g_rmdir (test_db);
 
 	file_indexer = tracker_indexer_open ("test");
 
@@ -350,13 +355,19 @@ main (int argc, char **argv)
 
 	tracker_indexer_close (file_indexer);	
 
+	// TODO Delete directory recursively
+	g_rmdir (test_db);
 		
+	g_free(test_db);
+	g_free(tracker);
 
 	if (fail_count == 0) {
 		tracker_log ("\n\n\nSUCESS : Test passed all results :))))");
 	} else {
 		tracker_log ("\n\n\nFAILURE : test failed %d times", fail_count);
+		return EXIT_FAILURE;
+
 	}
 
-	exit (1);
+	return EXIT_SUCCESS;
 }

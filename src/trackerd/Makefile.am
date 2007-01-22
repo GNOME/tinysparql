@@ -43,19 +43,7 @@ db_sources =				\
 	tracker-db-email.c		\
 	tracker-db-email.h
 
-
-bin_PROGRAMS = trackerd
-check_PROGRAMS = test-tracker-indexer
-
-test_tracker_indexer_SOURCES =		\
-	depot.c				\
-	depot.h				\
-	curia.c				\
-	curia.h				\
-	tracker-indexer.c		\
-	test-tracker-indexer.c		\
-	tracker-utils.c			\
-	tracker-utils.h			\
+xdgmime_sources =			\
 	xdgmime.c			\
 	xdgmime.h			\
 	xdgmimealias.c			\
@@ -70,6 +58,29 @@ test_tracker_indexer_SOURCES =		\
 	xdgmimemagic.h			\
 	xdgmimeparent.c			\
 	xdgmimeparent.h
+
+qdbm_sources =				\
+	depot.c				\
+	depot.h				\
+	curia.c				\
+	curia.h				\
+	myconf.h			\
+	myconf.c
+
+bin_PROGRAMS = trackerd
+
+TESTS = test-tracker-indexer
+
+check_PROGRAMS = $(TESTS)
+
+test_tracker_indexer_SOURCES =		\
+	tracker-indexer.c		\
+	test-tracker-indexer.c		\
+	tracker-utils.c			\
+	tracker-utils.h			\
+	$(xdgmime_sources)		\
+	$(qdbm_sources)
+
 test_tracker_indexer_LDADD = 		\
 	$(GLIB2_LIBS)			\
 	$(GTHREAD_LIBS)			\
@@ -80,12 +91,9 @@ trackerd_SOURCES =			\
 	trackerd.c			\
 	$(inotify_sources)		\
 	$(fam_sources)			\
-	depot.c				\
-	depot.h				\
-	curia.c				\
-	curia.h				\
-	myconf.h			\
-	myconf.c			\
+	$(qdbm_sources)			\
+	$(db_sources)			\
+	$(xdgmime_sources)		\
 	tracker-db.c			\
 	tracker-db.h			\
 	tracker-dbus.c			\
@@ -100,7 +108,6 @@ trackerd_SOURCES =			\
 	tracker-dbus-keywords.h		\
 	tracker-dbus-search.c		\
 	tracker-dbus-search.h		\
-	$(db_sources)			\
 	tracker-email.c			\
 	tracker-email.h			\
 	tracker-email-utils.c		\
@@ -120,21 +127,7 @@ trackerd_SOURCES =			\
 	tracker-utils.c			\
 	tracker-utils.h			\
 	tracker-ioprio.c		\
-	tracker-ioprio.h		\
-	xdgmime.c			\
-	xdgmime.h			\
-	xdgmimealias.c			\
-	xdgmimealias.h			\
-	xdgmimecache.c			\
-	xdgmimecache.h			\
-	xdgmimeglob.c			\
-	xdgmimeglob.h			\
-	xdgmimeint.c			\
-	xdgmimeint.h			\
-	xdgmimemagic.c			\
-	xdgmimemagic.h			\
-	xdgmimeparent.c			\
-	xdgmimeparent.h
+	tracker-ioprio.h
 
 
 trackerd_LDADD =			\
