@@ -1,3 +1,11 @@
+2007-01-23  Jamie McCracken <jamiemcc at gnome org>
+
+	* Improved message display
+	* Made sure all external stuff is fully protected from excessive memory/cpu
+	* Repaired mplayer backend and make it used when gstreamer returns nothing
+	* Added libmagic for extra mime checks
+
+
 2007-01-22 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* Fix to get test suite built
