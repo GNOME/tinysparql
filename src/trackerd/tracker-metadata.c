@@ -20,7 +20,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <glib/gstdio.h>
-
+#include <sys/types.h>
+#include <sys/resource.h>
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
 
@@ -107,7 +108,13 @@ char *development_mime_types[] = {
 				"application/x-csh",
 				"application/x-class-file",
 				"application/x-awk",
+				"application/x-asp",
+				"application/x-ruby",
+				"application/x-m4",
+				"text/x-m4",
+				"text/x-c++",
 				"text/x-adasrc",
+				"text/x-c",
 				"text/x-c++hdr",
 				"text/x-chdr",
 				"text/x-csharp",
@@ -132,11 +139,6 @@ char *development_mime_types[] = {
 };
 
 
-static void
-set_child_timeout_cb (gpointer user_data)
-{
-	alarm (GPOINTER_TO_INT (user_data));
-}
 
 
 static MetadataFileType
@@ -295,22 +297,18 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 
 		g_debug ("extracting text for %s using filter %s", argv[1], argv[0]);
 
-		if (g_spawn_sync (NULL,
-				  argv,
-				  NULL,
-				  G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
-				  set_child_timeout_cb,
-				  GINT_TO_POINTER (30),
-				  NULL,
-				  NULL,
-				  NULL,
-				  NULL)) {
+		if (tracker_spawn (argv, 30, NULL, NULL)) {
+
 
 			g_free (argv[0]);
 			g_free (argv[1]);
 			g_free (argv[2]);
 
-			return temp_file_name;
+			if (tracker_file_is_valid (temp_file_name)) {
+				return temp_file_name;
+			} else {
+				return NULL;
+			}
 
 		} else {
 			g_free (temp_file_name);
@@ -343,23 +341,13 @@ tracker_metadata_get_thumbnail (const char *path, const char *mime, const char *
 	argv[3] = g_strdup (size);
 	argv[4] = NULL;
 
-	if (!g_spawn_sync (NULL,
-			  argv,
-			  NULL,
-			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-			  set_child_timeout_cb,
-			  GINT_TO_POINTER (10),
-			  &thumbnail,
-			  NULL,
-			  &exit_status,
-			  NULL)) {
-
+	if (!tracker_spawn (argv, 10, &thumbnail, &exit_status)) {
 		thumbnail = NULL;
-	}
-	if (exit_status != EXIT_SUCCESS)
+	} else if (exit_status != EXIT_SUCCESS) {
 		thumbnail = NULL;
-	else
+	} else {
 		tracker_log ("got thumbnail %s", thumbnail);
+	}
 
 	g_free (argv[0]);
 	g_free (argv[1]);
@@ -408,16 +396,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 			return;
 		}
 
-		if (g_spawn_sync (NULL,
-				  argv,
-				  NULL,
-				  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-				  set_child_timeout_cb,
-				  GINT_TO_POINTER (10),
-				  &value,
-				  NULL,
-				  NULL,
-				  NULL)) {
+		if (tracker_spawn (argv, 10, &value, NULL)) {
 
 			/* parse returned stdout (value) and extract keys and associated metadata values */
 

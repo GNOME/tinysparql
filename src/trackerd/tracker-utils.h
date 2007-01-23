@@ -36,6 +36,7 @@ extern char *tracker_actions[];
 
 
 #include <glib.h>
+#include <magic.h>
 #include "depot.h"
 #include "curia.h"
 
@@ -99,7 +100,11 @@ typedef struct {
 	guint32		watch_limit;
 	guint32		poll_interval;
 
+	/* controls how much to output to screen/log file */
 	int		verbosity;
+
+	
+	magic_t 	magic;
 
 	/* data directories */
 	char 		*data_dir;
@@ -439,5 +444,7 @@ char *		tracker_uncompress 		(const char *ptr, int size, int *uncompressed_size)
 
 char *		tracker_get_snippet 		(const char *txt, char **terms, int length);
 
+gboolean	tracker_spawn 			(char **argv, int timeout, char **stdout, int *exit_status);
+void		tracker_child_cb 		(gpointer user_data);
 
 #endif

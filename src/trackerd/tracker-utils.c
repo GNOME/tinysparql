@@ -27,12 +27,14 @@
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <sys/resource.h>
 #include <zlib.h>
-
+#include <magic.h>
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-indexer.h"
 #include "xdgmime.h"
+
 
 
 
@@ -1296,173 +1298,18 @@ tracker_file_is_indexable (const char *uri)
 
 
 
-static gboolean
-is_text_file (const char *uri)
-{
-	FILE 	 *file;
-	char 	 *uri_in_locale;
-	char	 buffer[65565];
-	gsize 	 bytes_read, total_bytes_read;
-	gboolean result;
-
-	if (!tracker_file_is_indexable (uri)) {
-		return FALSE;
-	}
-
-	result = FALSE;
-
-	/* use file command if available to check the uri is of type text */
-
-	char *argv[3];
-	char *value = NULL;
-
-	argv[0] = g_strdup ("file");
-	argv[1] = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-	argv[2] = NULL;
-
-	if (!argv[1]) {
-		tracker_log ("******ERROR**** uri or mime could not be converted to locale format");
-		g_free (argv[0]);
-		return FALSE;
-
-	} else {
-
-		if (g_spawn_sync (NULL,
-				  argv,
-				  NULL,
-				  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-				  NULL,
-				  NULL,
-				  &value,
-				  NULL,
-				  NULL,
-				  NULL)) {
-
-			g_debug ("uri %s is identified as %s", uri, value);
-
-			if (strstr (value, "text")) {
-				result = TRUE; 
-				g_debug ("uri %s is a text file", uri);
-			}
-
-			if (value) {
-				g_free (value);
-			}
-		} else {
-			result = TRUE;
-		}
-	}
-
-	g_free (argv[0]);
-	g_free (argv[1]);
-
-	if (!result) {
-		return FALSE;
-	}
-
-	bytes_read = 0;
-	total_bytes_read = 0;
-
-	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-
-	if (!uri_in_locale) {
-		tracker_log ("******ERROR**** uri could not be converted to locale format");
-		return FALSE;
-	}
-
-	file = g_fopen (uri_in_locale, "r");
-
-	g_free (uri_in_locale);
-
-	if (!file) {
- 		return FALSE;
-	}
-
-	while (fgets (buffer, 65536, file)) {
-
-		bytes_read = strlen (buffer);
-		total_bytes_read += bytes_read;
-	
-		/* if text is too small skip line */
-		if (bytes_read < 3) {
-			continue;
-		}
-
-		if (!g_utf8_validate (buffer, bytes_read, NULL)) {
-
-			GError *err = NULL;
-			char *value = NULL;
-			gsize bytes_converted = 0;
-
-			g_debug ("%s is not a text file with valid utf-8. Tryiong to convert from locale...", uri);
-
-			value = g_locale_to_utf8 (buffer, bytes_read, NULL, NULL, &err);
-
-			if (value) {
-				bytes_converted = strlen (value);
-
-				if ((bytes_converted < 3) || (bytes_converted < bytes_read)) {
-					result = FALSE;
-					g_free (value);
-					break;
-				} 
-
-				g_free (value);
-
-			} else {
-				result = FALSE;
-				break;
-			}
-
-			if (err) {
-				g_error_free (err);
-				result = FALSE;
-				break;
-			}
-
-			g_debug ("****************************** %s is a text file for current locale ***************************", uri);
-			
-			
-		} 
-		
-			
-		
-		/* check first 4kb only */
-		if (total_bytes_read > 4096) {
-			break;
-		}
-
-	}
-
-	fclose (file);
-
-	if (result) {
-		if (total_bytes_read < 3) {
-			result = FALSE;
-		}
-
-	} else {
-		g_debug ("%s is not a text file", uri);
-	}
-
-	return result;
-
-}
-
-
-
-
-
-
 
 char *
-tracker_get_mime_type (const char* uri)
+tracker_get_mime_type (const char *uri)
 {
 	struct stat finfo;
 	char	    *uri_in_locale;
 	const char  *result;
+	char *mime;
+	int i;
 
 	if (!tracker_file_is_valid (uri)) {
+		tracker_log ("Warning file %s is no longer valid", uri);
 		return g_strdup ("unknown");
 	}
 
@@ -1470,12 +1317,10 @@ tracker_get_mime_type (const char* uri)
 
 	if (!uri_in_locale) {
 		tracker_log ("******ERROR**** uri could not be converted to locale format");
-		return FALSE;
+		return g_strdup ("unknown");
 	}
 
 	g_lstat (uri_in_locale, &finfo);
-
-	g_free (uri_in_locale);
 
 	if (S_ISLNK (finfo.st_mode) && S_ISDIR (finfo.st_mode)) {
 		return g_strdup ("symlink");
@@ -1483,15 +1328,28 @@ tracker_get_mime_type (const char* uri)
 
 	result = xdg_mime_get_mime_type_for_file (uri, NULL);
 
-	if (result != NULL && result != XDG_MIME_TYPE_UNKNOWN) {
-		return g_strdup (result);
-	} else {
-		if (is_text_file (uri)) {
-			return g_strdup ("text/plain");
+	if (!result || (result == XDG_MIME_TYPE_UNKNOWN)) {
+
+		result =  magic_file (tracker->magic, uri_in_locale);
+
+		for (i=0; result[i]; i++) {
+			if (result[i] == ';') {
+				break;
+			}
 		}
+
+		if (result) {
+			mime = g_strndup (result, i);
+		} else {
+			mime = g_strdup ("unknown");
+		}
+	} else {
+		mime = g_strdup (result);
 	}
 
-	return g_strdup ("unknown");
+	g_free (uri_in_locale);
+
+	return mime;
 }
 
 
@@ -3082,7 +2940,56 @@ tracker_flush_all_words ()
 
 	tracker->cached_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);	
 
+}
+
+
+void
+tracker_child_cb (gpointer user_data)
+{
+	struct 	rlimit mem_limit, cpu_limit;
+	int	timeout = GPOINTER_TO_INT (user_data);
+
+	/* set cpu limit */
+	getrlimit (RLIMIT_CPU, &cpu_limit);
+	cpu_limit.rlim_cur = timeout;
+	cpu_limit.rlim_max = timeout+1;
+
+	if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
+		tracker_log ("Error trying to set resource limit for cpu");
+	}
+
+	/* Set memory usage to max limit (128MB) */
+	getrlimit (RLIMIT_AS, &mem_limit);
+ 	mem_limit.rlim_cur = 128*1024*1024;
+	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
+		tracker_log ("Error trying to set resource limit for memory usage");
+	}
+
 	
+}
+
+
+gboolean
+tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status)
+{
+	GSpawnFlags flags;
+
+	if (!stdout) {
+		flags = G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL |  G_SPAWN_STDERR_TO_DEV_NULL;
+	} else {
+		flags = G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL;
+	}
+
+	return g_spawn_sync (NULL,
+			  argv,
+			  NULL,
+			  flags,
+			  tracker_child_cb,
+			  GINT_TO_POINTER (timeout),
+			  stdout,
+			  NULL,
+			  exit_status,
+			  NULL);
 
 }
 

@@ -28,7 +28,7 @@
 
 #include "config.h"
 
-#define MAX_MEM 1
+#define MAX_MEM 128
 
 typedef enum {
 	IGNORE_METADATA,
@@ -47,7 +47,9 @@ typedef struct {
  	char			*mime;
  	MetadataExtractFunc	extractor;
 } MimeToExtractor;
-  
+
+void tracker_extract_mplayer	(gchar *, GHashTable *);
+void tracker_extract_totem	(gchar *, GHashTable *);
 void tracker_extract_oasis	(gchar *, GHashTable *);
 void tracker_extract_ps		(gchar *, GHashTable *);
 #ifdef HAVE_POPPLER
@@ -73,8 +75,7 @@ void tracker_extract_gstreamer	(gchar *, GHashTable *);
 void tracker_extract_xine	(gchar *, GHashTable *);
 #else
 #ifdef USING_EXTERNAL_VIDEO_PLAYER
-void tracker_extract_mplayer	(gchar *, GHashTable *);
-void tracker_extract_totem	(gchar *, GHashTable *);
+
 #endif
 #endif
 #endif
@@ -95,9 +96,13 @@ MimeToExtractor extractors[] = {
   	/* Video extractors */
 #ifdef HAVE_GSTREAMER
  	{ "video/*",					tracker_extract_gstreamer	},
+ 	{ "video/*",					tracker_extract_mplayer		},
+ 	{ "video/*",					tracker_extract_totem		},
 #else
 #ifdef HAVE_LIBXINE
  	{ "video/*",					tracker_extract_xine		},
+ 	{ "video/*",					tracker_extract_mplayer		},
+ 	{ "video/*",					tracker_extract_totem		},
 #else
 #ifdef USING_EXTERNAL_VIDEO_PLAYER
  	{ "video/*",					tracker_extract_mplayer		},
@@ -109,9 +114,12 @@ MimeToExtractor extractors[] = {
   	/* Audio extractors */
 #ifdef HAVE_GSTREAMER
 	{ "audio/*",					tracker_extract_gstreamer	},
+ 	{ "audio/*",					tracker_extract_mplayer		},
+
 #else
 #ifdef HAVE_LIBXINE
 	{ "audio/*",					tracker_extract_xine		},
+ 	{ "audio/*",					tracker_extract_mplayer		},
 #else
 #ifdef USING_EXTERNAL_VIDEO_PLAYER
  	{ "audio/*",					tracker_extract_mplayer		},
@@ -129,6 +137,49 @@ MimeToExtractor extractors[] = {
 	{ "",						NULL				}
 };
   
+
+void
+tracker_child_cb (gpointer user_data)
+{
+	struct 	rlimit mem_limit, cpu_limit;
+	int	timeout = GPOINTER_TO_INT (user_data);
+
+	/* set cpu limit */
+	getrlimit (RLIMIT_CPU, &cpu_limit);
+	cpu_limit.rlim_cur = timeout;
+	cpu_limit.rlim_max = timeout+1;
+
+	if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
+		g_printerr ("Error trying to set resource limit for cpu\n");
+	}
+
+	/* Set memory usage to max limit (MAX_MEM) */
+	getrlimit (RLIMIT_AS, &mem_limit);
+ 	mem_limit.rlim_cur = MAX_MEM*1024*1024;
+	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
+		g_printerr ("Error trying to set resource limit for memory usage\n");
+	}
+
+	
+}
+
+
+gboolean
+tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status)
+{
+
+	return g_spawn_sync (NULL,
+			  argv,
+			  NULL,
+			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+			  tracker_child_cb,
+			  GINT_TO_POINTER (timeout),
+			  stdout,
+			  NULL,
+			  exit_status,
+			  NULL);
+
+}
 
 
 static GHashTable *

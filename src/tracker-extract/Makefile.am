@@ -16,15 +16,13 @@ if USING_LIBXINE
 video_sources = tracker-extract-libxine.c
 else
 if USING_EXTERNAL_VIDEO_PLAYER
-video_sources = tracker-extract-mplayer.c	\
-	tracker-extract-totem.c
-else
 video_sources =
 endif
 endif
 endif
 
 tracker_extract_SOURCES = tracker-extract.c	\
+	tracker-extract.h			\
 	tracker-extract-oasis.c			\
 	tracker-extract-ps.c			\
 	tracker-extract-pdf.c			\
@@ -33,6 +31,8 @@ tracker_extract_SOURCES = tracker-extract.c	\
 	tracker-extract-exif.c			\
 	tracker-extract-msoffice.c		\
 	tracker-extract-imagemagick.c		\
+	tracker-extract-mplayer.c		\
+	tracker-extract-totem.c			\
 	$(video_sources)
 
 tracker_extract_LDADD = $(GLIB2_LIBS)		\

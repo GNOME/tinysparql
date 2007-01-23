@@ -110,9 +110,9 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
 			duration = (uint32_t) length_time / 1000; /* from miliseconds to seconds */
 
 			if (has_video) {
-				add_uint32_info (metadata, g_strdup ("Video.Duration"), duration);
+				add_uint32_info (metadata, g_strdup ("Video:Duration"), duration);
 			} else if (has_audio) {
-				add_uint32_info (metadata, g_strdup ("Audio.Duration"), duration);
+				add_uint32_info (metadata, g_strdup ("Audio:Duration"), duration);
 			}
 		}
 	}
@@ -127,24 +127,24 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
 		n  = xine_get_stream_info (stream, XINE_STREAM_INFO_VIDEO_HEIGHT);
 		n0 = xine_get_stream_info (stream, XINE_STREAM_INFO_VIDEO_WIDTH);
 		if (n > 0 && n0 > 0) {
-			add_uint32_info (metadata, g_strdup ("Video.Height"), n);
-			add_uint32_info (metadata, g_strdup ("Video.Width"), n0);
+			add_uint32_info (metadata, g_strdup ("Video:Height"), n);
+			add_uint32_info (metadata, g_strdup ("Video:Width"), n0);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_FRAME_DURATION);
 		if (n > 0) {
 			/* 90000 because it is how is done in Xine! */
-			add_uint32_info (metadata, g_strdup ("Video.FrameRate"), 90000 / n);
+			add_uint32_info (metadata, g_strdup ("Video:FrameRate"), 90000 / n);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_VIDEO_BITRATE);
 		if (n > 0) {
-			add_uint32_info (metadata, g_strdup ("Video.Bitrate"), n);
+			add_uint32_info (metadata, g_strdup ("Video:Bitrate"), n);
 		}
 
 		video_codec = xine_get_meta_info (stream, XINE_META_INFO_VIDEOCODEC);
 		if (video_codec) {
-			g_hash_table_insert (metadata, g_strdup ("Video.Codec"), g_strdup (video_codec));
+			g_hash_table_insert (metadata, g_strdup ("Video:Codec"), g_strdup (video_codec));
 		}
 	}
 
@@ -157,22 +157,22 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_AUDIO_BITRATE);
 		if (n > 0) {
-			add_uint32_info (metadata, g_strdup ("Audio.Bitrate"), n);
+			add_uint32_info (metadata, g_strdup ("Audio:Bitrate"), n);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_AUDIO_SAMPLERATE);
 		if (n > 0) {
-			add_uint32_info (metadata, g_strdup ("Audio.Samplerate"), n);
+			add_uint32_info (metadata, g_strdup ("Audio:Samplerate"), n);
 		}
 
 		n = xine_get_stream_info (stream, XINE_STREAM_INFO_AUDIO_CHANNELS);
 		if (n > 0) {
-			add_uint32_info (metadata, g_strdup ("Audio.Channels"), n);
+			add_uint32_info (metadata, g_strdup ("Audio:Channels"), n);
 		}
 
 		audio_codec = xine_get_meta_info (stream, XINE_META_INFO_AUDIOCODEC);
 		if (audio_codec) {
-			g_hash_table_insert (metadata, g_strdup ("Audio.Codec"), g_strdup (audio_codec));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Codec"), g_strdup (audio_codec));
 		}
 	}
 
@@ -182,48 +182,48 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
 	comment = xine_get_meta_info (stream, XINE_META_INFO_COMMENT);
 	if (comment) {
 		if (has_video) {
-			g_hash_table_insert (metadata, g_strdup ("Video.Comment"), g_strdup (comment));
+			g_hash_table_insert (metadata, g_strdup ("Video:Comment"), g_strdup (comment));
 		} else if (has_audio) {
-			g_hash_table_insert (metadata, g_strdup ("Audio.Comment"), g_strdup (comment));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Comment"), g_strdup (comment));
 		}
 	}
 
 	title = xine_get_meta_info (stream, XINE_META_INFO_TITLE);
 	if (title) {
 		if (has_video) {
-			g_hash_table_insert (metadata, g_strdup ("Video.Title"), g_strdup (title));
+			g_hash_table_insert (metadata, g_strdup ("Video:Title"), g_strdup (title));
 		} else if (has_audio) {
-			g_hash_table_insert (metadata, g_strdup ("Audio.Title"), g_strdup (title));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Title"), g_strdup (title));
 		}
 	}
 
 	author = xine_get_meta_info (stream, XINE_META_INFO_ARTIST);
 	if (author) {
 		if (has_video) {
-			g_hash_table_insert (metadata, g_strdup ("Video.Author"), g_strdup (author));
+			g_hash_table_insert (metadata, g_strdup ("Video:Author"), g_strdup (author));
 		} else if (has_audio) {
-			g_hash_table_insert (metadata, g_strdup ("Audio.Author"), g_strdup (author));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Author"), g_strdup (author));
 		}
 	}
 
 	album = xine_get_meta_info (stream, XINE_META_INFO_ALBUM);
 	if (album) {
-		g_hash_table_insert (metadata, g_strdup ("Audio.Album"), g_strdup (album));
+		g_hash_table_insert (metadata, g_strdup ("Audio:Album"), g_strdup (album));
 	}
 
 	year = xine_get_meta_info (stream, XINE_META_INFO_YEAR);
 	if (year) {
-		g_hash_table_insert (metadata, g_strdup ("Audio.Year"), g_strdup (year));
+		g_hash_table_insert (metadata, g_strdup ("Audio:Year"), g_strdup (year));
 	}
 
 	genre = xine_get_meta_info (stream, XINE_META_INFO_GENRE);
 	if (genre) {
-		g_hash_table_insert (metadata, g_strdup ("Audio.Genre"), g_strdup (genre));
+		g_hash_table_insert (metadata, g_strdup ("Audio:Genre"), g_strdup (genre));
 	}
 
 	track = xine_get_meta_info (stream, XINE_META_INFO_TRACK_NUMBER);
 	if (track) {
-		g_hash_table_insert (metadata, g_strdup ("Audio.Track"), g_strdup (track));
+		g_hash_table_insert (metadata, g_strdup ("Audio:Track"), g_strdup (track));
 	}
 
 	/* FIXME: "Video.Copyright" seems missing */

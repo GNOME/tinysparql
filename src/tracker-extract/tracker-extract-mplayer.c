@@ -20,22 +20,23 @@
 
 #include <string.h>
 #include <glib.h>
+#include "tracker-extract.h"
 
 
 static gchar *video_tags[][2] = {
-	{ "ID_VIDEO_HEIGHT",	"Video.Height"		},
-	{ "ID_VIDEO_WIDTH",	"Video.Width"		},
-	{ "ID_VIDEO_FPS",	"Video.FrameRate"	},
-	{ "ID_VIDEO_CODEC",	"Video.Codec"		},
-	{ "ID_VIDEO_BITRATE",	"Video.Bitrate"		},
+	{ "ID_VIDEO_HEIGHT",	"Video:Height"		},
+	{ "ID_VIDEO_WIDTH",	"Video:Width"		},
+	{ "ID_VIDEO_FPS",	"Video:FrameRate"	},
+	{ "ID_VIDEO_CODEC",	"Video:Codec"		},
+	{ "ID_VIDEO_BITRATE",	"Video:Bitrate"		},
 	{ NULL,			NULL			}
 };
 
 static gchar *audio_tags[][2] = {
-	{ "ID_AUDIO_BITRATE",	"Audio.Bitrate"		},
-	{ "ID_AUDIO_RATE",	"Audio.Samplerate"	},
-	{ "ID_AUDIO_CODEC",	"Audio.Codec"		},
-	{ "ID_AUDIO_NCH",	"Audio.Channels"	},
+	{ "ID_AUDIO_BITRATE",	"Audio:Bitrate"		},
+	{ "ID_AUDIO_RATE",	"Audio:Samplerate"	},
+	{ "ID_AUDIO_CODEC",	"Audio:Codec"		},
+	{ "ID_AUDIO_NCH",	"Audio:Channels"	},
 	{ NULL,			NULL			}
 };
 
@@ -46,14 +47,14 @@ static gchar *audio_tags[][2] = {
  *    tag to Video, otherwise to Audio if it has audio.
  */
 static gchar *info_tags[][3] = {
-	{ "Comment",		"Audio.Comment",	"Video.Comment"	},
-	{ "Title",		"Audio.Title",		"Video.Title"	},
-	{ "Genre",		"Audio.Genre",		NULL		},
-	{ "Track",		"Audio.TrackNo",	NULL		},
-	{ "Artist",		"Audio.Performer",	"Video.Author"	},
-	{ "Album",		"Audio.Album",		NULL		},
-	{ "Year",		"Audio.ReleaseDate",	NULL		},
-	{ "copyright",		"File.Copyright",	NULL		},
+	{ "Comment",		"Audio:Comment",	"Video:Comment"	},
+	{ "Title",		"Audio:Title",		"Video:Title"	},
+	{ "Genre",		"Audio:Genre",		NULL		},
+	{ "Track",		"Audio:TrackNo",	NULL		},
+	{ "Artist",		"Audio:Performer",	"Video:Author"	},
+	{ "Album",		"Audio:Album",		NULL		},
+	{ "Year",		"Audio:ReleaseDate",	NULL		},
+	{ "copyright",		"File:Copyright",	NULL		},
 	{ NULL,			NULL,			NULL		}
 };
 
@@ -82,16 +83,8 @@ tracker_extract_mplayer (gchar *filename, GHashTable *metadata)
 	argv[8] = g_strdup (filename);
 	argv[9] = NULL;
 
-	if (g_spawn_sync (NULL,
-			  argv,
-			  NULL,
-			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-			  NULL,
-			  NULL,
-			  &mplayer,
-			  NULL,
-			  NULL,
-			  NULL)) {
+	if (tracker_spawn (argv, 10, &mplayer, NULL)) {
+	
 
 		GPatternSpec *pattern_ID_AUDIO_ID, *pattern_ID_VIDEO_ID;
 		GPatternSpec *pattern_ID_AUDIO, *pattern_ID_VIDEO, *pattern_ID_CLIP_INFO_NAME, *pattern_ID_CLIP_INFO_VALUE, *pattern_ID_LENGTH;

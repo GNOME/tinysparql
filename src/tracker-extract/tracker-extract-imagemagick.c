@@ -23,6 +23,8 @@
 #include <string.h>
 #include <glib.h>
 
+#include "tracker-extract.h"
+
 void
 tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 {
@@ -37,16 +39,7 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 	argv[4] = g_strdup (filename);
 	argv[5] = NULL;
 
-	if(g_spawn_sync (NULL,
-	                 argv,
-	                 NULL,
-	                 G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-	                 NULL,
-	                 NULL,
-	                 &identify,
-	                 NULL,
-	                 NULL,
-	                 NULL)) {
+	if (tracker_spawn (argv, 10, &identify, NULL)) {
 
 		lines = g_strsplit (identify, ";\n", 4);
 		g_hash_table_insert (metadata, g_strdup ("Image:Width"), g_strdup (lines[0]));

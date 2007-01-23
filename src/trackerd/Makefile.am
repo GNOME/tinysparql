@@ -139,4 +139,5 @@ trackerd_LDADD =			\
 	$(SQLITE3_LIBS)			\
 	$(GTHREAD_LIBS)			\
 	-lz				\
+	-lmagic				\
 	$(top_builddir)/src/libstemmer/libstemmer-private.la

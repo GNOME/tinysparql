@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include "tracker-extract.h"
 
 typedef enum {
 		READ_TITLE,
@@ -69,16 +70,7 @@ void tracker_extract_oasis (gchar *filename, GHashTable *metadata)
 	argv[3] = g_strdup ("meta.xml");
 	argv[4] = NULL;
 
-	if(g_spawn_sync (NULL,
-                    argv,
-                    NULL,
-                    G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-                    NULL,
-                    NULL,
-                    &xml,
-                    NULL,
-                    NULL,
-                    NULL)) {
+	if (tracker_spawn (argv, 10, &xml, NULL)) {
 
 		GMarkupParseContext  *context;
 		GMarkupParser         parser = {

@@ -2037,6 +2037,12 @@ set_defaults ()
 	tracker->index_numbers = FALSE;
 
 	tracker->first_flush = TRUE;
+
+	tracker->magic  = magic_open (MAGIC_MIME);
+    	
+	if (magic_load (tracker->magic, 0) == -1 && magic_load (tracker->magic, "magic") == -1) {
+        	tracker_log ("Error: magic_load failure : %s", magic_error (tracker->magic));
+	}
 }
 
 
