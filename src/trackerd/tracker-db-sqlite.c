@@ -2406,7 +2406,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 void
 tracker_db_update_multple_metdata (DBConnection *db_con, const char *service, const char *id, const char *key, char **values, gboolean generate_display_metadata, gboolean embedded) 
 {
-
+	
 
 }
 
