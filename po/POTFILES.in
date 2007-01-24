@@ -1,12 +1,9 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 [encoding: UTF-8]
-#python/deskbar-handler/tracker-handler.py
 src/libtracker/tracker-search.c
 src/libtracker/tracker-stats.c
 src/libtracker/tracker-tag.c
-src/sqlite3/os_common.h
-src/sqlite3/vdbe.c
 src/tracker-search-tool/tracker-search-tool.c
 src/tracker-search-tool/tracker-search-tool-callbacks.c
 src/tracker-search-tool/tracker-search-tool.desktop.in
