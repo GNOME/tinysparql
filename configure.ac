@@ -524,6 +524,7 @@ AC_CONFIG_FILES([
 	src/trackerd/Makefile
 	src/libtracker/Makefile
 	src/tracker-search-tool/Makefile
+	src/xdgmime/Makefile
 	po/Makefile.in
 ])
 

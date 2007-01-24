@@ -43,22 +43,6 @@ db_sources =				\
 	tracker-db-email.c		\
 	tracker-db-email.h
 
-xdgmime_sources =			\
-	xdgmime.c			\
-	xdgmime.h			\
-	xdgmimealias.c			\
-	xdgmimealias.h			\
-	xdgmimecache.c			\
-	xdgmimecache.h			\
-	xdgmimeglob.c			\
-	xdgmimeglob.h			\
-	xdgmimeint.c			\
-	xdgmimeint.h			\
-	xdgmimemagic.c			\
-	xdgmimemagic.h			\
-	xdgmimeparent.c			\
-	xdgmimeparent.h
-
 qdbm_sources =				\
 	depot.c				\
 	depot.h				\
@@ -78,7 +62,6 @@ test_tracker_indexer_SOURCES =		\
 	test-tracker-indexer.c		\
 	tracker-utils.c			\
 	tracker-utils.h			\
-	$(xdgmime_sources)		\
 	$(qdbm_sources)
 
 test_tracker_indexer_LDADD = 		\
@@ -86,7 +69,8 @@ test_tracker_indexer_LDADD = 		\
 	$(GTHREAD_LIBS)			\
 	-lz				\
 	-lmagic				\
-	$(top_builddir)/src/libstemmer/libstemmer-private.la
+	$(top_builddir)/src/libstemmer/libstemmer-private.la \
+	$(top_builddir)/src/xdgmime/libxdgmime.la
 
 trackerd_SOURCES =			\
 	trackerd.c			\
@@ -94,7 +78,6 @@ trackerd_SOURCES =			\
 	$(fam_sources)			\
 	$(qdbm_sources)			\
 	$(db_sources)			\
-	$(xdgmime_sources)		\
 	tracker-db.c			\
 	tracker-db.h			\
 	tracker-dbus.c			\
@@ -141,4 +124,5 @@ trackerd_LDADD =			\
 	$(GTHREAD_LIBS)			\
 	-lz				\
 	-lmagic				\
-	$(top_builddir)/src/libstemmer/libstemmer-private.la
+	$(top_builddir)/src/libstemmer/libstemmer-private.la \
+	$(top_builddir)/src/xdgmime/libxdgmime.la

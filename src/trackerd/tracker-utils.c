@@ -33,7 +33,7 @@
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-indexer.h"
-#include "xdgmime.h"
+#include "../xdgmime/xdgmime.h"
 
 
 
