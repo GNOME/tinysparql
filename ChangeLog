@@ -5,6 +5,7 @@
 2007-01-24  Jamie McCracken <jamiemcc at gnome org>
 
 	* Added magic.h to check_headers in configure.ac
+	* Created tracker_info and tracker_debug and replaced all the g_log functions that were polluting xsession-errors
 
 
 2007-01-23  Jamie McCracken <jamiemcc at gnome org>
