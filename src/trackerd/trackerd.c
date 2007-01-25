@@ -191,131 +191,6 @@ set_update_count (DBConnection *db_con, int count)
 
 
 
-
-static void
-flush_data ()
-{
-	DBConnection *cache_db_con;
-	int words_left;
-	
-	words_left = 1;
-
-	cache_db_con = tracker_db_connect_cache ();
-
-	cache_db_con->thread = g_strdup ("FlushThread");
-
-	tracker_log ("Total entities index : %d", tracker->index_count);
-
-	tracker_log ("Please wait while remaining data is flushed to the inverted word index. This may take some time...");
-
-	while (words_left > 0) {
-
-		if (words_left > 3000) {
-			words_left =  tracker_db_flush_words_to_qdbm (cache_db_con, 2000);
-		} else if (words_left > 1500) {
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 1000);
-		} else if (words_left > 600) {
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
-		} else if (words_left > 120) {
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 50);
-		} else if (words_left > 30) {
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 20);
-		} else if (words_left > 11) {
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 5);
-		} else if (words_left > 0) {
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 1);
-		}
-
-		tracker_log ("flushing data (%d words left) - please wait", words_left);
-
-	}
-
-	tracker->in_flush = FALSE;
-	
-	tracker_log ("All data has been flushed - waiting for new file events...");
-
-	
-
-	if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
-
-		tracker_indexer_optimize (tracker->file_indexer);
-
-		tracker->do_optimize = FALSE;
-		tracker->first_time_index = FALSE;
-		tracker->update_count = 0;
-
-
-	}
-
-	tracker_db_close (cache_db_con);
-	
-}
-
-
-static gboolean
-is_sleeping ()
-{
-	gboolean metadata_thread_sleeping, file_thread_sleeping;
-
-	if g_mutex_trylock (tracker->metadata_signal_mutex) {
-		g_mutex_unlock (tracker->metadata_signal_mutex);
-		metadata_thread_sleeping = TRUE;
-	} else {
-		metadata_thread_sleeping = FALSE;
-	}
-
-	if g_mutex_trylock (tracker->files_signal_mutex) {
-		g_mutex_unlock (tracker->files_signal_mutex);
-		file_thread_sleeping = TRUE;
-	} else {
-		file_thread_sleeping = FALSE;
-	}
-
-	if (metadata_thread_sleeping && file_thread_sleeping && (g_async_queue_length (tracker->file_process_queue) < 1) && (g_async_queue_length (tracker->file_metadata_queue) < 1)) {
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-
-static gboolean
-flush_when_indexing_finished ()
-{
-	gboolean sleep_count;
-
-	sleep_count = 0;
-
-	if (tracker->in_flush) {
-		return TRUE;
-	}
-	
-	while (is_sleeping()) {
-
-		/* sleep for a short while to be sure it really has stopped indexing */	
-		if (sleep_count < 100) {
-			sleep_count ++;
-			my_yield ();
-			g_usleep (1000);
-			continue;
-		}
-		
-		tracker->is_indexing = FALSE;
-		tracker->in_flush = TRUE;
-
-		g_thread_create ((GThreadFunc) flush_data , NULL, FALSE, NULL);
-		
-		return FALSE;
-
-	}
-
-	return TRUE;
-
-}
-
-
-
-
 static gboolean
 do_cleanup (const char *sig_msg)
 {
@@ -328,12 +203,7 @@ do_cleanup (const char *sig_msg)
 
 	/* stop threads from further processing of events if possible */
 
-//	tracker_dbus_shutdown (main_connection);
-
-
 	tracker->in_flush = TRUE;
-
-	//flush_data ();
 
 	tracker_indexer_close (tracker->file_indexer);
 
@@ -489,7 +359,7 @@ poll_dir (const char *uri, DBConnection *db_con)
 	if (!tracker_file_is_no_watched (uri)) {
 		scan_directory (uri, db_con);
 	} else {
-		g_debug ("blocked scan of directory %s as its in the no watch list", uri);
+		tracker_debug ("blocked scan of directory %s as its in the no watch list", uri);
 	}
 }
 
@@ -550,9 +420,9 @@ poll_files_thread (void)
 		poll_directories (db_con);
 
 		/* sleep until notified again */
-		g_debug ("poll thread sleeping");
+		tracker_debug ("poll thread sleeping");
 		g_cond_wait (tracker->poll_thread_signal, tracker->poll_signal_mutex);
-		g_debug ("poll thread awoken");
+		tracker_debug ("poll thread awoken");
 
 		/* determine if wake up call is a shutdown signal or a request to poll again */
 		if (!shutdown) {
@@ -566,7 +436,7 @@ poll_files_thread (void)
 	tracker_db_close (blob_db_con);
 	tracker_db_thread_end ();
 
-	g_debug ("poll thread has exited successfully");
+	tracker_debug ("poll thread has exited successfully");
 
 	g_mutex_unlock (tracker->poll_stopped_mutex);
 }
@@ -645,7 +515,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 					} 
 
 				} else {
-					g_debug ("blocked directory %s as its in the no watch list", str);
+					tracker_debug ("blocked directory %s as its in the no watch list", str);
 				}
 			}
 
@@ -866,7 +736,7 @@ check_directory (const char *uri)
 	my_yield ();
 
 	file_list = tracker_get_files (uri, FALSE);
-	g_debug ("checking %s for %d files", uri, g_slist_length(file_list));
+	tracker_debug ("checking %s for %d files", uri, g_slist_length(file_list));
 
 	g_slist_foreach (file_list, (GFunc) queue_file, NULL);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL);
@@ -895,7 +765,7 @@ scan_directory (const char *uri, DBConnection *db_con)
 	my_yield ();
 
 	file_list = tracker_get_files (uri, FALSE);
-	g_debug ("scanning %s for %d files", uri, g_slist_length(file_list));
+	tracker_debug ("scanning %s for %d files", uri, g_slist_length(file_list));
 
 	g_slist_foreach (file_list, (GFunc) schedule_file_check, db_con);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL);
@@ -903,7 +773,7 @@ scan_directory (const char *uri, DBConnection *db_con)
 
 	/* recheck directory to update its mtime if its changed whilst scanning */
 	schedule_dir_check (uri, db_con);
-	g_debug ("finished scanning");
+	tracker_debug ("finished scanning");
 }
 
 
@@ -935,6 +805,7 @@ start_watching ()
 }
 */
 
+/*
 static void
 extract_metadata_thread (void)
 {
@@ -943,7 +814,6 @@ extract_metadata_thread (void)
 	DBConnection *blob_db_con;
 	DBConnection *cache_db_con;
 
-	/* block all signals in this thread, except SIGALRM */
 	sigfillset (&signal_set);
 	sigdelset (&signal_set, SIGALRM);
 	pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
@@ -951,7 +821,6 @@ extract_metadata_thread (void)
 	g_mutex_lock (tracker->metadata_signal_mutex);
 	g_mutex_lock (tracker->metadata_stopped_mutex);
 
-	/* set thread safe DB connection */
 	tracker_db_thread_init ();
 
 	db_con = tracker_db_connect ();
@@ -968,15 +837,13 @@ extract_metadata_thread (void)
 	while (TRUE) {
 		FileInfo *info;
 
-		/* make thread sleep if first part of the shutdown process has been activated */
+
 		if (!tracker->is_running) {
 
-			g_debug ("metadata thread going to deep sleep...");
+			tracker_debug ("metadata thread going to deep sleep...");
 
-			/* wait to be awoken */
 			g_cond_wait (tracker->metadata_thread_signal, tracker->metadata_signal_mutex);
 
-			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
 				continue;
 			} else {
@@ -985,61 +852,27 @@ extract_metadata_thread (void)
 		}
 
 
-		if (!tracker->in_flush && (tracker->number_of_cached_words > tracker->cache_word_limit)) {
-			int words_left;
-			tracker->in_flush = TRUE;
-			tracker_log ("Please wait while data is being flushed to the inverted word index...");
-			tracker->in_flush = TRUE;
-
-			words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
-
-			while (tracker->number_of_cached_words > tracker->cache_word_min) {
-				
-
-				if (words_left > 1500) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 500);
-				} else if (words_left > 1000) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 300);
-				} else if (words_left > 500) {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 200);
-				} else {
-					words_left = tracker_db_flush_words_to_qdbm (cache_db_con, 50);
-				}
-
-				tracker->number_of_cached_words = words_left;
-				tracker_log ("flushing data (%d words left) to inverted word index - please wait", words_left);
-				/*if (!tracker->turbo) {
-					tracker_indexer_sync (tracker->file_indexer);
-				}*/
-
-			}		
-
-			tracker->in_flush = FALSE;
-			
-		}
-
+		
 		tracker->index_counter++;
 
 		info = g_async_queue_try_pop (tracker->file_metadata_queue);
 
-		/* check pending table if we haven't got anything */
 		if (!info) {
 			char ***res;
 			int  k;
 
-			/* set mutex to indicate we are in "check" state */
 			g_mutex_lock (tracker->metadata_check_mutex);
 
 			if (tracker_db_has_pending_metadata (db_con)) {
 				g_mutex_unlock (tracker->metadata_check_mutex);
 			} else {
-				g_debug ("metadata thread sleeping");
+				tracker_debug ("metadata thread sleeping");
 
-				/* we have no stuff to process so sleep until awoken by a new signal */
 				g_cond_wait (tracker->metadata_thread_signal, tracker->metadata_signal_mutex);
 				g_mutex_unlock (tracker->metadata_check_mutex);
-				g_debug ("metadata thread awoken");
-				/* determine if wake up call is new stuff or a shutdown signal */
+				tracker_debug ("metadata thread awoken");
+
+
 				if (!shutdown) {
 					continue;
 				} else {
@@ -1084,7 +917,6 @@ extract_metadata_thread (void)
 		}
 
 
-		/* info struct may have been deleted in transit here so check if still valid and intact */
 		if (!tracker_file_info_is_valid (info)) {
 			continue;
 		}
@@ -1097,10 +929,11 @@ extract_metadata_thread (void)
 	tracker_db_close (cache_db_con);
 	tracker_db_thread_end ();
 
-	g_debug ("metadata thread has exited successfully");
+	tracker_debug ("metadata thread has exited successfully");
 	g_mutex_unlock (tracker->metadata_stopped_mutex);
 }
 
+*/
 
 /* determines whether an action applies to a file or a directory */
 static void
@@ -1207,7 +1040,7 @@ process_files_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			g_debug ("files thread going to deep sleep...");
+			tracker_debug ("files thread going to deep sleep...");
 
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
@@ -1221,7 +1054,15 @@ process_files_thread (void)
 
 		
 		if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
-			tracker_flush_rare_words ();
+			if (tracker->flush_count < 10) {
+				tracker->flush_count++;
+				tracker_log ("flushing");
+				tracker_flush_rare_words ();
+			} else {
+				tracker->flush_count = 0;
+				tracker_flush_all_words ();
+				
+			}
 		}
 
 		info = g_async_queue_try_pop (tracker->file_process_queue);
@@ -1231,7 +1072,7 @@ process_files_thread (void)
 			char ***res;
 			int  k;
 
-			g_debug ("Checking for pending files...");
+			tracker_debug ("Checking for pending files...");
 
 			/* set mutex to indicate we are in "check" state */
 			g_mutex_lock (tracker->files_check_mutex);
@@ -1252,7 +1093,7 @@ process_files_thread (void)
 		
 					if (uri) {
 
-						g_debug ("processing queued directory %s - %d items left", uri, g_async_queue_length (tracker->dir_queue));
+						tracker_debug ("processing queued directory %s - %d items left", uri, g_async_queue_length (tracker->dir_queue));
 
 						check_directory (uri);
 
@@ -1278,13 +1119,15 @@ process_files_thread (void)
 	
 				}
 
+				tracker_log ("Finished indexing. Waiting for new events...");
+
 				/* we have no stuff to process so sleep until awoken by a new signal */
-				g_debug ("File thread sleeping");			
+				tracker_debug ("File thread sleeping");			
 
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
 
-				g_debug ("File thread awoken");
+				tracker_debug ("File thread awoken");
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
@@ -1317,7 +1160,7 @@ process_files_thread (void)
 					
 
 					if (tmp_action != TRACKER_ACTION_CHECK) {
-						g_debug ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
+						tracker_debug ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
 					}
 
 					info_tmp = tracker_create_file_info (row[1], tmp_action, 0, WATCH_OTHER);
@@ -1338,7 +1181,7 @@ process_files_thread (void)
 
 			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM or inotify move/create) */
 			if (!pushed_events && (k == 0)) {
-				g_debug ("files not ready so sleeping");
+				tracker_debug ("files not ready so sleeping");
 				g_usleep (100000);
 			} 
 
@@ -1360,11 +1203,7 @@ process_files_thread (void)
 			continue;
 		}
 
-		tracker->index_count++;
-
-		if ( (tracker->index_count == 1 || tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 0)) {
-			tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
-		} 
+		
 
 		/* get file ID and other interesting fields from Database if not previously fetched or is newly created */
 
@@ -1392,7 +1231,7 @@ process_files_thread (void)
 
 
 
-		//g_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
+		//tracker_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
 
 
 		/* process deletions */
@@ -1437,6 +1276,7 @@ process_files_thread (void)
 		/* check if file needs indexing */
 		need_index = (info->mtime > info->indextime);
 
+
 		switch (info->action) {
 
 			case TRACKER_ACTION_FILE_CHECK:
@@ -1462,7 +1302,7 @@ process_files_thread (void)
 			case TRACKER_ACTION_DIRECTORY_CHECK:
 
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
-					g_debug ("queueing directory %s", info->uri);
+					tracker_debug ("queueing directory %s", info->uri);
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
 				}
 
@@ -1471,7 +1311,7 @@ process_files_thread (void)
 			case TRACKER_ACTION_DIRECTORY_REFRESH:
 			
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
-					g_debug ("queueing directory %s", info->uri);
+					tracker_debug ("queueing directory %s", info->uri);
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
 					need_index = FALSE;
 				}
@@ -1482,7 +1322,7 @@ process_files_thread (void)
 			case TRACKER_ACTION_DIRECTORY_MOVED_TO:
 
 				need_index = TRUE;
-				g_debug ("processing created directory %s", info->uri);
+				tracker_debug ("processing created directory %s", info->uri);
 
 				/* add to watch folders (including subfolders) */
 				watch_dir (info->uri, db_con);
@@ -1492,7 +1332,7 @@ process_files_thread (void)
 					if (!tracker_file_is_no_watched (info->uri)) {
 						scan_directory (info->uri, db_con);
 					} else {
-						g_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
+						tracker_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
 					}
 				}
 
@@ -1503,6 +1343,13 @@ process_files_thread (void)
 		}
 
 		if (need_index) {
+			tracker->index_count++;
+		
+			if (tracker->verbosity == 0) {
+				if ( (tracker->index_count == 1 || tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 0)) {
+					tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
+				} 
+			}
 			tracker_db_index_entity (db_con, info);
 		}
 
@@ -1517,7 +1364,7 @@ process_files_thread (void)
 
 
 	tracker_db_thread_end ();
-	g_debug ("files thread has exited successfully");
+	tracker_debug ("files thread has exited successfully");
 	g_mutex_unlock (tracker->files_stopped_mutex);
 }
 
@@ -1555,7 +1402,7 @@ process_user_request_queue_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			g_debug ("request thread going to deep sleep...");
+			tracker_debug ("request thread going to deep sleep...");
 
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 
@@ -1573,10 +1420,10 @@ process_user_request_queue_thread (void)
 		rec = g_async_queue_try_pop (tracker->user_request_queue);
 
 		if (!rec) {
-			g_debug ("request thread sleeping");
+			tracker_debug ("request thread sleeping");
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 			g_mutex_unlock (tracker->request_check_mutex);
-			g_debug ("request thread awoken");
+			tracker_debug ("request thread awoken");
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
@@ -1866,7 +1713,7 @@ process_user_request_queue_thread (void)
 
 	tracker_db_thread_end ();
 
-	g_debug ("request thread has exited successfully");
+	tracker_debug ("request thread has exited successfully");
 
 	/* unlock mutex so we know thread has exited */
 	g_mutex_unlock (tracker->request_check_mutex);
@@ -1924,56 +1771,6 @@ add_local_dbus_connection_monitoring (DBusConnection *connection)
 
 
 
-void
-log_handler (const gchar *domain, GLogLevelFlags levels, const char* message, gpointer data)
-{
-	FILE		*fd;
-	time_t		now;
-	char		buffer1[64], buffer2[20];
-	char		*output;
-	struct tm	*loctime;
-	GTimeVal	start;
-
-
-	if ((levels & G_LOG_LEVEL_DEBUG) && (tracker->verbosity < 2)) {
-		return;
-	}
-
-
-	if (message) {
-		g_print ("%s\n", message);
-	}
-
-	/* ensure file logging is thread safe */
-	g_mutex_lock (tracker->log_access_mutex);
-
-	fd = g_fopen (tracker->log_file, "a");
-
-	if (!fd) {
-		g_mutex_unlock (tracker->log_access_mutex);
-		g_warning ("could not open %s", tracker->log_file);
-		return;
-	}
-
-	g_get_current_time (&start);
-
-	now = time ((time_t *) NULL);
-
-	loctime = localtime (&now);
-
-	strftime (buffer1, 64, "%d %b %Y, %H:%M:%S:", loctime);
-
-	g_sprintf (buffer2, "%ld", start.tv_usec / 1000);
-
-	output = g_strconcat (buffer1, buffer2, " - ", message, NULL);
-
-	g_fprintf (fd, "%s\n", output);
-	g_free (output);
-
-	fclose (fd);
-
-	g_mutex_unlock (tracker->log_access_mutex);
-}
 
 
 static void
@@ -2007,26 +1804,16 @@ set_defaults ()
 	tracker->index_bucket_ratio = INDEX_BUCKET_RATIO;
 	tracker->index_divisions = INDEX_DIVISIONS;
 	tracker->padding = INDEX_PADDING;
-	tracker->cache_word_limit = 7000;
-	tracker->cache_word_min = 450;
 
 	tracker->flush_count = 0;
-	tracker->min_flush = 1048576;
-	tracker->flush_by_file = 0;
-	tracker->in_flush = FALSE;
 
 	tracker->index_evolution_emails = FALSE;
 	tracker->index_thunderbird_emails = FALSE;
 	tracker->index_kmail_emails = FALSE;
 
-	tracker->enable_debug = FALSE;
-	tracker->turbo = FALSE;
-	tracker->slow = FALSE;
 	tracker->use_extra_memory = TRUE;
 
-	tracker->throttle = 5;
-
-	tracker->cached_word_table = NULL;
+	tracker->throttle = 0;
 
 	tracker->min_word_length = 3;
 	tracker->max_word_length = 30;
@@ -2113,16 +1900,10 @@ sanity_check_option_values ()
 		tracker->throttle = 0;
 	}
 
-	if (tracker->throttle == 0) {
-		tracker->turbo = TRUE;
-	}
-
 	char *bools[] = {"no", "yes"};
 
 	tracker_log ("\nTracker configuration options :");
-	tracker_log ("Debug mode enabled : \t\t\t%s", bools[tracker->enable_debug]);
 	tracker_log ("Low memory mode : \t\t\t%s", bools[!tracker->use_extra_memory]);
-	tracker_log ("Faster indexing : \t\t\t%s", bools[tracker->turbo]);
 	tracker_log ("Indexing enabled : \t\t\t%s", bools[tracker->enable_indexing]);
 	tracker_log ("Watching enabled : \t\t\t%s", bools[tracker->enable_watching]);
 	tracker_log ("File content indexing enabled : \t%s", bools[tracker->enable_content_indexing]);
@@ -2144,9 +1925,6 @@ sanity_check_option_values ()
 	if (tracker->use_extra_memory) {
 		tracker->max_process_queue_size = 5000;
 		tracker->max_extract_queue_size = 5000;
-		tracker->cached_word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-		tracker->cache_word_limit = 20000;
-		tracker->cache_word_min = 1000;
 
 		tracker->cached_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);	
 
@@ -2262,8 +2040,7 @@ main (int argc, char **argv)
 		g_thread_init (NULL);
 	}
 
-	g_log_set_handler (NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, (GLogFunc) log_handler, NULL);
-
+	
 	dbus_g_thread_init ();
 
 	need_setup = FALSE;
@@ -2304,7 +2081,7 @@ main (int argc, char **argv)
 
 	tracker->stemmer_mutex = g_mutex_new ();
 
-	tracker->cached_word_table_mutex = g_mutex_new ();
+	//tracker->cached_word_table_mutex = g_mutex_new ();
 
 	tracker->dir_queue = g_async_queue_new ();
 

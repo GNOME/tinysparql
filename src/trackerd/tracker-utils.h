@@ -71,9 +71,6 @@ typedef struct {
 #define INDEX_BUCKET_RATIO 		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
 #define INDEX_PADDING	 		2
 
-/* just for now, make tracker_log actually call g_message */
-#define tracker_log g_message
-
 typedef struct {                         /* type of structure for an element of search result */
 	guint32 	id;              /* Service ID number of the document */
 	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
@@ -119,6 +116,7 @@ typedef struct {
 	int		throttle;
 	int		default_throttle;
 	int		battery_throttle;
+	gboolean	use_extra_memory;
 
 	/* indexing options */
 	int	 	max_index_bucket_count;
@@ -162,13 +160,6 @@ typedef struct {
 	gboolean	use_nfs_safe_locking; /* use safer but much slower external lock file when users home dir is on an nfs systems */
 
 
-	/* debug option for more verbose (but slower) logging */
-	gboolean	enable_debug;
-
-	gboolean	turbo;
-	gboolean	slow;
-	gboolean	use_extra_memory;
-
 	/* application run time values */
 	gboolean	is_indexing;
 	gboolean	in_flush;
@@ -176,17 +167,8 @@ typedef struct {
 	int		index_counter;
 	int		update_count;
 
-	/* use these to control how many common words are cached and flushed to qdbm when indexing finishes */
-	int		cache_word_limit;
-	int		cache_word_min;
-	int		number_of_cached_words;
-	GHashTable	*cached_word_table;
-	GMutex		*cached_word_table_mutex;
-	int		flush_count;
-	int		min_flush;
-	int		flush_by_file;
 
-	/* cache words when we can use extra memory */
+	/* cache words before saving to word index */
 	GHashTable	*cached_table;
 	GMutex		*cache_table_mutex;
 	int		word_detail_limit;
@@ -195,6 +177,9 @@ typedef struct {
 	int		word_count;
 	int		word_count_limit;
 	int		word_count_min;
+	int		flush_count;
+
+
 
 	GSList 		*poll_list;
 	
@@ -355,6 +340,11 @@ typedef struct {
 	int			ref_count;
 
 } FileInfo;
+
+void 		tracker_log 	(const char *message, ...);
+void		tracker_info	(const char *message, ...);
+void		tracker_debug 	(const char *message, ...);
+
 
 int		tracker_get_id_for_service 		(const char *service);
 const char *	tracker_get_service_by_id 		(int service_type_id);

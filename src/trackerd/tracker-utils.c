@@ -870,13 +870,13 @@ tracker_file_is_no_watched (const char* uri)
 
 		/* check if equal or a prefix with an appended '/' */
 		if (strcmp (uri, compare_uri) == 0) {
-			g_debug ("blocking watch of %s", uri); 
+			tracker_debug ("blocking watch of %s", uri); 
 			return TRUE;
 		}
 
 		char *prefix = g_strconcat (compare_uri, G_DIR_SEPARATOR_S, NULL);
 		if (g_str_has_prefix (uri, prefix)) {
-			g_debug ("blocking prefix watch of %s", uri); 
+			tracker_debug ("blocking prefix watch of %s", uri); 
 			return TRUE;
 		}
 
@@ -1291,7 +1291,7 @@ tracker_file_is_indexable (const char *uri)
 
 	convert_ok = (!S_ISDIR (finfo.st_mode) && S_ISREG (finfo.st_mode));
 
-	if (convert_ok) g_debug ("file %s is indexable", uri);
+	if (convert_ok) tracker_debug ("file %s is indexable", uri);
 
 	return convert_ok;
 }
@@ -1834,8 +1834,8 @@ tracker_load_config_file ()
 					 "# Set to false to prevent watching of any kind\n",
 					 "EnableWatching=true\n\n",
 					 "[Indexing]\n",
-					 "# Throttles the indexing process. Allowable values are 0-20. Lower values increase indexing speed but may degrade system performance\n",
-					 "Throttle=5\n",
+					 "# Throttles the indexing process. Allowable values are 0-20. higher values decrease indexing speed\n",
+					 "Throttle=0\n",
 					 "# Disables the indexing process\n",
 					 "EnableIndexing=true\n",
 					 "# Enables indexing of a file's text contents\n",
@@ -1886,9 +1886,6 @@ tracker_load_config_file ()
 	g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
 
 	/* general options */
-	if (g_key_file_has_key (key_file, "General", "EnableDebugLogging", NULL)) {
-		tracker->enable_debug = g_key_file_get_boolean (key_file, "General", "EnableDebugLogging", NULL);
-	}
 
 	if (g_key_file_has_key (key_file, "General", "PollInterval", NULL)) {
 		tracker->poll_interval = g_key_file_get_integer (key_file, "General", "PollInterval", NULL);
@@ -2129,11 +2126,11 @@ tracker_is_dir_polled (const char *dir)
 void
 tracker_throttle (int multiplier)
 {
-	int throttle;
-	
-	if (tracker->turbo) {
+	if (tracker->throttle == 0) {
 		return;
 	}
+
+	int throttle;
 
 	throttle = tracker->throttle * multiplier;
 
@@ -2228,7 +2225,7 @@ tracker_notify_meta_data_available (void)
 
 		g_thread_yield ();
 		g_usleep (10);
-		g_debug ("in check phase");
+		tracker_debug ("in check phase");
 	}
 }
 
@@ -2895,7 +2892,7 @@ tracker_flush_rare_words ()
 	
 	GSList *list, *l, *l2;
 
-	g_debug ("flushing rare words");
+	tracker_debug ("flushing rare words");
 
 	list = g_hash_table_key_slist (tracker->cached_table);
 
@@ -2939,6 +2936,9 @@ tracker_flush_all_words ()
 	g_hash_table_destroy (tracker->cached_table);
 
 	tracker->cached_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);	
+
+	tracker->word_detail_count = 0;
+	tracker->word_count = 0;
 
 }
 
@@ -2991,5 +2991,100 @@ tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status)
 			  exit_status,
 			  NULL);
 
+}
+
+
+static void
+output_log (int verbosity, const char *message)
+{
+	FILE		*fd;
+	time_t		now;
+	char		buffer1[64], buffer2[20];
+	char		*output;
+	struct tm	*loctime;
+	GTimeVal	start;
+
+
+	if (tracker->verbosity < verbosity) {
+		return;
+	}
+
+	if (message) {
+		g_print ("%s\n", message);
+	}
+
+	/* ensure file logging is thread safe */
+	g_mutex_lock (tracker->log_access_mutex);
+
+	fd = g_fopen (tracker->log_file, "a");
+
+	if (!fd) {
+		g_mutex_unlock (tracker->log_access_mutex);
+		g_warning ("could not open %s", tracker->log_file);
+		return;
+	}
+
+	g_get_current_time (&start);
+
+	now = time ((time_t *) NULL);
+
+	loctime = localtime (&now);
+
+	strftime (buffer1, 64, "%d %b %Y, %H:%M:%S:", loctime);
+
+	g_sprintf (buffer2, "%ld", start.tv_usec / 1000);
+
+	output = g_strconcat (buffer1, buffer2, " - ", message, NULL);
+
+	g_fprintf (fd, "%s\n", output);
+
+	g_free (output);
+
+	fclose (fd);
+
+	g_mutex_unlock (tracker->log_access_mutex);
+}
+
+
+void 		
+tracker_log 	(const char *message, ...)
+{
+	va_list		args;
+	char 		*msg;
+
+  	va_start (args, message);
+  	msg = g_strdup_vprintf (message, args);
+  	va_end (args);
+
+	output_log (0, msg);
+	g_free (msg);
+}
+
+void		
+tracker_info	(const char *message, ...)
+{
+	va_list		args;
+	char 		*msg;
+
+  	va_start (args, message);
+  	msg = g_strdup_vprintf (message, args);
+  	va_end (args);
+
+	output_log (1, msg);
+	g_free (msg);
+}
+
+void
+tracker_debug 	(const char *message, ...)
+{
+	va_list		args;
+	char 		*msg;
+
+  	va_start (args, message);
+  	msg = g_strdup_vprintf (message, args);
+  	va_end (args);
+
+	output_log (2, msg);
+	g_free (msg);
 }
 

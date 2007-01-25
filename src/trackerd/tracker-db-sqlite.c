@@ -660,9 +660,7 @@ tracker_db_connect_full_text (void)
 	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
 		tracker_log ("database file %s is not present - will create", dbname);
 		create_table = TRUE;
-	} else {
-		tracker_log ("database file %s is present", dbname);
-	}
+	} 
 
 
 	db_con = g_new0 (DBConnection, 1);
@@ -1590,7 +1588,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	compressed = tracker_compress (text, length, &bytes_compressed);
 
 	if (compressed) {
-		g_debug ("compressed full text size of %d to %d", length, bytes_compressed);
+		tracker_debug ("compressed full text size of %d to %d", length, bytes_compressed);
 		value = compressed;
 		
 	} else {
@@ -1741,8 +1739,6 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 		}
 	}
 
-	tracker->flush_count += bytes_read;
-	
 	value = g_string_free (str, FALSE);
 
 	fclose (file);
@@ -2132,7 +2128,7 @@ update_metadata_index (DBConnection *db_con, const char *id, const char *service
 		int sid;
 
 		sid = tracker_get_id_for_service (service);
-		g_debug ("updating differential metadata for %s", meta_name);
+		tracker_debug ("updating differential metadata for %s", meta_name);
 		tracker_db_update_differential_index (old_table, new_table, id, sid);
 		
 		g_hash_table_destroy (new_table);
@@ -2143,32 +2139,6 @@ update_metadata_index (DBConnection *db_con, const char *id, const char *service
 	}
 }
 
-
-
-static void
-update_file_index (DBConnection *db_con, const char *id, const char *service, const char *meta_name, const char *meta_value)
-{
-	char *old_value = NULL;
-	
-	char ***res = tracker_db_get_metadata (db_con, service, id, meta_name);
-
-	if (res) {
-		char **row;
-
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[0]) {
-			old_value = g_strdup (row[0]);
-		}
-
-		tracker_db_free_result (res);
-	}
-
-	update_metadata_index (db_con, id, service, meta_name, old_value, meta_value);
-
-	g_free (old_value);
-
-}
 
 
 char *
@@ -2850,6 +2820,7 @@ delete_index_for_service (DBConnection *db_con, DBConnection *blob_db_con, guint
 
 }
 
+/*
 static gint
 delete_id_from_list (gpointer         key,
 		     gpointer         value,
@@ -2885,7 +2856,7 @@ delete_id_from_list (gpointer         key,
 
   	return 1;
 }
-
+*/
 
 static void
 delete_cache_words (guint32 file_id)
@@ -3054,7 +3025,7 @@ tracker_db_has_pending_files (DBConnection *db_con)
 			int pending_file_count;
 
 			pending_file_count = atoi (row[0]);
-			g_debug ("%d files are pending with count %s", pending_file_count, row[0]);
+			tracker_debug ("%d files are pending with count %s", pending_file_count, row[0]);
 			has_pending = (pending_file_count > 0);
 		}
 
@@ -3088,7 +3059,7 @@ tracker_db_has_pending_metadata (DBConnection *db_con)
 			int pending_file_count;
 
 			pending_file_count = atoi (row[0]);
-			g_debug ("metadata queue has %d rows pending", atoi (row[0]));
+			tracker_debug ("metadata queue has %d rows pending", atoi (row[0]));
 			has_pending = (pending_file_count > 0);
 		}
 
@@ -3340,7 +3311,7 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 						row[1] = g_strdup (res[0][1]);
 						row[2] = NULL;
 
-						g_debug ("hit is %s", row[1]);
+						tracker_debug ("hit is %s", row[1]);
 
 						result_list = g_slist_prepend (result_list, row);
 
@@ -3661,133 +3632,30 @@ typedef struct {
 
 
 
-static inline void
-add_word_to_hash (const char *word, int id, int count)
-{
-		CacheWord *cache_word = g_slice_new (CacheWord);
-
-		cache_word->id = id;
-		cache_word->count = count;
-		g_mutex_lock (tracker->cached_word_table_mutex);
-		g_hash_table_insert (tracker->cached_word_table, g_strdup (word), cache_word);
-		g_mutex_unlock (tracker->cached_word_table_mutex);
-}
-
-
-
-static char *
-cache_word_exists (DBConnection *db_con, const char *word) 
-{
-	char ***res;
-	char *word_id = NULL;
-	int  count = 1, id;
-
-	if (tracker->use_extra_memory) {
-		CacheWord *cache_word;
-
-		g_mutex_lock (tracker->cached_word_table_mutex);
-		cache_word = (g_hash_table_lookup (tracker->cached_word_table, word));
-		g_mutex_unlock (tracker->cached_word_table_mutex);
-
-		if (cache_word) {
-			cache_word->count++;
-			return tracker_int_to_str (cache_word->id);
-		}
-
-	}
-
-	res = tracker_exec_proc (db_con, "GetWordID", 1, word);
-
-	if (res) {
-
-		if (res[0] && res[0][0]) {
-			word_id = g_strdup (res[0][0]);
-			id = atoi (res[0][0]);
-
-			if (res[0][1]) {
-				count = atoi (res[0][1]);
-			}
-		}
-
-		tracker_db_free_result (res);
-	}
-
-	if (word_id) {
-
-		count ++;
-
-		if (tracker->use_extra_memory) {
-			add_word_to_hash (word, id, count);
-
-		} else {
-			char *str_count = tracker_uint_to_str (count);
-
-			tracker_exec_proc (db_con, "UpdateWordCount", 2, str_count, word_id);
-
-			g_free (str_count);
-		}
-
-		return word_id;
-
-	} else {
-		tracker_exec_proc (db_con, "InsertWord", 1, word);
-		tracker->number_of_cached_words++;
-	}
-
-	id = tracker_db_get_last_id (db_con);
-
-	if (tracker->use_extra_memory) {
-			add_word_to_hash (word, id, count);
-	}
-
-	return tracker_int_to_str (id);
-}
-
 
 static void
 append_cache_word (DBConnection *db_con, const char *word, guint32 service_id, int service_type, int score) 
 {
-	char *word_id, *str_service_id, *str_service_type, *str_score;
 
-//	tracker_log ("appending word %s", word);
+	WordDetails *word_details;
+	GSList *list;
 
+	word_details = g_slice_new (WordDetails);
 
-	if (tracker->use_extra_memory) {
-		WordDetails *word_details;
-		GSList *list;
+	word_details->id = service_id;
+	word_details->amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
 
-		word_details = g_slice_new (WordDetails);
+	list = g_hash_table_lookup (tracker->cached_table, word);
 
-		word_details->id = service_id;
-		word_details->amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
-
-		list = g_hash_table_lookup (tracker->cached_table, word);
-
-		if (!list) {
-			tracker->word_count++;
-		}
-
-		list = g_slist_prepend (list, word_details);			
-		g_hash_table_insert (tracker->cached_table, g_strdup (word), list);
-
-
-		tracker->word_detail_count++;
-
-		return;
+	if (!list) {
+		tracker->word_count++;
 	}
 
-	word_id = cache_word_exists (db_con, word);
+	list = g_slist_prepend (list, word_details);			
+	g_hash_table_insert (tracker->cached_table, g_strdup (word), list);
 
-	str_service_id = tracker_uint_to_str (service_id);
-	str_service_type = tracker_int_to_str (service_type);
-	str_score = tracker_int_to_str (score);
 
-	tracker_exec_proc (db_con, "InsertServiceWord", 4, word_id, str_service_id, str_service_type, str_score);			
-
-	g_free (word_id);
-	g_free (str_service_id);
-	g_free (str_service_type);
-	g_free (str_score);
+	tracker->word_detail_count++;
 }
 
 static inline guint8
@@ -3812,197 +3680,24 @@ get_score_from_detail (WordDetails *details)
 static gboolean
 update_cache_word (DBConnection *db_con, const char *word, guint32 service_id, int score) 
 {
-	char *str_service_id, *str_score;
-
-	if (tracker->use_extra_memory) {
-		WordDetails *word_details;
-		GSList *list, *l;
-
-		list = g_hash_table_lookup (tracker->cached_table, word);
-
-		for (l = list; l; l=l->next) {
-			word_details = l->data;
-			if (word_details->id == service_id) {
-				score += get_score_from_detail (word_details);
-				word_details->amalgamated = tracker_indexer_calc_amalgamated (get_service_type_from_detail (word_details), score);
-				return TRUE;
-			}
-		}
-		
-		return FALSE;
-	}
 	
+	WordDetails *word_details;
+	GSList *list, *l;
 
-	str_service_id = tracker_uint_to_str (service_id);
-	str_score = tracker_int_to_str (score);
+	list = g_hash_table_lookup (tracker->cached_table, word);
 
-	tracker_exec_proc (db_con, "UpdateServiceWord", 3, str_score, word, str_service_id);			
-
-	g_free (str_service_id);
-	g_free (str_score);
-
+	for (l = list; l; l=l->next) {
+		word_details = l->data;
+		if (word_details->id == service_id) {
+			score += get_score_from_detail (word_details);
+			word_details->amalgamated = tracker_indexer_calc_amalgamated (get_service_type_from_detail (word_details), score);
+			return TRUE;
+		}
+	}
+		
 	return FALSE;
 }
 
-
-static void
-update_counts	 (gpointer key,
-		  gpointer value,
-		  gpointer user_data)
-{
-	DBConnection *db_con = user_data;
-	CacheWord *cache_word = (CacheWord *) value;
-
-	if (cache_word) {
-		char *str_count = tracker_int_to_str (cache_word->count);
-		char *str_id  =  tracker_int_to_str (cache_word->id);
-
-		tracker_exec_proc (db_con, "UpdateWordCount", 2, str_count, str_id);
-
-		g_free (str_count);
-		g_free (str_id);
-
-		g_slice_free (CacheWord, cache_word);
-
-		cache_word = NULL;
-
-	}
-}
-
-
-int
-tracker_db_flush_words_to_qdbm (DBConnection *db_con, int limit) 
-{
-
-	char ***res = NULL, ***res2 = NULL, ***res3 = NULL;
-	char *str_limit = tracker_int_to_str (limit);
-	int result = 0, rc, count = 0;
-	WordDetails *word_details;
-
-	if (tracker->use_extra_memory) {
-		/* update word counts */
-		g_mutex_lock (tracker->cached_word_table_mutex);
-		g_hash_table_foreach (tracker->cached_word_table, update_counts, db_con);
-		g_hash_table_destroy (tracker->cached_word_table);
-		tracker->cached_word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-		g_mutex_unlock (tracker->cached_word_table_mutex);
-	}
-
-	res = tracker_exec_proc (db_con, "GetWordsTop", 1, str_limit);
-	
-	g_free (str_limit);
-
-	if (res) {
-		int  k;
-		char **row;
-		char *word_id, *word;
-
-		tracker_db_start_transaction (db_con);
-
-		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
-
-			if (row[0] && row[1]) {
-
-				word_id = row[0];
-				word = row[1];
-
-				res2 = tracker_exec_proc (db_con, "GetServiceWordCount", 1, word_id);
-				if (res2) {
-					if (res2[0] && res2[0][0]) {
-						count = atoi(res2[0][0]);
-					} 
-
-					tracker_db_free_result (res2);
-				}
-
-				if (count != 0) {
-					sqlite3_stmt *stmt;
-
-					word_details = g_malloc (sizeof (WordDetails) * count);
-	
-					stmt = get_prepared_query (db_con, "GetServiceWord");
-				
-					if (sqlite3_bind_text (stmt, 1, word_id, strlen (word_id), SQLITE_TRANSIENT) != SQLITE_OK) {
-						tracker_log ("ERROR : parameter %d could not be bound to %s", 1, "GetServiceWord");
-					}
-
-				
-					int i = 0;
-
-					lock_connection (db_con);
-					while (TRUE) {
-
-						
-						rc = sqlite3_step (stmt);
-						
-
-						if (rc == SQLITE_BUSY) {
-							unlock_connection (db_con);
-							g_usleep (100);
-							lock_connection (db_con);
-							continue;
-						}
-
-						if (rc == SQLITE_ERROR || rc == SQLITE_MISUSE) {
-							tracker_log ("Error while executing SP GetServiceWord");
-							break;
-						}
-
-						if (rc == SQLITE_DONE) {
-							break;
-						}
-
-						if (rc == SQLITE_ROW) {
-							guint32 service_id;
-							int service_type, score;
-
-							service_id = (guint32) sqlite3_column_int (stmt, 0);
-							service_type = sqlite3_column_int (stmt, 1);
-							score = sqlite3_column_int (stmt, 2);
-						
-							word_details[i].id = service_id;
-							word_details[i].amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
-
-							i++;
-						}
-
-					}
-					unlock_connection (db_con);
-
-					if (i == count) {
-						tracker_indexer_append_word_chunk (tracker->file_indexer, word, word_details, count);
-						tracker->update_count++;
-					} else {
-						tracker_log ("flush failure - ignoring suspect data. Expected row count is %d but actual is %d", i, count);
-					}
-
-					g_free (word_details);
-				
-				}	
-
-				tracker_exec_proc (db_con, "DeleteServiceWords", 1, word_id);
-				tracker_exec_proc (db_con, "DeleteWord", 1, word_id);
-				
-			} 
-				
-		}
-		tracker_db_end_transaction (db_con);
-		tracker_db_free_result (res);
-	}
-	
-	res3 = tracker_exec_proc (db_con, "GetWordCount", 0);
-	if (res3) {
-		if (res3[0] && res3[0][0]) {
-			result = atoi(res3[0][0]);
-		} 
-
-		tracker_db_free_result (res3);
-	}
-
-	return result;
-		
-
-}
 
 
 
@@ -4037,8 +3732,6 @@ update_index_data (gpointer key,
 	char		*word;
 	int		score;
 	ServiceTypeInfo	*info;
-	char ***res;
-	gboolean is_cached = FALSE;
 
 	word = (char *) key;
 	score = GPOINTER_TO_INT (value);
@@ -4046,38 +3739,11 @@ update_index_data (gpointer key,
 
 	if (score == 0) return;
 
-	g_debug ("updating index for word %s with score %d", word, score);
+	tracker_debug ("updating index for word %s with score %d", word, score);
 
 	if (!update_cache_word (info->db_con, word, info->service_id, score)) {
 		tracker_indexer_update_word (tracker->file_indexer, word, info->service_id, info->service_type_id, score, FALSE);
 	}
-
-	return;
-
-	char *str_service_id = tracker_uint_to_str (info->service_id);
-
-	if (score != 0) {
-
-		res = tracker_exec_proc (info->db_con, "ServiceCached", 2, str_service_id, word);
-
-		if (res) {
-			if (res[0] && res[0][0]) {
-				if (res[0][0][0] ==  '1') {
-					is_cached = TRUE;					
-				}
-			} 
-	
-			tracker_db_free_result (res);
-		}
-
-		if (!is_cached) {
-			tracker_indexer_update_word (tracker->file_indexer, word, info->service_id, info->service_type_id, score, FALSE);
-		} else {
-			update_cache_word (info->db_con, word, info->service_id, score);
-		}
-	}
-
-	g_free (str_service_id);
 }
 
 
