@@ -20,7 +20,15 @@ AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h linux/unistd.h zlib.h magic.h])
+AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h linux/unistd.h])
+
+AC_CHECK_HEADER([zlib.h],
+                [],
+                [AC_MSG_ERROR([You must have zlib.h and zlib installed])])
+
+AC_CHECK_HEADER([magic.h],
+                [],
+                [AC_MSG_ERROR([You must have magic.h and libmagic installed])])
 
 # Checks for functions
 AC_CHECK_FUNCS([getline])
@@ -81,6 +89,27 @@ fi
 
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
+
+
+####################################################################
+# Deskbar Applet Handler
+####################################################################
+
+AC_ARG_WITH([deskbar_applet_handler_dir],
+            AC_HELP_STRING([--with-deskbar-applet-handler-dir], [Path to Deskbar handler directory]))
+
+if test "x$with_deskbar_applet_handler_dir" = "x" ; then
+   handler_dir="`pkg-config --variable handlersdir deskbar-applet`"
+else
+   handler_dir="$with_deskbar_applet_handler_dir"
+fi
+
+
+
+DESKBAR_HANDLER_DIR="$handler_dir"
+AC_SUBST(DESKBAR_HANDLER_DIR)
+
+
 
 ####################################################################
 # Compiler warning checks

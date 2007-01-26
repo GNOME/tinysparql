@@ -5,8 +5,13 @@ xdgconfigdir = $(sysconfdir)/xdg/autostart
 pkgconfig_DATA = tracker.pc
 xdgconfig_DATA = trackerd.desktop
 
+handlerdir = $(DESKBAR_HANDLER_DIR)
+handler_DATA =  python/deskbar-handler/tracker-handler.py 
+
+
 EXTRA_DIST = \
 	$(xdgconfig_DATA) \
+	$(handler_DATA) \
 	rdf-query-examples/80s-music.rdf \
 	rdf-query-examples/90s-music.rdf \
 	rdf-query-examples/all-documents.rdf \
@@ -15,6 +20,8 @@ EXTRA_DIST = \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in 
+	
+
 
 DISTCLEANFILES = \
 	intltool-extract \
@@ -22,4 +29,5 @@ DISTCLEANFILES = \
 	intltool-update
 
 DISTCHECK_CONFIGURE_FLAGS = \
-	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services
+	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
+	--with-deskbar-applet-handler-dir="\$(libdir)"/deskbar-applet/handlers 

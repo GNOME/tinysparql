@@ -1,3 +1,8 @@
+2007-01-25  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed update of embedded keywords
+	* added deskbar handler to tarball and installation
+
 2007-01-24 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* converted xdgmime to private lib
