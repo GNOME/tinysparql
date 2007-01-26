@@ -28,10 +28,10 @@ versions)
 
 
 All discussion related to tracker happens on the tracker mailing list
-(http://mail.gnome.org/mailman/listinfo/tracker-list)
+(http://mail.gnome.org/mailman/listinfo/tracker-list) and/or irc channel #tracker on irc.gimp.net
 
 More infomation on Tracker can be found at
-http://freedesktop.org/wiki/Software/Tracker
+http://tracker-project.org
 
 
 USE CASES
@@ -57,23 +57,6 @@ use cases:
   file dialogs and vfolder systems
 
 * Can provide a more intelligent desktop using statistical metadata
-
-
-
-NEW CHANGES
-
-* New metadata engine sporting metadata relationships and support for multiple
-  values
-
-* Support for more RDF style semantics and Dublin Core metadata
-
-* Fixed memory leaks when indexing so total memory usage (in MBs) should stay
-  in single figures 
-
-* Now indexes meaningful numbers of 5 or more consecutive digits only
-  (suitable for tel no.s, bank accounts, ISBN etc)
-
-* File names now indexed as delimited parts for more accurate matching
 
 
 FEATURES
@@ -221,7 +204,11 @@ You can disable indexing by passing --no-indexing
 You can enable a low memory usage mode (recommended for machines with less
 than 256MB of RAM) by passing --enable-low-memory
 
-You can enable turbo indexing by passing --turbo
+You can artificially throttle indexing by passing --throttle=value where value is in the
+range 0-20 (with 0 being fastest and 20 being slowest). Default is 0. You should only 
+change this value if you want to prevent noisy fans or hot laptops arising from cpu
+intensive indexing. Tracker should have a negligible impact on the system (as it is scheduled)
+so you can safely work with it on full throttle without experiencing slow downs.
 
 You can specify directory roots to be excluded from being watched or indexed
 by passing  -e directory for each directory root
