@@ -31,18 +31,18 @@ do_search (char** wordarray, int offset, int limit)
 
 	char *st = g_strjoinv (", ", wordarray); 
 
-	tracker_log ("CHECKING: search for %s with offset %d and limit %d", st, offset, limit);
+	g_message ("CHECKING: search for %s with offset %d and limit %d", st, offset, limit);
 
 	tv = tracker_timer_start ();
 	list = tracker_indexer_get_hits (file_indexer, wordarray, 0, 5, offset, limit, TRUE, &i);
 	tracker_timer_end (tv, "word search took ");
 
-	tracker_log ("%d search results returned from %d ", g_slist_length (list), i);	
+	g_message ("%d search results returned from %d ", g_slist_length (list), i);	
 
 	GSList *l;
 	for (l=list; l; l=l->next) {
 		SearchHit *hit = l->data;
-		tracker_log ("hit for %d with score %d", hit->service_id, hit->score);
+		g_message ("hit for %d with score %d", hit->service_id, hit->score);
 		
 	}
 
@@ -61,7 +61,7 @@ check_list (GSList *list, int pos, int sid, int score)
 
 		if (!l) {
 			fail_count++;
-			tracker_log ("FAIL : list position %d is not available", pos);
+			g_message ("FAIL : list position %d is not available", pos);
 			return;
 		}
 
@@ -69,13 +69,13 @@ check_list (GSList *list, int pos, int sid, int score)
 
 		if (sid > 0 && sid != hit->service_id) {
 			fail_count++;
-			tracker_log ("FAIL : expected service id %d not found at position %d (%d was found instead)", sid, pos, hit->service_id);
+			g_message ("FAIL : expected service id %d not found at position %d (%d was found instead)", sid, pos, hit->service_id);
 			return;
 		}
 
 		if (score > 0 && score != hit->score) {
 			fail_count++;
-			tracker_log ("FAIL : expected score %d for service id %d is the worng value (%d was found instead)", score, sid, hit->score);
+			g_message ("FAIL : expected score %d for service id %d is the worng value (%d was found instead)", score, sid, hit->score);
 			return;
 		}
 	} else {
@@ -84,7 +84,7 @@ check_list (GSList *list, int pos, int sid, int score)
 			SearchHit *hit = l->data;
 	
 			if (hit->service_id == sid ) {
-				tracker_log ("FAIL : service id %d was not expected in list", sid);	
+				g_message ("FAIL : service id %d was not expected in list", sid);	
 			}
 		}
 
@@ -93,7 +93,7 @@ check_list (GSList *list, int pos, int sid, int score)
 
 	}
 
-	tracker_log ("SUCESS : expected value %d found in correct place %d in list with score %d", sid, pos, score);
+	g_message ("SUCESS : expected value %d found in correct place %d in list with score %d", sid, pos, score);
 	
 
 }
@@ -105,11 +105,11 @@ check_count (GSList *list, int count)
 
 	if (c != count) {
 		fail_count++;
-		tracker_log ("FAIL : expected list count of %d is different from actual count of %d", count,c);
+		g_message ("FAIL : expected list count of %d is different from actual count of %d", count,c);
 		return;
 	}
 
-	tracker_log ("PASS : count check okay on result");
+	g_message ("PASS : count check okay on result");
 
 }
 
@@ -120,36 +120,36 @@ load_data ()
 
 	for (a = 1; a<11; a++) {
 
-		if (!tracker_indexer_append_word (file_indexer, "word1", a, 1, a)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word1", a+10, 1, a+10)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word1", a+20, 2, a+20)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word1", a+30, 3, a+30)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word1", a+40, 4, a+40)) tracker_log ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word1", a, 1, a)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word1", a+10, 1, a+10)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word1", a+20, 2, a+20)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word1", a+30, 3, a+30)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word1", a+40, 4, a+40)) g_message ("ERROR - could not add word") ;
 
-		if (!tracker_indexer_append_word (file_indexer, "word2", a, 1, a+30)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word2", a+10, 1, a+200)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word2", a+20, 2, a+10)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word2", a+30, 3, a)) tracker_log ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word2", a, 1, a+30)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word2", a+10, 1, a+200)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word2", a+20, 2, a+10)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word2", a+30, 3, a)) g_message ("ERROR - could not add word") ;
 
-		if (!tracker_indexer_append_word (file_indexer, "word3", a, 1, 4)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word3", a+10, 1, 200)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word3", a+30, 3, 1)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word3", a+40, 4, 5)) tracker_log ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word3", a, 1, 4)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word3", a+10, 1, 200)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word3", a+30, 3, 1)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word3", a+40, 4, 5)) g_message ("ERROR - could not add word") ;
 
-		if (!tracker_indexer_append_word (file_indexer, "word4", a, 1, 12)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word4", a+10, 1, 200)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word4", a+20, 2, 10)) tracker_log ("ERROR - could not add word") ;
-		if (!tracker_indexer_append_word (file_indexer, "word4", a+40, 4, 5)) tracker_log ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word4", a, 1, 12)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word4", a+10, 1, 200)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word4", a+20, 2, 10)) g_message ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word4", a+40, 4, 5)) g_message ("ERROR - could not add word") ;
 
 		
 	}
 
 	for (a = 1; a<10000; a++) {
-		if (!tracker_indexer_append_word (file_indexer, "word5", a, 1, 11)) tracker_log ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word5", a, 1, 11)) g_message ("ERROR - could not add word") ;
 	}
 
 	for (a = 1; a<10000; a++) {
-		if (!tracker_indexer_append_word (file_indexer, "word6", a, 1, 1)) tracker_log ("ERROR - could not add word") ;
+		if (!tracker_indexer_append_word (file_indexer, "word6", a, 1, 1)) g_message ("ERROR - could not add word") ;
 	}
 
 	
@@ -160,7 +160,7 @@ load_data ()
 static void
 do_updates_check ()
 {
-	tracker_log ("\n\nStarting update checks\n\n");
+	g_message ("\n\nStarting update checks\n\n");
 
 	GSList *l;
 
@@ -168,44 +168,44 @@ do_updates_check ()
 
 	/* check and manipulate a value in the middle of the list */
 
-	tracker_log ("\n\nUPDATING: middle value 5's score by +100");
+	g_message ("\n\nUPDATING: middle value 5's score by +100");
 	tracker_indexer_update_word (file_indexer, "word1", 5, 1,  100, FALSE);
 	l = do_search (words1,  0, 10);
 	check_list (l, 0, 5, 105);
 
-	tracker_log ("\n\nUPDATING: middle value 5's score by -100");
+	g_message ("\n\nUPDATING: middle value 5's score by -100");
 	tracker_indexer_update_word (file_indexer, "word1", 5, 1, -100, FALSE);
 	l = do_search (words1,  40, 10);
 	check_list (l, 5, 5, 5);
 
-	tracker_log ("\n\nUPDATING: middle value 5's score by -5 ");
+	g_message ("\n\nUPDATING: middle value 5's score by -5 ");
 	tracker_indexer_update_word (file_indexer, "word1", 5, 1, -5, FALSE);
 	l = do_search (words1,  40, 10);
 	check_list (l, -1, 5, 0);
 
-	tracker_log ("\n\nUPDATING: middle value 5's score by 5 ");
+	g_message ("\n\nUPDATING: middle value 5's score by 5 ");
 	tracker_indexer_update_word (file_indexer, "word1", 5, 1, 5, FALSE);
 	l = do_search (words1,  40, 10);
 	check_list (l, 5, 5, 5);
 
 
 	/* check and manipulate the first value in the list */
-	tracker_log ("\n\nUPDATING: first value 1's score by +100");
+	g_message ("\n\nUPDATING: first value 1's score by +100");
 	tracker_indexer_update_word (file_indexer, "word1", 1, 1, 100, FALSE);
 	l = do_search (words1,  0, 10);
 	check_list (l, 0, 1, 101);
 
-	tracker_log ("\n\nUPDATING: first value 1's score by -100");
+	g_message ("\n\nUPDATING: first value 1's score by -100");
 	tracker_indexer_update_word (file_indexer, "word1", 1,  1, -100, FALSE);
 	l = do_search (words1,  40, 10);
 	check_list (l, 9, 1, 1);
 
-	tracker_log ("\n\nUPDATING: first value 1's score by -1 ");
+	g_message ("\n\nUPDATING: first value 1's score by -1 ");
 	tracker_indexer_update_word (file_indexer, "word1", 1, 1, -1, FALSE);
 	l = do_search (words1,  40, 10);
 	check_list (l, -1, 1, 0);
 	
-	tracker_log ("\n\nUPDATING: first value 1's score by +1");
+	g_message ("\n\nUPDATING: first value 1's score by +1");
 	tracker_indexer_update_word (file_indexer, "word1", 1, 1, +1, FALSE);
 	l = do_search (words1,  40, 10);
 	check_list (l, 9, 1, 1);
@@ -213,39 +213,39 @@ do_updates_check ()
 
 
 	/* check and manipulate the last value in the list */
-	tracker_log ("\n\nUPDATING: last value 50's score by +100");
+	g_message ("\n\nUPDATING: last value 50's score by +100");
 	tracker_indexer_update_word (file_indexer, "word1", 50, 1, 100, FALSE);
 	l = do_search (words1,  0, 10);
 	check_list (l, 0, 50, 150);
 
-	tracker_log ("\n\nUPDATING: last value 50's score by -100");
+	g_message ("\n\nUPDATING: last value 50's score by -100");
 	tracker_indexer_update_word (file_indexer, "word1", 50,  1, -100, FALSE);
 	l = do_search (words1,  0, 10);
 	check_list (l, 0, 50, 50);
 
-	tracker_log ("\n\nUPDATING: last value 50's score by -1 ");
+	g_message ("\n\nUPDATING: last value 50's score by -1 ");
 	tracker_indexer_update_word (file_indexer, "word1", 50, 1, -50, FALSE);
 	l = do_search (words1,  0, 10);
 	check_list (l, -1, 50, 0);
 	
-	tracker_log ("\n\nUPDATING: last value 50's score by +1");
+	g_message ("\n\nUPDATING: last value 50's score by +1");
 	tracker_indexer_update_word (file_indexer, "word1", 50, 1, +50, FALSE);
 	l = do_search (words1,  0, 10);
 	check_list (l, 0, 50, 50);
 
 
 	/* test explicit word removal */
-	tracker_log ("\n\nRemoving first value");
+	g_message ("\n\nRemoving first value");
 	tracker_indexer_update_word (file_indexer, "word1", 1,  1, 1, TRUE);
 	l = do_search (words1,  40, 10);
 	check_list (l, -1, 1, 1);
 
-	tracker_log ("\n\nRemoving 5 value");
+	g_message ("\n\nRemoving 5 value");
 	tracker_indexer_update_word (file_indexer, "word1", 5,  1, -1, TRUE);
 	l = do_search (words1,  40, 10);
 	check_list (l, -1, 5, 2);
 
-	tracker_log ("\n\nRemoving last value");
+	g_message ("\n\nRemoving last value");
 	tracker_indexer_update_word (file_indexer, "word1", 50,  1, 0, TRUE);
 	l = do_search (words1,  0, 10);
 	check_list (l, -1, 50, 3);
@@ -256,7 +256,7 @@ do_updates_check ()
 static void
 do_search_checks ()
 {
-	tracker_log ("\n\nStarting search checks\n\n");
+	g_message ("\n\nStarting search checks\n\n");
 
 	GSList *l;
 
@@ -277,7 +277,7 @@ do_search_checks ()
 	l = do_search (words1, 51, 10);
 	check_count (l, 0);
 
-	tracker_log ("\n\nTesting multiple word retrievals...\n\n");
+	g_message ("\n\nTesting multiple word retrievals...\n\n");
 
 	l = do_search (words_12, 0, 100);
 	check_count (l, 40);
@@ -323,6 +323,8 @@ main (int argc, char **argv)
 
 	tracker = g_new (Tracker, 1);
 
+	tracker->verbosity = -1;
+
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
 	}
@@ -362,9 +364,9 @@ main (int argc, char **argv)
 	g_free(tracker);
 
 	if (fail_count == 0) {
-		tracker_log ("\n\n\nSUCESS : Test passed all results :))))");
+		g_message ("\n\n\nSUCESS : Test passed all results :))))");
 	} else {
-		tracker_log ("\n\n\nFAILURE : test failed %d times", fail_count);
+		g_message ("\n\n\nFAILURE : test failed %d times", fail_count);
 		return EXIT_FAILURE;
 
 	}
