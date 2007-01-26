@@ -1725,10 +1725,10 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 			bytes_read += buffer_length;
 		}
 
-		if (!tracker->throttle == 0) {
+		if (tracker->throttle > 9) {
 			throttle_count++;
 			if (throttle_count > (10 + (20 - tracker->throttle))) {
-				tracker_throttle (10);
+				tracker_throttle (1);
 				throttle_count= 0;
 			}
 		}

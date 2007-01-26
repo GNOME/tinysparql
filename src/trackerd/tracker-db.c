@@ -1022,10 +1022,6 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 //	tracker_log ("file %s has fulltext %d, %d, %d", info->uri, (tracker_str_in_array (service_name, services_with_text) != -1), service_has_fulltext, is_file_known);
 	tracker_db_index_service (db_con, info, service_name, meta_table, is_attachment, service_has_metadata, service_has_fulltext, service_has_thumbs);
 
-	/* add extra delay to throttle back indexing of larger files */
-	if (service_has_fulltext && (info->file_size > 10000)) {
-		tracker_throttle (5000);
-	}
 
 	if (is_attachment) {
 		tracker_email_unlink_email_attachment (info->uri);
@@ -1065,7 +1061,7 @@ tracker_db_index_entity (DBConnection *db_con, FileInfo *info)
 
 	if (!info->is_directory) {
 		/* sleep  to throttle back indexing */
-		tracker_throttle (10000);
+		tracker_throttle (1000);
 	}
 
 	if (!tracker_file_is_valid (info->uri)) {
