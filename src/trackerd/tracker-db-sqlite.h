@@ -169,6 +169,8 @@ char ***	tracker_db_delete_sub_watches	(DBConnection *db_con, const char *dir);
 
 char ***	tracker_db_get_keyword_list	(DBConnection *db_con, const char *service);
 
+void		tracker_db_update_index_multiple_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, char **values);
+
 
 
 #endif

@@ -1056,7 +1056,7 @@ process_files_thread (void)
 		if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
 			if (tracker->flush_count < 10) {
 				tracker->flush_count++;
-				tracker_log ("flushing");
+				tracker_info ("flushing");
 				tracker_flush_rare_words ();
 			} else {
 				tracker->flush_count = 0;

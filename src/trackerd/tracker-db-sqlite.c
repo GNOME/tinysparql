@@ -2374,10 +2374,69 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 
 
 void
-tracker_db_update_multple_metdata (DBConnection *db_con, const char *service, const char *id, const char *key, char **values, gboolean generate_display_metadata, gboolean embedded) 
+tracker_db_update_index_multiple_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, char **values) 
 {
-	
 
+	GHashTable *old_table, *new_table;
+	int i = 0;
+	char ***res = tracker_db_get_metadata_values (db_con, service, id, key);
+	GString *old_str = g_string_new ("");
+	GString *new_str = g_string_new ("");
+	FieldDef   *def;
+
+	def = tracker_db_get_field_def (db_con, key);
+
+	if (!def) {
+		tracker_log ("metadata type %s not found", key);
+		return;
+	}
+
+	
+	if (res) {
+		char **row;
+		
+		while ((row = tracker_db_get_row (res, i))) {
+			if (row[0]) {
+				g_string_append_printf (old_str, " %s ", row[0]);
+			}
+		
+			i++;
+		}
+		tracker_db_free_result (res);
+	}
+
+	old_table = NULL;
+	new_table = NULL;
+
+	old_table = tracker_parse_text (old_table, old_str->str, def->weight, TRUE);
+
+	g_string_free (old_str, TRUE);
+
+	char **strs;
+
+	for (strs = values; *strs; strs++) {
+		g_string_append_printf (new_str, " %s ", *strs);
+	}
+
+
+	/* parse new metadata value */
+	new_table = tracker_parse_text (new_table, new_str->str, def->weight, TRUE);
+
+	g_string_free (new_str, TRUE);
+
+	/* we only do differential updates so only changed words scores are updated */
+	if (new_table) {
+		int sid;
+
+		sid = tracker_get_id_for_service (service);
+		tracker_db_update_differential_index (old_table, new_table, id, sid);
+		
+		g_hash_table_destroy (new_table);
+	}
+
+	if (old_table) {
+		g_hash_table_destroy (old_table);
+	}
 }
 
 
