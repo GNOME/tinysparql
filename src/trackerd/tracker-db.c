@@ -208,7 +208,7 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	g_free (name);
 	g_free (path);
 
-	return info;
+	return info; 
 }
 
 
