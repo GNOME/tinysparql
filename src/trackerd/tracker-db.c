@@ -220,6 +220,10 @@ tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, con
 	
 	array = g_strsplit_set (keywords, "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]", -1);
 
+	if (!is_new) {
+		tracker_db_update_index_multiple_metadata (db_con, "Files", file_id, keyword_type, array);
+	}
+
 	for (tags = array; *tags; ++tags) {
 
 		tag = *tags;
@@ -234,7 +238,8 @@ tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, con
 		if (is_new) {
 			tracker_db_insert_embedded_metadata (db_con, "Files", file_id, keyword_type, tag, table);
 		} else {
-			tracker_db_set_metadata (db_con, "Files", file_id, keyword_type, tag, FALSE, TRUE, TRUE);
+			
+			tracker_db_set_metadata (db_con, "Files", file_id, keyword_type, tag, FALSE, FALSE, TRUE);
 		}
 	}
 
@@ -971,7 +976,7 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 
 		delimited = g_strdup (info->uri);
 		delimited =  g_strdelimit (delimited, "-_" , ' ');
-		g_debug ("delimited file name is %s", delimited);
+		tracker_debug ("delimited file name is %s", delimited);
 		g_hash_table_insert (meta_table, g_strdup ("File:NameDelimited"), g_strdup (delimited));
 		g_free (delimited);
 	}
@@ -979,7 +984,7 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 	ext = strrchr (info->uri, '.');
 	if (ext) {
 		ext++;
-		g_debug ("file extension is %s", ext);
+		tracker_debug ("file extension is %s", ext);
 		g_hash_table_insert (meta_table, g_strdup ("File:Ext"), g_strdup (ext));
 	}
 
