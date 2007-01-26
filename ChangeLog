@@ -2,6 +2,7 @@
 
 	* fixed update of embedded keywords
 	* added deskbar handler to tarball and installation
+	* updated man page for trackerd
 
 2007-01-24 Patch from Michael Biebl <mbiebl at gmail com>
 
