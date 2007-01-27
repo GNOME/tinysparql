@@ -5,8 +5,13 @@ xdgconfigdir = $(sysconfdir)/xdg/autostart
 pkgconfig_DATA = tracker.pc
 xdgconfig_DATA = trackerd.desktop
 
+if USING_DESKBAR_APPLET
 handlerdir = $(DESKBAR_HANDLER_DIR)
 handler_DATA =  python/deskbar-handler/tracker-handler.py 
+else
+handlerdir =
+handler_DATA =
+endif
 
 
 EXTRA_DIST = \

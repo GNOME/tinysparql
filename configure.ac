@@ -95,6 +95,12 @@ AC_SUBST(DBUS_SERVICES_DIR)
 # Deskbar Applet Handler
 ####################################################################
 
+AC_ARG_ENABLE([deskbar_applet],
+              AC_HELP_STRING([--enable-deskbar-applet], [Enable support for deskbar applet]),,
+              [enable_deskbar_applet=no])
+
+AM_CONDITIONAL(USING_DESKBAR_APPLET, test "x$enable_deskbar_applet" != "xno")
+
 AC_ARG_WITH([deskbar_applet_handler_dir],
             AC_HELP_STRING([--with-deskbar-applet-handler-dir], [Path to Deskbar handler directory]))
 
@@ -104,12 +110,8 @@ else
    handler_dir="$with_deskbar_applet_handler_dir"
 fi
 
-
-
 DESKBAR_HANDLER_DIR="$handler_dir"
 AC_SUBST(DESKBAR_HANDLER_DIR)
-
-
 
 ####################################################################
 # Compiler warning checks
