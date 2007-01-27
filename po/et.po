@@ -1,7 +1,7 @@
 # Tracker'i eesti keele tõlge.
 # Estonian translation of Tracker.
 #
-# Copyright (C) 2007, The GNOME Project.
+# Copyright (C) 2007 The GNOME Project.
 # This file is distributed under the same license as the tracker package.
 #
 # Ivar Smolin <okul@linux.ee>, 2007.
@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: Tracker HEAD\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-01-23 03:39+0000\n"
-"PO-Revision-Date: 2007-01-23 07:57+0200\n"
+"PO-Revision-Date: 2007-01-26 20:15+0200\n"
 "Last-Translator: Ivar Smolin <okul@linux.ee>\n"
 "Language-Team: Estonian <gnome-et@linux.ee>\n"
 "MIME-Version: 1.0\n"
@@ -21,11 +21,11 @@ msgstr ""
 
 #: ../src/libtracker/tracker-search.c:34
 msgid "Limit the number of results showed to N"
-msgstr ""
+msgstr "Tulemuste piiramine arvuga N"
 
 #: ../src/libtracker/tracker-search.c:34
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: ../src/libtracker/tracker-search.c:35
 msgid "Search for a specific service"
@@ -44,7 +44,7 @@ msgstr ""
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-search.c:89
 msgid "TERM... - search files for certain terms"
-msgstr ""
+msgstr "TINGIMUS... - tingimustele vastavate failide otsimine"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
@@ -68,7 +68,7 @@ msgstr "Rohkema teabe jaoks proovi \"%s --help\"."
 #: ../src/libtracker/tracker-search.c:120
 #, c-format
 msgid "%s: missing search terms"
-msgstr ""
+msgstr "%s: puuduvad otsingutingimused"
 
 #: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
 #: ../src/libtracker/tracker-tag.c:128
@@ -140,13 +140,15 @@ msgstr "FAIL..."
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-tag.c:86
 msgid "FILE... - manipulate tags on files"
-msgstr ""
+msgstr "FAIL... - failide siltidega manipuleerimine"
 
 #: ../src/libtracker/tracker-tag.c:95
 msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
 "options like:"
 msgstr ""
+"Mitme sildi samaaegseks lisamiseks, eemaldamiseks või otsimiseks ühenda mitu "
+"võtit järgneval moel:"
 
 #: ../src/libtracker/tracker-tag.c:117
 #, c-format
@@ -200,7 +202,7 @@ msgstr "Ava _kataloog"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:175
 msgid "Mo_ve to Trash"
-msgstr ""
+msgstr "Tõsta _prügikasti"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:176
 msgid "_Save Results As..."
@@ -220,11 +222,11 @@ msgstr "Faile ei leitud"
 #: ../src/tracker-search-tool/tracker-search-tool.c:2396
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
 msgid "Tracker Search Tool"
-msgstr ""
+msgstr "Tracker otsinguvahend"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1602
 msgid "S_earch results:"
-msgstr "Otsingu_tulemused:"
+msgstr "Otsingu _tulemused:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1638
 msgid "List View"
@@ -244,7 +246,7 @@ msgstr "Tekst"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2151
 msgid "_Search:"
-msgstr ""
+msgstr "_Otsing:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2178
 #: ../src/tracker-search-tool/tracker-search-tool.c:2179
@@ -329,12 +331,12 @@ msgstr ""
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:658
 #, c-format
 msgid "Do you want to delete \"%s\" permanently?"
-msgstr ""
+msgstr "Kas soovid \"%s\" jäädavalt kustutada?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:661
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr ""
+msgstr "Prügikasti pole saadaval.  \"%s\" prügikasti tõstmine pole võimalik."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:700
 #, c-format
@@ -375,11 +377,11 @@ msgstr "Dokument \"%s\" on juba olemas. Soovid sa seda üle kirjutada?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1398
 msgid "If you replace an existing file, its contents will be overwritten."
-msgstr ""
+msgstr "Kui sa olemasoleva faili asendad, siis kirjutatakse selle sisu üle."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1413
 msgid "_Replace"
-msgstr ""
+msgstr "_Kirjuta üle"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1463
 msgid "The document name you selected is a folder."
@@ -387,7 +389,7 @@ msgstr "Sinu valitud dokument on tegelikult kataloog."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1512
 msgid "You may not have write permissions to the document."
-msgstr ""
+msgstr "Võib-olla pole sul dokumendile kirjutamisõigust."
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
 msgid ""
@@ -424,7 +426,7 @@ msgstr "%A, %-d. %B %Y kell %-H:%M:%S"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:829
 msgid "link (broken)"
-msgstr ""
+msgstr "viit (katki)"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:833
 #, c-format
@@ -491,9 +493,3 @@ msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
 msgstr ""
-
-#~ msgid "Faster indexing, use more memory and CPU"
-#~ msgstr "Kiirem indekseerimine, kasutatakse rohkem mälu ja protsessorit"
-
-#~ msgid "Slower indexing, use less memory and CPU"
-#~ msgstr "Aeglasem indekseerimine, kasutatakse vähem mälu ja protsessorit"
