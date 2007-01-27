@@ -238,6 +238,6 @@ class TrackerLiveSearchHandler(SignallingHandler):
 			if self.tracker.GetVersion() == 502:
 				self.search_iface.Query(-1,"Files",["File.Format"],"",qstring.replace("tag:",""),"",False,0,100, reply_handler=lambda hits : self.recieve_hits(qstring, hits, max), error_handler=self.recieve_error)
 			elif self.tracker.GetVersion() == 503:
-				self.search_iface.Query(-1,"Files",["File.Mime"],"",qstring.replace("tag:",""),"",False,0,100, reply_handler=lambda hits : self.recieve_hits(qstring, hits, max), error_handler=self.recieve_error)
+				self.search_iface.Query(-1,"Files",["File:Mime"],"",qstring.replace("tag:",""),"",False,0,100, reply_handler=lambda hits : self.recieve_hits(qstring, hits, max), error_handler=self.recieve_error)
 			print "Tracker tag query:", qstring.replace("tag:","")
 
