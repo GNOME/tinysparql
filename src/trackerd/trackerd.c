@@ -777,164 +777,6 @@ scan_directory (const char *uri, DBConnection *db_con)
 }
 
 
-/*
-static gboolean
-start_watching ()
-{
-	if (!tracker->is_running) {
-		return FALSE;
-	}
-
-	if (!tracker_start_watching ()) {
-		tracker_log ("File monitoring failed to start");
-		do_cleanup ("File watching failure");
-		exit (1);
-	} else {
-
-
-		//tracker_email_watch_emails (main_thread_db_con);
-		
-		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
- 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
-
-		tracker_notify_file_data_available ();
-
-	}
-
-	return FALSE;
-}
-*/
-
-/*
-static void
-extract_metadata_thread (void)
-{
-	sigset_t     signal_set;
-	DBConnection *db_con;
-	DBConnection *blob_db_con;
-	DBConnection *cache_db_con;
-
-	sigfillset (&signal_set);
-	sigdelset (&signal_set, SIGALRM);
-	pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
-
-	g_mutex_lock (tracker->metadata_signal_mutex);
-	g_mutex_lock (tracker->metadata_stopped_mutex);
-
-	tracker_db_thread_init ();
-
-	db_con = tracker_db_connect ();
-	blob_db_con = tracker_db_connect_full_text ();
-	cache_db_con = tracker_db_connect_cache ();
-
-	db_con->user_data = cache_db_con;
-	db_con->user_data2 = blob_db_con;
-
-	db_con->thread = "extract";
-
-	tracker_db_prepare_queries (db_con);
-
-	while (TRUE) {
-		FileInfo *info;
-
-
-		if (!tracker->is_running) {
-
-			tracker_debug ("metadata thread going to deep sleep...");
-
-			g_cond_wait (tracker->metadata_thread_signal, tracker->metadata_signal_mutex);
-
-			if (!shutdown) {
-				continue;
-			} else {
-				break;
-			}
-		}
-
-
-		
-		tracker->index_counter++;
-
-		info = g_async_queue_try_pop (tracker->file_metadata_queue);
-
-		if (!info) {
-			char ***res;
-			int  k;
-
-			g_mutex_lock (tracker->metadata_check_mutex);
-
-			if (tracker_db_has_pending_metadata (db_con)) {
-				g_mutex_unlock (tracker->metadata_check_mutex);
-			} else {
-				tracker_debug ("metadata thread sleeping");
-
-				g_cond_wait (tracker->metadata_thread_signal, tracker->metadata_signal_mutex);
-				g_mutex_unlock (tracker->metadata_check_mutex);
-				tracker_debug ("metadata thread awoken");
-
-
-				if (!shutdown) {
-					continue;
-				} else {
-					break;
-				}
-			}
-
-			res = tracker_db_get_pending_metadata (db_con);
-
-			k = 0;
-
-			if (res) {
-				char **row;
-
-				while ((row = tracker_db_get_row (res, k))) {
-					FileInfo *info_tmp;
-
-					if (!tracker->is_running) {
-						break;
-					}
-
-					k++;
-					info_tmp = tracker_create_file_info (row[1], atoi(row[2]), 0, WATCH_OTHER);
-					info_tmp->file_id = atol (row[0]);
-					info_tmp->mime = g_strdup (row[3]);
-					info_tmp->is_new = (strcmp (row[5], "1") == 0);
-					info_tmp->service_type_id =  atoi (row[8]);
-
-					g_async_queue_push (tracker->file_metadata_queue, info_tmp);
-				}
-
-				if (tracker->is_running) {
-					tracker_db_free_result (res);
-				}
-			}
-
-			if (tracker->is_running) {
-				tracker_db_remove_pending_metadata (db_con);
-			}
-
-			continue;
-		}
-
-
-		if (!tracker_file_info_is_valid (info)) {
-			continue;
-		}
-
-		
-	}
-
-	tracker_db_close (db_con);
-	tracker_db_close (blob_db_con);
-	tracker_db_close (cache_db_con);
-	tracker_db_thread_end ();
-
-	tracker_debug ("metadata thread has exited successfully");
-	g_mutex_unlock (tracker->metadata_stopped_mutex);
-}
-
-*/
-
 /* determines whether an action applies to a file or a directory */
 static void
 verify_action (FileInfo *info)
@@ -1021,7 +863,7 @@ process_files_thread (void)
 	blob_db_con = tracker_db_connect_full_text ();
 
 	db_con->thread = "files";
-	db_con->user_data2 = blob_db_con;
+	db_con->blob = blob_db_con;
 
 	pushed_events = FALSE;
 
@@ -1390,8 +1232,8 @@ process_user_request_queue_thread (void)
 	cache_db_con = tracker_db_connect_cache ();
 
 	db_con->thread = "request";
-	db_con->user_data = cache_db_con;
-	db_con->user_data2 = blob_db_con;
+	db_con->cache = cache_db_con;
+	db_con->blob = blob_db_con;
 
 	tracker_db_prepare_queries (db_con);
 
@@ -1962,6 +1804,12 @@ sanity_check_option_values ()
 	} else if (tracker->verbosity > 2) {
 		tracker->verbosity = 2;
 	}
+
+	tracker->metadata_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	tracker->service_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	tracker->service_id_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+
 }
 
 	
@@ -2291,7 +2139,7 @@ main (int argc, char **argv)
 
 	main_thread_cache_con = tracker_db_connect_cache ();
 
-	main_thread_db_con->user_data = main_thread_cache_con;
+	main_thread_db_con->cache = main_thread_cache_con;
 
 	tracker->update_count = get_update_count (main_thread_db_con);
 
@@ -2304,6 +2152,8 @@ main (int argc, char **argv)
 		tracker->update_count = 0;
 	}
 	
+
+	tracker_db_get_static_data (db_con);
 
 	tracker->file_scheduler = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -2336,21 +2186,19 @@ main (int argc, char **argv)
 
 
 	if (tracker->enable_indexing) {
-		
+
 		if (!tracker_start_watching ()) {
 			tracker_log ("File monitoring failed to start");
 			do_cleanup ("File watching failure");
 			exit (1);
 		} else {
 
+			tracker_email_watch_emails (main_thread_db_con);
 
-			//tracker_email_watch_emails (main_thread_db_con);
-		
 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
-	 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
-		
-			tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
+			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
 
+			tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
 		}
 	}
 

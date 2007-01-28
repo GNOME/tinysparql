@@ -28,15 +28,6 @@
 #include "tracker-utils.h"
 
 
-typedef enum {
-	DATA_INDEX,
-	DATA_STRING,
-	DATA_NUMERIC,
-	DATA_DATE,
-	DATA_BLOB,
-	DATA_KEYWORD,
-	DATA_FULLTEXT
-} DataTypes;
 
 
 typedef enum {
@@ -52,13 +43,7 @@ typedef enum {
 	METADATA_USER_REPLACE
 } MetadataAction;
 
-typedef struct {
-	char		*id;
-	DataTypes	type;
-	gboolean	multiple_values;
-	int		weight;
 
-} FieldDef;
 
 
 typedef struct {
@@ -68,10 +53,15 @@ typedef struct {
 	gpointer	data;
 	char		*err;
 	int		rc;
-	char		*thread;
-	gpointer	user_data;
-	gpointer	user_data2;
+	char		*thread; /* name of the thread that created this */
 	GHashTable	*statements;
+
+	/* pointers to other database connection objects */
+	gpointer	emails;
+	gpointer	applications;
+	gpointer	others;
+	gpointer	blob;
+	gpointer	cache;
 } DBConnection;
 
 
@@ -171,6 +161,6 @@ char ***	tracker_db_get_keyword_list	(DBConnection *db_con, const char *service)
 
 void		tracker_db_update_index_multiple_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, char **values);
 
-
+void		tracker_db_get_static_data 	(DBConnection *db_con);
 
 #endif

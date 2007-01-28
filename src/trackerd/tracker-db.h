@@ -17,8 +17,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
-
 #ifndef _TRACKER_DB_H_
 #define _TRACKER_DB_H_
 
@@ -51,4 +49,5 @@ gboolean	tracker_db_has_pending_metadata	(DBConnection *db_con);
 void		tracker_db_index_service 	(DBConnection *db_con, FileInfo *info, const char *service, GHashTable *meta_table, gboolean is_attachment, gboolean get_embedded, gboolean get_full_text, gboolean get_thumbs);
 void		tracker_db_index_file 		(DBConnection *db_con, FileInfo *info, gboolean is_attachment);
 void		tracker_db_index_entity 	(DBConnection *db_con, FileInfo *info);
+
 #endif

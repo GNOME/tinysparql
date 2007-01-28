@@ -44,12 +44,6 @@ extern char *tracker_actions[];
 #include "tracker-parser.h"
 #include "../libstemmer/include/libstemmer.h"
 
-typedef struct {
-	CURIA  *word_index;	/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
-	GMutex *word_mutex;
-} Indexer;
-
-
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
 #define FILE_SCHEDULE_PERIOD		300
@@ -71,6 +65,12 @@ typedef struct {
 #define INDEX_BUCKET_RATIO 		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
 #define INDEX_PADDING	 		2
 
+
+typedef struct {
+	CURIA  *word_index;	/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
+	GMutex *word_mutex;
+} Indexer;
+
 typedef struct {                         /* type of structure for an element of search result */
 	guint32 	id;              /* Service ID number of the document */
 	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
@@ -81,6 +81,34 @@ typedef struct {
 	int	 	id;              /* word ID of the cached word */
 	int 		count;     	 /* cummulative count of the cached word */
 } CacheWord;
+
+typedef enum {
+	DATA_INDEX,
+	DATA_STRING,
+	DATA_NUMERIC,
+	DATA_DATE,
+	DATA_BLOB,
+	DATA_KEYWORD,
+	DATA_FULLTEXT
+} DataTypes;
+
+
+typedef struct {
+	char		*id;
+	DataTypes	type;
+	gboolean	multiple_values;
+	int		weight;
+	GSList		*child_ids; /* related child metadata ids */
+
+} FieldDef;
+
+typedef struct {
+	char 		*name;
+	int		min_id;
+	int		max_id; 
+} ServiceDef;
+
+
 
 typedef struct {
 
@@ -150,6 +178,11 @@ typedef struct {
 	GHashTable	*service_directory_table;
 	GSList		*service_directory_list;
 
+	/* lookup tables for service and metadata IDs */
+	GHashTable	*service_table;
+	GHashTable	*service_id_table;
+	GHashTable	*metadata_table;
+
 	/* email config options */
 	gboolean	index_evolution_emails;
 	gboolean	index_thunderbird_emails;
@@ -178,8 +211,6 @@ typedef struct {
 	int		word_count_limit;
 	int		word_count_min;
 	int		flush_count;
-
-
 
 	GSList 		*poll_list;
 	

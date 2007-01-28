@@ -628,7 +628,8 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 {
 	char *dir_in_locale;
 
-	g_return_val_if_fail (dir != NULL && dir[0] == G_DIR_SEPARATOR, FALSE);
+	g_return_val_if_fail (dir, FALSE);
+	g_return_val_if_fail (dir[0] == '/', FALSE);
 
 	if (!tracker->is_running) {
 		return FALSE;

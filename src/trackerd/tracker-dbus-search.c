@@ -276,7 +276,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 
 	snippet = NULL;
 
-	res = tracker_exec_proc (db_con->user_data2, "GetFileContents", 1, service_id);
+	res = tracker_exec_proc (db_con->blob, "GetFileContents", 1, service_id);
 	g_free (service_id);
 	
 	if (res) {

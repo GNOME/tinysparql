@@ -600,7 +600,12 @@ tracker_db_connect (void)
 
 	sqlite3_busy_timeout (db_con->db, 10000);
 	
-	db_con->user_data = NULL;
+	db_con->cache = NULL;
+	db_con->emails = NULL;
+	db_con->applications = NULL;
+	db_con->others = NULL;
+	db_con->blob = NULL;
+
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -2361,7 +2366,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 			}
 
 			if (value) {
-				save_full_text (db_con->user_data2, id, value, strlen (value));
+				save_full_text (db_con->blob, id, value, strlen (value));
 			}
 			break;
 	}
@@ -2560,7 +2565,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 			}
 
 			new_value = g_strdup (value);
-			save_full_text (db_con->user_data2, id, value, strlen (value));
+			save_full_text (db_con->blob, id, value, strlen (value));
 
 	}
 
@@ -2998,8 +3003,8 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 		tracker_db_free_result (res);
 	}
 
-	if (db_con->user_data) {
-		tracker_exec_proc (db_con->user_data, "DeleteFile10", 1, str_file_id);
+	if (db_con->cache) {
+		tracker_exec_proc (db_con->cache, "DeleteFile10", 1, str_file_id);
 	}
 
 
@@ -3897,5 +3902,82 @@ tracker_db_get_keyword_list (DBConnection *db_con, const char *service)
 	g_free (str_max);
 
 	return res;
+}
+
+
+/* get static data like metadata field definitions and services definitions and load them into hashtables */
+void
+tracker_db_get_static_data (DBConnection *db_con)
+{
+	int i = 0, j;
+	char ***res;
+
+
+	/* get static metadata info */
+	res  = tracker_exec_proc (db_con, "GetMetadataTypes", 0);
+	
+	if (res) {
+		char **row;
+
+		while ((row = tracker_db_get_row (res, i))) {
+
+			i++;
+
+			if (row[0] && row[1] && row[2] && row[3] && row[4]) {
+	
+				FieldDef *def = NULL;				
+	
+				def = g_new (FieldDef, 1);
+				def->id = g_strdup (row[1]);
+				def->type = atoi (row[2]);
+				def->multiple_values = (strcmp ("1", row[3]) == 0);
+				def->weight = atoi (row[4]);
+				def->child_ids = NULL;
+
+				j=0;
+				char ***res2 = tracker_exec_proc (db_con, "GetMetadataAliases", 1, def->id);
+
+				if (res2) {
+					char **row2;
+
+					while ((row2 = tracker_db_get_row (res2, j))) {
+				
+						j++;
+
+						if (row2[1]) {
+							def->child_ids = g_slist_prepend (def->child_ids, g_strdup (row[2]));
+						}
+					}
+					tracker_db_free_result (res2);	
+				}
+
+				g_hash_table_insert (tracker->metadata_table, g_strdup (row[0]), def);
+			} 
+
+		}		
+		tracker_db_free_result (res);
+	}
+
+
+	/* get static service info */	
+	
+	res  = tracker_exec_proc (db_con, "GetAllServices", 0);
+	
+	if (res) {
+		char **row;
+		i = 0;
+		while ((row = tracker_db_get_row (res, i))) {
+
+			i++;
+
+			if (row[0] && row[1]) {
+				g_hash_table_insert (tracker->service_table, g_strdup (row[1]), g_strdup(row[0]));
+				g_hash_table_insert (tracker->service_id_table, g_strdup (row[0]), g_strdup(row[1]));
+			} 
+
+		}		
+		tracker_db_free_result (res);
+	}
+
 }
 

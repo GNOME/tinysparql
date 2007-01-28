@@ -103,7 +103,7 @@ tracker_db_email_get_last_mbox_offset (DBConnection *db_con, const char *mbox_fi
 
 		if (offset == -1) {
 			/* There is really a problem with this mbox... */
-			tracker_log ("ERROR: Could not create entry in DB for mbox file \"%s\"", mbox_file_path);
+			tracker_log ("Error: Could not create entry in DB for mbox file \"%s\"", mbox_file_path);
 			return 0;
 		}
 	}
@@ -152,21 +152,17 @@ tracker_db_email_get_nb_emails_in_dir (DBConnection *db_con, const char *dir_pat
 void
 tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 {
-	char *str_offset;
-
 	g_return_if_fail (db_con);
 	g_return_if_fail (mf);
 
 	if (!mf->path) {
-		tracker_log ("Error invalid mbox (empty path!)");
+		tracker_log ("Error: invalid mbox (empty path!)");
 		return;
 	}
 
-	str_offset = tracker_uint_to_str (mf->next_email_offset);
-	str_offset = tracker_uint_to_str (mf->next_email_offset);
-
 	/* make sure mbox is registered in DB before doing an update */
 	if (get_mbox_offset (db_con, mf->path) != -1) {
+		char *str_offset;
 
 		str_offset = tracker_uint_to_str (mf->next_email_offset);
 		tracker_exec_proc (db_con, "UpdateMboxDetails", 6, str_offset, " ", "0", "0", "0", mf->path);
@@ -174,28 +170,26 @@ tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 		g_free (str_offset);
 
 	} else {
-		tracker_log ("Error invalid mbox \"%s\"", mf->path);
+		tracker_log ("Error: invalid mbox \"%s\"", mf->path);
 	}
-
-
 }
-
-
 
 
 void
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
-/* 	GString	     *s;  */
-	const GSList	*tmp;
-	char		/* *to_print, */ *name, *path;
-	int		mbox_id, id;
-	GHashTable	*index_table;
+	char	*name, *path;
+	int	mbox_id, id;
 
 	g_return_if_fail (db_con);
 	g_return_if_fail (mm);
 
-	if (!mm->uri || mm->deleted || mm->junk || mm->parent_mail_file || mm->parent_mail_file->path) {
+	if (!mm->uri || mm->deleted || mm->junk || (mm->parent_mail_file && !mm->parent_mail_file->path)) {
+		return;
+	}
+
+	if (!mm->parent_mail_file) {
+		/* FIXME: this code assumed that it only have to treat MBox files; that's wrong! */
 		return;
 	}
 
@@ -208,7 +202,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 	name = tracker_get_vfs_name (mm->uri);
 	path = tracker_get_vfs_path (mm->uri);
-	
+
 	tracker_db_start_transaction (db_con);
 
 	tracker_db_create_service (db_con, path, name, "Emails", "email", 0, FALSE, FALSE, mm->offset, 0, mbox_id);
@@ -216,7 +210,9 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	id = tracker_db_get_file_id (db_con, mm->uri);
 
 	if (id != -1) {
-		char *str_id, *str_date;
+		GHashTable	*index_table;
+		char		*str_id, *str_date;
+		const GSList	*tmp;
 
 		tracker_log ("saving email with uri \"%s\" and subject \"%s\" from \"%s\"", mm->uri, mm->subject, mm->from);
 
@@ -285,101 +281,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	tracker_db_end_transaction (db_con);
 
 	/* sometimes we will create a new record, sometimes we will update previous entries */
-
-
-	/*
-	 * FIXME
-	 */
-
-/* 	s = g_string_new (""); */
-
-/* 	g_string_append_printf (s, */
-/* 				"Saving email with mbox's path \"%s\" and id \"%s\":\n" */
-/* 				"- path: %s\n" */
-/* 				"- uri: %s\n" */
-/* 				"- offset: %lld\n" */
-/* 				"- reply-to: %s\n" */
-/* 				"- deleted?: %d\n" */
-/* 				"- junk?: %d\n", */
-/* 				mm->parent_mail_file ? mm->parent_mail_file->path : "no-parent-mail-file", */
-/* 				mm->message_id, */
-/* 				mm->path, */
-/* 				mm->uri, */
-/* 				mm->offset, */
-/* 				mm->reply_to, */
-/* 				mm->deleted, */
-/* 				mm->junk); */
-
-/* 	g_string_append (s, "- references: "); */
-/* 	for (tmp = mm->references; tmp; tmp = tmp->next) { */
-/* 		g_string_append_printf (s, "%s * ", (char *) tmp->data); */
-/* 	} */
-/* 	g_string_append (s, "\n"); */
-
-/* 	g_string_append (s, "- in-reply-to-ids: "); */
-/* 	for (tmp = mm->in_reply_to_ids; tmp; tmp = tmp->next) { */
-/* 		g_string_append_printf (s, "%s * ", (char *) tmp->data); */
-/* 	} */
-/* 	g_string_append (s, "\n"); */
-
-/* 	g_string_append_printf (s, */
-/* 				"- date: %s\n" */
-/* 				"- mail_from: %s\n", */
-/* 				ctime (&mm->date), */
-/* 				mm->from); */
-
-/* 	g_string_append (s, "- mail_to: "); */
-/* 	for (tmp = mm->to; tmp; tmp = tmp->next) { */
-/* 		const MailPerson *mp; */
-/* 		mp = tmp->data; */
-/* 		g_string_append_printf (s, "name:%s, addr:%s ** ", mp->name, mp->addr); */
-/* 	} */
-/* 	g_string_append (s, "\n"); */
-
-/* 	g_string_append (s, "- mail_cc: "); */
-/* 	for (tmp = mm->cc; tmp; tmp = tmp->next) { */
-/* 		const MailPerson *mp; */
-/* 		mp = tmp->data; */
-/* 		g_string_append_printf (s, "name:%s, addr:%s ** ", mp->name, mp->addr); */
-/* 	} */
-/* 	g_string_append (s, "\n"); */
-
-/* 	g_string_append (s, "- mail_bcc: "); */
-/* 	for (tmp = mm->bcc; tmp; tmp = tmp->next) { */
-/* 		const MailPerson *mp; */
-/* 		mp = tmp->data; */
-/* 		g_string_append_printf (s, "name:%s, addr:%s ** ", mp->name, mp->addr); */
-/* 	} */
-/* 	g_string_append (s, "\n"); */
-
-/* 	g_string_append_printf (s, */
-/* 				"- subject: %s\n" */
-/* 				"- content_type: %s\n" */
-/* 				"- body: %s\n" */
-/* 				"- path_to_attachments: %s\n", */
-/* 				mm->subject, */
-/* 				mm->content_type, */
-/* 				mm->body, */
-/* 				mm->path_to_attachments); */
-
-/* 	g_string_append (s, "- attachments: "); */
-/* 	for (tmp = mm->attachments; tmp; tmp = tmp->next) { */
-/* 		MailAttachment *ma; */
-
-/* 		ma = (MailAttachment *) tmp->data; */
-
-/* 		g_string_append_printf (s, "%s * ", ma->attachment_name); */
-/* 	} */
-/* 	g_string_append (s, "\n"); */
-
-
-/* 	to_print = g_string_free (s, FALSE); */
-
-/* 	tracker_log ("%s\n", to_print); */
-
-/* 	g_free (to_print); */
 }
-
 
 void
 tracker_db_email_update_email (DBConnection *db_con, MailMessage *mm)
@@ -410,8 +312,4 @@ tracker_db_email_delete_emails_of_dir (DBConnection *db_con, const char *dir_pat
 	g_return_if_fail (dir_path);
 
 	tracker_db_email_delete_emails_of_mbox (db_con, dir_path);
-
-
 }
-
-
