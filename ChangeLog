@@ -1,3 +1,9 @@
+2007-01-28 Patch from Michael Biebl <mbiebl at gmail com>
+
+	* removed python header from deskbar module
+	* changed Max results to 10
+
+
 2007-01-28  Patch from Laurent Aguerreche <laurent aguerreche at free fr>
 	
 	* email fixes

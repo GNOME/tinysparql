@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 #    This handler was originaly created by Mikkel Kamstrup (c) 2006 and updated by Eugenio Cutolo (eulin)
 #
 #    This program can be distributed under the terms of the GNU GPL version 2 or later.
@@ -18,7 +18,7 @@ from deskbar.Handler import SignallingHandler
 from deskbar.Match import Match
 
 #Edit this var for change the numer of output results
-MAX_RESULTS = 2
+MAX_RESULTS = 10
 
 def _check_requirements ():
 	try:
