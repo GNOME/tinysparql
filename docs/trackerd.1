@@ -9,14 +9,14 @@ porvides both a powerful indexer and an extensible metadata database. It indexes
 fast search services. By default, trackerd will index all files in a users home directory (with 
 the exception of hidden files). This can be overriden by specifying one or 
 more directories to be indexed instead in the config file 
-($Home/.Tracker/tracker.cfg) and/or by using the --include-dir param to specify
+($HOME/.Tracker/tracker.cfg) and/or by using the --include-dir param to specify
 other directories to be indexed.
 .SH OPTIONS
 .TP
 \-e, --exclude-dir=/PATH/DIR
 Specifies directories to be excluded from indexing
 .TP
-\[-i, --include-dir=/PATH/DIR]
+\-i, --include-dir=/PATH/DIR
 Specifies directories to be included for indexing. All non-hidden sub directories of the specified directory will also be indexed. If this param is set then the user's home directory is no longer indexed by default (you can still add the home directory to this param)
 .TP
 \--no-indexing
@@ -37,7 +37,7 @@ Value to use for throttling indexing. Value must be in range 0-20 (default 0) wi
  Language to use for stemmer and stop words list (ISO 639-1 2 characters code)
 
 .SH FILES
-.I $Home/.Tracker/tracker.cfg
+.I $HOME/.Tracker/tracker.cfg
 .RS
 Trackerd user configuration file. See
 .BR tracker.cfg(5)
