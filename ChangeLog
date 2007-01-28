@@ -1,3 +1,9 @@
+2007-01-28  Patch from Laurent Aguerreche <laurent aguerreche at free fr>
+	
+	* email fixes
+	* improved imap4 support
+	* memory leak fix in indexer
+
 2007-01-27  Patch from Saleem Abdulrasool <compnerd at gentoo org>
 
 	* Made deskbar-handler installation optional

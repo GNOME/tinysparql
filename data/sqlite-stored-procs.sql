@@ -23,6 +23,7 @@ GetFileByID2  SELECT DISTINCT (Path || '/' || Name) as uri, GetServiceName (Serv
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File:Modified');
 
 GetServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = ? ORDER BY TypeID;
+GetAllServices SELECT TypeID, TypeName, MetadataClass, Description  FROM ServiceTypes;
 
 GetServiceID SELECT ID, IndexTime, IsDirectory, ServiceTypeID FROM Services WHERE Path = ? AND Name = ?;
 
@@ -167,22 +168,6 @@ InsertWatch insert into FileWatches (URI, WatchID) values (?,?);
 
 InsertSearchResult1 insert into SearchResults1 (SID, Score) values (?,?);
 DeleteSearchResults1 delete from SearchResults1;
-
-GetWordID select WordID, WordCount from Words where Word =? and WordCount > 0;
-DeleteWord delete from Words where WordID = ?;
-InsertWord insert into Words (Word, WordCount) Values (?,1);
-UpdateWordCount update Words set WordCount = ? where WordID = ?;
-GetWordsTop select distinct WordID, Word from Words where WordCount > 0 order by WordCount asc limit ?;
-GetWords select distinct W.WordID, W.Word from Words W where exists (select 1 from ServiceWords S where S.WordID = W.WordID limit 1);
-GetWordCount select count(*) from Words W where WordCount > 0;
-
-InsertServiceWord insert into  ServiceWords (WordID, ServiceID, ServiceType, score) values (?,?,?,?);
-UpdateServiceWord update  ServiceWords  set score = ? where WordID = (select WordID from Words where Word = ?) and ServiceID = ?;
-DeleteServiceWordForID delete from ServiceWords where ServiceID = ?;
-DeleteServiceWords delete from ServiceWords where WordID = ?;
-GetServiceWord select ServiceID, ServiceType, Score from ServiceWords where WordID = ? and serviceID > 0 and servicetype > 0 and score > 0;
-ServiceCached select 1 from ServiceWords where ServiceID = ? and WordID = (select WordID from Words where Word = ?);
-GetServiceWordCount select count(*) from ServiceWords where WordID = ?;
 
 GetMBoxDetails select Type, Offset, LastUri, MessageCount, MBoxSize, Mtime from MBoxes where path = ?;
 GetMboxID select ID from MBoxes where path = ?;
