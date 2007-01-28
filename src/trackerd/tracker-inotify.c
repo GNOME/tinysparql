@@ -296,6 +296,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 				moved_from_info = tracker_free_file_info (moved_from_info);
 				moved_to_info = tracker_free_file_info (moved_to_info);
 				info = NULL;
+				tracker_notify_file_data_available ();
 				return;
 			}
 		}

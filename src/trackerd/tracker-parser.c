@@ -116,6 +116,8 @@ word_is_alpha (const char *word)
 	const char *p;
 	gunichar   c;
 
+	if (!word) return FALSE;
+
 	for (p = word; *p; p = g_utf8_next_char (p)) {
 		c = g_utf8_get_char (p);
 
@@ -207,6 +209,21 @@ valid_char (const unsigned char c)
 
 
 
+static inline char *
+stem_word (const char *word)
+{
+	if (tracker->stemmer && tracker->use_stemmer && word_is_alpha (word)) {
+		char *aword;
+
+		aword = tracker_stem (word);
+
+		return aword;
+	}
+
+	return NULL;
+
+}
+
 static char *
 process_word (const char *index_word) 
 {
@@ -264,18 +281,8 @@ process_word (const char *index_word)
 		}
 	}
 
-	/* stem words if word only contains alpha chars */
-	if (tracker->stemmer && tracker->use_stemmer && word_is_alpha (word)) {
-		char *aword;
-
-		aword = tracker_stem (word);
-
-		g_free (word);
-		word = aword;
-	}
-
 	return word;
-	
+
 }
 
 
@@ -339,6 +346,16 @@ tracker_parse_text (GHashTable *word_table, const char *text, int weight, gboole
 				} else {
 					index_word = word;
 				}
+
+				char *aword;
+
+				aword = stem_word (index_word);
+
+				if (aword) {
+					g_free (index_word);
+					index_word = aword;			
+				}
+
 
 				if (!index_word) {
 					start = NULL;
