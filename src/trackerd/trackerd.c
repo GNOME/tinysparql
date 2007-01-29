@@ -2193,7 +2193,7 @@ main (int argc, char **argv)
 			exit (1);
 		} else {
 
-			tracker_email_watch_emails (main_thread_db_con);
+			//tracker_email_watch_emails (main_thread_db_con);
 
 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
 			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);

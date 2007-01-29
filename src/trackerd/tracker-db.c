@@ -937,8 +937,8 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 		info->mime = g_strdup ("Folder");
 		info->file_size = 0;
 	} else {
-		service_name = tracker_get_service_type_for_mime (info->mime);
 		info->mime = tracker_get_mime_type (info->uri);
+		service_name = tracker_get_service_type_for_mime (info->mime);
 
 		if (!info->mime) {
 			info->mime = g_strdup ("unknown");
