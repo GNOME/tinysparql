@@ -212,13 +212,13 @@ tracker_extract_mplayer (gchar *filename, GHashTable *metadata)
 			g_hash_table_foreach (tmp_metadata_video, copy_hash_table_entry, metadata);
 
 			if (duration) {
-				g_hash_table_insert (metadata, g_strdup ("Video.Duration"), duration);
+				g_hash_table_insert (metadata, g_strdup ("Video:Duration"), duration);
 			}
 		} else if (has_audio) {
 			g_hash_table_foreach (tmp_metadata_audio, copy_hash_table_entry, metadata);
 
 			if (duration) {
-				g_hash_table_insert (metadata, g_strdup ("Audio.Duration"), duration);
+				g_hash_table_insert (metadata, g_strdup ("Audio:Duration"), duration);
 			}
 		}
 
