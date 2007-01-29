@@ -1,3 +1,9 @@
+2007-01-29  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed bug for service types
+	* fixed mplayer bug with audio/video.Duration
+
+
 2007-01-28  Jamie McCracken <jamiemcc at gnome org>
 
 	* fixed bug where moving a file would not update index of the new filename
