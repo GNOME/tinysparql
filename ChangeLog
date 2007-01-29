@@ -1,3 +1,9 @@
+2007-01-28  Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed bug where moving a file would not update index of the new filename
+	* made some of the db data static
+	
+
 2007-01-28 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* removed python header from deskbar module
