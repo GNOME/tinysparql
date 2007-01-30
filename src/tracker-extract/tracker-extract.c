@@ -160,7 +160,9 @@ tracker_child_cb (gpointer user_data)
 		g_printerr ("Error trying to set resource limit for memory usage\n");
 	}
 
-	
+	/* Set child's niceness to 19 */
+	nice (19);
+		
 }
 
 
