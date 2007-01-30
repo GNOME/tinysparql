@@ -1,3 +1,34 @@
+#  Copyright (C) 2006/7, Edward B. Duffy <eduffy@gmail.com>
+#  tracker-tags-tab.py:  Tag your files in your Tracker database
+#                        via Nautilus's property dialog.
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+if __name__ == '__main__':
+   import os
+   import sys
+
+   print 'This is nautilus extension, not a standalone application.'
+   print 'Please copy this file into your nautulis extensions directory:'
+   print
+   print '\t# cp %s %s/.nautilus/python-extensions' % \
+               (__file__,os.path.expanduser('~'))
+
+   sys.exit(1)
+
 
 import gtk
 import dbus
@@ -75,12 +106,11 @@ class TrackerTagsPage(nautilus.PropertyPageProvider):
    def get_property_pages(self, files):
       property_label = gtk.Label('Tags')
       property_label.show()
-      print 'Tracker version:',self.tracker.GetVersion()
 
       # get the list of tags
       all_tags = self.keywords.GetList('Files')
       # convert usage count to an integer
-      all_tags = [ (t,int(c[0])) for t,c in all_tags ]
+      all_tags = [ (t,int(c)) for t,c in all_tags ]
       # sort by usage count
       all_tags = sorted(all_tags, key=operator.itemgetter(1))
       all_tags.reverse()
@@ -159,3 +189,4 @@ class TrackerTagsPage(nautilus.PropertyPageProvider):
       main.show_all()
 
       return nautilus.PropertyPage("NautilusPython::tags", property_label, main),
+
