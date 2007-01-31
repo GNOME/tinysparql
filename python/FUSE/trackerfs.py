@@ -9,7 +9,7 @@ from fuse import Fuse
 from optparse import OptionParser
 from errno import *
 from stat import *
-import os,statvfs,logging,dbus
+import os,statvfs,logging,dbus,re
 
 #Simple class to interface with tracker dbus function
 class TrackerClient:
@@ -37,7 +37,8 @@ class TrackerClient:
 
 	def add_db_files(self,path):
 		self.files_iface.Exists(path,True)
-		return self.files_iface.Exists(path,False)
+		self.files_iface.Exists(path,False)
+		return True
 
 	def add_tag(self,path,tags,service='Files'):
 		self.keywords_iface.Add(service,path,tags)
@@ -61,38 +62,58 @@ class TrackerFs (Fuse,TrackerClient):
 		usage = "usage: %prog mountpoint [options]"
 		
 		self.parser = OptionParser(usage)
+		self.parser.add_option("-a", "--auto",action="store_true",help="Mount point will be populated with the rdf query in ~/.Tracker/fs", dest="automatic", default=True)
 		self.parser.add_option("-s", "--search", dest="keys",help="Use a key to find the contents of mounted dir", metavar="key")
 		self.parser.add_option("-t", "--tag",dest="tag",help="Use a tag/s to find the contents of mounted dir", metavar="tag")
 		self.parser.add_option("-q", "--query",dest="query",help="Use a rdf file to find the contents of mounted dir", metavar="path")
 		self.parser.add_option("-v", "--verbose",action="store_true",help="Verbose the output", dest="verbose", default=False)
 		self.params, args = self.parser.parse_args()
-		
+
+		if os.path.exists(args[0]) == False:
+			print "The mount point doesen't exist make it?"
+			#self.log.debug("Create target directory")
+			os.mkdir(args[0])		
+
+		#check old files
+		#save_dir = open(args[0], O_RDONLY);
+		#fchdir(save_dir);
+		#close(save_dir);
+
 		#Init fuse
 		Fuse.__init__(self,args,{})
 
+		if self.params.verbose:
+			verbmode = logging.DEBUG
+		else:
+			verbmode = logging.WARNING
+		
 		#Setup logger
-		self.log = logging.getLogger("trackerfs");self.log.setLevel(logging.DEBUG)
-		fh = logging.StreamHandler();fh.setLevel(logging.DEBUG)
+		self.log = logging.getLogger("trackerfs");self.log.setLevel(verbmode)
+		fh = logging.StreamHandler();fh.setLevel(verbmode)
 		formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 		fh.setFormatter(formatter)
 		self.log.addHandler(fh)
 		
-		#This is the path when file will be "really" created
-		self.realdir = os.environ["HOME"]+"/.documents/"
-		
+		#This is the path when file will be "really" created/moved/edited
+		self.realdir = "/media/Dati/.data/"
+		self.rdfdir = os.environ["HOME"]+"/.Tracker/fs/"
+
 		if os.path.exists(self.realdir) == False:
 			self.log.debug("Create target directory")
 			os.mkdir(self.realdir)
 
 		self.log.debug("mountpoint: %s" % repr(self.mountpoint))
-		#self.log.debug("unnamed mount options: %s" % self.optlist)
-		#self.log.debug("named mount options: %s" % self.optdict)
 
+		#Get list of rdf query
+		#files = os.listdir(self.rdfdir)
+		#self.queryfiles = [f for f in files if f[-4:]]
+		#print self.queryfiles
 		self._refresh_filelist()
 		pass
 
 	def mythread(self):
 		self.log.debug("Start Thread")
+
 
 #Refresh file list calling the TrackerClient function
 	def _refresh_filelist(self):
@@ -128,22 +149,24 @@ class TrackerFs (Fuse,TrackerClient):
 
 	def create_file_or_dir(self,type,path,mode):
 		if os.path.dirname(path) == "/" and self.params.tag != None:
-			path = self.realdir+os.path.basename(path)
+			newpath = self.realdir+os.path.basename(path)
 		elif os.path.dirname(path) != "/":
-			path = self._get_file_path(path)
+			newpath = self._get_file_path(path)
 		else:
 			self.log.error("Fs based on Search and Query doesen't have write access")
 			return 0
 		if S_ISREG(mode) and type == 0:
-			self.log.debug("MkFile:"+path)
-			res = os.open(path, os.O_CREAT | os.O_WRONLY,mode);
+			self.log.debug("MkFile:"+newpath)
+			res = os.open(newpath, os.O_CREAT | os.O_WRONLY,mode);
 		elif type == 1:	
-			self.log.debug("MkDir:"+path)
-			res = os.mkdir(path,mode)
+			self.log.debug("MkDir:"+newpath)
+			res = os.mkdir(newpath,mode)
 		else:
 			return -EINVAL
+		print "path:"+os.path.dirname(path)
 		if os.path.dirname(path) == "/":
-			self.add_to_fs(path)
+			print "Add to fs"
+			self.add_to_fs(newpath)
 		self._refresh_filelist()
 		self.getdir("/")
 		return res
@@ -171,6 +194,7 @@ class TrackerFs (Fuse,TrackerClient):
 			return map(lambda x: (os.path.basename(x),0),self.resultlist)
 		else:
 			return map(lambda x: (os.path.basename(x),0),os.listdir(self._get_file_path(path)))
+
 
 	def unlink(self, path):
 		return os.unlink(path)
