@@ -871,6 +871,20 @@ process_files_thread (void)
 
 	moved_from_list = NULL;
 
+	tracker_log ("starting watching...");
+	
+	if (tracker->enable_indexing) {
+
+		//tracker_email_watch_emails (db_con);
+
+		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
+		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, db_con);
+
+
+	}
+
+
+
 	tracker_log ("starting indexing...");
 
 	while (TRUE) {
@@ -958,6 +972,11 @@ process_files_thread (void)
 					tracker->do_optimize = FALSE;
 					tracker->first_time_index = FALSE;
 					tracker->update_count = 0;
+
+					tracker_log ("updating database stats...please wait...");
+					tracker_db_start_transaction (db_con);
+					tracker_exec_sql (db_con, "ANALYZE");
+					tracker_db_end_transaction (db_con);
 	
 				}
 
@@ -2097,13 +2116,6 @@ main (int argc, char **argv)
 
 	if (!need_setup) {
 
-		tracker_log ("updating database stats...please wait...");
-			
-		tracker_db_start_transaction (db_con);
-		tracker_exec_sql (db_con, "ANALYZE");
-		tracker_db_end_transaction (db_con);
-
-
 		res = tracker_exec_proc (db_con, "GetStats", 0);
 
 		if (res && res[0] && res[0][0]) {
@@ -2128,6 +2140,11 @@ main (int argc, char **argv)
 			tracker_db_free_result (res);
 		}
 		tracker_log ("-----------------------\n");
+	} else {
+
+		tracker_db_start_transaction (db_con);
+		tracker_exec_sql (db_con, "ANALYZE");
+		tracker_db_end_transaction (db_con);
 	}
 
 
@@ -2155,8 +2172,6 @@ main (int argc, char **argv)
 
 	tracker_db_get_static_data (db_con);
 
-	tracker->file_scheduler = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
 	tracker->file_metadata_queue = g_async_queue_new ();
 	tracker->file_process_queue = g_async_queue_new ();
 	tracker->user_request_queue = g_async_queue_new ();
@@ -2177,47 +2192,22 @@ main (int argc, char **argv)
 
 	add_local_dbus_connection_monitoring (main_connection);
 
-
 	/* this var is used to tell the threads when to quit */
 	tracker->is_running = TRUE;
 
-
-	/* schedule the watching of directories so as not to delay start up time*/
-
-
-	if (tracker->enable_indexing) {
-
-		if (!tracker_start_watching ()) {
-			tracker_log ("File monitoring failed to start");
-			do_cleanup ("File watching failure");
-			exit (1);
-		} else {
-
-			//tracker_email_watch_emails (main_thread_db_con);
-
-			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, main_thread_db_con);
-			g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, main_thread_db_con);
-
-			tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
-		}
-	}
-
-
-	//tracker->file_metadata_thread = g_thread_create ((GThreadFunc) extract_metadata_thread, NULL, FALSE, NULL);
 	tracker->user_request_thread =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
 
+	if (!tracker_start_watching ()) {
+		tracker_log ("File monitoring failed to start");
+		do_cleanup ("File watching failure");
+		exit (1);
+	}
+
+	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
+	//tracker->file_metadata_thread = g_thread_create ((GThreadFunc) extract_metadata_thread, NULL, FALSE, NULL);
+	
+
 	g_main_loop_run (tracker->loop);
-
-	/* the following should never be reached in practice */
-	tracker_log ("we should never get this message");
-
-	tracker_db_close (db_con);
-
-	tracker_db_thread_end ();
-
-	tracker_dbus_shutdown (main_connection);
-
-	do_cleanup (" ");
 
 	return EXIT_SUCCESS;
 }

@@ -220,7 +220,7 @@ sqlite3_get_max_service_type (sqlite3_context *context, int argc, sqlite3_value 
 FieldDef *
 tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 {
-	FieldDef *def;
+/*	FieldDef *def;
 	char	 ***res;
 	char	 **row;
 
@@ -257,19 +257,31 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 	tracker_db_free_result (res);
 
 	return def;
+*/
+
+	FieldDef *def;
+	char *name;
+
+	name = g_utf8_strdown (field_name, -1);
+	def = g_hash_table_lookup (tracker->metadata_table, name);
+	g_free (name);
+
+	return def;
+
 }
 
 
 void
 tracker_db_free_field_def (FieldDef *def)
 {
-	g_return_if_fail (def);
+/*	g_return_if_fail (def);
 
 	if (def->id) {
 		g_free (def->id);
 	}
 
 	g_slice_free (FieldDef, def);
+*/
 }
 
 
@@ -3951,7 +3963,7 @@ tracker_db_get_static_data (DBConnection *db_con)
 					tracker_db_free_result (res2);	
 				}
 
-				g_hash_table_insert (tracker->metadata_table, g_strdup (row[0]), def);
+				g_hash_table_insert (tracker->metadata_table, g_utf8_strdown  (row[0], -1), def);
 			} 
 
 		}		

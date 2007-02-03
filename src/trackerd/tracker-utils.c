@@ -1270,7 +1270,6 @@ tracker_file_is_valid (const char *uri)
 }
 
 
-
 gboolean
 tracker_file_is_indexable (const char *uri)
 {
@@ -1294,6 +1293,7 @@ tracker_file_is_indexable (const char *uri)
 	if (convert_ok) tracker_debug ("file %s is indexable", uri);
 
 	return convert_ok;
+	
 }
 
 

@@ -938,15 +938,12 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 		info->file_size = 0;
 	} else {
 		info->mime = tracker_get_mime_type (info->uri);
-		service_name = tracker_get_service_type_for_mime (info->mime);
 
 		if (!info->mime) {
 			info->mime = g_strdup ("unknown");
 		}
 
-		if (info->file_size > 10000000) {
-			tracker_log ("Checking large file %s with size %d, mime %s and service %s", info->uri, info->file_size, info->mime, service_name);
-		}
+		service_name = tracker_get_service_type_for_mime (info->mime);
 
 	}
 
@@ -987,7 +984,7 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 	g_free (str_link_uri);
 
 	is_external_service = g_str_has_prefix (info->mime, "service/");
-	is_file_indexable = (!info->is_directory && (strcmp (info->mime, "unknown") != 0) && (strcmp (info->mime, "symlink") != 0));
+	is_file_indexable = (!info->is_directory && (strcmp (info->mime, "unknown") != 0) && (strcmp (info->mime, "symlink") != 0) && tracker_file_is_indexable (info->uri));
 
 	service_has_metadata = (is_external_service ||
 				(is_file_indexable && (tracker_str_in_array (service_name, services_with_metadata) != -1)));
@@ -1042,6 +1039,7 @@ tracker_db_index_entity (DBConnection *db_con, FileInfo *info)
 		tracker_log ("Warning - file %s no longer exists - abandoning index on this file", info->uri);
 		return;
 	}
+
 
 	if (tracker_email_file_is_interesting (db_con, info)) {
 		tracker_email_index_file (db_con, info);
