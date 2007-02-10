@@ -32,7 +32,7 @@ tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
 	/* priv->gxml = glade_xml_new("tracker-preferences.glade", NULL, NULL); */
 
 	if (priv->gxml == NULL)
-		g_error ("Unable to find tracker-preferences.glade");
+		g_error ("Unable to find locate tracker-preferences.glade");
 
 	main_window = glade_xml_get_widget (priv->gxml, "dlgPreferences");
 
@@ -46,7 +46,10 @@ tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
 
 	/* Setup signals */
 	widget = glade_xml_get_widget (priv->gxml, "cmdHelp");
+
 	gtk_widget_hide(widget);
+	widget = glade_xml_get_widget (priv->gxml, "dialog-action_rea1");
+        gtk_button_box_set_layout (GTK_BUTTON_BOX (widget), GTK_BUTTONBOX_END);
         /*
 	g_signal_connect (widget, "clicked", G_CALLBACK (cmdHelp_Clicked),
 			  self);
