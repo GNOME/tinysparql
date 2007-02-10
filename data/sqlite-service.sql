@@ -1,0 +1,115 @@
+/* basic info for a file or service object */
+CREATE TABLE  Services
+(
+	ID            		Integer primary key AUTOINCREMENT not null,
+	ServiceTypeID		Integer  default 0, /* see ServiceTypes table above for ID values */
+	SubType			Integer default 0, /* reserved for future use */
+	Path 			Text  not null, /* non-file objects should use service name here */
+	Name	 		Text , /* name of file or object - the combination path and name must be unique for all objects */
+	Mime			Text,
+	Size			Integer,
+	Enabled			Integer default 1,
+	IsDirectory   		Integer default 0,
+    	IsLink        		Integer default 0,
+	AuxilaryID		Integer, /* link to Volumes table for files, link to mbox table for emails*/
+	IndexTime  		Integer, /* should equal st_mtime for file if up-to-date */
+	Offset			Integer, /* last used disk offset for indexable files that always grow (like chat logs) or email offset */
+
+    	unique (Path, Name)
+
+);
+
+CREATE INDEX  ServiceIndex1 ON Services (ServiceTypeID);
+CREATE INDEX  ServiceIndex2 ON Services (AuxilaryID);
+
+CREATE TABLE MBoxes
+(
+	ID		Integer primary key AUTOINCREMENT not null,
+	Path		Text not null,
+	Type		Integer default 0, /* 0=unknown, 1=evolution, 2=thunderbird, 3=kmail */
+	Offset		Integer,
+	LastUri		text,
+	MessageCount 	Integer,
+	MBoxSize	Integer,
+	Mtime		Integer,
+
+	unique (Path)
+);
+
+
+/* de-normalised metadata which is unprocessed (not normalized or casefolded) for display only - never used for searching */
+CREATE TABLE  ServiceMetaDataDisplay 
+(
+	ServiceID		Integer not null,
+	MetaDataID 		Integer  not null,
+	MetaDataValue     	Text,
+	EmbeddedFlag		Integer default 0,
+	DeleteFlag		Integer default 0,
+
+	primary key (ServiceID, MetaDataID)
+);
+
+
+
+/* utf-8 based metadata that is used for searching */
+CREATE TABLE  ServiceMetaData 
+(
+	ID			Integer primary key AUTOINCREMENT not null,
+	ServiceID		Integer not null,
+	MetaDataID 		Integer  not null,
+	MetaDataValue     	Text COLLATE UTF8, 
+	EmbeddedFlag		Integer default 0,
+	DeleteFlag		Integer default 0
+
+);
+
+CREATE INDEX  ServiceMetaDataIndex1 ON ServiceMetaData (ServiceID);
+CREATE INDEX  ServiceMetaDataIndex2 ON ServiceMetaData (MetaDataID);
+
+
+/* metadata for all keyword types - keywords are db indexed for fast searching */
+CREATE TABLE  ServiceKeywordMetaData 
+(
+	ID			Integer primary key AUTOINCREMENT not null,
+	ServiceID		Integer not null,
+	MetaDataID 		Integer  not null,
+	MetaDataValue		Text COLLATE UTF8, 
+	EmbeddedFlag		Integer default 0,
+	DeleteFlag		Integer default 0
+	
+);
+
+CREATE INDEX  ServiceKeywordMetaDataIndex1 ON ServiceKeywordMetaData (MetaDataID, MetaDataValue);
+CREATE INDEX  ServiceKeywordMetaDataIndex2 ON ServiceKeywordMetaData (ServiceID);
+
+
+
+/* numerical metadata including DateTimes are stored here */
+CREATE TABLE  ServiceNumericMetaData 
+(
+	ID			Integer primary key AUTOINCREMENT not null,
+	ServiceID		Integer not null,
+	MetaDataID 		Integer not null,
+	MetaDataValue		real,
+	EmbeddedFlag		Integer default 0,
+	DeleteFlag		Integer default 0
+);
+
+CREATE INDEX  ServiceNumericMetaDataIndex1 ON ServiceNumericMetaData (ServiceID);
+CREATE INDEX  ServiceNumericMetaDataIndex2 ON ServiceNumericMetaData (MetaDataID, MetaDataValue);
+
+
+
+/* blob data is never searched and can contain embedded Nulls */
+CREATE TABLE  ServiceBlobMetaData 
+(
+	ID			Integer primary key AUTOINCREMENT not null,
+	ServiceID		Integer not null,
+	MetaDataID 		Integer  not null,
+	MetaDataValue		blob,
+	BlobLength		Integer,
+	EmbeddedFlag		Integer default 0,
+	DeleteFlag		Integer default 0
+);
+
+CREATE INDEX ServiceBlobMetaDataIndex1 ON ServiceBlobMetaData (ServiceID);

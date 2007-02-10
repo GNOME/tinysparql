@@ -4,7 +4,10 @@ configdir = $(datadir)/tracker
 
 config_DATA =   tracker-introspect.xml \
 		sqlite-tracker.sql \
-		sqlite-stored-procs.sql
+		sqlite-stored-procs.sql \
+		sqlite-service.sql	\
+		sqlite-service-types.sql \
+		sqlite-metadata.sql 
 
 servicedir       = $(DBUS_SERVICES_DIR)
 service_in_files = tracker.service.in

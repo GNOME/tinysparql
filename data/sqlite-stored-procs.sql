@@ -1,18 +1,7 @@
-ValidService select 1 where exists ( select TypeID From ServiceTypes where TypeName = ?);
-
-GetServiceType select TypeName From ServiceTypes where TypeID = ?;
-
-GetMetaDataName	  SELECT MetaName From MetaDataTypes where ID = ?;
 
 GetMetaDataTypeID select ID From MetaDataTypes where MetaName = ?;
 
 GetMetaDataType select DataTypeID From MetaDataTypes where MetaName = ?;
-
-GetServiceTypeID select TypeID From ServiceTypes where TypeName = ?;
-
-GetServiceIDNum select ID From Services where Path = ? and Name  = ?;
-
-GetServiceTypeIDForFile select ServiceTypeID FROM Services where ID = ?;
 
 GetFilesByServiceType SELECT  DISTINCT F.Path || '/' || F.Name as uri  FROM Services F WHERE (F.ServiceTypeID between ? and ?) LIMIT ?,?;
 
@@ -20,10 +9,12 @@ GetFileByID  SELECT  DISTINCT Path , Name, Mime   FROM Services WHERE ID = ?;
 
 GetFileByID2  SELECT DISTINCT (Path || '/' || Name) as uri, GetServiceName (ServiceTypeID), Mime FROM Services WHERE ID = ?;
 
+GetEmailByID  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Email', S.Mime, M1.MetaDataValue, M2.MetaDataValue FROM Services S Left Outer Join ServiceMetaData M1 on S.ID = M1.ServiceID and M1.MetaDataID = (select ID From MetaDataTypes where MetaName ='Email:Subject') Left Outer Join ServiceMetaData M2 on S.ID = M2.ServiceID and M2.MetaDataID = (select ID From MetaDataTypes where MetaName ='Email:Sender') WHERE S.ID = ?;
+
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File:Modified');
 
-GetServices SELECT TypeName, MetadataClass, Description  FROM ServiceTypes WHERE MainService = ? ORDER BY TypeID;
-GetAllServices SELECT TypeID, TypeName, MetadataClass, Description  FROM ServiceTypes;
+GetServices SELECT TypeName, TypeClass, Description  FROM ServiceTypes WHERE MainService = ? ORDER BY TypeID;
+GetAllServices SELECT TypeID, TypeName, TypeClass, Description, MinID, MaxID, MainService, Database  FROM ServiceTypes;
 
 GetServiceID SELECT ID, IndexTime, IsDirectory, ServiceTypeID FROM Services WHERE Path = ? AND Name = ?;
 
@@ -42,7 +33,6 @@ DeleteService4 	DELETE FROM ServiceKeywordMetaData WHERE ServiceID = ?;
 DeleteService5 	DELETE FROM ServiceMetaDataDisplay WHERE ServiceID = ?;
 DeleteService6 	DELETE FROM ServiceNumericMetaData WHERE ServiceID = ?;
 DeleteService7 	DELETE FROM ServiceBlobMetaData WHERE ServiceID = ?;
-
 
 MarkEmbeddedServiceMetadata1 update ServiceMetaData set DeleteFlag = 1 where ServiceID = ? AND EmbeddedFlag = 1;
 MarkEmbeddedServiceMetadata2 update ServiceNumericMetaData set DeleteFlag = 1 where ServiceID = ? AND EmbeddedFlag = 1;
@@ -173,14 +163,14 @@ GetMBoxDetails select Type, Offset, LastUri, MessageCount, MBoxSize, Mtime from 
 GetMboxID select ID from MBoxes where path = ?;
 InsertMboxDetails insert into MBoxes (Path, Type, Offset, LastUri, MessageCount, MBoxSize, Mtime) values (?,?,0,NULL,0,0,0);
 UpdateMboxDetails update MBoxes set Offset = ?, LastUri = ?, MessageCount = ?, MBoxSize = ?, Mtime =? where Path = ?;
-GetMboxCount select count(*) from services where AuxiliaryID = (select ID FROM MBoxes where Path = ?) and ServiceTypeID = (select TypeID from ServiceTypes where TypeName = 'Emails');
+GetMboxCount select count(*) from services where AuxilaryID = (select ID FROM MBoxes where Path = ?) and ServiceTypeID = (select TypeID from ServiceTypes where TypeClass = 'Emails');
 
-DeleteMbox1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
-DeleteMbox2 DELETE FROM ServiceKeywordMetaData  WHERE ServiceID in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
-DeleteMbox3 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
-DeleteMbox4 DELETE FROM ServiceNumericMetaData  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
-DeleteMbox5 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
-DeleteMbox6 DELETE FROM ServiceWords  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments')));
-DeleteMbox7 DELETE FROM Services WHERE F.AuxiliaryID = ? AND ServiceTypeID in (select TypeID from ServiceTypes where TypeName in ('Emails', 'EmailAttachments'));
+DeleteMbox1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
+DeleteMbox2 DELETE FROM ServiceKeywordMetaData  WHERE ServiceID in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
+DeleteMbox3 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
+DeleteMbox4 DELETE FROM ServiceNumericMetaData  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
+DeleteMbox5 DELETE FROM ServiceMetaDataDisplay  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
+DeleteMbox6 DELETE FROM ServiceWords  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
+DeleteMbox7 DELETE FROM Services WHERE F.AuxiliaryID = ? AND ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments'));
 
 GetStats select 'Total entities indexed', count(*) as n from Services  union select T.TypeName, count(*) as n from Services S, ServiceTypes T where S.ServiceTypeID = T.TypeID group by T.TypeName order by 2; 

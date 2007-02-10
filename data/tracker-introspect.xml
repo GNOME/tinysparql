@@ -236,6 +236,21 @@
 	<interface name="org.freedesktop.Tracker.Search">
 		<!-- generic search interface (see other interfaces for file/keyword specific searches)-->
 
+		<!--  returns no of hits for the search_text on the servce -->
+		<method name="GetHitCount">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="result" direction="out" />
+		</method>
+
+		<!--  returns [service name, no. of hits] for the search_text -->
+		<method name="GetHitCountAll">
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+	
+
+
 		<!-- searches specified service for entities that match the specified search_text. 
 		     Returns uri of all hits. -->
 		<method name="Text">
