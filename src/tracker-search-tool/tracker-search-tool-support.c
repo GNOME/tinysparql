@@ -1133,7 +1133,7 @@ get_file_pixbuf (GSearchWindow * gsearch,
 		icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, TRUE);
 	}
 
-	pixbuf = (GdkPixbuf *) g_hash_table_lookup (gsearch->search_results_filename_hash_table, icon_name);
+	pixbuf = (GdkPixbuf *) g_hash_table_lookup (gsearch->search_results_pixbuf_hash_table, icon_name);
 
 	if (pixbuf == NULL) {
 
@@ -1203,7 +1203,7 @@ get_file_pixbuf (GSearchWindow * gsearch,
 		}
 
 		if (pixbuf != NULL) {
-			g_hash_table_insert (gsearch->search_results_filename_hash_table, icon_name, pixbuf);
+			g_hash_table_insert (gsearch->search_results_pixbuf_hash_table, icon_name, pixbuf);
 		}
 		else {
 			g_free (icon_name);

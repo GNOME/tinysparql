@@ -423,32 +423,40 @@ open_file_cb (GtkAction * action,
 	for (index = 0; index < g_list_length (list); index++) {
 
 		gboolean no_files_found = FALSE;
-		gchar * utf8_name;
-		gchar * utf8_path;
+		gchar * uri;
 		GtkTreeIter iter;
 
 		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
 		                         g_list_nth (list, index)->data);
 
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
-    		                    COLUMN_NAME, &utf8_name,
-		                    COLUMN_PATH, &utf8_path,
+    		                    COLUMN_URI, &uri,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
 
-		g_print ("opening %s/%s\n", utf8_path, utf8_name);
+		g_print ("opening %s\n", uri);
 
-		if (!no_files_found) {
+		if (gsearch->type > 10) {
+			char *exec = g_strdup_printf ("evolution \"%s\"", uri);
+			g_spawn_command_line_async (exec, NULL);
+			g_free (exec);
+
+		} else {
+
+
 			gchar * file;
 			gchar * locale_file;
 
-			file = g_build_filename (utf8_path, utf8_name, NULL);
+			file = uri;
 			locale_file = g_locale_from_utf8 (file, -1, NULL, NULL, NULL);
+
+
+
 
 			if (!g_file_test (locale_file, G_FILE_TEST_EXISTS)) {
 				gtk_tree_selection_unselect_iter (GTK_TREE_SELECTION (gsearch->search_results_selection),
 				                                  &iter);
-				display_dialog_could_not_open_file (gsearch->window, utf8_name,
+				display_dialog_could_not_open_file (gsearch->window, uri,
 				                                    _("The document does not exist."));
 
 			}
@@ -460,22 +468,21 @@ open_file_cb (GtkAction * action,
 
 						if (open_file_with_xdg_open (gsearch->window, locale_file) == FALSE) {
 							if (open_file_with_nautilus (gsearch->window, locale_file) == FALSE) {
-								display_dialog_could_not_open_folder (gsearch->window, utf8_name);
+								display_dialog_could_not_open_folder (gsearch->window, uri);
 							}
 						}
 					}
 					else {
-						display_dialog_could_not_open_file (gsearch->window, utf8_name,
+						display_dialog_could_not_open_file (gsearch->window, uri,
 						                                    _("There is no installed viewer capable "
 						                                      "of displaying the document."));
 					}
 				}
 			}
-			g_free (file);
 			g_free (locale_file);
 		}
-		g_free (utf8_name);
-		g_free (utf8_path);
+		g_free (uri);
+
 	}
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
 	g_list_free (list);

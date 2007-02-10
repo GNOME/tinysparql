@@ -35,6 +35,7 @@ extern "C" {
 
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
+#include "../libtracker/tracker.h"
 
 #define MAX_SEARCH_RESULTS 10
 
@@ -62,15 +63,29 @@ typedef enum {
 
 typedef enum {
 	COLUMN_ICON,
+	COLUMN_URI,
 	COLUMN_NAME,
 	COLUMN_PATH,
-	COLUMN_SERVICE,
 	COLUMN_SNIPPET,
 	COLUMN_TYPE,
 	COLUMN_MONITOR,
 	COLUMN_NO_FILES_FOUND,
 	NUM_COLUMNS
 } GSearchResultColumns;
+
+typedef struct {
+	gchar        	*service;
+	gchar        	*icon_name;
+	ServiceType   	service_type;
+	GtkListStore	*store;
+	GtkWidget 	*vbox;
+	gboolean	has_hits;
+	int		hit_count;
+	int		offset;
+	int		page;
+
+} service_info_t;
+
 
 typedef struct _GSearchWindow GSearchWindow;
 typedef struct _GSearchWindowClass GSearchWindowClass;
@@ -89,11 +104,21 @@ struct _GSearchWindow {
 	gboolean                is_window_maximized;
 	gboolean                is_window_accessible;
 
+	gboolean		page_setup_mode;
+	
+	GtkWidget 		*notebook;
+	GdkPixbuf		*email_pixbuf;
+	int			current_page;
+	int			type;
+	service_info_t  	*current_service;
+
+
+	GtkWidget		*no_results_label;
+	GtkWidget		*initial_label;
+	GtkWidget		*count_label;
+	GtkWidget		*message_box;
+
 	GtkWidget             * search_entry;
-	int			offset;
-	int			hit_count;
-	GtkWidget	      * combo;
-	GtkListStore  	      * combo_model;
 	GtkWidget             * look_in_folder_button;
 	GtkWidget             * name_and_folder_table;
 	GtkWidget             * find_button;
@@ -120,7 +145,6 @@ struct _GSearchWindow {
 	GtkTreeSelection      * search_results_selection;
 	GtkTreeIter             search_results_iter;
 	GtkTreePath           * search_results_hover_path;
-	GHashTable            * search_results_filename_hash_table;
 	GHashTable            * search_results_pixbuf_hash_table;
 	gchar                 * search_results_date_format_string;
 	GnomeThumbnailFactory * thumbnail_factory;
