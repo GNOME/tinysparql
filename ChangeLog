@@ -1,3 +1,19 @@
+2007-02-10  Jamie McCracken <jamiemcc at gnome org>
+
+	* finished adding evolution email support
+	* added revamped tab interface to tracker-search-tool
+	* added email searching support to tst
+	* added new methods to get hit counts by service
+	* added cropping to tst display
+	* split up sql scripts
+	* added evolution display of emails in tst
+
+
+2007-02-10  Patch from Saleem Abdulrasool <compnerd at gentoo org>
+
+	* Added preferences capplet
+
+
 2007-01-29  Jamie McCracken <jamiemcc at gnome org>
 
 	* fixed bug for service types
