@@ -22,7 +22,8 @@
 #define _TRACKER_DBUS_SEARCH_H_
 
 #include "tracker-dbus.h"
-
+void    tracker_dbus_method_search_get_hit_count		(DBusRec *rec);
+void	tracker_dbus_method_search_get_hit_count_all		(DBusRec *rec);
 void	tracker_dbus_method_search_text 			(DBusRec *rec);
 void	tracker_dbus_method_search_text_detailed		(DBusRec *rec);
 void	tracker_dbus_method_search_get_snippet 			(DBusRec *rec);

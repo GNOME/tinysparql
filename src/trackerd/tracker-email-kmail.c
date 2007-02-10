@@ -129,14 +129,14 @@ kmail_finalize_module (void)
 
 
 void
-kmail_watch_emails (DBConnection *db_con)
+kmail_watch_emails ()
 {
 	const GSList *account;
 
-	g_return_if_fail (db_con);
+	
 	g_return_if_fail (kmail_config);
 
-	for (account = kmail_config->accounts; account; account = account->next) {
+/*	for (account = kmail_config->accounts; account; account = account->next) {
 		const KMailAccount *acc;
 
 		acc = account->data;
@@ -145,18 +145,18 @@ kmail_watch_emails (DBConnection *db_con)
 			email_maildir_watch_mail_messages (db_con, acc->location);
 		}
 	}
+*/
+	tracker_add_service_path ("KMailEmails", kmail_config->local_dir);
+	tracker_add_service_path ("KMailEmails", kmail_config->cache_dir);
 
-	watch_local_files (db_con, kmail_config->local_dir);
-	watch_imap_cache (db_con, kmail_config->imap_cache);
 }
 
 
 gboolean
-kmail_file_is_interesting (DBConnection *db_con, FileInfo *info)
+kmail_file_is_interesting (FileInfo *info, const char *service)
 {
 	const GSList *account;
 
-	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (info, FALSE);
 	g_return_val_if_fail (kmail_config, FALSE);
 

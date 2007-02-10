@@ -244,7 +244,7 @@ process_word (const char *index_word)
 
 	/* normalize word */
 	s = g_utf8_casefold (index_word, -1);
-	word = g_utf8_normalize (s, -1, G_NORMALIZE_NFD);
+	word = g_utf8_normalize (s, -1, G_NORMALIZE_ALL);
 	g_free (s);
 	
 	if (!word || word[0] == '\0') {

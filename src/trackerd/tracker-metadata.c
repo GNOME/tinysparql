@@ -202,16 +202,16 @@ tracker_get_service_type_for_mime (const char *mime)
 				if (g_str_has_prefix (mime, "video")) {
 					return g_strdup ("Videos");
 				} else {
-					return g_strdup ("Other Files");
+					return g_strdup ("Other");
 				}
 				break;
 
 			case NO_METADATA:
-				return g_strdup ("Other Files");
+				return g_strdup ("Other");
 				break;
 
 			case TEXT_METADATA:
-				return g_strdup ("Text Files");
+				return g_strdup ("Text");
 				break;
 
 			case DOC_METADATA:
@@ -231,7 +231,7 @@ tracker_get_service_type_for_mime (const char *mime)
 				break;
 
 			case DEVEL_METADATA:
-				return g_strdup ("Development Files");
+				return g_strdup ("Development");
 				break;
 	}
 
@@ -295,7 +295,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 			return NULL;
 		}
 
-		g_debug ("extracting text for %s using filter %s", argv[1], argv[0]);
+		tracker_debug ("extracting text for %s using filter %s", argv[1], argv[0]);
 
 		if (tracker_spawn (argv, 30, NULL, NULL)) {
 
@@ -443,7 +443,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 
 										if ((length > 0) && (length >= strlen (meta_value))) {
 
-											g_debug ("%s = %s", meta_name, utf_value);
+											tracker_debug ("%s = %s", meta_name, utf_value);
 											g_hash_table_insert (table, g_strdup (meta_name), g_strdup (utf_value));
 										}
 

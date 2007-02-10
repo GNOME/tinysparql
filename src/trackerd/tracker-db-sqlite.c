@@ -55,11 +55,11 @@ sqlite3_utf8_collation (void *NotUsed,  int len1, const void *str1,  int len2, c
 
 	/* normalize words */
 	s = g_utf8_casefold (str1, len1);
-	word1 = g_utf8_normalize (s, len1, G_NORMALIZE_NFD);
+	word1 = g_utf8_normalize (s, len1, G_NORMALIZE_ALL);
 	g_free (s);
 	
 	s = g_utf8_casefold (str2, len2);
-	word2 = g_utf8_normalize (s, len2, G_NORMALIZE_NFD);
+	word2 = g_utf8_normalize (s, len2, G_NORMALIZE_ALL);
 	g_free (s);
 	
 	result = strcmp (word1, word2);
@@ -150,7 +150,7 @@ sqlite3_uncompress (sqlite3_context *context, int argc, sqlite3_value **argv)
 		}
 	}
 }
-
+ 
 
 static void
 sqlite3_get_service_name (sqlite3_context *context, int argc, sqlite3_value **argv)
@@ -163,10 +163,11 @@ sqlite3_get_service_name (sqlite3_context *context, int argc, sqlite3_value **ar
 		}
 
 		default:{
-			const char *output;
+			char *output;
 
 			output = tracker_get_service_by_id (sqlite3_value_int (argv[0]));
 			sqlite3_result_text (context, output, strlen (output), NULL);
+
 		}
 	}
 }
@@ -217,48 +218,36 @@ sqlite3_get_max_service_type (sqlite3_context *context, int argc, sqlite3_value 
 }
 
 
+static void
+load_sql_file (DBConnection *db_con, const char *sql_file)
+{
+	char *filename, *query;
+	
+	filename = g_build_filename (DATADIR, "/tracker/", sql_file, NULL);
+
+	if (!g_file_get_contents (filename, &query, NULL, NULL)) {
+		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		g_assert (FALSE);
+	} else {
+		char **queries, **queries_p ;
+
+		queries = g_strsplit_set (query, ";", -1);
+
+		for (queries_p = queries; *queries_p; queries_p++) {
+			tracker_db_exec_no_reply (db_con, *queries_p);
+		}
+		g_strfreev (queries);
+		g_free (query);
+		tracker_log ("loaded sql file %s", sql_file);
+	}
+
+	g_free (filename);
+}
+
+
 FieldDef *
 tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 {
-/*	FieldDef *def;
-	char	 ***res;
-	char	 **row;
-
-	def = g_slice_new0 (FieldDef);
-
-	res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, field_name);
-
-	row = NULL;
-
-	if (res) {
-		row = tracker_db_get_row (res, 0);
-	}
-
-	if (res && row && row[0]) {
-		def->id = g_strdup (row[0]);
-	} else {
-		g_slice_free (FieldDef, def);
-		tracker_db_free_result (res);
-		return NULL;
-	}
-
-	if (res && row && row[1]) {
-		def->type = atoi (row[1]);
-	}
-
-	if (res && row && row[2]) {
-		def->multiple_values = (strcmp ("1", row[2]) == 0);
-	}
-
-	if (res && row && row[3]) {
-		def->weight = atoi (row[3]);
-	}
-
-	tracker_db_free_result (res);
-
-	return def;
-*/
-
 	FieldDef *def;
 	char *name;
 
@@ -274,14 +263,6 @@ tracker_db_get_field_def (DBConnection *db_con, const char *field_name)
 void
 tracker_db_free_field_def (FieldDef *def)
 {
-/*	g_return_if_fail (def);
-
-	if (def->id) {
-		g_free (def->id);
-	}
-
-	g_slice_free (FieldDef, def);
-*/
 }
 
 
@@ -759,13 +740,15 @@ tracker_db_connect_cache (void)
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2000");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
 	} else {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 200");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 100");
 	}
 
 
 	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+
+
 
 	if (create_table) {
 		tracker_db_exec_no_reply (db_con, "CREATE TABLE Words (WordID Integer primary key AUTOINCREMENT not null, Word Text, WordCount int)");
@@ -773,6 +756,93 @@ tracker_db_connect_cache (void)
 		tracker_db_exec_no_reply (db_con, "CREATE INDEX  WordWord ON Words (Word)");
 		tracker_db_exec_no_reply (db_con, "CREATE INDEX  WordWordCount ON Words (WordCount)");
 		tracker_db_exec_no_reply (db_con, "CREATE INDEX  ServiceWordID ON ServiceWords (ServiceID)");
+		tracker_db_exec_no_reply (db_con, "ANALYZE");
+	}
+
+	db_con->thread = NULL;
+
+	return db_con;
+}
+
+
+DBConnection *
+tracker_db_connect_emails (void)
+{
+	gboolean     create_table;
+	char	     *dbname;
+	DBConnection *db_con;
+	
+	create_table = FALSE;
+
+	dbname = g_build_filename (tracker->data_dir, "emails", NULL);
+
+
+	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
+		tracker_log ("database file %s is not present - will create", dbname);
+		create_table = TRUE;
+	} 
+
+
+	db_con = g_new0 (DBConnection, 1);
+
+	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
+		tracker_log ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		exit (1);
+	}
+
+	g_free (dbname);
+
+
+	db_con->db_type = DB_EMAIL;
+
+	sqlite3_busy_timeout (db_con->db, 10000);
+
+	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA auto_vacuum = 0");
+	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
+	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
+
+	if (tracker->use_extra_memory) {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
+	} else {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 100");
+	}
+
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+
+
+	/* create user defined utf-8 collation sequence */
+	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
+		tracker_log ("Collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	
+
+	/* create user defined functions that can be used in sql */
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
+		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
+		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
+		tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
+		tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
+		tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+
+	if (create_table) {
+		tracker_log ("Creating email database...");
+		load_sql_file (db_con, "sqlite-metadata.sql");
+		load_sql_file (db_con, "sqlite-service.sql");
+		load_sql_file (db_con, "sqlite-service-types.sql");
+
+		
 		tracker_db_exec_no_reply (db_con, "ANALYZE");
 	}
 
@@ -1228,7 +1298,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 					new_row[i] = g_strdup (st);
 					//tracker_log ("%s : row %d, col %d is %s", procedure, row, i, st);
 				} else {
-					tracker_log ("warning - Null detected in query return result for %s", procedure);
+					tracker_info ("warning - Null detected in query return result for %s", procedure);
 				}
 			}
 
@@ -1282,16 +1352,8 @@ get_service_id_range (DBConnection *db_con, const char *service, int *min, int *
 	*min = -1;
 	*max = -1;
 
-	if (strcmp (service, "Files") == 0) {
-		*min = 0;
-		*max = 8;
-	} else if (strcmp (service, "VFS Files") == 0) {
-		*min = 9;
-		*max = 17;
-	} else {
-		*min = tracker_get_id_for_service (service);
-		*max = tracker_get_id_for_service (service);
-	}
+	*min = tracker_get_min_id_for_service (service);
+	*max = tracker_get_max_id_for_service (service);
 }
 
 
@@ -1301,41 +1363,23 @@ tracker_db_load_stored_procs (DBConnection *db_con)
 }
 
 
+
+
 void
 tracker_create_db (void)
 {
 	DBConnection *db_con;
-	char	     *sql_file, *query;
 
 	tracker_log ("Creating tracker database...");
 
 	db_con = tracker_db_connect ();
+	
+	load_sql_file (db_con, "sqlite-service.sql");
+	load_sql_file (db_con, "sqlite-tracker.sql");
+	load_sql_file (db_con, "sqlite-service-types.sql");
+	load_sql_file (db_con, "sqlite-metadata.sql");
 
-	sql_file = g_strdup (DATADIR "/tracker/sqlite-tracker.sql");
-
-	tracker_log ("Creating tables...");
-
-	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
-		g_assert (FALSE);
-	} else {
-		char **queries, **queries_p ;
-
-		queries = g_strsplit_set (query, ";", -1);
-
-		for (queries_p = queries; *queries_p; queries_p++) {
-			//tracker_log ("creating table %s", *queries_p);
-			tracker_db_exec_no_reply (db_con, *queries_p);
-			//tracker_log ("Table created");
-		}
-
-		tracker_log ("finished creating tables");
-		tracker_exec_sql (db_con, "ANALYZE");
-		g_strfreev (queries);
-		g_free (query);
-	}
-
-	g_free (sql_file);
+	tracker_db_exec_no_reply (db_con, "ANALYZE");
 
 	tracker_db_close (db_con);
 	g_free (db_con);
@@ -1423,12 +1467,23 @@ tracker_update_db (DBConnection *db_con)
 		return TRUE;
 	}
 
-	if (i == 14) {
+	if (i < 15) {
 		tracker_db_exec_no_reply (db_con, "delete from MetaDataTypes where MetaName = 'Email:Body'");
 		tracker_db_exec_no_reply (db_con, "delete from MetaDataTypes where MetaName = 'File:Contents'");
 		tracker_db_exec_no_reply (db_con, "insert Into MetaDataTypes (MetaName, DatatypeID, MultipleValues, Weight) values  ('Email:Body', 0, 0, 1)");
-		tracker_exec_sql (db_con, "update Options set OptionValue = '15' where OptionKey = 'DBVersion'");
-	} else {
+		
+	} 
+
+	if (i < 16) {
+		tracker_db_exec_no_reply (db_con, "drop table ServiceTypes");
+		tracker_db_exec_no_reply (db_con, "drop table MetaDataTypes");
+		tracker_db_exec_no_reply (db_con, "drop table MetaDataChildren");
+
+		load_sql_file (db_con, "sqlite-service-types.sql");
+		load_sql_file (db_con, "sqlite-metadata.sql");
+
+		tracker_exec_sql (db_con, "update Options set OptionValue = '16' where OptionKey = 'DBVersion'");
+
 		tracker_exec_sql (db_con, "ANALYZE");
 	}
 
@@ -1826,14 +1881,11 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	GSList 		*hit_list;
 	int 		service_type_min, service_type_max, count;
 	const GSList	*tmp;
+	gboolean	detailed_emails = FALSE;
 
-	service_type_min = tracker_get_id_for_service (service);
 
-	if (service_type_min == 0) {
-		service_type_max= 9;
-	} else {
-		service_type_max = service_type_min;
-	}
+	service_type_min = tracker_get_min_id_for_service (service);
+	service_type_max = tracker_get_max_id_for_service (service);
 
 	array = tracker_parse_text_into_array (search_string);
 
@@ -1878,7 +1930,13 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		}
 
 		if (detailed) {
-			res = tracker_exec_proc (db_con, "GetFileByID2", 1, str_id);
+			if (strcmp (service, "Emails") != 0) {
+				res = tracker_exec_proc (db_con, "GetFileByID2", 1, str_id);
+			} else {
+				detailed_emails = TRUE;
+				res = tracker_exec_proc (db_con, "GetEmailByID", 1, str_id);
+				//tracker_db_log_result (res);
+			}
 		} else {
 			res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
 		}
@@ -1891,14 +1949,41 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 				char **row = NULL;
 
 				if (detailed) {
-					 if (res[0][2]) {
 
-						row = g_new (char *, 4);
+					if (detailed_emails) {
+						row = g_new0 (char *, 6);
 
 						row[0] = g_strdup (res[0][0]);
 						row[1] = g_strdup (res[0][1]);
-						row[2] = g_strdup (res[0][2]);
+						row[2] = NULL;
 						row[3] = NULL;
+						row[4] = NULL;
+						row[5] = NULL;
+
+						if (res[0][2]) {
+							row[2] = g_strdup (res[0][2]);						
+							if (res[0][3]) {
+								row[3] = g_strdup (res[0][3]);	
+								if (res[0][4]) {
+									row[4] = g_strdup (res[0][4]);						
+								}	
+							}
+							
+
+							 
+						}					
+						
+
+					} else {
+						if (res[0][2]) {
+
+							row = g_new (char *, 4);
+
+							row[0] = g_strdup (res[0][0]);
+							row[1] = g_strdup (res[0][1]);
+							row[2] = g_strdup (res[0][2]);
+							row[3] = NULL;
+						}
 					}
 
 				} else {
@@ -2803,7 +2888,7 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 
 	g_mutex_lock (sequence_mutex);
 
-	res = tracker_exec_proc (db_con, "GetNewID", 0);
+	res = tracker_exec_proc (db_con->data, "GetNewID", 0);
 
 	if (!res || !res[0] || !res[0][0]) {
 		g_mutex_unlock (sequence_mutex);
@@ -2815,7 +2900,7 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 	i++;
 
 	sid = tracker_int_to_str (i);
-	tracker_exec_proc (db_con, "UpdateNewID",1, sid);
+	tracker_exec_proc (db_con->data, "UpdateNewID",1, sid);
 	g_mutex_unlock (sequence_mutex);
 
 	tracker_db_free_result (res);
@@ -3311,11 +3396,11 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 	g_return_val_if_fail (mimes, NULL);
 
 	if (vfs) {
-		min = 9;
-		max = 17;
+		min = tracker_get_min_id_for_service ("VFS");
+		max = tracker_get_max_id_for_service ("VFS");
 	} else {
-		min = 0;
-		max = 8;
+		min = tracker_get_min_id_for_service ("Files");
+		max = tracker_get_max_id_for_service ("Files");
 	}
 
 	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name AS uri FROM Services F INNER JOIN ServiceIndexMetaData M ON F.ID = M.ServiceID WHERE M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Mime') AND (M.MetaDataValue IN ");
@@ -3897,13 +3982,8 @@ tracker_db_get_keyword_list (DBConnection *db_con, const char *service)
 	char *str_min, *str_max;
 	char ***res;
 
-	smin = tracker_get_id_for_service (service);
-
-	if (smin == 0) {
-		smax = 8;
-	} else {
-		smax = smin;
-	}
+	smin = tracker_get_min_id_for_service (service);
+	smax = tracker_get_max_id_for_service (service);
 
 	str_min = tracker_int_to_str (smin);
 	str_max = tracker_int_to_str (smax);
@@ -3945,6 +4025,7 @@ tracker_db_get_static_data (DBConnection *db_con)
 				def->multiple_values = (strcmp ("1", row[3]) == 0);
 				def->weight = atoi (row[4]);
 				def->child_ids = NULL;
+				
 
 				j=0;
 				char ***res2 = tracker_exec_proc (db_con, "GetMetadataAliases", 1, def->id);
@@ -3982,9 +4063,21 @@ tracker_db_get_static_data (DBConnection *db_con)
 
 			i++;
 
-			if (row[0] && row[1]) {
-				g_hash_table_insert (tracker->service_table, g_strdup (row[1]), g_strdup(row[0]));
-				g_hash_table_insert (tracker->service_id_table, g_strdup (row[0]), g_strdup(row[1]));
+			if (row[0] && row[1] && row[2] && row[3] && row[4] && row[5] && row[6] && row[7]) {
+				ServiceDef *def = g_new0 (ServiceDef, 1);
+
+				def->id = atoi (row[0]);
+				def->name = g_strdup (row[1]);
+				def->parent = g_strdup (row[2]);
+				def->description = g_strdup (row[3]);
+				def->min_id = atoi (row[4]);
+				def->max_id = atoi (row[5]);	
+				def->main_service = (row[6][0] == '1');
+				def->database = atoi (row[7]);
+
+				tracker_debug ("adding service definition for %s with id %s", def->name, row[0]);
+				g_hash_table_insert (tracker->service_table, g_strdup (def->name), def);
+				g_hash_table_insert (tracker->service_id_table, g_strdup (row[0]), def);
 			} 
 
 		}		
@@ -3992,4 +4085,19 @@ tracker_db_get_static_data (DBConnection *db_con)
 	}
 
 }
+
+DBConnection *
+tracker_db_get_service_connection (DBConnection *db_con, const char *service)
+{
+	DBTypes type;
+
+	type = tracker_get_db_for_service (service);
+
+	if (type == DB_EMAIL) {
+		return db_con->emails;
+	}
+
+	return db_con;
+}
+
 

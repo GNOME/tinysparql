@@ -27,11 +27,10 @@
 
 #include "tracker-db-sqlite.h"
 
-void		tracker_email_watch_emails		(DBConnection *db_con);
+void		tracker_email_add_service_directories	();
 void		tracker_email_end_email_watching	(void);
-gboolean	tracker_email_file_is_interesting	(DBConnection *db_con, FileInfo *info);
-gboolean	tracker_email_index_file		(DBConnection *db_con, FileInfo *info);
-gboolean	tracker_email_is_an_attachment		(FileInfo *info);
-void		tracker_email_unlink_email_attachment	(const char *uri);
+gboolean	tracker_email_file_is_interesting	(FileInfo *info, const char *service);
+gboolean	tracker_email_index_file		(DBConnection *db_con, FileInfo *info, const char *service);
+
 
 #endif

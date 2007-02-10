@@ -30,6 +30,7 @@
 
 typedef struct {                         	 
 	guint32 	service_id;              /* Service ID of the document */
+	guint32 	service_type_id;         /* Service type ID of the document */
 	guint32 	score;            	 /* Ranking score */
 } SearchHit;
 
@@ -52,7 +53,7 @@ gboolean	tracker_indexer_update_word 		(Indexer *indexer, const char *word, guin
 GSList *	tracker_indexer_get_hits	(Indexer *indexer, char **words, int service_type_min, int service_type_max, int offset, int limit, gboolean get_count, int *total_count);
 
 
-
+char ***	tracker_get_hit_counts 		(Indexer *indexer, char **words);
 
 
 #endif

@@ -21,6 +21,118 @@
 
 #include "tracker-dbus-methods.h"
 #include "tracker-rdf-query.h"
+#include "tracker-indexer.h"
+
+extern Tracker *tracker;
+
+void
+tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusError    dbus_error;
+	char	     *service;
+	char	     *str;
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+
+
+/*
+	<!--  returns no of hits for the search_text on the servce -->
+		<method name="GetHitCount">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="result" direction="out" />
+		</method>
+
+	
+*/
+
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL, 
+			       DBUS_TYPE_STRING, &service,
+			       DBUS_TYPE_STRING, &str,
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
+
+	if (!service)  {
+		tracker_set_error (rec, "No service was specified");
+		return;
+	}
+
+	if (!tracker_is_valid_service (db_con, service)) {
+		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
+		return;
+	}
+
+	if (!str || strlen (str) == 0) {
+		tracker_set_error (rec, "No search term was specified");
+		return;
+	}
+
+	//tracker_log ("Executing detailed search with params %s, %s, %d, %d", service, str, offset, limit);
+
+	
+
+}
+
+
+
+
+void
+tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
+{
+	DBConnection *db_con;
+	DBusError    dbus_error;
+	char	     *str;
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+
+
+/*
+		<!--  returns [service name, no. of hits] for the search_text -->
+		<method name="GetHitCountAll">
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+	
+*/
+
+	dbus_error_init (&dbus_error);
+	if (!dbus_message_get_args (rec->message, NULL, 
+			       DBUS_TYPE_STRING, &str,
+			       DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
+
+	
+
+	if (!str || strlen (str) == 0) {
+		tracker_set_error (rec, "No search term was specified");
+		return;
+	}
+
+	//tracker_log ("Executing detailed search with params %s, %s, %d, %d", service, str, offset, limit);
+
+	char	***res, **array;
+
+
+	array = tracker_parse_text_into_array (str);
+
+	res = tracker_get_hit_counts (tracker->file_indexer, array);
+	
+	tracker_dbus_reply_with_query_result (rec, res);
+
+}
+
 
 
 void
@@ -85,6 +197,8 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	}
 
 	tracker_log ("Executing search with params %s, %s", service, str);
+
+	db_con = tracker_db_get_service_connection (db_con, service);
 
 	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, FALSE);
 
@@ -202,11 +316,17 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 
 	tracker_log ("Executing detailed search with params %s, %s, %d, %d", service, str, offset, limit);
 
+	db_con = tracker_db_get_service_connection (db_con, service);
+
 	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, TRUE);
+
+	if (tracker->verbosity > 0) {
+		tracker_db_log_result (res);
+	}
 
 	tracker_dbus_reply_with_query_result (rec, res);
 
-	tracker_db_free_result (res);
+	//tracker_db_free_result (res);
 }
 
 
@@ -262,7 +382,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 
 
 	//tracker_log ("Getting snippet with params %s, %s, %s", service, uri, str);
-
+	db_con = tracker_db_get_service_connection (db_con, service);
 	service_id = tracker_db_get_id (db_con, service, uri);
 
 	if (!service_id) {
@@ -298,9 +418,11 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 	}
 
 	/* do not pass NULL to dbus or it will crash */
-	if (!snippet) {
+	if (!snippet || !g_utf8_validate (snippet, -1, NULL) ) {
 		snippet = g_strdup (" ");
 	}
+
+//	tracker_debug ("snippet is %s", snippet);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -508,7 +630,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 		tracker_set_error (rec, "Id field must have a value");
 		return;
 	}
-
+	db_con = tracker_db_get_service_connection (db_con, service);
 	res = tracker_db_search_matching_metadata (db_con, service, id, text);
 
 	if (res) {
@@ -642,7 +764,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		}*/
 
 		tracker_log ("translated rdf query is \n%s\n", str);
-
+		db_con = tracker_db_get_service_connection (db_con, service);
 		if (search_text && (strlen (search_text) > 0)) {
 			tracker_db_search_text (db_con, service, search_text, 0, 999999, TRUE, FALSE);
 		}

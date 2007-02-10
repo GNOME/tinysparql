@@ -194,6 +194,9 @@ set_update_count (DBConnection *db_con, int count)
 static gboolean
 do_cleanup (const char *sig_msg)
 {
+
+	tracker->status = STATUS_SHUTDOWN;
+
 	if (tracker->log_file) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
 
@@ -472,8 +475,6 @@ schedule_dir_check (const char *uri, DBConnection *db_con)
 	g_return_if_fail (uri && (uri[0] == '/'));
 	g_return_if_fail (db_con);
 
-	/* keep mainloop responsive */
-	my_yield ();
 	tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_DIRECTORY_REFRESH, TRUE, FALSE, -1);
 }
 
@@ -732,9 +733,6 @@ check_directory (const char *uri)
 	g_return_if_fail (uri && (uri[0] == '/'));
 	g_return_if_fail (tracker_is_directory (uri));
 
-	/* keep mainloop responsive */
-	my_yield ();
-
 	file_list = tracker_get_files (uri, FALSE);
 	tracker_debug ("checking %s for %d files", uri, g_slist_length(file_list));
 
@@ -837,6 +835,54 @@ verify_action (FileInfo *info)
 	}
 }
 
+static void
+index_entity (DBConnection *db_con, FileInfo *info)
+{
+	char  *service_info;
+
+	g_return_if_fail (info->uri);
+	g_return_if_fail (info->uri[0] == '/');
+
+	if (!tracker_file_is_valid (info->uri)) {
+		tracker_log ("Warning - file %s in not valid or could not be read - abandoning index on this file", info->uri);
+		return;
+	}
+
+	if (!info->is_directory) {
+		/* sleep to throttle back indexing */
+		tracker_throttle (1000);
+	} else {
+		tracker_db_index_file (db_con, info, NULL, NULL);
+		return;
+	}
+
+	service_info = tracker_get_service_for_uri (info->uri);
+
+	if (g_str_has_suffix (service_info, "Emails")) {
+		if (!tracker_email_index_file (db_con->emails, info, service_info)) {
+			
+			tracker_debug ("ignoring file %s", info->uri);
+			g_free (service_info);
+			return;
+		}
+
+
+	} else if (strcmp (service_info, "Files") == 0) {
+		tracker_db_index_file (db_con, info, NULL, NULL);
+
+	} else if (strcmp (service_info, "Conversations") == 0) {
+		tracker_db_index_conversation (db_con, info);
+
+	} else if (strcmp (service_info, "Applications") == 0) {
+		tracker_db_index_application (db_con, info);
+
+	} else {
+		tracker_db_index_service (db_con, info, NULL, NULL, NULL, FALSE, TRUE, TRUE, TRUE);
+	}
+
+	g_free (service_info);
+}
+
 
 static void
 process_files_thread (void)
@@ -845,6 +891,7 @@ process_files_thread (void)
 
 	DBConnection *db_con;
 	DBConnection *blob_db_con = NULL;
+	DBConnection *emails_db_con = NULL;
 
 	GSList	     *moved_from_list; /* list to hold moved_from events whilst waiting for a matching moved_to event */
 	gboolean pushed_events, first_run;
@@ -861,9 +908,19 @@ process_files_thread (void)
 
 	db_con = tracker_db_connect ();
 	blob_db_con = tracker_db_connect_full_text ();
+	emails_db_con = tracker_db_connect_emails ();
 
 	db_con->thread = "files";
+
+//	db_con->cache = cache_db_con;
+
 	db_con->blob = blob_db_con;
+	db_con->data = db_con;
+	db_con->emails = emails_db_con;
+	emails_db_con->blob = blob_db_con;
+	emails_db_con->data = db_con;
+
+
 
 	pushed_events = FALSE;
 
@@ -875,8 +932,15 @@ process_files_thread (void)
 	
 	if (tracker->enable_indexing) {
 
-		//tracker_email_watch_emails (db_con);
+		tracker_email_add_service_directories();
 
+		tracker->status = STATUS_WATCHING;
+
+		tracker_log ("starting service indexing...");
+		g_slist_foreach (tracker->service_directory_list, (GFunc) watch_dir, db_con);
+		g_slist_foreach (tracker->service_directory_list, (GFunc) schedule_dir_check, db_con);
+			
+		tracker_log ("starting file indexing...");
 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, db_con);
 
@@ -886,6 +950,7 @@ process_files_thread (void)
 
 
 	tracker_log ("starting indexing...");
+	tracker->status = STATUS_INDEXING;
 
 	while (TRUE) {
 		FileInfo *info;
@@ -909,17 +974,7 @@ process_files_thread (void)
 		}
 
 		
-		if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
-			if (tracker->flush_count < 10) {
-				tracker->flush_count++;
-				tracker_info ("flushing");
-				tracker_flush_rare_words ();
-			} else {
-				tracker->flush_count = 0;
-				tracker_flush_all_words ();
-				
-			}
-		}
+		tracker_check_flush ();
 
 		info = g_async_queue_try_pop (tracker->file_process_queue);
 
@@ -936,6 +991,7 @@ process_files_thread (void)
 
 			if (tracker_db_has_pending_files (db_con)) {
 				g_mutex_unlock (tracker->files_check_mutex);
+
 			} else {
 				
 
@@ -967,6 +1023,7 @@ process_files_thread (void)
 
 				if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
 
+					tracker->status = STATUS_OPTIMIZING;
 					tracker_indexer_optimize (tracker->file_indexer);
 
 					tracker->do_optimize = FALSE;
@@ -974,16 +1031,22 @@ process_files_thread (void)
 					tracker->update_count = 0;
 
 					tracker_log ("updating database stats...please wait...");
+
 					tracker_db_start_transaction (db_con);
 					tracker_exec_sql (db_con, "ANALYZE");
 					tracker_db_end_transaction (db_con);
+
+					tracker_db_start_transaction (db_con->emails);
+					tracker_exec_sql (db_con->emails, "ANALYZE");
+					tracker_db_end_transaction (db_con->emails);
 	
 				}
 
 				tracker_log ("Finished indexing. Waiting for new events...");
 
 				/* we have no stuff to process so sleep until awoken by a new signal */
-				tracker_debug ("File thread sleeping");			
+				tracker_debug ("File thread sleeping");		
+				tracker->status = STATUS_IDLE;	
 
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
@@ -1005,6 +1068,8 @@ process_files_thread (void)
 
 			if (res) {
 				char **row;
+
+				tracker->status = STATUS_PENDING;
 
 				while ((row = tracker_db_get_row (res, k))) {
 					FileInfo	    *info_tmp;
@@ -1052,7 +1117,7 @@ process_files_thread (void)
 		}
 
 
-
+		tracker->status = STATUS_INDEXING;
 
 		/* info struct may have been deleted in transit here so check if still valid and intact */
 		if (!tracker_file_info_is_valid (info)) {
@@ -1129,6 +1194,8 @@ process_files_thread (void)
 			}
 		}
 
+
+
 		/* get latest file info from disk */
 		if (info->mtime == 0) {
 			info = tracker_get_file_info (info);
@@ -1141,7 +1208,8 @@ process_files_thread (void)
 		switch (info->action) {
 
 			case TRACKER_ACTION_FILE_CHECK:
-
+				
+				
 				break;
 
 			case TRACKER_ACTION_FILE_CHANGED:
@@ -1211,14 +1279,14 @@ process_files_thread (void)
 					tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
 				} 
 			}
-			tracker_db_index_entity (db_con, info);
+			index_entity (db_con, info);
 		}
 
 		tracker_dec_info_ref (info);
 	}
 
 	tracker_db_close (db_con);
-
+	tracker_db_close (emails_db_con);
 	if (blob_db_con) {
 		tracker_db_close (blob_db_con);
 	}
@@ -1235,6 +1303,7 @@ process_user_request_queue_thread (void)
 {
 	sigset_t     signal_set;
 	DBConnection *db_con, *blob_db_con, *cache_db_con;
+	DBConnection *emails_db_con = NULL;
 
         /* block all signals in this thread */
         sigfillset (&signal_set);
@@ -1246,13 +1315,18 @@ process_user_request_queue_thread (void)
 	/* set thread safe DB connection */
 	tracker_db_thread_init ();
 
+	cache_db_con = tracker_db_connect_cache ();
 	db_con = tracker_db_connect ();
 	blob_db_con = tracker_db_connect_full_text ();
-	cache_db_con = tracker_db_connect_cache ();
+	emails_db_con = tracker_db_connect_emails ();
 
 	db_con->thread = "request";
 	db_con->cache = cache_db_con;
 	db_con->blob = blob_db_con;
+	db_con->data = db_con;
+	db_con->emails = emails_db_con;
+	emails_db_con->blob = blob_db_con;
+	emails_db_con->data = db_con;
 
 	tracker_db_prepare_queries (db_con);
 
@@ -1420,6 +1494,18 @@ process_user_request_queue_thread (void)
 
 
 
+			case DBUS_ACTION_SEARCH_GET_HIT_COUNT:
+
+				tracker_dbus_method_search_get_hit_count (rec);
+
+				break;
+
+			case DBUS_ACTION_SEARCH_GET_HIT_COUNT_ALL:
+
+				tracker_dbus_method_search_get_hit_count_all (rec);
+
+				break;
+
 			case DBUS_ACTION_SEARCH_TEXT:
 
 				tracker_dbus_method_search_text (rec);
@@ -1567,6 +1653,7 @@ process_user_request_queue_thread (void)
 	}
 
 	tracker_db_close (db_con);
+	tracker_db_close (emails_db_con);
 
 	if (blob_db_con) {
 		tracker_db_close (blob_db_con);
@@ -1668,7 +1755,7 @@ set_defaults ()
 
 	tracker->flush_count = 0;
 
-	tracker->index_evolution_emails = FALSE;
+	tracker->index_evolution_emails = TRUE;
 	tracker->index_thunderbird_emails = FALSE;
 	tracker->index_kmail_emails = FALSE;
 
@@ -1726,7 +1813,7 @@ sanity_check_option_values ()
 
 
 	/* emails not fully working yet so disable them */
-	tracker->index_evolution_emails = FALSE;
+	//tracker->index_evolution_emails = FALSE;
 	tracker->index_thunderbird_emails = FALSE;
 	tracker->index_kmail_emails = FALSE;
 
@@ -1824,9 +1911,10 @@ sanity_check_option_values ()
 		tracker->verbosity = 2;
 	}
 
-	tracker->metadata_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-	tracker->service_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-	tracker->service_id_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	tracker->metadata_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
+	tracker->service_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
+	tracker->service_id_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
+	tracker->service_directory_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
 
 
 }
@@ -1846,6 +1934,8 @@ main (int argc, char **argv)
 	gboolean 	need_setup;
 	DBConnection 	*db_con;
 	char		***res;
+
+
 
 	setlocale (LC_ALL, "");
 
@@ -1915,6 +2005,8 @@ main (int argc, char **argv)
 	shutdown = FALSE;
 
 	tracker = g_new (Tracker, 1);
+
+	tracker->status = STATUS_INIT;
 
  	tracker->is_running = FALSE;
 	tracker->poll_access_mutex = g_mutex_new ();
@@ -2085,15 +2177,6 @@ main (int argc, char **argv)
 	db_con = tracker_db_connect ();
 	db_con->thread = "main";
 
-	/* initialize other databases */
-	DBConnection *db1, *db2;
-
-	db1 = tracker_db_connect_full_text ();
-	tracker_db_close (db1);
-
-	db2 = tracker_db_connect_cache ();
-	tracker_db_close (db2);
-
 
 	if (tracker_update_db (db_con)) {
 
@@ -2106,6 +2189,8 @@ main (int argc, char **argv)
 		db_con->thread = "main";
 		tracker_db_load_stored_procs (db_con);
 	}
+
+
 
 
 
@@ -2123,7 +2208,46 @@ main (int argc, char **argv)
 			int  k;
 
 			tracker_log ("-----------------------");
-			tracker_log ("Fetching index stats...");
+			tracker_log ("Fetching File stats...");
+
+			k = 0;
+
+			while ((row = tracker_db_get_row (res, k))) {
+
+				k++;
+
+				if (row && row[0] && row[1]) {
+					tracker_log ("%s : %s", row[0], row[1]);
+				
+				}
+			}
+
+			tracker_db_free_result (res);
+		}
+	} else {
+
+		tracker_db_start_transaction (db_con);
+		tracker_exec_sql (db_con, "ANALYZE");
+		tracker_db_end_transaction (db_con);
+
+	}
+
+	/* initialize other databases */
+	DBConnection *db1, *db2, *db3;
+
+	db3 = tracker_db_connect_emails ();
+
+	if (!need_setup) {
+
+		res = tracker_exec_proc (db3, "GetStats", 0);
+	
+
+		if (res && res[0] && res[0][0]) {
+			char **row;
+			int  k;
+
+			tracker_log ("-----------------------");
+			tracker_log ("Fetching Email stats...");
 
 			k = 0;
 
@@ -2140,15 +2264,15 @@ main (int argc, char **argv)
 			tracker_db_free_result (res);
 		}
 		tracker_log ("-----------------------\n");
-	} else {
-
-		tracker_db_start_transaction (db_con);
-		tracker_exec_sql (db_con, "ANALYZE");
-		tracker_db_end_transaction (db_con);
 	}
 
+	tracker_db_close (db3);
 
+	db1 = tracker_db_connect_full_text ();
+	tracker_db_close (db1);
 
+	db2 = tracker_db_connect_cache ();
+	tracker_db_close (db2);
 
 	tracker_db_check_tables (db_con);
 

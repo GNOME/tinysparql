@@ -89,7 +89,7 @@ thunderbird_finalize_module (void)
 
 
 void
-thunderbird_watch_emails (DBConnection *db_con)
+thunderbird_watch_emails ()
 {
 	char	     *thunderbird_dir, *thunderbird_profile_file;
 	GKeyFile     *key_file;
@@ -97,7 +97,6 @@ thunderbird_watch_emails (DBConnection *db_con)
 	GSList	     *profile_dirs, *list_of_mboxes;
 	const GSList *tmp;
 
-	g_return_if_fail (db_con);
 
 	thunderbird_dir = g_build_filename (g_get_home_dir (), THUNDERBIRD_MAIL_DIR_S, NULL);
 
@@ -188,13 +187,11 @@ thunderbird_watch_emails (DBConnection *db_con)
 
 		base_dir = g_path_get_dirname (path);
 
-		if (!tracker_is_directory_watched (base_dir, db_con)) {
-			tracker_add_watch_dir (base_dir, db_con);
-		}
-
+		tracker_add_service_path ("ThunderbirdEmails", base_dir);
+		
 		g_free (base_dir);
 
-		tracker_db_insert_pending_file (db_con, 0, path, "application/mbox", 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
+		
 	}
 
 	g_slist_foreach (list_of_mboxes, (GFunc) g_free, NULL);
@@ -203,17 +200,15 @@ thunderbird_watch_emails (DBConnection *db_con)
 
 
 gboolean
-thunderbird_file_is_interesting (DBConnection *db_con, FileInfo *info)
+thunderbird_file_is_interesting (FileInfo *info, const char *service)
 {
-	g_return_val_if_fail (db_con && info, FALSE);
 
-	/* if file is not in a directory of Thunderbird we do not care about it  */
-	if (!g_str_has_prefix (info->uri, thunderbird_mail_dir)) {
-		return FALSE;
+	if (info->is_directory) {
+		return TRUE;
 	}
 
-	return (strcmp (info->mime, "application/mbox") == 0 ||
-		strcmp (info->mime, "message/rfc822") == 0);
+	return g_str_has_suffix (info->uri, ".msf");
+
 }
 
 
@@ -222,8 +217,10 @@ thunderbird_index_file (DBConnection *db_con, FileInfo *info)
 {
 	g_return_if_fail (db_con && info);
 
-	if (strcmp (info->mime, "application/mbox") == 0) {
-		email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_THUNDERBIRD, info->uri, NULL);
+	if (g_str_has_suffix (info->uri, ".msf")) {
+		char *uri = g_strndup (info->uri, strlen (info->uri) - 4);
+		email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_THUNDERBIRD, uri, NULL);
+		g_free (uri);
 
 	} else if (strcmp (info->mime, "message/rfc822") == 0) {
 		email_parse_and_save_mail_message (db_con, MAIL_APP_THUNDERBIRD, info->uri, NULL);

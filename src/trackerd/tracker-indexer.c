@@ -29,6 +29,25 @@ typedef struct {
 } SearchWord;
 
 
+typedef struct {
+	char        	*service;
+	int		count;
+} ServiceCount;
+
+static ServiceCount service_counts[11] = {
+	{ "Files", 0 },
+	{ "Folders", 0 },
+	{ "Documents", 0 },
+	{ "Images", 0 },
+	{ "Music", 0 },
+	{ "Videos", 0 },
+	{ "Text", 0 },
+	{ "Development", 0 },
+	{ "Emails", 0 },
+	{ "EmailAttachments", 0 },
+	{ NULL, 0 },
+};
+
 
 static gboolean shutdown;
 
@@ -90,6 +109,7 @@ word_details_to_search_hit (WordDetails *details)
 	hit = g_slice_new (SearchHit);
 
 	hit->service_id = details->id;
+	hit->service_type_id = get_service_type (details);
 	hit->score = get_score (details);
 
 	return hit;
@@ -103,6 +123,7 @@ copy_search_hit (SearchHit *src)
 	hit = g_slice_new (SearchHit);
 
 	hit->service_id = src->service_id;
+	hit->service_type_id = src->service_type_id;
 	hit->score = src->score;
 
 	return hit;
@@ -498,7 +519,7 @@ get_hits_for_single_word (Indexer *indexer,
 			
 			pnum = tsiz / sizeof (WordDetails);
 
-			g_debug ("total hit count (excluding service divisions) is %d", pnum);
+			tracker_debug ("total hit count (excluding service divisions) is %d", pnum);
 
 			if (offset >= pnum) {
 				*hit_count = pnum;
@@ -548,7 +569,7 @@ get_hits_for_single_word (Indexer *indexer,
 				}
 			}
 
-			g_debug ("total hit count for service is %d", total_count);
+			tracker_debug ("total hit count for service is %d", total_count);
 
 		}
 
@@ -623,9 +644,6 @@ get_intermediate_hits (Indexer *indexer,
 						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GINT_TO_POINTER (score));   	
 
 					} else {
-						SearchHit *hit;
-
-						hit = word_details_to_search_hit (&details[i]);
 			
 						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GINT_TO_POINTER ((int) get_score (&details[i]))); 						
 						
@@ -714,6 +732,7 @@ get_final_hits (Indexer *indexer,
 					score = GPOINTER_TO_INT (pscore) + get_score (&details[i]);
 
 					result[rnum].service_id = details[i].id;
+					result[rnum].service_type_id = service;
     					result[rnum].score = score;
 				    
 					rnum++;
@@ -841,3 +860,83 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int service_type_min, 
 	return NULL;
 
 }
+
+
+
+
+
+
+char ***
+tracker_get_hit_counts (Indexer *indexer, char **words)
+{
+	int hit_count;
+	GSList *result;
+
+	int limit = 10000000;
+	int offset = 0;
+	int service_type_min = 0;
+	int service_type_max = 255;
+
+	if (shutdown) return NULL;
+	
+	g_return_val_if_fail ((indexer), NULL);
+
+	if (!words || !words[0]) {
+		return NULL;
+	}
+
+	result = tracker_indexer_get_hits (indexer, 
+					words, 
+					service_type_min,
+					service_type_max, 
+					offset, 
+					limit, 
+					FALSE, 
+					&hit_count);
+
+	GSList *tmp;
+
+	for (tmp = result; tmp; tmp=tmp->next) {
+
+		SearchHit *hit = tmp->data;
+
+		if (hit->service_type_id < 9) {
+
+			service_counts[0].count++;	
+
+			if (hit->service_type_id < 8) {		
+				service_counts[hit->service_type_id].count++;			
+			}
+
+		} else {
+			if (hit->service_type_id > 19 && hit->service_type_id < 30 ) {
+				service_counts[8].count++;
+			} else if (hit->service_type_id > 29 && hit->service_type_id < 40 ) {
+				service_counts[9].count++;
+			}
+		}
+
+
+	}
+
+	tracker_index_free_hit_list (result);
+
+	char **res = g_new0 (char *, 11);
+
+	res[10] = NULL;
+	int i;
+
+	for (i=0; i<10; i++) {
+		char **row = g_new0 (char *, 3);
+		row[0] = g_strdup (service_counts[i].service);
+		row[1] = tracker_int_to_str (service_counts[i].count);
+		row[2] = NULL;
+		service_counts[i].count = 0;
+
+		tracker_log ("hit count for %s is %s", row[0], row[1]);
+		res[i] = (char *)row;
+	}
+
+	return (char ***) res;
+}
+

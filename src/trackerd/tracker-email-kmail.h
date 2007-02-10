@@ -37,8 +37,8 @@
 gboolean	kmail_init_module		(void);
 gboolean	kmail_module_is_running		(void);
 gboolean	kmail_finalize_module		(void);
-void		kmail_watch_emails		(DBConnection *db_con);
-gboolean	kmail_file_is_interesting	(DBConnection *db_con, FileInfo *info);
+void		kmail_watch_emails		();
+gboolean	kmail_file_is_interesting	(FileInfo *info, const char *service);
 void		kmail_index_file		(DBConnection *db_con, FileInfo *info);
 
 #endif

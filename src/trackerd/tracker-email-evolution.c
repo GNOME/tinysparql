@@ -250,71 +250,87 @@ evolution_finalize_module (void)
 }
 
 
-void
-evolution_watch_emails (DBConnection *db_con)
+static void
+watch_directory (const char *dir, const char *service)
 {
-	EvolutionConfig *conf;
+	tracker_add_service_path (service, dir);
+}
 
-	g_return_if_fail (db_con);
-	g_return_if_fail (evolution_config);
+void
+evolution_watch_emails ()
+{
+	tracker_add_service_path ("EvolutionMboxEmails", evolution_config->dir_local);
 
-	conf = evolution_config;
-
-	watch_files_for_mbox (db_con, conf->dir_local);
-
-	#define WATCH_MY_LIST(list,watch_fct) {			\
-		const GSList *tmp;				\
-		for (tmp = list; tmp; tmp = tmp->next) {	\
-			const char *dir_path;			\
-			dir_path = tmp->data;			\
-			watch_fct (db_con, dir_path);		\
-		}						\
-	}
-
-	WATCH_MY_LIST (conf->imap_dirs, watch_files_for_imap_account);
-	WATCH_MY_LIST (conf->mh_dirs, watch_files_for_mh_dir);
-	WATCH_MY_LIST (conf->maildir_dirs, watch_files_for_maildir_dir);
-
-	#undef WATCH_MY_LIST
+	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
+	g_slist_foreach (evolution_config->mh_dirs, (GFunc) watch_directory, "EvolutionMHEmails");		
+	g_slist_foreach (evolution_config->maildir_dirs, (GFunc) watch_directory, "EvolutionMailDirEmails");
+		
 }
 
 
-gboolean
-evolution_file_is_interesting (DBConnection *db_con, FileInfo *info)
-{
-	const GSList *dir;
 
-	g_return_val_if_fail (db_con, FALSE);
+gboolean
+evolution_file_is_interesting (FileInfo *info, const char *service)
+{
+	
+	GSList *dir;
+
 	g_return_val_if_fail (info, FALSE);
+	g_return_val_if_fail (info->uri, FALSE);
 	g_return_val_if_fail (evolution_config, FALSE);
 	g_return_val_if_fail (evolution_config->mail_dir, FALSE);
 
-	/* We want to take any file that could interest Evolution.
-	   So we consider as interesting any file into directories of Evolution. */
-	if (g_str_has_prefix (info->uri, evolution_config->mail_dir)) {
-		return TRUE;
+	if ((strcmp (service, "EvolutionMboxEmails") == 0) || (strcmp (service, "EvolutionImapEmails") == 0)) {
+
+		/* mbox/pop/imap all have summary files (*.ev-summary or *.summary) */
+		if (g_str_has_suffix (info->uri, "summary")) {
+
+			return (!g_str_has_suffix (info->uri, "Drafts.ev-summary") && !g_str_has_suffix (info->uri, "Outbox.ev-summary"));
+		} else {
+			return FALSE;
+		}
 	}
 
-	/* But emails into MH dirs need to be treat separately since they can
-	   be anywhere! */
-	for (dir = evolution_config->mh_dirs; dir; dir = dir->next) {
-		const char *dir_path;
 
-		dir_path = dir->data;
-		if (g_str_has_prefix (info->uri, dir_path)) {
-			return TRUE;
+	if (strcmp (service, "EvolutionMHEmails") == 0) {
+		
+		/* But emails into MH dirs need to be treat separately since they can
+		   be anywhere! */
+		for (dir = evolution_config->mh_dirs; dir; dir = dir->next) {
+			const char *dir_path;
+			char *mime;
+			gboolean result;
+
+		
+			dir_path = dir->data;
+			if (g_str_has_prefix (info->uri, dir_path)) {
+				mime = tracker_get_mime_type (info->uri);
+				result = (strcmp (mime, "message/rfc822") == 0);
+				g_free (mime);
+		
+				return result;
+
+			}
 		}
 	}
 
 	/* and same thing for maildir dirs */
 	for (dir = evolution_config->maildir_dirs; dir; dir = dir->next) {
 		const char *dir_path;
-
+		char *mime;
+		gboolean result;
 		dir_path = dir->data;
+
+		
 		if (g_str_has_prefix (info->uri, dir_path)) {
-			return TRUE;
+			mime = tracker_get_mime_type (info->uri);
+			result = (strcmp (mime, "message/rfc822") == 0);
+			g_free (mime);
+
+			return result;
 		}
 	}
+	
 
 	return FALSE;
 }
@@ -330,10 +346,14 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
 	file_name = g_path_get_basename (info->uri);
 
+	tracker_debug ("indexing email %s", info->uri);
+
 	if (is_in_dir_local (info->uri) && g_str_has_suffix (file_name, ".ev-summary")) {
 		/* a MBox file changed */
 		char		*mbox_file;
 		SummaryFile	*summary;
+
+		tracker_debug ("processing mbox file %s", info->uri);
 
 		mbox_file = tracker_get_radix_by_suffix (info->uri, ".ev-summary");
 
@@ -345,6 +365,8 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			gint32			nb_emails_in_db;
 
 			header = NULL;
+
+			tracker_info ("investigating summary file %s", mbox_file);
 
 			if (!load_summary_file_header (summary, &header)) {
 				free_summary_file (summary);
@@ -385,7 +407,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
 			} else if (header->saved_count < nb_emails_in_db) {
 				/* some emails removed. It is easiest to do a new full MBox indexing */
-				tracker_db_email_delete_emails_of_mbox (db_con, mbox_file);
+//				tracker_db_email_delete_emails_of_mbox (db_con, mbox_file);
 				email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_EVOLUTION, mbox_file, load_uri_and_status_of_mbox_mail_message);
 			} else {
 				/* new emails received */
@@ -822,7 +844,7 @@ account_text_handler (GMarkupParseContext	*context,
 
 			source_url = g_strndup (text, text_len);
 
-			if (strncmp (source_url, "mbox:", 5) == 0) {
+			if (strncmp (source_url, "mbox:", 5) == 0 || strncmp (source_url, "pop:", 4) == 0) {
 				state->account->protocol = EVOLUTION_MAIL_PROTOCOL_MBOX;
 			} else if (strncmp (source_url, "imap:", 5) == 0) {
 				state->account->protocol = EVOLUTION_MAIL_PROTOCOL_IMAP;
@@ -1196,11 +1218,23 @@ get_account_name_in_imap_path (const char *path)
 static char *
 make_uri (const char *account_name, const char *path, const char *uid)
 {
+	char *uri, *mail_path;
+
 	g_return_val_if_fail (path, NULL);
 
-	return g_strdup_printf ("email://%s/%s;uid=%s", account_name, path, uid);
-}
+	/* fix for mbox files which may have path like : "email://local@local/Inbox.sbd/Others;uid=46" 
+	   these must be converted to "email://local@local/Inbox/Others;uid=46"  IE with the folder extension ".sbd" cut off
+	*/
+		
+	mail_path = g_strdup (path);	
+	mail_path = tracker_string_replace (path, ".sbd", NULL);
 
+	uri = g_strdup_printf ("email://%s/%s;uid=%s", account_name, mail_path, uid);
+
+	g_free (mail_path);
+
+	return uri;
+}
 
 static void
 index_mail_messages_by_summary_file (DBConnection *db_con,
@@ -1342,7 +1376,12 @@ load_uri_and_status_of_mbox_mail_message (GMimeMessage *g_m_message, MailMessage
 
 	uid = strtoul (parts[0], NULL, 16);
 
-	mbox_path = g_path_get_basename (msg->parent_mail_file->path);
+	/* poath could be more than one folder deep! */
+	//mbox_path = g_path_get_basename (msg->parent_mail_file->path);
+
+	char *mbox_dir = g_strconcat (evolution_config->dir_local, "/", NULL);
+	mbox_path =  tracker_string_replace (msg->parent_mail_file->path, mbox_dir, NULL);
+	g_free (mbox_dir);
 
 	if (msg->uri) {
 		g_free (msg->uri);
@@ -1404,6 +1443,7 @@ open_summary_file (const char *path, SummaryFile **summary)
 
 			switch (evo_acc->protocol) {
 				case EVOLUTION_MAIL_PROTOCOL_MBOX:
+
 					if (is_in_dir_local ((*summary)->path)) {
 						/* is it possible to have more than one MBox account? */
 						(*summary)->associated_account = evo_acc;

@@ -80,16 +80,104 @@ static const char imonths[] = {
 };
 
 
-const char *
+char *
 tracker_get_service_by_id (int service_type_id)
 {
-	return service_index_array[service_type_id];
+	char *str_id;
+	ServiceDef *def;
+
+	str_id  = tracker_int_to_str (service_type_id);
+	def = g_hash_table_lookup (tracker->service_id_table, str_id);
+	g_free (str_id);
+
+	if (!def) {
+		tracker_log ("no service found for id %d", service_type_id);
+		return NULL;
+	} 
+
+	return g_strdup (def->name);
 }
+
+char *
+tracker_get_parent_service_by_id (int service_type_id)
+{
+
+	char *str_id = tracker_int_to_str (service_type_id);
+	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
+
+	g_free (str_id);
+
+	if (!def) {
+		return NULL;
+	}
+
+	return g_strdup (def->parent);
+}
+
 
 int
 tracker_get_id_for_service (const char *service)
 {
-	return tracker_str_in_array (service, service_index_array);
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+
+	if (!def) {
+		return -1;
+	}
+
+	return def->id;
+}
+
+
+int
+tracker_get_id_for_parent_service (const char *service)
+{
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+
+	if (!def) {
+		return -1;
+	}
+
+	return tracker_get_id_for_service (def->parent);
+}
+
+
+int
+tracker_get_min_id_for_service (const char *service)
+{
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+
+	if (!def) {
+		return -1;
+	}
+
+	return def->min_id;
+}
+
+int
+tracker_get_max_id_for_service (const char *service)
+{
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+
+	if (!def) {
+		return -1;
+	}
+
+	return def->max_id;
+}
+
+
+DBTypes
+tracker_get_db_for_service (const char *service)
+{
+	int id = tracker_get_id_for_parent_service (service);
+	char *str_id = tracker_int_to_str (id);
+
+	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
+	g_free (str_id);
+
+	return def->database;
+
+
 }
 
 
@@ -1204,7 +1292,7 @@ tracker_get_file_info (FileInfo *info)
 }
 
 void
-tracker_add_service_path (const char *service, const char *path)
+tracker_add_service_path (const char *service,  const char *path)
 {
 
 	if (!service || !path || !tracker_file_is_valid (path)) {
@@ -1238,12 +1326,24 @@ tracker_get_service_for_uri (const char *uri)
 		}
 	}
 
-	if (g_str_has_prefix (uri, g_get_tmp_dir ())) {
-		return NULL;
-	}
-
 	return g_strdup ("Files");
 
+}
+
+
+gboolean
+tracker_is_service_file (const char *uri)
+{
+	char *service;
+	gboolean result;
+
+	service = tracker_get_service_for_uri (uri);
+
+	result =  (service && strcmp (service, "Files") != 0);
+
+	g_free (service);
+
+	return result;
 }
 
 
@@ -1856,9 +1956,9 @@ tracker_load_config_file ()
 					  "# Sets whether to use the slower pango word break algortihm (only set this for CJK languages which dont contain western styke word breaks)\n",
 					 "EnablePangoWordBreaks=", enable_pango, "\n\n",
 					 "[Services]\n",
-					 "IndexEvolutionEmails=false\n",
-					 "IndexThunderbirdEmails=false\n",
-					 "IndexKmailEmails=false\n\n",
+					 "IndexEvolutionEmails=true\n",
+					 "IndexThunderbirdEmails=tru\n",
+					 "IndexKmailEmails=true\n\n",
 					 "[Emails]\n",
 					 "AdditionalMBoxesToIndex=;\n\n",
 					 "[Performance]\n",
@@ -2441,8 +2541,8 @@ is_match (const char *a, const char *b)
 	char *str1 = g_utf8_casefold (a, len);
         char *str2 = g_utf8_casefold (b, len);                                 
 
-	char *normal1 = g_utf8_normalize (str1, -1, G_NORMALIZE_NFD);
-	char *normal2 = g_utf8_normalize (str2, -1, G_NORMALIZE_NFD);
+	char *normal1 = g_utf8_normalize (str1, -1, G_NORMALIZE_NFC);
+	char *normal2 = g_utf8_normalize (str2, -1, G_NORMALIZE_NFC);
 
 	gboolean result = (strcmp (normal1, normal2) == 0);
 
@@ -2462,12 +2562,14 @@ pointer_from_offset_skipping_decomp (const gchar *str, gint offset)
 	gchar *casefold, *normal;
 	const gchar *p, *q;
 
+	g_return_val_if_fail (str != NULL, NULL);
+
 	p = str;
 	while (offset > 0)
 	{
 		q = g_utf8_next_char (p);
 		casefold = g_utf8_casefold (p, q - p);
-		normal = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFD);
+		normal = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFC);
 		offset -= g_utf8_strlen (normal, -1);
 		g_free (casefold);
 		g_free (normal);
@@ -2491,8 +2593,12 @@ g_utf8_strcasestr_array (const gchar *haystack, gchar **needles)
 	g_return_val_if_fail (haystack != NULL, NULL);
 
 	casefold = g_utf8_casefold (haystack, -1);
-	caseless_haystack = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFD);
+	caseless_haystack = g_utf8_normalize (casefold, -1, G_NORMALIZE_NFC);
 	g_free (casefold);
+
+	if (!caseless_haystack) {
+		return NULL;
+	}
 
 	haystack_len = g_utf8_strlen (caseless_haystack, -1);
 
@@ -2795,7 +2901,12 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 	}
 
 	if (ptr) {
-		return g_strndup (txt, ptr - txt);
+		char *snippet = g_strndup (txt, ptr - txt);
+		char *esc_snippet = g_markup_escape_text (snippet, ptr - txt);
+
+		g_free (snippet);
+
+		return esc_snippet;
 	} else {
 		return NULL;
 	}
@@ -2879,12 +2990,14 @@ is_min_flush_done ()
 
 }
 
+/*
 static void 
 delete_word_detail (WordDetails *wd)
 {
 	g_slice_free (WordDetails, wd);
 
 }
+*/
 
 void
 tracker_flush_rare_words ()
@@ -2942,6 +3055,21 @@ tracker_flush_all_words ()
 
 }
 
+void
+tracker_check_flush ()
+{
+	if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
+		if (tracker->flush_count < 10) {
+			tracker->flush_count++;
+			tracker_info ("flushing");
+			tracker_flush_rare_words ();
+		} else {
+			tracker->flush_count = 0;
+			tracker_flush_all_words ();
+			
+		}
+	}
+}
 
 void
 tracker_child_cb (gpointer user_data)
@@ -3089,4 +3217,38 @@ tracker_debug 	(const char *message, ...)
 	output_log (2, msg);
 	g_free (msg);
 }
+
+
+char * 
+tracker_string_replace (const char *haystack, char *needle, char *replacement)
+{
+        GString *str;
+        int pos, needle_len;
+
+	g_return_val_if_fail (haystack && needle, NULL);
+
+	needle_len = strlen (needle);
+
+        str = g_string_new ("");
+
+        for (pos = 0; haystack[pos]; pos++)
+        {
+                if (strncmp (&haystack[pos], needle, needle_len) == 0)
+                {
+
+			if (replacement) {
+	                        str = g_string_append (str, replacement);
+			}
+
+                        pos += needle_len - 1;
+
+                } else {
+                        str = g_string_append_c (str, haystack[pos]);
+		}
+        }
+
+        return g_string_free (str, FALSE);
+}
+
+
 

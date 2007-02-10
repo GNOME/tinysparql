@@ -138,6 +138,16 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 		email_index_each_email_attachment (db_con, mail_msg);
 
 		email_free_mail_message (mail_msg);
+
+		tracker->index_count++;
+		
+		if (tracker->verbosity == 0) {
+			if ( (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 0)) {
+				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
+			} 
+		}
+
+		tracker_check_flush ();
 	}
 
 	email_free_mail_file (mf);

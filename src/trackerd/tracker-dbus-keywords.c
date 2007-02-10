@@ -116,6 +116,8 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 		return;
 	}
 
+	db_con = tracker_db_get_service_connection (db_con, service);
+
 	res = tracker_db_get_keyword_list (db_con, service);
 
 	tracker_dbus_reply_with_query_result (rec, res);
@@ -174,6 +176,8 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		tracker_set_error (rec, "Entity %s not found in database", uri);
 		return;
 	}
+
+	db_con = tracker_db_get_service_connection (db_con, service);
 
 	res = tracker_db_get_metadata_values (db_con, service, id, "DC:Keywords");
 
@@ -244,6 +248,8 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		tracker_set_error (rec, "URI is invalid");
 		return;
 	}
+
+	db_con = tracker_db_get_service_connection (db_con, service);
 
 	id = tracker_db_get_id (db_con, service, uri);
 
@@ -323,6 +329,8 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		return;
 	}
 
+	db_con = tracker_db_get_service_connection (db_con, service);
+
 	id = tracker_db_get_id (db_con, service, uri);
 
 	if (!id) {
@@ -394,6 +402,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		return;
 	}
 
+	db_con = tracker_db_get_service_connection (db_con, service);
 	id = tracker_db_get_id (db_con, service, uri);
 
 	if (!id) {
@@ -469,6 +478,8 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 		tracker_set_error (rec, "No keywords supplied");
 		return;
 	}
+
+	db_con = tracker_db_get_service_connection (db_con, service);
 
 	str_words = g_string_new ("");
 	g_string_append_printf (str_words, "'%s'", array[0]);

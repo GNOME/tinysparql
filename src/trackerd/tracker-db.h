@@ -46,8 +46,11 @@ void		tracker_db_add_to_extract_queue	(DBConnection *db_con, FileInfo *info);
 gboolean	tracker_db_has_pending_files	(DBConnection *db_con);
 gboolean	tracker_db_has_pending_metadata	(DBConnection *db_con);
 
-void		tracker_db_index_service 	(DBConnection *db_con, FileInfo *info, const char *service, GHashTable *meta_table, gboolean is_attachment, gboolean get_embedded, gboolean get_full_text, gboolean get_thumbs);
-void		tracker_db_index_file 		(DBConnection *db_con, FileInfo *info, gboolean is_attachment);
-void		tracker_db_index_entity 	(DBConnection *db_con, FileInfo *info);
+void		tracker_db_index_service 	(DBConnection *db_con, FileInfo *info, const char *service, GHashTable *meta_table, const char *attachment_uri, const char *attachment_service, 
+						 gboolean get_embedded, gboolean get_full_text, gboolean get_thumbs);
+
+void		tracker_db_index_file 		(DBConnection *db_con, FileInfo *info, const char *attachment_uri, const char *attachment_service);
+void		tracker_db_index_conversation 	(DBConnection *db_con, FileInfo *info);
+void		tracker_db_index_application 	(DBConnection *db_con, FileInfo *info);
 
 #endif

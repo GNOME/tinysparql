@@ -772,15 +772,22 @@ tracker_is_valid_service (DBConnection *db_con, const char *service)
 
 
 void
-tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *service, GHashTable *meta_table, gboolean is_attachment, gboolean get_embedded, gboolean get_full_text, gboolean get_thumbs)
+tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *service, GHashTable *meta_table, const char *attachment_uri, const char *attachment_service,  gboolean get_embedded, gboolean get_full_text, gboolean get_thumbs)
 {
 	char		*str_file_id;
+	const char	*uri;
 	GHashTable	*index_table;
 
 	if (!service) {
 		/* its an external service - TODO get external service name */
 		tracker_log ("External service %s not supported yet", service);
 		return;
+	}
+
+	if (!attachment_uri) {
+		uri = info->uri;
+	} else {
+		uri = attachment_uri;
 	}
 
 	info->service_type_id = tracker_get_id_for_service (service);
@@ -816,11 +823,11 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	if (info->is_new) {
 		char *name, *path;
 
-		name = g_path_get_basename (info->uri);
-		path = g_path_get_dirname (info->uri);
+		name = g_path_get_basename (uri);
+		path = g_path_get_dirname (uri);
 
-		if (is_attachment) {
-			info->file_id = tracker_db_create_service (db_con, path, name, "EmailAttachments", info->mime, info->file_size, info->is_directory, info->is_link, info->offset, info->mtime, -1);
+		if (attachment_uri) {
+			info->file_id = tracker_db_create_service (db_con, path, name, attachment_service, info->mime, info->file_size, info->is_directory, info->is_link, info->offset, info->mtime, -1);
 		} else {
 			info->file_id = tracker_db_create_service (db_con, path, name, service, info->mime, info->file_size, info->is_directory, info->is_link, info->offset, info->mtime, -1);
 		}
@@ -850,7 +857,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	if (get_full_text && tracker->enable_content_indexing) {
 		char *file_as_text;
 
-		 file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);
+		file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);
 
 		if (file_as_text) {
 			
@@ -867,7 +874,9 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 	}
 
-
+	if (attachment_uri && attachment_service) {
+		info->service_type_id = tracker_get_id_for_service (attachment_service);
+	}
 
 	/* save stuff to Db */
 	tracker_db_start_transaction (db_con);
@@ -917,7 +926,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 
 void
-tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachment)
+tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachment_uri, const char *attachment_service)
 {
 	char *services_with_metadata[] = {"Documents", "Music", "Videos", "Images", NULL};
 	char *services_with_text[] = {"Documents", "Text Files", "Development Files", NULL};
@@ -927,6 +936,14 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 	const char	*ext;
 	char		*str_link_uri, *service_name;
 	gboolean	is_file_indexable, service_has_metadata, is_external_service, service_has_fulltext, service_has_thumbs;
+
+	const char *uri;
+
+	if (!attachment_uri) {
+		uri = info->uri;
+	} else {
+		uri = attachment_uri;
+	}
 
 	if (info->mime) {
 		g_free (info->mime);
@@ -956,24 +973,24 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 	meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_free);
 
 	/* delimit file uri so hyphens and underscores are removed so that they can be indexed separately */
-	if (strchr (info->uri, '_') || strchr (info->uri, '-')) {
+	if (strchr (uri, '_') || strchr (uri, '-')) {
 		char *delimited;
 
-		delimited = g_strdup (info->uri);
+		delimited = g_strdup (uri);
 		delimited = g_strdelimit (delimited, "-_" , ' ');
 		tracker_debug ("delimited file name is %s", delimited);
 		g_hash_table_insert (meta_table, "File:NameDelimited", delimited);
 	}
 
-	ext = strrchr (info->uri, '.');
+	ext = strrchr (uri, '.');
 	if (ext) {
 		ext++;
 		tracker_debug ("file extension is %s", ext);
 		g_hash_table_insert (meta_table, "File:Ext", g_strdup (ext));
 	}
 
-	g_hash_table_insert (meta_table, "File:Path", g_path_get_dirname (info->uri));
-	g_hash_table_insert (meta_table, "File:Name", g_path_get_basename (info->uri));
+	g_hash_table_insert (meta_table, "File:Path", g_path_get_dirname (uri));
+	g_hash_table_insert (meta_table, "File:Name", g_path_get_basename (uri));
 	g_hash_table_insert (meta_table, "File:Link", g_strdup (str_link_uri));
 	g_hash_table_insert (meta_table, "File:Mime", g_strdup (info->mime));
 	g_hash_table_insert (meta_table, "File:Size", tracker_uint_to_str (info->file_size));
@@ -995,29 +1012,21 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, gboolean is_attachm
 
 
 	/* tracker_log ("file %s has fulltext %d, %d, %d", info->uri, (tracker_str_in_array (service_name, services_with_text) != -1), service_has_fulltext, is_file_known); */
-	tracker_db_index_service (db_con, info, service_name, meta_table, is_attachment, service_has_metadata, service_has_fulltext, service_has_thumbs);
+	tracker_db_index_service (db_con, info, service_name, meta_table, attachment_uri, attachment_service, service_has_metadata, service_has_fulltext, service_has_thumbs);
 
 	g_free (service_name);
 	g_hash_table_destroy (meta_table);
 
-	if (is_attachment) {
-		tracker_email_unlink_email_attachment (info->uri);
+	if (attachment_uri) {
+		g_unlink (info->uri);
 	}
 
 	tracker_dec_info_ref (info);
 }
 
 
-static void
-index_conversation (DBConnection *db_con, FileInfo *info)
-{
-
-/* todo */
-}
-
-
-static void
-index_application (DBConnection *db_con, FileInfo *info)
+void
+tracker_db_index_conversation (DBConnection *db_con, FileInfo *info)
 {
 
 /* todo */
@@ -1025,43 +1034,10 @@ index_application (DBConnection *db_con, FileInfo *info)
 
 
 void
-tracker_db_index_entity (DBConnection *db_con, FileInfo *info)
+tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 {
-	g_return_if_fail (info->uri);
-	g_return_if_fail (info->uri[0] == '/');
 
-	if (!info->is_directory) {
-		/* sleep to throttle back indexing */
-		tracker_throttle (1000);
-	}
-
-	if (!tracker_file_is_valid (info->uri)) {
-		tracker_log ("Warning - file %s no longer exists - abandoning index on this file", info->uri);
-		return;
-	}
-
-
-	if (tracker_email_file_is_interesting (db_con, info)) {
-		tracker_email_index_file (db_con, info);
-
-	} else if (tracker_email_is_an_attachment (info)) {
-		tracker_db_index_file (db_con, info, TRUE);
-
-	} else if (!info->mime || strcmp (info->mime, "unknown") == 0) {
-		g_free (info->mime);
-		info->mime = tracker_get_service_for_uri (info->uri);
-	}
-
-	if (strcmp (info->mime, "Files") == 0) {
-		tracker_db_index_file (db_con, info, FALSE);
-
-	} else if (strcmp (info->mime, "Conversations") == 0) {
-		index_conversation (db_con, info);
-
-	} else if (strcmp (info->mime, "Applications") == 0) {
-		index_application (db_con, info);
-
-	} else if (g_str_has_prefix (info->mime, "service/")) {
-		tracker_db_index_service (db_con, info, NULL, NULL, FALSE, TRUE, TRUE, TRUE);
-	}
+/* todo */
 }
+
+

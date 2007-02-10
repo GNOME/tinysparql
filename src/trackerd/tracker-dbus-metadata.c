@@ -86,7 +86,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		tracker_set_error (rec, "Entity with ID %s not found in database", uri);
 		return;
 	}
-
+	db_con = tracker_db_get_service_connection (db_con, service);
 
 	is_local_file = (uri[0] == G_DIR_SEPARATOR);
 
@@ -168,6 +168,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		return;
 	}
 
+	db_con = tracker_db_get_service_connection (db_con, service);
 
 	date_array = g_new (char *, key_count+1);
 	date_array [key_count] = NULL;

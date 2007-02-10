@@ -175,11 +175,58 @@ tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 }
 
 
+static char *
+get_service_name (MailApplication app)
+{
+	if (app == MAIL_APP_EVOLUTION) {
+		return g_strdup ("EvolutionEmails");
+	} else if (app == MAIL_APP_KMAIL) {
+		return g_strdup ("KMailEmails");
+	} else if (app == MAIL_APP_THUNDERBIRD) {
+		return g_strdup ("ThunderbirdEmails");
+	}
+
+	return g_strdup ("OtherEmails");
+}
+
+
+static char *
+get_mime (MailApplication app)
+{
+	if (app == MAIL_APP_EVOLUTION) {
+		return g_strdup ("Evolution Email");
+	} else if (app == MAIL_APP_KMAIL) {
+		return g_strdup ("KMail Email");
+	} else if (app == MAIL_APP_THUNDERBIRD) {
+		return g_strdup ("Thunderbird Email");
+	}
+
+	return g_strdup ("Other Email");
+}
+
+static char *
+get_attachment_service_name (MailApplication app)
+{
+	if (app == MAIL_APP_EVOLUTION) {
+		return g_strdup ("EvolutionAttachments");
+	} else if (app == MAIL_APP_KMAIL) {
+		return g_strdup ("KMailAttachments");
+	} else if (app == MAIL_APP_THUNDERBIRD) {
+		return g_strdup ("ThunderbirdAttachments");
+	}
+	
+	return g_strdup ("OtherAttachments");
+	
+}
+
+
 void
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
 	char	*name, *path;
-	int	mbox_id, id;
+	int	mbox_id, type_id, id;
+	char *service, *attachment_service, *mime;
+
 
 	g_return_if_fail (db_con);
 	g_return_if_fail (mm);
@@ -203,27 +250,56 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	name = tracker_get_vfs_name (mm->uri);
 	path = tracker_get_vfs_path (mm->uri);
 
+	service = get_service_name (mm->parent_mail_file->mail_app);
+	mime = get_mime (mm->parent_mail_file->mail_app);
+	attachment_service = get_attachment_service_name (mm->parent_mail_file->mail_app);
+	
+
+	type_id = tracker_get_id_for_service (service);
+	if (type_id == -1) {
+		tracker_log ("Error service %s not found", service);
+		g_free (path);
+		g_free (name);
+		g_free (attachment_service);
+		g_free (service);
+		return;
+	}
+
 	tracker_db_start_transaction (db_con);
 
-	tracker_db_create_service (db_con, path, name, "Emails", "email", 0, FALSE, FALSE, mm->offset, 0, mbox_id);
 
-	id = tracker_db_get_file_id (db_con, mm->uri);
+	
+
+	id = tracker_db_create_service (db_con, path, name, service, mime, 0, FALSE, FALSE, mm->offset, 0, mbox_id);
 
 	if (id != -1) {
 		GHashTable	*index_table;
 		char		*str_id, *str_date;
 		const GSList	*tmp;
 
-		tracker_log ("saving email with uri \"%s\" and subject \"%s\" from \"%s\"", mm->uri, mm->subject, mm->from);
+
+		tracker_info ("saving email service %d with uri \"%s\" and subject \"%s\" from \"%s\"", type_id, mm->uri, mm->subject, mm->from);
 
 		index_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 		str_id = tracker_int_to_str (id);
 		str_date = tracker_int_to_str (mm->date);
 
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body, index_table);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date, index_table);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->from, index_table);
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject, index_table);
+
+		if (mm->body) {
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body, index_table);
+		}
+
+		if (str_date) {
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date, index_table);
+		}
+
+		if (mm->from) {
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->from, index_table);
+		}
+
+		if (mm->subject) {
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject, index_table);
+		}
 
 		g_free (str_date);
 
@@ -232,8 +308,16 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			char		 *str;
 
 			mp = tmp->data;
+			
+			if (!mp->addr) {
+				continue;
+			}
 
-			str = g_strconcat (mp->name, ":", mp->addr, NULL);
+			if (mp->name) {
+				str = g_strconcat (mp->name, ":", mp->addr, NULL);
+			} else {
+				str = g_strdup (mp->addr);
+			}
 			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", str, index_table);
 			g_free (str);
 		}
@@ -244,15 +328,29 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 			mp = tmp->data;
 
-			str = g_strconcat (mp->name, ":", mp->addr, NULL);
+			if (!mp->addr) {
+				continue;
+			}
+
+			if (mp->name) {
+				str = g_strconcat (mp->name, ":", mp->addr, NULL);
+			} else {
+				str = g_strdup (mp->addr);
+			}
+
 			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", str, index_table);
 			g_free (str);
 		}
+
 
 		for (tmp = mm->attachments; tmp; tmp = tmp->next) {
 			const MailAttachment *ma;
 
 			ma = tmp->data;
+
+			if (!ma->attachment_name) {
+				continue;
+			}
 
 			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", ma->attachment_name, index_table);
 
@@ -271,16 +369,44 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		tracker_db_end_transaction (db_con);
 
-		tracker_db_update_indexes_for_new_service (id, tracker_get_id_for_service ("Emails"), index_table);
+		tracker_debug ("storing email with id %d and type_id %d with %d words", id, type_id, g_hash_table_size (index_table));
+		tracker_db_update_indexes_for_new_service (id, type_id, index_table);
+
+		g_hash_table_destroy (index_table);
 
 		g_free (str_id);
 
+		/* index attachments */
+		for (tmp = mm->attachments; tmp; tmp = tmp->next) {
+
+			const MailAttachment	*ma;
+			FileInfo		*info;
+			char 			*uri;
+			ma = tmp->data;
+
+			info = tracker_create_file_info (ma->tmp_decoded_file, TRACKER_ACTION_CHECK, 0, WATCH_OTHER);
+			info->is_directory = FALSE;
+			info->mime = g_strdup (ma->mime);
+
+			uri = g_strconcat (mm->uri, "/", ma->attachment_name, NULL);
+			tracker_info ("indexing attachement with uri %s and mime %s", uri, info->mime);
+			tracker_db_index_file (db_con, info, uri, attachment_service);
+			tracker_dec_info_ref (info);
+			g_free (uri);
+		}
+	
 		return;
 	}
 
 	tracker_db_end_transaction (db_con);
 
-	/* sometimes we will create a new record, sometimes we will update previous entries */
+	g_free (path);
+	g_free (name);
+	g_free (attachment_service);
+	g_free (service);
+	g_free (mime);
+
+
 }
 
 void

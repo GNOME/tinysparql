@@ -30,11 +30,7 @@
 
 
 
-typedef enum {
-	DB_DATA,
-	DB_BLOB,
-	DB_CACHE
-} DBTypes;
+
 
 typedef enum {
 	METADATA_INDEX,
@@ -50,13 +46,13 @@ typedef struct {
 	GMutex		*write_mutex;
 	sqlite3		*db;
 	DBTypes		db_type;
-	gpointer	data;
 	char		*err;
 	int		rc;
 	char		*thread; /* name of the thread that created this */
 	GHashTable	*statements;
 
 	/* pointers to other database connection objects */
+	gpointer	data;
 	gpointer	emails;
 	gpointer	applications;
 	gpointer	others;
@@ -81,6 +77,7 @@ void		tracker_db_finalize		(void);
 DBConnection *	tracker_db_connect		(void);
 DBConnection *	tracker_db_connect_full_text	(void);
 DBConnection *	tracker_db_connect_cache 	(void);
+DBConnection *	tracker_db_connect_emails	(void);
 gboolean	tracker_update_db		(DBConnection *db_con);
 char *		tracker_escape_string		(DBConnection *db_con, const char *in);
 void		tracker_db_prepare_queries	(DBConnection *db_con);
@@ -162,5 +159,7 @@ char ***	tracker_db_get_keyword_list	(DBConnection *db_con, const char *service)
 void		tracker_db_update_index_multiple_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, char **values);
 
 void		tracker_db_get_static_data 	(DBConnection *db_con);
+
+DBConnection *	tracker_db_get_service_connection (DBConnection *db_con, const char *service);
 
 #endif
