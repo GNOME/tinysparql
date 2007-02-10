@@ -1,5 +1,3 @@
-
-
 if HAVE_GNOME
 tracker_gui_dir = tracker-search-tool
 endif
@@ -8,6 +6,9 @@ if !USING_EXTERNAL_SQLITE
 sqlite_dir = sqlite3
 endif
 
+if ENABLE_PREFERENCES
+tracker_preferences_dir = tracker-preferences
+endif
 
-SUBDIRS = libstemmer xdgmime $(sqlite_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(tracker_gui_dir)
+SUBDIRS = libstemmer xdgmime $(sqlite_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(tracker_gui_dir) $(tracker_preferences_dir)
 

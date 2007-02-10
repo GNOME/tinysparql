@@ -68,6 +68,8 @@ typedef enum {
 } ServiceType;
 
 
+
+
 typedef struct {
 	char *	 	type;
 	gboolean 	is_embedded;
@@ -117,6 +119,8 @@ void		tracker_keywords_remove_all			(TrackerClient *client, ServiceType service,
 char **		tracker_keywords_search				(TrackerClient *client, int live_query_id, ServiceType service, char **keywords, int offset, int max_hits, GError **error);
 
 
+
+GPtrArray *	tracker_search_get_hit_count_all		(TrackerClient *client, const char *search_text, GError **error);
 char **		tracker_search_text				(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, GError **error);
 GPtrArray * 	tracker_search_text_detailed 			(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, GError **error);
 char *		tracker_search_get_snippet			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, GError **error);
@@ -167,7 +171,7 @@ void		tracker_keywords_remove_async 				(TrackerClient *client, ServiceType serv
 void		tracker_keywords_remove_all_async 			(TrackerClient *client, ServiceType service, const char *id, TrackerVoidReply callback, gpointer user_data);
 void		tracker_keywords_search_async 				(TrackerClient *client, int live_query_id, ServiceType service, char **keywords, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data);
 
-
+void		tracker_search_text_get_hit_count_all_async		(TrackerClient *client, const char *search_text, TrackerGPtrArrayReply callback, gpointer user_data);
 void		tracker_search_text_async 				(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data);
 void		tracker_search_text_detailed_async 			(TrackerClient *client, int live_query_id, ServiceType service, const char *search_text, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data);
 void		tracker_search_get_snippet_async			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data);

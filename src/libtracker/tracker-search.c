@@ -95,7 +95,7 @@ main (int argc, char **argv)
 				 "terms (term1 AND term2 - logical conjunction)"), 
 			       "\n\n",
 			       _("The list of recognized services is:"),
-			       "\n\tDocuments Music Images Videos Text Development",			       
+			       "\n\tDocuments Emails Attachments Music Images Videos Text Development",			       
 			       NULL);
 
 #ifdef HAVE_RECENT_GLIB
@@ -142,6 +142,10 @@ main (int argc, char **argv)
 		type = SERVICE_FILES;
 	} else if (g_ascii_strcasecmp (service, "Documents") == 0) {
 		type = SERVICE_DOCUMENTS;
+	} else if (g_ascii_strcasecmp (service, "Emails") == 0) {
+		type = SERVICE_EMAILS;
+	} else if (g_ascii_strcasecmp (service, "Attachments") == 0) {
+		type = SERVICE_EMAILATTACHMENTS;
 	} else if (g_ascii_strcasecmp (service, "Music") == 0) {
 		type = SERVICE_MUSIC;
 	} else if (g_ascii_strcasecmp (service, "Images") == 0) {

@@ -93,7 +93,7 @@ TagType tags[] = {
 	{ EXIF_TAG_ORIENTATION, "Image:Orientation", NULL },
 	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", NULL },
 	{ EXIF_TAG_EXPOSURE_TIME, "Image:ExposureTime", fix_exposure_time },
-	{ EXIF_TAG_FNUMBER, "Image:Fnumber", fix_fnumber },
+	{ EXIF_TAG_FNUMBER, "Image:FNumber", fix_fnumber },
 	{ EXIF_TAG_FLASH, "Image:Flash", fix_flash },
 	{ EXIF_TAG_FOCAL_LENGTH, "Image:FocalLength", fix_focal_length },
 	{ EXIF_TAG_ISO_SPEED_RATINGS, "Image:ISOSpeed", NULL },

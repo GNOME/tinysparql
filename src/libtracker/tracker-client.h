@@ -634,6 +634,82 @@ static
 inline
 #endif
 gboolean
+org_freedesktop_Tracker_Search_get_hit_count (DBusGProxy *proxy, const char * IN_service, const char * IN_search_text, gint* OUT_result, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetHitCount", error, G_TYPE_STRING, IN_service, G_TYPE_STRING, IN_search_text, G_TYPE_INVALID, G_TYPE_INT, OUT_result, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_Tracker_Search_get_hit_count_reply) (DBusGProxy *proxy, gint OUT_result, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_Tracker_Search_get_hit_count_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = user_data;
+  GError *error = NULL;
+  gint OUT_result;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INT, &OUT_result, G_TYPE_INVALID);
+  (*(org_freedesktop_Tracker_Search_get_hit_count_reply)data->cb) (proxy, OUT_result, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_Tracker_Search_get_hit_count_async (DBusGProxy *proxy, const char * IN_service, const char * IN_search_text, org_freedesktop_Tracker_Search_get_hit_count_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "GetHitCount", org_freedesktop_Tracker_Search_get_hit_count_async_callback, stuff, g_free, G_TYPE_STRING, IN_service, G_TYPE_STRING, IN_search_text, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_Tracker_Search_get_hit_count_all (DBusGProxy *proxy, const char * IN_search_text, GPtrArray** OUT_result, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetHitCountAll", error, G_TYPE_STRING, IN_search_text, G_TYPE_INVALID, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), OUT_result, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_Tracker_Search_get_hit_count_all_reply) (DBusGProxy *proxy, GPtrArray *OUT_result, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_Tracker_Search_get_hit_count_all_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = user_data;
+  GError *error = NULL;
+  GPtrArray* OUT_result;
+  dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), &OUT_result, G_TYPE_INVALID);
+  (*(org_freedesktop_Tracker_Search_get_hit_count_all_reply)data->cb) (proxy, OUT_result, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_Tracker_Search_get_hit_count_all_async (DBusGProxy *proxy, const char * IN_search_text, org_freedesktop_Tracker_Search_get_hit_count_all_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "GetHitCountAll", org_freedesktop_Tracker_Search_get_hit_count_all_async_callback, stuff, g_free, G_TYPE_STRING, IN_search_text, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
 org_freedesktop_Tracker_Search_text (DBusGProxy *proxy, const gint IN_live_query_id, const char * IN_service, const char * IN_search_text, const gint IN_offset, const gint IN_max_hits, char *** OUT_result, GError **error)
 
 {
