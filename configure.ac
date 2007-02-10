@@ -14,21 +14,18 @@ CFLAGS="$CFLAGS"
 
 # Checks for programs.
 AC_PROG_CC
-AC_HEADER_STDC
-
+AC_PROG_LN_S
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h linux/unistd.h])
 
-AC_CHECK_HEADER([zlib.h],
-                [],
-                [AC_MSG_ERROR([You must have zlib.h and zlib installed])])
+AC_CHECK_HEADER([zlib.h], [], [AC_MSG_ERROR([You must have zlib.h and zlib installed])])
 
-AC_CHECK_HEADER([magic.h],
-                [],
-                [AC_MSG_ERROR([You must have magic.h and libmagic installed])])
+AC_CHECK_HEADER([magic.h], [], [AC_MSG_ERROR([You must have magic.h and libmagic installed])])
 
 # Checks for functions
 AC_CHECK_FUNCS([getline])
@@ -447,6 +444,33 @@ if test "$have_gnome" = "yes"; then
    GNOME_COMMON_INIT
 fi
 
+##################################################################
+# Checks for tracker-preferences
+##################################################################
+PREFERENCES_GTK_REQUIRED=2.10
+PREFERENCES_GLIB_REQUIRED=2.10
+PREFERENCES_GLADE_REQUIRED=2.6
+
+AC_ARG_ENABLE([preferences],
+              AC_HELP_STRING([--enable-preferences], [Enable the preferences dialog]),,
+              [enable_preferences=no])
+
+if test "x$enable_preferences" != "xno" ; then
+   PKG_CHECK_MODULES(GTK2, [ gtk+-2.0 >= $PREFERENCES_GTK_REQUIRED ])
+   AC_SUBST([GTK2_CFLAGS])
+   AC_SUBST([GTK2_LIBS])
+
+   PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= $PREFERENCES_GLIB_REQUIRED ])
+   AC_SUBST([GLIB2_CFLAGS])
+   AC_SUBST([GLIB2_LIBS])
+
+   PKG_CHECK_MODULES(LIBGLADE, [ libglade-2.0 >= $PREFERENCES_GLADE_REQUIRED ])
+   AC_SUBST([LIBGLADE_CFLAGS])
+   AC_SUBST([LIBGLADE_LIBS])
+fi
+
+AM_CONDITIONAL(ENABLE_PREFERENCES, test "$enable_preferences" != "no")
+
 
 ##################################################################
 # check for poppler's glib bingings
@@ -555,6 +579,7 @@ AC_CONFIG_FILES([
 	src/trackerd/Makefile
 	src/libtracker/Makefile
 	src/tracker-search-tool/Makefile
+	src/tracker-preferences/Makefile
 	src/xdgmime/Makefile
 	po/Makefile.in
 ])
@@ -576,6 +601,7 @@ Tracker-$VERSION:
 	inotify header location:		$inotify_header
 	ioprio support:				$ioprio_support
 	build search tool (GNOME):		$have_gnome
+	build preferences ui:			$enable_preferences
 
 Metadata extractors:
 

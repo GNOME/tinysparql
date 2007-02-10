@@ -136,14 +136,14 @@ GTK and Gnome stack for GUI tools
 
 Optional run-time dependency:
 
-xdg-utils (provides some functionality needed by tracker-search-tool)
+xdg-utils (provides some functionality needed by tracker-search-tool but falls back to gnome-open if not available)
 
 
 COMPILATION
 
 To compile Tracker uses the following commands :
 
-./configure --prefix=/usr
+./configure --prefix=/usr --sysconfdir=/etc
 make
 sudo make install
 
@@ -157,14 +157,14 @@ not being installed correctly.
 Notes to build tracker on Solaris
 
 To compile Tracker with GCC on Solaris uses the following commands :
-./configure --prefix=/usr --with-pic CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
+./configure --prefix=/usr --sysconfdir=/etc --with-pic CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
 make
 (login as root)
 make install
 
 To compile Tracker with SUN Studio on Solaris uses the following commands,
 because there are some problems to compile exiv2 using SUN C++ compiler:
-./configure --prefix=/usr --with-pic --disable-warnings \
+./configure --prefix=/usr --sysconfdir=/etc --with-pic --disable-warnings \
     --disable-exiv2 CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
 make
 (login as root)
