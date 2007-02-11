@@ -1,3 +1,9 @@
+2007-02-11  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-preferences/tracker-preferences.c:
+	(tracker_preferences_init):
+	Fix the glade name of buttonbox area.
+
 2007-02-10  Jamie McCracken <jamiemcc at gnome org>
 
 	* finished adding evolution email support
