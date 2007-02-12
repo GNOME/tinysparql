@@ -260,7 +260,7 @@ watch_directory (const char *dir, const char *service)
 void
 evolution_watch_emails ()
 {
-	//watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
+	watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
 
 	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
 	g_slist_foreach (evolution_config->mh_dirs, (GFunc) watch_directory, "EvolutionMHEmails");		
