@@ -161,7 +161,7 @@ DeleteSearchResults1 delete from SearchResults1;
 
 GetMBoxDetails select Type, Offset, LastUri, MessageCount, MBoxSize, Mtime from MBoxes where path = ?;
 GetMboxID select ID from MBoxes where path = ?;
-InsertMboxDetails insert into MBoxes (Path, Type, Offset, LastUri, MessageCount, MBoxSize, Mtime) values (?,?,0,NULL,0,0,0);
+InsertMboxDetails insert into MBoxes (Path, Type, Offset, LastUri, MessageCount, MBoxSize, Mtime) values (?,?,0,'n/a',0,0,0);
 UpdateMboxDetails update MBoxes set Offset = ?, LastUri = ?, MessageCount = ?, MBoxSize = ?, Mtime =? where Path = ?;
 GetMboxCount select count(*) from services where AuxilaryID = (select ID FROM MBoxes where Path = ?) and ServiceTypeID = (select TypeID from ServiceTypes where TypeClass = 'Emails');
 
