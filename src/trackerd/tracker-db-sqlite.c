@@ -1227,7 +1227,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		str = va_arg (args, char *);
 
 		if (!str) {
-			tracker_log ("Warning - parameter %d is null when executing SP %s", i, procedure);
+			tracker_debug ("Warning - parameter %d is null when executing SP %s", i, procedure);
 			if  (sqlite3_bind_null (stmt, i+1)) {
 				tracker_log ("ERROR : null parameter %d could not be bound to %s", i, procedure);
 			}
@@ -2923,6 +2923,9 @@ tracker_db_create_service (DBConnection *db_con, const char *path, const char *n
 	str_filesize = tracker_uint_to_str (filesize);
 
 	service_type_id = tracker_get_id_for_service (service);
+
+	tracker_debug ("service id for %s is %d and sid is %s with mime %s", service, service_type_id, sid, mime);
+
 	str_service_type_id = tracker_int_to_str (service_type_id);
 
 	str_aux = tracker_int_to_str (aux_id);
@@ -3415,7 +3418,7 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 
 	query = g_string_free (str, FALSE);
 
-	tracker_log ("getting files with mimes using sql %s", query);
+	tracker_debug ("getting files with mimes using sql %s", query);
 
 	res = tracker_exec_sql (db_con, query);
 

@@ -97,11 +97,11 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 	if (!mail_msg) {
 		return FALSE;
 	}
-
+	
 	tracker_db_email_save_email (db_con, mail_msg);
 
 	email_index_each_email_attachment (db_con, mail_msg);
-
+	
 	email_free_mail_message (mail_msg);
 
 	return TRUE;
@@ -132,6 +132,8 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 		}
 
 		tracker_db_email_update_mbox_offset (db_con, mf);
+
+		mail_msg->is_mbox = TRUE;
 
 		tracker_db_email_save_email (db_con, mail_msg);
 
@@ -551,12 +553,14 @@ email_parse_mail_message_by_path (MailApplication mail_app, const char *path, Lo
 
 	if (mail_msg) {
 		mail_msg->path = g_strdup (path);
+		mail_msg->is_mbox = FALSE;
 	}
 
-	email_free_mail_file (mf);
+	//email_free_mail_file (mf);
+
 
 	/* there is not a mail file parent with a simple mail message */
-	mail_msg->parent_mail_file = NULL;
+	//mail_msg->parent_mail_file = NULL;
 
 	return mail_msg;
 }

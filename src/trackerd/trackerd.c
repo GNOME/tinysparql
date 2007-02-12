@@ -274,7 +274,7 @@ do_cleanup (const char *sig_msg)
 	tracker_db_finalize ();
 
 	if (tracker->log_file) {
-		tracker_log ("shutting down main thread");
+		tracker_debug ("shutting down main thread");
 	}
 
 	/* remove sys tmp directory */
@@ -408,7 +408,7 @@ poll_files_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			tracker_log ("poll thread going to deep sleep...");
+			tracker_debug ("poll thread going to deep sleep...");
 
 			g_cond_wait (tracker->poll_thread_signal, tracker->poll_signal_mutex);
 
@@ -844,7 +844,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	g_return_if_fail (info->uri[0] == '/');
 
 	if (!tracker_file_is_valid (info->uri)) {
-		tracker_log ("Warning - file %s in not valid or could not be read - abandoning index on this file", info->uri);
+		tracker_info ("Warning - file %s in not valid or could not be read - abandoning index on this file", info->uri);
 		return;
 	}
 
@@ -2229,6 +2229,8 @@ main (int argc, char **argv)
 		tracker_db_start_transaction (db_con);
 		tracker_exec_sql (db_con, "ANALYZE");
 		tracker_db_end_transaction (db_con);
+
+	
 
 	}
 

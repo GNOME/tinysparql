@@ -57,6 +57,7 @@ typedef struct {
 
 typedef struct {
 	MailFile	*parent_mail_file;
+	gboolean	is_mbox;
 	char		*path;
 	char		*uri;			/* uri to pass to a mail client to open it at mail message */
 	guint64		offset;			/* start address of the email */

@@ -97,6 +97,7 @@ tracker_db_email_get_last_mbox_offset (DBConnection *db_con, const char *mbox_fi
 
 	if (offset == -1) {
 		/* we need to add this mbox */
+		tracker_debug ("registering new mbox/dir for emails for %s", mbox_file_path);
 		add_new_mbox (db_con, mbox_file_path);
 
 		offset = get_mbox_offset (db_con, mbox_file_path);
@@ -115,14 +116,35 @@ tracker_db_email_get_last_mbox_offset (DBConnection *db_con, const char *mbox_fi
 guint
 tracker_db_email_get_nb_emails_in_mbox (DBConnection *db_con, const char *mbox_file_path)
 {
-	char	***res;
+	char	***res;void
+tracker_db_email_update_nb_emails_in_dir (DBConnection *db_con, const char *dir_path, int count)
+{
+	g_return_if_fail (db_con);
+	g_return_if_fail (dir_path);
+
+	
+	/* make sure dir_path is registered in DB before doing an update */
+	if (get_mbox_offset (db_con, dir_path) != -1) {
+		char *str_offset;
+
+		str_offset = tracker_uint_to_str (count);
+		tracker_exec_proc (db_con, "UpdateMboxDetails", 6, str_offset, "n/a", "0", "0", "0", dir_path);
+
+		tracker_debug ("updated no. of emails in %s to %s",  dir_path, str_offset);
+
+		g_free (str_offset);
+
+	} else {
+		tracker_log ("Error: invalid dir_path \"%s\"", dir_path);
+	}
+}
 	char	**row;
 	int	count;
 
 	g_return_val_if_fail (db_con, 0);
 	g_return_val_if_fail (mbox_file_path, 0);
 
-	res = tracker_exec_proc (db_con, "GetMboxCount", 1, mbox_file_path);
+/*	res = tracker_exec_proc (db_con, "GetMboxCount", 1, mbox_file_path);
 
 	if (!res) {
 		return 0;
@@ -137,6 +159,9 @@ tracker_db_email_get_nb_emails_in_mbox (DBConnection *db_con, const char *mbox_f
 	}
 
 	tracker_db_free_result (res);
+*/
+
+	
 
 	return count;
 }
@@ -145,7 +170,7 @@ tracker_db_email_get_nb_emails_in_mbox (DBConnection *db_con, const char *mbox_f
 guint
 tracker_db_email_get_nb_emails_in_dir (DBConnection *db_con, const char *dir_path)
 {
-	return tracker_db_email_get_nb_emails_in_mbox (db_con, dir_path);
+	return tracker_db_email_get_last_mbox_offset (db_con, dir_path);
 }
 
 
@@ -171,6 +196,31 @@ tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 
 	} else {
 		tracker_log ("Error: invalid mbox \"%s\"", mf->path);
+	}
+}
+
+
+
+void
+tracker_db_email_update_nb_emails_in_dir (DBConnection *db_con, const char *dir_path, int count)
+{
+	g_return_if_fail (db_con);
+	g_return_if_fail (dir_path);
+
+	
+	/* make sure dir_path is registered in DB before doing an update */
+	if (get_mbox_offset (db_con, dir_path) != -1) {
+		char *str_offset;
+
+		str_offset = tracker_uint_to_str (count);
+		tracker_exec_proc (db_con, "UpdateMboxDetails", 6, str_offset, "n/a", "0", "0", "0", dir_path);
+
+		tracker_debug ("updated no. of emails in %s to %s",  dir_path, str_offset);
+
+		g_free (str_offset);
+
+	} else {
+		tracker_log ("Error: invalid dir_path \"%s\"", dir_path);
 	}
 }
 
@@ -235,25 +285,34 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		return;
 	}
 
-	if (!mm->parent_mail_file) {
-		/* FIXME: this code assumed that it only have to treat MBox files; that's wrong! */
-		return;
+	if (mm->parent_mail_file) {
+		
+		if (mm->is_mbox) {
+		
+			mbox_id = get_mbox_id (db_con, mm->parent_mail_file->path);
+
+			if (mbox_id == -1) {
+				tracker_log ("No mbox is registered for email %s", mm->uri);
+				return;
+			}
+		}
+	
+		service = get_service_name (mm->parent_mail_file->mail_app);
+		mime = get_mime (mm->parent_mail_file->mail_app);
+		attachment_service = get_attachment_service_name (mm->parent_mail_file->mail_app);
+
+		
+	} else {
+		mbox_id = 0;
+		mm->offset =0;
+		service = g_strdup ("EvolutionEmails");
+		mime = g_strdup ("Evolution/Email");
+		attachment_service = g_strdup ("EvolutionAttachments");
 	}
 
-	mbox_id = get_mbox_id (db_con, mm->parent_mail_file->path);
-
-	if (mbox_id == -1) {
-		tracker_log ("No mbox is registered for email %s", mm->uri);
-		return;
-	}
-
+	
 	name = tracker_get_vfs_name (mm->uri);
 	path = tracker_get_vfs_path (mm->uri);
-
-	service = get_service_name (mm->parent_mail_file->mail_app);
-	mime = get_mime (mm->parent_mail_file->mail_app);
-	attachment_service = get_attachment_service_name (mm->parent_mail_file->mail_app);
-	
 
 	type_id = tracker_get_id_for_service (service);
 	if (type_id == -1) {
@@ -268,7 +327,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	tracker_db_start_transaction (db_con);
 
 
-	
+	id = -1;
 
 	id = tracker_db_create_service (db_con, path, name, service, mime, 0, FALSE, FALSE, mm->offset, 0, mbox_id);
 
@@ -395,10 +454,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			g_free (uri);
 		}
 	
-		return;
+
+	} else {
+		tracker_log ("ERROR : Failed to save email %s", mm->uri);
+		tracker_db_end_transaction (db_con);
 	}
 
-	tracker_db_end_transaction (db_con);
+	
 
 	g_free (path);
 	g_free (name);

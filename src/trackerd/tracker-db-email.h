@@ -25,13 +25,14 @@
 #include "tracker-email-utils.h"
 
 
-off_t	tracker_db_email_get_last_mbox_offset	(DBConnection *db_con, const char *mail_file_path);
-void	tracker_db_email_update_mbox_offset	(DBConnection *db_con, MailFile *mf);
-guint	tracker_db_email_get_nb_emails_in_mbox	(DBConnection *db_con, const char *mbox_file_path);
-guint	tracker_db_email_get_nb_emails_in_dir	(DBConnection *db_con, const char *dir_path);
-void	tracker_db_email_save_email		(DBConnection *db_con, MailMessage *mm);
-void	tracker_db_email_update_email		(DBConnection *db_con, MailMessage *mm);
-void	tracker_db_email_delete_emails_of_mbox	(DBConnection *db_con, const char *mbox_file_path);
-void	tracker_db_email_delete_emails_of_dir	(DBConnection *db_con, const char *dir_path);
+off_t	tracker_db_email_get_last_mbox_offset		(DBConnection *db_con, const char *mail_file_path);
+void	tracker_db_email_update_mbox_offset		(DBConnection *db_con, MailFile *mf);
+guint	tracker_db_email_get_nb_emails_in_mbox		(DBConnection *db_con, const char *mbox_file_path);
+guint	tracker_db_email_get_nb_emails_in_dir		(DBConnection *db_con, const char *dir_path);
+void	tracker_db_email_update_nb_emails_in_dir 	(DBConnection *db_con, const char *dir_path, int count);
+void	tracker_db_email_save_email			(DBConnection *db_con, MailMessage *mm);
+void	tracker_db_email_update_email			(DBConnection *db_con, MailMessage *mm);
+void	tracker_db_email_delete_emails_of_mbox		(DBConnection *db_con, const char *mbox_file_path);
+void	tracker_db_email_delete_emails_of_dir		(DBConnection *db_con, const char *dir_path);
 
 #endif

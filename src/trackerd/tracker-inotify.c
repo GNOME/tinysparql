@@ -181,14 +181,14 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			if ((cookie > 0) && (moved_from_info->cookie == cookie)) {
 				char *str_file_id, *name, *path;
 
-				tracker_log ("found matching inotify pair for from %s to %s", moved_from_info->uri, moved_to_info->uri);
+				tracker_info ("found matching inotify pair for from %s to %s", moved_from_info->uri, moved_to_info->uri);
 				move_list = g_slist_remove (move_list, tmp->data);
 
 				moved_from_info = tracker_db_get_file_info (main_thread_db_con, moved_from_info);
 
 				/* if orig file not in DB, treat it as a create action */
 				if (moved_from_info->file_id == 0) {
-					tracker_log ("warning original file %s not found in DB", moved_from_info->uri);
+					tracker_debug ("warning original file %s not found in DB", moved_from_info->uri);
 					break;
 				}
 
@@ -216,7 +216,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 					old_path = g_strconcat (moved_from_info->uri, G_DIR_SEPARATOR_S, NULL);
 					match_path = g_strconcat (old_path, "%", NULL);
 
-					tracker_log ("moved file is a dir");
+					tracker_debug ("moved file is a dir");
 
 					/* stop watching old dir, start watching new dir */
 					tracker_remove_watch_dir (moved_from_info->uri, TRUE, main_thread_db_con);
@@ -264,7 +264,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 							new_path = g_build_filename (moved_to_info->uri, sep, NULL);
 							g_free (sep);
 
-							tracker_log ("moving subfolder %s to %s", dir_name, new_path);
+							tracker_info ("moving subfolder %s to %s", dir_name, new_path);
 
 							/* update all changed File:Path metadata for all files in this subfolder*/
 							tracker_exec_proc (main_thread_db_con, "UpdateFileMovePath", 2, new_path, dir_name);
@@ -302,7 +302,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		}
 
 		/* matching pair not found so treat as a create action */
-		tracker_log ("no matching pair found for inotify move event for %s", info->uri);
+		tracker_info ("no matching pair found for inotify move event for %s", info->uri);
 		if (tracker_is_directory (info->uri)) {
 			info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 		} else {
@@ -314,7 +314,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 	} else if (action == TRACKER_ACTION_WRITABLE_FILE_CLOSED) {
 
-		tracker_log ("File %s has finished changing", info->uri);
+		tracker_debug ("File %s has finished changing", info->uri);
 		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
