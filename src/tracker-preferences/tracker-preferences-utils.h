@@ -24,4 +24,6 @@ thunderbird_available (void);
 gboolean
 kmail_available (void);
 
+gboolean
+convert_available (void);
 #endif
