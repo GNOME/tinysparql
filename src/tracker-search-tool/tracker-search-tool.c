@@ -131,16 +131,16 @@ NULL
 
 
 static service_info_t services[11] = {
-   { N_("_Emails"),    	 "email",		      SERVICE_EMAILS        , NULL, NULL, FALSE, 0, 0 },
-   { N_("_All files"),    "system-file-manager",       SERVICE_FILES         , NULL, NULL, FALSE, 0, 0 },
-   { N_("_Folders"),    "folder",	       SERVICE_FOLDERS         , NULL, NULL, FALSE, 0, 0 },
-   { N_("_Documents"),    "document",         	      SERVICE_DOCUMENTS     , NULL, NULL, FALSE, 0, 0 },
-   { N_("_Images"),       "image",         	      SERVICE_IMAGES        , NULL, NULL, FALSE, 0, 0 },
-   { N_("_Music"),        "audio-x-generic",           SERVICE_MUSIC         , NULL, NULL, FALSE, 0, 0 },
-   { N_("_Videos"),       "video-x-generic",           SERVICE_VIDEOS        , NULL, NULL, FALSE, 0, 0 },
-   { N_("_Text"),   	 "text-x-generic",            SERVICE_TEXT_FILES    , NULL, NULL, FALSE, 0, 0 },
-   { N_("De_velopment"),  "applications-development",  SERVICE_DEVELOPMENT_FILES , NULL, NULL, FALSE, 0 ,0 },
-   { NULL,               NULL,                        -1                    , NULL, NULL, FALSE, 0, 0 },
+   { N_("_Emails"),    	 "email",		      SERVICE_EMAILS        , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("_All files"),    "system-file-manager",       SERVICE_FILES         , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("_Folders"),    "folder",	       SERVICE_FOLDERS         , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("_Documents"),    "document",         	      SERVICE_DOCUMENTS     , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("_Images"),       "image",         	      SERVICE_IMAGES        , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("_Music"),        "audio-x-generic",           SERVICE_MUSIC         , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("_Videos"),       "video-x-generic",           SERVICE_VIDEOS        , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("_Text"),   	 "text-x-generic",            SERVICE_TEXT_FILES    , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("De_velopment"),  "applications-development",  SERVICE_DEVELOPMENT_FILES , NULL, NULL, FALSE, 0 ,0,0 },
+   { NULL,               NULL,                        -1                    , NULL, NULL, FALSE, 0, 0,0 },
 };
 
 
