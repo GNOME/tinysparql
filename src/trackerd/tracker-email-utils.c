@@ -100,7 +100,7 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 	
 	tracker_db_email_save_email (db_con, mail_msg);
 
-	email_index_each_email_attachment (db_con, mail_msg);
+	//email_index_each_email_attachment (db_con, mail_msg);
 	
 	email_free_mail_message (mail_msg);
 
@@ -137,7 +137,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 		tracker_db_email_save_email (db_con, mail_msg);
 
-		email_index_each_email_attachment (db_con, mail_msg);
+		//email_index_each_email_attachment (db_con, mail_msg);
 
 		email_free_mail_message (mail_msg);
 
@@ -565,7 +565,7 @@ email_parse_mail_message_by_path (MailApplication mail_app, const char *path, Lo
 	return mail_msg;
 }
 
-
+ 
 void
 email_index_each_email_attachment (DBConnection *db_con, const MailMessage *mail_msg)
 {
@@ -573,6 +573,8 @@ email_index_each_email_attachment (DBConnection *db_con, const MailMessage *mail
 
         g_return_if_fail (db_con);
 	g_return_if_fail (mail_msg);
+
+	return;
 
 	for (tmp = mail_msg->attachments; tmp; tmp = tmp->next) {
 		const MailAttachment	*ma;

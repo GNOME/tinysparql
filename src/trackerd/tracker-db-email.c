@@ -324,7 +324,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		return;
 	}
 
-	tracker_db_start_transaction (db_con);
+	
 
 
 	id = -1;
@@ -336,6 +336,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		char		*str_id, *str_date;
 		const GSList	*tmp;
 
+		tracker_db_start_transaction (db_con);
 
 		tracker_info ("saving email service %d with uri \"%s\" and subject \"%s\" from \"%s\"", type_id, mm->uri, mm->subject, mm->from);
 
@@ -435,7 +436,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		g_free (str_id);
 
-		/* index attachments */
+		/* index attachments 
 		for (tmp = mm->attachments; tmp; tmp = tmp->next) {
 
 			const MailAttachment	*ma;
@@ -453,7 +454,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			tracker_dec_info_ref (info);
 			g_free (uri);
 		}
-	
+		*/
 
 	} else {
 		tracker_log ("ERROR : Failed to save email %s", mm->uri);

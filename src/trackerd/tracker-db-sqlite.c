@@ -848,6 +848,8 @@ tracker_db_connect_emails (void)
 
 	db_con->thread = NULL;
 
+	sqlite3_extended_result_codes (db_con->db, 1);
+
 	return db_con;
 }
 
