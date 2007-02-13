@@ -706,6 +706,8 @@ find_attachment (GMimeObject *obj, gpointer data)
 	g_return_if_fail (obj);
 	g_return_if_fail (data);
 
+	return;
+
 	if (GMIME_IS_MESSAGE_PART (obj)) {
 		GMimeMessage *g_msg;
 
