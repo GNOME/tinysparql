@@ -28,7 +28,8 @@ versions)
 
 
 All discussion related to tracker happens on the tracker mailing list
-(http://mail.gnome.org/mailman/listinfo/tracker-list) and/or irc channel #tracker on irc.gimp.net
+(http://mail.gnome.org/mailman/listinfo/tracker-list) and/or irc channel
+#tracker on irc.gimp.net
 
 More infomation on Tracker can be found at
 http://tracker-project.org
@@ -110,33 +111,36 @@ INSTALLATION (from source):
 
 Run time dependencies (also needed for build) :
 
-Sqlite 3.2+ (an inlined version this may be statically-linked due to the lack of guarantee of
-             threadsafety in distro versions)
-libdbus (0.50 +)
-dbus-glib bndings (0.50 +)
-glib (2.6+)
-zlib
-libmagic
-GMime
+* Sqlite 3.2+ (Tracker source has an inlined version which is
+  statically-linked by default due to the lack of guarantee of threadsafety
+  in distro versions)
+* libdbus (0.50 +)
+* dbus-glib bndings (0.50 +)
+* glib (2.6+)
+* zlib
+* libmagic
+* GMime
 
 
 Additional recommended packages:
 
-gstremer 0.10 + plugins for audio/video files to be indexed
-xsltproc
-w3m
-file
-wv (1.0.2+)
-poppler (pdftotext)
-libvorbis
-libpng
-libexif
-libgsf
-GTK and Gnome stack for GUI tools
+* gstremer 0.10 + plugins for audio/video files to be indexed
+* xsltproc
+* w3m
+* file
+* wv (1.0.2+)
+* poppler (pdftotext)
+* libvorbis
+* libpng
+* libexif
+* libgsf
+* GTK and Gnome stack for GUI tools
+* libglade (for tracker-preferences UI)
 
 Optional run-time dependency:
 
-xdg-utils (provides some functionality needed by tracker-search-tool but falls back to gnome-open if not available)
+* xdg-utils (provides some functionality needed by tracker-search-tool but falls
+  back to gnome-open if not available)
 
 
 COMPILATION
@@ -204,11 +208,12 @@ You can disable indexing by passing --no-indexing
 You can enable a low memory usage mode (recommended for machines with less
 than 256MB of RAM) by passing --enable-low-memory
 
-You can artificially throttle indexing by passing --throttle=value where value is in the
-range 0-20 (with 0 being fastest and 20 being slowest). Default is 0. You should only 
-change this value if you want to prevent noisy fans or hot laptops arising from cpu
-intensive indexing. Tracker should have a negligible impact on the system (as it is scheduled)
-so you can safely work with it on full throttle without experiencing slow downs.
+You can artificially throttle indexing by passing --throttle=value where value
+is in the range 0-20 (with 0, the default, being fastest and 20 being slowest).
+Default is 0. You should only change this value if you want to prevent noisy
+fans or hot laptops arising from cpu intensive indexing. Tracker should have a
+negligible impact on the system (as it is scheduled) so you can safely work
+with it on full throttle without experiencing slow downs.
 
 You can specify directory roots to be excluded from being watched or indexed
 by passing  -e directory for each directory root

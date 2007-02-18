@@ -447,7 +447,7 @@ fi
 ##################################################################
 # Checks for tracker-preferences
 ##################################################################
-PREFERENCES_GTK_REQUIRED=2.10
+PREFERENCES_GTK_REQUIRED=2.8.0
 PREFERENCES_GLIB_REQUIRED=2.10
 PREFERENCES_GLADE_REQUIRED=2.6
 
