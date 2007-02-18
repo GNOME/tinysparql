@@ -2233,7 +2233,7 @@ main (int argc, char **argv)
 	} else {
 
 		tracker_db_start_transaction (db_con);
-		tracker_exec_sql (db_con, "ANALYZE");
+		tracker_db_exec_no_reply (db_con, "ANALYZE");
 		tracker_db_end_transaction (db_con);
 
 	

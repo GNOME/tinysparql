@@ -2017,6 +2017,9 @@ load_mail_message (SummaryFile *summary, MailMessage *mail_msg, EvolutionAdHocIn
 	mail_msg->to = add_persons_from_internet_address_list_string_parsing (NULL, to);
 	mail_msg->cc = add_persons_from_internet_address_list_string_parsing (NULL, cc);
 
+	g_free (to);
+	g_free (cc);
+
 	skip_gint32_decoding (f);	/* mi->message_id.id.part.hi */
 	skip_gint32_decoding (f);	/* mi->message_id.id.part.lo */
 
@@ -2213,6 +2216,8 @@ add_persons_from_internet_address_list_string_parsing (GSList *list, const char 
 
 		list = g_slist_prepend (list, mp);
 	}
+
+	internet_address_list_destroy (addrs_list);
 
 	return list;
 }
