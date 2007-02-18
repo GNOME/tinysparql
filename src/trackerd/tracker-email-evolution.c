@@ -1725,6 +1725,7 @@ try_to_save_ondisk_email_message (DBConnection *db_con, const char *path, const 
 			msg_on_disk->uri = g_strdup (mail_uri);
 			msg_on_disk->parent_mail_file->next_email_offset = 0;
 			tracker_db_email_save_email (db_con, msg_on_disk);
+			email_free_mail_file (msg_on_disk->parent_mail_file);
 			email_free_mail_message (msg_on_disk);
 
 			return TRUE;
