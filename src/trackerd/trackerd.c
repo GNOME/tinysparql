@@ -1094,9 +1094,9 @@ process_files_thread (void)
 					pushed_events = TRUE;
 				}
 
-				if (tracker->is_running) {
-					tracker_db_free_result (res);
-				}
+				
+				tracker_db_free_result (res);
+				
 			}
 
 			if (!tracker->is_running) {
@@ -1850,22 +1850,24 @@ sanity_check_option_values ()
 
 	char *bools[] = {"no", "yes"};
 
-	tracker_log ("\nTracker configuration options :");
-	tracker_log ("Low memory mode : \t\t\t%s", bools[!tracker->use_extra_memory]);
-	tracker_log ("Indexing enabled : \t\t\t%s", bools[tracker->enable_indexing]);
-	tracker_log ("Watching enabled : \t\t\t%s", bools[tracker->enable_watching]);
-	tracker_log ("File content indexing enabled : \t%s", bools[tracker->enable_content_indexing]);
-	tracker_log ("Thumbnailing enabled : \t\t\t%s", bools[tracker->enable_thumbnails]);
-	tracker_log ("Evolution email indexing enabled : \t%s", bools[tracker->index_evolution_emails]);
-	tracker_log ("Thunderbird email indexing enabled : \t%s", bools[tracker->index_thunderbird_emails]);
-	tracker_log ("K-Mail indexing enabled : \t\t%s\n", bools[tracker->index_kmail_emails]);
+	tracker_log ("Tracker configuration options :");
+	tracker_log ("Verbosity : ........................  %d", tracker->verbosity);
+ 	tracker_log ("Low memory mode : ..................  %s", bools[!tracker->use_extra_memory]);
+ 	tracker_log ("Indexing enabled : .................  %s", bools[tracker->enable_indexing]);
+ 	tracker_log ("Watching enabled : .................  %s", bools[tracker->enable_watching]);
+ 	tracker_log ("File content indexing enabled : ....  %s", bools[tracker->enable_content_indexing]);
+	tracker_log ("Thumbnailing enabled : .............  %s", bools[tracker->enable_thumbnails]);
+	tracker_log ("Thumbnailing enabled : .............  %s", bools[tracker->enable_thumbnails]);
+ 	tracker_log ("Evolution email indexing enabled : .  %s", bools[tracker->index_evolution_emails]);
+ 	tracker_log ("Thunderbird email indexing enabled :  %s", bools[tracker->index_thunderbird_emails]);
+ 	tracker_log ("K-Mail indexing enabled : ..........  %s\n", bools[tracker->index_kmail_emails]);
 
 	tracker_log ("Tracker indexer parameters :");
-	tracker_log ("Indexer language code : \t\t%s", tracker->language);
-	tracker_log ("Minimum index word length : \t\t%d", tracker->min_word_length);
-	tracker_log ("Maximum index word length : \t\t%d", tracker->max_word_length);
-	tracker_log ("Stemmer enabled : \t\t\t%s", bools[tracker->use_stemmer]);
-	tracker_log ("Using Pango word breaking : \t\t%s\n\n", bools[tracker->use_pango_word_break]);
+	tracker_log ("Indexer language code : ............  %s", tracker->language);
+	tracker_log ("Minimum index word length : ........  %d", tracker->min_word_length);
+	tracker_log ("Maximum index word length : ........  %d", tracker->max_word_length);
+	tracker_log ("Stemmer enabled : ..................  %s", bools[tracker->use_stemmer]);
+	tracker_log ("Using Pango word breaking : ........  %s\n\n", bools[tracker->use_pango_word_break]);
 
 	tracker->word_count = 0;
 	tracker->word_detail_count = 0;
@@ -2150,7 +2152,7 @@ main (int argc, char **argv)
 		tracker->use_extra_memory = FALSE;
 	}
 
-	tracker->verbosity = verbosity;
+	//tracker->verbosity = verbosity;
 
 	sanity_check_option_values ();
 

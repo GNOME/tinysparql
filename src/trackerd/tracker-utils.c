@@ -1889,7 +1889,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	if (!tracker->stemmer) {
 		tracker_log ("Warning : No stemmer could be found for language %s", language);
 	} else {
-		tracker_log ("Using stemmer for language %s", language);
+		tracker_log ("Using stemmer for language %s\n", language);
 	}	
 
 }
@@ -1922,9 +1922,9 @@ tracker_load_config_file ()
 
 		contents  = g_strconcat (						
 					 "[General]\n",
-					 "# Set to true to enable more verbose logging in the log file (setting to false will make indexing faster)\n",
-					 "EnableDebugLogging=false\n\n",
-					 "# Poll Interval in seconds - determines how often polling is performed when intoify/fam is not available or watch limit is exceeded\n",
+					 "# Log Verbosity - Valid values are 0 (default, fastest), 1 (detailed), & 2 (debug)\n",
+					 "Verbosity=0\n\n",
+					 "# Poll Interval in seconds - determines how often polling is performed when inotify/fam is not available or watch limit is exceeded\n",
 					 "PollInterval=3600\n\n",
 					 "[Watches]\n",
 					 "# List of directory roots to index and watch seperated by semicolons\n",
@@ -1951,13 +1951,13 @@ tracker_load_config_file ()
 					  "# Sets the language specific stemmer and stopword list to use \n",
 					  "# Valid values are 'en' (english), 'da' (danish), 'nl' (dutch), 'fi' (finnish), 'fr' (french), 'de' (german), 'it' (italien), 'nb' (norwegian), 'pt' (portugese), 'ru' (russian), 'es' (spanish), 'sv' (swedish)\n",
 					 "Language=", language, "\n",
-					  "# Enables use of language specific stemmer\n",
+					  "# Enables use of language-specific stemmer\n",
 					 "EnableStemmer=true\n",
 					  "# Sets whether to use the slower pango word break algortihm (only set this for CJK languages which dont contain western styke word breaks)\n",
 					 "EnablePangoWordBreaks=", enable_pango, "\n\n",
 					 "[Services]\n",
 					 "IndexEvolutionEmails=true\n",
-					 "IndexThunderbirdEmails=tru\n",
+					 "IndexThunderbirdEmails=true\n",
 					 "IndexKmailEmails=true\n\n",
 					 "[Emails]\n",
 					 "AdditionalMBoxesToIndex=;\n\n",
@@ -1986,6 +1986,10 @@ tracker_load_config_file ()
 	g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
 
 	/* general options */
+
+	if (g_key_file_has_key (key_file, "General", "Verbosity", NULL)) {
+		tracker->verbosity = g_key_file_get_integer (key_file, "General", "Verbosity", NULL);
+	}
 
 	if (g_key_file_has_key (key_file, "General", "PollInterval", NULL)) {
 		tracker->poll_interval = g_key_file_get_integer (key_file, "General", "PollInterval", NULL);

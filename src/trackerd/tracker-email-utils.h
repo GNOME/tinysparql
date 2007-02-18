@@ -44,6 +44,7 @@ typedef struct {
 	char		*path;
 	MailApplication	mail_app;
 	GMimeParser	*parser;
+	GMimeStream	*stream;
 	guint64		next_email_offset;
 } MailFile;
 

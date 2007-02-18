@@ -306,6 +306,7 @@ email_open_mail_file_at_offset (MailApplication mail_app, const char *path, off_
 	mf->path = g_strdup (path);
 	mf->mail_app = mail_app;
 	mf->parser = parser;
+	mf->stream = stream;
 	mf->next_email_offset = offset;
 
 	return mf;
@@ -322,6 +323,8 @@ email_free_mail_file (MailFile *mf)
 	if (mf->path) {
 		g_free (mf->path);
 	}
+
+	g_mime_stream_close (mf->stream);
 
 	g_object_unref (mf->parser);
 

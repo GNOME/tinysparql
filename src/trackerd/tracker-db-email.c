@@ -116,33 +116,17 @@ tracker_db_email_get_last_mbox_offset (DBConnection *db_con, const char *mbox_fi
 guint
 tracker_db_email_get_nb_emails_in_mbox (DBConnection *db_con, const char *mbox_file_path)
 {
-	char	***res;void
-tracker_db_email_update_nb_emails_in_dir (DBConnection *db_con, const char *dir_path, int count)
-{
-	g_return_if_fail (db_con);
-	g_return_if_fail (dir_path);
+	char	***res;
 
-	
-	/* make sure dir_path is registered in DB before doing an update */
-	if (get_mbox_offset (db_con, dir_path) != -1) {
-		char *str_offset;
 
-		str_offset = tracker_uint_to_str (count);
-		tracker_exec_proc (db_con, "UpdateMboxDetails", 6, str_offset, "n/a", "0", "0", "0", dir_path);
-
-		tracker_debug ("updated no. of emails in %s to %s",  dir_path, str_offset);
-
-		g_free (str_offset);
-
-	} else {
-		tracker_log ("Error: invalid dir_path \"%s\"", dir_path);
-	}
-}
 	char	**row;
 	int	count;
 
 	g_return_val_if_fail (db_con, 0);
 	g_return_val_if_fail (mbox_file_path, 0);
+
+
+
 
 /*	res = tracker_exec_proc (db_con, "GetMboxCount", 1, mbox_file_path);
 

@@ -241,9 +241,7 @@ tracker_db_add_embedded_keywords (DBConnection *db_con, const char *file_id, con
 		tag = g_strstrip (tag);
 
 		if (strlen (tag) > 0) {
-			if (tracker->verbosity > 0) {
-				tracker_log ("Auto-tagging file with %s", tag);
-			}
+			tracker_info ("Auto-tagging file with %s", tag);
 		}
 
 		if (is_new) {
@@ -797,12 +795,10 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 		return;
 	}
 
-	if (tracker->verbosity > 0) {
-		if (info->is_new) {
-			tracker_log ("Indexing %s with service %s and mime %s (new)", info->uri, service, info->mime);
-		} else {
-			tracker_log ("Indexing %s with service %s and mime %s (existing)", info->uri, service, info->mime);
-		}
+	if (info->is_new) {
+		tracker_info ("Indexing %s with service %s and mime %s (new)", info->uri, service, info->mime);
+	} else {
+		tracker_info ("Indexing %s with service %s and mime %s (existing)", info->uri, service, info->mime);
 	}
 
 	str_file_id = tracker_uint_to_str (info->file_id);

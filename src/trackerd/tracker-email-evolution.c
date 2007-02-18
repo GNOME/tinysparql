@@ -1288,7 +1288,6 @@ make_uri (const char *account_name, const char *path, const char *uid)
 	   these must be converted to "email://local@local/Inbox/Others;uid=46"  IE with the folder extension ".sbd" cut off
 	*/
 		
-	mail_path = g_strdup (path);	
 	mail_path = tracker_string_replace (path, ".sbd", NULL);
 
 	uri = g_strdup_printf ("email://%s/%s;uid=%s", account_name, mail_path, uid);

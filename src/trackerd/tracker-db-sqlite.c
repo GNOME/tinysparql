@@ -2326,6 +2326,8 @@ generate_display_metadata (DBConnection *db_con, const char *id,  const char *me
 		
 			k++;
 		}
+
+		tracker_db_free_result (res);
 		
 	}		
 
