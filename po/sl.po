@@ -9,315 +9,511 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-12-10 15:12+0100\n"
-"PO-Revision-Date: 2007-01-02 02:00+0100\n"
+"PO-Revision-Date: 2007-02-12 16:16+0100\n"
 "Last-Translator: Matic Žgur <mr.zgur@gmail.com>\n"
-"Language-Team: Slovenian <LL@li.org>\n"
+"Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);\n"
 "X-Poedit-Language: Slovenian\n"
 
-#: ../src/libtracker/tracker-search.c:35
+#: ../src/libtracker/tracker-search.c:34
 msgid "Limit the number of results showed to N"
 msgstr "Omeji število prikazanih zadetkov na N"
 
-#: ../src/libtracker/tracker-search.c:35
+#: ../src/libtracker/tracker-search.c:34
 msgid "N"
 msgstr "N"
 
-#: ../src/libtracker/tracker-search.c:36
+#: ../src/libtracker/tracker-search.c:35
 msgid "Search for a specific service"
 msgstr "Iskanje določene storitve"
 
-#: ../src/libtracker/tracker-search.c:36
-#: ../src/tracker-search-tool/tracker-search-tool.c:66
+#: ../src/libtracker/tracker-search.c:35
+#: ../src/tracker-search-tool/tracker-search-tool.c:64
 msgid "SERVICE"
 msgstr "STORITEV"
 
-#: ../src/libtracker/tracker-search.c:37
-#, fuzzy
+#: ../src/libtracker/tracker-search.c:36
 msgid "Show more detailed results with service and mime type as well"
 msgstr "Prikaže podrobnejše zadetke s storitvami in vrsto mime"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-search.c:90
+#: ../src/libtracker/tracker-search.c:89
 msgid "TERM... - search files for certain terms"
 msgstr "IZRAZ ... - preišče datoteke za določen izraz"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
-#: ../src/libtracker/tracker-search.c:94
+#: ../src/libtracker/tracker-search.c:93
 msgid "Specifying more then one term, will be showed items containing ALL the specified terms (term1 AND term2 - logical conjunction)"
 msgstr "Določanje več kot enega izraza bo prikazalo predmete, ki vsebujejo VSE podane izraze (izraz1 AND izraz2 - logična konjunkcija)"
 
-#: ../src/libtracker/tracker-search.c:98
+#: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
 msgstr "Seznam prepoznanih storitev je:"
 
-#: ../src/libtracker/tracker-search.c:115
-#: ../src/libtracker/tracker-search.c:123
-#: ../src/libtracker/tracker-tag.c:112
-#: ../src/libtracker/tracker-tag.c:120
+#: ../src/libtracker/tracker-search.c:114
+#: ../src/libtracker/tracker-search.c:122
+#: ../src/libtracker/tracker-stats.c:82
+#: ../src/libtracker/tracker-tag.c:111
+#: ../src/libtracker/tracker-tag.c:119
 #, c-format
 msgid "Try \"%s --help\" for more information."
 msgstr "Poizkusite  \"%s --help\" za več informacij."
 
-#: ../src/libtracker/tracker-search.c:121
+#: ../src/libtracker/tracker-search.c:120
 #, c-format
 msgid "%s: missing search terms"
 msgstr "%s: manjkajoč iskalni izraz"
 
-#: ../src/libtracker/tracker-search.c:134
-#: ../src/libtracker/tracker-tag.c:129
+#: ../src/libtracker/tracker-search.c:133
+#: ../src/libtracker/tracker-stats.c:90
+#: ../src/libtracker/tracker-tag.c:128
 #, c-format
 msgid "%s: no connection to tracker daemon"
 msgstr "%s: ni povezave z demonom tracker"
 
-#: ../src/libtracker/tracker-search.c:136
-#: ../src/libtracker/tracker-tag.c:131
+#: ../src/libtracker/tracker-search.c:135
+#: ../src/libtracker/tracker-stats.c:92
+#: ../src/libtracker/tracker-tag.c:130
 msgid "Ensure \"trackerd\" is running before launch this command."
 msgstr "Pred zagonom tega ukaza poskrbite, da \"trackerd\" teče."
 
-#: ../src/libtracker/tracker-search.c:157
+#: ../src/libtracker/tracker-search.c:160
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Storitev ni prepoznana, iskanje v drugih datotekah ...\n"
 
-#: ../src/libtracker/tracker-search.c:174
-#: ../src/libtracker/tracker-tag.c:177
-#: ../src/libtracker/tracker-tag.c:186
-#: ../src/libtracker/tracker-tag.c:195
-#: ../src/libtracker/tracker-tag.c:230
-#: ../src/libtracker/tracker-tag.c:280
+#: ../src/libtracker/tracker-search.c:177
+#: ../src/libtracker/tracker-tag.c:176
+#: ../src/libtracker/tracker-tag.c:185
+#: ../src/libtracker/tracker-tag.c:194
+#: ../src/libtracker/tracker-tag.c:229
+#: ../src/libtracker/tracker-tag.c:279
 #, c-format
 msgid "%s: internal tracker error: %s"
 msgstr "%s: notranja napaka trackerja: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:183
-#: ../src/libtracker/tracker-tag.c:265
+#: ../src/libtracker/tracker-search.c:186
+#: ../src/libtracker/tracker-tag.c:264
 msgid "No results found matching your query"
 msgstr "Noben zadetek ni bil najden, ki bi se ujemal s poizvedbo"
 
-#: ../src/libtracker/tracker-tag.c:38
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-stats.c:73
+msgid " - show number of indexed files for each service"
+msgstr " - prikaže število indeksiranih datotek za vsako storitev"
+
+#: ../src/libtracker/tracker-stats.c:108
+msgid "fetching index stats"
+msgstr ""
+
+#: ../src/libtracker/tracker-tag.c:37
 msgid "Add specified tag to a file"
 msgstr "Doda podano oznako (tag) datoteki"
 
+#: ../src/libtracker/tracker-tag.c:37
 #: ../src/libtracker/tracker-tag.c:38
-#: ../src/libtracker/tracker-tag.c:39
-#: ../src/libtracker/tracker-tag.c:42
-#: ../src/libtracker/tracker-tag.c:89
+#: ../src/libtracker/tracker-tag.c:41
+#: ../src/libtracker/tracker-tag.c:88
 msgid "TAG"
 msgstr "OZNAKA"
 
-#: ../src/libtracker/tracker-tag.c:39
+#: ../src/libtracker/tracker-tag.c:38
 msgid "Remove specified tag from a file"
 msgstr "Odstrani podano oznako (tag) iz datoteke"
 
-#: ../src/libtracker/tracker-tag.c:40
+#: ../src/libtracker/tracker-tag.c:39
 msgid "Remove all tags from a file"
 msgstr "Odstrani vse oznake (tag) iz datoteke"
 
-#: ../src/libtracker/tracker-tag.c:41
+#: ../src/libtracker/tracker-tag.c:40
 msgid "List all defined tags"
 msgstr "Seznam vseh podanih oznak"
 
-#: ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:41
 msgid "Search for files with specified tag"
 msgstr "Iskanje datotek s podanimi oznakami"
 
-#: ../src/libtracker/tracker-tag.c:43
+#: ../src/libtracker/tracker-tag.c:42
 msgid "FILE..."
 msgstr "DATOTEKA ..."
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-tag.c:87
+#: ../src/libtracker/tracker-tag.c:86
 msgid "FILE... - manipulate tags on files"
 msgstr "DATOTEKA ... - manipuliranje z oznakami na datotekah"
 
-#: ../src/libtracker/tracker-tag.c:96
+#: ../src/libtracker/tracker-tag.c:95
 msgid "To add, remove, or search for multiple tags at the same time, join multiple options like:"
-msgstr ""
+msgstr "Za dodajanje, odstranjevanje ali iskanje več oznak istočasno, združite več možnosti, kot:"
 
-#: ../src/libtracker/tracker-tag.c:118
+#: ../src/libtracker/tracker-tag.c:117
 #, c-format
 msgid "%s: invalid arguments"
 msgstr "%s: neveljavni argumenti"
 
-#: ../src/libtracker/tracker-tag.c:146
+#: ../src/libtracker/tracker-tag.c:145
 #, c-format
 msgid "%s: file %s not found"
 msgstr "%s: datoteka %s ni bila najdena"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:66
+#: ../src/tracker-search-tool/tracker-search-tool.c:64
 msgid "Search from a specific service"
 msgstr "Iskanje iz določene storitve"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:105
-msgid "All files"
-msgstr "Vse datoteke"
+#: ../src/tracker-search-tool/tracker-search-tool.c:134
+msgid "_Emails"
+msgstr "_E-pošta"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:106
-msgid "Development"
-msgstr "Razvoj"
+#: ../src/tracker-search-tool/tracker-search-tool.c:135
+msgid "_All files"
+msgstr "_Vse datoteke"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:107
-msgid "Documents"
-msgstr "Dokumenti"
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "_Folders"
+msgstr "_Mape"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:108
-msgid "Images"
-msgstr "Slike"
+#: ../src/tracker-search-tool/tracker-search-tool.c:137
+msgid "_Documents"
+msgstr "_Dokumenti"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:109
-msgid "Music"
-msgstr "Glasba"
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
+msgid "_Images"
+msgstr "_Slike"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:110
-msgid "Plain text"
-msgstr "Golo besedilo"
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
+msgid "_Music"
+msgstr "_Glasba"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:111
-msgid "Videos"
-msgstr "Video"
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
+msgid "_Videos"
+msgstr "_Video"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:175
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
+msgid "_Text"
+msgstr "_Besedilo"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
+msgid "De_velopment"
+msgstr "R_azvoj"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:206
 msgid "_Open"
 msgstr "_Odpri"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:176
+#: ../src/tracker-search-tool/tracker-search-tool.c:207
 msgid "O_pen Folder"
 msgstr "Odpri _mapo"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:177
+#: ../src/tracker-search-tool/tracker-search-tool.c:208
 msgid "Mo_ve to Trash"
 msgstr "P_remakni v Smeti"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:178
+#: ../src/tracker-search-tool/tracker-search-tool.c:209
 msgid "_Save Results As..."
 msgstr "_Shrani zadetke kot ..."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:279
-#, c-format
+#: ../src/tracker-search-tool/tracker-search-tool.c:277
+#, fuzzy, c-format
 msgid "Character set conversion failed for \"%s\""
-msgstr ""
+msgstr "Pretvorba nabora znakov za \"%s\" ni uspela"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:775
-msgid "No files found"
-msgstr "Nobena datoteka ni bila najdena"
+#: ../src/tracker-search-tool/tracker-search-tool.c:782
+msgid "Your search returned no results."
+msgstr "Vaše iskanje ni vrnilo nobenih zadetkov."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:826
-#: ../src/tracker-search-tool/tracker-search-tool.c:1109
-#: ../src/tracker-search-tool/tracker-search-tool.c:2398
+#: ../src/tracker-search-tool/tracker-search-tool.c:795
+msgid "Tracker Search Tool-"
+msgstr "Orodje za iskanje Tracker-"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1052
+#: ../src/tracker-search-tool/tracker-search-tool.c:2812
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
 msgid "Tracker Search Tool"
-msgstr "Iskalno orodje Tracker"
+msgstr "Orodje za iskanje Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1604
-msgid "S_earch results:"
-msgstr "I_skalni zadetki:"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1625
+msgid "Search Results:"
+msgstr "Zadetki pri iskanju:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1640
+#: ../src/tracker-search-tool/tracker-search-tool.c:1722
 msgid "List View"
 msgstr "Seznamski pogled"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1705
+#: ../src/tracker-search-tool/tracker-search-tool.c:1787
 msgid "Icon"
 msgstr "Ikona"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1717
+#: ../src/tracker-search-tool/tracker-search-tool.c:1799
 msgid "Name"
 msgstr "Ime"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1745
+#: ../src/tracker-search-tool/tracker-search-tool.c:1827
 msgid "Text"
 msgstr "Besedilo"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2153
+#: ../src/tracker-search-tool/tracker-search-tool.c:2198
+msgid "Showing results"
+msgstr "Prikazovanje zadetkov"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2201
+#: ../src/tracker-search-tool/tracker-search-tool.c:2203
+msgid "Showing"
+msgstr "Prikazovanje"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2201
+msgid "results"
+msgstr "zadetki"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2203
+msgid "result"
+msgstr "zadetek"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2593
 msgid "_Search:"
 msgstr "_Išči:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2180
-#: ../src/tracker-search-tool/tracker-search-tool.c:2181
+#: ../src/tracker-search-tool/tracker-search-tool.c:2613
+#: ../src/tracker-search-tool/tracker-search-tool.c:2614
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Vpišite iskalni izraz z več besedami ločenimi s presledki."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2181
+#: ../src/tracker-search-tool/tracker-search-tool.c:2614
 msgid "search_entry"
 msgstr "iskalni_vnos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2218
+#: ../src/tracker-search-tool/tracker-search-tool.c:2631
+msgid "Please enter a search term above"
+msgstr "Prosim, zgoraj vnesite iskalni izraz"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2662
 msgid "Click to perform a search."
 msgstr "Kliknite za izvedbo iskanja."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2226
-msgid "_Previous"
-msgstr "_Prejšnji"
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:130
+msgid "Could not open help document."
+msgstr "Ni mogoče odpreti dokumenta pomoči."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2234
-msgid "_Next"
-msgstr "_Naslednji"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2446
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:267
 #, c-format
-msgid "Invalid service type: %s\n"
-msgstr "Neveljavna vrsta storitve: %s\n"
+msgid "Are you sure you want to open %d document?"
+msgid_plural "Are you sure you want to open %d documents?"
+msgstr[0] "Ali ste prepričani, da želite odpreti %d dokument?"
+msgstr[1] "Ali ste prepričani, da želite odpreti %d dokumenta?"
+msgstr[2] "Ali ste prepričani, da želite odpreti %d dokumente?"
+msgstr[3] "Ali ste prepričani, da želite odpreti %d dokumentov?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:272
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:506
+#, c-format
+msgid "This will open %d separate window."
+msgid_plural "This will open %d separate windows."
+msgstr[0] "To bo odprlo %d ločeno okno."
+msgstr[1] "To bo odprlo %d ločeni okni."
+msgstr[2] "To bo odprlo %d ločena okna."
+msgstr[3] "To bo odprlo %d ločenih oken."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:312
+#, c-format
+msgid "Could not open document \"%s\"."
+msgstr "Ni mogoče odpreti dokumenta \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:341
+#, c-format
+msgid "Could not open folder \"%s\"."
+msgstr "Ni mogoče odpreti mape \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:349
+msgid "The nautilus file manager is not running."
+msgstr "Upravitelj datotek nautilus ne teče."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:460
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:809
+msgid "The document does not exist."
+msgstr "Dokument ne obstaja."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:477
+msgid "There is no installed viewer capable of displaying the document."
+msgstr "Nameščen ni noben pregledovalnik, sposoben prikaza dokumenta."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:501
+#, c-format
+msgid "Are you sure you want to open %d folder?"
+msgid_plural "Are you sure you want to open %d folders?"
+msgstr[0] "Ali ste prepričani, da želite odpreti %d mapo?"
+msgstr[1] "Ali ste prepričani, da želite odpreti %d mapi?"
+msgstr[2] "Ali ste prepričani, da želite odpreti %d mape?"
+msgstr[3] "Ali ste prepričani, da želite odpreti %d map?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:634
+#, c-format
+msgid "Could not move \"%s\" to trash."
+msgstr "Ni mogoče premakniti \"%s\" v smeti."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:665
+#, c-format
+msgid "Do you want to delete \"%s\" permanently?"
+msgstr "Ali želite trajno izbrisati \"%s\"?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:668
+#, c-format
+msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+msgstr "Smeti niso na voljo.  Ni mogoče premakniti \"%s\" v smeti."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:707
+#, c-format
+msgid "Could not delete \"%s\"."
+msgstr "Ni mogoče izbrisati \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:832
+#, c-format
+msgid "Moving \"%s\" failed: %s."
+msgstr "premikanje \"%s\" ni uspelo: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:867
+#, c-format
+msgid "Deleting \"%s\" failed: %s."
+msgstr "Brisanje \"%s\" ni uspelo: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1305
+msgid "Save Search Results As..."
+msgstr "_Shrani zadetke iskanja kot ..."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1336
+msgid "Could not save document."
+msgstr "Ni mogoče shraniti dokumenta."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1337
+msgid "You did not select a document name."
+msgstr "Niste izbrali imena dokumenta."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1367
+#, c-format
+msgid "Could not save \"%s\" document to \"%s\"."
+msgstr "Ni mogoče shraniti dokumenta \"%s\" v \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1401
+#, c-format
+msgid "The document \"%s\" already exists.  Would you like to replace it?"
+msgstr "Dokument \"%s\" že obstaja. Ali ga želite zamenjati?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1405
+msgid "If you replace an existing file, its contents will be overwritten."
+msgstr "Če zamenjate obstoječo datoteko, bo njena vsebina prepisana."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1420
+msgid "_Replace"
+msgstr "_Zamenjaj"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1470
+msgid "The document name you selected is a folder."
+msgstr "Ime dokumenta, ki ste ga izbrali, je mapa."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1519
+msgid "You may not have write permissions to the document."
+msgstr "Možno je, da nimate dovoljenj za pisanje v dokument."
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
 msgid "Locate documents and folders on this computer by name or content using Tracker"
 msgstr "Poiščite dokumente in mape na računalniku po imenu ali vsebini z uporabo Trackerja"
 
-#: ../src/trackerd/trackerd.c:140
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:74
+#, c-format
+msgid ""
+"GConf error:\n"
+"  %s"
+msgstr ""
+"Napaka GConf:\n"
+"  %s"
+
+#. Translators:  Below are the strings displayed in the 'Date Modified'
+#. column of the list view.  The format of this string can vary depending
+#. on age of a file.  Please modify the format of the timestamp to match
+#. your locale.  For example, to display 24 hour time replace the '%-I'
+#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:643
+msgid "today at %-I:%M %p"
+msgstr "danes ob %-H:%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:645
+msgid "yesterday at %-I:%M %p"
+msgstr "Včeraj ob %-H:%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:647
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:649
+msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+msgstr "%A, %-d. %B %Y ob %-H:%M:%S"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:829
+msgid "link (broken)"
+msgstr "povezava (pokvarjena)"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:833
+#, c-format
+msgid "link to %s"
+msgstr "povezava do %s"
+
+#: ../src/trackerd/trackerd.c:139
 msgid "Directory to exclude from indexing"
 msgstr "Imeniki, izločeni iz indeksiranja"
 
+#: ../src/trackerd/trackerd.c:139
 #: ../src/trackerd/trackerd.c:140
-#: ../src/trackerd/trackerd.c:141
 msgid "/PATH/DIR"
 msgstr "/POT/IMENIK"
 
-#: ../src/trackerd/trackerd.c:141
+#: ../src/trackerd/trackerd.c:140
 msgid "Directory to include in indexing"
 msgstr "Imenik, ki naj se vključi v indeksiranje"
 
-#: ../src/trackerd/trackerd.c:142
+#: ../src/trackerd/trackerd.c:141
 msgid "Disable any indexing or watching taking place"
 msgstr "Onemogoči kakršnokoli indeksiranje ali opazovanje"
 
+#: ../src/trackerd/trackerd.c:142
+msgid "Value that controls the level of logging. Valid values are 0 (default minimal), 1 (detailed) and 2 (debug)"
+msgstr "Vrednost, ki nadzoruje stopnjo beleženja. Veljavne vrednosti so 0 (privzeto najmanj), 1 (podrobno) in 2 (razhroščevanje)"
+
+#: ../src/trackerd/trackerd.c:142
 #: ../src/trackerd/trackerd.c:143
-msgid "Enables more verbose debug messages"
-msgstr "Omogoči podrobnejša sporočila razhroščevanja"
+msgid "value"
+msgstr "vrednost"
+
+#: ../src/trackerd/trackerd.c:143
+#, fuzzy
+msgid "Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"
+msgstr "Vrednost za oslabljenje indeksiranja. Vrednost mora biti v rangu 0-20 (privzeto 0), kjer manjše vrednosti pomenijo večjo hitrost indeksiranja."
 
 #: ../src/trackerd/trackerd.c:144
-msgid "Faster indexing, use more memory and CPU"
-msgstr "Hitrejše indeksiranje, porabi več pomnilnika in CPE-ja"
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr "Zmanjša porabo pomnilnika, vendar lahko upočasni indeksiranje"
 
 #: ../src/trackerd/trackerd.c:145
-msgid "Slower indexing, use less memory and CPU"
-msgstr "Počasnejše indeksiranje, porabi manj pomnilnika in CPE-ja"
-
-#: ../src/trackerd/trackerd.c:146
 msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:145
 msgid "LANG"
 msgstr "JEZIK"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2581
+#: ../src/trackerd/trackerd.c:1952
 msgid "- start the tracker daemon"
 msgstr "- zažene demona tracker"
 
-#: ../src/trackerd/trackerd.c:2582
-#: ../src/trackerd/trackerd.c:2583
+#: ../src/trackerd/trackerd.c:1953
+#: ../src/trackerd/trackerd.c:1954
 msgid "DIRECTORY"
 msgstr "IMENIK"
 
-#: ../src/trackerd/trackerd.c:2591
+#: ../src/trackerd/trackerd.c:1962
 msgid "To include or exclude multiple directories at the same time, join multiple options like:"
-msgstr ""
+msgstr "Za vključitev ali izključitev več imenikov istočasno, združite več možnosti, kot:"
 
