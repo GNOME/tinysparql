@@ -139,8 +139,8 @@ static GOptionEntry entries[] = {
 	{"exclude-dir", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, N_("Directory to exclude from indexing"), N_("/PATH/DIR")},
 	{"include-dir", 'i', 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, N_("Directory to include in indexing"), N_("/PATH/DIR")},
 	{"no-indexing", 'n', 0, G_OPTION_ARG_NONE, &disable_indexing, N_("Disable any indexing or watching taking place"), NULL },
-	{"verbosity", 'v', 0, G_OPTION_ARG_INT, &verbosity, N_("Value that controls the level of logging. Valid values are 0 (default minimal), 1 (detailed) and 2 (debug)"), N_("value") },
-	{"throttle", 't', 0, G_OPTION_ARG_INT, &throttle, N_("Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"), N_("value") },
+	{"verbosity", 'v', 0, G_OPTION_ARG_INT, &verbosity, N_("Value that controls the level of logging. Valid values are 0 (default minimal), 1 (detailed) and 2 (debug)"), N_("VALUE") },
+	{"throttle", 't', 0, G_OPTION_ARG_INT, &throttle, N_("Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"), N_("VALUE") },
 	{"low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, N_("Minimizes the use of memory but may slow indexing down"), NULL },
 	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, N_("Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"), N_("LANG")},
 	{NULL}
