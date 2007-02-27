@@ -108,36 +108,45 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 }
 
 
+
 gboolean
-email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper)
+email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper, MailStore *store)
 {
-	off_t		offset;
 	MailFile	*mf;
 	MailMessage	*mail_msg;
+	int 		indexed = 0, junk = 0, deleted = 0;
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (path, FALSE);
 
-	offset = tracker_db_email_get_last_mbox_offset (db_con, path);
-
-	mf = email_open_mail_file_at_offset (mail_app, path, offset, TRUE);
+	mf = email_open_mail_file_at_offset (mail_app, path, store->offset, TRUE);
 
 	while ((mail_msg = email_mail_file_parse_next (mf, load_helper))) {
 
 		if (!tracker->is_running) {
 			email_free_mail_message (mail_msg);
 			email_free_mail_file (mf);
-
 			return TRUE;
 		}
-
-		tracker_db_email_update_mbox_offset (db_con, mf);
-
+		
 		mail_msg->is_mbox = TRUE;
+		mail_msg->store = store;
+
+		/* set uri */
+		char *str_id = tracker_int_to_str (mail_msg->id);
+		mail_msg->uri =  g_strconcat (store->uri_prefix, str_id, NULL);
+		g_free (str_id);
+
+		indexed++;
+
+		if (mail_msg->junk) {
+			junk++;
+		} else 	if (mail_msg->deleted) {
+			deleted++;
+		} 
 
 		tracker_db_email_save_email (db_con, mail_msg);
-
-		//email_index_each_email_attachment (db_con, mail_msg);
+		tracker_db_email_update_mbox_offset (db_con, mf);
 
 		email_free_mail_message (mail_msg);
 
@@ -154,7 +163,12 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	email_free_mail_file (mf);
 
-	return TRUE;
+	if (indexed > 0) {	
+		tracker_info ("Indexed %d emails in email store %s and ignored %d junk and %d deleted emails", indexed, path, junk, deleted);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 
@@ -515,7 +529,7 @@ email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
 	}
 
 	/* make directory to save attachment */
-	mail_msg->path_to_attachments = g_build_filename (email_get_root_path_for_attachments (), mail_msg->parent_mail_file->path, mail_msg->message_id, NULL);
+	mail_msg->path_to_attachments = g_build_filename (tracker->sys_tmp_root_dir, "Attachments", NULL);
 	g_mkdir_with_parents (mail_msg->path_to_attachments, 0700);
 
 	mail_msg->attachments = NULL;
@@ -709,7 +723,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 	g_return_if_fail (obj);
 	g_return_if_fail (data);
 
-	return;
+	
 
 	if (GMIME_IS_MESSAGE_PART (obj)) {
 		GMimeMessage *g_msg;
@@ -755,6 +769,8 @@ find_attachment (GMimeObject *obj, gpointer data)
 		ma->attachment_name = g_strdup (g_mime_part_get_filename (part));
 		ma->mime = g_strconcat (content_type->type, "/", content_type->subtype, NULL);
 		ma->tmp_decoded_file  = g_build_filename (mail_msg->path_to_attachments, ma->attachment_name, NULL);
+
+		tracker_debug ("saving email attachment to %s", ma->tmp_decoded_file);
 
 		f = g_fopen (ma->tmp_decoded_file, "w");
 

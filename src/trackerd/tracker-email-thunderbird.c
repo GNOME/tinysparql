@@ -219,7 +219,7 @@ thunderbird_index_file (DBConnection *db_con, FileInfo *info)
 
 	if (g_str_has_suffix (info->uri, ".msf")) {
 		char *uri = g_strndup (info->uri, strlen (info->uri) - 4);
-		email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_THUNDERBIRD, uri, NULL);
+		email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_THUNDERBIRD, uri, NULL, NULL);
 		g_free (uri);
 
 	} else if (strcmp (info->mime, "message/rfc822") == 0) {

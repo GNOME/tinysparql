@@ -27,7 +27,7 @@
 
 #include "tracker-db-sqlite.h"
 
-void		tracker_email_add_service_directories	();
+void		tracker_email_add_service_directories	(DBConnection *db_con);
 void		tracker_email_end_email_watching	(void);
 gboolean	tracker_email_file_is_interesting	(FileInfo *info, const char *service);
 gboolean	tracker_email_index_file		(DBConnection *db_con, FileInfo *info, const char *service);

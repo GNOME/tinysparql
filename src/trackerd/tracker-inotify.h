@@ -24,6 +24,7 @@
 
 #include "config.h"
 
+
 #ifdef HAVE_INOTIFY_LINUX
 #   include <linux/inotify.h>
 #   include "linux-inotify-syscalls.h"
@@ -41,5 +42,6 @@ void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, D
 
 gboolean 	tracker_is_directory_watched 	(const char *dir, DBConnection *db_con);
 int		tracker_count_watch_dirs 	(void);
+
 
 #endif

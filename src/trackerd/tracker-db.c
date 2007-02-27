@@ -51,7 +51,7 @@ tracker_db_get_id (DBConnection *db_con, const char *service, const char *uri)
 
 	id = tracker_db_get_file_id (db_con, uri);
 
-	if (id != 0) {
+	if (id > 0) {
 		return tracker_uint_to_str (id);
 	}
 
@@ -925,7 +925,7 @@ void
 tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachment_uri, const char *attachment_service)
 {
 	char *services_with_metadata[] = {"Documents", "Music", "Videos", "Images", NULL};
-	char *services_with_text[] = {"Documents", "Text Files", "Development Files", NULL};
+	char *services_with_text[] = {"Documents", "Development", "Text", NULL};
 	char *services_with_thumbs[] = {"Documents", "Images", "Videos", NULL};
 
 	GHashTable	*meta_table;
@@ -1007,7 +1007,7 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 			      (is_file_indexable && (tracker_str_in_array (service_name, services_with_thumbs) != -1)));
 
 
-	/* tracker_log ("file %s has fulltext %d, %d, %d", info->uri, (tracker_str_in_array (service_name, services_with_text) != -1), service_has_fulltext, is_file_known); */
+ 	tracker_debug ("file %s has fulltext %d with service %s", info->uri, service_has_fulltext, service_name); 
 	tracker_db_index_service (db_con, info, service_name, meta_table, attachment_uri, attachment_service, service_has_metadata, service_has_fulltext, service_has_thumbs);
 
 	g_free (service_name);

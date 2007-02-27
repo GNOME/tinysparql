@@ -34,10 +34,30 @@ typedef enum {
 } MailApplication;
 
 
+
+typedef enum {
+	MAIL_TYPE_MBOX,
+	MAIL_TYPE_IMAP,
+	MAIL_TYPE_IMAP4,
+	MAIL_TYPE_MAILDIR,
+	MAIL_TYPE_MH
+} MailType;
+
+
 typedef struct {
 	char *name;
 	char *addr;
 } MailPerson;
+
+
+typedef struct {
+	int		offset;
+	int		mail_count;
+	int		junk_count;
+	int		delete_count;
+	char 		*uri_prefix;	
+	MailType	type;
+} MailStore;
 
 
 typedef struct {
@@ -46,6 +66,7 @@ typedef struct {
 	GMimeParser	*parser;
 	GMimeStream	*stream;
 	guint64		next_email_offset;
+
 } MailFile;
 
 
@@ -58,6 +79,7 @@ typedef struct {
 
 typedef struct {
 	MailFile	*parent_mail_file;
+	int		id;
 	gboolean	is_mbox;
 	char		*path;
 	char		*uri;			/* uri to pass to a mail client to open it at mail message */
@@ -78,7 +100,11 @@ typedef struct {
 	char		*body;
 	char		*path_to_attachments;
 	GSList		*attachments;		/* names of attachments */
+	MailStore	*store;
+	
 } MailMessage;
+
+
 
 
 void		email_set_root_path_for_attachments		(const char *path);
@@ -88,7 +114,7 @@ void		email_free_root_path_for_attachments		(void);
 typedef void (* LoadHelperFct) (GMimeMessage *g_m_message, MailMessage *msg);
 
 gboolean	email_parse_and_save_mail_message		(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper);
-gboolean	email_parse_mail_file_and_save_new_emails	(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper);
+gboolean	email_parse_mail_file_and_save_new_emails	(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper, MailStore *store);
 
 gboolean	email_mh_is_in_a_mh_dir				(const char *path);
 void		email_mh_watch_mail_messages			(DBConnection *db_con, const char *path);

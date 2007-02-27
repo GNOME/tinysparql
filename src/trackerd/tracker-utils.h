@@ -199,7 +199,8 @@ typedef struct {
 	gboolean	first_flush;
 	gboolean	do_optimize;
 
-	
+	/* battery and ac power status file */
+	char		*battery_state_file;
 
 	/* service directory table - this is used to store a ServiceInfo struct for a directory path - used for determining which service a uri belongs to for things like files, emails, conversations etc*/
 	GHashTable	*service_directory_table;

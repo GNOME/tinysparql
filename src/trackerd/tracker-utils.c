@@ -40,18 +40,6 @@
 
 extern Tracker	*tracker;
 
-char *implemented_services[] = {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
-				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
-				NULL};
-
-char *file_service_array[] =   {"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
-				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
-				NULL};
-
-char *service_index_array[] = {	"Files", "Folders", "Documents", "Images", "Music", "Videos", "Text Files", "Development Files", "Other Files",
-				"VFS Files", "VFS Folders", "VFS Documents", "VFS Images", "VFS Music", "VFS Videos", "VFS Text Files", "VFS Development Files", "VFS Other Files",
-				"Conversations", "Playlists", "Applications", "Contacts", "Emails", "EmailAttachments", "Notes", "Appointments",
-				"Tasks", "Bookmarks", "History", "Projects", NULL};
 
 
 char *tracker_actions[] = {
@@ -1390,7 +1378,11 @@ tracker_file_is_indexable (const char *uri)
 
 	convert_ok = (!S_ISDIR (finfo.st_mode) && S_ISREG (finfo.st_mode));
 
-	if (convert_ok) tracker_debug ("file %s is indexable", uri);
+	if (convert_ok) {
+		 tracker_debug ("file %s is indexable", uri);
+	} else {
+		 tracker_debug ("file %s is *not* indexable", uri);
+	}
 
 	return convert_ok;
 	
@@ -1432,14 +1424,21 @@ tracker_get_mime_type (const char *uri)
 
 		result =  magic_file (tracker->magic, uri_in_locale);
 
-		for (i=0; result[i]; i++) {
-			if (result[i] == ';') {
-				break;
-			}
-		}
+		mime = NULL;
 
 		if (result) {
-			mime = g_strndup (result, i);
+			
+			for (i=0; result[i]; i++) {
+				if (result[i] == ';') {
+					mime = g_strndup (result, i);
+					break;
+				}
+			}
+
+			if (!mime) {
+				mime = g_strdup ("unknown");
+			}			
+
 		} else {
 			mime = g_strdup ("unknown");
 		}
@@ -3254,5 +3253,29 @@ tracker_string_replace (const char *haystack, char *needle, char *replacement)
         return g_string_free (str, FALSE);
 }
 
+
+
+gboolean 
+tracker_using_battery ()
+{
+
+	if (!tracker->battery_state_file) {
+		return FALSE;
+	}
+
+	char *txt;
+	gboolean using_battery;
+
+	if (!g_file_get_contents (tracker->battery_state_file, &txt, NULL, NULL)) {
+		return FALSE;
+	} else {
+		using_battery = (strstr (txt, "on-line") == NULL);
+	}	
+
+	g_free (txt);
+
+	return using_battery;
+
+}
 
 

@@ -72,13 +72,13 @@ static void		free_kmail_config		(KMailConfig *conf);
 static FileAndImapPathPair **	find_dir_and_imap_path_pairs	(GKeyFile *key_file, char **groups, const char *imap_id);
 static void		free_file_and_imap_path_pair	(FileAndImapPathPair *pair);
 static void		free_kmail_account		(KMailAccount *account);
-static void		watch_local_files		(DBConnection *db_con, const char *local_dir_path);
-static void		watch_imap_cache		(DBConnection *db_con, const char *imap_dir_path);
-static void		watch_local_mbox_files		(DBConnection *db_con, const char *dir_path);
-static void		watch_local_maildir_dir		(DBConnection *db_con, const char *dir_path);
+//static void		watch_local_files		(DBConnection *db_con, const char *local_dir_path);
+//static void		watch_imap_cache		(DBConnection *db_con, const char *imap_dir_path);
+//static void		watch_local_mbox_files		(DBConnection *db_con, const char *dir_path);
+//static void		watch_local_maildir_dir		(DBConnection *db_con, const char *dir_path);
 static void		load_uri_of_mbox_mail_message	(GMimeMessage *g_m_message, MailMessage *msg);
 static void		fill_uri_with_uid_for_imap	(GMimeMessage *g_m_message, MailMessage *msg);
-static GSList *		rec_find_all_dirs		(const char *root_dir);
+//static GSList *		rec_find_all_dirs		(const char *root_dir);
 static char *		expand_string			(const char *s);
 
 
@@ -131,7 +131,7 @@ kmail_finalize_module (void)
 void
 kmail_watch_emails ()
 {
-	const GSList *account;
+//	const GSList *account;
 
 	
 	g_return_if_fail (kmail_config);
@@ -189,7 +189,7 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 	if (strcmp (info->mime, "application/mbox") == 0) {
 
 		if (g_str_has_prefix (info->uri, kmail_config->local_dir)) {
-			email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_KMAIL, info->uri, load_uri_of_mbox_mail_message);
+			email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_KMAIL, info->uri, load_uri_of_mbox_mail_message, NULL);
 
 		} else if (g_str_has_prefix (info->uri, kmail_config->imap_cache)) {
 			off_t		offset;
@@ -541,7 +541,7 @@ free_kmail_account (KMailAccount *account)
 	g_free (account);
 }
 
-
+/*
 static void
 watch_local_files (DBConnection *db_con, const char *local_dir_path)
 {
@@ -669,7 +669,7 @@ watch_local_maildir_dir (DBConnection *db_con, const char *dir_path)
 		g_free (dir_path);
 	}
 }
-
+*/
 
 static void
 load_uri_of_mbox_mail_message (GMimeMessage *g_m_message, MailMessage *msg)
@@ -804,7 +804,7 @@ fill_uri_with_uid_for_imap (GMimeMessage *g_m_message, MailMessage *msg)
 	g_free (headers);
 }
 
-
+/*
 static GSList *
 rec_find_all_dirs (const char *root_dir)
 {
@@ -869,7 +869,7 @@ rec_find_all_dirs (const char *root_dir)
 
 	return g_slist_reverse (found_dirs);
 }
-
+*/
 
 /* Try to expand environment variables/call some programs in a string
  * Supported string formats: $(foo), ${foo} and $foo.

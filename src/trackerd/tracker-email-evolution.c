@@ -100,6 +100,7 @@ typedef struct {
 	gint32		unread_count;
 	gint32		deleted_count;
 	gint32		junk_count;
+	char 		*uri_prefix;
 } SummaryFileHeader;
 
 /* Some infos are only accessible throw a deep code path but we need to retreive them. */
@@ -138,25 +139,19 @@ static void	account_end_element_handler		(GMarkupParseContext	*context,
 static gboolean	is_in_dir_local				(const char *dir);
 static gboolean	is_in_dir_imap				(const char *dir);
 static gboolean	is_in_dir_imap4				(const char *dir);
+
+/*
 static gboolean	is_in_dir_mh				(const char *path);
 static gboolean	is_in_dir_maildir			(const char *path);
-
-static void	watch_files_for_mbox			(DBConnection *db_con, const char *dir_path);
-static gboolean	ignore_mbox_file			(const char *path);
-static void	watch_files_for_imap_account		(DBConnection *db_con, const char *dir_path);
-static gboolean	ignore_imap_subfolder			(const char *dir_path);
-static void	watch_mail_messages_already_in_imap_dir	(DBConnection *db_con, const char *dir_path);
-static void	watch_files_for_mh_dir			(DBConnection *db_con, const char *dir_path);
-static void	watch_files_for_maildir_dir		(DBConnection *db_con, const char *dir_path);
+*/
 
 static char *	get_account_name_in_imap_path		(const char *path);
-static char *	make_uri				(const char *account_name, const char *path, const char *uid);
 
 typedef gboolean (* LoadSummaryFileMetaHeaderFct) (SummaryFile *summary, SummaryFileHeader *header);
 typedef gboolean (* LoadMailMessageFct) (SummaryFile *summary, MailMessage **mail_msg);
 typedef gboolean (* SkipMailMessageFct) (SummaryFile *summary);
 
-static void	index_mail_messages_by_summary_file	(DBConnection *db_con,
+static void	index_mail_messages_by_summary_file	(DBConnection *db_con, MailType mail_type,
 							 const char *summary_file_path,
 							 LoadSummaryFileMetaHeaderFct load_meta_header,
 							 LoadMailMessageFct load_mail,
@@ -171,7 +166,7 @@ static gboolean	load_summary_file_header		(SummaryFile *summary, SummaryFileHead
 static void	free_summary_file_header		(SummaryFileHeader *header);
 static gboolean	load_summary_file_meta_header_for_local	(SummaryFile *summary, SummaryFileHeader *header);
 static gboolean	load_summary_file_meta_header_for_imap	(SummaryFile *summary, SummaryFileHeader *header);
-static gboolean	load_summary_file_meta_header_for_maildir (SummaryFile *summary, SummaryFileHeader *header);
+//static gboolean	load_summary_file_meta_header_for_maildir (SummaryFile *summary, SummaryFileHeader *header);
 
 /* static gboolean	load_mail_message_for_local		(SummaryFile *summary, MailMessage **mail_msg); */
 /* static gboolean	skip_mail_message_for_local		(SummaryFile *summary); */
@@ -181,15 +176,20 @@ static gboolean	load_mail_message_for_imap4		(SummaryFile *summary, MailMessage 
 static gboolean	skip_mail_message_for_imap4		(SummaryFile *summary);
 static gboolean	do_load_mail_message_for_imap		(SummaryFile *summary, MailMessage **mail_msg, gboolean do_skipping_of_content_info);
 static gboolean	do_skip_mail_message_for_imap		(SummaryFile *summary, gboolean do_skipping_of_content_info);
-static gboolean	load_mail_message_for_maildir		(SummaryFile *summary, MailMessage **mail_msg);
-static gboolean	skip_mail_message_for_maildir		(SummaryFile *summary);
-static gboolean	load_mail_message			(SummaryFile *summary, MailMessage *mail_msg, EvolutionAdHocInfos *adhoc_infos);
+
+//static gboolean	load_mail_message_for_maildir		(SummaryFile *summary, MailMessage **mail_msg);
+//static gboolean	skip_mail_message_for_maildir		(SummaryFile *summary);
+
+
+static gboolean	load_mail_message			(SummaryFile *summary, MailMessage *mail_msg);
 static gboolean	skip_mail_message			(SummaryFile *summary);
-static void	free_evolution_adhoc_infos		(EvolutionAdHocInfos *adhoc_infos);
-static gboolean	try_to_save_ondisk_email_message	(DBConnection *db_con, const char *path, const char *mail_uri);
+
+static gboolean	try_to_save_ondisk_email_message	(DBConnection *db_con, MailMessage *msg);
 static GSList *	add_persons_from_internet_address_list_string_parsing	(GSList *list, const char *s);
 static gboolean	skip_loading_content_info		(SummaryFile *summary);
 static gboolean	do_skip_loading_content_info		(SummaryFile *summary);
+
+static gboolean scan_summary_for_junk (SummaryFile *summary, guint32 *uid, MailType type);
 
 static inline gboolean	decode_gint32		(FILE *f, gint32 *n);
 static inline gboolean	skip_gint32_decoding	(FILE *f);
@@ -204,6 +204,7 @@ static inline gboolean	skip_string_decoding	(FILE *f);
 static inline gboolean	skip_token_decoding	(FILE *f);
 
 static gchar * g_unescape_uri_string (const gchar *escaped, const gchar *illegal_characters);
+static void  check_summary_file (DBConnection *db_con, const char *filename, MailStore *store);
 
 
 /********************************************************************************************
@@ -257,9 +258,37 @@ watch_directory (const char *dir, const char *service)
 	tracker_add_service_path (service, dir);
 }
 
+
+
 void
-evolution_watch_emails ()
+evolution_watch_emails (DBConnection *db_con)
 {
+
+	/* check all registered mbox/paths for deletions */
+	char ***res = tracker_db_email_get_mboxes (db_con);
+
+	int j=0;
+
+	char **row;
+
+	while ((row = tracker_db_get_row (res, j))) {
+
+		if (row[2] && row[3]) {
+
+			MailStore *store = tracker_db_email_get_mbox_details (db_con, row[3]);
+			check_summary_file (db_con, row[2], store);
+			tracker_db_email_free_mail_store (store);
+			
+		}
+
+		j++;
+	}
+
+	if (res) {
+		tracker_db_free_result (res);
+	}
+
+
 	watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
 
 	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
@@ -288,7 +317,6 @@ evolution_file_is_interesting (FileInfo *info, const char *service)
 
 			return (!g_str_has_suffix (info->uri, "Drafts.ev-summary") && !g_str_has_suffix (info->uri, "Outbox.ev-summary"));
 		} else {
-			tracker_debug ("ignoring email file %s", info->uri);
 			return FALSE;
 		}
 	}
@@ -338,34 +366,66 @@ evolution_file_is_interesting (FileInfo *info, const char *service)
 }
 
 
+
+
+
 void
 evolution_index_file (DBConnection *db_con, FileInfo *info)
 {
 	char *file_name;
+	
 
 	g_return_if_fail (db_con);
 	g_return_if_fail (info);
 
 	file_name = g_path_get_basename (info->uri);
 
-	tracker_debug ("indexing email %s", info->uri);
+	if (g_str_has_prefix (file_name, "junk")) goto end_index;
+	if (g_str_has_prefix (file_name, "trash")) goto end_index;
+	if (g_str_has_prefix (file_name, "outbox")) goto end_index;
+	if (g_str_has_prefix (file_name, "drafts")) goto end_index;
+
+	tracker_debug ("indexing email summary %s", info->uri);
 
 	if (is_in_dir_local (info->uri) && g_str_has_suffix (file_name, ".ev-summary")) {
 		/* a MBox file changed */
 		char		*mbox_file;
 		SummaryFile	*summary;
 
-		tracker_debug ("processing mbox file %s", info->uri);
 
 		mbox_file = tracker_get_radix_by_suffix (info->uri, ".ev-summary");
 
+		/* check mbox is registered */
+		if (tracker_db_email_get_mbox_id (db_con, mbox_file) == -1) {
+			
+			char *uri_prefix, *mail_path1, *mail_path2;
+
+			char *mbox_dir = g_strconcat (evolution_config->dir_local, "/", NULL);
+			mail_path1 =  tracker_string_replace (mbox_file, mbox_dir, NULL);
+			g_free (mbox_dir);
+
+
+			mail_path2 = tracker_string_replace (mail_path1, ".sbd", NULL);
+
+			uri_prefix = g_strdup_printf ("email://%s/%s;uid=", "local@local", mail_path2);
+
+			g_free (mail_path1);
+			g_free (mail_path2);
+
+			tracker_db_email_register_mbox (db_con, MAIL_APP_EVOLUTION, MAIL_TYPE_MBOX ,mbox_file, info->uri, uri_prefix);
+		
+			g_free (uri_prefix);
+
+		} 
+
+		MailStore *store;
+		store = tracker_db_email_get_mbox_details (db_con, mbox_file);
+		
 		summary = NULL;
 
-		if (open_summary_file (mbox_file, &summary)) {
+		if (open_summary_file (info->uri, &summary)) {
 			SummaryFileHeader	*header;
-			guint			tmp_nb_emails_in_db;
-			gint32			nb_emails_in_db;
-
+			
 			header = NULL;
 
 			tracker_info ("investigating summary file %s", mbox_file);
@@ -381,23 +441,21 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 				goto end_index;
 			}
 
-/*			tmp_nb_emails_in_db = tracker_db_email_get_nb_emails_in_mbox (db_con, mbox_file);
-			if (tmp_nb_emails_in_db > G_MAXINT32) {
-				tracker_log ("Error: number of emails in MBox file is too big (> G_MAXINT32)");
-				free_summary_file_header (header);
-				free_summary_file (summary);
-				goto end_index;
+			
+			if (!email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_EVOLUTION, mbox_file, load_uri_and_status_of_mbox_mail_message, store)) {
+				tracker_info ("setting junk status on email file %s", mbox_file);
+				tracker_db_email_flag_mbox_junk (db_con, mbox_file);
+			} else {
+				tracker_db_email_set_message_counts (db_con, mbox_file, store->mail_count, store->junk_count, store->delete_count);	
+				tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", mbox_file, 
+					store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
 			}
-
-			nb_emails_in_db = (gint32) tmp_nb_emails_in_db;
-*/
-			email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_EVOLUTION, mbox_file, load_uri_and_status_of_mbox_mail_message);
 
 			free_summary_file_header (header);
 			free_summary_file (summary);
 		}
-
 		g_free (mbox_file);
+		tracker_db_email_free_mail_store (store);
 
 
 	} else if (is_in_dir_imap (info->uri) || is_in_dir_imap4 (info->uri)) {
@@ -405,20 +463,23 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 		if (strcmp (file_name, "summary") == 0) {
 
 			if (is_in_dir_imap4 (info->uri)) {
-				index_mail_messages_by_summary_file (db_con, info->uri,
+				index_mail_messages_by_summary_file (db_con, MAIL_TYPE_IMAP4, info->uri,
 								     load_summary_file_meta_header_for_imap,
 								     load_mail_message_for_imap4,
 								     skip_mail_message_for_imap4);
 			} else {
-				index_mail_messages_by_summary_file (db_con, info->uri,
+				index_mail_messages_by_summary_file (db_con, MAIL_TYPE_IMAP, info->uri,
 								     load_summary_file_meta_header_for_imap,
 								     load_mail_message_for_imap,
 								     skip_mail_message_for_imap);
 			}
 		}
 
-	} else if (info->mime && strcmp (info->mime, "message/rfc822") == 0 && g_str_has_suffix (file_name, ".")) {
-		/* Evolution has downloaded body of an email */
+	
+
+/* TO DO : add support for mail_dir and mh */
+/*	} else if (info->mime && strcmp (info->mime, "message/rfc822") == 0 && g_str_has_suffix (file_name, ".")) {
+
 		MailMessage *ondisk_msg;
 
 		ondisk_msg = email_parse_mail_message_by_path (MAIL_APP_EVOLUTION, info->uri, NULL);
@@ -427,35 +488,11 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			email_free_mail_message (ondisk_msg);
 		}
 
-	} else if (info->is_directory) {
-
-		if (strcmp (file_name, "subfolders") == 0) {
-			/* in this directory, we may find "sent-mail" directory... Look just below. User created this directory now. */
-			if (!tracker_is_directory_watched (info->uri, db_con)) {
-				tracker_add_watch_dir (info->uri, db_con);
-			}
-
-		} else if (g_strrstr (info->uri, G_DIR_SEPARATOR_S "subfolders" G_DIR_SEPARATOR_S)) {
-			/* we have found a dir inside "subfolders" dir that may be something like "sent-mail" */
-			if (!ignore_imap_subfolder (info->uri) && !tracker_file_is_no_watched (info->uri)) {
-				char *summary_file_path;
-				if (!tracker_is_directory_watched (info->uri, db_con)) {
-					tracker_add_watch_dir (info->uri, db_con);
-				}
-
-				summary_file_path = g_build_filename (info->uri, "summary", NULL);
-				tracker_db_insert_pending_file (db_con, 0, summary_file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-				g_free (summary_file_path);
-
-				watch_mail_messages_already_in_imap_dir (db_con, info->uri);
-			}
-		}
-
 
 	} else if (is_in_dir_maildir (info->uri)) {
 
 		if (g_str_has_suffix (info->uri, ".ev-summary")) {
-			index_mail_messages_by_summary_file (db_con, info->uri,
+			index_mail_messages_by_summary_file (db_con, info->uri, MAIL_TYPE_MAILDIR, 
 							     load_summary_file_meta_header_for_maildir,
 							     load_mail_message_for_maildir,
 							     skip_mail_message_for_maildir);
@@ -471,13 +508,14 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 		}
 
 	} else if (info->mime && strcmp (info->mime, "message/rfc822") == 0) {
-		/* for MH and maildir we can only check mime type of each file to know what we have */
+		
 
 		if (email_mh_is_in_a_mh_dir (info->uri)) {
-			/* a new mail message in an MH directory */
+
 			try_to_save_ondisk_email_message (db_con, info->uri, NULL);
 
 		}
+*/
 	}
 
  end_index:
@@ -559,6 +597,100 @@ g_unescape_uri_string (const gchar *escaped, const gchar *illegal_characters)
 
 	return result;
 }
+
+
+static void
+check_summary_file (DBConnection *db_con, const char *filename, MailStore *store)
+{
+	SummaryFile	*summary;
+	
+	summary = NULL;
+
+	if (open_summary_file (filename, &summary)) {
+
+		SummaryFileHeader	*header;
+		char *path;
+
+		header = NULL;
+
+		tracker_log ("scanning summary file %s for junk", filename);
+
+		if (!load_summary_file_header (summary, &header)) {
+			free_summary_file (summary);
+			tracker_log ("ERROR : failed to open summary file %s", filename);
+			return;
+		}
+
+		if (store->type == MAIL_TYPE_MBOX) {
+
+			if (!load_summary_file_meta_header_for_local (summary, header)) {
+				free_summary_file_header (header);
+				free_summary_file (summary);
+				tracker_log ("ERROR : failed to open summary header file %s", filename);
+				return;
+			}
+		} else if (store->type == MAIL_TYPE_IMAP || store->type == MAIL_TYPE_IMAP4) {
+
+			if (!load_summary_file_meta_header_for_imap (summary, header)) {
+				free_summary_file_header (header);
+				free_summary_file (summary);
+				tracker_log ("ERROR : failed to open summary header file %s", filename);
+				return;
+			}
+		} else {
+			tracker_log ("Sumamry File not supported");
+			free_summary_file_header (header);
+			free_summary_file (summary);
+			return;
+
+		}
+			
+		path = tracker_db_email_get_mbox_path (db_con, filename);
+
+		if ((header->junk_count > store->junk_count) || (header->deleted_count > store->delete_count)) {
+
+			char *mbox_id = tracker_int_to_str (tracker_db_email_get_mbox_id (db_con, path));
+			int i;
+
+			for (i = 0; i < header->saved_count ; i++) { 
+				guint32 uid = 0;
+
+				if (scan_summary_for_junk (summary, &uid, store->type)) {
+					if (uid > 0) {		
+						
+						if (!tracker_db_email_lookup_junk (db_con, mbox_id, uid)) {
+							char *uri, *str_uid;
+																
+							str_uid = tracker_uint_to_str (uid);
+
+							tracker_db_email_insert_junk (db_con, path, uid);
+
+							uri = g_strconcat (store->uri_prefix, str_uid, NULL);
+
+							tracker_db_email_delete_email (db_con, uri);
+
+							g_free (uri);
+							g_free (str_uid);
+						}
+					}
+				} else {
+					tracker_log ("ERROR: whilst scanning sumamry file");
+					return;
+					break;
+				}
+			}
+			g_free (mbox_id);
+		}
+		tracker_db_email_reset_mbox_junk (db_con, path);
+		tracker_db_email_set_message_counts (db_con, path, store->mail_count, header->junk_count, header->deleted_count);
+
+		g_free (path);
+
+		free_summary_file_header (header);
+		free_summary_file (summary);
+	}
+}
+
 
 
 
@@ -970,7 +1102,7 @@ is_in_dir_imap4 (const char *path)
 	return strstr (path, G_DIR_SEPARATOR_S "imap4" G_DIR_SEPARATOR_S) != NULL;
 }
 
-
+/*
 static gboolean
 is_in_dir_mh (const char *path)
 {
@@ -1009,233 +1141,7 @@ is_in_dir_maildir (const char *path)
 
 	return FALSE;
 }
-
-
-static void
-watch_files_for_mbox (DBConnection *db_con, const char *dir_path)
-{
-	GSList		*files;
-	const GSList	*tmp_list;
-
-	g_return_if_fail (db_con);
-	g_return_if_fail (dir_path);
-
-	if (tracker_file_is_no_watched (dir_path)) {
-		return;
-	}
-
-	files = tracker_get_files (dir_path, FALSE);
-
-	if (!tracker_is_directory_watched (dir_path, db_con)) {
-		tracker_add_watch_dir (dir_path, db_con);
-	}
-
-	for (tmp_list = files; tmp_list; tmp_list = tmp_list->next) {
-		const char *path;
-
-		path = tmp_list->data;
-
-		if (!ignore_mbox_file (path)) {
-			if (tracker_file_is_indexable (path)) {
-				tracker_db_insert_pending_file (db_con, 0, path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-			}
-		}
-	}
-
-	g_slist_foreach (files, (GFunc) g_free, NULL);
-	g_slist_free (files);
-}
-
-
-static gboolean
-ignore_mbox_file (const char *path)
-{
-	char *lower_case;
-
-	g_return_val_if_fail (path, TRUE);
-
-	lower_case = g_ascii_strdown (path, -1);
-
-	if (!lower_case) {
-		return TRUE;
-
-	} else {
-		gboolean ignore;
-
-		ignore = (g_str_has_prefix (lower_case, "outbox") || g_str_has_prefix (lower_case, "drafts"));
-
-		g_free (lower_case);
-
-		return ignore;
-	}
-}
-
-
-static void
-watch_files_for_imap_account (DBConnection *db_con, const char *dir_path)
-{
-	char *folders_dir, *inbox_dir, *subfolders_dir, *summary_file_path;
-
-	g_return_if_fail (db_con);
-	g_return_if_fail (dir_path);
-
-	if (tracker_file_is_no_watched (dir_path)) {
-		return;
-	}
-
-	/* We are currently in directory of an account.
-	   Into this directory we find directory "folders" which contains directory "INBOX".
-	   Directory "INBOX" has a summary file and mail messages. */
-
-	folders_dir = g_build_filename (dir_path, "folders", NULL);
-
-	if (!tracker_is_directory (folders_dir) || tracker_file_is_no_watched (folders_dir)) {
-		g_free (folders_dir);
-		return;
-	}
-
-	inbox_dir = g_build_filename (folders_dir, "INBOX", NULL);
-	g_free (folders_dir);
-
-	if (!tracker_is_directory (inbox_dir) || tracker_file_is_no_watched (inbox_dir)) {
-		g_free (inbox_dir);
-		return;
-	}
-
-	if (!tracker_is_directory_watched (inbox_dir, db_con)) {
-		tracker_add_watch_dir (inbox_dir, db_con);
-	}
-
-	summary_file_path = g_build_filename (inbox_dir, "summary", NULL);
-	tracker_db_insert_pending_file (db_con, 0, summary_file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-	g_free (summary_file_path);
-
-	watch_mail_messages_already_in_imap_dir (db_con, inbox_dir);
-
-	/* "subfolders" directory may contain user-made directories like directory "sent-mail",
-	   and each directory can contain other directories */
-	subfolders_dir = g_build_filename (inbox_dir, "subfolders", NULL);
-
-	if (tracker_is_directory (subfolders_dir) && !tracker_file_is_no_watched (subfolders_dir)) {
-		GQueue *dirs;
-
-		dirs = g_queue_new ();
-
-		g_queue_push_tail (dirs, g_strdup (subfolders_dir));
-
-		while (!g_queue_is_empty (dirs)) {
-			char		*dir;
-			GSList		*m_dirs;
-			const GSList	*m_dir;
-
-			dir = g_queue_pop_head (dirs);
-
-			m_dirs = tracker_get_files (dir, TRUE);
-
-			for (m_dir = m_dirs; m_dir; m_dir = m_dir->next) {
-				const char *dir_path;
-
-				dir_path = m_dir->data;
-
-				if (!ignore_imap_subfolder (dir_path) && !tracker_file_is_no_watched (dir_path)) {
-					if (!tracker_is_directory_watched (dir_path, db_con)) {
-						tracker_add_watch_dir (dir_path, db_con);
-					}
-
-					summary_file_path = g_build_filename (dir_path, "summary", NULL);
-					tracker_db_insert_pending_file (db_con, 0, summary_file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-					g_free (summary_file_path);
-
-					watch_mail_messages_already_in_imap_dir (db_con, dir_path);
-
-					g_queue_push_tail (dirs, g_strdup (dir_path));
-				}
-			}
-
-			g_slist_foreach (m_dirs, (GFunc) g_free, NULL);
-			g_slist_free (m_dirs);
-
-			g_free (dir);
-		}
-
-		g_queue_free (dirs);
-	}
-
-	g_free (subfolders_dir);
-
-	g_free (inbox_dir);
-}
-
-
-static gboolean
-ignore_imap_subfolder (const char *dir_path)
-{
-	char	 *dir_name;
-	gboolean ret;
-
-	g_return_val_if_fail (dir_path, TRUE);
-
-	ret = FALSE;
-
-	dir_name = g_path_get_dirname (dir_path);
-
-	if (strcmp (dir_name, "trash") == 0 || strcmp (dir_name, "junk") == 0) {
-		ret = TRUE;
-	}
-
-	g_free (dir_name);
-
-	return ret;
-}
-
-
-static void
-watch_mail_messages_already_in_imap_dir (DBConnection *db_con, const char *dir_path)
-{
-	GSList		*files;
-	const GSList	*file;
-
-	g_return_if_fail (db_con);
-	g_return_if_fail (dir_path);
-
-	if (tracker_file_is_no_watched (dir_path)) {
-		return;
-	}
-
-	files = tracker_get_files (dir_path, FALSE);
-
-	for (file = files; file; file = file->next) {
-		const char *file_path;
-
-		file_path = file->data;
-		/* only mail messages have a dot at their end name */
-		if (g_str_has_suffix (file_path, ".") && tracker_file_is_indexable (file_path)) {
-			tracker_db_insert_pending_file (db_con, 0, file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-		}
-	}
-
-	g_slist_foreach (files, (GFunc) g_free, NULL);
-	g_slist_free (files);
-}
-
-static void
-watch_files_for_mh_dir (DBConnection *db_con, const char *dir_path)
-{
-	g_return_if_fail (db_con);
-	g_return_if_fail (dir_path);
-
-	email_mh_watch_mail_messages (db_con, dir_path);
-}
-
-
-static void
-watch_files_for_maildir_dir (DBConnection *db_con, const char *dir_path)
-{
-	g_return_if_fail (db_con);
-	g_return_if_fail (dir_path);
-
-	email_maildir_watch_mail_messages (db_con, dir_path);
-}
+*/
 
 
 static char *
@@ -1277,28 +1183,8 @@ get_account_name_in_imap_path (const char *path)
 }
 
 
-static char *
-make_uri (const char *account_name, const char *path, const char *uid)
-{
-	char *uri, *mail_path;
-
-	g_return_val_if_fail (path, NULL);
-
-	/* fix for mbox files which may have path like : "email://local@local/Inbox.sbd/Others;uid=46" 
-	   these must be converted to "email://local@local/Inbox/Others;uid=46"  IE with the folder extension ".sbd" cut off
-	*/
-		
-	mail_path = tracker_string_replace (path, ".sbd", NULL);
-
-	uri = g_strdup_printf ("email://%s/%s;uid=%s", account_name, mail_path, uid);
-
-	g_free (mail_path);
-
-	return uri;
-}
-
 static void
-index_mail_messages_by_summary_file (DBConnection *db_con,
+index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 				     const char *summary_file_path,
 				     LoadSummaryFileMetaHeaderFct load_meta_header,
 				     LoadMailMessageFct load_mail,
@@ -1310,8 +1196,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con,
 
 	if (open_summary_file (summary_file_path, &summary)) {
 		SummaryFileHeader	*header;
-		gint32			nb_emails_in_db;
-		guint			tmp_nb_emails_in_db;
+		gint32			mail_count = 0, junk_count = 0, delete_count = 0;
 		char			*dir;
 
 		header = NULL;
@@ -1330,56 +1215,129 @@ index_mail_messages_by_summary_file (DBConnection *db_con,
 		dir = g_path_get_dirname (summary->path);
 
 
-		tmp_nb_emails_in_db = tracker_db_email_get_nb_emails_in_dir (db_con, dir);
-		if (tmp_nb_emails_in_db > G_MAXINT32) {
-			tracker_log ("Error: number of emails in IMAP directory is too big (> G_MAXINT32)");
-			free_summary_file_header (header);
+		/* check summary file is registered */
+		if (tracker_db_email_get_mbox_id (db_con, dir) == -1) {
+			
+			char *uri_prefix;
+			char *uri_dir = NULL;
+			const char *pos_inbox;
+
+			/* we find relative summary file path from directory INBOX (it can be INBOX/, INBOX/sent-mail ,etc.) */
+			pos_inbox = g_strrstr (dir, "INBOX");
+			if (pos_inbox) {
+				uri_dir = g_strdup (pos_inbox);
+			} 
+
+			uri_prefix = g_strdup_printf ("email://%s/%s;uid=", summary->associated_account->uid, uri_dir);
+
+			g_free (uri_dir);
+
+			tracker_db_email_register_mbox (db_con, MAIL_APP_EVOLUTION, mail_type , dir, summary_file_path, uri_prefix);
+		
+			g_free (uri_prefix);
+
+		}
+
+		MailStore *store;
+		store = tracker_db_email_get_mbox_details (db_con, dir);
+
+		tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", dir, 
+				store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
+
+		if (!store) {
+			tracker_log ("ERROR: could not retireve store for file %s", dir);
 			free_summary_file (summary);
+			free_summary_file_header (header);
+
+			g_free (dir);
 			return;
 		}
 
-		/* assume new emails received */
+		if (header->saved_count > store->mail_count) {
 
-		nb_emails_in_db = (gint32) tmp_nb_emails_in_db;
+			/* assume new emails received */
 
-		tracker_debug ("Number of existing messages in %s id %d and header total is %d", dir, tmp_nb_emails_in_db, header->saved_count);
 		
-		gint32 i;
+			int i;
 
-		/* skip already indexed emails */
-		for (i = 0; i < nb_emails_in_db; i++) {
-			if (!(*skip_mail) (summary)) {
-				tracker_log ("Error skipping email no. %d in summary file", i+1);
-				return;
+			/* skip already indexed emails */
+			for (i = 0; i < store->mail_count; i++) {
+				if (!(*skip_mail) (summary)) {
+					tracker_log ("Error skipping email no. %d in summary file", i+1);
+					tracker_db_email_free_mail_store (store);
+					free_summary_file (summary);
+					free_summary_file_header (header);
+
+					g_free (dir);
+					return;
+				}
 			}
+
+			/* now we will read the new emails */
+			while (store->mail_count < header->saved_count) {
+
+				MailMessage *mail_msg;
+
+				mail_msg = NULL;
+				mail_count++;
+				tracker_debug ("processing email no. %d", store->mail_count + 1); 
+
+				if (!(*load_mail) (summary, &mail_msg)) {
+					tracker_log ("Error loading email no. %d in summary file", mail_count);
+					tracker_db_email_free_mail_store (store);
+					free_summary_file (summary);
+					free_summary_file_header (header);
+
+					g_free (dir);
+					return;
+				}
+
+				char *sum_file_dir;
+
+				sum_file_dir = g_path_get_dirname (summary->path);
+				mail_msg->path = g_strdup_printf ("%s%s%d.", sum_file_dir, G_DIR_SEPARATOR_S, mail_msg->id);
+				g_free (sum_file_dir);
+
+
+				char *str_id = tracker_int_to_str (mail_msg->id);
+				mail_msg->uri = g_strconcat (store->uri_prefix, str_id, NULL);
+				g_free (str_id);
+
+				mail_msg->store = store;
+
+
+				if (!try_to_save_ondisk_email_message (db_con, mail_msg)) {
+					tracker_log ("WARNING: Message could not be found locally - if you are using IMAP make sure you have selected the \"copy folder content locally for offline operation\" option in Evolution");
+					/* we do not have all infos but we still save them */
+					if (!tracker_db_email_save_email (db_con, mail_msg)) {
+						tracker_log ("Failed to save email");
+						store->mail_count++;
+					}
+				}
+
+				if (mail_msg->junk) {
+					junk_count++;
+				} 
+
+				if (mail_msg->deleted) {
+					delete_count++;
+				} 
+
+				email_free_mail_file (mail_msg->parent_mail_file);
+				email_free_mail_message (mail_msg);
+
+			}
+
+			
+			tracker_log ("no of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
+
+			tracker_db_email_set_message_counts (db_con, dir, store->mail_count, store->junk_count, store->delete_count);	
+		} else {
+			/* schedule check for junk */
+			tracker_db_email_flag_mbox_junk (db_con, dir);
 		}
 
-		/* now we will read the new emails */
-		while (nb_emails_in_db < header->saved_count) {
-
-			MailMessage *mail_msg;
-
-			mail_msg = NULL;
-			nb_emails_in_db++;
-			tracker_debug ("processing email no. %d", nb_emails_in_db); 
-
-			if (!(*load_mail) (summary, &mail_msg)) {
-				tracker_log ("Error loading email no. %d in summary file", nb_emails_in_db);
-				return;
-			}
-
-			if (!try_to_save_ondisk_email_message (db_con, mail_msg->path, mail_msg->uri)) {
-				/* we do not have all infos but we still save them */
-				tracker_db_email_save_email (db_con, mail_msg);
-			}
-			email_free_mail_file (mail_msg->parent_mail_file);
-			email_free_mail_message (mail_msg);
-
-		}
-
-		tracker_db_email_update_nb_emails_in_dir (db_con, dir, nb_emails_in_db);
-		tracker_debug ("no of emails in summary file %s is %d", dir, nb_emails_in_db);
-
+		tracker_db_email_free_mail_store (store);
 		free_summary_file (summary);
 		free_summary_file_header (header);
 
@@ -1393,8 +1351,8 @@ load_uri_and_status_of_mbox_mail_message (GMimeMessage *g_m_message, MailMessage
 {
 	const char		*field;
 	char			**parts;
-	unsigned long int	uid, flags;
-	char			*mbox_path;
+	unsigned long int	flags;
+
 
 	g_return_if_fail (g_m_message);
 	g_return_if_fail (msg);
@@ -1414,33 +1372,7 @@ load_uri_and_status_of_mbox_mail_message (GMimeMessage *g_m_message, MailMessage
 
 	/* parts[0] contains UID to contruct mail URI */
 
-	uid = strtoul (parts[0], NULL, 16);
-
-	/* poath could be more than one folder deep! */
-	//mbox_path = g_path_get_basename (msg->parent_mail_file->path);
-
-	char *mbox_dir = g_strconcat (evolution_config->dir_local, "/", NULL);
-	mbox_path =  tracker_string_replace (msg->parent_mail_file->path, mbox_dir, NULL);
-	g_free (mbox_dir);
-
-	if (msg->uri) {
-		g_free (msg->uri);
-	}
-
-	if (uid <= G_MAXUINT32) {
-		char *str_uid;
-
-		str_uid = g_strdup_printf ("%" G_GUINT32_FORMAT, (guint32) uid);
-		msg->uri = make_uri ("local@local", mbox_path, str_uid);
-		g_free (str_uid);
-
-	} else {
-		tracker_log ("Error: UID of evolution email is too big. X-Evolution field is probably malformed.");
-		msg->uri = NULL;
-	}
-
-	g_free (mbox_path);
-
+	msg->id = strtoul (parts[0], NULL, 16);
 
 	/* parts[1] contains flags for status */
 
@@ -1572,13 +1504,19 @@ load_summary_file_header (SummaryFile *summary, SummaryFileHeader **header)
 	}
 
 	*header = g_new0 (SummaryFileHeader, 1);
+	
 	h = *header;
 
+	h->uri_prefix = NULL;
+
 	f = summary->f;
+
 
 	if (!decode_gint32 (f, &h->version)) {
 		goto error;
 	}
+
+	tracker_debug ("summary.version = %d", h->version);
 
 	if (h->version > 0xff && (h->version & 0xff) < 12) {
 		tracker_log ("Error: summary file header version too low");
@@ -1587,12 +1525,22 @@ load_summary_file_header (SummaryFile *summary, SummaryFileHeader **header)
 
 	h->legacy = !(h->version < 0x100 && h->version >= 13);
 
+	if (h->legacy) {
+		tracker_debug ("Warning summary file is a legacy version");
+	}
+
+
 	if (!decode_gint32 (f, &h->flags) ||
 	    !decode_gint32 (f, &h->nextuid) ||
 	    !decode_time_t (f, &h->time) ||
 	    !decode_gint32 (f, &h->saved_count)) {
 		goto error;
 	}
+
+	tracker_debug ("summary.flags = %d", h->flags);
+	tracker_debug ("summary.nextuid = %d", h->nextuid);
+	tracker_debug ("summary.time = %d", h->time);
+	tracker_debug ("summary.count = %d", (int) h->saved_count);
 
 	if (!h->legacy) {
 		if (!decode_gint32 (f, &h->unread_count) ||
@@ -1601,6 +1549,10 @@ load_summary_file_header (SummaryFile *summary, SummaryFileHeader **header)
 			goto error;
 		}
 	}
+
+	tracker_debug ("summary.Unread = %d", h->unread_count);
+	tracker_debug ("summary.deleted = %d", h->deleted_count);
+	tracker_debug ("summary.junk = %d", h->junk_count);
 
 	return TRUE;
 
@@ -1617,6 +1569,10 @@ free_summary_file_header (SummaryFileHeader *header)
 {
 	if (!header) {
 		return;
+	}
+
+	if (header->uri_prefix) {
+		g_free (header->uri_prefix);
 	}
 
 	g_free (header);
@@ -1693,7 +1649,7 @@ load_summary_file_meta_header_for_imap (SummaryFile *summary, SummaryFileHeader 
 	return TRUE;
 }
 
-
+/*
 static gboolean
 load_summary_file_meta_header_for_maildir (SummaryFile *summary, SummaryFileHeader *header)
 {
@@ -1704,27 +1660,28 @@ load_summary_file_meta_header_for_maildir (SummaryFile *summary, SummaryFileHead
 
 	return decode_gint32 (summary->f, &version);
 }
-
+*/
 
 static gboolean
-try_to_save_ondisk_email_message (DBConnection *db_con, const char *path, const char *mail_uri)
+try_to_save_ondisk_email_message (DBConnection *db_con, MailMessage *msg)
 {
 	g_return_val_if_fail (db_con, FALSE);
-	g_return_val_if_fail (path, FALSE);
+	g_return_val_if_fail (msg->path, FALSE);
 
-	if (tracker_file_is_indexable (path)) {
+	if (tracker_file_is_indexable (msg->path)) {
 		/* we have downloaded the mail message on disk so we can fully index it. */
 		MailMessage *msg_on_disk;
 
-		msg_on_disk = email_parse_mail_message_by_path (MAIL_APP_EVOLUTION, path, NULL);
+		msg_on_disk = email_parse_mail_message_by_path (MAIL_APP_EVOLUTION, msg->path, NULL);
 
 		if (msg_on_disk) {
-			if (msg_on_disk->uri) {
-				g_free (msg_on_disk->uri);
-			}
-			msg_on_disk->uri = g_strdup (mail_uri);
+		
 			msg_on_disk->parent_mail_file->next_email_offset = 0;
+			msg_on_disk->uri = g_strdup (msg->uri);
+			msg_on_disk->store = msg->store;			
+
 			tracker_db_email_save_email (db_con, msg_on_disk);
+
 			email_free_mail_file (msg_on_disk->parent_mail_file);
 			email_free_mail_message (msg_on_disk);
 
@@ -1735,45 +1692,37 @@ try_to_save_ondisk_email_message (DBConnection *db_con, const char *path, const 
 	return FALSE;
 }
 
+/*
+static gboolean 
+load_mail_message_for_local (SummaryFile *summary, MailMessage **mail_msg) 
+{ 
+	off_t offset; 
 
-/* static gboolean */
-/* load_mail_message_for_local (SummaryFile *summary, MailMessage **mail_msg) */
-/* { */
-/* 	off_t offset; */
+ 	g_return_val_if_fail (summary, FALSE); 
 
-/* 	g_return_val_if_fail (summary, FALSE); */
+ 	if (*mail_msg) { 
+ 		email_free_mail_message (*mail_msg); 
+ 	} 
 
-/* 	if (*mail_msg) { */
-/* 		email_free_mail_message (*mail_msg); */
-/* 	} */
+ 	*mail_msg = email_allocate_mail_message (); 
 
-/* 	*mail_msg = email_allocate_mail_message (); */
+ 	if (!load_mail_message (summary, *mail_msg)) { 
+ 		goto error; 
+ 	} 
 
-/* 	if (!load_mail_message (summary, *mail_msg, NULL)) { */
-/* 		goto error; */
-/* 	} */
+	if (!decode_off_t (summary->f, &offset)) { 
+ 		goto error; 
+ 	} 
 
-/* 	if (!decode_off_t (summary->f, &offset)) { */
-/* 		goto error; */
-/* 	} */
+ 	return TRUE;
 
-/* 	return TRUE; */
+ error: 
+ 	email_free_mail_message (*mail_msg); 
+ 	*mail_msg = NULL; 
+ 	return FALSE; 
+} 
+*/
 
-/*  error: */
-/* 	email_free_mail_message (*mail_msg); */
-/* 	*mail_msg = NULL; */
-/* 	return FALSE; */
-/* } */
-
-
-/* static gboolean */
-/* skip_mail_message_for_local (SummaryFile *summary) */
-/* { */
-/* 	g_return_val_if_fail (summary, FALSE); */
-
-/* 	return (skip_mail_message (summary) && */
-/* 		skip_off_t_decoding (summary->f)); */
-/* } */
 
 
 static gboolean
@@ -1807,7 +1756,6 @@ skip_mail_message_for_imap4 (SummaryFile *summary)
 static gboolean
 do_load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg, gboolean do_skipping_of_content_info)
 {
-	EvolutionAdHocInfos	*adhoc_infos;
 	guint32			server_flags;
 
 	g_return_val_if_fail (summary, FALSE);
@@ -1818,9 +1766,7 @@ do_load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg, gbo
 
 	*mail_msg = email_allocate_mail_message ();
 
-	adhoc_infos = g_new0 (EvolutionAdHocInfos, 1);
-
-	if (!load_mail_message (summary, *mail_msg, adhoc_infos)) {
+	if (!load_mail_message (summary, *mail_msg)) {
 		goto error;
 	}
 
@@ -1834,31 +1780,10 @@ do_load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg, gbo
 		}
 	}
 
-	if (adhoc_infos->mail_uid) {
-		char		*sum_file_dir, *uri_dir;
-		const char	*pos_inbox;
-
-		/* Secondly we find relative summary file path from directory INBOX (it can be INBOX/, INBOX/sent-mail ,etc.) */
-		sum_file_dir = g_path_get_dirname (summary->path);
-		pos_inbox = g_strrstr (sum_file_dir, "INBOX");
-		g_free (sum_file_dir);
-
-		if (pos_inbox) {
-			uri_dir = g_strdup (pos_inbox);
-		} else {
-			goto error;
-		}
-
-		(*mail_msg)->uri = make_uri (summary->associated_account->uid, uri_dir, adhoc_infos->mail_uid);
-		g_free (uri_dir);
-	}
-
-	free_evolution_adhoc_infos (adhoc_infos);
-
+	
 	return TRUE;
 
  error:
-	free_evolution_adhoc_infos (adhoc_infos);
 	email_free_mail_message (*mail_msg);
 	*mail_msg = NULL;
 	return FALSE;
@@ -1887,7 +1812,7 @@ do_skip_mail_message_for_imap (SummaryFile *summary, gboolean do_skipping_of_con
 	return TRUE;
 }
 
-
+/*
 static char *
 get_relative_path_from_source_url (const char *url)
 {
@@ -1908,8 +1833,8 @@ get_relative_path_from_source_url (const char *url)
 
 	return g_strdup ("");
 }
-
-
+*/
+/*
 static gboolean
 load_mail_message_for_maildir (SummaryFile *summary, MailMessage **mail_msg)
 {
@@ -1957,10 +1882,12 @@ skip_mail_message_for_maildir (SummaryFile *summary)
 {
 	return skip_mail_message (summary);
 }
+*/
+
 
 
 static gboolean
-load_mail_message (SummaryFile *summary, MailMessage *mail_msg, EvolutionAdHocInfos *adhoc_infos)
+load_mail_message (SummaryFile *summary, MailMessage *mail_msg)
 {
 	FILE	*f;
 	guint32	flags, size, count;
@@ -1988,19 +1915,10 @@ load_mail_message (SummaryFile *summary, MailMessage *mail_msg, EvolutionAdHocIn
 
 	g_free (mlist);
 
-	if (is_in_dir_local (summary->path)) {
-		mail_msg->path = NULL;
-	} else {
-		char *sum_file_dir;
+	
+	
 
-		sum_file_dir = g_path_get_dirname (summary->path);
-		mail_msg->path = g_strconcat (sum_file_dir, G_DIR_SEPARATOR_S, uid, ".", NULL);
-		g_free (sum_file_dir);
-	}
-
-	if (adhoc_infos) {
-		adhoc_infos->mail_uid = g_strdup (uid);
-	}
+	mail_msg->id = strtoul (uid, NULL, 10); 
 
 	g_free (uid);
 
@@ -2083,6 +2001,122 @@ skip_over_mail (FILE	*f)
 }
 
 
+
+static gboolean
+scan_summary_for_junk (SummaryFile *summary, guint32 *uid, MailType type)
+{
+	FILE	*f;
+	guint32	count, flags;
+	time_t tt;
+	guint n;
+	char *return_uid;
+
+
+	g_return_val_if_fail (summary, FALSE);
+
+	f = summary->f;
+
+	if (!decode_string (f, &return_uid))
+		return FALSE;
+	
+	if (!decode_guint32 (f, &flags))
+		return FALSE;
+
+	if (!decode_guint32 (f, &n)) 
+		return FALSE;
+
+	if (!decode_time_t (f, &tt)) 
+		return FALSE;
+
+	if (!decode_time_t (f, &tt)) 
+		return FALSE;
+
+	if (!skip_string_decoding (f)) 
+		return FALSE;
+
+	if (!skip_string_decoding (f)) 
+		return FALSE;
+
+	if (!skip_string_decoding (f)) 
+		return FALSE;
+
+	if (!skip_string_decoding (f)) 
+		return FALSE;
+
+	if (!skip_string_decoding (f)) 
+		return FALSE;
+
+
+	*uid = 0;
+
+	skip_gint32_decoding (f);	/* mi->message_id.id.part.hi */
+	skip_gint32_decoding (f);	/* mi->message_id.id.part.lo */
+
+	/* references */
+	if (decode_guint32 (f, &count) && count <= 500) {
+		guint32 i;
+		for (i = 0; i < count; i++) {
+			skip_gint32_decoding (f);	/* mi->references->references[i].id.part.hi */
+			skip_gint32_decoding (f);	/* mi->references->references[i].id.part.lo */
+		}
+	} else {
+		return FALSE;
+	}
+
+	/* user flags */
+	if (decode_guint32 (f, &count) && count <= 500) {
+		guint32 i;
+		for (i = 0; i < count; i++) {
+			skip_string_decoding (f);	/* a flag */
+		}
+	} else {
+		return FALSE;
+	}
+
+	/* user tags */
+	if (decode_guint32 (f, &count) && count <= 500) {
+		guint32 i;
+		for (i = 0; i < count; i++) {
+			skip_string_decoding (f);	/* tag name */
+			skip_string_decoding (f);	/* tag value */
+		}
+	} else {
+		return FALSE;
+	}
+
+
+
+	if ((flags & EVOLUTION_MESSAGE_DELETED) == EVOLUTION_MESSAGE_DELETED) {
+		*uid = strtoul (return_uid, NULL, 10); 
+	
+
+	} else if ((flags & EVOLUTION_MESSAGE_JUNK) == EVOLUTION_MESSAGE_JUNK) {
+		*uid = strtoul (return_uid, NULL, 10);
+	}
+
+
+	if (type == MAIL_TYPE_MBOX) {
+		skip_off_t_decoding (summary->f);
+
+	} else 	if (type == MAIL_TYPE_IMAP) {
+		skip_guint32_decoding (summary->f);
+		if (!skip_loading_content_info (summary)) {
+			return FALSE;
+		}
+		
+	
+	} else 	if (type == MAIL_TYPE_IMAP4) {
+		skip_guint32_decoding (summary->f);
+		if (!skip_loading_content_info (summary)) {
+			return FALSE;
+		}
+
+	}
+
+	return TRUE;
+}
+
+
 static gboolean
 skip_mail_message (SummaryFile *summary)
 {
@@ -2109,22 +2143,11 @@ skip_mail_message (SummaryFile *summary)
 	if (!decode_guint32 (f, &n)) 
 		return FALSE;
 
-
-/*	if (!skip_guint32_decoding (f)) 
-		return FALSE;
-*/
-
 	if (!decode_time_t (f, &tt)) 
 		return FALSE;
 
 	if (!decode_time_t (f, &tt)) 
 		return FALSE;
-
-	//if (!skip_time_t_decoding (f)) 
-	//	return FALSE;
-
-
-
 
 	if (!skip_string_decoding (f)) 
 		return FALSE;
@@ -2182,19 +2205,6 @@ skip_mail_message (SummaryFile *summary)
 }
 
 
-static void
-free_evolution_adhoc_infos (EvolutionAdHocInfos *adhoc_infos)
-{
-	if (!adhoc_infos) {
-		return;
-	}
-
-	if (adhoc_infos->mail_uid) {
-		g_free (adhoc_infos->mail_uid);
-	}
-
-	g_free (adhoc_infos);
-}
 
 
 static GSList *
@@ -2297,30 +2307,29 @@ do_skip_loading_content_info (SummaryFile *summary)
   Functions to decode summary (or ev-summary) files.
 ***/
 
-#define MAKE_SKIP_DECODING_FCT(type,size)		\
-	static inline gboolean				\
-	skip_##type##_decoding (FILE *f)		\
-	{						\
-		return fseek (f, size, SEEK_CUR) > 0;	\
-	}
 
 
-static inline gboolean
-decode_gint32 (FILE *f, gint32 *n)
-{
-	if (fread (n, 4, 1, f) == 0) {
-		return FALSE;
-	}
-
-#	if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
-	*n = GINT32_FROM_BE (*n);
-#	endif
-
-	return TRUE;
+#define CFU_DECODE_T(type)				\
+static inline gboolean						\
+decode_##type (FILE *in, type *dest)			\
+{							\
+	type save = 0;					\
+	int i = sizeof(type) - 1;			\
+	int v = EOF;					\
+							\
+        while (i >= 0 && (v = fgetc (in)) != EOF) {	\
+		save |= ((type)v) << (i * 8);		\
+		i--;					\
+	}						\
+	*dest = save;					\
+	if (v == EOF)					\
+		return FALSE;				\
+	return TRUE;					\
 }
 
-
-MAKE_SKIP_DECODING_FCT (gint32, 4);
+CFU_DECODE_T(time_t)
+CFU_DECODE_T(off_t)
+CFU_DECODE_T(size_t)
 
 
 static inline gboolean
@@ -2348,89 +2357,92 @@ decode_guint32 (FILE *f, guint32 *n)
 }
 
 
-static inline gboolean
-skip_guint32_decoding (FILE *f)
-{
-	guint32 n;
-
-	/* FIXME: use only fseek() */
-	return decode_guint32 (f, &n);
-}
-
 
 static inline gboolean
-decode_time_t (FILE *f, time_t *t)
+decode_string (FILE *in, char **str)
 {
-	if (fread (t, sizeof (time_t), 1, f) == 0) {
-		return FALSE;
-	}
+	guint32 len;
+	register char *ret;
 
-#	if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
-	/* It is ugly but we need to check that sizeof(time_t)==sizeof(long)
-	   since we use the bit swapping function for glong numbers */
-	g_assert (sizeof (time_t) == sizeof (glong));
-	*t = GLONG_FROM_BE (*t);
-#	endif
-
-	return TRUE;
-}
-
-
-MAKE_SKIP_DECODING_FCT (time_t, sizeof (time_t));
-
-
-static inline gboolean
-decode_off_t (FILE *f, off_t *t)
-{
-	if (fread (t, sizeof (off_t), 1, f) == 0) {
-		return FALSE;
-	}
-
-#	if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
-	/* It is ugly but we need to check that sizeof(off_t)==sizeof(long)
-	   since we use the bit swapping function for glong numbers */
-	g_assert (sizeof (off_t) == sizeof (glong));
-	*t = GLONG_FROM_BE (*t);
-#	endif
-
-	return TRUE;
-}
-
-
-MAKE_SKIP_DECODING_FCT (off_t, sizeof (off_t));
-
-
-static inline gboolean
-decode_string (FILE *f, char **str)
-{
-	guint32		len;
-	register char	*ret;
-
-	if (!decode_guint32 (f, &len)) {
+	if (!decode_guint32 (in, &len)) {
 		*str = NULL;
 		return FALSE;
 	}
 
 	len--;
-
 	if (len > 65536) {
 		*str = NULL;
 		return FALSE;
 	}
 
-	ret = g_new0 (char, len + 1);
-
-	if (len > 0 && fread (ret, len, 1, f) != 1) {
+	ret = g_malloc (len+1);
+	if (len > 0 && fread (ret, len, 1, in) != 1) {
 		g_free (ret);
 		*str = NULL;
 		return FALSE;
 	}
 
-	ret[len] = '\0';
+	ret[len] = 0;
 	*str = ret;
-
 	return TRUE;
 }
+
+static inline gboolean
+decode_gint32 (FILE *f, gint32 *dest)
+{
+
+	guint32 save;
+
+	if (fread (&save, sizeof (save), 1, f) == 1) {
+		*dest = g_ntohl (save);
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+
+}
+
+
+
+
+
+
+
+
+static inline gboolean
+skip_gint32_decoding (FILE *f)
+{
+
+	return fseek (f, 4, SEEK_CUR) > 0;
+}
+
+static inline gboolean
+skip_guint32_decoding (FILE *f)
+{
+	guint32 n;
+
+	return decode_guint32 (f, &n);
+}
+
+
+static inline gboolean
+skip_time_t_decoding (FILE *f)
+{
+
+	return fseek (f, sizeof (time_t), SEEK_CUR) > 0;
+}
+
+
+static inline gboolean
+skip_off_t_decoding (FILE *f)
+{
+
+	return fseek (f, sizeof (off_t), SEEK_CUR) > 0;
+}
+
+
+
+
 
 
 static inline gboolean
@@ -2443,7 +2455,7 @@ skip_string_decoding (FILE *f)
 	}
 
 	if (fseek (f, len - 1, SEEK_CUR) != 0) {
-		tracker_log ("seek failed with error code %d", errno);
+		tracker_log ("seek failed for string with length %d with error code %d", len-1, errno);
 		return FALSE;
 	}
 

@@ -844,7 +844,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	g_return_if_fail (info->uri[0] == '/');
 
 	if (!tracker_file_is_valid (info->uri)) {
-		tracker_info ("Warning - file %s in not valid or could not be read - abandoning index on this file", info->uri);
+		//tracker_debug ("Warning - file %s in not valid or could not be read - abandoning index on this file", info->uri);
 		return;
 	}
 
@@ -860,8 +860,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 
 	if (g_str_has_suffix (service_info, "Emails")) {
 		if (!tracker_email_index_file (db_con->emails, info, service_info)) {
-			
-			tracker_debug ("ignoring file %s", info->uri);
+						
 			g_free (service_info);
 			return;
 		}
@@ -932,7 +931,7 @@ process_files_thread (void)
 	
 	if (tracker->enable_indexing) {
 
-		tracker_email_add_service_directories();
+		tracker_email_add_service_directories (db_con->emails);
 
 		tracker->status = STATUS_WATCHING;
 
@@ -961,8 +960,6 @@ process_files_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			tracker_debug ("files thread going to deep sleep...");
-
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
@@ -983,7 +980,6 @@ process_files_thread (void)
 			char ***res;
 			int  k;
 
-			tracker_debug ("Checking for pending files...");
 
 			/* set mutex to indicate we are in "check" state */
 			g_mutex_lock (tracker->files_check_mutex);
@@ -1005,8 +1001,7 @@ process_files_thread (void)
 		
 					if (uri) {
 
-						tracker_debug ("processing queued directory %s - %d items left", uri, g_async_queue_length (tracker->dir_queue));
-
+						
 						check_directory (uri);
 
 						g_free (uri);
@@ -1017,9 +1012,14 @@ process_files_thread (void)
 					}
 				} 
 
-				
-				/* flush all words if nothing left to do before sleeping */
-				tracker_flush_all_words ();
+				if (g_hash_table_size (tracker->cached_table) != 0) {
+					
+					/* flush all words if nothing left to do before sleeping */
+					tracker_flush_all_words ();
+					tracker_log ("Finished indexing. Waiting for new events...");
+				}							
+
+
 
 				if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
 
@@ -1039,19 +1039,23 @@ process_files_thread (void)
 					tracker_db_start_transaction (db_con->emails);
 					tracker_db_exec_no_reply (db_con->emails, "ANALYZE");
 					tracker_db_end_transaction (db_con->emails);
+
+					tracker_log ("Finished optimizing. Waiting for new events...");
 	
 				}
 
-				tracker_log ("Finished indexing. Waiting for new events...");
+
+
+				
 
 				/* we have no stuff to process so sleep until awoken by a new signal */
-				tracker_debug ("File thread sleeping");		
+				
 				tracker->status = STATUS_IDLE;	
 
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
 
-				tracker_debug ("File thread awoken");
+				
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!shutdown) {
@@ -1084,11 +1088,11 @@ process_files_thread (void)
 					tmp_action = atoi(row[2]);
 
 					
-
+/*
 					if (tmp_action != TRACKER_ACTION_CHECK) {
 						tracker_debug ("processing %s with event %s", row[1], tracker_actions[tmp_action]);
 					}
-
+*/
 					info_tmp = tracker_create_file_info (row[1], tmp_action, 0, WATCH_OTHER);
 					g_async_queue_push (tracker->file_process_queue, info_tmp);
 					pushed_events = TRUE;
@@ -1107,7 +1111,6 @@ process_files_thread (void)
 
 			/* pending files are present but not yet ready as we are waiting til they stabilize so we should sleep for 100ms (only occurs when using FAM or inotify move/create) */
 			if (!pushed_events && (k == 0)) {
-				tracker_debug ("files not ready so sleeping");
 				g_usleep (100000);
 			} 
 
@@ -1231,7 +1234,6 @@ process_files_thread (void)
 			case TRACKER_ACTION_DIRECTORY_CHECK:
 
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
-					tracker_debug ("queueing directory %s", info->uri);
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
 				}
 
@@ -1240,7 +1242,6 @@ process_files_thread (void)
 			case TRACKER_ACTION_DIRECTORY_REFRESH:
 			
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
-					tracker_debug ("queueing directory %s", info->uri);
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
 					need_index = FALSE;
 				}
@@ -1293,7 +1294,6 @@ process_files_thread (void)
 
 
 	tracker_db_thread_end ();
-	tracker_debug ("files thread has exited successfully");
 	g_mutex_unlock (tracker->files_stopped_mutex);
 }
 
@@ -1337,8 +1337,6 @@ process_user_request_queue_thread (void)
 		/* make thread sleep if first part of the shutdown process has been activated */
 		if (!tracker->is_running) {
 
-			tracker_debug ("request thread going to deep sleep...");
-
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
@@ -1355,10 +1353,8 @@ process_user_request_queue_thread (void)
 		rec = g_async_queue_try_pop (tracker->user_request_queue);
 
 		if (!rec) {
-			tracker_debug ("request thread sleeping");
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 			g_mutex_unlock (tracker->request_check_mutex);
-			tracker_debug ("request thread awoken");
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
@@ -1777,6 +1773,27 @@ set_defaults ()
     	
 	if (magic_load (tracker->magic, 0) == -1 && magic_load (tracker->magic, "magic") == -1) {
         	tracker_log ("Error: magic_load failure : %s", magic_error (tracker->magic));
+	}
+
+	/* battery and ac power checks */
+	const char *battery_filenames[4] = {
+		"/proc/acpi/ac_adapter/AC/state",
+		"/proc/acpi/ac_adapter/AC0/state",
+		"/proc/acpi/ac_adapter/ADp1/state",
+		"/proc/acpi/ac_adapter/ACAD/state"
+	};
+
+	int i;
+
+	tracker->battery_state_file = NULL;
+
+	for (i=0; i<4; i++) {
+			
+		if (g_file_test (battery_filenames[i], G_FILE_TEST_EXISTS)) {
+			tracker->battery_state_file = g_strdup (battery_filenames[i]);
+			break;
+		}
+
 	}
 }
 

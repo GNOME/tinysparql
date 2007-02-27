@@ -522,8 +522,6 @@ tracker_db_close (DBConnection *db_con)
 		db_con->thread = "main";
 	}
 
-	tracker_log ("starting database closure for thread %s", db_con->thread);
-
 	//sqlite3_interrupt (db_con->db);
 
 	/* clear prepared queries */
@@ -537,7 +535,7 @@ tracker_db_close (DBConnection *db_con)
 	if (sqlite3_close (db_con->db) != SQLITE_OK) {
 		tracker_log ("ERROR : Database close operation failed for thread %s due to %s", db_con->thread, sqlite3_errmsg (db_con->db));
 	} else {
-		tracker_log ("Database closed for thread %s", db_con->thread);
+		tracker_debug ("Database closed for thread %s", db_con->thread);
 	}
 }
 
@@ -3115,7 +3113,7 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 	tracker_db_start_transaction (db_con);
 
 	tracker_exec_proc (db_con, "DeleteDirectory1", 2, uri, uri_prefix);
-	tracker_exec_proc (db_con, "DeleteDirectory2", 2, uri, uri_prefix);
+	//tracker_exec_proc (db_con, "DeleteDirectory2", 2, uri, uri_prefix);
 	tracker_exec_proc (db_con, "DeleteDirectory3", 2, uri, uri_prefix);
 	tracker_exec_proc (db_con, "DeleteDirectory4", 2, uri, uri_prefix);
 	tracker_exec_proc (db_con, "DeleteDirectory5", 2, uri, uri_prefix);
@@ -3125,8 +3123,8 @@ tracker_db_delete_directory (DBConnection *db_con, DBConnection *blob_db_con, gu
 	
 	tracker_exec_proc (db_con, "DeleteFile1", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile2", 1, str_file_id);
-	tracker_exec_proc (db_con, "DeleteFile3", 1, str_file_id);
-	tracker_exec_proc (db_con, "DeleteFile4", 2, str_file_id, str_file_id);
+	//tracker_exec_proc (db_con, "DeleteFile3", 1, str_file_id);
+	//tracker_exec_proc (db_con, "DeleteFile4", 2, str_file_id, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile5", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile6", 1, str_file_id);
 	tracker_exec_proc (db_con, "DeleteFile7", 1, str_file_id);

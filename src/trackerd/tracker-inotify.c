@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 
@@ -302,7 +303,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		}
 
 		/* matching pair not found so treat as a create action */
-		tracker_info ("no matching pair found for inotify move event for %s", info->uri);
+		tracker_debug ("no matching pair found for inotify move event for %s", info->uri);
 		if (tracker_is_directory (info->uri)) {
 			info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 		} else {

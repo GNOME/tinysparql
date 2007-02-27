@@ -37,7 +37,7 @@
 gboolean	evolution_init_module		(void);
 gboolean	evolution_module_is_running	(void);
 gboolean	evolution_finalize_module	(void);
-void		evolution_watch_emails		();
+void		evolution_watch_emails		(DBConnection *db_con);
 gboolean	evolution_file_is_interesting	(FileInfo *info, const char *service);
 void		evolution_index_file		(DBConnection *db_con, FileInfo *info);
 

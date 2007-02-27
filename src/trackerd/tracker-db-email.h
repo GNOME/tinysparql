@@ -27,12 +27,38 @@
 
 off_t	tracker_db_email_get_last_mbox_offset		(DBConnection *db_con, const char *mail_file_path);
 void	tracker_db_email_update_mbox_offset		(DBConnection *db_con, MailFile *mf);
-guint	tracker_db_email_get_nb_emails_in_mbox		(DBConnection *db_con, const char *mbox_file_path);
-guint	tracker_db_email_get_nb_emails_in_dir		(DBConnection *db_con, const char *dir_path);
-void	tracker_db_email_update_nb_emails_in_dir 	(DBConnection *db_con, const char *dir_path, int count);
-void	tracker_db_email_save_email			(DBConnection *db_con, MailMessage *mm);
+gboolean	tracker_db_email_save_email			(DBConnection *db_con, MailMessage *mm);
 void	tracker_db_email_update_email			(DBConnection *db_con, MailMessage *mm);
 void	tracker_db_email_delete_emails_of_mbox		(DBConnection *db_con, const char *mbox_file_path);
-void	tracker_db_email_delete_emails_of_dir		(DBConnection *db_con, const char *dir_path);
+void	tracker_db_email_delete_email 			(DBConnection *db_con, const char *uri);
+int	tracker_db_email_get_mbox_id 			(DBConnection *db_con, const char *mbox_uri);
+void	tracker_db_email_insert_junk 			(DBConnection *db_con, const char *mbox_uri, guint32 uid);
+char *** tracker_db_email_get_mbox_junk 		(DBConnection *db_con);
+void	tracker_db_email_reset_mbox_junk 		(DBConnection *db_con, const char *mbox_uri);
+void	tracker_db_email_flag_mbox_junk 		(DBConnection *db_con, const char *mbox_uri);
+void	tracker_db_email_register_mbox 			(DBConnection *db_con, MailApplication mail_app, MailType mail_type, const char *path, const char *filename, const char *uri_prefix);
+char *	tracker_db_email_get_mbox_path 			(DBConnection *db_con, const char *filename);
+
+void
+tracker_db_email_set_message_counts (DBConnection *db_con, const char *dir_path, int mail_count, int junk_count, int delete_count);
+
+void
+tracker_db_email_get_message_counts (DBConnection *db_con, const char *mbox_file_path, int *mail_count, int *junk_count, int *delete_count);
+
+char *
+tracker_db_email_get_mbox_uri_prefix (DBConnection *db_con, const char *mbox_uri);
+
+
+gboolean
+tracker_db_email_lookup_junk (DBConnection *db_con, const char *mbox_id, int uid);
+
+void
+tracker_db_email_free_mail_store (MailStore *store);
+
+MailStore *
+tracker_db_email_get_mbox_details (DBConnection *db_con, const char *mbox_uri);
+
+char ***
+tracker_db_email_get_mboxes (DBConnection *db_con);
 
 #endif

@@ -31,19 +31,16 @@
 extern Tracker *tracker;
 
 
-static gboolean	is_an_attachment	(const char *uri);
-
-
 /* must be called before any work on files containing mails */
 void
-tracker_email_add_service_directories()
+tracker_email_add_service_directories (DBConnection *db_con)
 {
 
 	g_mime_init (0);
 
 	if (tracker->index_evolution_emails) {
 		if (evolution_init_module ()) {
-			evolution_watch_emails ();
+			evolution_watch_emails (db_con);
 		}
 	}
 
