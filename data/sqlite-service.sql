@@ -5,15 +5,23 @@ CREATE TABLE  Services
 	ServiceTypeID		Integer  default 0, /* see ServiceTypes table above for ID values */
 	SubType			Integer default 0, /* reserved for future use */
 	Path 			Text  not null, /* non-file objects should use service name here */
-	Name	 		Text , /* name of file or object - the combination path and name must be unique for all objects */
+	Name	 		Text, /* name of file or object - the combination path and name must be unique for all objects */
 	Mime			Text,
 	Size			Integer,
+	CanRead			Integer default 1,
+	CanWrite		Integer default 1,
+	CanExecute		Integer default 1,
+	CustomIconFile		Text,
+	LanguageId		Integer default 0,
 	Enabled			Integer default 1,
 	IsDirectory   		Integer default 0,
     	IsLink        		Integer default 0,
 	AuxilaryID		Integer, /* link to Volumes table for files, link to mbox table for emails*/
 	IndexTime  		Integer, /* should equal st_mtime for file if up-to-date */
 	Offset			Integer, /* last used disk offset for indexable files that always grow (like chat logs) or email offset */
+	UID			Integer,
+	Hash			text,
+	ChildFile		text,
 
     	unique (Path, Name)
 
@@ -22,19 +30,34 @@ CREATE TABLE  Services
 CREATE INDEX  ServiceIndex1 ON Services (ServiceTypeID);
 CREATE INDEX  ServiceIndex2 ON Services (AuxilaryID);
 
-CREATE TABLE MBoxes
+CREATE TABLE MailSummary
 (
 	ID		Integer primary key AUTOINCREMENT not null,
+	MailApp		Integer not null,
+	MailType	Integer not null,
+	FileName	Text not null,
 	Path		Text not null,
-	Type		Integer default 0, /* 0=unknown, 1=evolution, 2=thunderbird, 3=kmail */
+	UriPrefix	Text,
+	NeedsChecking	Integer default 0,
+	MailCount	Integer,
+	JunkCount	Integer,
+	DeleteCount	Integer,
 	Offset		Integer,
-	LastUri		text,
-	MessageCount 	Integer,
-	MBoxSize	Integer,
-	Mtime		Integer,
+	LastOffset	Integer,
+	MTime		integer,
 
 	unique (Path)
 );
+
+
+CREATE TABLE JunkMail
+(
+	UID			integer not null,
+	SummaryID		Integer not null,
+
+	primary key (UID, SummaryID)
+);
+
 
 
 /* de-normalised metadata which is unprocessed (not normalized or casefolded) for display only - never used for searching */
@@ -57,7 +80,8 @@ CREATE TABLE  ServiceMetaData
 	ID			Integer primary key AUTOINCREMENT not null,
 	ServiceID		Integer not null,
 	MetaDataID 		Integer  not null,
-	MetaDataValue     	Text COLLATE UTF8, 
+	MetaDataValue     	Text,
+	MetaDataDisplay		Text, 
 	EmbeddedFlag		Integer default 0,
 	DeleteFlag		Integer default 0
 
@@ -73,7 +97,8 @@ CREATE TABLE  ServiceKeywordMetaData
 	ID			Integer primary key AUTOINCREMENT not null,
 	ServiceID		Integer not null,
 	MetaDataID 		Integer  not null,
-	MetaDataValue		Text COLLATE UTF8, 
+	MetaDataValue		Text, 
+	MetaDataDisplay		Text, 
 	EmbeddedFlag		Integer default 0,
 	DeleteFlag		Integer default 0
 	

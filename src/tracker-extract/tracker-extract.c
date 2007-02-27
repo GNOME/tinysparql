@@ -241,7 +241,7 @@ get_meta_table_data (gpointer pkey, gpointer pvalue, gpointer user_data)
 {
 	char *value;
 
-	g_return_if_fail (pkey || pvalue);
+	g_return_if_fail (pkey && pvalue);
 
 	value = g_locale_to_utf8 ((char *) pvalue, -1, NULL, NULL, NULL);
 

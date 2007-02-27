@@ -1,3 +1,10 @@
+2007-02-26  Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed email issues
+	* Now handles deleted and junk emails (these are removed when trackerd is next started)
+	* Fixed bugs with text Files not being detected
+
+
 2007-02-26  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/trackerd/trackerd.c:

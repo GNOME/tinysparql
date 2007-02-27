@@ -159,11 +159,18 @@ InsertWatch insert into FileWatches (URI, WatchID) values (?,?);
 InsertSearchResult1 insert into SearchResults1 (SID, Score) values (?,?);
 DeleteSearchResults1 delete from SearchResults1;
 
-GetMBoxDetails select Type, Offset, LastUri, MessageCount, MBoxSize, Mtime from MBoxes where path = ?;
-GetMboxID select ID from MBoxes where path = ?;
-InsertMboxDetails insert into MBoxes (Path, Type, Offset, LastUri, MessageCount, MBoxSize, Mtime) values (?,?,0,'n/a',0,0,0);
-UpdateMboxDetails update MBoxes set Offset = ?, LastUri = ?, MessageCount = ?, MBoxSize = ?, Mtime =? where Path = ?;
-GetMboxCount select count(*) from services where AuxilaryID = (select ID FROM MBoxes where Path = ?) and ServiceTypeID = (select TypeID from ServiceTypes where TypeClass = 'Emails');
+GetMboxes  select MailApp, MailType, Filename, Path, UriPrefix, Offset, LastOffset, MailCount, JunkCount, DeleteCount, Mtime  from MailSummary;
+GetMBoxDetails select MailApp, MailType, Filename, UriPrefix, Offset, LastOffset, MailCount, JunkCount, DeleteCount, Mtime  from MailSummary where path = ?;
+GetMboxID select ID from MailSummary where path = ?;
+GetMBoxPath select path from MailSummary where FileName = ?;
+InsertMboxDetails insert into MailSummary (MailApp, MailType, FileName, Path, UriPrefix, Offset, LastOffset, MailCount, JunkCount, DeleteCount, Mtime) values (?,?,?,?,?,0,0,0,0,0,0);
+UpdateMboxOffset update MailSummary set Offset = ? where Path = ?;
+UpdateMboxCounts update MailSummary set MailCount = ?, JunkCount = ?, DeleteCount = ? where Path = ?;
+
+SetJunkMbox update MailSummary set NeedsChecking = ? where path = ?;
+
+LookupJunk select SummaryID from JunkMail where UID = ? and SummaryID = ?;
+InsertJunk insert into JunkMail values (?,?);
 
 DeleteMbox1 DELETE FROM ServiceMetaData  WHERE ServiceID  in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
 DeleteMbox2 DELETE FROM ServiceKeywordMetaData  WHERE ServiceID in (select ID FROM Services F where F.AuxiliaryID = ? AND F.ServiceTypeID in (select TypeID from ServiceTypes where TypeClass in ('Emails', 'EmailAttachments')));
