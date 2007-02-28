@@ -1041,7 +1041,9 @@ account_text_handler (GMarkupParseContext	*context,
 
 			source_url = g_strndup (text, text_len);
 
-			if (strncmp (source_url, "mbox:", 5) == 0 || strncmp (source_url, "pop:", 4) == 0) {
+			tracker_log ("Found email account uri %s", source_url);
+
+			if (strncmp (source_url, "mbox:", 5) == 0 || strncmp (source_url, "pop", 3) == 0) {
 				state->account->protocol = EVOLUTION_MAIL_PROTOCOL_MBOX;
 			} else if ((strncmp (source_url, "imap:", 5) == 0) || (strncmp (source_url, "imap4:", 6) == 0)) {
 				state->account->protocol = EVOLUTION_MAIL_PROTOCOL_IMAP;
