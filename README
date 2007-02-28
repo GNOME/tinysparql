@@ -114,9 +114,9 @@ Run time dependencies (also needed for build) :
 * Sqlite 3.2+ (Tracker source has an inlined version which is
   statically-linked by default due to the lack of guarantee of threadsafety
   in distro versions)
-* libdbus (0.50 +)
-* dbus-glib bndings (0.50 +)
-* glib (2.6+)
+* libdbus (0.60 +)
+* dbus-glib bindings (0.60 +)
+* glib (2.9.1 +)
 * zlib
 * libmagic
 * GMime
@@ -145,13 +145,13 @@ Optional run-time dependency:
 
 COMPILATION
 
-To compile Tracker uses the following commands :
+To compile Tracker, use the following commands :
 
 ./configure --prefix=/usr --sysconfdir=/etc
 make
 sudo make install
 
-If you install using any other prefix then you might have problems with files
+If you install using any other prefix, you might have problems with files
 not being installed correctly.
 
 (You may need to copy and amend the dbus service file to the correct
@@ -182,16 +182,33 @@ Tracker has several compiler options to enable/disable certain features. The
 following is available (all options should be passed as command line
 parameters to autogen.sh EG ./autogen.sh --disable-fam)
 
---disable-fam : this option omits support of FAM/GAMIN with tracker
+--enable-debug-code : build with debug symbols
 
---disable-inotify : this option omits support for inotify with tracker
+--enable-video-extractor=(gstreamer, xine, external, auto)
+
+--enable-external-sqlite : use system SQLite which MUST be threadsafe
+
+--enable-file-monitoring=(inotify, fam, polling, auto)
+
+--enable-preferences : enables the tracker-preferences capplet
+
+--enable-deskbar-applet : enables support for deskbar applet
+
+--disable-gui : disables building of tracker-search-tool
+
+--disable-pdf : disables the PDF data extractor
+
+--disable-exif : disables the exif data extractor
+
+--disable-gsf : disables the gsf data extractor
+
+--disable-warnings : disables GCC warnings
 
 
 
 RUNNING TRACKER
 
-
-To run tracker, you need to manually start the tracker daemon trackerd. By
+To run Tracker, you need to manually start the Tracker daemon, trackerd. By
 default trackerd will index your entire home directory.
 
 You can also pass a directory root to be indexed as a command line parameter
@@ -200,7 +217,7 @@ if you dont want your entire home directory indexed. EG
 "trackerd -i /home/jamie/Documents"
 
 (if you want your home directory indexed when explicily specifying index
- directory roots then you must add your home directory to the arguements:
+ directory roots then you must add your home directory to the arguments:
  EG trackerd -i /home/jamie -i /mnt/share)
 
 You can disable indexing by passing --no-indexing
@@ -218,15 +235,18 @@ with it on full throttle without experiencing slow downs.
 You can specify directory roots to be excluded from being watched or indexed
 by passing  -e directory for each directory root
 
-You can make sure that tracker only indexes a subset of your home directory
-and also specify folders not in your home directory by editing the tracker.cfg
-file in ~/.Tracker (which is created when you first run trackerd) and setting
-WatchDirectoryRoots to a semicolon delimited list of directories (full path
-required!) 
+All the above options (and more) can be set by editing ~/.Tracker/tracker.cfg
+which is created with specific defaults when non-existent (EG when
+trackerd is ran for the first time). Ensure that you restart trackerd for the
+changes to take effect. tracker.cfg also provides options that allows tracker
+to only index a subset of your home directory as well as other folders not
+in your home directory by setting WatchDirectoryRoots to a semicolon-delimited
+list of directories (full path required!) 
 
 EG: 
 
 WatchDirectoryRoots=directory1;directory2;directory3
+
 
 On the first run, Tracker will automatically create a new database and start
 populating it with metadata by browsing through the user's home directory (or
@@ -235,16 +255,16 @@ the root folder(s) specified).
 On subsequent runs, Tracker will start up much much faster and will only ever
 incrementally index files (IE files that have changed since last index).
 
-If installed correctly, the tracker daemon (trackerd) can also be started
-automatically via Dbus activation.
+If installed correctly, the Tracker daemon (trackerd) can also be started
+automatically via Dbus activation (EG by running tracker-search SEARCHTERM)
 
 
 Tracker And Nautilus Search
 
 Once you have installed Tracker and have some indexed contents, you should now
-compile Nautilus (ver 2.13.4 or higher) which should auto detect that tracker
-is installed and automatically compile in tracker support. You are now ready
-to appreciate a powerful and super efficient c based indexer in all its
+compile Nautilus (ver 2.13.4 or higher) which should auto-detect that Tracker
+is installed and automatically compile in Tracker support. You are now ready
+to appreciate a powerful and super efficient C-based indexer in all its
 glory... happy hunting!
 
 To make sure trackerd always start when you login to Gnome, you will need to
