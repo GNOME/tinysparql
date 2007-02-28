@@ -456,7 +456,10 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
 			free_summary_file_header (header);
 			free_summary_file (summary);
+		} else {
+			tracker_log ("Error: failed to open summary file %s", info->uri);
 		}
+
 		g_free (mbox_file);
 		tracker_db_email_free_mail_store (store);
 
@@ -1046,6 +1049,8 @@ account_text_handler (GMarkupParseContext	*context,
 				state->account->protocol = EVOLUTION_MAIL_PROTOCOL_MH;
 			} else if (strncmp (source_url, "maildir:", 8) == 0) {
 				state->account->protocol = EVOLUTION_MAIL_PROTOCOL_MAILDIR;
+			} else {
+				state->account->protocol = EVOLUTION_MAIL_PROTOCOL_MBOX;
 			}
 
 			esc_source_url = g_unescape_uri_string (source_url, "");
@@ -1470,6 +1475,7 @@ open_summary_file (const char *path, SummaryFile **summary)
 				}
 
 				default:
+					tracker_log ("Error: no matching account found for email");
 					continue;
 					break;
 			}
