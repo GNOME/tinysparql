@@ -288,10 +288,12 @@ evolution_watch_emails (DBConnection *db_con)
 		tracker_db_free_result (res);
 	}
 
+	watch_directory ("/tmp/qemu-list", "EvolutionMboxEmails");
 
-	watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
 
-	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
+//	watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
+
+//	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
 	g_slist_foreach (evolution_config->mh_dirs, (GFunc) watch_directory, "EvolutionMHEmails");		
 	g_slist_foreach (evolution_config->maildir_dirs, (GFunc) watch_directory, "EvolutionMailDirEmails");
 		
@@ -1081,7 +1083,7 @@ is_in_dir_local (const char *path)
 {
 	g_return_val_if_fail (path, FALSE);
 
-	return g_str_has_prefix (path, evolution_config->dir_local);
+	return (g_str_has_prefix (path, evolution_config->dir_local));
 }
 
 
@@ -1219,7 +1221,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 		if (tracker_db_email_get_mbox_id (db_con, dir) == -1) {
 			
 			char *uri_prefix;
-			char *uri_dir = NULL;
+			char *uri_dir = NULL, *clean_uri_dir = NULL;
 			const char *pos_inbox;
 
 			/* we find relative summary file path from directory INBOX (it can be INBOX/, INBOX/sent-mail ,etc.) */
@@ -1228,7 +1230,11 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 				uri_dir = g_strdup (pos_inbox);
 			} 
 
-			uri_prefix = g_strdup_printf ("email://%s/%s;uid=", summary->associated_account->uid, uri_dir);
+			if (uri_dir) {
+				clean_uri_dir = tracker_string_replace (uri_dir, "subfolders/", NULL);
+			}
+
+			uri_prefix = g_strdup_printf ("email://%s/%s;uid=", summary->associated_account->uid, clean_uri_dir);
 
 			g_free (uri_dir);
 

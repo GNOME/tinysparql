@@ -1874,7 +1874,6 @@ sanity_check_option_values ()
  	tracker_log ("Watching enabled : .................  %s", bools[tracker->enable_watching]);
  	tracker_log ("File content indexing enabled : ....  %s", bools[tracker->enable_content_indexing]);
 	tracker_log ("Thumbnailing enabled : .............  %s", bools[tracker->enable_thumbnails]);
-	tracker_log ("Thumbnailing enabled : .............  %s", bools[tracker->enable_thumbnails]);
  	tracker_log ("Evolution email indexing enabled : .  %s", bools[tracker->index_evolution_emails]);
  	tracker_log ("Thunderbird email indexing enabled :  %s", bools[tracker->index_thunderbird_emails]);
  	tracker_log ("K-Mail indexing enabled : ..........  %s\n", bools[tracker->index_kmail_emails]);
