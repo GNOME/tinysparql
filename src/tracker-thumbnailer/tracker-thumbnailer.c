@@ -23,7 +23,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/stat.h>
+#include <sys/param.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <png.h>
@@ -69,6 +71,7 @@ error:
 int main (int argc, char *argv[])
 {
 	gchar         *uri;
+	gchar          realname[MAXPATHLEN];
 	struct stat    stat_info;
 	gchar         *mtime;
 	md5_state_t    hash_state;
@@ -106,8 +109,14 @@ int main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	/* g_filename_to_uri needs an absolute filename */
+	if (!realpath (argv[1], realname)) {
+		g_printerr("could not resolve absolute pathname for %s\n", argv[1]);
+		return EXIT_FAILURE;
+	}
+
 	/* convert file name to URI */
-	uri = g_filename_to_uri (argv[1], NULL, NULL);
+	uri = g_filename_to_uri (realname, NULL, NULL);
 
 	/* get stat information on the file */
 	if (g_stat (argv[1], &stat_info) == -1) {
