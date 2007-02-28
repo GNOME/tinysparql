@@ -312,10 +312,12 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 
 	 	if (rc > 0) {
 			tracker_log ("FAM watch on %s has failed", dir);
+			g_free (dir_in_locale);
 			free_watch_func (fwatch);
 			return FALSE;
 		} else {
 			g_hash_table_insert (watch_table, g_strdup (dir), fwatch);
+			g_free (dir_in_locale);
 			tracker_log ("Watching directory %s (total watches = %d)", dir, g_hash_table_size (watch_table));
 			return TRUE;
 		}
