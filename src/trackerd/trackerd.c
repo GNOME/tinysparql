@@ -101,7 +101,7 @@ static DBusConnection  *main_connection;
  *  asynchronous queue where potentially multiple threads are waiting to process them.
  */
 
-#define FILE_POLL_PERIOD (60 * 60)
+#define FILE_POLL_PERIOD (60 * 60 * 3600)
 
 char *type_array[] =   {"index", "string", "numeric", "date", NULL};
 
@@ -2324,10 +2324,13 @@ main (int argc, char **argv)
 	tracker->file_process_queue = g_async_queue_new ();
 	tracker->user_request_queue = g_async_queue_new ();
 
+	tracker->poll_interval = tracker->poll_interval * 1000;
+
+	tracker_log ("Setting poll period to %d seconds", tracker->poll_interval);
 
 	/* periodically poll directories for changes */
 	g_timeout_add_full (G_PRIORITY_LOW,
-			    tracker->poll_interval * 1000,
+			    tracker->poll_interval,
 		 	    (GSourceFunc) start_poll,
 			    NULL, NULL
 			    );

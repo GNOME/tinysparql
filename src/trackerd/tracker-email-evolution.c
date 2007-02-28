@@ -1399,6 +1399,11 @@ open_summary_file (const char *path, SummaryFile **summary)
 {
 	g_return_val_if_fail (path, FALSE);
 
+	if (!tracker_file_is_indexable (path)) {
+		return FALSE;
+	}
+
+
 	if (*summary) {
 		free_summary_file (*summary);
 	}
