@@ -394,6 +394,8 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
 		mbox_file = tracker_get_radix_by_suffix (info->uri, ".ev-summary");
 
+		tracker_debug ("summary %s is an mbox", info->uri);
+
 		/* check mbox is registered */
 		if (tracker_db_email_get_mbox_id (db_con, mbox_file) == -1) {
 			
@@ -430,11 +432,13 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			tracker_info ("investigating summary file %s", mbox_file);
 
 			if (!load_summary_file_header (summary, &header)) {
+				tracker_log ("Error: Failed to load summary file %s", info->uri);
 				free_summary_file (summary);
 				goto end_index;
 			}
 
 			if (!load_summary_file_meta_header_for_local (summary, header)) {
+				tracker_log ("Error: Failed to load summary header file %s", info->uri);
 				free_summary_file_header (header);
 				free_summary_file (summary);
 				goto end_index;
