@@ -288,12 +288,9 @@ evolution_watch_emails (DBConnection *db_con)
 		tracker_db_free_result (res);
 	}
 
-	watch_directory ("/tmp/qemu-list", "EvolutionMboxEmails");
+	watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
 
-
-//	watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
-
-//	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
+	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
 	g_slist_foreach (evolution_config->mh_dirs, (GFunc) watch_directory, "EvolutionMHEmails");		
 	g_slist_foreach (evolution_config->maildir_dirs, (GFunc) watch_directory, "EvolutionMailDirEmails");
 		
