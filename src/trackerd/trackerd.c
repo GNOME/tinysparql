@@ -2324,9 +2324,9 @@ main (int argc, char **argv)
 	tracker->file_process_queue = g_async_queue_new ();
 	tracker->user_request_queue = g_async_queue_new ();
 
-	tracker->poll_interval = tracker->poll_interval * 1000;
-
 	tracker_log ("Setting poll period to %d seconds", tracker->poll_interval);
+
+	tracker->poll_interval = tracker->poll_interval * 1000;
 
 	/* periodically poll directories for changes */
 	g_timeout_add_full (G_PRIORITY_LOW,

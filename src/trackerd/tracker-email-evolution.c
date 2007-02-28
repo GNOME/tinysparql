@@ -1423,6 +1423,11 @@ open_summary_file (const char *path, SummaryFile **summary)
 	(*summary)->f = g_fopen (path, "rb");
 	(*summary)->path = g_strdup (path);
 
+	if (is_in_dir_local ((*summary)->path)) {
+		(*summary)->associated_account = NULL;
+		return TRUE;
+	}
+
 	/* find associated Evo account */
 	{
 		const GSList *account;
@@ -1431,6 +1436,8 @@ open_summary_file (const char *path, SummaryFile **summary)
 			EvolutionAccount *evo_acc;
 
 			evo_acc = account->data;
+
+			
 
 			switch (evo_acc->protocol) {
 				case EVOLUTION_MAIL_PROTOCOL_MBOX:
