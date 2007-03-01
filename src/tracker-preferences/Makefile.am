@@ -1,4 +1,4 @@
-#@INTLTOOL_DESKTOP_RULE@
+@INTLTOOL_DESKTOP_RULE@
 
 bin_PROGRAMS = tracker-preferences
 
