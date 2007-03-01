@@ -7,6 +7,7 @@
 2007-03-01 patch from Michael Biebl <mbiebl at gmail com>
 
 	* Cleaned up libtracker-gtk with John Stowers
+	* removed optional dependency on libtracker-gtk for tst
 
 2007-03-01 patch from John Stowers <john.stowers@gmail.com>
 
