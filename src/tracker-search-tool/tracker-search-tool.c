@@ -48,9 +48,7 @@
 #include "tracker-search-tool-callbacks.h"
 #include "tracker-search-tool-support.h"
 #include "sexy-icon-entry.h"
-#ifdef ENABLE_LIBTRACKERGTK
 #include "../libtracker-gtk/tracker-metadata-tile.h"
-#endif /* ENABLE_LIBTRACKERGTK */
 
 #define TRACKER_SEARCH_TOOL_DEFAULT_ICON_SIZE 32
 #define TRACKER_SEARCH_TOOL_STOCK "panel-searchtool"
@@ -2671,12 +2669,10 @@ gsearch_app_create (GSearchWindow * gsearch)
 	gtk_widget_set_sensitive (gsearch->forward_button, FALSE);
 	gtk_widget_set_sensitive (gsearch->back_button, FALSE);
 
-#ifdef ENABLE_LIBTRACKERGTK
 	/* metadata_tile */
 	gsearch->metatile = tracker_metadata_tile_new ();
 	gtk_widget_show (gsearch->metatile);
 	gtk_box_pack_start (GTK_BOX (main_container), gsearch->metatile, FALSE, FALSE, 0);
-#endif /* ENABLE_LIBTRACKERGTK */
 
 	gtk_window_set_focus (GTK_WINDOW (gsearch->window),
 		GTK_WIDGET (gsearch->search_entry));

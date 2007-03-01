@@ -48,9 +48,7 @@
 #include "tracker-search-tool.h"
 #include "tracker-search-tool-callbacks.h"
 #include "tracker-search-tool-support.h"
-#ifdef ENABLE_LIBTRACKERGTK
 #include "../libtracker-gtk/tracker-metadata-tile.h"
-#endif /* ENABLE_LIBTRACKERGTK */
 
 #define SILENT_WINDOW_OPEN_LIMIT 5
 
@@ -393,7 +391,6 @@ select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 
 }
 
-#ifdef ENABLE_LIBTRACKERGTK
 void
 update_metadata_tile (GSearchWindow *gsearch)
 {
@@ -434,7 +431,6 @@ update_metadata_tile (GSearchWindow *gsearch)
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
 	g_list_free (list);
 }
-#endif /* ENABLE_LIBTRACKERGTK */
 
 void
 open_file_cb (GtkAction * action,
@@ -1047,9 +1043,8 @@ file_button_release_event_cb (GtkWidget * widget,
 			}
 		}
 	}
-#ifdef ENABLE_LIBTRACKERGTK
+
 	update_metadata_tile (gsearch);
-#endif /* ENABLE_LIBTRACKERGTK */
 
 	return FALSE;
 }

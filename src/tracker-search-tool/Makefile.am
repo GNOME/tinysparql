@@ -23,10 +23,6 @@ bin_PROGRAMS = tracker-search-tool
 #schema_in_file = tracker-search-tool.schemas.in
 #schema_DATA = $(schema_in_file:.schemas.in=.schemas)
 
-if ENABLE_LIBTRACKERGTK
-TRACKERGTK_LIBS=$(top_builddir)/src/libtracker-gtk/libtracker-gtk.la
-endif
-
 tracker_search_tool_SOURCES =     \
 	tracker-search-tool-support.c   \
 	tracker-search-tool-support.h   \
@@ -43,7 +39,7 @@ tracker_search_tool_LDADD =   \
 	$(GNOMEVFS_LIBS)    \
 	$(GNOMEDESKTOP_LIBS) \
 	$(DBUS_LIBS)	\
-	$(TRACKERGTK_LIBS) \
+        $(top_builddir)/src/libtracker-gtk/libtracker-gtk.la \
 	$(top_builddir)/src/libtracker/libtrackerclient.la 
 
 #man_MANS = tracker-search-tool.1
