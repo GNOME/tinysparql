@@ -1,3 +1,16 @@
+2007-03-01  Jamie McCracken <jamiemcc at gnome org>
+
+	* Made configure auto build stuff like libtracker-gtk if dependencies are met
+	* changed --enable-preferences to --disable-preferences
+
+
+2007-03-01 patch from Michael Biebl <mbiebl at gmail com>
+
+	* Cleaned up libtracker-gtk with John Stowers
+
+2007-03-01 patch from John Stowers <john.stowers@gmail.com>
+
+	* Add libtracker-gtk 
 
 
 2007-02-28  Jamie McCracken <jamiemcc at gnome org>

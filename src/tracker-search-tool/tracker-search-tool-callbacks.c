@@ -48,6 +48,9 @@
 #include "tracker-search-tool.h"
 #include "tracker-search-tool-callbacks.h"
 #include "tracker-search-tool-support.h"
+#ifdef ENABLE_LIBTRACKERGTK
+#include "../libtracker-gtk/tracker-metadata-tile.h"
+#endif /* ENABLE_LIBTRACKERGTK */
 
 #define SILENT_WINDOW_OPEN_LIMIT 5
 
@@ -390,7 +393,48 @@ select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 
 }
 
+#ifdef ENABLE_LIBTRACKERGTK
+void
+update_metadata_tile (GSearchWindow *gsearch)
+{
+	GtkTreeModel * model;
+	GList * list;
+	guint index;
+	
+	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) == 0) {
+		return;
+	}
 
+	list = gtk_tree_selection_get_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection),
+						     &model);
+	for (index = 0; index < g_list_length (list); index++) {
+
+		gboolean no_files_found = FALSE;
+		gchar *uri;
+		gchar *mime;
+		GdkPixbuf *pixbuf;
+		GtkTreeIter iter;
+
+		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
+		                         g_list_nth (list, index)->data);
+
+		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
+                                    COLUMN_ICON, &pixbuf,
+    		                    COLUMN_URI, &uri,
+ 			            COLUMN_TYPE, &mime,
+		                    COLUMN_NO_FILES_FOUND, &no_files_found,
+		                    -1);
+
+
+		tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, pixbuf);
+		
+                g_free (uri);
+
+	}
+	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
+	g_list_free (list);
+}
+#endif /* ENABLE_LIBTRACKERGTK */
 
 void
 open_file_cb (GtkAction * action,
@@ -1003,6 +1047,10 @@ file_button_release_event_cb (GtkWidget * widget,
 			}
 		}
 	}
+#ifdef ENABLE_LIBTRACKERGTK
+	update_metadata_tile (gsearch);
+#endif /* ENABLE_LIBTRACKERGTK */
+
 	return FALSE;
 }
 

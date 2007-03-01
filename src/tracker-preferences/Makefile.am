@@ -1,3 +1,5 @@
+#@INTLTOOL_DESKTOP_RULE@
+
 bin_PROGRAMS = tracker-preferences
 
 icondir = $(datadir)/pixmaps
@@ -5,7 +7,7 @@ desktopdir = $(datadir)/applications
 
 desktop_in_files = tracker-preferences.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
-@INTLTOOL_DESKTOP_RULE@
+
 
 icon_DATA = tracker.png
 pkgdata_DATA = tracker-preferences.glade

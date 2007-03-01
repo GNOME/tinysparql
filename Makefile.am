@@ -2,8 +2,13 @@ SUBDIRS = data src filters thumbnailers docs po
 
 pkgconfigdir = $(libdir)/pkgconfig
 xdgconfigdir = $(sysconfdir)/xdg/autostart
-pkgconfig_DATA = tracker.pc
 xdgconfig_DATA = trackerd.desktop
+
+pkgconfig_DATA = tracker.pc
+
+if ENABLE_LIBTRACKERGTK
+pkgconfig_DATA += libtracker-gtk.pc
+endif
 
 if USING_DESKBAR_APPLET
 handlerdir = $(DESKBAR_HANDLER_DIR)

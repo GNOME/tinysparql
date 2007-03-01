@@ -10,5 +10,9 @@ if ENABLE_PREFERENCES
 tracker_preferences_dir = tracker-preferences
 endif
 
-SUBDIRS = libstemmer xdgmime $(sqlite_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(tracker_gui_dir) $(tracker_preferences_dir)
+if ENABLE_LIBTRACKERGTK
+libtrackergtk_dir = libtracker-gtk
+endif
+
+SUBDIRS = libstemmer xdgmime $(sqlite_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(libtrackergtk_dir) $(tracker_gui_dir) $(tracker_preferences_dir)
 

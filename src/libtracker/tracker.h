@@ -17,6 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef TRACKER_H
+#define TRACKER_H
+
 #include "tracker-client.h"
 
 typedef void (*TrackerArrayReply) (char **result, GError *error, gpointer user_data);
@@ -198,3 +201,5 @@ void tracker_search_metadata_by_text_async 				(TrackerClient *client, const cha
 void tracker_search_metadata_by_text_and_mime_async			(TrackerClient *client, const char *query, const char **mimes, TrackerArrayReply callback, gpointer user_data);
 void tracker_search_metadata_by_text_and_mime_and_location_async	(TrackerClient *client, const char *query, const char **mimes, const char *location, TrackerArrayReply callback, gpointer user_data);
 void tracker_search_metadata_by_text_and_location_async			(TrackerClient *client, const char *query, const char *location, TrackerArrayReply callback, gpointer user_data);
+
+#endif /* TRACKER_H */

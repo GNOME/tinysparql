@@ -28,6 +28,10 @@
 #ifndef _GSEARCHTOOL_H_
 #define _GSEARCHTOOL_H_
 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #pragma }
@@ -35,6 +39,12 @@ extern "C" {
 
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
+#ifdef ENABLE_LIBTRACKERGTK
+#include <gnome.h>
+#include <libgnomevfs/gnome-vfs-mime.h>
+#include <libgnomevfs/gnome-vfs-ops.h>
+#include <libgnomevfs/gnome-vfs-utils.h>
+#endif /* ENABLE_LIBTRACKERGTK */
 #include "../libtracker/tracker.h"
 
 #define MAX_SEARCH_RESULTS 10
@@ -111,8 +121,9 @@ struct _GSearchWindow {
 	int			current_page;
 	int			type;
 	service_info_t  	*current_service;
-
-
+#ifdef ENABLE_LIBTRACKERGTK
+	GtkWidget		*metatile;
+#endif /* ENABLE_LIBTRACKER_GTK */	
 	GtkWidget		*no_results_label;
 	GtkWidget		*initial_label;
 	GtkWidget		*count_label;

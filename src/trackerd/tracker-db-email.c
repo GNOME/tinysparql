@@ -95,6 +95,10 @@ void
 tracker_db_email_insert_junk (DBConnection *db_con, const char *mbox_uri, guint32 uid)
 {
 	int mbox_id = tracker_db_email_get_mbox_id (db_con, mbox_uri);
+		
+	if (mbox_id == -1) {
+		return;
+	}
 
 	char *str_mbox_id = tracker_int_to_str (mbox_id);
 	char *str_uid = tracker_uint_to_str (uid);

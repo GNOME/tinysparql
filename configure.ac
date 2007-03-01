@@ -3,7 +3,7 @@
 # This file is part of Tracker.
 
 AC_PREREQ(2.57)
-AC_INIT([tracker],[0.5.4],[tracker-list@gnome.org])
+AC_INIT([tracker],[0.6.0],[tracker-list@gnome.org])
 
 AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -399,6 +399,35 @@ elif test "$primary_backend" = "fam"; then
 	AC_SUBST(FAM_LIBS)
 fi
 
+
+##################################################################
+# Enable building libtracker-gtk?
+##################################################################
+LIBTRACKERGTK_GTK_REQUIRED=2.8.20
+
+
+AC_ARG_ENABLE([libtrackergtk], AC_HELP_STRING([--disable-libtrackergtk], [Disable libtrackergtk]),,[enable_libtrackergtk=yes])
+if test "x$enable_libtrackergtk" != "xno" ; then
+
+   	libtrackergtk_modules="\
+        	glib-2.0    >=  $GLIB_REQUIRED, \
+        	gtk+-2.0    >=  $LIBTRACKERGTK_GTK_REQUIRED, \
+        	dbus-1      >=  $DBUS_REQUIRED, \
+        	dbus-glib-1 >=  $DBUS_REQUIRED"
+
+	PKG_CHECK_MODULES(LIBTRACKERGTK, [$libtrackergtk_modules],[enable_libtrackergtk=yes] , [enable_libtrackergtk=no])
+
+    	AC_SUBST([LIBTRACKERGTK_CFLAGS])
+    	AC_SUBST([LIBTRACKERGTK_LIBS])
+else
+	enable-libtrackergtk="no (disabled)"
+fi
+
+AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "$enable-libtrackergtk" != "no")
+
+
+
+
 ##################################################################
 # check for GNOME/GTK dependencies to build tracker search tool (Gnome client)
 ##################################################################
@@ -439,37 +468,54 @@ if test "x$enable_gui" = "xyes"; then
 else
 	have_gnome="no (disabled)"
 fi
+
+
+# do not build if libtracker-gtk is not being built
+if test "x$enable_libtrackergtk" = "yes"; then
+	have_gnome="no (disabled as libtracker-gtk is not being built)"	
+fi
+
 AM_CONDITIONAL(HAVE_GNOME, test "$have_gnome" = "yes")
 if test "$have_gnome" = "yes"; then
    GNOME_COMMON_INIT
 fi
 
+
 ##################################################################
 # Checks for tracker-preferences
 ##################################################################
-PREFERENCES_GTK_REQUIRED=2.8.0
-PREFERENCES_GLIB_REQUIRED=2.10
+
 PREFERENCES_GLADE_REQUIRED=2.6
 
 AC_ARG_ENABLE([preferences],
-              AC_HELP_STRING([--enable-preferences], [Enable the preferences dialog]),,
-              [enable_preferences=no])
+              AC_HELP_STRING([--disable-preferences], [Disable the preferences dialog]),,
+              [enable_preferences=yes])
 
 if test "x$enable_preferences" != "xno" ; then
-   PKG_CHECK_MODULES(GTK2, [ gtk+-2.0 >= $PREFERENCES_GTK_REQUIRED ])
-   AC_SUBST([GTK2_CFLAGS])
-   AC_SUBST([GTK2_LIBS])
 
-   PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= $PREFERENCES_GLIB_REQUIRED ])
-   AC_SUBST([GLIB2_CFLAGS])
-   AC_SUBST([GLIB2_LIBS])
+   	PKG_CHECK_MODULES(GLIB2, [ glib-2.0 >= $PREFERENCES_GLIB_REQUIRED ],[enable_preference=yes] , [enable_preference=no])
+   	AC_SUBST([GLIB2_CFLAGS])
+   	AC_SUBST([GLIB2_LIBS])
 
-   PKG_CHECK_MODULES(LIBGLADE, [ libglade-2.0 >= $PREFERENCES_GLADE_REQUIRED ])
-   AC_SUBST([LIBGLADE_CFLAGS])
-   AC_SUBST([LIBGLADE_LIBS])
+	if test "$enable_preferences" = "yes"; then 
+		PKG_CHECK_MODULES(GTK2, [ gtk+-2.0 >= $PREFERENCES_GTK_REQUIRED ],[enable_preference=yes] , [enable_preference=no])
+		AC_SUBST([GTK2_CFLAGS])
+   		AC_SUBST([GTK2_LIBS])
+	fi
+
+	if test "$enable_preferences" = "yes"; then 
+
+	   	PKG_CHECK_MODULES(LIBGLADE, [ libglade-2.0 >= $PREFERENCES_GLADE_REQUIRED ], [enable_preferences=yes], [enable_preferences=no])
+		AC_SUBST([LIBGLADE_CFLAGS])
+   		AC_SUBST([LIBGLADE_LIBS])
+	fi
+else
+	enable-preferences="no (disabled)"
 fi
 
 AM_CONDITIONAL(ENABLE_PREFERENCES, test "$enable_preferences" != "no")
+
+
 
 
 ##################################################################
@@ -559,6 +605,7 @@ AC_MSG_RESULT([$ioprio_support])
 AC_CONFIG_FILES([
 	Makefile
 	tracker.pc
+	libtracker-gtk.pc
 	docs/Makefile
 	data/Makefile
 	data/languages/Makefile
@@ -578,6 +625,7 @@ AC_CONFIG_FILES([
 	src/tracker-thumbnailer/Makefile
 	src/trackerd/Makefile
 	src/libtracker/Makefile
+	src/libtracker-gtk/Makefile
 	src/tracker-search-tool/Makefile
 	src/tracker-preferences/Makefile
 	src/xdgmime/Makefile
@@ -602,6 +650,7 @@ Tracker-$VERSION:
 	ioprio support:				$ioprio_support
 	build search tool (GNOME):		$have_gnome
 	build preferences ui:			$enable_preferences
+	build libtracker-gtk:			$enable_libtrackergtk
 
 Metadata extractors:
 
