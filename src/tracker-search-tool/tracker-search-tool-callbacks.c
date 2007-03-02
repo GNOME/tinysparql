@@ -51,6 +51,8 @@
 #include "../libtracker-gtk/tracker-metadata-tile.h"
 
 #define SILENT_WINDOW_OPEN_LIMIT 5
+#define METADATA_IMAGE_WIDTH	100
+#define METADATA_IMAGE_HEIGHT	100
 
 #ifdef HAVE_GETPGID
 extern pid_t getpgid (pid_t);
@@ -391,6 +393,43 @@ select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 
 }
 
+GdkPixbuf *
+tracker_get_large_icon (const gchar *local_uri, GdkPixbuf *basic_pixbuf)
+{
+	gchar *icon_name = NULL;
+	gchar *thumb_name = NULL;
+	GdkPixbuf *temp = NULL;
+	gchar *uri = gnome_vfs_get_uri_from_local_path (local_uri);
+	
+	thumb_name = gnome_thumbnail_path_for_uri (uri, GNOME_THUMBNAIL_SIZE_NORMAL);
+	temp = gdk_pixbuf_new_from_file_at_scale (thumb_name, METADATA_IMAGE_WIDTH, METADATA_IMAGE_HEIGHT, TRUE, NULL);
+	if (temp) {
+		g_free (thumb_name);
+		g_free (uri);
+		return temp;
+	}
+	icon_name = gnome_icon_lookup_sync  (gtk_icon_theme_get_default(),
+                                             gnome_thumbnail_factory_new (GNOME_THUMBNAIL_SIZE_NORMAL),
+                                             local_uri,
+                                             NULL,
+                                             GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES | GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES,
+                                             0);                                       
+	temp = gtk_icon_theme_load_icon (gtk_icon_theme_get_default(),
+                                         icon_name,
+                                         METADATA_IMAGE_HEIGHT,
+                                         GTK_ICON_LOOKUP_FORCE_SVG,
+                                         NULL);
+	
+	g_free (icon_name);
+	g_free (thumb_name);
+	g_free (uri);
+	if (temp)
+		return temp;
+	else
+		return basic_pixbuf;	
+}
+
+
 void
 update_metadata_tile (GSearchWindow *gsearch)
 {
@@ -422,7 +461,8 @@ update_metadata_tile (GSearchWindow *gsearch)
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
 
-
+		g_print ("%s\n", uri);
+		pixbuf = tracker_get_large_icon (uri, pixbuf);
 		tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, pixbuf);
 		
                 g_free (uri);
@@ -1260,7 +1300,6 @@ drag_file_cb  (GtkWidget * widget,
 		gboolean no_files_found = FALSE;
 		gchar * utf8_name;
 		gchar * utf8_path;
-		gchar * utf8_uri;
 		gchar * file;
 
 		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
@@ -1269,40 +1308,25 @@ drag_file_cb  (GtkWidget * widget,
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
 		                    COLUMN_NAME, &utf8_name,
 		                    COLUMN_PATH, &utf8_path,
-		                    COLUMN_URI, &utf8_uri,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
 
 		file = g_build_filename (utf8_path, utf8_name, NULL);
-		
+
 		if (!no_files_found) {
-			gchar * tmp_uri = NULL;
-			tmp_uri = g_filename_to_uri (file, NULL, NULL);
+			gchar * tmp_uri = g_filename_to_uri (file, NULL, NULL);
 
 			if (uri_list == NULL) {
 				uri_list = g_strdup (tmp_uri);
 			}
 			else {
 				uri_list = g_strconcat (uri_list, "\n", tmp_uri, NULL);
-			} 
-			
-			if (gsearch->type < 10) {
-				gtk_selection_data_set (selection_data,
+			}
+			gtk_selection_data_set (selection_data,
 			                        selection_data->target,
 			                        8,
 			                        (guchar *) uri_list,
 			                        strlen (uri_list));
-				
-			} else {
-				gchar *desktop_uri;
-				desktop_uri = make_email_desktop_file (utf8_uri, utf8_name);
-				gtk_selection_data_set (selection_data,
-			                        selection_data->target,
-			                        8,
-			                        (guchar *) desktop_uri,
-			                        strlen (desktop_uri));
-			        g_free (desktop_uri);
-			}
 			g_free (tmp_uri);
 		}
 		else {
@@ -1310,7 +1334,6 @@ drag_file_cb  (GtkWidget * widget,
 		}
 		g_free (utf8_name);
 		g_free (utf8_path);
-		g_free (utf8_uri);
 		g_free (file);
 	}
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);

@@ -2671,7 +2671,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 
 	/* metadata_tile */
 	gsearch->metatile = tracker_metadata_tile_new ();
-	gtk_widget_show (gsearch->metatile);
+	//gtk_widget_show (gsearch->metatile);
 	gtk_box_pack_start (GTK_BOX (main_container), gsearch->metatile, FALSE, FALSE, 0);
 
 	gtk_window_set_focus (GTK_WINDOW (gsearch->window),
