@@ -6,8 +6,7 @@
 
 	* Made drag and drop of an email create a desktop file
 	* desktop file launches evolution with correct uri.
-
-
+	* made thumbs bigger in tile
 
 2007-03-01  Jamie McCracken <jamiemcc at gnome org>
 
@@ -19,6 +18,7 @@
 
 	* Cleaned up libtracker-gtk with John Stowers
 	* removed optional dependency on libtracker-gtk for tst
+	* added localisation
 
 2007-03-01 patch from John Stowers <john.stowers@gmail.com>
 
