@@ -24,11 +24,12 @@
 
 #include <string.h>
 
+#include <glib/gi18n-lib.h>
+
 #include "../libtracker/tracker.h"
 
 #include "tracker-tag-bar.h"
 
-#define _(obj) obj //delete once we include GETTEXT support
 
 #define TRACKER_TAG_BAR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_TAG_BAR, TrackerTagBarPrivate))
 
