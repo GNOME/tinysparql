@@ -1200,6 +1200,39 @@ drag_begin_file_cb (GtkWidget * widget,
 	}
 }
 
+/* Make a desktop file in /tmp witch points to this email*/
+static gchar*
+make_email_desktop_file (const gchar *utf8_uri, const gchar *utf8_name)
+{
+	GnomeDesktopItem *item = NULL;
+	gchar *exec_string = NULL;
+	gchar *save_uri = NULL;
+        time_t seconds;
+
+	item = gnome_desktop_item_new ();
+	
+	exec_string = g_strdup_printf ("evolution \"%s\"",utf8_uri);
+	
+	gnome_desktop_item_set_string (item, GNOME_DESKTOP_ITEM_ENCODING, "UTF-8");
+	gnome_desktop_item_set_string (item, GNOME_DESKTOP_ITEM_NAME, utf8_name);
+	gnome_desktop_item_set_string (item, GNOME_DESKTOP_ITEM_COMMENT, _("Activate to view this email"));
+	gnome_desktop_item_set_string (item, GNOME_DESKTOP_ITEM_EXEC, exec_string);
+	gnome_desktop_item_set_string (item, GNOME_DESKTOP_ITEM_ICON, "email");	
+	gnome_desktop_item_set_string (item, GNOME_DESKTOP_ITEM_TERMINAL, "false");
+	gnome_desktop_item_set_string (item, GNOME_DESKTOP_ITEM_TYPE, "Application");
+	
+	seconds = time (NULL);
+	save_uri = g_strdup_printf ("/tmp/tracker-email-shortcut-file%d.desktop", (int)seconds);
+	gnome_desktop_item_save (item,
+				 save_uri,
+                                 TRUE,
+                                 NULL);
+	
+	g_free (exec_string);
+	
+	return save_uri;
+}
+
 void
 drag_file_cb  (GtkWidget * widget,
                GdkDragContext * context,
@@ -1227,6 +1260,7 @@ drag_file_cb  (GtkWidget * widget,
 		gboolean no_files_found = FALSE;
 		gchar * utf8_name;
 		gchar * utf8_path;
+		gchar * utf8_uri;
 		gchar * file;
 
 		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
@@ -1235,25 +1269,40 @@ drag_file_cb  (GtkWidget * widget,
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
 		                    COLUMN_NAME, &utf8_name,
 		                    COLUMN_PATH, &utf8_path,
+		                    COLUMN_URI, &utf8_uri,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
 
 		file = g_build_filename (utf8_path, utf8_name, NULL);
-
+		
 		if (!no_files_found) {
-			gchar * tmp_uri = g_filename_to_uri (file, NULL, NULL);
+			gchar * tmp_uri = NULL;
+			tmp_uri = g_filename_to_uri (file, NULL, NULL);
 
 			if (uri_list == NULL) {
 				uri_list = g_strdup (tmp_uri);
 			}
 			else {
 				uri_list = g_strconcat (uri_list, "\n", tmp_uri, NULL);
-			}
-			gtk_selection_data_set (selection_data,
+			} 
+			
+			if (gsearch->type < 10) {
+				gtk_selection_data_set (selection_data,
 			                        selection_data->target,
 			                        8,
 			                        (guchar *) uri_list,
 			                        strlen (uri_list));
+				
+			} else {
+				gchar *desktop_uri;
+				desktop_uri = make_email_desktop_file (utf8_uri, utf8_name);
+				gtk_selection_data_set (selection_data,
+			                        selection_data->target,
+			                        8,
+			                        (guchar *) desktop_uri,
+			                        strlen (desktop_uri));
+			        g_free (desktop_uri);
+			}
 			g_free (tmp_uri);
 		}
 		else {
@@ -1261,6 +1310,7 @@ drag_file_cb  (GtkWidget * widget,
 		}
 		g_free (utf8_name);
 		g_free (utf8_path);
+		g_free (utf8_uri);
 		g_free (file);
 	}
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);

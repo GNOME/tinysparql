@@ -1,3 +1,10 @@
+2007-03-01  Patch from Neil Patel <njpatel at gmail com>
+
+	* Made drag and drop of an email create a desktop file
+	* desktop file launches evolution with correct uri.
+
+
+
 2007-03-01  Jamie McCracken <jamiemcc at gnome org>
 
 	* Made configure auto build stuff like libtracker-gtk if dependencies are met
