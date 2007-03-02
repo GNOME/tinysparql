@@ -17,6 +17,7 @@ import dbus
 import deskbar
 from deskbar.Handler import SignallingHandler
 from deskbar.Match import Match
+from deskbar.Utils import spawn_async, url_show
 
 #Edit this var for change the numer of output results
 MAX_RESULTS = 10
@@ -66,15 +67,16 @@ TYPES = {
 		"description": (_("See  conversations %s") % "<i>%(publisher)s</i>" ) + "\n<b>%(base)s</b>",
 		"category": "conversations",
 		},
-	"Emails"	: {
-		"description": (_("See  mail %s") % "<i>%(publisher)s</i>" ) + "\n<b>%(base)s</b>",
+	"Email"	: {
+		"description": (_("Email from %s") % "<i>%(publisher)s</i>" ) + "\n<b>%(title)s</b>",
 		"category": "emails",
+		"action" : "evolution %(uri)s",
+		"icon" : "stock_mail",
 		},
 	"Music"	: {
 		"description": _("Listen music %s\nin %s")	% ("<b>%(base)s</b>", "<i>%(dir)s</i>"),
 		"category": "music",
-		},
-	
+		},	
 	"Documents" 	: {
 		"description": _("See document %s\nin %s")	% ("<b>%(base)s</b>", "<i>%(dir)s</i>"),
 		"category": "documents",
@@ -147,14 +149,25 @@ class TrackerMoreMatch (Match):
 class TrackerLiveFileMatch (Match):
 	def __init__(self, handler,result=None, **args):
 		Match.__init__ (self, handler,name=result["name"], **args)
-		self._icon = deskbar.Utils.load_icon_for_file(result['uri'])
+
 		self.result = result
 		self.fullpath = result['uri']
 		self.init_names()
+		
+		self.result["base"] = self.base
+		self.result["dir"] = self.dir
+		
+		# Set the match icon
+		try:
+			self._icon = deskbar.Utils.load_icon(TYPES[result['type']]["icon"])
+		except:
+			self._icon = deskbar.Utils.load_icon_for_file(result['uri'])
+		
+		print result
 
 	def get_name(self, text=None):
 		try:
-			return {"base": self.base,"dir": self.dir}
+			return self.result
 		except:
 			pass
 
@@ -171,8 +184,14 @@ class TrackerLiveFileMatch (Match):
 			pass
 
 	def action(self, text=None):
-		print "Opening Tracker hit:", self.result['uri']
-		gnome.url_show ("file://"+cgi.escape(self.result['uri']))
+		if TYPES[self.result["type"]].has_key("action"):
+			cmd = TYPES[self.result["type"]]["action"]
+			cmd = map(lambda arg : arg % self.result, cmd.split()) # we need this to handle spaces correctly
+			print "Opening Tracker hit with command:", cmd
+			spawn_async(cmd)
+		else:
+			url_show ("file://"+cgi.escape(self.result['uri']))
+			print "Opening Tracker hit:", self.result['uri']
 		
 	def get_category (self):
 		try:
@@ -208,11 +227,11 @@ class TrackerLiveSearchHandler(SignallingHandler):
 	def recieve_hits (self, qstring, hits, max):
 		matches = []
 		self.results = {}
-		print hits
+		
 		for info in hits:
 			output = {} 
 			output['name'] = os.path.basename(info[0])
-			output['uri'] = info[0] 
+			output['uri'] = cgi.escape(info[0]).encode("ascii") # we need ascii for gobject.spawn_async later
 			output['type'] = info[1]
 			if TYPES.has_key(output['type']) == 0:
 				output['type'] = "Other Files"	
@@ -220,6 +239,11 @@ class TrackerLiveSearchHandler(SignallingHandler):
 				self.results[output['type']].append(output)
 			except:
 				self.results[output['type']] = [output]
+			
+			if output["type"] == "Email":
+				output["title"] = cgi.escape(info[3])
+				output["publisher"] = cgi.escape(info[4])
+			
 		for key in self.results.keys():
 				for res in self.results[key][0:MAX_RESULTS]:
 					matches.append(TrackerLiveFileMatch(self,res))
@@ -233,7 +257,8 @@ class TrackerLiveSearchHandler(SignallingHandler):
 				
 	def query (self, qstring, max):
 		if qstring.count("tag:") == 0: 
-			self.search_iface.TextDetailed (-1, "Files", qstring, 0,100, reply_handler=lambda hits : self.recieve_hits(qstring, hits, max), error_handler=self.recieve_error)
+			self.search_iface.TextDetailed (-1, "Files", qstring, 0,10, reply_handler=lambda hits : self.recieve_hits(qstring, hits, max), error_handler=self.recieve_error)
+			self.search_iface.TextDetailed (-1, "Emails", qstring, 0,10, reply_handler=lambda hits : self.recieve_hits(qstring, hits, max), error_handler=self.recieve_error)
 			print "Tracker query:", qstring
 		else:
 			if self.tracker.GetVersion() == 502:
