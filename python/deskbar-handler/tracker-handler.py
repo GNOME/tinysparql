@@ -17,7 +17,6 @@ import dbus
 import deskbar
 from deskbar.Handler import SignallingHandler
 from deskbar.Match import Match
-from deskbar.Utils import url_show
 
 #Edit this var for change the numer of output results
 MAX_RESULTS = 10
@@ -195,7 +194,11 @@ class TrackerLiveFileMatch (Match):
 				# deskbar <= 2.16
 				gobject.spawn_async(args, flags=gobject.SPAWN_SEARCH_PATH)
 		else:
-			url_show ("file://"+cgi.escape(self.result['uri']))
+			try:
+				# deskbar >= 2.17
+				deskbar.Utils.url_show ("file://"+cgi.escape(self.result['uri']))
+			except AttributeError:
+				gnome.url_show("file://"+cgi.escape(self.result['uri']))
 			print "Opening Tracker hit:", self.result['uri']
 		
 	def get_category (self):
