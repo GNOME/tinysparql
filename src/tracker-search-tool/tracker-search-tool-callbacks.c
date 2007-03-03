@@ -366,6 +366,7 @@ display_dialog_could_not_open_folder (GtkWidget * window,
 void
 select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data) 
 {
+#if 0
 	GSearchWindow *gsearch = user_data;
 	GtkTreeModel * model;
 	GtkTreeIter iter;
@@ -390,7 +391,7 @@ select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 
 	g_free (name);
 	
-
+#endif
 }
 
 GdkPixbuf *
@@ -435,7 +436,8 @@ update_metadata_tile (GSearchWindow *gsearch)
 	GList * list;
 	guint index;
 	
-	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) == 0) {
+	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) != 1) {
+		gtk_widget_hide (gsearch->metatile);
 		return;
 	}
 

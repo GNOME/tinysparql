@@ -1726,7 +1726,7 @@ create_search_results_section (GSearchWindow * gsearch)
 	gsearch->search_results_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (gsearch->search_results_tree_view));
 
 	gtk_tree_selection_set_mode (GTK_TREE_SELECTION (gsearch->search_results_selection),
-				     GTK_SELECTION_BROWSE);
+				     GTK_SELECTION_MULTIPLE);
 
 	gtk_drag_source_set (GTK_WIDGET (gsearch->search_results_tree_view),
 			     GDK_BUTTON1_MASK | GDK_BUTTON2_MASK,
