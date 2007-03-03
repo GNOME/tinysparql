@@ -1,3 +1,10 @@
+2007-03-03  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-search-tool/tracker-search-tool.c:
+	(update_page_count_label):
+	Fix some HIG, i18n and icon issue in Tracker search too.
+	See bug #412255 for details.
+
 2007-03-02  Mikkel Kamstrup Erlandsen <kamstrup at cvs gnome org>
 
 	* Add email support to deskbar handler

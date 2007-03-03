@@ -132,15 +132,15 @@ NULL
 
 
 static service_info_t services[11] = {
-   { N_("_Emails"),    	 "email",		      SERVICE_EMAILS        , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("_All files"),    "system-file-manager",       SERVICE_FILES         , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("_Folders"),    "folder",	       SERVICE_FOLDERS         , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("_Documents"),    "document",         	      SERVICE_DOCUMENTS     , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("_Images"),       "image",         	      SERVICE_IMAGES        , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("_Music"),        "audio-x-generic",           SERVICE_MUSIC         , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("_Videos"),       "video-x-generic",           SERVICE_VIDEOS        , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("_Text"),   	 "text-x-generic",            SERVICE_TEXT_FILES    , NULL, NULL, FALSE, 0, 0,0 },
-   { N_("De_velopment"),  "applications-development",  SERVICE_DEVELOPMENT_FILES , NULL, NULL, FALSE, 0 ,0,0 },
+   { N_("Emails"),    	 "stock_mail",		      SERVICE_EMAILS        , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("All Files"),    "system-file-manager",       SERVICE_FILES         , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("Folders"),      "folder",                    SERVICE_FOLDERS       , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("Documents"),    "x-office-document",         	      SERVICE_DOCUMENTS     , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("Images"),       "image-x-generic",         	      SERVICE_IMAGES        , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("Music"),        "audio-x-generic",           SERVICE_MUSIC         , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("Videos"),       "video-x-generic",           SERVICE_VIDEOS        , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("Text"),   	 "text-x-generic",            SERVICE_TEXT_FILES    , NULL, NULL, FALSE, 0, 0,0 },
+   { N_("Development"),  "applications-development",  SERVICE_DEVELOPMENT_FILES , NULL, NULL, FALSE, 0 ,0,0 },
    { NULL,               NULL,                        -1                    , NULL, NULL, FALSE, 0, 0,0 },
 };
 
@@ -2196,14 +2196,11 @@ update_page_count_label (GSearchWindow *gsearch)
 	}
 	
 	if (count > 5) {
-		label_str = g_strdup_printf ("%s %d..%d of %d ", _("Showing results"), from, to, count);
-	} else {
-		if (count != 1) {
-			label_str = g_strdup_printf ("%s %d %s", _("Showing"), count, _("results"));
-		} else {
-			label_str = g_strdup_printf ("%s %d %s", _("Showing"), count, _("result"));
-		}
-	}
+		/* Translators: this will appear like "Results 5 - 10 of 30" */
+		label_str = g_strdup_printf (_("Results %d - %d of %d"), from, to, count);
+	} else 
+		label_str = g_strdup_printf (ngettext ("%d result", "%d results", count), count);
+
 	gtk_label_set_text (GTK_LABEL (gsearch->count_label), label_str);
 	g_free (label_str);
 
