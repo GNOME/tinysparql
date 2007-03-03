@@ -1,5 +1,10 @@
 2007-03-03  Edward Duffy   <eduffy@gmail.com>
 
+	* src/tracker-search-tool/tracker-search-tool.c:
+	Preserve search terms when switching tabs (#399022)
+
+2007-03-03  Edward Duffy   <eduffy@gmail.com>
+
 	* configure.ac:
 	* trackerd.desktop.in:
 	* src/tracker-search-tool.desktop.in:

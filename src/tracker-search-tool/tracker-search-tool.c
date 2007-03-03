@@ -650,7 +650,7 @@ add_email_to_search_results (const gchar * uri,
 	if (gsearch->search_term) {
 		search_term = gsearch->search_term;
 	} else {
-	search_term = "";
+		search_term = "";
 	}
 
 
@@ -724,7 +724,7 @@ add_file_to_search_results (const gchar * file,
 	if (gsearch->search_term) {
 		search_term = gsearch->search_term;
 	} else {
-	search_term = "";
+		search_term = "";
 	}
 
 
@@ -2360,7 +2360,14 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
 		} 
 	}
 
-	gsearch->search_term = g_strdup (query);	
+	/* yes, we are comparing pointer addresses here */
+	if (gsearch->search_term && gsearch->search_term != query) {
+		g_free (gsearch->search_term);
+		gsearch->search_term = NULL;
+	}
+	if (gsearch->search_term == NULL) {
+		gsearch->search_term = g_strdup (query);
+	}
 
 	out_array = tracker_search_text_detailed (tracker_client, -1, gsearch->current_service->service_type, query, search_offset, MAX_SEARCH_RESULTS, NULL);
 	gsearch->is_locate_database_check_finished = TRUE;
@@ -2426,14 +2433,7 @@ tab_change_cb (GtkNotebook *notebook, GtkNotebookPage *page, gint new_page, gpoi
 
 	init_tab (gsearch, gsearch->current_service);
 
-	char *command = build_search_command (gsearch, TRUE);
-	if (command != NULL) {
-		do_search (gsearch, command, FALSE, service->offset);
-	} 
-
-	g_free (command);
-
-
+	do_search (gsearch, gsearch->search_term, FALSE, service->offset);
 
 }
 
@@ -2444,14 +2444,7 @@ next_button_cb (GtkWidget *widget, gpointer data)
 	service_info_t  *service;
 	GSearchWindow 	*gsearch = data;
 
-	
-
-	char *command = build_search_command (gsearch, TRUE);
-	if (command != NULL) {
-		do_search (gsearch, command, FALSE, gsearch->current_service->offset + MAX_SEARCH_RESULTS);
-	} 
-	g_free (command);
-
+	do_search (gsearch, gsearch->search_term, FALSE, gsearch->current_service->offset + MAX_SEARCH_RESULTS);
 }
 
 
@@ -2462,11 +2455,7 @@ prev_button_cb (GtkWidget *widget, gpointer data)
 	service_info_t  *service;
 	GSearchWindow 	*gsearch = data;
 
-	char *command = build_search_command (gsearch, TRUE);
-	if (command != NULL) {
-		do_search (gsearch, command, FALSE, gsearch->current_service->offset - MAX_SEARCH_RESULTS);
-	} 
-	g_free (command);
+	do_search (gsearch, gsearch->search_term, FALSE, gsearch->current_service->offset - MAX_SEARCH_RESULTS);
 }
 
 
@@ -2478,14 +2467,14 @@ click_find_cb (GtkWidget * widget,
                gpointer data)
 {
 	GSearchWindow 	*gsearch = data;
-	gchar 		*command;
+	gchar		*command;
 	
 	command = build_search_command (gsearch, TRUE);
 	if (command != NULL) {
 		do_search (gsearch, command, TRUE, 0);
 	}
 
-	
+	g_free (command);
 }
 
 
@@ -2558,6 +2547,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	gsearch->command_details = g_slice_new0 (GSearchCommandDetails);
 	gsearch->window_geometry.min_height = -1;
 	gsearch->window_geometry.min_width  = -1;
+	gsearch->search_term = NULL;
 
 	gtk_window_set_position (GTK_WINDOW (gsearch->window), GTK_WIN_POS_CENTER);
 	gtk_window_set_geometry_hints (GTK_WINDOW (gsearch->window), GTK_WIDGET (gsearch->window),
