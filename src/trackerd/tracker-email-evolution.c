@@ -877,14 +877,14 @@ static GSList *
 find_accounts_by_gconf (GSList *found_accounts)
 {
 	char *argv[4];
-	char *text;
+	char *text = NULL;
 
 	argv[0] = "gconftool";
 	argv[1] = "--get";
 	argv[2] = "/apps/evolution/mail/accounts";
 	argv[3] = NULL;
 
-	if (g_spawn_sync (NULL,
+	if (!g_spawn_sync (NULL,
 			  argv,
 			  NULL,
 			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
@@ -895,71 +895,88 @@ find_accounts_by_gconf (GSList *found_accounts)
 			  NULL,
 			  NULL)) {
 
-		if (text) {
-			char			*to_parse;
-			GMarkupParser		*parser;
-			GMarkupParseContext	*parser_context;
-			char			**accounts;
-			ParsingAccountState	*state;
+		argv[0] = "gconftool-2";
+			
+		if (!g_spawn_sync (NULL,
+			  argv,
+			  NULL,
+			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+			  NULL,
+			  NULL,
+			  &text,
+			  NULL,
+			  NULL,
+			  NULL)) {
 
-			if (text[0] == '[') {
-				size_t len;
-
-				/* Usually a string returned by gconftool begins by character '['.
-				   We remove this character. */
-
-				to_parse = text + 1;
-
-				/* and then it probably ends with string "]\n"... */
-				len = strlen (text);
-				if (text[len - 1] == '\n' && text[len - 2] == ']') {
-					text[len - 2] = '\0';
-				}
-			} else {
-				to_parse = text;
-			}
-
-			parser = g_new0 (GMarkupParser, 1);
-			parser->start_element = account_start_element_handler;
-			parser->text = account_text_handler;
-			parser->end_element = account_end_element_handler;
-
-			state = g_new0 (ParsingAccountState, 1);
-			state->elements = g_queue_new ();
-
-			parser_context = g_markup_parse_context_new (parser, 0, state, NULL);
-
-			/* Accounts look that way:
-
-			   <?xml version="1.0"?>
-			   <account name="laurent.aguerreche@free.fr" uid="1134161347.7985.16@foo.bar" enabled="true"><identity><...etc...></account>
-			   ,<?xml version="1.0"?>
-			   <account name="whrahahaaa@free.fr" uid="1147098156.5252.0@foo.bar" enabled="true"><identity><...etc...></account>
-
-			   so we split accounts around string "\n,".
-			 */
-
-			accounts = g_strsplit (to_parse, "\n,", -1);
-
-			if (accounts) {
-				char **account;
-
-				for (account = accounts; *account; account++) {
-					state->account = g_new0 (EvolutionAccount, 1);
-					g_markup_parse_context_parse (parser_context, *account, -1, NULL);
-					found_accounts = g_slist_prepend (found_accounts, state->account);
-				}
-
-				g_strfreev (accounts);
-			}
-
-			g_markup_parse_context_free (parser_context);
-
-			g_queue_free (state->elements);
-			g_free (state);
-			g_free (parser);
-			g_free (text);
+			return found_accounts;
 		}
+	}
+
+
+	if (text) {
+		char			*to_parse;
+		GMarkupParser		*parser;
+		GMarkupParseContext	*parser_context;
+		char			**accounts;
+		ParsingAccountState	*state;
+
+		if (text[0] == '[') {
+			size_t len;
+
+			/* Usually a string returned by gconftool begins by character '['.
+			   We remove this character. */
+
+			to_parse = text + 1;
+
+			/* and then it probably ends with string "]\n"... */
+			len = strlen (text);
+			if (text[len - 1] == '\n' && text[len - 2] == ']') {
+				text[len - 2] = '\0';
+			}
+		} else {
+			to_parse = text;
+		}
+
+		parser = g_new0 (GMarkupParser, 1);
+		parser->start_element = account_start_element_handler;
+		parser->text = account_text_handler;
+		parser->end_element = account_end_element_handler;
+
+		state = g_new0 (ParsingAccountState, 1);
+		state->elements = g_queue_new ();
+
+		parser_context = g_markup_parse_context_new (parser, 0, state, NULL);
+
+		/* Accounts look that way:
+
+		   <?xml version="1.0"?>
+		   <account name="laurent.aguerreche@free.fr" uid="1134161347.7985.16@foo.bar" enabled="true"><identity><...etc...></account>
+		   ,<?xml version="1.0"?>
+		   <account name="whrahahaaa@free.fr" uid="1147098156.5252.0@foo.bar" enabled="true"><identity><...etc...></account>
+
+		   so we split accounts around string "\n,".
+		 */
+
+		accounts = g_strsplit (to_parse, "\n,", -1);
+
+		if (accounts) {
+			char **account;
+
+			for (account = accounts; *account; account++) {
+				state->account = g_new0 (EvolutionAccount, 1);
+				g_markup_parse_context_parse (parser_context, *account, -1, NULL);
+				found_accounts = g_slist_prepend (found_accounts, state->account);
+			}
+
+			g_strfreev (accounts);
+		}
+
+		g_markup_parse_context_free (parser_context);
+
+		g_queue_free (state->elements);
+		g_free (state);
+		g_free (parser);
+		g_free (text);
 	}
 
 	return found_accounts;
