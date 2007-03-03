@@ -1,3 +1,8 @@
+2007-03-04  Mikkel Kamstrup Erlandsen <kamstrup@cvs.gnome.org>
+
+	* python/deskbar-handler/tracker-handler.py:
+	Work around dependency for deskbar 2.18. We can do with 2.16 now (hopefully).
+
 2007-03-03  Edward Duffy   <eduffy@gmail.com>
 
 	* src/tracker-search-tool/tracker-search-tool.c:

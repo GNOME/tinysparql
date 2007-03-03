@@ -17,7 +17,7 @@ import dbus
 import deskbar
 from deskbar.Handler import SignallingHandler
 from deskbar.Match import Match
-from deskbar.Utils import spawn_async, url_show
+from deskbar.Utils import url_show
 
 #Edit this var for change the numer of output results
 MAX_RESULTS = 10
@@ -188,7 +188,12 @@ class TrackerLiveFileMatch (Match):
 			cmd = TYPES[self.result["type"]]["action"]
 			cmd = map(lambda arg : arg % self.result, cmd.split()) # we need this to handle spaces correctly
 			print "Opening Tracker hit with command:", cmd
-			spawn_async(cmd)
+			try:
+				# deskbar >= 2.17
+				deskbar.Utils.spawn_async(cmd)
+			except AttributeError:
+				# deskbar <= 2.16
+				gobject.spawn_async(args, flags=gobject.SPAWN_SEARCH_PATH)
 		else:
 			url_show ("file://"+cgi.escape(self.result['uri']))
 			print "Opening Tracker hit:", self.result['uri']
