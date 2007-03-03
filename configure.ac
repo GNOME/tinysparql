@@ -605,6 +605,7 @@ AC_MSG_RESULT([$ioprio_support])
 AC_CONFIG_FILES([
 	Makefile
 	tracker.pc
+	trackerd.desktop
 	libtracker-gtk.pc
 	docs/Makefile
 	data/Makefile
@@ -627,6 +628,7 @@ AC_CONFIG_FILES([
 	src/libtracker/Makefile
 	src/libtracker-gtk/Makefile
 	src/tracker-search-tool/Makefile
+	src/tracker-search-tool/tracker-search-tool.desktop
 	src/tracker-preferences/Makefile
 	src/xdgmime/Makefile
 	po/Makefile.in

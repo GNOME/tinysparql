@@ -1,5 +1,12 @@
 2007-03-03  Edward Duffy   <eduffy@gmail.com>
 
+	* configure.ac:
+	* trackerd.desktop.in:
+	* src/tracker-search-tool.desktop.in:
+	Add X-GNOME-Bugzilla-* keys to the .desktop files (#407348)
+
+2007-03-03  Edward Duffy   <eduffy@gmail.com>
+
 	* src/trackerd/tracker-db-sqlite.c:
 	Fix tracker_db_get_files_by_mime (#409729)
 
