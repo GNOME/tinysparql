@@ -394,7 +394,7 @@ select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 }
 
 GdkPixbuf *
-tracker_get_large_icon (const gchar *local_uri, GdkPixbuf *basic_pixbuf)
+tracker_get_large_icon (const gchar *local_uri)
 {
 	gchar *icon_name = NULL;
 	gchar *thumb_name = NULL;
@@ -423,10 +423,8 @@ tracker_get_large_icon (const gchar *local_uri, GdkPixbuf *basic_pixbuf)
 	g_free (icon_name);
 	g_free (thumb_name);
 	g_free (uri);
-	if (temp)
-		return temp;
-	else
-		return basic_pixbuf;	
+	
+	return temp;
 }
 
 
@@ -460,11 +458,19 @@ update_metadata_tile (GSearchWindow *gsearch)
  			            COLUMN_TYPE, &mime,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
-
-		g_print ("%s\n", uri);
-		pixbuf = tracker_get_large_icon (uri, pixbuf);
-		tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, pixbuf);
-		
+		                    
+		if (gsearch->type < 10) {
+			GdkPixbuf *large_icon = NULL;
+			large_icon = tracker_get_large_icon (uri);
+			if (large_icon) {
+				tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, large_icon);
+				g_object_unref (G_OBJECT (large_icon));
+			} else {
+				tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, pixbuf);
+			}
+		} else {
+			tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, pixbuf);
+		}
                 g_free (uri);
 
 	}
@@ -1300,6 +1306,7 @@ drag_file_cb  (GtkWidget * widget,
 		gboolean no_files_found = FALSE;
 		gchar * utf8_name;
 		gchar * utf8_path;
+		gchar * utf8_uri;
 		gchar * file;
 
 		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
@@ -1308,13 +1315,15 @@ drag_file_cb  (GtkWidget * widget,
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
 		                    COLUMN_NAME, &utf8_name,
 		                    COLUMN_PATH, &utf8_path,
+		                    COLUMN_URI, &utf8_uri,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
 
 		file = g_build_filename (utf8_path, utf8_name, NULL);
 
 		if (!no_files_found) {
-			gchar * tmp_uri = g_filename_to_uri (file, NULL, NULL);
+			gchar * tmp_uri = NULL;
+			tmp_uri = g_filename_to_uri (file, NULL, NULL);
 
 			if (uri_list == NULL) {
 				uri_list = g_strdup (tmp_uri);
@@ -1322,11 +1331,22 @@ drag_file_cb  (GtkWidget * widget,
 			else {
 				uri_list = g_strconcat (uri_list, "\n", tmp_uri, NULL);
 			}
-			gtk_selection_data_set (selection_data,
+			if (gsearch->type < 10) {
+				gtk_selection_data_set (selection_data,
+				                        selection_data->target,
+				                        8,
+				                        (guchar *) uri_list,
+			        	                strlen (uri_list));
+			} else {
+				gchar *desktop_uri;
+				desktop_uri = make_email_desktop_file (utf8_uri, utf8_name);
+				gtk_selection_data_set (selection_data,
 			                        selection_data->target,
 			                        8,
-			                        (guchar *) uri_list,
-			                        strlen (uri_list));
+			                        (guchar *) desktop_uri,
+			                        strlen (desktop_uri));
+				        g_free (desktop_uri);			
+			}
 			g_free (tmp_uri);
 		}
 		else {
@@ -1334,6 +1354,7 @@ drag_file_cb  (GtkWidget * widget,
 		}
 		g_free (utf8_name);
 		g_free (utf8_path);
+		g_free (utf8_uri);
 		g_free (file);
 	}
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
