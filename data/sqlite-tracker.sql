@@ -43,7 +43,11 @@ insert Into ServiceLinkTypes (Type) Values ('PlayListItem');
 
 
 
-
+CREATE TABLE KeywordImages
+(
+	Keyword 	Text primary key,
+	Image		Text
+);
 
 
 CREATE TABLE LiveQueries

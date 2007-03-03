@@ -167,7 +167,7 @@ tracker_child_cb (gpointer user_data)
 
 
 gboolean
-tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status)
+tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status)
 {
 
 	return g_spawn_sync (NULL,
@@ -176,7 +176,7 @@ tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status)
 			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
 			  tracker_child_cb,
 			  GINT_TO_POINTER (timeout),
-			  stdout,
+			  tmp_stdout,
 			  NULL,
 			  exit_status,
 			  NULL);

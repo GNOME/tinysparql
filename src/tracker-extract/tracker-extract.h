@@ -19,4 +19,4 @@
 
 #include <glib.h>
 
-gboolean	tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status);
+gboolean	tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status);

@@ -3103,11 +3103,11 @@ tracker_child_cb (gpointer user_data)
 
 
 gboolean
-tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status)
+tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status)
 {
 	GSpawnFlags flags;
 
-	if (!stdout) {
+	if (!tmp_stdout) {
 		flags = G_SPAWN_SEARCH_PATH | G_SPAWN_STDOUT_TO_DEV_NULL |  G_SPAWN_STDERR_TO_DEV_NULL;
 	} else {
 		flags = G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL;
@@ -3119,7 +3119,7 @@ tracker_spawn (char **argv, int timeout, char **stdout, int *exit_status)
 			  flags,
 			  tracker_child_cb,
 			  GINT_TO_POINTER (timeout),
-			  stdout,
+			  tmp_stdout,
 			  NULL,
 			  exit_status,
 			  NULL);

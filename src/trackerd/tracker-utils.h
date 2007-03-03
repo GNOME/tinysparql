@@ -499,7 +499,7 @@ char *		tracker_uncompress 		(const char *ptr, int size, int *uncompressed_size)
 
 char *		tracker_get_snippet 		(const char *txt, char **terms, int length);
 
-gboolean	tracker_spawn 			(char **argv, int timeout, char **stdout, int *exit_status);
+gboolean	tracker_spawn 			(char **argv, int timeout, char **tmp_stdout, int *exit_status);
 void		tracker_child_cb 		(gpointer user_data);
 
 char*	 	tracker_string_replace 		(const char *haystack, char *needle, char *replacement);

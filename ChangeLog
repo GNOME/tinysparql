@@ -1,9 +1,12 @@
+2007-03-03  Patch from jerry tan <jerry.tan at sun com>
+
+	* Replaced stdout with tmp_stdout so it compiles under solaris
+
+
 2007-03-03  Patch from Neil Patel <njpatel at gmail com>
 
 	* Fixed drag and drop of an email create a desktop file
 	* Fixed crasher with tile
-
-
 
 2007-03-03  Edward Duffy   <eduffy@gmail.com>
 
