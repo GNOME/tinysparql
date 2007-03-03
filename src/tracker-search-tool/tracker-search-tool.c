@@ -2334,6 +2334,7 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
 			gsearch->current_service = NULL;
 			gsearch->type = -1;
 			stop_animation (gsearch);
+			update_metadata_tile (gsearch);
 			return;
 		}
 
@@ -2354,6 +2355,7 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
 				gtk_tree_selection_select_iter (gsearch->search_results_selection, &iter);
 			}
 			stop_animation (gsearch);
+			update_metadata_tile (gsearch);
 			return;
 		} 
 	}
@@ -2401,6 +2403,7 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
 	}
 
 
+	update_metadata_tile (gsearch);
 
 }
 
@@ -2427,6 +2430,7 @@ tab_change_cb (GtkNotebook *notebook, GtkNotebookPage *page, gint new_page, gpoi
 	if (command != NULL) {
 		do_search (gsearch, command, FALSE, service->offset);
 	} 
+
 	g_free (command);
 
 

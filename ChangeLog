@@ -1,3 +1,9 @@
+2007-03-03  Edward Duffy   <eduffy@gmail.com>
+
+	* src/tracker--search-tool/tracker-search-tool.c:
+	Update metadata tile when tabs change.
+	Closes #413971
+
 2007-03-03  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-search-tool/tracker-search-tool.c:
