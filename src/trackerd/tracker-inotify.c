@@ -25,6 +25,7 @@
 
 #include "tracker-inotify.h"
 
+#define INOTIFY_WATCH_LIMIT "/proc/sys/fs/inotify/max_user_watches"
 
 /* project wide global vars */
 
@@ -606,6 +607,15 @@ tracker_start_watching (void)
 
 	if (tracker->watch_limit == 0) {
 		tracker->watch_limit = 8191;
+		if (g_file_test (INOTIFY_WATCH_LIMIT, G_FILE_TEST_EXISTS)) {
+			gchar   *limit;
+			gsize    size;
+			if (g_file_get_contents (INOTIFY_WATCH_LIMIT, &limit, &size, NULL)) {
+				tracker->watch_limit = atoi (limit) - 1;
+				tracker_log ("Setting inotify watch limit to %d.", tracker->watch_limit);
+				g_free (limit);
+			}
+		}
 	}
 
 	gio = g_io_channel_unix_new (inotify_monitor_fd);

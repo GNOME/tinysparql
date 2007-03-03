@@ -1,8 +1,18 @@
+2007-03-03  Patch from Neil Patel <njpatel at gmail com>
+
+	* Fixed drag and drop of an email create a desktop file
+	* Fixed crasher with tile
+
+
+
 2007-03-03  Edward Duffy   <eduffy@gmail.com>
 
 	* src/tracker--search-tool/tracker-search-tool.c:
 	Update metadata tile when tabs change.
 	Closes #413971
+
+	* inotify limit now uses system setting
+
 
 2007-03-03  Luca Ferretti  <elle.uca@libero.it>
 
