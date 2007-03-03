@@ -3408,7 +3408,7 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 		max = tracker_get_max_id_for_service ("Files");
 	}
 
-	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name AS uri FROM Services F INNER JOIN ServiceIndexMetaData M ON F.ID = M.ServiceID WHERE M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Mime') AND (M.MetaDataValue IN ");
+	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name AS uri FROM Services F INNER JOIN ServiceKeywordMetaData M ON F.ID = M.ServiceID WHERE M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Mime') AND (M.MetaDataValue IN ");
 
 	g_string_append_printf (str, "('%s'", mimes[0]);
 

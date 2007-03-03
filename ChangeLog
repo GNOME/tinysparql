@@ -1,3 +1,8 @@
+2007-03-03  Edward Duffy   <eduffy@gmail.com>
+
+	* src/trackerd/tracker-db-sqlite.c:
+	Fix tracker_db_get_files_by_mime (#409729)
+
 2007-03-03  Patch from jerry tan <jerry.tan at sun com>
 
 	* Replaced stdout with tmp_stdout so it compiles under solaris
