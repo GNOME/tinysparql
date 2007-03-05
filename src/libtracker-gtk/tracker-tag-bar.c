@@ -26,7 +26,7 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "../libtracker/tracker.h"
+#include <tracker.h>
 
 #include "tracker-tag-bar.h"
 

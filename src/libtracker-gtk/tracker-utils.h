@@ -27,7 +27,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-#include "../libtracker/tracker.h""
+#include <tracker.h>
 
 GList *tracker_keyword_array_to_glist(gchar **array);
 GList *tracker_get_all_keywords (TrackerClient *tracker_client);
