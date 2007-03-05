@@ -3,6 +3,7 @@
 	* Removed polling functionality
 	* Startup checks now include test for deletions in dirs that have changed
 	* Index directories bottom up so indexing resumes from where it left off if stopped 
+	* made sure tmp dir and /proc and /dev are not indexed
 
 
 2007-03-04  Mikkel Kamstrup Erlandsen <kamstrup@cvs.gnome.org>
