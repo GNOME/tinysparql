@@ -1795,3 +1795,18 @@ window_state_event_cb (GtkWidget * widget,
 	}
 	return FALSE;
 }
+
+void
+suggest_search_cb	(GtkWidget *widget,
+			 gpointer data)
+{
+	GSearchWindow	*gsearch = data;
+	gchar		*suggest;
+
+	suggest = g_object_get_data (G_OBJECT (widget), "suggestion");
+	
+	gtk_entry_set_text (GTK_ENTRY (gsearch->search_entry), suggest);
+	gtk_button_clicked (GTK_BUTTON (gsearch->find_button));
+
+}
+

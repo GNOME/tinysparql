@@ -611,6 +611,15 @@ tracker_search_query (TrackerClient *client, int live_query_id, ServiceType serv
 	return table;
 }
 
+char *
+tracker_search_suggest (TrackerClient *client, const char *search_term, int maxdist, GError **error)
+{
+	gchar *result;
+	if (org_freedesktop_Tracker_Search_suggest (client->proxy_search, search_term, maxdist, &result, &*error)) {
+		return result;
+	}
+	return NULL;
+}
 
 
 
@@ -1147,6 +1156,19 @@ tracker_search_query_async (TrackerClient *client, int live_query_id, ServiceTyp
 }
 
 
+void
+tracker_search_suggest_async (TrackerClient *client, const char *search_text, int maxdist, TrackerStringReply callback, gpointer user_data)
+{
+
+	StringCallBackStruct *callback_struct;
+
+	callback_struct = g_new (StringCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+	
+	client->last_pending_call = org_freedesktop_Tracker_Search_suggest_async (client->proxy_search, search_text, maxdist,  tracker_string_reply, callback_struct);
+	
+}
 
 
 void		

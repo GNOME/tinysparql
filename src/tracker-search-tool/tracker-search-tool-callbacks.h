@@ -177,6 +177,10 @@ window_state_event_cb (GtkWidget * widget,
                        GdkEventWindowState * event,
                        gpointer data);
 
+void
+suggest_search_cb	(GtkWidget *widget,
+			 gpointer data);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,3 +1,9 @@
+2007-03-05  Edward Duffy <eduffy@gmail.com>
+
+	* src/trackerd/tracker-dbus-search.c:
+	* src/tracker-search-tool/tracker-search-tool.c:
+	Added tracker_dbus_method_search_suggest and support in the GUI
+
 2007-03-04  Jamie McCracken <jamiemcc at gnome org>
 
 	* Removed polling functionality

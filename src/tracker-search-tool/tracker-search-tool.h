@@ -121,7 +121,7 @@ struct _GSearchWindow {
 	int			type;
 	service_info_t  	*current_service;
 	GtkWidget		*metatile;
-	GtkWidget		*no_results_label;
+	GtkWidget		*no_results;
 	GtkWidget		*initial_label;
 	GtkWidget		*count_label;
 	GtkWidget		*message_box;

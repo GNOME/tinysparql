@@ -129,6 +129,7 @@ GPtrArray * 	tracker_search_text_detailed 			(TrackerClient *client, int live_qu
 char *		tracker_search_get_snippet			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, GError **error);
 char **		tracker_search_metadata				(TrackerClient *client, ServiceType service, const char *field, const char* search_text, int offset, int max_hits, GError **error);
 GPtrArray * 	tracker_search_query				(TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, const char *keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, GError **error);
+gchar * 	tracker_search_suggest				(TrackerClient *client, const char *search_text, int maxdist, GError **error);
 
 
 void		tracker_files_create				(TrackerClient *client,  const char *uri, gboolean is_directory, const char *mime, int size, int mtime, GError **error);
@@ -180,7 +181,7 @@ void		tracker_search_text_detailed_async 			(TrackerClient *client, int live_que
 void		tracker_search_get_snippet_async			(TrackerClient *client, ServiceType service, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data);
 void		tracker_search_metadata_async 				(TrackerClient *client, ServiceType service, const char *field, const char* search_text, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data);
 void	 	tracker_search_query_async 				(TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, const char *keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, TrackerGPtrArrayReply callback, gpointer user_data);
-
+void		tracker_search_suggest_async				(TrackerClient *client, const char *search_text, int maxdist, TrackerStringReply callback, gpointer user_data);
 
 void		tracker_files_create_async 				(TrackerClient *client,  const char *uri, gboolean is_directory, const char *mime, int size, int mtime, TrackerVoidReply callback, gpointer user_data);
 void		tracker_files_delete_async 				(TrackerClient *client,  const char *uri, TrackerVoidReply callback, gpointer user_data);

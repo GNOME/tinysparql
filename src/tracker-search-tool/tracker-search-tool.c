@@ -261,9 +261,6 @@ pid_t locate_database_check_command_pid;
 /* } */
 
 
-
-
-
 static void
 display_dialog_character_set_conversion_error (GtkWidget * window,
                                                gchar * string,
@@ -776,13 +773,62 @@ add_file_to_search_results (const gchar * file,
 }
 
 static void
+set_suggestion (gchar *suggestion, GError *error, gpointer *user_data)
+{
+	gchar		*str;
+
+	GtkWidget	*label;
+	GtkWidget	*box1, *box2;
+	GtkWidget	*button;
+
+	GSearchWindow	*gsearch = user_data;
+
+	gchar		*search_term = (gchar *) gtk_entry_get_text (GTK_ENTRY (gsearch->search_entry));
+
+	if (strcmp (search_term, suggestion) == 0) {
+		return;
+	}
+
+	box1 = gtk_hbox_new (FALSE, 0);
+	box2 = gtk_hbox_new (FALSE, 0);
+	label = gtk_label_new (_("Did you mean"));
+	gtk_box_pack_start (GTK_BOX (box2), label, FALSE, TRUE, 0);
+
+	str = g_strconcat ("<b><i><u>", suggestion, "</u></i></b>?", NULL);
+	button = gtk_button_new ();
+	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
+	label = gtk_label_new (NULL);
+	gtk_label_set_markup (label, str);
+	g_free (str);
+	gtk_container_add (GTK_CONTAINER (button), label);
+	gtk_box_pack_start (GTK_BOX (box2), button, FALSE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (gsearch->no_results), box1, FALSE, FALSE, 12);
+	gtk_widget_show_all (box1);
+	
+
+	g_object_set_data (G_OBJECT (button), "suggestion", suggestion);
+ 	g_signal_connect (G_OBJECT (button), "clicked", 
+ 		 	  G_CALLBACK (suggest_search_cb), gsearch);
+
+}
+
+static void
 add_no_files_found_message (GSearchWindow * gsearch)
 {
-	if (!gsearch->no_results_label) {
+	GtkWidget	*label;
+	gchar		*search_term = (gchar *) gtk_entry_get_text (GTK_ENTRY (gsearch->search_entry));
 
-		gsearch->no_results_label = gtk_label_new (_("Your search returned no results."));
-		gtk_widget_show (gsearch->no_results_label);
-		gtk_box_pack_start (GTK_BOX (gsearch->message_box), gsearch->no_results_label, TRUE, TRUE, 12);
+	if (!gsearch->no_results) {
+
+		gsearch->no_results = gtk_vbox_new (FALSE, 0);
+		label = gtk_label_new (_("Your search returned no results."));
+		gtk_box_pack_start (GTK_BOX (gsearch->no_results), label, FALSE, FALSE, 12);
+
+		gtk_box_pack_start (GTK_BOX (gsearch->message_box), gsearch->no_results, TRUE, TRUE, 12);
+		gtk_widget_show_all (gsearch->no_results);
+
+		tracker_search_suggest_async (tracker_client, search_term, 3, set_suggestion, gsearch);
 	}
 
 
@@ -2250,9 +2296,9 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
 			gsearch->initial_label = NULL;
 		}
 
-		if (gsearch->no_results_label) {
-			gtk_widget_destroy (gsearch->no_results_label);
-			gsearch->no_results_label = NULL;
+		if (gsearch->no_results) {
+			gtk_widget_destroy (gsearch->no_results);
+			gsearch->no_results = NULL;
 			
 		}
 
@@ -2624,7 +2670,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 
 	gtk_box_pack_start (GTK_BOX (vbox), gsearch->initial_label, TRUE, TRUE, 12);
 
-	gsearch->no_results_label = NULL;
+	gsearch->no_results = NULL;
 
 	gtk_widget_show (gsearch->initial_label);
 
@@ -2852,8 +2898,6 @@ main (int argc,
 
 	tracker_search_setup_gconf_notifications (gsearch);
 
-
-	
 
 	if (terms) {
 		search_string = g_strjoinv(" ", terms);

@@ -1410,6 +1410,13 @@ process_user_request_queue_thread (void)
 				break;
 
 
+			case DBUS_ACTION_SEARCH_SUGGEST:
+
+				tracker_dbus_method_search_suggest (rec);
+
+				break;
+
+
 
 			case DBUS_ACTION_FILES_EXISTS:
 

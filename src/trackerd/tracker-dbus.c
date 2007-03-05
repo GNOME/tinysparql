@@ -36,7 +36,6 @@ static DBusObjectPathVTable tracker_vtable = {
 	NULL
 };
 
-
 DBusConnection *
 tracker_dbus_init (void)
 {
@@ -288,6 +287,13 @@ message_func (DBusConnection *conn,
 
 		dbus_message_ref (message);
 		rec->action = DBUS_ACTION_SEARCH_QUERY;
+
+
+
+	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_SEARCH, TRACKER_METHOD_SEARCH_SUGGEST)) {
+
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_SEARCH_SUGGEST;
 
 
 

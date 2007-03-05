@@ -25,7 +25,7 @@ typedef void (*org_freedesktop_Tracker_get_version_reply) (DBusGProxy *proxy, gi
 static void
 org_freedesktop_Tracker_get_version_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   gint OUT_version;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INT, &OUT_version, G_TYPE_INVALID);
@@ -63,7 +63,7 @@ typedef void (*org_freedesktop_Tracker_get_services_reply) (DBusGProxy *proxy, G
 static void
 org_freedesktop_Tracker_get_services_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   GHashTable* OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE), &OUT_result, G_TYPE_INVALID);
@@ -101,7 +101,7 @@ typedef void (*org_freedesktop_Tracker_get_stats_reply) (DBusGProxy *proxy, GPtr
 static void
 org_freedesktop_Tracker_get_stats_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   GPtrArray* OUT_service_stats;
   dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), &OUT_service_stats, G_TYPE_INVALID);
@@ -144,7 +144,7 @@ typedef void (*org_freedesktop_Tracker_Metadata_get_reply) (DBusGProxy *proxy, c
 static void
 org_freedesktop_Tracker_Metadata_get_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_values;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_values, G_TYPE_INVALID);
@@ -182,7 +182,7 @@ typedef void (*org_freedesktop_Tracker_Metadata_set_reply) (DBusGProxy *proxy, G
 static void
 org_freedesktop_Tracker_Metadata_set_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Metadata_set_reply)data->cb) (proxy, error, data->userdata);
@@ -219,7 +219,7 @@ typedef void (*org_freedesktop_Tracker_Metadata_register_type_reply) (DBusGProxy
 static void
 org_freedesktop_Tracker_Metadata_register_type_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Metadata_register_type_reply)data->cb) (proxy, error, data->userdata);
@@ -256,7 +256,7 @@ typedef void (*org_freedesktop_Tracker_Metadata_get_type_details_reply) (DBusGPr
 static void
 org_freedesktop_Tracker_Metadata_get_type_details_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char * OUT_data_type;
   gboolean OUT_is_embedded;
@@ -296,7 +296,7 @@ typedef void (*org_freedesktop_Tracker_Metadata_get_registered_types_reply) (DBu
 static void
 org_freedesktop_Tracker_Metadata_get_registered_types_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -334,7 +334,7 @@ typedef void (*org_freedesktop_Tracker_Metadata_get_writeable_types_reply) (DBus
 static void
 org_freedesktop_Tracker_Metadata_get_writeable_types_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -372,7 +372,7 @@ typedef void (*org_freedesktop_Tracker_Metadata_get_registered_classes_reply) (D
 static void
 org_freedesktop_Tracker_Metadata_get_registered_classes_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -415,7 +415,7 @@ typedef void (*org_freedesktop_Tracker_Keywords_get_list_reply) (DBusGProxy *pro
 static void
 org_freedesktop_Tracker_Keywords_get_list_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   GPtrArray* OUT_value;
   dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), &OUT_value, G_TYPE_INVALID);
@@ -453,7 +453,7 @@ typedef void (*org_freedesktop_Tracker_Keywords_get_reply) (DBusGProxy *proxy, c
 static void
 org_freedesktop_Tracker_Keywords_get_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_value;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_value, G_TYPE_INVALID);
@@ -491,7 +491,7 @@ typedef void (*org_freedesktop_Tracker_Keywords_add_reply) (DBusGProxy *proxy, G
 static void
 org_freedesktop_Tracker_Keywords_add_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Keywords_add_reply)data->cb) (proxy, error, data->userdata);
@@ -528,7 +528,7 @@ typedef void (*org_freedesktop_Tracker_Keywords_remove_reply) (DBusGProxy *proxy
 static void
 org_freedesktop_Tracker_Keywords_remove_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Keywords_remove_reply)data->cb) (proxy, error, data->userdata);
@@ -565,7 +565,7 @@ typedef void (*org_freedesktop_Tracker_Keywords_remove_all_reply) (DBusGProxy *p
 static void
 org_freedesktop_Tracker_Keywords_remove_all_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Keywords_remove_all_reply)data->cb) (proxy, error, data->userdata);
@@ -602,7 +602,7 @@ typedef void (*org_freedesktop_Tracker_Keywords_search_reply) (DBusGProxy *proxy
 static void
 org_freedesktop_Tracker_Keywords_search_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -645,7 +645,7 @@ typedef void (*org_freedesktop_Tracker_Search_get_hit_count_reply) (DBusGProxy *
 static void
 org_freedesktop_Tracker_Search_get_hit_count_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   gint OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INT, &OUT_result, G_TYPE_INVALID);
@@ -683,7 +683,7 @@ typedef void (*org_freedesktop_Tracker_Search_get_hit_count_all_reply) (DBusGPro
 static void
 org_freedesktop_Tracker_Search_get_hit_count_all_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   GPtrArray* OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), &OUT_result, G_TYPE_INVALID);
@@ -721,7 +721,7 @@ typedef void (*org_freedesktop_Tracker_Search_text_reply) (DBusGProxy *proxy, ch
 static void
 org_freedesktop_Tracker_Search_text_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -759,7 +759,7 @@ typedef void (*org_freedesktop_Tracker_Search_text_detailed_reply) (DBusGProxy *
 static void
 org_freedesktop_Tracker_Search_text_detailed_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   GPtrArray* OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), &OUT_result, G_TYPE_INVALID);
@@ -797,7 +797,7 @@ typedef void (*org_freedesktop_Tracker_Search_get_snippet_reply) (DBusGProxy *pr
 static void
 org_freedesktop_Tracker_Search_get_snippet_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char * OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_result, G_TYPE_INVALID);
@@ -835,7 +835,7 @@ typedef void (*org_freedesktop_Tracker_Search_metadata_reply) (DBusGProxy *proxy
 static void
 org_freedesktop_Tracker_Search_metadata_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -873,7 +873,7 @@ typedef void (*org_freedesktop_Tracker_Search_query_reply) (DBusGProxy *proxy, G
 static void
 org_freedesktop_Tracker_Search_query_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   GPtrArray* OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), &OUT_result, G_TYPE_INVALID);
@@ -894,6 +894,44 @@ org_freedesktop_Tracker_Search_query_async (DBusGProxy *proxy, const gint IN_liv
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Query", org_freedesktop_Tracker_Search_query_async_callback, stuff, g_free, G_TYPE_INT, IN_live_query_id, G_TYPE_STRING, IN_service, G_TYPE_STRV, IN_fields, G_TYPE_STRING, IN_search_text, G_TYPE_STRING, IN_keyword, G_TYPE_STRING, IN_query_condition, G_TYPE_BOOLEAN, IN_sort_by_service, G_TYPE_INT, IN_offset, G_TYPE_INT, IN_max_hits, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_Tracker_Search_suggest (DBusGProxy *proxy, const char * IN_search_text, const gint IN_maxdist, char ** OUT_result, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "Suggest", error, G_TYPE_STRING, IN_search_text, G_TYPE_INT, IN_maxdist, G_TYPE_INVALID, G_TYPE_STRING, OUT_result, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_Tracker_Search_suggest_reply) (DBusGProxy *proxy, char * OUT_result, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_Tracker_Search_suggest_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  char * OUT_result;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_result, G_TYPE_INVALID);
+  (*(org_freedesktop_Tracker_Search_suggest_reply)data->cb) (proxy, OUT_result, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_Tracker_Search_suggest_async (DBusGProxy *proxy, const char * IN_search_text, const gint IN_maxdist, org_freedesktop_Tracker_Search_suggest_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "Suggest", org_freedesktop_Tracker_Search_suggest_async_callback, stuff, g_free, G_TYPE_STRING, IN_search_text, G_TYPE_INT, IN_maxdist, G_TYPE_INVALID);
 }
 #endif /* defined DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_Tracker_Search */
 
@@ -916,7 +954,7 @@ typedef void (*org_freedesktop_Tracker_Files_exists_reply) (DBusGProxy *proxy, g
 static void
 org_freedesktop_Tracker_Files_exists_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   gboolean OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_BOOLEAN, &OUT_result, G_TYPE_INVALID);
@@ -954,7 +992,7 @@ typedef void (*org_freedesktop_Tracker_Files_create_reply) (DBusGProxy *proxy, G
 static void
 org_freedesktop_Tracker_Files_create_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Files_create_reply)data->cb) (proxy, error, data->userdata);
@@ -991,7 +1029,7 @@ typedef void (*org_freedesktop_Tracker_Files_delete_reply) (DBusGProxy *proxy, G
 static void
 org_freedesktop_Tracker_Files_delete_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Files_delete_reply)data->cb) (proxy, error, data->userdata);
@@ -1028,7 +1066,7 @@ typedef void (*org_freedesktop_Tracker_Files_get_service_type_reply) (DBusGProxy
 static void
 org_freedesktop_Tracker_Files_get_service_type_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char * OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_result, G_TYPE_INVALID);
@@ -1066,7 +1104,7 @@ typedef void (*org_freedesktop_Tracker_Files_get_text_contents_reply) (DBusGProx
 static void
 org_freedesktop_Tracker_Files_get_text_contents_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char * OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_result, G_TYPE_INVALID);
@@ -1104,7 +1142,7 @@ typedef void (*org_freedesktop_Tracker_Files_search_text_contents_reply) (DBusGP
 static void
 org_freedesktop_Tracker_Files_search_text_contents_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char * OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_result, G_TYPE_INVALID);
@@ -1142,7 +1180,7 @@ typedef void (*org_freedesktop_Tracker_Files_get_by_service_type_reply) (DBusGPr
 static void
 org_freedesktop_Tracker_Files_get_by_service_type_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -1180,7 +1218,7 @@ typedef void (*org_freedesktop_Tracker_Files_get_by_mime_type_reply) (DBusGProxy
 static void
 org_freedesktop_Tracker_Files_get_by_mime_type_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -1218,7 +1256,7 @@ typedef void (*org_freedesktop_Tracker_Files_get_by_mime_type_vfs_reply) (DBusGP
 static void
 org_freedesktop_Tracker_Files_get_by_mime_type_vfs_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -1256,7 +1294,7 @@ typedef void (*org_freedesktop_Tracker_Files_refresh_metadata_reply) (DBusGProxy
 static void
 org_freedesktop_Tracker_Files_refresh_metadata_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
   (*(org_freedesktop_Tracker_Files_refresh_metadata_reply)data->cb) (proxy, error, data->userdata);
@@ -1293,7 +1331,7 @@ typedef void (*org_freedesktop_Tracker_Files_get_mtime_reply) (DBusGProxy *proxy
 static void
 org_freedesktop_Tracker_Files_get_mtime_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   gint OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INT, &OUT_result, G_TYPE_INVALID);
@@ -1331,7 +1369,7 @@ typedef void (*org_freedesktop_Tracker_Files_get_metadata_for_files_in_folder_re
 static void
 org_freedesktop_Tracker_Files_get_metadata_for_files_in_folder_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   GPtrArray* OUT_values;
   dbus_g_proxy_end_call (proxy, call, &error, dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV), &OUT_values, G_TYPE_INVALID);
@@ -1369,7 +1407,7 @@ typedef void (*org_freedesktop_Tracker_Files_search_by_text_and_mime_reply) (DBu
 static void
 org_freedesktop_Tracker_Files_search_by_text_and_mime_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -1407,7 +1445,7 @@ typedef void (*org_freedesktop_Tracker_Files_search_by_text_and_mime_and_locatio
 static void
 org_freedesktop_Tracker_Files_search_by_text_and_mime_and_location_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);
@@ -1445,7 +1483,7 @@ typedef void (*org_freedesktop_Tracker_Files_search_by_text_and_location_reply) 
 static void
 org_freedesktop_Tracker_Files_search_by_text_and_location_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
-  DBusGAsyncData *data = user_data;
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
   char ** OUT_result;
   dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRV, &OUT_result, G_TYPE_INVALID);

@@ -323,6 +323,14 @@
 			<arg type="aas" name="result" direction="out" />
 		</method>
 
+		<!--	suggests an alternate spelling based on the word index
+		-->
+		<method name="Suggest">
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="maxdist" direction="in" />
+			<arg type="s" name="result" direction="out" />
+		</method>
+
 
 	</interface>
 
