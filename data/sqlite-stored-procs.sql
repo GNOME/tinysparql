@@ -52,6 +52,8 @@ SelectSubFileIDs SELECT ID FROM Services WHERE (Path = ?  or Path glob ?);
 
 UpdateFile UPDATE Services SET ServiceTypeID=?, Path=?, Name=?, Mime=?, Size=?, IndexTime =?, Offset=? WHERE ID = ?; 
 
+UpdateFileMTime UPDATE Services SET IndexTime=? where Path = ? and Name = ?;
+
 UpdateFileMove 	UPDATE Services SET Path = ?, Name = ?, IndexTime = ? WHERE ID = ?;
 
 UpdateFileMoveChild UPDATE Services SET Path = ? WHERE Path = ?; 

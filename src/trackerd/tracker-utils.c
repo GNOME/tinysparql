@@ -926,16 +926,46 @@ tracker_print_object_allocations ()
 }
 
 
+
+static inline gboolean
+is_in_path (const char *uri, const char *path)
+{
+	char *tmp = g_strconcat (path, G_DIR_SEPARATOR_S, NULL);
+
+	gboolean result = g_str_has_prefix (uri, tmp);
+
+	g_free (tmp);
+
+	return result;
+
+}
+
 gboolean
 tracker_file_is_no_watched (const char* uri)
 {
 
-	if (!tracker->no_watch_directory_list) {
-		return FALSE;
-	}
-
 	if (!uri || uri[0] != '/') {
 		return TRUE;
+	}
+
+	if (is_in_path (uri, g_get_tmp_dir ())) {
+		return TRUE;
+	}
+
+	if (is_in_path (uri, "/proc")) {
+		return TRUE;
+	}
+
+	if (is_in_path (uri, "/dev")) {
+		return TRUE;
+	}
+
+	if (is_in_path (uri, "/tmp")) {
+		return TRUE;
+	}
+
+	if (!tracker->no_watch_directory_list) {
+		return FALSE;
 	}
 
 	char *compare_uri;
@@ -950,13 +980,11 @@ tracker_file_is_no_watched (const char* uri)
 			return TRUE;
 		}
 
-		char *prefix = g_strconcat (compare_uri, G_DIR_SEPARATOR_S, NULL);
-		if (g_str_has_prefix (uri, prefix)) {
-			tracker_debug ("blocking prefix watch of %s", uri); 
+		if (is_in_path (uri, compare_uri)) {
+			tracker_debug ("blocking watch of %s", uri); 
 			return TRUE;
 		}
 
-		g_free (prefix);
 		
 	}
 
@@ -1923,8 +1951,6 @@ tracker_load_config_file ()
 					 "[General]\n",
 					 "# Log Verbosity - Valid values are 0 (default, fastest), 1 (detailed), & 2 (debug)\n",
 					 "Verbosity=0\n\n",
-					 "# Poll Interval in seconds - determines how often polling is performed when inotify/fam is not available or watch limit is exceeded\n",
-					 "PollInterval=3600\n\n",
 					 "[Watches]\n",
 					 "# List of directory roots to index and watch seperated by semicolons\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
@@ -1990,13 +2016,7 @@ tracker_load_config_file ()
 		tracker->verbosity = g_key_file_get_integer (key_file, "General", "Verbosity", NULL);
 	}
 
-	if (g_key_file_has_key (key_file, "General", "PollInterval", NULL)) {
-		tracker->poll_interval = g_key_file_get_integer (key_file, "General", "PollInterval", NULL);
-
-		
-
-	}
-
+	
 	/* Watch options */
 
 	values =  g_key_file_get_string_list (key_file,
@@ -2157,73 +2177,6 @@ tracker_load_config_file ()
 }
 
 
-void
-tracker_remove_poll_dir (const char *dir)
-{
-	GSList *tmp;
-	char   *str1;
-
-	str1 = g_strconcat (dir, G_DIR_SEPARATOR_S, NULL);
-
-	for (tmp = tracker->poll_list; tmp; tmp = tmp->next) {
-		char *str2;
-
-		str2 = tmp->data;
-
-		if (strcmp (dir, str2) == 0) {
-			g_mutex_lock (tracker->poll_access_mutex);
-			tracker->poll_list = g_slist_remove (tracker->poll_list, tmp->data);
-			g_mutex_unlock (tracker->poll_access_mutex);
-			g_free (str2);
-		}
-
-		/* check if subfolder of existing roots */
-
-		if (str2 && g_str_has_prefix (str2, str1)) {
-			g_mutex_lock (tracker->poll_access_mutex);
-			tracker->poll_list = g_slist_remove (tracker->poll_list, tmp->data);
-			g_mutex_unlock (tracker->poll_access_mutex);
-			g_free (str2);
-		}
-	}
-
-	g_free (str1);
-}
-
-
-void
-tracker_add_poll_dir (const char *dir)
-{
-	g_return_if_fail (dir && tracker_is_directory (dir));
-
-	if (!tracker->is_running) {
-		return;
-	}
-
-	g_mutex_lock (tracker->poll_access_mutex);
-	tracker->poll_list = g_slist_prepend (tracker->poll_list, g_strdup (dir));
-	g_mutex_unlock (tracker->poll_access_mutex);
-	tracker_log ("adding %s for polling (poll count is %d)", dir, g_slist_length (tracker->poll_list));
-}
-
-
-gboolean
-tracker_is_dir_polled (const char *dir)
-{
-	GSList *tmp;
-
-	for (tmp = tracker->poll_list; tmp; tmp = tmp->next) {
-		char *str;
-
-		str = (char *) tmp->data;
-
-		if (strcmp (dir, str) == 0) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
 
 
 void

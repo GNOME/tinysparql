@@ -222,12 +222,9 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 					/* stop watching old dir, start watching new dir */
 					tracker_remove_watch_dir (moved_from_info->uri, TRUE, main_thread_db_con);
-					tracker_remove_poll_dir (moved_from_info->uri);
-
+				
 					if (tracker_count_watch_dirs () < (int) tracker->watch_limit) {
 						tracker_add_watch_dir (moved_to_info->uri, main_thread_db_con);
-					} else {
-						tracker_add_poll_dir (moved_to_info->uri);
 					}
 
 					/* update all changed File:Path metadata */
@@ -276,9 +273,8 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 							if (tracker_count_watch_dirs () < (int) tracker->watch_limit) {
 								tracker_add_watch_dir (new_path, main_thread_db_con);
-							} else {
-								tracker_add_poll_dir (new_path);
-							}
+							} 
+
 							g_free (new_path);
 							g_free (dir_name);
 

@@ -153,7 +153,7 @@ typedef struct {
 	gboolean	enable_thumbnails;
 
 	guint32		watch_limit;
-	guint32		poll_interval;
+
 
 	/* controls how much to output to screen/log file */
 	int		verbosity;
@@ -240,8 +240,6 @@ typedef struct {
 	int		word_count_min;
 	int		flush_count;
 
-	GSList 	*poll_list;
-	
 	int		file_update_count;
 	int		email_update_count;
 
@@ -259,33 +257,29 @@ typedef struct {
 	GAsyncQueue 	*file_process_queue;
 	GAsyncQueue 	*file_metadata_queue;
 	GAsyncQueue 	*user_request_queue;
+
 	GAsyncQueue 	*dir_queue;
+	GSList		*dir_list;
 
 	GMutex		*files_check_mutex;
 	GMutex		*metadata_check_mutex;
 	GMutex		*request_check_mutex;
 
-	GMutex		*poll_access_mutex;
-
 	GMutex		*files_stopped_mutex;
 	GMutex		*metadata_stopped_mutex;
 	GMutex		*request_stopped_mutex;
-	GMutex		*poll_stopped_mutex;
 
 	GThread 	*file_metadata_thread;
 	GThread 	*file_process_thread;
 	GThread 	*user_request_thread;
-	GThread 	*file_poll_thread;
 
 	GCond 		*file_thread_signal;
 	GCond 		*metadata_thread_signal;
 	GCond 		*request_thread_signal;
-	GCond 		*poll_thread_signal;
 
 	GMutex		*metadata_signal_mutex;
 	GMutex		*files_signal_mutex;
 	GMutex		*request_signal_mutex;
-	GMutex		*poll_signal_mutex;
 
 } Tracker;
 
@@ -476,10 +470,6 @@ GSList * 	tracker_get_watch_root_dirs 	(void);
 gboolean	tracker_ignore_file 		(const char *uri);
 
 void		tracker_print_object_allocations (void);
-
-void		tracker_add_poll_dir 		(const char *dir);
-void		tracker_remove_poll_dir 	(const char *dir);
-gboolean	tracker_is_dir_polled 		(const char *dir);
 
 void		tracker_throttle 		(int multiplier);
 

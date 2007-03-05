@@ -1,3 +1,10 @@
+2007-03-04  Jamie McCracken <jamiemcc at gnome org>
+
+	* Removed polling functionality
+	* Startup checks now include test for deletions in dirs that have changed
+	* Index directories bottom up so indexing resumes from where it left off if stopped 
+
+
 2007-03-04  Mikkel Kamstrup Erlandsen <kamstrup@cvs.gnome.org>
 
 	* python/deskbar-handler/tracker-handler.py:

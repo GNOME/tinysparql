@@ -4105,4 +4105,10 @@ tracker_db_get_service_connection (DBConnection *db_con, const char *service)
 	return db_con;
 }
 
+/*
+tracker_db_update_mtime (DBConnection *db_con, const char *service, const char *uri)
+{
+		
 
+}
+*/

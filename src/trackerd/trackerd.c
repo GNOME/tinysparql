@@ -62,6 +62,11 @@
 #include "tracker-email.h"
 #include  "tracker-indexer.h"
 
+typedef struct {
+	char	*uri;
+	int	mtime;
+} IndexDir;
+
 Tracker		       *tracker;
 DBConnection	       *main_thread_db_con;
 DBConnection	       *main_thread_cache_con;
@@ -101,7 +106,6 @@ static DBusConnection  *main_connection;
  *  asynchronous queue where potentially multiple threads are waiting to process them.
  */
 
-#define FILE_POLL_PERIOD (60 * 60 * 3600)
 
 char *type_array[] =   {"index", "string", "numeric", "date", NULL};
 
@@ -234,10 +238,7 @@ do_cleanup (const char *sig_msg)
 
 	shutdown = TRUE;
 
-	g_mutex_lock (tracker->poll_signal_mutex);
-	g_cond_signal (tracker->poll_thread_signal);
-	g_mutex_unlock (tracker->poll_signal_mutex);
-
+	
 	g_mutex_lock (tracker->request_signal_mutex);
 	g_cond_signal (tracker->request_thread_signal);
 	g_mutex_unlock (tracker->request_signal_mutex);
@@ -255,8 +256,7 @@ do_cleanup (const char *sig_msg)
 
 	/* wait for threads to exit and unlock check mutexes to prevent any deadlocks*/
 
-	g_mutex_lock (tracker->poll_stopped_mutex);
-
+	
 	g_mutex_unlock (tracker->request_check_mutex);
 	g_mutex_lock (tracker->request_stopped_mutex);
 
@@ -290,18 +290,11 @@ do_cleanup (const char *sig_msg)
 }
 
 
+
 static void
-poll_dir (const char *uri, DBConnection *db_con)
+check_dir_for_deletions (DBConnection *db_con, const char *uri)
 {
 	char	**files, **files_p;
-	GSList	*file_list, *tmp;
-
-	DBConnection *blob_db_con = db_con->data;
-
-	if (!tracker->is_running) {
-		return;
-	}
-
 
 	/* check for any deletions*/
 	files = tracker_db_get_files_in_folder (db_con, uri);
@@ -311,16 +304,15 @@ poll_dir (const char *uri, DBConnection *db_con)
 		char	 *str;
 
 		str = *files_p;
-		tracker_log ("polling %s", str);
-
+		
 		if (!tracker_file_is_valid (str)) {
 			info = tracker_create_file_info (str, 1, 0, 0);
 			info = tracker_db_get_file_info (db_con, info);
 
 			if (!info->is_directory) {
-				delete_file (db_con, blob_db_con, info);
+				delete_file (db_con, db_con->blob, info);
 			} else {
-				delete_directory (db_con, blob_db_con, info);
+				delete_directory (db_con, db_con->blob, info);
 			}
 			tracker_free_file_info (info);
 		}
@@ -328,141 +320,6 @@ poll_dir (const char *uri, DBConnection *db_con)
 
 	g_strfreev (files);
 
-
-	/* check for new subfolder additions */
-	file_list = tracker_get_files (uri, TRUE);
-
-	for (tmp = file_list; tmp; tmp = tmp->next) {
-		FileInfo *info;
-		char	 *str;
-
-		if (!tracker->is_running) {
-			g_slist_foreach (file_list, (GFunc) g_free, NULL);
-			g_slist_free (file_list);
-			return;
-		}
-
-		str = (char *) tmp->data;
-
-		info = tracker_create_file_info (str, TRACKER_ACTION_DIRECTORY_CREATED, 0, 0);
-		info = tracker_db_get_file_info (db_con, info);
-
-		if (info->file_id == 0) {
-			tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE, -1);
-		} else {
-			tracker_free_file_info (info);
-		}
-	}
-
-	g_slist_foreach (file_list, (GFunc) g_free, NULL);
-	g_slist_free (file_list);
-
-
-	/* scan dir for changes in all other files */
-	if (!tracker_file_is_no_watched (uri)) {
-		scan_directory (uri, db_con);
-	} else {
-		tracker_debug ("blocked scan of directory %s as its in the no watch list", uri);
-	}
-}
-
-
-static void
-poll_directories (gpointer db_con)
-{
-	g_return_if_fail (db_con);
-
-	tracker_log ("polling dirs");
-
-	if (g_slist_length (tracker->poll_list) > 0) {
-		g_slist_foreach (tracker->poll_list, (GFunc) poll_dir, db_con);
-	}
-}
-
-
-static void
-poll_files_thread (void)
-{
-	sigset_t     signal_set;
-	DBConnection *db_con;
-	DBConnection *blob_db_con;
-
-        /* block all signals in this thread */
-        sigfillset (&signal_set);
-	pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
-
-	g_mutex_lock (tracker->poll_signal_mutex);
-	g_mutex_lock (tracker->poll_stopped_mutex);
-
-	/* set thread safe DB connection */
-	tracker_db_thread_init ();
-
-	db_con = tracker_db_connect ();
-	blob_db_con = tracker_db_connect_full_text ();
-
-	db_con->data = blob_db_con;
-
-
-	while (TRUE) {
-
-		/* make thread sleep if first part of the shutdown process has been activated */
-		if (!tracker->is_running) {
-
-			tracker_debug ("poll thread going to deep sleep...");
-
-			g_cond_wait (tracker->poll_thread_signal, tracker->poll_signal_mutex);
-
-			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!shutdown) {
-				continue;
-			} else {
-				break;
-			}
-		}
-
-		poll_directories (db_con);
-
-		/* sleep until notified again */
-		tracker_debug ("poll thread sleeping");
-		g_cond_wait (tracker->poll_thread_signal, tracker->poll_signal_mutex);
-		tracker_debug ("poll thread awoken");
-
-		/* determine if wake up call is a shutdown signal or a request to poll again */
-		if (!shutdown) {
-			continue;
-		} else {
-			break;
-		}
-	}
-
-	tracker_db_close (db_con);
-	tracker_db_close (blob_db_con);
-	tracker_db_thread_end ();
-
-	tracker_debug ("poll thread has exited successfully");
-
-	g_mutex_unlock (tracker->poll_stopped_mutex);
-}
-
-
-static gboolean
-start_poll (void)
-{
-	if (!tracker->file_poll_thread && g_slist_length (tracker->poll_list) > 0) {
-		tracker->file_poll_thread = g_thread_create ((GThreadFunc) poll_files_thread, NULL, FALSE, NULL);
-		tracker_log ("started polling");
-	} else {
-
-		/* wake up poll thread and start polling */
-		if (tracker->file_poll_thread && g_slist_length (tracker->poll_list) > 0) {
-			if (g_mutex_trylock (tracker->poll_signal_mutex)) {
-				g_cond_signal (tracker->poll_thread_signal);
-				g_mutex_unlock (tracker->poll_signal_mutex);
-			}
-		}
-	}
-
-	return TRUE;
 }
 
 
@@ -472,6 +329,7 @@ schedule_dir_check (const char *uri, DBConnection *db_con)
 	if (!tracker->is_running) {
 		return;
 	}
+
 	g_return_if_fail (uri && (uri[0] == '/'));
 	g_return_if_fail (db_con);
 
@@ -482,7 +340,7 @@ schedule_dir_check (const char *uri, DBConnection *db_con)
 static void
 add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_con)
 {
-	gboolean start_polling;
+	
 
 	if (!tracker->is_running) {
 		return;
@@ -490,7 +348,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 	g_return_if_fail (dir_list != NULL);
 
-	start_polling = FALSE;
+	
 
 	/* add sub directories breadth first recursively to avoid running out of file handles */
 	while (g_slist_length (dir_list) > 0) {
@@ -498,7 +356,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 		file_list = NULL;
 
-		if (!start_polling && ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < tracker->watch_limit)) {
+		if ( ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < tracker->watch_limit)) {
 			GSList *tmp;
 
 			for (tmp = dir_list; tmp; tmp = tmp->next) {
@@ -508,11 +366,10 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 				if (!tracker_file_is_no_watched (str)) {
 
-					/* use polling if FAM or Inotify fails */
-					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && !tracker_is_dir_polled (str)) {
-						if (tracker->is_running) {
-							tracker_add_poll_dir (str);
-						}
+					tracker->dir_list = g_slist_prepend (tracker->dir_list, g_strdup (str));
+					
+					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str)) {
+						tracker_debug ("Watch failed for %s", str);
 					} 
 
 				} else {
@@ -521,21 +378,12 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 			}
 
 		} else {
-			g_slist_foreach (dir_list, (GFunc) tracker_add_poll_dir, NULL);
+			tracker_log ("Watch limit exceeded (if using inotify you should increase max_file_watches");
 		}
 
 		g_slist_foreach (dir_list, (GFunc) tracker_get_dirs, &file_list);
-
-		if (check_dirs) {
-			g_slist_foreach (file_list, (GFunc) schedule_dir_check, db_con);
-		}
-
 		g_slist_foreach (dir_list, (GFunc) g_free, NULL);
 		g_slist_free (dir_list);
-
-		if (tracker_count_watch_dirs () > (int) tracker->watch_limit) {
-			start_polling = TRUE;
-		}
 
 		dir_list = file_list;
 	}
@@ -679,9 +527,7 @@ delete_directory (DBConnection *db_con, DBConnection *blob_db_con, FileInfo *inf
 	tracker_db_delete_directory (db_con, blob_db_con, info->file_id, info->uri);
 
 	tracker_remove_watch_dir (info->uri, TRUE, db_con);
-
-	tracker_remove_poll_dir (info->uri);
-
+	
 	tracker_log ("deleting directory %s and subdirs", info->uri);
 }
 
@@ -734,7 +580,7 @@ check_directory (const char *uri)
 	g_return_if_fail (tracker_is_directory (uri));
 
 	file_list = tracker_get_files (uri, FALSE);
-	tracker_debug ("checking %s for %d files", uri, g_slist_length(file_list));
+	tracker_debug ("checking %s for %d files", uri, g_slist_length (file_list));
 
 	g_slist_foreach (file_list, (GFunc) queue_file, NULL);
 	g_slist_foreach (file_list, (GFunc) g_free, NULL);
@@ -938,10 +784,16 @@ process_files_thread (void)
 		tracker_log ("starting service indexing...");
 		g_slist_foreach (tracker->service_directory_list, (GFunc) watch_dir, db_con);
 		g_slist_foreach (tracker->service_directory_list, (GFunc) schedule_dir_check, db_con);
-			
+
 		tracker_log ("starting file indexing...");
 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
+		
+		g_slist_foreach (tracker->dir_list, (GFunc) schedule_dir_check, db_con);
 		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, db_con);
+
+		g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+		g_slist_free (tracker->dir_list);
+
 
 
 	}
@@ -1001,8 +853,9 @@ process_files_thread (void)
 		
 					if (uri) {
 
-						
 						check_directory (uri);
+
+						/* 	g_slice_free (WordDetails, wd); */
 
 						g_free (uri);
 
@@ -1231,21 +1084,29 @@ process_files_thread (void)
 
 				break;
 
-			case TRACKER_ACTION_DIRECTORY_CHECK:
+			
+
+			case TRACKER_ACTION_DIRECTORY_REFRESH:
 
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
 				}
+				need_index = FALSE;
 
 				break;
 
-			case TRACKER_ACTION_DIRECTORY_REFRESH:
+			case TRACKER_ACTION_DIRECTORY_CHECK:
 			
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
-					need_index = FALSE;
+
+					if (info->indextime > 0) {
+						check_dir_for_deletions (db_con, info->uri);
+					}
+					
 				}
 
+			
 				break;
 
 			case TRACKER_ACTION_DIRECTORY_CREATED:
@@ -1254,12 +1115,13 @@ process_files_thread (void)
 				need_index = TRUE;
 				tracker_debug ("processing created directory %s", info->uri);
 
-				/* add to watch folders (including subfolders) */
-				watch_dir (info->uri, db_con);
+			
 
 				/* schedule a rescan for all files in folder to avoid race conditions */
 				if (info->action == TRACKER_ACTION_DIRECTORY_CREATED) {
 					if (!tracker_file_is_no_watched (info->uri)) {
+						/* add to watch folders (including subfolders) */
+						watch_dir (info->uri, db_con);
 						scan_directory (info->uri, db_con);
 					} else {
 						tracker_debug ("blocked scan of directory %s as its in the no watch list", info->uri);
@@ -1724,7 +1586,6 @@ set_defaults ()
 
 	tracker->watch_directory_roots_list = NULL;
 	tracker->no_watch_directory_list = NULL;
-	tracker->poll_list = NULL;
 	tracker->use_nfs_safe_locking = FALSE;
 
 	tracker->enable_indexing = TRUE;
@@ -1733,7 +1594,6 @@ set_defaults ()
 	tracker->enable_thumbnails = FALSE;
 
 	tracker->watch_limit = 0;
-	tracker->poll_interval = FILE_POLL_PERIOD;
 	tracker->index_counter = 0;
 	tracker->index_count = 0;
 	tracker->update_count = 0;
@@ -1835,7 +1695,7 @@ sanity_check_option_values ()
 	tracker->index_kmail_emails = FALSE;
 
 
-	if (tracker->poll_interval < 1000) tracker->poll_interval = 1000;
+	
 	if (tracker->max_index_text_length < 0) tracker->max_index_text_length = 0;
 	if (tracker->optimization_count < 1000) tracker->optimization_count = 1000;
 	if (tracker->max_index_bucket_count < 1000) tracker->max_index_bucket_count= 1000;
@@ -2027,8 +1887,7 @@ main (int argc, char **argv)
 	tracker->status = STATUS_INIT;
 
  	tracker->is_running = FALSE;
-	tracker->poll_access_mutex = g_mutex_new ();
-
+	
 	tracker->files_check_mutex = g_mutex_new ();
 	tracker->metadata_check_mutex = g_mutex_new ();
 	tracker->request_check_mutex = g_mutex_new ();
@@ -2036,22 +1895,18 @@ main (int argc, char **argv)
 	tracker->files_stopped_mutex = g_mutex_new ();
 	tracker->metadata_stopped_mutex = g_mutex_new ();
 	tracker->request_stopped_mutex = g_mutex_new ();
-	tracker->poll_stopped_mutex = g_mutex_new ();
 
 	tracker->file_metadata_thread = NULL;
 	tracker->file_process_thread = NULL;
 	tracker->user_request_thread = NULL;;
-	tracker->file_poll_thread = NULL;
 
 	tracker->file_thread_signal = g_cond_new ();
 	tracker->metadata_thread_signal = g_cond_new ();
 	tracker->request_thread_signal = g_cond_new ();
-	tracker->poll_thread_signal = g_cond_new ();
 
 	tracker->metadata_signal_mutex = g_mutex_new ();
 	tracker->files_signal_mutex = g_mutex_new ();
 	tracker->request_signal_mutex = g_mutex_new ();
-	tracker->poll_signal_mutex = g_mutex_new ();
 
 	tracker->log_access_mutex = g_mutex_new ();
 	tracker->scheduler_mutex = g_mutex_new ();
@@ -2324,17 +2179,7 @@ main (int argc, char **argv)
 	tracker->file_process_queue = g_async_queue_new ();
 	tracker->user_request_queue = g_async_queue_new ();
 
-	tracker_log ("Setting poll period to %d seconds", tracker->poll_interval);
-
-	tracker->poll_interval = tracker->poll_interval * 1000;
-
-	/* periodically poll directories for changes */
-	g_timeout_add_full (G_PRIORITY_LOW,
-			    tracker->poll_interval,
-		 	    (GSourceFunc) start_poll,
-			    NULL, NULL
-			    );
-
+	
 
 
   	tracker->loop = g_main_loop_new (NULL, TRUE);
