@@ -27,6 +27,15 @@ def _check_requirements ():
 		try :
 			if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
 				import dbus.glib
+			
+			# Check that Tracker can be started via dbus activation, we will have trouble if it's not
+			bus = dbus.SessionBus()
+			proxy_obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus')
+			dbus_iface = dbus.Interface(proxy_obj, 'org.freedesktop.DBus')
+			activatables = dbus_iface.ListActivatableNames()
+			if not "org.freedesktop.Tracker" in activatables:
+				return (deskbar.Handler.HANDLER_IS_NOT_APPLICABLE, "Tracker is not activatable via dbus", None)	
+				
 		except:
 			return (deskbar.Handler.HANDLER_IS_NOT_APPLICABLE, "Python dbus.glib bindings not found.", None)
 		return (deskbar.Handler.HANDLER_IS_HAPPY, None, None)
