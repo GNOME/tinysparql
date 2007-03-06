@@ -1,3 +1,9 @@
+2007-03-06  Mikkel Kamstrup Erlandsen <kamstrup@cvs.gnome.org>
+
+	* python/deskbar-handler/tracker-handler.py:
+	Check that Tracker is available via dbus activation or don't mark the handler
+	as available.
+
 2007-03-05  Edward Duffy <eduffy@gmail.com>
 
 	* src/trackerd/tracker-dbus-search.c:
