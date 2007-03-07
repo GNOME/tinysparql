@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
@@ -31,6 +32,7 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 	gchar         *argv[6];
 	gchar         *identify;
 	gchar        **lines;
+	gint           exit_status;
 
 	argv[0] = g_strdup ("identify");
 	argv[1] = g_strdup ("-format");
@@ -39,12 +41,13 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 	argv[4] = g_strdup (filename);
 	argv[5] = NULL;
 
-	if (tracker_spawn (argv, 10, &identify, NULL)) {
-
-		lines = g_strsplit (identify, ";\n", 4);
-		g_hash_table_insert (metadata, g_strdup ("Image:Width"), g_strdup (lines[0]));
-		g_hash_table_insert (metadata, g_strdup ("Image:Height"), g_strdup (lines[1]));
-		g_hash_table_insert (metadata, g_strdup ("Image:Comments"), g_strdup (g_strescape (lines[2], "")));
+	if (tracker_spawn (argv, 10, &identify, &exit_status)) {
+		if (exit_status == EXIT_SUCCESS) {
+			lines = g_strsplit (identify, ";\n", 4);
+			g_hash_table_insert (metadata, g_strdup ("Image:Width"), g_strdup (lines[0]));
+			g_hash_table_insert (metadata, g_strdup ("Image:Height"), g_strdup (lines[1]));
+			g_hash_table_insert (metadata, g_strdup ("Image:Comments"), g_strdup (g_strescape (lines[2], "")));
+		}
 	}
 }
 
