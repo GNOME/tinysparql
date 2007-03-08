@@ -1,4 +1,4 @@
-SUBDIRS = languages
+SUBDIRS = languages icons
 
 configdir = $(datadir)/tracker
 
