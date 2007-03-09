@@ -31,5 +31,6 @@ void	tracker_dbus_method_search_files_by_text 		(DBusRec *rec);
 void	tracker_dbus_method_search_metadata 			(DBusRec *rec);
 void	tracker_dbus_method_search_matching_fields 		(DBusRec *rec);
 void	tracker_dbus_method_search_query 			(DBusRec *rec);
+void	tracker_dbus_method_search_suggest 			(DBusRec *rec);
 
 #endif

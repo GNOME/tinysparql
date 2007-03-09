@@ -22,7 +22,7 @@
 #ifndef _TRACKER_STEMMER_H_
 #define _TRACKER_STEMMER_H_
 
-char * 	tracker_stem (const char *word);
+char * 	tracker_stem (const char *word, int word_length);
 
 
 #endif

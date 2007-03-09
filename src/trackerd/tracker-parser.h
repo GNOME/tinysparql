@@ -36,7 +36,9 @@
  * 
  * returns the word_table.
  */
-GHashTable *	tracker_parse_text (GHashTable *word_table, const char *text, int weight, gboolean filter_words);
+GHashTable *	tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolean filter_words, gboolean delimit_words);
+
+char *		tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean delimit);	
 
 char **		tracker_parse_text_into_array (const char *text);
 

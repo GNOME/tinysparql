@@ -1604,7 +1604,7 @@ set_defaults ()
 	tracker->index_counter = 0;
 	tracker->index_count = 0;
 	tracker->update_count = 0;
-
+	
 	tracker->max_index_text_length = MAX_INDEX_TEXT_LENGTH;
 	tracker->max_process_queue_size = MAX_PROCESS_QUEUE_SIZE;
 	tracker->max_extract_queue_size = MAX_EXTRACT_QUEUE_SIZE;
@@ -1632,8 +1632,11 @@ set_defaults ()
 	tracker->language = g_strdup ("en");
 	tracker->stop_words = NULL;
 	tracker->use_pango_word_break = FALSE;
-	tracker->index_numbers = FALSE;
 
+	tracker->index_numbers = FALSE;
+	tracker->index_number_min_length = 6;
+	tracker->strip_accents = TRUE;
+	
 	tracker->first_flush = TRUE;
 
 	tracker->magic  = magic_open (MAGIC_MIME);

@@ -162,4 +162,6 @@ void		tracker_db_get_static_data 	(DBConnection *db_con);
 
 DBConnection *	tracker_db_get_service_connection (DBConnection *db_con, const char *service);
 
+char *		tracker_db_get_service_for_entity (DBConnection *db_con, const char *id);
+
 #endif

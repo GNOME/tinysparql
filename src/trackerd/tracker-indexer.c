@@ -34,7 +34,7 @@ typedef struct {
 	int		count;
 } ServiceCount;
 
-static ServiceCount service_counts[11] = {
+static ServiceCount service_counts[13] = {
 	{ "Files", 0 },
 	{ "Folders", 0 },
 	{ "Documents", 0 },
@@ -45,6 +45,8 @@ static ServiceCount service_counts[11] = {
 	{ "Development", 0 },
 	{ "Emails", 0 },
 	{ "EmailAttachments", 0 },
+	{ "Conversations", 0 },
+	{ "Applications", 0 },
 	{ NULL, 0 },
 };
 
@@ -913,6 +915,10 @@ tracker_get_hit_counts (Indexer *indexer, char **words)
 				service_counts[8].count++;
 			} else if (hit->service_type_id > 29 && hit->service_type_id < 40 ) {
 				service_counts[9].count++;
+			} else if (hit->service_type_id > 39 && hit->service_type_id < 50 ) {
+				service_counts[10].count++;
+			} else if (hit->service_type_id == 50 ) {
+				service_counts[11].count++;
 			}
 		}
 
@@ -921,12 +927,12 @@ tracker_get_hit_counts (Indexer *indexer, char **words)
 
 	tracker_index_free_hit_list (result);
 
-	char **res = g_new0 (char *, 11);
+	char **res = g_new0 (char *, 13);
 
-	res[10] = NULL;
+	res[12] = NULL;
 	int i;
 
-	for (i=0; i<10; i++) {
+	for (i=0; i<12; i++) {
 		char **row = g_new0 (char *, 3);
 		row[0] = g_strdup (service_counts[i].service);
 		row[1] = tracker_int_to_str (service_counts[i].count);

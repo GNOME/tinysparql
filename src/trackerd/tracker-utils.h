@@ -194,6 +194,8 @@ typedef struct {
 	gboolean	use_pango_word_break;
 
 	gboolean	index_numbers;
+	int		index_number_min_length;
+	gboolean	strip_accents;
 
 	gboolean	first_time_index;
 	gboolean	first_flush;

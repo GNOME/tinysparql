@@ -33,6 +33,7 @@
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-indexer.h"
+#include "tracker-stemmer.h"
 #include "../xdgmime/xdgmime.h"
 
 
@@ -781,23 +782,24 @@ tracker_get_radix_by_suffix (const char *str, const char *suffix)
 char *
 tracker_escape_metadata (const char *str)
 {
+
 	char *st = g_strdup (str);
 
-	return	g_strdelimit (st, ";", ',');
+	return	g_strdelimit (st, "|" , 30);
 }
 
 
 char *
 tracker_unescape_metadata (const char *str)
 {
-/*	char *delimiter[2];
+	char *st = g_strdup (str);
 
-	delmiter[0] = 30;
-	delimiter[1] = NULL;
+	char delimiter[2];
 
-	return	g_strdup (g_strdelimit (str, ";", delimiter));
-*/
-return NULL;
+	delimiter[0] = 30;
+	delimiter[1] = 0;
+
+	return	g_strdelimit (st, delimiter, '|');
 }
 
 
@@ -3230,5 +3232,8 @@ tracker_using_battery ()
 	return using_battery;
 
 }
+
+
+
 
 

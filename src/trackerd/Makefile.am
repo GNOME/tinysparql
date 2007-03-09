@@ -16,7 +16,8 @@ INCLUDES =				\
 	$(GMIME_CFLAGS)			\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
-	$(SQLITE3_CFLAGS)
+	$(SQLITE3_CFLAGS)		\
+	$(UNAC_CFLAGS)		
 
 
 if HAVE_INOTIFY
@@ -121,6 +122,7 @@ trackerd_LDADD =			\
 	$(PANGO_LIBS)			\
 	$(GMIME_LIBS)			\
 	$(SQLITE3_LIBS)			\
+	$(UNAC_LIBS)			\
 	$(GTHREAD_LIBS)			\
 	-lz				\
 	-lmagic				\

@@ -1579,7 +1579,7 @@ get_file_contents_words (DBConnection *db_con, guint32 id)
 
 			if (st) {
 
-				old_table = tracker_parse_text (old_table, st, 1, TRUE);
+				old_table = tracker_parse_text (old_table, st, 1, TRUE, FALSE);
 			}
 
 			continue;
@@ -1615,7 +1615,7 @@ get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table
 		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
 
 			if (row[0] && row[1]) {
-				table = tracker_parse_text (table, row[0], atoi (row[1]), TRUE);
+				table = tracker_parse_text (table, row[0], atoi (row[1]), TRUE, FALSE);
 			}
 		}
 
@@ -1632,7 +1632,7 @@ get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table
 		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
 
 			if (row[0] && row[1]) {
-				table = tracker_parse_text (table, row[0], atoi (row[1]), TRUE);
+				table = tracker_parse_text (table, row[0], atoi (row[1]), TRUE, FALSE);
 			}
 		}
 
@@ -1784,7 +1784,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 
 			str = g_string_append (str, value);
 
-			index_table = tracker_parse_text (index_table, value, 1, TRUE);
+			index_table = tracker_parse_text (index_table, value, 1, TRUE, FALSE);
 
 			bytes_read += strlen (value);
 			g_free (value);
@@ -1792,7 +1792,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 		} else {
 			str = g_string_append (str, buffer);
 	
-			index_table = tracker_parse_text (index_table, buffer, 1, TRUE);
+			index_table = tracker_parse_text (index_table, buffer, 1, TRUE, FALSE);
 			
 			bytes_read += buffer_length;
 		}
@@ -2220,10 +2220,10 @@ update_metadata_index (DBConnection *db_con, const char *id, const char *service
 
 	filter_words = ((strcmp (meta_name, "File:Delimited") != 0) && (strcmp (meta_name, "File:Name") != 0));
 
-	old_table = tracker_parse_text (old_table, old_value, weight, filter_words);
+	old_table = tracker_parse_text (old_table, old_value, weight, filter_words, FALSE);
 
 	/* parse new metadata value */
-	new_table = tracker_parse_text (new_table, new_value, weight, filter_words);
+	new_table = tracker_parse_text (new_table, new_value, weight, filter_words, FALSE);
 
 	/* we only do differential updates so only changed words scores are updated */
 	if (new_table) {
@@ -2431,7 +2431,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 		case DATA_INDEX:
 			if (table) {
 				gboolean filter_words =  ((strcmp (key,  "File:Delimited") != 0) && (strcmp (key, "File:Name") != 0));
-				table = tracker_parse_text (table, value, def->weight, filter_words);
+				table = tracker_parse_text (table, value, def->weight, filter_words, FALSE);
 			}
 
 		case DATA_STRING:
@@ -2453,7 +2453,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 
 		case DATA_KEYWORD:
 			if (table) {
-				table = tracker_parse_text (table, value, def->weight, TRUE);
+				table = tracker_parse_text (table, value, def->weight, TRUE, FALSE);
 			}
 
 			tracker_exec_proc (db_con, "SetMetadataKeyword", 4, id, def->id, value, "1");
@@ -2461,7 +2461,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 
 		case DATA_FULLTEXT:
 			if (table) {
-				table = tracker_parse_text  (table, value, def->weight, TRUE);
+				table = tracker_parse_text  (table, value, def->weight, TRUE, FALSE);
 			}
 
 			if (value) {
@@ -2512,7 +2512,7 @@ tracker_db_update_index_multiple_metadata (DBConnection *db_con, const char *ser
 	old_table = NULL;
 	new_table = NULL;
 
-	old_table = tracker_parse_text (old_table, old_str->str, def->weight, TRUE);
+	old_table = tracker_parse_text (old_table, old_str->str, def->weight, TRUE, FALSE);
 
 	g_string_free (old_str, TRUE);
 
@@ -2524,7 +2524,7 @@ tracker_db_update_index_multiple_metadata (DBConnection *db_con, const char *ser
 
 
 	/* parse new metadata value */
-	new_table = tracker_parse_text (new_table, new_str->str, def->weight, TRUE);
+	new_table = tracker_parse_text (new_table, new_str->str, def->weight, TRUE, FALSE);
 
 	g_string_free (new_str, TRUE);
 
@@ -2672,7 +2672,15 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 	
 	/* update fulltext index differentially with current and new values */
 	if (update_index) {
-		update_metadata_index (db_con, id, service, key, old_value, new_value);
+
+		char *res_service = tracker_db_get_service_for_entity (db_con, id);
+
+		if (res_service) {
+			update_metadata_index (db_con, id, res_service, key, old_value, new_value);
+			g_free (res_service);
+		} else {
+			update_metadata_index (db_con, id, service, key, old_value, new_value);
+		}
 	}
 
 	g_free (new_value);
@@ -4104,6 +4112,30 @@ tracker_db_get_service_connection (DBConnection *db_con, const char *service)
 
 	return db_con;
 }
+
+
+char *
+tracker_db_get_service_for_entity (DBConnection *db_con, const char *id)
+{
+	char ***res;
+	char *result = NULL;
+
+	res  = tracker_exec_proc (db_con, "GetFileByID2", 1, id);
+	
+	if (res) {
+		if (res[0][1]) {
+			
+			result = g_strdup (res[0][1]);
+		}
+
+		tracker_db_free_result (res);
+
+	}
+
+	return result;
+	
+}
+
 
 /*
 tracker_db_update_mtime (DBConnection *db_con, const char *service, const char *uri)
