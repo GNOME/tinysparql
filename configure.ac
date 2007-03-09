@@ -429,6 +429,32 @@ AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "$enable-libtrackergtk" != "no")
 
 
 ##################################################################
+# Enable UNAC support?
+##################################################################
+
+
+AC_ARG_ENABLE([unac], AC_HELP_STRING([--disable-unac], [Disable unac accent stripper support]),,[enable_unac=yes])
+
+if test "x$enable_unac" != "xno" ; then
+
+  	PKG_CHECK_MODULES(UNAC, [unac >= 1.0.0],[enable_unac=yes] , [enable_unac=no])
+
+    	AC_SUBST([UNAC_CFLAGS])
+    	AC_SUBST([UNAC_LIBS])
+	
+else
+	enable-unac="no (disabled)"
+fi
+
+if test "$enable_unac" = "yes"; then
+	AC_DEFINE(HAVE_UNAC, [], [Define if we have unac lib])
+fi
+AM_CONDITIONAL(ENABLE_UNAC, test "$enable-unac" != "no")
+
+
+
+
+##################################################################
 # check for GNOME/GTK dependencies to build tracker search tool (Gnome client)
 ##################################################################
 
@@ -610,6 +636,13 @@ AC_CONFIG_FILES([
 	docs/Makefile
 	data/Makefile
 	data/languages/Makefile
+	data/icons/Makefile
+	data/icons/16x16/Makefile
+	data/icons/22x22/Makefile
+	data/icons/24x24/Makefile
+	data/icons/32x32/Makefile
+	data/icons/48x48/Makefile
+	data/icons/scalable/Makefile
 	filters/Makefile
 	filters/application/Makefile
 	filters/text/Makefile
@@ -650,6 +683,7 @@ Tracker-$VERSION:
 	file monitor backend to be used:	$primary_backend
 	inotify header location:		$inotify_header
 	ioprio support:				$ioprio_support
+	unac accent stripper support:		$enable_unac
 	build search tool (GNOME):		$have_gnome
 	build preferences ui:			$enable_preferences
 	build libtracker-gtk:			$enable_libtrackergtk

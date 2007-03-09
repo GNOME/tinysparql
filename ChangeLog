@@ -1,3 +1,15 @@
+
+2007-03-08  Jamie McCracken <jamiemcc at gnome org>
+
+	* Revamped parsing of text
+	* Now uses pango automatically for CJK texts
+	* Added optional accent stripper
+
+2007-03-08 patch from Michael Biebl <mbiebl at gmail com>
+
+	* Added new icons
+	* Removed old and installed in correct places for themes
+
 2007-03-07  Edward Duffy <eduffy@gmail.com>
 
 	* src/tracker-extract/tracker-extract-imagemagick.c:
@@ -6,6 +18,7 @@
 2007-03-07  Josep Puigdemont i Casamajó  <josep.puigdemont@gmail.com>
 
 	* configure.ac: Added "ca" to ALL_LINGUAS.
+
 
 2007-03-06  Mikkel Kamstrup Erlandsen <kamstrup@cvs.gnome.org>
 

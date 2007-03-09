@@ -2865,10 +2865,7 @@ main (int argc,
 
 	gtk_window_set_icon_name (GTK_WINDOW (gsearch->window), "gnome-searchtool");
 
-	gchar * icon_path;
-	icon_path = tracker_search_pixmap_file ("tracker.png");
-	gtk_window_set_default_icon_from_file (icon_path, NULL);
-	g_free (icon_path);
+	gtk_window_set_default_icon_name ("tracker");
 
 	gtk_window_set_wmclass (GTK_WINDOW (gsearch->window), "tracker-search-tool", "tracker-search-tool");
 	gtk_window_set_policy (GTK_WINDOW (gsearch->window), TRUE, TRUE, TRUE);

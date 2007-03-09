@@ -138,7 +138,7 @@ class TrackerSearchHandler(deskbar.Handler.Handler):
 class TrackerMoreMatch (Match):
 	def __init__(self, backend, qstring, category="files", **args):
 		Match.__init__(self, backend, **args)
-		self._icon = deskbar.Utils.load_icon("stock-find")
+		self._icon = deskbar.Utils.load_icon("tracker")
 		self.qstring = qstring
 		self.category = category
 
@@ -233,7 +233,7 @@ class TrackerLiveFileMatch (Match):
 
 class TrackerLiveSearchHandler(SignallingHandler):
 	def __init__(self):
-		SignallingHandler.__init__(self, "stock_file")
+		SignallingHandler.__init__(self, "tracker")
 		bus = dbus.SessionBus()
 		self.tracker = bus.get_object('org.freedesktop.Tracker','/org/freedesktop/tracker')
 		self.search_iface = dbus.Interface(self.tracker, 'org.freedesktop.Tracker.Search')

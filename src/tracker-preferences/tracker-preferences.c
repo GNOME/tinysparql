@@ -39,8 +39,7 @@ tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
 	/* Hide window first to allow the dialog to reize itself without redrawing */
 	gtk_widget_hide (main_window);
 
-	gtk_window_set_icon_from_file(GTK_WINDOW(main_window),
-				      PIXMAPS_DIR "/tracker.png", NULL);
+	gtk_window_set_icon_name(GTK_WINDOW(main_window), "tracker");
 	g_signal_connect (main_window, "delete-event",
 			  G_CALLBACK (dlgPreferences_Quit), self);
 
