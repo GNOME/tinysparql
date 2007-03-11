@@ -1,4 +1,9 @@
 
+2007-03-11  Edward Duffy <eduffy@gmail.com>
+
+	* src/tracker-extract/tracker-extract-imagemagick.c:
+	Don't send '-ping' to GIMP xcf files (#416905)
+
 2007-03-08  Jamie McCracken <jamiemcc at gnome org>
 
 	* Revamped parsing of text
