@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-03-07 15:44+0100\n"
-"PO-Revision-Date: 2007-03-07 16:09+0100\n"
+"PO-Revision-Date: 2007-03-14 13:52+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -480,7 +480,7 @@ msgstr "Abilitare indicizzazione di email di KMail"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Enable Thunderbird email indexing"
-msgstr "Abilitare indicizzazione di email di Thinderbird"
+msgstr "Abilitare indicizzazione di email di Thunderbird"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Enable _Indexing"
@@ -686,7 +686,7 @@ msgstr "C_erca:"
 #: ../src/tracker-search-tool/tracker-search-tool.c:2651
 #: ../src/tracker-search-tool/tracker-search-tool.c:2652
 msgid "Enter a search term with multiple words seperated with spaces."
-msgstr "Inserire un termine di ricerca con diverse parole separate da spazi."
+msgstr "Inserire un termine di ricerca con più parole separate da spazi."
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2652
 msgid "search_entry"
