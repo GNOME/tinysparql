@@ -1,3 +1,7 @@
+2007-03-15 Pema Geyleg <pema.geyleg@gmail.com>
+
+	*configure.ac: Added 'dz' to ALL_LINGUAS
+
 
 2007-03-11  Edward Duffy <eduffy@gmail.com>
 
