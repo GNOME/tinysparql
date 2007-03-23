@@ -1,7 +1,15 @@
+2007-03-23  Wouter Bolsterlee  <wbolster@svn.gnome.org>
+
+	reviewed by: Jamie McCracken
+
+	* src/tracker-search-tool/tracker-search-tool-callbacks.c:
+	(show_file_selector_cb):
+
+	Default to $HOME for saved searches. Fixes bug #421535.
+
 2007-03-15 Pema Geyleg <pema.geyleg@gmail.com>
 
-	*configure.ac: Added 'dz' to ALL_LINGUAS
-
+	* configure.ac: Added 'dz' to ALL_LINGUAS
 
 2007-03-11  Edward Duffy <eduffy@gmail.com>
 
@@ -54,19 +62,19 @@
 	* python/deskbar-handler/tracker-handler.py:
 	Work around dependency for deskbar 2.18. We can do with 2.16 now (hopefully).
 
-2007-03-03  Edward Duffy   <eduffy@gmail.com>
+2007-03-03  Edward Duffy  <eduffy@gmail.com>
 
 	* src/tracker-search-tool/tracker-search-tool.c:
 	Preserve search terms when switching tabs (#399022)
 
-2007-03-03  Edward Duffy   <eduffy@gmail.com>
+2007-03-03  Edward Duffy  <eduffy@gmail.com>
 
 	* configure.ac:
 	* trackerd.desktop.in:
 	* src/tracker-search-tool.desktop.in:
 	Add X-GNOME-Bugzilla-* keys to the .desktop files (#407348)
 
-2007-03-03  Edward Duffy   <eduffy@gmail.com>
+2007-03-03  Edward Duffy  <eduffy@gmail.com>
 
 	* src/trackerd/tracker-db-sqlite.c:
 	Fix tracker_db_get_files_by_mime (#409729)
@@ -81,7 +89,7 @@
 	* Fixed drag and drop of an email create a desktop file
 	* Fixed crasher with tile
 
-2007-03-03  Edward Duffy   <eduffy@gmail.com>
+2007-03-03  Edward Duffy  <eduffy@gmail.com>
 
 	* src/tracker--search-tool/tracker-search-tool.c:
 	Update metadata tile when tabs change.
@@ -131,7 +139,7 @@
 
 2007-02-28  Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
 
-    	* Patch for README file
+	* Patch for README file
 
 
 2007-02-28 Patch from Anders Rune Jensen <anders@iola.dk>
@@ -164,11 +172,11 @@
 
 2007-02-13  Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
 
-    	* tracker.cfg: replaced the unused EnableDebugLogging entry with Verbosity
-    	* remove unnecessary checks for tracker->verbosity
-    	* some spelling corrections and other minor changes
-    	* lowered tracker-preferences' GTK+2.0 version requirement from 2.10 to 2.8
-    	* README fixes
+	* tracker.cfg: replaced the unused EnableDebugLogging entry with Verbosity
+	* remove unnecessary checks for tracker->verbosity
+	* some spelling corrections and other minor changes
+	* lowered tracker-preferences' GTK+2.0 version requirement from 2.10 to 2.8
+	* README fixes
 
 2007-02-12 Patch from Gergan Penkov <gergan at gmail com>
 
@@ -366,11 +374,11 @@
 
 	* README: Ensured all lines over 79 colums were reduced for readability
 	* README: Added xdg-utils, libpng, libexif, and libgsf as dependencies
-   	* t-s-t: Added xdg-open to 'Open Folder' with a fallback to gnome-open
+	* t-s-t: Added xdg-open to 'Open Folder' with a fallback to gnome-open
 
 2007-01-07  Priit Laes  <plaes@svn.gnome.org>
 
-    * configure.in: Added 'et' (Estonian) to LINGUAS.
+	* configure.in: Added 'et' (Estonian) to LINGUAS.
 
 
 2007-01-03  Tshepang Lekhonkhobe <tshepang@gmail.com>
@@ -600,8 +608,8 @@
 	* added desktop files to debs
 
 2006-11-15  Luca Ferretti  <elle.uca@libero.it> 	 
-  	 
-         * */.cvsignore: Add cvs ingore files.
+
+	 * */.cvsignore: Add cvs ingore files.
 
 2006-11-12 Laurent Aguerreche <laurent aguerreche at free fr>
 	

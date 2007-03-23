@@ -1454,6 +1454,9 @@ show_file_selector_cb (GtkAction * action,
 	if (gsearch->save_results_as_default_filename != NULL) {
 		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_chooser),
 		                               gsearch->save_results_as_default_filename);
+	} else {
+		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (file_chooser),
+		                               g_get_home_dir());
 	}
 
 	g_signal_connect (G_OBJECT (file_chooser), "response",
