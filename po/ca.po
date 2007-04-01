@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-03-22 09:09+0100\n"
-"PO-Revision-Date: 2007-03-22 09:17+0100\n"
+"POT-Creation-Date: 2007-04-02 01:05+0200\n"
+"PO-Revision-Date: 2007-04-02 01:06+0200\n"
 "Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "MIME-Version: 1.0\n"
@@ -57,7 +57,7 @@ msgstr "Gènere : <b>%s</b>"
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:325
 #, c-format
 msgid "Bitrate : <b>%s Kbs</b>"
-msgstr ""
+msgstr "Taxa de bits : <b>%s Kbs</b>"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:326
 #, c-format
@@ -120,7 +120,7 @@ msgstr "Autor : <b>%s</b>"
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:424
 #, c-format
 msgid "Bitrate : <b>%s</b>"
-msgstr ""
+msgstr "Taxa de bits : <b>%s</b>"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:425
 #, c-format
@@ -788,37 +788,37 @@ msgstr "Activeu-ho per a visualitzar aquest correu electrònic"
 msgid "Save Search Results As..."
 msgstr "_Anomena i desa els resultats de la cerca..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1475
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1478
 msgid "Could not save document."
 msgstr "No s'ha pogut desar el document."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1476
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1479
 msgid "You did not select a document name."
 msgstr "No heu seleccionat un nom de document."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1506
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1509
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "No s'ha pogut desar el document «%s» a «%s»"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1540
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1543
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "Ja existeix el document «%s». El voleu reemplaçar?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1544
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
 msgid "If you replace an existing file, its contents will be overwritten."
 msgstr "Si reemplaceu un fitxer existent, se'n sobreescriurà el contingut."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1559
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1562
 msgid "_Replace"
 msgstr "_Reemplaça"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1609
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1612
 msgid "The document name you selected is a folder."
 msgstr "El nom del document que heu seleccionat és un directori."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1658
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1661
 msgid "You may not have write permissions to the document."
 msgstr "No deveu tenir permisos d'escriptura sobre el document."
 
@@ -838,16 +838,16 @@ msgstr ""
 #. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:643
 msgid "today at %-I:%M %p"
-msgstr ""
+msgstr "avui a les %-H:%M"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:645
 msgid "yesterday at %-I:%M %p"
-msgstr ""
+msgstr "ahir a les %H:%M"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:647
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:649
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
-msgstr ""
+msgstr "%A, %d de %B de %Y a les %-I:%M:%S %p"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:829
 msgid "link (broken)"
