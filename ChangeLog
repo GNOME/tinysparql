@@ -1,3 +1,9 @@
+2007-04-05  Edward Duffy <eduffy@gmail.com>
+
+	* src/tracker-search-tool/tracker-search-tool.c:
+   "xalign" property given an int, instead of float.
+      Thanks to Jay Langseth for point this out.
+
 2007-03-23  Wouter Bolsterlee  <wbolster@svn.gnome.org>
 
 	reviewed by: Jamie McCracken

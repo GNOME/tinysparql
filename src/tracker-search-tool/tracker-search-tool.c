@@ -1671,7 +1671,7 @@ create_search_results_section (GSearchWindow * gsearch)
 	gtk_container_add (GTK_CONTAINER (toolbar), toolitem);
 	label = gtk_label_new (_("Search Results:"));
 	gtk_widget_show (label);
-	g_object_set (G_OBJECT (label), "xalign", 0, NULL);
+	g_object_set (G_OBJECT (label), "xalign", 0.0, NULL);
 	gtk_label_set_justify   (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
 	gtk_container_add (GTK_CONTAINER (toolitem), label);
 
