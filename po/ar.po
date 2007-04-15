@@ -10,15 +10,14 @@ msgstr ""
 "Project-Id-Version: gnome 2-18\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-04-14 18:23+0100\n"
-"PO-Revision-Date: 2007-02-08 17:05+0200\n"
+"PO-Revision-Date: 2007-04-14 22:30+0200\n"
 "Last-Translator: Khaled Hosny <khaledhosny@eglug.org>\n"
 "Language-Team: Arabic <doc@arabeyes.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
-"Plural-Forms: Plural-Forms: nplurals=4; plural=n==1 ? 0 : n==2 ? 1 : n>=3 && "
-"n<=10 ? 2 : 3\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 0 : n==2 ? 1 : n>=3 && n<=10 ? 2 : 3\n"
 
 #. then set the remaining properties
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:245
@@ -192,9 +191,8 @@ msgstr ""
 
 #. Search For Tag
 #: ../src/libtracker-gtk/tracker-tag-bar.c:379
-#, fuzzy
 msgid "_Search For Tag"
-msgstr "ا_بحث:"
+msgstr "ا_بحث عن وسم"
 
 #. Remove Tag
 #: ../src/libtracker-gtk/tracker-tag-bar.c:391
@@ -330,8 +328,7 @@ msgstr "FILE... - تعامل مع الوُسوم على الملفات"
 msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
 "options like:"
-msgstr ""
-"لإضافة، حذف، أو البحث عن أكثر من وسْم في وقت واحد، صِل خيارات متعدّدة مثل:"
+msgstr "لإضافة، حذف، أو البحث عن أكثر من وسْم في وقت واحد، صِل خيارات متعدّدة مثل:"
 
 #: ../src/libtracker/tracker-tag.c:117
 #, c-format
@@ -370,23 +367,18 @@ msgid "VALUE"
 msgstr ""
 
 #: ../src/trackerd/trackerd.c:147
-#, fuzzy
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
-msgstr ""
-"القيمة المستعملة لتخفيف الفهرسة. يجب أن تكون القيمة في المجال 0-20 (افتراضيا "
-"5)، القيم السفلى تزيد سرعة الفهرسة"
+msgstr "القيمة المستعملة لتخفيف الفهرسة. يجب أن تكون القيمة في المجال 0-20 (افتراضيا 0)، القيم الأدنى تزيد سرعة الفهرسة"
 
 #: ../src/trackerd/trackerd.c:148
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "تخفيف استعمال الذاكرة، يمكن أن يبطئ الفهرسة"
 
 #: ../src/trackerd/trackerd.c:149
-msgid ""
-"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr ""
-"اللغة اللتي ستستخدم لقائمة الكلمات المُنشأة والمُنهية (رموز محارف ISO 639-1 2)"
+msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr "اللغة اللتي ستستخدم لقائمة الكلمات المُنشأة والمُنهية (رموز محارف ISO 639-1 2)"
 
 #: ../src/trackerd/trackerd.c:149
 msgid "LANG"
@@ -485,9 +477,8 @@ msgid "Enable _Indexing"
 msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:18
-#, fuzzy
 msgid "File patterns to ignore during indexing:"
-msgstr "دليل ليُشْمل في الفهرسة"
+msgstr "نمط ملفات ليُتَجاهل أثناء الفهرسة"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:19
 msgid "Generate _thumbnails"
@@ -578,14 +569,12 @@ msgid "Emails"
 msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:136
-#, fuzzy
 msgid "All Files"
 msgstr "كل الملفّات"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:137
-#, fuzzy
 msgid "Folders"
-msgstr "اف_تح مجلّد"
+msgstr "مجلدات"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:138
 msgid "Documents"
@@ -642,9 +631,8 @@ msgid "Your search returned no results."
 msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:842
-#, fuzzy
 msgid "Tracker Search Tool-"
-msgstr "أداة بحث المُقتفي"
+msgstr "أداة البحث المُقتفي-"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1099
 #: ../src/tracker-search-tool/tracker-search-tool.c:2854
@@ -652,9 +640,8 @@ msgid "Tracker Search Tool"
 msgstr "أداة بحث المُقتفي"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1672
-#, fuzzy
 msgid "Search Results:"
-msgstr "_نتائج البحث:"
+msgstr "نتائج البحث:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1769
 msgid "List View"
@@ -867,40 +854,3 @@ msgstr "وصلة (معطوبة)"
 msgid "link to %s"
 msgstr "صِل إلى %s"
 
-#~ msgid "Plain text"
-#~ msgstr "نص صِرْف"
-
-#~ msgid "No files found"
-#~ msgstr "لم يُعثر على ملفّات"
-
-#~ msgid "_Previous"
-#~ msgstr "ال_سابق"
-
-#~ msgid "_Next"
-#~ msgstr "ال_تالي"
-
-#~ msgid "Invalid service type: %s\n"
-#~ msgstr "نوع خدمة غير صحيح: %s\n"
-
-#~ msgid ""
-#~ "Locate documents and folders on this computer by name or content using "
-#~ "Tracker"
-#~ msgstr ""
-#~ "حدد موقع المستندات والمجلّدات على هذا الحاسوب بالإسم أو المحتوى باستخدام "
-#~ "المُقتفي"
-
-#~ msgid "Enables more verbose debug messages"
-#~ msgstr "فعّل رسائل بحث أكثر تفصيلاً"
-
-#~ msgid "value"
-#~ msgstr "قيمة"
-
-#~ msgid ""
-#~ "Value to use for throttling indexing and on battery power . Value must be "
-#~ "in range 0-20 (default 15) with lower values increasing indexing speed"
-#~ msgstr ""
-#~ "القيمة المستعملة لتخفيف الفهرسة عند استعمال البطارية. يجب أن تكون القيمة "
-#~ "في المجال 0-20 (افتراضيا 5)، القيم السفلى تزيد سرعة الفهرسة"
-
-#~ msgid "Faster indexing, use more memory and CPU. Equivalent to --throttle=0"
-#~ msgstr "فهرسة أسرع، استخدم ذاكرة ومعالج أكثر. "
