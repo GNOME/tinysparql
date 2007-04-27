@@ -1,3 +1,27 @@
+2007-04-27 Jamie McCracken <jamiemcc at gnome org>
+
+	* Restructured Database to be more extensible
+	* Made use of triggers in sqlite
+	* Cleaned and restructured code to be more extensible and make use of new DB structure
+	* Moved Metadata and Services to desktop files
+	* Backed all user defined data so that they can be restored on reindex
+	* Added --reindex param to trackerd
+	* Moved all database files to XDG dirs
+	* Separated expendable embedded data (in $Home/.cache) from user defined ones (in $HOME/.local/share/tracker/data)
+	* Imporved stat collation
+	* make process thread do the watching for fast startup
+	* added 5 second delay prior to watch/index so as not to slow down boot time
+	* Removed libmagic support
+	* Fixed file move issues
+	* Default Verbosity is to output almost nothing so as not to pollute xsession-errors
+	* Fixed bugs in Dbus interfaces
+	* Fixed bugs/crashes during indexing
+	* Fixed bug whereby directories exceeding the max number of watches would not be indexed (also fixed/applicable to NFS mounts)
+	* Fixed email attachment indexing
+	* Improved text parsing
+	
+
+
 2007-04-05  Edward Duffy <eduffy@gmail.com>
 
 	* src/tracker-search-tool/tracker-search-tool.c:
