@@ -27,7 +27,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <glib.h>
-#include <glib/gstdio.h>
+#include <glib/gstdio.h>a
 #include <regex.h>
 
 #include "tracker-db-sqlite.h"
@@ -1478,7 +1478,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	if (rc != SQLITE_DONE) {
 		tracker_error ("ERROR : execution of prepared query %s failed due to %s with return code %d", procedure, sqlite3_errmsg (db_con->db), rc);
 		db_con->in_error = TRUE;
-g_assert (FALSE);
+
 	}
 
 	if (!result || (row == 0)) {

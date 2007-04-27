@@ -1554,7 +1554,7 @@ is_text_file (const char *uri)
 	char 		buffer[4096];
 	FILE 		*f;
 	int 		buffer_length = 0;
-	GError 		*err;
+	GError 		*err = NULL;
 	
 
 	f =  g_fopen (uri, "r");
