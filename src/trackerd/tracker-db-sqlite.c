@@ -27,7 +27,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <glib.h>
-#include <glib/gstdio.h>a
+#include <glib/gstdio.h>
 #include <regex.h>
 
 #include "tracker-db-sqlite.h"
@@ -1130,7 +1130,7 @@ tracker_db_exec_no_reply (DBConnection *db_con, const char *query)
 		}
 
 		if (busy_count > 1000000) {
-			tracker_log ("Warning: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
+			tracker_error ("Warning: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
 			busy_count = 0;
 		}
 			
@@ -1147,7 +1147,7 @@ tracker_db_exec_no_reply (DBConnection *db_con, const char *query)
 	unlock_db ();
 
 	if (rc != SQLITE_DONE && msg) {
-		tracker_log ("WARNING: sql query %s failed because %s", query, msg);
+		tracker_error ("WARNING: sql query %s failed because %s", query, msg);
 		g_free (msg);
 	}
 
@@ -1497,7 +1497,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 			res[i] = tmp->data;
 			tmp = tmp->next;
 		} else {
-			tracker_log ("WARNING : exec proc has a dud emtry");
+			tracker_error ("WARNING : exec proc has a dud emtry");
 		}
 	}
 
@@ -1642,7 +1642,7 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 			res[i] = tmp->data;
 			tmp = tmp->next;
 		} else {
-			tracker_log ("WARNING : exec proc has a dud entry");
+			tracker_error ("WARNING : exec proc has a dud entry");
 		}
 	}
 
@@ -1994,7 +1994,7 @@ tracker_db_get_file_contents_words (DBConnection *db_con, guint32 id, GHashTable
 	unlock_connection (db_con);
 
 	if (rc != SQLITE_DONE) {
-		tracker_log ("WARNING: retrieval of text contents has failed");
+		tracker_error ("WARNING: retrieval of text contents has failed");
 	}
 
 	return old_table;
@@ -2075,7 +2075,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 		value = compressed;
 		
 	} else {
-		tracker_log ("WARNING: compression of %s has failed", value);
+		tracker_error ("WARNING: compression of %s has failed", value);
 		value = g_strdup (text);
 		bytes_compressed = length;
 	}
@@ -2146,7 +2146,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	}
 
 	if (rc != SQLITE_DONE) {
-		tracker_log ("WARNING: Failed to update contents ");
+		tracker_error ("WARNING: Failed to update contents ");
 	}
 }
 

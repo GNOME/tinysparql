@@ -1587,7 +1587,7 @@ is_text_file (const char *uri)
 				result = TRUE;
 			}
 
-			g_error_free(err);
+			g_error_free (err);
 
 			return result;
 		}

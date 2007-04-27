@@ -407,19 +407,19 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	g_return_val_if_fail (mm, FALSE);
 
 	if (!mm->uri) {
-		tracker_log ("ERROR: Email has no uri");
+		tracker_error ("ERROR: Email has no uri");
 		return FALSE;
 	}
 
 	if (mm->parent_mail_file && !mm->parent_mail_file->path) {
-		tracker_log ("ERROR: badly formatted email - abandoning index");
+		tracker_error ("ERROR: badly formatted email - abandoning index");
 		return FALSE;
 	}
 
 	if (mm->store) {
 		mm->store->mail_count++;
 	} else {
-		tracker_log ("WARNING: no mail store found for email");
+		tracker_error ("WARNING: no mail store found for email");
 	}
 
 	if (mm->deleted || mm->junk) {
@@ -434,7 +434,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				mm->store->junk_count++;
 			}
 		} else {
-			tracker_log ("WARNING: no mail store found for email");
+			tracker_error ("WARNING: no mail store found for email");
 		}
 
 		return TRUE;
@@ -447,7 +447,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			mbox_id = tracker_db_email_get_mbox_id (db_con, mm->parent_mail_file->path);
 
 			if (mbox_id == -1) {
-				tracker_log ("No mbox is registered for email %s", mm->uri);
+				tracker_error ("No mbox is registered for email %s", mm->uri);
 				return TRUE;
 			}
 		}
@@ -544,7 +544,9 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			i++;	
 		}
 
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", array, i, index_table);
+		if (i > 0) {
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", array, i, index_table);
+		}
 
 		g_strfreev (array);
 
@@ -573,7 +575,10 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			array[i] = str;
 			i++;
 		}
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", array, i, index_table);
+
+		if (i > 0) {
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", array, i, index_table);
+		}
 
 		g_strfreev (array);
 
@@ -594,7 +599,11 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			array[i] = g_strdup (ma->attachment_name);
 			i++;
 		}
-		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", array, i, index_table);
+
+		if (i > 0) {
+			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", array, i, index_table);
+		}
+
 		g_strfreev (array);
 
 
@@ -628,8 +637,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		
 
 	} else {
-		tracker_log ("ERROR : Failed to save email %s", mm->uri);
-		tracker_db_end_transaction (db_con);
+		tracker_error ("ERROR : Failed to save email %s", mm->uri);
 	}
 
 	g_free (attachment_service);
