@@ -1,9 +1,15 @@
-SUBDIRS = languages icons
+SUBDIRS = languages icons services
 
 configdir = $(datadir)/tracker
 
 config_DATA =   tracker-introspect.xml \
 		sqlite-tracker.sql \
+		sqlite-cache.sql \
+		sqlite-email.sql \
+		sqlite-service-stored-procs.sql \
+		sqlite-service-triggers.sql \
+		sqlite-tracker-triggers.sql \
+		sqlite-user-data.sql \
 		sqlite-stored-procs.sql \
 		sqlite-service.sql	\
 		sqlite-service-types.sql \

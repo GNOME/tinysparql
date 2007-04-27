@@ -1,140 +1,99 @@
 /* basic info for a file or service object */
 CREATE TABLE  Services
 (
-	ID            		Integer primary key AUTOINCREMENT not null,
-	ServiceTypeID		Integer  default 0, /* see ServiceTypes table above for ID values */
-	SubType			Integer default 0, /* reserved for future use */
-	Path 			Text  not null, /* non-file objects should use service name here */
-	Name	 		Text, /* name of file or object - the combination path and name must be unique for all objects */
-	Mime			Text,
-	Size			Integer,
-	CanRead			Integer default 1,
+	ID            		Integer primary key not null,
+	ServiceTypeID		Integer  default 0, /* see ServiceTypes table above for ID values. A value of 0 indicates a group resource rather than a service */
+	Path 			Text  not null  COLLATE UTF8, /* non-file objects should use service name here */
+	Name	 		Text default ' ' COLLATE UTF8, /* name of file or object - the combination path and name must be unique for all objects */
+	Enabled			Integer default 1,
+	Mime			Text default ' ',
+	Size			Integer default 0,
+	Rank			Integer default 5,
+	ParentID		Integer,
+
+	KeyMetadata1		Text,
+	KeyMetadata2		Text,
+	KeyMetadata3		Text,
+	KeyMetadata4		Text,
+	KeyMetadata5		Text,
+	KeyMetadata6		Text,
+	KeyMetadata7		Text,
+	KeyMetadata8		Text,
+	KeyMetadata9		Text,
+	KeyMetadata10		Text,
+	KeyMetadata11		Text,
+
+	Icon			Text,
 	CanWrite		Integer default 1,
 	CanExecute		Integer default 1,
-	CustomIconFile		Text,
+
 	LanguageId		Integer default 0,
-	Enabled			Integer default 1,
 	IsDirectory   		Integer default 0,
     	IsLink        		Integer default 0,
-	AuxilaryID		Integer, /* link to Volumes table for files, link to mbox table for emails*/
-	IndexTime  		Integer, /* should equal st_mtime for file if up-to-date */
-	Offset			Integer, /* last used disk offset for indexable files that always grow (like chat logs) or email offset */
-	UID			Integer,
-	Hash			text,
-	ChildFile		text,
+	AuxilaryID		Integer default 0, /* link to Volumes table for files, link to MailSummary table for emails*/
+	IndexTime  		Integer default 0, /* should equal st_mtime for file if up-to-date */
+	Accessed  		Integer default 0, /* last accessed */
+	Offset			Integer default 0, /* last used disk offset for indexable files that always grow (like chat logs) or email offset */
+	MD5			Text,
 
     	unique (Path, Name)
 
 );
 
 CREATE INDEX  ServiceIndex1 ON Services (ServiceTypeID);
-CREATE INDEX  ServiceIndex2 ON Services (AuxilaryID);
 
-CREATE TABLE MailSummary
+
+/* child service relationships for a specific group/struct metadata */
+CREATE TABLE ChildServices
 (
-	ID		Integer primary key AUTOINCREMENT not null,
-	MailApp		Integer not null,
-	MailType	Integer not null,
-	FileName	Text not null,
-	Path		Text not null,
-	UriPrefix	Text,
-	NeedsChecking	Integer default 0,
-	MailCount	Integer,
-	JunkCount	Integer,
-	DeleteCount	Integer,
-	Offset		Integer,
-	LastOffset	Integer,
-	MTime		integer,
+	ParentID            		Integer not null,
+	ChildID				Integer not null,
+	MetaDataID			Integer not null,
 
-	unique (Path)
+	primary key (ParentID, ChildID, MetaDataID)
 );
 
-
-CREATE TABLE JunkMail
-(
-	UID			integer not null,
-	SummaryID		Integer not null,
-
-	primary key (UID, SummaryID)
-);
+CREATE INDEX  ChildServicesIndex1 ON ChildServices (ChildID);
 
 
-
-/* de-normalised metadata which is unprocessed (not normalized or casefolded) for display only - never used for searching */
-CREATE TABLE  ServiceMetaDataDisplay 
-(
-	ServiceID		Integer not null,
-	MetaDataID 		Integer  not null,
-	MetaDataValue     	Text,
-	EmbeddedFlag		Integer default 0,
-	DeleteFlag		Integer default 0,
-
-	primary key (ServiceID, MetaDataID)
-);
-
-
-
-/* utf-8 based metadata that is used for searching */
+/* utf-8 based literal metadata. */
 CREATE TABLE  ServiceMetaData 
 (
 	ID			Integer primary key AUTOINCREMENT not null,
 	ServiceID		Integer not null,
 	MetaDataID 		Integer  not null,
 	MetaDataValue     	Text,
-	MetaDataDisplay		Text, 
-	EmbeddedFlag		Integer default 0,
-	DeleteFlag		Integer default 0
+	MetaDataDisplay		Text
 
 );
 
 CREATE INDEX  ServiceMetaDataIndex1 ON ServiceMetaData (ServiceID);
 CREATE INDEX  ServiceMetaDataIndex2 ON ServiceMetaData (MetaDataID);
 
-
-/* metadata for all keyword types - keywords are db indexed for fast searching */
+/* metadata for all keyword types - keywords are db indexed for fast searching - they are also not processed like other metadata. */
 CREATE TABLE  ServiceKeywordMetaData 
 (
 	ID			Integer primary key AUTOINCREMENT not null,
 	ServiceID		Integer not null,
-	MetaDataID 		Integer  not null,
-	MetaDataValue		Text, 
-	MetaDataDisplay		Text, 
-	EmbeddedFlag		Integer default 0,
-	DeleteFlag		Integer default 0
-	
+	MetaDataID 		Integer not null,
+	MetaDataValue		Text COLLATE NOCASE
 );
 
 CREATE INDEX  ServiceKeywordMetaDataIndex1 ON ServiceKeywordMetaData (MetaDataID, MetaDataValue);
 CREATE INDEX  ServiceKeywordMetaDataIndex2 ON ServiceKeywordMetaData (ServiceID);
 
 
-
-/* numerical metadata including DateTimes are stored here */
+/* metadata for all integer/date types */
 CREATE TABLE  ServiceNumericMetaData 
 (
 	ID			Integer primary key AUTOINCREMENT not null,
 	ServiceID		Integer not null,
 	MetaDataID 		Integer not null,
-	MetaDataValue		real,
-	EmbeddedFlag		Integer default 0,
-	DeleteFlag		Integer default 0
+	MetaDataValue		Integer not null
 );
 
-CREATE INDEX  ServiceNumericMetaDataIndex1 ON ServiceNumericMetaData (ServiceID);
-CREATE INDEX  ServiceNumericMetaDataIndex2 ON ServiceNumericMetaData (MetaDataID, MetaDataValue);
+CREATE INDEX  ServiceNumericMetaDataIndex1 ON ServiceNumericMetaData (MetaDataID, MetaDataValue);
+CREATE INDEX  ServiceNumericMetaDataIndex2 ON ServiceNumericMetaData (ServiceID);
 
 
 
-/* blob data is never searched and can contain embedded Nulls */
-CREATE TABLE  ServiceBlobMetaData 
-(
-	ID			Integer primary key AUTOINCREMENT not null,
-	ServiceID		Integer not null,
-	MetaDataID 		Integer  not null,
-	MetaDataValue		blob,
-	BlobLength		Integer,
-	EmbeddedFlag		Integer default 0,
-	DeleteFlag		Integer default 0
-);
-
-CREATE INDEX ServiceBlobMetaDataIndex1 ON ServiceBlobMetaData (ServiceID);

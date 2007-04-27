@@ -1,0 +1,113 @@
+[DC:Contributor]
+Abstract=true
+DisplayName=Contributor
+Description=Contributors to the resource (other than the authors)
+DataType=Indexable
+
+[DC:Coverage]
+Abstract=true
+DisplayName=Coverage
+Description=The extent or scope of the resource
+DataType=Indexable
+
+[DC:Creator]
+Abstract=true
+DisplayName=Author
+Description=The authors of the resource
+DataType=Indexable
+
+[DC:Date]
+Abstract=true
+DisplayName=Date
+Description=Date that something interesting happened to the resource
+DataType=DateTime
+
+[DC:Description]
+Abstract=true
+DisplayName=Description
+Description=A textual description of the content of the resource
+DataType=Indexable
+
+[DC:Format]
+Abstract=true
+DisplayName=Format
+Description=The file format(mime) or type used when saving the resource
+DataType=Keyword
+
+[DC:Identifier]
+Abstract=true
+DisplayName=Identifier
+Description=Unique identifier of the resource
+DataType=Indexable
+
+[DC:Language]
+Abstract=true
+DisplayName=Langauge
+Description=Language used in the resource
+DataType=Indexable
+
+[DC:Publishers]
+Abstract=true
+DisplayName=Publishers
+Description=Publishers of the resource
+DataType=Indexable
+
+[DC:Relation]
+Abstract=true
+DisplayName=Relationship
+Description=Relationships to other resources
+DataType=Indexable
+
+[DC:Rights]
+Abstract=true
+DisplayName=Rights
+Description=Informal rights statement of the resource
+DataType=Indexable
+
+[DC:Source]
+Abstract=true
+DisplayName=Source
+Description=Unique identifier of the work from which this resource was derived
+DataType=Indexable
+
+[DC:Subject]
+Abstract=true
+DisplayName=Subject
+Description=specifies the topic of the content of the resource
+DataType=Indexable
+
+[DC:Keywords]
+Abstract=true
+DisplayName=Keywords
+Description=Keywords that are used to tag a resource
+DataType=Keyword
+
+[DC:Title]
+Abstract=true
+DisplayName=Title
+Description=specifies the topic of the content of the resource
+DataType=Indexable
+
+[DC:Type]
+Abstract=true
+DisplayName=Type
+Description=specifies the type of the content of the resource
+DataType=Indexable
+
+[User:Rank]
+DisplayName=Rank
+Description=User settable rank or score of the resource
+FieldName=Rank
+DataType=Integer
+Embedded=false
+
+[User:Keywords]
+DisplayName=Keywords
+Description=User settable keywords which are used to tag a resource
+Parent=DC:Keywords
+DataType=Keyword
+Weight=50
+Embedded=false
+MultipleValues=true
+
+

@@ -1,0 +1,51 @@
+[Video:Title]
+DisplayName=Title
+Description=Video title
+DataType=Indexable
+Parent=DC:Title
+Weight=20
+Filtered=false
+
+[Video:Author]
+DisplayName=Author
+Description=Video author
+DataType=Indexable
+Parent=DC:Creator
+Weight=15
+
+[Video:Height]
+DisplayName=Height
+Description=The height in pixels
+DataType=Integer
+
+[Video:Width]
+DisplayName=Width
+Description=The width in pixels
+DataType=Integer
+
+[Video:Duration]
+DisplayName=Duration
+Description=Duration in number of seconds
+DataType=Integer
+
+[Video:Comments]
+DisplayName=Comments
+Description=General purpose comments
+DataType=Indexable
+Weight=1
+Parent=DC:Description
+
+[Video:FrameRate]
+DisplayName=Frame rate
+Description=Number of frames per seconds
+DataType=Double
+
+[Video:Codec]
+DisplayName=Codec
+Description=Codec used for the video
+DataType=String
+
+[Video:Bitrate]
+DisplayName=Bitrate
+Description=Bitrate in bits/sec
+DataType=Double

@@ -1,0 +1,173 @@
+[Audio:Title]
+DisplayName=Title
+Description=Track title
+DataType=Indexable
+Parent=DC:Title
+Weight=20
+Filtered=false
+
+[Audio:Artist]
+DisplayName=Artist
+Description=Track artist
+DataType=Indexable
+Parent=DC:Creator
+Weight=15
+Filtered=false
+
+[Audio:Album]
+DisplayName=Title
+Description=Track title
+DataType=Indexable
+Weight=10
+Filtered=false
+
+[Audio:Genre]
+DisplayName=Genre
+Description=The type or genre of the music track
+DataType=Keyword
+Parent=DC:Type
+Weight=5
+MultipleValues=true
+
+[Audio:Duration]
+DisplayName=Duration
+Description=The length in seconds of the music track
+DataType=Integer
+
+[Audio:ReleaseDate]
+DisplayName=Release date
+Description=The date the track was released
+DataType=DateTime
+Parent=DC:Date
+
+[Audio:AlbumArtist]
+DisplayName=Album artist
+Description=The artist of the track's album
+DataType=Indexable
+Parent=DC:Creator
+Weight=10
+Filtered=false
+
+[Audio:AlbumTrackCount]
+DisplayName=Album track count
+Description=The number of tracks in the album
+DataType=Integer
+
+[Audio:TrackNo]
+DisplayName=Track number
+Description=The position of the track relative to the others
+DataType=Integer
+
+[Audio:DiscNo]
+DisplayName=Disc number
+Description=On which disc the track is located
+DataType=Integer
+
+[Audio:Performer]
+DisplayName=Performer
+Description=The individual or group performing the track
+DataType=Indexable
+Weight=5
+Parent=DC:Contributor
+MultipleValues=true
+
+[Audio:TrackGain]
+DisplayName=Track gain
+Description=The amount of gain needed for the track
+DataType=Double
+
+[Audio:PeakTrackGain]
+DisplayName=Peak track gain
+Description=The peak amount of gain needed for the track
+DataType=Double
+
+[Audio:AlbumGain]
+DisplayName=Album gain
+Description=The amount of gain needed for the entire album
+DataType=Double
+
+[Audio:AlbumPeakGain]
+DisplayName=Peak album gain
+Description=The peak amount of gain needed for the entire album
+DataType=Double
+
+[Audio:Comment]
+DisplayName=Comments
+Description=General purpose comments
+DataType=Indexable
+Weight=1
+Parent=DC:Description
+
+[Audio:Codec]
+DisplayName=Codec
+Description=Codec name
+DataType=Indexable
+Weight=1
+
+[Audio:CodecVersion]
+DisplayName=Codec version
+Description=Codec version string
+DataType=String
+
+[Audio:Samplerate]
+DisplayName=Sample rate
+Description=Sample rate of track in Hz
+DataType=Double
+
+[Audio:Bitrate]
+DisplayName=Bitrate
+Description=Bitrate in bits/sec
+DataType=Double
+
+[Audio:Channels]
+DisplayName=Channels
+Description=The number of channels in the track
+DataType=Integer
+
+[Audio:LastPlay]
+DisplayName=Last Played
+Description=The date and time the track was last played
+DataType=DateTime
+Parent=DC:Date
+
+[Audio:PlayCount]
+DisplayName=Play Count
+Description=Number of times the track has been played
+DataType=Integer
+
+[Audio:DateAdded]
+DisplayName=Date Added
+Description=Date track was first added
+DataType=DateTime
+
+[Audio:Lyrics]
+DisplayName=Lyrics
+Description=Lyrics of the track
+DataType=Indexable
+weight=1
+
+[Audio:MBAlbumID]
+DisplayName=MusicBrainz album ID
+Description=The MusicBrainz album ID for the track
+DataType=String
+Parent=DC:Identifier
+
+[Audio:MBArtistID]
+DisplayName=MusicBrainz artist ID
+Description=The MusicBrainz artist ID for the track
+DataType=String
+Parent=DC:Identifier
+
+[Audio:MBAlbumArtistID]
+DisplayName=MusicBrainz album artist ID
+Description=The MusicBrainz album artist ID for the track
+DataType=String
+Parent=DC:Identifier
+
+[Audio:MBTrackID]
+DisplayName=MusicBrainz track ID
+Description=The MusicBrainz track ID
+DataType=String
+Parent=DC:Identifier
+
+
