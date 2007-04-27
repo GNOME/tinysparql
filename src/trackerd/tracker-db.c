@@ -742,7 +742,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}
 
 	/* save stuff to Db */
-	tracker_db_start_transaction (db_con);
+	
 
 	
 	if (!info->is_new) {
@@ -761,12 +761,14 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}
 
 	if (meta_table && (g_hash_table_size (meta_table) > 0)) {
+		tracker_db_start_transaction (db_con);
 		tracker_db_save_metadata (db_con, meta_table, index_table, info->file_id, info->is_new);
+		tracker_db_end_transaction (db_con);
 	}
 
 	
 
-	tracker_db_end_transaction (db_con);
+
 
 	/* update full text indexes */
 	if (info->is_new) {

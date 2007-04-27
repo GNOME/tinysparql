@@ -487,7 +487,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 	tracker_free_file_info (info);
 
-	if (id != -1) {
+	if (id != 0) {
 		GHashTable	*index_table;
 		char		*str_id, *str_date;
 		const GSList	*tmp;

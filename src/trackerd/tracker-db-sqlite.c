@@ -3981,12 +3981,12 @@ tracker_db_get_pending_files (DBConnection *db_con)
 
 	time_str = tracker_int_to_str (time_now);
 
-	tracker_db_start_transaction (db_con);
+//	tracker_db_start_transaction (db_con);
 	tracker_db_exec_no_reply (db_con, "DELETE FROM FileTemp");
 	str = g_strconcat ("INSERT INTO FileTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) SELECT ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FilePending WHERE (PendingDate < ", time_str, ") AND (Action <> 20) LIMIT 250", NULL);
 	tracker_db_exec_no_reply (db_con, str);
 	tracker_db_exec_no_reply (db_con, "DELETE FROM FilePending WHERE ID IN (SELECT ID FROM FileTemp)");
-	tracker_db_end_transaction (db_con);
+//	tracker_db_end_transaction (db_con);
 
 	g_free (str);
 	g_free (time_str);
@@ -4013,11 +4013,11 @@ tracker_db_get_pending_metadata (DBConnection *db_con)
 
 	str = "INSERT INTO MetadataTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) SELECT ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FilePending WHERE Action = 20 LIMIT 250";
 
-	tracker_db_start_transaction (db_con);
+//	tracker_db_start_transaction (db_con);
 	tracker_db_exec_no_reply (db_con, "DELETE FROM MetadataTemp");
 	tracker_db_exec_no_reply (db_con, str);
 	tracker_db_exec_no_reply (db_con, "DELETE FROM FilePending WHERE ID IN (SELECT ID FROM MetadataTemp)");
-	tracker_db_end_transaction (db_con);
+//	tracker_db_end_transaction (db_con);
 
 	return tracker_exec_sql (db_con, "SELECT FileID, FileUri, Action, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM MetadataTemp ORDER BY ID");
 }
