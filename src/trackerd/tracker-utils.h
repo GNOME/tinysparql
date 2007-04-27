@@ -82,14 +82,20 @@ typedef struct {
 	int 		count;     	 /* cummulative count of the cached word */
 } CacheWord;
 
+
+
+
 typedef enum {
+	DATA_KEYWORD,	
 	DATA_INDEX,
+	DATA_FULLTEXT,
 	DATA_STRING,
-	DATA_NUMERIC,
+	DATA_INTEGER,
+	DATA_DOUBLE,
 	DATA_DATE,
 	DATA_BLOB,
-	DATA_KEYWORD,
-	DATA_FULLTEXT
+	DATA_STRUCT,
+	DATA_LINK
 } DataTypes;
 
 
@@ -97,7 +103,8 @@ typedef enum {
 	DB_DATA,
 	DB_BLOB,
 	DB_EMAIL,
-	DB_CACHE
+	DB_CACHE,
+	DB_USER
 } DBTypes;
 
 
@@ -112,25 +119,39 @@ typedef enum {
 } TrackerStatus;
 
 
-
 typedef struct {
 	char		*id;
 	DataTypes	type;
-	gboolean	multiple_values;
+	char 		*field_name;
 	int		weight;
+	gboolean	embedded;
+	gboolean	multiple_values;
+	gboolean	delimited;
+	gboolean	filtered;
+	gboolean	store_metadata;
+
 	GSList		*child_ids; /* related child metadata ids */
 
 } FieldDef;
 
+
+
 typedef struct {
+
 	int		id;
 	char 		*name;
 	char		*parent;
-	char		*description;
-	int		min_id;
-	int		max_id; 
-	gboolean	main_service;
+	gboolean	enabled;
+	gboolean	embedded;
+	gboolean	has_metadata;
+	gboolean	has_fulltext;
+	gboolean	has_thumbs;
+	char		*content_metadata;
+	GSList		*key_metadata;
 	DBTypes		database;
+	gboolean 	show_service_files;
+	gboolean 	show_service_directories;
+
 } ServiceDef;
 
 typedef struct {
@@ -154,17 +175,16 @@ typedef struct {
 
 	guint32		watch_limit;
 
-
 	/* controls how much to output to screen/log file */
 	int		verbosity;
 
-	
-	magic_t 	magic;
-
 	/* data directories */
 	char 		*data_dir;
-	char		*backup_dir;
+	char		*config_dir;
+	char 		*root_dir;
+	char		*user_data_dir;
 	char		*sys_tmp_root_dir;
+	char 		*services_dir;
 
 	/* performance and memory usage options */
 	int		max_index_text_length; /* max size of file's text contents to index */
@@ -191,7 +211,6 @@ typedef struct {
 	GMutex		*stemmer_mutex;
 
 	GHashTable	*stop_words;	  	/* table of stop words that are to be ignored by the parser */
-	gboolean	use_pango_word_break;
 
 	gboolean	index_numbers;
 	int		index_number_min_length;
@@ -389,28 +408,36 @@ typedef struct {
 	gboolean		extract_embedded;
 	gboolean		extract_contents;
 	gboolean		extract_thumbs;
+	gboolean		is_hidden;
+
+	int			aux_id;
+	
 
 	/* we ref count FileInfo as it has a complex lifespan and is tossed between various threads, lists, queues and hash tables */
 	int			ref_count;
 
 } FileInfo;
 
+
+void	tracker_error 	(const char *message, ...);
 void 	tracker_log 	(const char *message, ...);
 void	tracker_info	(const char *message, ...);
 void	tracker_debug 	(const char *message, ...);
 
-
+ServiceDef *	tracker_get_service 			(const char *service);
 int		tracker_get_id_for_service 		(const char *service);
 int		tracker_get_id_for_parent_service 	(const char *service);
-int		tracker_get_min_id_for_service 		(const char *service);
-int		tracker_get_max_id_for_service 		(const char *service);
 char *		tracker_get_service_by_id 		(int service_type_id);
+char *		tracker_get_parent_service 		(const char *service);
 char *		tracker_get_parent_service_by_id 	(int service_type_id);
+int		tracker_get_parent_id_for_service_id 	(int service_type_id);
 DBTypes		tracker_get_db_for_service 		(const char *service);
+gboolean 	tracker_is_service_embedded 		(const char *service);
 
 
 GSList *	tracker_array_to_list 			(char **array);
 char **		tracker_make_array_null_terminated 	(char **array, int length);
+void		tracker_free_strs_in_array 		(char **array);
 
 void		tracker_free_array 		(char **array, int row_count);
 char *		tracker_int_to_str		(gint i);
@@ -423,8 +450,8 @@ int		tracker_str_in_array 		(const char *str, char **array);
 
 char *		tracker_get_radix_by_suffix	(const char *str, const char *suffix);
 
-char *		tracker_escape_metadata 	(const char *str);
-char *		tracker_unescape_metadata 	(const char *str);
+char *		tracker_escape_metadata 	(const char *in);
+char *		tracker_unescape_metadata 	(const char *in);
 
 void		tracker_remove_dirs 		(const char *root_dir);
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
@@ -495,5 +522,9 @@ gboolean	tracker_spawn 			(char **argv, int timeout, char **tmp_stdout, int *exi
 void		tracker_child_cb 		(gpointer user_data);
 
 char*	 	tracker_string_replace 		(const char *haystack, char *needle, char *replacement);
+
+void		tracker_add_metadata_to_table 	(GHashTable *meta_table, const char *key, const char *value, gboolean copy_key, gboolean copy_value);
+
+char **		tracker_list_to_array (GSList *list);
 
 #endif

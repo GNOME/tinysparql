@@ -29,19 +29,13 @@
 #include <glib/gstdio.h>
 #include <sys/resource.h>
 #include <zlib.h>
-#include <magic.h>
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-indexer.h"
 #include "tracker-stemmer.h"
 #include "../xdgmime/xdgmime.h"
 
-
-
-
 extern Tracker	*tracker;
-
-
 
 char *tracker_actions[] = {
 		"TRACKER_ACTION_IGNORE", "TRACKER_ACTION_CHECK", "TRACKER_ACTION_DELETE", "TRACKER_ACTION_DELETE_SELF", "TRACKER_ACTION_CREATE","TRACKER_ACTION_MOVED_FROM",
@@ -105,9 +99,40 @@ tracker_get_parent_service_by_id (int service_type_id)
 
 
 int
+tracker_get_parent_id_for_service_id (int service_type_id)
+{
+
+	char *str_id = tracker_int_to_str (service_type_id);
+	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
+
+	g_free (str_id);
+
+	if (!def) {
+		return -1;
+	}
+
+	char *name = g_utf8_strdown (def->parent, -1);
+
+	ServiceDef *def2 = g_hash_table_lookup (tracker->service_table, name);
+
+	g_free (name);
+
+	if (!def2) {
+		return -1;
+	}
+
+	return  def2->id;
+}
+
+
+int
 tracker_get_id_for_service (const char *service)
 {
-	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+	char *name = g_utf8_strdown (service, -1);
+
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, name);
+
+	g_free (name);
 
 	if (!def) {
 		return -1;
@@ -120,7 +145,12 @@ tracker_get_id_for_service (const char *service)
 int
 tracker_get_id_for_parent_service (const char *service)
 {
-	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+
+	char *name = g_utf8_strdown (service, -1);
+
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, name);
+
+	g_free (name);
 
 	if (!def) {
 		return -1;
@@ -130,42 +160,85 @@ tracker_get_id_for_parent_service (const char *service)
 }
 
 
-int
-tracker_get_min_id_for_service (const char *service)
+char *
+tracker_get_parent_service (const char *service)
 {
-	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+	char *name = g_utf8_strdown (service, -1);
+
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, name);
+
+	g_free (name);
 
 	if (!def) {
-		return -1;
+		return NULL;
 	}
 
-	return def->min_id;
+	if (def->parent) {
+		return g_strdup (def->parent);
+	}
+
+	return NULL;
+
 }
 
-int
-tracker_get_max_id_for_service (const char *service)
+
+ServiceDef *
+tracker_get_service (const char *service)
 {
-	ServiceDef *def = g_hash_table_lookup (tracker->service_table, service);
+	char *name = g_utf8_strdown (service, -1);
 
-	if (!def) {
-		return -1;
-	}
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, name);
 
-	return def->max_id;
+	g_free (name);
+	
+	return def;
 }
 
 
 DBTypes
 tracker_get_db_for_service (const char *service)
 {
-	int id = tracker_get_id_for_parent_service (service);
+
+	char *name = g_utf8_strdown (service, -1);
+
+	if (g_str_has_prefix (name, "emails") || g_str_has_prefix (name, "attachments")) {
+		g_free (name);
+		return DB_EMAIL;
+	}
+
+
+	int id = tracker_get_id_for_parent_service (name);
 	char *str_id = tracker_int_to_str (id);
 
-	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
+//	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
 	g_free (str_id);
 
-	return def->database;
+	g_free (name);
 
+//	if (!def) {
+		return DB_DATA;
+
+
+//	return def->database;
+
+
+}
+
+
+gboolean 
+tracker_is_service_embedded (const char *service)
+{
+	char *name = g_utf8_strdown (service, -1);
+
+	ServiceDef *def = g_hash_table_lookup (tracker->service_table, name);
+
+	g_free (name);
+
+	if (!def) {
+		return FALSE;
+	}
+
+	return def->embedded;	
 
 }
 
@@ -780,27 +853,47 @@ tracker_get_radix_by_suffix (const char *str, const char *suffix)
 
 
 char *
-tracker_escape_metadata (const char *str)
+tracker_escape_metadata (const char *in)
 {
+	if (!in) {
+		return NULL;
+	}
 
-	char *st = g_strdup (str);
+	GString *gs = g_string_new ("");
 
-	return	g_strdelimit (st, "|" , 30);
+	for(; *in; in++) {
+		if (*in == '|') {
+			g_string_append_c (gs, 30);
+		} else {
+			g_string_append_c (gs, *in);
+		}
+	}
+
+	return g_string_free (gs, FALSE);
 }
+
 
 
 char *
-tracker_unescape_metadata (const char *str)
+tracker_unescape_metadata (const char *in)
 {
-	char *st = g_strdup (str);
+	if (!in) {
+		return NULL;
+	}
 
-	char delimiter[2];
+	GString *gs = g_string_new ("");
 
-	delimiter[0] = 30;
-	delimiter[1] = 0;
+	for(; *in; in++) {
+		if (*in == 30) {
+			g_string_append_c (gs, '|');
+		} else {
+			g_string_append_c (gs, *in);
+		}
+	}
 
-	return	g_strdelimit (st, delimiter, '|');
+	return g_string_free (gs, FALSE);
 }
+
 
 
 void
@@ -1069,6 +1162,9 @@ tracker_create_file_info (const char *uri, TrackerChangeAction action, int count
 	info->atime = 0;
 	info->indextime = 0;
 	info->offset = 0;
+	info->aux_id = -1;
+
+	info->is_hidden = FALSE;
 
 	info->is_new = TRUE;
 	info->service_type_id = -1;
@@ -1204,7 +1300,7 @@ tracker_get_file_mtime (const char *uri)
 		}
 
 	} else {
-		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("******ERROR**** uri could not be converted to locale format");
 
 		return 0;
 	}
@@ -1237,7 +1333,7 @@ tracker_get_file_info (FileInfo *info)
 		}
 
 	} else {
-		tracker_log ("******ERROR**** info->uri could not be converted to locale format");
+		tracker_error ("******ERROR**** info->uri could not be converted to locale format");
 
 		return NULL;
 	}
@@ -1374,7 +1470,7 @@ tracker_file_is_valid (const char *uri)
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!uri_in_locale) {
-		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("******ERROR**** uri could not be converted to locale format");
 		g_free (uri_in_locale);
 		return FALSE;
 	}
@@ -1398,7 +1494,7 @@ tracker_file_is_indexable (const char *uri)
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!uri_in_locale) {
-		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("******ERROR**** uri could not be converted to locale format");
 		return FALSE;
 	}
 
@@ -1419,6 +1515,87 @@ tracker_file_is_indexable (const char *uri)
 }
 
 
+static inline gboolean
+is_utf8 (const char *buffer, int buffer_length) 
+{
+	char *end;
+
+	/* code in this function modified from gnome-vfs */
+
+	if (g_utf8_validate ((gchar *)buffer, buffer_length, (const gchar**)&end)) {
+		return TRUE;
+	} else {
+		/* Check whether the string was truncated in the middle of
+		 * a valid UTF8 char, or if we really have an invalid
+		 * UTF8 string
+     		 */
+		int remaining_bytes = buffer_length;
+
+		remaining_bytes -= (end-((gchar *)buffer));
+		
+		if (remaining_bytes > 4) {
+			return FALSE;			
+		}
+
+ 		if (g_utf8_get_char_validated (end, (gsize) remaining_bytes) == (gunichar) -2) {
+			return TRUE;
+		}
+
+	}
+
+	return FALSE;
+}
+
+
+static gboolean
+is_text_file (const char *uri)
+{
+	
+	char 		buffer[4096];
+	FILE 		*f;
+	int 		buffer_length = 0;
+	GError 		*err;
+	
+
+	f =  g_fopen (uri, "r");
+
+	if (!f) {
+		return FALSE;
+	}
+
+	buffer_length = fread (buffer, 4096, 1, f);
+
+	if (buffer_length == 0) {
+		return TRUE;
+	}
+
+	/* Don't allow embedded zeros in textfiles. */
+	if (memchr (buffer, 0, buffer_length) != NULL) {
+		return FALSE;
+	}
+	
+	if (is_utf8 (buffer, buffer_length)) {
+		return TRUE;
+	} else {
+		char *tmp = g_locale_to_utf8 (buffer, buffer_length, NULL, NULL, &err);
+		g_free (tmp);
+
+		if (err) {
+			gboolean result = FALSE;
+
+			if (err->code != G_CONVERT_ERROR_ILLEGAL_SEQUENCE && err->code !=  G_CONVERT_ERROR_FAILED && err->code != G_CONVERT_ERROR_NO_CONVERSION) {
+				result = TRUE;
+			}
+
+			g_error_free(err);
+
+			return result;
+		}
+
+	}
+
+	return FALSE;
+}
 
 
 char *
@@ -1428,7 +1605,6 @@ tracker_get_mime_type (const char *uri)
 	char	    *uri_in_locale;
 	const char  *result;
 	char *mime;
-	int i;
 
 	if (!tracker_file_is_valid (uri)) {
 		tracker_log ("Warning file %s is no longer valid", uri);
@@ -1438,7 +1614,7 @@ tracker_get_mime_type (const char *uri)
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!uri_in_locale) {
-		tracker_log ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("******ERROR**** uri could not be converted to locale format");
 		return g_strdup ("unknown");
 	}
 
@@ -1452,23 +1628,8 @@ tracker_get_mime_type (const char *uri)
 
 	if (!result || (result == XDG_MIME_TYPE_UNKNOWN)) {
 
-		result =  magic_file (tracker->magic, uri_in_locale);
-
-		mime = NULL;
-
-		if (result) {
-			
-			for (i=0; result[i]; i++) {
-				if (result[i] == ';') {
-					mime = g_strndup (result, i);
-					break;
-				}
-			}
-
-			if (!mime) {
-				mime = g_strdup ("unknown");
-			}			
-
+		if (is_text_file (uri_in_locale)) {
+			mime = g_strdup ("text/plain");
 		} else {
 			mime = g_strdup ("unknown");
 		}
@@ -1583,7 +1744,7 @@ tracker_is_directory (const char *dir)
 		return S_ISDIR (finfo.st_mode); 
 
 	} else {
-		tracker_log ("******ERROR**** dir could not be converted to locale format");
+		tracker_error ("******ERROR**** dir could not be converted to locale format");
 	}
 
 	return FALSE;
@@ -1620,7 +1781,7 @@ tracker_get_files (const char *dir, gboolean dir_only)
 	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
 
 	if (!dir_in_locale) {
-		tracker_log ("******ERROR**** dir could not be converted to utf8 format");
+		tracker_error ("******ERROR**** dir could not be converted to utf8 format");
 		g_free (dir_in_locale);
 		return NULL;
 	}
@@ -1731,6 +1892,45 @@ tracker_array_to_list (char **array)
 }
 
 
+
+char **
+tracker_list_to_array (GSList *list)
+{
+	GSList *tmp;
+	char **array;
+	int i = g_slist_length (list);
+
+	array = g_new0 (char *,  i + 1);
+
+	i = 0;
+
+	for (tmp = list; tmp; tmp = tmp->next) {
+
+		if (tmp->data) {
+			array[i] = g_strdup (tmp->data);
+			i++;
+		}
+
+	}
+
+	array[i] = NULL;
+
+	return array;
+}
+
+
+void
+tracker_free_strs_in_array (char **array)
+{
+	char **a;
+
+	for (a = array; *a; a++) {
+		g_free (*a);
+	}
+
+}
+
+
 gboolean
 tracker_ignore_file (const char *uri)
 {
@@ -1794,13 +1994,9 @@ tracker_is_supported_lang (const char *lang)
 
 
 static char *
-get_default_language_code (gboolean *use_pango)
+get_default_language_code ()
 {
 	char **langs, **plangs, *result;
-
-	char *pango_langs[] = {"th", "hi", "ko", "km", "ja", "zh", NULL};
-
-	*use_pango = FALSE;
 
 
 	/* get langauges for user's locale */
@@ -1820,17 +2016,6 @@ get_default_language_code (gboolean *use_pango)
 		}
 	}
 
-	/* if its a language that does not have western word breaks then force pango usage */
-	if (langs && langs[0]) {
-		for (i=0; pango_langs[i]; i++) {
-				if (g_str_has_prefix (langs[0], pango_langs[i])) {
-					*use_pango = TRUE;
-					break;
-				}
-
-			}
-	}
-
 	return g_strdup ("en");
 
 
@@ -1842,12 +2027,10 @@ void
 tracker_set_language (const char *language, gboolean create_stemmer)
 {
 
-	gboolean use_pango;
-
 	if (!language || strlen (language) < 2) {
 
 		g_free (tracker->language);
-		tracker->language = get_default_language_code (&use_pango);
+		tracker->language = get_default_language_code ();
 		tracker_log ("setting default language code to %s based on user's locale", language);
 
 	} else {
@@ -1933,21 +2116,12 @@ tracker_load_config_file ()
 
 	key_file = g_key_file_new ();
 
-	filename = g_build_filename (g_get_home_dir (), ".Tracker", "tracker.cfg", NULL);
+	filename = g_build_filename (tracker->config_dir, "tracker.cfg", NULL);
 
 	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		char *contents, *language, *enable_pango, *min_word;
-		gboolean use_pango;
+		char *contents, *language;
 		
-		language = get_default_language_code (&use_pango);
-
-		if (use_pango) {
-			enable_pango = "true";
-			min_word = "1";
-		} else {
-			enable_pango = "false";
-			min_word = "3";
-		}
+		language = get_default_language_code ();
 
 		contents  = g_strconcat (						
 					 "[General]\n",
@@ -1972,7 +2146,7 @@ tracker_load_config_file ()
 					 "# List of partial file patterns (glob) seperated by semicolons that specify files to not index (basic stat info is only indexed for files that match these patterns)\n",
 					 "NoIndexFileTypes=;\n\n",
 					  "# Sets minimum length of words to index\n",
-					 "MinWordLength=", min_word,"\n",
+					 "MinWordLength=3\n",
 					  "# Sets maximum length of words to index (words are cropped if bigger than this)\n",
 					 "MaxWordLength=30\n",
 					  "# Sets the language specific stemmer and stopword list to use \n",
@@ -1980,14 +2154,8 @@ tracker_load_config_file ()
 					 "Language=", language, "\n",
 					  "# Enables use of language-specific stemmer\n",
 					 "EnableStemmer=true\n",
-					  "# Sets whether to use the slower pango word break algortihm (only set this for CJK languages which dont contain western styke word breaks)\n",
-					 "EnablePangoWordBreaks=", enable_pango, "\n\n",
-					 "[Services]\n",
-					 "IndexEvolutionEmails=true\n",
-					 "IndexThunderbirdEmails=true\n",
-					 "IndexKmailEmails=true\n\n",
 					 "[Emails]\n",
-					 "AdditionalMBoxesToIndex=;\n\n",
+					 "IndexEvolutionEmails=true\n",
 					 "[Performance]\n",
 					 "# Maximum size of text in bytes to index from a file's text contents\n",
 					 "MaxTextToIndex=1048576\n",
@@ -2060,16 +2228,28 @@ tracker_load_config_file ()
 		tracker->throttle = 0;
 	}
 
+	if (g_key_file_has_key (key_file, "Indexing", "BatteryThrottle", NULL)) {
+		tracker->throttle = g_key_file_get_integer (key_file, "Indexing", "BatteryThrottle", NULL);
+	} else {
+		tracker->battery_throttle = 10;
+	}
+
 	if (g_key_file_has_key (key_file, "Indexing", "EnableIndexing", NULL)) {
 		tracker->enable_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableIndexing", NULL);
+	} else {
+		tracker->enable_indexing = TRUE;
 	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "EnableFileContentIndexing", NULL)) {
 		tracker->enable_content_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableFileContentIndexing", NULL);
+	} else {
+		tracker->enable_content_indexing = TRUE;
 	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "EnableThumbnails", NULL)) {
 		tracker->enable_thumbnails = g_key_file_get_boolean (key_file, "Indexing", "EnableThumbnails", NULL);
+	} else {
+		tracker->enable_thumbnails = FALSE;
 	}
 
 	values =  g_key_file_get_string_list (key_file,
@@ -2087,53 +2267,38 @@ tracker_load_config_file ()
 
 	if (g_key_file_has_key (key_file, "Indexing", "MinWordLength", NULL)) {
 		tracker->min_word_length = g_key_file_get_integer (key_file, "Indexing", "MinWordLength", NULL);
-
+	} else {
+		tracker->min_word_length = 3;
 	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "MaxWordLength", NULL)) {
 		tracker->max_word_length = g_key_file_get_integer (key_file, "Indexing", "MaxWordLength", NULL);
-
+	} else {
+		tracker->max_word_length = 40;
 	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "EnableStemmer", NULL)) {
 		tracker->use_stemmer = g_key_file_get_boolean (key_file, "Indexing", "EnableStemmer", NULL);
+	} else {
+		tracker->use_stemmer = TRUE;
 	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "Language", NULL)) {
 		tracker->language = g_key_file_get_string (key_file, "Indexing", "Language", NULL);
 	}
 
-	if (g_key_file_has_key (key_file, "Indexing", "EnablePangoWordBreaks", NULL)) {
-		tracker->use_pango_word_break = g_key_file_get_boolean (key_file, "Indexing", "EnablePangoWordBreaks", NULL);
-	}
-	
-	
-	/* Service Options */
 
-	if (g_key_file_has_key (key_file, "Services", "IndexEvolutionEmails", NULL)) {
-		tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Services", "IndexEvolutionEmails", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Services", "IndexThunderbirdEmails", NULL)) {
-		tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Services", "IndexThunderbirdEmails", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Services", "IndexKmailEmails", NULL)) {
-		tracker->index_kmail_emails = g_key_file_get_boolean (key_file, "Services", "IndexKmailEmails", NULL);
-	}
 
 	/* Emails config */
 			
 	tracker->additional_mboxes_to_index = NULL;
 
-	if (g_key_file_has_key (key_file, "Emails", "AdditionalMBoxesToIndex", NULL)) {
-		char **additional_mboxes;
-
-		additional_mboxes = g_key_file_get_string_list (key_file, "Emails", "AdditionalMBoxesToIndex", NULL, NULL);
-
-		tracker->additional_mboxes_to_index = array_to_list (additional_mboxes);
+	if (g_key_file_has_key (key_file, "Emails", "IndexEvolutionEmails", NULL)) {
+		tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Emails", "IndexEvolutionEmails", NULL);
+	} else {
+		tracker->index_evolution_emails = TRUE;
 	}
-	
+
 
 	/* Performance options */
 
@@ -3041,14 +3206,14 @@ tracker_child_cb (gpointer user_data)
 	cpu_limit.rlim_max = timeout+1;
 
 	if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
-		tracker_log ("Error trying to set resource limit for cpu");
+		tracker_error ("Error trying to set resource limit for cpu");
 	}
 
 	/* Set memory usage to max limit (128MB) */
 	getrlimit (RLIMIT_AS, &mem_limit);
  	mem_limit.rlim_cur = 128*1024*1024;
 	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
-		tracker_log ("Error trying to set resource limit for memory usage");
+		tracker_error ("Error trying to set resource limit for memory usage");
 	}
 
 	/* Set child's niceness to 19 */
@@ -3082,7 +3247,7 @@ tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status)
 }
 
 
-static void
+static inline void
 output_log (int verbosity, const char *message)
 {
 	FILE		*fd;
@@ -3134,6 +3299,22 @@ output_log (int verbosity, const char *message)
 }
 
 
+void
+tracker_error (const char *message, ...)
+{
+	va_list		args;
+	char 		*msg;
+
+  	va_start (args, message);
+  	msg = g_strdup_vprintf (message, args);
+  	va_end (args);
+
+	output_log (0, msg);
+	g_free (msg);
+
+}
+
+
 void 		
 tracker_log 	(const char *message, ...)
 {
@@ -3144,7 +3325,7 @@ tracker_log 	(const char *message, ...)
   	msg = g_strdup_vprintf (message, args);
   	va_end (args);
 
-	output_log (0, msg);
+	output_log (1, msg);
 	g_free (msg);
 }
 
@@ -3229,11 +3410,33 @@ tracker_using_battery ()
 
 	g_free (txt);
 
-	return using_battery;
+	return using_battery; 
 
 }
 
+void
+tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value, gboolean copy_key, gboolean copy_value)
+{
+	GSList *list;
+	char *my_key, *my_value;
 
+	if (copy_key) {
+		my_key = g_strdup (key);
+	} else {
+		my_key = (char *) key;
+	}
 
+	if (copy_value) {
+		my_value = g_strdup (value);
+	} else {
+		my_value = (char *) value;
+	}
+	
+	list = g_hash_table_lookup (meta_table, my_key);
+
+	list = g_slist_prepend (list, my_value);
+
+	g_hash_table_insert (meta_table, my_key, list);
+}
 
 

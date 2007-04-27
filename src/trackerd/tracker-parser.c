@@ -354,7 +354,6 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 
 	char *word = NULL;
 	guint32 i = 0;
-	gboolean first_word = TRUE;
 
 	if (txt) {
 
@@ -367,7 +366,7 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 
 			str_len = strlen (txt);
 
-			strs = g_string_new ("");
+			strs = g_string_new (" ");
 
 			attrs = g_new0 (PangoLogAttr, str_len + 1);
 
@@ -391,13 +390,8 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 						char *index_word = g_utf8_normalize (s, -1, G_NORMALIZE_NFC);
 						g_free (s);
 					
-						if (first_word) {
-							first_word = FALSE;
-						} else {
-							strs  = g_string_append_c (strs, ' ');
-						}
-
 						strs  = g_string_append (strs, index_word);
+						strs  = g_string_append_c (strs, ' ');
 
 						g_free (index_word);
 					}
@@ -417,7 +411,7 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 			
 		} else {
 
-			GString *str = g_string_new ("");
+			GString *str = g_string_new (" ");
 
 			while (TRUE) {
 				i++;
@@ -425,13 +419,10 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 
 				if (word) {
 
-					if (first_word) {
-						first_word = FALSE;
-					} else {
-						str  = g_string_append_c (str, ' ');
-					}
-
 					g_string_append (str, word);
+
+					g_string_append_c (str, ' ');
+
 					g_free (word);			
 				}
 
@@ -479,6 +470,37 @@ update_word_count (GHashTable *word_table, const char *word, int weight)
 
 
 
+/* use this for already processed text only */
+GHashTable *
+tracker_parse_text_fast (GHashTable *word_table, const char *txt, int weight)
+{
+
+	if (!word_table) {
+		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	} 
+
+	if (!txt || weight == 0) {
+		return word_table;
+	}
+
+	char **tmp;	
+	char **array;
+	int  count;
+
+	array =  g_strsplit (txt, " ", -1);
+
+	for (tmp = array; *tmp; tmp++) {
+		count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, *tmp));
+		g_hash_table_insert (word_table, g_strdup (*tmp), GINT_TO_POINTER (count + weight));	
+	}
+
+	g_strfreev (array);
+
+	return word_table;
+}
+
+
+/* use this for unprocessed raw text */
 GHashTable *
 tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolean filter_words, gboolean delimit_words)
 {
@@ -534,10 +556,7 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 					
 					if (total_words < 10000) { 
 
-						gpointer ptr;
-				
 						count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, index_word));
-
 						g_hash_table_insert (word_table, index_word, GINT_TO_POINTER (count + weight));	
 
 
@@ -572,8 +591,7 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 
 				if (total_words < 10000) { 
 
-					gpointer ptr;
-				
+			
 					count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
 
 					g_hash_table_insert (word_table, word, GINT_TO_POINTER (count + weight));	

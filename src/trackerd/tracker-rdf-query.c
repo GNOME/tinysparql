@@ -137,13 +137,15 @@ typedef enum {
 typedef struct {
 	char 		*alias;
 	char 	 	*field_name;
-	char	 	*meta_field;
+	char	 	*select_field;
+	char	 	*where_field;
 	char	 	*table_name;
 	char	 	*id_field;
 	DataTypes	data_type;
 	gboolean	multiple_values;
 	gboolean 	is_select;
 	gboolean 	is_condition;
+	gboolean	needs_join;
 
 } FieldData;
 
@@ -354,12 +356,16 @@ free_metadata_field (FieldData *field_data)
 		g_free (field_data->alias);
 	}
 
+	if (field_data->where_field) {
+		g_free (field_data->where_field);
+	}
+
 	if (field_data->field_name) {
 		g_free (field_data->field_name);
 	}
 
-	if (field_data->meta_field) {
-		g_free (field_data->meta_field);
+	if (field_data->select_field) {
+		g_free (field_data->select_field);
 	}
 
 	if (field_data->table_name) {
@@ -391,25 +397,27 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 		tmp_field = tmp->data;
 
 		if (tmp_field && tmp_field->field_name) {
-			if (strcmp (tmp_field->field_name, field_name) == 0) {
+			if (strcasecmp (tmp_field->field_name, field_name) == 0) {
 
 				field_data = tmp_field;
 		
-				if ((field_data->multiple_values && field_data->is_condition && is_select) || (field_data->multiple_values && field_data->is_select && is_condition) ) {
-					field_exists = FALSE;
-				} else {
-					field_exists = TRUE;
+				field_exists = TRUE;
 	
-					if (is_condition) {
-						field_data->is_condition = TRUE;
-					} 
+				if (is_condition) {
+					field_data->is_condition = TRUE;
+				} 
 
-					if (is_select) {
+				if (is_select) {
+					if (!field_data->is_select) {
+				
 						field_data->is_select = TRUE;
+						g_string_append_printf (data->sql_select, ", %s", field_data->select_field);
 					}
-
-					break;
+					
 				}
+
+				break;
+				
 			}
 		}
 	}
@@ -418,7 +426,6 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 
 	if (!field_exists) {
 		FieldDef *def;
-		char	 *istr;
 		int	 i;
 
 		field_data = g_new0 (FieldData, 1);
@@ -429,43 +436,40 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 
 		i = g_slist_length (data->fields);
 
-		istr = tracker_int_to_str (i);
-
-		field_data->alias = g_strconcat ("M", istr, NULL);
-		g_free (istr);
-
 		def = tracker_db_get_field_def (data->db_con, field_name);
 
 		if (def) {
-			char *st;
-			
-			if (is_select && def->multiple_values) {
-				st = g_strdup ("ServiceMetaDataDisplay");
-			} else {
-				st = tracker_get_metadata_table (def->type);
-			}
-
+	
+			field_data->table_name = tracker_get_metadata_table (def->type);
+			field_data->alias = g_strdup_printf ("M%d", i);
 			field_data->data_type = def->type;
-			field_data->meta_field = g_strconcat (field_data->alias, ".MetaDataValue", NULL);
-			field_data->table_name = g_strdup (st);
 			field_data->id_field = g_strdup (def->id);
 			field_data->multiple_values = def->multiple_values;
 			
+			char *my_field = tracker_db_get_field_name (data->service, field_name);
+
+			if (my_field) {
+				field_data->select_field = g_strdup_printf (" S.%s ", my_field);
+				g_free (my_field);
+				field_data->needs_join = FALSE;
+			} else {
+				char *disp_field = tracker_db_get_display_field (def);
+				field_data->select_field = g_strdup_printf ("M%d.%s", i, disp_field);
+				g_free (disp_field);
+				field_data->needs_join = TRUE;
+			}
+			
+			if (def->type == DATA_DOUBLE) {
+				field_data->where_field = g_strdup_printf ("M%d.MetaDataDisplay", i);
+			} else {
+				field_data->where_field = g_strdup_printf ("M%d.MetaDataValue", i);
+			}
+
 			data->fields = g_slist_prepend (data->fields, field_data);
 
 			if (is_select) {
-
-			/* leave datetime fields as integers (seconds from epoch) so clients can format as they wish */
-
-//				if (def->type == DATA_DATE) {
-//					g_string_append_printf (data->sql_select, ", FormatDate(%s)", field_data->meta_field);
-//				} else {
-				g_string_append_printf (data->sql_select, ", %s", field_data->meta_field);
-//				}
-
+				g_string_append_printf (data->sql_select, ", %s", field_data->select_field);
 			}
-
-			g_free (st);
 
 			tracker_db_free_field_def (def);
 
@@ -780,9 +784,9 @@ build_sql (ParserData *data)
 		int cvalue;
 
 		bvalue = tracker_format_date (avalue);
-		g_debug (bvalue);
+		tracker_debug (bvalue);
 		cvalue = tracker_str_to_date (bvalue);
-		g_debug ("%d", cvalue);
+		tracker_debug ("%d", cvalue);
 		value = tracker_int_to_str (cvalue);
 		g_free (bvalue);
 	} else {
@@ -809,12 +813,12 @@ build_sql (ParserData *data)
 
 			sub = strchr (data->current_value, '*');
 			if (sub) {
-				g_string_append_printf (str, " (%s glob '%s') ", field_data->meta_field, data->current_value);
+				g_string_append_printf (str, " (%s glob '%s') ", field_data->where_field, data->current_value);
 			} else {
-				if (field_data->data_type == DATA_DATE || field_data->data_type == DATA_NUMERIC) {
-					g_string_append_printf (str, " (%s = %s) ", field_data->meta_field, value);
+				if (field_data->data_type == DATA_DATE || field_data->data_type == DATA_INTEGER || field_data->data_type == DATA_DOUBLE) {
+					g_string_append_printf (str, " (%s = %s) ", field_data->where_field, value);
 				} else {
-					g_string_append_printf (str, " (%s = '%s') ", field_data->meta_field, value);
+					g_string_append_printf (str, " (%s = '%s') ", field_data->where_field, value);
 				}
 			}
 
@@ -822,25 +826,25 @@ build_sql (ParserData *data)
 
 		case OP_GREATER:
 
-			g_string_append_printf (str, " (%s > %s) ", field_data->meta_field, value);
+			g_string_append_printf (str, " (%s > %s) ", field_data->where_field, value);
 
 			break;
 
 		case OP_GREATER_EQUAL:
 
-			g_string_append_printf (str, " (%s >= %s) ", field_data->meta_field, value);
+			g_string_append_printf (str, " (%s >= %s) ", field_data->where_field, value);
 
 			break;
 
 		case OP_LESS:
 
-			g_string_append_printf (str, " (%s < %s) ", field_data->meta_field, value);
+			g_string_append_printf (str, " (%s < %s) ", field_data->where_field, value);
 
 			break;
 
 		case OP_LESS_EQUAL:
 
-			g_string_append_printf (str, " (%s <= %s) ", field_data->meta_field, value);
+			g_string_append_printf (str, " (%s <= %s) ", field_data->where_field, value);
 
 			break;
 
@@ -849,9 +853,9 @@ build_sql (ParserData *data)
 			sub = strchr (data->current_value, '*');
 
 			if (sub) {
-				g_string_append_printf (str, " (%s like '%s%s%s') ", field_data->meta_field, "%", data->current_value, "%");
+				g_string_append_printf (str, " (%s like '%s%s%s') ", field_data->where_field, "%", data->current_value, "%");
 			} else {
-				g_string_append_printf (str, " (%s like '%s%s%s') ", field_data->meta_field, "%", data->current_value, "%");
+				g_string_append_printf (str, " (%s like '%s%s%s') ", field_data->where_field, "%", data->current_value, "%");
 			}
 
 			break;
@@ -861,16 +865,16 @@ build_sql (ParserData *data)
 			sub = strchr (data->current_value, '*');
 
 			if (sub) {
-				g_string_append_printf (str, " (%s like '%s') ", field_data->meta_field, data->current_value);
+				g_string_append_printf (str, " (%s like '%s') ", field_data->where_field, data->current_value);
 			} else {
-				g_string_append_printf (str, " (%s like '%s%s') ", field_data->meta_field, data->current_value, "%");
+				g_string_append_printf (str, " (%s like '%s%s') ", field_data->where_field, data->current_value, "%");
 			}
 			
 			break;
 
 		case OP_REGEX:
 
-			g_string_append_printf (str, " (%s REGEXP '%s') ", field_data->meta_field, data->current_value);
+			g_string_append_printf (str, " (%s REGEXP '%s') ", field_data->where_field, data->current_value);
 
 			break;
 
@@ -880,7 +884,7 @@ build_sql (ParserData *data)
 			
 			if (s && s[0]) {
 
-				g_string_append_printf (str, " (%s in ('%s'", field_data->meta_field, s[0]);
+				g_string_append_printf (str, " (%s in ('%s'", field_data->where_field, s[0]);
 
 				char **p;
 				for (p = s+1; *p; p++) {
@@ -1153,6 +1157,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	memset (&data, 0, sizeof (data));
 	data.db_con = db_con;
 	data.statement_count = 0;
+	data.service = (char *) service;
 
 	data.sql_select = get_select_header (service);
 
@@ -1181,7 +1186,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 
 	data.sql_from = g_string_new ("");
 
-	g_debug ("search term is %s", search_text);
+	tracker_debug ("search term is %s", search_text);
 
 
 	if (search_text && (strlen (search_text) > 0)) {
@@ -1200,9 +1205,9 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	data.sql_where = g_string_new ("");
 
 	if (strlen (query) < 10) {
-		g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) ", service, service);
+		g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
 	} else {
-		g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID between GetServiceTypeID('%s') and GetMaxServiceTypeID('%s')) AND ", service, service);
+		g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) AND ", service, service);
 	}
 
 	if (limit < 1) {
@@ -1258,7 +1263,9 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 			tmp_field = tmp->data;
 
 			if (!tmp_field->is_condition) {
-				g_string_append_printf (data.sql_from, "\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, tmp_field->id_field);
+				if (tmp_field->needs_join) {
+					g_string_append_printf (data.sql_from, "\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, tmp_field->id_field);
+				}
 			} else {
 				char *related_metadata = tracker_get_related_metadata_names (db_con, tmp_field->field_name);
 				g_string_append_printf (data.sql_from, "\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, related_metadata);

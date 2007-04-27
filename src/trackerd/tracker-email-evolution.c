@@ -288,11 +288,11 @@ evolution_watch_emails (DBConnection *db_con)
 		tracker_db_free_result (res);
 	}
 
-	watch_directory (evolution_config->dir_local, "EvolutionMboxEmails");
+	watch_directory (evolution_config->dir_local, "EvolutionEmails");
 
-	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionImapEmails");	
-	g_slist_foreach (evolution_config->mh_dirs, (GFunc) watch_directory, "EvolutionMHEmails");		
-	g_slist_foreach (evolution_config->maildir_dirs, (GFunc) watch_directory, "EvolutionMailDirEmails");
+	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionEmails");	
+	g_slist_foreach (evolution_config->mh_dirs, (GFunc) watch_directory, "EvolutionEmails");		
+	g_slist_foreach (evolution_config->maildir_dirs, (GFunc) watch_directory, "EvolutionEmails");
 		
 }
 
@@ -309,39 +309,35 @@ evolution_file_is_interesting (FileInfo *info, const char *service)
 	g_return_val_if_fail (evolution_config, FALSE);
 	g_return_val_if_fail (evolution_config->mail_dir, FALSE);
 
-	if ((strcmp (service, "EvolutionMboxEmails") == 0) || (strcmp (service, "EvolutionImapEmails") == 0)) {
+	
+	/* mbox/pop/imap all have summary files (*.ev-summary or "summary") */
+	if ((strcmp (info->uri, "summary") == 0) || g_str_has_suffix (info->uri, "summary")) {
+		return (!g_str_has_suffix (info->uri, "Drafts.ev-summary") && !g_str_has_suffix (info->uri, "Outbox.ev-summary"));
+	} else {
+		return FALSE;
+	}
+	
 
-		/* mbox/pop/imap all have summary files (*.ev-summary or "summary") */
-		if ((strcmp (info->uri, "summary") == 0) || g_str_has_suffix (info->uri, "summary")) {
+	
+	/* But emails into MH dirs need to be treat separately since they can
+	   be anywhere! */
+	for (dir = evolution_config->mh_dirs; dir; dir = dir->next) {
+		const char *dir_path;
+		char *mime;
+		gboolean result;
 
-			return (!g_str_has_suffix (info->uri, "Drafts.ev-summary") && !g_str_has_suffix (info->uri, "Outbox.ev-summary"));
-		} else {
-			return FALSE;
+		
+		dir_path = dir->data;
+		if (g_str_has_prefix (info->uri, dir_path)) {
+			mime = tracker_get_mime_type (info->uri);
+			result = (strcmp (mime, "message/rfc822") == 0);
+			g_free (mime);
+		
+			return result;
+
 		}
 	}
-
-
-	if (strcmp (service, "EvolutionMHEmails") == 0) {
-		
-		/* But emails into MH dirs need to be treat separately since they can
-		   be anywhere! */
-		for (dir = evolution_config->mh_dirs; dir; dir = dir->next) {
-			const char *dir_path;
-			char *mime;
-			gboolean result;
-
-		
-			dir_path = dir->data;
-			if (g_str_has_prefix (info->uri, dir_path)) {
-				mime = tracker_get_mime_type (info->uri);
-				result = (strcmp (mime, "message/rfc822") == 0);
-				g_free (mime);
-		
-				return result;
-
-			}
-		}
-	}
+	
 
 	/* and same thing for maildir dirs */
 	for (dir = evolution_config->maildir_dirs; dir; dir = dir->next) {
@@ -432,13 +428,13 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			tracker_info ("investigating summary file %s", mbox_file);
 
 			if (!load_summary_file_header (summary, &header)) {
-				tracker_log ("Error: Failed to load summary file %s", info->uri);
+				tracker_error ("Error: Failed to load summary file %s", info->uri);
 				free_summary_file (summary);
 				goto end_index;
 			}
 
 			if (!load_summary_file_meta_header_for_local (summary, header)) {
-				tracker_log ("Error: Failed to load summary header file %s", info->uri);
+				tracker_error ("Error: Failed to load summary header file %s", info->uri);
 				free_summary_file_header (header);
 				free_summary_file (summary);
 				goto end_index;
@@ -457,7 +453,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			free_summary_file_header (header);
 			free_summary_file (summary);
 		} else {
-			tracker_log ("Error: failed to open summary file %s", info->uri);
+			tracker_error ("Error: failed to open summary file %s", info->uri);
 		}
 
 		g_free (mbox_file);
@@ -623,7 +619,7 @@ check_summary_file (DBConnection *db_con, const char *filename, MailStore *store
 
 		if (!load_summary_file_header (summary, &header)) {
 			free_summary_file (summary);
-			tracker_log ("ERROR : failed to open summary file %s", filename);
+			tracker_error ("ERROR : failed to open summary file %s", filename);
 			return;
 		}
 
@@ -632,7 +628,7 @@ check_summary_file (DBConnection *db_con, const char *filename, MailStore *store
 			if (!load_summary_file_meta_header_for_local (summary, header)) {
 				free_summary_file_header (header);
 				free_summary_file (summary);
-				tracker_log ("ERROR : failed to open summary header file %s", filename);
+				tracker_error ("ERROR : failed to open summary header file %s", filename);
 				return;
 			}
 		} else if (store->type == MAIL_TYPE_IMAP || store->type == MAIL_TYPE_IMAP4) {
@@ -640,11 +636,11 @@ check_summary_file (DBConnection *db_con, const char *filename, MailStore *store
 			if (!load_summary_file_meta_header_for_imap (summary, header)) {
 				free_summary_file_header (header);
 				free_summary_file (summary);
-				tracker_log ("ERROR : failed to open summary header file %s", filename);
+				tracker_error ("ERROR : failed to open summary header file %s", filename);
 				return;
 			}
 		} else {
-			tracker_log ("Sumamry File not supported");
+			tracker_error ("Sumamry File not supported");
 			free_summary_file_header (header);
 			free_summary_file (summary);
 			return;
@@ -680,7 +676,7 @@ check_summary_file (DBConnection *db_con, const char *filename, MailStore *store
 						}
 					}
 				} else {
-					tracker_log ("ERROR: whilst scanning sumamry file");
+					tracker_error ("ERROR: whilst scanning sumamry file");
 					return;
 					break;
 				}
@@ -1276,7 +1272,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 				store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
 
 		if (!store) {
-			tracker_log ("ERROR: could not retireve store for file %s", dir);
+			tracker_error ("ERROR: could not retireve store for file %s", dir);
 			free_summary_file (summary);
 			free_summary_file_header (header);
 
@@ -1294,7 +1290,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 			/* skip already indexed emails */
 			for (i = 0; i < store->mail_count; i++) {
 				if (!(*skip_mail) (summary)) {
-					tracker_log ("Error skipping email no. %d in summary file", i+1);
+					tracker_error ("Error skipping email no. %d in summary file", i+1);
 					tracker_db_email_free_mail_store (store);
 					free_summary_file (summary);
 					free_summary_file_header (header);
@@ -1314,7 +1310,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 				tracker_debug ("processing email no. %d", store->mail_count + 1); 
 
 				if (!(*load_mail) (summary, &mail_msg)) {
-					tracker_log ("Error loading email no. %d in summary file", mail_count);
+					tracker_error ("Error loading email no. %d in summary file", mail_count);
 					tracker_db_email_free_mail_store (store);
 					free_summary_file (summary);
 					free_summary_file_header (header);
@@ -1501,7 +1497,7 @@ open_summary_file (const char *path, SummaryFile **summary)
 				}
 
 				default:
-					tracker_log ("Error: no matching account found for email");
+					tracker_error ("Error: no matching account found for email");
 					continue;
 					break;
 			}
@@ -1563,7 +1559,7 @@ load_summary_file_header (SummaryFile *summary, SummaryFileHeader **header)
 	tracker_debug ("summary.version = %d", h->version);
 
 	if (h->version > 0xff && (h->version & 0xff) < 12) {
-		tracker_log ("Error: summary file header version too low");
+		tracker_error ("Error: summary file header version too low");
 		goto error;
 	}
 
@@ -1663,13 +1659,13 @@ load_summary_file_meta_header_for_imap (SummaryFile *summary, SummaryFileHeader 
 		}
 
 		if (version < 0) {
-			tracker_log ("Error: summary file version too low");
+			tracker_error ("Error: summary file version too low");
 			return FALSE;
 		}
 
 		/* Right now we only support summary versions 1 through 3 */
 		if (version > 3) {
-			tracker_log ("Error: reported summary version (%" G_GINT32_FORMAT ") is too new", version);
+			tracker_error ("Error: reported summary version (%" G_GINT32_FORMAT ") is too new", version);
 			return FALSE;
 		}
 
@@ -2499,7 +2495,7 @@ skip_string_decoding (FILE *f)
 	}
 
 	if (fseek (f, len - 1, SEEK_CUR) != 0) {
-		tracker_log ("seek failed for string with length %d with error code %d", len-1, errno);
+		tracker_error ("seek failed for string with length %d with error code %d", len-1, errno);
 		return FALSE;
 	}
 

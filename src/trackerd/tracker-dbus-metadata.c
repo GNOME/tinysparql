@@ -86,6 +86,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		tracker_set_error (rec, "Entity with ID %s not found in database", uri);
 		return;
 	}
+
 	db_con = tracker_db_get_service_connection (db_con, service);
 
 	is_local_file = (uri[0] == G_DIR_SEPARATOR);
@@ -96,13 +97,13 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		meta = keys[i];
 		value = values[i];
 
-		if (!meta || strlen (meta) < 3 || (strchr (meta, '.') == NULL) ) {
+		if (!meta || strlen (meta) < 3 || (strchr (meta, ':') == NULL) ) {
 			tracker_set_error (rec, "Metadata type name %s is invalid. All names must be registered in tracker", meta);
 			g_free (id);
 			return;
 		}
 
-		tracker_db_set_metadata (db_con, service, id, meta, value, !is_local_file, TRUE, FALSE);
+		tracker_db_set_single_metadata (db_con, service, id, meta, value);
 	}
 
 	g_free (id);
@@ -228,15 +229,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		def = tracker_db_get_field_def (db_con, metadata);
 
 		if (def) {
-			
-			if (def->multiple_values) {
-				table = g_strdup ("ServiceMetaDataDisplay");
-			} else {
-				table = tracker_get_metadata_table (def->type);
-			}
-
-		
-	
+			table = tracker_get_metadata_table (def->type);
 		} else {
 			tracker_set_error (rec, "Invalid or non-existant metadata type %s was specified", metadata);
 			g_string_free (sql, TRUE);
@@ -289,7 +282,13 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 				if (row[i]) {
 					if (date_array[i][0] == '1') {
-						array[i] = tracker_date_to_str (strtol (row[i], NULL, 10));
+
+						if (row[i][0] != '0') {
+							array[i] = tracker_date_to_str (strtol (row[i], NULL, 10));
+						} else {
+							array[i] = g_strdup ("");
+						}
+
 					} else {
 						array[i] = g_strdup (row[i]);
 					}
@@ -351,7 +350,7 @@ tracker_dbus_method_metadata_register_type (DBusRec *rec)
 		return;
 	}
 
-	if (!meta || strlen (meta) < 3 || (strchr (meta, '.') == NULL) ) {
+	if (!meta || strlen (meta) < 3 || (strchr (meta, ':') == NULL) ) {
 		tracker_set_error (rec, "Metadata name is invalid. All names must be in the format 'class.name' ");
 		return;
 	}

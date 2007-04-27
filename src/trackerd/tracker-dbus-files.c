@@ -34,7 +34,7 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 	gboolean     auto_create;
 	gboolean     file_valid;
 	gboolean     result;
-	guint32	     file_id, fsize;
+	guint32	     file_id;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -53,7 +53,7 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 	if (!dbus_message_get_args (rec->message, &dbus_error,
 			       DBUS_TYPE_STRING, &uri,
 			       DBUS_TYPE_BOOLEAN, &auto_create,
-				   DBUS_TYPE_INVALID)) {
+			       DBUS_TYPE_INVALID)) {
 		tracker_set_error(rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
 		dbus_error_free(&dbus_error);
 		return;
@@ -69,88 +69,29 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 	result = (file_id > 0);
 
 	if (!result && auto_create) {
-		char *name, *path, *mime, *service, *str_mtime, *str_size, *str_file_id;
-
-		name = NULL;
-		path = NULL;
-		mime = NULL;
+		char *str_file_id, *service;
+		FileInfo *info;
+	
+		info = NULL;
 		service = NULL;
-		str_mtime = NULL;
-		str_size = NULL;
 		str_file_id = NULL;
 
-		if (uri[0] == G_DIR_SEPARATOR) {
-			if (!tracker_file_is_valid (uri)) {
-				file_valid = FALSE;
-			} else {
-				FileInfo *info;
+		info = tracker_create_file_info (uri, 1, 0, 0);
 
-				name = g_path_get_basename (uri);
-				path = g_path_get_dirname (uri);
-				mime = tracker_get_mime_type (uri);
-				service = tracker_get_service_type_for_mime (mime);
-				info = tracker_create_file_info (uri, 1, 0, 0);
-				info = tracker_get_file_info (info);
-
-				if (info) {
-					file_valid = TRUE;
-					str_size = tracker_uint_to_str (info->file_size);
-					fsize = info->file_size;
-					str_mtime = tracker_uint_to_str (info->mtime);
-
-					tracker_free_file_info (info);
-				}
-				else
-					file_valid = FALSE;
-			}
-
+		if (!tracker_file_is_valid (uri)) {
+			file_valid = FALSE;
+			info->mime = g_strdup ("unknown");
+			service = g_strdup ("Files");
 		} else {
-			file_valid = TRUE;
-			name = tracker_get_vfs_name (uri);
-			path = tracker_get_vfs_path (uri);
-			mime = g_strdup ("unknown");
-			service = g_strdup ("VFS Files");
-			str_mtime = g_strdup ("0");
-			str_size = g_strdup ("0");
-			fsize = 0;
+			info->mime = tracker_get_mime_type (uri);
+			service = tracker_get_service_type_for_mime (info->mime);
+			info = tracker_get_file_info (info);
 		}
 
-		if (file_valid) {
-			tracker_db_create_service (db_con, path, name, service, mime, fsize, FALSE, FALSE, 0, 0, -1);
-		}
-
-		file_id = tracker_db_get_file_id (db_con, uri);
-		str_file_id = tracker_uint_to_str (file_id);
-
-		if (file_id > 0) {
-			tracker_db_set_metadata (db_con, service, str_file_id, "File:Name", name, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File:Path", path, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File:Format", mime, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File:Modified", str_mtime, TRUE, TRUE, TRUE);
-			tracker_db_set_metadata (db_con, service, str_file_id, "File:Size", str_size, TRUE, TRUE, TRUE);
-		}
-
-		if (name) {
-			g_free (name);
-		}
-		if (path) {
-			g_free (path);
-		}
-		if (mime) {
-			g_free (mime);
-		}
-		if (service) {
-			g_free (service);
-		}
-		if (str_mtime) {
-			g_free (str_mtime);
-		}
-		if (str_size) {
-			g_free (str_size);
-		}
-		if (str_file_id) {
-			g_free (str_file_id);
-		}
+		file_id = tracker_db_create_service (db_con, "Files", info);
+		tracker_free_file_info (info);
+		g_free (service);
+		
 	}
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -168,6 +109,7 @@ void
 tracker_dbus_method_files_create (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusMessage  *reply;
 	DBusError    dbus_error;
 	char	     *uri, *name, *path, *mime, *service, *str_mtime, *str_size, *str_file_id;
 	gboolean     is_dir;
@@ -208,29 +150,44 @@ tracker_dbus_method_files_create (DBusRec *rec)
 		return;
 	}
 
-	service = tracker_get_service_type_for_mime (mime);
-	str_mtime = tracker_uint_to_str (mtime);
-	str_size = tracker_uint_to_str (size);
+	
+	FileInfo *info;
+	
+	info = NULL;
+	service = NULL;
+	str_file_id = NULL;
 
-	if (uri[0] == G_DIR_SEPARATOR) {
-		name = g_path_get_basename (uri);
-		path = g_path_get_dirname (uri);
+	info = tracker_create_file_info (uri, 1, 0, 0);
+
+	info->mime = g_strdup (mime);
+	service = tracker_get_service_type_for_mime (mime);
+	info->is_directory = is_dir;
+	info->file_size = size;
+	info->mtime = mtime;
+
+	str_mtime = tracker_int_to_str (mtime);
+	str_size = tracker_int_to_str (size);
+	name = NULL;
+	
+	if (info->uri[0] == G_DIR_SEPARATOR) {
+		name = g_path_get_basename (info->uri);
+		path = g_path_get_dirname (info->uri);
 	} else {
-		name = tracker_get_vfs_name (uri);
-		path = tracker_get_vfs_path (uri);
+		name = tracker_get_vfs_name (info->uri);
+		path = tracker_get_vfs_path (info->uri);
 	}
 
-	tracker_db_create_service (db_con, path, name, service, mime, size, is_dir,  FALSE, 0, mtime, -1);
 
-	file_id = tracker_db_get_file_id (db_con, uri);
+	file_id = tracker_db_create_service (db_con, service, info);
+	tracker_free_file_info (info);
 	str_file_id = tracker_uint_to_str (file_id);
 
 	if (file_id != 0) {
-		tracker_db_set_metadata (db_con, service, str_file_id, "File:Modified", str_mtime, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File:Size", str_size, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id,  "File:Name", name, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File:Path", path, TRUE, TRUE, TRUE);
-		tracker_db_set_metadata (db_con, service, str_file_id, "File:Format", mime, TRUE, TRUE, TRUE);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Modified", str_mtime);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Size", str_size);
+		tracker_db_set_single_metadata (db_con, service, str_file_id,  "File:Name", name);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Path", path);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Format", mime);
 	}
 
 	g_free (service);
@@ -239,6 +196,12 @@ tracker_dbus_method_files_create (DBusRec *rec)
 	g_free (name);
 	g_free (path);
 	g_free (str_file_id);
+
+	reply = dbus_message_new_method_return (rec->message);
+	dbus_message_append_args (reply, DBUS_TYPE_INVALID);
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
+	
 }
 
 
@@ -246,6 +209,7 @@ void
 tracker_dbus_method_files_delete (DBusRec *rec)
 {
 	DBConnection *db_con;
+	DBusMessage  *reply;
 	DBusError    dbus_error;
 	char	     *uri, *name, *path, *str_file_id;
 	guint32	     file_id;
@@ -314,6 +278,11 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 	g_free (name);
 	g_free (path);
 	g_free (str_file_id);
+
+	reply = dbus_message_new_method_return (rec->message);
+	dbus_message_append_args (reply, DBUS_TYPE_INVALID);
+	dbus_connection_send (rec->connection, reply, NULL);
+	dbus_message_unref (reply);
 }
 
 
@@ -828,6 +797,8 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	char		**array;
 	GString		*sql;
 	char		***res;
+	FieldDef	*defs[255];
+	gboolean 	needs_join[255];
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -855,6 +826,18 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 		return;
 	}
 
+
+	for (i = 0; i < n; i++) {
+		defs[i] =   tracker_db_get_field_def (db_con, array[i]);
+
+		if (!defs[i]) {
+			tracker_set_error(rec, "Error: Metadata field %s was not found", array[i]);
+			dbus_error_free(&dbus_error);
+		}
+
+	}
+
+
 	folder_name_len = strlen (tmp_folder);
 
 	folder_name_len--;
@@ -879,7 +862,19 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	g_string_append_printf (sql, "'%s' || F.Name) as PathName ", G_DIR_SEPARATOR_S);
 
 	for (i = 1; i <= n; i++) {
-		g_string_append_printf (sql, ", M%d.MetaDataValue ", i);
+
+		char *my_field = tracker_db_get_field_name ("Files", array[i-1]);
+
+		if (my_field) {
+			g_string_append_printf (sql, ", F.%s ", my_field);
+			g_free (my_field);
+			needs_join[i-1] = FALSE;
+		} else {
+			char *disp_field = tracker_db_get_display_field (defs[i]);
+			g_string_append_printf (sql, ", M%d.%s ", i, disp_field);
+			g_free (disp_field);
+			needs_join[i-1] = TRUE;
+		}
 	}
 
 
@@ -887,27 +882,19 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 	g_string_append (sql, " FROM Services F ");
 
 	for (i = 0; i < n; i++) {
-		FieldDef *def;
+
 		char *table;
 
-		def = tracker_db_get_field_def (db_con, array[i]);
-
-		if (!def){
-			tracker_set_error (rec, "Not a supported field: %s", array[i]);
-			return;
+		if (!needs_join[i]) {
+			continue;
 		}
 
-		if (def->multiple_values) {
-			table = g_strdup ("ServiceMetaDataDisplay");
-		} else {
-			table = tracker_get_metadata_table (def->type);
-		}
+		table = tracker_get_metadata_table (defs[i]->type);
 
-		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON F.ID = M%d.ServiceID AND M%d.MetaDataID = %s ", table, i+1, i+1, i+1, def->id);
+		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON F.ID = M%d.ServiceID AND M%d.MetaDataID = %s ", table, i+1, i+1, i+1, defs[i]->id);
 
 		g_free (table);
 
-		tracker_db_free_field_def (def);
 	}
 
 	dbus_free_string_array(array);
@@ -918,7 +905,7 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	str = g_string_free (sql, FALSE);
 
-	g_debug (str);
+	tracker_debug (str);
 
 	res = tracker_exec_sql_ignore_nulls (db_con, str);
 

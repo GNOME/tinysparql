@@ -84,28 +84,6 @@ is_delete_event (TrackerChangeAction event_type)
 }
 
 
-static char *
-str_get_after_prefix (const char *source,
-		      const char *delimiter)
-{
-	char *prefix_start, *str;
-
-	g_return_val_if_fail (source != NULL, NULL);
-
-	if (delimiter == NULL) {
-		return g_strdup (source);
-	}
-
-	prefix_start = strstr (source, delimiter);
-
-	if (prefix_start == NULL) {
-		return NULL;
-	}
-
-	str = prefix_start + strlen (delimiter);
-
-	return g_strdup (str);
-}
 
 static void
 process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, guint32 cookie)
@@ -181,120 +159,19 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			}
 
 			if ((cookie > 0) && (moved_from_info->cookie == cookie)) {
-				char *str_file_id, *name, *path;
 
 				tracker_info ("found matching inotify pair for from %s to %s", moved_from_info->uri, moved_to_info->uri);
+
+				if (!tracker_is_directory (moved_to_info->uri)) {
+					tracker_db_move_file (main_thread_db_con, moved_from_info->uri, moved_to_info->uri);
+				} else {
+					tracker_db_move_directory (main_thread_db_con, moved_from_info->uri, moved_to_info->uri);
+				}
+
 				move_list = g_slist_remove (move_list, tmp->data);
 
-				moved_from_info = tracker_db_get_file_info (main_thread_db_con, moved_from_info);
-
-				/* if orig file not in DB, treat it as a create action */
-				if (moved_from_info->file_id == 0) {
-					tracker_debug ("warning original file %s not found in DB", moved_from_info->uri);
-					break;
-				}
-
-				str_file_id = tracker_uint_to_str (moved_from_info->file_id);
-				name = g_path_get_basename (moved_to_info->uri);
-				path = g_path_get_dirname (moved_to_info->uri);
-
-				/* update db so that fileID reflects new uri */
-				tracker_db_update_file_move (main_thread_db_con, moved_from_info->file_id, path, name, moved_from_info->indextime);
-
-				/* update File:Path and File:Filename metadata */
-				tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id, "File:Path", path, TRUE, TRUE, TRUE);
-				tracker_db_set_metadata (main_thread_db_con, "Files", str_file_id, "File:Name", name, TRUE, TRUE, TRUE);
-
-				g_free (str_file_id);
-				g_free (name);
-				g_free (path);
-
-				if (tracker_is_directory (moved_to_info->uri)) {
-					char *modified_path, *old_path, *match_path;
-					char ***res;
-
-					/* update all childs of the moved directory */
-					modified_path = g_strconcat (moved_to_info->uri, G_DIR_SEPARATOR_S, NULL);
-					old_path = g_strconcat (moved_from_info->uri, G_DIR_SEPARATOR_S, NULL);
-					match_path = g_strconcat (old_path, "%", NULL);
-
-					tracker_debug ("moved file is a dir");
-
-					/* stop watching old dir, start watching new dir */
-					tracker_remove_watch_dir (moved_from_info->uri, TRUE, main_thread_db_con);
-				
-					if (tracker_count_watch_dirs () < (int) tracker->watch_limit) {
-						tracker_add_watch_dir (moved_to_info->uri, main_thread_db_con);
-					}
-
-					/* update all changed File:Path metadata */
-					tracker_exec_proc (main_thread_db_con, "UpdateFileMovePath", 2, moved_to_info->uri, moved_from_info->uri);
-
-
-					/* for each subfolder, we must do the same as above */
-
-					/* get all sub folders that were moved and add watches */
-					res = tracker_db_get_file_subfolders (main_thread_db_con, moved_from_info->uri);
-
-					if (res) {
-						char **row;
-						int  k;
-
-						k = 0;
-
-						while ((row = tracker_db_get_row (res, k))) {
-
-							char *dir_name, *sep, *new_path;
-							k++;
-
-							if (!row || !row[0] || !row[1] || !row[2]) {
-								continue;
-							}
-
-							dir_name = g_build_filename (row[1], row[2], NULL);
-
-							sep = str_get_after_prefix (dir_name, old_path);
-
-							if (!sep) {
-								g_free (dir_name);
-								continue;
-							}
-
-							new_path = g_build_filename (moved_to_info->uri, sep, NULL);
-							g_free (sep);
-
-							tracker_info ("moving subfolder %s to %s", dir_name, new_path);
-
-							/* update all changed File:Path metadata for all files in this subfolder*/
-							tracker_exec_proc (main_thread_db_con, "UpdateFileMovePath", 2, new_path, dir_name);
-
-							/* update all subfolders and contained files to new path */
-							tracker_exec_proc (main_thread_db_con, "UpdateFileMoveChild", 2, new_path, dir_name);
-
-							if (tracker_count_watch_dirs () < (int) tracker->watch_limit) {
-								tracker_add_watch_dir (new_path, main_thread_db_con);
-							} 
-
-							g_free (new_path);
-							g_free (dir_name);
-
-						}
-
-						tracker_db_free_result (res);
-					}
-
-					/* update uri path of all files in moved folder */
-					tracker_exec_proc (main_thread_db_con, "UpdateFileMoveChild", 2, moved_to_info->uri, moved_from_info->uri);
-
-					g_free (modified_path);
-					g_free (old_path);
-					g_free (match_path);
-				}
-
-				moved_from_info = tracker_free_file_info (moved_from_info);
-				moved_to_info = tracker_free_file_info (moved_to_info);
-				info = NULL;
 				tracker_notify_file_data_available ();
+
 				return;
 			}
 		}
@@ -498,7 +375,7 @@ process_inotify_events (void)
 		file_utf8_uri = g_filename_to_utf8 (filename, -1, NULL, NULL, NULL);
 
 		if (!file_utf8_uri || strlen(file_utf8_uri) == 0) {
-			tracker_log ("******ERROR**** file uri could not be converted to utf8 format");
+			tracker_error ("******ERROR**** file uri could not be converted to utf8 format");
 			g_free (event);
 			continue;
 		}
@@ -511,7 +388,7 @@ process_inotify_events (void)
 			dir_utf8_uri = g_filename_to_utf8 (monitor_name, -1, NULL, NULL, NULL);
 
 			if (!dir_utf8_uri) {
-				tracker_log ("******ERROR**** file uri could not be converted to utf8 format");
+				tracker_error ("******ERROR**** file uri could not be converted to utf8 format");
 				g_free (file_utf8_uri);
 				g_free (event);
 				continue;
@@ -635,6 +512,7 @@ gboolean
 tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 {
 	char *dir_in_locale;
+	static gboolean limit_exceeded_msg = FALSE;
 
 	g_return_val_if_fail (dir, FALSE);
 	g_return_val_if_fail (dir[0] == '/', FALSE);
@@ -644,7 +522,12 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 	}
 
 	if (tracker_count_watch_dirs () >= (int) tracker->watch_limit) {
-		tracker_log ("Inotify Watch Limit has been exceeded - unable to watch any more directories");
+
+		if (!limit_exceeded_msg) {
+			tracker_log ("Inotify Watch Limit has been exceeded - for best results you should increase number of inotify watches on your system");
+			limit_exceeded_msg = TRUE;
+		}
+
 		return FALSE;
 	}
 

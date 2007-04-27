@@ -50,7 +50,7 @@ gboolean	tracker_indexer_append_word 		(Indexer *indexer, const char *word, guin
 gboolean	tracker_indexer_update_word 		(Indexer *indexer, const char *word, guint32 id, int service, int score, gboolean remove_word);
 
 /* returns a GSList containing SearchHit structs */
-GSList *	tracker_indexer_get_hits	(Indexer *indexer, char **words, int service_type_min, int service_type_max, int offset, int limit, gboolean get_count, int *total_count);
+GSList *	tracker_indexer_get_hits (Indexer *indexer, char **words, int *service_array,  int array_count, int offset, int limit, gboolean get_count, int *total_count);
 
 
 char ***	tracker_get_hit_counts 		(Indexer *indexer, char **words);

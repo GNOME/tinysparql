@@ -398,10 +398,10 @@ get_attachment_service_name (MailApplication app)
 gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
-	char	*name, *path;
-	int	mbox_id, type_id, id;
-	char *service, *attachment_service, *mime;
-
+	
+	int	mbox_id, type_id, id, i, len;
+	char    *service, *attachment_service, *mime;
+	char 	**array;
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (mm, FALSE);
@@ -466,25 +466,26 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	}
 
 	
-	name = tracker_get_vfs_name (mm->uri);
-	path = tracker_get_vfs_path (mm->uri);
-
 	type_id = tracker_get_id_for_service (service);
 	if (type_id == -1) {
 		tracker_log ("Error service %s not found", service);
-		g_free (path);
-		g_free (name);
 		g_free (attachment_service);
 		g_free (service);
 		return TRUE;
 	}
 
-	
-
-
 	id = -1;
 
-	id = tracker_db_create_service (db_con, path, name, service, mime, 0, FALSE, FALSE, mm->offset, 0, mbox_id);
+
+	FileInfo *info = tracker_create_file_info (mm->uri, 0,0,0);
+
+	info->mime = mime;
+	info->offset = mm->offset;
+	info->aux_id = mbox_id;
+
+	id = tracker_db_create_service (db_con, service, info);
+
+	tracker_free_file_info (info);
 
 	if (id != -1) {
 		GHashTable	*index_table;
@@ -501,22 +502,27 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 
 		if (mm->body) {
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body, index_table);
 		}
 
 		if (str_date) {
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date, index_table);
 		}
 
 		if (mm->from) {
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->from, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->from, index_table);
 		}
 
 		if (mm->subject) {
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject, index_table);
 		}
 
 		g_free (str_date);
+
+		i = 0;
+		len = g_slist_length (mm->to);
+		array = g_new (char *, len+1);
+		array[len] = NULL;
 
 		for (tmp = mm->to; tmp; tmp = tmp->next) {
 			const MailPerson *mp;
@@ -529,13 +535,23 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 
 			if (mp->name) {
-				str = g_strconcat (mp->name, ":", mp->addr, NULL);
+				str = g_strconcat (mp->name, " ", mp->addr, NULL);
 			} else {
 				str = g_strdup (mp->addr);
 			}
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", str, index_table);
-			g_free (str);
+
+			array[i] = str;
+			i++;	
 		}
+
+		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", array, i, index_table);
+
+		g_strfreev (array);
+
+		i = 0;
+		len = g_slist_length (mm->cc);
+		array = g_new (char *, len+1);
+		array[len] = NULL;
 
 		for (tmp = mm->cc; tmp; tmp = tmp->next) {
 			const MailPerson *mp;
@@ -548,16 +564,24 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 
 			if (mp->name) {
-				str = g_strconcat (mp->name, ":", mp->addr, NULL);
+				str = g_strconcat (mp->name, " ", mp->addr, NULL);
 			} else {
 				str = g_strdup (mp->addr);
 			}
 
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", str, index_table);
-			g_free (str);
+			
+			array[i] = str;
+			i++;
 		}
+		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", array, i, index_table);
 
+		g_strfreev (array);
 
+		i = 0;
+		len = g_slist_length (mm->attachments);
+		array = g_new (char *, len+1);
+		array[len] = NULL;
+		
 		for (tmp = mm->attachments; tmp; tmp = tmp->next) {
 			const MailAttachment *ma;
 
@@ -567,20 +591,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				continue;
 			}
 
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", ma->attachment_name, index_table);
-
-			/* delimit attachment names so hyphens and underscores are removed so that they can be indexed separately */
-			if (strchr (ma->attachment_name, '_') || strchr (ma->attachment_name, '-')) {
-				char *delimited;
-
-				delimited = g_strdup (ma->attachment_name);
-				delimited =  g_strdelimit (delimited, "-_" , ' ');
-				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:AttachmentsDelimted", delimited, index_table);
-				g_free (delimited);
-			}
+			array[i] = g_strdup (ma->attachment_name);
+			i++;
 		}
+		tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", array, i, index_table);
+		g_strfreev (array);
 
-		tracker_db_refresh_all_display_metadata (db_con, str_id);
+
 
 		tracker_db_end_transaction (db_con);
 
@@ -615,13 +632,8 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		tracker_db_end_transaction (db_con);
 	}
 
-	
-
-	g_free (path);
-	g_free (name);
 	g_free (attachment_service);
 	g_free (service);
-	g_free (mime);
 
 	return TRUE;
 

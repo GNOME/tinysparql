@@ -285,7 +285,7 @@ email_open_mail_file_at_offset (MailApplication mail_app, const char *path, off_
 	path_in_locale = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
 
 	if (!path_in_locale) {
-		tracker_log ("******ERROR**** path could not be converted to locale format");
+		tracker_error ("******ERROR**** path could not be converted to locale format");
 		g_free (path_in_locale);
 		return NULL;
 	}
@@ -779,13 +779,23 @@ find_attachment (GMimeObject *obj, gpointer data)
 			GMimeDataWrapper *wrapper;
 
 			stream_tmp_file = g_mime_stream_file_new (f);
+
 			wrapper = g_mime_part_get_content_object (part);
-			g_mime_data_wrapper_write_to_stream (wrapper, stream_tmp_file);
 
-			mail_msg->attachments = g_slist_prepend (mail_msg->attachments, ma);
+			if (wrapper) {
+				g_mime_data_wrapper_write_to_stream (wrapper, stream_tmp_file);
+				mail_msg->attachments = g_slist_prepend (mail_msg->attachments, ma);
+				g_object_unref (wrapper);
 
-			g_object_unref (wrapper);
+			} else {
+				g_free (ma->attachment_name);
+				g_free (ma->mime);
+				g_free (ma->tmp_decoded_file);
+				g_free (ma);
+			}
+
 			g_object_unref (stream_tmp_file);
+
 
 		} else {
 			g_free (ma->attachment_name);

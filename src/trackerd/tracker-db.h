@@ -30,7 +30,6 @@
 
 gboolean	tracker_db_is_file_up_to_date 	(DBConnection *db_con, const char *uri, guint32 *id);
 FileInfo *	tracker_db_get_file_info	(DBConnection *db_con, FileInfo *info);
-guint32		tracker_db_get_file_id		(DBConnection *db_con, const char *uri);
 gboolean	tracker_is_valid_service	(DBConnection *db_con, const char *service);
 char *		tracker_db_get_id		(DBConnection *db_con, const char *service, const char *uri);
 GHashTable *	tracker_db_save_metadata	(DBConnection *db_con, GHashTable *table, GHashTable *index_table, guint32 file_id, gboolean new_file);
@@ -41,7 +40,6 @@ void		tracker_db_free_field_def	(FieldDef *def);
 gboolean	tracker_metadata_is_date 	(DBConnection *db_con, const char *meta);
 FileInfo *	tracker_db_get_pending_file	(DBConnection *db_con, const char *uri);
 void		tracker_db_update_pending_file	(DBConnection *db_con, const char *uri, int counter, TrackerChangeAction action);
-void		tracker_db_insert_pending_file	(DBConnection *db_con, guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id);
 void		tracker_db_add_to_extract_queue	(DBConnection *db_con, FileInfo *info);
 gboolean	tracker_db_has_pending_files	(DBConnection *db_con);
 gboolean	tracker_db_has_pending_metadata	(DBConnection *db_con);

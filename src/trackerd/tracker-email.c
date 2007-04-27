@@ -76,7 +76,7 @@ tracker_email_end_email_watching (void)
 	}
 
 	g_mime_shutdown ();
-}
+} 
 
 
 gboolean
