@@ -55,11 +55,15 @@ typedef struct {
 
 	/* pointers to other database connection objects */
 	gpointer	data;
+	gpointer	files;
+	gpointer	file_index;
 	gpointer	emails;
-	gpointer	applications;
+	gpointer	email_index;
 	gpointer	others;
 	gpointer	blob;
 	gpointer	cache;
+	gpointer	user;
+
 } DBConnection;
 
 

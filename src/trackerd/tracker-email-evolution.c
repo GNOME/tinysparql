@@ -276,8 +276,10 @@ evolution_watch_emails (DBConnection *db_con)
 		if (row[2] && row[3]) {
 
 			MailStore *store = tracker_db_email_get_mbox_details (db_con, row[3]);
-			check_summary_file (db_con, row[2], store);
-			tracker_db_email_free_mail_store (store);
+			if (store) {
+				check_summary_file (db_con, row[2], store);
+				tracker_db_email_free_mail_store (store);
+			}
 			
 		}
 
@@ -420,7 +422,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 		
 		summary = NULL;
 
-		if (open_summary_file (info->uri, &summary)) {
+		if (store && open_summary_file (info->uri, &summary)) {
 			SummaryFileHeader	*header;
 			
 			header = NULL;
@@ -457,7 +459,10 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 		}
 
 		g_free (mbox_file);
-		tracker_db_email_free_mail_store (store);
+		
+		if (store) {
+			tracker_db_email_free_mail_store (store);
+		}
 
 
 	} else if (is_in_dir_imap (info->uri) || is_in_dir_imap4 (info->uri)) {
@@ -1252,7 +1257,9 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 			} 
 
 			if (uri_dir) {
-				clean_uri_dir = tracker_string_replace (uri_dir, "subfolders/", NULL);
+				char *tmp_str = tracker_string_replace (uri_dir, "subfolders/", NULL);
+				clean_uri_dir = tracker_string_replace (tmp_str, "folders/", NULL);
+				g_free (tmp_str);
 			}
 
 			uri_prefix = g_strdup_printf ("email://%s/%s;uid=", summary->associated_account->uid, clean_uri_dir);
@@ -1265,7 +1272,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 
 		}
 
-		MailStore *store;
+		MailStore *store = NULL;
 		store = tracker_db_email_get_mbox_details (db_con, dir);
 
 		tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", dir, 
@@ -1525,8 +1532,8 @@ free_summary_file (SummaryFile *summary)
 	}
 
 	fclose (summary->f);
-	g_free (summary->path);
 
+	g_free (summary->path);
 	g_free (summary);
 }
 

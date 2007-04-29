@@ -3339,7 +3339,7 @@ tracker_info	(const char *message, ...)
   	msg = g_strdup_vprintf (message, args);
   	va_end (args);
 
-	output_log (1, msg);
+	output_log (2, msg);
 	g_free (msg);
 }
 
@@ -3353,7 +3353,7 @@ tracker_debug 	(const char *message, ...)
   	msg = g_strdup_vprintf (message, args);
   	va_end (args);
 
-	output_log (2, msg);
+	output_log (3, msg);
 	g_free (msg);
 }
 

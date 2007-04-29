@@ -152,8 +152,8 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 		tracker->index_count++;
 		
-		if (tracker->verbosity == 0) {
-			if ( (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 0)) {
+		if (tracker->verbosity == 1) {
+			if ( (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 1)) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
 			} 
 		}
@@ -306,9 +306,9 @@ email_open_mail_file_at_offset (MailApplication mail_app, const char *path, off_
 	}
 
 	parser = g_mime_parser_new_with_stream (stream);
-	g_object_unref (stream);
 
 	if (!parser) {
+		g_object_unref (stream);
 		return NULL;
 	}
 
@@ -338,9 +338,13 @@ email_free_mail_file (MailFile *mf)
 		g_free (mf->path);
 	}
 
-	g_mime_stream_close (mf->stream);
+	if (mf->stream) {
+		g_object_unref (mf->stream);
+	}
 
-	g_object_unref (mf->parser);
+	if (mf->parser) {
+		g_object_unref (mf->parser);
+	}
 
 	g_free (mf);
 }
@@ -484,17 +488,17 @@ email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
 	int		gmt_offset;
 	gboolean	is_html;
 
-	g_return_val_if_fail (mf, NULL);
+	g_return_val_if_fail ((mf && mf->parser), NULL);
 
 	msg_offset = g_mime_parser_tell (mf->parser);
 
 	g_m_message = g_mime_parser_construct_message (mf->parser);
 
-	mf->next_email_offset = g_mime_parser_tell (mf->parser);
-
 	if (!g_m_message) {
 		return NULL;
 	}
+
+	mf->next_email_offset = g_mime_parser_tell (mf->parser);
 
 	mail_msg = g_new0 (MailMessage, 1);
 
@@ -745,7 +749,12 @@ find_attachment (GMimeObject *obj, gpointer data)
 	}
 
 	part = GMIME_PART (obj);
+
 	mail_msg = data;
+
+	if (!mail_msg) {
+		return;
+	}
 
 	content_disposition = g_mime_part_get_content_disposition (part);
 
@@ -753,55 +762,64 @@ find_attachment (GMimeObject *obj, gpointer data)
 	if (content_disposition &&
 	    (strcmp (content_disposition, GMIME_DISPOSITION_ATTACHMENT) == 0 ||
 	     strcmp (content_disposition, GMIME_DISPOSITION_INLINE) == 0)) {
+
 		const GMimeContentType	*content_type;
 		MailAttachment		*ma;
-		FILE			*f;
+		const char		*filename;
+		char			*attachment_uri;
+		int 			fd;
 
 		content_type = g_mime_part_get_content_type (part);
 
-		if (!content_type->params) {
-			/* we are unable to identify mime type */
+		filename = g_mime_part_get_filename (part); 
+
+		if (!content_type->params || !content_type->type || !content_type->subtype  || !filename) {
+			/* we are unable to identify mime type or filename */
 			return;
 		}
 
+		/* do not index signature attachments */
+		if (g_str_has_suffix (filename, "signature.asc")) {
+			return;
+		} else {
+			tracker_info ("attached filename is %s", filename);
+		}
+
+		attachment_uri = g_build_filename (mail_msg->path_to_attachments, filename, NULL);
+
+		if ((fd = open (attachment_uri, O_CREAT | O_WRONLY, 0666)) == -1) {
+			tracker_error ("failed to save attachemnt %s", attachment_uri);
+			g_free (attachment_uri);
+			return;
+		}
+		
+		GMimeStream *stream = g_mime_stream_fs_new (fd);
+	
+		GMimeDataWrapper *content = g_mime_part_get_content_object (part);
+
+		if (content) {
+	
+			int x = g_mime_data_wrapper_write_to_stream (content, stream);
+
+			if (x != -1) {
+				g_mime_stream_flush (stream);
+			}
+			g_object_unref (content);
+		}
+
+		g_object_unref (stream);
+
+		
+		close (fd);
+
 		ma = g_new0 (MailAttachment, 1);
 
-		ma->attachment_name = g_strdup (g_mime_part_get_filename (part));
+		ma->attachment_name = g_strdup (filename);
 		ma->mime = g_strconcat (content_type->type, "/", content_type->subtype, NULL);
-		ma->tmp_decoded_file  = g_build_filename (mail_msg->path_to_attachments, ma->attachment_name, NULL);
+		ma->tmp_decoded_file  = attachment_uri;
 
-		tracker_debug ("saving email attachment to %s", ma->tmp_decoded_file);
-
-		f = g_fopen (ma->tmp_decoded_file, "w");
-
-		if (f) {
-			GMimeStream	 *stream_tmp_file;
-			GMimeDataWrapper *wrapper;
-
-			stream_tmp_file = g_mime_stream_file_new (f);
-
-			wrapper = g_mime_part_get_content_object (part);
-
-			if (wrapper) {
-				g_mime_data_wrapper_write_to_stream (wrapper, stream_tmp_file);
-				mail_msg->attachments = g_slist_prepend (mail_msg->attachments, ma);
-				g_object_unref (wrapper);
-
-			} else {
-				g_free (ma->attachment_name);
-				g_free (ma->mime);
-				g_free (ma->tmp_decoded_file);
-				g_free (ma);
-			}
-
-			g_object_unref (stream_tmp_file);
+		mail_msg->attachments = g_slist_prepend (mail_msg->attachments, ma);
 
 
-		} else {
-			g_free (ma->attachment_name);
-			g_free (ma->mime);
-			g_free (ma->tmp_decoded_file);
-			g_free (ma);
-		}
 	}
 }

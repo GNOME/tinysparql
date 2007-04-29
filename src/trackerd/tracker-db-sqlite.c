@@ -502,7 +502,7 @@ tracker_db_initialize (const char *datadir)
 void
 tracker_db_thread_init (void)
 {
-	sqlite3_enable_shared_cache (1);
+//	sqlite3_enable_shared_cache (1);
 }
 
 
@@ -620,7 +620,6 @@ tracker_db_connect_common (void)
 	
 	db_con->cache = NULL;
 	db_con->emails = NULL;
-	db_con->applications = NULL;
 	db_con->others = NULL;
 	db_con->blob = NULL;
 
@@ -700,11 +699,15 @@ tracker_db_connect (void)
 
 	sqlite3_busy_timeout (db_con->db, 10000);
 	
+	db_con->file_index = NULL;
+	db_con->data = db_con;
+	db_con->files = NULL;
 	db_con->cache = NULL;
+	db_con->email_index = NULL;
 	db_con->emails = NULL;
-	db_con->applications = NULL;
 	db_con->others = NULL;
 	db_con->blob = NULL;
+	db_con->user = NULL;
 
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -712,12 +715,11 @@ tracker_db_connect (void)
 	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
 
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 4096");
 
 	if (tracker->use_extra_memory) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 1000");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2048");
 	} else {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 100");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 256");
 	}
 
 	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
@@ -749,13 +751,91 @@ tracker_db_connect (void)
 		tracker_log ("Creating file database...");
 		load_sql_file (db_con, "sqlite-service.sql");
 		load_sql_trigger (db_con, "sqlite-service-triggers.sql");
-	
 		tracker_db_exec_no_reply (db_con, "ANALYZE");
 	}
 
 
 	tracker_db_attach_db (db_con, "common");
 	tracker_db_attach_db (db_con, "cache");
+
+	db_con->thread = NULL;
+
+	return db_con;
+}
+
+
+DBConnection *
+tracker_db_connect_file_index (void)
+{
+	char	     *dbname;
+	DBConnection *db_con;
+
+	dbname = g_build_filename (tracker->data_dir, "files.db", NULL);
+
+	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
+		tracker_error ("Error : database file %s is not present", dbname);
+		g_assert (FALSE);
+	} 
+
+	db_con = g_new (DBConnection, 1);
+
+	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
+		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		exit (1);
+	}
+
+	g_free (dbname);
+
+	db_con->db_type = DB_DATA;
+
+	sqlite3_busy_timeout (db_con->db, 10000);
+	
+	db_con->file_index = db_con;
+	db_con->data = NULL;
+	db_con->files = NULL;
+	db_con->cache = NULL;
+	db_con->email_index = NULL;
+	db_con->emails = NULL;
+	db_con->others = NULL;
+	db_con->blob = NULL;
+	db_con->user = NULL;
+
+
+	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
+
+	if (tracker->use_extra_memory) {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2048");
+	} else {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 256");
+	}
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+
+	/* create user defined utf-8 collation sequence */
+	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
+		tracker_log ("Collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	
+	/* create user defined functions that can be used in sql */
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
+		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
+		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
+		tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
+		tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
+		tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
+	}
 
 	db_con->thread = NULL;
 
@@ -1673,6 +1753,7 @@ tracker_create_db (void)
 	/* create common db first */
 
 	db_con = tracker_db_connect_common ();
+//db_con = tracker_db_connect ();
 	
 	load_sql_file (db_con, "sqlite-tracker.sql");
 	load_sql_file (db_con, "sqlite-service-types.sql");
@@ -3601,7 +3682,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 			g_free (sql);
 		}
 
-		tracker_exec_proc (db_con, "IncStat", 1, service);
+/*		tracker_exec_proc (db_con, "IncStat", 1, service);
 
 		char *parent = tracker_get_parent_service (service);
 		
@@ -3609,7 +3690,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 			tracker_exec_proc (db_con, "IncStat", 1, parent);
 			g_free (parent);
 		}
-
+*/
 	}
 	g_free (name);
 	g_free (path);

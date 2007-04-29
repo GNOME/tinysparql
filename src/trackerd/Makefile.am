@@ -29,7 +29,7 @@ else
 if HAVE_FAM
 fam_sources =				\
 	tracker-fam.c			\
-	tracker-fam.h
+	tracker-fam.h 
 endif
 endif
 

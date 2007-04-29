@@ -631,8 +631,10 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			uri = g_strconcat (mm->uri, "/", ma->attachment_name, NULL);
 			tracker_info ("indexing attachement with uri %s and mime %s", uri, info->mime);
 			tracker_db_index_file (db_con, info, uri, attachment_service);
+			unlink (info->uri);
 			tracker_dec_info_ref (info);
 			g_free (uri);
+
 		}
 		
 

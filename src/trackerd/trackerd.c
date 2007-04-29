@@ -887,8 +887,6 @@ process_files_thread (void)
 
 						check_directory (uri);
 
-						/* 	g_slice_free (WordDetails, wd); */
-
 						g_free (uri);
 
 						g_mutex_unlock (tracker->files_check_mutex);
@@ -1169,8 +1167,8 @@ process_files_thread (void)
 		if (need_index) {
 			tracker->index_count++;
 		
-			if (tracker->verbosity == 0) {
-				if ( (tracker->index_count == 1 || tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 0)) {
+			if (tracker->verbosity == 1) {
+				if ( (tracker->index_count == 1 || tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 1)) {
 					tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
 				} 
 			}
@@ -1794,9 +1792,11 @@ sanity_check_option_values ()
 
 	if (tracker->verbosity < 0) {
 		tracker->verbosity = 0;
-	} else if (tracker->verbosity > 2) {
-		tracker->verbosity = 2;
+	} else if (tracker->verbosity > 3) {
+		tracker->verbosity = 3;
 	}
+
+	g_print ("throttle level is %d\n", tracker->throttle);
 
 	tracker->metadata_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
 	tracker->service_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
@@ -1903,6 +1903,7 @@ main (int argc, char **argv)
 	
 	g_free (tmp_dir);
 
+
 	/* remove an existing one */
 	if (g_file_test (tracker->sys_tmp_root_dir, G_FILE_TEST_EXISTS)) {
 		tracker_remove_dirs (tracker->sys_tmp_root_dir);
@@ -1927,9 +1928,10 @@ main (int argc, char **argv)
 		g_mkdir_with_parents (tracker->data_dir, 00755);
 	}
 
-
-
-	g_mkdir_with_parents (tracker->sys_tmp_root_dir, 00700);
+	char *temp_attachements_dir = g_build_filename (tracker->sys_tmp_root_dir, "Attachments", NULL);
+	g_mkdir_with_parents (temp_attachements_dir, 00700);
+	g_print ("Made attachment directory %s\n", temp_attachements_dir);
+	g_free (temp_attachements_dir);
 
 	need_index = FALSE;
 	need_data = FALSE;
