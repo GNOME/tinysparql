@@ -522,7 +522,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		i = 0;
 		len = g_slist_length (mm->to);
 		if (len > 0) {
-			array = g_new (char *, len+1);
+			array = g_new0 (char *, len+1);
 			array[len] = NULL;
 
 			for (tmp = mm->to; tmp; tmp = tmp->next) {
@@ -556,7 +556,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		len = g_slist_length (mm->cc);
 		if (len > 0) {
 
-			array = g_new (char *, len+1);
+			array = g_new0 (char *, len+1);
 			array[len] = NULL;
 
 			for (tmp = mm->cc; tmp; tmp = tmp->next) {
@@ -593,7 +593,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		i = 0;
 		len = g_slist_length (mm->attachments);
 		if (len > 0) {
-			array = g_new (char *, len+1);
+			array = g_new0 (char *, len+1);
 			array[len] = NULL;
 		
 			for (tmp = mm->attachments; tmp; tmp = tmp->next) {
