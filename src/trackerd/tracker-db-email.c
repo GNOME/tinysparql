@@ -401,7 +401,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	
 	int	mbox_id, type_id, id, i, len;
 	char    *service, *attachment_service, *mime;
-	char 	**array;
+	char 	*array[255];
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (mm, FALSE);
@@ -521,27 +521,29 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		i = 0;
 		len = g_slist_length (mm->to);
+
 		if (len > 0) {
-			array = g_new0 (char *, len+1);
 			array[len] = NULL;
 
 			for (tmp = mm->to; tmp; tmp = tmp->next) {
 				const MailPerson *mp;
-				char		 *str;
+				GString *gstr = g_string_new ("");
 
 				mp = tmp->data;
 			
-				if (!mp->addr) {
-					continue;
+				if (i>254) {
+					break;
 				}
 
+				if (mp->addr) {
+					g_string_append_printf (gstr, "%s ", mp->addr);
+				}
+	
 				if (mp->name) {
-					str = g_strconcat (mp->name, " ", mp->addr, NULL);
-				} else {
-					str = g_strdup (mp->addr);
+					g_string_append (gstr, mp->name);
 				}
 
-				array[i] = str;
+				array[i] = g_string_free (gstr, FALSE);
 				i++;	
 			}
 
@@ -549,34 +551,38 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", array, i, index_table);
 			}
 
-			g_strfreev (array);
+			for (i--; i>-1; i--) {
+				g_free (array[i]);
+			}			
+
+
 		}
 
 		i = 0;
 		len = g_slist_length (mm->cc);
 		if (len > 0) {
 
-			array = g_new0 (char *, len+1);
 			array[len] = NULL;
 
 			for (tmp = mm->cc; tmp; tmp = tmp->next) {
 				const MailPerson *mp;
-				char		 *str;
+				GString *gstr = g_string_new ("");
 
 				mp = tmp->data;
-	
-				if (!mp->addr) {
-					continue;
+
+				if (i>254) {
+					break;
+				}
+
+				if (mp->addr) {
+					g_string_append_printf (gstr, "%s ", mp->addr);
 				}
 	
 				if (mp->name) {
-					str = g_strconcat (mp->name, " ", mp->addr, NULL);
-				} else {
-					str = g_strdup (mp->addr);
+					g_string_append (gstr, mp->name);
 				}
 
-			
-				array[i] = str;
+				array[i] = g_string_free (gstr, FALSE);
 				i++;
 
 			}
@@ -586,20 +592,27 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", array, i, index_table);
 			}
 
-			g_strfreev (array);
+			for (i--; i>-1; i--) {
+				g_free (array[i]);
+			}	
 		
 		}
 
 		i = 0;
 		len = g_slist_length (mm->attachments);
 		if (len > 0) {
-			array = g_new0 (char *, len+1);
 			array[len] = NULL;
 		
 			for (tmp = mm->attachments; tmp; tmp = tmp->next) {
 				const MailAttachment *ma;
 
 				ma = tmp->data;
+
+
+				if (i>254) {
+					break;
+				}
+
 
 				if (!ma->attachment_name) {
 					continue;
@@ -613,7 +626,9 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", array, i, index_table);
 			}
 
-			g_strfreev (array);
+			for (i--; i>-1; i--) {
+				g_free (array[i]);
+			}	
 		}
 
 
