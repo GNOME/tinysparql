@@ -521,90 +521,100 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		i = 0;
 		len = g_slist_length (mm->to);
-		array = g_new (char *, len+1);
-		array[len] = NULL;
+		if (len > 0) {
+			array = g_new (char *, len+1);
+			array[len] = NULL;
 
-		for (tmp = mm->to; tmp; tmp = tmp->next) {
-			const MailPerson *mp;
-			char		 *str;
+			for (tmp = mm->to; tmp; tmp = tmp->next) {
+				const MailPerson *mp;
+				char		 *str;
 
-			mp = tmp->data;
+				mp = tmp->data;
 			
-			if (!mp->addr) {
-				continue;
+				if (!mp->addr) {
+					continue;
+				}
+
+				if (mp->name) {
+					str = g_strconcat (mp->name, " ", mp->addr, NULL);
+				} else {
+					str = g_strdup (mp->addr);
+				}
+
+				array[i] = str;
+				i++;	
 			}
 
-			if (mp->name) {
-				str = g_strconcat (mp->name, " ", mp->addr, NULL);
-			} else {
-				str = g_strdup (mp->addr);
+			if (i > 0) {
+				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", array, i, index_table);
 			}
 
-			array[i] = str;
-			i++;	
+			g_strfreev (array);
 		}
-
-		if (i > 0) {
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", array, i, index_table);
-		}
-
-		g_strfreev (array);
 
 		i = 0;
 		len = g_slist_length (mm->cc);
-		array = g_new (char *, len+1);
-		array[len] = NULL;
+		if (len > 0) {
 
-		for (tmp = mm->cc; tmp; tmp = tmp->next) {
-			const MailPerson *mp;
-			char		 *str;
+			array = g_new (char *, len+1);
+			array[len] = NULL;
 
-			mp = tmp->data;
+			for (tmp = mm->cc; tmp; tmp = tmp->next) {
+				const MailPerson *mp;
+				char		 *str;
 
-			if (!mp->addr) {
-				continue;
-			}
-
-			if (mp->name) {
-				str = g_strconcat (mp->name, " ", mp->addr, NULL);
-			} else {
-				str = g_strdup (mp->addr);
-			}
+				mp = tmp->data;
+	
+				if (!mp->addr) {
+					continue;
+				}
+	
+				if (mp->name) {
+					str = g_strconcat (mp->name, " ", mp->addr, NULL);
+				} else {
+					str = g_strdup (mp->addr);
+				}
 
 			
-			array[i] = str;
-			i++;
-		}
+				array[i] = str;
+				i++;
 
-		if (i > 0) {
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", array, i, index_table);
-		}
+			}
+		
 
-		g_strfreev (array);
+			if (i > 0) {
+				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", array, i, index_table);
+			}
+
+			g_strfreev (array);
+		
+		}
 
 		i = 0;
 		len = g_slist_length (mm->attachments);
-		array = g_new (char *, len+1);
-		array[len] = NULL;
+		if (len > 0) {
+			array = g_new (char *, len+1);
+			array[len] = NULL;
 		
-		for (tmp = mm->attachments; tmp; tmp = tmp->next) {
-			const MailAttachment *ma;
+			for (tmp = mm->attachments; tmp; tmp = tmp->next) {
+				const MailAttachment *ma;
 
-			ma = tmp->data;
+				ma = tmp->data;
 
-			if (!ma->attachment_name) {
-				continue;
+				if (!ma->attachment_name) {
+					continue;
+				}
+
+				array[i] = g_strdup (ma->attachment_name);
+				i++;
 			}
 
-			array[i] = g_strdup (ma->attachment_name);
-			i++;
-		}
+			if (i > 0) {
+				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", array, i, index_table);
+			}
 
-		if (i > 0) {
-			tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", array, i, index_table);
+			g_strfreev (array);
 		}
-
-		g_strfreev (array);
 
 
 
