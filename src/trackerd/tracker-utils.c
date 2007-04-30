@@ -1565,6 +1565,8 @@ is_text_file (const char *uri)
 
 	buffer_length = fread (buffer, 4096, 1, f);
 
+	fclose (f);
+
 	if (buffer_length == 0) {
 		return TRUE;
 	}
