@@ -42,9 +42,7 @@ tracker_configuration_init (GTypeInstance * instance, gpointer data)
 	GError *error = NULL;
 
 	priv->dirty = FALSE;
-	priv->filename =
-		g_build_filename (g_get_home_dir (), ".Tracker",
-				  "tracker.cfg", NULL);
+	priv->filename = g_build_filename (g_strdup (g_get_user_config_dir ()), "tracker.cfg", NULL);
 	priv->keyfile = g_key_file_new ();
 
 	if (!g_file_test (priv->filename, G_FILE_TEST_EXISTS))
