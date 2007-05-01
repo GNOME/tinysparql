@@ -36,7 +36,6 @@ extern char *tracker_actions[];
 
 
 #include <glib.h>
-#include <magic.h>
 #include "depot.h"
 #include "curia.h"
 

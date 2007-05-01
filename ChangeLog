@@ -1,3 +1,8 @@
+2007-04-30 Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed reset of stats on reindex
+	* removed libmagic from build
+
 2007-05-01 patch from Michael Biebl <mbiebl at gmail com>
 
 	* updated po/linguas

@@ -25,8 +25,6 @@ AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h linux/unistd.h]
 
 AC_CHECK_HEADER([zlib.h], [], [AC_MSG_ERROR([You must have zlib.h and zlib installed])])
 
-AC_CHECK_HEADER([magic.h], [], [AC_MSG_ERROR([You must have magic.h and libmagic installed])])
-
 # Checks for functions
 AC_CHECK_FUNCS([getline])
 

@@ -70,7 +70,6 @@ test_tracker_indexer_LDADD = 		\
 	$(GLIB2_LIBS)			\
 	$(GTHREAD_LIBS)			\
 	-lz				\
-	-lmagic				\
 	$(top_builddir)/src/libstemmer/libstemmer-private.la \
 	$(top_builddir)/src/xdgmime/libxdgmime.la
 
@@ -126,6 +125,5 @@ trackerd_LDADD =			\
 	$(UNAC_LIBS)			\
 	$(GTHREAD_LIBS)			\
 	-lz				\
-	-lmagic				\
 	$(top_builddir)/src/libstemmer/libstemmer-private.la \
 	$(top_builddir)/src/xdgmime/libxdgmime.la
