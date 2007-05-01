@@ -55,10 +55,10 @@ typedef struct {
 
 	/* pointers to other database connection objects */
 	gpointer	data;
+	gpointer	common;
 	gpointer	files;
-	gpointer	file_index;
+	gpointer	index;
 	gpointer	emails;
-	gpointer	email_index;
 	gpointer	others;
 	gpointer	blob;
 	gpointer	cache;
@@ -82,9 +82,12 @@ void		tracker_db_thread_end		(void);
 void		tracker_db_close		(DBConnection *db_con);
 void		tracker_db_finalize		(void);
 DBConnection *	tracker_db_connect		(void);
+DBConnection *	tracker_db_connect_common	(void);
 DBConnection *	tracker_db_connect_full_text	(void);
 DBConnection *	tracker_db_connect_cache 	(void);
 DBConnection *	tracker_db_connect_emails	(void);
+DBConnection *	tracker_db_connect_emails_index (void);
+DBConnection *	tracker_db_connect_file_index 	(void);
 gboolean	tracker_update_db		(DBConnection *db_con);
 
 char *		tracker_escape_string		(const char *in);

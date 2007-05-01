@@ -684,9 +684,9 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 		info->uri = (char *) uri;
 
 		if (attachment_service) {
-			info->file_id = tracker_db_create_service (db_con, attachment_service, info);
+			info->file_id = tracker_db_create_service (db_con->index, attachment_service, info);
 		} else {
-			info->file_id = tracker_db_create_service (db_con, service, info);
+			info->file_id = tracker_db_create_service (db_con->index, service, info);
 		}
 
 		info->uri = old_uri;
@@ -724,7 +724,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 		if (file_as_text) {
 			
-			tracker_db_save_file_contents (db_con, db_con->blob, index_table, old_table, file_as_text, info);
+			tracker_db_save_file_contents (db_con->index, db_con->blob, index_table, old_table, file_as_text, info);
 					
 			/* clear up if text contents are in a temp file */
 			if (g_str_has_prefix (file_as_text, tracker->sys_tmp_root_dir)) {
@@ -761,9 +761,9 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}
 
 	if (meta_table && (g_hash_table_size (meta_table) > 0)) {
-		//tracker_db_start_transaction (db_con);
-		tracker_db_save_metadata (db_con, meta_table, index_table, info->file_id, info->is_new);
-		//tracker_db_end_transaction (db_con);
+		tracker_db_start_transaction (db_con->index);
+		tracker_db_save_metadata (db_con->index, meta_table, index_table, info->file_id, info->is_new);
+		tracker_db_end_transaction (db_con->index);
 	}
 
 	
@@ -786,10 +786,16 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}	
 
 
-	/* check for backup user defined metadata 
+	/* check for backup user defined metadata */
 	if (info->is_new) {
 
-		char ***result_set = tracker_exec_proc (db_con, "GetBackupMetadata", 1, str_file_id); 
+		char *name = tracker_get_vfs_name (info->uri);
+		char *path = tracker_get_vfs_path (info->uri);
+
+		char ***result_set = tracker_exec_proc (db_con->common, "GetBackupMetadata", 2, path, name); 
+
+		g_free (name);
+		g_free (path);
 
 		if (result_set) {
 			char **row;
@@ -803,9 +809,9 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 				if (row[0] && row[1]) {
 					if (attachment_service) {
-						tracker_db_set_single_metadata (db_con, attachment_service, str_file_id, row[0], row[1]);
+						tracker_db_set_single_metadata (db_con->index, attachment_service, str_file_id, row[0], row[1]);
 					} else {
-						tracker_db_set_single_metadata (db_con, service, str_file_id, row[0], row[1]);
+						tracker_db_set_single_metadata (db_con->index, service, str_file_id, row[0], row[1]);
 					}
 				}
 
@@ -814,7 +820,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 		}
 	}
-*/
+
 
 	g_free (str_file_id);
 }

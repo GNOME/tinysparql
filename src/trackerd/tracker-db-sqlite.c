@@ -686,7 +686,7 @@ tracker_db_connect (void)
 		create_table = TRUE;
 	} 
 
-	db_con = g_new (DBConnection, 1);
+	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
 		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
@@ -698,17 +698,8 @@ tracker_db_connect (void)
 	db_con->db_type = DB_DATA;
 
 	sqlite3_busy_timeout (db_con->db, 10000);
-	
-	db_con->file_index = NULL;
-	db_con->data = db_con;
-	db_con->files = NULL;
-	db_con->cache = NULL;
-	db_con->email_index = NULL;
-	db_con->emails = NULL;
-	db_con->others = NULL;
-	db_con->blob = NULL;
-	db_con->user = NULL;
 
+	db_con->data = db_con;
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -777,7 +768,7 @@ tracker_db_connect_file_index (void)
 		g_assert (FALSE);
 	} 
 
-	db_con = g_new (DBConnection, 1);
+	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
 		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
@@ -790,16 +781,7 @@ tracker_db_connect_file_index (void)
 
 	sqlite3_busy_timeout (db_con->db, 10000);
 	
-	db_con->file_index = db_con;
-	db_con->data = NULL;
-	db_con->files = NULL;
-	db_con->cache = NULL;
-	db_con->email_index = NULL;
-	db_con->emails = NULL;
-	db_con->others = NULL;
-	db_con->blob = NULL;
-	db_con->user = NULL;
-
+	db_con->index = db_con;
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -841,6 +823,77 @@ tracker_db_connect_file_index (void)
 
 	return db_con;
 }
+
+
+DBConnection *
+tracker_db_connect_emails_index (void)
+{
+	char	     *dbname;
+	DBConnection *db_con;
+
+	dbname = g_build_filename (tracker->data_dir, "emails.db", NULL);
+
+	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
+		tracker_error ("Error : database file %s is not present", dbname);
+		g_assert (FALSE);
+	} 
+
+	db_con = g_new0 (DBConnection, 1);
+
+	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
+		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		exit (1);
+	}
+
+	g_free (dbname);
+
+	db_con->db_type = DB_DATA;
+
+	sqlite3_busy_timeout (db_con->db, 10000);
+	
+	db_con->index = db_con;
+
+	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
+
+	if (tracker->use_extra_memory) {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2048");
+	} else {
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 256");
+	}
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+
+	/* create user defined utf-8 collation sequence */
+	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
+		tracker_log ("Collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	
+	/* create user defined functions that can be used in sql */
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
+		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
+		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
+		tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
+		tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
+		tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
+	}
+
+	db_con->thread = NULL;
+
+	return db_con;
+}
+
 
 
 DBConnection *
@@ -2165,7 +2218,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	FieldDef *def = tracker_db_get_field_def (blob_db_con, "File:Contents");
 
 	if (!def) {
-		tracker_log ("metadata not found for type %s", "File:Contents");
+		tracker_error ("metadata not found for type %s", "File:Contents");
 		g_free (value);
 		return;
 	}
@@ -3616,7 +3669,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 	/* get a new unique ID for the service - use mutex to prevent race conditions */
 	g_mutex_lock (sequence_mutex);
 
-	res = tracker_exec_proc (db_con, "GetNewID", 0);
+	res = tracker_exec_proc (db_con->common, "GetNewID", 0);
 
 	if (!res || !res[0] || !res[0][0]) {
 		g_mutex_unlock (sequence_mutex);
@@ -3628,7 +3681,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 	i++;
 
 	sid = tracker_int_to_str (i);
-	tracker_exec_proc (db_con->data, "UpdateNewID",1, sid);
+	tracker_exec_proc (db_con->common, "UpdateNewID",1, sid);
 	g_mutex_unlock (sequence_mutex);
 
 	tracker_db_free_result (res);
@@ -3682,15 +3735,15 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 			g_free (sql);
 		}
 
-/*		tracker_exec_proc (db_con, "IncStat", 1, service);
+		tracker_exec_proc (db_con->common, "IncStat", 1, service);
 
 		char *parent = tracker_get_parent_service (service);
 		
 		if (parent) {
-			tracker_exec_proc (db_con, "IncStat", 1, parent);
+			tracker_exec_proc (db_con->common, "IncStat", 1, parent);
 			g_free (parent);
 		}
-*/
+
 	}
 	g_free (name);
 	g_free (path);

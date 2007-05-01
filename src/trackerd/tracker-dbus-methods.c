@@ -43,10 +43,10 @@ tracker_set_error (DBusRec 	  *rec,
 					msg);
 
 	if (reply == NULL || !dbus_connection_send (rec->connection, reply, NULL)) {
-		tracker_log ("Warning - out of memory");
+		tracker_error ("Warning - out of memory");
 	}
 
-	tracker_log ("The following error has happened : %s", msg);
+	tracker_error ("The following error has happened : %s", msg);
 	g_free (msg);
 
 	dbus_message_unref (reply);

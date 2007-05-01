@@ -760,6 +760,9 @@ process_files_thread (void)
 	DBConnection *db_con;
 	DBConnection *blob_db_con = NULL;
 	DBConnection *emails_db_con = NULL;
+	DBConnection *common_db_con = NULL;
+	DBConnection *file_index_db_con = NULL;
+	DBConnection *email_index_db_con = NULL;
 
 	GSList	     *moved_from_list; /* list to hold moved_from events whilst waiting for a matching moved_to event */
 	gboolean pushed_events, first_run;
@@ -777,10 +780,20 @@ process_files_thread (void)
 	db_con = tracker_db_connect ();
 	blob_db_con = tracker_db_connect_full_text ();
 	emails_db_con = tracker_db_connect_emails ();
+	common_db_con  = tracker_db_connect_common ();
+	
+	file_index_db_con = tracker_db_connect_file_index ();
+	email_index_db_con = tracker_db_connect_file_index ();
 
+	file_index_db_con->common = common_db_con;
+	email_index_db_con->common = common_db_con;
+
+	db_con->index = file_index_db_con;
+	emails_db_con->index = email_index_db_con;
+	emails_db_con->common = common_db_con;
+	db_con->common = common_db_con;
 	db_con->thread = "files";
 
-//	db_con->cache = cache_db_con;
 
 	db_con->blob = blob_db_con;
 	db_con->data = db_con;

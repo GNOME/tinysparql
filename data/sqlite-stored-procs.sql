@@ -11,7 +11,7 @@ GetFileByID2  SELECT DISTINCT (Path || '/' || Name) as uri, GetServiceName (Serv
 
 GetFileByID3  SELECT  DISTINCT Path , Name, Mime, ServiceTypeID  FROM Services WHERE ID = ?;
 
-GetEmailByID  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Email', S.Mime, M1.MetaDataValue, M2.MetaDataValue FROM Services S Left Outer Join ServiceMetaData M1 on S.ID = M1.ServiceID and M1.MetaDataID = (select ID From MetaDataTypes where MetaName ='Email:Subject') Left Outer Join ServiceMetaData M2 on S.ID = M2.ServiceID and M2.MetaDataID = (select ID From MetaDataTypes where MetaName ='Email:Sender') WHERE S.ID = ?;
+GetEmailByID  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Email', S.Mime, M1.MetaDataDisplay, M2.MetaDataDisplay FROM Services S Left Outer Join ServiceMetaData M1 on S.ID = M1.ServiceID and M1.MetaDataID = (select ID From MetaDataTypes where MetaName ='Email:Subject') Left Outer Join ServiceMetaData M2 on S.ID = M2.ServiceID and M2.MetaDataID = (select ID From MetaDataTypes where MetaName ='Email:Sender') WHERE S.ID = ?;
 
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File:Modified');
 
@@ -157,7 +157,7 @@ InsertBackupService INSERT INTO BackupServices (Path, Name) select S.Path, S.Nam
 UpdateBackupService Update BackupServices set Path = ? and Name = ? where Path = ? and Name = ?;
 GetBackupService Select ID from BackupServices where Path = ? and  Name = ?;
 GetBackupServiceByID Select B.ID from BackupServices B, Services S where B.Path = S.Path and  B.Name = S.Name and S.ID = ?;
-GetBackupMetadata select M.MetaName, B.UserValue from BackupMetadata B, MetadataTypes M, Services S, BackupServices BS where B.MetadataID = M.ID and B.ServiceID = BS.ID and BS.Path = S.Path and BS.Name = S.Name and S.ID = ?;
+GetBackupMetadata select M.MetaName, B.UserValue from BackupMetadata B, MetadataTypes M, BackupServices BS where B.MetadataID = M.ID and B.ServiceID = BS.ID and BS.Path = ? and BS.Name = ?;
 SetBackupMetadata INSERT INTO BackupMetadata (ServiceID, MetadataID, UserValue) VALUES (?,?,?);
 DeleteBackupMetadataValue Delete From BackupMetadata where  ServiceID = ? and MetadataID = ? and UserValue = ?;
 DeleteBackupMetadata Delete From BackupMetadata where  ServiceID = ? and MetadataID = ?;
