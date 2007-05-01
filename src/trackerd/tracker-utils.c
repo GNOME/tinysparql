@@ -2127,7 +2127,7 @@ tracker_load_config_file ()
 
 		contents  = g_strconcat (						
 					 "[General]\n",
-					 "# Log Verbosity - Valid values are 0 (default, fastest), 1 (detailed), & 2 (debug)\n",
+					 "# Log Verbosity - Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)\n",
 					 "Verbosity=0\n\n",
 					 "[Watches]\n",
 					 "# List of directory roots to index and watch seperated by semicolons\n",

@@ -259,6 +259,22 @@ If installed correctly, the Tracker daemon (trackerd) can also be started
 automatically via Dbus activation (EG by running tracker-search SEARCHTERM)
 
 
+
+Settig Inotify Watch Limit
+
+When watching large numbers of folders, its ppossible to exceed the default number
+of inotify watches. In order to get real time updates when this value is exceeded
+it is necessary to increase the number of allowed watches. This can be done as 
+follows:
+
+1) Add this line to /etc/sysctl.conf:
+
+"fs.inotify.max_user_watches = (number of folders to be watched; default is 8192)"
+
+2) Reboot the system
+
+
+
 Tracker And Nautilus Search
 
 Once you have installed Tracker and have some indexed contents, you should now

@@ -1,3 +1,18 @@
+2007-04-30 Jamie McCracken <jamiemcc at gnome org>
+
+	* Reverted to using multiple db connections over one virtual (virtual is 3x slower)
+	* Got stats working
+	* renabled backup of user defined metadata
+	* fixed crashers in email indexing
+	* fixed too many open file descriptors by closing them 
+
+
+2007-04-28 Tshepang Lekhonkhobe <tshepang@gmail.com>
+
+       * src/trackerd/trackerd.c:
+       * src/trackerd/trackerd-utils.c: Fix verbosity code
+       * README: added a note on how to change inotify limits
+
 2007-04-27 Jamie McCracken <jamiemcc at gnome org>
 
 	* Restructured Database to be more extensible
