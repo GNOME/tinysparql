@@ -2119,15 +2119,24 @@ main (int argc, char **argv)
 
 	/* create database if needed */
 	if (need_index) {
+
+		
+
 		tracker->first_time_index = TRUE;
 
 		/* create files db and emails db */
 		DBConnection *db_con_tmp = tracker_db_connect ();
+
+		/* reset stats for embedded services if they are being reindexed */
+		if (!need_data) {
+			tracker_db_exec_no_reply (db_con_tmp, "update ServiceTypes set TypeCount = 0 where Embedded = 1");
+
+		}
+
 		tracker_db_close (db_con_tmp);
 		g_free (db_con_tmp);
 
 		db_con_tmp = tracker_db_connect_emails ();
-		//tracker_exec_sql (db_con, "select * from MailSummary");
 		tracker_db_close (db_con_tmp);
 		g_free (db_con_tmp);
 
