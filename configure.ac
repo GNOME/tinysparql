@@ -144,32 +144,13 @@ fi
 # gettext/intltool support 
 ####################################################################
 
-ALL_LINGUAS="ar ca de dz en_GB es et fi fr gl it mk nb ru sl sv"
-AC_SUBST(ALL_LINGUAS)
-
 GETTEXT_PACKAGE=AC_PACKAGE_NAME
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE",
                    [The gettext translation domain])
 
 AM_GLIB_GNU_GETTEXT
-AC_PROG_INTLTOOL([0.22])
-
-# The following lines replace AM_GLIB_DEFINE_LOCALEDIR(TRACKER_LOCALEDIR)
-# due to the bug with autoconf 2.60
-
-dnl Set TRACKER_LOCALEDIR in config.h.
-if test "x${prefix}" = "xNONE";
-then
-	TRACKER_LOCALEDIR="${ac_default_prefix}/${DATADIRNAME}/locale"
-else
-	TRACKER_LOCALEDIR="${prefix}/${DATADIRNAME}/locale"
-fi
-
-AC_DEFINE_UNQUOTED(TRACKER_LOCALEDIR, "$TRACKER_LOCALEDIR",
-		[The directory in which locale data will be stored])
-
-# end of AM_GLIB_DEFINE_LOCALEDIR(TRACKER_LOCALEDIR) replacement
+IT_PROG_INTLTOOL([0.35.0])
 
 ####################################################################
 # check for newer glib (>= 2.12.0) for g_option_context_set_summary ()

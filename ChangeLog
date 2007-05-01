@@ -1,3 +1,12 @@
+2007-05-01 patch from Michael Biebl <mbiebl at gmail com>
+
+	* updated po/linguas
+
+2007-05-01  Patch from Bjoern Gruening <bjoern at gruenings eu>
+
+	* updated tracker-preferences to use XDG config location
+
+
 2007-04-30 Jamie McCracken <jamiemcc at gnome org>
 
 	* Reverted to using multiple db connections over one virtual (virtual is 3x slower)

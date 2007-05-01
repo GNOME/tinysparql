@@ -1,6 +1,7 @@
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
 	-DLIBDIR=\""$(libdir)"\"	\
+	-DTRACKER_LOCALEDIR=\""$(localedir)"\" \
 	-D_XOPEN_SOURCE_EXTENDED=1	\
 	-D_GNU_SOURCE=1			\
 	-D__EXTENSIONS__=1		\

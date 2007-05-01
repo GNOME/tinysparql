@@ -12,8 +12,7 @@ INCLUDES = 	\
 	$(GNOMEDESKTOP_CFLAGS)					\
 	$(DBUS_CFLAGS)						\
 	-DG_DISABLE_DEPRECATED					\
-	-DGNOMELOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\" 	\
-	-DLOCALEDIR=\"$(datadir)/locale\"			\
+	-DTRACKER_LOCALEDIR=\""$(localedir)"\" 			\
 	-DDATADIR=\""$(datadir)"\"				\
 	-DGREP_COMMAND=\""$(GREP_COMMAND)"\"
 
