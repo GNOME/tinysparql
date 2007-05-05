@@ -1816,6 +1816,7 @@ tracker_create_db (void)
 	tracker_db_load_service_file (db_con, "default.metadata", FALSE);
 	tracker_db_load_service_file (db_con, "file.metadata", FALSE);
 	tracker_db_load_service_file (db_con, "audio.metadata", FALSE);
+	tracker_db_load_service_file (db_con, "application.metadata", FALSE);
 	tracker_db_load_service_file (db_con, "document.metadata", FALSE);
 	tracker_db_load_service_file (db_con, "email.metadata", FALSE);
 	tracker_db_load_service_file (db_con, "image.metadata", FALSE);	
@@ -2488,14 +2489,14 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 
 		if (detailed) {
 			if (strcmp (service, "Emails") != 0) {
-				res = tracker_exec_proc (db_con, "GetFileByID2", 1, str_id);
+				res = tracker_exec_proc_ignore_nulls (db_con, "GetFileByID2", 1, str_id);
 			} else {
 				detailed_emails = TRUE;
-				res = tracker_exec_proc (db_con, "GetEmailByID", 1, str_id);
+				res = tracker_exec_proc_ignore_nulls (db_con, "GetEmailByID", 1, str_id);
 				//tracker_db_log_result (res);
 			}
 		} else {
-			res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+			res = tracker_exec_proc_ignore_nulls (db_con, "GetFileByID", 1, str_id);
 		}
 
 		g_free (str_id);

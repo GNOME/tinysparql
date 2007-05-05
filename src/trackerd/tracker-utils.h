@@ -118,6 +118,19 @@ typedef enum {
 } TrackerStatus;
 
 
+
+typedef enum {
+	INDEX_CONFIG,
+	INDEX_APPLICATIONS,
+	INDEX_EMAILS,
+	INDEX_CONVERSATIONS,
+	INDEX_FILES,
+	INDEX_EXTERNAL,
+	INDEX_FINISHED
+} IndexStatus;
+
+
+
 typedef struct {
 	char		*id;
 	DataTypes	type;
@@ -218,6 +231,8 @@ typedef struct {
 	gboolean	first_time_index;
 	gboolean	first_flush;
 	gboolean	do_optimize;
+
+	IndexStatus	index_status;
 
 	/* battery and ac power status file */
 	char		*battery_state_file;
@@ -460,6 +475,8 @@ void		tracker_set_language		(const char *language, gboolean create_stemmer);
 
 gint32		tracker_get_file_mtime 		(const char *uri);
 
+
+GSList *	tracker_get_service_dirs 	(const char *service);
 void		tracker_add_service_path 	(const char *service, const char *path);
 char *		tracker_get_service_for_uri 	(const char *uri);
 gboolean	tracker_is_service_file 	(const char *uri);
@@ -522,7 +539,7 @@ void		tracker_child_cb 		(gpointer user_data);
 
 char*	 	tracker_string_replace 		(const char *haystack, char *needle, char *replacement);
 
-void		tracker_add_metadata_to_table 	(GHashTable *meta_table, const char *key, const char *value, gboolean copy_key, gboolean copy_value);
+void		tracker_add_metadata_to_table 	(GHashTable *meta_table, const char *key, const char *value);
 
 char **		tracker_list_to_array (GSList *list);
 

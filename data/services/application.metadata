@@ -1,0 +1,56 @@
+[App:Name]
+DisplayName=Name
+Description=Application name
+DataType=Indexable
+Weight=25
+Filtered=false
+
+
+[App:DisplayName]
+DisplayName=Display name
+Description=Application display name
+DataType=Indexable
+Weight=10
+Filtered=false
+
+[App:GenericName]
+DisplayName=Generic name
+Description=Application generic name
+DataType=Indexable
+Weight=10
+Filtered=false
+
+[App:Comment]
+DisplayName=Comments
+Description=Application comments
+DataType=Indexable
+Weight=5
+
+
+[App:Exec]
+DisplayName=Name
+Description=Application name
+DataType=String
+Weight=1
+
+[App:Icon]
+DisplayName=Icon
+Description=Application icon name
+DataType=String
+Weight=1
+
+[App:MimeType]
+DisplayName=Mime type
+Description=Application supported mime types
+DataType=Keyword
+Weight=1
+MultipleValues=true
+
+[App:Categories]
+DisplayName=Categories
+Description=Application categories
+DataType=Keyword
+Weight=5
+MultipleValues=true
+
+

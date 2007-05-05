@@ -1,6 +1,7 @@
 configdir = $(datadir)/tracker/services
 
-config_DATA =   audio.metadata \
+config_DATA =   application.metadata \
+		audio.metadata \
 		default.metadata \
 		document.metadata \
 		email.metadata \

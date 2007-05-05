@@ -61,6 +61,7 @@
 #include "tracker-dbus-files.h"
 #include "tracker-email.h"
 #include  "tracker-indexer.h"
+#include "tracker-apps.h"
 
 typedef struct {
 	char	*uri;
@@ -752,6 +753,27 @@ index_entity (DBConnection *db_con, FileInfo *info)
 }
 
 
+static inline void 
+process_directory_list (DBConnection *db_con, GSList *list, gboolean recurse)
+{
+	tracker->dir_list = NULL;	
+
+	g_slist_foreach (list, (GFunc) watch_dir, db_con);
+
+	g_slist_foreach (list, (GFunc) schedule_dir_check, db_con);
+
+	if (recurse && tracker->dir_list) {
+		g_slist_foreach (tracker->dir_list, (GFunc) schedule_dir_check, db_con);
+	}
+
+	if (tracker->dir_list) {
+		g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+		g_slist_free (tracker->dir_list);
+	}
+
+}
+
+
 static void
 process_files_thread (void)
 {
@@ -802,48 +824,13 @@ process_files_thread (void)
 	emails_db_con->data = db_con;
 
 
+	tracker->index_status = INDEX_CONFIG;
 
 	pushed_events = FALSE;
 
 	first_run = TRUE;
 
 	moved_from_list = NULL;
-
-	tracker_log ("starting watching...");
-
-	/* TODO add tracker services */
-//	tracker_add_service_path ("tracker", tracker->service_dir);
-
-
-	/* index application files as a priority in case we make use of this in a future panel at startup */
-
-	
-	if (tracker->enable_indexing) {
-
-		/* sleep for 5 secs before watching/indexing anything */
-		g_usleep (5 * 1000 * 1000);
-
-		tracker->status = STATUS_WATCHING;
-
-		if (tracker->index_evolution_emails) {
-			tracker_email_add_service_directories (emails_db_con);
-		}
-
-		tracker_log ("starting service indexing...");
-		g_slist_foreach (tracker->service_directory_list, (GFunc) watch_dir, db_con);
-		g_slist_foreach (tracker->service_directory_list, (GFunc) schedule_dir_check, db_con);
-
-		tracker_log ("starting file indexing...");
-		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
-		
-		g_slist_foreach (tracker->dir_list, (GFunc) schedule_dir_check, db_con);
-		g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, db_con);
-
-		g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
-		g_slist_free (tracker->dir_list);
-	}
-
-
 
 	tracker_log ("starting indexing...");
 	tracker->status = STATUS_INDEXING;
@@ -862,11 +849,15 @@ process_files_thread (void)
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
 				continue;
-			} else {
+			} else {g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+								g_slist_free (tracker->dir_list);
+								tracker->dir_list = NULL;
 				break;
 			}
 		}
 
+
+		tracker->status = STATUS_WATCHING;
 		
 		tracker_check_flush ();
 
@@ -908,6 +899,108 @@ process_files_thread (void)
 					}
 				} 
 
+				if (tracker->index_status != INDEX_FINISHED) {					
+
+					GSList *list;
+					char *gaim;
+					g_mutex_unlock (tracker->files_check_mutex);
+
+					switch (tracker->index_status) {
+
+						case INDEX_CONFIG: 
+							tracker_log ("starting config indexing");
+							break;
+
+						case INDEX_APPLICATIONS: 
+
+							tracker_log ("starting application indexing");
+
+							tracker_applications_add_service_directories ();
+
+							list = tracker_get_service_dirs ("Applications");
+
+							process_directory_list (db_con, list, FALSE);
+
+							g_slist_free (list);
+
+							break;
+	
+						case INDEX_EMAILS: 
+
+							/* sleep for 5 secs before watching/indexing any of the major services */
+							g_usleep (5 * 1000 * 1000);
+
+							if (tracker->index_evolution_emails) {
+								tracker_email_add_service_directories (emails_db_con);
+								tracker_log ("starting email indexing...");
+				
+								GSList *list = tracker_get_service_dirs ("EvolutionEmails");
+
+								process_directory_list (db_con, list, TRUE);
+
+								g_slist_free (list);
+
+							}
+
+
+
+							break;
+
+						case INDEX_CONVERSATIONS: 
+
+							gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
+
+							tracker_add_service_path ("GaimConversations", gaim);
+
+							list = g_slist_prepend (list, gaim);
+
+							tracker_log ("starting chat log indexing...");
+
+							process_directory_list (db_con, list, TRUE);
+
+							g_slist_free (list);
+				
+							g_free (gaim);
+
+							break;
+
+						
+						case INDEX_FILES:
+
+							tracker_log ("starting file indexing...");
+							tracker->dir_list = NULL;
+
+							g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
+		
+							g_slist_foreach (tracker->dir_list, (GFunc) schedule_dir_check, db_con);
+
+							if (tracker->dir_list) {
+								g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+								g_slist_free (tracker->dir_list);
+								tracker->dir_list = NULL;
+							}
+
+							g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) schedule_dir_check, db_con);
+							if (tracker->dir_list) {
+								g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+								g_slist_free (tracker->dir_list);
+								tracker->dir_list = NULL;
+							}
+
+							break;
+
+						case INDEX_EXTERNAL: break;
+						case INDEX_FINISHED: break;
+					
+					}
+
+					tracker->index_status++;
+					
+					continue;
+
+				} 
+
+				
 				if (g_hash_table_size (tracker->cached_table) != 0) {
 					
 					/* flush all words if nothing left to do before sleeping */
@@ -1314,7 +1407,6 @@ process_user_request_queue_thread (void)
 			case DBUS_ACTION_METADATA_GET:
 
 				tracker_dbus_method_metadata_get (rec);
-
 				break;
 
 			case DBUS_ACTION_METADATA_SET:
@@ -1632,6 +1724,8 @@ add_local_dbus_connection_monitoring (DBusConnection *connection)
 static void
 set_defaults ()
 {
+
+	tracker->index_status = INDEX_CONFIG;
 
 	tracker->watch_directory_roots_list = NULL;
 	tracker->no_watch_directory_list = NULL;

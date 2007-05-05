@@ -79,6 +79,8 @@ trackerd_SOURCES =			\
 	$(fam_sources)			\
 	$(qdbm_sources)			\
 	$(db_sources)			\
+	tracker-apps.c			\
+	tracker-apps.h			\
 	tracker-db.c			\
 	tracker-db.h			\
 	tracker-dbus.c			\

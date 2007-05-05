@@ -870,6 +870,8 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 			info->mime = g_strdup ("unknown");
 		}
 
+		tracker_info ("mime is %s for %s", info->mime, info->uri);
+
 		service_name = tracker_get_service_type_for_mime (info->mime);
 
 	}
@@ -882,28 +884,28 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 
 	if (!info->is_hidden) {
 
-		meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) free_metadata_list);
+		meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) free_metadata_list);
 
-		tracker_add_metadata_to_table  (meta_table, "File:NameDelimited", uri, FALSE, TRUE);
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:NameDelimited"), g_strdup (uri));
 
 		ext = strrchr (uri, '.');
 		if (ext) {
 			ext++;
 			tracker_debug ("file extension is %s", ext);
-			tracker_add_metadata_to_table  (meta_table, "File:Ext", g_strdup (ext), FALSE, FALSE);
+			tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Ext"), g_strdup (ext));
 		}
 
-		tracker_add_metadata_to_table  (meta_table, "File:Path", g_path_get_dirname (uri), FALSE, FALSE);
-		tracker_add_metadata_to_table  (meta_table, "File:Name", g_path_get_basename (uri), FALSE, FALSE);
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Path"), g_path_get_dirname (uri));
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Name"), g_path_get_basename (uri));
 
 		if (str_link_uri) {
-			tracker_add_metadata_to_table  (meta_table, "File:Link", str_link_uri, FALSE, FALSE);
+			tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Link"), str_link_uri);
 		} 
 
-		tracker_add_metadata_to_table  (meta_table, "File:Mime", g_strdup (info->mime), FALSE, FALSE);
-		tracker_add_metadata_to_table  (meta_table, "File:Size", tracker_uint_to_str (info->file_size), FALSE, FALSE);
-		tracker_add_metadata_to_table  (meta_table, "File:Modified", tracker_date_to_str (info->mtime), FALSE, FALSE);
-		tracker_add_metadata_to_table  (meta_table, "File:Accessed", tracker_date_to_str (info->atime), FALSE, FALSE);
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Mime"), g_strdup (info->mime));
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Size"), tracker_uint_to_str (info->file_size));
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Modified"), tracker_date_to_str (info->mtime));
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Accessed"), tracker_date_to_str (info->atime));
 
 		is_external_service = g_str_has_prefix (info->mime, "service/");
 		is_file_indexable = (!info->is_directory && (strcmp (info->mime, "unknown") != 0) && (strcmp (info->mime, "symlink") != 0) && tracker_file_is_indexable (info->uri));
@@ -940,15 +942,9 @@ void
 tracker_db_index_conversation (DBConnection *db_con, FileInfo *info)
 {
 	/* to do use offsets */
-	tracker_db_index_file (db_con, info, NULL, "Conversations");
+
+	tracker_db_index_file (db_con, info, NULL, "GaimConversations");
 }
 
-
-void
-tracker_db_index_application (DBConnection *db_con, FileInfo *info)
-{
-
-/* todo */
-}
 
 

@@ -1405,6 +1405,33 @@ tracker_get_file_info (FileInfo *info)
 	return info;
 }
 
+
+GSList *
+tracker_get_service_dirs (const char *service)
+{
+	GSList *list = NULL, *tmp;
+	
+	if (!service) {
+		return NULL;
+	}
+
+	for (tmp = tracker->service_directory_list; tmp; tmp = tmp->next) {
+		
+		char *path = (char *) tmp->data;
+		char *path_service = g_hash_table_lookup (tracker->service_directory_table, path);
+
+		if (strcasecmp (service, path_service) ==0) {
+			list = g_slist_prepend (list, path);		
+		}
+	}
+
+	return list;
+
+
+}
+
+
+
 void
 tracker_add_service_path (const char *service,  const char *path)
 {
@@ -3417,28 +3444,20 @@ tracker_using_battery ()
 }
 
 void
-tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value, gboolean copy_key, gboolean copy_value)
+tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value)
 {
 	GSList *list;
-	char *my_key, *my_value;
-
-	if (copy_key) {
-		my_key = g_strdup (key);
-	} else {
-		my_key = (char *) key;
-	}
-
-	if (copy_value) {
-		my_value = g_strdup (value);
-	} else {
-		my_value = (char *) value;
-	}
+	gboolean insert = FALSE;
 	
-	list = g_hash_table_lookup (meta_table, my_key);
+	list = g_hash_table_lookup (meta_table, (char *) key);
 
-	list = g_slist_prepend (list, my_value);
+	insert = (!list);
 
-	g_hash_table_insert (meta_table, my_key, list);
+	list = g_slist_prepend (list, (char *) value);
+
+	if (insert) {
+		g_hash_table_insert (meta_table, (char *) key, list);
+	}
 }
 
 

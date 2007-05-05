@@ -1,3 +1,7 @@
+2007-05-05 Jamie McCracken <jamiemcc at gnome org>
+
+	*Added application and gaim log indexing
+
 2007-04-30 Jamie McCracken <jamiemcc at gnome org>
 
 	* fixed reset of stats on reindex

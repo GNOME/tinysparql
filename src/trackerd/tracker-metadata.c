@@ -444,10 +444,10 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 										if ((length > 0) && (length >= strlen (meta_value))) {
 
 											tracker_debug ("%s = %s", meta_name, utf_value);
-											tracker_add_metadata_to_table  (table, meta_name, utf_value, TRUE, TRUE);
+											tracker_add_metadata_to_table  (table, g_strdup (meta_name), utf_value);
+										} else {
+											g_free (utf_value);
 										}
-
-										g_free (utf_value);
 									}
 								}
 
