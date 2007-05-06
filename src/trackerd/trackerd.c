@@ -935,30 +935,13 @@ process_files_thread (void)
 							g_slist_free (list);
 
 							break;
-	
-						case INDEX_EMAILS: 
+
+
+						case INDEX_CONVERSATIONS: 
 
 							/* sleep for 5 secs before watching/indexing any of the major services */
 							tracker_log ("sleeping for 5 secs...");
 							g_usleep (5 * 1000 * 1000);
-
-							if (tracker->index_evolution_emails) {
-								tracker_email_add_service_directories (emails_db_con);
-								tracker_log ("starting email indexing...");
-				
-								GSList *list = tracker_get_service_dirs ("EvolutionEmails");
-
-								process_directory_list (db_con, list, TRUE);
-
-								g_slist_free (list);
-
-							}
-
-
-
-							break;
-
-						case INDEX_CONVERSATIONS: 
 
 							gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
 
@@ -976,6 +959,27 @@ process_files_thread (void)
 							}
 				
 							g_free (gaim);
+
+							break;
+
+
+	
+						case INDEX_EMAILS: 
+
+					
+							if (tracker->index_evolution_emails) {
+								tracker_email_add_service_directories (emails_db_con);
+								tracker_log ("starting email indexing...");
+				
+								GSList *list = tracker_get_service_dirs ("EvolutionEmails");
+
+								process_directory_list (db_con, list, TRUE);
+
+								g_slist_free (list);
+
+							}
+
+
 
 							break;
 
