@@ -573,7 +573,7 @@ queue_file (const char *uri)
 static void
 check_directory (const char *uri)
 {
-	GSList *file_list;
+	GSList *file_list = NULL;
 
 	if (!tracker->is_running) {
 		return;

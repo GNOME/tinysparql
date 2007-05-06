@@ -1843,6 +1843,10 @@ tracker_get_files (const char *dir, gboolean dir_only)
 			mystr = g_build_filename (dir, str, NULL);
 			g_free (str);
 
+ 			if (!tracker_file_is_valid (mystr)) {
+				continue;
+			}
+
 			if (!dir_only || tracker_is_directory (mystr)) {
 
 				if (!tracker_file_is_no_watched (mystr)) {
