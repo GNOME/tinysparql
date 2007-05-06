@@ -765,6 +765,10 @@ process_directory_list (DBConnection *db_con, GSList *list, gboolean recurse)
 {
 	tracker->dir_list = NULL;	
 
+	if (!list || g_slist_length (list) == 0) {
+		return;
+	}
+
 	g_slist_foreach (list, (GFunc) watch_dir, db_con);
 
 	g_slist_foreach (list, (GFunc) schedule_dir_check, db_con);
@@ -939,6 +943,8 @@ process_files_thread (void)
 
 						case INDEX_CONVERSATIONS: 
 
+							list = NULL;
+				
 							/* sleep for 5 secs before watching/indexing any of the major services */
 							tracker_log ("sleeping for 5 secs...");
 							g_usleep (5 * 1000 * 1000);
@@ -966,7 +972,8 @@ process_files_thread (void)
 	
 						case INDEX_EMAILS: 
 
-					
+							list = NULL;					
+
 							if (tracker->index_evolution_emails) {
 								tracker_email_add_service_directories (emails_db_con);
 								tracker_log ("starting email indexing...");
@@ -988,6 +995,7 @@ process_files_thread (void)
 
 							tracker_log ("starting file indexing...");
 							tracker->dir_list = NULL;
+							list = NULL;
 
 							g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
 		
