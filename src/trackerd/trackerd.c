@@ -400,7 +400,9 @@ watch_dir (const char* dir, DBConnection *db_con)
 		return TRUE;
 	}
 
-	g_assert (dir);
+	if (!dir) {
+		return FALSE;
+	}
 
 	if (!g_utf8_validate (dir, -1, NULL)) {
 
@@ -702,6 +704,11 @@ index_entity (DBConnection *db_con, FileInfo *info)
 
 	service_info = tracker_get_service_for_uri (info->uri);
 
+	if (!service_info) {
+		tracker_error ("cannot find service for path %s", info->uri);
+		return;
+	}
+
 //	tracker_debug ("indexing %s with service %s", info->uri, service_info);
 
 	char *str = g_utf8_strdown  (service_info, -1);
@@ -849,9 +856,13 @@ process_files_thread (void)
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!shutdown) {
 				continue;
-			} else {g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
-								g_slist_free (tracker->dir_list);
-								tracker->dir_list = NULL;
+			} else {
+
+				if (tracker->dir_list) {
+					g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+					g_slist_free (tracker->dir_list);
+					tracker->dir_list = NULL;
+				}
 				break;
 			}
 		}
@@ -928,6 +939,7 @@ process_files_thread (void)
 						case INDEX_EMAILS: 
 
 							/* sleep for 5 secs before watching/indexing any of the major services */
+							tracker_log ("sleeping for 5 secs...");
 							g_usleep (5 * 1000 * 1000);
 
 							if (tracker->index_evolution_emails) {
@@ -950,15 +962,18 @@ process_files_thread (void)
 
 							gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
 
-							tracker_add_service_path ("GaimConversations", gaim);
+							if (tracker_file_is_valid (gaim)) {
 
-							list = g_slist_prepend (list, gaim);
+								tracker_add_service_path ("GaimConversations", gaim);
 
-							tracker_log ("starting chat log indexing...");
+								list = g_slist_prepend (list, gaim);
 
-							process_directory_list (db_con, list, TRUE);
+								tracker_log ("starting chat log indexing...");
 
-							g_slist_free (list);
+								process_directory_list (db_con, list, TRUE);
+	
+								g_slist_free (list);
+							}
 				
 							g_free (gaim);
 

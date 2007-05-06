@@ -1462,7 +1462,7 @@ tracker_get_service_for_uri (const char *uri)
 		char *prefix;
 
 		prefix = (char *) tmp->data;
-		if (g_str_has_prefix (uri, prefix)) {	
+		if (prefix && g_str_has_prefix (uri, prefix)) {	
 			return g_strdup (g_hash_table_lookup (tracker->service_directory_table, prefix));
 		}
 	}
