@@ -116,18 +116,19 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 }
 
 
+
 void
 tracker_dbus_method_metadata_get (DBusRec *rec)
 {
 	DBConnection 	*db_con;
-	DBusError		dbus_error;
+	DBusError	dbus_error;
 	DBusMessage 	*reply;
-	int 		i, key_count, table_count, row_count;
+	int 		i, key_count, row_count;
 	char 		**keys, **array;
-	char		*uri, *id, *str, *service;
-	GString 	*sql;
+	char		*uri, *id, *str, *service, *res_service;
+	GString 	*sql, *sql_join;
 	char		***res;
-	char		**date_array;
+
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -169,86 +170,47 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		return;
 	}
 
+
 	db_con = tracker_db_get_service_connection (db_con, service);
 
-	date_array = g_new (char *, key_count+1);
-	date_array [key_count] = NULL;
+	res_service = tracker_db_get_service_for_entity (db_con, id);
 
 	/* build SELECT clause */
 	sql = g_string_new (" SELECT DISTINCT ");
 
-	table_count = 0;
+	sql_join = g_string_new (" FROM Services S  ");
+
 
 	for (i = 0; i < key_count; i++) {
-		char *metadata;
 
-		FieldDef   *def;
+		FieldData *field = tracker_db_get_metadata_field (db_con, res_service, keys[i], i, TRUE, FALSE);
 
-		metadata = keys[i];
-
-		def = tracker_db_get_field_def (db_con, metadata);
-
-		if (def) {
-
-			if (def->type == DATA_DATE) {
-				date_array[i] = g_strdup ("1");
-			} else {
-				date_array[i] = g_strdup ("0");
-			}
-
-		} else {
-			tracker_set_error (rec, "Invalid or non-existant metadata type %s was specified", metadata);
-			g_string_free (sql, TRUE);
-			g_free (id);
-			return;
-		}
-
-		table_count++;
-
-		if (table_count == 1) {
-			g_string_append_printf (sql, " M%d.MetaDataValue ", table_count);
-		} else {
-			g_string_append_printf (sql, ", M%d.MetaDataValue ", table_count);
-		}
-
-		tracker_db_free_field_def (def);
-	}
-
-
-	/* build FROM clause */
-	g_string_append (sql, "\n FROM Services F ");
-
-	table_count = 0;
-
-	for (i = 0; i < key_count; i++) {
-		FieldDef *def;
-		char	 *metadata, *table;
-
-		metadata = keys[i];
-		
-		def = tracker_db_get_field_def (db_con, metadata);
-
-		if (def) {
-			table = tracker_get_metadata_table (def->type);
-		} else {
-			tracker_set_error (rec, "Invalid or non-existant metadata type %s was specified", metadata);
+		if (!field) {
+			tracker_set_error (rec, "Invalid or non-existant metadata type %s was specified", keys[i]);
 			g_string_free (sql, TRUE);
 			return;
+			
 		}
 
-		table_count++;
+		if (i==0) {
+			g_string_append_printf (sql, " %s", field->select_field);
+		} else {
+			g_string_append_printf (sql, ", %s", field->select_field);
+		}
+		if (field->needs_join) {
+			g_string_append_printf (sql_join, "\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", field->table_name, field->alias, field->alias, field->alias, field->id_field);
+		}
+			
 
-		g_string_append_printf (sql, " LEFT OUTER JOIN %s M%d ON M%d.ServiceID = F.ID AND M%d.MetaDataID = %s ", table, table_count, table_count, table_count, def->id);
-
-		g_free (table);
-
-		tracker_db_free_field_def (def);
 	}
 
+	g_string_append (sql, sql_join->str);
+
+	g_string_free (sql_join, TRUE);
 
 	/* build WHERE clause */
 
-	g_string_append_printf (sql, " WHERE F.ID = %s", id );
+	g_string_append_printf (sql, " WHERE S.ID = %s", id );
 
 	str = g_string_free (sql, FALSE);
 
@@ -281,17 +243,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 
 				if (row[i]) {
-					if (date_array[i][0] == '1') {
-
-						if (row[i][0] != '0') {
-							array[i] = tracker_date_to_str (strtol (row[i], NULL, 10));
-						} else {
-							array[i] = g_strdup ("");
-						}
-
-					} else {
-						array[i] = g_strdup (row[i]);
-					}
+					array[i] = g_strdup (row[i]);
 				} else {
 					array[i] = g_strdup ("");
 				}
@@ -319,7 +271,6 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	  			  DBUS_TYPE_INVALID);
 
 	tracker_free_array (array, row_count);
-	tracker_free_array (date_array, key_count);
 
 	dbus_connection_send (rec->connection, reply, NULL);
 

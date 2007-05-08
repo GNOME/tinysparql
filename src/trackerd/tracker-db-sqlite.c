@@ -5444,3 +5444,59 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 }
 
 
+FieldData *
+tracker_db_get_metadata_field (DBConnection *db_con, const char *service, const char *field_name, int field_count, gboolean is_select, gboolean is_condition)
+{
+	FieldData    *field_data;
+
+	field_data = NULL;
+
+	FieldDef *def;
+
+	field_data = g_new0 (FieldData, 1);
+
+	field_data->is_select = is_select;
+	field_data->is_condition = is_condition;
+	field_data->field_name = g_strdup (field_name);
+
+	def = tracker_db_get_field_def (db_con, field_name);
+
+	if (def) {
+	
+		field_data->table_name = tracker_get_metadata_table (def->type);
+		field_data->alias = g_strdup_printf ("M%d", field_count);
+		field_data->data_type = def->type;
+		field_data->id_field = g_strdup (def->id);
+		field_data->multiple_values = def->multiple_values;
+			
+		char *my_field = tracker_db_get_field_name (service, field_name);
+
+		if (my_field) {
+			field_data->select_field = g_strdup_printf (" S.%s ", my_field);
+			g_free (my_field);
+			field_data->needs_join = FALSE;
+		} else {
+			char *disp_field = tracker_db_get_display_field (def);
+			field_data->select_field = g_strdup_printf ("M%d.%s", field_count, disp_field);
+			g_free (disp_field);
+			field_data->needs_join = TRUE;
+		}
+			
+		if (def->type == DATA_DOUBLE) {
+			field_data->where_field = g_strdup_printf ("M%d.MetaDataDisplay", field_count);
+		} else {
+			field_data->where_field = g_strdup_printf ("M%d.MetaDataValue", field_count);
+		}
+
+			
+		tracker_db_free_field_def (def);
+
+	} else {
+		g_free (field_data);
+		return NULL;
+	}
+
+
+	return field_data;
+}
+

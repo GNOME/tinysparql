@@ -147,6 +147,22 @@ typedef struct {
 } FieldDef;
 
 
+typedef struct {
+	char 		*alias;
+	char 	 	*field_name;
+	char	 	*select_field;
+	char	 	*where_field;
+	char	 	*table_name;
+	char	 	*id_field;
+	DataTypes	data_type;
+	gboolean	multiple_values;
+	gboolean 	is_select;
+	gboolean 	is_condition;
+	gboolean	needs_join;
+
+} FieldData;
+
+
 
 typedef struct {
 
@@ -541,6 +557,8 @@ char*	 	tracker_string_replace 		(const char *haystack, char *needle, char *repl
 
 void		tracker_add_metadata_to_table 	(GHashTable *meta_table, const char *key, const char *value);
 
-char **		tracker_list_to_array (GSList *list);
+char **		tracker_list_to_array 		(GSList *list);
+
+void		tracker_free_metadata_field 	(FieldData *field_data);
 
 #endif

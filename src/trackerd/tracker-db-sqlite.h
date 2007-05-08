@@ -207,4 +207,7 @@ void     	tracker_remove_watch_dir 		(const char *dir, gboolean delete_subdirs, 
 gboolean 	tracker_is_directory_watched 		(const char *dir, DBConnection *db_con);
 int		tracker_count_watch_dirs 		(void);
 
+FieldData *	tracker_db_get_metadata_field 		(DBConnection *db_con, const char *service, const char *field_name, int field_count, gboolean is_select, gboolean is_condition);
+
+
 #endif

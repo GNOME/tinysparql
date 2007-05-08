@@ -3464,4 +3464,36 @@ tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const ch
 	}
 }
 
+void
+tracker_free_metadata_field (FieldData *field_data)
+{
+	g_return_if_fail (field_data);
+
+	if (field_data->alias) {
+		g_free (field_data->alias);
+	}
+
+	if (field_data->where_field) {
+		g_free (field_data->where_field);
+	}
+
+	if (field_data->field_name) {
+		g_free (field_data->field_name);
+	}
+
+	if (field_data->select_field) {
+		g_free (field_data->select_field);
+	}
+
+	if (field_data->table_name) {
+		g_free (field_data->table_name);
+	}
+
+	if (field_data->id_field) {
+		g_free (field_data->id_field);
+	}
+
+	g_free (field_data);
+}
+
 

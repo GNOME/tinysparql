@@ -1,3 +1,8 @@
+2007-05-07 Jamie McCracken <jamiemcc at gnome org>
+
+	* bug fix for crashers in gaim indexing
+	* fixed get metadata method to return original data
+
 2007-05-05 Jamie McCracken <jamiemcc at gnome org>
 
 	*Added application and gaim log indexing

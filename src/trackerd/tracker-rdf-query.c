@@ -134,21 +134,6 @@ typedef enum {
 } LogicOperators;
 
 
-typedef struct {
-	char 		*alias;
-	char 	 	*field_name;
-	char	 	*select_field;
-	char	 	*where_field;
-	char	 	*table_name;
-	char	 	*id_field;
-	DataTypes	data_type;
-	gboolean	multiple_values;
-	gboolean 	is_select;
-	gboolean 	is_condition;
-	gboolean	needs_join;
-
-} FieldData;
-
 
 typedef struct {
 	GMarkupParseContext 	*context;
@@ -347,38 +332,6 @@ pop_stack_until (ParserData *data, ParseState state)
 }
 
 
-static void
-free_metadata_field (FieldData *field_data)
-{
-	g_return_if_fail (field_data);
-
-	if (field_data->alias) {
-		g_free (field_data->alias);
-	}
-
-	if (field_data->where_field) {
-		g_free (field_data->where_field);
-	}
-
-	if (field_data->field_name) {
-		g_free (field_data->field_name);
-	}
-
-	if (field_data->select_field) {
-		g_free (field_data->select_field);
-	}
-
-	if (field_data->table_name) {
-		g_free (field_data->table_name);
-	}
-
-	if (field_data->id_field) {
-		g_free (field_data->id_field);
-	}
-
-	g_free (field_data);
-}
-
 
 static FieldData *
 add_metadata_field (ParserData *data, const char *field_name, gboolean is_select, gboolean is_condition)
@@ -425,62 +378,17 @@ add_metadata_field (ParserData *data, const char *field_name, gboolean is_select
 	
 
 	if (!field_exists) {
-		FieldDef *def;
-		int	 i;
 
-		field_data = g_new0 (FieldData, 1);
-
-		field_data->is_select = is_select;
-		field_data->is_condition = is_condition;
-		field_data->field_name = g_strdup (field_name);
-
-		i = g_slist_length (data->fields);
-
-		def = tracker_db_get_field_def (data->db_con, field_name);
-
-		if (def) {
-	
-			field_data->table_name = tracker_get_metadata_table (def->type);
-			field_data->alias = g_strdup_printf ("M%d", i);
-			field_data->data_type = def->type;
-			field_data->id_field = g_strdup (def->id);
-			field_data->multiple_values = def->multiple_values;
-			
-			char *my_field = tracker_db_get_field_name (data->service, field_name);
-
-			if (my_field) {
-				field_data->select_field = g_strdup_printf (" S.%s ", my_field);
-				g_free (my_field);
-				field_data->needs_join = FALSE;
-			} else {
-				char *disp_field = tracker_db_get_display_field (def);
-				field_data->select_field = g_strdup_printf ("M%d.%s", i, disp_field);
-				g_free (disp_field);
-				field_data->needs_join = TRUE;
-			}
-			
-			if (def->type == DATA_DOUBLE) {
-				field_data->where_field = g_strdup_printf ("M%d.MetaDataDisplay", i);
-			} else {
-				field_data->where_field = g_strdup_printf ("M%d.MetaDataValue", i);
-			}
-
+		field_data = tracker_db_get_metadata_field (data->db_con, data->service, field_name, g_slist_length (data->fields), is_select, is_condition);
+		if (field_data) {
 			data->fields = g_slist_prepend (data->fields, field_data);
-
 			if (is_select) {
 				g_string_append_printf (data->sql_select, ", %s", field_data->select_field);
 			}
 
-			tracker_db_free_field_def (def);
-
-		} else {
-			g_free (field_data);
-			return NULL;
-		}
-
+		} 
 	} 
 	
-
 	return field_data;
 }
 
@@ -1171,7 +1079,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 
 			if (!field_data) {
 				tracker_log ("RDF Query failed : field %s not found", fields[i]);
-				g_slist_foreach (data.fields, (GFunc) free_metadata_field, NULL);
+				g_slist_foreach (data.fields, (GFunc) tracker_free_metadata_field, NULL);
 				g_slist_free (data.fields);
 				g_string_free (data.sql_select, TRUE);
 				return NULL;
@@ -1281,7 +1189,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 		g_string_free (data.sql_order, TRUE);
 	}
 
-	g_slist_foreach (data.fields, (GFunc) free_metadata_field, NULL);
+	g_slist_foreach (data.fields, (GFunc) tracker_free_metadata_field, NULL);
 	g_slist_free (data.fields);
 
 	g_slist_free (data.stack);
