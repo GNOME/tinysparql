@@ -17,6 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#define WORD_COUNT_LIMIT 128
+
+
 #include "tracker-indexer.h"
 
 extern Tracker *tracker;
@@ -769,7 +772,7 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int *service_array,  i
 	int hit_count, word_count, i;
 	GHashTable *table;
 	GSList *result;
-	SearchWord search_word[6];
+	SearchWord search_word[WORD_COUNT_LIMIT];
 
 	
 	if (shutdown) return NULL;
@@ -798,10 +801,9 @@ tracker_indexer_get_hits (Indexer *indexer, char **words, int *service_array,  i
 		return result;
 	}
 
-	/* limit multiple word searches to 6 words max */
-	word_count = 6;
+	word_count = WORD_COUNT_LIMIT;
 
-	for (i=0; i<6; i++) {
+	for (i=0; i<WORD_COUNT_LIMIT; i++) {
 		if (!words[i]) {
 			word_count = i;
 			break;

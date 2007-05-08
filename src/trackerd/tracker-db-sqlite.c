@@ -4235,6 +4235,9 @@ tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int 
 	char *str_limit, *str_offset;
 	char ***res;
 
+	str_limit = tracker_int_to_str (limit);
+	str_offset = tracker_int_to_str (offset);
+
 	res = tracker_exec_proc (db_con, "GetByServiceType", 4, service, service, str_offset, str_limit);
 
 	g_free (str_offset);
