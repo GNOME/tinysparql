@@ -47,7 +47,7 @@ add_gvalue_in_hash_table (GHashTable *table, const gchar *key, GValue const *val
 				gchar *str_val;
 
 				/* Some fun: strings are always written "str" with double quotes around, but not numbers! */
-				if (s[0] == '"') {
+				if (s && s[0] == '"') {
 					size_t len;
 
 					len = strlen (s);
