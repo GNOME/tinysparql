@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-01 03:22+0100\n"
-"PO-Revision-Date: 2007-05-06 18:10+0200\n"
+"POT-Creation-Date: 2007-05-06 17:12+0100\n"
+"PO-Revision-Date: 2007-05-22 19:44+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -340,67 +340,67 @@ msgstr "%s: argumentos inválidos"
 msgid "%s: file %s not found"
 msgstr "%s: archivo %s no encontrado"
 
-#: ../src/trackerd/trackerd.c:145
+#: ../src/trackerd/trackerd.c:146
 msgid "Directory to exclude from indexing"
 msgstr "Directorio a excluir del indexado"
 
-#: ../src/trackerd/trackerd.c:145 ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
 msgid "/PATH/DIR"
 msgstr "/RUTA/DIR"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:147
 msgid "Directory to include in indexing"
 msgstr "Directorio a incluir en el indexado"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:148
 msgid "Disable any indexing or watching taking place"
 msgstr "Desactivar cualquier indexado o vista que se esté realizando"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:149
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:148 ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:149 ../src/trackerd/trackerd.c:150
 msgid "VALUE"
 msgstr "VALOR"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:150
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:150
-msgid "Minimizes the use of memory but may slow indexing down"
-msgstr ""
-
 #: ../src/trackerd/trackerd.c:151
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
+
+#: ../src/trackerd/trackerd.c:152
 msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Idioma que usar para stemmer y lista de palabras de parada (código de "
 "caracteres ISO 639-1 2)"
 
-#: ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:152
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:153
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:1848
+#: ../src/trackerd/trackerd.c:1969
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:1849 ../src/trackerd/trackerd.c:1850
+#: ../src/trackerd/trackerd.c:1970 ../src/trackerd/trackerd.c:1971
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:1858
+#: ../src/trackerd/trackerd.c:1979
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -436,11 +436,11 @@ msgstr "<b>Modo de indexado</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:6
 msgid "<b>Mailboxes</b>"
-msgstr ""
+msgstr "<b>Buzones de correo</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Polling</b>"
-msgstr ""
+msgstr "<b>Encuestado</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:8
 msgid "<b>Services</b>"
@@ -448,7 +448,7 @@ msgstr "<b>Servicios</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:9
 msgid "<b>Startup</b>"
-msgstr ""
+msgstr "<b>Inicio</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Throttling</b>"
@@ -456,15 +456,15 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:11
 msgid "Additional mbox mailboxes to index:"
-msgstr ""
+msgstr "Buzones de correo adicionales a indexar:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "Additional paths to index:"
-msgstr ""
+msgstr "Rutas adicionales a indexar:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:13
 msgid "Enable Evolution email indexing"
-msgstr ""
+msgstr "Activar el indexado de correos-e de Evolution"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Enable Index Throttling"
@@ -472,11 +472,11 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:15
 msgid "Enable KMail email indexing"
-msgstr ""
+msgstr "Activar el indexado de correos-e de Kmail"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Enable Thunderbird email indexing"
-msgstr ""
+msgstr "Activar el indexado de correos de Thunderbird"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Enable _Indexing"
@@ -492,15 +492,15 @@ msgstr "Generar _miniaturas"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:20
 msgid "I_ndexing"
-msgstr ""
+msgstr "I_ndexado"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:21
 msgid "Index _file contents"
-msgstr ""
+msgstr "Indexar el contenido de los _archivos"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:22
 msgid "Index my home _directory"
-msgstr ""
+msgstr "Indexar mi ca_rpeta personal"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:23
 msgid "Normal Mode"
@@ -512,23 +512,23 @@ msgstr "R_endimiento"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:25
 msgid "Path roots to be ignored during indexing:"
-msgstr ""
+msgstr "Rutas a ser ignoradas durante el indexado:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:26
 msgid "Polling Interval: "
-msgstr ""
+msgstr "Intervalo de encuestado: "
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:27
 msgid "Reduced Memory Mode"
-msgstr ""
+msgstr "Modo de memoria reducido"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:28
 msgid "Start _indexing service automatically"
-msgstr ""
+msgstr "Iniciar el servicio de _indexado automáticamente"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:29
 msgid "Start _mointoring service automatically"
-msgstr ""
+msgstr "Iniciar el servicio de _monitorización automáticamente"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Throttling Level: "
@@ -536,11 +536,11 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Tracker Preferences"
-msgstr ""
+msgstr "Preferencias de Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Turbo Mode"
-msgstr ""
+msgstr "Modo turbo"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "_General"
@@ -697,14 +697,14 @@ msgstr "Pulse para realizar una búsqueda."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:133
 msgid "Could not open help document."
-msgstr ""
+msgstr "No se pudo abrir el documento de ayuda."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:270
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "¿Esta seguro de que quiere abrir %d documento?"
+msgstr[1] "¿Esta seguro de que quiere abrir %d documentos?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:275
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:594
@@ -717,92 +717,92 @@ msgstr[1] "Esto abrirá %d ventanas separadas."
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:315
 #, c-format
 msgid "Could not open document \"%s\"."
-msgstr ""
+msgstr "No se pudo abrir el documento «%s»."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:344
 #, c-format
 msgid "Could not open folder \"%s\"."
-msgstr ""
+msgstr "No se pudo abrir la carpeta «%s»."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:352
 msgid "The nautilus file manager is not running."
-msgstr ""
+msgstr "El gestor de archivos Nautilus no se está ejecutando."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:548
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:897
 msgid "The document does not exist."
-msgstr ""
+msgstr "El documento no existe."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:565
 msgid "There is no installed viewer capable of displaying the document."
-msgstr ""
+msgstr "No hay un visor instalado capaz de mostrar el documento."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:589
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "¿Esta seguro de que quiere abrir una carpeta?"
+msgstr[1] "¿Esta seguro de que quiere abrir %d carpetas?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:722
 #, c-format
 msgid "Could not move \"%s\" to trash."
-msgstr ""
+msgstr "No se pudo mover «%s» a la papelera."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:753
 #, c-format
 msgid "Do you want to delete \"%s\" permanently?"
-msgstr ""
+msgstr "¿Quiere borrar «%s» permanentemente?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:756
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr ""
+msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:795
 #, c-format
 msgid "Could not delete \"%s\"."
-msgstr ""
+msgstr "No se pudo borrar «%s»."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:920
 #, c-format
 msgid "Moving \"%s\" failed: %s."
-msgstr ""
+msgstr "Fallo al mover «%s»: %s."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:955
 #, c-format
 msgid "Deleting \"%s\" failed: %s."
-msgstr ""
+msgstr "Fallo al borrar «%s»: %s."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1266
 msgid "Activate to view this email"
-msgstr ""
+msgstr "Activar para ver este correo-e"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1444
 msgid "Save Search Results As..."
-msgstr ""
+msgstr "Guardar los resultados de la búsqueda como..."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1478
 msgid "Could not save document."
-msgstr ""
+msgstr "No se pudo guardar el documento."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1479
 msgid "You did not select a document name."
-msgstr ""
+msgstr "No seleccionó un nombre de documento."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1509
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
-msgstr ""
+msgstr "No se pudo guardar el documento «%s» en «%s»."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1543
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
-msgstr ""
+msgstr "El documento «%s» ya existe. ¿Desea reemplazarlo?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
 msgid "If you replace an existing file, its contents will be overwritten."
-msgstr ""
+msgstr "Si reemplaza un archivo existente, su contenido se sobreescribirá."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1562
 msgid "_Replace"
