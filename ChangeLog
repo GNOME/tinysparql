@@ -1,3 +1,7 @@
+2007-05-26  Claude Paroz  <claude@2xlibre.net>
+
+	* src/tracker-preferences/tracker-preferences.glade: Corrected typo.
+
 2007-05-07 Jamie McCracken <jamiemcc at gnome org>
 
 	* bug fix for crashers in gaim indexing

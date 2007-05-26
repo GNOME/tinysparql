@@ -52,7 +52,7 @@
                                 <child>
                                   <widget class="GtkCheckButton" id="chkStartMonitorAutomatically">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">Start _mointoring service automatically</property>
+                                    <property name="label" translatable="yes">Start _monitoring service automatically</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
                                   </widget>
