@@ -1,3 +1,8 @@
+2007-06-06  Mikkel Kamstrup Erlandsen  <mikkel.kamstrup@gmail.com>
+
+	* python/deskbar-handler/tracker-handler.py:
+	Fix bug 430252, crash on conversion to ascii. 
+
 2007-05-26  Claude Paroz  <claude@2xlibre.net>
 
 	* src/tracker-preferences/tracker-preferences.glade: Corrected typo.

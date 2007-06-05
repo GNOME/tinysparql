@@ -248,7 +248,7 @@ class TrackerLiveSearchHandler(SignallingHandler):
 		for info in hits:
 			output = {} 
 			output['name'] = os.path.basename(info[0])
-			output['uri'] = cgi.escape(info[0]).encode("ascii") # we need ascii for gobject.spawn_async later
+			output['uri'] = str(cgi.escape(info[0]))
 			output['type'] = info[1]
 			if TYPES.has_key(output['type']) == 0:
 				output['type'] = "Other Files"	
