@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-06 17:12+0100\n"
-"PO-Revision-Date: 2007-05-22 19:44+0200\n"
+"POT-Creation-Date: 2007-05-27 03:23+0100\n"
+"PO-Revision-Date: 2007-06-07 22:52+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -527,7 +527,7 @@ msgid "Start _indexing service automatically"
 msgstr "Iniciar el servicio de _indexado automáticamente"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Start _mointoring service automatically"
+msgid "Start _monitoring service automatically"
 msgstr "Iniciar el servicio de _monitorización automáticamente"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
