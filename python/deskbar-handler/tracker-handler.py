@@ -82,7 +82,7 @@ TYPES = {
 		"icon" : "stock_mail",
 		},
 	"Music"	: {
-		"description": _("Listen music %s\nin %s")	% ("<b>%(base)s</b>", "<i>%(dir)s</i>"),
+		"description": _("Listen to music %s\nin %s")	% ("<b>%(base)s</b>", "<i>%(dir)s</i>"),
 		"category": "music",
 		},	
 	"Documents" 	: {
