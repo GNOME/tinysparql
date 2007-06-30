@@ -2446,16 +2446,35 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		tracker_db_free_result (res);
 
 	}
-	
-	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, service_array, j, offset, limit, FALSE, &count);
+
+
+	SearchQuery *query = tracker_create_query (tracker->file_indexer, service_array, j, offset, limit);
+
+	char **pstr;
+
+	for (pstr = array; *pstr; pstr++) {
+		tracker_add_query_word (query, *pstr, WordNormal);	
+		
+	}
 
 	g_strfreev (array);
 
+	if (!tracker_indexer_get_hits (query)) {
+
+		tracker_free_query (query);
+		return NULL;
+
+	}
+
+	hit_list = query->hits;
 
 	result = NULL;
 
 	if (!save_results) {
 		count = g_slist_length (hit_list);
+
+		if (count > limit) count = limit;
+
 		result = g_new (char *, count + 1);
 	} else {
 		tracker_db_start_transaction (db_con);
@@ -2468,6 +2487,8 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		SearchHit *hit;
 		char	  *str_id;
 		char	  ***res;
+
+		if (count >= limit) break;
 
 		hit = tmp->data;
 
@@ -2568,7 +2589,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		result[count] = NULL;
 	}
 
-	tracker_index_free_hit_list (hit_list);
+	tracker_free_query (query);
 
 	return (char ***)result;
 }
@@ -4297,12 +4318,37 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 
 	result = NULL;
 	result_list = NULL;
+	 
+	int service_array[8];
+	service_array[0] = tracker_get_id_for_service ("Files");
+	service_array[1] = tracker_get_id_for_service ("Folders");
+	service_array[2] = tracker_get_id_for_service ("Documents");
+	service_array[3] = tracker_get_id_for_service ("Images");
+	service_array[4] = tracker_get_id_for_service ("Music");
+	service_array[5] = tracker_get_id_for_service ("Videos");
+	service_array[6] = tracker_get_id_for_service ("Text");
+	service_array[7] = tracker_get_id_for_service ("Other");
 
-	array = tracker_parse_text_into_array ( text);
+	SearchQuery *query = tracker_create_query (tracker->file_indexer, service_array, 8, 0, 999999);
 
-	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
+	array = tracker_parse_text_into_array (text);
+
+	char **pstr;
+
+	for (pstr = array; *pstr; pstr++) {
+		tracker_add_query_word (query, *pstr, WordNormal);	
+	}
 
 	g_strfreev (array);
+
+	if (!tracker_indexer_get_hits (query)) {
+
+		tracker_free_query (query);
+		return NULL;
+
+	}
+
+	hit_list = query->hits;
 
 	count = 0;
 
@@ -4348,12 +4394,12 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 			tracker_db_free_result (res);
 		}
 
-		if (count > 511) {
+		if (count > 2047) {
 			break;
 		}
 	}
 
-	tracker_index_free_hit_list (hit_list);
+	tracker_free_query (query);
 
 	if (!result_list) {
 		return NULL;
@@ -4389,11 +4435,37 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
+	 
+	int service_array[8];
+	service_array[0] = tracker_get_id_for_service ("Files");
+	service_array[1] = tracker_get_id_for_service ("Folders");
+	service_array[2] = tracker_get_id_for_service ("Documents");
+	service_array[3] = tracker_get_id_for_service ("Images");
+	service_array[4] = tracker_get_id_for_service ("Music");
+	service_array[5] = tracker_get_id_for_service ("Videos");
+	service_array[6] = tracker_get_id_for_service ("Text");
+	service_array[7] = tracker_get_id_for_service ("Other");
+
+	SearchQuery *query = tracker_create_query (tracker->file_indexer, service_array, 8, 0, 999999);
+
 	array = tracker_parse_text_into_array (text);
 
-	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
+	char **pstr;
+
+	for (pstr = array; *pstr; pstr++) {
+		tracker_add_query_word (query, *pstr, WordNormal);	
+	}
 
 	g_strfreev (array);
+
+	if (!tracker_indexer_get_hits (query)) {
+
+		tracker_free_query (query);
+		return NULL;
+
+	}
+
+	hit_list = query->hits;
 
 	result_list = NULL;
 
@@ -4442,7 +4514,7 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 
 	g_free (location_prefix);
 
-	tracker_index_free_hit_list (hit_list);
+	tracker_free_query (query);
 
 	if (!result_list) {
 		return NULL;
@@ -4478,11 +4550,37 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
-	array = tracker_parse_text_into_array ( text);
+		 
+	int service_array[8];
+	service_array[0] = tracker_get_id_for_service ("Files");
+	service_array[1] = tracker_get_id_for_service ("Folders");
+	service_array[2] = tracker_get_id_for_service ("Documents");
+	service_array[3] = tracker_get_id_for_service ("Images");
+	service_array[4] = tracker_get_id_for_service ("Music");
+	service_array[5] = tracker_get_id_for_service ("Videos");
+	service_array[6] = tracker_get_id_for_service ("Text");
+	service_array[7] = tracker_get_id_for_service ("Other");
 
-	hit_list = tracker_indexer_get_hits (tracker->file_indexer, array, 0, 9, 0, 999999, FALSE, &count);
+	SearchQuery *query = tracker_create_query (tracker->file_indexer, service_array, 8, 0, 999999);
+
+	array = tracker_parse_text_into_array (text);
+
+	char **pstr;
+
+	for (pstr = array; *pstr; pstr++) {
+		tracker_add_query_word (query, *pstr, WordNormal);	
+	}
 
 	g_strfreev (array);
+
+	if (!tracker_indexer_get_hits (query)) {
+
+		tracker_free_query (query);
+		return NULL;
+
+	}
+
+	hit_list = query->hits;
 
 	result_list = NULL;
 
@@ -4540,7 +4638,7 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 
 	g_free (location_prefix);
 
-	tracker_index_free_hit_list (hit_list);
+	tracker_free_query (query);
 
 	if (!result_list) {
 		return NULL;

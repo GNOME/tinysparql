@@ -29,9 +29,6 @@
 
 
 
-
-
-
 typedef enum {
 	METADATA_INDEX,
 	METADATA_REINDEX,

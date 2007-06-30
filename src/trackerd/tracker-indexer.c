@@ -17,22 +17,17 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#define WORD_COUNT_LIMIT 128
+#define SCORE_MULTIPLIER 10000000
 
-
+#include <math.h>
 #include "tracker-indexer.h"
 
 extern Tracker *tracker;
 
 #define INDEXFBP        32               /* size of free block pool of inverted index */
 
-typedef struct {                        
-	char 	*word;    
-	int 	word_hits;
-} SearchWord;
-
-
 static gboolean shutdown;
+
 
 static inline guint16
 get_score (WordDetails *details)
@@ -144,7 +139,7 @@ compare_search_words (const void *a, const void *b) {
 	ap = (SearchWord *)a;
 	bp = (SearchWord *)b;
 
-	return (bp->word_hits - ap->word_hits);
+	return (ap->hit_count - bp->hit_count);
 	
 }
 
@@ -439,6 +434,96 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 }
 
 
+/* use to delete dud hits for a word - dud_list is a list of SearchHit structs */
+gboolean
+tracker_remove_dud_hits (Indexer *indexer, const char *word, GSList *dud_list)
+{
+	int  tsiz;
+	char *tmp;
+
+	if (shutdown) return FALSE;
+
+	g_return_val_if_fail ((indexer && word && dud_list), FALSE);
+
+	g_mutex_lock (indexer->word_mutex);
+
+	/* check if existing record is there  */
+	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+
+		if (tsiz >= (int) sizeof (WordDetails)) {
+
+			WordDetails *details;
+			int wi, i, pnum;
+
+			details = (WordDetails *) tmp;
+			pnum = tsiz / sizeof (WordDetails);
+			wi = 0;	
+		
+			for (i=0; i<pnum; i++) {
+
+				GSList *l;
+
+				for (l=dud_list; l; l=l->next) {
+
+					SearchHit *hit = l->data;
+
+					if (hit) {
+						if (details[i].id == hit->service_id) {
+							int k;
+
+							/* shift all subsequent records in array down one place */
+							for (k=i+1; k<pnum; k++) {
+								details[k-1] = details[k];
+							}
+
+							/* make size of array one size smaller */
+							tsiz -= sizeof (WordDetails); 
+							pnum--;
+
+							break;
+	
+						}
+					}
+					
+				}
+
+			}
+
+			crput (indexer->word_index, word, -1, (char *) details, tsiz, CR_DOVER);
+			
+			g_mutex_unlock (indexer->word_mutex);	
+	
+			g_free (tmp);
+
+			return TRUE;
+				
+
+		} 
+
+		g_free (tmp);
+ 
+	} 
+	
+	g_mutex_unlock (indexer->word_mutex);
+	
+	return FALSE;
+
+}
+
+
+static int
+get_idf_score (WordDetails *details, float idf)
+{
+	guint32 score = get_score (details);
+	float f = idf * score * SCORE_MULTIPLIER;
+
+	if (f>1.0) {
+		return lrintf (f);		
+	}
+
+	return 1;
+
+}
 
 
 static inline int
@@ -469,63 +554,95 @@ in_array (int *array, int count, int value)
 	return FALSE;
 }
 
+SearchQuery *
+tracker_create_query (Indexer *indexer, int *service_array, int service_array_count, int offset, int limit)
+{
+	SearchQuery *result = g_new0 (SearchQuery, 1);
+
+	result->indexer = indexer;
+	result->service_array = service_array;
+	result->service_array_count = service_array_count;
+	result->offset = offset;
+	result->limit = limit;	
+
+	return result;
+}
+
+void
+tracker_add_query_word (SearchQuery *query, const char *word, WordType word_type)
+{
+
+	if (!word || word[0] == 0 || word == " ") {
+		return;
+	}
+
+	SearchWord *result = g_new0 (SearchWord, 1);
+
+	result->word = g_strdup (word);
+	result->hit_count = 0;
+	result->idf = 0;
+	result->word_type = word_type;
+
+	query->words =  g_slist_prepend (query->words, result);
+
+}
+
+
+static void
+free_word (SearchWord *result)
+{
+	g_free (result->word);
+	g_free (result);
+}
+
+void
+tracker_free_query (SearchQuery *query)
+{
+	tracker_index_free_hit_list (query->hits);
+
+	/* Do not free individual dud hits - dud SearchHit structs are always part of the hit list so will already be freed when hit list is freed above */
+	g_slist_free (query->duds);
+
+	g_slist_foreach (query->words, (GFunc) free_word, NULL);
+	g_slist_free (query->words);
+
+	g_free (query);
+}
+
+
+
 
 static GSList *
-get_hits_for_single_word (Indexer *indexer, 
-		   	  const char *word, 
-			  int *service_array, 
-		   	  int array_count, 
-		   	  int offset,
-		   	  int limit,
-		   	  gboolean get_count,
-		   	  int *hit_count)
-
+get_hits_for_single_word (SearchQuery *query, SearchWord *search_word, int *hit_count)
 {
-	int  tsiz, total_count;
-	char *tmp;
-	GSList *result;
-	gboolean single_search_complete;
+	int  tsiz, total_count = 0;
+	char *tmp = NULL;
+	GSList *result = NULL;
+
+	int offset = query->offset;
+
+	/* some results might be dud so get an extra 50 to compensate */
+	int limit = query->limit + 50;
 	
 	if (shutdown) return NULL;
 
-	single_search_complete = FALSE;
+	g_mutex_lock (query->indexer->word_mutex);
 
-	result = NULL;
+	if ((tmp = crget (query->indexer->word_index, search_word->word, -1, 0, -1, &tsiz)) != NULL) {
 
-	total_count = 0;
-
-	g_mutex_lock (indexer->word_mutex);
-
-	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
-
-		g_mutex_unlock (indexer->word_mutex);
+		g_mutex_unlock (query->indexer->word_mutex);
 
 		if (tsiz >= (int) sizeof (WordDetails)) {
 			WordDetails *details;
-			int count, pnum;
+			int pnum;
 
 			details = (WordDetails *) tmp;
 			
 			pnum = tsiz / sizeof (WordDetails);
 
 			tracker_debug ("total hit count (excluding service divisions) is %d", pnum);
-
-			if (offset >= pnum) {
-				*hit_count = pnum;
-				g_free (tmp);
-				return NULL;
-			} else {
-				total_count = offset;
-			}
-
+		
 			qsort (details, pnum, sizeof (WordDetails), compare_words);
-				
-			/* if we want the full count then we have to loop through all results */
-			if (!get_count && ((limit + offset) < pnum)) { 
-				count = limit + offset;
-			} else {
-				count = pnum;
-			}
 
 			int i;
 			for (i=0; i<pnum; i++) {
@@ -533,7 +650,7 @@ get_hits_for_single_word (Indexer *indexer,
 
 				service = get_service_type (&details[i]);
 
-				if (!service_array || in_array (service_array, array_count, service)) {
+				if (!query->service_array || in_array (query->service_array, query->service_array_count, service)) {
 
 					total_count++;
 
@@ -542,6 +659,7 @@ get_hits_for_single_word (Indexer *indexer,
 						continue;
 					}
 
+					
 					if (limit > 0) {
 
 						SearchHit *hit;
@@ -558,12 +676,13 @@ get_hits_for_single_word (Indexer *indexer,
 				}
 			}
 
+			
 			tracker_debug ("total hit count for service is %d", total_count);
 
 		}
 
 	} else {
-		g_mutex_unlock (indexer->word_mutex);
+		g_mutex_unlock (query->indexer->word_mutex);
 	}
 
 	*hit_count = total_count;
@@ -571,20 +690,12 @@ get_hits_for_single_word (Indexer *indexer,
 	g_free (tmp);
 
 	return g_slist_reverse (result);
-
-
 }
 
 
 
-
 static GHashTable *
-get_intermediate_hits (Indexer *indexer, 
-	   	      	GHashTable *match_table, 
-	   		const char *word, 
-			int *service_array, 
-		   	int array_count)
-
+get_intermediate_hits (SearchQuery *query, GHashTable *match_table, SearchWord *search_word, BoolOp bool_op)
 {
 	int  tsiz;
 	char *tmp;
@@ -594,11 +705,11 @@ get_intermediate_hits (Indexer *indexer,
 
 	result = g_hash_table_new (NULL, NULL);
 
-	g_mutex_lock (indexer->word_mutex);
+	g_mutex_lock (query->indexer->word_mutex);
 
-	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
+	if ((tmp = crget (query->indexer->word_index, search_word->word, -1, 0, -1, &tsiz)) != NULL) {
 
-		g_mutex_unlock (indexer->word_mutex);
+		g_mutex_unlock (query->indexer->word_mutex);
 
 		if (tsiz >= (int) sizeof (WordDetails)) {
 
@@ -615,27 +726,27 @@ get_intermediate_hits (Indexer *indexer,
 				int service;
 				service = get_service_type (&details[i]);
 
-				if (!service_array || in_array (service_array, array_count, service)) {
+				if (!query->service_array || in_array (query->service_array, query->service_array_count, service)) {
 
 					if (match_table) {
 						gpointer pscore;
-						int score;
+						guint32 score;
 					
-						/* we only add hits if in existing match_list where we add to exisitng hit score */
 						pscore = g_hash_table_lookup (match_table, GUINT_TO_POINTER (details[i].id));
 
-						if (!pscore) {
+						if (bool_op == BoolAnd && !pscore) {
 							continue;
 						}
 
-						score = GPOINTER_TO_INT (pscore) + get_score (&details[i]);
+						score = GPOINTER_TO_UINT (pscore) +  get_idf_score (&details[i], search_word->idf);
 
-						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GINT_TO_POINTER (score));   	
+						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GUINT_TO_POINTER (score));   	
 
 					} else {
-			
-						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GINT_TO_POINTER ((int) get_score (&details[i]))); 						
-						
+						int idf_score = get_idf_score (&details[i], search_word->idf);
+
+						g_hash_table_insert (result, GUINT_TO_POINTER (details[i].id), GUINT_TO_POINTER (idf_score)); 						
+
 					}
 				}
 			}
@@ -644,7 +755,7 @@ get_intermediate_hits (Indexer *indexer,
 		g_free (tmp);
 
 	} else {
-		g_mutex_unlock (indexer->word_mutex);
+		g_mutex_unlock (query->indexer->word_mutex);
 	}
 
 	if (match_table) {
@@ -655,24 +766,24 @@ get_intermediate_hits (Indexer *indexer,
 }
 
 
-static GSList *
-get_final_hits (Indexer *indexer, 
-	        GHashTable *match_table, 
-	   	const char *word, 
-		int *service_array, 
-	   	int array_count,
-		int offset,
-		int limit,
-		int *hit_count)
 
+
+static GSList *
+get_final_hits (SearchQuery *query, GHashTable *match_table, SearchWord *search_word, BoolOp bool_op, int *hit_count)
 {
 	int  tsiz, rnum;
 	char *tmp;
 	SearchHit *result;
 	GSList *list;
 
-	rnum = 0;
+	int offset = query->offset;
+
+	/* some results might be dud so get an extra 50 to compensate */
+	int limit = query->limit + 50;
+
 	*hit_count = 0;
+
+	rnum = 0;
 	list = NULL;
 
 	if (shutdown) return NULL;
@@ -680,12 +791,12 @@ get_final_hits (Indexer *indexer,
 	if (!match_table || g_hash_table_size (match_table) < 1) {
 		return NULL;
 	}
+				
+	g_mutex_lock (query->indexer->word_mutex);
 
-	g_mutex_lock (indexer->word_mutex);
+	if ((tmp = crget (query->indexer->word_index, search_word->word, -1, 0, -1, &tsiz)) != NULL) {
 
-	if ((tmp = crget (indexer->word_index, word, -1, 0, -1, &tsiz)) != NULL) {
-
-		g_mutex_unlock (indexer->word_mutex);
+		g_mutex_unlock (query->indexer->word_mutex);
 
 		if (tsiz >= (int) sizeof (WordDetails)) {
 
@@ -698,7 +809,11 @@ get_final_hits (Indexer *indexer,
 	
 			size = g_hash_table_size (match_table);
 
-			result = g_malloc0 ((sizeof (SearchHit) * size) +1);
+			if (bool_op == BoolAnd) {
+				result = g_malloc0 (sizeof (SearchHit) * size);
+			} else {
+				result = g_malloc0 (sizeof (SearchHit) * (size + count));
+			}
 				
 			int i;
 			for (i=0; i<count; i++) {
@@ -706,19 +821,19 @@ get_final_hits (Indexer *indexer,
 				int service;
 				service = get_service_type (&details[i]);
 
-				if (!service_array || in_array (service_array, array_count, service)) {
+				if (!query->service_array || in_array (query->service_array, query->service_array_count, service)) {
 
 					gpointer pscore;
 					int score;
 				
-					/* we only add hits if in existing match_list where we add to exisitng hit score */
 					pscore = g_hash_table_lookup (match_table, GUINT_TO_POINTER (details[i].id));
 
-					if (!pscore) {
+					if (bool_op == BoolAnd && !pscore) {
 						continue;
 					}
 
-					score = GPOINTER_TO_INT (pscore) + get_score (&details[i]);
+					/* implements IDF * TF here  */
+					score = GPOINTER_TO_INT (pscore) +  get_idf_score (&details[i], search_word->idf);
 
 					result[rnum].service_id = details[i].id;
 					result[rnum].service_type_id = service;
@@ -730,14 +845,15 @@ get_final_hits (Indexer *indexer,
 
 			qsort (result, rnum, sizeof (SearchHit), compare_search_hits);
 
-			if (offset >= rnum) {
+			*hit_count = rnum;
+
+			if (offset > rnum) {
 				tracker_log ("WARNING: offset is too big - no results will be returned for search!");
 				g_free (tmp);
 				g_free (result);
 				return NULL;
 			}
 
-			*hit_count = rnum;
 
 			if ((limit + offset) < rnum) { 
 				count = limit + offset;
@@ -756,7 +872,7 @@ get_final_hits (Indexer *indexer,
 		g_free (tmp);
 
 	} else {
-		g_mutex_unlock (indexer->word_mutex);
+		g_mutex_unlock (query->indexer->word_mutex);
 	}
 
 	return g_slist_reverse (list);
@@ -764,88 +880,86 @@ get_final_hits (Indexer *indexer,
 
 
 
-
-
-GSList *
-tracker_indexer_get_hits (Indexer *indexer, char **words, int *service_array,  int array_count, int offset, int limit, gboolean get_count, int *total_count)
+gboolean
+tracker_indexer_get_hits (SearchQuery *query)
 {
-	int hit_count, word_count, i;
+	int word_count;
 	GHashTable *table;
-	GSList *result;
-	SearchWord search_word[WORD_COUNT_LIMIT];
+	SearchWord *word;
+	GSList *l;
 
+	if (shutdown) return FALSE;
 	
-	if (shutdown) return NULL;
-	
-	*total_count = 0;
+	g_return_val_if_fail ((query->indexer && query->words && (query->limit > 0)), FALSE);
 
-	g_return_val_if_fail ((indexer && (limit > 0)), NULL);
+	word_count = g_slist_length (query->words);
 
-	if (!words || !words[0]) {
-		return NULL;
-	}
+	if (word_count == 0) return FALSE;
 
 	/* do simple case of only one search word fast */
-	if (!words[1]) {
+	if (word_count == 1) {
 
-		result = get_hits_for_single_word (indexer,
-						   words[0], 
-						   service_array,
-						   array_count,
-						   offset, 
-						   limit,
-						   get_count,
-						   &hit_count);
+		word = query->words->data;
 
-		*total_count = hit_count;	
-		return result;
+		if (!word) return FALSE;
+
+		query->hits = get_hits_for_single_word (query, word, &query->hit_count);
+
+		return TRUE;
 	}
 
-	word_count = WORD_COUNT_LIMIT;
 
-	for (i=0; i<WORD_COUNT_LIMIT; i++) {
-		if (!words[i]) {
-			word_count = i;
-			break;
-		}
-		search_word[i].word = words[i];
-		search_word[i].word_hits = count_hit_size_for_word (indexer, words[i]);
+	/* calc stats for each word */
+	for (l= query->words; l; l=l->next) {
 
-		if (search_word[i].word_hits < 8) {
-			return NULL;
+		word = l->data;
+
+		if (!word) return FALSE;
+
+		word->hit_count = count_hit_size_for_word (query->indexer, word->word);
+		word->idf = 1.0/word->hit_count;
+
+		if (word->hit_count < 1) {
+			return FALSE;
 		}
 	}
 
 	/* do multiple word searches - start with words with fewest hits first */
-	
-	qsort (search_word, word_count, sizeof (SearchWord), compare_search_words);	
 
-	result = NULL;
+	query->words = g_slist_sort (query->words, (GCompareFunc)  compare_search_words);
+	
 	table = NULL;
 
-	/* qsort stores results in desc order so we must go from end value to start value to start from word with fewest hits*/
-	for (i=word_count-1; i>-1; i--) {
+	for (l= query->words; l; l=l->next) {
 
-		if (i != 0) {
-			table = get_intermediate_hits (indexer, table, search_word[i].word, service_array, array_count);
+		word = l->data;
+
+		if (!word) return FALSE;
+
+		if (l->next) {
+
+			table = get_intermediate_hits (query, table, word, BoolAnd);
 
 			if (g_hash_table_size (table) == 0) {
-				*total_count = 0;
-				return NULL;
+				query->hit_count = 0;
+				g_hash_table_destroy (table);
+				return FALSE;
 			}
 
 		} else {
-			result = get_final_hits (indexer, table, search_word[i].word, service_array, array_count, offset, limit, &hit_count);
+
+			query->hits = get_final_hits (query, table, word, BoolAnd, &query->hit_count);
 			if (table) {
 				g_hash_table_destroy (table);
 			}
-			*total_count = hit_count;	
-			return result;
+				
+			return TRUE;
 		}
 
+		
 	}
 
-	return NULL;
+	return FALSE;
 
 }
 
@@ -879,33 +993,30 @@ sort_func (gpointer a, gpointer b)
 }
 
 char ***
-tracker_get_hit_counts (Indexer *indexer, char **words)
+tracker_get_hit_counts (SearchQuery *query)
 {
-	int hit_count;
 	GSList *result;
-
-	int limit = 10000000;
-	int offset = 0;
 
 	GHashTable *table = g_hash_table_new (NULL, NULL);
 
-
 	if (shutdown) return NULL;
 	
-	g_return_val_if_fail ((indexer), NULL);
+	g_return_val_if_fail ((query && query->words), NULL);
 
-	if (!words || !words[0]) {
+	int word_count = g_slist_length (query->words);
+
+	if (word_count == 0) return NULL;
+
+
+	query->service_array = NULL;
+	query->service_array_count = 0;
+
+	if (!tracker_indexer_get_hits (query)) {
+
 		return NULL;
 	}
 
-	result = tracker_indexer_get_hits (indexer, 
-					words, 
-					NULL,
-					0, 
-					offset, 
-					limit, 
-					FALSE, 
-					&hit_count);
+	result = query->hits;
 
 	GSList *tmp;
 
@@ -932,7 +1043,7 @@ tracker_get_hit_counts (Indexer *indexer, char **words)
 
 	}
 
-	tracker_index_free_hit_list (result);
+	
 
 	GSList *list, *l;
 

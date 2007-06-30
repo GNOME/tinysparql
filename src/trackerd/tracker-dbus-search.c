@@ -125,11 +125,25 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 	char	***res, **array;
 
 
+	SearchQuery *query = tracker_create_query (tracker->file_indexer, NULL, 0, 0, 999999);
+
 	array = tracker_parse_text_into_array (str);
 
-	res = tracker_get_hit_counts (tracker->file_indexer, array);
-	
+	char **pstr;
+
+	for (pstr = array; *pstr; pstr++) {
+		tracker_add_query_word (query, *pstr, WordNormal);	
+	}
+
+	g_strfreev (array);
+
+	res = tracker_get_hit_counts (query);
+
+	tracker_free_query (query);	
+
 	tracker_dbus_reply_with_query_result (rec, res);
+
+
 
 }
 

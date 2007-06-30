@@ -17,12 +17,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
-
-
 #ifndef _TRACKER_UTILS_H_
 #define _TRACKER_UTILS_H_
-
 
 extern char *type_array[];
 extern char *implemented_services[];
@@ -33,7 +29,6 @@ extern char *service_metadata_table_names[];
 extern char *service_metadata_join_names[];
 
 extern char *tracker_actions[];
-
 
 #include <glib.h>
 #include "depot.h"
@@ -48,8 +43,8 @@ extern char *tracker_actions[];
 #define FILE_SCHEDULE_PERIOD		300
 
 #define TRACKER_DB_VERSION_REQUIRED	13
-#define TRACKER_VERSION				"0.6.0"
-#define TRACKER_VERSION_INT			600
+#define TRACKER_VERSION			"0.6.0"
+#define TRACKER_VERSION_INT		600
 
 /* default performance options */
 #define MAX_INDEX_TEXT_LENGTH		1048576
@@ -59,11 +54,10 @@ extern char *tracker_actions[];
 
 /* default indexer options */
 #define MIN_INDEX_BUCKET_COUNT		65536    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
-#define INDEX_DIVISIONS		        	4        /* no. of divisions of file */
+#define INDEX_DIVISIONS	        	4        /* no. of divisions of file */
 #define MAX_INDEX_BUCKET_COUNT 		524288	 /* max no of buckets to use  */
-#define INDEX_BUCKET_RATIO 			1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
-#define INDEX_PADDING	 			2
-
+#define INDEX_BUCKET_RATIO		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
+#define INDEX_PADDING	 		2
 
 typedef struct {
 	CURIA  *word_index;	/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
@@ -80,9 +74,6 @@ typedef struct {
 	int	 	id;              /* word ID of the cached word */
 	int 		count;     	 /* cummulative count of the cached word */
 } CacheWord;
-
-
-
 
 typedef enum {
 	DATA_KEYWORD,	
