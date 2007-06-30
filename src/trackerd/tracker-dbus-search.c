@@ -206,7 +206,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		return;
 	}
 
-	if (limit < 0) {
+	if (limit < 1) {
 		limit = 1024;
 	}
 
@@ -324,7 +324,7 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 		return;
 	}
 
-	if (limit < 0) {
+	if (limit < 1) {
 		limit = 1024;
 	}
 
@@ -738,7 +738,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		return;
 	}
 
-	if (limit < 0) {
+	if (limit < 1) {
 		limit = 1024;
 	}
 
