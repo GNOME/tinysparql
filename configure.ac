@@ -652,7 +652,6 @@ AC_CONFIG_FILES([
 	src/libstemmer/Makefile
 	src/sqlite3/Makefile
 	src/text-filters/Makefile
-	src/text-filters/html_converter/Makefile
 	src/text-filters/ooo_converter/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-thumbnailer/Makefile
