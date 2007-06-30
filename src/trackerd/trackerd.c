@@ -2181,11 +2181,11 @@ main (int argc, char **argv)
 	}
 
 	if (no_watch_dirs) {
-		tracker->no_watch_directory_list = tracker_array_to_list (no_watch_dirs);
+		tracker->no_watch_directory_list = tracker_filename_array_to_list (no_watch_dirs);
 	}
 
 	if (watch_dirs) {
-	 	tracker->watch_directory_roots_list = tracker_array_to_list (watch_dirs);
+	 	tracker->watch_directory_roots_list = tracker_filename_array_to_list (watch_dirs);
 	}
 
 	if (disable_indexing) {

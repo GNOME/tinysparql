@@ -456,6 +456,7 @@ DBTypes		tracker_get_db_for_service 		(const char *service);
 gboolean 	tracker_is_service_embedded 		(const char *service);
 
 
+GSList *	tracker_filename_array_to_list		(char **array);
 GSList *	tracker_array_to_list 			(char **array);
 char **		tracker_make_array_null_terminated 	(char **array, int length);
 void		tracker_free_strs_in_array 		(char **array);

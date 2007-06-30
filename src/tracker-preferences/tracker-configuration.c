@@ -1,5 +1,224 @@
 #include "tracker-configuration.h"
 #include "tracker-configuration-private.h"
+#include "config.h"
+
+#ifndef HAVE_RECENT_GLIB
+/**********************************************************************
+ *
+ * The following functions are copied from the GLIB 2.12
+ * source code, to lower requirement on glib to 2.10 that ships with 
+ * Dapper
+ *
+ **********************************************************************/
+
+static gchar *
+_g_utf8_make_valid (const gchar *name)
+{
+  GString *string;
+  const gchar *remainder, *invalid;
+  gint remaining_bytes, valid_bytes;
+  
+  string = NULL;
+  remainder = name;
+  remaining_bytes = strlen (name);
+  
+  while (remaining_bytes != 0) 
+    {
+      if (g_utf8_validate (remainder, remaining_bytes, &invalid)) 
+	break;
+      valid_bytes = invalid - remainder;
+    
+      if (string == NULL) 
+	string = g_string_sized_new (remaining_bytes);
+
+      g_string_append_len (string, remainder, valid_bytes);
+      /* append U+FFFD REPLACEMENT CHARACTER */
+      g_string_append (string, "\357\277\275");
+      
+      remaining_bytes -= valid_bytes + 1;
+      remainder = invalid + 1;
+    }
+  
+  if (string == NULL)
+    return g_strdup (name);
+  
+  g_string_append (string, remainder);
+
+  g_assert (g_utf8_validate (string->str, -1, NULL));
+  
+  return g_string_free (string, FALSE);
+}
+
+static gdouble
+g_key_file_parse_value_as_double  (GKeyFile     *key_file,
+                                   const gchar  *value,
+                                   GError      **error)
+{
+  gchar *end_of_valid_d;
+  gdouble double_value = 0;
+
+  double_value = g_ascii_strtod (value, &end_of_valid_d);
+
+  if (*end_of_valid_d != '\0' || end_of_valid_d == value)
+    {
+      gchar *value_utf8 = _g_utf8_make_valid (value);
+      g_set_error (error, G_KEY_FILE_ERROR,
+		   G_KEY_FILE_ERROR_INVALID_VALUE,
+		   ("Value '%s' cannot be interpreted "
+		     "as a float number."), 
+		   value_utf8);
+      g_free (value_utf8);
+    }
+
+  return double_value;
+}
+
+gdouble
+g_key_file_get_double (GKeyFile *key_file, const gchar *group_name,
+                       const gchar *key, GError **error)
+{
+  GError *key_file_error;
+  gchar *value;
+  gdouble double_value;
+
+  g_return_val_if_fail (key_file != NULL, -1);
+  g_return_val_if_fail (group_name != NULL, -1);
+  g_return_val_if_fail (key != NULL, -1);
+
+  key_file_error = NULL;
+
+  value = g_key_file_get_value (key_file, group_name, key, &key_file_error);
+
+  if (key_file_error)
+    {
+      g_propagate_error (error, key_file_error);
+      return 0;
+    }
+
+  double_value = g_key_file_parse_value_as_double (key_file, value,
+                                                  &key_file_error);
+  g_free (value);
+
+  if (key_file_error)
+    {
+      if (g_error_matches (key_file_error,
+                           G_KEY_FILE_ERROR,
+                           G_KEY_FILE_ERROR_INVALID_VALUE))
+        {
+          g_set_error (error, G_KEY_FILE_ERROR,
+                       G_KEY_FILE_ERROR_INVALID_VALUE,
+                       ("Key file contains key '%s' in group '%s' "
+                         "which has a value that cannot be interpreted."), key,
+                       group_name);
+          g_error_free (key_file_error);
+        }
+      else
+        g_propagate_error (error, key_file_error);
+    }
+
+  return double_value;
+}
+
+void
+g_key_file_set_double  (GKeyFile    *key_file,
+                        const gchar *group_name,
+                        const gchar *key,
+                        gdouble      value)
+{
+  gchar result[G_ASCII_DTOSTR_BUF_SIZE];
+
+  g_return_if_fail (key_file != NULL);
+
+  g_ascii_dtostr (result, sizeof (result), value);
+  g_key_file_set_value (key_file, group_name, key, result);
+}
+
+gdouble*
+g_key_file_get_double_list (GKeyFile *key_file,
+                            const gchar *group_name,
+                            const gchar *key,
+                            gsize *length,
+                            GError **error)
+{
+  GError *key_file_error = NULL;
+  gchar **values;
+  gdouble *double_values;
+  gsize i, num_doubles;
+
+  g_return_val_if_fail (key_file != NULL, NULL);
+  g_return_val_if_fail (group_name != NULL, NULL);
+  g_return_val_if_fail (key != NULL, NULL);
+
+  values = g_key_file_get_string_list (key_file, group_name, key,
+                                       &num_doubles, &key_file_error);
+
+  if (key_file_error)
+    g_propagate_error (error, key_file_error);
+
+  if (!values)
+    return NULL;
+
+  double_values = g_new0 (gdouble, num_doubles);
+
+  for (i = 0; i < num_doubles; i++)
+    {
+      double_values[i] = g_key_file_parse_value_as_double (key_file,
+							   values[i],
+							   &key_file_error);
+
+      if (key_file_error)
+        {
+          g_propagate_error (error, key_file_error);
+          g_strfreev (values);
+          g_free (double_values);
+
+          return NULL;
+        }
+    }
+  g_strfreev (values);
+
+  if (length)
+    *length = num_doubles;
+
+  return double_values;
+}
+
+void
+g_key_file_set_double_list (GKeyFile     *key_file,
+			    const gchar  *group_name,
+			    const gchar  *key,
+			    gdouble       list[],
+			    gsize         length)
+{
+  GString *values;
+  gsize i;
+
+  g_return_if_fail (key_file != NULL);
+  g_return_if_fail (list != NULL);
+
+  values = g_string_sized_new (length * 16);
+  for (i = 0; i < length; i++)
+    {
+      gchar result[G_ASCII_DTOSTR_BUF_SIZE];
+
+      g_ascii_dtostr( result, sizeof (result), list[i] );
+
+      g_string_append (values, result);
+      g_string_append_c (values, ';');
+    }
+
+  g_key_file_set_value (key_file, group_name, key, values->str);
+  g_string_free (values, TRUE);
+}
+
+
+/**********************************************************************
+ *
+ *                     End of copied functions.
+ *
+ **********************************************************************/
+#endif /* HAVE_RECENT_GLIB */
+
 
 static GObjectClass *parent_class = NULL;
 
@@ -285,9 +504,7 @@ static GSList *
 _get_list (TrackerConfiguration * configuration, const gchar * const key,
 	   GType type, GError ** error)
 {
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
+	
 
 	switch (type) {
 	case G_TYPE_BOOLEAN:
@@ -303,9 +520,11 @@ _get_list (TrackerConfiguration * configuration, const gchar * const key,
 		return _get_string_list (configuration, key, error);
 		break;
 	default:
-		g_error ("Invalid list type: %s\n", type);
+		g_error ("Invalid list type\n");
 		break;
 	}
+
+	return NULL;
 }
 
 static GSList *
@@ -457,7 +676,7 @@ _set_list (TrackerConfiguration * configuration, const gchar * const key,
 		_set_string_list (configuration, key, value);
 		break;
 	default:
-		g_error ("Invalid list type: %s\n", type);
+		g_error ("Invalid list type\n");
 		break;
 	}
 

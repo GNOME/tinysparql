@@ -172,10 +172,9 @@ void text_handler (GMarkupParseContext *context,
 		case READ_KEYWORDS: {
 				gchar *keywords;
 				if ((keywords = g_hash_table_lookup (metadata, "Doc:Keywords"))) {
-					g_hash_table_replace (metadata, "Doc:Keywords",
+					g_hash_table_replace (metadata, g_strdup ("Doc:Keywords"),
 							g_strconcat (keywords, ",", text, NULL));
-				}
-				else {
+				} else {
 					g_hash_table_insert (metadata, g_strdup("Doc:Keywords"), g_strdup (text));
 				}
 			}

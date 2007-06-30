@@ -149,6 +149,9 @@ tracker_db_email_get_mbox_details (DBConnection *db_con, const char *mbox_uri)
 void
 tracker_db_email_free_mail_store (MailStore *store)
 {
+
+	g_return_if_fail (store);
+
 	if (store->uri_prefix) {
 		g_free (store->uri_prefix);
 	}
@@ -398,8 +401,7 @@ get_attachment_service_name (MailApplication app)
 gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
-	
-	int	mbox_id, type_id, id, i, len;
+       	int	mbox_id, type_id, id, i, len;
 	char    *service, *attachment_service, *mime;
 	char 	*array[255];
 
@@ -473,9 +475,6 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		g_free (service);
 		return TRUE;
 	}
-
-	id = -1;
-
 
 	FileInfo *info = tracker_create_file_info (mm->uri, 0,0,0);
 

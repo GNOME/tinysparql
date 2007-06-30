@@ -3735,6 +3735,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 
 	if (service_type_id != -1) {
 		tracker_exec_proc (db_con, "CreateService", 11, sid, path, name, str_service_type_id, info->mime, str_filesize, str_is_dir, str_is_link, str_offset, str_mtime, str_aux);
+
 		if (db_con->in_error) {
 			tracker_error ("CreateService uri is %s/%s", path, name);
 			g_free (name);

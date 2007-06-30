@@ -1,3 +1,58 @@
+2007-06-30 Patch from Eric Lesh <eclesh@ucla.edu>
+
+	* Fixed date display when date is missing in the metadata tile
+
+
+2007-06-30 Patch from Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Evolution mail fixes
+	* fix bad parsing of summary file
+	* used g_slice
+	* fixed mime type of attachments
+   
+
+2007-06-30 Patch from B Berteh <berteh@hotmail.com>
+
+	* Downgraded gtk and glade requirements
+	* Added missing functions for those with gtk 2.10
+
+
+2007-06-30 Patch from Marcus Fritzsch <fritschy@googlemail.com>
+
+	* Fixed invalid double free in tracker-extract
+	* made sure time elapsed returns floating point value
+
+
+2007-06-30 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
+
+	* Fixed crasher in image extractor
+	* fixed coredump in ps extractor on solaris
+
+
+2007-06-30 Patch from asubedi <asubedi@gmail.com>
+
+	* Added djvu filter
+
+
+2007-06-30 Patch from Deji Akingunola <dakingun@gmail.com>
+
+	* Added OnlyShowIn to desktop file
+	* Added missing config var in configure.ac
+
+
+2007-06-30 Patch from Anders Rune Jensen <anders@iola.dk>
+
+	* Fixed crasher when getting metadata
+
+
+2007-06-30 Patch from Luca Bellonda <lbellonda@gmail.com>
+
+	* added use of ~ and realpath for all config filename based variables
+
+2007-06-30 Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
+
+	* updated README and ToDo
+
 
 2007-06-06 Jamie McCracken <jamiemcc at gnome org>
 
@@ -24,6 +79,7 @@
 2007-05-05 Jamie McCracken <jamiemcc at gnome org>
 
 	*Added application and gaim log indexing
+	* application indexing based on patch by Marcus Rosell
 
 2007-04-30 Jamie McCracken <jamiemcc at gnome org>
 

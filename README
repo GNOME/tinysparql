@@ -136,6 +136,7 @@ Additional recommended packages:
 * libgsf
 * GTK and Gnome stack for GUI tools
 * libglade (for tracker-preferences UI)
+* unac (accent stripper)
 
 Optional run-time dependency:
 
@@ -190,7 +191,7 @@ parameters to autogen.sh EG ./autogen.sh --disable-fam)
 
 --enable-file-monitoring=(inotify, fam, polling, auto)
 
---enable-preferences : enables the tracker-preferences capplet
+--disable-preferences : disables the tracker-preferences capplet
 
 --enable-deskbar-applet : enables support for deskbar applet
 
@@ -200,10 +201,15 @@ parameters to autogen.sh EG ./autogen.sh --disable-fam)
 
 --disable-exif : disables the exif data extractor
 
+--disable-libtrackergtk : disables the building of libtracker-gtk
+
 --disable-gsf : disables the gsf data extractor
 
 --disable-warnings : disables GCC warnings
 
+--disable-unac : disables accent stripping
+
+--disable-libtracker-gtk : disables the building of libtracker-gtk
 
 
 RUNNING TRACKER

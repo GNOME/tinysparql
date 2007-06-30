@@ -66,7 +66,6 @@ typedef struct {
 	GMimeParser	*parser;
 	GMimeStream	*stream;
 	guint64		next_email_offset;
-
 } MailFile;
 
 
@@ -75,6 +74,25 @@ typedef struct {
 	char *mime;
 	char *tmp_decoded_file;
 } MailAttachment;
+
+
+typedef enum {
+	MIME_ENCODING_UNKNOWN,
+	MIME_ENCODING_7BIT,
+	MIME_ENCODING_8BIT,
+	MIME_ENCODING_BINARY,
+	MIME_ENCODING_BASE64,
+	MIME_ENCODING_QUOTEDPRINTABLE,
+	MIME_ENCODING_UUENCODE
+} MimeEncoding;
+
+
+typedef struct {
+	gchar		*type;
+	gchar		*subtype;
+	gchar		*name;
+	MimeEncoding	encoding;
+} MimeInfos;
 
 
 typedef struct {
@@ -125,6 +143,9 @@ void		email_maildir_watch_mail_messages		(DBConnection *db_con, const char *path
 MailPerson *	email_allocate_mail_person			(void);
 void		email_free_mail_person				(MailPerson *mp);
 
+MailAttachment*	email_allocate_mail_attachment			(void);
+void		email_free_mail_attachment			(MailAttachment *ma);
+
 MailMessage *	email_allocate_mail_message			(void);
 void		email_free_mail_message				(MailMessage *msg);
 
@@ -134,6 +155,13 @@ MailMessage *	email_mail_file_parse_next			(MailFile *mf, LoadHelperFct load_hel
 
 MailMessage *	email_parse_mail_message_by_path		(MailApplication mail_app, const char *path, LoadHelperFct load_helper);
 
+MimeInfos *	email_allocate_mime_infos			(void);
+void		email_free_mime_infos				(MimeInfos *infos);
+MimeInfos *	email_get_mime_infos_from_mime_file		(const gchar *mime_file);
+
 void		email_index_each_email_attachment		(DBConnection *db_con, const MailMessage *msg);
+gboolean	email_add_saved_mail_attachment_to_mail_message	(MailMessage *mail_msg, MailAttachment *ma);
+
+gboolean	email_decode_mail_attachment_to_file		(const gchar *src, const gchar *dst, MimeEncoding encoding);
 
 #endif

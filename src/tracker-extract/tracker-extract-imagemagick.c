@@ -35,7 +35,7 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 	gint           exit_status;
 
 	/* imagemagick crashes trying to extract from xcf files */
-	if (g_str_has_suffix (filename, '.xcf')) {
+	if (g_str_has_suffix (filename, ".xcf")) {
 		return;
 	}
 

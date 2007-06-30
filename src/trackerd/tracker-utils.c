@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
+#include <limits.h>
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
@@ -1895,6 +1896,85 @@ tracker_get_dirs (const char *dir, GSList **file_list)
 	}
 }
 
+static GSList *
+check_dir_name (GSList* list, char *input_name)
+{
+	tracker_debug ("checking dir names : %s", input_name);
+
+	int is_converted = FALSE;
+
+	if (input_name[0] == '~') {
+
+		const char* home_dir = g_get_home_dir ();
+
+		if ((home_dir != NULL) && (strlen (home_dir) > 0)) {
+
+			int is_separator = FALSE;
+			char *new_name;
+
+			if (input_name[1] == G_DIR_SEPARATOR) {
+				is_separator = TRUE;
+			} else {
+				if (home_dir[strlen (home_dir)-1] == G_DIR_SEPARATOR) {
+					is_separator = TRUE;
+				}
+			}
+
+			new_name = g_strdup_printf ("%s%s%s", home_dir, (is_separator? "" : G_DIR_SEPARATOR_S), &input_name[1]);
+
+			if ((new_name != NULL) && (strlen (new_name) <= PATH_MAX)) {
+
+				char resolved_name[PATH_MAX+2];
+
+				if (realpath (new_name, resolved_name) != NULL) {
+					list = g_slist_prepend (list, g_strdup (resolved_name));
+				} else {
+					list = g_slist_prepend (list, g_strdup (new_name));
+				}
+
+				is_converted = TRUE;
+			}
+
+			if (new_name != NULL) {
+				g_free (new_name);
+			}
+		}
+	}
+
+	if (!is_converted) {
+
+		char resolved_name[PATH_MAX+2];
+
+		if( realpath (input_name, resolved_name) != NULL ) {
+			list = g_slist_prepend (list, g_strdup (resolved_name));
+		} else {
+			list = g_slist_prepend (list, g_strdup (input_name));
+		}
+	}
+
+	tracker_debug ("resolved to %s\n", list->data);
+
+	return list;
+}
+
+GSList *
+tracker_filename_array_to_list (char **array)
+{
+	GSList *list;
+	int    i;
+
+	list = NULL;
+
+	for (i = 0; array[i] != NULL; i++) {
+		if (strlen (array[i]) > 0) {
+			list = check_dir_name (list, array[i]);
+		}
+	}
+
+	g_strfreev (array);
+
+	return list;
+}
 
 
 static GSList *
@@ -2229,7 +2309,7 @@ tracker_load_config_file ()
 					      NULL);
 
 	if (values) {
-		tracker->watch_directory_roots_list = array_to_list (values);
+		tracker->watch_directory_roots_list = tracker_filename_array_to_list (values);
 	} else {
 		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir ()));
 	}
@@ -2241,7 +2321,7 @@ tracker_load_config_file ()
 				              NULL);
 
 	if (values) {
-		tracker->no_watch_directory_list = array_to_list (values);
+		tracker->no_watch_directory_list = tracker_filename_array_to_list (values);
 		
 	} else {
 		tracker->no_watch_directory_list = NULL;
@@ -2542,7 +2622,7 @@ tracker_timer_end (GTimeVal *before, const char *str)
 
 	g_get_current_time (&after);
 
-	elapsed = (1000 * (after.tv_sec - before->tv_sec))  +  ((after.tv_usec - before->tv_usec) / 1000);
+	elapsed = (1000 * (after.tv_sec - before->tv_sec))  +  ((after.tv_usec - before->tv_usec) / 1000.0);
 
 	g_free (before);
 

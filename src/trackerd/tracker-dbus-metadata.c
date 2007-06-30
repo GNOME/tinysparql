@@ -249,6 +249,8 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 				}
 			}
 
+			row_count = key_count;
+
 		} else {
 			tracker_log ("result set is empty");
 			row_count = 1;

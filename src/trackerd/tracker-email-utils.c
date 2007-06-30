@@ -45,6 +45,8 @@ static char	*root_path_for_attachments = NULL;
 
 
 static void	mh_watch_mail_messages_in_dir	(DBConnection *db_con, const char *dir_path);
+static GMimeStream *new_gmime_stream_from_file	(const gchar *path, const gchar *mode, off_t start, off_t end);
+
 static GSList *	add_gmime_references		(GSList *list, GMimeMessage *message, const char *header);
 static GSList *	add_recipients			(GSList *list, GMimeMessage *message, const char *type);
 static void	find_attachment			(GMimeObject *obj, gpointer data);
@@ -118,6 +120,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (path, FALSE);
+	g_return_val_if_fail (store, FALSE);
 
 	mf = email_open_mail_file_at_offset (mail_app, path, store->offset, TRUE);
 
@@ -274,40 +277,22 @@ email_maildir_watch_mail_messages (DBConnection *db_con, const char *path)
 MailFile *
 email_open_mail_file_at_offset (MailApplication mail_app, const char *path, off_t offset, gboolean scan_from_for_mbox)
 {
-	char		*path_in_locale;
-	FILE		*f;
 	GMimeStream	*stream;
 	GMimeParser	*parser;
 	MailFile	*mf;
 
 	g_return_val_if_fail (path, NULL);
 
-	path_in_locale = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
-
-	if (!path_in_locale) {
-		tracker_error ("******ERROR**** path could not be converted to locale format");
-		g_free (path_in_locale);
-		return NULL;
-	}
-
-	f = g_fopen (path_in_locale, "r");
-
-	g_free (path_in_locale);
-
-	if (!f) {
-		return NULL;
-	}
-
-	stream = g_mime_stream_file_new_with_bounds (f, offset, -1);
+	stream = new_gmime_stream_from_file (path, "r", offset, -1);
 
 	if (!stream) {
-		fclose (f);
 		return NULL;
 	}
 
 	parser = g_mime_parser_new_with_stream (stream);
 
 	if (!parser) {
+		g_mime_stream_close (stream);
 		g_object_unref (stream);
 		return NULL;
 	}
@@ -315,7 +300,7 @@ email_open_mail_file_at_offset (MailApplication mail_app, const char *path, off_
 	g_mime_parser_set_scan_from (parser, scan_from_for_mbox);
 
 
-	mf = g_new0 (MailFile, 1);
+	mf = g_slice_new0 (MailFile);
 
 	mf->path = g_strdup (path);
 	mf->mail_app = mail_app;
@@ -338,22 +323,23 @@ email_free_mail_file (MailFile *mf)
 		g_free (mf->path);
 	}
 
-	if (mf->stream) {
-		g_object_unref (mf->stream);
-	}
-
 	if (mf->parser) {
 		g_object_unref (mf->parser);
 	}
 
-	g_free (mf);
+	if (mf->stream) {
+		g_mime_stream_close (mf->stream);
+		g_object_unref (mf->stream);
+	}
+
+	g_slice_free (MailFile, mf);
 }
 
 
 MailPerson *
 email_allocate_mail_person (void)
 {
-	return g_new0 (MailPerson, 1);
+	return g_slice_new0 (MailPerson);
 }
 
 
@@ -367,14 +353,44 @@ email_free_mail_person (MailPerson *mp)
 	g_free (mp->name);
 	g_free (mp->addr);
 
-	g_free (mp);
+	g_slice_free (MailPerson, mp);
+}
+
+
+MailAttachment *
+email_allocate_mail_attachment (void)
+{
+	return g_slice_new0 (MailAttachment);
+}
+
+
+void
+email_free_mail_attachment (MailAttachment *ma)
+{
+	if (!ma) {
+		return;
+	}
+
+	if (ma->attachment_name) {
+		g_free (ma->attachment_name);
+	}
+
+	if (ma->mime) {
+		g_free (ma->mime);
+	}
+
+	if (ma->tmp_decoded_file) {
+		g_free (ma->tmp_decoded_file);
+	}
+
+	g_slice_free (MailAttachment, ma);
 }
 
 
 MailMessage *
 email_allocate_mail_message (void)
 {
-	return g_new0 (MailMessage, 1);
+	return g_slice_new0 (MailMessage);
 }
 
 
@@ -449,32 +465,11 @@ email_free_mail_message (MailMessage *mail_msg)
 	}
 
 	if (mail_msg->attachments) {
-		GSList *tmp;
-
-		for (tmp = mail_msg->attachments; tmp; tmp = tmp->next) {
-			MailAttachment *ma;
-
-			ma = tmp->data;
-
-			if (ma->attachment_name) {
-				g_free (ma->attachment_name);
-			}
-
-			if (ma->mime) {
-				g_free (ma->mime);
-			}
-
-			if (ma->tmp_decoded_file) {
-				g_free (ma->tmp_decoded_file);
-			}
-
-			g_free (ma);
-		}
-
+		g_slist_foreach (mail_msg->attachments, (GFunc) email_free_mail_attachment, NULL);
 		g_slist_free (mail_msg->attachments);
 	}
 
-	g_free (mail_msg);
+	g_slice_free (MailMessage, mail_msg);
 }
 
 
@@ -500,7 +495,7 @@ email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
 
 	mf->next_email_offset = g_mime_parser_tell (mf->parser);
 
-	mail_msg = g_new0 (MailMessage, 1);
+	mail_msg = email_allocate_mail_message ();
 
 	mail_msg->parent_mail_file = mf;
 	mail_msg->offset = msg_offset;
@@ -586,7 +581,155 @@ email_parse_mail_message_by_path (MailApplication mail_app, const char *path, Lo
 	return mail_msg;
 }
 
- 
+
+MimeInfos *
+email_allocate_mime_infos (void)
+{
+	return g_slice_new0 (MimeInfos);
+}
+
+
+void
+email_free_mime_infos (MimeInfos *infos)
+{
+	if (!infos) {
+		return;
+	}
+
+	if (infos->type) {
+		g_free (infos->type);
+	}
+
+	if (infos->subtype) {
+		g_free (infos->subtype);
+	}
+
+	if (infos->name) {
+		g_free (infos->name);
+	}
+
+	g_slice_free (MimeInfos, infos);
+}
+
+
+MimeInfos *
+email_get_mime_infos_from_mime_file (const gchar *mime_file)
+{
+	MimeInfos	*mime_infos;
+	gchar		*mime_content;
+	const gchar	*pos_content_type;
+
+	g_return_val_if_fail (mime_file, NULL);
+
+	mime_content = NULL;
+
+	if (!g_file_get_contents (mime_file, &mime_content, NULL, NULL)) {
+		return NULL;
+	}
+
+	mime_infos = NULL;
+
+	pos_content_type = strstr (mime_content, "Content-Type:");
+
+	if (pos_content_type) {
+ 		size_t len;
+
+ 		len = strlen (pos_content_type);
+
+ 		if (len > 13) {	/* strlen ("Content-Type:") == 13 */
+ 			pos_content_type += 13;
+
+			/* ignore spaces, tab or line returns */
+			while (*pos_content_type != '\0' && (*pos_content_type == ' ' || *pos_content_type == '\t' || *pos_content_type == '\n')) {
+				pos_content_type++;
+			}
+
+			if (*pos_content_type != '\0') {
+				GMimeContentType *mime;
+
+				mime = g_mime_content_type_new_from_string (pos_content_type);
+
+				if (mime) {
+					GMimeParam	*param;
+					gchar		*type, *subtype, *name;
+					const gchar	*pos_encoding;
+					MimeEncoding	encoding;
+
+					type	= mime->type ? g_strdup (mime->type) : g_strdup ("text");		/* NULL means text */
+					subtype	= mime->subtype ? g_strdup (mime->subtype) : g_strdup ("plain");	/* NULL means plain */
+
+					name = NULL;
+
+					/* get name and encoding, hashtable from m->mime_infos->param_hash is buggy */
+					for (param = mime->params; param; param = param->next) {
+						g_print ("KEY:%s, VAL:%s\n", param->name, param->value);
+						if (strcmp (param->name, "name") == 0) {
+							name = g_strdup (param->value);
+						}
+					}
+
+					encoding = MIME_ENCODING_UNKNOWN;
+
+					pos_encoding = strstr (pos_content_type, "Content-Transfer-Encoding:");
+
+					if (pos_encoding) {
+						size_t		len_encoding;
+						const gchar	*pos_end_encoding;
+
+						len_encoding = strlen (pos_encoding);
+						if (len_encoding > 26) {	/* strlen ("Content-Transfer-Encoding:") == 26 */
+							pos_encoding += 26;
+
+							/* find begining of content-transfert-encoding */
+							while (*pos_encoding != '\0' && *pos_encoding == ' ') {
+								pos_encoding++;
+							}
+							/* and now find end */;
+							for (pos_end_encoding = pos_encoding;
+							     *pos_end_encoding != '\0' && (*pos_end_encoding != ' ' && *pos_end_encoding != '\n' && *pos_end_encoding != '\t');
+							     pos_end_encoding++)
+								;
+							if (pos_encoding != pos_end_encoding) {
+								gchar *encoding_str;
+
+								encoding_str = g_strndup (pos_encoding, pos_end_encoding - pos_encoding);
+
+								if (strcmp (encoding_str, "7bit") == 0) {
+									encoding = MIME_ENCODING_7BIT;
+								} else if (strcmp (encoding_str, "8bit") == 0) {
+									encoding = MIME_ENCODING_8BIT;
+								} else if (strcmp (encoding_str, "binary") == 0) {
+									encoding = MIME_ENCODING_BINARY;
+								} else if (strcmp (encoding_str, "base64") == 0) {
+									encoding = MIME_ENCODING_BASE64;
+								} else if (strcmp (encoding_str, "quoted-printable") == 0) {
+									encoding = MIME_ENCODING_QUOTEDPRINTABLE;
+								} else if (strcmp (encoding_str, "x-uuencode") == 0) {
+									encoding = MIME_ENCODING_UUENCODE;
+								}
+
+								g_free (encoding_str);
+							}
+						}
+					}
+
+					mime_infos = email_allocate_mime_infos ();
+
+					mime_infos->type	= type;
+					mime_infos->subtype	= subtype;
+					mime_infos->name	= name;
+					mime_infos->encoding	= encoding;
+				}
+			}
+		}
+	}
+
+	g_free (mime_content);
+
+	return mime_infos;
+}
+
+
 void
 email_index_each_email_attachment (DBConnection *db_con, const MailMessage *mail_msg)
 {
@@ -610,6 +753,82 @@ email_index_each_email_attachment (DBConnection *db_con, const MailMessage *mail
 		g_async_queue_push (tracker->file_process_queue, info);
 		tracker_notify_file_data_available ();
 	}
+}
+
+
+gboolean
+email_add_saved_mail_attachment_to_mail_message (MailMessage *mail_msg, MailAttachment *ma)
+{
+	g_return_val_if_fail (mail_msg, FALSE);
+	g_return_val_if_fail (ma, FALSE);
+
+	mail_msg->attachments = g_slist_prepend (mail_msg->attachments, ma);
+
+	tracker_debug ("saved email attachment \"%s\" added to \"%s\"", ma->tmp_decoded_file, mail_msg->uri);
+
+	return TRUE;
+}
+
+
+gboolean
+email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEncoding encoding)
+{
+	GMimeStream	*stream_src, *stream_dst;
+	GMimeFilter	*filter;
+	GMimeStream	*filtered_stream;
+
+	g_return_val_if_fail (src, FALSE);
+	g_return_val_if_fail (dst, FALSE);
+
+	stream_src = new_gmime_stream_from_file (src, "r", 0, -1);
+	stream_dst = new_gmime_stream_from_file (dst, "w", 0, -1);
+
+	if (!stream_src || !stream_dst) {
+		if (stream_src) {
+			g_object_unref (stream_src);
+		}
+		if (stream_dst) {
+			g_object_unref (stream_dst);
+		}
+		return FALSE;
+	}
+
+	filtered_stream = g_mime_stream_filter_new_with_stream (stream_src);
+
+	switch (encoding) {
+		case MIME_ENCODING_BASE64:
+			filter = g_mime_filter_basic_new_type (GMIME_FILTER_BASIC_BASE64_DEC);
+			g_mime_stream_filter_add (GMIME_STREAM_FILTER (filtered_stream), filter);
+			g_object_unref (filter);
+			break;
+
+		case MIME_ENCODING_QUOTEDPRINTABLE:
+			filter = g_mime_filter_basic_new_type (GMIME_FILTER_BASIC_QP_DEC);
+			g_mime_stream_filter_add (GMIME_STREAM_FILTER (filtered_stream), filter);
+			g_object_unref (filter);
+			break;
+
+		case MIME_ENCODING_UUENCODE:	
+			filter = g_mime_filter_basic_new_type (GMIME_FILTER_BASIC_UU_ENC);
+			g_mime_stream_filter_add (GMIME_STREAM_FILTER (filtered_stream), filter);
+			g_object_unref (filter);
+			break;
+
+		default:
+			break;
+	}
+
+	g_mime_stream_write_to_stream (filtered_stream, stream_dst);
+	g_mime_stream_flush (filtered_stream);
+
+	g_mime_stream_close (filtered_stream);
+	g_mime_stream_close (stream_dst);
+
+	g_object_unref (filtered_stream);
+	g_object_unref (stream_src);
+	g_object_unref (stream_dst);
+
+	return TRUE;
 }
 
 
@@ -664,6 +883,43 @@ mh_watch_mail_messages_in_dir (DBConnection *db_con, const char *dir_path)
 
 	g_slist_foreach (files, (GFunc) g_free, NULL);
 	g_slist_free (files);
+}
+
+
+static GMimeStream *
+new_gmime_stream_from_file (const gchar *path, const gchar *mode, off_t start, off_t end)
+{
+	gchar		*path_in_locale;
+	FILE		*f;
+	GMimeStream	*stream;
+
+	g_return_val_if_fail (path, NULL);
+	g_return_val_if_fail (mode, NULL);
+
+	path_in_locale = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
+
+	if (!path_in_locale) {
+		tracker_error ("******ERROR**** src or dst could not be converted to locale format");
+		g_free (path_in_locale);
+		return NULL;
+	}
+
+	f = g_fopen (path_in_locale, mode);
+
+	g_free (path_in_locale);
+
+	if (!f) {
+		return NULL;
+	}
+
+	stream = g_mime_stream_file_new_with_bounds (f, start, end);
+
+	if (!stream) {
+		fclose (f);
+		return NULL;
+	}
+
+	return stream;
 }
 
 
@@ -727,7 +983,6 @@ find_attachment (GMimeObject *obj, gpointer data)
 	g_return_if_fail (obj);
 	g_return_if_fail (data);
 
-	
 
 	if (GMIME_IS_MESSAGE_PART (obj)) {
 		GMimeMessage *g_msg;
@@ -751,10 +1006,6 @@ find_attachment (GMimeObject *obj, gpointer data)
 	part = GMIME_PART (obj);
 
 	mail_msg = data;
-
-	if (!mail_msg) {
-		return;
-	}
 
 	content_disposition = g_mime_part_get_content_disposition (part);
 
@@ -787,39 +1038,43 @@ find_attachment (GMimeObject *obj, gpointer data)
 
 		attachment_uri = g_build_filename (mail_msg->path_to_attachments, filename, NULL);
 
-		if ((fd = open (attachment_uri, O_CREAT | O_WRONLY, 0666)) == -1) {
+
+		fd = g_open (attachment_uri, O_CREAT | O_WRONLY, 0666);
+
+		if (fd == -1) {
 			tracker_error ("failed to save attachemnt %s", attachment_uri);
 			g_free (attachment_uri);
 			return;
-		}
-		
-		GMimeStream *stream = g_mime_stream_fs_new (fd);
-	
-		GMimeDataWrapper *content = g_mime_part_get_content_object (part);
 
-		if (content) {
-	
-			int x = g_mime_data_wrapper_write_to_stream (content, stream);
+		} else {		
+			GMimeStream		*stream;
+			GMimeDataWrapper	*content;
 
-			if (x != -1) {
-				g_mime_stream_flush (stream);
+			stream = g_mime_stream_fs_new (fd);
+			content = g_mime_part_get_content_object (part);
+
+			if (content) {
+				int x;
+
+				x = g_mime_data_wrapper_write_to_stream (content, stream);
+
+				if (x != -1) {
+					g_mime_stream_flush (stream);
+				}
+
+				g_object_unref (content);
 			}
-			g_object_unref (content);
+
+			g_mime_stream_close (stream);
+			g_object_unref (stream);
 		}
 
-		g_object_unref (stream);
-
-		
-		close (fd);
-
-		ma = g_new0 (MailAttachment, 1);
+		ma = email_allocate_mail_attachment ();
 
 		ma->attachment_name = g_strdup (filename);
 		ma->mime = g_strconcat (content_type->type, "/", content_type->subtype, NULL);
 		ma->tmp_decoded_file  = attachment_uri;
 
-		mail_msg->attachments = g_slist_prepend (mail_msg->attachments, ma);
-
-
+		email_add_saved_mail_attachment_to_mail_message (mail_msg, ma);
 	}
 }

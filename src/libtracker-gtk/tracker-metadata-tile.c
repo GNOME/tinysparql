@@ -33,8 +33,147 @@
 #include "tracker-metadata-tile.h"
 #include "tracker-tag-bar.h"
 
-
 #define TRACKER_METADATA_TILE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_METADATA_TILE, TrackerMetadataTilePrivate))
+
+#ifndef HAVE_RECENT_GLIB
+/**********************************************************************
+ *
+ * The following functions are copied from the GLIB 2.12
+ * source code, to lower requirement on glib to 2.10 that ships with 
+ * Dapper
+ *
+ **********************************************************************/
+
+/* converts a broken down date representation, relative to UTC, to
+ * a timestamp; it uses timegm() if it's available. */
+static time_t
+mktime_utc (struct tm *tm)
+{
+  time_t retval;
+  
+#ifndef HAVE_TIMEGM
+  static const gint days_before[] =
+  {
+    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+  };
+#endif
+
+#ifndef HAVE_TIMEGM
+  if (tm->tm_mon < 0 || tm->tm_mon > 11)
+    return (time_t) -1;
+
+  retval = (tm->tm_year - 70) * 365;
+  retval += (tm->tm_year - 68) / 4;
+  retval += days_before[tm->tm_mon] + tm->tm_mday - 1;
+  
+  if (tm->tm_year % 4 == 0 && tm->tm_mon < 2)
+    retval -= 1;
+  
+  retval = ((((retval * 24) + tm->tm_hour) * 60) + tm->tm_min) * 60 + tm->tm_sec;
+#else
+  retval = timegm (tm);
+#endif /* !HAVE_TIMEGM */
+  
+  return retval;
+}
+
+
+
+/**
+* g_time_val_from_iso8601:
+* @iso_date: a ISO 8601 encoded date string
+* @time_: a #GTimeVal
+*
+* Converts a string containing an ISO 8601 encoded date and time
+* to a #GTimeVal and puts it into @time_.
+*
+* Return value: %TRUE if the conversion was successful.
+*
+*/
+gboolean
+g_time_val_from_iso8601 (const gchar *iso_date,
+                         GTimeVal    *time_)
+{
+  struct tm tm;
+  long val;
+
+  g_return_val_if_fail (iso_date != NULL, FALSE);
+  g_return_val_if_fail (time_ != NULL, FALSE);
+ 
+  val = strtoul (iso_date, (char **)&iso_date, 10);
+   if (*iso_date == '-')
+     {
+       /* YYYY-MM-DD */
+      tm.tm_year = val - 1900;
+      iso_date++;
+      tm.tm_mon = strtoul (iso_date, (char **)&iso_date, 10) - 1;
+      
+      if (*iso_date++ != '-')
+        return FALSE;
+      
+      tm.tm_mday = strtoul (iso_date, (char **)&iso_date, 10);
+    }
+  else
+    {
+      /* YYYYMMDD */
+      tm.tm_mday = val % 100;
+      tm.tm_mon = (val % 10000) / 100 - 1;
+      tm.tm_year = val / 10000 - 1900;
+    }
+
+  if (*iso_date++ != 'T')
+    return FALSE;
+  
+  val = strtoul (iso_date, (char **)&iso_date, 10);
+  if (*iso_date == ':')
+    {
+      /* hh:mm:ss */
+      tm.tm_hour = val;
+      iso_date++;
+      tm.tm_min = strtoul (iso_date, (char **)&iso_date, 10);
+      
+      if (*iso_date++ != ':')
+        return FALSE;
+      
+      tm.tm_sec = strtoul (iso_date, (char **)&iso_date, 10);
+    }
+  else
+    {
+      /* hhmmss */
+      tm.tm_sec = val % 100;
+      tm.tm_min = (val % 10000) / 100;
+      tm.tm_hour = val / 10000;
+    }
+
+  time_->tv_sec = mktime_utc (&tm);
+  time_->tv_usec = 1;
+  
+  if (*iso_date == '.')
+    time_->tv_usec = strtoul (iso_date + 1, (char **)&iso_date, 10);
+    
+  if (*iso_date == '+' || *iso_date == '-')
+    {
+      gint sign = (*iso_date == '+') ? -1 : 1;
+      
+      val = 60 * strtoul (iso_date + 1, (char **)&iso_date, 10);
+      
+      if (*iso_date == ':')
+        val = 60 * val + strtoul (iso_date + 1, NULL, 10);
+      else
+        val = 60 * (val / 100) + (val % 100);
+
+      time_->tv_sec += (time_t) (val * sign);
+    }
+
+  return TRUE;
+}
+/**********************************************************************
+ *
+ *                     End of copied functions.
+ *
+ **********************************************************************/
+#endif /* HAVE_RECENT_GLIB */
+
 
 G_DEFINE_TYPE (TrackerMetadataTile, tracker_metadata_tile, GTK_TYPE_EVENT_BOX)
 
@@ -606,9 +745,13 @@ _date_to_label (GtkWidget *label, const char *iso, const char *string)
 		g_date_set_time_val (date, &val);
 		g_date_strftime(buf,256,"%a %d %b %Y", date);
                 temp = g_strdup_printf (string, buf);
-		gtk_label_set_markup (GTK_LABEL (label), temp);
-		g_free (temp);
+	} else {
+		temp = g_strdup_printf (string, _("Unknown"));
 	}
+
+	gtk_label_set_markup (GTK_LABEL (label), temp);
+	g_free (temp);
+
 	
 	
 }

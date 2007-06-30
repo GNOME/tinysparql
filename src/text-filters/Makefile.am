@@ -1,1 +1,1 @@
-SUBDIRS = html_converter ooo_converter
+SUBDIRS = ooo_converter

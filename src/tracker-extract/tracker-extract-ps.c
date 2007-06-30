@@ -31,7 +31,8 @@
 #include <limits.h>
 #include <errno.h>
 
-static ssize_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
+static ssize_t 
+getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *file)
 {
 	static const int GROWBY = 80; /* how large we will grow strings by */
 	int ch;
@@ -80,7 +81,8 @@ static ssize_t getdelim(char **linebuf, size_t *linebufsz, int delimiter, FILE *
 
 
 
-int getline(char **s, unsigned int *lim, FILE *stream)
+int 
+getline(char **s, unsigned int *lim, FILE *stream)
 {
 	return getdelim(s, lim, '\n', stream);
 }
@@ -133,6 +135,7 @@ void tracker_extract_ps (gchar *filename, GHashTable *metadata)
 			}
 			g_free (line);
 			line = NULL;
+			length = 0;
 			getline (&line, &length, f);
 		}
 		g_free (line);
