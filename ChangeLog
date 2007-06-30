@@ -1,3 +1,12 @@
+
+2007-06-06 Jamie McCracken <jamiemcc at gnome org>
+
+	* Reworked ranking and hit selection
+	* Added support for And/Or
+	* Added IDF (inverse document frequency) ranking for multiple word searches
+	* added preliminary support for wildcards (not fully operational yet)
+	
+
 2007-06-06  Mikkel Kamstrup Erlandsen  <mikkel.kamstrup@gmail.com>
 
 	* python/deskbar-handler/tracker-handler.py:
