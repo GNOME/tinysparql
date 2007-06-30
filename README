@@ -118,7 +118,7 @@ Run time dependencies (also needed for build) :
 * dbus-glib bindings (0.60 +)
 * glib (2.9.1 +)
 * zlib
-* libmagic
+* intltool (>=0.3.5)
 * GMime
 
 
@@ -241,7 +241,7 @@ with it on full throttle without experiencing slow downs.
 You can specify directory roots to be excluded from being watched or indexed
 by passing  -e directory for each directory root
 
-All the above options (and more) can be set by editing ~/.Tracker/tracker.cfg
+All the above options (and more) can be set by editing ~/.config/tracker.cfg
 which is created with specific defaults when non-existent (EG when
 trackerd is ran for the first time). Ensure that you restart trackerd for the
 changes to take effect. tracker.cfg also provides options that allows tracker
@@ -307,6 +307,8 @@ COMMAND LINE TOOLS
 Tracker comes with a number of command line apps that you can use:
 
 "tracker-tag" for setting and searching tags/keywords
+
+"tracker-stats" - this displays the current number of indexed items by category
 
 "tracker-extract FILE" - this extracts embedded metadata from FILE and prints
 to stdout
