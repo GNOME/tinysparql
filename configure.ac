@@ -263,6 +263,31 @@ AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
 
 
+####################################################################
+# External QDBM check
+####################################################################
+
+QDBM_REQUIRED=1.8
+
+AC_ARG_ENABLE(external_qdbm, 
+	AC_HELP_STRING(
+		[--enable-external-qdbm],
+		[build using system's qdbm]),,
+	[enable_external_qdbm=no])
+
+if test "x$enable_external_qdbm" = "xyes"; then
+	PKG_CHECK_MODULES(QDBM, [ qdbm >= $QDBM_REQUIRED ])
+	AM_CONDITIONAL(USING_EXTERNAL_QDBM, true)
+else
+	QDBM_CFLAGS="-I\$(top_srcdir)/src/qdbm"
+	QDBM_LIBS="\$(top_builddir)/src/qdbm/libqdbm-private.la"
+	AM_CONDITIONAL(USING_EXTERNAL_QDBM, false)
+fi		
+
+AC_SUBST(QDBM_CFLAGS)
+AC_SUBST(QDBM_LIBS)
+
+
 ###############################################################################
 # Check for file monitor backends
 ###############################################################################
@@ -635,6 +660,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	src/libstemmer/Makefile
 	src/sqlite3/Makefile
+	src/qdbm/Makefile
 	src/text-filters/Makefile
 	src/text-filters/ooo_converter/Makefile
 	src/tracker-extract/Makefile

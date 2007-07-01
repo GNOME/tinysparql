@@ -31,8 +31,8 @@ extern char *service_metadata_join_names[];
 extern char *tracker_actions[];
 
 #include <glib.h>
-#include "depot.h"
-#include "curia.h"
+#include <depot.h>
+#include <curia.h>
 
 #include "config.h"
 #include "tracker-parser.h"

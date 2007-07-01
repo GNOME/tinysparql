@@ -1,6 +1,7 @@
 2007-06-30 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* fixed typo and removed redundant stuff from configure.ac
+	* moved qdbm into private lib and added option to use system version
 
 
 2007-06-30 Patch from Eric Lesh <eclesh@ucla.edu>

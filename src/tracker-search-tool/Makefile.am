@@ -1,8 +1,7 @@
-#SUBDIRS = data help
 
 @INTLTOOL_DESKTOP_RULE@
 
-Desktopdir = $(datadir)/applications
+desktopdir = $(datadir)/applications
 icondir = $(datadir)/tracker/icons
 
 INCLUDES = 	\
@@ -17,10 +16,6 @@ INCLUDES = 	\
 	-DGREP_COMMAND=\""$(GREP_COMMAND)"\"
 
 bin_PROGRAMS = tracker-search-tool
-
-#schemadir = $(GCONF_SCHEMA_FILE_DIR)
-#schema_in_file = tracker-search-tool.schemas.in
-#schema_DATA = $(schema_in_file:.schemas.in=.schemas)
 
 tracker_search_tool_SOURCES =     \
 	tracker-search-tool-support.c   \
@@ -41,31 +36,17 @@ tracker_search_tool_LDADD =   \
         $(top_builddir)/src/libtracker-gtk/libtracker-gtk.la \
 	$(top_builddir)/src/libtracker/libtrackerclient.la 
 
-#man_MANS = tracker-search-tool.1
 
-Desktop_in_files = tracker-search-tool.desktop.in
-Desktop_files = $(Desktop_in_files:.desktop.in=.desktop)
+desktop_in_files = tracker-search-tool.desktop.in
+desktop_files = $(desktop_in_files:.desktop.in=.desktop)
  
-Desktop_DATA = $(Desktop_files)
+desktop_DATA = $(desktop_files)
 icon_DATA = thumbnail_frame.png
 
-
-#EXTRA_DIST = $(Utilities_in_files) $(Utilities_DATA) $(schema_in_file) $(schema_DATA) $(icon_DATA) $(man_MANS)
-EXTRA_DIST = $(Desktop_in_files) $(icon_DATA)
-
-#if GCONF_SCHEMAS_INSTALL
-#install-data-local:
-#	if test -z "$(DESTDIR)" ; then \
-#		for p in $(schema_DATA) ; do \
-#		GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $(top_builddir)/tracker-search-tool/$$p ; \
-#		done \
-#	fi
-#else
-#install-data-local:
-#endif
+EXTRA_DIST = $(desktop_in_files) $(icon_DATA)
 
 CLEANFILES = 				\
-	$(Desktop_DATA)			\
+	$(desktop_DATA)			\
 	tracker-search-tool.schemas
 
 disthook:
