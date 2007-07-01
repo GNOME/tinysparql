@@ -154,6 +154,18 @@ TabularMetadata=Email:Sender;Email:Subject;Email:Date;
 TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
 ContentMetadata=Email:Body
 
+[KMailEmails]
+DisplayName=KMail Emails
+Description=KMail based emails
+Parent=Emails
+ViewerExec=kmail "%1"
+KeyMetadata1=Email:Subject
+KeyMetadata2=Email:Sender
+KeyMetadata3=Email:Date
+TabularMetadata=Email:Sender;Email:Subject;Email:Date;
+TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
+ContentMetadata=Email:Body
+
 [EmailAttachments]
 DisplayName=Email Attachments
 Description=All files that are attached to an Email
@@ -167,13 +179,18 @@ Description=All files that are attached to an Evolution Email
 Parent=EmailAttachments
 Icon=stock_attach
 
+[KMailAttachments]
+DisplayName=KMail Email Attachments
+Description=All files that are attached to an KMail Email
+Parent=EmailAttachments
+Icon=stock_attach
+
 [Conversations]
 DisplayName=Conversations
 Description=Conversation log files
 UIVisible=true
 Icon=stock_help-chat
 ShowServiceFiles=true
-
 
 [GaimConversations]
 DisplayName=Gaim Conversations
