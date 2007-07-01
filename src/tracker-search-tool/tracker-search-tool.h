@@ -37,12 +37,16 @@ extern "C" {
 #pragma }
 #endif
 
+
+
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
-#include <gnome.h>
+
 #include <libgnomevfs/gnome-vfs-mime.h>
 #include <libgnomevfs/gnome-vfs-ops.h>
 #include <libgnomevfs/gnome-vfs-utils.h>
+
+#include <libgnomeui/libgnomeui.h>
 
 #include "../libtracker/tracker.h"
 

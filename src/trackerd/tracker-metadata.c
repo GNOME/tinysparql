@@ -83,7 +83,8 @@ char *doc_mime_types[] = {
 			  "application/x-killustrator",
 			  "application/x-kivio",
 			  "application/x-kontour",
-			  "application/x-wpg"
+			  "application/x-wpg",
+			  "application/rdf+xml"
 };
 
 

@@ -1,3 +1,9 @@
+2007-06-30 Patch from Jason Kivlighn <jkivlighn@gmail.com>
+
+	* Added initial XMP support for images to tracker-extract
+
+
+
 2007-06-30 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* fixed typo and removed redundant stuff from configure.ac

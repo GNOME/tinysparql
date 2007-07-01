@@ -635,6 +635,25 @@ AC_MSG_RESULT([$ioprio_support])
 
 #####################################################
 
+##################################################################
+# check for exempi
+##################################################################
+
+EXEMPI_REQUIRED=1.99.2
+
+AC_ARG_ENABLE(xmp, AC_HELP_STRING([--disable-xmp], [Disable XMP extraction]),,[enable_xmp=yes])
+if test "x$enable_xmp" = "xyes"; then
+	PKG_CHECK_MODULES(EXEMPI,[
+		exempi-2.0 >= $EXEMPI_REQUIRED],
+		[have_exempi=yes] , [have_exempi=no])
+	AC_SUBST(EXEMPI_CFLAGS)
+	AC_SUBST(EXEMPI_LIBS)
+else
+	have_exempi="no (disabled)"
+fi
+AM_CONDITIONAL(HAVE_EXEMPI, test "$have_exempi" = "yes")
+test "$have_exempi" = "yes" && AC_DEFINE(HAVE_EXEMPI, [], [Define if we have exempi])
+
 AC_CONFIG_FILES([
 	Makefile
 	tracker.pc
@@ -703,6 +722,7 @@ Metadata extractors:
 	exif (jpeg):				$have_libexif
 	gsf:					$have_libgsf
 	video files:				$videos_are_handled ($videos_handler)
+	embedded xmp:				$have_exempi
 
 "
 if test "x$enable_external_sqlite" = "xyes"; then

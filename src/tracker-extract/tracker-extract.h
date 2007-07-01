@@ -17,6 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef _TRACKER_EXTRACT_H_
+#define _TRACKER_EXTRACT_H_
+
 #include <glib.h>
 
 gboolean	tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status);
+
+void 		tracker_read_xmp (gchar *buffer, size_t len, GHashTable *metadata);
+
+#endif

@@ -40,8 +40,8 @@
 #include <libgnomevfs/gnome-vfs-mime.h>
 #include <libgnomevfs/gnome-vfs-ops.h>
 #include <libgnomevfs/gnome-vfs-utils.h>
+#include <gtk/gtk.h>
 
-#include <gnome.h>
 
 
 #include "tracker-search-tool.h"
