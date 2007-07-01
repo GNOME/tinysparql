@@ -1279,9 +1279,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 		MailStore *store = NULL;
 		store = tracker_db_email_get_mbox_details (db_con, dir);
 
-		tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", dir,
-				store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
-
+		
 		if (!store) {
 			tracker_error ("ERROR: could not retireve store for file %s", dir);
 			free_summary_file (summary);
@@ -1290,6 +1288,10 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 			g_free (dir);
 			return;
 		}
+
+		tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", dir,
+				store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
+
 
 		if (header->saved_count > store->mail_count) {
 
