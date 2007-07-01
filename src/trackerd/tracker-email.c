@@ -46,7 +46,7 @@ tracker_email_add_service_directories (DBConnection *db_con)
 
 	if (tracker->index_kmail_emails) {
 		if (kmail_init_module ()) {
-			kmail_watch_emails ();
+			kmail_watch_emails (db_con);
 		}
 	}
 

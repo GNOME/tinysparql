@@ -125,6 +125,9 @@ typedef struct {
 
 
 
+void		email_watch_directory				(const gchar *dir, const gchar *service);
+void		email_watch_directories				(const GSList *dirs, const gchar *service);
+
 void		email_set_root_path_for_attachments		(const char *path);
 const char *	email_get_root_path_for_attachments		(void);
 void		email_free_root_path_for_attachments		(void);

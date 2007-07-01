@@ -59,6 +59,28 @@ static void	find_attachment			(GMimeObject *obj, gpointer data);
 *********************************************************************************************/
 
 void
+email_watch_directory (const gchar *dir, const gchar *service)
+{
+	tracker_log ("Registering path %s as belonging to service %s", dir, service);
+	tracker_add_service_path (service, dir);
+}
+
+
+void
+email_watch_directories (const GSList *dirs, const gchar *service)
+{
+	const GSList *tmp;
+
+	for (tmp = dirs; tmp; tmp = tmp->next) {
+		const gchar *dir;
+
+		dir = tmp->data;
+		email_watch_directory (dir, service);
+	}
+}
+
+
+void
 email_set_root_path_for_attachments (const char *path)
 {
 	if (root_path_for_attachments) {
@@ -99,11 +121,11 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 	if (!mail_msg) {
 		return FALSE;
 	}
-	
+
 	tracker_db_email_save_email (db_con, mail_msg);
 
 	//email_index_each_email_attachment (db_con, mail_msg);
-	
+
 	email_free_mail_message (mail_msg);
 
 	return TRUE;
@@ -131,7 +153,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			email_free_mail_file (mf);
 			return TRUE;
 		}
-		
+
 		mail_msg->is_mbox = TRUE;
 		mail_msg->store = store;
 
@@ -146,7 +168,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			junk++;
 		} else 	if (mail_msg->deleted) {
 			deleted++;
-		} 
+		}
 
 		tracker_db_email_save_email (db_con, mail_msg);
 		tracker_db_email_update_mbox_offset (db_con, mf);
@@ -154,11 +176,11 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 		email_free_mail_message (mail_msg);
 
 		tracker->index_count++;
-		
+
 		if (tracker->verbosity == 1) {
 			if ( (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 1)) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
-			} 
+			}
 		}
 
 		tracker_check_flush ();
@@ -166,7 +188,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	email_free_mail_file (mf);
 
-	if (indexed > 0) {	
+	if (indexed > 0) {
 		tracker_info ("Indexed %d emails in email store %s and ignored %d junk and %d deleted emails", indexed, path, junk, deleted);
 		return TRUE;
 	}
@@ -616,27 +638,31 @@ MimeInfos *
 email_get_mime_infos_from_mime_file (const gchar *mime_file)
 {
 	MimeInfos	*mime_infos;
-	gchar		*mime_content;
+	gchar		*tmp, *mime_content;
 	const gchar	*pos_content_type;
 
 	g_return_val_if_fail (mime_file, NULL);
 
-	mime_content = NULL;
 
-	if (!g_file_get_contents (mime_file, &mime_content, NULL, NULL)) {
+
+	if (!g_file_get_contents (mime_file, &tmp, NULL, NULL)) {
 		return NULL;
 	}
 
+        /* all text content in lower case for comparaisons */
+	mime_content = g_ascii_strdown (tmp, -1);
+        g_free (tmp);
+
 	mime_infos = NULL;
 
-	pos_content_type = strstr (mime_content, "Content-Type:");
+	pos_content_type = strstr (mime_content, "content-type:");
 
 	if (pos_content_type) {
  		size_t len;
 
  		len = strlen (pos_content_type);
 
- 		if (len > 13) {	/* strlen ("Content-Type:") == 13 */
+ 		if (len > 13) {	/* strlen ("content-type:") == 13 */
  			pos_content_type += 13;
 
 			/* ignore spaces, tab or line returns */
@@ -662,7 +688,6 @@ email_get_mime_infos_from_mime_file (const gchar *mime_file)
 
 					/* get name and encoding, hashtable from m->mime_infos->param_hash is buggy */
 					for (param = mime->params; param; param = param->next) {
-						g_print ("KEY:%s, VAL:%s\n", param->name, param->value);
 						if (strcmp (param->name, "name") == 0) {
 							name = g_strdup (param->value);
 						}
@@ -670,14 +695,14 @@ email_get_mime_infos_from_mime_file (const gchar *mime_file)
 
 					encoding = MIME_ENCODING_UNKNOWN;
 
-					pos_encoding = strstr (pos_content_type, "Content-Transfer-Encoding:");
+					pos_encoding = strstr (pos_content_type, "content-transfer-encoding:");
 
 					if (pos_encoding) {
 						size_t		len_encoding;
 						const gchar	*pos_end_encoding;
 
 						len_encoding = strlen (pos_encoding);
-						if (len_encoding > 26) {	/* strlen ("Content-Transfer-Encoding:") == 26 */
+						if (len_encoding > 26) {	/* strlen ("content-transfer-encoding:") == 26 */
 							pos_encoding += 26;
 
 							/* find begining of content-transfert-encoding */
@@ -808,7 +833,7 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 			g_object_unref (filter);
 			break;
 
-		case MIME_ENCODING_UUENCODE:	
+		case MIME_ENCODING_UUENCODE:
 			filter = g_mime_filter_basic_new_type (GMIME_FILTER_BASIC_UU_ENC);
 			g_mime_stream_filter_add (GMIME_STREAM_FILTER (filtered_stream), filter);
 			g_object_unref (filter);
@@ -1022,7 +1047,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 
 		content_type = g_mime_part_get_content_type (part);
 
-		filename = g_mime_part_get_filename (part); 
+		filename = g_mime_part_get_filename (part);
 
 		if (!content_type->params || !content_type->type || !content_type->subtype  || !filename) {
 			/* we are unable to identify mime type or filename */
@@ -1046,7 +1071,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 			g_free (attachment_uri);
 			return;
 
-		} else {		
+		} else {
 			GMimeStream		*stream;
 			GMimeDataWrapper	*content;
 

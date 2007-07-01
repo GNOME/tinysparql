@@ -40,7 +40,7 @@
 typedef struct {
 	char		*imap_path;
 	char		*file;
-} FileAndImapPathPair;
+} FileAndImapPaths;
 
 typedef struct {
 	char			*name;
@@ -48,7 +48,7 @@ typedef struct {
 	char			*host;
 	char			*type;
 	char			*location;			/* Currently only useful for maildir */
-	FileAndImapPathPair	**imap_dir_and_path_pairs;	/* only for IMAP
+	FileAndImapPaths	**file_and_imap_paths_pairs;	/* only for IMAP
 								   each entry has been sort by its imap_path length */
 } KMailAccount;
 
@@ -69,16 +69,17 @@ static KMailConfig	*kmail_config = NULL;
 
 static gboolean		load_kmail_config		(KMailConfig **conf);
 static void		free_kmail_config		(KMailConfig *conf);
-static FileAndImapPathPair **	find_dir_and_imap_path_pairs	(GKeyFile *key_file, char **groups, const char *imap_id);
-static void		free_file_and_imap_path_pair	(FileAndImapPathPair *pair);
+static FileAndImapPaths ** find_dir_and_imap_path_pairs	(GKeyFile *key_file, char **groups, const char *imap_id);
+static void		free_file_and_imap_path_pair	(FileAndImapPaths *pair);
 static void		free_kmail_account		(KMailAccount *account);
+static GSList *		get_imap_dirs_to_watch		(DBConnection *db_con, const char *imap_dir_path);
 //static void		watch_local_files		(DBConnection *db_con, const char *local_dir_path);
 //static void		watch_imap_cache		(DBConnection *db_con, const char *imap_dir_path);
 //static void		watch_local_mbox_files		(DBConnection *db_con, const char *dir_path);
 //static void		watch_local_maildir_dir		(DBConnection *db_con, const char *dir_path);
 static void		load_uri_of_mbox_mail_message	(GMimeMessage *g_m_message, MailMessage *msg);
 static void		fill_uri_with_uid_for_imap	(GMimeMessage *g_m_message, MailMessage *msg);
-//static GSList *		rec_find_all_dirs		(const char *root_dir);
+static GSList *		rec_find_all_dirs		(const char *root_dir);
 static char *		expand_string			(const char *s);
 
 
@@ -129,7 +130,7 @@ kmail_finalize_module (void)
 
 
 void
-kmail_watch_emails ()
+kmail_watch_emails (DBConnection *db_con)
 {
 //	const GSList *account;
 
@@ -146,9 +147,23 @@ kmail_watch_emails ()
 		}
 	}
 */
-	tracker_add_service_path ("KMailEmails", kmail_config->local_dir);
-	tracker_add_service_path ("KMailEmails", kmail_config->cache_dir);
 
+	email_watch_directory (kmail_config->local_dir, "KMailEmails");
+	//	email_watch_directory (kmail_config->cache_dir, "KMailEmails");
+
+	#define WATCH_IMAP_DIRS(root_dir)				\
+	{								\
+		GSList *dirs;						\
+		dirs = get_imap_dirs_to_watch (db_con, root_dir);	\
+		email_watch_directories (dirs, "KMailEmails");		\
+		g_slist_foreach (dirs, (GFunc) g_free, NULL);		\
+		g_slist_free (dirs);					\
+	}
+
+	WATCH_IMAP_DIRS (kmail_config->imap_cache);
+	WATCH_IMAP_DIRS (kmail_config->dimap_cache);
+
+	#undef WATCH_IMAP_DIRS
 }
 
 
@@ -186,12 +201,23 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 	g_return_if_fail (db_con);
 	g_return_if_fail (info);
 
-	if (strcmp (info->mime, "application/mbox") == 0) {
+	if (info->mime && strcmp (info->mime, "application/mbox") == 0) {
 
 		if (g_str_has_prefix (info->uri, kmail_config->local_dir)) {
+			/* check mbox is registered */
+			if (tracker_db_email_get_mbox_id (db_con, info->uri) == -1) {
+				char *mbox_name, *uri_prefix;
+
+				mbox_name = g_path_get_basename (info->uri);
+				uri_prefix = g_path_get_dirname (info->uri);
+				tracker_db_email_register_mbox (db_con, MAIL_APP_KMAIL, MAIL_TYPE_MBOX, mbox_name, info->uri, uri_prefix);
+				g_free (mbox_name);
+				g_free (uri_prefix);
+			}
+
 			email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_KMAIL, info->uri, load_uri_of_mbox_mail_message, NULL);
 
-		} else if (g_str_has_prefix (info->uri, kmail_config->imap_cache)) {
+		} else if (g_str_has_prefix (info->uri, kmail_config->imap_cache) || g_str_has_prefix (info->uri, kmail_config->dimap_cache)) {
 			off_t		offset;
 			MailFile	*mf;
 			MailMessage	*mail_msg;
@@ -199,6 +225,17 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 
 			/* we are in the IMAP cache and we are reading a MBox file. Here, such a file acts as a summary file for
 			   emails: it does not contain email bodies but senders, receivers, subjects... */
+
+			/* check summary is registered */
+			if (tracker_db_email_get_mbox_id (db_con, info->uri) == -1) {
+				char *summary_name, *uri_prefix;
+
+				summary_name = g_path_get_basename (info->uri);
+				uri_prefix = g_path_get_dirname (info->uri);
+				tracker_db_email_register_mbox (db_con, MAIL_APP_KMAIL, MAIL_TYPE_IMAP, summary_name, info->uri, uri_prefix);
+				g_free (summary_name);
+				g_free (uri_prefix);
+			}
 
 			offset = tracker_db_email_get_last_mbox_offset (db_con, info->uri);
 
@@ -224,11 +261,11 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 
 				for (account = kmail_config->accounts; account; account = account->next) {
 					const KMailAccount *acc;
-					FileAndImapPathPair **pair;
+					FileAndImapPaths **pair;
 
 					acc = account->data;
-					if (acc->imap_dir_and_path_pairs) {
-						for (pair = acc->imap_dir_and_path_pairs; *pair; pair++) {
+					if (acc->file_and_imap_paths_pairs) {
+						for (pair = acc->file_and_imap_paths_pairs; *pair; pair++) {
 							if (g_str_has_suffix (mail_msg->parent_mail_file->path, (*pair)->file)) {
 								/* URI is something like "imap://foo@imap.yeah.fr/INBOX/;UID=1114282150" */
 								if (acc->login && acc->host && (*pair)->imap_path) {
@@ -253,11 +290,30 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 			g_return_if_reached ();
 		}
 
-	} else if (strcmp (info->mime, "message/rfc822") == 0) {
+	} else if ((info->mime && strcmp (info->mime, "message/rfc822")) == 0 ||
+		   /* xdg does not properly recognize RFC822 files so we help it */
+		   (!info->mime && (g_str_has_prefix (info->uri, kmail_config->imap_cache) ||
+				    g_str_has_prefix (info->uri, kmail_config->dimap_cache)))) {
 		/* Mail message URI is path to the mail message.
 		   So we need to access mail message itself to set URI. */
 
-		MailMessage *mail_msg;
+		MailMessage	*mail_msg;
+		MailStore	*store;
+
+		if (tracker_db_email_get_mbox_id (db_con, info->uri) == -1) {
+			char *file_name, *uri_prefix;
+
+			file_name = g_path_get_basename (info->uri);
+			uri_prefix = g_path_get_dirname (info->uri);
+			tracker_db_email_register_mbox (db_con, MAIL_APP_KMAIL, MAIL_TYPE_IMAP, file_name, info->uri, uri_prefix);
+			g_free (file_name);
+			g_free (uri_prefix);
+		}
+
+		store = tracker_db_email_get_mbox_details (db_con, info->uri);
+		tracker_log ("looking for \"%s\"", info->uri);
+
+		g_return_if_fail (store);
 
 		mail_msg = email_parse_mail_message_by_path (MAIL_APP_KMAIL, info->uri, NULL);
 
@@ -268,9 +324,11 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 		}
 
 		mail_msg->uri = g_strdup (mail_msg->path);
+		mail_msg->store = store;
 		tracker_db_email_save_email (db_con, mail_msg);
 		email_index_each_email_attachment (db_con, mail_msg);
 		email_free_mail_message (mail_msg);
+		tracker_db_email_free_mail_store (store);
 	}
 }
 
@@ -290,7 +348,7 @@ load_kmail_config (KMailConfig **conf)
 		free_kmail_config (*conf);
 	}
 
-	*conf = g_new0 (KMailConfig, 1);
+	*conf = g_slice_new0 (KMailConfig);
 	m_conf = *conf;
 
 	m_conf->kmailrc_path = g_build_filename (g_get_home_dir (), ".kde/share/config/kmailrc", NULL);
@@ -354,7 +412,7 @@ load_kmail_config (KMailConfig **conf)
 				continue;
 			}
 
-			account = g_new0 (KMailAccount, 1);
+			account = g_slice_new0 (KMailAccount);
 			account->name = g_key_file_get_string (key_file, account_group, "Name", NULL);
 			account->login = g_key_file_get_string (key_file, account_group, "login", NULL);
 			account->host = g_key_file_get_string (key_file, account_group, "host", NULL);
@@ -365,7 +423,16 @@ load_kmail_config (KMailConfig **conf)
 
 				account_id = g_key_file_get_string (key_file, account_group, "Id", NULL);
 				if (account_id) {
-					account->imap_dir_and_path_pairs = find_dir_and_imap_path_pairs (key_file, groups, account_id);
+					account->file_and_imap_paths_pairs = find_dir_and_imap_path_pairs (key_file, groups, account_id);
+					g_free (account_id);
+				}
+
+			} else if (strcmp (account->type, "cachedimap") == 0) {
+				char *account_id;
+
+				account_id = g_key_file_get_string (key_file, account_group, "Id", NULL);
+				if (account_id) {
+					account->file_and_imap_paths_pairs = find_dir_and_imap_path_pairs (key_file, groups, account_id);
 					g_free (account_id);
 				}
 
@@ -391,7 +458,7 @@ load_kmail_config (KMailConfig **conf)
 	return TRUE;
 
  error:
-	tracker_log ("******ERROR**** file \"%s\" cannot be loaded", m_conf->kmailrc_path);
+	tracker_error ("file \"%s\" cannot be loaded", m_conf->kmailrc_path);
 	free_kmail_config (*conf);
 	*conf = NULL;
 	return FALSE;
@@ -427,14 +494,14 @@ free_kmail_config (KMailConfig *conf)
 
 	g_slist_foreach (conf->accounts, (GFunc) free_kmail_account, NULL);
 
-	g_free (conf);
+	g_slice_free (KMailConfig, conf);
 }
 
 
 static gint
 compare_pairs (gconstpointer a, gconstpointer b)
 {
-	const FileAndImapPathPair *pa, *pb;
+	const FileAndImapPaths *pa, *pb;
 
 	pa = a;
 	pb = b;
@@ -444,7 +511,7 @@ compare_pairs (gconstpointer a, gconstpointer b)
 }
 
 
-static FileAndImapPathPair **
+static FileAndImapPaths **
 find_dir_and_imap_path_pairs (GKeyFile *key_file, char **groups, const char *imap_id)
 {
 	char	**group;
@@ -455,16 +522,17 @@ find_dir_and_imap_path_pairs (GKeyFile *key_file, char **groups, const char *ima
 		return NULL;
 	}
 
-	pairs = g_array_new (FALSE, FALSE, sizeof (FileAndImapPathPair *));
+	pairs = g_array_new (FALSE, FALSE, sizeof (FileAndImapPaths *));
 
 	str_group = g_strconcat ("Folder-.", imap_id, ".directory", NULL);
 
 	for (group = groups; *group; group++) {
 		if (g_str_has_prefix (*group, str_group)) {
-			FileAndImapPathPair *pair;
+			FileAndImapPaths *pair;
 
-			pair = g_new0 (FileAndImapPathPair, 1);
+			pair = g_slice_new0 (FileAndImapPaths);
 			pair->imap_path = g_key_file_get_string (key_file, *group, "ImapPath", NULL);
+
 			pair->file = g_strdup (strstr (*group, "-.") + 2);
 
 			if (!pair->imap_path || !pair->file) {
@@ -478,12 +546,12 @@ find_dir_and_imap_path_pairs (GKeyFile *key_file, char **groups, const char *ima
 
 	g_array_sort (pairs, compare_pairs);
 
-	return (FileAndImapPathPair **) g_array_free (pairs, FALSE);
+	return (FileAndImapPaths **) g_array_free (pairs, FALSE);
 }
 
 
 static void
-free_file_and_imap_path_pair (FileAndImapPathPair *pair)
+free_file_and_imap_path_pair (FileAndImapPaths *pair)
 {
 	if (!pair) {
 		return;
@@ -497,7 +565,7 @@ free_file_and_imap_path_pair (FileAndImapPathPair *pair)
 		g_free (pair->file);
 	}
 
-	g_free (pair);
+	g_slice_free (FileAndImapPaths, pair);
 }
 
 
@@ -528,17 +596,17 @@ free_kmail_account (KMailAccount *account)
 		g_free (account->location);
 	}
 
-	if (account->imap_dir_and_path_pairs) {
-		FileAndImapPathPair **pair;
+	if (account->file_and_imap_paths_pairs) {
+		FileAndImapPaths **pair;
 
-		for (pair = account->imap_dir_and_path_pairs; *pair; pair++) {
+		for (pair = account->file_and_imap_paths_pairs; *pair; pair++) {
 			free_file_and_imap_path_pair (*pair);
 		}
 
 		g_free (pair);
 	}
 
-	g_free (account);
+	g_slice_free (KMailAccount, account);
 }
 
 /*
@@ -564,63 +632,147 @@ watch_local_files (DBConnection *db_con, const char *local_dir_path)
 
 	g_free (dir_inbox);
 }
+*/
 
 
-static void
-watch_imap_cache (DBConnection *db_con, const char *imap_dir_path)
+#define HEX_ESCAPE '%'
+
+static gint
+hex_to_int (gchar c)
 {
-	GSList		*dirs;
-	const GSList	*dir;
+	return  c >= '0' && c <= '9' ? c - '0'
+    	: c >= 'A' && c <= 'F' ? c - 'A' + 10
+    	: c >= 'a' && c <= 'f' ? c - 'a' + 10
+    	: -1;
+}
 
-	g_return_if_fail (db_con);
-	g_return_if_fail (imap_dir_path);
 
-	if (tracker_file_is_no_watched (imap_dir_path)) {
-		return;
+static gint
+unescape_character (const gchar *scanner)
+{
+	gint first_digit;
+	gint second_digit;
+
+	first_digit = hex_to_int (*scanner++);
+
+	if (first_digit < 0) {
+		return -1;
 	}
 
-	dirs = rec_find_all_dirs (imap_dir_path);
+	second_digit = hex_to_int (*scanner++);
+	if (second_digit < 0) {
+		return -1;
+	}
 
-	for (dir = dirs; dir; dir = dir->next) {
-		const char	*dir_path;
+	return (first_digit << 4) | second_digit;
+}
+
+
+static gchar *
+g_unescape_uri_string (const gchar *escaped, const gchar *illegal_characters)
+{
+	const gchar	*in;
+	gchar		*out, *result;
+	gint		character;
+
+	if (escaped == NULL) {
+		return NULL;
+	}
+
+	result = g_malloc (strlen (escaped) + 1);
+
+	out = result;
+	for (in = escaped; *in != '\0'; in++) {
+		character = *in;
+		if (character == HEX_ESCAPE) {
+
+			character = unescape_character (in + 1);
+
+			/* Check for an illegal character. We consider '\0' illegal here. */
+			if (character == 0 || (illegal_characters != NULL && strchr (illegal_characters, (char)character) != NULL)) {
+				g_free (result);
+				return NULL;
+			}
+			in += 2;
+		}
+		*out++ = character;
+	}
+
+	*out = '\0';
+
+	//g_assert (out - result <= strlen (escaped));
+
+	if (!g_utf8_validate (result, -1, NULL)) {
+		g_free (result);
+		return NULL;
+	}
+
+	return result;
+}
+
+
+static GSList *
+get_imap_dirs_to_watch (DBConnection *db_con, const char *imap_dir_path)
+{
+	GSList		*tmp_dirs, *dirs;
+	const GSList	*dir;
+
+	g_return_val_if_fail (db_con, NULL);
+	g_return_val_if_fail (imap_dir_path, NULL);
+
+	if (tracker_file_is_no_watched (imap_dir_path)) {
+		return NULL;
+	}
+
+	dirs = NULL;
+	tmp_dirs = NULL;
+
+	/* tmp_dirs = rec_find_all_dirs (imap_dir_path); */
+	tracker_get_all_dirs (imap_dir_path, &tmp_dirs);
+
+	for (dir = tmp_dirs; dir; dir = dir->next) {
+		char	*dir_path;
 		char		*dir_name;
 
-		dir_path = dir->data;
+		dir_path = g_unescape_uri_string (dir->data, "");
 
 		dir_name = g_path_get_basename (dir_path);
 
 		if (!tracker_file_is_no_watched (dir_path) &&
 		    dir_name[0] == '.' && g_str_has_suffix (dir_name, ".directory")) {
 
-			char *inbox_file, *sent_mail_file;
+/* 			char *inbox_file, *sent_mail_file; */
 
-			inbox_file = g_build_filename (dir_path, "INBOX", NULL);
-			sent_mail_file = g_build_filename (dir_path, "sent-mail", NULL);
+/* 			inbox_file = g_build_filename (dir_path, "INBOX", NULL); */
+/* 			sent_mail_file = g_build_filename (dir_path, "sent-mail", NULL); */
 
 			if (!tracker_is_directory_watched (dir_path, db_con)) {
-				tracker_add_watch_dir (dir_path, db_con);
+				dirs = g_slist_prepend (dirs, g_strdup (dir_path));
 			}
 
-			if (tracker_file_is_indexable (inbox_file)) {
-				tracker_db_insert_pending_file (db_con, 0, inbox_file, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-			}
+/* 			if (tracker_file_is_indexable (inbox_file)) { */
+/* 				tracker_db_insert_pending_file (db_con, 0, inbox_file, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1); */
+/* 			} */
 
-			if (tracker_file_is_indexable (sent_mail_file)) {
-				tracker_db_insert_pending_file (db_con, 0, sent_mail_file, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-			}
+/* 			if (tracker_file_is_indexable (sent_mail_file)) { */
+/* 				tracker_db_insert_pending_file (db_con, 0, sent_mail_file, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1); */
+/* 			} */
 
-			g_free (inbox_file);
-			g_free (sent_mail_file);
+/* 			g_free (inbox_file); */
+/* 			g_free (sent_mail_file); */
 		}
 
+		g_free (dir_path);
 		g_free (dir_name);
 	}
 
-	g_slist_foreach (dirs, (GFunc) g_free, NULL);
-	g_slist_free (dirs);
+	g_slist_foreach (tmp_dirs, (GFunc) g_free, NULL);
+	g_slist_free (tmp_dirs);
+
+	return dirs;
 }
 
-
+/*
 static void
 watch_local_mbox_files (DBConnection *db_con, const char *dir_path)
 {
@@ -804,6 +956,7 @@ fill_uri_with_uid_for_imap (GMimeMessage *g_m_message, MailMessage *msg)
 	g_free (headers);
 }
 
+
 /*
 static GSList *
 rec_find_all_dirs (const char *root_dir)
@@ -817,7 +970,7 @@ rec_find_all_dirs (const char *root_dir)
 	root_in_locale = g_filename_from_utf8 (root_dir, -1, NULL, NULL, NULL);
 
 	if (!root_in_locale) {
-		tracker_log ("******ERROR**** root dir could not be converted to locale format");
+		tracker_error ("Root dir could not be converted to locale format");
 		return NULL;
 	}
 
@@ -840,7 +993,7 @@ rec_find_all_dirs (const char *root_dir)
 			dir_utf8 = g_filename_to_utf8 (dir, -1, NULL, NULL, NULL);
 
 			if (!dir_utf8) {
-				tracker_log ("******ERROR**** dir could not be converted to utf8 format");
+				tracker_error ("Dir could not be converted to utf8 format");
 				goto end_dir;
 			}
 
@@ -870,6 +1023,7 @@ rec_find_all_dirs (const char *root_dir)
 	return g_slist_reverse (found_dirs);
 }
 */
+
 
 /* Try to expand environment variables/call some programs in a string
  * Supported string formats: $(foo), ${foo} and $foo.

@@ -504,8 +504,6 @@ char *		tracker_get_vfs_path 		(const char *uri);
 char *		tracker_get_vfs_name 		(const char *uri);
 char * 		tracker_get_mime_type 	 	(const char *uri);
 
-GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
-
 gboolean 	tracker_file_is_valid 		(const char *uri);
 
 gboolean	tracker_file_is_indexable 	(const char *uri);
@@ -514,7 +512,11 @@ gboolean 	tracker_is_directory 		(const char *dir);
 
 gboolean	tracker_file_is_no_watched 	(const char* uri);
 
-void 		tracker_get_dirs 		(const char *dir, GSList **file_list) ;
+GSList * 	tracker_get_all_files 		(const char *dir, gboolean dir_only);
+GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
+
+void 		tracker_get_all_dirs 		(const char *dir, GSList **file_list);
+void 		tracker_get_dirs 		(const char *dir, GSList **file_list);
 
 void		tracker_load_config_file 	(void);
 

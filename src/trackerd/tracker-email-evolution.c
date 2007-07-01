@@ -257,14 +257,6 @@ evolution_finalize_module (void)
 }
 
 
-static void
-watch_directory (const gchar *dir, const gchar *service)
-{
-	tracker_log ("Registering path %s as belonging to service %s", dir, service);
-	tracker_add_service_path (service, dir);
-}
-
-
 void
 evolution_watch_emails (DBConnection *db_con)
 {
@@ -291,11 +283,11 @@ evolution_watch_emails (DBConnection *db_con)
 		tracker_db_free_result (res);
 	}
 
-	watch_directory (evolution_config->dir_local, "EvolutionEmails");
+	email_watch_directory (evolution_config->dir_local, "EvolutionEmails");
 
-	g_slist_foreach (evolution_config->imap_dirs, (GFunc) watch_directory, "EvolutionEmails");	
-	g_slist_foreach (evolution_config->mh_dirs, (GFunc) watch_directory, "EvolutionEmails");		
-	g_slist_foreach (evolution_config->maildir_dirs, (GFunc) watch_directory, "EvolutionEmails");		
+	g_slist_foreach (evolution_config->imap_dirs, (GFunc) email_watch_directory, "EvolutionEmails");
+	g_slist_foreach (evolution_config->mh_dirs, (GFunc) email_watch_directory, "EvolutionEmails");
+	g_slist_foreach (evolution_config->maildir_dirs, (GFunc) email_watch_directory, "EvolutionEmails");
 }
 
 
@@ -308,7 +300,7 @@ evolution_file_is_interesting (FileInfo *info, const gchar *service)
 	g_return_val_if_fail (info->uri, FALSE);
 	g_return_val_if_fail (evolution_config, FALSE);
 	g_return_val_if_fail (evolution_config->mail_dir, FALSE);
-	
+
 	/* mbox/pop/imap all have summary files (*.ev-summary or "summary") */
 	if ((strcmp (info->uri, "summary") == 0) || g_str_has_suffix (info->uri, "summary")) {
 		return (!g_str_has_suffix (info->uri, "Drafts.ev-summary") && !g_str_has_suffix (info->uri, "Outbox.ev-summary"));
@@ -329,11 +321,11 @@ evolution_file_is_interesting (FileInfo *info, const gchar *service)
 			mime = tracker_get_mime_type (info->uri);
 			result = (strcmp (mime, "message/rfc822") == 0);
 			g_free (mime);
-		
+
 			return result;
 		}
 	}
-	
+
 	/* and same thing for maildir dirs */
 	for (dir = evolution_config->maildir_dirs; dir; dir = dir->next) {
 		const gchar	*dir_path;
@@ -341,7 +333,7 @@ evolution_file_is_interesting (FileInfo *info, const gchar *service)
 		gboolean	result;
 
 		dir_path = dir->data;
-		
+
 		if (g_str_has_prefix (info->uri, dir_path)) {
 			mime = tracker_get_mime_type (info->uri);
 			result = (strcmp (mime, "message/rfc822") == 0);
@@ -384,7 +376,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
 		/* check mbox is registered */
 		if (tracker_db_email_get_mbox_id (db_con, mbox_file) == -1) {
-			
+
 			gchar *uri_prefix, *mail_path1, *mail_path2;
 
 			gchar *mbox_dir = g_strconcat (evolution_config->dir_local, "/", NULL);
@@ -400,19 +392,19 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			g_free (mail_path2);
 
 			tracker_db_email_register_mbox (db_con, MAIL_APP_EVOLUTION, MAIL_TYPE_MBOX ,mbox_file, info->uri, uri_prefix);
-		
+
 			g_free (uri_prefix);
 
-		} 
+		}
 
 		MailStore *store;
 		store = tracker_db_email_get_mbox_details (db_con, mbox_file);
-		
+
 		summary = NULL;
 
 		if (store && open_summary_file (info->uri, &summary)) {
 			SummaryFileHeader	*header;
-			
+
 			header = NULL;
 
 			tracker_info ("investigating summary file %s", mbox_file);
@@ -430,13 +422,13 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 				goto end_index;
 			}
 
-			
+
 			if (!email_parse_mail_file_and_save_new_emails (db_con, MAIL_APP_EVOLUTION, mbox_file, load_uri_and_status_of_mbox_mail_message, store)) {
 				tracker_info ("setting junk status on email file %s", mbox_file);
 				tracker_db_email_flag_mbox_junk (db_con, mbox_file);
 			} else {
-				tracker_db_email_set_message_counts (db_con, mbox_file, store->mail_count, store->junk_count, store->delete_count);	
-				tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", mbox_file, 
+				tracker_db_email_set_message_counts (db_con, mbox_file, store->mail_count, store->junk_count, store->delete_count);
+				tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", mbox_file,
 					store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
 			}
 
@@ -447,7 +439,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 		}
 
 		g_free (mbox_file);
-		
+
 		if (store) {
 			tracker_db_email_free_mail_store (store);
 		}
@@ -472,7 +464,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			}
 		}
 
-	
+
 
 /* TO DO : add support for mail_dir and mh */
 /*	} else if (info->mime && strcmp (info->mime, "message/rfc822") == 0 && g_str_has_suffix (file_name, ".")) {
@@ -489,7 +481,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 	} else if (is_in_dir_maildir (info->uri)) {
 
 		if (g_str_has_suffix (info->uri, ".ev-summary")) {
-			index_mail_messages_by_summary_file (db_con, info->uri, MAIL_TYPE_MAILDIR, 
+			index_mail_messages_by_summary_file (db_con, info->uri, MAIL_TYPE_MAILDIR,
 							     load_summary_file_meta_header_for_maildir,
 							     load_mail_message_for_maildir,
 							     skip_mail_message_for_maildir);
@@ -505,7 +497,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 		}
 
 	} else if (info->mime && strcmp (info->mime, "message/rfc822") == 0) {
-		
+
 
 		if (email_mh_is_in_a_mh_dir (info->uri)) {
 
@@ -606,7 +598,7 @@ static void
 check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *store)
 {
 	SummaryFile	*summary;
-	
+
 	summary = NULL;
 	g_return_if_fail (store);
 
@@ -648,7 +640,7 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 			return;
 
 		}
-			
+
 		path = tracker_db_email_get_mbox_path (db_con, filename);
 
 		if ((header->junk_count > store->junk_count) || (header->deleted_count > store->delete_count)) {
@@ -656,15 +648,15 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 			gchar *mbox_id = tracker_int_to_str (tracker_db_email_get_mbox_id (db_con, path));
 			gint i;
 
-			for (i = 0; i < header->saved_count ; i++) { 
+			for (i = 0; i < header->saved_count ; i++) {
 				guint32 uid = 0;
 
 				if (scan_summary_for_junk (summary, &uid, store->type)) {
-					if (uid > 0) {		
-						
+					if (uid > 0) {
+
 						if (!tracker_db_email_lookup_junk (db_con, mbox_id, uid)) {
 							gchar *uri, *str_uid;
-																
+
 							str_uid = tracker_uint_to_str (uid);
 
 							tracker_db_email_insert_junk (db_con, path, uid);
@@ -750,13 +742,13 @@ load_evolution_config (EvolutionConfig **conf)
 									  (strchr (evo_acc->source_url + 7, ';') - 1) - (evo_acc->source_url + 7));
 
 						if (account_name) {
-						
-							tracker_log ("Found imap account %s", account_name); 
+
+							tracker_log ("Found imap account %s", account_name);
 
 							m_conf->imap_dirs = g_slist_prepend (m_conf->imap_dirs, g_build_filename (dir_imap, account_name, NULL));
 
 							g_free (account_name);
-						
+
 						}
 
 						break;
@@ -894,7 +886,7 @@ find_accounts_by_gconf (GSList *found_accounts)
 			  NULL)) {
 
 		argv[0] = "gconftool-2";
-			
+
 		if (!g_spawn_sync (NULL,
 			  argv,
 			  NULL,
@@ -1278,7 +1270,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 					g_free (uri_dir);
 
 					tracker_db_email_register_mbox (db_con, MAIL_APP_EVOLUTION, mail_type , dir, summary_file_path, uri_prefix);
-		
+
 					g_free (uri_prefix);
 				}
 			}
@@ -1287,7 +1279,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 		MailStore *store = NULL;
 		store = tracker_db_email_get_mbox_details (db_con, dir);
 
-		tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", dir, 
+		tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", dir,
 				store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
 
 		if (!store) {
@@ -1328,7 +1320,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 
 				mail_msg = NULL;
 				mail_count++;
-				tracker_debug ("processing email no. %d / %" G_GINT32_FORMAT, store->mail_count + 1, header->saved_count); 
+				tracker_debug ("processing email no. %d / %" G_GINT32_FORMAT, store->mail_count + 1, header->saved_count);
 
 				if (!(*load_mail) (summary, &mail_msg)) {
 					tracker_error ("Error loading email no. %d in summary file", mail_count);
@@ -1364,21 +1356,21 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 
 				if (mail_msg->junk) {
 					junk_count++;
-				} 
+				}
 
 				if (mail_msg->deleted) {
 					delete_count++;
-				} 
+				}
 
 				email_free_mail_file (mail_msg->parent_mail_file);
 				email_free_mail_message (mail_msg);
 
 			}
 
-			
+
 			tracker_log ("no of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
 
-			tracker_db_email_set_message_counts (db_con, dir, store->mail_count, store->junk_count, store->delete_count);	
+			tracker_db_email_set_message_counts (db_con, dir, store->mail_count, store->junk_count, store->delete_count);
 		} else {
 			/* schedule check for junk */
 			tracker_db_email_flag_mbox_junk (db_con, dir);
@@ -1559,7 +1551,7 @@ load_summary_file_header (SummaryFile *summary, SummaryFileHeader **header)
 	}
 
 	*header = g_slice_new0 (SummaryFileHeader);
-	
+
 	h = *header;
 
 	h->uri_prefix = NULL;
@@ -1719,34 +1711,34 @@ load_summary_file_meta_header_for_maildir (SummaryFile *summary, SummaryFileHead
 
 
 /*
-static gboolean 
-load_mail_message_for_local (SummaryFile *summary, MailMessage **mail_msg) 
-{ 
-	off_t offset; 
+static gboolean
+load_mail_message_for_local (SummaryFile *summary, MailMessage **mail_msg)
+{
+	off_t offset;
 
- 	g_return_val_if_fail (summary, FALSE); 
+ 	g_return_val_if_fail (summary, FALSE);
 
- 	if (*mail_msg) { 
- 		email_free_mail_message (*mail_msg); 
- 	} 
+ 	if (*mail_msg) {
+ 		email_free_mail_message (*mail_msg);
+ 	}
 
- 	*mail_msg = email_allocate_mail_message (); 
+ 	*mail_msg = email_allocate_mail_message ();
 
- 	if (!load_mail_message (summary, *mail_msg)) { 
- 		goto error; 
- 	} 
+ 	if (!load_mail_message (summary, *mail_msg)) {
+ 		goto error;
+ 	}
 
-	if (!decode_off_t (summary->f, &offset)) { 
- 		goto error; 
- 	} 
+	if (!decode_off_t (summary->f, &offset)) {
+ 		goto error;
+ 	}
 
  	return TRUE;
 
- error: 
- 	email_free_mail_message (*mail_msg); 
- 	*mail_msg = NULL; 
- 	return FALSE; 
-} 
+ error:
+ 	email_free_mail_message (*mail_msg);
+ 	*mail_msg = NULL;
+ 	return FALSE;
+}
 */
 
 
@@ -1786,11 +1778,11 @@ do_load_mail_message_for_imap (SummaryFile *summary, MailMessage **mail_msg, gbo
 	}
 
 	if (do_skipping_of_content_info) {
-		if (!skip_loading_content_info (summary)) {			
+		if (!skip_loading_content_info (summary)) {
 			goto error;
 		}
 	}
-	
+
 	return TRUE;
 
  error:
@@ -1896,7 +1888,7 @@ load_mail_message (SummaryFile *summary, MailMessage *mail_msg)
 	g_free (mlist);
 
 
-	mail_msg->id = strtoul (uid, NULL, 10); 
+	mail_msg->id = strtoul (uid, NULL, 10);
 
 	g_free (uid);
 
@@ -2018,34 +2010,34 @@ skip_mail_message (SummaryFile *summary)
 	}
 */
 
-	if (!skip_string_decoding (f)) 
-		return FALSE; 
-	
-	if (!decode_guint32 (f, &n)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!decode_guint32 (f, &n)) 
+	if (!decode_guint32 (f, &n))
 		return FALSE;
 
-	if (!decode_time_t (f, &tt)) 
+	if (!decode_guint32 (f, &n))
 		return FALSE;
 
-	if (!decode_time_t (f, &tt)) 
+	if (!decode_time_t (f, &tt))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!decode_time_t (f, &tt))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
+		return FALSE;
+
+	if (!skip_string_decoding (f))
 		return FALSE;
 
 
@@ -2255,10 +2247,10 @@ do_save_ondisk_email_message (DBConnection *db_con, MailMessage *mail_msg)
 		mail_msg_on_disk = email_parse_mail_message_by_path (MAIL_APP_EVOLUTION, mail_msg->path, NULL);
 
 		if (mail_msg_on_disk) {
-		
+
 			mail_msg_on_disk->parent_mail_file->next_email_offset = 0;
 			mail_msg_on_disk->uri = g_strdup (mail_msg->uri);
-			mail_msg_on_disk->store = mail_msg->store;			
+			mail_msg_on_disk->store = mail_msg->store;
 
 			tracker_db_email_save_email (db_con, mail_msg_on_disk);
 
@@ -2440,32 +2432,32 @@ scan_summary_for_junk (SummaryFile *summary, guint32 *uid, MailType type)
 
 	if (!decode_string (f, &return_uid))
 		return FALSE;
-	
+
 	if (!decode_guint32 (f, &flags))
 		return FALSE;
 
-	if (!decode_guint32 (f, &n)) 
+	if (!decode_guint32 (f, &n))
 		return FALSE;
 
-	if (!decode_time_t (f, &tt)) 
+	if (!decode_time_t (f, &tt))
 		return FALSE;
 
-	if (!decode_time_t (f, &tt)) 
+	if (!decode_time_t (f, &tt))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
-	if (!skip_string_decoding (f)) 
+	if (!skip_string_decoding (f))
 		return FALSE;
 
 	*uid = 0;
@@ -2507,8 +2499,8 @@ scan_summary_for_junk (SummaryFile *summary, guint32 *uid, MailType type)
 
 
 	if ((flags & EVOLUTION_MESSAGE_DELETED) == EVOLUTION_MESSAGE_DELETED) {
-		*uid = strtoul (return_uid, NULL, 10); 
-	
+		*uid = strtoul (return_uid, NULL, 10);
+
 
 	} else if ((flags & EVOLUTION_MESSAGE_JUNK) == EVOLUTION_MESSAGE_JUNK) {
 		*uid = strtoul (return_uid, NULL, 10);
@@ -2522,8 +2514,8 @@ scan_summary_for_junk (SummaryFile *summary, guint32 *uid, MailType type)
 		if (!skip_loading_content_info (summary)) {
 			return FALSE;
 		}
-		
-	
+
+
 	} else 	if (type == MAIL_TYPE_IMAP4) {
 		skip_guint32_decoding (summary->f);
 		if (!skip_loading_content_info (summary)) {
