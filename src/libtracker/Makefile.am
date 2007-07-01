@@ -1,6 +1,6 @@
 INCLUDES =				\
 	-DDATADIR=\""$(datadir)"\"	\
-	-DTRACKER_LOCALEDIR=\""$(localdir)"\" \
+	-DTRACKER_LOCALEDIR=\""$(localedir)"\" \
 	$(GLIB2_CFLAGS)			\
 	$(DBUS_CFLAGS)			
 

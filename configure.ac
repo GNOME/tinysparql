@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 # This file is part of Tracker.
 
-AC_PREREQ(2.57)
+AC_PREREQ(2.59c)
 AC_INIT([tracker],[0.6.0],[tracker-list@gnome.org])
 
 AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])
@@ -149,22 +149,6 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE",
 
 AM_GLIB_GNU_GETTEXT
 IT_PROG_INTLTOOL([0.35.0])
-
-# The following lines replace AM_GLIB_DEFINE_LOCALEDIR(TRACKER_LOCALEDIR)
-# due to the bug with autoconf 2.60
-
-dnl Set TRACKER_LOCALEDIR in config.h.
-if test "x${prefix}" = "xNONE";
-then
-	TRACKER_LOCALEDIR="${ac_default_prefix}/${DATADIRNAME}/locale"
-else
-	TRACKER_LOCALEDIR="${prefix}/${DATADIRNAME}/locale"
-fi
-
-AC_DEFINE_UNQUOTED(TRACKER_LOCALEDIR, "$TRACKER_LOCALEDIR",
-		[The directory in which locale data will be stored])
-
-# end of AM_GLIB_DEFINE_LOCALEDIR(TRACKER_LOCALEDIR) replacement
 
 ####################################################################
 # check for newer glib (>= 2.12.0) for g_option_context_set_summary ()
