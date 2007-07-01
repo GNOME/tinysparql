@@ -114,50 +114,55 @@ tracker_db_email_insert_junk (DBConnection *db_con, const char *mbox_uri, guint3
 MailStore *
 tracker_db_email_get_mbox_details (DBConnection *db_con, const char *mbox_uri)
 {
-	char	  ***res;
-	char	  **row;
-	MailStore *mail_store;
+        char      ***res;
+        char      **row;
+        MailStore *mail_store;
 
-	res = tracker_exec_proc (db_con, "GetMBoxDetails", 1, mbox_uri);
+        res = tracker_exec_proc (db_con, "GetMBoxDetails", 1, mbox_uri);
 
-	if (!res) {
-		return NULL;
-	}
+        if (!res) {
+                return NULL;
+        }
 
-	row = tracker_db_get_row (res, 0);
+        mail_store = NULL;
 
-	if (!(row && row[3] && row[4])) {
-		return NULL;
-	} else {
+        row = tracker_db_get_row (res, 0);
 
-		mail_store = g_new0 (MailStore, 1);
+        if (!(row && row[3] && row[4])) {
+                return NULL;
+        } else {
 
-		mail_store->offset = atoi (row[4]);
-		mail_store->mail_count = atoi (row[6]);
-		mail_store->junk_count = atoi (row[7]);
-		mail_store->delete_count = atoi (row[8]);
-		mail_store->uri_prefix = g_strdup (row[3]);
-		mail_store->type = atoi (row[1]);
-	}
+                mail_store = g_slice_new0 (MailStore);
 
-	tracker_db_free_result (res);
+                mail_store->offset = atoi (row[4]);
+                mail_store->mail_count = atoi (row[6]);
+                mail_store->junk_count = atoi (row[7]);
+                mail_store->delete_count = atoi (row[8]);
+                mail_store->uri_prefix = g_strdup (row[3]);
+                mail_store->type = atoi (row[1]);
+        }
 
-	return mail_store;
+        tracker_db_free_result (res);
+
+        return mail_store;
 }
+
 
 
 void
 tracker_db_email_free_mail_store (MailStore *store)
 {
 
-	g_return_if_fail (store);
+        g_return_if_fail (store);
 
-	if (store->uri_prefix) {
-		g_free (store->uri_prefix);
-	}
+        if (store->uri_prefix) {
+                g_free (store->uri_prefix);
+        }
 
-	g_free (store);
+        g_slice_free (MailStore, store);
 }
+
+
 
 
 int
