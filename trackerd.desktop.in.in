@@ -1,8 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Tracker
-Comment=Tracker indexer and search tool daemon
-Comment[fr]=Deamon Tracker d'indexation et de recherche
+_Name=Tracker
+_Comment=Tracker indexer and search tool daemon
 Icon=
 Exec=trackerd
 Terminal=false

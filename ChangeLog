@@ -1,3 +1,15 @@
+2007-07-02  Luca Ferretti  <elle.uca@libero.it>
+
+	* Makefile.am:
+	* configure.ac:
+	Enable localization for trackerd.desktop file. It's useful for
+	gnome-session-properties 2.19/2.20. I'm not sure 'make dist'
+	will include the right files :-( 
+	
+	* trackerd.desktop.in: moved...
+	* trackerd.desktop.in.in: ...here, plus changes to
+	enable translations and removal of spurious fr translation.
+
 2007-06-30 Patch from Jason Kivlighn <jkivlighn@gmail.com>
 
 	* Added initial XMP support for images to tracker-extract

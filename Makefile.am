@@ -1,9 +1,12 @@
 SUBDIRS = data src filters thumbnailers docs po
 
-pkgconfigdir = $(libdir)/pkgconfig
-xdgconfigdir = $(sysconfdir)/xdg/autostart
-xdgconfig_DATA = trackerd.desktop
+autostartdir = $(sysconfdir)/xdg/autostart
+autostart_in_files = trackerd.desktop.in
+autostart_in_in_files = trackerd.desktop.in.in
+autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
+@INTLTOOL_DESKTOP_RULE@
 
+pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tracker.pc
 
 if ENABLE_LIBTRACKERGTK
@@ -20,7 +23,7 @@ endif
 
 
 EXTRA_DIST = \
-	$(xdgconfig_DATA) \
+	$(autostart_in_in_files) \
 	$(handler_DATA) \
 	rdf-query-examples/80s-music.rdf \
 	rdf-query-examples/90s-music.rdf \
@@ -30,7 +33,6 @@ EXTRA_DIST = \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in 
-	
 
 
 DISTCLEANFILES = \

@@ -657,7 +657,7 @@ test "$have_exempi" = "yes" && AC_DEFINE(HAVE_EXEMPI, [], [Define if we have exe
 AC_CONFIG_FILES([
 	Makefile
 	tracker.pc
-	trackerd.desktop
+	trackerd.desktop.in
 	libtracker-gtk.pc
 	docs/Makefile
 	data/Makefile
