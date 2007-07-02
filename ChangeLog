@@ -1,5 +1,11 @@
 2007-07-02  Luca Ferretti  <elle.uca@libero.it>
 
+	* data/icons/Makefile.am: run gtk-update-icon-cache on
+	install-hook and uninstall-hook.
+	See http://live.gnome.org/GnomeGoals/AppIcon
+
+2007-07-02  Luca Ferretti  <elle.uca@libero.it>
+
 	* src/tracker-preferences/Makefile.am:
 	Add -DTRACKER_LOCALEDIR in INCLUDES
 	
