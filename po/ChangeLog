@@ -1,5 +1,12 @@
 2007-07-02  Luca Ferretti  <elle.uca@libero.it>
 
+	* POTFILES.in:
+	* POTFILES.skip:
+
+	New files for tracked.desktop localization
+
+2007-07-02  Luca Ferretti  <elle.uca@libero.it>
+
 	* it.po: Updated Italian translation.
 
 2007-06-07  Jorge Gonzalez <jorgegonz@svn.gnome.org>

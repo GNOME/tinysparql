@@ -1,6 +1,7 @@
 # List of source files that should NOT be translated.
 # Please keep this file sorted alphabetically.
 
+trackerd.deskto.in.in
 python/deskbar-handler/tracker-handler.py
 src/sqlite3/os_common.h
 src/sqlite3/vdbe.c
