@@ -17,11 +17,12 @@ noinst_HEADERS = tracker-configuration.h \
 		 tracker-preferences-utils.h \
 		 $(NULL)
 
-INCLUDES = -DTRACKER_DATADIR=\""$(datadir)/tracker"\" \
-	   $(GLIB_CFLAGS) \
-	   $(GTK2_CFLAGS) \
-	   $(LIBGLADE_CFLAGS) \
-	   $(NULL)
+INCLUDES =	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" \
+		-DTRACKER_LOCALEDIR=\""$(localedir)"\" \
+		$(GLIB_CFLAGS) \
+		$(GTK2_CFLAGS) \
+		$(LIBGLADE_CFLAGS) \
+		$(NULL)
 
 tracker_preferences_SOURCES = tracker-configuration.c \
 			      tracker-preferences.c \

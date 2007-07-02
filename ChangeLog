@@ -1,5 +1,13 @@
 2007-07-02  Luca Ferretti  <elle.uca@libero.it>
 
+	* src/tracker-preferences/Makefile.am:
+	Add -DTRACKER_LOCALEDIR in INCLUDES
+	
+	* src/tracker-preferences/tracker-preferences-main.c: (main):
+	Enable localization at runtime.
+
+2007-07-02  Luca Ferretti  <elle.uca@libero.it>
+
 	* Makefile.am:
 	* configure.ac:
 	Enable localization for trackerd.desktop file. It's useful for
