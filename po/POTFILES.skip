@@ -5,3 +5,5 @@ trackerd.desktop.in
 python/deskbar-handler/tracker-handler.py
 src/sqlite3/os_common.h
 src/sqlite3/vdbe.c
+src/tracker-preferences/tracker-preferences.desktop.in
+src/tracker-search-tool/tracker-search-tool.desktop.in

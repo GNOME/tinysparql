@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 _Name=Indexing Preferences
-_Comment=Configure File Indexing
+_Comment=Configure file indexing with Tracker
 Icon=tracker.png
 Exec=tracker-preferences
 Terminal=false
