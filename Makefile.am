@@ -23,7 +23,7 @@ endif
 
 
 EXTRA_DIST = \
-	$(autostart_in_in_files) \
+	$(autostart_in_files) \
 	$(handler_DATA) \
 	rdf-query-examples/80s-music.rdf \
 	rdf-query-examples/90s-music.rdf \
@@ -34,7 +34,7 @@ EXTRA_DIST = \
 	intltool-merge.in \
 	intltool-update.in 
 
-CLEANFILES = autostart_DATA
+CLEANFILES = $(autostart_DATA)
 
 DISTCLEANFILES = \
 	intltool-extract \
