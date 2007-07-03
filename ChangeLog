@@ -1,5 +1,14 @@
 2007-07-03  Luca Ferretti  <elle.uca@libero.it>
 
+	* src/tracker-preferences/tracker-preferences.desktop.in.in:
+	Add X-GNOME-Bugzilla-* stuff, remove .png from Icon key, set
+	StartupNotify to true.
+
+	NOTE: I can't access to bugzilla.gnome.org (??), so
+	"X-GNOME-Bugzilla-Component=general" could be wrong.
+
+2007-07-03  Luca Ferretti  <elle.uca@libero.it>
+
 	* Makefile.am: really remove tracked.desktop on make clean
 	and include trackerd.desktop.in on make dist
 
