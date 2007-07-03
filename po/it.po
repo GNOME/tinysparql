@@ -7,14 +7,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-07-02 21:05+0200\n"
-"PO-Revision-Date: 2007-07-02 21:04+0200\n"
+"POT-Creation-Date: 2007-07-03 12:21+0200\n"
+"PO-Revision-Date: 2007-07-03 12:22+0200\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural= ( n != 1 );\n"
+
+#: trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr "Tracker"
+
+#: trackerd.desktop.in.in.h:2
+msgid "Tracker indexer and search tool daemon"
+msgstr "Demone Tracker di indicizzazione e ricerca"
 
 #. then set the remaining properties
 #: src/libtracker-gtk/tracker-metadata-tile.c:384
@@ -422,11 +430,11 @@ msgstr ""
 "Per includere o escludere directory multiple in una sola volta, unire più "
 "opzioni come in:"
 
-#: src/tracker-preferences/tracker-preferences.desktop.in.h:1
-msgid "Configure File Indexing"
-msgstr "Configura l'indicizzazione dei file"
+#: src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Configure file indexing with Tracker"
+msgstr "Configura l'indicizzazione dei file con Tracker"
 
-#: src/tracker-preferences/tracker-preferences.desktop.in.h:2
+#: src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
 msgid "Indexing Preferences"
 msgstr "Preferenze di indicizzazione"
 
@@ -440,7 +448,7 @@ msgstr "<b>Generale</b>"
 
 #: src/tracker-preferences/tracker-preferences.glade.h:3
 msgid "<b>Ignored File Patterns</b>"
-msgstr "Modelli di file ignorati</b>"
+msgstr "<b>Modelli di file ignorati</b>"
 
 #: src/tracker-preferences/tracker-preferences.glade.h:4
 msgid "<b>Ignored Paths</b>"
