@@ -350,7 +350,7 @@ email_free_mail_file (MailFile *mf)
 	}
 
 	if (mf->stream) {
-		g_mime_stream_close (mf->stream);
+		//g_mime_stream_close (mf->stream);
 		g_object_unref (mf->stream);
 	}
 
@@ -846,8 +846,8 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 	g_mime_stream_write_to_stream (filtered_stream, stream_dst);
 	g_mime_stream_flush (filtered_stream);
 
-	g_mime_stream_close (filtered_stream);
-	g_mime_stream_close (stream_dst);
+	//g_mime_stream_close (filtered_stream);
+	//g_mime_stream_close (stream_dst);
 
 	g_object_unref (filtered_stream);
 	g_object_unref (stream_src);
@@ -1090,7 +1090,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 				g_object_unref (content);
 			}
 
-			g_mime_stream_close (stream);
+			//g_mime_stream_close (stream);
 			g_object_unref (stream);
 		}
 
