@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.pot\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-03-15 03:21+0000\n"
-"PO-Revision-Date: 2007-03-15 15:25+0530\n"
-"Last-Translator: sonam pelden <sonaa_peldn@yahoo.com>\n"
+"POT-Creation-Date: 2007-05-27 03:23+0100\n"
+"PO-Revision-Date: 2007-07-03 10:36+0530\n"
+"Last-Translator: yumkee lhamo <yumkeyl08@hotmail.com>\n"
 "Language-Team: Dzongkha <pgeyleg@dit.gov.bt>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -344,60 +344,64 @@ msgstr "%s: ནུས་མེད་སྒྲུབ་རྟགས་ཚུ་"
 msgid "%s: file %s not found"
 msgstr "%s: ཡིག་སྣོད་ %s མ་ཐོབ་"
 
-#: ../src/trackerd/trackerd.c:143
+#: ../src/trackerd/trackerd.c:146
 msgid "Directory to exclude from indexing"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་ལས་ཕྱིར་ཐོན་ནིའི་སྣོད་ཐོ་"
 
-#: ../src/trackerd/trackerd.c:143
-#: ../src/trackerd/trackerd.c:144
+#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:147
 msgid "/PATH/DIR"
 msgstr "/PATH/DIR"
 
-#: ../src/trackerd/trackerd.c:144
+#: ../src/trackerd/trackerd.c:147
 msgid "Directory to include in indexing"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་ལས་གྲངས་སུ་བརྩི་ནི་ལུ་སྣོད་ཐོ་"
 
-#: ../src/trackerd/trackerd.c:145
+#: ../src/trackerd/trackerd.c:148
 msgid "Disable any indexing or watching taking place"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་ཡང་ན་གནས་སོར་གང་རུང་ལྕོགས་མེད་བཟོ་"
 
-#: ../src/trackerd/trackerd.c:146
-msgid "Value that controls the level of logging. Valid values are 0 (default minimal), 1 (detailed) and 2 (debug)"
-msgstr "དྲན་དེབ་བཀོད་མིའི་གནས་རིམ་འདི་གི་ཚད་འཛིན་གནས་གོང་འབད། ནུས་ཅན་གནས་གོང་ཚུ་0 (སྔོན་སྒྲིག་ཉུང་ཤོས་), 1 (རྒྱས་བཤད་) དང་2 (རྐྱེན་སེལ་)ཨིན།"
+#: ../src/trackerd/trackerd.c:149
+msgid "Value that controls the level of logging. Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+msgstr "དྲན་དེབ་བཀོད་མིའི་གནས་རིམ་འདི་གི་ཚད་འཛིན་གནས་གོང་། ནུས་ཅན་གནས་གོང་ཚུ་   ༠ (བཀྲམ་སྟན་ཚུ་/དྲན་དེབ་ཚུ་འཛོལ་བ་རྐྱངམ་ཅིག་), ༡ (ཉུང་ཤོས་) ,༢ (རྒྱས་བཤད་) དང་  ༣(རྐྱེན་སེལ་)ཨིན་"
 
-#: ../src/trackerd/trackerd.c:146
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:150
 msgid "VALUE"
 msgstr "VALUE"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:150
 msgid "Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནིའི་རྒྱུན་ལམ་གྱི་དོན་ལུ་ལག་ལེན་འཐབ་ནི་ཨིན་པའི་གནས་གོང་།  གནས་གོང་འདི་ཁྱབ་ཚད་0-20 (སྔོན་སྒྲིག་0)ནང་  ཟུར་ཐོའི་མགྱོགས་ཚད་ཡར་འཕར་གནས་གོང་དམའ་མི་དང་ཅིག་ཁར་དགོཔ་ཨིན།"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:151
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "དྲན་ཚད་ཀྱི་ལག་ལེན་འདི་ཕབ་ལེན་འབདཝ་ཨིན་  དེ་འབདཝ་ད་ ཟུར་ཐོ་ནང་བཀོད་ནི་ཡང་མར་ཕབ་འབད་འོང་"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:152
 msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr "སི་ཊི་མར་དང་མིང་ཚིག་ཐོ་ཡིག་(ISO 639-1 2 characters code)བཀག་ནིའི་དོན་ལུ་  ལག་ལེན་འཐབ་ནི་ལུ་སྐད་ཡིག་"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:152
 msgid "LANG"
 msgstr "LANG"
 
+#: ../src/trackerd/trackerd.c:153
+msgid "Force a re-index of all content"
+msgstr "ནང་དོན་ཆ་མཉམ་གྱི་ཟུར་ཐོ་ སླར་བཀོད་ནི་ལུ་བང་བཙོང་འབད་"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:1840
+#: ../src/trackerd/trackerd.c:1969
 msgid "- start the tracker daemon"
 msgstr "- ཊེ་ཀར་ཌེ་མཱོན་འདི་འགོ་བཙུགས་"
 
-#: ../src/trackerd/trackerd.c:1841
-#: ../src/trackerd/trackerd.c:1842
+#: ../src/trackerd/trackerd.c:1970
+#: ../src/trackerd/trackerd.c:1971
 msgid "DIRECTORY"
 msgstr "DIRECTORY"
 
-#: ../src/trackerd/trackerd.c:1850
+#: ../src/trackerd/trackerd.c:1979
 msgid "To include or exclude multiple directories at the same time, join multiple options like:"
 msgstr "དུས་ཡུན་གཅིག་ལུ་  སྣ་མང་སྣོད་ཐོ་ཚུ་བརྩི་ནི་དང་ཕྱིར་ཐོན་ནི་ལུ་  སྣ་མང་གདམ་ཁ་མཐུད:"
 
@@ -522,8 +526,8 @@ msgid "Start _indexing service automatically"
 msgstr "རང་བཞིན་གྱིས་སྦེ་ཞབས་ཏོག་ཟུར་ཐོ་ནང་བཀོད་ནི་འགོ་བཙུགས། (_i)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Start _mointoring service automatically"
-msgstr "རང་བཞིན་གྱིས་སྦེ་  ཞབས་ཏོག་ལྟ་རྟོག་འབད་ནི་འགོ་བཙུགས། (_m)"
+msgid "Start _monitoring service automatically"
+msgstr "རང་བཞིན་གྱིས་སྦེ་ ཞབས་ཏོག་ ལྟ་རྟོག་འབད་ནི་ འགོ་བཙུགས་ (_m)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Throttling Level: "
@@ -777,37 +781,37 @@ msgstr "གློག་འཕྲིན་འདི་སྟོན་ནི་ལ
 msgid "Save Search Results As..."
 msgstr "འཚོལ་ཞིབ་འབད་བའི་གྲུབ་འབྲས་དེ་སྦེ་སྲུང་བཞག་འབད..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1475
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1478
 msgid "Could not save document."
 msgstr "ཡིག་ཆ་སྲུང་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1476
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1479
 msgid "You did not select a document name."
 msgstr "ཁྱོད་ཀྱིས་ཡིག་ཆའི་མིང་གཅིག་སེལ་འཐུ་མ་འབད་བས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1506
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1509
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "\"%s\" ཡིག་ཆ་འདི་ \"%s\" ལུ་སྲུང་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1540
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1543
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "\"%s\" ཡིག་ཆ་འདི་ཧེ་མ་ལས་རང་འདུག། ཁྱོད་ཀྱིས་ཚབ་མ་བཙུགས་ནི་ཨིན་ན?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1544
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
 msgid "If you replace an existing file, its contents will be overwritten."
 msgstr "ཁྱོད་ཀྱིས་གནས་ཡོད་པའི་ཡིག་སྣོད་འདི་ཚབ་བཙུགས་པ་ཅིན་  དེའི་ནང་དོན་ཚུ་ཚབ་སྲུང་འབད་ཡོདཔ་ཨིན།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1559
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1562
 msgid "_Replace"
 msgstr "ཚབ་བཙུགས། (_R)"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1609
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1612
 msgid "The document name you selected is a folder."
 msgstr "ཁྱོད་ཀྱིས་སེལ་འཐུ་འབད་ཡོད་པའི་ཡིག་ཆའི་མིང་འདི་སྣོད་འཛིན་ཨིན།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1658
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1661
 msgid "You may not have write permissions to the document."
 msgstr "ཡིག་ཆ་ལུ་འབྲི་ནིི་གནང་བ་འདི་ཁྱོད་ལུ་མེད།"
 
