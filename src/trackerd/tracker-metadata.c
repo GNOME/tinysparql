@@ -254,7 +254,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 
 	if (ftype == TEXT_METADATA || ftype == DEVEL_METADATA) {
 
-		return g_strdup (uri);
+		return g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	} else {
 		char *tmp;

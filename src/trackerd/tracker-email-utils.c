@@ -1063,12 +1063,16 @@ find_attachment (GMimeObject *obj, gpointer data)
 
 		attachment_uri = g_build_filename (mail_msg->path_to_attachments, filename, NULL);
 
+		/* convert attachment filename from utf-8 to filesystem charset */
+		char *locale_uri = g_filename_from_utf8 (attachment_uri, -1, NULL, NULL, NULL);
 
-		fd = g_open (attachment_uri, O_CREAT | O_WRONLY, 0666);
+
+		fd = g_open (locale_uri, O_CREAT | O_WRONLY, 0666);
 
 		if (fd == -1) {
-			tracker_error ("failed to save attachemnt %s", attachment_uri);
+			tracker_error ("failed to save attachemnt %s", locale_uri);
 			g_free (attachment_uri);
+			g_free (locale_uri);
 			return;
 
 		} else {
@@ -1085,21 +1089,24 @@ find_attachment (GMimeObject *obj, gpointer data)
 
 				if (x != -1) {
 					g_mime_stream_flush (stream);
+
+					ma = email_allocate_mail_attachment ();
+
+					ma->attachment_name = g_strdup (filename);
+					ma->mime = g_strconcat (content_type->type, "/", content_type->subtype, NULL);
+					ma->tmp_decoded_file  = g_strdup (attachment_uri);
+
+					email_add_saved_mail_attachment_to_mail_message (mail_msg, ma);
 				}
 
 				g_object_unref (content);
 			}
 
-			//g_mime_stream_close (stream);
 			g_object_unref (stream);
 		}
 
-		ma = email_allocate_mail_attachment ();
-
-		ma->attachment_name = g_strdup (filename);
-		ma->mime = g_strconcat (content_type->type, "/", content_type->subtype, NULL);
-		ma->tmp_decoded_file  = attachment_uri;
-
-		email_add_saved_mail_attachment_to_mail_message (mail_msg, ma);
+		g_free (attachment_uri);
+		g_free (locale_uri);
+		
 	}
 }

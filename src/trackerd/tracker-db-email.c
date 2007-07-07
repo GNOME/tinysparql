@@ -478,6 +478,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		tracker_log ("Error service %s not found", service);
 		g_free (attachment_service);
 		g_free (service);
+		g_free (mime);
 		return TRUE;
 	}
 
@@ -653,14 +654,27 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			char 			*uri;
 			ma = tmp->data;
 
+
+			char *locale_uri = g_filename_from_utf8 (ma->tmp_decoded_file, -1, NULL, NULL, NULL);
+
+			if (!g_file_test (locale_uri, G_FILE_TEST_EXISTS)) {						
+				g_free (locale_uri);
+				continue;
+			}
+
 			info = tracker_create_file_info (ma->tmp_decoded_file, TRACKER_ACTION_CHECK, 0, WATCH_OTHER);
 			info->is_directory = FALSE;
 			info->mime = g_strdup (ma->mime);
-
+			
 			uri = g_strconcat (mm->uri, "/", ma->attachment_name, NULL);
 			tracker_info ("indexing attachement with uri %s and mime %s", uri, info->mime);
 			tracker_db_index_file (db_con, info, uri, attachment_service);
-			unlink (info->uri);
+
+			/* remove temporary and indexed attachment file */
+			unlink (locale_uri);
+
+			g_free (locale_uri);
+
 			tracker_dec_info_ref (info);
 			g_free (uri);
 

@@ -397,7 +397,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
 		}
 
-		MailStore *store;
+		MailStore *store = NULL;
 		store = tracker_db_email_get_mbox_details (db_con, mbox_file);
 
 		summary = NULL;
