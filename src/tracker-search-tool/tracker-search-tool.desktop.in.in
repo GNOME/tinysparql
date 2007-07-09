@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Tracker Search Tool
-Comment=Locate documents and folders on this computer by name or content using Tracker
+_Name=Tracker Search Tool
+_Comment=Locate documents and folders on this computer by name or content using Tracker
 Exec=tracker-search-tool
 Icon=gnome-searchtool
 Terminal=false

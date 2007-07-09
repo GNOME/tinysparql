@@ -1,3 +1,10 @@
+2007-07-09  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-search-tool/tracker-search-tool.desktop.in.in:
+	mark Name and Comment as translatable
+	
+	* trackerd.desktop.in.in: update Comment
+
 2007-07-09 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
 	* Fixed crasher on solaris for null mime
