@@ -205,7 +205,7 @@ do_cleanup (const char *sig_msg)
 
 	tracker->status = STATUS_SHUTDOWN;
 
-	if (tracker->log_file) {
+	if (tracker->log_file && sig_msg) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
 
 		tracker_print_object_allocations ();
@@ -373,7 +373,7 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 				if ( ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < tracker->watch_limit)) {
 
-					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str)) {
+					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && str) {
 						tracker_debug ("Watch failed for %s", str);
 					}
 
@@ -490,7 +490,7 @@ signal_handler (int signo)
 			break;
 
 		default:
-			if (tracker->log_file) {
+			if (tracker->log_file && g_strsignal (signo)) {
 	   			tracker_log ("Received signal %s ", g_strsignal (signo));
 			}
 			in_loop = FALSE;
@@ -718,7 +718,11 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	g_free (str);
 
 	if (!def) {
-		tracker_error ("Error: unknown service %s", service_info);
+		if (service_info) {
+			tracker_error ("Error: unknown service %s", service_info);
+		} else {
+			tracker_error ("Error: unknown service");
+		}
 		g_free (service_info);
 		return;
 	}
@@ -1911,7 +1915,7 @@ sanity_check_option_values ()
 	GSList *l;
 	tracker_log ("Setting watch directory roots to:");
 	for (l = tracker->watch_directory_roots_list; l; l=l->next) {
-		tracker_log ((char *) l->data);
+		if (l->data) tracker_log ((char *) l->data);
 	}
 	tracker_log ("\t");
 
@@ -1919,7 +1923,7 @@ sanity_check_option_values ()
 
 		tracker_log ("Setting no watch directory roots to:");
 		for (l = tracker->no_watch_directory_list; l; l=l->next) {
-			tracker_log ((char *) l->data);
+			if (l->data) tracker_log ((char *) l->data);
 		}
 		tracker_log ("\t");
 	}

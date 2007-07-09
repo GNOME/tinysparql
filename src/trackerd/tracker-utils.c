@@ -3349,12 +3349,17 @@ tracker_child_cb (gpointer user_data)
 		tracker_error ("Error trying to set resource limit for cpu");
 	}
 
-	/* Set memory usage to max limit (128MB) */
+
+	/* Set memory usage to max limit (128MB) - some archs like AMD64 machines do not fully support this or are buggy */
+
+#if defined(__i386__)
 	getrlimit (RLIMIT_AS, &mem_limit);
  	mem_limit.rlim_cur = 128*1024*1024;
 	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
 		tracker_error ("Error trying to set resource limit for memory usage");
 	}
+#endif
+
 
 	/* Set child's niceness to 19 */
 	nice (19);
@@ -3388,7 +3393,7 @@ tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status)
 
 
 static inline void
-output_log (int verbosity, const char *message)
+output_log (const char *message)
 {
 	FILE		*fd;
 	time_t		now;
@@ -3396,11 +3401,6 @@ output_log (int verbosity, const char *message)
 	char		*output;
 	struct tm	*loctime;
 	GTimeVal	start;
-
-
-	if (tracker->verbosity < verbosity) {
-		return;
-	}
 
 	if (message) {
 		g_print ("%s\n", message);
@@ -3445,11 +3445,13 @@ tracker_error (const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
+
+
   	va_start (args, message);
   	msg = g_strdup_vprintf (message, args);
-  	va_end (args);
+	va_end (args);
 
-	output_log (0, msg);
+	output_log (msg);
 	g_free (msg);
 
 }
@@ -3461,11 +3463,15 @@ tracker_log 	(const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
+	if (tracker->verbosity < 1) {
+		return;
+	}
+
   	va_start (args, message);
   	msg = g_strdup_vprintf (message, args);
   	va_end (args);
 
-	output_log (1, msg);
+	output_log (msg);
 	g_free (msg);
 }
 
@@ -3475,11 +3481,15 @@ tracker_info	(const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
+	if (tracker->verbosity < 2) {
+		return;
+	}
+
   	va_start (args, message);
   	msg = g_strdup_vprintf (message, args);
   	va_end (args);
 
-	output_log (2, msg);
+	output_log (msg);
 	g_free (msg);
 }
 
@@ -3489,11 +3499,15 @@ tracker_debug 	(const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
+	if (tracker->verbosity < 3) {
+		return;
+	}
+
   	va_start (args, message);
   	msg = g_strdup_vprintf (message, args);
   	va_end (args);
 
-	output_log (3, msg);
+	output_log (msg);
 	g_free (msg);
 }
 

@@ -1,3 +1,9 @@
+2007-07-09 Jamie McCracken <jamiemcc at gnome org>
+
+	* Optimized tracker_debug and related logging funcs
+	* Made use of Setrlimit for limiting memory specific to i386 arch (its buggy on amd64)
+
+
 2007-07-09 Patch from Jason Kivlighn <jkivlighn@gmail.com>
 
 	* Added XMP sidecar support
