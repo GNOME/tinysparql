@@ -5,6 +5,7 @@ INCLUDES = $(GLIB2_CFLAGS)			\
 	$(LIBGSF_CFLAGS)			\
 	$(LIBGSF_CFLAGS)			\
 	$(GSTREAMER_CFLAGS)			\
+	$(LIBXML2_CFLAGS)			\
 	$(EXEMPI_CFLAGS)			\
 	$(XINE_CFLAGS)
 
@@ -34,6 +35,7 @@ tracker_extract_SOURCES = tracker-extract.c	\
 	tracker-extract-imagemagick.c		\
 	tracker-extract-mplayer.c		\
 	tracker-extract-totem.c			\
+	tracker-extract-html.c			\
 	tracker-extract-xmp.c			\
 	$(video_sources)
 
@@ -44,4 +46,5 @@ tracker_extract_LDADD = $(GLIB2_LIBS)		\
 	$(LIBGSF_LIBS)				\
 	$(GSTREAMER_LIBS)			\
 	$(EXEMPI_LIBS)				\
+	$(LIBXML2_LIBS)				\
 	$(XINE_LIBS)

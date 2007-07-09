@@ -60,5 +60,16 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 			g_hash_table_insert (metadata, g_strdup ("Image:Comments"), g_strdup (g_strescape (lines[2], "")));
 		}
 	}
-}
 
+	gchar         *xmp;
+	argv[0] = g_strdup ("convert");
+	argv[1] = g_strdup (filename);
+	argv[2] = g_strdup ("xmp:-");
+	argv[3] = NULL;
+
+	if (tracker_spawn (argv, 10, &xmp, &exit_status)) {
+		if (exit_status == EXIT_SUCCESS) {
+			tracker_read_xmp (xmp, strlen (xmp), metadata);
+		}
+	}
+}

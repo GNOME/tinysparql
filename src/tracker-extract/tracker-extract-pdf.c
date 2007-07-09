@@ -26,6 +26,8 @@
 #include <string.h>
 #include <glib.h>
 
+#include "tracker-extract.h"
+
 void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 {
 	PopplerDocument *document;
@@ -34,6 +36,7 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 	gchar           *author;
 	gchar           *subject;
 	gchar           *keywords;
+	gchar           *metadata_xml;
 	GTime            creation_date;
 	GError          *error = NULL;
 
@@ -50,6 +53,7 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 		"subject", &subject,
 		"keywords", &keywords,
 		"creation-date", &creation_date,
+		"metadata", &metadata_xml,
 		NULL);
 
 	if (title && strlen (title))
@@ -71,10 +75,15 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 	g_hash_table_insert (metadata, g_strdup ("Doc:PageCount"),
 		g_strdup_printf ("%d", poppler_document_get_n_pages (document)));
 
+	if ( metadata_xml ) {
+		tracker_read_xmp (metadata_xml,strlen(metadata_xml),metadata);
+	}
+
 	g_free (title);
 	g_free (author);
 	g_free (subject);
 	g_free (keywords);
+	g_free (metadata_xml);
 	g_object_unref (document);
 }
 

@@ -57,6 +57,9 @@ void tracker_extract_mplayer	(gchar *, GHashTable *);
 void tracker_extract_totem	(gchar *, GHashTable *);
 void tracker_extract_oasis	(gchar *, GHashTable *);
 void tracker_extract_ps		(gchar *, GHashTable *);
+#ifdef HAVE_LIBXML2
+void tracker_extract_html		(gchar *, GHashTable *);
+#endif
 #ifdef HAVE_POPPLER
 void tracker_extract_pdf	(gchar *, GHashTable *);
 #endif
@@ -92,6 +95,10 @@ MimeToExtractor extractors[] = {
 	/* Document extractors */
  	{ "application/vnd.oasis.opendocument.*",	tracker_extract_oasis		},
  	{ "application/postscript",			tracker_extract_ps		},
+#ifdef HAVE_LIBXML2
+ 	{ "text/html",							tracker_extract_html	},
+ 	{ "application/xhtml+xml",	tracker_extract_html	},
+#endif
 #ifdef HAVE_POPPLER
  	{ "application/pdf",				tracker_extract_pdf		},
 #endif
@@ -164,12 +171,17 @@ tracker_child_cb (gpointer user_data)
 		g_printerr ("Error trying to set resource limit for cpu\n");
 	}
 
-	/* Set memory usage to max limit (MAX_MEM) */
+
+	/* Set memory usage to max limit (128MB) - some archs like AMD64 machines do not fully support this or are buggy */
+
+#if defined(__i386__)
 	getrlimit (RLIMIT_AS, &mem_limit);
  	mem_limit.rlim_cur = MAX_MEM*1024*1024;
 	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
 		g_printerr ("Error trying to set resource limit for memory usage\n");
 	}
+#endif
+
 
 	/* Set child's niceness to 19 */
 	nice (19);

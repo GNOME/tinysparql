@@ -118,6 +118,25 @@ metadata_cb (gpointer key, gpointer value, gpointer user_data)
 	}
 }
 
+static void
+doc_metadata_cb (gpointer key, gpointer value, gpointer user_data)
+{
+	gchar		*name;
+	GsfDocProp	*property;
+	GHashTable	*metadata;
+	GValue const	*val;
+
+	name = (gchar *) key;
+	property = (GsfDocProp *) value;
+	metadata = (GHashTable *) user_data;
+
+	val = gsf_doc_prop_get_val (property);
+
+	if (strcmp (name, "CreativeCommons_LicenseURL") == 0) {
+		add_gvalue_in_hash_table (metadata, "File:License", val);
+	}
+}
+
 
 void
 tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
@@ -145,24 +164,36 @@ tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
 	}
 
 	stream = gsf_infile_child_by_name (infile, "\05SummaryInformation");
+	if (stream) {
+		md = gsf_doc_meta_data_new ();
+	
+		if (gsf_msole_metadata_read (stream, md)) {
+			gsf_shutdown ();
+			return;
+		}
+	
+		gsf_doc_meta_data_foreach (md, metadata_cb, metadata);
+	
+		g_object_unref (G_OBJECT (md));
+		g_object_unref (G_OBJECT (stream));
+	}
+
+	stream = gsf_infile_child_by_name (infile, "\05DocumentSummaryInformation");
+	if (stream) {
+		md = gsf_doc_meta_data_new ();
+	
+		if (gsf_msole_metadata_read (stream, md)) {
+			gsf_shutdown ();
+			return;
+		}
+	
+		gsf_doc_meta_data_foreach (md, doc_metadata_cb, metadata);
+	
+		g_object_unref (G_OBJECT (md));
+		g_object_unref (G_OBJECT (stream));
+	}
+
 	g_object_unref (G_OBJECT (infile));
-
-	if (!stream) {
-		gsf_shutdown ();
-		return;
-	}
-
-	md = gsf_doc_meta_data_new ();
-
-	if (gsf_msole_metadata_read (stream, md)) {
-		gsf_shutdown ();
-		return;
-	}
-
-	gsf_doc_meta_data_foreach (md, metadata_cb, metadata);
-
-	g_object_unref (G_OBJECT (md));
-	g_object_unref (G_OBJECT (stream));
 
 	gsf_shutdown ();
 }

@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include "tracker-extract.h"
+
 #include <stdio.h>
 #include <glib.h>
 #include <png.h>
@@ -79,15 +81,23 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
 			                     g_strdup_printf ("%ld", height));
 		}
 
-
 		if (png_get_text (png_ptr, info_ptr, &text_ptr, &num_text) > 0) {
-		    	for (i = 0; i < num_text; i++) {
-				for (j=0; tagmap[j].type; j++) {
-					if (strcasecmp (tagmap[j].name,  text_ptr[i].key) == 0) {
-						if (text_ptr[i].text && strlen (text_ptr[i].text) > 0) {
-							g_hash_table_insert (metadata, g_strdup (tagmap[j].type), g_strdup (text_ptr[i].text));
+			for (i = 0; i < num_text; i++) {
+				if ( text_ptr[i].key != NULL ) {
+					#if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
+					if (strcmp("XML:com.adobe.xmp",text_ptr[i].key) == 0) {
+						tracker_read_xmp(text_ptr[i].text,text_ptr[i].itxt_length,metadata);
+						continue;
+					}
+					#endif
+	
+					for (j=0; tagmap[j].type; j++) {
+						if (strcasecmp (tagmap[j].name,  text_ptr[i].key) == 0) {
+							if (text_ptr[i].text && strlen (text_ptr[i].text) > 0) {
+								g_hash_table_insert (metadata, g_strdup (tagmap[j].type), g_strdup (text_ptr[i].text));
+							}
+							break;
 						}
-						break;
 					}
 				}
 			}
