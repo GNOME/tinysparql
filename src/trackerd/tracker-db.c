@@ -1,5 +1,7 @@
 /* Tracker - indexer and metadata database engine
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2007, Jason Kivlighn (jkivlighn@gmail.com)
+ * Copyright (C) 2007, Creative Commons (http://creativecommons.org)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -29,6 +31,7 @@
 
 extern Tracker *tracker;
 
+#define XMP_MIME_TYPE "application/rdf+xml"
 
 typedef struct {
 	DBConnection	*db_con;
@@ -834,6 +837,44 @@ free_metadata_list (GSList *list)
 
 }
 
+void
+tracker_db_index_master_files (DBConnection *db_con, const gchar *dirname, const gchar *basename, const gchar *filename)
+{
+	GDir* dir = g_dir_open (dirname, 0, NULL);
+	
+	if (dir) {
+
+		const gchar *curr_ext;
+		const gchar *curr_filename;
+
+		FileInfo *master_info;
+		gchar *master_uri;
+
+		while ((curr_filename = g_dir_read_name (dir)) != NULL) {
+			curr_ext = strrchr (curr_filename, '.');
+			if (!curr_ext) {
+				curr_ext = &curr_filename[strlen (curr_filename)];
+			}
+
+			if (curr_ext+1 && strncmp (basename, curr_filename, curr_ext-curr_filename) == 0 &&
+					strcmp (curr_ext+1, "xmp") != 0 &&
+					!g_str_has_suffix (curr_ext+1, "~")) {
+
+				tracker_debug ("master file, %s, about to be updated", curr_filename);
+
+				master_uri = g_build_filename (dirname, curr_filename, NULL);
+				master_info = tracker_create_file_info (master_uri, TRACKER_ACTION_FILE_CHANGED, 0, 0);
+				master_info = tracker_db_get_file_info (db_con, master_info);
+				g_free (master_uri);
+
+				tracker_db_index_file (db_con, master_info, NULL, NULL);
+			}
+		}
+
+		g_dir_close (dir);
+	}
+}
+
 
 void
 tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachment_uri, const char *attachment_service)
@@ -844,8 +885,9 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 
 	GHashTable	*meta_table;
 	const char	*ext;
+	char		*filename, *dirname;
 	char		*str_link_uri, *service_name;
-	gboolean	is_file_indexable, service_has_metadata, is_external_service, service_has_fulltext, service_has_thumbs;
+	gboolean	is_file_indexable, service_has_metadata, is_external_service, service_has_fulltext, service_has_thumbs, is_sidecar;
 
 	const char *uri;
 
@@ -888,15 +930,20 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 
 		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:NameDelimited"), g_strdup (uri));
 
-		ext = strrchr (uri, '.');
+		dirname = g_path_get_dirname (uri);
+		filename = g_path_get_basename (uri);
+		ext = strrchr (filename, '.');
 		if (ext) {
 			ext++;
 			tracker_debug ("file extension is %s", ext);
 			tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Ext"), g_strdup (ext));
+			is_sidecar = strcmp("xmp",ext) == 0;
+		} else {
+			is_sidecar = FALSE;
 		}
 
-		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Path"), g_path_get_dirname (uri));
-		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Name"), g_path_get_basename (uri));
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Path"), g_strdup (dirname));
+		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Name"), g_strdup (filename));
 
 		if (str_link_uri) {
 			tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Link"), str_link_uri);
@@ -911,18 +958,47 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 		is_file_indexable = (!info->is_directory && (strcmp (info->mime, "unknown") != 0) && (strcmp (info->mime, "symlink") != 0) && tracker_file_is_indexable (info->uri));
 
 		service_has_metadata = (is_external_service ||
-					(is_file_indexable && (tracker_str_in_array (service_name, services_with_metadata) != -1)));
+					(is_file_indexable && (tracker_str_in_array (service_name, services_with_metadata) != -1))) && !is_sidecar;
 		service_has_fulltext = (is_external_service ||
-					(is_file_indexable && (tracker_str_in_array (service_name, services_with_text) != -1)));
+					(is_file_indexable && (tracker_str_in_array (service_name, services_with_text) != -1))) && !is_sidecar;
 		service_has_thumbs = (is_external_service ||
 				      (is_file_indexable && (tracker_str_in_array (service_name, services_with_thumbs) != -1)));
 
+		#ifdef HAVE_EXEMPI
+		if (!info->is_directory) {
+			gchar *basename;
+
+			if (ext) {
+				basename = g_strndup (filename, (ext - filename -1));
+			} else {
+				basename = g_strdup (filename);
+			}
+
+			if (is_sidecar) {
+				tracker_db_index_master_files (db_con, dirname, basename, filename);
+			} else {
+				gchar *sidecar_filename = g_strconcat (basename, ".xmp", NULL);
+				gchar *sidecar_uri = g_build_filename (dirname, sidecar_filename, NULL);
+	
+				if (g_file_test (sidecar_uri, G_FILE_TEST_EXISTS)) {
+					tracker_debug ("xmp sidecar found for %s", uri);
+					tracker_metadata_get_embedded (sidecar_uri, XMP_MIME_TYPE, meta_table);
+				}
+	
+				g_free (sidecar_filename);
+				g_free (sidecar_uri);
+			}
+			g_free (basename);
+		}
+		#endif
 
  		tracker_debug ("file %s has fulltext %d with service %s", info->uri, service_has_fulltext, service_name); 
 		tracker_db_index_service (db_con, info, service_name, meta_table, uri, attachment_service, service_has_metadata, service_has_fulltext, service_has_thumbs);
 
 		g_hash_table_destroy (meta_table);
 
+		g_free (filename);
+		g_free (dirname);
 	} else {
 		tracker_db_index_service (db_con, info, service_name, NULL, uri, NULL, FALSE, FALSE, FALSE);
 
@@ -930,8 +1006,8 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 
 	g_free (service_name);
 
-	if (attachment_uri) {
-		g_unlink (info->uri);
+	if (attachment_uri ) {
+		tracker_unlink (info->uri);
 	}
 
 	tracker_dec_info_ref (info);

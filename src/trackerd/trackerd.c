@@ -2168,9 +2168,8 @@ main (int argc, char **argv)
 #endif
 
 	/* reset log file */
-	if (g_file_test (tracker->log_file, G_FILE_TEST_EXISTS)) {
-		g_unlink (tracker->log_file);
-	}
+	tracker_unlink (tracker->log_file);
+
 
 	/* deal with config options with defaults, config file and option params */
 	set_defaults ();

@@ -3604,3 +3604,20 @@ tracker_free_metadata_field (FieldData *field_data)
 }
 
 
+gboolean
+tracker_unlink (const char *uri)
+{
+	char *locale_uri = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+
+	if (!g_file_test (locale_uri, G_FILE_TEST_EXISTS)) {						
+				g_free (locale_uri);
+				return FALSE;
+	}
+
+	g_unlink (locale_uri);
+
+	g_free (locale_uri);
+
+	return TRUE;
+}
+

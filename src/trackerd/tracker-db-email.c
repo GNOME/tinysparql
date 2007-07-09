@@ -671,7 +671,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			tracker_db_index_file (db_con, info, uri, attachment_service);
 
 			/* remove temporary and indexed attachment file */
-			unlink (locale_uri);
+			g_unlink (locale_uri);
 
 			g_free (locale_uri);
 

@@ -555,4 +555,6 @@ char **		tracker_list_to_array 		(GSList *list);
 
 void		tracker_free_metadata_field 	(FieldData *field_data);
 
+gboolean	tracker_unlink 			(const char *uri);
+
 #endif
