@@ -1,3 +1,21 @@
+2007-07-09 Patch from Jason Kivlighn <jkivlighn@gmail.com>
+
+	* Added XMP sidecar support
+	* Added XMP support to extractors
+
+
+2007-07-07 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added tracker_unlink that converts to filesystem locale before unlinking
+	* fixed crasher in email attachment indexing by using locale encoding for attachemnt files
+
+
+
+2007-07-04 Jamie McCracken <jamiemcc at gnome org>
+
+	* removed calls to g_mime_stream_close as they appear to be crashing tracker
+	
+
 2007-07-03  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-preferences/tracker-preferences.desktop.in.in:
