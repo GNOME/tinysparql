@@ -1,3 +1,8 @@
+2007-07-09 Patch from Halton Huo   <Halton.Huo@Sun.COM>
+
+	* Fixed various crashers (solaris specific only)
+
+
 2007-07-09  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-search-tool/tracker-search-tool.desktop.in.in:
@@ -5,9 +10,11 @@
 	
 	* trackerd.desktop.in.in: update Comment
 
+
 2007-07-09 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
-	* Fixed crasher on solaris for null mime
+	* Fixed crasher on solaris for null mimes
+
 
 2007-07-09 Patch from Michael Biebl <mbiebl at gmail com>
 
@@ -31,7 +38,7 @@
 	* Made use of Setrlimit for limiting memory specific to i386 arch (its buggy on amd64)
 	* updated to latest gtk xdgmime
 	* modded patch from Halton Huo to fix free problem in tracker_get_vfs_name
-
+	* bug fixes for email indeixng on solaris
 
 
 2007-07-09 Patch from Jason Kivlighn <jkivlighn@gmail.com>

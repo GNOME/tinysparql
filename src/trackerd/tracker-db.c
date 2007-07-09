@@ -643,7 +643,11 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 	if (!service) {
 		/* its an external service - TODO get external service name */
-		tracker_log ("External service %s not supported yet", service);
+		if (service) {
+			tracker_log ("External service %s not supported yet", service);
+		} else {
+			tracker_log ("External service not supported yet");
+		}
 		return;
 	}
 
@@ -665,9 +669,15 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
         }
 
 	if (info->is_new) {
-		tracker_info ("Indexing %s with service %s and mime %s (new)", uri, service, info->mime);
+		if (info->mime)
+			tracker_info ("Indexing %s with service %s and mime %s (new)", uri, service, info->mime);
+		else
+			tracker_info ("Indexing %s with service %s (new)", uri, service);
 	} else {
-		tracker_info ("Indexing %s with service %s and mime %s (existing)", uri, service, info->mime);
+		if (info->mime)
+			tracker_info ("Indexing %s with service %s and mime %s (existing)", uri, service, info->mime);
+		else
+			tracker_info ("Indexing %s with service %s (existing)", uri, service);
 	}
 
 	str_file_id = tracker_uint_to_str (info->file_id);

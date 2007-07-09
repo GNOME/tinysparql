@@ -1265,7 +1265,12 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 						g_free (tmp_str);
 					}
 
-					uri_prefix = g_strdup_printf ("email://%s/%s;uid=", summary->associated_account->uid, clean_uri_dir);
+					if (clean_uri_dir) {
+						uri_prefix = g_strdup_printf ("email://%s/%s;uid=", summary->associated_account->uid, clean_uri_dir);
+						g_free (clean_uri_dir);
+					} else {
+						uri_prefix = g_strdup_printf ("email://%s;uid=", summary->associated_account->uid);
+					}
 
 					g_free (uri_dir);
 
