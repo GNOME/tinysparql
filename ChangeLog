@@ -1,7 +1,17 @@
+
+2007-07-09 Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
+
+	* README: updates
+	* Low Memory mode added to config file
+	* Deskbar handler README	
+
+
 2007-07-09 Jamie McCracken <jamiemcc at gnome org>
 
 	* Optimized tracker_debug and related logging funcs
 	* Made use of Setrlimit for limiting memory specific to i386 arch (its buggy on amd64)
+	* updated to latest gtk xdgmime
+
 
 
 2007-07-09 Patch from Jason Kivlighn <jkivlighn@gmail.com>
@@ -138,7 +148,11 @@
 
 	* Added OnlyShowIn to desktop file
 	* Added missing config var in configure.ac
+2007-04-28 Tshepang Lekhonkhobe <tshepang@gmail.com>
 
+       * src/trackerd/trackerd.c:
+       * src/trackerd/trackerd-utils.c: Fix verbosity code
+       * README: added a note on how to change inotify limits
 
 2007-06-30 Patch from Anders Rune Jensen <anders@iola.dk>
 

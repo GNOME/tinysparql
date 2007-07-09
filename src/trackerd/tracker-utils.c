@@ -2267,6 +2267,8 @@ tracker_load_config_file ()
 					 "[General]\n",
 					 "# Log Verbosity - Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)\n",
 					 "Verbosity=0\n\n",
+					 "# Minimizes the use of memory but may slow indexing down\n", 
+					 "LowMemoryMode=false\n\n",
 					 "[Watches]\n",
 					 "# List of directory roots to index and watch seperated by semicolons\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
@@ -2326,6 +2328,9 @@ tracker_load_config_file ()
 		tracker->verbosity = g_key_file_get_integer (key_file, "General", "Verbosity", NULL);
 	}
 
+	if (g_key_file_has_key (key_file, "General", "LowMemoryMode", NULL)) {
+		tracker->use_extra_memory = !g_key_file_get_boolean (key_file, "General", "LowMemoryMode", NULL);
+       }
 
 	/* Watch options */
 

@@ -193,7 +193,9 @@ parameters to autogen.sh EG ./autogen.sh --disable-fam)
 
 --disable-preferences : disables the tracker-preferences capplet
 
---enable-deskbar-applet : enables support for deskbar applet
+--enable-deskbar-applet : enables support for deskbar applet; also refer to
+    python/deskbar-handler/README (from the root of the source directory) for
+    further instructions on how to get this working
 
 --disable-gui : disables building of tracker-search-tool
 
@@ -241,6 +243,12 @@ with it on full throttle without experiencing slow downs.
 You can specify directory roots to be excluded from being watched or indexed
 by passing  -e directory for each directory root
 
+You can specify logging verbosity by passing --verbosity. Valid values are
+from 0 to 3, ranging from least to most verbose respectively.
+  
+Yet another option is --language which allows for specifying the language to
+use for stemmer and stop-words list.
+
 All the above options (and more) can be set by editing ~/.config/tracker.cfg
 which is created with specific defaults when non-existent (EG when
 trackerd is ran for the first time). Ensure that you restart trackerd for the
@@ -253,6 +261,9 @@ EG:
 
 WatchDirectoryRoots=directory1;directory2;directory3
 
+An additional option, introduced during the 0.6 development cycle, is the
+--reindex option which indexes user data from scratch, removing the need to
+remove Tracker database manually.
 
 On the first run, Tracker will automatically create a new database and start
 populating it with metadata by browsing through the user's home directory (or
