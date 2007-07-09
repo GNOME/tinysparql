@@ -1,3 +1,7 @@
+2007-07-09 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
+
+	* Fixed crasher on solaris for null mime
+
 2007-07-09 Patch from Michael Biebl <mbiebl at gmail com>
 
 	* Removed test-tracker-indexer
@@ -19,6 +23,7 @@
 	* Optimized tracker_debug and related logging funcs
 	* Made use of Setrlimit for limiting memory specific to i386 arch (its buggy on amd64)
 	* updated to latest gtk xdgmime
+	* modded patch from Halton Huo to fix free problem in tracker_get_vfs_name
 
 
 

@@ -660,6 +660,10 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 		return;
 	}
 
+	if (info->mime == NULL) {
+                info->mime = g_strdup("unknown");
+        }
+
 	if (info->is_new) {
 		tracker_info ("Indexing %s with service %s and mime %s (new)", uri, service, info->mime);
 	} else {

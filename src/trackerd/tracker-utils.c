@@ -1722,7 +1722,7 @@ char *
 tracker_get_vfs_name (const char* uri)
 {
 	if (uri != NULL && strchr (uri, G_DIR_SEPARATOR) != NULL) {
-		char *p, *res, *tmp;
+		char *p, *res, *tmp, *result;
 		int  len;
 
 		len = strlen (uri);
@@ -1744,13 +1744,14 @@ tracker_get_vfs_name (const char* uri)
 		res = p+1;
 
 		if (res && res[0] != '\0') {
-
+			result =  g_strdup (res);
 			g_free (tmp);
 
-			return g_strdup (res);
+			return result;
 		}
 
 		g_free (tmp);
+
 	}
 
 	return g_strdup (" ");
@@ -2178,7 +2179,6 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 		for (i=0; tmap[i].lang; i++) {
 
 			if (g_str_has_prefix (language, tmap[i].lang)) {
-				g_free (tracker->language);
 				tracker->language = g_strndup (tmap[i].lang, 2);
 				break;
 			}
