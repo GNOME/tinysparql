@@ -167,6 +167,27 @@ fi
 
 AM_CONDITIONAL(HAVE_RECENT_GLIB, test "$have_recent_glib" = "yes")
 
+
+##################################################################
+# check for libxml2
+##################################################################
+  
+LIBXML2_REQUIRED=0.6
+
+AC_ARG_ENABLE(libxml2, AC_HELP_STRING([--disable-libxml2],[Disable HTML/XML extractors (full-text will still be available)]),,[enable_libxml2=yes])
+if test "x$enable_libxml2" = "xyes"; then
+	PKG_CHECK_MODULES(LIBXML2, [
+		libxml-2.0 >= $LIBXML2_REQUIRED],
+		[have_libxml2=yes] , [have_libxml2=no])
+	AC_SUBST(LIBXML2_CFLAGS)
+	AC_SUBST(LIBXML2_LIBS)
+else
+	have_libxml2="no (disabled)"
+fi
+AM_CONDITIONAL(HAVE_LIBXML2, test "$have_libxml2" = "yes")
+test "$have_libxml2" = "yes" && AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
+
+
 ####################################################################
 # check for GStreamer or Xine. Otherwise, call an external video
 # player (Totem or MPlayer).
@@ -721,9 +742,10 @@ Metadata extractors:
 	pdf:					$have_poppler
 	png:					yes
 	exif (jpeg):				$have_libexif
-	gsf:					$have_libgsf
+	ms and openoffice (gsf):		$have_libgsf
 	video files:				$videos_are_handled ($videos_handler)
-	embedded xmp:				$have_exempi
+	xml/html formats:			$have_libxml2
+	embedded/sidecar xmp:			$have_exempi
 
 "
 if test "x$enable_external_sqlite" = "xyes"; then
