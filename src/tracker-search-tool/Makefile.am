@@ -45,9 +45,5 @@ icon_DATA = thumbnail_frame.png
 
 EXTRA_DIST = $(desktop_in_files) $(icon_DATA)
 
-CLEANFILES = 				\
-	$(desktop_DATA)			\
-	tracker-search-tool.schemas
+CLEANFILES = $(desktop_DATA)
 
-disthook:
-	cd $(distdir) ; rm -f $(CLEANFILES)
