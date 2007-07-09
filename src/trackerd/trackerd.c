@@ -1959,6 +1959,9 @@ main (int argc, char **argv)
 	gboolean 	need_index, need_data;
 	DBConnection 	*db_con;
 
+	if (!g_thread_supported ())
+		g_thread_init (NULL);
+
 	setlocale (LC_ALL, "");
 
 
@@ -2014,10 +2017,6 @@ main (int argc, char **argv)
 	sigaction (SIGABRT, &act, NULL);
 	sigaction (SIGUSR1, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
-
-	if (!g_thread_supported ()) {
-		g_thread_init (NULL);
-	}
 
 
 	dbus_g_thread_init ();

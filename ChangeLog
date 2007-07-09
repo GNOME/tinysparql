@@ -1,3 +1,6 @@
+2007-07-09  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/trackerd/trackerd.c: (main): inizialize g_thread earlier
 
 2007-07-09 Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
 
