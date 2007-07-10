@@ -52,6 +52,44 @@ static
 inline
 #endif
 gboolean
+org_freedesktop_Tracker_get_status (DBusGProxy *proxy, char ** OUT_status, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetStatus", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_status, G_TYPE_INVALID);
+}
+
+typedef void (*org_freedesktop_Tracker_get_status_reply) (DBusGProxy *proxy, char * OUT_status, GError *error, gpointer userdata);
+
+static void
+org_freedesktop_Tracker_get_status_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  char * OUT_status;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_status, G_TYPE_INVALID);
+  (*(org_freedesktop_Tracker_get_status_reply)data->cb) (proxy, OUT_status, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_freedesktop_Tracker_get_status_async (DBusGProxy *proxy, org_freedesktop_Tracker_get_status_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_new (DBusGAsyncData, 1);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "GetStatus", org_freedesktop_Tracker_get_status_async_callback, stuff, g_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
 org_freedesktop_Tracker_get_services (DBusGProxy *proxy, const gboolean IN_main_services_only, GHashTable** OUT_result, GError **error)
 
 {

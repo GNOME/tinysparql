@@ -324,7 +324,13 @@ tracker_get_version (TrackerClient *client, GError **error)
 	return version;
 }	
 
-
+char *
+tracker_get_status (TrackerClient *client, GError **error)
+{
+	char *status ;
+	org_freedesktop_Tracker_get_status (client->proxy, &status, &*error);
+	return status;
+}	
 
 
 GHashTable *	
@@ -817,6 +823,20 @@ tracker_get_version_async (TrackerClient *client, TrackerIntReply callback, gpoi
 	client->last_pending_call = org_freedesktop_Tracker_get_version_async (client->proxy, tracker_int_reply, callback_struct);
 
 }	
+
+void
+tracker_get_status_async (TrackerClient *client, TrackerStringReply callback, gpointer user_data) 
+{
+ 
+	StringCallBackStruct *callback_struct;
+ 
+	callback_struct = g_new (StringCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+ 
+	client->last_pending_call = org_freedesktop_Tracker_get_status_async (client->proxy, tracker_string_reply, callback_struct);
+
+}
 
 
 

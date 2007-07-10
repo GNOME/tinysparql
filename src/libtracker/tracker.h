@@ -101,6 +101,7 @@ void		tracker_disconnect (TrackerClient *client);
 /* synchronous calls */
 
 int		tracker_get_version				(TrackerClient *client, GError **error);
+char *		tracker_get_status				(TrackerClient *client, GError **error);
 GHashTable *	tracker_get_services				(TrackerClient *client, gboolean main_services_only, GError **error);
 GPtrArray *	tracker_get_stats				(TrackerClient *client, GError **error);
 
@@ -156,6 +157,7 @@ char **		tracker_search_metadata_by_text_and_location		(TrackerClient *client, c
 
 
 void		tracker_get_version_async 				(TrackerClient *client,  TrackerIntReply callback, gpointer user_data);
+void		tracker_get_status_async 				(TrackerClient *client,  TrackerStringReply callback, gpointer user_data);
 void		tracker_get_services_async 				(TrackerClient *client,  gboolean main_services_only,  TrackerHashTableReply callback, gpointer user_data);
 void		tracker_get_stats_async 				(TrackerClient *client,  TrackerGPtrArrayReply callback, gpointer user_data);
 

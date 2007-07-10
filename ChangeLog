@@ -1,7 +1,15 @@
+
+2007-07-10 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
+
+	* Added GetStatus Dbus nmethod and tracker-status app
+
+
+
 2007-07-10  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-search-tool/tracker-search-tool.c: (do_search):
 	show GtkNotebook labels translated
+
 
 2007-07-09 Patch from Halton Huo   <Halton.Huo@Sun.COM>
 

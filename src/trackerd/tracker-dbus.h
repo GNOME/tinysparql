@@ -43,6 +43,7 @@
 #define TRACKER_METHOD_GET_STATS	               	"GetStats"
 #define TRACKER_METHOD_GET_SERVICES	               	"GetServices"
 #define TRACKER_METHOD_GET_VERSION	               	"GetVersion"
+#define TRACKER_METHOD_GET_STATUS	               	"GetStatus"
 
 /* metadata interface */
 #define TRACKER_METHOD_METADATA_GET                  	"Get"
@@ -112,6 +113,7 @@ typedef enum {
 	DBUS_ACTION_GET_SERVICES,
 	DBUS_ACTION_GET_STATS,
 	DBUS_ACTION_GET_VERSION,
+	DBUS_ACTION_GET_STATUS,
 
 	DBUS_ACTION_METADATA_GET,
 	DBUS_ACTION_METADATA_SET,

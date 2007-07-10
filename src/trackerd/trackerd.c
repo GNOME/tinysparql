@@ -1435,6 +1435,18 @@ process_user_request_queue_thread (void)
 
 				break;
 
+                        case DBUS_ACTION_GET_STATUS:
+
+                                reply = dbus_message_new_method_return (rec->message);
+                                char *tracker_status[] = {"Initializing","Watching","Indexing","Pending","Optimizing","Idle","Shutdown"};
+                         
+                                char* status = tracker_status[tracker->status];
+                                dbus_message_append_args (reply,
+                                                          DBUS_TYPE_STRING, &status,
+                                                          DBUS_TYPE_INVALID);
+                                dbus_connection_send (rec->connection, reply, NULL);
+                                dbus_message_unref (reply);
+                                break;
 
 
 			case DBUS_ACTION_METADATA_GET:

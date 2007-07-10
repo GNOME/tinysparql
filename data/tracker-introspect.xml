@@ -71,6 +71,13 @@
 			<arg type="i" name="version" direction="out" />
 		</method>
 
+                <!-- Return the status of tracker daemon -->
+                <method name="GetStatus">
+                        <arg type="s" name="status" direction="out" />
+                </method>
+ 
+
+
 
 		<!-- Gets all implemented services and also returns any corresponding metadata type class for the service (IE "File", "Doc", "Image" etc)
 		     If main_services_only is set to true then only the major services are returned

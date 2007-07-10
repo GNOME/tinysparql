@@ -145,6 +145,11 @@ message_func (DBusConnection *conn,
 		rec->action = DBUS_ACTION_GET_VERSION;
 
 
+        } else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_GET_STATUS)) {
+
+                dbus_message_ref (message);
+                rec->action = DBUS_ACTION_GET_STATUS;
+
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_GET)) {
 

@@ -137,6 +137,8 @@ Additional recommended packages:
 * GTK and Gnome stack for GUI tools
 * libglade (for tracker-preferences UI)
 * unac (accent stripper)
+* exempi
+* libxml2
 
 Optional run-time dependency:
 
@@ -212,6 +214,10 @@ parameters to autogen.sh EG ./autogen.sh --disable-fam)
 --disable-unac : disables accent stripping
 
 --disable-libtracker-gtk : disables the building of libtracker-gtk
+
+--disable-libxml2 : disables HTML/XML extractors (full-text will still be available)
+
+--disable-xmp : disables XMP extraction
 
 
 RUNNING TRACKER
