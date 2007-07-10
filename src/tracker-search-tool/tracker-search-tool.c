@@ -2351,9 +2351,11 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
 			gtk_widget_show (image);
 			gtk_box_pack_start (GTK_BOX (hbox), image, TRUE, TRUE, 2);
 
-			char *label_str = g_strdup_printf ("%s (%d)", service->service, service->hit_count);
-			label = gtk_label_new_with_mnemonic (label_str);
+			char *label_tmp = g_strdup (_(service->service));
+			char *label_str = g_strdup_printf ("%s (%d)", label_tmp, service->hit_count);
+			label = gtk_label_new (label_str);
 			g_free (label_str);
+			g_free (label_tmp);
 			
 			gtk_widget_show (label);
 			gtk_box_pack_start (GTK_BOX (hbox), label, TRUE, TRUE, 2);

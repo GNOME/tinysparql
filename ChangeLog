@@ -1,3 +1,8 @@
+2007-07-10  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-search-tool/tracker-search-tool.c: (do_search):
+	show GtkNotebook labels translated
+
 2007-07-09 Patch from Halton Huo   <Halton.Huo@Sun.COM>
 
 	* Fixed various crashers (solaris specific only)
