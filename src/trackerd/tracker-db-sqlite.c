@@ -2934,9 +2934,6 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 
 	key_field = tracker_metadata_is_key (service, key);
 
-	tracker_debug ("metadata %s is a key for service %s with position %d", key, service, key_field);
-
-
 	switch (def->type) {
 
 		case DATA_KEYWORD:
