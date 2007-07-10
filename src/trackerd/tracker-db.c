@@ -36,6 +36,7 @@ extern Tracker *tracker;
 typedef struct {
 	DBConnection	*db_con;
 	char		*file_id;
+	char 		*service;
 	GHashTable	*table;
 } DatabaseAction;
 
@@ -207,12 +208,9 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 
 
 static void
-add_embedded_keywords (DBConnection *db_con, const char *file_id, const char *keyword_type, const char *keywords, GHashTable *table)
+add_embedded_keywords (DBConnection *db_con, const char *service, const char *file_id, const char *keyword_type, const char *keywords, GHashTable *table)
 {
 	char **array;
-	char *service;
-
-	service = tracker_db_get_service_for_entity (db_con, file_id);
 
 	if (!service) {
 		return;
@@ -222,7 +220,6 @@ add_embedded_keywords (DBConnection *db_con, const char *file_id, const char *ke
 
 	tracker_db_insert_embedded_metadata (db_con, service, file_id, keyword_type, array, -1, table);
 
-	g_free (service);
 	g_strfreev (array);
 }
 
@@ -248,14 +245,14 @@ save_meta_table_data (gpointer mtype,
 		for (tmp = value; tmp; tmp = tmp->next) {
 
 			if (tmp->data) {
-				add_embedded_keywords (db_action->db_con, db_action->file_id, mtype, tmp->data, db_action->table);
+				add_embedded_keywords (db_action->db_con, db_action->service, db_action->file_id, mtype, tmp->data, db_action->table);
 			}
 		}
 		
 	} else {
 		char **array = tracker_list_to_array (value);
 
-		tracker_db_insert_embedded_metadata (db_action->db_con, "Files", db_action->file_id, mtype, array, g_slist_length (value), db_action->table);
+		tracker_db_insert_embedded_metadata (db_action->db_con, db_action->service, db_action->file_id, mtype, array, g_slist_length (value), db_action->table);
 
 		g_strfreev (array);
 	}
@@ -264,7 +261,7 @@ save_meta_table_data (gpointer mtype,
 
 
 GHashTable *
-tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, GHashTable *index_table, guint32 file_id, gboolean new_file)
+tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, GHashTable *index_table, const char *service, guint32 file_id, gboolean new_file)
 {
 	DatabaseAction db_action;
 
@@ -278,6 +275,7 @@ tracker_db_save_metadata (DBConnection *db_con, GHashTable *table, GHashTable *i
 	db_action.db_con = db_con;
 	db_action.table = index_table;
 	db_action.file_id = tracker_uint_to_str (file_id);
+	db_action.service = (char *) service;
 
 	if (table) {
 		g_hash_table_foreach (table, save_meta_table_data, &db_action);
@@ -779,7 +777,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 	if (meta_table && (g_hash_table_size (meta_table) > 0)) {
 		tracker_db_start_transaction (db_con->index);
-		tracker_db_save_metadata (db_con->index, meta_table, index_table, info->file_id, info->is_new);
+		tracker_db_save_metadata (db_con->index, meta_table, index_table, service, info->file_id, info->is_new);
 		tracker_db_end_transaction (db_con->index);
 	}
 

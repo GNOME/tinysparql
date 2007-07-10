@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <fcntl.h>s
+#include <fcntl.h>
 #include <time.h>
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -2005,7 +2005,9 @@ tracker_metadata_is_key (const char *service, const char *meta_name)
 
 		i++;		
 		if (list->data) {
-			if (strcasecmp (list->data, meta_name) == 0) {
+			char *meta = (char *) list->data;
+
+			if (strcasecmp (meta, meta_name) == 0) {
 				return i;
 			}
 		}
@@ -2927,7 +2929,12 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 		str = g_string_new ("");
 	}
 
+
+	
+
 	key_field = tracker_metadata_is_key (service, key);
+
+	tracker_debug ("metadata %s is a key for service %s with position %d", key, service, key_field);
 
 
 	switch (def->type) {
@@ -3054,6 +3061,8 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 	}
 
 	if (key_field > 0) {
+
+
 
 		if (values[0]) {
 			char *esc_value = tracker_escape_string (values[0]);

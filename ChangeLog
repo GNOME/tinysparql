@@ -39,6 +39,7 @@
 	* updated to latest gtk xdgmime
 	* modded patch from Halton Huo to fix free problem in tracker_get_vfs_name
 	* bug fixes for email indeixng on solaris
+	* Fixed saving of key metadata so they show up in search tool and UI
 
 
 2007-07-09 Patch from Jason Kivlighn <jkivlighn@gmail.com>
