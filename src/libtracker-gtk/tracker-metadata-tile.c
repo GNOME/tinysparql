@@ -228,6 +228,8 @@ static void _dimensions_to_label (GtkWidget *label, const char *width, const cha
 static void _seconds_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _bitrate_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _int_to_label (GtkWidget *label, const char *prop, const char *string);
+
+static inline gboolean is_empty_string (const char *s);
  
 /* structs & enums */
 
@@ -275,6 +277,23 @@ enum {
 	DOC_CREATED,
 	DOC_KEYWORDS,
 	DOC_N_KEYS
+};
+
+static char *email_keys[] =
+{
+	"Email:Sender",
+	"Email:Subject",
+/* 	"Email:SentTo", */
+/* 	"Email:CC", */
+	"Email:Date"
+};
+
+enum {
+	EMAIL_SENDER,
+	EMAIL_SUBJECT,
+/* 	EMAIL_SENTTO, */
+/* 	EMAIL_CC, */
+	EMAIL_DATE
 };
 
 static char *audio_keys[] =
@@ -361,6 +380,12 @@ enum {
 	VIDEO_N_KEYS
 };
 
+static inline gboolean
+is_empty_string (const char *s)
+{
+	return s == NULL || s[0] == '\0';
+}
+
 /* populates the metadata tile for a default file */
 static void 
 _tile_tracker_populate_default (char **array, GError *error, TrackerMetadataTile *tile )
@@ -393,10 +418,8 @@ _tile_tracker_populate_default (char **array, GError *error, TrackerMetadataTile
 }
 
 static void 
-_tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *tile)
+_tile_tracker_populate_email (char **array, GError *error, TrackerMetadataTile *tile)
 {
-	char *prop = NULL;
-	
 	/* format properties */
 	if (error) {
 		g_print ("META_TILE_ERROR : %s", error->message);
@@ -405,31 +428,75 @@ _tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *
 		gtk_widget_hide (GTK_WIDGET(tile));
 		return;
 	}
-	
 
 	TrackerMetadataTilePrivate *priv;
 	
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);	/* create title */
 
+	char *prop = NULL;
 	/* make nice looking description */
 	GString *str;
-	gboolean artist = TRUE;
-	gboolean album = TRUE;
+	
+	str = g_string_new (
+	   "<span size='large'><b>%s</b></span> from <span size='large'><i>%s</i></span>"
+			    );
+	/* makes tile line title */
+	{
+		char *temp1 = g_markup_escape_text (array[EMAIL_SUBJECT], -1);
+		char *temp2 = g_markup_escape_text (array[EMAIL_SENDER], -1);
+		prop = g_strdup_printf (str->str, temp1, temp2);
+		g_free (temp1);
+		g_free (temp2);
+	}
+	
+	gtk_label_set_markup (GTK_LABEL (priv->title), prop);
+	g_free (prop);
+	g_string_free (str, TRUE);
+
+	_date_to_label( priv->info1, array[EMAIL_DATE], _("Date: <b>%s</b>"));
+
+	/* free properties */
+	g_strfreev (array);
+
+	tracker_metadata_tile_show (tile);
+}
+
+static void 
+_tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *tile)
+{
+	/* format properties */
+	if (error) {
+		g_print ("META_TILE_ERROR : %s", error->message);
+		g_clear_error (&error);
+		/* hide widget */
+		gtk_widget_hide (GTK_WIDGET(tile));
+		return;
+	}
+
+	TrackerMetadataTilePrivate *priv;
+	
+	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);	/* create title */
+
+	char *prop = NULL;
+	/* make nice looking description */
+	GString *str;
+	gboolean artist = FALSE;
+	gboolean album = FALSE;
 	
 	str = g_string_new ("<span size='large'><b>%s</b></span>");
 	
-	if ( strlen (array[AUDIO_ARTIST]) > 1) {
+	if (!is_empty_string (array[AUDIO_ARTIST])) {
 		artist = TRUE;
 		str = g_string_append (str, " by <span size='large'><i>%s</i></span>");
 	}
 	
-	if (strlen (array[AUDIO_ALBUM]) > 1) {
+	if (!is_empty_string (array[AUDIO_ALBUM])) {
 		album = TRUE;
 		str = g_string_append (str, " from <span size='large'><i>%s</i></span>");
 	}
 
-	char *temp1, *temp2, *temp3;	
-	if ( artist && album ) {
+	if (artist && album) {
+		char *temp1, *temp2, *temp3;
 		temp1 = g_markup_escape_text (array[AUDIO_TITLE], -1);
 		temp2 = g_markup_escape_text (array[AUDIO_ARTIST], -1);
 		temp3 = g_markup_escape_text (array[AUDIO_ALBUM], -1);
@@ -438,18 +505,21 @@ _tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *
 		g_free (temp2);
 		g_free (temp3);
 	} else if (artist) {
+		char *temp1, *temp2;
 		temp1 = g_markup_escape_text (array[AUDIO_TITLE], -1);
 		temp2 = g_markup_escape_text (array[AUDIO_ARTIST], -1);
 		prop = g_strdup_printf (str->str, temp1, temp2);
 		g_free (temp1);
 		g_free (temp2);		
 	} else if (album) {
+		char *temp1, *temp2;
 		temp1 = g_markup_escape_text (array[AUDIO_TITLE], -1);
 		temp2 = g_markup_escape_text (array[AUDIO_ALBUM], -1);	
 		prop = g_strdup_printf (str->str, temp1, temp2);
 		g_free (temp1);
 		g_free (temp2);
 	} else {
+		char *temp1;
 		temp1 = g_markup_escape_text (array[AUDIO_TITLE], -1);
 		prop = g_strdup_printf (str->str, temp1);
 		g_free (temp1);
@@ -484,7 +554,6 @@ _tile_tracker_populate_image (char **array, GError *error, TrackerMetadataTile *
 	}
 	
 	/* TODO : check for a normal image file, not all images are photos */
-	
 
 	TrackerMetadataTilePrivate *priv;
 	
@@ -492,25 +561,25 @@ _tile_tracker_populate_image (char **array, GError *error, TrackerMetadataTile *
 
 	/* create title */
 	_property_to_label ( priv->title, array[IMAGE_TITLE] , "<span size='large'><b>%s</b></span>");
-	
+
+	char *prop = NULL;	
 	/* make nice looking description */
 	GString *str;
 	gboolean camera = TRUE;
 	gboolean model = TRUE;
-	char *prop;
-	
+
 	str = g_string_new ("<span size='large'><b>%s</b></span>");
 	
-	if ( strlen (array[IMAGE_CAMERA])) {
+	if (!is_empty_string (array[IMAGE_CAMERA])) {
 		camera = TRUE;
 		str = g_string_append (str, _(" taken with a <span size='large'><i>%s</i></span>"));
 	}
 	
-	if (strlen (array[IMAGE_MODEL])) {
+	if (!is_empty_string (array[IMAGE_MODEL])) {
 		model = TRUE;
 		str = g_string_append (str, _(" <span size='large'><i>%s</i></span>"));
 	}
-	if ( camera && model ) {
+	if (camera && model) {
 		prop = g_strdup_printf (str->str, g_markup_escape_text (array[IMAGE_TITLE], -1),
                                                   g_markup_escape_text (array[IMAGE_CAMERA], -1), 
 					  	  g_markup_escape_text (array[IMAGE_MODEL], -1));
@@ -662,7 +731,6 @@ _dimensions_to_label (GtkWidget *label, const char *width, const char *height, c
 	gtk_label_set_markup (GTK_LABEL (label), temp);
 
 	g_free (temp);
-		
 }
 
 /* taken from gnome_vfs, formats a file size to something normal */
@@ -678,15 +746,15 @@ tracker_vfs_format_file_size_for_display (gulong size)
 		if (size < MEGABYTE_FACTOR) {
 			displayed_size = (gdouble) size / KILOBYTE_FACTOR;
 			return g_strdup_printf (_("%.1f KB"),
-						       displayed_size);
+						displayed_size);
 		} else if (size < GIGABYTE_FACTOR) {
 			displayed_size = (gdouble) size / MEGABYTE_FACTOR;
 			return g_strdup_printf (_("%.1f MB"),
-						       displayed_size);
+						displayed_size);
 		} else {
 			displayed_size = (gdouble) size / GIGABYTE_FACTOR;
 			return g_strdup_printf (_("%.1f GB"),
-						       displayed_size);
+						displayed_size);
 		}
 	}
 }
@@ -707,7 +775,6 @@ _size_to_label (GtkWidget *label, const char *prop, const char *string)
 
 	g_free (format);
 	g_free (temp);
-		
 }
 
 /* Converts text size to something human readable */
@@ -721,10 +788,11 @@ _int_to_label (GtkWidget *label, const char *prop, const char *string)
 	size = atol (prop);
 	format = g_strdup_printf ("%d", size);
 	
-	if (size)
+	if (size) {
 		temp = g_strdup_printf (string, format);
-	else
+	} else {
 		temp = g_strdup_printf (string, _("Unknown"));
+	}
 	gtk_label_set_markup (GTK_LABEL (label), temp);
 	
 	g_free (temp);
@@ -735,14 +803,14 @@ _int_to_label (GtkWidget *label, const char *prop, const char *string)
 static void 
 _date_to_label (GtkWidget *label, const char *iso, const char *string)
 {
-	GDate *date;
 	GTimeVal val;
 	char *temp;
-	gchar buf[256];
-	
+
 	if (g_time_val_from_iso8601 (iso, &val)) {
+		GDate *date;
 		date = g_date_new ();
 		g_date_set_time_val (date, &val);
+		gchar buf[256];
 		g_date_strftime(buf,256,"%a %d %b %Y", date);
                 temp = g_strdup_printf (string, buf);
 	} else {
@@ -751,106 +819,67 @@ _date_to_label (GtkWidget *label, const char *iso, const char *string)
 
 	gtk_label_set_markup (GTK_LABEL (label), temp);
 	g_free (temp);
-
-	
-	
 }
 
 /* Checks that a property is valid, parses it to play nicely wth pango */
 static void 
 _property_to_label (GtkWidget *label, const char *prop, const char *string)
 {
-	size_t len;
-	char * temp;
-	
-	len = strlen (prop);
-	
-	if (len) {
+	if (!is_empty_string(prop)) {
+		char * temp;
 		g_markup_escape_text (prop, -1);
 		temp = g_strdup_printf (string, prop);
 		gtk_label_set_markup (GTK_LABEL (label), temp);
 		g_free (temp);
 	} else {
+		char * temp;
 		temp = g_strdup_printf (string, _("Unknown"));
 		gtk_label_set_markup (GTK_LABEL (label), temp);
 		g_free (temp);
 	}
-	
 }
 
 /* MIME FUNCTIONS */
 
 static gboolean
+_file_is_email (const char *mime)
+{
+	return strstr(mime, "mail") != NULL;
+}
+
+static gboolean
 _file_is_audio (const char *mime)
 {
-	char *res = NULL;
-	
-	res = strstr (mime, "audio");
-	if (res)
-		return TRUE;
-	res = strstr (mime, "ogg");
-	if (res)
-		return TRUE;		
-	return FALSE;
+	return (strstr (mime, "audio")
+		|| strstr (mime, "ogg")
+		);
 }
 
 static gboolean
 _file_is_document (const char *mime)
 {
-	char *res = NULL;
-	
-	res = strstr (mime, "document");
-	if (res)
-		return TRUE;	
-	res = strstr (mime, "application/vnd.oasis.opendocument");
-	if (res)
-		return TRUE;
-	res = strstr (mime, "application/postscript");
-	if (res)
-		return TRUE;
-	res = strstr (mime, "application/pdf");
-	if (res)
-		return TRUE;
-	res = strstr (mime, "application/x-abiword");
-	if (res)
-		return TRUE;
-	res = strstr (mime, "application/msword");
-	if (res)
-		return TRUE;	
-	res = strstr (mime, "application/vnd.ms-");
-	if (res)
-		return TRUE;		
-	res = strstr (mime, "application/rtf");
-	if (res)
-		return TRUE;	
-	res = strstr (mime, "text/plain");
-	if (res)
-		return TRUE;									
-	return FALSE;
+	return (strstr (mime, "document")
+		|| strstr (mime, "application/vnd.oasis.opendocument")
+		|| strstr (mime, "application/postscript")
+		|| strstr (mime, "application/pdf")
+		|| strstr (mime, "application/x-abiword")
+		|| strstr (mime, "application/msword")
+		|| strstr (mime, "application/vnd.ms-")
+		|| strstr (mime, "application/rtf")
+		|| strstr (mime, "text/plain")
+		);
 }
 
 static gboolean
 _file_is_image (const char *mime)
 {
-	char *res = NULL;
-	
-	res = strstr (mime, "image");
-	if (res)
-		return TRUE;
-	else
-		return FALSE;
+	return strstr (mime, "image") != NULL;
 }
 
 static gboolean
 _file_is_video (const char *mime)
 {
-	char *res = NULL;
-	
-	res = strstr (mime, "video");
-	if (res)
-		return TRUE;
-	else
-		return FALSE;
+	return strstr (mime, "video") != NULL;
 }
 
 /**
@@ -877,13 +906,20 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 	
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
 	
-	if (icon)
+	if (icon) {
 		gtk_image_set_from_pixbuf (GTK_IMAGE (priv->image), icon);
-	else
+	} else {
 		gtk_widget_hide (priv->image);		
+	}
 
 	/* call correct function according to type */
-	if (_file_is_audio (type)) {
+	if (_file_is_email (type)) {
+		tracker_metadata_get_async (priv->client, SERVICE_FILES, 
+					    uri, email_keys, 
+					    (TrackerArrayReply)_tile_tracker_populate_email, 
+					    (gpointer)tile);
+
+	} else if (_file_is_audio (type)) {
 		tracker_metadata_get_async (priv->client, SERVICE_FILES, 
 					    uri, audio_keys, 
 					    (TrackerArrayReply)_tile_tracker_populate_audio, 
@@ -912,9 +948,9 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 					    (TrackerArrayReply)_tile_tracker_populate_default, 
 					    (gpointer)tile);
 	}
+
 	tracker_tag_bar_set_uri (TRACKER_TAG_BAR (priv->tag_bar), uri);
 	gtk_widget_queue_draw (GTK_WIDGET (tile));
-
 }
 
 static void
@@ -935,13 +971,13 @@ tracker_metadata_tile_show (TrackerMetadataTile *tile)
 	}	
 }
 
-
 static gboolean
 tracker_metadata_tile_toggle_view (GtkWidget *button, TrackerMetadataTile *tile)
 {
 	TrackerMetadataTilePrivate *priv;
 	
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
+
 	if (priv->expanded) {
 		gtk_widget_hide (priv->image);
 		gtk_widget_hide (priv->table);
@@ -1085,7 +1121,6 @@ tracker_metadata_tile_class_init (TrackerMetadataTileClass *klass)
 	widget_class->expose_event = tracker_metadata_tile_expose_event;
 	
 	g_type_class_add_private (gobject_class, sizeof (TrackerMetadataTilePrivate));
-
 }
 
 static void
@@ -1204,7 +1239,6 @@ tracker_metadata_tile_init (TrackerMetadataTile *tile)
 		
 	gtk_table_attach_defaults (GTK_TABLE (table), tag_bar, 0, 3, 2, 3);
 	gtk_widget_show_all (table);
-
 }
 
 GtkWidget *
@@ -1214,10 +1248,9 @@ tracker_metadata_tile_new (void)
 	GtkWidget *tile;
 	TrackerMetadataTilePrivate *priv;
 	
-	tile = g_object_new (TRACKER_TYPE_METADATA_TILE, 
-			     NULL);
+	tile = g_object_new (TRACKER_TYPE_METADATA_TILE, NULL);
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
-	
+
 	client = tracker_connect (TRUE);
 	priv->client = client;
 	return tile;
