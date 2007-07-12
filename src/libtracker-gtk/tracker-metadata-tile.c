@@ -241,7 +241,8 @@ static char *default_keys[] =
 	"File:Size",
 	"File:Accessed",
 	"File:Mime",
-	"DC:Keywords"
+	"DC:Keywords",
+	NULL
 };
 
 enum {
@@ -264,7 +265,8 @@ static char *doc_keys[] =
 	"Doc:PageCount",
 	"Doc:WordCount",
 	"Doc:Created",
-	"DC:Keywords"
+	"DC:Keywords",
+	NULL
 };
 
 enum {
@@ -285,7 +287,8 @@ static char *email_keys[] =
 	"Email:Subject",
 /* 	"Email:SentTo", */
 /* 	"Email:CC", */
-	"Email:Date"
+	"Email:Date",
+	NULL
 };
 
 enum {
@@ -307,7 +310,8 @@ static char *audio_keys[] =
 	"Audio:ReleaseDate",
 	"Audio:Codec",
 	"File:Size",
-	"DC:Keywords"
+	"DC:Keywords",
+	NULL
 };
 
 enum {
@@ -336,7 +340,8 @@ static char *image_keys[] =
 	"Image:Flash",
 	"Image:FocalLength",
 	"Image:ExposureTime",
-	"DC:Keywords"
+	"DC:Keywords",
+	NULL
 };
 
 enum {
@@ -364,7 +369,8 @@ static char *video_keys[] =
 	"Video:Codec",
 	"Video:Bitrate",
 	"Video:Duration",
-	"DC:Keywords"
+	"DC:Keywords",
+	NULL
 };
 
 enum {
