@@ -1,8 +1,11 @@
+2007-07-12 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
+	* Added NULL to terminate some string arrays in tracker-metadata-tile.c
+
+	
 2007-07-10 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
 	* Added GetStatus Dbus nmethod and tracker-status app
-
 
 
 2007-07-10  Luca Ferretti  <elle.uca@libero.it>
