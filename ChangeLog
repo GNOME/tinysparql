@@ -1,3 +1,8 @@
+2007-07-13 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
+
+	* Fixed build for Sun compiler
+
+
 2007-07-13 Jamie McCracken <jamiemcc at gnome org>
 
 	* Replaced tabs in GUI with a sidebar

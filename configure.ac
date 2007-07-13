@@ -115,14 +115,17 @@ AC_ARG_ENABLE(warnings,
               AC_HELP_STRING([--disable-warnings], [disable GCC warnings]),,
               [enable_warnings=yes])
 
-if test "x$enable_warnings" = "xyes"; then
-   CFLAGS="\
-   -Wall \
-   -Wchar-subscripts \
-   -Wnested-externs \
-   -Wpointer-arith \
-   -Wsign-compare \
-   $CFLAGS"
+dnl Only use -Wall if we have gcc
+if test "x$GCC" = "xyes"; then
+  if test "x$enable_warnings" = "xyes"; then
+     CFLAGS="\
+     -Wall \
+     -Wchar-subscripts \
+     -Wnested-externs \
+     -Wpointer-arith \
+     -Wsign-compare \
+     $CFLAGS"
+  fi
 fi
 
 ####################################################################
