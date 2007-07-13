@@ -1,3 +1,10 @@
+2007-07-13 Jamie McCracken <jamiemcc at gnome org>
+
+	* Replaced tabs in GUI with a sidebar
+	* Fixed update of metadata tile when navigating with keys instead of mouse
+	* Used theme text colours for snippets
+
+
 2007-07-12 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
 	* Added NULL to terminate some string arrays in tracker-metadata-tile.c

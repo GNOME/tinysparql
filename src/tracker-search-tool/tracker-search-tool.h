@@ -81,22 +81,29 @@ typedef enum {
 	COLUMN_PATH,
 	COLUMN_SNIPPET,
 	COLUMN_TYPE,
-	COLUMN_MONITOR,
 	COLUMN_NO_FILES_FOUND,
 	NUM_COLUMNS
 } GSearchResultColumns;
 
+
+
+typedef enum {
+	CATEGORY_ICON_NAME,
+	CATEGORY_TITLE,	
+	CATEGORY_SERVICE,
+	NUM_CATEGORY_COLUMNS
+} CategoryColumns;
+
+
 typedef struct {
 	gchar        	*service;
+	char		*display_name;
 	gchar        	*icon_name;
 	ServiceType   	service_type;
 	GtkListStore	*store;
-	GtkWidget 	*vbox;
 	gboolean	has_hits;
 	int		hit_count;
 	int		offset;
-	int		page;
-
 } service_info_t;
 
 
@@ -118,8 +125,19 @@ struct _GSearchWindow {
 	gboolean                is_window_accessible;
 
 	gboolean		page_setup_mode;
-	
-	GtkWidget 		*notebook;
+
+	GtkWidget		*toolbar;
+
+	GHashTable		*category_table;
+
+	/* sidebar category list */
+	GtkWidget 		*category_list;
+	GtkListStore		*category_store;
+	GtkTreeSelection        *category_selection;
+	GtkTreeIter             category_iter;
+	GtkTreePath             *category_hover_path;
+	GtkCellRenderer         *category_name_cell_renderer;
+
 	GdkPixbuf		*email_pixbuf;
 	int			current_page;
 	int			type;

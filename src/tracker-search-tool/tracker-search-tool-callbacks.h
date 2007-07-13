@@ -36,6 +36,10 @@ extern "C" {
 #pragma }
 #endif
 
+
+void
+tracker_update_metadata_tile (GSearchWindow *gsearch);
+
 void
 die_cb (GnomeClient * client,
         gpointer data);
