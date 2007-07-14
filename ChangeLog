@@ -1,3 +1,8 @@
+2007-07-13  Patch from Luca Ferretti  <elle.uca@libero.it>
+	
+	* cosmetic changes to tst
+	
+
 2007-07-13 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
 	* Fixed build for Sun compiler

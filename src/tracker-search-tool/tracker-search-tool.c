@@ -965,67 +965,68 @@ static GtkWidget *
 create_search_results_section (GSearchWindow * gsearch)
 {
 	GtkWidget * label;
+	GtkWidget * category_label;
 	GtkWidget * vbox;
 	GtkWidget * hbox;
+	GtkWidget * label_box;
+	GtkWidget * align_box;
 	GtkWidget * image;
-	GtkWidget * toolbar;
-	GtkIconSize toolbar_icon_size;
-  	GtkWidget *toolitem;
-	GtkWidget *toolbutton2;
-	GtkWidget *toolbutton;
+	GtkWidget * button_prev;
+	GtkWidget * button_next;
 
 	GtkWidget * window;
 	GtkTreeViewColumn * column;
 	GtkCellRenderer * renderer;
+
+	float y_align = 0.5;
 
 	vbox = gtk_vbox_new (FALSE, 0);
 
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);
 
-  	toolbar = gtk_toolbar_new ();
-	gtk_widget_show (toolbar);
-  	gtk_box_pack_start (GTK_BOX (hbox), toolbar, TRUE, TRUE, 0);
-	gtk_toolbar_set_orientation (GTK_TOOLBAR (toolbar), GTK_ORIENTATION_HORIZONTAL);
+	align_box = gtk_alignment_new (0.0, 1.0, 1.0, 1.0);
+	gtk_alignment_set_padding (GTK_ALIGNMENT (align_box), 18, 3, 0, 0);
+	
+	gtk_box_pack_start (GTK_BOX (hbox), align_box, FALSE, TRUE, 0);
 
-  	gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-	toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (toolbar));
+	label_box = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (align_box), label_box);
 
-	toolitem = (GtkWidget*) gtk_tool_item_new ();
-	gtk_widget_show (toolitem);
-	gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
-	gtk_container_add (GTK_CONTAINER (toolbar), toolitem);
-	label = gtk_label_new (_("Search Results:"));
-	gtk_widget_show (label);
-	g_object_set (G_OBJECT (label), "xalign", 0.0, NULL);
+
+	label = gtk_label_new_with_mnemonic (_("Search _results: "));
+
+	gtk_box_pack_start (GTK_BOX (label_box), label, FALSE, TRUE, 0);
+	g_object_set (G_OBJECT (label), "yalign", y_align, NULL);
 	gtk_label_set_justify   (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
-	gtk_container_add (GTK_CONTAINER (toolitem), label);
 
-	toolitem = (GtkWidget*) gtk_tool_item_new ();
-	gtk_widget_show (toolitem);
-	gtk_container_add (GTK_CONTAINER (toolbar), toolitem);
+	/* Translators: this will appears as "Search results: no search performed" */
+	gsearch->count_label = gtk_label_new (_("no search performed"));
+	g_object_set (G_OBJECT (gsearch->count_label), "yalign", y_align, NULL);
+	gtk_box_pack_start (GTK_BOX (label_box), gsearch->count_label, FALSE, TRUE, 0);
 
-	gsearch->count_label = gtk_label_new ("");
-	gtk_widget_show (gsearch->count_label);
-	gtk_container_add (GTK_CONTAINER (toolitem), gsearch->count_label);
+	button_next = gtk_button_new();
+	gtk_button_set_relief (GTK_BUTTON(button_next), GTK_RELIEF_NONE);
+	image = gtk_image_new_from_stock ("gtk-go-forward", GTK_ICON_SIZE_SMALL_TOOLBAR);
+	//gtk_widget_set_tooltip_text (GTK_BUTTON(button_next), _("Add a meagniful tooltip here"));
+	/*FIXME: maybe add an a11y name for this button*/
+	gtk_container_add (GTK_CONTAINER(button_next), image);
+	gtk_box_pack_end (GTK_BOX (hbox), button_next, FALSE, TRUE, 0);
 
+	button_prev = gtk_button_new();
+	gtk_button_set_relief (GTK_BUTTON(button_prev), GTK_RELIEF_NONE);
+	image = gtk_image_new_from_stock ("gtk-go-back", GTK_ICON_SIZE_SMALL_TOOLBAR);
+	//gtk_widget_set_tooltip_text (GTK_BUTTON(button_prev), _("Add a meagniful tooltip here"));
+	/*FIXME: maybe add an a11y name for this button*/
+	gtk_container_add (GTK_CONTAINER(button_prev), image);
+	gtk_box_pack_end (GTK_BOX (hbox), button_prev, FALSE, TRUE, 0);
 
-	image = gtk_image_new_from_stock ("gtk-go-back", toolbar_icon_size);
-	gtk_widget_show (image);
-	toolbutton2 = (GtkWidget*) gtk_tool_button_new (image, "Previous");
-	gtk_widget_show (toolbutton2);
-	gtk_container_add (GTK_CONTAINER (toolbar), toolbutton2);
-
-	gsearch->back_button = toolbutton2;
+	gsearch->back_button = button_prev;
 	g_signal_connect (G_OBJECT (gsearch->back_button), "clicked",
 	                  G_CALLBACK (prev_button_cb), (gpointer) gsearch);
 
-	image = gtk_image_new_from_stock ("gtk-go-forward", toolbar_icon_size);
-	gtk_widget_show (image);
-	toolbutton = (GtkWidget*) gtk_tool_button_new (image, "Next");
-	gtk_widget_show (toolbutton);
-	gtk_container_add (GTK_CONTAINER (toolbar), toolbutton);
-	gsearch->forward_button = toolbutton;
+
+	gsearch->forward_button = button_next;
 	g_signal_connect (G_OBJECT (gsearch->forward_button), "clicked",
 	                  G_CALLBACK (next_button_cb), (gpointer) gsearch);
 
@@ -1037,11 +1038,11 @@ create_search_results_section (GSearchWindow * gsearch)
 
 	gsearch->files_found_label = gtk_label_new (NULL);
 	gtk_label_set_selectable (GTK_LABEL (gsearch->files_found_label), TRUE);
-	g_object_set (G_OBJECT (gsearch->files_found_label), "xalign", 1.0, NULL);
-	gtk_box_pack_start (GTK_BOX (hbox), gsearch->files_found_label, FALSE, FALSE, 0);
+	g_object_set (G_OBJECT (gsearch->files_found_label), "yalign", y_align, NULL);
+	gtk_box_pack_start (GTK_BOX (label_box), gsearch->files_found_label, FALSE, FALSE, 0);
 
 	window = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (window), GTK_SHADOW_NONE);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (window), GTK_SHADOW_IN);
 	gtk_container_set_border_width (GTK_CONTAINER (window), 0);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (window),
                                         GTK_POLICY_AUTOMATIC,
@@ -1182,16 +1183,12 @@ create_search_results_section (GSearchWindow * gsearch)
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->search_results_tree_view), column);
 	
-	
+//	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (gsearch->search_results_tree_view), GTK_TREE_VIEW_GRID_LINES_VERTICAL);
+	gtk_tree_view_set_enable_search (GTK_TREE_VIEW (gsearch->search_results_tree_view), FALSE);
 
 	g_signal_connect (G_OBJECT (gsearch->search_results_tree_view),
 	                  "columns-changed",
 	                  G_CALLBACK (columns_changed_cb),
-	                  (gpointer) gsearch);
-
-	g_signal_connect (G_OBJECT (toolbar),
-	                  "size-allocate",
-	                  G_CALLBACK (toolbar_size_changed_cb),
 	                  (gpointer) gsearch);
 
 	return vbox;
@@ -1205,33 +1202,13 @@ create_sidebar (GSearchWindow * gsearch)
 	GtkTreeViewColumn * column;
 	GtkCellRenderer * renderer;
 
-	GtkWidget *vbox = gtk_vbox_new (FALSE, 0);
+	GtkWidget *vbox = gtk_vbox_new (FALSE, 11);
 
 	GtkWidget *hbox = gtk_hbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (vbox), hbox, FALSE, TRUE, 0);
 
-	gsearch->toolbar = gtk_toolbar_new ();
-	gtk_widget_show (gsearch->toolbar);
-  	gtk_box_pack_start (GTK_BOX (hbox), gsearch->toolbar, TRUE, TRUE, 0);
-	gtk_toolbar_set_orientation (GTK_TOOLBAR (gsearch->toolbar), GTK_ORIENTATION_HORIZONTAL);
-
-  	gtk_toolbar_set_style (GTK_TOOLBAR (gsearch->toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-
-	
-	
-	GtkWidget *toolitem = (GtkWidget*) gtk_tool_item_new ();
-	gtk_widget_show (toolitem);
-	gtk_tool_item_set_expand (GTK_TOOL_ITEM (toolitem), TRUE);
-	gtk_container_add (GTK_CONTAINER (gsearch->toolbar), toolitem);
-	GtkWidget *label = gtk_label_new (_("Categories:"));
-	gtk_widget_show (label);
-	g_object_set (G_OBJECT (label), "xalign", 0.0, NULL);
-	
-	gtk_label_set_justify   (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
-	gtk_container_add (GTK_CONTAINER (toolitem), label);
-
 	window = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (window), GTK_SHADOW_NONE);
+	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (window), GTK_SHADOW_IN);
 	gtk_container_set_border_width (GTK_CONTAINER (window), 0);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (window),
                                         GTK_POLICY_AUTOMATIC,
@@ -1240,7 +1217,6 @@ create_sidebar (GSearchWindow * gsearch)
 	gsearch->category_list =  gtk_tree_view_new ();
 
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (gsearch->category_list), FALSE);
-
 	gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (gsearch->category_list), TRUE);
 
 	if (gsearch->is_window_accessible) {
@@ -1261,7 +1237,19 @@ create_sidebar (GSearchWindow * gsearch)
 
 	/* create the  columns */
 	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_set_title (column, _("Icon"));
+
+	gtk_tree_view_column_set_title (column, _("_Categories"));
+	gsearch->category_name_cell_renderer = gtk_cell_renderer_text_new ();
+        gtk_tree_view_column_pack_end (column, gsearch->category_name_cell_renderer, TRUE);
+
+        gtk_tree_view_column_set_attributes (column, gsearch->category_name_cell_renderer,
+                                             "text", CATEGORY_TITLE,
+					     NULL);
+
+	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+
+
+	
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
 	gtk_tree_view_column_pack_start (column, renderer, FALSE);
@@ -1273,23 +1261,13 @@ create_sidebar (GSearchWindow * gsearch)
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->category_list), column);
 
-	column = gtk_tree_view_column_new ();
-	gtk_tree_view_column_set_title (column, _("Name"));
-	gsearch->category_name_cell_renderer = gtk_cell_renderer_text_new ();
-        gtk_tree_view_column_pack_start (column, gsearch->category_name_cell_renderer, TRUE);
-
-        gtk_tree_view_column_set_attributes (column, gsearch->category_name_cell_renderer,
-                                             "text", CATEGORY_TITLE,
-					     NULL);
-
-	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-
-
-	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->category_list), column);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (gsearch->category_list), GTK_TREE_MODEL (gsearch->category_store));
 
 	gtk_box_pack_end (GTK_BOX (vbox), window, TRUE, TRUE, 0);
+
+	gtk_tree_view_set_enable_search (GTK_TREE_VIEW (gsearch->category_list), FALSE);
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (gsearch->category_list), TRUE);
 
 	return vbox;
 }
@@ -1561,10 +1539,11 @@ update_page_count_label (GSearchWindow *gsearch)
 	}
 	
 	if (count > 5) {
-		/* Translators: this will appear like "Results 5 - 10 of 30" */
-		label_str = g_strdup_printf (_("Results %d - %d of %d"), from, to, count);
+		/* Translators: this will appear like "Search results: 5 - 10 of 30 items" */
+		label_str = g_strdup_printf (_("%d - %d of %d hits"), from, to, count);
 	} else 
-		label_str = g_strdup_printf (ngettext ("%d result", "%d results", count), count);
+		/* Translators: this will appear like "Search results: 7 items" */
+		label_str = g_strdup_printf (ngettext ("%d item", "%d hits", count), count);
 
 	gtk_label_set_text (GTK_LABEL (gsearch->count_label), label_str);
 	g_free (label_str);
@@ -1662,7 +1641,7 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
                         	              			 24,
 			                                         GTK_ICON_LOOKUP_USE_BUILTIN,
                         			                 NULL);
-			
+
 			gtk_list_store_set (gsearch->category_store, &gsearch->category_iter,
 			    CATEGORY_ICON_NAME, pixbuf,
 		   	    CATEGORY_TITLE, label_str,	
@@ -1918,13 +1897,13 @@ gsearch_app_create (GSearchWindow * gsearch)
 	
 	container = gtk_vbox_new (FALSE, 2);
 	gtk_container_add (GTK_CONTAINER (main_container), container);
-	gtk_container_set_border_width (GTK_CONTAINER (container), 6);
+	gtk_container_set_border_width (GTK_CONTAINER (container), 1);
 
 
 	GtkWidget *widget;
 
-	hbox = gtk_hbox_new (FALSE, 2);
-	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 0);
+	hbox = gtk_hbox_new (FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 3);
 
 	gsearch->name_and_folder_table = gtk_table_new (1, 4, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (gsearch->name_and_folder_table), 6);
@@ -1967,7 +1946,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	pane = gtk_hpaned_new ();
 	gtk_paned_set_position (GTK_PANED (pane), 170);
 
-	gtk_box_pack_start (GTK_BOX (container), pane, TRUE, TRUE, 6);
+	gtk_box_pack_start (GTK_BOX (container), pane, TRUE, TRUE, 3);
 
 	
 	
