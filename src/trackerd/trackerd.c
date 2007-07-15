@@ -367,13 +367,13 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 			str = (char *) tmp->data;
 
-			if (!tracker_file_is_no_watched (str)) {
+			if (str && !tracker_file_is_no_watched (str)) {
 
 				tracker->dir_list = g_slist_prepend (tracker->dir_list, g_strdup (str));
 
 				if ( ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < tracker->watch_limit)) {
 
-					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str) && str) {
+					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str)) {
 						tracker_debug ("Watch failed for %s", str);
 					}
 

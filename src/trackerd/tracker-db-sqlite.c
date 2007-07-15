@@ -2134,6 +2134,8 @@ tracker_db_get_file_contents_words (DBConnection *db_con, guint32 id, GHashTable
 		tracker_error ("WARNING: retrieval of text contents has failed");
 	}
 
+	g_free (str_file_id);
+
 	return old_table;
 }
 

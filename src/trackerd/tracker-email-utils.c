@@ -177,10 +177,8 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 		tracker->index_count++;
 
-		if (tracker->verbosity == 1) {
-			if ( (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 1)) {
-				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
-			}
+		if (tracker->verbosity == 1 && (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0))) {
+			tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
 		}
 
 		tracker_check_flush ();
@@ -1045,7 +1043,8 @@ find_attachment (GMimeObject *obj, gpointer data)
 		char			*attachment_uri;
 		int 			fd;
 
-		content_type = g_mime_part_get_content_type (part);
+		if (! (content_type = g_mime_part_get_content_type (part)))
+			return;
 
 		filename = g_mime_part_get_filename (part);
 
