@@ -947,9 +947,11 @@ process_files_thread (void)
 						case INDEX_CONVERSATIONS: {
 								char *gaim;
 
-								/* sleep for 5 secs before watching/indexing any of the major services */
-								tracker_log ("sleeping for 5 secs...");
-								g_usleep (5 * 1000 * 1000);
+								/* sleep for N secs before watching/indexing any of the major services */
+								if (tracker->initial_sleep > 0) {
+									tracker_log ("sleeping for %d secs...", tracker->initial_sleep);
+									g_usleep (tracker->initial_sleep * 1000 * 1000);
+								}
 
 								gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
 
@@ -1806,6 +1808,7 @@ set_defaults ()
 	tracker->use_extra_memory = TRUE;
 
 	tracker->throttle = 0;
+	tracker->initial_sleep = 45;
 
 	tracker->min_word_length = 3;
 	tracker->max_word_length = 30;

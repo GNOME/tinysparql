@@ -214,6 +214,7 @@ typedef struct {
 	int		default_throttle;
 	int		battery_throttle;
 	gboolean	use_extra_memory;
+	int		initial_sleep;
 
 	/* indexing options */
 	int	 	max_index_bucket_count;

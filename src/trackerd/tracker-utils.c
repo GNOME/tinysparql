@@ -2276,6 +2276,8 @@ tracker_load_config_file ()
 					 "NoWatchDirectory=\n",
 					 "# Set to false to prevent watching of any kind\n",
 					 "EnableWatching=true\n\n",
+					 "# Set the initial sleeping time, in seconds\n",
+					 "InitialSleep=5\n",
 					 "[Indexing]\n",
 					 "# Throttles the indexing process. Allowable values are 0-20. higher values decrease indexing speed\n",
 					 "Throttle=0\n",
@@ -2294,7 +2296,7 @@ tracker_load_config_file ()
 					  "# Sets the language specific stemmer and stopword list to use \n",
 					  "# Valid values are 'en' (english), 'da' (danish), 'nl' (dutch), 'fi' (finnish), 'fr' (french), 'de' (german), 'it' (italien), 'nb' (norwegian), 'pt' (portugese), 'ru' (russian), 'es' (spanish), 'sv' (swedish)\n",
 					 "Language=", language, "\n",
-					  "# Enables use of language-specific stemmer\n",
+					 "# Enables use of language-specific stemmer\n",
 					 "EnableStemmer=true\n",
 					 "[Emails]\n",
 					 "IndexEvolutionEmails=true\n",
@@ -2330,7 +2332,11 @@ tracker_load_config_file ()
 
 	if (g_key_file_has_key (key_file, "General", "LowMemoryMode", NULL)) {
 		tracker->use_extra_memory = !g_key_file_get_boolean (key_file, "General", "LowMemoryMode", NULL);
-       }
+	}
+
+	if (g_key_file_has_key (key_file, "General", "InitialSleep", NULL)) {
+		tracker->initial_sleep = g_key_file_get_integer (key_file, "General", "InitialSleep", NULL);
+	}
 
 	/* Watch options */
 
@@ -3430,7 +3436,7 @@ output_log (const char *message)
 
 	strftime (buffer1, 64, "%d %b %Y, %H:%M:%S:", loctime);
 
-	g_sprintf (buffer2, "%ld", start.tv_usec / 1000);
+	g_sprintf (buffer2, "%03ld", start.tv_usec / 1000);
 
 	output = g_strconcat (buffer1, buffer2, " - ", message, NULL);
 
