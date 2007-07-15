@@ -2,6 +2,7 @@
 2007-07-15 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Fixed mem leak and some cleanups
+	* added initial sleep config variable
 
 
 2007-07-13  Patch from Luca Ferretti  <elle.uca@libero.it>
