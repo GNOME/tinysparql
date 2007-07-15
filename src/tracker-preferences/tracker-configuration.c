@@ -217,7 +217,7 @@ g_key_file_set_double_list (GKeyFile     *key_file,
  *                     End of copied functions.
  *
  **********************************************************************/
-#endif /* HAVE_RECENT_GLIB */
+#endif /* !HAVE_RECENT_GLIB */
 
 
 static GObjectClass *parent_class = NULL;
