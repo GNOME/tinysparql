@@ -141,6 +141,7 @@ static gboolean reindex = FALSE;
 static gboolean low_memory, enable_evolution, enable_thunderbird, enable_kmail;
 static int throttle = 0;
 static int verbosity = 0;
+static int initial_sleep = -1; /* >= 0 is valid and will be set */
 
 static GOptionEntry entries[] = {
 	{"exclude-dir", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, N_("Directory to exclude from indexing"), N_("/PATH/DIR")},
@@ -149,6 +150,7 @@ static GOptionEntry entries[] = {
 	{"verbosity", 'v', 0, G_OPTION_ARG_INT, &verbosity, N_("Value that controls the level of logging. Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)"), N_("VALUE") },
 	{"throttle", 't', 0, G_OPTION_ARG_INT, &throttle, N_("Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"), N_("VALUE") },
 	{"low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, N_("Minimizes the use of memory but may slow indexing down"), NULL },
+	{"initial-sleep", 's', 0, G_OPTION_ARG_INT, &initial_sleep, N_("Initial sleep time, just before indexing, in seconds"), NULL },
 	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, N_("Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"), N_("LANG")},
 	{"reindex", 'R', 0, G_OPTION_ARG_NONE, &reindex, N_("Force a re-index of all content"), NULL },
 	{NULL}
@@ -2236,6 +2238,10 @@ main (int argc, char **argv)
 
 	if (verbosity != 0) {
 		tracker->verbosity = verbosity;
+	}
+
+	if (initial_sleep >= 0) {
+		tracker->initial_sleep = initial_sleep;
 	}
 
 	sanity_check_option_values ();
