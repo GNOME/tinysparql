@@ -2423,19 +2423,18 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	GSList 		*hit_list;
 	int 		count;
 	const GSList	*tmp;
-	gboolean	detailed_emails = FALSE;
+	gboolean	detailed_emails = FALSE, detailed_apps = FALSE;
 	int		service_array[255];
 
 	array = tracker_parse_text_into_array (search_string);
-
 
 	char ***res = tracker_exec_proc (db_con, "GetRelatedServiceIDs", 2, service, service);
 	
 	int i = 0,j =0;
 	char **row;
 	
-
-	if (res) {		
+	if (res) {	
+	
 		while ((row = tracker_db_get_row (res, i))) {
 
 			if (row[0]) {
@@ -2444,13 +2443,10 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 			}
 
 			i++;
-
 		}
 			
 		tracker_db_free_result (res);
-
 	}
-
 
 	SearchQuery *query = tracker_create_query (tracker->file_indexer, service_array, j, offset, limit);
 
@@ -2513,13 +2509,19 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		}
 
 		if (detailed) {
-			if (strcmp (service, "Emails") != 0) {
-				res = tracker_exec_proc_ignore_nulls (db_con, "GetFileByID2", 1, str_id);
-			} else {
+
+			if (strcmp (service, "Emails") == 0) {
 				detailed_emails = TRUE;
 				res = tracker_exec_proc_ignore_nulls (db_con, "GetEmailByID", 1, str_id);
-				//tracker_db_log_result (res);
+
+			} else if (strcmp (service, "Applications") == 0) {
+				detailed_apps = TRUE;
+				res = tracker_exec_proc_ignore_nulls (db_con, "GetApplicationByID", 1, str_id);
+
+			} else {
+				res = tracker_exec_proc_ignore_nulls (db_con, "GetFileByID2", 1, str_id);
 			}
+
 		} else {
 			res = tracker_exec_proc_ignore_nulls (db_con, "GetFileByID", 1, str_id);
 		}
@@ -2557,7 +2559,32 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 						}					
 						
 
+					} else if (detailed_apps) {
+						row = g_new0 (char *, 6);
+
+						row[0] = g_strdup (res[0][0]);
+						row[1] = g_strdup (res[0][1]);
+						row[2] = NULL;
+						row[3] = NULL;
+						row[4] = NULL;
+						row[5] = NULL;
+
+						if (res[0][2]) {
+							row[2] = g_strdup (res[0][2]);						
+							if (res[0][3]) {
+								row[3] = g_strdup (res[0][3]);	
+								if (res[0][4]) {
+									row[4] = g_strdup (res[0][4]);						
+								}	
+							}
+							
+
+							 
+						}			
+
+
 					} else {
+
 						if (res[0][2]) {
 
 							row = g_new (char *, 4);
@@ -2930,7 +2957,6 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 	if (def->multiple_values && length > 1) {
 		str = g_string_new ("");
 	}
-
 
 	
 
@@ -5239,6 +5265,14 @@ tracker_db_get_static_data (DBConnection *db_con)
 						def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup (row[j]));
 					}
 				}
+
+				/* hack to prevent db change late in the cycle */
+				if (strcmp (def->name, "Applications") == 0) {
+					def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup ("App:DisplayName"));
+					def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup ("App:Exec"));
+					def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup ("App:Icon"));
+				}
+
 
 				def->key_metadata = g_slist_reverse (def->key_metadata);
 

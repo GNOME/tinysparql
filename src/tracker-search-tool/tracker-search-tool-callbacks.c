@@ -399,37 +399,54 @@ select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 }
 
 GdkPixbuf *
-tracker_get_large_icon (const gchar *local_uri)
+tracker_get_large_icon (const gchar *local_uri, gboolean is_local_file, GSearchWindow *gsearch)
 {
 	gchar *icon_name = NULL;
 	gchar *thumb_name = NULL;
 	GdkPixbuf *temp = NULL;
-	gchar *uri = gnome_vfs_get_uri_from_local_path (local_uri);
+
+
+	if (is_local_file) {
+		gchar *uri = gnome_vfs_get_uri_from_local_path (local_uri);
 	
-	thumb_name = gnome_thumbnail_path_for_uri (uri, GNOME_THUMBNAIL_SIZE_NORMAL);
-	temp = gdk_pixbuf_new_from_file_at_scale (thumb_name, METADATA_IMAGE_WIDTH, METADATA_IMAGE_HEIGHT, TRUE, NULL);
-	if (temp) {
-		g_free (thumb_name);
+		thumb_name = gnome_thumbnail_path_for_uri (uri, GNOME_THUMBNAIL_SIZE_NORMAL);
+
 		g_free (uri);
-		return temp;
 	}
-	icon_name = gnome_icon_lookup_sync  (gtk_icon_theme_get_default(),
-                                             gnome_thumbnail_factory_new (GNOME_THUMBNAIL_SIZE_NORMAL),
-                                             local_uri,
-                                             NULL,
-                                             GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES | GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES,
-                                             0);                                       
-	temp = gtk_icon_theme_load_icon (gtk_icon_theme_get_default(),
+
+	
+	
+
+	if (!thumb_name) {
+
+		icon_name = gnome_icon_lookup_sync  (gtk_icon_theme_get_default(),
+                                             	gsearch->thumbnail_factory,
+                                             	local_uri,
+                                             	NULL,
+                                             	GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES | GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES,
+                                             	0);                                       
+
+		temp = gtk_icon_theme_load_icon (gtk_icon_theme_get_default(),
                                          icon_name,
                                          METADATA_IMAGE_HEIGHT,
                                          GTK_ICON_LOOKUP_FORCE_SVG,
                                          NULL);
 	
-	g_free (icon_name);
-	g_free (thumb_name);
-	g_free (uri);
+		g_free (icon_name);
+
+		
 	
+		return temp;
+
+
+	}
+
+	temp = gdk_pixbuf_new_from_file_at_scale (thumb_name, METADATA_IMAGE_WIDTH, METADATA_IMAGE_HEIGHT, TRUE, NULL);
+
+	g_free (thumb_name);
+
 	return temp;
+
 }
 
 
@@ -439,9 +456,11 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 	GtkTreeModel * model;
 	GList * list;
 	guint index;
-	
+	ServiceType type;
+
 	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) != 1) {
-		gtk_widget_hide (gsearch->metatile);
+		tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), NULL, 0, NULL, NULL);		
+		//gtk_widget_hide (gsearch->metatile);
 		return;
 	}
 
@@ -450,9 +469,9 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 	for (index = 0; index < g_list_length (list); index++) {
 
 		gboolean no_files_found = FALSE;
-		gchar *uri;
-		gchar *mime;
-		GdkPixbuf *pixbuf;
+		gchar *uri = NULL;
+		gchar *mime = NULL;
+		GdkPixbuf *pixbuf = NULL;
 		GtkTreeIter iter;
 
 		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
@@ -461,23 +480,30 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
                                     COLUMN_ICON, &pixbuf,
     		                    COLUMN_URI, &uri,
- 			            COLUMN_TYPE, &mime,
+ 			            COLUMN_MIME, &mime,
+				    COLUMN_TYPE, &type,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
-		                    
-		if (gsearch->type < 10) {
-			GdkPixbuf *large_icon = NULL;
-			large_icon = tracker_get_large_icon (uri);
-			if (large_icon) {
-				tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, large_icon);
-				g_object_unref (G_OBJECT (large_icon));
-			} else {
-				tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, pixbuf);
-			}
-		} else {
-			tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, mime, pixbuf);
+
+
+		/* get large icon for documents, images and videos only */
+		GdkPixbuf *large_icon = NULL;
+		if (type == SERVICE_DOCUMENTS || type == SERVICE_IMAGES || type == SERVICE_VIDEOS) {
+			large_icon = tracker_get_large_icon (uri, (gsearch->type < 10), gsearch);
 		}
+
+
+		if (large_icon) {
+			tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, type, mime, large_icon);
+			g_object_unref (G_OBJECT (large_icon));
+		} else {
+			tracker_metadata_tile_set_uri (TRACKER_METADATA_TILE (gsearch->metatile), uri, type, mime, pixbuf);
+		}
+		
+
                 g_free (uri);
+		g_free (mime);
+
 
 	}
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);

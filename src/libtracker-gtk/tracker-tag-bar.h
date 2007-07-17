@@ -24,6 +24,7 @@
 #define TRACKER_TAG_BAR_H
 
 #include <gtk/gtk.h>
+#include <tracker.h>
 
 G_BEGIN_DECLS
 
@@ -54,7 +55,9 @@ uri has to be a local uri i.e.
 '/home/john/doe.mp3' not 'file:///home/john/doe.mp3' 
 */ 
 void 	   tracker_tag_bar_set_uri (TrackerTagBar 		*bar, 	
-				    const gchar 		*uri);
+				    ServiceType			type,
+				    const gchar 		*uri
+				   );
 
 G_END_DECLS
 

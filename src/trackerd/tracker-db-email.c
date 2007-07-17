@@ -459,9 +459,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 		}
 	
-		service = get_service_name (mm->parent_mail_file->mail_app);
-		mime = get_mime (mm->parent_mail_file->mail_app);
-		attachment_service = get_attachment_service_name (mm->parent_mail_file->mail_app);
+		//service = get_service_name (mm->parent_mail_file->mail_app);
+		//mime = get_mime (mm->parent_mail_file->mail_app);
+		//attachment_service = get_attachment_service_name (mm->parent_mail_file->mail_app);
+
+		service = g_strdup ("EvolutionEmails");
+		mime = g_strdup ("Evolution/Email");
+		attachment_service = g_strdup ("EvolutionAttachments");
 
 		
 	} else {
@@ -507,19 +511,19 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 
 		if (mm->body) {
-			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Body", mm->body, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Body", mm->body, index_table);
 		}
 
 		if (str_date) {
-			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Date", str_date, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Date", str_date, index_table);
 		}
 
 		if (mm->from) {
-			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Sender", mm->from, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Sender", mm->from, index_table);
 		}
 
 		if (mm->subject) {
-			tracker_db_insert_single_embedded_metadata (db_con, "Emails", str_id, "Email:Subject", mm->subject, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Subject", mm->subject, index_table);
 		}
 
 		g_free (str_date);
@@ -553,7 +557,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 
 			if (i > 0) {
-				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:SentTo", array, i, index_table);
+				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:SentTo", array, i, index_table);
 			}
 
 			for (i--; i>-1; i--) {
@@ -594,7 +598,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		
 
 			if (i > 0) {
-				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:CC", array, i, index_table);
+				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:CC", array, i, index_table);
 			}
 
 			for (i--; i>-1; i--) {
@@ -628,7 +632,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 
 			if (i > 0) {
-				tracker_db_insert_embedded_metadata (db_con, "Emails", str_id, "Email:Attachments", array, i, index_table);
+				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:Attachments", array, i, index_table);
 			}
 
 			for (i--; i>-1; i--) {

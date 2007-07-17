@@ -170,7 +170,6 @@ ContentMetadata=Email:Body
 DisplayName=Email Attachments
 Description=All files that are attached to an Email
 UIVisible=true
-UIMetadata2=NULL
 Icon=stock_attach
 
 [EvolutionAttachments]
@@ -205,4 +204,7 @@ Description=Application files
 UIVisible=true
 Icon=stock_active
 ShowServiceFiles=true
-
+KeyMetadata1=App:DisplayName
+KeyMetadata2=App:Exec
+KeyMetadata3=App:Icon
+TileMetadata=App:GenericName;AppComment;App:Categories

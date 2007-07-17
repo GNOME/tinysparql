@@ -97,6 +97,10 @@ TrackerClient * tracker_connect (gboolean enable_warnings);
 void		tracker_disconnect (TrackerClient *client);
 
 
+ServiceType 	tracker_service_name_to_type (const char *service);
+char *		tracker_type_to_service_name (ServiceType s);
+
+
 
 /* synchronous calls */
 

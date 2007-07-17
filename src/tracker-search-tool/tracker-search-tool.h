@@ -80,6 +80,8 @@ typedef enum {
 	COLUMN_NAME,
 	COLUMN_PATH,
 	COLUMN_SNIPPET,
+	COLUMN_MIME,
+	COLUMN_EXEC,
 	COLUMN_TYPE,
 	COLUMN_NO_FILES_FOUND,
 	NUM_COLUMNS
@@ -135,7 +137,6 @@ struct _GSearchWindow {
 	GtkListStore		*category_store;
 	GtkTreeSelection        *category_selection;
 	GtkTreeIter             category_iter;
-	GtkTreePath             *category_hover_path;
 	GtkCellRenderer         *category_name_cell_renderer;
 
 	GdkPixbuf		*email_pixbuf;

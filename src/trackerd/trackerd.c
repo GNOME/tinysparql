@@ -750,7 +750,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	} else if (strcmp (service_info, "Files") == 0) {
 		tracker_db_index_file (db_con, info, NULL, NULL);
 
-	} else if (strcmp (service_info, "Conversations") == 0) {
+	} else if (g_str_has_suffix (service_info, "Conversations")) {
 		tracker_db_index_conversation (db_con, info);
 
 	} else if (strcmp (service_info, "Applications") == 0) {

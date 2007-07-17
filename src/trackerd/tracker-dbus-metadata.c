@@ -65,6 +65,8 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		return;
 	}
 
+	db_con = tracker_db_get_service_connection (db_con, service);
+
 	if (!uri || strlen (uri) == 0) {
 		tracker_set_error (rec, "ID is invalid");
 		return;
@@ -87,7 +89,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		return;
 	}
 
-	db_con = tracker_db_get_service_connection (db_con, service);
+	
 
 	is_local_file = (uri[0] == G_DIR_SEPARATOR);
 
@@ -163,15 +165,17 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		return;
 	}
 
+	
+
+	db_con = tracker_db_get_service_connection (db_con, service);
+
 	id = tracker_db_get_id (db_con, service, uri);
 
 	if (!id) {
-		tracker_set_error (rec, "Entity with ID %s not found in database", uri);
+		tracker_set_error (rec, "Entity with ID %s and service %s was not found in database", uri, service);
 		return;
 	}
 
-
-	db_con = tracker_db_get_service_connection (db_con, service);
 
 	res_service = tracker_db_get_service_for_entity (db_con, id);
 

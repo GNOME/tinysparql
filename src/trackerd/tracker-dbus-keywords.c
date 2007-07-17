@@ -170,14 +170,16 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		return;
 	}
 
+	db_con = tracker_db_get_service_connection (db_con, service);	
+
 	id = tracker_db_get_id (db_con, service, uri);
 
 	if (!id) {
-		tracker_set_error (rec, "Entity %s not found in database", uri);
+		tracker_set_error (rec, "[keywords_get] Entity %s not found in database", uri);
 		return;
 	}
 
-	db_con = tracker_db_get_service_connection (db_con, service);
+	
 
 	res = tracker_db_get_metadata (db_con, service, id, "User:Keywords");
 

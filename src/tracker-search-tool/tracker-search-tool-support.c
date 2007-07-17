@@ -1107,7 +1107,7 @@ get_file_pixbuf (GSearchWindow * gsearch,
 		 const char *mime,
                  GnomeVFSFileInfo * file_info)
 {
-	GdkPixbuf * pixbuf;
+	GdkPixbuf * pixbuf = NULL;
 	gchar * icon_name = NULL;
 
 	if (file == NULL || mime == NULL) {
@@ -1132,8 +1132,6 @@ get_file_pixbuf (GSearchWindow * gsearch,
 	else {
 		icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, TRUE);
 	}
-
-	pixbuf = (GdkPixbuf *) g_hash_table_lookup (gsearch->search_results_pixbuf_hash_table, icon_name);
 
 	if (pixbuf == NULL) {
 
@@ -1201,13 +1199,8 @@ get_file_pixbuf (GSearchWindow * gsearch,
 				}
 			}
 		}
+		g_free (icon_name);
 
-		if (pixbuf != NULL) {
-			g_hash_table_insert (gsearch->search_results_pixbuf_hash_table, icon_name, pixbuf);
-		}
-		else {
-			g_free (icon_name);
-		}
 	}
 	else {
 		g_free (icon_name);

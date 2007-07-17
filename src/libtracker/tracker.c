@@ -111,6 +111,34 @@ char *metadata_types[] = {
 };
 
 
+ServiceType 
+tracker_service_name_to_type (const char *service)
+{
+
+	char **st;
+	int i = 0;
+
+	for (st=tracker_service_types; *st; st++) {
+
+		if (strcasecmp (service, *st) == 0) {
+			return i;
+		}
+
+		i++;
+	}
+
+
+	return 0;
+}
+
+
+char *
+tracker_type_to_service_name (ServiceType s)
+{
+	return g_strdup (tracker_service_types[s]);
+}
+
+
 
 static void
 tracker_array_reply (DBusGProxy *proxy, char **OUT_result, GError *error, gpointer user_data)
