@@ -21,25 +21,24 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "tracker-utils.h"
 
+
 GList *
-tracker_keyword_array_to_glist(gchar **array)
+tracker_keyword_array_to_glist (gchar **array)
 {
 	GList *list = NULL;
 	gchar **meta = NULL;
-	gchar * name = NULL;
 
-	if (array == NULL)
+	if (!array) {
 		return NULL;
+	}
 
 	for (meta = array; *meta; meta++) {
-		name = g_strdup(meta[0]);
-		printf("keyword_name = %s\n", name);
-		list = g_list_prepend(list, name);
+		gchar *name = g_strdup (*meta);
+		list = g_list_prepend (list, name);
 	}
 
 	return list;
@@ -53,41 +52,45 @@ tracker_get_all_keywords (TrackerClient *tracker_client)
 	GError *error = NULL;
 
 	out_array = tracker_keywords_get_list (tracker_client, SERVICE_FILES, &error);
+
 	if (!error && out_array) {
-		gchar *name = NULL;
 		guint i;
 		for (i = 0; i < out_array->len; i++) {
-			name = ((gchar **)out_array->pdata[i])[0];
-			if (strlen (name) > 2)
-				list = g_list_prepend(list, name);
+			gchar **names = out_array->pdata[i];
+			if (names) {
+				gchar *name = names[0];
+				if (strlen (name) > 2) {
+					list = g_list_prepend(list, name);
+				}
+			}
 		}
 		g_ptr_array_free (out_array, TRUE);
 	}
-	g_clear_error(&error);
+
+	g_clear_error (&error);
+
 	return list;
 }
 
 /* Creates a tree model containing the keywords in List 
-this simple treemodel has a single column containing the keyword
-name*/
+this simple treemodel has a single column containing the keyword name*/
 GtkTreeModel *
 tracker_create_simple_keyword_liststore (const GList *list)
 {
-    GList *l;
     GtkListStore *store;
-    GtkTreeIter iter;
+    GList *tmp;
 
     store = gtk_list_store_new (1, G_TYPE_STRING);
 
-    l=list;
-    while (l != NULL) {
-        gtk_list_store_insert_with_values (store,
-                                           &iter,
-                                           0,
-                                           0,
-                                           (char *)l->data,
-                                           -1);
-        l = l->next;
+    for (tmp = list; tmp; tmp = tmp->next) {
+	    gchar *keyword = keyword = tmp->data;
+
+	    gtk_list_store_insert_with_values (store,
+					       NULL,
+					       0,
+					       0,
+					       keyword,
+					       -1);
     }
 
     return GTK_TREE_MODEL (store);

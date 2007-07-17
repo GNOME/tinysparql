@@ -1,11 +1,19 @@
+2007-07-17 Patch from Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+       * Fixed build of TST
+       * Some cleanups in libtracker-gtk
+
+
 2007-07-17 Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
 
        * updated README
+
 
 2007-07-17 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Added MaxTextWords limit to config
 	* small compiler warning fixes
+
 
 2007-07-17 Jamie McCracken <jamiemcc at gnome org>
 
