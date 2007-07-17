@@ -362,6 +362,8 @@ set_snippet (char * snippet,  GError *error, gpointer user_data)
 	GtkTreeIter iter;
 	SnippetRow *snippet_row = user_data;
 
+	g_return_if_fail (error == NULL);
+
 	snippet_markup = g_strdup_printf ("<span size='small'>%s</span>", snippet);
 
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (snippet_row->gsearch->search_results_list_store), &iter)) {

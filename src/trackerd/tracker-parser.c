@@ -554,7 +554,7 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 					
 					total_words++;
 					
-					if (total_words < 10000) { 
+					if (total_words < tracker->max_words_to_index) { 
 
 						count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, index_word));
 						g_hash_table_insert (word_table, index_word, GINT_TO_POINTER (count + weight));	
@@ -589,7 +589,7 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 
 				total_words++;
 
-				if (total_words < 10000) { 
+				if (total_words < tracker->max_words_to_index) { 
 
 			
 					count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));

@@ -50,7 +50,8 @@ extern char *tracker_actions[];
 #define MAX_INDEX_TEXT_LENGTH		1048576
 #define MAX_PROCESS_QUEUE_SIZE		100
 #define MAX_EXTRACT_QUEUE_SIZE		500
-#define	OPTIMIZATION_COUNT		10000
+#define OPTIMIZATION_COUNT		10000
+#define MAX_WORDS_TO_INDEX		10000
 
 /* default indexer options */
 #define MIN_INDEX_BUCKET_COUNT		65536    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
@@ -215,6 +216,7 @@ typedef struct {
 	int		battery_throttle;
 	gboolean	use_extra_memory;
 	int		initial_sleep;
+	int		max_words_to_index;
 
 	/* indexing options */
 	int	 	max_index_bucket_count;

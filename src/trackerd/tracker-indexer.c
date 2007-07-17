@@ -572,7 +572,7 @@ void
 tracker_add_query_word (SearchQuery *query, const char *word, WordType word_type)
 {
 
-	if (!word || word[0] == 0 || word == " ") {
+	if (!word || word[0] == 0 || (word[0] == ' ' && word[1] == 0)) {
 		return;
 	}
 

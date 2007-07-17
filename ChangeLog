@@ -1,3 +1,12 @@
+2007-07-17 Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
+
+       * updated README
+
+2007-07-17 Patch from Marcus Fritzsch <fritschy at googlemail com>
+	
+	* Added MaxTextWords limit to config
+	* small compiler warning fixes
+
 2007-07-17 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed metadata tile to display for all cats

@@ -1366,12 +1366,12 @@ tracker_search_metadata_by_text_async (TrackerClient *client, const char *query,
 	char *metadata;
 	char *keywords[2];
  
-	if(strstr(query, ":") > 0){
+	if (strchr (query, ':') != NULL) {
 		metadata = strtok ((char *)query, ":");
 		if(strcoll(metadata,"tag") == 0){
 			keywords[0] = strtok (NULL, ":");
 			keywords[1] = NULL;
-			client->last_pending_call = org_freedesktop_Tracker_Keywords_search_async (client->proxy_keywords, -1, "Files", (char **)keywords, 0, 512, tracker_array_reply, callback_struct);
+			client->last_pending_call = org_freedesktop_Tracker_Keywords_search_async (client->proxy_keywords, -1, "Files", (const char **)keywords, 0, 512, tracker_array_reply, callback_struct);
 		}
 	}else{
 		client->last_pending_call = org_freedesktop_Tracker_Search_text_async (client->proxy_search, -1, "Files", query,  0, 512, tracker_array_reply, callback_struct);

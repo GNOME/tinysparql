@@ -2303,6 +2303,8 @@ tracker_load_config_file ()
 					 "[Performance]\n",
 					 "# Maximum size of text in bytes to index from a file's text contents\n",
 					 "MaxTextToIndex=1048576\n",
+					 "# Maximum number of unique words to index from a file's text contents\n",
+					 "MaxWordsToIndex=10000\n",
 					 "# Specifies the no of entities to index before determining whether to perform index optimization\n",
 					 "OptimizationSweepCount=10000\n",
 					 "# Sets the maximum bucket count for the indexer\n",
@@ -2486,6 +2488,10 @@ tracker_load_config_file ()
 	if (g_key_file_has_key (key_file, "Performance", "Padding", NULL)) {
 		tracker->padding = g_key_file_get_integer (key_file, "Performance", "Padding", NULL);
 
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "MaxWordsToIndex", NULL)) {
+		tracker->max_words_to_index = g_key_file_get_integer (key_file, "Performance", "MaxWordsToIndex", NULL);
 	}
 
 
@@ -3177,10 +3183,12 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 	if (ptr) {
 		char *snippet = g_strndup (txt, ptr - txt);
 		char *esc_snippet = g_markup_escape_text (snippet, ptr - txt);
+		char *highlight_snip = highlight_terms (esc_snippet, terms);
 
 		g_free (snippet);
+		g_free (esc_snippet);
 
-		return esc_snippet;
+		return highlight_snip;
 	} else {
 		return NULL;
 	}

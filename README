@@ -339,4 +339,5 @@ for various fields. It prints to STDOUT all matching files. You can see some
 example queries in the RDF-Query-examples folder. You can run the examples as
 "tracker-query < RDFFILE"
 
+"tracker-status" - queries status of trackerd
 

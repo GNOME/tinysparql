@@ -393,7 +393,7 @@ tracker_get_field_count (char ***result)
 	char **row, **p;
 	int  i;
 
-	if (!result || tracker_get_row_count == 0) {
+	if (!result) {
 		return 0;
 	}
 
@@ -661,7 +661,7 @@ tracker_db_attach_db (DBConnection *db_con, const char *name)
 	} else if (strcmp (name, "cache") == 0) {
 	
 		char *path = g_build_filename (tracker->sys_tmp_root_dir, "cache.db", NULL);
-		char *sql = g_strdup_printf ("ATTACH '%s' as %s", path, name);
+		sql = g_strdup_printf ("ATTACH '%s' as %s", path, name);
 		g_free (path);
 
 		tracker_db_exec_no_reply (db_con, sql);
@@ -2214,7 +2214,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 		value = compressed;
 		
 	} else {
-		tracker_error ("WARNING: compression of %s has failed", value);
+		tracker_error ("WARNING: compression has failed");
 		value = g_strdup (text);
 		bytes_compressed = length;
 	}
@@ -2833,13 +2833,12 @@ tracker_get_related_metadata_names (DBConnection *db_con, const char *name)
 
 	res = tracker_exec_proc (db_con, "GetMetadataAliasesForName", 2, name, name);
 
-	int k = 0;
-	GString *str;
-
-	str = g_string_new ("");
-
 	if (res) {
+		int k = 0;
+		GString *str;
 		char **row;
+
+		str = g_string_new ("");
 
 		while ((row = tracker_db_get_row (res, k))) {
 			if (row[1]) {
@@ -3297,7 +3296,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 						
 			if (!values[0]) break;
 
-			save_full_text (db_con->blob, id, values[i], strlen (values[0]));
+			save_full_text (db_con->blob, id, values[0], strlen (values[0]));
 			new_value = values[0];
 
 			break;

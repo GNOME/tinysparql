@@ -1794,6 +1794,7 @@ set_defaults ()
 	tracker->max_process_queue_size = MAX_PROCESS_QUEUE_SIZE;
 	tracker->max_extract_queue_size = MAX_EXTRACT_QUEUE_SIZE;
 	tracker->optimization_count = OPTIMIZATION_COUNT;
+	tracker->max_words_to_index = MAX_WORDS_TO_INDEX;
 
 	tracker->max_index_bucket_count = MAX_INDEX_BUCKET_COUNT;
 	tracker->min_index_bucket_count = MIN_INDEX_BUCKET_COUNT;
@@ -1860,6 +1861,7 @@ sanity_check_option_values ()
 
 
 	if (tracker->max_index_text_length < 0) tracker->max_index_text_length = 0;
+	if (tracker->max_words_to_index < 0) tracker->max_words_to_index = 0;
 	if (tracker->optimization_count < 1000) tracker->optimization_count = 1000;
 	if (tracker->max_index_bucket_count < 1000) tracker->max_index_bucket_count= 1000;
 	if (tracker->min_index_bucket_count < 1000) tracker->min_index_bucket_count= 1000;
@@ -1887,6 +1889,8 @@ sanity_check_option_values ()
 	} else 	if (tracker->throttle < 0) {
 		tracker->throttle = 0;
 	}
+
+	if (tracker->initial_sleep > 1000) tracker->initial_sleep = 1000; /* g_usleep (X * 1000 * 1000) */
 
 	char *bools[] = {"no", "yes"};
 

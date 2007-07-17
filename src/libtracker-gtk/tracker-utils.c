@@ -55,7 +55,7 @@ tracker_get_all_keywords (TrackerClient *tracker_client)
 	out_array = tracker_keywords_get_list (tracker_client, SERVICE_FILES, &error);
 	if (!error && out_array) {
 		gchar *name = NULL;
-		gint i;
+		guint i;
 		for (i = 0; i < out_array->len; i++) {
 			name = ((gchar **)out_array->pdata[i])[0];
 			if (strlen (name) > 2)
