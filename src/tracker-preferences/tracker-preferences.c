@@ -142,7 +142,7 @@ setup_page_general (TrackerPreferences * preferences)
 
 
         widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
-        sleep = tracker_configuration_get_int(configuration,"/Watches/InitialSleep",NULL);
+        sleep = tracker_configuration_get_int (configuration,"/Watches/InitialSleep",NULL);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),sleep);
          
 

@@ -1,6 +1,12 @@
 #include "tracker-configuration.h"
 #include "tracker-configuration-private.h"
 #include "config.h"
+#include <glib/gi18n.h>
+
+typedef struct {
+	char *lang;
+	char *name;
+} Matches;
 
 #ifndef HAVE_RECENT_GLIB
 /**********************************************************************
@@ -251,6 +257,140 @@ tracker_configuration_class_init (TrackerConfigurationClass * klass)
 	/* Properties */
 }
 
+
+static Matches tmap[] = {
+		{"da", "danish"},
+		{"nl", "dutch"},
+		{"en", "english"},
+ 		{"fi", "finnish"},
+		{"fr", "french"},
+		{"de", "german"},
+		{"it", "italian"},
+		{"nb", "norwegian"},
+		{"pt", "portuguese"},
+		{"ru", "russian"},
+		{"es", "spanish"},
+		{"sv", "swedish"},
+		{NULL, 0},
+};
+
+
+
+static char *
+get_default_language_code ()
+{
+	char **langs, **plangs, *result;
+
+
+	/* get langauges for user's locale */
+	langs = (char**) g_get_language_names ();
+
+	int i;
+
+	for (plangs = langs; *plangs; plangs++) {
+		if (strlen (*plangs) > 1) {
+			for (i=0; tmap[i].lang; i++) {
+				if (g_str_has_prefix (*plangs, tmap[i].lang)) {
+					result = g_strndup (*plangs, 2);
+					return result;
+				}
+
+			}
+		}
+	}
+
+	return g_strdup ("en");
+
+
+
+}
+
+
+static void
+create_config_file ()
+{
+	char	 *filename;
+
+	filename = g_build_filename (g_get_user_config_dir (), "/tracker/tracker.cfg", NULL);
+
+	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
+                char *tracker_dir = g_build_filename (g_get_user_config_dir (),"/tracker",NULL);
+
+                if (!g_file_test (tracker_dir, G_FILE_TEST_EXISTS)) {
+                    g_mkdir_with_parents (tracker_dir,0700);
+                }
+
+		g_free (tracker_dir);
+
+		char *contents, *language;
+
+		language = get_default_language_code ();
+
+		contents  = g_strconcat (
+					 "[General]\n",
+					 "# Log Verbosity - Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)\n",
+					 "Verbosity=0\n\n",
+					 "# Minimizes the use of memory but may slow indexing down\n", 
+					 "LowMemoryMode=false\n\n",
+					 "[Watches]\n",
+					 "# List of directory roots to index and watch seperated by semicolons\n",
+					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
+					 "# List of directory roots to not index and not watch seperated by semicolons\n",
+					 "NoWatchDirectory=\n",
+					 "# Set to false to prevent watching of any kind\n",
+					 "EnableWatching=true\n\n",
+					 "# Set the initial sleeping time, in seconds\n",
+					 "InitialSleep=45\n",
+					 "[Indexing]\n",
+					 "# Throttles the indexing process. Allowable values are 0-20. higher values decrease indexing speed\n",
+					 "Throttle=0\n",
+					 "# Disables the indexing process\n",
+					 "EnableIndexing=true\n",
+					 "# Enables indexing of a file's text contents\n",
+					 "EnableFileContentIndexing=true\n",
+					 "# Enables generation of thumbnails\n",
+					 "EnableThumbnails=false\n",
+					 "# List of partial file patterns (glob) seperated by semicolons that specify files to not index (basic stat info is only indexed for files that match these patterns)\n",
+					 "NoIndexFileTypes=;\n\n",
+					  "# Sets minimum length of words to index\n",
+					 "MinWordLength=3\n",
+					  "# Sets maximum length of words to index (words are cropped if bigger than this)\n",
+					 "MaxWordLength=30\n",
+					  "# Sets the language specific stemmer and stopword list to use \n",
+					  "# Valid values are 'en' (english), 'da' (danish), 'nl' (dutch), 'fi' (finnish), 'fr' (french), 'de' (german), 'it' (italien), 'nb' (norwegian), 'pt' (portugese), 'ru' (russian), 'es' (spanish), 'sv' (swedish)\n",
+					 "Language=", language, "\n",
+					 "# Enables use of language-specific stemmer\n",
+					 "EnableStemmer=true\n",
+					 "[Emails]\n",
+					 "IndexEvolutionEmails=true\n",
+					 "[Performance]\n",
+					 "# Maximum size of text in bytes to index from a file's text contents\n",
+					 "MaxTextToIndex=1048576\n",
+					 "# Maximum number of unique words to index from a file's text contents\n",
+					 "MaxWordsToIndex=10000\n",
+					 "# Specifies the no of entities to index before determining whether to perform index optimization\n",
+					 "OptimizationSweepCount=10000\n",
+					 "# Sets the maximum bucket count for the indexer\n",
+					 "MaxBucketCount=524288\n",
+					 "# Sets the minimum bucket count\n",
+					 "MinBucketCount=65536\n",
+					 "# Sets no. of divisions of the index file\n",
+					 "Dvisions=4\n",
+					 "# Selects the desired ratio of used records to buckets to be used when optimizing index (should be a value between 0 and 4) \n",
+					 "BucketRatio=1\n",
+					 "# Alters how much padding is used to prevent index relocations. Higher values improve indexing speed but waste more disk space. Value should be in range (1..8)\n",
+					 "Padding=2\n",
+					 NULL);
+
+		g_file_set_contents (filename, contents, strlen (contents), NULL);
+		g_free (contents);
+	}
+
+	g_free (filename);
+
+
+}
+
 static void
 tracker_configuration_init (GTypeInstance * instance, gpointer data)
 {
@@ -264,8 +404,10 @@ tracker_configuration_init (GTypeInstance * instance, gpointer data)
 	priv->filename = g_build_filename (g_strdup (g_get_user_config_dir ()), "/tracker/tracker.cfg", NULL);
 	priv->keyfile = g_key_file_new ();
 
-	if (!g_file_test (priv->filename, G_FILE_TEST_EXISTS))
-		g_error ("tracker_configuration_init: implement file defaults\n");
+	if (!g_file_test (priv->filename, G_FILE_TEST_EXISTS)) {
+		create_config_file ();
+	}
+	
 
 	g_key_file_load_from_file (priv->keyfile, priv->filename,
 				   G_KEY_FILE_KEEP_COMMENTS, &error);

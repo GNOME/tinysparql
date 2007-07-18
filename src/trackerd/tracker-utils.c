@@ -2259,10 +2259,14 @@ tracker_load_config_file ()
 	filename = g_build_filename (tracker->config_dir, "/tracker/tracker.cfg", NULL);
 
 	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
-                char *tracker_dir = g_build_filename(tracker->config_dir,"/tracker",NULL);
-                if (!g_file_test(tracker_dir,G_FILE_TEST_EXISTS)) {
-                    g_mkdir_with_parents(tracker_dir,0700);
+                char *tracker_dir = g_build_filename (tracker->config_dir,"/tracker",NULL);
+
+                if (!g_file_test (tracker_dir,G_FILE_TEST_EXISTS)) {
+                    g_mkdir_with_parents (tracker_dir,0700);
                 }
+
+		g_free (tracker_dir);
+
 		char *contents, *language;
 
 		language = get_default_language_code ();
@@ -2281,7 +2285,7 @@ tracker_load_config_file ()
 					 "# Set to false to prevent watching of any kind\n",
 					 "EnableWatching=true\n\n",
 					 "# Set the initial sleeping time, in seconds\n",
-					 "InitialSleep=5\n",
+					 "InitialSleep=45\n",
 					 "[Indexing]\n",
 					 "# Throttles the indexing process. Allowable values are 0-20. higher values decrease indexing speed\n",
 					 "Throttle=0\n",

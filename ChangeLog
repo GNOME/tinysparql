@@ -2,6 +2,7 @@
 
 	* Fixed crasher in tst
 	* Fixed tagging
+	* created config file if not present when running tracker-prefs
 
 2007-07-18 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
