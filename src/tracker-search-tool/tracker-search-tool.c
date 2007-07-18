@@ -1716,6 +1716,10 @@ start_new_search (GSearchWindow *gsearch, const char *query)
 
 	service_info_t	*service;
 
+	if (!query || query[0] == '\0' ) {
+		return;
+	}
+
 	gtk_widget_set_sensitive (gsearch->category_list, TRUE);
 
 	/* yes, we are comparing pointer addresses here */
@@ -1919,14 +1923,33 @@ click_find_cb (GtkWidget * widget,
                gpointer data)
 {
 	GSearchWindow 	*gsearch = data;
-	gchar		*command;
+	gchar		*command = NULL;
 	
 	command = build_search_command (gsearch, TRUE);
 	if (command != NULL) {
+
 		start_new_search (gsearch, command);
 	}
 
 	g_free (command);
+}
+
+
+static gboolean
+text_changed_cb (GtkWidget     *widget,
+                 GdkEventFocus *event,
+                 gpointer       user_data)  
+{
+
+	GSearchWindow * gsearch = user_data;
+
+/*	if (gtk_entry_get_text (GTK_ENTRY (gsearch->search_entry)) != NULL) {
+		gtk_widget_set_sensitive (gsearch->find_button, TRUE);
+	} else {
+		gtk_widget_set_sensitive (gsearch->find_button, FALSE);
+	}
+*/
+	return FALSE;
 }
 
 
@@ -2060,6 +2083,10 @@ gsearch_app_create (GSearchWindow * gsearch)
 
 	g_signal_connect (G_OBJECT (gsearch->search_entry), "activate",
 			  G_CALLBACK (name_contains_activate_cb),
+			  (gpointer) gsearch);
+
+	g_signal_connect (G_OBJECT (gsearch->search_entry), "focus-out-event",
+			  G_CALLBACK (text_changed_cb),
 			  (gpointer) gsearch);
 
 	gsearch->show_more_options_expander = gtk_expander_new_with_mnemonic ("Select more _options");
