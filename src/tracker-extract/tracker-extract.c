@@ -1,3 +1,4 @@
+/* vim: set noet ts=8 sw=8 sts=0: */
 /* Tracker Extract - extracts embedded metadata from files
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  *
@@ -29,6 +30,7 @@
 #include "config.h"
 
 #define MAX_MEM 128
+#define MAX_MEM_AMD64 512
 
 #ifdef HAVE_EXEMPI
 #include <exempi/xmp.h>
@@ -156,6 +158,36 @@ MimeToExtractor extractors[] = {
 };
   
 
+gboolean
+set_memory_rlimits (void)
+{
+	struct	rlimit rl;
+	int	fail = 0;
+
+	/* We want to limit the max virtual memory
+	 * most extractors use mmap() so only virtual memory can be effectively limited */
+#ifdef __x86_64__
+	/* many extractors on AMD64 require 512M of virtual memory, so we limit heap too */
+	getrlimit (RLIMIT_AS, &rl);
+	rl.rlim_cur = MAX_MEM_AMD64*1024*1024;
+	fail |= setrlimit (RLIMIT_AS, &rl);
+
+	getrlimit (RLIMIT_DATA, &rl);
+	rl.rlim_cur = MAX_MEM*1024*1024;
+	fail |= setrlimit (RLIMIT_DATA, &rl);
+#else
+	/* on other architectures, 128M of virtual memory seems to be enough */
+	getrlimit (RLIMIT_AS, &rl);
+	rl.rlim_cur = MAX_MEM*1024*1024;
+	fail |= setrlimit (RLIMIT_AS, &rl);
+#endif
+
+	if(fail)
+		g_printerr ("Error trying to set memory limit for tracker-extract\n");
+	return ! fail;
+}
+
+
 void
 tracker_child_cb (gpointer user_data)
 {
@@ -171,21 +203,10 @@ tracker_child_cb (gpointer user_data)
 		g_printerr ("Error trying to set resource limit for cpu\n");
 	}
 
-
-	/* Set memory usage to max limit (128MB) - some archs like AMD64 machines do not fully support this or are buggy */
-
-#if defined(__i386__)
-	getrlimit (RLIMIT_AS, &mem_limit);
- 	mem_limit.rlim_cur = MAX_MEM*1024*1024;
-	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
-		g_printerr ("Error trying to set resource limit for memory usage\n");
-	}
-#endif
-
+	set_memory_rlimits();
 
 	/* Set child's niceness to 19 */
-	nice (19);
-		
+	nice (19);		
 }
 
 
@@ -474,15 +495,8 @@ main (int argc, char **argv)
 {
 	GHashTable	*meta;
 	char		*filename;
-	struct 		rlimit rl;
 
-	/* Obtain the current limits memory usage limits */
-	getrlimit (RLIMIT_AS, &rl);
-
-	/* Set virtual memory usage to max limit (128MB) - most extractors use mmap() so only virtual memory can be effectively limited */
- 	rl.rlim_cur = 128*1024*1024;
-	if (setrlimit (RLIMIT_AS, &rl) != 0) g_printerr ("Error trying to set resource limit for tracker-extract\n");
-
+	set_memory_rlimits();
 
 	g_set_application_name ("tracker-extract");
 
