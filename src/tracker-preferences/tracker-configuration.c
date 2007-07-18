@@ -261,7 +261,7 @@ tracker_configuration_init (GTypeInstance * instance, gpointer data)
 	GError *error = NULL;
 
 	priv->dirty = FALSE;
-	priv->filename = g_build_filename (g_strdup (g_get_user_config_dir ()), "tracker.cfg", NULL);
+	priv->filename = g_build_filename (g_strdup (g_get_user_config_dir ()), "/tracker/tracker.cfg", NULL);
 	priv->keyfile = g_key_file_new ();
 
 	if (!g_file_test (priv->filename, G_FILE_TEST_EXISTS))
@@ -460,7 +460,7 @@ _set_int (TrackerConfiguration * configuration, const gchar * const key,
 		TRACKER_CONFIGURATION_GET_PRIVATE (self);
 
 	gchar **data = g_strsplit (key, "/", 3);
-	g_key_file_set_boolean (priv->keyfile, data[1], data[2], value);
+	g_key_file_set_integer(priv->keyfile, data[1], data[2], value);
 	g_strfreev (data);
 
 	priv->dirty = TRUE;

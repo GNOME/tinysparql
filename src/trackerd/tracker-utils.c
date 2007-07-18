@@ -2256,9 +2256,13 @@ tracker_load_config_file ()
 
 	key_file = g_key_file_new ();
 
-	filename = g_build_filename (tracker->config_dir, "tracker.cfg", NULL);
+	filename = g_build_filename (tracker->config_dir, "/tracker/tracker.cfg", NULL);
 
 	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
+                char *tracker_dir = g_build_filename(tracker->config_dir,"/tracker",NULL);
+                if (!g_file_test(tracker_dir,G_FILE_TEST_EXISTS)) {
+                    g_mkdir_with_parents(tracker_dir,0700);
+                }
 		char *contents, *language;
 
 		language = get_default_language_code ();
@@ -2299,7 +2303,7 @@ tracker_load_config_file ()
 					 "# Enables use of language-specific stemmer\n",
 					 "EnableStemmer=true\n",
 					 "[Emails]\n",
-					 "IndexEvolutionEmails=true\n",
+					 "IndexEvolutionEmails=false\n",
 					 "[Performance]\n",
 					 "# Maximum size of text in bytes to index from a file's text contents\n",
 					 "MaxTextToIndex=1048576\n",

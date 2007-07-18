@@ -1,6 +1,19 @@
+2007-07-18 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed crasher in tst
+	* Fixed tagging
+
+2007-07-18 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
+
+	* Added initial sleep to tracker-prefs
+	* fixed email setting too
+
+
 2007-07-17 Patch from Alexandre Rostovtsev <tetromino@gmail.com>
 
 	* Fixed poppler extractor
+	* Fix for AMD64 setrlimit
+	
 
 
 2007-07-17 Patch from Andreas Eckstein <andreas.eckstein@gmx.net>

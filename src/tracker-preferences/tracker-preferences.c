@@ -130,11 +130,21 @@ setup_page_general (TrackerPreferences * preferences)
 		TRACKER_CONFIGURATION (priv->prefs);
 
 	gboolean value = FALSE;
+        gint     sleep = 0;
 	GtkWidget *widget = NULL;
 
 	/* TODO :: Detect autostarting */
-	widget = glade_xml_get_widget (priv->gxml, "fraStartup");
+	widget = glade_xml_get_widget (priv->gxml, "chkStartTrackerAutomatically");
 	gtk_widget_set_sensitive (GTK_WIDGET (widget), FALSE);
+
+        widget = glade_xml_get_widget (priv->gxml, "chkStartMonitorAutomatically");
+	gtk_widget_set_sensitive (GTK_WIDGET (widget), FALSE);
+
+
+        widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
+        sleep = tracker_configuration_get_int(configuration,"/Watches/InitialSleep",NULL);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),sleep);
+         
 
 	widget = glade_xml_get_widget (priv->gxml, "chkIndexFileContents");
 	value = tracker_configuration_get_bool (configuration,
@@ -218,7 +228,7 @@ setup_page_indexing (TrackerPreferences * preferences)
 				       "chkEnableEvolutionIndexing");
 	if (evolution_available ()) {
 		value = tracker_configuration_get_bool (configuration,
-							"/Services/IndexEvolutionEmails",
+							"/Emails/IndexEvolutionEmails",
 							NULL);
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
 					      value);
@@ -389,6 +399,10 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	gboolean value = FALSE;
 	GtkWidget *item = NULL;
 
+        widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
+        gint sleep = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widget));
+        tracker_configuration_set_int(configuration,"/Watches/InitialSleep",sleep);
+
 	widget = glade_xml_get_widget (priv->gxml, "chkIndexFileContents");
 	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 	tracker_configuration_set_bool (configuration,
@@ -423,7 +437,7 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 				       "chkEnableEvolutionIndexing");
 	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 	tracker_configuration_set_bool (configuration,
-					"/Services/IndexEvolutionEmails",
+					"/Emails/IndexEvolutionEmails",
 					value);
 
 	widget = glade_xml_get_widget (priv->gxml,

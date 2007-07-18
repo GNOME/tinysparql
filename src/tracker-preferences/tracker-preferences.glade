@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.1.4 on Sat Feb  3 03:32:43 2007 by compnerd@neon-->
+<!--Generated with glade3 3.3.0 on Wed Jul 18 18:37:24 2007 by jtan@wushu-->
 <glade-interface>
   <widget class="GtkDialog" id="dlgPreferences">
     <property name="border_width">5</property>
@@ -59,6 +59,45 @@
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkHBox" id="hbox8">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <widget class="GtkLabel" id="lblInitialSleep">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Initial Sleep:          </property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkSpinButton" id="spnInitialSleep">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="adjustment">5 0 10 1 300 300</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="padding">5</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="lblInitialSleepSeconds">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Seconds</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">2</property>
                                   </packing>
                                 </child>
                               </widget>
@@ -305,8 +344,8 @@
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="chkEnableThunderbirdIndexing">
-                                    <property name="visible">True</property>
                                     <property name="label" translatable="yes">Enable Thunderbird email indexing</property>
+                                    <property name="visible">False</property>
                                     <property name="draw_indicator">True</property>
                                   </widget>
                                   <packing>
@@ -316,8 +355,8 @@
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="chkEnableKMailIndexing">
-                                    <property name="visible">True</property>
                                     <property name="label" translatable="yes">Enable KMail email indexing</property>
+                                    <property name="visible">False</property>
                                     <property name="draw_indicator">True</property>
                                   </widget>
                                   <packing>

@@ -71,7 +71,7 @@ DeleteAllContents DELETE FROM ServiceContents where ServiceID = ?;
 GetContents Select uncompress (Content) from ServiceContents where ServiceID = ? and MetadataID = ? and Content is not null;
 GetAllContents Select uncompress (Content) from ServiceContents where ServiceID = ? and Content is not null;
 
-GetKeywordList Select distinct K.MetaDataValue, count(*) as totalcount from Services S, ServiceKeywordMetaData K where K.ServiceID = S.ID AND (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = ? or Parent = ?)) and K.MetaDataId in (select ChildID from MetaDataChildren where MetadataId = (select ID from MetadataTypes T where MetaName = 'DC:Keywords')) group by K.MetaDataValue order by totalcount desc, K.MetaDataValue asc;
+GetKeywordList Select distinct K.MetaDataValue, count(*) as totalcount from Services S, ServiceKeywordMetaData K where K.ServiceID = S.ID AND (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = ? or Parent = ?)) AND  K.MetaDataId = 19 group by K.MetaDataValue order by totalcount desc, K.MetaDataValue asc;
 GetKeywords Select MetaDataValue from ServiceKeywordMetaData where ServiceID = (select ID From Services where Path = ? and Name  = ?) and MetaDataId in (select ChildID from MetaDataChildren where MetadataId = (select ID from MetadataTypes T where MetaName = 'DC:Keywords'));
 
 GetAllIndexable SELECT S.MetaDataValue as MetaValue, M.Weight, M.Filtered, M.Delimited  FROM ServiceMetaData S, MetaDataTypes M WHERE  S.MetaDataID = M.ID AND S.ServiceID = ? And S.MetaDataValue is not null and M.DatatypeID = 1 and M.Embedded >= ?;

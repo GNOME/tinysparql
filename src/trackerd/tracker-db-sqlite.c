@@ -1121,12 +1121,6 @@ tracker_db_get_alias (const char *service)
 		return g_strdup ("emails");
 	}
 
-
-	if (strcmp (parent, "Applications") == 0) {
-		g_free (parent);
-		return g_strdup ("applications");
-	}
-
 	g_free (parent);
 	return g_strdup ("misc");
 
@@ -5150,6 +5144,7 @@ char ***
 tracker_db_get_keyword_list (DBConnection *db_con, const char *service)
 {
 
+	tracker_debug (service);
 	char ***res = tracker_exec_proc (db_con, "GetKeywordList", 2, service, service);
 
 	return res;

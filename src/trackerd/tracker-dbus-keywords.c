@@ -516,7 +516,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	str_max = tracker_int_to_str (smax);
 
 
-	g_string_append_printf (str_where, "  and  (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = %s or Parent = %s)) ", service, service);
+	g_string_append_printf (str_where, "  and  (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
 
 
 	g_free (str_min);
