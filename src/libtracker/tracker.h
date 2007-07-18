@@ -114,8 +114,8 @@ char **			tracker_metadata_get				(TrackerClient *client, ServiceType service, c
 void			tracker_metadata_set				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, GError **error);
 void			tracker_metadata_register_type			(TrackerClient *client, const char *name, MetadataTypes type, GError **error);
 MetaDataTypeDetails *	tracker_metadata_get_type_details		(TrackerClient *client, const char *name, GError **error);
-char **			tracker_metadata_get_registered_types		(TrackerClient *client, const char *class, GError **error);
-char **			tracker_metadata_get_writeable_types		(TrackerClient *client, const char *class, GError **error);
+char **			tracker_metadata_get_registered_types		(TrackerClient *client, const char *classname, GError **error);
+char **			tracker_metadata_get_writeable_types		(TrackerClient *client, const char *classname, GError **error);
 char **			tracker_metadata_get_registered_classes		(TrackerClient *client, GError **error);
 
 
@@ -169,8 +169,8 @@ void		tracker_get_stats_async 				(TrackerClient *client,  TrackerGPtrArrayReply
 void		tracker_metadata_get_async 				(TrackerClient *client, ServiceType service, const char *id, char **keys, TrackerArrayReply callback, gpointer user_data);
 void		tracker_metadata_set_async 				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, TrackerVoidReply callback, gpointer user_data);
 void		tracker_metadata_register_type_async 			(TrackerClient *client, const char *name, MetadataTypes type, TrackerVoidReply callback, gpointer user_data);
-void		tracker_metadata_get_registered_types_async 		(TrackerClient *client, const char *class, TrackerArrayReply callback, gpointer user_data);
-void		tracker_metadata_get_writeable_types_async 		(TrackerClient *client, const char *class, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_get_registered_types_async 		(TrackerClient *client, const char *classname, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_get_writeable_types_async 		(TrackerClient *client, const char *classname, TrackerArrayReply callback, gpointer user_data);
 void		tracker_metadata_get_registered_classes_async 		(TrackerClient *client, TrackerArrayReply callback, gpointer user_data);
 
 
