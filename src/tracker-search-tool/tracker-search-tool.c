@@ -319,7 +319,6 @@ build_search_command (GSearchWindow * gsearch,
 	gchar * file_is_named_utf8;
 	gchar * file_is_named_locale;
 
-	start_animation (gsearch, first_pass);
 
 	gsearch->show_thumbnails = TRUE;
 
@@ -334,7 +333,7 @@ build_search_command (GSearchWindow * gsearch,
 
 		locale = g_locale_from_utf8 (file_is_named_utf8, -1, NULL, NULL, &error);
 		if (locale == NULL) {
-			stop_animation (gsearch);
+		
 			display_dialog_character_set_conversion_error (gsearch->window, file_is_named_utf8, error);
 			g_free (file_is_named_utf8);
 			g_error_free (error);
@@ -346,7 +345,7 @@ build_search_command (GSearchWindow * gsearch,
 
 	file_is_named_locale = g_locale_from_utf8 (file_is_named_utf8, -1, NULL, NULL, &error);
 	if (file_is_named_locale == NULL) {
-		stop_animation (gsearch);
+
 		display_dialog_character_set_conversion_error (gsearch->window, file_is_named_utf8, error);
 		g_free (file_is_named_utf8);
 		g_error_free (error);
@@ -1821,7 +1820,9 @@ do_search (GSearchWindow *gsearch, const char *query, gboolean new_search, int s
 	service_info_t	*service;
 	GPtrArray 	*out_array = NULL;
 	gboolean 	first_service = FALSE;
-	
+
+	start_animation (gsearch, TRUE);
+
 	if (!new_search) {
 		
 
