@@ -1,4 +1,14 @@
-2007-07-18 Jamie McCracken <jamiemcc at gnome org>
+2007-07-17 Patch from Alexandre Rostovtsev <tetromino@gmail.com>
+
+	* Fixed poppler extractor
+
+
+2007-07-17 Patch from Andreas Eckstein <andreas.eckstein@gmx.net>
+
+	* Made tracker.h more c++ compatible
+
+
+2007-07-17 Jamie McCracken <jamiemcc at gnome org>
 
 	* Queued snippets for generation to prevent delays
 	* Made all tracker calls async

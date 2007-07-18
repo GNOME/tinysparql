@@ -32,11 +32,11 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 {
 	PopplerDocument *document;
 	gchar           *tmp;
-	gchar           *title;
-	gchar           *author;
-	gchar           *subject;
-	gchar           *keywords;
-	gchar           *metadata_xml;
+	gchar           *title = NULL;
+	gchar           *author = NULL;
+	gchar           *subject = NULL;
+	gchar           *keywords = NULL;
+	gchar           *metadata_xml = NULL;
 	GTime            creation_date;
 	GError          *error = NULL;
 
