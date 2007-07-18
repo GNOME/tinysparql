@@ -1492,6 +1492,32 @@ tracker_search_set_columns_order (GtkTreeView * treeview)
 	g_slist_free (order);
 }
 
+
+int
+tracker_get_stored_separator_position ()
+{
+	int saved_pos;
+
+	saved_pos = tracker_search_gconf_get_int ("/apps/tracker-search-tool/separator_position");
+
+	if (saved_pos < 1) {
+		return DEFAULT_SEPARATOR_POSITION;
+	}
+
+	return saved_pos;
+
+	
+}
+
+
+void
+tracker_set_stored_separator_position (int pos)
+{
+	tracker_search_gconf_set_int ("/apps/tracker-search-tool/separator_position", pos);
+}
+
+
+
 void
 tracker_search_get_stored_window_geometry (gint * width,
                                         gint * height)
@@ -1506,11 +1532,11 @@ tracker_search_get_stored_window_geometry (gint * width,
 	saved_width = tracker_search_gconf_get_int ("/apps/tracker-search-tool/default_window_width");
 	saved_height = tracker_search_gconf_get_int ("/apps/tracker-search-tool/default_window_height");
 
-	if (saved_width == -1) {
+	if (saved_width < 1) {
 		saved_width = DEFAULT_WINDOW_WIDTH;
 	}
 
-	if (saved_height == -1) {
+	if (saved_height < 1) {
 		saved_height = DEFAULT_WINDOW_HEIGHT;
 	}
 

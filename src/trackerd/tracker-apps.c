@@ -99,6 +99,7 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 	char **mimes;
 	char **categories;
 
+	const char *file_name = "File:Name";
 	const char *app_name = "App:Name";
 	const char *app_display_name = "App:DisplayName";
 	const char *app_generic_name = "App:GenericName";
@@ -110,6 +111,9 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 
 	/* Check (to be sure) if this is a .desktop file */
 	if (g_str_has_suffix (info->uri, ".desktop") == FALSE)	return;
+
+	
+
 
 	const gchar * const *locale_array;
 	locale_array = g_get_language_names();
@@ -179,6 +183,14 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 					g_strfreev (categories);
 				}
 			} 
+
+			char *fname = g_path_get_basename (info->uri);
+
+			/* remove desktop extension */
+			int l = strlen (fname) - 8;
+			fname[l] = '\0';
+
+			tracker_add_metadata_to_table  (meta_table, file_name, fname);
 
 
 //			info->mime = g_strdup ("unknown");

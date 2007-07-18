@@ -206,16 +206,19 @@ _on_apply_add_tag (GtkButton *but, TrackerTagBar *bar)
 	priv = TRACKER_TAG_BAR_GET_PRIVATE (bar);
 	
 	text = gtk_entry_get_text (GTK_ENTRY (priv->entry));
+
+	if (strcmp (text, "Type tags you want to add here, separated by commas") != 0) {
+		
+		tags = g_strsplit (text, ",", 0);
 	
-	tags = g_strsplit (text, ",", 0);
-	
-	tracker_keywords_add(priv->client, priv->type, priv->uri, 
+		tracker_keywords_add(priv->client, priv->type, priv->uri, 
 				 tags, &error);
-	if (error) {
-		g_print ("Tag Removal Error : %s", error->message);
-		return;
-	}	
-	
+		if (error) {
+			g_print ("Tag Addition Error : %s", error->message);
+			return;
+		}	
+	}
+
 	_on_close_add_tag (but, bar);
 	gchar *temp = g_strdup (priv->uri);
 	tracker_tag_bar_set_uri (bar, priv->type, temp);

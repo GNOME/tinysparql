@@ -15,7 +15,7 @@ GetEmailByID2  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Emails', S.Mim
 
 GetEmailByID  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Emails', S.Mime, S.KeyMetadata1, S.KeyMetadata2, S.KeyMetadata3 FROM Services S  WHERE S.ID = ?;
 
-GetApplicationByID  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Applications', S.Mime, S.KeyMetadata2, S.KeyMetadata3, S.KeyMetadata1 FROM Services S  WHERE S.ID = ?;
+GetApplicationByID  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Applications', 'Application', S.KeyMetadata1, S.KeyMetadata2, S.KeyMetadata3 FROM Services S  WHERE S.ID = ?;
 
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File:Modified');
 

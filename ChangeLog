@@ -1,12 +1,22 @@
+2007-07-18 Jamie McCracken <jamiemcc at gnome org>
+
+	* Queued snippets for generation to prevent delays
+	* Made all tracker calls async
+	* Gconf settings for separator position
+	* Fixed bug in tagbar where instruction text would be saved as keywords
+	
+
+
 2007-07-17 Patch from Laurent Aguerreche <laurent.aguerreche@free.fr>
 
-       * Fixed build of TST
-       * Some cleanups in libtracker-gtk
+	* Fixed build of TST
+	* Some cleanups in libtracker-gtk
 
 
 2007-07-17 Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
 
-       * updated README
+	* updated README
+ 	* fixed xdg-open order
 
 
 2007-07-17 Patch from Marcus Fritzsch <fritschy at googlemail com>
@@ -20,6 +30,7 @@
 	* Fixed metadata tile to display for all cats
 	* Fixed TST to display all cats
 	* Fixed various bugs for the above
+		
 
 
 2007-07-15 Patch from Marcus Fritzsch <fritschy at googlemail com>

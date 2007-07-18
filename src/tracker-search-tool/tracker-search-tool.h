@@ -61,10 +61,11 @@ extern "C" {
 
 #define TRACKER_SEARCH_TOOL_ICON "tracker-searchtool"
 
-#define DEFAULT_WINDOW_WIDTH   500
-#define DEFAULT_WINDOW_HEIGHT  450
+#define DEFAULT_WINDOW_WIDTH   700
+#define DEFAULT_WINDOW_HEIGHT  580
 #define WINDOW_HEIGHT_STEP      35
 #define NUM_VISIBLE_COLUMNS      5
+#define DEFAULT_SEPARATOR_POSITION 170
 
 typedef enum {
 	STOPPED,
@@ -101,6 +102,7 @@ typedef struct {
 	gchar        	*service;
 	char		*display_name;
 	gchar        	*icon_name;
+	GdkPixbuf	*pixbuf;
 	ServiceType   	service_type;
 	GtkListStore	*store;
 	gboolean	has_hits;
@@ -128,7 +130,8 @@ struct _GSearchWindow {
 
 	gboolean		page_setup_mode;
 
-	GtkWidget		*toolbar;
+	GtkWidget		*pane;
+	GQueue			*snippet_queue;
 
 	GHashTable		*category_table;
 

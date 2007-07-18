@@ -2560,21 +2560,22 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 						
 
 					} else if (detailed_apps) {
-						row = g_new0 (char *, 6);
+						row = g_new0 (char *, 7);
 
 						row[0] = g_strdup (res[0][0]);
 						row[1] = g_strdup (res[0][1]);
-						row[2] = NULL;
+						row[2] = g_strdup (res[0][2]);
 						row[3] = NULL;
 						row[4] = NULL;
 						row[5] = NULL;
+						row[6] = NULL;
 
-						if (res[0][2]) {
-							row[2] = g_strdup (res[0][2]);						
-							if (res[0][3]) {
-								row[3] = g_strdup (res[0][3]);	
-								if (res[0][4]) {
-									row[4] = g_strdup (res[0][4]);						
+						if (res[0][3]) {
+							row[3] = g_strdup (res[0][3]);							
+							if (res[0][4]) {
+								row[4] = g_strdup (res[0][4]);	
+								if (res[0][5]) {
+									row[5] = g_strdup (res[0][5]);						
 								}	
 							}
 							

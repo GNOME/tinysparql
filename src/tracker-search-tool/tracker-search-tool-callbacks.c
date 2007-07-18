@@ -51,8 +51,8 @@
 #include "../libtracker-gtk/tracker-metadata-tile.h"
 
 #define SILENT_WINDOW_OPEN_LIMIT 5
-#define METADATA_IMAGE_WIDTH	100
-#define METADATA_IMAGE_HEIGHT	100
+#define METADATA_IMAGE_WIDTH	128
+#define METADATA_IMAGE_HEIGHT	128
 
 #ifdef HAVE_GETPGID
 extern pid_t getpgid (pid_t);
@@ -69,6 +69,8 @@ store_window_state_and_geometry (GSearchWindow *gsearch)
 		                   gsearch->window_height);
 	tracker_search_gconf_set_boolean ("/apps/tracker-search-tool/default_window_maximized",
 	                               gsearch->is_window_maximized);
+	tracker_set_stored_separator_position (gtk_paned_get_position (GTK_PANED (gsearch->pane)));
+	
 }
 
 static void
@@ -518,6 +520,7 @@ open_file_cb (GtkAction * action,
 	GtkTreeModel * model;
 	GList * list;
 	guint index;
+	char *exec = NULL;
 
 	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) == 0) {
 		return;
@@ -549,15 +552,24 @@ open_file_cb (GtkAction * action,
 
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
     		                    COLUMN_URI, &uri,
+				    COLUMN_EXEC, &exec,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
 
-		g_print ("opening %s\n", uri);
 
-		if (gsearch->type > 10) {
-			char *exec = g_strdup_printf ("evolution \"%s\"", uri);
+		if (gsearch->type == SERVICE_EMAILS) {
+			exec = g_strdup_printf ("evolution \"%s\"", uri);
 			g_spawn_command_line_async (exec, NULL);
 			g_free (exec);
+
+
+		} else if (gsearch->type == SERVICE_APPLICATIONS) {
+			if (exec) {
+				g_spawn_command_line_async (exec, NULL);
+				g_free (exec);
+			} else {
+				display_dialog_could_not_open_file (gsearch->window, uri, _("Application could not be opened"));
+			}
 
 		} else {
 
@@ -568,32 +580,30 @@ open_file_cb (GtkAction * action,
 			file = uri;
 			locale_file = g_locale_from_utf8 (file, -1, NULL, NULL, NULL);
 
-
-
-
 			if (!g_file_test (locale_file, G_FILE_TEST_EXISTS)) {
 				gtk_tree_selection_unselect_iter (GTK_TREE_SELECTION (gsearch->search_results_selection),
 				                                  &iter);
 				display_dialog_could_not_open_file (gsearch->window, uri,
 				                                    _("The document does not exist."));
 
-			}
-			else if (open_file_with_application (gsearch->window, locale_file) == FALSE) {
+			} else if (open_file_with_xdg_open (gsearch->window, locale_file) == FALSE) {
 
-				if (launch_file (locale_file) == FALSE) {
+				if (open_file_with_application (gsearch->window, locale_file) == FALSE) {
 
-					if (g_file_test (locale_file, G_FILE_TEST_IS_DIR)) {
+					if (launch_file (locale_file) == FALSE) {
 
-						if (open_file_with_xdg_open (gsearch->window, locale_file) == FALSE) {
+						if (g_file_test (locale_file, G_FILE_TEST_IS_DIR)) {
+
 							if (open_file_with_nautilus (gsearch->window, locale_file) == FALSE) {
 								display_dialog_could_not_open_folder (gsearch->window, uri);
 							}
-						}
-					}
-					else {
-						display_dialog_could_not_open_file (gsearch->window, uri,
+
+
+						} else {
+							display_dialog_could_not_open_file (gsearch->window, uri,
 						                                    _("There is no installed viewer capable "
 						                                      "of displaying the document."));
+						}
 					}
 				}
 			}
