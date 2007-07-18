@@ -1,3 +1,4 @@
+/* vim: set noet ts=8 sw=8 sts=0: */
 /* Tracker Extract - extracts embedded metadata from files
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  *
@@ -53,8 +54,11 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 		"subject", &subject,
 		"keywords", &keywords,
 		"creation-date", &creation_date,
-		"metadata", &metadata_xml,
 		NULL);
+
+	/* metadata property not present in older poppler versions */
+	if(g_object_class_find_property(G_OBJECT_GET_CLASS(document), "metadata"))
+		g_object_get(document, "metadata", &metadata_xml, NULL);
 
 	if (title && strlen (title))
 		g_hash_table_insert (metadata, g_strdup ("Doc:Title"), g_strdup (title));
