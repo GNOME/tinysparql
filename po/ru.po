@@ -1,21 +1,234 @@
-# Translation of tracker UI into Russian.
+# translation of ru.po to Russian
 # Copyright (C) 2006, Free Software Foundation
 # This file is distributed under the same license as the tracker package.
-# Vasiliy Faronov <qvvx@yandex.ru>, 2007.
 #
+# Vasiliy Faronov <qvvx@yandex.ru>, 2007.
+# Alexandre Rostovtsev <tetromino@gmail.com>, 2007.
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker trunk\n"
+"Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-27 14:53+0300\n"
-"PO-Revision-Date: 2007-01-27 13:36+0300\n"
-"Last-Translator: Vasiliy Faronov <qvvx@yandex.ru>\n"
-"Language-Team:  <gnome-cyr@gnome.org>\n"
+"POT-Creation-Date: 2007-07-18 22:57-0400\n"
+"PO-Revision-Date: 2007-07-18 23:07-0400\n"
+"Last-Translator: Alexandre Rostovtsev <tetromino@gmail.com>\n"
+"Language-Team: Russian <gnome-cyr@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
-"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#: ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr ""
+
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Служба поиска и индексирования Tracker"
+
+#  Со строчной - в контексте интерфейса, русскоязычному человеку так приятнее
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:466
+#, c-format
+msgid "Path : <b>%s</b>"
+msgstr "путь : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:467
+#, c-format
+msgid "Modified : <b>%s</b>"
+msgstr "изменён : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:468
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:655
+#, c-format
+msgid "Size : <b>%s</b>"
+msgstr "размер : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:469
+#, c-format
+msgid "Accessed : <b>%s</b>"
+msgstr "дата доступа : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:470
+#, c-format
+msgid "Mime : <b>%s</b>"
+msgstr "тип MIME : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:522
+#, c-format
+msgid "Sender : <b>%s</b>"
+msgstr "отправитель : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:523
+#, c-format
+msgid "Date : <b>%s</b>"
+msgstr "дата : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:564
+#, c-format
+msgid "Comment : <b>%s</b>"
+msgstr "комментарий : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:565
+#, c-format
+msgid "Categories : <b>%s</b>"
+msgstr "категории : <b>%s</b>"
+
+#  перевод не идеальный, но слово "продолжительность"
+#  не влизает в интерфейс
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:651
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:756
+#, c-format
+msgid "Duration : <b>%s</b>"
+msgstr "длина : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:652
+#, c-format
+msgid "Genre : <b>%s</b>"
+msgstr "жанр : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:653
+#, c-format
+msgid "Bitrate : <b>%s Kbs</b>"
+msgstr "битрейт : <b>%s кбит/с</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:654
+#, c-format
+msgid "Year : <b>%s</b>"
+msgstr "год : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:656
+#, c-format
+msgid "Codec : <b>%s</b>"
+msgstr "кодек : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:697
+#, c-format
+msgid " taken with a <span size='large'><i>%s</i></span>"
+msgstr ", фотоаппарат — <span size='large'><i>%s</i></span>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:702
+#, c-format
+msgid " <span size='large'><i>%s</i></span>"
+msgstr " <span size='large'><i>%s</i></span>"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:722
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:754
+#, c-format
+msgid "Dimensions : <b>%d x %d</b>"
+msgstr "размер : <b>%d × %d</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:723
+#, c-format
+msgid "Date Taken : <b>%s</b>"
+msgstr "дата снимка : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:724
+#, c-format
+msgid "Orientation : <b>%s</b>"
+msgstr "ориентация : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:725
+#, c-format
+msgid "Flash : <b>%s</b>"
+msgstr "вспышка : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:726
+#, c-format
+msgid "Focal Length : <b>%s</b>"
+msgstr "фокусное расстояние : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:727
+#, c-format
+msgid "Exposure Time : <b>%s</b>"
+msgstr "время экспозиции : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:755
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:788
+#, c-format
+msgid "Author : <b>%s</b>"
+msgstr "автор : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:757
+#, c-format
+msgid "Bitrate : <b>%s</b>"
+msgstr "битрейт : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:758
+#, c-format
+msgid "Encoded In : <b>%s</b>"
+msgstr "кодек : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:759
+#, c-format
+msgid "Framerate : <b>%s</b>"
+msgstr "частота кадров : <b>%s</b>"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:787
+#, c-format
+msgid "Subject : <b>%s</b>"
+msgstr "тема : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:789
+#, c-format
+msgid "Page Count : <b>%s</b>"
+msgstr "страниц : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:790
+#, c-format
+msgid "Word Count : <b>%s</b>"
+msgstr "слов : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:791
+#, c-format
+msgid "Created : <b>%s</b>"
+msgstr "дата создания : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:792
+#, c-format
+msgid "Comments : <b>%s</b>"
+msgstr "комментарии : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:876
+#, c-format
+msgid "%.1f KB"
+msgstr "%.1f Кбайт"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:880
+#, c-format
+msgid "%.1f MB"
+msgstr "%.1f Мбайт"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:884
+#, c-format
+msgid "%.1f GB"
+msgstr "%.1f Гбайт"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:922
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:945
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:965
+msgid "Unknown"
+msgstr "неизв."
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:251
+msgid "Type tags you want to add here, separated by commas"
+msgstr "Введите список меток которые вы хотите добавить, отделяя их запятыми"
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:361
+msgid "Tags :"
+msgstr "метки :"
+
+#. Search For Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:383
+msgid "_Search For Tag"
+msgstr "_Найти файлы с меткой"
+
+#. Remove Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:395
+msgid "_Remove Tag"
+msgstr "_Снять метку"
 
 #: ../src/libtracker/tracker-search.c:34
 msgid "Limit the number of results showed to N"
@@ -30,7 +243,7 @@ msgid "Search for a specific service"
 msgstr "Искать в определённой службе"
 
 #: ../src/libtracker/tracker-search.c:35
-#: ../src/tracker-search-tool/tracker-search-tool.c:64
+#: ../src/tracker-search-tool/tracker-search-tool.c:65
 msgid "SERVICE"
 msgstr "СЛУЖБА"
 
@@ -42,7 +255,7 @@ msgstr "Показывать более подробные результаты,
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-search.c:89
 msgid "TERM... - search files for certain terms"
-msgstr "ВЫРАЖЕНИЕ... - поиск файлов по заданным выражениям"
+msgstr "СЛОВО... - поиск файлов по заданным словам"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
@@ -51,8 +264,9 @@ msgid ""
 "Specifying more then one term, will be showed items containing ALL the "
 "specified terms (term1 AND term2 - logical conjunction)"
 msgstr ""
-"При указании более одного выражения будут найдены элементы, подходящие по "
-"ВСЕМ указанным выражениям (выражение1 И выражение2 — логическая конъюнкция)"
+"При указании более одного слова будут найдены элементы, подходящие \n"
+"одновременноко ко ВСЕМ указанным словам (слово1 И слово2, то есть \n"
+"логическая конъюнкция)"
 
 #: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
@@ -68,7 +282,7 @@ msgstr "Чтобы получить больше информации, попр�
 #: ../src/libtracker/tracker-search.c:120
 #, c-format
 msgid "%s: missing search terms"
-msgstr "%s: не указаны поисковые выражения"
+msgstr "%s: не указаны условия поиска"
 
 #: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
 #: ../src/libtracker/tracker-tag.c:128
@@ -79,31 +293,29 @@ msgstr "%s: нет соединения с демоном tracker"
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-tag.c:130
 msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr ""
-"Прежде, чем выполнять данную команду, убедитесь, что запущен демон "
-"«trackerd»."
+msgstr "Прежде, чем выполнять данную команду, убедитесь, что запущен «trackerd»."
 
-#: ../src/libtracker/tracker-search.c:156
+#: ../src/libtracker/tracker-search.c:160
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Служба не опознана, производится поиск в прочих файлах...\n"
 
-#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:176
+#: ../src/libtracker/tracker-search.c:177 ../src/libtracker/tracker-tag.c:176
 #: ../src/libtracker/tracker-tag.c:185 ../src/libtracker/tracker-tag.c:194
 #: ../src/libtracker/tracker-tag.c:229 ../src/libtracker/tracker-tag.c:279
 #, c-format
 msgid "%s: internal tracker error: %s"
-msgstr "%s: внутренняя ошибка tracker: %s"
+msgstr "%s: внутренняя ошибка Tracker: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:182 ../src/libtracker/tracker-tag.c:264
+#: ../src/libtracker/tracker-search.c:186 ../src/libtracker/tracker-tag.c:264
 msgid "No results found matching your query"
-msgstr "Не найдены результаты, удовлетворяющие вашему запросу"
+msgstr "Не найдено ничего, соответствующего вашему запросу"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-stats.c:73
 msgid " - show number of indexed files for each service"
-msgstr " - показ числа проиндексированных файлов для каждой службы"
+msgstr " — показать число проиндексированных файлов для каждой службы"
 
 #: ../src/libtracker/tracker-stats.c:108
 msgid "fetching index stats"
@@ -128,11 +340,11 @@ msgstr "Снять все метки с файла"
 
 #: ../src/libtracker/tracker-tag.c:40
 msgid "List all defined tags"
-msgstr "Перечислить все метки"
+msgstr "Перечислить метки на файлах"
 
 #: ../src/libtracker/tracker-tag.c:41
 msgid "Search for files with specified tag"
-msgstr "Искать файлы с заданной меткой"
+msgstr "Найти файлы с заданной меткой"
 
 #: ../src/libtracker/tracker-tag.c:42
 msgid "FILE..."
@@ -149,7 +361,7 @@ msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
 "options like:"
 msgstr ""
-"Чтобы добавить, удалить или найти сразу несколько меток, объедините "
+"Чтобы добавить, удалить или найти сразу несколько меток, объедините \n"
 "несколько параметров таким образом:"
 
 #: ../src/libtracker/tracker-tag.c:117
@@ -162,125 +374,406 @@ msgstr "%s: неверные аргументы"
 msgid "%s: file %s not found"
 msgstr "%s: файл %s не найден"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:64
-msgid "Search from a specific service"
-msgstr "Искать из заданной службы"
+#: ../src/trackerd/trackerd.c:147
+msgid "Directory to exclude from indexing"
+msgstr "Каталог для исключения из индексирования"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:103
-msgid "All files"
+#: ../src/trackerd/trackerd.c:147 ../src/trackerd/trackerd.c:148
+msgid "/PATH/DIR"
+msgstr "/ПУТЬ/КАТ"
+
+#: ../src/trackerd/trackerd.c:148
+msgid "Directory to include in indexing"
+msgstr "Каталог для включения в индексирование"
+
+#: ../src/trackerd/trackerd.c:149
+msgid "Disable any indexing or watching taking place"
+msgstr "Отключить всё индексирование и наблюдение"
+
+#: ../src/trackerd/trackerd.c:150
+msgid ""
+"Value that controls the level of logging. Valid values are 0 (displays/logs "
+"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+msgstr ""
+"Значение, указывающее уровень подробности журналирования. Допустимые "
+"значения: 0 (минимально, по умолчанию), 1 (подробно) и 2 (для отладки)"
+
+#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
+msgid "VALUE"
+msgstr "ЗНАЧЕНИЕ"
+
+#: ../src/trackerd/trackerd.c:151
+msgid ""
+"Value to use for throttling indexing. Value must be in range 0-20 (default "
+"0) with lower values increasing indexing speed"
+msgstr ""
+"Ограничение скорости индексирования. Должно быть в интервале 0—20 (по "
+"умолчанию — 0); чем меньше значение, тем выше скорость индексирования"
+
+#: ../src/trackerd/trackerd.c:152
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr "Уменьшает использование памяти, но может замедлить индексирование"
+
+#: ../src/trackerd/trackerd.c:153
+msgid "Initial sleep time, just before indexing, in seconds"
+msgstr "Пауза перед началом индексирования, в секундах"
+
+#: ../src/trackerd/trackerd.c:154
+msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+"Язык для списков корней и стоповых слов (двухбуквенный код согласно ISO 639-"
+"1)"
+
+#: ../src/trackerd/trackerd.c:154
+msgid "LANG"
+msgstr "ЯЗЫК"
+
+#: ../src/trackerd/trackerd.c:155
+msgid "Force a re-index of all content"
+msgstr "Принудительно переиндексировать всё"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND <THIS_MESSAGE>
+#: ../src/trackerd/trackerd.c:1998
+msgid "- start the tracker daemon"
+msgstr "- запуск демона Tracker"
+
+#: ../src/trackerd/trackerd.c:1999 ../src/trackerd/trackerd.c:2000
+msgid "DIRECTORY"
+msgstr "КАТАЛОГ"
+
+#: ../src/trackerd/trackerd.c:2008
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
+msgstr ""
+"Чтобы включить или исключить сразу несколько каталогов, объедините несколько "
+"параметров таким образом:"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Configure file indexing with Tracker"
+msgstr "Настройка индексирования файлов службой Tracker"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Indexing Preferences"
+msgstr "Параметры индексирования"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:1
+msgid "<b>File Metadata</b>"
+msgstr "<b>Метаданные о файлах</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:2
+msgid "<b>General</b>"
+msgstr "<b>Общие</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:3
+msgid "<b>Ignored File Patterns</b>"
+msgstr "<b>Игнорируемые шаблоны имён файлов</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+msgid "<b>Ignored Paths</b>"
+msgstr "<b>Игнорируемые пути</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:5
+msgid "<b>Indexing Mode</b>"
+msgstr "<b>Режим индексирования</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:6
+msgid "<b>Mailboxes</b>"
+msgstr "<b>Почтовые ящики</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
+msgid "<b>Polling</b>"
+msgstr "<b>Метод опроса файловой системы</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:8
+msgid "<b>Services</b>"
+msgstr "<b>Службы</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+msgid "<b>Startup</b>"
+msgstr "<b>Запуск</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+msgid "<b>Throttling</b>"
+msgstr "<b>Ограничение скорости</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+msgid "Additional mbox mailboxes to index:"
+msgstr "Дополнительные почтовые ящики в формате mbox, которые будут индексироваться:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
+msgid "Additional paths to index:"
+msgstr "Дополнительные пути, которые будут индексироваться:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+msgid "Enable Evolution email indexing"
+msgstr "Включить индексирование почтового ящика Evolution"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+msgid "Enable Index Throttling"
+msgstr "Ограничит скорость индексирование"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+msgid "Enable KMail email indexing"
+msgstr "Включить индексирование почтового ящика KMail"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+msgid "Enable Thunderbird email indexing"
+msgstr "Включить индексирование почтового ящика Thunderbird"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+msgid "Enable _Indexing"
+msgstr "Включить _индексирование"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+msgid "File patterns to ignore during indexing:"
+msgstr "Игнорировать следующие шаблоны имён файлов при индексировании:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+msgid "Generate _thumbnails"
+msgstr "Создавать _миниатюры"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:20
+msgid "I_ndexing"
+msgstr "И_ндексирование"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+msgid "Index _file contents"
+msgstr "Индексировать _содержимое файлов"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:22
+msgid "Index my home _directory"
+msgstr "Индексировать домашний каталог"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:23
+msgid "Initial Sleep:          "
+msgstr "Пауза перед началом индексирования: "
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:24
+msgid "Normal Mode"
+msgstr "Обычный режим"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+msgid "P_erformance"
+msgstr "П_роизводительность"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+msgid "Path roots to be ignored during indexing:"
+msgstr "Игнорировать следующие корни путей при индексировании:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+msgid "Polling Interval: "
+msgstr "Интервал опроса файловой системы: "
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+msgid "Reduced Memory Mode"
+msgstr "Режим меньшего использования памяти"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Seconds"
+msgstr "секунд"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+msgid "Start _indexing service automatically"
+msgstr "Автоматически запускать службу _индексирования"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "Start _monitoring service automatically"
+msgstr "Автоматически запускать службу _наблюдения"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Throttling Level: "
+msgstr "Ограничение скорости: "
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+msgid "Tracker Preferences"
+msgstr "Настройки Tracker"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+msgid "Turbo Mode"
+msgstr "Режим турбо"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+msgid "_General"
+msgstr "_Общие"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+msgid "_Privacy"
+msgstr "_Конфиденциальность"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "gtk-add"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+msgid "gtk-close"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "gtk-help"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+msgid "gtk-remove"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:65
+msgid "Search from a specific service"
+msgstr "Искать в заданной службе"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "Электронная почта"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:137
+msgid "All Files"
 msgstr "Все файлы"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:104
-msgid "Development"
-msgstr "Разработка"
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
+msgid "Folders"
+msgstr "Папки"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:105
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
 msgid "Documents"
 msgstr "Документы"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:106
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
 msgid "Images"
 msgstr "Изображения"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:107
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
 msgid "Music"
 msgstr "Музыка"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:108
-msgid "Plain text"
-msgstr "Простой текст"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:109
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "Videos"
 msgstr "Видео"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:173
-msgid "_Open"
-msgstr "_Открыть"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:174
-msgid "O_pen Folder"
-msgstr "Открыть _папку"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:175
-msgid "Mo_ve to Trash"
-msgstr "_Удалить в корзину"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:176
-msgid "_Save Results As..."
-msgstr "_Сохранить результаты как..."
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:277
-#, c-format
-msgid "Character set conversion failed for \"%s\""
-msgstr "Не удалось преобразовать набор символов для «%s»"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:773
-msgid "No files found"
-msgstr "Файлы не найдены"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:824
-#: ../src/tracker-search-tool/tracker-search-tool.c:1107
-#: ../src/tracker-search-tool/tracker-search-tool.c:2396
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:2
-msgid "Tracker Search Tool"
-msgstr "Средство поиска Tracker"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1602
-msgid "S_earch results:"
-msgstr "_Результаты поиска:"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1638
-msgid "List View"
-msgstr "Список"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1703
-msgid "Icon"
-msgstr "Значок"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1715
-msgid "Name"
-msgstr "Имя"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1743
+#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:1242
 msgid "Text"
 msgstr "Текст"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2151
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
+msgid "Development"
+msgstr "Разработка"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:145
+msgid "Chat Logs"
+msgstr "Истории мгновенных сообщений"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:146
+msgid "Applications"
+msgstr "Приложения"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:210
+msgid "_Open"
+msgstr "_Открыть"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:211
+msgid "O_pen Folder"
+msgstr "Открыть _папку"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:212
+msgid "Mo_ve to Trash"
+msgstr "_Удалить в корзину"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:213
+msgid "_Save Results As..."
+msgstr "_Сохранить результаты как..."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:245
+#, c-format
+msgid "Character set conversion failed for \"%s\""
+msgstr "Не удалось преобразовать набор символов в «%s»"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:639
+msgid "Did you mean"
+msgstr "Может, вы имели в виду"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:674
+msgid "Your search returned no results."
+msgstr "Не найдено ничего, соответствующего вашему запросу."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:691
+msgid "Tracker Search Tool-"
+msgstr "Поисковая система Tracker — "
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:861
+#: ../src/tracker-search-tool/tracker-search-tool.c:2286
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Поисковая система Tracker"
+
+#  В данном интерфейсе, единственное лингвистически-некорявое решение —
+#  этот ярлык лучше оставить пустым, а весь перевод производить в последующем ярлыке
+#: ../src/tracker-search-tool/tracker-search-tool.c:1070
+msgid "Search _results: "
+msgstr " "
+
+#  У нас вместо "Search results:" просто " "
+#. Translators: this will appears as "Search results: no search performed"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1076
+msgid "no search performed"
+msgstr "Поиск не был произведён"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1130
+#: ../src/tracker-search-tool/tracker-search-tool.c:1293
+msgid "List View"
+msgstr "Список"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1202
+msgid "Icon"
+msgstr "Значок"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1214
+msgid "Name"
+msgstr "Имя"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1311
+msgid "_Categories"
+msgstr "_Категории"
+
+#  У нас вместо "Search results:" просто " "
+#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1606
+#, c-format
+msgid "%d - %d of %d hits"
+msgstr "%d—%d из %d найденных результатов"
+
+#  С прописной, так как у нас вместо "Search results:" просто " "
+#. Translators: this will appear like "Search results: 7 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1609
+#, c-format
+msgid "%d item"
+msgid_plural "%d hits"
+msgstr[0] "Найден %d результат"
+msgstr[1] "Найдено %d результата"
+msgstr[2] "Найдено %d результатов"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2060
 msgid "_Search:"
 msgstr "_Искать:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2178
-#: ../src/tracker-search-tool/tracker-search-tool.c:2179
+#: ../src/tracker-search-tool/tracker-search-tool.c:2080
+#: ../src/tracker-search-tool/tracker-search-tool.c:2081
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Введите поисковый запрос, отделяя слова пробелами."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2179
+#: ../src/tracker-search-tool/tracker-search-tool.c:2081
 msgid "search_entry"
-msgstr "search_entry"
+msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2216
+#: ../src/tracker-search-tool/tracker-search-tool.c:2129
 msgid "Click to perform a search."
 msgstr "Нажмите для выполнения поиска."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2224
-msgid "_Previous"
-msgstr "_Назад"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2232
-msgid "_Next"
-msgstr "_Далее"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2444
-#, c-format
-msgid "Invalid service type: %s\n"
-msgstr "Ошибочный тип службы: %s\n"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:130
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:135
 msgid "Could not open help document."
 msgstr "Не удалось открыть справочный документ."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:267
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:272
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
@@ -288,8 +781,8 @@ msgstr[0] "Вы действительно хотите открыть %d док
 msgstr[1] "Вы действительно хотите открыть %d документа?"
 msgstr[2] "Вы действительно хотите открыть %d документов?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:272
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:499
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:277
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:634
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
@@ -297,30 +790,34 @@ msgstr[0] "Это откроет %d отдельное окно."
 msgstr[1] "Это откроет %d отдельных окна."
 msgstr[2] "Это откроет %d отдельных окон."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:312
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:317
 #, c-format
 msgid "Could not open document \"%s\"."
 msgstr "Не удалось открыть документ «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:341
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:346
 #, c-format
 msgid "Could not open folder \"%s\"."
 msgstr "Не удалось открыть папку «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:349
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:354
 msgid "The nautilus file manager is not running."
 msgstr "Файловый менеджер Nautilus не запущен."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:452
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:802
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:571
+msgid "Application could not be opened"
+msgstr "Не удалось открыть приложение"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:587
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:912
 msgid "The document does not exist."
 msgstr "Документ не существует."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:469
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:604
 msgid "There is no installed viewer capable of displaying the document."
 msgstr "Не установлена программа просмотра, способная показать этот документ."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:494
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:629
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
@@ -328,75 +825,79 @@ msgstr[0] "Вы действительно хотите открыть %d пап
 msgstr[1] "Вы действительно хотите открыть %d папки?"
 msgstr[2] "Вы действительно хотите открыть %d папок?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:627
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:737
 #, c-format
 msgid "Could not move \"%s\" to trash."
 msgstr "Не удалось переместить «%s» в корзину."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:658
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:768
 #, c-format
 msgid "Do you want to delete \"%s\" permanently?"
 msgstr "Вы хотите удалить «%s» без возможности восстановления?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:661
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:771
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
 msgstr "Корзина недоступна. Не удалось переместить «%s» в корзину."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:700
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:810
 #, c-format
 msgid "Could not delete \"%s\"."
 msgstr "Не удалось удалить «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:825
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:934
 #, c-format
 msgid "Moving \"%s\" failed: %s."
 msgstr "Не удалось переместить «%s»: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:860
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:968
 #, c-format
 msgid "Deleting \"%s\" failed: %s."
 msgstr "Не удалось удалить «%s»: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1298
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1254
+msgid "Activate to view this email"
+msgstr "Щелкните, чтобы прочесть это письмо"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1432
 msgid "Save Search Results As..."
 msgstr "Сохранить результаты поиска как..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1329
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1466
 msgid "Could not save document."
 msgstr "Не удалось сохранить документ."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1330
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1467
 msgid "You did not select a document name."
 msgstr "Вы не выбрали имя документа."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1360
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1497
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "Не удалось сохранить документ «%s» в «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1394
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1531
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "Документ «%s» уже существует. Вы хотите заменить его?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1398
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1535
 msgid "If you replace an existing file, its contents will be overwritten."
-msgstr "Если вы замените существующий файл, его содержимое будет перезаписано."
+msgstr "Если вы замените существующий файл, его содержимое будет утеряно."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1413
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1550
 msgid "_Replace"
 msgstr "_Заменить"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1463
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1600
 msgid "The document name you selected is a folder."
 msgstr "Имя документа, которое вы выбрали, является папкой."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1512
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1649
 msgid "You may not have write permissions to the document."
 msgstr "Возможно, у вас нет прав на запись в этот документ."
 
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.h:1
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
 msgid ""
 "Locate documents and folders on this computer by name or content using "
 "Tracker"
@@ -440,71 +941,3 @@ msgstr "ссылка (разорванная)"
 msgid "link to %s"
 msgstr "ссылка на %s"
 
-#: ../src/trackerd/trackerd.c:139
-msgid "Directory to exclude from indexing"
-msgstr "Каталог для исключения из индексирования"
-
-#: ../src/trackerd/trackerd.c:139 ../src/trackerd/trackerd.c:140
-msgid "/PATH/DIR"
-msgstr "/ПУТЬ/КАТ"
-
-#: ../src/trackerd/trackerd.c:140
-msgid "Directory to include in indexing"
-msgstr "Каталог для включения в индексирование"
-
-#: ../src/trackerd/trackerd.c:141
-msgid "Disable any indexing or watching taking place"
-msgstr "Отключить всё индексирование и наблюдение"
-
-#: ../src/trackerd/trackerd.c:142
-msgid ""
-"Value that controls the level of logging. Valid values are 0 (default "
-"minimal), 1 (detailed) and 2 (debug)"
-msgstr ""
-"Значение, указывающее уровень подробности журналирования. Допустимые "
-"значения: 0 (минимально, по умолчанию), 1 (подробно) и 2 (для отладки)"
-
-#: ../src/trackerd/trackerd.c:142 ../src/trackerd/trackerd.c:143
-msgid "value"
-msgstr "значение"
-
-#: ../src/trackerd/trackerd.c:143
-msgid ""
-"Value to use for throttling indexing. Value must be in range 0-20 (default "
-"0) with lower values increasing indexing speed"
-msgstr ""
-"Ограничение на скорость индексирования. Должно быть в интервале 0—20 (по "
-"умолчанию — 0); чем меньше значение, тем выше скорость индексирования"
-
-#: ../src/trackerd/trackerd.c:144
-msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "Уменьшает использование памяти, но может замедлить индексирование"
-
-#: ../src/trackerd/trackerd.c:145
-msgid ""
-"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr ""
-"Язык для списков корней и стоповых слов (двухбуквенный код согласно ISO 639-"
-"1)"
-
-#: ../src/trackerd/trackerd.c:145
-msgid "LANG"
-msgstr "ЯЗЫК"
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:1995
-msgid "- start the tracker daemon"
-msgstr "- запуск демона tracker"
-
-#: ../src/trackerd/trackerd.c:1996 ../src/trackerd/trackerd.c:1997
-msgid "DIRECTORY"
-msgstr "КАТАЛОГ"
-
-#: ../src/trackerd/trackerd.c:2005
-msgid ""
-"To include or exclude multiple directories at the same time, join multiple "
-"options like:"
-msgstr ""
-"Чтобы включить или исключить сразу несколько каталогов, объедините несколько "
-"параметров таким образом:"
