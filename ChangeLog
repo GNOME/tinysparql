@@ -1,3 +1,11 @@
+2007-07-21 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed origin of initial sleep in tracker-prefs - based on patch by Tshepang Lekhonkhobe
+	* Fixed resetting icon in metatile
+	* Always made sure an icon is available in tst
+	* Fixed launch of applications (filtered out %U)
+
+
 2007-07-18 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed crasher in tst
