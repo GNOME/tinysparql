@@ -2336,7 +2336,7 @@ main (int argc, char **argv)
 		exit (1);
 	}
 
-	tracker_log ("sleeping to prevent slow down of system at boot/login time. Watching and Indexing will resume in 5 seconds...");
+	tracker_log ("sleeping to prevent slow down of system at boot/login time. Watching and Indexing will resume in %d seconds...", tracker->initial_sleep);
 	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
 
 	g_main_loop_run (tracker->loop);
