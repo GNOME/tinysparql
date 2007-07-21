@@ -239,7 +239,6 @@ static char *default_keys[] =
 	"File:Size",
 	"File:Accessed",
 	"File:Mime",
-	"DC:Keywords",
 	NULL
 };
 
@@ -250,7 +249,6 @@ enum {
 	DEFAULT_SIZE,
 	DEFAULT_ACCESSED,
 	DEFAULT_MIME,
-	DEFAULT_KEYWORDS,
 	DEFAULT_N_KEYS
 };
 
@@ -263,7 +261,6 @@ static char *doc_keys[] =
 	"Doc:PageCount",
 	"Doc:WordCount",
 	"Doc:Created",
-	"DC:Keywords",
 	NULL
 };
 
@@ -275,7 +272,6 @@ enum {
 	DOC_PAGECOUNT,
 	DOC_WORDCOUNT,
 	DOC_CREATED,
-	DOC_KEYWORDS,
 	DOC_N_KEYS
 };
 
@@ -289,7 +285,6 @@ static char *email_keys[] =
  	"Email:SentTo",
  	"Email:CC",
 	"Email:Attachments",
-	"DC:Keywords",
 	NULL
 };
 
@@ -300,7 +295,6 @@ enum {
  	EMAIL_SENTTO,
  	EMAIL_CC,
 	EMAIL_ATTACHMENTS,
-	EMAIL_KEYWORDS,
 	EMAIL_N_KEYS
 };
 
@@ -311,7 +305,6 @@ static char *app_keys[] =
 	"App:GenericName",
 	"App:Comment",
 	"App:Categories",
- 	"DC:Keywords",
 	NULL
 };
 
@@ -320,7 +313,6 @@ enum {
 	APP_GENERIC_NAME,
 	APP_COMMENT,
 	APP_CATEGORIES,
- 	APP_KEYWORDS,
 	APP_N_KEYS
 };
 
@@ -336,7 +328,6 @@ static char *audio_keys[] =
 	"Audio:ReleaseDate",
 	"Audio:Codec",
 	"File:Size",
-	"DC:Keywords",
 	NULL
 };
 
@@ -350,7 +341,6 @@ enum {
 	AUDIO_RELEASEDATE,
 	AUDIO_CODEC,
 	AUDIO_SIZE,
-	AUDIO_KEYWORDS,	
 	AUDIO_N_KEYS
 };
 
@@ -366,7 +356,6 @@ static char *image_keys[] =
 	"Image:Flash",
 	"Image:FocalLength",
 	"Image:ExposureTime",
-	"DC:Keywords",
 	NULL
 };
 
@@ -381,7 +370,6 @@ enum {
 	IMAGE_FLASH,
 	IMAGE_FOCAL,
 	IMAGE_EXPO,
-	IMAGE_KEYWORDS,
 	IMAGE_N_KEYS
 };
 
@@ -395,7 +383,6 @@ static char *video_keys[] =
 	"Video:Codec",
 	"Video:Bitrate",
 	"Video:Duration",
-	"DC:Keywords",
 	NULL
 };
 
@@ -408,7 +395,6 @@ enum {
 	VIDEO_CODEC,
 	VIDEO_BITRATE,
 	VIDEO_DURATION,
-	VIDEO_KEYWORDS,
 	VIDEO_N_KEYS
 };
 
@@ -532,7 +518,6 @@ _tile_tracker_populate_email (char **array, GError *error, TrackerMetadataTile *
 
 	tracker_metadata_tile_show (tile);
 
-	tracker_metadata_tile_show (tile);
 	_show_labels (tile, FALSE);
 	gtk_widget_show (priv->info1);
 	gtk_widget_show (priv->info2);
@@ -995,7 +980,8 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 	
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
 
-	
+	gtk_image_clear (GTK_IMAGE (priv->image));
+
 	if (icon) {
 		gtk_image_set_from_pixbuf (GTK_IMAGE (priv->image), icon);
 	} else {

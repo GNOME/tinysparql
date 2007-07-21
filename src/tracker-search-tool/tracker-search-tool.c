@@ -225,6 +225,22 @@ static const char * GSearchUiDescription =
 "  </popup>"
 "</ui>";
 
+static const char * MenuDesc =
+"<ui>"
+"  <menubar>"
+"    <menu name='FileMenu' action='FileMenuAction'>"
+"      <menuitem action='SaveResultsAs' />"
+"    </menu>"
+"    <menu name='EditMenu' action='FileMenuAction'>"
+"      <menuitem action='SaveResultsAs' />"
+"    </menu>"
+"    <menu name='HelpMenu' action='HelpMenuAction'>"
+"      <menuitem action='AboutAction' />"
+"    </menu>"
+"  </menubar>"
+"</ui>";
+
+
 static void next_button_cb (GtkWidget *widget, gpointer data);
 static void prev_button_cb (GtkWidget *widget, gpointer data);
 static void category_changed_cb (GtkTreeSelection *treeselection, gpointer user_data) ;
@@ -584,7 +600,7 @@ add_application_to_search_results (const char *uri,
 			    		GtkTreeIter * iter,
 			    		GSearchWindow * gsearch)
 {
-	GdkPixbuf * pixbuf;
+	GdkPixbuf * pixbuf = NULL;
 
 	if (!g_file_test (uri, G_FILE_TEST_EXISTS)) {
 		return;
@@ -592,13 +608,24 @@ add_application_to_search_results (const char *uri,
 
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (gsearch->search_results_tree_view), FALSE);
 
-	if (icon) {
-		pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (), icon,
+	if (icon && icon[0] && icon[1]) {
+
+		/* if icon is a full path then load it from file otherwise its an icon name in a theme */
+		if (icon[0] == '/') {
+			pixbuf = gdk_pixbuf_new_from_file_at_scale (icon, ICON_SIZE, ICON_SIZE, TRUE, NULL);
+		} else {
+			pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (), icon,
 			                                             ICON_SIZE, 0, NULL);
-	} else {
-		pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (), "stock_active",
+		}
+
+	} 
+
+	if (!pixbuf) {
+
+		pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (), ICON_THEME_EXECUTABLE_ICON,
 			                                             ICON_SIZE, 0, NULL);
 	}
+
 
 	gtk_list_store_append (GTK_LIST_STORE (store), iter);
 
@@ -1633,6 +1660,15 @@ init_tab (GSearchWindow *gsearch, service_info_t  *service)
 	gtk_tree_view_set_model (gsearch->search_results_tree_view, GTK_TREE_MODEL (service->store));
 
 	update_page_count_label (gsearch);
+
+	GtkAction *action = gtk_ui_manager_get_action (gsearch->window_ui_manager, "/PopupMenu/OpenFolder");
+	gtk_action_set_sensitive (action, (gsearch->type < 10));
+
+	action = gtk_ui_manager_get_action (gsearch->window_ui_manager, "/PopupMenu/MoveToTrash");
+	gtk_action_set_sensitive (action, (gsearch->type < 10));
+
+	action = gtk_ui_manager_get_action (gsearch->window_ui_manager, "/PopupMenu/SaveResultsAs");
+	gtk_action_set_sensitive (action, (gsearch->type < 10));
 		
 
 }
@@ -1647,7 +1683,7 @@ static void
 get_hit_count (GPtrArray *out_array, GError *error, gpointer user_data)
 {
 	service_info_t	*service;
-	gboolean 	first_service = FALSE;
+	gboolean 	first_service = FALSE, has_hits = FALSE;
 
 	GSearchWindow *gsearch = user_data;
 
@@ -1668,6 +1704,8 @@ get_hit_count (GPtrArray *out_array, GError *error, gpointer user_data)
 			continue;
 		}
 
+		has_hits = TRUE;
+
 		gtk_list_store_append (gsearch->category_store, &gsearch->category_iter);
 			
 		char *label_tmp = g_strdup (_(service->display_name));
@@ -1682,25 +1720,47 @@ get_hit_count (GPtrArray *out_array, GError *error, gpointer user_data)
 			    -1);
 
 			
-		g_free (label_str);			
+		g_free (label_str);	
 
-		if (!first_service) {
-			first_service = TRUE;
+		if (gsearch->old_type == service->service_type) {
+			first_service = TRUE;	
 			gsearch->current_service = service;
 			gsearch->type = service->service_type;
-			init_tab (gsearch, service);
-		}
+			init_tab (gsearch, service);		
+		} 
+
 	}
 
 	if (!first_service) {
-		add_no_files_found_message (gsearch);
-		gsearch->page_setup_mode = FALSE;
-		gsearch->current_service = NULL;
-		gsearch->type = -1;
-		stop_animation (gsearch);
-		tracker_update_metadata_tile (gsearch);
-		return;
+
+		if (!has_hits) {
+
+			add_no_files_found_message (gsearch);
+			gsearch->page_setup_mode = FALSE;
+			gsearch->current_service = NULL;
+			gsearch->type = -1;
+			stop_animation (gsearch);
+			tracker_update_metadata_tile (gsearch);
+			return;
+		}
+
+		/* old category not found so go to first one with hits */
+		for (service = services; service->service; ++service) {
+			if (service->hit_count == 0) {
+				continue;
+			}
+
+			gsearch->current_service = service;
+			gsearch->type = service->service_type;
+			gsearch->old_type = gsearch->type;
+			init_tab (gsearch, service);
+
+			break;			
+		}
+		
 	}
+
+	
 
 	gsearch->page_setup_mode = FALSE;
 
@@ -1889,7 +1949,7 @@ category_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 
 	init_tab (gsearch, gsearch->current_service);
 
-	
+	gsearch->old_type = gsearch->type;
 
 	do_search (gsearch, gsearch->search_term, FALSE, service->offset);
 
@@ -2010,7 +2070,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	}
 
 	gsearch->email_pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default(), "email",
-                                         TRACKER_SEARCH_TOOL_DEFAULT_ICON_SIZE,
+                                         ICON_SIZE,
                                          GTK_ICON_LOOKUP_USE_BUILTIN,
                                          NULL);
 

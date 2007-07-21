@@ -130,7 +130,7 @@ setup_page_general (TrackerPreferences * preferences)
 		TRACKER_CONFIGURATION (priv->prefs);
 
 	gboolean value = FALSE;
-        gint     sleep = 0;
+        gint     sleep = 45;
 	GtkWidget *widget = NULL;
 
 	/* TODO :: Detect autostarting */
@@ -142,8 +142,9 @@ setup_page_general (TrackerPreferences * preferences)
 
 
         widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
-        sleep = tracker_configuration_get_int (configuration,"/Watches/InitialSleep",NULL);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),sleep);
+        sleep = tracker_configuration_get_int (configuration,"/General/InitialSleep", NULL);
+g_print ("sleep is %d\n", sleep);
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), sleep);
          
 
 	widget = glade_xml_get_widget (priv->gxml, "chkIndexFileContents");
@@ -400,8 +401,9 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	GtkWidget *item = NULL;
 
         widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
-        gint sleep = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(widget));
-        tracker_configuration_set_int(configuration,"/Watches/InitialSleep",sleep);
+        gint sleep = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
+g_print ("sleep is %d\n", sleep);
+        tracker_configuration_set_int (configuration,"/General/InitialSleep", sleep);
 
 	widget = glade_xml_get_widget (priv->gxml, "chkIndexFileContents");
 	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));

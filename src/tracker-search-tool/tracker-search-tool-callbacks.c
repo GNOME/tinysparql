@@ -565,7 +565,10 @@ open_file_cb (GtkAction * action,
 
 		} else if (gsearch->type == SERVICE_APPLICATIONS) {
 			if (exec) {
-				g_spawn_command_line_async (exec, NULL);
+
+				char *my_exec = tracker_string_replace (exec, "%U", NULL);
+				g_spawn_command_line_async (my_exec, NULL);
+				g_free (my_exec);
 				g_free (exec);
 			} else {
 				display_dialog_could_not_open_file (gsearch->window, uri, _("Application could not be opened"));

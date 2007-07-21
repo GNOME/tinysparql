@@ -145,7 +145,9 @@ struct _GSearchWindow {
 	GdkPixbuf		*email_pixbuf;
 	int			current_page;
 	int			type;
+	int			old_type;
 	service_info_t  	*current_service;
+	
 	GtkWidget		*metatile;
 	GtkWidget		*no_results;
 	GtkWidget		*initial_label;

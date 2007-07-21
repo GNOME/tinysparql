@@ -54,12 +54,6 @@
 #define C_STANDARD_NUMERIC_STRFTIME_CHARACTERS "dHIjmMSUwWyY"
 #define SUS_EXTENDED_STRFTIME_MODIFIERS "EO"
 #define BINARY_EXEC_MIME_TYPE      "application/x-executable"
-#define ICON_THEME_EXECUTABLE_ICON "gnome-fs-executable"
-#define ICON_THEME_REGULAR_ICON    "gnome-fs-regular"
-#define ICON_THEME_CHAR_DEVICE     "gnome-fs-chardev"
-#define ICON_THEME_BLOCK_DEVICE    "gnome-fs-blockdev"
-#define ICON_THEME_SOCKET          "gnome-fs-socket"
-#define ICON_THEME_FIFO            "gnome-fs-fifo"
 #define MAX_SYMLINKS_FOLLOWED      32
 #define GSEARCH_DATE_FORMAT_LOCALE "locale"
 #define GSEARCH_DATE_FORMAT_ISO    "iso"
@@ -1078,16 +1072,15 @@ tracker_search_icon_lookup (GSearchWindow * gsearch,
 
 	uri = gnome_vfs_get_uri_from_local_path (file);
 
-//	if ((enable_thumbnails == TRUE) && (gsearch->show_thumbnails == TRUE)) {
-		if ((strncmp (mime, "image/", 6) != 0) ||
-	    	    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
-		    	if (gsearch->thumbnail_factory == NULL) {
-			    	gsearch->thumbnail_factory = gnome_thumbnail_factory_new (GNOME_THUMBNAIL_SIZE_NORMAL);
-			}
-			lookup_flags = GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES |
-			               GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES;
+
+	if ((strncmp (mime, "image/", 6) != 0) ||
+    	    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
+	    	if (gsearch->thumbnail_factory == NULL) {
+		    	gsearch->thumbnail_factory = gnome_thumbnail_factory_new (GNOME_THUMBNAIL_SIZE_NORMAL);
 		}
-//	}
+		lookup_flags = GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES |
+		               GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES;
+	}
 
 	icon_name = gnome_icon_lookup (gtk_icon_theme_get_default (),
 	                               gsearch->thumbnail_factory,
@@ -1112,7 +1105,8 @@ get_file_pixbuf (GSearchWindow * gsearch,
 
 	if (file == NULL || mime == NULL) {
 		icon_name = g_strdup (ICON_THEME_REGULAR_ICON);
-	}
+	} 
+
 	else if ((g_file_test (file, G_FILE_TEST_IS_EXECUTABLE)) &&
 	         (g_ascii_strcasecmp (mime, "application/x-executable-binary") == 0)) {
 		icon_name = g_strdup (ICON_THEME_EXECUTABLE_ICON);
@@ -1128,83 +1122,72 @@ get_file_pixbuf (GSearchWindow * gsearch,
 	}
 	else if (g_ascii_strcasecmp (mime, "x-special/fifo") == 0) {
 		icon_name = g_strdup (ICON_THEME_FIFO);
-	}
-	else {
-		icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, TRUE);
-	}
+	} else {
 
-	if (pixbuf == NULL) {
-
+		/* check for thumbnail first */
+		GdkPixbuf *thumbnail_pixbuf = tracker_search_get_thumbnail_image (file);
 		
+		if (thumbnail_pixbuf != NULL) {
 
-			if ((strncmp (mime, "image/", 6) != 0) ||
-	    		    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
+			if ((gdk_pixbuf_get_width (thumbnail_pixbuf) > ICON_SIZE) ||
+			    (gdk_pixbuf_get_height (thumbnail_pixbuf) > ICON_SIZE)) {
 
-				if (strcmp (icon_name, file) == 0) {
-					pixbuf = gdk_pixbuf_new_from_file_at_scale (file, ICON_SIZE, ICON_SIZE, TRUE, NULL);
+				gfloat scale_factor_x = 1.0;
+				gfloat scale_factor_y = 1.0;
+				gint scale_x;
+				gint scale_y;
 
-					if (pixbuf == NULL) {
-						icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, FALSE);
-					}
+				if (gdk_pixbuf_get_width (thumbnail_pixbuf) > ICON_SIZE) {
+					scale_factor_x = (gfloat) ICON_SIZE / (gfloat) gdk_pixbuf_get_width (thumbnail_pixbuf);
+				}
+				if (gdk_pixbuf_get_height (thumbnail_pixbuf) > ICON_SIZE) {
+					scale_factor_y = (gfloat) ICON_SIZE / (gfloat) gdk_pixbuf_get_height (thumbnail_pixbuf);
 				}
 
-				if (pixbuf == NULL) {
-					pixbuf = tracker_search_get_thumbnail_image (file);
-				}
-			}
-		
-
-		if (pixbuf == NULL) {
-
-			GdkPixbuf * thumbnail_pixbuf = NULL;
-
-			thumbnail_pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (), icon_name,
-			                                             ICON_SIZE, 0, NULL);
-
-			if (thumbnail_pixbuf != NULL) {
-
-				/*  The following is a workaround for bugzilla report #311318,                   */
-				/*  "gtk_icon_theme_load_icon () can return pixbufs larger than requested size". */
-				/*  Please see the url, http://bugzilla.gnome.org/show_bug.cgi?id=311318.        */
-
-				if ((gdk_pixbuf_get_width (thumbnail_pixbuf) > ICON_SIZE) ||
-				    (gdk_pixbuf_get_height (thumbnail_pixbuf) > ICON_SIZE)) {
-
-					gfloat scale_factor_x = 1.0;
-					gfloat scale_factor_y = 1.0;
-					gint scale_x;
-					gint scale_y;
-
-					if (gdk_pixbuf_get_width (thumbnail_pixbuf) > ICON_SIZE) {
-						scale_factor_x = (gfloat) ICON_SIZE / (gfloat) gdk_pixbuf_get_width (thumbnail_pixbuf);
-					}
-					if (gdk_pixbuf_get_height (thumbnail_pixbuf) > ICON_SIZE) {
-						scale_factor_y = (gfloat) ICON_SIZE / (gfloat) gdk_pixbuf_get_height (thumbnail_pixbuf);
-					}
-
-					if (gdk_pixbuf_get_width (thumbnail_pixbuf) > gdk_pixbuf_get_height (thumbnail_pixbuf)) {
-						scale_x = ICON_SIZE;
-						scale_y = (gint) (gdk_pixbuf_get_height (thumbnail_pixbuf) * scale_factor_x);
-					}
-					else {
-						scale_x = (gint) (gdk_pixbuf_get_width (thumbnail_pixbuf) * scale_factor_y);
-						scale_y = ICON_SIZE;
-					}
-
-					pixbuf = gdk_pixbuf_scale_simple (thumbnail_pixbuf, scale_x, scale_y, GDK_INTERP_BILINEAR);
-					g_object_unref (thumbnail_pixbuf);
+				if (gdk_pixbuf_get_width (thumbnail_pixbuf) > gdk_pixbuf_get_height (thumbnail_pixbuf)) {
+					scale_x = ICON_SIZE;
+					scale_y = (gint) (gdk_pixbuf_get_height (thumbnail_pixbuf) * scale_factor_x);
 				}
 				else {
-					pixbuf = thumbnail_pixbuf;
+					scale_x = (gint) (gdk_pixbuf_get_width (thumbnail_pixbuf) * scale_factor_y);
+					scale_y = ICON_SIZE;
 				}
-			}
-		}
-		g_free (icon_name);
 
+				pixbuf = gdk_pixbuf_scale_simple (thumbnail_pixbuf, scale_x, scale_y, GDK_INTERP_BILINEAR);
+				g_object_unref (thumbnail_pixbuf);
+
+				return pixbuf;
+
+			} else {
+				return thumbnail_pixbuf;
+			}
+		
+		}
+
+		/* check if image can be generated from file */
+
+		if ((strncmp (mime, "image/", 6) == 0)) {
+			pixbuf = gdk_pixbuf_new_from_file_at_scale (file, ICON_SIZE, ICON_SIZE, TRUE, NULL);
+		}
+
+		if (pixbuf) {
+			return pixbuf;
+		} else {
+			icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, TRUE);
+		}
+
+		
 	}
-	else {
-		g_free (icon_name);
+
+	pixbuf = gtk_icon_theme_load_icon (gtk_icon_theme_get_default (), icon_name, ICON_SIZE, 0, NULL);
+
+	if (!pixbuf) {
+		gtk_icon_theme_load_icon (gtk_icon_theme_get_default (), ICON_THEME_REGULAR_ICON, ICON_SIZE, 0, NULL); 
 	}
+
+		
+	g_free (icon_name);
+
 
 	return pixbuf;
 }
@@ -1282,6 +1265,40 @@ open_file_with_nautilus (GtkWidget * window,
 	}
 	return TRUE;
 }
+
+
+char *
+tracker_string_replace (const char *haystack, char *needle, char *replacement)
+{
+        GString *str;
+        int pos, needle_len;
+
+	g_return_val_if_fail (haystack && needle, NULL);
+
+	needle_len = strlen (needle);
+
+        str = g_string_new ("");
+
+        for (pos = 0; haystack[pos]; pos++)
+        {
+                if (strncmp (&haystack[pos], needle, needle_len) == 0)
+                {
+
+			if (replacement) {
+	                        str = g_string_append (str, replacement);
+			}
+
+                        pos += needle_len - 1;
+
+                } else {
+                        str = g_string_append_c (str, haystack[pos]);
+		}
+        }
+
+        return g_string_free (str, FALSE);
+}
+
+
 
 gboolean
 open_file_with_application (GtkWidget * window,
