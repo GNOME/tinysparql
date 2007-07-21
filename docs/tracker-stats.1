@@ -1,15 +1,23 @@
-.TH tracker-stats 1 "September 2006" "Version 0.5"
+.TH tracker-stats 1 "July 2007" GNU "User Commands"
+
 .SH NAME
-tracker-stats \- command line tool that provides statistics on files
-indexed by 
+tracker-stats\- command line tool that provides statistics on files
+indexed by
 .B trackerd 
+
 .SH SYNOPSIS
-.B tracker-stats
+.B tracker-stats [OPTIONS] 
+
 .SH DESCRIPTION
 .B tracker-stats
-returns statistics on files indexed by tracker indexing daemoni, order by
-services.
-.SH AUTHOR
-Baptiste Mille-Mathias <baptiste.millemathias@gmail.com>
+returns statistics on files indexed by tracker indexing daemon, ordered
+by service type.
+
+.SH OPTIONS
+.TP
+\-?, --help
+Show a brief help message.
+
 .SH "SEE ALSO"
-trackerd (1)
+.BR trackerd (1),
+.BR tracker-status (1)
