@@ -1,5 +1,5 @@
 # translation of tracker to spanish
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Jorge González <jorgegonz@svn.gnome.org>, 2007.
@@ -8,14 +8,13 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-07-14 03:30+0100\n"
-"PO-Revision-Date: 2007-07-15 15:33+0200\n"
+"PO-Revision-Date: 2007-07-20 11:02+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
-"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);"
 
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
@@ -386,7 +385,7 @@ msgstr "VALOR"
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
-msgstr ""
+msgstr "Valores para la aceleración del indexado. Los valores deben estar comprendidos entre 0 y 20 (por defecto se toma 0) dando los valores bajos una aceleracion mayor del indexado"
 
 #: ../src/trackerd/trackerd.c:151
 msgid "Minimizes the use of memory but may slow indexing down"
@@ -468,7 +467,7 @@ msgstr "<b>Inicio</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Throttling</b>"
-msgstr ""
+msgstr "<b>Aceleración</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:11
 msgid "Additional mbox mailboxes to index:"
@@ -484,7 +483,7 @@ msgstr "Activar el indexado de correos-e de Evolution"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Enable Index Throttling"
-msgstr ""
+msgstr "Habilitar el indexado acelerado"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:15
 msgid "Enable KMail email indexing"
@@ -548,7 +547,7 @@ msgstr "Iniciar el servicio de _monitorización automáticamente"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Throttling Level: "
-msgstr ""
+msgstr "Nivel de aceleración:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Tracker Preferences"
