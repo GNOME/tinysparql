@@ -1,3 +1,8 @@
+2007-07-21 Patch from Marcus Fritzsch <fritschy at googlemail com>
+	
+	* updated man pages
+
+
 2007-07-21 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed origin of initial sleep in tracker-prefs - based on patch by Tshepang Lekhonkhobe
