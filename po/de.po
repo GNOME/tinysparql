@@ -538,7 +538,7 @@ msgstr "Verzögerter Programmstart:          "
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:24
 msgid "Normal Mode"
-msgstr "Normales Modus"
+msgstr "Normaler Modus"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:25
 msgid "P_erformance"
@@ -870,7 +870,7 @@ msgstr "_Ersetzen"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1600
 msgid "The document name you selected is a folder."
-msgstr "Das gewählte Dokument ist ein Ordner."
+msgstr "Der gewählte Name existiert bereits und ist ein Ordner."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1649
 msgid "You may not have write permissions to the document."
@@ -880,7 +880,7 @@ msgstr "Sie haben vermutlich keine Schreibrechte für das Dokument."
 msgid ""
 "Locate documents and folders on this computer by name or content using "
 "Tracker"
-msgstr "Tracker erlaubt es, Dokument ausfindig zu machen, indem Sie nach dem Namen oder Inhalt suchen"
+msgstr "Tracker erlaubt es, Dokumente ausfindig zu machen, indem Sie nach dem Namen oder Inhalt suchen"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:74
 #, c-format
