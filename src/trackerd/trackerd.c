@@ -590,7 +590,6 @@ check_directory (const char *uri)
 	}
 
 	g_return_if_fail (uri && (uri[0] == '/'));
-        if(!tracker_is_directory(uri)){tracker_error("DIRECTORY: %s\n", uri);}
 	g_return_if_fail (tracker_is_directory (uri));
 
 	file_list = tracker_get_files (uri, FALSE);
