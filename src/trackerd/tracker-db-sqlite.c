@@ -2477,6 +2477,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	count = 0;
 
 	for (tmp = hit_list; tmp; tmp = tmp->next) {
+
 		SearchHit *hit;
 		char	  *str_id;
 		char	  ***res;
