@@ -771,7 +771,7 @@ process_directory_list (DBConnection *db_con, GSList *list, gboolean recurse)
 {
 	tracker->dir_list = NULL;
 
-	if (!list) {
+	if (!list || g_slist_length (list) == 0) {
 		return;
 	}
 

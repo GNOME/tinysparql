@@ -96,8 +96,8 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 	char *hidden = NULL;
 	gchar *tmp_str = NULL;
 	gchar desktop_entry[] = { "Desktop Entry" };
-	char **mimes;
-	char **categories;
+	char **mimes = NULL;
+	char **categories = NULL;
 
 	const char *file_name = "File:Name";
 	const char *app_name = "App:Name";
@@ -111,9 +111,6 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 
 	/* Check (to be sure) if this is a .desktop file */
 	if (g_str_has_suffix (info->uri, ".desktop") == FALSE)	return;
-
-	
-
 
 	const gchar * const *locale_array;
 	locale_array = g_get_language_names();

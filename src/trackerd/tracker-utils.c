@@ -2069,7 +2069,6 @@ tracker_free_strs_in_array (char **array)
 
 	for (a = array; *a; a++) {
 		g_free (*a);
-                *a = NULL;
 	}
 }
 
@@ -2139,17 +2138,20 @@ tracker_is_supported_lang (const char *lang)
 static char *
 get_default_language_code ()
 {
-	char **langs, **plangs;
+	char **langs, **plangs, *result;
 
-	/* get languages for user's locale */
+
+	/* get langauges for user's locale */
 	langs = (char**) g_get_language_names ();
+
+	int i;
 
 	for (plangs = langs; *plangs; plangs++) {
 		if (strlen (*plangs) > 1) {
-                        int i;
-			for (i = 0; tmap[i].lang; i++) {
+			for (i=0; tmap[i].lang; i++) {
 				if (g_str_has_prefix (*plangs, tmap[i].lang)) {
-					return g_strndup (*plangs, 2);
+					result = g_strndup (*plangs, 2);
+					return result;
 				}
 
 			}
@@ -2157,21 +2159,25 @@ get_default_language_code ()
 	}
 
 	return g_strdup ("en");
+
+
+
 }
 
 
 void
 tracker_set_language (const char *language, gboolean create_stemmer)
 {
+
 	if (!language || strlen (language) < 2) {
 
 		g_free (tracker->language);
 		tracker->language = get_default_language_code ();
-		tracker_log ("Setting default language code to %s based on user's locale", language);
+		tracker_log ("setting default language code to %s based on user's locale", language);
 
 	} else {
 		int i;
-		for (i = 0; tmap[i].lang; i++) {
+		for (i=0; tmap[i].lang; i++) {
 
 			if (g_str_has_prefix (language, tmap[i].lang)) {
 				tracker->language = g_strndup (tmap[i].lang, 2);
@@ -2182,7 +2188,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	}
 
 	/* set stopwords list and create stemmer for language */
-	tracker_log ("Setting stopword list for language code %s", language);
+	tracker_log ("setting stopword list for language code %s", language);
 
 	char *stopword_path, *stopword_file;
 	char *stopwords;
@@ -2192,7 +2198,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	g_free (stopword_path);
 
 	if (!g_file_get_contents (stopword_file, &stopwords, NULL, NULL)) {
-		tracker_log ("WARNING: Tracker cannot read stopword file %s", stopword_file);
+		tracker_log ("Warning : Tracker cannot read stopword file %s", stopword_file);
 	} else {
 
 		tracker->stop_words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -2205,8 +2211,8 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 		}
 
 		g_strfreev (words);
-	}
 
+	}
 	g_free (stopwords);
 	g_free (stopword_file);
 
@@ -2223,7 +2229,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	if (language) {
 		int i;
 
-		for (i = 0; tmap[i].lang; i++) {
+		for (i=0; tmap[i].lang; i++) {
 			if ((strcasecmp (tmap[i].lang, language) == 0)) {
 				stem_language = tmap[i].name;
 				break;
@@ -2234,12 +2240,12 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	tracker->stemmer = sb_stemmer_new (stem_language, NULL);
 
 	if (!tracker->stemmer) {
-		tracker_log ("WARNING: no stemmer could be found for language %s", language);
+		tracker_log ("Warning : No stemmer could be found for language %s", language);
 	} else {
 		tracker_log ("Using stemmer for language %s\n", language);
 	}
-}
 
+}
 
 void
 tracker_load_config_file ()
