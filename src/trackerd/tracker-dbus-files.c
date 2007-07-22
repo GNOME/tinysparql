@@ -334,7 +334,7 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 
 	result = tracker_get_service_type_for_mime (mime);
 
-	tracker_log ("info for file %s is : id=%u, mime=%s, service=%s", uri, file_id, mime, result); 
+	tracker_log ("Info for file %s is : id=%u, mime=%s, service=%s", uri, file_id, mime, result); 
 
 	g_free (mime);
 
@@ -968,7 +968,7 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 			}
 
 		} else {
-			tracker_log ("result set is empty");
+			tracker_log ("Result set is empty");
 		}
 
 		tracker_db_free_result (res);
@@ -1044,7 +1044,7 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 			}
 
 		} else {
-			tracker_log ("result set is empty");
+			tracker_log ("Result set is empty");
 		}
 
 		tracker_db_free_result (res);
@@ -1121,7 +1121,7 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 			}
 
 		} else {
-			tracker_log ("result set is empty");
+			tracker_log ("Result set is empty");
 		}
 
 		tracker_db_free_result (res);

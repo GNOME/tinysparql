@@ -177,7 +177,7 @@ get_preferred_bucket_count (Indexer *indexer)
 		result = (tracker->index_bucket_ratio * crrnum (indexer->word_index));
 	}
 
-	tracker_log ("preferred bucket count is %d", result);
+	tracker_log ("Preferred bucket count is %d", result);
 	return  result;
 
 }
@@ -204,7 +204,7 @@ tracker_indexer_open (const char *name)
 		if (crrepair (word_dir)) {
 			word_index = cropen (word_dir, CR_OWRITER | CR_OCREAT | CR_ONOLCK, tracker->min_index_bucket_count, tracker->index_divisions);
 		} else {
-			g_assert ("Fatal : index file is dead (suggest delete index file and restart trackerd)");
+			g_assert ("FATAL: index file is dead (suggest delete index file and restart trackerd)");
 		}
 	}
 
@@ -287,7 +287,7 @@ tracker_indexer_optimize (Indexer *indexer)
 	}
 
 	b_count = (num / tracker->index_divisions);
-	tracker_log ("no of buckets per division is %d", b_count);
+	tracker_log ("No. of buckets per division is %d", b_count);
 
 	tracker_log ("Please wait while optimization of indexes takes place...");
 	tracker_log ("Index has file size %10.0f and bucket count of %d of which %d are used...", crfsizd (indexer->word_index), crbnum (indexer->word_index), crbusenum (indexer->word_index));
@@ -1063,7 +1063,7 @@ tracker_get_hit_counts (SearchQuery *query)
 	for (l = list; i < len; l=l->next) {
 
 		if (!l->data) {
-			tracker_log ("Error in get hit counts");
+			tracker_error ("ERROR: in get hit counts");
 			res[i]=NULL;
 			continue;
 		}

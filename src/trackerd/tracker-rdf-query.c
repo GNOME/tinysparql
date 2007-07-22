@@ -1011,8 +1011,9 @@ error_handler (GMarkupParseContext *context,
 	       GError		   *error,
 	       gpointer		   user_data)
 {
-	tracker_log ("Error in rdf query parse: %s", error->message);
+	tracker_error ("ERROR: in rdf query parse: %s", error->message);
 }
+
 
 static GString *
 get_select_header (const char *service) 
@@ -1078,7 +1079,7 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 			field_data = add_metadata_field (&data, fields[i], TRUE, FALSE);
 
 			if (!field_data) {
-				tracker_log ("RDF Query failed : field %s not found", fields[i]);
+				tracker_error ("ERROR: RDF Query failed: field %s not found", fields[i]);
 				g_slist_foreach (data.fields, (GFunc) tracker_free_metadata_field, NULL);
 				g_slist_free (data.fields);
 				g_string_free (data.sql_select, TRUE);
@@ -1097,14 +1098,14 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	tracker_debug ("search term is %s", search_text);
 
 
-	if (search_text && (strlen (search_text) > 0)) {
+	if (!tracker_is_empty_string (search_text)) {
 		do_search = TRUE;
 		g_string_append_printf (data.sql_from, "\n FROM %s S INNER JOIN SearchResults1 M ON S.ID = M.SID ", table_name);
 	} else {
 		g_string_append_printf (data.sql_from, "\n FROM %s S ", table_name);
 	}
 
-	if (keyword && strlen (keyword) > 0) {
+	if (!tracker_is_empty_string (keyword)) {
 		char *keyword_metadata = tracker_get_related_metadata_names (db_con, "DC:Keywords");
 		g_string_append_printf (data.sql_from, "\n INNER JOIN ServiceKeywordMetaData K ON S.ID = K.ServiceID and K.MetaDataID in (%s) and K.MetaDataValue = '%s' ", keyword_metadata, keyword);
 		g_free (keyword_metadata);

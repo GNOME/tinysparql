@@ -124,7 +124,7 @@ strip_word (const char *str, int length, guint32 *len)
 		char *s = NULL;
 
 		if (unac_string ("UTF-8", str, length, &s, &*len) != 0) {
-			tracker_log ("Warning: unac failed to strip accents");
+			tracker_log ("WARNING: unac failed to strip accents");
 		}
 
 		return s;
@@ -346,10 +346,10 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 
 }
 
+
 char *
 tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean delimit)
 {
-
 	const char *p = txt;	
 
 	char *word = NULL;
@@ -361,16 +361,17 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 			/* CJK text does not need stemming or other treatment */
 
 			PangoLogAttr *attrs;
-			guint	     str_len, word_start;
+			guint	     nb_bytes, str_len, word_start;
 			GString	     *strs;
 
-			str_len = strlen (txt);
+			nb_bytes = strlen (txt);
+                        str_len = g_utf8_strlen (txt, -1);
 
 			strs = g_string_new (" ");
 
 			attrs = g_new0 (PangoLogAttr, str_len + 1);
 
-			pango_get_log_attrs (txt, str_len, 0, pango_language_from_string ("C"), attrs, str_len + 1);
+			pango_get_log_attrs (txt, nb_bytes, 0, pango_language_from_string ("C"), attrs, str_len + 1);
 
 			word_start = 0;
 
@@ -429,11 +430,7 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 				if (!p || !*p) {
 					return g_string_free (str, FALSE);
 				}
-
-
-
 			}
-
 		}
 	}
 
@@ -451,7 +448,6 @@ tracker_parse_text_into_array (const char *text)
 	g_free (s);
 
 	return array;
-
 }
 
 
@@ -469,12 +465,10 @@ update_word_count (GHashTable *word_table, const char *word, int weight)
 }
 
 
-
 /* use this for already processed text only */
 GHashTable *
 tracker_parse_text_fast (GHashTable *word_table, const char *txt, int weight)
 {
-
 	if (!word_table) {
 		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 	} 
@@ -504,7 +498,7 @@ tracker_parse_text_fast (GHashTable *word_table, const char *txt, int weight)
 GHashTable *
 tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolean filter_words, gboolean delimit_words)
 {
-	int  		total_words, count;
+	int total_words, count;
 
 	if (!word_table) {
 		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -526,13 +520,14 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 		/* CJK text does not need stemming or other treatment */
 
 		PangoLogAttr *attrs;
-		guint	     str_len, word_start;
+		guint	     nb_bytes, str_len, word_start;
 
-		str_len = strlen (txt);
+                nb_bytes = strlen (txt);
+                str_len = g_utf8_strlen (txt, -1);
 
 		attrs = g_new0 (PangoLogAttr, str_len + 1);
 
-		pango_get_log_attrs (txt, str_len, 0, pango_language_from_string ("C"), attrs, str_len + 1);
+		pango_get_log_attrs (txt, nb_bytes, 0, pango_language_from_string ("C"), attrs, str_len + 1);
 
 		word_start = 0;
 
@@ -559,12 +554,10 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 						count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, index_word));
 						g_hash_table_insert (word_table, index_word, GINT_TO_POINTER (count + weight));	
 
-
 					} else {
 						g_free (index_word);
 						break;
 					}
-
 				}
 
 				word_start = i;
@@ -573,11 +566,9 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 			if (attrs[i].is_word_start) {
 				word_start = i;
 			}
-			
 		}
 
-		g_free (attrs);
-		
+		g_free (attrs);		
 
 	} else {
 
@@ -590,7 +581,6 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 				total_words++;
 
 				if (total_words < tracker->max_words_to_index) { 
-
 			
 					count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
 
@@ -603,17 +593,12 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 				}
 
 			}				
-				
 
 			if (!p || !*p) {
 				break;
 			}
-
 		}
 
 	}
 	return word_table;
 }
-
-
-

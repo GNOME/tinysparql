@@ -410,13 +410,13 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			tracker_info ("investigating summary file %s", mbox_file);
 
 			if (!load_summary_file_header (summary, &header)) {
-				tracker_error ("Error: Failed to load summary file %s", info->uri);
+				tracker_error ("ERROR: failed to load summary file %s", info->uri);
 				free_summary_file (summary);
 				goto end_index;
 			}
 
 			if (!load_summary_file_meta_header_for_local (summary, header)) {
-				tracker_error ("Error: Failed to load summary header file %s", info->uri);
+				tracker_error ("ERROR: failed to load summary header file %s", info->uri);
 				free_summary_file_header (header);
 				free_summary_file (summary);
 				goto end_index;
@@ -435,7 +435,7 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 			free_summary_file_header (header);
 			free_summary_file (summary);
 		} else {
-			tracker_error ("Error: failed to open summary file %s", info->uri);
+			tracker_error ("ERROR: failed to open summary file %s", info->uri);
 		}
 
 		g_free (mbox_file);
@@ -609,11 +609,11 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 
 		header = NULL;
 
-		tracker_log ("scanning summary file %s for junk", filename);
+		tracker_log ("Scanning summary file %s for junk", filename);
 
 		if (!load_summary_file_header (summary, &header)) {
 			free_summary_file (summary);
-			tracker_error ("ERROR : failed to open summary file %s", filename);
+			tracker_error ("ERROR: failed to open summary file %s", filename);
 			return;
 		}
 
@@ -622,7 +622,7 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 			if (!load_summary_file_meta_header_for_local (summary, header)) {
 				free_summary_file_header (header);
 				free_summary_file (summary);
-				tracker_error ("ERROR : failed to open summary header file %s", filename);
+				tracker_error ("ERROR: failed to open summary header file %s", filename);
 				return;
 			}
 		} else if (store->type == MAIL_TYPE_IMAP || store->type == MAIL_TYPE_IMAP4) {
@@ -630,11 +630,11 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 			if (!load_summary_file_meta_header_for_imap (summary, header)) {
 				free_summary_file_header (header);
 				free_summary_file (summary);
-				tracker_error ("ERROR : failed to open summary header file %s", filename);
+				tracker_error ("ERROR: failed to open summary header file %s", filename);
 				return;
 			}
 		} else {
-			tracker_error ("Sumamry File not supported");
+			tracker_error ("ERROR: summary file not supported");
 			free_summary_file_header (header);
 			free_summary_file (summary);
 			return;
@@ -670,7 +670,7 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 						}
 					}
 				} else {
-					tracker_error ("ERROR: whilst scanning sumamry file");
+					tracker_error ("ERROR: whilst scanning summary file");
 					return;
 					break;
 				}
@@ -1286,7 +1286,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 
 		
 		if (!store) {
-			tracker_error ("ERROR: could not retireve store for file %s", dir);
+			tracker_error ("ERROR: could not retrieve store for file %s", dir);
 			free_summary_file (summary);
 			free_summary_file_header (header);
 
@@ -1307,7 +1307,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 			/* skip already indexed emails */
 			for (i = 0; i < store->mail_count; i++) {
 				if (!(*skip_mail) (summary)) {
-					tracker_error ("Error skipping email no. %d in summary file", i+1);
+					tracker_error ("ERROR: skipping email no. %d in summary file", i+1);
 					tracker_db_email_free_mail_store (store);
 					free_summary_file (summary);
 					free_summary_file_header (header);
@@ -1330,7 +1330,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 				tracker_debug ("processing email no. %d / %" G_GINT32_FORMAT, store->mail_count + 1, header->saved_count);
 
 				if (!(*load_mail) (summary, &mail_msg)) {
-					tracker_error ("Error loading email no. %d in summary file", mail_count);
+					tracker_error ("ERROR: loading email no. %d in summary file", mail_count);
 					tracker_db_email_free_mail_store (store);
 					free_summary_file (summary);
 					free_summary_file_header (header);
@@ -1375,7 +1375,7 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 			}
 
 
-			tracker_log ("no of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
+			tracker_log ("No. of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
 
 			tracker_db_email_set_message_counts (db_con, dir, store->mail_count, store->junk_count, store->delete_count);
 		} else {
@@ -1485,7 +1485,7 @@ open_summary_file (const gchar *path, SummaryFile **summary)
 						continue;
 					}
 
-					tracker_debug ("account name for summary file is %s and path is %s", account_name, (*summary)->path);
+					tracker_debug ("Account name for summary file is %s and path is %s", account_name, (*summary)->path);
 
 					if (strstr (evo_acc->source_url, account_name)) {
 						(*summary)->associated_account = evo_acc;
@@ -1511,7 +1511,7 @@ open_summary_file (const gchar *path, SummaryFile **summary)
 				}
 
 				default:
-					tracker_error ("Error: no matching account found for email");
+					tracker_error ("ERROR: no matching account found for email");
 					continue;
 					break;
 			}
@@ -1573,14 +1573,14 @@ load_summary_file_header (SummaryFile *summary, SummaryFileHeader **header)
 	tracker_debug ("summary.version = %d", h->version);
 
 	if (h->version > 0xff && (h->version & 0xff) < 12) {
-		tracker_error ("Error: summary file header version too low");
+		tracker_error ("ERROR: summary file header version too low");
 		goto error;
 	}
 
 	h->legacy = !(h->version < 0x100 && h->version >= 13);
 
 	if (h->legacy) {
-		tracker_debug ("Warning summary file is a legacy version");
+		tracker_debug ("WARNING: summary file is a legacy version");
 	}
 
 
@@ -1673,13 +1673,13 @@ load_summary_file_meta_header_for_imap (SummaryFile *summary, SummaryFileHeader 
 		}
 
 		if (version < 0) {
-			tracker_error ("Error: summary file version too low");
+			tracker_error ("ERROR: summary file version too low");
 			return FALSE;
 		}
 
 		/* Right now we only support summary versions 1 through 3 */
 		if (version > 3) {
-			tracker_error ("Error: reported summary version (%" G_GINT32_FORMAT ") is too new", version);
+			tracker_error ("ERROR: reported summary version (%" G_GINT32_FORMAT ") is too new", version);
 			return FALSE;
 		}
 
@@ -2228,7 +2228,9 @@ do_save_ondisk_email_message_for_imap (DBConnection *db_con, MailMessage *mail_m
 			if (ret) {
 				tracker_db_email_save_email (db_con, mail_msg);
 			}
-		}
+		} else {
+                        tracker_log ("...Indexing of mail parts failed");
+                }
 
 		g_free (header_file);
 
@@ -2368,18 +2370,29 @@ index_mail_parts (DBConnection *db_con, MailMessage *mail_msg, const gchar *mail
 				} else {
 					if (m->mime_infos) {
 						MailAttachment	*ma;
+                                                gchar           *tmp_filename;
 
 						ma = email_allocate_mail_attachment ();
 
-						ma->attachment_name = m->mime_infos->name ? g_strdup (m->mime_infos->name) : g_strdup (m->mail_file);
+						ma->attachment_name = (m->mime_infos->name ?
+                                                                       g_strdup (m->mime_infos->name) :
+                                                                       g_path_get_basename (m->mail_file)       /* this attachment has not a name... */
+                                                                       );
+                                                tmp_filename = (m->mime_infos->name ?
+                                                                g_path_get_basename (m->mime_infos->name) :     /* we only take end of name to avoid to give
+                                                                                                                   access to anywhere on disk if the name
+                                                                                                                   contains characters from a path... */
+                                                                g_strdup (ma->attachment_name)
+                                                                );
 						ma->mime = g_strconcat (m->mime_infos->type, "/", m->mime_infos->subtype, NULL);
-						ma->tmp_decoded_file  = g_build_filename (mail_msg->path_to_attachments, ma->attachment_name, NULL);
+						ma->tmp_decoded_file  = email_make_tmp_name_for_mail_attachment (tmp_filename);
+                                                g_free (tmp_filename);
 
 						if (email_decode_mail_attachment_to_file (m->mail_file, ma->tmp_decoded_file, m->mime_infos->encoding)) {
 							email_add_saved_mail_attachment_to_mail_message (mail_msg, ma);
 
 						} else {
-							tracker_error ("Failed to decode mail part \"%s\"", m->mail_file);
+							tracker_error ("ERROR: failed to decode mail part \"%s\"", m->mail_file);
 							email_free_mail_attachment (ma);
 						}
 					}
@@ -2676,7 +2689,7 @@ skip_string_decoding (FILE *f)
 	}
 
 	if (fseek (f, len - 1, SEEK_CUR) != 0) {
-		tracker_error ("seek failed for string with length %d with error code %d", len-1, errno);
+		tracker_error ("ERROR: seek failed for string with length %d with error code %d", len-1, errno);
 		return FALSE;
 	}
 

@@ -47,7 +47,7 @@ tracker_dbus_init (void)
 	connection = dbus_bus_get (DBUS_BUS_SESSION, &error);
 
 	if ((connection == NULL) || dbus_error_is_set (&error)) {
-		tracker_log ("tracker_dbus_init() could not get the session bus");
+		tracker_error ("ERROR: tracker_dbus_init() could not get the session bus");
 		connection = NULL;
 		goto out;
 	}
@@ -56,7 +56,7 @@ tracker_dbus_init (void)
 
 	if (!dbus_connection_register_object_path (connection, TRACKER_OBJECT, &tracker_vtable, NULL)) {
 
-		tracker_log ("could not register D-BUS handlers");
+		tracker_error ("ERROR: could not register D-BUS handlers");
 		connection = NULL;
 		goto out;
 	}
@@ -66,7 +66,7 @@ tracker_dbus_init (void)
 	dbus_bus_request_name (connection, TRACKER_SERVICE, 0, &error);
 
 	if (dbus_error_is_set (&error)) {
-		tracker_log ("could not acquire service name due to '%s'", error.message);
+		tracker_error ("ERROR: could not acquire service name due to '%s'", error.message);
 		connection = NULL;
 		goto out;
 	}

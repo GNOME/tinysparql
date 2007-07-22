@@ -80,7 +80,7 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 			tmp_id = atoll (row[0]);
 
 			if (tmp_id > G_MAXUINT32) {
-				tracker_error ("Error: file id is too big (> G_MAXUINT32)! Is database corrupted?");
+				tracker_error ("ERROR: file id is too big (> G_MAXUINT32)! Is database corrupted?");
 				tracker_db_free_result (res);
 				return FALSE;
 
@@ -380,7 +380,7 @@ tracker_metadata_is_date (DBConnection *db_con, const char *meta)
 	def = tracker_db_get_field_def (db_con, meta);
 
 	if (!def) {
-		tracker_log ("failed to get info for metadata type %s", meta);
+		tracker_error ("ERROR: failed to get info for metadata type %s", meta);
 		return FALSE;
 	}
 
@@ -707,12 +707,12 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 		info->uri = old_uri;
 
 		if (info->file_id == 0) {
-			tracker_error ("Error: Could not get file id for %s - unable to continue indexing this file", uri);
+			tracker_error ("ERROR: could not get file id for %s - unable to continue indexing this file", uri);
 			return;
 		}
 
 		if (info->service_type_id == -1) {
-			tracker_error ("******ERROR****** Unknown service type for %s with service %s and mime %s", uri, service, info->mime);
+			tracker_error ("ERROR: unknown service type for %s with service %s and mime %s", uri, service, info->mime);
 		}
 	}
 

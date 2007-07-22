@@ -300,14 +300,14 @@ db_connect (const char *dbname)
 	db_con->db = mysql_init (NULL);
 
 	if (!db_con->db) {
-		tracker_log ("Fatal error - mysql_init failed");
+		tracker_error ("FATAL ERROR: mysql_init failed");
 		exit (1);
 	}
 
 	mysql_options (db_con->db, MYSQL_OPT_USE_EMBEDDED_CONNECTION, NULL);
 
 	if (!mysql_real_connect (db_con->db, NULL, "root", NULL, dbname, 0, NULL, CLIENT_MULTI_STATEMENTS)) {
-    		tracker_log ("Fatal error : mysql_real_connect failed: %s", mysql_error (db_con->db));
+    		tracker_error ("FATAL ERROR: mysql_real_connect failed: %s", mysql_error (db_con->db));
 		exit (1);
 	}
 
@@ -328,12 +328,12 @@ tracker_db_prepare_statement (MYSQL *db, MYSQL_STMT **stmt, const char *query)
 	*stmt = mysql_stmt_init (db);
 
 	if (!*stmt) {
-		tracker_log (" mysql_stmt_init(), out of memory");
+		tracker_error ("ERROR: mysql_stmt_init(), out of memory");
   		exit (1);
 	}
 
 	if (mysql_stmt_prepare (*stmt, query, strlen (query)) != 0) {
-		tracker_log (" mysql_stmt_prepare(), query failed due to %s", mysql_stmt_error (*stmt));
+		tracker_error ("ERROR: mysql_stmt_prepare(), query failed due to %s", mysql_stmt_error (*stmt));
 		return -5;
 	}
 
@@ -413,7 +413,7 @@ lock_db (void)
 		}
 	}
 
-	tracker_log ("lock failure");
+	tracker_error ("ERROR: lock failure");
 
 	g_free (lock_file);
 	g_free (tmp_file);
@@ -452,7 +452,7 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 	int 	   i, result;
 
 	if (param_count > 16) {
-		tracker_log ("Too many parameters to execute query");
+		tracker_error ("ERROR: too many parameters to execute query");
 		return -1;
 	}
 
@@ -468,7 +468,7 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 		str = va_arg (args, char *);
 
 		if (strlen(str) > 2048) {
-			tracker_log ("Warning - length of parameter %s is too long", str);
+			tracker_error ("WARNING: length of parameter %s is too long", str);
 		}
 
 		strncpy (params[i], str, 2048);
@@ -483,7 +483,7 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 	}
 
   	if (mysql_stmt_bind_param (stmt, bind)) {
-		tracker_log ("bind failed");
+		tracker_error ("ERROR: bind failed");
 		return -1;
 	}
 
@@ -493,7 +493,7 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 	}
   	if (mysql_stmt_execute (stmt)) {
 		unlock_db ();
-		tracker_log ("error %s occured whilst executing stmt",  mysql_stmt_error (stmt));
+		tracker_error ("ERROR: %s occured whilst executing stmt",  mysql_stmt_error (stmt));
 		return -1;
 	}
 	unlock_db ();
@@ -503,7 +503,7 @@ tracker_db_exec_stmt (MYSQL_STMT *stmt, int param_count,  ...)
 	result = mysql_stmt_affected_rows (stmt);
 
 	if (mysql_stmt_free_result (stmt)) {
-		tracker_log ("ERROR Freeing statement %s", mysql_stmt_error (stmt));
+		tracker_error ("ERROR: freeing statement %s", mysql_stmt_error (stmt));
 	}
 
 	//mysql_stmt_reset (stmt);
@@ -525,7 +525,7 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 	char 		**result;
 
 	if (param_count > 16) {
-		tracker_log ("Too many parameters to execute query");
+		tracker_error ("ERROR: too many parameters to execute query");
 		return NULL;
 	}
 
@@ -539,7 +539,7 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 		str = va_arg (args, char *);
 
 		if (strlen (str) > 254) {
-			tracker_log ("Warning - length of parameter %s is too long", str);
+			tracker_error ("WARNING: length of parameter %s is too long", str);
 		}
 
 		strncpy (params[i], str, 255);
@@ -555,7 +555,7 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 	}
 
   	if (mysql_stmt_bind_param (stmt, bind)) {
-		tracker_log ("bind failed");
+		tracker_error ("ERROR: bind failed");
 	}
 
 	prepare_meta_result = mysql_stmt_result_metadata (stmt);
@@ -567,7 +567,7 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 		return NULL;
 	}
   	if (mysql_stmt_execute (stmt)) {
-		tracker_log ("error executing stmt");
+		tracker_error ("ERROR: executing stmt");
 	}
 	unlock_db ();
 
@@ -585,15 +585,15 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 
  	/* Bind the result buffers */
 	if (mysql_stmt_bind_result (stmt, bind)) {
-  		tracker_log (" mysql_stmt_bind_result() failed");
-		tracker_log (" %s", mysql_stmt_error (stmt));
+  		tracker_error ("ERROR: mysql_stmt_bind_result() failed");
+		tracker_error ("ERROR: %s", mysql_stmt_error (stmt));
 		return NULL;
 	}
 
 	/* Now buffer all results to client */
 	if (mysql_stmt_store_result (stmt)) {
-		tracker_log (" mysql_stmt_store_result() failed");
-		tracker_log (" %s", mysql_stmt_error (stmt));
+		tracker_error ("ERROR: mysql_stmt_store_result() failed");
+		tracker_error ("ERROR: %s", mysql_stmt_error (stmt));
 		return NULL;
 	}
 
@@ -634,7 +634,7 @@ tracker_db_exec_stmt_result (MYSQL_STMT *stmt, int param_count,  ...)
 	mysql_free_result (prepare_meta_result);
 
 	if (mysql_stmt_free_result (stmt)) {
-		tracker_log ("ERROR Freeing statement");
+		tracker_error ("ERROR: freeing statement");
 	}
 
 	//mysql_stmt_reset (stmt);
@@ -673,7 +673,7 @@ tracker_mysql_exec_sql (MYSQL *db, const char *query)
 
 	if (mysql_query (db, query) != 0) {
 		unlock_db ();
-    		tracker_log ("tracker_exec_sql failed: %s [%s]", mysql_error (db), query);
+    		tracker_error ("ERROR: tracker_exec_sql failed: %s [%s]", mysql_error (db), query);
 		return res;
 	}
 	unlock_db ();
@@ -686,7 +686,7 @@ tracker_mysql_exec_sql (MYSQL *db, const char *query)
 
 	if (mysql_field_count (db) > 0) {
 	    	if (!(res = mysql_store_result (db))) {
-			tracker_log ("tracker_exec_sql failed: %s [%s]", mysql_error (db), query);
+			tracker_error ("ERROR: tracker_exec_sql failed: %s [%s]", mysql_error (db), query);
 		}
 	}
 
@@ -886,7 +886,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		str = va_arg (args, char *);
 
 		if (!str) {
-			tracker_log ("Warning - parameter %d is null", i);
+			tracker_log ("WARNING: parameter %d is null", i);
 			param = NULL;
 		} else {
 			param = tracker_escape_string (db_con, str);
@@ -942,7 +942,7 @@ create_system_db (void)
 	sql_file = g_strdup (DATADIR "/tracker/mysql-system.sql");
 
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
 		g_assert (FALSE);
 	} else {
 		char **queries, **queries_p;
@@ -976,7 +976,7 @@ tracker_db_load_stored_procs (DBConnection *db_con)
 	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
 
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
 		g_assert (FALSE);
 	} else {
 		char **queries, **queries_p;
@@ -1020,7 +1020,7 @@ create_tracker_db (void)
 	tracker_log ("Creating tables...");
 
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
 		g_assert (FALSE);
 	} else {
 		char **queries, **queries_p;
@@ -1127,7 +1127,7 @@ tracker_update_db (DBConnection *db_con)
 		mysql_free_result (res);
 
 		if (!found_options) {
-			tracker_log ("Cannot find Options table - your database is out of date and will need to be rebuilt");
+			tracker_error ("ERROR: cannot find Options table - your database is out of date and will need to be rebuilt");
 			tracker_mysql_exec_sql (db_con->db, "Drop Database tracker");
 			tracker_create_db ();
 			return TRUE;
@@ -1193,7 +1193,7 @@ tracker_update_db (DBConnection *db_con)
 	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
 
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
 		g_assert (FALSE);
 	} else {
 		char **queries, **queries_p;
@@ -1235,7 +1235,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, File
 	file_name_in_locale = g_filename_from_utf8 (file_name, -1, NULL, NULL, NULL);
 
 	if (!file_name_in_locale) {
-		tracker_log ("******ERROR**** file_name could not be converted to locale format");
+		tracker_error ("ERROR: file_name could not be converted to locale format");
 		return;
 	}
 
@@ -1245,7 +1245,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, File
 	g_free (file_name_in_locale);
 
 	if (!file) {
-		tracker_log ("Could not open file %s", file_name);
+		tracker_error ("ERROR: could not open file %s", file_name);
 		return;
 	}
 
@@ -1265,7 +1265,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, File
 		g_free (res);
 
 	} else {
-		tracker_log ("Could not get metadata for File.Content");
+		tracker_error ("ERROR: could not get metadata for File.Content");
 		return;
 	}
 
@@ -1292,7 +1292,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, File
 
 	/* Bind the buffers */
 	if (mysql_stmt_bind_param (db_con->insert_contents_stmt, bind)) {
-		tracker_log ("binding error : %s\n", mysql_stmt_error (db_con->insert_contents_stmt));
+		tracker_error ("ERROR: binding error: %s\n", mysql_stmt_error (db_con->insert_contents_stmt));
 		g_free (str_meta_id);
 		g_free (str_file_id);
 		fclose (file);
@@ -1337,7 +1337,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, File
 
 		if (mysql_stmt_send_long_data (db_con->insert_contents_stmt, 2, buffer, strlen (buffer)) != 0) {
 
-			tracker_log ("error sending data : %s\n", mysql_stmt_error (db_con->insert_contents_stmt));
+			tracker_error ("ERROR: sending data: %s\n", mysql_stmt_error (db_con->insert_contents_stmt));
 			g_free (str_meta_id);
 			g_free (str_file_id);
 			fclose (file);
@@ -1355,7 +1355,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, File
 	if (bytes_read > 3) {
 		if (mysql_stmt_execute (db_con->insert_contents_stmt) != 0) {
 
-			tracker_log ("insert metadata indexed query failed :%s", mysql_stmt_error (db_con->insert_contents_stmt));
+			tracker_log ("insert metadata indexed query failed: %s", mysql_stmt_error (db_con->insert_contents_stmt));
 		} else {
 
 			//tracker_log ("%d bytes of text successfully inserted into file id %s", bytes_read, str_file_id);
@@ -1368,7 +1368,7 @@ tracker_db_save_file_contents	(DBConnection *db_con, const char *file_name, File
 	fclose (file);
 
 	if (mysql_stmt_free_result (db_con->insert_contents_stmt)) {
-		tracker_log ("ERROR Freeing file contents statement");
+		tracker_error ("ERROR: freeing file contents statement");
 	}
 }
 
@@ -1518,7 +1518,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 	res = tracker_exec_proc (db_con, "SetMetadata", 5, service, id, key, value, str_write);
 
 	if (res && res[0][0]) {
-		tracker_log ("Warning: Metadata could not be set for %s with value %s due to %s", key, value, res[0][0]);
+		tracker_log ("WARNING: metadata could not be set for %s with value %s due to %s", key, value, res[0][0]);
 		tracker_db_free_result (res);
 	}
 }
@@ -1819,7 +1819,7 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 
 	/* build mimes string */
 	for (i = 0; i < n; i++) {
-		if (mime_array[i] && strlen (mime_array[i]) > 0) {
+                if (!tracker_is_empty_string (mime_array[i])) {
 			if (mimes) {
 				g_string_append (mimes, ",");
 				g_string_append (mimes, mime_array[i]);
@@ -1873,7 +1873,7 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 
 	/* build mimes string */
 	for (i = 0; i < n; i++) {
-		if (mime_array[i] && strlen (mime_array[i]) > 0) {
+                if (!tracker_is_empty_string (mime_array[i])) {
 			if (mimes) {
 				g_string_append (mimes, ",");
 				g_string_append (mimes, mime_array[i]);

@@ -204,6 +204,7 @@ typedef struct {
 	char 		*root_dir;
 	char		*user_data_dir;
 	char		*sys_tmp_root_dir;
+        char            *email_attachements_dir;
 	char 		*services_dir;
 
 	/* performance and memory usage options */
@@ -465,6 +466,7 @@ char **		tracker_make_array_null_terminated 	(char **array, int length);
 void		tracker_free_strs_in_array 		(char **array);
 
 void		tracker_free_array 		(char **array, int row_count);
+gboolean        tracker_is_empty_string         (const char *s);
 char *		tracker_int_to_str		(gint i);
 char *		tracker_uint_to_str		(guint i);
 gboolean	tracker_str_to_uint		(const char *s, guint *ret);

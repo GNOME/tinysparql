@@ -1,3 +1,17 @@
+2007-07-22 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Not-named email attachments are not ignored anymore
+	* Fixed removing of saved email attachments from spam emails in Tracker's TMP dir
+	* Fixed message "saved email attachment..."
+	* Added "tracker->email_attachements_dir" variable
+	* Added email_make_tmp_name_for_mail_attachment() function
+	* Added tracker_is_empty_string() function
+	* Fixed SEGFAULT when SIGTERM is sent to Tracker while emails are being indexed
+	* Fixed heuristics to detect a text file
+	* Fixed calls to pango_get_log_attrs()
+	* Unified error messages formats
+
+
 2007-07-21 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* updated man pages
@@ -17,6 +31,7 @@
 	* Fixed tagging
 	* created config file if not present when running tracker-prefs
 
+
 2007-07-18 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
 	* Added initial sleep to tracker-prefs
@@ -28,7 +43,6 @@
 	* Fixed poppler extractor
 	* Fix for AMD64 setrlimit
 	
-
 
 2007-07-17 Patch from Andreas Eckstein <andreas.eckstein@gmx.net>
 
@@ -43,8 +57,7 @@
 	* Fixed bug in tagbar where instruction text would be saved as keywords
 	
 
-
-2007-07-17 Patch from Laurent Aguerreche <laurent.aguerreche@free.fr>
+2007-07-17 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Fixed build of TST
 	* Some cleanups in libtracker-gtk

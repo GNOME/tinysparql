@@ -410,7 +410,7 @@ watch_dir (const char* dir, DBConnection *db_con)
 
 		dir_utf8 = g_filename_to_utf8 (dir, -1, NULL,NULL,NULL);
 		if (!dir_utf8) {
-			tracker_error ("******ERROR**** watch_dir could not be converted to utf8 format");
+			tracker_error ("ERROR: watch_dir could not be converted to utf8 format");
 			return FALSE;
 		}
 	} else {
@@ -707,7 +707,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	service_info = tracker_get_service_for_uri (info->uri);
 
 	if (!service_info) {
-		tracker_error ("cannot find service for path %s", info->uri);
+		tracker_error ("ERROR: cannot find service for path %s", info->uri);
 		return;
 	}
 
@@ -721,9 +721,9 @@ index_entity (DBConnection *db_con, FileInfo *info)
 
 	if (!def) {
 		if (service_info) {
-			tracker_error ("Error: unknown service %s", service_info);
+			tracker_error ("ERROR: unknown service %s", service_info);
 		} else {
-			tracker_error ("Error: unknown service");
+			tracker_error ("ERROR: unknown service");
 		}
 		g_free (service_info);
 		return;
@@ -771,7 +771,7 @@ process_directory_list (DBConnection *db_con, GSList *list, gboolean recurse)
 {
 	tracker->dir_list = NULL;
 
-	if (!list || g_slist_length (list) == 0) {
+	if (!list) {
 		return;
 	}
 
@@ -786,6 +786,7 @@ process_directory_list (DBConnection *db_con, GSList *list, gboolean recurse)
 	if (tracker->dir_list) {
 		g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
 		g_slist_free (tracker->dir_list);
+                tracker->dir_list = NULL;
 	}
 
 }
@@ -2087,10 +2088,9 @@ main (int argc, char **argv)
 		g_mkdir_with_parents (tracker->data_dir, 00755);
 	}
 
-	char *temp_attachements_dir = g_build_filename (tracker->sys_tmp_root_dir, "Attachments", NULL);
-	g_mkdir_with_parents (temp_attachements_dir, 00700);
-	g_print ("Made attachment directory %s\n", temp_attachements_dir);
-	g_free (temp_attachements_dir);
+        tracker->email_attachements_dir = g_build_filename (tracker->sys_tmp_root_dir, "Attachments", NULL);
+	g_mkdir_with_parents (tracker->email_attachements_dir, 00700);
+	tracker_log ("Made email attachments directory %s\n", tracker->email_attachements_dir);
 
 	need_index = FALSE;
 	need_data = FALSE;
@@ -2254,7 +2254,7 @@ main (int argc, char **argv)
 	tracker_db_thread_init ();
 
 	if (!tracker_db_initialize (tracker->data_dir)) {
-		tracker_log ("Failed to initialise database engine - exiting...");
+		tracker_log ("ERROR: failed to initialise database engine - exiting...");
 		return 1;
 	}
 
@@ -2331,7 +2331,7 @@ main (int argc, char **argv)
 	add_local_dbus_connection_monitoring (main_connection);
 
 	if (!tracker_start_watching ()) {
-		tracker_log ("File monitoring failed to start");
+		tracker_error ("ERROR: file monitoring failed to start");
 		do_cleanup ("File watching failure");
 		exit (1);
 	}

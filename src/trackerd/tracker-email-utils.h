@@ -116,7 +116,6 @@ typedef struct {
 	char		*subject;
 	char		*content_type;		/* text/plain or text/html etc. */
 	char		*body;
-	char		*path_to_attachments;
 	GSList		*attachments;		/* names of attachments */
 	MailStore	*store;
 	
@@ -127,10 +126,6 @@ typedef struct {
 
 void		email_watch_directory				(const gchar *dir, const gchar *service);
 void		email_watch_directories				(const GSList *dirs, const gchar *service);
-
-void		email_set_root_path_for_attachments		(const char *path);
-const char *	email_get_root_path_for_attachments		(void);
-void		email_free_root_path_for_attachments		(void);
 
 typedef void (* LoadHelperFct) (GMimeMessage *g_m_message, MailMessage *msg);
 
@@ -165,6 +160,7 @@ MimeInfos *	email_get_mime_infos_from_mime_file		(const gchar *mime_file);
 void		email_index_each_email_attachment		(DBConnection *db_con, const MailMessage *msg);
 gboolean	email_add_saved_mail_attachment_to_mail_message	(MailMessage *mail_msg, MailAttachment *ma);
 
+gchar *         email_make_tmp_name_for_mail_attachment         (const gchar *filename);
 gboolean	email_decode_mail_attachment_to_file		(const gchar *src, const gchar *dst, MimeEncoding encoding);
 
 #endif

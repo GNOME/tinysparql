@@ -80,34 +80,6 @@ email_watch_directories (const GSList *dirs, const gchar *service)
 }
 
 
-void
-email_set_root_path_for_attachments (const char *path)
-{
-	if (root_path_for_attachments) {
-		g_free (root_path_for_attachments);
-	}
-
-	root_path_for_attachments = g_strdup (path);
-}
-
-
-const char *
-email_get_root_path_for_attachments (void)
-{
-	return root_path_for_attachments;
-}
-
-
-void
-email_free_root_path_for_attachments (void)
-{
-	if (root_path_for_attachments) {
-		g_free (root_path_for_attachments);
-		root_path_for_attachments = NULL;
-	}
-}
-
-
 gboolean
 email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper)
 {
@@ -400,6 +372,8 @@ email_free_mail_attachment (MailAttachment *ma)
 	}
 
 	if (ma->tmp_decoded_file) {
+                /* Removes tmp file */
+                g_unlink (ma->tmp_decoded_file);
 		g_free (ma->tmp_decoded_file);
 	}
 
@@ -480,10 +454,6 @@ email_free_mail_message (MailMessage *mail_msg)
 		g_free (mail_msg->body);
 	}
 
-	if (mail_msg->path_to_attachments) {
-		g_free (mail_msg->path_to_attachments);
-	}
-
 	if (mail_msg->attachments) {
 		g_slist_foreach (mail_msg->attachments, (GFunc) email_free_mail_attachment, NULL);
 		g_slist_free (mail_msg->attachments);
@@ -547,28 +517,12 @@ email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
 		load_helper (g_m_message, mail_msg);
 	}
 
-	/* make directory to save attachment */
-	mail_msg->path_to_attachments = g_build_filename (tracker->sys_tmp_root_dir, "Attachments", NULL);
-	g_mkdir_with_parents (mail_msg->path_to_attachments, 0700);
-
 	mail_msg->attachments = NULL;
 
 	/* find then save attachments in sys tmp directory of Tracker and save entries in MailMessage struct */
 	g_mime_message_foreach_part (g_m_message, find_attachment, mail_msg);
 
 	g_object_unref (g_m_message);
-
-	if (!mail_msg->attachments) {
-
-		/* no attachment found, so we remove directory immediately */
-		g_rmdir (mail_msg->path_to_attachments);
-
-		/* and we say there is not a path to attachments */
-		if (mail_msg->path_to_attachments) {
-			g_free (mail_msg->path_to_attachments);
-			mail_msg->path_to_attachments = NULL;
-		}
-	}
 
 	return mail_msg;
 }
@@ -787,9 +741,27 @@ email_add_saved_mail_attachment_to_mail_message (MailMessage *mail_msg, MailAtta
 
 	mail_msg->attachments = g_slist_prepend (mail_msg->attachments, ma);
 
-	tracker_debug ("saved email attachment \"%s\" added to \"%s\"", ma->tmp_decoded_file, mail_msg->uri);
+        tracker_debug ("saved email attachment \"%s\"", ma->tmp_decoded_file);
 
 	return TRUE;
+}
+
+
+gchar *
+email_make_tmp_name_for_mail_attachment (const gchar *filename)
+{
+  gchar *str_uint, *tmp_filename, *tmp_name;
+
+  g_return_val_if_fail (filename, NULL);
+  g_return_val_if_fail (tracker->email_attachements_dir, NULL);
+
+  str_uint = tracker_uint_to_str (g_random_int ());
+  tmp_filename = g_strconcat (str_uint, "-", filename, NULL);
+  g_free (str_uint);
+  tmp_name = g_build_filename (tracker->email_attachements_dir, tmp_filename, NULL);
+  g_free (tmp_filename);
+
+  return tmp_name;
 }
 
 
@@ -922,7 +894,7 @@ new_gmime_stream_from_file (const gchar *path, const gchar *mode, off_t start, o
 	path_in_locale = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
 
 	if (!path_in_locale) {
-		tracker_error ("******ERROR**** src or dst could not be converted to locale format");
+		tracker_error ("ERROR: src or dst could not be converted to locale format");
 		g_free (path_in_locale);
 		return NULL;
 	}
@@ -1060,7 +1032,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 			tracker_info ("attached filename is %s", filename);
 		}
 
-		attachment_uri = g_build_filename (mail_msg->path_to_attachments, filename, NULL);
+		attachment_uri = email_make_tmp_name_for_mail_attachment (filename);
 
 		/* convert attachment filename from utf-8 to filesystem charset */
 		char *locale_uri = g_filename_from_utf8 (attachment_uri, -1, NULL, NULL, NULL);
@@ -1069,12 +1041,16 @@ find_attachment (GMimeObject *obj, gpointer data)
 		fd = g_open (locale_uri, O_CREAT | O_WRONLY, 0666);
 
 		if (fd == -1) {
-			tracker_error ("failed to save attachemnt %s", locale_uri);
+			tracker_error ("ERROR: failed to save attachment %s", locale_uri);
 			g_free (attachment_uri);
 			g_free (locale_uri);
 			return;
 
 		} else {
+                        /* Decodes email attachment and stores it in tracker->email_attachements_dir
+                           to index it latter.
+                        */
+
 			GMimeStream		*stream;
 			GMimeDataWrapper	*content;
 
@@ -1106,6 +1082,5 @@ find_attachment (GMimeObject *obj, gpointer data)
 
 		g_free (attachment_uri);
 		g_free (locale_uri);
-		
 	}
 }

@@ -311,7 +311,7 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
 		}
 
 		store = tracker_db_email_get_mbox_details (db_con, info->uri);
-		tracker_log ("looking for \"%s\"", info->uri);
+		tracker_log ("Looking for \"%s\"", info->uri);
 
 		g_return_if_fail (store);
 
@@ -458,7 +458,7 @@ load_kmail_config (KMailConfig **conf)
 	return TRUE;
 
  error:
-	tracker_error ("file \"%s\" cannot be loaded", m_conf->kmailrc_path);
+	tracker_error ("ERROR: file \"%s\" cannot be loaded", m_conf->kmailrc_path);
 	free_kmail_config (*conf);
 	*conf = NULL;
 	return FALSE;
@@ -970,7 +970,7 @@ rec_find_all_dirs (const char *root_dir)
 	root_in_locale = g_filename_from_utf8 (root_dir, -1, NULL, NULL, NULL);
 
 	if (!root_in_locale) {
-		tracker_error ("Root dir could not be converted to locale format");
+		tracker_error ("ERROR: root dir could not be converted to locale format");
 		return NULL;
 	}
 
@@ -993,7 +993,7 @@ rec_find_all_dirs (const char *root_dir)
 			dir_utf8 = g_filename_to_utf8 (dir, -1, NULL, NULL, NULL);
 
 			if (!dir_utf8) {
-				tracker_error ("Dir could not be converted to utf8 format");
+				tracker_error ("ERROR: dir could not be converted to utf8 format");
 				goto end_dir;
 			}
 

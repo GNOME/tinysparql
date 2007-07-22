@@ -169,7 +169,7 @@ fam_callback (GIOChannel *source,
 			char	 *file_uri, *file_utf8_uri;
 			FileInfo *info;
 
-			if ( !ev.filename || strlen (ev.filename) == 0) {
+			if (tracker_is_empty_string (ev.filename)) {
 				continue;
 			}
 
@@ -195,7 +195,7 @@ fam_callback (GIOChannel *source,
 			g_free (file_uri);
 
 			if (!file_utf8_uri) {
-				tracker_log ("******ERROR**** FAM file uri could not be converted to utf8 format");
+				tracker_error ("ERROR: FAM file uri could not be converted to utf8 format");
 				continue;
 			}
 
@@ -210,7 +210,7 @@ fam_callback (GIOChannel *source,
 					uri_in_locale = g_filename_from_utf8 (info->uri, -1, NULL, NULL, NULL);
 
 					if (!uri_in_locale) {
-						tracker_log ("******ERROR**** FAM uri could not be converted to locale format");
+						tracker_error ("ERROR: FAM uri could not be converted to locale format");
 						return FALSE;
 					}
 
@@ -286,14 +286,14 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 
 
 	if (g_hash_table_size (watch_table) >= tracker->watch_limit) {
-		tracker_log ("Watch Limit has been exceeded - unable to watch any more directories");
+		tracker_erro ("ERROR: watch Limit has been exceeded - unable to watch any more directories");
 		return FALSE;
 	}
 
 	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
 
 	if (!dir_in_locale) {
-		tracker_log ("******ERROR**** FAM dir could not be converted to locale format");
+		tracker_error ("ERROR: FAM dir could not be converted to locale format");
 		return FALSE;
 	}
 
@@ -311,7 +311,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 		rc = FAMMonitorDirectory (&fc, dir_in_locale, fr, fwatch);
 
 	 	if (rc > 0) {
-			tracker_log ("FAM watch on %s has failed", dir);
+			tracker_error ("ERROR: FAM watch on %s has failed", dir);
 			g_free (dir_in_locale);
 			free_watch_func (fwatch);
 			return FALSE;

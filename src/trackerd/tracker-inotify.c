@@ -154,7 +154,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			moved_from_info = (FileInfo *) tmp->data;
 
 			if (!moved_from_info) {
-				tracker_log ("bad FileInfo struct found in move list. Skipping...");
+				tracker_error ("ERROR: bad FileInfo struct found in move list. Skipping...");
 				continue;
 			}
 
@@ -196,7 +196,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 	}
 
-	tracker_log ("not processing event %s for uri %s", tracker_actions[info->action], info->uri);
+	tracker_log ("WARNING: not processing event %s for uri %s", tracker_actions[info->action], info->uri);
 	tracker_free_file_info (info);
 }
 
@@ -362,20 +362,20 @@ process_inotify_events (void)
 
 		if (action_type == TRACKER_ACTION_IGNORE) {
 			g_free (event);
-			//tracker_log ("inotify event has no action");
+			//tracker_log ("WARNING: inotify event has no action");
 			continue;
 		}
 
-		if ( !filename || strlen(filename) == 0) {
-			//tracker_log ("inotify event has no filename");
+		if (tracker_is_empty_string (filename)) {
+			//tracker_log ("WARNING: inotify event has no filename");
 			g_free (event);
 			continue;
 		}
 
 		file_utf8_uri = g_filename_to_utf8 (filename, -1, NULL, NULL, NULL);
 
-		if (!file_utf8_uri || strlen(file_utf8_uri) == 0) {
-			tracker_error ("******ERROR**** file uri could not be converted to utf8 format");
+		if (tracker_is_empty_string (file_utf8_uri)) {
+			tracker_error ("ERROR: file uri could not be converted to utf8 format");
 			g_free (event);
 			continue;
 		}
@@ -388,7 +388,7 @@ process_inotify_events (void)
 			dir_utf8_uri = g_filename_to_utf8 (monitor_name, -1, NULL, NULL, NULL);
 
 			if (!dir_utf8_uri) {
-				tracker_error ("******ERROR**** file uri could not be converted to utf8 format");
+				tracker_error ("Error: file uri could not be converted to utf8 format");
 				g_free (file_utf8_uri);
 				g_free (event);
 				continue;
@@ -438,7 +438,7 @@ inotify_watch_func (GIOChannel *source, GIOCondition condition, gpointer data)
 	r = read (fd, buffer, 16384);
 
 	if (r <= 0) {
-		tracker_log ("inotify system failure - unable to watch files");
+		tracker_error ("ERROR: inotify system failure - unable to watch files");
 		return FALSE;
 	}
 
@@ -544,7 +544,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 		g_free (dir_in_locale);
 
 		if (wd < 0) {
-			tracker_log ("Inotify watch on %s has failed", dir);
+			tracker_error ("ERROR: Inotify watch on %s has failed", dir);
 			return FALSE;
 		}
 
@@ -576,14 +576,14 @@ delete_watch (const char *dir, DBConnection *db_con)
 	wd = -1;
 
 	if (!res) {
-		tracker_log ("WARNING : watch id not found for uri %s", dir);
+		tracker_log ("WARNING: watch id not found for uri %s", dir);
 		return FALSE;
 	}
 
 	row = tracker_db_get_row (res, 0);
 
 	if (!row || !row[0]) {
-		tracker_log ("WARNING : watch id not found for uri %s", dir);
+		tracker_log ("WARNING: watch id not found for uri %s", dir);
 		return FALSE;
 	}
 

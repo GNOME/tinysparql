@@ -290,7 +290,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 		g_free (text_filter_file);
 
 		if (!argv[1]) {
-			tracker_error ("******ERROR**** uri could not be converted to locale format");
+			tracker_error ("ERROR: uri could not be converted to locale format");
 			g_free (argv[0]);
 			g_free (argv[2]);
 			return NULL;
@@ -382,7 +382,7 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 		argv[3] = NULL;
 
 		if (!argv[1] || !argv[2]) {
-			tracker_error ("******ERROR**** uri or mime could not be converted to locale format");
+			tracker_error ("ERROR: uri or mime could not be converted to locale format");
 
 			g_free (argv[0]);
 

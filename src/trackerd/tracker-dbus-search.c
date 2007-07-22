@@ -69,7 +69,7 @@ tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
 		return;
 	}
 
-	if (!str || strlen (str) == 0) {
+	if (tracker_is_empty_string (str)) {
 		tracker_set_error (rec, "No search term was specified");
 		return;
 	}
@@ -115,7 +115,7 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 
 	
 
-	if (!str || strlen (str) == 0) {
+	if (tracker_is_empty_string (str)) {
 		tracker_set_error (rec, "No search term was specified");
 		return;
 	}
@@ -201,7 +201,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		return;
 	}
 
-	if (!str || strlen (str) == 0) {
+	if (tracker_is_empty_string (str)) {
 		tracker_set_error (rec, "No search term was specified");
 		return;
 	}
@@ -319,7 +319,7 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 		return;
 	}
 
-	if (!str || strlen (str) == 0) {
+	if (tracker_is_empty_string (str)) {
 		tracker_set_error (rec, "No search term was specified");
 		return;
 	}
@@ -389,7 +389,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 		return;
 	}
 
-	if (!str || strlen (str) == 0) {
+	if (tracker_is_empty_string (str)) {
 		tracker_set_error (rec, "No search term was specified");
 		return;
 	}
@@ -640,7 +640,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 		return;
 	}
 
-	if (strlen (id) == 0) {
+	if (tracker_is_empty_string (id)) {
 		tracker_set_error (rec, "Id field must have a value");
 		return;
 	}
@@ -779,7 +779,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 		tracker_log ("translated rdf query is \n%s\n", str);
 		db_con = tracker_db_get_service_connection (db_con, service);
-		if (search_text && (strlen (search_text) > 0)) {
+		if (!tracker_is_empty_string (search_text)) {
 			tracker_db_search_text (db_con, service, search_text, 0, 999999, TRUE, FALSE);
 		}
 

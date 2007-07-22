@@ -165,7 +165,7 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		return;
 	}
 
-	if (!uri || strlen (uri) == 0) {
+	if (tracker_is_empty_string (uri)) {
 		tracker_set_error (rec, "Uri is invalid");
 		return;
 	}
@@ -246,7 +246,7 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		return;
 	}
 
-	if (!uri || strlen (uri) == 0) {
+	if (tracker_is_empty_string (uri)) {
 		tracker_set_error (rec, "URI is invalid");
 		return;
 	}
@@ -319,7 +319,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		return;
 	}
 
-	if (!uri || strlen (uri) == 0) {
+	if (tracker_is_empty_string (uri)) {
 		tracker_set_error (rec, "ID is invalid");
 		return;
 	}
@@ -392,7 +392,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		return;
 	}
 
-	if (!uri || strlen (uri) == 0) {
+	if (tracker_is_empty_string (uri)) {
 		tracker_set_error (rec, "URI is invalid");
 		return;
 	}

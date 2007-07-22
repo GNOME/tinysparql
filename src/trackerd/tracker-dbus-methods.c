@@ -43,10 +43,10 @@ tracker_set_error (DBusRec 	  *rec,
 					msg);
 
 	if (reply == NULL || !dbus_connection_send (rec->connection, reply, NULL)) {
-		tracker_error ("Warning - out of memory");
+		tracker_error ("WARNING: out of memory");
 	}
 
-	tracker_error ("The following error has happened : %s", msg);
+	tracker_error ("ERROR: %s", msg);
 	g_free (msg);
 
 	dbus_message_unref (reply);
@@ -59,7 +59,7 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 	char ***res;
 	char *value;
 
-	g_return_val_if_fail (db_con && id && (strlen (id) > 0), NULL);
+	g_return_val_if_fail (db_con && !tracker_is_empty_string (id), NULL);
 
 	value = g_strdup (" ");
 
@@ -81,13 +81,13 @@ tracker_get_metadata (DBConnection *db_con, const char *service, const char *id,
 			}
 
 		} else {
-			tracker_log ("result set is empty");
+			tracker_log ("Result set is empty");
 		}
 
 		tracker_db_free_result (res);
 	}
 
-	tracker_log ("metadata %s is %s", key, value);
+	tracker_log ("Metadata %s is %s", key, value);
 
 	return value;
 }
@@ -98,7 +98,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 {
 	int id;
 
-	g_return_val_if_fail (db_con && uri && (strlen(uri) > 0), 0);
+	g_return_val_if_fail (db_con && !tracker_is_empty_string (uri), 0);
 
 	id = tracker_db_get_file_id (db_con, uri);
 
@@ -108,7 +108,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 		uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 		if (!uri_in_locale) {
-			tracker_log ("******ERROR**** info->uri could not be converted to locale format");
+			tracker_error ("ERROR: info->uri could not be converted to locale format");
 			return 0;
 		}
 
@@ -182,7 +182,7 @@ tracker_dbus_reply_with_query_result (DBusRec *rec, char ***res)
 		for (values = row; *values; values++) {
 			char *value;
 
-			if (strlen (*values) > 0) {
+			if (!tracker_is_empty_string (*values)) {
 				value = *values;
 				//tracker_log (value);
 			} else {
@@ -264,7 +264,7 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 			for (i = 1; i < field_count; i++) {
 				char *value;
 
-				if (row[i] && (strlen (row[i]) > 0)) {
+				if (!tracker_is_empty_string (row[i])) {
 					value = g_strdup (row[i]);
 					} else {
 					/* dbus does not like NULLs */
@@ -284,7 +284,7 @@ tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
 		}
 
 	} else {
-		tracker_log ("result set is empty");
+		tracker_log ("Result set is empty");
 	}
 }
 

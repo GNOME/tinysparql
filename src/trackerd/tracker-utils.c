@@ -75,7 +75,7 @@ tracker_get_service_by_id (int service_type_id)
 	g_free (str_id);
 
 	if (!def) {
-		tracker_log ("no service found for id %d", service_type_id);
+		tracker_log ("WARNING: no service found for id %d", service_type_id);
 		return NULL;
 	}
 
@@ -700,7 +700,7 @@ tracker_str_to_date (const char *timestamp)
 	}
 
 	if (*timestamp++ != 'T') {
-		tracker_log ("date validation failed for %s st %c", timestamp, *timestamp);
+		tracker_error ("ERROR: date validation failed for %s st %c", timestamp, *timestamp);
 		return -1;
 	}
 
@@ -782,6 +782,13 @@ tracker_date_to_str (gint32 date_time)
 	} else {
 		return NULL;
 	}
+}
+
+
+gboolean
+tracker_is_empty_string (const char *s)
+{
+	return s == NULL || s[0] == '\0';
 }
 
 
@@ -1018,7 +1025,7 @@ tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 void
 tracker_print_object_allocations ()
 {
-	tracker_log ("total allocations = %d, total deallocations = %d", info_allocated, info_deallocated);
+	tracker_log ("Total allocations = %d, total deallocations = %d", info_allocated, info_deallocated);
 }
 
 
@@ -1301,7 +1308,7 @@ tracker_get_file_mtime (const char *uri)
 		}
 
 	} else {
-		tracker_error ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("ERROR: uri could not be converted to locale format");
 
 		return 0;
 	}
@@ -1334,7 +1341,7 @@ tracker_get_file_info (FileInfo *info)
 		}
 
 	} else {
-		tracker_error ("******ERROR**** info->uri could not be converted to locale format");
+		tracker_error ("ERROR: info->uri could not be converted to locale format");
 
 		return NULL;
 	}
@@ -1498,7 +1505,7 @@ tracker_file_is_valid (const char *uri)
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!uri_in_locale) {
-		tracker_error ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("ERROR: uri could not be converted to locale format");
 		g_free (uri_in_locale);
 		return FALSE;
 	}
@@ -1522,7 +1529,7 @@ tracker_file_is_indexable (const char *uri)
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!uri_in_locale) {
-		tracker_error ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("ERROR: uri could not be converted to locale format");
 		return FALSE;
 	}
 
@@ -1539,14 +1546,13 @@ tracker_file_is_indexable (const char *uri)
 	}
 
 	return convert_ok;
-
 }
 
 
 static inline gboolean
-is_utf8 (const char *buffer, int buffer_length)
+is_utf8 (const gchar *buffer, gint buffer_length)
 {
-	char *end;
+	gchar *end;
 
 	/* code in this function modified from gnome-vfs */
 
@@ -1557,7 +1563,7 @@ is_utf8 (const char *buffer, int buffer_length)
 		 * a valid UTF8 char, or if we really have an invalid
 		 * UTF8 string
      		 */
-		int remaining_bytes = buffer_length;
+		gint remaining_bytes = buffer_length;
 
 		remaining_bytes -= (end-((gchar *)buffer));
 
@@ -1568,7 +1574,6 @@ is_utf8 (const char *buffer, int buffer_length)
  		if (g_utf8_get_char_validated (end, (gsize) remaining_bytes) == (gunichar) -2) {
 			return TRUE;
 		}
-
 	}
 
 	return FALSE;
@@ -1576,22 +1581,20 @@ is_utf8 (const char *buffer, int buffer_length)
 
 
 static gboolean
-is_text_file (const char *uri)
+is_text_file (const gchar *uri)
 {
+	gchar 	buffer[1024];
+	FILE 	*f;
+	gint 	buffer_length = 0;
+	GError	*err = NULL;
 
-	char 		buffer[4096];
-	FILE 		*f;
-	int 		buffer_length = 0;
-	GError 		*err = NULL;
-
-
-	f =  g_fopen (uri, "r");
+	f = g_fopen (uri, "r");
 
 	if (!f) {
 		return FALSE;
 	}
 
-	buffer_length = fread (buffer, 4096, 1, f);
+	buffer_length = fread (buffer, 1, 1024, f);
 
 	fclose (f);
 
@@ -1607,7 +1610,7 @@ is_text_file (const char *uri)
 	if (is_utf8 (buffer, buffer_length)) {
 		return TRUE;
 	} else {
-		char *tmp = g_locale_to_utf8 (buffer, buffer_length, NULL, NULL, &err);
+		gchar *tmp = g_locale_to_utf8 (buffer, buffer_length, NULL, NULL, &err);
 		g_free (tmp);
 
 		if (err) {
@@ -1621,7 +1624,6 @@ is_text_file (const char *uri)
 
 			return result;
 		}
-
 	}
 
 	return FALSE;
@@ -1637,14 +1639,14 @@ tracker_get_mime_type (const char *uri)
 	char *mime;
 
 	if (!tracker_file_is_valid (uri)) {
-		tracker_log ("Warning file %s is no longer valid", uri);
+		tracker_log ("WARNING: file %s is no longer valid", uri);
 		return g_strdup ("unknown");
 	}
 
 	uri_in_locale = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!uri_in_locale) {
-		tracker_error ("******ERROR**** uri could not be converted to locale format");
+		tracker_error ("ERROR: uri could not be converted to locale format");
 		return g_strdup ("unknown");
 	}
 
@@ -1775,7 +1777,7 @@ tracker_is_directory (const char *dir)
 		return S_ISDIR (finfo.st_mode);
 
 	} else {
-		tracker_error ("******ERROR**** dir could not be converted to locale format");
+		tracker_error ("ERROR: dir could not be converted to locale format");
 	}
 
 	return FALSE;
@@ -1813,7 +1815,7 @@ get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files)
 	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
 
 	if (!dir_in_locale) {
-		tracker_error ("******ERROR**** dir could not be converted to utf8 format");
+		tracker_error ("ERROR: dir could not be converted to utf8 format");
 		g_free (dir_in_locale);
 		return NULL;
 	}
@@ -1998,7 +2000,7 @@ tracker_filename_array_to_list (char **array)
 	list = NULL;
 
 	for (i = 0; array[i] != NULL; i++) {
-                if (array[i][0] != '\0') {       /* strlen (array[i]) > 0 */
+                if (!tracker_is_empty_string (array[i])) {
 			list = check_dir_name (list, array[i]);
 		}
 	}
@@ -2018,7 +2020,7 @@ array_to_list (char **array)
 	list = NULL;
 
 	for (i = 0; array[i] != NULL; i++) {
-		if (array[i][0] != '\0') {       /* strlen (array[i]) > 0 */
+                if (!tracker_is_empty_string (array[i])) {
 			list = g_slist_prepend (list, g_strdup (array[i]));
 		}
 	}
@@ -2041,9 +2043,9 @@ tracker_list_to_array (GSList *list)
 {
 	GSList *tmp;
 	char **array;
-	int i = g_slist_length (list);
+	int i;
 
-	array = g_new0 (char *,  i + 1);
+	array = g_new0 (char *, g_slist_length (list) + 1);
 
 	i = 0;
 
@@ -2067,8 +2069,8 @@ tracker_free_strs_in_array (char **array)
 
 	for (a = array; *a; a++) {
 		g_free (*a);
+                *a = NULL;
 	}
-
 }
 
 
@@ -2078,7 +2080,7 @@ tracker_ignore_file (const char *uri)
 	int  i;
 	char *name;
 
-	if (!uri || strlen (uri) == 0) {
+	if (tracker_is_empty_string (uri)) {
 		return TRUE;
 	}
 
@@ -2124,7 +2126,7 @@ tracker_is_supported_lang (const char *lang)
 {
 	int i;
 
-	for (i=0; tmap[i].lang; i++) {
+	for (i = 0; tmap[i].lang; i++) {
 		if (g_str_has_prefix (lang, tmap[i].lang)) {
 			return TRUE;
 		}
@@ -2137,20 +2139,17 @@ tracker_is_supported_lang (const char *lang)
 static char *
 get_default_language_code ()
 {
-	char **langs, **plangs, *result;
+	char **langs, **plangs;
 
-
-	/* get langauges for user's locale */
+	/* get languages for user's locale */
 	langs = (char**) g_get_language_names ();
-
-	int i;
 
 	for (plangs = langs; *plangs; plangs++) {
 		if (strlen (*plangs) > 1) {
-			for (i=0; tmap[i].lang; i++) {
+                        int i;
+			for (i = 0; tmap[i].lang; i++) {
 				if (g_str_has_prefix (*plangs, tmap[i].lang)) {
-					result = g_strndup (*plangs, 2);
-					return result;
+					return g_strndup (*plangs, 2);
 				}
 
 			}
@@ -2158,25 +2157,21 @@ get_default_language_code ()
 	}
 
 	return g_strdup ("en");
-
-
-
 }
 
 
 void
 tracker_set_language (const char *language, gboolean create_stemmer)
 {
-
 	if (!language || strlen (language) < 2) {
 
 		g_free (tracker->language);
 		tracker->language = get_default_language_code ();
-		tracker_log ("setting default language code to %s based on user's locale", language);
+		tracker_log ("Setting default language code to %s based on user's locale", language);
 
 	} else {
 		int i;
-		for (i=0; tmap[i].lang; i++) {
+		for (i = 0; tmap[i].lang; i++) {
 
 			if (g_str_has_prefix (language, tmap[i].lang)) {
 				tracker->language = g_strndup (tmap[i].lang, 2);
@@ -2187,7 +2182,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	}
 
 	/* set stopwords list and create stemmer for language */
-	tracker_log ("setting stopword list for language code %s", language);
+	tracker_log ("Setting stopword list for language code %s", language);
 
 	char *stopword_path, *stopword_file;
 	char *stopwords;
@@ -2197,7 +2192,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	g_free (stopword_path);
 
 	if (!g_file_get_contents (stopword_file, &stopwords, NULL, NULL)) {
-		tracker_log ("Warning : Tracker cannot read stopword file %s", stopword_file);
+		tracker_log ("WARNING: Tracker cannot read stopword file %s", stopword_file);
 	} else {
 
 		tracker->stop_words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -2210,8 +2205,8 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 		}
 
 		g_strfreev (words);
-
 	}
+
 	g_free (stopwords);
 	g_free (stopword_file);
 
@@ -2228,7 +2223,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	if (language) {
 		int i;
 
-		for (i=0; tmap[i].lang; i++) {
+		for (i = 0; tmap[i].lang; i++) {
 			if ((strcasecmp (tmap[i].lang, language) == 0)) {
 				stem_language = tmap[i].name;
 				break;
@@ -2239,11 +2234,10 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	tracker->stemmer = sb_stemmer_new (stem_language, NULL);
 
 	if (!tracker->stemmer) {
-		tracker_log ("Warning : No stemmer could be found for language %s", language);
+		tracker_log ("WARNING: no stemmer could be found for language %s", language);
 	} else {
 		tracker_log ("Using stemmer for language %s\n", language);
 	}
-
 }
 
 
@@ -3244,7 +3238,7 @@ flush_list (GSList *list, const char *word)
 
 	count = g_slist_length (list);
 
-//	tracker_log ("flushing 	word %s with count %d", word, count);
+//	tracker_log ("Flushing 	word %s with count %d", word, count);
 
 	word_details = g_malloc (sizeof (WordDetails) * count);
 
@@ -3332,7 +3326,7 @@ flush_all (gpointer         key,
 void
 tracker_flush_all_words ()
 {
-	tracker_log ("flushing all words");
+	tracker_log ("Flushing all words");
 
 	g_hash_table_foreach (tracker->cached_table, (GHFunc) flush_all, NULL);
 
@@ -3373,7 +3367,7 @@ tracker_child_cb (gpointer user_data)
 	cpu_limit.rlim_max = timeout+1;
 
 	if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
-		tracker_error ("Error trying to set resource limit for cpu");
+		tracker_error ("ERROR: trying to set resource limit for cpu");
 	}
 
 
@@ -3383,7 +3377,7 @@ tracker_child_cb (gpointer user_data)
 	getrlimit (RLIMIT_AS, &mem_limit);
  	mem_limit.rlim_cur = 128*1024*1024;
 	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
-		tracker_error ("Error trying to set resource limit for memory usage");
+		tracker_error ("ERROR: trying to set resource limit for memory usage");
 	}
 #endif
 
@@ -3472,15 +3466,12 @@ tracker_error (const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
-
-
   	va_start (args, message);
   	msg = g_strdup_vprintf (message, args);
 	va_end (args);
 
 	output_log (msg);
 	g_free (msg);
-
 }
 
 
@@ -3501,6 +3492,7 @@ tracker_log 	(const char *message, ...)
 	output_log (msg);
 	g_free (msg);
 }
+
 
 void
 tracker_info	(const char *message, ...)

@@ -20,6 +20,7 @@
  */
 
 #include <string.h>
+#include <glib/gstdio.h>
 
 #include "tracker-db-email.h"
 
@@ -303,7 +304,7 @@ tracker_db_email_set_message_counts (DBConnection *db_con, const char *dir_path,
 		g_free (str_delete_count);
 
 	} else {
-		tracker_log ("Error: invalid dir_path \"%s\"", dir_path);
+		tracker_error ("ERROR: invalid dir_path \"%s\"", dir_path);
 	}
 }
 
@@ -322,7 +323,7 @@ tracker_db_email_get_last_mbox_offset (DBConnection *db_con, const char *mbox_fi
 
 	if (offset == -1) {
 		/* we need to add this mbox */
-		tracker_log ("Error: mbox/dir for emails for %s is not registered", mbox_file_path);
+		tracker_error ("ERROR: mbox/dir for emails for %s is not registered", mbox_file_path);
 	}
 
 	return offset;
@@ -337,7 +338,7 @@ tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 	g_return_if_fail (mf);
 
 	if (!mf->path) {
-		tracker_log ("Error: invalid mbox (empty path!)");
+		tracker_error ("ERROR: invalid mbox (empty path!)");
 		return;
 	}
 
@@ -351,7 +352,7 @@ tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 		g_free (str_offset);
 
 	} else {
-		tracker_log ("Error: invalid mbox \"%s\"", mf->path);
+		tracker_error ("ERROR: invalid mbox \"%s\"", mf->path);
 	}
 }
 
@@ -388,6 +389,7 @@ get_mime (MailApplication app)
 	return g_strdup ("Other Email");
 }
 
+
 static char *
 get_attachment_service_name (MailApplication app)
 {
@@ -403,6 +405,7 @@ get_attachment_service_name (MailApplication app)
 	
 }
 
+
 gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
@@ -410,11 +413,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	char    *service, *attachment_service, *mime;
 	char 	*array[255];
 
+        #define LIMIT_ARRAY_LENGTH(len) ((len) > 255 ? 255 : (len))
+
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (mm, FALSE);
 
 	if (!mm->uri) {
-		tracker_error ("ERROR: Email has no uri");
+		tracker_error ("ERROR: email has no uri");
 		return FALSE;
 	}
 
@@ -454,7 +459,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			mbox_id = tracker_db_email_get_mbox_id (db_con, mm->parent_mail_file->path);
 
 			if (mbox_id == -1) {
-				tracker_error ("No mbox is registered for email %s", mm->uri);
+				tracker_error ("ERROR: no mbox is registered for email %s", mm->uri);
 				return TRUE;
 			}
 		}
@@ -479,7 +484,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	
 	type_id = tracker_get_id_for_service (service);
 	if (type_id == -1) {
-		tracker_log ("Error service %s not found", service);
+		tracker_error ("ERROR: service %s not found", service);
 		g_free (attachment_service);
 		g_free (service);
 		g_free (mime);
@@ -497,9 +502,9 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	tracker_free_file_info (info);
 
 	if (id != 0) {
-		GHashTable	*index_table;
+		GHashTable      *index_table;
 		char		*str_id, *str_date;
-		const GSList	*tmp;
+		GSList          *tmp;
 
 		tracker_db_start_transaction (db_con);
 
@@ -530,7 +535,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		i = 0;
 		len = g_slist_length (mm->to);
-
+                len = LIMIT_ARRAY_LENGTH (len);
 		if (len > 0) {
 			array[len] = NULL;
 
@@ -539,10 +544,6 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				GString *gstr = g_string_new ("");
 
 				mp = tmp->data;
-			
-				if (i>254) {
-					break;
-				}
 
 				if (mp->addr) {
 					g_string_append_printf (gstr, "%s ", mp->addr);
@@ -562,15 +563,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 			for (i--; i>-1; i--) {
 				g_free (array[i]);
-			}			
-
-
+			}
 		}
 
 		i = 0;
 		len = g_slist_length (mm->cc);
+                len = LIMIT_ARRAY_LENGTH (len);
 		if (len > 0) {
-
 			array[len] = NULL;
 
 			for (tmp = mm->cc; tmp; tmp = tmp->next) {
@@ -578,10 +577,6 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				GString *gstr = g_string_new ("");
 
 				mp = tmp->data;
-
-				if (i>254) {
-					break;
-				}
 
 				if (mp->addr) {
 					g_string_append_printf (gstr, "%s ", mp->addr);
@@ -593,9 +588,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 				array[i] = g_string_free (gstr, FALSE);
 				i++;
-
 			}
-		
 
 			if (i > 0) {
 				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:CC", array, i, index_table);
@@ -603,12 +596,12 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 			for (i--; i>-1; i--) {
 				g_free (array[i]);
-			}	
-		
+			}		
 		}
 
 		i = 0;
 		len = g_slist_length (mm->attachments);
+                len = LIMIT_ARRAY_LENGTH (len);
 		if (len > 0) {
 			array[len] = NULL;
 		
@@ -616,12 +609,6 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				const MailAttachment *ma;
 
 				ma = tmp->data;
-
-
-				if (i>254) {
-					break;
-				}
-
 
 				if (!ma->attachment_name) {
 					continue;
@@ -637,10 +624,8 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 			for (i--; i>-1; i--) {
 				g_free (array[i]);
-			}	
+			}
 		}
-
-
 
 		tracker_db_end_transaction (db_con);
 
@@ -652,50 +637,53 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		/* index attachments */
 		for (tmp = mm->attachments; tmp; tmp = tmp->next) {
+			MailAttachment	*ma;
 
-			const MailAttachment	*ma;
-			FileInfo		*info;
-			char 			*uri;
 			ma = tmp->data;
 
+                        if (ma->tmp_decoded_file) {
+                                FileInfo	*attachment_info;
+                                char 		*locale_path, *uri;
 
-			char *locale_uri = g_filename_from_utf8 (ma->tmp_decoded_file, -1, NULL, NULL, NULL);
+        			locale_path = g_filename_from_utf8 (ma->tmp_decoded_file, -1, NULL, NULL, NULL);
 
-			if (!g_file_test (locale_uri, G_FILE_TEST_EXISTS)) {						
-				g_free (locale_uri);
-				continue;
-			}
+                                if (!g_file_test (locale_path, G_FILE_TEST_EXISTS)) {						
+                                        g_free (locale_path);
+                                        continue;
+                                }
 
-			info = tracker_create_file_info (ma->tmp_decoded_file, TRACKER_ACTION_CHECK, 0, WATCH_OTHER);
-			info->is_directory = FALSE;
-			info->mime = g_strdup (ma->mime);
-			
-			uri = g_strconcat (mm->uri, "/", ma->attachment_name, NULL);
-			tracker_info ("indexing attachement with uri %s and mime %s", uri, info->mime);
-			tracker_db_index_file (db_con, info, uri, attachment_service);
+                                attachment_info = tracker_create_file_info (ma->tmp_decoded_file, TRACKER_ACTION_CHECK, 0, WATCH_OTHER);
+                                attachment_info->is_directory = FALSE;
+                                attachment_info->mime = g_strdup (ma->mime);
 
-			/* remove temporary and indexed attachment file */
-			unlink (locale_uri);
+                                uri = g_strconcat (mm->uri, "/", ma->attachment_name, NULL);
+                                tracker_info ("indexing attachment with uri %s and mime %s", uri, attachment_info->mime);
+                                tracker_db_index_file (db_con, attachment_info, uri, attachment_service);
+                                g_free (uri);
 
-			g_free (locale_uri);
+                                tracker_dec_info_ref (attachment_info);
 
-			tracker_dec_info_ref (info);
-			g_free (uri);
+                                /* remove temporary and indexed attachment file */
+                                g_unlink (locale_path);
 
+                                g_free (locale_path);
+
+                                /* attachment file does not exist anymore so we remove its name in MailAttachment */
+                                g_free (ma->tmp_decoded_file);
+                                ma->tmp_decoded_file = NULL;
+                        }
 		}
-		
 
 	} else {
-		tracker_error ("ERROR : Failed to save email %s", mm->uri);
+		tracker_error ("ERROR: failed to save email %s", mm->uri);
 	}
 
 	g_free (attachment_service);
 	g_free (service);
 
 	return TRUE;
-
-
 }
+
 
 void
 tracker_db_email_update_email (DBConnection *db_con, MailMessage *mm)

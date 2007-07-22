@@ -67,7 +67,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 
 	db_con = tracker_db_get_service_connection (db_con, service);
 
-	if (!uri || strlen (uri) == 0) {
+	if (tracker_is_empty_string (uri)) {
 		tracker_set_error (rec, "ID is invalid");
 		return;
 	}
@@ -256,7 +256,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 			row_count = key_count;
 
 		} else {
-			tracker_log ("result set is empty");
+			tracker_log ("Result set is empty");
 			row_count = 1;
 			array = g_new (char *, 1);
 			array[0] = g_strdup ("");

@@ -140,7 +140,7 @@ sqlite3_uncompress (sqlite3_context *context, int argc, sqlite3_value **argv)
 			if (output) {
 				sqlite3_result_text (context, output, len2, g_free);
 			} else {
-				tracker_log ("decompression failed");
+				tracker_error ("ERROR: decompression failed");
 				sqlite3_result_text (context, sqlite3_value_blob (argv[0]), len1, NULL);
 			}
 		}
@@ -222,7 +222,7 @@ load_sql_file (DBConnection *db_con, const char *sql_file)
 	filename = g_build_filename (DATADIR, "/tracker/", sql_file, NULL);
 
 	if (!g_file_get_contents (filename, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
 		g_assert (FALSE);
 	} else {
 		char **queries, **queries_p ;
@@ -249,7 +249,7 @@ load_sql_trigger (DBConnection *db_con, const char *sql_file)
 	filename = g_build_filename (DATADIR, "/tracker/", sql_file, NULL);
 
 	if (!g_file_get_contents (filename, &query, NULL, NULL)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
 		g_assert (FALSE);
 	} else {
 		char **queries, **queries_p ;
@@ -446,7 +446,7 @@ tracker_db_initialize (const char *datadir)
 	sql_file = g_strdup (DATADIR "/tracker/sqlite-stored-procs.sql");
 
 	if (!g_file_test (sql_file, G_FILE_TEST_EXISTS)) {
-		tracker_log ("Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
+		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
 		g_assert (FALSE);
 	}
 
@@ -534,7 +534,7 @@ finalize_statement (gpointer key,
 
 			db_con = user_data;
 
-			tracker_error ("Error statement could not be finalized for %s with error %s", (char *) key, sqlite3_errmsg (db_con->db));
+			tracker_error ("ERROR: statement could not be finalized for %s with error %s", (char *) key, sqlite3_errmsg (db_con->db));
 		}
 	}
 }
@@ -558,7 +558,7 @@ tracker_db_close (DBConnection *db_con)
 	db_con->statements = NULL;
 
 	if (sqlite3_close (db_con->db) != SQLITE_OK) {
-		tracker_error ("ERROR : Database close operation failed for thread %s due to %s", db_con->thread, sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: database close operation failed for thread %s due to %s", db_con->thread, sqlite3_errmsg (db_con->db));
 	} else {
 		tracker_debug ("Database closed for thread %s", db_con->thread);
 	}
@@ -588,7 +588,7 @@ test_data (gpointer key,
 		//tracker_log ("successfully prepared query %s", procedure);
 		//g_hash_table_insert (db_con->statements, g_strdup (procedure), stmt);
 	} else {
-		tracker_log ("ERROR : failed to prepare query %s with sql %s due to %s", procedure, query, sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: failed to prepare query %s with sql %s due to %s", procedure, query, sqlite3_errmsg (db_con->db));
 		return;
 	}
 }
@@ -606,7 +606,7 @@ tracker_db_connect_common (void)
 	db_con = g_new (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
@@ -689,7 +689,7 @@ tracker_db_connect (void)
 	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
@@ -717,25 +717,25 @@ tracker_db_connect (void)
 
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
-		tracker_log ("Collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	
 
 	/* create user defined functions that can be used in sql */
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
-		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
-		tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
-		tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
-		tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 
 	if (create_table) {
@@ -764,14 +764,14 @@ tracker_db_connect_file_index (void)
 	dbname = g_build_filename (tracker->data_dir, "files.db", NULL);
 
 	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
-		tracker_error ("Error : database file %s is not present", dbname);
+		tracker_error ("ERROR: database file %s is not present", dbname);
 		g_assert (FALSE);
 	} 
 
 	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
@@ -799,24 +799,24 @@ tracker_db_connect_file_index (void)
 
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
-		tracker_log ("Collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	
 	/* create user defined functions that can be used in sql */
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
-		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
-		tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
-		tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
-		tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 
 	db_con->thread = NULL;
@@ -834,14 +834,14 @@ tracker_db_connect_emails_index (void)
 	dbname = g_build_filename (tracker->data_dir, "emails.db", NULL);
 
 	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
-		tracker_error ("Error : database file %s is not present", dbname);
+		tracker_error ("ERROR: database file %s is not present", dbname);
 		g_assert (FALSE);
 	} 
 
 	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
@@ -869,24 +869,24 @@ tracker_db_connect_emails_index (void)
 
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
-		tracker_log ("Collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	
 	/* create user defined functions that can be used in sql */
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
-		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
-		tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
-		tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
-		tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 
 	db_con->thread = NULL;
@@ -917,7 +917,7 @@ tracker_db_connect_full_text (void)
 	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
@@ -963,7 +963,7 @@ tracker_db_connect_cache (void)
 	create_table = FALSE;
 
 	if (!tracker || !tracker->sys_tmp_root_dir) {
-		tracker_error ("Fatal Error : system TMP dir for cache set to %s", tracker->sys_tmp_root_dir);
+		tracker_error ("FATAL ERROR: system TMP dir for cache set to %s", tracker->sys_tmp_root_dir);
 		exit (1);
 	}
 
@@ -976,7 +976,7 @@ tracker_db_connect_cache (void)
 	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
@@ -1036,7 +1036,7 @@ tracker_db_connect_emails (void)
 	db_con = g_new0 (DBConnection, 1);
 
 	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("Fatal Error : Can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
+		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
 		exit (1);
 	}
 
@@ -1066,25 +1066,25 @@ tracker_db_connect_emails (void)
 
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
-		tracker_log ("Collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	
 
 	/* create user defined functions that can be used in sql */
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-		tracker_log ("Function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
-		tracker_log ("Function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
-		tracker_log ("Function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
-		tracker_log ("Function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
-		tracker_log ("Function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
 	}
 
 	if (create_table) {
@@ -1202,7 +1202,7 @@ lock_db (void)
 		}
 	}
 
-	tracker_log ("lock failure");
+	tracker_error ("ERROR: lock failure");
 	g_free (lock_file);
 	g_free (tmp_file);
 
@@ -1257,7 +1257,7 @@ tracker_db_exec_no_reply (DBConnection *db_con, const char *query)
 		}
 
 		if (busy_count > 1000000) {
-			tracker_error ("Warning: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
+			tracker_error ("WARNING: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
 			busy_count = 0;
 		}
 			
@@ -1323,7 +1323,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 		busy_count++;
 
 		if (busy_count > 10000) {
-			tracker_log ("excessive busy count in query %s and thread %s", query, db_con->thread);
+			tracker_error ("ERROR: excessive busy count in query %s and thread %s", query, db_con->thread);
 			busy_count =0;
 		}
 
@@ -1342,7 +1342,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 
 	if (i != SQLITE_OK) {
 		unlock_db ();
-		tracker_error ("query %s failed with error : %s", query, msg);
+		tracker_error ("ERROR: query %s failed with error: %s", query, msg);
 		g_free (msg);
 		return NULL;
 	}
@@ -1363,7 +1363,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 
 	totalrows = (rows+1) * cols;
 
-	//tracker_log ("totalrows is %d", totalrows);
+	//tracker_log ("total rows is %d", totalrows);
 	//for (i=0;i<totalrows;i++) tracker_log (array[i]);
 
 	for (i = cols, k = 0; i < totalrows; i += cols, k++) {
@@ -1455,7 +1455,7 @@ get_prepared_query (DBConnection *db_con, const char *procedure)
 		query = g_hash_table_lookup (prepared_queries, procedure);
 
 		if (!query) {
-			tracker_error ("ERROR : prepared query %s not found", procedure);
+			tracker_error ("ERROR: prepared query %s not found", procedure);
 			return NULL;
 		} else {
 			int rc;
@@ -1467,7 +1467,7 @@ get_prepared_query (DBConnection *db_con, const char *procedure)
 				//tracker_log ("successfully prepared query %s", procedure);
 				g_hash_table_insert (db_con->statements, g_strdup (procedure), stmt);
 			} else {
-				tracker_error ("ERROR : failed to prepare query %s with sql %s due to code %d and %s", procedure, query, sqlite3_errcode(db_con->db), sqlite3_errmsg (db_con->db));
+				tracker_error ("ERROR: failed to prepare query %s with sql %s due to code %d and %s", procedure, query, sqlite3_errcode(db_con->db), sqlite3_errmsg (db_con->db));
 				return NULL;
 			}
 		}
@@ -1496,7 +1496,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	va_start (args, param_count);
 
 	if (param_count != sqlite3_bind_parameter_count (stmt)) {
-		tracker_error ("ERROR : incorrect no of paramters %d supplied to %s", param_count, procedure);
+		tracker_error ("ERROR: incorrect no of parameters %d supplied to %s", param_count, procedure);
 	}
 
 	for (i = 0; i < param_count; i++) {
@@ -1505,14 +1505,14 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		str = va_arg (args, char *);
 
 		if (!str) {
-			tracker_debug ("Warning - parameter %d is null when executing SP %s", i, procedure);
+			tracker_debug ("WARNING: parameter %d is null when executing SP %s", i, procedure);
 			if  (sqlite3_bind_null (stmt, i+1)) {
-				tracker_error ("ERROR : null parameter %d could not be bound to %s", i, procedure);
+				tracker_error ("ERROR: null parameter %d could not be bound to %s", i, procedure);
 			}
 		} else {
 
 			if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
-				tracker_error ("ERROR : parameter %d could not be bound to %s", i, procedure);
+				tracker_error ("ERROR: parameter %d could not be bound to %s", i, procedure);
 			}
 		}
 	}
@@ -1552,7 +1552,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 			busy_count++;
 
 			if (busy_count > 1000) {
-				tracker_log ("excessive busy count in query %s and thread %s", procedure, db_con->thread);
+				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
 				exit (1);
 			}
 
@@ -1584,7 +1584,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 					new_row[i] = g_strdup (st);
 					//tracker_log ("%s : row %d, col %d is %s", procedure, row, i, st);
 				} else {
-					tracker_info ("warning - Null detected in query return result for %s", procedure);
+					tracker_info ("WARNING: null detected in query return result for %s", procedure);
 				}
 			}
 
@@ -1603,7 +1603,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	unlock_connection (db_con);
 
 	if (rc != SQLITE_DONE) {
-		tracker_error ("ERROR : execution of prepared query %s failed due to %s with return code %d", procedure, sqlite3_errmsg (db_con->db), rc);
+		tracker_error ("ERROR: execution of prepared query %s failed due to %s with return code %d", procedure, sqlite3_errmsg (db_con->db), rc);
 		db_con->in_error = TRUE;
 
 	}
@@ -1624,7 +1624,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 			res[i] = tmp->data;
 			tmp = tmp->next;
 		} else {
-			tracker_error ("WARNING : exec proc has a dud emtry");
+			tracker_error ("WARNING: exec proc has a dud entry");
 		}
 	}
 
@@ -1652,7 +1652,7 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 	va_start (args, param_count);
 
 	if (param_count != sqlite3_bind_parameter_count (stmt)) {
-		tracker_error ("ERROR : incorrect no of paramters %d supplied to %s", param_count, procedure);
+		tracker_error ("ERROR: incorrect no. of paramters %d supplied to %s", param_count, procedure);
 	}
 
 	for (i = 0; i < param_count; i++) {
@@ -1661,14 +1661,14 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 		str = va_arg (args, char *);
 
 		if (!str) {
-			tracker_debug ("Warning - parameter %d is null when executing SP %s", i, procedure);
+			tracker_debug ("WARNING: parameter %d is null when executing SP %s", i, procedure);
 			if  (sqlite3_bind_null (stmt, i+1)) {
-				tracker_error ("ERROR : null parameter %d could not be bound to %s", i, procedure);
+				tracker_error ("ERROR: null parameter %d could not be bound to %s", i, procedure);
 			}
 		} else {
 
 			if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
-				tracker_error ("ERROR : parameter %d could not be bound to %s", i, procedure);
+				tracker_error ("ERROR: parameter %d could not be bound to %s", i, procedure);
 			}
 		}
 	}
@@ -1700,7 +1700,7 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 			busy_count++;
 
 			if (busy_count > 1000) {
-				tracker_log ("excessive busy count in query %s and thread %s", procedure, db_con->thread);
+				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
 				exit (1);
 			}
 
@@ -1750,7 +1750,7 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 	unlock_connection (db_con);
 
 	if (rc != SQLITE_DONE) {
-		tracker_error ("ERROR : prepared query %s failed due to %s", procedure, sqlite3_errmsg (db_con->db));
+		tracker_error ("ERROR: prepared query %s failed due to %s", procedure, sqlite3_errmsg (db_con->db));
 	}
 
 	if (!result || (row == 0)) {
@@ -1769,7 +1769,7 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 			res[i] = tmp->data;
 			tmp = tmp->next;
 		} else {
-			tracker_error ("WARNING : exec proc has a dud entry");
+			tracker_error ("WARNING: exec proc has a dud entry");
 		}
 	}
 
@@ -1989,7 +1989,7 @@ tracker_metadata_is_key (const char *service, const char *meta_name)
 	g_free (name);
 
 	if (!def) {
-		tracker_log ("Warning: service %s not found", service);
+		tracker_log ("WARNING: service %s not found", service);
 		return 0;
 	}
 
@@ -2090,7 +2090,7 @@ tracker_db_get_file_contents_words (DBConnection *db_con, guint32 id, GHashTable
 			busy_count++;
 
 			if (busy_count > 1000) {
-				tracker_log ("excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
+				tracker_error ("ERROR: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
 				exit (1);
 			}
 
@@ -2217,7 +2217,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	FieldDef *def = tracker_db_get_field_def (blob_db_con, "File:Contents");
 
 	if (!def) {
-		tracker_error ("metadata not found for type %s", "File:Contents");
+		tracker_error ("WARNING: metadata not found for type %s", "File:Contents");
 		g_free (value);
 		return;
 	}
@@ -2254,7 +2254,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 			busy_count++;
 
 			if (busy_count > 1000000) {
-				tracker_log ("Warning: excessive busy count in query %s and thread %s", "save file contents", blob_db_con->thread);
+				tracker_log ("WARNING: excessive busy count in query %s and thread %s", "save file contents", blob_db_con->thread);
 				busy_count = 0;
 			}
 			
@@ -2279,7 +2279,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	}
 
 	if (rc != SQLITE_DONE) {
-		tracker_error ("WARNING: Failed to update contents ");
+		tracker_error ("WARNING: failed to update contents ");
 	}
 }
 
@@ -2296,7 +2296,7 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 	file = g_fopen (file_name, "r");
 
 	if (!file) {
-		tracker_log ("Could not open file %s", file_name);
+		tracker_error ("ERROR: could not open file %s", file_name);
 		return;
 	}
 
@@ -2378,7 +2378,6 @@ tracker_db_save_file_contents (DBConnection *db_con, DBConnection *blob_db_con, 
 	if (value) {
 		g_free (value);
 	}
-
 }
 
 
@@ -2643,7 +2642,7 @@ tracker_db_search_metadata (DBConnection *db_con, const char *service, const cha
 	def = tracker_db_get_field_def (db_con, field);
 
 	if (!def) {
-		tracker_log ("metadata not found for type %s", field);
+		tracker_error ("ERROR: metadata not found for type %s", field);
 		return NULL;
 	}
 
@@ -2657,7 +2656,7 @@ tracker_db_search_metadata (DBConnection *db_con, const char *service, const cha
 
 		case 5: res = tracker_exec_proc (db_con, "SearchMetadataKeywords", 2, def->id, text); break;
 
-		default: tracker_error ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
+		default: tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
 	}
 
 
@@ -2711,7 +2710,7 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 	def = tracker_db_get_field_def (db_con, key);
 
 	if (!def) {
-		tracker_error ("metadata not found for id %s and type %s", id, key);
+		tracker_error ("ERROR: metadata not found for id %s and type %s", id, key);
 		return NULL;
 	}
 
@@ -2730,7 +2729,7 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 		case DATA_KEYWORD:
 			res = tracker_exec_proc (db_con, "GetMetadataKeyword", 2, id, def->id); break;
 
-		default: tracker_error ("Error: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
+		default: tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
 	}
 
 
@@ -2785,7 +2784,7 @@ update_metadata_index (DBConnection *db_con, const char *id, const char *service
 	GHashTable *old_table, *new_table;
 
 	if (!def) {
-		tracker_error ("Error : Cannot find details for metadata type");
+		tracker_error ("ERROR: cannot find details for metadata type");
 		return;
 	}
 
@@ -3074,7 +3073,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 
 		default :
 			
-			tracker_error ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
+			tracker_error ("ERROR: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
 			break;
 
 	}
@@ -3209,7 +3208,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 	res_service = tracker_db_get_service_for_entity (db_con, id);
 
 	if (!res_service) {
-		tracker_log ("service not found");
+		tracker_error ("ERROR: service not found");
 		return NULL;
 	}
 	
@@ -3377,7 +3376,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 		default :
 			
-			tracker_error ("Error: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
+			tracker_error ("ERROR: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
 			break;
 
 		
@@ -3428,7 +3427,7 @@ remove_value (const char *str, const char *del_str)
 
 	for (tmp = array; *tmp; tmp++) {
 
-		if (strlen (*tmp) == 0) {
+		if (tracker_is_empty_string (*tmp)) {
 			continue;
 		}
 
@@ -3478,7 +3477,7 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 	char *res_service = tracker_db_get_service_for_entity (db_con, id);
 
 	if (!res_service) {
-		tracker_log ("entity not found");
+		tracker_error ("ERROR: entity not found");
 		return;
 	}
 
@@ -3531,7 +3530,7 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 			break;
 		
 		default:	
-			tracker_error ("Error: metadata could not be deleted as type %d for metadata %s is not supported", def->type, key);
+			tracker_error ("ERROR: metadata could not be deleted as type %d for metadata %s is not supported", def->type, key);
 			break;
 
 
@@ -3617,7 +3616,7 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 	char *res_service = tracker_db_get_service_for_entity (db_con, id);
 
 	if (!res_service) {
-		tracker_log ("entity not found");
+		tracker_error ("ERROR: entity not found");
 		return;
 	}
 
@@ -3670,7 +3669,7 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 			break;						
 
 		default:
-			tracker_error ("error: metadata could not be deleted as this operation is not suppprted by type %d for metadata %s", def->type, key);
+			tracker_error ("ERROR: metadata could not be deleted as this operation is not suppprted by type %d for metadata %s", def->type, key);
 			break;
 
 	}
@@ -3702,7 +3701,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 	char	   *str_service_type_id, *path, *name;
 
 	if (!info || !info->uri || !info->uri[0] || !service || !db_con) {
-		tracker_error ("Error: Cannot create service");
+		tracker_error ("ERROR: cannot create service");
 		return 0;
 
 	}
@@ -3723,7 +3722,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 
 	if (!res || !res[0] || !res[0][0]) {
 		g_mutex_unlock (sequence_mutex);
-		tracker_error ("ERROR : could not create service - GetNewID failed");
+		tracker_error ("ERROR: could not create service - GetNewID failed");
 		return 0;
 	}
 
@@ -3768,7 +3767,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 		tracker_exec_proc (db_con, "CreateService", 11, sid, path, name, str_service_type_id, info->mime, str_filesize, str_is_dir, str_is_link, str_offset, str_mtime, str_aux);
 
 		if (db_con->in_error) {
-			tracker_error ("CreateService uri is %s/%s", path, name);
+			tracker_error ("ERROR: CreateService uri is %s/%s", path, name);
 			g_free (name);
 			g_free (path);
 			g_free (str_aux);
@@ -4755,7 +4754,7 @@ tracker_db_move_file (DBConnection *db_con, const char *moved_from_uri, const ch
 	/* if orig file not in DB, treat it as a create action */
 	guint32 id = tracker_db_get_file_id (db_con, moved_from_uri);
 	if (id == 0) {
-		tracker_debug ("warning original file %s not found in DB", moved_from_uri);
+		tracker_debug ("WARNING: original file %s not found in DB", moved_from_uri);
 		tracker_db_insert_pending_file (db_con, id, moved_to_uri, "unknown", 0, TRACKER_ACTION_FILE_CREATED, FALSE, TRUE, -1);
 		return;
 	}
