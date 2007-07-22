@@ -2103,22 +2103,6 @@ tracker_ignore_file (const char *uri)
 	return FALSE;
 }
 
-static Matches tmap[] = {
-		{"da", "danish"},
-		{"nl", "dutch"},
-		{"en", "english"},
- 		{"fi", "finnish"},
-		{"fr", "french"},
-		{"de", "german"},
-		{"it", "italian"},
-		{"nb", "norwegian"},
-		{"pt", "portuguese"},
-		{"ru", "russian"},
-		{"es", "spanish"},
-		{"sv", "swedish"},
-		{NULL, 0},
-};
-
 
 gboolean
 tracker_is_supported_lang (const char *lang)
@@ -2176,11 +2160,13 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 		tracker_log ("setting default language code to %s based on user's locale", language);
 
 	} else {
+
 		int i;
 		for (i=0; tmap[i].lang; i++) {
 
 			if (g_str_has_prefix (language, tmap[i].lang)) {
-				tracker->language = g_strndup (tmap[i].lang, 2);
+	
+				tracker->language = tmap[i].lang;
 				break;
 			}
 		}
@@ -2240,9 +2226,9 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	tracker->stemmer = sb_stemmer_new (stem_language, NULL);
 
 	if (!tracker->stemmer) {
-		tracker_log ("Warning : No stemmer could be found for language %s", language);
+		tracker_log ("Warning : No stemmer could be found for language %s", stem_language);
 	} else {
-		tracker_log ("Using stemmer for language %s\n", language);
+		tracker_log ("Using stemmer for language %s\n", stem_language);
 	}
 
 }

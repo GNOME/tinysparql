@@ -1817,7 +1817,7 @@ set_defaults ()
 	tracker->min_word_length = 3;
 	tracker->max_word_length = 30;
 	tracker->use_stemmer = TRUE;
-	tracker->language = g_strdup ("en");
+	tracker->language = tmap[2].lang;
 	tracker->stop_words = NULL;
 
 	tracker->index_numbers = FALSE;

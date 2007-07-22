@@ -396,7 +396,21 @@ typedef struct {
 } Matches;
 
 
-
+static Matches tmap[] = {
+		{"da", "danish"},
+		{"nl", "dutch"},
+		{"en", "english"},
+ 		{"fi", "finnish"},
+		{"fr", "french"},
+		{"de", "german"},
+		{"it", "italian"},
+		{"nb", "norwegian"},
+		{"pt", "portuguese"},
+		{"ru", "russian"},
+		{"es", "spanish"},
+		{"sv", "swedish"},
+		{NULL, 0},
+};
 
 
 typedef struct {
