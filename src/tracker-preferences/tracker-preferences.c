@@ -680,23 +680,20 @@ initialize_listview (GtkWidget * treeview)
 static void
 populate_list (GtkWidget * treeview, GSList * list)
 {
-	guint index = 0;
-	GtkTreeIter iter;
-	gchar *data = NULL;
-	GtkTreeModel *store = NULL;
+	GtkTreeModel *store;
+        GSList *tmp;
 
 	store = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
 
-	for (; index < g_slist_length (list); ++index) {
-		data = g_slist_nth_data (list, index);
+        for (tmp = list; tmp; tmp = tmp->next) {
+                if (tmp->data) {
+                        GtkTreeIter iter;
+                        gchar *data = tmp->data;
 
-		if (!data)
-			continue;
-
-		gtk_list_store_append (GTK_LIST_STORE (store), &iter);
-		gtk_list_store_set (GTK_LIST_STORE (store), &iter, 0, data,
-				    -1);
-	}
+                        gtk_list_store_append (GTK_LIST_STORE (store), &iter);
+                        gtk_list_store_set (GTK_LIST_STORE (store), &iter, 0, data, -1);
+                }
+        }
 }
 
 GType
