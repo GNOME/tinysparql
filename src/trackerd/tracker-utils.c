@@ -788,7 +788,7 @@ tracker_date_to_str (gint32 date_time)
 gboolean
 tracker_is_empty_string (const char *s)
 {
-	return s == NULL || s[0] == '\0' || strlen (s) == 0;
+	return s == NULL || s[0] == '\0';
 }
 
 
