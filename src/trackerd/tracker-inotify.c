@@ -398,9 +398,8 @@ process_inotify_events (void)
 		}
 
 
-		if (!tracker_ignore_file (file_utf8_uri)) {
+		if (!tracker_ignore_file (str) && !tracker_file_is_crawled (str) && !tracker_file_is_no_watched (str)) {
 			process_event (str, tracker_is_directory (str), action_type, cookie);
-
 		}
 
 		if (monitor_name) {

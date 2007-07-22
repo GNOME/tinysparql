@@ -337,6 +337,8 @@ create_config_file ()
 					 "[Watches]\n",
 					 "# List of directory roots to index and watch seperated by semicolons\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
+					 "# List of directory roots to index but not watch (no live updates but are refreshed when trackerd is next restarted) seperated by semicolons\n",
+					 "CrawlDirectory=\n",
 					 "# List of directory roots to not index and not watch seperated by semicolons\n",
 					 "NoWatchDirectory=\n",
 					 "# Set to false to prevent watching of any kind\n",

@@ -135,6 +135,7 @@ static void scan_directory (const char *uri, DBConnection *db_con);
 
 static char **no_watch_dirs = NULL;
 static char **watch_dirs = NULL;
+static char **crawl_dirs = NULL;
 static char *language = NULL;
 static gboolean disable_indexing = FALSE;
 static gboolean reindex = FALSE;
@@ -146,6 +147,7 @@ static int initial_sleep = -1; /* >= 0 is valid and will be set */
 static GOptionEntry entries[] = {
 	{"exclude-dir", 'e', 0, G_OPTION_ARG_STRING_ARRAY, &no_watch_dirs, N_("Directory to exclude from indexing"), N_("/PATH/DIR")},
 	{"include-dir", 'i', 0, G_OPTION_ARG_STRING_ARRAY, &watch_dirs, N_("Directory to include in indexing"), N_("/PATH/DIR")},
+	{"crawl-dir", 'c', 0, G_OPTION_ARG_STRING_ARRAY, &crawl_dirs, N_("Directory to crawl for indexing at start up only"), N_("/PATH/DIR")},
 	{"no-indexing", 'n', 0, G_OPTION_ARG_NONE, &disable_indexing, N_("Disable any indexing or watching taking place"), NULL },
 	{"verbosity", 'v', 0, G_OPTION_ARG_INT, &verbosity, N_("Value that controls the level of logging. Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)"), N_("VALUE") },
 	{"throttle", 't', 0, G_OPTION_ARG_INT, &throttle, N_("Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"), N_("VALUE") },
@@ -373,6 +375,8 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 
 				tracker->dir_list = g_slist_prepend (tracker->dir_list, g_strdup (str));
 
+				if (tracker_file_is_crawled (str) || !tracker->enable_watching) continue;
+
 				if ( ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < tracker->watch_limit)) {
 
 					if (!tracker_add_watch_dir (str, db_con) && tracker_is_directory (str)) {
@@ -424,6 +428,10 @@ watch_dir (const char* dir, DBConnection *db_con)
 
 	if (!tracker_is_directory (dir_utf8)) {
 		g_free (dir_utf8);
+		return FALSE;
+	}
+
+	if (tracker_file_is_crawled (dir_utf8)) {
 		return FALSE;
 	}
 
@@ -1779,6 +1787,7 @@ set_defaults ()
 
 	tracker->watch_directory_roots_list = NULL;
 	tracker->no_watch_directory_list = NULL;
+	tracker->crawl_directory_list = NULL;
 	tracker->use_nfs_safe_locking = FALSE;
 
 	tracker->enable_indexing = TRUE;
@@ -1945,6 +1954,15 @@ sanity_check_option_values ()
 
 		tracker_log ("Setting no watch directory roots to:");
 		for (l = tracker->no_watch_directory_list; l; l=l->next) {
+			if (l->data) tracker_log ((char *) l->data);
+		}
+		tracker_log ("\t");
+	}
+
+	if (tracker->crawl_directory_list) {
+
+		tracker_log ("Setting crawl directory roots to:");
+		for (l = tracker->crawl_directory_list; l; l=l->next) {
 			if (l->data) tracker_log ((char *) l->data);
 		}
 		tracker_log ("\t");
@@ -2210,6 +2228,10 @@ main (int argc, char **argv)
 
 	if (watch_dirs) {
 	 	tracker->watch_directory_roots_list = tracker_filename_array_to_list (watch_dirs);
+	}
+
+	if (crawl_dirs) {
+	 	tracker->crawl_directory_list = tracker_filename_array_to_list (crawl_dirs);
 	}
 
 	if (disable_indexing) {

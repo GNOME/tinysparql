@@ -1096,6 +1096,43 @@ tracker_file_is_no_watched (const char* uri)
 }
 
 
+
+
+gboolean
+tracker_file_is_crawled (const char* uri)
+{
+	if (!tracker->crawl_directory_list) {
+		return FALSE;
+	}
+
+	
+	GSList *l;
+	for (l=tracker->crawl_directory_list; l; l=l->next) {
+
+		char *compare_uri = (char *) l->data;
+
+		/* check if equal or a prefix with an appended '/' */
+		if (strcmp (uri, compare_uri) == 0) {
+			tracker_debug ("blocking watch of %s", uri);
+			return TRUE;
+		}
+
+		if (is_in_path (uri, compare_uri)) {
+			tracker_debug ("blocking watch of %s", uri);
+			return TRUE;
+		}
+
+
+	}
+
+	return FALSE;
+
+
+}
+
+
+
+
 gboolean
 tracker_file_info_is_valid (FileInfo *info)
 {
@@ -2268,6 +2305,8 @@ tracker_load_config_file ()
 					 "[Watches]\n",
 					 "# List of directory roots to index and watch seperated by semicolons\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
+					 "# List of directory roots to index but not watch (no live updates but are refreshed when trackerd is next restarted) seperated by semicolons\n",
+					 "CrawlDirectory=\n",
 					 "# List of directory roots to not index and not watch seperated by semicolons\n",
 					 "NoWatchDirectory=\n",
 					 "# Set to false to prevent watching of any kind\n",
@@ -2347,6 +2386,22 @@ tracker_load_config_file ()
 	} else {
 		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir ()));
 	}
+
+
+
+	values =  g_key_file_get_string_list (key_file,
+			       	     	      "Watches",
+				              "CrawlDirectory",
+				              NULL,
+				              NULL);
+
+	if (values) {
+		tracker->crawl_directory_list = tracker_filename_array_to_list (values);
+
+	} else {
+		tracker->crawl_directory_list = NULL;
+	}
+
 
 	values =  g_key_file_get_string_list (key_file,
 			       	     	      "Watches",

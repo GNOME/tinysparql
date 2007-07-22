@@ -185,6 +185,7 @@ typedef struct {
 
 	/* config options */
 	GSList 		*watch_directory_roots_list;
+	GSList 		*crawl_directory_list;
 	GSList 		*no_watch_directory_list;
 	GSList		*no_index_file_types;
 
@@ -530,6 +531,7 @@ gboolean	tracker_file_is_indexable 	(const char *uri);
 gboolean 	tracker_is_directory 		(const char *dir);
 
 gboolean	tracker_file_is_no_watched 	(const char* uri);
+gboolean	tracker_file_is_crawled 	(const char* uri);
 
 GSList * 	tracker_get_all_files 		(const char *dir, gboolean dir_only);
 GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
