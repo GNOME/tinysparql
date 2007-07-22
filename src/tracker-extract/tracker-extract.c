@@ -132,6 +132,7 @@ MimeToExtractor extractors[] = {
 #endif
   
   	/* Audio extractors */
+	
 #ifdef HAVE_GSTREAMER
 	{ "audio/*",					tracker_extract_gstreamer	},
  	{ "audio/*",					tracker_extract_mplayer		},
@@ -148,6 +149,8 @@ MimeToExtractor extractors[] = {
 #endif
 #endif
   
+	{ "audio/mp3",					tracker_extract_mp3		},
+
      /* Image extractors */
 	{ "image/png",					tracker_extract_png		},
 #ifdef HAVE_LIBEXIF
