@@ -60,10 +60,12 @@ extern char *tracker_actions[];
 #define INDEX_BUCKET_RATIO		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
 #define INDEX_PADDING	 		2
 
+
 typedef struct {
 	CURIA  *word_index;	/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
 	GMutex *word_mutex;
 } Indexer;
+
 
 typedef struct {                         /* type of structure for an element of search result */
 	guint32 	id;              /* Service ID number of the document */
@@ -75,6 +77,7 @@ typedef struct {
 	int	 	id;              /* word ID of the cached word */
 	int 		count;     	 /* cummulative count of the cached word */
 } CacheWord;
+
 
 typedef enum {
 	DATA_KEYWORD,	
@@ -110,7 +113,6 @@ typedef enum {
 } TrackerStatus;
 
 
-
 typedef enum {
 	INDEX_CONFIG,
 	INDEX_APPLICATIONS,
@@ -120,7 +122,6 @@ typedef enum {
 	INDEX_EXTERNAL,
 	INDEX_FINISHED
 } IndexStatus;
-
 
 
 typedef struct {
@@ -155,7 +156,6 @@ typedef struct {
 } FieldData;
 
 
-
 typedef struct {
 
 	int		id;
@@ -174,10 +174,12 @@ typedef struct {
 
 } ServiceDef;
 
+
 typedef struct {
 	char 		*name;
 	char		*type;
 } ServiceInfo;
+
 
 typedef struct {
 
@@ -267,14 +269,12 @@ typedef struct {
 	/* nfs options */
 	gboolean	use_nfs_safe_locking; /* use safer but much slower external lock file when users home dir is on an nfs systems */
 
-
 	/* application run time values */
 	gboolean	is_indexing;
 	gboolean	in_flush;
 	int		index_count;
 	int		index_counter;
 	int		update_count;
-
 
 	/* cache words before saving to word index */
 	GHashTable	*cached_table;
@@ -397,23 +397,6 @@ typedef struct {
 } Matches;
 
 
-static Matches tmap[] = {
-		{"da", "danish"},
-		{"nl", "dutch"},
-		{"en", "english"},
- 		{"fi", "finnish"},
-		{"fr", "french"},
-		{"de", "german"},
-		{"it", "italian"},
-		{"nb", "norwegian"},
-		{"pt", "portuguese"},
-		{"ru", "russian"},
-		{"es", "spanish"},
-		{"sv", "swedish"},
-		{NULL, 0},
-};
-
-
 typedef struct {
 
 	/* file name/path related info */
@@ -429,19 +412,19 @@ typedef struct {
 	gboolean		is_directory;
 
 	/* symlink info - File ID of link might not be in DB so need to store path/filename too */
-	gboolean	is_link;
-	gint32		link_id;
-	char		*link_path;
-	char		*link_name;
+	gboolean                is_link;
+	gint32                  link_id;
+	char                    *link_path;
+	char                    *link_name;
 
-	char		*mime;
-	int		service_type_id;
-	guint32		file_size;
-	char		*permissions;
-	gint32		mtime;
-	gint32		atime;
-	gint32		indextime;
-	gint32		offset;
+	char                    *mime;
+	int                     service_type_id;
+	guint32                 file_size;
+	char                    *permissions;
+	gint32                  mtime;
+	gint32                  atime;
+	gint32                  indextime;
+	gint32                  offset;
 
 	/* options */
 	char			*move_from_uri;
@@ -451,7 +434,6 @@ typedef struct {
 	gboolean		is_hidden;
 
 	int			aux_id;
-	
 
 	/* we ref count FileInfo as it has a complex lifespan and is tossed between various threads, lists, queues and hash tables */
 	int			ref_count;
@@ -498,6 +480,7 @@ char *		tracker_unescape_metadata 	(const char *in);
 void		tracker_remove_dirs 		(const char *root_dir);
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
 
+const char *    tracker_get_english_lang_code   (void);
 gboolean	tracker_is_supported_lang 	(const char *lang);
 void		tracker_set_language		(const char *language, gboolean create_stemmer);
 
@@ -549,15 +532,15 @@ void		tracker_print_object_allocations (void);
 
 void		tracker_throttle 		(int multiplier);
 
-void		tracker_flush_all_words 	();
-void		tracker_flush_rare_words 	();
-void		tracker_check_flush 		();
+void		tracker_flush_all_words 	(void);
+void		tracker_flush_rare_words 	(void);
+void		tracker_check_flush 		(void);
 
 void		tracker_notify_file_data_available 	(void);
 void		tracker_notify_meta_data_available 	(void);
 void		tracker_notify_request_data_available 	(void);
 
-GTimeVal *	tracker_timer_start 		();
+GTimeVal *	tracker_timer_start 		(void);
 void		tracker_timer_end 		(GTimeVal *before, const char *str);
 
 char *		tracker_compress 		(const char *ptr, int size, int *compressed_size);

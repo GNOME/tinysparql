@@ -41,8 +41,6 @@
 
 extern Tracker *tracker;
 
-static char	*root_path_for_attachments = NULL;
-
 
 static void	mh_watch_mail_messages_in_dir	(DBConnection *db_con, const char *dir_path);
 static GMimeStream *new_gmime_stream_from_file	(const gchar *path, const gchar *mode, off_t start, off_t end);

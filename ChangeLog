@@ -1,3 +1,9 @@
+2007-07-22 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Fixed potential crasher in tracker_set_language() function
+	* Cosmetic changes
+
+
 2007-07-22 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added Crawl directory support (indexing without watching)

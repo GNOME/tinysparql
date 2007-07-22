@@ -590,6 +590,7 @@ check_directory (const char *uri)
 	}
 
 	g_return_if_fail (uri && (uri[0] == '/'));
+        if(!tracker_is_directory(uri)){tracker_error("DIRECTORY: %s\n", uri);}
 	g_return_if_fail (tracker_is_directory (uri));
 
 	file_list = tracker_get_files (uri, FALSE);
@@ -1826,7 +1827,7 @@ set_defaults ()
 	tracker->min_word_length = 3;
 	tracker->max_word_length = 30;
 	tracker->use_stemmer = TRUE;
-	tracker->language = tmap[2].lang;
+	tracker->language = tracker_get_english_lang_code ();
 	tracker->stop_words = NULL;
 
 	tracker->index_numbers = FALSE;

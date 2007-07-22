@@ -49,6 +49,7 @@ char *tracker_actions[] = {
 
 #define ZLIBBUFSIZ 8196
 
+
 static int info_allocated = 0;
 static int info_deallocated = 0;
 
@@ -58,9 +59,27 @@ static const char *months[] = {
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
+
 static const char imonths[] = {
 	'1', '2', '3', '4', '5',
 	'6', '7', '8', '9', '0', '1', '2'
+};
+
+
+static Matches tmap[] = {
+		{"da", "danish"},
+		{"nl", "dutch"},
+		{"en", "english"},
+ 		{"fi", "finnish"},
+		{"fr", "french"},
+		{"de", "german"},
+		{"it", "italian"},
+		{"nb", "norwegian"},
+		{"pt", "portuguese"},
+		{"ru", "russian"},
+		{"es", "spanish"},
+		{"sv", "swedish"},
+		{NULL, NULL},
 };
 
 
@@ -82,10 +101,10 @@ tracker_get_service_by_id (int service_type_id)
 	return g_strdup (def->name);
 }
 
+
 char *
 tracker_get_parent_service_by_id (int service_type_id)
 {
-
 	char *str_id = tracker_int_to_str (service_type_id);
 	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
 
@@ -102,7 +121,6 @@ tracker_get_parent_service_by_id (int service_type_id)
 int
 tracker_get_parent_id_for_service_id (int service_type_id)
 {
-
 	char *str_id = tracker_int_to_str (service_type_id);
 	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
 
@@ -146,7 +164,6 @@ tracker_get_id_for_service (const char *service)
 int
 tracker_get_id_for_parent_service (const char *service)
 {
-
 	char *name = g_utf8_strdown (service, -1);
 
 	ServiceDef *def = g_hash_table_lookup (tracker->service_table, name);
@@ -179,7 +196,6 @@ tracker_get_parent_service (const char *service)
 	}
 
 	return NULL;
-
 }
 
 
@@ -199,14 +215,12 @@ tracker_get_service (const char *service)
 DBTypes
 tracker_get_db_for_service (const char *service)
 {
-
 	char *name = g_utf8_strdown (service, -1);
 
 	if (g_str_has_prefix (name, "emails") || g_str_has_prefix (name, "attachments")) {
 		g_free (name);
 		return DB_EMAIL;
 	}
-
 
 	int id = tracker_get_id_for_parent_service (name);
 	char *str_id = tracker_int_to_str (id);
@@ -219,10 +233,7 @@ tracker_get_db_for_service (const char *service)
 //	if (!def) {
 		return DB_DATA;
 
-
 //	return def->database;
-
-
 }
 
 
@@ -240,9 +251,7 @@ tracker_is_service_embedded (const char *service)
 	}
 
 	return def->embedded;
-
 }
-
 
 
 char **
@@ -298,6 +307,7 @@ parse_month (const char *month)
 		if (!strncmp (month, months[i], 3))
 			return i;
 	}
+
 	return -1;
 }
 
@@ -835,7 +845,6 @@ tracker_str_in_array (const char *str, char **array)
 	i = 0;
 
 	for (st = array; *st; st++) {
-
 		if (strcasecmp (*st, str) == 0) {
 			return i;
 		}
@@ -1023,11 +1032,10 @@ tracker_format_search_terms (const char *str, gboolean *do_bool_search)
 
 
 void
-tracker_print_object_allocations ()
+tracker_print_object_allocations (void)
 {
 	tracker_log ("Total allocations = %d, total deallocations = %d", info_allocated, info_deallocated);
 }
-
 
 
 static inline gboolean
@@ -1040,12 +1048,13 @@ is_in_path (const char *uri, const char *path)
 	g_free (tmp);
 
 	return result;
-
 }
+
 
 gboolean
 tracker_file_is_no_watched (const char* uri)
 {
+	GSList *lst;
 
 	if (!uri || uri[0] != '/') {
 		return TRUE;
@@ -1071,11 +1080,9 @@ tracker_file_is_no_watched (const char* uri)
 		return FALSE;
 	}
 
-	char *compare_uri;
-	GSList *l;
-	for (l=tracker->no_watch_directory_list; l; l=l->next) {
+	for (lst = tracker->no_watch_directory_list; lst; lst = lst->next) {
 
-		compare_uri = (char *) l->data;
+                char *compare_uri = lst->data;
 
 		/* check if equal or a prefix with an appended '/' */
 		if (strcmp (uri, compare_uri) == 0) {
@@ -1087,29 +1094,24 @@ tracker_file_is_no_watched (const char* uri)
 			tracker_debug ("blocking watch of %s", uri);
 			return TRUE;
 		}
-
-
 	}
 
 	return FALSE;
-
 }
-
-
 
 
 gboolean
 tracker_file_is_crawled (const char* uri)
 {
+	GSList *lst;
+
 	if (!tracker->crawl_directory_list) {
 		return FALSE;
 	}
 
-	
-	GSList *l;
-	for (l=tracker->crawl_directory_list; l; l=l->next) {
+	for (lst = tracker->crawl_directory_list; lst; lst = lst->next) {
 
-		char *compare_uri = (char *) l->data;
+		char *compare_uri = lst->data;
 
 		/* check if equal or a prefix with an appended '/' */
 		if (strcmp (uri, compare_uri) == 0) {
@@ -1121,16 +1123,10 @@ tracker_file_is_crawled (const char* uri)
 			tracker_debug ("blocking watch of %s", uri);
 			return TRUE;
 		}
-
-
 	}
 
 	return FALSE;
-
-
 }
-
-
 
 
 gboolean
@@ -1353,7 +1349,6 @@ tracker_get_file_mtime (const char *uri)
 	g_free (uri_in_locale);
 
 	return (gint32) finfo.st_mtime;
-
 }
 
 
@@ -1471,16 +1466,12 @@ tracker_get_service_dirs (const char *service)
 	}
 
 	return list;
-
-
 }
-
 
 
 void
 tracker_add_service_path (const char *service,  const char *path)
 {
-
 	if (!service || !path || !tracker_file_is_valid (path)) {
 		return;
 	}
@@ -1491,10 +1482,7 @@ tracker_add_service_path (const char *service,  const char *path)
 	tracker->service_directory_list = g_slist_prepend (tracker->service_directory_list, dir_path);
 
 	g_hash_table_insert (tracker->service_directory_table, dir_path, service_type);
-
 }
-
-
 
 
 char *
@@ -1513,7 +1501,6 @@ tracker_get_service_for_uri (const char *uri)
 	}
 
 	return g_strdup ("Files");
-
 }
 
 
@@ -2141,6 +2128,13 @@ tracker_ignore_file (const char *uri)
 }
 
 
+const char *
+tracker_get_english_lang_code (void)
+{
+        return g_strdup (tmap[2].lang);
+}
+
+
 gboolean
 tracker_is_supported_lang (const char *lang)
 {
@@ -2157,57 +2151,49 @@ tracker_is_supported_lang (const char *lang)
 
 
 static char *
-get_default_language_code ()
+get_default_language_code (void)
 {
-	char **langs, **plangs, *result;
-
+	char **langs, **plangs;
 
 	/* get langauges for user's locale */
 	langs = (char**) g_get_language_names ();
 
-	int i;
-
 	for (plangs = langs; *plangs; plangs++) {
 		if (strlen (*plangs) > 1) {
-			for (i=0; tmap[i].lang; i++) {
+                        int i;
+			for (i = 0; tmap[i].lang; i++) {
 				if (g_str_has_prefix (*plangs, tmap[i].lang)) {
-					result = g_strndup (*plangs, 2);
-					return result;
+					return g_strndup (*plangs, 2);
 				}
-
 			}
 		}
 	}
 
 	return g_strdup ("en");
-
-
-
 }
 
 
 void
 tracker_set_language (const char *language, gboolean create_stemmer)
 {
-
 	if (!language || strlen (language) < 2) {
-
-		g_free (tracker->language);
+                if (tracker->language) {
+                        g_free (tracker->language);
+                }
 		tracker->language = get_default_language_code ();
-		tracker_log ("setting default language code to %s based on user's locale", language);
+		tracker_log ("Setting default language code to %s based on user's locale", language);
 
 	} else {
-
 		int i;
-		for (i=0; tmap[i].lang; i++) {
-
+		for (i = 0; tmap[i].lang; i++) {
 			if (g_str_has_prefix (language, tmap[i].lang)) {
-	
-				tracker->language = tmap[i].lang;
+                                if (tracker->language) {
+                                        g_free (tracker->language);
+                                }
+                                tracker->language = g_strdup (tmap[i].lang);
 				break;
 			}
 		}
-
 	}
 
 	/* set stopwords list and create stemmer for language */
@@ -2234,11 +2220,10 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 		}
 
 		g_strfreev (words);
-
 	}
+
 	g_free (stopwords);
 	g_free (stopword_file);
-
 
 	if (!tracker->use_stemmer || !create_stemmer) {
 		return;
@@ -2252,7 +2237,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	if (language) {
 		int i;
 
-		for (i=0; tmap[i].lang; i++) {
+		for (i = 0; tmap[i].lang; i++) {
 			if ((strcasecmp (tmap[i].lang, language) == 0)) {
 				stem_language = tmap[i].name;
 				break;
@@ -2267,11 +2252,11 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	} else {
 		tracker_log ("Using stemmer for language %s\n", stem_language);
 	}
-
 }
 
+
 void
-tracker_load_config_file ()
+tracker_load_config_file (void)
 {
 	GKeyFile *key_file;
 	char	 *filename;
@@ -2550,8 +2535,6 @@ tracker_load_config_file ()
 }
 
 
-
-
 void
 tracker_throttle (int multiplier)
 {
@@ -2567,6 +2550,7 @@ tracker_throttle (int multiplier)
 		g_usleep (throttle);
 	}
 }
+
 
 void
 tracker_notify_file_data_available (void)
@@ -2694,8 +2678,9 @@ tracker_notify_request_data_available (void)
 	}
 }
 
+
 GTimeVal *
-tracker_timer_start ()
+tracker_timer_start (void)
 {
 	GTimeVal  *before;
 
@@ -2720,7 +2705,6 @@ tracker_timer_end (GTimeVal *before, const char *str)
 	g_free (before);
 
 	tracker_log ("%s %f ms", str, elapsed);
-
 }
 
 
@@ -2884,7 +2868,6 @@ is_match (const char *a, const char *b)
 }
 
 
-
 static const gchar *
 pointer_from_offset_skipping_decomp (const gchar *str, gint offset)
 {
@@ -2906,6 +2889,7 @@ pointer_from_offset_skipping_decomp (const gchar *str, gint offset)
 	}
 	return p;
 }
+
 
 static const char *
 g_utf8_strcasestr_array (const gchar *haystack, gchar **needles)
@@ -2970,7 +2954,6 @@ finally_1:
 const char *
 substring_utf8 (const char *a, const char *b)
 {
-
         const char  *ptr, *found_ptr;
 	gunichar c, lower, upper;
 	int len;
@@ -3045,15 +3028,13 @@ is_word_break (const char a)
 	const char *breaks = "\t\n\v\f\r !\"#$%&'()*/<=>?[\\]^`{|}~+,.:;@\"[]";
 	int i;
 
-	for (i=0; breaks[i]; i++) {
+	for (i = 0; breaks[i]; i++) {
 		if (a == breaks[i]) {
 			return TRUE;
 		}
-
 	}
 
 	return FALSE;
-
 }
 
 
@@ -3068,8 +3049,6 @@ highlight_terms (const char *str, char **terms)
 	if (!str || !terms) {
 		return NULL;
 	}
-
-
 
 	char **array;
 	txt = g_strdup (str);
@@ -3100,7 +3079,6 @@ highlight_terms (const char *str, char **terms)
 
 			g_free (pre_snip);
 			g_free (term);
-
 		}
 
 		if (ptxt) {
@@ -3118,16 +3096,11 @@ highlight_terms (const char *str, char **terms)
 }
 
 
-
-
 char *
 tracker_get_snippet (const char *txt, char **terms, int length)
 {
-
 	const char *ptr = NULL, *end_ptr,  *tmp;
 	int i, txt_len;
-
-
 
 	if (!txt || !terms) {
 		return NULL;
@@ -3158,16 +3131,13 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 				ptr = g_utf8_next_char (ptr);
 				i++;
 			}
-
 		}
 
 		ptr = g_utf8_next_char (ptr);
 
-
 		if (!ptr || ptr < txt) {
 			return NULL;
 		}
-
 
 		end_ptr = tmp;
 		i = 0;
@@ -3191,8 +3161,6 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 				end_ptr = g_utf8_prev_char (end_ptr);
 				i++;
 			}
-
-
 		}
 
 		if (!end_ptr || !ptr) {
@@ -3281,7 +3249,7 @@ flush_list (GSList *list, const char *word)
 {
 	WordDetails *word_details, *wd;
 	int i, count;
-	GSList *l;
+	GSList *lst;
 
 	count = g_slist_length (list);
 
@@ -3290,15 +3258,13 @@ flush_list (GSList *list, const char *word)
 	word_details = g_malloc (sizeof (WordDetails) * count);
 
 	i = 0;
-	for (l=list; (l && i<count); l=l->next) {
+	for (lst = list; (lst && i < count); lst = lst->next) {
 
-		wd = l->data;
+		wd = lst->data;
 		word_details[i].id = wd->id;
 		word_details[i].amalgamated = wd->amalgamated;
 		i++;
 		g_slice_free (WordDetails, wd);
-
-
 	}
 
 	g_slist_free (list);
@@ -3310,15 +3276,13 @@ flush_list (GSList *list, const char *word)
 	tracker->update_count++;
 	tracker->word_detail_count -= count;
 	tracker->word_count--;
-
 }
 
 
 static inline gboolean
-is_min_flush_done ()
+is_min_flush_done (void)
 {
 	return (tracker->word_detail_count <= tracker->word_detail_min) && (tracker->word_count <= tracker->word_count_min);
-
 }
 
 /*
@@ -3331,10 +3295,9 @@ delete_word_detail (WordDetails *wd)
 */
 
 void
-tracker_flush_rare_words ()
+tracker_flush_rare_words (void)
 {
-
-	GSList *list, *l, *l2;
+	GSList *list, *lst;
 
 	tracker_debug ("flushing rare words");
 
@@ -3342,19 +3305,16 @@ tracker_flush_rare_words ()
 
 	list = g_slist_sort (list, (GCompareFunc) sort_func);
 
-	for (l = list; (l && !is_min_flush_done ()); l=l->next) {
-		char *word = l->data;
+	for (lst = list; (lst && !is_min_flush_done ()); lst = lst->next) {
+		char *word = lst->data;
+                GSList *lst_tmp = g_hash_table_lookup (tracker->cached_table, word);
 
-		l2 = g_hash_table_lookup (tracker->cached_table, word);
-
-		flush_list (l2, word);
+		flush_list (lst_tmp, word);
 
 		g_hash_table_remove (tracker->cached_table, word);
-
 	}
 
 	g_slist_free (list);
-
 }
 
 
@@ -3363,7 +3323,6 @@ flush_all (gpointer         key,
 	   gpointer         value,
 	   gpointer         data)
 {
-
 	flush_list (value, key);
 
   	return 1;
@@ -3371,7 +3330,7 @@ flush_all (gpointer         key,
 
 
 void
-tracker_flush_all_words ()
+tracker_flush_all_words (void)
 {
 	tracker_log ("Flushing all words");
 
@@ -3383,11 +3342,11 @@ tracker_flush_all_words ()
 
 	tracker->word_detail_count = 0;
 	tracker->word_count = 0;
-
 }
 
+
 void
-tracker_check_flush ()
+tracker_check_flush (void)
 {
 	if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
 		if (tracker->flush_count < 10) {
@@ -3397,10 +3356,10 @@ tracker_check_flush ()
 		} else {
 			tracker->flush_count = 0;
 			tracker_flush_all_words ();
-
 		}
 	}
 }
+
 
 void
 tracker_child_cb (gpointer user_data)
@@ -3417,7 +3376,6 @@ tracker_child_cb (gpointer user_data)
 		tracker_error ("ERROR: trying to set resource limit for cpu");
 	}
 
-
 	/* Set memory usage to max limit (128MB) - some archs like AMD64 machines do not fully support this or are buggy */
 
 #if defined(__i386__)
@@ -3428,10 +3386,8 @@ tracker_child_cb (gpointer user_data)
 	}
 #endif
 
-
 	/* Set child's niceness to 19 */
 	nice (19);
-
 }
 
 
@@ -3456,7 +3412,6 @@ tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status)
 			  NULL,
 			  exit_status,
 			  NULL);
-
 }
 
 
@@ -3559,6 +3514,7 @@ tracker_info	(const char *message, ...)
 	g_free (msg);
 }
 
+
 void
 tracker_debug 	(const char *message, ...)
 {
@@ -3594,7 +3550,6 @@ tracker_string_replace (const char *haystack, char *needle, char *replacement)
         {
                 if (strncmp (&haystack[pos], needle, needle_len) == 0)
                 {
-
 			if (replacement) {
 	                        str = g_string_append (str, replacement);
 			}
@@ -3610,11 +3565,9 @@ tracker_string_replace (const char *haystack, char *needle, char *replacement)
 }
 
 
-
 gboolean
-tracker_using_battery ()
+tracker_using_battery (void)
 {
-
 	if (!tracker->battery_state_file) {
 		return FALSE;
 	}
@@ -3631,8 +3584,8 @@ tracker_using_battery ()
 	g_free (txt);
 
 	return using_battery;
-
 }
+
 
 void
 tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value)
@@ -3650,6 +3603,7 @@ tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const ch
 		g_hash_table_insert (meta_table, (char *) key, list);
 	}
 }
+
 
 void
 tracker_free_metadata_field (FieldData *field_data)
@@ -3700,4 +3654,3 @@ tracker_unlink (const char *uri)
 
 	return TRUE;
 }
-
