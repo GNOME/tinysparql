@@ -2128,7 +2128,7 @@ tracker_ignore_file (const char *uri)
 }
 
 
-const char *
+char *
 tracker_get_english_lang_code (void)
 {
         return g_strdup (tmap[2].lang);
@@ -3361,6 +3361,39 @@ tracker_check_flush (void)
 }
 
 
+gboolean
+set_memory_rlimits (void)
+{
+	struct	rlimit rl;
+	gboolean fail = FALSE;
+
+	/* We want to limit the max virtual memory
+	 * most extractors use mmap() so only virtual memory can be effectively limited */
+#ifdef __x86_64__
+	/* many extractors on AMD64 require 512M of virtual memory, so we limit heap too */
+	getrlimit (RLIMIT_AS, &rl);
+	rl.rlim_cur = MAX_MEM_AMD64*1024*1024;
+	fail |= setrlimit (RLIMIT_AS, &rl);
+
+	getrlimit (RLIMIT_DATA, &rl);
+	rl.rlim_cur = MAX_MEM*1024*1024;
+	fail |= setrlimit (RLIMIT_DATA, &rl);
+#else
+	/* on other architectures, 128M of virtual memory seems to be enough */
+	getrlimit (RLIMIT_AS, &rl);
+	rl.rlim_cur = MAX_MEM*1024*1024;
+	fail |= setrlimit (RLIMIT_AS, &rl);
+#endif
+
+	if (fail) {
+		g_printerr ("Error trying to set memory limit\n");
+	}
+
+	return !fail;
+}
+
+
+
 void
 tracker_child_cb (gpointer user_data)
 {
@@ -3376,15 +3409,7 @@ tracker_child_cb (gpointer user_data)
 		tracker_error ("ERROR: trying to set resource limit for cpu");
 	}
 
-	/* Set memory usage to max limit (128MB) - some archs like AMD64 machines do not fully support this or are buggy */
-
-#if defined(__i386__)
-	getrlimit (RLIMIT_AS, &mem_limit);
- 	mem_limit.rlim_cur = 128*1024*1024;
-	if (setrlimit (RLIMIT_AS, &mem_limit) != 0) {
-		tracker_error ("ERROR: trying to set resource limit for memory usage");
-	}
-#endif
+	set_memory_rlimits();
 
 	/* Set child's niceness to 19 */
 	nice (19);

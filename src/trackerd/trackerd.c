@@ -956,7 +956,9 @@ process_files_thread (void)
 
 
 						case INDEX_CONVERSATIONS: {
-								char *gaim;
+								char *gaim, *purple;
+								gboolean has_logs = FALSE;
+								GSList *list;
 
 								/* sleep for N secs before watching/indexing any of the major services */
 								if (tracker->initial_sleep > 0) {
@@ -965,22 +967,39 @@ process_files_thread (void)
 								}
 
 								gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
+								purple = g_build_filename (g_get_home_dir(), ".purple", "logs", NULL);
 
 								if (tracker_file_is_valid (gaim)) {
-									GSList *list;
+
+									has_logs = TRUE;
 
 									tracker_add_service_path ("GaimConversations", gaim);
 
 									list = g_slist_prepend (NULL, gaim);
 
+								}
+
+								if (tracker_file_is_valid (purple)) {
+
+									has_logs = TRUE;
+
+									tracker_add_service_path ("GaimConversations", purple);
+
+									list = g_slist_prepend (NULL, purple);
+								}
+
+								if (has_logs) {
 									tracker_log ("starting chat log indexing...");
 
 									process_directory_list (db_con, list, TRUE);
 
 									g_slist_free (list);
+
+
 								}
 
 								g_free (gaim);
+								g_free (purple);
 							}
 							break;
 
