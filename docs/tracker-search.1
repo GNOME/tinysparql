@@ -1,7 +1,8 @@
 .TH tracker-search 1 "July 2007" GNU "User Commands"
 
 .SH NAME
-tracker-search \- command line tool to search documents indexed by trackerd
+tracker-search \- command line tool to search documents indexed by
+trackerd
 
 .SH SYNOPSIS
 .B tracker-search
@@ -28,38 +29,11 @@ Limit search to N results.
 
 .TP
 \-s, --service=SERVICE
-Search by a specific service. trackerd(1) knows about the following
-services:
-.RS
-.TP
-Documents
-Searches for general documents like word processing,
-spreadsheets or text files.
-.TP
-Emails
-Searches for Emails.
-.TP
-Attachments
-Search es for Email attachments.
-.TP
-Music
-Search for music files.
-.TP
-Images
-Search for image files.
-.TP
-Videos
-Search for video files.
-.TP
-Text
-Search for text files, like word processing files, but e.g. not
-spreadsheets.
-.TP
-Development
-Search for development files. This includes make files,
-source code files and the like.
-.RE
+Search by a specific service. For more information on tracker services,
+see
+.BR tracker-services (7).
 
 .SH "SEE ALSO"
-.BR trackerd(1),
-.BR tracker-search-tool(1).
+.BR trackerd (1),
+.BR tracker-search-tool (1),
+.BR tracker-services (7).

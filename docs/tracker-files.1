@@ -10,19 +10,22 @@ tracker-files \- Return files filtered by the mime type or their category
 
 .SH DESCRIPTION
 .B tracker-files
-returns files that match the ServiceType or the mime-type provided; you can 
+returns files that match the ServiceType or the mime-type provided;
+you can
 
 .SH OPTIONS
 .TP
 \-s ServiceType
-Specify the kind of the files you want to find; ServiceType can be Documents, Music, Images, Videos,
-Text, Development or Other.
+Specify the kind of the files you want to find. For more information on
+valid ServiceType see
+.BR tracker-services (7).
 
 .TP
 \-m MimeType
 Specify the mime-type of the files you want to find; see
-http://www.iana.org/assignments/media-types/ for the complete list of existing
-mime-type.
+http://www.iana.org/assignments/media-types/ for the complete list of
+existing mime-type.
 
 .SH SEE ALSO
-.BR trackerd(1).
+.BR trackerd (1),
+.BR tracker-services (7).
