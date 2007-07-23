@@ -966,6 +966,30 @@ process_files_thread (void)
 									g_usleep (tracker->initial_sleep * 1000 * 1000);
 								}
 
+								/* delete all stuff in the no watch dirs */
+
+								if (tracker->no_watch_directory_list) {
+
+									GSList *l;
+
+									tracker_log ("Deleting entities in no watch directories...");
+
+									for (l = tracker->no_watch_directory_list; l; l=l->next) {
+
+										if (l->data) {
+											char *no_watch_uri = (char *) l->data;		
+		
+											guint32 f_id = tracker_db_get_file_id (db_con, no_watch_uri);
+
+											if (f_id > 0) {
+												tracker_db_delete_directory (db_con, db_con->blob, f_id, no_watch_uri);
+											}
+		
+										}
+									}
+								}
+
+
 								gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
 								purple = g_build_filename (g_get_home_dir(), ".purple", "logs", NULL);
 
@@ -2356,30 +2380,6 @@ main (int argc, char **argv)
 
 	tracker_db_get_static_data (db_con);
 
-	/* delete all stuff in the no watch dirs */
-
-	if (tracker->no_watch_directory_list) {
-
-		GSList *l;
-
-		tracker_log ("Deleting entities in no watch directories...");
-
-		for (l = tracker->no_watch_directory_list; l; l=l->next) {
-
-			if (l->data) {
-				char *no_watch_uri = (char *) l->data;		
-
-				guint32 f_id = tracker_db_get_file_id (db_con, no_watch_uri);
-
-				if (f_id > 0) {
-					tracker_db_delete_directory (db_con, db_con->blob, f_id, no_watch_uri);
-				}
-
-			}
-		}
-	}
-
-
 	tracker->file_metadata_queue = g_async_queue_new ();
 	tracker->file_process_queue = g_async_queue_new ();
 	tracker->user_request_queue = g_async_queue_new ();
@@ -2403,7 +2403,6 @@ main (int argc, char **argv)
 		exit (1);
 	}
 
-	tracker_log ("sleeping to prevent slow down of system at boot/login time. Watching and Indexing will resume in %d seconds...", tracker->initial_sleep);
 	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
 
 	g_main_loop_run (tracker->loop);
