@@ -601,7 +601,7 @@ swedish</property>
 				      <property name="digits">0</property>
 				      <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
 				      <property name="inverted">False</property>
-				      <property name="adjustment">0 0 20 1 5 5</property>
+				      <property name="adjustment">0 0 20 1 1 0</property>
 				    </widget>
 				    <packing>
 				      <property name="padding">2</property>
