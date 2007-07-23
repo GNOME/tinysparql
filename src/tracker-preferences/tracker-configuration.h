@@ -89,5 +89,28 @@ tracker_configuration_set_list (TrackerConfiguration * configuration,
 				const gchar * const key, const GSList * const value,
 				GType g_type);
 
+typedef struct {
+	char *lang;
+	char *name;
+} Matches;
+
+static Matches tmap[] = {
+		{"da", "danish"},
+		{"nl", "dutch"},
+		{"en", "english"},
+ 		{"fi", "finnish"},
+		{"fr", "french"},
+		{"de", "german"},
+		{"it", "italian"},
+		{"nb", "norwegian"},
+		{"pt", "portuguese"},
+		{"ru", "russian"},
+		{"es", "spanish"},
+		{"sv", "swedish"},
+		{NULL, 0},
+};
+
+
+
 G_END_DECLS
 #endif

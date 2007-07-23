@@ -2,6 +2,9 @@
 2007-07-23 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed metadata dates display
+	* Revamped tracker-preferences
+	* added missing prefs
+	* fixed bug with additional growing lines
 
 
 2007-07-22 Patch from Marcus Fritzsch <fritschy at googlemail com>

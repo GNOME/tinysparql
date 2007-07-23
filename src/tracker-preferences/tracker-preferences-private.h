@@ -23,10 +23,14 @@ static void
 setup_page_general (TrackerPreferences * preferences);
 
 static void
-setup_page_indexing (TrackerPreferences * preferences);
+setup_page_files (TrackerPreferences * preferences);
 
 static void
-setup_page_privacy (TrackerPreferences * preferences);
+setup_page_emails (TrackerPreferences * preferences);
+
+
+static void
+setup_page_ignored_files (TrackerPreferences * preferences);
 
 static void
 setup_page_performance (TrackerPreferences * preferences);
@@ -45,6 +49,12 @@ cmdAddIndexPath_Clicked (GtkWidget * widget, gpointer data);
 
 static void
 cmdRemoveIndexPath_Clicked (GtkWidget * widget, gpointer data);
+
+static void
+cmdAddCrawledPath_Clicked (GtkWidget * widget, gpointer data);
+
+static void
+cmdRemoveCrawledPath_Clicked (GtkWidget * widget, gpointer data);
 
 static void
 cmdAddIndexMailbox_Clicked (GtkWidget * widget, gpointer data);

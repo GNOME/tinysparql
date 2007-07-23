@@ -2339,7 +2339,7 @@ tracker_load_config_file (void)
 					 "# Enables use of language-specific stemmer\n",
 					 "EnableStemmer=true\n",
 					 "[Emails]\n",
-					 "IndexEvolutionEmails=false\n",
+					 "IndexEvolutionEmails=true\n",
 					 "[Performance]\n",
 					 "# Maximum size of text in bytes to index from a file's text contents\n",
 					 "MaxTextToIndex=1048576\n",

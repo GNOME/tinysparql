@@ -3,10 +3,7 @@
 #include "config.h"
 #include <glib/gi18n.h>
 
-typedef struct {
-	char *lang;
-	char *name;
-} Matches;
+
 
 #ifndef HAVE_RECENT_GLIB
 /**********************************************************************
@@ -258,21 +255,6 @@ tracker_configuration_class_init (TrackerConfigurationClass * klass)
 }
 
 
-static Matches tmap[] = {
-		{"da", "danish"},
-		{"nl", "dutch"},
-		{"en", "english"},
- 		{"fi", "finnish"},
-		{"fr", "french"},
-		{"de", "german"},
-		{"it", "italian"},
-		{"nb", "norwegian"},
-		{"pt", "portuguese"},
-		{"ru", "russian"},
-		{"es", "spanish"},
-		{"sv", "swedish"},
-		{NULL, 0},
-};
 
 
 
@@ -333,7 +315,7 @@ create_config_file ()
 					 "# Minimizes the use of memory but may slow indexing down\n", 
 					 "LowMemoryMode=false\n\n",
 					 "# Set the initial sleeping time, in seconds\n",
-					 "InitialSleep=45\n",
+					 "InitialSleep=60\n",
 					 "[Watches]\n",
 					 "# List of directory roots to index and watch seperated by semicolons\n",
 					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
@@ -516,6 +498,38 @@ tracker_configuration_set_list (TrackerConfiguration * configuration,
 		set_list (configuration, key, value, type);
 }
 
+
+static char *
+string_replace (const char *haystack, char *needle, char *replacement)
+{
+        GString *str;
+        int pos, needle_len;
+
+	g_return_val_if_fail (haystack && needle, NULL);
+
+	needle_len = strlen (needle);
+
+        str = g_string_new ("");
+
+        for (pos = 0; haystack[pos]; pos++)
+        {
+                if (strncmp (&haystack[pos], needle, needle_len) == 0)
+                {
+			if (replacement) {
+	                        str = g_string_append (str, replacement);
+			}
+
+                        pos += needle_len - 1;
+
+                } else {
+                        str = g_string_append_c (str, haystack[pos]);
+		}
+        }
+
+        return g_string_free (str, FALSE);
+}
+
+
 static void
 _write (TrackerConfiguration * configuration)
 {
@@ -530,13 +544,41 @@ _write (TrackerConfiguration * configuration)
 	GError *error = NULL;
 	gchar *contents = NULL;
 
-	contents = g_key_file_to_data (priv->keyfile, &length, &error);
+/*
+	char *my_contents = g_key_file_to_data (priv->keyfile, &length, &error);
+
+	char **array = g_strsplit (my_contents, "\n", 0);
+
+	g_free (my_contents);
+
+	GString *gstr = g_string_new ("");
+
+	char **array2;
+
+
+	for (array2=array; *array2; array2++) {
+		if (*array2[0] != '\0') {
+			gstr = g_string_append (gstr, *array2);
+			g_string_append_c (gstr, '\n');
+		}
+	}
+
+	g_strfreev (array);
+
+	contents = g_string_free (gstr, FALSE);
+*/
+	char *my_contents = g_key_file_to_data (priv->keyfile, &length, &error);
 
 	if (error)
 		g_error ("failed: g_key_file_to_data(): %s\n",
 			 error->message);
 
-	g_file_set_contents (priv->filename, contents, length, NULL);
+	contents = string_replace (my_contents, "\n\n\n", "\n\n");
+
+	g_free (my_contents);
+
+
+	g_file_set_contents (priv->filename, contents, -1, NULL);
 
 	g_free (contents);
 	priv->dirty = FALSE;
