@@ -143,7 +143,7 @@ static service_info_t services[12] = {
    { "Text", 		N_("Text"),   	 	"text-x-generic",           	NULL,     	SERVICE_TEXT_FILES, 		NULL, FALSE, 0, 0},
    { "Development", 	N_("Development"),  	"applications-development", 	NULL, 	 	SERVICE_DEVELOPMENT_FILES ,	NULL, FALSE, 0, 0},
    { "Conversations", 	N_("Chat Logs"),	"stock_help-chat",       	NULL,		SERVICE_CONVERSATIONS , 	NULL, FALSE, 0, 0},
-   { "Applications", 	N_("Applications"), 	"stock_active",		       	NULL,		SERVICE_APPLICATIONS  , 	NULL, FALSE, 0, 0},
+   { "Applications", 	N_("Applications"), 	"system-run",		       	NULL,		SERVICE_APPLICATIONS  , 	NULL, FALSE, 0, 0},
 
    { NULL,        NULL,    NULL, NULL,           -1                    , NULL, FALSE, 0, 0},
 };
