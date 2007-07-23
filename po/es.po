@@ -7,14 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-07-14 03:30+0100\n"
-"PO-Revision-Date: 2007-07-20 11:02+0200\n"
+"POT-Creation-Date: 2007-07-23 00:37+0100\n"
+"PO-Revision-Date: 2007-07-23 15:00+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms:  nplurals=2; plural=(n != 1);"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
@@ -25,188 +26,203 @@ msgid "Tracker search and indexing service"
 msgstr "Servicio de búsqueda e indexado Tracker"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:415
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:452
 #, c-format
 msgid "Path : <b>%s</b>"
 msgstr "Ruta : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:416
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:453
 #, c-format
 msgid "Modified : <b>%s</b>"
 msgstr "Modificado : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:417
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:542
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:454
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
 #, c-format
 msgid "Size : <b>%s</b>"
 msgstr "Tamaño : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:418
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:455
 #, c-format
 msgid "Accessed : <b>%s</b>"
 msgstr "Accedido : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:419
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:456
 #, c-format
 msgid "Mime : <b>%s</b>"
 msgstr "MIME : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:462
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:508
 #, c-format
-msgid "Date: <b>%s</b>"
-msgstr "Fecha: <b>%s</b>"
+msgid "Sender : <b>%s</b>"
+msgstr "Remitente : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:538
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:637
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:509
+#, c-format
+msgid "Date : <b>%s</b>"
+msgstr "Fecha : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:549
+#, c-format
+msgid "Comment : <b>%s</b>"
+msgstr "Comentario : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:550
+#, c-format
+msgid "Categories : <b>%s</b>"
+msgstr "Categorías : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:636
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:741
 #, c-format
 msgid "Duration : <b>%s</b>"
 msgstr "Duración : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:539
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:637
 #, c-format
 msgid "Genre : <b>%s</b>"
 msgstr "Género : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:540
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:638
 #, c-format
 msgid "Bitrate : <b>%s Kbs</b>"
 msgstr "Tasa de bits : <b>%s Kbps</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:541
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:639
 #, c-format
 msgid "Year : <b>%s</b>"
 msgstr "Año : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:543
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
 #, c-format
 msgid "Codec : <b>%s</b>"
 msgstr "Códec : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:581
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:682
 #, c-format
 msgid " taken with a <span size='large'><i>%s</i></span>"
 msgstr " tomado con una <span size='large'><i>%s</i></span>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:586
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:687
 #, c-format
 msgid " <span size='large'><i>%s</i></span>"
 msgstr " <span size='large'><i>%s</i></span>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:606
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:635
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:707
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:739
 #, c-format
 msgid "Dimensions : <b>%d x %d</b>"
 msgstr "Dimensiones : <b>%d x %d</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:607
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:708
 #, c-format
 msgid "Date Taken : <b>%s</b>"
 msgstr "Fecha en que se tomó: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:608
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:709
 #, c-format
 msgid "Orientation : <b>%s</b>"
 msgstr "Orientación : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:609
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:710
 #, c-format
 msgid "Flash : <b>%s</b>"
 msgstr "Flash : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:610
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:711
 #, c-format
 msgid "Focal Length : <b>%s</b>"
 msgstr "Longitud focal : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:611
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:712
 #, c-format
 msgid "Exposure Time : <b>%s</b>"
 msgstr "Tiempo de exposición : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:636
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:667
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:740
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:773
 #, c-format
 msgid "Author : <b>%s</b>"
 msgstr "Autor : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:638
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:742
 #, c-format
 msgid "Bitrate : <b>%s</b>"
 msgstr "Tasa de bits : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:639
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:743
 #, c-format
 msgid "Encoded In : <b>%s</b>"
 msgstr "Codificado con : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:744
 #, c-format
 msgid "Framerate : <b>%s</b>"
 msgstr "Tasa de fotogramas : <b>%s</b>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:666
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:772
 #, c-format
 msgid "Subject : <b>%s</b>"
 msgstr "Asunto : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:668
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:774
 #, c-format
 msgid "Page Count : <b>%s</b>"
 msgstr "Número de páginas : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:669
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:775
 #, c-format
 msgid "Word Count : <b>%s</b>"
 msgstr "Número de palabras : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:670
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:776
 #, c-format
 msgid "Created : <b>%s</b>"
 msgstr "Creado : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:671
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:777
 #, c-format
 msgid "Comments : <b>%s</b>"
 msgstr "Comentarios : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:754
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:861
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f KiB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:758
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:865
 #, c-format
 msgid "%.1f MB"
 msgstr "%.1f MiB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:762
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:869
 #, c-format
 msgid "%.1f GB"
 msgstr "%.1f GiB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:800
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:823
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:842
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:907
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:930
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:950
 msgid "Unknown"
 msgstr "Desconocido"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:248
+#: ../src/libtracker-gtk/tracker-tag-bar.c:251
 msgid "Type tags you want to add here, separated by commas"
 msgstr "Escriba aquí las etiquetas que quiere añadir, separadas por comas"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:357
+#: ../src/libtracker-gtk/tracker-tag-bar.c:361
 msgid "Tags :"
 msgstr "Etiquetas :"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:379
+#: ../src/libtracker-gtk/tracker-tag-bar.c:383
 msgid "_Search For Tag"
 msgstr "_Buscar por etiqueta"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:391
+#: ../src/libtracker-gtk/tracker-tag-bar.c:395
 msgid "_Remove Tag"
 msgstr "_Eliminar etiqueta"
 
@@ -353,69 +369,81 @@ msgstr "%s: argumentos inválidos"
 msgid "%s: file %s not found"
 msgstr "%s: archivo %s no encontrado"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:148
 msgid "Directory to exclude from indexing"
 msgstr "Directorio a excluir del indexado"
 
-#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:148 ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:150
 msgid "/PATH/DIR"
 msgstr "/RUTA/DIR"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:149
 msgid "Directory to include in indexing"
 msgstr "Directorio a incluir en el indexado"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:150
+msgid "Directory to crawl for indexing at start up only"
+msgstr "Directorio en el que arrastrar para indexar sólo al inicio"
+
+#: ../src/trackerd/trackerd.c:151
 msgid "Disable any indexing or watching taking place"
 msgstr "Desactivar cualquier indexado o vista que se esté realizando"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:152
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 msgstr ""
-"Valor que controla el nivel de registro. Los valores válidos son 0 (sólo muestra "
-"errores), 1 (mínimo), 2 (detallado) y 3 (depuración)"
+"Valor que controla el nivel de registro. Los valores válidos son 0 (sólo "
+"muestra errores), 1 (mínimo), 2 (detallado) y 3 (depuración)"
 
-#: ../src/trackerd/trackerd.c:149 ../src/trackerd/trackerd.c:150
+#: ../src/trackerd/trackerd.c:152 ../src/trackerd/trackerd.c:153
 msgid "VALUE"
 msgstr "VALOR"
 
-#: ../src/trackerd/trackerd.c:150
+#: ../src/trackerd/trackerd.c:153
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
-msgstr "Valores para la aceleración del indexado. Los valores deben estar comprendidos entre 0 y 20 (por defecto se toma 0) dando los valores bajos una aceleracion mayor del indexado"
+msgstr ""
+"Valores para la aceleración del indexado. Los valores deben estar "
+"comprendidos entre 0 y 20 (por defecto se toma 0) dando los valores bajos "
+"una aceleracion mayor del indexado"
 
-#: ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:154
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:155
+msgid "Initial sleep time, just before indexing, in seconds"
+msgstr "Tiempo inicial de latencia, justo antes de indexar, en segundos"
+
+#: ../src/trackerd/trackerd.c:156
 msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Idioma que usar para stemmer y lista de palabras de parada (código de "
 "caracteres ISO 639-1 2)"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:156
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:153
+#: ../src/trackerd/trackerd.c:157
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:1989
+#: ../src/trackerd/trackerd.c:2036
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:1990 ../src/trackerd/trackerd.c:1991
+#: ../src/trackerd/trackerd.c:2037 ../src/trackerd/trackerd.c:2038
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:1999
+#: ../src/trackerd/trackerd.c:2046
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -518,66 +546,74 @@ msgid "Index my home _directory"
 msgstr "Indexar mi ca_rpeta personal"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:23
+msgid "Initial Sleep:          "
+msgstr "Latencia inicial:     "
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:24
 msgid "Normal Mode"
 msgstr "Modo normal"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
+#: ../src/tracker-preferences/tracker-preferences.glade.h:25
 msgid "P_erformance"
 msgstr "R_endimiento"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+#: ../src/tracker-preferences/tracker-preferences.glade.h:26
 msgid "Path roots to be ignored during indexing:"
 msgstr "Rutas a ser ignoradas durante el indexado:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+#: ../src/tracker-preferences/tracker-preferences.glade.h:27
 msgid "Polling Interval: "
 msgstr "Intervalo de encuestado: "
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
 msgid "Reduced Memory Mode"
 msgstr "Modo de memoria reducido"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Seconds"
+msgstr "Segundos"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Start _indexing service automatically"
 msgstr "Iniciar el servicio de _indexado automáticamente"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Start _monitoring service automatically"
 msgstr "Iniciar el servicio de _monitorización automáticamente"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Throttling Level: "
 msgstr "Nivel de aceleración:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Tracker Preferences"
 msgstr "Preferencias de Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Turbo Mode"
 msgstr "Modo turbo"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "_General"
 msgstr "_General"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "_Privacy"
 msgstr "_Privacidad"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "gtk-add"
 msgstr "gtk-add"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "gtk-close"
 msgstr "gtk-close"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "gtk-help"
 msgstr "gtk-help"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "gtk-remove"
 msgstr "gtk-remove"
 
@@ -585,257 +621,269 @@ msgstr "gtk-remove"
 msgid "Search from a specific service"
 msgstr "Buscar en un servicio específico"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:133
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "Correos-e"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:134
+#: ../src/tracker-search-tool/tracker-search-tool.c:137
 msgid "All Files"
 msgstr "Todos los archivos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:135
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
 msgid "Folders"
 msgstr "Carpetas"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
 msgid "Documents"
 msgstr "Documentos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:137
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
 msgid "Images"
 msgstr "Imágenes"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:138
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
 msgid "Music"
 msgstr "Música"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:139
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
-#: ../src/tracker-search-tool/tracker-search-tool.c:1172
+#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:1269
 msgid "Text"
 msgstr "Texto"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
 msgid "Development"
 msgstr "Desarrollo"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:208
+#: ../src/tracker-search-tool/tracker-search-tool.c:145
+msgid "Chat Logs"
+msgstr "Registros de chat"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:146
+msgid "Applications"
+msgstr "Aplicaciones"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:210
 msgid "_Open"
 msgstr "_Abrir"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:209
+#: ../src/tracker-search-tool/tracker-search-tool.c:211
 msgid "O_pen Folder"
 msgstr "Abrir _carpeta"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:210
+#: ../src/tracker-search-tool/tracker-search-tool.c:212
 msgid "Mo_ve to Trash"
 msgstr "_Mover a la papelera"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:211
+#: ../src/tracker-search-tool/tracker-search-tool.c:213
 msgid "_Save Results As..."
 msgstr "_Guardar resultado como..."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:249
+#: ../src/tracker-search-tool/tracker-search-tool.c:261
 #, c-format
 msgid "Character set conversion failed for \"%s\""
 msgstr "Falló la conversión del conjunto de caracteres para «%s»"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:555
+#: ../src/tracker-search-tool/tracker-search-tool.c:666
 msgid "Did you mean"
 msgstr "Quiso decir"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:590
+#: ../src/tracker-search-tool/tracker-search-tool.c:701
 msgid "Your search returned no results."
 msgstr "Su búsqueda no devolvió ningún resultado."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:607
+#: ../src/tracker-search-tool/tracker-search-tool.c:718
 msgid "Tracker Search Tool-"
 msgstr "Herramienta de búsqueda Tracker-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:777
-#: ../src/tracker-search-tool/tracker-search-tool.c:2134
+#: ../src/tracker-search-tool/tracker-search-tool.c:888
+#: ../src/tracker-search-tool/tracker-search-tool.c:2346
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Herramienta de búsqueda Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:997
+#: ../src/tracker-search-tool/tracker-search-tool.c:1097
 msgid "Search _results: "
 msgstr "_Resultados de la búsqueda: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1004
+#: ../src/tracker-search-tool/tracker-search-tool.c:1103
 msgid "no search performed"
 msgstr "no se realizó ninguna búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1060
-#: ../src/tracker-search-tool/tracker-search-tool.c:1223
+#: ../src/tracker-search-tool/tracker-search-tool.c:1157
+#: ../src/tracker-search-tool/tracker-search-tool.c:1320
 msgid "List View"
 msgstr "Vista lista"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1132
+#: ../src/tracker-search-tool/tracker-search-tool.c:1229
 msgid "Icon"
 msgstr "Icono"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1144
+#: ../src/tracker-search-tool/tracker-search-tool.c:1241
 msgid "Name"
 msgstr "Nombre"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1241
+#: ../src/tracker-search-tool/tracker-search-tool.c:1338
 msgid "_Categories"
 msgstr "_Categorías"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1543
+#: ../src/tracker-search-tool/tracker-search-tool.c:1633
 #, c-format
 msgid "%d - %d of %d hits"
 msgstr "%d - %d de %d impactos"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1546
+#: ../src/tracker-search-tool/tracker-search-tool.c:1636
 #, c-format
 msgid "%d item"
 msgid_plural "%d hits"
 msgstr[0] "%d elemento"
 msgstr[1] "%d impactos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1913
+#: ../src/tracker-search-tool/tracker-search-tool.c:2120
 msgid "_Search:"
 msgstr "_Buscar:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1933
-#: ../src/tracker-search-tool/tracker-search-tool.c:1934
+#: ../src/tracker-search-tool/tracker-search-tool.c:2140
+#: ../src/tracker-search-tool/tracker-search-tool.c:2141
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Introduzca un término de búsqueda con varias palabras separadas por espacios."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1934
+#: ../src/tracker-search-tool/tracker-search-tool.c:2141
 msgid "search_entry"
 msgstr "entrada_búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1978
+#: ../src/tracker-search-tool/tracker-search-tool.c:2189
 msgid "Click to perform a search."
 msgstr "Pulse para realizar una búsqueda."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:133
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:135
 msgid "Could not open help document."
 msgstr "No se pudo abrir el documento de ayuda."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:270
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:272
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
 msgstr[0] "¿Esta seguro de que quiere abrir %d documento?"
 msgstr[1] "¿Esta seguro de que quiere abrir %d documentos?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:275
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:598
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:277
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:637
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
 msgstr[0] "Esto abrirá %d ventana separada."
 msgstr[1] "Esto abrirá %d ventanas separadas."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:315
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:317
 #, c-format
 msgid "Could not open document \"%s\"."
 msgstr "No se pudo abrir el documento «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:344
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:346
 #, c-format
 msgid "Could not open folder \"%s\"."
 msgstr "No se pudo abrir la carpeta «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:352
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:354
 msgid "The nautilus file manager is not running."
 msgstr "El gestor de archivos Nautilus no se está ejecutando."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:552
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:876
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:574
+msgid "Application could not be opened"
+msgstr "No se pudo abrir la aplicación"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:590
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:915
 msgid "The document does not exist."
 msgstr "El documento no existe."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:569
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:607
 msgid "There is no installed viewer capable of displaying the document."
 msgstr "No hay un visor instalado capaz de mostrar el documento."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:593
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:632
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
 msgstr[0] "¿Esta seguro de que quiere abrir una carpeta?"
 msgstr[1] "¿Esta seguro de que quiere abrir %d carpetas?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:701
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:740
 #, c-format
 msgid "Could not move \"%s\" to trash."
 msgstr "No se pudo mover «%s» a la papelera."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:732
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:771
 #, c-format
 msgid "Do you want to delete \"%s\" permanently?"
 msgstr "¿Quiere borrar «%s» permanentemente?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:735
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:774
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
 msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:774
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:813
 #, c-format
 msgid "Could not delete \"%s\"."
 msgstr "No se pudo borrar «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:898
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:937
 #, c-format
 msgid "Moving \"%s\" failed: %s."
 msgstr "Fallo al mover «%s»: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:932
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:971
 #, c-format
 msgid "Deleting \"%s\" failed: %s."
 msgstr "Fallo al borrar «%s»: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1218
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1257
 msgid "Activate to view this email"
 msgstr "Activar para ver este correo-e"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1396
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1435
 msgid "Save Search Results As..."
 msgstr "Guardar los resultados de la búsqueda como..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1430
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1469
 msgid "Could not save document."
 msgstr "No se pudo guardar el documento."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1431
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1470
 msgid "You did not select a document name."
 msgstr "No seleccionó un nombre de documento."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1461
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1500
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "No se pudo guardar el documento «%s» en «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1495
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1534
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "El documento «%s» ya existe. ¿Desea reemplazarlo?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1499
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1538
 msgid "If you replace an existing file, its contents will be overwritten."
 msgstr "Si reemplaza un archivo existente, su contenido se sobreescribirá."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1514
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1553
 msgid "_Replace"
 msgstr "_Reemplazar"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1564
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1603
 msgid "The document name you selected is a folder."
 msgstr "El nombre de documento que ha seleccionado es una carpeta."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1613
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1652
 msgid "You may not have write permissions to the document."
 msgstr "Puede que no tenga permisos de escritura sobre el documento."
 
@@ -843,9 +891,11 @@ msgstr "Puede que no tenga permisos de escritura sobre el documento."
 msgid ""
 "Locate documents and folders on this computer by name or content using "
 "Tracker"
-msgstr "Localice documentos y carpetas en este equipo por nombre o contenido usando Tracker"
+msgstr ""
+"Localice documentos y carpetas en este equipo por nombre o contenido usando "
+"Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:74
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:68
 #, c-format
 msgid ""
 "GConf error:\n"
@@ -859,24 +909,24 @@ msgstr ""
 #. on age of a file.  Please modify the format of the timestamp to match
 #. your locale.  For example, to display 24 hour time replace the '%-I'
 #. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:643
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:637
 msgid "today at %-I:%M %p"
 msgstr "hoy a las %-H:%M"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:645
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:639
 msgid "yesterday at %-I:%M %p"
 msgstr "ayer a las %-H:%M"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:647
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:649
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:641
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:643
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A, %B %-d %Y a las %-H:%M:%S"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:829
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:823
 msgid "link (broken)"
 msgstr "enlace (roto)"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:833
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:827
 #, c-format
 msgid "link to %s"
 msgstr "enlace a %s"
