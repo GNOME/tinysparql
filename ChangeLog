@@ -2,6 +2,7 @@
 2007-07-22 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* fixed service names on command line tools
+	* updated man pages
 
 
 2007-07-22 Laurent Aguerreche <laurent.aguerreche@free.fr>
@@ -12,6 +13,8 @@
 
 2007-07-22 Jamie McCracken <jamiemcc at gnome org>
 
+	* Fixed deleting of no watch dirs from index
+	* Fixed date formats
 	* Added Crawl directory support (indexing without watching)
 	* Added missing filters for csv, excel, spreadsheets (requires ssindex/gnumeric) and oo draw
 
