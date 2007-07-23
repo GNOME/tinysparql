@@ -24,7 +24,7 @@
 
 #include "../libtracker/tracker.h" 
 
-#define USAGE "usage: \ntracker-files -s ServiceType\t: Gets files with ServiceType (Documents, Music, Images, Videos, Text, Development, Other)\ntracker-files -m Mime1 [Mime2...] : Get all files that match one of the specified mime types\n"
+#define USAGE "usage: \ntracker-files -s ServiceType\t: Gets files with ServiceType (Documents, Music, Images, Videos, Text, Development, Other, Applications, Folders, Files, Conversations, Emails, EmailAttachments)\ntracker-files -m Mime1 [Mime2...] : Get all files that match one of the specified mime types\n"
 
 
 

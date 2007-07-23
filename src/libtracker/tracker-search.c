@@ -95,7 +95,7 @@ main (int argc, char **argv)
 				 "terms (term1 AND term2 - logical conjunction)"), 
 			       "\n\n",
 			       _("The list of recognized services is:"),
-			       "\n\tDocuments Emails Attachments Music Images Videos Text Development",			       
+			       "\n\tDocuments Emails EmailAttachments Music Images Videos Text Development Applications Conversations Folders Files",
 			       NULL);
 
 #ifdef HAVE_RECENT_GLIB
