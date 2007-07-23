@@ -491,7 +491,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 
 	str_select = g_string_append (str_select, "' || S.Name as EntityName from Services S, ServiceKeywordMetaData M ");
 
-	char *related_metadata = tracker_get_related_metadata_names (db_con, "DC:Keywords");
+	char *related_metadata = tracker_get_related_metadata_names (db_con, "User:Keywords");
 
 	str_where = g_string_new ("");
 

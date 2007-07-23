@@ -133,14 +133,13 @@ main (int argc, char **argv)
 	}
 
 
-	if (files)
+	if (files) {
 		for (i = 0; files[i] != NULL; i++) {
-			gchar *tmp = realpath (files[i], NULL);
+                        char resolved_path[1024];
+			gchar *tmp = realpath (files[i], resolved_path);
 			if (tmp) {
-				gchar *utf = g_filename_to_utf8 (tmp, -1, NULL, NULL, NULL);
 				g_free (files[i]);
-				g_free (tmp);
-				files[i] = utf;
+				files[i] = g_strdup (tmp);
 			} else {
 				g_printerr (_("%s: file %s not found"), argv[0], files[i]);
 				g_printerr ("\n");
@@ -149,6 +148,7 @@ main (int argc, char **argv)
 				i--; // Make sure we run over this file again
 			}
 		}
+	}
 
 	if (add || delete || remove_all) {
 
