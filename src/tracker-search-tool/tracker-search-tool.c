@@ -1830,20 +1830,45 @@ end_search (GPtrArray *out_array, GError *error, gpointer user_data)
 	gsearch->is_locate_database_check_finished = TRUE;
 	stop_animation (gsearch);
 	
+	if (error) {
+
+		GtkWidget * dialog;
+
+		dialog = gtk_message_dialog_new (GTK_WINDOW (gsearch->window),
+ 	                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+	                                 GTK_MESSAGE_ERROR,
+	                                 GTK_BUTTONS_OK,
+	                                 _("The following error has occured :"));
+
+
+		gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+	                                          (error == NULL) ? " " : error->message);
+
+		gtk_window_set_title (GTK_WINDOW (dialog), "");
+		gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+		gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 14);
+
+		g_signal_connect (G_OBJECT (dialog),
+	                  "response",
+	                   G_CALLBACK (gtk_widget_destroy), NULL);
+
+		gtk_widget_show (dialog);
+
+		g_error_free (error);
+
+		return;
+	}
 
 
 	if (out_array) {
 
 		gsearch->current_service->has_hits = TRUE;
-		
 
 		update_page_count_label (gsearch);
 
 		gsearch->search_results_list_store = gsearch->current_service->store;
 
 		gsearch->command_details->command_status = RUNNING;
-			
-
 
 		gtk_list_store_clear (GTK_LIST_STORE (gsearch->search_results_list_store));
 
