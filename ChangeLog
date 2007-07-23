@@ -1,3 +1,9 @@
+
+2007-07-22 Patch from Marcus Fritzsch <fritschy at googlemail com>
+	
+	* fixed service names on command line tools
+
+
 2007-07-22 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Fixed potential crasher in tracker_set_language() function

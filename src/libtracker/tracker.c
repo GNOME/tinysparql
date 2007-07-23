@@ -19,6 +19,7 @@
 
 #include "tracker.h"
 #include <string.h>
+
 #define TRACKER_SERVICE                 "org.freedesktop.Tracker"
 #define TRACKER_OBJECT			"/org/freedesktop/tracker"
 #define TRACKER_INTERFACE		"org.freedesktop.Tracker"
@@ -120,15 +121,14 @@ tracker_service_name_to_type (const char *service)
 
 	for (st=tracker_service_types; *st; st++) {
 
-		if (strcasecmp (service, *st) == 0) {
+		if (g_ascii_strcasecmp (service, *st) == 0) {
 			return i;
 		}
 
 		i++;
 	}
 
-
-	return 0;
+	return SERVICE_OTHER_FILES;
 }
 
 

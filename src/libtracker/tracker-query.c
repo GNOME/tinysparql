@@ -124,23 +124,13 @@ main (int argc, char **argv)
 
 	if (!service) {
 		type = SERVICE_FILES;
-	} else if (g_ascii_strcasecmp (service, "Documents") == 0) {
-		type = SERVICE_DOCUMENTS;
-	} else if (g_ascii_strcasecmp (service, "Music") == 0) {
-		type = SERVICE_MUSIC;
-	} else if (g_ascii_strcasecmp (service, "Images") == 0) {
-		type = SERVICE_IMAGES;
-	} else if (g_ascii_strcasecmp (service, "Videos") == 0) {
-		type = SERVICE_VIDEOS;
-	} else if (g_ascii_strcasecmp (service, "Text") == 0) {
-		type = SERVICE_TEXT_FILES;
-	} else if (g_ascii_strcasecmp (service, "Development") == 0) {
-		type = SERVICE_DEVELOPMENT_FILES;
 	} else {
-		g_printerr ("service not recognized, searching in Other Files...\n");
-		type = SERVICE_OTHER_FILES;
-	}
+		type = tracker_service_name_to_type (service);
 
+		if (type == SERVICE_OTHER_FILES && g_ascii_strcasecmp (service, "Other")) {
+			g_printerr ("service not recognized, searching in Other Files...\n");
+		}
+	}
 	
 	char *str_path = realpath_in_utf8 (fields[0]);
 

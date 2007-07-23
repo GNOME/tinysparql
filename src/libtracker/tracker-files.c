@@ -27,26 +27,6 @@
 #define USAGE "usage: \ntracker-files -s ServiceType\t: Gets files with ServiceType (Documents, Music, Images, Videos, Text, Development, Other)\ntracker-files -m Mime1 [Mime2...] : Get all files that match one of the specified mime types\n"
 
 
-static ServiceType
-get_service_type (const char* service)
-{
-	if (g_ascii_strcasecmp (service, "Documents") ==0) {
-		return SERVICE_DOCUMENTS;
-	} else 	if (g_ascii_strcasecmp (service, "Music") ==0) {
-		return SERVICE_MUSIC;
-	} else 	if (g_ascii_strcasecmp (service, "Images") ==0) {
-		return SERVICE_IMAGES;
-	} else 	if (g_ascii_strcasecmp (service, "Videos") ==0) {
-		return SERVICE_VIDEOS;
-	} else 	if (g_ascii_strcasecmp (service, "Text") ==0) {
-		return SERVICE_TEXT_FILES;
-	} else 	if (g_ascii_strcasecmp (service, "Development") ==0) {
-		return SERVICE_DEVELOPMENT_FILES;
-	} else {
-		return SERVICE_OTHER_FILES;
-	}
-}
-
 
 int
 main (int argc, char **argv) 
@@ -78,7 +58,7 @@ main (int argc, char **argv)
 			return 1;
 		} else {
 
-			type = get_service_type (argv[2]);
+			type = tracker_service_name_to_type (argv[2]);
 
 			char **array = NULL;
 
