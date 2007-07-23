@@ -912,21 +912,56 @@ _int_to_label (GtkWidget *label, const char *prop, const char *string)
 	g_free (format);	
 }
 
+
+static char *
+date_to_str (gint32 date_time)
+{
+	char  		buffer[30];
+	time_t 		time_stamp;
+	struct tm 	loctime;
+	size_t		count;
+
+	memset (buffer, '\0', sizeof (buffer));
+	memset (&loctime, 0, sizeof (struct tm));
+
+	time_stamp = (time_t) date_time;
+
+	localtime_r (&time_stamp, &loctime);
+
+	/* output is ISO 8160 format : "YYYY-MM-DDThh:mm:ss+zz:zz" */
+	count = strftime (buffer, sizeof (buffer), "%FT%T%z", &loctime);
+
+	if (count > 0) {
+		return g_strdup (buffer);
+	} else {
+		return NULL;
+	}
+}
+
+
 /* Converts ISO date to something human readable */
 static void 
 _date_to_label (GtkWidget *label, const char *iso, const char *string)
 {
-	GTimeVal val;
-	char *temp;
+	GDate val;
+	char *temp = NULL, *date;
+	time_t my_time;
 
-	if (g_time_val_from_iso8601 (iso, &val)) {
-		GDate *date;
-		date = g_date_new ();
-		g_date_set_time_val (date, &val);
-		gchar buf[256];
-		g_date_strftime(buf,256,"%a %d %b %Y", date);
-                temp = g_strdup_printf (string, buf);
-	} else {
+	if (string) {
+		my_time = atoi (iso);
+
+		if (my_time != 0) { 
+
+			g_date_set_time_t (&val, my_time);
+			gchar buf[256];
+			g_date_strftime(buf,256,"%a %d %b %Y", &val);
+        	        temp = g_strdup_printf (string, buf);
+
+		}	
+
+	}
+
+	if (!temp) {
 		temp = g_strdup_printf (string, _("Unknown"));
 	}
 

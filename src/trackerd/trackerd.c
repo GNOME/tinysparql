@@ -2338,6 +2338,8 @@ main (int argc, char **argv)
 
 	db_con = tracker_db_connect ();
 	db_con->thread = "main";
+	DBConnection *blob_db = tracker_db_connect_full_text ();
+	db_con->blob = blob_db;
 
 	main_thread_db_con = db_con;
 
@@ -2353,6 +2355,30 @@ main (int argc, char **argv)
 	}
 
 	tracker_db_get_static_data (db_con);
+
+	/* delete all stuff in the no watch dirs */
+
+	if (tracker->no_watch_directory_list) {
+
+		GSList *l;
+
+		tracker_log ("Deleting entities in no watch directories...");
+
+		for (l = tracker->no_watch_directory_list; l; l=l->next) {
+
+			if (l->data) {
+				char *no_watch_uri = (char *) l->data;		
+
+				guint32 f_id = tracker_db_get_file_id (db_con, no_watch_uri);
+
+				if (f_id > 0) {
+					tracker_db_delete_directory (db_con, db_con->blob, f_id, no_watch_uri);
+				}
+
+			}
+		}
+	}
+
 
 	tracker->file_metadata_queue = g_async_queue_new ();
 	tracker->file_process_queue = g_async_queue_new ();

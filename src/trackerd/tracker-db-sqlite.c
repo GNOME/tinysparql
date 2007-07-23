@@ -3063,7 +3063,10 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 
 				char *mvalue = format_date (values[i]);
 
-				if (!mvalue) continue;
+				if (!mvalue) {
+					tracker_debug ("Could not format date %s", values[i]);
+					continue;
+				}
 
 				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, mvalue); 
 
@@ -3084,8 +3087,24 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 
 
 		if (values[0]) {
-			char *esc_value = tracker_escape_string (values[0]);
+			char *esc_value = NULL;
+
+			if (def->type == DATA_DATE) {
+				esc_value = format_date (values[0]);
+
+				if (!esc_value) return;
+
+			} else {
+
+				char *my_val = tracker_array_to_str (values, length, '|');
+			
+				esc_value = tracker_escape_string (my_val);
+				g_free (my_val);
+
+			}
+
 			char *sql = g_strdup_printf ("update Services set KeyMetadata%d = '%s' where id = %s", key_field, esc_value, id);
+
 
 			tracker_db_exec_no_reply (db_con, sql);
 
@@ -3360,7 +3379,11 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 				char *mvalue = format_date (values[i]);
 
-				if (!mvalue) continue;
+				if (!mvalue) {
+					tracker_debug ("Could not format date %s", values[i]);
+					continue;
+
+				}
 
 				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, mvalue); 
 
@@ -3387,8 +3410,25 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 	if (key_field > 0) {
 
+
+
 		if (values[0]) {
-			char *esc_value = tracker_escape_string (values[0]);
+			char *esc_value = NULL;
+
+			if (def->type == DATA_DATE) {
+				esc_value = format_date (values[0]);
+
+				if (!esc_value) return NULL;
+
+			} else {
+
+				char *my_val = tracker_array_to_str (values, length, '|');
+			
+				esc_value = tracker_escape_string (my_val);
+				g_free (my_val);
+
+			}
+
 			char *sql = g_strdup_printf ("update Services set KeyMetadata%d = '%s' where id = %s", key_field, esc_value, id);
 
 			tracker_db_exec_no_reply (db_con, sql);
@@ -3398,6 +3438,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 		}
 
 	}
+
 
 	
 

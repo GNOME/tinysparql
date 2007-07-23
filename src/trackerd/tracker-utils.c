@@ -2127,6 +2127,28 @@ tracker_ignore_file (const char *uri)
 	return FALSE;
 }
 
+char *
+tracker_array_to_str (char **array, int length, char sep)
+{
+	GString *gstr = g_string_new ("");
+	int i;
+
+	for (i=0; i<length; i++) {
+
+		
+
+		if (array[i]) {
+			if (i > 0) g_string_append_c (gstr, sep);
+
+			gstr = g_string_append (gstr, array[i]);
+		} else {
+			break;
+		}
+	}
+
+	return g_string_free (gstr, FALSE);
+
+}
 
 char *
 tracker_get_english_lang_code (void)

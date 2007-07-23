@@ -488,6 +488,7 @@ void		tracker_set_language		(const char *language, gboolean create_stemmer);
 
 gint32		tracker_get_file_mtime 		(const char *uri);
 
+char *		tracker_array_to_str 		(char **array, int length, char sep);
 
 GSList *	tracker_get_service_dirs 	(const char *service);
 void		tracker_add_service_path 	(const char *service, const char *path);

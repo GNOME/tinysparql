@@ -232,6 +232,8 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 	if (res) {
 
+//		tracker_db_log_result (res);
+
 		row_count = tracker_get_row_count (res);
 
 		i = 0;
