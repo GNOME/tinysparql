@@ -292,7 +292,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 
 
 	if (g_hash_table_size (watch_table) >= tracker->watch_limit) {
-		tracker_erro ("ERROR: watch Limit has been exceeded - unable to watch any more directories");
+		tracker_error ("ERROR: watch Limit has been exceeded - unable to watch any more directories");
 		return FALSE;
 	}
 
