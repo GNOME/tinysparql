@@ -7,6 +7,7 @@ src/libtracker-gtk/tracker-metadata-tile.c
 src/libtracker-gtk/tracker-tag-bar.c
 src/libtracker/tracker-search.c
 src/libtracker/tracker-stats.c
+src/libtracker/tracker-status.c
 src/libtracker/tracker-tag.c
 src/trackerd/trackerd.c
 src/tracker-preferences/tracker-preferences.desktop.in.in

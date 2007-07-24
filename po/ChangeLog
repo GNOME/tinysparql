@@ -1,3 +1,8 @@
+2007-07-24  Michael Biebl <mbiebl@gmail.com>
+
+	* POTFILES.in: Add src/libtracker/tracker-status.c.
+	* POTFILES.skip: Add missing line feed at the end of the file.
+
 2007-07-24  Luca Ferretti  <elle.uca@libero.it>
 
 	* it.po: Updated Italian translation.
