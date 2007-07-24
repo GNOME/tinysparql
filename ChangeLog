@@ -1,3 +1,8 @@
+2007-07-24 Michael Biebl <mbiebl at gmail com>
+
+	* Include the deskbar-applet plugin on make dist
+	* Show if deskbar-applet support is enabled in the ./configure summary
+
 2007-07-18 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
 	* Fixed command line tracker-tag

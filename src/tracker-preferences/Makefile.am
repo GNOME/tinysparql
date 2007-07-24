@@ -36,7 +36,7 @@ tracker_preferences_LDADD = $(GLIB_LIBS) \
 			    $(LIBGLADE_LIBS) \
 			    $(NULL)
 
-EXTRA_DIST = $(desktop_in_files) $(pkgdata_DATA)
+EXTRA_DIST = $(pkgdata_DATA)
 
 CLEANFILES = $(desktop_DATA)
 MAINTAINERCLEANFILES = Makefile.in

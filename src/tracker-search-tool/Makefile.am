@@ -45,7 +45,7 @@ desktop_files = $(desktop_in_files:.desktop.in=.desktop)
 desktop_DATA = $(desktop_files)
 icon_DATA = thumbnail_frame.png
 
-EXTRA_DIST = $(desktop_in_files) $(icon_DATA)
+EXTRA_DIST = $(icon_DATA)
 
 CLEANFILES = $(desktop_DATA)
 

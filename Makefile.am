@@ -1,4 +1,4 @@
-SUBDIRS = data src filters thumbnailers docs po
+SUBDIRS = data src filters thumbnailers docs po python
 
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_in_files = trackerd.desktop.in
@@ -13,18 +13,8 @@ if ENABLE_LIBTRACKERGTK
 pkgconfig_DATA += libtracker-gtk.pc
 endif
 
-if USING_DESKBAR_APPLET
-handlerdir = $(DESKBAR_HANDLER_DIR)
-handler_DATA =  python/deskbar-handler/tracker-handler.py 
-else
-handlerdir =
-handler_DATA =
-endif
-
-
 EXTRA_DIST = \
 	$(autostart_in_files) \
-	$(handler_DATA) \
 	rdf-query-examples/80s-music.rdf \
 	rdf-query-examples/90s-music.rdf \
 	rdf-query-examples/all-documents.rdf \

@@ -717,6 +717,8 @@ AC_CONFIG_FILES([
 	src/tracker-preferences/tracker-preferences.desktop.in	
 	src/xdgmime/Makefile
 	po/Makefile.in
+	python/Makefile
+	python/deskbar-handler/Makefile
 ])
 
 AC_CONFIG_HEADERS([config.h])
@@ -736,6 +738,7 @@ Tracker-$VERSION:
 	inotify header location:		$inotify_header
 	ioprio support:				$ioprio_support
 	unac accent stripper support:		$enable_unac
+	deskbar-applet support:			$enable_deskbar_applet
 	build search tool (GNOME):		$have_gnome
 	build preferences ui:			$enable_preferences
 	build libtracker-gtk:			$enable_libtrackergtk
