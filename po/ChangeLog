@@ -1,3 +1,7 @@
+2007-07-25  Jorge Gonzalez <jorgegonz@svn.gnome.org>
+
+        * es.po: Updated Spanish translation
+
 2007-07-24  Michael Biebl <mbiebl@gmail.com>
 
 	* POTFILES.in: Add src/libtracker/tracker-status.c.

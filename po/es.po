@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-07-23 00:37+0100\n"
-"PO-Revision-Date: 2007-07-23 15:00+0200\n"
+"POT-Creation-Date: 2007-07-24 03:28+0100\n"
+"PO-Revision-Date: 2007-07-25 16:25+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -203,8 +203,8 @@ msgid "%.1f GB"
 msgstr "%.1f GiB"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:907
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:930
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:950
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:965
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:985
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -290,11 +290,11 @@ msgstr "%s: no hay conexión al demonio de tracker"
 msgid "Ensure \"trackerd\" is running before launch this command."
 msgstr "Asegúrese de que «trackerd» esté funcionando antes de lanzar este comando."
 
-#: ../src/libtracker/tracker-search.c:160
+#: ../src/libtracker/tracker-search.c:147
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Servicio no reconocido, buscando en Otros archivos...\n"
 
-#: ../src/libtracker/tracker-search.c:177 ../src/libtracker/tracker-tag.c:176
+#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:176
 #: ../src/libtracker/tracker-tag.c:185 ../src/libtracker/tracker-tag.c:194
 #: ../src/libtracker/tracker-tag.c:229 ../src/libtracker/tracker-tag.c:279
 #, c-format
@@ -302,7 +302,7 @@ msgid "%s: internal tracker error: %s"
 msgstr "%s: error interno de tracker: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:186 ../src/libtracker/tracker-tag.c:264
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:264
 msgid "No results found matching your query"
 msgstr "No se encontraron resultados coincidentes con su consulta"
 
@@ -364,7 +364,7 @@ msgstr ""
 msgid "%s: invalid arguments"
 msgstr "%s: argumentos inválidos"
 
-#: ../src/libtracker/tracker-tag.c:145
+#: ../src/libtracker/tracker-tag.c:144
 #, c-format
 msgid "%s: file %s not found"
 msgstr "%s: archivo %s no encontrado"
@@ -384,7 +384,7 @@ msgstr "Directorio a incluir en el indexado"
 
 #: ../src/trackerd/trackerd.c:150
 msgid "Directory to crawl for indexing at start up only"
-msgstr "Directorio en el que arrastrar para indexar sólo al inicio"
+msgstr "Directorio que arañar para indexar sólo al inicio"
 
 #: ../src/trackerd/trackerd.c:151
 msgid "Disable any indexing or watching taking place"
@@ -435,15 +435,15 @@ msgstr "Forzar un reindexamiento de todo el contenido"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2036
+#: ../src/trackerd/trackerd.c:2060
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:2037 ../src/trackerd/trackerd.c:2038
+#: ../src/trackerd/trackerd.c:2061 ../src/trackerd/trackerd.c:2062
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:2046
+#: ../src/trackerd/trackerd.c:2070
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -458,164 +458,200 @@ msgid "Indexing Preferences"
 msgstr "Preferencias del indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
-msgid "<b>File Metadata</b>"
-msgstr "<b>Metadatos del archivo</b>"
+msgid "<b>Crawled Directories</b>"
+msgstr "<b>Directorios arañados</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:2
-msgid "<b>General</b>"
-msgstr "<b>General</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:3
 msgid "<b>Ignored File Patterns</b>"
 msgstr "<b>Patrones de archivo ignorados</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+#: ../src/tracker-preferences/tracker-preferences.glade.h:3
 msgid "<b>Ignored Paths</b>"
 msgstr "<b>Rutas ignoradas</b>"
 
+#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+msgid "<b>Indexing Limits (per file)</b>"
+msgstr "<b>Límites de indexado (por archivo)</b>"
+
 #: ../src/tracker-preferences/tracker-preferences.glade.h:5
-msgid "<b>Indexing Mode</b>"
-msgstr "<b>Modo de indexado</b>"
+msgid "<b>Indexing options</b>"
+msgstr "<b>Opciones de indexado</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:6
+msgid "<b>Indexing</b>"
+msgstr "<b>Indexado</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Mailboxes</b>"
 msgstr "<b>Buzones de correo</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
-msgid "<b>Polling</b>"
-msgstr "<b>Encuestado</b>"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:8
+msgid "<b>Resource Usage</b>"
+msgstr "<b>Uso de recursos</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:9
 msgid "<b>Services</b>"
 msgstr "<b>Servicios</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Startup</b>"
 msgstr "<b>Inicio</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+msgid "<b>Stemming</b>"
+msgstr "<b>Ramificaciones</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
 msgstr "<b>Aceleración</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+msgid "<b>Watch Directories</b>"
+msgstr "<b>Directorios vigilados</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Additional mbox mailboxes to index:"
 msgstr "Buzones de correo adicionales a indexar:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
-msgid "Additional paths to index:"
-msgstr "Rutas adicionales a indexar:"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+msgid "Additional paths to index and watch:"
+msgstr "Rutas adicionales a indexar y vigilar:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+msgid "Additional paths to index on startup (but not watch for updates)"
+msgstr "Rutas adicionales a indexar al inicio (pero no vigilar)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Enable Evolution email indexing"
 msgstr "Activar el indexado de correos-e de Evolution"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Enable Index Throttling"
-msgstr "Habilitar el indexado acelerado"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#: ../src/tracker-preferences/tracker-preferences.glade.h:18
 msgid "Enable KMail email indexing"
 msgstr "Activar el indexado de correos-e de Kmail"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+#: ../src/tracker-preferences/tracker-preferences.glade.h:19
 msgid "Enable Thunderbird email indexing"
 msgstr "Activar el indexado de correos de Thunderbird"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+#: ../src/tracker-preferences/tracker-preferences.glade.h:20
 msgid "Enable _Indexing"
 msgstr "Activar _indexado"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+msgid "Enable _Watching"
+msgstr "Activar _vigilancia"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:22
+msgid "Faster"
+msgstr "Más rápido"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:23
 msgid "File patterns to ignore during indexing:"
 msgstr "Patrones de archivo a ignorar durante el indexado:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+#: ../src/tracker-preferences/tracker-preferences.glade.h:24
 msgid "Generate _thumbnails"
 msgstr "Generar _miniaturas"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:20
-msgid "I_ndexing"
-msgstr "I_ndexado"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+msgid "Index _delay: "
+msgstr "_Retardo de indexado: "
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#: ../src/tracker-preferences/tracker-preferences.glade.h:26
 msgid "Index _file contents"
 msgstr "Indexar el contenido de los _archivos"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
-msgid "Index my home _directory"
-msgstr "Indexar mi ca_rpeta personal"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+msgid "Index and watch my home _directory"
+msgstr "Indexar y vigilar mi ca_rpeta personal"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
-msgid "Initial Sleep:          "
-msgstr "Latencia inicial:     "
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+msgid "Maximum _amount of text to Index (KB)"
+msgstr "Máxima _cantidad de texto a indexar (KiB)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
-msgid "Normal Mode"
-msgstr "Modo normal"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Maximum number of unique _words to index"
+msgstr "Máximo número de _palabras únicas a indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "P_erformance"
 msgstr "R_endimiento"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Path roots to be ignored during indexing:"
 msgstr "Rutas a ser ignoradas durante el indexado:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
-msgid "Polling Interval: "
-msgstr "Intervalo de encuestado: "
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
-msgid "Reduced Memory Mode"
-msgstr "Modo de memoria reducido"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Seconds"
 msgstr "Segundos"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "Start _indexing service automatically"
-msgstr "Iniciar el servicio de _indexado automáticamente"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
-msgid "Start _monitoring service automatically"
-msgstr "Iniciar el servicio de _monitorización automáticamente"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Throttling Level: "
-msgstr "Nivel de aceleración:"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:33
+msgid "Slower"
+msgstr "Más lento"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Tracker Preferences"
 msgstr "Preferencias de Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
-msgid "Turbo Mode"
-msgstr "Modo turbo"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:35
+msgid "_Emails"
+msgstr "_Correos-e"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+msgid "_Files"
+msgstr "_Archivos"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "_General"
 msgstr "_General"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "_Privacy"
-msgstr "_Privacidad"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "gtk-add"
-msgstr "gtk-add"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:38
-msgid "gtk-close"
-msgstr "gtk-close"
+msgid "_Ignored Files"
+msgstr "Archivos _ignorados"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:39
-msgid "gtk-help"
-msgstr "gtk-help"
+msgid "_Indexing speed:"
+msgstr "Velocidad de _indexado:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:40
-msgid "gtk-remove"
-msgstr "gtk-remove"
+msgid "_Language:"
+msgstr "_Idioma:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+msgid "_Minimize memory usage (slower indexing)"
+msgstr "_Minimizar el uso de memoria (indexado más lento)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+msgid "_Use additonal memory for faster indexing"
+msgstr "_Usar memoria adicional para indexar más rápidamente"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+msgid ""
+"danish\n"
+"dutch\n"
+"english\n"
+"finnish\n"
+"french\n"
+"german\n"
+"italian\n"
+"norwegian\n"
+"portugese\n"
+"russian\n"
+"spanish\n"
+"swedish"
+msgstr ""
+"alemán\n"
+"danés\n"
+"español\n"
+"finlandés\n"
+"francés\n"
+"holandés\n"
+"inglés\n"
+"italiano\n"
+"noruego\n"
+"portugués\n"
+"ruso\n"
+"sueco"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:65
 msgid "Search from a specific service"
@@ -700,7 +736,7 @@ msgid "Tracker Search Tool-"
 msgstr "Herramienta de búsqueda Tracker-"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:888
-#: ../src/tracker-search-tool/tracker-search-tool.c:2346
+#: ../src/tracker-search-tool/tracker-search-tool.c:2371
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Herramienta de búsqueda Tracker"
@@ -745,20 +781,24 @@ msgid_plural "%d hits"
 msgstr[0] "%d elemento"
 msgstr[1] "%d impactos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2120
+#: ../src/tracker-search-tool/tracker-search-tool.c:1841
+msgid "The following error has occured :"
+msgstr "Ocurrió el siguiente error:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2145
 msgid "_Search:"
 msgstr "_Buscar:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2140
-#: ../src/tracker-search-tool/tracker-search-tool.c:2141
+#: ../src/tracker-search-tool/tracker-search-tool.c:2165
+#: ../src/tracker-search-tool/tracker-search-tool.c:2166
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Introduzca un término de búsqueda con varias palabras separadas por espacios."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2141
+#: ../src/tracker-search-tool/tracker-search-tool.c:2166
 msgid "search_entry"
 msgstr "entrada_búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2189
+#: ../src/tracker-search-tool/tracker-search-tool.c:2214
 msgid "Click to perform a search."
 msgstr "Pulse para realizar una búsqueda."
 
