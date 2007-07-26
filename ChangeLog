@@ -1,3 +1,12 @@
+
+2007-07-25 Jamie McCracken <jamiemcc at gnome org>
+
+	* Based on patch by Marcus Fritzsch <fritschy@googlemail.com>
+	* Fixed crawled directory indexing when they are not a subset of watched directories
+	* Removed forced indexing of home dir when no watch dirs specified (home is default in cfg file)
+
+
+
 2007-07-24 Michael Biebl <mbiebl at gmail com>
 
 	* Include the deskbar-applet plugin on make dist

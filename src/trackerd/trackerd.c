@@ -346,7 +346,7 @@ schedule_dir_check (const char *uri, DBConnection *db_con)
 
 
 static void
-add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_con)
+add_dirs_to_list (GSList *dir_list, DBConnection *db_con)
 {
 
 
@@ -357,6 +357,48 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 	g_return_if_fail (dir_list != NULL);
 
 
+
+	/* add sub directories breadth first recursively to avoid running out of file handles */
+	while (g_slist_length (dir_list) > 0) {
+		GSList *file_list;
+
+		file_list = NULL;
+
+		GSList *tmp;
+
+		for (tmp = dir_list; tmp; tmp = tmp->next) {
+			char *str;
+
+			str = (char *) tmp->data;
+
+			if (str && !tracker_file_is_no_watched (str)) {
+				tracker->dir_list = g_slist_prepend (tracker->dir_list, g_strdup (str));
+			}
+
+		}
+
+		g_slist_foreach (dir_list, (GFunc) tracker_get_dirs, &file_list);
+		g_slist_foreach (dir_list, (GFunc) g_free, NULL);
+		g_slist_free (dir_list);
+
+		dir_list = file_list;
+	}
+}
+
+
+
+
+
+static void
+add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_con)
+{
+
+
+	if (!tracker->is_running) {
+		return;
+	}
+
+	g_return_if_fail (dir_list != NULL);
 
 	/* add sub directories breadth first recursively to avoid running out of file handles */
 	while (g_slist_length (dir_list) > 0) {
@@ -568,6 +610,18 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 		schedule_dir_check (uri, db_con);
 	}
 }
+
+
+static inline void
+queue_dir (const char *uri)
+{
+	FileInfo *info;
+
+	info = tracker_create_file_info (uri, TRACKER_ACTION_DIRECTORY_CHECK, 0, 0);
+
+	g_async_queue_push (tracker->file_process_queue, info);
+}
+
 
 static inline void
 queue_file (const char *uri)
@@ -966,30 +1020,6 @@ process_files_thread (void)
 									g_usleep (tracker->initial_sleep * 1000 * 1000);
 								}
 
-								/* delete all stuff in the no watch dirs */
-
-								if (tracker->no_watch_directory_list) {
-
-									GSList *l;
-
-									tracker_log ("Deleting entities in no watch directories...");
-
-									for (l = tracker->no_watch_directory_list; l; l=l->next) {
-
-										if (l->data) {
-											char *no_watch_uri = (char *) l->data;		
-		
-											guint32 f_id = tracker_db_get_file_id (db_con, no_watch_uri);
-
-											if (f_id > 0) {
-												tracker_db_delete_directory (db_con, db_con->blob, f_id, no_watch_uri);
-											}
-		
-										}
-									}
-								}
-
-
 								gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
 								purple = g_build_filename (g_get_home_dir(), ".purple", "logs", NULL);
 
@@ -1056,6 +1086,35 @@ process_files_thread (void)
 								tracker_log ("starting file indexing...");
 								tracker->dir_list = NULL;
 
+
+								/* delete all stuff in the no watch dirs */
+
+								if (tracker->no_watch_directory_list) {
+
+									GSList *l;
+
+									tracker_log ("Deleting entities in no watch directories...");
+
+									for (l = tracker->no_watch_directory_list; l; l=l->next) {
+
+										if (l->data) {
+											char *no_watch_uri = (char *) l->data;		
+		
+											guint32 f_id = tracker_db_get_file_id (db_con, no_watch_uri);
+
+											if (f_id > 0) {
+												tracker_db_delete_directory (db_con, db_con->blob, f_id, no_watch_uri);
+											}
+		
+										}
+									}
+								}
+
+								if (!tracker->watch_directory_roots_list) {
+									break;
+								}
+
+								/* index watched dirs first */
 								g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
 
 								g_slist_foreach (tracker->dir_list, (GFunc) schedule_dir_check, db_con);
@@ -1073,8 +1132,42 @@ process_files_thread (void)
 									g_slist_free (tracker->dir_list);
 									tracker->dir_list = NULL;
 								}
+				
+
 							}
 							break;
+
+						case INDEX_CRAWL_FILES: {
+
+								tracker_log ("indexing directories to be crawled...");
+								tracker->dir_list = NULL;
+
+								if (!tracker->crawl_directory_list) {
+									break;
+								}
+
+								add_dirs_to_list (tracker->crawl_directory_list, db_con);
+
+								g_slist_foreach (tracker->dir_list, (GFunc) schedule_dir_check, db_con);
+
+								if (tracker->dir_list) {
+									g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+									g_slist_free (tracker->dir_list);
+									tracker->dir_list = NULL;
+								}
+
+								g_slist_foreach (tracker->crawl_directory_list, (GFunc) schedule_dir_check, db_con);
+
+								if (tracker->dir_list) {
+									g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
+									g_slist_free (tracker->dir_list);
+									tracker->dir_list = NULL;
+								}
+
+
+							}
+							break;
+
 
 						case INDEX_EXTERNAL:
 							break;
@@ -1933,9 +2026,10 @@ sanity_check_option_values ()
 		tracker_set_language (tracker->language, TRUE);
 	}
 
-	if (!tracker->watch_directory_roots_list) {
-		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir()));
-	}
+	/* dont need this as the default is to watch home dir in the cfg file */
+	//if (!tracker->watch_directory_roots_list) {
+	//	tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir()));
+	//}
 
 	if (tracker->throttle > 20) {
 		tracker->throttle = 20;
