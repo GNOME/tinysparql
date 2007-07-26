@@ -1,4 +1,9 @@
 
+2007-07-25 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
+
+	* updated applet to 0.6.0 settings
+	* fixed crasher and made read tags case insensitive for html extractor
+
 2007-07-25 Jamie McCracken <jamiemcc at gnome org>
 
 	* Based on patch by Marcus Fritzsch <fritschy@googlemail.com>

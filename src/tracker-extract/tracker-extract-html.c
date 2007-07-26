@@ -37,11 +37,14 @@ typedef struct {
 gboolean
 has_attribute( const xmlChar ** atts, const char *attr, const char*val )
 {
+        if (atts == NULL || attr == NULL || val == NULL)
+        return FALSE;
+
 	int i;
 	for ( i = 0; atts[i]; i+=2 )
 	{
-		if ( strcmp((char*)atts[i],attr) == 0 ) {
-			if ( !val || strcmp((char*)atts[i+1],val) == 0 ) {
+		if ( strcasecmp((char*)atts[i],attr) == 0 ) {
+			if ( !val || strcasecmp((char*)atts[i+1],val) == 0 ) {
 				return TRUE;
 			}
 		}
@@ -55,7 +58,7 @@ lookup_attribute( const xmlChar **atts, const char *attr )
 	int i;
 	for ( i = 0; atts[i]; i+=2 )
 	{
-		if ( strcmp((char*)atts[i],attr) == 0 ) {
+		if ( strcasecmp((char*)atts[i],attr) == 0 ) {
 			return atts[i+1];
 		}
 	}
@@ -67,7 +70,7 @@ void
 startElement (void * info, const xmlChar * name, const xmlChar ** atts)
 {
 	/* Look for RDFa triple describing the license */
-	if ( strcmp((char*)name,"a") == 0 ) {
+	if ( strcasecmp((char*)name,"a") == 0 ) {
 		/* This tag is a license.  Ignore, however, if it is referring to another document */
 		if ( has_attribute(atts,"rel","license") && !has_attribute(atts,"about",NULL) ) {
 			const xmlChar *href = lookup_attribute(atts,"href");
@@ -76,9 +79,9 @@ startElement (void * info, const xmlChar * name, const xmlChar ** atts)
 				                     g_strdup( (char*)href ));
 			}
 		}
-	} else if ( strcmp((char*)name,"title") == 0 ) {
+	} else if ( strcasecmp((char*)name,"title") == 0 ) {
 		((HTMLParseInfo *)info)->current = READ_TITLE;
-	} else if ( strcmp((char*)name,"meta") == 0 ) {
+	} else if ( strcasecmp((char*)name,"meta") == 0 ) {
 		if ( has_attribute(atts,"name","Author") ) {
 			const xmlChar *author = lookup_attribute(atts,"content");
 			if ( author ) {
