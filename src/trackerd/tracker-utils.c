@@ -1109,6 +1109,10 @@ tracker_file_is_crawled (const char* uri)
 		return FALSE;
 	}
 
+	if (!uri || uri[0] != '/') {
+		return FALSE;
+	}
+
 	for (lst = tracker->crawl_directory_list; lst; lst = lst->next) {
 
 		char *compare_uri = lst->data;

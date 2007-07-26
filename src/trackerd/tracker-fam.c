@@ -199,7 +199,7 @@ fam_callback (GIOChannel *source,
 				continue;
 			}
 
-			if (tracker_ignore_file (file_utf8_uri) ||  tracker_file_is_crawled (file_utf8_uri) || tracker_file_is_no_watched (file_utf8_uri)) {
+			if (file_utf8_uri[0] != '/' || tracker_ignore_file (file_utf8_uri) ||  tracker_file_is_crawled (file_utf8_uri) || tracker_file_is_no_watched (file_utf8_uri)) {
 				g_free (file_utf8_uri);
 				continue;
 

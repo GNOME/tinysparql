@@ -306,8 +306,8 @@ process_inotify_events (void)
 {
 	while (g_queue_get_length (inotify_queue) > 0) {
 		TrackerChangeAction  action_type;
-		char		     *str, *filename, *monitor_name, *str_wd;
-		char		     *file_utf8_uri, *dir_utf8_uri;
+		char		     *str = NULL, *filename = NULL, *monitor_name = NULL, *str_wd;
+		char		     *file_utf8_uri = NULL, *dir_utf8_uri = NULL;
 		guint		     cookie;
 		char		     ***res;
 
@@ -397,8 +397,9 @@ process_inotify_events (void)
 			str = g_build_filename(dir_utf8_uri, file_utf8_uri, NULL);
 		}
 
+		
 
-		if (!tracker_ignore_file (str) && !tracker_file_is_crawled (str) && !tracker_file_is_no_watched (str)) {
+		if (str && str[0] == '/' && !tracker_ignore_file (str) && !tracker_file_is_crawled (str) && !tracker_file_is_no_watched (str)) {
 			process_event (str, tracker_is_directory (str), action_type, cookie);
 		}
 
