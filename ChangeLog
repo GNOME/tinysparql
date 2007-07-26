@@ -1,8 +1,13 @@
+2007-07-26 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
+	* Fixed printing of date for audio files in TST
+
+	
 2007-07-25 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 
 	* updated applet to 0.6.0 settings
 	* fixed crasher and made read tags case insensitive for html extractor
+
 
 2007-07-25 Jamie McCracken <jamiemcc at gnome org>
 
@@ -11,11 +16,11 @@
 	* Removed forced indexing of home dir when no watch dirs specified (home is default in cfg file)
 
 
-
 2007-07-24 Michael Biebl <mbiebl at gmail com>
 
 	* Include the deskbar-applet plugin on make dist
 	* Show if deskbar-applet support is enabled in the ./configure summary
+
 
 2007-07-18 Patch from Jerry Tan <Jerry.Tan@Sun.COM>
 

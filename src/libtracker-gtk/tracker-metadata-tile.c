@@ -221,6 +221,7 @@ static gboolean tracker_metadata_tile_expose_event(GtkWidget *widget, GdkEventEx
 static void tracker_metadata_tile_show (TrackerMetadataTile *tile);
 static void _property_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _date_to_label (GtkWidget *label, const char *prop, const char *string);
+static void _year_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _size_to_label (GtkWidget *label, const char *prop, const char *string);
 static void _dimensions_to_label (GtkWidget *label, const char *width, const char *height, const char *string);
 static void _seconds_to_label (GtkWidget *label, const char *prop, const char *string);
@@ -636,7 +637,7 @@ _tile_tracker_populate_audio (char **array, GError *error, TrackerMetadataTile *
 	_seconds_to_label ( priv->info1, array[AUDIO_DURATION] , _("Duration : <b>%s</b>"));
 	_property_to_label ( priv->info2, array[AUDIO_GENRE] , _("Genre : <b>%s</b>"));
 	_bitrate_to_label ( priv->info3, array[AUDIO_BITRATE] , _("Bitrate : <b>%s Kbs</b>"));
-	_date_to_label ( priv->info4, array[AUDIO_RELEASEDATE] , _("Year : <b>%s</b>"));
+	_year_to_label ( priv->info4, array[AUDIO_RELEASEDATE] , _("Year : <b>%s</b>"));
 	_size_to_label ( priv->info5, array[AUDIO_SIZE] , _("Size : <b>%s</b>"));
 	_property_to_label ( priv->info6, array[AUDIO_CODEC] , _("Codec : <b>%s</b>"));
 		
@@ -899,7 +900,7 @@ _int_to_label (GtkWidget *label, const char *prop, const char *string)
 	char *format;
 	
 	size = atol (prop);
-	format = g_strdup_printf ("%d", size);
+	format = g_strdup_printf ("%ld", size);
 	
 	if (size) {
 		temp = g_strdup_printf (string, format);
@@ -940,25 +941,55 @@ date_to_str (gint32 date_time)
 
 
 /* Converts ISO date to something human readable */
+static gboolean
+get_time_from_iso (const char *iso, GDate *val)
+{
+	g_return_val_if_fail (val, FALSE);
+
+	time_t my_time = atoi (iso);
+
+	if (my_time != 0) { 
+		g_date_set_time_t (val, my_time);
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
 static void 
 _date_to_label (GtkWidget *label, const char *iso, const char *string)
 {
 	GDate val;
-	char *temp = NULL, *date;
-	time_t my_time;
+	char *temp = NULL;
 
 	if (string) {
-		my_time = atoi (iso);
-
-		if (my_time != 0) { 
-
-			g_date_set_time_t (&val, my_time);
+		if (get_time_from_iso (iso, &val)) {
 			gchar buf[256];
-			g_date_strftime(buf,256,"%a %d %b %Y", &val);
+			g_date_strftime (buf, 256, "%a %d %b %Y", &val);
         	        temp = g_strdup_printf (string, buf);
+		}
+	}
 
-		}	
+	if (!temp) {
+		temp = g_strdup_printf (string, _("Unknown"));
+	}
 
+	gtk_label_set_markup (GTK_LABEL (label), temp);
+	g_free (temp);
+}
+
+static void
+_year_to_label (GtkWidget *label, const char *iso, const char *string)
+{
+	GDate val;
+	char *temp = NULL;
+
+	if (string) {
+		if (get_time_from_iso (iso, &val)) {
+			gchar buf[32];
+			g_date_strftime (buf, 32, "%Y", &val);
+        	        temp = g_strdup_printf (string, buf);
+		}
 	}
 
 	if (!temp) {
