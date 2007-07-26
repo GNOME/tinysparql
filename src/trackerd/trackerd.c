@@ -346,7 +346,7 @@ schedule_dir_check (const char *uri, DBConnection *db_con)
 
 
 static void
-add_dirs_to_list (GSList *dir_list, DBConnection *db_con)
+add_dirs_to_list (GSList *my_list, DBConnection *db_con)
 {
 
 
@@ -354,9 +354,13 @@ add_dirs_to_list (GSList *dir_list, DBConnection *db_con)
 		return;
 	}
 
-	g_return_if_fail (dir_list != NULL);
+	GSList *dir_list = NULL, *l;
 
-
+	for (l=my_list; l; l=l->next) {
+		if (l->data) {
+			dir_list = g_slist_prepend (dir_list, g_strdup (l->data));
+		}
+	}
 
 	/* add sub directories breadth first recursively to avoid running out of file handles */
 	while (g_slist_length (dir_list) > 0) {
@@ -383,6 +387,8 @@ add_dirs_to_list (GSList *dir_list, DBConnection *db_con)
 
 		dir_list = file_list;
 	}
+
+	
 }
 
 
