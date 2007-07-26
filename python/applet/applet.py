@@ -47,12 +47,12 @@ class TrackerStatusIcon(gtk.StatusIcon):
 		self.menu.popup(None, None, None, button, time)
 
 	def on_preferences(self, data):
-		print 'preferences'
+		os.spawnlpe(os.P_NOWAIT, 'tracker-preferences',os.environ)
 
 	def on_about(self, data):
 		dialog = gtk.AboutDialog()
 		dialog.set_name('MetaTracker')
-		dialog.set_version('0.5.0')
+		dialog.set_version('0.6.0')
 		dialog.set_comments('A desktop indexing and search tool')
 		dialog.set_website('www.freedesktop.org/Tracker')
 		dialog.set_logo(gtk.gdk.pixbuf_new_from_file_at_size('applet.svg', 64, 64))
