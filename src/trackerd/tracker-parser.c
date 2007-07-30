@@ -484,8 +484,10 @@ tracker_parse_text_fast (GHashTable *word_table, const char *txt, int weight)
 	array =  g_strsplit (txt, " ", -1);
 
 	for (tmp = array; *tmp; tmp++) {
-		count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, *tmp));
-		g_hash_table_insert (word_table, g_strdup (*tmp), GINT_TO_POINTER (count + weight));	
+		if (**tmp) {
+			count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, *tmp));
+			g_hash_table_insert (word_table, g_strdup (*tmp), GINT_TO_POINTER (count + weight));	
+		}
 	}
 
 	g_strfreev (array);

@@ -1,3 +1,8 @@
+2007-07-29 Patch from Marcus Fritzsch <fritschy at googlemail com>
+	
+	* Removed small chunk of whitespace from being parsed into indexer
+
+
 2007-07-26 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Fixed printing of date for audio files in TST
