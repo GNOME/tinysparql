@@ -276,6 +276,31 @@ display_dialog_character_set_conversion_error (GtkWidget * window,
 }
 
 static void
+display_error_dialog (GtkWidget * window, GError * error)
+{
+	GtkWidget * dialog;
+
+	dialog = gtk_message_dialog_new (GTK_WINDOW (window),
+				 GTK_DIALOG_DESTROY_WITH_PARENT,
+				 GTK_MESSAGE_ERROR,
+				 GTK_BUTTONS_OK,
+				 _("The following error has occured :"));
+
+	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+					  (error == NULL) ? " " : error->message);
+
+	gtk_window_set_title (GTK_WINDOW (dialog), "Error");
+	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+	gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 14);
+
+	g_signal_connect (G_OBJECT (dialog),
+		  "response",
+		   G_CALLBACK (gtk_widget_destroy), NULL);
+
+	gtk_widget_show (dialog);
+}
+
+static void
 start_animation (GSearchWindow * gsearch, gboolean first_pass)
 {
 	if (first_pass == TRUE) {
@@ -1687,6 +1712,12 @@ get_hit_count (GPtrArray *out_array, GError *error, gpointer user_data)
 
 	GSearchWindow *gsearch = user_data;
 
+	if (error) {
+		display_error_dialog (gsearch->window, error);
+		g_error_free (error);
+		return;
+	}
+
 	if (out_array) {
 		g_ptr_array_foreach (out_array, (GFunc) populate_hit_counts, NULL);
 		g_ptr_array_free (out_array, TRUE);
@@ -1831,34 +1862,10 @@ end_search (GPtrArray *out_array, GError *error, gpointer user_data)
 	stop_animation (gsearch);
 	
 	if (error) {
-
-		GtkWidget * dialog;
-
-		dialog = gtk_message_dialog_new (GTK_WINDOW (gsearch->window),
- 	                                 GTK_DIALOG_DESTROY_WITH_PARENT,
-	                                 GTK_MESSAGE_ERROR,
-	                                 GTK_BUTTONS_OK,
-	                                 _("The following error has occured :"));
-
-
-		gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-	                                          (error == NULL) ? " " : error->message);
-
-		gtk_window_set_title (GTK_WINDOW (dialog), "");
-		gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-		gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 14);
-
-		g_signal_connect (G_OBJECT (dialog),
-	                  "response",
-	                   G_CALLBACK (gtk_widget_destroy), NULL);
-
-		gtk_widget_show (dialog);
-
+		display_error_dialog (gsearch->window, error);
 		g_error_free (error);
-
 		return;
 	}
-
 
 	if (out_array) {
 
