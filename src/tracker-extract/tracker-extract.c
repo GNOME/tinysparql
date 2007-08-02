@@ -60,7 +60,7 @@ void tracker_extract_totem	(gchar *, GHashTable *);
 void tracker_extract_oasis	(gchar *, GHashTable *);
 void tracker_extract_ps		(gchar *, GHashTable *);
 #ifdef HAVE_LIBXML2
-void tracker_extract_html		(gchar *, GHashTable *);
+void tracker_extract_html       (gchar *, GHashTable *);
 #endif
 #ifdef HAVE_POPPLER
 void tracker_extract_pdf	(gchar *, GHashTable *);
@@ -98,8 +98,8 @@ MimeToExtractor extractors[] = {
  	{ "application/vnd.oasis.opendocument.*",	tracker_extract_oasis		},
  	{ "application/postscript",			tracker_extract_ps		},
 #ifdef HAVE_LIBXML2
- 	{ "text/html",							tracker_extract_html	},
- 	{ "application/xhtml+xml",	tracker_extract_html	},
+ 	{ "text/html",                                  tracker_extract_html            },
+ 	{ "application/xhtml+xml",                      tracker_extract_html            },
 #endif
 #ifdef HAVE_POPPLER
  	{ "application/pdf",				tracker_extract_pdf		},
@@ -159,13 +159,20 @@ MimeToExtractor extractors[] = {
 	{ "image/*",					tracker_extract_imagemagick	},
 	{ "",						NULL				}
 };
-  
+
 
 gboolean
+tracker_is_empty_string (const gchar *s)
+{
+        return s == NULL || s[0] == '\0';
+}
+
+
+static gboolean
 set_memory_rlimits (void)
 {
 	struct	rlimit rl;
-	int	fail = 0;
+	gint	fail = 0;
 
 	/* We want to limit the max virtual memory
 	 * most extractors use mmap() so only virtual memory can be effectively limited */
@@ -185,9 +192,11 @@ set_memory_rlimits (void)
 	fail |= setrlimit (RLIMIT_AS, &rl);
 #endif
 
-	if(fail)
+	if (fail) {
 		g_printerr ("Error trying to set memory limit for tracker-extract\n");
-	return ! fail;
+        }
+
+	return !fail;
 }
 
 
@@ -195,7 +204,7 @@ void
 tracker_child_cb (gpointer user_data)
 {
 	struct 	rlimit mem_limit, cpu_limit;
-	int	timeout = GPOINTER_TO_INT (user_data);
+	gint	timeout = GPOINTER_TO_INT (user_data);
 
 	/* set cpu limit */
 	getrlimit (RLIMIT_CPU, &cpu_limit);
@@ -214,29 +223,29 @@ tracker_child_cb (gpointer user_data)
 
 
 gboolean
-tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status)
+tracker_spawn (gchar **argv, gint timeout, gchar **tmp_stdout, gint *exit_status)
 {
-
 	return g_spawn_sync (NULL,
-			  argv,
-			  NULL,
-			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
-			  tracker_child_cb,
-			  GINT_TO_POINTER (timeout),
-			  tmp_stdout,
-			  NULL,
-			  exit_status,
-			  NULL);
-
+                             argv,
+                             NULL,
+                             G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+                             tracker_child_cb,
+                             GINT_TO_POINTER (timeout),
+                             tmp_stdout,
+                             NULL,
+                             exit_status,
+                             NULL);
 }
+
 
 #ifdef HAVE_EXEMPI
 void
-tracker_append_string_to_hash_table( GHashTable *metadata, const gchar *key, const gchar *value, gboolean append )
+tracker_append_string_to_hash_table (GHashTable *metadata, const gchar *key, const gchar *value, gboolean append)
 {
-	char *new_value;
+	gchar *new_value;
+
 	if (append) {
-		char *orig;
+		gchar *orig;
 		if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer)&orig )) {
 			new_value = g_strconcat (orig, " ", value, NULL);
 		} else {
@@ -245,59 +254,63 @@ tracker_append_string_to_hash_table( GHashTable *metadata, const gchar *key, con
 	} else {
 		new_value = g_strdup (value);
 	}
+
 	g_hash_table_insert (metadata, g_strdup(key), new_value);
 }
 
-void tracker_xmp_iter(XmpPtr xmp, XmpIteratorPtr iter, GHashTable *metadata, gboolean append);
-void tracker_xmp_iter_simple(GHashTable *metadata, const char *schema, const char *path, const char *value, gboolean append);
+
+void tracker_xmp_iter (XmpPtr xmp, XmpIteratorPtr iter, GHashTable *metadata, gboolean append);
+void tracker_xmp_iter_simple (GHashTable *metadata, const gchar *schema, const gchar *path, const gchar *value, gboolean append);
+
 
 /* We have an array, now recursively iterate over it's children.  Set 'append' to true so that all values of the array are added
    under one entry. */
 void
-tracker_xmp_iter_array(XmpPtr xmp, GHashTable *metadata, const char *schema, const char *path)
+tracker_xmp_iter_array (XmpPtr xmp, GHashTable *metadata, const gchar *schema, const gchar *path)
 {
 		XmpIteratorPtr iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
 		tracker_xmp_iter (xmp, iter, metadata, TRUE);
 		xmp_iterator_free (iter);
 }
 
+
 /* We have an array, now recursively iterate over it's children.  Set 'append' to false so that only one item is used. */
 void
-tracker_xmp_iter_alt_text(XmpPtr xmp, GHashTable *metadata, const char *schema, const char *path)
+tracker_xmp_iter_alt_text (XmpPtr xmp, GHashTable *metadata, const gchar *schema, const gchar *path)
 {
 		XmpIteratorPtr iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
 		tracker_xmp_iter (xmp, iter, metadata, FALSE);
 		xmp_iterator_free (iter);
 }
 
+
 /* We have a simple element, but need to iterate over the qualifiers */
 void
-tracker_xmp_iter_simple_qual(XmpPtr xmp, GHashTable *metadata,
-   const char *schema, const char *path, const char *value, gboolean append)
+tracker_xmp_iter_simple_qual (XmpPtr xmp, GHashTable *metadata,
+                              const gchar *schema, const gchar *path, const gchar *value, gboolean append)
 {
 	XmpIteratorPtr iter = xmp_iterator_new(xmp, schema, path, XMP_ITER_JUSTCHILDREN | XMP_ITER_JUSTLEAFNAME);
 
 	XmpStringPtr the_path = xmp_string_new ();
 	XmpStringPtr the_prop = xmp_string_new ();
 
-	char *locale = setlocale (LC_ALL, NULL);
-	char *sep = strchr (locale,'.');
+	gchar *locale = setlocale (LC_ALL, NULL);
+	gchar *sep = strchr (locale,'.');
 	if (sep) {
-		locale[sep-locale] = '\0';
+		locale[sep - locale] = '\0';
 	}
-	sep = strchr(locale,'_');
+	sep = strchr (locale, '_');
 	if (sep) {
-		locale[sep-locale] = '-';
+		locale[sep - locale] = '-';
 	}
 
 	gboolean ignore_element = FALSE;
 
-	while(xmp_iterator_next (iter, NULL, the_path, the_prop, NULL))
-	{
-		const char *qual_path = xmp_string_cstr (the_path);
-		const char *qual_value = xmp_string_cstr (the_prop);
+	while (xmp_iterator_next (iter, NULL, the_path, the_prop, NULL)) {
+		const gchar *qual_path = xmp_string_cstr (the_path);
+		const gchar *qual_value = xmp_string_cstr (the_prop);
 
-		if (strcmp(qual_path,"xml:lang") == 0) {
+		if (strcmp (qual_path, "xml:lang") == 0) {
 			/* is this a language we should ignore? */
 			if (strcmp (qual_value, "x-default") != 0 && strcmp (qual_value, "x-repair") != 0 && strcmp (qual_value, locale) != 0) {
 				ignore_element = TRUE;
@@ -316,13 +329,14 @@ tracker_xmp_iter_simple_qual(XmpPtr xmp, GHashTable *metadata,
 	xmp_iterator_free (iter);
 }
 
-/* We have a simple element.  Add any metadata we know about to the hash table  */
+
+/* We have a simple element. Add any metadata we know about to the hash table  */
 void
-tracker_xmp_iter_simple(GHashTable *metadata,
-   const char *schema, const char *path, const char *value, gboolean append)
+tracker_xmp_iter_simple (GHashTable *metadata,
+                         const gchar *schema, const gchar *path, const gchar *value, gboolean append)
 {
-	char *name = g_strdup (strchr (path, ':')+1);
-	const char *index = strrchr (name, '[');
+	gchar *name = g_strdup (strchr (path, ':')+1);
+	const gchar *index = strrchr (name, '[');
 	if (index) {
 		name[index-name] = '\0';
 	}
@@ -354,23 +368,24 @@ tracker_xmp_iter_simple(GHashTable *metadata,
 			tracker_append_string_to_hash_table (metadata, "File:License", value, append);
 		}
 	}
+
 	free(name);
 }
 
+
 /* Iterate over the XMP, dispatching to the appropriate element type (simple, simple w/qualifiers, or an array) handler */
 void
-tracker_xmp_iter(XmpPtr xmp, XmpIteratorPtr iter, GHashTable *metadata, gboolean append)
+tracker_xmp_iter (XmpPtr xmp, XmpIteratorPtr iter, GHashTable *metadata, gboolean append)
 {
 	XmpStringPtr the_schema = xmp_string_new ();
 	XmpStringPtr the_path = xmp_string_new ();
 	XmpStringPtr the_prop = xmp_string_new ();
 
 	uint32_t opt;
-	while(xmp_iterator_next (iter, the_schema, the_path, the_prop, &opt))
-	{
-		const char *schema = xmp_string_cstr (the_schema);
-		const char *path = xmp_string_cstr (the_path);
-		const char *value = xmp_string_cstr (the_prop);
+	while (xmp_iterator_next (iter, the_schema, the_path, the_prop, &opt)) {
+		const gchar *schema = xmp_string_cstr (the_schema);
+		const gchar *path = xmp_string_cstr (the_path);
+		const gchar *value = xmp_string_cstr (the_prop);
 
 		if (XMP_IS_PROP_SIMPLE (opt)) {
 			if (strcmp (path,"") != 0) {
@@ -398,6 +413,7 @@ tracker_xmp_iter(XmpPtr xmp, XmpIteratorPtr iter, GHashTable *metadata, gboolean
 }
 #endif
 
+
 void
 tracker_read_xmp (const gchar *buffer, size_t len, GHashTable *metadata)
 {
@@ -413,18 +429,18 @@ tracker_read_xmp (const gchar *buffer, size_t len, GHashTable *metadata)
 	
 		xmp_free (xmp);
 	}
+
 	xmp_terminate ();
 	#endif
 }
 
+
 static GHashTable *
-tracker_get_file_metadata (const char *uri, char *mime)
+tracker_get_file_metadata (const gchar *uri, gchar *mime)
 {
+	GHashTable      *meta_table;
+	gchar		*uri_in_locale;
 
-	GHashTable 		*meta_table;
-	char			*uri_in_locale;
-
-	
 	if (!uri) {
 		return NULL;
 	}
@@ -493,19 +509,18 @@ get_meta_table_data (gpointer pkey, gpointer pvalue, gpointer user_data)
 }
 
 
-int
-main (int argc, char **argv)
+gint
+main (gint argc, gchar *argv[])
 {
 	GHashTable	*meta;
-	char		*filename;
+	gchar		*filename;
 
-	set_memory_rlimits();
+	set_memory_rlimits ();
 
 	g_set_application_name ("tracker-extract");
 
 	setlocale (LC_ALL, "");
 
-	
 	if ((argc == 1) || (argc > 3)) {
 		g_print ("usage: tracker-extract file [mimetype]\n");
 		return 0;
@@ -519,9 +534,7 @@ main (int argc, char **argv)
 	}
 
 	if (argc == 3) {
-		char *mime;
-
-		mime = g_locale_to_utf8 (argv[2], -1, NULL, NULL, NULL);
+		gchar *mime = g_locale_to_utf8 (argv[2], -1, NULL, NULL, NULL);
 
 		if (!mime) {
 			g_warning ("locale to UTF8 failed for mime!");

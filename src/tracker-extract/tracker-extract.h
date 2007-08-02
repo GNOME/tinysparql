@@ -22,6 +22,8 @@
 
 #include <glib.h>
 
+gboolean        tracker_is_empty_string (const gchar *s);
+
 gboolean	tracker_spawn (char **argv, int timeout, char **tmp_stdout, int *exit_status);
 
 void 		tracker_read_xmp (gchar *buffer, size_t len, GHashTable *metadata);

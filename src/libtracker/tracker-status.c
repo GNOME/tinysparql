@@ -28,10 +28,9 @@
 #include "../libtracker/tracker.h" 
 
 
-int 
-main (int argc, char **argv) 
+gint
+main (gint argc, gchar *argv[])
 {
-	
 	GError *error = NULL;
 	TrackerClient *client = NULL;
 
@@ -40,7 +39,6 @@ main (int argc, char **argv)
         bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
         bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
         textdomain (GETTEXT_PACKAGE);
-
 
 	client =  tracker_connect (FALSE);
 
@@ -52,9 +50,9 @@ main (int argc, char **argv)
                 return 1;
         }
 
-        char* status = tracker_get_status (client,&error);
+        gchar* status = tracker_get_status (client, &error);
 
-        g_print ("tracker daemon's status  is %s.\n",status); 
+        g_print ("Tracker daemon's status is %s.\n", status);
 
 	tracker_disconnect (client);
 

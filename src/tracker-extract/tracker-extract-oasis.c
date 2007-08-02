@@ -57,9 +57,9 @@ static void text_handler (GMarkupParseContext *context,
                           gpointer user_data,
                           GError **error);
 
+
 void tracker_extract_oasis (gchar *filename, GHashTable *metadata)
 {
-
 	gchar         *argv[5];
 	gchar         *xml;
 	ODTParseInfo   info = { metadata, -1 };
@@ -92,8 +92,8 @@ void tracker_extract_oasis (gchar *filename, GHashTable *metadata)
 	g_free (argv[2]);
 	g_free (argv[1]);
 	g_free (argv[0]);
-
 }
+
 
 void start_element_handler (GMarkupParseContext *context,
                             const gchar *element_name,
@@ -102,46 +102,50 @@ void start_element_handler (GMarkupParseContext *context,
                             gpointer user_data,
                             GError **error)
 {
-	if(strcmp(element_name, "dc:title") == 0) {
-		((ODTParseInfo *)user_data)->current = READ_TITLE;
+        ODTParseInfo *data = user_data;
+
+	if (strcmp (element_name, "dc:title") == 0) {
+		data->current = READ_TITLE;
 	}
-	else if(strcmp(element_name, "dc:subject") == 0) {
-		((ODTParseInfo *)user_data)->current = READ_SUBJECT;
+	else if (strcmp (element_name, "dc:subject") == 0) {
+		data->current = READ_SUBJECT;
 	}
-	else if(strcmp(element_name, "dc:creator") == 0) {
-		((ODTParseInfo *)user_data)->current = READ_AUTHOR;
+	else if (strcmp (element_name, "dc:creator") == 0) {
+		data->current = READ_AUTHOR;
 	}
-	else if(strcmp(element_name, "meta:keyword") == 0) {
-		((ODTParseInfo *)user_data)->current = READ_KEYWORDS;
+	else if (strcmp (element_name, "meta:keyword") == 0) {
+		data->current = READ_KEYWORDS;
 	}
-	else if(strcmp(element_name, "dc:description") == 0) {
-		((ODTParseInfo *)user_data)->current = READ_COMMENTS;
+	else if (strcmp (element_name, "dc:description") == 0) {
+		data->current = READ_COMMENTS;
 	}
-	else if(strcmp(element_name, "meta:document-statistic") == 0) {
-		GHashTable *metadata = ((ODTParseInfo *)user_data)->metadata;
+	else if (strcmp (element_name, "meta:document-statistic") == 0) {
+		GHashTable *metadata = data->metadata;
 		const gchar **a, **v;
-		for(a=attribute_names,v=attribute_values; *a; ++a,++v) {
+
+		for(a = attribute_names, v = attribute_values; *a; ++a, ++v) {
 			if (strcmp (*a, "meta:word-count") == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup("Doc:WordCount"), g_strdup (*v));
+					g_strdup ("Doc:WordCount"), g_strdup (*v));
 			}
 			else if (strcmp (*a, "meta:page-count") == 0) {
 				g_hash_table_insert (metadata,
-					g_strdup("Doc:PageCount"), g_strdup (*v));
+					g_strdup ("Doc:PageCount"), g_strdup (*v));
 			}
 		}
-		((ODTParseInfo *)user_data)->current = READ_STATS;
+		data->current = READ_STATS;
 	}
-	else if(strcmp(element_name, "meta:creation-date") == 0) {
-		((ODTParseInfo *)user_data)->current = READ_CREATED;
+	else if (strcmp (element_name, "meta:creation-date") == 0) {
+		data->current = READ_CREATED;
 	}
-	else if(strcmp(element_name, "meta:generator") == 0) {
-		((ODTParseInfo *)user_data)->current = READ_FILE_OTHER;
+	else if (strcmp (element_name, "meta:generator") == 0) {
+		data->current = READ_FILE_OTHER;
 	}
 	else {
-		((ODTParseInfo *)user_data)->current = -1;
+		data->current = -1;
 	}
 }
+
 
 void end_element_handler (GMarkupParseContext *context,
                           const gchar *element_name,
@@ -151,15 +155,17 @@ void end_element_handler (GMarkupParseContext *context,
 	((ODTParseInfo *)user_data)->current = -1;
 }
 
+
 void text_handler (GMarkupParseContext *context,
                    const gchar *text,
                    gsize text_len,
                    gpointer user_data,
                    GError **error)
 {
-	GHashTable *metadata = ((ODTParseInfo *)user_data)->metadata;
+        ODTParseInfo *data = user_data;
+	GHashTable *metadata = data->metadata;
 
-	switch(((ODTParseInfo *)user_data)->current) {
+	switch(data->current) {
 		case READ_TITLE:
 			g_hash_table_insert (metadata, g_strdup("Doc:Title"), g_strdup (text));
 			break;

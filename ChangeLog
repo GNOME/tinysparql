@@ -1,3 +1,10 @@
+2007-07-29 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Makes tracker-extract to export dates only in ISO-8601 format
+	* Fixed dates for emails
+	* cosmetic changes
+
+
 2007-07-29 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Removed small chunk of whitespace from being parsed into indexer

@@ -29,6 +29,7 @@
 
 #include "tracker-extract.h"
 
+
 void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 {
 	PopplerDocument *document;
@@ -57,17 +58,22 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 		NULL);
 
 	/* metadata property not present in older poppler versions */
-	if(g_object_class_find_property(G_OBJECT_GET_CLASS(document), "metadata"))
+	if (g_object_class_find_property(G_OBJECT_GET_CLASS(document), "metadata")) {
 		g_object_get(document, "metadata", &metadata_xml, NULL);
+        }
 
-	if (title && strlen (title))
+	if (!tracker_is_empty_string (title)) {
 		g_hash_table_insert (metadata, g_strdup ("Doc:Title"), g_strdup (title));
-	if (author && strlen (author))
+        }
+	if (!tracker_is_empty_string (author)) {
 		g_hash_table_insert (metadata, g_strdup ("Doc:Author"), g_strdup (author));
-	if (subject && strlen (subject))
+        }
+	if (!tracker_is_empty_string (subject)) {
 		g_hash_table_insert (metadata, g_strdup ("Doc:Subject"), g_strdup (subject));
-	if (keywords && strlen (keywords))
+        }
+	if (!tracker_is_empty_string (keywords)) {
 		g_hash_table_insert (metadata, g_strdup ("Doc:Keywords"), g_strdup (keywords));
+        }
 
 
 #if 0
@@ -94,5 +100,3 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 #else
 #warning "Not building PDF metadata extractor."
 #endif  /* HAVE_POPPLER */
-
-

@@ -118,6 +118,7 @@ metadata_cb (gpointer key, gpointer value, gpointer user_data)
 	}
 }
 
+
 static void
 doc_metadata_cb (gpointer key, gpointer value, gpointer user_data)
 {
@@ -144,7 +145,6 @@ tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
 	GsfInput	*input;
 	GsfInfile	*infile;
 	GsfInput	*stream;
-	GsfDocMetaData	*md;
 
 	gsf_init ();
 
@@ -165,6 +165,8 @@ tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
 
 	stream = gsf_infile_child_by_name (infile, "\05SummaryInformation");
 	if (stream) {
+                GsfDocMetaData *md;
+
 		md = gsf_doc_meta_data_new ();
 	
 		if (gsf_msole_metadata_read (stream, md)) {
@@ -180,6 +182,8 @@ tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
 
 	stream = gsf_infile_child_by_name (infile, "\05DocumentSummaryInformation");
 	if (stream) {
+                GsfDocMetaData *md;
+
 		md = gsf_doc_meta_data_new ();
 	
 		if (gsf_msole_metadata_read (stream, md)) {
