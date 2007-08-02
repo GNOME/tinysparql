@@ -23,7 +23,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <time.h>
 #include <limits.h>
 #include <glib/gprintf.h>
 #include <glib/gprintf.h>
@@ -331,7 +330,7 @@ tracker_format_date (const char *timestamp)
 		return NULL;
 	}
 
-	/* check for year only dates (EG ID3 music tags might have Auido.ReleaseDate as 4 digit year) */
+	/* check for year only dates (EG ID3 music tags might have Audio.ReleaseDate as 4 digit year) */
 
 	if (len == 4) {
 		if (is_int (timestamp)) {
@@ -680,19 +679,13 @@ tracker_str_to_date (const char *timestamp)
 	struct tm	tm;
 	long		val;
 	time_t		tt;
-	gboolean	has_time_zone;
 
-	has_time_zone = FALSE;
-
-	if (!timestamp) {
-		return -1;
-	}
+        g_return_val_if_fail (timestamp, -1);
 
 	/* we should have a valid iso 8601 date in format YYYY-MM-DDThh:mm:ss with optional TZ*/
+        g_return_val_if_fail (is_valid_8601_datetime (timestamp), -1);
 
-	if (!is_valid_8601_datetime (timestamp)) {
-		return -1;
-	}
+        memset (&tm, 0, sizeof (struct tm));
 
 	val = strtoul (timestamp, (char **)&timestamp, 10);
 
@@ -701,11 +694,9 @@ tracker_str_to_date (const char *timestamp)
 		tm.tm_year = val - 1900;
 		timestamp++;
 		tm.tm_mon = strtoul (timestamp, (char **)&timestamp, 10) -1;
-
 		if (*timestamp++ != '-') {
 			return -1;
 		}
-
 		tm.tm_mday = strtoul (timestamp, (char **)&timestamp, 10);
 	}
 
@@ -722,47 +713,62 @@ tracker_str_to_date (const char *timestamp)
 		timestamp++;
 		tm.tm_min = strtoul (timestamp, (char **)&timestamp, 10);
 		if (*timestamp++ != ':') {
-
 			return -1;
 		}
 		tm.tm_sec = strtoul (timestamp, (char **)&timestamp, 10);
 	}
 
 	tt = mktime (&tm);
+        /* mktime() always assumes that "tm" is in locale time but
+           we want to keep control on time, so we go to UTC */
+        tt -= timezone;
 
 	if (*timestamp == '+' || *timestamp == '-') {
-		int sign, num_length;
+		int sign;
 
-		has_time_zone = TRUE;
+		sign = (*timestamp++ == '+') ? -1 : 1;
 
-		sign = (*timestamp == '+') ? -1 : 1;
+                /* we have format hh:mm or hhmm */
 
-		num_length = (int) timestamp + 1;
+                /* now, we are reading hours */
+                if (timestamp[0] && timestamp[1]) {
+                        if (g_ascii_isdigit (timestamp[0]) && g_ascii_isdigit (timestamp[1])) {
+                                gchar buff[3];
 
-		val = strtoul (timestamp +1, (char **)&timestamp, 10);
+                                buff[0] = timestamp[0];
+                                buff[1] = timestamp[1];
+                                buff[2] = '\0';
 
-		num_length = (int) (timestamp - num_length);
+                                val = strtoul (buff, NULL, 10);
+                                tt += sign * (3600 * val);
+                                timestamp += 2;
+                        }
 
-		if (*timestamp == ':' || *timestamp == '\'') {
-			val = 3600 * val + (60 * strtoul (timestamp + 1, NULL, 10));
-		} else {
-			if (num_length == 4) {
-				val = (3600 * (val / 100)) + (60 * (val % 100));
-			} else if (num_length == 2) {
-				val = 3600 * val;
-			}
-		}
-		tt += sign * val;
+                        if (*timestamp == ':' || *timestamp == '\'') {
+                                timestamp++;
+                        }
+                }
+
+                /* now, we are reading minutes */
+                if (timestamp[0] && timestamp[1]) {
+                        if (g_ascii_isdigit (timestamp[0]) && g_ascii_isdigit (timestamp[1])) {
+                                gchar buff[3];
+
+                                buff[0] = timestamp[0];
+                                buff[1] = timestamp[1];
+                                buff[2] = '\0';
+
+                                val = strtoul (buff, NULL, 10);
+                                tt += sign * (60 * val);
+                                timestamp += 2;
+                        }
+                }
 	} else {
+                /*
 		if (*timestamp == 'Z') {
-			/* no need to do anything if utc */
-			has_time_zone = TRUE;
+			// no need to do anything if already utc
 		}
-	}
-
-	/* make datetime reflect user's timezone if no explicit timezone present */
-	if (!has_time_zone) {
-		tt += timezone;
+                */
 	}
 
 	return tt;
@@ -770,28 +776,21 @@ tracker_str_to_date (const char *timestamp)
 
 
 char *
-tracker_date_to_str (gint32 date_time)
+tracker_date_to_str (time_t date_time)
 {
 	char  		buffer[30];
-	time_t 		time_stamp;
 	struct tm 	loctime;
 	size_t		count;
 
 	memset (buffer, '\0', sizeof (buffer));
 	memset (&loctime, 0, sizeof (struct tm));
 
-	time_stamp = (time_t) date_time;
-
-	localtime_r (&time_stamp, &loctime);
+	localtime_r (&date_time, &loctime);
 
 	/* output is ISO 8160 format : "YYYY-MM-DDThh:mm:ss+zz:zz" */
 	count = strftime (buffer, sizeof (buffer), "%FT%T%z", &loctime);
 
-	if (count > 0) {
-		return g_strdup (buffer);
-	} else {
-		return NULL;
-	}
+        return (count > 0) ? g_strdup (buffer) : NULL;
 }
 
 
@@ -802,14 +801,21 @@ tracker_is_empty_string (const char *s)
 }
 
 
-char *
+gchar *
+tracker_long_to_str (glong i)
+{
+        return g_strdup_printf ("%ld", i);
+}
+
+
+gchar *
 tracker_int_to_str (gint i)
 {
 	return g_strdup_printf ("%d", i);
 }
 
 
-char *
+gchar *
 tracker_uint_to_str (guint i)
 {
 	return g_strdup_printf ("%u", i);
@@ -3423,7 +3429,7 @@ set_memory_rlimits (void)
 void
 tracker_child_cb (gpointer user_data)
 {
-	struct 	rlimit mem_limit, cpu_limit;
+	struct 	rlimit cpu_limit;
 	int	timeout = GPOINTER_TO_INT (user_data);
 
 	/* set cpu limit */

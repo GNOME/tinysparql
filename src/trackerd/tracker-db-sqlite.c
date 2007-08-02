@@ -2919,17 +2919,15 @@ tracker_db_insert_single_embedded_metadata (DBConnection *db_con, const char *se
 }
 
 void
-tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, const char *id, const char *key, char **values, int length, GHashTable *table)
+tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service, const gchar *id, const gchar *key, gchar **values, gint length, GHashTable *table)
 {
-
-	GString 	*str = NULL;
-	int		key_field = 0;
-	int i;
+	GString *str = NULL;
+	gint	key_field = 0;
 
 	if (!service || !id || !key || !values || !values[0]) {
 		return;
 	}
-		
+
 	FieldDef *def = tracker_db_get_field_def (db_con, key);
 
 	if (!def) {
@@ -2944,29 +2942,25 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 		while (values[length] != NULL) {
 			length++;
 		}
-
 	}
-
 
 	if (def->multiple_values && length > 1) {
 		str = g_string_new ("");
 	}
 
-	
-
-	key_field = tracker_metadata_is_key (service, key);
+        key_field = tracker_metadata_is_key (service, key);
 
 	switch (def->type) {
 
-		case DATA_KEYWORD:
-			
-			for (i=0; i<length; i++) {
-
-
-				if (!values[i] || !values[i][0]) continue;
+                case DATA_KEYWORD: {
+                        gint i;
+			for (i = 0; i < length; i++) {
+                                if (!values[i] || !values[i][0]) {
+                                        continue;
+                                }
 
 				if (table) {
-					char *mvalue = tracker_parse_text_to_string (values[i], FALSE, FALSE);
+					gchar *mvalue = tracker_parse_text_to_string (values[i], FALSE, FALSE);
 
 					table = tracker_parse_text_fast (table, mvalue, def->weight);
 
@@ -2974,18 +2968,20 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 				}
 	
 				tracker_exec_proc (db_con, "SetMetadataKeyword", 3, id, def->id, values[i]); 
-
 			}
 
 			break;
+                }
+                case DATA_INDEX: {
+                        gint i;
+			for (i = 0; i < length; i++) {
+                                gchar *mvalue;
 
-		case DATA_INDEX:
-	
-			for (i=0; i<length; i++) {
+                                if (!values[i] || !values[i][0]) {
+                                        continue;
+                                }
 
-				if (!values[i] || !values[i][0]) continue;
-
-				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
+				mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
 
 				if (table) {
 					table = tracker_parse_text_fast (table, mvalue, def->weight);
@@ -2994,74 +2990,74 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]); 
 				
 				g_free (mvalue);
-
 			}
 
 			break;
-
-		case DATA_FULLTEXT:
-
-			for (i=0; i<length; i++) {
-
-
-				if (!values[i] || !values[i][0]) continue;
-
+                }
+                case DATA_FULLTEXT: {
+                        gint i;
+			for (i = 0; i < length; i++) {
+                                if (!values[i] || !values[i][0]) {
+                                        continue;
+                                }
 
 				if (table) {
 					table = tracker_parse_text  (table, values[i], def->weight, def->filtered, def->delimited);
 				}
 	
 				save_full_text (db_con->blob, id, values[i], strlen (values[i]));
-
 			}
 
 			break;
-
-
-		case DATA_DOUBLE:
-
-			for (i=0; i<length; i++) {
-
-				if (!values[i]) continue;
+                }
+                case DATA_DOUBLE: {
+                        gint i;
+			for (i = 0; i < length; i++) {
+                                if (!values[i]) {
+                                        continue;
+                                }
 
 				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, " ", values[i]); 
-
 			}
 
+                        break;
+                }
+                case DATA_STRING: {
+                        gint i;
+			for (i = 0; i < length; i++) {
+                                if (!values[i]) {
+                                        continue;
+                                }
 
-
-		case DATA_STRING:
-			
-			for (i=0; i<length; i++) {
-
-				if (!values[i]) continue;
-
-				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
+				gchar *mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
 
 				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]);
 
 				g_free (mvalue);
-
 			}
-			break;
 
-		case DATA_INTEGER:
-	
-			for (i=0; i<length; i++) {
-				if (!values[i]) continue;
+			break;
+                }
+                case DATA_INTEGER: {
+                        gint i;
+			for (i = 0; i < length; i++) {
+                                if (!values[i]) {
+                                        continue;
+                                }
 
 				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, values[i]); 
 			}
 
 			break;
+                }
+                case DATA_DATE: {
+                        gint i;
+			for (i = 0; i < length; i++) {
+                                if (!values[i]) {
+                                        continue;
+                                }
 
-		case DATA_DATE:
-
-			for (i=0; i<length; i++) {
-
-				if (!values[i]) continue;
-
-				char *mvalue = format_date (values[i]);
+				gchar *mvalue = format_date (values[i]);
 
 				if (!mvalue) {
 					tracker_debug ("Could not format date %s", values[i]);
@@ -3074,48 +3070,44 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const char *service, 
 			}
 
 			break;
-
-		default :
-			
-			tracker_error ("ERROR: metadata could not be set as type %d for metadata %s is not supported", def->type, key);
+                }
+                default: {
+			tracker_error ("ERROR: metadata could not be set as type %d for metadata %s is not supported",
+                                       def->type, key);
 			break;
-
+                }
 	}
 
 	if (key_field > 0) {
 
-
-
 		if (values[0]) {
-			char *esc_value = NULL;
+			gchar *esc_value = NULL;
 
 			if (def->type == DATA_DATE) {
 				esc_value = format_date (values[0]);
 
-				if (!esc_value) return;
+				if (!esc_value) {
+                                        return;
+                                }
 
 			} else {
-
-				char *my_val = tracker_array_to_str (values, length, '|');
+				gchar *my_val = tracker_array_to_str (values, length, '|');
 			
 				esc_value = tracker_escape_string (my_val);
 				g_free (my_val);
-
 			}
 
-			char *sql = g_strdup_printf ("update Services set KeyMetadata%d = '%s' where id = %s", key_field, esc_value, id);
-
+			gchar *sql = g_strdup_printf ("update Services set KeyMetadata%d = '%s' where id = %s",
+                                                      key_field, esc_value, id);
 
 			tracker_db_exec_no_reply (db_con, sql);
 
-			g_free (esc_value);	
+			g_free (esc_value);
 			g_free (sql);
 		}
-
 	}
-
-	
 }
+
 
 static char *
 get_backup_id (DBConnection *db_con, const char *id)

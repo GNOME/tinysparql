@@ -45,23 +45,23 @@ typedef enum {
 
 
 typedef struct {
-	char *name;
-	char *addr;
+	gchar *name;
+	gchar *addr;
 } MailPerson;
 
 
 typedef struct {
-	int		offset;
-	int		mail_count;
-	int		junk_count;
-	int		delete_count;
-	char 		*uri_prefix;	
+	gint		offset;
+	gint		mail_count;
+	gint		junk_count;
+	gint		delete_count;
+	gchar 		*uri_prefix;	
 	MailType	type;
 } MailStore;
 
 
 typedef struct {
-	char		*path;
+	gchar		*path;
 	MailApplication	mail_app;
 	GMimeParser	*parser;
 	GMimeStream	*stream;
@@ -70,9 +70,9 @@ typedef struct {
 
 
 typedef struct {
-	char *attachment_name;
-	char *mime;
-	char *tmp_decoded_file;
+	gchar *attachment_name;
+	gchar *mime;
+	gchar *tmp_decoded_file;
 } MailAttachment;
 
 
@@ -97,25 +97,25 @@ typedef struct {
 
 typedef struct {
 	MailFile	*parent_mail_file;
-	int		id;
+	gint		id;
 	gboolean	is_mbox;
-	char		*path;
-	char		*uri;			/* uri to pass to a mail client to open it at mail message */
+	gchar		*path;
+	gchar		*uri;			/* uri to pass to a mail client to open it at mail message */
 	guint64		offset;			/* start address of the email */
-	char		*message_id;
-	char		*reply_to;
+	gchar		*message_id;
+	gchar		*reply_to;
 	gboolean	deleted;
 	gboolean	junk;
 	GSList		*references;		/* message_ids */
 	GSList		*in_reply_to_ids;	/* message_id of emails that it replies to */
-	long		date;
-	char		*from;
+	glong		date;
+	gchar		*from;
 	GSList		*to;
 	GSList		*cc;
 	GSList		*bcc;
-	char		*subject;
-	char		*content_type;		/* text/plain or text/html etc. */
-	char		*body;
+	gchar		*subject;
+	gchar		*content_type;		/* text/plain or text/html etc. */
+	gchar		*body;
 	GSList		*attachments;		/* names of attachments */
 	MailStore	*store;
 	
@@ -132,11 +132,11 @@ typedef void (* LoadHelperFct) (GMimeMessage *g_m_message, MailMessage *msg);
 gboolean	email_parse_and_save_mail_message		(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper);
 gboolean	email_parse_mail_file_and_save_new_emails	(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper, MailStore *store);
 
-gboolean	email_mh_is_in_a_mh_dir				(const char *path);
-void		email_mh_watch_mail_messages			(DBConnection *db_con, const char *path);
+gboolean	email_mh_is_in_a_mh_dir				(const gchar *path);
+void		email_mh_watch_mail_messages			(DBConnection *db_con, const gchar *path);
 
-gboolean	email_maildir_is_in_a_maildir_dir		(const char *path);
-void		email_maildir_watch_mail_messages		(DBConnection *db_con, const char *path);
+gboolean	email_maildir_is_in_a_maildir_dir		(const gchar *path);
+void		email_maildir_watch_mail_messages		(DBConnection *db_con, const gchar *path);
 
 MailPerson *	email_allocate_mail_person			(void);
 void		email_free_mail_person				(MailPerson *mp);

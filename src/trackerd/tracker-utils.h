@@ -30,6 +30,7 @@ extern char *service_metadata_join_names[];
 
 extern char *tracker_actions[];
 
+#include <time.h>
 #include <glib.h>
 #include <depot.h>
 #include <curia.h>
@@ -467,12 +468,13 @@ void		tracker_free_strs_in_array 		(char **array);
 
 void		tracker_free_array 		(char **array, int row_count);
 gboolean        tracker_is_empty_string         (const char *s);
-char *		tracker_int_to_str		(gint i);
-char *		tracker_uint_to_str		(guint i);
+gchar *         tracker_long_to_str             (glong i);
+gchar *		tracker_int_to_str		(gint i);
+gchar *		tracker_uint_to_str		(guint i);
 gboolean	tracker_str_to_uint		(const char *s, guint *ret);
 char *		tracker_format_date 		(const char *time_string);
 time_t		tracker_str_to_date 		(const char *time_string);
-char *		tracker_date_to_str 		(gint32 date_time);
+char *		tracker_date_to_str 		(time_t date_time);
 int		tracker_str_in_array 		(const char *str, char **array);
 
 char *		tracker_get_radix_by_suffix	(const char *str, const char *suffix);

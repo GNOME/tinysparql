@@ -503,7 +503,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 	if (id != 0) {
 		GHashTable      *index_table;
-		char		*str_id, *str_date;
+		char		*str_id, *str_date, *tmp_date;
 		GSList          *tmp;
 
 		tracker_db_start_transaction (db_con);
@@ -512,9 +512,8 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		index_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 		str_id = tracker_int_to_str (id);
-		str_date = tracker_int_to_str (mm->date);
-
-
+                str_date = tracker_date_to_str (mm->date);
+ 
 		if (mm->body) {
 			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Body", mm->body, index_table);
 		}
