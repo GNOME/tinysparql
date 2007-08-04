@@ -219,7 +219,7 @@ tracker_db_initialize (const char *data_dir)
 
 	char *str, *str_in_uft8;
 
-	str = g_strdup (DATADIR "/tracker/english");
+	str = g_strdup (TRACKER_DATADIR "/tracker/english");
 
 	str_in_uft8 = g_filename_to_utf8 (str, -1, NULL, NULL, NULL);
 
@@ -243,7 +243,7 @@ tracker_db_initialize (const char *data_dir)
 	server_options[6] = "--character-set-server=utf8";
 	server_options[7] = "--ft_max_word_len=45";
 	server_options[8] = "--ft_min_word_len=3";
-	server_options[9] = "--ft_stopword_file=" DATADIR "/tracker/tracker-stop-words.txt";
+	server_options[9] = "--ft_stopword_file=" TRACKER_DATADIR "/tracker/tracker-stop-words.txt";
 	server_options[10] =  g_strconcat ("--language=", str, NULL);
 
 
@@ -939,7 +939,7 @@ create_system_db (void)
 
 	db_con = db_connect ("mysql");
 
-	sql_file = g_strdup (DATADIR "/tracker/mysql-system.sql");
+	sql_file = g_strdup (TRACKER_DATADIR "/tracker/mysql-system.sql");
 
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
@@ -973,7 +973,7 @@ tracker_db_load_stored_procs (DBConnection *db_con)
 
 	tracker_log ("Creating stored procedures...");
 
-	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
+	sql_file = g_strdup (TRACKER_DATADIR "/tracker/mysql-stored-procs.sql");
 
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
@@ -1015,7 +1015,7 @@ create_tracker_db (void)
 	mysql_close (db_con->db);
 
 	db_con = db_connect ("tracker");
-	sql_file = g_strdup (DATADIR "/tracker/mysql-tracker.sql");
+	sql_file = g_strdup (TRACKER_DATADIR "/tracker/mysql-tracker.sql");
 
 	tracker_log ("Creating tables...");
 
@@ -1165,7 +1165,7 @@ tracker_update_db (DBConnection *db_con)
 
 		i++;
 
-		sql_file = g_strconcat (DATADIR, "/tracker/tracker-db-table-update", version, ".sql", NULL);
+		sql_file = g_strconcat (TRACKER_DATADIR, "/tracker/tracker-db-table-update", version, ".sql", NULL);
 
 		tracker_log ("Please wait while database is being updated to the latest version");
 
@@ -1190,7 +1190,7 @@ tracker_update_db (DBConnection *db_con)
 	/* regenerate SPs */
 	tracker_log ("Creating stored procedures...");
 
-	sql_file = g_strdup (DATADIR "/tracker/mysql-stored-procs.sql");
+	sql_file = g_strdup (TRACKER_DATADIR "/tracker/mysql-stored-procs.sql");
 
 	if (!g_file_get_contents (sql_file, &query, NULL, NULL)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);

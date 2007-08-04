@@ -27,6 +27,7 @@
 #include "tracker-db.h"
 #include "tracker-email.h"
 #include "tracker-metadata.h"
+#include "tracker-os-dependant.h"
 
 
 extern Tracker *tracker;
@@ -50,8 +51,7 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 	gint32	index_time;
 
 	g_return_val_if_fail (db_con, FALSE);
-	g_return_val_if_fail (uri, FALSE);
-	g_return_val_if_fail (uri[0] != '/', FALSE);
+	g_return_val_if_fail (tracker_check_uri (uri), FALSE);
 
 	if (uri[0] == G_DIR_SEPARATOR) {
 		name = g_path_get_basename (uri);
@@ -431,8 +431,7 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 {
 	char *str_file_id, *str_action, *str_counter;
 
-	g_return_if_fail (uri);
-	g_return_if_fail (uri[0] == '/');
+	g_return_if_fail (tracker_check_uri (uri));
 
 	str_file_id = tracker_uint_to_str ( file_id);
 	str_action = tracker_int_to_str (action);
@@ -498,8 +497,7 @@ tracker_db_update_pending_file (DBConnection *db_con, const char *uri, int count
 {
 	char *str_counter, *str_action;
 
-	g_return_if_fail (uri);
-	g_return_if_fail (uri[0] == '/');
+	g_return_if_fail (tracker_check_uri (uri));
 
 	str_counter = tracker_int_to_str (counter);
 	str_action = tracker_int_to_str (action);
@@ -519,8 +517,7 @@ tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info)
 	int i;
 
 	g_return_if_fail (info);
-	g_return_if_fail (info->uri);
-	g_return_if_fail (info->uri[0] == '/');
+	g_return_if_fail (tracker_check_uri (info->uri));
 
 	i = g_async_queue_length (tracker->file_metadata_queue);
 
@@ -544,8 +541,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 {
 	FileInfo *info;
 
-	g_return_if_fail (uri);
-	g_return_if_fail (uri[0] == '/');
+	g_return_if_fail (tracker_check_uri (uri));
 
 	/* if a check action then then discard if up to date
 	if (action == TRACKER_ACTION_CHECK || action == TRACKER_ACTION_FILE_CHECK || action == TRACKER_ACTION_DIRECTORY_CHECK) {

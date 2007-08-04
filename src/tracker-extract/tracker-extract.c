@@ -18,16 +18,18 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#ifndef OS_WIN32
 #include <sys/resource.h>
+#endif
 #include <sys/time.h>
 #include <unistd.h>
 #include <glib.h>
-
-#include "config.h"
 
 #define MAX_MEM 128
 #define MAX_MEM_AMD64 512
@@ -171,6 +173,7 @@ tracker_is_empty_string (const gchar *s)
 static gboolean
 set_memory_rlimits (void)
 {
+#ifndef OS_WIN32
 	struct	rlimit rl;
 	gint	fail = 0;
 
@@ -197,12 +200,14 @@ set_memory_rlimits (void)
         }
 
 	return !fail;
+#endif
 }
 
 
 void
 tracker_child_cb (gpointer user_data)
 {
+#ifndef OS_WIN32
 	struct 	rlimit mem_limit, cpu_limit;
 	gint	timeout = GPOINTER_TO_INT (user_data);
 
@@ -219,6 +224,7 @@ tracker_child_cb (gpointer user_data)
 
 	/* Set child's niceness to 19 */
 	nice (19);		
+#endif
 }
 
 

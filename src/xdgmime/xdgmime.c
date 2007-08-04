@@ -29,6 +29,10 @@
 #include <config.h>
 #endif
 
+#ifdef OS_WIN32
+#include "../trackerd/mingw-compat.h"
+#endif
+
 #include "xdgmime.h"
 #include "xdgmimeint.h"
 #include "xdgmimeglob.h"

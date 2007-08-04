@@ -21,7 +21,12 @@
 #include <string.h>
 #include <glib/gstdio.h>
 #include <sys/types.h>
+#include "config.h"
+#ifdef OS_WIN32
+#include <conio.h>
+#else
 #include <sys/resource.h>
+#endif
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
 
@@ -261,7 +266,11 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 
 		tmp = g_strdup (LIBDIR "/tracker/filters/");
 
+#ifdef OS_WIN32
+		text_filter_file = g_strconcat (tmp, mime, "_filter.bat", NULL);
+#else
 		text_filter_file = g_strconcat (tmp, mime, "_filter", NULL);
+#endif
 
 		g_free (tmp);
 	}

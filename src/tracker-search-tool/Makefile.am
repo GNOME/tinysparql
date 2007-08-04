@@ -12,7 +12,7 @@ INCLUDES = 	\
 	$(DBUS_CFLAGS)						\
 	-DG_DISABLE_DEPRECATED					\
 	-DTRACKER_LOCALEDIR=\""$(localedir)"\" 			\
-	-DDATADIR=\""$(datadir)"\"				\
+	-DTRACKER_DATADIR=\""$(datadir)"\"				\
 	-DGREP_COMMAND=\""$(GREP_COMMAND)"\"			\
 	$(LIBTRACKERGTK_CFLAGS)					\
 	-I$(top_srcdir)/src/libtracker

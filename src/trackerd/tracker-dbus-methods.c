@@ -24,6 +24,11 @@
 #include "tracker-metadata.h"
 #include "tracker-rdf-query.h"
 
+#include "config.h"
+
+#ifdef OS_WIN32
+#include "mingw-compat.h"
+#endif
 
 void
 tracker_set_error (DBusRec 	  *rec,

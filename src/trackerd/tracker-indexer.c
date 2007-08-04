@@ -26,7 +26,7 @@ extern Tracker *tracker;
 
 #define INDEXFBP        32               /* size of free block pool of inverted index */
 
-static gboolean shutdown;
+static gboolean tracker_shutdown;
 
 
 static inline guint16
@@ -188,7 +188,7 @@ tracker_indexer_open (const char *name)
 	CURIA *word_index;
 	Indexer *result;
 
-	shutdown = FALSE;
+	tracker_shutdown = FALSE;
 
 	word_dir = g_build_filename (tracker->data_dir, name, NULL);
 
@@ -241,7 +241,7 @@ tracker_indexer_close (Indexer *indexer)
 {
 	g_return_if_fail (indexer);
 
-	shutdown = TRUE;
+	tracker_shutdown = TRUE;
 
 	g_mutex_lock (indexer->word_mutex);
 
@@ -259,7 +259,7 @@ tracker_indexer_close (Indexer *indexer)
 void
 tracker_indexer_sync (Indexer *indexer)
 {
-        if (shutdown) {
+        if (tracker_shutdown) {
                 return;
         }
 
@@ -274,7 +274,7 @@ tracker_indexer_optimize (Indexer *indexer)
 {
 	int num, b_count;
 
-        if (shutdown) {
+        if (tracker_shutdown) {
                 return FALSE;
         }
 
@@ -320,7 +320,7 @@ tracker_indexer_optimize (Indexer *indexer)
 gboolean
 tracker_indexer_append_word_chunk (Indexer *indexer, const char *word, WordDetails *details, int word_detail_count)
 {
-        if (shutdown) {
+        if (tracker_shutdown) {
                 return FALSE;
         }
 
@@ -346,7 +346,7 @@ tracker_indexer_append_word_chunk (Indexer *indexer, const char *word, WordDetai
 gboolean
 tracker_indexer_append_word (Indexer *indexer, const char *word, guint32 id, int service, int score)
 {
-        if (shutdown) {
+        if (tracker_shutdown) {
                 return FALSE;
         }
 
@@ -377,7 +377,7 @@ tracker_indexer_update_word (Indexer *indexer, const char *word, guint32 id, int
 	int  tsiz;
 	char *tmp;
 
-        if (shutdown) {
+        if (tracker_shutdown) {
                 return FALSE;
         }
 
@@ -446,7 +446,7 @@ tracker_remove_dud_hits (Indexer *indexer, const char *word, GSList *dud_list)
 	int  tsiz;
 	char *tmp;
 
-	if (shutdown) {
+	if (tracker_shutdown) {
                 return FALSE;
         }
 
@@ -617,7 +617,7 @@ get_hits_for_single_word (SearchQuery *query, SearchWord *search_word, int *hit_
 	/* some results might be dud so get an extra 50 to compensate */
 	int limit = query->limit + 50;
 	
-	if (shutdown) {
+	if (tracker_shutdown) {
                 return NULL;
         }
 
@@ -691,7 +691,7 @@ get_intermediate_hits (SearchQuery *query, GHashTable *match_table, SearchWord *
 	char *tmp;
 	GHashTable *result;
 
-	if (shutdown) {
+	if (tracker_shutdown) {
                 return NULL;
         }
 
@@ -775,7 +775,7 @@ get_final_hits (SearchQuery *query, GHashTable *match_table, SearchWord *search_
 	rnum = 0;
 	list = NULL;
 
-	if (shutdown) {
+	if (tracker_shutdown) {
                 return NULL;
         }
 
@@ -876,7 +876,7 @@ tracker_indexer_get_hits (SearchQuery *query)
 	SearchWord *word;
 	GSList *lst;
 
-	if (shutdown) {
+	if (tracker_shutdown) {
                 return FALSE;
 	}
 
@@ -990,7 +990,7 @@ tracker_get_hit_counts (SearchQuery *query)
 
 	GHashTable *table = g_hash_table_new (NULL, NULL);
 
-	if (shutdown) {
+	if (tracker_shutdown) {
                 return NULL;
 	}
 

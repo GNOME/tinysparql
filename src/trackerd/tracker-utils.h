@@ -61,8 +61,6 @@ extern char *tracker_actions[];
 #define INDEX_BUCKET_RATIO		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
 #define INDEX_PADDING	 		2
 
-#define MAX_MEM 128
-#define MAX_MEM_AMD64 512
 
 typedef struct {
 	CURIA  *word_index;	/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
@@ -555,7 +553,6 @@ char *		tracker_uncompress 		(const char *ptr, int size, int *uncompressed_size)
 char *		tracker_get_snippet 		(const char *txt, char **terms, int length);
 
 gboolean	tracker_spawn 			(char **argv, int timeout, char **tmp_stdout, int *exit_status);
-void		tracker_child_cb 		(gpointer user_data);
 
 char*	 	tracker_string_replace 		(const char *haystack, char *needle, char *replacement);
 

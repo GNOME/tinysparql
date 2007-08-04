@@ -49,7 +49,9 @@
 
 #ifndef HAVE_INOTIFY
 #   ifndef HAVE_FAM
-#      define POLL_ONLY
+#      ifndef OS_WIN32
+#         define POLL_ONLY
+#      endif
 #   endif
 #endif
 
@@ -60,7 +62,15 @@
 #include "tracker-dbus-search.h"
 #include "tracker-dbus-files.h"
 #include "tracker-email.h"
-#include  "tracker-indexer.h"
+#include "tracker-indexer.h"
+#include "tracker-os-dependant.h"
+  
+#ifdef OS_WIN32
+#include <windows.h>
+#include <pthread.h>
+#include "mingw-compat.h"
+#endif
+
 #include "tracker-apps.h"
 
 typedef struct {
@@ -72,7 +82,7 @@ Tracker		       *tracker;
 DBConnection	       *main_thread_db_con;
 DBConnection	       *main_thread_cache_con;
 
-static gboolean	       shutdown;
+static gboolean	       tracker_shutdown;
 static DBusConnection  *main_connection;
 
 
@@ -162,9 +172,11 @@ static GOptionEntry entries[] = {
 static void
 my_yield (void)
 {
+#ifndef OS_WIN32
 	while (g_main_context_iteration (NULL, FALSE)) {
 		;
 	}
+#endif
 }
 
 
@@ -244,7 +256,7 @@ do_cleanup (const char *sig_msg)
 
 	/* send signals to each thread to wake them up and then stop them */
 
-	shutdown = TRUE;
+	tracker_shutdown = TRUE;
 
 
 	g_mutex_lock (tracker->request_signal_mutex);
@@ -338,7 +350,7 @@ schedule_dir_check (const char *uri, DBConnection *db_con)
 		return;
 	}
 
-	g_return_if_fail (uri && (uri[0] == '/'));
+	g_return_if_fail (tracker_check_uri (uri));
 	g_return_if_fail (db_con);
 
 	tracker_db_insert_pending_file (db_con, 0, uri, "unknown", 0, TRACKER_ACTION_DIRECTORY_REFRESH, TRUE, FALSE, -1);
@@ -604,7 +616,7 @@ schedule_file_check (const char *uri, DBConnection *db_con)
 	if (!tracker->is_running) {
 		return;
 	}
-	g_return_if_fail (uri && (uri[0] == '/'));
+	g_return_if_fail (tracker_check_uri (uri));
 	g_return_if_fail (db_con);
 
 	/* keep mainloop responsive */
@@ -649,7 +661,7 @@ check_directory (const char *uri)
 		return;
 	}
 
-	g_return_if_fail (uri && (uri[0] == '/'));
+	g_return_if_fail (tracker_check_uri (uri));
 	g_return_if_fail (tracker_is_directory (uri));
 
 	file_list = tracker_get_files (uri, FALSE);
@@ -675,7 +687,7 @@ scan_directory (const char *uri, DBConnection *db_con)
 	}
 
 	g_return_if_fail (db_con);
-	g_return_if_fail (uri && (uri[0] == '/'));
+	g_return_if_fail (tracker_check_uri (uri));
 	g_return_if_fail (tracker_is_directory (uri));
 
 	/* keep mainloop responsive */
@@ -759,8 +771,8 @@ index_entity (DBConnection *db_con, FileInfo *info)
 {
 	char  *service_info;
 
-	g_return_if_fail (info->uri);
-	g_return_if_fail (info->uri[0] == '/');
+	g_return_if_fail (info);
+	g_return_if_fail (tracker_check_uri (info->uri));
 
 	if (!tracker_file_is_valid (info->uri)) {
 		//tracker_debug ("Warning - file %s in not valid or could not be read - abandoning index on this file", info->uri);
@@ -877,7 +889,9 @@ process_files_thread (void)
 
         /* block all signals in this thread */
         sigfillset (&signal_set);
+#ifndef OS_WIN32
         pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
+#endif
 
 	g_mutex_lock (tracker->files_signal_mutex);
 	g_mutex_lock (tracker->files_stopped_mutex);
@@ -933,7 +947,7 @@ process_files_thread (void)
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!shutdown) {
+			if (!tracker_shutdown) {
 				continue;
 			} else {
 
@@ -1235,7 +1249,7 @@ process_files_thread (void)
 
 
 				/* determine if wake up call is new stuff or a shutdown signal */
-				if (!shutdown) {
+				if (!tracker_shutdown) {
 
 				} else {
 					break;
@@ -1304,7 +1318,7 @@ process_files_thread (void)
 			continue;
 		}
 
-		if (!info->uri || (info->uri[0] != '/')) {
+ 		if (!tracker_check_uri (info->uri)) {
 			tracker_free_file_info (info);
 			continue;
 		}
@@ -1493,8 +1507,9 @@ process_user_request_queue_thread (void)
 
         /* block all signals in this thread */
         sigfillset (&signal_set);
+#ifndef OS_WIN32
         pthread_sigmask (SIG_BLOCK, &signal_set, NULL);
-
+#endif
 	g_mutex_lock (tracker->request_signal_mutex);
 	g_mutex_lock (tracker->request_stopped_mutex);
 
@@ -1526,7 +1541,7 @@ process_user_request_queue_thread (void)
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!shutdown) {
+			if (!tracker_shutdown) {
 				continue;
 			} else {
 				break;
@@ -1543,7 +1558,7 @@ process_user_request_queue_thread (void)
 			g_mutex_unlock (tracker->request_check_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!shutdown) {
+			if (!tracker_shutdown) {
 				continue;
 			} else {
 				break;
@@ -1977,7 +1992,7 @@ set_defaults ()
 
 	tracker->first_flush = TRUE;
 
-	tracker->services_dir = g_build_filename (DATADIR, "tracker", "services", NULL);
+	tracker->services_dir = g_build_filename (TRACKER_DATADIR, "tracker", "services", NULL);
 
 	/* battery and ac power checks */
 	const char *battery_filenames[4] = {
@@ -2133,8 +2148,10 @@ int
 main (int argc, char **argv)
 {
 	int 		lfp;
+#ifndef OS_WIN32
   	struct 		sigaction act;
 	sigset_t 	empty_mask;
+#endif
 	char 		*lock_file, *str, *lock_str;
 	GOptionContext  *context = NULL;
 	GError          *error = NULL;
@@ -2186,6 +2203,7 @@ main (int argc, char **argv)
 
 	g_print ("Initialising tracker...\n");
 
+#ifndef OS_WIN32
 	/* trap signals */
 	sigemptyset (&empty_mask);
 	act.sa_handler = signal_handler;
@@ -2200,6 +2218,7 @@ main (int argc, char **argv)
 	sigaction (SIGABRT, &act, NULL);
 	sigaction (SIGUSR1, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
+#endif
 
 
 	dbus_g_thread_init ();
@@ -2256,7 +2275,7 @@ main (int argc, char **argv)
 	need_index = FALSE;
 	need_data = FALSE;
 
-	shutdown = FALSE;
+	tracker_shutdown = FALSE;
 
 
 	tracker->files_check_mutex = g_mutex_new ();
@@ -2337,6 +2356,7 @@ main (int argc, char **argv)
 	g_free (lock_file);
 
 	if (lfp < 0) {
+	   
 		g_warning ("Cannot open or create lockfile - exiting");
 		exit (1);
 	}
@@ -2509,4 +2529,5 @@ main (int argc, char **argv)
 
 	return EXIT_SUCCESS;
 }
+
 

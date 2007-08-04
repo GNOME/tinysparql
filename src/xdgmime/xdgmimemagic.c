@@ -30,6 +30,9 @@
 #endif
 
 #include <assert.h>
+#ifdef OS_WIN32
+#include "../trackerd/mingw-compat.h"
+#endif
 #include "xdgmimemagic.h"
 #include "xdgmimeint.h"
 #include <stdio.h>

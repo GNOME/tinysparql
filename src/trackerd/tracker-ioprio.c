@@ -17,6 +17,10 @@
  * Boston, MA  02110-1301, USA.
  */
  
+#include "config.h"
+
+#ifdef IOPRIO_SUPPORT
+
 #include <stdio.h>
 #include <errno.h>
 #include <glib/gstdio.h>
@@ -24,8 +28,6 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include "tracker-ioprio.h"
-
-#ifdef IOPRIO_SUPPORT
 
 enum {
 	IOPRIO_CLASS_NONE,

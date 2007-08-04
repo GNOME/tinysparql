@@ -19,7 +19,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
+#include "config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +30,14 @@
 #include <glib/gstdio.h>
 #include <png.h>
 #include "md5.h"
+
+#ifdef OS_WIN32
+#include <Windows.h>
+
+#define _fullpath_internal(res,path,size) \
+  (GetFullPathName ((path), (size), (res), NULL) ? (res) : NULL)
+#define realpath(path,resolved_path) _fullpath_internal(resolved_path, path, MAX_PATH)
+#endif
 
 #ifndef LIBDIR
 #define LIBDIR "/usr/lib"

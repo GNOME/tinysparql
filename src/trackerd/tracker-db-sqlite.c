@@ -34,6 +34,12 @@
 #include "tracker-indexer.h"
 #include "tracker-metadata.h"
 
+#include "config.h"
+
+#ifdef OS_WIN32
+#include "mingw-compat.h"
+#endif
+
 extern Tracker *tracker;
 
 static GHashTable *prepared_queries;
@@ -219,7 +225,7 @@ load_sql_file (DBConnection *db_con, const char *sql_file)
 {
 	char *filename, *query;
 	
-	filename = g_build_filename (DATADIR, "/tracker/", sql_file, NULL);
+	filename = g_build_filename (TRACKER_DATADIR, "/tracker/", sql_file, NULL);
 
 	if (!g_file_get_contents (filename, &query, NULL, NULL)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
@@ -246,7 +252,7 @@ load_sql_trigger (DBConnection *db_con, const char *sql_file)
 {
 	char *filename, *query;
 	
-	filename = g_build_filename (DATADIR, "/tracker/", sql_file, NULL);
+	filename = g_build_filename (TRACKER_DATADIR, "/tracker/", sql_file, NULL);
 
 	if (!g_file_get_contents (filename, &query, NULL, NULL)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
@@ -443,7 +449,7 @@ tracker_db_initialize (const char *datadir)
 
 	tracker_log ("Loading prepared queries...");
 
-	sql_file = g_strdup (DATADIR "/tracker/sqlite-stored-procs.sql");
+	sql_file = g_strdup (TRACKER_DATADIR "/tracker/sqlite-stored-procs.sql");
 
 	if (!g_file_test (sql_file, G_FILE_TEST_EXISTS)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
@@ -1952,7 +1958,7 @@ tracker_update_db (DBConnection *db_con)
 
 		i++;
 
-		sql_file = g_strconcat (DATADIR, "/tracker/tracker-db-table-update", version, ".sql", NULL);
+		sql_file = g_strconcat (TRACKER_DATADIR, "/tracker/tracker-db-table-update", version, ".sql", NULL);
 
 		tracker_log ("Please wait while database is being updated to the latest version");
 

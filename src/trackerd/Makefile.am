@@ -1,5 +1,5 @@
 INCLUDES =				\
-	-DDATADIR=\""$(datadir)"\"	\
+	-DTRACKER_DATADIR=\""$(datadir)"\"	\
 	-DLIBDIR=\""$(libdir)"\"	\
 	-DTRACKER_LOCALEDIR=\""$(localedir)"\" \
 	$(GLIB2_CFLAGS)			\
@@ -25,6 +25,15 @@ fam_sources =				\
 endif
 endif
 
+if OS_WIN32
+win_sources =				\
+	tracker-win-fs-changes.c	\
+	tracker-win-fs-changes.h	\
+	tracker-os-dependant-win.c
+else
+unix_sources = \
+	tracker-os-dependant-unix.c
+endif
 
 db_sources =				\
 	tracker-indexer.c		\
@@ -43,6 +52,8 @@ trackerd_SOURCES =			\
 	trackerd.c			\
 	$(inotify_sources)		\
 	$(fam_sources)			\
+	$(win_sources)			\
+	$(unix_sources)			\
 	$(db_sources)			\
 	tracker-apps.c			\
 	tracker-apps.h			\
@@ -81,6 +92,9 @@ trackerd_SOURCES =			\
 	tracker-ioprio.c		\
 	tracker-ioprio.h
 
+if OS_WIN32
+trackerd_win_libs = -lws2_32 -lkernel32
+endif
 
 trackerd_LDADD =			\
 	$(GLIB2_LIBS)			\
@@ -95,4 +109,5 @@ trackerd_LDADD =			\
 	-lz				\
 	-lm				\
 	$(top_builddir)/src/libstemmer/libstemmer-private.la \
-	$(top_builddir)/src/xdgmime/libxdgmime.la
+	$(top_builddir)/src/xdgmime/libxdgmime.la \
+	$(trackerd_win_libs)

@@ -26,6 +26,11 @@
 
 #include "../libtracker/tracker.h" 
 
+#include <config.h>
+#ifdef OS_WIN32
+#include "../trackerd/mingw-compat.h"
+#endif
+
 static gchar *search = NULL;
 static gchar **fields = NULL;
 static gchar *service = NULL;

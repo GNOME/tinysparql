@@ -263,6 +263,27 @@ fi
 
 
 ####################################################################
+# Windows check
+####################################################################
+
+AC_MSG_CHECKING(for WIN32)
+AC_TRY_COMPILE(,
+	[
+	#ifndef WIN32
+	#error
+	#endif
+	],
+	native_win32=yes; AC_MSG_RESULT(yes),
+	native_win32=no; AC_MSG_RESULT(no),
+)
+
+AM_CONDITIONAL(OS_WIN32, test "$native_win32" = "yes")
+
+if test "$native_win32" = "yes" ; then
+   AC_DEFINE(OS_WIN32, 1, [Define if we are on win32])
+fi
+
+####################################################################
 # External SQLite check
 ####################################################################
 
@@ -366,7 +387,7 @@ PKG_CHECK_MODULES(GAMIN,
 
 if test "x$enable_file_monitoring" = "xauto"; then
 	if test "$inotify_support"  = "yes"; then
-		primary_backend=inotify
+		primary_backend="inotify"
 		if test "$inotify_linux" = "yes"; then
 			inotify_header="linux/inotify.h"
 		else
@@ -380,7 +401,11 @@ if test "x$enable_file_monitoring" = "xauto"; then
 			primary_backend="fam"
 		fi
 	else
-		primary_backend="polling only"
+		if test "$native_win32" = "yes"; then
+			primary_backend="win32"
+		else
+			primary_backend="polling only"
+		fi
 	fi
 elif test "x$enable_file_monitoring" = "xinotify"; then
 	if test "$inotify_support" = "no"; then
@@ -404,7 +429,11 @@ elif test "x$enable_file_monitoring" = "xfam"; then
 		fi
 	fi
 else
-	primary_backend="polling only"
+	if test "$native_win32" = "yes"; then
+		primary_backend="win32"
+	else
+		primary_backend="polling only"
+	fi
 fi
 
 if test "$primary_backend" = "inotify"; then
@@ -737,6 +766,7 @@ Tracker-$VERSION:
 	file monitor backend to be used:	$primary_backend
 	inotify header location:		$inotify_header
 	ioprio support:				$ioprio_support
+	Win32:					$native_win32
 	unac accent stripper support:		$enable_unac
 	deskbar-applet support:			$enable_deskbar_applet
 	build search tool (GNOME):		$have_gnome

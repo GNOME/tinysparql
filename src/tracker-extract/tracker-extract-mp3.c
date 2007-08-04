@@ -21,7 +21,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef OS_WIN32
 #include <sys/mman.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -966,8 +968,6 @@ get_id3v2_tags (const char *data, size_t size, GHashTable *metadata)
 
 }
 
-
-
 void 
 tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 {
@@ -1005,7 +1005,9 @@ tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 	}
 
 	//g_print ("file size is %d\n", size);
+#ifndef OS_WIN32
 	buffer = mmap (NULL, size, PROT_READ, MAP_PRIVATE, file, 0);
+#endif
 
   	if ((buffer == NULL) || (buffer == (void *) -1)) {
 		//g_print ("mmap failure\n");
@@ -1060,7 +1062,9 @@ tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 	mp3_parse (buffer, size, metadata);
 
 
+#ifndef OS_WIN32
   	munmap (buffer, size);
+#endif
   	close(file);
 	
 }

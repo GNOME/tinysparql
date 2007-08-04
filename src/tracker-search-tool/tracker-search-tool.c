@@ -2332,7 +2332,7 @@ tracker_search_pixmap_file (const gchar * partial_path)
 {
 	gchar * path;
 
-	path = g_build_filename (DATADIR "/pixmaps/tracker", partial_path, NULL);
+	path = g_build_filename (TRACKER_DATADIR "/pixmaps/tracker", partial_path, NULL);
 	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
 		return path;
 	} else {
@@ -2371,7 +2371,7 @@ main (int argc,
 	                              VERSION,
 	                              LIBGNOMEUI_MODULE,
 	                              argc, argv,
-	                              GNOME_PARAM_APP_DATADIR, DATADIR,
+	                              GNOME_PARAM_APP_DATADIR, TRACKER_DATADIR,
 	                              GNOME_PARAM_GOPTION_CONTEXT, option_context,
 	                              GNOME_PARAM_NONE);
 

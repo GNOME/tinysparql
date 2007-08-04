@@ -37,7 +37,12 @@
 #include <fnmatch.h>
 #include <assert.h>
 
-#include <netinet/in.h> /* for ntohl/ntohs */
+/* for ntohl/ntohs */
+#ifdef OS_WIN32
+#include <winsock2.h>
+#else
+#include <netinet/in.h>
+#endif
 
 #ifdef HAVE_MMAP
 #include <sys/mman.h>

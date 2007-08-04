@@ -1,5 +1,13 @@
+if OS_WIN32
+SQLITE_OS = -DOS_WIN=1
+libsqlite_private_la_LIBADD = -lpthreadGC2
+else
+SQLITE_OS = -DOS_UNIX=1
+libsqlite_private_la_LIBADD = -lpthread
+endif
+
 INCLUDES =				\
-	 -DOS_UNIX=1			\
+	 $(SQLITE_OS)			\
 	 -DHAVE_USLEEP=1 		\
 	 -DHAVE_FDATASYNC=1 		\
 	 -DNDEBUG			\
@@ -9,8 +17,6 @@ INCLUDES =				\
 
 
 noinst_LTLIBRARIES=libsqlite-private.la
-
-libsqlite_private_la_LIBADD = -lpthread
 
 
 libsqlite_private_la_SOURCES = \

@@ -809,7 +809,7 @@ levenshtein(char *source, char *target, int maxdist)
 {
 
 	char n, m;
-	uint l;
+	int l;
 	l = strlen (source);
 	if (l > 50)
 		return -1;
