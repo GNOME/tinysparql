@@ -2311,9 +2311,12 @@ index_mail_parts (DBConnection *db_con, MailMessage *mail_msg, const gchar *mail
 
 		if (tracker_file_is_indexable (m->mime_file)) {
 			m->mime_infos = email_get_mime_infos_from_mime_file (m->mime_file);
+			if (! m->mime_infos) {
+				goto break_multipart_loop;
+			}
 			g_queue_push_tail (mail_parts, m);
-
 		} else {
+break_multipart_loop:
 			g_free (m->mail_file);
 			g_free (m->mime_file);
 			g_slice_free (MailPart, m);
