@@ -1,5 +1,5 @@
 if HAVE_GNOME
-tst = tracker-search-tool.1
+tst = tracker-search-tool.1 tracker-preferences.1
 endif
 
 

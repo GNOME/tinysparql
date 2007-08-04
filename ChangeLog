@@ -1,6 +1,8 @@
 2007-08-04 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* fixed crasher in email indexing when parsing mimes
+	* updated applet
+	* added tracker-preferences man page
 
 
 2007-08-04 Patch from Anders Rune Jensen <anders@iola.dk>
