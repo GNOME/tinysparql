@@ -209,6 +209,11 @@ int main (int argc, char *argv[])
 	 */
 
 	/* read in the thumbnail into a buffer */
+	
+	if (!g_file_test (thumbnail_filename, G_FILE_TEST_EXISTS)) {
+		return EXIT_FAILURE;
+	}
+
 	g_assert ((fp = g_fopen (thumbnail_filename, "r")));
 	g_assert ((png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)));
 	g_assert ((info_ptr = png_create_info_struct (png_ptr)));
