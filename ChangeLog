@@ -1,7 +1,15 @@
+2007-08-06 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Adds copyright headers in tracker-preferences' files
+	* Remove some code duplications in tracker-configuration.c
+	* Code cleanups in code of tracker-preferences
+
+
 2007-08-05  Marko Anastasov  <marko@marko.anastasov.name>
 
 	* Implemented tracker_dbus_method_search_get_hit_count.
-	
+
+
 2007-08-04 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* fixed crasher in email indexing when parsing mimes
@@ -13,10 +21,12 @@
 	
 	* Made tracker compilable on windows
 
+
 2007-08-02 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Made generic error display window
 	* fixed crasher in tsts - added check for error when calculating hit count
+
 
 2007-07-29 Laurent Aguerreche <laurent.aguerreche@free.fr>
 

@@ -1,8 +1,29 @@
+/* Tracker - indexer and metadata database engine
+ * Copyright (C) 2007, Saleem Abdulrasool (compnerd@gentoo.org)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ */
+
+#include <string.h>
+#include <glib.h>
+#include <glib/gi18n.h>
+
 #include "tracker-configuration.h"
 #include "tracker-configuration-private.h"
 #include "config.h"
-#include <glib/gi18n.h>
-
 
 
 #ifndef HAVE_RECENT_GLIB
@@ -223,6 +244,22 @@ g_key_file_set_double_list (GKeyFile     *key_file,
 #endif /* !HAVE_RECENT_GLIB */
 
 
+Matches tmap[] = {
+		{"da", "danish"},
+		{"nl", "dutch"},
+		{"en", "english"},
+ 		{"fi", "finnish"},
+		{"fr", "french"},
+		{"de", "german"},
+		{"it", "italian"},
+		{"nb", "norwegian"},
+		{"pt", "portuguese"},
+		{"ru", "russian"},
+		{"es", "spanish"},
+		{"sv", "swedish"},
+		{NULL, NULL}
+};
+
 static GObjectClass *parent_class = NULL;
 
 static void
@@ -254,57 +291,45 @@ tracker_configuration_class_init (TrackerConfigurationClass * klass)
 	/* Properties */
 }
 
-
-
-
-
-static char *
-get_default_language_code ()
+static gchar *
+get_default_language_code (void)
 {
-	char **langs, **plangs, *result;
-
+	gchar **langs, **plangs;
 
 	/* get langauges for user's locale */
 	langs = (char**) g_get_language_names ();
 
-	int i;
-
 	for (plangs = langs; *plangs; plangs++) {
 		if (strlen (*plangs) > 1) {
-			for (i=0; tmap[i].lang; i++) {
+                        gint i;
+			for (i = 0; tmap[i].lang; i++) {
 				if (g_str_has_prefix (*plangs, tmap[i].lang)) {
-					result = g_strndup (*plangs, 2);
-					return result;
+					return g_strndup (*plangs, 2);
 				}
-
 			}
 		}
 	}
 
 	return g_strdup ("en");
-
-
-
 }
-
 
 static void
 create_config_file ()
 {
-	char	 *filename;
+	gchar	 *filename;
 
 	filename = g_build_filename (g_get_user_config_dir (), "/tracker/tracker.cfg", NULL);
 
 	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
-                char *tracker_dir = g_build_filename (g_get_user_config_dir (),"/tracker",NULL);
+                gchar *tracker_dir = g_build_filename (g_get_user_config_dir (),"/tracker",NULL);
 
                 if (!g_file_test (tracker_dir, G_FILE_TEST_EXISTS)) {
-                    g_mkdir_with_parents (tracker_dir,0700);
+                        g_mkdir_with_parents (tracker_dir, 0700);
                 }
 
 		g_free (tracker_dir);
 
-		char *contents, *language;
+		gchar *contents, *language;
 
 		language = get_default_language_code ();
 
@@ -371,8 +396,6 @@ create_config_file ()
 	}
 
 	g_free (filename);
-
-
 }
 
 static void
@@ -431,54 +454,37 @@ tracker_configuration_write (TrackerConfiguration * configuration)
 		write (configuration);
 }
 
-gboolean
-tracker_configuration_get_bool (TrackerConfiguration * configuration,
-				const gchar * const key, GError ** error)
-{
-	return TRACKER_CONFIGURATION_GET_CLASS (configuration)->
-		get_bool (configuration, key, error);
-}
+#define MAKE_TRACKER_CONFIGURATION_GET_ATYPE_FCT(TypeName, Type)                \
+  Type                                                                          \
+  tracker_configuration_get_##TypeName (TrackerConfiguration * configuration,   \
+                                        const gchar * const key,                \
+                                        GError ** error)                        \
+  {                                                                             \
+	return TRACKER_CONFIGURATION_GET_CLASS (configuration)->                \
+                get_##TypeName (configuration, key, error);                     \
+  }
 
-void
-tracker_configuration_set_bool (TrackerConfiguration * configuration,
-				const gchar * const key, const gboolean value)
-{
-	TRACKER_CONFIGURATION_GET_CLASS (configuration)->
-		set_bool (configuration, key, value);
-}
+#define MAKE_TRACKER_CONFIGURATION_SET_ATYPE_FCT(TypeName, Type)                \
+  void                                                                          \
+  tracker_configuration_set_##TypeName (TrackerConfiguration * configuration,   \
+                                        const gchar * const key,                \
+                                        const Type value)                       \
+  {                                                                             \
+	TRACKER_CONFIGURATION_GET_CLASS (configuration)->                       \
+		set_##TypeName (configuration, key, value);                     \
+  }
 
-gint
-tracker_configuration_get_int (TrackerConfiguration * configuration,
-			       const gchar * const key, GError ** error)
-{
-	return TRACKER_CONFIGURATION_GET_CLASS (configuration)->
-		get_int (configuration, key, error);
-}
+MAKE_TRACKER_CONFIGURATION_GET_ATYPE_FCT (bool, gboolean)
+MAKE_TRACKER_CONFIGURATION_SET_ATYPE_FCT (bool, gboolean)
 
-void
-tracker_configuration_set_int (TrackerConfiguration * configuration,
-			       const gchar * const key, const gint value)
-{
-	TRACKER_CONFIGURATION_GET_CLASS (configuration)->
-		set_int (configuration, key, value);
-}
+MAKE_TRACKER_CONFIGURATION_GET_ATYPE_FCT (int, gint)
+MAKE_TRACKER_CONFIGURATION_SET_ATYPE_FCT (int, gint)
 
-gchar *
-tracker_configuration_get_string (TrackerConfiguration * configuration,
-				  const gchar * const key, GError ** error)
-{
-	return TRACKER_CONFIGURATION_GET_CLASS (configuration)->
-		get_string (configuration, key, error);
-}
+MAKE_TRACKER_CONFIGURATION_GET_ATYPE_FCT (string, gchar*)
+MAKE_TRACKER_CONFIGURATION_SET_ATYPE_FCT (string, gchar*)
 
-void
-tracker_configuration_set_string (TrackerConfiguration * configuration,
-				  const gchar * const key,
-				  const gchar * const value)
-{
-	TRACKER_CONFIGURATION_GET_CLASS (configuration)->
-		set_string (configuration, key, value);
-}
+#undef MAKE_TRACKER_CONFIGURATION_GET_ATYPE_FCT
+#undef MAKE_TRACKER_CONFIGURATION_SET_ATYPE_FCT
 
 GSList *
 tracker_configuration_get_list (TrackerConfiguration * configuration,
@@ -498,12 +504,11 @@ tracker_configuration_set_list (TrackerConfiguration * configuration,
 		set_list (configuration, key, value, type);
 }
 
-
-static char *
-string_replace (const char *haystack, char *needle, char *replacement)
+static gchar *
+string_replace (const gchar *haystack, gchar *needle, gchar *replacement)
 {
         GString *str;
-        int pos, needle_len;
+        gint pos, needle_len;
 
 	g_return_val_if_fail (haystack && needle, NULL);
 
@@ -511,10 +516,8 @@ string_replace (const char *haystack, char *needle, char *replacement)
 
         str = g_string_new ("");
 
-        for (pos = 0; haystack[pos]; pos++)
-        {
-                if (strncmp (&haystack[pos], needle, needle_len) == 0)
-                {
+        for (pos = 0; haystack[pos]; pos++) {
+                if (strncmp (&haystack[pos], needle, needle_len) == 0) {
 			if (replacement) {
 	                        str = g_string_append (str, replacement);
 			}
@@ -529,7 +532,6 @@ string_replace (const char *haystack, char *needle, char *replacement)
         return g_string_free (str, FALSE);
 }
 
-
 static void
 _write (TrackerConfiguration * configuration)
 {
@@ -537,8 +539,9 @@ _write (TrackerConfiguration * configuration)
 	TrackerConfigurationPrivate *priv =
 		TRACKER_CONFIGURATION_GET_PRIVATE (self);
 
-	if (!priv->dirty)
+	if (!priv->dirty) {
 		return;
+        }
 
 	gsize length = 0;
 	GError *error = NULL;
@@ -569,9 +572,9 @@ _write (TrackerConfiguration * configuration)
 */
 	char *my_contents = g_key_file_to_data (priv->keyfile, &length, &error);
 
-	if (error)
-		g_error ("failed: g_key_file_to_data(): %s\n",
-			 error->message);
+	if (error) {
+		g_error ("failed: g_key_file_to_data(): %s\n", error->message);
+        }
 
 	contents = string_replace (my_contents, "\n\n\n", "\n\n");
 
@@ -584,92 +587,61 @@ _write (TrackerConfiguration * configuration)
 	priv->dirty = FALSE;
 }
 
-static gboolean
-_get_bool (TrackerConfiguration * configuration, const gchar * const key,
-	   GError ** error)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
+#define MAKE_GET_ATYPE_FCT(TypeName, Type, Type_g_key_file_fct)                 \
+  static Type                                                                   \
+  _get_##TypeName (TrackerConfiguration * configuration,                        \
+                   const gchar * const key,                                     \
+                   GError ** error)                                             \
+  {                                                                             \
+	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);     \
+	TrackerConfigurationPrivate *priv =                                     \
+		TRACKER_CONFIGURATION_GET_PRIVATE (self);                       \
+                                                                                \
+	gchar **data = g_strsplit (key, "/", 3);                                \
+                                                                                \
+        if (g_key_file_has_key (priv->keyfile, data[1], data[2], error)) {      \
+                Type value;                                                     \
+                value = g_key_file_get_##Type_g_key_file_fct (priv->keyfile,    \
+                                                              data[1],          \
+                                                              data[2],          \
+                                                              error);           \
+                                                                                \
+                g_strfreev (data);                                              \
+                                                                                \
+                return value;                                                   \
+        } else {                                                                \
+                return FALSE;                                                   \
+        }                                                                       \
+  }
 
-	gboolean value = FALSE;
-	gchar **data = g_strsplit (key, "/", 3);
+#define MAKE_SET_ATYPE(TypeName, Type, Type_g_key_file_fct)                     \
+  static void                                                                   \
+  _set_##TypeName (TrackerConfiguration * configuration,                        \
+                   const gchar * const key,                                     \
+                   const Type value)                                            \
+  {                                                                             \
+        TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);     \
+        TrackerConfigurationPrivate *priv =                                     \
+                TRACKER_CONFIGURATION_GET_PRIVATE (self);                       \
+                                                                                \
+        gchar **data = g_strsplit (key, "/", 3);                                \
+        g_key_file_set_##Type_g_key_file_fct (priv->keyfile, data[1],           \
+                                              data[2], value);                  \
+                                                                                \
+        g_strfreev (data);                                                      \
+        priv->dirty = TRUE;                                                     \
+  }
 
-	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error))
-		value = g_key_file_get_boolean (priv->keyfile, data[1],
-						data[2], error);
+MAKE_GET_ATYPE_FCT (bool, gboolean, boolean)
+MAKE_SET_ATYPE (bool, gboolean, boolean)
 
-	g_strfreev (data);
-	return value;
-}
+MAKE_GET_ATYPE_FCT (int, int, integer)
+MAKE_SET_ATYPE (int, int, integer)
 
-static void
-_set_bool (TrackerConfiguration * configuration, const gchar * const key,
-	   const gboolean value)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
+MAKE_GET_ATYPE_FCT (string, gchar*, string)
 
-	gchar **data = g_strsplit (key, "/", 3);
-	g_key_file_set_boolean (priv->keyfile, data[1], data[2], value);
-	g_strfreev (data);
-
-	priv->dirty = TRUE;
-}
-
-static gint
-_get_int (TrackerConfiguration * configuration, const gchar * const key,
-	  GError ** error)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
-
-	gint value = 0;
-	gchar **data = g_strsplit (key, "/", 3);
-
-	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error))
-		value = g_key_file_get_integer (priv->keyfile, data[1],
-						data[2], error);
-
-	g_strfreev (data);
-	return value;
-}
-
-static void
-_set_int (TrackerConfiguration * configuration, const gchar * const key,
-	  const gint value)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
-
-	gchar **data = g_strsplit (key, "/", 3);
-	g_key_file_set_integer(priv->keyfile, data[1], data[2], value);
-	g_strfreev (data);
-
-	priv->dirty = TRUE;
-}
-
-static gchar *
-_get_string (TrackerConfiguration * configuration, const gchar * const key,
-	     GError ** error)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
-
-	gchar *value = NULL;
-	gchar **data = g_strsplit (key, "/", 3);
-
-	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error))
-		value = g_key_file_get_string (priv->keyfile, data[1],
-					       data[2], error);
-
-	g_strfreev (data);
-	return value;
-}
+#undef MAKE_GET_ATYPE_FCT
+#undef MAKE_SET_ATYPE_FCT
 
 static void
 _set_string (TrackerConfiguration * configuration, const gchar * const key,
@@ -690,8 +662,6 @@ static GSList *
 _get_list (TrackerConfiguration * configuration, const gchar * const key,
 	   GType type, GError ** error)
 {
-	
-
 	switch (type) {
 	case G_TYPE_BOOLEAN:
 		return _get_boolean_list (configuration, key, error);
@@ -713,131 +683,84 @@ _get_list (TrackerConfiguration * configuration, const gchar * const key,
 	return NULL;
 }
 
-static GSList *
-_get_boolean_list (TrackerConfiguration * configuration,
-		   const gchar * const key, GError ** error)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
+#define MAKE_GET_ATYPE_LIST_FCT(TypeName, Type, Type_g_key_file_fct)            \
+  static GSList *                                                               \
+  _get_##TypeName##_list (TrackerConfiguration * configuration,                 \
+                          const gchar * const key,                              \
+                          GError ** error)                                      \
+  {                                                                             \
+        TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);     \
+	TrackerConfigurationPrivate *priv =                                     \
+		TRACKER_CONFIGURATION_GET_PRIVATE (self);                       \
+                                                                                \
+        gchar **data = g_strsplit (key, "/", 3);                                \
+	GSList *retval = NULL;                                                  \
+                                                                                \
+	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error)) {      \
+                gsize length = 0;                                               \
+                Type *values;                                                   \
+                                                                                \
+		values =                                                        \
+                  g_key_file_get_##Type_g_key_file_fct##_list (priv->keyfile,   \
+                                                               data[1],         \
+                                                               data[2],         \
+                                                               &length,         \
+                                                               error);          \
+                if (values) {                                                   \
+                        gsize i;                                                \
+                        for (i = 0; i < length; i++) {                          \
+                                Type *value = g_new0 (Type, 1);                 \
+                                *value = values[i];                             \
+                                retval = g_slist_prepend (retval, value);       \
+                        }                                                       \
+                }                                                               \
+                                                                                \
+                g_strfreev (data);                                              \
+                g_free (values);                                                \
+        }                                                                       \
+                                                                                \
+        return g_slist_reverse (retval);                                        \
+  }
 
-	gsize i = 0;
-	gsize length = 0;
-	gboolean *values = NULL;
-	GSList *retval = g_slist_alloc ();
-	gchar **data = g_strsplit (key, "/", 3);
+MAKE_GET_ATYPE_LIST_FCT (boolean, gboolean, boolean)
+MAKE_GET_ATYPE_LIST_FCT (double, gdouble, double)
+MAKE_GET_ATYPE_LIST_FCT (int, gint, integer)
 
-	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error))
-		values = g_key_file_get_boolean_list (priv->keyfile, data[1],
-						      data[2], &length,
-						      error);
-
-	if (values)
-		for (; i < length; ++i) {
-			gboolean *value = g_new0 (gboolean, 1);
-			*value = values[i];
-
-			retval = g_slist_insert (retval, value, -1);
-		}
-
-	g_strfreev (data);
-	g_free (values);
-
-	return retval;
-}
-
-static GSList *
-_get_double_list (TrackerConfiguration * configuration,
-		  const gchar * const key, GError ** error)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
-
-	gsize i = 0;
-	gsize length = 0;
-	gdouble *values = NULL;
-	GSList *retval = g_slist_alloc ();
-	gchar **data = g_strsplit (key, "/", 3);
-
-	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error))
-		values = g_key_file_get_double_list (priv->keyfile, data[1],
-						     data[2], &length, error);
-
-	if (values)
-		for (; i < length; ++i) {
-			gdouble *value = g_new0 (gdouble, 1);
-			*value = values[i];
-
-			retval = g_slist_insert (retval, value, -1);
-		}
-
-	g_strfreev (data);
-	g_free (values);
-
-	return retval;
-}
-
-static GSList *
-_get_int_list (TrackerConfiguration * configuration, const gchar * const key,
-	       GError ** error)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
-
-	gsize i = 0;
-	gsize length = 0;
-	gint *values = NULL;
-	GSList *retval = g_slist_alloc ();
-	gchar **data = g_strsplit (key, "/", 3);
-
-	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error))
-		values = g_key_file_get_integer_list (priv->keyfile, data[1],
-						      data[2], &length,
-						      error);
-
-	if (values)
-		for (; i < length; ++i) {
-			gint *value = g_new0 (gint, 1);
-			*value = values[i];
-
-			retval = g_slist_insert (retval, value, -1);
-		}
-
-	g_strfreev (data);
-	g_free (values);
-
-	return retval;
-}
+#undef MAKE_GET_ATYPE_LIST_FCT
 
 static GSList *
 _get_string_list (TrackerConfiguration * configuration,
-		  const gchar * const key, GError ** error)
+                  const gchar * const key,
+                  GError ** error)
 {
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
+        TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
+        TrackerConfigurationPrivate *priv = TRACKER_CONFIGURATION_GET_PRIVATE (self);
 
-	gsize i = 0;
-	gsize length = 0;
-	gchar **values = NULL;
-	GSList *retval = g_slist_alloc ();
-	gchar **data = g_strsplit (key, "/", 3);
+        gchar **data = g_strsplit (key, "/", 3);
+        GSList *retval = NULL;
 
-	if (g_key_file_has_key (priv->keyfile, data[1], data[2], error))
-		values = g_key_file_get_string_list (priv->keyfile, data[1],
-						     data[2], &length, error);
+        if (g_key_file_has_key (priv->keyfile, data[1], data[2], error)) {
+                gsize length = 0;
+                gchar **values;
 
-	if (values)
-		for (; i < length; ++i)
-			retval = g_slist_insert (retval, g_strdup (values[i]),
-						 -1);
+                values = g_key_file_get_string_list (priv->keyfile,
+                                                     data[1],
+                                                     data[2],
+                                                     &length,
+                                                     error);
+                if (values) {
+                        gsize i;
+                        for (i = 0; i < length; i++) {
+                                gchar *value = g_strdup (values[i]);
+                                retval = g_slist_prepend (retval, value);
+                        }
+                }
 
-	g_strfreev (data);
-	g_strfreev (values);
+                g_strfreev (data);
+                g_free (values);
+        }
 
-	return retval;
+        return g_slist_reverse (retval);
 }
 
 static void
@@ -869,77 +792,42 @@ _set_list (TrackerConfiguration * configuration, const gchar * const key,
 	priv->dirty = TRUE;
 }
 
-static void
-_set_boolean_list (TrackerConfiguration * configuration,
-		   const gchar * const key, const GSList * const value)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
+#define MAKE_SET_ATYPE_LIST_FCT(TypeName, Type, Type_g_key_file_fct)            \
+  static void                                                                   \
+  _set_##TypeName##_list (TrackerConfiguration * configuration,                 \
+                          const gchar * const key,                              \
+                          const GSList * const value)                           \
+  {                                                                             \
+        TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);     \
+	TrackerConfigurationPrivate *priv =                                     \
+		TRACKER_CONFIGURATION_GET_PRIVATE (self);                       \
+                                                                                \
+	gchar **data = g_strsplit (key, "/", 3);                                \
+	guint length = g_slist_length ((GSList *) value);                       \
+	Type *list = g_new0 (Type, length);                                     \
+                                                                                \
+	guint i;                                                                \
+        const GSList *tmp;                                                      \
+        for (i = 0, tmp = value; tmp; tmp = tmp->next, i++) {                   \
+                if (tmp->data) {                                                \
+                        Type *n = tmp->data;                                    \
+                        list[i] = *n;                                           \
+                }                                                               \
+        }                                                                       \
+                                                                                \
+	g_key_file_set_##Type_g_key_file_fct##_list (priv->keyfile,             \
+                                                     data[1], data[2],          \
+                                                     list, length);             \
+                                                                                \
+	g_strfreev (data);                                                      \
+	g_free (list);                                                          \
+  }
 
-	gsize i = 0;
-	guint length = g_slist_length ((GSList *) value);
-	gchar **data = g_strsplit (key, "/", 3);
-	gboolean *list = g_new0 (gboolean, length);
+MAKE_SET_ATYPE_LIST_FCT (boolean, gboolean, boolean)
+MAKE_SET_ATYPE_LIST_FCT (double, gdouble, double)
+MAKE_SET_ATYPE_LIST_FCT (int, gint, integer)
 
-	for (; i < length; ++i)
-		list[i] =
-			*(gboolean
-			  *) (g_slist_nth_data ((GSList *) value, i));
-
-	g_key_file_set_boolean_list (priv->keyfile, data[1], data[2], list,
-				     length);
-
-	g_strfreev (data);
-	g_free (list);
-}
-
-static void
-_set_double_list (TrackerConfiguration * configuration,
-		  const gchar * const key, const GSList * const value)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
-
-	gsize i = 0;
-	guint length = g_slist_length ((GSList *) value);
-	gchar **data = g_strsplit (key, "/", 3);
-	gdouble *list = g_new0 (gdouble, length);
-
-	for (; i < length; ++i)
-		list[i] =
-			*(gdouble *) (g_slist_nth_data ((GSList *) value, i));
-
-	g_key_file_set_double_list (priv->keyfile, data[1], data[2], list,
-				    length);
-
-	g_strfreev (data);
-	g_free (list);
-}
-
-static void
-_set_int_list (TrackerConfiguration * configuration, const gchar * const key,
-	       const GSList * const value)
-{
-	TrackerConfiguration *self = TRACKER_CONFIGURATION (configuration);
-	TrackerConfigurationPrivate *priv =
-		TRACKER_CONFIGURATION_GET_PRIVATE (self);
-
-	gsize i = 0;
-	guint length = g_slist_length ((GSList *) value);
-	gchar **data = g_strsplit (key, "/", 3);
-	gint *list = g_new0 (gint, length);
-
-	for (; i < length; ++i)
-		list[i] = *(gint *) (g_slist_nth_data ((GSList *) value, i));
-
-	g_key_file_set_integer_list (priv->keyfile, data[1], data[2], list,
-				     length);
-
-	g_strfreev (data);
-	g_free (list);
-}
+#undef MAKE_SET_ATYPE_LIST_FCT
 
 static void
 _set_string_list (TrackerConfiguration * configuration,
@@ -950,19 +838,23 @@ _set_string_list (TrackerConfiguration * configuration,
 		TRACKER_CONFIGURATION_GET_PRIVATE (self);
 
 	gchar **data = g_strsplit (key, "/", 3);
-
-	guint i = 0;
 	guint length = g_slist_length ((GSList *) value);
-	gchar **list = g_new0 (gchar *, length + 1);
+        gchar **list = g_new0 (gchar *, length + 1);
 
-	for (; i < length; i++)
-		list[i] = g_strdup (g_slist_nth_data ((GSList *) value, i));
+        guint i;
+        const GSList *tmp;
+        for (i = 0, tmp = value; tmp; tmp = tmp->next, i++) {
+                if (tmp->data) {
+                        gchar *value = g_strdup (tmp->data);
+                        list[i] = value;
+                }
+        }
 
-	g_key_file_set_string_list (priv->keyfile, data[1], data[2],
-				    (const gchar **) list, length);
+        g_key_file_set_string_list (priv->keyfile, data[1], data[2],
+                                    (const gchar **) list, length);
 
-	g_strfreev (data);
-	g_strfreev (list);
+        g_strfreev (data);
+        g_strfreev (list);
 }
 
 GType

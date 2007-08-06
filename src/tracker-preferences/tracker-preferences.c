@@ -1,5 +1,26 @@
+/* Tracker - indexer and metadata database engine
+ * Copyright (C) 2007, Saleem Abdulrasool (compnerd@gentoo.org)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ */
+
+#include <string.h>
 #include "tracker-preferences.h"
 #include "tracker-preferences-private.h"
+#include "tracker-preferences-dialogs.h"
 
 static GObjectClass *parent_class = NULL;
 
@@ -168,7 +189,7 @@ setup_page_general (TrackerPreferences * preferences)
 						"/Indexing/Language",
 						NULL);
 
-	int i;
+	gint i;
 	gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 2);
 
 	for (i=0; i<12; i++) {
@@ -192,7 +213,7 @@ setup_page_performance (TrackerPreferences * preferences)
 		TRACKER_CONFIGURATION (priv->prefs);
 
 	GtkWidget *widget = NULL;
-	int value = 0;
+	gint value = 0;
 	gboolean bvalue = FALSE;
 
 	widget = glade_xml_get_widget (priv->gxml, "scaThrottle");
@@ -241,9 +262,6 @@ setup_page_files (TrackerPreferences * preferences)
 	GSList *list = NULL;
 	gboolean value = FALSE;
 	GtkWidget *widget = NULL;
-	guint available_services = 0;
-	
-
 
 	widget = glade_xml_get_widget (priv->gxml, "chkIndexContents");
 	value = tracker_configuration_get_bool (configuration,
@@ -299,7 +317,6 @@ setup_page_files (TrackerPreferences * preferences)
 	initialize_listview (widget);
 	populate_list (widget, list);
 	g_slist_free (list);
-
 }
 
 static void
@@ -312,7 +329,6 @@ setup_page_ignored_files (TrackerPreferences * preferences)
 		TRACKER_CONFIGURATION (priv->prefs);
 
 	GSList *list = NULL;
-	gboolean value = FALSE;
 	GtkWidget *widget = NULL;
 	
 	/* Ignore Paths */
@@ -387,8 +403,7 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 
 	GSList *list = NULL;
 	gboolean value = FALSE;
-	int ivalue;
-	GtkWidget *item = NULL;
+	gint ivalue;
 
 	/* save general settings */
         widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
@@ -406,14 +421,12 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 					"/Watches/EnableWatching", value);
 
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
-	int i = gtk_combo_box_get_active (GTK_COMBO_BOX (widget));
+	gint i = gtk_combo_box_get_active (GTK_COMBO_BOX (widget));
 
-	if (i==-1) {
-		
-	} else {
+	if (i != -1) {
 		tracker_configuration_set_string (configuration,
-						"/Indexing/Language",
-						tmap[i].lang);
+                                                  "/Indexing/Language",
+                                                  tmap[i].lang);
 	}
 
 
@@ -424,40 +437,34 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	ivalue = gtk_range_get_value (GTK_RANGE (widget));
 
 	tracker_configuration_set_int (configuration,
-					"/Indexing/Throttle",
-					ivalue);
-
+                                       "/Indexing/Throttle",
+                                       ivalue);
 
 
 	widget = glade_xml_get_widget (priv->gxml, "optReducedMemory");
 	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 
 	tracker_configuration_set_bool (configuration,
-						"/General/LowMemoryMode",
-						value);
+                                        "/General/LowMemoryMode",
+                                        value);
 
 
 	widget = glade_xml_get_widget (priv->gxml, "spnMaxText");
 	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 	ivalue = ivalue * 1024;
 	tracker_configuration_set_int (configuration,
-					"/Performance/MaxTextToIndex",
-					ivalue);
+                                       "/Performance/MaxTextToIndex",
+                                       ivalue);
 
 	
-
 	widget = glade_xml_get_widget (priv->gxml, "spnMaxWords");
 	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(widget));
 	tracker_configuration_set_int (configuration,	
-					"/Performance/MaxWordsToIndex",
-					ivalue);
-
-
-
+                                       "/Performance/MaxWordsToIndex",
+                                       ivalue);
 
 
 	/* files settings */
-
 
 
 	widget = glade_xml_get_widget (priv->gxml, "chkIndexContents");
@@ -469,22 +476,22 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	widget = glade_xml_get_widget (priv->gxml, "chkGenerateThumbs");
 	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 	tracker_configuration_set_bool (configuration,
-					"/Indexing/EnableThumbnails", value);
+					"/Indexing/EnableThumbnails",
+                                        value);
 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "lstAdditionalPathIndexes");
 	list = treeview_get_values (GTK_TREE_VIEW (widget));
 
 	widget = glade_xml_get_widget (priv->gxml, "chkIndexHomeDirectory");
-	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
-		list = g_slist_insert (list, g_strdup (g_get_home_dir ()), 0);
-
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
+		list = g_slist_prepend (list, g_strdup (g_get_home_dir ()));
+        }
 	tracker_configuration_set_list (configuration,
 					"/Watches/WatchDirectoryRoots", list,
 					G_TYPE_STRING);
 	g_slist_free (list);
 	list = NULL;
-
 
 
 	widget = glade_xml_get_widget (priv->gxml,
@@ -498,7 +505,6 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 
 
 	/* ignored files settings */
-
 
 
 	widget = glade_xml_get_widget (priv->gxml, "lstIgnorePaths");
@@ -536,10 +542,6 @@ static void
 cmdAddCrawledPath_Clicked (GtkWidget * widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
-	TrackerPreferencesPrivate *priv =
-		TRACKER_PREFERENCES_GET_PRIVATE (self);
-
-	GtkWidget *item = NULL;
 	gchar *path = tracker_preferences_select_folder ();
 
 	if (!path)
@@ -699,9 +701,8 @@ static GSList *
 treeview_get_values (GtkTreeView * treeview)
 {
 	GtkTreeIter iter;
-	GSList *list = g_slist_alloc ();
-	GtkTreeModel *model =
-		gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
+	GSList *list = NULL;
+	GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (treeview));
 
 	if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &iter))
 		do {
@@ -709,11 +710,10 @@ treeview_get_values (GtkTreeView * treeview)
 			gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 0,
 					    &value, -1);
 
-			if (value)
-				list = g_slist_insert (list, g_strdup (value),
-						       0);
-		} while (gtk_tree_model_iter_next
-			 (GTK_TREE_MODEL (model), &iter));
+			if (value) {
+				list = g_slist_prepend (list, g_strdup (value));
+                        }
+		} while (gtk_tree_model_iter_next (GTK_TREE_MODEL (model), &iter));
 
 	return list;
 }
@@ -743,7 +743,7 @@ initialize_listview (GtkWidget * treeview)
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	gtk_tree_view_set_model (GTK_TREE_VIEW (treeview),
 				 GTK_TREE_MODEL (store));
-	g_object_unref (store);	/* this will delete the store when the view is destoryed */
+	g_object_unref (store);	/* this will delete the store when the view is destroyed */
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Column 0",
