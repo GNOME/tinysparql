@@ -74,10 +74,41 @@ tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
 		return;
 	}
 
-	//tracker_log ("Executing detailed search with params %s, %s, %d, %d", service, str, offset, limit);
+	//tracker_log ("Executing GetHitCount with params %s, %s", service, str);
 
-	
+	char **array;
+	int service_array[1];
+	int result;
+	DBusMessage *reply;
 
+	service_array[0] = tracker_get_id_for_service (service);
+
+	SearchQuery *query = tracker_create_query (tracker->file_indexer, service_array, 1, 0, 999999);
+
+	array = tracker_parse_text_into_array (str);
+
+	char **pstr;
+
+	for (pstr = array; *pstr; pstr++) {
+		tracker_add_query_word (query, *pstr, WordNormal);
+	}
+
+	g_strfreev (array);
+
+	result = tracker_get_hit_count (query);
+
+	tracker_free_query (query);
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_message_append_args (reply,
+	  			  DBUS_TYPE_INT32,
+				  &result,
+	  			  DBUS_TYPE_INVALID);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+
+	dbus_message_unref (reply);
 }
 
 

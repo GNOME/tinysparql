@@ -1,3 +1,7 @@
+2007-08-05  Marko Anastasov  <marko@marko.anastasov.name>
+
+	* Implemented tracker_dbus_method_search_get_hit_count.
+	
 2007-08-04 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* fixed crasher in email indexing when parsing mimes

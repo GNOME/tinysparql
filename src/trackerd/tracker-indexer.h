@@ -89,6 +89,7 @@ gboolean	tracker_indexer_update_word 		(Indexer *indexer, const char *word, guin
 
 gboolean	tracker_indexer_get_hits 		(SearchQuery *query);
 char ***	tracker_get_hit_counts 			(SearchQuery *query);
+int		tracker_get_hit_count 			(SearchQuery *query);
 
 
 #endif

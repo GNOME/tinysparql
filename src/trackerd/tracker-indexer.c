@@ -1076,3 +1076,25 @@ tracker_get_hit_counts (SearchQuery *query)
 
 	return (char ***) res;
 }
+
+int
+tracker_get_hit_count (SearchQuery *query)
+{
+	if (tracker_shutdown) {
+                return 0;
+	}
+
+	g_return_val_if_fail ((query && query->words), 0);
+
+	int word_count = g_slist_length (query->words);
+
+	if (word_count == 0) {
+                return 0;
+        }
+
+	if (!tracker_indexer_get_hits (query)) {
+		return 0;
+	} else {
+		return query->hit_count;
+	}
+}
