@@ -953,6 +953,7 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 	}
 
 	winner_str = NULL;
+        winner_dist = -1;  /* to initialize winner_dist with something */
 
 	criterinit (tracker->file_indexer->word_index);
 

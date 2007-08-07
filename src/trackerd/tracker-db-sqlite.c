@@ -465,7 +465,10 @@ tracker_db_initialize (const char *datadir)
 		char buffer[8192];
 		char *sep;
 
-		fgets (buffer, 8192, file);
+		if (!fgets (buffer, 8192, file)) {
+                        tracker_error ("ERROR: while reading file %s", sql_file);
+                        break;
+                }
 
 		if (strlen (buffer) < 5) {
 			continue;
@@ -1192,7 +1195,9 @@ lock_db (void)
 		if (fd >= 0) {
 
 			/* create host specific file and link to lock file */
-			link (lock_file, tmp_file);
+                        if (link (lock_file, tmp_file) == -1) {
+                                goto error;
+                        }
 
 			/* for atomic NFS-safe locks, stat links = 2 if file locked. If greater than 2 then we have a race condition */
 			if (get_nlinks (lock_file) == 2) {
@@ -1208,6 +1213,7 @@ lock_db (void)
 		}
 	}
 
+ error:
 	tracker_error ("ERROR: lock failure");
 	g_free (lock_file);
 	g_free (tmp_file);

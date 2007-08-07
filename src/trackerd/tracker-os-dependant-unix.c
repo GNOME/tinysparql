@@ -17,11 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <errno.h>
 #include <unistd.h>
 #include <sys/resource.h>
+#include <glib.h>
 #include <glib/gspawn.h>
 #include <glib/gstring.h>
-#include <glib.h>
 
 #include "tracker-os-dependant.h"
 
@@ -146,11 +147,18 @@ tracker_child_cb (gpointer user_data)
 	cpu_limit.rlim_max = timeout+1;
 
 	if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
-		g_print ("ERROR: trying to set resource limit for cpu\n");
+		g_printerr ("ERROR: trying to set resource limit for cpu\n");
 	}
 
 	set_memory_rlimits ();
 
 	/* Set child's niceness to 19 */
-	nice (19);
+        errno = 0;
+        /* nice() uses attribute "warn_unused_result" and so complains if we do not check its
+           returned value. But it seems that since glibc 2.2.4, nice() can return -1 on a
+           successful call so we have to check value of errno too. Stupid... */
+        if (nice (19) == -1 && errno) {
+                g_printerr ("ERROR: trying to set nice value\n");
+        }
+
 }

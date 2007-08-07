@@ -409,9 +409,9 @@ get_attachment_service_name (MailApplication app)
 gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
-       	int	mbox_id, type_id, id, i, len;
-	char    *service, *attachment_service, *mime;
-	char 	*array[255];
+       	gint  mbox_id, type_id, id, i, len;
+	gchar *service, *attachment_service, *mime;
+	gchar *array[255];
 
         #define LIMIT_ARRAY_LENGTH(len) ((len) > 255 ? 255 : (len))
 
@@ -451,6 +451,8 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		return TRUE;
 	}
+
+        mbox_id = -1; /* to have a default value */
 
 	if (mm->parent_mail_file) {
 		
@@ -502,9 +504,9 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	tracker_free_file_info (info);
 
 	if (id != 0) {
-		GHashTable      *index_table;
-		char		*str_id, *str_date, *tmp_date;
-		GSList          *tmp;
+		GHashTable *index_table;
+		gchar	   *str_id, *str_date;
+		GSList     *tmp;
 
 		tracker_db_start_transaction (db_con);
 

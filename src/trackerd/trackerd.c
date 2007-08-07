@@ -23,6 +23,7 @@
 
 #include "config.h"
 
+#include <errno.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -1030,9 +1031,9 @@ process_files_thread (void)
 
 
 						case INDEX_CONVERSATIONS: {
-								char *gaim, *purple;
+								gchar    *gaim, *purple;
 								gboolean has_logs = FALSE;
-								GSList *list;
+								GSList   *list    = NULL;
 
 								/* sleep for N secs before watching/indexing any of the major services */
 								if (tracker->initial_sleep > 0) {
@@ -2366,7 +2367,14 @@ main (int argc, char **argv)
 		exit (0);
 	}
 
-	nice (19);
+	/* Set child's niceness to 19 */
+        errno = 0;
+        /* nice() uses attribute "warn_unused_result" and so complains if we do not check its
+           returned value. But it seems that since glibc 2.2.4, nice() can return -1 on a
+           successful call so we have to check value of errno too. Stupid... */
+        if (nice (19) == -1 && errno) {
+                g_printerr ("ERROR: trying to set nice value\n");
+        }
 
 #ifdef IOPRIO_SUPPORT
 	ioprio ();
