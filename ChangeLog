@@ -1,14 +1,21 @@
+2007-08-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Remove some warnings at building of tracker-extract
+	* Adds more recognized date formats for Postscript files in tracker-extract
+	* Code cleanups in tracker-extract
+
+
 2007-08-07 Michael Biebl  <mbiebl at gmail com>
 	
 	* Generate the D-Bus client-side bindings automatically from the
 	introspection XML file
-	
+
 
 2007-08-06 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Adds copyright headers in tracker-preferences' files
 	* Remove some code duplications in tracker-configuration.c
-	* Code cleanups in code of tracker-preferences
+	* Code cleanups in tracker-preferences
 
 
 2007-08-05  Marko Anastasov  <marko@marko.anastasov.name>

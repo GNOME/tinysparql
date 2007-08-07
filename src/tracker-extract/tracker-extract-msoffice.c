@@ -17,7 +17,9 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+
 #include "config.h"
+#include "tracker-extract.h"
 
 #ifdef HAVE_LIBGSF
 
@@ -38,16 +40,14 @@ add_gvalue_in_hash_table (GHashTable *table, const gchar *key, GValue const *val
 	g_return_if_fail (table && key);
 
 	if (val) {
-		gchar *s;
-
-		s = g_strdup_value_contents (val);
+		gchar *s = g_strdup_value_contents (val);
 
 		if (s) {
-			if (s[0] != '\0') {
+			if (!tracker_is_empty_string (s)) {
 				gchar *str_val;
 
 				/* Some fun: strings are always written "str" with double quotes around, but not numbers! */
-				if (s && s[0] == '"') {
+				if (s[0] == '"') {
 					size_t len;
 
 					len = strlen (s);
@@ -78,42 +78,36 @@ add_gvalue_in_hash_table (GHashTable *table, const gchar *key, GValue const *val
 static void
 metadata_cb (gpointer key, gpointer value, gpointer user_data)
 {
-	gchar		*name;
-	GsfDocProp	*property;
-	GHashTable	*metadata;
-	GValue const	*val;
-
-	name = (gchar *) key;
-	property = (GsfDocProp *) value;
-	metadata = (GHashTable *) user_data;
-
-	val = gsf_doc_prop_get_val (property);
+        gchar        *name     = key;
+	GsfDocProp   *property = value;
+	GHashTable   *metadata = user_data;
+	GValue const *val      = gsf_doc_prop_get_val (property);
 
 	if (strcmp (name, "dc:title") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:Title", val);
-	}
-	else if (strcmp (name, "dc:subject") == 0) {
+
+	} else if (strcmp (name, "dc:subject") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:Subject", val);
-	}
-	else if (strcmp (name, "dc:creator") == 0) {
+
+	} else if (strcmp (name, "dc:creator") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:Author", val);
-	}
-	else if (strcmp (name, "dc:keywords") == 0) {
+
+	} else if (strcmp (name, "dc:keywords") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:Keywords", val);
-	}
-	else if (strcmp (name, "dc:description") == 0) {
+
+	} else if (strcmp (name, "dc:description") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:Comments", val);
-	}
-	else if (strcmp (name, "gsf:page-count") == 0) {
+
+	} else if (strcmp (name, "gsf:page-count") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:PageCount", val);
-	}
-	else if (strcmp (name, "gsf:word-count") == 0) {
+
+	} else if (strcmp (name, "gsf:word-count") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:WordCount", val);
-	}
-	else if (strcmp (name, "meta:creation-date") == 0) {
+
+	} else if (strcmp (name, "meta:creation-date") == 0) {
 		add_gvalue_in_hash_table (metadata, "Doc:Created", val);
-	}
-	else if (strcmp (name, "meta:generator") == 0) {
+
+	} else if (strcmp (name, "meta:generator") == 0) {
 		add_gvalue_in_hash_table (metadata, "File:Other", val);
 	}
 }
@@ -122,16 +116,10 @@ metadata_cb (gpointer key, gpointer value, gpointer user_data)
 static void
 doc_metadata_cb (gpointer key, gpointer value, gpointer user_data)
 {
-	gchar		*name;
-	GsfDocProp	*property;
-	GHashTable	*metadata;
-	GValue const	*val;
-
-	name = (gchar *) key;
-	property = (GsfDocProp *) value;
-	metadata = (GHashTable *) user_data;
-
-	val = gsf_doc_prop_get_val (property);
+        gchar        *name     = key;
+	GsfDocProp   *property = value;
+	GHashTable   *metadata = user_data;
+	GValue const *val      = gsf_doc_prop_get_val (property);
 
 	if (strcmp (name, "CreativeCommons_LicenseURL") == 0) {
 		add_gvalue_in_hash_table (metadata, "File:License", val);
@@ -142,9 +130,9 @@ doc_metadata_cb (gpointer key, gpointer value, gpointer user_data)
 void
 tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
 {
-	GsfInput	*input;
-	GsfInfile	*infile;
-	GsfInput	*stream;
+	GsfInput  *input;
+	GsfInfile *infile;
+	GsfInput  *stream;
 
 	gsf_init ();
 

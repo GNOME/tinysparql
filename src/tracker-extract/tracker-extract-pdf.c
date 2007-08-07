@@ -18,7 +18,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
 #include "config.h"
 
 #ifdef HAVE_POPPLER
@@ -30,36 +29,40 @@
 #include "tracker-extract.h"
 
 
-void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
+void
+tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 {
 	PopplerDocument *document;
 	gchar           *tmp;
-	gchar           *title = NULL;
-	gchar           *author = NULL;
-	gchar           *subject = NULL;
-	gchar           *keywords = NULL;
-	gchar           *metadata_xml = NULL;
+	gchar           *title          = NULL;
+	gchar           *author         = NULL;
+	gchar           *subject        = NULL;
+	gchar           *keywords       = NULL;
+	gchar           *metadata_xml   = NULL;
 	GTime            creation_date;
-	GError          *error = NULL;
+	GError          *error          = NULL;
 
 	g_type_init ();
+
 	tmp = g_strconcat ("file://", filename, NULL);
 	document = poppler_document_new_from_file (tmp, NULL, &error);
 	g_free (tmp);
-	if (document == NULL || error)
+
+	if (document == NULL || error) {
 		return;
+        }
 
 	g_object_get (document,
-		"title", &title,
-		"author", &author,
-		"subject", &subject,
-		"keywords", &keywords,
-		"creation-date", &creation_date,
-		NULL);
+                      "title", &title,
+                      "author", &author,
+                      "subject", &subject,
+                      "keywords", &keywords,
+                      "creation-date", &creation_date,
+                      NULL);
 
 	/* metadata property not present in older poppler versions */
-	if (g_object_class_find_property(G_OBJECT_GET_CLASS(document), "metadata")) {
-		g_object_get(document, "metadata", &metadata_xml, NULL);
+	if (g_object_class_find_property (G_OBJECT_GET_CLASS (document), "metadata")) {
+		g_object_get (document, "metadata", &metadata_xml, NULL);
         }
 
 	if (!tracker_is_empty_string (title)) {
@@ -86,7 +89,7 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 		g_strdup_printf ("%d", poppler_document_get_n_pages (document)));
 
 	if ( metadata_xml ) {
-		tracker_read_xmp (metadata_xml,strlen(metadata_xml),metadata);
+		tracker_read_xmp (metadata_xml, strlen (metadata_xml), metadata);
 	}
 
 	g_free (title);
@@ -94,6 +97,7 @@ void tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 	g_free (subject);
 	g_free (keywords);
 	g_free (metadata_xml);
+
 	g_object_unref (document);
 }
 

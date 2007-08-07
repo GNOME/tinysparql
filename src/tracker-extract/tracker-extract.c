@@ -20,6 +20,7 @@
 
 #include "config.h"
 
+#include <errno.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +31,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <glib.h>
+
+#include "tracker-extract.h"
 
 #define MAX_MEM 128
 #define MAX_MEM_AMD64 512
@@ -163,6 +166,248 @@ MimeToExtractor extractors[] = {
 };
 
 
+static gboolean
+read_day (gchar *day, gint *ret)
+{
+        guint64 val = g_ascii_strtoull (day, NULL, 10);
+
+        if (val == G_MAXUINT64) {
+                return FALSE;
+        } else {
+                *ret = CLAMP (val, 1, 31);
+                return TRUE;
+        }
+}
+
+
+static gboolean
+read_month (gchar *month, gint *ret)
+{
+        if (g_ascii_isdigit (month[0])) {
+                /* month is already given in a numerical form */
+                guint64 val = g_ascii_strtoull (month, NULL, 10) - 1;
+
+                if (val == G_MAXUINT64) {
+                        return FALSE;
+                } else {
+                        *ret = CLAMP (val, 0, 11);
+                        return TRUE;
+                }
+        } else {
+                /* month is given by its name */
+                gchar *months[] = {
+                        "Ja", "Fe", "Mar", "Av", "Ma", "Jun",
+                        "Jul", "Au", "Se", "Oc", "No", "De",
+                        NULL };
+                gchar **tmp;
+                gint i;
+
+                for (tmp = months, i = 0; *tmp; tmp++, i++) {
+                        if (g_str_has_prefix (month, *tmp)) {
+                                *ret = i;
+                                return TRUE;
+                        }
+                }
+
+                return FALSE;
+        }
+}
+
+
+static gboolean
+read_year (gchar *year, gint *ret)
+{
+        guint64 val = g_ascii_strtoull (year, NULL, 10);
+
+        if (val == G_MAXUINT64) {
+                return FALSE;
+        } else {
+                *ret = CLAMP (val, 0, G_MAXINT) - 1900;
+                return TRUE;
+        }
+}
+
+
+static gboolean
+read_time (gchar *time, gint *ret_hour, gint *ret_min, gint *ret_sec)
+{
+        /* Hours */
+        guint64 val = g_ascii_strtoull (time, &time, 10);
+        if (val == G_MAXUINT64 || *time != ':') {
+                return FALSE;
+        }
+        *ret_hour = CLAMP (val, 0, 24);
+        time++;
+
+        /* Minutes */
+        val = g_ascii_strtoull (time, &time, 10);
+        if (val == G_MAXUINT64) {
+                return FALSE;
+        }
+        *ret_min = CLAMP (val, 0, 99);
+
+        if (*time == ':') {
+                /* Yeah! We have seconds. */
+                time++;
+                val = g_ascii_strtoull (time, &time, 10);
+                if (val == G_MAXUINT64) {
+                        return FALSE;
+                }
+                *ret_sec = CLAMP (val, 0, 99);
+        }
+
+        return TRUE;
+}
+
+
+static gboolean
+read_timezone (gchar *timezone, gchar *ret, gsize ret_len)
+{
+        /* checks that we are not reading word "GMT" instead of timezone */
+        if (timezone[0] && g_ascii_isdigit (timezone[1])) {
+                gchar *n = timezone + 1;  /* "+1" to not read timezone sign */
+                gint  hours, minutes;
+
+                if (strlen (n) < 4) {
+                        return FALSE;  
+                }
+
+                #define READ_PAIR(ret, min, max)                        \
+                {                                                       \
+                        gchar buff[3];                                  \
+                        guint64 val;                                    \
+                        buff[0] = n[0];                                 \
+                        buff[1] = n[1];                                 \
+                        buff[2] = '\0';                                 \
+                                                                        \
+                        val = g_ascii_strtoull (buff, NULL, 10);        \
+                        if (val == G_MAXUINT64) {                       \
+                                return FALSE;                           \
+                        }                                               \
+                        ret = CLAMP (val, min, max);                    \
+                        n += 2;                                         \
+                }
+
+                READ_PAIR (hours, 0, 24);
+                if (*n == ':') {
+                        /* that should not happen, but he... */
+                        n++;
+                }
+                READ_PAIR (minutes, 0, 99);
+
+                g_snprintf (ret, ret_len,
+                            "%c%.2d%.2d",
+                            (timezone[0] == '-' ? '-' : '+'),
+                            hours, minutes);
+
+                #undef READ_PAIR
+
+                return TRUE;
+
+        } else if (g_ascii_isalpha (timezone[1])) {
+                /* GMT, so we keep current time */
+                if (ret_len >= 2) {
+                        ret[0] = 'Z';
+                        ret[1] = '\0';
+                        return TRUE;
+
+                } else {
+                        return FALSE;
+                }
+
+        } else {
+                return FALSE;
+        }
+}
+
+
+gchar *
+tracker_generic_date_extractor (gchar *date, steps steps_to_do[])
+{
+        gchar buffer[20], timezone_buffer[6];
+        gchar **date_parts;
+        gsize count;
+        guint i;
+
+        g_return_val_if_fail (date, NULL);
+
+        struct tm tm;
+        memset (&tm, 0, sizeof (struct tm));
+
+        date_parts = g_strsplit (date, " ", 0);
+
+        for (i = 0; date_parts[i] && steps_to_do[i] != LAST_STEP; i++) {
+                gchar *part = date_parts[i];
+
+                switch (steps_to_do[i]) {
+                        case TIME: {
+                                if (!read_time (part, &tm.tm_hour, &tm.tm_min, &tm.tm_sec)) {
+                                        goto error;
+                                }
+                                break;
+                        }
+                        case TIMEZONE: {
+                                if (!read_timezone (part,
+                                                    timezone_buffer,
+                                                    G_N_ELEMENTS (timezone_buffer))) {
+                                        goto error;
+                                }
+                                break;
+                        }
+                        case DAY_PART: {
+                                if (strcmp (part, "AM") == 0) {
+                                        /* We do nothing... */
+                                } else if (strcmp (part, "PM") == 0) {
+                                        tm.tm_hour += 12;
+                                }
+                                break;
+                        }
+                        case DAY_STR: {
+                                /* We do not care about monday, tuesday, etc. */
+                                break;
+                        }
+                        case DAY: {
+                                if (!read_day (part, &tm.tm_mday)) {
+                                        goto error;
+                                }
+                                break;
+                        }
+                        case MONTH: {
+                                if (!read_month (part, &tm.tm_mon)) {
+                                        goto error;
+                                }
+                                break;
+                        }
+                        case YEAR : {
+                                if (!read_year (part, &tm.tm_year)) {
+                                        goto error;
+                                }
+                                break;
+                        }
+                        default: {
+                                /* that cannot happen! */
+                                g_strfreev (date_parts);
+                                g_return_val_if_reached (NULL);
+                        }
+                }
+        }
+
+        count = strftime (buffer, sizeof (buffer), "%FT%T", &tm);
+
+        g_strfreev (date_parts);
+
+        if (count > 0) {
+                return g_strconcat (buffer, timezone_buffer, NULL);
+        } else {
+                return NULL;
+        }
+
+ error:
+        g_strfreev (date_parts);
+        return NULL;
+}
+
+
 gboolean
 tracker_is_empty_string (const gchar *s)
 {
@@ -208,13 +453,13 @@ void
 tracker_child_cb (gpointer user_data)
 {
 #ifndef OS_WIN32
-	struct 	rlimit mem_limit, cpu_limit;
+	struct 	rlimit cpu_limit;
 	gint	timeout = GPOINTER_TO_INT (user_data);
 
 	/* set cpu limit */
 	getrlimit (RLIMIT_CPU, &cpu_limit);
 	cpu_limit.rlim_cur = timeout;
-	cpu_limit.rlim_max = timeout+1;
+	cpu_limit.rlim_max = timeout + 1;
 
 	if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
 		g_printerr ("Error trying to set resource limit for cpu\n");
@@ -223,7 +468,13 @@ tracker_child_cb (gpointer user_data)
 	set_memory_rlimits();
 
 	/* Set child's niceness to 19 */
-	nice (19);		
+        errno = 0;
+        /* nice() uses attribute "warn_unused_result" and so complains if we do not check its
+           returned value. But it seems that since glibc 2.2.4, nice() can return -1 on a
+           successful call so we have to check value of errno too. Stupid... */
+        if (nice (19) == -1 && errno) {
+                g_printerr ("ERROR: trying to set nice value\n");
+        }
 #endif
 }
 

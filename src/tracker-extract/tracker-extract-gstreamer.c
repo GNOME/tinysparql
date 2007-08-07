@@ -77,7 +77,7 @@ typedef struct {
 
 
 static void
-caps_set (GObject *obj, MetadataExtractor *extractor, const char *type)
+caps_set (GObject *obj, MetadataExtractor *extractor, const gchar *type)
 {
 	GstPad		*pad;
 	GstStructure	*s;
@@ -119,7 +119,8 @@ caps_set (GObject *obj, MetadataExtractor *extractor, const char *type)
 static void
 caps_set_audio (GObject *obj, MetadataExtractor *extractor)
 {
-	g_return_if_fail (obj && extractor);
+        g_return_if_fail (obj);
+        g_return_if_fail (extractor);
 
 	caps_set (obj, extractor, "audio");
 }
@@ -128,7 +129,8 @@ caps_set_audio (GObject *obj, MetadataExtractor *extractor)
 static void
 caps_set_video (GObject *obj, MetadataExtractor *extractor)
 {
-	g_return_if_fail (obj && extractor);
+        g_return_if_fail (obj);
+        g_return_if_fail (extractor);
 
 	caps_set (obj, extractor, "video");
 }
@@ -141,7 +143,6 @@ update_stream_info (MetadataExtractor *extractor)
 	GstPad	*audiopad, *videopad;
 
 	g_return_if_fail (extractor);
-
 
 	streaminfo = NULL;
 	audiopad = videopad = NULL;
@@ -161,6 +162,8 @@ update_stream_info (MetadataExtractor *extractor)
 		if (!info) {
 			continue;
 		}
+
+                type = -1;
 
 		g_object_get (info, "type", &type, NULL);
 		pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (info), "type");
@@ -207,8 +210,9 @@ gst_bus_cb (GstBus *bus, GstMessage *message, MetadataExtractor *extractor)
 {
 	GstMessageType msg_type;
 
-	g_return_if_fail (bus && message && extractor);
-
+	g_return_if_fail (bus);
+        g_return_if_fail (message);
+        g_return_if_fail (extractor);
 
 	msg_type = GST_MESSAGE_TYPE (message);
 
@@ -226,9 +230,9 @@ gst_bus_cb (GstBus *bus, GstMessage *message, MetadataExtractor *extractor)
 
 	switch (msg_type) {
 	case GST_MESSAGE_ERROR: {
-		GstMessage	*message;
-		GError		*gsterror;
-		gchar		*debug;
+		GstMessage *message  = NULL;
+		GError     *gsterror = NULL;
+		gchar      *debug    = NULL;
 
 		gst_message_parse_error (message, &gsterror, &debug);
 		g_warning ("Error: %s (%s)", gsterror->message, debug);
@@ -241,6 +245,8 @@ gst_bus_cb (GstBus *bus, GstMessage *message, MetadataExtractor *extractor)
 
 	case GST_MESSAGE_STATE_CHANGED: {
 		GstState old_state, new_state;
+
+                old_state = new_state = GST_STATE_NULL;
 
 		gst_message_parse_state_changed (message, &old_state, &new_state, NULL);
 
@@ -288,6 +294,8 @@ gst_bus_cb (GstBus *bus, GstMessage *message, MetadataExtractor *extractor)
 	case GST_MESSAGE_TAG: {
 		GstTagList	  *tag_list, *result;
 		GstElementFactory *f;
+
+                tag_list = NULL;
 
 		gst_message_parse_tag (message, &tag_list);
 
@@ -339,9 +347,9 @@ gst_bus_cb (GstBus *bus, GstMessage *message, MetadataExtractor *extractor)
 
 
 static void
-add_int64_info (GHashTable *metadata, char *key, gint64 info)
+add_int64_info (GHashTable *metadata, gchar *key, gint64 info)
 {
-	char *str_info;
+	gchar *str_info;
 
 	str_info = g_strdup_printf ("%" G_GINT64_FORMAT, info);
 	g_hash_table_insert (metadata, key, str_info);
@@ -349,9 +357,9 @@ add_int64_info (GHashTable *metadata, char *key, gint64 info)
 
 
 static void
-add_uint_info (GHashTable *metadata, char *key, guint info)
+add_uint_info (GHashTable *metadata, gchar *key, guint info)
 {
-	char *str_info;
+	gchar *str_info;
 
 	str_info = g_strdup_printf ("%d", info);
 	g_hash_table_insert (metadata, key, str_info);
@@ -359,10 +367,10 @@ add_uint_info (GHashTable *metadata, char *key, guint info)
 
 
 static void
-add_string_gst_tag (GHashTable *metadata, const char *key, GstTagList *tag_list, const gchar *tag)
+add_string_gst_tag (GHashTable *metadata, const gchar *key, GstTagList *tag_list, const gchar *tag)
 {
 	gboolean ret;
-	char	 *s;
+	gchar	 *s;
 
 	s = NULL;
 
@@ -379,7 +387,7 @@ add_string_gst_tag (GHashTable *metadata, const char *key, GstTagList *tag_list,
 
 
 static void
-add_uint_gst_tag (GHashTable *metadata, const char *key, GstTagList *tag_list, const gchar *tag)
+add_uint_gst_tag (GHashTable *metadata, const gchar *key, GstTagList *tag_list, const gchar *tag)
 {
 	gboolean ret;
 	guint	 n;
@@ -393,10 +401,10 @@ add_uint_gst_tag (GHashTable *metadata, const char *key, GstTagList *tag_list, c
 
 
 static void
-add_double_gst_tag (GHashTable *metadata, const char *key, GstTagList *tag_list, const gchar *tag)
+add_double_gst_tag (GHashTable *metadata, const gchar *key, GstTagList *tag_list, const gchar *tag)
 {
 	gboolean ret;
-	double	 n;
+	gdouble	 n;
 
 	ret = gst_tag_list_get_double (tag_list, tag, &n);
 
@@ -407,7 +415,7 @@ add_double_gst_tag (GHashTable *metadata, const char *key, GstTagList *tag_list,
 
 
 static void
-add_year_of_gdate_gst_tag (GHashTable *metadata, const char *key, GstTagList *tag_list, const gchar *tag)
+add_year_of_gdate_gst_tag (GHashTable *metadata, const gchar *key, GstTagList *tag_list, const gchar *tag)
 {
 	gboolean ret;
 	GDate	 *date;
@@ -417,7 +425,7 @@ add_year_of_gdate_gst_tag (GHashTable *metadata, const char *key, GstTagList *ta
 	ret = gst_tag_list_get_date (tag_list, tag, &date);
 
 	if (ret) {
-		char buf[10];
+		gchar buf[10];
 
 		if (g_date_strftime (buf, 10, "%Y", date)) {
 			g_hash_table_insert (metadata, g_strdup (key), g_strdup (buf));
@@ -436,7 +444,8 @@ get_media_duration (MetadataExtractor *extractor)
 	gint64	  duration;
 	GstFormat fmt;
 
-	g_return_val_if_fail (extractor && extractor->playbin, -1);
+	g_return_val_if_fail (extractor, -1);
+	g_return_val_if_fail (extractor->playbin, -1);
 
 	fmt = GST_FORMAT_TIME;
 
@@ -453,8 +462,8 @@ get_media_duration (MetadataExtractor *extractor)
 static void
 extract_metadata (MetadataExtractor *extractor, GHashTable *metadata)
 {
-	g_return_if_fail (extractor && metadata);
-
+        g_return_if_fail (extractor);
+        g_return_if_fail (metadata);
 
 	if (extractor->audio_channels >= 0) {
 		add_uint_info (metadata, g_strdup ("Audio:Channels"), (guint) extractor->audio_channels);
@@ -504,7 +513,6 @@ extract_metadata (MetadataExtractor *extractor, GHashTable *metadata)
 
 		duration = get_media_duration (extractor);
 
-
 		/* Sometimes it is unclear to what a tag belongs to! */
 		if (extractor->has_video) {
 			add_string_gst_tag (metadata, "Video:Title", extractor->tagcache, GST_TAG_TITLE);
@@ -545,8 +553,8 @@ poll_for_state_change (MetadataExtractor *extractor, GstState state)
 	GstBus *bus;
 	GstMessageType events, saved_events;
 
-	g_return_val_if_fail (extractor && extractor->playbin, FALSE);
-
+	g_return_val_if_fail (extractor, FALSE);
+	g_return_val_if_fail (extractor->playbin, FALSE);
 
 	bus = gst_element_get_bus (extractor->playbin);
 
@@ -579,6 +587,8 @@ poll_for_state_change (MetadataExtractor *extractor, GstState state)
 		case GST_MESSAGE_STATE_CHANGED: {
 			GstState old, new, pending;
 
+                        old = new = pending = GST_STATE_NULL;
+
 			if (src == extractor->playbin) {
 				gst_message_parse_state_changed (message, &old, &new, &pending);
 
@@ -591,8 +601,8 @@ poll_for_state_change (MetadataExtractor *extractor, GstState state)
 			break;
 
 		case GST_MESSAGE_ERROR: {
-			gchar  *debug;
-			GError *gsterror;
+			gchar  *debug    = NULL;
+			GError *gsterror = NULL;
 
 			gst_message_parse_error (message, &gsterror, &debug);
 
@@ -650,8 +660,8 @@ tracker_extract_gstreamer (gchar *uri, GHashTable *metadata)
 	GstElement	  *fakesink_audio, *fakesink_video;
 	GstBus		  *bus;
 
-	g_return_if_fail (uri && metadata);
-
+	g_return_if_fail (uri);
+	g_return_if_fail (metadata);
 
 	g_type_init ();
 

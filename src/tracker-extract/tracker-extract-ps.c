@@ -19,11 +19,13 @@
 
 #define _GNU_SOURCE
 
-#include <config.h>
+#include "config.h"
 
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+
+#include "tracker-extract.h"
 
 #if !HAVE_GETLINE
 #include <stddef.h>
@@ -91,122 +93,118 @@ getline (gchar **s, guint *lim, FILE *stream)
 #endif
 
 
-static gchar *date_to_iso8160 (gchar *date)
+static gchar
+*hour_day_str_day (gchar *date)
+{
+        /* ex. date: "(18:07 Tuesday 22 May 2007)"
+           To
+           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+        */
+
+        steps steps_to_do[] = {
+                TIME, DAY_STR, DAY, MONTH, YEAR, LAST_STEP
+        };
+
+        return tracker_generic_date_extractor (date + 1, steps_to_do);
+}
+
+
+static gchar *
+day_str_month_day (gchar *date)
+{
+        /* ex. date: "Tue May 22 18:07:10 2007"
+           To
+           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+        */
+
+        steps steps_to_do[] = {
+                DAY_STR, MONTH, DAY, TIME, YEAR, LAST_STEP
+        };
+
+        return tracker_generic_date_extractor (date, steps_to_do);
+}
+
+
+static gchar *
+day_month_year_date (gchar *date)
 {
         /* ex. date: "22 May 1997 18:07:10 -0600"
            To
            ex. ISO8160 date: "2007-05-22T18:07:10-0600"
         */
-        gchar buffer[20];
-        gchar **date_parts, **part;
-        size_t count;
 
-        g_return_val_if_fail (date, NULL);
+        steps steps_to_do[] = {
+                DAY_STR, MONTH, DAY, TIME, YEAR, LAST_STEP
+        };
 
-        typedef enum {DAY_STR = 0, MONTH, DAY, TIME, YEAR, LAST_STEP} steps;
-        steps step;
+        return tracker_generic_date_extractor (date, steps_to_do);
+}
 
-        struct tm tm;
-        memset (&tm, 0, sizeof (struct tm));
 
-        date_parts = g_strsplit (date, " ", 0);
+static gchar *
+hour_month_day_date (gchar *date)
+{
+        /* ex. date: "6:07 PM May 22, 2007"
+           To
+           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+        */
 
-        for (part = date_parts, step = DAY_STR; *part && step != LAST_STEP; part++, step++) {
-                switch (step) {
-                        case DAY_STR: {
-                                /* We do not care about monday, tuesday, etc. */
-                                break;
-                        }
-                        case DAY: {
-                                guint64 val = g_ascii_strtoull (*part, NULL, 10);
-                                tm.tm_mday = CLAMP (val, 1, 31);
-                                break;
-                        }
-                        case MONTH: {
-                                gchar *months[] = {
-                                        "Jan", "Fe", "Mar", "Av", "Ma", "Jun",
-                                        "Jul", "Au", "Se", "Oc", "No", "De",
-                                        NULL };
-                                gchar **tmp;
-                                gint i;
+        steps steps_to_do[] = {
+                TIME, DAY_PART, MONTH, DAY, YEAR, LAST_STEP
+        };
 
-                                for (tmp = months, i = 0; *tmp; tmp++, i++) {
-                                        if (g_str_has_prefix (*part, *tmp)) {
-                                                tm.tm_mon = i;
-                                                break;
-                                        }
-                                }
-                                break;
-                        }
-                        case YEAR : {
-                                guint64 val = g_ascii_strtoull (*part, NULL, 10);
-                                tm.tm_year = CLAMP (val, 0, G_MAXINT) - 1900;
-                                break;
-                        }
-                        case TIME: {
-                                gchar *n = *part;
+        return tracker_generic_date_extractor (date, steps_to_do);
+}
 
-                                #define READ_PAIR(ret, min, max)                        \
-                                {                                                       \
-                                        gchar buff[3];                                  \
-                                        guint64 val;                                    \
-                                        buff[0] = n[0];                                 \
-                                        buff[1] = n[1];                                 \
-                                        buff[2] = '\0';                                 \
-                                                                                        \
-                                        val = g_ascii_strtoull (buff, NULL, 10);        \
-                                        ret = CLAMP (val, min, max);                    \
-                                        n += 2;                                         \
-                                }
 
-                                READ_PAIR (tm.tm_hour, 0, 24);
-                                if (*n++ != ':') {
-                                        goto error;
-                                }
-                                READ_PAIR (tm.tm_min, 0, 99);
-                                if (*n++ != ':') {
-                                        goto error;
-                                }
-                                READ_PAIR (tm.tm_sec, 0, 99);
+static gchar *
+date_to_iso8160 (gchar *date)
+{
+        if (date && date[1] && date[2]) {
+                if (date[0] == '(') {
+                        /* we have probably a date like
+                           "(18:07 Tuesday 22 May 2007)" */
+                        return hour_day_str_day (date);
+                } else if (g_ascii_isalpha (date[0])) {
+                        /* we have probably a date like
+                           "Tue May 22 18:07:10 2007" */
+                        return day_str_month_day (date);
 
-                                #undef READ_PAIR
+                } else if (date[1] == ' ' || date[2] == ' ') {
+                        /* we have probably a date like
+                           "22 May 1997 18:07:10 -0600" */
+                        return day_month_year_date (date);
 
-                                break;
-                        }
-                        default:
-                                /* that cannot happen! */
-                                g_strfreev (date_parts);
-                                g_return_val_if_reached (NULL);
+                } else if (date[1] == ':' || date[2] == ':') {
+                        /* we have probably a date like
+                           "6:07 PM May 22, 2007" */
+                        return hour_month_day_date (date);
+
                 }
         }
 
-        count = strftime (buffer, sizeof (buffer), "%FT%T", &tm);
-
-        g_strfreev (date_parts);
-
-        return (count > 0) ? g_strdup (buffer) : NULL;
-
- error:
-        g_strfreev (date_parts);
         return NULL;
 }
 
 
-void tracker_extract_ps (gchar *filename, GHashTable *metadata)
+void
+tracker_extract_ps (gchar *filename, GHashTable *metadata)
 {
 	FILE *f;
 
 	if ((f = g_fopen (filename, "r"))) {
-		gchar *line = NULL;
-                gsize length = 0;
+                gchar  *line;
+                gsize  length;
+                gssize read_char;
 
-		getline (&line, &length, f);
+		line = NULL;
+                length = 0;
 
-		while (!feof (f)) {
-                        gboolean pageno_atend = FALSE;
+                while ((read_char = getline (&line, &length, f)) != -1) {
+                        gboolean pageno_atend    = FALSE;
                         gboolean header_finished = FALSE;
 
-			line[strlen (line) - 1] = '\0';  /* overwrite '\n' char */
+			line[read_char - 1] = '\0';  /* overwrite '\n' char */
 
 			if (!header_finished && strncmp (line, "%%Copyright:", 12) == 0) {
                                 g_hash_table_insert (metadata,
@@ -221,8 +219,10 @@ void tracker_extract_ps (gchar *filename, GHashTable *metadata)
                                                      g_strdup ("Doc:Author"), g_strdup (line + 11));
 
 			} else if (!header_finished && strncmp (line, "%%CreationDate:", 15) == 0) {
-				g_hash_table_insert (metadata,
-                                                     g_strdup ("Doc:Created"), date_to_iso8160 (line + 16));
+                                gchar *date = date_to_iso8160 (line + 16);
+                                if (date) {
+                                        g_hash_table_insert (metadata, g_strdup ("Doc:Created"), date);
+                                }
 
 			} else if (strncmp (line, "%%Pages:", 8) == 0) {
                                 if (strcmp (line + 9, "(atend)") == 0) {
@@ -234,19 +234,20 @@ void tracker_extract_ps (gchar *filename, GHashTable *metadata)
 
 			} else if (strncmp (line, "%%EndComments", 14) == 0) {
 				header_finished = TRUE;
-				if (!pageno_atend)
+				if (!pageno_atend) {
 					break;
+                                }
 			}
 
 			g_free (line);
-
 			line = NULL;
-			length = 0;
-			getline (&line, &length, f);
+                        length = 0;
 		}
 
-		g_free (line);
-	}
+                if (line) {
+                        g_free (line);
+                }
 
-	fclose (f);
+                fclose (f);
+	}
 }
