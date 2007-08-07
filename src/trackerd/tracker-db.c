@@ -742,6 +742,8 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 				g_unlink (file_as_text);
 			}
 
+			g_free (file_as_text);
+
 		} else {
 			get_full_text = FALSE;
 		}

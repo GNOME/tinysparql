@@ -317,6 +317,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 			if (tracker_file_is_valid (temp_file_name)) {
 				return temp_file_name;
 			} else {
+				g_free (temp_file_name);
 				return NULL;
 			}
 
