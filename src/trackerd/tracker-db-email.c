@@ -405,6 +405,31 @@ get_attachment_service_name (MailApplication app)
 	
 }
 
+static inline char *
+get_utf8 (const char *str)
+{
+
+	if (!str) return NULL;
+
+	int len = strlen (str);
+
+	if (!g_utf8_validate (str, len, NULL)) {
+
+		char *value;
+
+		value = g_locale_to_utf8 (str, len, NULL, NULL, NULL);
+
+		if (value) {
+			return value;
+		}
+
+	} else {
+		return g_strdup (str);
+	}
+
+	return NULL;
+
+}
 
 gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
@@ -517,7 +542,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
                 str_date = tracker_date_to_str (mm->date);
  
 		if (mm->body) {
-			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Body", mm->body, index_table);
+			char *value = get_utf8 (mm->body);
+
+			if (value) {
+				tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Body", value, index_table);
+				g_free (value);
+			}
+			
 		}
 
 		if (str_date) {
@@ -525,11 +556,21 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		}
 
 		if (mm->from) {
-			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Sender", mm->from, index_table);
+			char *value = get_utf8 (mm->from);
+			
+			if (value) {
+				tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Sender", value, index_table);
+				g_free (value);
+			}
 		}
 
 		if (mm->subject) {
-			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Subject", mm->subject, index_table);
+			char *value = get_utf8 (mm->subject);
+
+			if (value) {
+				tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Subject", value, index_table);
+				g_free (value);
+			}
 		}
 
 		g_free (str_date);
