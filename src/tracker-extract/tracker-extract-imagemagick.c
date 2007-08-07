@@ -70,7 +70,7 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 	argv[3] = NULL;
 
 	if (tracker_spawn (argv, 10, &xmp, &exit_status)) {
-		if (exit_status == EXIT_SUCCESS) {
+		if (exit_status == EXIT_SUCCESS && xmp) {
 			tracker_read_xmp (xmp, strlen (xmp), metadata);
 		}
 	}
