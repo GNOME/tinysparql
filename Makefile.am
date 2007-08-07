@@ -2,8 +2,8 @@ SUBDIRS = data src filters thumbnailers docs po python
 
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_in_files = trackerd.desktop.in
-autostart_in_in_files = trackerd.desktop.in.in
 autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
+
 @INTLTOOL_DESKTOP_RULE@
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -14,7 +14,6 @@ pkgconfig_DATA += libtracker-gtk.pc
 endif
 
 EXTRA_DIST = \
-	$(autostart_in_files) \
 	rdf-query-examples/80s-music.rdf \
 	rdf-query-examples/90s-music.rdf \
 	rdf-query-examples/all-documents.rdf \

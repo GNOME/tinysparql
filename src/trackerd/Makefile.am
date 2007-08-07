@@ -90,7 +90,8 @@ trackerd_SOURCES =			\
 	tracker-utils.c			\
 	tracker-utils.h			\
 	tracker-ioprio.c		\
-	tracker-ioprio.h
+	tracker-ioprio.h		\
+	tracker-os-dependant.h
 
 if OS_WIN32
 trackerd_win_libs = -lws2_32 -lkernel32
