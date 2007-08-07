@@ -2,8 +2,7 @@ SUBDIRS = languages icons services
 
 configdir = $(datadir)/tracker
 
-config_DATA =   tracker-introspect.xml \
-		sqlite-tracker.sql \
+config_DATA =	sqlite-tracker.sql \
 		sqlite-cache.sql \
 		sqlite-email.sql \
 		sqlite-service-stored-procs.sql \

@@ -1,3 +1,9 @@
+2007-08-07 Michael Biebl  <mbiebl at gmail com>
+	
+	* Generate the D-Bus client-side bindings automatically from the
+	introspection XML file
+	
+
 2007-08-06 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Adds copyright headers in tracker-preferences' files
