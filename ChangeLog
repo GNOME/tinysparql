@@ -1,3 +1,11 @@
+
+2007-08-07 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed memory leaks
+	* Fixed crasher due to non valid utf-8 creeping through emails
+
+
+
 2007-08-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Remove some warnings at building of tracker-extract
@@ -9,6 +17,7 @@
 	
 	* Generate the D-Bus client-side bindings automatically from the
 	introspection XML file
+
 
 
 2007-08-06 Laurent Aguerreche <laurent.aguerreche@free.fr>

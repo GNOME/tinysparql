@@ -436,6 +436,7 @@ tracker_db_initialize (const char *datadir)
 	FILE	 *file;
 	char	 *sql_file;
 	GTimeVal *tv;
+	int i = 0;
 
 	tracker_log ("Using Sqlite version %s", sqlite3_version);
 
@@ -456,8 +457,9 @@ tracker_db_initialize (const char *datadir)
 		g_assert (FALSE);
 	}
 
+
 	file = g_fopen (sql_file, "r");
-	g_free (sql_file);
+	
 
 	tv = tracker_timer_start ();
 
@@ -465,8 +467,10 @@ tracker_db_initialize (const char *datadir)
 		char buffer[8192];
 		char *sep;
 
+		i++;
+
 		if (!fgets (buffer, 8192, file)) {
-                        tracker_error ("ERROR: while reading file %s", sql_file);
+                        tracker_error ("ERROR: while reading file %s on line %d", sql_file, i);
                         break;
                 }
 
@@ -494,6 +498,8 @@ tracker_db_initialize (const char *datadir)
 	}
 
 	fclose (file);
+
+	g_free (sql_file);
 
 	tracker_timer_end (tv, "File loaded in ");
 
