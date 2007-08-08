@@ -1,5 +1,0 @@
-
-Write a small program that can load the entire document including
-all style and meta information and dump out the result.
-
-Once that works, make it create a sxw file from its internal representation.

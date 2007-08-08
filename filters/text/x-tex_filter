@@ -1,3 +1,0 @@
-#!/bin/sh
-
-nice -n19 untex "$1" > "$2"
