@@ -143,10 +143,6 @@ gboolean
 open_file_with_nautilus (GtkWidget * window,
 			 const gchar * file);
 
-
-char *
-tracker_string_replace (const char *haystack, char *needle, char *replacement);
-
 gboolean
 open_file_with_application (GtkWidget * window,
 			    const gchar * file);
