@@ -100,14 +100,14 @@ typedef enum {
 
 typedef struct {
 	gchar        	*service;
-	char		*display_name;
+	gchar		*display_name;
 	gchar        	*icon_name;
 	GdkPixbuf	*pixbuf;
 	ServiceType   	service_type;
 	GtkListStore	*store;
 	gboolean	has_hits;
-	int		hit_count;
-	int		offset;
+	gint		hit_count;
+	gint		offset;
 } service_info_t;
 
 
@@ -143,14 +143,13 @@ struct _GSearchWindow {
 	GtkCellRenderer         *category_name_cell_renderer;
 
 	GdkPixbuf		*email_pixbuf;
-	int			current_page;
-	int			type;
-	int			old_type;
+	gint			current_page;
+	gint			type;
+	guint			old_type;
 	service_info_t  	*current_service;
 	
 	GtkWidget		*metatile;
 	GtkWidget		*no_results;
-	GtkWidget		*initial_label;
 	GtkWidget		*count_label;
 	GtkWidget		*message_box;
 
@@ -193,7 +192,7 @@ struct _GSearchWindow {
 	gchar                 * save_results_as_default_filename;
 
 	GSearchCommandDetails * command_details;
-	char		      * search_term;
+	gchar		      * search_term;
 };
 
 struct _GSearchCommandDetails {
@@ -240,9 +239,30 @@ tracker_search_pixmap_file (const gchar * partial_path);
 gchar *
 build_search_command (GSearchWindow * gsearch,
                       gboolean first_pass);
+
+void
+select_category (GtkTreeSelection * treeselection,
+		 gpointer user_data);
+
+void
+start_new_search (GSearchWindow * gsearch,
+		  const gchar * query);
+
+void
+end_search (GPtrArray * out_array,
+	    GError * error,
+	    gpointer user_data);
+
+void
+do_search (GSearchWindow * gsearch,
+	   const gchar * query,
+	   gboolean new_search,
+	   gint search_offset);
+
 void
 spawn_search_command (GSearchWindow * gsearch,
                       gchar * command);
+
 void
 add_constraint (GSearchWindow * gsearch,
                 gint constraint_id,
@@ -257,10 +277,6 @@ remove_constraint (gint constraint_id);
 void
 set_constraint_gconf_boolean (gint constraint_id,
                               gboolean flag);
-void
-click_find_cb (GtkWidget * widget,
-               gpointer data);
-
 
 void
 set_constraint_selected_state (GSearchWindow * gsearch,
@@ -272,6 +288,7 @@ set_clone_command (GSearchWindow * gsearch,
                    gchar *** argvp,
                    gpointer client_data,
                    gboolean escape_values);
+
 gchar *
 get_desktop_item_name (GSearchWindow * gsearch);
 

@@ -26,8 +26,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -58,6 +56,12 @@
 #define GSEARCH_DATE_FORMAT_LOCALE "locale"
 #define GSEARCH_DATE_FORMAT_ISO    "iso"
 
+gboolean
+tracker_is_empty_string (const gchar *s)
+{
+	return s == NULL || s[0] == '\0';
+}
+
 /* START OF THE GCONF FUNCTIONS */
 
 static gboolean
@@ -81,7 +85,7 @@ tracker_search_gconf_client_get_global (void)
 
 	/* Initialize gconf if needed */
 	if (!gconf_is_initialized ()) {
-		char *argv[] = { "tracker_search-preferences", NULL };
+		gchar *argv[] = { "tracker_search-preferences", NULL };
 		GError *error = NULL;
 
 		if (!gconf_init (1, argv, &error)) {
@@ -98,7 +102,7 @@ tracker_search_gconf_client_get_global (void)
 	return global_gconf_client;
 }
 
-char *
+gchar *
 tracker_search_gconf_get_string (const gchar * key)
 {
 	GConfClient * client;
@@ -121,7 +125,7 @@ tracker_search_gconf_get_string (const gchar * key)
 
 GSList *
 tracker_search_gconf_get_list (const gchar * key,
-                            GConfValueType list_type)
+			       GConfValueType list_type)
 {
 	GConfClient * client;
 	GError * error = NULL;
@@ -143,8 +147,8 @@ tracker_search_gconf_get_list (const gchar * key,
 
 void
 tracker_search_gconf_set_list (const gchar * key,
-                            GSList * list,
-                            GConfValueType list_type)
+			       GSList * list,
+			       GConfValueType list_type)
 {
 	GConfClient * client;
 	GError * error = NULL;
@@ -182,7 +186,7 @@ tracker_search_gconf_get_int (const gchar * key)
 
 void
 tracker_search_gconf_set_int (const gchar * key,
-                           const gint value)
+			      const gint value)
 {
 	GConfClient * client;
 	GError * error = NULL;
@@ -220,7 +224,7 @@ tracker_search_gconf_get_boolean (const gchar * key)
 
 void
 tracker_search_gconf_set_boolean (const gchar * key,
-                               const gboolean flag)
+				  const gboolean flag)
 {
 	GConfClient * client;
 	GError * error = NULL;
@@ -256,9 +260,9 @@ tracker_search_gconf_add_dir (const gchar * dir)
 
 void
 tracker_search_gconf_watch_key (const gchar * dir,
-                             const gchar * key,
-                             GConfClientNotifyFunc callback,
-                             gpointer user_data)
+				const gchar * key,
+				GConfClientNotifyFunc callback,
+				gpointer user_data)
 {
 	GConfClient * client;
 	GError * error = NULL;
@@ -350,7 +354,7 @@ is_quick_search_excluded_path (const gchar * path)
 		gchar * dir;
 
 		/* Skip empty or null values. */
-		if ((tmp_list->data == NULL) || (strlen (tmp_list->data) == 0)) {
+		if (tracker_is_empty_string (tmp_list->data)) {
 			continue;
 		}
 
@@ -428,7 +432,7 @@ is_second_scan_excluded_path (const gchar * path)
 		gchar * dir;
 
 		/* Skip empty or null values. */
-		if ((tmp_list->data == NULL) || (strlen (tmp_list->data) == 0)) {
+		if (tracker_is_empty_string (tmp_list->data)) {
 			continue;
 		}
 
@@ -508,6 +512,39 @@ limit_string_to_x_lines (GString * string,
 		}
 	}
 	return FALSE;
+}
+
+gchar *
+tracker_string_replace (const gchar * haystack,
+			gchar * needle,
+			gchar * replacement)
+{
+        GString * str;
+        gint pos, needle_len;
+
+	g_return_val_if_fail (haystack && needle, NULL);
+
+	needle_len = strlen (needle);
+
+        str = g_string_new ("");
+
+        for (pos = 0; haystack[pos]; pos++)
+        {
+                if (strncmp (&haystack[pos], needle, needle_len) == 0)
+                {
+
+			if (replacement) {
+	                        str = g_string_append (str, replacement);
+			}
+
+                        pos += needle_len - 1;
+
+                } else {
+                        str = g_string_append_c (str, haystack[pos]);
+		}
+        }
+
+        return g_string_free (str, FALSE);
 }
 
 static gint
@@ -651,7 +688,7 @@ get_readable_date (const gchar * format_string,
 
 gchar *
 tracker_search_strdup_strftime (const gchar * format,
-                             struct tm * time_pieces)
+				struct tm * time_pieces)
 {
 	/* This function is borrowed from eel's eel_strdup_strftime() */
 	GString * string;
@@ -1061,17 +1098,16 @@ tracker_search_get_thumbnail_image (const gchar * file)
 
 static gchar *
 tracker_search_icon_lookup (GSearchWindow * gsearch,
-                         const gchar * file,
-                         const gchar * mime,
-                         GnomeVFSFileInfo * file_info,
-                         gboolean enable_thumbnails)
+			    const gchar * file,
+			    const gchar * mime,
+			    GnomeVFSFileInfo * file_info,
+			    gboolean enable_thumbnails)
 {
 	GnomeIconLookupFlags lookup_flags = GNOME_ICON_LOOKUP_FLAGS_NONE;
 	gchar * icon_name = NULL;
 	gchar * uri;
 
 	uri = gnome_vfs_get_uri_from_local_path (file);
-
 
 	if ((strncmp (mime, "image/", 6) != 0) ||
     	    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
@@ -1265,40 +1301,6 @@ open_file_with_nautilus (GtkWidget * window,
 	}
 	return TRUE;
 }
-
-
-char *
-tracker_string_replace (const char *haystack, char *needle, char *replacement)
-{
-        GString *str;
-        int pos, needle_len;
-
-	g_return_val_if_fail (haystack && needle, NULL);
-
-	needle_len = strlen (needle);
-
-        str = g_string_new ("");
-
-        for (pos = 0; haystack[pos]; pos++)
-        {
-                if (strncmp (&haystack[pos], needle, needle_len) == 0)
-                {
-
-			if (replacement) {
-	                        str = g_string_append (str, replacement);
-			}
-
-                        pos += needle_len - 1;
-
-                } else {
-                        str = g_string_append_c (str, haystack[pos]);
-		}
-        }
-
-        return g_string_free (str, FALSE);
-}
-
-
 
 gboolean
 open_file_with_application (GtkWidget * window,
@@ -1509,11 +1511,10 @@ tracker_search_set_columns_order (GtkTreeView * treeview)
 	g_slist_free (order);
 }
 
-
-int
-tracker_get_stored_separator_position ()
+gint
+tracker_get_stored_separator_position (void)
 {
-	int saved_pos;
+	gint saved_pos;
 
 	saved_pos = tracker_search_gconf_get_int ("/apps/tracker-search-tool/separator_position");
 
@@ -1521,23 +1522,18 @@ tracker_get_stored_separator_position ()
 		return DEFAULT_SEPARATOR_POSITION;
 	}
 
-	return saved_pos;
-
-	
+	return saved_pos;	
 }
 
-
 void
-tracker_set_stored_separator_position (int pos)
+tracker_set_stored_separator_position (gint pos)
 {
 	tracker_search_gconf_set_int ("/apps/tracker-search-tool/separator_position", pos);
 }
 
-
-
 void
 tracker_search_get_stored_window_geometry (gint * width,
-                                        gint * height)
+					   gint * height)
 {
 	gint saved_width;
 	gint saved_height;

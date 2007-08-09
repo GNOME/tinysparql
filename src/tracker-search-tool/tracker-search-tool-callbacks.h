@@ -80,6 +80,25 @@ constraint_update_info_cb (GtkWidget * widget,
 void
 name_contains_activate_cb (GtkWidget * widget,
                            gpointer data);
+
+gboolean
+text_changed_cb (GtkWidget * widget,
+		 gpointer data);
+
+void
+click_find_cb (GtkWidget * widget,
+	       gpointer data);
+void
+next_results_cb (GtkWidget * widget,
+		 gpointer data);
+void
+prev_results_cb (GtkWidget * widget,
+		 gpointer data);
+
+void
+category_changed_cb (GtkTreeSelection * treeselection,
+		     gpointer data) ;
+
 void
 open_file_cb (GtkAction * action,
               gpointer data);

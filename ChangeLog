@@ -1,7 +1,14 @@
+2007-08-09 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
-2007-08-07 Michael Biebl <mbiebl at gmail com>
+	* Close feature request #397210 (Desensitize Find button when search entry is empty)
+	* Remove warnings at building time in TST
+	* code cleanups in TST
+
+
+2007-08-09 Michael Biebl <mbiebl at gmail com>
 
 	* Add missing function prototype definitions
+
 
 2007-08-07 Jamie McCracken <jamiemcc at gnome org>
 

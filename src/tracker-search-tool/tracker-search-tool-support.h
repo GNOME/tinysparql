@@ -25,8 +25,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
-
 #ifndef _GSEARCHTOOL_SUPPORT_H_
 #define _GSEARCHTOOL_SUPPORT_H_
 
@@ -47,35 +45,44 @@ extern "C" {
 
 
 gboolean
+tracker_is_empty_string (const gchar *s);
+
+gboolean
 tracker_search_gconf_get_boolean (const gchar * key);
 
 void
 tracker_search_gconf_set_boolean (const gchar * key,
-                               const gboolean flag);
+				  const gboolean flag);
+
 gint
 tracker_search_gconf_get_int (const gchar * key);
 
 void
 tracker_search_gconf_set_int (const gchar * key,
-                           const gint value);
-char *
+			      const gint value);
+
+gchar *
 tracker_search_gconf_get_string (const gchar * key);
 
 GSList *
 tracker_search_gconf_get_list (const gchar * key,
-                            GConfValueType list_type);
+			       GConfValueType list_type);
+
 void
 tracker_search_gconf_set_list (const gchar * key,
-                            GSList * list,
-                            GConfValueType list_type);
+			       GSList * list,
+			       GConfValueType list_type);
+
 void
 tracker_search_gconf_add_dir (const gchar * dir);
 
 void
 tracker_search_gconf_watch_key (const gchar * dir,
-                             const gchar * key,
-                             GConfClientNotifyFunc callback,
-                             gpointer user_data);
+				const gchar * key,
+				GConfClientNotifyFunc callback,
+				gpointer user_data);
+
+
 gboolean
 is_path_hidden (const gchar * path);
 
@@ -87,10 +94,17 @@ is_second_scan_excluded_path (const gchar * path);
 
 gboolean
 compare_regex (const gchar * regex,
-               const gchar * string);
+	       const gchar * string);
+
 gboolean
 limit_string_to_x_lines (GString * string,
-                         gint x);
+			 gint x);
+
+gchar *
+tracker_string_replace (const gchar * haystack,
+			gchar * needle,
+			gchar * replacement);
+
 gchar *
 escape_single_quotes (const gchar * string);
 
@@ -100,58 +114,69 @@ backslash_special_characters (const gchar * string);
 gchar *
 remove_mnemonic_character (const gchar * string);
 
+
 gchar *
 get_readable_date (const gchar * format_string,
-                   const time_t file_time_raw);
+		   const time_t file_time_raw);
+
 gchar *
 tracker_search_strdup_strftime (const gchar * format,
-                             struct tm * time_pieces);
+				struct tm * time_pieces);
+
 gchar *
 get_file_type_description (const gchar * file,
 			   const char *mime,
-                           GnomeVFSFileInfo * file_info);
+			   GnomeVFSFileInfo * file_info);
+
 GdkPixbuf *
 get_file_pixbuf (GSearchWindow * gsearch,
-                 const gchar * file,
+		 const gchar * file,
 		 const char * mime,
-                 GnomeVFSFileInfo * file_info);
+		 GnomeVFSFileInfo * file_info);
+
+
 gboolean
 open_file_with_xdg_open (GtkWidget * window,
-                         const gchar * file);
+			 const gchar * file);
+
 gboolean
 open_file_with_nautilus (GtkWidget * window,
-                         const gchar * file);
+			 const gchar * file);
+
 
 char *
 tracker_string_replace (const char *haystack, char *needle, char *replacement);
 
 gboolean
 open_file_with_application (GtkWidget * window,
-                            const gchar * file);
+			    const gchar * file);
+
 gboolean
 launch_file (const gchar * file);
 
 gchar *
 tracker_search_get_unique_filename (const gchar * path,
-                                 const gchar * suffix);
+				    const gchar * suffix);
+
 GtkWidget *
 tracker_search_button_new_with_stock_icon (const gchar * string,
-                                        const gchar * stock_id);
+					   const gchar * stock_id);
+
 GSList *
 tracker_search_get_columns_order (GtkTreeView * treeview);
 
 void
 tracker_search_set_columns_order (GtkTreeView * treeview);
 
-int
-tracker_get_stored_separator_position ();
+gint
+tracker_get_stored_separator_position (void);
 
 void
-tracker_set_stored_separator_position (int pos);
+tracker_set_stored_separator_position (gint pos);
 
 void
 tracker_search_get_stored_window_geometry (gint * width,
-                                        gint * height);
+					   gint * height);
 
 #ifdef __cplusplus
 }

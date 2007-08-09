@@ -26,8 +26,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -38,6 +36,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <libgnomevfs/gnome-vfs-ops.h>
 #include <libgnomevfs/gnome-vfs-utils.h>
 #include <libgnomevfs/gnome-vfs-find-directory.h>
@@ -64,13 +63,12 @@ static void
 store_window_state_and_geometry (GSearchWindow *gsearch)
 {
 	tracker_search_gconf_set_int ("/apps/tracker-search-tool/default_window_width",
-	                           gsearch->window_width);
+				      gsearch->window_width);
 	tracker_search_gconf_set_int ("/apps/tracker-search-tool/default_window_height",
-		                   gsearch->window_height);
+				      gsearch->window_height);
 	tracker_search_gconf_set_boolean ("/apps/tracker-search-tool/default_window_maximized",
-	                               gsearch->is_window_maximized);
+					  gsearch->is_window_maximized);
 	tracker_set_stored_separator_position (gtk_paned_get_position (GTK_PANED (gsearch->pane)));
-	
 }
 
 static void
@@ -102,8 +100,6 @@ click_close_cb (GtkWidget * widget,
 {
 	quit_application ((GSearchWindow *) data);
 }
-
-
 
 void
 click_stop_cb (GtkWidget * widget,
@@ -259,9 +255,67 @@ name_contains_activate_cb (GtkWidget * widget,
 	}
 }
 
+gboolean
+text_changed_cb (GtkWidget * widget,
+		 gpointer data)  
+{
+	GSearchWindow * gsearch = data;
+	const gchar * s = gtk_entry_get_text (GTK_ENTRY (gsearch->search_entry));
+
+	if (!tracker_is_empty_string (s)) {
+		gtk_widget_set_sensitive (gsearch->find_button, TRUE);
+	} else {
+		gtk_widget_set_sensitive (gsearch->find_button, FALSE);
+	}
+
+	return FALSE;
+}
+
+void
+click_find_cb (GtkWidget * widget,
+	       gpointer data)
+{
+	GSearchWindow * gsearch = data;
+	gchar	      * command = build_search_command (gsearch, TRUE);
+
+	if (command) {
+		start_new_search (gsearch, command);
+	}
+
+	g_free (command);
+}
+
+void
+next_results_cb (GtkWidget * widget,
+		 gpointer data)
+{
+	GSearchWindow * gsearch = data;
+
+	do_search (gsearch, gsearch->search_term, FALSE,
+		   gsearch->current_service->offset + MAX_SEARCH_RESULTS);
+}
+
+
+void
+prev_results_cb (GtkWidget * widget,
+		 gpointer data)
+{
+	GSearchWindow * gsearch = data;
+
+	do_search (gsearch, gsearch->search_term, FALSE,
+		   gsearch->current_service->offset - MAX_SEARCH_RESULTS);
+}
+
+void
+category_changed_cb (GtkTreeSelection * treeselection,
+		     gpointer data) 
+{
+	select_category (treeselection, data);
+}
+
 static gint
 display_dialog_file_open_limit (GtkWidget * window,
-                                  gint count)
+				gint count)
 {
 	GtkWidget * dialog;
 	GtkWidget * button;
@@ -366,7 +420,8 @@ display_dialog_could_not_open_folder (GtkWidget * window,
 }
 
 void
-select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data) 
+select_changed_cb (GtkTreeSelection *treeselection,
+		   gpointer user_data) 
 {
 
 	GSearchWindow *gsearch = user_data;
@@ -401,12 +456,12 @@ select_changed_cb (GtkTreeSelection *treeselection, gpointer user_data)
 }
 
 GdkPixbuf *
-tracker_get_large_icon (const gchar *local_uri, gboolean is_local_file, GSearchWindow *gsearch)
+tracker_get_large_icon (const gchar * local_uri,
+			gboolean is_local_file,
+			GSearchWindow * gsearch)
 {
-	gchar *icon_name = NULL;
-	gchar *thumb_name = NULL;
-	GdkPixbuf *temp = NULL;
-
+	gchar	  * thumb_name = NULL;
+	GdkPixbuf * temp = NULL;
 
 	if (is_local_file) {
 		gchar *uri = gnome_vfs_get_uri_from_local_path (local_uri);
@@ -416,17 +471,14 @@ tracker_get_large_icon (const gchar *local_uri, gboolean is_local_file, GSearchW
 		g_free (uri);
 	}
 
-	
-	
-
 	if (!thumb_name) {
 
-		icon_name = gnome_icon_lookup_sync  (gtk_icon_theme_get_default(),
-                                             	gsearch->thumbnail_factory,
-                                             	local_uri,
-                                             	NULL,
-                                             	GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES | GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES,
-                                             	0);                                       
+		gchar * icon_name = gnome_icon_lookup_sync  (gtk_icon_theme_get_default (),
+							     gsearch->thumbnail_factory,
+							     local_uri,
+							     NULL,
+							     GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES | GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES,
+							     0);           
 
 		temp = gtk_icon_theme_load_icon (gtk_icon_theme_get_default(),
                                          icon_name,
@@ -436,11 +488,7 @@ tracker_get_large_icon (const gchar *local_uri, gboolean is_local_file, GSearchW
 	
 		g_free (icon_name);
 
-		
-	
 		return temp;
-
-
 	}
 
 	temp = gdk_pixbuf_new_from_file_at_scale (thumb_name, METADATA_IMAGE_WIDTH, METADATA_IMAGE_HEIGHT, TRUE, NULL);
@@ -448,7 +496,6 @@ tracker_get_large_icon (const gchar *local_uri, gboolean is_local_file, GSearchW
 	g_free (thumb_name);
 
 	return temp;
-
 }
 
 
@@ -456,8 +503,7 @@ void
 tracker_update_metadata_tile (GSearchWindow *gsearch)
 {
 	GtkTreeModel * model;
-	GList * list;
-	guint index;
+	GList * list, * tmp;
 	ServiceType type;
 
 	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) != 1) {
@@ -468,7 +514,7 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 
 	list = gtk_tree_selection_get_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection),
 						     &model);
-	for (index = 0; index < g_list_length (list); index++) {
+	for (tmp = list; tmp; tmp = tmp->next) {
 
 		gboolean no_files_found = FALSE;
 		gchar *uri = NULL;
@@ -476,8 +522,7 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 		GdkPixbuf *pixbuf = NULL;
 		GtkTreeIter iter;
 
-		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
-		                         g_list_nth (list, index)->data);
+		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter, tmp->data);
 
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
                                     COLUMN_ICON, &pixbuf,
@@ -486,7 +531,6 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 				    COLUMN_TYPE, &type,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
-
 
 		/* get large icon for documents, images and videos only */
 		GdkPixbuf *large_icon = NULL;
@@ -505,9 +549,8 @@ tracker_update_metadata_tile (GSearchWindow *gsearch)
 
                 g_free (uri);
 		g_free (mime);
-
-
 	}
+
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
 	g_list_free (list);
 }
@@ -518,8 +561,7 @@ open_file_cb (GtkAction * action,
 {
 	GSearchWindow * gsearch = data;
 	GtkTreeModel * model;
-	GList * list;
-	guint index;
+	GList * list, * tmp;
 	char *exec = NULL;
 
 	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) == 0) {
@@ -541,14 +583,13 @@ open_file_cb (GtkAction * action,
 		}
 	}
 
-	for (index = 0; index < g_list_length (list); index++) {
+	for (tmp = list; tmp; tmp = tmp->next) {
 
 		gboolean no_files_found = FALSE;
 		gchar * uri;
 		GtkTreeIter iter;
 
-		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
-		                         g_list_nth (list, index)->data);
+		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter, tmp->data);
 
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
     		                    COLUMN_URI, &uri,
@@ -565,17 +606,16 @@ open_file_cb (GtkAction * action,
 
 		} else if (gsearch->type == SERVICE_APPLICATIONS) {
 			if (exec) {
-
-				char *my_exec = tracker_string_replace (exec, "%U", NULL);
+				gchar *my_exec = tracker_string_replace (exec, "%U", NULL);
 				g_spawn_command_line_async (my_exec, NULL);
 				g_free (my_exec);
 				g_free (exec);
+
 			} else {
 				display_dialog_could_not_open_file (gsearch->window, uri, _("Application could not be opened"));
 			}
 
 		} else {
-
 
 			gchar * file;
 			gchar * locale_file;
@@ -600,7 +640,6 @@ open_file_cb (GtkAction * action,
 							if (open_file_with_nautilus (gsearch->window, locale_file) == FALSE) {
 								display_dialog_could_not_open_folder (gsearch->window, uri);
 							}
-
 
 						} else {
 							display_dialog_could_not_open_file (gsearch->window, uri,
@@ -672,8 +711,7 @@ open_folder_cb (GtkAction * action,
 {
 	GSearchWindow * gsearch = data;
 	GtkTreeModel * model;
-	GList * list;
-	guint index;
+	GList * list, * tmp;
 
 	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) == 0) {
 		return;
@@ -694,14 +732,13 @@ open_folder_cb (GtkAction * action,
 		}
 	}
 
-	for (index = 0; index < g_list_length (list); index++) {
+	for (tmp = list; tmp; tmp = tmp->next) {
 
 		gchar * folder_locale;
 		gchar * folder_utf8;
 		GtkTreeIter iter;
 
-		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
-					 g_list_nth (list, index)->data);
+		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter, tmp->data);
 
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
 				    COLUMN_PATH, &folder_utf8,
@@ -726,8 +763,6 @@ open_folder_cb (GtkAction * action,
 	g_list_foreach (list, (GFunc) gtk_tree_path_free, NULL);
 	g_list_free (list);
 }
-
-
 
 static void
 display_dialog_could_not_move_to_trash (GtkWidget * window,
@@ -808,7 +843,7 @@ display_dialog_could_not_delete (GtkWidget * window,
                                  const gchar * message)
 {
 	GtkWidget * dialog;
-	gchar * primary;
+	gchar	  * primary;
 
 	primary = g_strdup_printf (_("Could not delete \"%s\"."), file);
 
@@ -1089,9 +1124,9 @@ file_button_release_event_cb (GtkWidget * widget,
 }
 
 gboolean
-file_event_after_cb  (GtkWidget * widget,
-                      GdkEventButton * event,
-                      gpointer data)
+file_event_after_cb (GtkWidget * widget,
+		     GdkEventButton * event,
+		     gpointer data)
 {
 	GSearchWindow * gsearch = data;
 
@@ -1239,7 +1274,7 @@ drag_begin_file_cb (GtkWidget * widget,
 	}
 }
 
-/* Make a desktop file in /tmp witch points to this email*/
+/* Make a desktop file in /tmp witch points to this email */
 static gchar*
 make_email_desktop_file (const gchar *utf8_uri, const gchar *utf8_name)
 {
@@ -1266,26 +1301,25 @@ make_email_desktop_file (const gchar *utf8_uri, const gchar *utf8_name)
 				 save_uri,
                                  TRUE,
                                  NULL);
-	
+
 	g_free (exec_string);
-	
+
 	return save_uri;
 }
 
 void
-drag_file_cb  (GtkWidget * widget,
-               GdkDragContext * context,
-               GtkSelectionData * selection_data,
-               guint info,
-               guint time,
-               gpointer data)
+drag_file_cb (GtkWidget * widget,
+	      GdkDragContext * context,
+	      GtkSelectionData * selection_data,
+	      guint info,
+	      guint time,
+	      gpointer data)
 {
 	GSearchWindow * gsearch = data;
 	gchar * uri_list = NULL;
-	GList * list;
+	GList * list, * tmp;
 	GtkTreeModel * model;
 	GtkTreeIter iter;
-	guint index;
 
 	if (gtk_tree_selection_count_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection)) == 0) {
 		return;
@@ -1294,7 +1328,7 @@ drag_file_cb  (GtkWidget * widget,
 	list = gtk_tree_selection_get_selected_rows (GTK_TREE_SELECTION (gsearch->search_results_selection),
                                                      &model);
 
-	for (index = 0; index < g_list_length (list); index++) {
+	for (tmp = list; tmp; tmp = tmp->next) {
 
 		gboolean no_files_found = FALSE;
 		gchar * utf8_name;
@@ -1302,8 +1336,7 @@ drag_file_cb  (GtkWidget * widget,
 		gchar * utf8_uri;
 		gchar * file;
 
-		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
-		                         g_list_nth (list, index)->data);
+		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter, tmp->data);
 
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
 		                    COLUMN_NAME, &utf8_name,
@@ -1442,6 +1475,7 @@ show_file_selector_cb (GtkAction * action,
 #if GTK_CHECK_VERSION(2,7,3)
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (file_chooser), TRUE);
 #endif
+
 	if (gsearch->save_results_as_default_filename != NULL) {
 		gtk_file_chooser_set_filename (GTK_FILE_CHOOSER (file_chooser),
 		                               gsearch->save_results_as_default_filename);
@@ -1619,7 +1653,7 @@ save_results_cb (GtkWidget * chooser,
 	}
 #endif
 
-	if ((fp = fopen (gsearch->save_results_as_default_filename, "w")) != NULL) {
+	if ((fp = g_fopen (gsearch->save_results_as_default_filename, "w")) != NULL) {
 
 		gint index;
 
@@ -1665,7 +1699,7 @@ save_session_cb (GnomeClient * client,
 {
 	GSearchWindow * gsearch = client_data;
 	char ** argv;
-	int argc;
+	gint argc;
 
 	set_clone_command (gsearch, &argc, &argv, "tracker-search-tool", FALSE);
 	gnome_client_set_clone_command (client, argc, argv);
@@ -1750,23 +1784,19 @@ single_click_to_activate_key_changed_cb (GConfClient * client,
                                          gpointer user_data)
 {
 	GSearchWindow * gsearch = user_data;
-	GConfValue * value;
-
-	value = gconf_entry_get_value (entry);
+	GConfValue * value = gconf_entry_get_value (entry);
 
 	g_return_if_fail (value->type == GCONF_VALUE_STRING);
 
 	gsearch->is_search_results_single_click_to_activate =
-		(strncmp (gconf_value_get_string (value), "single", 6) == 0) ? TRUE : FALSE;
+		(strncmp (gconf_value_get_string (value), "single", 6) == 0);
 }
 
 void
 columns_changed_cb (GtkTreeView * treeview,
                     gpointer user_data)
 {
-	GSList * order;
-
-	order = tracker_search_get_columns_order (treeview);
+	GSList * order = tracker_search_get_columns_order (treeview);
 
 	if (g_slist_length (order) == NUM_VISIBLE_COLUMNS) {
 		tracker_search_gconf_set_list ("/apps/tracker-search-tool/columns_order", order, GCONF_VALUE_INT);
@@ -1783,24 +1813,19 @@ window_state_event_cb (GtkWidget * widget,
 
 	if (event->new_window_state & GDK_WINDOW_STATE_MAXIMIZED) {
 		gsearch->is_window_maximized = TRUE;
-	}
-	else {
+	} else {
 		gsearch->is_window_maximized = FALSE;
 	}
 	return FALSE;
 }
 
 void
-suggest_search_cb	(GtkWidget *widget,
-			 gpointer data)
+suggest_search_cb (GtkWidget * widget,
+		   gpointer data)
 {
-	GSearchWindow	*gsearch = data;
-	gchar		*suggest;
-
-	suggest = g_object_get_data (G_OBJECT (widget), "suggestion");
+	GSearchWindow * gsearch = data;
+	gchar	      * suggest = g_object_get_data (G_OBJECT (widget), "suggestion");
 	
 	gtk_entry_set_text (GTK_ENTRY (gsearch->search_entry), suggest);
 	gtk_button_clicked (GTK_BUTTON (gsearch->find_button));
-
 }
-
