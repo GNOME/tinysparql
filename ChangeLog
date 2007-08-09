@@ -1,5 +1,11 @@
 2007-08-09 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
+	* Remove an error message while loading file sqlite-stored-procs.sql due to
+	bad checking of returned value of fgets()
+
+
+2007-08-09 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
 	* Close feature request #397210 (Desensitize Find button when search entry is empty)
 	* Remove warnings at building time in TST
 	* code cleanups in TST

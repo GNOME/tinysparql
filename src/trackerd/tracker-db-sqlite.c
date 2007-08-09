@@ -470,8 +470,11 @@ tracker_db_initialize (const char *datadir)
 		i++;
 
 		if (!fgets (buffer, 8192, file)) {
-                        tracker_error ("ERROR: while reading file %s on line %d", sql_file, i);
-                        break;
+                  /* An "if" to avoid warnings about value returned by fgets()
+                     not handled...
+                     We do not look the returned value since we will have NULL
+                     with a file which terminates with '\n' on a empty line...
+                  */
                 }
 
 		if (strlen (buffer) < 5) {
