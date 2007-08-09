@@ -1,9 +1,12 @@
 
+2007-08-07 Michael Biebl <mbiebl at gmail com>
+
+	* Add missing function prototype definitions
+
 2007-08-07 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed memory leaks
 	* Fixed crasher due to non valid utf-8 creeping through emails
-
 
 
 2007-08-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
@@ -13,11 +16,10 @@
 	* Code cleanups in tracker-extract
 
 
-2007-08-07 Michael Biebl  <mbiebl at gmail com>
+2007-08-07 Michael Biebl <mbiebl at gmail com>
 	
 	* Generate the D-Bus client-side bindings automatically from the
 	introspection XML file
-
 
 
 2007-08-06 Laurent Aguerreche <laurent.aguerreche@free.fr>

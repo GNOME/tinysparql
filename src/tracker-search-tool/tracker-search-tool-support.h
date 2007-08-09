@@ -121,6 +121,10 @@ open_file_with_xdg_open (GtkWidget * window,
 gboolean
 open_file_with_nautilus (GtkWidget * window,
                          const gchar * file);
+
+char *
+tracker_string_replace (const char *haystack, char *needle, char *replacement);
+
 gboolean
 open_file_with_application (GtkWidget * window,
                             const gchar * file);
@@ -138,6 +142,12 @@ tracker_search_get_columns_order (GtkTreeView * treeview);
 
 void
 tracker_search_set_columns_order (GtkTreeView * treeview);
+
+int
+tracker_get_stored_separator_position ();
+
+void
+tracker_set_stored_separator_position (int pos);
 
 void
 tracker_search_get_stored_window_geometry (gint * width,
