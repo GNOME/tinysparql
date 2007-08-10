@@ -1,3 +1,8 @@
+2007-08-10  Žygimantas Beručka  <zygis@gnome.org>
+
+	* lt.po: Added Lithuanian translation.
+	* LINGUAS: Added 'lt'.
+
 2007-08-07 Roel Huybrechts <roelhuybrechts@skynet.be>
 	* nl.po: Added Dutch translation
 
