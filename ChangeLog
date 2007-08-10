@@ -1,3 +1,9 @@
+2007-08-10 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Fixed bug #465176 (IMAP e-mail indexing does not work after first crawl)
+	* Code cleanups in tracker-db-email.{h,c}
+
+
 2007-08-09 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Remove an error message while loading file sqlite-stored-procs.sql due to
@@ -8,7 +14,7 @@
 
 	* Close feature request #397210 (Desensitize Find button when search entry is empty)
 	* Remove warnings at building time in TST
-	* code cleanups in TST
+	* Code cleanups in TST
 
 
 2007-08-09 Michael Biebl <mbiebl at gmail com>

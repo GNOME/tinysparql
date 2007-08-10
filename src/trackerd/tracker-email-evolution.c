@@ -1351,7 +1351,6 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 				g_free (str_id);
 
 				mail_msg->store = store;
-				store->mail_count++;
 
 				if (!(*save_ondisk_mail) (db_con, mail_msg)) {
 					tracker_log ("WARNING: Message, or message parts, could not be found locally - if you are using IMAP make sure you have selected the \"copy folder content locally for offline operation\" option in Evolution");
@@ -1371,13 +1370,12 @@ index_mail_messages_by_summary_file (DBConnection *db_con, MailType mail_type,
 
 				email_free_mail_file (mail_msg->parent_mail_file);
 				email_free_mail_message (mail_msg);
-
 			}
-
 
 			tracker_log ("No. of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
 
 			tracker_db_email_set_message_counts (db_con, dir, store->mail_count, store->junk_count, store->delete_count);
+
 		} else {
 			/* schedule check for junk */
 			tracker_db_email_flag_mbox_junk (db_con, dir);
