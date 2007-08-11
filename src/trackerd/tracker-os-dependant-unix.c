@@ -161,4 +161,7 @@ tracker_child_cb (gpointer user_data)
                 g_printerr ("ERROR: trying to set nice value\n");
         }
 
+	/* have this as a precaution in cases where cpu limit has not been reached due to spawned app sleeping */
+	alarm (timeout+2);
+
 }

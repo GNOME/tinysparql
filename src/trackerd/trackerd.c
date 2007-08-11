@@ -2497,7 +2497,8 @@ main (int argc, char **argv)
 
 	tracker->update_count = get_update_count (main_thread_db_con);
 
-	if (tracker->is_running && (tracker->update_count > tracker->optimization_count)) {
+/* disable this for now as it might slow things down */
+/*	if (tracker->is_running && (tracker->update_count > tracker->optimization_count)) {
 
 		tracker_indexer_optimize (tracker->file_indexer);
 
@@ -2505,6 +2506,7 @@ main (int argc, char **argv)
 		tracker->first_time_index = FALSE;
 		tracker->update_count = 0;
 	}
+*/
 
 	tracker_db_get_static_data (db_con);
 

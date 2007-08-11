@@ -1,3 +1,7 @@
+2007-08-11  Jamie McCracken <jamiemcc st gnome.org>
+
+	* removed lt from LINGUAS as lt.po is missing from svn and breaks compile
+
 2007-08-11  Ilkka Tuohela  <hile@iki.fi>
 
 	* fi.po: Updated Finnish translation by Timo Jyrinki.
