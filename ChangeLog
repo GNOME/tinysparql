@@ -1,3 +1,8 @@
+2007-08-12 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Escape filenames containing character "'" to make xdg_open() working with them
+
+
 2007-08-11 Jamie McCracken <jamiemcc at gnome org>
 
 	* Put back alarm call to tracker spawn as safeguard

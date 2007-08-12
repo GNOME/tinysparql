@@ -1233,9 +1233,13 @@ open_file_with_xdg_open (GtkWidget * window,
                          const gchar * file)
 {
 	gboolean  result;
-	gchar    *command = g_strconcat ("xdg-open '", file, "'", NULL);
+	gchar     *quoted_filename = g_shell_quote (file);
+	gchar     *command = g_strconcat ("xdg-open ", quoted_filename, NULL);
+
+	g_free (quoted_filename);
 	result = g_spawn_command_line_async (command, NULL);
 	g_free (command);
+
 	return result;
 }
 
