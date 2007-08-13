@@ -366,7 +366,7 @@ get_utf8 (const gchar *str)
 gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
-       	gint  mbox_id, type_id, id, i, len;
+       	gint  mbox_id, type_id, id, len;
 	gchar *service, *attachment_service, *mime;
 	gchar *array[255];
 
@@ -507,13 +507,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		g_free (str_date);
 
-		i = 0;
 		len = g_slist_length (mm->to);
                 len = LIMIT_ARRAY_LENGTH (len);
 		if (len > 0) {
+                        gint i;
 			array[len] = NULL;
 
-			for (tmp = mm->to; tmp; tmp = tmp->next) {
+			for (i = 0, tmp = mm->to; tmp && i < len; tmp = tmp->next, i++) {
 				const MailPerson *mp;
 				GString *gstr = g_string_new ("");
 
@@ -528,7 +528,6 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				}
 
 				array[i] = g_string_free (gstr, FALSE);
-				i++;	
 			}
 
 			if (i > 0) {
@@ -540,13 +539,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 		}
 
-		i = 0;
 		len = g_slist_length (mm->cc);
                 len = LIMIT_ARRAY_LENGTH (len);
 		if (len > 0) {
+                        gint i;
 			array[len] = NULL;
 
-			for (tmp = mm->cc; tmp; tmp = tmp->next) {
+			for (i = 0, tmp = mm->cc; tmp && i < len; tmp = tmp->next, i++) {
 				const MailPerson *mp;
 				GString *gstr = g_string_new ("");
 
@@ -561,25 +560,24 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				}
 
 				array[i] = g_string_free (gstr, FALSE);
-				i++;
 			}
 
 			if (i > 0) {
 				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:CC", array, i, index_table);
 			}
 
-			for (i--; i>-1; i--) {
+			for (i--; i > -1; i--) {
 				g_free (array[i]);
 			}		
 		}
 
-		i = 0;
 		len = g_slist_length (mm->attachments);
                 len = LIMIT_ARRAY_LENGTH (len);
 		if (len > 0) {
+                        gint i;
 			array[len] = NULL;
 		
-			for (tmp = mm->attachments; tmp; tmp = tmp->next) {
+			for (i = 0, tmp = mm->attachments; tmp && i < len; tmp = tmp->next, i++) {
 				const MailAttachment *ma;
 
 				ma = tmp->data;
@@ -589,14 +587,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				}
 
 				array[i] = g_strdup (ma->attachment_name);
-				i++;
 			}
 
 			if (i > 0) {
 				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:Attachments", array, i, index_table);
 			}
 
-			for (i--; i>-1; i--) {
+			for (i--; i > -1; i--) {
 				g_free (array[i]);
 			}
 		}

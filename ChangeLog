@@ -1,5 +1,10 @@
 2007-08-13 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
+	* Fix bug #131842 from Ubuntu
+
+	
+2007-08-13 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
 	* Replace "g_slist_length(list)>0" with "list!=NULL" to check
 	whether a list is empty or not in trackerd.c
 	* Cosmetic changes in trackerd.c
