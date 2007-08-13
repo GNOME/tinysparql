@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-08-13 02:51+0200\n"
+"POT-Creation-Date: 2007-08-13 04:02+0200\n"
 "PO-Revision-Date: 2007-08-13 03:51+0200\n"
 "Last-Translator: Laurent Aguerreche <laurent.aguerreche ~at~ free.fr>\n"
 "Language-Team:\n"
@@ -466,7 +466,6 @@ msgid "Indexing Preferences"
 msgstr "Préférences d'indexation"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
-#, fuzzy
 msgid "<b>Crawled Directories</b>"
 msgstr ""
 
@@ -529,7 +528,8 @@ msgstr "Chemins supplémentaires à indexer et surveiller :"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional paths to index on startup (but not watch for updates)"
-msgstr "Chemins additionnels à indexer au démarrage (sans surveillance ensuite)"
+msgstr ""
+"Chemins additionnels à indexer au démarrage (sans surveillance ensuite)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Enable Evolution email indexing"
