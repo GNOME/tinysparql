@@ -29,10 +29,10 @@
 void
 tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 {
-	gchar         *argv[6];
-	gchar         *identify;
-	gchar        **lines;
-	gint           exit_status;
+	gchar *argv[6];
+	gchar *identify;
+	gchar **lines;
+	gint  exit_status;
 
 	/* imagemagick crashes trying to extract from xcf files */
 	if (g_str_has_suffix (filename, ".xcf")) {
@@ -41,7 +41,7 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 
 	argv[0] = g_strdup ("identify");
 	argv[1] = g_strdup ("-format");
-	argv[2] = g_strdup ("%w;\\n%h;\\n%c;\\n");
+	argv[2] = g_strdup ("'%w;\\n%h;\\n%c;\\n'");
 	if (g_str_has_suffix (filename, ".xcf")) {
 		argv[3] = g_strdup (filename);
 		argv[4] = NULL;
@@ -63,7 +63,8 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 
 #ifdef HAVE_EXEMPI
 
-	gchar         *xmp;
+	gchar *xmp;
+
 	argv[0] = g_strdup ("convert");
 	argv[1] = g_strdup (filename);
 	argv[2] = g_strdup ("xmp:-");
