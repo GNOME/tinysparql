@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.pot\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-27 03:23+0100\n"
+"POT-Creation-Date: 2007-08-13 02:51+0200\n"
 "PO-Revision-Date: 2007-07-03 10:36+0530\n"
 "Last-Translator: yumkee lhamo <yumkeyl08@hotmail.com>\n"
 "Language-Team: Dzongkha <pgeyleg@dit.gov.bt>\n"
@@ -19,183 +19,214 @@ msgstr ""
 "X-Poedit-Country: Bhutan\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
+#: ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr ""
+
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr ""
+
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:245
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:453
 #, c-format
 msgid "Path : <b>%s</b>"
 msgstr "འགྲུལ་ལམ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:246
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:454
 #, c-format
 msgid "Modified : <b>%s</b>"
 msgstr "ལེགས་བཅོས་འབད་ཡོདཔ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:247
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:327
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:455
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
 #, c-format
 msgid "Size : <b>%s</b>"
 msgstr "ཚད : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:248
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:456
 #, c-format
 msgid "Accessed : <b>%s</b>"
 msgstr "འཛུལ་སྤྱོད་འབད་ཡོདཔ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:249
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:457
 #, c-format
 msgid "Mime : <b>%s</b>"
 msgstr "མ་ཡིམ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:323
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:423
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:509
+#, fuzzy, c-format
+msgid "Sender : <b>%s</b>"
+msgstr "རིགས : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:510
+#, fuzzy, c-format
+msgid "Date : <b>%s</b>"
+msgstr "འགྲུལ་ལམ : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:550
+#, fuzzy, c-format
+msgid "Comment : <b>%s</b>"
+msgstr "བསམ་བཀོད་ཚུ : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:551
+#, fuzzy, c-format
+msgid "Categories : <b>%s</b>"
+msgstr "གསར་བསྐྲུན་འབད་ཡོདཔ : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:637
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:742
 #, c-format
 msgid "Duration : <b>%s</b>"
 msgstr "དུས་ཡུན : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:324
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:638
 #, c-format
 msgid "Genre : <b>%s</b>"
 msgstr "རིགས : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:325
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:639
 #, c-format
 msgid "Bitrate : <b>%s Kbs</b>"
 msgstr "བའི་ཊེརཊི : <b>%s Kbs</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:326
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
 #, c-format
 msgid "Year : <b>%s</b>"
 msgstr "ལོ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:328
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:642
 #, c-format
 msgid "Codec : <b>%s</b>"
 msgstr "ཀོ་ཌེཀ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:367
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:683
 #, c-format
 msgid " taken with a <span size='large'><i>%s</i></span>"
 msgstr " འབག་ཡོདཔ <span size='large'><i>%s</i></span>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:372
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:688
 #, c-format
 msgid " <span size='large'><i>%s</i></span>"
 msgstr " <span size='large'><i>%s</i></span>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:392
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:421
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:708
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:740
 #, c-format
 msgid "Dimensions : <b>%d x %d</b>"
 msgstr "རྒྱ་ཁྱོན་ཚུ : <b>%d x %d</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:393
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:709
 #, c-format
 msgid "Date Taken : <b>%s</b>"
 msgstr "བཏབ་པའི་ཚེས་གྲངས : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:394
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:710
 #, c-format
 msgid "Orientation : <b>%s</b>"
 msgstr "ཕྱོགས : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:395
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:711
 #, c-format
 msgid "Flash : <b>%s</b>"
 msgstr "རིབ་སྟོན : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:396
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:712
 #, c-format
 msgid "Focal Length : <b>%s</b>"
 msgstr "མཐོང་གསལ་གྱི་ཚད : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:397
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:713
 #, c-format
 msgid "Exposure Time : <b>%s</b>"
 msgstr "མདངས་ཕོག་ཀྱི་དུས : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:422
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:453
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:741
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:774
 #, c-format
 msgid "Author : <b>%s</b>"
 msgstr "རྩོམ་པ་པོ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:424
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:743
 #, c-format
 msgid "Bitrate : <b>%s</b>"
 msgstr "བའི་ཊེརཊི : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:425
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:744
 #, c-format
 msgid "Encoded In : <b>%s</b>"
 msgstr "ནང་ཨིན་ཀོ་ཌེཌ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:426
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:745
 #, c-format
 msgid "Framerate : <b>%s</b>"
 msgstr "གཞི་ཁྲམ་ཚད : <b>%s</b>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:452
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:773
 #, c-format
 msgid "Subject : <b>%s</b>"
 msgstr "དོན་ཚན : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:454
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:775
 #, c-format
 msgid "Page Count : <b>%s</b>"
 msgstr "ཤོག་ལེབ་གྱངས་ཁ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:455
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:776
 #, c-format
 msgid "Word Count : <b>%s</b>"
 msgstr "མིང་ཚིག་གྱངས་ཁ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:456
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:777
 #, c-format
 msgid "Created : <b>%s</b>"
 msgstr "གསར་བསྐྲུན་འབད་ཡོདཔ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:457
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:778
 #, c-format
 msgid "Comments : <b>%s</b>"
 msgstr "བསམ་བཀོད་ཚུ : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:541
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:862
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f KB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:545
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:866
 #, c-format
 msgid "%.1f MB"
 msgstr "%.1f MB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:549
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:870
 #, c-format
 msgid "%.1f GB"
 msgstr "%.1f GB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:588
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:631
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:908
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:974
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:996
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1016
 msgid "Unknown"
 msgstr "མ་ཤེསཔ་"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:248
+#: ../src/libtracker-gtk/tracker-tag-bar.c:251
 msgid "Type tags you want to add here, separated by commas"
-msgstr "ལྷོད་རྟགས་ཀྱིས་དབྱེ་སེལ་འབད་འབད་ཡོད་པའི་  ཁྱོད་ཀྱིས་ནཱ་ལུ་ཁ་སྐོང་བརྐྱབ་དགོ་པའི་ངོ་རྟགས་ཚུ་ཡིག་དཔར་བརྐྱབ་"
+msgstr ""
+"ལྷོད་རྟགས་ཀྱིས་དབྱེ་སེལ་འབད་འབད་ཡོད་པའི་  ཁྱོད་ཀྱིས་ནཱ་ལུ་ཁ་སྐོང་བརྐྱབ་དགོ་པའི་ངོ་རྟགས་ཚུ་ཡིག་དཔར་བརྐྱབ་"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:357
+#: ../src/libtracker-gtk/tracker-tag-bar.c:361
 msgid "Tags :"
 msgstr "ངོ་རྟགས་ཚུ:"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:379
+#: ../src/libtracker-gtk/tracker-tag-bar.c:383
 msgid "_Search For Tag"
 msgstr "ངོ་རྟགས་ཀྱི་དོན་ལུ་འཚོལ་ཞིབ་འབད། (_S)"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:391
+#: ../src/libtracker-gtk/tracker-tag-bar.c:395
 msgid "_Remove Tag"
 msgstr "ངོ་རྟགས་རྩ་བསྐྲད་གཏང་། (_R)"
 
@@ -229,18 +260,20 @@ msgstr "TERM... - ཐ་སྙད་ལ་ལོ་ཅིག་གི་དོ�
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
 #: ../src/libtracker/tracker-search.c:93
-msgid "Specifying more then one term, will be showed items containing ALL the specified terms (term1 AND term2 - logical conjunction)"
-msgstr "ཐ་སྙད་གཅིག་ལས་ལྷག་སྟེ་གསལ་བཀོད་འབད་མི་དེ་གིས་  གསལ་བཀོད་འབད་ཡོད་པའི་ཐ་སྙད་(term1 AND term2 - གཏན་ཚིག་རིག་པའི་འབྲེལ་ཚིག་)ཆ་མཉམ་ཡོད་མི་རྣམ་གྲངས་ཚུ་སྟོནམ་ཨིན།"
+msgid ""
+"Specifying more then one term, will be showed items containing ALL the "
+"specified terms (term1 AND term2 - logical conjunction)"
+msgstr ""
+"ཐ་སྙད་གཅིག་ལས་ལྷག་སྟེ་གསལ་བཀོད་འབད་མི་དེ་གིས་  གསལ་བཀོད་འབད་ཡོད་པའི་ཐ་སྙད་(term1 AND "
+"term2 - གཏན་ཚིག་རིག་པའི་འབྲེལ་ཚིག་)ཆ་མཉམ་ཡོད་མི་རྣམ་གྲངས་ཚུ་སྟོནམ་ཨིན།"
 
 #: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
 msgstr "ངོས་འཛིན་འབད་དེ་ཡོད་པའི་ཐོ་ཡིག་འདི:"
 
 #: ../src/libtracker/tracker-search.c:114
-#: ../src/libtracker/tracker-search.c:122
-#: ../src/libtracker/tracker-stats.c:82
-#: ../src/libtracker/tracker-tag.c:111
-#: ../src/libtracker/tracker-tag.c:119
+#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
+#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
 #, c-format
 msgid "Try \"%s --help\" for more information."
 msgstr " \"%s --help\" བརྡ་དོན་ཧེང་སྐལ་གྱི་དོན་ལུ་འབད་རྩོལ་བསྐྱེད།"
@@ -250,36 +283,31 @@ msgstr " \"%s --help\" བརྡ་དོན་ཧེང་སྐལ་གྱི
 msgid "%s: missing search terms"
 msgstr "%s: འཚོལ་ཞིབ་འབད་བའི་ཐ་སྙད་བརླག་སྟོར་ཞུགས་ཡོདཔ།"
 
-#: ../src/libtracker/tracker-search.c:133
-#: ../src/libtracker/tracker-stats.c:90
-#: ../src/libtracker/tracker-tag.c:128
+#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
+#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
 #, c-format
 msgid "%s: no connection to tracker daemon"
 msgstr "%s: ཊེ་ཀར་ཌེ་མཱོན་ལུ་མཐུན་ལམ་མེད་"
 
-#: ../src/libtracker/tracker-search.c:135
-#: ../src/libtracker/tracker-stats.c:92
-#: ../src/libtracker/tracker-tag.c:130
+#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
+#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr "\"trackerd\"འདི་  བརྡ་བཀོད་གཞི་བཙུགས་མ་འབད་བའི་ཧེ་མར་གཡོག་བཀོལ་དོ་ཡོདཔ་སྦེ་ངེས་གཏན་བཟོ།"
+msgstr ""
+"\"trackerd\"འདི་  བརྡ་བཀོད་གཞི་བཙུགས་མ་འབད་བའི་ཧེ་མར་གཡོག་བཀོལ་དོ་ཡོདཔ་སྦེ་ངེས་གཏན་བཟོ།"
 
-#: ../src/libtracker/tracker-search.c:160
+#: ../src/libtracker/tracker-search.c:147
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "ཞབས་ཏོག་ངོས་འཛིན་མ་འབད་མི་  ཡིག་སྣོད་གཞན་མི་ནང་འཚོལ་ཞིབ་འབད་དོ...\n"
 
-#: ../src/libtracker/tracker-search.c:177
-#: ../src/libtracker/tracker-tag.c:176
-#: ../src/libtracker/tracker-tag.c:185
-#: ../src/libtracker/tracker-tag.c:194
-#: ../src/libtracker/tracker-tag.c:229
-#: ../src/libtracker/tracker-tag.c:279
+#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
+#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
 msgid "%s: internal tracker error: %s"
 msgstr "%s: ནང་འཁོད་ཊེ་ཀར་འཛོལ་བ: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:186
-#: ../src/libtracker/tracker-tag.c:264
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
 msgid "No results found matching your query"
 msgstr "ཁྱོད་ཀྱི་འདྲི་དཔྱད་མཐུན་པའི་གྲུབ་འབྲས་མ་ཐོབ་"
 
@@ -293,318 +321,397 @@ msgstr " - ཞབས་ཏོག་རེ་རེའི་དོན་ལུ་
 msgid "fetching index stats"
 msgstr "སི་ཊེཊིསི་ཟུར་ཐོ་ལེན་དོ་"
 
-#: ../src/libtracker/tracker-tag.c:37
+#: ../src/libtracker/tracker-tag.c:41
 msgid "Add specified tag to a file"
 msgstr "ཡིག་སྣོད་གཅིག་ལུ་གསལ་བཀོད་འབད་ཡོད་པའི་ངོ་རྟགས་ཁ་སྐོང་བརྐྱབ་"
 
-#: ../src/libtracker/tracker-tag.c:37
-#: ../src/libtracker/tracker-tag.c:38
-#: ../src/libtracker/tracker-tag.c:41
-#: ../src/libtracker/tracker-tag.c:88
+#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
 msgid "TAG"
 msgstr "TAG"
 
-#: ../src/libtracker/tracker-tag.c:38
+#: ../src/libtracker/tracker-tag.c:42
 msgid "Remove specified tag from a file"
 msgstr "ཡིག་སྣོད་གཅིག་ལས་གསལ་བཀོད་འབད་དེ་ཡོད་པའི་ངོ་རྟགས་འདི་རྩ་བསྐྲད་གཏང་"
 
-#: ../src/libtracker/tracker-tag.c:39
+#: ../src/libtracker/tracker-tag.c:43
 msgid "Remove all tags from a file"
 msgstr "ཡིག་སྣོད་གཅིག་ལས་ ངོ་རྟགས་ཆ་ཚང་རྩ་བསྐྲད་གཏང་"
 
-#: ../src/libtracker/tracker-tag.c:40
+#: ../src/libtracker/tracker-tag.c:44
 msgid "List all defined tags"
 msgstr "ངོས་འཛིན་འབད་ཡོད་པའི་ངོ་རྟགས་ཆ་ཚང་ཐོ་ཡིག་བརྐྱབ་"
 
-#: ../src/libtracker/tracker-tag.c:41
+#: ../src/libtracker/tracker-tag.c:45
 msgid "Search for files with specified tag"
 msgstr "གསལ་བཀོད་འབད་དེ་ཡོད་པའི་ངོ་རྟགས་དང་ཅིག་ཁར་  ཡིག་སྣོད་ཚུ་གི་དོན་ལུ་འཚོལ་ཞིབ་འབད་"
 
-#: ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:46
 msgid "FILE..."
 msgstr "FILE..."
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-tag.c:86
+#: ../src/libtracker/tracker-tag.c:90
 msgid "FILE... - manipulate tags on files"
 msgstr "FILE... - ཡིག་སྣོད་གུ་ངོ་རྟགས་ཚུ་ལག་ལེན་བསྟར་"
 
-#: ../src/libtracker/tracker-tag.c:95
-msgid "To add, remove, or search for multiple tags at the same time, join multiple options like:"
-msgstr "ལག་ལེན་བསྟར་བའི་ངོ་རྟགས་ཀྱི་དོན་ལུ་  ཁ་སྐོང་བརྐྱབ་ནི་ རྩ་བསྐྲད་གཏང་ནི་ཡང་ན་ འཚོལ་ཞིབ་འབད་ནི་  དེ་ལས་  དེ་དང་ཅིག་ཁར་སྣ་མང་གདམ་ཁ་མཐུད:"
+#: ../src/libtracker/tracker-tag.c:99
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options like:"
+msgstr ""
+"ལག་ལེན་བསྟར་བའི་ངོ་རྟགས་ཀྱི་དོན་ལུ་  ཁ་སྐོང་བརྐྱབ་ནི་ རྩ་བསྐྲད་གཏང་ནི་ཡང་ན་ འཚོལ་ཞིབ་འབད་ནི་  དེ་"
+"ལས་  དེ་དང་ཅིག་ཁར་སྣ་མང་གདམ་ཁ་མཐུད:"
 
-#: ../src/libtracker/tracker-tag.c:117
+#: ../src/libtracker/tracker-tag.c:121
 #, c-format
 msgid "%s: invalid arguments"
 msgstr "%s: ནུས་མེད་སྒྲུབ་རྟགས་ཚུ་"
 
-#: ../src/libtracker/tracker-tag.c:145
+#: ../src/libtracker/tracker-tag.c:148
 #, c-format
 msgid "%s: file %s not found"
 msgstr "%s: ཡིག་སྣོད་ %s མ་ཐོབ་"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:158
 msgid "Directory to exclude from indexing"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་ལས་ཕྱིར་ཐོན་ནིའི་སྣོད་ཐོ་"
 
-#: ../src/trackerd/trackerd.c:146
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:158 ../src/trackerd/trackerd.c:159
+#: ../src/trackerd/trackerd.c:160
 msgid "/PATH/DIR"
 msgstr "/PATH/DIR"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:159
 msgid "Directory to include in indexing"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་ལས་གྲངས་སུ་བརྩི་ནི་ལུ་སྣོད་ཐོ་"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:160
+#, fuzzy
+msgid "Directory to crawl for indexing at start up only"
+msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་ལས་ཕྱིར་ཐོན་ནིའི་སྣོད་ཐོ་"
+
+#: ../src/trackerd/trackerd.c:161
 msgid "Disable any indexing or watching taking place"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་ཡང་ན་གནས་སོར་གང་རུང་ལྕོགས་མེད་བཟོ་"
 
-#: ../src/trackerd/trackerd.c:149
-msgid "Value that controls the level of logging. Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
-msgstr "དྲན་དེབ་བཀོད་མིའི་གནས་རིམ་འདི་གི་ཚད་འཛིན་གནས་གོང་། ནུས་ཅན་གནས་གོང་ཚུ་   ༠ (བཀྲམ་སྟན་ཚུ་/དྲན་དེབ་ཚུ་འཛོལ་བ་རྐྱངམ་ཅིག་), ༡ (ཉུང་ཤོས་) ,༢ (རྒྱས་བཤད་) དང་  ༣(རྐྱེན་སེལ་)ཨིན་"
+#: ../src/trackerd/trackerd.c:162
+msgid ""
+"Value that controls the level of logging. Valid values are 0 (displays/logs "
+"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+msgstr ""
+"དྲན་དེབ་བཀོད་མིའི་གནས་རིམ་འདི་གི་ཚད་འཛིན་གནས་གོང་། ནུས་ཅན་གནས་གོང་ཚུ་   ༠ (བཀྲམ་སྟན་ཚུ་/དྲན་"
+"དེབ་ཚུ་འཛོལ་བ་རྐྱངམ་ཅིག་), ༡ (ཉུང་ཤོས་) ,༢ (རྒྱས་བཤད་) དང་  ༣(རྐྱེན་སེལ་)ཨིན་"
 
-#: ../src/trackerd/trackerd.c:149
-#: ../src/trackerd/trackerd.c:150
+#: ../src/trackerd/trackerd.c:162 ../src/trackerd/trackerd.c:163
 msgid "VALUE"
 msgstr "VALUE"
 
-#: ../src/trackerd/trackerd.c:150
-msgid "Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"
-msgstr "ཟུར་ཐོ་ནང་བཀོད་ནིའི་རྒྱུན་ལམ་གྱི་དོན་ལུ་ལག་ལེན་འཐབ་ནི་ཨིན་པའི་གནས་གོང་།  གནས་གོང་འདི་ཁྱབ་ཚད་0-20 (སྔོན་སྒྲིག་0)ནང་  ཟུར་ཐོའི་མགྱོགས་ཚད་ཡར་འཕར་གནས་གོང་དམའ་མི་དང་ཅིག་ཁར་དགོཔ་ཨིན།"
+#: ../src/trackerd/trackerd.c:163
+msgid ""
+"Value to use for throttling indexing. Value must be in range 0-20 (default "
+"0) with lower values increasing indexing speed"
+msgstr ""
+"ཟུར་ཐོ་ནང་བཀོད་ནིའི་རྒྱུན་ལམ་གྱི་དོན་ལུ་ལག་ལེན་འཐབ་ནི་ཨིན་པའི་གནས་གོང་།  གནས་གོང་འདི་ཁྱབ་ཚད་0-20 "
+"(སྔོན་སྒྲིག་0)ནང་  ཟུར་ཐོའི་མགྱོགས་ཚད་ཡར་འཕར་གནས་གོང་དམའ་མི་དང་ཅིག་ཁར་དགོཔ་ཨིན།"
 
-#: ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:164
 msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "དྲན་ཚད་ཀྱི་ལག་ལེན་འདི་ཕབ་ལེན་འབདཝ་ཨིན་  དེ་འབདཝ་ད་ ཟུར་ཐོ་ནང་བཀོད་ནི་ཡང་མར་ཕབ་འབད་འོང་"
+msgstr ""
+"དྲན་ཚད་ཀྱི་ལག་ལེན་འདི་ཕབ་ལེན་འབདཝ་ཨིན་  དེ་འབདཝ་ད་ ཟུར་ཐོ་ནང་བཀོད་ནི་ཡང་མར་ཕབ་འབད་འོང་"
 
-#: ../src/trackerd/trackerd.c:152
-msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr "སི་ཊི་མར་དང་མིང་ཚིག་ཐོ་ཡིག་(ISO 639-1 2 characters code)བཀག་ནིའི་དོན་ལུ་  ལག་ལེན་འཐབ་ནི་ལུ་སྐད་ཡིག་"
+#: ../src/trackerd/trackerd.c:165
+msgid "Initial sleep time, just before indexing, in seconds"
+msgstr ""
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:166
+msgid ""
+"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+"སི་ཊི་མར་དང་མིང་ཚིག་ཐོ་ཡིག་(ISO 639-1 2 characters code)བཀག་ནིའི་དོན་ལུ་  ལག་ལེན་འཐབ་ནི་"
+"ལུ་སྐད་ཡིག་"
+
+#: ../src/trackerd/trackerd.c:166
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:153
+#: ../src/trackerd/trackerd.c:167
 msgid "Force a re-index of all content"
 msgstr "ནང་དོན་ཆ་མཉམ་གྱི་ཟུར་ཐོ་ སླར་བཀོད་ནི་ལུ་བང་བཙོང་འབད་"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:1969
+#: ../src/trackerd/trackerd.c:2047
 msgid "- start the tracker daemon"
 msgstr "- ཊེ་ཀར་ཌེ་མཱོན་འདི་འགོ་བཙུགས་"
 
-#: ../src/trackerd/trackerd.c:1970
-#: ../src/trackerd/trackerd.c:1971
+#: ../src/trackerd/trackerd.c:2048 ../src/trackerd/trackerd.c:2049
 msgid "DIRECTORY"
 msgstr "DIRECTORY"
 
-#: ../src/trackerd/trackerd.c:1979
-msgid "To include or exclude multiple directories at the same time, join multiple options like:"
+#: ../src/trackerd/trackerd.c:2056
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
 msgstr "དུས་ཡུན་གཅིག་ལུ་  སྣ་མང་སྣོད་ཐོ་ཚུ་བརྩི་ནི་དང་ཕྱིར་ཐོན་ནི་ལུ་  སྣ་མང་གདམ་ཁ་མཐུད:"
 
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.h:1
-msgid "Configure File Indexing"
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+#, fuzzy
+msgid "Configure file indexing with Tracker"
 msgstr "ཡིག་སྣོད་ཟུར་ཐོ་ནང་བཀོད་ནི་འདི་རིམ་སྒྲིག་འབད་"
 
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.h:2
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
 msgid "Indexing Preferences"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནིའི་དགའ་གདམ་ཚུ་"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
-msgid "<b>File Metadata</b>"
-msgstr "<b>ཡིག་སྣོད་མེ་ཊ་གནད་སྡུད</b>"
+msgid "<b>Crawled Directories</b>"
+msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:2
-msgid "<b>General</b>"
-msgstr "<b>ཡོངས་ཁྱབ</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:3
 msgid "<b>Ignored File Patterns</b>"
 msgstr "<b>ཡིག་སྣོད་དཔེ་གཞི་ཚུ་སྣང་མེད་བཞག་ཡོདཔ</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+#: ../src/tracker-preferences/tracker-preferences.glade.h:3
 msgid "<b>Ignored Paths</b>"
 msgstr "<b>འགྲུལ་ལམ་ཚུ་སྣང་མེད་བཞག་ཡོདཔ</b>"
 
+#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+#, fuzzy
+msgid "<b>Indexing Limits (per file)</b>"
+msgstr "<b>ཐབས་ལམ་ཟུར་ཐོ་ནང་བཀོད་ནི</b>"
+
 #: ../src/tracker-preferences/tracker-preferences.glade.h:5
-msgid "<b>Indexing Mode</b>"
+#, fuzzy
+msgid "<b>Indexing options</b>"
 msgstr "<b>ཐབས་ལམ་ཟུར་ཐོ་ནང་བཀོད་ནི</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:6
+#, fuzzy
+msgid "<b>Indexing</b>"
+msgstr "<b>ཐབས་ལམ་ཟུར་ཐོ་ནང་བཀོད་ནི</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Mailboxes</b>"
 msgstr "<b>ཡིག་སྒྲོམ་ཚུ</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
-msgid "<b>Polling</b>"
-msgstr "<b>པུ་ལིང་</b>"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:8
-msgid "<b>Services</b>"
+#, fuzzy
+msgid "<b>Resource Usage</b>"
 msgstr "<b>ཞབས་ཏོག་ཚུ</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:9
+msgid "<b>Services</b>"
+msgstr "<b>ཞབས་ཏོག་ཚུ</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Startup</b>"
 msgstr "<b>འགོ་བཙུགས</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#, fuzzy
+msgid "<b>Stemming</b>"
+msgstr "<b>པུ་ལིང་</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
 msgstr "<b>རྒྱུན་ལམ</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#, fuzzy
+msgid "<b>Watch Directories</b>"
+msgstr "<b>ཞབས་ཏོག་ཚུ</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Additional mbox mailboxes to index:"
 msgstr "ཟུར་ཐོ་ལུ་ ཨེམ་སྒྲོམ་ཡིག་སྒྲོམ་ཚུའི་ཁ་སྐོང་:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
-msgid "Additional paths to index:"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#, fuzzy
+msgid "Additional paths to index and watch:"
 msgstr "ཟུར་ཐོ་ལུ་འགྲུལ་ལམ་ཁ་སྐོང་:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+msgid "Additional paths to index on startup (but not watch for updates)"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Enable Evolution email indexing"
 msgstr "གློག་འཕྲིན་ཟུར་ཐོ་ནང་བཀོད་ནིའི་ཨི་བོ་ལུ་ཤཱན་ལྕོགས་ཅན་བཟོ་"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Enable Index Throttling"
-msgstr "ཟུར་ཐོ་རྒྱུན་ལམ་ལྕོགས་ཅན་བཟོ་"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#: ../src/tracker-preferences/tracker-preferences.glade.h:18
 msgid "Enable KMail email indexing"
 msgstr "ཀེ་ཡིག་འཕྲིན་གློག་འཕྲིན་ཟུར་ཐོ་ནང་བཀོད་ནི་འདི་ལྕོགས་ཅན་བཟོ་"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+#: ../src/tracker-preferences/tracker-preferences.glade.h:19
 msgid "Enable Thunderbird email indexing"
 msgstr "ཐཱན་ཌར་བཌི་གློ་འཕྲིན་ཟུར་ཐོ་ནང་བཀོད་ནི་འདི་ལྕོགས་ཅན་བཟོ་"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+#: ../src/tracker-preferences/tracker-preferences.glade.h:20
 msgid "Enable _Indexing"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་འདི་ལྕོགས་ཅན་བཟོ། (_I)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#, fuzzy
+msgid "Enable _Watching"
+msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི་འདི་ལྕོགས་ཅན་བཟོ། (_I)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:22
+msgid "Faster"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:23
 msgid "File patterns to ignore during indexing:"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་པའི་བསྒང་ སྣང་མེད་བཞག་ནི་ཨིན་པའི་ཡིག་སྣོད་དཔེ་གཞི་ཚུ:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+#: ../src/tracker-preferences/tracker-preferences.glade.h:24
 msgid "Generate _thumbnails"
 msgstr "མཐེ་གཟེར་ཚུ་བཟོ་བཏོན་འབད། (_t)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:20
-msgid "I_ndexing"
-msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི། (_n)"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+msgid "Index _delay: "
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#: ../src/tracker-preferences/tracker-preferences.glade.h:26
 msgid "Index _file contents"
 msgstr "ཡིག་སྣོད་ནང་དོན་ཟུར་ཐོ། ( _f)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
-msgid "Index my home _directory"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#, fuzzy
+msgid "Index and watch my home _directory"
 msgstr "ངེའི་ཁྱིམ་གྱི་སྣོད་ཐོའི་ཟུར་ཐོ་བཀོད། (_d)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
-msgid "Normal Mode"
-msgstr "སྤྱིར་གཏང་ཐབས་ལམ་"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+msgid "Maximum _amount of text to Index (KB)"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Maximum number of unique _words to index"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "P_erformance"
 msgstr "ལཱ་ཤུགས། (_e)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Path roots to be ignored during indexing:"
 msgstr "ཟུར་ཐོ་ནང་བཀོད་པའི་བསྒང་སྣང་མེད་བཞག་ནི་ཨིན་པའི་  འགྲུལ་ལམ་རྩ་བ:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
-msgid "Polling Interval: "
-msgstr "པུ་ལིང་བར་མཚམས:"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Seconds"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
-msgid "Reduced Memory Mode"
-msgstr "དྲན་ཚད་ཐབས་ལམ་མར་ཕབ་འབད་ཡོདཔ་"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+msgid "Slower"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
-msgid "Start _indexing service automatically"
-msgstr "རང་བཞིན་གྱིས་སྦེ་ཞབས་ཏོག་ཟུར་ཐོ་ནང་བཀོད་ནི་འགོ་བཙུགས། (_i)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Start _monitoring service automatically"
-msgstr "རང་བཞིན་གྱིས་སྦེ་ ཞབས་ཏོག་ ལྟ་རྟོག་འབད་ནི་ འགོ་བཙུགས་ (_m)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "Throttling Level: "
-msgstr "རྒྱུན་ལམ་གནས་རིམ:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Tracker Preferences"
 msgstr "ཊེ་ཀར་དགའ་གདམ་ཚུ་"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Turbo Mode"
-msgstr "ཊར་བོ་ཐབས་ལམ་"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#, fuzzy
+msgid "_Emails"
+msgstr "གློག་འཕྲིན་ཚུ་"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#, fuzzy
+msgid "_Files"
+msgstr "ཡིག་སྣོད་ཆ་མཉམ་"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "_General"
 msgstr "ཡོངས་ཁྱབ། (_G)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
-msgid "_Privacy"
-msgstr "སྒེར་གཙང་། (_P)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
-msgid "gtk-add"
-msgstr "gtk-ཁ་སྐོང་"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "gtk-close"
-msgstr "gtk-ཁ་བསྡམ་"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "gtk-help"
-msgstr "gtk-གྲོགས་རམ་"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:38
-msgid "gtk-remove"
-msgstr "gtk-རྩ་བསྐྲད་"
+#, fuzzy
+msgid "_Ignored Files"
+msgstr "<b>ཡིག་སྣོད་དཔེ་གཞི་ཚུ་སྣང་མེད་བཞག་ཡོདཔ</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#, fuzzy
+msgid "_Indexing speed:"
+msgstr "ཟུར་ཐོ་ནང་བཀོད་ནི། (_n)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+msgid "_Language:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#, fuzzy
+msgid "_Minimize memory usage (slower indexing)"
+msgstr ""
+"དྲན་ཚད་ཀྱི་ལག་ལེན་འདི་ཕབ་ལེན་འབདཝ་ཨིན་  དེ་འབདཝ་ད་ ཟུར་ཐོ་ནང་བཀོད་ནི་ཡང་མར་ཕབ་འབད་འོང་"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+msgid "_Use additonal memory for faster indexing"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+msgid ""
+"danish\n"
+"dutch\n"
+"english\n"
+"finnish\n"
+"french\n"
+"german\n"
+"italian\n"
+"norwegian\n"
+"portugese\n"
+"russian\n"
+"spanish\n"
+"swedish"
+msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:65
 msgid "Search from a specific service"
 msgstr "དམིགས་བསལ་ཞབས་ཏོག་གཅིག་ལས་འཚོལ་ཞིབ་འབད་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:135
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "གློག་འཕྲིན་ཚུ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
+#: ../src/tracker-search-tool/tracker-search-tool.c:137
 msgid "All Files"
 msgstr "ཡིག་སྣོད་ཆ་མཉམ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:137
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
 msgid "Folders"
 msgstr "སྣོད་འཛིན་ཚུ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:138
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
 msgid "Documents"
 msgstr "ཡིག་ཆ་ཚུ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:139
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
 msgid "Images"
 msgstr "གཟུགས་བརྙན་ཚུ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
 msgid "Music"
 msgstr "སྙན་ཆ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "Videos"
 msgstr "ཝི་ཌིའོསི་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:142
-#: ../src/tracker-search-tool/tracker-search-tool.c:1874
+#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:1224
 msgid "Text"
 msgstr "ཚིག་ཡིག་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
 msgid "Development"
 msgstr "གོང་འཕེལ་"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:145
+msgid "Chat Logs"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:146
+msgid "Applications"
+msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:207
 msgid "_Open"
@@ -622,200 +729,223 @@ msgstr "ཕྱགས་ཧོད་ལུ་སྤོ་བཤུད་འབད
 msgid "_Save Results As..."
 msgstr "གྲུབ་འབྲས་དེ་སྦེ་སྲུང་... (_S)"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:275
+#: ../src/tracker-search-tool/tracker-search-tool.c:254
 #, c-format
 msgid "Character set conversion failed for \"%s\""
 msgstr "\"%s\"དོན་ལུ་ཡིག་འབྲུའི་གཞི་སྒྲིག་གཞི་བསྒྱུར་འབད་མ་ཚུགས་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:794
+#: ../src/tracker-search-tool/tracker-search-tool.c:281
+msgid "The following error has occured :"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:656
 msgid "Did you mean"
 msgstr "ཁྱོད་འབད་བ་ཅིན་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:825
+#: ../src/tracker-search-tool/tracker-search-tool.c:687
 msgid "Your search returned no results."
 msgstr "ཁྱོད་རའི་འཚོལ་ཞིབ་ལུ་གྲུབ་འབྲས་མ་ཐོན།"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:842
+#: ../src/tracker-search-tool/tracker-search-tool.c:702
 msgid "Tracker Search Tool-"
 msgstr "ཊེ་ཀར་འཚོལ་ཞིབ་འབད་ནིའི་ལག་ཆས-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1099
-#: ../src/tracker-search-tool/tracker-search-tool.c:2854
+#: ../src/tracker-search-tool/tracker-search-tool.c:863
+#: ../src/tracker-search-tool/tracker-search-tool.c:2199
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "ཊེ་ཀར་འཚོལ་ཞིབ་འབད་ནིའི་ལག་ཆས་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1672
-msgid "Search Results:"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1053
+#, fuzzy
+msgid "Search _results: "
 msgstr "འཚོལ་ཞིབ་འབད་བའི་གྲུབ་འབྲས་ཚུ:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1769
+#. Translators: this will appears as "Search results: no search performed"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1059
+msgid "no search performed"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1113
+#: ../src/tracker-search-tool/tracker-search-tool.c:1274
 msgid "List View"
 msgstr "མཐོང་སྣང་ཚུ་ཐོ་ཡིག་བརྐྱབ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1834
+#: ../src/tracker-search-tool/tracker-search-tool.c:1185
 msgid "Icon"
 msgstr "ངོས་དཔར་"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1846
+#: ../src/tracker-search-tool/tracker-search-tool.c:1197
 msgid "Name"
 msgstr "མིང་"
 
-#. Translators: this will appear like "Results 5 - 10 of 30"
-#: ../src/tracker-search-tool/tracker-search-tool.c:2246
-#, c-format
-msgid "Results %d - %d of %d"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1292
+msgid "_Categories"
+msgstr ""
+
+#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1572
+#, fuzzy, c-format
+msgid "%d - %d of %d hits"
 msgstr "གྲུབ་འབྲས་ཚུ་ %d - %d of %d"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2248
+#. Translators: this will appear like "Search results: 7 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1575
 #, c-format
-msgid "%d result"
-msgid_plural "%d results"
-msgstr[0] "%dགྲུབ་འབྲས་"
-msgstr[1] "%dགྲུབ་འབྲས་ཚུ་"
+msgid "%d item"
+msgid_plural "%d hits"
+msgstr[0] ""
+msgstr[1] ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2631
+#: ../src/tracker-search-tool/tracker-search-tool.c:1976
 msgid "_Search:"
 msgstr "འཚོལ་ཞིབ་འབད: (_S)"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2651
-#: ../src/tracker-search-tool/tracker-search-tool.c:2652
+#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:1997
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "བར་སྟང་དང་ཅིག་ཁར་འཕྱལ་ཡོད་པའི་སྣ་མང་མིང་ཚིག་དང་ཅིག་ཁར་  འཚོལ་ཞིབ་གཅིག་ཐོ་བཀོད་འབད།"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2652
+#: ../src/tracker-search-tool/tracker-search-tool.c:1997
 msgid "search_entry"
 msgstr "ཐོ་བཀོད་འཚོལ་ཞིབ་འབད། (_e)"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2669
-msgid "Please enter a search term above"
-msgstr "ལྟག་ལུ་འཚོལ་ཞིབ་ཐ་སྙད་གཅིག་ཐོ་བཀོད་འབད་གནང་"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2700
+#: ../src/tracker-search-tool/tracker-search-tool.c:2043
 msgid "Click to perform a search."
 msgstr "འཚོལ་ཞིབ་གཅིག་ལཱ་འགན་འགྲུབ་ནི་ལུ་ཨེབ་གཏང་འབད།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:133
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
 msgid "Could not open help document."
 msgstr "གྲོགས་རམ་ཡིག་ཆ་ཁ་ཕྱེ་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:270
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
 msgstr[0] "%dཡིག་ཆ་ཁ་ཕྱེ་ནི་ལུ་ཁྱོད་ངེས་གཏན་ཨིན་ན?"
 msgstr[1] "%dཡིག་ཆ་ཚུ་ཁ་ཕྱེ་ནི་ལུ་ཁྱོད་ངེས་གཏན་ཨིན་ན?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:275
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:594
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:676
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
 msgstr[0] "འདི་གིས་%dསྒོ་སྒྲིག་སོ་སོ་དང་ཅིག་ཁར་ཁ་ཕྱེ་ཚུགས།"
 msgstr[1] "འདི་གིས་ %dསྒོ་སྒྲིག་སོ་སོ་ཁ་ཕྱེཝ་ཨིན།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:315
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
 msgid "Could not open document \"%s\"."
 msgstr "\"%s\" ཡིག་ཆ་ཁ་ཕྱེ་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:344
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
 #, c-format
 msgid "Could not open folder \"%s\"."
 msgstr "\"%s\"སྣོད་འཛིན་ཁ་ཕྱེ་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:352
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
 msgid "The nautilus file manager is not running."
 msgstr "ནའུ་ཊི་ལཱསི་ཡིག་སྣོད་འཛིན་སྐྱོང་པ་འདི་ལཱ་མི་འབད་བས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:548
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:897
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:615
+msgid "Application could not be opened"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:630
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:950
 msgid "The document does not exist."
 msgstr "ཡིག་ཆ་གནས་ཏེ་མེདཔ་ཨིན།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:565
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:646
 msgid "There is no installed viewer capable of displaying the document."
 msgstr "ཡིག་ཆ་བཀརམ་སྟོན་འབད་ནི་ལུ་  མཐོང་བྱེད་ལྕོགས་ཅན་གཞི་བཙུགས་མ་འབད་བས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:589
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:671
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
 msgstr[0] "%dསྣོད་འཛིན་ཁ་ཕྱེ་ནི་ལུ་ཁྱོད་ངེས་གཏན་ཨིན་ན?"
 msgstr[1] "%d སྣོད་འཛིན་ཚུ་ཁ་ཕྱེ་ནི་ལུ་ཁྱོད་ངེས་གཏན་ཨིན་ན?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:722
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:775
 #, c-format
 msgid "Could not move \"%s\" to trash."
 msgstr "\"%s\" འདི་ཕྱགས་ཧོད་ལུ་སྤོ་བཤུད་འབད་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:753
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:806
 #, c-format
 msgid "Do you want to delete \"%s\" permanently?"
 msgstr "\"%s\"འདི་ ཁྱོད་ཀྱིས་རྟག་བརྟན་སྦེ་བཏོན་གཏང་ནི་ཨིན་ན?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:756
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:809
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
 msgstr "ཕྱགས་ཧོད་འདི་ཐོབ་ཚུགས་མེད།  \"%s\" འདི་ཕྱགས་ཧོད་ནང་སྤོ་བཤུད་འབད་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:795
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:848
 #, c-format
 msgid "Could not delete \"%s\"."
 msgstr "\"%s\"བཏོན་གཏང་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:920
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:972
 #, c-format
 msgid "Moving \"%s\" failed: %s."
 msgstr "\"%s\" སྤོ་བཤུད་འབད་མ་ཚུགས: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:955
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1006
 #, c-format
 msgid "Deleting \"%s\" failed: %s."
 msgstr "\"%s\" བཏོན་གཏང་མ་ཚུགས: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1266
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1292
 msgid "Activate to view this email"
 msgstr "གློག་འཕྲིན་འདི་སྟོན་ནི་ལུ་ཤུགས་ལྡན་བཟོ་"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1444
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1468
 msgid "Save Search Results As..."
 msgstr "འཚོལ་ཞིབ་འབད་བའི་གྲུབ་འབྲས་དེ་སྦེ་སྲུང་བཞག་འབད..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1478
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1503
 msgid "Could not save document."
 msgstr "ཡིག་ཆ་སྲུང་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1479
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1504
 msgid "You did not select a document name."
 msgstr "ཁྱོད་ཀྱིས་ཡིག་ཆའི་མིང་གཅིག་སེལ་འཐུ་མ་འབད་བས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1509
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1534
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "\"%s\" ཡིག་ཆ་འདི་ \"%s\" ལུ་སྲུང་མ་ཚུགས།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1543
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1568
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "\"%s\" ཡིག་ཆ་འདི་ཧེ་མ་ལས་རང་འདུག། ཁྱོད་ཀྱིས་ཚབ་མ་བཙུགས་ནི་ཨིན་ན?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1572
 msgid "If you replace an existing file, its contents will be overwritten."
 msgstr "ཁྱོད་ཀྱིས་གནས་ཡོད་པའི་ཡིག་སྣོད་འདི་ཚབ་བཙུགས་པ་ཅིན་  དེའི་ནང་དོན་ཚུ་ཚབ་སྲུང་འབད་ཡོདཔ་ཨིན།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1562
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1587
 msgid "_Replace"
 msgstr "ཚབ་བཙུགས། (_R)"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1612
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1637
 msgid "The document name you selected is a folder."
 msgstr "ཁྱོད་ཀྱིས་སེལ་འཐུ་འབད་ཡོད་པའི་ཡིག་ཆའི་མིང་འདི་སྣོད་འཛིན་ཨིན།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1661
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1686
 msgid "You may not have write permissions to the document."
 msgstr "ཡིག་ཆ་ལུ་འབྲི་ནིི་གནང་བ་འདི་ཁྱོད་ལུ་མེད།"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:74
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
 #, c-format
 msgid ""
 "GConf error:\n"
@@ -829,25 +959,77 @@ msgstr ""
 #. on age of a file.  Please modify the format of the timestamp to match
 #. your locale.  For example, to display 24 hour time replace the '%-I'
 #. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:643
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
 msgid "today at %-I:%M %p"
 msgstr "today at %-I:%M %p"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:645
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
 msgid "yesterday at %-I:%M %p"
 msgstr "ཁ་རྩང་ %-I:%M %p"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:647
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:649
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A, %B %-d %Y at %-I:%M:%S %p"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:829
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
 msgid "link (broken)"
 msgstr "འབྲེལ་མཐུད། (ཆད་པ་)"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:833
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
 #, c-format
 msgid "link to %s"
 msgstr "%sལུ་འབྲེལ་མཐུད་འབད།"
 
+#~ msgid "<b>File Metadata</b>"
+#~ msgstr "<b>ཡིག་སྣོད་མེ་ཊ་གནད་སྡུད</b>"
+
+#~ msgid "<b>General</b>"
+#~ msgstr "<b>ཡོངས་ཁྱབ</b>"
+
+#~ msgid "Enable Index Throttling"
+#~ msgstr "ཟུར་ཐོ་རྒྱུན་ལམ་ལྕོགས་ཅན་བཟོ་"
+
+#~ msgid "Normal Mode"
+#~ msgstr "སྤྱིར་གཏང་ཐབས་ལམ་"
+
+#~ msgid "Polling Interval: "
+#~ msgstr "པུ་ལིང་བར་མཚམས:"
+
+#~ msgid "Reduced Memory Mode"
+#~ msgstr "དྲན་ཚད་ཐབས་ལམ་མར་ཕབ་འབད་ཡོདཔ་"
+
+#~ msgid "Start _indexing service automatically"
+#~ msgstr "རང་བཞིན་གྱིས་སྦེ་ཞབས་ཏོག་ཟུར་ཐོ་ནང་བཀོད་ནི་འགོ་བཙུགས། (_i)"
+
+#~ msgid "Start _monitoring service automatically"
+#~ msgstr "རང་བཞིན་གྱིས་སྦེ་ ཞབས་ཏོག་ ལྟ་རྟོག་འབད་ནི་ འགོ་བཙུགས་ (_m)"
+
+#~ msgid "Throttling Level: "
+#~ msgstr "རྒྱུན་ལམ་གནས་རིམ:"
+
+#~ msgid "Turbo Mode"
+#~ msgstr "ཊར་བོ་ཐབས་ལམ་"
+
+#~ msgid "_Privacy"
+#~ msgstr "སྒེར་གཙང་། (_P)"
+
+#~ msgid "gtk-add"
+#~ msgstr "gtk-ཁ་སྐོང་"
+
+#~ msgid "gtk-close"
+#~ msgstr "gtk-ཁ་བསྡམ་"
+
+#~ msgid "gtk-help"
+#~ msgstr "gtk-གྲོགས་རམ་"
+
+#~ msgid "gtk-remove"
+#~ msgstr "gtk-རྩ་བསྐྲད་"
+
+#~ msgid "%d result"
+#~ msgid_plural "%d results"
+#~ msgstr[0] "%dགྲུབ་འབྲས་"
+#~ msgstr[1] "%dགྲུབ་འབྲས་ཚུ་"
+
+#~ msgid "Please enter a search term above"
+#~ msgstr "ལྟག་ལུ་འཚོལ་ཞིབ་ཐ་སྙད་གཅིག་ཐོ་བཀོད་འབད་གནང་"

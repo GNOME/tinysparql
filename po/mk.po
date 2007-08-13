@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-04-05 03:27+0100\n"
+"POT-Creation-Date: 2007-08-13 02:51+0200\n"
 "PO-Revision-Date: 2007-04-06 14:03+0200\n"
 "Last-Translator: Jovan Naumovski <jovan@lugola.net>\n"
 "Language-Team: Macedonian <ossm-members@hedona.on.net.mk>\n"
@@ -17,183 +17,215 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural= n==1 || n%10==1 ? 0 : 1\n"
 "X-Generator: KBabel 1.11.4\n"
 
+#: ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr ""
+
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr ""
+
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:245
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:453
 #, c-format
 msgid "Path : <b>%s</b>"
 msgstr "Патека : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:246
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:454
 #, c-format
 msgid "Modified : <b>%s</b>"
 msgstr "Изменето : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:247
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:327
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:455
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
 #, c-format
 msgid "Size : <b>%s</b>"
 msgstr "Големина : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:248
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:456
 #, c-format
 msgid "Accessed : <b>%s</b>"
 msgstr "Пристапено : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:249
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:457
 #, c-format
 msgid "Mime : <b>%s</b>"
 msgstr "Миме : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:323
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:423
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:509
+#, fuzzy, c-format
+msgid "Sender : <b>%s</b>"
+msgstr "Жанр : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:510
+#, fuzzy, c-format
+msgid "Date : <b>%s</b>"
+msgstr "Патека : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:550
+#, fuzzy, c-format
+msgid "Comment : <b>%s</b>"
+msgstr "Коментари : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:551
+#, fuzzy, c-format
+msgid "Categories : <b>%s</b>"
+msgstr "Креирано : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:637
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:742
 #, c-format
 msgid "Duration : <b>%s</b>"
 msgstr "Времетраење : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:324
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:638
 #, c-format
 msgid "Genre : <b>%s</b>"
 msgstr "Жанр : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:325
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:639
 #, c-format
 msgid "Bitrate : <b>%s Kbs</b>"
 msgstr "Битрејт : <b>%s Kbs</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:326
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
 #, c-format
 msgid "Year : <b>%s</b>"
 msgstr "Година : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:328
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:642
 #, c-format
 msgid "Codec : <b>%s</b>"
 msgstr "Кодек : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:367
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:683
 #, c-format
 msgid " taken with a <span size='large'><i>%s</i></span>"
 msgstr " земено со <span size='large'><i>%s</i></span>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:372
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:688
 #, c-format
 msgid " <span size='large'><i>%s</i></span>"
 msgstr " <span size='large'><i>%s</i></span>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:392
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:421
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:708
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:740
 #, c-format
 msgid "Dimensions : <b>%d x %d</b>"
 msgstr "Димензии : <b>%d x %d</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:393
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:709
 #, c-format
 msgid "Date Taken : <b>%s</b>"
 msgstr "Датум на сликање : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:394
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:710
 #, c-format
 msgid "Orientation : <b>%s</b>"
 msgstr "Ориентација : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:395
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:711
 #, c-format
 msgid "Flash : <b>%s</b>"
 msgstr "Блиц : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:396
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:712
 #, c-format
 msgid "Focal Length : <b>%s</b>"
 msgstr "Должина на фокус : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:397
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:713
 #, c-format
 msgid "Exposure Time : <b>%s</b>"
 msgstr "Време на експозитура : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:422
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:453
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:741
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:774
 #, c-format
 msgid "Author : <b>%s</b>"
 msgstr "Автор : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:424
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:743
 #, c-format
 msgid "Bitrate : <b>%s</b>"
 msgstr "Битрејт : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:425
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:744
 #, c-format
 msgid "Encoded In : <b>%s</b>"
 msgstr "Енкодирано во : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:426
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:745
 #, c-format
 msgid "Framerate : <b>%s</b>"
 msgstr "Framerate : <b>%s</b>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:452
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:773
 #, c-format
 msgid "Subject : <b>%s</b>"
 msgstr "Наслов : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:454
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:775
 #, c-format
 msgid "Page Count : <b>%s</b>"
 msgstr "Број на страници : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:455
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:776
 #, c-format
 msgid "Word Count : <b>%s</b>"
 msgstr "Број на зборови : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:456
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:777
 #, c-format
 msgid "Created : <b>%s</b>"
 msgstr "Креирано : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:457
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:778
 #, c-format
 msgid "Comments : <b>%s</b>"
 msgstr "Коментари : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:541
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:862
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f KB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:545
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:866
 #, c-format
 msgid "%.1f MB"
 msgstr "%.1f MB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:549
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:870
 #, c-format
 msgid "%.1f GB"
 msgstr "%.1f GB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:588
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:631
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:908
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:974
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:996
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1016
 msgid "Unknown"
 msgstr "Непознато"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:248
+#: ../src/libtracker-gtk/tracker-tag-bar.c:251
 msgid "Type tags you want to add here, separated by commas"
-msgstr "Овде напишете ги етикетите кои што сакате да ги додадете, разделени со запирки"
+msgstr ""
+"Овде напишете ги етикетите кои што сакате да ги додадете, разделени со "
+"запирки"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:357
+#: ../src/libtracker-gtk/tracker-tag-bar.c:361
 msgid "Tags :"
 msgstr "Етикети:"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:379
+#: ../src/libtracker-gtk/tracker-tag-bar.c:383
 msgid "_Search For Tag"
 msgstr "_Барај етикета"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:391
+#: ../src/libtracker-gtk/tracker-tag-bar.c:395
 msgid "_Remove Tag"
 msgstr "_Отстрани етикета"
 
@@ -231,8 +263,8 @@ msgid ""
 "Specifying more then one term, will be showed items containing ALL the "
 "specified terms (term1 AND term2 - logical conjunction)"
 msgstr ""
-"Одредувањето на повеќе од еден термин ќе прикаже предмети кои ги содржат СИТЕ "
-"одредени термини (термин1 И термин2 - логичка конјункција)"
+"Одредувањето на повеќе од еден термин ќе прикаже предмети кои ги содржат "
+"СИТЕ одредени термини (термин1 И термин2 - логичка конјункција)"
 
 #: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
@@ -240,7 +272,7 @@ msgstr "Листата од препознати сервиси е:"
 
 #: ../src/libtracker/tracker-search.c:114
 #: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
-#: ../src/libtracker/tracker-tag.c:111 ../src/libtracker/tracker-tag.c:119
+#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
 #, c-format
 msgid "Try \"%s --help\" for more information."
 msgstr "Пробајте \"%s --help\" за повеќе информации."
@@ -251,29 +283,30 @@ msgid "%s: missing search terms"
 msgstr "%s: недостасуваат термини за пребарување"
 
 #: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
-#: ../src/libtracker/tracker-tag.c:128
+#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
 #, c-format
 msgid "%s: no connection to tracker daemon"
 msgstr "%s: нема врска со демонот на tracker"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
-#: ../src/libtracker/tracker-tag.c:130
+#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr "Осигурајте се дека „tracker“ се извршува пред да ја пуштите оваа команда."
+msgstr ""
+"Осигурајте се дека „tracker“ се извршува пред да ја пуштите оваа команда."
 
-#: ../src/libtracker/tracker-search.c:160
+#: ../src/libtracker/tracker-search.c:147
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Сервисот не е препознат, барам во другите датотеки...\n"
 
-#: ../src/libtracker/tracker-search.c:177 ../src/libtracker/tracker-tag.c:176
-#: ../src/libtracker/tracker-tag.c:185 ../src/libtracker/tracker-tag.c:194
-#: ../src/libtracker/tracker-tag.c:229 ../src/libtracker/tracker-tag.c:279
+#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
+#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
 msgid "%s: internal tracker error: %s"
 msgstr "%s: внатрешна грешка во tracker: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:186 ../src/libtracker/tracker-tag.c:264
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
 msgid "No results found matching your query"
 msgstr "Не се пронајдени резултати кои се совпаѓаат со Вашето барање"
 
@@ -287,118 +320,138 @@ msgstr " - прикажи го бројот на индексирани дато
 msgid "fetching index stats"
 msgstr "земи ги статистиките на индексирањето"
 
-#: ../src/libtracker/tracker-tag.c:37
+#: ../src/libtracker/tracker-tag.c:41
 msgid "Add specified tag to a file"
 msgstr "Додај одредена етикета на некоја датотека"
 
-#: ../src/libtracker/tracker-tag.c:37 ../src/libtracker/tracker-tag.c:38
-#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:88
+#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
 msgid "TAG"
 msgstr "ЕТИКЕТА"
 
-#: ../src/libtracker/tracker-tag.c:38
+#: ../src/libtracker/tracker-tag.c:42
 msgid "Remove specified tag from a file"
 msgstr "Отстрани одредена етикета од некоја датотека"
 
-#: ../src/libtracker/tracker-tag.c:39
+#: ../src/libtracker/tracker-tag.c:43
 msgid "Remove all tags from a file"
 msgstr "Отстрани ги сите етикети од некоја датотека"
 
-#: ../src/libtracker/tracker-tag.c:40
+#: ../src/libtracker/tracker-tag.c:44
 msgid "List all defined tags"
 msgstr "Излистај ги сите дефинирани етикети"
 
-#: ../src/libtracker/tracker-tag.c:41
+#: ../src/libtracker/tracker-tag.c:45
 msgid "Search for files with specified tag"
 msgstr "Барај датотеки со одредена етикета"
 
-#: ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:46
 msgid "FILE..."
 msgstr "ДАТОТЕКА..."
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-tag.c:86
+#: ../src/libtracker/tracker-tag.c:90
 msgid "FILE... - manipulate tags on files"
 msgstr "ДАТОТЕКА... - манипулирајте со етикетите на датотеките"
 
-#: ../src/libtracker/tracker-tag.c:95
+#: ../src/libtracker/tracker-tag.c:99
 msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
 "options like:"
 msgstr ""
-"За да отстранувате, додавате и пребарувате повеќе етикети истовремено, користете споени "
-"опции како:"
+"За да отстранувате, додавате и пребарувате повеќе етикети истовремено, "
+"користете споени опции како:"
 
-#: ../src/libtracker/tracker-tag.c:117
+#: ../src/libtracker/tracker-tag.c:121
 #, c-format
 msgid "%s: invalid arguments"
 msgstr "%s: невалидни аргументи"
 
-#: ../src/libtracker/tracker-tag.c:145
+#: ../src/libtracker/tracker-tag.c:148
 #, c-format
 msgid "%s: file %s not found"
 msgstr "%s: датотеката %s не е пронајдена"
 
-#: ../src/trackerd/trackerd.c:143
+#: ../src/trackerd/trackerd.c:158
 msgid "Directory to exclude from indexing"
 msgstr "Директориум кој ќе се исклучи од пребарувањето"
 
-#: ../src/trackerd/trackerd.c:143 ../src/trackerd/trackerd.c:144
+#: ../src/trackerd/trackerd.c:158 ../src/trackerd/trackerd.c:159
+#: ../src/trackerd/trackerd.c:160
 msgid "/PATH/DIR"
 msgstr "/ПАТЕКА/ДИРЕКТОРИУМ"
 
-#: ../src/trackerd/trackerd.c:144
+#: ../src/trackerd/trackerd.c:159
 msgid "Directory to include in indexing"
 msgstr "Директориум кој ќе се вклучи во индексирањето"
 
-#: ../src/trackerd/trackerd.c:145
+#: ../src/trackerd/trackerd.c:160
+#, fuzzy
+msgid "Directory to crawl for indexing at start up only"
+msgstr "Директориум кој ќе се исклучи од пребарувањето"
+
+#: ../src/trackerd/trackerd.c:161
 msgid "Disable any indexing or watching taking place"
 msgstr "Оневозможи да се случи надгледување или индексирање"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:162
+#, fuzzy
 msgid ""
-"Value that controls the level of logging. Valid values are 0 (default "
-"minimal), 1 (detailed) and 2 (debug)"
+"Value that controls the level of logging. Valid values are 0 (displays/logs "
+"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 msgstr ""
-"Вредност која го контролира нивото на логирање. Валидни вредности се 0 (стандардно минимално), "
-"1 (детално) и 2 (за дебагирање)"
+"Вредност која го контролира нивото на логирање. Валидни вредности се 0 "
+"(стандардно минимално), 1 (детално) и 2 (за дебагирање)"
 
-#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:162 ../src/trackerd/trackerd.c:163
 msgid "VALUE"
 msgstr "ВРЕДНОСТ"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:163
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
 msgstr ""
-"Вредности кои се користат за пригушување на индексирањето. Вредноста мора да биде "
-"во опсегот од 0-20 (стандардно 0) со пониски вредности за зголемена брзина на индексирање"
+"Вредности кои се користат за пригушување на индексирањето. Вредноста мора да "
+"биде во опсегот од 0-20 (стандардно 0) со пониски вредности за зголемена "
+"брзина на индексирање"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:164
 msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "Ја минимизира употребата на меморијата, но може да го направи системот бавен"
+msgstr ""
+"Ја минимизира употребата на меморијата, но може да го направи системот бавен"
 
-#: ../src/trackerd/trackerd.c:149
-msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr "Јазикот кој ќе се користи за stemmer и листата со запрени зборови (код од 2 ISO 639-1 знаци)"
+#: ../src/trackerd/trackerd.c:165
+msgid "Initial sleep time, just before indexing, in seconds"
+msgstr ""
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:166
+msgid ""
+"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+"Јазикот кој ќе се користи за stemmer и листата со запрени зборови (код од 2 "
+"ISO 639-1 знаци)"
+
+#: ../src/trackerd/trackerd.c:166
 msgid "LANG"
 msgstr "ЈАЗИК"
 
+#: ../src/trackerd/trackerd.c:167
+msgid "Force a re-index of all content"
+msgstr ""
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:1840
+#: ../src/trackerd/trackerd.c:2047
 msgid "- start the tracker daemon"
 msgstr "- стартувај го tracker демонот"
 
-#: ../src/trackerd/trackerd.c:1841 ../src/trackerd/trackerd.c:1842
+#: ../src/trackerd/trackerd.c:2048 ../src/trackerd/trackerd.c:2049
 msgid "DIRECTORY"
 msgstr "ДИРЕКТОРИУМ"
 
-#: ../src/trackerd/trackerd.c:1850
+#: ../src/trackerd/trackerd.c:2056
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -406,206 +459,262 @@ msgstr ""
 "За да вклучите или исклучите повеќе директориуми истовремено, спојте повеќе "
 "опции вака:"
 
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.h:1
-msgid "Configure File Indexing"
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+#, fuzzy
+msgid "Configure file indexing with Tracker"
 msgstr "Конфигурирај го индексирањето на датотеките"
 
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.h:2
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
 msgid "Indexing Preferences"
 msgstr "Преференции за индексирањето"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
-msgid "<b>File Metadata</b>"
-msgstr "<b>Метаподатоци на датотека</b>"
+msgid "<b>Crawled Directories</b>"
+msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:2
-msgid "<b>General</b>"
-msgstr "<b>Општо</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:3
 msgid "<b>Ignored File Patterns</b>"
 msgstr "<b>Игнорирани шеми на датотеки</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+#: ../src/tracker-preferences/tracker-preferences.glade.h:3
 msgid "<b>Ignored Paths</b>"
 msgstr "<b>Игнорирани патеки</b>"
 
+#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+#, fuzzy
+msgid "<b>Indexing Limits (per file)</b>"
+msgstr "<b>Режим на индексирање</b>"
+
 #: ../src/tracker-preferences/tracker-preferences.glade.h:5
-msgid "<b>Indexing Mode</b>"
+#, fuzzy
+msgid "<b>Indexing options</b>"
 msgstr "<b>Режим на индексирање</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:6
+#, fuzzy
+msgid "<b>Indexing</b>"
+msgstr "<b>Режим на индексирање</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Mailboxes</b>"
 msgstr "<b>Поштенски сандачиња</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
-msgid "<b>Polling</b>"
-msgstr "<b>Прозив</b>"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:8
-msgid "<b>Services</b>"
+#, fuzzy
+msgid "<b>Resource Usage</b>"
 msgstr "<b>Сервиси</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:9
+msgid "<b>Services</b>"
+msgstr "<b>Сервиси</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Startup</b>"
 msgstr "<b>Подигнување</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#, fuzzy
+msgid "<b>Stemming</b>"
+msgstr "<b>Прозив</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
 msgstr "<b>Пригушување</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#, fuzzy
+msgid "<b>Watch Directories</b>"
+msgstr "<b>Сервиси</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Additional mbox mailboxes to index:"
 msgstr "Додатни поштенски сандачиња за индексирање:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
-msgid "Additional paths to index:"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#, fuzzy
+msgid "Additional paths to index and watch:"
 msgstr "Додатни патеки за индексирање:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+msgid "Additional paths to index on startup (but not watch for updates)"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Enable Evolution email indexing"
 msgstr "Овозможи индексирање на поштата од Evolution"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Enable Index Throttling"
-msgstr "Овозможи пригушување на индексот"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#: ../src/tracker-preferences/tracker-preferences.glade.h:18
 msgid "Enable KMail email indexing"
 msgstr "Овозможи индексирање на поштата од КПошта"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+#: ../src/tracker-preferences/tracker-preferences.glade.h:19
 msgid "Enable Thunderbird email indexing"
 msgstr "Овозможи индексирање на поштата од Thunderbird"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+#: ../src/tracker-preferences/tracker-preferences.glade.h:20
 msgid "Enable _Indexing"
 msgstr "Овозможи _индексирање"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#, fuzzy
+msgid "Enable _Watching"
+msgstr "Овозможи _индексирање"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:22
+msgid "Faster"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:23
 msgid "File patterns to ignore during indexing:"
 msgstr "Шаблони на датотеки кои ќе се игнорираат при индексирањето:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+#: ../src/tracker-preferences/tracker-preferences.glade.h:24
 msgid "Generate _thumbnails"
 msgstr "Генерирај _сликички"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:20
-msgid "I_ndexing"
-msgstr "И_ндексирам"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+msgid "Index _delay: "
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#: ../src/tracker-preferences/tracker-preferences.glade.h:26
 msgid "Index _file contents"
 msgstr "Индексирај ги содржините на _датотеката"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
-msgid "Index my home _directory"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#, fuzzy
+msgid "Index and watch my home _directory"
 msgstr "Индексирај го мојот домашен _директориум"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
-msgid "Normal Mode"
-msgstr "Нормален режим"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+msgid "Maximum _amount of text to Index (KB)"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Maximum number of unique _words to index"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "P_erformance"
 msgstr "И_зведување"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Path roots to be ignored during indexing:"
 msgstr "Патеки кои ќе се игнорираат при индексирање:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
-msgid "Polling Interval: "
-msgstr "Интервал на одзив: "
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Seconds"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
-msgid "Reduced Memory Mode"
-msgstr "Режим на намалена меморија"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+msgid "Slower"
+msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
-msgid "Start _indexing service automatically"
-msgstr "Автоматски стартувај го сервисот за _индексирање"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Start _mointoring service automatically"
-msgstr "Автоматски стартувај го сервисот за _надгледување"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "Throttling Level: "
-msgstr "Ниво на пригушување"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Tracker Preferences"
 msgstr "Преференции на Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Turbo Mode"
-msgstr "Турбо режим"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#, fuzzy
+msgid "_Emails"
+msgstr "Е-пошта"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#, fuzzy
+msgid "_Files"
+msgstr "Сите датотеки"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "_General"
 msgstr "_Оптшо"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
-msgid "_Privacy"
-msgstr "_Приватност"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
-msgid "gtk-add"
-msgstr "gtk-add"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "gtk-close"
-msgstr "gtk-close"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "gtk-help"
-msgstr "gtk-help"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:38
-msgid "gtk-remove"
-msgstr "gtk-remove"
+#, fuzzy
+msgid "_Ignored Files"
+msgstr "<b>Игнорирани шеми на датотеки</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#, fuzzy
+msgid "_Indexing speed:"
+msgstr "И_ндексирам"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+msgid "_Language:"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#, fuzzy
+msgid "_Minimize memory usage (slower indexing)"
+msgstr ""
+"Ја минимизира употребата на меморијата, но може да го направи системот бавен"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+msgid "_Use additonal memory for faster indexing"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+msgid ""
+"danish\n"
+"dutch\n"
+"english\n"
+"finnish\n"
+"french\n"
+"german\n"
+"italian\n"
+"norwegian\n"
+"portugese\n"
+"russian\n"
+"spanish\n"
+"swedish"
+msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:65
 msgid "Search from a specific service"
 msgstr "Пребарај од одреден сервис"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:135
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "Е-пошта"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
+#: ../src/tracker-search-tool/tracker-search-tool.c:137
 msgid "All Files"
 msgstr "Сите датотеки"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:137
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
 msgid "Folders"
 msgstr "Папки"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:138
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
 msgid "Documents"
 msgstr "Документи"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:139
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
 msgid "Images"
 msgstr "Слики"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
 msgid "Music"
 msgstr "Музика"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "Videos"
 msgstr "Видео"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:142
-#: ../src/tracker-search-tool/tracker-search-tool.c:1874
+#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:1224
 msgid "Text"
 msgstr "Текст"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
 msgid "Development"
 msgstr "Програмирање"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:145
+msgid "Chat Logs"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:146
+msgid "Applications"
+msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:207
 msgid "_Open"
@@ -623,84 +732,98 @@ msgstr "Пре_мести во ѓубрето"
 msgid "_Save Results As..."
 msgstr "_Зачувај ги резултатите како..."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:275
+#: ../src/tracker-search-tool/tracker-search-tool.c:254
 #, c-format
 msgid "Character set conversion failed for \"%s\""
 msgstr "Претворањето на збирот знаци не успеа за \"%s\""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:794
+#: ../src/tracker-search-tool/tracker-search-tool.c:281
+msgid "The following error has occured :"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:656
 msgid "Did you mean"
 msgstr "Дали мислевте"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:825
+#: ../src/tracker-search-tool/tracker-search-tool.c:687
 msgid "Your search returned no results."
 msgstr "Вашето пребарување нема резултати."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:842
+#: ../src/tracker-search-tool/tracker-search-tool.c:702
 msgid "Tracker Search Tool-"
 msgstr "Tracker - алатка за пребарување-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1099
-#: ../src/tracker-search-tool/tracker-search-tool.c:2854
+#: ../src/tracker-search-tool/tracker-search-tool.c:863
+#: ../src/tracker-search-tool/tracker-search-tool.c:2199
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Tracker - алатка за пребарување"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1672
-msgid "Search Results:"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1053
+#, fuzzy
+msgid "Search _results: "
 msgstr "Резултати од пребарувањето:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1769
+#. Translators: this will appears as "Search results: no search performed"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1059
+msgid "no search performed"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1113
+#: ../src/tracker-search-tool/tracker-search-tool.c:1274
 msgid "List View"
 msgstr "Преглед во листа"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1834
+#: ../src/tracker-search-tool/tracker-search-tool.c:1185
 msgid "Icon"
 msgstr "Икона"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1846
+#: ../src/tracker-search-tool/tracker-search-tool.c:1197
 msgid "Name"
 msgstr "Име"
 
-#. Translators: this will appear like "Results 5 - 10 of 30"
-#: ../src/tracker-search-tool/tracker-search-tool.c:2246
-#, c-format
-msgid "Results %d - %d of %d"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1292
+msgid "_Categories"
+msgstr ""
+
+#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1572
+#, fuzzy, c-format
+msgid "%d - %d of %d hits"
 msgstr "Резултати %d - %d од %d"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2248
+#. Translators: this will appear like "Search results: 7 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1575
 #, c-format
-msgid "%d result"
-msgid_plural "%d results"
-msgstr[0] "%d резултат"
-msgstr[1] "%d резултати"
-msgstr[2] "%d резултати"
+msgid "%d item"
+msgid_plural "%d hits"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2631
+#: ../src/tracker-search-tool/tracker-search-tool.c:1976
 msgid "_Search:"
 msgstr "_Барај:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2651
-#: ../src/tracker-search-tool/tracker-search-tool.c:2652
+#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:1997
 msgid "Enter a search term with multiple words seperated with spaces."
-msgstr "Внесете термин за пребарување од повеќе зборови разделени со празно место."
+msgstr ""
+"Внесете термин за пребарување од повеќе зборови разделени со празно место."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2652
+#: ../src/tracker-search-tool/tracker-search-tool.c:1997
 msgid "search_entry"
 msgstr "запис_за_пребарување"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2669
-msgid "Please enter a search term above"
-msgstr "Ве молам, погоре внесете термин за пребарување"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2700
+#: ../src/tracker-search-tool/tracker-search-tool.c:2043
 msgid "Click to perform a search."
 msgstr "Кликнете за да се изврши пребарување."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:133
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
 msgid "Could not open help document."
 msgstr "Не можам да го отворам документот за помош."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:270
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
@@ -708,8 +831,8 @@ msgstr[0] "Дали сте сигурни дека сакате да отвор�
 msgstr[1] "Дали сте сигурни дека сакате да отворите %d документи?"
 msgstr[2] "Дали сте сигурни дека сакате да отворите %d документи?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:275
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:594
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:676
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
@@ -717,30 +840,35 @@ msgstr[0] "Ова ќе отвори %d одделен прозорец."
 msgstr[1] "Ова ќе отвори %d одделни прозорци."
 msgstr[2] "Ова ќе отвори %d одделни прозорци."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:315
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
 msgid "Could not open document \"%s\"."
 msgstr "Не можев да го отворам документот \"%s\"."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:344
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
 #, c-format
 msgid "Could not open folder \"%s\"."
 msgstr "Не можев да го отворам \"%s\"."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:352
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
 msgid "The nautilus file manager is not running."
 msgstr "Менаџерот на папки nautilus не се извршува."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:548
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:897
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:615
+msgid "Application could not be opened"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:630
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:950
 msgid "The document does not exist."
 msgstr "Документот не постои."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:565
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:646
 msgid "There is no installed viewer capable of displaying the document."
-msgstr "Не е инсталиран прегледувач кој е способен за прикажување на документот."
+msgstr ""
+"Не е инсталиран прегледувач кој е способен за прикажување на документот."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:589
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:671
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
@@ -748,79 +876,86 @@ msgstr[0] "Дали сте сигурни дека сакате да ја отв
 msgstr[1] "Дали сте сигурни дека сакате да ги отворите папките %d?"
 msgstr[2] "Дали сте сигурни дека сакате да ги отворите папките %d?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:722
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:775
 #, c-format
 msgid "Could not move \"%s\" to trash."
 msgstr "Не можев да го преместам \"%s\" во ѓубрето."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:753
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:806
 #, c-format
 msgid "Do you want to delete \"%s\" permanently?"
 msgstr "Дали сакате да го избришете \"%s\" за секогаш?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:756
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:809
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
 msgstr "Ѓубрето е недостапно.  Не можев да го преместам \"%s\" во ѓубрето."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:795
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:848
 #, c-format
 msgid "Could not delete \"%s\"."
 msgstr "Не можам да го избришам \"%s\"."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:920
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:972
 #, c-format
 msgid "Moving \"%s\" failed: %s."
 msgstr "Преместувањето на \"%s\" не успеа: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:955
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1006
 #, c-format
 msgid "Deleting \"%s\" failed: %s."
 msgstr "Бришењето на \"%s\" не успеа: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1266
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1292
 msgid "Activate to view this email"
 msgstr "Активирај за прегледување на оваа е-пошта"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1444
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1468
 msgid "Save Search Results As..."
 msgstr "Зачувај ги резултатите од пребарувањето како..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1478
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1503
 msgid "Could not save document."
 msgstr "Не можев да го зачувам документот."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1479
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1504
 msgid "You did not select a document name."
 msgstr "Не избравте име на документ"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1509
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1534
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "Не можам да го зачувам \"%s\" документот во \"%s\"."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1543
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1568
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "Документот \"%s\" веќе постои.  Дали сакате да го замените?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1572
 msgid "If you replace an existing file, its contents will be overwritten."
-msgstr "Ако ја замените постоечката датотека, ќе се запиши над нејзината содржина."
+msgstr ""
+"Ако ја замените постоечката датотека, ќе се запиши над нејзината содржина."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1562
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1587
 msgid "_Replace"
 msgstr "_Замени"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1612
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1637
 msgid "The document name you selected is a folder."
 msgstr "Името на документот кој го избравте е папка"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1661
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1686
 msgid "You may not have write permissions to the document."
 msgstr "Можеби немат дозвола за запишување на документот"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:74
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
 #, c-format
 msgid ""
 "GConf error:\n"
@@ -834,25 +969,78 @@ msgstr ""
 #. on age of a file.  Please modify the format of the timestamp to match
 #. your locale.  For example, to display 24 hour time replace the '%-I'
 #. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:643
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
 msgid "today at %-I:%M %p"
 msgstr "today at %-H:%M"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:645
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
 msgid "yesterday at %-I:%M %p"
 msgstr "вчера во %-H:%M"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:647
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:649
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A, %B %-d %Y во %-H:%M:%S"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:829
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
 msgid "link (broken)"
 msgstr "врска (расипана)"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:833
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
 #, c-format
 msgid "link to %s"
 msgstr "врска до %s"
 
+#~ msgid "<b>File Metadata</b>"
+#~ msgstr "<b>Метаподатоци на датотека</b>"
+
+#~ msgid "<b>General</b>"
+#~ msgstr "<b>Општо</b>"
+
+#~ msgid "Enable Index Throttling"
+#~ msgstr "Овозможи пригушување на индексот"
+
+#~ msgid "Normal Mode"
+#~ msgstr "Нормален режим"
+
+#~ msgid "Polling Interval: "
+#~ msgstr "Интервал на одзив: "
+
+#~ msgid "Reduced Memory Mode"
+#~ msgstr "Режим на намалена меморија"
+
+#~ msgid "Start _indexing service automatically"
+#~ msgstr "Автоматски стартувај го сервисот за _индексирање"
+
+#~ msgid "Start _mointoring service automatically"
+#~ msgstr "Автоматски стартувај го сервисот за _надгледување"
+
+#~ msgid "Throttling Level: "
+#~ msgstr "Ниво на пригушување"
+
+#~ msgid "Turbo Mode"
+#~ msgstr "Турбо режим"
+
+#~ msgid "_Privacy"
+#~ msgstr "_Приватност"
+
+#~ msgid "gtk-add"
+#~ msgstr "gtk-add"
+
+#~ msgid "gtk-close"
+#~ msgstr "gtk-close"
+
+#~ msgid "gtk-help"
+#~ msgstr "gtk-help"
+
+#~ msgid "gtk-remove"
+#~ msgstr "gtk-remove"
+
+#~ msgid "%d result"
+#~ msgid_plural "%d results"
+#~ msgstr[0] "%d резултат"
+#~ msgstr[1] "%d резултати"
+#~ msgstr[2] "%d резултати"
+
+#~ msgid "Please enter a search term above"
+#~ msgstr "Ве молам, погоре внесете термин за пребарување"
