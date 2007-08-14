@@ -17,12 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
-
 #ifndef _TRACKER_STEMMER_H_
 #define _TRACKER_STEMMER_H_
 
-char * 	tracker_stem (const char *word, int word_length);
-
+gchar * tracker_stem (const gchar *word, gint word_length);
 
 #endif

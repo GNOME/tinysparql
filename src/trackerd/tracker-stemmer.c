@@ -26,16 +26,14 @@
 extern Tracker *tracker;
 
 
-char * 
-tracker_stem (const char *word, int word_length) 
+gchar *
+tracker_stem (const gchar *word, gint word_length)
 {
-	char *stem_word;
+	gchar *stem_word;
 	
 	g_mutex_lock (tracker->stemmer_mutex);
-	stem_word = (char *) sb_stemmer_stem (tracker->stemmer, (unsigned char*) word, word_length);
+	stem_word = (gchar *) sb_stemmer_stem (tracker->stemmer, (guchar *) word, word_length);
 	g_mutex_unlock (tracker->stemmer_mutex);
 
 	return g_strdup (stem_word);
 }
-
-

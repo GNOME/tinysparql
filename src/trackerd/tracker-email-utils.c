@@ -535,7 +535,9 @@ email_parse_mail_message_by_path (MailApplication mail_app, const char *path, Lo
 	g_return_val_if_fail (path, NULL);
 
 	mf = email_open_mail_file_at_offset (mail_app, path, 0, FALSE);
-	g_return_val_if_fail (mf, NULL);
+        if (!mf) {
+                return NULL;
+        }
 
 	mail_msg = email_mail_file_parse_next (mf, load_helper);
 
