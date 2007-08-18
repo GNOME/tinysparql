@@ -1,3 +1,14 @@
+2007-08-19 Patch from Marcus Fritzsch <fritschy at googlemail com>
+
+	* Reorganization of tracker-handler.py
+	* Added support for GaimConversations and Applications
+	* Fixed gnome bugs: #403752, #359307
+	* Fixed ubuntu bugs: #131247, #130889
+	* New deskbar-applet 2.19 module tracker-module.py, fixes ubuntu bug #132921
+	* Fixed emails categorization
+	* Better display of GaimConversations hits
+
+
 2007-08-13 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Fix bug #131842 from Ubuntu
