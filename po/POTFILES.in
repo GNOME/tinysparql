@@ -2,7 +2,8 @@
 # Please keep this file sorted alphabetically.
 [encoding: UTF-8]
 
-trackerd.desktop.in.in
+python/deskbar-handler/tracker-handler.py
+python/deskbar-handler/tracker-module.py
 src/libtracker-gtk/tracker-metadata-tile.c
 src/libtracker-gtk/tracker-tag-bar.c
 src/libtracker/tracker-search.c
@@ -16,3 +17,4 @@ src/tracker-search-tool/tracker-search-tool.c
 src/tracker-search-tool/tracker-search-tool-callbacks.c
 src/tracker-search-tool/tracker-search-tool.desktop.in.in
 src/tracker-search-tool/tracker-search-tool-support.c
+trackerd.desktop.in.in

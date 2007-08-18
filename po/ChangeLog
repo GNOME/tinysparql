@@ -1,3 +1,10 @@
+2007-08-19  Michael Biebl <mbiebl@gmail.com>
+
+	gettext support in deskbar-applet has been fixed:
+
+	* POTFILES.skip: Remove tracker-handler.py
+	* POTFILES.in: Add tracker-handler.py and new file tracker-module.py
+
 2007-08-13  Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* fr.po: Updated French translation.
