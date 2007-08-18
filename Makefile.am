@@ -32,4 +32,4 @@ DISTCLEANFILES = \
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
-	--with-deskbar-applet-handler-dir="\$(libdir)"/deskbar-applet/handlers 
+	--disable-deskbar-applet

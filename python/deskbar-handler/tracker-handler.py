@@ -20,7 +20,8 @@ import urllib
 import gnome
 import gobject
 
-from gettext import gettext as _
+import gettext
+gettext.install('tracker')
 
 import deskbar, deskbar.Utils, deskbar.gnomedesktop
 import deskbar.Handler

@@ -87,26 +87,56 @@ AC_SUBST(DBUS_SERVICES_DIR)
 
 
 ####################################################################
-# Deskbar Applet Handler
+# Deskbar Applet Handler/Module
 ####################################################################
 
 AC_ARG_ENABLE([deskbar_applet],
-              AC_HELP_STRING([--enable-deskbar-applet], [Enable support for deskbar applet]),,
-              [enable_deskbar_applet=no])
+              AC_HELP_STRING([--enable-deskbar-applet=ARG], [Enable support for deskbar applet (handler, module, auto)]),,
+              [enable_deskbar_applet=auto])
 
-AM_CONDITIONAL(USING_DESKBAR_APPLET, test "x$enable_deskbar_applet" != "xno")
+if test "x$enable_deskbar_applet" = "xauto" ; then
+	if pkg-config --atleast-version=2.19 deskbar-applet ; then
+		enable_deskbar_applet="module"
+	elif pkg-config --atleast-version=2.16 deskbar-applet ; then
+		enable_deskbar_applet="handler"
+	else
+		enable_deskbar_applet="no"
+	fi
+fi
 
-AC_ARG_WITH([deskbar_applet_handler_dir],
-            AC_HELP_STRING([--with-deskbar-applet-handler-dir], [Path to Deskbar handler directory]))
+AM_CONDITIONAL(USING_DESKBAR_HANDLER, test "x$enable_deskbar_applet" = "xhandler")
+AM_CONDITIONAL(USING_DESKBAR_MODULE, test "x$enable_deskbar_applet" = "xmodule")
 
-if test "x$with_deskbar_applet_handler_dir" = "x" ; then
-   handler_dir="`pkg-config --variable handlersdir deskbar-applet`"
-else
-   handler_dir="$with_deskbar_applet_handler_dir"
+AC_ARG_WITH([deskbar_applet_dir],
+            AC_HELP_STRING([--with-deskbar-applet-dir], [Path to Deskbar handler/module directory]))
+
+if test "x$enable_deskbar_applet" = "xhandler" ; then
+	if test "x$with_deskbar_applet_dir" = "x" ; then
+		handler_dir="`pkg-config --variable handlersdir deskbar-applet`"
+	else
+		handler_dir="$with_deskbar_applet_dir"
+	fi
+	if test "x$handler_dir" = "x" ; then
+		handler_dir="\$(exec_prefix)/lib/deskbar-applet/handlers"
+	fi
 fi
 
 DESKBAR_HANDLER_DIR="$handler_dir"
 AC_SUBST(DESKBAR_HANDLER_DIR)
+
+if test "x$enable_deskbar_applet" = "xmodule" ; then
+	if test "x$with_deskbar_applet_dir" = "x" ; then
+		module_dir="`pkg-config --variable modulesdir deskbar-applet`"
+	else
+		module_dir="$with_deskbar_applet_dir"
+	fi
+	if test "x$module_dir" = "x" ; then
+		module_dir="\$(exec_prefix)/lib/deskbar-applet/modules"
+	fi
+fi
+
+DESKBAR_MODULE_DIR="$module_dir"
+AC_SUBST(DESKBAR_MODULE_DIR)
 
 ####################################################################
 # Compiler warning checks

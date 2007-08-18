@@ -1,3 +1,13 @@
+2007-08-19 Michael Biebl <mbiebl at gmail com>
+
+	* Fixed gettext support in deskbar-applet plugin
+	* Update autofoo to automatically install the correct version of the
+	  deskbar-applet plugin.
+	  Can be overriden with --enable-deskbar-applet=(handler|module)
+	  "handler" is for deskbar-applet < 2.19
+	  "module" is for deskbar-applet >= 2.19
+
+
 2007-08-19 Patch from Marcus Fritzsch <fritschy at googlemail com>
 
 	* Reorganization of tracker-handler.py

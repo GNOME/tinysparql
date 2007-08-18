@@ -19,7 +19,9 @@ from deskbar.handlers.actions.OpenDesktopFileAction import \
 		OpenDesktopFileAction
 from deskbar.handlers.actions.ShowUrlAction import \
 		ShowUrlAction
-from gettext import gettext as _
+
+import gettext
+gettext.install('tracker')
 
 
 MAX_RESULTS = 10
