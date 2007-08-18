@@ -554,7 +554,7 @@ LIBGNOMEUI_REQUIRED=2.13.7
 LIBGLADE_REQUIRED=2.5.0
 GNOMEVFS_REQUIRED=2.8.4
 
-AC_ARG_ENABLE(gui, AC_HELP_STRING([--disable-gui], [Disable building of the gnome-search-tool]),,[enable_gui=yes])
+AC_ARG_ENABLE(gui, AC_HELP_STRING([--disable-gui], [Disable building of the tracker-search-tool]),,[enable_gui=yes])
 if test "x$enable_gui" = "xyes"; then
 	PKG_CHECK_MODULES(GNOME_UTILS, [
         	gtk+-2.0 >= $GTK_REQUIRED
