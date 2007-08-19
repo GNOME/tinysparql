@@ -1,7 +1,8 @@
 2007-08-19 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Added option to skip mounted directories when indexing
-
+	* added safeguards to html and imagemagick extractors to prevent crashers
+	* added safeguard to app indexing
 
 
 2007-08-19 Michael Biebl <mbiebl at gmail com>

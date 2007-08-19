@@ -26,8 +26,8 @@
 #include <libxml/HTMLparser.h>
 
 typedef enum {
-		READ_TITLE,
-	} tag_type;
+	READ_TITLE,
+} tag_type;
 
 typedef struct {
 	GHashTable *metadata;
@@ -37,27 +37,31 @@ typedef struct {
 gboolean
 has_attribute( const xmlChar ** atts, const char *attr, const char*val )
 {
-        if (atts == NULL || attr == NULL || val == NULL)
-        return FALSE;
+	if (! (atts && attr && val)) {
+		return FALSE;
+	}
 
 	int i;
-	for ( i = 0; atts[i]; i+=2 )
-	{
+	for ( i = 0; atts[i] && atts[i+1]; i+=2 ) {
 		if ( strcasecmp((char*)atts[i],attr) == 0 ) {
-			if ( !val || strcasecmp((char*)atts[i+1],val) == 0 ) {
+			if (strcasecmp((char*)atts[i+1],val) == 0) {
 				return TRUE;
 			}
 		}
 	}
+
 	return FALSE;
 }
 
 const xmlChar *
 lookup_attribute( const xmlChar **atts, const char *attr )
 {
+	if (!atts || !attr) {
+		return NULL;
+	}
+
 	int i;
-	for ( i = 0; atts[i]; i+=2 )
-	{
+	for ( i = 0; atts[i] && atts[i+1]; i+=2 ) {
 		if ( strcasecmp((char*)atts[i],attr) == 0 ) {
 			return atts[i+1];
 		}
@@ -69,27 +73,40 @@ lookup_attribute( const xmlChar **atts, const char *attr )
 void
 startElement (void * info, const xmlChar * name, const xmlChar ** atts)
 {
+	if (! (info && name && atts)) {
+		return;
+	}
+
 	/* Look for RDFa triple describing the license */
 	if ( strcasecmp((char*)name,"a") == 0 ) {
+
 		/* This tag is a license.  Ignore, however, if it is referring to another document */
 		if ( has_attribute(atts,"rel","license") && !has_attribute(atts,"about",NULL) ) {
+
 			const xmlChar *href = lookup_attribute(atts,"href");
 			if ( href ) {
 				g_hash_table_insert (((HTMLParseInfo *)info)->metadata, g_strdup ("File:License"),
 				                     g_strdup( (char*)href ));
 			}
 		}
+
 	} else if ( strcasecmp((char*)name,"title") == 0 ) {
+
 		((HTMLParseInfo *)info)->current = READ_TITLE;
+
 	} else if ( strcasecmp((char*)name,"meta") == 0 ) {
+
 		if ( has_attribute(atts,"name","Author") ) {
+
 			const xmlChar *author = lookup_attribute(atts,"content");
 			if ( author ) {
 				g_hash_table_insert (((HTMLParseInfo *)info)->metadata, g_strdup ("Doc:Author"),
 				                     g_strdup( (char*)author ));
 			}
 		}
+
 		if ( has_attribute(atts,"name","DC.Description") ) {
+
 			const xmlChar *desc = lookup_attribute(atts,"content");
 			if ( desc ) {
 				g_hash_table_insert (((HTMLParseInfo *)info)->metadata, g_strdup ("Doc:Comments"),

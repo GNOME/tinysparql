@@ -92,7 +92,7 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 	GKeyFile *key_file = NULL;
 
 	gchar *type = NULL;
-	gboolean is_hidden = TRUE;
+	gboolean is_hidden = FALSE;
 	char *hidden = NULL;
 	gchar *tmp_str = NULL;
 	gchar desktop_entry[] = { "Desktop Entry" };
@@ -125,9 +125,10 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 		if (hidden) {
 			is_hidden = (strcasecmp (hidden, "true") == 0);
 			g_free (hidden);
+			hidden = NULL;
 		}
 
-		if (!hidden && type && (strcasecmp (type, "Application") == 0)) {
+		if (!is_hidden && type && (strcasecmp (type, "Application") == 0)) {
 
 			meta_table = g_hash_table_new (g_str_hash, g_str_equal);
 
@@ -163,9 +164,7 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 					tracker_add_metadata_to_table  (meta_table, app_mime_type, g_strdup (*array));
 				}
 
-				if (mimes) {
-					g_strfreev (mimes);
-				}
+				g_strfreev (mimes);
 			} 
 
 			if ((categories = g_key_file_get_string_list (key_file, desktop_entry, "Categories", NULL, NULL)) != NULL) {
@@ -175,10 +174,7 @@ tracker_db_index_application (DBConnection *db_con, FileInfo *info)
 					tracker_add_metadata_to_table  (meta_table, app_categories, g_strdup (*array));
 				}
 
-
-				if (categories) {
-					g_strfreev (categories);
-				}
+				g_strfreev (categories);
 			} 
 
 			char *fname = g_path_get_basename (info->uri);
