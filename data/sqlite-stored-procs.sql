@@ -166,4 +166,8 @@ SetBackupMetadata INSERT INTO BackupMetadata (ServiceID, MetadataID, UserValue) 
 DeleteBackupMetadataValue Delete From BackupMetadata where  ServiceID = ? and MetadataID = ? and UserValue = ?;
 DeleteBackupMetadata Delete From BackupMetadata where  ServiceID = ? and MetadataID = ?;
 
+GetHitDetails Select ROWID, HitCount, HitArraySize From HitIndex where word = ?;
+InsertHitDetails Insert into HitIndex (Word, HitCount, HitArraySize) Values (?,?,?);
+UpdateHitDetails Update HitIndex set HitCount = ?, HitArraySize = ? where ROWID = ?;
+
 

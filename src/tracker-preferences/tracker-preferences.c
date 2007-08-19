@@ -277,7 +277,11 @@ setup_page_files (TrackerPreferences * preferences)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
 				      value);
 
-	
+	widget = glade_xml_get_widget (priv->gxml, "chkSkipMountPoints");
+	value = tracker_configuration_get_bool (configuration,
+						"/Indexing/SkipMountPoints",
+						NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), !value);
 
 
 	widget = glade_xml_get_widget (priv->gxml,
@@ -478,6 +482,11 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	tracker_configuration_set_bool (configuration,
 					"/Indexing/EnableThumbnails",
                                         value);
+
+	widget = glade_xml_get_widget (priv->gxml, "chkSkipMountPoints");
+	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	tracker_configuration_set_bool (configuration,
+					"/Indexing/SkipMountPoints", !value);
 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "lstAdditionalPathIndexes");

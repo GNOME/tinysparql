@@ -245,18 +245,18 @@ g_key_file_set_double_list (GKeyFile     *key_file,
 
 
 Matches tmap[] = {
-		{"da", "danish"},
-		{"nl", "dutch"},
-		{"en", "english"},
- 		{"fi", "finnish"},
-		{"fr", "french"},
-		{"de", "german"},
-		{"it", "italian"},
-		{"nb", "norwegian"},
-		{"pt", "portuguese"},
-		{"ru", "russian"},
-		{"es", "spanish"},
-		{"sv", "swedish"},
+		{"da", "Danish"},
+		{"nl", "Dutch"},
+		{"en", "English"},
+ 		{"fi", "Finnish"},
+		{"fr", "French"},
+		{"de", "German"},
+		{"it", "Italian"},
+		{"nb", "Norwegian"},
+		{"pt", "Portuguese"},
+		{"ru", "Russian"},
+		{"es", "Spanish"},
+		{"sv", "Swedish"},
 		{NULL, NULL}
 };
 

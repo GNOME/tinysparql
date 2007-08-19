@@ -965,6 +965,8 @@ process_files_thread (void)
 
 								list = tracker_get_service_dirs ("Applications");
 
+								tracker_add_root_directories (list);
+
 								process_directory_list (db_con, list, FALSE);
 
 								g_slist_free (list);
@@ -993,7 +995,6 @@ process_files_thread (void)
 									tracker_add_service_path ("GaimConversations", gaim);
 
 									list = g_slist_prepend (NULL, gaim);
-
 								}
 
 								if (tracker_file_is_valid (purple)) {
@@ -1007,6 +1008,8 @@ process_files_thread (void)
 
 								if (has_logs) {
 									tracker_log ("Starting chat log indexing...");
+
+									tracker_add_root_directories (list);
 
 									process_directory_list (db_con, list, TRUE);
 
@@ -1027,12 +1030,14 @@ process_files_thread (void)
 
 									if (tracker->index_evolution_emails) {
 										GSList *list = tracker_get_service_dirs ("EvolutionEmails");
+										tracker_add_root_directories (list);
 										process_directory_list (db_con, list, TRUE);
 										g_slist_free (list);
 									}
 
 									if (tracker->index_kmail_emails) {
 										GSList *list = tracker_get_service_dirs ("KMailEmails");
+										tracker_add_root_directories (list);
 										process_directory_list (db_con, list, TRUE);
 										g_slist_free (list);
 									}
@@ -1069,6 +1074,8 @@ process_files_thread (void)
 									break;
 								}
 
+								tracker_add_root_directories (tracker->watch_directory_roots_list);
+
 								/* index watched dirs first */
 								g_slist_foreach (tracker->watch_directory_roots_list, (GFunc) watch_dir, db_con);
 
@@ -1097,6 +1104,8 @@ process_files_thread (void)
 								if (!tracker->crawl_directory_list) {
 									break;
 								}
+
+								tracker_add_root_directories (tracker->crawl_directory_list);
 
 								add_dirs_to_list (tracker->crawl_directory_list, db_con);
 
@@ -1868,6 +1877,9 @@ set_defaults (void)
 	tracker->first_flush = TRUE;
 
 	tracker->services_dir = g_build_filename (TRACKER_DATADIR, "tracker", "services", NULL);
+
+	tracker->skip_mount_points = FALSE;
+	tracker->root_directory_devices = NULL;
 
 	/* battery and ac power checks */
 	const gchar *battery_filenames[4] = {

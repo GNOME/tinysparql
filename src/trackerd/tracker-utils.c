@@ -1148,6 +1148,94 @@ tracker_file_is_crawled (const char* uri)
 }
 
 
+void
+tracker_add_root_dir (const char *uri)
+{
+	struct stat st;
+
+	if (! tracker->skip_mount_points) {
+		return;
+	}
+
+	if (!uri || uri[0] != '/') {
+		return;
+	}
+
+	if (g_stat (uri, &st) == 0) {
+		GSList * cur = NULL;
+		dev_t * elem = NULL;
+
+		if (! S_ISDIR (st.st_mode)) {
+			return;
+		}
+
+		/* FIXME: too costly? */
+		for (cur = tracker->root_directory_devices; cur; cur = g_slist_next (cur)) {
+			if (cur->data && *((dev_t *) cur->data) == st.st_dev) {
+				return;
+			}
+		}
+
+		elem = g_new (dev_t, 1);
+		* elem = st.st_dev;
+		tracker->root_directory_devices = g_slist_prepend (tracker->root_directory_devices, elem);
+	} else {
+		tracker_log ("Could not stat `%s'", uri);
+	}
+}
+
+
+void
+tracker_add_root_directories (GSList * uri_list)
+{
+	GSList * cur = NULL;
+
+	if (! tracker->skip_mount_points) {
+		return;
+	}
+
+	for (cur = uri_list; cur; cur = g_slist_next (cur)) {
+		tracker_add_root_dir ((const char *) cur->data);
+	}
+}
+
+
+gboolean
+tracker_file_is_in_root_dir (const char *uri)
+{
+	struct stat  st;
+	GSList *     cur = NULL;
+	dev_t        uri_dev = 0;
+
+	if (! tracker->skip_mount_points) {
+		return TRUE;
+	}
+
+	if (!uri || uri[0] != '/') {
+		return FALSE;
+	}
+
+	if (g_stat (uri, &st) == 0) {
+		uri_dev = st.st_dev;
+	} else {
+		tracker_log ("Could not stat `%s'", uri);
+		return TRUE; /* the caller should take care of skipping this one */
+	}
+
+	if (! S_ISDIR (st.st_mode)) { /* only directories are mount points and therefore checked */
+		return TRUE;
+	}
+
+	for (cur = tracker->root_directory_devices; cur; cur = g_slist_next (cur)) {
+		if (cur->data && *((dev_t *) cur->data) == uri_dev) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+
 gboolean
 tracker_file_info_is_valid (FileInfo *info)
 {
@@ -1861,6 +1949,13 @@ get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files)
 			g_free (str);
 
  			if (!tracker_file_is_valid (mystr)) {
+				g_free (mystr);
+				continue;
+			}
+
+			if (!tracker_file_is_in_root_dir (mystr)) {
+				tracker_log ("Skipping mount point %s", mystr);
+				g_free (mystr);
 				continue;
 			}
 
@@ -2317,15 +2412,17 @@ tracker_load_config_file (void)
 					 "EnableThumbnails=false\n",
 					 "# List of partial file patterns (glob) seperated by semicolons that specify files to not index (basic stat info is only indexed for files that match these patterns)\n",
 					 "NoIndexFileTypes=;\n\n",
-					  "# Sets minimum length of words to index\n",
+					 "# Sets minimum length of words to index\n",
 					 "MinWordLength=3\n",
-					  "# Sets maximum length of words to index (words are cropped if bigger than this)\n",
+					 "# Sets maximum length of words to index (words are cropped if bigger than this)\n",
 					 "MaxWordLength=30\n",
-					  "# Sets the language specific stemmer and stopword list to use \n",
-					  "# Valid values are 'en' (english), 'da' (danish), 'nl' (dutch), 'fi' (finnish), 'fr' (french), 'de' (german), 'it' (italien), 'nb' (norwegian), 'pt' (portugese), 'ru' (russian), 'es' (spanish), 'sv' (swedish)\n",
+					 "# Sets the language specific stemmer and stopword list to use \n",
+					 "# Valid values are 'en' (english), 'da' (danish), 'nl' (dutch), 'fi' (finnish), 'fr' (french), 'de' (german), 'it' (italien), 'nb' (norwegian), 'pt' (portugese), 'ru' (russian), 'es' (spanish), 'sv' (swedish)\n",
 					 "Language=", language, "\n",
 					 "# Enables use of language-specific stemmer\n",
 					 "EnableStemmer=true\n",
+					 "# Set to true prevents tracker from descending into mounted directory trees\n",
+					 "SkipMountPoints=false\n\n",
 					 "[Emails]\n",
 					 "IndexEvolutionEmails=true\n",
 					 "[Performance]\n",
@@ -2482,6 +2579,10 @@ tracker_load_config_file (void)
 
 	if (g_key_file_has_key (key_file, "Indexing", "Language", NULL)) {
 		tracker->language = g_key_file_get_string (key_file, "Indexing", "Language", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexing", "SkipMountPoints", NULL)) {
+		tracker->skip_mount_points = g_key_file_get_boolean (key_file, "Indexing", "SkipMountPoints", NULL);
 	}
 
 

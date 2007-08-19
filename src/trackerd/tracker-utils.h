@@ -248,6 +248,9 @@ typedef struct {
 	gboolean	first_flush;
 	gboolean	do_optimize;
 
+	gboolean	skip_mount_points;	/* should tracker descend into mounted directories? see Tracker.root_directory_devices */
+	GSList *	root_directory_devices;
+
 	IndexStatus	index_status;
 
 	/* battery and ac power status file */
@@ -517,8 +520,12 @@ gboolean	tracker_file_is_indexable 	(const char *uri);
 
 gboolean 	tracker_is_directory 		(const char *dir);
 
-gboolean	tracker_file_is_no_watched 	(const char* uri);
-gboolean	tracker_file_is_crawled 	(const char* uri);
+gboolean	tracker_file_is_no_watched 	(const char *uri);
+gboolean	tracker_file_is_crawled 	(const char *uri);
+
+void		tracker_add_root_dir		(const char *uri);  /* add a directory to the list of watch/crawl/service roots */
+void		tracker_add_root_directories	(GSList *uri_list); /* adds a bunch of directories to the list of watch/crawl/service roots */
+gboolean	tracker_file_is_in_root_dir	(const char *uri);  /* test if a given file resides in the watch/crawl/service roots */
 
 GSList * 	tracker_get_all_files 		(const char *dir, gboolean dir_only);
 GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
