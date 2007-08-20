@@ -291,19 +291,26 @@ setup_page_files (TrackerPreferences * preferences)
 					       "/Watches/WatchDirectoryRoots",
 					       G_TYPE_STRING, NULL);
 
+
 	GSList *entry =
 		g_slist_find_custom (list, g_get_home_dir (), _strcmp);
+
+	widget = glade_xml_get_widget (priv->gxml, "chkIndexHomeDirectory");
+
 	if (entry) {
 		list = g_slist_delete_link (list, entry);
 
-		widget = glade_xml_get_widget (priv->gxml,
-					       "chkIndexHomeDirectory");
+		
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
 					      TRUE);
 
-		widget = glade_xml_get_widget (priv->gxml,
-					       "lstAdditionalPathIndexes");
+		
+	} else {
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+					      FALSE);
 	}
+
+	widget = glade_xml_get_widget (priv->gxml, "lstAdditionalPathIndexes");
 
 	initialize_listview (widget);
 	populate_list (widget, list);
@@ -739,7 +746,7 @@ _strcmp (gconstpointer a, gconstpointer b)
 	if (a != NULL && b == NULL)
 		return 1;
 
-	return g_strncasecmp (a, b, strlen (b));
+	return strcmp (a, b);
 }
 
 static void
