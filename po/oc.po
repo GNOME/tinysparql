@@ -9,17 +9,17 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-08-13 04:02+0200\n"
-"PO-Revision-Date: 2007-07-29 16:20+0200\n"
+"PO-Revision-Date: 2007-08-20 19:55+0200\n"
 "Last-Translator: Yannig MARCHEGAY <yannig@marchegay.org>\n"
 "Language-Team: Occitan (post 1500) <ubuntu-l10n-oci@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);"
 
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
-msgstr ""
+msgstr "Tracker"
 
 #: ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
@@ -469,9 +469,8 @@ msgid "<b>Indexing options</b>"
 msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:6
-#, fuzzy
 msgid "<b>Indexing</b>"
-msgstr "<b>General</b>"
+msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Mailboxes</b>"
@@ -490,9 +489,8 @@ msgid "<b>Startup</b>"
 msgstr "<b>Aviada</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:11
-#, fuzzy
 msgid "<b>Stemming</b>"
-msgstr "<b>General</b>"
+msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
@@ -587,14 +585,12 @@ msgid "Tracker Preferences"
 msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:35
-#, fuzzy
 msgid "_Emails"
-msgstr "Messatges electronics"
+msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:36
-#, fuzzy
 msgid "_Files"
-msgstr "Totes los fichièrs"
+msgstr "_Fichièrs"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "_General"
@@ -610,7 +606,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "_Language:"
-msgstr ""
+msgstr "_Lenga :"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "_Minimize memory usage (slower indexing)"
@@ -764,9 +760,7 @@ msgstr ""
 #: ../src/tracker-search-tool/tracker-search-tool.c:1575
 #, c-format
 msgid "%d item"
-msgid_plural "%d hits"
-msgstr[0] ""
-msgstr[1] ""
+msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1976
 msgid "_Search:"
@@ -800,9 +794,7 @@ msgstr[1] "Êtes-vous certain de vouloir ouvrir %d documents ?"
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:676
 #, c-format
 msgid "This will open %d separate window."
-msgid_plural "This will open %d separate windows."
-msgstr[0] ""
-msgstr[1] ""
+msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
@@ -951,3 +943,4 @@ msgstr ""
 #, c-format
 msgid "link to %s"
 msgstr ""
+
