@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-08-13 04:02+0200\n"
-"PO-Revision-Date: 2007-07-25 16:25+0200\n"
+"POT-Creation-Date: 2007-08-19 03:26+0100\n"
+"PO-Revision-Date: 2007-08-24 18:00+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,13 +17,158 @@ msgstr ""
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../trackerd.desktop.in.in.h:1
-msgid "Tracker"
-msgstr "Tracker"
+#: ../python/deskbar-handler/tracker-handler.py:33
+#: ../python/deskbar-handler/tracker-module.py:92
+#, python-format
+msgid "Launch %s (%s)"
+msgstr "Lanzar %s (%s)"
 
-#: ../trackerd.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Servicio de búsqueda e indexado Tracker"
+#: ../python/deskbar-handler/tracker-handler.py:39
+#: ../python/deskbar-handler/tracker-module.py:97
+#, python-format
+msgid ""
+"See %s conversation\n"
+"%s %s\n"
+"from %s"
+msgstr ""
+"Ver la conversación %s\n"
+"%s %s\n"
+"de %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:45
+#: ../python/deskbar-handler/tracker-module.py:102
+#, python-format
+msgid "Email from %s"
+msgstr "Correo-e de %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:52
+#: ../python/deskbar-handler/tracker-module.py:108
+#, python-format
+msgid ""
+"Listen to music %s\n"
+"in %s"
+msgstr ""
+"Escuchar música %s\n"
+"en %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:58
+#: ../python/deskbar-handler/tracker-module.py:114
+#, python-format
+msgid ""
+"See document %s\n"
+"in %s"
+msgstr ""
+"Ver el documento %s\n"
+"en %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:64
+#: ../python/deskbar-handler/tracker-handler.py:82
+#: ../python/deskbar-handler/tracker-handler.py:162
+#: ../python/deskbar-handler/tracker-module.py:119
+#: ../python/deskbar-handler/tracker-module.py:141
+#: ../python/deskbar-handler/tracker-module.py:190
+#: ../python/deskbar-handler/tracker-module.py:226
+#, python-format
+msgid ""
+"Open file %s\n"
+"in %s"
+msgstr ""
+"Abrir archivo %s\n"
+"en %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:70
+#: ../python/deskbar-handler/tracker-module.py:124
+#, python-format
+msgid ""
+"View image %s\n"
+"in %s"
+msgstr ""
+"Ver imagen %s\n"
+"en %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:76
+#: ../python/deskbar-handler/tracker-module.py:130
+#, python-format
+msgid ""
+"Watch video  %s\n"
+"in %s"
+msgstr ""
+"Ver vídeo %s\n"
+"en %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:88
+#: ../python/deskbar-handler/tracker-module.py:136
+#, python-format
+msgid ""
+"Open folder %s\n"
+"%s"
+msgstr ""
+"Abrir carpeta %s\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:94
+#: ../python/deskbar-handler/tracker-module.py:57
+#: ../python/deskbar-handler/tracker-module.py:146
+#, python-format
+msgid "Search for %s with Tracker Search Tool"
+msgstr "Buscar %s con la herramienta de búsqueda Tracker"
+
+#: ../python/deskbar-handler/tracker-handler.py:234
+#: ../python/deskbar-handler/tracker-module.py:319
+msgid "with"
+msgstr "con"
+
+#: ../python/deskbar-handler/tracker-handler.py:242
+#: ../python/deskbar-handler/tracker-module.py:327
+msgid "in channel"
+msgstr "en el canal"
+
+#: ../python/deskbar-handler/tracker-handler.py:393
+msgid "Search all of your documents with Tracker Search Tool"
+msgstr "Buscar en todos sus documentos con la herramienta de búsqueda Tracker"
+
+#: ../python/deskbar-handler/tracker-handler.py:399
+msgid "Search all of your documents, <b>as you type</b>"
+msgstr "Buscar en todos sus documentos, <b>al escribir</b>"
+
+#: ../python/deskbar-handler/tracker-handler.py:403
+#: ../python/deskbar-handler/tracker-module.py:267
+msgid "Development Files"
+msgstr "Archivos de desarrollo"
+
+#: ../python/deskbar-handler/tracker-handler.py:406
+#: ../python/deskbar-handler/tracker-module.py:270
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
+msgid "Music"
+msgstr "Música"
+
+#: ../python/deskbar-handler/tracker-handler.py:409
+#: ../python/deskbar-handler/tracker-module.py:273
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
+msgid "Images"
+msgstr "Imágenes"
+
+#: ../python/deskbar-handler/tracker-handler.py:412
+#: ../python/deskbar-handler/tracker-module.py:276
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
+msgid "Videos"
+msgstr "Vídeos"
+
+#: ../python/deskbar-handler/tracker-module.py:71
+msgid "Tracker Search"
+msgstr "Búsqueda Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:72
+msgid "Search with Tracker Search Tool"
+msgstr "Buscar con la herramienta de búsqueda Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:262
+msgid "Tracker Live Search"
+msgstr "Herramienta de búsqueda en vivo Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:263
+msgid "Search with Tracker, as you type"
+msgstr "Buscar con Tracker, al escribir"
 
 #. then set the remaining properties
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:453
@@ -289,8 +434,7 @@ msgstr "%s: no hay conexión al demonio de tracker"
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr ""
-"Asegúrese de que «trackerd» esté funcionando antes de lanzar este comando."
+msgstr "Asegúrese de que «trackerd» esté funcionando antes de lanzar este comando."
 
 #: ../src/libtracker/tracker-search.c:147
 msgid "Service not recognized, searching in Other Files...\n"
@@ -422,8 +566,7 @@ msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Tiempo inicial de latencia, justo antes de indexar, en segundos"
 
 #: ../src/trackerd/trackerd.c:166
-msgid ""
-"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Idioma que usar para stemmer y lista de palabras de parada (código de "
 "caracteres ISO 639-1 2)"
@@ -438,20 +581,19 @@ msgstr "Forzar un reindexamiento de todo el contenido"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2047
+#: ../src/trackerd/trackerd.c:2059
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:2048 ../src/trackerd/trackerd.c:2049
+#: ../src/trackerd/trackerd.c:2060 ../src/trackerd/trackerd.c:2061
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:2056
+#: ../src/trackerd/trackerd.c:2068
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
-msgstr ""
-"Para incluir o excluir varios directorios a la vez, una varias opciones como:"
+msgstr "Para incluir o excluir varios directorios a la vez, una varias opciones como:"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -566,70 +708,74 @@ msgid "Index _file contents"
 msgstr "Indexar el contenido de los _archivos"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:27
+msgid "Index _mounted directories"
+msgstr "Indexar directorios _montados"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
 msgid "Index and watch my home _directory"
 msgstr "Indexar y vigilar mi ca_rpeta personal"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
 msgid "Maximum _amount of text to Index (KB)"
 msgstr "Máxima _cantidad de texto a indexar (KiB)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Maximum number of unique _words to index"
 msgstr "Máximo número de _palabras únicas a indexar"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "P_erformance"
 msgstr "R_endimiento"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Path roots to be ignored during indexing:"
 msgstr "Rutas a ser ignoradas durante el indexado:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Seconds"
 msgstr "Segundos"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Slower"
 msgstr "Más lento"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Tracker Preferences"
 msgstr "Preferencias de Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "_Emails"
 msgstr "_Correos-e"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "_Files"
 msgstr "_Archivos"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "_General"
 msgstr "_General"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "_Ignored Files"
 msgstr "Archivos _ignorados"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "_Indexing speed:"
 msgstr "Velocidad de _indexado:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "_Language:"
 msgstr "_Idioma:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "_Minimizar el uso de memoria (indexado más lento)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "_Use additonal memory for faster indexing"
 msgstr "_Usar memoria adicional para indexar más rápidamente"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
 msgid ""
 "danish\n"
 "dutch\n"
@@ -676,18 +822,6 @@ msgstr "Carpetas"
 #: ../src/tracker-search-tool/tracker-search-tool.c:139
 msgid "Documents"
 msgstr "Documentos"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
-msgid "Images"
-msgstr "Imágenes"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
-msgid "Music"
-msgstr "Música"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:142
-msgid "Videos"
-msgstr "Vídeos"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
 #: ../src/tracker-search-tool/tracker-search-tool.c:1224
@@ -796,8 +930,7 @@ msgstr "_Buscar:"
 #: ../src/tracker-search-tool/tracker-search-tool.c:1996
 #: ../src/tracker-search-tool/tracker-search-tool.c:1997
 msgid "Enter a search term with multiple words seperated with spaces."
-msgstr ""
-"Introduzca un término de búsqueda con varias palabras separadas por espacios."
+msgstr "Introduzca un término de búsqueda con varias palabras separadas por espacios."
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1997
 msgid "search_entry"
@@ -975,3 +1108,12 @@ msgstr "enlace (roto)"
 #, c-format
 msgid "link to %s"
 msgstr "enlace a %s"
+
+#: ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Servicio de búsqueda e indexado Tracker"
+
