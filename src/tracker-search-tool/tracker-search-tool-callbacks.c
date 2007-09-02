@@ -587,22 +587,31 @@ open_file_cb (GtkAction * action,
 
 		gboolean no_files_found = FALSE;
 		gchar * uri;
+		gchar * mime;
 		GtkTreeIter iter;
 
 		gtk_tree_model_get_iter (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter, tmp->data);
 
 		gtk_tree_model_get (GTK_TREE_MODEL (gsearch->search_results_list_store), &iter,
     		                    COLUMN_URI, &uri,
+				    COLUMN_MIME, &mime,
 				    COLUMN_EXEC, &exec,
 		                    COLUMN_NO_FILES_FOUND, &no_files_found,
 		                    -1);
 
 
 		if (gsearch->type == SERVICE_EMAILS) {
-			exec = g_strdup_printf ("evolution \"%s\"", uri);
-			g_spawn_command_line_async (exec, NULL);
-			g_free (exec);
-
+			if (strstr (mime, "Evolution")) {
+				exec = g_strdup_printf ("evolution \"%s\"", uri);
+			} else if (strstr (mime, "KMail")) {
+				exec = g_strdup_printf ("kmail --view \"%s\"", uri);
+			} else {
+				exec = NULL;
+			}
+			if (exec) {
+				g_spawn_command_line_async (exec, NULL);
+				g_free (exec);
+			}
 
 		} else if (gsearch->type == SERVICE_APPLICATIONS) {
 			if (exec) {

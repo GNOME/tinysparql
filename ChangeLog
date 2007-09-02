@@ -1,3 +1,8 @@
+2007-09-03 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Make TST able to open KMail emails
+
+
 2007-08-19 Patch from Marcus Fritzsch <fritschy at googlemail com>
 	
 	* Added option to skip mounted directories when indexing
