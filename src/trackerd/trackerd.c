@@ -1313,7 +1313,6 @@ process_files_thread (void)
 		/* check if file needs indexing */
 		need_index = (info->mtime > info->indextime);
 
-
 		switch (info->action) {
 
 			case TRACKER_ACTION_FILE_CHECK:
@@ -1857,7 +1856,7 @@ set_defaults (void)
 
 	tracker->index_evolution_emails = TRUE;
 	tracker->index_thunderbird_emails = FALSE;
-	tracker->index_kmail_emails = FALSE;
+	tracker->index_kmail_emails = TRUE;
 
 	tracker->use_extra_memory = TRUE;
 

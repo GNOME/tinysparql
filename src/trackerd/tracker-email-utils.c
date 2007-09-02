@@ -42,11 +42,11 @@
 extern Tracker *tracker;
 
 
-static void	mh_watch_mail_messages_in_dir	(DBConnection *db_con, const char *dir_path);
+//static void	mh_watch_mail_messages_in_dir	(DBConnection *db_con, const gchar *dir_path);
 static GMimeStream *new_gmime_stream_from_file	(const gchar *path, const gchar *mode, off_t start, off_t end);
 
-static GSList *	add_gmime_references		(GSList *list, GMimeMessage *message, const char *header);
-static GSList *	add_recipients			(GSList *list, GMimeMessage *message, const char *type);
+static GSList *	add_gmime_references		(GSList *list, GMimeMessage *message, const gchar *header);
+static GSList *	add_recipients			(GSList *list, GMimeMessage *message, const gchar *type);
 static void	find_attachment			(GMimeObject *obj, gpointer data);
 
 
@@ -70,23 +70,23 @@ email_watch_directories (const GSList *dirs, const gchar *service)
 	const GSList *tmp;
 
 	for (tmp = dirs; tmp; tmp = tmp->next) {
-		const gchar *dir;
-
-		dir = tmp->data;
+		const gchar *dir = tmp->data;
 		email_watch_directory (dir, service);
 	}
 }
 
 
 gboolean
-email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper)
+email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_app, const char *path,
+                                   ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data)
 {
 	MailMessage *mail_msg;
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (path, FALSE);
 
-	mail_msg = email_parse_mail_message_by_path (mail_app, path, load_helper);
+	mail_msg = email_parse_mail_message_by_path (mail_app, path,
+                                                     read_mail_helper, read_mail_user_data);
 
 	if (!mail_msg) {
 		return FALSE;
@@ -102,9 +102,11 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 }
 
 
-
 gboolean
-email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper, MailStore *store)
+email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication mail_app, const char *path,
+                                           ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data,
+                                           MakeURIHelperFct uri_helper, gpointer make_uri_user_data,
+                                           MailStore *store)
 {
 	MailFile	*mf;
 	MailMessage	*mail_msg;
@@ -116,7 +118,8 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	mf = email_open_mail_file_at_offset (mail_app, path, store->offset, TRUE);
 
-	while ((mail_msg = email_mail_file_parse_next (mf, load_helper))) {
+	while ((mail_msg = email_mail_file_parse_next (mf,
+                                                       read_mail_helper, read_mail_user_data))) {
 
 		if (!tracker->is_running) {
 			email_free_mail_message (mail_msg);
@@ -128,9 +131,16 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 		mail_msg->store = store;
 
 		/* set uri */
-		char *str_id = tracker_int_to_str (mail_msg->id);
-		mail_msg->uri =  g_strconcat (store->uri_prefix, str_id, NULL);
-		g_free (str_id);
+                if (!uri_helper) {
+                        if (mail_msg->uri) {
+                                g_free (mail_msg->uri);
+                        }
+                        gchar *str_id = tracker_int_to_str (mail_msg->id);
+                        mail_msg->uri = g_strconcat (store->uri_prefix, str_id, NULL);
+                        g_free (str_id);
+                } else {
+                        mail_msg->uri = (*uri_helper) (mail_msg, make_uri_user_data);
+                }
 
 		indexed++;
 
@@ -166,7 +176,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 
 gboolean
-email_mh_is_in_a_mh_dir (const char *path)
+email_is_in_a_mh_dir (const gchar *path)
 {
 	/* We only take care of files into directory "inbox", "sent" or "trash".
 	   So we check that string "/inbox/" is into the path or that path ends with "/inbox" for instance. */
@@ -177,36 +187,33 @@ email_mh_is_in_a_mh_dir (const char *path)
 }
 
 
-void
-email_mh_watch_mail_messages (DBConnection *db_con, const char *path)
-{
-	char *mail_dirs[] = {"inbox", "sent", "trash", NULL};
-	char **dir_name;
+/* void */
+/* email_mh_watch_mail_messages (DBConnection *db_con, const gchar *path) */
+/* { */
+/* 	gchar *mail_dirs[] = {"inbox", "sent", "trash", NULL}; */
+/* 	gchar **dir_name; */
 
-	g_return_if_fail (db_con);
-	g_return_if_fail (path);
+/* 	g_return_if_fail (db_con); */
+/* 	g_return_if_fail (path); */
 
-	if (tracker_file_is_no_watched (path)) {
-		return;
-	}
+/* 	if (tracker_file_is_no_watched (path)) { */
+/* 		return; */
+/* 	} */
 
-	for (dir_name = mail_dirs; *dir_name; dir_name++) {
-		char *dir_path;
+/* 	for (dir_name = mail_dirs; *dir_name; dir_name++) { */
+/* 		gchar *dir_path = g_build_filename (path, *dir_name, NULL); */
 
-		dir_path = g_build_filename (path, *dir_name, NULL);
+/* 		if (tracker_is_directory (dir_path)) { */
+/* 			mh_watch_mail_messages_in_dir (db_con, dir_path); */
+/* 		} */
 
-		if (tracker_is_directory (dir_path)) {
-			mh_watch_mail_messages_in_dir (db_con, dir_path);
-		}
-
-		g_free (dir_path);
-	}
-
-}
+/* 		g_free (dir_path); */
+/* 	} */
+/* } */
 
 
 gboolean
-email_maildir_is_in_a_maildir_dir (const char *path)
+email_is_in_a_maildir_dir (const gchar *path)
 {
 	/* We only take care of files into directory "cur".
 	   So we check that string "/cur/" is into the path or that path ends with "/cur". */
@@ -216,60 +223,58 @@ email_maildir_is_in_a_maildir_dir (const char *path)
 }
 
 
-void
-email_maildir_watch_mail_messages (DBConnection *db_con, const char *path)
-{
-	char *dir_cur;
+/* void */
+/* email_maildir_watch_mail_messages (DBConnection *db_con, const gchar *path) */
+/* { */
+/* 	gchar *dir_cur; */
 
-	g_return_if_fail (db_con);
-	g_return_if_fail (path);
+/* 	g_return_if_fail (db_con); */
+/* 	g_return_if_fail (path); */
 
-	if (tracker_file_is_no_watched (path)) {
-		return;
-	}
+/* 	if (tracker_file_is_no_watched (path)) { */
+/* 		return; */
+/* 	} */
 
-	dir_cur = g_build_filename (path, "cur", NULL);
+/* 	dir_cur = g_build_filename (path, "cur", NULL); */
 
-	if (tracker_is_directory (dir_cur)) {
-		GSList		*files;
-		const GSList	*file;
-		GPatternSpec	*pattern;
+/* 	if (tracker_is_directory (dir_cur)) { */
+/* 		GSList       *files; */
+/* 		const GSList *file; */
+/* 		GPatternSpec *pattern; */
 
-		if (!tracker_is_directory_watched (dir_cur, db_con)) {
-			tracker_add_watch_dir (dir_cur, db_con);
-		}
+/* 		if (!tracker_is_directory_watched (dir_cur, db_con)) { */
+/* 			tracker_add_watch_dir (dir_cur, db_con); */
+/* 		} */
 
-		files = tracker_get_files (dir_cur, FALSE);
+/* 		files = tracker_get_files (dir_cur, FALSE); */
 
-		/* We only want files that contain mail message so we check their names. */
-		pattern = g_pattern_spec_new ("*.*.*");
+/* 		/\* We only want files that contain mail message so we check their names. *\/ */
+/* 		pattern = g_pattern_spec_new ("*.*.*"); */
 
-		for (file = files; file; file = file->next) {
-			const char *file_path;
+/* 		for (file = files; file; file = file->next) { */
+/* 			const gchar *file_path = file->data; */
 
-			file_path = file->data;
+/* 			if (g_pattern_match_string (pattern, file_path)) { */
+/* 				tracker_db_insert_pending_file (db_con, 0, file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1); */
+/* 			} */
+/* 		} */
 
-			if (g_pattern_match_string (pattern, file_path)) {
-				tracker_db_insert_pending_file (db_con, 0, file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
-			}
-		}
+/* 		g_pattern_spec_free (pattern); */
 
-		g_pattern_spec_free (pattern);
+/* 		g_slist_foreach (files, (GFunc) g_free, NULL); */
+/* 		g_slist_free (files); */
+/* 	} */
 
-		g_slist_foreach (files, (GFunc) g_free, NULL);
-		g_slist_free (files);
-	}
-
-	g_free (dir_cur);
-}
+/* 	g_free (dir_cur); */
+/* } */
 
 
 MailFile *
-email_open_mail_file_at_offset (MailApplication mail_app, const char *path, off_t offset, gboolean scan_from_for_mbox)
+email_open_mail_file_at_offset (MailApplication mail_app, const gchar *path, off_t offset, gboolean scan_from_for_mbox)
 {
-	GMimeStream	*stream;
-	GMimeParser	*parser;
-	MailFile	*mf;
+	GMimeStream *stream;
+	GMimeParser *parser;
+	MailFile    *mf;
 
 	g_return_val_if_fail (path, NULL);
 
@@ -462,14 +467,14 @@ email_free_mail_message (MailMessage *mail_msg)
 
 
 MailMessage *
-email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
+email_mail_file_parse_next (MailFile *mf, ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data)
 {
-	MailMessage	*mail_msg;
-	guint64		msg_offset;
-	GMimeMessage	*g_m_message;
-	time_t		date;
-	int		gmt_offset;
-	gboolean	is_html;
+	MailMessage  *mail_msg;
+	guint64      msg_offset;
+	GMimeMessage *g_m_message;
+	time_t       date;
+	gint         gmt_offset;
+	gboolean     is_html;
 
 	g_return_val_if_fail ((mf && mf->parser), NULL);
 
@@ -498,7 +503,7 @@ email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
 	mail_msg->in_reply_to_ids = add_gmime_references (NULL, g_m_message, "In-Reply-To");
 
 	g_mime_message_get_date (g_m_message, &date, &gmt_offset);
-	mail_msg->date = (long) (date + gmt_offset);
+	mail_msg->date = (glong) (date + gmt_offset);
 
 	mail_msg->from = g_strdup (g_mime_message_get_sender (g_m_message));
 
@@ -511,8 +516,8 @@ email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
 	mail_msg->body = g_mime_message_get_body (g_m_message, TRUE, &is_html);
 	mail_msg->content_type = g_strdup (is_html ? "text/html" : "text/plain");
 
-	if (load_helper) {
-		load_helper (g_m_message, mail_msg);
+	if (read_mail_helper) {
+                (*read_mail_helper) (g_m_message, mail_msg, read_mail_user_data);
 	}
 
 	mail_msg->attachments = NULL;
@@ -527,10 +532,11 @@ email_mail_file_parse_next (MailFile *mf, LoadHelperFct load_helper)
 
 
 MailMessage *
-email_parse_mail_message_by_path (MailApplication mail_app, const char *path, LoadHelperFct load_helper)
+email_parse_mail_message_by_path (MailApplication mail_app, const gchar *path,
+                                  ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data)
 {
-	MailFile	*mf;
-	MailMessage	*mail_msg;
+	MailFile    *mf;
+	MailMessage *mail_msg;
 
 	g_return_val_if_fail (path, NULL);
 
@@ -539,18 +545,12 @@ email_parse_mail_message_by_path (MailApplication mail_app, const char *path, Lo
                 return NULL;
         }
 
-	mail_msg = email_mail_file_parse_next (mf, load_helper);
+	mail_msg = email_mail_file_parse_next (mf, read_mail_helper, read_mail_user_data);
 
 	if (mail_msg) {
 		mail_msg->path = g_strdup (path);
 		mail_msg->is_mbox = FALSE;
 	}
-
-	//email_free_mail_file (mf);
-
-
-	/* there is not a mail file parent with a simple mail message */
-	//mail_msg->parent_mail_file = NULL;
 
 	return mail_msg;
 }
@@ -589,13 +589,11 @@ email_free_mime_infos (MimeInfos *infos)
 MimeInfos *
 email_get_mime_infos_from_mime_file (const gchar *mime_file)
 {
-	MimeInfos	*mime_infos;
-	gchar		*tmp, *mime_content;
-	const gchar	*pos_content_type;
+	MimeInfos   *mime_infos;
+	gchar       *tmp, *mime_content;
+	const gchar *pos_content_type;
 
 	g_return_val_if_fail (mime_file, NULL);
-
-
 
 	if (!g_file_get_contents (mime_file, &tmp, NULL, NULL)) {
 		return NULL;
@@ -623,15 +621,13 @@ email_get_mime_infos_from_mime_file (const gchar *mime_file)
 			}
 
 			if (*pos_content_type != '\0') {
-				GMimeContentType *mime;
-
-				mime = g_mime_content_type_new_from_string (pos_content_type);
+				GMimeContentType *mime = g_mime_content_type_new_from_string (pos_content_type);
 
 				if (mime) {
-					GMimeParam	*param;
-					gchar		*type, *subtype, *name;
-					const gchar	*pos_encoding;
-					MimeEncoding	encoding;
+					GMimeParam   *param;
+					gchar        *type, *subtype, *name;
+					const gchar  *pos_encoding;
+					MimeEncoding encoding;
 
 					type	= mime->type ? g_strdup (mime->type) : g_strdup ("text");		/* NULL means text */
 					subtype	= mime->subtype ? g_strdup (mime->subtype) : g_strdup ("plain");	/* NULL means plain */
@@ -650,8 +646,8 @@ email_get_mime_infos_from_mime_file (const gchar *mime_file)
 					pos_encoding = strstr (pos_content_type, "content-transfer-encoding:");
 
 					if (pos_encoding) {
-						size_t		len_encoding;
-						const gchar	*pos_end_encoding;
+						size_t      len_encoding;
+						const gchar *pos_end_encoding;
 
 						len_encoding = strlen (pos_encoding);
 						if (len_encoding > 26) {	/* strlen ("content-transfer-encoding:") == 26 */
@@ -667,9 +663,7 @@ email_get_mime_infos_from_mime_file (const gchar *mime_file)
 							     pos_end_encoding++)
 								;
 							if (pos_encoding != pos_end_encoding) {
-								gchar *encoding_str;
-
-								encoding_str = g_strndup (pos_encoding, pos_end_encoding - pos_encoding);
+								gchar *encoding_str = g_strndup (pos_encoding, pos_end_encoding - pos_encoding);
 
 								if (strcmp (encoding_str, "7bit") == 0) {
 									encoding = MIME_ENCODING_7BIT;
@@ -750,27 +744,27 @@ email_add_saved_mail_attachment_to_mail_message (MailMessage *mail_msg, MailAtta
 gchar *
 email_make_tmp_name_for_mail_attachment (const gchar *filename)
 {
-  gchar *str_uint, *tmp_filename, *tmp_name;
+        gchar *str_uint, *tmp_filename, *tmp_name;
 
-  g_return_val_if_fail (filename, NULL);
-  g_return_val_if_fail (tracker->email_attachements_dir, NULL);
+        g_return_val_if_fail (filename, NULL);
+        g_return_val_if_fail (tracker->email_attachements_dir, NULL);
 
-  str_uint = tracker_uint_to_str (g_random_int ());
-  tmp_filename = g_strconcat (str_uint, "-", filename, NULL);
-  g_free (str_uint);
-  tmp_name = g_build_filename (tracker->email_attachements_dir, tmp_filename, NULL);
-  g_free (tmp_filename);
+        str_uint = tracker_uint_to_str (g_random_int ());
+        tmp_filename = g_strconcat (str_uint, "-", filename, NULL);
+        g_free (str_uint);
+        tmp_name = g_build_filename (tracker->email_attachements_dir, tmp_filename, NULL);
+        g_free (tmp_filename);
 
-  return tmp_name;
+        return tmp_name;
 }
 
 
 gboolean
 email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEncoding encoding)
 {
-	GMimeStream	*stream_src, *stream_dst;
-	GMimeFilter	*filter;
-	GMimeStream	*filtered_stream;
+	GMimeStream *stream_src, *stream_dst;
+	GMimeFilter *filter;
+	GMimeStream *filtered_stream;
 
 	g_return_val_if_fail (src, FALSE);
 	g_return_val_if_fail (dst, FALSE);
@@ -833,60 +827,58 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
  Private functions
 *********************************************************************************************/
 
-static void
-mh_watch_mail_messages_in_dir (DBConnection *db_con, const char *dir_path)
-{
-	GSList		*files;
-	const GSList	*file;
+/* static void */
+/* mh_watch_mail_messages_in_dir (DBConnection *db_con, const gchar *dir_path) */
+/* { */
+/* 	GSList       *files; */
+/* 	const GSList *file; */
 
-	g_return_if_fail (db_con);
-	g_return_if_fail (dir_path);
+/* 	g_return_if_fail (db_con); */
+/* 	g_return_if_fail (dir_path); */
 
-	if (tracker_file_is_no_watched (dir_path)) {
-		return;
-	}
+/* 	if (tracker_file_is_no_watched (dir_path)) { */
+/* 		return; */
+/* 	} */
 
-	if (!tracker_is_directory_watched (dir_path, db_con)) {
-		tracker_add_watch_dir (dir_path, db_con);
-	}
+/* 	if (!tracker_is_directory_watched (dir_path, db_con)) { */
+/* 		tracker_add_watch_dir (dir_path, db_con); */
+/* 	} */
 
-	files = tracker_get_files (dir_path, FALSE);
+/* 	files = tracker_get_files (dir_path, FALSE); */
 
-	for (file = files; file; file = file->next) {
-		const char *file_path;
+/* 	for (file = files; file; file = file->next) { */
+/* 		const gchar *file_path = file->data; */
 
-		file_path = file->data;
+/* 		if (tracker_file_is_indexable (file_path)) { */
+/* 			gchar *file_name, *p; */
 
-		if (tracker_file_is_indexable (file_path)) {
-			char *file_name, *p;
+/* 			/\* filename must contain only digits *\/ */
+/* 			file_name = g_path_get_basename (file_path); */
 
-			/* filename must contain only digits */
-			file_name = g_path_get_basename (file_path);
+/* 			for (p = file_name; *p != '\0'; p++) { */
+/* 				if (!g_ascii_isdigit (*p)) { */
+/* 					goto end; */
+/* 				} */
+/* 			} */
 
-			for (p = file_name; *p != '\0'; p++) {
-				if (!g_ascii_isdigit (*p)) {
-					goto end;
-				}
-			}
+/* 			tracker_db_insert_pending_file (db_con, 0, file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1); */
 
-			tracker_db_insert_pending_file (db_con, 0, file_path, NULL, 0, TRACKER_ACTION_CHECK, FALSE, FALSE, -1);
+/* 		end: */
+/* 			g_free (file_name); */
+/* 		} */
+/* 	} */
 
-		end:
-			g_free (file_name);
-		}
-	}
-
-	g_slist_foreach (files, (GFunc) g_free, NULL);
-	g_slist_free (files);
-}
+/* 	g_slist_foreach (files, (GFunc) g_free, NULL); */
+/* 	g_slist_free (files); */
+/* } */
 
 
 static GMimeStream *
 new_gmime_stream_from_file (const gchar *path, const gchar *mode, off_t start, off_t end)
 {
-	gchar		*path_in_locale;
-	FILE		*f;
-	GMimeStream	*stream;
+	gchar       *path_in_locale;
+	FILE        *f;
+	GMimeStream *stream;
 
 	g_return_val_if_fail (path, NULL);
 	g_return_val_if_fail (mode, NULL);
@@ -919,24 +911,20 @@ new_gmime_stream_from_file (const gchar *path, const gchar *mode, off_t start, o
 
 
 static GSList *
-add_gmime_references (GSList *list, GMimeMessage *message, const char *header)
+add_gmime_references (GSList *list, GMimeMessage *message, const gchar *header)
 {
-	const char *tmp;
-
-	tmp = g_mime_message_get_header (message, header);
+	const gchar *tmp = g_mime_message_get_header (message, header);
 
 	if (tmp) {
-		GMimeReferences *refs;
+		GMimeReferences       *refs;
 		const GMimeReferences *tmp_ref;
 
 		refs = g_mime_references_decode (tmp);
 
 		for (tmp_ref = refs; tmp_ref; tmp_ref = tmp_ref->next) {
-			const char *msgid;
+			const gchar *msgid = tmp_ref->msgid;
 
-			msgid = tmp_ref->msgid;
-
-			if (msgid && msgid[0] != '\0') {
+			if (!tracker_is_empty_string (msgid)) {
 				list = g_slist_prepend (list, g_strdup (msgid));
 			}
 		}
@@ -949,14 +937,12 @@ add_gmime_references (GSList *list, GMimeMessage *message, const char *header)
 
 
 static GSList *
-add_recipients (GSList *list, GMimeMessage *message, const char *type)
+add_recipients (GSList *list, GMimeMessage *message, const gchar *type)
 {
 	const InternetAddressList *addrs_list;
 
 	for (addrs_list = g_mime_message_get_recipients (message, type); addrs_list; addrs_list = addrs_list->next) {
-		MailPerson *mp;
-
-		mp = email_allocate_mail_person ();
+		MailPerson *mp = email_allocate_mail_person ();
 
 		mp->name = g_strdup (addrs_list->address->name);
 		mp->addr = g_strdup (addrs_list->address->value.addr);
@@ -973,16 +959,15 @@ find_attachment (GMimeObject *obj, gpointer data)
 {
 	GMimePart   *part;
 	MailMessage *mail_msg;
-	const char  *content_disposition;
+	const gchar *content_disposition;
 
 	g_return_if_fail (obj);
 	g_return_if_fail (data);
 
 
 	if (GMIME_IS_MESSAGE_PART (obj)) {
-		GMimeMessage *g_msg;
+		GMimeMessage *g_msg = g_mime_message_part_get_message (GMIME_MESSAGE_PART (obj));
 
-		g_msg = g_mime_message_part_get_message (GMIME_MESSAGE_PART (obj));
 		if (g_msg) {
 			g_mime_message_foreach_part (g_msg, find_attachment, data);
 			g_object_unref (g_msg);
@@ -1009,11 +994,11 @@ find_attachment (GMimeObject *obj, gpointer data)
 	    (strcmp (content_disposition, GMIME_DISPOSITION_ATTACHMENT) == 0 ||
 	     strcmp (content_disposition, GMIME_DISPOSITION_INLINE) == 0)) {
 
-		const GMimeContentType	*content_type;
-		MailAttachment		*ma;
-		const char		*filename;
-		char			*attachment_uri;
-		int 			fd;
+		const GMimeContentType *content_type;
+		MailAttachment         *ma;
+		const gchar            *filename;
+		gchar                  *attachment_uri;
+		gint                   fd;
 
 		if (! (content_type = g_mime_part_get_content_type (part)))
 			return;
@@ -1035,8 +1020,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 		attachment_uri = email_make_tmp_name_for_mail_attachment (filename);
 
 		/* convert attachment filename from utf-8 to filesystem charset */
-		char *locale_uri = g_filename_from_utf8 (attachment_uri, -1, NULL, NULL, NULL);
-
+		gchar *locale_uri = g_filename_from_utf8 (attachment_uri, -1, NULL, NULL, NULL);
 
 		fd = g_open (locale_uri, O_CREAT | O_WRONLY, 0666);
 
@@ -1051,16 +1035,14 @@ find_attachment (GMimeObject *obj, gpointer data)
                            to index it latter.
                         */
 
-			GMimeStream		*stream;
-			GMimeDataWrapper	*content;
+			GMimeStream      *stream;
+			GMimeDataWrapper *content;
 
 			stream = g_mime_stream_fs_new (fd);
 			content = g_mime_part_get_content_object (part);
 
 			if (content) {
-				int x;
-
-				x = g_mime_data_wrapper_write_to_stream (content, stream);
+				gint x = g_mime_data_wrapper_write_to_stream (content, stream);
 
 				if (x != -1) {
 					g_mime_stream_flush (stream);

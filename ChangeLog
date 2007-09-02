@@ -1,5 +1,17 @@
 2007-09-03 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
+	* Work on KMail support
+	* Support of MBox files seems to work well. So indexing works when MBox
+	  storage is used with local emails (= sent + POP3 emails) and IMAP emails
+	  (but not cached-IMAP emails since they are always stored in a maildir
+	  hierarchy)
+	* Still issues with mails in maildir directories (trackerd try to index those
+	  emails twice!)
+	* Indexing of KMail emails is still turned off
+
+
+2007-09-03 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
 	* Make TST able to open KMail emails
 
 

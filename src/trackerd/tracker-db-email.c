@@ -53,10 +53,14 @@ tracker_db_email_get_mbox_offset (DBConnection *db_con, const gchar *mbox_uri)
 
 
 void
-tracker_db_email_register_mbox (DBConnection *db_con, MailApplication mail_app, MailType mail_type,
-                                const gchar *path, const gchar *filename, const gchar *uri_prefix)
+tracker_db_email_register_mbox (DBConnection    *db_con,
+                                MailApplication mail_app,
+                                MailType        mail_type,
+                                const gchar     *path,
+                                const gchar     *filename,
+                                const gchar     *uri_prefix)
 {
-	gchar *types[5] = {"MBOX", "IMAP", "IMAP4", "MAIL_TYPE_MAILDIR",	"MAIL_TYPE_MH"};
+	gchar *types[5] = {"MBOX", "IMAP", "IMAP4", "MAIL_TYPE_MAILDIR", "MAIL_TYPE_MH"};
 
 	gchar *str_mail_app = tracker_int_to_str (mail_app);
 	gchar *str_mail_type = tracker_int_to_str (mail_type);
@@ -242,8 +246,11 @@ tracker_db_email_get_mbox_path (DBConnection *db_con, const gchar *filename)
 
 
 void
-tracker_db_email_get_message_counts (DBConnection *db_con, const gchar *mbox_file_path,
-                                     gint *mail_count, gint *junk_count, gint *delete_count)
+tracker_db_email_get_message_counts (DBConnection *db_con,
+                                     const gchar  *mbox_file_path,
+                                     gint         *mail_count,
+                                     gint         *junk_count,
+                                     gint         *delete_count)
 {
 	gchar ***res;
 	gchar **row;
@@ -274,8 +281,11 @@ tracker_db_email_get_message_counts (DBConnection *db_con, const gchar *mbox_fil
 
 
 void
-tracker_db_email_set_message_counts (DBConnection *db_con, const gchar *dir_path,
-                                     gint mail_count, gint junk_count, gint delete_count)
+tracker_db_email_set_message_counts (DBConnection *db_con,
+                                     const gchar  *dir_path,
+                                     gint         mail_count,
+                                     gint         junk_count,
+                                     gint         delete_count)
 {
 	g_return_if_fail (db_con);
 	g_return_if_fail (dir_path);
@@ -363,6 +373,51 @@ get_utf8 (const gchar *str)
 }
 
 
+static gchar *
+get_service_name (MailApplication app)
+{
+       if (app == MAIL_APP_EVOLUTION) {
+               return g_strdup ("EvolutionEmails");
+       } else if (app == MAIL_APP_KMAIL) {
+               return g_strdup ("KMailEmails");
+       } else if (app == MAIL_APP_THUNDERBIRD) {
+               return g_strdup ("ThunderbirdEmails");
+       } else {
+               return g_strdup ("OtherEmails");
+       }
+}
+
+
+static gchar *
+get_mime (MailApplication app)
+{
+       if (app == MAIL_APP_EVOLUTION) {
+               return g_strdup ("Evolution/Email");
+       } else if (app == MAIL_APP_KMAIL) {
+               return g_strdup ("KMail/Email");
+       } else if (app == MAIL_APP_THUNDERBIRD) {
+               return g_strdup ("Thunderbird/Email");
+       } else {
+               return g_strdup ("Other/Email");
+       }
+}
+
+
+static gchar *
+get_attachment_service_name (MailApplication app)
+{
+       if (app == MAIL_APP_EVOLUTION) {
+               return g_strdup ("EvolutionAttachments");
+       } else if (app == MAIL_APP_KMAIL) {
+               return g_strdup ("KMailAttachments");
+       } else if (app == MAIL_APP_THUNDERBIRD) {
+               return g_strdup ("ThunderbirdAttachments");
+       } else {
+               return g_strdup ("OtherAttachments");
+       }
+}
+
+
 gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
@@ -412,34 +467,25 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
         mbox_id = -1; /* to have a default value */
 
 	if (mm->parent_mail_file) {
-		
 		if (mm->is_mbox) {
-		
 			mbox_id = tracker_db_email_get_mbox_id (db_con, mm->parent_mail_file->path);
-
 			if (mbox_id == -1) {
 				tracker_error ("ERROR: no mbox is registered for email %s", mm->uri);
 				return TRUE;
 			}
 		}
-	
-		//service = get_service_name (mm->parent_mail_file->mail_app);
-		//mime = get_mime (mm->parent_mail_file->mail_app);
-		//attachment_service = get_attachment_service_name (mm->parent_mail_file->mail_app);
+                service = get_service_name (mm->parent_mail_file->mail_app);
+                mime = get_mime (mm->parent_mail_file->mail_app);
+                attachment_service = get_attachment_service_name (mm->parent_mail_file->mail_app);
 
-		service = g_strdup ("EvolutionEmails");
-		mime = g_strdup ("Evolution/Email");
-		attachment_service = g_strdup ("EvolutionAttachments");
-
-		
 	} else {
 		mbox_id = 0;
 		mm->offset =0;
-		service = g_strdup ("EvolutionEmails");
-		mime = g_strdup ("Evolution/Email");
-		attachment_service = g_strdup ("EvolutionAttachments");
-	}
+                service = g_strdup ("EvolutionEmails");
+                mime = g_strdup ("Evolution/Email");
+                attachment_service = g_strdup ("EvolutionAttachments");
 
+	}
 	
 	type_id = tracker_get_id_for_service (service);
 	if (type_id == -1) {
@@ -514,10 +560,8 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			array[len] = NULL;
 
 			for (i = 0, tmp = mm->to; tmp && i < len; tmp = tmp->next, i++) {
-				const MailPerson *mp;
+				const MailPerson *mp = tmp->data;
 				GString *gstr = g_string_new ("");
-
-				mp = tmp->data;
 
 				if (mp->addr) {
 					g_string_append_printf (gstr, "%s ", mp->addr);
@@ -546,10 +590,8 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			array[len] = NULL;
 
 			for (i = 0, tmp = mm->cc; tmp && i < len; tmp = tmp->next, i++) {
-				const MailPerson *mp;
+				const MailPerson *mp = tmp->data;
 				GString *gstr = g_string_new ("");
-
-				mp = tmp->data;
 
 				if (mp->addr) {
 					g_string_append_printf (gstr, "%s ", mp->addr);
@@ -578,9 +620,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			array[len] = NULL;
 		
 			for (i = 0, tmp = mm->attachments; tmp && i < len; tmp = tmp->next, i++) {
-				const MailAttachment *ma;
-
-				ma = tmp->data;
+				const MailAttachment *ma = tmp->data;
 
 				if (!ma->attachment_name) {
 					continue;
@@ -608,9 +648,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 		/* index attachments */
 		for (tmp = mm->attachments; tmp; tmp = tmp->next) {
-			MailAttachment *ma;
-
-			ma = tmp->data;
+			MailAttachment *ma = tmp->data;
 
                         if (ma->tmp_decoded_file) {
                                 FileInfo *attachment_info;

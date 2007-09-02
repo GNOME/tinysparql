@@ -55,7 +55,7 @@ typedef struct {
 	gint		mail_count;
 	gint		junk_count;
 	gint		delete_count;
-	gchar 		*uri_prefix;	
+	gchar 		*uri_prefix;
 	MailType	type;
 } MailStore;
 
@@ -117,25 +117,28 @@ typedef struct {
 	gchar		*content_type;		/* text/plain or text/html etc. */
 	gchar		*body;
 	GSList		*attachments;		/* names of attachments */
-	MailStore	*store;
-	
+	MailStore	*store;	
 } MailMessage;
-
-
 
 
 void		email_watch_directory				(const gchar *dir, const gchar *service);
 void		email_watch_directories				(const GSList *dirs, const gchar *service);
 
-typedef void (* LoadHelperFct) (GMimeMessage *g_m_message, MailMessage *msg);
+typedef void (* ReadMailHelperFct) (GMimeMessage *g_m_message, MailMessage *msg, gpointer read_mail_user_data);
+typedef gchar* (* MakeURIHelperFct) (MailMessage *msg, gpointer read_mail_user_data);
 
-gboolean	email_parse_and_save_mail_message		(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper);
-gboolean	email_parse_mail_file_and_save_new_emails	(DBConnection *db_con, MailApplication mail_app, const char *path, LoadHelperFct load_helper, MailStore *store);
+gboolean	email_parse_and_save_mail_message               (DBConnection *db_con, MailApplication mail_app, const char *path,
+                                                                 ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data);
 
-gboolean	email_mh_is_in_a_mh_dir				(const gchar *path);
-void		email_mh_watch_mail_messages			(DBConnection *db_con, const gchar *path);
+gboolean        email_parse_mail_file_and_save_new_emails       (DBConnection *db_con, MailApplication mail_app, const char *path,
+                                                                 ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data,
+                                                                 MakeURIHelperFct uri_helper, gpointer make_uri_user_data,
+                                                                 MailStore *store);
 
-gboolean	email_maildir_is_in_a_maildir_dir		(const gchar *path);
+//gboolean	email_is_in_a_mh_dir                            (const gchar *path);
+//void		email_mh_watch_mail_messages			(DBConnection *db_con, const gchar *path);
+
+gboolean	email_is_in_a_maildir_dir                       (const gchar *path);
 void		email_maildir_watch_mail_messages		(DBConnection *db_con, const gchar *path);
 
 MailPerson *	email_allocate_mail_person			(void);
@@ -149,9 +152,10 @@ void		email_free_mail_message				(MailMessage *msg);
 
 MailFile *	email_open_mail_file_at_offset			(MailApplication mail_app, const char *path, off_t offset, gboolean scan_from_for_mbox);
 void		email_free_mail_file				(MailFile *mf);
-MailMessage *	email_mail_file_parse_next			(MailFile *mf, LoadHelperFct load_helper);
+MailMessage *	email_mail_file_parse_next			(MailFile *mf, ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data);
 
-MailMessage *	email_parse_mail_message_by_path		(MailApplication mail_app, const char *path, LoadHelperFct load_helper);
+MailMessage *	email_parse_mail_message_by_path                (MailApplication mail_app, const gchar *path,
+                                                                 ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data);
 
 MimeInfos *	email_allocate_mime_infos			(void);
 void		email_free_mime_infos				(MimeInfos *infos);

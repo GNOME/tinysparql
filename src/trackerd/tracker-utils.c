@@ -2597,6 +2597,12 @@ tracker_load_config_file (void)
 		tracker->index_evolution_emails = TRUE;
 	}
 
+	if (g_key_file_has_key (key_file, "Emails", "IndexKMailEmails", NULL)) {
+		tracker->index_kmail_emails = g_key_file_get_boolean (key_file, "Emails", "IndexKMailEmails", NULL);
+	} else {
+		tracker->index_kmail_emails = FALSE;
+	}
+
 
 	/* Performance options */
 
