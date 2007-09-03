@@ -1,3 +1,8 @@
+2007-09-03 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@mail.com>
+	
+	* python/deskbar-handler/tracker-module.py
+	  Add additional standard actions
+
 2007-09-03 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Work on KMail support

@@ -19,6 +19,8 @@ from deskbar.handlers.actions.OpenDesktopFileAction import \
 		OpenDesktopFileAction
 from deskbar.handlers.actions.ShowUrlAction import \
 		ShowUrlAction
+from deskbar.handlers.actions.ActionsFactory import \
+        get_actions_for_uri
 
 import gettext
 gettext.install('tracker')
@@ -175,11 +177,11 @@ class TrackerLiveSearchMatch (deskbar.interfaces.Match):
 						pass # some icons cannot be loaded... (e.g. for non existent file or illegal URI)
 
 		self.add_action (TrackerLiveSearchAction (result, desktop))
-		#if result['type'] == 'Images':
-		#	for prg in ('gimp', 'gthumb', 'gwenview'):
-		#		if is_program_in_path (prg):
-		#			self.add_action (OpenWithApplicationAction (result['name'], prg, [result['uri']]))
-
+		
+		# Add extra default actions where it makes sense
+		if not result['type'] in ["Emails", "Applications", "GaimConversations"]:
+			self.add_all_actions (get_actions_for_uri(result['uri']))
+	
 	def get_name (self, text = None):
 		return self.result ['name']
 
