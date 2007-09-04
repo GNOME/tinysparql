@@ -2618,6 +2618,8 @@ decode_gint32 (FILE *f, gint32 *dest)
 {
 	guint32 save;
 
+	if (!f) return;
+
 	if (fread (&save, sizeof (save), 1, f) == 1) {
 		*dest = g_ntohl (save);
 		return TRUE;
