@@ -5095,6 +5095,7 @@ tracker_db_move_file (DBConnection *db_con, const char *moved_from_uri, const ch
 	if (id == 0) {
 		tracker_debug ("WARNING: original file %s not found in DB", moved_from_uri);
 		tracker_db_insert_pending_file (db_con, id, moved_to_uri, "unknown", 0, TRACKER_ACTION_FILE_CREATED, FALSE, TRUE, -1);
+		tracker_db_end_transaction (db_con);
 		return;
 	}
 
