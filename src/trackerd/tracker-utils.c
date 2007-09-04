@@ -44,9 +44,6 @@
 #include "../xdgmime/xdgmime.h"
 
 #include "tracker-os-dependant.h"
-  
-
-
 
 #ifdef OS_WIN32
 #include <conio.h>
@@ -65,9 +62,9 @@ char *tracker_actions[] = {
 		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA",
 		NULL};
 
-char *ignore_suffix[] = {"~", ".o", ".la", ".lo", ".loT", ".in", ".csproj", ".m4", ".pc", ".omf", ".aux", ".tmp", ".po", NULL};
-char *ignore_prefix[] = {"autom4te", "conftest.", "confstat", NULL};
-char *ignore_name[] = {"autom4te" , "po", "aclocal", "Makefile", "CVS", "SCCS", "conftest", "confdefs.h", NULL};
+char *ignore_suffix[] = {"~", ".o", ".la", ".lo", ".loT", ".in", ".csproj", ".m4", ".rej", ".gmo", ".orig", ".pc", ".omf", ".aux", ".tmp", ".po", NULL};
+char *ignore_prefix[] = {"autom4te", "conftest.", "confstat", "config.", NULL};
+char *ignore_name[] = {"po", "CVS", "aclocal", "Makefile", "CVS", "SCCS", "ltmain.sh","libtool", "config.status", "conftest", "confdefs.h", NULL};
 
 #define ZLIBBUFSIZ 8192
 #define TEXT_SNIFF_SIZE 4096
@@ -2236,7 +2233,7 @@ tracker_ignore_file (const char *uri)
 	}
 
 	/* test exact names */
-	for (st = ignore_prefix; *st; st++) {
+	for (st = ignore_name; *st; st++) {
 		if (strcmp (name, *st) == 0) {
 			g_free (name);
 			return TRUE;

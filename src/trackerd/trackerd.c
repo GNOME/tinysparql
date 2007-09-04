@@ -890,7 +890,7 @@ process_files_thread (void)
 			tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
 			g_usleep (1000 * 1000);
 			tracker->grace_period--;
-			if (tracker->grace_period > 5) tracker->grace_period = 5;
+			if (tracker->grace_period > 3) tracker->grace_period = 3;
 			continue;
 		}
 

@@ -166,7 +166,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
 			g_usleep (1000 * 1000);
 			tracker->grace_period--;
-			if (tracker->grace_period > 5) tracker->grace_period = 5;
+			if (tracker->grace_period > 2) tracker->grace_period = 2;
 			continue;
 		}
 
