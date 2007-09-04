@@ -41,7 +41,13 @@ typedef struct {
 	GHashTable	*table;
 } DatabaseAction;
 
+static void
+free_metadata_list (GSList *list) 
+{
+	g_slist_foreach (list, (GFunc) g_free, NULL);
+	g_slist_free (list);
 
+}
 
 gboolean
 tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *id)
@@ -627,6 +633,31 @@ tracker_is_valid_service (DBConnection *db_con, const char *service)
 }
 
 
+static void
+restore_backup_data (gpointer mtype,
+			 gpointer value,
+			 gpointer user_data)
+{
+	DatabaseAction	*db_action;
+
+	if (mtype == NULL || value == NULL) {
+		return;
+	}
+
+	db_action = user_data;
+
+	char **array = tracker_list_to_array (value);
+
+	tracker_log ("restoring keyword list with %d items", g_slist_length (value));
+
+	tracker_db_set_metadata (db_action->db_con->index, db_action->service, db_action->file_id, mtype, array, g_slist_length (value), FALSE);
+
+	g_strfreev (array);
+	
+
+}
+
+
 
 void
 tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *service, GHashTable *meta_table, const char *attachment_uri, const char *attachment_service,  gboolean get_embedded, gboolean get_full_text, gboolean get_thumbs)
@@ -674,15 +705,15 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 			tracker_info ("Indexing %s with service %s (existing)", uri, service);
 	}
 
-	str_file_id = tracker_uint_to_str (info->file_id);
+	
 
 	if (!info->is_new) {
-		old_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		old_table = g_hash_table_new (g_str_hash, g_str_equal);
 	} else {
 		old_table = NULL;
 	}
 
-	index_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	index_table = g_hash_table_new (g_str_hash, g_str_equal);
 
 	/* get embedded metadata filter */
 	if (get_embedded && meta_table) {
@@ -712,6 +743,8 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 		}
 	}
 
+	str_file_id = tracker_uint_to_str (info->file_id);
+
 	if (get_thumbs && tracker->enable_thumbnails) {
 		char *small_thumb_file = NULL;
 
@@ -735,7 +768,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 		if (file_as_text) {
 			
-			tracker_db_save_file_contents (db_con->index, db_con->blob, index_table, old_table, file_as_text, info);
+			tracker_db_save_file_contents (db_con, index_table, old_table, file_as_text, info);
 					
 			/* clear up if text contents are in a temp file */
 			if (g_str_has_prefix (file_as_text, tracker->sys_tmp_root_dir)) {
@@ -787,16 +820,11 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	if (info->is_new) {
 		tracker_db_update_indexes_for_new_service (info->file_id, info->service_type_id, index_table);
 	} else {
-		tracker_db_update_differential_index (old_table, index_table, str_file_id, info->service_type_id);
+		tracker_db_update_differential_index (db_con, old_table, index_table, str_file_id, info->service_type_id);
 	}
 
-	if (index_table) {
-		g_hash_table_destroy (index_table);
-	}
-
-	if (old_table) {
-		g_hash_table_destroy (old_table);
-	}	
+	tracker_word_table_free (index_table);
+	tracker_word_table_free (old_table);
 
 
 	/* check for backup user defined metadata */
@@ -807,31 +835,48 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 		char ***result_set = tracker_exec_proc (db_con->common, "GetBackupMetadata", 2, path, name); 
 
-		g_free (name);
-		g_free (path);
-
 		if (result_set) {
 			char **row;
 			int  k;
 
 			k = 0;
+			GHashTable *meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) free_metadata_list);
 
 			while ((row = tracker_db_get_row (result_set, k))) {
 
 				k++;
 
 				if (row[0] && row[1]) {
-					if (attachment_service) {
-						tracker_db_set_single_metadata (db_con->index, attachment_service, str_file_id, row[0], row[1]);
-					} else {
-						tracker_db_set_single_metadata (db_con->index, service, str_file_id, row[0], row[1]);
-					}
-				}
 
+					tracker_add_metadata_to_table  (meta_table, g_strdup (row[0]), g_strdup (row[1]));
+
+					tracker_log ("found backup metadata for %s\%s with key %s and value %s", path, name, row[0], row[1]);
+
+				}
 			}
-			tracker_db_free_result (result_set);			
+
+			tracker_db_free_result (result_set);
+
+			DatabaseAction db_action;
+
+			db_action.db_con = db_con;
+			db_action.file_id = str_file_id;
+
+			if (attachment_service) {
+				db_action.service = (char *) attachment_service;
+			} else {
+				db_action.service = (char *) service;
+			}
+
+			g_hash_table_foreach (meta_table, restore_backup_data, &db_action);	
+
+			g_hash_table_destroy (meta_table);
+					
 
 		}
+
+		g_free (name);
+		g_free (path);
 	}
 
 
@@ -839,13 +884,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 }
 
 
-static void
-free_metadata_list (GSList *list) 
-{
-	g_slist_foreach (list, (GFunc) g_free, NULL);
-	g_slist_free (list);
 
-}
 
 void
 tracker_db_index_master_files (DBConnection *db_con, const gchar *dirname, const gchar *basename, const gchar *filename)

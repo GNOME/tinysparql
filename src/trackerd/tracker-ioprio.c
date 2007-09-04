@@ -35,6 +35,41 @@
 #include "tracker-ioprio.h"
 
 
+#if defined(__i386__)
+#define __NR_ioprio_set         289
+#define __NR_ioprio_get         290
+#elif defined(__powerpc__) || defined(__powerpc64__)
+#define __NR_ioprio_set         273
+#define __NR_ioprio_get         274
+#elif defined(__x86_64__)
+#define __NR_ioprio_set         251
+#define __NR_ioprio_get         252
+#elif defined(__ia64__)
+#define __NR_ioprio_set         1274
+#define __NR_ioprio_get         1275
+#elif defined(__alpha__)
+#define __NR_ioprio_set         442
+#define __NR_ioprio_get         443
+#elif defined(__s390x__) || defined(__s390__)
+#define __NR_ioprio_set         282
+#define __NR_ioprio_get         283
+#elif defined(__SH4__)
+#define __NR_ioprio_set         288
+#define __NR_ioprio_get         289
+#elif defined(__SH5__)
+#define __NR_ioprio_set         316
+#define __NR_ioprio_get         317
+#elif defined(__sparc__) || defined(__sparc64__)
+#define __NR_ioprio_set         196
+#define __NR_ioprio_get         218
+#elif defined(__arm__)
+#define __NR_ioprio_set         314
+#define __NR_ioprio_get         315
+#else
+#error "Unsupported architecture!"
+#endif
+
+
 enum {
 	IOPRIO_CLASS_NONE,
 	IOPRIO_CLASS_RT,
@@ -60,16 +95,40 @@ ioprio_set (int which, int who, int ioprio_val)
 }
 
 
+int set_io_priority_idle (void)
+{
+        int ioprio, ioclass;
+
+        ioprio = 7; /* priority is ignored with idle class */
+        ioclass = IOPRIO_CLASS_IDLE << IOPRIO_CLASS_SHIFT;
+
+        return ioprio_set (IOPRIO_WHO_PROCESS, 0, ioprio | ioclass);
+}
+
+int set_io_priority_best_effort (int ioprio_val)
+{
+        int ioclass;
+
+        ioclass = IOPRIO_CLASS_BE << IOPRIO_CLASS_SHIFT;
+
+        return ioprio_set (IOPRIO_WHO_PROCESS, 0, ioprio_val | ioclass);
+}
+
+
+
 void
 ioprio (void)
 {
-	int ioprio = 7, ioprio_class = IOPRIO_CLASS_BE;
+	
 
-	tracker_log ("Setting ioprio best effort.");
+	tracker_log ("Setting ioprio...");
 
-	if (ioprio_set (IOPRIO_WHO_PROCESS, 0, ioprio | ioprio_class << IOPRIO_CLASS_SHIFT) == -1) {
-		tracker_error ("ERROR: ioprio_set failed");
+	if (set_io_priority_idle () == -1) {
+		if (set_io_priority_best_effort (7) == -1) {
+			tracker_error ("ERROR: ioprio_set failed");
+		}
 	}
+	
 }
 
 #endif

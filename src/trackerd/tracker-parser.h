@@ -44,4 +44,6 @@ char *		tracker_parse_text_to_string (const char *txt, gboolean filter_words, gb
 
 char **		tracker_parse_text_into_array (const char *text);
 
+void		tracker_word_table_free (GHashTable *table);
+
 #endif

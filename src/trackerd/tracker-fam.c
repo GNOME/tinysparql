@@ -226,6 +226,7 @@ fam_callback (GIOChannel *source,
 
 					if (tracker_is_directory_watched (parent, NULL) || tracker_is_directory_watched (info->uri, NULL)) {
 						g_async_queue_push (tracker->file_process_queue, info);
+						tracker->grace_period++;
 						tracker_notify_file_data_available ();
 					} else {
 						tracker_free_file_info (info);
@@ -234,6 +235,7 @@ fam_callback (GIOChannel *source,
 					g_free (parent);
 
 				} else {
+					tracker->grace_period++;
 					if (event_type == TRACKER_ACTION_CREATE) {
 						tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, info->counter, info->action, info->is_directory, TRUE, -1);
 					} else {

@@ -105,7 +105,8 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 			return;
 		}
 
-		tracker_db_set_single_metadata (db_con, service, id, meta, value);
+		tracker_db_set_single_metadata (db_con, service, id, meta, value, TRUE);
+		tracker_notify_file_data_available ();
 	}
 
 	g_free (id);

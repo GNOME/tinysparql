@@ -261,7 +261,9 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 
 		
 	if (array && (row_count > 0)) {
-		tracker_db_set_metadata (db_con, service, id, "User:Keywords", array, row_count);
+		tracker_db_set_metadata (db_con, service, id, "User:Keywords", array, row_count, TRUE);
+		tracker_notify_file_data_available ();
+		
 	}
 
 	dbus_free_string_array (array);

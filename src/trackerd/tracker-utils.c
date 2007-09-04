@@ -17,14 +17,22 @@
  * Boston, MA  02110-1301, USA.
  */
 
+
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+
 #include "config.h"
 
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <limits.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
@@ -37,6 +45,9 @@
 
 #include "tracker-os-dependant.h"
   
+
+
+
 #ifdef OS_WIN32
 #include <conio.h>
 #include "mingw-compat.h"
@@ -54,8 +65,12 @@ char *tracker_actions[] = {
 		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA",
 		NULL};
 
+char *ignore_suffix[] = {"~", ".o", ".la", ".lo", ".loT", ".in", ".csproj", ".m4", ".pc", ".omf", ".aux", ".tmp", ".po", NULL};
+char *ignore_prefix[] = {"autom4te", "conftest.", "confstat", NULL};
+char *ignore_name[] = {"autom4te" , "po", "aclocal", "Makefile", "CVS", "SCCS", "conftest", "confdefs.h", NULL};
 
-#define ZLIBBUFSIZ 8196
+#define ZLIBBUFSIZ 8192
+#define TEXT_SNIFF_SIZE 4096
 
 
 static int info_allocated = 0;
@@ -692,7 +707,9 @@ tracker_str_to_date (const char *timestamp)
         g_return_val_if_fail (timestamp, -1);
 
 	/* we should have a valid iso 8601 date in format YYYY-MM-DDThh:mm:ss with optional TZ*/
-        g_return_val_if_fail (is_valid_8601_datetime (timestamp), -1);
+        if (!is_valid_8601_datetime (timestamp)) {
+		return  -1;
+	}
 
         memset (&tm, 0, sizeof (struct tm));
 
@@ -1682,23 +1699,27 @@ is_utf8 (const gchar *buffer, gint buffer_length)
 static gboolean
 is_text_file (const gchar *uri)
 {
-	gchar 	buffer[1024];
-	FILE 	*f;
-	gint 	buffer_length = 0;
+	char 	buffer[TEXT_SNIFF_SIZE];
+	int 	buffer_length = 0;
 	GError	*err = NULL;
+	int 	fd;
 
-	f = g_fopen (uri, "r");
+#if defined(__linux__)
+	fd = open (uri, O_RDONLY|O_NOATIME);
+#else
+	fd = open (uri, O_RDONLY); 
+#endif
 
-	if (!f) {
+	if (fd ==-1) {
 		return FALSE;
 	}
 
-	buffer_length = fread (buffer, 1, 1024, f);
+	buffer_length = read (fd, buffer, TEXT_SNIFF_SIZE);
 
-	fclose (f);
+	close (fd);
 
-	if (buffer_length == 0) {
-		return TRUE;
+	if (buffer_length < 3) {
+		return FALSE;
 	}
 
 	/* Don't allow embedded zeros in textfiles. */
@@ -2183,8 +2204,8 @@ tracker_free_strs_in_array (char **array)
 gboolean
 tracker_ignore_file (const char *uri)
 {
-	int  i;
 	char *name;
+	char **st;
 
 	if (tracker_is_empty_string (uri)) {
 		return TRUE;
@@ -2192,21 +2213,38 @@ tracker_ignore_file (const char *uri)
 
 	name = g_path_get_basename (uri);
 
-	if (name[0] == '.') {
+	if (!name || name[0] == '.') {
 		g_free (name);
 		return TRUE;
 	}
 
-	/* ignore trash files */
-	i = strlen (name);
-	i--;
-	if (name [i] == '~') {
-		g_free (name);
-		return TRUE;
+
+	/* test suffixes */
+	for (st = ignore_suffix; *st; st++) {
+		if (g_str_has_suffix (name, *st)) {
+			g_free (name);
+			return TRUE;
+		}
 	}
+
+	/* test prefixes */
+	for (st = ignore_prefix; *st; st++) {
+		if (g_str_has_prefix (name, *st)) {
+			g_free (name);
+			return TRUE;
+		}
+	}
+
+	/* test exact names */
+	for (st = ignore_prefix; *st; st++) {
+		if (strcmp (name, *st) == 0) {
+			g_free (name);
+			return TRUE;
+		}
+	}
+
 
 	g_free (name);
-
 	return FALSE;
 }
 
@@ -2304,12 +2342,16 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	/* set stopwords list and create stemmer for language */
 	tracker_log ("setting stopword list for language code %s", language);
 
-	char *stopword_path, *stopword_file;
-	char *stopwords;
+	char *stopword_path, *stopword_file, *stopword_en_file = NULL;
+	char *stopwords = NULL;
 
 	stopword_path = g_build_filename (TRACKER_DATADIR, "tracker", "languages", "stopwords", NULL);
 	stopword_file = g_strconcat (stopword_path, ".", language, NULL);
-	g_free (stopword_path);
+
+	if (strcmp (language, "en") != 0) {
+		stopword_en_file = g_strconcat (stopword_path, ".en", NULL);
+	}
+
 
 	if (!g_file_get_contents (stopword_file, &stopwords, NULL, NULL)) {
 		tracker_log ("Warning : Tracker cannot read stopword file %s", stopword_file);
@@ -2327,6 +2369,28 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 		g_strfreev (words);
 	}
 
+
+	if (stopword_en_file) {
+		g_free (stopwords);
+		if (!g_file_get_contents (stopword_en_file, &stopwords, NULL, NULL)) {
+			tracker_log ("Warning : Tracker cannot read stopword file %s", stopword_file);
+		} else {
+
+			tracker->stop_words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+			char **words = g_strsplit_set (stopwords, "\n" , -1);
+			char **pwords;
+
+			for (pwords = words; *pwords; pwords++) {
+				g_hash_table_insert (tracker->stop_words, g_strdup (g_strstrip (*pwords)), GINT_TO_POINTER (1));
+			}
+
+			g_strfreev (words);
+		}
+		g_free (stopword_en_file);
+	}
+
+	g_free (stopword_path);
 	g_free (stopwords);
 	g_free (stopword_file);
 
@@ -3329,153 +3393,6 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 }
 
 
-static gint
-prepend_key_pointer (gpointer         key,
-		     gpointer         value,
-		     gpointer         data)
-{
-  	GSList **plist = data;
-  	*plist = g_slist_prepend (*plist, key);
-  	return 1;
-}
-
-
-static GSList *
-g_hash_table_key_slist (GHashTable *table)
-{
-  	GSList *rv = NULL;
-  	g_hash_table_foreach (table, (GHFunc) prepend_key_pointer, &rv);
-  	return rv;
-}
-
-
-static gint
-sort_func (char *a, char *b)
-{
-	GSList *lista, *listb;
-
-	lista = g_hash_table_lookup (tracker->cached_table, a);
-	listb = g_hash_table_lookup (tracker->cached_table, b);
-
-	return (g_slist_length (lista) - g_slist_length (listb));
-}
-
-
-static void
-flush_list (GSList *list, const char *word)
-{
-	WordDetails *word_details, *wd;
-	int i, count;
-	GSList *lst;
-
-	count = g_slist_length (list);
-
-//	tracker_log ("Flushing 	word %s with count %d", word, count);
-
-	word_details = g_malloc (sizeof (WordDetails) * count);
-
-	i = 0;
-	for (lst = list; (lst && i < count); lst = lst->next) {
-
-		wd = lst->data;
-		word_details[i].id = wd->id;
-		word_details[i].amalgamated = wd->amalgamated;
-		i++;
-		g_slice_free (WordDetails, wd);
-	}
-
-	g_slist_free (list);
-
-	tracker_indexer_append_word_chunk (tracker->file_indexer, word, word_details, count);
-
-	g_free (word_details);
-
-	tracker->update_count++;
-	tracker->word_detail_count -= count;
-	tracker->word_count--;
-}
-
-
-static inline gboolean
-is_min_flush_done (void)
-{
-	return (tracker->word_detail_count <= tracker->word_detail_min) && (tracker->word_count <= tracker->word_count_min);
-}
-
-/*
-static void
-delete_word_detail (WordDetails *wd)
-{
-	g_slice_free (WordDetails, wd);
-
-}
-*/
-
-void
-tracker_flush_rare_words (void)
-{
-	GSList *list, *lst;
-
-	tracker_debug ("flushing rare words");
-
-	list = g_hash_table_key_slist (tracker->cached_table);
-
-	list = g_slist_sort (list, (GCompareFunc) sort_func);
-
-	for (lst = list; (lst && !is_min_flush_done ()); lst = lst->next) {
-		char *word = lst->data;
-                GSList *lst_tmp = g_hash_table_lookup (tracker->cached_table, word);
-
-		flush_list (lst_tmp, word);
-
-		g_hash_table_remove (tracker->cached_table, word);
-	}
-
-	g_slist_free (list);
-}
-
-
-static gint
-flush_all (gpointer         key,
-	   gpointer         value,
-	   gpointer         data)
-{
-	flush_list (value, key);
-
-  	return 1;
-}
-
-
-void
-tracker_flush_all_words (void)
-{
-	tracker_log ("Flushing all words");
-
-	g_hash_table_foreach (tracker->cached_table, (GHFunc) flush_all, NULL);
-
-	g_hash_table_destroy (tracker->cached_table);
-
-	tracker->cached_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
-	tracker->word_detail_count = 0;
-	tracker->word_count = 0;
-}
-
-
-void
-tracker_check_flush (void)
-{
-	if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
-		if (tracker->flush_count < 10) {
-			tracker->flush_count++;
-			tracker_info ("flushing");
-			tracker_flush_rare_words ();
-		} else {
-			tracker->flush_count = 0;
-			tracker_flush_all_words ();
-		}
-	}
-}
 
 
 
@@ -3539,6 +3456,10 @@ tracker_error (const char *message, ...)
 
 	output_log (msg);
 	g_free (msg);
+
+	if (tracker->fatal_errors) {
+		g_assert (FALSE);
+	}
 }
 
 
@@ -3656,17 +3577,16 @@ void
 tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value)
 {
 	GSList *list;
-	gboolean insert = FALSE;
-
+	
 	list = g_hash_table_lookup (meta_table, (char *) key);
-
-	insert = (!list);
 
 	list = g_slist_prepend (list, (char *) value);
 
-	if (insert) {
-		g_hash_table_insert (meta_table, (char *) key, list);
-	}
+	g_hash_table_steal (meta_table, key);
+
+	g_hash_table_insert (meta_table, (char *) key, list);
+
+	
 }
 
 

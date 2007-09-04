@@ -1,3 +1,16 @@
+2007-09-04 Jamie McCracken <jamiemcc at gnome org>
+
+	* removed qdbm completly
+	* replaced with sqlite indexer
+	* split up files/emails into separate dbs (meta, content and index)
+	* tuned caching
+	* tuned indexer to pause when non-tracker disk activity is detected
+	* Improved parser
+	* Fixed restore of user metadata on reindex (keywords are auto-restored)
+	* added source code reserved words to english stopwords
+	* added english stopwords on top of non-english stopword lists
+
+
 2007-09-03 Mikkel Kamstrup Erlandsen <mikkel.kamstrup@mail.com>
 	
 	* python/deskbar-handler/tracker-module.py

@@ -8,7 +8,6 @@ INCLUDES =				\
 	$(FAM_CFLAGS)			\
 	$(DBUS_CFLAGS)			\
 	$(SQLITE3_CFLAGS)		\
-	$(QDBM_CFLAGS)			\
 	$(UNAC_CFLAGS)		
 
 
@@ -38,6 +37,8 @@ endif
 db_sources =				\
 	tracker-indexer.c		\
 	tracker-indexer.h		\
+	tracker-cache.c			\
+	tracker-cache.h			\
 	tracker-parser.c		\
 	tracker-parser.h		\
 	tracker-db-sqlite.c		\
@@ -104,7 +105,6 @@ trackerd_LDADD =			\
 	$(PANGO_LIBS)			\
 	$(GMIME_LIBS)			\
 	$(SQLITE3_LIBS)			\
-	$(QDBM_LIBS)			\
 	$(UNAC_LIBS)			\
 	$(GTHREAD_LIBS)			\
 	-lz				\

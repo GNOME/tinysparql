@@ -23,6 +23,7 @@
 #include <glib/gstdio.h>
 
 #include "tracker-db-email.h"
+#include "tracker-cache.h"
 
 
 static gint
@@ -365,7 +366,14 @@ get_utf8 (const gchar *str)
 	gsize len = strlen (str);
 
 	if (!g_utf8_validate (str, len, NULL)) {
-		return g_locale_to_utf8 (str, len, NULL, NULL, NULL);
+
+		char *s = g_locale_to_utf8 (str, len, NULL, NULL, NULL);
+
+		if (!s) {
+			return g_strdup ("");
+		} else {
+			return s;
+		}
 
 	} else {
 		return g_strdup (str);
@@ -424,6 +432,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
        	gint  mbox_id, type_id, id, len;
 	gchar *service, *attachment_service, *mime;
 	gchar *array[255];
+	
 
         #define LIMIT_ARRAY_LENGTH(len) ((len) > 255 ? 255 : (len))
 
@@ -448,7 +457,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 	if (mm->deleted || mm->junk) {
 		if (mm->parent_mail_file) {
-			tracker_db_email_insert_junk (db_con, mm->parent_mail_file->path, mm->id);
+			tracker_db_email_insert_junk (db_con->index, mm->parent_mail_file->path, mm->id);
 		}
 
 		if (mm->store) {
@@ -468,7 +477,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 	if (mm->parent_mail_file) {
 		if (mm->is_mbox) {
-			mbox_id = tracker_db_email_get_mbox_id (db_con, mm->parent_mail_file->path);
+			mbox_id = tracker_db_email_get_mbox_id (db_con->index, mm->parent_mail_file->path);
 			if (mbox_id == -1) {
 				tracker_error ("ERROR: no mbox is registered for email %s", mm->uri);
 				return TRUE;
@@ -502,7 +511,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	info->offset = mm->offset;
 	info->aux_id = mbox_id;
 
-	id = tracker_db_create_service (db_con, service, info);
+	id = tracker_db_create_service (db_con->index, service, info);
 
 	tracker_free_file_info (info);
 
@@ -511,11 +520,11 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		gchar	   *str_id, *str_date;
 		GSList     *tmp;
 
-		tracker_db_start_transaction (db_con);
+		tracker_db_start_transaction (db_con->index);
 
 		tracker_info ("saving email service %d with uri \"%s\" and subject \"%s\" from \"%s\"", type_id, mm->uri, mm->subject, mm->from);
 
-		index_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		index_table = g_hash_table_new (g_str_hash, g_str_equal);
 		str_id = tracker_int_to_str (id);
                 str_date = tracker_date_to_str (mm->date);
  
@@ -523,21 +532,21 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			gchar *value = get_utf8 (mm->body);
 
 			if (value) {
-				tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Body", value, index_table);
+				tracker_db_insert_single_embedded_metadata (db_con->index, service, str_id, "Email:Body", value, index_table);
 				g_free (value);
 			}
 			
 		}
 
 		if (str_date) {
-			tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Date", str_date, index_table);
+			tracker_db_insert_single_embedded_metadata (db_con->index, service, str_id, "Email:Date", str_date, index_table);
 		}
 
 		if (mm->from) {
 			gchar *value = get_utf8 (mm->from);
 			
 			if (value) {
-				tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Sender", value, index_table);
+				tracker_db_insert_single_embedded_metadata (db_con->index, service, str_id, "Email:Sender", value, index_table);
 				g_free (value);
 			}
 		}
@@ -546,7 +555,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			gchar *value = get_utf8 (mm->subject);
 
 			if (value) {
-				tracker_db_insert_single_embedded_metadata (db_con, service, str_id, "Email:Subject", value, index_table);
+				tracker_db_insert_single_embedded_metadata (db_con->index, service, str_id, "Email:Subject", value, index_table);
 				g_free (value);
 			}
 		}
@@ -575,7 +584,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 
 			if (i > 0) {
-				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:SentTo", array, i, index_table);
+				tracker_db_insert_embedded_metadata (db_con->index, service, str_id, "Email:SentTo", array, i, index_table);
 			}
 
 			for (i--; i>-1; i--) {
@@ -605,7 +614,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 
 			if (i > 0) {
-				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:CC", array, i, index_table);
+				tracker_db_insert_embedded_metadata (db_con->index, service, str_id, "Email:CC", array, i, index_table);
 			}
 
 			for (i--; i > -1; i--) {
@@ -630,7 +639,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 
 			if (i > 0) {
-				tracker_db_insert_embedded_metadata (db_con, service, str_id, "Email:Attachments", array, i, index_table);
+				tracker_db_insert_embedded_metadata (db_con->index, service, str_id, "Email:Attachments", array, i, index_table);
 			}
 
 			for (i--; i > -1; i--) {
@@ -638,11 +647,13 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 		}
 
-		tracker_db_end_transaction (db_con);
+		tracker_db_end_transaction (db_con->index);
 
 		tracker_db_update_indexes_for_new_service (id, type_id, index_table);
 
-		g_hash_table_destroy (index_table);
+		tracker_word_table_free (index_table);
+
+		tracker_cache_flush (db_con->data);
 
 		g_free (str_id);
 
@@ -730,7 +741,7 @@ tracker_db_email_delete_email (DBConnection *db_con, const gchar *uri)
 
 	tracker_info ("deleting email %s", uri);
 
-	tracker_db_delete_directory (db_con, db_con->blob, atoi (id), uri);
+	tracker_db_delete_directory (db_con, atoi (id), uri);
 
 	g_free (id);
 }

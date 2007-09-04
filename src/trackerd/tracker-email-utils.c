@@ -24,6 +24,7 @@
 #include <time.h>
 #include <glib/gstdio.h>
 
+#include "tracker-cache.h"
 #include "tracker-db-email.h"
 #include "tracker-email-utils.h"
 #include "tracker-email-evolution.h"
@@ -161,7 +162,15 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
 		}
 
-		tracker_check_flush ();
+		if (tracker->grace_period > 1) {
+			tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
+			g_usleep (1000 * 1000);
+			tracker->grace_period--;
+			if (tracker->grace_period > 5) tracker->grace_period = 5;
+			continue;
+		}
+
+
 	}
 
 	email_free_mail_file (mf);

@@ -107,6 +107,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 		if (tracker_file_is_valid (parent)) {
 			g_async_queue_push (tracker->file_process_queue, info);
+			tracker->grace_period++;
 			tracker_notify_file_data_available ();
 		} else {
 			info = tracker_free_file_info (info);
@@ -126,12 +127,12 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		return;
 
 	} else if (action == TRACKER_ACTION_FILE_CREATED) {
-
+		tracker->grace_period++;
 		info = tracker_free_file_info (info);
 		return;
 
 	} else	if (action == TRACKER_ACTION_DIRECTORY_MOVED_FROM || action == TRACKER_ACTION_FILE_MOVED_FROM) {
-
+		tracker->grace_period++;
 		info->cookie = cookie;
 		info->counter = 1;
 		move_list = g_slist_prepend (move_list, info);
@@ -147,7 +148,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		GSList   *tmp;
 
 		moved_to_info = info;
-
+		tracker->grace_period++;
 		for (tmp = move_list; tmp; tmp = tmp->next) {
 			FileInfo *moved_from_info;
 
@@ -169,9 +170,6 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 				}
 
 				move_list = g_slist_remove (move_list, tmp->data);
-
-				tracker_notify_file_data_available ();
-
 				return;
 			}
 		}
@@ -181,14 +179,14 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		if (tracker_is_directory (info->uri)) {
 			info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 		} else {
-			info->action = TRACKER_ACTION_FILE_CREATED;
+			info->action = TRACKER_ACTION_WRITABLE_FILE_CLOSED;
 		}
 		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 1, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 
 	} else if (action == TRACKER_ACTION_WRITABLE_FILE_CLOSED) {
-
+		tracker->grace_period++;
 		tracker_debug ("File %s has finished changing", info->uri);
 		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
@@ -399,8 +397,10 @@ process_inotify_events (void)
 
 		
 
-		if (str && str[0] == '/' && !tracker_ignore_file (str) && !tracker_file_is_crawled (str) && !tracker_file_is_no_watched (str)) {
+		if (str && str[0] == '/' && (!tracker_ignore_file (str) || action_type == TRACKER_ACTION_DIRECTORY_MOVED_FROM) && !tracker_file_is_crawled (str) && !tracker_file_is_no_watched (str)) {
 			process_event (str, tracker_is_directory (str), action_type, cookie);
+		} else {
+			tracker_debug ("ignoring action %d on file %s", action_type, str);
 		}
 
 		if (monitor_name) {

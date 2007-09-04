@@ -1,5 +1,6 @@
-/* Tracker - indexer and metadata database engine
- * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+/* Tracker
+ * routines for cacheing 
+ * Copyright (C) 2007, Jamie McCracken 
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -17,31 +18,27 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef _TRACKER_CACHE_H_
+#define _TRACKER_CACHE_H_
+
+#include "tracker-db-sqlite.h"
 
 
-#ifndef _TRACKER_INOTIFY_H_
-#define _TRACKER_INOTIFY_H_
+typedef struct
+{
+	GSList 	*new_file_list;
+	int	new_file_count;
+	GSList 	*new_email_list;
+	int	new_email_count;
+	GSList 	*update_file_list;
 
-#include "config.h"
+} Cache;
 
 
-#ifdef HAVE_INOTIFY_LINUX
-#include <linux/inotify.h>
-#include "linux-inotify-syscalls.h"
-#else
-#   include <sys/inotify.h>
-#endif
+void		tracker_cache_add 		(const char *word, guint32 service_id, int service_type, int score, gboolean is_new);
+void		tracker_flush_all_words 	(DBConnection *db_con);
+void		tracker_cache_flush 		(DBConnection *db_con);
 
-#include "tracker-db.h"
-
-gboolean 	tracker_start_watching 		(void);
-void     	tracker_end_watching 		(void);
-
-gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection *db_con);
-void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, DBConnection *db_con);
-
-gboolean 	tracker_is_directory_watched 	(const char *dir, DBConnection *db_con);
-int		tracker_count_watch_dirs 	(void);
 
 
 #endif

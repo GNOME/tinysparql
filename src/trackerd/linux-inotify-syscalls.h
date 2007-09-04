@@ -21,12 +21,13 @@
 #ifndef _UDEV_SYSDEPS_H_
 #define _UDEV_SYSDEPS_H_
 
+#include <sys/syscall.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
 
 /* needed until Inotify! syscalls reach glibc */
-#include <sys/syscall.h>
+
 #ifndef __NR_inotify_init
 #if defined(__i386__)
 # define __NR_inotify_init	291

@@ -183,11 +183,12 @@ tracker_dbus_method_files_create (DBusRec *rec)
 	str_file_id = tracker_uint_to_str (file_id);
 
 	if (file_id != 0) {
-		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Modified", str_mtime);
-		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Size", str_size);
-		tracker_db_set_single_metadata (db_con, service, str_file_id,  "File:Name", name);
-		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Path", path);
-		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Format", mime);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Modified", str_mtime, FALSE);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Size", str_size, FALSE);
+		tracker_db_set_single_metadata (db_con, service, str_file_id,  "File:Name", name, FALSE);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Path", path, FALSE);
+		tracker_db_set_single_metadata (db_con, service, str_file_id, "File:Format", mime, FALSE);
+		tracker_notify_file_data_available ();
 	}
 
 	g_free (service);

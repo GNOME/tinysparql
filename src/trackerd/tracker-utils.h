@@ -32,12 +32,13 @@ extern char *tracker_actions[];
 
 #include <time.h>
 #include <glib.h>
-#include <depot.h>
-#include <curia.h>
 
 #include "config.h"
 #include "tracker-parser.h"
 #include "../libstemmer/include/libstemmer.h"
+
+#define MAX_HITS_FOR_WORD 30000
+
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
@@ -60,12 +61,6 @@ extern char *tracker_actions[];
 #define MAX_INDEX_BUCKET_COUNT 		524288	 /* max no of buckets to use  */
 #define INDEX_BUCKET_RATIO		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
 #define INDEX_PADDING	 		2
-
-
-typedef struct {
-	CURIA  *word_index;	/* file hashtable handle for the word -> {serviceID, MetadataID, ServiceTypeID, Score}  */
-	GMutex *word_mutex;
-} Indexer;
 
 
 typedef struct {                         /* type of structure for an element of search result */
@@ -117,11 +112,11 @@ typedef enum {
 typedef enum {
 	INDEX_CONFIG,
 	INDEX_APPLICATIONS,
-	INDEX_CONVERSATIONS,	
-	INDEX_EMAILS,
 	INDEX_FILES,
 	INDEX_CRAWL_FILES,
-	INDEX_EXTERNAL,
+	INDEX_CONVERSATIONS,	
+	INDEX_EXTERNAL,	
+	INDEX_EMAILS,
 	INDEX_FINISHED
 } IndexStatus;
 
@@ -203,6 +198,8 @@ typedef struct {
 	/* controls how much to output to screen/log file */
 	int		verbosity;
 
+	gboolean	fatal_errors;
+
 	/* data directories */
 	char 		*data_dir;
 	char		*config_dir;
@@ -253,6 +250,8 @@ typedef struct {
 
 	IndexStatus	index_status;
 
+	int		grace_period;
+
 	/* battery and ac power status file */
 	char		*battery_state_file;
 
@@ -270,6 +269,9 @@ typedef struct {
 	gboolean	index_thunderbird_emails;
 	gboolean	index_kmail_emails;
 	GSList		*additional_mboxes_to_index;
+
+	int		email_service_min;
+	int		email_service_max;
 
 	/* nfs options */
 	gboolean	use_nfs_safe_locking; /* use safer but much slower external lock file when users home dir is on an nfs systems */
@@ -300,8 +302,6 @@ typedef struct {
  	gboolean 	is_running;
 	gboolean	is_dir_scan;
 	GMainLoop 	*loop;
-
-	Indexer		*file_indexer;
 
 	GMutex 		*log_access_mutex;
 	char	 	*log_file;
@@ -542,10 +542,6 @@ gboolean	tracker_ignore_file 		(const char *uri);
 void		tracker_print_object_allocations (void);
 
 void		tracker_throttle 		(int multiplier);
-
-void		tracker_flush_all_words 	(void);
-void		tracker_flush_rare_words 	(void);
-void		tracker_check_flush 		(void);
 
 void		tracker_notify_file_data_available 	(void);
 void		tracker_notify_meta_data_available 	(void);

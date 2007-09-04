@@ -113,7 +113,6 @@ get_word_type (gunichar c)
 static inline char *
 strip_word (const char *str, int length, guint32 *len)
 {
-// CaféCaféCafé1 
 
 	*len = length;
 
@@ -139,12 +138,12 @@ strip_word (const char *str, int length, guint32 *len)
 static gboolean
 text_needs_pango (const char *text)
 {
-	/* grab first 50 non-whitespace chars and test */
+	/* grab first 1024 non-whitespace chars and test */
 	const char *p;
 	gunichar   c;
 	int  i = 0;
 
-	for (p = text; (*p && i < 50); p = g_utf8_next_char (p)) {
+	for (p = text; (*p && i < 1024); p = g_utf8_next_char (p)) {
 
 		c = g_utf8_get_char (p);
 
@@ -205,10 +204,10 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 				if (filter_words) {
 
 					if (type == WORD_NUM) {
-						if (!tracker->index_numbers) {
+						//if (!tracker->index_numbers) {
 							is_valid = FALSE;
 							continue;
-						}
+						//}
 
 					} else {
 	
@@ -438,6 +437,30 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 }
 
 
+static void
+delete_words      (gpointer key,
+		   gpointer value,
+		   gpointer user_data)
+{
+	char *word;
+
+	word = (char *) key;
+
+	g_free (word);
+
+}
+
+
+void
+tracker_word_table_free (GHashTable *table)
+{
+	if (table) {
+		g_hash_table_foreach (table, delete_words, NULL);		
+		g_hash_table_destroy (table);
+	}
+}
+
+
 char **
 tracker_parse_text_into_array (const char *text)
 {
@@ -451,26 +474,12 @@ tracker_parse_text_into_array (const char *text)
 }
 
 
-static inline void
-update_word_count (GHashTable *word_table, const char *word, int weight)
-{
-	int count;
-
-	g_return_if_fail (word || (weight > 0));
-
-	/* count dupes */
-	count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
-	g_hash_table_insert (word_table, g_strdup (word), GINT_TO_POINTER (count + weight));
-
-}
-
-
 /* use this for already processed text only */
 GHashTable *
 tracker_parse_text_fast (GHashTable *word_table, const char *txt, int weight)
 {
 	if (!word_table) {
-		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
 	} 
 
 	if (!txt || weight == 0) {
@@ -479,14 +488,18 @@ tracker_parse_text_fast (GHashTable *word_table, const char *txt, int weight)
 
 	char **tmp;	
 	char **array;
-	int  count;
+	gpointer k=0,v=0;
 
 	array =  g_strsplit (txt, " ", -1);
 
 	for (tmp = array; *tmp; tmp++) {
 		if (**tmp) {
-			count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, *tmp));
-			g_hash_table_insert (word_table, g_strdup (*tmp), GINT_TO_POINTER (count + weight));	
+
+			if (!g_hash_table_lookup_extended (word_table, *tmp, &k, &v)) {
+				g_hash_table_insert (word_table, g_strdup (*tmp), GINT_TO_POINTER (GPOINTER_TO_INT (v) + weight)); 
+			} else {
+				g_hash_table_insert (word_table, *tmp, GINT_TO_POINTER (GPOINTER_TO_INT (v) + weight)); 
+			}
 		}
 	}
 
@@ -500,10 +513,10 @@ tracker_parse_text_fast (GHashTable *word_table, const char *txt, int weight)
 GHashTable *
 tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolean filter_words, gboolean delimit_words)
 {
-	int total_words, count;
+	int total_words;
 
 	if (!word_table) {
-		word_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		word_table = g_hash_table_new (g_str_hash, g_str_equal);
 		total_words = 0;
 	} else {
 		total_words = g_hash_table_size (word_table);
@@ -545,16 +558,23 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 						
 					/* normalize word */
 					char *s = g_utf8_casefold (start_word, end_word - start_word);
+					if (!s) continue;
 					
 					char *index_word = g_utf8_normalize (s, -1, G_NORMALIZE_NFC);
 					g_free (s);
+
+					if (!index_word) continue;
 					
 					total_words++;
-					
+
 					if (total_words < tracker->max_words_to_index) { 
 
-						count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, index_word));
-						g_hash_table_insert (word_table, index_word, GINT_TO_POINTER (count + weight));	
+						int count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, index_word));
+						g_hash_table_insert (word_table, index_word, GINT_TO_POINTER (count + weight));
+						
+						if (count != 0) {
+							g_free (index_word);
+						}
 
 					} else {
 						g_free (index_word);
@@ -584,10 +604,12 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 
 				if (total_words < tracker->max_words_to_index) { 
 			
-					count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
-
-					g_hash_table_insert (word_table, word, GINT_TO_POINTER (count + weight));	
-
+					int count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
+					g_hash_table_insert (word_table, word, GINT_TO_POINTER (count + weight));
+						
+					if (count != 0) {
+						g_free (word);
+					}
 
 				} else {
 					g_free (word);

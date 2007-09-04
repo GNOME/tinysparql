@@ -314,53 +314,16 @@ if test "$native_win32" = "yes" ; then
 fi
 
 ####################################################################
-# External SQLite check
+#  SQLite check
 ####################################################################
 
-SQLITE_REQUIRED=3.2
+SQLITE_REQUIRED=3.4
 
-AC_ARG_ENABLE(external_sqlite, 
-	AC_HELP_STRING(
-		[--enable-external-sqlite],
-		[build using system's sqlite which must be a threadsafe version]),,
-	[enable_external_sqlite=no])
-
-if test "x$enable_external_sqlite" = "xyes"; then
-	PKG_CHECK_MODULES(SQLITE3, [ sqlite3 >= $SQLITE_REQUIRED ])
-	AM_CONDITIONAL(USING_EXTERNAL_SQLITE, true)
-else
-	SQLITE3_CFLAGS="-I\$(top_srcdir)/src/sqlite3"
-	SQLITE3_LIBS="\$(top_builddir)/src/sqlite3/libsqlite-private.la"
-	AM_CONDITIONAL(USING_EXTERNAL_SQLITE, false)
-fi		
+PKG_CHECK_MODULES(SQLITE3, [ sqlite3 >= $SQLITE_REQUIRED ])
 
 AC_SUBST(SQLITE3_CFLAGS)
 AC_SUBST(SQLITE3_LIBS)
 
-
-####################################################################
-# External QDBM check
-####################################################################
-
-QDBM_REQUIRED=1.8
-
-AC_ARG_ENABLE(external_qdbm, 
-	AC_HELP_STRING(
-		[--enable-external-qdbm],
-		[build using system's qdbm]),,
-	[enable_external_qdbm=no])
-
-if test "x$enable_external_qdbm" = "xyes"; then
-	PKG_CHECK_MODULES(QDBM, [ qdbm >= $QDBM_REQUIRED ])
-	AM_CONDITIONAL(USING_EXTERNAL_QDBM, true)
-else
-	QDBM_CFLAGS="-I\$(top_srcdir)/src/qdbm"
-	QDBM_LIBS="\$(top_builddir)/src/qdbm/libqdbm-private.la"
-	AM_CONDITIONAL(USING_EXTERNAL_QDBM, false)
-fi		
-
-AC_SUBST(QDBM_CFLAGS)
-AC_SUBST(QDBM_LIBS)
 
 
 ###############################################################################
@@ -761,8 +724,6 @@ AC_CONFIG_FILES([
 	thumbnailers/image/Makefile
 	src/Makefile
 	src/libstemmer/Makefile
-	src/sqlite3/Makefile
-	src/qdbm/Makefile
 	src/text-filters/Makefile
 	src/text-filters/ooo_converter/Makefile
 	src/tracker-extract/Makefile
@@ -792,7 +753,6 @@ Tracker-$VERSION:
 	compiler:				${CC}
 	enable gcc warnings:			$enable_warnings
 	build with debug symbols:		$enable_debug_code
-	database engine:			SQLite
 	file monitor backend to be used:	$primary_backend
 	inotify header location:		$inotify_header
 	ioprio support:				$ioprio_support
@@ -814,9 +774,7 @@ Metadata extractors:
 	embedded/sidecar xmp:			$have_exempi
 
 "
-if test "x$enable_external_sqlite" = "xyes"; then
+
 echo "
-****WARNING**** : you have chosen to use an external version of SQLite instead of the in-built threadsafe one. 
-You must make sure a version of SQLite compiled with --enable-threadsafe is available otherwise expect pain!
+****WARNING**** : You must make sure a version of SQLite compiled with --enable-threadsafe is available otherwise expect pain!
 "
-fi

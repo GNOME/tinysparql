@@ -48,6 +48,7 @@ typedef struct {
 	char		*thread; /* name of the thread that created this */
 	GHashTable	*statements;
 
+	gboolean	in_transaction;
 	gboolean	in_error;
 
 	/* pointers to other database connection objects */
@@ -60,6 +61,7 @@ typedef struct {
 	gpointer	blob;
 	gpointer	cache;
 	gpointer	user;
+	gpointer	word_index;
 
 } DBConnection;
 
@@ -78,34 +80,39 @@ void		tracker_db_thread_init		(void);
 void		tracker_db_thread_end		(void);
 void		tracker_db_close		(DBConnection *db_con);
 void		tracker_db_finalize		(void);
+
 DBConnection *	tracker_db_connect		(void);
 DBConnection *	tracker_db_connect_common	(void);
-DBConnection *	tracker_db_connect_full_text	(void);
+DBConnection *	tracker_db_connect_file_content	(void);
+DBConnection *	tracker_db_connect_email_content(void);
 DBConnection *	tracker_db_connect_cache 	(void);
 DBConnection *	tracker_db_connect_emails	(void);
-DBConnection *	tracker_db_connect_emails_index (void);
-DBConnection *	tracker_db_connect_file_index 	(void);
+DBConnection *	tracker_db_connect_email_meta   (void);
+DBConnection *	tracker_db_connect_file_meta 	(void);
+DBConnection *  tracker_db_connect_all 		(gboolean include_indexers);
+void		tracker_db_close_all 		(DBConnection *db_con);
+
 gboolean	tracker_update_db		(DBConnection *db_con);
 
 char *		tracker_escape_string		(const char *in);
 
-
 void		tracker_db_prepare_queries	(DBConnection *db_con);
 char ***	tracker_exec_proc		(DBConnection *db_con, const char *procedure, int param_count, ...);
+gboolean	tracker_exec_proc_no_reply 	(DBConnection *db_con, const char *procedure, int param_count, ...);
 char ***	tracker_exec_sql		(DBConnection *db_con, const char *query);
 char ***	tracker_exec_sql_ignore_nulls	(DBConnection *db_con, const char *query);
-void		tracker_db_exec_no_reply 	(DBConnection *db_con, const char *query);
+gboolean	tracker_db_exec_no_reply 	(DBConnection *db_con, const char *query);
 void		tracker_log_sql			(DBConnection *db_con, const char *query);
 void		tracker_create_db		(void);
 void		tracker_db_load_stored_procs	(DBConnection *db_con);
-void		tracker_db_save_file_contents	(DBConnection *db_con, DBConnection *blob_db_con, GHashTable *index_table, GHashTable *old_table, const char *file_name, FileInfo *info);
+void		tracker_db_save_file_contents	(DBConnection *db_con, GHashTable *index_table, GHashTable *old_table, const char *file_name, FileInfo *info);
 void		tracker_db_clear_temp		(DBConnection *db_con);
 void		tracker_db_check_tables		(DBConnection *db_con);
-void		tracker_db_start_transaction	(DBConnection *db_con);
-void		tracker_db_end_transaction	(DBConnection *db_con);
+gboolean	tracker_db_start_transaction	(DBConnection *db_con);
+gboolean	tracker_db_end_transaction	(DBConnection *db_con);
 
 void		tracker_db_update_indexes_for_new_service	(guint32 service_id, int service_type_id, GHashTable *table);
-void		tracker_db_update_differential_index		(GHashTable *old_table, GHashTable *new_table, const char *id, int service_type_id);
+void		tracker_db_update_differential_index		(DBConnection *db_con,GHashTable *old_table, GHashTable *new_table, const char *id, int service_type_id);
 void		tracker_db_update_index_file_contents 		(DBConnection *blob_db_con, GHashTable *index_table);
 int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
 
@@ -125,8 +132,8 @@ char ***	tracker_db_get_metadata		(DBConnection *db_con, const char *service, co
 
 /* gets metadata using a separate row for each value it has */
 char *		tracker_db_get_metadata_delimited (DBConnection *db_con, const char *service, const char *id, const char *key);
-char *		tracker_db_set_metadata		  (DBConnection *db_con, const char *service, const char *id, const char *key, char **values, int length);
-void		tracker_db_set_single_metadata 	  (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value);
+char *		tracker_db_set_metadata		  (DBConnection *db_con, const char *service, const char *id, const char *key, char **values, int length, gboolean do_backup);
+void		tracker_db_set_single_metadata 	  (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean do_backup);
 
 void		tracker_db_insert_embedded_metadata		(DBConnection *db_con, const char *service, const char *id, const char *key, char **values, int length, GHashTable *table);
 void		tracker_db_insert_single_embedded_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, GHashTable *table);
@@ -142,8 +149,8 @@ void		tracker_db_update_keywords	(DBConnection *db_con, const char *service, con
 
 guint32		tracker_db_create_service 	(DBConnection *db_con, const char *service, FileInfo *info);
 
-void		tracker_db_delete_file		(DBConnection *db_con, DBConnection *blob_db_con, guint32 file_id);
-void		tracker_db_delete_directory	(DBConnection *db_con, DBConnection *blob_db_con, guint32 file_id, const char *uri);
+void		tracker_db_delete_file		(DBConnection *db_con, guint32 file_id);
+void		tracker_db_delete_directory	(DBConnection *db_con, guint32 file_id, const char *uri);
 void		tracker_db_update_file		(DBConnection *db_con, FileInfo *info);
 void		tracker_db_move_file 		(DBConnection *db_con, const char *moved_from_uri, const char *moved_to_uri);
 void		tracker_db_move_directory 	(DBConnection *db_con, const char *moved_from_uri, const char *moved_to_uri);
@@ -197,7 +204,7 @@ char *		tracker_db_get_field_name 		(const char *service, const char *meta_name)
 int		tracker_metadata_is_key 		(const char *service, const char *meta_name);
 char *		tracker_db_get_display_field 		(FieldDef *def);
 
-void		tracker_db_delete_service 		(DBConnection *db_con, DBConnection *blob_db_con, guint32 id, const char *uri);
+void		tracker_db_delete_service 		(DBConnection *db_con, guint32 id, const char *uri);
 
 gboolean 	tracker_add_watch_dir 			(const char *dir, DBConnection *db_con);
 void     	tracker_remove_watch_dir 		(const char *dir, gboolean delete_subdirs, DBConnection *db_con);

@@ -19,6 +19,7 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <glib/gstdio.h>
 #include <sys/types.h>
 #include "config.h"

@@ -83,7 +83,9 @@ tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
 
 	service_array[0] = tracker_get_id_for_service (service);
 
-	SearchQuery *query = tracker_create_query (tracker->file_indexer, service_array, 1, 0, 999999);
+	db_con = tracker_db_get_service_connection (db_con, service);
+
+	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 1, 0, 999999);
 
 	array = tracker_parse_text_into_array (str);
 
@@ -156,7 +158,11 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 	char	***res, **array;
 
 
-	SearchQuery *query = tracker_create_query (tracker->file_indexer, NULL, 0, 0, 999999);
+	SearchQuery *query = tracker_create_query (db_con->word_index, NULL, 0, 0, 999999);
+
+	DBConnection *email_db = db_con->emails;
+
+	query->db_con_email =  email_db->word_index;
 
 	array = tracker_parse_text_into_array (str);
 
@@ -925,7 +931,8 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 {
 	DBusError	dbus_error;
 	DBusMessage 	*reply;
-	gchar		*term, *str;
+	DBConnection	*db_con;
+	gchar		*term;
 	gint		maxdist;
 	gint		dist, tsiz;
 	gchar		*winner_str;
@@ -952,52 +959,54 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 		return;
 	}
 
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+
 	winner_str = NULL;
         winner_dist = -1;  /* to initialize winner_dist with something */
 
-	criterinit (tracker->file_indexer->word_index);
+	if (strlen (term) > 3) 
+	{
+		char ***res = tracker_exec_proc (db_con->word_index, "GetHitDetails", 1, term);
 
-	g_get_current_time (&start);
+		if (res) {
+			int i = 0;
+			char **row;
 
-	str = criternext (tracker->file_indexer->word_index, NULL);
-	while (str != NULL) {
-		dist = levenshtein (term, str, 0);
-		if (dist != -1 && dist < maxdist) {
-			hits = 0;
-			if ((tmp = crget (tracker->file_indexer->word_index, str, -1, 0, -1, &tsiz)) != NULL) {
-				hits = tsiz / sizeof (WordDetails);
-				free (tmp);
-				if (tsiz % sizeof (WordDetails) != 0) {
-					tracker_set_error (rec, "Possible data error from crget  Aborting tracker_dbus_method_search_suggest.");
-					g_free (str);
-					if (winner_str) {
-						g_free (winner_str);
+			g_get_current_time (&start);
+
+			while ((row = tracker_db_get_row (res, i))) {
+
+				if (row && row[0]) {
+					dist = levenshtein (term, row[0], 0);
+					if (dist != -1 && dist < maxdist) {
+				
+						if (winner_str == NULL) {
+							winner_str = strdup (row[0]);
+							winner_dist = dist;
+						} else if (dist < winner_dist) {
+							free (winner_str);
+							winner_str = strdup (row[0]);
+							winner_dist = dist;
+						}
 					}
-					return;
+
+	
+					g_get_current_time (&current);
+					if (current.tv_sec - start.tv_sec >= 2) { /* 2 second time out */
+						tracker_log ("Timeout in tracker_dbus_method_search_suggest");
+						break;
+					}
+
 				}
+			
+				i++;
 			}
-			if (hits > 0) {
-				if (winner_str == NULL) {
-					winner_str = strdup (str);
-					winner_dist = dist;
-				}
-				else if (dist < winner_dist) {
-					free (winner_str);
-					winner_str = strdup (str);
-					winner_dist = dist;
-				}
-			}
-			else {
-				tracker_log ("No hits for %s!", str);
-			}
-		}
-		free (str);
-		g_get_current_time (&current);
-		if (current.tv_sec - start.tv_sec >= 2) { /* 2 second time out */
-			tracker_log ("Timeout in tracker_dbus_method_search_suggest");
-			break;
-		}
-		str = criternext (tracker->file_indexer->word_index, NULL);
+
+			tracker_db_free_result (res);
+		} 
+	
 	}
 
 	if (winner_str == NULL) {
@@ -1011,7 +1020,7 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 	dbus_message_append_args (reply,
 	  			  DBUS_TYPE_STRING, &winner_str,
 	  			  DBUS_TYPE_INVALID);
-	free (winner_str);
+	g_free (winner_str);
 
 	dbus_connection_send (rec->connection, reply, NULL);
 
