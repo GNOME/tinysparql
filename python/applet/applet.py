@@ -119,7 +119,7 @@ class TrackerStatusIcon(gtk.StatusIcon):
 	def on_about(self, data):
 		dialog = gtk.AboutDialog()
 		dialog.set_name('MetaTracker')
-		dialog.set_version('0.6.0')
+		dialog.set_version('0.6.2')
 		dialog.set_comments('A desktop indexing and search tool')
 		dialog.set_website('http://www.tracker-project.org/')
 		dialog.set_logo(gtk.gdk.pixbuf_new_from_file_at_size('applet.svg', 64, 64))
