@@ -45,7 +45,7 @@ extern char *tracker_actions[];
 #define FILE_SCHEDULE_PERIOD		300
 
 #define TRACKER_DB_VERSION_REQUIRED	13
-#define TRACKER_VERSION			"0.6.1"
+#define TRACKER_VERSION			VERSION
 #define TRACKER_VERSION_INT		600
 
 /* default performance options */
