@@ -150,6 +150,8 @@ tracker_index_free_hit_list (GSList *hit_list)
 {
 	GSList *lst;
 
+	if (!hit_list) return;
+
 	for (lst = hit_list; lst; lst = lst->next) {
                 SearchHit *hit;
 		hit = lst->data;
@@ -1020,7 +1022,7 @@ get_hits_for_single_word (SearchQuery *query, SearchWord *search_word, int *retu
 
 		details = (WordDetails *) buffer;
 		
-		tracker_debug ("total hit count (excluding service divisions) is %d", hit_count);
+		tracker_debug ("total hit count (excluding service divisions) for %s is %d", search_word->word, hit_count);
 		
 		qsort (details, hit_count, sizeof (WordDetails), compare_words);
 
@@ -1076,7 +1078,6 @@ get_intermediate_hits (SearchQuery *query, GHashTable *match_table, SearchWord *
         }
 
 	result = g_hash_table_new (NULL, NULL);
-
 	
 	sqlite_int64 id=0;
 	int hit_count=0, hit_array_size=0;
@@ -1137,6 +1138,9 @@ get_intermediate_hits (SearchQuery *query, GHashTable *match_table, SearchWord *
 	if (match_table) {
 		g_hash_table_destroy (match_table);
 	}
+
+
+	tracker_debug ("%d matches for word %s", g_hash_table_size (result), search_word->word);
 
 	return result;
 }
@@ -1399,68 +1403,74 @@ tracker_get_hit_counts (SearchQuery *query)
 	query->service_array = NULL;
 	query->service_array_count = 0;
 
-	if (!tracker_indexer_get_hits (query)) {
-		return NULL;
+	query->hits = NULL;
+
+	if (tracker_indexer_get_hits (query)) {
+	
+		GSList *tmp;
+
+		for (tmp = query->hits; tmp; tmp=tmp->next) {
+
+			SearchHit *hit = tmp->data;
+	
+			guint32 count;
+					
+			count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id))) + 1;
+
+			g_hash_table_insert (table, GUINT_TO_POINTER (hit->service_type_id), GUINT_TO_POINTER (count));
+
+
+			/* update service's parent count too (if it has a parent) */
+			int parent_id =  tracker_get_parent_id_for_service_id (hit->service_type_id);
+
+			if (parent_id != -1) {
+				count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id))) + 1;
+	
+				g_hash_table_insert (table, GUINT_TO_POINTER (parent_id), GUINT_TO_POINTER (count));
+			}
+        	}
+		tracker_index_free_hit_list (query->hits);
+		query->hits = NULL;
+
 	}
 
-	result = query->hits;
 
-	GSList *tmp;
-
-	for (tmp = result; tmp; tmp=tmp->next) {
-
-		SearchHit *hit = tmp->data;
-
-		guint32 count;
-				
-		count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id))) + 1;
-
-		g_hash_table_insert (table, GUINT_TO_POINTER (hit->service_type_id), GUINT_TO_POINTER (count));
-
-
-		/* update service's parent count too (if it has a parent) */
-		int parent_id =  tracker_get_parent_id_for_service_id (hit->service_type_id);
-
-		if (parent_id != -1) {
-			count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id))) + 1;
-
-			g_hash_table_insert (table, GUINT_TO_POINTER (parent_id), GUINT_TO_POINTER (count));
-		}
-        }
-
-	tracker_index_free_hit_list (query->hits);
+	
 
 	/* search emails */
 	DBConnection *tmp_db = query->db_con;
 
 	query->db_con = query->db_con_email;
 
-	if (!tracker_indexer_get_hits (query)) {
-		return NULL;
-	}
+	if (tracker_indexer_get_hits (query)) {
 
-	result = query->hits;
+		GSList *tmp;
+	
+		for (tmp = query->hits; tmp; tmp=tmp->next) {
 
-	for (tmp = result; tmp; tmp=tmp->next) {
+			SearchHit *hit = tmp->data;
 
-		SearchHit *hit = tmp->data;
-
-		guint32 count;
+			guint32 count;
 				
-		count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id))) + 1;
+			count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id))) + 1;
 
-		g_hash_table_insert (table, GUINT_TO_POINTER (hit->service_type_id), GUINT_TO_POINTER (count));
+			g_hash_table_insert (table, GUINT_TO_POINTER (hit->service_type_id), GUINT_TO_POINTER (count));
 
 
-		/* update service's parent count too (if it has a parent) */
-		int parent_id =  tracker_get_parent_id_for_service_id (hit->service_type_id);
+			/* update service's parent count too (if it has a parent) */
+			int parent_id =  tracker_get_parent_id_for_service_id (hit->service_type_id);
 
-		if (parent_id != -1) {
-			count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id))) + 1;
+			if (parent_id != -1) {
+				count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id))) + 1;
 
-			g_hash_table_insert (table, GUINT_TO_POINTER (parent_id), GUINT_TO_POINTER (count));
-		}
-        }
+				g_hash_table_insert (table, GUINT_TO_POINTER (parent_id), GUINT_TO_POINTER (count));
+			}
+	        }
+
+		tracker_index_free_hit_list (query->hits);
+		query->hits = NULL;
+
+	}
 
 	query->db_con = tmp_db;
 
