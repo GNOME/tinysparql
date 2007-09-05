@@ -5,6 +5,7 @@
 	* split up files/emails into separate dbs (meta, content and index)
 	* tuned caching
 	* tuned indexer to pause when non-tracker disk activity is detected
+	* made email indexing 5x faster and lessened iowait times
 	* Improved parser
 	* Fixed restore of user metadata on reindex (keywords are auto-restored)
 	* added source code reserved words to english stopwords

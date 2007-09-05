@@ -270,22 +270,19 @@ get_padding (int total_hits, int sz)
 	else  if (total_hits < 100) {
 		return (2 * sz);
 	} 
-	else  if (total_hits < 250) {
+	else  if (total_hits < 500) {
 		return (4 * sz);
 	} 
-	else  if (total_hits < 500) {
+	else  if (total_hits < 1000) {
 		return (8 * sz);
 	} 
-	else  if (total_hits < 1000) {
+	else  if (total_hits < 5000) {
 		return (16 * sz);
 	} 
-	else  if (total_hits < 5000) {
-		return (32 * sz);
-	} 
 	else  if (total_hits < 10000) {
-		return (64 * sz);
+		return (32 * sz);
 	} else {
-		return (128 * sz);
+		return (64 * sz);
 	}
 
 	return 1; 

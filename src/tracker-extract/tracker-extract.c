@@ -465,9 +465,6 @@ tracker_child_cb (gpointer user_data)
 		g_printerr ("Error trying to set resource limit for cpu\n");
 	}
 
-
-	
-
 	set_memory_rlimits();
 
 	/* Set child's niceness to 19 */
