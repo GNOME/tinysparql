@@ -1,3 +1,9 @@
+2007-09-06 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added initial support for index merging
+	* Made sure stats no longer reset
+	
+
 2007-09-04 Jamie McCracken <jamiemcc at gnome org>
 
 	* removed qdbm completly
