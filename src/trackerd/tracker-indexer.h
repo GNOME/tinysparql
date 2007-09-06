@@ -44,23 +44,23 @@ typedef enum {
 
 
 typedef struct {                        
-	char	 	*word;    
-	int		hit_count;
-	float		idf;
+	gchar	 	*word;    
+	gint		hit_count;
+	gfloat		idf;
 	WordType	word_type;
 } SearchWord;
 
 typedef struct {                        
 	DBConnection 	*db_con;
 	DBConnection 	*db_con_email;
-	int 		*service_array;    
-	int 		service_array_count;
-	int 		hit_count;
+	gint 		*service_array;    
+	gint 		service_array_count;
+	gint 		hit_count;
 	GSList	        *hits;
 	GSList		*words;
 	GSList		*duds;
-	int		offset;
-	int		limit;
+	gint		offset;
+	gint		limit;
 } SearchQuery;
 
 
@@ -70,15 +70,15 @@ typedef enum {
 	BoolNot
 } BoolOp;
 
-SearchQuery * 	tracker_create_query 			(DBConnection *db_con, int *service_array, int service_array_count, int offset, int limit);
+SearchQuery * 	tracker_create_query 			(DBConnection *db_con, gint *service_array, gint service_array_count, gint offset, gint limit);
 void		tracker_free_query 			(SearchQuery *query);
 
-void		tracker_add_query_word 			(SearchQuery *query, const char *word, WordType word_type);
+void		tracker_add_query_word 			(SearchQuery *query, const gchar *word, WordType word_type);
 
-guint32		tracker_indexer_calc_amalgamated 	(int service, int score);
+guint32		tracker_indexer_calc_amalgamated 	(gint service, gint score);
 void		tracker_index_free_hit_list		(GSList *hit_list);
 
-DBConnection * 	tracker_indexer_open 			(const char *name);
+DBConnection * 	tracker_indexer_open 			(const gchar *name);
 void		tracker_indexer_close 			(DBConnection *db_con);
 void		tracker_indexer_free 			(DBConnection *db_con, gboolean remove_file);
 guint32		tracker_indexer_size 			(DBConnection *db_con);
@@ -88,20 +88,20 @@ void		tracker_indexer_sync 			(DBConnection *db_con);
 void		tracker_indexer_merge_index 		(DBConnection *db_con, gboolean update);
 
 /* Indexing api */
-gboolean	tracker_indexer_append_word 		(DBConnection *db_con, const char *word, guint32 id, int service, int score);
-gboolean	tracker_indexer_append_word_chunk 	(DBConnection *db_con, const char *word, WordDetails *details, int word_detail_count);
-int		tracker_indexer_append_word_lists 	(DBConnection *db_con, const char *word, GSList *list1, GSList *list2);
+gboolean	tracker_indexer_append_word 		(DBConnection *db_con, const gchar *word, guint32 id, gint service, gint score);
+gboolean	tracker_indexer_append_word_chunk 	(DBConnection *db_con, const gchar *word, WordDetails *details, gint word_detail_count);
+gint		tracker_indexer_append_word_lists 	(DBConnection *db_con, const gchar *word, GSList *list1, GSList *list2);
 
-gboolean	tracker_indexer_update_word 		(DBConnection *db_con, const char *word, guint32 id, int service, int score, gboolean remove_word);
-GSList *	tracker_indexer_update_word_chunk	(DBConnection *db_con, const char *word, WordDetails *details, int word_detail_count);
-GSList *	tracker_indexer_update_word_list 	(DBConnection *db_con, const char *word, GSList *update_list);
+gboolean	tracker_indexer_update_word 		(DBConnection *db_con, const gchar *word, guint32 id, gint service, gint score, gboolean remove_word);
+GSList *	tracker_indexer_update_word_chunk	(DBConnection *db_con, const gchar *word, WordDetails *details, gint word_detail_count);
+GSList *	tracker_indexer_update_word_list 	(DBConnection *db_con, const gchar *word, GSList *update_list);
 
 
 gboolean	tracker_indexer_get_hits 		(SearchQuery *query);
-char ***	tracker_get_hit_counts 			(SearchQuery *query);
-int		tracker_get_hit_count 			(SearchQuery *query);
+gchar ***	tracker_get_hit_counts 			(SearchQuery *query);
+gint		tracker_get_hit_count 			(SearchQuery *query);
 
-char ***	tracker_get_words_starting_with 	(DBConnection *db_con, const char *word);
+gchar ***	tracker_get_words_starting_with 	(DBConnection *db_con, const gchar *word);
 
 
 #endif

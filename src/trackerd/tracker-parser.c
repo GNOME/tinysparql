@@ -173,8 +173,6 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 
 	if (text) {
 		gunichar	word[64];
-
-		gunichar   	c;
 		gboolean 	do_stem = TRUE, do_strip = FALSE, is_valid = TRUE;
 		int		length = 0;
 		glong		bytes = 0;
@@ -182,7 +180,7 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 
 		for (p = text; *p; p = g_utf8_next_char (p)) {
 
-			c = g_utf8_get_char (p);
+			gunichar c = g_utf8_get_char (p);
 
 			WordType type = get_word_type (c);
 

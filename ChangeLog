@@ -1,3 +1,13 @@
+2007-09-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Remove some useless calls to g_slist_length()
+	* Use g_slice_new/free() for SearchQuery and SearchWord
+	* Split things like g_return_if_fail(item1 && item2) into:
+	  g_return_if_fail(item1);
+	  g_return_if_fail(item2);
+	  in tracker-indexer.c and tracker-dbus-search.c
+
+
 2007-09-06 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added initial support for index merging

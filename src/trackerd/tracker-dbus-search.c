@@ -25,18 +25,19 @@
 
 extern Tracker *tracker;
 
+
 void
-tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
+tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusError    dbus_error;
-	char	     *service;
-	char	     *str;
+	gchar	     *service;
+	gchar	     *str;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
-
 
 /*
 	<!--  returns no of hits for the search_text on the servce -->
@@ -59,7 +60,7 @@ tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
 		return;
 	}
 
-	if (!service)  {
+	if (!service) {
 		tracker_set_error (rec, "No service was specified");
 		return;
 	}
@@ -76,9 +77,9 @@ tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
 
 	//tracker_log ("Executing GetHitCount with params %s, %s", service, str);
 
-	char **array;
-	int service_array[1];
-	int result;
+	gchar **array;
+	gint service_array[1];
+	gint result;
 	DBusMessage *reply;
 
 	service_array[0] = tracker_get_id_for_service (service);
@@ -89,7 +90,7 @@ tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
 
 	array = tracker_parse_text_into_array (str);
 
-	char **pstr;
+	gchar **pstr;
 
 	for (pstr = array; *pstr; pstr++) {
 		tracker_add_query_word (query, *pstr, WordNormal);
@@ -114,19 +115,17 @@ tracker_dbus_method_search_get_hit_count  (DBusRec *rec)
 }
 
 
-
-
 void
 tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusError    dbus_error;
-	char	     *str;
+	gchar	     *str;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
-
 
 /*
 		<!--  returns [service name, no. of hits] for the search_text -->
@@ -146,8 +145,6 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 		return;
 	}
 
-	
-
 	if (tracker_is_empty_string (str)) {
 		tracker_set_error (rec, "No search term was specified");
 		return;
@@ -155,18 +152,17 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 
 	//tracker_log ("Executing detailed search with params %s, %s, %d, %d", service, str, offset, limit);
 
-	char	***res, **array;
-
+	gchar ***res, **array;
 
 	SearchQuery *query = tracker_create_query (db_con->word_index, NULL, 0, 0, 999999);
 
 	DBConnection *email_db = db_con->emails;
 
-	query->db_con_email =  email_db->word_index;
+	query->db_con_email = email_db->word_index;
 
 	array = tracker_parse_text_into_array (str);
 
-	char **pstr;
+	gchar **pstr;
 
 	for (pstr = array; *pstr; pstr++) {
 		tracker_add_query_word (query, *pstr, WordNormal);	
@@ -179,11 +175,7 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 	tracker_free_query (query);	
 
 	tracker_dbus_reply_with_query_result (rec, res);
-
-
-
 }
-
 
 
 void
@@ -192,14 +184,15 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
-	char	     **array;
-	int	     row_count, i;
-	int	     limit, query_id, offset;
-	char	     *service;
-	char	     ***res;
-	char	     *str;
+	gchar	     **array;
+	gint	     row_count, i;
+	gint	     limit, query_id, offset;
+	gchar	     *service;
+	gchar	     ***res;
+	gchar	     *str;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
 
@@ -228,7 +221,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		return;
 	}
 
-	if (!service)  {
+	if (!service) {
 		tracker_set_error (rec, "No service was specified");
 		return;
 	}
@@ -261,9 +254,9 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		row_count = tracker_get_row_count (res);
 
 		if (row_count > 0) {
-			char **row;
+			gchar **row;
 
-			array = g_new (char *, row_count);
+			array = g_new (gchar *, row_count);
 
 			i = 0;
 
@@ -282,7 +275,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		tracker_db_free_result (res);
 
 	} else {
-		array = g_new (char *, 1);
+		array = g_new (gchar *, 1);
 		array[0] = NULL;
 	}
 
@@ -305,21 +298,20 @@ tracker_dbus_method_search_text (DBusRec *rec)
 }
 
 
-
 void
 tracker_dbus_method_search_text_detailed (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusError    dbus_error;
-	int	     limit, query_id, offset;
-	char	     *service;
-	char	     ***res;
-	char	     *str;
+	gint	     limit, query_id, offset;
+	gchar	     *service;
+	gchar	     ***res;
+	gchar	     *str;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
-
 
 /*
 		More detailed version of above. Searches specified service for entities that match the specified search_text. 
@@ -346,7 +338,7 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 		return;
 	}
 
-	if (!service)  {
+	if (!service) {
 		tracker_set_error (rec, "No service was specified");
 		return;
 	}
@@ -387,10 +379,11 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
-	char	     *service, *uri, *str;
-	char	     *snippet, *service_id;
+	gchar	     *service, *uri, *str;
+	gchar	     *snippet, *service_id;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
 
@@ -416,7 +409,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 		return;
 	}
 
-	if (!service)  {
+	if (!service) {
 		tracker_set_error (rec, "No service was specified");
 		return;
 	}
@@ -431,7 +424,6 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 		return;
 	}
 
-
 	//tracker_log ("Getting snippet with params %s, %s, %s", service, uri, str);
 	db_con = tracker_db_get_service_connection (db_con, service);
 	service_id = tracker_db_get_id (db_con, service, uri);
@@ -442,8 +434,8 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 		return;		
 	}
 
-	char ***res;
-	const char *txt;
+	gchar ***res;
+	const gchar *txt;
 
 	snippet = NULL;
 
@@ -454,7 +446,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 		if (res[0][0]) {
 			txt = res[0][0];
 
-			char **array = 	tracker_parse_text_into_array (str);
+			gchar **array = 	tracker_parse_text_into_array (str);
 
 			if (array && array[0]) {
 				snippet = tracker_get_snippet (txt, array, 120);
@@ -488,7 +480,6 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 }
 
 
-
 void
 tracker_dbus_method_search_files_by_text (DBusRec *rec)
 {
@@ -497,12 +488,13 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 	DBusMessage 	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
-	char 		*text;
-	int		limit, query_id, offset;
+	gchar 		*text;
+	gint		limit, query_id, offset;
 	gboolean	sort;
-	char		***res;
+	gchar		***res;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
 
@@ -571,12 +563,13 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
-	char 	     *service, *field, *text;
-	char 	     **array;
-	int 	     limit, row_count = 0, offset;
-	char	     ***res;
+	gchar 	     *service, *field, *text;
+	gchar 	     **array;
+	gint 	     limit, row_count = 0, offset;
+	gchar	     ***res;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
 
@@ -587,7 +580,7 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 		<method name="Metadata">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="field" direction="in" />
-			<arg type="s" name="search_text"  direction="in" />
+			<arg type="s" name="search_text" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
 			<arg type="as" name="result" direction="out" />
 		</method>
@@ -639,10 +632,11 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusError    dbus_error;
-	char 	     *text, *service, *id;
-	char	     ***res;
+	gchar 	     *text, *service, *id;
+	gchar	     ***res;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
 
@@ -655,7 +649,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 		<method name="MatchingFields">
 			<arg type="s" name="service" direction="in" />
 			<arg type="s" name="id" direction="in" />
-			<arg type="s" name="search_text"  direction="in" />
+			<arg type="s" name="search_text" direction="in" />
 			<arg type="a{sv}" name="result" direction="out" />
 		</method>
 
@@ -716,13 +710,14 @@ tracker_dbus_method_search_query (DBusRec *rec)
 {
 	DBConnection	*db_con;
 	DBusError    dbus_error;
-	char		**fields;
-	int		limit, row_count, query_id, offset;
-	char		***res;
-	char		*query, *search_text, *service, *keyword;
+	gchar		**fields;
+	gint		limit, row_count, query_id, offset;
+	gchar		***res;
+	gchar		*query, *search_text, *service, *keyword;
 	gboolean	sort_results;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+	g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
 
@@ -782,7 +777,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	res = NULL;
 
 	if (query) {
-		char	 *str;
+		gchar	 *str;
 		GError	 *error = NULL;
 
 		tracker_log ("executing rdf query %s\n with search term %s and keyword %s", query, search_text, keyword);
@@ -833,6 +828,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 	tracker_db_free_result (res);
 }
 
+
 /* int levenshtein ()
  * Original license: GNU Lesser Public License
  * from the Dixit project, (http://dixit.sourceforge.net/)
@@ -844,14 +840,13 @@ tracker_dbus_method_search_query (DBusRec *rec)
 static int
 levenshtein(char *source, char *target, int maxdist)
 {
-
 	char n, m;
 	int l;
 	l = strlen (source);
 	if (l > 50)
 		return -1;
 	n = l;
-  
+
 	l = strlen (target);
 	if (l > 50)
 		return -1;
@@ -900,7 +895,7 @@ levenshtein(char *source, char *target, int maxdist)
 			// Berghel, Hal ; Roach, David : "An Extension of Ukkonen's 
 			// Enhanced Dynamic Programming ASM Algorithm"
 			// (http://www.acm.org/~hlb/publications/asm/asm.html)
-      
+
 			if (i > 2 && j > 2) {
 				char trans = matrix[i-2][j-2] + 1;
 				if (source[i-2] != t_j)
@@ -910,7 +905,7 @@ levenshtein(char *source, char *target, int maxdist)
 				if (cell > trans)
 					cell = trans;
 			}
-      
+
 			mincolval = MIN(mincolval, cell);
 			matrix[(int)i][(int)j] = cell;
 		}
@@ -926,6 +921,7 @@ levenshtein(char *source, char *target, int maxdist)
 		return maxdist;
 }
 
+
 void
 tracker_dbus_method_search_suggest (DBusRec *rec)
 {
@@ -934,11 +930,9 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 	DBConnection	*db_con;
 	gchar		*term;
 	gint		maxdist;
-	gint		dist, tsiz;
+	gint		dist;
 	gchar		*winner_str;
 	gint		winner_dist;
-	char		*tmp;
-	int		hits;
 	GTimeVal	start, current;
 
 	/*
@@ -959,7 +953,8 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 		return;
 	}
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
+        g_return_if_fail (rec->user_data);
 
 	db_con = rec->user_data;
 
@@ -968,11 +963,11 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 
 	if (strlen (term) > 3) 
 	{
-		char ***res = tracker_exec_proc (db_con->word_index, "GetHitDetails", 1, term);
+		gchar ***res = tracker_exec_proc (db_con->word_index, "GetHitDetails", 1, term);
 
 		if (res) {
-			int i = 0;
-			char **row;
+			gint i = 0;
+			gchar **row;
 
 			g_get_current_time (&start);
 
@@ -992,8 +987,7 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 						}
 					}
 
-	
-					g_get_current_time (&current);
+                                        g_get_current_time (&current);
 					if (current.tv_sec - start.tv_sec >= 2) { /* 2 second time out */
 						tracker_log ("Timeout in tracker_dbus_method_search_suggest");
 						break;
@@ -1005,8 +999,7 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 			}
 
 			tracker_db_free_result (res);
-		} 
-	
+		}	
 	}
 
 	if (winner_str == NULL) {
@@ -1025,6 +1018,4 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 	dbus_connection_send (rec->connection, reply, NULL);
 
 	dbus_message_unref (reply);
-
 }
-
