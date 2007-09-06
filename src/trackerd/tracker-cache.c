@@ -18,11 +18,111 @@
  */
 
 #include <sqlite3.h>
+#include "tracker-db-sqlite.h"
 #include "tracker-utils.h"
 #include "tracker-cache.h"
 #include "tracker-indexer.h"
 
+
+#define USE_SLICE
+
 extern Tracker *tracker;
+
+
+static inline Cache *
+cache_new ()
+{
+	tracker->word_count++;
+
+	if (tracker->use_extra_memory) {
+		return g_slice_new0 (Cache);
+	} else {
+		return g_new0 (Cache, 1);
+	}
+		
+
+}
+
+static inline WordDetails *
+word_details_new ()
+{
+	tracker->word_detail_count++;
+
+	if (tracker->use_extra_memory) {							
+		return g_slice_new (WordDetails);
+	} else {
+		return g_new (WordDetails, 1);
+	}
+}
+
+static void
+free_hits (WordDetails *word_details, gpointer data) 
+{
+
+	tracker->word_detail_count--;
+
+	if (tracker->use_extra_memory) {							
+		g_slice_free (WordDetails, word_details);
+	} else {
+		g_free (word_details);
+	}
+	
+}
+
+static inline void			
+cache_free (Cache *cache) 
+{
+
+	g_slist_foreach (cache->new_file_list, (GFunc) free_hits, NULL);
+	g_slist_foreach (cache->new_email_list, (GFunc) free_hits, NULL);
+	g_slist_foreach (cache->update_file_list, (GFunc) free_hits, NULL);
+
+	g_slist_free (cache->new_file_list);
+	g_slist_free (cache->new_email_list);
+	g_slist_free (cache->update_file_list);
+
+	if (tracker->use_extra_memory) {						
+		g_slice_free (Cache, cache);
+	} else {
+		g_free (cache);
+	}
+
+	tracker->word_count--;
+
+}
+
+
+
+static DBConnection *
+create_merge_index (const char *name, gboolean update)
+{
+	char *dbname;
+	DBConnection *db_con;
+
+	if (!update) {
+		dbname = g_build_filename (tracker->data_dir, "tmp-", name, NULL);
+	} else {
+		dbname = g_build_filename (tracker->data_dir, "tmp-update-", name, NULL);
+	}
+	
+	if (g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
+		tracker_log ("database index file %s is already present", dbname);
+		db_con = tracker_indexer_open (dbname);
+		g_free (dbname);
+
+		return db_con;
+
+	} 
+
+	db_con = tracker_indexer_open (dbname);
+
+	tracker_db_exec_no_reply (db_con, "update HitIndex set HitCount = 0");
+	
+	g_free (dbname);
+
+	return db_con;
+}
+
 
 static gint
 prepend_key_pointer (gpointer         key,
@@ -47,109 +147,33 @@ g_hash_table_key_slist (GHashTable *table)
 static gint
 sort_func (char *a, char *b)
 {
-	Cache *lista, *listb;
+	Cache *ca, *cb;
 
-	lista = g_hash_table_lookup (tracker->cached_table, a);
-	listb = g_hash_table_lookup (tracker->cached_table, b);
-
-	return ((lista->new_file_count + lista->new_email_count) - (listb->new_file_count + listb->new_email_count)); 
+	ca = g_hash_table_lookup (tracker->cached_table, a);
+	cb = g_hash_table_lookup (tracker->cached_table, b);
+	
+	return (ca->hit_count - cb->hit_count); 
 }
 
 
 static GSList *
 flush_update_list (DBConnection *db_con, GSList *list, const char *word)
 {
+
 	if (!list) return NULL;
 
-	return tracker_indexer_update_word_list (db_con, word, list);
+	GSList *ret_list = tracker_indexer_update_word_list (db_con, word, list);
+
+	return ret_list;
 	
 }
 
 
 
 static void
-flush_list (DBConnection *db_con, GSList *list, GSList *list2, const char *word)
+flush_list (DBConnection *db_con, GSList *list1, GSList *list2, const char *word)
 {
-	WordDetails word_details[MAX_HITS_FOR_WORD], *wd;
-	int i, count;
-	GSList *lst;
-
-	i = 0;
-
-	for (lst = list; (lst && i < MAX_HITS_FOR_WORD); lst = lst->next) {
-
-		wd = lst->data;
-		word_details[i].id = wd->id;
-		word_details[i].amalgamated = wd->amalgamated;
-		i++;
-#ifdef USE_SLICE							
-		g_slice_free (WordDetails, wd);
-#else
-		g_free (wd);
-#endif
-
-	}
-
-	count = i;
-
-	if (i >= MAX_HITS_FOR_WORD) {
-
-
-		while (lst) {
-			wd = lst->data;
-#ifdef USE_SLICE							
-			g_slice_free (WordDetails, wd);
-#else
-			g_free (wd);
-#endif
-
-			lst = lst->next;
-			i++;
-		}
-
-	} else if (list2) {
-	
-		for (lst = list2; (lst && i < MAX_HITS_FOR_WORD); lst = lst->next) {
-
-			wd = lst->data;
-			word_details[i].id = wd->id;
-			word_details[i].amalgamated = wd->amalgamated;
-			i++;
-#ifdef USE_SLICE							
-			g_slice_free (WordDetails, wd);
-#else
-			g_free (wd);
-#endif
-
-
-		}
-		count = i;
-
-		if (i >= MAX_HITS_FOR_WORD) {
-
-
-			while (lst) {
-				wd = lst->data;
-#ifdef USE_SLICE							
-				g_slice_free (WordDetails, wd);
-#else
-				g_free (wd);
-#endif
-
-				lst = lst->next;
-				i++;
-			}
-		}
-	}
-	
-	if (count == 0) {
-		return;
-	}
-
-	tracker->word_detail_count -= i;
-
-	tracker_indexer_append_word_chunk (db_con, word, word_details, count);
-	
+	tracker_indexer_append_word_lists (db_con, word, list1, list2);
 }
 
 
@@ -177,20 +201,8 @@ flush_cache (DBConnection *db_con, Cache *cache, const char *word)
 		flush_list (emails->word_index, cache->new_email_list, NULL, word);
 	}
 
-	g_slist_free (cache->new_file_list);
-	g_slist_free (cache->new_email_list);
-	g_slist_free (cache->update_file_list);
+	cache_free (cache);
 
-#ifdef USE_SLICE							
-	g_slice_free (Cache, cache);
-#else
-	g_free (cache);
-#endif
-
-
-
-	tracker->word_count--;
-	tracker->update_count++;
 }
 
 
@@ -314,21 +326,7 @@ tracker_cache_flush (DBConnection *db_con)
 }
 
 
-static inline void			
-cache_free (Cache *cache) 
-{
 
-	g_slist_free (cache->new_file_list);
-	g_slist_free (cache->new_email_list);
-	g_slist_free (cache->update_file_list);
-
-#ifdef USE_SLICE							
-	g_slice_free (Cache, cache);
-#else
-	g_free (cache);
-#endif
-
-}
 
 
 
@@ -346,12 +344,7 @@ tracker_cache_add (const char *word, guint32 service_id, int service_type, int s
 	WordDetails *word_details;
 	gboolean new_cache = FALSE;
 
-#ifdef USE_SLICE							
-	word_details = g_slice_new (WordDetails);
-#else
-	word_details = g_new (WordDetails, 1);
-#endif
-
+	word_details = word_details_new ();
 
 	word_details->id = service_id;
 	word_details->amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
@@ -359,35 +352,15 @@ tracker_cache_add (const char *word, guint32 service_id, int service_type, int s
 	cache = g_hash_table_lookup (tracker->cached_table, word);
 
 	if (!cache) {
-#ifdef USE_SLICE							
-		cache = g_slice_new0 (Cache);
-#else
-		cache = g_new0 (Cache, 1);
-#endif
-		tracker->word_count++;
+		cache = cache_new ();
 		new_cache = TRUE;
 	}
 
 	if (is_new) {
 
 		if (!is_email (service_type)) {
-
-			if (cache->new_file_count >= MAX_HITS_FOR_WORD) {
-				return;
-			} else {
-				cache->new_file_count++;
-			}
-
 			cache->new_file_list = g_slist_prepend (cache->new_file_list, word_details);			
-
 		} else {
-
-			if (cache->new_email_count >= MAX_HITS_FOR_WORD) {
-				return;
-			} else {
-				cache->new_email_count++;
-			}
-
 			cache->new_email_list = g_slist_prepend (cache->new_email_list, word_details);			
 		}
 
@@ -402,7 +375,8 @@ tracker_cache_add (const char *word, guint32 service_id, int service_type, int s
 		g_hash_table_insert (tracker->cached_table, (char *) word, cache);
 	}
 
-	tracker->word_detail_count++;
+	cache->hit_count++;
+
 }
 
 

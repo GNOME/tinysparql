@@ -450,6 +450,9 @@ tracker_db_initialize (const char *datadir)
 	GTimeVal *tv;
 	int i = 0;
 
+
+	//g_assert (sqlite3_threadsafe() != 0);
+
 	tracker_log ("Using Sqlite version %s", sqlite3_version);
 
 	//sequence_mutex = g_mutex_new ();
@@ -2135,17 +2138,17 @@ tracker_log_sql (DBConnection *db_con, const char *query)
 static gboolean
 db_exists (const char *name)
 {
-	gboolean need_setup = FALSE;
+	gboolean is_present = FALSE;
 	
 	char *dbname = g_build_filename (tracker->data_dir, name, NULL);
 
-	if (!g_file_test (dbname, G_FILE_TEST_EXISTS)) {
-		need_setup = TRUE;
+	if (g_file_test (dbname, G_FILE_TEST_EXISTS)) {
+		is_present = TRUE;
 	}
 
 	g_free (dbname);
 
-	return need_setup;
+	return is_present;
 }
 
 
@@ -2153,7 +2156,7 @@ gboolean
 tracker_db_needs_setup ()
 {
 
-	if (!db_exists ("file-meta.db") || !db_exists ("file-index.db") || !db_exists ("email-meta.db") || !db_exists ("email-index.db")) {
+	if (!db_exists ("file-meta.db") || !db_exists ("file-index.db") || !db_exists ("file-content.db") ) {
 		return TRUE;
 	}
 

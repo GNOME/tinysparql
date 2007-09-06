@@ -46,7 +46,7 @@ extern char *tracker_actions[];
 
 #define TRACKER_DB_VERSION_REQUIRED	13
 #define TRACKER_VERSION			VERSION
-#define TRACKER_VERSION_INT		600
+#define TRACKER_VERSION_INT		602
 
 /* default performance options */
 #define MAX_INDEX_TEXT_LENGTH		1048576
@@ -195,6 +195,8 @@ typedef struct {
 
 	guint32		watch_limit;
 
+	gboolean	shutdown;
+
 	/* controls how much to output to screen/log file */
 	int		verbosity;
 
@@ -222,11 +224,8 @@ typedef struct {
 	int		max_words_to_index;
 
 	/* indexing options */
-	int	 	max_index_bucket_count;
-	int	 	index_bucket_ratio; /* 0 = 50%, 1 = 100%, 2 = 200%, 3 = 300%, 4+ = 400% */
-	int		min_index_bucket_count;
-	int		index_divisions;
-	int 		padding; /* values 1-8 */
+
+	int		merge_index_size; 	/* size of index in MBs when merging is triggered -1 == no merging*/
 
 	int		min_word_length;  	/* words shorter than this are not parsed */
 	int		max_word_length;  	/* words longer than this are cropped */

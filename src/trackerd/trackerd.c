@@ -86,7 +86,7 @@ DBConnection	       *main_thread_cache_con;
 
 
 
-static gboolean	tracker_shutdown;
+
 static DBusConnection  *main_connection;
 
 /*
@@ -248,7 +248,7 @@ do_cleanup (const gchar *sig_msg)
 
 	/* send signals to each thread to wake them up and then stop them */
 
-	tracker_shutdown = TRUE;
+	tracker->shutdown = TRUE;
 
 	g_mutex_lock (tracker->request_signal_mutex);
 	g_cond_signal (tracker->request_thread_signal);
@@ -871,7 +871,7 @@ process_files_thread (void)
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!tracker_shutdown) {
+			if (!tracker->shutdown) {
 				continue;
 			} else {
 
@@ -1173,7 +1173,7 @@ process_files_thread (void)
 				tracker->grace_period = 1;
 
 				/* determine if wake up call is new stuff or a shutdown signal */
-				if (!tracker_shutdown) {
+				if (!tracker->shutdown) {
 				} else {
 					break;
 				}
@@ -1427,7 +1427,7 @@ process_user_request_queue_thread (void)
 			g_cond_wait (tracker->request_thread_signal, tracker->request_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!tracker_shutdown) {
+			if (!tracker->shutdown) {
 				continue;
 			} else {
 				break;
@@ -1444,7 +1444,7 @@ process_user_request_queue_thread (void)
 			g_mutex_unlock (tracker->request_check_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!tracker_shutdown) {
+			if (!tracker->shutdown) {
 				continue;
 			} else {
 				break;
@@ -1822,12 +1822,6 @@ set_defaults (void)
 	tracker->optimization_count = OPTIMIZATION_COUNT;
 	tracker->max_words_to_index = MAX_WORDS_TO_INDEX;
 
-	tracker->max_index_bucket_count = MAX_INDEX_BUCKET_COUNT;
-	tracker->min_index_bucket_count = MIN_INDEX_BUCKET_COUNT;
-	tracker->index_bucket_ratio = INDEX_BUCKET_RATIO;
-	tracker->index_divisions = INDEX_DIVISIONS;
-	tracker->padding = INDEX_PADDING;
-
 	tracker->flush_count = 0;
 
 	tracker->index_evolution_emails = TRUE;
@@ -1886,14 +1880,7 @@ sanity_check_option_values (void)
 	if (tracker->max_index_text_length < 0) tracker->max_index_text_length = 0;
 	if (tracker->max_words_to_index < 0) tracker->max_words_to_index = 0;
 	if (tracker->optimization_count < 1000) tracker->optimization_count = 1000;
-	if (tracker->max_index_bucket_count < 1000) tracker->max_index_bucket_count= 1000;
-	if (tracker->min_index_bucket_count < 1000) tracker->min_index_bucket_count= 1000;
-	if (tracker->index_divisions < 1) tracker->index_divisions = 1;
-	if (tracker->index_divisions > 64) tracker->index_divisions = 64;
-	if (tracker->index_bucket_ratio < 1) tracker->index_bucket_ratio = 0;
- 	if (tracker->index_bucket_ratio > 4) tracker->index_bucket_ratio = 4;
-	if (tracker->padding < 0) tracker->padding = 0;
-	if (tracker->padding > 8) tracker->padding = 8;
+
 
 	if (tracker->min_word_length < 1) tracker->min_word_length = 3;
 
@@ -2126,7 +2113,7 @@ main (gint argc, gchar *argv[])
 	need_index = FALSE;
 	need_data = FALSE;
 
-	tracker_shutdown = FALSE;
+	tracker->shutdown = FALSE;
 
 	tracker->files_check_mutex = g_mutex_new ();
 	tracker->metadata_check_mutex = g_mutex_new ();
@@ -2320,6 +2307,7 @@ main (gint argc, gchar *argv[])
 
 		/* reset stats for embedded services if they are being reindexed */
 		if (!need_data) {
+			tracker_log ("*** DELETING STATS *** ");
 			tracker_db_exec_no_reply (db_con_tmp, "update ServiceTypes set TypeCount = 0 where Embedded = 1");
 
 		}

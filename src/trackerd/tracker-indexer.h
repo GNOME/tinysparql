@@ -80,15 +80,22 @@ void		tracker_index_free_hit_list		(GSList *hit_list);
 
 DBConnection * 	tracker_indexer_open 			(const char *name);
 void		tracker_indexer_close 			(DBConnection *db_con);
+void		tracker_indexer_free 			(DBConnection *db_con, gboolean remove_file);
+guint32		tracker_indexer_size 			(DBConnection *db_con);
 gboolean	tracker_indexer_optimize		(DBConnection *db_con);
 void		tracker_indexer_sync 			(DBConnection *db_con);
 
+void		tracker_indexer_merge_index 		(DBConnection *db_con, gboolean update);
+
 /* Indexing api */
-gboolean	tracker_indexer_append_word_chunk 	(DBConnection *db_con, const char *word, WordDetails *details, int word_detail_count);
 gboolean	tracker_indexer_append_word 		(DBConnection *db_con, const char *word, guint32 id, int service, int score);
+gboolean	tracker_indexer_append_word_chunk 	(DBConnection *db_con, const char *word, WordDetails *details, int word_detail_count);
+int		tracker_indexer_append_word_lists 	(DBConnection *db_con, const char *word, GSList *list1, GSList *list2);
 
 gboolean	tracker_indexer_update_word 		(DBConnection *db_con, const char *word, guint32 id, int service, int score, gboolean remove_word);
+GSList *	tracker_indexer_update_word_chunk	(DBConnection *db_con, const char *word, WordDetails *details, int word_detail_count);
 GSList *	tracker_indexer_update_word_list 	(DBConnection *db_con, const char *word, GSList *update_list);
+
 
 gboolean	tracker_indexer_get_hits 		(SearchQuery *query);
 char ***	tracker_get_hit_counts 			(SearchQuery *query);

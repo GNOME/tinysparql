@@ -40,10 +40,11 @@ typedef enum {
 
 
 typedef struct {
-	GMutex		*write_mutex;
 	sqlite3		*db;
 	DBTypes		db_type;
 	char		*err;
+	char		*name;
+	char		*file_name;
 	int		rc;
 	char		*thread; /* name of the thread that created this */
 	GHashTable	*statements;
@@ -62,6 +63,7 @@ typedef struct {
 	gpointer	cache;
 	gpointer	user;
 	gpointer	word_index;
+	gpointer	merge_index;
 
 } DBConnection;
 

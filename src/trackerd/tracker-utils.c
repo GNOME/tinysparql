@@ -2677,30 +2677,7 @@ tracker_load_config_file (void)
 
 	}
 
-	if (g_key_file_has_key (key_file, "Performance", "MaxBucketCount", NULL)) {
-		tracker->max_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MaxBucketCount", NULL);
 
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "MinBucketCount", NULL)) {
-		tracker->min_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MinBucketCount", NULL);
-
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "Dvisions", NULL)) {
-		tracker->index_divisions = g_key_file_get_integer (key_file, "Performance", "Dvisions", NULL);
-
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "BucketRatio", NULL)) {
-		tracker->index_bucket_ratio = g_key_file_get_integer (key_file, "Performance", "BucketRatio", NULL);
-
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "Padding", NULL)) {
-		tracker->padding = g_key_file_get_integer (key_file, "Performance", "Padding", NULL);
-
-	}
 
 	if (g_key_file_has_key (key_file, "Performance", "MaxWordsToIndex", NULL)) {
 		tracker->max_words_to_index = g_key_file_get_integer (key_file, "Performance", "MaxWordsToIndex", NULL);

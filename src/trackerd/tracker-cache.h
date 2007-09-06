@@ -27,10 +27,9 @@
 typedef struct
 {
 	GSList 	*new_file_list;
-	int	new_file_count;
 	GSList 	*new_email_list;
-	int	new_email_count;
 	GSList 	*update_file_list;
+	int	hit_count;
 
 } Cache;
 

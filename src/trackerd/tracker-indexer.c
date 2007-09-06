@@ -22,15 +22,18 @@
 #define CREATE_INDEX "CREATE TABLE HitIndex (Word Text not null unique, HitCount Integer, HitArraySize Integer, HitArray Blob);"
 #define MAX_HIT_BUFFER 480000
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <string.h>
 #include <math.h>
 #include <sqlite3.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 #include "tracker-indexer.h"
 
 
 extern Tracker *tracker;
-static gboolean tracker_shutdown;
-
 
 static inline guint16
 get_score (WordDetails *details)
@@ -172,8 +175,6 @@ tracker_indexer_open (const char *name)
 
 	gboolean create_table = FALSE;
 
-	tracker_shutdown = FALSE;
-
 	dbname = g_build_filename (tracker->data_dir, name, NULL);
 
 	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
@@ -191,12 +192,16 @@ tracker_indexer_open (const char *name)
 
 	sqlite3_extended_result_codes (db_con->db, 0);
 
-	g_free (dbname);
-
 	db_con->db_type = DB_DATA;
+
+	db_con->name = g_strdup (name);
+	db_con->file_name = g_strdup (dbname);
+
+	g_free (dbname);
 
 	sqlite3_busy_timeout (db_con->db, 10000);
 	
+	db_con->merge_index = NULL;
 	db_con->cache = NULL;
 	db_con->emails = NULL;
 	db_con->others = NULL;
@@ -240,6 +245,35 @@ tracker_indexer_close (DBConnection *db_con)
 {
 	
 	tracker_db_close (db_con);
+}
+
+void
+tracker_indexer_free (DBConnection *db_con, gboolean remove_file)
+{
+	
+	tracker_db_close (db_con);
+
+	if (remove_file) {
+		g_unlink (db_con ->file_name);
+	}
+
+	g_free (db_con->name);
+	g_free (db_con->file_name);
+
+	g_free (db_con);
+	
+}
+
+guint32
+tracker_indexer_size (DBConnection *db_con)
+{
+	struct stat finfo;
+	
+	if (g_lstat (db_con->file_name, &finfo) == -1) {
+		return 0;
+	}
+
+	return (guint32) finfo.st_size;
 }
 
 
@@ -432,6 +466,94 @@ close_blob (sqlite3_blob *blob)
 
 
 
+void
+tracker_indexer_merge_index (DBConnection *db_con, gboolean update)
+{
+	DBConnection *merge_db_con = db_con->merge_index;
+	int sz = sizeof (WordDetails);
+	sqlite3_blob *blob;
+	char buffer[MAX_HIT_BUFFER];
+
+	if (!merge_db_con || !db_con) {
+		tracker_error ("merge index missing");
+		return;
+	}
+
+	while (TRUE) {
+
+		if (tracker->shutdown) {
+			break;
+		}
+
+		char ***res = tracker_exec_proc (merge_db_con, "GetWordBatch", 0); 
+
+		if (res) {
+			char **row;
+			int  k;
+
+			k = 0;
+
+			tracker_db_start_transaction (db_con);
+
+			while ((row = tracker_db_get_row (res, k))) {
+
+				k++;
+
+				if (!row || !row[0] || !row[1] || !row[2] || !row[3]) {
+					continue;
+				}
+		
+				sqlite_int64 id = atoi (row[0]);
+				char *word = row[1];
+				int hit_count = atoi (row[2]);
+				int hit_array_size = atoi (row[3]);
+
+				blob = get_blob (merge_db_con, id, TRUE);
+
+				if (!blob) {
+					continue;
+				}
+
+				if (!read_blob (blob, buffer, hit_count * sz, 0)) {
+					close_blob (blob);
+					continue;
+				}
+
+				if (!update) {
+					tracker_indexer_append_word_chunk (db_con, word, (WordDetails *) buffer, hit_count);
+				} else {
+					GSList *list = tracker_indexer_update_word_chunk (db_con, word, (WordDetails *) buffer, hit_count);
+					tracker_indexer_append_word_lists (db_con, word, list, NULL);
+					g_slist_free (list); 
+				}
+
+				close_blob (blob);
+
+				char *str_id = tracker_int_to_str (id);
+				tracker_exec_proc (merge_db_con, "DeleteWord", 1, str_id);  
+				g_free (str_id);
+				
+			}
+	
+			tracker_db_end_transaction (db_con);
+
+			tracker_db_free_result (res);
+
+			if (tracker->shutdown) {
+				break;
+			}
+
+			g_usleep (1000*1000);
+
+			
+		
+		} else {
+
+			break;
+		}
+	
+	}
+}
 
 
 
@@ -442,7 +564,7 @@ close_blob (sqlite3_blob *blob)
 gboolean
 tracker_indexer_append_word_chunk (DBConnection *db_con, const char *word, WordDetails *details, int word_detail_count)
 {
-        if (tracker_shutdown) {
+        if (tracker->shutdown) {
                 return FALSE;
         }
 
@@ -570,7 +692,7 @@ tracker_indexer_append_word_chunk (DBConnection *db_con, const char *word, WordD
 gboolean
 tracker_indexer_append_word (DBConnection *db_con, const char *word, guint32 id, int service, int score)
 {
-        if (tracker_shutdown || score < 1) {
+        if (score < 1) {
                 return FALSE;
         }
 
@@ -581,10 +703,56 @@ tracker_indexer_append_word (DBConnection *db_con, const char *word, guint32 id,
 	pair.id = id;
 	pair.amalgamated = tracker_indexer_calc_amalgamated (service, score);
 
-
 	return tracker_indexer_append_word_chunk (db_con, word, &pair, 1);
 
 }
+
+
+/* append lists of words for a document - returns no. of hits added */
+
+int
+tracker_indexer_append_word_lists (DBConnection *db_con, const char *word, GSList *list1, GSList *list2)
+{
+	WordDetails word_details[MAX_HITS_FOR_WORD], *wd;
+	int i;
+	GSList *lst;
+
+	g_return_val_if_fail ((db_con && word), 0);
+
+	i = 0;
+
+	if (list1) {
+		for (lst = list1; (lst && i < MAX_HITS_FOR_WORD); lst = lst->next) {
+
+			if (lst->data) {
+				wd = lst->data;
+				word_details[i].id = wd->id;
+				word_details[i].amalgamated = wd->amalgamated;
+				i++;
+			}
+		}
+	}
+
+	if (list2 && (i < MAX_HITS_FOR_WORD)) {
+	
+		for (lst = list2; (lst && i < MAX_HITS_FOR_WORD); lst = lst->next) {
+
+			if (lst->data) {
+				wd = lst->data;
+				word_details[i].id = wd->id;
+				word_details[i].amalgamated = wd->amalgamated;
+				i++;
+			}
+
+		}
+	}
+
+	tracker_indexer_append_word_chunk (db_con, word, word_details, i);
+
+	return i;
+}
+
+
 
 
 /* use for deletes or updates when doc is not new */
@@ -592,10 +760,6 @@ gboolean
 tracker_indexer_update_word (DBConnection *db_con, const char *word, guint32 id, int service, int score, gboolean remove_word)
 {
 	int  tsiz;
-
-        if (tracker_shutdown) {
-                return FALSE;
-        }
 
 	g_return_val_if_fail ((db_con && word), FALSE);
 	
@@ -676,6 +840,120 @@ tracker_indexer_update_word (DBConnection *db_con, const char *word, guint32 id,
 }
 
 
+
+/* use for deletes or updates of multiple entities when they are not new */
+GSList *
+tracker_indexer_update_word_chunk (DBConnection *db_con, const char *word, WordDetails *detail_chunk, int word_detail_count)
+{
+	int  tsiz, score;
+	WordDetails *word_details;
+	gboolean write_back = FALSE;
+	GSList *list = NULL;
+
+	g_return_val_if_fail ((db_con && word && detail_chunk && word_detail_count > 0), NULL);
+
+	if (word_detail_count == 1) {
+		tracker_indexer_update_word (db_con, word, detail_chunk[0].id, get_service_type (&detail_chunk[0]), get_score (&detail_chunk[0]), FALSE);
+		return NULL;
+	}
+	
+	/* check if existing record is there  */
+	sqlite_int64 row_id=0;
+	int hit_count=0, hit_array_size=0;
+	sqlite3_blob *blob;
+	int sz = sizeof (WordDetails);
+
+	if (get_word_details (db_con, word, &row_id, &hit_count, &hit_array_size)) {
+
+		blob = get_blob (db_con, row_id, TRUE);
+		if (!blob) {
+			return list;
+		}	
+
+		char buffer[MAX_HIT_BUFFER];
+
+		tsiz = (hit_count * sz);
+
+		if (!read_blob (blob, &buffer, tsiz, 0)) {
+			close_blob (blob);
+			return list;
+		}
+
+		WordDetails *details;
+		int i, j;
+
+		details = (WordDetails *) buffer;
+
+		for (j=0; j<word_detail_count; j++) {
+			
+			word_details = &detail_chunk[j];
+
+			gboolean edited = FALSE;
+
+			for (i = 0; i < hit_count; i++) {
+
+				if (details[i].id == word_details->id) {
+
+					write_back = TRUE;
+
+					/* NB the paramter score can be negative */
+					score = get_score (&details[i]) + get_score (word_details);
+							
+					/* check for deletion */		
+					if (score < 1) {
+						
+						int k;
+					
+						/* shift all subsequent records in array down one place */
+						for (k = i + 1; k < hit_count; k++) {
+							details[k - 1] = details[k];
+						}
+
+						hit_count--;
+	
+					} else {
+						details[i].amalgamated = tracker_indexer_calc_amalgamated (get_service_type (&details[i]), score);
+					}
+
+					edited = TRUE;
+					break;
+				}
+			}
+
+			/* add hits that could not be updated directly here so they can be appended later - otherwise free them */
+			if (!edited) {
+				list = g_slist_prepend (list, &detail_chunk[j]);
+				tracker_debug ("could not update word hit %s - appending", word);
+			} 
+
+			
+
+		}
+
+	
+		/* write back if we have modded anything */
+		if (!write_back || !write_blob (db_con, blob, &buffer, hit_count * sz, 0)) {
+			close_blob (blob);
+			return list;
+		}
+
+		update_word_details (db_con, row_id, hit_count, hit_array_size);
+
+		close_blob (blob);
+	
+		return list;
+	}
+
+	/* none of the updates can be applied if word does not exist so return them all to be appended later */
+	tracker_indexer_append_word_chunk (db_con, word, detail_chunk, word_detail_count);
+
+	return NULL;
+}
+
+
+
+
+
 /* use for deletes or updates of multiple entities when they are not new */
 GSList *
 tracker_indexer_update_word_list (DBConnection *db_con, const char *word, GSList *update_list)
@@ -685,11 +963,13 @@ tracker_indexer_update_word_list (DBConnection *db_con, const char *word, GSList
 	WordDetails *word_details;
 	gboolean write_back = FALSE;
 
-        if (tracker_shutdown) {
-                return list;
-        }
-
 	g_return_val_if_fail ((db_con && word && update_list), NULL);
+
+	if (!update_list->next) {
+		word_details = update_list->data;
+		tracker_indexer_update_word (db_con, word, word_details->id, get_service_type (word_details), get_score (word_details), FALSE);
+		return NULL;
+	}
 	
 	/* check if existing record is there  */
 	sqlite_int64 row_id=0;
@@ -735,7 +1015,7 @@ tracker_indexer_update_word_list (DBConnection *db_con, const char *word, GSList
 				if (details[i].id == word_details->id) {
 
 					write_back = TRUE;
-	
+
 					/* NB the paramter score can be negative */
 					score = get_score (&details[i]) + get_score (word_details);
 							
@@ -764,13 +1044,7 @@ tracker_indexer_update_word_list (DBConnection *db_con, const char *word, GSList
 			if (!edited) {
 				list = g_slist_prepend (list, word_details);
 				tracker_debug ("could not update word hit %s - appending", word);
-			} else {
-#ifdef USE_SLICE							
-				g_slice_free (WordDetails, word_details);
-#else
-				g_free (word_details);
-#endif
-			}
+			} 
 
 		}
 
@@ -801,10 +1075,6 @@ tracker_remove_dud_hits (DBConnection *db_con, const char *word, GSList *dud_lis
 {
 	int  tsiz;
 	gboolean made_changes = FALSE;
-
-	if (tracker_shutdown) {
-                return FALSE;
-        }
 
 	g_return_val_if_fail ((db_con && word && dud_list), FALSE);
 
@@ -986,7 +1256,7 @@ get_hits_for_single_word (SearchQuery *query, SearchWord *search_word, int *retu
 	/* some results might be dud so get an extra 100 to compensate */
 	int limit = query->limit + 100;
 	
-	if (tracker_shutdown) {
+	if (tracker->shutdown) {
                 return NULL;
         }
 
@@ -1070,7 +1340,7 @@ get_intermediate_hits (SearchQuery *query, GHashTable *match_table, SearchWord *
 	int  tsiz;
 	GHashTable *result;
 
-	if (tracker_shutdown) {
+	if (tracker->shutdown) {
                 return NULL;
         }
 
@@ -1160,7 +1430,7 @@ get_final_hits (SearchQuery *query, GHashTable *match_table, SearchWord *search_
 	rnum = 0;
 	list = NULL;
 
-	if (tracker_shutdown) {
+	if (tracker->shutdown) {
                 return NULL;
         }
 
@@ -1271,7 +1541,7 @@ tracker_indexer_get_hits (SearchQuery *query)
 	SearchWord *word;
 	GSList *lst;
 
-	if (tracker_shutdown) {
+	if (tracker->shutdown) {
                 return FALSE;
 	}
 
@@ -1385,7 +1655,7 @@ tracker_get_hit_counts (SearchQuery *query)
 
 	GHashTable *table = g_hash_table_new (NULL, NULL);
 
-	if (tracker_shutdown) {
+	if (tracker->shutdown) {
                 return NULL;
 	}
 
@@ -1517,7 +1787,7 @@ tracker_get_hit_counts (SearchQuery *query)
 int
 tracker_get_hit_count (SearchQuery *query)
 {
-	if (tracker_shutdown) {
+	if (tracker->shutdown) {
                 return 0;
 	}
 
