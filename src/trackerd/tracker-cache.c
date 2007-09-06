@@ -253,8 +253,12 @@ flush_rare (DBConnection *db_con)
 	tracker_db_end_transaction (db_con->word_index);
 	tracker_db_end_transaction (emails->word_index);
 
-	/* clear cache memory as well */
-	
+	/* clear any memory as well by closing/reopening */
+	tracker_indexer_free (db_con->word_index, FALSE);
+	tracker_indexer_free (emails->word_index, FALSE);
+
+	db_con->word_index = tracker_indexer_open ("file-index.db");
+	emails->word_index = tracker_indexer_open ("email-index.db");
 
 	g_slist_free (list);
 
@@ -299,6 +303,13 @@ tracker_cache_flush_all (DBConnection *db_con)
 
 	tracker_db_end_transaction (db_con->word_index);
 	tracker_db_end_transaction (emails->word_index);
+
+	/* clear any memory as well by closing/reopening */
+	tracker_indexer_free (db_con->word_index, FALSE);
+	tracker_indexer_free (emails->word_index, FALSE);
+
+	db_con->word_index = tracker_indexer_open ("file-index.db");
+	emails->word_index = tracker_indexer_open ("email-index.db");
 
 	g_hash_table_destroy (tracker->cached_table);
 

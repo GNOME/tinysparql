@@ -120,6 +120,8 @@ int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
 
 void		tracker_db_release_memory 	();
 
+void		tracker_db_set_default_pragmas (DBConnection *db_con);
+
 
 char *		tracker_get_related_metadata_names 	(DBConnection *db_con, const char *name);
 char *		tracker_get_metadata_table 		(DataTypes type);

@@ -588,6 +588,9 @@ tracker_db_close (DBConnection *db_con)
 }
 
 
+
+
+
 /*
 static void
 test_data (gpointer key,
@@ -649,9 +652,8 @@ tracker_db_connect_common (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
+	tracker_db_set_default_pragmas (db_con);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 4096");
 
 	if (tracker->use_extra_memory) {
@@ -660,7 +662,6 @@ tracker_db_connect_common (void)
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	}
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
 
 	db_con->thread = NULL;
 
@@ -776,6 +777,20 @@ tracker_db_close_all (DBConnection *db_con)
 }
 
 
+void
+tracker_db_set_default_pragmas (DBConnection *db_con)
+{
+	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = OFF;");
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0;");
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA temp_store = FILE;");
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+
+	tracker_db_exec_no_reply (db_con, "PRAGMA auto_vacuum = 0;");
+
+}
 
 
 DBConnection *
@@ -810,17 +825,15 @@ tracker_db_connect (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-
+	tracker_db_set_default_pragmas (db_con);
+	
 	if (tracker->use_extra_memory) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 64");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 32");
 	}
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+	
 
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
@@ -892,17 +905,13 @@ tracker_db_connect_file_meta (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-
 	if (tracker->use_extra_memory) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 64");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	}
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+	tracker_db_set_default_pragmas (db_con);
 
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
@@ -962,17 +971,13 @@ tracker_db_connect_email_meta (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-
 	if (tracker->use_extra_memory) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 64");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	}
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
+	tracker_db_set_default_pragmas (db_con);
 
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
@@ -1034,9 +1039,9 @@ tracker_db_connect_file_content (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 32768");
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
+
+	tracker_db_set_default_pragmas (db_con);
 
 	if (tracker->use_extra_memory) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 4");
@@ -1090,19 +1095,15 @@ tracker_db_connect_email_content (void)
 
 	sqlite3_busy_timeout (db_con->db, 10000);
 
-	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	tracker_db_set_default_pragmas (db_con);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 1024");
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
+	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 	if (tracker->use_extra_memory) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 2");
 	}
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
 
 	if (create_table) {
 		tracker_db_exec_no_reply (db_con, "CREATE TABLE ServiceContents (ServiceID Int not null, MetadataID Int not null, Content Text, primary key (ServiceID, MetadataID))");
@@ -1151,19 +1152,13 @@ tracker_db_connect_cache (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 4096");
+	tracker_db_set_default_pragmas (db_con);
 
 	if (tracker->use_extra_memory) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 32");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	}
-
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
-
 
 
 	if (create_table) {
@@ -1211,19 +1206,15 @@ tracker_db_connect_emails (void)
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA auto_vacuum = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
 	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 4096");
+
+	tracker_db_set_default_pragmas (db_con);
 
 	if (tracker->use_extra_memory) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	}
-
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
 
 
 	/* create user defined utf-8 collation sequence */

@@ -207,12 +207,9 @@ tracker_indexer_open (const char *name)
 	db_con->others = NULL;
 	db_con->blob = NULL;
 
-
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0");
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = 0");
+	tracker_db_set_default_pragmas (db_con);
 
 	if (strcmp (name, "email-index.db") == 0) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 4096");

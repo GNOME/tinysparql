@@ -1994,7 +1994,7 @@ main (gint argc, gchar *argv[])
 {
 	gint 		lfp;
 #ifndef OS_WIN32
-  	struct 		sigaction act;
+  	struct 	sigaction act;
 	sigset_t 	empty_mask;
 #endif
 	gchar 		*lock_file, *str, *lock_str;
@@ -2374,7 +2374,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
-
+	
 	g_main_loop_run (tracker->loop);
 
 	return EXIT_SUCCESS;
