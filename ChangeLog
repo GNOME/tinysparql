@@ -2,6 +2,7 @@
 
 	* Added initial support for index merging
 	* Made sure stats no longer reset
+	* Fixed runaway memory usage of sqlite in indexer
 	
 
 2007-09-04 Jamie McCracken <jamiemcc at gnome org>
