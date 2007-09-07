@@ -59,6 +59,8 @@ void 	   tracker_tag_bar_set_uri (TrackerTagBar 		*bar,
 				    const gchar 		*uri
 				   );
 
+GType tracker_tag_bar_get_type (void);
+
 G_END_DECLS
 
 #endif /* TRACKER_TAG_BAR_H */
