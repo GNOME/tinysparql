@@ -1,7 +1,8 @@
 
 INCLUDES = \
-	$(LIBTRACKERGTK_CFLAGS) \
-	-I$(top_srcdir)/src/libtracker
+	-I$(top_srcdir)/src/libtracker \
+	$(LIBTRACKERGTK_CFLAGS)
+	
 
 libtracker_gtkincdir = $(includedir)/libtracker-gtk
 
