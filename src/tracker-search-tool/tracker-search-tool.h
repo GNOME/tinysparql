@@ -59,7 +59,7 @@ extern "C" {
 #define GSEARCH_IS_WINDOW_CLASS(klass) (GTK_CHECK_CLASS_TYPE((obj), GSEARCH_TYPE_WINDOW))
 #define GSEARCH_WINDOW_GET_CLASS(obj)  (GTK_CHECK_GET_CLASS((obj), GSEARCH_TYPE_WINDOW, GSearchWindowClass))
 
-#define TRACKER_SEARCH_TOOL_ICON "tracker-searchtool"
+#define TRACKER_SEARCH_TOOL_ICON "system-search"
 
 #define DEFAULT_WINDOW_WIDTH   700
 #define DEFAULT_WINDOW_HEIGHT  580
