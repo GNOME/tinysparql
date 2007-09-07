@@ -5,6 +5,7 @@ desktopdir = $(datadir)/applications
 icondir = $(datadir)/tracker/icons
 
 INCLUDES = 	\
+	-I$(top_srcdir)/src/libtracker				\
 	$(GLIB2_CFLAGS)						\
 	$(GNOME_UTILS_CFLAGS)					\
 	$(GNOMEVFS_CFLAGS)					\
@@ -12,11 +13,10 @@ INCLUDES = 	\
 	$(DBUS_CFLAGS)						\
 	-DG_DISABLE_DEPRECATED					\
 	-DTRACKER_LOCALEDIR=\""$(localedir)"\" 			\
-	-DTRACKER_DATADIR=\""$(datadir)"\"				\
+	-DTRACKER_DATADIR=\""$(datadir)"\"			\
 	-DGREP_COMMAND=\""$(GREP_COMMAND)"\"			\
-	$(LIBTRACKERGTK_CFLAGS)					\
-	-I$(top_srcdir)/src/libtracker
-
+	$(LIBTRACKERGTK_CFLAGS)					
+	
 bin_PROGRAMS = tracker-search-tool
 
 tracker_search_tool_SOURCES =     \
