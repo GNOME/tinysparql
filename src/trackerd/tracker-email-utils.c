@@ -292,7 +292,11 @@ email_open_mail_file_at_offset (MailApplication mail_app, const gchar *path, off
 
 	g_return_val_if_fail (path, NULL);
 
+#if defined(__linux__)
 	stream = new_gmime_stream_from_file (path, (O_RDONLY | O_NOATIME) , offset, -1);
+#else
+	stream = new_gmime_stream_from_file (path, O_RDONLY , offset, -1);
+#endif
 
 	if (!stream) {
 		return NULL;
@@ -783,7 +787,11 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 	g_return_val_if_fail (src, FALSE);
 	g_return_val_if_fail (dst, FALSE);
 
+#if defined(__linux__)
 	stream_src = new_gmime_stream_from_file (src, (O_RDONLY | O_NOATIME), 0, -1);
+#else
+	stream_src = new_gmime_stream_from_file (src, O_RDONLY, 0, -1);
+#endif
 	stream_dst = new_gmime_stream_from_file (dst, (O_CREAT | O_TRUNC | O_WRONLY), 0, -1);
 
 	if (!stream_src || !stream_dst) {

@@ -2618,8 +2618,6 @@ decode_gint32 (FILE *f, gint32 *dest)
 {
 	guint32 save;
 
-	if (!f) return;
-
 	if (fread (&save, sizeof (save), 1, f) == 1) {
 		*dest = g_ntohl (save);
 		return TRUE;
@@ -2648,14 +2646,14 @@ skip_guint32_decoding (FILE *f)
 static inline gboolean
 skip_time_t_decoding (FILE *f)
 {
-	return fseek (f, sizeof (time_t), SEEK_CUR) > 0;
+	return fseek (f, sizeof (time_t), SEEK_CUR) == 0;
 }
 
 
 static inline gboolean
 skip_off_t_decoding (FILE *f)
 {
-	return fseek (f, sizeof (off_t), SEEK_CUR) > 0;
+	return fseek (f, sizeof (off_t), SEEK_CUR) == 0;
 }
 
 
@@ -2669,7 +2667,7 @@ skip_string_decoding (FILE *f)
 	}
 
 	if (fseek (f, len - 1, SEEK_CUR) != 0) {
-		tracker_error ("ERROR: seek failed for string with length %d with error code %d", len-1, errno);
+		tracker_error ("ERROR: seek failed for string with length %d with error code %d", len - 1, errno);
 		return FALSE;
 	}
 
@@ -2691,6 +2689,5 @@ skip_token_decoding (FILE *f)
 	}
 
 	len -= 32;
-
-	return fseek (f, len, SEEK_CUR) >= 0;
+        return fseek (f, len, SEEK_CUR) == 0;
 }
