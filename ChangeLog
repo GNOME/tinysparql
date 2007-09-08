@@ -1,5 +1,11 @@
 2007-09-08 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
+	* Try to use O_NOATIME everywhere is possible in tracker-extract
+	* Use O_NOATIME to open Evolution's summary files
+
+
+2007-09-08 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
 	* Use O_NOATIME mode to read emails with GMime
 
 
