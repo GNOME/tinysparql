@@ -1,6 +1,12 @@
+2007-09-08 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Use O_NOATIME mode to read emails with GMime
+
+
 2007-09-07  Patch from Christian Persch  
 
 	* Fixed HIG violations in tracker-preferences
+
 
 2007-09-07 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
@@ -10,6 +16,7 @@
 	  g_return_if_fail(item1);
 	  g_return_if_fail(item2);
 	  in tracker-indexer.c and tracker-dbus-search.c
+
 
 2007-09-06 Jamie McCracken <jamiemcc at gnome org>
 

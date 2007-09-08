@@ -18,9 +18,14 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <fcntl.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <glib/gstdio.h>
 
@@ -44,7 +49,7 @@ extern Tracker *tracker;
 
 
 //static void	mh_watch_mail_messages_in_dir	(DBConnection *db_con, const gchar *dir_path);
-static GMimeStream *new_gmime_stream_from_file	(const gchar *path, const gchar *mode, off_t start, off_t end);
+static GMimeStream *new_gmime_stream_from_file	(const gchar *path, gint mode, off_t start, off_t end);
 
 static GSList *	add_gmime_references		(GSList *list, GMimeMessage *message, const gchar *header);
 static GSList *	add_recipients			(GSList *list, GMimeMessage *message, const gchar *type);
@@ -287,7 +292,7 @@ email_open_mail_file_at_offset (MailApplication mail_app, const gchar *path, off
 
 	g_return_val_if_fail (path, NULL);
 
-	stream = new_gmime_stream_from_file (path, "r", offset, -1);
+	stream = new_gmime_stream_from_file (path, (O_RDONLY | O_NOATIME) , offset, -1);
 
 	if (!stream) {
 		return NULL;
@@ -778,8 +783,8 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 	g_return_val_if_fail (src, FALSE);
 	g_return_val_if_fail (dst, FALSE);
 
-	stream_src = new_gmime_stream_from_file (src, "r", 0, -1);
-	stream_dst = new_gmime_stream_from_file (dst, "w", 0, -1);
+	stream_src = new_gmime_stream_from_file (src, (O_RDONLY | O_NOATIME), 0, -1);
+	stream_dst = new_gmime_stream_from_file (dst, (O_CREAT | O_TRUNC | O_WRONLY), 0, -1);
 
 	if (!stream_src || !stream_dst) {
 		if (stream_src) {
@@ -883,10 +888,10 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 
 
 static GMimeStream *
-new_gmime_stream_from_file (const gchar *path, const gchar *mode, off_t start, off_t end)
+new_gmime_stream_from_file (const gchar *path, gint mode, off_t start, off_t end)
 {
 	gchar       *path_in_locale;
-	FILE        *f;
+	gint        fd;
 	GMimeStream *stream;
 
 	g_return_val_if_fail (path, NULL);
@@ -900,18 +905,18 @@ new_gmime_stream_from_file (const gchar *path, const gchar *mode, off_t start, o
 		return NULL;
 	}
 
-	f = g_fopen (path_in_locale, mode);
+	fd = g_open (path_in_locale, mode);
 
 	g_free (path_in_locale);
 
-	if (!f) {
+	if (fd == -1) {
 		return NULL;
 	}
 
-	stream = g_mime_stream_file_new_with_bounds (f, start, end);
+	stream = g_mime_stream_fs_new_with_bounds (fd, start, end);
 
 	if (!stream) {
-		fclose (f);
+		close (fd);
 		return NULL;
 	}
 
@@ -1031,7 +1036,7 @@ find_attachment (GMimeObject *obj, gpointer data)
 		/* convert attachment filename from utf-8 to filesystem charset */
 		gchar *locale_uri = g_filename_from_utf8 (attachment_uri, -1, NULL, NULL, NULL);
 
-		fd = g_open (locale_uri, O_CREAT | O_WRONLY, 0666);
+		fd = g_open (locale_uri, (O_CREAT | O_TRUNC | O_WRONLY), 0666);
 
 		if (fd == -1) {
 			tracker_error ("ERROR: failed to save attachment %s", locale_uri);
