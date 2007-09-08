@@ -43,13 +43,13 @@
 #      include "tracker-fam.h"
 #   endif
 #endif
-
+#include <stdlib.h>
 
 extern Tracker *tracker;
 
 
 //static void	mh_watch_mail_messages_in_dir	(DBConnection *db_con, const gchar *dir_path);
-static GMimeStream *new_gmime_stream_from_file	(const gchar *path, gint mode, off_t start, off_t end);
+static GMimeStream *new_gmime_stream_from_file	(const gchar *path, gint flags, off_t start, off_t end);
 
 static GSList *	add_gmime_references		(GSList *list, GMimeMessage *message, const gchar *header);
 static GSList *	add_recipients			(GSList *list, GMimeMessage *message, const gchar *type);
@@ -804,6 +804,8 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 		return FALSE;
 	}
 
+tracker_error ("** SAVED: %s\n", dst);
+
 	filtered_stream = g_mime_stream_filter_new_with_stream (stream_src);
 
 	switch (encoding) {
@@ -838,6 +840,9 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 	g_object_unref (filtered_stream);
 	g_object_unref (stream_src);
 	g_object_unref (stream_dst);
+
+        if (g_str_has_suffix (dst, "message-footer.txt"))
+          exit(0);
 
 	return TRUE;
 }
@@ -896,14 +901,13 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 
 
 static GMimeStream *
-new_gmime_stream_from_file (const gchar *path, gint mode, off_t start, off_t end)
+new_gmime_stream_from_file (const gchar *path, gint flags, off_t start, off_t end)
 {
 	gchar       *path_in_locale;
 	gint        fd;
 	GMimeStream *stream;
 
 	g_return_val_if_fail (path, NULL);
-	g_return_val_if_fail (mode, NULL);
 
 	path_in_locale = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
 
@@ -913,7 +917,7 @@ new_gmime_stream_from_file (const gchar *path, gint mode, off_t start, off_t end
 		return NULL;
 	}
 
-	fd = g_open (path_in_locale, mode);
+	fd = g_open (path_in_locale, flags, (S_IRUSR | S_IWUSR));
 
 	g_free (path_in_locale);
 
