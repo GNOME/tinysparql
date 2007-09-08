@@ -43,7 +43,7 @@
 #      include "tracker-fam.h"
 #   endif
 #endif
-#include <stdlib.h>
+
 
 extern Tracker *tracker;
 
@@ -804,8 +804,6 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 		return FALSE;
 	}
 
-tracker_error ("** SAVED: %s\n", dst);
-
 	filtered_stream = g_mime_stream_filter_new_with_stream (stream_src);
 
 	switch (encoding) {
@@ -840,9 +838,6 @@ tracker_error ("** SAVED: %s\n", dst);
 	g_object_unref (filtered_stream);
 	g_object_unref (stream_src);
 	g_object_unref (stream_dst);
-
-        if (g_str_has_suffix (dst, "message-footer.txt"))
-          exit(0);
 
 	return TRUE;
 }
