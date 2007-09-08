@@ -18,8 +18,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <glib/gstdio.h>
 
@@ -1416,6 +1423,7 @@ load_uri_and_status_of_mbox_mail_message (GMimeMessage *g_m_message, MailMessage
 static gboolean
 open_summary_file (const gchar *path, SummaryFile **summary)
 {
+        gint fd;
         FILE *f;
 
 	g_return_val_if_fail (path, FALSE);
@@ -1429,8 +1437,17 @@ open_summary_file (const gchar *path, SummaryFile **summary)
                 *summary = NULL;
 	}
 
-        f = g_fopen (path, "rb");
+#if defined(__linux__)
+        if ((fd = g_open (path, (O_RDONLY | O_NOATIME))) == -1) {
+#else
+        if ((fd = g_open (path, O_RDONLY)) == -1) {
+#endif
+                return FALSE;
+        }
+
+        f = fdopen (fd, "r");
         if (!f) {
+                close (fd) ;
                 return FALSE;
         }
 

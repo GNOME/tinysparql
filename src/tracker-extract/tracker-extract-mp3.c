@@ -17,6 +17,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include "config.h"
 
 #include <sys/types.h>
@@ -30,7 +34,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <glib.h>
-
+#include <glib/gstdio.h>
 
 #define MAX_FILE_READ 1024 * 1024 * 10
 
@@ -984,7 +988,11 @@ tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 	info.comment = NULL;
 	info.genre = NULL;
 
-	file = open (filename, O_RDONLY, 0);
+#if defined(__linux__)
+	file = g_open (filename, (O_RDONLY | O_NOATIME), 0);
+#else
+	file = g_open (filename, O_RDONLY, 0);
+#endif
 
 	if ((file == -1) || (stat (filename, &fstatbuf) == -1)) {
 		close(file);	

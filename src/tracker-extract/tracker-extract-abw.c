@@ -17,18 +17,33 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
+#include <fcntl.h>
 #include <string.h>
-#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 
+
 void tracker_extract_abw (gchar *filename, GHashTable *metadata)
 {
+        gint fd;
 	FILE *f;
 
-   	if ((f = g_fopen (filename, "r"))) {
+#if defined(__linux__)
+        if ((fd = g_open (filename, (O_RDONLY | O_NOATIME))) == -1) {
+#else
+        if ((fd = g_open (filename, O_RDONLY)) == -1) {
+#endif
+                return;
+        }
+
+   	if ((f = fdopen (fd, "r"))) {
                 gchar  *line;
                 gsize  length;
                 gssize read_char;
@@ -71,6 +86,9 @@ void tracker_extract_abw (gchar *filename, GHashTable *metadata)
                 }
 
                 fclose (f);
+
+        } else {
+                close (fd);
         }
 }
 

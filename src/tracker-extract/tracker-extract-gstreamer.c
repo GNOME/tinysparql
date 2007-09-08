@@ -668,7 +668,7 @@ tracker_extract_gstreamer (gchar *uri, GHashTable *metadata)
 	gst_init (NULL, NULL);
 
 	/* set up */
-	extractor = g_new0 (MetadataExtractor, 1);
+	extractor = g_slice_new0 (MetadataExtractor);
 
 	extractor->tagcache = NULL;
 	extractor->audiotags = extractor->videotags = NULL;
@@ -718,5 +718,5 @@ tracker_extract_gstreamer (gchar *uri, GHashTable *metadata)
 
 	gst_object_unref (GST_OBJECT (extractor->playbin));
 
-	g_free (extractor);
+	g_slice_free (MetadataExtractor, extractor);
 }

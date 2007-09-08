@@ -17,10 +17,18 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include "config.h"
 #include "tracker-extract.h"
 
+#include <fcntl.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <png.h>
@@ -67,6 +75,7 @@ static struct {
 void
 tracker_extract_png (gchar *filename, GHashTable *metadata)
 {
+        gint        fd_png;
 	FILE        *png;
 	png_structp png_ptr;
 	png_infop   info_ptr;
@@ -77,7 +86,15 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
 	gint bit_depth, color_type;
 	gint interlace_type, compression_type, filter_type;
 
-	if ((png = g_fopen(filename, "r"))) {
+#if defined(__linux__)
+        if ((fd_png = g_open (filename, (O_RDONLY | O_NOATIME))) == -1) {
+#else
+        if ((fd_png = g_open (filename, O_RDONLY)) == -1) {
+#endif
+                return;
+        }
+
+	if ((png = fdopen(fd_png, "r"))) {
 		png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
 		                                  NULL, NULL, NULL);
 		if (!png_ptr) {
@@ -141,5 +158,8 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 		
 		fclose (png);
+
+        } else {
+                close (fd_png);
         }
 }
