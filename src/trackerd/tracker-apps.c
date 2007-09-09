@@ -30,7 +30,7 @@ tracker_applications_add_service_directories (void)
 {
 	if (1) { /* TODO: configurable.. tracker->index_applications? */
 
-		char *value;
+		char *value = NULL;
 		gchar *dir = NULL;
 
 		value = getenv ("XDG_DATA_HOME");

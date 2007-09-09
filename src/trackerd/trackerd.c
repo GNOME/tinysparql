@@ -2075,7 +2075,9 @@ main (gint argc, gchar *argv[])
 	/* Make a temporary directory for Tracker into g_get_tmp_dir() directory */
 	gchar *tmp_dir;
 
-	tmp_dir = g_strdup_printf ("Tracker-%s.%u", g_get_user_name (), getpid());
+	tracker->pid = (int) getpid();
+
+	tmp_dir = g_strdup_printf ("Tracker-%s.%d", g_get_user_name (), tracker->pid);
 
 	tracker->sys_tmp_root_dir = g_build_filename (g_get_tmp_dir (), tmp_dir, NULL);
 	tracker->root_dir = g_build_filename (g_get_user_data_dir  (), "tracker", NULL);

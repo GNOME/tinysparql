@@ -182,6 +182,10 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	if (indexed > 0) {
 		tracker_info ("Indexed %d emails in email store %s and ignored %d junk and %d deleted emails", indexed, path, junk, deleted);
+
+		
+
+
 		return TRUE;
 	}
 

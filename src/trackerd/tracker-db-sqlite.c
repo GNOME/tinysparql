@@ -17,6 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#define _XOPEN_SOURCE 600
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -24,12 +29,14 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <regex.h>
+#include <zlib.h>
 
 #include "tracker-db-sqlite.h"
 #include "tracker-indexer.h"
@@ -42,7 +49,8 @@
 #include "mingw-compat.h"
 #endif
 
-
+#define MAX_TEXT_BUFFER 65567
+#define MAX_COMPRESS_BUFFER 65565
 #define DEFAULT_PAGE_CACHE 64
 #define MIN_PAGE_CACHE 16
 
@@ -585,6 +593,7 @@ tracker_db_close (DBConnection *db_con)
 	} else {
 		tracker_debug ("Database closed for thread %s", db_con->thread);
 	}
+
 }
 
 
@@ -703,12 +712,14 @@ tracker_db_connect_all (gboolean include_indexers)
 
 	DBConnection *db_con;
 	DBConnection *blob_db_con = NULL;
+	DBConnection *word_index_db_con = NULL;
+	DBConnection *file_index_db_con = NULL;
+
+	DBConnection *common_db_con = NULL;
+
 	DBConnection *emails_blob_db_con = NULL;
 	DBConnection *emails_db_con= NULL;
 	DBConnection *email_word_index_db_con= NULL;
-	DBConnection *common_db_con = NULL;
-	DBConnection *word_index_db_con = NULL;
-	DBConnection *file_index_db_con = NULL;
 	DBConnection *email_index_db_con = NULL;
 
 	db_con = tracker_db_connect ();
@@ -758,21 +769,86 @@ void
 tracker_db_close_all (DBConnection *db_con)
 {
 
-	DBConnection *blob_db_con = db_con->blob;
-	DBConnection *emails_db_con = db_con->emails;
-	DBConnection *common_db_con = db_con->common;
-	DBConnection *file_index_db_con = db_con->index;
-	DBConnection *email_index_db_con = emails_db_con->index;
-	DBConnection *word_index_db_con = db_con->word_index;
+	DBConnection *email_db_con = db_con->emails;
+	DBConnection *email_blob_db_con = email_db_con->blob;
+	DBConnection *email_index_db_con = email_db_con->index;
 
-	if (blob_db_con) tracker_db_close (blob_db_con);
-	if (common_db_con) tracker_db_close (common_db_con);
-	if (file_index_db_con) tracker_db_close (file_index_db_con);
+	DBConnection *common_db_con = db_con->common;
+
+	DBConnection *file_index_db_con = db_con->index;
+	DBConnection *file_blob_db_con = db_con->blob;
+
+	tracker_indexer_close (email_db_con->word_index);
 	if (email_index_db_con) tracker_db_close (email_index_db_con);
-	if (emails_db_con) tracker_db_close (emails_db_con);
-	if (word_index_db_con) tracker_db_close (word_index_db_con);
+	if (email_blob_db_con) tracker_db_close (email_blob_db_con);
+	if (email_db_con) tracker_db_close (email_db_con);
+
+	if (common_db_con) tracker_db_close (common_db_con);
+
+	tracker_indexer_close (db_con->word_index);
+	if (file_blob_db_con) tracker_db_close (file_blob_db_con);
+	if (file_index_db_con) tracker_db_close (file_index_db_con);
 
 	tracker_db_close (db_con);
+
+}
+
+
+static inline void
+free_db_con (DBConnection *db_con)
+{
+	g_free (db_con);
+	db_con = NULL;
+}
+
+void
+tracker_db_refresh_all (DBConnection *db_con)
+{
+	DBConnection *email_db_con = db_con->emails;
+	DBConnection *email_blob_db_con = email_db_con->blob;
+	DBConnection *email_index_db_con = email_db_con->index;
+	DBConnection *file_index_db_con = db_con->index;
+	DBConnection *file_blob_db_con = db_con->blob;
+
+	/* refresh file word index */	
+	tracker_indexer_free (db_con->word_index, FALSE);
+	db_con->word_index = tracker_indexer_open ("file-index.db");
+
+	/* refresh email word index */
+	tracker_indexer_free (email_db_con->word_index, FALSE);
+	email_db_con->word_index = tracker_indexer_open ("email-index.db");
+
+	/* refresh file content (blob) */
+	tracker_db_close (file_blob_db_con);
+	free_db_con (file_blob_db_con);
+	file_blob_db_con = tracker_db_connect_file_content ();
+
+	/* refresh email content db (blob) */
+	tracker_db_close (email_blob_db_con);
+	free_db_con (email_blob_db_con);
+	email_blob_db_con = tracker_db_connect_email_content ();
+
+	/* refresh file indexing db (blob) */
+	tracker_db_close (file_index_db_con);
+	free_db_con (file_index_db_con);
+	file_index_db_con = tracker_db_connect_file_meta ();
+	file_index_db_con->common = db_con->common;
+	file_index_db_con->blob = file_blob_db_con;
+
+	/* refresh email indexing db (blob) */
+	tracker_db_close (email_index_db_con);
+	free_db_con (email_index_db_con);
+	email_index_db_con = tracker_db_connect_email_meta ();
+	email_index_db_con->common = db_con->common;
+	email_index_db_con->blob = email_blob_db_con;
+
+
+	db_con->blob = file_blob_db_con;
+	db_con->index = file_index_db_con;
+
+	email_db_con->blob = email_blob_db_con;
+	email_db_con->index = email_index_db_con;
+
 
 }
 
@@ -2473,6 +2549,80 @@ tracker_db_get_indexable_content_words (DBConnection *db_con, guint32 id, GHashT
 	return table;
 }
 
+static void
+save_full_text_bytes (DBConnection *blob_db_con, const char *str_file_id, GByteArray *byte_array)
+{
+	char		*value;
+	sqlite3_stmt 	*stmt;
+	int		busy_count;
+	int		rc;
+
+	stmt = get_prepared_query (blob_db_con, "SaveServiceContents");
+
+	FieldDef *def = tracker_db_get_field_def (blob_db_con, "File:Contents");
+
+	if (!def) {
+		tracker_error ("WARNING: metadata not found for type %s", "File:Contents");
+		return;
+	}
+
+	sqlite3_bind_text (stmt, 1, str_file_id, strlen (str_file_id), SQLITE_STATIC);
+	sqlite3_bind_text (stmt, 2, def->id, strlen (def->id), SQLITE_STATIC);
+	sqlite3_bind_blob (stmt, 3, (void *) byte_array->data, byte_array->len, SQLITE_STATIC);
+	sqlite3_bind_int  (stmt, 4, 0);
+
+	busy_count = 0;
+	lock_connection (blob_db_con);
+
+	while (TRUE) {
+
+		if (!lock_db ()) {
+			
+
+			if (value) {
+				g_free (value);
+			}
+
+			unlock_connection (blob_db_con);
+
+			return;
+		}
+
+		
+		rc = sqlite3_step (stmt);
+		
+
+		if (rc == SQLITE_BUSY) {
+			unlock_db ();
+			unlock_connection (blob_db_con);
+			busy_count++;
+
+			if (busy_count > 1000000) {
+				tracker_log ("WARNING: excessive busy count in query %s and thread %s", "save file contents", blob_db_con->thread);
+				busy_count = 0;
+			}
+			
+
+			if (busy_count > 50) {
+				g_usleep (g_random_int_range (1000, busy_count * 200));
+			} else {
+				g_usleep (100);
+			}
+			lock_connection (blob_db_con);
+			continue;
+		}
+
+		unlock_db ();
+		break;
+	}
+
+	unlock_connection (blob_db_con);
+	
+	if (rc != SQLITE_DONE) {
+		tracker_error ("WARNING: failed to update contents ");
+	}
+}
+
 
 static void
 save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *text, int length)
@@ -2572,99 +2722,176 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 void
 tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GHashTable *old_table, const char *file_name, FileInfo *info)
 {
-	FILE 		*file;
-	char 		buffer[65565];
-	int  		bytes_read, throttle_count;
-	char		*str_file_id, *value;
-	GString 	*str;
+	char 		buffer[MAX_TEXT_BUFFER], out[MAX_COMPRESS_BUFFER];
+	int  		fd, bytes_read = 0, bytes_compressed = 0, flush;
+	guint32		buffer_length;
+	char		*str_file_id;
+	z_stream 	strm;
+	GByteArray	*byte_array;
+	gboolean	finished = FALSE;
 
 	DBConnection *blob_db_con = db_con->blob;
 
-	file = g_fopen (file_name, "r");
+	#if defined(__linux__)
+		fd = open (file_name, O_RDONLY|O_NOATIME);
+	#else
+		fd = open (file_name, O_RDONLY); 
+	#endif
 
-	if (!file) {
+	if (fd ==-1) {
 		tracker_error ("ERROR: could not open file %s", file_name);
+		return;
+	}
+
+ 	strm.zalloc = Z_NULL;
+    	strm.zfree = Z_NULL;
+    	strm.opaque = Z_NULL;
+    		
+	if (deflateInit (&strm, Z_DEFAULT_COMPRESSION) != Z_OK) {
+		tracker_error ("ERROR: could not initialise zlib");
+		close (fd);
 		return;
 	}
 
 	str_file_id = g_strdup_printf ("%d", info->file_id);
 
-	str = g_string_new ("");
-
-	value = NULL;
-
-	bytes_read = 0;
-
-	throttle_count = 0;
-
 	if (!index_table) {
 		index_table = g_hash_table_new (g_str_hash, g_str_equal);
 	}
 
-	while (fgets (buffer, 65565, file)) {
-		unsigned int buffer_length;
+	byte_array = g_byte_array_sized_new (MAX_TEXT_BUFFER);
 
-		buffer_length = strlen (buffer);
+	/* boost readahead */
+	posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 
-		if (buffer_length < 3) {
-			continue;
+	
+	while (!finished) {
+
+		char *value = NULL;
+		gboolean use_buffer = TRUE;
+
+		buffer_length = read (fd, buffer, MAX_TEXT_BUFFER-1);
+
+		if (buffer_length == 0) {
+			finished = TRUE;
+			break;
+		} 
+
+		bytes_read += buffer_length;
+
+		buffer[buffer_length] = '\0';
+								
+		if (buffer_length == (MAX_TEXT_BUFFER - 1)) {
+
+			/* seek beck to last line break so we get back a clean string for utf-8 validation */
+			char *end = strrchr (buffer, '\n');			
+
+			if (!end) {
+				tracker_error ("Could not find line break in text chunk");
+				break;
+			}
+
+			int bytes_backtracked = strlen (end) * -1;
+
+			buffer_length += bytes_backtracked;
+
+			if (lseek (fd, bytes_backtracked, SEEK_CUR) == -1) {
+				tracker_error ("Could not seek to line break in text chunk");
+				break;
+			}
+
+		} else {
+			finished = TRUE;
 		}
+		
+	
 
 		if (!g_utf8_validate (buffer, buffer_length, NULL)) {
 
-			value = g_locale_to_utf8 (buffer, buffer_length, NULL, NULL, NULL);
+			value = g_locale_to_utf8 (buffer, buffer_length, NULL, &buffer_length, NULL);
 
 			if (!value) {
-				continue;
+				finished = FALSE;
+				tracker_log ("could not convert text to valid utf8");
+				break;
 			}
 
-			if ((strlen (value) < buffer_length)) {
-				g_free (value);
-				continue;	
-			}
+			use_buffer = FALSE;
 
-			str = g_string_append (str, value);
-
-			index_table = tracker_parse_text (index_table, value, 1, TRUE, FALSE);
-
-			bytes_read += strlen (value);
-			g_free (value);
-
-		} else {
-			str = g_string_append (str, buffer);
-	
+		} 
+		
+		if (use_buffer) {
 			index_table = tracker_parse_text (index_table, buffer, 1, TRUE, FALSE);
-			
-			bytes_read += buffer_length;
+		} else {
+			index_table = tracker_parse_text (index_table, value, 1, TRUE, FALSE);
 		}
+
+		strm.avail_in = buffer_length;
+
+		if (use_buffer) {
+			strm.next_in = (unsigned char *) buffer;
+		} else {
+			strm.next_in = (unsigned char *) value;	
+		}
+
+            	strm.avail_out = MAX_COMPRESS_BUFFER;
+            	strm.next_out = (unsigned char *) out;
+			
+		/* set upper limit on text we read in */
+		if (finished || bytes_read >= tracker->max_index_text_length) {
+			finished = TRUE;
+			flush = Z_FINISH;
+		} else {
+			flush = Z_NO_FLUSH;
+		}
+
+
+		/* compress */
+       	        do {
+               		int ret = deflate (&strm, flush);   
+ 
+            		if (ret == Z_STREAM_ERROR) {
+				finished = FALSE;
+				tracker_error ("compression failed");
+				if (!use_buffer) g_free (value);
+				break;
+			}
+
+		        bytes_compressed = 65565 - strm.avail_out;
+
+			byte_array =  g_byte_array_append (byte_array, (guint8 *) out, bytes_compressed);
+
+              	} while (strm.avail_out == 0);
+
+		if (!use_buffer) g_free (value);
 
 		if (tracker->throttle > 9) {
-			throttle_count++;
-			if (throttle_count > (10 + (20 - tracker->throttle))) {
-				tracker_throttle (1);
-				throttle_count= 0;
-			}
+			tracker_throttle (tracker->throttle);
 		}
 
-		/* set upper limit on text we read in to approx 1MB */
-		if (bytes_read > tracker->max_index_text_length) {
-			break;
+	}        	
+
+  
+	deflateEnd(&strm);
+
+	/* flush cache for file as we wont touch it again */
+	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+
+	close (fd);
+
+	if (finished) {
+		if (bytes_read > 2) {
+			save_full_text_bytes (blob_db_con, str_file_id, byte_array);
 		}
+	} else {
+		tracker_info ("An error prevented full text extraction");
 	}
-
-	value = g_string_free (str, FALSE);
-
-	fclose (file);
-
-
-	//tracker_log ("saving full text with size %d", bytes_read);
-	save_full_text (blob_db_con, str_file_id, value, bytes_read);
+ 
+	g_byte_array_free (byte_array, TRUE);
 
 	g_free (str_file_id);
 
-	if (value) {
-		g_free (value);
-	}
+	
 }
 
 

@@ -181,6 +181,7 @@ typedef struct {
 typedef struct {
 
 	TrackerStatus	status;
+	int		pid;
 
 	/* config options */
 	GSList 		*watch_directory_roots_list;
@@ -565,5 +566,9 @@ char **		tracker_list_to_array 		(GSList *list);
 void		tracker_free_metadata_field 	(FieldData *field_data);
 
 gboolean	tracker_unlink 			(const char *uri);
+
+int 		tracker_get_memory_usage 	(void);
+
+guint32		tracker_file_size 		(const char *name);
 
 #endif

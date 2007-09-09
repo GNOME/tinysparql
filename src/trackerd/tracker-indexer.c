@@ -215,8 +215,6 @@ tracker_indexer_open (const gchar *name)
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 256");
 	}
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA encoding = \"UTF-8\"");
-
 	if (create_table) {
 		tracker_db_exec_no_reply (db_con, CREATE_INDEX);
 	}
@@ -253,13 +251,7 @@ tracker_indexer_free (DBConnection *db_con, gboolean remove_file)
 guint32
 tracker_indexer_size (DBConnection *db_con)
 {
-	struct stat finfo;
-	
-	if (g_lstat (db_con->file_name, &finfo) == -1) {
-		return 0;
-	}
-
-	return (guint32) finfo.st_size;
+	return tracker_file_size (db_con->file_name);
 }
 
 

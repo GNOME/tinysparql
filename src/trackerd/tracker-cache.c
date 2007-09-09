@@ -208,7 +208,7 @@ flush_rare (DBConnection *db_con)
 {
 	GSList *list, *lst;
 
-	tracker_log ("flushing rare words - total hits in cache is %d, total words %d", tracker->word_detail_count, tracker->word_count);
+	tracker_log ("flushing rare words - total memory used by tracker %d kb, total hits in cache is %d, total words %d", tracker_get_memory_usage(), tracker->word_detail_count, tracker->word_count);
 
 	list = g_hash_table_key_slist (tracker->cached_table);
 
@@ -277,7 +277,7 @@ tracker_cache_flush_all (DBConnection *db_con)
 		return;
 	}
 
-	tracker_log ("Flushing all words - total hits in cache is %d, total words %d", tracker->word_detail_count, tracker->word_count);
+	tracker_log ("Flushing all words - total memory used by tracker %d, total hits in cache is %d, total words %d", tracker_get_memory_usage(), tracker->word_detail_count, tracker->word_count);
 
 	DBConnection *emails = db_con->emails;
 
@@ -290,11 +290,14 @@ tracker_cache_flush_all (DBConnection *db_con)
 	tracker_db_end_transaction (emails->word_index);
 
 	/* clear any memory as well by closing/reopening */
+
 	tracker_indexer_free (db_con->word_index, FALSE);
 	tracker_indexer_free (emails->word_index, FALSE);
 
 	db_con->word_index = tracker_indexer_open ("file-index.db");
 	emails->word_index = tracker_indexer_open ("email-index.db");
+
+	//tracker_db_refresh_all (db_con);
 
 	g_hash_table_destroy (tracker->cached_table);
 

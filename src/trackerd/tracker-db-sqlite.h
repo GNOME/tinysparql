@@ -93,6 +93,7 @@ DBConnection *	tracker_db_connect_email_meta   (void);
 DBConnection *	tracker_db_connect_file_meta 	(void);
 DBConnection *  tracker_db_connect_all 		(gboolean include_indexers);
 void		tracker_db_close_all 		(DBConnection *db_con);
+void		tracker_db_refresh_all 		(DBConnection *db_con);
 
 gboolean	tracker_update_db		(DBConnection *db_con);
 

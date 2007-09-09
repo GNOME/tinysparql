@@ -17,7 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
+#define _XOPEN_SOURCE 600
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -1711,21 +1711,22 @@ is_text_file (const gchar *uri)
 		return FALSE;
 	}
 
+	/* disable readahead as we only want a fix length */
+	posix_fadvise (fd, 0, 0, POSIX_FADV_RANDOM);
+
 	buffer_length = read (fd, buffer, TEXT_SNIFF_SIZE);
 
-	close (fd);
-
 	if (buffer_length < 3) {
-		return FALSE;
+		goto return_false;
 	}
 
 	/* Don't allow embedded zeros in textfiles. */
 	if (memchr (buffer, 0, buffer_length) != NULL) {
-		return FALSE;
+		goto return_false;
 	}
 
 	if (is_utf8 (buffer, buffer_length)) {
-		return TRUE;
+		 goto return_true;
 	} else {
 		gchar *tmp = g_locale_to_utf8 (buffer, buffer_length, NULL, NULL, &err);
 		g_free (tmp);
@@ -1739,11 +1740,20 @@ is_text_file (const gchar *uri)
 
 			g_error_free (err);
 
-			return result;
+			if (result) goto return_true;
+
 		}
 	}
 
+return_false:
+	/* flush cache as we wont touch file again */
+	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+	close (fd);
 	return FALSE;
+
+return_true:
+	close (fd);
+	return TRUE;
 }
 
 
@@ -3613,3 +3623,66 @@ tracker_unlink (const char *uri)
 
 	return TRUE;
 }
+
+
+int 
+tracker_get_memory_usage (void)
+{
+#if defined(__linux__)
+	int  fd, length, mem = 0;
+	char buffer[8192];
+
+	char *stat_file = g_strdup_printf ("/proc/%d/stat", tracker->pid);
+
+	fd = open (stat_file, O_RDONLY); 
+
+	g_free (stat_file);
+
+	if (fd ==-1) {
+		return 0;
+	}
+
+	
+	length = read (fd, buffer, 8192);
+
+	buffer[length] = 0;
+
+	close (fd);
+
+	char **terms = g_strsplit (buffer, " ", -1);
+
+	
+	if (terms) {
+
+		int i;
+		for (i=0; i < 24; i++) {
+			if (!terms[i]) {
+				break;
+			}		
+
+			if (i==23) mem = 4 * atoi (terms[23]);
+		}
+	}
+
+
+	g_strfreev (terms);
+
+	return mem;	
+	
+#endif
+	return 0;
+}
+
+guint32
+tracker_file_size (const char *name)
+{
+	struct stat finfo;
+	
+	if (g_lstat (name, &finfo) == -1) {
+		return 0;
+	}
+
+	return (guint32) finfo.st_size;
+
+}
+
