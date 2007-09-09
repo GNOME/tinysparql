@@ -79,7 +79,8 @@ static void             free_kmail_config               (KMailConfig *conf);
 static FileAndImapPaths ** find_dir_and_imap_path_pairs (GKeyFile *key_file, gchar **groups, const gchar *imap_id);
 static void             free_file_and_imap_path_pair    (FileAndImapPaths *pair);
 static void             free_kmail_account              (KMailAccount *account);
-static GSList *         get_imap_dirs_to_watch          (DBConnection *db_con, const gchar *imap_dir_path);
+static GSList *         get_dirs_to_watch               (DBConnection *db_con, const gchar *dir_path, gboolean in_imap_dir);
+static gboolean         ignore_email                    (const gchar *uri);
 static KMailMailProtocol find_mail_protocol             (const gchar *mail_path);
 static gboolean         index_mail_file_in_maildir_dir  (DBConnection *db_con, const gchar *dir, const gchar *file, MailType mail_type);
 //static void           watch_imap_cache                (DBConnection *db_con, const gchar *imap_dir_path);
@@ -144,21 +145,19 @@ kmail_watch_emails (DBConnection *db_con)
 {
         g_return_if_fail (kmail_config);
 
-        email_watch_directory (kmail_config->local_dir, "KMailEmails");
-
-        #define WATCH_IMAP_DIRS(root_dir)                                \
-        {                                                                \
-                GSList *dirs;                                            \
-                dirs = get_imap_dirs_to_watch (db_con, root_dir);        \
-                email_watch_directories (dirs, "KMailEmails");           \
-                g_slist_foreach (dirs, (GFunc) g_free, NULL);            \
-                g_slist_free (dirs);                                     \
+#define WATCH_DIRS(root_dir, in_imap_dir)                                       \
+        {                                                                       \
+          GSList *dirs = get_dirs_to_watch (db_con, root_dir, in_imap_dir);     \
+                email_watch_directories (dirs, "KMailEmails");                  \
+                g_slist_foreach (dirs, (GFunc) g_free, NULL);                   \
+                g_slist_free (dirs);                                            \
         }
 
-        WATCH_IMAP_DIRS (kmail_config->imap_cache);
-        WATCH_IMAP_DIRS (kmail_config->dimap_cache);
+        WATCH_DIRS (kmail_config->local_dir, FALSE);
+        WATCH_DIRS (kmail_config->imap_cache, TRUE);
+        WATCH_DIRS (kmail_config->dimap_cache, TRUE);
 
-        #undef WATCH_IMAP_DIRS
+        #undef WATCH_DIRS
 }
 
 
@@ -209,6 +208,10 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
                                 g_free (dir);
 
                         } else {
+                                if (ignore_email (info->uri)) {
+                                        break;
+                                }
+
                                 /* Directory can contain a file named something like %2BAH4 which acts as an index for emails.
                                    We ignore this type of file. */
                                 if (g_strrstr (info->uri, "%")) {
@@ -618,30 +621,41 @@ g_unescape_uri_string (const gchar *escaped, const gchar *illegal_characters)
 }
 
 
-static GSList *
-get_imap_dirs_to_watch (DBConnection *db_con, const gchar *imap_dir_path)
+static gboolean
+ignore_email (const gchar *uri)
 {
-        GSList             *tmp_dirs, *dirs;
+        return (g_strrstr (uri, "trash")  ||
+                g_strrstr (uri, "outbox") ||
+                g_strrstr (uri, "drafts"));
+}
+
+
+static GSList *
+get_dirs_to_watch (DBConnection *db_con, const gchar *dir_path, gboolean in_imap_dir)
+{
+        GSList       *tmp_dirs, *dirs;
         const GSList *dir;
 
         g_return_val_if_fail (db_con, NULL);
-        g_return_val_if_fail (imap_dir_path, NULL);
+        g_return_val_if_fail (dir_path, NULL);
 
-        if (tracker_file_is_no_watched (imap_dir_path)) {
+        if (tracker_file_is_no_watched (dir_path)) {
                 return NULL;
         }
 
         dirs = NULL;
         tmp_dirs = NULL;
 
-        tracker_get_all_dirs (imap_dir_path, &tmp_dirs);
+        tracker_get_all_dirs (dir_path, &tmp_dirs);
 
         for (dir = tmp_dirs; dir; dir = dir->next) {
                 gchar *dir_path = g_unescape_uri_string (dir->data, "");
                 gchar *dir_name = g_path_get_basename (dir_path);
 
-                if (!tracker_file_is_no_watched (dir_path) &&
-                        dir_name[0] == '.' && g_str_has_suffix (dir_name, ".directory")) {
+                if (!tracker_file_is_no_watched (dir_path) && !ignore_email (dir_path) &&
+                    (( in_imap_dir && dir_name[0] == '.' && g_str_has_suffix (dir_name, ".directory")) ||
+                      !in_imap_dir )
+                    ) {
 
                         if (!tracker_is_directory_watched (dir_path, db_con)) {
                                 dirs = g_slist_prepend (dirs, g_strdup (dir_path));

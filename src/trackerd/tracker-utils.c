@@ -2485,7 +2485,7 @@ tracker_load_config_file (void)
 					 "# Set to true prevents tracker from descending into mounted directory trees\n",
 					 "SkipMountPoints=false\n\n",
 					 "[Emails]\n",
-					 "IndexEvolutionEmails=true\n",
+					 "IndexEvolutionEmails=true\n\n",
 					 "[Performance]\n",
 					 "# Maximum size of text in bytes to index from a file's text contents\n",
 					 "MaxTextToIndex=1048576\n",

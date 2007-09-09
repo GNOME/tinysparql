@@ -30,7 +30,7 @@ extern Tracker *tracker;
 
 
 static inline Cache *
-cache_new ()
+cache_new (void)
 {
 	tracker->word_count++;
 
@@ -39,12 +39,11 @@ cache_new ()
 	} else {
 		return g_new0 (Cache, 1);
 	}
-		
-
 }
 
+
 static inline WordDetails *
-word_details_new ()
+word_details_new (void)
 {
 	tracker->word_detail_count++;
 
@@ -55,10 +54,10 @@ word_details_new ()
 	}
 }
 
+
 static void
 free_hits (WordDetails *word_details, gpointer data) 
 {
-
 	tracker->word_detail_count--;
 
 	if (tracker->use_extra_memory) {							
@@ -66,13 +65,12 @@ free_hits (WordDetails *word_details, gpointer data)
 	} else {
 		g_free (word_details);
 	}
-	
 }
 
-static inline void			
+
+static inline void
 cache_free (Cache *cache) 
 {
-
 	g_slist_foreach (cache->new_file_list, (GFunc) free_hits, NULL);
 	g_slist_foreach (cache->new_email_list, (GFunc) free_hits, NULL);
 	g_slist_foreach (cache->update_file_list, (GFunc) free_hits, NULL);
@@ -88,15 +86,13 @@ cache_free (Cache *cache)
 	}
 
 	tracker->word_count--;
-
 }
 
-
-
+/*
 static DBConnection *
-create_merge_index (const char *name, gboolean update)
+create_merge_index (const gchar *name, gboolean update)
 {
-	char *dbname;
+	gchar *dbname;
 	DBConnection *db_con;
 
 	if (!update) {
@@ -111,8 +107,7 @@ create_merge_index (const char *name, gboolean update)
 		g_free (dbname);
 
 		return db_con;
-
-	} 
+	}
 
 	db_con = tracker_indexer_open (dbname);
 
@@ -122,7 +117,7 @@ create_merge_index (const char *name, gboolean update)
 
 	return db_con;
 }
-
+*/
 
 static gint
 prepend_key_pointer (gpointer         key,
@@ -145,7 +140,7 @@ g_hash_table_key_slist (GHashTable *table)
 
 
 static gint
-sort_func (char *a, char *b)
+sort_func (gchar *a, gchar *b)
 {
 	Cache *ca, *cb;
 
@@ -157,32 +152,29 @@ sort_func (char *a, char *b)
 
 
 static GSList *
-flush_update_list (DBConnection *db_con, GSList *list, const char *word)
+flush_update_list (DBConnection *db_con, GSList *list, const gchar *word)
 {
-
-	if (!list) return NULL;
+        if (!list) {
+                return NULL;
+        }
 
 	GSList *ret_list = tracker_indexer_update_word_list (db_con, word, list);
-
 	return ret_list;
-	
 }
 
 
-
 static void
-flush_list (DBConnection *db_con, GSList *list1, GSList *list2, const char *word)
+flush_list (DBConnection *db_con, GSList *list1, GSList *list2, const gchar *word)
 {
 	tracker_indexer_append_word_lists (db_con, word, list1, list2);
 }
 
 
 static void
-flush_cache (DBConnection *db_con, Cache *cache, const char *word)
+flush_cache (DBConnection *db_con, Cache *cache, const gchar *word)
 {
 	DBConnection *emails = db_con->emails;
 	GSList *new_update_list = NULL;
-
 
 	if (cache->update_file_list) {
 		new_update_list = flush_update_list (db_con->word_index, cache->update_file_list, word);
@@ -194,7 +186,6 @@ flush_cache (DBConnection *db_con, Cache *cache, const char *word)
 		if (new_update_list) {
 			flush_list (db_con->word_index, new_update_list, NULL, word);
 		}
-
 	}
 
 	if (cache->new_email_list) {
@@ -202,7 +193,6 @@ flush_cache (DBConnection *db_con, Cache *cache, const char *word)
 	}
 
 	cache_free (cache);
-
 }
 
 
@@ -231,7 +221,7 @@ flush_rare (DBConnection *db_con)
 
 	for (lst = list; (lst && !is_min_flush_done ()); lst = lst->next) {
 
-		char *word = lst->data;
+		gchar *word = lst->data;
 
                 Cache *cache;
 		gpointer key = NULL;
@@ -244,7 +234,6 @@ flush_rare (DBConnection *db_con)
 			flush_cache (db_con, cache, word);
 
 			g_hash_table_remove (tracker->cached_table, word);
-	
 		}
 
 		g_free (word);
@@ -263,8 +252,6 @@ flush_rare (DBConnection *db_con)
 	g_slist_free (list);
 
 	tracker_log ("total hits in cache is %d, total words %d", tracker->word_detail_count, tracker->word_count);
-
-
 }
 
 
@@ -273,7 +260,6 @@ flush_all (gpointer         key,
 	   gpointer         value,
 	   gpointer         data)
 {
-
 	DBConnection *db_con = data;
 
 	flush_cache (db_con, value, key);
@@ -287,7 +273,6 @@ flush_all (gpointer         key,
 void
 tracker_cache_flush_all (DBConnection *db_con)
 {
-
 	if (g_hash_table_size (tracker->cached_table) == 0) {
 		return;
 	}
@@ -318,7 +303,6 @@ tracker_cache_flush_all (DBConnection *db_con)
 	tracker->word_detail_count = 0;
 	tracker->word_count = 0;
 	tracker->flush_count = 0;
-
 }
 
 
@@ -337,19 +321,15 @@ tracker_cache_flush (DBConnection *db_con)
 }
 
 
-
-
-
-
 static inline gboolean
-is_email (int service_type) 
+is_email (gint service_type) 
 {
 	return (service_type >= tracker->email_service_min && service_type <= tracker->email_service_max);
 }
 
 
 void
-tracker_cache_add (const char *word, guint32 service_id, int service_type, int score, gboolean is_new)
+tracker_cache_add (const gchar *word, guint32 service_id, gint service_type, gint score, gboolean is_new)
 {
 	Cache *cache;
 	WordDetails *word_details;
@@ -383,13 +363,8 @@ tracker_cache_add (const char *word, guint32 service_id, int service_type, int s
 	if (new_cache) {
 		g_hash_table_insert (tracker->cached_table, g_strdup (word), cache);
 	} else {
-		g_hash_table_insert (tracker->cached_table, (char *) word, cache);
+		g_hash_table_insert (tracker->cached_table, (gchar *) word, cache);
 	}
 
 	cache->hit_count++;
-
 }
-
-
-
-

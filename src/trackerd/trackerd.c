@@ -35,6 +35,8 @@
 
 #include "config.h"
 
+#include "../xdgmime/xdgmime.h"
+
 #ifdef IOPRIO_SUPPORT
 #include "tracker-ioprio.h"
 #endif
@@ -473,7 +475,7 @@ watch_dir (const gchar* dir, DBConnection *db_con)
 
 
 static void
-signal_handler (int signo)
+signal_handler (gint signo)
 {
 	if (!tracker->is_running) {
 		return;
@@ -1399,8 +1401,7 @@ static void
 process_user_request_queue_thread (void)
 {
 	sigset_t     signal_set;
-	DBConnection *db_con, *blob_db_con, *cache_db_con;
-	DBConnection *emails_db_con = NULL;
+	DBConnection *db_con;
 
         /* block all signals in this thread */
         sigfillset (&signal_set);
@@ -1914,7 +1915,7 @@ sanity_check_option_values (void)
 	tracker_log ("Thumbnailing enabled : .............  %s", bools[tracker->enable_thumbnails]);
  	tracker_log ("Evolution email indexing enabled : .  %s", bools[tracker->index_evolution_emails]);
  	tracker_log ("Thunderbird email indexing enabled :  %s", bools[tracker->index_thunderbird_emails]);
- 	tracker_log ("K-Mail indexing enabled : ..........  %s\n", bools[tracker->index_kmail_emails]);
+ 	tracker_log ("KMail indexing enabled : ...........  %s\n", bools[tracker->index_kmail_emails]);
 
 	tracker_log ("Tracker indexer parameters :");
 	tracker_log ("Indexer language code : ............  %s", tracker->language);
@@ -2145,7 +2146,7 @@ main (gint argc, gchar *argv[])
 	tracker->dir_queue = g_async_queue_new ();
 
 	/* delete old stuff if files.db is present in data dir */
-	char *old_file = g_build_filename (tracker->data_dir, "files.db", NULL);
+	gchar *old_file = g_build_filename (tracker->data_dir, "files.db", NULL);
 	if (reindex || g_file_test (old_file, G_FILE_TEST_EXISTS)) {
 		tracker_remove_dirs (tracker->data_dir);
 		g_mkdir_with_parents (tracker->data_dir, 00755);
