@@ -4299,8 +4299,6 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 
 	tracker_db_free_result (res);
 
-	str_mtime = g_strdup_printf ("%d", info->mtime);
-
 	if (info->is_directory) {
 		str_is_dir = "1";
 	} else {
@@ -4313,8 +4311,9 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 		str_is_link = "0";
 	}
 
-	str_offset = tracker_int_to_str (info->offset);
-	str_filesize = tracker_uint_to_str (info->file_size);
+	str_filesize = tracker_guint32_to_str (info->file_size);
+	str_mtime = tracker_gint32_to_str (info->mtime);
+	str_offset = tracker_gint32_to_str (info->offset);
 
 	service_type_id = tracker_get_id_for_service (service);
 
@@ -4328,7 +4327,8 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 	str_aux = tracker_int_to_str (info->aux_id);
 
 	if (service_type_id != -1) {
-		tracker_exec_proc (db_con, "CreateService", 11, sid, path, name, str_service_type_id, info->mime, str_filesize, str_is_dir, str_is_link, str_offset, str_mtime, str_aux);
+		tracker_exec_proc (db_con, "CreateService", 11, sid, path, name, str_service_type_id, info->mime, str_filesize,
+                                   str_is_dir, str_is_link, str_offset, str_mtime, str_aux);
 
 		if (db_con->in_error) {
 			tracker_error ("ERROR: CreateService uri is %s/%s", path, name);

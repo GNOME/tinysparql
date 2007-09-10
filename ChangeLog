@@ -1,3 +1,8 @@
+2007-09-11 Laurent Aguerreche <laurent.aguerreche@free.fr>
+
+	* Do not assume that gint32 or guint32 are gint or guint in tracker-db-sqlite.c
+
+
 2007-09-10  Christian Persch  <chpe@gnome.org>
 
 	* src/tracker-preferences/tracker-preferences.glade: Use the right
