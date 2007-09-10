@@ -1,3 +1,9 @@
+2007-09-10 Patch from Marko Anastasov  <marko@marko.anastasov.name>
+
+	* Made tracker.h c++ friendly
+
+
+
 2007-09-09 Jamie McCracken <jamiemcc at gnome org>
 
 	* Improved memory usage
