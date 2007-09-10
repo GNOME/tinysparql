@@ -1,7 +1,12 @@
+2007-09-10  Christian Persch  <chpe@gnome.org>
+
+	* src/tracker-preferences/tracker-preferences.glade: Use the right
+	capitalisations, and add/change some mnemonics. Bug #474339.
+
+
 2007-09-10 Patch from Marko Anastasov  <marko@marko.anastasov.name>
 
 	* Made tracker.h c++ friendly
-
 
 
 2007-09-09 Jamie McCracken <jamiemcc at gnome org>

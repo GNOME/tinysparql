@@ -165,7 +165,7 @@
 				  <child>
 				    <widget class="GtkLabel" id="lblInitialSleepSeconds">
 				      <property name="visible">True</property>
-				      <property name="label" translatable="yes">Seconds</property>
+				      <property name="label" translatable="yes">seconds</property>
 				      <property name="use_underline">False</property>
 				      <property name="use_markup">False</property>
 				      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -263,7 +263,7 @@
 			  <child>
 			    <widget class="GtkCheckButton" id="chkEnableIndexing">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Enable _Indexing</property>
+			      <property name="label" translatable="yes">Enable i_ndexing</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -272,7 +272,7 @@
 			      <property name="draw_indicator">True</property>
 			    </widget>
 			    <packing>
-			      <property name="padding">3</property>
+			      <property name="padding">0</property>
 			      <property name="expand">False</property>
 			      <property name="fill">False</property>
 			    </packing>
@@ -281,7 +281,7 @@
 			  <child>
 			    <widget class="GtkCheckButton" id="chkEnableWatching">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Enable _Watching</property>
+			      <property name="label" translatable="yes">Enable _watching</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -303,7 +303,7 @@
 		  <child>
 		    <widget class="GtkLabel" id="label12">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">&lt;b&gt;Indexing options&lt;/b&gt;</property>
+		      <property name="label" translatable="yes">&lt;b&gt;Indexing Options&lt;/b&gt;</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">True</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -406,14 +406,14 @@ swedish</property>
 				  <property name="focus_on_click">True</property>
 				</widget>
 				<packing>
-				  <property name="padding">2</property>
+				  <property name="padding">0</property>
 				  <property name="expand">True</property>
 				  <property name="fill">True</property>
 				</packing>
 			      </child>
 			    </widget>
 			    <packing>
-			      <property name="padding">3</property>
+			      <property name="padding">0</property>
 			      <property name="expand">False</property>
 			      <property name="fill">False</property>
 			    </packing>
@@ -462,8 +462,8 @@ swedish</property>
 	  <child>
 	    <widget class="GtkLabel" id="label1">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_General</property>
-	      <property name="use_underline">True</property>
+	      <property name="label" translatable="yes">General</property>
+	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
 	      <property name="wrap">False</property>
@@ -526,8 +526,8 @@ swedish</property>
 			      <child>
 				<widget class="GtkLabel" id="lblThrottlingLevel">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">_Indexing speed:</property>
-				  <property name="use_underline">True</property>
+				  <property name="label" translatable="yes">Indexing speed:</property>
+				  <property name="use_underline">False</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_LEFT</property>
 				  <property name="wrap">False</property>
@@ -792,7 +792,7 @@ swedish</property>
 			    <widget class="GtkTable" id="table2">
 			      <property name="visible">True</property>
 			      <property name="n_rows">2</property>
-			      <property name="n_columns">2</property>
+			      <property name="n_columns">3</property>
 			      <property name="homogeneous">False</property>
 			      <property name="row_spacing">6</property>
 			      <property name="column_spacing">12</property>
@@ -800,7 +800,7 @@ swedish</property>
 			      <child>
 				<widget class="GtkLabel" id="label30">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Maximum _amount of text to Index (KB)</property>
+				  <property name="label" translatable="yes">Maximum _amount of text to index:</property>
 				  <property name="use_underline">True</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -829,7 +829,7 @@ swedish</property>
 			      <child>
 				<widget class="GtkLabel" id="label31">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Maximum number of unique _words to index</property>
+				  <property name="label" translatable="yes">Maximum number of unique _words to index:</property>
 				  <property name="use_underline">True</property>
 				  <property name="use_markup">True</property>
 				  <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -898,6 +898,34 @@ swedish</property>
 				  <property name="y_options"></property>
 				</packing>
 			      </child>
+
+			      <child>
+				<widget class="GtkLabel" id="label33">
+				  <property name="visible">True</property>
+				  <property name="label" translatable="yes">kB</property>
+				  <property name="use_underline">False</property>
+				  <property name="use_markup">False</property>
+				  <property name="justify">GTK_JUSTIFY_LEFT</property>
+				  <property name="wrap">False</property>
+				  <property name="selectable">False</property>
+				  <property name="xalign">0</property>
+				  <property name="yalign">0.5</property>
+				  <property name="xpad">0</property>
+				  <property name="ypad">0</property>
+				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				  <property name="width_chars">-1</property>
+				  <property name="single_line_mode">False</property>
+				  <property name="angle">0</property>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				  <property name="x_options">fill</property>
+				  <property name="y_options"></property>
+				</packing>
+			      </child>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -949,8 +977,8 @@ swedish</property>
 	  <child>
 	    <widget class="GtkLabel" id="label4">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">P_erformance</property>
-	      <property name="use_underline">True</property>
+	      <property name="label" translatable="yes">Performance</property>
+	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
 	      <property name="wrap">False</property>
@@ -1022,7 +1050,7 @@ swedish</property>
 			  <child>
 			    <widget class="GtkCheckButton" id="chkGenerateThumbs">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Generate _thumbnails</property>
+			      <property name="label" translatable="yes">Generate thum_bnails</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -1031,7 +1059,7 @@ swedish</property>
 			      <property name="draw_indicator">True</property>
 			    </widget>
 			    <packing>
-			      <property name="padding">1</property>
+			      <property name="padding">0</property>
 			      <property name="expand">False</property>
 			      <property name="fill">True</property>
 			    </packing>
@@ -1144,7 +1172,7 @@ swedish</property>
 			      <property name="xalign">0</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
-			      <property name="ypad">3</property>
+			      <property name="ypad">0</property>
 			      <property name="mnemonic_widget">lstAdditionalPathIndexes</property>
 			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 			      <property name="width_chars">-1</property>
@@ -1186,7 +1214,7 @@ swedish</property>
 				  </child>
 				</widget>
 				<packing>
-				  <property name="padding">1</property>
+				  <property name="padding">0</property>
 				  <property name="expand">True</property>
 				  <property name="fill">True</property>
 				</packing>
@@ -1303,7 +1331,7 @@ swedish</property>
 			      <property name="xalign">0</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
-			      <property name="ypad">3</property>
+			      <property name="ypad">0</property>
 			      <property name="mnemonic_widget">lstAdditionalPathIndexes</property>
 			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 			      <property name="width_chars">-1</property>
@@ -1345,7 +1373,7 @@ swedish</property>
 				  </child>
 				</widget>
 				<packing>
-				  <property name="padding">1</property>
+				  <property name="padding">0</property>
 				  <property name="expand">True</property>
 				  <property name="fill">True</property>
 				</packing>
@@ -1434,8 +1462,8 @@ swedish</property>
 	  <child>
 	    <widget class="GtkLabel" id="label19">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_Files</property>
-	      <property name="use_underline">True</property>
+	      <property name="label" translatable="yes">Files</property>
+	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
 	      <property name="wrap">False</property>
@@ -1498,7 +1526,7 @@ swedish</property>
 			      <property name="xalign">0</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
-			      <property name="ypad">3</property>
+			      <property name="ypad">0</property>
 			      <property name="mnemonic_widget">lstIgnorePaths</property>
 			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 			      <property name="width_chars">-1</property>
@@ -1657,7 +1685,7 @@ swedish</property>
 			      <property name="xalign">0</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
-			      <property name="ypad">3</property>
+			      <property name="ypad">0</property>
 			      <property name="mnemonic_widget">lstIgnoreFilePatterns</property>
 			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 			      <property name="width_chars">-1</property>
@@ -1788,8 +1816,8 @@ swedish</property>
 	  <child>
 	    <widget class="GtkLabel" id="label3">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_Ignored Files</property>
-	      <property name="use_underline">True</property>
+	      <property name="label" translatable="yes">Ignored Files</property>
+	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
 	      <property name="wrap">False</property>
@@ -1843,7 +1871,7 @@ swedish</property>
 			  <child>
 			    <widget class="GtkCheckButton" id="chkEnableEvolutionIndexing">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Enable Evolution email indexing</property>
+			      <property name="label" translatable="yes">Enable _Evolution email indexing</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -1862,7 +1890,7 @@ swedish</property>
 			    <widget class="GtkCheckButton" id="chkEnableThunderbirdIndexing">
 			      <property name="visible">True</property>
 			      <property name="sensitive">False</property>
-			      <property name="label" translatable="yes">Enable Thunderbird email indexing</property>
+			      <property name="label" translatable="yes">Enable _Thunderbird email indexing</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -1881,7 +1909,7 @@ swedish</property>
 			    <widget class="GtkCheckButton" id="chkEnableKMailIndexing">
 			      <property name="visible">True</property>
 			      <property name="sensitive">False</property>
-			      <property name="label" translatable="yes">Enable KMail email indexing</property>
+			      <property name="label" translatable="yes">Enable _KMail email indexing</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -1968,7 +1996,7 @@ swedish</property>
 			      <property name="xalign">0</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
-			      <property name="ypad">3</property>
+			      <property name="ypad">0</property>
 			      <property name="mnemonic_widget">lstAdditionalMBoxIndexes</property>
 			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
 			      <property name="width_chars">-1</property>
@@ -2099,8 +2127,8 @@ swedish</property>
 	  <child>
 	    <widget class="GtkLabel" id="label2">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">_Emails</property>
-	      <property name="use_underline">True</property>
+	      <property name="label" translatable="yes">Emails</property>
+	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
 	      <property name="wrap">False</property>
