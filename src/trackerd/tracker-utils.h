@@ -472,6 +472,8 @@ gboolean        tracker_is_empty_string         (const char *s);
 gchar *         tracker_long_to_str             (glong i);
 gchar *		tracker_int_to_str		(gint i);
 gchar *		tracker_uint_to_str		(guint i);
+gchar *		tracker_gint32_to_str		(gint32 i);
+gchar *		tracker_guint32_to_str		(guint32 i);
 gboolean	tracker_str_to_uint		(const char *s, guint *ret);
 char *		tracker_format_date 		(const char *time_string);
 time_t		tracker_str_to_date 		(const char *time_string);

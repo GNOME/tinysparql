@@ -845,6 +845,20 @@ tracker_uint_to_str (guint i)
 }
 
 
+gchar *
+tracker_gint32_to_str (gint32 i)
+{
+        return g_strdup_printf ("%" G_GINT32_FORMAT, i);
+}
+
+
+gchar *
+tracker_guint32_to_str (guint32 i)
+{
+        return g_strdup_printf ("%" G_GUINT32_FORMAT, i);
+}
+
+
 gboolean
 tracker_str_to_uint (const char *s, guint *ret)
 {
