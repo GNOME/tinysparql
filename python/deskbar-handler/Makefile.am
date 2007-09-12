@@ -1,7 +1,7 @@
 
 if USING_DESKBAR_HANDLER
 handlerdir = $(DESKBAR_HANDLER_DIR)
-handler_DATA = tracker-handler.py 
+handler_DATA = tracker-handler.py tracker-handler-static.py
 endif
 
 if USING_DESKBAR_MODULE
@@ -11,5 +11,6 @@ endif
 
 EXTRA_DIST = \
 	tracker-handler.py \
+	tracker-handler-static.py \
 	tracker-module.py \
 	README

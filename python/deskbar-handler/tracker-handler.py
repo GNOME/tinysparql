@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #    This handler was originaly created by Mikkel Kamstrup (c) 2006 and updated by Eugenio Cutolo (eulin)
 #
+#    The handler was rewritten and splitted into live and static search by Marcus Fritzsch
+#
 #    This program can be distributed under the terms of the GNU GPL version 2 or later.
 #    See the file COPYING.
 #
@@ -32,7 +34,6 @@ TYPES = {
 	'Applications': {
 		'description': (_('Launch %s (%s)') % ('<b>%(name)s</b>', '%(app_name)s')),
 		'category': 'actions',
-		#'icon': 'stock_run',
 	},
 
 	'GaimConversations': {
@@ -44,26 +45,28 @@ TYPES = {
 	'Emails': {
 		'description': (_('Email from %s') % '<i>%(publisher)s</i>' ) + '\n<b>%(title)s</b>',
 		'category': 'emails',
-		'action': 'evolution %(uri)s',
+		'action': { # more actions for different MUAs
+			'key': 'mua', # see TrackerLiveSearchMatch.action for a demo
+			'Evolution':          'evolution %(uri)s',
+			'Thunderbird/Email':  'thunderbird -viewbeagle %(uri)s',
+			'KMail':              'kmail --view %(uri)s',
+		},
 		'icon': 'stock_mail',
 	},
 
 	'Music': {
 		'description': _('Listen to music %s\nin %s')	% ('<b>%(base)s</b>', '<i>%(dir)s</i>'),
 		'category': 'music',
-		#'icon': 'audio',
 	},
 
 	'Documents': {
 		'description': _('See document %s\nin %s')	% ('<b>%(base)s</b>', '<i>%(dir)s</i>'),
 		'category': 'documents',
-		#'icon': 'file',
 	},
 
 	'Development': {
 		'description': _('Open file %s\nin %s')	% ('<b>%(base)s</b>', '<i>%(dir)s</i>'),
 		'category': 'develop',
-		#'icon': 'file',
 	},
 
 	'Images': {
@@ -81,7 +84,6 @@ TYPES = {
 	'Files': {
 		'description': _('Open file %s\nin %s')	% ('<b>%(base)s</b>', '<i>%(dir)s</i>'),
 		'category': 'files',
-		#'icon': 'file',
 	},
 
 	'Folders': {
@@ -89,49 +91,7 @@ TYPES = {
 		'category': 'places',
 		'icon': 'stock_folder',
 	},
-
-	'Extra': {
-		'description': _('Search for %s with Tracker Search Tool') % ('<b>%(name)s</b>'),
-	},
 }
-
-
-
-
-class TrackerSearchToolMatch (deskbar.Match.Match):
-
-	def __init__(self, backend, **args):
-		deskbar.Match.Match.__init__(self, backend, **args)
-		self._icon = deskbar.Utils.load_icon ('tracker')
-
-	def action(self, text=None):
-		gobject.spawn_async(['tracker-search-tool', self.name], flags=gobject.SPAWN_SEARCH_PATH)
-
-	def get_verb(self):
-		return TYPES['Extra']['description'] % { 'name': self.name }
-
-	def get_category (self):
-		return 'actions'
-
-	def get_hash (self, text=None):
-		return 'tst-more-hits-action-'+self.name
-
-
-
-
-class TrackerSearchToolHandler(deskbar.Handler.Handler):
-
-	def __init__(self):
-		deskbar.Handler.Handler.__init__(self, 'tracker')
-
-	def query(self, query):
-		return [TrackerSearchToolMatch(self, name=query)]
-
-	@staticmethod
-	def requirements ():
-		if deskbar.Utils.is_program_in_path ('tracker-search-tool'):
-			return (deskbar.Handler.HANDLER_IS_HAPPY, None, None)
-		return (deskbar.Handler.HANDLER_IS_NOT_APPLICABLE, 'tracker-search-tool not found', None)
 
 
 
@@ -169,7 +129,15 @@ class TrackerLiveSearchMatch (deskbar.Match.Match):
 
 	def action(self, text=None):
 		if TYPES[self.result['type']].has_key('action'):
-			cmd = TYPES[self.result['type']]['action']
+			if isinstance (TYPES[self.result['type']]['action'], dict):
+				try:
+					key = TYPES[self.result['type']]['action']['key']
+					cmd = TYPES[self.result['type']]['action'][self.result[key]]
+				except:
+					print >> sys.stderr, "Unknown action for URI %s (Error: %s)" % (self.result['uri'], sys.exc_info()[1])
+					return
+			else:
+				cmd = TYPES[self.result['type']]['action']
 			cmd = map(lambda arg : arg % self.result, cmd.split()) # we need this to handle spaces correctly
 
 			print 'Opening Tracker hit with command:', cmd
@@ -178,7 +146,7 @@ class TrackerLiveSearchMatch (deskbar.Match.Match):
 				deskbar.Utils.spawn_async(cmd)
 			except AttributeError:
 				# deskbar <= 2.16
-				gobject.spawn_async(args, flags=gobject.SPAWN_SEARCH_PATH)
+				gobject.spawn_async(cmd, flags=gobject.SPAWN_SEARCH_PATH)
 		else:
 			if self.result.has_key ('desktop'):
 				self.result['desktop'].launch([])
@@ -223,11 +191,13 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 		self.tracker = self.search_iface = self.keywords_iface = self.files_iface = None
 		self.set_delay (500)
 		self.conv_re = re.compile (r'^.*?/logs/([^/]+)/([^/]+)/([^/]+)/(.+?)\.(:?txt|html)$') # all, proto, account, to-whom, time
-		self.have_tst = deskbar.Utils.is_program_in_path ('tracker-search-tool')
 
 	def handle_email_hits (self, info, output):
 		output['title'] = cgi.escape(info[3])
 		output['publisher'] = cgi.escape(info[4])
+		output['mua'] = info[2]
+		if output['mua'] == 'Thunderbird/Email':
+			output['uri'] = info[0]
 
 	def handle_conversation_hits (self, info, output):
 		m = self.conv_re.match (output['escaped_uri'])
@@ -282,7 +252,7 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 			info = [str (i) for i in info]
 
 			output['escaped_uri'] = cgi.escape (info[0])
-			output['uri'] = urllib.quote (info[0])
+			output['uri'] = urllib.quote (info[0], ';?:@&=+$,./')
 			output['name'] = os.path.basename(output['escaped_uri'])
 			output['type'] = info[1]
 
@@ -325,14 +295,11 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 			except:
 				print >> sys.stderr, '*** DBus connection to tracker failed, check your settings.'
 				return
-		for service in [key for key in TYPES.iterkeys () if key != 'Extra']:
+		for service in TYPES.iterkeys ():
 			self.search_iface.TextDetailed (-1, service, qstring, 0, max, \
 					reply_handler = lambda hits: self.receive_hits (qstring, hits, max), \
 					error_handler = self.recieve_error)
 		print 'Tracker query:', qstring
-		if self.have_tst:
-			# explicitly add one hit to search with t-s-t
-			self.emit_query_ready (qstring, [TrackerSearchToolMatch (self, name=qstring)])
 
 	@staticmethod
 	def requirements ():
@@ -388,12 +355,6 @@ def time_from_purple_log (instr):
 
 
 HANDLERS = {
-	'TrackerSearchToolHandler': {
-		'name': 'Search for files using Tracker Search Tool',
-		'description': _('Search all of your documents with Tracker Search Tool'),
-		#'requirements': TrackerSearchToolHandler.requirements, # XXX makes deskbar 2.18.1 not load the handler!!
-	},
-
 	'TrackerLiveSearchHandler': {
 		'name': 'Search for files using Tracker',
 		'description': _('Search all of your documents, <b>as you type</b>'),

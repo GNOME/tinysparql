@@ -1,3 +1,21 @@
+2007-09-11 Patch from Marcus Fritzsch <fritschy at googlemail com>
+
+	* Split legacy deskbar handler into two files, static and live.
+	* Don't show static tracker search option when only live search is enabled
+	  This fixes Gnome #474660.
+	
+	* Introduce support for MUAs Thunderbird and KMail in both 
+	  legacy and new deskbar handlers
+	  
+	* Check that t-s-t is installed before showing static handler as available
+	  extension. This closes Debian #441889.
+	  
+	It should be noted that recent deskbar work has closed Gnome #474131 as well.
+	
+	Commited and approved by kamstrup.
+	
+
+
 2007-09-11 Laurent Aguerreche <laurent.aguerreche@free.fr>
 
 	* Do not assume that gint32 or guint32 are gint or guint in tracker-db-sqlite.c
