@@ -73,7 +73,7 @@ lookup_attribute( const xmlChar **atts, const char *attr )
 void
 startElement (void * info, const xmlChar * name, const xmlChar ** atts)
 {
-	if (! (info && name && atts)) {
+	if (! (info && name)) {
 		return;
 	}
 
