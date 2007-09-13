@@ -52,7 +52,7 @@ tracker_email_add_service_directories (DBConnection *db_con)
 
 	if (tracker->index_thunderbird_emails) {
 		if (thunderbird_init_module ()) {
-			thunderbird_watch_emails ();
+			thunderbird_watch_emails (db_con);
 		}
 	}
 }

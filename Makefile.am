@@ -1,5 +1,9 @@
 SUBDIRS = data src filters thumbnailers docs po python
 
+if WITH_THUNDERBIRD_EXTENSION
+SUBDIRS += @THUNDERBIRD_EXTENSION_DIRECTORY@
+endif
+
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_in_files = trackerd.desktop.in
 autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)

@@ -64,6 +64,7 @@ typedef struct {
 	gpointer	user;
 	gpointer	word_index;
 	gpointer	merge_index;
+	gpointer	merge_update_index;
 
 } DBConnection;
 

@@ -391,6 +391,8 @@ get_service_name (MailApplication app)
                return g_strdup ("KMailEmails");
        } else if (app == MAIL_APP_THUNDERBIRD) {
                return g_strdup ("ThunderbirdEmails");
+       } else if (app == MAIL_APP_THUNDERBIRD_FEED) {
+               return g_strdup ("ThunderbirdEmails");
        } else {
                return g_strdup ("OtherEmails");
        }
@@ -406,6 +408,8 @@ get_mime (MailApplication app)
                return g_strdup ("KMail/Email");
        } else if (app == MAIL_APP_THUNDERBIRD) {
                return g_strdup ("Thunderbird/Email");
+       } else if (app == MAIL_APP_THUNDERBIRD_FEED) {
+               return g_strdup ("Thunderbird/Feed");
        } else {
                return g_strdup ("Other/Email");
        }
@@ -445,6 +449,11 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		return FALSE;
 	}
 
+	if (!mm->subject) {
+		tracker_log ("WARNING: email with uri: %s has no subject",mm->uri);
+		mm->subject = g_strdup("");
+	}
+        
 	if (mm->parent_mail_file && !mm->parent_mail_file->path) {
 		tracker_error ("ERROR: badly formatted email - abandoning index");
 		return FALSE;

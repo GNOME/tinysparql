@@ -1105,7 +1105,8 @@ process_files_thread (void)
 						case INDEX_EMAILS:  {
 								tracker_cache_flush_all (db_con);
 
-								if (tracker->index_evolution_emails || tracker->index_kmail_emails) {
+								if (tracker->index_evolution_emails || tracker->index_kmail_emails
+                                                                        || tracker->index_thunderbird_emails) {
 
 									tracker_email_add_service_directories (db_con->emails);
 									tracker_log ("Starting email indexing...");
@@ -1119,6 +1120,13 @@ process_files_thread (void)
 
 									if (tracker->index_kmail_emails) {
 										GSList *list = tracker_get_service_dirs ("KMailEmails");
+										tracker_add_root_directories (list);
+										process_directory_list (db_con, list, TRUE);
+										g_slist_free (list);
+									}
+                                                                        
+                                                                        if (tracker->index_thunderbird_emails) {
+										GSList *list = tracker_get_service_dirs ("ThunderbirdEmails");
 										tracker_add_root_directories (list);
 										process_directory_list (db_con, list, TRUE);
 										g_slist_free (list);
@@ -1800,6 +1808,8 @@ set_defaults (void)
 {
 	tracker->grace_period = 0;
 
+	tracker->merge_limit = MERGE_LIMIT;
+
 	tracker->index_status = INDEX_CONFIG;
 
 	tracker->watch_directory_roots_list = NULL;
@@ -1826,7 +1836,7 @@ set_defaults (void)
 	tracker->flush_count = 0;
 
 	tracker->index_evolution_emails = TRUE;
-	tracker->index_thunderbird_emails = FALSE;
+	tracker->index_thunderbird_emails = TRUE;
 	tracker->index_kmail_emails = TRUE;
 
 	tracker->use_extra_memory = TRUE;
@@ -1876,7 +1886,6 @@ set_defaults (void)
 static void
 sanity_check_option_values (void)
 {
-	tracker->index_thunderbird_emails = FALSE;
 
 	if (tracker->max_index_text_length < 0) tracker->max_index_text_length = 0;
 	if (tracker->max_words_to_index < 0) tracker->max_words_to_index = 0;

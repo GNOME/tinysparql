@@ -25,7 +25,13 @@ AC_CHECK_HEADERS([fcntl.h sitdlib.h string.h sys/time.h unistd.h linux/unistd.h]
 
 AC_CHECK_HEADER([zlib.h], [], [AC_MSG_ERROR([You must have zlib.h and zlib installed])])
 
+dnl can posix_fadvise be used
+AC_CHECK_DECLS(posix_fadvise, [], [], [
+#define _XOPEN_SOURCE 600
+#include <fcntl.h>])
+
 # Checks for functions
+AC_CHECK_FUNCS([posix_fadvise])
 AC_CHECK_FUNCS([getline])
 
 dnl Library Checks
@@ -594,8 +600,37 @@ fi
 
 AM_CONDITIONAL(ENABLE_PREFERENCES, test "$enable_preferences" != "no")
 
+##################################################################
+# check for thunderbird extension 
+##################################################################
 
+AC_ARG_WITH(thunderbird-extension,
+            AC_HELP_STRING([--with-thunderbird-extension], [Build with thunderbird extension - note this is experimental and you will need the tunderbird extension for tracker]),
+            [
+                enable_tbird=no
+                AC_CHECK_FILES( thunderbird-extension/Makefile.am \
+                                thunderbird-extension/install.rdf \
+                                thunderbird-extension/components/BeagleIndexer.js,
+                                [
+                                 enable_tbird=yes
+                                 AC_SUBST(THUNDERBIRD_EXTENSION_DIRECTORY,[thunderbird-extension])
+        thunderbird_extension_message="The extension will be build to:         thunderbird-extension/tracker.x
+pi
 
+        *****INFO*****
+        You have choosen to build with the Thunderbird extension.
+        Please refer to the README file, for notes about installing
+        the extension in the Thunderbird application
+        "
+                                ],
+                                AC_MSG_ERROR([Couldn't find Thunderbird extension source directory. Please see
+ README file])
+                )
+            ],
+            [
+                enable_tbird=no
+            ])
+AM_CONDITIONAL(WITH_THUNDERBIRD_EXTENSION, test "x$enable_tbird" = "xyes")
 
 ##################################################################
 # check for poppler's glib bingings
@@ -739,6 +774,7 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 	python/Makefile
 	python/deskbar-handler/Makefile
+	 
 ])
 
 AC_CONFIG_HEADERS([config.h])
@@ -772,6 +808,11 @@ Metadata extractors:
 	video files:				$videos_are_handled ($videos_handler)
 	xml/html formats:			$have_libxml2
 	embedded/sidecar xmp:			$have_exempi
+
+Thunderbird extension (experimental - requires thunderbird extension):
+
+        Build Thunderbird extension:            $enable_tbird
+        $thunderbird_extension_message
 
 "
 

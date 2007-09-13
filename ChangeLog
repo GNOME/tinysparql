@@ -1,3 +1,17 @@
+2007-09-12 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added basic support for index merging
+
+
+
+2007-09-12 Patch from 	Michal Pryc <Michal.Pryc@Sun.COM>
+
+	* added initial thunderbird support (experimental and requires separate thunderbird-extension)
+	* added solaris build fixes
+
+
+
+
 2007-09-11 Patch from Marcus Fritzsch <fritschy at googlemail com>
 
 	* Split legacy deskbar handler into two files, static and live.

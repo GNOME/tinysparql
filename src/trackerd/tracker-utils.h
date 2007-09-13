@@ -39,6 +39,8 @@ extern char *tracker_actions[];
 
 #define MAX_HITS_FOR_WORD 30000
 
+/* set merge limit default to 64MB */
+#define MERGE_LIMIT 67108864
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
@@ -226,7 +228,9 @@ typedef struct {
 
 	/* indexing options */
 
-	int		merge_index_size; 	/* size of index in MBs when merging is triggered -1 == no merging*/
+	int		merge_limit; 		/* size of index in MBs when merging is triggered -1 == no merging*/
+	gboolean	active_file_merge;
+	gboolean	active_email_merge;
 
 	int		min_word_length;  	/* words shorter than this are not parsed */
 	int		max_word_length;  	/* words longer than this are cropped */

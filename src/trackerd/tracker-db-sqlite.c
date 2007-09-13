@@ -17,8 +17,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#define _XOPEN_SOURCE 600
-
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -42,6 +40,7 @@
 #include "tracker-indexer.h"
 #include "tracker-cache.h"
 #include "tracker-metadata.h"
+#include "tracker-utils.h"
 
 #include "config.h"
 
@@ -71,7 +70,7 @@ typedef struct {
 
 
 
-/* slqite utf-8 user defined collation sequence */
+/* sqlite utf-8 user defined collation sequence */
 
 static int 
 sqlite3_utf8_collation (void *NotUsed,  int len1, const void *str1,  int len2, const void *str2)
@@ -350,7 +349,7 @@ tracker_db_log_result (char ***result)
 		for (row = *rows; *row; row++) {
 			char *value;
 
-			value = *row;
+                        value = tracker_string_replace (*row, "%", "%%");
 
 			if (!value) {
 				value = "NULL";
@@ -366,6 +365,8 @@ tracker_db_log_result (char ***result)
 			} else {
 				str = g_strconcat (value, NULL);
 			}
+
+			g_free (value);
 		}
 
 		if (str) {
@@ -2732,11 +2733,11 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 
 	DBConnection *blob_db_con = db_con->blob;
 
-	#if defined(__linux__)
+#if defined(__linux__)
 		fd = open (file_name, O_RDONLY|O_NOATIME);
-	#else
+#else
 		fd = open (file_name, O_RDONLY); 
-	#endif
+#endif
 
 	if (fd ==-1) {
 		tracker_error ("ERROR: could not open file %s", file_name);
@@ -2762,8 +2763,9 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 	byte_array = g_byte_array_sized_new (MAX_TEXT_BUFFER);
 
 	/* boost readahead */
+#ifdef HAVE_POSIX_FADVISE
 	posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
-
+#endif
 	
 	while (!finished) {
 
@@ -2866,7 +2868,7 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 		if (!use_buffer) g_free (value);
 
 		if (tracker->throttle > 9) {
-			tracker_throttle (tracker->throttle);
+			tracker_throttle (tracker->throttle * 100);
 		}
 
 	}        	
@@ -2875,8 +2877,9 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 	deflateEnd(&strm);
 
 	/* flush cache for file as we wont touch it again */
+#ifdef HAVE_POSIX_FADVISE
 	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
-
+#endif
 	close (fd);
 
 	if (finished) {

@@ -154,6 +154,18 @@ TabularMetadata=Email:Sender;Email:Subject;Email:Date;
 TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
 ContentMetadata=Email:Body
 
+[ThunderbirdEmails]
+DisplayName=Thunderbird Emails
+Description=Thunderbird based emails
+Parent=Emails
+ViewerExec=thunderbird -viewmetatracker "%1"
+KeyMetadata1=Email:Subject
+KeyMetadata2=Email:Sender
+KeyMetadata3=Email:Date
+TabularMetadata=Email:Sender;Email:Subject;Email:Date;
+TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
+ContentMetadata=Email:Body
+
 [KMailEmails]
 DisplayName=KMail Emails
 Description=KMail based emails

@@ -1,5 +1,6 @@
 /* Tracker - indexer and metadata database engine
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2007, Michal Pryc (Michal.Pryc@Sun.Com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -16,8 +17,6 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-
-#define _XOPEN_SOURCE 600
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -1726,8 +1725,9 @@ is_text_file (const gchar *uri)
 	}
 
 	/* disable readahead as we only want a fix length */
+#ifdef HAVE_POSIX_FADVISE
 	posix_fadvise (fd, 0, 0, POSIX_FADV_RANDOM);
-
+#endif
 	buffer_length = read (fd, buffer, TEXT_SNIFF_SIZE);
 
 	if (buffer_length < 3) {
@@ -1761,7 +1761,9 @@ is_text_file (const gchar *uri)
 
 return_false:
 	/* flush cache as we wont touch file again */
+#ifdef HAVE_POSIX_FADVISE
 	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+#endif
 	close (fd);
 	return FALSE;
 
@@ -2510,6 +2512,7 @@ tracker_load_config_file (void)
 					 "SkipMountPoints=false\n\n",
 					 "[Emails]\n",
 					 "IndexEvolutionEmails=true\n\n",
+                                         "IndexThunderbirdEmails=true\n\n",
 					 "[Performance]\n",
 					 "# Maximum size of text in bytes to index from a file's text contents\n",
 					 "MaxTextToIndex=1048576\n",
@@ -2688,6 +2691,11 @@ tracker_load_config_file (void)
 		tracker->index_kmail_emails = FALSE;
 	}
 
+	if (g_key_file_has_key (key_file, "Emails", "IndexThunderbirdEmails", NULL)) {
+		tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Emails", "IndexThunderbirdEmails", NULL);
+	} else {
+		tracker->index_thunderbird_emails = TRUE;
+	}        
 
 	/* Performance options */
 

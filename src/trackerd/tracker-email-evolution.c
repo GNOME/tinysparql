@@ -2421,8 +2421,11 @@ add_persons_from_internet_address_list_string_parsing (GSList *list, const gchar
 
 		mp = email_allocate_mail_person ();
 
-		mp->name = g_strdup (addrs_list->address->name);
-		mp->addr = g_strdup (addrs_list->address->value.addr);
+		mp->addr = g_strdup (tmp->address->value.addr);
+		if(tmp->address->name)
+                	mp->name = g_strdup (tmp->address->name);
+		else
+			mp->name = g_strdup (tmp->address->value.addr);
 
 		list = g_slist_prepend (list, mp);
 	}

@@ -43,7 +43,7 @@ tracker_extract_imagemagick (gchar *filename, GHashTable *metadata)
 
 	argv[0] = g_strdup ("identify");
 	argv[1] = g_strdup ("-format");
-	argv[2] = g_strdup ("'%w;\\n%h;\\n%c;\\n'");
+	argv[2] = g_strdup ("%w;\\n%h;\\n%c;\\n");
 	if (g_str_has_suffix (filename, ".xcf")) {
 		argv[3] = g_strdup (filename);
 		argv[4] = NULL;
