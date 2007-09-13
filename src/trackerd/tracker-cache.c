@@ -88,7 +88,7 @@ cache_free (Cache *cache)
 	tracker->word_count--;
 }
 
-/*
+
 static DBConnection *
 create_merge_index (const gchar *name, gboolean update)
 {
@@ -117,7 +117,8 @@ create_merge_index (const gchar *name, gboolean update)
 
 	return db_con;
 }
-*/
+
+
 
 static gint
 prepend_key_pointer (gpointer         key,
@@ -151,23 +152,57 @@ sort_func (gchar *a, gchar *b)
 }
 
 
-static GSList *
-flush_update_list (DBConnection *db_con, GSList *list, const gchar *word)
+static inline gboolean
+needs_merge (DBConnection *db_con)
 {
-        if (!list) {
-                return NULL;
-        }
-
-	GSList *ret_list = tracker_indexer_update_word_list (db_con, word, list);
-	return ret_list;
+	if  (tracker_indexer_size (db_con) > tracker->merge_limit) {
+		
+		if (!db_con->merge_index) {
+			db_con->merge_index = create_merge_index (db_con->name, FALSE);
+			db_con->merge_update_index = create_merge_index (db_con->name, TRUE);
+		}
+		return TRUE;
+	}
+	
+	return FALSE;
+	
 }
 
 
 static void
 flush_list (DBConnection *db_con, GSList *list1, GSList *list2, const gchar *word)
 {
-	tracker_indexer_append_word_lists (db_con, word, list1, list2);
+	if (needs_merge (db_con)) {
+		tracker_indexer_append_word_lists (db_con->merge_index, word, list1, list2);
+	} else {
+		tracker_indexer_append_word_lists (db_con, word, list1, list2);
+	}
 }
+
+static GSList *
+flush_update_list (DBConnection *db_con, GSList *list, const gchar *word)
+{
+        if (!list) {
+                return NULL;
+        }
+	
+	if (needs_merge (db_con)) {
+		GSList *ret_list = tracker_indexer_update_word_list (db_con->merge_update_index, word, list);
+		if (ret_list) {
+			tracker_indexer_append_word_lists (db_con->merge_update_index, word, ret_list, NULL);
+			g_slist_free (ret_list);
+		}		
+
+	} else {
+		GSList *ret_list = tracker_indexer_update_word_list (db_con, word, list);
+		return ret_list;
+	}
+
+	return NULL;
+}
+
+
+
 
 
 static void
@@ -185,6 +220,7 @@ flush_cache (DBConnection *db_con, Cache *cache, const gchar *word)
 	} else {
 		if (new_update_list) {
 			flush_list (db_con->word_index, new_update_list, NULL, word);
+			g_slist_free (new_update_list);
 		}
 	}
 

@@ -81,11 +81,13 @@ void		tracker_index_free_hit_list		(GSList *hit_list);
 DBConnection * 	tracker_indexer_open 			(const gchar *name);
 void		tracker_indexer_close 			(DBConnection *db_con);
 void		tracker_indexer_free 			(DBConnection *db_con, gboolean remove_file);
+gboolean	tracker_indexer_has_merge_index 	(DBConnection *db_con);
+
 guint32		tracker_indexer_size 			(DBConnection *db_con);
 gboolean	tracker_indexer_optimize		(DBConnection *db_con);
 void		tracker_indexer_sync 			(DBConnection *db_con);
 
-void		tracker_indexer_merge_index 		(DBConnection *db_con, gboolean update);
+void		tracker_indexer_merge_index 		(DBConnection *db_con);
 
 /* Indexing api */
 gboolean	tracker_indexer_append_word 		(DBConnection *db_con, const gchar *word, guint32 id, gint service, gint score);

@@ -22,6 +22,7 @@
 #define CREATE_INDEX "CREATE TABLE HitIndex (Word Text not null unique, HitCount Integer, HitArraySize Integer, HitArray Blob);"
 #define MAX_HIT_BUFFER 480000
 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -194,6 +195,7 @@ tracker_indexer_open (const gchar *name)
 	sqlite3_busy_timeout (db_con->db, 10000);
 	
 	db_con->merge_index = NULL;
+	db_con->merge_update_index = NULL;
 	db_con->cache = NULL;
 	db_con->emails = NULL;
 	db_con->others = NULL;
@@ -245,6 +247,19 @@ tracker_indexer_free (DBConnection *db_con, gboolean remove_file)
 	g_free (db_con->file_name);
 
 	g_free (db_con);
+}
+
+
+gboolean
+tracker_indexer_has_merge_index (DBConnection *db_con)
+{	
+	char *dbname = g_build_filename (tracker->data_dir, "tmp-", db_con->name, NULL);
+
+	gboolean result = g_file_test (dbname, G_FILE_TEST_IS_REGULAR);
+
+	g_free (dbname);
+
+	return result;
 }
 
 
@@ -432,88 +447,107 @@ close_blob (sqlite3_blob *blob)
 }
 
 
-void
-tracker_indexer_merge_index (DBConnection *db_con, gboolean update)
+static gboolean
+merge_words (DBConnection *db_con, DBConnection *merge_db_con, gboolean update)
 {
-	DBConnection *merge_db_con = db_con->merge_index;
 	gint sz = sizeof (WordDetails);
 	sqlite3_blob *blob;
 	gchar buffer[MAX_HIT_BUFFER];
 
-	if (!merge_db_con || !db_con) {
+	if (tracker->shutdown) {
+        	return FALSE;
+	}
+
+	gchar ***res = tracker_exec_proc (merge_db_con, "GetWordBatch", 0); 
+
+	if (res) {
+		gchar **row;
+		gint  k;
+
+		k = 0;
+
+		tracker_db_start_transaction (db_con);
+
+		while ((row = tracker_db_get_row (res, k))) {
+
+			k++;
+
+			if (!row || !row[0] || !row[1] || !row[2] || !row[3]) {
+				continue;
+			}
+		
+			sqlite_int64 id = atoi (row[0]);
+			gchar *word = row[1];
+			gint hit_count = atoi (row[2]);
+
+			blob = get_blob (merge_db_con, id, TRUE);
+
+			if (!blob) {
+				continue;
+			}
+
+			if (!read_blob (blob, buffer, hit_count * sz, 0)) {
+				close_blob (blob);
+				continue;
+			}
+
+			if (!update) {
+				tracker_indexer_append_word_chunk (db_con, word, (WordDetails *) buffer, hit_count);
+			} else {
+				GSList *list = tracker_indexer_update_word_chunk (db_con, word, (WordDetails *) buffer, hit_count);
+				tracker_indexer_append_word_lists (db_con, word, list, NULL);
+				g_slist_free (list); 
+			}
+
+			close_blob (blob);
+
+			gchar *str_id = tracker_int_to_str (id);
+			tracker_exec_proc (merge_db_con, "DeleteWord", 1, str_id);
+			g_free (str_id);
+				
+		}
+	
+		tracker_db_end_transaction (db_con);
+		tracker_db_free_result (res);
+
+		if (tracker->shutdown) {
+	        	return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+void
+tracker_indexer_merge_index (DBConnection *db_con)
+{
+	DBConnection *merge_db_con = db_con->merge_index;
+	DBConnection *merge_update_db_con = db_con->merge_update_index;
+
+	int throttle;
+
+	if (!merge_db_con || !db_con || !merge_update_db_con) {
 		tracker_error ("merge index missing");
 		return;
 	}
 
-	while (TRUE) {
+	guint32 size = tracker_indexer_size (db_con);
 
-		if (tracker->shutdown) {
-			break;
-		}
+	div_t q = div (size, tracker->merge_limit);
 
-		gchar ***res = tracker_exec_proc (merge_db_con, "GetWordBatch", 0); 
+	throttle = q.quot * 1000 * 500;
 
-		if (res) {
-			gchar **row;
-			gint  k;
-
-			k = 0;
-
-			tracker_db_start_transaction (db_con);
-
-			while ((row = tracker_db_get_row (res, k))) {
-
-				k++;
-
-				if (!row || !row[0] || !row[1] || !row[2] || !row[3]) {
-					continue;
-				}
-		
-				sqlite_int64 id = atoi (row[0]);
-				gchar *word = row[1];
-				gint hit_count = atoi (row[2]);
-
-				blob = get_blob (merge_db_con, id, TRUE);
-
-				if (!blob) {
-					continue;
-				}
-
-				if (!read_blob (blob, buffer, hit_count * sz, 0)) {
-					close_blob (blob);
-					continue;
-				}
-
-				if (!update) {
-					tracker_indexer_append_word_chunk (db_con, word, (WordDetails *) buffer, hit_count);
-				} else {
-					GSList *list = tracker_indexer_update_word_chunk (db_con, word, (WordDetails *) buffer, hit_count);
-					tracker_indexer_append_word_lists (db_con, word, list, NULL);
-					g_slist_free (list); 
-				}
-
-				close_blob (blob);
-
-				gchar *str_id = tracker_int_to_str (id);
-				tracker_exec_proc (merge_db_con, "DeleteWord", 1, str_id);
-				g_free (str_id);
-				
-			}
-	
-			tracker_db_end_transaction (db_con);
-
-			tracker_db_free_result (res);
-
-			if (tracker->shutdown) {
-				break;
-			}
-
-			g_usleep (1000*1000);
-		
-		} else {
-			break;
-		}
+	while (merge_words (db_con, merge_update_db_con, TRUE)) {
+		g_usleep (throttle);
 	}
+
+	while (merge_words (db_con, merge_db_con, FALSE)) {
+		g_usleep (throttle);
+	}
+
 }
 
 
