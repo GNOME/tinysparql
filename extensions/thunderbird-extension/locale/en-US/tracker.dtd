@@ -1,0 +1,50 @@
+<!ENTITY trackermain.settings "Tracker indexing settings">
+<!ENTITY trackerprefs.title "Tracker indexing settings">
+<!ENTITY trackerprefs.indexing "Indexing">
+<!ENTITY trackerprefs.privacy "Privacy">
+<!ENTITY trackerprefs.sourcescaption "Sources">
+<!ENTITY trackerprefs.contentcaption "Content">
+<!ENTITY trackerprefs.enabled "Enable indexing">
+<!ENTITY trackerprefs.destdir "Destination directory">
+<!ENTITY trackerprefs.batchcount "Batch count">
+<!ENTITY trackerprefs.delay "Batch delay">
+<!ENTITY trackerprefs.local "Local account">
+<!ENTITY trackerprefs.imap "IMAP accounts">
+<!ENTITY trackerprefs.pop "POP3 accounts">
+<!ENTITY trackerprefs.mailspool "Mailspool accounts">
+<!ENTITY trackerprefs.news "Newsgroup accounts">
+<!ENTITY trackerprefs.rss "RSS feeds">
+<!ENTITY trackerprefs.contentdesc "To empty index, press the button">
+<!ENTITY trackerprefs.delindex "Drop everything">
+<!ENTITY trackerprefs.unindex "Reset index status">
+<!ENTITY trackerprefs.speedcaption "Indexing speed">
+<!ENTITY trackerprefs.recommended "(Recommended)">
+<!ENTITY trackerprefs.notrecommended "(Not recommended)">
+<!ENTITY trackerprefs.veryslow "Very slow">
+<!ENTITY trackerprefs.slow "Slow">
+<!ENTITY trackerprefs.normal "Normal">
+<!ENTITY trackerprefs.fast "Fast">
+<!ENTITY trackerprefs.veryfast "Very fast">
+<!ENTITY trackerprefs.instant "Instant">
+<!ENTITY trackerprefs.custom "Custom">
+<!ENTITY trackerprefs.customcaption "Custom settings">
+<!ENTITY trackerprefs.status "Status">
+<!ENTITY trackerprefs.queuecount "Queue count">
+<!ENTITY trackerprefs.stats "Statistics">
+<!ENTITY trackerprefs.indexingstatus "Indexing status:">
+<!ENTITY trackerprefs.itemsadded "Items added:">
+<!ENTITY trackerprefs.itemsremoved "Items removed:">
+<!ENTITY trackerprefs.itemsqueued "Items queued:">
+<!ENTITY trackerprefs.refresh "Refresh">
+<!ENTITY trackerunindex.title "Processing index data">
+<!ENTITY trackerunindex.topic "Data is is currently being processed. Please wait...">
+<!ENTITY trackerunindex.currentItem "Processing:">
+<!ENTITY trackerunindex.preparing "Preparing data...">
+<!ENTITY trackerunindex.folderdesc "Folders:">
+<!ENTITY trackerunindex.messagedesc "Messages:">
+<!ENTITY trackerunindex.cancel "Cancel">
+<!ENTITY trackerfoldertree.removefolder "Remove folder from index">
+<!ENTITY trackerfoldertree.removefolderrecursive "Recursively remove folder from index">
+<!ENTITY trackerfoldertree.noindexing "Never index this folder">
+<!ENTITY trackermessageview.removemessage "Remove message from index">
+<!ENTITY trackermessageview.noindexing "Never index this message">

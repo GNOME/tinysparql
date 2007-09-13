@@ -4,25 +4,25 @@ VERSION = 0.1.3
 all: $(PROJECT).xpi
 
 JAR_FILES =					\
-	content/beagle.css			\
-	content/beagleIndexer.js		\
-	content/beagleMailWindow.xul		\
-	content/beagleMessenger.xul		\
-	content/beaglePrefs.xul			\
-	content/beagleQueue.js			\
-	content/beagleService.js		\
-	content/beagleSettings.js		\
-	content/beagleUnindex.js		\
-	content/beagleUnindex.xul		\
-	content/beagleUtils.js			\
+	content/tracker.css			\
+	content/trackerIndexer.js		\
+	content/trackerMailWindow.xul		\
+	content/trackerMessenger.xul		\
+	content/trackerPrefs.xul			\
+	content/trackerQueue.js			\
+	content/trackerService.js		\
+	content/trackerSettings.js		\
+	content/trackerUnindex.js		\
+	content/trackerUnindex.xul		\
+	content/trackerUtils.js			\
 	content/contents.rdf			\
-	locale/en-US/beagle.dtd			\
+	locale/en-US/tracker.dtd			\
 	locale/en-US/strings.properties		\
 	locale/en-US/contents.rdf		\
 	skin/classic/overlay.css		\
-	skin/classic/beagle.png			\
-	skin/classic/beagle-disabled.png	\
-	skin/classic/beagle-error.png		\
+	skin/classic/tracker.png			\
+	skin/classic/tracker-disabled.png	\
+	skin/classic/tracker-error.png		\
 	skin/classic/contents.rdf
 
 XPI_FILES =					\
@@ -30,10 +30,10 @@ XPI_FILES =					\
 	install.rdf				\
 	chrome/$(PROJECT).jar			\
 	defaults/preferences/default.js		\
-	components/BeagleIndexer.js		\
-	components/BeagleQueue.js		\
-	components/BeagleSettings.js		\
-	components/BeagleCommandLine.js
+	components/TrackerIndexer.js		\
+	components/TrackerQueue.js		\
+	components/TrackerSettings.js		\
+	components/TrackerCommandLine.js
 
 chrome/$(PROJECT).jar: $(JAR_FILES)
 	-@mkdir -p chrome

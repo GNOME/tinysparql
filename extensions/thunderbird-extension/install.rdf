@@ -13,7 +13,7 @@
     </em:description>
     <em:creator>Pierre Èûstlund, Michal Pryc</em:creator>
     <em:homepageURL>http://www.gnome.org/projects/tracker</em:homepageURL>
-    <em:optionsURL>chrome://beagle/content/beaglePrefs.xul</em:optionsURL>
+    <em:optionsURL>chrome://tracker/content/trackerPrefs.xul</em:optionsURL>
 
     <em:file>
       <Description about="urn:mozilla:extension:file:tracker.jar">
