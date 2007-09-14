@@ -199,6 +199,8 @@ typedef struct {
 	guint32		watch_limit;
 
 	gboolean	shutdown;
+	gboolean	paused;
+	gboolean	battery_paused;
 
 	/* controls how much to output to screen/log file */
 	int		verbosity;
@@ -228,7 +230,7 @@ typedef struct {
 
 	/* indexing options */
 
-	int		merge_limit; 		/* size of index in MBs when merging is triggered -1 == no merging*/
+	guint32		merge_limit; 		/* size of index in MBs when merging is triggered -1 == no merging*/
 	gboolean	active_file_merge;
 	gboolean	active_email_merge;
 
@@ -573,8 +575,14 @@ void		tracker_free_metadata_field 	(FieldData *field_data);
 
 gboolean	tracker_unlink 			(const char *uri);
 
+gboolean	tracker_using_battery 		(void);
+
+
 int 		tracker_get_memory_usage 	(void);
 
 guint32		tracker_file_size 		(const char *name);
+int		tracker_file_open 		(const char *file_name, gboolean readahead);
+void		tracker_file_close 		(int fd, gboolean no_longer_needed);
+
 
 #endif

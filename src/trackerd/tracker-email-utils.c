@@ -118,6 +118,8 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 	MailMessage	*mail_msg;
 	int 		indexed = 0, junk = 0, deleted = 0;
 
+	if (!tracker->is_running) return FALSE; 
+
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (path, FALSE);
 	g_return_val_if_fail (store, FALSE);
@@ -164,8 +166,24 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 		tracker->index_count++;
 
 		if (tracker->verbosity == 1 && (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0))) {
+
 			tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
+
+			tracker->battery_paused = tracker_using_battery ();
+				
+			while (tracker->paused || tracker->battery_paused) {
+				g_usleep (1000 * 1000);
+				tracker_log ("pausing...");
+				tracker->grace_period = 0;				
+				if (!tracker->is_running) break;
+
+			}
 		}
+
+
+
+		if (!tracker->is_running) break; 
+
 
 		if (tracker->grace_period > 1) {
 			tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
@@ -175,6 +193,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			continue;
 		}
 
+		
 
 	}
 
@@ -182,10 +201,6 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	if (indexed > 0) {
 		tracker_info ("Indexed %d emails in email store %s and ignored %d junk and %d deleted emails", indexed, path, junk, deleted);
-
-		
-
-
 		return TRUE;
 	}
 

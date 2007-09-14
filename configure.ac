@@ -608,14 +608,13 @@ AC_ARG_WITH(thunderbird-extension,
             AC_HELP_STRING([--with-thunderbird-extension], [Build with thunderbird extension - note this is experimental and you will need the tunderbird extension for tracker]),
             [
                 enable_tbird=no
-                AC_CHECK_FILES( thunderbird-extension/Makefile.am \
-                                thunderbird-extension/install.rdf \
-                                thunderbird-extension/components/BeagleIndexer.js,
+                AC_CHECK_FILES( extensions/thunderbird-extension/Makefile.am \
+                                extensions/thunderbird-extension/install.rdf \
+                                extensions/thunderbird-extension/components/TrackerIndexer.js,
                                 [
                                  enable_tbird=yes
                                  AC_SUBST(THUNDERBIRD_EXTENSION_DIRECTORY,[thunderbird-extension])
-        thunderbird_extension_message="The extension will be build to:         thunderbird-extension/tracker.x
-pi
+        thunderbird_extension_message="The extension will be build to:         extensions/thunderbird-extension/tracker.xpi
 
         *****INFO*****
         You have choosen to build with the Thunderbird extension.

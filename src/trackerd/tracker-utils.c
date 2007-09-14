@@ -1714,20 +1714,8 @@ is_text_file (const gchar *uri)
 	GError	*err = NULL;
 	int 	fd;
 
-#if defined(__linux__)
-	fd = open (uri, O_RDONLY|O_NOATIME);
-#else
-	fd = open (uri, O_RDONLY); 
-#endif
+	fd = tracker_file_open (uri, FALSE);
 
-	if (fd ==-1) {
-		return FALSE;
-	}
-
-	/* disable readahead as we only want a fix length */
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_RANDOM);
-#endif
 	buffer_length = read (fd, buffer, TEXT_SNIFF_SIZE);
 
 	if (buffer_length < 3) {
@@ -1760,15 +1748,11 @@ is_text_file (const gchar *uri)
 	}
 
 return_false:
-	/* flush cache as we wont touch file again */
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
-#endif
-	close (fd);
+	tracker_file_close (fd, TRUE);
 	return FALSE;
 
 return_true:
-	close (fd);
+	tracker_file_close (fd, FALSE);
 	return TRUE;
 }
 
@@ -2764,8 +2748,10 @@ tracker_notify_file_data_available (void)
 		return;
 	}
 
+	int revs = 0;
+
 	/* we are in check phase - we need to wait until either check_mutex is unlocked or file thread is asleep then awaken it */
-	while (TRUE) {
+	while (revs < 100000) {
 
 		if (g_mutex_trylock (tracker->files_check_mutex)) {
 			g_mutex_unlock (tracker->files_check_mutex);
@@ -2780,6 +2766,7 @@ tracker_notify_file_data_available (void)
 
 		g_thread_yield ();
 		g_usleep (10);
+		revs++;
 	}
 }
 
@@ -3575,6 +3562,10 @@ tracker_using_battery (void)
 
 	g_free (txt);
 
+	if (using_battery) {
+		tracker_log ("Now on battery power - suspending indexing");
+	}
+
 	return using_battery;
 }
 
@@ -3707,4 +3698,47 @@ tracker_file_size (const char *name)
 	return (guint32) finfo.st_size;
 
 }
+
+int
+tracker_file_open (const char *file_name, gboolean readahead)
+{
+	int fd;
+
+#if defined(__linux__)
+	fd = open (file_name, O_RDONLY|O_NOATIME);
+
+	if (fd == -1) {
+		fd = open (file_name, O_RDONLY); 
+	}
+#else
+	fd = open (file_name, O_RDONLY); 
+#endif
+
+	if (fd == -1) return -1;
+	
+#ifdef HAVE_POSIX_FADVISE
+	if (readahead) {
+		posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+	} else {
+		posix_fadvise (fd, 0, 0, POSIX_FADV_RANDOM);
+	}
+#endif
+
+	return fd;
+}
+
+
+void
+tracker_file_close (int fd, gboolean no_longer_needed)
+{
+
+#ifdef HAVE_POSIX_FADVISE
+	if (no_longer_needed) {
+		posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+	}
+#endif
+	close (fd);
+}
+
+
 

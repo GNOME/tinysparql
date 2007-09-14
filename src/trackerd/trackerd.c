@@ -868,7 +868,7 @@ process_files_thread (void)
 		need_index = FALSE;
 
 		/* make thread sleep if first part of the shutdown process has been activated */
-		if (!tracker->is_running) {
+		if (!tracker->is_running || !tracker->enable_indexing) {
 
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
@@ -876,7 +876,7 @@ process_files_thread (void)
 			if (!tracker->shutdown) {
 				continue;
 			} else {
-
+				tracker_cache_flush_all (db_con);
 				if (tracker->dir_list) {
 					g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
 					g_slist_free (tracker->dir_list);
@@ -897,6 +897,15 @@ process_files_thread (void)
 		}
 
 		tracker_cache_flush (db_con);
+
+		tracker->battery_paused = tracker_using_battery ();
+				
+		if (tracker->paused || tracker->battery_paused) {
+			if (tracker->index_status > INDEX_APPLICATIONS) {
+				g_usleep (1000 * 1000);
+				continue;
+			}
+		}
 
 		info = g_async_queue_try_pop (tracker->file_process_queue);
 
@@ -1811,6 +1820,9 @@ set_defaults (void)
 	tracker->merge_limit = MERGE_LIMIT;
 
 	tracker->index_status = INDEX_CONFIG;
+
+	tracker->paused = FALSE;
+	tracker->battery_paused = FALSE;
 
 	tracker->watch_directory_roots_list = NULL;
 	tracker->no_watch_directory_list = NULL;

@@ -2733,11 +2733,7 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 
 	DBConnection *blob_db_con = db_con->blob;
 
-#if defined(__linux__)
-		fd = open (file_name, O_RDONLY|O_NOATIME);
-#else
-		fd = open (file_name, O_RDONLY); 
-#endif
+	fd = tracker_file_open (file_name, TRUE);
 
 	if (fd ==-1) {
 		tracker_error ("ERROR: could not open file %s", file_name);
@@ -2762,11 +2758,6 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 
 	byte_array = g_byte_array_sized_new (MAX_TEXT_BUFFER);
 
-	/* boost readahead */
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
-#endif
-	
 	while (!finished) {
 
 		char *value = NULL;
@@ -2877,10 +2868,7 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 	deflateEnd(&strm);
 
 	/* flush cache for file as we wont touch it again */
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
-#endif
-	close (fd);
+	tracker_file_close (fd, TRUE);
 
 	if (finished) {
 		if (bytes_read > 2) {
@@ -2950,6 +2938,8 @@ void
 tracker_db_check_tables (DBConnection *db_con)
 {
 }
+
+
 
 
 char ***
@@ -3123,7 +3113,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 
 					} else {
 
-						if (res[0][2]) {
+						if (res[0][2] && g_file_test (res[0][0], G_FILE_TEST_EXISTS)) {
 
 							row = g_new (char *, 4);
 

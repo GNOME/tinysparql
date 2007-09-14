@@ -1211,6 +1211,8 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 {
 	SummaryFile *summary = NULL;
 
+	if (!tracker->is_running) return; 
+
 	if (open_summary_file (summary_file_path, &summary)) {
 		SummaryFileHeader *header;
 		gint32            mail_count, junk_count, delete_count;
@@ -1357,6 +1359,28 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 
 				email_free_mail_file (mail_msg->parent_mail_file);
 				email_free_mail_message (mail_msg);
+		
+				tracker->battery_paused = tracker_using_battery ();
+				
+				while (tracker->paused || tracker->battery_paused) {
+					g_usleep (1000 * 1000);
+					tracker_log ("pausing...");
+					tracker->grace_period = 0;				
+					if (!tracker->is_running) break;
+
+				}
+
+
+
+				if (!tracker->is_running) break; 
+
+
+				if (tracker->grace_period > 1) {
+					tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
+					g_usleep (1000 * 1000);
+					tracker->grace_period--;
+					if (tracker->grace_period > 2) tracker->grace_period = 2;
+				}
 			}
 
 			tracker_log ("No. of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
@@ -1437,17 +1461,15 @@ open_summary_file (const gchar *path, SummaryFile **summary)
                 *summary = NULL;
 	}
 
-#if defined(__linux__)
-        if ((fd = g_open (path, (O_RDONLY | O_NOATIME))) == -1) {
-#else
-        if ((fd = g_open (path, O_RDONLY)) == -1) {
-#endif
-                return FALSE;
+	fd = tracker_file_open (path, TRUE);
+
+        if (fd == -1) {
+        	return FALSE;
         }
 
         f = fdopen (fd, "r");
         if (!f) {
-                close (fd) ;
+                tracker_file_close (fd, TRUE);
                 return FALSE;
         }
 

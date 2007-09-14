@@ -1,3 +1,11 @@
+2007-09-13 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added automatic index pause on battery
+	* Check files exist before including in search results
+	* Fixed disabling of indexing option
+	* Fixed bug where could not open files when O_NOATIME is not supported
+
+
 2007-09-12 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added basic support for index merging
