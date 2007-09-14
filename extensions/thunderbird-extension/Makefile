@@ -42,10 +42,7 @@ chrome/$(PROJECT).jar: $(JAR_FILES)
 $(PROJECT).xpi: $(XPI_FILES)
 	zip -q9 $@ $^
 
-EXTRA_DIST =					\
-	$(JAR_FILES)				\
-	$(XPI_FILES)
 
-CLEANFILES =					\
-	chrome/$(PROJECT).jar			\
-	$(PROJECT).xpi				
+clean:
+	rm -f chrome/$(PROJECT).jar
+	rm -f $(PROJECT).xpi				
