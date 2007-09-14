@@ -34,6 +34,7 @@
 
 #include "tracker-ioprio.h"
 
+#ifndef __NR_ioprio_set
 
 #if defined(__i386__)
 #define __NR_ioprio_set         289
@@ -69,6 +70,7 @@
 #error "Unsupported architecture!"
 #endif
 
+#endif
 
 enum {
 	IOPRIO_CLASS_NONE,
