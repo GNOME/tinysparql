@@ -95,12 +95,19 @@ create_merge_index (const gchar *name, gboolean update)
 	gchar *dbname;
 	DBConnection *db_con;
 
+	char *new_name = g_strconcat ("tmp-", name, NULL);
+	char *new_update_name = g_strconcat ("tmp-update-", name, NULL);
+
+
 	if (!update) {
-		dbname = g_build_filename (tracker->data_dir, "tmp-", name, NULL);
+		dbname = g_build_filename (tracker->data_dir, new_name, NULL);
 	} else {
-		dbname = g_build_filename (tracker->data_dir, "tmp-update-", name, NULL);
+		dbname = g_build_filename (tracker->data_dir, new_update_name, NULL);
 	}
 	
+	g_free (new_name);
+	g_free (new_update_name);
+
 	if (g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
 		tracker_log ("database index file %s is already present", dbname);
 		db_con = tracker_indexer_open (dbname);

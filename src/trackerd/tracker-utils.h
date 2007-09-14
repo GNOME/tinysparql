@@ -258,6 +258,8 @@ typedef struct {
 
 	int		grace_period;
 
+	char *		xesam_dir;
+
 	/* battery and ac power status file */
 	char		*battery_state_file;
 
@@ -584,5 +586,6 @@ guint32		tracker_file_size 		(const char *name);
 int		tracker_file_open 		(const char *file_name, gboolean readahead);
 void		tracker_file_close 		(int fd, gboolean no_longer_needed);
 
+void		tracker_add_io_grace 		(const char *uri);
 
 #endif

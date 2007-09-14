@@ -40,7 +40,7 @@ extern Tracker *tracker;
 static inline guint16
 get_score (WordDetails *details)
 {
-	guchar a[2];
+	unsigned char a[2];
 
 	a[0] = (details->amalgamated >> 16) & 0xFF;
 	a[1] = (details->amalgamated >> 8) & 0xFF;
@@ -59,7 +59,7 @@ get_service_type (WordDetails *details)
 guint32
 tracker_indexer_calc_amalgamated (gint service, gint score)
 {
-	gchar a[4];
+	unsigned char a[4];
 	guint16 score16;
 	guint8 service_type;
 

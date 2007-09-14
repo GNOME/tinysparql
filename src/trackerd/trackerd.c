@@ -2168,6 +2168,8 @@ main (gint argc, gchar *argv[])
 
 	tracker->dir_queue = g_async_queue_new ();
 
+	tracker->xesam_dir = g_build_filename (g_get_home_dir (), ".xesam", NULL);
+
 	/* delete old stuff if files.db is present in data dir */
 	gchar *old_file = g_build_filename (tracker->data_dir, "files.db", NULL);
 	if (reindex || g_file_test (old_file, G_FILE_TEST_EXISTS)) {

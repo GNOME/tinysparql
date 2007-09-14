@@ -2225,6 +2225,21 @@ tracker_ignore_file (const char *uri)
 		return TRUE;
 	}
 
+	if (is_in_path (uri, g_get_tmp_dir ())) {
+		return TRUE;
+	}
+
+	if (is_in_path (uri, "/proc")) {
+		return TRUE;
+	}
+
+	if (is_in_path (uri, "/dev")) {
+		return TRUE;
+	}
+
+	if (is_in_path (uri, "/tmp")) {
+		return TRUE;
+	}
 
 	/* test suffixes */
 	for (st = ignore_suffix; *st; st++) {
@@ -3738,6 +3753,16 @@ tracker_file_close (int fd, gboolean no_longer_needed)
 	}
 #endif
 	close (fd);
+}
+
+void
+tracker_add_io_grace (const char *uri)
+{
+	if (g_str_has_prefix (uri, tracker->xesam_dir)) {
+		return;
+	}
+
+	tracker->grace_period++;
 }
 
 
