@@ -156,10 +156,6 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 
 	SearchQuery *query = tracker_create_query (db_con->word_index, NULL, 0, 0, 999999);
 
-	DBConnection *email_db = db_con->emails;
-
-	query->db_con_email = email_db->word_index;
-
 	array = tracker_parse_text_into_array (str);
 
 	gchar **pstr;
@@ -927,12 +923,13 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 {
 	DBusError	dbus_error;
 	DBusMessage 	*reply;
-	DBConnection	*db_con;
-	gchar		*term;
+	gchar		*term, *str;
 	gint		maxdist;
-	gint		dist;
+	gint		dist, tsiz;
 	gchar		*winner_str;
 	gint		winner_dist;
+	char		*tmp;
+	int		hits;
 	GTimeVal	start, current;
 
 	/*
@@ -953,53 +950,55 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 		return;
 	}
 
-	g_return_if_fail (rec);
-        g_return_if_fail (rec->user_data);
-
-	db_con = rec->user_data;
-
 	winner_str = NULL;
         winner_dist = -1;  /* to initialize winner_dist with something */
 
-	if (strlen (term) > 3) 
-	{
-		gchar ***res = tracker_exec_proc (db_con->word_index, "GetHitDetails", 1, term);
 
-		if (res) {
-			gint i = 0;
-			gchar **row;
+	Indexer *index = tracker->file_index;
 
-			g_get_current_time (&start);
+	dpiterinit (index->word_index);
 
-			while ((row = tracker_db_get_row (res, i))) {
+	g_get_current_time (&start);
 
-				if (row && row[0]) {
-					dist = levenshtein (term, row[0], 0);
-					if (dist != -1 && dist < maxdist) {
-				
-						if (winner_str == NULL) {
-							winner_str = strdup (row[0]);
-							winner_dist = dist;
-						} else if (dist < winner_dist) {
-							free (winner_str);
-							winner_str = strdup (row[0]);
-							winner_dist = dist;
-						}
+	str = dpiternext (index->word_index, NULL);
+	while (str != NULL) {
+		dist = levenshtein (term, str, 0);
+		if (dist != -1 && dist < maxdist) {
+			hits = 0;
+			if ((tmp = dpget (index->word_index, str, -1, 0, -1, &tsiz)) != NULL) {
+				hits = tsiz / sizeof (WordDetails);
+				free (tmp);
+				if (tsiz % sizeof (WordDetails) != 0) {
+					tracker_set_error (rec, "Possible data error from dpget  Aborting tracker_dbus_method_search_suggest.");
+					g_free (str);
+					if (winner_str) {
+						g_free (winner_str);
 					}
-
-                                        g_get_current_time (&current);
-					if (current.tv_sec - start.tv_sec >= 2) { /* 2 second time out */
-						tracker_log ("Timeout in tracker_dbus_method_search_suggest");
-						break;
-					}
-
+					return;
 				}
-			
-				i++;
 			}
-
-			tracker_db_free_result (res);
-		}	
+			if (hits > 0) {
+				if (winner_str == NULL) {
+					winner_str = strdup (str);
+					winner_dist = dist;
+				}
+				else if (dist < winner_dist) {
+					free (winner_str);
+					winner_str = strdup (str);
+					winner_dist = dist;
+				}
+			}
+			else {
+				tracker_log ("No hits for %s!", str);
+			}
+		}
+		free (str);
+		g_get_current_time (&current);
+		if (current.tv_sec - start.tv_sec >= 2) { /* 2 second time out */
+			tracker_log ("Timeout in tracker_dbus_method_search_suggest");
+			break;
+		}
+		str = dpiternext (index->word_index, NULL);
 	}
 
 	if (winner_str == NULL) {
@@ -1013,9 +1012,10 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 	dbus_message_append_args (reply,
 	  			  DBUS_TYPE_STRING, &winner_str,
 	  			  DBUS_TYPE_INVALID);
-	g_free (winner_str);
+	free (winner_str);
 
 	dbus_connection_send (rec->connection, reply, NULL);
 
 	dbus_message_unref (reply);
+
 }

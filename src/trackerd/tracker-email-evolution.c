@@ -33,6 +33,7 @@
 #include "tracker-email-evolution.h"
 #include "tracker-email-utils.h"
 #include "tracker-db-email.h"
+#include "tracker-cache.h"
 
 #ifdef HAVE_INOTIFY
 #   include "tracker-inotify.h"
@@ -655,21 +656,19 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 
 				if (scan_summary_for_junk (summary, &uid, store->type)) {
 					if (uid > 0) {
+						gchar *uri, *str_uid;
 
-						if (!tracker_db_email_lookup_junk (db_con, mbox_id, uid)) {
-							gchar *uri, *str_uid;
+						str_uid = tracker_uint_to_str (uid);
 
-							str_uid = tracker_uint_to_str (uid);
+						tracker_db_email_insert_junk (db_con, path, uid);
 
-							tracker_db_email_insert_junk (db_con, path, uid);
+						uri = g_strconcat (store->uri_prefix, str_uid, NULL);
 
-							uri = g_strconcat (store->uri_prefix, str_uid, NULL);
+						tracker_db_email_delete_email (db_con, uri);
 
-							tracker_db_email_delete_email (db_con, uri);
-
-							g_free (uri);
-							g_free (str_uid);
-						}
+						g_free (uri);
+						g_free (str_uid);
+						
 					}
 				} else {
 					tracker_error ("ERROR: whilst scanning summary file");
@@ -1211,7 +1210,7 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 {
 	SummaryFile *summary = NULL;
 
-	if (!tracker->is_running) return; 
+	if (!tracker->is_running || !tracker->enable_indexing) return; 
 
 	if (open_summary_file (summary_file_path, &summary)) {
 		SummaryFileHeader *header;
@@ -1359,33 +1358,35 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 
 				email_free_mail_file (mail_msg->parent_mail_file);
 				email_free_mail_message (mail_msg);
-		
-				tracker->battery_paused = tracker_using_battery ();
+
+				if (tracker_db_regulate_transactions (db_con->data, 500)) {
+					if (tracker->verbosity == 1) {
+						tracker_log ("indexing #%d - Emails in %s", tracker->index_count, dir);
+					}
+					
+					LoopEvent event = tracker_cache_event_check (db_con->data, TRUE);
+
+					if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
+
+						tracker_db_end_index_transaction (db_con->data);
+						tracker_cache_flush_all (FALSE);
+
+						break;						
+
+					} else if (event == EVENT_CACHE_FLUSHED) {
+						tracker_db_end_index_transaction (db_con->data);
+						tracker_db_refresh_email (db_con);
+						tracker_db_start_index_transaction (db_con->data);		
+
+					}					
+				}	
 				
-				while (tracker->paused || tracker->battery_paused) {
-					g_usleep (1000 * 1000);
-					tracker_log ("pausing...");
-					tracker->grace_period = 0;				
-					if (!tracker->is_running) break;
-
-				}
-
-
-
-				if (!tracker->is_running) break; 
-
-
-				if (tracker->grace_period > 1) {
-					tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
-					g_usleep (1000 * 1000);
-					tracker->grace_period--;
-					if (tracker->grace_period > 2) tracker->grace_period = 2;
-				}
 			}
 
 			tracker_log ("No. of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
 
 			tracker_db_email_set_message_counts (db_con, dir, store->mail_count, store->junk_count, store->delete_count);
+			
 
 		} else {
 			/* schedule check for junk */

@@ -8,14 +8,14 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA  02110-1301, USA.
- */
+ * Boston, MA  02110-1301, USA. 
+ */  
 
 #ifndef _TRACKER_UTILS_H_
 #define _TRACKER_UTILS_H_
@@ -40,7 +40,7 @@ extern char *tracker_actions[];
 #define MAX_HITS_FOR_WORD 30000
 
 /* set merge limit default to 64MB */
-#define MERGE_LIMIT 67108864
+#define MERGE_LIMIT 671088649
 
 /* max default file pause time in ms  = FILE_PAUSE_PERIOD * FILE_SCHEDULE_PERIOD */
 #define FILE_PAUSE_PERIOD		1
@@ -58,7 +58,7 @@ extern char *tracker_actions[];
 #define MAX_WORDS_TO_INDEX		10000
 
 /* default indexer options */
-#define MIN_INDEX_BUCKET_COUNT		65536    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
+#define MIN_INDEX_BUCKET_COUNT		262144    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
 #define INDEX_DIVISIONS	        	4        /* no. of divisions of file */
 #define MAX_INDEX_BUCKET_COUNT 		524288	 /* max no of buckets to use  */
 #define INDEX_BUCKET_RATIO		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
@@ -92,12 +92,21 @@ typedef enum {
 
 
 typedef enum {
-	DB_DATA,
-	DB_BLOB,
-	DB_EMAIL,
+	DB_DATA, 
+	DB_INDEX,
+	DB_COMMON, 
+	DB_CONTENT,
+	DB_EMAIL, 
 	DB_CACHE,
 	DB_USER
 } DBTypes;
+
+
+typedef enum {
+	DB_CATEGORY_FILES, 
+	DB_CATEGORY_EMAILS,
+	DB_CATEGORY_USER
+} DBCategory;
 
 
 typedef enum {
@@ -180,6 +189,13 @@ typedef struct {
 } ServiceInfo;
 
 
+typedef enum {
+	EVENT_NOTHING,
+	EVENT_SHUTDOWN,
+	EVENT_DISABLE,
+	EVENT_CACHE_FLUSHED
+} LoopEvent;
+
 typedef struct {
 
 	TrackerStatus	status;
@@ -207,6 +223,8 @@ typedef struct {
 
 	gboolean	fatal_errors;
 
+	gpointer	index_db;
+
 	/* data directories */
 	char 		*data_dir;
 	char		*config_dir;
@@ -227,8 +245,21 @@ typedef struct {
 	gboolean	use_extra_memory;
 	int		initial_sleep;
 	int		max_words_to_index;
+	int 		memory_limit;
 
 	/* indexing options */
+
+	/* indexing options */
+	int	 	max_index_bucket_count;
+	int	 	index_bucket_ratio; /* 0 = 50%, 1 = 100%, 2 = 200%, 3 = 300%, 4+ = 400% */
+	int		min_index_bucket_count;
+	int		index_divisions;
+	int 		padding; /* values 1-8 */
+
+	gpointer	file_index;
+	gpointer	file_update_index;
+	gpointer	email_index;
+
 
 	guint32		merge_limit; 		/* size of index in MBs when merging is triggered -1 == no merging*/
 	gboolean	active_file_merge;
@@ -257,6 +288,7 @@ typedef struct {
 	IndexStatus	index_status;
 
 	int		grace_period;
+	gboolean	request_waiting;
 
 	char *		xesam_dir;
 
@@ -292,12 +324,15 @@ typedef struct {
 	int		update_count;
 
 	/* cache words before saving to word index */
-	GHashTable	*cached_table;
-	GMutex		*cache_table_mutex;
+	GHashTable	*file_word_table;
+	GHashTable	*file_update_word_table;
+	GHashTable	*email_word_table;
+
 	int		word_detail_limit;
 	int		word_detail_count;
 	int		word_detail_min;
 	int		word_count;
+	int		word_update_count;
 	int		word_count_limit;
 	int		word_count_min;
 	int		flush_count;
@@ -539,6 +574,7 @@ gboolean	tracker_file_is_in_root_dir	(const char *uri);  /* test if a given file
 
 GSList * 	tracker_get_all_files 		(const char *dir, gboolean dir_only);
 GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
+GSList *	tracker_get_files_with_prefix 	(const char *dir, const char *prefix);
 
 void 		tracker_get_all_dirs 		(const char *dir, GSList **file_list);
 void 		tracker_get_dirs 		(const char *dir, GSList **file_list);

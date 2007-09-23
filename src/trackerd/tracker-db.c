@@ -67,7 +67,7 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 		path = tracker_get_vfs_path (uri);
 	}
 
-	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
+	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
 
 	g_free (path);
 	g_free (name);
@@ -131,7 +131,7 @@ tracker_db_get_file_id (DBConnection *db_con, const char *uri)
 		path = tracker_get_vfs_path (uri);
 	}
 
-	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
+	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
 
 	g_free (path);
 	g_free (name);
@@ -177,7 +177,7 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	g_free (aname);
 	g_free (apath);
 
-	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
+	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
 
 	g_free (name);
 	g_free (path);
@@ -330,10 +330,11 @@ tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 	char ***res;
 
 	g_return_val_if_fail (db_con, NULL);
+	g_return_val_if_fail (db_con->index, NULL);
 	g_return_val_if_fail (folder_uri, NULL);
 	g_return_val_if_fail (folder_uri[0] != '\0', NULL);
 
-	res = tracker_exec_proc (db_con, "SelectFileChild", 1, folder_uri);
+	res = tracker_exec_proc (db_con->index, "SelectFileChild", 1, folder_uri);
 
 	if (res) {
 		int row_count;
@@ -408,7 +409,7 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 
 	info = NULL;
 
-	res = tracker_exec_proc (db_con, "SelectPendingByUri", 1, uri);
+	res = tracker_exec_proc (db_con->cache, "SelectPendingByUri", 1, uri);
 
 	if (res) {
 		char **row;
@@ -807,9 +808,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}
 
 	if (meta_table && (g_hash_table_size (meta_table) > 0)) {
-		tracker_db_start_transaction (db_con->index);
 		tracker_db_save_metadata (db_con->index, meta_table, index_table, service, info->file_id, info->is_new);
-		tracker_db_end_transaction (db_con->index);
 	}
 
 	

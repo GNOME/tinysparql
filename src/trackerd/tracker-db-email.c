@@ -24,7 +24,6 @@
 #include <glib/gstdio.h>
 
 #include "tracker-db-email.h"
-#include "tracker-cache.h"
 
 
 static gint
@@ -109,7 +108,10 @@ tracker_db_email_insert_junk (DBConnection *db_con, const gchar *mbox_uri, guint
 	gchar *str_mbox_id = tracker_int_to_str (mbox_id);
 	gchar *str_uid = tracker_uint_to_str (uid);
 
-	tracker_exec_proc (db_con, "InsertJunk", 2, str_uid, str_mbox_id);
+	if (!tracker_db_email_lookup_junk (db_con, str_mbox_id, uid)) {
+
+		tracker_exec_proc (db_con, "InsertJunk", 2, str_uid, str_mbox_id);
+	}
 
 	g_free (str_uid);	
 	g_free (str_mbox_id);
@@ -530,7 +532,6 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 		gchar	   *str_id, *str_date;
 		GSList     *tmp;
 
-		tracker_db_start_transaction (db_con->index);
 
 		tracker_info ("saving email service %d with uri \"%s\" and subject \"%s\" from \"%s\"", type_id, mm->uri, mm->subject, mm->from);
 
@@ -657,13 +658,10 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			}
 		}
 
-		tracker_db_end_transaction (db_con->index);
-
 		tracker_db_update_indexes_for_new_service (id, type_id, index_table);
 
 		tracker_word_table_free (index_table);
 
-		tracker_cache_flush (db_con->data);
 
 		g_free (str_id);
 

@@ -730,7 +730,6 @@ index_mail_file_in_maildir_dir (DBConnection *db_con, const gchar *dir, const gc
         mail_msg->uri = g_strdup (mail_msg->path);
         mail_msg->store = store;
         tracker_db_email_save_email (db_con, mail_msg);
-        //email_index_each_email_attachment (db_con, mail_msg);
 
         email_free_mail_file (mail_msg->parent_mail_file);
         email_free_mail_message (mail_msg);

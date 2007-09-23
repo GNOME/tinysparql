@@ -100,8 +100,6 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 
 	tracker_db_email_save_email (db_con, mail_msg);
 
-	//email_index_each_email_attachment (db_con, mail_msg);
-
 	email_free_mail_message (mail_msg);
 
 	return TRUE;
@@ -163,38 +161,29 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 		email_free_mail_message (mail_msg);
 
-		tracker->index_count++;
+		if (tracker_db_regulate_transactions (db_con->data, 500)) {
 
-		if (tracker->verbosity == 1 && (tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0))) {
-
-			tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
-
-			tracker->battery_paused = tracker_using_battery ();
-				
-			while (tracker->paused || tracker->battery_paused) {
-				g_usleep (1000 * 1000);
-				tracker_log ("pausing...");
-				tracker->grace_period = 0;				
-				if (!tracker->is_running) break;
-
+			if (tracker->verbosity == 1) {
+				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
 			}
-		}
+					
+			LoopEvent event = tracker_cache_event_check (db_con->data, TRUE);
 
+			if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
 
+				tracker_db_end_index_transaction (db_con->data);
+				tracker_cache_flush_all (FALSE);
 
-		if (!tracker->is_running) break; 
+				break;						
 
+			} else if (event == EVENT_CACHE_FLUSHED) {
+			
+				tracker_db_end_index_transaction (db_con->data);
+				tracker_db_refresh_email (db_con);
+				tracker_db_start_index_transaction (db_con->data);		
 
-		if (tracker->grace_period > 1) {
-			tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
-			g_usleep (1000 * 1000);
-			tracker->grace_period--;
-			if (tracker->grace_period > 2) tracker->grace_period = 2;
-			continue;
-		}
-
-		
-
+			}					
+		}	
 	}
 
 	email_free_mail_file (mf);

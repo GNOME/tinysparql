@@ -39,9 +39,11 @@ typedef enum {
 
 
 
+
 typedef struct {
 	sqlite3		*db;
 	DBTypes		db_type;
+	DBCategory	db_category;
 	char		*err;
 	char		*name;
 	char		*file_name;
@@ -63,8 +65,7 @@ typedef struct {
 	gpointer	cache;
 	gpointer	user;
 	gpointer	word_index;
-	gpointer	merge_index;
-	gpointer	merge_update_index;
+
 
 } DBConnection;
 
@@ -92,9 +93,10 @@ DBConnection *	tracker_db_connect_cache 	(void);
 DBConnection *	tracker_db_connect_emails	(void);
 DBConnection *	tracker_db_connect_email_meta   (void);
 DBConnection *	tracker_db_connect_file_meta 	(void);
-DBConnection *  tracker_db_connect_all 		(gboolean include_indexers);
+DBConnection *  tracker_db_connect_all 		(gboolean indexer_process);
 void		tracker_db_close_all 		(DBConnection *db_con);
 void		tracker_db_refresh_all 		(DBConnection *db_con);
+void		tracker_db_refresh_email	(DBConnection *db_con);
 
 gboolean	tracker_update_db		(DBConnection *db_con);
 
@@ -123,6 +125,8 @@ int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
 void		tracker_db_release_memory 	();
 
 void		tracker_db_set_default_pragmas (DBConnection *db_con);
+
+void		tracker_db_fsync 		(DBConnection *db_con, gboolean enable);
 
 
 char *		tracker_get_related_metadata_names 	(DBConnection *db_con, const char *name);
@@ -219,5 +223,8 @@ int		tracker_count_watch_dirs 		(void);
 
 FieldData *	tracker_db_get_metadata_field 		(DBConnection *db_con, const char *service, const char *field_name, int field_count, gboolean is_select, gboolean is_condition);
 
+void		tracker_db_start_index_transaction 	(DBConnection *db_con);
+void		tracker_db_end_index_transaction 	(DBConnection *db_con);
+gboolean	tracker_db_regulate_transactions 	(DBConnection *db_con, int interval);
 
 #endif

@@ -56,7 +56,7 @@ tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-	res = tracker_exec_proc (db_con, "GetWatchID", 1, dir);
+	res = tracker_exec_proc (db_con->cache, "GetWatchID", 1, dir);
 
 	if (!res) {
 		return FALSE;
@@ -162,6 +162,9 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 			if ((cookie > 0) && (moved_from_info->cookie == cookie)) {
 
 				tracker_info ("found matching inotify pair for from %s to %s", moved_from_info->uri, moved_to_info->uri);
+
+				tracker->grace_period = 2;
+				tracker->request_waiting = TRUE;
 
 				if (!tracker_is_directory (moved_to_info->uri)) {
 					tracker_db_move_file (main_thread_db_con, moved_from_info->uri, moved_to_info->uri);
@@ -335,7 +338,7 @@ process_inotify_events (void)
 
 		str_wd = g_strdup_printf ("%d", event->wd);
 
-		res = tracker_exec_proc (main_thread_db_con, "GetWatchUri", 1, str_wd);
+		res = tracker_exec_proc (main_thread_db_con->cache, "GetWatchUri", 1, str_wd);
 
 		g_free (str_wd);
 
@@ -549,7 +552,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 		}
 
 		str_wd = g_strdup_printf ("%d", wd);
-		tracker_exec_proc (db_con, "InsertWatch", 2, dir, str_wd);
+		tracker_exec_proc (db_con->cache, "InsertWatch", 2, dir, str_wd);
 		g_free (str_wd);
 		inotify_count++;
 		tracker_log ("Watching directory %s (total watches = %d)", dir, inotify_count);
@@ -571,7 +574,7 @@ delete_watch (const char *dir, DBConnection *db_con)
 
 	g_return_val_if_fail (dir != NULL && dir[0] == G_DIR_SEPARATOR, FALSE);
 
-	res = tracker_exec_proc (db_con, "GetWatchID", 1, dir);
+	res = tracker_exec_proc (db_con->cache, "GetWatchID", 1, dir);
 
 	wd = -1;
 
@@ -591,7 +594,7 @@ delete_watch (const char *dir, DBConnection *db_con)
 
 	tracker_db_free_result (res);
 
-	tracker_exec_proc (db_con, "DeleteWatch", 1, dir);
+	tracker_exec_proc (db_con->cache, "DeleteWatch", 1, dir);
 
 	if (wd > -1) {
 		inotify_rm_watch (inotify_monitor_fd, wd);

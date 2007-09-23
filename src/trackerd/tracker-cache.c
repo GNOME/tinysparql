@@ -18,40 +18,33 @@
  */
 
 #include <sqlite3.h>
-#include "tracker-db-sqlite.h"
+#include <unistd.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 #include "tracker-utils.h"
 #include "tracker-cache.h"
-#include "tracker-indexer.h"
-
 
 #define USE_SLICE
 
 extern Tracker *tracker;
 
-
-static inline Cache *
-cache_new (void)
+typedef struct
 {
-	tracker->word_count++;
+	Indexer		*file_index;
+	Indexer		*file_update_index;
+	Indexer		*email_index;
+	
 
-	if (tracker->use_extra_memory) {
-		return g_slice_new0 (Cache);
-	} else {
-		return g_new0 (Cache, 1);
-	}
-}
+} IndexConnection;
+
 
 
 static inline WordDetails *
 word_details_new (void)
 {
 	tracker->word_detail_count++;
-
-	if (tracker->use_extra_memory) {							
-		return g_slice_new (WordDetails);
-	} else {
-		return g_new (WordDetails, 1);
-	}
+					
+	return g_slice_new (WordDetails);
 }
 
 
@@ -59,311 +52,187 @@ static void
 free_hits (WordDetails *word_details, gpointer data) 
 {
 	tracker->word_detail_count--;
+							
+	g_slice_free (WordDetails, word_details);
+}
 
-	if (tracker->use_extra_memory) {							
-		g_slice_free (WordDetails, word_details);
-	} else {
-		g_free (word_details);
+
+static Indexer *
+create_merge_index (const char *name)
+{
+	Indexer *indexer;
+	char *temp_file_name;
+	int  i;
+
+	for (i=1; i < 1000; i++) {
+		temp_file_name = g_strdup_printf ("%s%d", name, i);
+
+		char *tmp = g_build_filename (tracker->data_dir, temp_file_name, NULL);	
+
+		if (g_file_test (tmp , G_FILE_TEST_EXISTS)) {
+			g_free (temp_file_name);
+			g_free (tmp);
+			continue;
+		}
+		g_free (tmp);
+		break;
 	}
+
+	indexer = tracker_indexer_open (temp_file_name);
+
+	g_free (temp_file_name);
+
+	return indexer;
 }
 
 
 static inline void
-cache_free (Cache *cache) 
+free_list (GSList *list) 
 {
-	g_slist_foreach (cache->new_file_list, (GFunc) free_hits, NULL);
-	g_slist_foreach (cache->new_email_list, (GFunc) free_hits, NULL);
-	g_slist_foreach (cache->update_file_list, (GFunc) free_hits, NULL);
+	g_slist_foreach (list, (GFunc) free_hits, NULL);
 
-	g_slist_free (cache->new_file_list);
-	g_slist_free (cache->new_email_list);
-	g_slist_free (cache->update_file_list);
-
-	if (tracker->use_extra_memory) {						
-		g_slice_free (Cache, cache);
-	} else {
-		g_free (cache);
-	}
-
-	tracker->word_count--;
+	g_slist_free (list);
 }
-
-
-static DBConnection *
-create_merge_index (const gchar *name, gboolean update)
-{
-	gchar *dbname;
-	DBConnection *db_con;
-
-	char *new_name = g_strconcat ("tmp-", name, NULL);
-	char *new_update_name = g_strconcat ("tmp-update-", name, NULL);
-
-
-	if (!update) {
-		dbname = g_build_filename (tracker->data_dir, new_name, NULL);
-	} else {
-		dbname = g_build_filename (tracker->data_dir, new_update_name, NULL);
-	}
-	
-	g_free (new_name);
-	g_free (new_update_name);
-
-	if (g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
-		tracker_log ("database index file %s is already present", dbname);
-		db_con = tracker_indexer_open (dbname);
-		g_free (dbname);
-
-		return db_con;
-	}
-
-	db_con = tracker_indexer_open (dbname);
-
-	tracker_db_exec_no_reply (db_con, "update HitIndex set HitCount = 0");
-	
-	g_free (dbname);
-
-	return db_con;
-}
-
 
 
 static gint
-prepend_key_pointer (gpointer         key,
-		     gpointer         value,
-		     gpointer         data)
+flush_all_file_words (  gpointer         key,
+	   	 	gpointer         value,
+	   	 	gpointer         data)
 {
-  	GSList **plist = data;
-  	*plist = g_slist_prepend (*plist, key);
+	IndexConnection *index_con = data;
+
+	tracker_indexer_append_word_list (index_con->file_index, key, value);
+  
+	g_free (key);
+
+	free_list (value);
+
   	return 1;
 }
 
 
-static GSList *
-g_hash_table_key_slist (GHashTable *table)
+static gint
+flush_all_file_update_words (   gpointer         key,
+	   	 		gpointer         value,
+	   	 		gpointer         data)
 {
-  	GSList *rv = NULL;
-  	g_hash_table_foreach (table, (GHFunc) prepend_key_pointer, &rv);
-  	return rv;
+	IndexConnection *index_con = data;
+
+	tracker_indexer_update_word_list (index_con->file_update_index, key, value);
+  
+	g_free (key);
+
+	free_list (value);
+
+  	return 1;
 }
 
 
 static gint
-sort_func (gchar *a, gchar *b)
+flush_all_email_words ( gpointer         key,
+	   	 	gpointer         value,
+	   	 	gpointer         data)
 {
-	Cache *ca, *cb;
+	IndexConnection *index_con = data;
 
-	ca = g_hash_table_lookup (tracker->cached_table, a);
-	cb = g_hash_table_lookup (tracker->cached_table, b);
-	
-	return (ca->hit_count - cb->hit_count); 
-}
-
-
-static inline gboolean
-needs_merge (DBConnection *db_con)
-{
-	if  (tracker_indexer_size (db_con) > tracker->merge_limit) {
-		
-		if (!db_con->merge_index) {
-			db_con->merge_index = create_merge_index (db_con->name, FALSE);
-			db_con->merge_update_index = create_merge_index (db_con->name, TRUE);
-		}
-		return TRUE;
-	}
-	
-	return FALSE;
-	
-}
-
-
-static void
-flush_list (DBConnection *db_con, GSList *list1, GSList *list2, const gchar *word)
-{
-	if (needs_merge (db_con)) {
-		tracker_indexer_append_word_lists (db_con->merge_index, word, list1, list2);
-	} else {
-		tracker_indexer_append_word_lists (db_con, word, list1, list2);
-	}
-}
-
-static GSList *
-flush_update_list (DBConnection *db_con, GSList *list, const gchar *word)
-{
-        if (!list) {
-                return NULL;
-        }
-	
-	if (needs_merge (db_con)) {
-		GSList *ret_list = tracker_indexer_update_word_list (db_con->merge_update_index, word, list);
-		if (ret_list) {
-			tracker_indexer_append_word_lists (db_con->merge_update_index, word, ret_list, NULL);
-			g_slist_free (ret_list);
-		}		
-
-	} else {
-		GSList *ret_list = tracker_indexer_update_word_list (db_con, word, list);
-		return ret_list;
-	}
-
-	return NULL;
-}
-
-
-
-
-
-static void
-flush_cache (DBConnection *db_con, Cache *cache, const gchar *word)
-{
-	DBConnection *emails = db_con->emails;
-	GSList *new_update_list = NULL;
-
-	if (cache->update_file_list) {
-		new_update_list = flush_update_list (db_con->word_index, cache->update_file_list, word);
-	}
-
-	if (cache->new_file_list) {
-		flush_list (db_con->word_index, cache->new_file_list, new_update_list, word);
-	} else {
-		if (new_update_list) {
-			flush_list (db_con->word_index, new_update_list, NULL, word);
-			g_slist_free (new_update_list);
-		}
-	}
-
-	if (cache->new_email_list) {
-		flush_list (emails->word_index, cache->new_email_list, NULL, word);
-	}
-
-	cache_free (cache);
-}
-
-
-static inline gboolean
-is_min_flush_done (void)
-{
-	return (tracker->word_detail_count <= tracker->word_detail_min) && (tracker->word_count <= tracker->word_count_min);
-}
-
-
-static void
-flush_rare (DBConnection *db_con)
-{
-	GSList *list, *lst;
-
-	tracker_log ("flushing rare words - total memory used by tracker %d kb, total hits in cache is %d, total words %d", tracker_get_memory_usage(), tracker->word_detail_count, tracker->word_count);
-
-	list = g_hash_table_key_slist (tracker->cached_table);
-
-	list = g_slist_sort (list, (GCompareFunc) sort_func);
-
-	DBConnection *emails = db_con->emails;
-
-	tracker_db_start_transaction (db_con->word_index);
-	tracker_db_start_transaction (emails->word_index);
-
-	for (lst = list; (lst && !is_min_flush_done ()); lst = lst->next) {
-
-		gchar *word = lst->data;
-
-                Cache *cache;
-		gpointer key = NULL;
-		gpointer value = NULL;
-
-		if (g_hash_table_lookup_extended (tracker->cached_table, word, &key, &value)) {
-
-			cache = value;
-
-			flush_cache (db_con, cache, word);
-
-			g_hash_table_remove (tracker->cached_table, word);
-		}
-
-		g_free (word);
-	}
-
-	tracker_db_end_transaction (db_con->word_index);
-	tracker_db_end_transaction (emails->word_index);
-
-	/* clear any memory as well by closing/reopening */
-	tracker_indexer_free (db_con->word_index, FALSE);
-	tracker_indexer_free (emails->word_index, FALSE);
-
-	db_con->word_index = tracker_indexer_open ("file-index.db");
-	emails->word_index = tracker_indexer_open ("email-index.db");
-
-	g_slist_free (list);
-
-	tracker_log ("total hits in cache is %d, total words %d", tracker->word_detail_count, tracker->word_count);
-}
-
-
-static gint
-flush_all (gpointer         key,
-	   gpointer         value,
-	   gpointer         data)
-{
-	DBConnection *db_con = data;
-
-	flush_cache (db_con, value, key);
+	tracker_indexer_append_word_list (index_con->email_index, key, value);
 
 	g_free (key);
 
+	free_list (value);
+
   	return 1;
 }
 
-
 void
-tracker_cache_flush_all (DBConnection *db_con)
+tracker_cache_flush_all (gboolean cache_full)
 {
-	if (g_hash_table_size (tracker->cached_table) == 0) {
+	IndexConnection index_con;
+	gboolean using_file_tmp = FALSE, using_email_tmp = FALSE;
+
+	if (tracker->word_count == 0 && tracker->word_update_count == 0) {
 		return;
 	}
 
-	tracker_log ("Flushing all words - total memory used by tracker %d, total hits in cache is %d, total words %d", tracker_get_memory_usage(), tracker->word_detail_count, tracker->word_count);
+	tracker_log ("Flushing all words - total hits in cache is %d, total words %d", tracker->word_detail_count, tracker->word_count);
 
-	DBConnection *emails = db_con->emails;
+	/* if word count is small then flush to main index rather than a new temp index */
+	if (tracker->word_count < 5000) {
+	
+		index_con.file_index = tracker->file_index;
+		index_con.email_index = tracker->email_index;
 
-	tracker_db_start_transaction (db_con->word_index);
-	tracker_db_start_transaction (emails->word_index);
+	} else {
 
-	g_hash_table_foreach (tracker->cached_table, (GHFunc) flush_all, db_con);
+		/* determine is index has been written to significantly before and create new ones if so */
+		if (tracker_indexer_size (tracker->file_index) > 4000000) {
+			index_con.file_index = create_merge_index ("file-index.tmp.");
+			tracker_log ("flushing to %s", dpname (index_con.file_index->word_index));
+			using_file_tmp = TRUE;
+		} else {
+			index_con.file_index = tracker->file_index;
+		}
+		
+		if (tracker_indexer_size (tracker->email_index) > 4000000) {
+			index_con.email_index = create_merge_index ("email-index.tmp.");
+			using_email_tmp = TRUE;
+		} else {
+			index_con.email_index = tracker->email_index;
+		}
+	}
 
-	tracker_db_end_transaction (db_con->word_index);
-	tracker_db_end_transaction (emails->word_index);
+	if (!tracker_indexer_has_merge_files (INDEX_TYPE_FILES) && tracker->word_update_count < 10000) {
+		index_con.file_update_index = tracker->file_index;
+	} else {
+		index_con.file_update_index = tracker->file_update_index;
+	}
 
-	/* clear any memory as well by closing/reopening */
+	g_hash_table_foreach (tracker->file_word_table, (GHFunc) flush_all_file_words, &index_con);
+	g_hash_table_destroy (tracker->file_word_table);
 
-	tracker_indexer_free (db_con->word_index, FALSE);
-	tracker_indexer_free (emails->word_index, FALSE);
+	g_hash_table_foreach (tracker->email_word_table, (GHFunc) flush_all_email_words, &index_con);
+	g_hash_table_destroy (tracker->email_word_table);
 
-	db_con->word_index = tracker_indexer_open ("file-index.db");
-	emails->word_index = tracker_indexer_open ("email-index.db");
+	g_hash_table_foreach (tracker->file_update_word_table, (GHFunc) flush_all_file_update_words, &index_con);
+	g_hash_table_destroy (tracker->file_update_word_table);
 
-	//tracker_db_refresh_all (db_con);
+	if (using_file_tmp) {
+		tracker_indexer_close (index_con.file_index);
+	}
 
-	g_hash_table_destroy (tracker->cached_table);
+	if (using_email_tmp) {
+		tracker_indexer_close (index_con.email_index);
+	}
 
-	tracker->cached_table = g_hash_table_new (g_str_hash, g_str_equal);
+	tracker->file_word_table = g_hash_table_new (g_str_hash, g_str_equal);
+	tracker->file_update_word_table = g_hash_table_new (g_str_hash, g_str_equal);
+	tracker->email_word_table = g_hash_table_new (g_str_hash, g_str_equal);
 
 	tracker->word_detail_count = 0;
 	tracker->word_count = 0;
 	tracker->flush_count = 0;
+	tracker->word_update_count = 0;
 }
 
 
-void
-tracker_cache_flush (DBConnection *db_con)
+static gboolean
+cache_needs_flush ()
 {
-	if (tracker->word_detail_count > tracker->word_detail_limit || tracker->word_count > tracker->word_count_limit) {
-		if (tracker->flush_count < 5) {
-			tracker->flush_count++;
-			tracker_info ("flushing");
-			flush_rare (db_con);
-		} else {
-			tracker_cache_flush_all (db_con);
-		}
+
+	int estimate_cache;
+
+	estimate_cache = tracker->word_detail_count * 8;
+
+	estimate_cache += (tracker->word_count * 75) + (tracker->word_update_count * 75);
+
+	if (estimate_cache > tracker->memory_limit) {
+		return TRUE;
 	}
+
+	return FALSE;
+
+	
 }
 
 
@@ -374,43 +243,117 @@ is_email (gint service_type)
 }
 
 
+static gboolean
+update_word_table (GHashTable *table, const char *word, WordDetails *word_details)
+{
+	gboolean new_word;
+
+	GSList *list = g_hash_table_lookup (table, word);
+
+	new_word = (list == NULL);
+
+	list = g_slist_prepend (list, word_details);	
+
+	if (new_word) {
+		g_hash_table_insert (table, g_strdup (word), list);
+	} else {
+		g_hash_table_insert (table, (gchar *) word, list);
+	}
+
+	return new_word;
+
+}
+
+
 void
 tracker_cache_add (const gchar *word, guint32 service_id, gint service_type, gint score, gboolean is_new)
 {
-	Cache *cache;
 	WordDetails *word_details;
-	gboolean new_cache = FALSE;
 
 	word_details = word_details_new ();
 
 	word_details->id = service_id;
 	word_details->amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
 
-	cache = g_hash_table_lookup (tracker->cached_table, word);
-
-	if (!cache) {
-		cache = cache_new ();
-		new_cache = TRUE;
-	}
-
 	if (is_new) {
 
 		if (!is_email (service_type)) {
-			cache->new_file_list = g_slist_prepend (cache->new_file_list, word_details);			
+			if (update_word_table (tracker->file_word_table, word, word_details)) tracker->word_count++;
 		} else {
-			cache->new_email_list = g_slist_prepend (cache->new_email_list, word_details);			
+			if (update_word_table (tracker->email_word_table, word, word_details)) tracker->word_count++;
 		}
 
 	} else {
-		cache->update_file_list = g_slist_prepend (cache->update_file_list, word_details);			
+		if (update_word_table (tracker->file_update_word_table, word, word_details)) tracker->word_update_count++;
 	}
 
-
-	if (new_cache) {
-		g_hash_table_insert (tracker->cached_table, g_strdup (word), cache);
-	} else {
-		g_hash_table_insert (tracker->cached_table, (gchar *) word, cache);
-	}
-
-	cache->hit_count++;
 }
+
+LoopEvent
+tracker_cache_event_check (DBConnection *db_con, gboolean check_flush) 
+{
+	gboolean stopped_trans = FALSE;
+
+	while (TRUE) {
+
+		if (!tracker->is_running) return EVENT_SHUTDOWN;
+
+		if (!tracker->enable_indexing) return EVENT_DISABLE;
+
+		tracker->battery_paused = tracker_using_battery ();
+				
+		if (tracker->paused || tracker->battery_paused) {
+			if (tracker->index_status > INDEX_APPLICATIONS) {
+				
+				if (db_con) {
+					tracker_db_end_index_transaction (db_con);
+					stopped_trans = TRUE;
+				}
+
+				g_usleep (1000 * 1000);
+				continue;
+			}
+		}
+
+		if (tracker->grace_period > 1) {
+
+			tracker_log ("pausing indexing while client requests or external disk I/O are taking place");
+
+			tracker->request_waiting = FALSE;
+
+			if (db_con) {
+				tracker_db_end_index_transaction (db_con);
+				stopped_trans = TRUE;
+			}
+		
+			g_usleep (1000 * 1000);
+		
+			tracker->grace_period--;
+
+			if (tracker->grace_period > 2) tracker->grace_period = 2;
+
+			continue;
+
+		} 
+
+		if (cache_needs_flush ()) {
+
+			if (db_con) {
+				tracker_db_end_index_transaction (db_con);
+			}
+
+			tracker_cache_flush_all (TRUE);
+
+			return EVENT_CACHE_FLUSHED;
+		}
+
+		
+		if (stopped_trans && db_con && !db_con->in_transaction) tracker_db_start_index_transaction (db_con);
+
+		return EVENT_NOTHING;
+
+	}	
+
+
+}
+

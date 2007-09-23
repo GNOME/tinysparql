@@ -24,7 +24,8 @@
 
 
 #include "config.h"
-
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -244,15 +245,12 @@ tracker_get_db_for_service (const char *service)
 	int id = tracker_get_id_for_parent_service (name);
 	char *str_id = tracker_int_to_str (id);
 
-//	ServiceDef *def = g_hash_table_lookup (tracker->service_id_table, str_id);
 	g_free (str_id);
 
 	g_free (name);
 
-//	if (!def) {
-		return DB_DATA;
+	return DB_DATA;
 
-//	return def->database;
 }
 
 
@@ -1934,7 +1932,7 @@ has_prefix (const char *str1, const char *str2)
 
 
 static GSList *
-get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files)
+get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files, const char *filter_prefix)
 {
 	GDir	*dirp;
 	GSList	*file_list;
@@ -1968,6 +1966,10 @@ get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files)
 				continue;
 			}
 
+			if (filter_prefix && !g_str_has_prefix (str, filter_prefix)) {
+				continue;
+			}
+
 			if (skip_ignored_files && tracker_ignore_file (str)) {
 				g_free (str);
 				continue;
@@ -1980,6 +1982,8 @@ get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files)
 				g_free (mystr);
 				continue;
 			}
+
+
 
 			if (!tracker_file_is_in_root_dir (mystr)) {
 				tracker_log ("Skipping mount point %s", mystr);
@@ -2018,14 +2022,22 @@ get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files)
 GSList *
 tracker_get_all_files (const char *dir, gboolean dir_only)
 {
-	return get_files (dir, dir_only, FALSE);
+	return get_files (dir, dir_only, FALSE, NULL);
 }
+
+
+GSList *
+tracker_get_files_with_prefix (const char *dir, const char *prefix)
+{
+	return get_files (dir, FALSE, FALSE, prefix);
+}
+
 
 
 GSList *
 tracker_get_files (const char *dir, gboolean dir_only)
 {
-	return get_files (dir, dir_only, TRUE);
+	return get_files (dir, dir_only, TRUE, NULL);
 }
 
 
@@ -2693,7 +2705,7 @@ tracker_load_config_file (void)
 	if (g_key_file_has_key (key_file, "Emails", "IndexThunderbirdEmails", NULL)) {
 		tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Emails", "IndexThunderbirdEmails", NULL);
 	} else {
-		tracker->index_thunderbird_emails = TRUE;
+		tracker->index_thunderbird_emails = FALSE;
 	}        
 
 	/* Performance options */
@@ -3656,6 +3668,8 @@ tracker_unlink (const char *uri)
 int 
 tracker_get_memory_usage (void)
 {
+
+
 #if defined(__linux__)
 	int  fd, length, mem = 0;
 	char buffer[8192];
@@ -3762,8 +3776,11 @@ tracker_add_io_grace (const char *uri)
 		return;
 	}
 
+	tracker_log ("file changes to %s is pausing tracker", uri);
+
 	tracker->grace_period++;
 }
+
 
 
 

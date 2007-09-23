@@ -278,6 +278,11 @@ do_cleanup (const gchar *sig_msg)
 	g_mutex_unlock (tracker->files_check_mutex);
 	g_mutex_lock (tracker->files_stopped_mutex);
 
+
+	tracker_indexer_close (tracker->file_index);
+	tracker_indexer_close (tracker->file_update_index);
+	tracker_indexer_close (tracker->email_index);
+
 	tracker_email_end_email_watching ();
 
 	tracker_db_close (main_thread_db_con);
@@ -798,6 +803,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	}
 
 	g_free (service_info);
+
 }
 
 
@@ -848,7 +854,9 @@ process_files_thread (void)
 	/* set thread safe DB connection */
 	tracker_db_thread_init ();
 
-	db_con = tracker_db_connect_all (TRUE);
+	tracker->index_db = tracker_db_connect_all (TRUE);
+
+	
 
 	tracker->index_status = INDEX_CONFIG;
 
@@ -867,16 +875,25 @@ process_files_thread (void)
 
 		need_index = FALSE;
 
-		/* make thread sleep if first part of the shutdown process has been activated */
-		if (!tracker->is_running || !tracker->enable_indexing) {
+		tracker->status = STATUS_INDEXING;
 
+		db_con = tracker->index_db;
+
+		LoopEvent event = tracker_cache_event_check (db_con, TRUE);
+
+		if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
+
+			tracker_db_end_index_transaction (db_con);
+			tracker_cache_flush_all (FALSE);
+
+			/* make thread sleep if first part of the shutdown process has been activated */
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!tracker->shutdown) {
 				continue;
 			} else {
-				tracker_cache_flush_all (db_con);
+			
 				if (tracker->dir_list) {
 					g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
 					g_slist_free (tracker->dir_list);
@@ -884,27 +901,12 @@ process_files_thread (void)
 				}
 				break;
 			}
-		}
 
-		tracker->status = STATUS_INDEXING;
+		} else if (event == EVENT_CACHE_FLUSHED) {
+			
+			tracker_db_refresh_all (db_con);
+			tracker_db_start_index_transaction (db_con);		
 
-		if (tracker->grace_period > 1) {
-			tracker_log ("pausing indexing while non-tracker disk I/O is taking place");
-			g_usleep (1000 * 1000);
-			tracker->grace_period--;
-			if (tracker->grace_period > 3) tracker->grace_period = 3;
-			continue;
-		}
-
-		tracker_cache_flush (db_con);
-
-		tracker->battery_paused = tracker_using_battery ();
-				
-		if (tracker->paused || tracker->battery_paused) {
-			if (tracker->index_status > INDEX_APPLICATIONS) {
-				g_usleep (1000 * 1000);
-				continue;
-			}
 		}
 
 		info = g_async_queue_try_pop (tracker->file_process_queue);
@@ -955,6 +957,8 @@ process_files_thread (void)
 						case INDEX_APPLICATIONS: {
 								GSList *list;
 
+								tracker_db_start_index_transaction (db_con);
+								tracker_db_start_transaction (db_con->cache);
 								tracker_log ("Starting application indexing");
 
 								tracker_applications_add_service_directories ();
@@ -964,6 +968,8 @@ process_files_thread (void)
 								tracker_add_root_directories (list);
 
 								process_directory_list (db_con, list, FALSE);
+
+								tracker_db_end_transaction (db_con->cache);
 
 								g_slist_free (list);
 										
@@ -1007,6 +1013,8 @@ process_files_thread (void)
 									break;
 								}
 
+								tracker_db_start_transaction (db_con->cache);
+
 								tracker_add_root_directories (tracker->watch_directory_roots_list);
 
 								/* index watched dirs first */
@@ -1027,6 +1035,8 @@ process_files_thread (void)
 									g_slist_free (tracker->dir_list);
 									tracker->dir_list = NULL;
 								}
+
+								tracker_db_end_transaction (db_con->cache);
 							}
 							break;
 
@@ -1037,6 +1047,8 @@ process_files_thread (void)
 								if (!tracker->crawl_directory_list) {
 									break;
 								}
+
+								tracker_db_start_transaction (db_con->cache);
 
 								tracker_add_root_directories (tracker->crawl_directory_list);
 
@@ -1057,6 +1069,8 @@ process_files_thread (void)
 									g_slist_free (tracker->dir_list);
 									tracker->dir_list = NULL;
 								}
+
+								tracker_db_end_transaction (db_con->cache);
 							}
 							break;
 
@@ -1090,11 +1104,10 @@ process_files_thread (void)
 
 								if (has_logs) {
 									tracker_log ("Starting chat log indexing...");
-
+									tracker_db_start_transaction (db_con->cache);
 									tracker_add_root_directories (list);
-
-									process_directory_list (db_con, list, TRUE);
-
+			 						process_directory_list (db_con, list, TRUE);
+									tracker_db_end_transaction (db_con->cache);
 									g_slist_free (list);
 								}
 
@@ -1112,13 +1125,24 @@ process_files_thread (void)
 
 
 						case INDEX_EMAILS:  {
-								tracker_cache_flush_all (db_con);
+
+								tracker_db_end_index_transaction (db_con);
+								tracker_cache_flush_all (FALSE);
+								tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
+
+								if (tracker->word_update_count > 0) {
+									tracker_indexer_apply_changes (tracker->file_index, tracker->file_update_index, TRUE);
+								}
+
+								tracker_db_start_index_transaction (db_con);
 
 								if (tracker->index_evolution_emails || tracker->index_kmail_emails
                                                                         || tracker->index_thunderbird_emails) {
 
 									tracker_email_add_service_directories (db_con->emails);
 									tracker_log ("Starting email indexing...");
+
+									tracker_db_start_transaction (db_con->cache);
 
 									if (tracker->index_evolution_emails) {
 										GSList *list = tracker_get_service_dirs ("EvolutionEmails");
@@ -1140,6 +1164,8 @@ process_files_thread (void)
 										process_directory_list (db_con, list, TRUE);
 										g_slist_free (list);
 									}
+
+									tracker_db_end_transaction (db_con->cache);
 							
 								}
 
@@ -1157,9 +1183,15 @@ process_files_thread (void)
 					continue;
 				}
 
+				tracker_db_end_index_transaction (db_con);
+				tracker_cache_flush_all (FALSE);
+				tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
 
-				tracker_cache_flush_all (db_con);
-			
+				if (tracker->word_update_count > 0) {
+					tracker_indexer_apply_changes (tracker->file_index, tracker->file_update_index, TRUE);
+				}
+
+				tracker_indexer_merge_indexes (INDEX_TYPE_EMAILS);
 
 				if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
 
@@ -1178,7 +1210,7 @@ process_files_thread (void)
 					tracker_db_start_transaction (db_con->emails);
 					tracker_db_exec_no_reply (db_con->emails, "ANALYZE");
 					tracker_db_end_transaction (db_con->emails);
-
+		
 					tracker_log ("Finished optimizing. Waiting for new events...");
 				}
 
@@ -1189,10 +1221,12 @@ process_files_thread (void)
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
 
-				tracker->grace_period = 1;
+				tracker->grace_period = 0;
+				
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!tracker->shutdown) {
+					tracker_db_start_index_transaction (db_con);
 				} else {
 					break;
 				}
@@ -1392,15 +1426,16 @@ process_files_thread (void)
 		}
 
 		if (need_index) {
-			tracker->index_count++;
+					
 
-			if (tracker->verbosity == 1) {
-				if ( (tracker->index_count == 1 || tracker->index_count == 100  || (tracker->index_count >= 500 && tracker->index_count%500 == 0)) && (tracker->verbosity == 1)) {
+			if (tracker_db_regulate_transactions (db_con, 100)) {
+				if (tracker->verbosity == 1) {
 					tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
-					xdg_mime_shutdown ();
 				}
 			}
+
 			index_entity (db_con, info);
+			db_con = tracker->index_db;	
 		}
 
 		tracker_dec_info_ref (info);
@@ -1471,6 +1506,7 @@ process_user_request_queue_thread (void)
 
 		/* thread will not sleep without another iteration so race condition no longer applies */
 		g_mutex_unlock (tracker->request_check_mutex);
+	
 
 		rec->user_data = db_con;
 
@@ -1499,6 +1535,9 @@ process_user_request_queue_thread (void)
 
 			case DBUS_ACTION_GET_SERVICES:
 
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
+
 				tracker_dbus_method_get_services (rec);
 
 				break;
@@ -1525,12 +1564,15 @@ process_user_request_queue_thread (void)
 
 			case DBUS_ACTION_METADATA_GET:
 
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_metadata_get (rec);
 
 				break;
 
 			case DBUS_ACTION_METADATA_SET:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_metadata_set(rec);
 
 				break;
@@ -1566,103 +1608,120 @@ process_user_request_queue_thread (void)
 				break;
 
 			case DBUS_ACTION_KEYWORDS_GET_LIST:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_keywords_get_list (rec);
 
 				break;
 
 			case DBUS_ACTION_KEYWORDS_GET:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_keywords_get (rec);
 
 				break;
 
 			case DBUS_ACTION_KEYWORDS_ADD:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_keywords_add (rec);
 
 				break;
 
 			case DBUS_ACTION_KEYWORDS_REMOVE:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_keywords_remove (rec);
 
 				break;
 
 			case DBUS_ACTION_KEYWORDS_REMOVE_ALL:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_keywords_remove_all (rec);
 
 				break;
 
 			case DBUS_ACTION_KEYWORDS_SEARCH:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_keywords_search (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_GET_HIT_COUNT:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_get_hit_count (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_GET_HIT_COUNT_ALL:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_get_hit_count_all (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_TEXT:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_text (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_TEXT_DETAILED:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_text_detailed (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_GET_SNIPPET:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_get_snippet (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_FILES_BY_TEXT:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_files_by_text (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_METADATA:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_metadata (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_MATCHING_FIELDS:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_matching_fields (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_QUERY:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_query (rec);
 
 				break;
 
 			case DBUS_ACTION_SEARCH_SUGGEST:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_search_suggest (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_EXISTS:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_exists (rec);
 
 				break;
@@ -1680,67 +1739,78 @@ process_user_request_queue_thread (void)
 				break;
 
 			case DBUS_ACTION_FILES_GET_SERVICE_TYPE:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_get_service_type (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_GET_TEXT_CONTENTS:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_get_text_contents (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_SEARCH_TEXT_CONTENTS:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_search_text_contents (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_GET_BY_SERVICE_TYPE:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_get_by_service_type (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_GET_BY_MIME_TYPE:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_get_by_mime_type (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_GET_BY_MIME_TYPE_VFS:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_get_by_mime_type_vfs (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_GET_MTIME:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_get_mtime (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_GET_METADATA_FOLDER_FILES:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_get_metadata_for_files_in_folder (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_search_by_text_mime (rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_SEARCH_BY_TEXT_MIME_LOCATION:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_search_by_text_mime_location(rec);
 
 				break;
 
 			case DBUS_ACTION_FILES_SEARCH_BY_TEXT_LOCATION:
-
+				tracker->request_waiting = TRUE;
+				tracker->grace_period = 2;
 				tracker_dbus_method_files_search_by_text_location (rec);
 
 				break;
@@ -1752,6 +1822,8 @@ process_user_request_queue_thread (void)
 		dbus_message_unref (rec->message);
 
 		g_free (rec);
+
+		
 	}
 
 	tracker_db_close_all (db_con);
@@ -1845,6 +1917,12 @@ set_defaults (void)
 	tracker->optimization_count = OPTIMIZATION_COUNT;
 	tracker->max_words_to_index = MAX_WORDS_TO_INDEX;
 
+	tracker->max_index_bucket_count = MAX_INDEX_BUCKET_COUNT;
+	tracker->min_index_bucket_count = MIN_INDEX_BUCKET_COUNT;
+	tracker->index_bucket_ratio = INDEX_BUCKET_RATIO;
+	tracker->index_divisions = INDEX_DIVISIONS;
+	tracker->padding = INDEX_PADDING;
+
 	tracker->flush_count = 0;
 
 	tracker->index_evolution_emails = TRUE;
@@ -1902,6 +1980,14 @@ sanity_check_option_values (void)
 	if (tracker->max_index_text_length < 0) tracker->max_index_text_length = 0;
 	if (tracker->max_words_to_index < 0) tracker->max_words_to_index = 0;
 	if (tracker->optimization_count < 1000) tracker->optimization_count = 1000;
+	if (tracker->max_index_bucket_count < 1000) tracker->max_index_bucket_count= 1000;
+	if (tracker->min_index_bucket_count < 1000) tracker->min_index_bucket_count= 1000;
+	if (tracker->index_divisions < 1) tracker->index_divisions = 1;
+	if (tracker->index_divisions > 64) tracker->index_divisions = 64;
+	if (tracker->index_bucket_ratio < 1) tracker->index_bucket_ratio = 0;
+ 	if (tracker->index_bucket_ratio > 4) tracker->index_bucket_ratio = 4;
+	if (tracker->padding < 0) tracker->padding = 0;
+	if (tracker->padding > 8) tracker->padding = 8;
 
 
 	if (tracker->min_word_length < 1) tracker->min_word_length = 3;
@@ -1946,22 +2032,32 @@ sanity_check_option_values (void)
 
 	tracker->word_count = 0;
 	tracker->word_detail_count = 0;
+	tracker->word_update_count = 0;
+
+	tracker->file_word_table = g_hash_table_new (g_str_hash, g_str_equal);
+	tracker->file_update_word_table = g_hash_table_new (g_str_hash, g_str_equal);
+	tracker->email_word_table = g_hash_table_new (g_str_hash, g_str_equal);
 
 	if (tracker->use_extra_memory) {
+		tracker->memory_limit = 16000 *1024;
+	
 		tracker->max_process_queue_size = 5000;
 		tracker->max_extract_queue_size = 5000;
 
-		tracker->cached_table = g_hash_table_new (g_str_hash, g_str_equal);
-
-		tracker->word_detail_limit = 150000;
-		tracker->word_detail_min = 75000;
-		tracker->word_count_limit = 10000;
-		tracker->word_count_min = 500;
+		tracker->word_detail_limit = 2000000;
+		tracker->word_detail_min = 0;
+		tracker->word_count_limit = 500000;
+		tracker->word_count_min = 0;
 	} else {
+		tracker->memory_limit = 8192 * 1024;
+
+		tracker->max_process_queue_size = 500;
+		tracker->max_extract_queue_size = 500;
+
 		tracker->word_detail_limit = 50000;
-		tracker->word_detail_min = 25000;
+		tracker->word_detail_min = 20000;
 		tracker->word_count_limit = 5000;
-		tracker->word_count_min = 100;
+		tracker->word_count_min = 500;
 	}
 
 
@@ -2170,20 +2266,12 @@ main (gint argc, gchar *argv[])
 
 	tracker->xesam_dir = g_build_filename (g_get_home_dir (), ".xesam", NULL);
 
-	/* delete old stuff if files.db is present in data dir */
-	gchar *old_file = g_build_filename (tracker->data_dir, "files.db", NULL);
-	if (reindex || g_file_test (old_file, G_FILE_TEST_EXISTS)) {
+	if (reindex || tracker_db_needs_setup ()) {
 		tracker_remove_dirs (tracker->data_dir);
 		g_mkdir_with_parents (tracker->data_dir, 00755);
 		need_index = TRUE;
 	}
-	g_free (old_file);
 
-
-	/* check user data files */
-	if (!need_index) {
-		need_index = tracker_db_needs_setup ();
-	}
 
 	need_data = tracker_db_needs_data ();
 
@@ -2278,11 +2366,7 @@ main (gint argc, gchar *argv[])
 	if (enable_evolution) {
 		tracker->index_evolution_emails = TRUE;
 	}
-
-	if (enable_thunderbird) {
-		tracker->index_thunderbird_emails = TRUE;
-	}
-
+	
 	if (enable_kmail) {
 		tracker->index_kmail_emails = TRUE;
 	}
@@ -2319,6 +2403,20 @@ main (gint argc, gchar *argv[])
 	DBConnection *db2 = tracker_db_connect_cache ();
 	tracker_db_close (db2);
 
+	Indexer *index = tracker_indexer_open ("file-index.db");
+	index->main_index = TRUE;
+	tracker->file_index = index;
+
+	index = tracker_indexer_open ("file-update-index.db");
+	index->main_index = FALSE;
+	tracker->file_update_index = index;
+
+	index = tracker_indexer_open ("email-index.db");
+	index->main_index = TRUE;
+	tracker->email_index = index;
+
+
+
 	if (need_data) {
 		tracker_create_db ();
 	}
@@ -2347,14 +2445,6 @@ main (gint argc, gchar *argv[])
 		tracker_db_close (db_con_tmp);
 		g_free (db_con_tmp);
 
-		db_con_tmp = tracker_indexer_open ("file-index.db");
-		tracker_db_close (db_con_tmp);
-		g_free (db_con_tmp);
-
-		db_con_tmp = tracker_indexer_open ("email-index.db");
-		tracker_db_close (db_con_tmp);
-		g_free (db_con_tmp);
-
 		db_con_tmp = tracker_db_connect_email_content ();
 		tracker_db_close (db_con_tmp);
 		g_free (db_con_tmp);
@@ -2367,10 +2457,11 @@ main (gint argc, gchar *argv[])
 		tracker->first_time_index = FALSE;
 	}
 
+	
 	db_con = tracker_db_connect ();
 	db_con->thread = "main";
-	DBConnection *blob_db = tracker_db_connect_file_content ();
-	db_con->blob = blob_db;
+	db_con->cache = tracker_db_connect_cache ();
+	db_con->common = tracker_db_connect_common ();
 
 	main_thread_db_con = db_con;
 

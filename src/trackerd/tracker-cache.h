@@ -22,22 +22,11 @@
 #define _TRACKER_CACHE_H_
 
 #include "tracker-db-sqlite.h"
-
-
-typedef struct
-{
-	GSList 	*new_file_list;
-	GSList 	*new_email_list;
-	GSList 	*update_file_list;
-	gint	hit_count;
-
-} Cache;
+#include "tracker-indexer.h"
 
 
 void		tracker_cache_add 		(const gchar *word, guint32 service_id, gint service_type, gint score, gboolean is_new);
-void		tracker_flush_all_words 	(DBConnection *db_con);
-void		tracker_cache_flush 		(DBConnection *db_con);
-void            tracker_cache_flush_all         (DBConnection *db_con);
-
+void            tracker_cache_flush_all       	(gboolean cache_full);
+LoopEvent	tracker_cache_event_check 	(DBConnection *db_con, gboolean check_flush);
 
 #endif
