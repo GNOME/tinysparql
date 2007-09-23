@@ -3,7 +3,7 @@
 	* Added index merging
 	* Fixed disk IO issues
 	* Restored Qdbm as the main index
-
+	* Fixed File move crasher
 
 
 2007-09-13 Jamie McCracken <jamiemcc at gnome org>
