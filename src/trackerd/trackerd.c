@@ -2159,7 +2159,7 @@ main (gint argc, gchar *argv[])
 	g_option_context_free (context);
 	g_free (example);
 
-	g_print ("\n\nTracker version %s Copyright (c) 2005-2006 by Jamie McCracken (jamiemcc@gnome.org)\n\n", TRACKER_VERSION);
+	g_print ("\n\nTracker version %s Copyright (c) 2005-2007 by Jamie McCracken (jamiemcc@gnome.org)\n\n", TRACKER_VERSION);
 	g_print ("This program is free software and comes without any warranty.\nIt is licensed under version 2 or later of the General Public License which can be viewed at http://www.gnu.org/licenses/gpl.txt\n\n");
 
 	g_print ("Initialising tracker...\n");

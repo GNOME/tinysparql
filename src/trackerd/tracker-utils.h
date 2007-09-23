@@ -48,7 +48,7 @@ extern char *tracker_actions[];
 
 #define TRACKER_DB_VERSION_REQUIRED	13
 #define TRACKER_VERSION			VERSION
-#define TRACKER_VERSION_INT		602
+#define TRACKER_VERSION_INT		603
 
 /* default performance options */
 #define MAX_INDEX_TEXT_LENGTH		1048576
