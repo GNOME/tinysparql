@@ -2840,6 +2840,7 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 	z_stream 	strm;
 	GByteArray	*byte_array;
 	gboolean	finished = FALSE;
+	int 		max_iterations = 10000;
 
 	DBConnection *blob_db_con = db_con->blob;
 
@@ -2873,6 +2874,10 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 		char *value = NULL;
 		gboolean use_buffer = TRUE;
 
+		max_iterations--;
+
+		if (max_iterations < 0) break;
+
 		buffer_length = read (fd, buffer, MAX_TEXT_BUFFER-1);
 
 		if (buffer_length == 0) {
@@ -2890,7 +2895,7 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 			char *end = strrchr (buffer, '\n');			
 
 			if (!end) {
-				tracker_error ("Could not find line break in text chunk");
+				tracker_log ("Could not find line break in text chunk..exiting");
 				break;
 			}
 
@@ -2964,6 +2969,10 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 
 			byte_array =  g_byte_array_append (byte_array, (guint8 *) out, bytes_compressed);
 
+			max_iterations--;
+
+			if (max_iterations < 0) break;
+
               	} while (strm.avail_out == 0);
 
 		if (!use_buffer) g_free (value);
@@ -2980,7 +2989,7 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 	/* flush cache for file as we wont touch it again */
 	tracker_file_close (fd, TRUE);
 
-	if (finished) {
+	if (finished && max_iterations > 0) {
 		if (bytes_read > 2) {
 			save_full_text_bytes (blob_db_con, str_file_id, byte_array);
 		}

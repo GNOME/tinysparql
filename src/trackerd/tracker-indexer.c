@@ -572,11 +572,7 @@ tracker_indexer_merge_indexes (IndexType type)
 			int sz = sizeof (WordDetails);
 			int buff_size = MAX_HITS_FOR_WORD * sz;
 
-			LoopEvent event = tracker_cache_event_check (NULL, FALSE);
-
-			if (event==EVENT_SHUTDOWN) {
-				return;
-			}						
+								
 
 			if (!has_word (final_index, str)) {
 
@@ -584,6 +580,12 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				if (i > 5001 && (i % 5000 == 0)) {
 					dpsync (final_index->word_index);
+
+					LoopEvent event = tracker_cache_event_check (NULL, FALSE);
+
+					if (event==EVENT_SHUTDOWN) {
+						return;
+					}	
 				}
 			
 				offset = dpgetwb (index->word_index, str, -1, 0, buff_size, buffer);
