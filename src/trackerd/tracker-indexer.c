@@ -402,16 +402,16 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	
 	while ((str = dpiternext (src->word_index, NULL))) {
 		
-		LoopEvent event = tracker_cache_event_check (NULL, FALSE);
-
-		if (event==EVENT_SHUTDOWN) {
-			return;
-		}
-
 		i++;
 
 		if (i > 1 && (i % interval == 0)) {
 			dpsync (dest->word_index);
+
+			LoopEvent event = tracker_cache_event_check (NULL, FALSE);
+
+			if (event==EVENT_SHUTDOWN) {
+				return;
+			}	
 		}
 			
 		bytes = dpgetwb (src->word_index, str, -1, 0, buff_size, buffer);

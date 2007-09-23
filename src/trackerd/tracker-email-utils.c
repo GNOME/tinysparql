@@ -161,28 +161,30 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 		email_free_mail_message (mail_msg);
 
+		LoopEvent event = tracker_cache_event_check (db_con->data, TRUE);
+
+		if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
+
+			tracker_db_end_index_transaction (db_con->data);
+			tracker_cache_flush_all (FALSE);
+
+			break;						
+
+		} else if (event == EVENT_CACHE_FLUSHED) {
+			
+			tracker_db_end_index_transaction (db_con->data);
+			tracker_db_refresh_email (db_con);
+			tracker_db_start_index_transaction (db_con->data);		
+
+		}				
+
 		if (tracker_db_regulate_transactions (db_con->data, 500)) {
 
 			if (tracker->verbosity == 1) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
 			}
 					
-			LoopEvent event = tracker_cache_event_check (db_con->data, TRUE);
-
-			if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
-
-				tracker_db_end_index_transaction (db_con->data);
-				tracker_cache_flush_all (FALSE);
-
-				break;						
-
-			} else if (event == EVENT_CACHE_FLUSHED) {
-			
-				tracker_db_end_index_transaction (db_con->data);
-				tracker_db_refresh_email (db_con);
-				tracker_db_start_index_transaction (db_con->data);		
-
-			}					
+				
 		}	
 	}
 

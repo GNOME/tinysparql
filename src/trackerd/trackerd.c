@@ -214,6 +214,8 @@ set_update_count (DBConnection *db_con, gint count)
 }
 
 
+
+
 static gboolean
 do_cleanup (const gchar *sig_msg)
 {
@@ -536,6 +538,15 @@ signal_handler (gint signo)
 			in_loop = FALSE;
     			break;
   	}
+}
+
+
+static gboolean
+check_battery (gpointer p)
+{
+	tracker->battery_paused = tracker_using_battery ();
+
+	return TRUE;
 }
 
 
@@ -2479,6 +2490,12 @@ main (gint argc, gchar *argv[])
 
 	/* this var is used to tell the threads when to quit */
 	tracker->is_running = TRUE;
+
+	if (tracker->battery_state_file) {
+		g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
+	}
+
+
 
 	tracker->user_request_thread =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
 

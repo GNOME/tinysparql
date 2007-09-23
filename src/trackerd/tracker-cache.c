@@ -299,8 +299,6 @@ tracker_cache_event_check (DBConnection *db_con, gboolean check_flush)
 		if (!tracker->is_running) return EVENT_SHUTDOWN;
 
 		if (!tracker->enable_indexing) return EVENT_DISABLE;
-
-		tracker->battery_paused = tracker_using_battery ();
 				
 		if (tracker->paused || tracker->battery_paused) {
 			if (tracker->index_status > INDEX_APPLICATIONS) {
