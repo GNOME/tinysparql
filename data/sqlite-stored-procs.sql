@@ -28,6 +28,9 @@ UpdateNewID UPDATE Options set OptionValue = ? WHERE OptionKey = 'Sequence';
 GetUpdateCount SELECT OptionValue FROM Options WHERE OptionKey = 'UpdateCount';
 SetUpdateCount UPDATE Options set OptionValue = ?  WHERE OptionKey = 'UpdateCount';
 
+GetOption SELECT OptionValue FROM Options WHERE OptionKey = ?;
+SetOption REPLACE into Options (OptionKey, OptionValue) values (?,?);
+
 CreateService INSERT INTO Services (ID, Path, Name, ServiceTypeID, Mime, Size, IsDirectory, IsLink, Offset, IndexTime, AuxilaryID) VALUES (?,?,?,?,?,?,?,?,?,?,?); 
 
 GetServiceID SELECT ID, IndexTime, IsDirectory, ServiceTypeID FROM Services WHERE Path = ? AND Name = ?;
@@ -44,8 +47,6 @@ UpdateFile UPDATE Services SET ServiceTypeID=?, Path=?, Name=?, Mime=?, Size=?, 
 UpdateFileMTime UPDATE Services SET IndexTime=? where Path = ? and Name = ?;
 UpdateFileMove 	UPDATE Services SET Path = ?, Name = ? WHERE ID = ?;
 UpdateFileMoveChild UPDATE Services SET Path = ? WHERE Path = ?; 
-UpdateFileMovePath UPDATE ServiceMetaData set MetaDataValue = ? WHERE ServiceID in (select ID FROM Services where Path = ?) AND MetaDataID = (select ID FROM MetaDataTypes WHERE MetaName = 'File:Path');
-UpdateBackupFileMoveChild UPDATE BackupServices set Path = ? where Path = ?;
 
 DeleteService1 Delete FROM Services Where (ID = ?);
 DeleteService2 Delete FROM Services Where (Path = ?);

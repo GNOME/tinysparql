@@ -1,3 +1,11 @@
+2007-09-22 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added index merging
+	* Fixed disk IO issues
+	* Restored Qdbm as the main index
+
+
+
 2007-09-13 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added automatic index pause on battery
