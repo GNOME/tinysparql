@@ -48,6 +48,7 @@ tracker_dbus_init (void)
 
 	if ((connection == NULL) || dbus_error_is_set (&error)) {
 		tracker_error ("ERROR: tracker_dbus_init() could not get the session bus");
+		
 		connection = NULL;
 		goto out;
 	}
@@ -55,7 +56,6 @@ tracker_dbus_init (void)
 	dbus_connection_setup_with_g_main (connection, NULL);
 
 	if (!dbus_connection_register_object_path (connection, TRACKER_OBJECT, &tracker_vtable, NULL)) {
-
 		tracker_error ("ERROR: could not register D-BUS handlers");
 		connection = NULL;
 		goto out;
@@ -73,6 +73,7 @@ tracker_dbus_init (void)
 
 out:
 	if (dbus_error_is_set (&error)) {
+		tracker_error ("DBUS ERROR: %s occurred with message %s", error.name, error.message);
 		dbus_error_free (&error);
 	}
 	
