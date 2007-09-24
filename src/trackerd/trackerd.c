@@ -919,6 +919,8 @@ process_files_thread (void)
 					g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
 				}
 
+				tracker_db_start_index_transaction (db_con);
+
 				continue;
 			} else {
 			

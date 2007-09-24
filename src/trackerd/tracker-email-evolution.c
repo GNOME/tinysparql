@@ -1375,14 +1375,20 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 
 				}		
 
-				if (tracker_db_regulate_transactions (db_con->data, 500)) {
+				if (tracker_db_regulate_transactions (db_con->data, 200)) {
 					if (tracker->verbosity == 1) {
 						tracker_log ("indexing #%d - Emails in %s", tracker->index_count, dir);
 					}
-					
+
+					if (tracker->index_count % 1000 == 0) {
+						tracker_db_end_index_transaction (db_con->data);
+						tracker_db_refresh_all (db_con->data);
+						tracker_db_start_index_transaction (db_con->data);
+					}
 								
-				}	
-				
+				}
+
+			
 			}
 
 			tracker_log ("No. of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);

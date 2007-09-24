@@ -116,6 +116,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 	MailMessage	*mail_msg;
 	int 		indexed = 0, junk = 0, deleted = 0;
 
+
 	if (!tracker->is_running) return FALSE; 
 
 	g_return_val_if_fail (db_con, FALSE);
@@ -173,7 +174,6 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 		} else if (event == EVENT_CACHE_FLUSHED) {
 			
 			tracker_db_end_index_transaction (db_con->data);
-			tracker_db_refresh_email (db_con);
 			tracker_db_start_index_transaction (db_con->data);		
 
 		}				
@@ -183,9 +183,20 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			if (tracker->verbosity == 1) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
 			}
-					
-				
+
+			if (tracker->index_count % 2500 == 0) {
+				tracker_db_end_index_transaction (db_con->data);
+				tracker_db_refresh_all (db_con->data);
+//				tracker_db_refresh_email (db_con);
+				tracker_db_start_index_transaction (db_con->data);
+			}
+
+			
 		}	
+
+		
+
+		
 	}
 
 	email_free_mail_file (mf);

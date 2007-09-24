@@ -38,25 +38,6 @@ typedef struct
 } IndexConnection;
 
 
-
-static inline WordDetails *
-word_details_new (void)
-{
-	tracker->word_detail_count++;
-					
-	return g_slice_new (WordDetails);
-}
-
-
-static void
-free_hits (WordDetails *word_details, gpointer data) 
-{
-	tracker->word_detail_count--;
-							
-	g_slice_free (WordDetails, word_details);
-}
-
-
 static Indexer *
 create_merge_index (const char *name)
 {
@@ -86,14 +67,6 @@ create_merge_index (const char *name)
 }
 
 
-static inline void
-free_list (GSList *list) 
-{
-	g_slist_foreach (list, (GFunc) free_hits, NULL);
-
-	g_slist_free (list);
-}
-
 
 static gint
 flush_all_file_words (  gpointer         key,
@@ -102,12 +75,16 @@ flush_all_file_words (  gpointer         key,
 {
 	IndexConnection *index_con = data;
 
-	tracker_indexer_append_word_list (index_con->file_index, key, value);
-  
-	g_free (key);
+	GByteArray *array = value;
 
-	free_list (value);
+	if (array) {
 
+		tracker_indexer_append_word_chunk (index_con->file_index, key, (WordDetails *) array->data, (array->len / sizeof (WordDetails)));
+
+		g_byte_array_free  (array, TRUE);
+	}
+
+	
   	return 1;
 }
 
@@ -119,11 +96,16 @@ flush_all_file_update_words (   gpointer         key,
 {
 	IndexConnection *index_con = data;
 
-	tracker_indexer_update_word_list (index_con->file_update_index, key, value);
-  
-	g_free (key);
+	GByteArray *array = value;
 
-	free_list (value);
+	if (array) {
+
+		tracker_indexer_update_word_chunk (index_con->file_update_index, key, (WordDetails *) array->data, (array->len / sizeof (WordDetails)));
+  
+		g_byte_array_free  (array, TRUE);
+	}
+
+	g_free (key);
 
   	return 1;
 }
@@ -135,13 +117,18 @@ flush_all_email_words ( gpointer         key,
 	   	 	gpointer         data)
 {
 	IndexConnection *index_con = data;
+	
+	GByteArray *array = value;
 
-	tracker_indexer_append_word_list (index_con->email_index, key, value);
+	if (array) {
+
+		tracker_indexer_append_word_chunk (index_con->email_index, key, (WordDetails *) array->data, (array->len / sizeof (WordDetails)));
+
+		g_byte_array_free  (array, TRUE);
+	}
 
 	g_free (key);
-
-	free_list (value);
-
+	
   	return 1;
 }
 
@@ -246,18 +233,31 @@ is_email (gint service_type)
 static gboolean
 update_word_table (GHashTable *table, const char *word, WordDetails *word_details)
 {
-	gboolean new_word;
+	gboolean new_word = FALSE;
 
-	GSList *list = g_hash_table_lookup (table, word);
+	int sz = sizeof (WordDetails);
 
-	new_word = (list == NULL);
+	tracker->word_detail_count++;
+	
+	GByteArray *array = g_hash_table_lookup (table, word);
 
-	list = g_slist_prepend (list, word_details);	
+	if (!array) {
+
+		if (tracker->use_extra_memory) {
+			array = g_byte_array_sized_new (sz * 2);
+		} else {
+			array = g_byte_array_sized_new (sz);
+		}
+		
+		new_word = TRUE;
+	} 
+
+	array = g_byte_array_append (array, (guint8 *) word_details, sz);
 
 	if (new_word) {
-		g_hash_table_insert (table, g_strdup (word), list);
+		g_hash_table_insert (table, g_strdup (word), array);
 	} else {
-		g_hash_table_insert (table, (gchar *) word, list);
+		g_hash_table_insert (table, (gchar *) word, array);
 	}
 
 	return new_word;
@@ -268,23 +268,21 @@ update_word_table (GHashTable *table, const char *word, WordDetails *word_detail
 void
 tracker_cache_add (const gchar *word, guint32 service_id, gint service_type, gint score, gboolean is_new)
 {
-	WordDetails *word_details;
+	WordDetails word_details;
 
-	word_details = word_details_new ();
-
-	word_details->id = service_id;
-	word_details->amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
+	word_details.id = service_id;
+	word_details.amalgamated = tracker_indexer_calc_amalgamated (service_type, score);
 
 	if (is_new) {
 
 		if (!is_email (service_type)) {
-			if (update_word_table (tracker->file_word_table, word, word_details)) tracker->word_count++;
+			if (update_word_table (tracker->file_word_table, word, &word_details)) tracker->word_count++;
 		} else {
-			if (update_word_table (tracker->email_word_table, word, word_details)) tracker->word_count++;
+			if (update_word_table (tracker->email_word_table, word, &word_details)) tracker->word_count++;
 		}
 
 	} else {
-		if (update_word_table (tracker->file_update_word_table, word, word_details)) tracker->word_update_count++;
+		if (update_word_table (tracker->file_update_word_table, word, &word_details)) tracker->word_update_count++;
 	}
 
 }
@@ -347,6 +345,8 @@ tracker_cache_event_check (DBConnection *db_con, gboolean check_flush)
 
 		
 		if (stopped_trans && db_con && !db_con->in_transaction) tracker_db_start_index_transaction (db_con);
+
+		tracker_throttle (1000);
 
 		return EVENT_NOTHING;
 

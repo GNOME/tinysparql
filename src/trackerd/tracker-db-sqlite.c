@@ -2689,7 +2689,6 @@ save_full_text_bytes (DBConnection *blob_db_con, const char *str_file_id, GByteA
 
 		if (!lock_db ()) {
 			
-
 			if (value) {
 				g_free (value);
 			}
