@@ -2903,6 +2903,8 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 
 			buffer_length += bytes_backtracked;
 
+			buffer[buffer_length] = '\0';
+
 			if (lseek (fd, bytes_backtracked, SEEK_CUR) == -1) {
 				tracker_error ("Could not seek to line break in text chunk");
 				break;
@@ -5594,6 +5596,8 @@ tracker_db_move_directory (DBConnection *db_con, const char *moved_from_uri, con
 			tracker_info ("moving subfolder %s to %s", dir_name, new_path);
 			
 			move_directory (db_con, dir_name, new_path);
+
+			g_usleep (1000);
 						
 			g_free (new_path);
 			g_free (dir_name);

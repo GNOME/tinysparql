@@ -246,6 +246,7 @@ typedef struct {
 	int		initial_sleep;
 	int		max_words_to_index;
 	int 		memory_limit;
+	gboolean	battery_checking;
 
 	/* indexing options */
 
@@ -613,6 +614,7 @@ void		tracker_free_metadata_field 	(FieldData *field_data);
 
 gboolean	tracker_unlink 			(const char *uri);
 
+char *		tracker_get_battery_state_file 	();
 gboolean	tracker_using_battery 		(void);
 
 

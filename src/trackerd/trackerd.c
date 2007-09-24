@@ -546,7 +546,10 @@ check_battery (gpointer p)
 {
 	tracker->battery_paused = tracker_using_battery ();
 
-	return TRUE;
+	tracker->battery_checking = (tracker->status != STATUS_IDLE);
+
+	return tracker->battery_checking;
+
 }
 
 
@@ -880,6 +883,12 @@ process_files_thread (void)
 	tracker_log ("starting indexing...");
 	tracker->status = STATUS_INDEXING;
 
+	if (tracker->battery_state_file) {
+		tracker->battery_checking = TRUE;
+		g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
+	}
+
+
 	while (TRUE) {
 		FileInfo *info;
 		gboolean need_index;
@@ -897,11 +906,19 @@ process_files_thread (void)
 			tracker_db_end_index_transaction (db_con);
 			tracker_cache_flush_all (FALSE);
 
+			tracker->status = STATUS_IDLE;
+
 			/* make thread sleep if first part of the shutdown process has been activated */
 			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 
 			/* determine if wake up call is new stuff or a shutdown signal */
 			if (!tracker->shutdown) {
+				
+				if (tracker->battery_state_file && !tracker->battery_checking) {
+					tracker->battery_checking = TRUE;
+					g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
+				}
+
 				continue;
 			} else {
 			
@@ -1237,6 +1254,11 @@ process_files_thread (void)
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!tracker->shutdown) {
+					if (tracker->battery_state_file && !tracker->battery_checking) {
+						tracker->battery_checking = TRUE;
+						g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
+					}
+
 					tracker_db_start_index_transaction (db_con);
 				} else {
 					break;
@@ -1963,24 +1985,8 @@ set_defaults (void)
 	tracker->root_directory_devices = NULL;
 
 	/* battery and ac power checks */
-	const gchar *battery_filenames[4] = {
-		"/proc/acpi/ac_adapter/AC/state",
-		"/proc/acpi/ac_adapter/AC0/state",
-		"/proc/acpi/ac_adapter/ADp1/state",
-		"/proc/acpi/ac_adapter/ACAD/state"
-	};
+	tracker->battery_state_file = tracker_get_battery_state_file ();
 
-	gint i;
-
-	tracker->battery_state_file = NULL;
-
-	for (i = 0; i < 4; i++) {
-
-		if (g_file_test (battery_filenames[i], G_FILE_TEST_EXISTS)) {
-			tracker->battery_state_file = g_strdup (battery_filenames[i]);
-			break;
-		}
-	}
 }
 
 
@@ -2490,12 +2496,6 @@ main (gint argc, gchar *argv[])
 
 	/* this var is used to tell the threads when to quit */
 	tracker->is_running = TRUE;
-
-	if (tracker->battery_state_file) {
-		g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
-	}
-
-
 
 	tracker->user_request_thread =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
 

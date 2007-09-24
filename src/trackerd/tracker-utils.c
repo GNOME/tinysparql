@@ -3571,6 +3571,50 @@ tracker_string_replace (const char *haystack, char *needle, char *replacement)
 }
 
 
+static char *
+get_first_entry_in_dir (const char *dir)
+{
+	GDir	*dirp;
+	char 	*result = NULL;
+
+	if ((dirp = g_dir_open (dir, 0, NULL))) {
+
+		const char *name;
+
+   		if ((name = g_dir_read_name (dirp))) {
+			result = g_build_filename (dir, name, NULL);
+		}
+
+ 		g_dir_close (dirp);
+	}
+
+	return result;
+
+}
+
+char *
+tracker_get_battery_state_file ()
+{
+	const char 	*dir = "/proc/acpi/ac_adapter";
+	char 		*battery_path = NULL;
+	char 		*battery_file = NULL;
+
+	if (!g_file_test (dir, G_FILE_TEST_EXISTS)) {
+		return NULL;
+	}
+	
+	battery_path = get_first_entry_in_dir (dir);
+
+	if (!battery_path) return NULL;
+
+	battery_file = get_first_entry_in_dir (battery_path);
+
+	g_free (battery_path);
+
+	return battery_file;
+}
+
+
 gboolean
 tracker_using_battery (void)
 {

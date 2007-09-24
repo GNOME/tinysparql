@@ -33,7 +33,9 @@
 
 extern Tracker *tracker;
 
-#define NEED_PANGO(c) (((c) >= 0x0780 && (c) <= 0x1B7F)  || ((c) >= 0x2E80 && (c) <= 0xFAFF)  ||  ((c) >= 0xFE30 && (c) <= 0xFE4F))
+/* need pango for CJK ranges which are : 0x3400 - 0x4DB5, 0x4E00 - 0x9FA5, 0x20000 - <= 0x2A6D6 */
+
+#define NEED_PANGO(c) (((c) >= 0x3400 && (c) <= 0x4DB5)  || ((c) >= 0x4E00 && (c) <= 0x9FA5)  ||  ((c) >= 0x20000 && (c) <= 0x2A6D6))
 #define IS_LATIN(c) (((c) <= 0x02AF) || ((c) >= 0x1E00 && (c) <= 0x1EFF))
 #define IS_ASCII(c) ((c) <= 0x007F) 
 #define IS_ASCII_ALPHA_LOWER(c) ( (c) >= 0x0061 && (c) <= 0x007A )
@@ -536,12 +538,13 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 		guint	     nb_bytes, str_len, word_start;
 
                 nb_bytes = strlen (txt);
+
                 str_len = g_utf8_strlen (txt, -1);
 
 		attrs = g_new0 (PangoLogAttr, str_len + 1);
 
 		pango_get_log_attrs (txt, nb_bytes, 0, pango_language_from_string ("C"), attrs, str_len + 1);
-
+		
 		word_start = 0;
 
 		for (i = 0; i < str_len + 1; i++) {

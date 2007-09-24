@@ -306,7 +306,7 @@ tracker_metadata_get_text_file (const char *uri, const char *mime)
 			return NULL;
 		}
 
-		tracker_debug ("extracting text for %s using filter %s", argv[1], argv[0]);
+		tracker_info ("extracting text for %s using filter %s", argv[1], argv[0]);
 
 		if (tracker_spawn (argv, 30, NULL, NULL)) {
 
