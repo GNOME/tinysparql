@@ -84,7 +84,8 @@ flush_all_file_words (  gpointer         key,
 		g_byte_array_free  (array, TRUE);
 	}
 
-	
+	g_free (key);
+
   	return 1;
 }
 
