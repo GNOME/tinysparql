@@ -1,3 +1,11 @@
+2007-09-24 Laurent Aguerreche <laurent.aguerreche at free fr>
+
+	* KMail emails are not indexed twice anymore because date of indexing is now checked...
+	* Some work need to be done to update infos of a maildir email when needed
+	* In tracker.h, prefer G_BEGIN_DECLS/G_END_DECLS than direct use of extern "C"
+	* Remove some warnings in libtracker-gtk
+
+
 2007-09-22 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added index merging
@@ -19,13 +27,10 @@
 	* Added basic support for index merging
 
 
-
 2007-09-12 Patch from 	Michal Pryc <Michal.Pryc@Sun.COM>
 
 	* added initial thunderbird support (experimental and requires separate thunderbird-extension)
 	* added solaris build fixes
-
-
 
 
 2007-09-11 Patch from Marcus Fritzsch <fritschy at googlemail com>
@@ -43,7 +48,6 @@
 	It should be noted that recent deskbar work has closed Gnome #474131 as well.
 	
 	Commited and approved by kamstrup.
-	
 
 
 2007-09-11 Laurent Aguerreche <laurent.aguerreche@free.fr>
@@ -67,6 +71,7 @@
 	* Improved memory usage
 	* Optimised text filter reading io using posix_fadvise and O_NOATIME
 	* Print out memory usage (linux only) when flushing words
+
 
 2007-09-08 Laurent Aguerreche <laurent.aguerreche@free.fr>
 

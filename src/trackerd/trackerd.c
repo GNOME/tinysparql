@@ -64,6 +64,7 @@
 #include "tracker-dbus-search.h"
 #include "tracker-dbus-files.h"
 #include "tracker-email.h"
+#include "tracker-email-utils.h"
 #include "tracker-cache.h"
 #include "tracker-indexer.h"
 
@@ -765,7 +766,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 		return;
 	}
 
-//	tracker_debug ("indexing %s with service %s", info->uri, service_info);
+	//tracker_debug ("indexing %s with service %s", info->uri, service_info);
 
 	gchar *str = g_utf8_strdown  (service_info, -1);
 
@@ -795,13 +796,10 @@ index_entity (DBConnection *db_con, FileInfo *info)
 
 
 	if (g_str_has_suffix (service_info, "Emails")) {
-
 		if (!tracker_email_index_file (db_con->emails, info, service_info)) {
-
 			g_free (service_info);
 			return;
 		}
-
 
 	} else if (strcmp (service_info, "Files") == 0) {
 		tracker_db_index_file (db_con, info, NULL, NULL);
@@ -817,7 +815,6 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	}
 
 	g_free (service_info);
-
 }
 
 
@@ -1335,7 +1332,7 @@ process_files_thread (void)
 		if (info->file_id == 0 && info->action != TRACKER_ACTION_CREATE &&
 		    info->action != TRACKER_ACTION_DIRECTORY_CREATED && info->action != TRACKER_ACTION_FILE_CREATED) {
 
-			info = tracker_db_get_file_info (db_con, info);
+                        info = tracker_db_get_file_info (db_con, info);
 		}
 
 		/* Get more file info if db retrieval returned nothing */

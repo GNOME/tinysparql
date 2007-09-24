@@ -100,6 +100,7 @@ typedef struct {
 	MailFile	*parent_mail_file;
 	gint		id;
 	gboolean	is_mbox;
+        gint            mtime;
 	gchar		*path;
 	gchar		*uri;			/* uri to pass to a mail client to open it at mail message */
 	guint64		offset;			/* start address of the email */

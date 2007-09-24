@@ -20,11 +20,9 @@
 #ifndef TRACKER_H
 #define TRACKER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "tracker-client.h"
+
+G_BEGIN_DECLS
 
 typedef void (*TrackerArrayReply) (char **result, GError *error, gpointer user_data);
 typedef void (*TrackerHashTableReply) (GHashTable *result, GError *error, gpointer user_data);
@@ -213,8 +211,6 @@ void tracker_search_metadata_by_text_and_mime_async			(TrackerClient *client, co
 void tracker_search_metadata_by_text_and_mime_and_location_async	(TrackerClient *client, const char *query, const char **mimes, const char *location, TrackerArrayReply callback, gpointer user_data);
 void tracker_search_metadata_by_text_and_location_async			(TrackerClient *client, const char *query, const char *location, TrackerArrayReply callback, gpointer user_data);
 
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
+G_END_DECLS
 
 #endif /* TRACKER_H */

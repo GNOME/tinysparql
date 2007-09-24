@@ -112,9 +112,9 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
                                            MakeURIHelperFct uri_helper, gpointer make_uri_user_data,
                                            MailStore *store)
 {
-	MailFile	*mf;
-	MailMessage	*mail_msg;
-	int 		indexed = 0, junk = 0, deleted = 0;
+	MailFile    *mf;
+	MailMessage *mail_msg;
+	gint        indexed = 0, junk = 0, deleted = 0;
 
 
 	if (!tracker->is_running) return FALSE; 
@@ -125,8 +125,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	mf = email_open_mail_file_at_offset (mail_app, path, store->offset, TRUE);
 
-	while ((mail_msg = email_mail_file_parse_next (mf,
-                                                       read_mail_helper, read_mail_user_data))) {
+	while ((mail_msg = email_mail_file_parse_next (mf, read_mail_helper, read_mail_user_data))) {
 
 		if (!tracker->is_running) {
 			email_free_mail_message (mail_msg);
@@ -202,7 +201,9 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 	email_free_mail_file (mf);
 
 	if (indexed > 0) {
-		tracker_info ("Indexed %d emails in email store %s and ignored %d junk and %d deleted emails", indexed, path, junk, deleted);
+		tracker_info ("Indexed %d emails in email store %s and ignored %d junk and %d deleted emails",
+                              indexed, path, junk, deleted);
+
 		return TRUE;
 	}
 

@@ -33,7 +33,7 @@
 
 G_DEFINE_TYPE (TrackerTagBar, tracker_tag_bar, GTK_TYPE_HBOX);
 
-/* FORWARD DECLERATIONS */
+/* FORWARD DECLARATIONS */
 
 static void _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag);
 static void _tag_launch_search (const gchar *tag);
@@ -46,7 +46,7 @@ struct _TrackerTagBarPrivate
 	TrackerClient *client;
 	
 	gchar *uri;
-	gchar *active_tag;
+	const gchar *active_tag;
 
 	ServiceType type;
 	
@@ -67,7 +67,6 @@ _keywords_reply (char **array, GError *error, TrackerTagBar *bar)
 	gchar * tag = NULL;
 	gint i = 0;
 	GtkWidget *hbox;
-	GtkWidget *label;	
 	
 	if (error) {
 		g_print ("%s\n", error->message);
@@ -121,7 +120,7 @@ _on_tag_button_press_event (GtkWidget 			*button,
 		case 3:
 			priv->active_tag = tag;
 			gtk_menu_popup (GTK_MENU (priv->menu),
-					NULL, NULL, NULL, (gpointer)bar, 3, event->time);
+					NULL, NULL, NULL, bar, 3, event->time);
 					
 			break;
 		default:
@@ -199,7 +198,7 @@ static void
 _on_apply_add_tag (GtkButton *but, TrackerTagBar *bar)
 {
 	TrackerTagBarPrivate *priv;
-	gchar *text;
+	const gchar *text;
 	gchar **tags;
 	GError *error = NULL;
 	
@@ -236,7 +235,6 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 {
 	TrackerTagBarPrivate *priv;
 	GtkWidget *hbox;
-	GtkWidget *label;
 	GtkWidget *entry;
 	GtkWidget *image;
 	GtkWidget *button;
@@ -253,7 +251,7 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 	gtk_box_pack_start (GTK_BOX(hbox), entry, TRUE, TRUE, 0);
 	
 	g_signal_connect (G_OBJECT (entry), "activate",
-			  G_CALLBACK (_on_entry_activate), (gpointer) bar);
+			  G_CALLBACK (_on_entry_activate), bar);
 	
 	image = gtk_image_new_from_stock (GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
 	
@@ -263,7 +261,7 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 	
 	g_signal_connect (G_OBJECT (button), "clicked",
-			  G_CALLBACK (_on_close_add_tag), (gpointer) bar);
+			  G_CALLBACK (_on_close_add_tag), bar);
 			  
 	image = gtk_image_new_from_stock (GTK_STOCK_APPLY, GTK_ICON_SIZE_MENU);
 	
@@ -274,7 +272,7 @@ _on_add_tag_clicked (GtkButton *but, TrackerTagBar *bar)
 	
 	
 	g_signal_connect (G_OBJECT (button), "clicked",
-			  G_CALLBACK (_on_apply_add_tag), (gpointer) bar);	
+			  G_CALLBACK (_on_apply_add_tag), bar);	
 	
 	gtk_box_pack_start (GTK_BOX (bar), hbox, TRUE, TRUE, 0);
 	gtk_widget_show_all (hbox);
@@ -304,7 +302,7 @@ _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag)
 	gtk_box_pack_start (GTK_BOX(box), button, FALSE, FALSE, 0);
 		
 	g_signal_connect (G_OBJECT (button), "button-press-event",
-			  G_CALLBACK (_on_tag_button_press_event), (gpointer) bar);
+			  G_CALLBACK (_on_tag_button_press_event), bar);
 
 	g_free (temp);	
 }
@@ -324,7 +322,7 @@ tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 	
 	tracker_keywords_get_async (priv->client, priv->type, uri, 
 				    (TrackerArrayReply)_keywords_reply, 
-				    (gpointer)bar);
+				    bar);
 }
 
 /* TRACKER TAG BAR NEW */
@@ -374,7 +372,7 @@ tracker_tag_bar_init (TrackerTagBar *tag_bar)
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 	
 	g_signal_connect (G_OBJECT (button), "clicked",
-			  G_CALLBACK (_on_add_tag_clicked), (gpointer) tag_bar);
+			  G_CALLBACK (_on_add_tag_clicked), tag_bar);
 	
 	menu = gtk_menu_new();
 	priv->menu = menu;

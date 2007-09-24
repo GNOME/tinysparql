@@ -67,7 +67,7 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 		path = tracker_get_vfs_path (uri);
 	}
 
-	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
+	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
 
 	g_free (path);
 	g_free (name);
@@ -555,7 +555,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 
 		guint32 id;
 
-		if (tracker_db_is_file_up_to_date (db_con, uri, &id)) {
+		if (tracker_db_is_file_up_to_date (db_con->index, uri, &id)) {
 			return;
 		}
 

@@ -27,6 +27,7 @@
 
 off_t	  tracker_db_email_get_last_mbox_offset  (DBConnection *db_con, const gchar *mail_file_path);
 void	  tracker_db_email_update_mbox_offset    (DBConnection *db_con, MailFile *mf);
+gboolean  tracker_db_email_is_up_to_date         (DBConnection *db_con, const gchar *uri, guint32 *id);
 gboolean  tracker_db_email_save_email	         (DBConnection *db_con, MailMessage *mm);
 void	  tracker_db_email_update_email	         (DBConnection *db_con, MailMessage *mm);
 void	  tracker_db_email_delete_emails_of_mbox (DBConnection *db_con, const gchar *mbox_file_path);

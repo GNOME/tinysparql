@@ -83,10 +83,10 @@ tracker_keyword_store_row_draggable (GtkTreeDragSource   	*drag_source,
 
 static gboolean
 tracker_keyword_store_drag_data_get (GtkTreeDragSource   	*drag_source,
-					GtkTreePath		*path,
-					GtkSelectionData	*data)
+				     GtkTreePath		*path,
+				     GtkSelectionData	        *data)
 {
-	char *keyword;
+	guchar *keyword;
 	GtkTreeIter iter;
 	TrackerKeywordStore *store;
 
@@ -128,7 +128,7 @@ tracker_keyword_store_populate_cb (GPtrArray *result, GError *error, gpointer us
 
 	if (!error && result) {
 		gchar *name = NULL;
-		gint i;
+		guint i;
 		for (i = 0; i < result->len; i++) {
 			name = ((gchar **)result->pdata[i])[0];
 			if (strlen (name) > 2) {

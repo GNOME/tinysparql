@@ -434,12 +434,18 @@ get_attachment_service_name (MailApplication app)
 
 
 gboolean
+tracker_db_email_is_up_to_date (DBConnection *db_con, const gchar *uri, guint32 *id)
+{
+        return tracker_db_is_file_up_to_date (db_con->emails, uri, id);
+}
+
+
+gboolean
 tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 {
        	gint  mbox_id, type_id, id, len;
 	gchar *service, *attachment_service, *mime;
 	gchar *array[255];
-	
 
         #define LIMIT_ARRAY_LENGTH(len) ((len) > 255 ? 255 : (len))
 
@@ -522,6 +528,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	info->mime = mime;
 	info->offset = mm->offset;
 	info->aux_id = mbox_id;
+        info->mtime = mm->mtime;
 
 	id = tracker_db_create_service (db_con->index, service, info);
 
@@ -545,8 +552,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 			if (value) {
 				tracker_db_insert_single_embedded_metadata (db_con->index, service, str_id, "Email:Body", value, index_table);
 				g_free (value);
-			}
-			
+			}			
 		}
 
 		if (str_date) {
@@ -664,6 +670,9 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 
 		g_free (str_id);
+
+                #undef LIMIT_ARRAY_LENGTH
+
 
 		/* index attachments */
 		for (tmp = mm->attachments; tmp; tmp = tmp->next) {

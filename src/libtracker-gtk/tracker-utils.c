@@ -78,7 +78,7 @@ GtkTreeModel *
 tracker_create_simple_keyword_liststore (const GList *list)
 {
     GtkListStore *store;
-    GList *tmp;
+    const GList *tmp;
 
     store = gtk_list_store_new (1, G_TYPE_STRING);
 
