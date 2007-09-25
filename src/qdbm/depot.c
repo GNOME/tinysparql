@@ -176,7 +176,19 @@ DEPOT *dpopen(const char *name, int omode, int bnum){
     mode = O_RDWR;
     if(omode & DP_OCREAT) mode |= O_CREAT;
   }
-  if((fd = open(name, mode, DP_FILEMODE)) == -1){
+
+#if defined(__linux__)
+
+	fd = open(name, mode|O_NOATIME, DP_FILEMODE);
+
+	if (fd == -1) {
+		fd = open(name, mode, DP_FILEMODE);
+	}
+#else
+	fd = open(name, mode, DP_FILEMODE);
+#endif
+
+  if(fd == -1){
     dpecodeset(DP_EOPEN, __FILE__, __LINE__);
     return NULL;
   }

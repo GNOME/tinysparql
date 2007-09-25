@@ -14,8 +14,6 @@ INCLUDES = \
 noinst_LTLIBRARIES = libqdbm-private.la
 
 libqdbm_private_la_SOURCES = \
-	curia.c \
-	curia.h \
 	depot.c \
 	depot.h \
 	myconf.c \
