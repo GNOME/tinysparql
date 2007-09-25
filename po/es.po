@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-09-13 03:32+0100\n"
-"PO-Revision-Date: 2007-09-20 19:37+0200\n"
+"POT-Creation-Date: 2007-09-25 02:57+0100\n"
+"PO-Revision-Date: 2007-09-25 21:18+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -349,21 +349,21 @@ msgstr "%.1f GiB"
 msgid "Unknown"
 msgstr "Desconocido"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:251
+#: ../src/libtracker-gtk/tracker-tag-bar.c:249
 msgid "Type tags you want to add here, separated by commas"
 msgstr "Escriba aquí las etiquetas que quiere añadir, separadas por comas"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:361
+#: ../src/libtracker-gtk/tracker-tag-bar.c:359
 msgid "Tags :"
 msgstr "Etiquetas :"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:383
+#: ../src/libtracker-gtk/tracker-tag-bar.c:381
 msgid "_Search For Tag"
 msgstr "_Buscar por etiqueta"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:395
+#: ../src/libtracker-gtk/tracker-tag-bar.c:393
 msgid "_Remove Tag"
 msgstr "_Eliminar etiqueta"
 
@@ -510,28 +510,28 @@ msgstr "%s: argumentos inválidos"
 msgid "%s: file %s not found"
 msgstr "%s: archivo %s no encontrado"
 
-#: ../src/trackerd/trackerd.c:164
+#: ../src/trackerd/trackerd.c:165
 msgid "Directory to exclude from indexing"
 msgstr "Directorio que excluir del indexado"
 
-#: ../src/trackerd/trackerd.c:164 ../src/trackerd/trackerd.c:165
-#: ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:165 ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:167
 msgid "/PATH/DIR"
 msgstr "/RUTA/DIR"
 
-#: ../src/trackerd/trackerd.c:165
+#: ../src/trackerd/trackerd.c:166
 msgid "Directory to include in indexing"
 msgstr "Directorio que incluir en el indexado"
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:167
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Directorio que arañar para indexar sólo al inicio"
 
-#: ../src/trackerd/trackerd.c:167
+#: ../src/trackerd/trackerd.c:168
 msgid "Disable any indexing or watching taking place"
 msgstr "Desactivar cualquier indexado o vista que se esté realizando"
 
-#: ../src/trackerd/trackerd.c:168
+#: ../src/trackerd/trackerd.c:169
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -539,11 +539,11 @@ msgstr ""
 "Valor que controla el nivel de registro. Los valores válidos son 0 (sólo "
 "muestra errores), 1 (mínimo), 2 (detallado) y 3 (depuración)"
 
-#: ../src/trackerd/trackerd.c:168 ../src/trackerd/trackerd.c:169
+#: ../src/trackerd/trackerd.c:169 ../src/trackerd/trackerd.c:170
 msgid "VALUE"
 msgstr "VALOR"
 
-#: ../src/trackerd/trackerd.c:169
+#: ../src/trackerd/trackerd.c:170
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-20 (default "
 "0) with lower values increasing indexing speed"
@@ -552,43 +552,43 @@ msgstr ""
 "comprendidos entre 0 y 20 (por defecto se toma 0) dando los valores bajos "
 "una aceleracion mayor del indexado"
 
-#: ../src/trackerd/trackerd.c:170
+#: ../src/trackerd/trackerd.c:171
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/trackerd/trackerd.c:171
+#: ../src/trackerd/trackerd.c:172
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Tiempo inicial de latencia, justo antes de indexar, en segundos"
 
-#: ../src/trackerd/trackerd.c:172
+#: ../src/trackerd/trackerd.c:173
 msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Idioma que usar para stemmer y lista de palabras de parada (código de "
 "caracteres ISO 639-1 2)"
 
-#: ../src/trackerd/trackerd.c:172
+#: ../src/trackerd/trackerd.c:173
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:173
+#: ../src/trackerd/trackerd.c:174
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/trackerd/trackerd.c:174
+#: ../src/trackerd/trackerd.c:175
 msgid "Make tracker errors fatal"
 msgstr "Hacer que los errores de tracker sean fatales"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2031
+#: ../src/trackerd/trackerd.c:2155
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:2032 ../src/trackerd/trackerd.c:2033
+#: ../src/trackerd/trackerd.c:2156 ../src/trackerd/trackerd.c:2157
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:2040
+#: ../src/trackerd/trackerd.c:2164
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -667,124 +667,19 @@ msgid "Additional paths to index on startup (but not watch for updates)"
 msgstr "Rutas adicionales que indexar al inicio (pero no vigilar)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "Correos-e"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
-msgid "Enable _Evolution email indexing"
-msgstr "Activar el indexado de correos-e de _Evolution"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
-msgid "Enable _KMail email indexing"
-msgstr "Activar el indexado de correos-e de _Kmail"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:20
-msgid "Enable _Thunderbird email indexing"
-msgstr "Activar el indexado de correos de _Thunderbird"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:21
-msgid "Enable _watching"
-msgstr "Activar _vigilancia"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
-msgid "Enable i_ndexing"
-msgstr "Activar i_ndexado"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
-msgid "Faster"
-msgstr "Más rápido"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
-msgid "File patterns to ignore during indexing:"
-msgstr "Patrones de archivo que ignorar durante el indexado:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
-msgid "Files"
-msgstr "Archivos"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
-msgid "General"
-msgstr "General"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
-msgid "Generate thum_bnails"
-msgstr "Generar _miniaturas"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
-msgid "Ignored Files"
-msgstr "Archivos ignorados"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Index _delay: "
-msgstr "_Retardo de indexado: "
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "Index _file contents"
-msgstr "Indexar el contenido de los _archivos"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
-msgid "Index _mounted directories"
-msgstr "Indexar directorios _montados"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Index and watch my home _directory"
-msgstr "Indexar y vigilar mi ca_rpeta personal"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
-msgid "Indexing speed:"
-msgstr "Velocidad de indexado:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
-msgid "Maximum _amount of text to index:"
-msgstr "Máxima _cantidad de texto para indexar:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
-msgid "Maximum number of unique _words to index:"
-msgstr "Máximo número de _palabras únicas que indexar:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "Path roots to be ignored during indexing:"
-msgstr "Rutas para ser ignoradas durante el indexado:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Performance"
-msgstr "Rendimiento"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
-msgid "Slower"
-msgstr "Más lento"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
-msgid "Tracker Preferences"
-msgstr "Preferencias de Tracker"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
-msgid "_Language:"
-msgstr "_Idioma:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
-msgid "_Minimize memory usage (slower indexing)"
-msgstr "_Minimizar el uso de memoria (indexado más lento)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
-msgid "_Use additonal memory for faster indexing"
-msgstr "_Usar memoria adicional para indexar más rápidamente"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid ""
-"danish\n"
-"dutch\n"
-"english\n"
-"finnish\n"
-"french\n"
-"german\n"
-"italian\n"
-"norwegian\n"
-"portugese\n"
-"russian\n"
-"spanish\n"
-"swedish"
+"Danish\n"
+"Dutch\n"
+"English\n"
+"Finnish\n"
+"French\n"
+"German\n"
+"Italian\n"
+"Norwegian\n"
+"Portuguese\n"
+"Russian\n"
+"Spanish\n"
+"Swedish"
 msgstr ""
 "alemán\n"
 "danés\n"
@@ -798,6 +693,111 @@ msgstr ""
 "portugués\n"
 "ruso\n"
 "sueco"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "Correos-e"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+msgid "Enable _Evolution email indexing"
+msgstr "Activar el indexado de correos-e de _Evolution"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "Enable _KMail email indexing"
+msgstr "Activar el indexado de correos-e de _Kmail"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Enable _Thunderbird email indexing"
+msgstr "Activar el indexado de correos de _Thunderbird"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+msgid "Enable _watching"
+msgstr "Activar _vigilancia"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+msgid "Enable i_ndexing"
+msgstr "Activar i_ndexado"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+msgid "Faster"
+msgstr "Más rápido"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+msgid "File patterns to ignore during indexing:"
+msgstr "Patrones de archivo que ignorar durante el indexado:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "Files"
+msgstr "Archivos"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+msgid "General"
+msgstr "General"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "Generate thum_bnails"
+msgstr "Generar _miniaturas"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+msgid "Ignored Files"
+msgstr "Archivos ignorados"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+msgid "Index _delay: "
+msgstr "_Retardo de indexado: "
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+msgid "Index _file contents"
+msgstr "Indexar el contenido de los _archivos"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+msgid "Index _mounted directories"
+msgstr "Indexar directorios _montados"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+msgid "Index and watch my home _directory"
+msgstr "Indexar y vigilar mi ca_rpeta personal"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
+msgid "Indexing speed:"
+msgstr "Velocidad de indexado:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
+msgid "Maximum _amount of text to index:"
+msgstr "Máxima _cantidad de texto para indexar:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+msgid "Maximum number of unique _words to index:"
+msgstr "Máximo número de _palabras únicas que indexar:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
+msgid "Path roots to be ignored during indexing:"
+msgstr "Rutas para ser ignoradas durante el indexado:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
+msgid "Performance"
+msgstr "Rendimiento"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
+msgid "Slower"
+msgstr "Más lento"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+msgid "Tracker Preferences"
+msgstr "Preferencias de Tracker"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
+msgid "_Language:"
+msgstr "_Idioma:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+msgid "_Minimize memory usage (slower indexing)"
+msgstr "_Minimizar el uso de memoria (indexado más lento)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
+msgid "_Use additonal memory for faster indexing"
+msgstr "_Usar memoria adicional para indexar más rápidamente"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:55
 msgid "kB"
