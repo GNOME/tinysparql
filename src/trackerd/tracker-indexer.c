@@ -191,7 +191,11 @@ open_index (const gchar *name)
 
 	tracker_log ("Opening index %s", name);
 
-	word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, tracker->min_index_bucket_count);
+	if (strstr (name, "tmp")) {
+		word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, tracker->min_index_bucket_count);
+	} else {
+		word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, tracker->max_index_bucket_count);
+	}
 
 	if (!word_index) {
 		tracker_log ("%s index was not closed properly and caused error %s- attempting repair", name, dperrmsg (dpecode));
@@ -379,7 +383,7 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	char 	buffer[MAX_HIT_BUFFER];
 	int 	bytes;
 	int 	sz = sizeof (WordDetails);
-	int 	i = 0, interval = 5000;
+	int 	i = 0, interval;
 	int 	buff_size = MAX_HITS_FOR_WORD * sz;
 
 	tracker_log ("applying incremental changes to indexes");
@@ -387,16 +391,19 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	guint32 size = tracker_indexer_size (dest);
 
 	if (size < (10 * 1024 * 1024)) {
-		interval = 30000;
-	} else if (size < (20 * 1024 * 1024)) {
-		interval = 20000;
-	} else if (size < (30 * 1024 * 1024)) {
 		interval = 10000;
-	} else if (size < (100 * 1024 * 1024)) {
+	} else if (size < (20 * 1024 * 1024)) {
 		interval = 5000;
-	} else {
+	} else if (size < (30 * 1024 * 1024)) {
+		interval = 3000;
+	} else if (size < (100 * 1024 * 1024)) {
 		interval = 2000;
+	} else {
+		interval = 1000;
 	}
+
+	/* halve the interval value as notebook hard drives are smaller */
+	if (tracker->battery_state_file) interval = interval / 2;
 
 	dpiterinit (src->word_index);
 	
@@ -489,8 +496,8 @@ tracker_indexer_merge_indexes (IndexType type)
 	Indexer *final_index;
 	char *str;
 	GSList *file_list = NULL, *index_list = NULL;
-	char *prefix;
-	int i = 0, index_count;
+	const char *prefix;
+	int i = 0, index_count, interval = 5000;
 	
 	if (type == INDEX_TYPE_FILES) {
 		prefix = "file-index.tmp.";
@@ -578,14 +585,34 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				i++;
 
-				if (i > 5001 && (i % 5000 == 0)) {
-					dpsync (final_index->word_index);
-
+				if (i > 1001 && (i % 1000 == 0)) {
 					LoopEvent event = tracker_cache_event_check (NULL, FALSE);
 
 					if (event==EVENT_SHUTDOWN) {
 						return;
-					}	
+					}
+				}
+				
+
+				if (i > interval && (i % interval == 0)) {
+					dpsync (final_index->word_index);
+
+					guint32 size = tracker_indexer_size (final_index);
+
+					if (size < (10 * 1024 * 1024)) {
+						interval = 10000;
+					} else if (size < (20 * 1024 * 1024)) {
+						interval = 5000;
+					} else if (size < (50 * 1024 * 1024)) {
+						interval = 3000;
+					} else if (size < (100 * 1024 * 1024)) {
+						interval = 2000;
+					} else {
+						interval = 1000;
+					}
+
+					/* halve the interval value as notebook hard drives are smaller */
+					if (tracker->battery_state_file) interval = interval / 2;
 				}
 			
 				offset = dpgetwb (index->word_index, str, -1, 0, buff_size, buffer);

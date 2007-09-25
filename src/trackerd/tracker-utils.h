@@ -58,9 +58,9 @@ extern char *tracker_actions[];
 #define MAX_WORDS_TO_INDEX		10000
 
 /* default indexer options */
-#define MIN_INDEX_BUCKET_COUNT		262144    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
+#define MIN_INDEX_BUCKET_COUNT		131072    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
 #define INDEX_DIVISIONS	        	4        /* no. of divisions of file */
-#define MAX_INDEX_BUCKET_COUNT 		524288	 /* max no of buckets to use  */
+#define MAX_INDEX_BUCKET_COUNT 		262144	 /* max no of buckets to use  */
 #define INDEX_BUCKET_RATIO		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
 #define INDEX_PADDING	 		2
 

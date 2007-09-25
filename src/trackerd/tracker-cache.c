@@ -308,6 +308,9 @@ tracker_cache_event_check (DBConnection *db_con, gboolean check_flush)
 				}
 
 				g_usleep (1000 * 1000);
+
+				tracker->battery_paused = tracker_using_battery ();
+
 				continue;
 			}
 		}
