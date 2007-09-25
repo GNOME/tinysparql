@@ -1,3 +1,8 @@
+2007-09-25 Patch from Halton Huo   <Halton.Huo@Sun.COM>
+
+	* Enable search of words beginning with a number
+
+
 2007-09-24 Laurent Aguerreche <laurent.aguerreche at free fr>
 
 	* KMail emails are not indexed twice anymore because date of indexing is now checked...
