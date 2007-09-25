@@ -1645,7 +1645,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 {
 	char **array, **result;
 	int  cols, rows;
-	char *msg;
+	char *msg = NULL;
 	int  i, busy_count, totalrows, k;
 
 	g_return_val_if_fail (query, NULL);
@@ -1659,43 +1659,43 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 
 	busy_count = 0;
 
-	lock_connection (db_con);
-
-	i = sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
-
-	unlock_connection (db_con);
+	i = SQLITE_BUSY;
 
 	while (i == SQLITE_BUSY) {
 
-		
-		if (array) {
-			sqlite3_free_table (array);
-			array = NULL;
-		}
-
-		if (msg) {
-			g_free (msg);
-			msg = NULL;
-		}
-
-		busy_count++;
-
-		if (busy_count > 10000) {
-			tracker_error ("ERROR: excessive busy count in query %s and thread %s", query, db_con->thread);
-			busy_count =0;
-		}
-
-		if (busy_count > 50) {
-			g_usleep (g_random_int_range (1000, busy_count * 200));
-		} else {
-			g_usleep (100);
-		}
-
 		lock_connection (db_con);
-
+	
 		i = sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
 
 		unlock_connection (db_con);
+
+		if (i == SQLITE_BUSY) {
+		
+			if (array) {
+				sqlite3_free_table (array);
+				array = NULL;
+			}
+
+			if (msg) {
+				g_free (msg);
+				msg = NULL;
+			}
+		
+
+			busy_count++;
+
+			if (busy_count > 10000) {
+				tracker_error ("ERROR: excessive busy count in query %s and thread %s", query, db_con->thread);
+				busy_count =0;
+			}
+
+			if (busy_count > 50) {
+				g_usleep (g_random_int_range (1000, busy_count * 200));
+			} else {
+				g_usleep (100);
+			}
+	
+		}
 	}
 
 	if (i != SQLITE_OK) {
@@ -1712,6 +1712,8 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 	}
 
 	if (!array || rows == 0 || cols == 0) {
+
+		if (array) sqlite3_free_table (array);
 		return NULL;
 	}
 

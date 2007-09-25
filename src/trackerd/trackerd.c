@@ -1279,6 +1279,7 @@ process_files_thread (void)
 					TrackerChangeAction tmp_action;
 
 					if (!tracker->is_running) {
+						tracker_db_free_result (res);
 						break;
 					}
 

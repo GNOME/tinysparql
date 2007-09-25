@@ -1967,6 +1967,7 @@ get_files (const char *dir, gboolean dir_only, gboolean skip_ignored_files, cons
 			}
 
 			if (filter_prefix && !g_str_has_prefix (str, filter_prefix)) {
+				g_free (str);
 				continue;
 			}
 
