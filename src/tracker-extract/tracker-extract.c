@@ -20,6 +20,7 @@
 
 #include "config.h"
 
+#include <stdlib.h>
 #include <errno.h>
 #include <locale.h>
 #include <stdlib.h>
@@ -769,6 +770,13 @@ get_meta_table_data (gpointer pkey, gpointer pvalue, gpointer user_data)
 }
 
 
+static void
+kill_app_timeout (void)
+{
+	g_usleep (1000 * 1000 * 10);
+	exit (EXIT_FAILURE);
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
@@ -776,6 +784,11 @@ main (gint argc, gchar *argv[])
 	gchar		*filename;
 
 	set_memory_rlimits ();
+
+	if (!g_thread_supported ())
+		g_thread_init (NULL);
+
+	g_thread_create ((GThreadFunc) kill_app_timeout, NULL, FALSE, NULL);
 
 	g_set_application_name ("tracker-extract");
 
