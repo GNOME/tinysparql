@@ -390,18 +390,18 @@
 			      <child>
 				<widget class="GtkComboBox" id="comLanguage">
 				  <property name="visible">True</property>
-				  <property name="items" translatable="yes">danish
-dutch
-english
-finnish
-french
-german
-italian
-norwegian
-portugese
-russian
-spanish
-swedish</property>
+				  <property name="items" translatable="yes">Danish
+Dutch
+English
+Finnish
+French
+German
+Italian
+Norwegian
+Portuguese
+Russian
+Spanish
+Swedish</property>
 				  <property name="add_tearoffs">False</property>
 				  <property name="focus_on_click">True</property>
 				</widget>
