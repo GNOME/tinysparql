@@ -1,0 +1,27 @@
+#!/bin/sh
+
+umask 077
+
+st=/tmp/tempfile.$$ 
+
+nice -n19 ssindex -i "$1" > st
+
+nice -n19 xsltproc - st > "$2" <<EOF
+<?xml version="1.0"?>
+<xsl:stylesheet 
+   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+   version="1.0">
+
+  <xsl:output method="text"/>
+  <xsl:output omit-xml-declaration="yes"/>
+
+  <xsl:template match="*">
+    <xsl:value-of select="."/>
+  </xsl:template>
+
+</xsl:stylesheet>
+EOF
+
+rm st
+
+cat "$2"

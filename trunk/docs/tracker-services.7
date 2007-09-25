@@ -1,0 +1,60 @@
+.TH tracker-services 7 "July 2007" GNU "Conventions"
+
+.SH NAME
+tracker-services \- service types of trackerd
+
+.SH INTRODUCTION
+Trackerd understands a number of different services which are used to
+group search results and documents together. All searches and queries can
+be refined by specifying a service to search from.
+.PP
+For example one could search for "Roses" in the service Conversations
+which would only return hits from chat conversations.
+
+.SH SERVICE TYPES
+.TP
+Files
+Search for files only. This does not include Emails or Conversations.
+.TP
+Folders
+Search for folders i.e. directories.
+.TP
+Documents
+Searches for general documents like word processing,
+spreadsheets or text files.
+.TP
+Emails
+Searches for Emails.
+.TP
+EmailAttachments
+Search es for Email attachments.
+.TP
+Music
+Search for music files.
+.TP
+Images
+Search for image files.
+.TP
+Videos
+Search for video files.
+.TP
+Text
+Search for text files, like word processing files, but e.g. not
+spreadsheets.
+.TP
+Development
+Search for development files. This includes make files,
+source code files and the like.
+.TP
+Other
+Search for documents which could not be put in one of the other services.
+.TP
+Applications
+Search for applications.
+
+.SH SEE ALSO
+.BR trackerd (1),
+.BR tracker-search (1),
+.BR tracker-search-tool (1),
+.BR tracker-query (1),
+.BR tracker-files (1).

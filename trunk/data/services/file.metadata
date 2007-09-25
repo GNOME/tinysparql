@@ -1,0 +1,95 @@
+[File:Name]
+DisplayName=Filename
+Description=Name of File
+DataType=Indexable
+FieldName=Name
+Parent=DC:Identifier
+Weight=10
+Filtered=false
+
+[File:Ext]
+DisplayName=Extension
+Description=File extension
+DataType=Indexable
+Weight=15
+Filtered=false
+
+[File:Path]
+DisplayName=Path
+Description=File Path
+DataType=Indexable
+FieldName=Path
+Parent=DC:Identifier
+Weight=1
+Filtered=false
+
+[File:NameDelimited]
+DisplayName=Keywords
+Description=Name of File
+DataType=Indexable
+Weight=5
+Filtered=false
+Delimited=true
+
+[File:Contents]
+DisplayName=Contents
+Description=File Contents
+DataType=CLOB
+Weight=1
+
+[File:Link]
+DisplayName=Link
+Description=File Link
+DataType=Indexable
+Parent=DC:Relation
+Weight=1
+
+[File:Mime]
+DisplayName=Mime Type
+Description=File Mime Type
+DataType=Keyword
+FieldName=Mime
+Parent=DC:Format
+Weight=10
+
+[File:Size]
+DisplayName=Size
+Description=File size in bytes
+DataType=Integer
+FieldName=Size
+
+[File:License]
+DisplayName=License
+Description=File License Type
+DataType=Indexable
+Parent=DC:Rights
+Weight=1
+
+[File:Copyright]
+DisplayName=Copyright
+Description=Copyright owners of the file
+DataType=Indexable
+Parent=DC:Rights
+Weight=1
+
+[File:Modified]
+DisplayName=Modified
+Description=Last modified date
+DataType=DateTime
+Parent=DC:Date
+FieldName=IndexTime
+
+[File:Accessed]
+DisplayName=Accessed
+Description=Last acessed date
+DataType=DateTime
+Parent=DC:Date
+FieldName=Accessed
+
+[File:Other]
+DisplayName=Other
+Description=Other details about a file
+DataType=Indexable
+Weight=1
+
+

@@ -1,0 +1,1125 @@
+# Lithuanian translation of Tracker.
+# Copyright (C) 2007 Free Software Foundation, Inc.
+# This file is distributed under the same license as the tracker package.
+# Žygimantas Beručka <zygis@gnome.org>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HEAD\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-08-29 17:29+0300\n"
+"PO-Revision-Date: 2007-08-29 17:36+0300\n"
+"Last-Translator: Žygimantas Beručka <zygis@gnome.org>\n"
+"Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%"
+"100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ../python/deskbar-handler/tracker-handler.py:33
+#: ../python/deskbar-handler/tracker-module.py:92
+#, python-format
+msgid "Launch %s (%s)"
+msgstr "Paleisti %s (%s)"
+
+#: ../python/deskbar-handler/tracker-handler.py:39
+#: ../python/deskbar-handler/tracker-module.py:97
+#, python-format
+msgid ""
+"See %s conversation\n"
+"%s %s\n"
+"from %s"
+msgstr ""
+"Žiūrėti %s pokalbį\n"
+"%s %s\n"
+"iš %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:45
+#: ../python/deskbar-handler/tracker-module.py:102
+#, python-format
+msgid "Email from %s"
+msgstr "El. laiškas nuo %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:52
+#: ../python/deskbar-handler/tracker-module.py:108
+#, python-format
+msgid ""
+"Listen to music %s\n"
+"in %s"
+msgstr ""
+"Klausytis %s muzikos\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:58
+#: ../python/deskbar-handler/tracker-module.py:114
+#, python-format
+msgid ""
+"See document %s\n"
+"in %s"
+msgstr ""
+"Peržiūrėti dokumentą %s\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:64
+#: ../python/deskbar-handler/tracker-handler.py:82
+#: ../python/deskbar-handler/tracker-handler.py:162
+#: ../python/deskbar-handler/tracker-module.py:119
+#: ../python/deskbar-handler/tracker-module.py:141
+#: ../python/deskbar-handler/tracker-module.py:190
+#: ../python/deskbar-handler/tracker-module.py:226
+#, python-format
+msgid ""
+"Open file %s\n"
+"in %s"
+msgstr ""
+"Atverti rinkmeną %s\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:70
+#: ../python/deskbar-handler/tracker-module.py:124
+#, python-format
+msgid ""
+"View image %s\n"
+"in %s"
+msgstr ""
+"Peržiūrėti paveikslėlį %s\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:76
+#: ../python/deskbar-handler/tracker-module.py:130
+#, python-format
+msgid ""
+"Watch video  %s\n"
+"in %s"
+msgstr ""
+"Žiūrėti video %s\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:88
+#: ../python/deskbar-handler/tracker-module.py:136
+#, python-format
+msgid ""
+"Open folder %s\n"
+"%s"
+msgstr ""
+"Atverti aplanką %s\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:94
+#: ../python/deskbar-handler/tracker-module.py:57
+#: ../python/deskbar-handler/tracker-module.py:146
+#, python-format
+msgid "Search for %s with Tracker Search Tool"
+msgstr "Ieškoti %s su paieškos įrankiu Tracker"
+
+#: ../python/deskbar-handler/tracker-handler.py:234
+#: ../python/deskbar-handler/tracker-module.py:319
+msgid "with"
+msgstr "su"
+
+#: ../python/deskbar-handler/tracker-handler.py:242
+#: ../python/deskbar-handler/tracker-module.py:327
+msgid "in channel"
+msgstr "kanale"
+
+#: ../python/deskbar-handler/tracker-handler.py:393
+msgid "Search all of your documents with Tracker Search Tool"
+msgstr "Ieškoti visuose jūsų dokumentuose su paieškos įrankiu Tracker"
+
+#: ../python/deskbar-handler/tracker-handler.py:399
+msgid "Search all of your documents, <b>as you type</b>"
+msgstr "Ieškoti visuose savo dokumentuose <b>rašymo metu</b>"
+
+#: ../python/deskbar-handler/tracker-handler.py:403
+#: ../python/deskbar-handler/tracker-module.py:267
+msgid "Development Files"
+msgstr "Programavimo rinkmenos"
+
+#: ../python/deskbar-handler/tracker-handler.py:406
+#: ../python/deskbar-handler/tracker-module.py:270
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
+msgid "Music"
+msgstr "Muzika"
+
+#: ../python/deskbar-handler/tracker-handler.py:409
+#: ../python/deskbar-handler/tracker-module.py:273
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
+msgid "Images"
+msgstr "Paveikslėliai"
+
+#: ../python/deskbar-handler/tracker-handler.py:412
+#: ../python/deskbar-handler/tracker-module.py:276
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
+msgid "Videos"
+msgstr "Video"
+
+#: ../python/deskbar-handler/tracker-module.py:71
+msgid "Tracker Search"
+msgstr "Tracker paieška"
+
+#: ../python/deskbar-handler/tracker-module.py:72
+msgid "Search with Tracker Search Tool"
+msgstr "Ieškokite paieškos įrankiu Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:262
+msgid "Tracker Live Search"
+msgstr "Realaus laiko paieška su Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:263
+msgid "Search with Tracker, as you type"
+msgstr "Ieškokite su Tracker rašymo metu"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:453
+#, c-format
+msgid "Path : <b>%s</b>"
+msgstr "Kelias: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:454
+#, c-format
+msgid "Modified : <b>%s</b>"
+msgstr "Pakeista: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:455
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
+#, c-format
+msgid "Size : <b>%s</b>"
+msgstr "Dydis: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:456
+#, c-format
+msgid "Accessed : <b>%s</b>"
+msgstr "Žiūrėta: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:457
+#, c-format
+msgid "Mime : <b>%s</b>"
+msgstr "Mime: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:509
+#, c-format
+msgid "Sender : <b>%s</b>"
+msgstr "Siuntėjas: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:510
+#, c-format
+msgid "Date : <b>%s</b>"
+msgstr "Data: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:550
+#, c-format
+msgid "Comment : <b>%s</b>"
+msgstr "Komentaras: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:551
+#, c-format
+msgid "Categories : <b>%s</b>"
+msgstr "Kategorijos: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:637
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:742
+#, c-format
+msgid "Duration : <b>%s</b>"
+msgstr "Trukmė: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:638
+#, c-format
+msgid "Genre : <b>%s</b>"
+msgstr "Žanras: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:639
+#, c-format
+msgid "Bitrate : <b>%s Kbs</b>"
+msgstr "Bitų dažnis: <b>%s Kbs</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
+#, c-format
+msgid "Year : <b>%s</b>"
+msgstr "Metai: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:642
+#, c-format
+msgid "Codec : <b>%s</b>"
+msgstr "Kodekas: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:683
+#, c-format
+msgid " taken with a <span size='large'><i>%s</i></span>"
+msgstr " nufotografuota su <span size='large'><i>%s</i></span>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:688
+#, c-format
+msgid " <span size='large'><i>%s</i></span>"
+msgstr " <span size='large'><i>%s</i></span>"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:708
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:740
+#, c-format
+msgid "Dimensions : <b>%d x %d</b>"
+msgstr "Matmenys: <b>%d x %d</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:709
+#, c-format
+msgid "Date Taken : <b>%s</b>"
+msgstr "Fotografavimo data: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:710
+#, c-format
+msgid "Orientation : <b>%s</b>"
+msgstr "Orientacija: <b>%s></b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:711
+#, c-format
+msgid "Flash : <b>%s</b>"
+msgstr "Blykstė: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:712
+#, c-format
+msgid "Focal Length : <b>%s</b>"
+msgstr "Židinio nuotolis: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:713
+#, c-format
+msgid "Exposure Time : <b>%s</b>"
+msgstr "Išlaikymo laikas: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:741
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:774
+#, c-format
+msgid "Author : <b>%s</b>"
+msgstr "Autorius: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:743
+#, c-format
+msgid "Bitrate : <b>%s</b>"
+msgstr "Bitų dažnis: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:744
+#, c-format
+msgid "Encoded In : <b>%s</b>"
+msgstr "Užkoduota: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:745
+#, c-format
+msgid "Framerate : <b>%s</b>"
+msgstr "Kadrų dažnis: <b>%s</b>"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:773
+#, c-format
+msgid "Subject : <b>%s</b>"
+msgstr "Tema: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:775
+#, c-format
+msgid "Page Count : <b>%s</b>"
+msgstr "Puslapių: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:776
+#, c-format
+msgid "Word Count : <b>%s</b>"
+msgstr "Žodžių: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:777
+#, c-format
+msgid "Created : <b>%s</b>"
+msgstr "Sukurta: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:778
+#, c-format
+msgid "Comments : <b>%s</b>"
+msgstr "Komentarai: <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:862
+#, c-format
+msgid "%.1f KB"
+msgstr "%.1f KB"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:866
+#, c-format
+msgid "%.1f MB"
+msgstr "%.1f MB"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:870
+#, c-format
+msgid "%.1f GB"
+msgstr "%.1f GB"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:908
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:974
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:996
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1016
+msgid "Unknown"
+msgstr "Nežinoma"
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:251
+msgid "Type tags you want to add here, separated by commas"
+msgstr "Įveskite norimas pridėti žymas, atskirtas kableliais"
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:361
+msgid "Tags :"
+msgstr "Žymos:"
+
+#. Search For Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:383
+msgid "_Search For Tag"
+msgstr "I_eškoti žymos"
+
+#. Remove Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:395
+msgid "_Remove Tag"
+msgstr "_Pašalinti žymą"
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "Limit the number of results showed to N"
+msgstr "Apriboti rodomų rezultatų skaičių iki N"
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "N"
+msgstr "N"
+
+#: ../src/libtracker/tracker-search.c:35
+msgid "Search for a specific service"
+msgstr "Ieškoti konkrečios tarnybos"
+
+#: ../src/libtracker/tracker-search.c:35
+#: ../src/tracker-search-tool/tracker-search-tool.c:65
+msgid "SERVICE"
+msgstr "TARNYBA"
+
+#: ../src/libtracker/tracker-search.c:36
+msgid "Show more detailed results with service and mime type as well"
+msgstr "Rodyti išsamesnius rezultatus su tarnyba ir mime tipu"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-search.c:89
+msgid "TERM... - search files for certain terms"
+msgstr "TERMINAS... – ieškoti rinkmenose kokių nors terminų"
+
+#. Translators: this message will appear after the usage string
+#. and before the list of options.
+#: ../src/libtracker/tracker-search.c:93
+msgid ""
+"Specifying more then one term, will be showed items containing ALL the "
+"specified terms (term1 AND term2 - logical conjunction)"
+msgstr ""
+"Nurodžius daugiau nei vieną terminą, bus parodyti elementai, turintys VISUS "
+"nurodytus terminus (terminą1 IR terminą2 – loginė konjunkcija)"
+
+#: ../src/libtracker/tracker-search.c:97
+msgid "The list of recognized services is:"
+msgstr "Atpažintų tarnybų sąrašas:"
+
+#: ../src/libtracker/tracker-search.c:114
+#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
+#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
+#, c-format
+msgid "Try \"%s --help\" for more information."
+msgstr "Daugiau informacijos rasite „%s --help“."
+
+#: ../src/libtracker/tracker-search.c:120
+#, c-format
+msgid "%s: missing search terms"
+msgstr "%s: nenurodyti paieškos terminai"
+
+#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
+#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
+#, c-format
+msgid "%s: no connection to tracker daemon"
+msgstr "%s: nėra ryšio su tracker posisteme"
+
+#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
+#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
+#, c-format
+msgid "Ensure \"trackerd\" is running before launch this command."
+msgstr "Prieš paleisdami šią komandą įsitikinkite, kad paleista „trackerd“."
+
+#: ../src/libtracker/tracker-search.c:147
+#, c-format
+msgid "Service not recognized, searching in Other Files...\n"
+msgstr "Tarnyba neatpažinta, ieškoma Kitose rinkmenose...\n"
+
+#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
+#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
+#, c-format
+msgid "%s: internal tracker error: %s"
+msgstr "%s: vidinė tracker klaida: %s"
+
+#. FIXME!! coreutilus don't print anything on no-results
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
+#, c-format
+msgid "No results found matching your query"
+msgstr "Jūsų užklausos atitinkančių rezultatų nerasta"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-stats.c:73
+msgid " - show number of indexed files for each service"
+msgstr " - rodyti kiekvienos tarnybos indeksuojamų rinkmenų skaičių"
+
+#: ../src/libtracker/tracker-stats.c:108
+msgid "fetching index stats"
+msgstr "gaunama indeksavimo statistika"
+
+#: ../src/libtracker/tracker-tag.c:41
+msgid "Add specified tag to a file"
+msgstr "Pridėti rinkmenai specifinę žymą"
+
+#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
+msgid "TAG"
+msgstr "ŽYMA"
+
+#: ../src/libtracker/tracker-tag.c:42
+msgid "Remove specified tag from a file"
+msgstr "Pašaliti nurodytą rinkmenos žymą"
+
+#: ../src/libtracker/tracker-tag.c:43
+msgid "Remove all tags from a file"
+msgstr "Pašalinti visas rinkmenos žymas"
+
+#: ../src/libtracker/tracker-tag.c:44
+msgid "List all defined tags"
+msgstr "Parodyti visas nurodytas žymas"
+
+#: ../src/libtracker/tracker-tag.c:45
+msgid "Search for files with specified tag"
+msgstr "Ieškoti rinkmenų turinčių nurodytą žymą"
+
+#: ../src/libtracker/tracker-tag.c:46
+msgid "FILE..."
+msgstr "RINKMENA..."
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-tag.c:90
+msgid "FILE... - manipulate tags on files"
+msgstr "RINKMENA... – keisti rinkmenų žymas"
+
+#: ../src/libtracker/tracker-tag.c:99
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options like:"
+msgstr ""
+"Norėdami pridėti, pašalinti arba tuo pačiu metu ieškoti keletos žymų, galite "
+"sunjungti keletą parinkčių, pvz.:"
+
+#: ../src/libtracker/tracker-tag.c:121
+#, c-format
+msgid "%s: invalid arguments"
+msgstr "%s: netinkami argumentai"
+
+#: ../src/libtracker/tracker-tag.c:148
+#, c-format
+msgid "%s: file %s not found"
+msgstr "%s: rinkmeną %s nerasta"
+
+#: ../src/trackerd/trackerd.c:158
+msgid "Directory to exclude from indexing"
+msgstr "Neindeksuojamas aplankas"
+
+#: ../src/trackerd/trackerd.c:158 ../src/trackerd/trackerd.c:159
+#: ../src/trackerd/trackerd.c:160
+msgid "/PATH/DIR"
+msgstr "/KELIAS/APLANKAS"
+
+#: ../src/trackerd/trackerd.c:159
+msgid "Directory to include in indexing"
+msgstr "Indeksuojamas aplankas"
+
+#: ../src/trackerd/trackerd.c:160
+msgid "Directory to crawl for indexing at start up only"
+msgstr "Tik paleidimo metu indeksuotinas aplankas"
+
+#: ../src/trackerd/trackerd.c:161
+msgid "Disable any indexing or watching taking place"
+msgstr "Išjungti bet kokį indeksavimą arba stebėjimą"
+
+#: ../src/trackerd/trackerd.c:162
+msgid ""
+"Value that controls the level of logging. Valid values are 0 (displays/logs "
+"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+msgstr ""
+"Reikšmė nurodanti žurnalų išsamumą. Galimos reikšmės yra 0 (rodo/seka tik "
+"klaidas), 1 (minimalus), 2 (išsamus) ir 3 (derinimo)"
+
+#: ../src/trackerd/trackerd.c:162 ../src/trackerd/trackerd.c:163
+msgid "VALUE"
+msgstr "REIKŠMĖ"
+
+#: ../src/trackerd/trackerd.c:163
+msgid ""
+"Value to use for throttling indexing. Value must be in range 0-20 (default "
+"0) with lower values increasing indexing speed"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:164
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr "Sumažina atminties naudojimą, tačiau gali sulėtinti indeksavimą"
+
+#: ../src/trackerd/trackerd.c:165
+msgid "Initial sleep time, just before indexing, in seconds"
+msgstr "Pradinis laukimo laikas sekundėmis prieš indeksavimą"
+
+#: ../src/trackerd/trackerd.c:166
+msgid ""
+"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+
+#: ../src/trackerd/trackerd.c:166
+msgid "LANG"
+msgstr "KALBA"
+
+#: ../src/trackerd/trackerd.c:167
+msgid "Force a re-index of all content"
+msgstr "Priverstinis viso turinio perindeksavimas"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND <THIS_MESSAGE>
+#: ../src/trackerd/trackerd.c:2059
+msgid "- start the tracker daemon"
+msgstr "- paleisti tracker posistemę"
+
+#: ../src/trackerd/trackerd.c:2060 ../src/trackerd/trackerd.c:2061
+msgid "DIRECTORY"
+msgstr "APLANKAS"
+
+#: ../src/trackerd/trackerd.c:2068
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
+msgstr ""
+"Norėdami iš karto įtraukti arba išskirti keletą aplankų, galite sujungti "
+"keltą parinkčių, pvz.:"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Configure file indexing with Tracker"
+msgstr "Konfigūruoti rinkmenų indeksavimą su Tracker"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Indexing Preferences"
+msgstr "Indeksavimo nustatymai"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:1
+msgid "<b>Crawled Directories</b>"
+msgstr "<b>Peržiūrimi aplankai</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:2
+msgid "<b>Ignored File Patterns</b>"
+msgstr "<b>Nepaisomi rinkmenų šablonai</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:3
+msgid "<b>Ignored Paths</b>"
+msgstr "<b>Nepaisomi keliai</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+msgid "<b>Indexing Limits (per file)</b>"
+msgstr "<b>Indeksavimo ribos (rinkmenai)</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:5
+msgid "<b>Indexing options</b>"
+msgstr "<b>Indeksavimo parinktys</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:6
+msgid "<b>Indexing</b>"
+msgstr "<b>Indeksavimas</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
+msgid "<b>Mailboxes</b>"
+msgstr "<b>El. pašto dėžutės</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:8
+msgid "<b>Resource Usage</b>"
+msgstr "<b>Išteklių naudojimas</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+msgid "<b>Services</b>"
+msgstr "<b>Paslaugos</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+msgid "<b>Startup</b>"
+msgstr "<b>Paleidimas</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+msgid "<b>Stemming</b>"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
+msgid "<b>Throttling</b>"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+msgid "<b>Watch Directories</b>"
+msgstr "<b>Stebimi aplankai</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+msgid "Additional mbox mailboxes to index:"
+msgstr "Papildomos indeksuojamos mbox pašto dėžutės:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+msgid "Additional paths to index and watch:"
+msgstr "Papildomi indeksuojami ir stebimi keliai:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+msgid "Additional paths to index on startup (but not watch for updates)"
+msgstr ""
+"Papildomi paleidimo pradžioje indeksuojami keliai (bet nestebimi dėl "
+"atnaujinimų)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+msgid "Enable Evolution email indexing"
+msgstr "Įjungti Evolution el. laiškų indeksavimą"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+msgid "Enable KMail email indexing"
+msgstr "Įjungti KMail el. laiškų indeksavimą"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+msgid "Enable Thunderbird email indexing"
+msgstr "Įjungti Thunderbird el. laiškų indeksavimą"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:20
+msgid "Enable _Indexing"
+msgstr "Įjungti _indeksavimą"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+msgid "Enable _Watching"
+msgstr "Įjungti _stebėjimą"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:22
+msgid "Faster"
+msgstr "Greičiau"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:23
+msgid "File patterns to ignore during indexing:"
+msgstr "Indeksuojant nepaisomų rinkmenų šablonai:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:24
+msgid "Generate _thumbnails"
+msgstr "Kurti _miniatiūras"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+msgid "Index _delay: "
+msgstr "Indeksavimo _delsa:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+msgid "Index _file contents"
+msgstr "Indeksuoti _rinkmenų turinį"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+msgid "Index _mounted directories"
+msgstr "Indeksuoti _prijungtus aplankus"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+msgid "Index and watch my home _directory"
+msgstr "Indeksuoti ir stebėti mano namų _aplanką"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Maximum _amount of text to Index (KB)"
+msgstr "Didžiausias galimas indeksuotino teksto _dydis (KB)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+msgid "Maximum number of unique _words to index"
+msgstr "Didžiausias galimas indeksuotinų unikalių ž_odžių skaičius"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "P_erformance"
+msgstr "_Našumas"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Path roots to be ignored during indexing:"
+msgstr "Indeksuojant nepaisomų kelių šakniniai aplankai:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+msgid "Seconds"
+msgstr "sek."
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+msgid "Slower"
+msgstr "Lėčiau"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+msgid "Tracker Preferences"
+msgstr "Tracker nustatymai"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+msgid "_Emails"
+msgstr "_El. laiškai"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "_Files"
+msgstr "_Rinkmenos"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+msgid "_General"
+msgstr "_Bendra"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "_Ignored Files"
+msgstr "_Nepaisomos rinkmenos"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+msgid "_Indexing speed:"
+msgstr "_Indeksavimo greitis:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+msgid "_Language:"
+msgstr "_Kalba:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+msgid "_Minimize memory usage (slower indexing)"
+msgstr "_Sumažinti atminties naudojimą (lėtesnis indeksavimas)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+msgid "_Use additonal memory for faster indexing"
+msgstr "_Naudoti daugiau atminties, kad būtų greičiau indeksuojama"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+msgid ""
+"danish\n"
+"dutch\n"
+"english\n"
+"finnish\n"
+"french\n"
+"german\n"
+"italian\n"
+"norwegian\n"
+"portugese\n"
+"russian\n"
+"spanish\n"
+"swedish"
+msgstr ""
+"danų\n"
+"olandų\n"
+"anglų\n"
+"suomių\n"
+"prancūzų\n"
+"vokiečių\n"
+"italų\n"
+"norvegų\n"
+"portugalų\n"
+"rusų\n"
+"ispanų\n"
+"švedų"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:65
+msgid "Search from a specific service"
+msgstr "Ieškoti iš konkrečios tarnybos"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "El. laiškai"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:137
+msgid "All Files"
+msgstr "Visos rinkmenos"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
+msgid "Folders"
+msgstr "Aplankai"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
+msgid "Documents"
+msgstr "Dokumentai"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:1224
+msgid "Text"
+msgstr "Tekstas"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
+msgid "Development"
+msgstr "Programavimas"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:145
+msgid "Chat Logs"
+msgstr "Pokalbių žurnalai"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:146
+msgid "Applications"
+msgstr "Programos"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:207
+msgid "_Open"
+msgstr "_Atverti"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:208
+msgid "O_pen Folder"
+msgstr "At_verti aplanką"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:209
+msgid "Mo_ve to Trash"
+msgstr "Per_kelti į šiukšlinę"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:210
+msgid "_Save Results As..."
+msgstr "Iš_saugoti rezultatus kaip..."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:254
+#, c-format
+msgid "Character set conversion failed for \"%s\""
+msgstr "„%s“ simbolių koduotės konvertavimas nesėkmingas"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:281
+msgid "The following error has occured :"
+msgstr "Įvyko ši klaida:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:656
+msgid "Did you mean"
+msgstr "Ar turėjote omenyje"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:687
+msgid "Your search returned no results."
+msgstr "Jūsų paieška negrąžino jokių rezultatų."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:702
+msgid "Tracker Search Tool-"
+msgstr "Paieškos įrankis Tracker –"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:863
+#: ../src/tracker-search-tool/tracker-search-tool.c:2199
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Paieškos įrankis Tracker"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1053
+msgid "Search _results: "
+msgstr "Paieškos _rezultatai: "
+
+#. Translators: this will appears as "Search results: no search performed"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1059
+msgid "no search performed"
+msgstr "paieška neatlika"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1113
+#: ../src/tracker-search-tool/tracker-search-tool.c:1274
+msgid "List View"
+msgstr "Sąrašo rodinys"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1185
+msgid "Icon"
+msgstr "Piktograma"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1197
+msgid "Name"
+msgstr "Pavadinimas"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1292
+msgid "_Categories"
+msgstr "_Kategorijos"
+
+#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1572
+#, c-format
+msgid "%d - %d of %d hits"
+msgstr "%d - %d iš %d atitikmenų"
+
+#. Translators: this will appear like "Search results: 7 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1575
+#, c-format
+msgid "%d item"
+msgid_plural "%d hits"
+msgstr[0] "%d atitikmuo"
+msgstr[1] "%d atitikmenys"
+msgstr[2] "%d atitikmenų"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1976
+msgid "_Search:"
+msgstr "_Paieška:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:1997
+msgid "Enter a search term with multiple words seperated with spaces."
+msgstr "Įveskite ieškomą frazę su tarpais tarp žodžių."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1997
+msgid "search_entry"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2043
+msgid "Click to perform a search."
+msgstr "Spustelėkite norėdami įvykdyti paiešką."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
+msgid "Could not open help document."
+msgstr "Nepavyko atverti žinyno dokumento."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
+#, c-format
+msgid "Are you sure you want to open %d document?"
+msgid_plural "Are you sure you want to open %d documents?"
+msgstr[0] "Ar tikrai norite atverti %d dokumentą?"
+msgstr[1] "Ar tikrai norite atverti %d dokumentus?"
+msgstr[2] "Ar tikrai norite atverti %d dokumentų?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:676
+#, c-format
+msgid "This will open %d separate window."
+msgid_plural "This will open %d separate windows."
+msgstr[0] "Tai atvers %d atskirą langą."
+msgstr[1] "Tai atvers %d atskirus langus."
+msgstr[2] "Tai atvers %d atskirų langų."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
+#, c-format
+msgid "Could not open document \"%s\"."
+msgstr "Nepavyko atverti dokumento „%s“."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
+#, c-format
+msgid "Could not open folder \"%s\"."
+msgstr "Nepavyko atverti aplanko „%s“."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
+msgid "The nautilus file manager is not running."
+msgstr "Nautilus rinkmenų naršyklė nepaleista."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:615
+msgid "Application could not be opened"
+msgstr "Nepavyko atverti programos"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:630
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:950
+msgid "The document does not exist."
+msgstr "Šio dokumento nėra."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:646
+msgid "There is no installed viewer capable of displaying the document."
+msgstr "Neįdiegta šį dokumentą gebandti parodyti peržiūros programa."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:671
+#, c-format
+msgid "Are you sure you want to open %d folder?"
+msgid_plural "Are you sure you want to open %d folders?"
+msgstr[0] "Ar tikrai norite atverti %d aplanką?"
+msgstr[1] "Ar tikrai norite atverti %d aplankus?"
+msgstr[2] "Ar tikrai norite atverti %d aplankų?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:775
+#, c-format
+msgid "Could not move \"%s\" to trash."
+msgstr "Nepavyko perkelti „%s“ į šiukšlinę."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:806
+#, c-format
+msgid "Do you want to delete \"%s\" permanently?"
+msgstr "Ar tikrai norite nesugrąžinamai ištrinti „%s“?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:809
+#, c-format
+msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+msgstr "Šiukšlinė neprieinama. Nepavyko perkelti „%s“ į šiukšlinę."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:848
+#, c-format
+msgid "Could not delete \"%s\"."
+msgstr "Nepavyko ištrinti „%s“."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:972
+#, c-format
+msgid "Moving \"%s\" failed: %s."
+msgstr "Perkelti „%s“ nepavyko: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1006
+#, c-format
+msgid "Deleting \"%s\" failed: %s."
+msgstr "Ištrinti „%s“ nepavyko: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1292
+msgid "Activate to view this email"
+msgstr "Aktyvinkite norėdami peržiūrėti šį el. laišką"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1468
+msgid "Save Search Results As..."
+msgstr "Išsaugoti paieškos rezultatus kaip..."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1503
+msgid "Could not save document."
+msgstr "Nepavyko išsaugoti dokumento."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1504
+msgid "You did not select a document name."
+msgstr "Nepasirinkote dokumento pavadinimo."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1534
+#, c-format
+msgid "Could not save \"%s\" document to \"%s\"."
+msgstr "Nepavyko išsaugoti dokumento „%s“ į „%s“."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1568
+#, c-format
+msgid "The document \"%s\" already exists.  Would you like to replace it?"
+msgstr "Dokuments „%s“ jau yra. Ar norite jį perrašyti?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1572
+msgid "If you replace an existing file, its contents will be overwritten."
+msgstr "Jeigu perrašysite esančią rinkmeną, jos turinys bus perrašytas."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1587
+msgid "_Replace"
+msgstr "_Perrašyti"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1637
+msgid "The document name you selected is a folder."
+msgstr "Jūsų pasirinktas dokumento pavadinimas yra aplankas."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1686
+msgid "You may not have write permissions to the document."
+msgstr "Gali būti, kad neturite dokumento rašymo teisių."
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Naudodamiesi Tracker rasite kompiuteryje dokumentus ir aplankus pagal "
+"pavadinimą arba turinį"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
+#, c-format
+msgid ""
+"GConf error:\n"
+"  %s"
+msgstr ""
+"GConf klaida:\n"
+"  %s"
+
+#. Translators:  Below are the strings displayed in the 'Date Modified'
+#. column of the list view.  The format of this string can vary depending
+#. on age of a file.  Please modify the format of the timestamp to match
+#. your locale.  For example, to display 24 hour time replace the '%-I'
+#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
+msgid "today at %-I:%M %p"
+msgstr "šiandien %-H:%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
+msgid "yesterday at %-I:%M %p"
+msgstr "vakar %-H:%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
+msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+msgstr "%Y %B %-d %A %-H:%M:%S "
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
+msgid "link (broken)"
+msgstr "nuoroda (sugadinta)"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
+#, c-format
+msgid "link to %s"
+msgstr "nuoroda į %s"
+
+#: ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Paieškos ir indeksavimo tarnyba Tracker"

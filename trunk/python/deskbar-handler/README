@@ -1,0 +1,21 @@
+tracker-handler.py is a (gnome) deskbar-handler providing the results of a
+Tracker-powered search in deskbar-applet.
+
+----------Requirements----------
+* python-dev (>= 2.3)
+* python-gtk2-dev (>= 2.3)
+* deskbar-applet (>= 2.14.2)
+* tracker(>= 5.0)
+
+If you use Ubuntu these can be installed via apt-get with this command:
+sudo apt-get install python-dev python-gtk2-dev deskbar-applet
+
+----------Installation-----------
+cp ./*.py ~/.gnome2/deskbar-applet/handlers/
+
+
+----------Configuration-----------
+you can eventually change the number of results deskbar-handler displays
+around line #22 of the source code (default is 10):
+
+MAX_RESULTS = 10

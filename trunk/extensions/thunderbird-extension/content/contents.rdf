@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	 xmlns:chrome="http://www.mozilla.org/rdf/chrome#">
+
+  <RDF:Seq RDF:about="urn:mozilla:package:root">
+    <RDF:li RDF:resource="urn:mozilla:package:tracker"/>
+  </RDF:Seq>
+    
+  <RDF:Seq RDF:about="urn:mozilla:overlays">
+    <RDF:li RDF:resource="chrome://messenger/content/messenger.xul"/>
+    <RDF:li RDF:resource="chrome://messenger/content/mailWindowOverlay.xul"/>
+  </RDF:Seq>
+     
+  <RDF:Seq RDF:about="chrome://messenger/content/messenger.xul">
+    <RDF:li>chrome://tracker/content/tracker.xul</RDF:li>
+  </RDF:Seq>
+  
+  <RDF:Seq about="chrome://messenger/content/mailWindowOverlay.xul">
+    <RDF:li>chrome://tracker/content/trackerMailWindow.xul</RDF:li>
+  </RDF:Seq>  
+  
+  <RDF:Description 
+    RDF:about="urn:mozilla:package:tracker"
+    chrome:displayName="Tracker Indexer 0.1.3"
+    chrome:author="Pierre Östlund"
+    chrome:authorURL="mailto:pierre.ostlund@gmail.com"
+    chrome:name="tracker"
+    chrome:extension="true"
+    chrome:description="Index mails, RSS and more using Tracker."
+    chrome:settingsURL="chrome://tracker/content/trackerPrefs.xul">
+  </RDF:Description>
+
+</RDF:RDF>

@@ -1,0 +1,64 @@
+[Email:Recipient]
+Abstract=true
+DisplayName=Recipient
+Description=The recepient of an email
+DataType=Indexable
+
+[Email:Body]
+DisplayName=Body
+Description=The body contents of the email
+DataType=CLOB
+Weight=1
+
+[Email:Date]
+DisplayName=Date
+Description=Date email was sent
+DataType=DateTime
+Parent=DC:Date
+
+[Email:Sender]
+DisplayName=Sender
+Description=The sender of the email
+DataType=Indexable
+Parent=DC:Creator
+Weight=10
+
+[Email:Subject]
+DisplayName=Subject
+Description=The subject of the email
+DataType=Indexable
+Parent=DC:Subject
+Weight=20
+
+[Email:SentTo]
+DisplayName=Sent to
+Description=The group of people the email was sent to
+DataType=Indexable
+MultipleValues=true
+Parent=Email:Recipient
+Weight=10
+
+[Email:CC]
+DisplayName=CC
+Description=The CC recipients of the email
+DataType=Indexable
+MultipleValues=true
+Parent=Email:Recipient
+Weight=5
+
+[Email:Attachments]
+DisplayName=Attachments
+Description=The names of the attachments
+DataType=Indexable
+Weight=5
+
+[Email:AttachmentsDelimited]
+DisplayName=AttachmentsDelimited
+Description=The names of the attachments with extra delimiting
+DataType=Indexable
+Weight=5
+
+
+
+
+

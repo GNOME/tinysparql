@@ -1,0 +1,11 @@
+pref("tracker.enable.contacts", true);
+pref("tracker.enable.imap", true);
+pref("tracker.enable.local", true);
+pref("tracker.enable.mailspool", true);
+pref("tracker.enable.news", true);
+pref("tracker.enable.pop", true);
+pref("tracker.enable.rss", true);
+pref("tracker.enabled", true);
+pref("tracker.index.batch_count", 10);
+pref("tracker.index.delay", 10);
+pref("tracker.index.queue_count", 10);

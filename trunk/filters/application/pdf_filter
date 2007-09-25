@@ -1,0 +1,4 @@
+#!/bin/sh
+
+nice -n19 pdftotext -enc UTF-8 -q -nopgbrk  "$1" "$2"
+

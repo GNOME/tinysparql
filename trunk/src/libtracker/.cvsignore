@@ -1,0 +1,12 @@
+.deps
+.libs
+Makefile
+Makefile.in
+libtrackerclient.la
+tracker-files
+tracker-meta-folder
+tracker-query
+tracker-search
+tracker-stats
+tracker-tag
+tracker.lo

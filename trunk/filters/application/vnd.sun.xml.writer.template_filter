@@ -1,0 +1,3 @@
+#!/bin/sh
+
+nice -n19 unzip -p "$1" content.xml | o3totxt > "$2"
