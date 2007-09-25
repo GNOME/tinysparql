@@ -464,7 +464,7 @@ tracker_word_table_free (GHashTable *table)
 char **
 tracker_parse_text_into_array (const char *text)
 {
-	char *s = tracker_parse_text_to_string (text, TRUE, FALSE);
+	char *s = tracker_parse_text_to_string (text, FALSE, FALSE);
 
 	char **array =  g_strsplit (s, " ", -1);
 
