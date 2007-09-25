@@ -137,7 +137,7 @@ if test "x$enable_deskbar_applet" = "xmodule" ; then
 		module_dir="$with_deskbar_applet_dir"
 	fi
 	if test "x$module_dir" = "x" ; then
-		module_dir="\$(exec_prefix)/lib/deskbar-applet/modules"
+		module_dir="\$(exec_prefix)/lib/deskbar-applet/modules-2.20-compatible"
 	fi
 fi
 
