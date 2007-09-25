@@ -6,6 +6,15 @@
 	* Remove some warnings in libtracker-gtk
 
 
+2007-09-23 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed memory leaks
+	* Optomised index merging
+	* Fixed and tuned battery checking
+	* Fixed bug on file read where partial utf-8 crept through
+	* Fixed CJK check
+	* Replaced GSList based cache with byteArray
+
 2007-09-22 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added index merging

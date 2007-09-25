@@ -19,6 +19,7 @@ import sys
 import os.path
 import time
 import urllib
+import string
 import gnome
 import gobject
 
@@ -252,7 +253,7 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 			info = [str (i) for i in info]
 
 			output['escaped_uri'] = cgi.escape (info[0])
-			output['uri'] = urllib.quote (info[0], ';?:@&=+$,./')
+			output['uri'] = url_quote (info[0], ';?:@&=+$,./')
 			output['name'] = os.path.basename(output['escaped_uri'])
 			output['type'] = info[1]
 
@@ -350,6 +351,14 @@ def time_from_purple_log (instr):
 	except:
 		print >> sys.stderr, '*** time parsing for purple chat log failed: %s' % sys.exc_info ()[1]
 	return instr
+
+
+
+
+def url_quote (instr, safe = '/'):
+	"""A unicode capable quote, see http://bugs.python.org/issue1712522"""
+	return ''.join (map (lambda x: x in (safe+string.letters+string.digits) and x or ('%%%02X' % ord(x)), instr.encode ('utf-8')))
+
 
 
 

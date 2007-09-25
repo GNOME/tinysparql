@@ -5,6 +5,7 @@ import gobject
 import re
 import sys
 import urllib
+import string
 import time
 import cgi
 import os.path
@@ -74,7 +75,7 @@ class TrackerSearchToolHandler(deskbar.interfaces.Module):
 			'icon': deskbar.core.Utils.load_icon ('tracker'),
 			'name': _('Tracker Search'),
 			'description': _('Search with Tracker Search Tool'),
-			'version': '0.6.2',
+			'version': '0.6.3',
 	}
 
 	def __init__(self):
@@ -184,11 +185,11 @@ class TrackerLiveSearchMatch (deskbar.interfaces.Match):
 						pass # some icons cannot be loaded... (e.g. for non existent file or illegal URI)
 
 		self.add_action (TrackerLiveSearchAction (result, desktop))
-		
+
 		# Add extra default actions where it makes sense
 		if not result['type'] in ["Emails", "Applications", "GaimConversations"]:
 			self.add_all_actions (get_actions_for_uri(result['uri']))
-	
+
 	def get_name (self, text = None):
 		return self.result ['name']
 
@@ -253,8 +254,8 @@ class TrackerLiveSearchAction (deskbar.interfaces.Action):
 			if self.desktop:
 				self.desktop.launch ([])
 			else:
-				deskbar.core.Utils.url_show ('file://'+urllib.quote (self.result['uri'], ';?:@&=+$,./'))
-			print 'Opening Tracker hit:', urllib.quote (self.result['uri'], ';?:@&=+$,./')
+				deskbar.core.Utils.url_show ('file://'+url_quote (self.result['uri'], ';?:@&=+$,./'))
+			print 'Opening Tracker hit:', url_quote (self.result['uri'], ';?:@&=+$,./')
 
 	def init_names (self, fullpath):
 		dirname, filename = os.path.split(fullpath)
@@ -278,7 +279,7 @@ class TrackerLiveSearchHandler(deskbar.interfaces.Module):
 			'icon': deskbar.core.Utils.load_icon ('tracker'),
 			'name': _('Tracker Live Search'),
 			'description': _('Search with Tracker, as you type'),
-			'version': '0.6.2',
+			'version': '0.6.3',
 			'categories': {
 			'develop': {
 				'name': _('Development Files'),
@@ -458,3 +459,7 @@ def time_from_purple_log (instr):
 	except:
 		print >> sys.stderr, '*** time parsing for purple chat log failed: %s' % sys.exc_info ()[1]
 	return instr
+
+def url_quote (instr, safe = '/'):
+	"""A unicode capable quote, see http://bugs.python.org/issue1712522"""
+	return ''.join (map (lambda x: x in (safe+string.letters+string.digits) and x or ('%%%02X' % ord(x)), instr.encode ('utf-8')))
