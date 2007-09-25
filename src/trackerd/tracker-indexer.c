@@ -395,11 +395,11 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	} else if (size < (20 * 1024 * 1024)) {
 		interval = 5000;
 	} else if (size < (30 * 1024 * 1024)) {
-		interval = 3000;
+		interval = 4000;
 	} else if (size < (100 * 1024 * 1024)) {
-		interval = 2000;
+		interval = 3000;
 	} else {
-		interval = 1000;
+		interval = 2000;
 	}
 
 	/* halve the interval value as notebook hard drives are smaller */
@@ -498,13 +498,27 @@ tracker_indexer_merge_indexes (IndexType type)
 	GSList *file_list = NULL, *index_list = NULL;
 	const char *prefix;
 	int i = 0, index_count, interval = 5000;
+	gboolean final_exists;
 	
 	if (type == INDEX_TYPE_FILES) {
 		prefix = "file-index.tmp.";
 		index_list = g_slist_prepend (index_list, tracker->file_index);
+
+		char *tmp = g_build_filename (tracker->data_dir, "file-index-final", NULL);
+
+		final_exists =  g_file_test (tmp, G_FILE_TEST_EXISTS);
+
+		g_free (tmp);
+
 	} else {
 		prefix = "email-index.tmp.";
 		index_list = g_slist_prepend (index_list, tracker->email_index);
+
+		char *tmp = g_build_filename (tracker->data_dir, "email-index-final", NULL);
+
+		final_exists =  g_file_test (tmp, G_FILE_TEST_EXISTS);
+
+		g_free (tmp);
 	}
 	
 	file_list = tracker_get_files_with_prefix (tracker->data_dir, prefix);
@@ -539,7 +553,7 @@ tracker_indexer_merge_indexes (IndexType type)
 
 	tracker_log ("starting merge of %d indexes", index_count);
 
-	if (index_count == 2) {
+	if (index_count == 2 && !final_exists) {
 
 		GSList *elem;
 		Indexer *index1, *index2;
@@ -604,11 +618,11 @@ tracker_indexer_merge_indexes (IndexType type)
 					} else if (size < (20 * 1024 * 1024)) {
 						interval = 5000;
 					} else if (size < (50 * 1024 * 1024)) {
-						interval = 3000;
+						interval = 4000;
 					} else if (size < (100 * 1024 * 1024)) {
-						interval = 2000;
+						interval = 3000;
 					} else {
-						interval = 1000;
+						interval = 2000;
 					}
 
 					/* halve the interval value as notebook hard drives are smaller */
