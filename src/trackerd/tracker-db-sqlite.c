@@ -1085,6 +1085,7 @@ tracker_db_connect (void)
 
 
 	tracker_db_attach_db (db_con, "common");
+	tracker_db_attach_db (db_con, "cache");
 
 
 	db_con->thread = NULL;

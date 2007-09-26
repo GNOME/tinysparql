@@ -1211,7 +1211,11 @@ process_files_thread (void)
 				}
 
 				tracker_db_end_index_transaction (db_con);
+
 				tracker_cache_flush_all (FALSE);
+
+				tracker_db_refresh_all (db_con);
+
 				tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
 
 				if (tracker->word_update_count > 0) {
