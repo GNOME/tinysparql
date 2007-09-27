@@ -510,6 +510,32 @@ fi
 
 AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "$enable-libtrackergtk" != "no")
 
+##################################################################
+# Enable building tracker-monitor notification icon?
+##################################################################
+LIBNOTIFY_GTK2_REQUIRED=2.10
+LIBNOTIFY_GLIB_REQUIRED=2.10
+LIBNOTIFY_REQUIRED=0.4.3
+
+AC_ARG_ENABLE([trackermonitor], AC_HELP_STRING([--disable-trackermonitor], [Disable trackermonitor]),,[enable_trackermonitor=yes])
+if test "x$enable_trackermonitor" != "xno" ; then
+
+   	trackermonitor_modules="\
+        	glib-2.0    >=  $LIBNOTIFY_GLIB_REQUIRED, \
+        	gtk+-2.0    >=  $LIBNOTIFY_GTK2_REQUIRED, \
+        	dbus-1      >=  $DBUS_REQUIRED, \
+        	dbus-glib-1 >=  $DBUS_REQUIRED, \
+		libnotify   >=  $LIBNOTIFY_REQUIRED"
+
+	PKG_CHECK_MODULES(TRACKERMONITOR, [$trackermonitor_modules],[enable_trackermonitor=yes] , [enable_trackermonitor=no])
+
+    	AC_SUBST([TRACKERMONITOR_CFLAGS])
+    	AC_SUBST([TRACKERMONITOR_LIBS])
+else
+	enable-trackermonitor="no (disabled)"
+fi
+
+AM_CONDITIONAL(ENABLE_TRACKERMONITOR, test "$enable-trackermonitor" != "no")
 
 
 
@@ -762,6 +788,7 @@ AC_CONFIG_FILES([
 	src/trackerd/Makefile
 	src/libtracker/Makefile
 	src/libtracker-gtk/Makefile
+	src/tracker-monitor/Makefile
 	src/tracker-search-tool/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-preferences/Makefile
@@ -793,6 +820,7 @@ Tracker-$VERSION:
 	build search tool (GNOME):		$have_gnome
 	build preferences ui:			$enable_preferences
 	build libtracker-gtk:			$enable_libtrackergtk
+	tracker monitor notification applet:	$enable_trackermonitor
 
 Metadata extractors:
 

@@ -1,3 +1,9 @@
+
+2007-09-27 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added intial tracker-monitor notification applet
+	* fixed excessive busy count issue
+
 2007-09-25 Patch from Halton Huo   <Halton.Huo@Sun.COM>
 
 	* Enable search of words beginning with a number
