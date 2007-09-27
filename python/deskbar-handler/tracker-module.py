@@ -191,7 +191,7 @@ class TrackerLiveSearchMatch (deskbar.interfaces.Match):
 			self.add_all_actions (get_actions_for_uri(result['uri']))
 
 	def get_name (self, text = None):
-		return self.result ['name']
+		return self.get_verb() % self.result
 
 	def get_verb(self):
 		try:
