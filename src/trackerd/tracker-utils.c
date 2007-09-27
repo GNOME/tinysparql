@@ -2436,7 +2436,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	char *stem_language;
 
 	/* set default language */
-	stem_language = "English";
+	stem_language = "english";
 
 	if (language) {
 		int i;
