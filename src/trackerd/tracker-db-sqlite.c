@@ -721,7 +721,7 @@ set_params (DBConnection *db_con, int cache_size, gboolean add_functions)
 
 	tracker_db_exec_no_reply (db_con, prag);
 
-	sqlite3_busy_timeout (db, 10000000);
+	sqlite3_busy_timeout (db_con->db, 10000000);
 
 	g_free (prag);
 
