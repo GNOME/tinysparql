@@ -166,7 +166,7 @@ text_needs_pango (const char *text)
 
 
 static const char *
-analyze_text (const char *text, char **index_word, gboolean filter_words, gboolean delimit_hyphen)
+analyze_text (const char *text, char **index_word, gboolean filter_words, gboolean filter_numbers, gboolean delimit_hyphen)
 {
 	const char 	*p;
 	const char 	*start = NULL;
@@ -201,7 +201,7 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 				start = p;
 
 				/* valid words must start with an alpha or underscore if we are filtering */
-				if (filter_words) {
+				if (filter_numbers) {
 
 					if (type == WORD_NUM) {
 						//if (!tracker->index_numbers) {
@@ -284,7 +284,7 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 		if (is_valid) {
 
 			if (word_type == WORD_NUM) {
-				if (!filter_words || length >= tracker->index_number_min_length) {
+				if (!filter_numbers || length >= tracker->index_number_min_length) {
 					*index_word = g_ucs4_to_utf8 (word, length, NULL, NULL, NULL);
 				} 
 
@@ -347,7 +347,7 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 
 
 char *
-tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean delimit)
+tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean filter_numbers, gboolean delimit)
 {
 	const char *p = txt;	
 
@@ -415,7 +415,7 @@ tracker_parse_text_to_string (const char *txt, gboolean filter_words, gboolean d
 
 			while (TRUE) {
 				i++;
-				p = analyze_text (p, &word, filter_words, delimit);
+				p = analyze_text (p, &word, filter_words, filter_numbers, delimit);
 
 				if (word) {
 
@@ -464,7 +464,7 @@ tracker_word_table_free (GHashTable *table)
 char **
 tracker_parse_text_into_array (const char *text)
 {
-	char *s = tracker_parse_text_to_string (text, FALSE, FALSE);
+	char *s = tracker_parse_text_to_string (text, TRUE, FALSE, FALSE);
 
 	char **array =  g_strsplit (s, " ", -1);
 
@@ -597,7 +597,7 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 
 		while (TRUE) {
 			i++;
-			p = analyze_text (p, &word, filter_words, delimit_words);
+			p = analyze_text (p, &word, filter_words, filter_words, delimit_words);
 
 			if (word) {
 

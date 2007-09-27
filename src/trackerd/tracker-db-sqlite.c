@@ -662,7 +662,7 @@ open_user_db (const char *name, gboolean *create_table)
 
 	g_free (dbname);
 
-	sqlite3_busy_timeout (db, 10000);
+	sqlite3_busy_timeout (db, 10000000);
 
 	return db;
 
@@ -695,7 +695,7 @@ open_db (const char *name, gboolean *create_table)
 
 	g_free (dbname);
 
-	sqlite3_busy_timeout (db, 10000);
+	sqlite3_busy_timeout (db, 10000000);
 
 	return db;
 
@@ -720,6 +720,8 @@ set_params (DBConnection *db_con, int cache_size, gboolean add_functions)
 	}
 
 	tracker_db_exec_no_reply (db_con, prag);
+
+	sqlite3_busy_timeout (db, 10000000);
 
 	g_free (prag);
 
@@ -1025,7 +1027,7 @@ tracker_db_connect (void)
 	db_con->db_type = DB_DATA;
 	db_con->db_category = DB_CATEGORY_FILES;
 
-	sqlite3_busy_timeout (db_con->db, 10000);
+	sqlite3_busy_timeout (db_con->db, 10000000);
 
 	db_con->data = db_con;
 
@@ -1339,7 +1341,7 @@ tracker_db_connect_cache (void)
 	db_con->db_type = DB_CACHE;
 	db_con->cache = db_con;
 
-	sqlite3_busy_timeout (db_con->db, 10000);
+	sqlite3_busy_timeout (db_con->db, 10000000);
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -1396,7 +1398,7 @@ tracker_db_connect_emails (void)
 
 	db_con->emails = db_con;
 
-	sqlite3_busy_timeout (db_con->db, 10000);
+	sqlite3_busy_timeout (db_con->db, 10000000);
 
 	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -1687,7 +1689,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 
 			if (busy_count > 10000) {
 				tracker_error ("ERROR: excessive busy count in query %s and thread %s", query, db_con->thread);
-				busy_count =0;
+				busy_count = 0;
 			}
 
 			if (busy_count > 50) {
@@ -1921,9 +1923,9 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 			unlock_connection (db_con);
 			busy_count++;
 
-			if (busy_count > 1000) {
+			if (busy_count > 100000) {
 				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
-				exit (1);
+				busy_count = 0;
 			}
 
 			if (busy_count > 50) {
@@ -2073,9 +2075,9 @@ tracker_exec_proc_no_reply (DBConnection *db_con, const char *procedure, int par
 			unlock_connection (db_con);
 			busy_count++;
 
-			if (busy_count > 1000) {
+			if (busy_count > 100000) {
 				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
-				exit (1);
+				busy_count = 0;
 			}
 
 			if (busy_count > 50) {
@@ -2170,9 +2172,9 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 			unlock_connection (db_con);
 			busy_count++;
 
-			if (busy_count > 1000) {
+			if (busy_count > 1000000) {
 				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
-				exit (1);
+				busy_count = 0;
 			}
 
 			if (busy_count > 50) {
@@ -2564,9 +2566,9 @@ tracker_db_get_file_contents_words (DBConnection *db_con, guint32 id, GHashTable
 			unlock_connection (db_con);
 			busy_count++;
 
-			if (busy_count > 1000) {
+			if (busy_count > 1000000) {
 				tracker_error ("ERROR: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
-				exit (1);
+				busy_count = 0;
 			}
 
 			if (busy_count > 50) {
@@ -3604,7 +3606,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
                                 }
 
 				if (table) {
-					gchar *mvalue = tracker_parse_text_to_string (values[i], FALSE, FALSE);
+					gchar *mvalue = tracker_parse_text_to_string (values[i], FALSE, FALSE, FALSE);
 
 					table = tracker_parse_text_fast (table, mvalue, def->weight);
 
@@ -3625,7 +3627,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
                                         continue;
                                 }
 
-				mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
+				mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->filtered, def->delimited);
 
 				if (table) {
 					table = tracker_parse_text_fast (table, mvalue, def->weight);
@@ -3673,7 +3675,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
                                         continue;
                                 }
 
-				gchar *mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
+				gchar *mvalue = tracker_parse_text_to_string (values[i], def->filtered,  def->filtered, def->delimited);
 
 				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]);
 
@@ -3936,7 +3938,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				}
 
 
-				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
+				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered,  def->filtered, def->delimited);
 
 				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]); 
 
@@ -3969,7 +3971,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 					backup_non_embedded_metadata (db_con, id, def->id, values[i]);
 				}
 
-				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered, def->delimited);
+				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered,  def->filtered, def->delimited);
 
 				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]);
 
@@ -4190,7 +4192,7 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 
 		case DATA_INDEX:
 		case DATA_STRING:
-			mvalue = tracker_parse_text_to_string (value, def->filtered, def->delimited);
+			mvalue = tracker_parse_text_to_string (value, def->filtered,  def->filtered, def->delimited);
 			tracker_exec_proc (db_con, "DeleteMetadataValue", 3, id, def->id, mvalue); 
 			g_free (mvalue);
 			break;
