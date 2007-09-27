@@ -87,18 +87,18 @@ static const char imonths[] = {
 
 
 static Matches tmap[] = {
-		{"da", "Danish"},
-		{"nl", "Dutch"},
-		{"en", "English"},
- 		{"fi", "Finnish"},
-		{"fr", "French"},
-		{"de", "German"},
-		{"it", "Italian"},
-		{"nb", "Norwegian"},
-		{"pt", "Portuguese"},
-		{"ru", "Russian"},
-		{"es", "Spanish"},
-		{"sv", "Swedish"},
+		{"da", "danish"},
+		{"nl", "dutch"},
+		{"en", "english"},
+ 		{"fi", "finnish"},
+		{"fr", "french"},
+		{"de", "german"},
+		{"it", "italian"},
+		{"nb", "norwegian"},
+		{"pt", "portuguese"},
+		{"ru", "russian"},
+		{"es", "spanish"},
+		{"sv", "swedish"},
 		{NULL, NULL},
 };
 
@@ -2436,7 +2436,7 @@ tracker_set_language (const char *language, gboolean create_stemmer)
 	char *stem_language;
 
 	/* set default language */
-	stem_language = "english";
+	stem_language = "English";
 
 	if (language) {
 		int i;
