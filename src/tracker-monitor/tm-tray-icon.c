@@ -95,7 +95,7 @@ tray_icon_class_init(TrayIconClass *klass)
 
 
 static void
-search_menu_activated(GtkMenuItem *item, gpointer data)
+search_menu_activated (GtkMenuItem *item, gpointer data)
 {
 	const gchar *command = "tracker-search-tool";
 
@@ -193,11 +193,10 @@ search_cb (GtkWidget *entry,  GdkEventKey *event, gpointer data)
 static void
 create_window (TrayIcon *icon)
 {
-	GtkWidget *vbox1;
-	GtkWidget *hbox1;
-	GtkWidget *label2;
-	GtkWidget *hbox2;
-	GtkWidget *vbox3;
+	GtkWidget *vbox;
+	GtkWidget *hbox;
+	GtkWidget *label;
+	GtkWidget *table;
 
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
 
@@ -208,7 +207,6 @@ create_window (TrayIcon *icon)
 	gtk_window_set_keep_above (priv->window, TRUE);
 	gtk_window_set_skip_pager_hint (priv->window, TRUE);
 	gtk_window_set_skip_taskbar_hint (priv->window, TRUE);
-	//gtk_window_set_type_hint (priv->window, GDK_WINDOW_TYPE_HINT_MENU);
 
  	g_signal_connect (priv->window, "focus-out-event",
         	            G_CALLBACK (hide_window_cb),
@@ -218,55 +216,72 @@ create_window (TrayIcon *icon)
 	gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_OUT);
 	gtk_container_add (GTK_CONTAINER (priv->window), frame);
 
-	vbox1 = gtk_vbox_new (FALSE, 8);
-	gtk_widget_show (vbox1);
-	gtk_container_add (GTK_CONTAINER (frame), vbox1);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox1), 4);
+	vbox = gtk_vbox_new (FALSE, 8);
+	gtk_widget_show (vbox);
+	gtk_container_add (GTK_CONTAINER (frame), vbox);
+	gtk_container_set_border_width (GTK_CONTAINER (vbox), 4);
 
-	hbox1 = gtk_hbox_new (FALSE, 8);
-	gtk_widget_show (hbox1);
-	gtk_box_pack_start (GTK_BOX (vbox1), hbox1, FALSE, FALSE, 4);
+	table = gtk_table_new (3, 2, FALSE);
+  	gtk_widget_show (table);
+  	gtk_box_pack_start (GTK_BOX (vbox), table, TRUE, TRUE, 8);
+  	gtk_table_set_row_spacings (GTK_TABLE (table), 6);
+  	gtk_table_set_col_spacings (GTK_TABLE (table), 11);
 
-	label2 = gtk_label_new (_("Search"));
-	gtk_widget_show (label2);
-	gtk_box_pack_start (GTK_BOX (hbox1), label2, FALSE, FALSE, 0);
+	/* search entry row */
+  	label = gtk_label_new (_("Search:"));
+  	gtk_widget_show (label);
+  	gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1,
+        	         (GtkAttachOptions) (GTK_FILL),
+                         (GtkAttachOptions) (0), 0, 0);
+  	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 
 	priv->search_entry = gtk_entry_new ();
 	gtk_widget_show (priv->search_entry);
 	gtk_entry_set_activates_default (GTK_ENTRY (priv->search_entry), TRUE);
-	gtk_box_pack_start (GTK_BOX (hbox1), priv->search_entry, TRUE, TRUE, 0);
-
+	gtk_table_attach (GTK_TABLE (table), priv->search_entry, 1, 2, 0, 1,
+                         (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                         (GtkAttachOptions) (0), 0, 0);
+  
 	g_signal_connect (priv->search_entry, "key-press-event",
         	            G_CALLBACK (search_cb),
         	            icon);
 
-	hbox2 = gtk_hbox_new (FALSE, 0);
-	gtk_widget_show (hbox2);
-	gtk_box_pack_start (GTK_BOX (vbox1), hbox2, FALSE, FALSE, 2);
 
-	priv->status_label = gtk_label_new (_("Status: Indexing"));
+	/* status row */
+  	label = gtk_label_new (_("Status:"));
+  	gtk_widget_show (label);
+  	gtk_table_attach (GTK_TABLE (table), label, 0, 1, 1, 2,
+                         (GtkAttachOptions) (GTK_FILL),
+                         (GtkAttachOptions) (0), 0, 0);
+  	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
+
+
+	hbox = gtk_hbox_new (FALSE, 0);
+	gtk_widget_show (hbox);
+  	gtk_table_attach (GTK_TABLE (table), hbox, 1, 2, 1, 2,
+                         (GtkAttachOptions) (GTK_FILL),
+                         (GtkAttachOptions) (GTK_FILL), 0, 0);
+
+	priv->status_label = gtk_label_new ("Indexing files");
 	gtk_widget_show (priv->status_label);
-	gtk_box_pack_start (GTK_BOX (hbox2), priv->status_label, FALSE, FALSE, 0);
-	gtk_label_set_justify (GTK_LABEL (priv->status_label), GTK_JUSTIFY_CENTER);
+	gtk_box_pack_start (GTK_BOX (hbox), priv->status_label, FALSE, FALSE, 0);
 
-	vbox3 = gtk_vbox_new (FALSE, 0);
-	gtk_widget_show (vbox3);
-	gtk_box_pack_start (GTK_BOX (vbox1), vbox3, TRUE, TRUE, 6);
 
-	priv->files_bar = gtk_progress_bar_new ();
-	gtk_widget_show (priv->files_bar);
-	gtk_box_pack_start (GTK_BOX (vbox3), priv->files_bar, FALSE, FALSE, 0);
-	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->files_bar), _("Files"));
 
-	priv->conversations_bar = gtk_progress_bar_new ();
-	gtk_widget_show (priv->conversations_bar);
-	gtk_box_pack_start (GTK_BOX (vbox3), priv->conversations_bar, FALSE, FALSE, 0);
-	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->conversations_bar), _("Conversations"));
+	/* progress row */
+  	label = gtk_label_new (_("Progress:"));
+  	gtk_widget_show (label);
+  	gtk_table_attach (GTK_TABLE (table), label, 0, 1, 2, 3,
+                    	 (GtkAttachOptions) (GTK_FILL),
+                         (GtkAttachOptions) (0), 0, 0);
 
-	priv->emails_bar = gtk_progress_bar_new ();
-	gtk_widget_show (priv->emails_bar);
-	gtk_box_pack_start (GTK_BOX (vbox3), priv->emails_bar, FALSE, FALSE, 0);
-	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->emails_bar), _("Emails"));
+  	priv->progress_bar = gtk_progress_bar_new ();
+  	gtk_widget_show (priv->progress_bar);
+  	gtk_table_attach (GTK_TABLE (table), priv->progress_bar, 1, 2, 2, 3,
+                    	 (GtkAttachOptions) (GTK_FILL),
+                    	 (GtkAttachOptions) (0), 0, 0);
+  	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->progress_bar), 0.35);
+  	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), _("Files - 256/841 folders"));
 
 
 }
@@ -362,7 +377,7 @@ show_window (GtkStatusIcon *icon, gpointer data)
 
 
 static void
-tray_icon_init(GTypeInstance *instance, gpointer g_class)
+tray_icon_init (GTypeInstance *instance, gpointer g_class)
 {
 	TrayIcon *self = TRAY_ICON(instance);
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE(self);
@@ -384,7 +399,7 @@ tray_icon_init(GTypeInstance *instance, gpointer g_class)
 }
 
 static void
-tray_icon_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+tray_icon_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	TrayIcon *self = TRAY_ICON(object);
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE(self);
@@ -400,7 +415,7 @@ tray_icon_set_property(GObject *object, guint property_id, const GValue *value, 
 }
 
 void
-tray_icon_set_tooltip(TrayIcon *icon, const gchar *format, ...)
+tray_icon_set_tooltip (TrayIcon *icon, const gchar *format, ...)
 {
 	va_list args;
 	gchar *tooltip = NULL;
@@ -458,7 +473,7 @@ tray_icon_clicked (GtkStatusIcon *icon, guint button, guint timestamp, gpointer 
 }
 
 static void
-active_menu_toggled(GtkCheckMenuItem *item, gpointer data)
+active_menu_toggled (GtkCheckMenuItem *item, gpointer data)
 {
 	TrayIcon *self = TRAY_ICON(data);
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE(self);
@@ -470,7 +485,7 @@ active_menu_toggled(GtkCheckMenuItem *item, gpointer data)
 }
 
 static void
-preferences_menu_activated(GtkMenuItem *item, gpointer data)
+preferences_menu_activated (GtkMenuItem *item, gpointer data)
 {
 	const gchar *command = "tracker-preferences";
 
@@ -499,6 +514,7 @@ get_stat_value (char ***stat_array, const char *stat)
 	return NULL;
 
 }
+
 
 static void
 statistics_menu_activated (GtkMenuItem *item, gpointer data)

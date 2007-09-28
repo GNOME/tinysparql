@@ -21,9 +21,7 @@ typedef struct _TrayIconPrivate
 	GtkWindow		*window;
 	GtkWidget 		*search_entry;	
 	GtkWidget 		*status_label;
-	GtkWidget 		*files_bar;
-	GtkWidget 		*conversations_bar;
-	GtkWidget 		*emails_bar;
+	GtkWidget 		*progress_bar;
 
    	TrackerDaemonConnection *trackerd;
 
