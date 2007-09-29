@@ -1547,7 +1547,7 @@ tracker_get_hit_counts (SearchQuery *query)
 
 	i = 0;
 
-	for (lst = list; i < len && lst && lst->next; lst = lst->next) {
+	for (lst = list; i < len && lst; lst = lst->next) {
 
 		if (!lst || !lst->data) {
 			tracker_error ("ERROR: in get hit counts");
