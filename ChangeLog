@@ -1,7 +1,12 @@
+2007-09-29 Patch from Wendy Hu
+
+	* Fixed missing cateogry from tst search
+
 2007-09-27 Mikkel Kamstrup Erlandsen   <mikkel.kamstrup@gmail.com>
 
 	* Richer display of hits in deskbar module
 	  This was intended all along, but broke with DBA 2.20.
+
 
 2007-09-27 Jamie McCracken <jamiemcc at gnome org>
 
