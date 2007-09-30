@@ -719,44 +719,34 @@ index_mail_file_in_maildir_dir (DBConnection *db_con, const gchar *dir, FileInfo
 
         tracker_log ("Looking for email file \"%s\"", info->uri);
 
-        if (!tracker_file_is_indexable (info->uri)) {
-                /* Here, email file has probably be moved to trash.
+        if (!tracker_db_email_is_saved_email_file (db_con, info->uri)) {
+                MailMessage *mail_msg = email_parse_mail_message_by_path (MAIL_APP_KMAIL, info->uri, NULL, NULL);
+
+                if (!mail_msg) {
+                        tracker_log ("WARNING: email %s not found", info->uri);
+                        tracker_db_email_free_mail_store (store);
+                        return FALSE;
+                }
+
+                if (mail_msg->uri) {
+                        g_free (mail_msg->uri);
+                }
+
+                mail_msg->uri = g_strdup (mail_msg->path);
+                mail_msg->store = store;
+                mail_msg->mtime = tracker_get_file_mtime (mail_msg->path);
+                tracker_db_email_save_email (db_con, mail_msg);
+
+                email_free_mail_file (mail_msg->parent_mail_file);
+                email_free_mail_message (mail_msg);
+
+        } else {
+                /* A file is never touched at all (ever when a user read it) so its containt is never updated.
                    When a email file is put in trash it is moved to the trash directory and it is given the
                    suffix ":2,S"... For us it just means that trackerd will see a file being deleted and it
                    will remove it from its database.
                 */
-                if (tracker_db_email_delete_email (db_con, info->uri)) {
-                        /* We were correct there was a file to remove.*/
-                        tracker_log ("Email file \"%s\" removed", info->uri);
-                        store->mail_count--;
-                }
-
-        } else {
-                if (!tracker_db_email_is_saved_email_file (db_con, info->uri)) {
-                        MailMessage *mail_msg = email_parse_mail_message_by_path (MAIL_APP_KMAIL, info->uri, NULL, NULL);
-
-                        if (!mail_msg) {
-                                tracker_log ("WARNING: email %s not found", info->uri);
-                                tracker_db_email_free_mail_store (store);
-                                return FALSE;
-                        }
-
-                        if (mail_msg->uri) {
-                                g_free (mail_msg->uri);
-                        }
-
-                        mail_msg->uri = g_strdup (mail_msg->path);
-                        mail_msg->store = store;
-                        mail_msg->mtime = tracker_get_file_mtime (mail_msg->path);
-                        tracker_db_email_save_email (db_con, mail_msg);
-
-                        email_free_mail_file (mail_msg->parent_mail_file);
-                        email_free_mail_message (mail_msg);
-
-                } else {
-                        /* A file is never touched at all (ever when a user read it) so its containt is never updated. */
-                        tracker_log ("Nothing need to be done, email file \"%s\" is already up to date", info->uri) ;
-                }
+                tracker_log ("Nothing need to be done, email file \"%s\" is already up to date", info->uri) ;
         }
 
         tracker_db_email_free_mail_store (store);
