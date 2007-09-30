@@ -34,6 +34,7 @@
 #include "tracker-email-utils.h"
 #include "tracker-db-email.h"
 #include "tracker-cache.h"
+#include "tracker-dbus.h"
 
 #ifdef HAVE_INOTIFY
 #   include "tracker-inotify.h"
@@ -1359,25 +1360,15 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 				email_free_mail_file (mail_msg->parent_mail_file);
 				email_free_mail_message (mail_msg);
 
-				LoopEvent event = tracker_cache_event_check (db_con->data, TRUE);
-
-				if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
-
-					tracker_db_end_index_transaction (db_con->data);
-					tracker_cache_flush_all (FALSE);
-
-					break;						
-
-				} else if (event == EVENT_CACHE_FLUSHED) {
-					tracker_db_end_index_transaction (db_con->data);
-					tracker_db_refresh_email (db_con);
-					tracker_db_start_index_transaction (db_con->data);		
-
-				}		
+				if (!tracker_cache_process_events (db_con->data, TRUE)) {
+					tracker->status = STATUS_IDLE;
+					break;	
+				}
 
 				if (tracker_db_regulate_transactions (db_con->data, 200)) {
 					if (tracker->verbosity == 1) {
 						tracker_log ("indexing #%d - Emails in %s", tracker->index_count, dir);
+						tracker_dbus_send_index_progress_signal (dir);
 					}
 
 					if (tracker->index_count % 1000 == 0) {

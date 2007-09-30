@@ -403,7 +403,7 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	}
 
 	/* halve the interval value as notebook hard drives are smaller */
-	if (tracker->battery_state_file) interval = interval / 2;
+	if (tracker->battery_udi) interval = interval / 2;
 
 	dpiterinit (src->word_index);
 	
@@ -414,11 +414,10 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 		if (i > 1 && (i % interval == 0)) {
 			dpsync (dest->word_index);
 
-			LoopEvent event = tracker_cache_event_check (NULL, FALSE);
-
-			if (event==EVENT_SHUTDOWN) {
-				return;
-			}	
+			if (!tracker_cache_process_events (NULL, FALSE)) {
+				tracker->status = STATUS_IDLE;
+				return;	
+			}
 		}
 			
 		bytes = dpgetwb (src->word_index, str, -1, 0, buff_size, buffer);
@@ -600,10 +599,9 @@ tracker_indexer_merge_indexes (IndexType type)
 				i++;
 
 				if (i > 1001 && (i % 1000 == 0)) {
-					LoopEvent event = tracker_cache_event_check (NULL, FALSE);
-
-					if (event==EVENT_SHUTDOWN) {
-						return;
+					if (!tracker_cache_process_events (NULL, FALSE)) {
+						tracker->status = STATUS_IDLE;
+						return;	
 					}
 				}
 				
@@ -626,7 +624,7 @@ tracker_indexer_merge_indexes (IndexType type)
 					}
 
 					/* halve the interval value as notebook hard drives are smaller */
-					if (tracker->battery_state_file) interval = interval / 2;
+					if (tracker->battery_udi) interval = interval / 2;
 				}
 			
 				offset = dpgetwb (index->word_index, str, -1, 0, buff_size, buffer);

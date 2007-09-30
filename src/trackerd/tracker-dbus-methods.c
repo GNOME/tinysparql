@@ -30,6 +30,9 @@
 #include "mingw-compat.h"
 #endif
 
+
+extern Tracker *tracker;
+
 void
 tracker_set_error (DBusRec 	  *rec,
 	   	   const char	  *fmt,
@@ -333,8 +336,8 @@ void
 tracker_dbus_method_get_services (DBusRec *rec)
 {
 	DBConnection	*db_con;
-	DBusError		dbus_error;
-	DBusMessage		*reply;
+	DBusError	dbus_error;
+	DBusMessage	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	gboolean	main_only;
@@ -402,6 +405,25 @@ tracker_dbus_method_get_stats (DBusRec *rec)
 
 }
 
+void
+tracker_dbus_method_get_status (DBusRec *rec)
+{
+	DBusMessage *reply = dbus_message_new_method_return (rec->message);
+        
+                         
+        gchar* status = tracker_get_status ();
+
+        dbus_message_append_args (reply,
+                                  DBUS_TYPE_STRING, &status,
+                                  DBUS_TYPE_INVALID);
+
+	g_free (status);
+
+        dbus_connection_send (rec->connection, reply, NULL);
+
+	dbus_message_unref (reply);
+
+}
 
 void
 tracker_dbus_method_get_version (DBusRec *rec)
@@ -409,7 +431,7 @@ tracker_dbus_method_get_version (DBusRec *rec)
 	DBusMessage *reply;
 	int	    i;
 
-	g_return_if_fail (rec && rec->user_data);
+	g_return_if_fail (rec);
 
 	i = TRACKER_VERSION_INT;
 
@@ -424,3 +446,147 @@ tracker_dbus_method_get_version (DBusRec *rec)
 
 	dbus_message_unref (reply);
 }
+
+void
+tracker_dbus_method_set_bool_option (DBusRec *rec)
+{
+	DBusMessage 	*reply;
+	DBusError   	dbus_error;
+	char 		*option = NULL;
+	gboolean 	value = FALSE;
+
+	g_return_if_fail (rec);
+
+	dbus_error_init (&dbus_error);
+
+	/*	<!-- sets boolean options in tracker - option can be one of "Pause", "EnableIndexing", "LowMemoryMode", "IndexFileContents", "EnableEvolution" -->
+		<method name="SetBoolOption">
+			<arg type="s" name="option" direction="in" />
+			<arg type="b" name="value" direction="in" />
+		</method>
+
+	*/
+
+	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_STRING, &option, DBUS_TYPE_BOOLEAN, &value, DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
+
+	if (strcasecmp (option, "Pause") == 0) {
+		tracker->pause_manual = value;
+	} else if (strcasecmp (option, "EnableIndexing") == 0) {
+		tracker->enable_indexing = value;
+	} else if (strcasecmp (option, "LowMemoryMode") == 0) {
+		tracker->use_extra_memory = !value;
+	} else if (strcasecmp (option, "IndexFileContents") == 0) {
+		tracker->enable_content_indexing = value;
+	} else if (strcasecmp (option, "EnableEvolution") == 0) {
+		tracker->index_evolution_emails = value;
+	}
+
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+
+	dbus_message_unref (reply);
+}
+
+
+void
+tracker_dbus_method_set_int_option (DBusRec *rec)
+{
+	DBusMessage 	*reply;
+	DBusError   	dbus_error;
+	char 		*option = NULL;
+	int 		value = 0;
+
+	g_return_if_fail (rec);
+
+	dbus_error_init (&dbus_error);
+
+	/*	<!-- sets integer based option values in tracker - option can be one of "Throttle", "IndexDelay" -->
+		<method name="SetIntOption">
+			<arg type="s" name="option" direction="in" />
+			<arg type="i" name="value" direction="in" />
+		</method>
+
+	*/
+
+	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_STRING, &option, DBUS_TYPE_INT32, &value, DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
+
+	if (strcasecmp (option, "Throttle") == 0) {
+		tracker->throttle = value;
+	} else if (strcasecmp (option, "EnableIndexing") == 0) {
+		tracker->initial_sleep = value;
+	} 
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+
+	dbus_message_unref (reply);
+}
+
+
+void
+tracker_dbus_method_shutdown (DBusRec *rec)
+{
+	DBusMessage 	*reply;
+	DBusError   	dbus_error;
+	gboolean 	reindex = FALSE;
+
+	g_return_if_fail (rec);
+
+	dbus_error_init (&dbus_error);
+
+	/*	<!-- shutdown tracker service with optional reindex -->
+		<method name="Shutdown">
+			<arg type="b" name="reindex" direction="in" />
+		</method>
+
+	*/
+
+	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_INT32, &reindex, DBUS_TYPE_INVALID)) {
+		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+		dbus_error_free (&dbus_error);
+		return;
+	}
+
+	tracker->reindex = reindex;
+
+	g_timeout_add (500, (GSourceFunc) tracker_do_cleanup, NULL);
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+
+	dbus_message_unref (reply);
+}			
+ 
+
+void
+tracker_dbus_method_prompt_index_signals (DBusRec *rec)
+{
+	DBusMessage 	*reply;
+
+	g_return_if_fail (rec);
+
+	tracker_dbus_send_index_status_change_signal ();
+
+	tracker_dbus_send_index_progress_signal ("");
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_connection_send (rec->connection, reply, NULL);
+
+	dbus_message_unref (reply);
+}			
+
+
+

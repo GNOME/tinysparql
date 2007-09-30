@@ -31,6 +31,7 @@
 
 #include "tracker-cache.h"
 #include "tracker-db-email.h"
+#include "tracker-dbus.h"
 #include "tracker-email-utils.h"
 #include "tracker-email-evolution.h"
 #include "tracker-email-thunderbird.h"
@@ -162,30 +163,21 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 		email_free_mail_message (mail_msg);
 
-		LoopEvent event = tracker_cache_event_check (db_con->data, TRUE);
-
-		if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
-
-			tracker_db_end_index_transaction (db_con->data);
-			tracker_cache_flush_all (FALSE);
-
-			break;						
-
-		} else if (event == EVENT_CACHE_FLUSHED) {			
-			tracker_db_end_index_transaction (db_con->data);
-			tracker_db_start_index_transaction (db_con->data);
-		}				
+		if (!tracker_cache_process_events (db_con->data, TRUE) ) {
+			tracker->status = STATUS_IDLE;
+			break;	
+		}
 
 		if (tracker_db_regulate_transactions (db_con->data, 500)) {
 
 			if (tracker->verbosity == 1) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
+				tracker_dbus_send_index_progress_signal (path);
 			}
 
 			if (tracker->index_count % 2500 == 0) {
 				tracker_db_end_index_transaction (db_con->data);
 				tracker_db_refresh_all (db_con->data);
-//				tracker_db_refresh_email (db_con);
 				tracker_db_start_index_transaction (db_con->data);
 			}
 		}		
@@ -820,9 +812,6 @@ email_decode_mail_attachment_to_file (const gchar *src, const gchar *dst, MimeEn
 
 	g_mime_stream_write_to_stream (filtered_stream, stream_dst);
 	g_mime_stream_flush (filtered_stream);
-
-	//g_mime_stream_close (filtered_stream);
-	//g_mime_stream_close (stream_dst);
 
 	g_object_unref (filtered_stream);
 	g_object_unref (stream_src);

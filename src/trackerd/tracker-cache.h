@@ -26,7 +26,7 @@
 
 
 void		tracker_cache_add 		(const gchar *word, guint32 service_id, gint service_type, gint score, gboolean is_new);
-void            tracker_cache_flush_all       	(gboolean cache_full);
-LoopEvent	tracker_cache_event_check 	(DBConnection *db_con, gboolean check_flush);
+void            tracker_cache_flush_all       	();
+gboolean	tracker_cache_process_events	(DBConnection *db_con, gboolean check_flush);
 
 #endif

@@ -2622,11 +2622,6 @@ tracker_load_config_file (void)
 		tracker->throttle = 0;
 	}
 
-	if (g_key_file_has_key (key_file, "Indexing", "BatteryThrottle", NULL)) {
-		tracker->throttle = g_key_file_get_integer (key_file, "Indexing", "BatteryThrottle", NULL);
-	} else {
-		tracker->battery_throttle = 10;
-	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "EnableIndexing", NULL)) {
 		tracker->enable_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableIndexing", NULL);
@@ -3593,55 +3588,6 @@ get_first_entry_in_dir (const char *dir)
 
 }
 
-char *
-tracker_get_battery_state_file ()
-{
-	const char 	*dir = "/proc/acpi/ac_adapter";
-	char 		*battery_path = NULL;
-	char 		*battery_file = NULL;
-
-	if (!g_file_test (dir, G_FILE_TEST_EXISTS)) {
-		return NULL;
-	}
-	
-	battery_path = get_first_entry_in_dir (dir);
-
-	if (!battery_path) return NULL;
-
-	battery_file = get_first_entry_in_dir (battery_path);
-
-	g_free (battery_path);
-
-	return battery_file;
-}
-
-
-gboolean
-tracker_using_battery (void)
-{
-	if (!tracker->battery_state_file) {
-		return FALSE;
-	}
-
-	char *txt;
-	gboolean using_battery;
-
-	if (!g_file_get_contents (tracker->battery_state_file, &txt, NULL, NULL)) {
-		return FALSE;
-	} else {
-		using_battery = (strstr (txt, "on-line") == NULL);
-	}
-
-	g_free (txt);
-
-	if (using_battery) {
-		tracker_log ("Now on battery power - suspending indexing");
-	}
-
-	return using_battery;
-}
-
-
 void
 tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value)
 {
@@ -3827,5 +3773,14 @@ tracker_add_io_grace (const char *uri)
 }
 
 
+char *
+tracker_get_status ()
+{
+	gchar *tracker_status[] = {"Initializing","Watching","Indexing","Pending","Optimizing","Idle","Shutdown"};
 
+	if (tracker->status < 7) return g_strdup (tracker_status[tracker->status]);
+
+	return g_strdup ("Idle");
+
+}
 

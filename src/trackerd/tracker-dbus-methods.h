@@ -44,7 +44,14 @@ char *	tracker_format_search_terms 		(const char *str, gboolean *do_bool_search)
 char **	tracker_get_query_result_as_array 	(char ***res, int *row_count);
 
 void	tracker_dbus_method_get_stats	 	(DBusRec *rec);
+void	tracker_dbus_method_get_status 		(DBusRec *rec);
 void	tracker_dbus_method_get_services 	(DBusRec *rec);
 void	tracker_dbus_method_get_version 	(DBusRec *rec);
+
+void	tracker_dbus_method_set_bool_option		(DBusRec *rec);
+void	tracker_dbus_method_set_int_option		(DBusRec *rec);
+void	tracker_dbus_method_shutdown 			(DBusRec *rec);	
+void	tracker_dbus_method_prompt_index_signals 	(DBusRec *rec);
+
 
 #endif

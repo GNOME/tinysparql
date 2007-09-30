@@ -193,6 +193,7 @@ typedef enum {
 	EVENT_NOTHING,
 	EVENT_SHUTDOWN,
 	EVENT_DISABLE,
+	EVENT_PAUSE,
 	EVENT_CACHE_FLUSHED
 } LoopEvent;
 
@@ -200,6 +201,11 @@ typedef struct {
 
 	TrackerStatus	status;
 	int		pid;
+
+	gpointer	dbus_con;
+	gpointer	hal_con;
+
+	gboolean	reindex;
 
 	/* config options */
 	GSList 		*watch_directory_roots_list;
@@ -214,9 +220,7 @@ typedef struct {
 
 	guint32		watch_limit;
 
-	gboolean	shutdown;
-	gboolean	paused;
-	gboolean	battery_paused;
+
 
 	/* controls how much to output to screen/log file */
 	int		verbosity;
@@ -241,14 +245,19 @@ typedef struct {
 	int		optimization_count;   /* no of updates or inserts to be performed before optimizing hashtable */
 	int		throttle;
 	int		default_throttle;
-	int		battery_throttle;
 	gboolean	use_extra_memory;
 	int		initial_sleep;
 	int		max_words_to_index;
 	int 		memory_limit;
-	gboolean	battery_checking;
 
-	/* indexing options */
+	/* HAL battery */
+	char		*battery_udi;
+
+	/* pause/shutdown vars */
+	gboolean	shutdown;
+	gboolean	pause_manual;
+	gboolean	pause_battery;
+	gboolean	pause_io;
 
 	/* indexing options */
 	int	 	max_index_bucket_count;
@@ -260,7 +269,6 @@ typedef struct {
 	gpointer	file_index;
 	gpointer	file_update_index;
 	gpointer	email_index;
-
 
 	guint32		merge_limit; 		/* size of index in MBs when merging is triggered -1 == no merging*/
 	gboolean	active_file_merge;
@@ -282,7 +290,13 @@ typedef struct {
 	gboolean	first_time_index;
 	gboolean	first_flush;
 	gboolean	do_optimize;
+	
+	time_t		index_time_start;
+	int		folders_count;
+	int		folders_processed;
 
+	const char	*current_uri;
+	
 	gboolean	skip_mount_points;	/* should tracker descend into mounted directories? see Tracker.root_directory_devices */
 	GSList *	root_directory_devices;
 
@@ -292,9 +306,6 @@ typedef struct {
 	gboolean	request_waiting;
 
 	char *		xesam_dir;
-
-	/* battery and ac power status file */
-	char		*battery_state_file;
 
 	/* service directory table - this is used to store a ServiceInfo struct for a directory path - used for determining which service a uri belongs to for things like files, emails, conversations etc*/
 	GHashTable	*service_directory_table;
@@ -614,10 +625,6 @@ void		tracker_free_metadata_field 	(FieldData *field_data);
 
 gboolean	tracker_unlink 			(const char *uri);
 
-char *		tracker_get_battery_state_file 	();
-gboolean	tracker_using_battery 		(void);
-
-
 int 		tracker_get_memory_usage 	(void);
 
 guint32		tracker_file_size 		(const char *name);
@@ -625,5 +632,9 @@ int		tracker_file_open 		(const char *file_name, gboolean readahead);
 void		tracker_file_close 		(int fd, gboolean no_longer_needed);
 
 void		tracker_add_io_grace 		(const char *uri);
+
+char *		tracker_get_status 		();
+
+gboolean	tracker_do_cleanup 		(const gchar *sig_msg);
 
 #endif

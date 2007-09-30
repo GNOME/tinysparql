@@ -44,6 +44,10 @@
 #define TRACKER_METHOD_GET_SERVICES	               	"GetServices"
 #define TRACKER_METHOD_GET_VERSION	               	"GetVersion"
 #define TRACKER_METHOD_GET_STATUS	               	"GetStatus"
+#define TRACKER_METHOD_SET_BOOL_OPTION	               	"SetBoolOption"
+#define TRACKER_METHOD_SET_INT_OPTION	               	"SetIntOption"
+#define TRACKER_METHOD_SHUTDOWN	           	    	"Shutdown"
+#define TRACKER_METHOD_PROMPT_INDEX_SIGNALS           	"PromptIndexSignals"
 
 /* metadata interface */
 #define TRACKER_METHOD_METADATA_GET                  	"Get"
@@ -95,15 +99,9 @@
 
 
 /* signals */
-#define TRACKER_SIGNAL_METADATA_CHANGED			"Changed"
-#define TRACKER_SIGNAL_KEYWORD_CHANGED			"Changed"
-#define TRACKER_SIGNAL_FILE_CREATED			"Created"
-#define TRACKER_SIGNAL_FILE_DELETED			"FileDeleted"
-#define TRACKER_SIGNAL_DIRECTORY_DELETED		"DirectoryDeleted"
-#define TRACKER_SIGNAL_FILE_MOVED			"Moved"
-#define TRACKER_SIGNAL_FILE_EDITED			"Edited"
-#define TRACKER_SIGNAL_FILE_THUMBNAIL_CHANGED		"ThumbnailChanged"
-
+#define TRACKER_SIGNAL_INDEX_STATUS_CHANGE			"IndexStateChange"
+#define TRACKER_SIGNAL_INDEX_FINISHED				"IndexFinished"
+#define TRACKER_SIGNAL_INDEX_PROGRESS				"IndexProgress"
 
 typedef enum {
 
@@ -114,6 +112,11 @@ typedef enum {
 	DBUS_ACTION_GET_STATS,
 	DBUS_ACTION_GET_VERSION,
 	DBUS_ACTION_GET_STATUS,
+
+	DBUS_ACTION_SET_BOOL_OPTION,
+	DBUS_ACTION_SET_INT_OPTION,
+	DBUS_ACTION_SHUTDOWN,
+	DBUS_ACTION_PROMPT_INDEX_SIGNALS,
 
 	DBUS_ACTION_METADATA_GET,
 	DBUS_ACTION_METADATA_SET,
@@ -169,7 +172,13 @@ typedef struct {
 } DBusRec;
 
 
-DBusConnection*  	tracker_dbus_init    	(void);
-void              	tracker_dbus_shutdown   (DBusConnection *conn);
+DBusConnection*  	tracker_dbus_init    				(void);
+void              	tracker_dbus_shutdown   			(DBusConnection *conn);
+void			tracker_dbus_send_index_status_change_signal 	();
+void			tracker_dbus_send_index_finished_signal 	();
+void			tracker_dbus_send_index_progress_signal 	(const char *uri);
+
+
+
 
 #endif

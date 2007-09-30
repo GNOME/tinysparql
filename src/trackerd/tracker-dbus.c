@@ -96,6 +96,149 @@ tracker_dbus_shutdown (DBusConnection *conn)
 	dbus_connection_unref (conn);
 }
 
+
+void
+tracker_dbus_send_index_status_change_signal ()
+{
+	DBusMessage *msg;
+	dbus_uint32_t serial = 0;
+	char *status = tracker_get_status ();
+
+	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_STATUS_CHANGE);
+				
+	if (!msg || !tracker->dbus_con) {
+		return;
+    	}
+
+	/*
+		<signal name="IndexStateChange">
+			<arg type="s" name="state" />
+			<arg type="b" name="initial_index" />
+ 			<arg type="b" name="is_manual_paused" />
+                        <arg type="b" name="is_battery_paused" />
+                        <arg type="b" name="is_io_paused" />
+		</signal>
+	*/
+
+	dbus_message_append_args (msg, 
+				  DBUS_TYPE_STRING, &status,
+				  DBUS_TYPE_BOOLEAN, &tracker->first_time_index,
+				  DBUS_TYPE_BOOLEAN, &tracker->pause_manual,
+				  DBUS_TYPE_BOOLEAN, &tracker->pause_battery,
+				  DBUS_TYPE_BOOLEAN, &tracker->pause_io,
+				  DBUS_TYPE_INVALID);
+
+	g_free (status);
+
+	dbus_message_set_no_reply (msg, TRUE);
+
+	if (!dbus_connection_send (tracker->dbus_con, msg, &serial)) {
+		tracker_error ("Raising the index status changed signal failed");
+		return;
+	}
+
+	dbus_connection_flush (tracker->dbus_con);
+
+    	dbus_message_unref (msg);
+  
+
+}
+
+void
+tracker_dbus_send_index_progress_signal (const char *uri)
+{
+	DBusMessage *msg;
+	dbus_uint32_t serial = 0;
+
+	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_PROGRESS);
+				
+	if (!msg || !tracker->dbus_con) {
+		return;
+    	}
+
+	char *service = "Files";
+
+	if (tracker->index_status == INDEX_EMAILS) {
+		service = "Emails";
+	}
+
+	
+	/*
+	
+		<signal name="IndexProgress">
+			<arg type="s" name="service"/>
+			<arg type="s" name="current_uri" />
+			<arg type="i" name="index_count"/>
+			<arg type="i" name="folders_processed"/>
+			<arg type="i" name="folders_total"/>
+		</signal>
+	*/
+
+	dbus_message_append_args (msg, 
+				  DBUS_TYPE_STRING, &service,
+				  DBUS_TYPE_STRING, &uri,
+				  DBUS_TYPE_INT32, &tracker->index_count,
+				  DBUS_TYPE_INT32, &tracker->folders_processed,
+				  DBUS_TYPE_INT32, &tracker->folders_count,	
+				  DBUS_TYPE_INVALID);
+
+	dbus_message_set_no_reply (msg, TRUE);
+
+	if (!dbus_connection_send (tracker->dbus_con, msg, &serial)) {
+		tracker_error ("Raising the index status changed signal failed");
+		return;
+	}
+
+	dbus_connection_flush (tracker->dbus_con);
+
+    	dbus_message_unref (msg);
+  
+
+}
+
+
+
+
+
+
+void
+tracker_dbus_send_index_finished_signal ()
+{
+	DBusMessage *msg;
+	dbus_uint32_t serial = 0;
+	int i =  time (NULL) - tracker->index_time_start;
+
+	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_FINISHED);
+				
+	if (!msg || !tracker->dbus_con) {
+		return;
+    	}
+
+	/*
+		<signal name="IndexFinished">
+			<arg type="i" name="time_taken"/>
+		</signal>
+	*/
+
+	dbus_message_append_args (msg,
+				  DBUS_TYPE_INT32, &i,
+				  DBUS_TYPE_INVALID);
+
+	dbus_message_set_no_reply (msg, TRUE);
+
+	if (!dbus_connection_send (tracker->dbus_con, msg, &serial)) {
+		tracker_error ("Raising the index status changed signal failed");
+		return;
+	}
+
+	dbus_connection_flush (tracker->dbus_con);
+
+    	dbus_message_unref (msg);
+  
+
+}
+
+
 static void
 unregistered_func (DBusConnection *conn,
 		   gpointer        data)
@@ -151,6 +294,27 @@ message_func (DBusConnection *conn,
                 dbus_message_ref (message);
                 rec->action = DBUS_ACTION_GET_STATUS;
 
+
+        } else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_SET_BOOL_OPTION)) {
+
+                dbus_message_ref (message);
+                rec->action = DBUS_ACTION_SET_BOOL_OPTION;
+
+
+        } else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_SET_INT_OPTION)) {
+
+                dbus_message_ref (message);
+                rec->action = DBUS_ACTION_SET_INT_OPTION;
+
+        } else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_SHUTDOWN)) {
+
+                dbus_message_ref (message);
+                rec->action = DBUS_ACTION_SHUTDOWN;
+
+        } else if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_PROMPT_INDEX_SIGNALS)) {
+
+                dbus_message_ref (message);
+                rec->action = DBUS_ACTION_PROMPT_INDEX_SIGNALS;
 
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_GET)) {
 

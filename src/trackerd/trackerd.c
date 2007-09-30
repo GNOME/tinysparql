@@ -57,6 +57,10 @@
 #   endif
 #endif
 
+#ifdef HAVE_HAL
+#include <dbus/dbus-glib-lowlevel.h>
+#include <libhal.h>
+#endif
 
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
@@ -87,10 +91,6 @@ Tracker		       *tracker;
 DBConnection	       *main_thread_db_con;
 DBConnection	       *main_thread_cache_con;
 
-
-
-
-static DBusConnection  *main_connection;
 
 /*
  *   The workflow to process files and notified file change events are as follows:
@@ -215,10 +215,80 @@ set_update_count (DBConnection *db_con, gint count)
 }
 
 
+#ifdef HAVE_HAL
+
+static void
+property_callback (LibHalContext *ctx, const char *udi, const char *key,
+                   dbus_bool_t is_removed, dbus_bool_t is_added)
+{
+
+	gboolean current_state = tracker->on_battery;
+
+	if (strcmp (udi, tracker->battery_udi) == 0) {
+
+		tracker->on_battery = libhal_device_get_property_bool (ctx, tracker->battery_udi, key, NULL);
+		
+		char *bat_state[2] = {"off","on"};
+		tracker_log ("Battery power is now %s", bat_state[tracker->on_battery]);
+
+	} else {
+		return;
+	}
+
+	/* if we have come off battery power wakeup index thread */
+	if (current_state && !tracker->on_battery) {
+		tracker_notify_file_data_available ();
+	}
+
+}
 
 
-static gboolean
-do_cleanup (const gchar *sig_msg)
+LibHalContext *
+tracker_hal_init ()
+{
+	LibHalContext *ctx;
+  	char **devices;
+  	int i, num;
+
+	ctx = libhal_ctx_new();
+		
+	if (!ctx) return NULL;
+
+  	libhal_ctx_set_device_property_modified (ctx, property_callback);
+
+  	libhal_ctx_set_dbus_connection (ctx, connection);
+
+	if (libhal_ctx_init (ctx, &error) == 0) {
+		
+	 	libhal_ctx_free (ctx);
+		return NULL;
+	}
+  
+  	devices = libhal_find_device_by_capability (ctx, "ac_adapter", &num, &error);
+
+  	if (!devices || !devices[0]) {
+		tracker->has_battery = FALSE;
+		tracker->on_battery = FALSE;
+		tracker->battery_udi = NULL;
+		return ctx;
+	}
+  
+	/* there should only be one ac-adaptor so use first one */
+	tracker->battery_udi = devices[i];
+
+	tracker->on_battery = libhal_device_get_property_bool (ctx, tracker->battery_udi, key, NULL);
+
+  	dbus_free_string_array (devices);
+
+  	return ctx;
+
+}
+
+#endif /* HAVE_HAL */
+
+
+gboolean
+tracker_do_cleanup (const gchar *sig_msg)
 {
 	tracker->status = STATUS_SHUTDOWN;
 
@@ -292,6 +362,11 @@ do_cleanup (const gchar *sig_msg)
 
 	/* This must be called after all other db functions */
 	tracker_db_finalize ();
+
+	if (tracker->reindex) {
+		tracker_remove_dirs (tracker->data_dir);
+		g_mkdir_with_parents (tracker->data_dir, 00755);
+	}
 
 	if (tracker->log_file) {
 		tracker_debug ("shutting down main thread");
@@ -512,7 +587,7 @@ signal_handler (gint signo)
 
 			g_timeout_add_full (G_PRIORITY_LOW,
 			     		    1,
-		 	    		    (GSourceFunc) do_cleanup,
+		 	    		    (GSourceFunc) tracker_do_cleanup,
 			     		    g_strdup (g_strsignal (signo)), NULL
 			   		    );
 
@@ -526,7 +601,7 @@ signal_handler (gint signo)
 
 			g_timeout_add_full (G_PRIORITY_LOW,
 			     		    1,
-		 	    		    (GSourceFunc) do_cleanup,
+		 	    		    (GSourceFunc) tracker_do_cleanup,
 			     		    g_strdup (g_strsignal (signo)), NULL
 			   		    );
 
@@ -541,17 +616,6 @@ signal_handler (gint signo)
   	}
 }
 
-
-static gboolean
-check_battery (gpointer p)
-{
-	tracker->battery_paused = tracker_using_battery ();
-
-	tracker->battery_checking = (tracker->status != STATUS_IDLE);
-
-	return tracker->battery_checking;
-
-}
 
 
 static void
@@ -647,6 +711,8 @@ check_directory (const gchar *uri)
 	g_slist_free (file_list);
 
 	queue_file (uri);
+
+	tracker->folders_processed++;
 }
 
 
@@ -878,13 +944,8 @@ process_files_thread (void)
 	moved_from_list = NULL;
 
 	tracker_log ("starting indexing...");
-	tracker->status = STATUS_INDEXING;
 
-	if (tracker->battery_state_file) {
-		tracker->battery_checking = TRUE;
-		g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
-	}
-
+	tracker->index_time_start = time (NULL);
 
 	while (TRUE) {
 		FileInfo *info;
@@ -892,50 +953,19 @@ process_files_thread (void)
 
 		need_index = FALSE;
 
-		tracker->status = STATUS_INDEXING;
-
 		db_con = tracker->index_db;
 
-		LoopEvent event = tracker_cache_event_check (db_con, TRUE);
-
-		if (event==EVENT_SHUTDOWN || event==EVENT_DISABLE) {
-
-			tracker_db_end_index_transaction (db_con);
-			tracker_cache_flush_all (FALSE);
-
-			tracker->status = STATUS_IDLE;
-
-			/* make thread sleep if first part of the shutdown process has been activated */
-			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
-
-			/* determine if wake up call is new stuff or a shutdown signal */
-			if (!tracker->shutdown) {
-				
-				if (tracker->battery_state_file && !tracker->battery_checking) {
-					tracker->battery_checking = TRUE;
-					g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
-				}
-
-				tracker_db_start_index_transaction (db_con);
-
-				continue;
-			} else {
-			
-				if (tracker->dir_list) {
-					g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
-					g_slist_free (tracker->dir_list);
-					tracker->dir_list = NULL;
-				}
-				break;
-			}
-
-		} else if (event == EVENT_CACHE_FLUSHED) {
-			
-			tracker_db_refresh_all (db_con);
-			tracker_db_start_index_transaction (db_con);		
-
+		if (!tracker_cache_process_events (db_con, TRUE) ) {
+			tracker->status = STATUS_SHUTDOWN;
+			tracker_dbus_send_index_status_change_signal ();
+			break;	
 		}
 
+		if (tracker->status != STATUS_INDEXING) {
+			tracker->status = STATUS_INDEXING;
+			tracker_dbus_send_index_status_change_signal ();
+		}
+				
 		info = g_async_queue_try_pop (tracker->file_process_queue);
 
 		/* check pending table if we haven't got anything */
@@ -956,10 +986,12 @@ process_files_thread (void)
 
 				if (g_async_queue_length (tracker->dir_queue) > 0) {
 
+					
+
 					gchar *uri = g_async_queue_try_pop (tracker->dir_queue);
 
 					if (uri) {
-
+						
 						check_directory (uri);
 
 						g_free (uri);
@@ -1007,15 +1039,31 @@ process_files_thread (void)
 
 						case INDEX_FILES: {
 
+
 								/* sleep for N secs before watching/indexing any of the major services */
-								if (tracker->initial_sleep > 0) {
-									tracker_log ("Sleeping for %d secs...", tracker->initial_sleep);
-									g_usleep (tracker->initial_sleep * 1000 * 1000);
+								tracker_log ("Sleeping for %d secs...", tracker->initial_sleep);
+								tracker->pause_io = TRUE;
+								tracker_dbus_send_index_status_change_signal ();
+								tracker_db_end_index_transaction (db_con);
+								
+								while (tracker->initial_sleep > 0) {
+									g_usleep (1000 * 1000);
+
+									tracker->initial_sleep --;
+
+									if (!tracker->is_running || tracker->shutdown) {
+										break;
+									}
+													
 								}
+								tracker->pause_io = FALSE;
+								tracker_dbus_send_index_status_change_signal ();
 
 								tracker_log ("Starting file indexing...");
 								tracker->dir_list = NULL;
 
+								tracker_db_start_index_transaction (db_con);
+								
 								/* delete all stuff in the no watch dirs */
 
 								if (tracker->no_watch_directory_list) {
@@ -1064,6 +1112,9 @@ process_files_thread (void)
 								}
 
 								tracker_db_end_transaction (db_con->cache);
+
+								tracker_dbus_send_index_progress_signal ("");
+			
 							}
 							break;
 
@@ -1106,8 +1157,7 @@ process_files_thread (void)
 								gboolean has_logs = FALSE;
 								GSList   *list    = NULL;
 
-								
-
+		
 								gaim = g_build_filename (g_get_home_dir(), ".gaim", "logs", NULL);
 								purple = g_build_filename (g_get_home_dir(), ".purple", "logs", NULL);
 
@@ -1153,8 +1203,14 @@ process_files_thread (void)
 
 						case INDEX_EMAILS:  {
 
+								tracker->index_status = INDEX_FILES;
+								tracker_dbus_send_index_progress_signal ("");
+								tracker->folders_count = 0;
+								tracker->folders_processed = 0;
+								tracker->index_status = INDEX_EMAILS;
+
 								tracker_db_end_index_transaction (db_con);
-								tracker_cache_flush_all (FALSE);
+								tracker_cache_flush_all ();
 								tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
 
 								if (tracker->word_update_count > 0) {
@@ -1212,7 +1268,7 @@ process_files_thread (void)
 
 				tracker_db_end_index_transaction (db_con);
 
-				tracker_cache_flush_all (FALSE);
+				tracker_cache_flush_all ();
 
 				tracker_db_refresh_all (db_con);
 
@@ -1224,12 +1280,19 @@ process_files_thread (void)
 
 				tracker_indexer_merge_indexes (INDEX_TYPE_EMAILS);
 
+				tracker->index_status = INDEX_FILES;
+				tracker_dbus_send_index_progress_signal ("");
+				tracker->index_status = INDEX_FINISHED;
+
 				if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
 
 					tracker->status = STATUS_OPTIMIZING;
 					
 					tracker->do_optimize = FALSE;
 					tracker->first_time_index = FALSE;
+					
+					tracker_dbus_send_index_finished_signal ();
+
 					tracker->update_count = 0;
 
 					tracker_log ("Updating database stats...please wait...");
@@ -1248,6 +1311,7 @@ process_files_thread (void)
 				/* we have no stuff to process so sleep until awoken by a new signal */
 
 				tracker->status = STATUS_IDLE;
+				tracker_dbus_send_index_status_change_signal ();
 
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				g_mutex_unlock (tracker->files_check_mutex);
@@ -1257,12 +1321,8 @@ process_files_thread (void)
 
 				/* determine if wake up call is new stuff or a shutdown signal */
 				if (!tracker->shutdown) {
-					if (tracker->battery_state_file && !tracker->battery_checking) {
-						tracker->battery_checking = TRUE;
-						g_timeout_add (2000, (GSourceFunc) check_battery, NULL);		
-					}
-
 					tracker_db_start_index_transaction (db_con);
+					continue;
 				} else {
 					break;
 				}
@@ -1422,6 +1482,7 @@ process_files_thread (void)
 
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
+					tracker->folders_count++;
 				}
 				need_index = FALSE;
 
@@ -1431,7 +1492,7 @@ process_files_thread (void)
 
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
-
+					tracker->folders_count++;
 					if (info->indextime > 0) {
 						check_dir_for_deletions (db_con, info->uri);
 					}
@@ -1468,6 +1529,8 @@ process_files_thread (void)
 			if (tracker_db_regulate_transactions (db_con, 100)) {
 				if (tracker->verbosity == 1) {
 					tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
+					tracker_dbus_send_index_progress_signal (info->uri);
+					
 				}
 			}
 
@@ -1587,15 +1650,31 @@ process_user_request_queue_thread (void)
 
                         case DBUS_ACTION_GET_STATUS:
 
-                                reply = dbus_message_new_method_return (rec->message);
-                                gchar *tracker_status[] = {"Initializing","Watching","Indexing","Pending","Optimizing","Idle","Shutdown"};
-                         
-                                gchar* status = tracker_status[tracker->status];
-                                dbus_message_append_args (reply,
-                                                          DBUS_TYPE_STRING, &status,
-                                                          DBUS_TYPE_INVALID);
-                                dbus_connection_send (rec->connection, reply, NULL);
-                                dbus_message_unref (reply);
+				tracker_dbus_method_get_status (rec);
+
+                                break;
+
+                        case DBUS_ACTION_SET_BOOL_OPTION:
+
+				tracker_dbus_method_set_bool_option (rec);
+
+                                break;
+
+                        case DBUS_ACTION_SET_INT_OPTION:
+
+				tracker_dbus_method_set_int_option (rec);
+
+                                break;
+
+                        case DBUS_ACTION_SHUTDOWN:
+
+				tracker_dbus_method_shutdown (rec);
+
+                                break;
+
+                        case DBUS_ACTION_PROMPT_INDEX_SIGNALS:
+
+				tracker_dbus_method_prompt_index_signals (rec);
 
                                 break;
 
@@ -1892,7 +1971,7 @@ local_dbus_connection_monitoring_message_func (DBusConnection *connection, DBusM
 
 		tracker->is_running = FALSE;
 		tracker_end_watching ();
-		do_cleanup ("DBus connection lost");
+		tracker_do_cleanup ("DBus connection lost");
 	}
 
 	return DBUS_HANDLER_RESULT_HANDLED;
@@ -1926,12 +2005,15 @@ set_defaults (void)
 {
 	tracker->grace_period = 0;
 
+	tracker->reindex = FALSE;
+
 	tracker->merge_limit = MERGE_LIMIT;
 
 	tracker->index_status = INDEX_CONFIG;
 
-	tracker->paused = FALSE;
-	tracker->battery_paused = FALSE;
+	tracker->pause_manual = FALSE;
+	tracker->pause_battery = FALSE;
+	tracker->pause_io = FALSE;
 
 	tracker->watch_directory_roots_list = NULL;
 	tracker->no_watch_directory_list = NULL;
@@ -1988,8 +2070,6 @@ set_defaults (void)
 	tracker->skip_mount_points = FALSE;
 	tracker->root_directory_devices = NULL;
 
-	/* battery and ac power checks */
-	tracker->battery_state_file = tracker_get_battery_state_file ();
 
 }
 
@@ -2503,15 +2583,21 @@ main (gint argc, gchar *argv[])
 
 	tracker->user_request_thread =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
 
-	main_connection = tracker_dbus_init ();
-
-	add_local_dbus_connection_monitoring (main_connection);
+	tracker->battery_udi = NULL;
+	tracker->dbus_con = tracker_dbus_init ();
+	
+	add_local_dbus_connection_monitoring (tracker->dbus_con);
 
 	if (!tracker_start_watching ()) {
 		tracker_error ("ERROR: file monitoring failed to start");
-		do_cleanup ("File watching failure");
+		tracker_do_cleanup ("File watching failure");
 		exit (1);
 	}
+
+	
+#ifdef HAVE_HAL
+	tracker->hal_con = tracker_hal_init ();
+#endif
 
 	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
 	

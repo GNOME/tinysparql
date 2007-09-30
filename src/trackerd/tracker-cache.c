@@ -22,7 +22,9 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include "tracker-utils.h"
+#include "tracker-dbus.h"
 #include "tracker-cache.h"
+
 
 #define USE_SLICE
 
@@ -134,7 +136,7 @@ flush_all_email_words ( gpointer         key,
 }
 
 void
-tracker_cache_flush_all (gboolean cache_full)
+tracker_cache_flush_all ()
 {
 	IndexConnection index_con;
 	gboolean using_file_tmp = FALSE, using_email_tmp = FALSE;
@@ -288,33 +290,49 @@ tracker_cache_add (const gchar *word, guint32 service_id, gint service_type, gin
 
 }
 
-LoopEvent
-tracker_cache_event_check (DBConnection *db_con, gboolean check_flush) 
+gboolean
+tracker_cache_process_events (DBConnection *db_con, gboolean check_flush) 
 {
 	gboolean stopped_trans = FALSE;
-
+	
 	while (TRUE) {
 
-		if (!tracker->is_running) return EVENT_SHUTDOWN;
+		gboolean sleep = FALSE;
 
-		if (!tracker->enable_indexing) return EVENT_DISABLE;
+		if (!tracker->is_running || !tracker->enable_indexing) {
+			if (check_flush) tracker_cache_flush_all ();
+			sleep = TRUE;
+		}
 				
-		if (tracker->paused || tracker->battery_paused) {
+		if (tracker->pause_manual || tracker->pause_battery) {
 			if (tracker->index_status > INDEX_APPLICATIONS) {
 				
 				if (db_con) {
-					tracker_db_end_index_transaction (db_con);
 					stopped_trans = TRUE;
 				}
 
-				g_usleep (1000 * 1000);
-
-				tracker->battery_paused = tracker_using_battery ();
-
-				continue;
+				sleep = TRUE;
 			}
 		}
 
+		if (sleep) {
+
+			if (db_con) tracker_db_end_index_transaction (db_con);	
+
+			tracker_dbus_send_index_status_change_signal ();
+
+			g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
+
+			/* determine if wake up call is a shutdown signal */
+			if (tracker->shutdown) {
+				if (check_flush) tracker_cache_flush_all ();
+				return FALSE;				
+			} else {
+				continue;
+			}
+				
+		}
+		
 		if (tracker->grace_period > 1) {
 
 			tracker_log ("pausing indexing while client requests or external disk I/O are taking place");
@@ -325,6 +343,10 @@ tracker_cache_event_check (DBConnection *db_con, gboolean check_flush)
 				tracker_db_end_index_transaction (db_con);
 				stopped_trans = TRUE;
 			}
+
+			tracker->pause_io = TRUE;
+
+			tracker_dbus_send_index_status_change_signal ();
 		
 			g_usleep (1000 * 1000);
 		
@@ -334,17 +356,21 @@ tracker_cache_event_check (DBConnection *db_con, gboolean check_flush)
 
 			continue;
 
-		} 
+		} else {
+			tracker->pause_io = FALSE;
+		}
 
-		if (cache_needs_flush ()) {
+
+		if (check_flush && cache_needs_flush ()) {
 
 			if (db_con) {
 				tracker_db_end_index_transaction (db_con);
+				tracker_db_refresh_all (db_con->data);
+				stopped_trans = TRUE;
 			}
 
-			tracker_cache_flush_all (TRUE);
+			tracker_cache_flush_all ();
 
-			return EVENT_CACHE_FLUSHED;
 		}
 
 		
@@ -352,7 +378,7 @@ tracker_cache_event_check (DBConnection *db_con, gboolean check_flush)
 
 		tracker_throttle (1000);
 
-		return EVENT_NOTHING;
+		return TRUE;
 
 	}	
 
