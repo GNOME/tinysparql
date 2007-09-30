@@ -7,7 +7,7 @@
 #include "tm-tray-icon.h"
 #include "tm-tray-icon-private.h"
 
-/* transalatable strings */
+/* translatable strings */
 
 static char *files;
 static char *folders;
@@ -38,7 +38,7 @@ static char *end_index_msg;
 
 
 static void
-set_translatable_strings ()
+set_translatable_strings (void)
 {
 	files = _("Files");
 	folders = _("Folders");
@@ -70,15 +70,13 @@ set_translatable_strings ()
 }
 
 
-
-
 static void
-tray_icon_class_init(TrayIconClass *klass)
+tray_icon_class_init (TrayIconClass *klass)
 {
 	GParamSpec *spec = NULL;
 	GObjectClass *g_class = G_OBJECT_CLASS(klass);
 
-	g_type_class_add_private(klass, sizeof(TrayIconPrivate));
+	g_type_class_add_private (klass, sizeof(TrayIconPrivate));
 
 	/* Methods */
 	klass->set_tooltip = _set_tooltip;
@@ -86,11 +84,11 @@ tray_icon_class_init(TrayIconClass *klass)
 	g_class->set_property = tray_icon_set_property;
 
 	/* Properties */
-	spec = g_param_spec_object("connection", NULL, NULL,
+	spec = g_param_spec_object ("connection", NULL, NULL,
 				    TYPE_TRACKERD_CONNECTION,
 				    G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE);
 
-	g_object_class_install_property(g_class, PROP_TRACKERD_CONNECTION, spec);
+	g_object_class_install_property (g_class, PROP_TRACKERD_CONNECTION, spec);
 }
 
 
@@ -107,57 +105,54 @@ search_menu_activated (GtkMenuItem *item, gpointer data)
 static void
 create_context_menu (TrayIcon *icon)
 {
-
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
 
 	GtkWidget *item = NULL, *image = NULL;
 	priv->menu = (GtkMenu *)gtk_menu_new();
 
-	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic("_Pause indexing");
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), FALSE);
-	g_signal_connect(G_OBJECT(item), "toggled", G_CALLBACK(active_menu_toggled), icon);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu), item);
-
-	item = gtk_separator_menu_item_new();
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu), item);
-
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic("_Search...");
-	image = gtk_image_new_from_icon_name(GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(search_menu_activated), icon);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu), item);
-
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic("Pre_ferences...");
-	image = gtk_image_new_from_icon_name(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(preferences_menu_activated), icon);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu), item);
-
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic("S_tatistics...");
-	image = gtk_image_new_from_icon_name(GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(statistics_menu_activated), icon);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu), item);
-
-
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic("_Re-index system");
-	image = gtk_image_new_from_icon_name(GTK_STOCK_REFRESH, GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(preferences_menu_activated), icon);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu), item);
+	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic ("_Pause indexing");
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM (item), FALSE);
+	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (active_menu_toggled), icon);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
 	item = gtk_separator_menu_item_new ();
-	gtk_menu_shell_append (GTK_MENU_SHELL(priv->menu), item);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic("_Quit");
-	image = gtk_image_new_from_icon_name(GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-	g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(quit_menu_activated), icon);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu), item);
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("_Search...");
+	image = gtk_image_new_from_icon_name (GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(item), image);
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (search_menu_activated), icon);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	gtk_widget_show_all (GTK_WIDGET(priv->menu));
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("Pre_ferences...");
+	image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (preferences_menu_activated), icon);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("S_tatistics...");
+	image = gtk_image_new_from_icon_name (GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (statistics_menu_activated), icon);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
+
+
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("_Re-index system");
+	image = gtk_image_new_from_icon_name (GTK_STOCK_REFRESH, GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (preferences_menu_activated), icon);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
+
+	item = gtk_separator_menu_item_new ();
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
+
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("_Quit");
+	image = gtk_image_new_from_icon_name (GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (quit_menu_activated), icon);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
+
+	gtk_widget_show_all (GTK_WIDGET (priv->menu));
 }
 
 
@@ -172,10 +167,10 @@ hide_window_cb (GtkWidget *widget, GdkEventFocus *event, gpointer data)
 	return FALSE;
 }
 
+
 static gboolean
 search_cb (GtkWidget *entry,  GdkEventKey *event, gpointer data)
 {
-
 	if (event->keyval != GDK_Return) return FALSE;
 
 	const char *text = gtk_entry_get_text (GTK_ENTRY (entry));
@@ -209,8 +204,8 @@ create_window (TrayIcon *icon)
 	gtk_window_set_skip_taskbar_hint (priv->window, TRUE);
 
  	g_signal_connect (priv->window, "focus-out-event",
-        	            G_CALLBACK (hide_window_cb),
-        	            icon);
+                          G_CALLBACK (hide_window_cb),
+                          icon);
 
 	GtkWidget *frame = gtk_frame_new (NULL);
 	gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_OUT);
@@ -231,16 +226,16 @@ create_window (TrayIcon *icon)
   	label = gtk_label_new (_("Search:"));
   	gtk_widget_show (label);
   	gtk_table_attach (GTK_TABLE (table), label, 0, 1, 0, 1,
-        	         (GtkAttachOptions) (GTK_FILL),
-                         (GtkAttachOptions) (0), 0, 0);
+                          GTK_FILL,
+                          (GtkAttachOptions) (0), 0, 0);
   	gtk_misc_set_alignment (GTK_MISC (label), 0, 0.5);
 
 	priv->search_entry = gtk_entry_new ();
 	gtk_widget_show (priv->search_entry);
 	gtk_entry_set_activates_default (GTK_ENTRY (priv->search_entry), TRUE);
 	gtk_table_attach (GTK_TABLE (table), priv->search_entry, 1, 2, 0, 1,
-                         (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                         (GtkAttachOptions) (0), 0, 0);
+                          (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                          (GtkAttachOptions) (0), 0, 0);
   
 	g_signal_connect (priv->search_entry, "key-press-event",
         	            G_CALLBACK (search_cb),
@@ -259,8 +254,7 @@ create_window (TrayIcon *icon)
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_widget_show (hbox);
   	gtk_table_attach (GTK_TABLE (table), hbox, 1, 2, 1, 2,
-                         (GtkAttachOptions) (GTK_FILL),
-                         (GtkAttachOptions) (GTK_FILL), 0, 0);
+                          GTK_FILL, GTK_FILL, 0, 0);
 
 	priv->status_label = gtk_label_new ("Indexing files");
 	gtk_widget_show (priv->status_label);
@@ -282,8 +276,6 @@ create_window (TrayIcon *icon)
                     	 (GtkAttachOptions) (0), 0, 0);
   	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->progress_bar), 0.35);
   	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), _("Files - 256/841 folders"));
-
-
 }
 
 
@@ -370,9 +362,6 @@ show_window (GtkStatusIcon *icon, gpointer data)
 	gtk_widget_show_all (GTK_WIDGET (priv->window));
 
 	gtk_window_activate_default  (priv->window);
-
-	
-	
 }
 
 
@@ -395,8 +384,8 @@ tray_icon_init (GTypeInstance *instance, gpointer g_class)
 
 	/* build context menu */
 	create_context_menu (self);
-
 }
+
 
 static void
 tray_icon_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
@@ -414,6 +403,7 @@ tray_icon_set_property (GObject *object, guint property_id, const GValue *value,
 	}
 }
 
+
 void
 tray_icon_set_tooltip (TrayIcon *icon, const gchar *format, ...)
 {
@@ -428,6 +418,7 @@ tray_icon_set_tooltip (TrayIcon *icon, const gchar *format, ...)
 
 	g_free(tooltip);
 }
+
 
 void 
 tray_icon_show_message (TrayIcon *icon, const char *msg)
@@ -445,7 +436,6 @@ tray_icon_show_message (TrayIcon *icon, const char *msg)
 	notify_notification_show (notification, NULL);
 
 	g_object_unref (notification);
-
 }
 
 
@@ -472,33 +462,35 @@ tray_icon_clicked (GtkStatusIcon *icon, guint button, guint timestamp, gpointer 
 	gtk_menu_popup (GTK_MENU (priv->menu), NULL, NULL, gtk_status_icon_position_menu, icon, button, timestamp);
 }
 
+
 static void
 active_menu_toggled (GtkCheckMenuItem *item, gpointer data)
 {
-	TrayIcon *self = TRAY_ICON(data);
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE(self);
+	TrayIcon *self = TRAY_ICON (data);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
 
-	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
-		trackerd_connection_start(priv->trackerd);
+	if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM(item)))
+		trackerd_connection_start (priv->trackerd);
 	else
-		trackerd_connection_stop(priv->trackerd);
+		trackerd_connection_stop (priv->trackerd);
 }
+
 
 static void
 preferences_menu_activated (GtkMenuItem *item, gpointer data)
 {
 	const gchar *command = "tracker-preferences";
 
-	if (!g_spawn_command_line_async(command, NULL))
-		g_warning("Unable to execute command: %s", command);
+	if (!g_spawn_command_line_async (command, NULL))
+		g_warning ("Unable to execute command: %s", command);
 }
 
 
-static char *
-get_stat_value (char ***stat_array, const char *stat) 
+static gchar *
+get_stat_value (gchar ***stat_array, const gchar *stat) 
 {
-	char **array;
-	int i=0;
+	gchar **array;
+	gint i = 0;
 
 	while (stat_array[i][0]) {
 
@@ -512,7 +504,6 @@ get_stat_value (char ***stat_array, const char *stat)
 	}
 
 	return NULL;
-
 }
 
 
@@ -522,21 +513,21 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 	TrayIcon *self = TRAY_ICON (data);
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
 
-	GtkWidget * dialog;
+	GtkWidget *dialog = gtk_dialog_new_with_buttons (_("Statistics"),
+                                                         GTK_WINDOW (priv->window),
+                                                         GTK_DIALOG_NO_SEPARATOR | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                         GTK_STOCK_CLOSE,
+                                                         GTK_RESPONSE_CLOSE,
+                                                         NULL);
 
-	dialog = gtk_message_dialog_new (GTK_WINDOW (priv->window),
- 	                                 GTK_DIALOG_DESTROY_WITH_PARENT,
-	                                 GTK_MESSAGE_INFO,
-	                                 GTK_BUTTONS_OK,
-	                                 _("Index statistics"));
+        gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
 
 	GPtrArray *array = trackerd_connection_statistics (priv->trackerd);
-
-	if (!array) return;
+	if (!array) {
+                return;
+        }
 
 	guint i = array->len;
-	GString *string = NULL;
-	gchar *statistics = NULL;
 	gchar ***pdata = (gchar ***) array->pdata;
 
 	if (i < 1) {
@@ -544,96 +535,67 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 		return;
 	}
 
-	string = g_string_new ("");
-	
+        GtkWidget *table = gtk_table_new (13, 2, TRUE) ;
+        gtk_table_set_row_spacings (GTK_TABLE (table), 6);
+        gtk_table_set_col_spacings (GTK_TABLE (table), 11);
 
-	char *stat_value;
-
-	stat_value = get_stat_value (pdata, "Files");
-	if (stat_value) {
-		g_string_append_printf (string, "%s\t\t\t\t\t\t%d\n", files, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Folders");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t\t%d\n", folders, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Documents");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t%d\n", docs, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Images");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t\t%d\n", images, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Music");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t\t\t%d\n", music, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Videos");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t\t\t%d\n", videos, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Text");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t\t\t%d\n", text_files, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Development");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t%d\n", dev_files, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Other");
-	if (stat_value) {
-		g_string_append_printf (string, "  %s\t\t\t\t\t\t%d\n", files_other, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Applications");
-	if (stat_value) {
-		g_string_append_printf (string, "%s\t\t\t\t\t%d\n", apps, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Conversations");
-	if (stat_value) {
-		g_string_append_printf (string, "%s\t\t\t\t%d\n", conversations, atoi(stat_value));
-	}
-
-	stat_value = get_stat_value (pdata,"Emails");
-	if (stat_value) {
-		g_string_append_printf (string, "%s\t\t\t\t\t\t%d\n", emails, atoi(stat_value));
-	}
+        GtkWidget *title_label = gtk_label_new (NULL);
+        gtk_label_set_markup (GTK_LABEL (title_label), _("<span weight=\"bold\" size=\"larger\">Index statistics</span>"));
+        gtk_misc_set_alignment (GTK_MISC (title_label), 0, 0);
+        gtk_table_attach_defaults (GTK_TABLE (table), title_label, 0, 2, 0, 1) ;
+        gtk_table_set_row_spacing (GTK_TABLE (table), 0, 20) ;
 
 
-	statistics  = g_string_free (string, FALSE);
+        #define ADD_ENTRY_IN_TABLE(Name, PrintedName, Value, LineNo)                                    \
+          stat_value = get_stat_value (pdata, Name);                                                    \
+          if (stat_value) {                                                                             \
+                GtkWidget *label_to_add = gtk_label_new (PrintedName) ;                                 \
+                gtk_label_set_selectable (GTK_LABEL (label_to_add), TRUE);                              \
+                gtk_misc_set_alignment (GTK_MISC (label_to_add), 0, 0);                                 \
+                gtk_table_attach_defaults (GTK_TABLE (table), label_to_add, 0, 1, LineNo, LineNo + 1) ; \
+                GtkWidget *value_label = gtk_label_new (Value) ;                                        \
+                gtk_label_set_selectable (GTK_LABEL (value_label), TRUE);                               \
+                gtk_misc_set_alignment (GTK_MISC (value_label), 0, 0);                                  \
+                gtk_table_attach_defaults (GTK_TABLE (table), value_label, 1, 2, LineNo, LineNo + 1);   \
+          }
+
+	gchar *stat_value;
+
+        ADD_ENTRY_IN_TABLE ("Files", _("Files:"), stat_value, 1) ;
+        ADD_ENTRY_IN_TABLE ("Folders", _("Folders:"), stat_value, 2);
+        ADD_ENTRY_IN_TABLE ("Documents", _("Documents"), stat_value, 3) ;
+        ADD_ENTRY_IN_TABLE ("Images", _("Images:"), stat_value, 4) ;
+        ADD_ENTRY_IN_TABLE ("Music", _("Music:"), stat_value, 5) ;
+        ADD_ENTRY_IN_TABLE ("Videos", _("Videos:"), stat_value, 6) ;
+        ADD_ENTRY_IN_TABLE ("Text", _("Text:"), stat_value, 7) ;
+        ADD_ENTRY_IN_TABLE ("Development", _("Development:"), stat_value, 8) ;
+        ADD_ENTRY_IN_TABLE ("Other", _("Other:"), stat_value, 9) ;
+        ADD_ENTRY_IN_TABLE ("Applications", _("Applications:"), stat_value, 10) ;
+        ADD_ENTRY_IN_TABLE ("Conversations", _("Conversations:"), stat_value, 11) ;
+        ADD_ENTRY_IN_TABLE ("Emails", _("Emails:"), stat_value, 12) ;
+
+        #undef ADD_ENTRY_IN_TABLE
 	
 	g_ptr_array_free (array, TRUE);
 
-	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-	                                          statistics);
+        GtkWidget *dialog_hbox = gtk_hbox_new (FALSE, 12);
+        GtkWidget *info_icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
+        gtk_misc_set_alignment (GTK_MISC (info_icon), 0, 0);
+        gtk_container_add (GTK_CONTAINER (dialog_hbox), info_icon);
+        gtk_container_add (GTK_CONTAINER (dialog_hbox), table);
 
-	gtk_window_set_title (GTK_WINDOW (dialog), "Statistics");
-	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-	gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 14);
+        gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), dialog_hbox);
 
 	g_signal_connect (G_OBJECT (dialog),
 	                  "response",
-	                   G_CALLBACK (gtk_widget_destroy), NULL);
+                          G_CALLBACK (gtk_widget_destroy), NULL);
 
-	gtk_widget_show (dialog);
-
-
-	g_free (statistics);
+	gtk_widget_show_all (dialog);
 }
 
 
 static void
-quit_menu_activated(GtkMenuItem *item, gpointer data)
+quit_menu_activated (GtkMenuItem *item, gpointer data)
 {
 	gtk_main_quit();
 }
@@ -645,18 +607,18 @@ tray_icon_get_type(void)
 
 	if (type == 0) {
 		static const GTypeInfo info = {
-			sizeof(TrayIconClass),
-			NULL,											 /* base_init */
-			NULL,											 /* base_finalize */
-			(GClassInitFunc)tray_icon_class_init,  /* class_init */
-			NULL,											 /* class_finalize */
-			NULL,											 /* class_data */
-			sizeof(TrayIcon),
-			0,												 /* n_preallocs */
-			tray_icon_init								 /* instance_init */
+			sizeof (TrayIconClass),
+			NULL,                                   /* base_init */
+			NULL,                                   /* base_finalize */
+			(GClassInitFunc) tray_icon_class_init,  /* class_init */
+			NULL,                                   /* class_finalize */
+			NULL,                                   /* class_data */
+			sizeof (TrayIcon),
+			0,                                      /* n_preallocs */
+			tray_icon_init                          /* instance_init */
 		};
 
-		type = g_type_register_static(G_TYPE_OBJECT, "TrayIconType", &info, 0);
+		type = g_type_register_static (G_TYPE_OBJECT, "TrayIconType", &info, 0);
 	}
 
 	return type;

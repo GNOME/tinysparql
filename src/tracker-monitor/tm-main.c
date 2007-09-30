@@ -24,7 +24,7 @@ set_tooltip(void)
 
       g_free(version);
    } else
-      tray_icon_set_tooltip(icon, "tracker search and indexing monitor");
+      tray_icon_set_tooltip(icon, "tracker search and indexing monitor (not connected to trackerd)");
 }
 
 static void
