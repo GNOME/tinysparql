@@ -116,8 +116,9 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 	MailMessage *mail_msg;
 	gint        indexed = 0, junk = 0, deleted = 0;
 
-
-	if (!tracker->is_running) return FALSE; 
+	if (!tracker->is_running) {
+                return FALSE;
+        }
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (path, FALSE);
@@ -170,11 +171,9 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 			break;						
 
-		} else if (event == EVENT_CACHE_FLUSHED) {
-			
+		} else if (event == EVENT_CACHE_FLUSHED) {			
 			tracker_db_end_index_transaction (db_con->data);
-			tracker_db_start_index_transaction (db_con->data);		
-
+			tracker_db_start_index_transaction (db_con->data);
 		}				
 
 		if (tracker_db_regulate_transactions (db_con->data, 500)) {
@@ -189,13 +188,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 //				tracker_db_refresh_email (db_con);
 				tracker_db_start_index_transaction (db_con->data);
 			}
-
-			
-		}	
-
-		
-
-		
+		}		
 	}
 
 	email_free_mail_file (mf);
@@ -738,32 +731,6 @@ email_get_mime_infos_from_mime_file (const gchar *mime_file)
 	g_free (mime_content);
 
 	return mime_infos;
-}
-
-
-void
-email_index_each_email_attachment (DBConnection *db_con, const MailMessage *mail_msg)
-{
-	const GSList *tmp;
-
-        g_return_if_fail (db_con);
-	g_return_if_fail (mail_msg);
-
-	return;
-
-	for (tmp = mail_msg->attachments; tmp; tmp = tmp->next) {
-		const MailAttachment	*ma;
-		FileInfo		*info;
-
-		ma = tmp->data;
-
-		info = tracker_create_file_info (ma->tmp_decoded_file, TRACKER_ACTION_CHECK, 0, WATCH_OTHER);
-		info->is_directory = FALSE;
-		info->mime = g_strdup (ma->mime);
-
-		g_async_queue_push (tracker->file_process_queue, info);
-		tracker_notify_file_data_available ();
-	}
 }
 
 

@@ -163,7 +163,6 @@ MimeInfos *	email_allocate_mime_infos			(void);
 void		email_free_mime_infos				(MimeInfos *infos);
 MimeInfos *	email_get_mime_infos_from_mime_file		(const gchar *mime_file);
 
-void		email_index_each_email_attachment		(DBConnection *db_con, const MailMessage *msg);
 gboolean	email_add_saved_mail_attachment_to_mail_message	(MailMessage *mail_msg, MailAttachment *ma);
 
 gchar *         email_make_tmp_name_for_mail_attachment         (const gchar *filename);

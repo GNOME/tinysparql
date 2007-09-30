@@ -513,7 +513,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
                 attachment_service = g_strdup ("EvolutionAttachments");
 
 	}
-	
+
 	type_id = tracker_get_id_for_service (service);
 	if (type_id == -1) {
 		tracker_error ("ERROR: service %s not found", service);
@@ -722,6 +722,16 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 }
 
 
+gboolean
+tracker_db_email_is_saved_email_file (DBConnection *db_con, const gchar *uri)
+{
+        g_return_val_if_fail (db_con, FALSE);
+        g_return_val_if_fail (uri, FALSE);
+
+        return tracker_db_get_file_id (db_con, uri) != 0 ;
+}
+
+
 void
 tracker_db_email_update_email (DBConnection *db_con, MailMessage *mm)
 {
@@ -734,26 +744,27 @@ tracker_db_email_update_email (DBConnection *db_con, MailMessage *mm)
 }
 
 
-void
+gboolean
 tracker_db_email_delete_emails_of_mbox (DBConnection *db_con, const gchar *mbox_file_path)
 {
-	g_return_if_fail (db_con);
-	g_return_if_fail (mbox_file_path);
+        g_return_val_if_fail (db_con, FALSE);
+        g_return_val_if_fail (mbox_file_path, FALSE);
 
 	/* FIXME: add code... */
+        return TRUE;
 }
 
 
-void
+gboolean
 tracker_db_email_delete_email (DBConnection *db_con, const gchar *uri)
 {
-	g_return_if_fail (db_con);
-	g_return_if_fail (uri);
+        g_return_val_if_fail (db_con, FALSE);
+        g_return_val_if_fail (uri, FALSE);
 
 	gchar *id = tracker_db_get_id (db_con, "Emails", uri);
 
 	if (!id) {
-		return;
+		return FALSE;
 	}
 
 	tracker_info ("deleting email %s", uri);
@@ -761,6 +772,8 @@ tracker_db_email_delete_email (DBConnection *db_con, const gchar *uri)
 	tracker_db_delete_directory (db_con, atoi (id), uri);
 
 	g_free (id);
+
+        return TRUE;
 }
 
 

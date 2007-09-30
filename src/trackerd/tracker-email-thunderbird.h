@@ -40,7 +40,7 @@ gboolean	thunderbird_init_module		(void);
 gboolean	thunderbird_module_is_running	(void);
 gboolean	thunderbird_finalize_module	(void);
 void		thunderbird_watch_emails	(DBConnection *db_con);
-gboolean	thunderbird_file_is_interesting	(FileInfo *info, const char *service);
+gboolean	thunderbird_file_is_interesting	(FileInfo *info, const gchar *service);
 void		thunderbird_index_file		(DBConnection *db_con, FileInfo *info);
 
 #endif

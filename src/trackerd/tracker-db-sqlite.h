@@ -122,9 +122,9 @@ void		tracker_db_update_differential_index		(DBConnection *db_con,GHashTable *ol
 void		tracker_db_update_index_file_contents 		(DBConnection *blob_db_con, GHashTable *index_table);
 int		tracker_db_flush_words_to_qdbm 			(DBConnection *db_con, int limit);
 
-void		tracker_db_release_memory 	();
+void		tracker_db_release_memory       (void);
 
-void		tracker_db_set_default_pragmas (DBConnection *db_con);
+void		tracker_db_set_default_pragmas  (DBConnection *db_con);
 
 void		tracker_db_fsync 		(DBConnection *db_con, gboolean enable);
 

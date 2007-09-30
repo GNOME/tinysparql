@@ -29,9 +29,11 @@ off_t	  tracker_db_email_get_last_mbox_offset  (DBConnection *db_con, const gcha
 void	  tracker_db_email_update_mbox_offset    (DBConnection *db_con, MailFile *mf);
 gboolean  tracker_db_email_is_up_to_date         (DBConnection *db_con, const gchar *uri, guint32 *id);
 gboolean  tracker_db_email_save_email	         (DBConnection *db_con, MailMessage *mm);
+gboolean  tracker_db_email_is_saved_email_file   (DBConnection *db_con, const gchar *uri);
 void	  tracker_db_email_update_email	         (DBConnection *db_con, MailMessage *mm);
-void	  tracker_db_email_delete_emails_of_mbox (DBConnection *db_con, const gchar *mbox_file_path);
-void	  tracker_db_email_delete_email          (DBConnection *db_con, const gchar *uri);
+gboolean  tracker_db_email_delete_email_file     (DBConnection *db_con, const gchar *uri);
+gboolean  tracker_db_email_delete_emails_of_mbox (DBConnection *db_con, const gchar *mbox_file_path);
+gboolean  tracker_db_email_delete_email          (DBConnection *db_con, const gchar *uri);
 gint	  tracker_db_email_get_mbox_id 	         (DBConnection *db_con, const gchar *mbox_uri);
 void	  tracker_db_email_insert_junk 	         (DBConnection *db_con, const gchar *mbox_uri, guint32 uid);
 gchar *** tracker_db_email_get_mbox_junk         (DBConnection *db_con);

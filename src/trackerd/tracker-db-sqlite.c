@@ -1754,7 +1754,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 }
 
 void
-tracker_db_release_memory ()
+tracker_db_release_memory (void)
 {
 
 }
@@ -4355,7 +4355,7 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 			break;						
 
 		default:
-			tracker_error ("ERROR: metadata could not be deleted as this operation is not suppprted by type %d for metadata %s", def->type, key);
+			tracker_error ("ERROR: metadata could not be deleted as this operation is not supported by type %d for metadata %s", def->type, key);
 			break;
 
 	}
