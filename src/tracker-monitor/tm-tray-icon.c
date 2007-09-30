@@ -563,7 +563,7 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 
         ADD_ENTRY_IN_TABLE ("Files", _("Files:"), stat_value, 1) ;
         ADD_ENTRY_IN_TABLE ("Folders", _("Folders:"), stat_value, 2);
-        ADD_ENTRY_IN_TABLE ("Documents", _("Documents"), stat_value, 3) ;
+        ADD_ENTRY_IN_TABLE ("Documents", _("Documents:"), stat_value, 3) ;
         ADD_ENTRY_IN_TABLE ("Images", _("Images:"), stat_value, 4) ;
         ADD_ENTRY_IN_TABLE ("Music", _("Music:"), stat_value, 5) ;
         ADD_ENTRY_IN_TABLE ("Videos", _("Videos:"), stat_value, 6) ;
