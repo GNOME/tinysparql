@@ -17,11 +17,13 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
-#define DBUS_API_SUBJECT_TO_CHANGE
-
 #ifndef _TRACKER_DBUS_H_
 #define _TRACKER_DBUS_H_
+
+#ifndef DBUS_API_SUBJECT_TO_CHANGE
+#define DBUS_API_SUBJECT_TO_CHANGE
+#endif 
+
 
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>

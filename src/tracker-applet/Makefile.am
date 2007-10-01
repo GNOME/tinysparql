@@ -1,4 +1,4 @@
-bin_PROGRAMS = tracker-monitor
+bin_PROGRAMS = tracker-applet
 
 noinst_HEADERS = tm-utils.h \
 		 tm-debug.h \
@@ -14,9 +14,9 @@ INCLUDES = -DVERSION="\"$(VERSION)\"" \
 	   -I$(top_srcdir)/src/libtracker \
 	   $(TRACKERAPPLET_CFLAGS)
 
-tracker_monitor_LDADD = $(TRACKERAPPLET_LIBS)
+tracker_applet_LDADD = $(TRACKERAPPLET_LIBS)
 
-tracker_monitor_SOURCES = tm-main.c \
+tracker_applet_SOURCES = tm-main.c \
 			  tm-debug.c \
 			  tm-utils.c \
 			  tm-tray-icon.c \

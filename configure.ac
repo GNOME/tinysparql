@@ -530,7 +530,7 @@ else
 	enable_libtrackergtk="no (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "x$enable_libtrackergtk" = "xyes")
+AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "$enable_libtrackergtk" = "yes")
 
 
 ##################################################################
@@ -560,7 +560,7 @@ else
 	enable_trackerapplet="no (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_TRACKERAPPLET, test "x$enable_trackerapplet"= "xyes")
+AM_CONDITIONAL(ENABLE_TRACKERAPPLET, test "$enable_trackerapplet" = "yes")
 
 
 ##################################################################
