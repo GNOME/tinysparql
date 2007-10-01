@@ -275,7 +275,7 @@ tracker_hal_init ()
 		return NULL;
 	}
 
-  	dbus_connection_setup_with_g_main (connection, g_main_context_default ());
+  	dbus_connection_setup_with_g_main (connection, NULL);
 
 	ctx = libhal_ctx_new ();
 		
