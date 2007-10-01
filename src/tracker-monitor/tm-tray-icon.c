@@ -11,24 +11,17 @@
 
 static char *files;
 static char *folders;
-static char *docs;
-static char *images;
-static char *music;
-static char *videos;
-static char *text_files;
-static char *dev_files;
-static char *files_other;
-
 static char *conversations;
 static char *emails;
-static char *apps;
 
 static char *mail_boxes;
-static char *of;
 
 static char *status_indexing;
 static char *status_idle;
 static char *status_startup;
+
+static char *status_paused;
+static char *status_battery_paused;
 
 static char *initial_index_1;
 static char *initial_index_2;
@@ -41,25 +34,17 @@ static void
 set_translatable_strings (void)
 {
 	files = _("Files");
-	folders = _("Folders");
-	docs = _("Documents");
-	images = _("Images");
-	music = _("Music");
-	videos = _("Videos");
-	text_files = _("Text");
-	dev_files = _("Development");
-	files_other = _("Other");
-
+	folders = _("folders");
 	conversations = _("Conversations");
 	emails = _("Emails");
-	apps = _("Applications");
 
 	mail_boxes = _("mail boxes");
-	of = _(" of ");
 
 	status_indexing = _("Indexing");
 	status_idle = _("Idle");
 	status_startup = _("Initializing");
+	status_paused = _("(paused)");
+	status_battery_paused = _("(battery paused)");
 	
 	initial_index_1 = _("Tracker will shortly be indexing your system");
 	initial_index_2 = _("Indexing may affect the performance of your computer");
@@ -486,6 +471,7 @@ preferences_menu_activated (GtkMenuItem *item, gpointer data)
 }
 
 
+
 static gchar *
 get_stat_value (gchar ***stat_array, const gchar *stat) 
 {
@@ -520,7 +506,11 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
                                                          GTK_RESPONSE_CLOSE,
                                                          NULL);
 
-        gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
+        gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+ 	gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
+ 	gtk_window_set_icon_name (GTK_WINDOW (dialog), "gtk-info");
+ 	gtk_window_set_type_hint (GTK_WINDOW (dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 
 	GPtrArray *array = trackerd_connection_statistics (priv->trackerd);
 	if (!array) {
@@ -536,14 +526,15 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 	}
 
         GtkWidget *table = gtk_table_new (13, 2, TRUE) ;
-        gtk_table_set_row_spacings (GTK_TABLE (table), 6);
-        gtk_table_set_col_spacings (GTK_TABLE (table), 11);
+        gtk_table_set_row_spacings (GTK_TABLE (table), 4);
+        gtk_table_set_col_spacings (GTK_TABLE (table), 65);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 8);
 
         GtkWidget *title_label = gtk_label_new (NULL);
         gtk_label_set_markup (GTK_LABEL (title_label), _("<span weight=\"bold\" size=\"larger\">Index statistics</span>"));
         gtk_misc_set_alignment (GTK_MISC (title_label), 0, 0);
         gtk_table_attach_defaults (GTK_TABLE (table), title_label, 0, 2, 0, 1) ;
-        gtk_table_set_row_spacing (GTK_TABLE (table), 0, 20) ;
+
 
 
         #define ADD_ENTRY_IN_TABLE(Name, PrintedName, Value, LineNo)                                    \
@@ -562,14 +553,14 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 	gchar *stat_value;
 
         ADD_ENTRY_IN_TABLE ("Files", _("Files:"), stat_value, 1) ;
-        ADD_ENTRY_IN_TABLE ("Folders", _("Folders:"), stat_value, 2);
-        ADD_ENTRY_IN_TABLE ("Documents", _("Documents:"), stat_value, 3) ;
-        ADD_ENTRY_IN_TABLE ("Images", _("Images:"), stat_value, 4) ;
-        ADD_ENTRY_IN_TABLE ("Music", _("Music:"), stat_value, 5) ;
-        ADD_ENTRY_IN_TABLE ("Videos", _("Videos:"), stat_value, 6) ;
-        ADD_ENTRY_IN_TABLE ("Text", _("Text:"), stat_value, 7) ;
-        ADD_ENTRY_IN_TABLE ("Development", _("Development:"), stat_value, 8) ;
-        ADD_ENTRY_IN_TABLE ("Other", _("Other:"), stat_value, 9) ;
+        ADD_ENTRY_IN_TABLE ("Folders", _("    Folders:"), stat_value, 2);
+        ADD_ENTRY_IN_TABLE ("Documents", _("    Documents:"), stat_value, 3) ;
+        ADD_ENTRY_IN_TABLE ("Images", _("    Images:"), stat_value, 4) ;
+        ADD_ENTRY_IN_TABLE ("Music", _("    Music:"), stat_value, 5) ;
+        ADD_ENTRY_IN_TABLE ("Videos", _("    Videos:"), stat_value, 6) ;
+        ADD_ENTRY_IN_TABLE ("Text", _("    Text:"), stat_value, 7) ;
+        ADD_ENTRY_IN_TABLE ("Development", _("    Development:"), stat_value, 8) ;
+        ADD_ENTRY_IN_TABLE ("Other", _("    Other:"), stat_value, 9) ;
         ADD_ENTRY_IN_TABLE ("Applications", _("Applications:"), stat_value, 10) ;
         ADD_ENTRY_IN_TABLE ("Conversations", _("Conversations:"), stat_value, 11) ;
         ADD_ENTRY_IN_TABLE ("Emails", _("Emails:"), stat_value, 12) ;
@@ -592,6 +583,7 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 
 	gtk_widget_show_all (dialog);
 }
+
 
 
 static void
