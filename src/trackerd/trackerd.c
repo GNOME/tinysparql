@@ -17,7 +17,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#ifndef DBUS_API_SUBJECT_TO_CHANGE
 #define DBUS_API_SUBJECT_TO_CHANGE
+#endif
+
 #define I_AM_MAIN
 
 #include <signal.h>
@@ -253,34 +256,68 @@ tracker_hal_init ()
   	char **devices;
   	int num;
 	DBusError error;
-
-	ctx = libhal_ctx_new();
-		
-	if (!ctx) return NULL;
-
-  	libhal_ctx_set_device_property_modified (ctx, property_callback);
-
-  	libhal_ctx_set_dbus_connection (ctx, tracker->dbus_con);
+	DBusConnection *connection;
 
 	dbus_error_init (&error);
 
-	if (libhal_ctx_init (ctx, &error) == 0) {
+	connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
+
+	if (!connection) {
+		if (dbus_error_is_set (&error)) {
+			tracker_error ("Could not connect to system bus due to %s", error.message);
+			dbus_error_free (&error);
+		} else {
+			tracker_error ("Could not connect to system bus");
+		}			
+
+		return NULL;
+	}
+
+  	dbus_connection_setup_with_g_main (connection, g_main_context_default ());
+
+	ctx = libhal_ctx_new ();
 		
+	if (!ctx) {
+		tracker_error ("Could not create HAL context");
+		return NULL;
+	}
+
+  	libhal_ctx_set_device_property_modified (ctx, property_callback);
+
+  	libhal_ctx_set_dbus_connection (ctx, connection);
+
+	if (!libhal_ctx_init (ctx, &error)) {
+
+		if (dbus_error_is_set (&error)) {
+			tracker_error ("Could not initialise HAL connection due to %s", error.message);
+			dbus_error_free (&error);
+		} else {
+			tracker_error ("Could not initialise HAL connection -is hald running?");
+		}
+
 	 	libhal_ctx_free (ctx);
-		dbus_error_free (&error);
+
 		return NULL;
 	}
   
   	devices = libhal_find_device_by_capability (ctx, AC_ADAPTOR, &num, &error);
 
+	if (dbus_error_is_set (&error)) {
+		tracker_error ("Could not get HAL devices due to %s", error.message);
+		dbus_error_free (&error);
+		return NULL;
+	}
+
   	if (!devices || !devices[0]) {
 		tracker->pause_battery = FALSE;
 		tracker->battery_udi = NULL;
+		tracker_log ("no AC adaptors were found in system so assuming its not a laptop");
 		return ctx;
 	}
   
 	/* there should only be one ac-adaptor so use first one */
 	tracker->battery_udi = devices[0];
+	tracker_log ("An AC adaptor was found in system so assuming its a laptop");
 
 	tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
 
