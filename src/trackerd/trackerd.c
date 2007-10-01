@@ -323,6 +323,14 @@ tracker_hal_init ()
 
 	libhal_ctx_set_device_property_modified (ctx, property_callback);
 
+	libhal_device_add_property_watch (ctx, devices[0], &error);
+	if (dbus_error_is_set (&error)) {
+		tracker_error ("Could not set watch on HAL device %s due to %s", devices[0], error.message);
+		dbus_error_free (&error);
+		return NULL;
+	}
+
+
 	tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
 
 	if (tracker->pause_battery) {
