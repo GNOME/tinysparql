@@ -318,7 +318,7 @@ tracker_hal_init ()
 	}
   
 	/* there should only be one ac-adaptor so use first one */
-	tracker->battery_udi = devices[0];
+	tracker->battery_udi = g_strdup (devices[0]);
 	tracker_log ("An AC adaptor %s was found in system so assuming its a laptop", devices[0]);
 
 	libhal_ctx_set_device_property_modified (ctx, property_callback);

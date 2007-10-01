@@ -189,6 +189,8 @@ open_index (const gchar *name)
 {
 	DEPOT *word_index;
 
+	if (!name) return NULL;
+
 	tracker_log ("Opening index %s", name);
 
 	if (strstr (name, "tmp")) {
@@ -217,6 +219,8 @@ tracker_indexer_open (const gchar *name)
 	char *word_dir;
 	DEPOT *word_index;
 	Indexer *result;
+
+	if (!name) return NULL;
 
 	word_dir = g_build_filename (tracker->data_dir, name, NULL);
 
@@ -550,6 +554,12 @@ tracker_indexer_merge_indexes (IndexType type)
 
  	index_count = g_slist_length (index_list);
 
+	if (index_count < 2) {
+		g_slist_free (index_list);
+
+		return;
+	}
+
 	tracker_log ("starting merge of %d indexes", index_count);
 
 	if (index_count == 2 && !final_exists) {
@@ -700,6 +710,10 @@ tracker_indexer_merge_indexes (IndexType type)
 			rename (final_name, fname);
 
 			index->word_index = open_index (fname);	
+
+			if (!index->word_index) {
+				tracker_error ("index creation failure");
+			}
 
 			g_free (fname);
 			g_free (final_name);		
