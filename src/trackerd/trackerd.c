@@ -66,7 +66,7 @@
 #endif
 
 #define BATTERY_OFF "ac_adapter.present"
-#define AC_ADAPTOR "ac_adaptor"
+#define AC_ADAPTER "ac_adapter"
 
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
@@ -300,7 +300,7 @@ tracker_hal_init ()
 		return NULL;
 	}
   
-  	devices = libhal_find_device_by_capability (ctx, AC_ADAPTOR, &num, &error);
+  	devices = libhal_find_device_by_capability (ctx, AC_ADAPTER, &num, &error);
 
 	if (dbus_error_is_set (&error)) {
 		tracker_error ("Could not get HAL devices due to %s", error.message);
@@ -317,9 +317,15 @@ tracker_hal_init ()
   
 	/* there should only be one ac-adaptor so use first one */
 	tracker->battery_udi = devices[0];
-	tracker_log ("An AC adaptor was found in system so assuming its a laptop");
+	tracker_log ("An AC adaptor %s was found in system so assuming its a laptop", devices[0]);
 
 	tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
+
+	if (tracker->pause_battery) {
+		tracker_log ("system is on battery");
+	} else {
+		tracker_log ("system is on AC power");
+	}
 
   	dbus_free_string_array (devices);
 
