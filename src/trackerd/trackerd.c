@@ -251,7 +251,7 @@ tracker_hal_init ()
 {
 	LibHalContext *ctx;
   	char **devices;
-  	int i, num;
+  	int num;
 	DBusError error;
 
 	ctx = libhal_ctx_new();
@@ -280,7 +280,7 @@ tracker_hal_init ()
 	}
   
 	/* there should only be one ac-adaptor so use first one */
-	tracker->battery_udi = devices[i];
+	tracker->battery_udi = devices[0];
 
 	tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
 
