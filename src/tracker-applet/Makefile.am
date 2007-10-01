@@ -9,8 +9,7 @@ noinst_HEADERS = tm-utils.h \
 		 tm-trackerd-connection-private.h \
 		 $(NULL)
 
-INCLUDES = -DVERSION="\"$(VERSION)\"" \
-	   -DDATADIR="\"$(DATADIR)\"" \
+INCLUDES = -DTRACKER_LOCALEDIR=\""$(localedir)"\" \
 	   -I$(top_srcdir)/src/libtracker \
 	   $(TRACKERAPPLET_CFLAGS)
 
@@ -23,4 +22,3 @@ tracker_applet_SOURCES = tm-main.c \
 			  tm-trackerd-connection.c \
 			  $(NULL)
 
-MAINTAINERCLEANFILES = Makefile.in

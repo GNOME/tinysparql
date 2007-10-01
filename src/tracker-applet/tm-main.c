@@ -1,8 +1,11 @@
 #include <stdlib.h>
 
+#include <glib/gi18n.h>
 #include <gtk/gtk.h>
 
 #include <libnotify/notify.h>
+
+#include "config.h"
 
 #include "tm-common.h"
 #include "tm-tray-icon.h"
@@ -44,6 +47,11 @@ indexing_stopped(void)
 int
 main(int argc, char *argv[])
 {
+
+   bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
+   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+   textdomain (GETTEXT_PACKAGE);
+
    gtk_init(&argc, &argv);
 
    if (!notify_is_initted() && !notify_init(PROGRAM_NAME)) {
