@@ -3,6 +3,7 @@
 	* Made battery and pause checks tickless
 	* Added signals for index progress ans state changes
 	* added dbus methods for setting options and shutdown/reindex
+	* renamed tracker-monitor to tracker-applet
 
 
 2007-10-01 Laurent Aguerreche <laurent.aguerreche at free fr>
