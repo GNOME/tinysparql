@@ -228,6 +228,8 @@ property_callback (LibHalContext *ctx, const char *udi, const char *key,
                    dbus_bool_t is_removed, dbus_bool_t is_added)
 {
 
+	tracker_log ("HAL property change detected for udi %s and key %s", udi, key);
+
 	gboolean current_state = tracker->pause_battery;
 
 	if (strcmp (udi, tracker->battery_udi) == 0) {
@@ -282,7 +284,7 @@ tracker_hal_init ()
 		return NULL;
 	}
 
-  	libhal_ctx_set_device_property_modified (ctx, property_callback);
+  	
 
   	libhal_ctx_set_dbus_connection (ctx, connection);
 
@@ -318,6 +320,8 @@ tracker_hal_init ()
 	/* there should only be one ac-adaptor so use first one */
 	tracker->battery_udi = devices[0];
 	tracker_log ("An AC adaptor %s was found in system so assuming its a laptop", devices[0]);
+
+	libhal_ctx_set_device_property_modified (ctx, property_callback);
 
 	tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
 
