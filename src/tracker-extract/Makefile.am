@@ -41,6 +41,7 @@ tracker_extract_SOURCES = tracker-extract.c	\
 	$(video_sources)
 
 tracker_extract_LDADD = $(GLIB2_LIBS)		\
+	$(GTHREAD_LIBS)				\
 	$(POPPLER_GLIB_LIBS)			\
 	$(LIBPNG_LIBS)				\
 	$(LIBEXIF_LIBS)				\
