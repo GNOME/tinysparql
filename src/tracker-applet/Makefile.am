@@ -12,9 +12,9 @@ noinst_HEADERS = tm-utils.h \
 INCLUDES = -DVERSION="\"$(VERSION)\"" \
 	   -DDATADIR="\"$(DATADIR)\"" \
 	   -I$(top_srcdir)/src/libtracker \
-	   $(TRACKERMONITOR_CFLAGS)
+	   $(TRACKERAPPLET_CFLAGS)
 
-tracker_monitor_LDADD = $(TRACKERMONITOR_LIBS)
+tracker_monitor_LDADD = $(TRACKERAPPLET_LIBS)
 
 tracker_monitor_SOURCES = tm-main.c \
 			  tm-debug.c \

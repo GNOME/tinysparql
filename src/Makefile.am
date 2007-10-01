@@ -14,9 +14,9 @@ if ENABLE_LIBTRACKERGTK
 libtrackergtk_dir = libtracker-gtk
 endif
 
-if ENABLE_TRACKERMONITOR
-trackermonitor_dir = tracker-monitor
+if ENABLE_TRACKERAPPLET
+trackerapplet_dir = tracker-applet
 endif
 
-SUBDIRS = libstemmer xdgmime $(qdbm_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(libtrackergtk_dir) $(tracker_gui_dir) $(trackermonitor_dir) $(tracker_preferences_dir)
+SUBDIRS = libstemmer xdgmime $(qdbm_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(libtrackergtk_dir) $(tracker_gui_dir) $(trackerapplet_dir) $(tracker_preferences_dir)
 

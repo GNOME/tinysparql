@@ -250,8 +250,12 @@ if test "x$enable_libxml2" = "xyes"; then
 else
 	have_libxml2="no (disabled)"
 fi
-AM_CONDITIONAL(HAVE_LIBXML2, test "$have_libxml2" = "yes")
-test "$have_libxml2" = "yes" && AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
+
+if test "x$enable_libxml2" = "xyes"; then
+	AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
+fi
+
+AM_CONDITIONAL(HAVE_LIBXML2, test "x$enable_libxml2" = "xyes")
 
 ##################################################################
 # check for HAL
@@ -262,11 +266,13 @@ if test "x$enable_hal" = "xyes"; then
 	PKG_CHECK_MODULES(HAL, [hal >= 0.5], [have_hal=yes] , [have_hal=no])
 	AC_SUBST(HAL_CFLAGS)
 	AC_SUBST(HAL_LIBS)
-	AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
 else
 	have_hal="no (disabled)"
 fi
 
+if test "x$enable_hal" = "xyes"; then
+	AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
+fi
 
 ####################################################################
 # check for GStreamer or Xine. Otherwise, call an external video
@@ -518,39 +524,43 @@ if test "x$enable_libtrackergtk" != "xno" ; then
 
     	AC_SUBST([LIBTRACKERGTK_CFLAGS])
     	AC_SUBST([LIBTRACKERGTK_LIBS])
+
+	
 else
-	enable-libtrackergtk="no (disabled)"
+	enable_libtrackergtk="no (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "$enable-libtrackergtk" != "no")
+AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "x$enable_libtrackergtk" = "xyes")
+
 
 ##################################################################
-# Enable building tracker-monitor notification icon?
+# Enable building tracker-applet notification icon?
 ##################################################################
 LIBNOTIFY_GTK2_REQUIRED=2.10
 LIBNOTIFY_GLIB_REQUIRED=2.10
 LIBNOTIFY_REQUIRED=0.4.3
 
-AC_ARG_ENABLE([trackermonitor], AC_HELP_STRING([--disable-trackermonitor], [Disable trackermonitor]),,[enable_trackermonitor=yes])
-if test "x$enable_trackermonitor" != "xno" ; then
+AC_ARG_ENABLE([trackerapplet], AC_HELP_STRING([--disable-trackerapplet], [Disable trackerapplet]),,[enable_trackerapplet=yes])
+if test "x$enable_trackerapplet" != "xno" ; then
 
-   	trackermonitor_modules="\
+   	trackerapplet_modules="\
         	glib-2.0    >=  $LIBNOTIFY_GLIB_REQUIRED, \
         	gtk+-2.0    >=  $LIBNOTIFY_GTK2_REQUIRED, \
         	dbus-1      >=  $DBUS_REQUIRED, \
         	dbus-glib-1 >=  $DBUS_REQUIRED, \
 		libnotify   >=  $LIBNOTIFY_REQUIRED"
 
-	PKG_CHECK_MODULES(TRACKERMONITOR, [$trackermonitor_modules],[enable_trackermonitor=yes] , [enable_trackermonitor=no])
+	PKG_CHECK_MODULES(TRACKERAPPLET, [$trackerapplet_modules],[enable_trackerapplet=yes] , [enable_trackerapplet=no])
 
-    	AC_SUBST([TRACKERMONITOR_CFLAGS])
-    	AC_SUBST([TRACKERMONITOR_LIBS])
+    	AC_SUBST([TRACKERAPPLET_CFLAGS])
+    	AC_SUBST([TRACKERAPPLET_LIBS])
+
+	
 else
-	enable-trackermonitor="no (disabled)"
+	enable_trackerapplet="no (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_TRACKERMONITOR, test "$enable-trackermonitor" != "no")
-
+AM_CONDITIONAL(ENABLE_TRACKERAPPLET, test "x$enable_trackerapplet"= "xyes")
 
 
 ##################################################################
@@ -802,7 +812,7 @@ AC_CONFIG_FILES([
 	src/trackerd/Makefile
 	src/libtracker/Makefile
 	src/libtracker-gtk/Makefile
-	src/tracker-monitor/Makefile
+	src/tracker-applet/Makefile
 	src/tracker-search-tool/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-preferences/Makefile
@@ -835,7 +845,7 @@ Tracker-$VERSION:
 	build search tool (GNOME):		$have_gnome
 	build preferences ui:			$enable_preferences
 	build libtracker-gtk:			$enable_libtrackergtk
-	tracker monitor notification applet:	$enable_trackermonitor
+	tracker applet notification icon:	$enable_trackerapplet
 
 Metadata extractors:
 
