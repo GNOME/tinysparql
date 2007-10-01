@@ -253,6 +253,20 @@ fi
 AM_CONDITIONAL(HAVE_LIBXML2, test "$have_libxml2" = "yes")
 test "$have_libxml2" = "yes" && AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
 
+##################################################################
+# check for HAL
+##################################################################
+  
+AC_ARG_ENABLE(hal, AC_HELP_STRING([--disable-hal],[Disable HAL support for ac power detection]),,[enable_hal=yes])
+if test "x$enable_hal" = "xyes"; then
+	PKG_CHECK_MODULES(HAL, [hal >= 0.5], [have_hal=yes] , [have_hal=no])
+	AC_SUBST(HAL_CFLAGS)
+	AC_SUBST(HAL_LIBS)
+	AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
+else
+	have_hal="no (disabled)"
+fi
+
 
 ####################################################################
 # check for GStreamer or Xine. Otherwise, call an external video
@@ -815,6 +829,7 @@ Tracker-$VERSION:
 	inotify header location:		$inotify_header
 	ioprio support:				$ioprio_support
 	Win32:					$native_win32
+	HAL (battery detection) support:	$have_hal
 	unac accent stripper support:		$enable_unac
 	deskbar-applet support:			$enable_deskbar_applet
 	build search tool (GNOME):		$have_gnome

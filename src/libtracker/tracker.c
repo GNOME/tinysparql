@@ -392,6 +392,34 @@ tracker_get_stats (TrackerClient *client,  GError **error)
 }
 
 
+void
+tracker_set_bool_option (TrackerClient *client, const char *option, gboolean value, GError **error)
+{
+	org_freedesktop_Tracker_set_bool_option (client->proxy, option, value,  &*error);
+}
+
+void
+tracker_set_int_option (TrackerClient *client, const char *option, int value, GError **error)
+{
+	org_freedesktop_Tracker_set_int_option (client->proxy, option, value,  &*error);
+}
+
+
+void
+tracker_shutdown (TrackerClient *client, gboolean reindex, GError **error)
+{
+	org_freedesktop_Tracker_shutdown (client->proxy, reindex,  &*error);
+}
+
+
+void
+tracker_prompt_index_signals (TrackerClient *client, GError **error)
+{
+	org_freedesktop_Tracker_prompt_index_signals (client->proxy, &*error);
+}
+
+
+
 char **		
 tracker_metadata_get (TrackerClient *client, ServiceType service, const char *id, char **keys, GError **error) 
 {
@@ -895,6 +923,62 @@ tracker_get_stats_async	(TrackerClient *client,  TrackerGPtrArrayReply callback,
 	client->last_pending_call = org_freedesktop_Tracker_get_stats_async (client->proxy, tracker_GPtrArray_reply, callback_struct);
 
 }
+
+
+
+void
+tracker_set_bool_option_async (TrackerClient *client, const char *option, gboolean value, TrackerVoidReply callback, gpointer user_data)
+{
+	VoidCallBackStruct *callback_struct;
+
+	callback_struct = g_new (VoidCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_set_bool_option_async  (client->proxy, option, value, tracker_void_reply, callback_struct);
+}
+
+void
+tracker_set_int_option_async (TrackerClient *client, const char *option, int value, TrackerVoidReply callback, gpointer user_data)
+{
+	VoidCallBackStruct *callback_struct;
+
+	callback_struct = g_new (VoidCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_set_int_option_async  (client->proxy, option, value, tracker_void_reply, callback_struct);
+}
+
+
+void
+tracker_shutdown_async (TrackerClient *client, gboolean reindex, TrackerVoidReply callback, gpointer user_data)
+{
+	VoidCallBackStruct *callback_struct;
+
+	callback_struct = g_new (VoidCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_shutdown_async  (client->proxy, reindex, tracker_void_reply, callback_struct);
+}
+
+
+void
+tracker_prompt_index_signals_async (TrackerClient *client, TrackerVoidReply callback, gpointer user_data)
+{
+	VoidCallBackStruct *callback_struct;
+
+	callback_struct = g_new (VoidCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_prompt_index_signals_async  (client->proxy, tracker_void_reply, callback_struct);
+}
+
+
+
+
 
 
 void	
@@ -1420,11 +1504,6 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient *client, const
 	client->last_pending_call = org_freedesktop_Tracker_Files_search_by_text_and_location_async (client->proxy_files, query, location,  tracker_array_reply, callback_struct);
 	
 }
-
-
-
-
-
 
 
 

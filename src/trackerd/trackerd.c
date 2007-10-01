@@ -62,6 +62,9 @@
 #include <libhal.h>
 #endif
 
+#define BATTERY_OFF "ac_adapter.present"
+#define AC_ADAPTOR "ac_adaptor"
+
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
 #include "tracker-dbus-keywords.h"
@@ -222,21 +225,21 @@ property_callback (LibHalContext *ctx, const char *udi, const char *key,
                    dbus_bool_t is_removed, dbus_bool_t is_added)
 {
 
-	gboolean current_state = tracker->on_battery;
+	gboolean current_state = tracker->pause_battery;
 
 	if (strcmp (udi, tracker->battery_udi) == 0) {
 
-		tracker->on_battery = libhal_device_get_property_bool (ctx, tracker->battery_udi, key, NULL);
+		tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
 		
 		char *bat_state[2] = {"off","on"};
-		tracker_log ("Battery power is now %s", bat_state[tracker->on_battery]);
+		tracker_log ("Battery power is now %s", bat_state[tracker->pause_battery]);
 
 	} else {
 		return;
 	}
 
 	/* if we have come off battery power wakeup index thread */
-	if (current_state && !tracker->on_battery) {
+	if (current_state && !tracker->pause_battery) {
 		tracker_notify_file_data_available ();
 	}
 
@@ -249,6 +252,7 @@ tracker_hal_init ()
 	LibHalContext *ctx;
   	char **devices;
   	int i, num;
+	DBusError error;
 
 	ctx = libhal_ctx_new();
 		
@@ -256,19 +260,21 @@ tracker_hal_init ()
 
   	libhal_ctx_set_device_property_modified (ctx, property_callback);
 
-  	libhal_ctx_set_dbus_connection (ctx, connection);
+  	libhal_ctx_set_dbus_connection (ctx, tracker->dbus_con);
+
+	dbus_error_init (&error);
 
 	if (libhal_ctx_init (ctx, &error) == 0) {
 		
 	 	libhal_ctx_free (ctx);
+		dbus_error_free (&error);
 		return NULL;
 	}
   
-  	devices = libhal_find_device_by_capability (ctx, "ac_adapter", &num, &error);
+  	devices = libhal_find_device_by_capability (ctx, AC_ADAPTOR, &num, &error);
 
   	if (!devices || !devices[0]) {
-		tracker->has_battery = FALSE;
-		tracker->on_battery = FALSE;
+		tracker->pause_battery = FALSE;
 		tracker->battery_udi = NULL;
 		return ctx;
 	}
@@ -276,7 +282,7 @@ tracker_hal_init ()
 	/* there should only be one ac-adaptor so use first one */
 	tracker->battery_udi = devices[i];
 
-	tracker->on_battery = libhal_device_get_property_bool (ctx, tracker->battery_udi, key, NULL);
+	tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
 
   	dbus_free_string_array (devices);
 

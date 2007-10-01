@@ -33,6 +33,7 @@ typedef void (*TrackerIntReply) (int result, GError *error, gpointer user_data);
 typedef void (*TrackerVoidReply) (GError *error, gpointer user_data);
 
 
+
 typedef enum {
 	DATA_STRING_INDEXABLE,
 	DATA_STRING,
@@ -92,6 +93,7 @@ typedef struct {
 	DBusGProxyCall  *last_pending_call; 
 } TrackerClient;
 
+
 void	tracker_cancel_last_call (TrackerClient *client);
 
 /* you can make multiple connections with tracker_connect and free them with tracker_disconnect */
@@ -111,6 +113,10 @@ char *		tracker_get_status				(TrackerClient *client, GError **error);
 GHashTable *	tracker_get_services				(TrackerClient *client, gboolean main_services_only, GError **error);
 GPtrArray *	tracker_get_stats				(TrackerClient *client, GError **error);
 
+void		tracker_set_bool_option				(TrackerClient *client, const char *option, gboolean value, GError **error);
+void		tracker_set_int_option				(TrackerClient *client, const char *option, int value, GError **error);
+void		tracker_shutdown				(TrackerClient *client, gboolean reindex, GError **error);
+void		tracker_prompt_index_signals			(TrackerClient *client, GError **error);
 
 char **			tracker_metadata_get				(TrackerClient *client, ServiceType service, const char *id, char **keys, GError **error);
 void			tracker_metadata_set				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, GError **error);
@@ -167,6 +173,10 @@ void		tracker_get_status_async 				(TrackerClient *client,  TrackerStringReply c
 void		tracker_get_services_async 				(TrackerClient *client,  gboolean main_services_only,  TrackerHashTableReply callback, gpointer user_data);
 void		tracker_get_stats_async 				(TrackerClient *client,  TrackerGPtrArrayReply callback, gpointer user_data);
 
+void		tracker_set_bool_option_async				(TrackerClient *client, const char *option, gboolean value, TrackerVoidReply callback, gpointer user_data);
+void		tracker_set_int_option_async				(TrackerClient *client, const char *option, int value, TrackerVoidReply callback, gpointer user_data);
+void		tracker_shutdown_async					(TrackerClient *client, gboolean reindex, TrackerVoidReply callback, gpointer user_data);
+void		tracker_prompt_index_signals_async			(TrackerClient *client, TrackerVoidReply callback, gpointer user_data);
 
 void		tracker_metadata_get_async 				(TrackerClient *client, ServiceType service, const char *id, char **keys, TrackerArrayReply callback, gpointer user_data);
 void		tracker_metadata_set_async 				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, TrackerVoidReply callback, gpointer user_data);

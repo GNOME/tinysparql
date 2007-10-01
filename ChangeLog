@@ -1,3 +1,10 @@
+2007-10-01 Jamie McCracken <jamiemcc at gnome org>
+
+	* Made battery and pause checks tickless
+	* Added signals for index progress ans state changes
+	* added dbus methods for setting options and shutdown/reindex
+
+
 2007-10-01 Laurent Aguerreche <laurent.aguerreche at free fr>
 
 	* Make index statistic window a little bit sexier
