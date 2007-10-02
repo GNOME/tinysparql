@@ -578,13 +578,13 @@ if test "x$enable_unac" != "xno" ; then
     	AC_SUBST([UNAC_LIBS])
 	
 else
-	enable_unac="no"
+	enable_unac="no (disabled)"
 fi
 
 if test "$enable_unac" = "yes"; then
 	AC_DEFINE(HAVE_UNAC, [], [Define if we have unac lib])
 fi
-AM_CONDITIONAL(ENABLE_UNAC, test "$enable_unac" != "no")
+AM_CONDITIONAL(ENABLE_UNAC, test "$enable_unac" = "yes")
 
 
 
@@ -632,7 +632,7 @@ fi
 
 
 # do not build if libtracker-gtk is not being built
-if test "x$enable_libtrackergtk" = "yes"; then
+if test "x$enable_libtrackergtk" != "xyes"; then
 	have_gnome="no (disabled as libtracker-gtk is not being built)"	
 fi
 
@@ -672,10 +672,10 @@ if test "x$enable_preferences" != "xno" ; then
    		AC_SUBST([LIBGLADE_LIBS])
 	fi
 else
-	enable-preferences="no (disabled)"
+	enable_preferences="no (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_PREFERENCES, test "$enable_preferences" != "no")
+AM_CONDITIONAL(ENABLE_PREFERENCES, test "$enable_preferences" = "yes")
 
 ##################################################################
 # check for poppler's glib bingings
