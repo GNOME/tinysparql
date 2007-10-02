@@ -606,7 +606,7 @@ open_file_cb (GtkAction * action,
 			} else if (strstr (mime, "KMail")) {
 				exec = g_strdup_printf ("kmail --view \"%s\"", uri);
 			} else if (strstr (mime, "Thunderbird")) {
-				exec = g_strdup_printf ("thunderbird -viewbeagle \"%s\"", uri);
+				exec = g_strdup_printf ("thunderbird -viewtracker \"%s\"", uri);
 			} else {
 				exec = NULL;
 			}
