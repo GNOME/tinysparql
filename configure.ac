@@ -578,13 +578,13 @@ if test "x$enable_unac" != "xno" ; then
     	AC_SUBST([UNAC_LIBS])
 	
 else
-	enable-unac="no (disabled)"
+	enable_unac="no"
 fi
 
 if test "$enable_unac" = "yes"; then
 	AC_DEFINE(HAVE_UNAC, [], [Define if we have unac lib])
 fi
-AM_CONDITIONAL(ENABLE_UNAC, test "$enable-unac" != "no")
+AM_CONDITIONAL(ENABLE_UNAC, test "$enable_unac" != "no")
 
 
 
