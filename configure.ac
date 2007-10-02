@@ -813,6 +813,7 @@ AC_CONFIG_FILES([
 	src/libtracker/Makefile
 	src/libtracker-gtk/Makefile
 	src/tracker-applet/Makefile
+	src/tracker-applet/tracker-applet.desktop.in
 	src/tracker-search-tool/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-preferences/Makefile
