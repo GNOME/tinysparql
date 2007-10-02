@@ -10,5 +10,5 @@ Categories=Settings;
 StartupNotify=true
 X-GNOME-Bugzilla-Bugzilla=GNOME
 X-GNOME-Bugzilla-Product=tracker
-X-GNOME-Bugzilla-Component=general
+X-GNOME-Bugzilla-Component=Tracker Preferences
 X-GNOME-Bugzilla-Version=@VERSION@
