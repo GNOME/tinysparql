@@ -251,11 +251,11 @@ else
 	have_libxml2="no (disabled)"
 fi
 
-if test "x$enable_libxml2" = "xyes"; then
+if test "x$have_libxml2" = "xyes"; then
 	AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
 fi
 
-AM_CONDITIONAL(HAVE_LIBXML2, test "x$enable_libxml2" = "xyes")
+AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
 ##################################################################
 # check for HAL
@@ -270,7 +270,7 @@ else
 	have_hal="no (disabled)"
 fi
 
-if test "x$enable_hal" = "xyes"; then
+if test "x$have_hal" = "xyes"; then
 	AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
 fi
 
