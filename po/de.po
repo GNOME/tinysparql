@@ -8,12 +8,11 @@
 # Hendrik Richter <hendrikr@gnome.org>, 2006.
 # Michael Biebl <mbiebl@gmail.com>, 2007.
 # Marcus Fritzsch <m@fritschy.de>, 2007.
-# Michael Biebl <mbiebl@gmail.com>, 2007.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-02 23:32+0200\n"
+"POT-Creation-Date: 2007-10-03 01:27+0200\n"
 "PO-Revision-Date: 2007-10-03 00:25+0200\n"
 "Last-Translator: Michael Biebl <mbiebl@gmail.com>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
@@ -824,17 +823,16 @@ msgstr "<b>Zu überwachende Verzeichnisse</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Additional mbox mailboxes to index:"
-msgstr "Zusätzliche mbox Postfächer die indiziert werden sollen"
+msgstr "Zusätzliche mbox Postfächer die indiziert werden sollen:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:15
 msgid "Additional paths to index and watch:"
-msgstr "Zusätzliche Verzeichnisse die indiziert und überwacht werden sollen"
+msgstr "Zusätzliche Verzeichnisse die indiziert und überwacht werden sollen:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional paths to index on startup (but not watch for updates)"
 msgstr ""
-"Zusätzliche pfade zur einmaligen Indizierung (werden nicht auf Veränderung "
-"überwacht)"
+"Zusätzliche Verzeichnisse die einmalig indiziert werden sollen:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid ""
@@ -910,7 +908,7 @@ msgstr "Pause vor Indizierung: "
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "Index _file contents"
-msgstr "Indiziere _Dateiinhalte"
+msgstr "Indiziere D_ateiinhalte"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "Index _mounted directories"
@@ -926,11 +924,11 @@ msgstr "Indizierungsgeschwindigkeit:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Maximum _amount of text to index:"
-msgstr "Maximal zu indizierende Textgröße (in KB)"
+msgstr "M_aximal zu indizierende Textgröße:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:47
 msgid "Maximum number of unique _words to index:"
-msgstr "Maximale Anzahl zu indizierender _Worte:"
+msgstr "Maximale Anzahl eindeutiger _Worte:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:48
 msgid "Path roots to be ignored during indexing:"
