@@ -52,7 +52,15 @@ main (gint argc, gchar *argv[])
 
         gchar* status = tracker_get_status (client, &error);
 
-        g_print ("Tracker daemon's status is %s.\n", status);
+	if (error) {
+		g_printerr (_("%s: internal tracker error: %s"), 
+			    argv[0], error->message);
+		g_printerr ("\n");
+		g_error_free (error);
+		return 1;
+	}
+
+	if (status) g_print ("Tracker daemon's status is %s\n", status);
 
 	tracker_disconnect (client);
 
