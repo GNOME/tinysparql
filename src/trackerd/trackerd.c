@@ -2067,6 +2067,7 @@ set_defaults (void)
 	tracker->grace_period = 0;
 
 	tracker->reindex = FALSE;
+	tracker->in_merge = FALSE;
 
 	tracker->merge_limit = MERGE_LIMIT;
 

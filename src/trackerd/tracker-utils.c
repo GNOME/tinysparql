@@ -3567,27 +3567,6 @@ tracker_string_replace (const char *haystack, char *needle, char *replacement)
 }
 
 
-static char *
-get_first_entry_in_dir (const char *dir)
-{
-	GDir	*dirp;
-	char 	*result = NULL;
-
-	if ((dirp = g_dir_open (dir, 0, NULL))) {
-
-		const char *name;
-
-   		if ((name = g_dir_read_name (dirp))) {
-			result = g_build_filename (dir, name, NULL);
-		}
-
- 		g_dir_close (dirp);
-	}
-
-	return result;
-
-}
-
 void
 tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value)
 {

@@ -114,6 +114,7 @@ tracker_dbus_send_index_status_change_signal ()
 		<signal name="IndexStateChange">
 			<arg type="s" name="state" />
 			<arg type="b" name="initial_index" />
+			<arg type="b" name="in_merge" />
  			<arg type="b" name="is_manual_paused" />
                         <arg type="b" name="is_battery_paused" />
                         <arg type="b" name="is_io_paused" />
@@ -123,6 +124,7 @@ tracker_dbus_send_index_status_change_signal ()
 	dbus_message_append_args (msg, 
 				  DBUS_TYPE_STRING, &status,
 				  DBUS_TYPE_BOOLEAN, &tracker->first_time_index,
+				  DBUS_TYPE_BOOLEAN, &tracker->in_merge,
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_manual,
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_battery,
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_io,

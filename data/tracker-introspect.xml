@@ -118,6 +118,7 @@
 
 		<!-- signal change in index status - states are "Initializing","Watching","Indexing","Pending","Optimizing","Idle","Shutdown"  
 		     is_initial_index indicates if this is the first time index (or reindex)
+		     in_merge indicates merge indexing is taking place (or reindex)
 		     is_manual_paused indicates if user has manually paused the indexer
 		     is_battery_paused indicates if indexer is paused whilst on battery power
 		     is_io_paused indicates if indexer has paused itself as it has detected other apps writing to disk
@@ -125,6 +126,7 @@
 		<signal name="IndexStateChange">
 			<arg type="s" name="state" />
 			<arg type="b" name="initial_index" />
+			<arg type="b" name="in_merge" />
  			<arg type="b" name="is_manual_paused" />
                         <arg type="b" name="is_battery_paused" />
                         <arg type="b" name="is_io_paused" />

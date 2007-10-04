@@ -331,6 +331,7 @@ typedef struct {
 	/* application run time values */
 	gboolean	is_indexing;
 	gboolean	in_flush;
+	gboolean	in_merge;
 	int		index_count;
 	int		index_counter;
 	int		update_count;
