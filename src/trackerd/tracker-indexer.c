@@ -487,8 +487,38 @@ tracker_indexer_has_merge_files (IndexType type)
 
 }
 
+static void
+move_index (Indexer *src_index, Indexer *dest_index)
+{
+	/* remove existing main index */
+	g_mutex_lock (dest_index->word_mutex);
 
+	char *fname = dpname (dest_index->word_index);
 
+	dpclose (dest_index->word_index);
+
+	dpremove (fname);
+
+	char *final_name = dpname (src_index->word_index);
+			
+	tracker_indexer_close (src_index);
+		
+	/* rename and reopen final index as main index */
+			
+	rename (final_name, fname);
+
+	dest_index->word_index = open_index (fname);	
+
+	if (!dest_index->word_index) {
+		tracker_error ("index creation failure");
+	}
+
+	g_free (fname);
+	g_free (final_name);		
+
+	g_mutex_unlock (dest_index->word_mutex);
+
+}
 
 
 void
@@ -527,7 +557,7 @@ tracker_indexer_merge_indexes (IndexType type)
 	file_list = tracker_get_files_with_prefix (tracker->data_dir, prefix);
 
 	if (!file_list || !file_list->data) {
-
+		
 		g_slist_free (index_list);
 
 		return;
@@ -540,11 +570,19 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				char *name = g_path_get_basename (l->data);
 
-				tmp_index = tracker_indexer_open (name);
+				if (name) {
 
-				g_free (name);
+					if (g_file_test (l->data, G_FILE_TEST_EXISTS)) {
 
-				index_list = g_slist_prepend (index_list, tmp_index);
+						tmp_index = tracker_indexer_open (name);
+
+						index_list = g_slist_prepend (index_list, tmp_index);
+					}
+
+					g_free (name);
+
+
+				}
 			}
 		}
 
@@ -555,6 +593,7 @@ tracker_indexer_merge_indexes (IndexType type)
  	index_count = g_slist_length (index_list);
 
 	if (index_count < 2) {
+
 		g_slist_free (index_list);
 
 		return;
@@ -624,13 +663,13 @@ tracker_indexer_merge_indexes (IndexType type)
 					if (size < (10 * 1024 * 1024)) {
 						interval = 10000;
 					} else if (size < (20 * 1024 * 1024)) {
-						interval = 5000;
+						interval = 6000;
 					} else if (size < (50 * 1024 * 1024)) {
-						interval = 4000;
+						interval = 6000;
 					} else if (size < (100 * 1024 * 1024)) {
-						interval = 3000;
+						interval = 4000;
 					} else {
-						interval = 2000;
+						interval = 3000;
 					}
 
 					/* halve the interval value as notebook hard drives are smaller */
@@ -691,34 +730,7 @@ tracker_indexer_merge_indexes (IndexType type)
 		if (l->next) {
 			tracker_indexer_free (index, TRUE);
 		} else {
-
-			/* remove existing main index */
-			g_mutex_lock (index->word_mutex);
-
-			char *fname = dpname (index->word_index);
-
-			dpclose (index->word_index);
-
-			dpremove (fname);
-
-			char *final_name = dpname (final_index->word_index);
-			
-			tracker_indexer_close (final_index);
-		
-			/* rename and reopen final index as main index */
-			
-			rename (final_name, fname);
-
-			index->word_index = open_index (fname);	
-
-			if (!index->word_index) {
-				tracker_error ("index creation failure");
-			}
-
-			g_free (fname);
-			g_free (final_name);		
-
-			g_mutex_unlock (index->word_mutex);
+			move_index (final_index, index);
 		}
 		
 	}
