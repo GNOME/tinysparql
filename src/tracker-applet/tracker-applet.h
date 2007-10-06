@@ -11,9 +11,6 @@
 #include <gtk/gtkimagemenuitem.h>
 #include <gtk/gtkseparatormenuitem.h>
 
-#include "tm-debug.h"
-#include "tm-common.h"
-
 #define TYPE_TRAY_ICON              (tray_icon_get_type())
 #define TRAY_ICON(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_TRAY_ICON, TrayIcon))
 #define TRAY_ICON_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), TYPE_TRAY_ICON, TrayIconClass))
@@ -31,17 +28,17 @@ typedef struct _TrayIconClass
    GObjectClass parent_class;
 
    /* Methods */
-   void (*set_tooltip)(TrayIcon *icon, const gchar *tooltip);
+   void (*set_tooltip) (TrayIcon *icon, const gchar *tooltip);
 
 } TrayIconClass;
 
 GType
-tray_icon_get_type(void);
+tray_icon_get_type (void);
 
 void
-tray_icon_set_tooltip(TrayIcon *icon, const gchar *format, ...);
+tray_icon_set_tooltip (TrayIcon *icon, const gchar *format, ...);
 
 void 
-tray_icon_show_message (TrayIcon *icon, const gchar *msg);
+tray_icon_show_message (TrayIcon *icon, const gchar *message, ...);
 
 #endif

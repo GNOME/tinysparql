@@ -1,3 +1,12 @@
+2007-10-06 Jamie McCracken <jamiemcc at gnome org>
+
+	* Renamed and rephrased tracker-applet source
+	* Removed unneeded stuff and merged source files in the applet
+	* Made the applet statistics window live and self updating every 2 seconds
+	* Integrated signal handlers for state changed, progress and IndexFinsihed into applet
+	* Made more translatable strings in applet
+
+
 2007-10-04 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added in_merge to StateChangeSignal
