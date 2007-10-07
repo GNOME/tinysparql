@@ -1,3 +1,8 @@
+2007-10-07  Luca Ferretti  <elle.uca@libero.it>
+
+	* POTFILES.in: removed no loger available tm-tray-icon.c
+	* it.po: Updated Italian translation.
+
 2007-10-07  Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
         * es.po: Updated Spanish translation.

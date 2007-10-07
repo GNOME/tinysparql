@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-05 09:15+0200\n"
-"PO-Revision-Date: 2007-10-05 09:14+0200\n"
+"POT-Creation-Date: 2007-10-07 18:12+0200\n"
+"PO-Revision-Date: 2007-10-07 18:12+0200\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -619,149 +619,6 @@ msgstr ""
 "Per includere o escludere directory multiple in una sola volta, unire più "
 "opzioni come in:"
 
-#: ../src/tracker-applet/tm-tray-icon.c:36
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Files"
-msgstr "File"
-
-#: ../src/tracker-applet/tm-tray-icon.c:37
-msgid "folders"
-msgstr "cartelle"
-
-#: ../src/tracker-applet/tm-tray-icon.c:38
-msgid "Conversations"
-msgstr "Conversazioni"
-
-#: ../src/tracker-applet/tm-tray-icon.c:39
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "Email"
-
-#: ../src/tracker-applet/tm-tray-icon.c:41
-msgid "mail boxes"
-msgstr "caselle di posta"
-
-#: ../src/tracker-applet/tm-tray-icon.c:43
-msgid "Indexing"
-msgstr "Indicizzazione"
-
-#: ../src/tracker-applet/tm-tray-icon.c:44
-msgid "Idle"
-msgstr "Inattivo"
-
-#: ../src/tracker-applet/tm-tray-icon.c:45
-msgid "Initializing"
-msgstr "Inizializzazione"
-
-#: ../src/tracker-applet/tm-tray-icon.c:46
-msgid "(paused)"
-msgstr "(in pausa)"
-
-#: ../src/tracker-applet/tm-tray-icon.c:47
-msgid "(battery paused)"
-msgstr "(in pausa per batteria)"
-
-# Infedelissima.....
-#: ../src/tracker-applet/tm-tray-icon.c:49
-msgid "Tracker will shortly be indexing your system"
-msgstr "Tracker sta indicizzando il sistema"
-
-#: ../src/tracker-applet/tm-tray-icon.c:50
-msgid "Indexing may affect the performance of your computer"
-msgstr "L'indicizzazione potrebbe aver effetto sulle prestazioni del computer"
-
-#: ../src/tracker-applet/tm-tray-icon.c:51
-msgid ""
-"You can pause indexing at any time and configure index settings by right "
-"clicking here"
-msgstr ""
-"È possibile mettere in pausa l'indicizzazione in qualunque momento e "
-"configurare le impostazioni dell'indice facendo clic col tasto destro qui"
-
-#: ../src/tracker-applet/tm-tray-icon.c:53
-msgid ""
-"Tracker has finished indexing your system. You can now perform searches by "
-"clicking here"
-msgstr ""
-"Tracker ha terminato l'indicizzazione del sistema. È possibile eseguire "
-"delle ricerche facendo clic qui"
-
-#. search entry row
-#: ../src/tracker-applet/tm-tray-icon.c:211
-msgid "Search:"
-msgstr "Cerca:"
-
-#. status row
-#: ../src/tracker-applet/tm-tray-icon.c:231
-msgid "Status:"
-msgstr "Stato:"
-
-#. progress row
-#: ../src/tracker-applet/tm-tray-icon.c:251
-msgid "Progress:"
-msgstr "Avanzamento:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:263
-msgid "Files - 256/841 folders"
-msgstr "File - 256/841 cartelle"
-
-#: ../src/tracker-applet/tm-tray-icon.c:502
-msgid "Statistics"
-msgstr "Statistiche"
-
-#: ../src/tracker-applet/tm-tray-icon.c:534
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr "<span weight=\"bold\" size=\"larger\">Statistiche dell'indice</span>"
-
-#: ../src/tracker-applet/tm-tray-icon.c:555
-msgid "Files:"
-msgstr "File:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:556
-msgid "    Folders:"
-msgstr "    Cartelle:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:557
-msgid "    Documents:"
-msgstr "    Documenti:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:558
-msgid "    Images:"
-msgstr "    Immagini:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:559
-msgid "    Music:"
-msgstr "    Musica:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:560
-msgid "    Videos:"
-msgstr "    Video:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:561
-msgid "    Text:"
-msgstr "    Testo:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:562
-msgid "    Development:"
-msgstr "    Sviluppo:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:563
-msgid "    Other:"
-msgstr "    Altro:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:564
-msgid "Applications:"
-msgstr "Applicazioni:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:565
-msgid "Conversations:"
-msgstr "Coversazioni:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:566
-msgid "Emails:"
-msgstr "Email:"
-
 #: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
 msgid "Control and monitor the Tracker search and indexing service"
 msgstr ""
@@ -776,8 +633,8 @@ msgid "Configure file indexing with Tracker"
 msgstr "Configura l'indicizzazione dei file con Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Indexing Preferences"
-msgstr "Preferenze di indicizzazione"
+msgid "Search and Indexing"
+msgstr "Ricerca e indicizzazione"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
@@ -819,9 +676,10 @@ msgstr "<b>Servizi</b>"
 msgid "<b>Startup</b>"
 msgstr "<b>Avvio</b>"
 
+# FIXME??
 #: ../src/tracker-preferences/tracker-preferences.glade.h:11
 msgid "<b>Stemming</b>"
-msgstr ""
+msgstr "<b>Stemming</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
@@ -873,6 +731,11 @@ msgstr ""
 "Spagnolo\n"
 "Svedese"
 
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "Email"
+
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Enable _Evolution email indexing"
 msgstr "Abilitare indicizzazione delle email di _Evolution"
@@ -900,6 +763,10 @@ msgstr "Veloce"
 #: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "File patterns to ignore during indexing:"
 msgstr "Modelli di file da ignorare durante l'indicizzazione:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "Files"
+msgstr "File"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "General"
@@ -1289,3 +1156,107 @@ msgstr "Tracker"
 #: ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Servizio di ricerca e indicizzazione di Tracker"
+
+#~ msgid "folders"
+#~ msgstr "cartelle"
+
+#~ msgid "Conversations"
+#~ msgstr "Conversazioni"
+
+#~ msgid "mail boxes"
+#~ msgstr "caselle di posta"
+
+#~ msgid "Indexing"
+#~ msgstr "Indicizzazione"
+
+#~ msgid "Idle"
+#~ msgstr "Inattivo"
+
+#~ msgid "Initializing"
+#~ msgstr "Inizializzazione"
+
+#~ msgid "(paused)"
+#~ msgstr "(in pausa)"
+
+#~ msgid "(battery paused)"
+#~ msgstr "(in pausa per batteria)"
+
+# Infedelissima.....
+#~ msgid "Tracker will shortly be indexing your system"
+#~ msgstr "Tracker sta indicizzando il sistema"
+
+#~ msgid "Indexing may affect the performance of your computer"
+#~ msgstr ""
+#~ "L'indicizzazione potrebbe aver effetto sulle prestazioni del computer"
+
+#~ msgid ""
+#~ "You can pause indexing at any time and configure index settings by right "
+#~ "clicking here"
+#~ msgstr ""
+#~ "È possibile mettere in pausa l'indicizzazione in qualunque momento e "
+#~ "configurare le impostazioni dell'indice facendo clic col tasto destro qui"
+
+#~ msgid ""
+#~ "Tracker has finished indexing your system. You can now perform searches "
+#~ "by clicking here"
+#~ msgstr ""
+#~ "Tracker ha terminato l'indicizzazione del sistema. È possibile eseguire "
+#~ "delle ricerche facendo clic qui"
+
+#~ msgid "Search:"
+#~ msgstr "Cerca:"
+
+#~ msgid "Status:"
+#~ msgstr "Stato:"
+
+#~ msgid "Progress:"
+#~ msgstr "Avanzamento:"
+
+#~ msgid "Files - 256/841 folders"
+#~ msgstr "File - 256/841 cartelle"
+
+#~ msgid "Statistics"
+#~ msgstr "Statistiche"
+
+#~ msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+#~ msgstr ""
+#~ "<span weight=\"bold\" size=\"larger\">Statistiche dell'indice</span>"
+
+#~ msgid "Files:"
+#~ msgstr "File:"
+
+#~ msgid "    Folders:"
+#~ msgstr "    Cartelle:"
+
+#~ msgid "    Documents:"
+#~ msgstr "    Documenti:"
+
+#~ msgid "    Images:"
+#~ msgstr "    Immagini:"
+
+#~ msgid "    Music:"
+#~ msgstr "    Musica:"
+
+#~ msgid "    Videos:"
+#~ msgstr "    Video:"
+
+#~ msgid "    Text:"
+#~ msgstr "    Testo:"
+
+#~ msgid "    Development:"
+#~ msgstr "    Sviluppo:"
+
+#~ msgid "    Other:"
+#~ msgstr "    Altro:"
+
+#~ msgid "Applications:"
+#~ msgstr "Applicazioni:"
+
+#~ msgid "Conversations:"
+#~ msgstr "Coversazioni:"
+
+#~ msgid "Emails:"
+#~ msgstr "Email:"
+
+#~ msgid "Indexing Preferences"
+#~ msgstr "Preferenze di indicizzazione"
