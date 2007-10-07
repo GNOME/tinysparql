@@ -1,3 +1,8 @@
+2007-10-07  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-preferences/tracker-preferences.desktop.in.in:
+	Change the name of capplet launcher, to remove "Preferences"
+
 2007-10-06 Jamie McCracken <jamiemcc at gnome org>
 
 	* Renamed and rephrased tracker-applet source
