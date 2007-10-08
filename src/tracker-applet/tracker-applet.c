@@ -82,7 +82,7 @@ static Stat_Info stat_info[13] = {
 };
 
 
-static gboolean refresh_stats (gpointer data);
+static void refresh_stats (TrayIcon *self);
 
 static void
 tray_icon_class_init (TrayIconClass *klass)
@@ -107,6 +107,22 @@ search_menu_activated (GtkMenuItem *item, gpointer data)
 
 
 static void
+pause_menu_toggled (GtkCheckMenuItem *item, gpointer data)
+{
+	TrayIcon *self = TRAY_ICON (data);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
+	GError *error = NULL;
+
+	if (gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (item))) {
+		tracker_set_bool_option	(priv->tracker, "Pause", TRUE, &error);
+	} else {
+		tracker_set_bool_option	(priv->tracker, "Pause", FALSE, &error);
+	}
+}
+
+
+
+static void
 create_context_menu (TrayIcon *icon)
 {
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
@@ -115,8 +131,8 @@ create_context_menu (TrayIcon *icon)
 	priv->menu = (GtkMenu *)gtk_menu_new();
 
 	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic ("_Pause indexing");
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM (item), FALSE);
-//	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (active_menu_toggled), icon);
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
+	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (pause_menu_toggled), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
 	item = gtk_separator_menu_item_new ();
@@ -138,13 +154,6 @@ create_context_menu (TrayIcon *icon)
 	image = gtk_image_new_from_icon_name (GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (statistics_menu_activated), icon);
-	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
-
-
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("_Re-index system");
-	image = gtk_image_new_from_icon_name (GTK_STOCK_REFRESH, GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
-	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (preferences_menu_activated), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
 	item = gtk_separator_menu_item_new ();
@@ -512,10 +521,12 @@ index_progress_changed (DBusGProxy *proxy, const gchar *service, const char *uri
 
 	if (!service) return;
 
+	if (folders_processed > folders_total) folders_processed = folders_total;
+
 	if (strcmp (service, "Emails") == 0) {
-		set_progress (self, FALSE, FALSE, 0, 0);
+		set_progress (self, FALSE, FALSE, folders_processed, folders_total);
 	} else {
-		set_progress (self, TRUE, FALSE, 0, 0);
+		set_progress (self, TRUE, FALSE, folders_processed, folders_total);
 	}
 
 	char *count = g_strdup_printf ("#%d", index_count);
@@ -524,6 +535,9 @@ index_progress_changed (DBusGProxy *proxy, const gchar *service, const char *uri
 	gtk_label_set_text  (GTK_LABEL (priv->uri_label), uri);  		  		
 
 	g_free (count);
+
+	/* update stat window if its active */
+	refresh_stats (self);
 
 }
 
@@ -735,6 +749,7 @@ update_stats  (GPtrArray *array,
 	if (error) {
 		g_warning ("an error has occured: %s",  error->message);
 		g_error_free (error);
+		priv->stat_request_pending = FALSE;
 		return;
 	}
 
@@ -760,27 +775,23 @@ update_stats  (GPtrArray *array,
 
 	priv->stat_request_pending = FALSE;
 
-	g_timeout_add (2000, refresh_stats, self);
-
 }
 
 
 
-static gboolean
-refresh_stats (gpointer data)
+static void
+refresh_stats (TrayIcon *self)
 {
-	TrayIcon *self = TRAY_ICON (data);
+	
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
 
 	if (!priv->stat_window_active || priv->stat_request_pending) {
-		return FALSE;
+		return;
 	}
 
 	priv->stat_request_pending = TRUE;
 	
 	tracker_get_stats_async (priv->tracker, (TrackerGPtrArrayReply) update_stats, self);
-
-	return FALSE;
 
 }
 
@@ -853,7 +864,6 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 
 	
 }
-
 
 
 static void
