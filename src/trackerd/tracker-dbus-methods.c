@@ -582,7 +582,8 @@ tracker_dbus_method_prompt_index_signals (DBusRec *rec)
 
 	tracker_dbus_send_index_status_change_signal ();
 
-	tracker_dbus_send_index_progress_signal ("");
+	tracker_dbus_send_index_progress_signal ("Files", "");
+	tracker_dbus_send_index_progress_signal ("Emails", "");
 
 	reply = dbus_message_new_method_return (rec->message);
 

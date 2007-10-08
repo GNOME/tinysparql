@@ -295,6 +295,9 @@ typedef struct {
 	time_t		index_time_start;
 	int		folders_count;
 	int		folders_processed;
+	int		mbox_count;
+	int		mbox_processed;
+
 
 	const char	*current_uri;
 	

@@ -1291,6 +1291,8 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 		tracker_debug ("Number of existing messages in %s are %d, %d junk, %d deleted and header totals are %d, %d, %d", dir,
 				store->mail_count, store->junk_count, store->delete_count, header->saved_count, header->junk_count, header->deleted_count);
 
+		tracker->mbox_count++;
+		tracker_dbus_send_index_progress_signal ("Emails", dir);
 
 		if (header->saved_count > store->mail_count) {
 			/* assume new emails received */
@@ -1304,7 +1306,7 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 					tracker_db_email_free_mail_store (store);
 					free_summary_file (summary);
 					free_summary_file_header (header);
-
+					tracker->mbox_processed++;
 					g_free (dir);
 					return;
 				}
@@ -1326,7 +1328,7 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 					tracker_db_email_free_mail_store (store);
 					free_summary_file (summary);
 					free_summary_file_header (header);
-
+					tracker->mbox_processed++;
 					g_free (dir);
 					return;
 				}
@@ -1361,14 +1363,12 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 				email_free_mail_message (mail_msg);
 
 				if (!tracker_cache_process_events (db_con->data, TRUE)) {
-					tracker->status = STATUS_IDLE;
-					break;	
+					return;
 				}
 
 				if (tracker_db_regulate_transactions (db_con->data, 100)) {
 					if (tracker->verbosity == 1) {
 						tracker_log ("indexing #%d - Emails in %s", tracker->index_count, dir);
-						tracker_dbus_send_index_progress_signal (dir);
 					}
 
 					if (tracker->index_count % 1000 == 0) {
@@ -1385,12 +1385,14 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 			tracker_log ("No. of new emails indexed in summary file %s is %d, %d junk, %d deleted", dir, mail_count, junk_count, delete_count);
 
 			tracker_db_email_set_message_counts (db_con, dir, store->mail_count, store->junk_count, store->delete_count);
-			
 
 		} else {
 			/* schedule check for junk */
 			tracker_db_email_flag_mbox_junk (db_con, dir);
 		}
+
+		tracker->mbox_processed++;
+		tracker_dbus_send_index_progress_signal ("Emails", dir);
 
 		tracker_db_email_free_mail_store (store);
 		free_summary_file (summary);

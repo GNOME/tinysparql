@@ -325,19 +325,18 @@ tracker_cache_process_events (DBConnection *db_con, gboolean check_flush)
 			/* set mutex to indicate we are in "check" state to prevent race conditions from other threads resetting gloabl vars */
 			g_mutex_lock (tracker->files_check_mutex);		
 
-			if (tracker->pause_manual || tracker->pause_battery || !tracker->is_running || !tracker->enable_indexing)  {
+			if ((tracker->pause_manual || tracker->pause_battery || !tracker->is_running || !tracker->enable_indexing) && (!tracker->shutdown))  {
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 			}
 
 			g_mutex_unlock (tracker->files_check_mutex);
-
-			tracker_dbus_send_index_status_change_signal ();
 
 			/* determine if wake up call is a shutdown signal */
 			if (tracker->shutdown) {
 				if (check_flush) tracker_cache_flush_all ();
 				return FALSE;				
 			} else {
+				tracker_dbus_send_index_status_change_signal ();
 				continue;
 			}
 				

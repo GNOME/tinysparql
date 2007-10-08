@@ -178,7 +178,7 @@ DBusConnection*  	tracker_dbus_init    				(void);
 void              	tracker_dbus_shutdown   			(DBusConnection *conn);
 void			tracker_dbus_send_index_status_change_signal 	();
 void			tracker_dbus_send_index_finished_signal 	();
-void			tracker_dbus_send_index_progress_signal 	(const char *uri);
+void			tracker_dbus_send_index_progress_signal 	(const char *service, const char *uri);
 
 
 

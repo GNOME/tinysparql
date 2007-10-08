@@ -17,6 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <string.h>
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 
@@ -147,10 +148,11 @@ tracker_dbus_send_index_status_change_signal ()
 }
 
 void
-tracker_dbus_send_index_progress_signal (const char *uri)
+tracker_dbus_send_index_progress_signal (const char *service, const char *uri)
 {
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
+	int count, processed;
 
 	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_PROGRESS);
 				
@@ -158,10 +160,13 @@ tracker_dbus_send_index_progress_signal (const char *uri)
 		return;
     	}
 
-	char *service = "Files";
 
-	if (tracker->index_status == INDEX_EMAILS) {
-		service = "Emails";
+	if (strcmp (service, "Emails") == 0) {
+		count = tracker->mbox_count;
+		processed = tracker->mbox_processed;
+	} else {
+		count = tracker->folders_count;
+		processed = tracker->folders_processed;
 	}
 
 	
@@ -180,8 +185,8 @@ tracker_dbus_send_index_progress_signal (const char *uri)
 				  DBUS_TYPE_STRING, &service,
 				  DBUS_TYPE_STRING, &uri,
 				  DBUS_TYPE_INT32, &tracker->index_count,
-				  DBUS_TYPE_INT32, &tracker->folders_processed,
-				  DBUS_TYPE_INT32, &tracker->folders_count,	
+				  DBUS_TYPE_INT32, &processed,
+				  DBUS_TYPE_INT32, &count,	
 				  DBUS_TYPE_INVALID);
 
 	dbus_message_set_no_reply (msg, TRUE);

@@ -996,8 +996,6 @@ process_files_thread (void)
 
 	tracker->index_db = tracker_db_connect_all (TRUE);
 
-	
-
 	tracker->index_status = INDEX_CONFIG;
 
 	pushed_events = FALSE;
@@ -1176,7 +1174,7 @@ process_files_thread (void)
 
 								tracker_db_end_transaction (db_con->cache);
 
-								tracker_dbus_send_index_progress_signal ("");
+								tracker_dbus_send_index_progress_signal ("Files", "");
 			
 							}
 							break;
@@ -1271,7 +1269,7 @@ process_files_thread (void)
 								tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
 								tracker->index_status = INDEX_EMAILS;
 
-								tracker_dbus_send_index_progress_signal ("");
+								tracker_dbus_send_index_progress_signal ("Emails", "");
 
 								if (tracker->word_update_count > 0) {
 									tracker_indexer_apply_changes (tracker->file_index, tracker->file_update_index, TRUE);
@@ -1341,7 +1339,7 @@ process_files_thread (void)
 				tracker_indexer_merge_indexes (INDEX_TYPE_EMAILS);
 
 				tracker->index_status = INDEX_FILES;
-				tracker_dbus_send_index_progress_signal ("");
+				tracker_dbus_send_index_progress_signal ("Files","");
 				tracker->index_status = INDEX_FINISHED;
 
 				if (tracker->is_running && (tracker->first_time_index || tracker->do_optimize || (tracker->update_count > tracker->optimization_count))) {
@@ -1590,9 +1588,9 @@ process_files_thread (void)
 			if (tracker_db_regulate_transactions (db_con, 100)) {
 				if (tracker->verbosity == 1) {
 					tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
-					tracker_dbus_send_index_progress_signal (info->uri);
-					
 				}
+
+				tracker_dbus_send_index_progress_signal ("Files", info->uri);
 			}
 
 			index_entity (db_con, info);
@@ -2135,6 +2133,8 @@ set_defaults (void)
 	tracker->root_directory_devices = NULL;
 
 	tracker->folders_count = 0;
+	tracker->folders_processed = 0;
+	tracker->mbox_count = 0;
 	tracker->folders_processed = 0;
 }
 

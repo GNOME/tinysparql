@@ -127,6 +127,9 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 	mf = email_open_mail_file_at_offset (mail_app, path, store->offset, TRUE);
 
+	tracker->mbox_count++;
+	tracker_dbus_send_index_progress_signal ("Emails", path);
+
 	while ((mail_msg = email_mail_file_parse_next (mf, read_mail_helper, read_mail_user_data))) {
 
 		if (!tracker->is_running) {
@@ -164,15 +167,13 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 		email_free_mail_message (mail_msg);
 
 		if (!tracker_cache_process_events (db_con->data, TRUE) ) {
-			tracker->status = STATUS_IDLE;
-			break;	
+			return FALSE;	
 		}
 
 		if (tracker_db_regulate_transactions (db_con->data, 300)) {
 
 			if (tracker->verbosity == 1) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
-				tracker_dbus_send_index_progress_signal (path);
 			}
 
 			if (tracker->index_count % 2500 == 0) {
@@ -186,6 +187,8 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 	}
 
 	email_free_mail_file (mf);
+	tracker->mbox_processed++;
+	tracker_dbus_send_index_progress_signal ("Emails", path);
 
 	if (indexed > 0) {
 		tracker_info ("Indexed %d emails in email store %s and ignored %d junk and %d deleted emails",
