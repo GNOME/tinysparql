@@ -536,6 +536,7 @@ tracker_indexer_merge_indexes (IndexType type)
 	
 	if (type == INDEX_TYPE_FILES) {
 		prefix = "file-index.tmp.";
+
 		index_list = g_slist_prepend (index_list, tracker->file_index);
 
 		char *tmp = g_build_filename (tracker->data_dir, "file-index-final", NULL);
@@ -577,7 +578,9 @@ tracker_indexer_merge_indexes (IndexType type)
 
 						tmp_index = tracker_indexer_open (name);
 
-						index_list = g_slist_prepend (index_list, tmp_index);
+						if (tmp_index) {
+							index_list = g_slist_prepend (index_list, tmp_index);
+						}
 					}
 
 					g_free (name);
@@ -632,6 +635,11 @@ tracker_indexer_merge_indexes (IndexType type)
 		final_index = tracker_indexer_open ("email-index-final");
 	}
 
+	if (!final_index) {
+		g_slist_free (index_list);
+		tracker_error ("could not open final index -abandoning index merge");
+		return;
+	}
 
 	for (l=index_list; l && l->data; l=l->next) {
 		index = l->data;

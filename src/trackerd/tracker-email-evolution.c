@@ -2261,16 +2261,17 @@ static gboolean
 do_save_ondisk_email_message (DBConnection *db_con, MailMessage *mail_msg)
 {
 	g_return_val_if_fail (db_con, FALSE);
+	g_return_val_if_fail (mail_msg, FALSE);
 	g_return_val_if_fail (mail_msg->path, FALSE);
 
 	if (tracker_file_is_indexable (mail_msg->path)) {
 		/* we have downloaded the mail message on disk so we can fully index it. */
-		MailMessage *mail_msg_on_disk;
+		MailMessage *mail_msg_on_disk = NULL;
 
 		mail_msg_on_disk = email_parse_mail_message_by_path (MAIL_APP_EVOLUTION,
                                                                      mail_msg->path, NULL, NULL);
 
-		if (mail_msg_on_disk) {
+		if (mail_msg_on_disk && mail_msg_on_disk->parent_mail_file) {
 
 			mail_msg_on_disk->parent_mail_file->next_email_offset = 0;
 			mail_msg_on_disk->uri = g_strdup (mail_msg->uri);

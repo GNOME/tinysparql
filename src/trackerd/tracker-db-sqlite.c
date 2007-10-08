@@ -1978,6 +1978,17 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 		tracker_error ("ERROR: execution of prepared query %s failed due to %s with return code %d", procedure, sqlite3_errmsg (db_con->db), rc);
 		db_con->in_error = TRUE;
 
+		if (rc == SQLITE_CORRUPT) {
+			tracker->reindex = TRUE;
+
+			g_timeout_add_full (G_PRIORITY_LOW,
+			     		    1,
+		 	    		    (GSourceFunc) tracker_do_cleanup,
+			     		    NULL, NULL
+			   		    );
+			return NULL;
+		}
+
 	}
 
 	if (!result || (row == 0)) {
