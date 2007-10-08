@@ -773,7 +773,7 @@ int dpsync(DEPOT *depot){
     depot->fatal = TRUE;
     return FALSE;
   }
-  if(fsync(depot->fd) == -1){
+  if(fdatasync(depot->fd) == -1){
     dpecodeset(DP_ESYNC, __FILE__, __LINE__);
     depot->fatal = TRUE;
     return FALSE;
