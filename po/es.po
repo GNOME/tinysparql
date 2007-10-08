@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-02 21:30+0100\n"
-"PO-Revision-Date: 2007-10-07 15:56+0200\n"
+"POT-Creation-Date: 2007-10-07 17:14+0100\n"
+"PO-Revision-Date: 2007-10-08 07:21+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -440,7 +440,8 @@ msgstr "Asegúrese de que «trackerd» esté funcionando antes de lanzar este co
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Servicio no reconocido, buscando en Otros archivos...\n"
 
-#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-search.c:164
+#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
 #: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
 #: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
@@ -585,161 +586,19 @@ msgstr "Hacer que los errores de tracker sean fatales"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2301
+#: ../src/trackerd/trackerd.c:2302
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:2302 ../src/trackerd/trackerd.c:2303
+#: ../src/trackerd/trackerd.c:2303 ../src/trackerd/trackerd.c:2304
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:2310
+#: ../src/trackerd/trackerd.c:2311
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
 msgstr "Para incluir o excluir varios directorios a la vez, una varias opciones como:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:36
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Files"
-msgstr "Archivos"
-
-#: ../src/tracker-applet/tm-tray-icon.c:37
-msgid "folders"
-msgstr "carpetas"
-
-#: ../src/tracker-applet/tm-tray-icon.c:38
-msgid "Conversations"
-msgstr "Conversaciones"
-
-#: ../src/tracker-applet/tm-tray-icon.c:39
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "Correos-e"
-
-#: ../src/tracker-applet/tm-tray-icon.c:41
-msgid "mail boxes"
-msgstr "buzones de coreo"
-
-#: ../src/tracker-applet/tm-tray-icon.c:43
-msgid "Indexing"
-msgstr "Indexando"
-
-#: ../src/tracker-applet/tm-tray-icon.c:44
-msgid "Idle"
-msgstr "Inactivo"
-
-#: ../src/tracker-applet/tm-tray-icon.c:45
-msgid "Initializing"
-msgstr "Inicializando"
-
-#: ../src/tracker-applet/tm-tray-icon.c:46
-msgid "(paused)"
-msgstr "(pausado)"
-
-#: ../src/tracker-applet/tm-tray-icon.c:47
-msgid "(battery paused)"
-msgstr "(pausado por la batería)"
-
-#: ../src/tracker-applet/tm-tray-icon.c:49
-msgid "Tracker will shortly be indexing your system"
-msgstr "Tracker pronto comenzará a indexar su sistema"
-
-#: ../src/tracker-applet/tm-tray-icon.c:50
-msgid "Indexing may affect the performance of your computer"
-msgstr "El indexado puede afectar al rendimiento de su equipo"
-
-#: ../src/tracker-applet/tm-tray-icon.c:51
-msgid ""
-"You can pause indexing at any time and configure index settings by right "
-"clicking here"
-msgstr ""
-"Puede pausar el indexado en cualquier momento y configurar los ajustes de indexado pulsando "
-"con el botón derecho del ratón aquí"
-
-#: ../src/tracker-applet/tm-tray-icon.c:53
-msgid ""
-"Tracker has finished indexing your system. You can now perform searches by "
-"clicking here"
-msgstr ""
-"Tracker ha finalizado el indexado de su sistema. Ahora puede realizar búsquedas pulsando "
-"aquí"
-
-#. search entry row
-#: ../src/tracker-applet/tm-tray-icon.c:211
-msgid "Search:"
-msgstr "Buscar:"
-
-#. status row
-#: ../src/tracker-applet/tm-tray-icon.c:231
-msgid "Status:"
-msgstr "Estado:"
-
-#. progress row
-#: ../src/tracker-applet/tm-tray-icon.c:251
-msgid "Progress:"
-msgstr "Progreso:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:263
-msgid "Files - 256/841 folders"
-msgstr "Archivos - 256/841 carpetas"
-
-#: ../src/tracker-applet/tm-tray-icon.c:502
-msgid "Statistics"
-msgstr "Estadísticas"
-
-#: ../src/tracker-applet/tm-tray-icon.c:534
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr "<span weight=\"bold\" size=\"larger\">Estadísticas del indexado</span>"
-
-#: ../src/tracker-applet/tm-tray-icon.c:555
-msgid "Files:"
-msgstr "Archivos:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:556
-msgid "    Folders:"
-msgstr "    Carpetas:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:557
-msgid "    Documents:"
-msgstr "    Documentos:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:558
-msgid "    Images:"
-msgstr "    Imágenes:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:559
-msgid "    Music:"
-msgstr "    Música:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:560
-msgid "    Videos:"
-msgstr "    Vídeos:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:561
-msgid "    Text:"
-msgstr "    Texto:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:562
-msgid "    Development:"
-msgstr "    Desarrollo:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:563
-msgid "    Other:"
-msgstr "    Otros:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:564
-msgid "Applications:"
-msgstr "Aplicaciones:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:565
-msgid "Conversations:"
-msgstr "Conversaciones:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:566
-msgid "Emails:"
-msgstr "Correos-e:"
 
 #: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
 msgid "Control and monitor the Tracker search and indexing service"
@@ -754,8 +613,8 @@ msgid "Configure file indexing with Tracker"
 msgstr "Configurar el indexado de archivos con Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Indexing Preferences"
-msgstr "Preferencias del indexado"
+msgid "Search and Indexing"
+msgstr "Búsqueda e indexado"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
@@ -849,6 +708,11 @@ msgstr ""
 "ruso\n"
 "sueco"
 
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "Correos-e"
+
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Enable _Evolution email indexing"
 msgstr "Activar el indexado de correos-e de _Evolution"
@@ -876,6 +740,10 @@ msgstr "Más rápido"
 #: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "File patterns to ignore during indexing:"
 msgstr "Patrones de archivo que ignorar durante el indexado:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "Files"
+msgstr "Archivos"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "General"
