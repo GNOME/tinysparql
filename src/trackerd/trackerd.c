@@ -173,7 +173,7 @@ static GOptionEntry entries[] = {
 	{"crawl-dir", 'c', 0, G_OPTION_ARG_STRING_ARRAY, &crawl_dirs, N_("Directory to crawl for indexing at start up only"), N_("/PATH/DIR")},
 	{"no-indexing", 'n', 0, G_OPTION_ARG_NONE, &disable_indexing, N_("Disable any indexing or watching taking place"), NULL },
 	{"verbosity", 'v', 0, G_OPTION_ARG_INT, &verbosity, N_("Value that controls the level of logging. Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)"), N_("VALUE") },
-	{"throttle", 't', 0, G_OPTION_ARG_INT, &throttle, N_("Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"), N_("VALUE") },
+	{"throttle", 't', 0, G_OPTION_ARG_INT, &throttle, N_("Value to use for throttling indexing. Value must be in range 0-99 (default 0) with lower values increasing indexing speed"), N_("VALUE") },
 	{"low-memory", 'm', 0, G_OPTION_ARG_NONE, &low_memory, N_("Minimizes the use of memory but may slow indexing down"), NULL },
 	{"initial-sleep", 's', 0, G_OPTION_ARG_INT, &initial_sleep, N_("Initial sleep time, just before indexing, in seconds"), NULL },
 	{"language", 'l', 0, G_OPTION_ARG_STRING, &language, N_("Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"), N_("LANG")},
@@ -883,7 +883,7 @@ index_entity (DBConnection *db_con, FileInfo *info)
 
 	if (!info->is_directory) {
 		/* sleep to throttle back indexing */
-		tracker_throttle (1000);
+		tracker_throttle (100);
 	}
 
 	service_info = tracker_get_service_for_uri (info->uri);
@@ -2167,8 +2167,8 @@ sanity_check_option_values (void)
 	//	tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir()));
 	//}
 
-	if (tracker->throttle > 20) {
-		tracker->throttle = 20;
+	if (tracker->throttle > 99) {
+		tracker->throttle = 99;
 	} else 	if (tracker->throttle < 0) {
 		tracker->throttle = 0;
 	}

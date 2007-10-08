@@ -397,11 +397,11 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	guint32 size = tracker_indexer_size (dest);
 
 	if (size < (10 * 1024 * 1024)) {
-		interval = 10000;
+		interval = 20000;
 	} else if (size < (20 * 1024 * 1024)) {
-		interval = 5000;
+		interval = 10000;
 	} else if (size < (30 * 1024 * 1024)) {
-		interval = 4000;
+		interval = 5000;
 	} else if (size < (100 * 1024 * 1024)) {
 		interval = 3000;
 	} else {
@@ -417,12 +417,14 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 		
 		i++;
 
-		if (i > 1 && (i % interval == 0)) {
-			if (!tracker->fast_merges) dpsync (dest->word_index);
-
+		if (i > 1 && (i % 200 == 0)) {
 			if (!tracker_cache_process_events (NULL, FALSE)) {
 				return;	
 			}
+		}
+
+		if (i > 1 && (i % interval == 0)) {
+			if (!tracker->fast_merges) dpsync (dest->word_index);
 		}
 			
 		bytes = dpgetwb (src->word_index, str, -1, 0, buff_size, buffer);
@@ -659,7 +661,7 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				i++;
 
-				if (i > 1001 && (i % 1000 == 0)) {
+				if (i > 101 && (i % 100 == 0)) {
 					if (!tracker_cache_process_events (NULL, FALSE)) {
 						return;	
 					}

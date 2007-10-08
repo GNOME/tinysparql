@@ -168,7 +168,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			break;	
 		}
 
-		if (tracker_db_regulate_transactions (db_con->data, 500)) {
+		if (tracker_db_regulate_transactions (db_con->data, 300)) {
 
 			if (tracker->verbosity == 1) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
@@ -180,7 +180,9 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 				tracker_db_refresh_all (db_con->data);
 				tracker_db_start_index_transaction (db_con->data);
 			}
-		}		
+		}	
+
+	
 	}
 
 	email_free_mail_file (mf);

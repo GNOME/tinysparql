@@ -6364,7 +6364,7 @@ gboolean
 tracker_db_regulate_transactions (DBConnection *db_con, int interval)
 {
 	tracker->index_count++;
-			
+	
 	if ((tracker->index_count == 1 || tracker->index_count == interval  || (tracker->index_count >= interval && tracker->index_count % interval == 0))) {
 			
 		if (tracker->index_count > 1) {

@@ -2509,6 +2509,8 @@ tracker_load_config_file (void)
 					 "EnableFileContentIndexing=true\n",
 					 "# Enables generation of thumbnails\n",
 					 "EnableThumbnails=false\n",
+					 "# Enables fast index merges but may hog the disk for extended periods\n",
+					 "EnableFastMerges=false\n",
 					 "# List of partial file patterns (glob) seperated by semicolons that specify files to not index (basic stat info is only indexed for files that match these patterns)\n",
 					 "NoIndexFileTypes=;\n\n",
 					 "# Sets minimum length of words to index\n",
@@ -2639,6 +2641,13 @@ tracker_load_config_file (void)
 		tracker->enable_thumbnails = g_key_file_get_boolean (key_file, "Indexing", "EnableThumbnails", NULL);
 	} else {
 		tracker->enable_thumbnails = FALSE;
+	}
+
+
+	if (g_key_file_has_key (key_file, "Indexing", "EnableFastMerges", NULL)) {
+		tracker->fast_merges = g_key_file_get_boolean (key_file, "Indexing", "EnableFastMerges", NULL);
+	} else {
+		tracker->fast_merges = FALSE;
 	}
 
 	values =  g_key_file_get_string_list (key_file,

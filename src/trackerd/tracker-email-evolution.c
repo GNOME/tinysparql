@@ -1365,7 +1365,7 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 					break;	
 				}
 
-				if (tracker_db_regulate_transactions (db_con->data, 200)) {
+				if (tracker_db_regulate_transactions (db_con->data, 100)) {
 					if (tracker->verbosity == 1) {
 						tracker_log ("indexing #%d - Emails in %s", tracker->index_count, dir);
 						tracker_dbus_send_index_progress_signal (dir);
