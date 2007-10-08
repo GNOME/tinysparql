@@ -2138,6 +2138,27 @@ set_defaults (void)
 	tracker->folders_processed = 0;
 }
 
+static gboolean
+is_child_of (const char *dir, const char *file)
+{
+	if (!file) return FALSE;
+
+	char *uri;
+	gboolean result;
+				
+	if (dir[strlen (dir)-1] != '/') {
+		uri = g_strconcat (dir, "/", NULL);
+	} else {
+		uri = g_strdup (dir);
+	}
+
+	result = g_str_has_prefix (file, uri);
+		
+	g_free (uri);
+
+	return result;
+}
+
 
 static void
 sanity_check_option_values (void)
@@ -2227,14 +2248,61 @@ sanity_check_option_values (void)
 	}
 
 
-	GSList *lst;
+	GSList *lst, *final_list = NULL;
 	tracker_log ("Setting watch directory roots to:");
 	for (lst = tracker->watch_directory_roots_list; lst; lst = lst->next) {
                 if (lst->data) {
+			char *uri = lst->data;
+
+			
+					
+			if (final_list) {
+				gboolean add = TRUE;
+
+
+				GSList *l;
+				for (l = final_list; l; l = l->next) {
+			                if (l->data) {
+						char *uri2 =  l->data;
+
+						if (is_child_of (uri2, uri)) {
+							add = FALSE;
+							break;			
+						}
+
+						if (is_child_of (uri, uri2)) {
+							l->data = NULL;	
+						}
+		
+					}
+	
+				}
+
+				if (add) {
+					final_list = g_slist_prepend (final_list, uri);
+				}
+
+
+			} else {
+				final_list = g_slist_prepend (final_list, uri);
+			}
+		
+		}
+	}
+
+	g_slist_free (tracker->watch_directory_roots_list);
+	tracker->watch_directory_roots_list = NULL;
+
+	for (lst = final_list; lst; lst=lst->next) {
+		char *uri = lst->data;
+		if (uri && uri[0] == '/') tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, uri);
+	}
+
+	for (lst = tracker->watch_directory_roots_list; lst; lst = lst->next) {
+                if (lst->data) {	
                         tracker_log (lst->data);
                 }
 	}
-	tracker_log ("\t");
 
 	if (tracker->no_watch_directory_list) {
 
@@ -2244,7 +2312,6 @@ sanity_check_option_values (void)
                                 tracker_log (lst->data);
                         }
 		}
-		tracker_log ("\t");
 	}
 
 	if (tracker->crawl_directory_list) {
@@ -2255,7 +2322,6 @@ sanity_check_option_values (void)
                                 tracker_log (lst->data);
                         }
 		}
-		tracker_log ("\t");
 	}
 
 	if (tracker->verbosity < 0) {
