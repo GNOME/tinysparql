@@ -14,13 +14,11 @@
 #include "tracker.h"
 #include "tracker-applet-marshallers.h"
 
-#define TRACKER_ICON            "tracker"
-
-#define PROGRAM                 "tracker-monitor"
-#define PROGRAM_NAME            "Tracker Monitor"
+#define PROGRAM                 "tracker-applet"
+#define PROGRAM_NAME            "Tracker Applet"
 
 #define HOMEPAGE                "http://www.tracker-project.org/"
-#define DESCRIPTION             "A GTK+ monitor for tracker"
+#define DESCRIPTION             "An applet for tracker"
 
 #define DBUS_SERVICE_TRACKER    "org.freedesktop.Tracker"
 #define DBUS_PATH_TRACKER       "/org/freedesktop/tracker"
@@ -56,6 +54,8 @@ static char *end_index_final_msg;
 static char *start_merge_msg;
 
 static char *tracker_title;
+
+
 
 
 typedef struct {
@@ -232,6 +232,65 @@ set_progress (TrayIcon *icon, gboolean for_files, gboolean for_merging, int fold
 
 }
 
+
+static void
+set_tracker_icon (TrayIconPrivate *priv)
+{
+	char *path;
+	const char *name;
+
+	name = index_icons [priv->index_icon];
+
+	path = g_build_filename (TRACKER_DATADIR "/tracker/icons", name, NULL);
+
+	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
+		gtk_status_icon_set_from_file (priv->icon, path);
+	}
+	
+	g_free (path);
+
+}
+
+
+static gboolean
+set_icon (TrayIconPrivate *priv)
+{
+	
+	if (priv->paused) {
+		if (priv->index_icon != ICON_PAUSED) {
+			priv->index_icon = ICON_PAUSED;
+			set_tracker_icon (priv);		
+		}
+		priv->animated = FALSE;
+		return FALSE;
+
+	}
+
+	if (priv->indexing) {
+
+		if (priv->index_icon == ICON_INDEX2) {
+			priv->index_icon = ICON_DEFAULT;
+		} else if (priv->index_icon != ICON_INDEX1) {
+			priv->index_icon = ICON_INDEX1;
+		} else {
+			priv->index_icon = ICON_INDEX2;
+		}
+
+		set_tracker_icon (priv);
+
+		return TRUE;
+	}
+
+	
+	if (priv->index_icon != ICON_DEFAULT) {
+		priv->index_icon = ICON_DEFAULT;
+		priv->animated = FALSE;
+		set_tracker_icon (priv);
+	}
+	
+	return FALSE;
+
+}
 
 static void
 create_window (TrayIcon *icon)
@@ -461,7 +520,6 @@ index_finished (DBusGProxy *proxy,  int time_taken, TrayIcon *self)
 	}
 
 	tray_icon_show_message (self, "%s%s\n\n%s", end_index_initial_msg, format, end_index_final_msg);
-
 	g_free (format);
 }
 
@@ -483,31 +541,58 @@ index_state_changed (DBusGProxy *proxy, const gchar *state, gboolean initial_ind
 
 
 	if (is_manual_paused) {
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_paused);  		
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_paused);
+		priv->paused = TRUE;
+		priv->animated = FALSE;
+		set_icon (priv); 		
 		return;
 	} 
 
 	if (is_battery_paused) {
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_battery_paused);  		
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_battery_paused);  	
+		priv->paused = TRUE;
+		priv->animated = FALSE;
+		set_icon (priv); 	
+	
 		return;
 	}
 
 	if (is_io_paused) {
 		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_paused_io);  		
+		priv->paused = TRUE;
+		priv->animated = FALSE;
+		set_icon (priv); 		
 		return;
 	}
 
+	priv->paused = FALSE;
 
 	if (in_merge) {
 		tray_icon_show_message (self, start_merge_msg); 
 		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_merge); 
+		priv->indexing = TRUE;
+		set_icon (priv); 		
+		if (!priv->animated) {
+			priv->animated = TRUE;
+			g_timeout_add (1000, (GSourceFunc) set_icon, priv);
+		}
+
 		return; 						
 	}
 	
 	if (strcasecmp (state, "Idle") == 0) {
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_idle);  		
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_idle);  
+		priv->indexing = FALSE;
+		priv->animated = FALSE;
+		set_icon (priv);		
 	} else { 
 		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_indexing);  		
+		priv->indexing = TRUE;
+		set_icon (priv); 		
+		if (!priv->animated) {
+			priv->animated = TRUE;
+			g_timeout_add (1000, (GSourceFunc) set_icon, priv);
+		}
 	}
 
 
@@ -541,14 +626,31 @@ index_progress_changed (DBusGProxy *proxy, const gchar *service, const char *uri
 
 }
 
+static gboolean
+prompt_state (TrayIconPrivate *priv)
+{
+	/* prompt for updated signals */
+	dbus_g_proxy_begin_call (priv->tracker->proxy, "PromptIndexSignals", NULL, NULL, NULL, G_TYPE_INVALID);
+
+	return FALSE;
+}
+
+
 static void
 tray_icon_init (GTypeInstance *instance, gpointer g_class)
 {
 	TrayIcon *self = TRAY_ICON(instance);
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE(self);
 
-	priv->icon = gtk_status_icon_new_from_icon_name (TRACKER_ICON);
-	gtk_status_icon_set_visible(priv->icon, TRUE);
+	priv->icon = gtk_status_icon_new ();
+	priv->indexing = FALSE;
+	priv->paused = FALSE;
+
+	priv->index_icon = ICON_DEFAULT;
+	priv->animated = FALSE;
+	set_tracker_icon (priv);
+	
+	gtk_status_icon_set_visible (priv->icon, TRUE);
 
 	g_signal_connect(G_OBJECT(priv->icon), "activate", G_CALLBACK (show_window), instance);
 	g_signal_connect(G_OBJECT(priv->icon), "popup-menu", G_CALLBACK (tray_icon_clicked), instance);
@@ -618,15 +720,13 @@ tray_icon_init (GTypeInstance *instance, gpointer g_class)
 	/* build popup window */
 	create_window (self);
 
-	/* prompt for updated signals */
-	dbus_g_proxy_begin_call (priv->tracker->proxy, "PromptIndexSignals", NULL, NULL, NULL, G_TYPE_INVALID);
-
 	/* build context menu */
 	create_context_menu (self);
 
-	
+	g_timeout_add (1000,(GSourceFunc) prompt_state, priv);
 
 }
+
 
 
 void

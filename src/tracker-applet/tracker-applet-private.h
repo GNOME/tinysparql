@@ -11,15 +11,34 @@
 
 #define TRAY_ICON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TYPE_TRAY_ICON, TrayIconPrivate))
 
-typedef enum _Properties
-{
-   PROP_TRACKERD_CONNECTION = 1
-} Properties;
+#define TRACKER_ICON            "tracker-applet-default.png"
+#define TRACKER_ICON_PAUSED     "tracker-applet-paused.png"
+#define TRACKER_ICON_INDEX1     "tracker-applet-indexing1.png"
+#define TRACKER_ICON_INDEX2     "tracker-applet-indexing2.png"
+
+
+typedef enum {
+	ICON_DEFAULT,
+	ICON_PAUSED,
+	ICON_INDEX1,
+	ICON_INDEX2,
+} IndexIcon;
+
+
+static char *index_icons[4] = {TRACKER_ICON, TRACKER_ICON_PAUSED, TRACKER_ICON_INDEX1, TRACKER_ICON_INDEX2};
+
 
 typedef struct _TrayIconPrivate
 {
-	/* main window */
    	GtkStatusIcon 		*icon;
+
+	/* states */
+	gboolean 		indexing;
+	gboolean 		paused;
+	IndexIcon		index_icon;
+	gboolean		animated;
+
+	/* main window */
    	GtkMenu 		*menu;
 	GtkWindow		*window;
 	GtkWidget 		*search_entry;	

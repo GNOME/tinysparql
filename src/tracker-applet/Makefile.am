@@ -5,7 +5,10 @@ autostartdir = $(sysconfdir)/xdg/autostart
 autostart_in_files = tracker-applet.desktop.in
 autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
 
+icondir = $(datadir)/tracker/icons
+
 INCLUDES = -DTRACKER_LOCALEDIR=\""$(localedir)"\" \
+	   -DTRACKER_DATADIR=\""$(datadir)"\"	\
 	   -I$(top_srcdir)/src/libtracker \
 	   $(TRACKERAPPLET_CFLAGS)
 
@@ -21,5 +24,9 @@ tracker_applet_LDADD = $(top_srcdir)/src/libtracker/libtrackerclient.la $(TRACKE
 tracker_applet_SOURCES = tracker-applet.c \
 			 tracker-applet-marshallers.c  \
 			 $(NULL)
+
+icon_DATA = tracker-applet-default.png tracker-applet-indexing1.png tracker-applet-indexing2.png tracker-applet-paused.png
+
+EXTRA_DIST = $(icon_DATA)
 
 CLEANFILES = $(autostart_DATA)
