@@ -32,6 +32,7 @@
 #include <sqlite3.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+
 #include "tracker-indexer.h"
 #include "tracker-cache.h"
 #include "tracker-dbus.h"
@@ -417,10 +418,9 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 		i++;
 
 		if (i > 1 && (i % interval == 0)) {
-			dpsync (dest->word_index);
+			if (!tracker->fast_merges) dpsync (dest->word_index);
 
 			if (!tracker_cache_process_events (NULL, FALSE)) {
-				tracker->status = STATUS_IDLE;
 				return;	
 			}
 		}
@@ -632,6 +632,7 @@ tracker_indexer_merge_indexes (IndexType type)
 		final_index = tracker_indexer_open ("email-index-final");
 	}
 
+
 	for (l=index_list; l && l->data; l=l->next) {
 		index = l->data;
 
@@ -652,31 +653,34 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				if (i > 1001 && (i % 1000 == 0)) {
 					if (!tracker_cache_process_events (NULL, FALSE)) {
-						tracker->status = STATUS_IDLE;
 						return;	
 					}
 				}
 				
 
 				if (i > interval && (i % interval == 0)) {
-					dpsync (final_index->word_index);
 
-					guint32 size = tracker_indexer_size (final_index);
+					if (!tracker->fast_merges) {
 
-					if (size < (10 * 1024 * 1024)) {
-						interval = 10000;
-					} else if (size < (20 * 1024 * 1024)) {
-						interval = 6000;
-					} else if (size < (50 * 1024 * 1024)) {
-						interval = 6000;
-					} else if (size < (100 * 1024 * 1024)) {
-						interval = 4000;
-					} else {
-						interval = 3000;
+						dpsync (final_index->word_index);
+
+						guint32 size = tracker_indexer_size (final_index);
+
+						if (size < (10 * 1024 * 1024)) {
+							interval = 10000;
+						} else if (size < (20 * 1024 * 1024)) {
+							interval = 6000;
+						} else if (size < (50 * 1024 * 1024)) {
+							interval = 6000;
+						} else if (size < (100 * 1024 * 1024)) {
+							interval = 4000;
+						} else {
+							interval = 3000;
+						}
+
+						/* halve the interval value as notebook hard drives are smaller */
+						if (tracker->battery_udi) interval = interval / 2;
 					}
-
-					/* halve the interval value as notebook hard drives are smaller */
-					if (tracker->battery_udi) interval = interval / 2;
 				}
 			
 				offset = dpgetwb (index->word_index, str, -1, 0, buff_size, buffer);
@@ -741,6 +745,8 @@ tracker_indexer_merge_indexes (IndexType type)
 		
 	g_slist_free (index_list);
 
+
+
 	tracker->in_merge = FALSE;
 	tracker_dbus_send_index_status_change_signal ();
 	
@@ -797,7 +803,6 @@ tracker_indexer_append_word (Indexer *indexer, const gchar *word, guint32 id, gi
 
 
 /* append lists of words for a document - returns no. of hits added */
-
 gint
 tracker_indexer_append_word_list (Indexer *indexer, const gchar *word, GSList *list)
 {

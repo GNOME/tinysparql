@@ -475,6 +475,8 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 
 	if (strcasecmp (option, "Pause") == 0) {
 		tracker->pause_manual = value;
+	} else if (strcasecmp (option, "FastMerges") == 0) {
+		tracker->fast_merges = value;
 	} else if (strcasecmp (option, "EnableIndexing") == 0) {
 		tracker->enable_indexing = value;
 	} else if (strcasecmp (option, "LowMemoryMode") == 0) {
@@ -485,6 +487,7 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 		tracker->index_evolution_emails = value;
 	}
 
+	tracker_notify_file_data_available ();
 
 	reply = dbus_message_new_method_return (rec->message);
 

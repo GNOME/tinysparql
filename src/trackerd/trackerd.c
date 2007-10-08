@@ -773,7 +773,7 @@ check_directory (const gchar *uri)
 
 	queue_file (uri);
 
-	tracker->folders_processed++;
+	if (tracker->index_status != INDEX_EMAILS) tracker->folders_processed++;
 }
 
 
@@ -1264,15 +1264,12 @@ process_files_thread (void)
 
 						case INDEX_EMAILS:  {
 
-								tracker->index_status = INDEX_FILES;
-								tracker_dbus_send_index_progress_signal ("");
-								tracker->folders_count = 0;
-								tracker->folders_processed = 0;
-								tracker->index_status = INDEX_EMAILS;
-
 								tracker_db_end_index_transaction (db_con);
 								tracker_cache_flush_all ();
 								tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
+								tracker->index_status = INDEX_EMAILS;
+
+								tracker_dbus_send_index_progress_signal ("");
 
 								if (tracker->word_update_count > 0) {
 									tracker_indexer_apply_changes (tracker->file_index, tracker->file_update_index, TRUE);
@@ -1543,7 +1540,8 @@ process_files_thread (void)
 
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
-					tracker->folders_count++;
+
+					if (tracker->index_status != INDEX_EMAILS) tracker->folders_count++;
 				}
 				need_index = FALSE;
 
@@ -1553,7 +1551,7 @@ process_files_thread (void)
 
 				if (need_index && !tracker_file_is_no_watched (info->uri)) {
 					g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
-					tracker->folders_count++;
+					
 					if (info->indextime > 0) {
 						check_dir_for_deletions (db_con, info->uri);
 					}
@@ -2066,6 +2064,8 @@ set_defaults (void)
 {
 	tracker->grace_period = 0;
 
+	tracker->fast_merges = FALSE;
+
 	tracker->reindex = FALSE;
 	tracker->in_merge = FALSE;
 
@@ -2132,7 +2132,8 @@ set_defaults (void)
 	tracker->skip_mount_points = FALSE;
 	tracker->root_directory_devices = NULL;
 
-
+	tracker->folders_count = 0;
+	tracker->folders_processed = 0;
 }
 
 
