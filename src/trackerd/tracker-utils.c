@@ -2483,6 +2483,14 @@ tracker_load_config_file (void)
 
 		language = get_default_language_code ();
 
+		char *default_throttle;
+
+		if (tracker->battery_udi) {
+			default_throttle = "5";
+		} else {
+			default_throttle = "0";
+		}
+
 		contents  = g_strconcat (
 					 "[General]\n",
 					 "# Log Verbosity - Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)\n",
@@ -2502,7 +2510,7 @@ tracker_load_config_file (void)
 					 "EnableWatching=true\n\n",
 					 "[Indexing]\n",
 					 "# Throttles the indexing process. Allowable values are 0-20. higher values decrease indexing speed\n",
-					 "Throttle=0\n",
+					 "Throttle=", default_throttle, "\n",
 					 "# Disables the indexing process\n",
 					 "EnableIndexing=true\n",
 					 "# Enables indexing of a file's text contents\n",

@@ -264,6 +264,8 @@ tracker_hal_init ()
 
 	connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 
+	g_print ("starting HAL detection for ac adaptors...");
+
 	if (!connection) {
 		if (dbus_error_is_set (&error)) {
 			tracker_error ("Could not connect to system bus due to %s", error.message);
@@ -313,13 +315,13 @@ tracker_hal_init ()
   	if (!devices || !devices[0]) {
 		tracker->pause_battery = FALSE;
 		tracker->battery_udi = NULL;
-		tracker_log ("no AC adaptors were found in system so assuming its not a laptop");
+		g_print ("none found\n");
 		return ctx;
 	}
   
 	/* there should only be one ac-adaptor so use first one */
 	tracker->battery_udi = g_strdup (devices[0]);
-	tracker_log ("An AC adaptor %s was found in system so assuming its a laptop", devices[0]);
+	g_print ("found %s\n", devices[0]);
 
 	libhal_ctx_set_device_property_modified (ctx, property_callback);
 
@@ -2500,6 +2502,13 @@ main (gint argc, gchar *argv[])
 
 	/* deal with config options with defaults, config file and option params */
 	set_defaults ();
+
+	tracker->battery_udi = NULL;
+	
+#ifdef HAVE_HAL
+	tracker->hal_con = tracker_hal_init ();
+#endif
+
 	tracker_load_config_file ();
 
 	if (error) {
@@ -2646,7 +2655,7 @@ main (gint argc, gchar *argv[])
 
 	tracker->user_request_thread =  g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
 
-	tracker->battery_udi = NULL;
+	
 	tracker->dbus_con = tracker_dbus_init ();
 	
 	add_local_dbus_connection_monitoring (tracker->dbus_con);
@@ -2656,11 +2665,6 @@ main (gint argc, gchar *argv[])
 		tracker_do_cleanup ("File watching failure");
 		exit (1);
 	}
-
-	
-#ifdef HAVE_HAL
-	tracker->hal_con = tracker_hal_init ();
-#endif
 
 	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
 	
