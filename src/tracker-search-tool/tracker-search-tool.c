@@ -1215,7 +1215,7 @@ create_search_results_section (GSearchWindow * gsearch)
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->search_results_tree_view), column);
 
-	gtk_tree_view_column_set_min_width (column, 200);
+	gtk_tree_view_column_set_min_width (column, 250);
 	gtk_tree_view_column_set_max_width (column, 400);
 
 	/* create the snippet column */
@@ -1801,6 +1801,22 @@ end_search (GPtrArray * out_array,
 		return;
 	}
 
+	GError *error2 = NULL;
+	gchar* status = tracker_get_status (tracker_client, &error2);
+
+	if (error2) {
+		g_error_free (error2);
+		status = g_strdup ("Indexing");
+	}
+
+	if (strcmp (status, "Idle") == 0) {
+		gtk_widget_hide (gsearch->warning_label);
+	} else {
+		gtk_widget_show (gsearch->warning_label);
+	}
+	
+	g_free (status);
+
 	if (out_array) {
 
 		gsearch->current_service->has_hits = TRUE;
@@ -1968,7 +1984,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	hbox = gtk_hbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (container), hbox, FALSE, FALSE, 3);
 
-	gsearch->name_and_folder_table = gtk_table_new (1, 4, FALSE);
+	gsearch->name_and_folder_table = gtk_table_new (2, 4, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (gsearch->name_and_folder_table), 6);
 	gtk_table_set_col_spacings (GTK_TABLE (gsearch->name_and_folder_table), 12);
 	gtk_container_add (GTK_CONTAINER (hbox), gsearch->name_and_folder_table);
@@ -1976,7 +1992,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	label = gtk_label_new_with_mnemonic (_("_Search:"));
 	gtk_label_set_justify (GTK_LABEL (label), GTK_JUSTIFY_LEFT);
 	g_object_set (G_OBJECT (label), "xalign", 0.0, NULL);
-
+	
 	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), label, 0, 1, 0, 1, GTK_FILL, 0, 0, 1);
 
 	gsearch->search_entry = sexy_icon_entry_new ();
@@ -1984,6 +2000,11 @@ gsearch_app_create (GSearchWindow * gsearch)
 	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), gsearch->search_entry, 1, 2, 0, 1, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0, 0);
 	entry =  (gsearch->search_entry);
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
+
+	gsearch->warning_label = gtk_label_new (_("Tracker is still indexing so not all search results are available yet"));
+	gtk_label_set_justify (GTK_LABEL (gsearch->warning_label), GTK_JUSTIFY_LEFT);
+	g_object_set (G_OBJECT (gsearch->warning_label), "xalign", 0.0, NULL);
+	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), gsearch->warning_label, 0, 2, 1, 2, GTK_FILL, 0, 0, 1);
 
 	hbox = gtk_hbutton_box_new ();
 	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), hbox, 3, 4, 0, 1, GTK_FILL, 0, 0, 0);
@@ -2060,6 +2081,8 @@ gsearch_app_create (GSearchWindow * gsearch)
 
 
 	gtk_widget_show_all (main_container);
+
+	gtk_widget_hide (gsearch->warning_label);
 
 	return gsearch->window;
 }

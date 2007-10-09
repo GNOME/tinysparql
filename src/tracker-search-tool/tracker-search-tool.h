@@ -154,6 +154,7 @@ struct _GSearchWindow {
 	GtkWidget		*message_box;
 
 	GtkWidget             * search_entry;
+	GtkWidget	      * warning_label;
 	GtkWidget             * look_in_folder_button;
 	GtkWidget             * name_and_folder_table;
 	GtkWidget             * find_button;
