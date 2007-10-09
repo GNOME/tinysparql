@@ -269,7 +269,7 @@ display_dialog_character_set_conversion_error (GtkWidget * window,
 
 static void
 display_error_dialog (GtkWidget * window,
-		      GError * error)
+		      const char *error)
 {
 	GtkWidget * dialog;
 
@@ -279,10 +279,9 @@ display_error_dialog (GtkWidget * window,
 				 GTK_BUTTONS_OK,
 				 _("The following error has occured :"));
 
-	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-					  (error == NULL) ? " " : error->message);
+	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), error);
 
-	gtk_window_set_title (GTK_WINDOW (dialog), "Error");
+	gtk_window_set_title (GTK_WINDOW (dialog), _("Error"));
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
 	gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 14);
 
@@ -913,8 +912,8 @@ filename_cell_data_func (GtkTreeViewColumn * column,
 	gtk_tree_model_get (model, iter, COLUMN_PATH, &fpath, -1);
 	gtk_tree_model_get (model, iter, COLUMN_MIME, &type, -1);
 
-	gchar * display_name = crop_string (name, 40);
-	gchar * display_path = crop_string (fpath, 55);
+	gchar * display_name = crop_string (name, 140);
+	gchar * display_path = crop_string (fpath, 145);
 
 	gchar * mark_name = g_markup_escape_text (display_name, -1);
 	gchar * mark_dir =  g_markup_escape_text (display_path, -1);
@@ -1203,6 +1202,8 @@ create_search_results_section (GSearchWindow * gsearch)
 
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 
+	g_object_set (G_OBJECT (gsearch->search_results_name_cell_renderer), "ellipsize", PANGO_ELLIPSIZE_START, NULL);
+
 
 
 	gtk_tree_view_column_set_sort_column_id (column, COLUMN_NAME);
@@ -1215,7 +1216,7 @@ create_search_results_section (GSearchWindow * gsearch)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->search_results_tree_view), column);
 
 	gtk_tree_view_column_set_min_width (column, 200);
-	gtk_tree_view_column_set_max_width (column, 300);
+	gtk_tree_view_column_set_max_width (column, 400);
 
 	/* create the snippet column */
 	renderer = gtk_cell_renderer_text_new ();
@@ -1619,7 +1620,7 @@ get_hit_count (GPtrArray *out_array,
 	GSearchWindow *gsearch = user_data;
 
 	if (error) {
-		display_error_dialog (gsearch->window, error);
+		display_error_dialog (gsearch->window, _("Could not connect to search service as it may be busy"));
 		g_error_free (error);
 		return;
 	}
@@ -1795,7 +1796,7 @@ end_search (GPtrArray * out_array,
 	stop_animation (gsearch);
 	
 	if (error) {
-		display_error_dialog (gsearch->window, error);
+		display_error_dialog (gsearch->window,  _("Could not connect to search service as it may be busy"));
 		g_error_free (error);
 		return;
 	}
@@ -2151,9 +2152,9 @@ tracker_search_select_service_type_by_string (GtkComboBox * combo,
 gchar *
 tracker_search_pixmap_file (const gchar * partial_path)
 {
-	gchar * path;
+ 	gchar * path;
 
-	path = g_build_filename (TRACKER_DATADIR "/pixmaps/tracker", partial_path, NULL);
+	path = g_build_filename (TRACKER_DATADIR "/tracker/icons", partial_path, NULL);
 	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
 		return path;
 	} else {
