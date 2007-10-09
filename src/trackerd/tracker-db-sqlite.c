@@ -2663,8 +2663,8 @@ tracker_db_get_indexable_content_words (DBConnection *db_con, guint32 id, GHashT
 
 		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
 
-			if (row[0] && row[1]) {
-				table = tracker_parse_text_fast (table, row[0], atoi (row[1]));
+			if (row[0] && row[1] && row[2] && row[3]) {
+				table = tracker_parse_text (table, row[0], atoi (row[1]), (row[2] == "1"), (row[3] == "1"));
 			}
 		}
 
@@ -5721,7 +5721,7 @@ update_index_data (gpointer key,
 
 	if (score == 0) return;
 
-	//tracker_debug ("updating index for word %s with score %d", word, score);
+	tracker_debug ("updating index for word %s with score %d", word, score);
 	
 	tracker_cache_add (word, info->service_id, info->service_type_id, score, FALSE);
 

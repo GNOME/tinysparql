@@ -39,7 +39,7 @@
 
 extern Tracker *tracker;
 
-static inline guint16
+static inline gint16
 get_score (WordDetails *details)
 {
 	unsigned char a[2];
@@ -47,7 +47,7 @@ get_score (WordDetails *details)
 	a[0] = (details->amalgamated >> 16) & 0xFF;
 	a[1] = (details->amalgamated >> 8) & 0xFF;
 
-	return (a[0] << 8) | (a[1]);	
+	return (gint16) (a[0] << 8) | (a[1]);	
 }
 
 
@@ -62,13 +62,13 @@ guint32
 tracker_indexer_calc_amalgamated (gint service, gint score)
 {
 	unsigned char a[4];
-	guint16 score16;
+	gint16 score16;
 	guint8 service_type;
 
-	if (score > 65535) {
-		score16 = 65535;
+	if (score > 30000) {
+		score16 = 30000;
 	} else {
-		score16 = (guint16) score;
+		score16 = (gint16) score;
 	}
 
 	service_type = (guint8) service;
@@ -888,9 +888,13 @@ tracker_indexer_update_word_chunk (Indexer *indexer, const gchar *word, WordDeta
 
 					/* NB the paramter score can be negative */
 					score = get_score (&details[i]) + get_score (word_details);
+					//g_print ("current score for %s is %d and new is %d and final is %d\n", word, get_score (&details[i]), get_score (word_details), score); 
+
 							
 					/* check for deletion */		
 					if (score < 1) {
+
+						//g_print ("deleting word hit %s\n", word);
 						
 						gint k;
 					
