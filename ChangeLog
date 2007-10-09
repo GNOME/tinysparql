@@ -2,6 +2,12 @@
 
 	* Fixed applet so that progress and pause options work
 	* Implemented fast_merges option
+	* Fixes to remove dud hits so a research corrects wrong hit counts
+	* Cause tracker to die and delete indexes when corruption is detected
+	* Check for overlapping watch dirs
+	* Correct email folders count in applet progress
+	* TST - display warning when searching while indexing
+	* TST - ellipsize first column in search results
 
 
 2007-10-07  Luca Ferretti  <elle.uca@libero.it>

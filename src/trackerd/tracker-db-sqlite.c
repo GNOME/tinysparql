@@ -3078,6 +3078,12 @@ tracker_db_check_tables (DBConnection *db_con)
 }
 
 
+static void
+delete_dud (SearchWord *search_word, SearchQuery *query)
+{
+	tracker_remove_dud_hits (query->indexer, search_word->word, query->duds);
+}
+
 
 
 char ***
@@ -3276,6 +3282,11 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 			}
 
 			tracker_db_free_result (res);
+
+		} else {
+			tracker_log ("dud hit for search detected");
+			/* add to dud list */
+			query->duds = g_slist_prepend (query->duds, hit);
 		}
 
 	}
@@ -3284,6 +3295,11 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		tracker_db_end_transaction (db_con);
 	} else {
 		result[count] = NULL;
+	}
+
+	/* delete duds */
+	if (query->duds) {
+		g_slist_foreach (query->words, (GFunc) delete_dud, query);
 	}
 
 	tracker_free_query (query);

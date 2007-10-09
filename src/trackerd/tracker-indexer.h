@@ -126,7 +126,7 @@ gboolean	tracker_indexer_get_hits 		(SearchQuery *query);
 gchar ***	tracker_get_hit_counts 			(SearchQuery *query);
 gint		tracker_get_hit_count 			(SearchQuery *query);
 
-gchar ***	tracker_get_words_starting_with 	(Indexer *indexer, const gchar *word);
+gboolean	tracker_remove_dud_hits 		(Indexer *indexer, const gchar *word, GSList *dud_list);
 
 
 #endif
