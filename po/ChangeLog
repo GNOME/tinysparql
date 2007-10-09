@@ -1,5 +1,9 @@
 2007-10-09  Luca Ferretti  <elle.uca@libero.it>
 
+	* it.po: Updated Italian translation
+
+2007-10-09  Luca Ferretti  <elle.uca@libero.it>
+
 	* POTFILES.in: Added tracker-applet.c
 
 2007-10-09  Daniel Nylander <po@danielnylander.se>
