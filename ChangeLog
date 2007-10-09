@@ -1,3 +1,8 @@
+2007-10-09 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed deletions of words from index
+
+
 2007-10-08 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed applet so that progress and pause options work
