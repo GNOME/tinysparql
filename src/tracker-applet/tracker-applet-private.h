@@ -45,7 +45,6 @@ typedef struct _TrayIconPrivate
 	GtkWidget 		*status_label;
 	GtkWidget 		*progress_bar;
 	GtkWidget 		*email_progress_bar;
-	GtkWidget 		*count_label;
 	GtkWidget 		*uri_label;
 
 	gboolean		initial_index_msg_shown;

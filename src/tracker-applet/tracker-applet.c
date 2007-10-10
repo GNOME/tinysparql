@@ -207,26 +207,40 @@ set_progress (TrayIcon *icon, gboolean for_files, gboolean for_merging, int fold
 
 	if (folders_total == 0) {
 		progress = 0;
+		
 	} else {
 		progress = (double)folders_processed / (double)folders_total;
 	}
 
 	if (!for_files) {
-		txt = g_strdup_printf ("%s - %d/%d %s", emails, folders_processed, folders_total, mail_boxes);
 
-		gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->email_progress_bar), progress);
-  		gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->email_progress_bar), txt);
+		if (folders_total != 0) {
 
-		g_free (txt);
+			txt = g_strdup_printf ("%s - %d/%d %s", emails, folders_processed, folders_total, mail_boxes);
+
+			gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->email_progress_bar), progress);
+  			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->email_progress_bar), txt);
+
+			g_free (txt);
+
+		} else {
+  			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->email_progress_bar), emails);
+		}
 
 	} else {
-		txt = g_strdup_printf ("%s - %d/%d %s", files, folders_processed, folders_total, folders);
 
-  		gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->progress_bar), progress);
-	  	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), txt);
+		if (folders_total != 0) {
 
-		g_free (txt);
+			txt = g_strdup_printf ("%s - %d/%d %s", files, folders_processed, folders_total, folders);
 
+	  		gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->progress_bar), progress);
+		  	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), txt);
+
+			g_free (txt);
+
+		} else {
+		  	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), files);
+		}
 	}	
 
 
@@ -395,19 +409,10 @@ create_window (TrayIcon *icon)
 	set_progress (icon, FALSE, FALSE, 0, 0);
 
 
-
-	priv->count_label = gtk_label_new ("");
-  	gtk_widget_show (priv->count_label);
-  	gtk_table_attach (GTK_TABLE (table), priv->count_label, 0, 1, 4, 5,
-                          GTK_FILL,
-                          (GtkAttachOptions) (0), 0, 0);
-  	gtk_misc_set_alignment (GTK_MISC (priv->count_label), 0, 0.5);
-
-
 	priv->uri_label = gtk_label_new ("");
 	gtk_label_set_ellipsize (GTK_LABEL (priv->uri_label), PANGO_ELLIPSIZE_START);
   	gtk_widget_show (priv->uri_label);
-  	gtk_table_attach (GTK_TABLE (table), priv->uri_label, 1, 2, 4, 5,
+  	gtk_table_attach (GTK_TABLE (table), priv->uri_label, 0, 2, 4, 5,
                           GTK_FILL,
                           (GtkAttachOptions) (0), 0, 0);
   	gtk_misc_set_alignment (GTK_MISC (priv->uri_label), 0, 0.5);
@@ -614,12 +619,7 @@ index_progress_changed (DBusGProxy *proxy, const gchar *service, const char *uri
 		set_progress (self, TRUE, FALSE, folders_processed, folders_total);
 	}
 
-	char *count = g_strdup_printf ("#%d", index_count);
-
-	gtk_label_set_text  (GTK_LABEL (priv->count_label), count);
 	gtk_label_set_text  (GTK_LABEL (priv->uri_label), uri);  		  		
-
-	g_free (count);
 
 	/* update stat window if its active */
 	refresh_stats (self);
@@ -627,44 +627,17 @@ index_progress_changed (DBusGProxy *proxy, const gchar *service, const char *uri
 }
 
 static gboolean
-prompt_state (TrayIconPrivate *priv)
+setup_dbus_connection (TrayIcon *self)
 {
-	/* prompt for updated signals */
-	dbus_g_proxy_begin_call (priv->tracker->proxy, "PromptIndexSignals", NULL, NULL, NULL, G_TYPE_INVALID);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
 
-	return FALSE;
-}
-
-
-static void
-tray_icon_init (GTypeInstance *instance, gpointer g_class)
-{
-	TrayIcon *self = TRAY_ICON(instance);
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE(self);
-
-	priv->icon = gtk_status_icon_new ();
-	priv->indexing = FALSE;
-	priv->paused = FALSE;
-
-	priv->index_icon = ICON_DEFAULT;
-	priv->animated = FALSE;
-	set_tracker_icon (priv);
-	
-	gtk_status_icon_set_visible (priv->icon, TRUE);
-
-	g_signal_connect(G_OBJECT(priv->icon), "activate", G_CALLBACK (show_window), instance);
-	g_signal_connect(G_OBJECT(priv->icon), "popup-menu", G_CALLBACK (tray_icon_clicked), instance);
-
-	priv->initial_index_msg_shown = FALSE;
 	priv->tracker = tracker_connect (FALSE);
 
 	if (!priv->tracker) {
-		g_print ("Could not initialise Tracker - exiting...\n");
-		return;
+		g_print ("Could not initialise Tracker\n");
+		exit (1);
 	}
 
-	priv->stat_window_active = FALSE;
-	priv->stat_request_pending = FALSE;
 
 	/* set signal handlers */
 	dbus_g_object_register_marshaller (tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN,
@@ -717,13 +690,49 @@ tray_icon_init (GTypeInstance *instance, gpointer g_class)
 
 
 
+	/* prompt for updated signals */
+	dbus_g_proxy_begin_call (priv->tracker->proxy, "PromptIndexSignals", NULL, NULL, NULL, G_TYPE_INVALID);
+
+	gtk_status_icon_set_visible (priv->icon, TRUE);
+
+	return FALSE;
+}
+
+
+static void
+tray_icon_init (GTypeInstance *instance, gpointer g_class)
+{
+	TrayIcon *self = TRAY_ICON (instance);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
+
+
+	priv->icon = gtk_status_icon_new ();
+	priv->indexing = FALSE;
+	priv->paused = FALSE;
+	priv->index_icon = ICON_DEFAULT;
+	priv->animated = FALSE;
+
+	set_tracker_icon (priv);
+	
+	gtk_status_icon_set_visible (priv->icon, TRUE);
+
+	g_signal_connect(G_OBJECT(priv->icon), "activate", G_CALLBACK (show_window), instance);
+	g_signal_connect(G_OBJECT(priv->icon), "popup-menu", G_CALLBACK (tray_icon_clicked), instance);
+
+	priv->initial_index_msg_shown = FALSE;
+	
+	priv->stat_window_active = FALSE;
+	priv->stat_request_pending = FALSE;
+
 	/* build popup window */
 	create_window (self);
 
 	/* build context menu */
 	create_context_menu (self);
 
-	g_timeout_add (1000,(GSourceFunc) prompt_state, priv);
+	gtk_status_icon_set_visible (priv->icon, FALSE);
+
+	g_timeout_add (1000,(GSourceFunc) setup_dbus_connection, self);
 
 }
 
