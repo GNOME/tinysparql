@@ -130,7 +130,7 @@ create_context_menu (TrayIcon *icon)
 	GtkWidget *item = NULL, *image = NULL;
 	priv->menu = (GtkMenu *)gtk_menu_new();
 
-	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic ("_Pause indexing");
+	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic (_("_Pause Indexing"));
 	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
 	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (pause_menu_toggled), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
@@ -138,19 +138,19 @@ create_context_menu (TrayIcon *icon)
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("_Search...");
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic (_("_Search..."));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_FIND, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(item), image);
 	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (search_menu_activated), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("Pre_ferences...");
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic (_("Pre_ferences"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (preferences_menu_activated), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("S_tatistics...");
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic (_("S_tatistics"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (statistics_menu_activated), icon);
@@ -159,7 +159,7 @@ create_context_menu (TrayIcon *icon)
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic ("_Quit");
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic (_("_Quit"));
 	image = gtk_image_new_from_icon_name (GTK_STOCK_QUIT, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (quit_menu_activated), icon);

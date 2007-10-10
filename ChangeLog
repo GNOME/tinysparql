@@ -1,3 +1,9 @@
+2007-10-09  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-applet/tracker-applet.c: (create_context_menu):
+	Mark strings in rigth click menu translatable and fix
+	capitalization and ellipsizing as per GNOME HIG.
+
 2007-10-09 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed deletions of words from index
