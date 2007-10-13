@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-10-13 15:29+0200\n"
-"PO-Revision-Date: 2007-10-13 16:28+0200\n"
+"PO-Revision-Date: 2007-10-13 18:04+0200\n"
 "Last-Translator: Laurent Aguerreche <laurent.aguerreche ~at~ free.fr>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -702,13 +702,13 @@ msgstr "Interrompu temporairement"
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
-msgstr "Votre ordinateur est sur le point d'être indexé pour pouvoir effectuer des recherches rapides de vos fichiers et de vos courriels"
+msgstr "Votre ordinateur est sur le point d'être indexé pour pouvoir effectuer des recherches rapides de vos fichiers et de vos courriels."
 
 #: ../src/tracker-applet/tracker-applet.c:1042
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
-msgstr "Vous pouvez interrompre et configurer l'indexation à n'importe quel moment en faisant un clic droit ici"
+msgstr "Vous pouvez interrompre et configurer l'indexation à n'importe quel moment en faisant un clic droit ici."
 
 #: ../src/tracker-applet/tracker-applet.c:1044
 msgid "Tracker has finished indexing your system"
@@ -717,21 +717,21 @@ msgstr "Tracker a fini d'indexer votre système"
 #: ../src/tracker-applet/tracker-applet.c:1045
 #, c-format
 msgid " in %d hours and %d minutes"
-msgstr " dans %d heures et %d minutes"
+msgstr " en %d heures et %d minutes"
 
 #: ../src/tracker-applet/tracker-applet.c:1046
 #, c-format
 msgid " in %d minutes and %d seconds"
-msgstr " dans %d minutes et %d secondes"
+msgstr " en %d minutes et %d secondes"
 
 #: ../src/tracker-applet/tracker-applet.c:1047
 #, c-format
 msgid " in %d seconds"
-msgstr " dans %d secondes"
+msgstr " en %d secondes"
 
 #: ../src/tracker-applet/tracker-applet.c:1048
 msgid "You can now perform searches by clicking here"
-msgstr "Vous pouvez maintenant effectuer des recherches en cliquant ici"
+msgstr "Vous pouvez maintenant effectuer des recherches en cliquant ici."
 
 #: ../src/tracker-applet/tracker-applet.c:1050
 msgid ""
@@ -740,9 +740,9 @@ msgid ""
 "\n"
 "You can pause this by right clicking here"
 msgstr ""
-"Tracker est en train de fusionner les indexations ce qui peut dégrader les performances du système pendant plusieurs minutes\n"
+"Tracker est en train de fusionner les indexations ce qui peut dégrader les performances du système pendant plusieurs minutes.\n"
 "\n"
-"Vous pouvez interrompre cela en faisant un clic droit ici"
+"Vous pouvez interrompre cela en faisant un clic droit ici."
 
 #: ../src/tracker-applet/tracker-applet.c:1052 ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
