@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-10-13 15:29+0200\n"
-"PO-Revision-Date: 2007-10-13 16:19+0200\n"
+"PO-Revision-Date: 2007-10-13 16:28+0200\n"
 "Last-Translator: Laurent Aguerreche <laurent.aguerreche ~at~ free.fr>\n"
 "Language-Team: French\n"
 "MIME-Version: 1.0\n"
@@ -774,15 +774,15 @@ msgstr "    Vidéos :"
 
 #: ../src/tracker-applet/tracker-applet.c:1060
 msgid "    Text:"
-msgstr "    Texte :"
+msgstr "    Textes :"
 
 #: ../src/tracker-applet/tracker-applet.c:1061
 msgid "    Development:"
-msgstr "    Développement :"
+msgstr "    Développements :"
 
 #: ../src/tracker-applet/tracker-applet.c:1062
 msgid "    Other:"
-msgstr "    Autre :"
+msgstr "    Autres :"
 
 #: ../src/tracker-applet/tracker-applet.c:1063
 msgid "Applications:"
