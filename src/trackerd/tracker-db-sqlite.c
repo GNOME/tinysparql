@@ -586,7 +586,8 @@ close_db (DBConnection *db_con)
 	if (sqlite3_close (db_con->db) != SQLITE_OK) {
 		tracker_error ("ERROR: database close operation failed for thread %s due to %s", db_con->thread, sqlite3_errmsg (db_con->db));
 	} else {
-		tracker_debug ("Database closed for thread %s", db_con->thread);
+		if (db_con->thread)
+			tracker_debug ("Database closed for thread %s", db_con->thread);
 	}
 
 
