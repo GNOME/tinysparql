@@ -1202,10 +1202,6 @@ create_search_results_section (GSearchWindow * gsearch)
 
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 
-	g_object_set (G_OBJECT (gsearch->search_results_name_cell_renderer), "ellipsize", PANGO_ELLIPSIZE_START, NULL);
-
-
-
 	gtk_tree_view_column_set_sort_column_id (column, COLUMN_NAME);
 	gtk_tree_view_column_set_reorderable (column, TRUE);
 
@@ -1214,9 +1210,6 @@ create_search_results_section (GSearchWindow * gsearch)
 						 gsearch, NULL);
 
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->search_results_tree_view), column);
-
-	gtk_tree_view_column_set_min_width (column, 250);
-	gtk_tree_view_column_set_max_width (column, 400);
 
 	/* create the snippet column */
 	renderer = gtk_cell_renderer_text_new ();
@@ -1232,7 +1225,11 @@ create_search_results_section (GSearchWindow * gsearch)
 						 gsearch, NULL);	
 
 	gtk_tree_view_column_set_reorderable (column, TRUE);
+
 	gtk_tree_view_column_set_sizing (column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_min_width (column, 0);
+	gtk_tree_view_column_set_max_width (column, 10000);
+
 	gtk_tree_view_append_column (GTK_TREE_VIEW (gsearch->search_results_tree_view), column);
 	
 //	gtk_tree_view_set_grid_lines (GTK_TREE_VIEW (gsearch->search_results_tree_view), GTK_TREE_VIEW_GRID_LINES_VERTICAL);
