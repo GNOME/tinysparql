@@ -1,3 +1,10 @@
+
+
+
+2007-10-15 Patch from Halton Huo   <Halton.Huo@Sun.COM>
+
+	* fixed crasher on solaris
+
 2007-10-09  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-applet/tracker-applet.c: (create_context_menu):
