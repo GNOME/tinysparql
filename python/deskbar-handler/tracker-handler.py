@@ -129,38 +129,38 @@ class TrackerLiveSearchMatch (deskbar.Match.Match):
 		return self.result['uri']
 
 	def action(self, text=None):
-		if TYPES[self.result['type']].has_key('action'):
-			if isinstance (TYPES[self.result['type']]['action'], dict):
-				try:
-					key = TYPES[self.result['type']]['action']['key']
-					cmd = TYPES[self.result['type']]['action'][self.result[key]]
-				except:
-					print >> sys.stderr, "Unknown action for URI %s (Error: %s)" % (self.result['uri'], sys.exc_info()[1])
-					return
-			else:
-				cmd = TYPES[self.result['type']]['action']
-			cmd = map(lambda arg : arg % self.result, cmd.split()) # we need this to handle spaces correctly
+		try:
+			if TYPES[self.result['type']].has_key('action'):
+				if isinstance (TYPES[self.result['type']]['action'], dict):
+					try:
+						key = TYPES[self.result['type']]['action']['key']
+						cmd = TYPES[self.result['type']]['action'][self.result[key]]
+					except:
+						print >> sys.stderr, "Unknown action for URI %s (Error: %s)" % (self.result['uri'], sys.exc_info()[1])
+						return
+				else:
+					cmd = TYPES[self.result['type']]['action']
+				cmd = map(lambda arg : arg % self.result, cmd.split()) # we need this to handle spaces correctly
 
-			print 'Opening Tracker hit with command:', cmd
-			try:
-				# deskbar >= 2.17
-				deskbar.Utils.spawn_async(cmd)
-			except AttributeError:
-				# deskbar <= 2.16
-				gobject.spawn_async(cmd, flags=gobject.SPAWN_SEARCH_PATH)
-		else:
-			if self.result.has_key ('desktop'):
-				self.result['desktop'].launch([])
+				print 'Opening Tracker hit with command:', cmd
+				try:
+					# deskbar >= 2.17
+					deskbar.Utils.spawn_async(cmd)
+				except AttributeError:
+					# deskbar <= 2.16
+					gobject.spawn_async(cmd, flags=gobject.SPAWN_SEARCH_PATH)
 			else:
-				try: # catch errors on gnome.url_show()
+				if 'desktop' in self.result:
+					self.result['desktop'].launch([])
+				else:
 					try:
 						# deskbar >= 2.17
 						deskbar.Utils.url_show ('file://'+self.result['uri'])
 					except AttributeError:
 						gnome.url_show('file://'+self.result['uri'])
 					print 'Opening Tracker hit:', self.result['uri']
-				except:
-					print >> sys.stderr, '*** Could not open URL %s: %s' % (self.result['uri'], sys.exc_info ()[1])
+		except:
+			print >> sys.stderr, '*** Could not open URL %s: %s' % (self.result['uri'], sys.exc_info ()[1])
 
 	def get_category (self):
 		try:
@@ -194,11 +194,15 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 		self.conv_re = re.compile (r'^.*?/logs/([^/]+)/([^/]+)/([^/]+)/(.+?)\.(:?txt|html)$') # all, proto, account, to-whom, time
 
 	def handle_email_hits (self, info, output):
+		if len (info) < 5:
+			print >> sys.stderr, "*** Hit for Service Emails had incomplete data, ignoring (%s)" % info[0]
+			return 0
 		output['title'] = cgi.escape(info[3])
 		output['publisher'] = cgi.escape(info[4])
 		output['mua'] = info[2]
 		if output['mua'] == 'Thunderbird/Email':
 			output['uri'] = info[0]
+		return 1
 
 	def handle_conversation_hits (self, info, output):
 		m = self.conv_re.match (output['escaped_uri'])
@@ -230,6 +234,9 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 		#   ],
 		#   signature=dbus.Signature('s'))
 		# Strip %U or whatever arguments in Exec field
+		if len (info) < 6:
+			print >> sys.stderr, "*** Hit for Service Applications had incomplete data, ignoring (%s)" % info[0]
+			return 0
 		output['app_name'] = re.sub(r'%\w+', '', info [4]).strip ()
 		output['app_basename'] = cgi.escape (os.path.basename (output['app_name']))
 		output['app_name'] = cgi.escape (output['app_name'])
@@ -238,17 +245,22 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 		output['name'] = cgi.escape (info [3])
 		output['icon'] = info [5] # no escaping, as it is not displayed as a string
 
-		desktop = parse_desktop_file (output['uri'])
+		desktop = parse_desktop_file (info[0])
 		if not desktop:
 			print >> sys.stderr, '*** Could not read .desktop file: %s' % info[0]
 		else:
 			output['desktop'] = desktop
+		return 1
 
 	def receive_hits (self, qstring, hits, max):
 		matches = []
 
 		for info in hits:
 			output = {}
+
+			if len (info) < 2:
+				print >> sys.stderr, "*** Hit had incomplete data, ignoring"
+				continue
 
 			info = [str (i) for i in info]
 
@@ -261,13 +273,16 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 				output['type'] = 'Files'
 
 			if output['type'] == 'Emails':
-				self.handle_email_hits (info, output)
+				if not self.handle_email_hits (info, output):
+					continue
 
 			elif output['type'] in ('GaimConversations', 'Conversations'):
-				self.handle_conversation_hits (info, output)
+				if not self.handle_conversation_hits (info, output):
+					continue
 
 			elif output['type'] == 'Applications':
-				self.handle_application_hits (info, output)
+				if not self.handle_application_hits (info, output):
+					continue
 
 			# applications are launched by .desktop file, if not readable: exclude
 			if output['type'] != 'Applications' or output.has_key ('desktop'):

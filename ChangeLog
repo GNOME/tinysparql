@@ -1,6 +1,12 @@
 
 
 
+2007-10-19  Marcus Fritzsch <m at fritschy dot de>
+
+	* deskbar handlers, Fixed gnome bugs #487444, #486733
+	* added some more exception catchers, in general where actions
+	  are executed
+
 2007-10-15 Patch from Halton Huo   <Halton.Huo@Sun.COM>
 
 	* fixed crasher on solaris

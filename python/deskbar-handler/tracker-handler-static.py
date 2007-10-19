@@ -28,7 +28,10 @@ class TrackerSearchToolMatch (deskbar.Match.Match):
 		self._icon = deskbar.Utils.load_icon ('tracker')
 
 	def action(self, text=None):
-		gobject.spawn_async(['tracker-search-tool', self.name], flags=gobject.SPAWN_SEARCH_PATH)
+		try:
+			gobject.spawn_async(['tracker-search-tool', self.name], flags=gobject.SPAWN_SEARCH_PATH)
+		except gobject.GError, e:
+			print >> sys.stderr, "*** Error when executing tracker-search-tool:", e
 
 	def get_verb(self):
 		return _('Search for %s with Tracker Search Tool') % ('<b>%(name)s</b>')
