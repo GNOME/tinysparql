@@ -267,3 +267,66 @@ tracker_extract_ps (gchar *filename, GHashTable *metadata)
                 close (fd);
         }
 }
+
+/* our private prototype */
+void tracker_child_cb (gpointer user_data);
+
+void
+tracker_extract_ps_gz (gchar *filename, GHashTable *metadata)
+{
+	FILE   * fz        = NULL;
+	GError * error     = NULL;
+	gchar  * gunzipped = NULL;
+
+	gint fdz;
+	gint fd;
+
+	fd = g_file_open_tmp ("tracker-extract-ps-gunzipped.XXXXXX", &gunzipped, &error);
+	if (error) {
+		g_error_free (error);
+		return;
+	}
+
+	char * argv [4];
+	argv [0] = "gunzip";
+	argv [1] = "-c";
+	argv [2] = filename;
+	argv [3] = NULL;
+
+	gboolean stat = g_spawn_async_with_pipes (
+			"/tmp",
+			argv,
+			NULL, /* envp */
+			G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
+			tracker_child_cb, /* child setup func */
+			GINT_TO_POINTER (10), /* user data for cb */ /* timeout */
+			NULL, /* *pid */
+			NULL, /* stdin */
+			&fdz, /* stdout */
+			NULL, /* stderr */
+			&error);
+
+	if (! stat) {
+		g_unlink (gunzipped);
+		return;
+	}
+
+	if ((fz = fdopen (fdz, "r"))) {
+		FILE * f = NULL;
+
+		if ((f = fdopen (fd, "w"))) {
+			unsigned char buf [8192];
+			size_t b, accum = 0;
+			size_t max = 20u << 20;/* 20 MiB should be enough! */
+			while ((b = fread (buf, 1, 8192, fz)) && accum <= max) {
+				accum += b;
+				fwrite (buf, 1, b, f);
+			}
+			fclose (f);
+		}
+		fclose (fz);
+	}
+
+	tracker_extract_ps (gunzipped, metadata);
+	g_unlink (gunzipped);
+}

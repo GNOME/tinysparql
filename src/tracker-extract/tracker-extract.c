@@ -65,6 +65,7 @@ void tracker_extract_mplayer	(gchar *, GHashTable *);
 void tracker_extract_totem	(gchar *, GHashTable *);
 void tracker_extract_oasis	(gchar *, GHashTable *);
 void tracker_extract_ps		(gchar *, GHashTable *);
+void tracker_extract_ps_gz	(gchar *, GHashTable *);
 #ifdef HAVE_LIBXML2
 void tracker_extract_html       (gchar *, GHashTable *);
 #endif
@@ -102,6 +103,7 @@ void tracker_extract_xine	(gchar *, GHashTable *);
 MimeToExtractor extractors[] = {
 	/* Document extractors */
  	{ "application/vnd.oasis.opendocument.*",	tracker_extract_oasis		},
+ 	{ "application/x-gzpostscript",			tracker_extract_ps_gz		},
  	{ "application/postscript",			tracker_extract_ps		},
 #ifdef HAVE_LIBXML2
  	{ "text/html",                                  tracker_extract_html            },
