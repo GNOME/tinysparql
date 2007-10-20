@@ -181,7 +181,7 @@ class TrackerLiveSearchMatch (deskbar.interfaces.Match):
 			if self.result.has_key ('icon'):
 				self._pixbuf = deskbar.core.Utils.load_icon_for_desktop_icon (result ['icon'])
 			else:
-				if self.result['type'] != 'GaimConversations':
+				if not self.result['type'] in ('GaimConversations', 'Emails'):
 					try:
 						self._pixbuf = deskbar.core.Utils.load_icon ('file://'+result['uri'])
 					except:
