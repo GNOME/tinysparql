@@ -1,6 +1,10 @@
 
 
 
+2007-10-20  Marcus Fritzsch <m at fritschy dot de>
+
+	* tracker-extract, added support for application/x-gzpostscript files
+
 2007-10-19  Marcus Fritzsch <m at fritschy dot de>
 
 	* deskbar handlers, Fixed gnome bugs #487444, #486733
