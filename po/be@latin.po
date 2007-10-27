@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-24 22:17+0300\n"
+"POT-Creation-Date: 2007-10-27 13:10+0300\n"
 "PO-Revision-Date: 2007-10-24 22:19+0300\n"
 "Last-Translator: Ihar Hrachyshka <ihar.hrachyshka@gmail.com>\n"
 "Language-Team: Belarusian Latin <i18n@mova.org>\n"
@@ -435,7 +435,8 @@ msgstr "%s: niama spałučeńnia z demanam tracker"
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
 #, c-format
 msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr "Upeŭnisia, što \"trackerd\" pracuje pierad uruchamleńniem hetaha zahadu."
+msgstr ""
+"Upeŭnisia, što \"trackerd\" pracuje pierad uruchamleńniem hetaha zahadu."
 
 #: ../src/libtracker/tracker-search.c:147
 #, c-format
@@ -873,7 +874,9 @@ msgstr "Dadatkovyja ściežki, kab indeksavać i nazirać:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional paths to index on startup (but not watch for updates)"
-msgstr "Dadatkovyja ściežki, kab indeksavać pry ŭruchamleńni (ale nie nazirać za źmienami)"
+msgstr ""
+"Dadatkovyja ściežki, kab indeksavać pry ŭruchamleńni (ale nie nazirać za "
+"źmienami)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid ""
@@ -1123,7 +1126,10 @@ msgstr "%d - %d z %d vynikaŭ"
 #: ../src/tracker-search-tool/tracker-search-tool.c:1572
 #, c-format
 msgid "%d item"
-msgstr "%d elementaŭ"
+msgid_plural "%d hits"
+msgstr[0] "%d element"
+msgstr[1] "%d elementy"
+msgstr[2] "%d elementaŭ"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1620
 #: ../src/tracker-search-tool/tracker-search-tool.c:1796
@@ -1158,13 +1164,19 @@ msgstr "Niemahčyma adčynić dapamožny dakument."
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
 #, c-format
 msgid "Are you sure you want to open %d document?"
-msgstr "Ty sapraŭdy chočaš adčynić %d dakumentaŭ?"
+msgid_plural "Are you sure you want to open %d documents?"
+msgstr[0] "Ty sapraŭdy chočaš adčynić %d dakument?"
+msgstr[1] "Ty sapraŭdy chočaš adčynić %d dakumenty?"
+msgstr[2] "Ty sapraŭdy chočaš adčynić %d dakumentaŭ?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:687
 #, c-format
 msgid "This will open %d separate window."
-msgstr "Hetaje dziejańnie adčynić %d asobnych voknaŭ."
+msgid_plural "This will open %d separate windows."
+msgstr[0] "Hetaje dziejańnie adčynić %d asobnaje vakno."
+msgstr[1] "Hetaje dziejańnie adčynić %d asobnyja vokny."
+msgstr[2] "Hetaje dziejańnie adčynić %d asobnych voknaŭ."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
@@ -1196,7 +1208,10 @@ msgstr "Niama zainstalavanaha prahladalnika, jaki moža pakazać dakument."
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:682
 #, c-format
 msgid "Are you sure you want to open %d folder?"
-msgstr "Ty sapraŭdy chočaš adčynić %d katalohaŭ?"
+msgid_plural "Are you sure you want to open %d folders?"
+msgstr[0] "Ty sapraŭdy chočaš adčynić %d kataloh?"
+msgstr[1] "Ty sapraŭdy chočaš adčynić %d katalohi?"
+msgstr[2] "Ty sapraŭdy chočaš adčynić %d katalohaŭ?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:786
 #, c-format
@@ -1317,4 +1332,3 @@ msgstr "spasyłka na %s"
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
-
