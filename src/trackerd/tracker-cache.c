@@ -166,6 +166,7 @@ tracker_cache_flush_all ()
 		
 		if (tracker_indexer_size (tracker->email_index) > 4000000) {
 			index_con.email_index = create_merge_index ("email-index.tmp.");
+			tracker_log ("flushing to %s", dpname (index_con.email_index->word_index));
 			using_email_tmp = TRUE;
 		} else {
 			index_con.email_index = tracker->email_index;

@@ -166,7 +166,7 @@ void		tracker_db_move_file 		(DBConnection *db_con, const char *moved_from_uri, 
 void		tracker_db_move_directory 	(DBConnection *db_con, const char *moved_from_uri, const char *moved_to_uri);
 
 guint32		tracker_db_get_file_id		(DBConnection *db_con, const char *uri);
-void		tracker_db_insert_pending_file	(DBConnection *db_con, guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id);
+void		tracker_db_insert_pending_file	(DBConnection *db_con, guint32 file_id, const char *uri, const char *moved_to_uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id);
 
 gboolean	tracker_db_has_pending_files	(DBConnection *db_con);
 gboolean	tracker_db_has_pending_metadata	(DBConnection *db_con);
@@ -226,5 +226,11 @@ FieldData *	tracker_db_get_metadata_field 		(DBConnection *db_con, const char *s
 void		tracker_db_start_index_transaction 	(DBConnection *db_con);
 void		tracker_db_end_index_transaction 	(DBConnection *db_con);
 gboolean	tracker_db_regulate_transactions 	(DBConnection *db_con, int interval);
+
+
+char *	tracker_db_get_option_string 	(DBConnection *db_con, const char *option);
+void	tracker_db_set_option_string 	(DBConnection *db_con, const char *option, const char *value);
+int	tracker_db_get_option_int	(DBConnection *db_con, const char *option);
+void	tracker_db_set_option_int 	(DBConnection *db_con, const char *option, int value);
 
 #endif

@@ -189,7 +189,7 @@ get_preferred_bucket_count (Indexer *indexer)
 static inline DEPOT *
 open_index (const gchar *name)
 {
-	DEPOT *word_index;
+	DEPOT *word_index = NULL;
 
 	if (!name) return NULL;
 
@@ -513,7 +513,7 @@ move_index (Indexer *src_index, Indexer *dest_index)
 	dest_index->word_index = open_index (fname);	
 
 	if (!dest_index->word_index) {
-		tracker_error ("index creation failure");
+		tracker_error ("index creation failure for %s from %s", fname, final_name);
 	}
 
 	g_free (fname);

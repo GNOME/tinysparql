@@ -1360,6 +1360,10 @@ tracker_free_file_info (FileInfo *info)
 		g_free (info->uri);
 	}
 
+	if (info->moved_to_uri) {
+		g_free (info->moved_to_uri);
+	}
+
 	if (info->link_path) {
 		g_free (info->link_path);
 	}
@@ -1635,7 +1639,7 @@ tracker_file_is_valid (const char *uri)
 	}
 
 	/* g_file_test(file,G_FILE_TEST_EXISTS) uses the access() system call and so needs locale filenames. */
-	convert_ok = g_file_test (uri_in_locale, G_FILE_TEST_EXISTS);
+	convert_ok = (tracker_check_uri (uri) && g_file_test (uri_in_locale, G_FILE_TEST_IS_REGULAR|G_FILE_TEST_IS_DIR|G_FILE_TEST_IS_SYMLINK));
 
 	g_free (uri_in_locale);
 
@@ -3640,8 +3644,8 @@ tracker_unlink (const char *uri)
 	char *locale_uri = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!g_file_test (locale_uri, G_FILE_TEST_EXISTS)) {						
-				g_free (locale_uri);
-				return FALSE;
+		g_free (locale_uri);
+		return FALSE;
 	}
 
 	g_unlink (locale_uri);

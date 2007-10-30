@@ -124,8 +124,6 @@ MimeToExtractor extractors[] = {
   	/* Video extractors */
 #ifdef HAVE_GSTREAMER
  	{ "video/*",					tracker_extract_gstreamer	},
- 	{ "video/*",					tracker_extract_mplayer		},
- 	{ "video/*",					tracker_extract_totem		},
 #else
 #ifdef HAVE_LIBXINE
  	{ "video/*",					tracker_extract_xine		},
@@ -143,7 +141,6 @@ MimeToExtractor extractors[] = {
 	
 #ifdef HAVE_GSTREAMER
 	{ "audio/*",					tracker_extract_gstreamer	},
- 	{ "audio/*",					tracker_extract_mplayer		},
 
 #else
 #ifdef HAVE_LIBXINE

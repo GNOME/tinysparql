@@ -5454,15 +5454,13 @@ void
 tracker_db_move_file (DBConnection *db_con, const char *moved_from_uri, const char *moved_to_uri)
 {
 
-	tracker_debug ("Moving file %s to %s", moved_from_uri, moved_to_uri);
-
-	tracker_db_start_transaction (db_con);
+	tracker_log ("Moving file %s to %s", moved_from_uri, moved_to_uri);
 
 	/* if orig file not in DB, treat it as a create action */
 	guint32 id = tracker_db_get_file_id (db_con, moved_from_uri);
 	if (id == 0) {
 		tracker_debug ("WARNING: original file %s not found in DB", moved_from_uri);
-		tracker_db_insert_pending_file (db_con, id, moved_to_uri, "unknown", 0, TRACKER_ACTION_FILE_CREATED, FALSE, TRUE, -1);
+		tracker_db_insert_pending_file (db_con, id, moved_to_uri,  NULL, "unknown", 0, TRACKER_ACTION_WRITABLE_FILE_CLOSED, FALSE, TRUE, -1);
 		tracker_db_end_transaction (db_con);
 		return;
 	}
@@ -5489,11 +5487,6 @@ tracker_db_move_file (DBConnection *db_con, const char *moved_from_uri, const ch
 
 	/* update backup service if necessary */
 	tracker_exec_proc (db_con->common, "UpdateBackupService", 4, path, name, old_path, old_name);
-	
-
-	tracker_db_end_transaction (db_con);
-
-	tracker_notify_file_data_available ();
 
 	g_free (str_file_id);
 	g_free (name);

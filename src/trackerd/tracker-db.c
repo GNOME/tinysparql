@@ -434,7 +434,7 @@ tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 
 
 static void
-make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
+make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *moved_to_uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
 {
 	char *str_file_id, *str_action, *str_counter;
 
@@ -445,9 +445,10 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 	str_counter = tracker_int_to_str (counter);
 
 	if (tracker->is_running) {
-		if ( (counter > 0)
-		     || ((action == TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_metadata_queue) > tracker->max_extract_queue_size))
-		     || ((action != TRACKER_ACTION_EXTRACT_METADATA) && (g_async_queue_length (tracker->file_process_queue) > tracker->max_process_queue_size)) ) {
+
+		gboolean move_file = (action == TRACKER_ACTION_FILE_MOVED_FROM || action == TRACKER_ACTION_DIRECTORY_MOVED_FROM);
+			
+		if (!move_file && ((counter > 0) || (g_async_queue_length (tracker->file_process_queue) > tracker->max_process_queue_size))) {
 
 			/* tracker_log ("************ counter for pending file %s is %d ***********", uri, counter); */
 			if (!mime) {
@@ -457,6 +458,7 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 			}
 
 		} else {
+
 			FileInfo *info;
 
 			info = tracker_create_file_info (uri, action, 0, WATCH_OTHER);
@@ -468,6 +470,10 @@ make_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const
 				info->mime = g_strdup ("unknown");
 			} else {
 				info->mime = g_strdup (mime);
+			}
+
+			if (action == TRACKER_ACTION_FILE_MOVED_FROM || action == TRACKER_ACTION_DIRECTORY_MOVED_FROM) {
+				info->moved_to_uri = g_strdup (moved_to_uri);
 			}
 
 			if (action != TRACKER_ACTION_EXTRACT_METADATA) {
@@ -536,7 +542,7 @@ tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info)
 		g_async_queue_push (tracker->file_metadata_queue, info);
 
 	} else {
-		tracker_db_insert_pending_file (db_con, info->file_id, info->uri, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory, info->is_new, info->service_type_id);
+		tracker_db_insert_pending_file (db_con, info->file_id, info->uri, NULL, info->mime, 0, TRACKER_ACTION_EXTRACT_METADATA, info->is_directory, info->is_new, info->service_type_id);
 	}
 
 	tracker_notify_meta_data_available ();
@@ -544,27 +550,12 @@ tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info)
 
 
 void
-tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
+tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *moved_to_uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
 {
 	FileInfo *info;
 
 	g_return_if_fail (tracker_check_uri (uri));
 
-	/* if a check action then then discard if up to date
-	if (action == TRACKER_ACTION_CHECK || action == TRACKER_ACTION_FILE_CHECK || action == TRACKER_ACTION_DIRECTORY_CHECK) {
-
-		guint32 id;
-
-		if (tracker_db_is_file_up_to_date (db_con->index, uri, &id)) {
-			return;
-		}
-
-		if (file_id == 0) {
-			file_id = id;
-		}
-
-	}
-*/
 	/* check if uri already has a pending action and update accordingly */
 	info = tracker_db_get_pending_file (db_con, uri);
 
@@ -622,7 +613,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 		tracker_free_file_info (info);
 
 	} else {
-		make_pending_file (db_con, file_id, uri, mime, counter, action, is_directory, is_new, service_type_id);
+		make_pending_file (db_con, file_id, uri, moved_to_uri, mime, counter, action, is_directory, is_new, service_type_id);
 	}
 }
 

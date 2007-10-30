@@ -270,9 +270,9 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 
 	if (file_id != 0) {
 		if (is_dir) {
-			tracker_db_insert_pending_file (db_con, file_id, uri, g_strdup ("unknown"), 0, TRACKER_ACTION_DIRECTORY_DELETED, TRUE, FALSE, -1);
+			tracker_db_insert_pending_file (db_con, file_id, uri, NULL,  g_strdup ("unknown"), 0, TRACKER_ACTION_DIRECTORY_DELETED, TRUE, FALSE, -1);
 		} else {
-			tracker_db_insert_pending_file (db_con, file_id, uri, g_strdup ("unknown"), 0, TRACKER_ACTION_FILE_DELETED, FALSE, FALSE, -1);
+			tracker_db_insert_pending_file (db_con, file_id, uri, NULL,  g_strdup ("unknown"), 0, TRACKER_ACTION_FILE_DELETED, FALSE, FALSE, -1);
 		}
 	}
 

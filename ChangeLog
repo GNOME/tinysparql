@@ -1,4 +1,13 @@
+2007-10-29 Jamie McCracken <jamiemcc at gnome org>
 
+	* Check sqlite dbs for corruption on startup and force reindex if necessary
+	* mem leak fix
+	* improve debug of index creation failure
+	* Fixed emails not being indexed if index has been stopped prior to completion of first run
+	* reduce inotify max watch count by 500 to leave some spare for other apps
+	* made sure only regular files get indexed
+	* check dir is not watched before attmpting to watch it again
+	* fixed hang when a directory is moved or renamed while indexing is going on
 
 
 2007-10-20  Marcus Fritzsch <m at fritschy dot de>

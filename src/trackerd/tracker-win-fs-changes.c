@@ -156,7 +156,7 @@ VOID CALLBACK callback(DWORD error_code,
 
 	if (tracker_file_info_is_valid (info)) {
 
-	  tracker_db_insert_pending_file (win_db_con, info->file_id, info->uri, info->mime, 
+	  tracker_db_insert_pending_file (win_db_con, info->file_id, info->uri,  NULL, info->mime, 
 					  info->counter, info->action, info->is_directory, (event_type == TRACKER_ACTION_CREATE), -1);
 	  tracker_free_file_info (info);
 	} 

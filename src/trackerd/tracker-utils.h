@@ -492,7 +492,7 @@ typedef struct {
 	gint32                  offset;
 
 	/* options */
-	char			*move_from_uri;
+	char			*moved_to_uri;
 	gboolean		extract_embedded;
 	gboolean		extract_contents;
 	gboolean		extract_thumbs;

@@ -912,8 +912,8 @@ filename_cell_data_func (GtkTreeViewColumn * column,
 	gtk_tree_model_get (model, iter, COLUMN_PATH, &fpath, -1);
 	gtk_tree_model_get (model, iter, COLUMN_MIME, &type, -1);
 
-	gchar * display_name = crop_string (name, 140);
-	gchar * display_path = crop_string (fpath, 145);
+	gchar * display_name = crop_string (name, 65);
+	gchar * display_path = crop_string (fpath, 120);
 
 	gchar * mark_name = g_markup_escape_text (display_name, -1);
 	gchar * mark_dir =  g_markup_escape_text (display_path, -1);

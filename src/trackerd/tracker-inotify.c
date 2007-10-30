@@ -122,7 +122,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 		info->action = TRACKER_ACTION_DIRECTORY_CREATED;
 		info->is_directory = TRUE;
-		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE, -1);
+		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri,  NULL, info->mime, 0, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 
@@ -161,18 +161,22 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 			if ((cookie > 0) && (moved_from_info->cookie == cookie)) {
 
-				tracker_info ("found matching inotify pair for from %s to %s", moved_from_info->uri, moved_to_info->uri);
+				tracker_info ("found matching inotify pair from %s to %s", moved_from_info->uri, moved_to_info->uri);
 
 				tracker->grace_period = 2;
 				tracker->request_waiting = TRUE;
 
 				if (!tracker_is_directory (moved_to_info->uri)) {
-					tracker_db_move_file (main_thread_db_con, moved_from_info->uri, moved_to_info->uri);
+					tracker_db_insert_pending_file (main_thread_db_con, moved_from_info->file_id, moved_from_info->uri, moved_to_info->uri, moved_from_info->mime, 0, TRACKER_ACTION_FILE_MOVED_FROM, FALSE, TRUE, -1);
+					
+//					tracker_db_move_file (main_thread_db_con, moved_from_info->uri, moved_to_info->uri);
 				} else {
-					tracker_db_move_directory (main_thread_db_con, moved_from_info->uri, moved_to_info->uri);
+					tracker_db_insert_pending_file (main_thread_db_con, moved_from_info->file_id, moved_from_info->uri, moved_to_info->uri, moved_from_info->mime, 0, TRACKER_ACTION_DIRECTORY_MOVED_FROM, TRUE, TRUE, -1);
+//					tracker_db_move_directory (main_thread_db_con, moved_from_info->uri, moved_to_info->uri);
 				}
 
 				move_list = g_slist_remove (move_list, tmp->data);
+
 				return;
 			}
 		}
@@ -184,14 +188,14 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 		} else {
 			info->action = TRACKER_ACTION_WRITABLE_FILE_CLOSED;
 		}
-		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 1, info->action, info->is_directory, TRUE, -1);
+		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri,  NULL, info->mime, 10, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 
 	} else if (action == TRACKER_ACTION_WRITABLE_FILE_CLOSED) {
 		tracker_add_io_grace (info->uri);
-		tracker_debug ("File %s has finished changing", info->uri);
-		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri, info->mime, 0, info->action, info->is_directory, TRUE, -1);
+		tracker_info ("File %s has finished changing", info->uri);
+		tracker_db_insert_pending_file (main_thread_db_con, info->file_id, info->uri,  NULL, info->mime, 0, info->action, info->is_directory, TRUE, -1);
 		info = tracker_free_file_info (info);
 		return;
 
@@ -326,6 +330,11 @@ process_inotify_events (void)
 
 		action_type = get_event (event->mask);
 
+		if (action_type == TRACKER_ACTION_IGNORE) {
+			g_free (event);
+			continue;
+		}
+
 		if (event->len > 1) {
 			filename = event->name;
 		} else {
@@ -361,11 +370,7 @@ process_inotify_events (void)
 			continue;
 		}
 
-		if (action_type == TRACKER_ACTION_IGNORE) {
-			g_free (event);
-			//tracker_log ("WARNING: inotify event has no action");
-			continue;
-		}
+		
 
 		if (tracker_is_empty_string (filename)) {
 			//tracker_log ("WARNING: inotify event has no filename");
@@ -487,7 +492,10 @@ tracker_start_watching (void)
 			gchar   *limit;
 			gsize    size;
 			if (g_file_get_contents (INOTIFY_WATCH_LIMIT, &limit, &size, NULL)) {
-				tracker->watch_limit = atoi (limit) - 1;
+
+				/* leave 500 watches for other users */
+				tracker->watch_limit = atoi (limit) - 500;
+
 				tracker_log ("Setting inotify watch limit to %d.", tracker->watch_limit);
 				g_free (limit);
 			}
@@ -521,6 +529,10 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 	g_return_val_if_fail (dir[0] == '/', FALSE);
 
 	if (!tracker->is_running) {
+		return FALSE;
+	}
+
+	if (tracker_is_directory_watched (dir, db_con)) {
 		return FALSE;
 	}
 
