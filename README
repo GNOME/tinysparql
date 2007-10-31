@@ -66,7 +66,7 @@ FEATURES
   freedesktop technologies like DBus and XDGMime but contains no GNOME
   specific dependencies)
 
-* Very memory efficient and non-leaking (typical RAM usage 4 - 6 MB). Unlike
+* Very memory efficient and non-leaking (typical RAM usage 4 - 30 MB). Unlike
   some other indexers, tracker is designed and built to run well on lower
   memory systems with typically 128MB or 256MB memory. It should even be
   efficient enough to use on some mobile devices.
@@ -140,6 +140,11 @@ Additional recommended packages:
 * exempi
 * libxml2
 
+The following are necessary if Tracker's deskbar-handler is to be installed:
+* python-dev (>= 2.3)
+* python-gtk2-dev (>= 2.3)
+* deskbar-applet (>= 2.14.2)
+
 Optional run-time dependency:
 
 * xdg-utils (provides some functionality needed by tracker-search-tool but falls
@@ -183,21 +188,24 @@ Compile Options
 
 Tracker has several compiler options to enable/disable certain features. The
 following is available (all options should be passed as command line
-parameters to autogen.sh EG ./autogen.sh --disable-fam)
+parameters to autogen.sh (EG ./autogen.sh --disable-fam)
 
 --enable-debug-code : build with debug symbols
 
 --enable-video-extractor=(gstreamer, xine, external, auto)
 
---enable-external-sqlite : use system SQLite which MUST be threadsafe
-
 --enable-file-monitoring=(inotify, fam, polling, auto)
 
 --disable-preferences : disables the tracker-preferences capplet
 
---enable-deskbar-applet : enables support for deskbar applet; also refer to
-    python/deskbar-handler/README (from the root of the source directory) for
-    further instructions on how to get this working
+--enable-deskbar-applet=(auto, handler, module) : enables support for
+    Deskbar-applet; 'auto' should do since it automatically chooses
+    whether to install the 'handler' (for Deskbar-applet >=2.14.2) or
+    the 'module' (for Deskbar-applet >=2.19)
+
+--with-deskbar-applet-dir=(directory where Deskbar-applet should find
+    Tracker-handler; this should be automatically detected, perhaps in
+    /usr/lib/deskbar-applet/{handlers/modules-2.20-compatible})
 
 --disable-gui : disables building of tracker-search-tool
 
@@ -207,18 +215,24 @@ parameters to autogen.sh EG ./autogen.sh --disable-fam)
 
 --disable-libtrackergtk : disables the building of libtracker-gtk
 
---disable-gsf : disables the gsf data extractor
+--disable-gsf : disables the GSF data extractor
 
 --disable-warnings : disables GCC warnings
 
 --disable-unac : disables accent stripping
 
---disable-libtracker-gtk : disables the building of libtracker-gtk
-
 --disable-libxml2 : disables HTML/XML extractors (full-text will still be available)
 
 --disable-xmp : disables XMP extraction
 
+--with-session-bus-services-dir=(path to D-Bus services directory): this
+    should be automatically detected 
+
+--enable-external-qdbm : use system qdbm instead of one included in Tracker
+
+--disable-hal : disables HAL support for ac power detection
+
+--disable-trackerapplet : disables Tracker's notification applet
 
 RUNNING TRACKER
 
@@ -319,7 +333,7 @@ for more info.
 
 
 
-COMMAND LINE TOOLS
+TRACKER TOOLS
 
 Tracker comes with a number of command line apps that you can use:
 
@@ -341,3 +355,8 @@ example queries in the RDF-Query-examples folder. You can run the examples as
 
 "tracker-status" - queries status of trackerd
 
+"tracker-preferences" - GUI tool to set Tracker preferences
+
+"tracker-applet" - Tracker notification applet which, other than showing the
+current status of Tracker, also has facilities such as searching, pausing
+indexing, showing statistics, and launching both TST and tracker-preferences
