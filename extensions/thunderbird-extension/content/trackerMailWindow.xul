@@ -298,9 +298,25 @@
 				var messenger = Components.classes ['@mozilla.org/messenger;1']
 					.getService (Components.interfaces.nsIMessenger);
 				var hdr = messenger.msgHdrFromURI (data);
+				var tree = null, currentIndex = -1;
+				
 				dump ("Opening message: " + hdr.folder.getUriForMsg (hdr) + "\n");
 				
+				// Save the index of the currently selected folder and switch to folder indexed
+				// 0 (zero), which will always be a root folder.
+				if(gFolderTree) {
+					tree = GetFolderTree();
+					currentIndex = tree.view.selection.currentIndex;
+					tree.view.selection.select(0);
+				}
+
+				// Open the message
 				MsgOpenNewWindowForMessage (data, hdr.folder.URI);
+				
+				// Switch back to the old folder (if any)
+				if(currentIndex != -1) {
+					tree.view.selection.select(currentIndex);
+				}
 			}
 		};
 		
