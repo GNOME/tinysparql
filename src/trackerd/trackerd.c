@@ -2047,7 +2047,7 @@ local_dbus_connection_monitoring_message_func (DBusConnection *connection, DBusM
 	if (dbus_message_is_signal (message, DBUS_INTERFACE_LOCAL, "Disconnected")) {
 		dbus_message_ref (message);
 
-		tracker_log ("DBus connection has been lost, trackerd will shutdown");
+		tracker_error ("DBus connection has been lost, trackerd will now shutdown");
 
 		tracker->is_running = FALSE;
 		tracker_end_watching ();

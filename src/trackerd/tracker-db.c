@@ -174,10 +174,10 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	apath = tracker_escape_string (path);
 	aname = tracker_escape_string (name);
 
+	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, apath, aname);
+
 	g_free (aname);
 	g_free (apath);
-
-	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
 
 	g_free (name);
 	g_free (path);
