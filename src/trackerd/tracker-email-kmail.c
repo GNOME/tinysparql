@@ -27,14 +27,7 @@
 #include "tracker-email-kmail.h"
 #include "tracker-email-utils.h"
 #include "tracker-db-email.h"
-
-#ifdef HAVE_INOTIFY
-#   include "tracker-inotify.h"
-#else
-#   ifdef HAVE_FAM
-#      include "tracker-fam.h"
-#   endif
-#endif
+#include "tracker-watch.h"
 
 
 typedef struct {

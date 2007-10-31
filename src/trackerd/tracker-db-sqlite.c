@@ -41,6 +41,7 @@
 #include "tracker-cache.h"
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
+#include "tracker-watch.h"
 
 #include "config.h"
 

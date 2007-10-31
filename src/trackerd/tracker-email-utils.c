@@ -36,14 +36,7 @@
 #include "tracker-email-evolution.h"
 #include "tracker-email-thunderbird.h"
 #include "tracker-email-kmail.h"
-
-#ifdef HAVE_INOTIFY
-#   include "tracker-inotify.h"
-#else
-#   ifdef HAVE_FAM
-#      include "tracker-fam.h"
-#   endif
-#endif
+#include "tracker-watch.h"
 
 
 extern Tracker *tracker;

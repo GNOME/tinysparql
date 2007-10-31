@@ -25,14 +25,8 @@
 
 #include "tracker-email-thunderbird.h"
 #include "tracker-db-email.h"
+#include "tracker-watch.h"
 
-#ifdef HAVE_INOTIFY
-#   include "tracker-inotify.h"
-#else
-#   ifdef HAVE_FAM
-#      include "tracker-fam.h"
-#   endif
-#endif
 
 typedef enum
 {

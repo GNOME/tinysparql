@@ -23,7 +23,17 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "tracker-inotify.h"
+#include "tracker-watch.h"
+
+#include "config.h"
+
+
+#ifdef HAVE_INOTIFY_LINUX
+#include <linux/inotify.h>
+#include "linux-inotify-syscalls.h"
+#else
+#include <sys/inotify.h>
+#endif
 
 #define INOTIFY_WATCH_LIMIT "/proc/sys/fs/inotify/max_user_watches"
 

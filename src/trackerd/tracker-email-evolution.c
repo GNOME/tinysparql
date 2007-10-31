@@ -35,14 +35,7 @@
 #include "tracker-db-email.h"
 #include "tracker-cache.h"
 #include "tracker-dbus.h"
-
-#ifdef HAVE_INOTIFY
-#   include "tracker-inotify.h"
-#else
-#   ifdef HAVE_FAM
-#      include "tracker-fam.h"
-#   endif
-#endif
+#include "tracker-watch.h"
 
 
 #define EVOLUTION_MAIL_DIR_S ".evolution/mail"

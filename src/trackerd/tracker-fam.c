@@ -22,7 +22,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "tracker-fam.h"
+#include "tracker-watch.h"
 
 
 extern Tracker 	    *tracker;

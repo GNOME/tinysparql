@@ -1,3 +1,16 @@
+2007-10-31 Michael Biebl <mbiebl at gmail com>
+
+	* Merge tracker-inotify.h, tracker-fam.h and tracker-win-fs-changes.h
+	into a single file called tracker-watch.h.
+	* Remove redundant declarations of the tracker watch functions from
+	tracker-db-sqlite.h.
+	* Extract the poll implementation of the watch functions from
+	trackerd.c into a new file called tracker-poll.c.
+	* Update files to #include "tracker-watch.h".
+	* Update Makefile.am to build the correct file monitoring backend.
+	Drop removed files like tracker-inotify.h, tracker-fam.h, 
+	tracker-win-fs-changes.h and add tracker-watch.h to trackerd_SOURCES.
+
 2007-10-31 Michal Pryc <michal dot pryc at sun dot com>
 
 	* extensions/thunderbird-extension/content/trackerMailWindow.xul:

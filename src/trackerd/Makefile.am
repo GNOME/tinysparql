@@ -14,26 +14,25 @@ INCLUDES =				\
 
 
 if HAVE_INOTIFY
-inotify_sources =			\
+watch_sources =				\
 	linux-inotify-syscalls.h	\
-	tracker-inotify.c		\
-	tracker-inotify.h
+	tracker-inotify.c
 else
 if HAVE_FAM
-fam_sources =				\
-	tracker-fam.c			\
-	tracker-fam.h 
+watch_sources =tracker-fam.c
+else
+if OS_WIN32
+watch_sources = tracker-win-fs-changes.c
+else
+watch_sources = tracker-poll.c
+endif
 endif
 endif
 
 if OS_WIN32
-win_sources =				\
-	tracker-win-fs-changes.c	\
-	tracker-win-fs-changes.h	\
-	tracker-os-dependant-win.c
+win_sources = tracker-os-dependant-win.c
 else
-unix_sources = \
-	tracker-os-dependant-unix.c
+unix_sources = tracker-os-dependant-unix.c
 endif
 
 db_sources =				\
@@ -53,8 +52,7 @@ bin_PROGRAMS = trackerd
 
 trackerd_SOURCES =			\
 	trackerd.c			\
-	$(inotify_sources)		\
-	$(fam_sources)			\
+	$(watch_sources)		\
 	$(win_sources)			\
 	$(unix_sources)			\
 	$(db_sources)			\
@@ -94,7 +92,8 @@ trackerd_SOURCES =			\
 	tracker-utils.h			\
 	tracker-ioprio.c		\
 	tracker-ioprio.h		\
-	tracker-os-dependant.h
+	tracker-os-dependant.h		\
+	tracker-watch.h
 
 if OS_WIN32
 trackerd_win_libs = -lws2_32 -lkernel32

@@ -44,21 +44,6 @@
 #include "tracker-ioprio.h"
 #endif
 
-#ifdef HAVE_INOTIFY
-#   include "tracker-inotify.h"
-#else
-#   ifdef HAVE_FAM
-#      include "tracker-fam.h"
-#   endif
-#endif
-
-#ifndef HAVE_INOTIFY
-#   ifndef HAVE_FAM
-#      ifndef OS_WIN32
-#         define POLL_ONLY
-#      endif
-#   endif
-#endif
 
 #ifdef HAVE_HAL
 #include <dbus/dbus-glib-lowlevel.h>
@@ -77,6 +62,7 @@
 #include "tracker-email-utils.h"
 #include "tracker-cache.h"
 #include "tracker-indexer.h"
+#include "tracker-watch.h"
 
 #include "tracker-os-dependant.h"
   
@@ -141,19 +127,6 @@ static void delete_file (DBConnection *db_con, FileInfo *info);
 
 static void scan_directory (const gchar *uri, DBConnection *db_con);
 
-
-#ifdef POLL_ONLY
-
- gboolean 	tracker_start_watching 		(void){tracker->watch_limit = 0; return TRUE;}
- void     	tracker_end_watching 		(void){return;}
-
- gboolean 	tracker_add_watch_dir 			(const gchar *dir, DBConnection *db_con){return FALSE;}
- void     	tracker_remove_watch_dir 		(const gchar *dir, gboolean delete_subdirs, DBConnection *db_con) {return;}
- gboolean 	tracker_is_directory_watched 		(const gchar *dir, DBConnection *db_con) {return FALSE;}
- int		tracker_count_watch_dirs 		(void) {return 0;}
-
-
-#endif /* POLL_ONLY */
 
 static gchar **no_watch_dirs = NULL;
 static gchar **watch_dirs = NULL;

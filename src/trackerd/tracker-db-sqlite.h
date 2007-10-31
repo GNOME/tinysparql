@@ -216,11 +216,6 @@ char *		tracker_db_get_display_field 		(FieldDef *def);
 
 void		tracker_db_delete_service 		(DBConnection *db_con, guint32 id, const char *uri);
 
-gboolean 	tracker_add_watch_dir 			(const char *dir, DBConnection *db_con);
-void     	tracker_remove_watch_dir 		(const char *dir, gboolean delete_subdirs, DBConnection *db_con);
-gboolean 	tracker_is_directory_watched 		(const char *dir, DBConnection *db_con);
-int		tracker_count_watch_dirs 		(void);
-
 FieldData *	tracker_db_get_metadata_field 		(DBConnection *db_con, const char *service, const char *field_name, int field_count, gboolean is_select, gboolean is_condition);
 
 void		tracker_db_start_index_transaction 	(DBConnection *db_con);

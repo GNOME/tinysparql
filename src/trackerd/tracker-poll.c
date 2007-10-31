@@ -16,32 +16,19 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+#include <string.h>
+#include <unistd.h>
+#include <glib.h>
 
+#include "tracker-watch.h"
 
+extern Tracker  *tracker;
 
-#ifndef _TRACKER_INOTIFY_H_
-#define _TRACKER_INOTIFY_H_
+gboolean 	tracker_start_watching 		(void){tracker->watch_limit = 0; return TRUE;}
+void     	tracker_end_watching 		(void){return;}
 
-#include "config.h"
+gboolean 	tracker_add_watch_dir 		(const gchar *dir, DBConnection *db_con){return FALSE;}
+void     	tracker_remove_watch_dir 	(const gchar *dir, gboolean delete_subdirs, DBConnection *db_con) {return;}
+gboolean 	tracker_is_directory_watched 	(const gchar *dir, DBConnection *db_con) {return FALSE;}
+int		tracker_count_watch_dirs 	(void) {return 0;}
 
-
-#ifdef HAVE_INOTIFY_LINUX
-#include <linux/inotify.h>
-#include "linux-inotify-syscalls.h"
-#else
-#   include <sys/inotify.h>
-#endif
-
-#include "tracker-db.h"
-
-gboolean 	tracker_start_watching 		(void);
-void     	tracker_end_watching 		(void);
-
-gboolean 	tracker_add_watch_dir 		(const char *dir, DBConnection *db_con);
-void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, DBConnection *db_con);
-
-gboolean 	tracker_is_directory_watched 	(const char *dir, DBConnection *db_con);
-int		tracker_count_watch_dirs 	(void);
-
-
-#endif

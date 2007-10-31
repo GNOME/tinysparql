@@ -19,8 +19,9 @@
 
 
 
-#ifndef _TRACKER_FAM_H_
-#define _TRACKER_FAM_H_
+#ifndef _TRACKER_WATCH_H_
+#define _TRACKER_WATCH_H_
+
 
 #include "tracker-db.h"
 
@@ -32,5 +33,6 @@ void     	tracker_remove_watch_dir 	(const char *dir, gboolean delete_subdirs, D
 
 gboolean 	tracker_is_directory_watched 	(const char *dir, DBConnection *db_con);
 int		tracker_count_watch_dirs 	(void);
+
 
 #endif

@@ -17,7 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-win-fs-changes.h"
+#include "tracker-watch.h"
 
 #include <unistd.h>
 
