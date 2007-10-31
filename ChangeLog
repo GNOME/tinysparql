@@ -1,3 +1,8 @@
+2007-10-31 Patch from Thiago Marcos P. Santos <tmpsantos@gmail.com>
+	
+	* escape string in sql fix
+
+
 2007-10-29 Jamie McCracken <jamiemcc at gnome org>
 
 	* Check sqlite dbs for corruption on startup and force reindex if necessary
