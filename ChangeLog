@@ -1,3 +1,9 @@
+2007-10-31 Michal Pryc <michal dot pryc at sun dot com>
+
+	* extensions/thunderbird-extension/content/trackerMailWindow.xul:
+	Fixes opening proper mail within Thunderbird.
+	* extensions/thunderbird-extension/tracker.xpi: new xpi with the applied patch.
+
 2007-10-31  Patch from	Tshepang Lekhonkhobe <tshepang@gmail.com>
 
 	* updated README file
