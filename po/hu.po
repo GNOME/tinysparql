@@ -683,7 +683,7 @@ msgstr "Az indexelés befejeződött"
 
 #: ../src/tracker-applet/tracker-applet.c:1035
 msgid "Indexes are being merged"
-msgstr "Indexek öszefésülése"
+msgstr "Indexek összefésülése"
 
 #: ../src/tracker-applet/tracker-applet.c:1037
 msgid "Paused by user"
