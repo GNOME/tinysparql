@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-09-21 03:26+0100\n"
-"PO-Revision-Date: 2007-09-23 00:31+0200\n"
+"POT-Creation-Date: 2007-10-10 07:43+0100\n"
+"PO-Revision-Date: 2007-10-31 20:02+0100\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <gnome@gnome.hu>\n"
 "MIME-Version: 1.0\n"
@@ -17,14 +17,14 @@ msgstr ""
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: ../python/deskbar-handler/tracker-handler.py:35
-#: ../python/deskbar-handler/tracker-module.py:96
+#: ../python/deskbar-handler/tracker-handler.py:36
+#: ../python/deskbar-handler/tracker-module.py:97
 #, python-format
 msgid "Launch %s (%s)"
 msgstr "%s indítása (%s)"
 
-#: ../python/deskbar-handler/tracker-handler.py:40
-#: ../python/deskbar-handler/tracker-module.py:101
+#: ../python/deskbar-handler/tracker-handler.py:41
+#: ../python/deskbar-handler/tracker-module.py:102
 #, python-format
 msgid ""
 "See %s conversation\n"
@@ -35,14 +35,14 @@ msgstr ""
 "%s %s\n"
 "a következővel: %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:46
-#: ../python/deskbar-handler/tracker-module.py:106
+#: ../python/deskbar-handler/tracker-handler.py:47
+#: ../python/deskbar-handler/tracker-module.py:107
 #, python-format
 msgid "Email from %s"
 msgstr "E-mail %s feladótól"
 
-#: ../python/deskbar-handler/tracker-handler.py:58
-#: ../python/deskbar-handler/tracker-module.py:117
+#: ../python/deskbar-handler/tracker-handler.py:59
+#: ../python/deskbar-handler/tracker-module.py:118
 #, python-format
 msgid ""
 "Listen to music %s\n"
@@ -51,8 +51,8 @@ msgstr ""
 "A(z) %s zene hallgatása\n"
 "a következőben: %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:63
-#: ../python/deskbar-handler/tracker-module.py:123
+#: ../python/deskbar-handler/tracker-handler.py:64
+#: ../python/deskbar-handler/tracker-module.py:124
 #, python-format
 msgid ""
 "See document %s\n"
@@ -61,13 +61,13 @@ msgstr ""
 "Lásd a(z) %s dokumentumot\n"
 "a következőben: %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:68
-#: ../python/deskbar-handler/tracker-handler.py:85
-#: ../python/deskbar-handler/tracker-handler.py:122
-#: ../python/deskbar-handler/tracker-module.py:128
-#: ../python/deskbar-handler/tracker-module.py:150
-#: ../python/deskbar-handler/tracker-module.py:199
-#: ../python/deskbar-handler/tracker-module.py:235
+#: ../python/deskbar-handler/tracker-handler.py:69
+#: ../python/deskbar-handler/tracker-handler.py:86
+#: ../python/deskbar-handler/tracker-handler.py:123
+#: ../python/deskbar-handler/tracker-module.py:129
+#: ../python/deskbar-handler/tracker-module.py:151
+#: ../python/deskbar-handler/tracker-module.py:200
+#: ../python/deskbar-handler/tracker-module.py:236
 #, python-format
 msgid ""
 "Open file %s\n"
@@ -76,8 +76,8 @@ msgstr ""
 "A(z) %s fájl megnyitása\n"
 "a következőben: %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:73
-#: ../python/deskbar-handler/tracker-module.py:133
+#: ../python/deskbar-handler/tracker-handler.py:74
+#: ../python/deskbar-handler/tracker-module.py:134
 #, python-format
 msgid ""
 "View image %s\n"
@@ -86,8 +86,8 @@ msgstr ""
 "A(z) %s kép megjelenítése\n"
 "a következőben: %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:79
-#: ../python/deskbar-handler/tracker-module.py:139
+#: ../python/deskbar-handler/tracker-handler.py:80
+#: ../python/deskbar-handler/tracker-module.py:140
 #, python-format
 msgid ""
 "Watch video  %s\n"
@@ -96,8 +96,8 @@ msgstr ""
 "A(z) %s videó megjelenítése\n"
 "a következőben: %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:90
-#: ../python/deskbar-handler/tracker-module.py:145
+#: ../python/deskbar-handler/tracker-handler.py:91
+#: ../python/deskbar-handler/tracker-module.py:146
 #, python-format
 msgid ""
 "Open folder %s\n"
@@ -106,62 +106,67 @@ msgstr ""
 "A(z) %s mappa megnyitása\n"
 "%s"
 
-#: ../python/deskbar-handler/tracker-handler.py:204
-#: ../python/deskbar-handler/tracker-module.py:336
+#: ../python/deskbar-handler/tracker-handler.py:205
+#: ../python/deskbar-handler/tracker-module.py:337
 msgid "with"
 msgstr "ezzel:"
 
-#: ../python/deskbar-handler/tracker-handler.py:212
-#: ../python/deskbar-handler/tracker-module.py:344
+#: ../python/deskbar-handler/tracker-handler.py:213
+#: ../python/deskbar-handler/tracker-module.py:345
 msgid "in channel"
 msgstr "csatornán"
 
-#: ../python/deskbar-handler/tracker-handler.py:360
+#: ../python/deskbar-handler/tracker-handler.py:369
 msgid "Search all of your documents, <b>as you type</b>"
 msgstr "Az összes dokumentum keresése <b>gépelés közben</b>"
 
-#: ../python/deskbar-handler/tracker-handler.py:364
-#: ../python/deskbar-handler/tracker-module.py:284
+#: ../python/deskbar-handler/tracker-handler.py:373
+#: ../python/deskbar-handler/tracker-module.py:285
 msgid "Development Files"
 msgstr "Fejlesztési fájlok"
 
-#: ../python/deskbar-handler/tracker-handler.py:367
-#: ../python/deskbar-handler/tracker-module.py:287
+#: ../python/deskbar-handler/tracker-handler.py:376
+#: ../python/deskbar-handler/tracker-module.py:288
 #: ../src/tracker-search-tool/tracker-search-tool.c:141
 msgid "Music"
 msgstr "Zene"
 
-#: ../python/deskbar-handler/tracker-handler.py:370
-#: ../python/deskbar-handler/tracker-module.py:290
+#: ../python/deskbar-handler/tracker-handler.py:379
+#: ../python/deskbar-handler/tracker-module.py:291
 #: ../src/tracker-search-tool/tracker-search-tool.c:140
 msgid "Images"
 msgstr "Képek"
 
-#: ../python/deskbar-handler/tracker-handler.py:373
-#: ../python/deskbar-handler/tracker-module.py:293
+#: ../python/deskbar-handler/tracker-handler.py:382
+#: ../python/deskbar-handler/tracker-module.py:294
 #: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "Videos"
 msgstr "Videók"
 
-#: ../python/deskbar-handler/tracker-module.py:61
-#: ../python/deskbar-handler/tracker-module.py:155
+#: ../python/deskbar-handler/tracker-handler-static.py:34
+#: ../python/deskbar-handler/tracker-module.py:62
+#: ../python/deskbar-handler/tracker-module.py:156
 #, python-format
 msgid "Search for %s with Tracker Search Tool"
 msgstr "%s keresése a Tracker keresőeszközzel"
 
-#: ../python/deskbar-handler/tracker-module.py:75
+#: ../python/deskbar-handler/tracker-handler-static.py:65
+msgid "Search all of your documents with Tracker Search Tool"
+msgstr "Keresés az összes dokumentumban a Tracker keresőeszközzel"
+
+#: ../python/deskbar-handler/tracker-module.py:76
 msgid "Tracker Search"
 msgstr "Tracker kereső"
 
-#: ../python/deskbar-handler/tracker-module.py:76
+#: ../python/deskbar-handler/tracker-module.py:77
 msgid "Search with Tracker Search Tool"
 msgstr "Keresés a Tracker keresőeszközzel"
 
-#: ../python/deskbar-handler/tracker-module.py:279
+#: ../python/deskbar-handler/tracker-module.py:280
 msgid "Tracker Live Search"
 msgstr "Tracker élő keresés"
 
-#: ../python/deskbar-handler/tracker-module.py:280
+#: ../python/deskbar-handler/tracker-module.py:281
 msgid "Search with Tracker, as you type"
 msgstr "Keresés a Trackerrel gépelés közben"
 
@@ -349,21 +354,21 @@ msgstr "%.1f GB"
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:251
+#: ../src/libtracker-gtk/tracker-tag-bar.c:249
 msgid "Type tags you want to add here, separated by commas"
 msgstr "Írja ide a hozzáadni kívánt címkéket, vesszőkkel elválasztva"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:361
+#: ../src/libtracker-gtk/tracker-tag-bar.c:359
 msgid "Tags :"
 msgstr "Címkék:"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:383
+#: ../src/libtracker-gtk/tracker-tag-bar.c:381
 msgid "_Search For Tag"
 msgstr "_Címke keresése"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:395
+#: ../src/libtracker-gtk/tracker-tag-bar.c:393
 msgid "_Remove Tag"
 msgstr "Címke _eltávolítása"
 
@@ -400,7 +405,9 @@ msgstr "KIFEJEZÉS... - megadott kifejezések keresése fájlokban"
 msgid ""
 "Specifying more then one term, will be showed items containing ALL the "
 "specified terms (term1 AND term2 - logical conjunction)"
-msgstr "Több kifejezés megadásakor az ÖSSZES kifejezést tartalmazó elemek kerülnek megjelenítésre (kifejezés1 és kifejezés2 - logikai összekapcsolás)"
+msgstr ""
+"Több kifejezés megadásakor az ÖSSZES kifejezést tartalmazó elemek kerülnek "
+"megjelenítésre (kifejezés1 és kifejezés2 - logikai összekapcsolás)"
 
 #: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
@@ -433,7 +440,8 @@ msgstr "A parancs indítása előtt győződjön meg róla, hogy a \"trackerd\" 
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "A szolgáltatás nem ismerhető fel, keresés az egyéb fájlok között...\n"
 
-#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-search.c:164
+#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
 #: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
 #: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
@@ -494,7 +502,9 @@ msgstr "FÁJL... - fájlok címkéinek kezelése"
 msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
 "options like:"
-msgstr "Több címke együttes hozzáadásához, eltávolításához vagy kereséséhez fűzzön össze több kapcsolót, például:"
+msgstr ""
+"Több címke együttes hozzáadásához, eltávolításához vagy kereséséhez fűzzön "
+"össze több kapcsolót, például:"
 
 #: ../src/libtracker/tracker-tag.c:121
 #, c-format
@@ -506,90 +516,292 @@ msgstr "%s: érvénytelen argumentumok"
 msgid "%s: file %s not found"
 msgstr "%s: a(z) %s fájl nem található"
 
-#: ../src/trackerd/trackerd.c:164
+#: ../src/trackerd/trackerd.c:171
 msgid "Directory to exclude from indexing"
 msgstr "Az indexelésből kihagyandó könyvtár"
 
-#: ../src/trackerd/trackerd.c:164 ../src/trackerd/trackerd.c:165
-#: ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:171 ../src/trackerd/trackerd.c:172
+#: ../src/trackerd/trackerd.c:173
 msgid "/PATH/DIR"
 msgstr "/ÚTVONAL/KÖNYVTÁR"
 
-#: ../src/trackerd/trackerd.c:165
+#: ../src/trackerd/trackerd.c:172
 msgid "Directory to include in indexing"
 msgstr "Az indexelésbe felvenni kívánt könyvtár"
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:173
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Csak induláskor indexelendő könyvtár"
 
-#: ../src/trackerd/trackerd.c:167
+#: ../src/trackerd/trackerd.c:174
 msgid "Disable any indexing or watching taking place"
 msgstr "Minden indexelés vagy figyelés letiltása"
 
-#: ../src/trackerd/trackerd.c:168
+#: ../src/trackerd/trackerd.c:175
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
-msgstr "A naplózás szintjét vezérlő érték. Az érvényes értékek: 0 (csak hibák megjelenítése/naplózása), 1 (minimális), 2 (részletes) és 3 (hibakeresés)"
+msgstr ""
+"A naplózás szintjét vezérlő érték. Az érvényes értékek: 0 (csak hibák "
+"megjelenítése/naplózása), 1 (minimális), 2 (részletes) és 3 (hibakeresés)"
 
-#: ../src/trackerd/trackerd.c:168 ../src/trackerd/trackerd.c:169
+#: ../src/trackerd/trackerd.c:175 ../src/trackerd/trackerd.c:176
 msgid "VALUE"
 msgstr "ÉRTÉK"
 
-#: ../src/trackerd/trackerd.c:169
+#: ../src/trackerd/trackerd.c:176
 msgid ""
-"Value to use for throttling indexing. Value must be in range 0-20 (default "
+"Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
-msgstr "Az indexelés sebességét szabályozó érték. Az értéknek 0-20 között kell lennie (alapértelmezésben 0) és az alacsonyabb értékek növelik az indexelés sebességét"
+msgstr ""
+"Az indexelés sebességét szabályozó érték. Az értéknek 0-99 között kell "
+"lennie (alapértelmezésben 0) és az alacsonyabb értékek növelik az indexelés "
+"sebességét"
 
-#: ../src/trackerd/trackerd.c:170
+#: ../src/trackerd/trackerd.c:177
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimalizálja a memóriahasználatot, de lelassíthatja az indexelést"
 
-#: ../src/trackerd/trackerd.c:171
+#: ../src/trackerd/trackerd.c:178
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Kezdeti alvási idő, az indexelés előtt, másodpercben"
 
-#: ../src/trackerd/trackerd.c:172
+#: ../src/trackerd/trackerd.c:179
 msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr "A tövezőhöz és a megállító szavak listájához használandó nyelv (kétbetűs ISO 639-1 kód)"
+msgstr ""
+"A tövezőhöz és a megállító szavak listájához használandó nyelv (kétbetűs ISO "
+"639-1 kód)"
 
-#: ../src/trackerd/trackerd.c:172
+#: ../src/trackerd/trackerd.c:179
 msgid "LANG"
 msgstr "NYELV"
 
-#: ../src/trackerd/trackerd.c:173
+#: ../src/trackerd/trackerd.c:180
 msgid "Force a re-index of all content"
 msgstr "Minden tartalom újraindexelésének kikényszerítése"
 
-#: ../src/trackerd/trackerd.c:174
+#: ../src/trackerd/trackerd.c:181
 msgid "Make tracker errors fatal"
 msgstr "A tracker hibáinak végzetessé tétele"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2043
+#: ../src/trackerd/trackerd.c:2371
 msgid "- start the tracker daemon"
 msgstr "- a tracker démon elindítása"
 
-#: ../src/trackerd/trackerd.c:2044 ../src/trackerd/trackerd.c:2045
+#: ../src/trackerd/trackerd.c:2372 ../src/trackerd/trackerd.c:2373
 msgid "DIRECTORY"
 msgstr "KÖNYVTÁR"
 
-#: ../src/trackerd/trackerd.c:2052
+#: ../src/trackerd/trackerd.c:2380
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
-msgstr "Több könyvtár egyidejű felvételéhez vagy kihagyásához fűzzön össze több kapcsolót, például:"
+msgstr ""
+"Több könyvtár egyidejű felvételéhez vagy kihagyásához fűzzön össze több "
+"kapcsolót, például:"
+
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
+msgid "Control and monitor the Tracker search and indexing service"
+msgstr "A Tracker kereső- és indexelő szolgáltatás vezérlése és megfigyelése"
+
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
+msgid "Tracker Applet"
+msgstr "Tracker kisalkalmazás"
+
+#: ../src/tracker-applet/tracker-applet.c:133
+msgid "_Pause Indexing"
+msgstr "Indexelés s_züneteltetése"
+
+#: ../src/tracker-applet/tracker-applet.c:141
+msgid "_Search..."
+msgstr "K_eresés..."
+
+#: ../src/tracker-applet/tracker-applet.c:147
+msgid "Pre_ferences"
+msgstr "B_eállítások"
+
+#: ../src/tracker-applet/tracker-applet.c:153
+msgid "S_tatistics"
+msgstr "_Statisztika"
+
+#: ../src/tracker-applet/tracker-applet.c:162
+msgid "_Quit"
+msgstr "_Kilépés"
+
+#. search entry row
+#: ../src/tracker-applet/tracker-applet.c:347
+msgid "Search:"
+msgstr "Keresés:"
+
+#. status row
+#: ../src/tracker-applet/tracker-applet.c:367
+msgid "Status:"
+msgstr "Állapot:"
+
+#. File progress row
+#: ../src/tracker-applet/tracker-applet.c:387
+msgid "Progress:"
+msgstr "Folyamat:"
+
+#: ../src/tracker-applet/tracker-applet.c:915
+msgid "Statistics"
+msgstr "Statisztika"
+
+#: ../src/tracker-applet/tracker-applet.c:936
+msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">Indexelési statisztika</span>"
+
+#. set translatable strings here
+#: ../src/tracker-applet/tracker-applet.c:1026
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "Files"
+msgstr "Fájlok"
+
+#: ../src/tracker-applet/tracker-applet.c:1027
+msgid "folders"
+msgstr "mappák"
+
+#: ../src/tracker-applet/tracker-applet.c:1029
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "E-mailek"
+
+#: ../src/tracker-applet/tracker-applet.c:1031
+msgid "mail boxes"
+msgstr "postafiókok"
+
+#: ../src/tracker-applet/tracker-applet.c:1033
+msgid "Indexing in progress"
+msgstr "Az indexelés folyamatban"
+
+#: ../src/tracker-applet/tracker-applet.c:1034
+msgid "Indexing completed"
+msgstr "Az indexelés befejeződött"
+
+#: ../src/tracker-applet/tracker-applet.c:1035
+msgid "Indexes are being merged"
+msgstr "Indexek öszefésülése"
+
+#: ../src/tracker-applet/tracker-applet.c:1037
+msgid "Paused by user"
+msgstr "Felhasználói szünet"
+
+#: ../src/tracker-applet/tracker-applet.c:1038
+msgid "Paused while on battery power"
+msgstr "Szünet akkumulátoron"
+
+#: ../src/tracker-applet/tracker-applet.c:1039
+msgid "Paused temporarily"
+msgstr "Ideiglenes szünet"
+
+#: ../src/tracker-applet/tracker-applet.c:1041
+msgid ""
+"Your computer is about to be indexed so you can perform fast searches of "
+"your files and emails"
+msgstr "A számítógép indexelésre kerül, így gyors kereséseket hajthat végre fájlokban és e-mailekben"
+
+#: ../src/tracker-applet/tracker-applet.c:1042
+msgid ""
+"You can pause indexing at any time and configure index settings by right "
+"clicking here"
+msgstr "Bármikor szüneteltetheti az indexelést és a jobb egérgombbal ide kattintva módosíthatja az indexelés beállításait"
+
+#: ../src/tracker-applet/tracker-applet.c:1044
+msgid "Tracker has finished indexing your system"
+msgstr "A Tracker befejezte a rendszer indexelését"
+
+#: ../src/tracker-applet/tracker-applet.c:1045
+#, c-format
+msgid " in %d hours and %d minutes"
+msgstr " %d óra %d perc alatt"
+
+#: ../src/tracker-applet/tracker-applet.c:1046
+#, c-format
+msgid " in %d minutes and %d seconds"
+msgstr " %d perc %d másodperc alatt"
+
+#: ../src/tracker-applet/tracker-applet.c:1047
+#, c-format
+msgid " in %d seconds"
+msgstr " %d másodperc alatt"
+
+#: ../src/tracker-applet/tracker-applet.c:1048
+msgid "You can now perform searches by clicking here"
+msgstr "Mostantól ide kattintva kereséseket végezhet"
+
+#: ../src/tracker-applet/tracker-applet.c:1050
+msgid ""
+"Tracker is now merging indexes which can degrade system performance for "
+"serveral minutes\n"
+"\n"
+"You can pause this by right clicking here"
+msgstr ""
+"A Tracker most összefésüli az indexeket, ez néhány percre visszavetheti a rendszer teljesítményét\n"
+"\n"
+"A jobb egérgombbal ide kattintva ezt szüneteltetheti"
+
+#: ../src/tracker-applet/tracker-applet.c:1052 ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Tracker kereső- és indexelő szolgáltatás"
+
+#: ../src/tracker-applet/tracker-applet.c:1054
+msgid "Files:"
+msgstr "Fájlok:"
+
+#: ../src/tracker-applet/tracker-applet.c:1055
+msgid "    Folders:"
+msgstr "Mappák:"
+
+#: ../src/tracker-applet/tracker-applet.c:1056
+msgid "    Documents:"
+msgstr "Dokumentumok:"
+
+#: ../src/tracker-applet/tracker-applet.c:1057
+msgid "    Images:"
+msgstr "Képek:"
+
+#: ../src/tracker-applet/tracker-applet.c:1058
+msgid "    Music:"
+msgstr "Zene:"
+
+#: ../src/tracker-applet/tracker-applet.c:1059
+msgid "    Videos:"
+msgstr "Videók:"
+
+#: ../src/tracker-applet/tracker-applet.c:1060
+msgid "    Text:"
+msgstr "Szöveg:"
+
+#: ../src/tracker-applet/tracker-applet.c:1061
+msgid "    Development:"
+msgstr "Fejlesztőeszközök:"
+
+#: ../src/tracker-applet/tracker-applet.c:1062
+msgid "    Other:"
+msgstr "Egyéb:"
+
+#: ../src/tracker-applet/tracker-applet.c:1063
+msgid "Applications:"
+msgstr "Alkalmazások:"
+
+#: ../src/tracker-applet/tracker-applet.c:1064
+msgid "Conversations:"
+msgstr "Társalgások:"
+
+#: ../src/tracker-applet/tracker-applet.c:1065
+msgid "Emails:"
+msgstr "E-mailek:"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
 msgstr "A fájlindexelés beállítása"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Indexing Preferences"
-msgstr "Indexelés tulajdonságai"
+msgid "Search and Indexing"
+msgstr "Keresés és indexelés"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
@@ -656,137 +868,128 @@ msgid "Additional paths to index on startup (but not watch for updates)"
 msgstr "További indításkor indexelendő (de nem figyelendő útvonalak)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "E-mailek"
+msgid ""
+"Danish\n"
+"Dutch\n"
+"English\n"
+"Finnish\n"
+"French\n"
+"German\n"
+"Italian\n"
+"Norwegian\n"
+"Portuguese\n"
+"Russian\n"
+"Spanish\n"
+"Swedish"
+msgstr ""
+"Dán\n"
+"Holland\n"
+"Angol\n"
+"Finn\n"
+"Francia\n"
+"Német\n"
+"Olasz\n"
+"Norvég\n"
+"Portugál\n"
+"Orosz\n"
+"Spanyol\n"
+"Svéd"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Enable _Evolution email indexing"
 msgstr "_Evolution e-mail indexelés engedélyezése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Enable _KMail email indexing"
 msgstr "_KMail e-mail indexelés engedélyezése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:20
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Enable _Thunderbird email indexing"
 msgstr "_Thunderbird e-mail indexelés engedélyezése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Enable _watching"
 msgstr "_Figyelés engedélyezése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Enable i_ndexing"
 msgstr "_Indexelés engedélyezése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Faster"
 msgstr "Gyorsabb"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "File patterns to ignore during indexing:"
 msgstr "Az indexelés során kihagyandó fájlminták:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
-msgid "Files"
-msgstr "Fájlok"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "General"
 msgstr "Általános"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "Generate thum_bnails"
 msgstr "_Bélyegképek előállítása"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "Ignored Files"
 msgstr "Mellőzött fájlok"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "Index _delay: "
 msgstr "In_dexelés késleltetése: "
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "Index _file contents"
 msgstr "_Fájltartalom indexelése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "Index _mounted directories"
 msgstr "_Csatolt könyvtárak indexelése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
 msgid "Index and watch my home _directory"
 msgstr "A saját _könyvtáram indexelése és figyelése"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
 msgid "Indexing speed:"
 msgstr "Indexelés sebessége:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Maximum _amount of text to index:"
 msgstr "Az in_dexelendő szöveg legnagyobb mennyisége:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
 msgid "Maximum number of unique _words to index:"
 msgstr "Az indexelendő _egyedi szavak legnagyobb mennyisége:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
 msgid "Path roots to be ignored during indexing:"
 msgstr "Az indexelés során kihagyandó útvonalgyökerek:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
 msgid "Performance"
 msgstr "Teljesítmény"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
 msgid "Slower"
 msgstr "Lassabb"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
 msgid "Tracker Preferences"
 msgstr "A Tracker beállításai"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
 msgid "_Language:"
 msgstr "Nye_lv:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "Memóriahasználat _minimalizálása (lassabb indexelés)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
 msgid "_Use additonal memory for faster indexing"
 msgstr "_Több memória használata a gyorsabb indexeléshez"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
-msgid ""
-"danish\n"
-"dutch\n"
-"english\n"
-"finnish\n"
-"french\n"
-"german\n"
-"italian\n"
-"norwegian\n"
-"portugese\n"
-"russian\n"
-"spanish\n"
-"swedish"
-msgstr ""
-"dán\n"
-"holland\n"
-"angol\n"
-"finn\n"
-"francia\n"
-"német\n"
-"olasz\n"
-"norvég\n"
-"portugál\n"
-"orosz\n"
-"spanyol\n"
-"svéd"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:55
 msgid "kB"
@@ -813,7 +1016,7 @@ msgid "Documents"
 msgstr "Dokumentumok"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1223
+#: ../src/tracker-search-tool/tracker-search-tool.c:1224
 msgid "Text"
 msgstr "Szöveg"
 
@@ -854,78 +1057,91 @@ msgstr "A karakterkészlet-konverzió nem sikerült erre: \"%s\""
 msgid "The following error has occured :"
 msgstr "A következő hiba történt:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:655
+#: ../src/tracker-search-tool/tracker-search-tool.c:284
+msgid "Error"
+msgstr "Hiba"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:654
 msgid "Did you mean"
 msgstr "Nem erre gondolt:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:686
+#: ../src/tracker-search-tool/tracker-search-tool.c:685
 msgid "Your search returned no results."
 msgstr "A keresés nem adott találatot."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:701
+#: ../src/tracker-search-tool/tracker-search-tool.c:700
 msgid "Tracker Search Tool-"
 msgstr "Tracker keresőeszköz -"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:862
-#: ../src/tracker-search-tool/tracker-search-tool.c:2198
+#: ../src/tracker-search-tool/tracker-search-tool.c:861
+#: ../src/tracker-search-tool/tracker-search-tool.c:2222
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Tracker keresőeszköz"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1052
+#: ../src/tracker-search-tool/tracker-search-tool.c:1051
 msgid "Search _results: "
 msgstr "_Találatok: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1058
+#: ../src/tracker-search-tool/tracker-search-tool.c:1057
 msgid "no search performed"
 msgstr "nincs keresés végrehajtva"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1112
-#: ../src/tracker-search-tool/tracker-search-tool.c:1273
+#: ../src/tracker-search-tool/tracker-search-tool.c:1111
+#: ../src/tracker-search-tool/tracker-search-tool.c:1274
 msgid "List View"
 msgstr "Listanézet"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1184
+#: ../src/tracker-search-tool/tracker-search-tool.c:1183
 msgid "Icon"
 msgstr "Ikon"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1196
+#: ../src/tracker-search-tool/tracker-search-tool.c:1195
 msgid "Name"
 msgstr "Név"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1291
+#: ../src/tracker-search-tool/tracker-search-tool.c:1292
 msgid "_Categories"
 msgstr "K_ategóriák"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1571
+#: ../src/tracker-search-tool/tracker-search-tool.c:1572
 #, c-format
 msgid "%d - %d of %d hits"
 msgstr "%d - %d, összesen %d találat"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1574
+#: ../src/tracker-search-tool/tracker-search-tool.c:1575
 #, c-format
 msgid "%d item"
 msgid_plural "%d hits"
 msgstr[0] "%d elem"
 msgstr[1] "%d elem"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1975
+#: ../src/tracker-search-tool/tracker-search-tool.c:1623
+#: ../src/tracker-search-tool/tracker-search-tool.c:1799
+msgid "Could not connect to search service as it may be busy"
+msgstr "Nem lehet csatlakozni a keresési szolgáltatáshoz, lehet hogy az foglalt"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1992
 msgid "_Search:"
 msgstr "K_eresés:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1995
-#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:2004
+msgid "Tracker is still indexing so not all search results are available yet"
+msgstr "A Tracker még indexel, így még nem minden találat áll rendelkezésre"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2017
+#: ../src/tracker-search-tool/tracker-search-tool.c:2018
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Adjon meg egy keresőkifejezést, a szavakat szóközökkel elválasztva."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:2018
 msgid "search_entry"
 msgstr "kereső_mező"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2042
+#: ../src/tracker-search-tool/tracker-search-tool.c:2064
 msgid "Click to perform a search."
 msgstr "Kattintson ide a keresés elvégzéséhez."
 
@@ -1060,7 +1276,9 @@ msgstr "Lehet, hogy nincs írási jogosultsága a dokumentumhoz."
 msgid ""
 "Locate documents and folders on this computer by name or content using "
 "Tracker"
-msgstr "Dokumentumok és mappák keresése a számítógépen név vagy tartalom szerint a Tracker segítségével"
+msgstr ""
+"Dokumentumok és mappák keresése a számítógépen név vagy tartalom szerint a "
+"Tracker segítségével"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:72
 #, c-format
@@ -1101,8 +1319,4 @@ msgstr "link erre: %s"
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
-
-#: ../trackerd.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Tracker kereső- és indexelő szolgáltatás"
 
