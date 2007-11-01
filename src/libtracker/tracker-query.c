@@ -193,7 +193,7 @@ main (int argc, char **argv)
 	g_strfreev (meta_fields);
 
 	if (error) {
-		g_warning ("An error has occured : %s\n", error->message);
+		g_warning ("An error has occurred : %s\n", error->message);
 		g_error_free (error);
 		g_free (buffer);
 		return 1;

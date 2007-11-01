@@ -277,7 +277,7 @@ display_error_dialog (GtkWidget * window,
 				 GTK_DIALOG_DESTROY_WITH_PARENT,
 				 GTK_MESSAGE_ERROR,
 				 GTK_BUTTONS_OK,
-				 _("The following error has occured :"));
+				 _("The following error has occurred :"));
 
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), error);
 

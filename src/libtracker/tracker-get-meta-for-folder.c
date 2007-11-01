@@ -99,7 +99,7 @@ main (int argc, char **argv)
 	g_strfreev (meta_fields);
 
 	if (error) {
-		g_warning ("An error has occured : %s", error->message);
+		g_warning ("An error has occurred : %s", error->message);
 		g_error_free (error);
 	}
 

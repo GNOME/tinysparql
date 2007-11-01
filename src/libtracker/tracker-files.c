@@ -65,7 +65,7 @@ main (int argc, char **argv)
 			array = tracker_files_get_by_service_type (client, -1, type, 0, 512, &error);
 
 			if (error) {
-				g_warning ("An error has occured : %s", error->message);
+				g_warning ("An error has occurred : %s", error->message);
 				g_error_free (error);
 				return 1;
 			}
@@ -107,7 +107,7 @@ main (int argc, char **argv)
 			g_strfreev (mimes);
 
 			if (error) {
-				g_warning ("An error has occured : %s", error->message);
+				g_warning ("An error has occurred : %s", error->message);
 				g_error_free (error);
 				return 1;
 			}

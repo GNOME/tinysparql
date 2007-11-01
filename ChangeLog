@@ -1,3 +1,14 @@
+2007-10-31  Saleem Abdulrasool  <compnerd@compnerd.org>
+	Patch from Bruce Cowan <bugs@bcowan.fastmail.co.uk>
+	Fix spelling error 'occured' -> 'occurred'.  Bug #481651.
+
+	* src/libtracker/tracker-files.c: (main):
+	* src/libtracker/tracker-get-meta-for-folder.c: (main):
+	* src/libtracker/tracker-query.c: (main):
+	* src/libtracker/tracker-stats.c: (main):
+	* src/tracker-search-tool/tracker-search-tool.c:
+	(display_error_dialog):
+
 2007-10-31 Michael Biebl <mbiebl at gmail com>
 
 	* Merge tracker-inotify.h, tracker-fam.h and tracker-win-fs-changes.h

@@ -97,7 +97,7 @@ main (int argc, char **argv)
 	out_array = tracker_get_stats (client, &error);
 
 	if (error) {
-		g_warning ("%s: an error has occured: %s", argv[0], error->message);
+		g_warning ("%s: an error has occurred: %s", argv[0], error->message);
 		g_error_free (error);
 	}
 
