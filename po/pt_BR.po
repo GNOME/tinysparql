@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-05 13:43+0100\n"
-"PO-Revision-Date: 2007-10-05 16:14-0300\n"
+"POT-Creation-Date: 2007-11-03 11:13-0200\n"
+"PO-Revision-Date: 2007-11-03 11:39-0200\n"
 "Last-Translator: Luiz Armesto <luiz.armesto@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-l10n-br@listas.cipsga.org.br>\n"
 "MIME-Version: 1.0\n"
@@ -19,13 +19,13 @@ msgstr ""
 "X-Poedit-Country: BRAZIL\n"
 
 #: ../python/deskbar-handler/tracker-handler.py:36
-#: ../python/deskbar-handler/tracker-module.py:97
+#: ../python/deskbar-handler/tracker-module.py:100
 #, python-format
 msgid "Launch %s (%s)"
 msgstr "Iniciar %s (%s)"
 
 #: ../python/deskbar-handler/tracker-handler.py:41
-#: ../python/deskbar-handler/tracker-module.py:102
+#: ../python/deskbar-handler/tracker-module.py:105
 #, python-format
 msgid ""
 "See %s conversation\n"
@@ -37,13 +37,13 @@ msgstr ""
 "de %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:47
-#: ../python/deskbar-handler/tracker-module.py:107
+#: ../python/deskbar-handler/tracker-module.py:110
 #, python-format
 msgid "Email from %s"
 msgstr "E-mail de %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:59
-#: ../python/deskbar-handler/tracker-module.py:118
+#: ../python/deskbar-handler/tracker-module.py:121
 #, python-format
 msgid ""
 "Listen to music %s\n"
@@ -53,7 +53,7 @@ msgstr ""
 "em %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:64
-#: ../python/deskbar-handler/tracker-module.py:124
+#: ../python/deskbar-handler/tracker-module.py:127
 #, python-format
 msgid ""
 "See document %s\n"
@@ -65,10 +65,10 @@ msgstr ""
 #: ../python/deskbar-handler/tracker-handler.py:69
 #: ../python/deskbar-handler/tracker-handler.py:86
 #: ../python/deskbar-handler/tracker-handler.py:123
-#: ../python/deskbar-handler/tracker-module.py:129
-#: ../python/deskbar-handler/tracker-module.py:151
-#: ../python/deskbar-handler/tracker-module.py:200
-#: ../python/deskbar-handler/tracker-module.py:236
+#: ../python/deskbar-handler/tracker-module.py:132
+#: ../python/deskbar-handler/tracker-module.py:154
+#: ../python/deskbar-handler/tracker-module.py:203
+#: ../python/deskbar-handler/tracker-module.py:239
 #, python-format
 msgid ""
 "Open file %s\n"
@@ -78,7 +78,7 @@ msgstr ""
 "em %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:74
-#: ../python/deskbar-handler/tracker-module.py:134
+#: ../python/deskbar-handler/tracker-module.py:137
 #, python-format
 msgid ""
 "View image %s\n"
@@ -88,7 +88,7 @@ msgstr ""
 "em %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:80
-#: ../python/deskbar-handler/tracker-module.py:140
+#: ../python/deskbar-handler/tracker-module.py:143
 #, python-format
 msgid ""
 "Watch video  %s\n"
@@ -98,7 +98,7 @@ msgstr ""
 "com %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:91
-#: ../python/deskbar-handler/tracker-module.py:146
+#: ../python/deskbar-handler/tracker-module.py:149
 #, python-format
 msgid ""
 "Open folder %s\n"
@@ -107,67 +107,69 @@ msgstr ""
 "Abrir a pasta %s\n"
 "%s"
 
-#: ../python/deskbar-handler/tracker-handler.py:205
-#: ../python/deskbar-handler/tracker-module.py:337
+#: ../python/deskbar-handler/tracker-handler.py:209
+#: ../python/deskbar-handler/tracker-module.py:347
 msgid "with"
 msgstr "com"
 
-#: ../python/deskbar-handler/tracker-handler.py:213
-#: ../python/deskbar-handler/tracker-module.py:345
+#: ../python/deskbar-handler/tracker-handler.py:217
+#: ../python/deskbar-handler/tracker-module.py:355
 msgid "in channel"
 msgstr "no canal"
 
-#: ../python/deskbar-handler/tracker-handler.py:369
+#: ../python/deskbar-handler/tracker-handler.py:384
 msgid "Search all of your documents, <b>as you type</b>"
 msgstr "Pesquisar todos os seus documentos, <b>conforme você digita</b>"
 
-#: ../python/deskbar-handler/tracker-handler.py:373
-#: ../python/deskbar-handler/tracker-module.py:285
+#: ../python/deskbar-handler/tracker-handler.py:388
+#: ../python/deskbar-handler/tracker-module.py:291
 msgid "Development Files"
 msgstr "Arquivos de Desenvolvimento"
 
-#: ../python/deskbar-handler/tracker-handler.py:376
-#: ../python/deskbar-handler/tracker-module.py:288
+# N.T.: Não existe plural de "music" em inglês, mas por consistência com o restante, colocamos plural no português.
+#: ../python/deskbar-handler/tracker-handler.py:391
+#: ../python/deskbar-handler/tracker-module.py:294
 #: ../src/tracker-search-tool/tracker-search-tool.c:141
 msgid "Music"
-msgstr "Música"
+msgstr "Músicas"
 
-#: ../python/deskbar-handler/tracker-handler.py:379
-#: ../python/deskbar-handler/tracker-module.py:291
+#: ../python/deskbar-handler/tracker-handler.py:394
+#: ../python/deskbar-handler/tracker-module.py:297
 #: ../src/tracker-search-tool/tracker-search-tool.c:140
 msgid "Images"
 msgstr "Imagens"
 
-#: ../python/deskbar-handler/tracker-handler.py:382
-#: ../python/deskbar-handler/tracker-module.py:294
+#: ../python/deskbar-handler/tracker-handler.py:397
+#: ../python/deskbar-handler/tracker-module.py:300
 #: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "Videos"
 msgstr "Vídeos"
 
-#: ../python/deskbar-handler/tracker-handler-static.py:34
-#: ../python/deskbar-handler/tracker-module.py:62
-#: ../python/deskbar-handler/tracker-module.py:156
+#: ../python/deskbar-handler/tracker-handler-static.py:37
+#: ../python/deskbar-handler/tracker-module.py:65
+#: ../python/deskbar-handler/tracker-module.py:159
 #, python-format
 msgid "Search for %s with Tracker Search Tool"
-msgstr "Pesquisar por %s com a Ferramenta de Pesquisa Tracker"
+msgstr "Pesquisar por %s com a Ferramenta de Pesquisa do Tracker"
 
-#: ../python/deskbar-handler/tracker-handler-static.py:65
+#: ../python/deskbar-handler/tracker-handler-static.py:68
 msgid "Search all of your documents with Tracker Search Tool"
-msgstr "Pesquisar todos os seus documentos com a Ferramenta de Pesquisa Tracker"
+msgstr ""
+"Pesquisar todos os seus documentos com a Ferramenta de Pesquisa do Tracker"
 
-#: ../python/deskbar-handler/tracker-module.py:76
+#: ../python/deskbar-handler/tracker-module.py:79
 msgid "Tracker Search"
-msgstr "Ferramenta de Pesquisa Tracker"
+msgstr "Ferramenta de Pesquisa do Tracker"
 
-#: ../python/deskbar-handler/tracker-module.py:77
+#: ../python/deskbar-handler/tracker-module.py:80
 msgid "Search with Tracker Search Tool"
-msgstr "Pesquisar com a Ferramenta de Pesquisa Tracker"
+msgstr "Pesquisar com a Ferramenta de Pesquisa do Tracker"
 
-#: ../python/deskbar-handler/tracker-module.py:280
+#: ../python/deskbar-handler/tracker-module.py:286
 msgid "Tracker Live Search"
-msgstr "Pesquisa Incremental Tracker"
+msgstr "Pesquisa Incremental do Tracker"
 
-#: ../python/deskbar-handler/tracker-module.py:281
+#: ../python/deskbar-handler/tracker-module.py:287
 msgid "Search with Tracker, as you type"
 msgstr "Pesquisar com o Tracker, conforme você digita"
 
@@ -305,7 +307,7 @@ msgstr "Codificado Em: <b>%s</b>"
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:745
 #, c-format
 msgid "Framerate : <b>%s</b>"
-msgstr "Taxa de Quadros: <b>%s</b>"
+msgstr "Quadros por Segundo: <b>%s</b>"
 
 #. then set the remaining properties
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:773
@@ -357,7 +359,7 @@ msgstr "Desconhecido"
 
 #: ../src/libtracker-gtk/tracker-tag-bar.c:249
 msgid "Type tags you want to add here, separated by commas"
-msgstr "Escreva aqui as etiquetas que deseja adicionar, separadas por vírgulas"
+msgstr "Digite aqui as etiquetas que deseja adicionar, separadas por vírgulas"
 
 #: ../src/libtracker-gtk/tracker-tag-bar.c:359
 msgid "Tags :"
@@ -392,7 +394,7 @@ msgstr "SERVIÇO"
 
 #: ../src/libtracker/tracker-search.c:36
 msgid "Show more detailed results with service and mime type as well"
-msgstr "Exibir resultados mais detalhados, com o tipo de serviço e MIME"
+msgstr "Exibir resultados mais detalhados com serviço e tipo MIME"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -403,60 +405,59 @@ msgstr "TERM... - procurar arquivos com termos específicos"
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
 #: ../src/libtracker/tracker-search.c:93
-msgid "Specifying more then one term, will be showed items containing ALL the specified terms (term1 AND term2 - logical conjunction)"
-msgstr "Se especificar mais de um termo, serão exibidos os itens que contenham TODOS os termos especificados (termo1 E termo2 - junção lógica)"
+msgid ""
+"Specifying more then one term, will be showed items containing ALL the "
+"specified terms (term1 AND term2 - logical conjunction)"
+msgstr ""
+"Se mais de um termo for especificado, serão exibidos os itens que contenham TODOS "
+"os termos especificados (termo1 E termo2 - junção lógica)"
 
 #: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
 msgstr "A lista de serviços reconhecidos é:"
 
 #: ../src/libtracker/tracker-search.c:114
-#: ../src/libtracker/tracker-search.c:122
-#: ../src/libtracker/tracker-stats.c:82
-#: ../src/libtracker/tracker-tag.c:115
-#: ../src/libtracker/tracker-tag.c:123
+#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
+#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
 #, c-format
 msgid "Try \"%s --help\" for more information."
-msgstr "Utilize \"%s --help\" para mais informação."
+msgstr "Tente \"%s --help\" para mais informações."
 
 #: ../src/libtracker/tracker-search.c:120
 #, c-format
 msgid "%s: missing search terms"
 msgstr "%s: faltam termos para pesquisa"
 
-#: ../src/libtracker/tracker-search.c:133
-#: ../src/libtracker/tracker-stats.c:90
-#: ../src/libtracker/tracker-status.c:46
-#: ../src/libtracker/tracker-tag.c:132
+#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
+#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
 #, c-format
 msgid "%s: no connection to tracker daemon"
 msgstr "%s: sem conexão com o serviço tracker"
 
-#: ../src/libtracker/tracker-search.c:135
-#: ../src/libtracker/tracker-stats.c:92
-#: ../src/libtracker/tracker-status.c:48
-#: ../src/libtracker/tracker-tag.c:134
+#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
+#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
+#, c-format
 msgid "Ensure \"trackerd\" is running before launch this command."
-msgstr "Certifique-se que o \"trackerd\" está sendo executado antes de utilizar este comando."
+msgstr ""
+"Certifique-se de que o \"trackerd\" esteja sendo executado antes de chamar este "
+"comando."
 
 #: ../src/libtracker/tracker-search.c:147
+#, c-format
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Serviço não reconhecido, pesquisando em Outros Arquivos...\n"
 
 #: ../src/libtracker/tracker-search.c:164
-#: ../src/libtracker/tracker-status.c:56
-#: ../src/libtracker/tracker-tag.c:180
-#: ../src/libtracker/tracker-tag.c:189
-#: ../src/libtracker/tracker-tag.c:198
-#: ../src/libtracker/tracker-tag.c:233
-#: ../src/libtracker/tracker-tag.c:283
+#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
+#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
 msgid "%s: internal tracker error: %s"
 msgstr "%s: erro interno do tracker: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:173
-#: ../src/libtracker/tracker-tag.c:268
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
+#, c-format
 msgid "No results found matching your query"
 msgstr "Nenhum resultado encontrado correspondente à sua consulta"
 
@@ -472,30 +473,28 @@ msgstr "obtendo estatísticas do índice"
 
 #: ../src/libtracker/tracker-tag.c:41
 msgid "Add specified tag to a file"
-msgstr "Adicionar etiqueta específica a um arquivo"
+msgstr "Adiciona a etiqueta especificada a um arquivo"
 
-#: ../src/libtracker/tracker-tag.c:41
-#: ../src/libtracker/tracker-tag.c:42
-#: ../src/libtracker/tracker-tag.c:45
-#: ../src/libtracker/tracker-tag.c:92
+#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
 msgid "TAG"
 msgstr "ETIQUETA"
 
 #: ../src/libtracker/tracker-tag.c:42
 msgid "Remove specified tag from a file"
-msgstr "Remover etiqueta especifica de um arquivo"
+msgstr "Remove a etiqueta especificada de um arquivo"
 
 #: ../src/libtracker/tracker-tag.c:43
 msgid "Remove all tags from a file"
-msgstr "Remover todas as etiquetas de um arquivo"
+msgstr "Remove todas as etiquetas de um arquivo"
 
 #: ../src/libtracker/tracker-tag.c:44
 msgid "List all defined tags"
-msgstr "Listar todas as etiquetas definidas"
+msgstr "Lista todas as etiquetas definidas"
 
 #: ../src/libtracker/tracker-tag.c:45
 msgid "Search for files with specified tag"
-msgstr "Pesquisar arquivos com a etiqueta especificada"
+msgstr "Pesquisa arquivos com a etiqueta especificada"
 
 #: ../src/libtracker/tracker-tag.c:46
 msgid "FILE..."
@@ -508,8 +507,12 @@ msgid "FILE... - manipulate tags on files"
 msgstr "ARQUIVO... - manipula etiquetas nos arquivos"
 
 #: ../src/libtracker/tracker-tag.c:99
-msgid "To add, remove, or search for multiple tags at the same time, join multiple options like:"
-msgstr "Para adicionar, remover ou pesquisar referências múltiplas ao mesmo tempo, utilize várias opções como:"
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options like:"
+msgstr ""
+"Para adicionar, remover ou pesquisar várias etiquetas ao mesmo tempo, junte "
+"várias opções como:"
 
 #: ../src/libtracker/tracker-tag.c:121
 #, c-format
@@ -521,213 +524,91 @@ msgstr "%s: argumentos inválidos"
 msgid "%s: file %s not found"
 msgstr "%s: arquivo %s não encontrado"
 
-#: ../src/trackerd/trackerd.c:171
+#: ../src/trackerd/trackerd.c:144
 msgid "Directory to exclude from indexing"
 msgstr "Diretório para excluir da indexação"
 
-#: ../src/trackerd/trackerd.c:171
-#: ../src/trackerd/trackerd.c:172
-#: ../src/trackerd/trackerd.c:173
+#: ../src/trackerd/trackerd.c:144 ../src/trackerd/trackerd.c:145
+#: ../src/trackerd/trackerd.c:146
 msgid "/PATH/DIR"
 msgstr "/CAMINHO/DIR"
 
-#: ../src/trackerd/trackerd.c:172
+#: ../src/trackerd/trackerd.c:145
 msgid "Directory to include in indexing"
 msgstr "Diretório para incluir na indexação"
 
-#: ../src/trackerd/trackerd.c:173
+#: ../src/trackerd/trackerd.c:146
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Diretório para indexar apenas na inicialização"
 
-#: ../src/trackerd/trackerd.c:174
+#: ../src/trackerd/trackerd.c:147
 msgid "Disable any indexing or watching taking place"
-msgstr "Desabilitar quaisquer indexações ou monitoramento a decorrer"
+msgstr "Desabilitar qualquer indexação ou monitoramento em atividade"
 
-#: ../src/trackerd/trackerd.c:175
-msgid "Value that controls the level of logging. Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
-msgstr "Valor que controla o nível de registro. Valores válidos são 0 (registra/exibe apenas erros), 1 (mínimo), 2 (detalhado) e 3 (depuração)"
+#: ../src/trackerd/trackerd.c:148
+msgid ""
+"Value that controls the level of logging. Valid values are 0 (displays/logs "
+"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+msgstr ""
+"Valor que controla o nível de registro. Valores válidos são 0 (registra/"
+"exibe apenas erros), 1 (mínimo), 2 (detalhado) e 3 (depuração)"
 
-#: ../src/trackerd/trackerd.c:175
-#: ../src/trackerd/trackerd.c:176
+#: ../src/trackerd/trackerd.c:148 ../src/trackerd/trackerd.c:149
 msgid "VALUE"
 msgstr "VALOR"
 
-#: ../src/trackerd/trackerd.c:176
-msgid "Value to use for throttling indexing. Value must be in range 0-20 (default 0) with lower values increasing indexing speed"
-msgstr "Valor a utilizar para limitar a indexação. O valor tem de estar entre 0-20 (padrão 0), valores menores aumentam a velocidade de indexação"
+#: ../src/trackerd/trackerd.c:149
+msgid ""
+"Value to use for throttling indexing. Value must be in range 0-99 (default "
+"0) with lower values increasing indexing speed"
+msgstr ""
+"Valor a usar para limitar a indexação. O valor deve estar entre 0-99 (padrão "
+"é 0), valores menores aumentam a velocidade de indexação"
 
-#: ../src/trackerd/trackerd.c:177
+#: ../src/trackerd/trackerd.c:150
 msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "Minimiza a utilização de memória mas pode diminuir a velocidade de indexação"
+msgstr "Minimiza o uso de memória, mas pode diminuir a velocidade de indexação"
 
-#: ../src/trackerd/trackerd.c:178
+#: ../src/trackerd/trackerd.c:151
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Tempo inicial de espera, antes de indexar, em segundos"
 
-#: ../src/trackerd/trackerd.c:179
-msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr "Idioma a usar para a derivação e lista de palavras de término (código de caracteres ISO 639-1 2)"
+#: ../src/trackerd/trackerd.c:152
+msgid ""
+"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+"Idioma a usar para a lista de palavras derivadas e de parada (código de dois "
+"caracteres ISO 639-1)"
 
-#: ../src/trackerd/trackerd.c:179
+#: ../src/trackerd/trackerd.c:152
 msgid "LANG"
 msgstr "IDIOMA"
 
-#: ../src/trackerd/trackerd.c:180
+#: ../src/trackerd/trackerd.c:153
 msgid "Force a re-index of all content"
 msgstr "Forçar a reindexação de todo o conteúdo"
 
-#: ../src/trackerd/trackerd.c:181
+#: ../src/trackerd/trackerd.c:154
 msgid "Make tracker errors fatal"
 msgstr "Tornar fatais os erros do tracker"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2302
+#: ../src/trackerd/trackerd.c:2398
 msgid "- start the tracker daemon"
 msgstr "- iniciar o serviço tracker"
 
-#: ../src/trackerd/trackerd.c:2303
-#: ../src/trackerd/trackerd.c:2304
+#: ../src/trackerd/trackerd.c:2399 ../src/trackerd/trackerd.c:2400
 msgid "DIRECTORY"
 msgstr "DIRETÓRIO"
 
-#: ../src/trackerd/trackerd.c:2311
-msgid "To include or exclude multiple directories at the same time, join multiple options like:"
-msgstr "Para incluir ou excluir vários diretórios ao mesmo tempo, una várias opções como:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:36
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Files"
-msgstr "Arquivos"
-
-#: ../src/tracker-applet/tm-tray-icon.c:37
-msgid "folders"
-msgstr "pastas"
-
-#: ../src/tracker-applet/tm-tray-icon.c:38
-msgid "Conversations"
-msgstr "Conversas"
-
-#: ../src/tracker-applet/tm-tray-icon.c:39
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "E-mails"
-
-#: ../src/tracker-applet/tm-tray-icon.c:41
-msgid "mail boxes"
-msgstr "caixas de correio"
-
-#: ../src/tracker-applet/tm-tray-icon.c:43
-msgid "Indexing"
-msgstr "Indexação"
-
-#: ../src/tracker-applet/tm-tray-icon.c:44
-msgid "Idle"
-msgstr "Ocioso"
-
-#: ../src/tracker-applet/tm-tray-icon.c:45
-msgid "Initializing"
-msgstr "Iniciando"
-
-#: ../src/tracker-applet/tm-tray-icon.c:46
-msgid "(paused)"
-msgstr "(pausado)"
-
-#: ../src/tracker-applet/tm-tray-icon.c:47
-msgid "(battery paused)"
-msgstr "(pausado pela bateria)"
-
-#: ../src/tracker-applet/tm-tray-icon.c:49
-msgid "Tracker will shortly be indexing your system"
-msgstr "Tracker irá logo indexar seu sistema"
-
-#: ../src/tracker-applet/tm-tray-icon.c:50
-msgid "Indexing may affect the performance of your computer"
-msgstr "Indexação pode afetar a performance do seu computador"
-
-#: ../src/tracker-applet/tm-tray-icon.c:51
-msgid "You can pause indexing at any time and configure index settings by right clicking here"
-msgstr "Você pode pausar a indexação a qualquer momento e configurar as preferências do índice clicando com o botão direito aqui"
-
-#: ../src/tracker-applet/tm-tray-icon.c:53
-msgid "Tracker has finished indexing your system. You can now perform searches by clicking here"
-msgstr "Tracker terminou de indexar o seu sistema. Você pode realizar pesquisas agora clicando aqui"
-
-#. search entry row
-#: ../src/tracker-applet/tm-tray-icon.c:211
-msgid "Search:"
-msgstr "Pesquisar:"
-
-#. status row
-#: ../src/tracker-applet/tm-tray-icon.c:231
-msgid "Status:"
-msgstr "Status:"
-
-#. progress row
-#: ../src/tracker-applet/tm-tray-icon.c:251
-msgid "Progress:"
-msgstr "Progresso:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:263
-msgid "Files - 256/841 folders"
-msgstr "Arquivos - 256/841 pastas"
-
-#: ../src/tracker-applet/tm-tray-icon.c:502
-msgid "Statistics"
-msgstr "Estatísticas"
-
-#: ../src/tracker-applet/tm-tray-icon.c:534
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr "<span weight=\"bold\" size=\"larger\">Estatísticas do índice</span>"
-
-#: ../src/tracker-applet/tm-tray-icon.c:555
-msgid "Files:"
-msgstr "Arquivos:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:556
-msgid "    Folders:"
-msgstr "    Pastas:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:557
-msgid "    Documents:"
-msgstr "    Documentos:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:558
-msgid "    Images:"
-msgstr "    Imagens:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:559
-msgid "    Music:"
-msgstr "    Música:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:560
-msgid "    Videos:"
-msgstr "    Vídeos:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:561
-msgid "    Text:"
-msgstr "    Texto:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:562
-msgid "    Development:"
-msgstr "    Desenvolvimento:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:563
-msgid "    Other:"
-msgstr "    Outros:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:564
-msgid "Applications:"
-msgstr "Aplicações:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:565
-msgid "Conversations:"
-msgstr "Conversas:"
-
-#: ../src/tracker-applet/tm-tray-icon.c:566
-msgid "Emails:"
-msgstr "E-mails:"
+#: ../src/trackerd/trackerd.c:2407
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
+msgstr ""
+"Para incluir ou excluir vários diretórios ao mesmo tempo, junte várias "
+"opções como:"
 
 #: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
 msgid "Control and monitor the Tracker search and indexing service"
@@ -737,13 +618,203 @@ msgstr "Controla e monitora o serviço de pesquisa e indexação do Tracker"
 msgid "Tracker Applet"
 msgstr "Miniaplicativo Tracker"
 
+#: ../src/tracker-applet/tracker-applet.c:133
+msgid "_Pause Indexing"
+msgstr "_Pausar a Indexação"
+
+#: ../src/tracker-applet/tracker-applet.c:141
+msgid "_Search..."
+msgstr "_Pesquisar..."
+
+#: ../src/tracker-applet/tracker-applet.c:147
+msgid "Pre_ferences"
+msgstr "Pre_ferências"
+
+#: ../src/tracker-applet/tracker-applet.c:153
+msgid "S_tatistics"
+msgstr "Es_tatísticas"
+
+#: ../src/tracker-applet/tracker-applet.c:162
+msgid "_Quit"
+msgstr "_Sair"
+
+#. search entry row
+#: ../src/tracker-applet/tracker-applet.c:347
+msgid "Search:"
+msgstr "Pesquisar:"
+
+#. status row
+#: ../src/tracker-applet/tracker-applet.c:367
+msgid "Status:"
+msgstr "Status:"
+
+#. File progress row
+#: ../src/tracker-applet/tracker-applet.c:387
+msgid "Progress:"
+msgstr "Progresso:"
+
+#: ../src/tracker-applet/tracker-applet.c:915
+msgid "Statistics"
+msgstr "Estatísticas"
+
+#: ../src/tracker-applet/tracker-applet.c:936
+msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">Estatísticas do índice</span>"
+
+#. set translatable strings here
+#: ../src/tracker-applet/tracker-applet.c:1026
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "Files"
+msgstr "Arquivos"
+
+#: ../src/tracker-applet/tracker-applet.c:1027
+msgid "folders"
+msgstr "pastas"
+
+#: ../src/tracker-applet/tracker-applet.c:1029
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "E-mails"
+
+#: ../src/tracker-applet/tracker-applet.c:1031
+msgid "mail boxes"
+msgstr "caixas de correio"
+
+#: ../src/tracker-applet/tracker-applet.c:1033
+msgid "Indexing in progress"
+msgstr "Indexação em progresso"
+
+#: ../src/tracker-applet/tracker-applet.c:1034
+msgid "Indexing completed"
+msgstr "Indexação completa"
+
+#: ../src/tracker-applet/tracker-applet.c:1035
+msgid "Indexes are being merged"
+msgstr "Índices estão sendo mesclados"
+
+#: ../src/tracker-applet/tracker-applet.c:1037
+msgid "Paused by user"
+msgstr "Pausado pelo usuário"
+
+#: ../src/tracker-applet/tracker-applet.c:1038
+msgid "Paused while on battery power"
+msgstr "Pausado enquanto usa bateria"
+
+#: ../src/tracker-applet/tracker-applet.c:1039
+msgid "Paused temporarily"
+msgstr "Pausado temporariamente"
+
+#: ../src/tracker-applet/tracker-applet.c:1041
+msgid ""
+"Your computer is about to be indexed so you can perform fast searches of "
+"your files and emails"
+msgstr ""
+"Seu computador está para ser indexado, assim você pode realizar pesquisas "
+"rápidas de seus arquivos e e-mails"
+
+#: ../src/tracker-applet/tracker-applet.c:1042
+msgid ""
+"You can pause indexing at any time and configure index settings by right "
+"clicking here"
+msgstr ""
+"Você pode pausar a indexação a qualquer momento e configurar as preferências "
+"de indexação clicando com o botão direito aqui"
+
+#: ../src/tracker-applet/tracker-applet.c:1044
+msgid "Tracker has finished indexing your system"
+msgstr "Tracker terminou de indexar seu sistema"
+
+#: ../src/tracker-applet/tracker-applet.c:1045
+#, c-format
+msgid " in %d hours and %d minutes"
+msgstr " em %d horas e %d minutos"
+
+#: ../src/tracker-applet/tracker-applet.c:1046
+#, c-format
+msgid " in %d minutes and %d seconds"
+msgstr " em %d minutos e %d segundos"
+
+#: ../src/tracker-applet/tracker-applet.c:1047
+#, c-format
+msgid " in %d seconds"
+msgstr " em %d segundos"
+
+#: ../src/tracker-applet/tracker-applet.c:1048
+msgid "You can now perform searches by clicking here"
+msgstr "Você pode agora realizar pesquisas clicando aqui"
+
+#: ../src/tracker-applet/tracker-applet.c:1050
+msgid ""
+"Tracker is now merging indexes which can degrade system performance for "
+"serveral minutes\n"
+"\n"
+"You can pause this by right clicking here"
+msgstr ""
+"Tracker está agora mesclando índices, o que pode diminuir a performance do "
+"sistema por vários minutos\n"
+"\n"
+"Você pode pausá-lo clicando com o botão direito aqui"
+
+#: ../src/tracker-applet/tracker-applet.c:1052 ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Serviço de pesquisa e indexação do Tracker"
+
+#: ../src/tracker-applet/tracker-applet.c:1054
+msgid "Files:"
+msgstr "Arquivos:"
+
+#: ../src/tracker-applet/tracker-applet.c:1055
+msgid "    Folders:"
+msgstr "    Pastas:"
+
+#: ../src/tracker-applet/tracker-applet.c:1056
+msgid "    Documents:"
+msgstr "    Documentos:"
+
+#: ../src/tracker-applet/tracker-applet.c:1057
+msgid "    Images:"
+msgstr "    Imagens:"
+
+#: ../src/tracker-applet/tracker-applet.c:1058
+msgid "    Music:"
+msgstr "    Música:"
+
+#: ../src/tracker-applet/tracker-applet.c:1059
+msgid "    Videos:"
+msgstr "    Vídeos:"
+
+#: ../src/tracker-applet/tracker-applet.c:1060
+msgid "    Text:"
+msgstr "    Texto:"
+
+#: ../src/tracker-applet/tracker-applet.c:1061
+msgid "    Development:"
+msgstr "    Desenvolvimento:"
+
+#: ../src/tracker-applet/tracker-applet.c:1062
+msgid "    Other:"
+msgstr "    Outros:"
+
+#: ../src/tracker-applet/tracker-applet.c:1063
+msgid "Applications:"
+msgstr "Aplicações:"
+
+#: ../src/tracker-applet/tracker-applet.c:1064
+msgid "Conversations:"
+msgstr "Conversas:"
+
+#: ../src/tracker-applet/tracker-applet.c:1065
+msgid "Emails:"
+msgstr "E-mails:"
+
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
 msgstr "Configurar a indexação de arquivos com o Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Indexing Preferences"
-msgstr "Preferências de Indexação"
+msgid "Search and Indexing"
+msgstr "Pesquisa e Indexação"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
@@ -759,7 +830,7 @@ msgstr "<b>Caminhos Ignorados</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:4
 msgid "<b>Indexing Limits (per file)</b>"
-msgstr "<b>Limite de Indexação (por arquivo)</b>"
+msgstr "<b>Limites de Indexação (por arquivo)</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:5
 msgid "<b>Indexing Options</b>"
@@ -807,7 +878,9 @@ msgstr "Caminhos adicionais a indexar e monitorar:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional paths to index on startup (but not watch for updates)"
-msgstr "Caminhos adicionais para indexar na inicialização (mas não monitorar atualizações)"
+msgstr ""
+"Caminhos adicionais para indexar na inicialização (mas não para monitorar "
+"atualizações)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid ""
@@ -863,7 +936,7 @@ msgstr "Mais Rápido"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "File patterns to ignore during indexing:"
-msgstr "Padrões dos arquivos ignorados durante a indexação:"
+msgstr "Padrões dos arquivos a ignorar durante a indexação:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "General"
@@ -879,7 +952,7 @@ msgstr "Arquivos Ignorados"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "Index _delay: "
-msgstr "_Atraso na indexação:"
+msgstr "_Atraso na indexação: "
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "Index _file contents"
@@ -899,7 +972,7 @@ msgstr "Velocidade de indexação:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Maximum _amount of text to index:"
-msgstr "_Quantia máxima de texto a indexar:"
+msgstr "_Quantidade máxima de texto a indexar:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:47
 msgid "Maximum number of unique _words to index:"
@@ -927,7 +1000,7 @@ msgstr "_Idioma:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:53
 msgid "_Minimize memory usage (slower indexing)"
-msgstr "_Minimiza a utilização de memória (indexação mais lenta)"
+msgstr "_Minimizar uso de memória (indexação mais lenta)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:54
 msgid "_Use additonal memory for faster indexing"
@@ -958,7 +1031,7 @@ msgid "Documents"
 msgstr "Documentos"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1223
+#: ../src/tracker-search-tool/tracker-search-tool.c:1217
 msgid "Text"
 msgstr "Texto"
 
@@ -993,84 +1066,100 @@ msgstr "_Salvar Resultado Como..."
 #: ../src/tracker-search-tool/tracker-search-tool.c:253
 #, c-format
 msgid "Character set conversion failed for \"%s\""
-msgstr "Falhou a conversão de tipo de caracteres para \"%s\""
+msgstr "Falha na conversão do tipo de caracteres para \"%s\""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:280
-msgid "The following error has occured :"
+msgid "The following error has occurred :"
 msgstr "O seguinte erro ocorreu:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:655
+#: ../src/tracker-search-tool/tracker-search-tool.c:284
+msgid "Error"
+msgstr "Erro"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:654
 msgid "Did you mean"
 msgstr "Você quis dizer"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:686
+#: ../src/tracker-search-tool/tracker-search-tool.c:685
 msgid "Your search returned no results."
 msgstr "A sua pesquisa não obteve resultados."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:701
+#: ../src/tracker-search-tool/tracker-search-tool.c:700
 msgid "Tracker Search Tool-"
-msgstr "Ferramenta de Pesquisa Tracker-"
+msgstr "Ferramenta de Pesquisa do Tracker-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:862
-#: ../src/tracker-search-tool/tracker-search-tool.c:2198
+#: ../src/tracker-search-tool/tracker-search-tool.c:861
+#: ../src/tracker-search-tool/tracker-search-tool.c:2219
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
-msgstr "Ferramenta de Pesquisa Tracker"
+msgstr "Ferramenta de Pesquisa do Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1052
+#: ../src/tracker-search-tool/tracker-search-tool.c:1051
 msgid "Search _results: "
 msgstr "_Resultados da pesquisa: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1058
+#: ../src/tracker-search-tool/tracker-search-tool.c:1057
 msgid "no search performed"
 msgstr "nenhuma pesquisa realizada"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1112
-#: ../src/tracker-search-tool/tracker-search-tool.c:1273
+#: ../src/tracker-search-tool/tracker-search-tool.c:1111
+#: ../src/tracker-search-tool/tracker-search-tool.c:1271
 msgid "List View"
 msgstr "Visualização em Lista"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1184
+#: ../src/tracker-search-tool/tracker-search-tool.c:1183
 msgid "Icon"
 msgstr "Ícone"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1196
+#: ../src/tracker-search-tool/tracker-search-tool.c:1195
 msgid "Name"
 msgstr "Nome"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1291
+#: ../src/tracker-search-tool/tracker-search-tool.c:1289
 msgid "_Categories"
 msgstr "_Categorias"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1571
+#: ../src/tracker-search-tool/tracker-search-tool.c:1569
 #, c-format
 msgid "%d - %d of %d hits"
 msgstr "%d - %d de %d ocorrências"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1574
+#: ../src/tracker-search-tool/tracker-search-tool.c:1572
 #, c-format
 msgid "%d item"
 msgid_plural "%d hits"
 msgstr[0] "%d item"
 msgstr[1] "%d itens"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1975
+#: ../src/tracker-search-tool/tracker-search-tool.c:1620
+#: ../src/tracker-search-tool/tracker-search-tool.c:1796
+msgid "Could not connect to search service as it may be busy"
+msgstr ""
+"Não foi possível conectar ao serviço de pesquisa, ele pode estar ocupado"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1989
 msgid "_Search:"
 msgstr "_Pesquisar:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1995
-#: ../src/tracker-search-tool/tracker-search-tool.c:1996
-msgid "Enter a search term with multiple words seperated with spaces."
-msgstr "Introduza um termo de pesquisa com múltiplas palavras separadas por vírgulas."
+#: ../src/tracker-search-tool/tracker-search-tool.c:2001
+msgid "Tracker is still indexing so not all search results are available yet"
+msgstr ""
+"Tracker ainda está indexando, então nem todos os resultados da pesquisa "
+"estão disponíveis"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:2014
+#: ../src/tracker-search-tool/tracker-search-tool.c:2015
+msgid "Enter a search term with multiple words seperated with spaces."
+msgstr "Digite um termo de pesquisa com várias palavras separadas por espaços."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2015
 msgid "search_entry"
 msgstr "entrada_pesquisa"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2042
+#: ../src/tracker-search-tool/tracker-search-tool.c:2061
 msgid "Click to perform a search."
 msgstr "Clique para realizar uma pesquisa."
 
@@ -1090,8 +1179,8 @@ msgstr[1] "Tem a certeza de que quer abrir %d documentos?"
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
-msgstr[0] "Abrirá %d nova janela."
-msgstr[1] "Abrirá %d novas janelas."
+msgstr[0] "Isso abrirá %d nova janela."
+msgstr[1] "Isso abrirá %d novas janelas."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
@@ -1118,14 +1207,14 @@ msgstr "O documento não existe."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:657
 msgid "There is no installed viewer capable of displaying the document."
-msgstr "Não existe nenhum visualizador instalado capaz de apresentar o documento."
+msgstr "Não existe nenhum visualizador instalado capaz de exibir o documento."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:682
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] "Tem a certeza de que deseja abrir %d pasta?"
-msgstr[1] "Tem a certeza de que deseja abrir %d pastas?"
+msgstr[0] "Tem certeza de que deseja abrir %d pasta?"
+msgstr[1] "Tem certeza de que deseja abrir %d pastas?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:786
 #, c-format
@@ -1140,7 +1229,8 @@ msgstr "Deseja remover \"%s\" definitivamente?"
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:820
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr "A Lixeira não está disponível. Não foi possível mover \"%s\" para lixeira."
+msgstr ""
+"A lixeira não está disponível. Não foi possível mover \"%s\" para a lixeira."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:859
 #, c-format
@@ -1159,7 +1249,7 @@ msgstr "Falha ao excluir \"%s\": %s."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1303
 msgid "Activate to view this email"
-msgstr "Ativar para visualizar este e-mail"
+msgstr "Ativar para ver este e-mail"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1479
 msgid "Save Search Results As..."
@@ -1181,7 +1271,7 @@ msgstr "Não foi possível gravar o documento \"%s\" em \"%s\"."
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1579
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
-msgstr "O documento \"%s\" já existe.  Deseja substituí-lo?"
+msgstr "O documento \"%s\" já existe. Deseja substituí-lo?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1583
 msgid "If you replace an existing file, its contents will be overwritten."
@@ -1200,8 +1290,12 @@ msgid "You may not have write permissions to the document."
 msgstr "Você pode não ter permissões de escrita no documento."
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
-msgid "Locate documents and folders on this computer by name or content using Tracker"
-msgstr "Localizar documentos e pastas neste computador por nome ou conteúdo usando o Tracker"
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Localizar documentos e pastas neste computador por nome ou conteúdo usando o "
+"Tracker"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:72
 #, c-format
@@ -1242,8 +1336,3 @@ msgstr "atalho para %s"
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
-
-#: ../trackerd.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Serviço de pesquisa e indexação Tracker"
-
