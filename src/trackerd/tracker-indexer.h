@@ -101,6 +101,7 @@ void		tracker_index_free_hit_list		(GSList *hit_list);
 
 Indexer * 	tracker_indexer_open 			(const gchar *name);
 void		tracker_indexer_close 			(Indexer *indexer);
+gboolean	tracker_indexer_repair 			(const char *name);
 void		tracker_indexer_free 			(Indexer *indexer, gboolean remove_file);
 gboolean	tracker_indexer_has_merge_index 	(Indexer *indexer, gboolean update);
 

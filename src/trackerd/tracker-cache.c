@@ -272,6 +272,7 @@ update_word_table (GHashTable *table, const char *word, WordDetails *word_detail
 void
 tracker_cache_add (const gchar *word, guint32 service_id, gint service_type, gint score, gboolean is_new)
 {
+	static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
 	WordDetails word_details;
 
 	word_details.id = service_id;
@@ -279,6 +280,7 @@ tracker_cache_add (const gchar *word, guint32 service_id, gint service_type, gin
 
 	if (is_new) {
 
+		/* no need to mutex new stuff as only one thread is processing them */
 		if (!is_email (service_type)) {
 			if (update_word_table (tracker->file_word_table, word, &word_details)) tracker->word_count++;
 		} else {
@@ -286,7 +288,12 @@ tracker_cache_add (const gchar *word, guint32 service_id, gint service_type, gin
 		}
 
 	} else {
+		/* we need to mutex this to prevent corruption on multi cpu machines as both index process thread and user request thread (when setting tags/metadata) can call this */
+		g_static_mutex_lock (&mutex);
+		
 		if (update_word_table (tracker->file_update_word_table, word, &word_details)) tracker->word_update_count++;
+
+		g_static_mutex_unlock (&mutex);
 	}
 
 }

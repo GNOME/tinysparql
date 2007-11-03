@@ -1043,13 +1043,10 @@ tracker_db_connect (void)
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 16");
 	}
 
-	
-
 	/* create user defined utf-8 collation sequence */
 	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
 		tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
 	}
-	
 
 	/* create user defined functions that can be used in sql */
 	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
@@ -1091,6 +1088,8 @@ tracker_db_connect (void)
 	tracker_db_attach_db (db_con, "common");
 	tracker_db_attach_db (db_con, "cache");
 
+	db_con->cache = db_con;
+	db_con->common = db_con;
 
 	db_con->thread = NULL;
 
@@ -1606,7 +1605,7 @@ tracker_db_exec_no_reply (DBConnection *db_con, const char *query)
 		busy_count++;
 
 		if (msg) {
-			g_free (msg);
+			sqlite3_free (msg);
 			msg = NULL;
 		}
 
@@ -1631,7 +1630,7 @@ tracker_db_exec_no_reply (DBConnection *db_con, const char *query)
 
 		if (msg) {
 			tracker_error ("WARNING: sql query %s failed because %s", query, msg);	
-			g_free (msg);
+			sqlite3_free (msg);
 		} else {
 			tracker_error ("WARNING: sql query %s failed with code %d", query, rc);	
 		}
@@ -1682,7 +1681,7 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 			}
 
 			if (msg) {
-				g_free (msg);
+				sqlite3_free (msg);
 				msg = NULL;
 			}
 		
@@ -1706,14 +1705,14 @@ exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
 	if (i != SQLITE_OK) {
 		unlock_db ();
 		tracker_error ("ERROR: query %s failed with error: %s", query, msg);
-		g_free (msg);
+		sqlite3_free (msg);
 		return NULL;
 	}
 
 	unlock_db ();
 
 	if (msg) {
-		g_free (msg);
+		sqlite3_free (msg);
 	}
 
 	if (!array || rows == 0 || cols == 0) {
@@ -2681,7 +2680,6 @@ tracker_db_get_indexable_content_words (DBConnection *db_con, guint32 id, GHashT
 static void
 save_full_text_bytes (DBConnection *blob_db_con, const char *str_file_id, GByteArray *byte_array)
 {
-	char		*value;
 	sqlite3_stmt 	*stmt;
 	int		busy_count;
 	int		rc;
@@ -2706,10 +2704,6 @@ save_full_text_bytes (DBConnection *blob_db_con, const char *str_file_id, GByteA
 	while (TRUE) {
 
 		if (!lock_db ()) {
-			
-			if (value) {
-				g_free (value);
-			}
 
 			unlock_connection (blob_db_con);
 
@@ -6319,9 +6313,9 @@ char *
 tracker_db_get_option_string (DBConnection *db_con, const char *option)
 {
 
-	char *value;
+	char *value = "";
 
-	gchar ***res = tracker_exec_proc (db_con, "GetOption", 1, option);
+	gchar ***res = tracker_exec_proc (db_con->common, "GetOption", 1, option);
 
 	if (res) {
 		if (res[0] && res[0][0]) {
@@ -6337,7 +6331,7 @@ tracker_db_get_option_string (DBConnection *db_con, const char *option)
 void
 tracker_db_set_option_string (DBConnection *db_con, const char *option, const char *value)
 {
-	tracker_exec_proc (db_con, "SetOption", 2, value, option);
+	tracker_exec_proc (db_con->common, "SetOption", 2, value, option);
 }
 
 
@@ -6345,9 +6339,9 @@ int
 tracker_db_get_option_int (DBConnection *db_con, const char *option)
 {
 
-	int value;
+	int value = 0;
 
-	gchar ***res = tracker_exec_proc (db_con, "GetOption", 1, option);
+	gchar ***res = tracker_exec_proc (db_con->common, "GetOption", 1, option);
 
 	if (res) {
 		if (res[0] && res[0][0]) {
@@ -6365,7 +6359,7 @@ tracker_db_set_option_int (DBConnection *db_con, const char *option, int value)
 {
 	char *str_value = tracker_int_to_str (value);
 
-	tracker_exec_proc (db_con, "SetOption", 2, str_value, option);
+	tracker_exec_proc (db_con->common, "SetOption", 2, str_value, option);
 		
 	g_free (str_value);
 }
@@ -6390,5 +6384,26 @@ tracker_db_regulate_transactions (DBConnection *db_con, int interval)
 
 	return FALSE;
 
+}
+
+gboolean
+tracker_db_integrity_check (DBConnection *db_con)
+{
+	gboolean integrity_check = TRUE;
+
+	char ***res = tracker_exec_sql (db_con, "pragma integrity_check;");
+
+	if (!res) {
+		integrity_check = FALSE;
+	} else {
+
+		char **row = tracker_db_get_row (res, 0);
+
+		if (row && row[0]) {
+			integrity_check = (strcasecmp (row[0], "ok") == 0);
+		}
+	}
+
+	return integrity_check;
 }
 

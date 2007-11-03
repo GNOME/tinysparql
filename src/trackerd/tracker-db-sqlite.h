@@ -228,4 +228,6 @@ void	tracker_db_set_option_string 	(DBConnection *db_con, const char *option, co
 int	tracker_db_get_option_int	(DBConnection *db_con, const char *option);
 void	tracker_db_set_option_int 	(DBConnection *db_con, const char *option, int value);
 
+gboolean	tracker_db_integrity_check 	(DBConnection *db_con);
+
 #endif

@@ -18,6 +18,7 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 
@@ -42,42 +43,45 @@ tracker_dbus_init (void)
 {
 	DBusError      error;
 	DBusConnection *connection;
+	int ret;
 
 	dbus_error_init (&error);
 
 	connection = dbus_bus_get (DBUS_BUS_SESSION, &error);
 
 	if ((connection == NULL) || dbus_error_is_set (&error)) {
-		tracker_error ("ERROR: tracker_dbus_init() could not get the session bus");
-		
-		connection = NULL;
-		goto out;
+		if (dbus_error_is_set (&error)) {
+			tracker_error ("DBUS ERROR: %s occurred with message %s", error.name, error.message);
+			dbus_error_free (&error);
+		}
+
+		tracker_error ("ERROR: could not get the dbus session bus - exiting");
+		exit (EXIT_FAILURE);
+
 	}
 
 	dbus_connection_setup_with_g_main (connection, NULL);
 
-	if (!dbus_connection_register_object_path (connection, TRACKER_OBJECT, &tracker_vtable, NULL)) {
-		tracker_error ("ERROR: could not register D-BUS handlers");
-		connection = NULL;
-		goto out;
-	}
-
 	dbus_error_init (&error);
 
-	dbus_bus_request_name (connection, TRACKER_SERVICE, 0, &error);
+	ret = dbus_bus_request_name (connection, TRACKER_SERVICE, DBUS_NAME_FLAG_DO_NOT_QUEUE, &error);
 
 	if (dbus_error_is_set (&error)) {
 		tracker_error ("ERROR: could not acquire service name due to '%s'", error.message);
-		connection = NULL;
-		goto out;
+		exit (EXIT_FAILURE);
 	}
 
-out:
-	if (dbus_error_is_set (&error)) {
-		tracker_error ("DBUS ERROR: %s occurred with message %s", error.name, error.message);
-		dbus_error_free (&error);
+	if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
+		tracker_error ("ERROR: trackerd already running on your session dbus - exiting...");
+		exit (EXIT_FAILURE);
 	}
-	
+
+	if (!dbus_connection_register_object_path (connection, TRACKER_OBJECT, &tracker_vtable, NULL)) {
+		tracker_error ("ERROR: could not register D-BUS handlers");
+		connection = NULL;
+	}
+
+
 	if (connection != NULL) {
 		dbus_connection_set_exit_on_disconnect (connection, FALSE);
 	}

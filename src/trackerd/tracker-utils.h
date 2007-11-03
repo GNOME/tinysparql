@@ -199,6 +199,8 @@ typedef enum {
 
 typedef struct {
 
+	gboolean	readonly;
+
 	TrackerStatus	status;
 	int		pid;
 

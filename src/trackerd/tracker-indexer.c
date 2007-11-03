@@ -186,6 +186,19 @@ get_preferred_bucket_count (Indexer *indexer)
 }
 
 
+gboolean
+tracker_indexer_repair (const char *name)
+{
+	gboolean result = TRUE;
+	char *index_name = g_build_filename (tracker->data_dir, name, NULL);
+
+	result =  dprepair (index_name);
+	g_free (index_name);
+
+	return result;
+}
+
+
 static inline DEPOT *
 open_index (const gchar *name)
 {

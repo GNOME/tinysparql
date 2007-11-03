@@ -1,3 +1,13 @@
+2007-11-03 Jamie McCracken <jamiemcc at gnome org>
+
+	* made corruption scan active only if trackerd was not cleanly shutdown
+	* also repair qdbm index files
+	* mutex safeguards around cache
+	* allow readonly mode for trackerd when another process is present but on another machine (NFS)
+	* bomb out trackerd if not primary owner of tracker dbus name
+	* made use of sqlite3_free where needed to by sqlite 3.5
+
+
 2007-10-31  Saleem Abdulrasool  <compnerd@compnerd.org>
 	Patch from Bruce Cowan <bugs@bcowan.fastmail.co.uk>
 	Fix spelling error 'occured' -> 'occurred'.  Bug #481651.

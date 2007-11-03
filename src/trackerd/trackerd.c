@@ -394,11 +394,15 @@ tracker_do_cleanup (const gchar *sig_msg)
 
 	tracker_email_end_email_watching ();
 
+	/* reset integrity status as threads have closed cleanly */
+	tracker_db_set_option_int (main_thread_db_con, "IntegrityCheck", 0);
+
 	tracker_db_close (main_thread_db_con);
 
 	/* This must be called after all other db functions */
 	tracker_db_finalize ();
 
+	
 	if (tracker->reindex) {
 		tracker_remove_dirs (tracker->data_dir);
 		g_mkdir_with_parents (tracker->data_dir, 00755);
@@ -2564,6 +2568,8 @@ main (gint argc, gchar *argv[])
 	g_free (str);
 
 	/* prevent muliple instances  */
+	tracker->readonly = FALSE;
+
 	lfp = g_open (lock_file, O_RDWR|O_CREAT, 0640);
 	g_free (lock_file);
 
@@ -2573,8 +2579,8 @@ main (gint argc, gchar *argv[])
 	}
 
 	if (lockf (lfp, F_TLOCK, 0) <0) {
-		g_warning ("Tracker daemon is already running - exiting");
-		exit (1);
+		g_warning ("Tracker daemon is already running - attempting to run in readonly mode");
+		tracker->readonly = TRUE;
 	}
 
 	/* Set child's niceness to 19 */
@@ -2675,7 +2681,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	/* create database if needed */
-	if (need_index) {
+	if (!tracker->readonly && need_index) {
 
 		create_index (need_data);
 
@@ -2688,32 +2694,28 @@ main (gint argc, gchar *argv[])
 	db_con->thread = "main";
 
 
-	/* check db integrity */
-	gboolean integrity_check = TRUE;
-	char ***res = tracker_exec_sql (db_con, "pragma integrity_check;");
+	/* check db integrity if not previously shut down cleanly */
+	if (!tracker->readonly && !need_index && tracker_db_get_option_int (db_con, "IntegrityCheck") == 1) {
 
-	if (!res) {
-		integrity_check = FALSE;
-	} else {
+		tracker_log ("performing integrity check as trackerd was not shutdown cleanly");
 
-		char **row = tracker_db_get_row (res, 0);
+		if (!tracker_db_integrity_check (db_con) || !tracker_indexer_repair ("file-index.db") || !tracker_indexer_repair ("email-index.db")) {
+			tracker_error ("db or index corruption detected - prepare for reindex...");
+			tracker_db_close (db_con);	
 
-		if (row && row[0]) {
-			integrity_check = (strcasecmp (row[0], "ok") == 0);
+			tracker_remove_dirs (tracker->data_dir);
+			g_mkdir_with_parents (tracker->data_dir, 00755);
+			create_index (need_data);
+			db_con = tracker_db_connect ();
+			db_con->thread = "main";
+
 		}
-	}
 
-	if (!integrity_check) {
-		tracker_error ("db corruption detected - prepare for reindex...");
-		tracker_db_close (db_con);	
-
-		tracker_remove_dirs (tracker->data_dir);
-		g_mkdir_with_parents (tracker->data_dir, 00755);
-		create_index (need_data);
-		db_con = tracker_db_connect ();
-		db_con->thread = "main";
-
-	}
+	} 
+	
+	if (!tracker->readonly) {
+		tracker_db_set_option_int (db_con, "IntegrityCheck", 1);
+	} 
 
 	if (tracker->first_time_index) {
 		tracker_db_set_option_int (db_con, "InitialIndex", 1);
@@ -2744,7 +2746,11 @@ main (gint argc, gchar *argv[])
 	tracker_db_get_static_data (db_con);
 
 	tracker->file_metadata_queue = g_async_queue_new ();
-	tracker->file_process_queue = g_async_queue_new ();
+
+	if (!tracker->readonly) {
+		tracker->file_process_queue = g_async_queue_new ();
+	}
+
 	tracker->user_request_queue = g_async_queue_new ();
 
   	tracker->loop = g_main_loop_new (NULL, TRUE);
@@ -2758,13 +2764,16 @@ main (gint argc, gchar *argv[])
 	
 	add_local_dbus_connection_monitoring (tracker->dbus_con);
 
-	if (!tracker_start_watching ()) {
-		tracker_error ("ERROR: file monitoring failed to start");
-		tracker_do_cleanup ("File watching failure");
-		exit (1);
-	}
+	if (!tracker->readonly) {
 
-	tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
+		if (!tracker_start_watching ()) {
+			tracker_error ("ERROR: file monitoring failed to start");
+			tracker_do_cleanup ("File watching failure");
+			exit (1);
+		}
+
+		tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
+	}
 	
 	g_main_loop_run (tracker->loop);
 
