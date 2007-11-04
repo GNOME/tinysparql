@@ -22,6 +22,8 @@ INCLUDES =	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" \
 		$(GLIB_CFLAGS) \
 		$(GTK2_CFLAGS) \
 		$(LIBGLADE_CFLAGS) \
+		$(DBUS_CFLAGS) \
+		-I$(top_srcdir)/src/libtracker \
 		$(NULL)
 
 tracker_preferences_SOURCES = tracker-configuration.c \
@@ -34,6 +36,8 @@ tracker_preferences_SOURCES = tracker-configuration.c \
 tracker_preferences_LDADD = $(GLIB_LIBS) \
 			    $(GTK2_LIBS) \
 			    $(LIBGLADE_LIBS) \
+				$(DBUS_LIBS) \
+				$(top_builddir)/src/libtracker/libtrackerclient.la \
 			    $(NULL)
 
 EXTRA_DIST = $(pkgdata_DATA)

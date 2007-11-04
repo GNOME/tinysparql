@@ -31,6 +31,9 @@
 typedef struct _TrackerPreferencesPrivate {
 	GladeXML *gxml;
 	TrackerConfiguration *prefs;
+	DBusGConnection *connection;
+	DBusGProxy *dbus_proxy;
+	DBusGProxy *tracker_proxy;
 } TrackerPreferencesPrivate;
 
 static void

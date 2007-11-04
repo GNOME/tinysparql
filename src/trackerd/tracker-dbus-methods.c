@@ -555,7 +555,7 @@ tracker_dbus_method_shutdown (DBusRec *rec)
 
 	*/
 
-	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_INT32, &reindex, DBUS_TYPE_INVALID)) {
+	if (!dbus_message_get_args (rec->message, NULL, DBUS_TYPE_BOOLEAN, &reindex, DBUS_TYPE_INVALID)) {
 		tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
 		dbus_error_free (&dbus_error);
 		return;
