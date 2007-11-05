@@ -4459,18 +4459,25 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 
 	service_type_id = tracker_get_id_for_service (service);
 
-	if (info->mime)
+	if (info->mime) {
 		tracker_debug ("service id for %s is %d and sid is %s with mime %s", service, service_type_id, sid, info->mime);
-	else
+	} else {
 		tracker_debug ("service id for %s is %d and sid is %s", service, service_type_id, sid);
+        }
 
 	str_service_type_id = tracker_int_to_str (service_type_id);
 
 	str_aux = tracker_int_to_str (info->aux_id);
 
 	if (service_type_id != -1) {
-		tracker_exec_proc (db_con, "CreateService", 11, sid, path, name, str_service_type_id, info->mime, str_filesize,
+                gchar *apath = tracker_escape_string (path);
+                gchar *aname = tracker_escape_string (name);
+
+		tracker_exec_proc (db_con, "CreateService", 11, sid, apath, aname,
+                                   str_service_type_id, info->mime, str_filesize,
                                    str_is_dir, str_is_link, str_offset, str_mtime, str_aux);
+                g_free (apath);
+                g_free (aname);
 
 		if (db_con->in_error) {
 			tracker_error ("ERROR: CreateService uri is %s/%s", path, name);

@@ -512,8 +512,6 @@ add_dirs_to_watch_list (GSList *dir_list, gboolean check_dirs, DBConnection *db_
 		return;
 	}
 
-	g_return_if_fail (dir_list != NULL);
-
 	/* add sub directories breadth first recursively to avoid running out of file handles */
 	while (dir_list) {
                 GSList *file_list = NULL, *tmp;
@@ -1092,9 +1090,9 @@ process_files_thread (void)
 
 									if (!tracker->is_running || tracker->shutdown) {
 										break;
-									}
-													
+									}		
 								}
+
 								tracker->pause_io = FALSE;
 								tracker_dbus_send_index_status_change_signal ();
 
@@ -1523,7 +1521,7 @@ process_files_thread (void)
 			case TRACKER_ACTION_FILE_MOVED_FROM :
 
 				need_index = FALSE;
-tracker_log ("starting moving file %s to %s", info->uri, info->moved_to_uri);
+                                tracker_log ("starting moving file %s to %s", info->uri, info->moved_to_uri);
 				tracker_db_move_file (db_con, info->uri, info->moved_to_uri);
 
 				break;
@@ -2603,7 +2601,7 @@ main (gint argc, gchar *argv[])
 	set_defaults ();
 
 	tracker->battery_udi = NULL;
-	
+
 #ifdef HAVE_HAL
 	tracker->hal_con = tracker_hal_init ();
 #endif

@@ -1,6 +1,12 @@
+2007-11-05 Laurent Aguerreche <laurent.aguerreche at free fr>
+
+	* Fix infinite loops while indexing in directories containing a single quote in their name
+	* Fix "merging of indexes" messages which appear again, and again, and again, etc.
+
+
 2007-11-04 Patch from Halton Huo   <Halton.Huo@Sun.COM>
 
-	* Addeed shutdown and restart of trackerd to refresh config settings to tracker-preferences
+	* Added shutdown and restart of trackerd to refresh config settings to tracker-preferences
 
 
 2007-11-03 Jamie McCracken <jamiemcc at gnome org>
@@ -24,6 +30,7 @@
 	* src/tracker-search-tool/tracker-search-tool.c:
 	(display_error_dialog):
 
+
 2007-10-31 Michael Biebl <mbiebl at gmail com>
 
 	* Merge tracker-inotify.h, tracker-fam.h and tracker-win-fs-changes.h
@@ -37,11 +44,13 @@
 	Drop removed files like tracker-inotify.h, tracker-fam.h, 
 	tracker-win-fs-changes.h and add tracker-watch.h to trackerd_SOURCES.
 
+
 2007-10-31 Michal Pryc <michal dot pryc at sun dot com>
 
 	* extensions/thunderbird-extension/content/trackerMailWindow.xul:
 	Fixes opening proper mail within Thunderbird.
 	* extensions/thunderbird-extension/tracker.xpi: new xpi with the applied patch.
+
 
 2007-10-31  Patch from	Tshepang Lekhonkhobe <tshepang@gmail.com>
 
