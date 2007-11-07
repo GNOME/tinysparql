@@ -26,10 +26,6 @@ typedef struct _TrayIcon
 typedef struct _TrayIconClass
 {
    GObjectClass parent_class;
-
-   /* Methods */
-   void (*set_tooltip) (TrayIcon *icon, const gchar *tooltip);
-
 } TrayIconClass;
 
 GType

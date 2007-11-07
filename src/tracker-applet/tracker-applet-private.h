@@ -67,9 +67,6 @@ static void
 tray_icon_init (GTypeInstance *instance, gpointer g_class);
 
 static void
-_set_tooltip(TrayIcon *icon, const gchar *tooltip);
-
-static void
 tray_icon_clicked (GtkStatusIcon *icon, guint button, guint timestamp, gpointer data);
 
 static void

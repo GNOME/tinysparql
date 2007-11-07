@@ -87,12 +87,7 @@ static void refresh_stats (TrayIcon *self);
 static void
 tray_icon_class_init (TrayIconClass *klass)
 {
-
 	g_type_class_add_private (klass, sizeof(TrayIconPrivate));
-
-	/* Methods */
-	klass->set_tooltip = _set_tooltip;
-
 }
 
 
@@ -741,18 +736,19 @@ tray_icon_init (GTypeInstance *instance, gpointer g_class)
 void
 tray_icon_set_tooltip (TrayIcon *icon, const gchar *format, ...)
 {
-	va_list args;
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
 	gchar *tooltip = NULL;
+	va_list args;
 
 	va_start(args, format);
 	tooltip = g_strdup_vprintf(format, args);
 	va_end(args);
 
-	TRAY_ICON_GET_CLASS(icon)->set_tooltip(icon, tooltip);
+	gtk_status_icon_set_tooltip (priv->icon, tooltip);
 
 	g_free(tooltip);
 }
-
 
 void 
 tray_icon_show_message (TrayIcon *icon, const char *message, ...)
@@ -775,16 +771,6 @@ tray_icon_show_message (TrayIcon *icon, const char *message, ...)
 	g_object_unref (notification);
 
 	g_free (msg);
-}
-
-
-static void
-_set_tooltip (TrayIcon *icon, const gchar *tooltip)
-{
-	TrayIcon *self = TRAY_ICON (icon);
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
-
-	gtk_status_icon_set_tooltip (priv->icon, tooltip);
 }
 
 
