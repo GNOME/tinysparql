@@ -111,7 +111,7 @@ TYPES = {
 		'category': 'emails',
 		'action': { # more actions for different MUAs
 			'key': 'mua', # see TrackerLiveSearchAction.action for a demo
-			'Evolution':          'evolution %(uri)s',
+			'Evolution/Email':    'evolution %(uri)s',
 			'Thunderbird/Email':  'thunderbird -viewtracker %(uri)s',
 			'KMail':              'kmail --view %(uri)s',
 		},
