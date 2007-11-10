@@ -1,3 +1,29 @@
+2007-11-09  Saleem Abdulrasool  <compnerd@compnerd.org>
+
+	* src/tracker-preferences/tracker-configuration.c:
+	(_g_utf8_make_valid), (g_key_file_parse_value_as_double),
+	(g_key_file_get_double), (g_key_file_set_double),
+	(g_key_file_get_double_list), (g_key_file_set_double_list),
+	(get_default_language_code), (create_config_file),
+	(tracker_configuration_init), (tracker_configuration_get_list),
+	(string_replace), (_write), (_set_string), (_get_string_list),
+	(_set_string_list):
+	* src/tracker-preferences/tracker-configuration.h:
+	* src/tracker-preferences/tracker-preferences-main.c: (main):
+	* src/tracker-preferences/tracker-preferences-utils.h:
+	* src/tracker-preferences/tracker-preferences.c:
+	(tracker_preferences_init), (setup_page_general),
+	(setup_page_performance), (setup_page_files), (setup_page_emails),
+	(name_owner_changed), (if_trackerd_start), (cmdClose_Clicked),
+	(cmdAddCrawledPath_Clicked), (cmdAddIndexPath_Clicked),
+	(append_item_to_list), (treeview_get_values), (populate_list):
+	* src/tracker-preferences/tracker-preferences.glade:
+	* src/tracker-preferences/tracker-preferences.h:
+
+	Run indent on the configuration tool, and fix the init to hide the help
+	button properly.  Edit the preferences layout slightly to arrange the
+	tabs in order of usefulness and simplify the email tab.
+
 2007-11-06  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-applet/tracker-applet-private.h:

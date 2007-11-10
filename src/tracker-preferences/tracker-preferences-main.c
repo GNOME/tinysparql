@@ -27,13 +27,13 @@
 
 
 gint
-main (gint argc, gchar *argv[])
+main (gint argc, gchar * argv[])
 {
 	TrackerPreferences *preferences = NULL;
-        
-        bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
-        bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-        textdomain (GETTEXT_PACKAGE);
+
+	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	textdomain (GETTEXT_PACKAGE);
 
 	gtk_init (&argc, &argv);
 	preferences = tracker_preferences_new ();

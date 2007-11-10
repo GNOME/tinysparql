@@ -44,4 +44,5 @@ kmail_available (void);
 
 gboolean
 convert_available (void);
+
 #endif

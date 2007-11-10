@@ -91,7 +91,7 @@ _get_string_list (TrackerConfiguration * configuration,
 
 static void
 _set_boolean_list (TrackerConfiguration * configuration,
-		   const gchar * const key, const GSList * const value);
+		    const gchar * const key, const GSList * const value);
 
 static void
 _set_double_list (TrackerConfiguration * configuration,

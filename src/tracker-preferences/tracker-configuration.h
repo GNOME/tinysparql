@@ -23,6 +23,7 @@
 #include <glib-object.h>
 
 G_BEGIN_DECLS
+
 #define TRACKER_TYPE_CONFIGURATION              (tracker_configuration_get_type())
 #define TRACKER_CONFIGURATION(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), TRACKER_TYPE_CONFIGURATION, TrackerConfiguration))
 #define TRACKER_CONFIGURATION_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), TRACKER_TYPE_CONFIGURATION, TrackerConfigurationClass))
@@ -41,12 +42,12 @@ typedef struct _TrackerConfigurationClass {
 	void (*write) (TrackerConfiguration * configuration);
 
 	gboolean (*get_bool) (TrackerConfiguration * configuration,
-				const gchar * const key, GError ** error);
+			      const gchar * const key, GError ** error);
 	void (*set_bool) (TrackerConfiguration * configuration,
 			  const gchar * const key, const gboolean value);
 
 	gint (*get_int) (TrackerConfiguration * configuration,
-			   const gchar * const key, GError ** error);
+			 const gchar * const key, GError ** error);
 	void (*set_int) (TrackerConfiguration * configuration,
 			 const gchar * const key, const gint value);
 
@@ -79,7 +80,8 @@ tracker_configuration_get_bool (TrackerConfiguration * configuration,
 
 void
 tracker_configuration_set_bool (TrackerConfiguration * configuration,
-				const gchar * const key, const gboolean value);
+				const gchar * const key,
+				const gboolean value);
 
 gint
 tracker_configuration_get_int (TrackerConfiguration * configuration,
@@ -96,7 +98,8 @@ tracker_configuration_get_string (TrackerConfiguration * configuration,
 
 void
 tracker_configuration_set_string (TrackerConfiguration * configuration,
-				  const gchar * const key, const gchar * const value);
+				  const gchar * const key,
+				  const gchar * const value);
 
 GSList *
 tracker_configuration_get_list (TrackerConfiguration * configuration,
@@ -105,8 +108,8 @@ tracker_configuration_get_list (TrackerConfiguration * configuration,
 
 void
 tracker_configuration_set_list (TrackerConfiguration * configuration,
-				const gchar * const key, const GSList * const value,
-				GType g_type);
+				const gchar * const key,
+				const GSList * const value, GType g_type);
 
 typedef struct {
 	gchar *lang;
@@ -117,4 +120,5 @@ typedef struct {
 extern Matches tmap[];
 
 G_END_DECLS
+
 #endif

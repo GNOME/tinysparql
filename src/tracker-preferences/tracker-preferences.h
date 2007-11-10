@@ -23,6 +23,7 @@
 #include <glib-object.h>
 
 G_BEGIN_DECLS
+
 #define TRACKER_TYPE_PREFERENCES             (tracker_preferences_get_type())
 #define TRACKER_PREFERENCES(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), TRACKER_TYPE_PREFERENCES, TrackerPreferences))
 #define TRACKER_PREFERENCES_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), TRACKER_TYPE_PREFERENCES, TrackerPreferencesClass))
@@ -45,4 +46,5 @@ TrackerPreferences *
 tracker_preferences_new (void);
 
 G_END_DECLS
+
 #endif
