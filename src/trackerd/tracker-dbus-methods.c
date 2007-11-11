@@ -477,14 +477,22 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 		tracker->pause_manual = value;
 	} else if (strcasecmp (option, "FastMerges") == 0) {
 		tracker->fast_merges = value;
+		tracker_log ("fast merges set to %d", value);
 	} else if (strcasecmp (option, "EnableIndexing") == 0) {
 		tracker->enable_indexing = value;
+		tracker_log ("Enable indexing set to %d", value);
 	} else if (strcasecmp (option, "LowMemoryMode") == 0) {
 		tracker->use_extra_memory = !value;
+		tracker_log ("Extra memory usage set to %d", !value);
 	} else if (strcasecmp (option, "IndexFileContents") == 0) {
 		tracker->enable_content_indexing = value;
+		tracker_log ("Index file contents set to %d", value);	
 	} else if (strcasecmp (option, "EnableEvolution") == 0) {
+		tracker_log ("evolution support set to %d", value);
 		tracker->index_evolution_emails = value;
+	} else if (strcasecmp (option, "FastMerges") == 0) {
+		tracker_log ("Fast merges set to %d", value);
+		tracker->fast_merges = value;
 	}
 
 	tracker_notify_file_data_available ();
@@ -525,8 +533,7 @@ tracker_dbus_method_set_int_option (DBusRec *rec)
 
 	if (strcasecmp (option, "Throttle") == 0) {
 		tracker->throttle = value;
-	} else if (strcasecmp (option, "EnableIndexing") == 0) {
-		tracker->initial_sleep = value;
+		tracker_log ("throttle set to %d", value);
 	} 
 
 	reply = dbus_message_new_method_return (rec->message);
