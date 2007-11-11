@@ -1778,7 +1778,16 @@ tracker_exec_sql_ignore_nulls (DBConnection *db_con, const char *query)
 char *
 tracker_escape_string (const char *in)
 {
-	return sqlite3_mprintf ("%q", in);
+
+
+	char *str = sqlite3_mprintf ("%q", in);
+
+	/* copy this as sqlite3_free needs to be called to prevent invalid delete error */
+	char *str2 = g_strdup (str);
+
+	sqlite3_free (str);
+
+	return str2;
 
 /*
 	GString *gs;
