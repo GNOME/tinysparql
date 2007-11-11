@@ -187,6 +187,137 @@ tracker_preferences_new (void)
 	return TRACKER_PREFERENCES (prefs);
 }
 
+
+static void
+set_bool_option (TrackerPreferencesPrivate *priv, const char *name, gboolean value)
+{
+
+	dbus_g_proxy_begin_call (priv->tracker_proxy,
+				 "SetBoolOption",
+				 NULL,
+				 NULL,
+				 NULL,
+				 G_TYPE_STRING, name, 
+				 G_TYPE_BOOLEAN, value,
+				 G_TYPE_INVALID);
+
+}
+
+
+static void
+set_int_option (TrackerPreferencesPrivate *priv, const char *name, int value)
+{
+
+	dbus_g_proxy_begin_call (priv->tracker_proxy,
+				 "SetIntOption",
+				 NULL,
+				 NULL,
+				 NULL,
+				 G_TYPE_STRING, name, 
+				 G_TYPE_INT, value,
+				 G_TYPE_INVALID);
+
+}
+
+
+void
+throttle_changed_cb (GtkRange *range, gpointer user_data)  
+{
+	TrackerPreferencesPrivate *priv = user_data;
+	TrackerConfiguration *configuration = TRACKER_CONFIGURATION (priv->prefs);
+
+	int value = gtk_range_get_value (range);
+
+	tracker_configuration_set_int (configuration,
+					"/Indexing/Throttle",
+					value);
+
+	set_int_option (priv, "Throttle", value);
+
+}
+
+void
+check_toggled_cb (GtkToggleButton *check_button, gpointer user_data)  
+{
+	TrackerPreferencesPrivate *priv = user_data;
+	TrackerConfiguration *configuration = TRACKER_CONFIGURATION (priv->prefs);
+
+	const char *name = gtk_widget_get_name (GTK_WIDGET (check_button));
+
+	gboolean value =  gtk_toggle_button_get_active (check_button);
+
+	if (name) {
+		g_print ("%s was clicked with value %d\n", name, value);
+	}  else {
+		g_print ("unknown widget was clicked with value %d\n", value);
+	}
+
+	if (g_str_equal (name, "chkEnableIndexing")) {
+
+		set_bool_option (priv, "EnableIndexing", value);
+
+		tracker_configuration_set_bool (configuration, "/Indexing/EnableIndexing", value);
+
+	} else 	if (g_str_equal (name, "chkEnableEvolutionIndexing")) {
+
+		set_bool_option (priv, "EnableEvolution", value);
+
+		tracker_configuration_set_bool (configuration,
+					"/Emails/IndexEvolutionEmails",
+					value);
+
+
+	} else 	if (g_str_equal (name, "chkIndexContents")) {
+
+		set_bool_option (priv, "IndexFileContents", value);
+
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/EnableFileContentIndexing",
+					value);
+
+
+	} else 	if (g_str_equal (name, "chkFastMerges")) {
+
+		set_bool_option (priv, "FastMerges", value);
+
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/FastMerges",
+					value);
+
+	} else 	if (g_str_equal (name, "optReducedMemory")) {
+
+		set_bool_option (priv, "LowMemoryMode", value);
+
+		tracker_configuration_set_bool (configuration,
+					"/General/LowMemoryMode",
+					value);
+
+	}  else if (g_str_equal (name, "chkDisableBatteryIndex")) {
+
+		set_bool_option (priv, "BatteryIndex", !value);
+
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/BatteryIndex",
+					!value);
+
+	}  else if (g_str_equal (name, "chkDisableBatteryInitialIndex")) {
+
+		set_bool_option (priv, "BatteryIndexInitial", !value);
+
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/BatteryIndexInitial",
+					!value);
+	}
+
+
+
+
+
+}
+
+
+
+
 static void
 setup_page_general (TrackerPreferences * preferences)
 {
@@ -210,6 +341,9 @@ setup_page_general (TrackerPreferences * preferences)
 						"/Indexing/EnableIndexing",
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
+
+	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
+			  G_CALLBACK (check_toggled_cb), priv);
 
 	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
 	value = tracker_configuration_get_bool (configuration,
@@ -251,6 +385,8 @@ setup_page_performance (TrackerPreferences * preferences)
 	value = tracker_configuration_get_int (configuration,
 					       "/Indexing/Throttle", NULL);
 	gtk_range_set_value (GTK_RANGE (widget), value);
+	g_signal_connect (GTK_RANGE (widget), "value-changed",
+			  G_CALLBACK (throttle_changed_cb), priv);
 
 	widget = glade_xml_get_widget (priv->gxml, "optReducedMemory");
 	bvalue = tracker_configuration_get_bool (configuration,
@@ -258,8 +394,15 @@ setup_page_performance (TrackerPreferences * preferences)
 						 NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), bvalue);
 
+	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
+			  G_CALLBACK (check_toggled_cb), priv);
+
+
 	widget = glade_xml_get_widget (priv->gxml, "optNormal");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), !bvalue);
+	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
+			  G_CALLBACK (check_toggled_cb), priv);
+
 
 	widget = glade_xml_get_widget (priv->gxml, "spnMaxText");
 	value = tracker_configuration_get_int (configuration,
@@ -297,6 +440,8 @@ setup_page_files (TrackerPreferences * preferences)
 						"/Indexing/EnableFileContentIndexing",
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
+	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
+			  G_CALLBACK (check_toggled_cb), priv);
 
 
 	widget = glade_xml_get_widget (priv->gxml, "chkGenerateThumbs");
@@ -410,6 +555,9 @@ setup_page_emails (TrackerPreferences * preferences)
 						NULL);
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
+
+	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
+			  G_CALLBACK (check_toggled_cb), priv);
 }
 
 static void
@@ -483,23 +631,14 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	tracker_configuration_set_int (configuration, "/General/InitialSleep",
 				       value);
 
-	widget = glade_xml_get_widget (priv->gxml, "chkEnableIndexing");
-	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-	value_old = tracker_configuration_get_bool (configuration,
-						    "/Indexing/EnableIndexing",
-						    NULL);
-	if (value != value_old)
-		flag_restart = TRUE;
-	tracker_configuration_set_bool (configuration,
-					"/Indexing/EnableIndexing", value);
-
 	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
 	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 	value_old = tracker_configuration_get_bool (configuration,
 						    "/Watches/EnableWatching",
 						    NULL);
-	if (value != value_old)
-		flag_restart = TRUE;
+
+	if (value != value_old) flag_restart = TRUE;
+
 	tracker_configuration_set_bool (configuration,
 					"/Watches/EnableWatching", value);
 
@@ -526,8 +665,9 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	ivalue_old = tracker_configuration_get_int (configuration,
 						    "/Indexing/Throttle",
 						    NULL);
-	if (ivalue != ivalue_old)
-		flag_restart = TRUE;
+
+	if (ivalue != ivalue_old) flag_restart = TRUE;
+
 	tracker_configuration_set_int (configuration,
 				       "/Indexing/Throttle", ivalue);
 
@@ -536,10 +676,6 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	value_old = tracker_configuration_get_bool (configuration,
 						    "/General/LowMemoryMode",
 						    NULL);
-	if (value != value_old)
-		flag_restart = TRUE;
-	tracker_configuration_set_bool (configuration,
-					"/General/LowMemoryMode", value);
 
 	widget = glade_xml_get_widget (priv->gxml, "spnMaxText");
 	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
@@ -547,8 +683,9 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	ivalue_old = tracker_configuration_get_int (configuration,
 						    "/Performance/MaxTextToIndex",
 						    NULL);
-	if (ivalue != ivalue_old)
-		flag_restart = TRUE;
+
+	if (ivalue != ivalue_old) flag_restart = TRUE;
+
 	tracker_configuration_set_int (configuration,
 				       "/Performance/MaxTextToIndex", ivalue);
 
@@ -557,32 +694,25 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	ivalue_old = tracker_configuration_get_int (configuration,
 						    "/Performance/MaxWordsToIndex",
 						    NULL);
-	if (ivalue != ivalue_old)
-		flag_restart = TRUE;
+
+	if (ivalue != ivalue_old) flag_restart = TRUE;
+
 	tracker_configuration_set_int (configuration,
 				       "/Performance/MaxWordsToIndex",
 				       ivalue);
 
 
 	/* files settings */
-	widget = glade_xml_get_widget (priv->gxml, "chkIndexContents");
-	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-	value_old = tracker_configuration_get_bool (configuration,
-						    "/Indexing/EnableFileContentIndexing",
-						    NULL);
-	if (value != value_old)
-		flag_restart = TRUE;
-	tracker_configuration_set_bool (configuration,
-					"/Indexing/EnableFileContentIndexing",
-					value);
 
 	widget = glade_xml_get_widget (priv->gxml, "chkGenerateThumbs");
 	value = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 	value_old = tracker_configuration_get_bool (configuration,
 						    "/Indexing/EnableThumbnails",
 						    NULL);
-	if (value != value_old)
+	if (value != value_old) {
 		flag_restart = TRUE;
+	}
+
 	tracker_configuration_set_bool (configuration,
 					"/Indexing/EnableThumbnails", value);
 
@@ -591,8 +721,7 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	value_old = tracker_configuration_get_bool (configuration,
 						    "/Indexing/SkipMountPoints",
 						    NULL);
-	if (value == value_old)
-		flag_restart = TRUE;
+
 	tracker_configuration_set_bool (configuration,
 					"/Indexing/SkipMountPoints", !value);
 
