@@ -258,6 +258,7 @@ check_toggled_cb (GtkToggleButton *check_button, gpointer user_data)
 
 		tracker_configuration_set_bool (configuration, "/Indexing/EnableIndexing", value);
 
+
 	} else 	if (g_str_equal (name, "chkEnableEvolutionIndexing")) {
 
 		set_bool_option (priv, "EnableEvolution", value);

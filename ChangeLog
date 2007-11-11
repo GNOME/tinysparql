@@ -1,8 +1,14 @@
+2007-11-11 Patch from Wendy Hu <Huiwe.Hu@Sun.COM>
+
+	* extract keywords from html
+	* fix metadata child relationships
+
 
 2007-11-11 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added more widgets to tracker-preferences for power management and fast index merges
 	* Made throttle and most of the checkboxes change settings in trackerd in real time (without needing to restart trackerd)
+	* Fixed delteion of entries
 
 
 2007-11-09  Saleem Abdulrasool  <compnerd@compnerd.org>

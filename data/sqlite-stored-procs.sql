@@ -101,7 +101,7 @@ GetMetadataTypesLike SELECT ID, MetaName, DataTypeID, DisplayName, Description, 
 GetWriteableMetadataTypes SELECT ID, MetaName, DataTypeID, DisplayName, Description, Enabled, UIVisible, FieldName, Weight, Embedded, MultipleValues, Delimited, Filtered, Abstract FROM MetaDataTypes where Embedded = 0;
 GetWriteableMetadataTypesLike SELECT ID, MetaName, DataTypeID, DisplayName, Description, Enabled, UIVisible, FieldName, Weight, Embedded, MultipleValues, Delimited, Filtered, Abstract FROM MetaDataTypes WHERE MetaName glob ? and  Embedded = 0;
 
-InsertMetaDataChildren INSERT INTO  MetaDataChildren (MetadataID, ChildID) VALUES (?,(select ID from MetaDataTypes where MetaName = ?));
+InsertMetaDataChildren INSERT INTO  MetaDataChildren (ChildID,MetadataID) VALUES (?,(select ID from MetaDataTypes where MetaName = ?));
 GetMetadataAliases SELECT distinct M.MetaName, M.ID from MetaDataTypes M, MetaDataChildren C where M.ID = C.ChildID and C.MetaDataID = ?; 
 GetMetadataAliasesForName SELECT distinct M.MetaName, M.ID from MetaDataTypes M, MetaDataChildren C where M.ID = C.ChildID and C.MetaDataID = (select ID from MetaDataTypes where MetaName = ?) union select M.MetaName, M.ID from MetaDataTypes M where M.MetaName = ?; 
 

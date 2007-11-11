@@ -113,6 +113,15 @@ startElement (void * info, const xmlChar * name, const xmlChar ** atts)
 				                     g_strdup( (char*)desc ));
 			}
 		}
+
+            if ( has_attribute(atts, "name", "KEYWORDS") || has_attribute(atts, "name", "keywords") ) {
+									
+			const xmlChar *keywords = lookup_attribute(atts, "content");
+			if ( keywords ) {
+				g_hash_table_insert (((HTMLParseInfo *)info)->metadata, g_strdup ("Doc:Keywords"),
+							   g_strdup((char*) keywords));			
+			}					
+		}
 	}
 }
 
