@@ -117,7 +117,6 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 		if (tracker_file_is_valid (parent)) {
 			g_async_queue_push (tracker->file_process_queue, info);
-			tracker_add_io_grace (info->uri);
 			tracker_notify_file_data_available ();
 		} else {
 			info = tracker_free_file_info (info);

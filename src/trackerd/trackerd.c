@@ -1431,70 +1431,79 @@ process_files_thread (void)
 		}
 
 
-
-		if (!tracker_file_is_valid (info->uri)) {
-
-			gboolean invalid = TRUE;
-
-			if (info->moved_to_uri) {
-				invalid = !tracker_file_is_valid (info->moved_to_uri);
-			}
-
-			if (invalid) {
-				tracker_free_file_info (info);
-				continue;
-			}
-		}
-
-		/* get file ID and other interesting fields from Database if not previously fetched or is newly created */
-
 		if (info->file_id == 0 && info->action != TRACKER_ACTION_CREATE &&
-		    info->action != TRACKER_ACTION_DIRECTORY_CREATED && info->action != TRACKER_ACTION_FILE_CREATED) {
+			    info->action != TRACKER_ACTION_DIRECTORY_CREATED && info->action != TRACKER_ACTION_FILE_CREATED) {
 
-                        info = tracker_db_get_file_info (db_con, info);
+       	                info = tracker_db_get_file_info (db_con, info);
+	
+			/* Get more file info if db retrieval returned nothing */
+			if (info->file_id == 0) {
+
+				info = tracker_get_file_info (info);
+
+				info->is_new = TRUE;
+
+			} else {
+				info->is_new = FALSE;
+			}
+		} else {
+			info->is_new = TRUE;
 		}
 
-		/* Get more file info if db retrieval returned nothing */
-		if (info->file_id == 0 && info->action != TRACKER_ACTION_DELETE &&
+		tracker_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
+
+		if (info->action != TRACKER_ACTION_DELETE &&
 		    info->action != TRACKER_ACTION_DIRECTORY_DELETED && info->action != TRACKER_ACTION_FILE_DELETED) {
 
-			info = tracker_get_file_info (info);
 
-			info->is_new = TRUE;
+			if (!tracker_file_is_valid (info->uri) ) {
+
+				gboolean invalid = TRUE;
+
+				if (info->moved_to_uri) {
+					invalid = !tracker_file_is_valid (info->moved_to_uri);
+				}
+
+				if (invalid) {
+					tracker_free_file_info (info);
+					continue;
+				}
+			}
+
+			/* get file ID and other interesting fields from Database if not previously fetched or is newly created */
+
+			
 
 		} else {
-			info->is_new = FALSE;
-		}
+
+			if (info->action == TRACKER_ACTION_FILE_DELETED) {
+
+				delete_file (db_con, info);
+	
+				info = tracker_dec_info_ref (info);
+	
+				continue;
+
+			} else {
+				if (info->action == TRACKER_ACTION_DIRECTORY_DELETED) {
+				
+					delete_file (db_con, info);
+	
+					delete_directory (db_con, info);
+	
+					info = tracker_dec_info_ref (info);
+
+					continue;
+				}
+			}
+			
+
+		}	
 
 		/* preprocess ambiguous actions when we need to work out if its a file or a directory that the action relates to */
 		verify_action (info);
 
-		//tracker_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
-
-		/* process deletions */
-
-		if (info->action == TRACKER_ACTION_FILE_DELETED) {
-
-			delete_file (db_con, info);
-
-			info = tracker_dec_info_ref (info);
-
-
-			continue;
-
-		} else {
-			if (info->action == TRACKER_ACTION_DIRECTORY_DELETED) {
-				
-				delete_file (db_con, info);
-
-				delete_directory (db_con, info);
-
-				info = tracker_dec_info_ref (info);
-
-
-				continue;
-			}
-		}
+		
 
 		/* get latest file info from disk */
 		if (info->mtime == 0) {

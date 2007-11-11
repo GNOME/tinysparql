@@ -1789,26 +1789,7 @@ tracker_escape_string (const char *in)
 
 	return str2;
 
-/*
-	GString *gs;
 
-	if (!in) {
-		return NULL;
-	}
-
-	gs = g_string_new ("");
-
-	for(; *in; in++) {
-
-		if (*in == '\'') {
-			g_string_append (gs, "'\\''");
-		} else {
-			g_string_append_c (gs, *in);
-		}
-	}
-
-	return g_string_free (gs, FALSE);
-*/
 }
 
 
