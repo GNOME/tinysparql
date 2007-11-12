@@ -1,3 +1,8 @@
+2007-11-11  Patch from	Tshepang Lekhonkhobe <tshepang@gmail.com>
+
+	* updated README file
+	* fix for configure.ac (libglade not needed for tst)
+
 2007-11-11 Patch from Wendy Hu <Huiwe.Hu@Sun.COM>
 
 	* extract keywords from html

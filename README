@@ -116,7 +116,7 @@ Run time dependencies (also needed for build) :
   in distro versions)
 * libdbus (0.60 +)
 * dbus-glib bindings (0.60 +)
-* glib (2.9.1 +)
+* GLib (2.10)
 * zlib
 * intltool (>=0.3.5)
 * GMime
