@@ -606,7 +606,7 @@ signal_handler (gint signo)
 	static gboolean in_loop = FALSE;
 
   	/* avoid re-entrant signals handler calls */
-	if (in_loop) {
+	if (in_loop & signo != SIGSEGV) {
 		return;
 	}
 
@@ -615,23 +615,15 @@ signal_handler (gint signo)
   	switch (signo) {
 
   		case SIGSEGV:
+
+			/* we are screwed if we get this so exit immediately! */
+			exit (EXIT_FAILURE);
+
 	  	case SIGBUS:
 		case SIGILL:
   		case SIGFPE:
   		case SIGPIPE:
 		case SIGABRT:
-
-			tracker->is_running = FALSE;
-			tracker_end_watching ();
-
-			g_timeout_add_full (G_PRIORITY_LOW,
-			     		    1,
-		 	    		    (GSourceFunc) tracker_do_cleanup,
-			     		    g_strdup (g_strsignal (signo)), NULL
-			   		    );
-
-    			break;
-
 		case SIGTERM:
 		case SIGINT:
 
@@ -644,7 +636,6 @@ signal_handler (gint signo)
 			     		    g_strdup (g_strsignal (signo)), NULL
 			   		    );
 
-			break;
 
 		default:
 			if (tracker->log_file && g_strsignal (signo)) {
