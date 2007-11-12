@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-01 17:38+0100\n"
-"PO-Revision-Date: 2007-11-01 17:38+0100\n"
+"POT-Creation-Date: 2007-11-12 10:34+0100\n"
+"PO-Revision-Date: 2007-11-12 10:36+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -583,16 +583,16 @@ msgstr "Gör fel i tracker till ödesdigra"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2398
+#: ../src/trackerd/trackerd.c:2400
 msgid "- start the tracker daemon"
 msgstr "- starta tracker-demonen"
 
-#: ../src/trackerd/trackerd.c:2399
-#: ../src/trackerd/trackerd.c:2400
+#: ../src/trackerd/trackerd.c:2401
+#: ../src/trackerd/trackerd.c:2402
 msgid "DIRECTORY"
 msgstr "KATALOG"
 
-#: ../src/trackerd/trackerd.c:2407
+#: ../src/trackerd/trackerd.c:2409
 msgid "To include or exclude multiple directories at the same time, join multiple options like:"
 msgstr "För att inkludera eller undanta flera kataloger samtidigt kan flera flaggor sättas samman som:"
 
@@ -604,125 +604,125 @@ msgstr "Styr och övervaka sök- och indexeringstjänsten Tracker"
 msgid "Tracker Applet"
 msgstr "Panelprogram för Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:133
+#: ../src/tracker-applet/tracker-applet.c:128
 msgid "_Pause Indexing"
 msgstr "_Pausa indexering"
 
-#: ../src/tracker-applet/tracker-applet.c:141
+#: ../src/tracker-applet/tracker-applet.c:136
 msgid "_Search..."
 msgstr "_Sök..."
 
-#: ../src/tracker-applet/tracker-applet.c:147
+#: ../src/tracker-applet/tracker-applet.c:142
 msgid "Pre_ferences"
 msgstr "Inställ_ningar"
 
-#: ../src/tracker-applet/tracker-applet.c:153
+#: ../src/tracker-applet/tracker-applet.c:148
 msgid "S_tatistics"
 msgstr "S_tatistik"
 
-#: ../src/tracker-applet/tracker-applet.c:162
+#: ../src/tracker-applet/tracker-applet.c:157
 msgid "_Quit"
 msgstr "A_vsluta"
 
 #. search entry row
-#: ../src/tracker-applet/tracker-applet.c:347
+#: ../src/tracker-applet/tracker-applet.c:342
 msgid "Search:"
 msgstr "Sök:"
 
 #. status row
-#: ../src/tracker-applet/tracker-applet.c:367
+#: ../src/tracker-applet/tracker-applet.c:362
 msgid "Status:"
 msgstr "Status:"
 
 #. File progress row
-#: ../src/tracker-applet/tracker-applet.c:387
+#: ../src/tracker-applet/tracker-applet.c:382
 msgid "Progress:"
 msgstr "Förlopp:"
 
-#: ../src/tracker-applet/tracker-applet.c:915
+#: ../src/tracker-applet/tracker-applet.c:901
 msgid "Statistics"
 msgstr "Statistik"
 
-#: ../src/tracker-applet/tracker-applet.c:936
+#: ../src/tracker-applet/tracker-applet.c:922
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Indexeringsstatistik</span>"
 
 #. set translatable strings here
-#: ../src/tracker-applet/tracker-applet.c:1026
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-applet/tracker-applet.c:1012
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "Files"
 msgstr "Filer"
 
-#: ../src/tracker-applet/tracker-applet.c:1027
+#: ../src/tracker-applet/tracker-applet.c:1013
 msgid "folders"
 msgstr "mappar"
 
-#: ../src/tracker-applet/tracker-applet.c:1029
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-applet/tracker-applet.c:1015
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 #: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "E-post"
 
-#: ../src/tracker-applet/tracker-applet.c:1031
+#: ../src/tracker-applet/tracker-applet.c:1017
 msgid "mail boxes"
 msgstr "postlådor"
 
-#: ../src/tracker-applet/tracker-applet.c:1033
+#: ../src/tracker-applet/tracker-applet.c:1019
 msgid "Indexing in progress"
 msgstr "Indexering pågår"
 
-#: ../src/tracker-applet/tracker-applet.c:1034
+#: ../src/tracker-applet/tracker-applet.c:1020
 msgid "Indexing completed"
 msgstr "Indexering färdig"
 
-#: ../src/tracker-applet/tracker-applet.c:1035
+#: ../src/tracker-applet/tracker-applet.c:1021
 msgid "Indexes are being merged"
 msgstr "Index sammanfogas nu"
 
-#: ../src/tracker-applet/tracker-applet.c:1037
+#: ../src/tracker-applet/tracker-applet.c:1023
 msgid "Paused by user"
 msgstr "Pausad av användaren"
 
-#: ../src/tracker-applet/tracker-applet.c:1038
+#: ../src/tracker-applet/tracker-applet.c:1024
 msgid "Paused while on battery power"
 msgstr "Pausad vid batteridrift"
 
-#: ../src/tracker-applet/tracker-applet.c:1039
+#: ../src/tracker-applet/tracker-applet.c:1025
 msgid "Paused temporarily"
 msgstr "Pausad temporärt"
 
-#: ../src/tracker-applet/tracker-applet.c:1041
+#: ../src/tracker-applet/tracker-applet.c:1027
 msgid "Your computer is about to be indexed so you can perform fast searches of your files and emails"
 msgstr "Din dator är på väg att bli indexerad så att du kan genomföra snabba sökningar efter dina filer och e-post"
 
-#: ../src/tracker-applet/tracker-applet.c:1042
+#: ../src/tracker-applet/tracker-applet.c:1028
 msgid "You can pause indexing at any time and configure index settings by right clicking here"
 msgstr "Du kan pausa indexeringen när som helst och ändra konfigurationen genom att högerklicka här "
 
-#: ../src/tracker-applet/tracker-applet.c:1044
+#: ../src/tracker-applet/tracker-applet.c:1030
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker har avslutat indexeringen av ditt system"
 
-#: ../src/tracker-applet/tracker-applet.c:1045
+#: ../src/tracker-applet/tracker-applet.c:1031
 #, c-format
 msgid " in %d hours and %d minutes"
 msgstr " på %d timmar och %d minuter"
 
-#: ../src/tracker-applet/tracker-applet.c:1046
+#: ../src/tracker-applet/tracker-applet.c:1032
 #, c-format
 msgid " in %d minutes and %d seconds"
 msgstr " på %d minuter och %d sekunder"
 
-#: ../src/tracker-applet/tracker-applet.c:1047
+#: ../src/tracker-applet/tracker-applet.c:1033
 #, c-format
 msgid " in %d seconds"
 msgstr " på %d sekunder"
 
-#: ../src/tracker-applet/tracker-applet.c:1048
+#: ../src/tracker-applet/tracker-applet.c:1034
 msgid "You can now perform searches by clicking here"
 msgstr "Du kan nu genomföra sökningar genom att klicka här"
 
-#: ../src/tracker-applet/tracker-applet.c:1050
+#: ../src/tracker-applet/tracker-applet.c:1036
 msgid ""
 "Tracker is now merging indexes which can degrade system performance for serveral minutes\n"
 "\n"
@@ -732,56 +732,56 @@ msgstr ""
 "\n"
 "Du kan pausa detta genom att högerklicka här"
 
-#: ../src/tracker-applet/tracker-applet.c:1052
+#: ../src/tracker-applet/tracker-applet.c:1038
 #: ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Sök- och indexeringstjänsten Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:1054
+#: ../src/tracker-applet/tracker-applet.c:1040
 msgid "Files:"
 msgstr "Filer:"
 
-#: ../src/tracker-applet/tracker-applet.c:1055
+#: ../src/tracker-applet/tracker-applet.c:1041
 msgid "    Folders:"
 msgstr "    Mappar:"
 
-#: ../src/tracker-applet/tracker-applet.c:1056
+#: ../src/tracker-applet/tracker-applet.c:1042
 msgid "    Documents:"
 msgstr "    Dokument:"
 
-#: ../src/tracker-applet/tracker-applet.c:1057
+#: ../src/tracker-applet/tracker-applet.c:1043
 msgid "    Images:"
 msgstr "    Bilder:"
 
-#: ../src/tracker-applet/tracker-applet.c:1058
+#: ../src/tracker-applet/tracker-applet.c:1044
 msgid "    Music:"
 msgstr "    Musik:"
 
-#: ../src/tracker-applet/tracker-applet.c:1059
+#: ../src/tracker-applet/tracker-applet.c:1045
 msgid "    Videos:"
 msgstr "    Videoklipp:"
 
-#: ../src/tracker-applet/tracker-applet.c:1060
+#: ../src/tracker-applet/tracker-applet.c:1046
 msgid "    Text:"
 msgstr "    Text:"
 
-#: ../src/tracker-applet/tracker-applet.c:1061
+#: ../src/tracker-applet/tracker-applet.c:1047
 msgid "    Development:"
 msgstr "    Utveckling:"
 
-#: ../src/tracker-applet/tracker-applet.c:1062
+#: ../src/tracker-applet/tracker-applet.c:1048
 msgid "    Other:"
 msgstr "    Övriga:"
 
-#: ../src/tracker-applet/tracker-applet.c:1063
+#: ../src/tracker-applet/tracker-applet.c:1049
 msgid "Applications:"
 msgstr "Program:"
 
-#: ../src/tracker-applet/tracker-applet.c:1064
+#: ../src/tracker-applet/tracker-applet.c:1050
 msgid "Conversations:"
 msgstr "Konversationer:"
 
-#: ../src/tracker-applet/tracker-applet.c:1065
+#: ../src/tracker-applet/tracker-applet.c:1051
 msgid "Emails:"
 msgstr "E-post:"
 
@@ -806,58 +806,66 @@ msgid "<b>Ignored Paths</b>"
 msgstr "<b>Ignorerade sökvägar</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:4
+msgid "<b>Index Merging</b>"
+msgstr "<b>Indexsammanfogning</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:5
 msgid "<b>Indexing Limits (per file)</b>"
 msgstr "<b>Indexeringsbegränsningar (per fil)</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:5
+#: ../src/tracker-preferences/tracker-preferences.glade.h:6
 msgid "<b>Indexing Options</b>"
 msgstr "<b>Indexeringsalternativ</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:6
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Indexing</b>"
 msgstr "<b>Indexering</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
+#: ../src/tracker-preferences/tracker-preferences.glade.h:8
 msgid "<b>Mailboxes</b>"
 msgstr "<b>Postlådor</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:8
+#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+msgid "<b>Power management</b>"
+msgstr "<b>Strömhantering</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Resource Usage</b>"
 msgstr "<b>Resursanvändning</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
 msgid "<b>Services</b>"
 msgstr "<b>Tjänster</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Startup</b>"
 msgstr "<b>Uppstart</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
 msgid "<b>Stemming</b>"
 msgstr "<b>Stemming</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "<b>Throttling</b>"
 msgstr "<b>Begränsning</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
 msgid "<b>Watch Directories</b>"
 msgstr "<b>Bevaka kataloger</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional mbox mailboxes to index:"
 msgstr "Ytterligare mbox-postlådor att indexera:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Additional paths to index and watch:"
 msgstr "Ytterligare sökvägar att indexera och bevaka:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+#: ../src/tracker-preferences/tracker-preferences.glade.h:18
 msgid "Additional paths to index on startup (but not watch for updates)"
 msgstr "Ytterligare sökvägar att indexera vid uppstart (men inte bevaka för uppdateringar)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+#: ../src/tracker-preferences/tracker-preferences.glade.h:19
 msgid ""
 "Danish\n"
 "Dutch\n"
@@ -885,107 +893,119 @@ msgstr ""
 "Spanska\n"
 "Svenska"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "Disable all Indexing when on battery"
+msgstr "Inaktivera all indexering vid batteridrift"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Disable initial index sweep when on battery"
+msgstr "Inaktivera initial indexsökning vid batteridrift"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Enable _Evolution email indexing"
 msgstr "Aktivera _e-postindexering för Evolution"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Enable _KMail email indexing"
 msgstr "Aktivera e-postindexering för _KMail"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "Enable _Thunderbird email indexing"
 msgstr "Aktivera e-postindexering för _Thunderbird"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "Enable _watching"
 msgstr "Aktivera _bevakning"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "Enable i_ndexing"
 msgstr "Aktivera i_ndexering"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "Faster"
 msgstr "Snabbare"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "File patterns to ignore during indexing:"
 msgstr "Filmönster att ignorera under indexering:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "General"
 msgstr "Allmänt"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "Generate thum_bnails"
 msgstr "Generera miniatyr_bilder"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
 msgid "Ignored Files"
 msgstr "Ignorerade filer"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
 msgid "Index _delay: "
 msgstr "Indexerings_fördröjning: "
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Index _file contents"
 msgstr "Indexera _filinnehåll"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
 msgid "Index _mounted directories"
 msgstr "Indexera _monterade kataloger"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
 msgid "Index and watch my home _directory"
 msgstr "Indexera och bevaka min hem_katalog"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
 msgid "Indexing speed:"
 msgstr "Indexeringshastighet:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
 msgid "Maximum _amount of text to index:"
 msgstr "Maximal mäng_d text att indexera:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
 msgid "Maximum number of unique _words to index:"
 msgstr "Maximalt antal unika ord a_tt indexera:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
 msgid "Path roots to be ignored during indexing:"
 msgstr "Sökvägsrötter som ska ignoreras under indexering:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:49
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+msgid "Perform fast index merges (may affect system performance)"
+msgstr "Genomför snabba indexsammanfogningar (kan påverka systemprestanda)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
 msgid "Performance"
 msgstr "Prestanda"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:50
+#: ../src/tracker-preferences/tracker-preferences.glade.h:55
 msgid "Slower"
 msgstr "Långsammare"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+#: ../src/tracker-preferences/tracker-preferences.glade.h:56
 msgid "Tracker Preferences"
 msgstr "Inställningar för Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:52
+#: ../src/tracker-preferences/tracker-preferences.glade.h:57
 msgid "_Language:"
 msgstr "_Språk:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+#: ../src/tracker-preferences/tracker-preferences.glade.h:58
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "_Minimera minnesanvändning (långsammare indexering)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:54
+#: ../src/tracker-preferences/tracker-preferences.glade.h:59
 msgid "_Use additonal memory for faster indexing"
 msgstr "_Använd ytterligare minne för snabbare indexering"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:55
+#: ../src/tracker-preferences/tracker-preferences.glade.h:60
 msgid "kB"
 msgstr "kB"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:56
+#: ../src/tracker-preferences/tracker-preferences.glade.h:61
 msgid "seconds"
 msgstr "sekunder"
 
