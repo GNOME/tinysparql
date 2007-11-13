@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-11 11:31+0100\n"
-"PO-Revision-Date: 2007-11-11 11:32+0100\n"
+"POT-Creation-Date: 2007-11-13 21:08+0100\n"
+"PO-Revision-Date: 2007-11-13 21:08+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -674,7 +674,7 @@ msgstr "<span weight=\"bold\" size=\"larger\">Statistiche dell'indice</span>"
 
 #. set translatable strings here
 #: ../src/tracker-applet/tracker-applet.c:1012
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "Files"
 msgstr "File"
 
@@ -841,53 +841,61 @@ msgid "<b>Ignored Paths</b>"
 msgstr "<b>Percorsi ignorati</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:4
+msgid "<b>Index Merging</b>"
+msgstr "<b>Unione degli indici</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:5
 msgid "<b>Indexing Limits (per file)</b>"
 msgstr "<b>Limiti di indicizzazione (per file)</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:5
+#: ../src/tracker-preferences/tracker-preferences.glade.h:6
 msgid "<b>Indexing Options</b>"
 msgstr "<b>Opzioni di indicizzazione</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:6
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Indexing</b>"
 msgstr "<b>Indicizzazione</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
+#: ../src/tracker-preferences/tracker-preferences.glade.h:8
+msgid "<b>Power management</b>"
+msgstr "<b>Gestione alimentazione</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:9
 msgid "<b>Resource Usage</b>"
 msgstr "<b>Utilizzo delle risorse</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:8
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Startup</b>"
 msgstr "<b>Avvio</b>"
 
 # FIXME??
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
 msgid "<b>Stemming</b>"
 msgstr "<b>Stemming</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
 msgstr "<b>Regolazione</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
 msgid "<b>Watch Directories</b>"
 msgstr "<b>Directory controllate</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Additional mbox style mailboxes to index:"
 msgstr "Caselle di posta tipo mbox aggiuntive da indicizzare:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
 msgid "Additional paths to index and watch:"
 msgstr "Percorsi aggiuntivi da indicizzare e controllare:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional paths to index on startup (but not watch for updates)"
 msgstr ""
 "Percorsi aggiuntivi da indicizzare all'avvio (ma non controllare per "
 "aggiornamenti)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid ""
 "Danish\n"
 "Dutch\n"
@@ -915,111 +923,126 @@ msgstr ""
 "Spagnolo\n"
 "Svedese"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Disable all Indexing when on battery"
+msgstr "Disabilitare ogni indicizzazione quando alimentato da batteria"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+msgid "Disable initial index sweep when on battery"
+msgstr ""
+"Disabilitare il controllo iniziale dell'indice quando alimentato a batteria"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Email"
 msgstr "Email"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Enable _Evolution email indexing"
 msgstr "Abilitare indicizzazione delle email di _Evolution"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Enable _KMail email indexing"
 msgstr "Abilitare indicizzazione delle email di _KMail"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Enable _Thunderbird email indexing"
 msgstr "Abilitare indicizzazione delle email di _Thunderbird"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Enable _watching"
 msgstr "Abilitare il co_ntrollo"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "Enable i_ndexing"
 msgstr "Abilitare l'indici_zzazione"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "Faster"
 msgstr "Veloce"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "File patterns to ignore during indexing:"
 msgstr "Modelli di file da ignorare durante l'indicizzazione:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "General"
 msgstr "Generale"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "Generate thum_bnails"
 msgstr "Generare le _miniature"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "Ignored Files"
 msgstr "File ignorati"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "Index _delay: "
 msgstr "_Ritardo di indicizzazione: "
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
 msgid "Index _file contents"
 msgstr "Indicizzare il contenuto dei _file"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
 msgid "Index _mounted directories"
 msgstr "Indicizzare le directory _montate"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Index and watch my home _directory"
 msgstr "Indicizzare e controllare la directory _home"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
 msgid "Indexing speed:"
 msgstr "Velocità di indicizzazione:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
 msgid "Maximum _amount of text to index:"
 msgstr "_Quantità massima di testo da indicizzare:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
 msgid "Maximum number of unique _words to index:"
 msgstr "_Numero massimo di parole uniche da indicizzare:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
 msgid "Path roots to be ignored during indexing:"
 msgstr "Radici di percorsi da ignorare durante l'indicizzazione:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+msgid "Perform fast index merges (may affect system performance)"
+msgstr ""
+"Eseguire unioni veloci degli indici (potrebbe influire sulle prestazioni del "
+"sistema)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
 msgid "Performance"
 msgstr "Prestazioni"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
 msgid "Slower"
 msgstr "Lento"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:49
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
 msgid "Tracker Preferences"
 msgstr "Preferenze di Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:50
+#: ../src/tracker-preferences/tracker-preferences.glade.h:55
 msgid "_Language:"
 msgstr "_Lingua:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+#: ../src/tracker-preferences/tracker-preferences.glade.h:56
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "_Minimizzare l'uso della memoria (indicizzazione più lenta)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:52
-msgid "_Use additional memory for faster indexing"
-msgstr "_Usare memoria aggiuntiva per indicizzare più velocemente"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:57
+msgid "_Use additonal memory for faster indexing"
+msgstr "_Usare memoria aggiuntiva per incizzazione più rapida"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+#: ../src/tracker-preferences/tracker-preferences.glade.h:58
 msgid "kB"
 msgstr "kB"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:54
+#: ../src/tracker-preferences/tracker-preferences.glade.h:59
 msgid "seconds"
 msgstr "secondi"
 
