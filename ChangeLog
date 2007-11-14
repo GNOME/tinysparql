@@ -1,3 +1,9 @@
+2007-11-13 Jamie McCracken <jamiemcc at gnome org>
+
+	* Added confirmation dialog to prefs when it needs to be restarted or reindexed
+	* fixed error msg when stopwords are passed for searching
+
+
 2007-11-11  Patch from	Tshepang Lekhonkhobe <tshepang@gmail.com>
 
 	* updated README file

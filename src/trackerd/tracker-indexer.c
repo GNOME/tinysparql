@@ -1405,8 +1405,11 @@ tracker_indexer_get_hits (SearchQuery *query)
 	}
 
 	g_return_val_if_fail (query->indexer, FALSE);
-	g_return_val_if_fail (query->words, FALSE);
 	g_return_val_if_fail (query->limit > 0, FALSE);
+
+	if (!query->words) {
+		return TRUE;
+	}
 
 	/* do simple case of only one search word fast */
 	if (!query->words->next) {

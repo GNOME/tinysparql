@@ -29,6 +29,7 @@
 static GObjectClass *parent_class = NULL;
 static gboolean flag_restart = FALSE;
 static gboolean flag_reindex = FALSE;
+static GtkWidget *main_window = NULL;
 
 static void
 tracker_preferences_class_init (TrackerPreferencesClass * klass)
@@ -51,7 +52,7 @@ tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
 	priv->prefs = tracker_configuration_new ();
 
 	GtkWidget *widget = NULL;
-	GtkWidget *main_window = NULL;
+	
 
 	priv->gxml =
 		glade_xml_new (TRACKER_DATADIR "/tracker-preferences.glade",
@@ -610,6 +611,44 @@ if_trackerd_start (TrackerPreferencesPrivate * priv)
 		return TRUE;
 }
 
+
+static void
+restart_tracker (GtkDialog *dialog, gint response, gpointer data) 
+{
+
+	gtk_widget_destroy (GTK_WIDGET (dialog));
+
+	if (response == GTK_RESPONSE_YES) {
+
+		TrackerPreferences *self = TRACKER_PREFERENCES (data);
+		TrackerPreferencesPrivate *priv = TRACKER_PREFERENCES_GET_PRIVATE (self);
+
+		dbus_g_proxy_add_signal (priv->dbus_proxy,
+					 "NameOwnerChanged",
+					 G_TYPE_STRING,
+					 G_TYPE_STRING,
+					 G_TYPE_STRING, G_TYPE_INVALID);
+
+		dbus_g_proxy_connect_signal (priv->dbus_proxy,
+					     "NameOwnerChanged",
+					     G_CALLBACK (name_owner_changed),
+					     self, NULL);
+
+		dbus_g_proxy_begin_call (priv->tracker_proxy,
+					 "Shutdown",
+					 NULL,
+					 NULL,
+					 NULL,
+					 G_TYPE_BOOLEAN,
+					 flag_reindex, G_TYPE_INVALID);
+
+	} else {
+		gtk_main_quit ();
+	}
+
+	
+}
+
 static void
 cmdClose_Clicked (GtkWidget * widget, gpointer data)
 {
@@ -784,24 +823,36 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 	tracker_configuration_write (configuration);
 
 	if (flag_restart && if_trackerd_start (priv)) {
-		dbus_g_proxy_add_signal (priv->dbus_proxy,
-					 "NameOwnerChanged",
-					 G_TYPE_STRING,
-					 G_TYPE_STRING,
-					 G_TYPE_STRING, G_TYPE_INVALID);
 
-		dbus_g_proxy_connect_signal (priv->dbus_proxy,
-					     "NameOwnerChanged",
-					     G_CALLBACK (name_owner_changed),
-					     self, NULL);
+		
+		GtkWidget * dialog;
+		char *msg;
 
-		dbus_g_proxy_begin_call (priv->tracker_proxy,
-					 "Shutdown",
-					 NULL,
-					 NULL,
-					 NULL,
-					 G_TYPE_BOOLEAN,
-					 flag_reindex, G_TYPE_INVALID);
+
+		
+
+
+		if (flag_reindex) {
+			msg =  _("Your system must be re-indexed for your changes to take effect. Re-index now?");
+		} else {
+			msg =  _("Tracker indexer needs to be restarted for your changes to take effect. Restart now?");
+		}
+		
+		dialog = gtk_message_dialog_new (GTK_WINDOW (main_window),
+ 	                                 	GTK_DIALOG_MODAL,
+	                                 	GTK_MESSAGE_QUESTION,
+	                                 	GTK_BUTTONS_YES_NO,
+	                                 	msg);
+		
+		gtk_window_set_title (GTK_WINDOW (dialog), "");
+		gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+		gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 14);
+
+		g_signal_connect (G_OBJECT (dialog), "response", G_CALLBACK (restart_tracker), self);
+
+		gtk_widget_show (dialog);
+
+		
 	} else {
 		gtk_main_quit ();
 	}
