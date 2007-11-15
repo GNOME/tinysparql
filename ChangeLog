@@ -1,3 +1,9 @@
+2007-11-16  Marcus Fritzsch <m at fritschy dot de>
+
+	* python/deskbar-handler/tracker-module.py
+	  fixed URI quoting issues reported as bug #495512
+
+
 2007-11-13 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added confirmation dialog to prefs when it needs to be restarted or reindexed
