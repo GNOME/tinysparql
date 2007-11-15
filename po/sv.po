@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-12 10:34+0100\n"
-"PO-Revision-Date: 2007-11-12 10:36+0100\n"
+"POT-Creation-Date: 2007-11-15 11:10+0100\n"
+"PO-Revision-Date: 2007-11-15 11:10+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -649,7 +649,7 @@ msgstr "<span weight=\"bold\" size=\"larger\">Indexeringsstatistik</span>"
 
 #. set translatable strings here
 #: ../src/tracker-applet/tracker-applet.c:1012
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "Files"
 msgstr "Filer"
 
@@ -658,7 +658,6 @@ msgid "folders"
 msgstr "mappar"
 
 #: ../src/tracker-applet/tracker-applet.c:1015
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 #: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "E-post"
@@ -822,50 +821,42 @@ msgid "<b>Indexing</b>"
 msgstr "<b>Indexering</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:8
-msgid "<b>Mailboxes</b>"
-msgstr "<b>Postlådor</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
 msgid "<b>Power management</b>"
 msgstr "<b>Strömhantering</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+#: ../src/tracker-preferences/tracker-preferences.glade.h:9
 msgid "<b>Resource Usage</b>"
 msgstr "<b>Resursanvändning</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
-msgid "<b>Services</b>"
-msgstr "<b>Tjänster</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Startup</b>"
 msgstr "<b>Uppstart</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
 msgid "<b>Stemming</b>"
 msgstr "<b>Stemming</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
 msgstr "<b>Begränsning</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
 msgid "<b>Watch Directories</b>"
 msgstr "<b>Bevaka kataloger</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
-msgid "Additional mbox mailboxes to index:"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+msgid "Additional mbox style mailboxes to index:"
 msgstr "Ytterligare mbox-postlådor att indexera:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
 msgid "Additional paths to index and watch:"
 msgstr "Ytterligare sökvägar att indexera och bevaka:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional paths to index on startup (but not watch for updates)"
 msgstr "Ytterligare sökvägar att indexera vid uppstart (men inte bevaka för uppdateringar)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid ""
 "Danish\n"
 "Dutch\n"
@@ -893,119 +884,123 @@ msgstr ""
 "Spanska\n"
 "Svenska"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
 msgid "Disable all Indexing when on battery"
 msgstr "Inaktivera all indexering vid batteridrift"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Disable initial index sweep when on battery"
 msgstr "Inaktivera initial indexsökning vid batteridrift"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "Email"
+msgstr "E-post"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Enable _Evolution email indexing"
 msgstr "Aktivera _e-postindexering för Evolution"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Enable _KMail email indexing"
 msgstr "Aktivera e-postindexering för _KMail"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Enable _Thunderbird email indexing"
 msgstr "Aktivera e-postindexering för _Thunderbird"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Enable _watching"
 msgstr "Aktivera _bevakning"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "Enable i_ndexing"
 msgstr "Aktivera i_ndexering"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "Faster"
 msgstr "Snabbare"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "File patterns to ignore during indexing:"
 msgstr "Filmönster att ignorera under indexering:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "General"
 msgstr "Allmänt"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "Generate thum_bnails"
 msgstr "Generera miniatyr_bilder"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "Ignored Files"
 msgstr "Ignorerade filer"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "Index _delay: "
 msgstr "Indexerings_fördröjning: "
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
 msgid "Index _file contents"
 msgstr "Indexera _filinnehåll"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
 msgid "Index _mounted directories"
 msgstr "Indexera _monterade kataloger"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Index and watch my home _directory"
 msgstr "Indexera och bevaka min hem_katalog"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:49
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
 msgid "Indexing speed:"
 msgstr "Indexeringshastighet:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:50
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
 msgid "Maximum _amount of text to index:"
 msgstr "Maximal mäng_d text att indexera:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
 msgid "Maximum number of unique _words to index:"
 msgstr "Maximalt antal unika ord a_tt indexera:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:52
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
 msgid "Path roots to be ignored during indexing:"
 msgstr "Sökvägsrötter som ska ignoreras under indexering:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
 msgid "Perform fast index merges (may affect system performance)"
 msgstr "Genomför snabba indexsammanfogningar (kan påverka systemprestanda)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:54
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
 msgid "Performance"
 msgstr "Prestanda"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:55
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
 msgid "Slower"
 msgstr "Långsammare"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:56
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
 msgid "Tracker Preferences"
 msgstr "Inställningar för Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:57
+#: ../src/tracker-preferences/tracker-preferences.glade.h:55
 msgid "_Language:"
 msgstr "_Språk:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:58
+#: ../src/tracker-preferences/tracker-preferences.glade.h:56
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "_Minimera minnesanvändning (långsammare indexering)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:59
+#: ../src/tracker-preferences/tracker-preferences.glade.h:57
 msgid "_Use additonal memory for faster indexing"
 msgstr "_Använd ytterligare minne för snabbare indexering"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:60
+#: ../src/tracker-preferences/tracker-preferences.glade.h:58
 msgid "kB"
 msgstr "kB"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:61
+#: ../src/tracker-preferences/tracker-preferences.glade.h:59
 msgid "seconds"
 msgstr "sekunder"
 
@@ -1324,6 +1319,10 @@ msgstr "länk till %s"
 msgid "Tracker"
 msgstr "Tracker"
 
+#~ msgid "<b>Mailboxes</b>"
+#~ msgstr "<b>Postlådor</b>"
+#~ msgid "<b>Services</b>"
+#~ msgstr "<b>Tjänster</b>"
 #~ msgid "_Emails"
 #~ msgstr "_E-post"
 #~ msgid "<b>File Metadata</b>"
