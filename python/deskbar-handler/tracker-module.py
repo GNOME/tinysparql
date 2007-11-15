@@ -183,7 +183,7 @@ class TrackerLiveSearchMatch (deskbar.interfaces.Match):
 			else:
 				if not self.result['type'] in ('GaimConversations', 'Emails'):
 					try:
-						self._pixbuf = deskbar.core.Utils.load_icon ('file://'+result['uri'])
+						self._pixbuf = deskbar.core.Utils.load_icon ('file://'+result['quoted_uri'])
 					except:
 						pass # some icons cannot be loaded... (e.g. for non existent file or illegal URI)
 
@@ -191,7 +191,7 @@ class TrackerLiveSearchMatch (deskbar.interfaces.Match):
 
 		# Add extra default actions where it makes sense
 		if not result['type'] in ["Emails", "Applications", "GaimConversations"]:
-			self.add_all_actions (get_actions_for_uri(result['uri']))
+			self.add_all_actions (get_actions_for_uri(result['quoted_uri']))
 
 	def get_name (self, text = None):
 		return self.get_verb() % self.result
@@ -258,8 +258,8 @@ class TrackerLiveSearchAction (deskbar.interfaces.Action):
 				if self.desktop:
 					self.desktop.launch ([])
 				else:
-					deskbar.core.Utils.url_show ('file://'+url_quote (self.result['uri'], ';?:@&=+$,./'))
-				print 'Opening Tracker hit:', url_quote (self.result['uri'], ';?:@&=+$,./')
+					deskbar.core.Utils.url_show ('file://'+self.result['quoted_uri'])
+				print 'Opening Tracker hit:', self.result['quoted_uri']
 		except:
 			print >> sys.stderr, "*** Could not activate Hit %s: %s" % (self.result['uri'], sys.exc_info()[1])
 
@@ -403,6 +403,7 @@ class TrackerLiveSearchHandler(deskbar.interfaces.Module):
 			output['uri'] = info[0]
 			output['name'] = os.path.basename(output['uri'])
 			output['type'] = info[1]
+			output['quoted_uri'] = url_quote (info[0], ';?@&=+$,./')
 
 			if not TYPES.has_key(output['type']):
 				output['type'] = 'Files'
