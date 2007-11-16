@@ -2,6 +2,8 @@
 
 	* python/deskbar-handler/tracker-module.py
 	  fixed URI quoting issues reported as bug #495512
+	* src/trackerd/tracker-dbus-search.c
+	  additional error check, fixes bug #495810
 
 
 2007-11-13 Jamie McCracken <jamiemcc at gnome org>

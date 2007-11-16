@@ -780,9 +780,13 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 		str = tracker_rdf_query_to_sql (db_con, query, service, fields, row_count, search_text, keyword, sort_results, offset, limit, error);
 
-		if (error) {
-			tracker_set_error (rec, "Invalid rdf query produced following error: %s", error->message);
-			g_error_free (error);		
+		if (error || !str) {
+			if (error) {
+				tracker_set_error (rec, "Invalid rdf query produced following error: %s", error->message);
+				g_error_free (error);
+			} else {
+				tracker_set_error (rec, "Invalid rdf query");
+			}
 			return;
 		}
 
