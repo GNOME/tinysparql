@@ -136,7 +136,7 @@ static gboolean disable_indexing = FALSE;
 static gboolean reindex = FALSE;
 static gboolean fatal_errors = FALSE;
 static gboolean low_memory, enable_evolution, enable_thunderbird, enable_kmail;
-static gint throttle = 0;
+static gint throttle = -1;
 static gint verbosity = 0;
 static gint initial_sleep = -1; /* >= 0 is valid and will be set */
 
@@ -2644,7 +2644,7 @@ main (gint argc, gchar *argv[])
 		tracker->index_kmail_emails = TRUE;
 	}
 
-	if (throttle != 0) {
+	if (throttle != -1) {
 		tracker->throttle = throttle;
 	}
 
