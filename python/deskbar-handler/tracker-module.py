@@ -113,7 +113,7 @@ TYPES = {
 			'key': 'mua', # see TrackerLiveSearchAction.action for a demo
 			'Evolution/Email':    'evolution %(uri)s',
 			'Thunderbird/Email':  'thunderbird -viewtracker %(uri)s',
-			'KMail':              'kmail --view %(uri)s',
+			'KMail/Email':        'kmail --view %(uri)s',
 		},
 	},
 
