@@ -79,7 +79,7 @@
 
 		<!-- Gets all implemented services and also returns any corresponding metadata type class for the service (IE "File", "Doc", "Image" etc)
 		     If main_services_only is set to true then only the major services are returned
-		     Output is in dict format: (service -> metadata class, description)  -->			
+		     Output is in dict format: (service -> description, parent)  -->			
 		<method name="GetServices">
 			<arg type="b" name="main_services_only" direction="in" />
 			<arg type="a{sv}" name="result" direction="out" />

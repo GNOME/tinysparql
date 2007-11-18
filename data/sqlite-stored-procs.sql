@@ -19,7 +19,7 @@ GetApplicationByID  SELECT DISTINCT (S.Path || '/' || S.Name) as uri, 'Applicati
 
 GetFileMTime SELECT M.MetaDataValue  FROM Services F inner join ServiceNumericMetaData M on F.ID = M.ServiceID WHERE F.Path = ? and F.Name = ? and M.MetaDataID = (select ID From MetaDataTypes where MetaName ='File:Modified');
 
-GetServices SELECT TypeName, TypeClass, Description  FROM ServiceTypes WHERE MainService = ? ORDER BY TypeID;
+GetServices SELECT TypeName, Description, Parent  FROM ServiceTypes ORDER BY TypeID;
 GetAllServices SELECT TypeID, TypeName, Parent, Enabled, Embedded, HasMetadata, HasFullText, HasThumbs, ContentMetadata, Database, ShowServiceFiles, ShowServiceDirectories, KeyMetadata1, KeyMetadata2, KeyMetadata3, KeyMetadata4, KeyMetadata5, KeyMetadata6, KeyMetadata7, KeyMetadata8, KeyMetadata9, KeyMetadata10, KeyMetadata11  FROM ServiceTypes;
 
 GetNewID SELECT OptionValue FROM Options WHERE OptionKey = 'Sequence';
