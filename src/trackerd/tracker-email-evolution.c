@@ -728,11 +728,17 @@ load_evolution_config (EvolutionConfig **conf)
 						/* Assume url schema is:
 						   imap://foo@imap.free.fr/;etc
 
+						   also can contain foo;auth=DIGEST-MD5@imap.bar.com
+
 						   We try to get "foo@imap.free.fr".
 						*/
 
+						// check for embedded @ and then look for first colon after that
+
+						const char *at = strchr (evo_acc->source_url + 7, '@');
+
 						account_name = g_strndup (evo_acc->source_url + 7,
-									  (strchr (evo_acc->source_url + 7, ';') - 1) - (evo_acc->source_url + 7));
+									  (strchr (at, ';') - 1) - (evo_acc->source_url + 7));
 
 						if (account_name) {
 
