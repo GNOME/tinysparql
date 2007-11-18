@@ -36,6 +36,11 @@ param is set then the user's home directory is no longer indexed by
 default (you can still add the home directory with this option).
 
 .TP
+\-c, --crawl-dir=/PATH/DIR
+Specify directories to crawl. Crawling of directories means index every
+indexable content but do not watch for directory or file changes.
+
+.TP
 \-n, --no-indexing
 Prevent
 .B trackerd
@@ -50,8 +55,8 @@ only errors, 1 - show only minimal output, 2 - show detailed output and
 
 .TP
 \-t, --throttle=value
-Value to throttle indexing. Value must be in range 0-20 (default 0)
-with lower values increasing indexing speed.
+Value to throttle indexing. Value must be in range 0-20, with lower
+values increasing indexing speed.
 
 .TP
 \-m, --low-memory
@@ -74,6 +79,12 @@ This forces trackerd to re-index all watched files and directories.
 Since every watched directory and any previously indexed file has to be
 read and processed again, this may degrade the whole system performance,
 see also --throttle.
+
+.TP
+\-f, --fatal-errors
+Makes any errors fatal, i.e. forces abortion of
+.B trackerd.
+This switch is only useful for debugging.
 
 .SH FILES
 .I $HOME/.config/tracker/tracker.cfg
