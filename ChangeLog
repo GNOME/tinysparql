@@ -1,9 +1,14 @@
+2007-11-19 Marcus Fritzsch <m at fritschy dot de>
+
+	* python/deskbar-handler/tracker-{handler,module}.py
+	  Fixed KMail identifier to the correct value
+	* Updated docs/trackerd.1 and docs/tracker.cfg.5
+
 
 2007-11-18 Jamie McCracken <jamiemcc at gnome org>
 
 	* Added Get Hit Count call to libtracker
 	* Fixed GetServices call
-
 
 
 2007-11-18 Laurent Aguerreche <laurent.aguerreche at free fr>
