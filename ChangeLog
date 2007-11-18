@@ -1,3 +1,9 @@
+2007-11-17 Jamie McCracken <jamiemcc at gnome org>
+
+	* implemented power management options
+	* fixed bug with embedded Auth in IMAP URI
+
+
 2007-11-16  Marcus Fritzsch <m at fritschy dot de>
 
 	* python/deskbar-handler/tracker-module.py
