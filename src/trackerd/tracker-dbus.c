@@ -126,12 +126,14 @@ tracker_dbus_send_index_status_change_signal ()
 		</signal>
 	*/
 
+	gboolean battery_pause = tracker_pause_on_battery ();
+
 	dbus_message_append_args (msg, 
 				  DBUS_TYPE_STRING, &status,
 				  DBUS_TYPE_BOOLEAN, &tracker->first_time_index,
 				  DBUS_TYPE_BOOLEAN, &tracker->in_merge,
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_manual,
-				  DBUS_TYPE_BOOLEAN, &tracker->pause_battery,
+				  DBUS_TYPE_BOOLEAN, &battery_pause,
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_io,
 				  DBUS_TYPE_INVALID);
 

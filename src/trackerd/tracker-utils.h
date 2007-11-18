@@ -255,6 +255,8 @@ typedef struct {
 
 	/* HAL battery */
 	char		*battery_udi;
+	gboolean	index_on_battery;
+	gboolean	initial_index_on_battery;
 
 	/* pause/shutdown vars */
 	gboolean	shutdown;
@@ -643,5 +645,7 @@ void		tracker_add_io_grace 		(const char *uri);
 char *		tracker_get_status 		();
 
 gboolean	tracker_do_cleanup 		(const gchar *sig_msg);
+
+gboolean	tracker_pause_on_battery 	();
 
 #endif

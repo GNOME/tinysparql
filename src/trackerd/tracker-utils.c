@@ -3784,3 +3784,23 @@ tracker_get_status ()
 
 }
 
+
+gboolean
+tracker_pause_on_battery ()
+{
+	if (!tracker->pause_battery) return FALSE;
+
+	
+	if (tracker->first_time_index) {
+		return !tracker->initial_index_on_battery;
+	} 
+	
+	return !tracker->index_on_battery;
+	
+}
+	
+
+
+
+
+

@@ -606,7 +606,7 @@ signal_handler (gint signo)
 	static gboolean in_loop = FALSE;
 
   	/* avoid re-entrant signals handler calls */
-	if (in_loop & signo != SIGSEGV) {
+	if (in_loop && signo != SIGSEGV) {
 		return;
 	}
 
@@ -2132,6 +2132,9 @@ set_defaults (void)
 	tracker->folders_processed = 0;
 	tracker->mbox_count = 0;
 	tracker->folders_processed = 0;
+
+	tracker->index_on_battery = TRUE;
+	tracker->initial_index_on_battery = FALSE;
 }
 
 static gboolean
