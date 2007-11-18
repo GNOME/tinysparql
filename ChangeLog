@@ -1,10 +1,18 @@
+2007-11-18 Laurent Aguerreche <laurent.aguerreche at free fr>
+
+	* Read some keys from tracker.cfg file:
+	  - BatteryIndexInitial, BatteryIndexInitial,
+	  - MaxBucketCount, MinBucketCount, BucketRatio, Divisions
+	  - Padding (but not used anywhere in tracker's code...)
+
+
 2007-11-17 Jamie McCracken <jamiemcc at gnome org>
 
 	* implemented power management options
 	* fixed bug with embedded Auth in IMAP URI
 
 
-2007-11-16  Marcus Fritzsch <m at fritschy dot de>
+2007-11-16 Marcus Fritzsch <m at fritschy dot de>
 
 	* python/deskbar-handler/tracker-module.py
 	  fixed URI quoting issues reported as bug #495512
@@ -18,10 +26,11 @@
 	* fixed error msg when stopwords are passed for searching
 
 
-2007-11-11  Patch from	Tshepang Lekhonkhobe <tshepang@gmail.com>
+2007-11-11 Patch from	Tshepang Lekhonkhobe <tshepang@gmail.com>
 
 	* updated README file
 	* fix for configure.ac (libglade not needed for tst)
+
 
 2007-11-11 Patch from Wendy Hu <Huiwe.Hu@Sun.COM>
 
@@ -33,10 +42,10 @@
 
 	* Added more widgets to tracker-preferences for power management and fast index merges
 	* Made throttle and most of the checkboxes change settings in trackerd in real time (without needing to restart trackerd)
-	* Fixed delteion of entries
+	* Fixed deletion of entries
 
 
-2007-11-09  Saleem Abdulrasool  <compnerd@compnerd.org>
+2007-11-09 Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-preferences/tracker-configuration.c:
 	(_g_utf8_make_valid), (g_key_file_parse_value_as_double),
@@ -62,7 +71,8 @@
 	button properly.  Edit the preferences layout slightly to arrange the
 	tabs in order of usefulness and simplify the email tab.
 
-2007-11-06  Saleem Abdulrasool  <compnerd@compnerd.org>
+
+2007-11-06 Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-applet/tracker-applet-private.h:
 	* src/tracker-applet/tracker-applet.c: (tray_icon_class_init),
@@ -70,6 +80,7 @@
 	* src/tracker-applet/tracker-applet.h:
 
 	Drop set_tooltip, there is no reason for this to be a virtual function.
+
 
 2007-11-05 Laurent Aguerreche <laurent.aguerreche at free fr>
 

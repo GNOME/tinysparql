@@ -265,11 +265,11 @@ typedef struct {
 	gboolean	pause_io;
 
 	/* indexing options */
-	int	 	max_index_bucket_count;
-	int	 	index_bucket_ratio; /* 0 = 50%, 1 = 100%, 2 = 200%, 3 = 300%, 4+ = 400% */
-	int		min_index_bucket_count;
-	int		index_divisions;
-	int 		padding; /* values 1-8 */
+	gint            max_index_bucket_count;
+	gint            min_index_bucket_count;
+	gint            index_bucket_ratio; /* 0 = 50%, 1 = 100%, 2 = 200%, 3 = 300%, 4+ = 400% */
+	gint            index_divisions;
+	gint            padding; /* values 1-8 */
 
 	gpointer	file_index;
 	gpointer	file_update_index;

@@ -2498,9 +2498,9 @@ tracker_load_config_file (void)
 		contents  = g_strconcat (
 					 "[General]\n",
 					 "# Log Verbosity - Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)\n",
-					 "Verbosity=0\n\n",
+					 "Verbosity=0\n",
 					 "# Set the initial sleeping time, in seconds\n",
-					 "InitialSleep=45\n\n",
+					 "InitialSleep=45\n",
 					 "# Minimizes the use of memory but may slow indexing down\n", 
 					 "LowMemoryMode=false\n\n",
 					 "[Watches]\n",
@@ -2524,7 +2524,7 @@ tracker_load_config_file (void)
 					 "# Enables fast index merges but may hog the disk for extended periods\n",
 					 "EnableFastMerges=false\n",
 					 "# List of partial file patterns (glob) seperated by semicolons that specify files to not index (basic stat info is only indexed for files that match these patterns)\n",
-					 "NoIndexFileTypes=;\n\n",
+					 "NoIndexFileTypes=;\n",
 					 "# Sets minimum length of words to index\n",
 					 "MinWordLength=3\n",
 					 "# Sets maximum length of words to index (words are cropped if bigger than this)\n",
@@ -2535,9 +2535,13 @@ tracker_load_config_file (void)
 					 "# Enables use of language-specific stemmer\n",
 					 "EnableStemmer=true\n",
 					 "# Set to true prevents tracker from descending into mounted directory trees\n",
-					 "SkipMountPoints=false\n\n",
+					 "SkipMountPoints=false\n",
+                                         "# Disable all indexing when on battery\n",
+                                         "BatteryIndex=true\n",
+                                         "# Disable initial index sweep when on battery\n",
+                                         "BatteryIndexInitial=true\n\n",
 					 "[Emails]\n",
-					 "IndexEvolutionEmails=true\n\n",
+					 "IndexEvolutionEmails=true\n",
                                          "IndexThunderbirdEmails=true\n\n",
 					 "[Performance]\n",
 					 "# Maximum size of text in bytes to index from a file's text contents\n",
@@ -2551,7 +2555,7 @@ tracker_load_config_file (void)
 					 "# Sets the minimum bucket count\n",
 					 "MinBucketCount=65536\n",
 					 "# Sets no. of divisions of the index file\n",
-					 "Dvisions=4\n",
+					 "Divisions=4\n",
 					 "# Selects the desired ratio of used records to buckets to be used when optimizing index (should be a value between 0 and 4) \n",
 					 "BucketRatio=1\n",
 					 "# Alters how much padding is used to prevent index relocations. Higher values improve indexing speed but waste more disk space. Value should be in range (1..8)\n",
@@ -2592,7 +2596,6 @@ tracker_load_config_file (void)
 	} else {
 		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir ()));
 	}
-
 
 
 	values =  g_key_file_get_string_list (key_file,
@@ -2636,7 +2639,6 @@ tracker_load_config_file (void)
 		tracker->throttle = 0;
 	}
 
-
 	if (g_key_file_has_key (key_file, "Indexing", "EnableIndexing", NULL)) {
 		tracker->enable_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableIndexing", NULL);
 	} else {
@@ -2655,7 +2657,6 @@ tracker_load_config_file (void)
 		tracker->enable_thumbnails = FALSE;
 	}
 
-
 	if (g_key_file_has_key (key_file, "Indexing", "EnableFastMerges", NULL)) {
 		tracker->fast_merges = g_key_file_get_boolean (key_file, "Indexing", "EnableFastMerges", NULL);
 	} else {
@@ -2663,17 +2664,16 @@ tracker_load_config_file (void)
 	}
 
 	values =  g_key_file_get_string_list (key_file,
-			       	     	      "Indexing",
-				              "NoIndexFileTypes",
-				              NULL,
-				              NULL);
+                                              "Indexing",
+                                              "NoIndexFileTypes",
+                                              NULL,
+                                              NULL);
 
 	if (values) {
 		tracker->no_index_file_types = array_to_list (values);
 	} else {
 		tracker->no_index_file_types = NULL;
 	}
-
 
 	if (g_key_file_has_key (key_file, "Indexing", "MinWordLength", NULL)) {
 		tracker->min_word_length = g_key_file_get_integer (key_file, "Indexing", "MinWordLength", NULL);
@@ -2687,20 +2687,27 @@ tracker_load_config_file (void)
 		tracker->max_word_length = 40;
 	}
 
+	if (g_key_file_has_key (key_file, "Indexing", "Language", NULL)) {
+		tracker->language = g_key_file_get_string (key_file, "Indexing", "Language", NULL);
+	}
+
 	if (g_key_file_has_key (key_file, "Indexing", "EnableStemmer", NULL)) {
 		tracker->use_stemmer = g_key_file_get_boolean (key_file, "Indexing", "EnableStemmer", NULL);
 	} else {
 		tracker->use_stemmer = TRUE;
 	}
 
-	if (g_key_file_has_key (key_file, "Indexing", "Language", NULL)) {
-		tracker->language = g_key_file_get_string (key_file, "Indexing", "Language", NULL);
-	}
-
 	if (g_key_file_has_key (key_file, "Indexing", "SkipMountPoints", NULL)) {
 		tracker->skip_mount_points = g_key_file_get_boolean (key_file, "Indexing", "SkipMountPoints", NULL);
 	}
 
+	if (g_key_file_has_key (key_file, "Indexing", "BatteryIndex", NULL)) {
+		tracker->index_on_battery = g_key_file_get_boolean (key_file, "Indexing", "BatteryIndex", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Indexing", "BatteryIndexInitial", NULL)) {
+		tracker->initial_index_on_battery = g_key_file_get_boolean (key_file, "Indexing", "BatteryIndexInitial", NULL);
+	}
 
 
 	/* Emails config */
@@ -2723,7 +2730,8 @@ tracker_load_config_file (void)
 		tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Emails", "IndexThunderbirdEmails", NULL);
 	} else {
 		tracker->index_thunderbird_emails = FALSE;
-	}        
+	}
+
 
 	/* Performance options */
 
@@ -2732,17 +2740,34 @@ tracker_load_config_file (void)
 
 	}
 
+	if (g_key_file_has_key (key_file, "Performance", "MaxWordsToIndex", NULL)) {
+		tracker->max_words_to_index = g_key_file_get_integer (key_file, "Performance", "MaxWordsToIndex", NULL);
+	}
+
 	if (g_key_file_has_key (key_file, "Performance", "OptimizationSweepCount", NULL)) {
 		tracker->optimization_count = g_key_file_get_integer (key_file, "Performance", "OptimizationSweepCount", NULL);
 
 	}
 
-
-
-	if (g_key_file_has_key (key_file, "Performance", "MaxWordsToIndex", NULL)) {
-		tracker->max_words_to_index = g_key_file_get_integer (key_file, "Performance", "MaxWordsToIndex", NULL);
+	if (g_key_file_has_key (key_file, "Performance", "MaxBucketCount", NULL)) {
+		tracker->max_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MaxBucketCount", NULL);
 	}
 
+	if (g_key_file_has_key (key_file, "Performance", "MinBucketCount", NULL)) {
+		tracker->min_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MinBucketCount", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "Divisions", NULL)) {
+		tracker->index_divisions = g_key_file_get_integer (key_file, "Performance", "Divisions", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "BucketRatio", NULL)) {
+		tracker->index_bucket_ratio = g_key_file_get_integer (key_file, "Performance", "BucketRatio", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "Padding", NULL)) {
+		tracker->padding = g_key_file_get_integer (key_file, "Performance", "Padding", NULL);
+	}
 
 	g_free (filename);
 
@@ -3557,11 +3582,11 @@ tracker_debug 	(const char *message, ...)
 }
 
 
-char *
-tracker_string_replace (const char *haystack, char *needle, char *replacement)
+gchar *
+tracker_string_replace (const gchar *haystack, gchar *needle, gchar *replacement)
 {
         GString *str;
-        int pos, needle_len;
+        gint pos, needle_len;
 
 	g_return_val_if_fail (haystack && needle, NULL);
 
@@ -3589,19 +3614,15 @@ tracker_string_replace (const char *haystack, char *needle, char *replacement)
 
 
 void
-tracker_add_metadata_to_table (GHashTable *meta_table, const char *key, const char *value)
+tracker_add_metadata_to_table (GHashTable *meta_table, const gchar *key, const gchar *value)
 {
-	GSList *list;
-	
-	list = g_hash_table_lookup (meta_table, (char *) key);
+	GSList *list = g_hash_table_lookup (meta_table, (gchar *) key);
 
-	list = g_slist_prepend (list, (char *) value);
+	list = g_slist_prepend (list, (gchar *) value);
 
 	g_hash_table_steal (meta_table, key);
 
-	g_hash_table_insert (meta_table, (char *) key, list);
-
-	
+	g_hash_table_insert (meta_table, (gchar *) key, list);
 }
 
 
@@ -3639,9 +3660,9 @@ tracker_free_metadata_field (FieldData *field_data)
 
 
 gboolean
-tracker_unlink (const char *uri)
+tracker_unlink (const gchar *uri)
 {
-	char *locale_uri = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+	gchar *locale_uri = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
 
 	if (!g_file_test (locale_uri, G_FILE_TEST_EXISTS)) {						
 		g_free (locale_uri);
@@ -3707,20 +3728,19 @@ tracker_get_memory_usage (void)
 }
 
 guint32
-tracker_file_size (const char *name)
+tracker_file_size (const gchar *name)
 {
 	struct stat finfo;
 	
 	if (g_lstat (name, &finfo) == -1) {
 		return 0;
-	}
-
-	return (guint32) finfo.st_size;
-
+	} else {
+                return (guint32) finfo.st_size;
+        }
 }
 
 int
-tracker_file_open (const char *file_name, gboolean readahead)
+tracker_file_open (const gchar *file_name, gboolean readahead)
 {
 	int fd;
 
@@ -3761,7 +3781,7 @@ tracker_file_close (int fd, gboolean no_longer_needed)
 }
 
 void
-tracker_add_io_grace (const char *uri)
+tracker_add_io_grace (const gchar *uri)
 {
 	if (g_str_has_prefix (uri, tracker->xesam_dir)) {
 		return;
@@ -3773,34 +3793,28 @@ tracker_add_io_grace (const char *uri)
 }
 
 
-char *
-tracker_get_status ()
+gchar *
+tracker_get_status (void)
 {
-	gchar *tracker_status[] = {"Initializing","Watching","Indexing","Pending","Optimizing","Idle","Shutdown"};
-
-	if (tracker->status < 7) return g_strdup (tracker_status[tracker->status]);
-
-	return g_strdup ("Idle");
-
+	if (tracker->status < 7) {
+                gchar *tracker_status[] = {"Initializing", "Watching", "Indexing", "Pending", "Optimizing", "Idle", "Shutdown"};
+                return g_strdup (tracker_status[tracker->status]);
+        } else {
+                return g_strdup ("Idle");
+        }
 }
 
 
 gboolean
-tracker_pause_on_battery ()
+tracker_pause_on_battery (void)
 {
-	if (!tracker->pause_battery) return FALSE;
+        if (!tracker->pause_battery) {
+                return FALSE;
+        }
 
-	
 	if (tracker->first_time_index) {
 		return !tracker->initial_index_on_battery;
-	} 
-	
-	return !tracker->index_on_battery;
-	
+	}
+
+	return !tracker->index_on_battery;	
 }
-	
-
-
-
-
-
