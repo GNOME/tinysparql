@@ -9,6 +9,7 @@
 
 	* Added Get Hit Count call to libtracker
 	* Fixed GetServices call
+	* Added KeywordAdded and KeywordRemoved signals
 
 
 2007-11-18 Laurent Aguerreche <laurent.aguerreche at free fr>

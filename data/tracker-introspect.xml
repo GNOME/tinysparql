@@ -283,9 +283,16 @@
 		</method>
 
 		<!-- emitted whenever tags on an entity change -->
-		<signal name="Changed">
+		<signal name="KeywordAdded">
 			<arg type="s" name="service"/>
-			<arg type="s" name="id"/>
+			<arg type="s" name="uri" />
+			<arg type="s" name="keyword" />
+		</signal>
+
+		<signal name="KeywordRemoved">
+			<arg type="s" name="service"/>
+			<arg type="s" name="uri" />
+			<arg type="s" name="keyword" />
 		</signal>
 
 

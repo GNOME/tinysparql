@@ -22,6 +22,9 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-keywords.h"
 
+
+extern Tracker *tracker;
+
 /*
 static void
 update_keywords_metadata (DBConnection *db_con, const char* service, const char *path, const char *name)
@@ -78,6 +81,91 @@ update_keywords_metadata (DBConnection *db_con, const char* service, const char 
 	g_free (id);
 }
 */
+
+void
+tracker_dbus_signal_keywords_added (const char *service, const char *uri, const char *keyword)
+{
+	DBusMessage *msg;
+	dbus_uint32_t serial = 0;
+
+	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE_KEYWORDS, TRACKER_SIGNAL_KEYWORD_ADDED);
+				
+	if (!msg || !tracker->dbus_con) {
+		return;
+    	}
+
+	/*
+	
+		<signal name="KeywordAdded">
+			<arg type="s" name="service"/>
+			<arg type="s" name="uri" />
+			<arg type="s" name="keyword" />
+		</signal>
+	*/
+
+	dbus_message_append_args (msg, 
+				  DBUS_TYPE_STRING, &service,
+				  DBUS_TYPE_STRING, &uri,
+				  DBUS_TYPE_STRING, &keyword,
+				  DBUS_TYPE_INVALID);
+
+	dbus_message_set_no_reply (msg, TRUE);
+
+	if (!dbus_connection_send (tracker->dbus_con, msg, &serial)) {
+		tracker_error ("Raising the keyword added signal failed");
+		return;
+	}
+
+	dbus_connection_flush (tracker->dbus_con);
+
+    	dbus_message_unref (msg);
+  
+
+}
+
+
+void
+tracker_dbus_signal_keywords_removed (const char *service, const char *uri, const char *keyword)
+{
+	DBusMessage *msg;
+	dbus_uint32_t serial = 0;
+
+	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE_KEYWORDS, TRACKER_SIGNAL_KEYWORD_REMOVED);
+				
+	if (!msg || !tracker->dbus_con) {
+		return;
+    	}
+
+	/*
+	
+		<signal name="KeywordRemoved">
+			<arg type="s" name="service"/>
+			<arg type="s" name="uri" />
+			<arg type="s" name="keyword" />
+		</signal>
+	*/
+
+	dbus_message_append_args (msg, 
+				  DBUS_TYPE_STRING, &service,
+				  DBUS_TYPE_STRING, &uri,
+				  DBUS_TYPE_STRING, &keyword,
+				  DBUS_TYPE_INVALID);
+
+	dbus_message_set_no_reply (msg, TRUE);
+
+	if (!dbus_connection_send (tracker->dbus_con, msg, &serial)) {
+		tracker_error ("Raising the keyword removed signal failed");
+		return;
+	}
+
+	dbus_connection_flush (tracker->dbus_con);
+
+    	dbus_message_unref (msg);
+  
+
+}
+
+
 
 void
 tracker_dbus_method_keywords_get_list (DBusRec *rec)
@@ -263,13 +351,16 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 	if (array && (row_count > 0)) {
 		tracker_db_set_metadata (db_con, service, id, "User:Keywords", array, row_count, TRUE);
 		tracker_notify_file_data_available ();
-		
+
+		int i;
+		for (i=0; i<row_count; i++) {
+			tracker_dbus_signal_keywords_added (service, uri, array[i]);
+			tracker_log ("adding keyword %s to %s", array[i], uri);
+		}
 	}
 
 	dbus_free_string_array (array);
-
-	tracker_log ("adding keywords to %s with id %s", uri, id);
-
+	
 	g_free (id);
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -342,6 +433,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 			if (array[i]) {
 				tracker_log ("deleting keyword %s from %s with ID %s", array[i], uri, id);
 				tracker_db_delete_metadata_value (db_con, service, id, "User:Keywords", array[i]);
+				tracker_dbus_signal_keywords_removed (service, uri, array[i]);
 			}
 		}
 	}

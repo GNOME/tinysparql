@@ -105,6 +105,9 @@
 #define TRACKER_SIGNAL_INDEX_FINISHED				"IndexFinished"
 #define TRACKER_SIGNAL_INDEX_PROGRESS				"IndexProgress"
 
+#define TRACKER_SIGNAL_KEYWORD_ADDED				"KeywordAdded"
+#define TRACKER_SIGNAL_KEYWORD_REMOVED				"KeywordRemoved"
+
 typedef enum {
 
 	DBUS_ACTION_NONE,
