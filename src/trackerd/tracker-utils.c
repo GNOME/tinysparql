@@ -3469,9 +3469,13 @@ output_log (const char *message)
 	struct tm	*loctime;
 	GTimeVal	start;
 
-	if (message) {
-		g_print ("%s\n", message);
-	}
+	/* logging is thread safe */
+	static size_t   log_size = 0;
+
+	if (! message)
+		return;
+
+	g_print ("%s\n", message);
 
 	/* ensure file logging is thread safe */
 	g_mutex_lock (tracker->log_access_mutex);
@@ -3482,6 +3486,13 @@ output_log (const char *message)
 		g_mutex_unlock (tracker->log_access_mutex);
 		g_warning ("could not open %s", tracker->log_file);
 		return;
+	}
+
+	/* check log size, 10MiB limit */
+	if (log_size > (10 << 20)) {
+		rewind (fd);
+		ftruncate (fileno (fd), 0);
+		log_size = 0;
 	}
 
 	g_get_current_time (&start);
@@ -3496,7 +3507,7 @@ output_log (const char *message)
 
 	output = g_strconcat (buffer1, buffer2, " - ", message, NULL);
 
-	g_fprintf (fd, "%s\n", output);
+	log_size += g_fprintf (fd, "%s\n", output);
 
 	g_free (output);
 
