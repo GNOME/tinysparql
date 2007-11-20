@@ -1,21 +1,24 @@
+# translation of oc.po to Occitan
 # Occitan translation of Tracker
 # Copyright (C) 2006, 2007, Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 #
 # Yannig MARCHEGAY (yannig@marchegay.org) - 2006-2007
 #
+# Yannig Marchegay (Kokoyaya) <yannig@marchegay.org>, 2007.
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker.HEAD\n"
+"Project-Id-Version: oc\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-08-13 04:02+0200\n"
-"PO-Revision-Date: 2007-08-20 19:55+0200\n"
-"Last-Translator: Yannig MARCHEGAY <yannig@marchegay.org>\n"
-"Language-Team: Occitan (post 1500) <ubuntu-l10n-oci@lists.ubuntu.com>\n"
+"PO-Revision-Date: 2007-11-20 14:32+0100\n"
+"Last-Translator: Yannig Marchegay (Kokoyaya) <yannig@marchegay.org>\n"
+"Language-Team: Occitan <ubuntu-l10n-oci@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);"
+"X-Generator: KBabel 1.11.4\n"
 
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
@@ -412,8 +415,7 @@ msgid "Initial sleep time, just before indexing, in seconds"
 msgstr ""
 
 #: ../src/trackerd/trackerd.c:166
-msgid ""
-"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 
 #: ../src/trackerd/trackerd.c:166
@@ -683,7 +685,7 @@ msgstr "Aplicacions"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:207
 msgid "_Open"
-msgstr "_Dubrir"
+msgstr "_Dobrir"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:208
 msgid "O_pen Folder"
@@ -764,7 +766,7 @@ msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1976
 msgid "_Search:"
-msgstr "_Recèrcar :"
+msgstr "_Recercar :"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:1996
 #: ../src/tracker-search-tool/tracker-search-tool.c:1997
@@ -781,14 +783,14 @@ msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
 msgid "Could not open help document."
-msgstr "Impossible de dubrir lo document d'ajuda."
+msgstr "Impossible de dobrir lo document d'ajuda."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] "Sètz segur que volètz dubrir %d document ?"
-msgstr[1] "Êtes-vous certain de vouloir ouvrir %d documents ?"
+msgstr[0] "Sètz segur que volètz dobrir %d document ?"
+msgstr[1] "Sètz segur que volètz dobrir %d document ?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:676
@@ -799,12 +801,12 @@ msgstr ""
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
 msgid "Could not open document \"%s\"."
-msgstr "Impossible de dubrir lo document \"%s\"."
+msgstr "Impossible de dobrir lo document \"%s\"."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
 #, c-format
 msgid "Could not open folder \"%s\"."
-msgstr "Impossible de dubrir lo repertòri \"%s\"."
+msgstr "Impossible de dobrir lo repertòri \"%s\"."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
 msgid "The nautilus file manager is not running."
@@ -827,8 +829,8 @@ msgstr ""
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] "Sètz segur que volètz dubrir %d repertòri ?"
-msgstr[1] "Êtes-vous certain de vouloir ouvrir %d dossiers ?"
+msgstr[0] "Sètz segur que volètz dobrir %d repertòri ?"
+msgstr[1] "Sètz segur que volètz dobrir %d repertòri ?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:775
 #, c-format
@@ -937,7 +939,7 @@ msgstr "%A %-d %B %Y a %-H:%M:%S"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:860
 msgid "link (broken)"
-msgstr ""
+msgstr "ligam (copat)"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:864
 #, c-format
