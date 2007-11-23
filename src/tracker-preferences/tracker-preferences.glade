@@ -1021,6 +1021,9 @@ Swedish</property>
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Indexing speed:</property>
+                                    <accessibility>
+                                       <atkrelation target="scaThrottle" type="label-for"/>
+                                    </accessibility>
                                   </widget>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -1063,6 +1066,9 @@ Swedish</property>
                                     <property name="visible">True</property>
                                     <property name="adjustment">0 0 99 1 1 0</property>
                                     <property name="digits">0</property>
+                                    <accessibility>
+                                       <atkrelation target="lblThrottlingLevel" type="labelled-by"/>
+                                    </accessibility>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>

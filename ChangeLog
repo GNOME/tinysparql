@@ -2,7 +2,8 @@
 
 	* src/tracker-preferences/tracker-preferences.glade:
 	Add accessibility tags for lists in tracker-preferences (bug #495201).  Patch
-	from Patrick Wade.
+	from Patrick Wade.  Also add accessibility tags for throttling (bug #195188),
+	patch again by Patrick Wade.
 
 2007-11-19 Marcus Fritzsch <m at fritschy dot de>
 
