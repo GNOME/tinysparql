@@ -1,3 +1,13 @@
+2007-11-24 Michael Biebl <mbiebl at gmail com>
+
+	* filters/*/*_filter:
+	Fix the shell scripts for the external filters
+	- Use mktemp to create safe temp files.
+	- Make all scripts respect the TMPDIR environment variable.
+	- Remove unnecessary output to stdout.
+	- Change the working directory of the msword filter before calling
+	  wvText to avoid creating temporary files in $HOME.
+
 2007-11-23  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-preferences/tracker-preferences.glade:

@@ -1,8 +1,20 @@
 #!/bin/sh
 
-umask 077
-cp "$1" /tmp/tempfile.$$ 
-nice -n19 wvText /tmp/tempfile.$$ "$2"
-rm /tmp/tempfile.$$
-# remove temporary included image files left by wvText
-rm `pwd "$2"`/tempfile.$$*
+tmpdir=${TMPDIR-/tmp}
+tmpdir="$tmpdir"/tmpdir.$$
+
+(umask 077 && mkdir "$tmpdir") || exit 1
+
+tmpfile="$tmpdir"/tmpfile.$$
+
+cp "$1" "$tmpfile"
+
+# Change the working directory to $tmpdir which we can safely deleter later.
+# Some distributions ship a version of wvText which extracts the image files
+# from the word document and places them in the current working directory.
+
+cd "$tmpdir"
+
+nice -n19 wvText "$tmpfile" "$2"
+
+rm -rf "$tmpdir"

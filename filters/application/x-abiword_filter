@@ -15,4 +15,3 @@ nice -n19 xsltproc - "$1" > "$2" <<EOF
 
 </xsl:stylesheet>
 EOF
-

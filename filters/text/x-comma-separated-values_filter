@@ -1,12 +1,10 @@
 #!/bin/sh
 
-umask 077
+tmpfile=`mktemp` || exit 1
 
-st=/tmp/tempfile.$$ 
+nice -n19 ssindex -i "$1" > "$tmpfile"
 
-nice -n19 ssindex -i "$1" > st
-
-nice -n19 xsltproc - st > "$2" <<EOF
+nice -n19 xsltproc - "$tmpfile" > "$2" <<EOF
 <?xml version="1.0"?>
 <xsl:stylesheet 
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -22,6 +20,4 @@ nice -n19 xsltproc - st > "$2" <<EOF
 </xsl:stylesheet>
 EOF
 
-rm st
-
-cat "$2"
+rm "$tmpfile"
