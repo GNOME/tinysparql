@@ -19,6 +19,7 @@ noinst_HEADERS = tracker-configuration.h \
 
 INCLUDES =	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" \
 		-DTRACKER_LOCALEDIR=\""$(localedir)"\" \
+		-DTRACKER_BINDIR=\""$(bindir)"\" \
 		$(GLIB_CFLAGS) \
 		$(GTK2_CFLAGS) \
 		$(LIBGLADE_CFLAGS) \

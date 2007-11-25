@@ -1,3 +1,21 @@
+2007-11-25 Halton Huo   <Halton.Huo@Sun.COM>
+
+	Fix several problems for trackerd reload when changing preferences
+	through t-p:
+	1. Check/uncheck evolution email(maybe more) does not make
+	   trackerd restart
+	2. Trackerd restart will report another trackerd is running.
+	3. Key for BatteryIndex BatteryIndexInitial and FastMerges does
+	   not initialized t-p GUI.
+	* src/tracker-preferences/Makefile.am: Add TRACKER_BINDIR
+	* src/tracker-preferences/tracker-preferences.c:
+	(spin_value_changed_cb), (check_toggled_cb), (setup_page_general),
+	(setup_page_performance), (setup_page_files), (name_owner_changed),
+	(cmdClose_Clicked):
+	* src/trackerd/tracker-dbus-methods.c:
+	(tracker_dbus_method_set_bool_option): Add some bool option here.
+	(tracker_dbus_method_set_int_option): Add some int option here.
+
 2007-11-24 Michael Biebl <mbiebl at gmail com>
 
 	* filters/*/*_filter:
