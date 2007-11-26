@@ -263,6 +263,7 @@ typedef struct {
 	gboolean	pause_manual;
 	gboolean	pause_battery;
 	gboolean	pause_io;
+	gint		low_diskspace_limit;
 
 	/* indexing options */
 	gint            max_index_bucket_count;

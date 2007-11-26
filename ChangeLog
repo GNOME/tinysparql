@@ -2,6 +2,9 @@
 
 	* pause on low disk space support
 	* unified pause call: tracker_pause ()
+	* added config option LowDiskSpaceLimit=int - set to < zero to
+	  disable, default is 5 (for default cfg) and as default value
+	  if not in cfg.
 
 
 2007-11-25 Halton Huo   <Halton.Huo@Sun.COM>

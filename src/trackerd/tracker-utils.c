@@ -2541,7 +2541,9 @@ tracker_load_config_file (void)
                                          "# Disable all indexing when on battery\n",
                                          "BatteryIndex=true\n",
                                          "# Disable initial index sweep when on battery\n",
-                                         "BatteryIndexInitial=true\n\n",
+                                         "BatteryIndexInitial=true\n",
+					 "# Pause indexer when disk space gets below equal/below this value, in %% of the $HOME filesystem. Set it to a value smaller then zero to disable pausing at all.\n",
+					 "LowDiskSpaceLimit=5\n\n",
 					 "[Emails]\n",
 					 "IndexEvolutionEmails=true\n",
                                          "IndexThunderbirdEmails=true\n\n",
@@ -2709,6 +2711,10 @@ tracker_load_config_file (void)
 
 	if (g_key_file_has_key (key_file, "Indexing", "BatteryIndexInitial", NULL)) {
 		tracker->initial_index_on_battery = g_key_file_get_boolean (key_file, "Indexing", "BatteryIndexInitial", NULL);
+	}
+
+	if (g_key_file_get_integer (key_file, "Indexing", "LowDiskSpaceLimit", NULL) >= 0) {
+		tracker->low_diskspace_limit = g_key_file_get_integer (key_file, "Indexing", "LowDiskSpaceLimit", NULL);
 	}
 
 
@@ -3836,9 +3842,10 @@ tracker_pause_on_battery (void)
 gboolean
 tracker_low_diskspace (void)
 {
-	static const blkcnt_t percent = 5;
-
 	struct statvfs st;
+
+	if (tracker->low_diskspace_limit < 1)
+		return FALSE;
 
 	if (statvfs (tracker->data_dir, &st) == -1) {
 		static gboolean reported = 0;
@@ -3849,7 +3856,7 @@ tracker_low_diskspace (void)
 		return FALSE;
 	}
 
-	if ((st.f_bavail * 100 / st.f_blocks) <= percent) {
+	if ((st.f_bavail * 100 / st.f_blocks) <= tracker->low_diskspace_limit) {
 		tracker_error ("Disk space is low!");
 		return TRUE;
 	}
