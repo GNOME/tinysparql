@@ -1,3 +1,9 @@
+2007-11-26 Marcus Fritzsch <m at fritschy dot de>
+
+	* pause on low disk space support
+	* unified pause call: tracker_pause ()
+
+
 2007-11-25 Halton Huo   <Halton.Huo@Sun.COM>
 
 	Fix several problems for trackerd reload when changing preferences
@@ -16,6 +22,7 @@
 	(tracker_dbus_method_set_bool_option): Add some bool option here.
 	(tracker_dbus_method_set_int_option): Add some int option here.
 
+
 2007-11-24 Michael Biebl <mbiebl at gmail com>
 
 	* filters/*/*_filter:
@@ -26,12 +33,14 @@
 	- Change the working directory of the msword filter before calling
 	  wvText to avoid creating temporary files in $HOME.
 
+
 2007-11-23  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-preferences/tracker-preferences.glade:
 	Add accessibility tags for lists in tracker-preferences (bug #495201).  Patch
 	from Patrick Wade.  Also add accessibility tags for throttling (bug #195188),
 	patch again by Patrick Wade.
+
 
 2007-11-19 Marcus Fritzsch <m at fritschy dot de>
 

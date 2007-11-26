@@ -642,10 +642,12 @@ void		tracker_file_close 		(int fd, gboolean no_longer_needed);
 
 void		tracker_add_io_grace 		(const char *uri);
 
-char *		tracker_get_status 		();
+char *		tracker_get_status 		(void);
 
 gboolean	tracker_do_cleanup 		(const gchar *sig_msg);
 
-gboolean	tracker_pause_on_battery 	();
+gboolean	tracker_pause_on_battery 	(void);
+gboolean	tracker_low_diskspace		(void);
+gboolean	tracker_pause			(void);
 
 #endif

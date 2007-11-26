@@ -312,16 +312,12 @@ tracker_cache_process_events (DBConnection *db_con, gboolean check_flush)
 			sleep = TRUE;
 		}
 
-
-		if (tracker->pause_manual || tracker_pause_on_battery ()) {
-			if (tracker->index_status > INDEX_APPLICATIONS) {
-				
-				if (db_con) {
-					stopped_trans = TRUE;
-				}
-
-				sleep = TRUE;
+		if (tracker->index_status > INDEX_APPLICATIONS && tracker_pause ()) {
+			if (db_con) {
+				stopped_trans = TRUE;
 			}
+
+			sleep = TRUE;
 		}
 
 		if (sleep) {
@@ -333,7 +329,7 @@ tracker_cache_process_events (DBConnection *db_con, gboolean check_flush)
 			/* set mutex to indicate we are in "check" state to prevent race conditions from other threads resetting gloabl vars */
 			g_mutex_lock (tracker->files_check_mutex);		
 
-			if ((tracker->pause_manual || tracker_pause_on_battery() || !tracker->is_running || !tracker->enable_indexing) && (!tracker->shutdown))  {
+			if ((tracker_pause () || !tracker->is_running || !tracker->enable_indexing) && (!tracker->shutdown))  {
 				g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 			}
 

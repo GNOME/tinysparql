@@ -28,6 +28,7 @@
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +38,7 @@
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 #include <zlib.h>
+#include <math.h>
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-indexer.h"
@@ -3828,4 +3830,36 @@ tracker_pause_on_battery (void)
 	}
 
 	return !tracker->index_on_battery;	
+}
+
+
+gboolean
+tracker_low_diskspace (void)
+{
+	static const blkcnt_t percent = 5;
+
+	struct statvfs st;
+
+	if (statvfs (tracker->data_dir, &st) == -1) {
+		static gboolean reported = 0;
+		if (! reported) {
+			reported = 1;
+			tracker_error ("Could not statvfs %s", tracker->data_dir);
+		}
+		return FALSE;
+	}
+
+	if ((st.f_bavail * 100 / st.f_blocks) <= percent) {
+		tracker_error ("Disk space is low!");
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+gboolean
+tracker_pause (void)
+{
+	return tracker->pause_manual || tracker_pause_on_battery () || tracker_low_diskspace ();
 }
