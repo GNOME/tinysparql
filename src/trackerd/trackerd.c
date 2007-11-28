@@ -35,6 +35,7 @@
 #include <time.h>
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
+#include <glib/gpattern.h>
 
 #include "config.h"
 
@@ -128,6 +129,7 @@ static void delete_file (DBConnection *db_con, FileInfo *info);
 static void scan_directory (const gchar *uri, DBConnection *db_con);
 
 
+static gchar **ignore_pattern = NULL; 
 static gchar **no_watch_dirs = NULL;
 static gchar **watch_dirs = NULL;
 static gchar **crawl_dirs = NULL;
@@ -2325,6 +2327,16 @@ sanity_check_option_values (void)
 		}
 	}
 
+	if (tracker->no_index_file_types_list) {
+
+               tracker_log ("Setting no watch file types:");
+               for (lst = tracker->no_index_file_types_list; lst; lst = lst->next) {
+                       if (lst->data) {
+                               tracker_log (lst->data);
+                       }
+               }
+       }
+
 	if (tracker->verbosity < 0) {
 		tracker->verbosity = 0;
 	} else if (tracker->verbosity > 3) {
@@ -2387,6 +2399,8 @@ main (gint argc, gchar *argv[])
 	gchar           *example;
 	gboolean 	need_index, need_data;
 	DBConnection 	*db_con;
+	char **st;
+	GPatternSpec* spec;
 
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
@@ -2722,6 +2736,16 @@ main (gint argc, gchar *argv[])
 
 	if (tracker->first_time_index) {
 		tracker_db_set_option_int (db_con, "InitialIndex", 1);
+	}
+
+	if (tracker->no_index_file_types_list) {
+               ignore_pattern = tracker_list_to_array (tracker->no_index_file_types_list);
+ 
+               for (st = ignore_pattern; *st; st++) {
+                       spec = g_pattern_spec_new (*st);
+                       tracker->ignore_pattern_list = g_slist_prepend (tracker->ignore_pattern_list, spec);
+               }
+
 	}
 
 	db_con->cache = tracker_db_connect_cache ();

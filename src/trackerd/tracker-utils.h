@@ -213,7 +213,8 @@ typedef struct {
 	GSList 		*watch_directory_roots_list;
 	GSList 		*crawl_directory_list;
 	GSList 		*no_watch_directory_list;
-	GSList		*no_index_file_types;
+	GSList		*no_index_file_types_list;
+	GSList		*ignore_pattern_list;
 
 	gboolean	enable_indexing;
 	gboolean	enable_watching; /* can disable all forms of directory watching */

@@ -37,6 +37,7 @@
 #include <limits.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <glib/gpattern.h>
 #include <zlib.h>
 #include <math.h>
 #include "tracker-dbus.h"
@@ -2232,6 +2233,7 @@ tracker_ignore_file (const char *uri)
 {
 	char *name;
 	char **st;
+	GSList *tmp = NULL;
 
 	if (tracker_is_empty_string (uri)) {
 		return TRUE;
@@ -2284,6 +2286,15 @@ tracker_ignore_file (const char *uri)
 		}
 	}
 
+	/* test ignore types */
+	if (tracker->ignore_pattern_list) {
+               for (tmp = tracker->ignore_pattern_list; tmp; tmp = tmp->next) {
+                       if (g_pattern_match_string (tmp->data, name)) {
+                               g_free (name);
+                               return TRUE;
+                       }
+               }
+	}
 
 	g_free (name);
 	return FALSE;
@@ -2674,9 +2685,9 @@ tracker_load_config_file (void)
                                               NULL);
 
 	if (values) {
-		tracker->no_index_file_types = array_to_list (values);
+		tracker->no_index_file_types_list = array_to_list (values);
 	} else {
-		tracker->no_index_file_types = NULL;
+		tracker->no_index_file_types_list = NULL;
 	}
 
 	if (g_key_file_has_key (key_file, "Indexing", "MinWordLength", NULL)) {

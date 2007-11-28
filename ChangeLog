@@ -1,3 +1,9 @@
+2007-11-28 Jerry Tan <jerry.tan@sun.com>
+        implement the feature to set ignore filename pattern.
+        * src/trackerd/tracker-utils.h
+        * src/trackerd/tracker-utils.c
+        * src/trackerd/trackerd.c
+ 
 2007-11-26 Marcus Fritzsch <m at fritschy dot de>
 
 	* pause on low disk space support
