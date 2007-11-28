@@ -158,7 +158,7 @@ FileInfo *
 tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 {
 	char *path, *name;
-	char *apath, *aname;
+//	char *apath, *aname;
 	char ***res;
 
 	g_return_val_if_fail (db_con, info);
@@ -171,13 +171,13 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	name = g_path_get_basename (info->uri);
 	path = g_path_get_dirname (info->uri);
 
-	apath = tracker_escape_string (path);
-	aname = tracker_escape_string (name);
+	//apath = tracker_escape_string (path);
+	//aname = tracker_escape_string (name);
 
-	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, apath, aname);
+	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
 
-	g_free (aname);
-	g_free (apath);
+//	g_free (aname);
+//	g_free (apath);
 
 	g_free (name);
 	g_free (path);
