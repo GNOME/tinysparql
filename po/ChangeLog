@@ -1,3 +1,7 @@
+2007-11-29  Michael Biebl <mbiebl@gmail.com>
+
+	* POTFILES.in: Add src/tracker-preferences/tracker-preferences.c
+
 2007-11-28  Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
         * es.po: Updated Spanish translation
