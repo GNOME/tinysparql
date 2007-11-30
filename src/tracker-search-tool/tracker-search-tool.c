@@ -301,7 +301,9 @@ start_animation (GSearchWindow * gsearch,
 		gsearch->focus = gtk_window_get_focus (GTK_WINDOW (gsearch->window));
 
 		gtk_widget_set_sensitive (gsearch->find_button, FALSE);
-		gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, FALSE);
+                if (gsearch->type < 10) {
+			gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, FALSE);
+		}
 		gtk_widget_set_sensitive (gsearch->search_results_vbox, TRUE);
 		gtk_widget_set_sensitive (GTK_WIDGET (gsearch->search_results_tree_view), TRUE);
 
@@ -315,7 +317,9 @@ stop_animation (GSearchWindow * gsearch)
 	gtk_window_set_default (GTK_WINDOW (gsearch->window), gsearch->find_button);
 	gtk_widget_set_sensitive (gsearch->name_and_folder_table, TRUE);
 	gtk_widget_set_sensitive (gsearch->find_button, TRUE);
-	gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, TRUE);
+        if (gsearch->type < 10) {
+		gtk_widget_set_sensitive (gsearch->search_results_save_results_as_item, TRUE);
+	}
 	gtk_widget_show (gsearch->find_button);
 	
 
