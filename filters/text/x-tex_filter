@@ -1,3 +1,5 @@
 #!/bin/sh
-
-nice -n19 untex "$1" > "$2"
+UNTEX=`which untex`
+if [ -n "$UNTEX" ]; then nice -n19 $UNTEX "$1" > "$2";
+else cat "$1" > "$2";
+fi
