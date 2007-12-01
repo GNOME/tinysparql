@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-23 22:23+0000\n"
-"PO-Revision-Date: 2007-11-28 17:55+0100\n"
+"POT-Creation-Date: 2007-11-28 23:41+0000\n"
+"PO-Revision-Date: 2007-12-01 13:41+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -516,28 +516,28 @@ msgstr "%s: argumentos inválidos"
 msgid "%s: file %s not found"
 msgstr "%s: archivo %s no encontrado"
 
-#: ../src/trackerd/trackerd.c:144
+#: ../src/trackerd/trackerd.c:146
 msgid "Directory to exclude from indexing"
 msgstr "Directorio que excluir del indexado"
 
-#: ../src/trackerd/trackerd.c:144 ../src/trackerd/trackerd.c:145
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:148
 msgid "/PATH/DIR"
 msgstr "/RUTA/DIR"
 
-#: ../src/trackerd/trackerd.c:145
+#: ../src/trackerd/trackerd.c:147
 msgid "Directory to include in indexing"
 msgstr "Directorio que incluir en el indexado"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:148
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Directorio que arañar para indexar sólo al inicio"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:149
 msgid "Disable any indexing or watching taking place"
 msgstr "Desactivar cualquier indexado o vista que se esté realizando"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:150
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -545,11 +545,11 @@ msgstr ""
 "Valor que controla el nivel de registro. Los valores válidos son 0 (sólo "
 "muestra errores), 1 (mínimo), 2 (detallado) y 3 (depuración)"
 
-#: ../src/trackerd/trackerd.c:148 ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
 msgid "VALUE"
 msgstr "VALOR"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:151
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
@@ -558,43 +558,43 @@ msgstr ""
 "comprendidos entre 0 y 99 (de forma predeterminada es 0) dando los valores "
 "bajos una aceleración mayor del indexado"
 
-#: ../src/trackerd/trackerd.c:150
+#: ../src/trackerd/trackerd.c:152
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:153
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Tiempo inicial de latencia, justo antes de indexar, en segundos"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:154
 msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Idioma que usar para stemmer y lista de palabras de parada (código de "
 "caracteres ISO 639-1 2)"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:154
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:153
+#: ../src/trackerd/trackerd.c:155
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/trackerd/trackerd.c:154
+#: ../src/trackerd/trackerd.c:156
 msgid "Make tracker errors fatal"
 msgstr "Hacer que los errores de tracker sean fatales"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2403
+#: ../src/trackerd/trackerd.c:2419
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:2404 ../src/trackerd/trackerd.c:2405
+#: ../src/trackerd/trackerd.c:2420 ../src/trackerd/trackerd.c:2421
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:2412
+#: ../src/trackerd/trackerd.c:2428
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -796,6 +796,16 @@ msgstr "Conversaciones:"
 #: ../src/tracker-applet/tracker-applet.c:1051
 msgid "Emails:"
 msgstr "Correos-e:"
+
+#: ../src/tracker-preferences/tracker-preferences.c:853
+msgid "Your system must be re-indexed for your changes to take effect. Re-index now?"
+msgstr "Su sistema debe volverse a indexar para que los cambios tengan efecto. ¿Volver a indexar ahora?"
+
+#: ../src/tracker-preferences/tracker-preferences.c:855
+msgid ""
+"Tracker indexer needs to be restarted for your changes to take effect. "
+"Restart now?"
+msgstr "El indexador de Tracker debe ser reiniciado para que los cambios tengan efecto. ¿Reiniciarlo ahora?"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
