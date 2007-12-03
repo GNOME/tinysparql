@@ -1,6 +1,15 @@
+2007-12-03 Marcus Fritzsch <m at fritschy dot de>
+
+	* python/deskbar-handler/tracer-module.py
+	  Even more defensively programmed add_all_actions () to get
+	  around *older* deskbar releases (prior rev 1701). Another
+	  fix to gnome bug #474131
+
+
 2007-11-30 Jerry Tan <jerry.tan@sun.com>
         fix gnome bug 495528, disable Save Result As when search type like email, applications 
         * src/tracker-search-tool/tracker-search-tool.c
+
 
 2007-11-28 Jerry Tan <jerry.tan@sun.com>
         implement the feature to set ignore filename pattern.
@@ -8,6 +17,7 @@
         * src/trackerd/tracker-utils.c
         * src/trackerd/trackerd.c
  
+
 2007-11-26 Marcus Fritzsch <m at fritschy dot de>
 
 	* pause on low disk space support
