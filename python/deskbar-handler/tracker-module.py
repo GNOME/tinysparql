@@ -191,7 +191,10 @@ class TrackerLiveSearchMatch (deskbar.interfaces.Match):
 
 		# Add extra default actions where it makes sense
 		if not result['type'] in ["Emails", "Applications", "GaimConversations"]:
-			self.add_all_actions (get_actions_for_uri(result['quoted_uri']))
+			try:
+				self.add_all_actions (get_actions_for_uri(result['quoted_uri']))
+			except:
+				print >> sys.stderr, "*** Error when adding all actions for hit %s: %s" % (self.result['uri'], sys.exc_info()[1])
 
 	def get_name (self, text = None):
 		return self.get_verb() % self.result
