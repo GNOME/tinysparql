@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-28 23:41+0000\n"
-"PO-Revision-Date: 2007-12-01 13:41+0100\n"
+"POT-Creation-Date: 2007-12-01 12:42+0000\n"
+"PO-Revision-Date: 2007-12-06 17:06+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -799,13 +799,17 @@ msgstr "Correos-e:"
 
 #: ../src/tracker-preferences/tracker-preferences.c:853
 msgid "Your system must be re-indexed for your changes to take effect. Re-index now?"
-msgstr "Su sistema debe volverse a indexar para que los cambios tengan efecto. ¿Volver a indexar ahora?"
+msgstr ""
+"Su sistema debe volverse a indexar para que los cambios tengan efecto. "
+"¿Volver a indexar ahora?"
 
 #: ../src/tracker-preferences/tracker-preferences.c:855
 msgid ""
 "Tracker indexer needs to be restarted for your changes to take effect. "
 "Restart now?"
-msgstr "El indexador de Tracker debe ser reiniciado para que los cambios tengan efecto. ¿Reiniciarlo ahora?"
+msgstr ""
+"El indexador de Tracker debe ser reiniciado para que los cambios tengan "
+"efecto. ¿Reiniciarlo ahora?"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -1046,7 +1050,7 @@ msgid "Documents"
 msgstr "Documentos"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1217
+#: ../src/tracker-search-tool/tracker-search-tool.c:1221
 msgid "Text"
 msgstr "Texto"
 
@@ -1091,89 +1095,89 @@ msgstr "Ocurrió el siguiente error:"
 msgid "Error"
 msgstr "Error"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:654
+#: ../src/tracker-search-tool/tracker-search-tool.c:658
 msgid "Did you mean"
 msgstr "Quiso decir"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:685
+#: ../src/tracker-search-tool/tracker-search-tool.c:689
 msgid "Your search returned no results."
 msgstr "Su búsqueda no devolvió ningún resultado."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:700
+#: ../src/tracker-search-tool/tracker-search-tool.c:704
 msgid "Tracker Search Tool-"
 msgstr "Herramienta de búsqueda Tracker-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:861
-#: ../src/tracker-search-tool/tracker-search-tool.c:2219
+#: ../src/tracker-search-tool/tracker-search-tool.c:865
+#: ../src/tracker-search-tool/tracker-search-tool.c:2225
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Herramienta de búsqueda Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1051
+#: ../src/tracker-search-tool/tracker-search-tool.c:1055
 msgid "Search _results: "
 msgstr "_Resultados de la búsqueda: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1057
+#: ../src/tracker-search-tool/tracker-search-tool.c:1061
 msgid "no search performed"
 msgstr "no se realizó ninguna búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1111
-#: ../src/tracker-search-tool/tracker-search-tool.c:1271
+#: ../src/tracker-search-tool/tracker-search-tool.c:1115
+#: ../src/tracker-search-tool/tracker-search-tool.c:1275
 msgid "List View"
 msgstr "Vista lista"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1183
+#: ../src/tracker-search-tool/tracker-search-tool.c:1187
 msgid "Icon"
 msgstr "Icono"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1195
+#: ../src/tracker-search-tool/tracker-search-tool.c:1199
 msgid "Name"
 msgstr "Nombre"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1289
+#: ../src/tracker-search-tool/tracker-search-tool.c:1293
 msgid "_Categories"
 msgstr "_Categorías"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1569
+#: ../src/tracker-search-tool/tracker-search-tool.c:1573
 #, c-format
-msgid "%d - %d of %d hits"
-msgstr "%d - %d de %d impactos"
+msgid "%d - %d of %d items"
+msgstr "%d - %d de %d elementos"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1572
+#: ../src/tracker-search-tool/tracker-search-tool.c:1576
 #, c-format
 msgid "%d item"
-msgid_plural "%d hits"
+msgid_plural "%d items"
 msgstr[0] "%d elemento"
 msgstr[1] "%d impactos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1620
-#: ../src/tracker-search-tool/tracker-search-tool.c:1796
+#: ../src/tracker-search-tool/tracker-search-tool.c:1624
+#: ../src/tracker-search-tool/tracker-search-tool.c:1800
 msgid "Could not connect to search service as it may be busy"
 msgstr "No se pudo conectar con el servicio de búsqueda ya que puede estar ocupado"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1989
+#: ../src/tracker-search-tool/tracker-search-tool.c:1993
 msgid "_Search:"
 msgstr "_Buscar:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2001
+#: ../src/tracker-search-tool/tracker-search-tool.c:2007
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr ""
 "Tracker aún está indexando así que no todos los resultados de búsqueda están "
 "disponibles"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2014
-#: ../src/tracker-search-tool/tracker-search-tool.c:2015
+#: ../src/tracker-search-tool/tracker-search-tool.c:2020
+#: ../src/tracker-search-tool/tracker-search-tool.c:2021
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Introduzca un término de búsqueda con varias palabras separadas por espacios."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2015
+#: ../src/tracker-search-tool/tracker-search-tool.c:2021
 msgid "search_entry"
 msgstr "entrada_búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2061
+#: ../src/tracker-search-tool/tracker-search-tool.c:2067
 msgid "Click to perform a search."
 msgstr "Pulse para realizar una búsqueda."
 
