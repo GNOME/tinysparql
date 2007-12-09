@@ -506,6 +506,12 @@ tracker_indexer_has_merge_files (IndexType type)
 static void
 move_index (Indexer *src_index, Indexer *dest_index)
 {
+
+	if (!src_index || !dest_index) {
+		tracker_error ("cannot move indexes");
+		return;
+	}
+
 	/* remove existing main index */
 	g_mutex_lock (dest_index->word_mutex);
 
@@ -548,6 +554,9 @@ tracker_indexer_merge_indexes (IndexType type)
 	gboolean   final_exists;
 
 	if (type == INDEX_TYPE_FILES) {
+
+		g_return_if_fail (tracker->file_index);
+
 		prefix = "file-index.tmp.";
 
 		index_list = g_slist_prepend (index_list, tracker->file_index);
@@ -560,6 +569,8 @@ tracker_indexer_merge_indexes (IndexType type)
 
 	} else {
 		prefix = "email-index.tmp.";
+
+		g_return_if_fail (tracker->email_index);
 
 		index_list = g_slist_prepend (index_list, tracker->email_index);
 
@@ -640,7 +651,7 @@ tracker_indexer_merge_indexes (IndexType type)
 
 	if (!final_index) {
 		g_slist_free (index_list);
-		tracker_error ("could not open final index -abandoning index merge");
+		tracker_error ("could not open final index - abandoning index merge");
 		goto end_of_merging;
 	}
 
@@ -699,7 +710,7 @@ tracker_indexer_merge_indexes (IndexType type)
                                 }
 
 				if (offset % sz != 0) {
-					tracker_error ("possible corruption found during merge of word %s - purging word from index", str);
+					tracker_error ("possible corruption found during merge of word %s - purging word from index (it will not be searchable)", str);
 					continue;
 				}
 
@@ -737,7 +748,12 @@ tracker_indexer_merge_indexes (IndexType type)
 
 		/* dont free last entry as that is the main index */
 		if (lst->next) {
-			tracker_indexer_free (index, TRUE);
+
+			if (index != tracker->file_index && index != tracker->email_index) {
+				tracker_indexer_free (index, TRUE);
+			}
+
+
 		} else {
 			move_index (final_index, index);
 		}		
@@ -764,6 +780,7 @@ tracker_indexer_append_word_chunk (Indexer *indexer, const gchar *word, WordDeta
         }
 
 	g_return_val_if_fail (indexer, FALSE);
+	g_return_val_if_fail (indexer->word_index, FALSE);
 	g_return_val_if_fail (word, FALSE);
 	g_return_val_if_fail (details, FALSE);
 	g_return_val_if_fail (word_detail_count > 0, FALSE);
@@ -789,6 +806,7 @@ tracker_indexer_append_word (Indexer *indexer, const gchar *word, guint32 id, gi
         }
 
 	g_return_val_if_fail (indexer, FALSE);
+	g_return_val_if_fail (indexer->word_index, FALSE);
         g_return_val_if_fail (word, FALSE);
 
 	WordDetails pair;
@@ -809,6 +827,7 @@ tracker_indexer_append_word_list (Indexer *indexer, const gchar *word, GSList *l
 	GSList *lst;
 
 	g_return_val_if_fail (indexer, 0);
+	g_return_val_if_fail (indexer->word_index, 0);
 	g_return_val_if_fail (word, 0);
 
 	i = 0;
@@ -845,6 +864,7 @@ tracker_indexer_update_word_chunk (Indexer *indexer, const gchar *word, WordDeta
 	GSList *list = NULL;
 
 	g_return_val_if_fail (indexer, FALSE);
+	g_return_val_if_fail (indexer->word_index, FALSE);
 	g_return_val_if_fail (word, FALSE);
 	g_return_val_if_fail (detail_chunk, FALSE);
 	g_return_val_if_fail (word_detail_count > 0, FALSE);
@@ -941,6 +961,7 @@ tracker_indexer_update_word_list (Indexer *indexer, const gchar *word, GSList *u
 	GSList *lst;
 
 	g_return_val_if_fail (indexer, 0);
+	g_return_val_if_fail (indexer->word_index, 0);
 	g_return_val_if_fail (word, 0);
 
 	i = 0;
@@ -974,6 +995,7 @@ tracker_remove_dud_hits (Indexer *indexer, const gchar *word, GSList *dud_list)
 	char *tmp;
 
 	g_return_val_if_fail (indexer, FALSE);
+	g_return_val_if_fail (indexer->word_index, FALSE);
 	g_return_val_if_fail (word, FALSE);
 	g_return_val_if_fail (dud_list, FALSE);
 	

@@ -433,6 +433,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 			if (array[i]) {
 				tracker_log ("deleting keyword %s from %s with ID %s", array[i], uri, id);
 				tracker_db_delete_metadata_value (db_con, service, id, "User:Keywords", array[i]);
+				tracker_notify_file_data_available ();
 				tracker_dbus_signal_keywords_removed (service, uri, array[i]);
 			}
 		}
@@ -500,6 +501,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 	}
 
 	tracker_db_delete_metadata (db_con, service, id, "User:Keywords", TRUE);
+	tracker_notify_file_data_available ();
 	
 	g_free (id);
 	

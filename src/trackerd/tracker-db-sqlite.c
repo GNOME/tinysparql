@@ -3772,7 +3772,7 @@ static char *
 get_backup_id (DBConnection *db_con, const char *id)
 {
 	char *backup_id = NULL;
-	DBConnection *db_common = db_con->common;
+	DBConnection *db_common = db_con;
 
 	char ***res = tracker_exec_proc (db_common, "GetBackupServiceByID", 1, id);
 

@@ -447,7 +447,7 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	gchar *service, *attachment_service, *mime;
 	gchar *array[255];
 
-        #define LIMIT_ARRAY_LENGTH(len) ((len) > 255 ? 255 : (len))
+        #define LIMIT_ARRAY_LENGTH(len) ((len) > 254 ? 254 : (len))
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (mm, FALSE);
