@@ -71,7 +71,7 @@ char *ignore_name[] = {"po", "CVS", "aclocal", "Makefile", "CVS", "SCCS", "ltmai
 
 #define ZLIBBUFSIZ 8192
 #define TEXT_SNIFF_SIZE 4096
-
+#define MAX_INDEX_FILE_SIZE 2000000000
 
 static int info_allocated = 0;
 static int info_deallocated = 0;
@@ -3876,8 +3876,55 @@ tracker_low_diskspace (void)
 }
 
 
+
+gboolean
+tracker_index_too_big ()
+{
+
+	
+	char *file_index = g_build_filename (tracker->data_dir, "file-index.db", NULL);
+	if (tracker_file_size (file_index) > MAX_INDEX_FILE_SIZE) {
+		tracker_error ("file index is too big - discontinuing index");
+		g_free (file_index);
+		return TRUE;	
+	}
+	g_free (file_index);
+
+
+	char *email_index = g_build_filename (tracker->data_dir, "email-index.db", NULL);
+	if (tracker_file_size (email_index) > MAX_INDEX_FILE_SIZE) {
+		tracker_error ("email index is too big - discontinuing index");
+		g_free (email_index);
+		return TRUE;	
+	}
+	g_free (email_index);
+
+
+	char *file_meta = g_build_filename (tracker->data_dir, "file-meta.db", NULL);
+	if (tracker_file_size (file_meta) > MAX_INDEX_FILE_SIZE) {
+		tracker_error ("file metadata is too big - discontinuing index");
+		g_free (file_meta);
+		return TRUE;	
+	}
+	g_free (file_meta);
+
+
+	char *email_meta = g_build_filename (tracker->data_dir, "email-meta.db", NULL);
+	if (tracker_file_size (email_meta) > MAX_INDEX_FILE_SIZE) {
+		tracker_error ("email metadata is too big - discontinuing index");
+		g_free (email_meta);
+		return TRUE;	
+	}
+	g_free (email_meta);
+
+	return FALSE;
+
+}
+
+
+
 gboolean
 tracker_pause (void)
 {
-	return tracker->pause_manual || tracker_pause_on_battery () || tracker_low_diskspace ();
+	return tracker->pause_manual || tracker_pause_on_battery () || tracker_low_diskspace () || tracker_index_too_big ();
 }
