@@ -326,6 +326,15 @@ tracker_hal_init ()
 
 
 gboolean
+tracker_die ()
+{
+	tracker_error ("trackerd has failed to exit on time - terminating...");
+	exit (EXIT_FAILURE);
+}
+
+
+
+gboolean
 tracker_do_cleanup (const gchar *sig_msg)
 {
 	tracker->status = STATUS_SHUTDOWN;
@@ -335,6 +344,14 @@ tracker_do_cleanup (const gchar *sig_msg)
 
 		tracker_print_object_allocations ();
 	}
+
+	/* set kill timeout */
+	g_timeout_add_full (G_PRIORITY_LOW,
+	     		    20000,
+ 	    		    (GSourceFunc) tracker_die,
+	     		    NULL, NULL
+	   		    );
+
 
 	/* stop threads from further processing of events if possible */
 
