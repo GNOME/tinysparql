@@ -2138,7 +2138,7 @@ set_defaults (void)
 	tracker->index_on_battery = TRUE;
 	tracker->initial_index_on_battery = FALSE;
 
-	tracker->low_diskspace_limit = 5;
+	tracker->low_diskspace_limit = 1;
 }
 
 static gboolean
