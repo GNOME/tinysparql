@@ -520,6 +520,7 @@ add_file_to_search_results (const gchar * file,
 
 	if (!g_file_test (uri, G_FILE_TEST_EXISTS)) {
 		g_warning ("file %s does not exist", file);
+		g_free (uri);
 		return;
 	}
 
@@ -1786,6 +1787,25 @@ start_new_search (GSearchWindow * gsearch,
 	tracker_search_text_get_hit_count_all_async (tracker_client, query, (TrackerGPtrArrayReply) get_hit_count, gsearch);
 }
 
+
+void
+end_refresh_count (int count, GError * error, gpointer user_data)
+{
+	GSearchWindow *gsearch = user_data;
+	service_info_t	* service;
+
+	for (service = services; service->service; ++service) {
+		if (service->service_type == gsearch->current_service->service_type) {
+			service->hit_count = count;
+			break;
+		}
+	}
+
+	update_page_count_label (gsearch);
+
+}
+
+
 void
 end_search (GPtrArray * out_array,
 	    GError * error,
@@ -1822,7 +1842,14 @@ end_search (GPtrArray * out_array,
 
 		gsearch->current_service->has_hits = TRUE;
 
-		update_page_count_label (gsearch);
+		/* update hit count after search in case of dud hits */
+
+		tracker_search_text_get_hit_count_async	(tracker_client, gsearch->current_service->service_type, 
+					    		 gsearch->search_term,
+						    	 (TrackerIntReply)end_refresh_count,
+					    		 gsearch);
+
+		
 
 		gsearch->search_results_list_store = gsearch->current_service->store;
 
@@ -1878,7 +1905,7 @@ do_search (GSearchWindow * gsearch,
 			return;
 		}
 	}
-
+	
 	gsearch->current_service->offset = search_offset;
 	tracker_search_text_detailed_async (tracker_client,
 					    -1,
