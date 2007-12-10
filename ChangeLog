@@ -1,3 +1,12 @@
+2007-12-09 Jamie McCracken <jamiemcc at gnome org>
+
+	* Strengthed indeing of emails (utf-8 check on addresses)
+	* Stop indexing if index or db is too large (>2GB)
+	* Fixed notification of tag delete so index is updated
+	* set low disk space to 1% by default
+	* added kill timeout if not shutdown cleanly within 20 secs
+
+
 2007-12-03 Marcus Fritzsch <m at fritschy dot de>
 
 	* python/deskbar-handler/tracer-module.py
