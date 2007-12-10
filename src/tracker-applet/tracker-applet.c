@@ -621,6 +621,27 @@ index_progress_changed (DBusGProxy *proxy, const gchar *service, const char *uri
 
 }
 
+static void
+name_owner_changed (DBusGProxy * proxy, const gchar * name,
+		    const gchar * prev_owner, const gchar * new_owner,
+		    gpointer data)
+{
+
+	
+	if (!g_str_equal (name, DBUS_SERVICE_TRACKER)) return;
+
+	if (g_str_equal (new_owner, "")) {
+
+	
+		/* tracker has exited so reset status */
+		index_state_changed (proxy, "Idle", FALSE, FALSE, FALSE, FALSE, TRUE, data);
+		
+
+	}
+}
+
+
+
 static gboolean
 setup_dbus_connection (TrayIcon *self)
 {
@@ -683,6 +704,25 @@ setup_dbus_connection (TrayIcon *self)
                                	self,
                                	NULL);
 
+	DBusGConnection *connection;
+	DBusGProxy *dbus_proxy;
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
+	dbus_proxy = dbus_g_proxy_new_for_name (connection,
+						      DBUS_SERVICE_DBUS,
+						      DBUS_PATH_DBUS,
+						      DBUS_INTERFACE_DBUS);
+
+	dbus_g_proxy_add_signal (dbus_proxy,
+				 "NameOwnerChanged",
+				 G_TYPE_STRING,
+				 G_TYPE_STRING,
+				 G_TYPE_STRING, G_TYPE_INVALID);
+
+	dbus_g_proxy_connect_signal (dbus_proxy,
+				     "NameOwnerChanged",
+				     G_CALLBACK (name_owner_changed),
+				     self, NULL);
 
 
 	/* prompt for updated signals */
@@ -727,7 +767,7 @@ tray_icon_init (GTypeInstance *instance, gpointer g_class)
 
 	gtk_status_icon_set_visible (priv->icon, FALSE);
 
-	g_timeout_add (1000,(GSourceFunc) setup_dbus_connection, self);
+	g_timeout_add (2000,(GSourceFunc) setup_dbus_connection, self);
 
 }
 
