@@ -626,7 +626,7 @@ tracker_indexer_merge_indexes (IndexType type)
 
 	tracker_log ("starting merge of %d indexes", index_count);
 	tracker->in_merge = TRUE;
-	tracker_dbus_send_index_status_change_signal ();
+	
 
 	if (index_count == 2 && !final_exists) {
 
@@ -642,6 +642,8 @@ tracker_indexer_merge_indexes (IndexType type)
 			goto end_of_merging;
 		}
 	}
+
+	tracker_dbus_send_index_status_change_signal ();
 
 	if (type == INDEX_TYPE_FILES) {
 		final_index = tracker_indexer_open ("file-index-final");
@@ -761,9 +763,11 @@ tracker_indexer_merge_indexes (IndexType type)
 	
 	g_slist_free (index_list);
 
+	tracker_dbus_send_index_status_change_signal ();
+
  end_of_merging:
 	tracker->in_merge = FALSE;
-	tracker_dbus_send_index_status_change_signal ();
+	
 }
 
 

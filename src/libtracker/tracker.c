@@ -589,12 +589,13 @@ tracker_keywords_search	(TrackerClient *client, int live_query_id, ServiceType s
 
 
 int
-tracker_search_get_hit_count (TrackerClient *client, const char *service, const char *search_text, GError **error)
+tracker_search_get_hit_count (TrackerClient *client, ServiceType service, const char *search_text, GError **error)
 {
 
 	int count = 0;
+	char *service_str = tracker_service_types[service];
 
-	if (!org_freedesktop_Tracker_Search_get_hit_count (client->proxy_search, service, search_text, &count, &*error)) {
+	if (!org_freedesktop_Tracker_Search_get_hit_count (client->proxy_search, service_str, search_text, &count, &*error)) {
 		return 0;
 	}
 
@@ -1205,15 +1206,17 @@ tracker_keywords_search_async	(TrackerClient *client, int live_query_id, Service
 
 
 void		
-tracker_search_text_get_hit_count_async (TrackerClient *client, const char *service, const char *search_text, TrackerIntReply callback, gpointer user_data)
+tracker_search_text_get_hit_count_async (TrackerClient *client, ServiceType service, const char *search_text, TrackerIntReply callback, gpointer user_data)
 {
+	char *service_str = tracker_service_types[service];
+
 	IntCallBackStruct *callback_struct;
 
 	callback_struct = g_new (IntCallBackStruct, 1);
 	callback_struct->callback = callback;
 	callback_struct->data = user_data;
 
-	client->last_pending_call =  org_freedesktop_Tracker_Search_get_hit_count_async (client->proxy_search, service, search_text, tracker_int_reply, callback_struct);
+	client->last_pending_call =  org_freedesktop_Tracker_Search_get_hit_count_async (client->proxy_search, service_str, search_text, tracker_int_reply, callback_struct);
 
 
 }

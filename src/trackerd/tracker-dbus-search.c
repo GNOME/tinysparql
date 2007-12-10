@@ -78,15 +78,39 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 	//tracker_log ("Executing GetHitCount with params %s, %s", service, str);
 
 	gchar **array;
-	gint service_array[1];
+	gint service_array[12];
 	gint result;
 	DBusMessage *reply;
+	int service_count = 1;
 
 	service_array[0] = tracker_get_id_for_service (service);
 
+	if (strcmp (service, "Files") == 0) {
+		service_array[1] = tracker_get_id_for_service ("Folders");
+		service_array[2] = tracker_get_id_for_service ("Documents");
+		service_array[3] = tracker_get_id_for_service ("Images");
+		service_array[4] = tracker_get_id_for_service ("Videos");
+		service_array[5] = tracker_get_id_for_service ("Music");
+		service_array[6] = tracker_get_id_for_service ("Text");
+		service_array[7] = tracker_get_id_for_service ("Development");
+		service_array[8] = tracker_get_id_for_service ("Other");
+		service_count = 9;
+
+	} else if (strcmp (service, "Emails") == 0) {
+		service_array[1] = tracker_get_id_for_service ("EvolutionEmails");
+		service_array[2] = tracker_get_id_for_service ("KMailEmails");
+		service_array[3] = tracker_get_id_for_service ("ThunderbirdEmails");
+		service_count = 4;
+
+ 	} else if (strcmp (service, "Conversations") == 0) {
+		service_array[1] = tracker_get_id_for_service ("GaimConversations");
+		service_count = 2;
+	}
+
+
 	db_con = tracker_db_get_service_connection (db_con, service);
 
-	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 1, 0, 999999);
+	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, service_count, 0, 999999);
 
 	array = tracker_parse_text_into_array (str);
 
