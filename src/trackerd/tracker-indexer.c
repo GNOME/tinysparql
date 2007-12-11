@@ -215,7 +215,7 @@ open_index (const gchar *name)
 	}
 
 	if (!word_index) {
-		tracker_log ("%s index was not closed properly and caused error %s- attempting repair", name, dperrmsg (dpecode));
+		tracker_error ("%s index was not closed properly and caused error %s- attempting repair", name, dperrmsg (dpecode));
 		if (dprepair (name)) {
 			word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, tracker->min_index_bucket_count);
 		} else {
@@ -228,6 +228,16 @@ open_index (const gchar *name)
 }
 
 
+static inline char *
+get_index_file (const char *name)
+{
+	char *word_dir;
+
+	word_dir = g_build_filename (tracker->data_dir, name, NULL);
+
+	return word_dir;
+}
+
 Indexer *
 tracker_indexer_open (const gchar *name)
 {
@@ -237,7 +247,7 @@ tracker_indexer_open (const gchar *name)
 
 	if (!name) return NULL;
 
-	word_dir = g_build_filename (tracker->data_dir, name, NULL);
+	word_dir = get_index_file (name);
 
 	word_index = open_index (word_dir);
 	
@@ -504,7 +514,7 @@ tracker_indexer_has_merge_files (IndexType type)
 }
 
 static void
-move_index (Indexer *src_index, Indexer *dest_index)
+move_index (Indexer *src_index, Indexer *dest_index, const char *fname)
 {
 
 	if (!src_index || !dest_index) {
@@ -515,8 +525,6 @@ move_index (Indexer *src_index, Indexer *dest_index)
 	/* remove existing main index */
 	g_mutex_lock (dest_index->word_mutex);
 
-	char *fname = dpname (dest_index->word_index);
-
 	dpclose (dest_index->word_index);
 
 	dpremove (fname);
@@ -526,7 +534,9 @@ move_index (Indexer *src_index, Indexer *dest_index)
 	tracker_indexer_close (src_index);
 		
 	/* rename and reopen final index as main index */
-			
+		
+	tracker_log ("renaming %s to %s", final_name, fname);
+	
 	rename (final_name, fname);
 
 	dest_index->word_index = open_index (fname);	
@@ -535,7 +545,6 @@ move_index (Indexer *src_index, Indexer *dest_index)
 		tracker_error ("index creation failure for %s from %s", fname, final_name);
 	}
 
-	g_free (fname);
 	g_free (final_name);		
 
 	g_mutex_unlock (dest_index->word_mutex);
@@ -556,7 +565,7 @@ tracker_indexer_merge_indexes (IndexType type)
 	if (type == INDEX_TYPE_FILES) {
 
 		g_return_if_fail (tracker->file_index);
-
+		
 		prefix = "file-index.tmp.";
 
 		index_list = g_slist_prepend (index_list, tracker->file_index);
@@ -571,7 +580,7 @@ tracker_indexer_merge_indexes (IndexType type)
 		prefix = "email-index.tmp.";
 
 		g_return_if_fail (tracker->email_index);
-
+		
 		index_list = g_slist_prepend (index_list, tracker->email_index);
 
 		char *tmp = g_build_filename (tracker->data_dir, "email-index-final", NULL);
@@ -748,6 +757,9 @@ tracker_indexer_merge_indexes (IndexType type)
 			g_free (str);
 		}
 
+
+		
+
 		/* dont free last entry as that is the main index */
 		if (lst->next) {
 
@@ -757,7 +769,17 @@ tracker_indexer_merge_indexes (IndexType type)
 
 
 		} else {
-			move_index (final_index, index);
+			if (type == INDEX_TYPE_FILES) {
+
+				char *fname = get_index_file ("file-index.db");
+				move_index (final_index, tracker->file_index, fname);	
+				g_free (fname);
+
+			} else {
+				char *fname = get_index_file ("email-index.db");
+				move_index (final_index, tracker->email_index, fname);
+				g_free (fname);
+			}
 		}		
 	}
 	
