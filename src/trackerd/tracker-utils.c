@@ -2552,7 +2552,7 @@ tracker_load_config_file (void)
                                          "# Disable all indexing when on battery\n",
                                          "BatteryIndex=true\n",
                                          "# Disable initial index sweep when on battery\n",
-                                         "BatteryIndexInitial=true\n",
+                                         "BatteryIndexInitial=false\n",
 					 "# Pause indexer when disk space gets below equal/below this value, in %% of the $HOME filesystem. Set it to a value smaller then zero to disable pausing at all.\n",
 					 "LowDiskSpaceLimit=1\n\n",
 					 "[Emails]\n",
