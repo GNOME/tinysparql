@@ -1,0 +1,222 @@
+[Files]
+DisplayName=All Files
+Description=All files in the filesystem
+UIVisible=true
+Icon=system-file-manager
+UIView=icon
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+[Folders]
+DisplayName=Folders
+Description=Folders in the filesystem
+Parent=Files
+UIVisible=true
+UIView=icon
+Icon=folder
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+[Documents]
+DisplayName=Documents
+Description=Office and PDF based files
+Parent=Files
+UIVisible=true
+Icon=x-office-document
+KeyMetadata1=Doc:Title
+KeyMetadata2=Doc:Author
+KeyMetadata3=Doc:Created
+TabularMetadata=File:Name;File:Mime;Doc:Title;Doc:Author;File:Size;File:Modified;Doc:Created;
+TileMetadata=Doc:Title;Doc:Subject;Doc:Author;Doc:Created;Doc:PageCount;File:Size;
+ContentMetadata=File:Contents
+Mimes=application/rtf;text/richtext;application/msword;application/pdf;application/postscript;application/x-dvi;application/vnd.ms-excel;vnd.ms-powerpoint;application/x-abiword;text/html;text/sgml;text/x-tex;application/x-mswrite;application/x-applix-word;application/docbook+xml;application/x-kword;application/x-kword-crypt;application/x-lyx;application/vnd.lotus-1-2-3;application/x-applix-spreadsheet;application/x-gnumeric;application/x-kspread;application/x-kspread-crypt;application/x-quattropro;application/x-sc;application/x-siag;application/x-magicpoint;application/x-kpresenter;application/illustrator;application/vnd.corel-draw;application/vnd.stardivision.draw;application/vnd.oasis.opendocument.graphics;application/x-dia-diagram;application/x-karbon;application/x-killustrator;application/x-kivio;application/x-kontour;application/x-wpg;
+MimePrefixes=application/vnd.oasis.opendocument;application/vnd.sun.xml;application/vnd.stardivision;
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+[Images]
+DisplayName=Images
+Description=Image based files
+Parent=Files
+UIVisible=true
+UIView=icon
+Icon=image-x-generic
+KeyMetadata1=Image:Title
+KeyMetadata2=Image:Height
+KeyMetadata3=Image:Width
+KeyMetadata4=Image:Date
+KeyMetadata5=Image:Software
+KeyMetadata6=Image:Creator
+TabularMetadata=File:Name;Image:Height;Image:Width;Image:Date;File:Modified;Image:Creator;Image:Software;
+TileMetadata=Image:Title;Image:Height;Image:Width;Image:Date;Image:Creator;Image:Software;Image:Comments;
+Mimes=application/vnd.oasis.opendocument.image;application/x-krita;
+MimePrefixes=image/;
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+
+[Music]
+DisplayName=Music
+Description=Music based files
+Parent=Files
+UIVisible=true
+UIView=tabular
+Icon=audio-x-generic
+KeyMetadata1=Audio:Title
+KeyMetadata2=Audio:Artist
+KeyMetadata3=Audio:Album
+KeyMetadata4=Audio:Genre
+KeyMetadata5=Audio:Duration
+KeyMetadata6=Audio:ReleaseDate
+KeyMetadata7=Audio:TrackNo
+KeyMetadata8=Audio:Bitrate
+KeyMetadata9=Audio:PlayCount
+KeyMetadata10=Audio:DateAdded
+KeyMetadata11=Audio:LastPlay
+TabularMetadata=Audio:Title;Audio:Artist;Audio:Album;Audio:Genre;Audio:Duration;Audio:ReleaseDate;
+TileMetadata=Audio:Title;Audio:Artist;Audio:Album;Audio:Genre;Audio:Duration;Audio:ReleaseDate;
+Mimes=application/ogg;
+MimePrefixes=audio/;
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+
+[Videos]
+DisplayName=Videos
+Description=Video based files
+Parent=Files
+UIVisible=true
+UIView=icon
+Icon=video-x-generic
+KeyMetadata1=Video:Title
+KeyMetadata2=Video:Author
+KeyMetadata3=Video:Height
+KeyMetadata4=Video:Width
+KeyMetadata5=Video:Duration
+KeyMetadata6=Audio:Bitrate
+TabularMetadata=File:Name;Video:Title;Video:Author;Video:Height;Video:Width;Video:Duration;Video:Bitrate;
+TileMetadata=Video:Title;Video:Author;Video:Height;Video:Width;Video:Duration;Video:Bitrate;
+MimePrefixes=video/;
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+
+[Text]
+DisplayName=Text
+Description=Text based files
+Parent=Files
+UIVisible=true
+Icon=text-x-generic
+ContentMetadata=File:Contents
+Mimes=text/plain;text/x-authors;text/x-changelog;text/x-copying;text/x-credits;text/x-install;text/x-readme;
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+
+[Development]
+DisplayName=Development
+Description=Development and source code files
+Parent=Files
+UIVisible=true
+Icon=applications-development
+ContentMetadata=File:Contents
+Mimes=application/x-perl;application/x-shellscript;application/x-php;application/x-java;application/x-javascript;application/x-glade;application/x-csh;application/x-class-file;application/x-awk;application/x-asp;application/x-ruby;application/x-m4;text/x-m4;text/x-c++;text/x-adasrc;text/x-c;text/x-c++hdr;text/x-chdr;text/x-csharp;text/x-c++src;text/x-csrc;text/x-dcl;text/x-dsrc;text/x-emacs-lisp;text/x-fortran;text/x-haskell;text/x-literate-haskell;text/x-java;text/x-java-source" ,text/x-makefile;text/x-objcsrc;text/x-pascal;text/x-patch;text/x-python;text/x-scheme;text/x-sql;text/x-tcl;
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+[Other]
+DisplayName=Other Files
+Description=All other files that do not belong in any other category
+Parent=Files
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+[Emails]
+DisplayName=Emails
+Description=All Emails
+UIVisible=true
+UIMetadata1=Email:Subject
+UIMetadata2=Email:Sender
+Icon=stock_mail-open
+TabularMetadata=Email:Sender;Email:Subject;Email:Date;
+TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
+ContentMetadata=Email:Body
+
+[EvolutionEmails]
+DisplayName=Evolution Emails
+Description=Evolution based emails
+Parent=Emails
+ViewerExec=evolution "%1"
+KeyMetadata1=Email:Subject
+KeyMetadata2=Email:Sender
+KeyMetadata3=Email:Date
+TabularMetadata=Email:Sender;Email:Subject;Email:Date;
+TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
+ContentMetadata=Email:Body
+
+[ThunderbirdEmails]
+DisplayName=Thunderbird Emails
+Description=Thunderbird based emails
+Parent=Emails
+ViewerExec=thunderbird -viewtracker "%1"
+KeyMetadata1=Email:Subject
+KeyMetadata2=Email:Sender
+KeyMetadata3=Email:Date
+TabularMetadata=Email:Sender;Email:Subject;Email:Date;
+TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
+ContentMetadata=Email:Body
+
+[KMailEmails]
+DisplayName=KMail Emails
+Description=KMail based emails
+Parent=Emails
+ViewerExec=kmail "%1"
+KeyMetadata1=Email:Subject
+KeyMetadata2=Email:Sender
+KeyMetadata3=Email:Date
+TabularMetadata=Email:Sender;Email:Subject;Email:Date;
+TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
+ContentMetadata=Email:Body
+
+[EmailAttachments]
+DisplayName=Email Attachments
+Description=All files that are attached to an Email
+UIVisible=true
+Icon=stock_attach
+
+[EvolutionAttachments]
+DisplayName=Evolution Email Attachments
+Description=All files that are attached to an Evolution Email
+Parent=EmailAttachments
+Icon=stock_attach
+
+[KMailAttachments]
+DisplayName=KMail Email Attachments
+Description=All files that are attached to an KMail Email
+Parent=EmailAttachments
+Icon=stock_attach
+
+[Conversations]
+DisplayName=Conversations
+Description=Conversation log files
+UIVisible=true
+Icon=stock_help-chat
+ShowServiceFiles=true
+
+[GaimConversations]
+DisplayName=Gaim Conversations
+Description=All Gaim Conversation logs
+Parent=Conversations
+Icon=stock_help-chat
+ShowServiceFiles=true
+
+[Applications]
+DisplayName=Applications
+Description=Application files
+UIVisible=true
+Icon=stock_active
+ShowServiceFiles=true
+KeyMetadata1=App:DisplayName
+KeyMetadata2=App:Exec
+KeyMetadata3=App:Icon
+TileMetadata=App:GenericName;AppComment;App:Categories

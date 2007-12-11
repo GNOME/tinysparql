@@ -1,0 +1,7 @@
+# List of source files that should NOT be translated.
+# Please keep this file sorted alphabetically.
+
+src/tracker-applet/tracker-applet.desktop.in
+src/tracker-preferences/tracker-preferences.desktop.in
+src/tracker-search-tool/tracker-search-tool.desktop.in
+trackerd.desktop.in

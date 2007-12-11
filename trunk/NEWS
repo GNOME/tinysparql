@@ -1,0 +1,39 @@
+18th October 
+	released 0.5.0
+
+14 May
+	Improved support for Fedora Core 5
+	Improved EXIF metadata
+	Added new File based services
+
+1 May
+	Made database more generic
+	Upgraded to mysql 5
+	Converted DB logic to stored procedures	
+
+28th Mar
+	Made Dbus interface more generic	
+
+
+27th Feb
+	Added full support for Inotify with optimisations for detected moves.
+	Also updated build system, fixed leaks and improved stability.
+
+16th January
+	Added support for Tracker as a Nautilus Search Backend
+
+5 January 2006 
+	Added polling mechanism to watch files in absence of FAM/iNotify or when FAM/iNotify watch limits have been exceeded
+
+
+13 December 2005 
+	imported Tracker into CVS
+
+
+8th  Dec 2005
+	Pre-release of Tracker launched
+
+15th Sept 2005
+	Tracker project started.
+
+

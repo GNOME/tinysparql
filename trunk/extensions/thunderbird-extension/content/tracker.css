@@ -1,0 +1,12 @@
+
+statusbarpanel#tracker-icon[status="enabled"] {
+  list-style-image: url("chrome://tracker/skin/tracker.png");
+}
+
+statusbarpanel#tracker-icon[status="disabled"] {
+  list-style-image: url("chrome://tracker/skin/tracker-disabled.png");
+}
+
+statusbarpanel#tracker-icon[status="error"] {
+  list-style-image: url("chrome://tracker/skin/tracker-error.png");
+}

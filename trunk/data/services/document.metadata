@@ -1,0 +1,55 @@
+[Doc:Title]
+DisplayName=Title
+Description=The title of the document
+DataType=Indexable
+Parent=DC:Title
+Weight=25
+Filtered=false
+
+[Doc:Subject]
+DisplayName=Subject
+Description=The subject or topic of the document
+DataType=Indexable
+Parent=DC:Subject
+Weight=20
+Filtered=false
+
+[Doc:Author]
+DisplayName=Author
+Description=The author of the document
+DataType=Indexable
+Parent=DC:Creator
+Weight=20
+Filtered=false
+
+[Doc:Keywords]
+DisplayName=Keywords
+Description=keywords embedded in the document
+DataType=Keyword
+Parent=DC:Keywords
+Weight=25
+Filtered=false
+Delimited=true
+
+[Doc:Comments]
+DisplayName=Comments
+Description=The comments embedded in the document
+DataType=Indexable
+Parent=DC:Description
+Weight=10
+
+[Doc:PageCount]
+DisplayName=Page count
+Description=Number of pages in the document
+DataType=Integer
+
+[Doc:WordCount]
+DisplayName=Word count
+Description=Number of words in the document
+DataType=Integer
+
+[Doc:Created]
+DisplayName=Created
+Description=Date document was created
+DataType=DateTime
+Parent=DC:Date

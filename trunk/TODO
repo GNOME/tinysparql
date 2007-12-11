@@ -1,0 +1,11 @@
+* support for ignoring diacritics in search (version 0.6.1)
+* support for Thunderbird 2 after it's released
+* .desktop file indexing
+* chat logs
+* Rhythmbox integration
+* Tomboy notes indexing
+* Epiphany integration
+* Brasero integration
+* manpage indexing
+* DocBook indexing
+* search filtering (EG search within specific folders)

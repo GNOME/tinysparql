@@ -1,0 +1,15 @@
+tracker-tags-tab.py is a nautilus extension providing document tagging interface powered by tracker
+
+----------Requirements----------
+* python-dev (>= 2.3)
+* tracker(>= 5.0)
+* python-nautilus (>=0.4.3)
+
+If you use Ubuntu these can be installed via apt-get with this command:
+sudo apt-get install python-dev python-nautilus
+
+----------Installation-----------
+
+cp ./*.py ~/.nautilus/python-extensions/
+
+

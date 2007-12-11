@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+		<!-- 
+
+		"service" input parameters are a string representing the service type.
+
+		A list of service types can be obtained by calling method GetServices and will *potentially* include the following :
+
+		"Files" 
+		"Folders" *
+		"Documents" *
+		"Images" *
+		"Music" *
+		"Videos" *
+		"Text Files" *
+		"Development Files" *
+		"Other Files" *
+		"VFS Files"
+		"VFS Folders" **
+		"VFS Documents" **
+		"VFS Images" **
+		"VFS Music" **
+		"VFS Videos" **
+		"VFS Text Files" **
+		"VFS Development Files" **
+		"VFS Other Files" **
+		"Conversations"
+		"Playlists"
+		"Applications"	
+		"Contacts"
+		"Emails"	
+		"EmailAttachments"
+		"Notes"
+		"Appointments"
+		"Tasks"
+		"Bookmarks"
+		"History"
+		"Projects"
+			
+		
+		(*) - these services are a subset of "Files" service.
+		(**) - these services are a subset of "VFSFiles" service.
+
+		Services may also have a corresponding metadata class associated with them (EG Files has "File" class, Documents "Doc" etc see 
+		the spec at http://freedesktop.org/wiki/Standards/shared-filemetadata-spec for more details on metadata classes)
+
+		"id" input parameters can represent, in the case of a file, the full path and name of the file. 
+
+		In other cases, "id" can also be a unique name or URI for the specified service.
+
+		The "id" field uniquely identifies an entity in Tracker regardless of its service type
+
+		The live_query_id parameters in some search and retrieval methods is used to indicate whether the query should be "live". Liveness means
+		the query can receive signals in real time to remove hits that are no longer valid and add new ones that are. These signals are emitted 
+		in response to file or volume notifications. A value of -1 should be passed if live query functionality is not desired. A live_query_id 
+		can be obtained in the future from the LiveQuery Interface.
+		
+
+		 -->
+
+
+
+<node name="/org/freedesktop/tracker">
+
+	<interface name="org.freedesktop.Tracker">
+		<annotation name="org.freedesktop.DBus.GLib.CSymbol" value="tracker_client"/>
+
+		<!-- Returns the version number of tracker as an integer as XXXXXX where each XX pair represents part of the version
+		     (EG "100" is returned for version 0.1.0 and "14523" would represent version 1.45.23) -->
+		<method name="GetVersion">
+			<arg type="i" name="version" direction="out" />
+		</method>
+
+                <!-- Return the status of tracker daemon - status is one of "Initializing","Watching","Indexing","Pending","Optimizing","Idle","Shutdown" -->
+                <method name="GetStatus">
+                        <arg type="s" name="status" direction="out" />
+                </method>
+
+
+		<!-- Gets all implemented services and also returns any corresponding metadata type class for the service (IE "File", "Doc", "Image" etc)
+		     If main_services_only is set to true then only the major services are returned
+		     Output is in dict format: (service -> description, parent)  -->			
+		<method name="GetServices">
+			<arg type="b" name="main_services_only" direction="in" />
+			<arg type="a{sv}" name="result" direction="out" />
+		</method>
+
+
+		<!-- Get statistics for services that have been indexed. Output is in string array format: [service, no of entities]  -->
+		<method name="GetStats">
+			<arg type="aas" name="service_stats" direction="out" />
+		</method>
+
+
+		<!-- sets boolean options in tracker - option can be one of "Pause", "EnableIndexing", "LowMemoryMode", "IndexFileContents", "EnableEvolution" -->
+		<method name="SetBoolOption">
+			<arg type="s" name="option" direction="in" />
+			<arg type="b" name="value" direction="in" />
+		</method>
+
+
+		<!-- sets integer based option values in tracker - option can be one of "Throttle", "IndexDelay" -->
+		<method name="SetIntOption">
+			<arg type="s" name="option" direction="in" />
+			<arg type="i" name="value" direction="in" />
+		</method>
+
+		<!-- shutdown tracker service with optional reindex -->
+		<method name="Shutdown">
+			<arg type="b" name="reindex" direction="in" />
+		</method>
+
+
+		<!-- prompts tracker to send progress/state signals -->
+
+		<method name="PromptIndexSignals"/>
+
+
+		<!-- signal change in index status - states are "Initializing","Watching","Indexing","Pending","Optimizing","Idle","Shutdown"  
+		     is_initial_index indicates if this is the first time index (or reindex)
+		     in_merge indicates merge indexing is taking place (or reindex)
+		     is_manual_paused indicates if user has manually paused the indexer
+		     is_battery_paused indicates if indexer is paused whilst on battery power
+		     is_io_paused indicates if indexer has paused itself as it has detected other apps writing to disk
+		-->
+		<signal name="IndexStateChange">
+			<arg type="s" name="state" />
+			<arg type="b" name="initial_index" />
+			<arg type="b" name="in_merge" />
+ 			<arg type="b" name="is_manual_paused" />
+                        <arg type="b" name="is_battery_paused" />
+                        <arg type="b" name="is_io_paused" />
+		</signal>
+
+		<!-- signal when index has completed  -->
+		<signal name="IndexFinished">
+			<arg type="i" name="time_taken"/>
+		</signal>
+
+		<!-- signal progress of indexing - returns current service (Files/Conversations/Emails), folders_processed = number of folders/mail boxes indexed, folders_total = total number of folders/mail boxes  -->
+		<signal name="IndexProgress">
+			<arg type="s" name="service"/>
+			<arg type="s" name="current_uri" />
+			<arg type="i" name="index_count"/>
+			<arg type="i" name="folders_processed"/>
+			<arg type="i" name="folders_total"/>
+		</signal>
+
+
+
+	</interface>
+
+	<interface name="org.freedesktop.Tracker.Metadata">
+
+		<!-- Retrieves an array of metadata values for the specified array of metadata keys for a service and id pair-->
+		<method name="Get">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="as" name="values" direction="out" />
+		</method>
+
+		<!-- Sets specified metadata keys to the specified metadata values for a service and id pair-->
+		<method name="Set">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="keys" direction="in" />
+			<arg type="as" name="values" direction="in" />
+		</method>
+
+		
+
+		
+		<!--
+			Registers a new metadata type. The metadata name must be namespaced with an appropriate  class in the format "class.name"
+
+			datatype argument for RegisterType should be one of the following:
+			"index"  (a string which is stored in a full text index for searching )
+			"string" (a non-indexable string which will not show up in searches )
+			"numeric" (a signed number which can be either an integer or a float)
+			"date"   (format should be "yyyy-mm-dd hh:mm:ss")
+
+			Metadata defined here is considered non-embeddable and writable
+			
+		-->
+		<method name="RegisterType">
+			<arg type="s" name="name" direction="in" />
+			<arg type="s" name="datatype" direction="in" />
+		</method>
+
+
+		<!-- Gets all details of a named metadata type -->		
+		<method name="GetTypeDetails">
+			<arg type="s" name="name" direction="in" />
+			<arg type="s" name="data_type" direction="out" />
+			<arg type="b" name="is_embedded" direction="out" />
+			<arg type="b" name="is_writable" direction="out" />
+		</method>
+
+		<!-- returns an array of all metadata types that are registered for a certain class
+		     You can enter "*" as the class to get all metadat types for all classes
+		-->
+		<method name="GetRegisteredTypes">
+			<arg type="s" name="metadata_class" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+
+		<!-- returns an array of all metadata types that are writeable and registered for a certain class
+		     You can enter "*" as the class to get all metadat types for all classes that are writeable
+		-->
+		<method name="GetWriteableTypes">
+			<arg type="s" name="metadata_class" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- returns an array of all metadata type classes that are registered -->
+		<method name="GetRegisteredClasses">
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- signal emitted whenever metadata for a service entity is changed. The keys are the metadata names that have changed -->
+		<signal name="Changed">
+			<arg type="s" name="service"/>
+			<arg type="s" name="uri_path"/>
+			<arg type="s" name="uri_name"/>
+			<arg type="as" name="keys"/>
+			<arg type="as" name="values"/>
+		</signal>
+
+
+		
+
+	</interface>
+
+	<interface name="org.freedesktop.Tracker.Keywords">
+	<!-- calls for tags/keywords for any service object or file -->
+
+		<!-- gets a list of all unique keywords/tags that are in use by the specified service irrespective of the uri or id of the entity
+		     Returns an array of string arrays in format [Keyword, KeywordCount] 
+		-->
+		<method name="GetList">
+			<arg type="s" name="service" direction="in" />
+			<arg type="aas" name="value" direction="out" />
+		</method>
+
+
+		<!-- gets all unique keywords/tags for specified service and id -->
+		<method name="Get">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="value" direction="out" />
+		</method>
+
+		<!-- Adds new keywords/tags for specified service and id -->
+		<method name="Add">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="values" direction="in" />
+		</method>
+
+		<!-- removes all specified keywords/tags for specified service and id -->
+		<method name="Remove">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="as" name="keywords" direction="in" />
+		</method>
+
+		<!-- removes all keywords/tags for specified service and id -->
+		<method name="RemoveAll">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+		</method>
+
+		<!-- searches specified service for matching keyword/tag and returns an array of matching id values for the service-->
+		<method name="Search">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="as" name="keywords" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- emitted whenever tags on an entity change -->
+		<signal name="KeywordAdded">
+			<arg type="s" name="service"/>
+			<arg type="s" name="uri" />
+			<arg type="s" name="keyword" />
+		</signal>
+
+		<signal name="KeywordRemoved">
+			<arg type="s" name="service"/>
+			<arg type="s" name="uri" />
+			<arg type="s" name="keyword" />
+		</signal>
+
+
+
+
+	</interface>
+
+
+	<interface name="org.freedesktop.Tracker.Search">
+		<!-- generic search interface (see other interfaces for file/keyword specific searches)-->
+
+		<!--  returns no of hits for the search_text on the servce -->
+		<method name="GetHitCount">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="result" direction="out" />
+		</method>
+
+		<!--  returns [service name, no. of hits] for the search_text -->
+		<method name="GetHitCountAll">
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+	
+
+
+		<!-- searches specified service for entities that match the specified search_text. 
+		     Returns uri of all hits. -->
+		<method name="Text">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- More detailed version of above. Searches specified service for entities that match the specified search_text. 
+		     Returns hits in array format [uri, service, mime]  -->
+		<method name="TextDetailed">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+
+
+		<!-- Returns a search snippet of text with matchinhg text enclosed in bold tags -->
+		<method name="GetSnippet">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="id" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="s" name="result" direction="out" />
+		</method>
+
+
+
+		<!-- searches a specific metadata field (field parameter) for a search term (search_text).
+		     The result is an array of uri/id's 
+		 -->
+		<method name="Metadata">
+			<arg type="s" name="service" direction="in" />
+			<arg type="s" name="field" direction="in" />
+			<arg type="s" name="search_text"  direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+
+
+		<!-- searches specified service for matching entities.
+		     The service parameter specifies the service which the query will be performed on
+		     The fields parameter specifies an array of aditional metadata fields to return in addition to the id field (which is returned as the "key" in the resultant dict/hashtable) and the service category. This can be null			
+		     The optional search_text paramter specifies the text to search for in a full text search of all indexed fields
+		     The optional keyword search - a single keyword may be used here to filter the results.				
+		     The optional query_condition parameter specifies an xml-based rdf query condition which is used to filter out the results 
+		     The Offset parameter sets the start row of the returned result set (useful for paging/cursors). A value of 0 should be passed to get rows from the beginning.
+		     The max_hits parameter limits the size of the result set.
+		     The sort_by_service parameter optionally sorts results by their service category (if FALSE no service sorting is done)
+		     The result is a array of stringarrays in format [uri, service, field1, field2...] where field1 is the first specified field in the fields paramter and so on
+
+		-->
+		<method name="Query">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="as" name="fields" direction="in" />
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="s" name="keyword" direction="in" />
+			<arg type="s" name="query_condition" direction="in" />
+			<arg type="b" name="sort_by_service" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="aas" name="result" direction="out" />
+		</method>
+
+		<!--	suggests an alternate spelling based on the word index
+		-->
+		<method name="Suggest">
+			<arg type="s" name="search_text" direction="in" />
+			<arg type="i" name="maxdist" direction="in" />
+			<arg type="s" name="result" direction="out" />
+		</method>
+
+
+	</interface>
+
+
+
+<!--
+		File Specific calls
+-->
+	<interface name="org.freedesktop.Tracker.Files">
+
+		<!-- Determines if the file is in tracker's database. The option auto_create if set to TRUE will register the file in the database if not already present -->
+		<method name="Exists">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="b" name="auto_create" direction="in" />
+			<arg type="b" name="result" direction="out" />
+		</method>
+
+		<!-- creates a new entry for a file in tracker's database. This method is ueful when you want to tell Tracker about a file which it cannot see (EG a VFS file) or
+		     the file is located outside the watch/crawl path -->
+		<method name="Create">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="b" name="is_directory" direction="in" />
+			<arg type="s" name="mime" direction="in" />
+			<arg type="i" name="size" direction="in" />
+			<arg type="i" name="mtime" direction="in" />
+		</method>
+	
+		<!-- Removes the file entry from tracker's database-->
+		<method name="Delete">
+			<arg type="s" name="uri" direction="in" />
+		</method>
+
+
+		<!-- Get the Service subtype for the file -->
+		<method name="GetServiceType">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="result" direction="out" />
+		</method>
+
+		<!-- Get the "File.Content" field for a file and allows you to specify the offset and amount of text to retrieve  -->
+		<method name="GetTextContents">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="i" name="offset"  direction="in" />
+			<arg type="i" name="max_length"  direction="in" />				
+			<arg type="s" name="result" direction="out" />
+		</method>
+	
+
+		<!-- Retrieves a chunk of matching text of specified length that contains the search text in the File.Content field -->
+		<method name="SearchTextContents">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="s" name="text"  direction="in" />
+			<arg type="i" name="length"  direction="in" />
+			<arg type="s" name="result" direction="out" />
+		</method>
+
+
+		<!--
+		Retrieves all files that match a service description
+		-->
+		<method name="GetByServiceType">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="file_service" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>	
+
+		<!-- Retrieves all non-vfs files of the specified mime type(s) -->
+		<method name="GetByMimeType">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>	
+
+		<!-- Retrieves all vfs files of the specified mime type(s) -->
+		<method name="GetByMimeTypeVfs">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="as" name="mime_types" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
+		<!-- Refreshes various speicfied metadata for a file including basic metadata (stuff derived from stat calls), embedded tags, text contents and/or thumbnails  -->
+		<method name="RefreshMetadata">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="b" name="basic" direction="in" />
+			<arg type="b" name="embedded" direction="in" />
+			<arg type="b" name="contents" direction="in" />
+			<arg type="b" name="thumbnails" direction="in" />
+		</method>
+
+		<!-- returns mtime of file in seconds since epoch -->
+		<method name="GetMTime">
+			<arg type="s" name="uri" direction="in" />
+			<arg type="i" name="result" direction="out" />
+		</method>
+
+		<!-- Retrieves all non-vfs files in a folder complete with all requested metadata fields. StringArray output is [uri, field1, field2...]  -->
+		<method name="GetMetadataForFilesInFolder">
+			<arg type="i" name="live_query_id" direction="in" />
+			<arg type="s" name="uri" direction="in" />
+			<arg type="as" name="fields" direction="in" />
+			<arg type="aas" name="values" direction="out" />
+		</method>
+
+		
+		<!-- deprecated file specific calls (mostly used by Nautilus Search)-->
+		<method name="SearchByTextAndMime">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+			<arg type="s" name="text" direction="in" />
+			<arg type="as" name="mimes" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchByTextAndMimeAndLocation">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+			<arg type="s" name="text" direction="in" />
+			<arg type="as" name="mimes" direction="in" />
+			<arg type="s" name="location" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<method name="SearchByTextAndLocation">
+			<annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+			<arg type="s" name="text" direction="in" />
+			<arg type="s" name="location" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+		<!-- end deprecated calls section-->
+
+	</interface>
+</node>

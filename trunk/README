@@ -1,0 +1,362 @@
+INTRODUCTION
+
+Tracker is a powerful desktop-neutral first class object database,
+tag/metadata database, search tool and indexer. 
+
+Tracker is also extremely fast and super efficient with your systems memory
+when compared with some other competing frameworks and is by far the fastest
+and most memory efficient Nautilus search and Deskbar backends currently
+availble.
+
+It consists of a common object database that allows entities to have an almost
+infinte number of properties, metadata (both embedded/harvested as well as
+user definable), a comprehensive database of keywords/tags and links to other
+entities.
+
+It provides additional features for file based objects including context
+linking and audit trails for a file object.
+
+It has the ability to index, store, harvest metadata. retrieve and search all
+types of files and other first class objects.
+
+First class object support includes : Files, Documents, Music, Images, Videos,
+Playlists*, Notes*, Applications*, Contacts*, Emails*, Conversations*,
+Appointments*, Tasks*, Bookmarks*, History* and Projects*.
+
+(* these services are not currently indexed at the moment but will be in later
+versions)
+
+
+All discussion related to tracker happens on the tracker mailing list
+(http://mail.gnome.org/mailman/listinfo/tracker-list) and/or irc channel
+#tracker on irc.gimp.net
+
+More infomation on Tracker can be found at
+http://tracker-project.org
+
+
+USE CASES
+
+Tracker is the most powerful open source metadata database and indexer
+framework currently available and because it is built around a combination
+indexer and sql database and not a dedicated indexer it has much more powerful
+use cases:
+
+* Provide search and indexing facilities similiar to those on other systems
+
+* Common database storage for all first class objects (EG a common
+  music/photo/contacts/email/bookmarks/history database) complete with
+  additional metadata and tags/keywords
+
+* Comprehensive one stop solution for all applications needing an object
+  database, powerful search (via RDF Query), first class methods, related
+  metadata and user definable metadata/tags
+
+* Can provide a full semantic desktop with metadata everywhere
+
+* Can provide powerful criteria based searching suitable for creating smart
+  file dialogs and vfolder systems
+
+* Can provide a more intelligent desktop using statistical metadata
+
+
+FEATURES
+
+* Desktop-neutral design (its a freedesktop product built around other
+  freedesktop technologies like DBus and XDGMime but contains no GNOME
+  specific dependencies)
+
+* Very memory efficient and non-leaking (typical RAM usage 4 - 30 MB). Unlike
+  some other indexers, tracker is designed and built to run well on lower
+  memory systems with typically 128MB or 256MB memory. It should even be
+  efficient enough to use on some mobile devices.
+
+* Non-bloated and written in C for maximum efficiency.
+
+* Small size and minimal dependencies makes it easy to bundle into various
+  distro's including live cds.
+
+* Fast indexing and unobtrusive - no need to index stuff overnight. Tracker
+  runs at nice+10 so it should have a minimal impact on your system. 
+
+* Implements the freedesktop specification for metadata
+  (http://freedesktop.org/wiki/Standards/shared-filemetadata-spec)
+
+* Extracts embedded File, Image, Document and Audio type metadata from files.
+
+* Supports the WC3's RDF Query syntax for querying metadata
+
+* Provides support for both free text search (like Beagle/Google) as well as
+  structured searches using RDF Query
+
+* Respond in real time to file system changes to keep its metadata database up
+  to date and in synch
+
+* Fully extendable with custom metadata - you can store, retrieve, register
+  and search via RDF Query all your own custom metadata
+
+* Can extract a file's contents as plain text and index them
+
+* Provides text filters for PDF, MS Office, OpenOffice (all versions), HTML
+  and PS files.
+
+* Can provide thumbnailing on the fly
+
+
+
+INSTALLATION (from source):
+
+
+
+
+Run time dependencies (also needed for build) :
+
+* Sqlite 3.2+ (Tracker source has an inlined version which is
+  statically-linked by default due to the lack of guarantee of threadsafety
+  in distro versions)
+* libdbus (0.60 +)
+* dbus-glib bindings (0.60 +)
+* GLib (2.10)
+* zlib
+* intltool (>=0.3.5)
+* GMime
+
+
+Additional recommended packages:
+
+* gstremer 0.10 + plugins for audio/video files to be indexed
+* xsltproc
+* w3m
+* file
+* wv (1.0.2+)
+* poppler (pdftotext)
+* libvorbis
+* libpng
+* libexif
+* libgsf
+* GTK and Gnome stack for GUI tools
+* libglade (for tracker-preferences UI)
+* unac (accent stripper)
+* exempi
+* libxml2
+
+The following are necessary if Tracker's deskbar-handler is to be installed:
+* python-dev (>= 2.3)
+* python-gtk2-dev (>= 2.3)
+* deskbar-applet (>= 2.14.2)
+
+Optional run-time dependency:
+
+* xdg-utils (provides some functionality needed by tracker-search-tool but falls
+  back to gnome-open if not available)
+
+
+COMPILATION
+
+To compile Tracker, use the following commands :
+
+./configure --prefix=/usr --sysconfdir=/etc
+make
+sudo make install
+
+If you install using any other prefix, you might have problems with files
+not being installed correctly.
+
+(You may need to copy and amend the dbus service file to the correct
+ directory and/or might need to update ld_conf if you install into non
+ standard directories.)
+
+Notes to build tracker on Solaris
+
+To compile Tracker with GCC on Solaris uses the following commands :
+./configure --prefix=/usr --sysconfdir=/etc --with-pic CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
+make
+(login as root)
+make install
+
+To compile Tracker with SUN Studio on Solaris uses the following commands,
+because there are some problems to compile exiv2 using SUN C++ compiler:
+./configure --prefix=/usr --sysconfdir=/etc --with-pic --disable-warnings \
+    --disable-exiv2 CFLAGS=-D_POSIX_PTHREAD_SEMANTICS
+make
+(login as root)
+make install
+
+
+
+Compile Options
+
+Tracker has several compiler options to enable/disable certain features. The
+following is available (all options should be passed as command line
+parameters to autogen.sh (EG ./autogen.sh --disable-fam)
+
+--enable-debug-code : build with debug symbols
+
+--enable-video-extractor=(gstreamer, xine, external, auto)
+
+--enable-file-monitoring=(inotify, fam, polling, auto)
+
+--disable-preferences : disables the tracker-preferences capplet
+
+--enable-deskbar-applet=(auto, handler, module) : enables support for
+    Deskbar-applet; 'auto' should do since it automatically chooses
+    whether to install the 'handler' (for Deskbar-applet >=2.14.2) or
+    the 'module' (for Deskbar-applet >=2.19)
+
+--with-deskbar-applet-dir=(directory where Deskbar-applet should find
+    Tracker-handler; this should be automatically detected, perhaps in
+    /usr/lib/deskbar-applet/{handlers/modules-2.20-compatible})
+
+--disable-gui : disables building of tracker-search-tool
+
+--disable-pdf : disables the PDF data extractor
+
+--disable-exif : disables the exif data extractor
+
+--disable-libtrackergtk : disables the building of libtracker-gtk
+
+--disable-gsf : disables the GSF data extractor
+
+--disable-warnings : disables GCC warnings
+
+--disable-unac : disables accent stripping
+
+--disable-libxml2 : disables HTML/XML extractors (full-text will still be available)
+
+--disable-xmp : disables XMP extraction
+
+--with-session-bus-services-dir=(path to D-Bus services directory): this
+    should be automatically detected 
+
+--enable-external-qdbm : use system qdbm instead of one included in Tracker
+
+--disable-hal : disables HAL support for ac power detection
+
+--disable-trackerapplet : disables Tracker's notification applet
+
+RUNNING TRACKER
+
+To run Tracker, you need to manually start the Tracker daemon, trackerd. By
+default trackerd will index your entire home directory.
+
+You can also pass a directory root to be indexed as a command line parameter
+if you dont want your entire home directory indexed. EG
+
+"trackerd -i /home/jamie/Documents"
+
+(if you want your home directory indexed when explicily specifying index
+ directory roots then you must add your home directory to the arguments:
+ EG trackerd -i /home/jamie -i /mnt/share)
+
+You can disable indexing by passing --no-indexing
+
+You can enable a low memory usage mode (recommended for machines with less
+than 256MB of RAM) by passing --enable-low-memory
+
+You can artificially throttle indexing by passing --throttle=value where value
+is in the range 0-20 (with 0, the default, being fastest and 20 being slowest).
+Default is 0. You should only change this value if you want to prevent noisy
+fans or hot laptops arising from cpu intensive indexing. Tracker should have a
+negligible impact on the system (as it is scheduled) so you can safely work
+with it on full throttle without experiencing slow downs.
+
+You can specify directory roots to be excluded from being watched or indexed
+by passing  -e directory for each directory root
+
+You can specify logging verbosity by passing --verbosity. Valid values are
+from 0 to 3, ranging from least to most verbose respectively.
+  
+Yet another option is --language which allows for specifying the language to
+use for stemmer and stop-words list.
+
+All the above options (and more) can be set by editing ~/.config/tracker.cfg
+which is created with specific defaults when non-existent (EG when
+trackerd is ran for the first time). Ensure that you restart trackerd for the
+changes to take effect. tracker.cfg also provides options that allows tracker
+to only index a subset of your home directory as well as other folders not
+in your home directory by setting WatchDirectoryRoots to a semicolon-delimited
+list of directories (full path required!) 
+
+EG: 
+
+WatchDirectoryRoots=directory1;directory2;directory3
+
+An additional option, introduced during the 0.6 development cycle, is the
+--reindex option which indexes user data from scratch, removing the need to
+remove Tracker database manually.
+
+On the first run, Tracker will automatically create a new database and start
+populating it with metadata by browsing through the user's home directory (or
+the root folder(s) specified).
+
+On subsequent runs, Tracker will start up much much faster and will only ever
+incrementally index files (IE files that have changed since last index).
+
+If installed correctly, the Tracker daemon (trackerd) can also be started
+automatically via Dbus activation (EG by running tracker-search SEARCHTERM)
+
+
+
+Settig Inotify Watch Limit
+
+When watching large numbers of folders, its ppossible to exceed the default number
+of inotify watches. In order to get real time updates when this value is exceeded
+it is necessary to increase the number of allowed watches. This can be done as 
+follows:
+
+1) Add this line to /etc/sysctl.conf:
+
+"fs.inotify.max_user_watches = (number of folders to be watched; default is 8192)"
+
+2) Reboot the system
+
+
+
+Tracker And Nautilus Search
+
+Once you have installed Tracker and have some indexed contents, you should now
+compile Nautilus (ver 2.13.4 or higher) which should auto-detect that Tracker
+is installed and automatically compile in Tracker support. You are now ready
+to appreciate a powerful and super efficient C-based indexer in all its
+glory... happy hunting!
+
+To make sure trackerd always start when you login to Gnome, you will need to
+add it to Gnome-session (select sessions from preferences menu, select startup
+program tab and then add /usr/bin/trackerd). For non-gnome installations, see
+the desktop docs for how to auto start an application for your particular
+desktop.
+
+Tracker and Deskbar applet
+
+Tracker is also integrated in GNOME's deskbar applet. Please see that applet
+for more info.
+
+
+
+TRACKER TOOLS
+
+Tracker comes with a number of command line apps that you can use:
+
+"tracker-tag" for setting and searching tags/keywords
+
+"tracker-stats" - this displays the current number of indexed items by category
+
+"tracker-extract FILE" - this extracts embedded metadata from FILE and prints
+to stdout
+
+"tracker-search SEARCHTERM" - this perfoms a google like search using
+SEARCHTERM to retrieve all matching files where SEARCHTERM appears in any
+searchable metadata
+
+"tracker-query" - this reads an RDF Query that specifies the search criteria
+for various fields. It prints to STDOUT all matching files. You can see some
+example queries in the RDF-Query-examples folder. You can run the examples as
+"tracker-query < RDFFILE"
+
+"tracker-status" - queries status of trackerd
+
+"tracker-preferences" - GUI tool to set Tracker preferences
+
+"tracker-applet" - Tracker notification applet which, other than showing the
+current status of Tracker, also has facilities such as searching, pausing
+indexing, showing statistics, and launching both TST and tracker-preferences

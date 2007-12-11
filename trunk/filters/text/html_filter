@@ -1,0 +1,15 @@
+#!/bin/sh
+
+nice -n19 w3m \
+    -o indent_incr=0 \
+    -o multicol=false \
+    -o no_cache=true \
+    -o use_cookie=false \
+    -o display_charset=utf8 \
+    -o system_charset=utf8 \
+    -o follow_locale=false \
+    -o use_language_tag=true \
+    -o ucs_conv=true \
+    -T text/html \
+    -dump \
+    "$1" > "$2"
