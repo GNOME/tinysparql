@@ -2486,6 +2486,12 @@ main (gint argc, gchar *argv[])
 
  	tracker->is_running = FALSE;
 
+	tracker->log_file = g_build_filename (tracker->root_dir, "tracker.log", NULL);
+
+	tracker->dbus_con = tracker_dbus_init ();
+	
+	add_local_dbus_connection_monitoring (tracker->dbus_con);
+
 	/* Make a temporary directory for Tracker into g_get_tmp_dir() directory */
 	gchar *tmp_dir;
 
@@ -2576,7 +2582,7 @@ main (gint argc, gchar *argv[])
 
 	str = g_strconcat (g_get_user_name (), "_tracker_lock", NULL);
 
-	tracker->log_file = g_build_filename (tracker->root_dir, "tracker.log", NULL);
+	
 
 	/* check if setup for NFS usage (and enable atomic NFS safe locking) */
 	//lock_str = tracker_get_config_option ("NFSLocking");
@@ -2804,9 +2810,7 @@ main (gint argc, gchar *argv[])
 
 	tracker->user_request_thread = g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
 
-	tracker->dbus_con = tracker_dbus_init ();
 	
-	add_local_dbus_connection_monitoring (tracker->dbus_con);
 
 	if (!tracker->readonly) {
 
