@@ -23,6 +23,9 @@ libtracker_gtk_la_SOURCES =	\
 	tracker-tag-bar.c	\
 	tracker-keyword-store.c
 
-libtracker_gtk_la_LIBADD = $(LIBTRACKERGTK_LIBS)
+libtracker_gtk_la_LIBADD = \
+	$(top_builddir)/src/libtracker/libtrackerclient.la \
+	$(LIBTRACKERGTK_LIBS) 
+
 libtracker_gtk_la_LDFLAGS = -version-info 0:0:0
 
