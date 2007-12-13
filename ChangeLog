@@ -1,3 +1,13 @@
+2007-12-13 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fixed issue with log file being null
+	* Fixed typo of metadata name Audio:PeakTrackGain in the gstreamer extractor
+	* fix for crasher where index name is null during merging
+	* make initial indexing on battery off by default
+	* Fixed prevention of multiple instances of trackerd causing infinite loop and 100% cpu
+	* Fixed reentrant signals to prevent loops by dying quickly
+
+
 2007-12-09 Jamie McCracken <jamiemcc at gnome org>
 
 	* Increased startup sleep for applet to prevent race condition

@@ -618,18 +618,12 @@ watch_dir (const gchar* dir, DBConnection *db_con)
 static void
 signal_handler (gint signo)
 {
-	if (!tracker->is_running) {
-		return;
-	}
-
 	static gboolean in_loop = FALSE;
 
-  	/* avoid re-entrant signals handler calls */
-	if (in_loop && signo != SIGSEGV) {
-		return;
+  	/* die if we get re-entrant signals handler calls */
+	if (in_loop) {
+		exit (EXIT_FAILURE);
 	}
-
-  	in_loop = TRUE;
 
   	switch (signo) {
 
@@ -646,6 +640,8 @@ signal_handler (gint signo)
 		case SIGTERM:
 		case SIGINT:
 
+		  	in_loop = TRUE;
+
 			tracker->is_running = FALSE;
 			tracker_end_watching ();
 
@@ -660,8 +656,7 @@ signal_handler (gint signo)
 			if (tracker->log_file && g_strsignal (signo)) {
 	   			tracker_log ("Received signal %s ", g_strsignal (signo));
 			}
-			in_loop = FALSE;
-    			break;
+			break;
   	}
 }
 
@@ -2422,6 +2417,14 @@ main (gint argc, gchar *argv[])
 	if (!g_thread_supported ())
 		g_thread_init (NULL);
 
+	dbus_g_thread_init ();
+
+	tracker = g_new0 (Tracker, 1);
+
+	tracker->dbus_con = tracker_dbus_init ();
+	
+	add_local_dbus_connection_monitoring (tracker->dbus_con);
+
 	setlocale (LC_ALL, "");
 
 	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
@@ -2478,9 +2481,9 @@ main (gint argc, gchar *argv[])
 	sigaction (SIGINT,  &act, NULL);
 #endif
 
-	dbus_g_thread_init ();
+	
 
-	tracker = g_new0 (Tracker, 1);
+	
 
 	tracker->status = STATUS_INIT;
 
@@ -2506,9 +2509,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_log ("starting log");
 
-	tracker->dbus_con = tracker_dbus_init ();
 	
-	add_local_dbus_connection_monitoring (tracker->dbus_con);
 
 
 	g_free (tmp_dir);

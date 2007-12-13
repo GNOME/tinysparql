@@ -3491,10 +3491,12 @@ output_log (const char *message)
 	/* logging is thread safe */
 	static size_t   log_size = 0;
 
-	if (! message)
+	if (!message)
 		return;
 
 	g_print ("%s\n", message);
+
+	if (!tracker->log_file) return;
 
 	/* ensure file logging is thread safe */
 	g_mutex_lock (tracker->log_access_mutex);
