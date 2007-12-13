@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trunk\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-10-23 11:34+0800\n"
-"PO-Revision-Date: 2007-10-26 19:46+0800\n"
+"Report-Msgid-Bugs-To: abc@bb.com\n"
+"POT-Creation-Date: 2007-12-01 12:40+0000\n"
+"PO-Revision-Date: 2007-12-13 15:37+0800\n"
 "Last-Translator: YangZhang <zyangmath@gmail.com>\n"
 "Language-Team: Chinese i18n <i18n-zh@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -18,13 +18,13 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../python/deskbar-handler/tracker-handler.py:36
-#: ../python/deskbar-handler/tracker-module.py:97
+#: ../python/deskbar-handler/tracker-module.py:100
 #, python-format
 msgid "Launch %s (%s)"
 msgstr "启动 %s (%s)"
 
 #: ../python/deskbar-handler/tracker-handler.py:41
-#: ../python/deskbar-handler/tracker-module.py:102
+#: ../python/deskbar-handler/tracker-module.py:105
 #, python-format
 msgid ""
 "See %s conversation\n"
@@ -33,13 +33,13 @@ msgid ""
 msgstr ""
 
 #: ../python/deskbar-handler/tracker-handler.py:47
-#: ../python/deskbar-handler/tracker-module.py:107
+#: ../python/deskbar-handler/tracker-module.py:110
 #, python-format
 msgid "Email from %s"
 msgstr ""
 
 #: ../python/deskbar-handler/tracker-handler.py:59
-#: ../python/deskbar-handler/tracker-module.py:118
+#: ../python/deskbar-handler/tracker-module.py:121
 #, python-format
 msgid ""
 "Listen to music %s\n"
@@ -47,7 +47,7 @@ msgid ""
 msgstr ""
 
 #: ../python/deskbar-handler/tracker-handler.py:64
-#: ../python/deskbar-handler/tracker-module.py:124
+#: ../python/deskbar-handler/tracker-module.py:127
 #, python-format
 msgid ""
 "See document %s\n"
@@ -57,10 +57,10 @@ msgstr ""
 #: ../python/deskbar-handler/tracker-handler.py:69
 #: ../python/deskbar-handler/tracker-handler.py:86
 #: ../python/deskbar-handler/tracker-handler.py:123
-#: ../python/deskbar-handler/tracker-module.py:129
-#: ../python/deskbar-handler/tracker-module.py:151
-#: ../python/deskbar-handler/tracker-module.py:200
-#: ../python/deskbar-handler/tracker-module.py:236
+#: ../python/deskbar-handler/tracker-module.py:132
+#: ../python/deskbar-handler/tracker-module.py:154
+#: ../python/deskbar-handler/tracker-module.py:203
+#: ../python/deskbar-handler/tracker-module.py:239
 #, python-format
 msgid ""
 "Open file %s\n"
@@ -68,7 +68,7 @@ msgid ""
 msgstr ""
 
 #: ../python/deskbar-handler/tracker-handler.py:74
-#: ../python/deskbar-handler/tracker-module.py:134
+#: ../python/deskbar-handler/tracker-module.py:137
 #, python-format
 msgid ""
 "View image %s\n"
@@ -76,7 +76,7 @@ msgid ""
 msgstr ""
 
 #: ../python/deskbar-handler/tracker-handler.py:80
-#: ../python/deskbar-handler/tracker-module.py:140
+#: ../python/deskbar-handler/tracker-module.py:143
 #, python-format
 msgid ""
 "Watch video  %s\n"
@@ -84,72 +84,76 @@ msgid ""
 msgstr ""
 
 #: ../python/deskbar-handler/tracker-handler.py:91
-#: ../python/deskbar-handler/tracker-module.py:146
+#: ../python/deskbar-handler/tracker-module.py:149
 #, python-format
 msgid ""
 "Open folder %s\n"
 "%s"
 msgstr ""
 
-#: ../python/deskbar-handler/tracker-handler.py:205
-#: ../python/deskbar-handler/tracker-module.py:337
+#: ../python/deskbar-handler/tracker-handler.py:209
+#: ../python/deskbar-handler/tracker-module.py:347
 msgid "with"
 msgstr ""
 
-#: ../python/deskbar-handler/tracker-handler.py:213
-#: ../python/deskbar-handler/tracker-module.py:345
+#: ../python/deskbar-handler/tracker-handler.py:217
+#: ../python/deskbar-handler/tracker-module.py:355
 msgid "in channel"
 msgstr ""
 
-#: ../python/deskbar-handler/tracker-handler.py:369
+#: ../python/deskbar-handler/tracker-handler.py:384
 msgid "Search all of your documents, <b>as you type</b>"
 msgstr ""
 
-#: ../python/deskbar-handler/tracker-handler.py:373
-#: ../python/deskbar-handler/tracker-module.py:285
+#: ../python/deskbar-handler/tracker-handler.py:388
+#: ../python/deskbar-handler/tracker-module.py:291
 msgid "Development Files"
 msgstr "开发文件"
 
-#: ../python/deskbar-handler/tracker-handler.py:376
-#: ../python/deskbar-handler/tracker-module.py:288
+#: ../python/deskbar-handler/tracker-handler.py:391
+#: ../python/deskbar-handler/tracker-module.py:294
 #: ../src/tracker-search-tool/tracker-search-tool.c:141
 msgid "Music"
 msgstr "音乐"
 
-#: ../python/deskbar-handler/tracker-handler.py:379
-#: ../python/deskbar-handler/tracker-module.py:291
+#: ../python/deskbar-handler/tracker-handler.py:394
+#: ../python/deskbar-handler/tracker-module.py:297
 #: ../src/tracker-search-tool/tracker-search-tool.c:140
 msgid "Images"
 msgstr "图像"
 
-#: ../python/deskbar-handler/tracker-handler.py:382
-#: ../python/deskbar-handler/tracker-module.py:294
+#: ../python/deskbar-handler/tracker-handler.py:397
+#: ../python/deskbar-handler/tracker-module.py:300
 #: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "Videos"
 msgstr "视频"
 
-#: ../python/deskbar-handler/tracker-module.py:62
-#: ../python/deskbar-handler/tracker-module.py:156
+#: ../python/deskbar-handler/tracker-handler-static.py:37
+#: ../python/deskbar-handler/tracker-module.py:65
+#: ../python/deskbar-handler/tracker-module.py:159
 #, python-format
 msgid "Search for %s with Tracker Search Tool"
 msgstr "用 Tracker 搜索工具搜索 %s"
 
-#: ../python/deskbar-handler/tracker-module.py:76
+#: ../python/deskbar-handler/tracker-handler-static.py:68
+msgid "Search all of your documents with Tracker Search Tool"
+msgstr "用 Tracker 搜索工具搜索您的所有文档"
+
+#: ../python/deskbar-handler/tracker-module.py:79
 msgid "Tracker Search"
 msgstr "Tracker 搜索"
 
-#: ../python/deskbar-handler/tracker-module.py:77
+#: ../python/deskbar-handler/tracker-module.py:80
 msgid "Search with Tracker Search Tool"
 msgstr "用 Tracker 搜索工具搜索"
 
-#: ../python/deskbar-handler/tracker-module.py:280
+#: ../python/deskbar-handler/tracker-module.py:286
 msgid "Tracker Live Search"
 msgstr "Tracker 即时搜索"
 
-#: ../python/deskbar-handler/tracker-module.py:281
-#, fuzzy
+#: ../python/deskbar-handler/tracker-module.py:287
 msgid "Search with Tracker, as you type"
-msgstr "当您输入时用 Tracker 即时搜索"
+msgstr "用 Tracker 搜索，即输即搜"
 
 #. then set the remaining properties
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:453
@@ -355,7 +359,7 @@ msgstr "删除标签(_R)"
 
 #: ../src/libtracker/tracker-search.c:34
 msgid "Limit the number of results showed to N"
-msgstr ""
+msgstr "限制显示的结果数为 N"
 
 #: ../src/libtracker/tracker-search.c:34
 msgid "N"
@@ -372,13 +376,13 @@ msgstr "SERVICE"
 
 #: ../src/libtracker/tracker-search.c:36
 msgid "Show more detailed results with service and mime type as well"
-msgstr ""
+msgstr "显示服务、MIME 类型等更详细的信息"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-search.c:89
 msgid "TERM... - search files for certain terms"
-msgstr ""
+msgstr "TERM... - 搜索包含指定项的文件"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
@@ -390,25 +394,25 @@ msgstr ""
 
 #: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
-msgstr ""
+msgstr "能识别的服务列表为："
 
 #: ../src/libtracker/tracker-search.c:114
 #: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
 #: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
 #, c-format
 msgid "Try \"%s --help\" for more information."
-msgstr ""
+msgstr "尝试“%s --help”以获得更多信息。"
 
 #: ../src/libtracker/tracker-search.c:120
 #, c-format
 msgid "%s: missing search terms"
-msgstr ""
+msgstr "%s：缺少搜索项"
 
 #: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
 #: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
 #, c-format
 msgid "%s: no connection to tracker daemon"
-msgstr ""
+msgstr "%s：没有到 tracker 守护进程的连接"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
@@ -419,31 +423,32 @@ msgstr ""
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr ""
 
-#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-search.c:164
+#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
 #: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
 #: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
 msgid "%s: internal tracker error: %s"
-msgstr ""
+msgstr "%s：tracker 内部错误：%s"
 
 #. FIXME!! coreutilus don't print anything on no-results
 #: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
 msgid "No results found matching your query"
-msgstr ""
+msgstr "未找到满足您的查询的结果"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-stats.c:73
 msgid " - show number of indexed files for each service"
-msgstr ""
+msgstr " - 显示每个服务所索引的文件数目"
 
 #: ../src/libtracker/tracker-stats.c:108
 msgid "fetching index stats"
-msgstr ""
+msgstr "获取索引统计信息"
 
 #: ../src/libtracker/tracker-tag.c:41
 msgid "Add specified tag to a file"
-msgstr ""
+msgstr "给文件添加指定的标签"
 
 #: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
 #: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
@@ -452,19 +457,19 @@ msgstr "TAG"
 
 #: ../src/libtracker/tracker-tag.c:42
 msgid "Remove specified tag from a file"
-msgstr ""
+msgstr "从文件中移除指定的标签"
 
 #: ../src/libtracker/tracker-tag.c:43
 msgid "Remove all tags from a file"
-msgstr ""
+msgstr "移除文件的所有标签"
 
 #: ../src/libtracker/tracker-tag.c:44
 msgid "List all defined tags"
-msgstr ""
+msgstr "显示所有已定义的标签"
 
 #: ../src/libtracker/tracker-tag.c:45
 msgid "Search for files with specified tag"
-msgstr ""
+msgstr "用指定的标签搜索文件"
 
 #: ../src/libtracker/tracker-tag.c:46
 msgid "FILE..."
@@ -474,7 +479,7 @@ msgstr "FILE..."
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-tag.c:90
 msgid "FILE... - manipulate tags on files"
-msgstr ""
+msgstr "FILE... - 操作文件的标签"
 
 #: ../src/libtracker/tracker-tag.c:99
 msgid ""
@@ -492,92 +497,293 @@ msgstr "%s：非法的参数"
 msgid "%s: file %s not found"
 msgstr "%s：文件 %s 未找到"
 
-#: ../src/trackerd/trackerd.c:165
+#: ../src/trackerd/trackerd.c:146
 msgid "Directory to exclude from indexing"
 msgstr "被排除而无需索引的目录"
 
-#: ../src/trackerd/trackerd.c:165 ../src/trackerd/trackerd.c:166
-#: ../src/trackerd/trackerd.c:167
+#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:148
 msgid "/PATH/DIR"
 msgstr "/PATH/DIR"
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:147
 msgid "Directory to include in indexing"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:167
+#: ../src/trackerd/trackerd.c:148
 msgid "Directory to crawl for indexing at start up only"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:168
+#: ../src/trackerd/trackerd.c:149
 msgid "Disable any indexing or watching taking place"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:169
+#: ../src/trackerd/trackerd.c:150
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:169 ../src/trackerd/trackerd.c:170
+#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
 msgid "VALUE"
 msgstr "VALUE"
 
-#: ../src/trackerd/trackerd.c:170
+#: ../src/trackerd/trackerd.c:151
 msgid ""
-"Value to use for throttling indexing. Value must be in range 0-20 (default "
+"Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:171
+#: ../src/trackerd/trackerd.c:152
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:172
+#: ../src/trackerd/trackerd.c:153
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:173
+#: ../src/trackerd/trackerd.c:154
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:173
+#: ../src/trackerd/trackerd.c:154
 msgid "LANG"
 msgstr "LANG"
 
-#: ../src/trackerd/trackerd.c:174
+#: ../src/trackerd/trackerd.c:155
 msgid "Force a re-index of all content"
-msgstr ""
+msgstr "强制为所有内容重新编制索引"
 
-#: ../src/trackerd/trackerd.c:175
+#: ../src/trackerd/trackerd.c:156
 msgid "Make tracker errors fatal"
-msgstr ""
+msgstr "视 tracker 错误为致命错误"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2155
+#: ../src/trackerd/trackerd.c:2419
 msgid "- start the tracker daemon"
 msgstr "- 启动 tracker 守护进程"
 
-#: ../src/trackerd/trackerd.c:2156 ../src/trackerd/trackerd.c:2157
+#: ../src/trackerd/trackerd.c:2420 ../src/trackerd/trackerd.c:2421
 msgid "DIRECTORY"
 msgstr "DIRECTORY"
 
-#: ../src/trackerd/trackerd.c:2164
+#: ../src/trackerd/trackerd.c:2428
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
 msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
+msgid "Control and monitor the Tracker search and indexing service"
+msgstr "控制并监视 Tracker 搜索与索引编制服务"
+
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
+msgid "Tracker Applet"
+msgstr "Tracker 面板小程序"
+
+#: ../src/tracker-applet/tracker-applet.c:128
+msgid "_Pause Indexing"
+msgstr "暂停索引(_P)"
+
+#: ../src/tracker-applet/tracker-applet.c:136
+msgid "_Search..."
+msgstr "搜索(_P)..."
+
+#: ../src/tracker-applet/tracker-applet.c:142
+msgid "Pre_ferences"
+msgstr "首选项(_F)"
+
+#: ../src/tracker-applet/tracker-applet.c:148
+msgid "S_tatistics"
+msgstr "统计(_T)"
+
+#: ../src/tracker-applet/tracker-applet.c:157
+msgid "_Quit"
+msgstr "退出(_Q)"
+
+#. search entry row
+#: ../src/tracker-applet/tracker-applet.c:342
+msgid "Search:"
+msgstr "搜索："
+
+#. status row
+#: ../src/tracker-applet/tracker-applet.c:362
+msgid "Status:"
+msgstr "状态："
+
+#. File progress row
+#: ../src/tracker-applet/tracker-applet.c:382
+msgid "Progress:"
+msgstr "进度："
+
+#: ../src/tracker-applet/tracker-applet.c:901
+msgid "Statistics"
+msgstr "统计"
+
+#: ../src/tracker-applet/tracker-applet.c:922
+msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">索引统计</span>"
+
+#. set translatable strings here
+#: ../src/tracker-applet/tracker-applet.c:1012
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "Files"
+msgstr "文件"
+
+#: ../src/tracker-applet/tracker-applet.c:1013
+msgid "folders"
+msgstr "文件夹"
+
+#: ../src/tracker-applet/tracker-applet.c:1015
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "邮件"
+
+#: ../src/tracker-applet/tracker-applet.c:1017
+msgid "mail boxes"
+msgstr "邮箱"
+
+#: ../src/tracker-applet/tracker-applet.c:1019
+msgid "Indexing in progress"
+msgstr "正在索引"
+
+#: ../src/tracker-applet/tracker-applet.c:1020
+msgid "Indexing completed"
+msgstr "索引完毕"
+
+#: ../src/tracker-applet/tracker-applet.c:1021
+msgid "Indexes are being merged"
+msgstr "正在合并索引"
+
+#: ../src/tracker-applet/tracker-applet.c:1023
+msgid "Paused by user"
+msgstr "用户暂停"
+
+#: ../src/tracker-applet/tracker-applet.c:1024
+msgid "Paused while on battery power"
+msgstr "电池暂停"
+
+#: ../src/tracker-applet/tracker-applet.c:1025
+msgid "Paused temporarily"
+msgstr "临时暂停"
+
+#: ../src/tracker-applet/tracker-applet.c:1027
+msgid ""
+"Your computer is about to be indexed so you can perform fast searches of "
+"your files and emails"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1028
+msgid ""
+"You can pause indexing at any time and configure index settings by right "
+"clicking here"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1030
+msgid "Tracker has finished indexing your system"
+msgstr "Tracker 已完成对您的系统编制索引"
+
+#: ../src/tracker-applet/tracker-applet.c:1031
+#, c-format
+msgid " in %d hours and %d minutes"
+msgstr " 用时%d小时%d分"
+
+#: ../src/tracker-applet/tracker-applet.c:1032
+#, c-format
+msgid " in %d minutes and %d seconds"
+msgstr " 用时%d分%d秒"
+
+#: ../src/tracker-applet/tracker-applet.c:1033
+#, c-format
+msgid " in %d seconds"
+msgstr " 用时%d秒"
+
+#: ../src/tracker-applet/tracker-applet.c:1034
+msgid "You can now perform searches by clicking here"
+msgstr "您现在可以单击此处进行搜索"
+
+#: ../src/tracker-applet/tracker-applet.c:1036
+msgid ""
+"Tracker is now merging indexes which can degrade system performance for "
+"serveral minutes\n"
+"\n"
+"You can pause this by right clicking here"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1038 ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Tracker 搜索与索引编制服务"
+
+#: ../src/tracker-applet/tracker-applet.c:1040
+msgid "Files:"
+msgstr "文件："
+
+#: ../src/tracker-applet/tracker-applet.c:1041
+msgid "    Folders:"
+msgstr "    文件夹："
+
+#: ../src/tracker-applet/tracker-applet.c:1042
+msgid "    Documents:"
+msgstr "    文档："
+
+#: ../src/tracker-applet/tracker-applet.c:1043
+msgid "    Images:"
+msgstr "    图像："
+
+#: ../src/tracker-applet/tracker-applet.c:1044
+msgid "    Music:"
+msgstr "    音乐："
+
+#: ../src/tracker-applet/tracker-applet.c:1045
+msgid "    Videos:"
+msgstr "    视频："
+
+#: ../src/tracker-applet/tracker-applet.c:1046
+msgid "    Text:"
+msgstr "    文本："
+
+#: ../src/tracker-applet/tracker-applet.c:1047
+msgid "    Development:"
+msgstr "    开发："
+
+#: ../src/tracker-applet/tracker-applet.c:1048
+msgid "    Other:"
+msgstr "    其它："
+
+#: ../src/tracker-applet/tracker-applet.c:1049
+msgid "Applications:"
+msgstr "应用程序："
+
+#: ../src/tracker-applet/tracker-applet.c:1050
+msgid "Conversations:"
+msgstr "会话："
+
+#: ../src/tracker-applet/tracker-applet.c:1051
+msgid "Emails:"
+msgstr "邮件："
+
+#: ../src/tracker-preferences/tracker-preferences.c:853
+msgid ""
+"Your system must be re-indexed for your changes to take effect. Re-index now?"
+msgstr ""
+"您的系统需要重新编制索引以使您所作的变更生效。现在就重新编制索引吗？"
+
+#: ../src/tracker-preferences/tracker-preferences.c:855
+msgid ""
+"Tracker indexer needs to be restarted for your changes to take effect. "
+"Restart now?"
+msgstr ""
+"Tracker 索引器需要重新启动以使您所作的变更生效。重新启动它吗？"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
 msgstr "配置 Tracker 文件索引"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-#, fuzzy
-msgid "Indexing Preferences"
-msgstr "首选项(_F)"
+msgid "Search and Indexing"
+msgstr "搜索和索引编制"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
@@ -592,28 +798,28 @@ msgid "<b>Ignored Paths</b>"
 msgstr "<b>忽略路径</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:4
+msgid "<b>Index Merging</b>"
+msgstr "<b>索引合并</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:5
 msgid "<b>Indexing Limits (per file)</b>"
 msgstr "<b>索引限制(单个文件)</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:5
+#: ../src/tracker-preferences/tracker-preferences.glade.h:6
 msgid "<b>Indexing Options</b>"
 msgstr "<b>索引编制选项</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:6
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
 msgid "<b>Indexing</b>"
 msgstr "<b>索引</b>"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
-msgid "<b>Mailboxes</b>"
-msgstr "<b>邮箱</b>"
-
 #: ../src/tracker-preferences/tracker-preferences.glade.h:8
-msgid "<b>Resource Usage</b>"
-msgstr "<b>资源占用</b>"
+msgid "<b>Power management</b>"
+msgstr "<b>电源管理</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:9
-msgid "<b>Services</b>"
-msgstr "<b>服务</b>"
+msgid "<b>Resource Usage</b>"
+msgstr "<b>资源占用</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:10
 msgid "<b>Startup</b>"
@@ -632,16 +838,16 @@ msgid "<b>Watch Directories</b>"
 msgstr "<b>监视目录</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Additional mbox mailboxes to index:"
-msgstr "其它的需要索引的 mbox 邮箱："
+msgid "Additional mbox style mailboxes to index:"
+msgstr "其它的需要索引的 mbox 类邮箱："
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:15
 msgid "Additional paths to index and watch:"
 msgstr "另外的需要索引和监视的路径："
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
-msgid "Additional paths to index on startup (but not watch for updates)"
-msgstr "其它的需在启动时索引的路径(但不监视其更新)"
+msgid "Additional paths to index on startup (but not watch for updates):"
+msgstr "其它的需在启动时索引的路径(但不监视其更新)："
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid ""
@@ -672,115 +878,122 @@ msgstr ""
 "瑞典语"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:29
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "邮件"
+msgid "Disable all Indexing when on battery"
+msgstr "电池供电时禁止编制索引"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
+msgid "Disable initial index sweep when on battery"
+msgstr "电池供电时禁止初始索引扫描"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "Email"
+msgstr "邮件"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Enable _Evolution email indexing"
 msgstr "启用 _Evolution 邮件索引"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Enable _KMail email indexing"
 msgstr "启用 _KMail 邮件索引"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Enable _Thunderbird email indexing"
 msgstr "启用 _Thunderbird 邮件索引"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Enable _watching"
 msgstr "启用监视(_W)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "Enable i_ndexing"
 msgstr "启用索引(_N)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "Faster"
 msgstr "快"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "File patterns to ignore during indexing:"
 msgstr "编制索引时忽略的文件模式："
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Files"
-msgstr "文件"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "General"
 msgstr "常规"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "Generate thum_bnails"
 msgstr "生成缩略图(_B)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "Ignored Files"
 msgstr "忽略文件"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "Index _delay: "
 msgstr "索引延时(_D)："
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
 msgid "Index _file contents"
 msgstr "索引文件内容(_F)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
 msgid "Index _mounted directories"
 msgstr "索引已挂载的目录(_M)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Index and watch my home _directory"
 msgstr "索引并监视我的家目录(_D)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
 msgid "Indexing speed:"
 msgstr "索引编制速度："
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
 msgid "Maximum _amount of text to index:"
 msgstr "索引的最大文本长度(_A)："
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
 msgid "Maximum number of unique _words to index:"
 msgstr "索引的最大单词数目(_W)："
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
 msgid "Path roots to be ignored during indexing:"
 msgstr "编制索引时忽略的路径："
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:49
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+msgid "Perform fast index merges (may affect system performance)"
+msgstr "进行快速索引合并(可能会影响系统性能)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
 msgid "Performance"
 msgstr "性能"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:50
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
 msgid "Slower"
 msgstr "慢"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
 msgid "Tracker Preferences"
 msgstr "Tracker 首选项"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:52
+#: ../src/tracker-preferences/tracker-preferences.glade.h:55
 msgid "_Language:"
 msgstr "语言(_L)："
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+#: ../src/tracker-preferences/tracker-preferences.glade.h:56
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "最小化内存占用(索引编制较慢)(_M)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:54
+#: ../src/tracker-preferences/tracker-preferences.glade.h:57
 msgid "_Use additonal memory for faster indexing"
 msgstr "使用更多内存以更快地编制索引(_U)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:55
+#: ../src/tracker-preferences/tracker-preferences.glade.h:58
 msgid "kB"
 msgstr "kB"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:56
+#: ../src/tracker-preferences/tracker-preferences.glade.h:59
 msgid "seconds"
 msgstr "秒"
 
@@ -801,7 +1014,7 @@ msgid "Documents"
 msgstr "文档"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1223
+#: ../src/tracker-search-tool/tracker-search-tool.c:1221
 msgid "Text"
 msgstr "文本"
 
@@ -839,80 +1052,93 @@ msgid "Character set conversion failed for \"%s\""
 msgstr "“%s”的字符集转换失败"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:280
-msgid "The following error has occured :"
+msgid "The following error has occurred :"
 msgstr "发生如下错误："
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:655
+#: ../src/tracker-search-tool/tracker-search-tool.c:284
+msgid "Error"
+msgstr "错误"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:658
 msgid "Did you mean"
 msgstr "您是想搜索"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:686
+#: ../src/tracker-search-tool/tracker-search-tool.c:689
 msgid "Your search returned no results."
 msgstr "您的搜索返回零个结果"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:701
+#: ../src/tracker-search-tool/tracker-search-tool.c:704
 msgid "Tracker Search Tool-"
 msgstr "Tracker 搜索工具－"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:862
-#: ../src/tracker-search-tool/tracker-search-tool.c:2198
+#: ../src/tracker-search-tool/tracker-search-tool.c:865
+#: ../src/tracker-search-tool/tracker-search-tool.c:2225
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Tracker 搜索工具"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1052
+#: ../src/tracker-search-tool/tracker-search-tool.c:1055
 msgid "Search _results: "
 msgstr "搜索结果(_R)："
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1058
+#: ../src/tracker-search-tool/tracker-search-tool.c:1061
 msgid "no search performed"
 msgstr "未进行搜索"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1112
-#: ../src/tracker-search-tool/tracker-search-tool.c:1273
+#: ../src/tracker-search-tool/tracker-search-tool.c:1115
+#: ../src/tracker-search-tool/tracker-search-tool.c:1275
 msgid "List View"
 msgstr "列表视图"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1184
+#: ../src/tracker-search-tool/tracker-search-tool.c:1187
 msgid "Icon"
 msgstr "图标"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1196
+#: ../src/tracker-search-tool/tracker-search-tool.c:1199
 msgid "Name"
 msgstr "名称"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1291
+#: ../src/tracker-search-tool/tracker-search-tool.c:1293
 msgid "_Categories"
 msgstr "类别(_C)"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1571
+#: ../src/tracker-search-tool/tracker-search-tool.c:1573
 #, c-format
-msgid "%d - %d of %d hits"
+msgid "%d - %d of %d items"
 msgstr "%d -%d (共 %d 个结果)"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1574
+#: ../src/tracker-search-tool/tracker-search-tool.c:1576
 #, c-format
 msgid "%d item"
-msgid_plural "%d hits"
+msgid_plural "%d items"
 msgstr[0] "%d 个结果"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1975
+#: ../src/tracker-search-tool/tracker-search-tool.c:1624
+#: ../src/tracker-search-tool/tracker-search-tool.c:1800
+msgid "Could not connect to search service as it may be busy"
+msgstr "无法连接到搜索服务，可能服务正忙"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1993
 msgid "_Search:"
 msgstr "搜索(_S):"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1995
-#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:2007
+msgid "Tracker is still indexing so not all search results are available yet"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2020
+#: ../src/tracker-search-tool/tracker-search-tool.c:2021
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1996
+#: ../src/tracker-search-tool/tracker-search-tool.c:2021
 msgid "search_entry"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2042
+#: ../src/tracker-search-tool/tracker-search-tool.c:2067
 msgid "Click to perform a search."
 msgstr "单击以进行搜索。"
 
@@ -958,14 +1184,13 @@ msgstr "文档不存在。"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:657
 msgid "There is no installed viewer capable of displaying the document."
-msgstr ""
+msgstr "尚未安装能显示该文档的阅读器。"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:682
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "您确定要打开这 %d 个文件夹吗？"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:786
 #, c-format
@@ -1021,11 +1246,11 @@ msgstr "无法保存文档“%s”为“%s”。"
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1579
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
-msgstr ""
+msgstr "文档“%s”已经存在。您想要替换它吗？"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1583
 msgid "If you replace an existing file, its contents will be overwritten."
-msgstr ""
+msgstr "如果您替换一个已经存在的文件，其内容将被覆盖。"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1598
 msgid "_Replace"
@@ -1033,17 +1258,18 @@ msgstr "替换(_R)"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1648
 msgid "The document name you selected is a folder."
-msgstr ""
+msgstr "您选中的文档名是一个文件夹。"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1697
 msgid "You may not have write permissions to the document."
-msgstr ""
+msgstr "您可能不具有该文档的写入权限。"
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
 msgid ""
 "Locate documents and folders on this computer by name or content using "
 "Tracker"
 msgstr ""
+"用 Tracker 定位此计算机上的文档和文件夹"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:72
 #, c-format
@@ -1069,9 +1295,8 @@ msgstr "昨天 %-H:%M"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:678
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:680
-#, fuzzy
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
-msgstr "%Y年%m月%D日 %H:%M"
+msgstr "%Y年%m月%D日 %H:%M:%S"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:860
 msgid "link (broken)"
@@ -1080,111 +1305,18 @@ msgstr "已损坏的链接"
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:864
 #, c-format
 msgid "link to %s"
-msgstr "链接到 %s"
+msgstr "到 %s 的链接"
 
 #: ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
 
-#: ../trackerd.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Tracker 搜索与索引编制服务"
+#, fuzzy
+#~ msgid "Indexing Preferences"
+#~ msgstr "首选项(_F)"
 
-#~ msgid "Search all of your documents with Tracker Search Tool"
-#~ msgstr "用 Tracker 搜索工具搜索您的所有文档"
+#~ msgid "<b>Mailboxes</b>"
+#~ msgstr "<b>邮箱</b>"
 
-#~ msgid "Tracker Applet"
-#~ msgstr "Tracker 面板小程序"
-
-#~ msgid "_Pause Indexing"
-#~ msgstr "暂停索引(_P)"
-
-#~ msgid "_Search..."
-#~ msgstr "搜索(_P)..."
-
-#~ msgid "S_tatistics"
-#~ msgstr "统计(_T)"
-
-#~ msgid "_Quit"
-#~ msgstr "退出(_Q)"
-
-#~ msgid "Search:"
-#~ msgstr "搜索："
-
-#~ msgid "Status:"
-#~ msgstr "状态："
-
-#~ msgid "Progress:"
-#~ msgstr "进度："
-
-#~ msgid "Statistics"
-#~ msgstr "统计"
-
-#~ msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-#~ msgstr "<span weight=\"bold\" size=\"larger\">索引统计</span>"
-
-#~ msgid "folders"
-#~ msgstr "文件夹"
-
-#~ msgid "mail boxes"
-#~ msgstr "邮箱"
-
-#~ msgid "Indexing in progress"
-#~ msgstr "正在索引"
-
-#~ msgid "Indexing completed"
-#~ msgstr "索引完毕"
-
-#~ msgid "Indexes are being merged"
-#~ msgstr "正在合并索引"
-
-#~ msgid "Paused by user"
-#~ msgstr "被用户暂停"
-
-#~ msgid "Paused temporarily"
-#~ msgstr "暂时暂停"
-
-#~ msgid "Files:"
-#~ msgstr "文件："
-
-#~ msgid "    Folders:"
-#~ msgstr "    文件夹："
-
-#~ msgid "    Documents:"
-#~ msgstr "    文档："
-
-#~ msgid "    Images:"
-#~ msgstr "    图像："
-
-#~ msgid "    Music:"
-#~ msgstr "    音乐："
-
-#~ msgid "    Videos:"
-#~ msgstr "    视频："
-
-#~ msgid "    Text:"
-#~ msgstr "    文本："
-
-#~ msgid "    Development:"
-#~ msgstr "    开发："
-
-#~ msgid "    Other:"
-#~ msgstr "    其它："
-
-#~ msgid "Applications:"
-#~ msgstr "应用程序："
-
-#~ msgid "Conversations:"
-#~ msgstr "会话："
-
-#~ msgid "Emails:"
-#~ msgstr "邮件："
-
-#~ msgid "Search and Indexing"
-#~ msgstr "搜索和索引"
-
-#~ msgid "Error"
-#~ msgstr "错误"
-
-#~ msgid "Could not connect to search service as it may be busy"
-#~ msgstr "无法连接到搜索服务，可能服务正忙"
+#~ msgid "<b>Services</b>"
+#~ msgstr "<b>服务</b>"
