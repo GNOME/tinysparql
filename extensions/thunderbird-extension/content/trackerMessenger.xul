@@ -48,14 +48,14 @@
 			.getService(Components.interfaces.nsIObserverService);
 		var gTrackerSettings = GetJsService ('@tracker-project.org/services/settings;1');
 
-		function onLoad ()
+		function onTrackerLoad ()
 		{
 			observer.addObserver (gServiceObserver, 'tracker-service', false);
 			observer.addObserver (gQueueObserver, 'tracker-queue', false);
 			initService ();
 		}
 
-		function onUnload ()
+		function onTrackerUnload ()
 		{
 			observer.removeObserver (gServiceObserver, 'tracker-service');
 			observer.removeObserver (gQueueObserver, 'tracker-queue');
@@ -162,8 +162,8 @@
 		};
 		
 		// We need to ensure that the user interface has initialized before we do anything
-		window.addEventListener ('load', function () { onLoad (); }, false);
-		window.addEventListener ('unload', function () { onUnload (); }, false);
+		window.addEventListener ('load', function () { onTrackerLoad (); }, false);
+		window.addEventListener ('unload', function () { onTrackerUnload (); }, false);
 
 	]]>
 	</script>
