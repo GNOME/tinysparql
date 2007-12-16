@@ -80,7 +80,7 @@ AC_SUBST(LIBPNG_LIBS)
 
 dnl DBus services dir
 AC_ARG_WITH([session_bus_services_dir],
-            AC_HELP_STRING([--with-session-bus-services-dir], [Path to DBus services directory]))
+            AS_HELP_STRING([--with-session-bus-services-dir], [Path to DBus services directory]))
 
 if test "x$with_session_bus_services_dir" = "x" ; then
    services_dir="`pkg-config --variable session_bus_services_dir dbus-1`"
@@ -97,7 +97,7 @@ AC_SUBST(DBUS_SERVICES_DIR)
 ####################################################################
 
 AC_ARG_ENABLE([deskbar_applet],
-              AC_HELP_STRING([--enable-deskbar-applet=ARG], [Enable support for deskbar applet (handler, module, auto)]),,
+              AS_HELP_STRING([--enable-deskbar-applet=ARG], [Enable support for deskbar applet (handler, module, auto)]),,
               [enable_deskbar_applet=auto])
 
 if test "x$enable_deskbar_applet" = "xauto" ; then
@@ -114,7 +114,7 @@ AM_CONDITIONAL(USING_DESKBAR_HANDLER, test "x$enable_deskbar_applet" = "xhandler
 AM_CONDITIONAL(USING_DESKBAR_MODULE, test "x$enable_deskbar_applet" = "xmodule")
 
 AC_ARG_WITH([deskbar_applet_dir],
-            AC_HELP_STRING([--with-deskbar-applet-dir], [Path to Deskbar handler/module directory]))
+            AS_HELP_STRING([--with-deskbar-applet-dir], [Path to Deskbar handler/module directory]))
 
 if test "x$enable_deskbar_applet" = "xhandler" ; then
 	if test "x$with_deskbar_applet_dir" = "x" ; then
@@ -148,7 +148,7 @@ AC_SUBST(DESKBAR_MODULE_DIR)
 # Compiler warning checks
 ####################################################################
 AC_ARG_ENABLE(warnings,
-              AC_HELP_STRING([--disable-warnings], [disable GCC warnings]),,
+              AS_HELP_STRING([--disable-warnings], [disable GCC warnings]),,
               [enable_warnings=yes])
 
 dnl Only use -Wall if we have gcc
@@ -170,7 +170,7 @@ fi
 
 
 AC_ARG_ENABLE([debug_code],
-              AC_HELP_STRING([--enable-debug-code], [build with debug symbols]),,
+              AS_HELP_STRING([--enable-debug-code], [build with debug symbols]),,
               [enable_debug_code=no])
 
 if test "x$enable_debug_code" = "xyes"; then
@@ -215,7 +215,7 @@ AM_CONDITIONAL(HAVE_RECENT_GLIB, test "$have_recent_glib" = "yes")
 QDBM_REQUIRED=1.8
 
 AC_ARG_ENABLE(external_qdbm, 
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--enable-external-qdbm],
 		[build using system's qdbm]),,
 	[enable_external_qdbm=no])
@@ -240,7 +240,7 @@ AC_SUBST(QDBM_LIBS)
   
 LIBXML2_REQUIRED=0.6
 
-AC_ARG_ENABLE(libxml2, AC_HELP_STRING([--disable-libxml2],[Disable HTML/XML extractors (full-text will still be available)]),,[enable_libxml2=yes])
+AC_ARG_ENABLE(libxml2, AS_HELP_STRING([--disable-libxml2],[Disable HTML/XML extractors (full-text will still be available)]),,[enable_libxml2=yes])
 if test "x$enable_libxml2" = "xyes"; then
 	PKG_CHECK_MODULES(LIBXML2, [
 		libxml-2.0 >= $LIBXML2_REQUIRED],
@@ -261,7 +261,7 @@ AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 # check for HAL
 ##################################################################
   
-AC_ARG_ENABLE(hal, AC_HELP_STRING([--disable-hal],[Disable HAL support for ac power detection]),,[enable_hal=yes])
+AC_ARG_ENABLE(hal, AS_HELP_STRING([--disable-hal],[Disable HAL support for ac power detection]),,[enable_hal=yes])
 if test "x$enable_hal" = "xyes"; then
 	PKG_CHECK_MODULES(HAL, [hal >= 0.5], [have_hal=yes] , [have_hal=no])
 	AC_SUBST(HAL_CFLAGS)
@@ -280,7 +280,7 @@ fi
 ####################################################################
 
 AC_ARG_ENABLE(video-extractor,
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--enable-video-extractor=ARG],
 		[enables one of the (gstreamer, xine, external, auto) video extractor backends]),,
 	[enable_video_extractor=auto])
@@ -395,7 +395,7 @@ AM_CONDITIONAL(HAVE_INOTIFY_LINUX, false)
 AM_CONDITIONAL(HAVE_FAM, false)
 
 AC_ARG_ENABLE(file-monitoring,
-	AC_HELP_STRING(
+	AS_HELP_STRING(
 		[--enable-file-monitoring=ARG],
 		[enables one of the (inotify, fam, polling, auto) file monitoring backends]),,
 	enable_file_monitoring=auto)
@@ -511,7 +511,7 @@ fi
 LIBTRACKERGTK_GTK_REQUIRED=2.8.20
 
 
-AC_ARG_ENABLE([libtrackergtk], AC_HELP_STRING([--disable-libtrackergtk], [Disable libtrackergtk]),,[enable_libtrackergtk=yes])
+AC_ARG_ENABLE([libtrackergtk], AS_HELP_STRING([--disable-libtrackergtk], [Disable libtrackergtk]),,[enable_libtrackergtk=yes])
 if test "x$enable_libtrackergtk" != "xno" ; then
 
    	libtrackergtk_modules="\
@@ -540,7 +540,7 @@ LIBNOTIFY_GTK2_REQUIRED=2.10
 LIBNOTIFY_GLIB_REQUIRED=2.10
 LIBNOTIFY_REQUIRED=0.4.3
 
-AC_ARG_ENABLE([trackerapplet], AC_HELP_STRING([--disable-trackerapplet], [Disable trackerapplet]),,[enable_trackerapplet=yes])
+AC_ARG_ENABLE([trackerapplet], AS_HELP_STRING([--disable-trackerapplet], [Disable trackerapplet]),,[enable_trackerapplet=yes])
 if test "x$enable_trackerapplet" != "xno" ; then
 
    	trackerapplet_modules="\
@@ -568,7 +568,7 @@ AM_CONDITIONAL(ENABLE_TRACKERAPPLET, test "$enable_trackerapplet" = "yes")
 ##################################################################
 
 
-AC_ARG_ENABLE([unac], AC_HELP_STRING([--disable-unac], [Disable unac accent stripper support]),,[enable_unac=yes])
+AC_ARG_ENABLE([unac], AS_HELP_STRING([--disable-unac], [Disable unac accent stripper support]),,[enable_unac=yes])
 
 if test "x$enable_unac" != "xno" ; then
 
@@ -599,7 +599,7 @@ LIBGNOME_REQUIRED=2.13.2
 LIBGNOMEUI_REQUIRED=2.13.7
 GNOMEVFS_REQUIRED=2.8.4
 
-AC_ARG_ENABLE(gui, AC_HELP_STRING([--disable-gui], [Disable building of the tracker-search-tool]),,[enable_gui=yes])
+AC_ARG_ENABLE(gui, AS_HELP_STRING([--disable-gui], [Disable building of the tracker-search-tool]),,[enable_gui=yes])
 if test "x$enable_gui" = "xyes"; then
 	PKG_CHECK_MODULES(GNOME_UTILS, [
         	gtk+-2.0 >= $GTK_REQUIRED
@@ -649,7 +649,7 @@ PREFERENCES_GLADE_REQUIRED=2.5
 PREFERENCES_GTK_REQUIRED=2.8.0
 
 AC_ARG_ENABLE([preferences],
-              AC_HELP_STRING([--disable-preferences], [Disable the preferences dialog]),,
+              AS_HELP_STRING([--disable-preferences], [Disable the preferences dialog]),,
               [enable_preferences=yes])
 
 if test "x$enable_preferences" != "xno" ; then
@@ -684,7 +684,7 @@ POPPLER_GLIB_REQUIRED=0.4.5
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
 
-AC_ARG_ENABLE(pdf, AC_HELP_STRING([--disable-pdf], [Disable PDF data extractor]),,[enable_pdf=yes])
+AC_ARG_ENABLE(pdf, AS_HELP_STRING([--disable-pdf], [Disable PDF data extractor]),,[enable_pdf=yes])
 if test "x$enable_pdf" = "xyes"; then
 	PKG_CHECK_MODULES(POPPLER_GLIB, [
 		poppler-glib >= $POPPLER_GLIB_REQUIRED
@@ -705,7 +705,7 @@ test "$have_poppler" = "yes" && AC_DEFINE(HAVE_POPPLER, [], [Define if we have p
 
 LIBEXIF_REQUIRED=0.6
 
-AC_ARG_ENABLE(exif, AC_HELP_STRING([--disable-exif],[Disable exif data extractor]),,[enable_exif=yes])
+AC_ARG_ENABLE(exif, AS_HELP_STRING([--disable-exif],[Disable exif data extractor]),,[enable_exif=yes])
 if test "x$enable_exif" = "xyes"; then
 	PKG_CHECK_MODULES(LIBEXIF, [
 		libexif >= $LIBEXIF_REQUIRED],
@@ -724,7 +724,7 @@ test "$have_libexif" = "yes" && AC_DEFINE(HAVE_LIBEXIF, [], [Define if we have l
 
 LIBGSF_REQUIRED=1.13
 
-AC_ARG_ENABLE(gsf, AC_HELP_STRING([--disable-gsf], [Disable GSF data extractor]),,[enable_gsf=yes])
+AC_ARG_ENABLE(gsf, AS_HELP_STRING([--disable-gsf], [Disable GSF data extractor]),,[enable_gsf=yes])
 if test "x$enable_gsf" = "xyes"; then
 	PKG_CHECK_MODULES(LIBGSF,[
 		libgsf-1 >= $LIBGSF_REQUIRED],
@@ -766,7 +766,7 @@ AC_MSG_RESULT([$ioprio_support])
 
 EXEMPI_REQUIRED=1.99.2
 
-AC_ARG_ENABLE(xmp, AC_HELP_STRING([--disable-xmp], [Disable XMP extraction]),,[enable_xmp=yes])
+AC_ARG_ENABLE(xmp, AS_HELP_STRING([--disable-xmp], [Disable XMP extraction]),,[enable_xmp=yes])
 if test "x$enable_xmp" = "xyes"; then
 	PKG_CHECK_MODULES(EXEMPI,[
 		exempi-2.0 >= $EXEMPI_REQUIRED],
