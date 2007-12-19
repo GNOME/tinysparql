@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-11 16:01+0100\n"
-"PO-Revision-Date: 2007-12-11 16:03+0100\n"
+"POT-Creation-Date: 2007-12-19 20:40+0100\n"
+"PO-Revision-Date: 2007-12-19 20:41+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: ../python/deskbar-handler/tracker-module.py:100
 #, python-format
 msgid "Launch %s (%s)"
-msgstr "Starta %s (%s)"
+msgstr "Använd _ytterligare minne för snabbare indexering"
 
 #: ../python/deskbar-handler/tracker-handler.py:41
 #: ../python/deskbar-handler/tracker-module.py:105
@@ -583,16 +583,16 @@ msgstr "Gör fel i tracker till ödesdigra"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2436
+#: ../src/trackerd/trackerd.c:2439
 msgid "- start the tracker daemon"
 msgstr "- starta tracker-demonen"
 
-#: ../src/trackerd/trackerd.c:2437
-#: ../src/trackerd/trackerd.c:2438
+#: ../src/trackerd/trackerd.c:2440
+#: ../src/trackerd/trackerd.c:2441
 msgid "DIRECTORY"
 msgstr "KATALOG"
 
-#: ../src/trackerd/trackerd.c:2445
+#: ../src/trackerd/trackerd.c:2448
 msgid "To include or exclude multiple directories at the same time, join multiple options like:"
 msgstr "För att inkludera eller undanta flera kataloger samtidigt kan flera flaggor sättas samman som:"
 
@@ -1001,8 +1001,8 @@ msgid "_Minimize memory usage (slower indexing)"
 msgstr "_Minimera minnesanvändning (långsammare indexering)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:57
-msgid "_Use additonal memory for faster indexing"
-msgstr "_Använd ytterligare minne för snabbare indexering"
+msgid "_Use additional memory for faster indexing"
+msgstr "Använd _ytterligare minne för snabbare indexering"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:58
 msgid "kB"
