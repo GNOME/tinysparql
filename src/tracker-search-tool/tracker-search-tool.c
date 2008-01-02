@@ -2261,7 +2261,7 @@ main (gint argc,
 
 	tracker_search_ui_manager (gsearch);
 
-	gtk_window_set_icon_name (GTK_WINDOW (gsearch->window), "gnome-searchtool");
+	gtk_window_set_icon_name (GTK_WINDOW (gsearch->window), "system-search");
 
 	gtk_window_set_default_icon_name ("tracker");
 
