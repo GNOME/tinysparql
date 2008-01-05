@@ -42,35 +42,35 @@ typedef struct _TrackerPreferencesPrivate {
 	DBusGProxy *tracker_proxy;
 } TrackerPreferencesPrivate;
 
-static void tracker_preferences_class_init (TrackerPreferencesClass * klass);
-static void tracker_preferences_init (GTypeInstance * instance, gpointer g_class);
-static void tracker_preferences_finalize (GObject * object);
-static void setup_page_general (TrackerPreferences * preferences);
-static void setup_page_files (TrackerPreferences * preferences);
-static void setup_page_emails (TrackerPreferences * preferences);
-static void setup_page_ignored_files (TrackerPreferences * preferences);
-static void setup_page_performance (TrackerPreferences * preferences);
-static void dlgPreferences_Quit (GtkWidget * widget, GdkEvent * event, gpointer data);
-static void cmdHelp_Clicked (GtkWidget * widget, gpointer data);
-static void cmdClose_Clicked (GtkWidget * widget, gpointer data);
-static void cmdAddIndexPath_Clicked (GtkWidget * widget, gpointer data);
-static void cmdRemoveIndexPath_Clicked (GtkWidget * widget, gpointer data);
-static void cmdAddCrawledPath_Clicked (GtkWidget * widget, gpointer data);
-static void cmdRemoveCrawledPath_Clicked (GtkWidget * widget, gpointer data);
-static void cmdAddIndexMailbox_Clicked (GtkWidget * widget, gpointer data);
-static void cmdRemoveIndexMailbox_Clicked (GtkWidget * widget, gpointer data);
-static void cmdAddIgnorePath_Clicked (GtkWidget * widget, gpointer data);
-static void cmdRemoveIgnorePath_Clicked (GtkWidget * widget, gpointer data);
-static void cmdAddIgnorePattern_Clicked (GtkWidget * widget, gpointer data);
-static void cmdRemoveIgnorePattern_Clicked (GtkWidget * widget, gpointer data);
-static void append_item_to_list (TrackerPreferences * dialog, const gchar * const item,
-		                 const gchar * const widget);
-static void remove_selection_from_list (TrackerPreferences * dialog,
-			                const gchar * const widget);
-static GSList *treeview_get_values (GtkTreeView * treeview);
+static void tracker_preferences_class_init (TrackerPreferencesClass *klass);
+static void tracker_preferences_init (GTypeInstance *instance, gpointer g_class);
+static void tracker_preferences_finalize (GObject *object);
+static void setup_page_general (TrackerPreferences *preferences);
+static void setup_page_files (TrackerPreferences *preferences);
+static void setup_page_emails (TrackerPreferences *preferences);
+static void setup_page_ignored_files (TrackerPreferences *preferences);
+static void setup_page_performance (TrackerPreferences *preferences);
+static void tracker_preferences_cmd_quit (GtkWidget *widget, GdkEvent *event, gpointer data);
+static void tracker_preferences_cmd_help (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_close (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_add_index_path (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_remove_index_path (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_add_crawled_path (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_remove_crawled_path (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_add_index_mailbox (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_remove_index_mailbox (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_add_ignore_path (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_remove_ignore_path (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_add_ignore_pattern (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_remove_ignore_pattern (GtkWidget *widget, gpointer data);
+static void append_item_to_list (TrackerPreferences *dialog, const gchar* const item,
+		                 const gchar* const widget);
+static void remove_selection_from_list (TrackerPreferences *dialog,
+			                const gchar* const widget);
+static GSList *treeview_get_values (GtkTreeView *treeview);
 static gint _strcmp (gconstpointer a, gconstpointer b);
-static void initialize_listview (GtkWidget * treeview);
-static void populate_list (GtkWidget * treeview, GSList * list);
+static void initialize_listview (GtkWidget *treeview);
+static void populate_list (GtkWidget *treeview, GSList *list);
 
 static GObjectClass *parent_class = NULL;
 static gboolean flag_restart = FALSE;
@@ -79,7 +79,7 @@ static GtkWidget *main_window = NULL;
 
 
 static void
-tracker_preferences_class_init (TrackerPreferencesClass * klass)
+tracker_preferences_class_init (TrackerPreferencesClass *klass)
 {
 	GObjectClass *g_class = G_OBJECT_CLASS (klass);
 	parent_class = g_type_class_peek_parent (klass);
@@ -90,7 +90,7 @@ tracker_preferences_class_init (TrackerPreferencesClass * klass)
 }
 
 static void
-tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
+tracker_preferences_init (GTypeInstance *instance, gpointer g_class)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (instance);
 	TrackerPreferencesPrivate *priv =
@@ -116,11 +116,11 @@ tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
 
 	gtk_window_set_icon_name (GTK_WINDOW (main_window), "tracker");
 	g_signal_connect (main_window, "delete-event",
-			  G_CALLBACK (dlgPreferences_Quit), self);
+			  G_CALLBACK (tracker_preferences_cmd_quit), self);
 
 	/* Setup signals */
 	widget = glade_xml_get_widget (priv->gxml, "cmdHelp");
-	g_signal_connect (widget, "clicked", G_CALLBACK (cmdHelp_Clicked),
+	g_signal_connect (widget, "clicked", G_CALLBACK (tracker_preferences_cmd_help),
 			  self);
 	gtk_widget_hide (widget);
 
@@ -129,48 +129,48 @@ tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
 				   GTK_BUTTONBOX_END);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdClose");
-	g_signal_connect (widget, "clicked", G_CALLBACK (cmdClose_Clicked),
+	g_signal_connect (widget, "clicked", G_CALLBACK (tracker_preferences_cmd_close),
 			  self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdAddIndexPath");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdAddIndexPath_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_add_index_path), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdRemoveIndexPath");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdRemoveIndexPath_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_remove_index_path), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdAddCrawledPath");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdAddCrawledPath_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_add_crawled_path), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdRemoveCrawledPath");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdRemoveCrawledPath_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_remove_crawled_path), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdAddIndexMailbox");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdAddIndexMailbox_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_add_index_mailbox), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdRemoveIndexMailbox");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdRemoveIndexMailbox_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_remove_index_mailbox), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdAddIgnorePath");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdAddIgnorePath_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_add_ignore_path), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdRemoveIgnorePath");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdRemoveIgnorePath_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_remove_ignore_path), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdAddIgnorePattern");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdAddIgnorePattern_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_add_ignore_pattern), self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdRemoveIgnorePattern");
 	g_signal_connect (widget, "clicked",
-			  G_CALLBACK (cmdRemoveIgnorePattern_Clicked), self);
+			  G_CALLBACK (tracker_preferences_cmd_remove_ignore_pattern), self);
 
 	/* Init dbus */
 	GError *error = NULL;
@@ -215,7 +215,7 @@ tracker_preferences_init (GTypeInstance * instance, gpointer g_class)
 }
 
 static void
-tracker_preferences_finalize (GObject * object)
+tracker_preferences_finalize (GObject *object)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (object);
 	TrackerPreferencesPrivate *priv =
@@ -432,7 +432,7 @@ check_toggled_cb (GtkToggleButton *check_button, gpointer user_data)
 
 
 static void
-setup_page_general (TrackerPreferences * preferences)
+setup_page_general (TrackerPreferences *preferences)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (preferences);
 	TrackerPreferencesPrivate *priv =
@@ -504,7 +504,7 @@ setup_page_general (TrackerPreferences * preferences)
 }
 
 static void
-setup_page_performance (TrackerPreferences * preferences)
+setup_page_performance (TrackerPreferences *preferences)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (preferences);
 	TrackerPreferencesPrivate *priv =
@@ -573,7 +573,7 @@ setup_page_performance (TrackerPreferences * preferences)
 
 
 static void
-setup_page_files (TrackerPreferences * preferences)
+setup_page_files (TrackerPreferences *preferences)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (preferences);
 	TrackerPreferencesPrivate *priv =
@@ -654,7 +654,7 @@ setup_page_files (TrackerPreferences * preferences)
 }
 
 static void
-setup_page_ignored_files (TrackerPreferences * preferences)
+setup_page_ignored_files (TrackerPreferences *preferences)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (preferences);
 	TrackerPreferencesPrivate *priv =
@@ -691,7 +691,7 @@ setup_page_ignored_files (TrackerPreferences * preferences)
 }
 
 static void
-setup_page_emails (TrackerPreferences * preferences)
+setup_page_emails (TrackerPreferences *preferences)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (preferences);
 	TrackerPreferencesPrivate *priv =
@@ -716,19 +716,19 @@ setup_page_emails (TrackerPreferences * preferences)
 }
 
 static void
-dlgPreferences_Quit (GtkWidget * widget, GdkEvent * event, gpointer data)
+tracker_preferences_cmd_quit (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	cmdClose_Clicked (NULL, data);
+	tracker_preferences_cmd_close (NULL, data);
 }
 
 static void
-cmdHelp_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_help (GtkWidget *widget, gpointer data)
 {
 }
 
 static void
-name_owner_changed (DBusGProxy * proxy, const gchar * name,
-		    const gchar * prev_owner, const gchar * new_owner,
+name_owner_changed (DBusGProxy *proxy, const gchar *name,
+		    const gchar *prev_owner, const gchar *new_owner,
 		    gpointer data)
 {
         static gboolean first_time = TRUE;
@@ -751,7 +751,7 @@ name_owner_changed (DBusGProxy * proxy, const gchar * name,
 }
 
 static gboolean
-if_trackerd_start (TrackerPreferencesPrivate * priv)
+if_trackerd_start (TrackerPreferencesPrivate *priv)
 {
 	gchar *status = NULL;
 	TrackerClient *client = NULL;
@@ -809,7 +809,7 @@ restart_tracker (GtkDialog *dialog, gint response, gpointer data)
 }
 
 static void
-cmdClose_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_close (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	TrackerPreferencesPrivate *priv =
@@ -891,7 +891,7 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 
 	if (flag_restart && if_trackerd_start (priv)) {
 
-		GtkWidget * dialog;
+		GtkWidget *dialog;
 		char *msg;
 
 		if (flag_reindex) {
@@ -921,7 +921,7 @@ cmdClose_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdAddCrawledPath_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_add_crawled_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	gchar *path = tracker_preferences_select_folder ();
@@ -936,7 +936,7 @@ cmdAddCrawledPath_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdRemoveCrawledPath_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_remove_crawled_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstCrawledPaths");
@@ -944,7 +944,7 @@ cmdRemoveCrawledPath_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdAddIndexPath_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_add_index_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	TrackerPreferencesPrivate *priv =
@@ -968,7 +968,7 @@ cmdAddIndexPath_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdRemoveIndexPath_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_remove_index_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstAdditionalPathIndexes");
@@ -976,7 +976,7 @@ cmdRemoveIndexPath_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdAddIndexMailbox_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_add_index_mailbox (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 
@@ -991,7 +991,7 @@ cmdAddIndexMailbox_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdRemoveIndexMailbox_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_remove_index_mailbox (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstAdditionalMBoxIndexes");
@@ -999,7 +999,7 @@ cmdRemoveIndexMailbox_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdAddIgnorePath_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_add_ignore_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 
@@ -1014,7 +1014,7 @@ cmdAddIgnorePath_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdRemoveIgnorePath_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_remove_ignore_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstIgnorePaths");
@@ -1022,7 +1022,7 @@ cmdRemoveIgnorePath_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdAddIgnorePattern_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_add_ignore_pattern (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 
@@ -1036,7 +1036,7 @@ cmdAddIgnorePattern_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-cmdRemoveIgnorePattern_Clicked (GtkWidget * widget, gpointer data)
+tracker_preferences_cmd_remove_ignore_pattern (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstIgnoreFilePatterns");
@@ -1044,8 +1044,8 @@ cmdRemoveIgnorePattern_Clicked (GtkWidget * widget, gpointer data)
 }
 
 static void
-append_item_to_list (TrackerPreferences * dialog, const gchar * const item,
-		     const gchar * const widget)
+append_item_to_list (TrackerPreferences *dialog, const gchar *const item,
+		     const gchar* const widget)
 {
 	TrackerPreferencesPrivate *priv =
 		TRACKER_PREFERENCES_GET_PRIVATE (dialog);
@@ -1070,8 +1070,8 @@ append_item_to_list (TrackerPreferences * dialog, const gchar * const item,
 }
 
 static void
-remove_selection_from_list (TrackerPreferences * dialog,
-			    const gchar * const widget)
+remove_selection_from_list (TrackerPreferences *dialog,
+			    const gchar* const widget)
 {
 	TrackerPreferencesPrivate *priv =
 		TRACKER_PREFERENCES_GET_PRIVATE (dialog);
@@ -1089,7 +1089,7 @@ remove_selection_from_list (TrackerPreferences * dialog,
 }
 
 static GSList *
-treeview_get_values (GtkTreeView * treeview)
+treeview_get_values (GtkTreeView *treeview)
 {
 	GtkTreeIter iter;
 	GSList *list = NULL;
@@ -1128,7 +1128,7 @@ _strcmp (gconstpointer a, gconstpointer b)
 }
 
 static void
-initialize_listview (GtkWidget * treeview)
+initialize_listview (GtkWidget *treeview)
 {
 	GtkListStore *store = NULL;
 	GtkCellRenderer *renderer = NULL;
@@ -1147,7 +1147,7 @@ initialize_listview (GtkWidget * treeview)
 }
 
 static void
-populate_list (GtkWidget * treeview, GSList * list)
+populate_list (GtkWidget *treeview, GSList *list)
 {
 	GtkTreeModel *store;
 	GSList *tmp;

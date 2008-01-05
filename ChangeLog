@@ -1,3 +1,8 @@
+2008-01-05  Jaap Haitsma,,,  <jaap@haitsma.org>
+
+	* src/tracker-preferences/tracker-preferences.c:
+	Change CamelCase function name to lowercase seperated by _
+
 2008-01-05  Jaap Haitsma  <jaap@haitsma.org>
 
 	* src/tracker-applet/tracker-applet.c:
