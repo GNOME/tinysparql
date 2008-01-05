@@ -10,10 +10,8 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 pkgdata_DATA = tracker-preferences.glade
 
 noinst_HEADERS = tracker-configuration.h \
-		 tracker-configuration-private.h \
 		 tracker-preferences-dialogs.h \
 		 tracker-preferences.h \
-		 tracker-preferences-private.h \
 		 tracker-preferences-utils.h \
 		 $(NULL)
 

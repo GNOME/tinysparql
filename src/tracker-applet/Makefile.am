@@ -17,7 +17,6 @@ bin_PROGRAMS = tracker-applet
 
 noinst_HEADERS = \
 	tracker-applet.h \
-	tracker-applet-private.h \
 	tracker-applet-marshallers.h
 
 tracker_applet_LDADD = \

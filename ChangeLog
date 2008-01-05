@@ -1,3 +1,16 @@
+2008-01-05  Jaap Haitsma  <jaap@haitsma.org>
+
+	* src/tracker-applet/Makefile.am:
+	* src/tracker-applet/tracker-applet-private.h:
+	* src/tracker-applet/tracker-applet.c:
+	* src/tracker-preferences/Makefile.am:
+	* src/tracker-preferences/tracker-configuration-private.h:
+	* src/tracker-preferences/tracker-configuration.c:
+	* src/tracker-preferences/tracker-preferences-private.h:
+	* src/tracker-preferences/tracker-preferences.c:
+	Remove *-private.h files. Just put these declarations in the
+	respective *.c files
+
 2007-12-13 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fixed issue with log file being null
