@@ -1,5 +1,11 @@
 2008-01-05  Jaap Haitsma  <jaap@haitsma.org>
 
+	* src/tracker-applet/tracker-applet.c:
+	* src/tracker-applet/tracker-applet.h:
+	Add license file to top of file
+
+2008-01-05  Jaap Haitsma  <jaap@haitsma.org>
+
 	* src/tracker-applet/Makefile.am:
 	* src/tracker-applet/tracker-applet-private.h:
 	* src/tracker-applet/tracker-applet.c:
