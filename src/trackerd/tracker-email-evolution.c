@@ -148,6 +148,7 @@ static gboolean	is_in_dir_maildir			(const gchar *path);
 */
 
 static gchar *	get_account_name_in_imap_path		(const gchar *path);
+static gchar * get_account_name_from_imap_uri          (const gchar *imap_uri);
 
 typedef gboolean (* LoadSummaryFileMetaHeaderFct) (SummaryFile *summary, SummaryFileHeader *header);
 typedef gboolean (* LoadMailMessageFct) (SummaryFile *summary, MailMessage **mail_msg);
@@ -683,6 +684,52 @@ check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *stor
 }
 
 
+static gchar *
+get_account_name_from_imap_uri (const gchar *imap_uri)
+{					  
+	/* Assume url schema is:
+           imap://foo@imap.free.fr/;etc
+           or
+           imap://foo;auth=DIGEST-MD5@imap.bar.com/;etc
+
+           We try to get "foo@imap.free.fr".
+        */
+  
+        /* check for embedded @ and then look for first colon after that */
+  
+        const gchar *start = imap_uri + 7;
+        const gchar *at = strchr (start, '@');
+        const gchar *semic = strchr (start, ';');
+
+        gchar *user_name = NULL;
+        gchar *at_host_name = NULL;
+        gchar *account_name = NULL;
+
+        if ( strlen (imap_uri) < 7 || at == NULL ) {
+                return NULL;
+        }
+
+        if (semic < at) {
+                /* we have a ";auth=FOO@host" schema
+                   Set semic to the next semicolon, which ends the hostname. */
+                user_name = g_strndup (start, semic - start);
+                /* look for ';' at the end of the domain name */
+                semic = strchr (at, ';');
+        } else {
+                user_name = g_strndup (start, at - start);
+        }
+
+        at_host_name = g_strndup (at, (semic - 1) - at);
+
+        account_name = g_strconcat (user_name, at_host_name, NULL);
+
+        g_free (user_name);
+        g_free (at_host_name);
+
+        return account_name;
+}
+
+
 static gboolean
 load_evolution_config (EvolutionConfig **conf)
 {
@@ -723,22 +770,8 @@ load_evolution_config (EvolutionConfig **conf)
 					}
 
 					case EVOLUTION_MAIL_PROTOCOL_IMAP: {
-						gchar *account_name = NULL;
 
-						/* Assume url schema is:
-						   imap://foo@imap.free.fr/;etc
-
-						   also can contain foo;auth=DIGEST-MD5@imap.bar.com
-
-						   We try to get "foo@imap.free.fr".
-						*/
-
-						// check for embedded @ and then look for first colon after that
-
-						const char *at = strchr (evo_acc->source_url + 7, '@');
-
-						account_name = g_strndup (evo_acc->source_url + 7,
-									  (strchr (at, ';') - 1) - (evo_acc->source_url + 7));
+					        gchar *account_name = get_account_name_from_imap_uri (evo_acc->source_url);
 
 						if (account_name) {
 
@@ -1509,11 +1542,17 @@ open_summary_file (const gchar *path, SummaryFile **summary)
 
 					tracker_debug ("Account name for summary file is %s and path is %s", account_name, (*summary)->path);
 
-					if (strstr (evo_acc->source_url, account_name)) {
-						(*summary)->associated_account = evo_acc;
-						g_free (account_name);
-						goto loop_exit;
-					}
+					gchar *source_account_name = get_account_name_from_imap_uri (evo_acc->source_url);
+
+					if (source_account_name) {
+                                                if (!strcmp (source_account_name, account_name)) {
+                                                        (*summary)->associated_account = evo_acc;
+                                                        g_free (source_account_name);
+                                                        g_free (account_name);
+                                                        goto loop_exit;
+                                                }
+                                                g_free (source_account_name);
+                                        }
 					g_free (account_name);
 					break;
 				}

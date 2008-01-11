@@ -1,15 +1,23 @@
-2008-01-05  Jaap Haitsma,,,  <jaap@haitsma.org>
+2008-01-11 Laurent Aguerreche <laurent.aguerreche at free fr>
+
+	* Patch from Dan Bryant <dan.bryant at jhuapl edu>
+	Implements access to imap accounts with MD5-DIGEST authentication
+
+
+2008-01-05 Jaap Haitsma  <jaap@haitsma.org>
 
 	* src/tracker-preferences/tracker-preferences.c:
 	Change CamelCase function name to lowercase seperated by _
 
-2008-01-05  Jaap Haitsma  <jaap@haitsma.org>
+
+2008-01-05 Jaap Haitsma  <jaap@haitsma.org>
 
 	* src/tracker-applet/tracker-applet.c:
 	* src/tracker-applet/tracker-applet.h:
 	Add license file to top of file
 
-2008-01-05  Jaap Haitsma  <jaap@haitsma.org>
+
+2008-01-05 Jaap Haitsma  <jaap@haitsma.org>
 
 	* src/tracker-applet/Makefile.am:
 	* src/tracker-applet/tracker-applet-private.h:
@@ -21,6 +29,7 @@
 	* src/tracker-preferences/tracker-preferences.c:
 	Remove *-private.h files. Just put these declarations in the
 	respective *.c files
+
 
 2007-12-13 Jamie McCracken <jamiemcc at gnome org>
 
