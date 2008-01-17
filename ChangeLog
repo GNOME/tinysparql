@@ -1,3 +1,9 @@
+2008-01-17 Michal Pryc <michal dot pryc at sun dot com>
+
+	* Patch from Mathieu Dimanche <mdimanche at free dot fr>
+	Fixed character encoding problems between Thunderbird
+	and trackerd, a.k.a. UTF-8 encoded TMS files
+
 2008-01-11 Laurent Aguerreche <laurent.aguerreche at free fr>
 
 	* Patch from Dan Bryant <dan.bryant at jhuapl edu>

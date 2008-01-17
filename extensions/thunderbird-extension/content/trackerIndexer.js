@@ -50,13 +50,25 @@ function writeHashTableToNextFile (hashtable, type)
 		return;
 	}
 	
-	stream.write ('<' + type + ">\n", type.length + 3);
+	// HOWTO write unicode-encoded strings :
+	// http://developer.mozilla.org/en/docs/Writing_textual_data
+	var ustream = Components.classes["@mozilla.org/intl/converter-output-stream;1"]
+    .createInstance(Components.interfaces.nsIConverterOutputStream);
+  	try {
+		ustream.init (stream, 'UTF-8', 0, 0x0000);
+	} catch (ex) {
+		dump ('Failed to write unicode index file: ' + ex + "\n");
+		return;
+	}
+	
+	ustream.writeString ('<' + type + ">\n");
 	for (var key in hashtable) {
 		var line = '<' + key + '><![CDATA[' + hashtable [key] + ']]></' + key + ">\n";
-		stream.write (line, line.length);
+		ustream.writeString (line);
 	}
-	stream.write ("</" + type + ">\n", type.length + 4);
+	ustream.writeString ("</" + type + ">\n");
 
+	ustream.close ();
 	stream.close ();
 }
 
@@ -340,7 +352,7 @@ Component.prototype = {
 		
 		// We must ensure that all elements exist. Some of them might throw an exception in various
 		// set-ups, so we have to catch them and default to something.
-		properties ['Author'] = hdr.author;
+		properties ['Author'] = hdr.mime2DecodedAuthor;
 		properties ['Date'] = hdr.dateInSeconds;
 		properties ['Folder'] = hdr.folder.name;
 		properties ['FolderFile'] = hdr.folder.path.unixStyleFilePath;
@@ -356,8 +368,8 @@ Component.prototype = {
 		properties ['MessageSize'] = hdr.messageSize;
 		properties ['MessageOffset'] = hdr.messageOffset;
 		properties ['OfflineSize'] = hdr.offlineMessageSize;
-		properties ['Recipients'] = hdr.recipients;
-		properties ['Subject'] = hdr.subject;
+		properties ['Recipients'] = hdr.mime2DecodedRecipients;
+		properties ['Subject'] = hdr.mime2DecodedSubject;
 		properties ['MessageKey'] = hdr.messageKey;
 		
 		try {
