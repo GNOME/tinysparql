@@ -1457,6 +1457,9 @@ process_files_thread (void)
 
 		tracker_debug ("processing %s with action %s and counter %d ", info->uri, tracker_actions[info->action], info->counter);
 
+		/* preprocess ambiguous actions when we need to work out if its a file or a directory that the action relates to */
+		verify_action (info);
+
 		if (info->action != TRACKER_ACTION_DELETE &&
 		    info->action != TRACKER_ACTION_DIRECTORY_DELETED && info->action != TRACKER_ACTION_FILE_DELETED) {
 
@@ -1504,9 +1507,6 @@ process_files_thread (void)
 			
 
 		}	
-
-		/* preprocess ambiguous actions when we need to work out if its a file or a directory that the action relates to */
-		verify_action (info);
 
 		
 
