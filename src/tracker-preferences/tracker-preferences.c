@@ -24,6 +24,7 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+#include <stdlib.h>
 
 #include "../trackerd/tracker-dbus.h"
 #include "../libtracker/tracker.h"
@@ -52,7 +53,9 @@ static void setup_page_ignored_files (TrackerPreferences *preferences);
 static void setup_page_performance (TrackerPreferences *preferences);
 static void tracker_preferences_cmd_quit (GtkWidget *widget, GdkEvent *event, gpointer data);
 static void tracker_preferences_cmd_help (GtkWidget *widget, gpointer data);
-static void tracker_preferences_cmd_close (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_cancel (GtkWidget *widget, gpointer data);
+static void tracker_preferences_cmd_ok (GtkWidget *widget, gpointer data);
 static void tracker_preferences_cmd_add_index_path (GtkWidget *widget, gpointer data);
 static void tracker_preferences_cmd_remove_index_path (GtkWidget *widget, gpointer data);
 static void tracker_preferences_cmd_add_crawled_path (GtkWidget *widget, gpointer data);
@@ -71,10 +74,13 @@ static GSList *treeview_get_values (GtkTreeView *treeview);
 static gint _strcmp (gconstpointer a, gconstpointer b);
 static void initialize_listview (GtkWidget *treeview);
 static void populate_list (GtkWidget *treeview, GSList *list);
+static gboolean str_slist_equal (GSList *a, GSList *b);
 
 static GObjectClass *parent_class = NULL;
 static gboolean flag_restart = FALSE;
 static gboolean flag_reindex = FALSE;
+static gboolean first_time = TRUE;
+static gboolean flag_quit = FALSE;
 static GtkWidget *main_window = NULL;
 
 
@@ -99,12 +105,10 @@ tracker_preferences_init (GTypeInstance *instance, gpointer g_class)
 	priv->prefs = tracker_configuration_new ();
 
 	GtkWidget *widget = NULL;
-	
 
 	priv->gxml =
 		glade_xml_new (TRACKER_DATADIR "/tracker-preferences.glade",
 			       NULL, NULL);
-	/* priv->gxml = glade_xml_new("tracker-preferences.glade", NULL, NULL); */
 
 	if (priv->gxml == NULL)
 		g_error ("Unable to find locate tracker-preferences.glade");
@@ -128,8 +132,16 @@ tracker_preferences_init (GTypeInstance *instance, gpointer g_class)
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (widget),
 				   GTK_BUTTONBOX_END);
 
-	widget = glade_xml_get_widget (priv->gxml, "cmdClose");
-	g_signal_connect (widget, "clicked", G_CALLBACK (tracker_preferences_cmd_close),
+	widget = glade_xml_get_widget (priv->gxml, "cmdApply");
+	g_signal_connect (widget, "clicked", G_CALLBACK (tracker_preferences_cmd_apply),
+			  self);
+
+	widget = glade_xml_get_widget (priv->gxml, "cmdCancel");
+	g_signal_connect (widget, "clicked", G_CALLBACK (tracker_preferences_cmd_cancel),
+			  self);
+
+	widget = glade_xml_get_widget (priv->gxml, "cmdOK");
+	g_signal_connect (widget, "clicked", G_CALLBACK (tracker_preferences_cmd_ok),
 			  self);
 
 	widget = glade_xml_get_widget (priv->gxml, "cmdAddIndexPath");
@@ -267,170 +279,6 @@ set_int_option (TrackerPreferencesPrivate *priv, const char *name, int value)
 
 }
 
-
-void
-throttle_changed_cb (GtkRange *range, gpointer user_data)  
-{
-	TrackerPreferencesPrivate *priv = user_data;
-	TrackerConfiguration *configuration = TRACKER_CONFIGURATION (priv->prefs);
-
-	int value = gtk_range_get_value (range);
-
-	tracker_configuration_set_int (configuration,
-					"/Indexing/Throttle",
-					value);
-
-	set_int_option (priv, "Throttle", value);
-
-}
-
-void 
-spin_value_changed_cb (GtkSpinButton *spin_button, gpointer user_data)
-{
-	TrackerPreferencesPrivate *priv = user_data;
-	TrackerConfiguration *configuration = TRACKER_CONFIGURATION (priv->prefs);
-
-	const char *name = gtk_widget_get_name (GTK_WIDGET (spin_button));
-	int value = gtk_spin_button_get_value_as_int (spin_button);
-
-	if (name) {
-		g_print ("%s was clicked with value %d\n", name, value);
-	}  else {
-		g_print ("unknown widget was clicked with value %d\n", value);
-	}
-
-	if (g_str_equal (name, "spnMaxText")) {
-
-		set_int_option (priv, "MaxText", value*1024);
-
-		tracker_configuration_set_int (configuration,
-						"/Performance/MaxTextToIndex",
-						value);
-
-
-	} else 	if (g_str_equal (name, "spnMaxWords")) {
-
-		set_int_option (priv, "MaxWords", value);
-
-		tracker_configuration_set_int (configuration,
-					"/Performance/MaxWordsToIndex",
-					value);
-
-	}
-
-}
-
-void
-check_toggled_cb (GtkToggleButton *check_button, gpointer user_data)  
-{
-	TrackerPreferencesPrivate *priv = user_data;
-	TrackerConfiguration *configuration = TRACKER_CONFIGURATION (priv->prefs);
-
-	const char *name = gtk_widget_get_name (GTK_WIDGET (check_button));
-
-	gboolean value =  gtk_toggle_button_get_active (check_button);
-
-	if (name) {
-		g_print ("%s was clicked with value %d\n", name, value);
-	}  else {
-		g_print ("unknown widget was clicked with value %d\n", value);
-	}
-
-	if (g_str_equal (name, "chkEnableIndexing")) {
-
-		set_bool_option (priv, "EnableIndexing", value);
-
-		tracker_configuration_set_bool (configuration,
-						 "/Indexing/EnableIndexing",
-						 value);
-		flag_restart = TRUE;
-
-	} else 	if (g_str_equal (name, "chkEnableWatching")) {
-
-		set_bool_option (priv, "EnableWatching", value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Watches/EnableWatching",
-					value);
-
-		flag_restart = TRUE;
-
-	} else 	if (g_str_equal (name, "chkEnableEvolutionIndexing")) {
-
-		set_bool_option (priv, "EnableEvolution", value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Emails/IndexEvolutionEmails",
-					value);
-
-		flag_restart = TRUE;
-
-	} else 	if (g_str_equal (name, "chkIndexContents")) {
-
-		set_bool_option (priv, "IndexFileContents", value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Indexing/EnableFileContentIndexing",
-					value);
-
-		flag_restart = TRUE;
-
-	} else 	if (g_str_equal (name, "chkGenerateThumbs")) {
-
-		set_bool_option (priv, "GenerateThumbs", value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Indexing/EnableThumbnails",
-					value);
-
-
-	} else 	if (g_str_equal (name, "chkSkipMountPoints")) {
-
-		set_bool_option (priv, "SkipMountPoints", !value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Indexing/SkipMountPoints",
-					!value);
-
-
-	} else 	if (g_str_equal (name, "chkFastMerges")) {
-
-		set_bool_option (priv, "FastMerges", value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Indexing/FastMerges",
-					value);
-
-	} else 	if (g_str_equal (name, "optReducedMemory")) {
-
-		set_bool_option (priv, "LowMemoryMode", value);
-
-		tracker_configuration_set_bool (configuration,
-					"/General/LowMemoryMode",
-					value);
-
-	}  else if (g_str_equal (name, "chkDisableBatteryIndex")) {
-
-		set_bool_option (priv, "BatteryIndex", !value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Indexing/BatteryIndex",
-					!value);
-
-	}  else if (g_str_equal (name, "chkDisableBatteryInitialIndex")) {
-
-		set_bool_option (priv, "BatteryIndexInitial", !value);
-
-		tracker_configuration_set_bool (configuration,
-					"/Indexing/BatteryIndexInitial",
-					!value);
-	}
-
-}
-
-
-
-
 static void
 setup_page_general (TrackerPreferences *preferences)
 {
@@ -455,17 +303,11 @@ setup_page_general (TrackerPreferences *preferences)
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
 
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
 	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
 	value = tracker_configuration_get_bool (configuration,
 						"/Watches/EnableWatching",
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
 
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
 	char *str_value = tracker_configuration_get_string (configuration,
@@ -488,18 +330,11 @@ setup_page_general (TrackerPreferences *preferences)
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), !value);
 
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
 	widget = glade_xml_get_widget (priv->gxml, "chkDisableBatteryInitialIndex");
 	value = tracker_configuration_get_bool (configuration,
 						"/Indexing/BatteryIndexInitial",
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), !value);
-
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
 
 }
 
@@ -520,8 +355,6 @@ setup_page_performance (TrackerPreferences *preferences)
 	value = tracker_configuration_get_int (configuration,
 					       "/Indexing/Throttle", NULL);
 	gtk_range_set_value (GTK_RANGE (widget), value);
-	g_signal_connect (GTK_RANGE (widget), "value-changed",
-			  G_CALLBACK (throttle_changed_cb), priv);
 
 	widget = glade_xml_get_widget (priv->gxml, "optReducedMemory");
 	bvalue = tracker_configuration_get_bool (configuration,
@@ -529,24 +362,14 @@ setup_page_performance (TrackerPreferences *preferences)
 						 NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), bvalue);
 
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
-
 	widget = glade_xml_get_widget (priv->gxml, "optNormal");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), !bvalue);
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
 
 	widget = glade_xml_get_widget (priv->gxml, "chkFastMerges");
 	bvalue = tracker_configuration_get_bool (configuration,
 						 "/Indexing/FastMerges",
 						 NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), bvalue);
-
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
 
 	widget = glade_xml_get_widget (priv->gxml, "spnMaxText");
 	value = tracker_configuration_get_int (configuration,
@@ -556,9 +379,6 @@ setup_page_performance (TrackerPreferences *preferences)
 	value = value / 1024;
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
 
-	g_signal_connect (GTK_SPIN_BUTTON (widget), "value-changed",
-			  G_CALLBACK (spin_value_changed_cb), priv);
-
 	widget = glade_xml_get_widget (priv->gxml, "spnMaxWords");
 	value = tracker_configuration_get_int (configuration,
 					       "/Performance/MaxWordsToIndex",
@@ -566,11 +386,7 @@ setup_page_performance (TrackerPreferences *preferences)
 
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON (widget), value);
 
-	g_signal_connect (GTK_SPIN_BUTTON (widget), "value-changed",
-			  G_CALLBACK (spin_value_changed_cb), priv);
 }
-
-
 
 static void
 setup_page_files (TrackerPreferences *preferences)
@@ -590,27 +406,18 @@ setup_page_files (TrackerPreferences *preferences)
 						"/Indexing/EnableFileContentIndexing",
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
 
 	widget = glade_xml_get_widget (priv->gxml, "chkGenerateThumbs");
 	value = tracker_configuration_get_bool (configuration,
 						"/Indexing/EnableThumbnails",
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
 
 	widget = glade_xml_get_widget (priv->gxml, "chkSkipMountPoints");
 	value = tracker_configuration_get_bool (configuration,
 						"/Indexing/SkipMountPoints",
 						NULL);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), !value);
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
-
 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "lstAdditionalPathIndexes");
@@ -704,21 +511,25 @@ setup_page_emails (TrackerPreferences *preferences)
 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "chkEnableEvolutionIndexing");
-
 	value = tracker_configuration_get_bool (configuration,
 						"/Emails/IndexEvolutionEmails",
 						NULL);
-
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
 
-	g_signal_connect (GTK_TOGGLE_BUTTON (widget), "toggled",
-			  G_CALLBACK (check_toggled_cb), priv);
+	widget = glade_xml_get_widget (priv->gxml,
+				       "chkEnableThunderbirdIndexing");
+	value = tracker_configuration_get_bool (configuration,
+						"/Emails/IndexThunderbirdEmails",
+						NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
+
+
 }
 
 static void
 tracker_preferences_cmd_quit (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	tracker_preferences_cmd_close (NULL, data);
+	tracker_preferences_cmd_ok (NULL, data);
 }
 
 static void
@@ -731,7 +542,6 @@ name_owner_changed (DBusGProxy *proxy, const gchar *name,
 		    const gchar *prev_owner, const gchar *new_owner,
 		    gpointer data)
 {
-        static gboolean first_time = TRUE;
 
 	if (!g_str_equal (name, TRACKER_SERVICE))
 		return;
@@ -746,7 +556,8 @@ name_owner_changed (DBusGProxy *proxy, const gchar *name,
 		if (!g_spawn_command_line_async (command, NULL))
 			g_warning ("Unable to execute command: %s", command);
                 first_time = FALSE;
-		gtk_main_quit ();
+		if (flag_quit)
+			gtk_main_quit ();
 	}
 }
 
@@ -782,12 +593,12 @@ restart_tracker (GtkDialog *dialog, gint response, gpointer data)
 		TrackerPreferences *self = TRACKER_PREFERENCES (data);
 		TrackerPreferencesPrivate *priv = TRACKER_PREFERENCES_GET_PRIVATE (self);
 
+		first_time = TRUE;
 		dbus_g_proxy_add_signal (priv->dbus_proxy,
 					 "NameOwnerChanged",
 					 G_TYPE_STRING,
 					 G_TYPE_STRING,
 					 G_TYPE_STRING, G_TYPE_INVALID);
-
 		dbus_g_proxy_connect_signal (priv->dbus_proxy,
 					     "NameOwnerChanged",
 					     G_CALLBACK (name_owner_changed),
@@ -800,16 +611,17 @@ restart_tracker (GtkDialog *dialog, gint response, gpointer data)
 					 NULL,
 					 G_TYPE_BOOLEAN,
 					 flag_reindex, G_TYPE_INVALID);
+		flag_restart = FALSE;
+		flag_reindex = FALSE;
 
-	} else {
+	} else if (flag_quit) {
 		gtk_main_quit ();
 	}
-
 	
 }
 
 static void
-tracker_preferences_cmd_close (GtkWidget *widget, gpointer data)
+tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	TrackerPreferencesPrivate *priv =
@@ -818,15 +630,39 @@ tracker_preferences_cmd_close (GtkWidget *widget, gpointer data)
 		TRACKER_CONFIGURATION (priv->prefs);
 
 	GSList *list = NULL;
-	gboolean value = FALSE;
+	GSList *list_old = NULL;
+	int ivalue, ivalue_old;
+	gboolean bvalue, bvalue_old;
 	char *str_value;
 
 
 	/* save general settings */
 	widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
-	value = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
 	tracker_configuration_set_int (configuration, "/General/InitialSleep",
-				       value);
+				       ivalue);
+
+	widget = glade_xml_get_widget (priv->gxml, "chkEnableIndexing");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Indexing/EnableIndexing", NULL);
+	if (bvalue != bvalue_old) {
+		flag_restart = TRUE;
+		set_bool_option (priv, "EnableIndexing", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/EnableIndexing", bvalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Watches/EnableWatching", NULL);
+	if (bvalue != bvalue_old) {
+		flag_restart = TRUE;
+		set_bool_option (priv, "EnableIndexing", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Watches/EnableWatching", bvalue);
+	}
 
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
 	gint i = gtk_combo_box_get_active (GTK_COMBO_BOX (widget));
@@ -843,8 +679,62 @@ tracker_preferences_cmd_close (GtkWidget *widget, gpointer data)
 						  tmap[i].lang);
 	}
 
+	widget = glade_xml_get_widget (priv->gxml, "chkDisableBatteryIndex");
+	bvalue = !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Indexing/BatteryIndex", NULL);
+	if (bvalue != bvalue_old) {
+		set_bool_option (priv, "BatteryIndex", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/BatteryIndex", bvalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "chkDisableBatteryInitialIndex");
+	bvalue = !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Indexing/BatteryIndexInitial", NULL);
+	if (bvalue != bvalue_old) {
+		set_bool_option (priv, "BatteryIndexInitial", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/BatteryIndexInitial", bvalue);
+	}
 
 	/* files settings */
+
+	widget = glade_xml_get_widget (priv->gxml, "chkIndexContents");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Indexing/EnableFileContentIndexing", NULL);
+	if (bvalue != bvalue_old) {
+		flag_restart = TRUE;
+		flag_reindex = TRUE;
+		set_bool_option (priv, "IndexFileContents", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/EnableFileContentIndexing", bvalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "chkGenerateThumbs");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Indexing/EnableThumbnails", NULL);
+	if (bvalue != bvalue_old) {
+		flag_restart = TRUE;
+		flag_reindex = TRUE;
+		set_bool_option (priv, "GenerateThumbs", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/EnableThumbnails", bvalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "chkSkipMountPoints");
+	bvalue = !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Indexing/SkipMountPoints", NULL);
+	if (bvalue != bvalue_old) {
+		flag_restart = TRUE;
+		set_bool_option (priv, "SkipMountPoints", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/SkipMountPoints", bvalue);
+	}
 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "lstAdditionalPathIndexes");
@@ -854,39 +744,148 @@ tracker_preferences_cmd_close (GtkWidget *widget, gpointer data)
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
 		list = g_slist_prepend (list, g_strdup (g_get_home_dir ()));
 	}
-	tracker_configuration_set_list (configuration,
+	list_old = tracker_configuration_get_list (configuration,
+					       "/Watches/WatchDirectoryRoots",
+					       G_TYPE_STRING, NULL);
+	if (!str_slist_equal (list, list_old)) {
+		flag_restart = TRUE;
+		tracker_configuration_set_list (configuration,
 					"/Watches/WatchDirectoryRoots", list,
 					G_TYPE_STRING);
+	}
+
 	g_slist_free (list);
 	list = NULL;
+	g_slist_free (list_old);
+	list_old = NULL;
 
 	widget = glade_xml_get_widget (priv->gxml, "lstCrawledPaths");
 	list = treeview_get_values (GTK_TREE_VIEW (widget));
-	tracker_configuration_set_list (configuration,
+	list_old = tracker_configuration_get_list (configuration,
+					       "/Watches/CrawlDirectory",
+					       G_TYPE_STRING, NULL);
+	if (!str_slist_equal (list, list_old)) {
+		flag_restart = TRUE;
+		tracker_configuration_set_list (configuration,
 					"/Watches/CrawlDirectory", list,
 					G_TYPE_STRING);
+	}
+
 	g_slist_free (list);
 	list = NULL;
-
+	g_slist_free (list_old);
+	list_old = NULL;
 
 	/* ignored files settings */
 	widget = glade_xml_get_widget (priv->gxml, "lstIgnorePaths");
 	list = treeview_get_values (GTK_TREE_VIEW (widget));
-	tracker_configuration_set_list (configuration,
+	list_old = tracker_configuration_get_list (configuration,
+					       "/Watches/NoWatchDirectory",
+					       G_TYPE_STRING, NULL);
+	if (!str_slist_equal (list, list_old)) {
+		flag_restart = TRUE;
+		tracker_configuration_set_list (configuration,
 					"/Watches/NoWatchDirectory", list,
 					G_TYPE_STRING);
+	}
+
 	g_slist_free (list);
 	list = NULL;
+	g_slist_free (list_old);
+	list_old = NULL;
 
 	widget = glade_xml_get_widget (priv->gxml, "lstIgnoreFilePatterns");
 	list = treeview_get_values (GTK_TREE_VIEW (widget));
-	tracker_configuration_set_list (configuration,
+	list_old = tracker_configuration_get_list (configuration,
+					       "/Indexing/NoIndexFileTypes",
+					       G_TYPE_STRING, NULL);
+	if (!str_slist_equal (list, list_old)) {
+		flag_restart = TRUE;
+		tracker_configuration_set_list (configuration,
 					"/Indexing/NoIndexFileTypes", list,
 					G_TYPE_STRING);
+	}
+
 	g_slist_free (list);
 	list = NULL;
+	g_slist_free (list_old);
+	list_old = NULL;
 
+	/* Email settings */
 
+	widget = glade_xml_get_widget (priv->gxml, "chkEnableEvolutionIndexing");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Emails/IndexEvolutionEmails", NULL);
+	if (bvalue != bvalue_old) {
+		set_bool_option (priv, "EnableEvolution", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Emails/IndexEvolutionEmails", bvalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "chkEnableThunderbirdIndexing");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Emails/IndexThunderbirdEmails", NULL);
+	if (bvalue != bvalue_old) {
+		set_bool_option (priv, "EnableThunderbird", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Emails/IndexThunderbirdEmails", bvalue);
+	}
+
+	/* Performance settings */
+
+	widget = glade_xml_get_widget (priv->gxml, "scaThrottle");
+	ivalue = gtk_range_get_value (GTK_RANGE (widget));
+	ivalue_old = tracker_configuration_get_int (configuration,
+					"/Indexing/Throttle", NULL);
+	if (ivalue != ivalue_old) {
+		set_int_option (priv, "Throttle", ivalue);
+		tracker_configuration_set_int (configuration,
+					"/Indexing/Throttle", ivalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "optReducedMemory");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/General/LowMemoryMode", NULL);
+	if (bvalue != bvalue_old) {
+		set_bool_option (priv, "LowMemoryMode", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/General/LowMemoryMode", bvalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "chkFastMerges");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_bool (configuration,
+					"/Indexing/FastMerges", NULL);
+	if (bvalue != bvalue_old) {
+		set_bool_option (priv, "FastMerges", bvalue);
+		tracker_configuration_set_bool (configuration,
+					"/Indexing/FastMerges", bvalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "spnMaxText");
+	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget))*1024;
+	ivalue_old = tracker_configuration_get_int (configuration,
+					"/Performance/MaxTextToIndex", NULL);
+	if (ivalue != ivalue_old) {
+		set_int_option (priv, "MaxText", ivalue);
+		tracker_configuration_set_int (configuration,
+					"/Performance/MaxTextToIndex", ivalue);
+	}
+
+	widget = glade_xml_get_widget (priv->gxml, "spnMaxWords");
+	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
+	ivalue_old = tracker_configuration_get_int (configuration,
+					"/Performance/MaxWordsToIndex", NULL);
+	if (ivalue != ivalue_old) {
+		set_int_option (priv, "MaxWords", ivalue);
+		tracker_configuration_set_int (configuration,
+					"/Performance/MaxWordsToIndex", ivalue);
+	}
+
+	/* save config to distk */
 	tracker_configuration_write (configuration);
 
 	if (flag_restart && if_trackerd_start (priv)) {
@@ -914,10 +913,23 @@ tracker_preferences_cmd_close (GtkWidget *widget, gpointer data)
 
 		gtk_widget_show (dialog);
 
-		
-	} else {
+	} else if (flag_quit) {
 		gtk_main_quit ();
 	}
+
+}
+
+static void
+tracker_preferences_cmd_cancel (GtkWidget *widget, gpointer data)
+{
+	gtk_main_quit ();
+}
+
+static void
+tracker_preferences_cmd_ok (GtkWidget *widget, gpointer data)
+{
+	flag_quit = TRUE;
+	tracker_preferences_cmd_apply (widget, data);
 }
 
 static void
@@ -932,7 +944,6 @@ tracker_preferences_cmd_add_crawled_path (GtkWidget *widget, gpointer data)
 	append_item_to_list (self, path, "lstCrawledPaths");
 
 	g_free (path);
-	flag_restart = TRUE;
 }
 
 static void
@@ -940,7 +951,6 @@ tracker_preferences_cmd_remove_crawled_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstCrawledPaths");
-	flag_restart = TRUE;
 }
 
 static void
@@ -964,7 +974,6 @@ tracker_preferences_cmd_add_index_path (GtkWidget *widget, gpointer data)
 		append_item_to_list (self, path, "lstAdditionalPathIndexes");
 
 	g_free (path);
-	flag_restart = TRUE;
 }
 
 static void
@@ -972,7 +981,6 @@ tracker_preferences_cmd_remove_index_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstAdditionalPathIndexes");
-	flag_restart = TRUE;
 }
 
 static void
@@ -987,7 +995,6 @@ tracker_preferences_cmd_add_index_mailbox (GtkWidget *widget, gpointer data)
 
 	append_item_to_list (self, path, "lstAdditionalMBoxIndexes");
 	g_free (path);
-	flag_restart = TRUE;
 }
 
 static void
@@ -995,7 +1002,6 @@ tracker_preferences_cmd_remove_index_mailbox (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstAdditionalMBoxIndexes");
-	flag_restart = TRUE;
 }
 
 static void
@@ -1010,7 +1016,6 @@ tracker_preferences_cmd_add_ignore_path (GtkWidget *widget, gpointer data)
 
 	append_item_to_list (self, path, "lstIgnorePaths");
 	g_free (path);
-	flag_restart = TRUE;
 }
 
 static void
@@ -1018,7 +1023,6 @@ tracker_preferences_cmd_remove_ignore_path (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstIgnorePaths");
-	flag_restart = TRUE;
 }
 
 static void
@@ -1032,7 +1036,6 @@ tracker_preferences_cmd_add_ignore_pattern (GtkWidget *widget, gpointer data)
 		return;
 
 	append_item_to_list (self, pattern, "lstIgnoreFilePatterns");
-	flag_restart = TRUE;
 }
 
 static void
@@ -1040,7 +1043,6 @@ tracker_preferences_cmd_remove_ignore_pattern (GtkWidget *widget, gpointer data)
 {
 	TrackerPreferences *self = TRACKER_PREFERENCES (data);
 	remove_selection_from_list (self, "lstIgnoreFilePatterns");
-	flag_restart = TRUE;
 }
 
 static void
@@ -1164,6 +1166,27 @@ populate_list (GtkWidget *treeview, GSList *list)
 					    data, -1);
 		}
 	}
+}
+
+static gboolean
+str_slist_equal (GSList *a, GSList *b)
+{
+	guint lena = g_slist_length (a);
+	guint lenb = g_slist_length (b);
+
+	if (lena != lenb)
+		return FALSE;
+
+	GSList *l, *find;
+
+	for (l = a; l; l = g_slist_next (l)) {
+		find = g_slist_find_custom (b, (const gchar *)(l->data), _strcmp);
+		if (!find)
+			return FALSE;
+	}
+
+	return TRUE;
+
 }
 
 GType

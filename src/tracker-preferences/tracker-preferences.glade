@@ -1362,14 +1362,36 @@ Swedish</property>
               </widget>
             </child>
             <child>
-              <widget class="GtkButton" id="cmdClose">
+              <widget class="GtkButton" id="cmdApply">
                 <property name="visible">True</property>
-                <property name="label">gtk-close</property>
+                <property name="label">gtk-apply</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">0</property>
               </widget>
               <packing>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="cmdCancel">
+                <property name="visible">True</property>
+                <property name="label">gtk-cancel</property>
+                <property name="use_stock">True</property>
+                <property name="response_id">0</property>
+              </widget>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="cmdOK">
+                <property name="visible">True</property>
+                <property name="label">gtk-ok</property>
+                <property name="use_stock">True</property>
+                <property name="response_id">0</property>
+              </widget>
+              <packing>
+                <property name="position">3</property>
               </packing>
             </child>
           </widget>
