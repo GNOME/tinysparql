@@ -9,7 +9,8 @@ BUILT_SOURCES = tracker-client.h
 lib_LTLIBRARIES = libtrackerclient.la
 
 libtrackerclient_la_LIBADD = $(GLIB2_LIBS) 	\
-	    	       $(DBUS_LIBS)
+	    	       	     $(DBUS_LIBS)	\
+			     $(GOBJECT_LIBS)
 
 libtrackerclient_la_SOURCES = tracker.c
 libtrackerclient_la_LDFLAGS = -version-info 0:0:0
