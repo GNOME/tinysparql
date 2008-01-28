@@ -2575,6 +2575,8 @@ tracker_load_config_file (void)
 					 "BucketRatio=1\n",
 					 "# Alters how much padding is used to prevent index relocations. Higher values improve indexing speed but waste more disk space. Value should be in range (1..8)\n",
 					 "Padding=2\n",
+					 "# Sets stack size of trackerd threads in bytes. The default on Linux is 8Mb (0 will use the system default).\n",
+					 "ThreadStackSize=0\n",
 					 NULL);
 
 		g_file_set_contents (filename, contents, strlen (contents), NULL);
@@ -2786,6 +2788,10 @@ tracker_load_config_file (void)
 
 	if (g_key_file_has_key (key_file, "Performance", "Padding", NULL)) {
 		tracker->padding = g_key_file_get_integer (key_file, "Performance", "Padding", NULL);
+	}
+
+	if (g_key_file_has_key (key_file, "Performance", "ThreadStackSize", NULL)) {
+		tracker->thread_stack_size = g_key_file_get_integer (key_file, "Performance", "ThreadStackSize", NULL);
 	}
 
 	g_free (filename);

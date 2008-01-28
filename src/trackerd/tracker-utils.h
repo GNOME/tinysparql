@@ -252,6 +252,7 @@ typedef struct {
 	int		initial_sleep;
 	int		max_words_to_index;
 	int 		memory_limit;
+	int 		thread_stack_size;
 	gboolean	fast_merges;
 
 	/* HAL battery */

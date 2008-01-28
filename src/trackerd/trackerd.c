@@ -2122,6 +2122,8 @@ set_defaults (void)
 
 	tracker->use_extra_memory = TRUE;
 
+	tracker->thread_stack_size = 0;
+
 	tracker->throttle = 0;
 	tracker->initial_sleep = 45;
 
@@ -2813,7 +2815,8 @@ main (gint argc, gchar *argv[])
 	/* this var is used to tell the threads when to quit */
 	tracker->is_running = TRUE;
 
-	tracker->user_request_thread = g_thread_create ((GThreadFunc) process_user_request_queue_thread, NULL, FALSE, NULL);
+	tracker->user_request_thread = g_thread_create_full ((GThreadFunc) process_user_request_queue_thread, NULL, 
+								tracker->thread_stack_size, FALSE, FALSE, G_THREAD_PRIORITY_NORMAL,  NULL);
 
 	
 
@@ -2825,7 +2828,8 @@ main (gint argc, gchar *argv[])
 			exit (1);
 		}
 
-		tracker->file_process_thread =  g_thread_create ((GThreadFunc) process_files_thread, NULL, FALSE, NULL);
+		tracker->file_process_thread =  g_thread_create_full ((GThreadFunc) process_files_thread, NULL, tracker->thread_stack_size, 
+									FALSE, FALSE, G_THREAD_PRIORITY_NORMAL, NULL);
 	}
 	
 	g_main_loop_run (tracker->loop);
