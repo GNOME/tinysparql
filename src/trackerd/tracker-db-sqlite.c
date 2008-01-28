@@ -2115,12 +2115,10 @@ char ***
 tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int param_count, ...)
 {
 	va_list      args;
-	int 	     i, busy_count, cols, row;
+	GPtrArray    *res;
+	int 	     i, busy_count, cols;
 	sqlite3_stmt *stmt;
-	char 	     **res;
-	GSList	     *result;
 	int	     rc;
-	const GSList *tmp;
 
 	stmt = get_prepared_query (db_con, procedure);
 
@@ -2150,13 +2148,11 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 
 	va_end (args);
 
+	res = g_ptr_array_sized_new (100);
 	cols = sqlite3_column_count (stmt);
 
 	busy_count = 0;
-	row = 0;
 
-	result = NULL;
-	
 	lock_connection (db_con);
 	while (TRUE) {
 
@@ -2186,14 +2182,10 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 			}
 
 			lock_connection (db_con);
-			continue;
-		}
-
-		if (rc == SQLITE_ROW) {
+		} else if (rc == SQLITE_ROW) {
 			char **new_row;
 
 			new_row = g_new0 (char *, cols+1);
-			new_row[cols] = NULL;
 
 			unlock_db ();
 			
@@ -2210,16 +2202,15 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 				}
 			}
 
-			if (new_row && new_row[0]) {
-				result = g_slist_prepend (result, new_row);
-				row++;
+			if (new_row[0]) {
+				g_ptr_array_add (res, new_row);
+			} else {
+				g_strfreev (new_row);
 			}
-
-			continue;
+		} else {
+			unlock_db ();
+			break;
 		}
-
-		unlock_db ();
-		break;
 	}
 
 	unlock_connection (db_con);
@@ -2228,29 +2219,13 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 		tracker_error ("ERROR: prepared query %s failed due to %s", procedure, sqlite3_errmsg (db_con->db));
 	}
 
-	if (!result || (row == 0)) {
+	if (res->len == 0) {
 		return NULL;
 	}
 
-	result = g_slist_reverse (result);
+	g_ptr_array_add (res, NULL);
 
-	res = g_new0 (char *, row+1);
-	res[row] = NULL;
-
-	tmp = result;
-
-	for (i = 0; i < row; i++) {
-		if (tmp) {
-			res[i] = tmp->data;
-			tmp = tmp->next;
-		} else {
-			tracker_error ("WARNING: exec proc has a dud entry");
-		}
-	}
-
-	g_slist_free (result);
-
-	return (char ***) res;
+	return (char ***) g_ptr_array_free (res, FALSE);
 }
 
 

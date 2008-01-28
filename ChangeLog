@@ -1,3 +1,8 @@
+2008-01-28  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc_ignore_nulls):
+	Store directly results in a GPtrArray. Bug #511788
+
 2008-01-27 Patches from from Thiago Marcos P. Santos <tmpsantos@gmail.com>
 
 	* Fixed missing gobject ldadd in libtracker
