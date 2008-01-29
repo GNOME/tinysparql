@@ -817,7 +817,7 @@ tracker_date_to_str (time_t date_time)
 }
 
 
-gboolean
+inline gboolean
 tracker_is_empty_string (const char *s)
 {
 	return s == NULL || s[0] == '\0';
@@ -2169,18 +2169,16 @@ tracker_filename_array_to_list (char **array)
 static GSList *
 array_to_list (char **array)
 {
-	GSList  *list;
+	GSList  *list = NULL;
 	int	i;
-
-	list = NULL;
 
 	for (i = 0; array[i] != NULL; i++) {
                 if (!tracker_is_empty_string (array[i])) {
-			list = g_slist_prepend (list, g_strdup (array[i]));
+			list = g_slist_prepend (list, array[i]);
 		}
 	}
 
-	g_strfreev (array);
+	g_free (array);
 
 	return list;
 }

@@ -3050,12 +3050,13 @@ delete_dud (SearchWord *search_word, SearchQuery *query)
 char ***
 tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results, gboolean detailed)
 {
-	char 		**result, **array;
+	char 		***result, **array;
 	GSList 		*hit_list;
 	int 		count;
 	const GSList	*tmp;
 	gboolean	detailed_emails = FALSE, detailed_apps = FALSE;
 	int		service_array[255];
+	const gchar     *procedure;
 
 	array = tracker_parse_text_into_array (search_string);
 
@@ -3106,7 +3107,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 
 		if (count > limit) count = limit;
 
-		result = g_new (char *, count + 1);
+		result = g_new (char **, count + 1);
 	} else {
 		tracker_db_start_transaction (db_con);
 		tracker_exec_proc (db_con, "DeleteSearchResults1", 0);
@@ -3141,23 +3142,20 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		}
 
 		if (detailed) {
-
 			if (strcmp (service, "Emails") == 0) {
 				detailed_emails = TRUE;
-				res = tracker_exec_proc_ignore_nulls (db_con, "GetEmailByID", 1, str_id);
-
+				procedure = "GetEmailByID";
 			} else if (strcmp (service, "Applications") == 0) {
 				detailed_apps = TRUE;
-				res = tracker_exec_proc_ignore_nulls (db_con, "GetApplicationByID", 1, str_id);
-
+				procedure = "GetApplicationByID";
 			} else {
-				res = tracker_exec_proc_ignore_nulls (db_con, "GetFileByID2", 1, str_id);
+				procedure = "GetFileByID2";
 			}
-
 		} else {
-			res = tracker_exec_proc_ignore_nulls (db_con, "GetFileByID", 1, str_id);
+			procedure = "GetFileByID";
 		}
 
+		res = tracker_exec_proc_ignore_nulls (db_con, procedure, 1, str_id);
 		g_free (str_id);
 
 		if (res) {
@@ -3166,84 +3164,21 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 				char **row = NULL;
 
 				if (detailed) {
-
-					if (detailed_emails) {
-						row = g_new0 (char *, 6);
-
-						row[0] = g_strdup (res[0][0]);
-						row[1] = g_strdup (res[0][1]);
-						row[2] = NULL;
-						row[3] = NULL;
-						row[4] = NULL;
-						row[5] = NULL;
-
-						if (res[0][2]) {
-							row[2] = g_strdup (res[0][2]);						
-							if (res[0][3]) {
-								row[3] = g_strdup (res[0][3]);	
-								if (res[0][4]) {
-									row[4] = g_strdup (res[0][4]);						
-								}	
-							}
-							
-
-							 
-						}					
-						
-
-					} else if (detailed_apps) {
-						row = g_new0 (char *, 7);
-
-						row[0] = g_strdup (res[0][0]);
-						row[1] = g_strdup (res[0][1]);
-						row[2] = g_strdup (res[0][2]);
-						row[3] = NULL;
-						row[4] = NULL;
-						row[5] = NULL;
-						row[6] = NULL;
-
-						if (res[0][3]) {
-							row[3] = g_strdup (res[0][3]);							
-							if (res[0][4]) {
-								row[4] = g_strdup (res[0][4]);	
-								if (res[0][5]) {
-									row[5] = g_strdup (res[0][5]);						
-								}	
-							}
-							
-
-							 
-						}			
-
-
-					} else {
-
-						if (res[0][2] && g_file_test (res[0][0], G_FILE_TEST_EXISTS)) {
-
-							row = g_new (char *, 4);
-
-							row[0] = g_strdup (res[0][0]);
-							row[1] = g_strdup (res[0][1]);
-							row[2] = g_strdup (res[0][2]);
-							row[3] = NULL;
-						}
+					if (detailed_emails || detailed_apps)
+						row = res[0];
+					else {
+						if (res[0][2] && g_file_test (res[0][0], G_FILE_TEST_EXISTS))
+							row = res[0];
 					}
-
 				} else {
-
-					row = g_new (char *, 3);
-
-					row[0] = g_strdup (res[0][0]);
-					row[1] = g_strdup (res[0][1]);
-					row[2] = NULL;
+					row = res[0];
 				}
 				
-				result[count] = (char *) row;
+				result[count] = row;
 				count++;
 			}
 
-			tracker_db_free_result (res);
-
+			g_free (res);
 		} else {
 			tracker_log ("dud hit for search detected");
 			/* add to dud list */

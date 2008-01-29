@@ -1,3 +1,9 @@
+2008-01-29  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-db-sqlite.c (tracker_db_search_text): Avoid
+	doing too many relocations of data in memory. Bug #511781.
+	* src/trackerd/tracker-utils.c (array_to_list): Same here.
+
 2008-01-28  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc_ignore_nulls):
