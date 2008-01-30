@@ -891,19 +891,49 @@ tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data)
 	if (flag_restart && if_trackerd_start (priv)) {
 
 		GtkWidget *dialog;
-		char *msg;
+		gchar *primary;
+		gchar *secondary;
+		gchar *button;
 
 		if (flag_reindex) {
-			msg =  _("Your system must be re-indexed for your changes to take effect. Re-index now?");
+			primary = g_strdup (_("Data must be reindexed"));
+			secondary = g_strdup (_("In order your changes will "
+						"take effect, Tracker have to "
+						"reindex them from scratch. "
+						"Click Reindex button to do "
+						"it now, otherwhise this "
+						"action will be performed the "
+						"next time Tracker daemon "
+						"will be restarted."));
+			button = g_strdup (_("_Reindex"));
+					     
 		} else {
-			msg =  _("Tracker indexer needs to be restarted for your changes to take effect. Restart now?");
+			primary = g_strdup (_("Tracker daemon must be "
+					      "restarted"));
+			secondary = g_strdup (_("In order your changes will "
+						"take effect, Tracker daemon "
+						"have to be restarted. Click "
+						"Restart button to do it "
+						"now."));
+			button = g_strdup (_("_Restart"));
 		}
 		
 		dialog = gtk_message_dialog_new (GTK_WINDOW (main_window),
  	                                 	GTK_DIALOG_MODAL,
-	                                 	GTK_MESSAGE_QUESTION,
-	                                 	GTK_BUTTONS_YES_NO,
-	                                 	msg);
+	                                 	GTK_MESSAGE_WARNING,
+	                                 	GTK_BUTTONS_NONE,
+	                                 	primary);
+
+		gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+							  secondary);
+
+		gtk_dialog_add_buttons (GTK_DIALOG (dialog), 
+					GTK_STOCK_CANCEL, GTK_RESPONSE_NO, 
+					button, GTK_RESPONSE_YES, NULL);
+
+		g_free (primary);
+		g_free (secondary);
+		g_free (button);	
 		
 		gtk_window_set_title (GTK_WINDOW (dialog), "");
 		gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
