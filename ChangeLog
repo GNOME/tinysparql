@@ -2,6 +2,12 @@
 
 	* src/tracker-preferences/tracker-preferences.c:
 	(tracker_preferences_cmd_apply):
+	Fix my bad English, courtesy of A. Walton and Michael Biebl.
+
+2008-01-30  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-preferences/tracker-preferences.c:
+	(tracker_preferences_cmd_apply):
 	HIGfication of reindex/restart alerts.
 
 2008-01-29  Carlos Garnacho  <carlos@imendio.com>

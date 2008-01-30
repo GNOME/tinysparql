@@ -897,24 +897,23 @@ tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data)
 
 		if (flag_reindex) {
 			primary = g_strdup (_("Data must be reindexed"));
-			secondary = g_strdup (_("In order your changes will "
-						"take effect, Tracker have to "
-						"reindex your data from scratch. "
-						"Click Reindex button to do "
-						"it now, otherwhise this "
+			secondary = g_strdup (_("In order for your changes to "
+						"take effect, Tracker must reindex your "
+						"files. Click the Reindex button to "
+						"start reindexing now, otherwise this "
 						"action will be performed the "
-						"next time Tracker daemon "
-						"will be restarted."));
+						"next time the Tracker daemon "
+						"is restarted."));
 			button = g_strdup (_("_Reindex"));
 					     
 		} else {
 			primary = g_strdup (_("Tracker daemon must be "
 					      "restarted"));
-			secondary = g_strdup (_("In order your changes will "
-						"take effect, Tracker daemon "
-						"have to be restarted. Click "
-						"Restart button to do it "
-						"now."));
+			secondary = g_strdup (_("In order for your changes to "
+						"take effect, the Tracker daemon "
+						"has to be restarted. Click the "
+						"Restart button to restart the "
+						"daemon now."));
 			button = g_strdup (_("_Restart"));
 		}
 		
