@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-01-30 13:39+0100\n"
-"PO-Revision-Date: 2007-11-13 21:08+0100\n"
+"PO-Revision-Date: 2008-01-30 13:44+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -822,32 +822,32 @@ msgstr "Email:"
 
 #: ../src/tracker-preferences/tracker-preferences.c:899
 msgid "Data must be reindexed"
-msgstr ""
+msgstr "È necessario reindicizzare i dati"
 
 #: ../src/tracker-preferences/tracker-preferences.c:900
 msgid ""
 "In order your changes will take effect, Tracker have to reindex them from "
 "scratch. Click Reindex button to do it now, otherwhise this action will be "
 "performed the next time Tracker daemon will be restarted."
-msgstr ""
+msgstr "Affiché i cambiamenti apportati abbiano effetti, è necessario che Tracker reindicizzi i propri dati da zero. Fare clic sul pulsante «Reindicizza» per farlo adesso, altrimenti tale azione sarà compiuta al prossimo avvio del demone Tracker."
 
 #: ../src/tracker-preferences/tracker-preferences.c:908
 msgid "_Reindex"
-msgstr ""
+msgstr "_Reindicizza"
 
 #: ../src/tracker-preferences/tracker-preferences.c:911
 msgid "Tracker daemon must be restarted"
-msgstr ""
+msgstr "È necessario riavviare il demone Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.c:913
 msgid ""
 "In order your changes will take effect, Tracker daemon have to be restarted. "
 "Click Restart button to do it now."
-msgstr ""
+msgstr "Affinché i cambiamenti apportati abbiano effetto, è necessario riavviare il demone Tracker. Fare clic sul pulsante «Riavvia» per farlo adesso."
 
 #: ../src/tracker-preferences/tracker-preferences.c:918
 msgid "_Restart"
-msgstr ""
+msgstr "_Riavvia"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -919,11 +919,8 @@ msgid "Additional paths to index and watch:"
 msgstr "Percorsi aggiuntivi da indicizzare e controllare:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
-#, fuzzy
 msgid "Additional paths to index on startup (but not watch for updates):"
-msgstr ""
-"Percorsi aggiuntivi da indicizzare all'avvio (ma non controllare per "
-"aggiornamenti)"
+msgstr "Percorsi aggiuntivi da indicizzare all'avvio (ma non controllare per aggiornamenti):"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid ""
@@ -1065,7 +1062,6 @@ msgid "_Minimize memory usage (slower indexing)"
 msgstr "_Minimizzare l'uso della memoria (indicizzazione più lenta)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:57
-#, fuzzy
 msgid "_Use additional memory for faster indexing"
 msgstr "_Usare memoria aggiuntiva per incizzazione più rapida"
 
@@ -1186,7 +1182,7 @@ msgstr "_Categorie"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
 #: ../src/tracker-search-tool/tracker-search-tool.c:1574
-#, fuzzy, c-format
+#, c-format
 msgid "%d - %d of %d items"
 msgstr "%d - %d su %d corrispondenze"
 
