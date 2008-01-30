@@ -899,7 +899,7 @@ tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data)
 			primary = g_strdup (_("Data must be reindexed"));
 			secondary = g_strdup (_("In order your changes will "
 						"take effect, Tracker have to "
-						"reindex them from scratch. "
+						"reindex your data from scratch. "
 						"Click Reindex button to do "
 						"it now, otherwhise this "
 						"action will be performed the "
