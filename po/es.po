@@ -1,16 +1,17 @@
+# translation of tracker.HEAD.po to Español
 # translation of tracker to spanish
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
-# Jorge González <jorgegonz@svn.gnome.org>, 2007.
+# Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-17 23:10+0000\n"
-"PO-Revision-Date: 2007-12-19 10:23+0100\n"
+"POT-Creation-Date: 2008-01-30 20:50+0000\n"
+"PO-Revision-Date: 2008-02-02 19:01+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
-"Language-Team: Spanish <gnome-es-list@gnome.org>\n"
+"Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -586,15 +587,15 @@ msgstr "Hacer que los errores de tracker sean fatales"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2439
+#: ../src/trackerd/trackerd.c:2441
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/trackerd.c:2440 ../src/trackerd/trackerd.c:2441
+#: ../src/trackerd/trackerd.c:2442 ../src/trackerd/trackerd.c:2443
 msgid "DIRECTORY"
 msgstr "DIRECTORIO"
 
-#: ../src/trackerd/trackerd.c:2448
+#: ../src/trackerd/trackerd.c:2450
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -608,93 +609,93 @@ msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 msgid "Tracker Applet"
 msgstr "Miniaplicación Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:128
+#: ../src/tracker-applet/tracker-applet.c:203
 msgid "_Pause Indexing"
 msgstr "_Pausar el indexado"
 
-#: ../src/tracker-applet/tracker-applet.c:136
+#: ../src/tracker-applet/tracker-applet.c:211
 msgid "_Search..."
 msgstr "_Buscar..."
 
-#: ../src/tracker-applet/tracker-applet.c:142
+#: ../src/tracker-applet/tracker-applet.c:217
 msgid "Pre_ferences"
 msgstr "Prefere_ncias"
 
-#: ../src/tracker-applet/tracker-applet.c:148
+#: ../src/tracker-applet/tracker-applet.c:223
 msgid "S_tatistics"
 msgstr "Es_tadísticas"
 
-#: ../src/tracker-applet/tracker-applet.c:157
+#: ../src/tracker-applet/tracker-applet.c:232
 msgid "_Quit"
 msgstr "_Salir"
 
 #. search entry row
-#: ../src/tracker-applet/tracker-applet.c:342
+#: ../src/tracker-applet/tracker-applet.c:417
 msgid "Search:"
 msgstr "Buscar:"
 
 #. status row
-#: ../src/tracker-applet/tracker-applet.c:362
+#: ../src/tracker-applet/tracker-applet.c:437
 msgid "Status:"
 msgstr "Estado:"
 
 #. File progress row
-#: ../src/tracker-applet/tracker-applet.c:382
+#: ../src/tracker-applet/tracker-applet.c:457
 msgid "Progress:"
 msgstr "Progreso:"
 
-#: ../src/tracker-applet/tracker-applet.c:941
+#: ../src/tracker-applet/tracker-applet.c:1016
 msgid "Statistics"
 msgstr "Estadísticas"
 
-#: ../src/tracker-applet/tracker-applet.c:962
+#: ../src/tracker-applet/tracker-applet.c:1037
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Estadísticas del indexado</span>"
 
 #. set translatable strings here
-#: ../src/tracker-applet/tracker-applet.c:1052
+#: ../src/tracker-applet/tracker-applet.c:1127
 #: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "Files"
 msgstr "Archivos"
 
-#: ../src/tracker-applet/tracker-applet.c:1053
+#: ../src/tracker-applet/tracker-applet.c:1128
 msgid "folders"
 msgstr "carpetas"
 
-#: ../src/tracker-applet/tracker-applet.c:1055
+#: ../src/tracker-applet/tracker-applet.c:1130
 #: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "Correos-e"
 
-#: ../src/tracker-applet/tracker-applet.c:1057
+#: ../src/tracker-applet/tracker-applet.c:1132
 msgid "mail boxes"
 msgstr "buzones de correo"
 
-#: ../src/tracker-applet/tracker-applet.c:1059
+#: ../src/tracker-applet/tracker-applet.c:1134
 msgid "Indexing in progress"
 msgstr "Indexado en progreso"
 
-#: ../src/tracker-applet/tracker-applet.c:1060
+#: ../src/tracker-applet/tracker-applet.c:1135
 msgid "Indexing completed"
 msgstr "Indexado completado"
 
-#: ../src/tracker-applet/tracker-applet.c:1061
+#: ../src/tracker-applet/tracker-applet.c:1136
 msgid "Indexes are being merged"
 msgstr "Se están mezclando las indexaciones"
 
-#: ../src/tracker-applet/tracker-applet.c:1063
+#: ../src/tracker-applet/tracker-applet.c:1138
 msgid "Paused by user"
 msgstr "Pausado por el usuario"
 
-#: ../src/tracker-applet/tracker-applet.c:1064
+#: ../src/tracker-applet/tracker-applet.c:1139
 msgid "Paused while on battery power"
 msgstr "Pausado mientras se esté funcionando con la batería"
 
-#: ../src/tracker-applet/tracker-applet.c:1065
+#: ../src/tracker-applet/tracker-applet.c:1140
 msgid "Paused temporarily"
 msgstr "Pausado temporalmente"
 
-#: ../src/tracker-applet/tracker-applet.c:1067
+#: ../src/tracker-applet/tracker-applet.c:1142
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
@@ -702,7 +703,7 @@ msgstr ""
 "Su equipo está a punto de ser indexado para que pueda realizar búsquedas "
 "rápidas de sus archivos y correos"
 
-#: ../src/tracker-applet/tracker-applet.c:1068
+#: ../src/tracker-applet/tracker-applet.c:1143
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
@@ -710,30 +711,30 @@ msgstr ""
 "Puede pausar el indexado en cualquier momento y configurar los ajustes de "
 "indexado pulsando con el botón derecho del ratón aquí"
 
-#: ../src/tracker-applet/tracker-applet.c:1070
+#: ../src/tracker-applet/tracker-applet.c:1145
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker ha terminado de indexar su sistema"
 
-#: ../src/tracker-applet/tracker-applet.c:1071
+#: ../src/tracker-applet/tracker-applet.c:1146
 #, c-format
 msgid " in %d hours and %d minutes"
 msgstr " en %d horas y %d minutos "
 
-#: ../src/tracker-applet/tracker-applet.c:1072
+#: ../src/tracker-applet/tracker-applet.c:1147
 #, c-format
 msgid " in %d minutes and %d seconds"
 msgstr " en %d minutos y %d segundos"
 
-#: ../src/tracker-applet/tracker-applet.c:1073
+#: ../src/tracker-applet/tracker-applet.c:1148
 #, c-format
 msgid " in %d seconds"
 msgstr "en %d segundos"
 
-#: ../src/tracker-applet/tracker-applet.c:1074
+#: ../src/tracker-applet/tracker-applet.c:1149
 msgid "You can now perform searches by clicking here"
 msgstr "Ahora puede realizar búsquedas pulsando aquí"
 
-#: ../src/tracker-applet/tracker-applet.c:1076
+#: ../src/tracker-applet/tracker-applet.c:1151
 msgid ""
 "Tracker is now merging indexes which can degrade system performance for "
 "serveral minutes\n"
@@ -745,71 +746,91 @@ msgstr ""
 "\n"
 "Puede pausar esta acción pulsando aquí"
 
-#: ../src/tracker-applet/tracker-applet.c:1078 ../trackerd.desktop.in.in.h:2
+#: ../src/tracker-applet/tracker-applet.c:1153 ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Servicio de búsqueda e indexado Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:1080
+#: ../src/tracker-applet/tracker-applet.c:1155
 msgid "Files:"
 msgstr "Archivos:"
 
-#: ../src/tracker-applet/tracker-applet.c:1081
+#: ../src/tracker-applet/tracker-applet.c:1156
 msgid "    Folders:"
 msgstr "    Carpetas:"
 
-#: ../src/tracker-applet/tracker-applet.c:1082
+#: ../src/tracker-applet/tracker-applet.c:1157
 msgid "    Documents:"
 msgstr "    Documentos:"
 
-#: ../src/tracker-applet/tracker-applet.c:1083
+#: ../src/tracker-applet/tracker-applet.c:1158
 msgid "    Images:"
 msgstr "    Imágenes:"
 
-#: ../src/tracker-applet/tracker-applet.c:1084
+#: ../src/tracker-applet/tracker-applet.c:1159
 msgid "    Music:"
 msgstr "    Música:"
 
-#: ../src/tracker-applet/tracker-applet.c:1085
+#: ../src/tracker-applet/tracker-applet.c:1160
 msgid "    Videos:"
 msgstr "    Vídeos:"
 
-#: ../src/tracker-applet/tracker-applet.c:1086
+#: ../src/tracker-applet/tracker-applet.c:1161
 msgid "    Text:"
 msgstr "    Texto:"
 
-#: ../src/tracker-applet/tracker-applet.c:1087
+#: ../src/tracker-applet/tracker-applet.c:1162
 msgid "    Development:"
 msgstr "    Desarrollo:"
 
-#: ../src/tracker-applet/tracker-applet.c:1088
+#: ../src/tracker-applet/tracker-applet.c:1163
 msgid "    Other:"
 msgstr "    Otros:"
 
-#: ../src/tracker-applet/tracker-applet.c:1089
+#: ../src/tracker-applet/tracker-applet.c:1164
 msgid "Applications:"
 msgstr "Aplicaciones:"
 
-#: ../src/tracker-applet/tracker-applet.c:1090
+#: ../src/tracker-applet/tracker-applet.c:1165
 msgid "Conversations:"
 msgstr "Conversaciones:"
 
-#: ../src/tracker-applet/tracker-applet.c:1091
+#: ../src/tracker-applet/tracker-applet.c:1166
 msgid "Emails:"
 msgstr "Correos-e:"
 
-#: ../src/tracker-preferences/tracker-preferences.c:853
-msgid "Your system must be re-indexed for your changes to take effect. Re-index now?"
-msgstr ""
-"Su sistema debe volverse a indexar para que los cambios tengan efecto. "
-"¿Volver a indexar ahora?"
+#: ../src/tracker-preferences/tracker-preferences.c:899
+msgid "Data must be reindexed"
+msgstr "Los datos deben ser reindexados"
 
-#: ../src/tracker-preferences/tracker-preferences.c:855
+#: ../src/tracker-preferences/tracker-preferences.c:900
 msgid ""
-"Tracker indexer needs to be restarted for your changes to take effect. "
-"Restart now?"
+"In order for your changes to take effect, Tracker must reindex your files. "
+"Click the Reindex button to start reindexing now, otherwise this action will "
+"be performed the next time the Tracker daemon is restarted."
 msgstr ""
-"El indexador de Tracker debe ser reiniciado para que los cambios tengan "
-"efecto. ¿Reiniciarlo ahora?"
+"Para que sus cambios tengan efecto, Tracker debe reindexar sus archivos. "
+"Pulse el botón Reindexar para comenzar el reindexado ahora, de otra forma esta acción "
+"se realizará la próxima vez que se inicie el demonio de Tracker."
+
+#: ../src/tracker-preferences/tracker-preferences.c:907
+msgid "_Reindex"
+msgstr "_Reindexar"
+
+#: ../src/tracker-preferences/tracker-preferences.c:910
+msgid "Tracker daemon must be restarted"
+msgstr "Se debe reiniciar el demonio de Tracker"
+
+#: ../src/tracker-preferences/tracker-preferences.c:912
+msgid ""
+"In order for your changes to take effect, the Tracker daemon has to be "
+"restarted. Click the Restart button to restart the daemon now."
+msgstr ""
+"Para que sus cambios tengan efecto se debe reiniciar el demonio de Tracker. "
+"Pulse el botón Reiniciar para reiniciar el demonio ahora."
+
+#: ../src/tracker-preferences/tracker-preferences.c:917
+msgid "_Restart"
+msgstr "_Reiniciar"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
