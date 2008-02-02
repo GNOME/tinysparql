@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-01 18:39+0100\n"
-"PO-Revision-Date: 2008-01-25 18:42+0100\n"
+"POT-Creation-Date: 2008-02-02 19:20+0100\n"
+"PO-Revision-Date: 2008-02-02 14:39+0100\n"
 "Last-Translator: Pavol Klacansky <pavolzetor@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "MIME-Version: 1.0\n"
@@ -678,7 +678,7 @@ msgstr "Indexovanie dokončené"
 
 #: ../src/tracker-applet/tracker-applet.c:1136
 msgid "Indexes are being merged"
-msgstr ""
+msgstr "Indexy sú zotrieďované"
 
 #: ../src/tracker-applet/tracker-applet.c:1138
 msgid "Paused by user"
@@ -796,7 +796,7 @@ msgstr "E-maily:"
 
 #: ../src/tracker-preferences/tracker-preferences.c:899
 msgid "Data must be reindexed"
-msgstr ""
+msgstr "Dáta musia byť preindexované"
 
 #: ../src/tracker-preferences/tracker-preferences.c:900
 msgid ""
@@ -807,11 +807,11 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.c:907
 msgid "_Reindex"
-msgstr ""
+msgstr "P_reindexovať"
 
 #: ../src/tracker-preferences/tracker-preferences.c:910
 msgid "Tracker daemon must be restarted"
-msgstr ""
+msgstr "Démon programu Tracker musí byť reštartovaný"
 
 #: ../src/tracker-preferences/tracker-preferences.c:912
 msgid ""
@@ -821,7 +821,7 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.c:917
 msgid "_Restart"
-msgstr ""
+msgstr "_Reštartovať"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -938,15 +938,15 @@ msgstr "E-mail"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
 msgid "Enable _Evolution email indexing"
-msgstr "Povoliť indexovanie e-mailov v _Evolution"
+msgstr "Povoliť indexovanie e-mailov v programe _Evolution"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Enable _KMail email indexing"
-msgstr "Povoliť indexovanie e-mailov v _KMail"
+msgstr "Povoliť indexovanie e-mailov v programe _KMail"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Enable _Thunderbird email indexing"
-msgstr "Povoliť indexovanie e-mailov v _Thunderbird"
+msgstr "Povoliť indexovanie e-mailov v programe _Thunderbird"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Enable _watching"
@@ -1071,7 +1071,7 @@ msgstr "Vyvíjanie"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:145
 msgid "Chat Logs"
-msgstr ""
+msgstr "Záznamy rozhovorov"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:146
 msgid "Applications"
@@ -1193,24 +1193,24 @@ msgstr "Kliknite pre ukutočnenie hľadania."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
 msgid "Could not open help document."
-msgstr ""
+msgstr "Nemohol byť otvorený dokument pomocníka."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
-#, fuzzy, c-format
+#, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] "Ste si istý, že chcete otvoriť dokument %d?"
-msgstr[1] "Ste si istý, že chcete otvoriť dokument %d?"
-msgstr[2] "Ste si istý, že chcete otvoriť dokument %d?"
+msgstr[0] "Ste si istý, že chcete otvoriť %d dokumentov?"
+msgstr[1] "Ste si istý, že chcete otvoriť %d dokument?"
+msgstr[2] "Ste si istý, že chcete otvoriť %d dokumenty?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:687
-#, fuzzy, c-format
+#, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
-msgstr[0] "Toto bude otvorené %d v oddelenom okne."
-msgstr[1] "Toto bude otvorené %d v oddelenom okne."
-msgstr[2] "Toto bude otvorené %d v oddelenom okne."
+msgstr[0] "Toto bude otvorené %d v samostatných oknách."
+msgstr[1] "Toto bude otvorené %d v samostatnom okne."
+msgstr[2] "Toto bude otvorené %d v samostatných oknách."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
@@ -1240,11 +1240,11 @@ msgid "There is no installed viewer capable of displaying the document."
 msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:682
-#, fuzzy, c-format
+#, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
 msgstr[0] "Ste si istý, že chcete otvoriť priečinok %d?"
-msgstr[1] "Ste si istý, že chcete otvoriť priečinok %d?"
+msgstr[1] "Ste si istý, že chcete otvoriť %d priečinok?"
 msgstr[2] "Ste si istý, že chcete otvoriť priečinok %d?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:786
@@ -1287,7 +1287,7 @@ msgstr "Uložiť výsledky hľadania ako..."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1514
 msgid "Could not save document."
-msgstr ""
+msgstr "Dokument nemohol byť uložený."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1515
 msgid "You did not select a document name."
