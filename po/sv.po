@@ -1,14 +1,14 @@
 # Swedish translation for tracker.
-# Copyright (C) 2006, 2007 Free Software Foundation
+# Copyright (C) 2006, 2007, 2008 Free Software Foundation
 # This file is distributed under the same license as the tracker package.
-# Daniel Nylander <po@danielnylander.se>, 2007.
+# Daniel Nylander <po@danielnylander.se>, 2007, 2008.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-19 20:40+0100\n"
-"PO-Revision-Date: 2007-12-19 20:41+0100\n"
+"POT-Creation-Date: 2008-02-03 22:17+0100\n"
+"PO-Revision-Date: 2008-02-03 22:26+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 #: ../python/deskbar-handler/tracker-module.py:100
 #, python-format
 msgid "Launch %s (%s)"
-msgstr "Använd _ytterligare minne för snabbare indexering"
+msgstr "Starta %s (%s)"
 
 #: ../python/deskbar-handler/tracker-handler.py:41
 #: ../python/deskbar-handler/tracker-module.py:105
@@ -583,16 +583,16 @@ msgstr "Gör fel i tracker till ödesdigra"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2439
+#: ../src/trackerd/trackerd.c:2441
 msgid "- start the tracker daemon"
 msgstr "- starta tracker-demonen"
 
-#: ../src/trackerd/trackerd.c:2440
-#: ../src/trackerd/trackerd.c:2441
+#: ../src/trackerd/trackerd.c:2442
+#: ../src/trackerd/trackerd.c:2443
 msgid "DIRECTORY"
 msgstr "KATALOG"
 
-#: ../src/trackerd/trackerd.c:2448
+#: ../src/trackerd/trackerd.c:2450
 msgid "To include or exclude multiple directories at the same time, join multiple options like:"
 msgstr "För att inkludera eller undanta flera kataloger samtidigt kan flera flaggor sättas samman som:"
 
@@ -604,124 +604,124 @@ msgstr "Styr och övervaka sök- och indexeringstjänsten Tracker"
 msgid "Tracker Applet"
 msgstr "Panelprogram för Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:128
+#: ../src/tracker-applet/tracker-applet.c:203
 msgid "_Pause Indexing"
 msgstr "_Pausa indexering"
 
-#: ../src/tracker-applet/tracker-applet.c:136
+#: ../src/tracker-applet/tracker-applet.c:211
 msgid "_Search..."
 msgstr "_Sök..."
 
-#: ../src/tracker-applet/tracker-applet.c:142
+#: ../src/tracker-applet/tracker-applet.c:217
 msgid "Pre_ferences"
 msgstr "Inställ_ningar"
 
-#: ../src/tracker-applet/tracker-applet.c:148
+#: ../src/tracker-applet/tracker-applet.c:223
 msgid "S_tatistics"
 msgstr "S_tatistik"
 
-#: ../src/tracker-applet/tracker-applet.c:157
+#: ../src/tracker-applet/tracker-applet.c:232
 msgid "_Quit"
 msgstr "A_vsluta"
 
 #. search entry row
-#: ../src/tracker-applet/tracker-applet.c:342
+#: ../src/tracker-applet/tracker-applet.c:417
 msgid "Search:"
 msgstr "Sök:"
 
 #. status row
-#: ../src/tracker-applet/tracker-applet.c:362
+#: ../src/tracker-applet/tracker-applet.c:437
 msgid "Status:"
 msgstr "Status:"
 
 #. File progress row
-#: ../src/tracker-applet/tracker-applet.c:382
+#: ../src/tracker-applet/tracker-applet.c:457
 msgid "Progress:"
 msgstr "Förlopp:"
 
-#: ../src/tracker-applet/tracker-applet.c:941
+#: ../src/tracker-applet/tracker-applet.c:1016
 msgid "Statistics"
 msgstr "Statistik"
 
-#: ../src/tracker-applet/tracker-applet.c:962
+#: ../src/tracker-applet/tracker-applet.c:1037
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Indexeringsstatistik</span>"
 
 #. set translatable strings here
-#: ../src/tracker-applet/tracker-applet.c:1052
+#: ../src/tracker-applet/tracker-applet.c:1127
 #: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "Files"
 msgstr "Filer"
 
-#: ../src/tracker-applet/tracker-applet.c:1053
+#: ../src/tracker-applet/tracker-applet.c:1128
 msgid "folders"
 msgstr "mappar"
 
-#: ../src/tracker-applet/tracker-applet.c:1055
+#: ../src/tracker-applet/tracker-applet.c:1130
 #: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "E-post"
 
-#: ../src/tracker-applet/tracker-applet.c:1057
+#: ../src/tracker-applet/tracker-applet.c:1132
 msgid "mail boxes"
 msgstr "postlådor"
 
-#: ../src/tracker-applet/tracker-applet.c:1059
+#: ../src/tracker-applet/tracker-applet.c:1134
 msgid "Indexing in progress"
 msgstr "Indexering pågår"
 
-#: ../src/tracker-applet/tracker-applet.c:1060
+#: ../src/tracker-applet/tracker-applet.c:1135
 msgid "Indexing completed"
 msgstr "Indexering färdig"
 
-#: ../src/tracker-applet/tracker-applet.c:1061
+#: ../src/tracker-applet/tracker-applet.c:1136
 msgid "Indexes are being merged"
 msgstr "Index sammanfogas nu"
 
-#: ../src/tracker-applet/tracker-applet.c:1063
+#: ../src/tracker-applet/tracker-applet.c:1138
 msgid "Paused by user"
 msgstr "Pausad av användaren"
 
-#: ../src/tracker-applet/tracker-applet.c:1064
+#: ../src/tracker-applet/tracker-applet.c:1139
 msgid "Paused while on battery power"
 msgstr "Pausad vid batteridrift"
 
-#: ../src/tracker-applet/tracker-applet.c:1065
+#: ../src/tracker-applet/tracker-applet.c:1140
 msgid "Paused temporarily"
 msgstr "Pausad temporärt"
 
-#: ../src/tracker-applet/tracker-applet.c:1067
+#: ../src/tracker-applet/tracker-applet.c:1142
 msgid "Your computer is about to be indexed so you can perform fast searches of your files and emails"
 msgstr "Din dator är på väg att bli indexerad så att du kan genomföra snabba sökningar efter dina filer och e-post"
 
-#: ../src/tracker-applet/tracker-applet.c:1068
+#: ../src/tracker-applet/tracker-applet.c:1143
 msgid "You can pause indexing at any time and configure index settings by right clicking here"
 msgstr "Du kan pausa indexeringen när som helst och ändra konfigurationen genom att högerklicka här "
 
-#: ../src/tracker-applet/tracker-applet.c:1070
+#: ../src/tracker-applet/tracker-applet.c:1145
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker har avslutat indexeringen av ditt system"
 
-#: ../src/tracker-applet/tracker-applet.c:1071
+#: ../src/tracker-applet/tracker-applet.c:1146
 #, c-format
 msgid " in %d hours and %d minutes"
 msgstr " på %d timmar och %d minuter"
 
-#: ../src/tracker-applet/tracker-applet.c:1072
+#: ../src/tracker-applet/tracker-applet.c:1147
 #, c-format
 msgid " in %d minutes and %d seconds"
 msgstr " på %d minuter och %d sekunder"
 
-#: ../src/tracker-applet/tracker-applet.c:1073
+#: ../src/tracker-applet/tracker-applet.c:1148
 #, c-format
 msgid " in %d seconds"
 msgstr " på %d sekunder"
 
-#: ../src/tracker-applet/tracker-applet.c:1074
+#: ../src/tracker-applet/tracker-applet.c:1149
 msgid "You can now perform searches by clicking here"
 msgstr "Du kan nu genomföra sökningar genom att klicka här"
 
-#: ../src/tracker-applet/tracker-applet.c:1076
+#: ../src/tracker-applet/tracker-applet.c:1151
 msgid ""
 "Tracker is now merging indexes which can degrade system performance for serveral minutes\n"
 "\n"
@@ -731,66 +731,82 @@ msgstr ""
 "\n"
 "Du kan pausa detta genom att högerklicka här"
 
-#: ../src/tracker-applet/tracker-applet.c:1078
+#: ../src/tracker-applet/tracker-applet.c:1153
 #: ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Sök- och indexeringstjänsten Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:1080
+#: ../src/tracker-applet/tracker-applet.c:1155
 msgid "Files:"
 msgstr "Filer:"
 
-#: ../src/tracker-applet/tracker-applet.c:1081
+#: ../src/tracker-applet/tracker-applet.c:1156
 msgid "    Folders:"
 msgstr "    Mappar:"
 
-#: ../src/tracker-applet/tracker-applet.c:1082
+#: ../src/tracker-applet/tracker-applet.c:1157
 msgid "    Documents:"
 msgstr "    Dokument:"
 
-#: ../src/tracker-applet/tracker-applet.c:1083
+#: ../src/tracker-applet/tracker-applet.c:1158
 msgid "    Images:"
 msgstr "    Bilder:"
 
-#: ../src/tracker-applet/tracker-applet.c:1084
+#: ../src/tracker-applet/tracker-applet.c:1159
 msgid "    Music:"
 msgstr "    Musik:"
 
-#: ../src/tracker-applet/tracker-applet.c:1085
+#: ../src/tracker-applet/tracker-applet.c:1160
 msgid "    Videos:"
 msgstr "    Videoklipp:"
 
-#: ../src/tracker-applet/tracker-applet.c:1086
+#: ../src/tracker-applet/tracker-applet.c:1161
 msgid "    Text:"
 msgstr "    Text:"
 
-#: ../src/tracker-applet/tracker-applet.c:1087
+#: ../src/tracker-applet/tracker-applet.c:1162
 msgid "    Development:"
 msgstr "    Utveckling:"
 
-#: ../src/tracker-applet/tracker-applet.c:1088
+#: ../src/tracker-applet/tracker-applet.c:1163
 msgid "    Other:"
 msgstr "    Övriga:"
 
-#: ../src/tracker-applet/tracker-applet.c:1089
+#: ../src/tracker-applet/tracker-applet.c:1164
 msgid "Applications:"
 msgstr "Program:"
 
-#: ../src/tracker-applet/tracker-applet.c:1090
+#: ../src/tracker-applet/tracker-applet.c:1165
 msgid "Conversations:"
 msgstr "Konversationer:"
 
-#: ../src/tracker-applet/tracker-applet.c:1091
+#: ../src/tracker-applet/tracker-applet.c:1166
 msgid "Emails:"
 msgstr "E-post:"
 
-#: ../src/tracker-preferences/tracker-preferences.c:853
-msgid "Your system must be re-indexed for your changes to take effect. Re-index now?"
-msgstr "Ditt system måste indexeras om för att dina ändringar ska bli aktiva. Indexera om nu?"
+#: ../src/tracker-preferences/tracker-preferences.c:899
+msgid "Data must be reindexed"
+msgstr "Data måste indexeras om"
 
-#: ../src/tracker-preferences/tracker-preferences.c:855
-msgid "Tracker indexer needs to be restarted for your changes to take effect. Restart now?"
-msgstr "Trackers indexerare behöver startas om för att dina ändringar ska bli aktiva. Starta om nu?"
+#: ../src/tracker-preferences/tracker-preferences.c:900
+msgid "In order for your changes to take effect, Tracker must reindex your files. Click the Reindex button to start reindexing now, otherwise this action will be performed the next time the Tracker daemon is restarted."
+msgstr "Tracker-demonen måste startas om för att dina ändringar ska bli aktiva. Klicka på Indexera om-knappen för att indexera om nu, annars kommer denna åtgärd att genomföras nästa gång Tracker-demonen startas."
+
+#: ../src/tracker-preferences/tracker-preferences.c:907
+msgid "_Reindex"
+msgstr "Indexera _om"
+
+#: ../src/tracker-preferences/tracker-preferences.c:910
+msgid "Tracker daemon must be restarted"
+msgstr "Tracker-demonen måste startas om"
+
+#: ../src/tracker-preferences/tracker-preferences.c:912
+msgid "In order for your changes to take effect, the Tracker daemon has to be restarted. Click the Restart button to restart the daemon now."
+msgstr "Tracker-demonen måste startas om för att dina ändringar ska bli aktiva. Klicka på Starta om-knappen för att starta om demonen nu."
+
+#: ../src/tracker-preferences/tracker-preferences.c:917
+msgid "_Restart"
+msgstr "Starta _om"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 msgid "Configure file indexing with Tracker"
@@ -802,7 +818,7 @@ msgstr "Sök och indexering"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
-msgstr "<b>Genomsökta kataloger</b>"
+msgstr "<b>Genomsökning av kataloger</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:2
 msgid "<b>Ignored File Patterns</b>"
@@ -842,7 +858,7 @@ msgstr "<b>Uppstart</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:11
 msgid "<b>Stemming</b>"
-msgstr "<b>Stemming</b>"
+msgstr "<b>Bildande av ordstam</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
@@ -850,7 +866,7 @@ msgstr "<b>Begränsning</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:13
 msgid "<b>Watch Directories</b>"
-msgstr "<b>Bevaka kataloger</b>"
+msgstr "<b>Bevakning av kataloger</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:14
 msgid "Additional mbox style mailboxes to index:"
@@ -1327,6 +1343,18 @@ msgstr "länk till %s"
 msgid "Tracker"
 msgstr "Tracker"
 
+#~ msgid ""
+#~ "Your system must be re-indexed for your changes to take effect. Re-index "
+#~ "now?"
+#~ msgstr ""
+#~ "Ditt system måste indexeras om för att dina ändringar ska bli aktiva. "
+#~ "Indexera om nu?"
+#~ msgid ""
+#~ "Tracker indexer needs to be restarted for your changes to take effect. "
+#~ "Restart now?"
+#~ msgstr ""
+#~ "Trackers indexerare behöver startas om för att dina ändringar ska bli "
+#~ "aktiva. Starta om nu?"
 #~ msgid "<b>Mailboxes</b>"
 #~ msgstr "<b>Postlådor</b>"
 #~ msgid "<b>Services</b>"
