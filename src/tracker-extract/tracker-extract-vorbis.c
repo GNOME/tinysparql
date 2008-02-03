@@ -16,6 +16,7 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+
 #include "config.h"
 
 #ifdef HAVE_VORBIS
@@ -24,6 +25,8 @@
 #include <string.h>
 #include <glib.h>
 #include <vorbis/vorbisfile.h>
+
+#include "tracker-extract.h"
 
 /*#include "tracker-utils.h"*/
 
@@ -84,6 +87,7 @@ get_comment (vorbis_comment *vc, char *label)
 	}
 
 }
+
 
 gboolean
 tracker_metadata_ogg_is_writable (const char *meta)

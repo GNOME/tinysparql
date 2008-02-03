@@ -32,6 +32,7 @@ static gchar *video_tags[][2] = {
 	{ NULL,			NULL			}
 };
 
+
 static gchar *audio_tags[][2] = {
 	{ "ID_AUDIO_BITRATE",	"Audio:Bitrate"		},
 	{ "ID_AUDIO_RATE",	"Audio:Samplerate"	},
@@ -39,6 +40,7 @@ static gchar *audio_tags[][2] = {
 	{ "ID_AUDIO_NCH",	"Audio:Channels"	},
 	{ NULL,			NULL			}
 };
+
 
 /* Some of "info_tags" tags can belong to Audio or/and video or none, so 3 cases :
  * 1/ tag does not belong to audio nor video, it is a general tag ;
@@ -66,8 +68,8 @@ copy_hash_table_entry (gpointer key, gpointer value, gpointer user_data)
 }
 
 
-void
-tracker_extract_mplayer (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_mplayer (const gchar *filename, GHashTable *metadata)
 {
 	gchar *argv[10];
 	gchar *mplayer;
@@ -85,7 +87,6 @@ tracker_extract_mplayer (gchar *filename, GHashTable *metadata)
 
 	if (tracker_spawn (argv, 10, &mplayer, NULL)) {
 	
-
 		GPatternSpec *pattern_ID_AUDIO_ID, *pattern_ID_VIDEO_ID;
 		GPatternSpec *pattern_ID_AUDIO, *pattern_ID_VIDEO, *pattern_ID_CLIP_INFO_NAME, *pattern_ID_CLIP_INFO_VALUE, *pattern_ID_LENGTH;
 		GHashTable   *tmp_metadata_audio, *tmp_metadata_video;
@@ -225,4 +226,18 @@ tracker_extract_mplayer (gchar *filename, GHashTable *metadata)
 		g_hash_table_destroy (tmp_metadata_audio);
 		g_hash_table_destroy (tmp_metadata_video);
 	}
+}
+
+
+TrackerExtractorData data[] = {
+	{ "audio/*", tracker_extract_mplayer },
+	{ "video/*", tracker_extract_mplayer },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
 }

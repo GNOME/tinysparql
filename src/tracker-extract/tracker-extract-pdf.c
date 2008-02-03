@@ -20,17 +20,16 @@
 
 #include "config.h"
 
-#ifdef HAVE_POPPLER
-
 #include <poppler.h>
 #include <string.h>
 #include <glib.h>
 
 #include "tracker-extract.h"
+#include "tracker-xmp.h"
 
 
-void
-tracker_extract_pdf (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_pdf (const gchar *filename, GHashTable *metadata)
 {
 	PopplerDocument *document;
 	gchar           *tmp;
@@ -101,6 +100,15 @@ tracker_extract_pdf (gchar *filename, GHashTable *metadata)
 	g_object_unref (document);
 }
 
-#else
-#warning "Not building PDF metadata extractor."
-#endif  /* HAVE_POPPLER */
+
+TrackerExtractorData data[] = {
+ 	{ "application/pdf", tracker_extract_pdf },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
+}

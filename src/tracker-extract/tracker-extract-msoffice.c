@@ -21,8 +21,6 @@
 #include "config.h"
 #include "tracker-extract.h"
 
-#ifdef HAVE_LIBGSF
-
 #include <string.h>
 #include <glib.h>
 #include <gsf/gsf.h>
@@ -127,8 +125,8 @@ doc_metadata_cb (gpointer key, gpointer value, gpointer user_data)
 }
 
 
-void
-tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_msoffice (const gchar *filename, GHashTable *metadata)
 {
 	GsfInput  *input;
 	GsfInfile *infile;
@@ -191,6 +189,15 @@ tracker_extract_msoffice (gchar *filename, GHashTable *metadata)
 }
 
 
-#else
-#warning "Not building Microsoft Office metadata extractor."
-#endif  /* HAVE_LIBGSF */
+TrackerExtractorData data[] = {
+ 	{ "application/msword",	  tracker_extract_msoffice },
+ 	{ "application/vnd.ms-*", tracker_extract_msoffice },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
+}

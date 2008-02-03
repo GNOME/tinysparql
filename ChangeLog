@@ -1,16 +1,20 @@
-2008-01-30  Luca Ferretti  <elle.uca@libero.it>
+2008-02-03 Patch from Carlos Garnacho  <carlos@imendio.com>
+
+	* GNOME Bug #509601: make tracker-extract more modular using dynamically loaded libraries
+	
+2008-01-30 Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-preferences/tracker-preferences.c:
 	(tracker_preferences_cmd_apply):
 	Fix my bad English, courtesy of A. Walton and Michael Biebl.
 
-2008-01-30  Luca Ferretti  <elle.uca@libero.it>
+2008-01-30 Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-preferences/tracker-preferences.c:
 	(tracker_preferences_cmd_apply):
 	HIGfication of reindex/restart alerts.
 
-2008-01-29  Carlos Garnacho  <carlos@imendio.com>
+2008-01-29 Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.c (tracker_db_search_text): Avoid
 	doing too many relocations of data in memory. Bug #511781.

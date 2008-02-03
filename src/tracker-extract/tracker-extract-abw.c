@@ -28,9 +28,11 @@
 #include <unistd.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+#include "tracker-extract.h"
 
 
-void tracker_extract_abw (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_abw (const gchar *filename, GHashTable *metadata)
 {
         gint fd;
 	FILE *f;
@@ -92,3 +94,15 @@ void tracker_extract_abw (gchar *filename, GHashTable *metadata)
         }
 }
 
+
+TrackerExtractorData data[] = {
+	{ "application/x-abiword", tracker_extract_abw },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
+}

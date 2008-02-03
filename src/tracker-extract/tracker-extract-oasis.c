@@ -17,7 +17,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
@@ -34,10 +33,12 @@ typedef enum {
 		READ_FILE_OTHER
 	} tag_type;
 
+
 typedef struct {
 	GHashTable *metadata;
 	tag_type current;
 } ODTParseInfo;
+
 
 static void start_element_handler (GMarkupParseContext *context,
                                    const gchar *element_name,
@@ -58,7 +59,8 @@ static void text_handler (GMarkupParseContext *context,
                           GError **error);
 
 
-void tracker_extract_oasis (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_oasis (const gchar *filename, GHashTable *metadata)
 {
 	gchar         *argv[5];
 	gchar         *xml;
@@ -123,7 +125,7 @@ void start_element_handler (GMarkupParseContext *context,
 		GHashTable *metadata = data->metadata;
 		const gchar **a, **v;
 
-		for(a = attribute_names, v = attribute_values; *a; ++a, ++v) {
+		for (a = attribute_names, v = attribute_values; *a; ++a, ++v) {
 			if (strcmp (*a, "meta:word-count") == 0) {
 				g_hash_table_insert (metadata,
 					g_strdup ("Doc:WordCount"), g_strdup (*v));
@@ -165,15 +167,15 @@ void text_handler (GMarkupParseContext *context,
         ODTParseInfo *data = user_data;
 	GHashTable *metadata = data->metadata;
 
-	switch(data->current) {
+	switch (data->current) {
 		case READ_TITLE:
-			g_hash_table_insert (metadata, g_strdup("Doc:Title"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup ("Doc:Title"), g_strdup (text));
 			break;
 		case READ_SUBJECT:
-			g_hash_table_insert (metadata, g_strdup("Doc:Subject"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup ("Doc:Subject"), g_strdup (text));
 			break;
 		case READ_AUTHOR:
-			g_hash_table_insert (metadata, g_strdup("Doc:Author"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup ("Doc:Author"), g_strdup (text));
 			break;
 		case READ_KEYWORDS: {
 				gchar *keywords;
@@ -181,21 +183,34 @@ void text_handler (GMarkupParseContext *context,
 					g_hash_table_replace (metadata, g_strdup ("Doc:Keywords"),
 							g_strconcat (keywords, ",", text, NULL));
 				} else {
-					g_hash_table_insert (metadata, g_strdup("Doc:Keywords"), g_strdup (text));
+					g_hash_table_insert (metadata, g_strdup ("Doc:Keywords"), g_strdup (text));
 				}
 			}
 			break;
 		case READ_COMMENTS:
-			g_hash_table_insert (metadata, g_strdup("Doc:Comments"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup ("Doc:Comments"), g_strdup (text));
 			break;
 		case READ_CREATED:
-			g_hash_table_insert (metadata, g_strdup("Doc:Created"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup ("Doc:Created"), g_strdup (text));
 			break;
 		case READ_FILE_OTHER:
-			g_hash_table_insert (metadata, g_strdup("File:Other"), g_strdup (text));
+			g_hash_table_insert (metadata, g_strdup ("File:Other"), g_strdup (text));
 			break;
 
 		default:
 			break;
 	}
+}
+
+
+TrackerExtractorData data[] = {
+	{ "application/vnd.oasis.opendocument.*", tracker_extract_oasis },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
 }

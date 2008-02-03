@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include "tracker-extract.h"
+#include "tracker-xmp.h"
 
 #include <fcntl.h>
 #include <string.h>
@@ -72,8 +73,8 @@ static struct {
 };
 
 
-void
-tracker_extract_png (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_png (const gchar *filename, GHashTable *metadata)
 {
         gint        fd_png;
 	FILE        *png;
@@ -94,7 +95,7 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
                 return;
         }
 
-	if ((png = fdopen(fd_png, "r"))) {
+	if ((png = fdopen (fd_png, "r"))) {
 		png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
 		                                  NULL, NULL, NULL);
 		if (!png_ptr) {
@@ -127,7 +128,7 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
 				if (text_ptr[i].key) {
                                         gint j;
 					#if defined(HAVE_EXEMPI) && defined(PNG_iTXt_SUPPORTED)
-					if (strcmp("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
+					if (strcmp ("XML:com.adobe.xmp", text_ptr[i].key) == 0) {
 						tracker_read_xmp (text_ptr[i].text,
                                                                   text_ptr[i].itxt_length,
                                                                   metadata);
@@ -156,10 +157,23 @@ tracker_extract_png (gchar *filename, GHashTable *metadata)
 		}
 
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-		
+
 		fclose (png);
 
         } else {
                 close (fd_png);
         }
+}
+
+
+TrackerExtractorData data[] = {
+	{ "image/png", tracker_extract_png },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
 }

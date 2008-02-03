@@ -40,6 +40,7 @@
 #undef getdelim
 #undef getline
 
+
 static ssize_t
 igetdelim (gchar **linebuf, size_t *linebufsz, gint delimiter, FILE *file)
 {
@@ -191,8 +192,8 @@ date_to_iso8160 (gchar *date)
 }
 
 
-void
-tracker_extract_ps (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_ps (const gchar *filename, GHashTable *metadata)
 {
         gint fd;
 	FILE *f;
@@ -268,11 +269,13 @@ tracker_extract_ps (gchar *filename, GHashTable *metadata)
         }
 }
 
+
 /* our private prototype */
 void tracker_child_cb (gpointer user_data);
 
-void
-tracker_extract_ps_gz (gchar *filename, GHashTable *metadata)
+
+static void
+tracker_extract_ps_gz (const gchar *filename, GHashTable *metadata)
 {
 	FILE   * fz        = NULL;
 	GError * error     = NULL;
@@ -287,7 +290,7 @@ tracker_extract_ps_gz (gchar *filename, GHashTable *metadata)
 		return;
 	}
 
-	char * argv [4];
+	const char * argv [4];
 	argv [0] = "gunzip";
 	argv [1] = "-c";
 	argv [2] = filename;
@@ -295,7 +298,7 @@ tracker_extract_ps_gz (gchar *filename, GHashTable *metadata)
 
 	gboolean stat = g_spawn_async_with_pipes (
 			"/tmp",
-			argv,
+			(char **) argv,
 			NULL, /* envp */
 			G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
 			tracker_child_cb, /* child setup func */
@@ -329,4 +332,18 @@ tracker_extract_ps_gz (gchar *filename, GHashTable *metadata)
 
 	tracker_extract_ps (gunzipped, metadata);
 	g_unlink (gunzipped);
+}
+
+
+TrackerExtractorData data[] = {
+	{ "application/x-gzpostscript",	tracker_extract_ps_gz },
+	{ "application/postscript",	tracker_extract_ps    },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
 }

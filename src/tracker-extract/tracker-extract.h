@@ -34,13 +34,21 @@ typedef enum {
         LAST_STEP       /* This is the end... The end my friend... */
 } steps;
 
+typedef struct TrackerExtractorData TrackerExtractorData;
+typedef TrackerExtractorData * (* TrackerExtractorDataFunc) (void);
+
+struct TrackerExtractorData {
+	const gchar *mime;
+
+	void (* extractor) (const gchar *filename,
+			    GHashTable  *metadata);
+};
+
 
 gchar *         tracker_generic_date_extractor (gchar *date, steps steps_to_do[]);
 
 gboolean        tracker_is_empty_string (const gchar *s);
 
 gboolean	tracker_spawn (gchar **argv, int timeout, gchar **tmp_stdout, gint *exit_status);
-
-void 		tracker_read_xmp (const gchar *buffer, size_t len, GHashTable *metadata);
 
 #endif

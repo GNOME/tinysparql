@@ -35,6 +35,7 @@
 #include <fcntl.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+#include "tracker-extract.h"
 
 #define MAX_FILE_READ 1024 * 1024 * 10
 
@@ -43,6 +44,7 @@ typedef struct {
 	char * text;
 	char * type;
 } Matches;
+
 
 static struct {
 	char * name;
@@ -90,6 +92,7 @@ typedef struct {
 	char * comment;
 	char * genre;
 } id3tag;
+
 
 static const char *const genre_names[] = {
 	"Blues",
@@ -972,7 +975,7 @@ get_id3v2_tags (const char *data, size_t size, GHashTable *metadata)
 
 }
 
-void 
+static void
 tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 {
 	int file;
@@ -1077,3 +1080,15 @@ tracker_extract_mp3 (const char *filename, GHashTable *metadata)
 	
 }
 
+
+TrackerExtractorData data[] = {
+	{ "audio/mp3", tracker_extract_mp3 },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
+}

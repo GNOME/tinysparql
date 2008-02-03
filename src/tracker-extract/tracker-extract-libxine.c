@@ -20,6 +20,8 @@
 #include <xine.h>
 #include <glib.h>
 
+#include "tracker-extract.h"
+
 
 static void
 add_uint32_info (GHashTable *metadata, char *key, uint32_t info)
@@ -236,4 +238,18 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
 	xine_close_video_driver (xine_base, video_port);
 
 	xine_exit (xine_base);
+}
+
+
+TrackerExtractorData data[] = {
+	{ "audio/*", tracker_extract_xine },
+	{ "video/*", tracker_extract_xine },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
 }

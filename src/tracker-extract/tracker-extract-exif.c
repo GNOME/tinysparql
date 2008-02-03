@@ -19,8 +19,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_LIBEXIF
-
 #include "tracker-extract.h"
 #include <stdio.h>
 #include <string.h>
@@ -145,8 +143,8 @@ TagType tags[] = {
 };
 
 
-void
-tracker_extract_exif (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_exif (const gchar *filename, GHashTable *metadata)
 {
 	ExifData *exif;
 	TagType  *p;
@@ -172,6 +170,15 @@ tracker_extract_exif (gchar *filename, GHashTable *metadata)
 	}
 }
 
-#else
-#warning "Not building EXIF metadata extractor."
-#endif  /* HAVE_LIBEXIF */
+
+TrackerExtractorData data[] = {
+	{ "image/jpeg", tracker_extract_exif },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
+}

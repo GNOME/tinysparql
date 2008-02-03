@@ -54,6 +54,7 @@
 #include <glib.h>
 #include <gst/gst.h>
 
+#include "tracker-extract.h"
 
 typedef struct {
 	GstElement	*playbin;
@@ -652,8 +653,8 @@ poll_for_state_change (MetadataExtractor *extractor, GstState state)
 }
 
 
-void
-tracker_extract_gstreamer (gchar *uri, GHashTable *metadata)
+static void
+tracker_extract_gstreamer (const gchar *uri, GHashTable *metadata)
 {
 	MetadataExtractor *extractor;
 	gchar		  *mrl;
@@ -719,4 +720,18 @@ tracker_extract_gstreamer (gchar *uri, GHashTable *metadata)
 	gst_object_unref (GST_OBJECT (extractor->playbin));
 
 	g_slice_free (MetadataExtractor, extractor);
+}
+
+
+TrackerExtractorData data[] = {
+	{ "audio/*", tracker_extract_gstreamer },
+	{ "video/*", tracker_extract_gstreamer },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
 }

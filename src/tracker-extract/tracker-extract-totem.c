@@ -41,8 +41,8 @@ static gchar *tags[][2] = {
 };
 
 
-void
-tracker_extract_totem (gchar *filename, GHashTable *metadata)
+static void
+tracker_extract_totem (const gchar *filename, GHashTable *metadata)
 {
 	gchar *argv[3];
 	gchar *totem;
@@ -70,4 +70,18 @@ tracker_extract_totem (gchar *filename, GHashTable *metadata)
 			}
 		}
 	}
+}
+
+
+TrackerExtractorData data[] = {
+	{ "audio/*", tracker_extract_totem },
+	{ "video/*", tracker_extract_totem },
+	{ NULL, NULL }
+};
+
+
+TrackerExtractorData *
+tracker_get_extractor_data (void)
+{
+	return data;
 }
