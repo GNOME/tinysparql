@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-02 19:20+0100\n"
-"PO-Revision-Date: 2008-02-02 14:39+0100\n"
+"POT-Creation-Date: 2008-02-05 09:34+0100\n"
+"PO-Revision-Date: 2008-02-04 16:41+0100\n"
 "Last-Translator: Pavol Klacansky <pavolzetor@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "MIME-Version: 1.0\n"
@@ -580,7 +580,7 @@ msgstr "Vynútiť preindexovanie všetkého obsahu"
 
 #: ../src/trackerd/trackerd.c:156
 msgid "Make tracker errors fatal"
-msgstr "Urobiť chybu programu trakcer nenapraviteľnou"
+msgstr "Urobiť chybu programu tracker nenapraviteľnou"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -678,7 +678,7 @@ msgstr "Indexovanie dokončené"
 
 #: ../src/tracker-applet/tracker-applet.c:1136
 msgid "Indexes are being merged"
-msgstr "Indexy sú zotrieďované"
+msgstr "Indexy sú spájané"
 
 #: ../src/tracker-applet/tracker-applet.c:1138
 msgid "Paused by user"
@@ -1208,9 +1208,9 @@ msgstr[2] "Ste si istý, že chcete otvoriť %d dokumenty?"
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
-msgstr[0] "Toto bude otvorené %d v samostatných oknách."
-msgstr[1] "Toto bude otvorené %d v samostatnom okne."
-msgstr[2] "Toto bude otvorené %d v samostatných oknách."
+msgstr[0] "Toto otvorí %d samostatných okien."
+msgstr[1] "Toto otvorí %d samostatné okno."
+msgstr[2] "Toto otvorí %d samostatné okná."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
@@ -1243,9 +1243,9 @@ msgstr ""
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] "Ste si istý, že chcete otvoriť priečinok %d?"
+msgstr[0] "Ste si istý, že chcete otvoriť %d priečinkov?"
 msgstr[1] "Ste si istý, že chcete otvoriť %d priečinok?"
-msgstr[2] "Ste si istý, že chcete otvoriť priečinok %d?"
+msgstr[2] "Ste si istý, že chcete otvoriť %d priečinky?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:786
 #, c-format
