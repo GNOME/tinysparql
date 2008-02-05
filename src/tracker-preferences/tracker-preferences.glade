@@ -46,6 +46,9 @@
                                     <property name="label" translatable="yes">Index _delay: </property>
                                     <property name="use_underline">True</property>
                                     <property name="mnemonic_widget">spnInitialSleep</property>
+                                    <accessibility>
+                                      <atkrelation target="spnInitialSleep" type="label-for"/>
+                                    </accessibility>
                                   </widget>
                                   <packing>
                                     <property name="expand">False</property>
@@ -61,12 +64,19 @@
                                         <property name="can_focus">True</property>
                                         <property name="adjustment">0 0 1000 1 300 300</property>
                                         <property name="climb_rate">1</property>
+                                        <accessibility>
+                                          <atkrelation target="lblInitialSleep" type="labelled-by"/>
+                                          <atkrelation target="lblInitialSleepSeconds" type="labelled-by"/>
+                                        </accessibility>
                                       </widget>
                                     </child>
                                     <child>
                                       <widget class="GtkLabel" id="lblInitialSleepSeconds">
                                         <property name="visible">True</property>
                                         <property name="label" translatable="yes">seconds</property>
+                                        <accessibility>
+                                          <atkrelation target="spnInitialSleep" type="label-for"/>
+                                        </accessibility>
                                       </widget>
                                       <packing>
                                         <property name="expand">False</property>

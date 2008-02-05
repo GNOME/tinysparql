@@ -1,3 +1,8 @@
+2008-02-05  Rich Burridge <rich.burridge@sun.com>
+
+        * src/tracker-preferences/tracker-preferences.glade:
+          Fix for bug #503215 – The time unit is not reported by default.
+
 2008-02-03 Patch from Carlos Garnacho  <carlos@imendio.com>
 
 	* GNOME Bug #509601: make tracker-extract more modular using dynamically loaded libraries
