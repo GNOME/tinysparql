@@ -799,6 +799,7 @@ _bitrate_to_label (GtkWidget *label, const char *prop, const char *string)
 	format = g_strdup_printf ("%d", size);
 	temp = g_strdup_printf (string, format);
 	gtk_label_set_markup (GTK_LABEL (label), temp);
+	gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 
 	g_free (temp);
 	g_free (format);	
@@ -825,6 +826,7 @@ _seconds_to_label (GtkWidget *label, const char *prop, const char *string)
 
 	temp = g_strdup_printf (string, format);
 	gtk_label_set_markup (GTK_LABEL (label), temp);
+	gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 
 	g_free (temp);
 	g_free (format);	
@@ -843,6 +845,7 @@ _dimensions_to_label (GtkWidget *label, const char *width, const char *height, c
 	
 	temp = g_strdup_printf (string, w, h);
 	gtk_label_set_markup (GTK_LABEL (label), temp);
+	gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 
 	g_free (temp);
 }
@@ -886,6 +889,7 @@ _size_to_label (GtkWidget *label, const char *prop, const char *string)
 	
 	temp = g_strdup_printf (string, format);
 	gtk_label_set_markup (GTK_LABEL (label), temp);
+	gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 
 	g_free (format);
 	g_free (temp);
@@ -908,6 +912,7 @@ _int_to_label (GtkWidget *label, const char *prop, const char *string)
 		temp = g_strdup_printf (string, _("Unknown"));
 	}
 	gtk_label_set_markup (GTK_LABEL (label), temp);
+	gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 	
 	g_free (temp);
 	g_free (format);	
@@ -975,6 +980,7 @@ _date_to_label (GtkWidget *label, const char *iso, const char *string)
 	}
 
 	gtk_label_set_markup (GTK_LABEL (label), temp);
+	gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 	g_free (temp);
 }
 
@@ -997,6 +1003,7 @@ _year_to_label (GtkWidget *label, const char *iso, const char *string)
 	}
 
 	gtk_label_set_markup (GTK_LABEL (label), temp);
+	gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 	g_free (temp);
 }
 
@@ -1010,11 +1017,13 @@ _property_to_label (GtkWidget *label, const char *prop, const char *string)
 		temp = g_strdup_printf (string, temp2);
 		g_free (temp2);
 		gtk_label_set_markup (GTK_LABEL (label), temp);
+		gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 		g_free (temp);
 	} else {
 		char * temp;
 		temp = g_strdup_printf (string, _("Unknown"));
 		gtk_label_set_markup (GTK_LABEL (label), temp);
+		gtk_label_set_selectable (GTK_LABEL (label), TRUE);
 		g_free (temp);
 	}
 }

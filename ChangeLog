@@ -6,6 +6,10 @@
           Fix for bug #494892 - Label for/labeled by relation missing for 
           add tag button.
 
+	* src/libtracker-gtk/tracker-metadata-tile.c:
+	  From Wendy Hu <Huiwe.Hu@sun.com>
+	  Fix for bug #494907 – Labels should be set as focusable.
+
 2008-02-05  Rich Burridge <rich.burridge@sun.com>
 
         * src/tracker-preferences/tracker-preferences.glade:
