@@ -95,3 +95,20 @@ tracker_create_simple_keyword_liststore (const GList *list)
 
     return GTK_TREE_MODEL (store);
 }
+
+void
+tracker_set_atk_relationship(GtkWidget *obj1, int relation_type,
+			     GtkWidget *obj2)
+{
+	AtkObject *atk_obj1, *atk_obj2, *targets[1];
+	AtkRelationSet *atk_rel_set;
+	AtkRelation *atk_rel;
+
+	atk_obj1 = gtk_widget_get_accessible (GTK_WIDGET (obj1));
+	atk_obj2 = gtk_widget_get_accessible (GTK_WIDGET (obj2));
+	atk_rel_set = atk_object_ref_relation_set (atk_obj1);
+	targets[0] = atk_obj2;
+	atk_rel = atk_relation_new (targets, 1, relation_type);
+	atk_relation_set_add (atk_rel_set, atk_rel);
+	g_object_unref (G_OBJECT (atk_rel));
+}

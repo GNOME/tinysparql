@@ -32,5 +32,6 @@
 GList *		tracker_keyword_array_to_glist (gchar **array);
 GList *		tracker_get_all_keywords (TrackerClient *tracker_client);
 GtkTreeModel *	tracker_create_simple_keyword_liststore (const GList *list);
-
+void		tracker_set_atk_relationship(GtkWidget *obj1, int relation_type,
+					     GtkWidget *obj2);
 #endif /* TRACKER_UTILS_H */

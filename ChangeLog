@@ -1,3 +1,11 @@
+2008-02-08  Rich Burridge <rich.burridge@sun.com>
+
+	* src/libtracker-gtk/tracker-utils.h:
+	  src/libtracker-gtk/tracker-utils.c:
+	  src/libtracker-gtk/tracker-tag-bar.c:
+          Fix for bug #494892 - Label for/labeled by relation missing for 
+          add tag button.
+
 2008-02-05  Rich Burridge <rich.burridge@sun.com>
 
         * src/tracker-preferences/tracker-preferences.glade:

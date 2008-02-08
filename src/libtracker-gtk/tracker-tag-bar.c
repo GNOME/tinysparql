@@ -27,6 +27,7 @@
 #include <glib/gi18n-lib.h>
 
 #include "tracker-tag-bar.h"
+#include "tracker-utils.h"
 
 
 #define TRACKER_TAG_BAR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_TAG_BAR, TrackerTagBarPrivate))
@@ -300,7 +301,12 @@ _tag_bar_add_tag (TrackerTagBar *bar, GtkWidget *box, const char *tag)
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
 	gtk_button_set_focus_on_click (GTK_BUTTON (button), FALSE);
 	gtk_box_pack_start (GTK_BOX(box), button, FALSE, FALSE, 0);
-		
+
+	tracker_set_atk_relationship(button, ATK_RELATION_LABELLED_BY,
+				     label);
+        tracker_set_atk_relationship(label, ATK_RELATION_LABEL_FOR,
+				     button);
+
 	g_signal_connect (G_OBJECT (button), "button-press-event",
 			  G_CALLBACK (_on_tag_button_press_event), bar);
 
@@ -370,7 +376,12 @@ tracker_tag_bar_init (TrackerTagBar *tag_bar)
 	gtk_box_pack_start (GTK_BOX(tag_bar), button, FALSE, FALSE, 0);
 	gtk_button_set_image (GTK_BUTTON (button), image);
 	gtk_button_set_relief (GTK_BUTTON (button), GTK_RELIEF_NONE);
-	
+
+        tracker_set_atk_relationship(button, ATK_RELATION_LABELLED_BY,
+				     label);
+        tracker_set_atk_relationship(label, ATK_RELATION_LABEL_FOR,
+				     button);
+
 	g_signal_connect (G_OBJECT (button), "clicked",
 			  G_CALLBACK (_on_add_tag_clicked), tag_bar);
 	
@@ -419,14 +430,3 @@ tracker_tag_bar_new (void)
 	priv->client = client;
 	return tag_bar;
 }
-
-
-
-
-
-
-
-
-
-
-
