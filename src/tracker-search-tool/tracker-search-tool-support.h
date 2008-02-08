@@ -174,6 +174,11 @@ void
 tracker_search_get_stored_window_geometry (gint * width,
 					   gint * height);
 
+void
+tracker_set_atk_relationship (GtkWidget *obj1,
+                              int relation_type,
+                              GtkWidget *obj2);
+
 #ifdef __cplusplus
 }
 #endif

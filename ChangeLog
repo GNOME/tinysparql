@@ -15,6 +15,11 @@
           Fix for bug #495205 – Warning message label should be accessible
           to at-tools.
 
+        * src/tracker-search-tool/tracker-search-tool-support.c:
+          src/tracker-search-tool/tracker-search-tool-support.h:
+          src/tracker-search-tool/tracker-search-tool.c:
+          Fix for bug #494878 – Search hit number can not be reported by Orca.
+
 2008-02-05  Rich Burridge <rich.burridge@sun.com>
 
         * src/tracker-preferences/tracker-preferences.glade:

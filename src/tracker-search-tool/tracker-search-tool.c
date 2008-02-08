@@ -1060,6 +1060,13 @@ create_search_results_section (GSearchWindow * gsearch)
 
 	/* Translators: this will appears as "Search results: no search performed" */
 	gsearch->count_label = gtk_label_new (_("no search performed"));
+	gtk_label_set_selectable (GTK_LABEL (gsearch->count_label), TRUE);
+	tracker_set_atk_relationship(gsearch->count_label,
+                                     ATK_RELATION_LABELLED_BY,
+                                     label);
+	tracker_set_atk_relationship(label, ATK_RELATION_LABEL_FOR,
+                                     gsearch->count_label);
+
 	gtk_box_pack_start (GTK_BOX (label_box), gsearch->count_label, FALSE, TRUE, 0);
 
 	button_next = gtk_button_new();
@@ -1094,7 +1101,6 @@ create_search_results_section (GSearchWindow * gsearch)
 	gtk_widget_set_sensitive (gsearch->back_button, FALSE);
 
 	gsearch->files_found_label = gtk_label_new (NULL);
-	gtk_label_set_selectable (GTK_LABEL (gsearch->files_found_label), TRUE);
 	gtk_box_pack_start (GTK_BOX (label_box), gsearch->files_found_label, FALSE, FALSE, 0);
 
 	window = gtk_scrolled_window_new (NULL, NULL);
