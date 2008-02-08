@@ -2032,6 +2032,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
 
 	gsearch->warning_label = gtk_label_new (_("Tracker is still indexing so not all search results are available yet"));
+	gtk_label_set_selectable (GTK_LABEL (gsearch->warning_label), TRUE);
 	gtk_label_set_justify (GTK_LABEL (gsearch->warning_label), GTK_JUSTIFY_LEFT);
 	g_object_set (G_OBJECT (gsearch->warning_label), "xalign", 0.0, NULL);
 	gtk_table_attach (GTK_TABLE (gsearch->name_and_folder_table), gsearch->warning_label, 0, 2, 1, 2, GTK_FILL, 0, 6, 1);

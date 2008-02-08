@@ -10,6 +10,11 @@
 	  From Wendy Hu <Huiwe.Hu@sun.com>
 	  Fix for bug #494907 – Labels should be set as focusable.
 
+        * src/tracker-search-tool/tracker-search-tool.c:
+          From Patrick Wade <patrick.wade@sun.com>
+          Fix for bug #495205 – Warning message label should be accessible
+          to at-tools.
+
 2008-02-05  Rich Burridge <rich.burridge@sun.com>
 
         * src/tracker-preferences/tracker-preferences.glade:
