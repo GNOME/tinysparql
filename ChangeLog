@@ -1,5 +1,11 @@
 2008-02-14  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-metadata.c (tracker_metadata_get_embedded):
+	Rewrite function so it's less indented, and copies a bit less memory
+	around. Bug #513688.
+
+2008-02-14  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc): Store directly
 	results in a GPtrArray. Bug #513691.
 

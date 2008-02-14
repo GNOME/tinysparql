@@ -369,11 +369,15 @@ tracker_metadata_get_thumbnail (const char *path, const char *mime, const char *
 	return thumbnail;
 }
 
-
 void
 tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *table)
 {
 	MetadataFileType meta_type;
+	gboolean success;
+	char *argv[4];
+	char *output;
+	char **values;
+	gint i;
 
 	if (!uri || !mime || !table) {
 		return;
@@ -381,111 +385,74 @@ tracker_metadata_get_embedded (const char *uri, const char *mime, GHashTable *ta
 
 	meta_type = tracker_get_metadata_type (mime);
 
-	if (meta_type == DOC_METADATA || meta_type == IMAGE_METADATA || meta_type == AUDIO_METADATA || meta_type == VIDEO_METADATA) {
-		char *argv[4];
-		char *value;
+	if (! (meta_type == DOC_METADATA || meta_type == IMAGE_METADATA || meta_type == AUDIO_METADATA || meta_type == VIDEO_METADATA))
+		return;
 
-		/* we extract metadata out of process using pipes */
+	/* we extract metadata out of process using pipes */
+	argv[0] = g_strdup ("tracker-extract");
+	argv[1] = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+	argv[2] = g_locale_from_utf8 (mime, -1, NULL, NULL, NULL);
+	argv[3] = NULL;
 
-		argv[0] = g_strdup ("tracker-extract");
-		argv[1] = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-		argv[2] = g_locale_from_utf8 (mime, -1, NULL, NULL, NULL);
-		argv[3] = NULL;
+	if (!argv[1] || !argv[2]) {
+		tracker_error ("ERROR: uri or mime could not be converted to locale format");
 
-		if (!argv[1] || !argv[2]) {
-			tracker_error ("ERROR: uri or mime could not be converted to locale format");
+		g_free (argv[0]);
+		g_free (argv[1]);
+		g_free (argv[2]);
 
-			g_free (argv[0]);
-
-			if (argv[1]) {
-				g_free (argv[1]);
-			}
-
-			if (argv[2]) {
-				g_free (argv[2]);
-			}
-
-			return;
-		}
-
-		if (tracker_spawn (argv, 10, &value, NULL)) {
-
-			/* parse returned stdout (value) and extract keys and associated metadata values */
-
-			if (value && strchr (value, '=') && strchr (value, ';')) {
-				char **values, **values_p;
-
-				values = g_strsplit_set (value, ";", -1);
-
-				for (values_p = values; *values_p; values_p++) {
-					char *meta_data, *sep;
-
-					meta_data = g_strdup (g_strstrip (*values_p));
-
-					sep = strchr (meta_data, '=');
-
-					if (sep) {
-						char *meta_name;
-
-						meta_name = g_strndup (meta_data, sep - meta_data);
-
-						if (meta_name) {
-							char *meta_value;
-
-							meta_value = g_strdup (sep + 1);
-
-							if (meta_value) {
-								char *st;
-
-								//tracker_log ("testing %s = %s", meta_name, meta_value);
-								st = g_hash_table_lookup (table, meta_name);
-
-								if (st == NULL) {
-									char *utf_value;
-
-									if (!g_utf8_validate (meta_value, -1, NULL)) {
-
-										utf_value = g_locale_to_utf8 (meta_value, -1, NULL, NULL, NULL);
-									} else {
-										utf_value = g_strdup (meta_value);
-									}
-
-									if (utf_value) {
-										guint32 length = strlen (utf_value);
-
-										if ((length > 0) && (length >= strlen (meta_value))) {
-
-											tracker_debug ("%s = %s", meta_name, utf_value);
-											tracker_add_metadata_to_table  (table, g_strdup (meta_name), utf_value);
-										} else {
-											g_free (utf_value);
-										}
-									}
-								}
-
-								g_free (meta_value);
-							}
-
-							g_free (meta_name);
-						}
-					}
-
-					g_free (meta_data);
-				}
-
-				g_strfreev (values);
-			}
-
-			if (value) {
-				g_free (value);
-			}
-
-			g_free (argv[0]);
-			g_free (argv[1]);
-			g_free (argv[2]);
-		}
+		return;
 	}
+
+	success = tracker_spawn (argv, 10, &output, NULL);
+
+	g_free (argv[0]);
+	g_free (argv[1]);
+	g_free (argv[2]);
+
+	if (!success || !output)
+		return;
+
+	/* parse returned stdout and extract keys and associated metadata values */
+
+	values = g_strsplit_set (output, ";", -1);
+
+	for (i = 0; values[i]; i++) {
+		char *meta_data, *sep;
+		const char *name, *value;
+		char *utf_value;
+
+		meta_data = g_strstrip (values[i]);
+		sep = strchr (meta_data, '=');
+
+		if (!sep)
+			continue;
+
+		/* zero out the separator, so we get
+		 * NULL-terminated name and value
+		 */
+		sep[0] = '\0';
+		name = meta_data;
+		value = sep + 1;
+
+		if (!name || !value)
+			continue;
+
+		if (g_hash_table_lookup (table, name))
+			continue;
+
+		if (!g_utf8_validate (value, -1, NULL)) {
+			utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
+		} else {
+			utf_value = g_strdup (value);
+		}
+
+		if (!utf_value)
+			continue;
+
+		tracker_add_metadata_to_table (table, g_strdup (name), utf_value);
+	}
+
+	g_strfreev (values);
+	g_free (output);
 }
-
-
-
