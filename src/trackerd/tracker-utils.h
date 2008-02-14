@@ -137,11 +137,11 @@ typedef struct {
 	DataTypes	type;
 	char 		*field_name;
 	int		weight;
-	gboolean	embedded;
-	gboolean	multiple_values;
-	gboolean	delimited;
-	gboolean	filtered;
-	gboolean	store_metadata;
+	guint           embedded : 1;
+	guint           multiple_values : 1;
+	guint           delimited : 1;
+	guint           filtered : 1;
+	guint           store_metadata : 1;
 
 	GSList		*child_ids; /* related child metadata ids */
 
@@ -156,10 +156,10 @@ typedef struct {
 	char	 	*table_name;
 	char	 	*id_field;
 	DataTypes	data_type;
-	gboolean	multiple_values;
-	gboolean 	is_select;
-	gboolean 	is_condition;
-	gboolean	needs_join;
+	guint           multiple_values : 1;
+	guint           is_select : 1;
+	guint           is_condition : 1;
+	guint           needs_join : 1;
 
 } FieldData;
 
@@ -169,16 +169,17 @@ typedef struct {
 	int		id;
 	char 		*name;
 	char		*parent;
-	gboolean	enabled;
-	gboolean	embedded;
-	gboolean	has_metadata;
-	gboolean	has_fulltext;
-	gboolean	has_thumbs;
 	char		*content_metadata;
 	GSList		*key_metadata;
 	DBTypes		database;
-	gboolean 	show_service_files;
-	gboolean 	show_service_directories;
+
+	guint           enabled : 1;
+	guint           embedded : 1;
+	guint           has_metadata : 1;
+	guint           has_fulltext : 1;
+	guint           has_thumbs : 1;
+	guint           show_service_files : 1;
+	guint           show_service_directories : 1;
 
 } ServiceDef;
 
@@ -475,16 +476,13 @@ typedef struct {
 	char 			*uri;
 	guint32			file_id;
 
-	gboolean		is_new;
 	TrackerChangeAction  	action;
 	guint32        		cookie;
 	int  		     	counter;
 	FileTypes		file_type;
 	WatchTypes		watch_type;
-	gboolean		is_directory;
 
 	/* symlink info - File ID of link might not be in DB so need to store path/filename too */
-	gboolean                is_link;
 	gint32                  link_id;
 	char                    *link_path;
 	char                    *link_name;
@@ -500,12 +498,16 @@ typedef struct {
 
 	/* options */
 	char			*moved_to_uri;
-	gboolean		extract_embedded;
-	gboolean		extract_contents;
-	gboolean		extract_thumbs;
-	gboolean		is_hidden;
 
 	int			aux_id;
+
+	guint                   is_new : 1;
+	guint                   is_directory : 1;
+	guint                   is_link : 1;
+	guint                   extract_embedded : 1;
+	guint                   extract_contents : 1;
+	guint                   extract_thumbs : 1;
+	guint                   is_hidden : 1;
 
 	/* we ref count FileInfo as it has a complex lifespan and is tossed between various threads, lists, queues and hash tables */
 	int			ref_count;

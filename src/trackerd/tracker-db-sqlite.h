@@ -51,8 +51,8 @@ typedef struct {
 	char		*thread; /* name of the thread that created this */
 	GHashTable	*statements;
 
-	gboolean	in_transaction;
-	gboolean	in_error;
+	guint           in_transaction : 1;
+	guint           in_error : 1;
 
 	/* pointers to other database connection objects */
 	gpointer	data;
