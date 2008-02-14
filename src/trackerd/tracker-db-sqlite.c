@@ -1846,13 +1846,11 @@ get_prepared_query (DBConnection *db_con, const char *procedure)
 char ***
 tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count, ...)
 {
+	GPtrArray    *res;
 	va_list      args;
-	int 	     i, busy_count, cols, row;
+	int 	     i, busy_count, cols;
 	sqlite3_stmt *stmt;
-	char 	     **res;
-	GSList	     *result;
 	int	     rc;
-	const GSList *tmp;
 
 	stmt = get_prepared_query (db_con, procedure);
 
@@ -1883,12 +1881,10 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	va_end (args);
 
 	cols = sqlite3_column_count (stmt);
+	res = g_ptr_array_sized_new (100);
 
 	busy_count = 0;
-	row = 0;
 
-	result = NULL;
-	
 	lock_connection (db_con);
 	while (TRUE) {
 
@@ -1906,10 +1902,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 			unlock_db ();
 			db_con->in_error = TRUE;
 			break;
-		}
-		
-
-		if (rc == SQLITE_BUSY) {
+		} else if (rc == SQLITE_BUSY) {
 			unlock_db ();
 			unlock_connection (db_con);
 			busy_count++;
@@ -1926,14 +1919,10 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 			}
 
 			lock_connection (db_con);
-			continue;
-		}
-
-		if (rc == SQLITE_ROW) {
+		} else if (rc == SQLITE_ROW) {
 			char **new_row;
 
 			new_row = g_new0 (char *, cols+1);
-			new_row[cols] = NULL;
 
 			unlock_db ();
 			
@@ -1951,16 +1940,15 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 				}
 			}
 
-			if (new_row && new_row[0]) {
-				result = g_slist_prepend (result, new_row);
-				row++;
+			if (new_row[0]) {
+				g_ptr_array_add (res, new_row);
+			} else {
+				g_strfreev (new_row);
 			}
-
-			continue;
+		} else {
+			unlock_db ();
+			break;
 		}
-
-		unlock_db ();
-		break;
 	}
 
 	unlock_connection (db_con);
@@ -1982,29 +1970,13 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 
 	}
 
-	if (!result || (row == 0)) {
+	if (res->len == 0) {
 		return NULL;
 	}
 
-	result = g_slist_reverse (result);
+	g_ptr_array_add (res, NULL);
 
-	res = g_new0 (char *, row+1);
-	res[row] = NULL;
-
-	tmp = result;
-
-	for (i = 0; i < row; i++) {
-		if (tmp) {
-			res[i] = tmp->data;
-			tmp = tmp->next;
-		} else {
-			tracker_error ("WARNING: exec proc has a dud entry");
-		}
-	}
-
-	g_slist_free (result);
-
-	return (char ***) res;
+	return (char ***) g_ptr_array_free (res, FALSE);
 }
 
 

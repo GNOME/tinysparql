@@ -1,5 +1,10 @@
 2008-02-14  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc): Store directly
+	results in a GPtrArray. Bug #513691.
+
+2008-02-14  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/trackerd/tracker-db-sqlite.h:
 	* src/trackerd/tracker-utils.h: Pack booleans in guints to make most
 	used structs smaller. Bug #513692.
