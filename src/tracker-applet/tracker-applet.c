@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
+#include <glib.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
@@ -96,6 +97,7 @@ static void tray_icon_class_init (TrayIconClass *klass);
 static void tray_icon_init (GTypeInstance *instance, gpointer g_class);
 static void tray_icon_clicked (GtkStatusIcon *icon, guint button, guint timestamp, gpointer data);
 static void preferences_menu_activated (GtkMenuItem *item, gpointer data);
+static void about_menu_activated (GtkMenuItem *item, gpointer data);
 static void statistics_menu_activated (GtkMenuItem *item, gpointer data);
 static void quit_menu_activated (GtkMenuItem *item, gpointer data);
 
@@ -224,6 +226,12 @@ create_context_menu (TrayIcon *icon)
 	image = gtk_image_new_from_icon_name (GTK_STOCK_INFO, GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
 	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (statistics_menu_activated), icon);
+	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
+
+	item = (GtkWidget *)gtk_image_menu_item_new_with_mnemonic (_("_About"));
+	image = gtk_image_new_from_icon_name (GTK_STOCK_ABOUT, GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item), image);
+	g_signal_connect (G_OBJECT (item), "activate", G_CALLBACK (about_menu_activated), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
 	item = gtk_separator_menu_item_new ();
@@ -1070,11 +1078,130 @@ statistics_menu_activated (GtkMenuItem *item, gpointer data)
 	                  "response",
                           G_CALLBACK (stat_window_free), self);
 
-	gtk_widget_show_all (dialog);
-
-	
+	gtk_widget_show_all (dialog);	
 }
 
+static void 
+open_uri(GtkWindow *parent, const char *uri)
+{
+	GtkWidget *dialog;
+	GdkScreen *screen;
+	GError *error = NULL;
+	gchar *cmdline;
+
+	screen = gtk_window_get_screen (parent);
+
+	cmdline = g_strconcat ("xdg-open ", uri, NULL);
+
+	if (gdk_spawn_command_line_on_screen (screen, cmdline, &error) == FALSE) {
+		dialog = gtk_message_dialog_new (parent, GTK_DIALOG_DESTROY_WITH_PARENT, 
+						 GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, 
+						 error->message);
+		gtk_dialog_run (GTK_DIALOG (dialog));
+		gtk_widget_destroy (dialog);
+		g_error_free (error);
+	}
+
+	g_free (cmdline);
+}
+
+static void 
+about_url_hook(GtkAboutDialog *dialog, const gchar *url, gpointer data)
+{
+	open_uri (GTK_WINDOW (dialog), url);
+}
+
+static void 
+about_email_hook(GtkAboutDialog *dialog, const gchar *email, gpointer data)
+{
+	gchar *uri;
+
+	uri = g_strconcat ("mailto:", email, NULL);
+	open_uri (GTK_WINDOW(dialog), uri);
+	g_free (uri);
+}
+
+static void
+about_menu_activated (GtkMenuItem *item, gpointer data)
+{
+	TrayIcon *self = TRAY_ICON (data);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
+
+	const gchar *authors[] = {
+		"Jamie McCracken <jamiemcc at gnome.org>",
+		"Laurent Aguerreche <laurent.aguerreche at free fr>",
+		"Luca Ferretti <elle.uca@libero.it>",
+		"Eugenio <me at eugesoftware com>",
+		"Michael Biebl <mbiebl at gmail com>",
+		"Edward Duffy <eduffy at gmail com>",
+		"Gergan Penkov <gergan at gmail com>",
+		"Deji Akingunola <dakingun gmail com>",
+		"Julien <julienc psychologie-fr org>",
+		"Tom <tpgww@onepost.net>",
+		"Samuel Cormier-Iijima <sciyoshi at gmail com>",
+		"Eskil Bylund <eskil at letterboxes org>",
+		"Ulrik Mikaelsson <ulrik mikaelsson gmail com>",
+		"tobutaz <tobutaz gmail com>",
+		"Mikkel Kamstrup Erlandsen <mikkel kamstrup gmail com>",
+		"Baptiste Mille-Mathias <baptiste.millemathias gmail com>",
+		"Richard Quirk <quirky@zoom.co.uk>",
+		"Marcus Fritzsch <fritschy at googlemail com>",
+		"Jedy Wang <Jedy Wang at Sun COM>",
+		"Anders Aagaard <aagaande at gmail com>",
+		"Fabien VALLON <fabien at sonappart net>",
+		"Jaime Frutos Morales <acidborg at gmail com>",
+		"Christoph Laimburg <christoph laimburg at rolmail net>",
+		NULL
+	};
+	const gchar *documenters[] = {
+		NULL
+	};
+	const gchar *license[] = {
+		N_("Tracker is free software; you can redistribute it and/or modify "
+		   "it under the terms of the GNU General Public License as published by "
+		   "the Free Software Foundation; either version 2 of the License, or "
+		   "(at your option) any later version."),
+		N_("Tracker is distributed in the hope that it will be useful, "
+		   "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+		   "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+		   "GNU General Public License for more details."),
+		N_("You should have received a copy of the GNU General Public License "
+		   "along with Tracker; if not, write to the Free Software Foundation, Inc., "
+		   "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA")
+	};
+	gchar *license_trans;
+
+	license_trans = g_strjoin ("\n\n", _(license[0]), _(license[1]),
+					   _(license[2]), NULL);
+
+	/* Make URLs and email clickable in about dialog */
+	gtk_about_dialog_set_url_hook (about_url_hook, NULL, NULL);
+	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
+
+	gtk_show_about_dialog (GTK_WINDOW (priv->window),
+			       "version", VERSION,
+			       "comments", _("Tracker is a tool designed to "
+                                             "extract information and metadata "
+                                             "about your personal data so that "
+                                             "it can be searched easily and quickly"),
+			       "copyright", _("Copyright \xC2\xA9 2005-2008 "
+					      "The Tracker authors"),
+			       "license", license_trans,
+			       "wrap-license", TRUE,
+			       "authors", authors,
+			       "documenters", documenters,
+				/* Translators should localize the following string
+				 * which will be displayed at the bottom of the about
+				 * box to give credit to the translator(s).
+				 */
+			       "translator-credits", _("translator-credits"),
+			       "logo-icon-name", "tracker",
+			       "website", "http://www.tracker-project.org/",
+			       "website-label", _("Tracker Web Site"),
+			       NULL);
+
+	g_free (license_trans);	
+}
 
 static void
 quit_menu_activated (GtkMenuItem *item, gpointer data)
@@ -1121,6 +1248,9 @@ main (int argc, char *argv[])
       		g_warning ("failed: notify_init()\n");
       		return EXIT_FAILURE;
    	}
+	gtk_window_set_default_icon_name ("tracker");
+
+	g_set_application_name (_("Tracker"));
 
 	/* set translatable strings here */
 
