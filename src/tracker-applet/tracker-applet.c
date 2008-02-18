@@ -1,5 +1,6 @@
-/* Tracker - indexer and metadata database engine
- * Copyright (C) 2007, Saleem Abdulrasool <compnerd@gentoo.org>
+/**
+ * Tracker - indexer and metadata database engine
+ * Copyright (C) 2007-2008, Saleem Abdulrasool <compnerd@gentoo.org>
  * Copyright (C) 2007, Jamie McCracken <jamiemcc@blueyonder.co.uk>
  *
  * This library is free software; you can redistribute it and/or
@@ -16,7 +17,7 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
- */
+ **/
 
 #include "config.h"
 
@@ -66,7 +67,7 @@ static char *index_icons[4] = {TRACKER_ICON, TRACKER_ICON_PAUSED, TRACKER_ICON_I
 
 typedef struct _TrayIconPrivate
 {
-   	GtkStatusIcon 		*icon;
+	GtkStatusIcon 		*icon;
 
 	/* states */
 	gboolean 		indexing;
@@ -75,7 +76,7 @@ typedef struct _TrayIconPrivate
 	gboolean		animated;
 
 	/* main window */
-   	GtkMenu 		*menu;
+	GtkMenu 		*menu;
 	GtkWindow		*window;
 	GtkWidget 		*search_entry;	
 	GtkWidget 		*status_label;
@@ -103,38 +104,6 @@ static void quit_menu_activated (GtkMenuItem *item, gpointer data);
 
 static TrayIcon *main_icon;
 
-/* translatable strings */
-
-static char *files;
-static char *folders;
-static char *emails;
-
-static char *mail_boxes;
-
-static char *status_indexing;
-static char *status_idle;
-static char *status_merge;
-
-static char *status_paused;
-static char *status_paused_io;
-static char *status_battery_paused;
-
-static char *initial_index_1;
-static char *initial_index_2;
-
-static char *end_index_initial_msg;
-static char *end_index_hours_msg;
-static char *end_index_minutes_msg;
-static char *end_index_seconds_msg;
-static char *end_index_final_msg;
-
-static char *start_merge_msg;
-
-static char *tracker_title;
-
-
-
-
 typedef struct {
 	char 		*name;
 	char 		*label;
@@ -142,7 +111,6 @@ typedef struct {
 } Stat_Info;
 
 static Stat_Info stat_info[13] = {
-
 	{"Files",  		NULL,	NULL},
 	{"Folders",  		NULL, 	NULL},
 	{"Documents",  		NULL, 	NULL},
@@ -285,43 +253,33 @@ set_progress (TrayIcon *icon, gboolean for_files, gboolean for_merging, int fold
 
 	if (folders_total == 0) {
 		progress = 0;
-		
 	} else {
 		progress = (double)folders_processed / (double)folders_total;
 	}
 
 	if (!for_files) {
-
 		if (folders_total != 0) {
-
-			txt = g_strdup_printf ("%s - %d/%d %s", emails, folders_processed, folders_total, mail_boxes);
+			txt = g_strdup_printf ("%s - %d/%d %s", _("Emails"), folders_processed, folders_total, _("mail boxes"));
 
 			gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->email_progress_bar), progress);
-  			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->email_progress_bar), txt);
+			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->email_progress_bar), txt);
 
 			g_free (txt);
-
 		} else {
-  			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->email_progress_bar), emails);
+			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->email_progress_bar), _("Emails"));
 		}
-
 	} else {
-
 		if (folders_total != 0) {
+			txt = g_strdup_printf ("%s - %d/%d %s", _("Files"), folders_processed, folders_total, _("Folders"));
 
-			txt = g_strdup_printf ("%s - %d/%d %s", files, folders_processed, folders_total, folders);
-
-	  		gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->progress_bar), progress);
-		  	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), txt);
+			gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (priv->progress_bar), progress);
+			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), txt);
 
 			g_free (txt);
-
 		} else {
-		  	gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), files);
+			gtk_progress_bar_set_text (GTK_PROGRESS_BAR (priv->progress_bar), _("Files"));
 		}
-	}	
-
-
+	}
 }
 
 
@@ -595,14 +553,14 @@ index_finished (DBusGProxy *proxy,  int time_taken, TrayIcon *self)
 	int seconds = (time_taken - ((minutes * 60) + (hours * 3600)));
 
 	if (hours > 0) {
-		format = g_strdup_printf (end_index_hours_msg, hours, minutes);
+		format = g_strdup_printf (_(" in %d hours and %d minutes"), hours, minutes);
 	} else if (minutes > 0) {
-		format = g_strdup_printf (end_index_minutes_msg, minutes, seconds);
+		format = g_strdup_printf (_(" in %d minutes and %d seconds"), minutes, seconds);
 	} else {
-		format = g_strdup_printf (end_index_seconds_msg, seconds);		
+		format = g_strdup_printf (_(" in %d seconds"), seconds);		
 	}
 
-	tray_icon_show_message (self, "%s%s\n\n%s", end_index_initial_msg, format, end_index_final_msg);
+	tray_icon_show_message (self, "%s%s\n\n%s", _("Tracker has finished indexing your system"), format, _("You can now perform searches by clicking here"));
 	g_free (format);
 }
 
@@ -618,13 +576,13 @@ index_state_changed (DBusGProxy *proxy, const gchar *state, gboolean initial_ind
 
 	if (!priv->initial_index_msg_shown && initial_index) {
 		priv->initial_index_msg_shown = TRUE;
-		tray_icon_show_message (self, "%s\n\n%s\n", initial_index_1, initial_index_2); 
+		tray_icon_show_message (self, "%s\n\n%s\n", _("Your computer is about to be indexed so you can perform fast searches of your files and emails"), _("You can pause indexing at any time and configure index settings by right clicking here")); 
 
 	}
 
 
 	if (is_manual_paused) {
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_paused);
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), _("Paused by user"));
 		priv->paused = TRUE;
 		priv->animated = FALSE;
 		set_icon (priv); 		
@@ -632,7 +590,7 @@ index_state_changed (DBusGProxy *proxy, const gchar *state, gboolean initial_ind
 	} 
 
 	if (is_battery_paused) {
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_battery_paused);  	
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), _("Paused while on battery power"));
 		priv->paused = TRUE;
 		priv->animated = FALSE;
 		set_icon (priv); 	
@@ -641,7 +599,7 @@ index_state_changed (DBusGProxy *proxy, const gchar *state, gboolean initial_ind
 	}
 
 	if (is_io_paused) {
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_paused_io);  		
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), _("Paused temporarily"));
 		priv->paused = TRUE;
 		priv->animated = FALSE;
 		set_icon (priv); 		
@@ -651,8 +609,8 @@ index_state_changed (DBusGProxy *proxy, const gchar *state, gboolean initial_ind
 	priv->paused = FALSE;
 
 	if (in_merge) {
-		tray_icon_show_message (self, start_merge_msg); 
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_merge); 
+		tray_icon_show_message (self, _("Tracker is now merging indexes which can degrade system performance for serveral minutes\n\nYou can pause this by right clicking here")); 
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), _("Indexes are being merged")); 
 		priv->indexing = TRUE;
 		set_icon (priv); 		
 		if (!priv->animated) {
@@ -664,12 +622,12 @@ index_state_changed (DBusGProxy *proxy, const gchar *state, gboolean initial_ind
 	}
 	
 	if (strcasecmp (state, "Idle") == 0) {
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_idle);  
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), _("Indexing completed"));
 		priv->indexing = FALSE;
 		priv->animated = FALSE;
-		set_icon (priv);		
+		set_icon (priv);
 	} else { 
-		gtk_label_set_text  (GTK_LABEL (priv->status_label), status_indexing);  		
+		gtk_label_set_text  (GTK_LABEL (priv->status_label), _("Indexing in progress"));
 		priv->indexing = TRUE;
 		set_icon (priv); 		
 		if (!priv->animated) {
@@ -885,7 +843,7 @@ tray_icon_show_message (TrayIcon *icon, const char *message, ...)
    	msg = g_strdup_vprintf (message, args);
    	va_end (args);
 
-	notification = notify_notification_new_with_status_icon (tracker_title, msg, NULL, priv->icon);
+	notification = notify_notification_new_with_status_icon (_("Tracker search and indexing service"), msg, NULL, priv->icon);
 
 	notify_notification_set_urgency (notification, NOTIFY_URGENCY_NORMAL);
 
@@ -1237,7 +1195,6 @@ tray_icon_get_type(void)
 int
 main (int argc, char *argv[])
 {
-
 	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
@@ -1245,42 +1202,12 @@ main (int argc, char *argv[])
 	gtk_init (&argc, &argv);
 
 	if (!notify_is_initted () && !notify_init (PROGRAM_NAME)) {
-      		g_warning ("failed: notify_init()\n");
-      		return EXIT_FAILURE;
-   	}
+		g_warning ("failed: notify_init()\n");
+		return EXIT_FAILURE;
+	}
+
 	gtk_window_set_default_icon_name ("tracker");
-
 	g_set_application_name (_("Tracker"));
-
-	/* set translatable strings here */
-
-	files = _("Files");
-	folders = _("folders");
-
-	emails = _("Emails");
-
-	mail_boxes = _("mail boxes");
-
-	status_indexing = _("Indexing in progress");
-	status_idle = _("Indexing completed");
-	status_merge = _("Indexes are being merged");
-
-	status_paused = _("Paused by user");
-	status_battery_paused = _("Paused while on battery power");
-	status_paused_io = _("Paused temporarily");
-	
-	initial_index_1 = _("Your computer is about to be indexed so you can perform fast searches of your files and emails");
-	initial_index_2 = _("You can pause indexing at any time and configure index settings by right clicking here");
-
-	end_index_initial_msg = _("Tracker has finished indexing your system");
-	end_index_hours_msg = _(" in %d hours and %d minutes");
-	end_index_minutes_msg = _(" in %d minutes and %d seconds");
-	end_index_seconds_msg = _(" in %d seconds");
-	end_index_final_msg = _("You can now perform searches by clicking here");
-
-	start_merge_msg = _("Tracker is now merging indexes which can degrade system performance for serveral minutes\n\nYou can pause this by right clicking here");
-
-	tracker_title = _("Tracker search and indexing service");
 
 	stat_info[0].label = _("Files:");
 	stat_info[1].label = _("    Folders:");
@@ -1295,13 +1222,12 @@ main (int argc, char *argv[])
 	stat_info[10].label = _("Conversations:");
 	stat_info[11].label = _("Emails:");
 
-   	main_icon = g_object_new (TYPE_TRAY_ICON, NULL);
+	main_icon = g_object_new (TYPE_TRAY_ICON, NULL);
 
-	tray_icon_set_tooltip (main_icon, tracker_title);
-	
-   	gtk_main ();
+	tray_icon_set_tooltip (main_icon, _("Tracker search and indexing service"));
 
-   	notify_uninit();
+	gtk_main ();
 
-   	return EXIT_SUCCESS;
+	notify_uninit();
+	return EXIT_SUCCESS;
 }
