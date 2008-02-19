@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: oc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-02 21:55+0100\n"
+"POT-Creation-Date: 2008-02-19 20:27+0100\n"
 "PO-Revision-Date: 2007-12-28 13:54+0100\n"
 "Last-Translator: Yannig Marchegay (Kokoyaya) <yannig@marchegay.org>\n"
 "Language-Team: Occitan <ubuntu-l10n-oci@lists.ubuntu.com>\n"
@@ -316,43 +316,43 @@ msgstr "Creat : <b>%s</b>"
 msgid "Comments : <b>%s</b>"
 msgstr "Comentaris : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:862
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:865
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f ko"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:866
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:869
 #, c-format
 msgid "%.1f MB"
 msgstr "%.1f Mo"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:870
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:873
 #, c-format
 msgid "%.1f GB"
 msgstr "%.1f Go"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:908
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:974
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:996
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1016
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:912
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:979
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1002
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1024
 msgid "Unknown"
 msgstr "Desconegut"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:249
+#: ../src/libtracker-gtk/tracker-tag-bar.c:250
 msgid "Type tags you want to add here, separated by commas"
 msgstr ""
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:359
+#: ../src/libtracker-gtk/tracker-tag-bar.c:365
 msgid "Tags :"
 msgstr ""
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:381
+#: ../src/libtracker-gtk/tracker-tag-bar.c:392
 msgid "_Search For Tag"
 msgstr ""
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:393
+#: ../src/libtracker-gtk/tracker-tag-bar.c:404
 msgid "_Remove Tag"
 msgstr ""
 
@@ -585,128 +585,114 @@ msgstr ""
 msgid "Tracker Applet"
 msgstr "Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:203
+#: ../src/tracker-applet/tracker-applet.c:173
 msgid "_Pause Indexing"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:211
+#: ../src/tracker-applet/tracker-applet.c:181
 msgid "_Search..."
 msgstr "_Recercar..."
 
-#: ../src/tracker-applet/tracker-applet.c:217
+#: ../src/tracker-applet/tracker-applet.c:187
 msgid "Pre_ferences"
 msgstr "Pre_feréncias"
 
-#: ../src/tracker-applet/tracker-applet.c:223
+#: ../src/tracker-applet/tracker-applet.c:193
 msgid "S_tatistics"
 msgstr "_Estadisticas"
 
-#: ../src/tracker-applet/tracker-applet.c:232
+#: ../src/tracker-applet/tracker-applet.c:199
+msgid "_About"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:208
 msgid "_Quit"
 msgstr "_Sortir"
 
-#. search entry row
-#: ../src/tracker-applet/tracker-applet.c:417
-msgid "Search:"
-msgstr "Recercar :"
-
-#. status row
-#: ../src/tracker-applet/tracker-applet.c:437
-msgid "Status:"
-msgstr "Estat :"
-
-#. File progress row
-#: ../src/tracker-applet/tracker-applet.c:457
-msgid "Progress:"
-msgstr "Progression:"
-
-#: ../src/tracker-applet/tracker-applet.c:1016
-msgid "Statistics"
-msgstr "Estadisticas"
-
-#: ../src/tracker-applet/tracker-applet.c:1037
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr ""
-
-#. set translatable strings here
-#: ../src/tracker-applet/tracker-applet.c:1127
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
-msgid "Files"
-msgstr "Fichièrs"
-
-#: ../src/tracker-applet/tracker-applet.c:1128
-msgid "folders"
-msgstr "Repertòris"
-
-#: ../src/tracker-applet/tracker-applet.c:1130
+#: ../src/tracker-applet/tracker-applet.c:262
+#: ../src/tracker-applet/tracker-applet.c:269
 #: ../src/tracker-search-tool/tracker-search-tool.c:136
 msgid "Emails"
 msgstr "Messatges electronics"
 
-#: ../src/tracker-applet/tracker-applet.c:1132
+#: ../src/tracker-applet/tracker-applet.c:262
 msgid "mail boxes"
 msgstr "Messatges electronics"
 
-#: ../src/tracker-applet/tracker-applet.c:1134
-msgid "Indexing in progress"
+#: ../src/tracker-applet/tracker-applet.c:273
+#: ../src/tracker-applet/tracker-applet.c:280
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "Files"
+msgstr "Fichièrs"
+
+#: ../src/tracker-applet/tracker-applet.c:273
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
+msgid "Folders"
+msgstr "Repertòris"
+
+#. search entry row
+#: ../src/tracker-applet/tracker-applet.c:383
+msgid "Search:"
+msgstr "Recercar :"
+
+#. status row
+#: ../src/tracker-applet/tracker-applet.c:403
+msgid "Status:"
+msgstr "Estat :"
+
+#. File progress row
+#: ../src/tracker-applet/tracker-applet.c:423
+msgid "Progress:"
+msgstr "Progression:"
+
+#: ../src/tracker-applet/tracker-applet.c:556
+#, c-format
+msgid " in %d hours and %d minutes"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1135
-msgid "Indexing completed"
+#: ../src/tracker-applet/tracker-applet.c:558
+#, c-format
+msgid " in %d minutes and %d seconds"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1136
-msgid "Indexes are being merged"
+#: ../src/tracker-applet/tracker-applet.c:560
+#, c-format
+msgid " in %d seconds"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1138
-msgid "Paused by user"
+#: ../src/tracker-applet/tracker-applet.c:563
+msgid "Tracker has finished indexing your system"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1139
-msgid "Paused while on battery power"
+#: ../src/tracker-applet/tracker-applet.c:563
+msgid "You can now perform searches by clicking here"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1140
-msgid "Paused temporarily"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1142
+#: ../src/tracker-applet/tracker-applet.c:579
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1143
+#: ../src/tracker-applet/tracker-applet.c:579
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1145
-msgid "Tracker has finished indexing your system"
+#: ../src/tracker-applet/tracker-applet.c:585
+msgid "Paused by user"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1146
-#, c-format
-msgid " in %d hours and %d minutes"
+#: ../src/tracker-applet/tracker-applet.c:593
+msgid "Paused while on battery power"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1147
-#, c-format
-msgid " in %d minutes and %d seconds"
+#: ../src/tracker-applet/tracker-applet.c:602
+msgid "Paused temporarily"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1148
-#, c-format
-msgid " in %d seconds"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1149
-msgid "You can now perform searches by clicking here"
-msgstr ""
-
-#: ../src/tracker-applet/tracker-applet.c:1151
+#: ../src/tracker-applet/tracker-applet.c:612
 msgid ""
 "Tracker is now merging indexes which can degrade system performance for "
 "serveral minutes\n"
@@ -714,57 +700,128 @@ msgid ""
 "You can pause this by right clicking here"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1153 ../trackerd.desktop.in.in.h:2
+#: ../src/tracker-applet/tracker-applet.c:613
+msgid "Indexes are being merged"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:625
+msgid "Indexing completed"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:630
+msgid "Indexing in progress"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:846
+#: ../src/tracker-applet/tracker-applet.c:1227 ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr ""
 
+#: ../src/tracker-applet/tracker-applet.c:982
+msgid "Statistics"
+msgstr "Estadisticas"
+
+#: ../src/tracker-applet/tracker-applet.c:1003
+msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1118
+msgid ""
+"Tracker is free software; you can redistribute it and/or modify it under the "
+"terms of the GNU General Public License as published by the Free Software "
+"Foundation; either version 2 of the License, or (at your option) any later "
+"version."
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1122
+msgid ""
+"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details."
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1126
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
+"Place, Suite 330, Boston, MA  02111-1307  USA"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1141
+msgid ""
+"Tracker is a tool designed to extract information and metadata about your "
+"personal data so that it can be searched easily and quickly"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1145
+msgid "Copyright © 2005-2008 The Tracker authors"
+msgstr ""
+
+#. Translators should localize the following string
+#. * which will be displayed at the bottom of the about
+#. * box to give credit to the translator(s).
+#.
 #: ../src/tracker-applet/tracker-applet.c:1155
+msgid "translator-credits"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1158
+#
+msgid "Tracker Web Site"
+msgstr "Sit web de Tracker"
+
+#: ../src/tracker-applet/tracker-applet.c:1210 ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../src/tracker-applet/tracker-applet.c:1212
 msgid "Files:"
 msgstr "_Fichièrs"
 
-#: ../src/tracker-applet/tracker-applet.c:1156
+#: ../src/tracker-applet/tracker-applet.c:1213
 msgid "    Folders:"
-msgstr "Repertòris"
+msgstr "    Repertòris :"
 
-#: ../src/tracker-applet/tracker-applet.c:1157
+#: ../src/tracker-applet/tracker-applet.c:1214
 msgid "    Documents:"
-msgstr "Documents"
+msgstr "    Documents :"
 
-#: ../src/tracker-applet/tracker-applet.c:1158
+#: ../src/tracker-applet/tracker-applet.c:1215
 msgid "    Images:"
-msgstr "Imatges"
+msgstr "    Imatges :"
 
-#: ../src/tracker-applet/tracker-applet.c:1159
+#: ../src/tracker-applet/tracker-applet.c:1216
 msgid "    Music:"
-msgstr "Musica"
+msgstr "    Musica :"
 
-#: ../src/tracker-applet/tracker-applet.c:1160
+#: ../src/tracker-applet/tracker-applet.c:1217
 msgid "    Videos:"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1161
+#: ../src/tracker-applet/tracker-applet.c:1218
 msgid "    Text:"
-msgstr "Tèxt"
+msgstr "    Tèxt :"
 
-#: ../src/tracker-applet/tracker-applet.c:1162
+#: ../src/tracker-applet/tracker-applet.c:1219
 msgid "    Development:"
-msgstr "Desvolopament"
+msgstr "    Desvolopament :"
 
-#: ../src/tracker-applet/tracker-applet.c:1163
+#: ../src/tracker-applet/tracker-applet.c:1220
 msgid "    Other:"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1164
+#: ../src/tracker-applet/tracker-applet.c:1221
 msgid "Applications:"
-msgstr "Aplicacions"
+msgstr "Aplicacions :"
 
-#: ../src/tracker-applet/tracker-applet.c:1165
+#: ../src/tracker-applet/tracker-applet.c:1222
 msgid "Conversations:"
 msgstr ""
 
-#: ../src/tracker-applet/tracker-applet.c:1166
+#: ../src/tracker-applet/tracker-applet.c:1223
 msgid "Emails:"
-msgstr "Messatges electronics"
+msgstr "Messatges electronics :"
 
 #: ../src/tracker-preferences/tracker-preferences.c:899
 msgid "Data must be reindexed"
@@ -1011,16 +1068,12 @@ msgstr ""
 msgid "All Files"
 msgstr "Totes los fichièrs"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:138
-msgid "Folders"
-msgstr "Repertòris"
-
 #: ../src/tracker-search-tool/tracker-search-tool.c:139
 msgid "Documents"
 msgstr "Documents"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1222
+#: ../src/tracker-search-tool/tracker-search-tool.c:1228
 msgid "Text"
 msgstr "Tèxt"
 
@@ -1078,7 +1131,7 @@ msgid "Tracker Search Tool-"
 msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:866
-#: ../src/tracker-search-tool/tracker-search-tool.c:2252
+#: ../src/tracker-search-tool/tracker-search-tool.c:2259
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr ""
@@ -1092,60 +1145,60 @@ msgstr ""
 msgid "no search performed"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1116
-#: ../src/tracker-search-tool/tracker-search-tool.c:1276
+#: ../src/tracker-search-tool/tracker-search-tool.c:1122
+#: ../src/tracker-search-tool/tracker-search-tool.c:1282
 msgid "List View"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1188
+#: ../src/tracker-search-tool/tracker-search-tool.c:1194
 msgid "Icon"
 msgstr "Icòna"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1200
+#: ../src/tracker-search-tool/tracker-search-tool.c:1206
 msgid "Name"
 msgstr "Nom"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1294
+#: ../src/tracker-search-tool/tracker-search-tool.c:1300
 msgid "_Categories"
 msgstr "_Categorias"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1574
+#: ../src/tracker-search-tool/tracker-search-tool.c:1580
 #, c-format
 msgid "%d - %d of %d items"
 msgstr ""
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1577
+#: ../src/tracker-search-tool/tracker-search-tool.c:1583
 #, c-format
 msgid "%d item"
 msgid_plural "%d items"
 msgstr[0] "%d element"
 msgstr[1] "%d elements"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1625
-#: ../src/tracker-search-tool/tracker-search-tool.c:1820
+#: ../src/tracker-search-tool/tracker-search-tool.c:1631
+#: ../src/tracker-search-tool/tracker-search-tool.c:1826
 msgid "Could not connect to search service as it may be busy"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2020
+#: ../src/tracker-search-tool/tracker-search-tool.c:2026
 msgid "_Search:"
 msgstr "_Recercar :"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2034
+#: ../src/tracker-search-tool/tracker-search-tool.c:2040
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2047
-#: ../src/tracker-search-tool/tracker-search-tool.c:2048
+#: ../src/tracker-search-tool/tracker-search-tool.c:2054
+#: ../src/tracker-search-tool/tracker-search-tool.c:2055
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2048
+#: ../src/tracker-search-tool/tracker-search-tool.c:2055
 msgid "search_entry"
 msgstr ""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2094
+#: ../src/tracker-search-tool/tracker-search-tool.c:2101
 msgid "Click to perform a search."
 msgstr ""
 
@@ -1316,6 +1369,5 @@ msgstr "ligam (copat)"
 msgid "link to %s"
 msgstr ""
 
-#: ../trackerd.desktop.in.in.h:1
-msgid "Tracker"
-msgstr "Tracker"
+#~ msgid "folders"
+#~ msgstr "Repertòris"
