@@ -44,7 +44,7 @@
 #include "tracker-applet-marshallers.h"
 
 #define PROGRAM                 "tracker-applet"
-#define PROGRAM_NAME            "Tracker Applet"
+#define PROGRAM_NAME            N_("Tracker Applet")
 
 #define HOMEPAGE                "http://www.tracker-project.org/"
 #define DESCRIPTION             "An applet for tracker"
@@ -224,8 +224,8 @@ set_status_hint (TrayIcon *icon)
 	const char *status;
 	GString *hint;
 	
-	
-	hint = g_string_new ("Tracker : ");
+	/* Translators: this will appear like "Tracker : Idle" */
+	hint = g_string_new (_("Tracker : "));
 	
 	switch (priv->index_state) {
 	
@@ -745,17 +745,17 @@ create_context_menu (TrayIcon *icon)
 	
 	submenu = gtk_menu_new();
 	
-	item = gtk_radio_menu_item_new_with_mnemonic (group, "_Off");
+	item = gtk_radio_menu_item_new_with_mnemonic (group, _("_Off"));
 	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (auto_pause_option_none_toggled), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
   	group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 
-	item = gtk_radio_menu_item_new_with_mnemonic (group, "_Index only when idle");
+	item = gtk_radio_menu_item_new_with_mnemonic (group, _("_Index Only When Idle"));
 	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (auto_pause_option_indexing_toggled), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
   	group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 
-	item = gtk_radio_menu_item_new_with_mnemonic (group, "_Merge Indexes only when idle");
+	item = gtk_radio_menu_item_new_with_mnemonic (group, _("_Merge Indexes Only When Idle"));
 	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (auto_pause_option_merging_toggled), icon);
 	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
 	gtk_menu_shell_append (GTK_MENU_SHELL (submenu), item);
@@ -774,12 +774,12 @@ create_context_menu (TrayIcon *icon)
 	item = gtk_separator_menu_item_new ();
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic (_("A_nimate when indexing"));
+	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic (_("A_nimate When Indexing"));
 	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
 	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (animate_toggled), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);
 
-	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic (_("Auto _hide"));
+	item = (GtkWidget *)gtk_check_menu_item_new_with_mnemonic (_("Auto _Hide"));
 	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), FALSE);
 	g_signal_connect (G_OBJECT (item), "toggled", G_CALLBACK (auto_hide_toggled), icon);
 	gtk_menu_shell_append (GTK_MENU_SHELL (priv->menu), item);

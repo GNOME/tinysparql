@@ -1,3 +1,9 @@
+2008-02-22  Luca Ferretti  <elle.uca@libero.it>
+
+	* src/tracker-applet/tracker-applet.c: (set_status_hint),
+	(create_context_menu):
+	More strings for translation and fix capitalization.
+
 2008-02-17  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-applet/tracker-applet.c: (set_progress),
