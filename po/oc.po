@@ -1095,7 +1095,7 @@ msgstr "_Dobrir"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:207
 msgid "O_pen Folder"
-msgstr "D_ubrir lo repertòri"
+msgstr "D_obrir lo repertòri"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:208
 msgid "Mo_ve to Trash"
