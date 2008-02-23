@@ -84,7 +84,7 @@ int main (int argc, char *argv[])
 	gchar         *mtime;
 	md5_state_t    hash_state;
 	guchar         hash[16];
-	gchar          uri_hash[20], *p;
+	gchar          uri_hash[21], *p;
 	int	       i;
 	guint32        j;
 	gchar         *thumbnail_filename;
