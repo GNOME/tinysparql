@@ -67,6 +67,10 @@ tracker_extract_imagemagick (const gchar *filename, GHashTable *metadata)
 
 #ifdef HAVE_EXEMPI
 
+	/* convert is buggy atm so disable temporarily */
+
+	return;
+
 	gchar *xmp;
 
 	argv[0] = g_strdup ("convert");
