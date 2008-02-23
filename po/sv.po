@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-03 22:17+0100\n"
-"PO-Revision-Date: 2008-02-03 22:26+0100\n"
+"POT-Creation-Date: 2008-02-22 12:15+0100\n"
+"PO-Revision-Date: 2008-02-22 12:23+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -331,43 +331,43 @@ msgstr "Skapad : <b>%s</b>"
 msgid "Comments : <b>%s</b>"
 msgstr "Kommentarer : <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:862
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:865
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f KB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:866
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:869
 #, c-format
 msgid "%.1f MB"
 msgstr "%.1f MB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:870
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:873
 #, c-format
 msgid "%.1f GB"
 msgstr "%.1f GB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:908
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:974
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:996
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1016
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:912
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:979
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1002
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1024
 msgid "Unknown"
 msgstr "Okänd"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:249
+#: ../src/libtracker-gtk/tracker-tag-bar.c:250
 msgid "Type tags you want to add here, separated by commas"
 msgstr "Ange taggar som du vill lägga till här, separera dem med kommatecken"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:359
+#: ../src/libtracker-gtk/tracker-tag-bar.c:365
 msgid "Tags :"
 msgstr "Taggar :"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:381
+#: ../src/libtracker-gtk/tracker-tag-bar.c:392
 msgid "_Search For Tag"
 msgstr "_Sök efter tagg"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:393
+#: ../src/libtracker-gtk/tracker-tag-bar.c:404
 msgid "_Remove Tag"
 msgstr "_Ta bort tagg"
 
@@ -601,186 +601,218 @@ msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Styr och övervaka sök- och indexeringstjänsten Tracker"
 
 #: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
+#: ../src/tracker-applet/tracker-applet.c:47
 msgid "Tracker Applet"
 msgstr "Panelprogram för Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:203
-msgid "_Pause Indexing"
-msgstr "_Pausa indexering"
+#. Translators: this will appear like "Tracker : Idle"
+#: ../src/tracker-applet/tracker-applet.c:228
+msgid "Tracker : "
+msgstr "Tracker : "
 
-#: ../src/tracker-applet/tracker-applet.c:211
-msgid "_Search..."
-msgstr "_Sök..."
+#: ../src/tracker-applet/tracker-applet.c:233
+msgid "Idle"
+msgstr "Overksam"
 
-#: ../src/tracker-applet/tracker-applet.c:217
-msgid "Pre_ferences"
-msgstr "Inställ_ningar"
+#: ../src/tracker-applet/tracker-applet.c:237
+msgid "Indexing"
+msgstr "Indexering"
 
-#: ../src/tracker-applet/tracker-applet.c:223
-msgid "S_tatistics"
-msgstr "S_tatistik"
+#: ../src/tracker-applet/tracker-applet.c:241
+msgid "Merging"
+msgstr "Sammanfogning"
 
-#: ../src/tracker-applet/tracker-applet.c:232
-msgid "_Quit"
-msgstr "A_vsluta"
+#: ../src/tracker-applet/tracker-applet.c:251
+msgid " (paused by user)"
+msgstr " (pausad av användaren)"
 
-#. search entry row
-#: ../src/tracker-applet/tracker-applet.c:417
-msgid "Search:"
-msgstr "Sök:"
+#: ../src/tracker-applet/tracker-applet.c:253
+#: ../src/tracker-applet/tracker-applet.c:264
+msgid " (paused by system)"
+msgstr " (pausad av systemet)"
 
-#. status row
-#: ../src/tracker-applet/tracker-applet.c:437
-msgid "Status:"
-msgstr "Status:"
+#: ../src/tracker-applet/tracker-applet.c:268
+msgid " (paused by battery)"
+msgstr " (pausad efter batteriet)"
 
-#. File progress row
-#: ../src/tracker-applet/tracker-applet.c:457
-msgid "Progress:"
-msgstr "Förlopp:"
-
-#: ../src/tracker-applet/tracker-applet.c:1016
-msgid "Statistics"
-msgstr "Statistik"
-
-#: ../src/tracker-applet/tracker-applet.c:1037
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr "<span weight=\"bold\" size=\"larger\">Indexeringsstatistik</span>"
-
-#. set translatable strings here
-#: ../src/tracker-applet/tracker-applet.c:1127
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
-msgid "Files"
-msgstr "Filer"
-
-#: ../src/tracker-applet/tracker-applet.c:1128
+#: ../src/tracker-applet/tracker-applet.c:279
 msgid "folders"
 msgstr "mappar"
 
-#: ../src/tracker-applet/tracker-applet.c:1130
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "E-post"
+#: ../src/tracker-applet/tracker-applet.c:748
+msgid "_Off"
+msgstr "A_v"
 
-#: ../src/tracker-applet/tracker-applet.c:1132
-msgid "mail boxes"
-msgstr "postlådor"
+#: ../src/tracker-applet/tracker-applet.c:753
+msgid "_Index Only When Idle"
+msgstr "_Indexera endast när overksam"
 
-#: ../src/tracker-applet/tracker-applet.c:1134
-msgid "Indexing in progress"
-msgstr "Indexering pågår"
+#: ../src/tracker-applet/tracker-applet.c:758
+msgid "_Merge Indexes Only When Idle"
+msgstr "Sa_mmanfoga endast när overksam"
 
-#: ../src/tracker-applet/tracker-applet.c:1135
-msgid "Indexing completed"
-msgstr "Indexering färdig"
+#: ../src/tracker-applet/tracker-applet.c:765
+msgid "_Pause All Indexing"
+msgstr "_Pausa all indexering"
 
-#: ../src/tracker-applet/tracker-applet.c:1136
-msgid "Indexes are being merged"
-msgstr "Index sammanfogas nu"
+#: ../src/tracker-applet/tracker-applet.c:770
+msgid "S_mart Pause"
+msgstr "S_mart paus"
 
-#: ../src/tracker-applet/tracker-applet.c:1138
-msgid "Paused by user"
-msgstr "Pausad av användaren"
+#: ../src/tracker-applet/tracker-applet.c:777
+msgid "A_nimate When Indexing"
+msgstr "A_nimera vid indexering"
 
-#: ../src/tracker-applet/tracker-applet.c:1139
-msgid "Paused while on battery power"
-msgstr "Pausad vid batteridrift"
+#: ../src/tracker-applet/tracker-applet.c:782
+msgid "Auto _Hide"
+msgstr "Dölj a_utomatiskt"
 
-#: ../src/tracker-applet/tracker-applet.c:1140
-msgid "Paused temporarily"
-msgstr "Pausad temporärt"
+#: ../src/tracker-applet/tracker-applet.c:792
+msgid "_Search..."
+msgstr "_Sök..."
 
-#: ../src/tracker-applet/tracker-applet.c:1142
+#: ../src/tracker-applet/tracker-applet.c:798
+msgid "Pre_ferences"
+msgstr "Inställ_ningar"
+
+#: ../src/tracker-applet/tracker-applet.c:804
+msgid "S_tatistics"
+msgstr "S_tatistik"
+
+#: ../src/tracker-applet/tracker-applet.c:810
+msgid "_About"
+msgstr "_Om"
+
+#: ../src/tracker-applet/tracker-applet.c:819
+msgid "_Quit"
+msgstr "A_vsluta"
+
+#: ../src/tracker-applet/tracker-applet.c:1359
+msgid "Statistics"
+msgstr "Statistik"
+
+#: ../src/tracker-applet/tracker-applet.c:1380
+msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">Indexeringsstatistik</span>"
+
+#: ../src/tracker-applet/tracker-applet.c:1493
+msgid "Tracker is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version."
+msgstr "Tracker är fri programvara. Du kan distribuera det och/eller modifiera det under villkoren i GNU General Public License, publicerad av Free Software Foundation, antingen version 2 eller (om du så vill) någon senare version."
+
+#: ../src/tracker-applet/tracker-applet.c:1497
+msgid "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details."
+msgstr "Tracker distribueras i hopp om att det ska vara användbart, men UTAN NÅGON SOM HELST GARANTI, även utan underförstådd garanti om SÄLJBARHET eller LÄMPLIGHET FÖR NÅGOT SPECIELLT ÄNDAMÅL. Se GNU General Public License för ytterligare information."
+
+#: ../src/tracker-applet/tracker-applet.c:1501
+msgid "You should have received a copy of the GNU General Public License along with Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
+msgstr "Du bör ha fått en kopia av GNU General Public License tillsammans med Tracker. Om inte, skriv till Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
+
+#: ../src/tracker-applet/tracker-applet.c:1516
+msgid "Tracker is a tool designed to extract information and metadata about your personal data so that it can be searched easily and quickly"
+msgstr "Tracker är ett verktyg som är designat att extrahera information och metadata från ditt personliga data så att det enkelt och snabbt kan sökas igenom"
+
+#: ../src/tracker-applet/tracker-applet.c:1520
+msgid "Copyright © 2005-2008 The Tracker authors"
+msgstr "Copyright © 2005-2008 Upphovsmännen bakom Tracker"
+
+#. Translators should localize the following string
+#. * which will be displayed at the bottom of the about
+#. * box to give credit to the translator(s).
+#.
+#: ../src/tracker-applet/tracker-applet.c:1530
+msgid "translator-credits"
+msgstr ""
+"Daniel Nylander\n"
+"\n"
+"Skicka synpunkter på översättningen till\n"
+"tp-sv@listor.tp-sv.se"
+
+#: ../src/tracker-applet/tracker-applet.c:1533
+msgid "Tracker Web Site"
+msgstr "Webbplats för Tracker"
+
+#: ../src/tracker-applet/tracker-applet.c:1586
+#: ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr "Tracker"
+
+#. set translatable strings here
+#: ../src/tracker-applet/tracker-applet.c:1591
 msgid "Your computer is about to be indexed so you can perform fast searches of your files and emails"
 msgstr "Din dator är på väg att bli indexerad så att du kan genomföra snabba sökningar efter dina filer och e-post"
 
-#: ../src/tracker-applet/tracker-applet.c:1143
+#: ../src/tracker-applet/tracker-applet.c:1592
 msgid "You can pause indexing at any time and configure index settings by right clicking here"
 msgstr "Du kan pausa indexeringen när som helst och ändra konfigurationen genom att högerklicka här "
 
-#: ../src/tracker-applet/tracker-applet.c:1145
+#: ../src/tracker-applet/tracker-applet.c:1594
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker har avslutat indexeringen av ditt system"
 
-#: ../src/tracker-applet/tracker-applet.c:1146
+#: ../src/tracker-applet/tracker-applet.c:1595
 #, c-format
 msgid " in %d hours and %d minutes"
 msgstr " på %d timmar och %d minuter"
 
-#: ../src/tracker-applet/tracker-applet.c:1147
+#: ../src/tracker-applet/tracker-applet.c:1596
 #, c-format
 msgid " in %d minutes and %d seconds"
 msgstr " på %d minuter och %d sekunder"
 
-#: ../src/tracker-applet/tracker-applet.c:1148
+#: ../src/tracker-applet/tracker-applet.c:1597
 #, c-format
 msgid " in %d seconds"
 msgstr " på %d sekunder"
 
-#: ../src/tracker-applet/tracker-applet.c:1149
+#: ../src/tracker-applet/tracker-applet.c:1598
 msgid "You can now perform searches by clicking here"
 msgstr "Du kan nu genomföra sökningar genom att klicka här"
 
-#: ../src/tracker-applet/tracker-applet.c:1151
-msgid ""
-"Tracker is now merging indexes which can degrade system performance for serveral minutes\n"
-"\n"
-"You can pause this by right clicking here"
-msgstr ""
-"Tracker sammanfogar nu index vilket kan göra ditt system långsamt under ett par minuter\n"
-"\n"
-"Du kan pausa detta genom att högerklicka här"
-
-#: ../src/tracker-applet/tracker-applet.c:1153
-#: ../trackerd.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "Sök- och indexeringstjänsten Tracker"
-
-#: ../src/tracker-applet/tracker-applet.c:1155
+#: ../src/tracker-applet/tracker-applet.c:1601
 msgid "Files:"
 msgstr "Filer:"
 
-#: ../src/tracker-applet/tracker-applet.c:1156
+#: ../src/tracker-applet/tracker-applet.c:1602
 msgid "    Folders:"
 msgstr "    Mappar:"
 
-#: ../src/tracker-applet/tracker-applet.c:1157
+#: ../src/tracker-applet/tracker-applet.c:1603
 msgid "    Documents:"
 msgstr "    Dokument:"
 
-#: ../src/tracker-applet/tracker-applet.c:1158
+#: ../src/tracker-applet/tracker-applet.c:1604
 msgid "    Images:"
 msgstr "    Bilder:"
 
-#: ../src/tracker-applet/tracker-applet.c:1159
+#: ../src/tracker-applet/tracker-applet.c:1605
 msgid "    Music:"
 msgstr "    Musik:"
 
-#: ../src/tracker-applet/tracker-applet.c:1160
+#: ../src/tracker-applet/tracker-applet.c:1606
 msgid "    Videos:"
 msgstr "    Videoklipp:"
 
-#: ../src/tracker-applet/tracker-applet.c:1161
+#: ../src/tracker-applet/tracker-applet.c:1607
 msgid "    Text:"
 msgstr "    Text:"
 
-#: ../src/tracker-applet/tracker-applet.c:1162
+#: ../src/tracker-applet/tracker-applet.c:1608
 msgid "    Development:"
 msgstr "    Utveckling:"
 
-#: ../src/tracker-applet/tracker-applet.c:1163
+#: ../src/tracker-applet/tracker-applet.c:1609
 msgid "    Other:"
 msgstr "    Övriga:"
 
-#: ../src/tracker-applet/tracker-applet.c:1164
+#: ../src/tracker-applet/tracker-applet.c:1610
 msgid "Applications:"
 msgstr "Program:"
 
-#: ../src/tracker-applet/tracker-applet.c:1165
+#: ../src/tracker-applet/tracker-applet.c:1611
 msgid "Conversations:"
 msgstr "Konversationer:"
 
-#: ../src/tracker-applet/tracker-applet.c:1166
+#: ../src/tracker-applet/tracker-applet.c:1612
 msgid "Emails:"
 msgstr "E-post:"
 
@@ -948,6 +980,10 @@ msgstr "Snabbare"
 msgid "File patterns to ignore during indexing:"
 msgstr "Filmönster att ignorera under indexering:"
 
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "Files"
+msgstr "Filer"
+
 #: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "General"
 msgstr "Allmänt"
@@ -1032,6 +1068,10 @@ msgstr "sekunder"
 msgid "Search from a specific service"
 msgstr "Sök från en specifik tjänst"
 
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "E-post"
+
 #: ../src/tracker-search-tool/tracker-search-tool.c:137
 msgid "All Files"
 msgstr "Alla filer"
@@ -1045,7 +1085,7 @@ msgid "Documents"
 msgstr "Dokument"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1222
+#: ../src/tracker-search-tool/tracker-search-tool.c:1228
 msgid "Text"
 msgstr "Text"
 
@@ -1103,7 +1143,7 @@ msgid "Tracker Search Tool-"
 msgstr "Sökverktyget Tracker-"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:866
-#: ../src/tracker-search-tool/tracker-search-tool.c:2252
+#: ../src/tracker-search-tool/tracker-search-tool.c:2259
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Sökverktyget Tracker"
@@ -1117,60 +1157,60 @@ msgstr "Sök_resultat: "
 msgid "no search performed"
 msgstr "ingen sökning genomförd"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1116
-#: ../src/tracker-search-tool/tracker-search-tool.c:1276
+#: ../src/tracker-search-tool/tracker-search-tool.c:1122
+#: ../src/tracker-search-tool/tracker-search-tool.c:1282
 msgid "List View"
 msgstr "Listvy"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1188
+#: ../src/tracker-search-tool/tracker-search-tool.c:1194
 msgid "Icon"
 msgstr "Ikon"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1200
+#: ../src/tracker-search-tool/tracker-search-tool.c:1206
 msgid "Name"
 msgstr "Namn"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1294
+#: ../src/tracker-search-tool/tracker-search-tool.c:1300
 msgid "_Categories"
 msgstr "_Kategorier"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1574
+#: ../src/tracker-search-tool/tracker-search-tool.c:1580
 #, c-format
 msgid "%d - %d of %d items"
 msgstr "%d - %d av %d objekt"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1577
+#: ../src/tracker-search-tool/tracker-search-tool.c:1583
 #, c-format
 msgid "%d item"
 msgid_plural "%d items"
 msgstr[0] "%d objekt"
 msgstr[1] "%d objekt"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1625
-#: ../src/tracker-search-tool/tracker-search-tool.c:1820
+#: ../src/tracker-search-tool/tracker-search-tool.c:1631
+#: ../src/tracker-search-tool/tracker-search-tool.c:1826
 msgid "Could not connect to search service as it may be busy"
 msgstr "Kunde inte ansluta till söktjänsten eftersom den kan vara upptagen"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2020
+#: ../src/tracker-search-tool/tracker-search-tool.c:2026
 msgid "_Search:"
 msgstr "_Sök:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2034
+#: ../src/tracker-search-tool/tracker-search-tool.c:2040
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr "Tracker indexerar fortfarande så alla sökresultat är inte tillgängliga än"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2047
-#: ../src/tracker-search-tool/tracker-search-tool.c:2048
+#: ../src/tracker-search-tool/tracker-search-tool.c:2054
+#: ../src/tracker-search-tool/tracker-search-tool.c:2055
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Ange ett sökvillkor med flera ord separerade med blanksteg."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2048
+#: ../src/tracker-search-tool/tracker-search-tool.c:2055
 msgid "search_entry"
 msgstr "sökinmatning"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2094
+#: ../src/tracker-search-tool/tracker-search-tool.c:2101
 msgid "Click to perform a search."
 msgstr "Klicka för att genomföra en sökning."
 
@@ -1339,10 +1379,38 @@ msgstr "länk (trasig)"
 msgid "link to %s"
 msgstr "länk till %s"
 
-#: ../trackerd.desktop.in.in.h:1
-msgid "Tracker"
-msgstr "Tracker"
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Sök- och indexeringstjänsten Tracker"
 
+#~ msgid "Search:"
+#~ msgstr "Sök:"
+#~ msgid "Status:"
+#~ msgstr "Status:"
+#~ msgid "Progress:"
+#~ msgstr "Förlopp:"
+#~ msgid "mail boxes"
+#~ msgstr "postlådor"
+#~ msgid "Indexing in progress"
+#~ msgstr "Indexering pågår"
+#~ msgid "Indexing completed"
+#~ msgstr "Indexering färdig"
+#~ msgid "Indexes are being merged"
+#~ msgstr "Index sammanfogas nu"
+#~ msgid "Paused while on battery power"
+#~ msgstr "Pausad vid batteridrift"
+#~ msgid "Paused temporarily"
+#~ msgstr "Pausad temporärt"
+#~ msgid ""
+#~ "Tracker is now merging indexes which can degrade system performance for "
+#~ "serveral minutes\n"
+#~ "\n"
+#~ "You can pause this by right clicking here"
+#~ msgstr ""
+#~ "Tracker sammanfogar nu index vilket kan göra ditt system långsamt under "
+#~ "ett par minuter\n"
+#~ "\n"
+#~ "Du kan pausa detta genom att högerklicka här"
 #~ msgid ""
 #~ "Your system must be re-indexed for your changes to take effect. Re-index "
 #~ "now?"
