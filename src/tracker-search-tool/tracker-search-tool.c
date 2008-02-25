@@ -126,12 +126,12 @@ static char *search_service_types[] = {
 "Appointments",
 "Tasks",
 "Bookmarks",
-"History",
+"WebHistory",
 "Projects",
 NULL
 };
 
-static service_info_t services[12] = {
+static service_info_t services[13] = {
 
         { "Emails",        N_("Emails"),       "stock_mail",               NULL, SERVICE_EMAILS,            NULL, FALSE, 0, 0},
         { "Files",         N_("All Files"),    "system-file-manager",      NULL, SERVICE_FILES,             NULL, FALSE, 0, 0},
@@ -144,6 +144,7 @@ static service_info_t services[12] = {
         { "Development",   N_("Development"),  "applications-development", NULL, SERVICE_DEVELOPMENT_FILES, NULL, FALSE, 0, 0},
         { "Conversations", N_("Chat Logs"),    "stock_help-chat",          NULL, SERVICE_CONVERSATIONS,     NULL, FALSE, 0, 0},
         { "Applications",  N_("Applications"), "system-run",               NULL, SERVICE_APPLICATIONS,      NULL, FALSE, 0, 0},
+        { "WebHistory",    N_("WebHistory"),    "text-html",               NULL, SERVICE_WEBHISTORY,        NULL, FALSE, 0, 0},
         { NULL,            NULL,               NULL,                       NULL, -1,                        NULL, FALSE, 0, 0},
 };
 
@@ -1551,7 +1552,7 @@ populate_hit_counts (gpointer value,
 
 		if (type != -1) {
 			for (service = services; service->service; ++service) {
-				if (service->service_type == (guint32) type) {
+				if (strcmp(service->service,meta[0]) == 0) {
 					service->hit_count = atoi (meta[1]);
 					break;
 				}
@@ -1948,6 +1949,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 	g_hash_table_insert (gsearch->category_table, g_strdup ("Development"), &services[8]);
 	g_hash_table_insert (gsearch->category_table, g_strdup ("Conversations"), &services[9]);
 	g_hash_table_insert (gsearch->category_table, g_strdup ("Applications"), &services[10]);
+	g_hash_table_insert (gsearch->category_table, g_strdup ("WebHistory"), &services[11]);
 	//g_hash_table_insert (gsearch->category_table, g_strdup ("EmailAttachments"), &services[11]);
 	
 	gsearch->category_store = gtk_list_store_new (NUM_CATEGORY_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);

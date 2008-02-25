@@ -53,3 +53,11 @@ DisplayName=Created
 Description=Date document was created
 DataType=DateTime
 Parent=DC:Date
+
+[Doc:URL]
+DisplayName=URL
+Description=URL to this Doc
+DataType=Indexable
+Weight=20
+Filtered=false
+
