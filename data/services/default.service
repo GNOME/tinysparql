@@ -34,6 +34,25 @@ MimePrefixes=application/vnd.oasis.opendocument;application/vnd.sun.xml;applicat
 ShowServiceFiles=true
 ShowServiceDirectories=true
 
+[WebHistory]
+DisplayName=Web History
+Description=Web History
+Parent=Files
+UIVisible=true
+Icon=x-office-document
+KeyMetadata1=Doc:Title
+KeyMetadata2=Doc:URL
+KeyMetadata3=Doc:Keywords
+KeyMetadata4=User:Keywords
+TabularMetadata=File:Name;File:Mime;Doc:Title;Doc:URL;Doc:Author;File:Size;File:Modified;Doc:Created;
+TileMetadata=Doc:Title;Doc:URL;Doc:Subject;Doc:Author;Doc:Created;Doc:PageCount;File:Size;
+ContentMetadata=File:Contents
+Mimes=text/html
+ShowServiceFiles=true
+ShowServiceDirectories=true
+
+
+
 [Images]
 DisplayName=Images
 Description=Image based files
