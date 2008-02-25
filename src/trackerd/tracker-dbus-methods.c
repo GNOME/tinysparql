@@ -472,6 +472,14 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 
 	if (strcasecmp (option, "Pause") == 0) {
 		tracker->pause_manual = value;
+		
+		if (value) {
+			tracker_log ("trackerd is paused by user");
+		} else {
+			tracker_log ("trackerd is unpaused by user");
+		}
+		
+		
 	} else if (strcasecmp (option, "FastMerges") == 0) {
 		tracker->fast_merges = value;
 		tracker_log ("fast merges set to %d", value);

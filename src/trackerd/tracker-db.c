@@ -918,9 +918,9 @@ tracker_db_index_master_files (DBConnection *db_con, const gchar *dirname, const
 void
 tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachment_uri, const char *attachment_service)
 {
-	char *services_with_metadata[] = {"Documents", "Music", "Videos", "Images", NULL};
-	char *services_with_text[] = {"Documents", "Development", "Text", NULL};
-	char *services_with_thumbs[] = {"Documents", "Images", "Videos", NULL};
+	char *services_with_metadata[] = {"Documents", "Music", "Videos", "Images","WebHistory", NULL};
+	char *services_with_text[] = {"Documents", "Development", "Text", "WebHistory",NULL};
+	char *services_with_thumbs[] = {"Documents", "Images", "Videos", "WebHistory",NULL};
 
 	GHashTable	*meta_table;
 	const char	*ext;
@@ -993,6 +993,41 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Modified"), tracker_date_to_str (info->mtime));
 		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Accessed"), tracker_date_to_str (info->atime));
 
+                /* need to add special data for web history */
+                if ( attachment_service != NULL && strcmp(attachment_service,"WebHistory") == 0)  {
+                     gchar* meta_file = g_strconcat(dirname,"/.",filename,NULL);
+                     FILE* fp = g_fopen(meta_file, "r");
+                     if (fp != NULL) {
+                          char buf[512];
+                          fgets(buf,512,fp);  //get the first line, it is URL for this web history object
+                          tracker_debug("URL for this WebHistory is %s\n",buf);
+                          tracker_add_metadata_to_table  (meta_table, g_strdup ("Doc:URL"), g_strdup(buf));
+                          fgets(buf,512,fp);
+                          fgets(buf,512,fp);
+                          fgets(buf,512,fp);
+                          fgets(buf,512,fp);  // get the keywords for this file
+                          if (buf != NULL) {
+                              /* format like t:dc:keyword=xxx */
+                              gchar** keys = g_strsplit(buf,"=",0);
+                              if (keys != NULL && strcmp(keys[0],"t:dc:keyword") == 0) {
+                                  char doc_keyword[512];
+                                  int i;
+                                  for (i=0; i<512; i++) doc_keyword[i] = NULL;
+                                  
+                                  strncat(doc_keyword,keys[1],strlen(keys[1])-1);
+                                  tracker_debug("keywords for this is %s\n",doc_keyword);
+                                  tracker_add_metadata_to_table  (meta_table, g_strdup ("Doc:Keywords"), g_strdup(doc_keyword));
+                                  g_strfreev(keys);
+                              }
+                          }
+
+                          fclose(fp);
+                     }
+                     g_free(meta_file);
+                }
+                                
+
+
 		is_external_service = g_str_has_prefix (info->mime, "service/");
 		is_file_indexable = (!info->is_directory && (strcmp (info->mime, "unknown") != 0) && (strcmp (info->mime, "symlink") != 0) && tracker_file_is_indexable (info->uri));
 
@@ -1061,5 +1096,9 @@ tracker_db_index_conversation (DBConnection *db_con, FileInfo *info)
 	tracker_db_index_file (db_con, info, NULL, "GaimConversations");
 }
 
-
+void 
+tracker_db_index_webhistory(DBConnection *db_con, FileInfo *info)
+{
+	tracker_db_index_file (db_con, info, NULL, "WebHistory");
+}
 

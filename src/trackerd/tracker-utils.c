@@ -3873,7 +3873,7 @@ tracker_low_diskspace (void)
 		return FALSE;
 	}
 
-	if ((st.f_bavail * 100 / st.f_blocks) <= tracker->low_diskspace_limit) {
+	if (((long long) st.f_bavail * 100 / st.f_blocks) <= tracker->low_diskspace_limit) {
 		tracker_error ("Disk space is low!");
 		return TRUE;
 	}

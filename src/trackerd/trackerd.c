@@ -914,6 +914,9 @@ index_entity (DBConnection *db_con, FileInfo *info)
 	} else if (strcmp (service_info, "Files") == 0) {
 		tracker_db_index_file (db_con, info, NULL, NULL);
 
+        } else if (strcmp (service_info, "WebHistory") ==0 ) {
+                tracker_db_index_webhistory (db_con, info);
+
 	} else if (g_str_has_suffix (service_info, "Conversations")) {
 		tracker_db_index_conversation (db_con, info);
 
@@ -1238,7 +1241,28 @@ process_files_thread (void)
 							break;
 
 
-						
+					        case INDEX_WEBHISTORY: {
+
+                                                                gchar *firefox_dir;
+                                                                GSList *list = NULL;
+                                                                firefox_dir = g_build_filename(g_get_home_dir(),".xesam/Firefox/ToIndex",NULL);
+                                                                if (tracker_file_is_valid(firefox_dir)) {
+                                                                     list = g_slist_prepend( NULL, firefox_dir);
+ 
+                                                                     tracker_log("Starting firefox web history indexing...");
+                                                                     tracker_add_service_path("WebHistory",firefox_dir);
+
+							             tracker_db_start_transaction (db_con->cache);		
+                                                                     tracker_add_root_directories(list);
+                                                                     process_directory_list(db_con,list, TRUE);
+                                                                     tracker_db_end_transaction (db_con->cache);
+                                                                     g_slist_free(list);
+                                         
+                                                                 }
+                                                        	g_free(firefox_dir);
+                                                        }
+                                                        break;
+
 						case INDEX_EXTERNAL:
 							break;
 
