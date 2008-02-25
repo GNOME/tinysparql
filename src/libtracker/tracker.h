@@ -69,7 +69,7 @@ typedef enum {
         SERVICE_APPOINTMENTS,
         SERVICE_TASKS,
         SERVICE_BOOKMARKS,
-        SERVICE_HISTORY,
+        SERVICE_WEBHISTORY,
         SERVICE_PROJECTS
 } ServiceType;
 

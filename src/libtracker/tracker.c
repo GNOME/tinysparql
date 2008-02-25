@@ -95,7 +95,7 @@ char *tracker_service_types[] = {
 "Appointments",
 "Tasks",
 "Bookmarks",
-"History",
+"WebHistory",
 "Projects",
 NULL
 };
