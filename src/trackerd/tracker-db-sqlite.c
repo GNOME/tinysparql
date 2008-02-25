@@ -1971,6 +1971,7 @@ tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count,
 	}
 
 	if (res->len == 0) {
+		g_ptr_array_free (res, TRUE);
 		return NULL;
 	}
 
@@ -2192,6 +2193,7 @@ tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int
 	}
 
 	if (res->len == 0) {
+		g_ptr_array_free (res, TRUE);
 		return NULL;
 	}
 

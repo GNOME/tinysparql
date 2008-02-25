@@ -1,3 +1,9 @@
+2008-02-25 Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc)
+	(tracker_exec_proc_ignore_nulls): Plug 2 memleaks introduced
+	by the switch to GPtrArray.
+
 2008-02-25 Jerry Tan <jerry.tan@sun.com>
         * add firefox extension for web history indexing
 
