@@ -634,6 +634,10 @@ index_black_list ()
 
 	g_slist_foreach (tracker->tmp_black_list, (GFunc) index_blacklist_file, NULL);
 	
+	g_slist_foreach (tracker->tmp_black_list, (GFunc) g_free, NULL);
+	
+	g_slist_free (tracker->tmp_black_list);
+	
 	tracker->black_list_timer_active = FALSE;
 	
 	return TRUE;
@@ -1159,36 +1163,47 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 		tracker_add_metadata_to_table  (meta_table, g_strdup ("File:Accessed"), tracker_date_to_str (info->atime));
 
                 /* need to add special data for web history */
-                if ( attachment_service != NULL && strcmp(attachment_service,"WebHistory") == 0)  {
-                     gchar* meta_file = g_strconcat(dirname,"/.",filename,NULL);
-                     FILE* fp = g_fopen(meta_file, "r");
-                     if (fp != NULL) {
-                          char buf[512];
-                          fgets(buf,512,fp);  //get the first line, it is URL for this web history object
-                          tracker_debug("URL for this WebHistory is %s\n",buf);
-                          tracker_add_metadata_to_table  (meta_table, g_strdup ("Doc:URL"), g_strdup(buf));
-                          fgets(buf,512,fp);
-                          fgets(buf,512,fp);
-                          fgets(buf,512,fp);
-                          fgets(buf,512,fp);  // get the keywords for this file
-                          if (buf != NULL) {
-                              /* format like t:dc:keyword=xxx */
-                              gchar** keys = g_strsplit(buf,"=",0);
-                              if (keys != NULL && strcmp(keys[0],"t:dc:keyword") == 0) {
-                                  char doc_keyword[512];
-                                  int i;
-                                  for (i=0; i<512; i++) doc_keyword[i] = NULL;
-                                  
-                                  strncat(doc_keyword,keys[1],strlen(keys[1])-1);
-                                  tracker_debug("keywords for this is %s\n",doc_keyword);
-                                  tracker_add_metadata_to_table  (meta_table, g_strdup ("Doc:Keywords"), g_strdup(doc_keyword));
-                                  g_strfreev(keys);
-                              }
-                          }
+                if (attachment_service != NULL && strcmp(attachment_service,"WebHistory") == 0)  {
+                	
+                	gchar* meta_file = g_strconcat(dirname,"/.",filename,NULL);
+                     
+                     	FILE* fp = g_fopen(meta_file, "r");
+                     
+                     	if (fp != NULL) {
+                          	char buf[512];
+                          	
+                          	fgets(buf,512,fp);  //get the first line, it is URL for this web history object
+                          	tracker_debug("URL for this WebHistory is %s\n",buf);
+                          	tracker_add_metadata_to_table  (meta_table, g_strdup ("Doc:URL"), g_strdup(buf));
+                          	
+                          	fgets(buf,512,fp);
+                          	fgets(buf,512,fp);
+                          	fgets(buf,512,fp);
+                          	fgets(buf,512,fp);  // get the keywords for this file
+                          	
+                          	if (buf != NULL) {
+                              		
+                              		/* format like t:dc:keyword=xxx */
+                              		gchar** keys = g_strsplit (buf,"=",0);
+                              
+                              		if (keys != NULL && strcmp(keys[0],"t:dc:keyword") == 0 && keys[1]) {
 
-                          fclose(fp);
-                     }
-                     g_free(meta_file);
+                                		char *doc_keyword = g_strdup (keys[1]);
+
+	                        		tracker_debug("found keywords : %s\n",doc_keyword);
+	                        	
+                                  		tracker_add_metadata_to_table  (meta_table, g_strdup ("Doc:Keywords"), doc_keyword);
+                                	}
+                                
+                                
+                                	if (keys) g_strfreev(keys);
+                                
+                        	      	
+                      		}
+
+                        	fclose (fp);
+               		}
+                     	g_free (meta_file);
                 }
                                 
 
