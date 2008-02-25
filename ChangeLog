@@ -1,8 +1,25 @@
+2008-02-24 Jamie McCracken <jamiemcc at gnome org>
+
+	* added tmp black list of frequently changing files
+
+2007-02-24 patches from Jerry Tan <jerry.tan@sun.com>
+	
+	* added web history
+	
+
 2008-02-22  Luca Ferretti  <elle.uca@libero.it>
 
 	* src/tracker-applet/tracker-applet.c: (set_status_hint),
 	(create_context_menu):
 	More strings for translation and fix capitalization.
+
+
+2008-02-21 Jamie McCracken <jamiemcc at gnome org>
+
+	* Updated applet
+	* removed popup window and replaced with tooltip to indicate status/progress
+	* added smart pause by tracking X events for mouse and keyboard 
+	* added more options to not show animation and hide icon
 
 2008-02-17  Saleem Abdulrasool  <compnerd@compnerd.org>
 
