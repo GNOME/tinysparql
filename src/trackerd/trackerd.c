@@ -333,6 +333,21 @@ tracker_die ()
 }
 
 
+void
+free_file_change (FileChange **user_data)
+{
+	FileChange *change = *user_data;
+	g_free (change->uri);
+	change->uri = NULL;
+	change = NULL;
+}
+
+static void
+free_file_change_queue (gpointer data, gpointer user_data)
+{
+	FileChange *change = (FileChange *)data;
+	free_file_change (&change);
+}
 
 gboolean
 tracker_do_cleanup (const gchar *sig_msg)
@@ -434,6 +449,14 @@ tracker_do_cleanup (const gchar *sig_msg)
 	/* remove sys tmp directory */
 	if (tracker->sys_tmp_root_dir) {
 		tracker_remove_dirs (tracker->sys_tmp_root_dir);
+	}
+
+	/* remove file change queue */
+	if (tracker->file_change_queue) {
+		g_queue_foreach (tracker->file_change_queue,
+				 free_file_change_queue, NULL);
+		g_queue_free (tracker->file_change_queue);
+		tracker->file_change_queue = NULL;
 	}
 
 	g_main_loop_quit (tracker->loop);
@@ -2106,6 +2129,8 @@ set_defaults (void)
 	tracker->merge_limit = MERGE_LIMIT;
 
 	tracker->index_status = INDEX_CONFIG;
+
+	tracker->black_list_timer_active = FALSE;	
 
 	tracker->pause_manual = FALSE;
 	tracker->pause_battery = FALSE;

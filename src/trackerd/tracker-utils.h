@@ -199,6 +199,14 @@ typedef enum {
 	EVENT_CACHE_FLUSHED
 } LoopEvent;
 
+
+typedef struct {
+	gchar	*uri;
+	time_t	first_change_time;
+	gint    num_of_change;
+} FileChange;
+
+
 typedef struct {
 
 	gboolean	readonly;
@@ -340,6 +348,12 @@ typedef struct {
 
 	/* nfs options */
 	gboolean	use_nfs_safe_locking; /* use safer but much slower external lock file when users home dir is on an nfs systems */
+
+	/* Queue for recorad file changes */
+	GQueue		*file_change_queue;
+	GSList		*tmp_black_list;
+	gboolean	black_list_timer_active;
+	
 
 	/* application run time values */
 	gboolean	is_indexing;
@@ -650,6 +664,7 @@ void		tracker_add_io_grace 		(const char *uri);
 
 char *		tracker_get_status 		(void);
 
+void		free_file_change		(FileChange **user_data);
 gboolean	tracker_do_cleanup 		(const gchar *sig_msg);
 
 gboolean	tracker_pause_on_battery 	(void);

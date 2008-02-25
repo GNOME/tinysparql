@@ -33,6 +33,9 @@
 extern Tracker *tracker;
 
 #define XMP_MIME_TYPE "application/rdf+xml"
+#define STACK_SIZE 30
+#define MAX_DURATION 300
+#define MAX_CHANGE_TIMES 4
 
 typedef struct {
 	DBConnection	*db_con;
@@ -548,6 +551,159 @@ tracker_db_add_to_extract_queue (DBConnection *db_con, FileInfo *info)
 	tracker_notify_meta_data_available ();
 }
 
+static void
+refresh_file_change_queue (gpointer data, gpointer user_data)
+{
+	FileChange *change = (FileChange*)data;
+	int *current = (int *)user_data;
+
+	if ((*current - change->first_change_time) > MAX_DURATION) {
+		g_queue_remove_all (tracker->file_change_queue, data);
+		free_file_change (&change);
+	}
+}
+
+static gint
+uri_comp (gconstpointer a, gconstpointer b)
+{
+	FileChange *change = (FileChange *)a;
+	char *valuea = change->uri;
+	char *valueb = (char *)b;
+
+	return strcmp (valuea, valueb);
+}
+
+static gint
+file_change_sort_comp (gconstpointer a, gconstpointer b, gpointer user_data)
+{
+	FileChange *changea, *changeb;
+	changea = (FileChange *)a;
+	changeb = (FileChange *)b;
+
+	if ((changea->num_of_change - changeb->num_of_change) == 0) {
+		return changea->first_change_time - changeb->first_change_time;
+	} else {
+		return changea->num_of_change - changeb->num_of_change;
+	}
+}
+
+static void
+print_file_change_queue ()
+{
+	GList *head, *l;
+	FileChange *change;
+	gint count;
+
+	head = g_queue_peek_head_link (tracker->file_change_queue);
+
+	tracker_log ("File Change queue is:");
+	count = 1;
+	for (l = g_list_first (head); l != NULL; l = g_list_next (l)) {
+		change = (FileChange*)l->data;
+		tracker_log ("%d\t%s\t%d\t%d",
+			 count++, change->uri,
+			 change->first_change_time,
+			 change->num_of_change);
+	}
+	
+}
+
+static void
+index_blacklist_file (char *uri)
+{
+	FileInfo *info;
+
+	info = tracker_create_file_info (uri, TRACKER_ACTION_FILE_CHECK, 0, WATCH_OTHER);
+
+	info->is_directory = FALSE;
+	
+	info->is_new = FALSE;
+
+	info->mime = g_strdup ("unknown");
+
+	g_async_queue_push (tracker->file_process_queue, info);
+	
+	tracker_notify_file_data_available ();
+
+}
+
+
+static gboolean
+index_black_list ()
+{
+
+	g_slist_foreach (tracker->tmp_black_list, (GFunc) index_blacklist_file, NULL);
+	
+	tracker->black_list_timer_active = FALSE;
+	
+	return TRUE;
+
+}
+
+
+
+static gboolean
+check_uri_changed_frequently (const char *uri)
+{
+	GList *find;
+	FileChange *change;
+	time_t current;
+
+	if (!tracker->file_change_queue) {
+		/* init queue */
+		tracker->file_change_queue = g_queue_new ();
+	}
+
+	current = time (NULL);
+
+	/* remove items which are very old */
+	g_queue_foreach (tracker->file_change_queue,
+			 refresh_file_change_queue, &current);
+
+	find = g_queue_find_custom (tracker->file_change_queue, uri, uri_comp);
+	if (!find) {
+		/* not found, add to in the queue */
+		change = g_new0 (FileChange, 1);
+		change->uri = g_strdup (uri);
+		change->first_change_time = current;
+		change->num_of_change = 1;
+		if (g_queue_get_length (tracker->file_change_queue) == STACK_SIZE) {
+			FileChange *tmp = (FileChange*) g_queue_pop_head (
+						tracker->file_change_queue);
+			free_file_change (&tmp);
+		}
+		g_queue_insert_sorted (tracker->file_change_queue, change,
+					file_change_sort_comp, NULL);
+		print_file_change_queue ();
+		return FALSE;
+	} else {
+		change = (FileChange *) find->data;
+		(change->num_of_change)++;
+		g_queue_sort (tracker->file_change_queue,
+			file_change_sort_comp, NULL);
+		if (change->num_of_change < MAX_CHANGE_TIMES) {
+			print_file_change_queue ();
+			return FALSE;
+		} else {
+			print_file_change_queue ();
+			
+			/* add uri to blacklist */
+			
+			tracker->tmp_black_list = g_slist_prepend (tracker->tmp_black_list, g_strdup (change->uri));
+			
+			if (!tracker->black_list_timer_active) {
+				tracker->black_list_timer_active = TRUE;
+				g_timeout_add_seconds (3600, (GSourceFunc) index_black_list, NULL);
+			}
+			
+			g_queue_remove_all (tracker->file_change_queue, change);
+			free_file_change (&change);
+			
+			return TRUE;
+		}
+	}
+
+}
 
 void
 tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const char *uri, const char *moved_to_uri, const char *mime, int counter, TrackerChangeAction action, gboolean is_directory, gboolean is_new, int service_type_id)
@@ -556,6 +712,15 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 
 	g_return_if_fail (tracker_check_uri (uri));
 
+	/* check if uri changed too frequently */
+	if (((action == TRACKER_ACTION_CHECK) ||
+		(action == TRACKER_ACTION_FILE_CHECK)) &&
+		check_uri_changed_frequently (uri)) {
+		
+		return;
+	}
+	
+	
 	/* check if uri already has a pending action and update accordingly */
 	info = tracker_db_get_pending_file (db_con, uri);
 
@@ -682,8 +847,8 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}
 
 	if (info->mime == NULL) {
-                info->mime = g_strdup("unknown");
-        }
+		info->mime = g_strdup("unknown");
+	}
 
 	if (info->is_new) {
 		if (info->mime)
