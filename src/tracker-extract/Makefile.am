@@ -1,5 +1,5 @@
 module_flags = -module -avoid-version -no-undefined
-modulesdir = $(prefix)/lib/tracker/extract-modules
+modulesdir = $(libdir)/tracker/extract-modules
 
 INCLUDES = \
 	$(GLIB2_CFLAGS) \
