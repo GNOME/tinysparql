@@ -123,6 +123,7 @@ tracker_dbus_send_index_status_change_signal ()
  			<arg type="b" name="is_manual_paused" />
                         <arg type="b" name="is_battery_paused" />
                         <arg type="b" name="is_io_paused" />
+                        <arg type="b" name="is_indexing_enabled" />
 		</signal>
 	*/
 
@@ -135,6 +136,7 @@ tracker_dbus_send_index_status_change_signal ()
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_manual,
 				  DBUS_TYPE_BOOLEAN, &battery_pause,
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_io,
+				  DBUS_TYPE_BOOLEAN, &tracker->enable_indexing,
 				  DBUS_TYPE_INVALID);
 
 	g_free (status);

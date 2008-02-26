@@ -486,6 +486,9 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 	} else if (strcasecmp (option, "EnableIndexing") == 0) {
 		tracker->enable_indexing = value;
 		tracker_log ("Enable indexing set to %d", value);
+		tracker_dbus_send_index_status_change_signal ();
+
+
 	} else if (strcasecmp (option, "EnableWatching") == 0) {
 		tracker->enable_watching = value;
 		tracker_log ("Enable Watching set to %d", value);
