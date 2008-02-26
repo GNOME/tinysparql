@@ -130,6 +130,7 @@
  			<arg type="b" name="is_manual_paused" />
                         <arg type="b" name="is_battery_paused" />
                         <arg type="b" name="is_io_paused" />
+                        <arg type="b" name="is_indexing_enabled" />
 		</signal>
 
 		<!-- signal when index has completed  -->
