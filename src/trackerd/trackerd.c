@@ -1642,7 +1642,7 @@ process_files_thread (void)
 		if (need_index) {
 					
 
-			if (tracker_db_regulate_transactions (db_con, 100)) {
+			if (tracker_db_regulate_transactions (db_con, 250)) {
 				if (tracker->verbosity == 1) {
 					tracker_log ("indexing #%d - %s", tracker->index_count, info->uri);
 				}
@@ -2795,6 +2795,9 @@ main (gint argc, gchar *argv[])
 
 		tracker_log ("performing integrity check as trackerd was not shutdown cleanly");
 
+
+/*		turn off corruption check as it can hog cpu for long time 
+
 		if (!tracker_db_integrity_check (db_con) || !tracker_indexer_repair ("file-index.db") || !tracker_indexer_repair ("email-index.db")) {
 			tracker_error ("db or index corruption detected - prepare for reindex...");
 			tracker_db_close (db_con);	
@@ -2806,8 +2809,9 @@ main (gint argc, gchar *argv[])
 			db_con->thread = "main";
 
 		}
-
+*/
 	} 
+
 	
 	if (!tracker->readonly) {
 		tracker_db_set_option_int (db_con, "IntegrityCheck", 1);

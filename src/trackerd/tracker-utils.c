@@ -65,7 +65,7 @@ char *tracker_actions[] = {
 		"TRACKER_ACTION_DIRECTORY_REFRESH", "TRACKER_ACTION_EXTRACT_METADATA",
 		NULL};
 
-char *ignore_suffix[] = {"~", ".o", ".la", ".lo", ".loT", ".in", ".csproj", ".m4", ".rej", ".gmo", ".orig", ".pc", ".omf", ".aux", ".tmp", ".po", NULL};
+char *ignore_suffix[] = {"~", ".o", ".la", ".lo", ".loT", ".in", ".csproj", ".m4", ".rej", ".gmo", ".orig", ".pc", ".omf", ".aux", ".tmp", ".po", ".vmdk",".vmx",".vmxf",".vmsd",".nvram", ".part",  NULL};
 char *ignore_prefix[] = {"autom4te", "conftest.", "confstat", "config.", NULL};
 char *ignore_name[] = {"po", "CVS", "aclocal", "Makefile", "CVS", "SCCS", "ltmain.sh","libtool", "config.status", "conftest", "confdefs.h", NULL};
 
@@ -1787,6 +1787,13 @@ tracker_get_mime_type (const char *uri)
 	if (S_ISLNK (finfo.st_mode) && S_ISDIR (finfo.st_mode)) {
 	        g_free (uri_in_locale);
 		return g_strdup ("symlink");
+	}
+
+
+	/* handle iso files as they can be mistaken for video files */
+	
+	if (g_str_has_suffix (uri, ".iso")) {
+		return g_strdup ("application/x-cd-image");
 	}
 
 	result = xdg_mime_get_mime_type_for_file (uri, NULL);

@@ -50,5 +50,6 @@ void		tracker_db_index_service 	(DBConnection *db_con, FileInfo *info, const cha
 void		tracker_db_index_file 		(DBConnection *db_con, FileInfo *info, const char *attachment_uri, const char *attachment_service);
 void		tracker_db_index_conversation 	(DBConnection *db_con, FileInfo *info);
 void		tracker_db_index_application 	(DBConnection *db_con, FileInfo *info);
+void 		tracker_db_index_webhistory	(DBConnection *db_con, FileInfo *info);
 
 #endif

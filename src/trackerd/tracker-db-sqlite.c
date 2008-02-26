@@ -762,7 +762,7 @@ open_common_db (DBConnection *db_con)
 
 	db_con->db = open_user_db ("common.db", &create);
 
-	set_params (db_con, 16, FALSE);
+	set_params (db_con, 32, FALSE);
 
 }
 
@@ -871,7 +871,7 @@ tracker_db_connect_all (gboolean indexer_process)
 	emails_db_con->word_index = email_word_index_db_con;
 	emails_db_con->index = emails_db_con;
 	emails_db_con->cache = db_con->cache;
-
+	
 	return db_con;
 
 }
@@ -989,7 +989,7 @@ tracker_db_end_index_transaction (DBConnection *db_con)
 void
 tracker_db_set_default_pragmas (DBConnection *db_con)
 {
-	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = OFF;");
+	tracker_db_exec_no_reply (db_con, "PRAGMA synchronous = NORMAL;");
 
 	tracker_db_exec_no_reply (db_con, "PRAGMA count_changes = 0;");
 
@@ -1115,7 +1115,7 @@ open_file_db (DBConnection *db_con)
 
 	db_con->db = open_db ("file-meta.db", &create);	
 
-	set_params (db_con, 128, TRUE);
+	set_params (db_con, 512, TRUE);
 }
 
 DBConnection *
@@ -1144,7 +1144,7 @@ open_email_db (DBConnection *db_con)
 
 	db_con->db = open_db ("email-meta.db", &create);	
 
-	set_params (db_con, 128, TRUE);
+	set_params (db_con, 512, TRUE);
 }
 
 DBConnection *
@@ -1175,7 +1175,7 @@ open_file_content_db (DBConnection *db_con)
 
 	db_con->db = open_db ("file-contents.db", &create);	
 
-	set_params (db_con, 256, FALSE);
+	set_params (db_con, 1024, FALSE);
 
 	if (create) {
 		tracker_db_exec_no_reply (db_con, "CREATE TABLE ServiceContents (ServiceID Int not null, MetadataID Int not null, Content Text, primary key (ServiceID, MetadataID))");
@@ -1214,7 +1214,7 @@ open_email_content_db (DBConnection *db_con)
 
 	db_con->db = open_db ("email-contents.db", &create);	
 
-	set_params (db_con, 256, FALSE);
+	set_params (db_con, 512, FALSE);
 
 	if (create) {
 		tracker_db_exec_no_reply (db_con, "CREATE TABLE ServiceContents (ServiceID Int not null, MetadataID Int not null, Content Text, primary key (ServiceID, MetadataID))");
