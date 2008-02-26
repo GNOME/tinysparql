@@ -1,3 +1,13 @@
+2008-02-26 Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-db-sqlite.c (sqlite3_get_service_name):
+	* src/trackerd/tracker-dbus-metadata.c
+	(tracker_dbus_method_metadata_set) (tracker_dbus_method_metadata_get):
+	* src/trackerd/tracker-dbus-search.c
+	(tracker_dbus_method_search_get_hit_count_all)
+	(tracker_dbus_method_search_text_detailed): Plug some leaks. Fixes
+	#518882.
+
 2008-02-25 Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc)

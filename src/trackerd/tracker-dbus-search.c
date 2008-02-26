@@ -195,6 +195,8 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 	tracker_free_query (query);	
 
 	tracker_dbus_reply_with_query_result (rec, res);
+
+	tracker_db_free_result (res);
 }
 
 
@@ -389,7 +391,7 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 
 	tracker_dbus_reply_with_query_result (rec, res);
 
-	//tracker_db_free_result (res);
+	tracker_db_free_result (res);
 }
 
 

@@ -188,8 +188,7 @@ sqlite3_get_service_name (sqlite3_context *context, int argc, sqlite3_value **ar
 			char *output;
 
 			output = tracker_get_service_by_id (sqlite3_value_int (argv[0]));
-			sqlite3_result_text (context, output, strlen (output), NULL);
-
+			sqlite3_result_text (context, output, strlen (output), g_free);
 		}
 	}
 }

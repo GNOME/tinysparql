@@ -110,6 +110,8 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 	}
 
 	g_free (id);
+	dbus_free_string_array (keys);
+	dbus_free_string_array (values);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -205,13 +207,16 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		if (field->needs_join) {
 			g_string_append_printf (sql_join, "\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", field->table_name, field->alias, field->alias, field->alias, field->id_field);
 		}
-			
 
+		tracker_free_metadata_field (field);
 	}
 
 	g_string_append (sql, sql_join->str);
 
 	g_string_free (sql_join, TRUE);
+
+	dbus_free_string_array (keys);
+	g_free (res_service);
 
 	/* build WHERE clause */
 
