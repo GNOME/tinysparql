@@ -5826,6 +5826,13 @@ tracker_db_get_static_data (DBConnection *db_con)
 
 		}		
 		tracker_db_free_result (res);
+		
+		/* check for web history */
+		if (!g_hash_table_lookup (tracker->service_table, "Webhistory")) {
+			tracker_log ("Adding missing Webhistory service");
+			tracker_exec_proc (db_con, "InsertServiceType", 1, "Webhistory");	
+		}
+		
 	}
 
 }
@@ -5900,7 +5907,6 @@ tracker_db_metadata_is_child (DBConnection *db_con, const char *child, const cha
 	return FALSE;
 
 }
-
 
 
 gboolean
