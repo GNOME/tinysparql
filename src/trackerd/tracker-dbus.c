@@ -170,7 +170,14 @@ tracker_dbus_send_index_progress_signal (const char *service, const char *uri)
 	if (strcmp (service, "Emails") == 0) {
 		count = tracker->mbox_count;
 		processed = tracker->mbox_processed;
+		
+	} else if (strcmp (service, "Merging") == 0) {
+	
+		count = tracker->merge_count;
+		processed = tracker->merge_processed;
+	
 	} else {
+	
 		count = tracker->folders_count;
 		processed = tracker->folders_processed;
 	}

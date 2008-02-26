@@ -354,6 +354,10 @@ typedef struct {
 	GSList		*tmp_black_list;
 	gboolean	black_list_timer_active;
 	
+	/* progress info for merges */
+	int		merge_count;
+	int		merge_processed;
+	
 
 	/* application run time values */
 	gboolean	is_indexing;

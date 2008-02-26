@@ -635,6 +635,9 @@ tracker_indexer_merge_indexes (IndexType type)
 
 	tracker_log ("starting merge of %d indexes", index_count);
 	tracker->in_merge = TRUE;
+	tracker->merge_count = index_count;
+	tracker->merge_processed = 0;
+	tracker_dbus_send_index_progress_signal ("Merging", "");
 	
 
 	if (index_count == 2 && !final_exists) {
@@ -765,6 +768,8 @@ tracker_indexer_merge_indexes (IndexType type)
 
 			if (index != tracker->file_index && index != tracker->email_index) {
 				tracker_indexer_free (index, TRUE);
+				tracker->merge_processed++;
+				tracker_dbus_send_index_progress_signal ("Merging", "");	
 			}
 
 
