@@ -597,6 +597,8 @@ tracker_dbus_method_shutdown (DBusRec *rec)
 		return;
 	}
 
+	tracker_log ("attempting restart");
+
 	tracker->reindex = reindex;
 
 	g_timeout_add (500, (GSourceFunc) tracker_do_cleanup, NULL);

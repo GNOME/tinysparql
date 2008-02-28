@@ -354,6 +354,8 @@ tracker_do_cleanup (const gchar *sig_msg)
 {
 	tracker->status = STATUS_SHUTDOWN;
 
+	tracker_log ("shutdown mode entered");
+
 	if (tracker->log_file && sig_msg) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
 
@@ -1783,6 +1785,7 @@ process_user_request_queue_thread (void)
                                 break;
 
                         case DBUS_ACTION_SHUTDOWN:
+                                           	
 
 				tracker_dbus_method_shutdown (rec);
 

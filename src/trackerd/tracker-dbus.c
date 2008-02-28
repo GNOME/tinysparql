@@ -286,6 +286,44 @@ message_func (DBusConnection *conn,
 		return DBUS_HANDLER_RESULT_HANDLED;
 	}
 
+	/* process shutdown calls in this thread */
+	if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_SHUTDOWN)) {
+	
+		DBusMessage 	*reply;
+		DBusError   	dbus_error;
+		gboolean 	reindex = FALSE;
+	
+		if (!dbus_message_get_args (message, NULL, DBUS_TYPE_BOOLEAN, &reindex, DBUS_TYPE_INVALID)) {
+			//tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+			dbus_error_free (&dbus_error);
+			return 0;
+		}
+
+		tracker_log ("attempting restart");
+
+		tracker->reindex = reindex;
+		
+		tracker->is_running = FALSE;
+		tracker_end_watching ();
+
+		g_timeout_add_full (G_PRIORITY_LOW,
+		     		    1,
+	 	    		    (GSourceFunc) tracker_do_cleanup,
+		     		    g_strdup ("dbus shutdown"), NULL
+		   		    );
+
+
+		reply = dbus_message_new_method_return (message);
+
+		dbus_connection_send (conn, reply, NULL);
+
+		dbus_message_unref (reply);
+	
+		return DBUS_HANDLER_RESULT_HANDLED;
+	
+	}
+	
+
 
 	if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_PING)) {
 		/* ref the message here because we are going to reply to it in a different thread */
