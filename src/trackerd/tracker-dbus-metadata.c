@@ -181,6 +181,11 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 
 	res_service = tracker_db_get_service_for_entity (db_con, id);
+	
+	if (!res_service) {
+		tracker_set_error (rec, "Service info cannot be found for entity %s", uri);
+		return;
+	}
 
 	/* build SELECT clause */
 	sql = g_string_new (" SELECT DISTINCT ");
