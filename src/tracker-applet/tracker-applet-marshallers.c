@@ -63,12 +63,13 @@ tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN (GClosure     *clos
                                                                                      gboolean     arg_4,
                                                                                      gboolean     arg_5,
                                                                                      gboolean     arg_6,
+                                                                                     gboolean     arg_7,
                                                                                      gpointer     data2);
   register GMarshalFunc_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN callback;
   register GCClosure *cc = (GCClosure*) closure;
   register gpointer data1, data2;
 
-  g_return_if_fail (n_param_values == 7);
+  g_return_if_fail (n_param_values == 8);
 
   if (G_CCLOSURE_SWAP_DATA (closure))
     {
@@ -89,6 +90,7 @@ tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN (GClosure     *clos
             g_marshal_value_peek_boolean (param_values + 4),
             g_marshal_value_peek_boolean (param_values + 5),
             g_marshal_value_peek_boolean (param_values + 6),
+            g_marshal_value_peek_boolean (param_values + 7),
             data2);
 }
 
