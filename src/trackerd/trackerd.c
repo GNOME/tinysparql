@@ -349,6 +349,32 @@ free_file_change_queue (gpointer data, gpointer user_data)
 	free_file_change (&change);
 }
 
+
+static void
+reset_blacklist_file (char *uri)
+{
+
+	char *parent = g_path_get_dirname (uri);
+	if (!parent) return;
+
+	char *parent_name = g_path_get_basename (parent);
+	if (!parent_name) return;
+	
+	char *parent_path = g_path_get_dirname (parent);
+	if (!parent_path) return;	
+	
+	tracker_log ("resetting black list file %s", uri);
+	
+	/* reset mtime on parent folder of all outstanding black list files so they get indexed when next restarted */
+	tracker_exec_proc (main_thread_db_con, "UpdateFileMTime", 3, "0", parent_path, parent_name);
+	
+	g_free (parent);
+	g_free (parent_name);
+	g_free (parent_path);		 
+	 
+	
+}
+
 gboolean
 tracker_do_cleanup (const gchar *sig_msg)
 {
@@ -432,6 +458,10 @@ tracker_do_cleanup (const gchar *sig_msg)
 
 	/* reset integrity status as threads have closed cleanly */
 	tracker_db_set_option_int (main_thread_db_con, "IntegrityCheck", 0);
+	
+	
+	/* reset black list files */
+	g_slist_foreach (tracker->tmp_black_list, (GFunc) reset_blacklist_file, NULL);
 
 	tracker_db_close (main_thread_db_con);
 

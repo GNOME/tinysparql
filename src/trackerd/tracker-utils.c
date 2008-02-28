@@ -2305,7 +2305,10 @@ tracker_ignore_file (const char *uri)
 	GSList *lst;
 	for (lst = tracker->tmp_black_list; lst; lst = lst->next) {
 
+		
                 char *compare_uri = lst->data;
+
+		if (!compare_uri) continue;
 
 		if (strcmp (uri, compare_uri) == 0) {
 			g_free (name);

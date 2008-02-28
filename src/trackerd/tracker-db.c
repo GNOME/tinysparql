@@ -1,7 +1,7 @@
 /* Tracker - indexer and metadata database engine
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2007, Jason Kivlighn (jkivlighn@gmail.com)
- * Copyright (C) 2007, Creative Commons (http://creativecommons.org)
+ * Copyright (C) 2007, Creative Commons (http://creativecommons.org) 
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -34,8 +34,9 @@ extern Tracker *tracker;
 
 #define XMP_MIME_TYPE "application/rdf+xml"
 #define STACK_SIZE 30
-#define MAX_DURATION 300
-#define MAX_CHANGE_TIMES 4
+#define BLACK_LIST_SECONDS 3600
+#define MAX_DURATION 180
+#define MAX_CHANGE_TIMES 3
 
 typedef struct {
 	DBConnection	*db_con;
@@ -600,7 +601,7 @@ print_file_change_queue ()
 	count = 1;
 	for (l = g_list_first (head); l != NULL; l = g_list_next (l)) {
 		change = (FileChange*)l->data;
-		tracker_log ("%d\t%s\t%d\t%d",
+		tracker_info ("%d\t%s\t%d\t%d",
 			 count++, change->uri,
 			 change->first_change_time,
 			 change->num_of_change);
@@ -638,9 +639,11 @@ index_black_list ()
 	
 	g_slist_free (tracker->tmp_black_list);
 	
+	tracker->tmp_black_list = NULL;
+	
 	tracker->black_list_timer_active = FALSE;
 	
-	return TRUE;
+	return FALSE;
 
 }
 
@@ -667,6 +670,7 @@ check_uri_changed_frequently (const char *uri)
 	find = g_queue_find_custom (tracker->file_change_queue, uri, uri_comp);
 	if (!find) {
 		/* not found, add to in the queue */
+				
 		change = g_new0 (FileChange, 1);
 		change->uri = g_strdup (uri);
 		change->first_change_time = current;
@@ -693,11 +697,13 @@ check_uri_changed_frequently (const char *uri)
 			
 			/* add uri to blacklist */
 			
+			tracker_log ("blacklisting %s", change->uri);
+			
 			tracker->tmp_black_list = g_slist_prepend (tracker->tmp_black_list, g_strdup (change->uri));
 			
 			if (!tracker->black_list_timer_active) {
 				tracker->black_list_timer_active = TRUE;
-				g_timeout_add_seconds (3600, (GSourceFunc) index_black_list, NULL);
+				g_timeout_add_seconds (BLACK_LIST_SECONDS, (GSourceFunc) index_black_list, NULL);
 			}
 			
 			g_queue_remove_all (tracker->file_change_queue, change);
@@ -718,7 +724,7 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 
 	/* check if uri changed too frequently */
 	if (((action == TRACKER_ACTION_CHECK) ||
-		(action == TRACKER_ACTION_FILE_CHECK)) &&
+		(action == TRACKER_ACTION_FILE_CHECK) || (action == TRACKER_ACTION_WRITABLE_FILE_CLOSED)) &&
 		check_uri_changed_frequently (uri)) {
 		
 		return;

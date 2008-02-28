@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
+#include "tracker-watch.h"
 
 extern Tracker *tracker;
 
