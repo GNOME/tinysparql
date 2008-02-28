@@ -1,3 +1,10 @@
+2008-02-27 Jamie McCracken <jamiemcc at gnome org>
+
+	* fixed applet
+	* added pref screen for applet
+	* aded reindex option to applet
+	* fixed bugs in blacklists
+
 2008-02-26 Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.c (sqlite3_get_service_name):
