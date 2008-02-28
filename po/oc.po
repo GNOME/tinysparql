@@ -174,7 +174,7 @@ msgstr "Talha : <b>%s</b>"
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:475
 #, c-format
 msgid "Accessed : <b>%s</b>"
-msgstr "Accedit : <b>%d</b>"
+msgstr "Accedit : <b>%s</b>"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:476
 #, c-format
