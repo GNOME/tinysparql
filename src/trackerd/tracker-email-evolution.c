@@ -1395,6 +1395,9 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 				email_free_mail_message (mail_msg);
 
 				if (!tracker_cache_process_events (db_con->data, TRUE)) {
+					tracker->status = STATUS_SHUTDOWN;
+					tracker->shutdown = TRUE;
+					tracker_dbus_send_index_status_change_signal ();
 					return;
 				}
 

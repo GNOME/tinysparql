@@ -562,6 +562,8 @@ tracker_indexer_merge_indexes (IndexType type)
 	gint       i = 0, index_count, interval = 5000;
 	gboolean   final_exists;
 
+	if (tracker->shutdown) return;
+
 	if (type == INDEX_TYPE_FILES) {
 
 		g_return_if_fail (tracker->file_index);
@@ -688,6 +690,8 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				if (i > 101 && (i % 100 == 0)) {
 					if (!tracker_cache_process_events (NULL, FALSE)) {
+						tracker->status = STATUS_SHUTDOWN;
+						tracker_dbus_send_index_status_change_signal ();
 						return;	
 					}
 				}

@@ -380,8 +380,6 @@ tracker_do_cleanup (const gchar *sig_msg)
 {
 	tracker->status = STATUS_SHUTDOWN;
 
-	tracker_log ("shutdown mode entered");
-
 	if (tracker->log_file && sig_msg) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
 
@@ -400,7 +398,7 @@ tracker_do_cleanup (const gchar *sig_msg)
 
 	tracker->in_flush = TRUE;
 
-	set_update_count (main_thread_db_con, tracker->update_count);
+	//set_update_count (main_thread_db_con, tracker->update_count);
 
 	/* wait for files thread to sleep */
 	while (!g_mutex_trylock (tracker->files_signal_mutex)) {
@@ -421,8 +419,9 @@ tracker_do_cleanup (const gchar *sig_msg)
 
 	/* send signals to each thread to wake them up and then stop them */
 
+	
 	tracker->shutdown = TRUE;
-
+	
 	g_mutex_lock (tracker->request_signal_mutex);
 	g_cond_signal (tracker->request_thread_signal);
 	g_mutex_unlock (tracker->request_signal_mutex);
@@ -1065,6 +1064,7 @@ process_files_thread (void)
 			tracker->status = STATUS_INDEXING;
 			tracker_dbus_send_index_status_change_signal ();
 		}
+		
 				
 		info = g_async_queue_try_pop (tracker->file_process_queue);
 
@@ -1326,7 +1326,11 @@ process_files_thread (void)
 
 								tracker_db_end_index_transaction (db_con);
 								tracker_cache_flush_all ();
+								
 								tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
+								
+								if (tracker->shutdown) break;
+								
 								tracker->index_status = INDEX_EMAILS;
 
 								tracker_dbus_send_index_progress_signal ("Emails", "");
@@ -1403,12 +1407,17 @@ process_files_thread (void)
 				tracker_db_refresh_all (db_con);
 
 				tracker_indexer_merge_indexes (INDEX_TYPE_FILES);
+				
+				if (tracker->shutdown) break;
+								
 
 				if (tracker->word_update_count > 0) {
 					tracker_indexer_apply_changes (tracker->file_index, tracker->file_update_index, TRUE);
 				}
 
 				tracker_indexer_merge_indexes (INDEX_TYPE_EMAILS);
+
+				if (tracker->shutdown) break;
 
 				tracker->index_status = INDEX_FILES;
 				tracker_dbus_send_index_progress_signal ("Files","");
