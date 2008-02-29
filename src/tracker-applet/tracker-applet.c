@@ -299,6 +299,10 @@ set_status_hint (TrayIcon *icon)
 
 	}
 	
+	
+	if (priv->index_state == INDEX_MERGING) {
+		g_string_append_printf (hint, " %d/%d indexes being merged", priv->folders_indexed, priv->folders_total);	
+	}
 
 	tray_icon_set_tooltip (icon, hint->str);
 	
