@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-02-22 12:41+0300\n"
-"PO-Revision-Date: 2008-02-18 18:40+0200\n"
+"PO-Revision-Date: 2008-02-29 12:23+0200\n"
 "Last-Translator: Timo Jyrinki <timo.jyrinki@iki.fi>\n"
 "Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -33,7 +33,7 @@ msgid ""
 "%s %s\n"
 "from %s"
 msgstr ""
-"Näytä %s-muunnos\n"
+"Näytä %s-keskustelu\n"
 "%s %s\n"
 "lähteestä %s"
 
@@ -450,7 +450,7 @@ msgstr "Palvelua ei tunnistettu, etsitään muista tiedostoista...\n"
 #: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
 msgid "%s: internal tracker error: %s"
-msgstr "%s: sisäinen tracjerin virhe: %s"
+msgstr "%s: sisäinen trackerin virhe: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
 #: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
@@ -519,7 +519,7 @@ msgstr "%s: virheellisiä argumentteja"
 #: ../src/libtracker/tracker-tag.c:148
 #, c-format
 msgid "%s: file %s not found"
-msgstr "%s: tiedosta %s ei löydy"
+msgstr "%s: tiedostoa %s ei löydy"
 
 #: ../src/trackerd/trackerd.c:146
 msgid "Directory to exclude from indexing"
@@ -1102,7 +1102,7 @@ msgstr "_Käytä enemmän muistia nopeampaa indeksointia varten"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:58
 msgid "kB"
-msgstr "kt"
+msgstr "kB"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:59
 msgid "seconds"
@@ -1291,7 +1291,7 @@ msgstr "Kansiota \"%s\" ei voi avata."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
 msgid "The nautilus file manager is not running."
-msgstr "Nautlilus-tiedostonhallinta ei ole käynnissä."
+msgstr "Nautilus-tiedostonhallinta ei ole käynnissä."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:626
 msgid "Application could not be opened"
