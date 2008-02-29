@@ -123,6 +123,7 @@ typedef struct _TrayIconPrivate
 	gboolean		animated_timer_active;
 	gboolean		is_watching_events;
 	gboolean		email_indexing;
+	gboolean		indexer_stopped;
 		
 	/* status hints */
 	int			folders_indexed;
@@ -312,7 +313,7 @@ can_auto_pause (TrayIcon *icon)
 
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
 	
-	if (priv->user_pause || priv->pause_state == PAUSE_BATTERY) return FALSE;
+	if (priv->user_pause || priv->pause_state == PAUSE_BATTERY || priv->disabled || priv->indexer_stopped) return FALSE;
 	
 
 	switch (priv->auto_pause_setting) {
@@ -338,6 +339,8 @@ auto_pause_timeout (TrayIcon *icon)
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
 		
 	time_t t = time (NULL);
+	
+	if (priv->indexer_stopped) return FALSE;
 			
 	if ((t >= (priv->auto_pause_last_time_event + 2))) {
 		set_auto_pause (icon, FALSE);
@@ -917,12 +920,14 @@ static void
 index_state_changed (DBusGProxy *proxy, const gchar *state, gboolean initial_index, gboolean in_merge, gboolean is_manual_paused, gboolean is_battery_paused, gboolean is_io_paused, gboolean is_indexing_enabled, TrayIcon *icon)
 {
 
-	
-
 	if (!state) return;
+
+	
 
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
 	gboolean paused = FALSE;
+	
+	priv->indexer_stopped = FALSE;	
 	
 	if (!is_indexing_enabled) {
 		priv->disabled = TRUE;
@@ -1054,7 +1059,7 @@ init_settings (TrayIcon *icon)
 	priv->initial_index_msg_shown = FALSE;
 	priv->stat_window_active = FALSE;
 	priv->stat_request_pending = FALSE;
-	
+	priv->indexer_stopped = FALSE;
 	
 	set_tracker_icon (priv);
 }
@@ -1075,6 +1080,7 @@ name_owner_changed (DBusGProxy * proxy, const gchar * name,
 		index_state_changed (proxy, "Idle", FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, data);
 		init_settings (data);
 		gtk_status_icon_set_visible (priv->icon, FALSE);
+		priv->indexer_stopped = TRUE;
 		g_print ("tracker has exited (reindex = %d)\n", priv->reindex);
 
 		
