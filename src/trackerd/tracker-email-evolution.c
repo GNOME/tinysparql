@@ -1411,6 +1411,8 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 						tracker_db_refresh_all (db_con->data);
 						tracker_db_start_index_transaction (db_con->data);
 					}
+					
+					tracker_dbus_send_index_progress_signal ("Emails", dir);
 								
 				}
 
