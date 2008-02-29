@@ -482,6 +482,31 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 
 }
 
+gboolean
+tracker_indexer_has_tmp_merge_files (IndexType type)
+{
+	GSList *files = NULL;
+	gboolean result = FALSE;
+
+
+	if (type == INDEX_TYPE_FILES) {
+		files =  tracker_get_files_with_prefix (tracker->data_dir, "file-index.tmp.");
+	} else {
+		files =  tracker_get_files_with_prefix (tracker->data_dir, "email-index.tmp.");
+	}
+
+	result = (files != NULL);
+
+	if (result) {
+		g_slist_foreach (files, (GFunc) g_free, NULL);
+		g_slist_free (files);
+	}
+
+	return result;
+
+}
+
+
 
 gboolean
 tracker_indexer_has_merge_files (IndexType type)

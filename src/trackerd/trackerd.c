@@ -2878,6 +2878,39 @@ main (gint argc, gchar *argv[])
 	db_con->index = db_con;
 
 	main_thread_db_con = db_con;
+	
+	/* move final file to index file if present and no files left to merge */
+	char *final_index_name = g_build_filename (tracker->data_dir, "file-index-final", NULL);
+	
+	if (g_file_test (final_index_name, G_FILE_TEST_EXISTS) && !tracker_indexer_has_tmp_merge_files (INDEX_TYPE_FILES)) {
+	
+		char *file_index_name = g_build_filename (tracker->data_dir, "file-index.db", NULL);
+	
+		tracker_log ("overwriting %s with %s", file_index_name, final_index_name);	
+
+		rename (final_index_name, file_index_name);
+		
+		g_free (file_index_name);
+	}
+	
+	g_free (final_index_name);
+	
+	final_index_name = g_build_filename (tracker->data_dir, "email-index-final", NULL);
+	
+	if (g_file_test (final_index_name, G_FILE_TEST_EXISTS) && !tracker_indexer_has_tmp_merge_files (INDEX_TYPE_EMAILS)) {
+	
+		char *file_index_name = g_build_filename (tracker->data_dir, "email-index.db", NULL);
+	
+		tracker_log ("overwriting %s with %s", file_index_name, final_index_name);	
+	
+		rename (final_index_name, file_index_name);
+		
+		g_free (file_index_name);
+	}
+	
+	g_free (final_index_name);
+	
+	
 
 	Indexer *index = tracker_indexer_open ("file-index.db");
 	index->main_index = TRUE;

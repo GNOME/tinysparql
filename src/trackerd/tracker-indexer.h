@@ -105,6 +105,7 @@ gboolean	tracker_indexer_repair 			(const char *name);
 void		tracker_indexer_free 			(Indexer *indexer, gboolean remove_file);
 gboolean	tracker_indexer_has_merge_index 	(Indexer *indexer, gboolean update);
 
+
 guint32		tracker_indexer_size 			(Indexer *indexer);
 gboolean	tracker_indexer_optimize		(Indexer *indexer);
 void		tracker_indexer_sync 			(Indexer *indexer);
@@ -112,6 +113,7 @@ void		tracker_indexer_sync 			(Indexer *indexer);
 void		tracker_indexer_apply_changes 		(Indexer *dest, Indexer *src,  gboolean update);
 void		tracker_indexer_merge_indexes 		(IndexType type);
 gboolean	tracker_indexer_has_merge_files 	(IndexType type);
+gboolean	tracker_indexer_has_tmp_merge_files 	(IndexType type);
 
 /* Indexing api */
 gboolean	tracker_indexer_append_word 		(Indexer *indexer, const gchar *word, guint32 id, gint service, gint score);
