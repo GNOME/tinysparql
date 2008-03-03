@@ -3,7 +3,7 @@
 # This file is part of Tracker.
 
 AC_PREREQ(2.59c)
-AC_INIT([tracker],[0.6.5],[tracker-list@gnome.org])
+AC_INIT([tracker],[0.6.6],[tracker-list@gnome.org])
 
 AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])
 AM_INIT_AUTOMAKE([dist-bzip2])
