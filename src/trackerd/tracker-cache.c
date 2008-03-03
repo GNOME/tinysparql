@@ -148,7 +148,7 @@ tracker_cache_flush_all ()
 	tracker_log ("Flushing all words - total hits in cache is %d, total words %d", tracker->word_detail_count, tracker->word_count);
 
 	/* if word count is small then flush to main index rather than a new temp index */
-	if (tracker->word_count < 5000) {
+	if (tracker->word_count < 1500) {
 	
 		index_con.file_index = tracker->file_index;
 		index_con.email_index = tracker->email_index;
@@ -173,7 +173,7 @@ tracker_cache_flush_all ()
 		}
 	}
 
-	if (!tracker_indexer_has_merge_files (INDEX_TYPE_FILES) && tracker->word_update_count < 10000) {
+	if (!tracker_indexer_has_merge_files (INDEX_TYPE_FILES) && tracker->word_update_count < 5000) {
 		index_con.file_update_index = tracker->file_index;
 	} else {
 		index_con.file_update_index = tracker->file_update_index;

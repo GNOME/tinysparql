@@ -350,6 +350,8 @@ auto_pause_timeout (TrayIcon *icon)
 		set_auto_pause (icon, FALSE);
 		return FALSE;
 	}
+	
+	dbus_g_proxy_begin_call (priv->tracker->proxy, "PromptIndexSignals", NULL, NULL, NULL, G_TYPE_INVALID);
 
         return TRUE;
 }
@@ -407,7 +409,7 @@ set_auto_pause (TrayIcon *icon, gboolean pause)
 	} else {
 	
 		priv->auto_pause_timer_active = FALSE;
-	
+		priv->auto_pause = FALSE;	
 		
 		tracker_set_bool_option	(priv->tracker, "Pause", FALSE, &error);
 		
@@ -852,11 +854,32 @@ static gboolean
 set_icon (TrayIconPrivate *priv)
 {
 	
+	if (!priv->user_pause) {
+	
+		if (priv->index_state == INDEX_IDLE) {
+	
+			priv->animated = FALSE;
+			priv->animated_timer_active = FALSE;
+			
+		 	if (priv->index_icon != ICON_DEFAULT) {
+				priv->index_icon = ICON_DEFAULT;
+				set_tracker_icon (priv);
+			}
+			
+			return FALSE;
+		}
+	
+	} 
+	
+	
 	if (priv->user_pause || priv->auto_pause || priv->pause_state != PAUSE_NONE) {
+	
+	
 		if (priv->index_icon != ICON_PAUSED) {
 			priv->index_icon = ICON_PAUSED;
 			set_tracker_icon (priv);		
 		}
+		
 		priv->animated = FALSE;
 		priv->animated_timer_active = FALSE;
 		return FALSE;
@@ -879,12 +902,6 @@ set_icon (TrayIconPrivate *priv)
 	}
 
 	
-	if (priv->index_icon != ICON_DEFAULT) {
-		priv->index_icon = ICON_DEFAULT;
-		priv->animated = FALSE;
-		priv->animated_timer_active = FALSE;
-		set_tracker_icon (priv);
-	}
 	
 	return FALSE;
 

@@ -436,6 +436,12 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 
 	dpiterinit (src->word_index);
 	
+	tracker->in_merge = TRUE;
+	tracker->merge_count = 1;
+	tracker->merge_processed = 0;
+	tracker_dbus_send_index_progress_signal ("Merging", "");
+	
+	
 	while ((str = dpiternext (src->word_index, NULL))) {
 		
 		i++;
@@ -479,6 +485,11 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	if (update) {
 		tracker->file_update_index = tracker_indexer_open ("file-update-index.db");
 	}
+	
+	tracker->in_merge = FALSE;
+	tracker->merge_count = 1;
+	tracker->merge_processed = 1;
+	tracker_dbus_send_index_progress_signal ("Merging", "");
 
 }
 
@@ -819,10 +830,11 @@ tracker_indexer_merge_indexes (IndexType type)
 	
 	g_slist_free (index_list);
 
-	tracker_dbus_send_index_status_change_signal ();
+	
 
  end_of_merging:
 	tracker->in_merge = FALSE;
+	tracker_dbus_send_index_status_change_signal ();
 	
 }
 
