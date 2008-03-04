@@ -1518,6 +1518,7 @@ about_menu_activated (GtkMenuItem *item, gpointer data)
 
 	const gchar *authors[] = {
 		"Jamie McCracken <jamiemcc at gnome.org>",
+		"Saleem Abdulrasool <compnerd at compnerd.org>"
 		"Laurent Aguerreche <laurent.aguerreche at free fr>",
 		"Luca Ferretti <elle.uca@libero.it>",
 		"Eugenio <me at eugesoftware com>",
