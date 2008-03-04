@@ -34,7 +34,7 @@ tracker_preferences_LDADD = $(GLIB_LIBS) \
 			    $(GTK2_LIBS) \
 			    $(LIBGLADE_LIBS) \
 			    $(DBUS_LIBS) \
-			    $(top_builddir)/src/libtracker-common/libtrackercommon.la \
+			    $(top_builddir)/src/libtracker-common/libtracker-common.la \
 			    $(top_builddir)/src/libtracker/libtrackerclient.la \
 			    $(NULL)
 
