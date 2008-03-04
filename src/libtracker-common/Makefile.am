@@ -1,6 +1,6 @@
 INCLUDES = $(GLIB2_CFLAGS)
 
-lib_LTLIBRARIES = libtracker-common.la
+noinst_LTLIBRARIES = libtracker-common.la
 
 libtracker_common_la_SOURCES = tracker-configuration.c
 libtracker_common_la_LDFLAGS = -version-info 0:0:0

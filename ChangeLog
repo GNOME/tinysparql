@@ -1,3 +1,9 @@
+2008-03-04  Saleem Abdulrasool  <compnerd@compnerd.org>
+
+	* src/libtracker-common/Makefile.am:
+		libtracker-common is really a private library, dont install it to the
+		system.  Thanks to Michael Biebl <mbiebl at gmail dot com> for noticing.
+
 2008-03-04  Martyn Russell  <martyn@imendio.com>
 
 	* autogen.sh:
