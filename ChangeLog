@@ -1,3 +1,28 @@
+2008-03-03  Saleem Abdulrasool  <compnerd@compnerd.org>
+
+	* configure.ac:
+	* src/Makefile.am:
+	* src/libtracker-common/Makefile.am:
+	* src/libtracker-common/tracker-configuration.c:
+	(get_default_language_code), (write_default_config),
+	(string_replace), (tracker_configuration_load),
+	(tracker_configuration_save), (tracker_configuration_free),
+	(tracker_configuration_get_string_list),
+	(tracker_configuration_set_string_list),
+	(tracker_configuration_get_list), (tracker_configuration_set_list):
+	* src/libtracker-common/tracker-configuration.h:
+	* src/tracker-preferences/Makefile.am:
+	* src/tracker-preferences/tracker-configuration.c:
+	* src/tracker-preferences/tracker-configuration.h:
+	* src/tracker-preferences/tracker-preferences.c:
+	(tracker_preferences_init), (tracker_preferences_finalize),
+	(set_bool_option), (set_int_option), (setup_page_general),
+	(setup_page_performance), (setup_page_files),
+	(setup_page_ignored_files), (setup_page_emails),
+	(name_owner_changed), (restart_tracker),
+	(tracker_preferences_cmd_apply), (tracker_preferences_cmd_cancel):
+		Beginings of libtracker-common.  Migrate tracker-preferences to it.
+
 2008-03-02 Jamie McCracken <jamiemcc at gnome org>
 
 	* Lots of minor tweaks

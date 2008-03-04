@@ -813,6 +813,7 @@ AC_CONFIG_FILES([
 	src/text-filters/ooo_converter/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-thumbnailer/Makefile
+	src/libtracker-common/Makefile
 	src/trackerd/Makefile
 	src/libtracker/Makefile
 	src/libtracker-gtk/Makefile

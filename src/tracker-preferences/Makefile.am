@@ -9,8 +9,7 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
 pkgdata_DATA = tracker-preferences.glade
 
-noinst_HEADERS = tracker-configuration.h \
-		 tracker-preferences-dialogs.h \
+noinst_HEADERS = tracker-preferences-dialogs.h \
 		 tracker-preferences.h \
 		 tracker-preferences-utils.h \
 		 $(NULL)
@@ -25,8 +24,7 @@ INCLUDES =	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" \
 		-I$(top_srcdir)/src/libtracker \
 		$(NULL)
 
-tracker_preferences_SOURCES = tracker-configuration.c \
-			      tracker-preferences.c \
+tracker_preferences_SOURCES = tracker-preferences.c \
 			      tracker-preferences-dialogs.c \
 			      tracker-preferences-main.c \
 			      tracker-preferences-utils.c \
@@ -35,8 +33,9 @@ tracker_preferences_SOURCES = tracker-configuration.c \
 tracker_preferences_LDADD = $(GLIB_LIBS) \
 			    $(GTK2_LIBS) \
 			    $(LIBGLADE_LIBS) \
-				$(DBUS_LIBS) \
-				$(top_builddir)/src/libtracker/libtrackerclient.la \
+			    $(DBUS_LIBS) \
+			    $(top_builddir)/src/libtracker-common/libtrackercommon.la \
+			    $(top_builddir)/src/libtracker/libtrackerclient.la \
 			    $(NULL)
 
 EXTRA_DIST = $(pkgdata_DATA)

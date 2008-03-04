@@ -2,7 +2,7 @@ if HAVE_GNOME
 tracker_gui_dir = tracker-search-tool
 endif
 
-if !USING_EXTERNAL_QDBM 
+if !USING_EXTERNAL_QDBM
 qdbm_dir = qdbm
 endif
 
@@ -18,5 +18,5 @@ if ENABLE_TRACKERAPPLET
 trackerapplet_dir = tracker-applet
 endif
 
-SUBDIRS = libstemmer xdgmime $(qdbm_dir) text-filters trackerd libtracker tracker-extract tracker-thumbnailer $(libtrackergtk_dir) $(tracker_gui_dir) $(trackerapplet_dir) $(tracker_preferences_dir)
+SUBDIRS = libstemmer xdgmime $(qdbm_dir) text-filters libtracker-common trackerd libtracker tracker-extract tracker-thumbnailer $(libtrackergtk_dir) $(tracker_gui_dir) $(trackerapplet_dir) $(tracker_preferences_dir)
 
