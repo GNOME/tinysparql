@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 # This file is part of Tracker.
 
-AC_PREREQ(2.59c)
+AC_PREREQ(2.59)
 AC_INIT([tracker],[0.6.6],[tracker-list@gnome.org])
 
 AC_CONFIG_SRCDIR([src/trackerd/trackerd.c])

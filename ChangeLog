@@ -1,3 +1,10 @@
+2008-03-04  Martyn Russell  <martyn@imendio.com>
+
+	* autogen.sh:
+	* configure.ac: Make build work for Maemo platform, changes
+	autoconf prereq to 2.59 not 2.59c and uses 1.9 instead of 1.7.
+	This fixes bug #511752.
+
 2008-03-03  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* configure.ac:
