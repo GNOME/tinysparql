@@ -26,6 +26,7 @@
 #include "tracker-email-thunderbird.h"
 #include "tracker-db-email.h"
 #include "tracker-watch.h"
+#include "tracker-config.h"
 
 
 typedef enum
@@ -392,13 +393,6 @@ get_date_from_string (const gchar *date_string)
         date = strtol (date_string, &char_date, 10);
 
         return *char_date ? 0 : date;
-}
-
-
-static gboolean
-get_boolean_from_string (const gchar *boolean_string)        
-{   
-        return g_str_equal (boolean_string, "true") ;
 }
 
 

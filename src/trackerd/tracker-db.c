@@ -28,7 +28,7 @@
 #include "tracker-email.h"
 #include "tracker-metadata.h"
 #include "tracker-os-dependant.h"
-
+#include "tracker-config.h"
 
 extern Tracker *tracker;
 
@@ -260,7 +260,7 @@ save_meta_table_data (gpointer mtype,
 		}
 		
 	} else {
-		char **array = tracker_list_to_array (value);
+		gchar **array = tracker_gslist_to_string_list (value);
 
 		tracker_db_insert_embedded_metadata (db_action->db_con, db_action->service, db_action->file_id, mtype, array, g_slist_length (value), db_action->table);
 
@@ -806,6 +806,7 @@ restore_backup_data (gpointer mtype,
 			 gpointer user_data)
 {
 	DatabaseAction	*db_action;
+	gchar          **string_list;
 
 	if (mtype == NULL || value == NULL) {
 		return;
@@ -813,15 +814,12 @@ restore_backup_data (gpointer mtype,
 
 	db_action = user_data;
 
-	char **array = tracker_list_to_array (value);
-
+        string_list = tracker_gslist_to_string_list (value);
 	tracker_log ("restoring keyword list with %d items", g_slist_length (value));
 
-	tracker_db_set_metadata (db_action->db_con->index, db_action->service, db_action->file_id, mtype, array, g_slist_length (value), FALSE);
+	tracker_db_set_metadata (db_action->db_con->index, db_action->service, db_action->file_id, mtype, string_list, g_slist_length (value), FALSE);
 
-	g_strfreev (array);
-	
-
+	g_strfreev (string_list);
 }
 
 
@@ -912,7 +910,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 	str_file_id = tracker_uint_to_str (info->file_id);
 
-	if (get_thumbs && tracker->enable_thumbnails) {
+	if (get_thumbs && tracker_config_get_enable_thumbnails (tracker->config)) {
 		char *small_thumb_file = NULL;
 
 		small_thumb_file = tracker_metadata_get_thumbnail (info->uri, info->mime, "normal");
@@ -928,7 +926,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}
 
 
-	if (get_full_text && tracker->enable_content_indexing) {
+	if (get_full_text && tracker_config_get_enable_content_indexing (tracker->config)) {
 		char *file_as_text;
 
 		file_as_text = tracker_metadata_get_text_file (info->uri, info->mime);

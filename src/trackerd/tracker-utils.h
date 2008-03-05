@@ -35,7 +35,6 @@ extern char *tracker_actions[];
 
 #include "config.h"
 #include "tracker-parser.h"
-#include "../libstemmer/include/libstemmer.h"
 
 #define MAX_HITS_FOR_WORD 30000
 
@@ -219,24 +218,13 @@ typedef struct {
 
 	gboolean	reindex;
 
+        gpointer        config;
+        gpointer        language;
+
 	/* config options */
-	GSList 		*watch_directory_roots_list;
-	GSList 		*crawl_directory_list;
-	GSList 		*no_watch_directory_list;
-	GSList		*no_index_file_types_list;
 	GSList		*ignore_pattern_list;
 
-	gboolean	enable_indexing;
-	gboolean	enable_watching; /* can disable all forms of directory watching */
-	gboolean	enable_content_indexing; /* enables indexing of a file's text contents */
-	gboolean	enable_thumbnails;
-
 	guint32		watch_limit;
-
-
-
-	/* controls how much to output to screen/log file */
-	int		verbosity;
 
 	gboolean	fatal_errors;
 
@@ -255,35 +243,19 @@ typedef struct {
 	int		max_index_text_length; /* max size of file's text contents to index */
 	int		max_process_queue_size;
 	int		max_extract_queue_size;
-	int		optimization_count;   /* no of updates or inserts to be performed before optimizing hashtable */
-	int		throttle;
-	int		default_throttle;
-	gboolean	use_extra_memory;
-	int		initial_sleep;
-	int		max_words_to_index;
 	int 		memory_limit;
 	int 		thread_stack_size;
-	gboolean	fast_merges;
 
 	/* HAL battery */
 	char		*battery_udi;
-	gboolean	index_on_battery;
-	gboolean	initial_index_on_battery;
 
 	/* pause/shutdown vars */
 	gboolean	shutdown;
 	gboolean	pause_manual;
 	gboolean	pause_battery;
 	gboolean	pause_io;
-	gint		low_diskspace_limit;
 
 	/* indexing options */
-	gint            max_index_bucket_count;
-	gint            min_index_bucket_count;
-	gint            index_bucket_ratio; /* 0 = 50%, 1 = 100%, 2 = 200%, 3 = 300%, 4+ = 400% */
-	gint            index_divisions;
-	gint            padding; /* values 1-8 */
-
 	gpointer	file_index;
 	gpointer	file_update_index;
 	gpointer	email_index;
@@ -291,13 +263,6 @@ typedef struct {
 	guint32		merge_limit; 		/* size of index in MBs when merging is triggered -1 == no merging*/
 	gboolean	active_file_merge;
 	gboolean	active_email_merge;
-
-	int		min_word_length;  	/* words shorter than this are not parsed */
-	int		max_word_length;  	/* words longer than this are cropped */
-	gboolean	use_stemmer;	 	/* enables stemming support */
-	char		*language;		/* the language specific stemmer and stopwords to use */	
-	gpointer	stemmer;		/* pointer to stemmer */	
-	GMutex		*stemmer_mutex;
 
 	GHashTable	*stop_words;	  	/* table of stop words that are to be ignored by the parser */
 
@@ -318,7 +283,6 @@ typedef struct {
 
 	const char	*current_uri;
 	
-	gboolean	skip_mount_points;	/* should tracker descend into mounted directories? see Tracker.root_directory_devices */
 	GSList *	root_directory_devices;
 
 	IndexStatus	index_status;
@@ -338,9 +302,6 @@ typedef struct {
 	GHashTable	*metadata_table;
 
 	/* email config options */
-	gboolean	index_evolution_emails;
-	gboolean	index_thunderbird_emails;
-	gboolean	index_kmail_emails;
 	GSList		*additional_mboxes_to_index;
 
 	int		email_service_min;
@@ -484,12 +445,6 @@ typedef enum {
 
 
 typedef struct {
-	char *lang;
-	char *name;
-} Matches;
-
-
-typedef struct {
 
 	/* file name/path related info */
 	char 			*uri;
@@ -550,10 +505,10 @@ DBTypes		tracker_get_db_for_service 		(const char *service);
 gboolean 	tracker_is_service_embedded 		(const char *service);
 
 
-GSList *	tracker_filename_array_to_list		(char **array);
-GSList *	tracker_array_to_list 			(char **array);
-char **		tracker_make_array_null_terminated 	(char **array, int length);
-void		tracker_free_strs_in_array 		(char **array);
+GSList *	tracker_filename_array_to_list		(gchar **array);
+GSList *	tracker_string_list_to_gslist   	(const gchar **array);
+gchar **	tracker_gslist_to_string_list 		(GSList *list);
+gchar **	tracker_make_array_null_terminated 	(gchar **array, gint length);
 
 void		tracker_free_array 		(char **array, int row_count);
 gboolean        tracker_is_empty_string         (const char *s);
@@ -575,10 +530,6 @@ char *		tracker_unescape_metadata 	(const char *in);
 
 void		tracker_remove_dirs 		(const char *root_dir);
 char *		tracker_format_search_terms 	(const char *str, gboolean *do_bool_search);
-
-char *    	tracker_get_english_lang_code   (void);
-gboolean	tracker_is_supported_lang 	(const char *lang);
-void		tracker_set_language		(const char *language, gboolean create_stemmer);
 
 gint32		tracker_get_file_mtime 		(const char *uri);
 
@@ -651,8 +602,6 @@ gboolean	tracker_spawn 			(char **argv, int timeout, char **tmp_stdout, int *exi
 char*	 	tracker_string_replace 		(const char *haystack, char *needle, char *replacement);
 
 void		tracker_add_metadata_to_table 	(GHashTable *meta_table, const char *key, const char *value);
-
-char **		tracker_list_to_array 		(GSList *list);
 
 void		tracker_free_metadata_field 	(FieldData *field_data);
 

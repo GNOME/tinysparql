@@ -26,7 +26,7 @@
 #include "tracker-email-evolution.h"
 #include "tracker-email-thunderbird.h"
 #include "tracker-email-kmail.h"
-
+#include "tracker-config.h"
 
 extern Tracker *tracker;
 
@@ -38,19 +38,19 @@ tracker_email_add_service_directories (DBConnection *db_con)
 
 	g_mime_init (0);
 
-	if (tracker->index_evolution_emails) {
+	if (tracker_config_get_index_evolution_emails (tracker->config)) {
 		if (evolution_init_module ()) {
 			evolution_watch_emails (db_con);
 		}
 	}
 
-	if (tracker->index_kmail_emails) {
+	if (tracker_config_get_index_kmail_emails (tracker->config)) {
 		if (kmail_init_module ()) {
 			kmail_watch_emails (db_con);
 		}
 	}
 
-	if (tracker->index_thunderbird_emails) {
+	if (tracker_config_get_index_thunderbird_emails (tracker->config)) {
 		if (thunderbird_init_module ()) {
 			thunderbird_watch_emails (db_con);
 		}

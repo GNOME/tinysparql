@@ -36,6 +36,7 @@
 #include "tracker-indexer.h"
 #include "tracker-cache.h"
 #include "tracker-dbus.h"
+#include "tracker-config.h"
 
 extern Tracker *tracker;
 
@@ -166,18 +167,21 @@ static int
 get_preferred_bucket_count (Indexer *indexer)
 {
 	int result;
+        gint bucket_ratio;
 
-	if (tracker->index_bucket_ratio < 1) {
+        bucket_ratio = tracker_config_get_bucket_ratio (tracker->config);
+
+	if (bucket_ratio < 1) {
 
 		result = (dprnum (indexer->word_index)/2);
 
-	} else if (tracker->index_bucket_ratio > 3) {
+	} else if (bucket_ratio > 3) {
 
 		result = (dprnum (indexer->word_index) * 4);
 
 	} else {
 
-		result = (tracker->index_bucket_ratio * dprnum (indexer->word_index));
+		result = (bucket_ratio * dprnum (indexer->word_index));
 	}
 
 	tracker_log ("Preferred bucket count is %d", result);
@@ -209,15 +213,18 @@ open_index (const gchar *name)
 	tracker_log ("Opening index %s", name);
 
 	if (strstr (name, "tmp")) {
-		word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, tracker->min_index_bucket_count);
+		word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, 
+                                     tracker_config_get_min_bucket_count (tracker->config));
 	} else {
-		word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, tracker->max_index_bucket_count);
+		word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, 
+                                     tracker_config_get_max_bucket_count (tracker->config));
 	}
 
 	if (!word_index) {
 		tracker_error ("%s index was not closed properly and caused error %s- attempting repair", name, dperrmsg (dpecode));
 		if (dprepair (name)) {
-			word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, tracker->min_index_bucket_count);
+			word_index = dpopen (name, DP_OWRITER | DP_OCREAT | DP_ONOLCK, 
+                                             tracker_config_get_min_bucket_count (tracker->config));
 		} else {
 			g_assert ("FATAL: index file is dead (suggest delete index file and restart trackerd)");
 		}
@@ -274,7 +281,9 @@ tracker_indexer_open (const gchar *name)
 	bucket_count = dpbnum (result->word_index);
 	rec_count = dprnum (result->word_index);
 
-	tracker_log ("Bucket count (max is %d) is %d and Record Count is %d", tracker->max_index_bucket_count, bucket_count, rec_count);
+	tracker_log ("Bucket count (max is %d) is %d and Record Count is %d", 
+                     tracker_config_get_max_bucket_count (tracker->config),
+                     bucket_count, rec_count);
 
 	return result;
 }
@@ -359,17 +368,11 @@ tracker_indexer_optimize (Indexer *indexer)
         }
 
 	/* set bucket count to bucket_ratio times no. of recs divided by no. of divisions */
-	num = (get_preferred_bucket_count (indexer));
+        num = CLAMP (get_preferred_bucket_count (indexer), 
+                     tracker_config_get_min_bucket_count (tracker->config),
+                     tracker_config_get_max_bucket_count (tracker->config));
 
-	if (num > tracker->max_index_bucket_count) {
-		num = tracker->max_index_bucket_count;
-	}
-
-	if (num < tracker->min_index_bucket_count) {
-		num = tracker->min_index_bucket_count;
-	}
-
-	b_count = (num / tracker->index_divisions);
+	b_count = num / tracker_config_get_divisions (tracker->config);
 	tracker_log ("No. of buckets per division is %d", b_count);
 
 	tracker_log ("Please wait while optimization of indexes takes place...");
@@ -453,7 +456,9 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 		}
 
 		if (i > 1 && (i % interval == 0)) {
-			if (!tracker->fast_merges) dpsync (dest->word_index);
+			if (!tracker_config_get_fast_merges (tracker->config)) {
+                                dpsync (dest->word_index);
+                        }
 		}
 			
 		bytes = dpgetwb (src->word_index, str, -1, 0, buff_size, buffer);
@@ -734,7 +739,7 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				if (i > interval && (i % interval == 0)) {
 
-					if (!tracker->fast_merges) {
+                                        if (!tracker_config_get_fast_merges (tracker->config)) {
 
 						dpsync (final_index->word_index);
 

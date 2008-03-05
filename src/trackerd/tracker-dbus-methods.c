@@ -23,6 +23,7 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-metadata.h"
 #include "tracker-rdf-query.h"
+#include "tracker-config.h"
 
 #include "config.h"
 
@@ -482,40 +483,35 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 		}
 		
 	} else if (strcasecmp (option, "FastMerges") == 0) {
-		tracker->fast_merges = value;
-		tracker_log ("fast merges set to %d", value);
+                tracker_config_set_fast_merges (tracker->config, value);
+                tracker_log ("Fast merges set to %d", value);
 	} else if (strcasecmp (option, "EnableIndexing") == 0) {
-		tracker->enable_indexing = value;
+                tracker_config_set_enable_indexing (tracker->config, value);
 		tracker_log ("Enable indexing set to %d", value);
-		tracker_dbus_send_index_status_change_signal ();
-
-
+                tracker_dbus_send_index_status_change_signal ();
 	} else if (strcasecmp (option, "EnableWatching") == 0) {
-		tracker->enable_watching = value;
+                tracker_config_set_enable_watches (tracker->config, value);
 		tracker_log ("Enable Watching set to %d", value);
 	} else if (strcasecmp (option, "LowMemoryMode") == 0) {
-		tracker->use_extra_memory = !value;
+                tracker_config_set_low_memory_mode (tracker->config, value);
 		tracker_log ("Extra memory usage set to %d", !value);
 	} else if (strcasecmp (option, "IndexFileContents") == 0) {
-		tracker->enable_content_indexing = value;
+                tracker_config_set_enable_content_indexing (tracker->config, value);
 		tracker_log ("Index file contents set to %d", value);	
 	} else if (strcasecmp (option, "GenerateThumbs") == 0) {
-		tracker->enable_thumbnails = value;
+                tracker_config_set_enable_thumbnails (tracker->config, value);
 		tracker_log ("Generate thumbnails set to %d", value);	
 	} else if (strcasecmp (option, "SkipMountPoints") == 0) {
-		tracker->skip_mount_points = value;
+                tracker_config_set_skip_mount_points (tracker->config, value);
 		tracker_log ("Skip mounted directories set to %d", value);
 	} else if (strcasecmp (option, "EnableEvolution") == 0) {
-		tracker->index_evolution_emails = value;
+                tracker_config_set_index_evolution_emails (tracker->config, value);
 		tracker_log ("evolution support set to %d", value);
-	} else if (strcasecmp (option, "FastMerges") == 0) {
-		tracker->fast_merges = value;
-		tracker_log ("Fast merges set to %d", value);
 	} else if (strcasecmp (option, "BatteryIndex") == 0) {
-		tracker->index_on_battery = value;
+                tracker_config_set_disable_indexing_on_battery (tracker->config, !value);
 		tracker_log ("Disable index on battery set to %d", !value);
 	} else if (strcasecmp (option, "BatteryIndexInitial") == 0) {
-		tracker->index_on_battery = value;
+                tracker_config_set_disable_indexing_on_battery_init (tracker->config, !value);
 		tracker_log ("Disable initial index sweep on battery set to %d", !value);
 	}
 
@@ -556,13 +552,13 @@ tracker_dbus_method_set_int_option (DBusRec *rec)
 	}
 
 	if (strcasecmp (option, "Throttle") == 0) {
-		tracker->throttle = value;
+                tracker_config_set_throttle (tracker->config, value);
 		tracker_log ("throttle set to %d", value);
 	} else if (strcasecmp (option, "MaxText") == 0) {
-		tracker->max_index_text_length = value;
+                tracker_config_set_max_text_to_index (tracker->config, value);
 		tracker_log ("Maxinum amount of text set to %d", value);
 	} else if (strcasecmp (option, "MaxWords") == 0) {
-		tracker->max_words_to_index = value;
+                tracker_config_set_max_words_to_index (tracker->config, value);
 		tracker_log ("Maxinum number of unique words set to %d", value);
 	} 
 

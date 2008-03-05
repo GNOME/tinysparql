@@ -22,6 +22,7 @@
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-watch.h"
+#include "tracker-config.h"
 
 extern Tracker *tracker;
 
@@ -106,15 +107,22 @@ tracker_dbus_shutdown (DBusConnection *conn)
 void
 tracker_dbus_send_index_status_change_signal ()
 {
-	DBusMessage *msg;
-	dbus_uint32_t serial = 0;
-	char *status = tracker_get_status ();
+	DBusMessage   *msg;
+	dbus_uint32_t  serial = 0;
+	gchar         *status;
+	gboolean       battery_pause;
+        gboolean       enable_indexing;
 
 	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_STATUS_CHANGE);
 				
 	if (!msg || !tracker->dbus_con) {
 		return;
     	}
+
+        status = tracker_get_status ();
+        battery_pause = tracker_pause_on_battery ();
+
+        enable_indexing = tracker_config_get_enable_indexing (tracker->config);
 
 	/*
 		<signal name="IndexStateChange">
@@ -128,8 +136,6 @@ tracker_dbus_send_index_status_change_signal ()
 		</signal>
 	*/
 
-	gboolean battery_pause = tracker_pause_on_battery ();
-
 	dbus_message_append_args (msg, 
 				  DBUS_TYPE_STRING, &status,
 				  DBUS_TYPE_BOOLEAN, &tracker->first_time_index,
@@ -137,7 +143,7 @@ tracker_dbus_send_index_status_change_signal ()
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_manual,
 				  DBUS_TYPE_BOOLEAN, &battery_pause,
 				  DBUS_TYPE_BOOLEAN, &tracker->pause_io,
-				  DBUS_TYPE_BOOLEAN, &tracker->enable_indexing,
+				  DBUS_TYPE_BOOLEAN, &enable_indexing,
 				  DBUS_TYPE_INVALID);
 
 	g_free (status);

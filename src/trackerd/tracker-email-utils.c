@@ -37,6 +37,7 @@
 #include "tracker-email-thunderbird.h"
 #include "tracker-email-kmail.h"
 #include "tracker-watch.h"
+#include "tracker-config.h"
 
 
 extern Tracker *tracker;
@@ -166,7 +167,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 
 		if (tracker_db_regulate_transactions (db_con->data, 500)) {
 
-			if (tracker->verbosity == 1) {
+			if (tracker_config_get_verbosity (tracker->config) == 1) {
 				tracker_log ("indexing #%d - Emails in %s", tracker->index_count, path);
 			}
 

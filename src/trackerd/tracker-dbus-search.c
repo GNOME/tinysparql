@@ -22,6 +22,7 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-rdf-query.h"
 #include "tracker-indexer.h"
+#include "tracker-config.h"
 
 extern Tracker *tracker;
 
@@ -385,7 +386,7 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 
 	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, TRUE);
 
-	if (tracker->verbosity > 0) {
+	if (tracker_config_get_verbosity (tracker->config) > 0) {
 		tracker_db_log_result (res);
 	}
 

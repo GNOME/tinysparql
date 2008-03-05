@@ -42,6 +42,7 @@
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
 #include "tracker-watch.h"
+#include "tracker-config.h"
 
 #include "config.h"
 
@@ -714,7 +715,7 @@ set_params (DBConnection *db_con, int cache_size, gboolean add_functions)
 
 	char *prag;
 
-	if (tracker->use_extra_memory) {
+	if (!tracker_config_get_low_memory_mode (tracker->config)) {
 		prag = g_strdup_printf ("PRAGMA cache_size = %d", cache_size);
 	} else {
 		prag = g_strdup_printf ("PRAGMA cache_size = %d", cache_size/2);
@@ -1036,7 +1037,7 @@ tracker_db_connect (void)
 
 	tracker_db_set_default_pragmas (db_con);
 	
-	if (tracker->use_extra_memory) {
+	if (!tracker_config_get_low_memory_mode (tracker->config)) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 32");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 16");
@@ -1347,7 +1348,7 @@ tracker_db_connect_cache (void)
 
 	tracker_db_set_default_pragmas (db_con);
 
-	if (tracker->use_extra_memory) {
+	if (!tracker_config_get_low_memory_mode (tracker->config)) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 128");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 32");
@@ -1406,7 +1407,7 @@ tracker_db_connect_emails (void)
 
 	tracker_db_set_default_pragmas (db_con);
 
-	if (tracker->use_extra_memory) {
+	if (!tracker_config_get_low_memory_mode (tracker->config)) {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
 	} else {
 		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
@@ -2928,8 +2929,11 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 
 		if (!use_buffer) g_free (value);
 
-		if (tracker->throttle > 9) {
-			tracker_throttle (tracker->throttle * 100);
+                gint throttle;
+
+                throttle = tracker_config_get_throttle (tracker->config);
+		if (throttle > 9) {
+			tracker_throttle (throttle * 100);
 		}
 
 	}        	

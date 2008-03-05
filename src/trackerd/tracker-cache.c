@@ -24,7 +24,7 @@
 #include "tracker-utils.h"
 #include "tracker-dbus.h"
 #include "tracker-cache.h"
-
+#include "tracker-config.h"
 
 #define USE_SLICE
 
@@ -247,7 +247,7 @@ update_word_table (GHashTable *table, const char *word, WordDetails *word_detail
 
 	if (!array) {
 
-		if (tracker->use_extra_memory) {
+                if (!tracker_config_get_low_memory_mode (tracker->config)) {
 			array = g_byte_array_sized_new (sz * 2);
 		} else {
 			array = g_byte_array_sized_new (sz);
@@ -312,7 +312,8 @@ tracker_cache_process_events (DBConnection *db_con, gboolean check_flush)
 			return FALSE;
 		}
 
-		if (!tracker->is_running || !tracker->enable_indexing) {
+		if (!tracker->is_running || 
+                    !tracker_config_get_enable_indexing (tracker->config)) {
 			if (check_flush) tracker_cache_flush_all ();
 			sleep = TRUE;
 		}
@@ -339,7 +340,9 @@ tracker_cache_process_events (DBConnection *db_con, gboolean check_flush)
 				/* set mutex to indicate we are in "check" state to prevent race conditions from other threads resetting gloabl vars */
 				g_mutex_lock (tracker->files_check_mutex);		
 
-				if ((!tracker->is_running || !tracker->enable_indexing) && (!tracker->shutdown))  {
+				if ((!tracker->is_running || 
+                                     !tracker_config_get_enable_indexing (tracker->config)) && 
+                                    (!tracker->shutdown))  {
 					g_cond_wait (tracker->file_thread_signal, tracker->files_signal_mutex);
 				}
 

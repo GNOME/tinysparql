@@ -22,7 +22,8 @@
 
 #include "tracker-parser.h"
 #include "tracker-utils.h"
-#include "tracker-stemmer.h"
+#include "tracker-config.h"
+#include "tracker-language.h"
 
 #include "config.h"
 
@@ -175,7 +176,7 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 
 	if (text) {
 		gunichar	word[64];
-		gboolean 	do_stem = TRUE, do_strip = FALSE, is_valid = TRUE;
+		gboolean 	do_strip = FALSE, is_valid = TRUE;
 		int		length = 0;
 		glong		bytes = 0;
 		WordType	word_type = WORD_IGNORE;
@@ -220,7 +221,7 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 				
 			}
 
-			if (length >= tracker->max_word_length) {
+			if (length >= tracker_config_get_max_word_length (tracker->config)) {
 				continue;
 			}
 
@@ -290,7 +291,7 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 
 			} else {
 			
-				if (length >= tracker->min_word_length) {
+				if (length >= tracker_config_get_min_word_length (tracker->config)) {
 			
 					char 	*str = NULL, *tmp;
 					guint32 len;
@@ -323,10 +324,10 @@ analyze_text (const char *text, char **index_word, gboolean filter_words, gboole
 						}
 					}
 
-		
-					if (do_stem && (tracker->stemmer && tracker->use_stemmer)) {
-
-						*index_word = tracker_stem (tmp, strlen (tmp));
+                                        *index_word = tracker_language_stem_word (tracker->language, 
+                                                                                  tmp, 
+                                                                                  strlen (tmp));
+                                        if (*index_word) {
 						g_free (tmp);
 					} else {
 						*index_word = tmp;			
@@ -568,7 +569,7 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 					
 					total_words++;
 
-					if (total_words < tracker->max_words_to_index) { 
+					if (total_words < tracker_config_get_max_words_to_index (tracker->config)) { 
 
 						int count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, index_word));
 						g_hash_table_insert (word_table, index_word, GINT_TO_POINTER (count + weight));
@@ -603,7 +604,7 @@ tracker_parse_text (GHashTable *word_table, const char *txt, int weight, gboolea
 
 				total_words++;
 
-				if (total_words < tracker->max_words_to_index) { 
+				if (total_words < tracker_config_get_max_words_to_index (tracker->config)) { 
 			
 					int count = GPOINTER_TO_INT (g_hash_table_lookup (word_table, word));
 					g_hash_table_insert (word_table, word, GINT_TO_POINTER (count + weight));

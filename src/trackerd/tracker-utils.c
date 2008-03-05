@@ -43,7 +43,7 @@
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-indexer.h"
-#include "tracker-stemmer.h"
+#include "tracker-config.h"
 #include "../xdgmime/xdgmime.h"
 
 #include "tracker-os-dependant.h"
@@ -86,23 +86,6 @@ static const char *months[] = {
 static const char imonths[] = {
 	'1', '2', '3', '4', '5',
 	'6', '7', '8', '9', '0', '1', '2'
-};
-
-
-static Matches tmap[] = {
-		{"da", "danish"},
-		{"nl", "dutch"},
-		{"en", "english"},
- 		{"fi", "finnish"},
-		{"fr", "french"},
-		{"de", "german"},
-		{"it", "italian"},
-		{"nb", "norwegian"},
-		{"pt", "portuguese"},
-		{"ru", "russian"},
-		{"es", "spanish"},
-		{"sv", "swedish"},
-		{NULL, NULL},
 };
 
 
@@ -1097,7 +1080,8 @@ is_in_path (const char *uri, const char *path)
 gboolean
 tracker_file_is_no_watched (const char* uri)
 {
-	GSList *lst;
+        GSList *no_watch_directory_roots;
+	GSList *l;
 
 	if (!tracker_check_uri (uri)) {
 		return TRUE;
@@ -1119,22 +1103,21 @@ tracker_file_is_no_watched (const char* uri)
 		return TRUE;
 	}
 
-	if (!tracker->no_watch_directory_list) {
-		return FALSE;
-	}
+        no_watch_directory_roots = tracker_config_get_no_watch_directory_roots (tracker->config);
 
-	for (lst = tracker->no_watch_directory_list; lst; lst = lst->next) {
+	for (l = no_watch_directory_roots; l; l = l->next) {
+                if (!l->data) {
+                        continue;
+                }
 
-                char *compare_uri = lst->data;
-
-		/* check if equal or a prefix with an appended '/' */
-		if (strcmp (uri, compare_uri) == 0) {
-			tracker_debug ("blocking watch of %s", uri);
+		/* Check if equal or a prefix with an appended '/' */
+		if (strcmp (uri, l->data) == 0) {
+			tracker_log ("Blocking watch of %s", uri);
 			return TRUE;
 		}
 
-		if (is_in_path (uri, compare_uri)) {
-			tracker_debug ("blocking watch of %s", uri);
+		if (is_in_path (uri, l->data)) {
+			tracker_log ("Blocking watch of %s", uri);
 			return TRUE;
 		}
 	}
@@ -1142,32 +1125,26 @@ tracker_file_is_no_watched (const char* uri)
 	return FALSE;
 }
 
-
 gboolean
-tracker_file_is_crawled (const char* uri)
+tracker_file_is_crawled (const char *uri)
 {
-	GSList *lst;
+        GSList *crawl_directory_roots;
+	GSList *l;
 
-	if (!tracker->crawl_directory_list) {
-		return FALSE;
-	}
+        g_return_val_if_fail (uri != NULL, FALSE);
+        g_return_val_if_fail (uri[0] == G_DIR_SEPARATOR, FALSE);
 
-	if (!uri || uri[0] != '/') {
-		return FALSE;
-	}
+        crawl_directory_roots = tracker_config_get_crawl_directory_roots (tracker->config);
 
-	for (lst = tracker->crawl_directory_list; lst; lst = lst->next) {
-
-		char *compare_uri = lst->data;
-
-		/* check if equal or a prefix with an appended '/' */
-		if (strcmp (uri, compare_uri) == 0) {
-			tracker_debug ("blocking watch of %s", uri);
+	for (l = crawl_directory_roots; l; l = l->next) {
+		/* Check if equal or a prefix with an appended '/' */
+		if (strcmp (uri, l->data) == 0) {
+			tracker_log ("Blocking watch of %s", uri);
 			return TRUE;
 		}
 
-		if (is_in_path (uri, compare_uri)) {
-			tracker_debug ("blocking watch of %s", uri);
+		if (is_in_path (uri, l->data)) {
+			tracker_log ("Blocking watch of %s", uri);
 			return TRUE;
 		}
 	}
@@ -1181,7 +1158,7 @@ tracker_add_root_dir (const char *uri)
 {
 	struct stat st;
 
-	if (! tracker->skip_mount_points) {
+	if (!tracker_config_get_skip_mount_points (tracker->config)) {
 		return;
 	}
 
@@ -1218,7 +1195,7 @@ tracker_add_root_directories (GSList * uri_list)
 {
 	GSList * cur = NULL;
 
-	if (! tracker->skip_mount_points) {
+	if (!tracker_config_get_skip_mount_points (tracker->config)) {
 		return;
 	}
 
@@ -1235,7 +1212,7 @@ tracker_file_is_in_root_dir (const char *uri)
 	GSList *     cur = NULL;
 	dev_t        uri_dev = 0;
 
-	if (! tracker->skip_mount_points) {
+	if (!tracker_config_get_skip_mount_points (tracker->config)) {
 		return TRUE;
 	}
 
@@ -2090,146 +2067,43 @@ tracker_get_all_dirs (const char *dir, GSList **file_list)
 	get_dirs (dir, file_list, FALSE);
 }
 
-
-static GSList *
-check_dir_name (GSList* list, char *input_name)
-{
-	tracker_debug ("checking dir names : %s", input_name);
-
-	int is_converted = FALSE;
-
-	if (input_name[0] == '~') {
-
-		const char* home_dir = g_get_home_dir ();
-
-		if ((home_dir != NULL) && (home_dir[0] != '\0')) {
-
-			int is_separator = FALSE;
-			char *new_name;
-
-			if (input_name[1] == G_DIR_SEPARATOR) {
-				is_separator = TRUE;
-			} else {
-				if (home_dir[strlen (home_dir)-1] == G_DIR_SEPARATOR) {
-					is_separator = TRUE;
-				}
-			}
-
-			new_name = g_strdup_printf ("%s%s%s", home_dir, (is_separator? "" : G_DIR_SEPARATOR_S), &input_name[1]);
-
-			if ((new_name != NULL) && (strlen (new_name) <= PATH_MAX)) {
-
-				char resolved_name[PATH_MAX+2];
-
-				if (realpath (new_name, resolved_name) != NULL) {
-					list = g_slist_prepend (list, g_strdup (resolved_name));
-				} else {
-					list = g_slist_prepend (list, g_strdup (new_name));
-				}
-
-				is_converted = TRUE;
-			}
-
-			if (new_name != NULL) {
-				g_free (new_name);
-			}
-		}
-	}
-
-	if (!is_converted) {
-
-		char resolved_name[PATH_MAX+2];
-
-		if( realpath (input_name, resolved_name) != NULL ) {
-			list = g_slist_prepend (list, g_strdup (resolved_name));
-		} else {
-			list = g_slist_prepend (list, g_strdup (input_name));
-		}
-	}
-
-	tracker_debug ("resolved to %s\n", list->data);
-
-	return list;
-}
-
-
 GSList *
-tracker_filename_array_to_list (char **array)
+tracker_string_list_to_gslist (const gchar **array)
 {
-	GSList *list;
-	int    i;
+	GSList *list = NULL;
+ 	gint	i;
 
-	list = NULL;
-
-	for (i = 0; array[i] != NULL; i++) {
-                if (!tracker_is_empty_string (array[i])) {
-			list = check_dir_name (list, array[i]);
+ 	for (i = 0; array[i]; i++) {
+		if (tracker_is_empty_string (array[i])) {
+			continue;
 		}
+
+		list = g_slist_prepend (list, g_strdup (array[i]));
 	}
 
-	g_strfreev (array);
-
-	return list;
+	return g_slist_reverse (list);
 }
 
-
-static GSList *
-array_to_list (char **array)
+gchar **
+tracker_gslist_to_string_list (GSList *list)
 {
-	GSList  *list = NULL;
-	int	i;
+	GSList  *l;
+	gchar  **string_list;
+	gint     i;
 
-	for (i = 0; array[i] != NULL; i++) {
-                if (!tracker_is_empty_string (array[i])) {
-			list = g_slist_prepend (list, array[i]);
-		}
+	string_list = g_new0 (gchar *, g_slist_length (list) + 1);
+
+	for (l = list, i = 0; l; l = l->next) {
+ 		if (!l->data) {
+			continue;
+  		}
+
+		string_list[i++] = g_strdup (l->data);
 	}
 
-	g_free (array);
+	string_list[i] = NULL;
 
-	return list;
-}
-
-
-GSList *
-tracker_array_to_list (char **array)
-{
-	return array_to_list (array);
-}
-
-
-char **
-tracker_list_to_array (GSList *list)
-{
-	GSList *tmp;
-	char **array;
-	int i;
-
-	array = g_new0 (char *, g_slist_length (list) + 1);
-
-	i = 0;
-
-	for (tmp = list; tmp; tmp = tmp->next) {
-		if (tmp->data) {
-			array[i] = g_strdup (tmp->data);
-			i++;
-		}
-	}
-
-	array[i] = NULL;
-
-	return array;
-}
-
-
-void
-tracker_free_strs_in_array (char **array)
-{
-	char **a;
-
-	for (a = array; *a; a++) {
-		g_free (*a);
-	}
+	return string_list;
 }
 
 
@@ -2344,496 +2218,22 @@ tracker_array_to_str (char **array, int length, char sep)
 
 }
 
-char *
-tracker_get_english_lang_code (void)
-{
-        return g_strdup (tmap[2].lang);
-}
-
-
-gboolean
-tracker_is_supported_lang (const char *lang)
-{
-	int i;
-
-	for (i = 0; tmap[i].lang; i++) {
-		if (g_str_has_prefix (lang, tmap[i].lang)) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-
-static char *
-get_default_language_code (void)
-{
-	char **langs, **plangs;
-
-	/* get langauges for user's locale */
-	langs = (char**) g_get_language_names ();
-
-	for (plangs = langs; *plangs; plangs++) {
-		if (strlen (*plangs) > 1) {
-                        int i;
-			for (i = 0; tmap[i].lang; i++) {
-				if (g_str_has_prefix (*plangs, tmap[i].lang)) {
-					return g_strndup (*plangs, 2);
-				}
-			}
-		}
-	}
-
-	return g_strdup ("en");
-}
-
-
-void
-tracker_set_language (const char *language, gboolean create_stemmer)
-{
-	if (!language || strlen (language) < 2) {
-                if (tracker->language) {
-                        g_free (tracker->language);
-                }
-		tracker->language = get_default_language_code ();
-		tracker_log ("Setting default language code to %s based on user's locale", language);
-
-	} else {
-		int i;
-		for (i = 0; tmap[i].lang; i++) {
-			if (g_str_has_prefix (language, tmap[i].lang)) {
-                                if (tracker->language) {
-                                        g_free (tracker->language);
-                                }
-                                tracker->language = g_strdup (tmap[i].lang);
-				break;
-			}
-		}
-	}
-
-	/* set stopwords list and create stemmer for language */
-	tracker_log ("setting stopword list for language code %s", language);
-
-	char *stopword_path, *stopword_file, *stopword_en_file = NULL;
-	char *stopwords = NULL;
-
-	stopword_path = g_build_filename (TRACKER_DATADIR, "tracker", "languages", "stopwords", NULL);
-	stopword_file = g_strconcat (stopword_path, ".", language, NULL);
-
-	if (strcmp (language, "en") != 0) {
-		stopword_en_file = g_strconcat (stopword_path, ".en", NULL);
-	}
-
-
-	if (!g_file_get_contents (stopword_file, &stopwords, NULL, NULL)) {
-		tracker_log ("Warning : Tracker cannot read stopword file %s", stopword_file);
-	} else {
-
-		tracker->stop_words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
-		char **words = g_strsplit_set (stopwords, "\n" , -1);
-		char **pwords;
-
-		for (pwords = words; *pwords; pwords++) {
-			g_hash_table_insert (tracker->stop_words, g_strdup (g_strstrip (*pwords)), GINT_TO_POINTER (1));
-		}
-
-		g_strfreev (words);
-	}
-
-
-	if (stopword_en_file) {
-		g_free (stopwords);
-		if (!g_file_get_contents (stopword_en_file, &stopwords, NULL, NULL)) {
-			tracker_log ("Warning : Tracker cannot read stopword file %s", stopword_file);
-		} else {
-
-			tracker->stop_words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
-			char **words = g_strsplit_set (stopwords, "\n" , -1);
-			char **pwords;
-
-			for (pwords = words; *pwords; pwords++) {
-				g_hash_table_insert (tracker->stop_words, g_strdup (g_strstrip (*pwords)), GINT_TO_POINTER (1));
-			}
-
-			g_strfreev (words);
-		}
-		g_free (stopword_en_file);
-	}
-
-	g_free (stopword_path);
-	g_free (stopwords);
-	g_free (stopword_file);
-
-	if (!tracker->use_stemmer || !create_stemmer) {
-		return;
-	}
-
-	char *stem_language;
-
-	/* set default language */
-	stem_language = "english";
-
-	if (language) {
-		int i;
-
-		for (i = 0; tmap[i].lang; i++) {
-			if ((strcasecmp (tmap[i].lang, language) == 0)) {
-				stem_language = tmap[i].name;
-				break;
-			}
-		}
-	}
-
-	tracker->stemmer = sb_stemmer_new (stem_language, NULL);
-
-	if (!tracker->stemmer) {
-		tracker_log ("Warning : No stemmer could be found for language %s", stem_language);
-	} else {
-		tracker_log ("Using stemmer for language %s\n", stem_language);
-	}
-}
-
-
-void
-tracker_load_config_file (void)
-{
-	GKeyFile *key_file;
-	char	 *filename;
-	char	 **values;
-
-	key_file = g_key_file_new ();
-
-	filename = g_build_filename (tracker->config_dir, "/tracker/tracker.cfg", NULL);
-
-	if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
-                char *tracker_dir = g_build_filename (tracker->config_dir,"/tracker",NULL);
-
-                if (!g_file_test (tracker_dir,G_FILE_TEST_EXISTS)) {
-                    g_mkdir_with_parents (tracker_dir,0700);
-                }
-
-		g_free (tracker_dir);
-
-		char *contents, *language;
-
-		language = get_default_language_code ();
-
-		char *default_throttle;
-
-		if (tracker->battery_udi) {
-			default_throttle = "5";
-		} else {
-			default_throttle = "0";
-		}
-
-		contents  = g_strconcat (
-					 "[General]\n",
-					 "# Log Verbosity - Valid values are 0 (displays/logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)\n",
-					 "Verbosity=0\n",
-					 "# Set the initial sleeping time, in seconds\n",
-					 "InitialSleep=45\n",
-					 "# Minimizes the use of memory but may slow indexing down\n", 
-					 "LowMemoryMode=false\n\n",
-					 "[Watches]\n",
-					 "# List of directory roots to index and watch seperated by semicolons\n",
-					 "WatchDirectoryRoots=", g_get_home_dir (), ";\n",
-					 "# List of directory roots to index but not watch (no live updates but are refreshed when trackerd is next restarted) seperated by semicolons\n",
-					 "CrawlDirectory=\n",
-					 "# List of directory roots to not index and not watch seperated by semicolons\n",
-					 "NoWatchDirectory=\n",
-					 "# Set to false to prevent watching of any kind\n",
-					 "EnableWatching=true\n\n",
-					 "[Indexing]\n",
-					 "# Throttles the indexing process. Allowable values are 0-20. higher values decrease indexing speed\n",
-					 "Throttle=", default_throttle, "\n",
-					 "# Disables the indexing process\n",
-					 "EnableIndexing=true\n",
-					 "# Enables indexing of a file's text contents\n",
-					 "EnableFileContentIndexing=true\n",
-					 "# Enables generation of thumbnails\n",
-					 "EnableThumbnails=false\n",
-					 "# Enables fast index merges but may hog the disk for extended periods\n",
-					 "EnableFastMerges=false\n",
-					 "# List of partial file patterns (glob) seperated by semicolons that specify files to not index (basic stat info is only indexed for files that match these patterns)\n",
-					 "NoIndexFileTypes=;\n",
-					 "# Sets minimum length of words to index\n",
-					 "MinWordLength=3\n",
-					 "# Sets maximum length of words to index (words are cropped if bigger than this)\n",
-					 "MaxWordLength=30\n",
-					 "# Sets the language specific stemmer and stopword list to use \n",
-					 "# Valid values are 'en' (english), 'da' (danish), 'nl' (dutch), 'fi' (finnish), 'fr' (french), 'de' (german), 'it' (italien), 'nb' (norwegian), 'pt' (portugese), 'ru' (russian), 'es' (spanish), 'sv' (swedish)\n",
-					 "Language=", language, "\n",
-					 "# Enables use of language-specific stemmer\n",
-					 "EnableStemmer=true\n",
-					 "# Set to true prevents tracker from descending into mounted directory trees\n",
-					 "SkipMountPoints=false\n",
-                                         "# Disable all indexing when on battery\n",
-                                         "BatteryIndex=true\n",
-                                         "# Disable initial index sweep when on battery\n",
-                                         "BatteryIndexInitial=false\n",
-					 "# Pause indexer when disk space gets below equal/below this value, in %% of the $HOME filesystem. Set it to a value smaller then zero to disable pausing at all.\n",
-					 "LowDiskSpaceLimit=1\n\n",
-					 "[Emails]\n",
-					 "IndexEvolutionEmails=true\n",
-                                         "IndexThunderbirdEmails=true\n\n",
-					 "[Performance]\n",
-					 "# Maximum size of text in bytes to index from a file's text contents\n",
-					 "MaxTextToIndex=1048576\n",
-					 "# Maximum number of unique words to index from a file's text contents\n",
-					 "MaxWordsToIndex=10000\n",
-					 "# Specifies the no of entities to index before determining whether to perform index optimization\n",
-					 "OptimizationSweepCount=10000\n",
-					 "# Sets the maximum bucket count for the indexer\n",
-					 "MaxBucketCount=524288\n",
-					 "# Sets the minimum bucket count\n",
-					 "MinBucketCount=65536\n",
-					 "# Sets no. of divisions of the index file\n",
-					 "Divisions=4\n",
-					 "# Selects the desired ratio of used records to buckets to be used when optimizing index (should be a value between 0 and 4) \n",
-					 "BucketRatio=1\n",
-					 "# Alters how much padding is used to prevent index relocations. Higher values improve indexing speed but waste more disk space. Value should be in range (1..8)\n",
-					 "Padding=2\n",
-					 "# Sets stack size of trackerd threads in bytes. The default on Linux is 8Mb (0 will use the system default).\n",
-					 "ThreadStackSize=0\n",
-					 NULL);
-
-		g_file_set_contents (filename, contents, strlen (contents), NULL);
-		g_free (contents);
-	}
-
-	/* load all options into tracker struct */
-	g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, NULL);
-
-	/* general options */
-
-	if (g_key_file_has_key (key_file, "General", "Verbosity", NULL)) {
-		tracker->verbosity = g_key_file_get_integer (key_file, "General", "Verbosity", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "General", "LowMemoryMode", NULL)) {
-		tracker->use_extra_memory = !g_key_file_get_boolean (key_file, "General", "LowMemoryMode", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "General", "InitialSleep", NULL)) {
-		tracker->initial_sleep = g_key_file_get_integer (key_file, "General", "InitialSleep", NULL);
-	}
-
-	/* Watch options */
-
-	values =  g_key_file_get_string_list (key_file,
-					      "Watches",
-					      "WatchDirectoryRoots",
-					      NULL,
-					      NULL);
-
-	if (values) {
-		tracker->watch_directory_roots_list = tracker_filename_array_to_list (values);
-	} else {
-		tracker->watch_directory_roots_list = g_slist_prepend (tracker->watch_directory_roots_list, g_strdup (g_get_home_dir ()));
-	}
-
-
-	values =  g_key_file_get_string_list (key_file,
-			       	     	      "Watches",
-				              "CrawlDirectory",
-				              NULL,
-				              NULL);
-
-	if (values) {
-		tracker->crawl_directory_list = tracker_filename_array_to_list (values);
-
-	} else {
-		tracker->crawl_directory_list = NULL;
-	}
-
-
-	values =  g_key_file_get_string_list (key_file,
-			       	     	      "Watches",
-				              "NoWatchDirectory",
-				              NULL,
-				              NULL);
-
-	if (values) {
-		tracker->no_watch_directory_list = tracker_filename_array_to_list (values);
-
-	} else {
-		tracker->no_watch_directory_list = NULL;
-	}
-
-
-	if (g_key_file_has_key (key_file, "Watches", "EnableWatching", NULL)) {
-		tracker->enable_watching = g_key_file_get_boolean (key_file, "Watches", "EnableWatching", NULL);
-	}
-
-
-	/* Indexing options */
-
-	if (g_key_file_has_key (key_file, "Indexing", "Throttle", NULL)) {
-		tracker->throttle = g_key_file_get_integer (key_file, "Indexing", "Throttle", NULL);
-	} else {
-		tracker->throttle = 0;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "EnableIndexing", NULL)) {
-		tracker->enable_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableIndexing", NULL);
-	} else {
-		tracker->enable_indexing = TRUE;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "EnableFileContentIndexing", NULL)) {
-		tracker->enable_content_indexing = g_key_file_get_boolean (key_file, "Indexing", "EnableFileContentIndexing", NULL);
-	} else {
-		tracker->enable_content_indexing = TRUE;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "EnableThumbnails", NULL)) {
-		tracker->enable_thumbnails = g_key_file_get_boolean (key_file, "Indexing", "EnableThumbnails", NULL);
-	} else {
-		tracker->enable_thumbnails = FALSE;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "EnableFastMerges", NULL)) {
-		tracker->fast_merges = g_key_file_get_boolean (key_file, "Indexing", "EnableFastMerges", NULL);
-	} else {
-		tracker->fast_merges = FALSE;
-	}
-
-	values =  g_key_file_get_string_list (key_file,
-                                              "Indexing",
-                                              "NoIndexFileTypes",
-                                              NULL,
-                                              NULL);
-
-	if (values) {
-		tracker->no_index_file_types_list = array_to_list (values);
-	} else {
-		tracker->no_index_file_types_list = NULL;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "MinWordLength", NULL)) {
-		tracker->min_word_length = g_key_file_get_integer (key_file, "Indexing", "MinWordLength", NULL);
-	} else {
-		tracker->min_word_length = 3;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "MaxWordLength", NULL)) {
-		tracker->max_word_length = g_key_file_get_integer (key_file, "Indexing", "MaxWordLength", NULL);
-	} else {
-		tracker->max_word_length = 40;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "Language", NULL)) {
-		tracker->language = g_key_file_get_string (key_file, "Indexing", "Language", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "EnableStemmer", NULL)) {
-		tracker->use_stemmer = g_key_file_get_boolean (key_file, "Indexing", "EnableStemmer", NULL);
-	} else {
-		tracker->use_stemmer = TRUE;
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "SkipMountPoints", NULL)) {
-		tracker->skip_mount_points = g_key_file_get_boolean (key_file, "Indexing", "SkipMountPoints", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "BatteryIndex", NULL)) {
-		tracker->index_on_battery = g_key_file_get_boolean (key_file, "Indexing", "BatteryIndex", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Indexing", "BatteryIndexInitial", NULL)) {
-		tracker->initial_index_on_battery = g_key_file_get_boolean (key_file, "Indexing", "BatteryIndexInitial", NULL);
-	}
-
-	if (g_key_file_get_integer (key_file, "Indexing", "LowDiskSpaceLimit", NULL) >= 0) {
-		tracker->low_diskspace_limit = g_key_file_get_integer (key_file, "Indexing", "LowDiskSpaceLimit", NULL);
-	}
-
-
-	/* Emails config */
-
-	tracker->additional_mboxes_to_index = NULL;
-
-	if (g_key_file_has_key (key_file, "Emails", "IndexEvolutionEmails", NULL)) {
-		tracker->index_evolution_emails = g_key_file_get_boolean (key_file, "Emails", "IndexEvolutionEmails", NULL);
-	} else {
-		tracker->index_evolution_emails = TRUE;
-	}
-
-	if (g_key_file_has_key (key_file, "Emails", "IndexKMailEmails", NULL)) {
-		tracker->index_kmail_emails = g_key_file_get_boolean (key_file, "Emails", "IndexKMailEmails", NULL);
-	} else {
-		tracker->index_kmail_emails = FALSE;
-	}
-
-	if (g_key_file_has_key (key_file, "Emails", "IndexThunderbirdEmails", NULL)) {
-		tracker->index_thunderbird_emails = g_key_file_get_boolean (key_file, "Emails", "IndexThunderbirdEmails", NULL);
-	} else {
-		tracker->index_thunderbird_emails = FALSE;
-	}
-
-
-	/* Performance options */
-
-	if (g_key_file_has_key (key_file, "Performance", "MaxTextToIndex", NULL)) {
-		tracker->max_index_text_length = g_key_file_get_integer (key_file, "Performance", "MaxTextToIndex", NULL);
-
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "MaxWordsToIndex", NULL)) {
-		tracker->max_words_to_index = g_key_file_get_integer (key_file, "Performance", "MaxWordsToIndex", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "OptimizationSweepCount", NULL)) {
-		tracker->optimization_count = g_key_file_get_integer (key_file, "Performance", "OptimizationSweepCount", NULL);
-
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "MaxBucketCount", NULL)) {
-		tracker->max_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MaxBucketCount", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "MinBucketCount", NULL)) {
-		tracker->min_index_bucket_count = g_key_file_get_integer (key_file, "Performance", "MinBucketCount", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "Divisions", NULL)) {
-		tracker->index_divisions = g_key_file_get_integer (key_file, "Performance", "Divisions", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "BucketRatio", NULL)) {
-		tracker->index_bucket_ratio = g_key_file_get_integer (key_file, "Performance", "BucketRatio", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "Padding", NULL)) {
-		tracker->padding = g_key_file_get_integer (key_file, "Performance", "Padding", NULL);
-	}
-
-	if (g_key_file_has_key (key_file, "Performance", "ThreadStackSize", NULL)) {
-		tracker->thread_stack_size = g_key_file_get_integer (key_file, "Performance", "ThreadStackSize", NULL);
-	}
-
-	g_free (filename);
-
-	g_key_file_free (key_file);
-}
-
 
 void
 tracker_throttle (int multiplier)
 {
-	if (tracker->throttle == 0) {
+	gint throttle;
+
+	throttle = tracker_config_get_throttle (tracker->config);
+
+	if (throttle < 1) {
 		return;
 	}
 
-	int throttle;
-
-	throttle = tracker->throttle * multiplier;
+ 	throttle *= multiplier;
 
 	if (throttle > 0) {
-		g_usleep (throttle);
+  		g_usleep (throttle);
 	}
 }
 
@@ -3590,7 +2990,7 @@ tracker_log 	(const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
-	if (tracker->verbosity < 1) {
+	if (tracker_config_get_verbosity (tracker->config) < 1) {
 		return;
 	}
 
@@ -3609,7 +3009,7 @@ tracker_info	(const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
-	if (tracker->verbosity < 2) {
+	if (tracker_config_get_verbosity (tracker->config) < 2) {
 		return;
 	}
 
@@ -3628,7 +3028,7 @@ tracker_debug 	(const char *message, ...)
 	va_list		args;
 	char 		*msg;
 
-	if (tracker->verbosity < 3) {
+	if (tracker_config_get_verbosity (tracker->config) < 3) {
 		return;
 	}
 
@@ -3872,10 +3272,10 @@ tracker_pause_on_battery (void)
         }
 
 	if (tracker->first_time_index) {
-		return !tracker->initial_index_on_battery;
+		return tracker_config_get_disable_indexing_on_battery_init (tracker->config);
 	}
 
-	return !tracker->index_on_battery;	
+        return tracker_config_get_disable_indexing_on_battery (tracker->config);
 }
 
 
@@ -3883,8 +3283,11 @@ gboolean
 tracker_low_diskspace (void)
 {
 	struct statvfs st;
+        gint           low_disk_space_limit;
 
-	if (tracker->low_diskspace_limit < 1)
+        low_disk_space_limit = tracker_config_get_low_disk_space_limit (tracker->config);
+
+	if (low_disk_space_limit < 1)
 		return FALSE;
 
 	if (statvfs (tracker->data_dir, &st) == -1) {
@@ -3896,7 +3299,7 @@ tracker_low_diskspace (void)
 		return FALSE;
 	}
 
-	if (((long long) st.f_bavail * 100 / st.f_blocks) <= tracker->low_diskspace_limit) {
+	if (((long long) st.f_bavail * 100 / st.f_blocks) <= low_disk_space_limit) {
 		tracker_error ("Disk space is low!");
 		return TRUE;
 	}

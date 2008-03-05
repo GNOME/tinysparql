@@ -36,7 +36,7 @@
 #include "tracker-cache.h"
 #include "tracker-dbus.h"
 #include "tracker-watch.h"
-
+#include "tracker-config.h"
 
 #define EVOLUTION_MAIL_DIR_S ".evolution/mail"
 
@@ -1243,7 +1243,13 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 {
 	SummaryFile *summary = NULL;
 
-	if (!tracker->is_running || !tracker->enable_indexing) return; 
+	if (!tracker->is_running) { 
+                return; 
+        }
+
+        if (!tracker_config_get_enable_indexing (tracker->config)) {
+                return;
+        }
 
 	if (open_summary_file (summary_file_path, &summary)) {
 		SummaryFileHeader *header;
@@ -1402,7 +1408,7 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 				}
 
 				if (tracker_db_regulate_transactions (db_con->data, 500)) {
-					if (tracker->verbosity == 1) {
+                                        if (tracker_config_get_verbosity (tracker->config) == 1) {
 						tracker_log ("indexing #%d - Emails in %s", tracker->index_count, dir);
 					}
 

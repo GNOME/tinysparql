@@ -58,6 +58,8 @@ trackerd_SOURCES =			\
 	$(db_sources)			\
 	tracker-apps.c			\
 	tracker-apps.h			\
+	tracker-config.c		\
+	tracker-config.h		\
 	tracker-db.c			\
 	tracker-db.h			\
 	tracker-dbus.c			\
@@ -82,12 +84,12 @@ trackerd_SOURCES =			\
 	tracker-email-thunderbird.h	\
 	tracker-email-kmail.c		\
 	tracker-email-kmail.h		\
+	tracker-language.c		\
+	tracker-language.h		\
 	tracker-metadata.c		\
 	tracker-metadata.h		\
 	tracker-rdf-query.c		\
 	tracker-rdf-query.h		\
-	tracker-stemmer.c		\
-	tracker-stemmer.h		\
 	tracker-utils.c			\
 	tracker-utils.h			\
 	tracker-ioprio.c		\

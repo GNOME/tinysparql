@@ -1,3 +1,27 @@
+2008-03-05  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-config.[ch]: Added.
+	* src/trackerd/tracker-language.[ch]: Added.
+	* src/trackerd/tracker-stemmer.[ch]: Removed.
+
+	* src/trackerd/Makefile.am:
+	* src/trackerd/tracker-cache.c: 
+	* src/trackerd/tracker-db-sqlite.c: 
+	* src/trackerd/tracker-db.c: 
+	* src/trackerd/tracker-dbus-methods.c: 
+	* src/trackerd/tracker-dbus-search.c:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/tracker-email-evolution.c:
+	* src/trackerd/tracker-email-thunderbird.c: 
+	* src/trackerd/tracker-email-utils.c:
+	* src/trackerd/tracker-email.c:
+	* src/trackerd/tracker-indexer.c: 
+	* src/trackerd/tracker-parser.c: 
+	* src/trackerd/tracker-utils.[ch]: 
+	* src/trackerd/trackerd.c: Moved all configuration options to
+	their own module for type and limit checking combined with
+	property notification and signalling. This fixes bug #513486.
+
 2008-03-04  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/libtracker-common/Makefile.am:
