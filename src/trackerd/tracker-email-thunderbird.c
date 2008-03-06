@@ -20,14 +20,15 @@
  */
 
 #include <string.h>
-#include <glib/gstdio.h>
 #include <stdlib.h>
+
+#include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-config.h>
 
 #include "tracker-email-thunderbird.h"
 #include "tracker-db-email.h"
 #include "tracker-watch.h"
-#include "tracker-config.h"
-
 
 typedef enum
 {

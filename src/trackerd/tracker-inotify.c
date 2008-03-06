@@ -17,16 +17,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <glib.h>
-#include <glib/gstdio.h>
-
-#include "tracker-watch.h"
-
-#include "config.h"
-
 
 #ifdef HAVE_INOTIFY_LINUX
 #include <linux/inotify.h>
@@ -34,6 +29,13 @@
 #else
 #include <sys/inotify.h>
 #endif
+
+#include <glib.h>
+#include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-log.h>
+
+#include "tracker-watch.h"
 
 #define INOTIFY_WATCH_LIMIT "/proc/sys/fs/inotify/max_user_watches"
 

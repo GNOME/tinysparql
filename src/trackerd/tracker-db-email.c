@@ -21,10 +21,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #include <glib/gstdio.h>
 
-#include "tracker-db-email.h"
+#include <libtracker-common/tracker-log.h>
 
+#include "tracker-db-email.h"
 
 #define MAX_ADDRESSES 255
 

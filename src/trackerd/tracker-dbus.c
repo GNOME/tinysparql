@@ -19,10 +19,12 @@
 
 #include <string.h>
 #include <stdlib.h>
+
+#include <libtracker-common/tracker-config.h>
+
 #include "tracker-dbus.h"
 #include "tracker-utils.h"
 #include "tracker-watch.h"
-#include "tracker-config.h"
 
 extern Tracker *tracker;
 

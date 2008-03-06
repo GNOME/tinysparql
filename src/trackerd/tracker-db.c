@@ -22,13 +22,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
 #include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-config.h>
 
 #include "tracker-db.h"
 #include "tracker-email.h"
 #include "tracker-metadata.h"
 #include "tracker-os-dependant.h"
-#include "tracker-config.h"
 
 extern Tracker *tracker;
 

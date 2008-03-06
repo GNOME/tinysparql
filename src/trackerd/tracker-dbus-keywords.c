@@ -19,9 +19,10 @@
 
 #include <string.h>
 
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-keywords.h"
-
 
 extern Tracker *tracker;
 

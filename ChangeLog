@@ -1,3 +1,41 @@
+2008-03-06  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/Makefile.am:
+	* src/libtracker-common/tracker-config.[ch]:
+	* src/libtracker-common/tracker-language.[ch]: Moved these files
+	here from src/trackerd so the API can be shared by all components. 
+
+	* src/libtracker-common/tracker-log.[ch]: Created by taking these
+	functions from the src/trackerd/tracker-utils.c log functions.
+	This is based on a patch from Ivan Frade.
+	
+	* src/trackerd/Makefile.am:
+	* src/trackerd/tracker-apps.c:
+	* src/trackerd/tracker-cache.c:
+	* src/trackerd/tracker-db-email.c:
+	* src/trackerd/tracker-db-sqlite.c:
+	* src/trackerd/tracker-db.c:
+	* src/trackerd/tracker-dbus-files.c:
+	* src/trackerd/tracker-dbus-keywords.c:
+	* src/trackerd/tracker-dbus-metadata.c:
+	* src/trackerd/tracker-dbus-methods.c:
+	* src/trackerd/tracker-dbus-search.c:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/tracker-email-evolution.c:
+	* src/trackerd/tracker-email-kmail.c:
+	* src/trackerd/tracker-email-thunderbird.c:
+	* src/trackerd/tracker-email-utils.c:
+	* src/trackerd/tracker-email.c:
+	* src/trackerd/tracker-indexer.c:
+	* src/trackerd/tracker-inotify.c:
+	* src/trackerd/tracker-ioprio.c:
+	* src/trackerd/tracker-metadata.c:
+	* src/trackerd/tracker-parser.c:
+	* src/trackerd/tracker-rdf-query.c:
+	* src/trackerd/tracker-utils.c: 
+	* src/trackerd/trackerd.c: Update the include statments in most of
+	these files to use libtracker-common's config/log headers.
+	
 2008-03-05  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-config.[ch]: Added.

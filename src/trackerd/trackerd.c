@@ -54,6 +54,10 @@
 #define BATTERY_OFF "ac_adapter.present"
 #define AC_ADAPTER "ac_adapter"
 
+#include <libtracker-common/tracker-config.h>
+#include <libtracker-common/tracker-language.h>
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
 #include "tracker-dbus-keywords.h"
@@ -64,8 +68,6 @@
 #include "tracker-cache.h"
 #include "tracker-indexer.h"
 #include "tracker-watch.h"
-#include "tracker-config.h"
-#include "tracker-language.h"
 
 #include "tracker-os-dependant.h"
   
@@ -382,7 +384,7 @@ tracker_do_cleanup (const gchar *sig_msg)
 {
 	tracker->status = STATUS_SHUTDOWN;
 
-	if (tracker->log_file && sig_msg) {
+	if (sig_msg) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
 
 		tracker_print_object_allocations ();
@@ -415,9 +417,7 @@ tracker_do_cleanup (const gchar *sig_msg)
 
 	g_mutex_unlock (tracker->metadata_signal_mutex);
 
-	if (tracker->log_file) {
-		tracker_log ("shutting down threads");
-	}
+	tracker_log ("shutting down threads");
 
 	/* send signals to each thread to wake them up and then stop them */
 
@@ -475,9 +475,9 @@ tracker_do_cleanup (const gchar *sig_msg)
 		g_mkdir_with_parents (tracker->data_dir, 00755);
 	}
 
-	if (tracker->log_file) {
-		tracker_debug ("shutting down main thread");
-	}
+	tracker_debug ("Shutting down main thread");
+
+	tracker_log_term ();
 
 	/* remove sys tmp directory */
 	if (tracker->sys_tmp_root_dir) {
@@ -718,7 +718,7 @@ signal_handler (gint signo)
 
 
 		default:
-			if (tracker->log_file && g_strsignal (signo)) {
+			if (g_strsignal (signo)) {
 	   			tracker_log ("Received signal %s ", g_strsignal (signo));
 			}
 			break;
@@ -2239,7 +2239,7 @@ set_defaults (void)
 
 	tracker->first_flush = TRUE;
 
-	tracker->services_dir = g_build_filename (TRACKER_DATADIR, "tracker", "services", NULL);
+	tracker->services_dir = g_build_filename (SHAREDIR, "tracker", "services", NULL);
 
 	tracker->root_directory_devices = NULL;
 
@@ -2396,19 +2396,22 @@ create_index (gboolean need_data)
 gint
 main (gint argc, gchar *argv[])
 {
-	gint 		lfp;
+	gint               lfp;
 #ifndef OS_WIN32
-  	struct 	sigaction act;
-	sigset_t 	empty_mask;
+  	struct sigaction   act;
+	sigset_t 	   empty_mask;
 #endif
-	gchar 		*lock_file, *str, *lock_str;
-	GOptionContext  *context = NULL;
-	GError          *error = NULL;
-	gchar           *example;
-	gboolean 	need_index, need_data;
-	DBConnection 	*db_con;
-	char **st;
-	GPatternSpec* spec;
+	gchar 		  *lock_file, *str, *lock_str;
+	GOptionContext    *context = NULL;
+	GError            *error = NULL;
+	gchar             *example;
+	gboolean 	   need_index, need_data;
+	DBConnection      *db_con;
+	gchar            **st;
+	GPatternSpec      *spec;
+	gchar             *tmp_dir;
+	gchar             *old_tracker_dir;
+	gchar             *log_filename;
 
         g_type_init ();
         
@@ -2419,7 +2422,7 @@ main (gint argc, gchar *argv[])
 
 	setlocale (LC_ALL, "");
 
-	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
+	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
         bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
         textdomain (GETTEXT_PACKAGE);
 
@@ -2474,9 +2477,30 @@ main (gint argc, gchar *argv[])
 #endif
 
 	tracker = g_new0 (Tracker, 1);
+
+	/* Set up directories */
+	tracker->pid = (int) getpid ();
+	tmp_dir = g_strdup_printf ("Tracker-%s.%d", g_get_user_name (), tracker->pid);
+	tracker->sys_tmp_root_dir = g_build_filename (g_get_tmp_dir (), tmp_dir, NULL);
+	g_free (tmp_dir);
+
+	tracker->root_dir = g_build_filename (g_get_user_data_dir  (), "tracker", NULL);
+	tracker->data_dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
+	tracker->config_dir = g_strdup (g_get_user_config_dir ());
+	tracker->user_data_dir = g_build_filename (tracker->root_dir, "data", NULL);
 	
+        /* Set up the config */
         tracker->config = tracker_config_new ();
         tracker->language = tracker_language_new (tracker->config);
+
+	/* Set up the log */
+	log_filename = g_build_filename (tracker->root_dir, "tracker.log", NULL);
+	tracker_unlink (log_filename);
+
+	tracker_log_init (tracker->config, log_filename, fatal_errors);
+	tracker_log ("Starting log");
+
+        /* Set up the DBus IPC */
 	tracker->dbus_con = tracker_dbus_init ();
 
 	add_local_dbus_connection_monitoring (tracker->dbus_con);
@@ -2484,22 +2508,6 @@ main (gint argc, gchar *argv[])
 	tracker->status = STATUS_INIT;
 
  	tracker->is_running = FALSE;
-
-	/* Make a temporary directory for Tracker into g_get_tmp_dir() directory */
-	gchar *tmp_dir;
-
-	tracker->pid = (int) getpid();
-
-	tmp_dir = g_strdup_printf ("Tracker-%s.%d", g_get_user_name (), tracker->pid);
-
-	tracker->sys_tmp_root_dir = g_build_filename (g_get_tmp_dir (), tmp_dir, NULL);
-	tracker->root_dir = g_build_filename (g_get_user_data_dir  (), "tracker", NULL);
-	tracker->data_dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
-	tracker->config_dir = g_strdup (g_get_user_config_dir ());
-	tracker->user_data_dir = g_build_filename (tracker->root_dir, "data", NULL);
-
-	tracker->log_file = g_build_filename (tracker->root_dir, "tracker.log", NULL);
-
 	tracker->shutdown = FALSE;
 
 	tracker->files_check_mutex = g_mutex_new ();
@@ -2522,33 +2530,23 @@ main (gint argc, gchar *argv[])
 	tracker->files_signal_mutex = g_mutex_new ();
 	tracker->request_signal_mutex = g_mutex_new ();
 
-	tracker->log_access_mutex = g_mutex_new ();
 	tracker->scheduler_mutex = g_mutex_new ();
 
-	/* reset log file */
-	tracker_unlink (tracker->log_file);
-
-	tracker_log ("starting log");
-
-	
-
-
-	g_free (tmp_dir);
-
-	/* remove an existing one */
+	/* Remove an existing one */
 	if (g_file_test (tracker->sys_tmp_root_dir, G_FILE_TEST_EXISTS)) {
 		tracker_remove_dirs (tracker->sys_tmp_root_dir);
 	}
 
-	/* remove old tracker dirs */
-	gchar *old = g_build_filename (g_get_home_dir (), ".Tracker", NULL);
+	/* Remove old tracker dirs */
+        old_tracker_dir = g_build_filename (g_get_home_dir (), ".Tracker", NULL);
 
-	if (g_file_test (old ,G_FILE_TEST_EXISTS)) {
-		tracker_remove_dirs (old);
+	if (g_file_test (old_tracker_dir ,G_FILE_TEST_EXISTS)) {
+		tracker_remove_dirs (old_tracker_dir);
 	}
 
-	g_free (old);
+	g_free (old_tracker_dir);
 
+        /* Create other directories we need */
 	if (!g_file_test (tracker->user_data_dir, G_FILE_TEST_EXISTS)) {
 		g_mkdir_with_parents (tracker->user_data_dir, 00755);
 	}

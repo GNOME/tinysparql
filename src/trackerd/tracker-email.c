@@ -21,12 +21,13 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <libtracker-common/tracker-config.h>
+
 #include "tracker-email.h"
 #include "tracker-email-utils.h"
 #include "tracker-email-evolution.h"
 #include "tracker-email-thunderbird.h"
 #include "tracker-email-kmail.h"
-#include "tracker-config.h"
 
 extern Tracker *tracker;
 

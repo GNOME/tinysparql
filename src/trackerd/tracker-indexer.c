@@ -30,13 +30,15 @@
 #include <string.h>
 #include <math.h>
 #include <sqlite3.h>
+
 #include <glib.h>
 #include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-log.h>
 
 #include "tracker-indexer.h"
 #include "tracker-cache.h"
 #include "tracker-dbus.h"
-#include "tracker-config.h"
 
 extern Tracker *tracker;
 

@@ -17,20 +17,21 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <string.h>
-#include <glib/gstdio.h>
-
-#include "tracker-dbus-methods.h"
-#include "tracker-metadata.h"
-#include "tracker-rdf-query.h"
-#include "tracker-config.h"
-
 #include "config.h"
+
+#include <string.h>
 
 #ifdef OS_WIN32
 #include "mingw-compat.h"
 #endif
 
+#include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-config.h>
+
+#include "tracker-dbus-methods.h"
+#include "tracker-metadata.h"
+#include "tracker-rdf-query.h"
 
 extern Tracker *tracker;
 

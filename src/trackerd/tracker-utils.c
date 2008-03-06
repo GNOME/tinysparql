@@ -24,6 +24,7 @@
 
 
 #include "config.h"
+
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
@@ -35,18 +36,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
-#include <glib/gprintf.h>
-#include <glib/gstdio.h>
-#include <glib/gpattern.h>
 #include <zlib.h>
 #include <math.h>
-#include "tracker-dbus.h"
-#include "tracker-utils.h"
-#include "tracker-indexer.h"
-#include "tracker-config.h"
-#include "../xdgmime/xdgmime.h"
-
-#include "tracker-os-dependant.h"
 
 #ifdef OS_WIN32
 #include <conio.h>
@@ -54,6 +45,19 @@
 #else
 #include <sys/resource.h>
 #endif
+
+#include <glib/gprintf.h>
+#include <glib/gstdio.h>
+#include <glib/gpattern.h>
+
+#include <libtracker-common/tracker-log.h>
+#include "../xdgmime/xdgmime.h"
+
+#include "tracker-dbus.h"
+#include "tracker-utils.h"
+#include "tracker-indexer.h"
+
+#include "tracker-os-dependant.h"
 
 extern Tracker	*tracker;
 
@@ -2899,147 +2903,6 @@ tracker_get_snippet (const char *txt, char **terms, int length)
 		return NULL;
 	}
 }
-
-
-
-
-
-
-static inline void
-output_log (const char *message)
-{
-	FILE		*fd;
-	time_t		now;
-	char		buffer1[64], buffer2[20];
-	char		*output;
-	struct tm	*loctime;
-	GTimeVal	start;
-
-	/* logging is thread safe */
-	static size_t   log_size = 0;
-
-	if (!message)
-		return;
-
-	g_print ("%s\n", message);
-
-	if (!tracker->log_file) return;
-
-	/* ensure file logging is thread safe */
-	g_mutex_lock (tracker->log_access_mutex);
-
-	fd = g_fopen (tracker->log_file, "a");
-
-	if (!fd) {
-		g_mutex_unlock (tracker->log_access_mutex);
-		g_warning ("could not open %s", tracker->log_file);
-		return;
-	}
-
-	/* check log size, 10MiB limit */
-	if (log_size > (10 << 20)) {
-		rewind (fd);
-		ftruncate (fileno (fd), 0);
-		log_size = 0;
-	}
-
-	g_get_current_time (&start);
-
-	now = time ((time_t *) NULL);
-
-	loctime = localtime (&now);
-
-	strftime (buffer1, 64, "%d %b %Y, %H:%M:%S:", loctime);
-
-	g_sprintf (buffer2, "%03ld", start.tv_usec / 1000);
-
-	output = g_strconcat (buffer1, buffer2, " - ", message, NULL);
-
-	log_size += g_fprintf (fd, "%s\n", output);
-
-	g_free (output);
-
-	fclose (fd);
-
-	g_mutex_unlock (tracker->log_access_mutex);
-}
-
-
-void
-tracker_error (const char *message, ...)
-{
-	va_list		args;
-	char 		*msg;
-
-  	va_start (args, message);
-  	msg = g_strdup_vprintf (message, args);
-	va_end (args);
-
-	output_log (msg);
-	g_free (msg);
-
-	if (tracker->fatal_errors) {
-		g_assert (FALSE);
-	}
-}
-
-
-void
-tracker_log 	(const char *message, ...)
-{
-	va_list		args;
-	char 		*msg;
-
-	if (tracker_config_get_verbosity (tracker->config) < 1) {
-		return;
-	}
-
-  	va_start (args, message);
-  	msg = g_strdup_vprintf (message, args);
-  	va_end (args);
-
-	output_log (msg);
-	g_free (msg);
-}
-
-
-void
-tracker_info	(const char *message, ...)
-{
-	va_list		args;
-	char 		*msg;
-
-	if (tracker_config_get_verbosity (tracker->config) < 2) {
-		return;
-	}
-
-  	va_start (args, message);
-  	msg = g_strdup_vprintf (message, args);
-  	va_end (args);
-
-	output_log (msg);
-	g_free (msg);
-}
-
-
-void
-tracker_debug 	(const char *message, ...)
-{
-	va_list		args;
-	char 		*msg;
-
-	if (tracker_config_get_verbosity (tracker->config) < 3) {
-		return;
-	}
-
-  	va_start (args, message);
-  	msg = g_strdup_vprintf (message, args);
-  	va_end (args);
-
-	output_log (msg);
-	g_free (msg);
-}
-
 
 gchar *
 tracker_string_replace (const gchar *haystack, gchar *needle, gchar *replacement)

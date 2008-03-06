@@ -19,6 +19,8 @@
 
 #include <string.h>
 
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-rdf-query.h"
 
 

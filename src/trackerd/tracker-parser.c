@@ -17,20 +17,21 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <string.h>
-#include <pango/pango.h>
-
-#include "tracker-parser.h"
-#include "tracker-utils.h"
-#include "tracker-config.h"
-#include "tracker-language.h"
-
 #include "config.h"
 
-	
+#include <string.h>
+
 #ifdef HAVE_UNAC
 #include <unac.h>
 #endif
+
+#include <pango/pango.h>
+
+#include <libtracker-common/tracker-config.h>
+#include <libtracker-common/tracker-language.h>
+
+#include "tracker-parser.h"
+#include "tracker-utils.h"
 
 extern Tracker *tracker;
 

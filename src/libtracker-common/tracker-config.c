@@ -27,7 +27,6 @@
 
 #include <glib.h>
 
-#include "tracker-utils.h"
 #include "tracker-language.h"
 #include "tracker-config.h"
 

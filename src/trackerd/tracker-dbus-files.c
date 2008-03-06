@@ -19,10 +19,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-dbus-methods.h"
 #include "tracker-metadata.h"
 #include "tracker-dbus-files.h"
-
 
 void
 tracker_dbus_method_files_exists (DBusRec *rec)

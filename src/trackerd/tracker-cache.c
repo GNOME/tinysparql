@@ -19,12 +19,15 @@
 
 #include <sqlite3.h>
 #include <unistd.h>
+
 #include <glib.h>
 #include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-config.h>
+
 #include "tracker-utils.h"
 #include "tracker-dbus.h"
 #include "tracker-cache.h"
-#include "tracker-config.h"
 
 #define USE_SLICE
 

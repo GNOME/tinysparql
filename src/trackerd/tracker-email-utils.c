@@ -27,7 +27,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
+
 #include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-config.h>
 
 #include "tracker-cache.h"
 #include "tracker-db-email.h"
@@ -37,8 +40,6 @@
 #include "tracker-email-thunderbird.h"
 #include "tracker-email-kmail.h"
 #include "tracker-watch.h"
-#include "tracker-config.h"
-
 
 extern Tracker *tracker;
 

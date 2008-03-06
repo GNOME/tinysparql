@@ -31,14 +31,17 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <glib/gstdio.h>
-#include <tracker-utils.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-
 #ifdef HAVE_LINUX_UNISTD_H
 #include <linux/unistd.h>
 #endif
+#include <sys/syscall.h>
+#include <unistd.h>
+
+#include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-log.h>
+
+#include <tracker-utils.h>
 
 #include "tracker-ioprio.h"
 

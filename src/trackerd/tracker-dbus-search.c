@@ -19,10 +19,11 @@
 
 #include <string.h>
 
+#include <libtracker-common/tracker-config.h>
+
 #include "tracker-dbus-methods.h"
 #include "tracker-rdf-query.h"
 #include "tracker-indexer.h"
-#include "tracker-config.h"
 
 extern Tracker *tracker;
 

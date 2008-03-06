@@ -28,7 +28,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
 #include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-config.h>
 
 #include "tracker-email-evolution.h"
 #include "tracker-email-utils.h"
@@ -36,7 +39,6 @@
 #include "tracker-cache.h"
 #include "tracker-dbus.h"
 #include "tracker-watch.h"
-#include "tracker-config.h"
 
 #define EVOLUTION_MAIL_DIR_S ".evolution/mail"
 

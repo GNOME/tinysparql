@@ -22,13 +22,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
 #include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-log.h>
 
 #include "tracker-email-kmail.h"
 #include "tracker-email-utils.h"
 #include "tracker-db-email.h"
 #include "tracker-watch.h"
-
 
 typedef struct {
         gchar            *imap_path;

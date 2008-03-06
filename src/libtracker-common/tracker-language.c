@@ -26,7 +26,7 @@
 
 #include "../libstemmer/include/libstemmer.h"
 
-#include "tracker-utils.h"
+#include "tracker-log.h" 
 #include "tracker-language.h"
 
 typedef struct _Languages Languages;
@@ -68,7 +68,7 @@ language_get_stopword_filename (const gchar *language_code)
 	gchar *filename;
 
 	str = g_strconcat (".", language_code, NULL);
-	filename = g_build_filename (TRACKER_DATADIR,
+	filename = g_build_filename (SHAREDIR,
 				     "tracker",
 				     "languages",
 				     "stopwords",

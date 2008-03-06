@@ -20,9 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-dbus-methods.h"
 #include "tracker-dbus-metadata.h"
-
 
 void
 tracker_dbus_method_metadata_set (DBusRec *rec)

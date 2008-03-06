@@ -17,20 +17,24 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <glib/gstdio.h>
 #include <sys/types.h>
-#include "config.h"
 #ifdef OS_WIN32
 #include <conio.h>
 #else
 #include <sys/resource.h>
 #endif
+
+#include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
-
 
 extern Tracker *tracker;
 

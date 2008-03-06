@@ -21,6 +21,8 @@
 #define _GNU_SOURCE
 #endif
 
+#include "config.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,10 +33,17 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#include <glib.h>
-#include <glib/gstdio.h>
 #include <regex.h>
 #include <zlib.h>
+
+#ifdef OS_WIN32
+#include "mingw-compat.h"
+#endif
+
+#include <glib.h>
+#include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-config.h>
 
 #include "tracker-db-sqlite.h"
 #include "tracker-indexer.h"
@@ -42,13 +51,6 @@
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
 #include "tracker-watch.h"
-#include "tracker-config.h"
-
-#include "config.h"
-
-#ifdef OS_WIN32
-#include "mingw-compat.h"
-#endif
 
 #define MAX_TEXT_BUFFER 65567
 #define MAX_COMPRESS_BUFFER 65565
@@ -245,7 +247,7 @@ load_sql_file (DBConnection *db_con, const char *sql_file)
 {
 	char *filename, *query;
 	
-	filename = g_build_filename (TRACKER_DATADIR, "/tracker/", sql_file, NULL);
+	filename = g_build_filename (SHAREDIR, "tracker", sql_file, NULL);
 
 	if (!g_file_get_contents (filename, &query, NULL, NULL)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
@@ -272,7 +274,7 @@ load_sql_trigger (DBConnection *db_con, const char *sql_file)
 {
 	char *filename, *query;
 	
-	filename = g_build_filename (TRACKER_DATADIR, "/tracker/", sql_file, NULL);
+	filename = g_build_filename (SHAREDIR, "tracker", sql_file, NULL);
 
 	if (!g_file_get_contents (filename, &query, NULL, NULL)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);
@@ -472,7 +474,7 @@ tracker_db_initialize (const char *datadir)
 
 	tracker_log ("Loading prepared queries...");
 
-	sql_file = g_strdup (TRACKER_DATADIR "/tracker/sqlite-stored-procs.sql");
+	sql_file = g_build_filename (SHAREDIR, "tracker", "sqlite-stored-procs.sql", NULL);
 
 	if (!g_file_test (sql_file, G_FILE_TEST_EXISTS)) {
 		tracker_error ("ERROR: Tracker cannot read required file %s - Please reinstall tracker or check read permissions on the file if it exists", sql_file);

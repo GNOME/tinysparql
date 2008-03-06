@@ -21,9 +21,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <libtracker-common/tracker-log.h>
+
 #include "tracker-apps.h"
 #include "tracker-db.h"
-
 
 void
 tracker_applications_add_service_directories (void)
