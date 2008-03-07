@@ -11,7 +11,7 @@ INCLUDES =								\
 	$(SQLITE3_CFLAGS)						\
 	$(QDBM_CFLAGS)							\
 	$(UNAC_CFLAGS)							\
-	-I$(top_builddir)/src
+	-I$(top_srcdir)/src
 
 if HAVE_INOTIFY
 watch_sources =								\
