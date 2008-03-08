@@ -448,8 +448,8 @@ tracker_db_email_is_up_to_date (DBConnection *db_con, const gchar *uri, guint32 
 static inline int
 limit_address_count (int len)
 {
-	if (len > MAX_ADDRESSES) {
-		return MAX_ADDRESSES;
+	if (len > MAX_ADDRESSES - 1) {
+		return MAX_ADDRESSES - 1;
 	}
 
 	return len;
@@ -605,15 +605,23 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 				GString *gstr = g_string_new ("");
 
 				if (mp->addr) {
+					
 					gchar *value = get_utf8 (mp->addr);
-					g_string_append_printf (gstr, "%s ", value);
-					g_free (value);
+					
+					if (value) {
+						g_string_append_printf (gstr, "%s ", value);
+						g_free (value);
+					}
 				}
 
 				if (mp->name) {
+					
 					gchar *value = get_utf8 (mp->name);
-					g_string_append (gstr, value);
-					g_free (value);
+					
+					if (value) {
+						g_string_append (gstr, value);
+						g_free (value);
+					}
 				}
 
 				array[i] = g_string_free (gstr, FALSE);
@@ -640,14 +648,20 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 
 				if (mp->addr) {
 					gchar *value = get_utf8 (mp->addr);
-					g_string_append_printf (gstr, "%s ", value);
-					g_free (value);
+					
+					if (value) {
+						g_string_append_printf (gstr, "%s ", value);
+						g_free (value);
+					}
 				}
 	
 				if (mp->name) {
 					gchar *value = get_utf8 (mp->name);
-					g_string_append_printf (gstr, "%s ", value);
-					g_free (value);
+					
+					if (value) {
+						g_string_append_printf (gstr, "%s ", value);
+						g_free (value);
+					}
 				}
 
 				array[i] = g_string_free (gstr, FALSE);
@@ -675,7 +689,12 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 					continue;
 				}
 				gchar *value = get_utf8 (ma->attachment_name);
-				array[i] = value;
+				
+				if (value) {
+					array[i] = value;
+				} else {
+					array[i] = g_strdup ("unknown");
+				}
 			}
 
 			if (i > 0) {
