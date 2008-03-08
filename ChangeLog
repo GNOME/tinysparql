@@ -1,3 +1,8 @@
+2008-03-07 Jamie McCracken <jamiemcc at gnome org>
+
+	* Fix for possible email crasher
+
+
 2008-03-06  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/Makefile.am:
