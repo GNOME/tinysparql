@@ -60,7 +60,6 @@ libextract_imagemagick_la_SOURCES = \
 	tracker-extract-imagemagick.c	\
 	tracker-xmp.c tracker-xmp.h
 libextract_imagemagick_la_LDFLAGS = $(module_flags)
-libextract_imagemagick_la_INCLUDES = $(GLIB2_CFLAGS) $(EXEMPI_CFLAGS)
 libextract_imagemagick_la_LIBADD = $(GLIB2_LIBS) $(EXEMPI_LIBS)
 
 libextract_mp3_la_SOURCES = tracker-extract-mp3.c
