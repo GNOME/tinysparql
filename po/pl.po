@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-01 11:36+0100\n"
-"PO-Revision-Date: 2008-02-25 01:18+0100\n"
+"POT-Creation-Date: 2008-03-08 22:57+0100\n"
+"PO-Revision-Date: 2008-03-07 14:23+0100\n"
 "Last-Translator: Tomasz Dominikowski <dominikowski@gmail.com>\n"
 "Language-Team: Tomasz Dominikowski (Aviary.pl) <dominikowski@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -440,14 +440,12 @@ msgstr "%s: brak połączenia z usługą tracker"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
-#, c-format
 msgid "Ensure \"trackerd\" is running before launch this command."
 msgstr ""
 "Proszę się upewnić, że \"trackerd\" działa przed uruchomieniem tego "
 "polecenia."
 
 #: ../src/libtracker/tracker-search.c:147
-#, c-format
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Usługa nierozpoznana, wyszukiwanie w innych plikach...\n"
 
@@ -461,7 +459,6 @@ msgstr "%s: wewnętrzny błąd tracker: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
 #: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
-#, c-format
 msgid "No results found matching your query"
 msgstr "Nie odnaleziono wyników pasujących do zapytania"
 
@@ -528,28 +525,28 @@ msgstr "%s: niepoprawne argumenty"
 msgid "%s: file %s not found"
 msgstr "%s: plik %s nie został odnaleziony"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:150
 msgid "Directory to exclude from indexing"
 msgstr "Katalog do wykluczenia z indeksowania"
 
-#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:152
 msgid "/PATH/DIR"
 msgstr "/ŚCIEŻKA/KATALOG"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:151
 msgid "Directory to include in indexing"
 msgstr "Katalog do włączenia do indeksowania"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:152
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Katalog, który ma zostać zindeksowany tylko podczas uruchamiania"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:153
 msgid "Disable any indexing or watching taking place"
 msgstr "Wyłączenie bieżącego indeksowania i obserwowania"
 
-#: ../src/trackerd/trackerd.c:150
+#: ../src/trackerd/trackerd.c:154
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -558,11 +555,11 @@ msgstr ""
 "(wyświetlanie/zapisywanie wyłącznie błędów), 1 (minimalny), 2 (szczegółowy) "
 "i 3 (do debugowania) "
 
-#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:154 ../src/trackerd/trackerd.c:155
 msgid "VALUE"
 msgstr "WARTOŚĆ"
 
-#: ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:155
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
@@ -571,15 +568,15 @@ msgstr ""
 "w zakresie 0-99 (domyślnie 0), przy czym niższe wartości zwiększają prędkość "
 "indeksowania"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:156
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Zmniejsza użycie pamięci, ale może spowolnić indeksowanie"
 
-#: ../src/trackerd/trackerd.c:153
+#: ../src/trackerd/trackerd.c:157
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Początkowy okres bezczynności, tuż przed indeksowaniem, w sekundach"
 
-#: ../src/trackerd/trackerd.c:154
+#: ../src/trackerd/trackerd.c:158
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
@@ -587,29 +584,29 @@ msgstr ""
 "nic do treści (\"stopwords\") oraz dla listy rdzeni pozbawionych "
 "przedrostków i przyrostków - \"stemmer words\"  (dwuznakowy kod ISO 639-1)"
 
-#: ../src/trackerd/trackerd.c:154
+#: ../src/trackerd/trackerd.c:158
 msgid "LANG"
 msgstr "JĘZYK"
 
-#: ../src/trackerd/trackerd.c:155
+#: ../src/trackerd/trackerd.c:159
 msgid "Force a re-index of all content"
 msgstr "Wymuszenie ponownego zindeksowania całej zawartości"
 
-#: ../src/trackerd/trackerd.c:156
+#: ../src/trackerd/trackerd.c:160
 msgid "Make tracker errors fatal"
 msgstr "Błędy tracker jako błędy poważne"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2532
+#: ../src/trackerd/trackerd.c:2434
 msgid "- start the tracker daemon"
 msgstr "- uruchomienie usługi tracker"
 
-#: ../src/trackerd/trackerd.c:2533 ../src/trackerd/trackerd.c:2534
+#: ../src/trackerd/trackerd.c:2435 ../src/trackerd/trackerd.c:2436
 msgid "DIRECTORY"
 msgstr "KATALOG"
 
-#: ../src/trackerd/trackerd.c:2541
+#: ../src/trackerd/trackerd.c:2443
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -661,63 +658,58 @@ msgid "folders"
 msgstr "foldery"
 
 #: ../src/tracker-applet/tracker-applet.c:295
-#, fuzzy
 msgid "mailboxes"
 msgstr "skrzynki e-mail"
 
-#: ../src/tracker-applet/tracker-applet.c:739
+#: ../src/tracker-applet/tracker-applet.c:741
 msgid "Re-index your system?"
-msgstr ""
+msgstr "Zindeksować system ponownie?"
 
-#: ../src/tracker-applet/tracker-applet.c:740
+#: ../src/tracker-applet/tracker-applet.c:742
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
-msgstr ""
+msgstr "Indeksowanie może potrwać dużo czasu. Na pewno zindeksować ponownie?"
 
-#: ../src/tracker-applet/tracker-applet.c:773
+#: ../src/tracker-applet/tracker-applet.c:775
 msgid "_Pause All Indexing"
 msgstr "_Wstrzymanie indeksowania"
 
-#: ../src/tracker-applet/tracker-applet.c:782
-#, fuzzy
+#: ../src/tracker-applet/tracker-applet.c:784
 msgid "_Search"
-msgstr "Wy_szukiwanie:"
+msgstr "Wy_szukiwanie"
 
-#: ../src/tracker-applet/tracker-applet.c:789
-#, fuzzy
+#: ../src/tracker-applet/tracker-applet.c:791
 msgid "_Re-index"
-msgstr "_Indeksuj ponownie"
+msgstr "Indeksu_j ponownie"
 
-#: ../src/tracker-applet/tracker-applet.c:795
-#, fuzzy
+#: ../src/tracker-applet/tracker-applet.c:797
 msgid "_Preferences"
 msgstr "Pre_ferencje"
 
-#: ../src/tracker-applet/tracker-applet.c:801
-#, fuzzy
+#: ../src/tracker-applet/tracker-applet.c:803
 msgid "_Indexer Preferences"
-msgstr "Preferencje Tracker"
+msgstr "Preferencje _indeksera"
 
-#: ../src/tracker-applet/tracker-applet.c:807
+#: ../src/tracker-applet/tracker-applet.c:809
 msgid "S_tatistics"
 msgstr "S_tatystyki"
 
-#: ../src/tracker-applet/tracker-applet.c:813
+#: ../src/tracker-applet/tracker-applet.c:815
 msgid "_About"
 msgstr "O _programie"
 
-#: ../src/tracker-applet/tracker-applet.c:822
+#: ../src/tracker-applet/tracker-applet.c:824
 msgid "_Quit"
 msgstr "_Zakończ"
 
-#: ../src/tracker-applet/tracker-applet.c:1398
+#: ../src/tracker-applet/tracker-applet.c:1415
 msgid "Statistics"
 msgstr "Statystyki"
 
-#: ../src/tracker-applet/tracker-applet.c:1419
+#: ../src/tracker-applet/tracker-applet.c:1436
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Statystyki indeksowania</span>"
 
-#: ../src/tracker-applet/tracker-applet.c:1532
+#: ../src/tracker-applet/tracker-applet.c:1550
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -729,7 +721,7 @@ msgstr ""
 "Foundation; either version 2 of the License, or (at your option) any later "
 "version."
 
-#: ../src/tracker-applet/tracker-applet.c:1536
+#: ../src/tracker-applet/tracker-applet.c:1554
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
@@ -741,7 +733,7 @@ msgstr ""
 "FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
 "details."
 
-#: ../src/tracker-applet/tracker-applet.c:1540
+#: ../src/tracker-applet/tracker-applet.c:1558
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
@@ -751,8 +743,7 @@ msgstr ""
 "Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
 "Place, Suite 330, Boston, MA  02111-1307  USA"
 
-#: ../src/tracker-applet/tracker-applet.c:1555
-#, fuzzy
+#: ../src/tracker-applet/tracker-applet.c:1573
 msgid ""
 "Tracker is a tool designed to extract info and metadata about your personal "
 "data so that it can be searched easily and quickly"
@@ -761,7 +752,7 @@ msgstr ""
 "na temat prywatnych danych użytkownika do ich późniejszego łatwego i "
 "szybkiego wyszukiwania"
 
-#: ../src/tracker-applet/tracker-applet.c:1556
+#: ../src/tracker-applet/tracker-applet.c:1574
 msgid "Copyright © 2005-2008 The Tracker authors"
 msgstr "Copyright © 2005-2008 Autorzy Tracker"
 
@@ -769,20 +760,20 @@ msgstr "Copyright © 2005-2008 Autorzy Tracker"
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-applet/tracker-applet.c:1566
+#: ../src/tracker-applet/tracker-applet.c:1584
 msgid "translator-credits"
 msgstr "Aviary.pl"
 
-#: ../src/tracker-applet/tracker-applet.c:1569
+#: ../src/tracker-applet/tracker-applet.c:1587
 msgid "Tracker Web Site"
 msgstr "Strona WWW Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:1896 ../trackerd.desktop.in.in.h:1
+#: ../src/tracker-applet/tracker-applet.c:1914 ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
 
 #. set translatable strings here
-#: ../src/tracker-applet/tracker-applet.c:1901
+#: ../src/tracker-applet/tracker-applet.c:1919
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
@@ -790,7 +781,7 @@ msgstr ""
 "Komputer zostanie zindeksowany, aby można było błyskawicznie przeszukiwać "
 "pliki i e-maile"
 
-#: ../src/tracker-applet/tracker-applet.c:1902
+#: ../src/tracker-applet/tracker-applet.c:1920
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
@@ -798,82 +789,128 @@ msgstr ""
 "Indeksowanie można wstrzymać w każdej chwili i skonfigurować ustawienia "
 "indeksu klikając tutaj prawym przyciskiem"
 
-#: ../src/tracker-applet/tracker-applet.c:1904
+#: ../src/tracker-applet/tracker-applet.c:1922
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker ukończył indeksowanie systemu"
 
-#: ../src/tracker-applet/tracker-applet.c:1905
+#: ../src/tracker-applet/tracker-applet.c:1923
 #, c-format
 msgid " in %d hours and %d minutes"
 msgstr " w %d godzin i %d minut"
 
-#: ../src/tracker-applet/tracker-applet.c:1906
+#: ../src/tracker-applet/tracker-applet.c:1924
 #, c-format
 msgid " in %d minutes and %d seconds"
 msgstr " w %d minut i %d sekund"
 
-#: ../src/tracker-applet/tracker-applet.c:1907
+#: ../src/tracker-applet/tracker-applet.c:1925
 #, c-format
 msgid " in %d seconds"
 msgstr " w %d s"
 
-#: ../src/tracker-applet/tracker-applet.c:1908
+#: ../src/tracker-applet/tracker-applet.c:1926
 msgid "You can now perform searches by clicking here"
 msgstr "Można teraz przeszukiwać system klikając tutaj"
 
-#: ../src/tracker-applet/tracker-applet.c:1911
+#: ../src/tracker-applet/tracker-applet.c:1929
 msgid "Files:"
 msgstr "Pliki:"
 
-#: ../src/tracker-applet/tracker-applet.c:1912
+#: ../src/tracker-applet/tracker-applet.c:1930
 msgid "    Folders:"
 msgstr "    Foldery:"
 
-#: ../src/tracker-applet/tracker-applet.c:1913
+#: ../src/tracker-applet/tracker-applet.c:1931
 msgid "    Documents:"
 msgstr "    Dokumenty:"
 
-#: ../src/tracker-applet/tracker-applet.c:1914
+#: ../src/tracker-applet/tracker-applet.c:1932
 msgid "    Images:"
 msgstr "    Obrazy:"
 
-#: ../src/tracker-applet/tracker-applet.c:1915
+#: ../src/tracker-applet/tracker-applet.c:1933
 msgid "    Music:"
 msgstr "    Muzyka:"
 
-#: ../src/tracker-applet/tracker-applet.c:1916
+#: ../src/tracker-applet/tracker-applet.c:1934
 msgid "    Videos:"
 msgstr "    Filmy:"
 
-#: ../src/tracker-applet/tracker-applet.c:1917
+#: ../src/tracker-applet/tracker-applet.c:1935
 msgid "    Text:"
 msgstr "    Tekst:"
 
-#: ../src/tracker-applet/tracker-applet.c:1918
+#: ../src/tracker-applet/tracker-applet.c:1936
 msgid "    Development:"
 msgstr "    Programowanie:"
 
-#: ../src/tracker-applet/tracker-applet.c:1919
+#: ../src/tracker-applet/tracker-applet.c:1937
 msgid "    Other:"
 msgstr "    Inne:"
 
-#: ../src/tracker-applet/tracker-applet.c:1920
+#: ../src/tracker-applet/tracker-applet.c:1938
 msgid "Applications:"
 msgstr "Aplikacje:"
 
-#: ../src/tracker-applet/tracker-applet.c:1921
+#: ../src/tracker-applet/tracker-applet.c:1939
 msgid "Conversations:"
 msgstr "Rozmowy:"
 
-#: ../src/tracker-applet/tracker-applet.c:1922
+#: ../src/tracker-applet/tracker-applet.c:1940
 msgid "Emails:"
 msgstr "E-maile:"
 
-#: ../src/tracker-preferences/tracker-preferences.c:899
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
+msgid "<b>Animation</b>"
+msgstr "<b>Animacja</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
+msgid "<b>Smart Pausing</b>"
+msgstr "<b>Inteligentne wstrzymywanie</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
+msgid "<b>Visibility</b>"
+msgstr "<b>Widoczność</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
+msgid "Animate _icon when indexing"
+msgstr "_Animacja ikony w trakcie indeksowania"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
+msgid "Applet Preferences"
+msgstr "Preferencje apletu"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
+msgid ""
+"Automatically _pause if indexing may degrade performance of other "
+"applications in active use"
+msgstr ""
+"Automatyczne _wstrzymywanie, jeśli indeksowanie może spowolnić pracę innych "
+"aktywnie używanych aplikacji"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
+msgid "_Automatically pause all indexing when computer is in active use"
+msgstr ""
+"_Automatyczne wstrzymywanie indeksowania podczas aktywnej pracy przy "
+"komputerze"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
+msgid "_Hide Icon (except when displaying messages to user)"
+msgstr "_Ukrycie ikony (oprócz wyświetlania informacji dla użytkownika)"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
+msgid "_Off"
+msgstr "_Wyłączenie"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:10
+msgid "gtk-close"
+msgstr "Zamknij"
+
+#: ../src/tracker-preferences/tracker-preferences.c:808
 msgid "Data must be reindexed"
 msgstr "Dane muszą być zindeksowane ponownie"
 
-#: ../src/tracker-preferences/tracker-preferences.c:900
+#: ../src/tracker-preferences/tracker-preferences.c:809
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
@@ -884,15 +921,15 @@ msgstr ""
 "zostanie to wykonane, Tracker zrobi to automatycznie przy następnym "
 "uruchomieniu usługi."
 
-#: ../src/tracker-preferences/tracker-preferences.c:907
+#: ../src/tracker-preferences/tracker-preferences.c:816
 msgid "_Reindex"
 msgstr "_Indeksuj ponownie"
 
-#: ../src/tracker-preferences/tracker-preferences.c:910
+#: ../src/tracker-preferences/tracker-preferences.c:819
 msgid "Tracker daemon must be restarted"
 msgstr "Usługa Tracker musi zostać uruchomiona ponownie"
 
-#: ../src/tracker-preferences/tracker-preferences.c:912
+#: ../src/tracker-preferences/tracker-preferences.c:821
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
@@ -901,7 +938,7 @@ msgstr ""
 "Proszę kliknąć na przycisk Uruchom ponownie, aby usługa została ponownie "
 "uruchomiona."
 
-#: ../src/tracker-preferences/tracker-preferences.c:917
+#: ../src/tracker-preferences/tracker-preferences.c:826
 msgid "_Restart"
 msgstr "_Uruchom ponownie"
 
@@ -1009,11 +1046,11 @@ msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:29
 msgid "Disable all Indexing when on battery"
-msgstr "Wyłączenie indeksowania podczas pracy na zasilaniu z akumulatora"
+msgstr "Wyłączenie indeksowania przy zasilaniu z akumulatora"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Disable initial index sweep when on battery"
-msgstr "Wyłączenie początkowego indeksowanie przy zasilaniu z akumulatora"
+msgstr "Wyłączenie początkowego indeksowania przy zasilaniu z akumulatora"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Email"
@@ -1171,7 +1208,7 @@ msgstr "Aplikacje"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:147
 msgid "WebHistory"
-msgstr ""
+msgstr "Historia odwiedzonych stron WWW"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:207
 msgid "_Open"
@@ -1466,9 +1503,6 @@ msgstr "odnośnik do %s"
 msgid "Tracker search and indexing service"
 msgstr "Usługa indeksowania i wyszukiwania Tracker"
 
-#~ msgid "_Off"
-#~ msgstr "_Wyłączenie"
-
 #~ msgid "_Index Only When Idle"
 #~ msgstr "_Indeksowanie tylko podczas bezczynności systemu"
 
@@ -1477,9 +1511,6 @@ msgstr "Usługa indeksowania i wyszukiwania Tracker"
 
 #~ msgid "S_mart Pause"
 #~ msgstr "Inteligentne w_strzymywanie"
-
-#~ msgid "A_nimate When Indexing"
-#~ msgstr "A_nimacja w trakcie indeksowania"
 
 #~ msgid "Auto _Hide"
 #~ msgstr "Automatyczne _ukrywanie"
