@@ -18,10 +18,6 @@ INCLUDES = \
 
 bin_PROGRAMS = tracker-applet
 
-noinst_HEADERS = \
-	tracker-applet.h \
-	tracker-applet-marshallers.h
-
 tracker_applet_LDADD = \
 	$(top_builddir)/src/libtracker/libtrackerclient.la \
 	$(LIBGLADE_LIBS) \
@@ -29,7 +25,9 @@ tracker_applet_LDADD = \
 
 tracker_applet_SOURCES = \
 	tracker-applet.c \
-	tracker-applet-marshallers.c
+	tracker-applet.h \
+	tracker-applet-marshallers.c \
+	tracker-applet-marshallers.h
 
 icon_DATA = \
 	tracker-applet-default.png \

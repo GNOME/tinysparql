@@ -17,8 +17,3 @@ libtracker_common_la_SOURCES = 		\
 libtracker_common_la_LDFLAGS = -version-info 0:0:0
 libtracker_common_la_LIBADD = $(GLIB2_LIBS)
 
-noinst_HEADERS = 			\
-	tracker-configuration.h		\
-	tracker-config.h		\
-	tracker-language.h		\
-	tracker-log.h
