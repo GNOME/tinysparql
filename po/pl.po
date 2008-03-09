@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-08 22:57+0100\n"
+"POT-Creation-Date: 2008-03-09 12:14+0100\n"
 "PO-Revision-Date: 2008-03-07 14:23+0100\n"
 "Last-Translator: Tomasz Dominikowski <dominikowski@gmail.com>\n"
 "Language-Team: Tomasz Dominikowski (Aviary.pl) <dominikowski@gmail.com>\n"
@@ -440,12 +440,14 @@ msgstr "%s: brak połączenia z usługą tracker"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
+#, c-format
 msgid "Ensure \"trackerd\" is running before launch this command."
 msgstr ""
 "Proszę się upewnić, że \"trackerd\" działa przed uruchomieniem tego "
 "polecenia."
 
 #: ../src/libtracker/tracker-search.c:147
+#, c-format
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Usługa nierozpoznana, wyszukiwanie w innych plikach...\n"
 
@@ -459,6 +461,7 @@ msgstr "%s: wewnętrzny błąd tracker: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
 #: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
+#, c-format
 msgid "No results found matching your query"
 msgstr "Nie odnaleziono wyników pasujących do zapytania"
 
