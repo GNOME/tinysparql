@@ -1,6 +1,7 @@
 # Finnish messages for tracker.
-# Copyright (C) 2006-2008 Ilkka Tuohela.
+# Copyright (C) 2006-2008 Free Software Foundation, Inc.
 # Copyright (C) 2007-2008 Timo Jyrinki.
+#
 # Gnomen suomennosryhmä: http://www.gnome.fi/
 #
 # Ilkka Tuohela <hile@iki.fi>, 2006-2008.
@@ -10,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-03 08:35+0300\n"
-"PO-Revision-Date: 2008-03-03 08:00+0300\n"
+"POT-Creation-Date: 2008-03-09 08:39+0300\n"
+"PO-Revision-Date: 2008-03-09 08:39+0300\n"
 "Last-Translator: Ilkka Tuohela <hile@iki.fi>\n"
 "Language-Team: Finnish <gnome-fi-laatu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -522,28 +523,28 @@ msgstr "%s: virheellisiä argumentteja"
 msgid "%s: file %s not found"
 msgstr "%s: tiedostoa %s ei löydy"
 
-#: ../src/trackerd/trackerd.c:146
+#: ../src/trackerd/trackerd.c:150
 msgid "Directory to exclude from indexing"
 msgstr "Indeksoitaessa ohitettava kansio"
 
-#: ../src/trackerd/trackerd.c:146 ../src/trackerd/trackerd.c:147
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:152
 msgid "/PATH/DIR"
 msgstr "/POLKU/KANSIO"
 
-#: ../src/trackerd/trackerd.c:147
+#: ../src/trackerd/trackerd.c:151
 msgid "Directory to include in indexing"
 msgstr "Indeksoitavaksi liitettävä kansio"
 
-#: ../src/trackerd/trackerd.c:148
+#: ../src/trackerd/trackerd.c:152
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Käynnistettäessä indeksointia varten läpikäytävä kansio"
 
-#: ../src/trackerd/trackerd.c:149
+#: ../src/trackerd/trackerd.c:153
 msgid "Disable any indexing or watching taking place"
 msgstr "Poista kaikki indeksointi ja tarkkailu käytöstä"
 
-#: ../src/trackerd/trackerd.c:150
+#: ../src/trackerd/trackerd.c:154
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -552,11 +553,11 @@ msgstr ""
 "arvoja ovat 0 (näyttää/kirjoittaa lokiin vain virheet), 1 (minimaalinen), 2 "
 "(yksityiskohtainen), ja 3 (virheenjäljitys)"
 
-#: ../src/trackerd/trackerd.c:150 ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:154 ../src/trackerd/trackerd.c:155
 msgid "VALUE"
 msgstr "ARVO"
 
-#: ../src/trackerd/trackerd.c:151
+#: ../src/trackerd/trackerd.c:155
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
@@ -564,44 +565,44 @@ msgstr ""
 "Arvo jota käytetään indeksoinnin nopeuden säätelyyn. Arvon tulee olla "
 "välillä 0-99 (oletus 0), pienempien arvojen lisätessä indeksointinopeutta"
 
-#: ../src/trackerd/trackerd.c:152
+#: ../src/trackerd/trackerd.c:156
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimoi käytettävän muistin määrän, mutta voi hidastaa indeksointia"
 
-#: ../src/trackerd/trackerd.c:153
+#: ../src/trackerd/trackerd.c:157
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr "Odotusaika aluksi ennen indeksointia, sekunneissa"
 
-#: ../src/trackerd/trackerd.c:154
+#: ../src/trackerd/trackerd.c:158
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Kieli jota käytetään louhinta- ja hukkasanaluetteloihin (ISO 639-1 "
 "kaksikirjaiminen koodi)"
 
-#: ../src/trackerd/trackerd.c:154
+#: ../src/trackerd/trackerd.c:158
 msgid "LANG"
 msgstr "KIELI"
 
-#: ../src/trackerd/trackerd.c:155
+#: ../src/trackerd/trackerd.c:159
 msgid "Force a re-index of all content"
 msgstr "Pakota kaiken sisällön uudelleenindeksointi"
 
-#: ../src/trackerd/trackerd.c:156
+#: ../src/trackerd/trackerd.c:160
 msgid "Make tracker errors fatal"
 msgstr "Tee trackerin virheistä kriittisiä"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2532
+#: ../src/trackerd/trackerd.c:2434
 msgid "- start the tracker daemon"
 msgstr "- käynnistä tracker-seurantapalvelin"
 
-#: ../src/trackerd/trackerd.c:2533 ../src/trackerd/trackerd.c:2534
+#: ../src/trackerd/trackerd.c:2435 ../src/trackerd/trackerd.c:2436
 msgid "DIRECTORY"
 msgstr "KANSIO"
 
-#: ../src/trackerd/trackerd.c:2541
+#: ../src/trackerd/trackerd.c:2443
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -662,8 +663,8 @@ msgstr "Indeksoidaanko tietokone uudestaan?"
 
 #: ../src/tracker-applet/tracker-applet.c:742
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
-msgstr "Indeksointi voi kestää pitkään. Haluatko varmasti indeksoida "
-"uudestaan?"
+msgstr ""
+"Indeksointi voi kestää pitkään. Haluatko varmasti indeksoida uudestaan?"
 
 #: ../src/tracker-applet/tracker-applet.c:775
 msgid "_Pause All Indexing"
@@ -705,7 +706,7 @@ msgstr "Tilastot"
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Indeksointitilastot</span>"
 
-#: ../src/tracker-applet/tracker-applet.c:1549
+#: ../src/tracker-applet/tracker-applet.c:1550
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -717,7 +718,7 @@ msgstr ""
 "on sen määritellyt; voit halutessasi käyttää lisenssin versiota 2 taikka "
 "mitä tahansa tämän jälkeen ilmestynyttä versiota."
 
-#: ../src/tracker-applet/tracker-applet.c:1553
+#: ../src/tracker-applet/tracker-applet.c:1554
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
@@ -729,7 +730,7 @@ msgstr ""
 "SOVELTUMISESTA TIETTYYN ERITYISEEN TARKOITUKSEEN. Yksityiskohtien osalta "
 "katso GNU:n GPL-lisenssiä."
 
-#: ../src/tracker-applet/tracker-applet.c:1557
+#: ../src/tracker-applet/tracker-applet.c:1558
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
@@ -739,7 +740,7 @@ msgstr ""
 "jos et sitä saanut, niin lähetä kirje Free Software Foundation, Inc. :lle, "
 "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
 
-#: ../src/tracker-applet/tracker-applet.c:1572
+#: ../src/tracker-applet/tracker-applet.c:1573
 msgid ""
 "Tracker is a tool designed to extract info and metadata about your personal "
 "data so that it can be searched easily and quickly"
@@ -747,7 +748,7 @@ msgstr ""
 "Tracker on työkalu, joka on suunniteltu erottamaan tietoja ja metatietoja "
 "henkilökohtaisista tiedostoistasi, jotta niitä hakea helposti ja nopeasti"
 
-#: ../src/tracker-applet/tracker-applet.c:1573
+#: ../src/tracker-applet/tracker-applet.c:1574
 msgid "Copyright © 2005-2008 The Tracker authors"
 msgstr "Tekijänoikeudet © 2005-2008 Trackerin tekijät"
 
@@ -755,7 +756,7 @@ msgstr "Tekijänoikeudet © 2005-2008 Trackerin tekijät"
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-applet/tracker-applet.c:1583
+#: ../src/tracker-applet/tracker-applet.c:1584
 msgid "translator-credits"
 msgstr ""
 "Timo Jyrinki, 2007-2008.\n"
@@ -763,16 +764,16 @@ msgstr ""
 "\n"
 "http://gnome.fi/"
 
-#: ../src/tracker-applet/tracker-applet.c:1586
+#: ../src/tracker-applet/tracker-applet.c:1587
 msgid "Tracker Web Site"
 msgstr "Tracker-WWW-sivusto"
 
-#: ../src/tracker-applet/tracker-applet.c:1913 ../trackerd.desktop.in.in.h:1
+#: ../src/tracker-applet/tracker-applet.c:1914 ../trackerd.desktop.in.in.h:1
 msgid "Tracker"
 msgstr "Tracker"
 
 #. set translatable strings here
-#: ../src/tracker-applet/tracker-applet.c:1918
+#: ../src/tracker-applet/tracker-applet.c:1919
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
@@ -780,7 +781,7 @@ msgstr ""
 "Tietokone indeksoidaan, jotta tiedostoista ja sähköposteista voidaan tehdä "
 "nopeita hakuja"
 
-#: ../src/tracker-applet/tracker-applet.c:1919
+#: ../src/tracker-applet/tracker-applet.c:1920
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
@@ -788,82 +789,126 @@ msgstr ""
 "Indeksoinnin voi pysäyttää milloin vain, ja indeksointiasetuksia voi muuttaa "
 "napsauttamalla oikealla hiiren painikkeella"
 
-#: ../src/tracker-applet/tracker-applet.c:1921
+#: ../src/tracker-applet/tracker-applet.c:1922
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker on nyt indeksoinut järjestelmän"
 
-#: ../src/tracker-applet/tracker-applet.c:1922
+#: ../src/tracker-applet/tracker-applet.c:1923
 #, c-format
 msgid " in %d hours and %d minutes"
 msgstr " %d tuntia ja %d minuuttia"
 
-#: ../src/tracker-applet/tracker-applet.c:1923
+#: ../src/tracker-applet/tracker-applet.c:1924
 #, c-format
 msgid " in %d minutes and %d seconds"
 msgstr " %d minuuttia ja %d sekuntia"
 
-#: ../src/tracker-applet/tracker-applet.c:1924
+#: ../src/tracker-applet/tracker-applet.c:1925
 #, c-format
 msgid " in %d seconds"
 msgstr " %d sekuntia"
 
-#: ../src/tracker-applet/tracker-applet.c:1925
+#: ../src/tracker-applet/tracker-applet.c:1926
 msgid "You can now perform searches by clicking here"
 msgstr "Voit tehdä hakuja napsauttamalla tästä"
 
-#: ../src/tracker-applet/tracker-applet.c:1928
+#: ../src/tracker-applet/tracker-applet.c:1929
 msgid "Files:"
 msgstr "Tiedostot:"
 
-#: ../src/tracker-applet/tracker-applet.c:1929
+#: ../src/tracker-applet/tracker-applet.c:1930
 msgid "    Folders:"
 msgstr "    Kansiot:"
 
-#: ../src/tracker-applet/tracker-applet.c:1930
+#: ../src/tracker-applet/tracker-applet.c:1931
 msgid "    Documents:"
 msgstr "    Asiakirjat:"
 
-#: ../src/tracker-applet/tracker-applet.c:1931
+#: ../src/tracker-applet/tracker-applet.c:1932
 msgid "    Images:"
 msgstr "    Kuvat:"
 
-#: ../src/tracker-applet/tracker-applet.c:1932
+#: ../src/tracker-applet/tracker-applet.c:1933
 msgid "    Music:"
 msgstr "    Musiikki:"
 
-#: ../src/tracker-applet/tracker-applet.c:1933
+#: ../src/tracker-applet/tracker-applet.c:1934
 msgid "    Videos:"
 msgstr "    Videot:"
 
-#: ../src/tracker-applet/tracker-applet.c:1934
+#: ../src/tracker-applet/tracker-applet.c:1935
 msgid "    Text:"
 msgstr "    Teksti:"
 
-#: ../src/tracker-applet/tracker-applet.c:1935
+#: ../src/tracker-applet/tracker-applet.c:1936
 msgid "    Development:"
 msgstr "    Kehitys:"
 
-#: ../src/tracker-applet/tracker-applet.c:1936
+#: ../src/tracker-applet/tracker-applet.c:1937
 msgid "    Other:"
 msgstr "    Muu:"
 
-#: ../src/tracker-applet/tracker-applet.c:1937
+#: ../src/tracker-applet/tracker-applet.c:1938
 msgid "Applications:"
 msgstr "Sovellukset:"
 
-#: ../src/tracker-applet/tracker-applet.c:1938
+#: ../src/tracker-applet/tracker-applet.c:1939
 msgid "Conversations:"
 msgstr "Keskustelut:"
 
-#: ../src/tracker-applet/tracker-applet.c:1939
+#: ../src/tracker-applet/tracker-applet.c:1940
 msgid "Emails:"
 msgstr "Sähköpostit"
 
-#: ../src/tracker-preferences/tracker-preferences.c:899
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
+msgid "<b>Animation</b>"
+msgstr "<b>Animaatio</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
+msgid "<b>Smart Pausing</b>"
+msgstr "<b>Älykäs pysäytys</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
+msgid "<b>Visibility</b>"
+msgstr "<b>Näkyvyys</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
+msgid "Animate _icon when indexing"
+msgstr "Animoi _kuvake indeksointaessa"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
+msgid "Applet Preferences"
+msgstr "Sovelman asetukset"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
+msgid ""
+"Automatically _pause if indexing may degrade performance of other "
+"applications in active use"
+msgstr ""
+"K_eskeytä automaattisesti, jos indeksointi saattaisi vaikuttaa muiden "
+"käytössä olevien ohjelmien suorituskykyyn"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
+msgid "_Automatically pause all indexing when computer is in active use"
+msgstr "Keskeytä indeksointi _automaattisesti tietokoneen ollessa käytössä"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
+msgid "_Hide Icon (except when displaying messages to user)"
+msgstr "P_iiilota kuvake (paitsi näytettäessä viestejä käyttäjälle)"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
+msgid "_Off"
+msgstr "Ei _käytössä"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:10
+msgid "gtk-close"
+msgstr "gtk-close"
+
+#: ../src/tracker-preferences/tracker-preferences.c:808
 msgid "Data must be reindexed"
 msgstr "Tiedot tulee indeksoida uudelleen"
 
-#: ../src/tracker-preferences/tracker-preferences.c:900
+#: ../src/tracker-preferences/tracker-preferences.c:809
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
@@ -874,15 +919,15 @@ msgstr ""
 "Muussa tapauksessa tämä suoritetaan kun Tracker-palvelu käynnistetään "
 "seuraavan kerran uudelleen."
 
-#: ../src/tracker-preferences/tracker-preferences.c:907
+#: ../src/tracker-preferences/tracker-preferences.c:816
 msgid "_Reindex"
 msgstr "_Indeksoi uudelleen"
 
-#: ../src/tracker-preferences/tracker-preferences.c:910
+#: ../src/tracker-preferences/tracker-preferences.c:819
 msgid "Tracker daemon must be restarted"
 msgstr "Tracker-palvelu tulee käynnistää uudelleen"
 
-#: ../src/tracker-preferences/tracker-preferences.c:912
+#: ../src/tracker-preferences/tracker-preferences.c:821
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
@@ -891,7 +936,7 @@ msgstr ""
 "uudelleen. Napsauta Käynnistä uudelleen -painiketta käynnistääksesi palvelun "
 "uudelleen nyt."
 
-#: ../src/tracker-preferences/tracker-preferences.c:917
+#: ../src/tracker-preferences/tracker-preferences.c:826
 msgid "_Restart"
 msgstr "_Käynnistä uudelleen"
 
@@ -1456,9 +1501,6 @@ msgstr "Haku- ja indeksointipalvelu"
 
 #~ msgid "S_mart Pause"
 #~ msgstr "Ä_lykäs pysäytys"
-
-#~ msgid "A_nimate when indexing"
-#~ msgstr "Näytä animaatio _indeksointaessa"
 
 #~ msgid "Auto _hide"
 #~ msgstr "_Piilota automaattisesti"
