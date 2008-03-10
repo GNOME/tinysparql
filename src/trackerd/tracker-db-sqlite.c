@@ -43,6 +43,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-config.h>
 
 #include "tracker-db-sqlite.h"

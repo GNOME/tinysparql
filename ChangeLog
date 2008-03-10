@@ -1,9 +1,17 @@
 2008-03-10  Martyn Russell  <martyn@imendio.com>
 
-	* src/trackerd/tracker-indexer.c:
-	* src/trackerd/tracker-utils.c: Fix missing
-	libtracker-common/tracker-config.h dependency and clean up
-	function which requires it. 
+	* src/trackerd/tracker-cache.c:
+	* src/trackerd/tracker-db-sqlite.c:
+	* src/trackerd/tracker-db.c:
+	* src/trackerd/tracker-dbus-methods.c:
+	* src/trackerd/tracker-dbus-search.c:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/tracker-email-evolution.c:
+	* src/trackerd/tracker-email-thunderbird.c:
+	* src/trackerd/tracker-email-utils.c:
+	* src/trackerd/tracker-utils.h: Fix missing
+	libtracker-common/tracker-config.h and
+	libtracker-common/tracker-log.h dependencies which requires it.  
 
 2008-03-10  Martyn Russell  <martyn@imendio.com>
 

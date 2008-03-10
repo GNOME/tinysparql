@@ -24,6 +24,7 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-config.h>
+#include <libtracker-common/tracker-log.h>
 
 #include "tracker-utils.h"
 #include "tracker-dbus.h"

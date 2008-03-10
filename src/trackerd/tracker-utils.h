@@ -488,12 +488,6 @@ typedef struct {
 
 } FileInfo;
 
-
-void	tracker_error 	(const char *message, ...);
-void 	tracker_log 	(const char *message, ...);
-void	tracker_info	(const char *message, ...);
-void	tracker_debug 	(const char *message, ...);
-
 ServiceDef *	tracker_get_service 			(const char *service);
 int		tracker_get_id_for_service 		(const char *service);
 int		tracker_get_id_for_parent_service 	(const char *service);
