@@ -35,6 +35,7 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-log.h>
+#include <libtracker-common/tracker-config.h>
 
 #include "tracker-indexer.h"
 #include "tracker-cache.h"
@@ -168,29 +169,24 @@ tracker_index_free_hit_list (GSList *hit_list)
 static int
 get_preferred_bucket_count (Indexer *indexer)
 {
-	int result;
+	gint result;
         gint bucket_ratio;
 
         bucket_ratio = tracker_config_get_bucket_ratio (tracker->config);
+        result = dprnum (indexer->word_index);
 
 	if (bucket_ratio < 1) {
-
-		result = (dprnum (indexer->word_index)/2);
-
+		result /= 2;
 	} else if (bucket_ratio > 3) {
-
-		result = (dprnum (indexer->word_index) * 4);
-
+		result *= 4;
 	} else {
-
-		result = (bucket_ratio * dprnum (indexer->word_index));
+		result *= bucket_ratio;
 	}
 
 	tracker_log ("Preferred bucket count is %d", result);
 
 	return  result;
 }
-
 
 gboolean
 tracker_indexer_repair (const char *name)
