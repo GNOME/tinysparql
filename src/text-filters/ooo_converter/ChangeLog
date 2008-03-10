@@ -1,3 +1,4 @@
+080310	Fixed compiler warnings.
 
 050107	Added range check to parse_html().
 

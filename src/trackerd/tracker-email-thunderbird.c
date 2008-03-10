@@ -82,7 +82,6 @@ static void     start_element_handler           (GMarkupParseContext *context, c
 static void     end_element_handler             (GMarkupParseContext *context, const gchar *element_name,
                                                  gpointer user_data,  GError **error);
 static glong    get_date_from_string            (const gchar *date_string);
-static gboolean get_boolean_from_string         (const gchar *boolean_string);
 static void     free_parser_data                (gpointer user_data);
 
 

@@ -64,7 +64,7 @@ static struct {
 	{NULL, 0}
 };
 
-/* convert Auml to Ä and #33 to ! */
+/* convert Auml to Ã„ and #33 to ! */
 static int from_cchar(char *from)
 {
 	int i;
@@ -350,7 +350,7 @@ hnode *parse_html(int (*getc_cb)(void *), void *closure)
 				error = 1;
 				state = END;
 			} else {
-				if (m+1 < sizeof t) t[m++] = c;
+				if (m+1 < (int) sizeof t) t[m++] = c;
 			}
 			break;
 		default:

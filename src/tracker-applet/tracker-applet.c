@@ -736,8 +736,6 @@ reindex (GtkMenuItem *item, TrayIcon *icon)
 	gchar *primary;
 	gchar *secondary;
 
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-	
 	primary = g_strdup (_("Re-index your system?"));
 	secondary = g_strdup (_("Indexing can take a long time. Are you sure you want to re-index?"));
 

@@ -185,7 +185,7 @@ string_replace (const gchar * haystack, gchar * needle, gchar * replacement)
 	str = g_string_new ("");
 	needle_len = g_utf8_strlen(needle, -1);
 
-	while (end_pos = strstr (start_pos, needle)) {
+	while ((end_pos = strstr (start_pos, needle)) != NULL) {
 		str = g_string_append_len (str, start_pos, start_pos - end_pos);
 		if (replacement) {
 			str = g_string_append (str, replacement);

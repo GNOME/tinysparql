@@ -970,33 +970,6 @@ _int_to_label (GtkWidget *label, const char *prop, const char *string)
 	g_free (format);	
 }
 
-
-static char *
-date_to_str (gint32 date_time)
-{
-	char  		buffer[30];
-	time_t 		time_stamp;
-	struct tm 	loctime;
-	size_t		count;
-
-	memset (buffer, '\0', sizeof (buffer));
-	memset (&loctime, 0, sizeof (struct tm));
-
-	time_stamp = (time_t) date_time;
-
-	localtime_r (&time_stamp, &loctime);
-
-	/* output is ISO 8160 format : "YYYY-MM-DDThh:mm:ss+zz:zz" */
-	count = strftime (buffer, sizeof (buffer), "%FT%T%z", &loctime);
-
-	if (count > 0) {
-		return g_strdup (buffer);
-	} else {
-		return NULL;
-	}
-}
-
-
 /* Converts ISO date to something human readable */
 static gboolean
 get_time_from_iso (const char *iso, GDate *val)

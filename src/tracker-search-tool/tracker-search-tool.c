@@ -222,22 +222,6 @@ static const char * GSearchUiDescription =
 "  </popup>"
 "</ui>";
 
-static const char * MenuDesc =
-"<ui>"
-"  <menubar>"
-"    <menu name='FileMenu' action='FileMenuAction'>"
-"      <menuitem action='SaveResultsAs' />"
-"    </menu>"
-"    <menu name='EditMenu' action='FileMenuAction'>"
-"      <menuitem action='SaveResultsAs' />"
-"    </menu>"
-"    <menu name='HelpMenu' action='HelpMenuAction'>"
-"      <menuitem action='AboutAction' />"
-"    </menu>"
-"  </menubar>"
-"</ui>";
-
-
 static void set_snippet (gchar * snippet, GError *error, gpointer user_data);
 
 static void
@@ -2185,30 +2169,6 @@ tracker_search_setup_gconf_notifications (GSearchWindow * gsearch)
 	                             gsearch);
 
 	g_free (click_to_activate_pref);
-}
-
-static gboolean
-tracker_search_select_service_type_by_string (GtkComboBox * combo,
-					      gchar * service)
-{
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	gchar *current_value;
-	
-	model = gtk_combo_box_get_model (combo);
-	if (!gtk_tree_model_get_iter_first (model, &iter)) {
-		return FALSE;
-	}
-
-	do {
-		gtk_tree_model_get (model, &iter, 1, &current_value, -1);
-		if (!strcmp (service, current_value)) {
-			gtk_combo_box_set_active_iter (combo, &iter);
-			return TRUE;
-		}
-	} while (gtk_tree_model_iter_next (model, &iter));
-
-	return FALSE;
 }
 
 gchar *

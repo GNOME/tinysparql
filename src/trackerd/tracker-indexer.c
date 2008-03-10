@@ -17,10 +17,22 @@
  * Boston, MA  02110-1301, USA.
  */
 
+
+/* Needed before including math.h for lrintf() */
+#define _ISOC9X_SOURCE   1
+#define _ISOC99_SOURCE   1
+
+#define __USE_ISOC9X     1
+#define __USE_ISOC99     1
+
+/* Size of free block pool of inverted index */
+#define INDEXFBP         32     
 #define SCORE_MULTIPLIER 100000
-#define INDEXFBP        32               /* size of free block pool of inverted index */
-#define CREATE_INDEX "CREATE TABLE HitIndex (Word Text not null unique, HitCount Integer, HitArraySize Integer, HitArray Blob);"
 #define MAX_HIT_BUFFER 480000
+
+#define CREATE_INDEX                                                      \
+        "CREATE TABLE HitIndex (Word Text not null "                      \
+        "unique, HitCount Integer, HitArraySize Integer, HitArray Blob);"
 
 #include <stdlib.h>
 #include <stdio.h>

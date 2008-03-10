@@ -86,7 +86,7 @@ tracker_keyword_store_drag_data_get (GtkTreeDragSource   	*drag_source,
 				     GtkTreePath		*path,
 				     GtkSelectionData	        *data)
 {
-	guchar *keyword;
+	gchar *keyword;
 	GtkTreeIter iter;
 	TrackerKeywordStore *store;
 
@@ -98,9 +98,7 @@ tracker_keyword_store_drag_data_get (GtkTreeDragSource   	*drag_source,
 
 	gtk_tree_model_get (GTK_TREE_MODEL(store), &iter, TRACKER_KEYWORD_STORE_KEYWORD, &keyword, -1);
 
-	gtk_selection_data_set (data, data->target, 8,
-				keyword,
-				strlen (keyword));
+	gtk_selection_data_set_text (data, keyword, strlen (keyword));
 	g_free (keyword);
 	return TRUE;
 }

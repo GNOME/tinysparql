@@ -190,16 +190,6 @@ get_update_count (DBConnection *db_con)
 	return count;
 }
 
-
-static void
-set_update_count (DBConnection *db_con, gint count)
-{
-	gchar *str_count = tracker_int_to_str (count);
-	tracker_exec_proc (db_con, "SetUpdateCount", 1, str_count);
-	g_free (str_count);
-}
-
-
 #ifdef HAVE_HAL
 
 static void

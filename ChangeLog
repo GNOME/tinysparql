@@ -1,5 +1,22 @@
 2008-03-10  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-common/tracker-configuration.c: (string_replace):
+	* src/libtracker-gtk/tracker-keyword-store.c:
+	(tracker_keyword_store_drag_data_get):
+	* src/libtracker-gtk/tracker-metadata-tile.c: (_int_to_label):
+	* src/qdbm/myconf.c: (_qdbm_mmap):
+	* src/text-filters/ooo_converter/ChangeLog:
+	* src/text-filters/ooo_converter/o3read.c:
+	* src/tracker-applet/tracker-applet.c: (reindex):
+	* src/tracker-search-tool/tracker-search-tool.c:
+	* src/trackerd/tracker-email-thunderbird.c:
+	* src/trackerd/tracker-indexer.c:
+	* src/trackerd/trackerd.c: (get_update_count): Fixed all warnings
+	generated when building the tracker project with the exception of
+	xdgmime which is imported. This fixes bug #520789.
+
+2008-03-10  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-cache.c:
 	* src/trackerd/tracker-db-sqlite.c:
 	* src/trackerd/tracker-db.c:
@@ -24,6 +41,33 @@
 
 	* Fix for possible email crasher
 
+
+2008-03-06  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-configuration.c: 
+	* src/qdbm/myconf.c:
+	* src/text-filters/ooo_converter/o3read.c: 
+	* src/tracker-applet/tracker-applet.c: Fixed compiler warnings.
+
+	* src/libtracker-gtk/tracker-keyword-store.c:
+	(tracker_keyword_store_drag_data_get): Change
+	gtk_selection_data_set() to gtk_selection_data_set_text() instead,
+	saves us casting to a guchar pointer.
+	
+	* src/libtracker-gtk/tracker-metadata-tile.c: Removed unused
+	date_to_str() function. 
+	
+	* src/tracker-search-tool/tracker-search-tool.c: Removed unused
+	tracker_search_select_service_type_by_string() function.
+	
+	* src/trackerd/tracker-email-thunderbird.c: Remove unused
+	get_boolean_from_string() function.
+	
+	* src/trackerd/tracker-indexer.c: Include ISO definitions before
+	including math.h so we don't get warnings about lrintf() usage.
+	
+	* src/trackerd/trackerd.c: Removed unused set_update_count()
+	function. 
 
 2008-03-06  Martyn Russell  <martyn@imendio.com>
 
