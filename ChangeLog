@@ -1,3 +1,10 @@
+2008-03-10  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-log.c: (tracker_log_term):
+	* src/libtracker-common/tracker-log.h:
+	* src/trackerd/trackerd.c: Remove the dependency on tracker-config
+	by the tracker-log module.
+
 2008-03-07 Jamie McCracken <jamiemcc at gnome org>
 
 	* Fix for possible email crasher

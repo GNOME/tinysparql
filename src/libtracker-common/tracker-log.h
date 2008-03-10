@@ -24,16 +24,12 @@
 
 #include <glib.h>
 
-#include "tracker-config.h"
-
 G_BEGIN_DECLS
 
-void     tracker_log_init               (TrackerConfig *config,
-                                         const char    *filename,
+void     tracker_log_init               (const char    *filename,
+					 gint           verbosity, 
                                          gboolean       abort_on_error);
 void     tracker_log_term               (void);
-void     tracker_log_set_abort_on_error (gboolean       abort);
-gboolean tracker_log_get_abort_on_error (void);
 void     tracker_log                    (const char    *message,
                                          ...);
 void     tracker_info                   (const char    *message,

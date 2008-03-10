@@ -2497,7 +2497,9 @@ main (gint argc, gchar *argv[])
 	log_filename = g_build_filename (tracker->root_dir, "tracker.log", NULL);
 	tracker_unlink (log_filename);
 
-	tracker_log_init (tracker->config, log_filename, fatal_errors);
+	tracker_log_init (log_filename, 
+                          tracker_config_get_verbosity (tracker->config), 
+                          fatal_errors);
 	tracker_log ("Starting log");
 
         /* Set up the DBus IPC */

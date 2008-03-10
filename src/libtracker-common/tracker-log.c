@@ -41,12 +41,10 @@
 #include "tracker-log.h"
 
 typedef struct {
-	TrackerConfig *config;
-
-	gchar         *filename;
-
-	GMutex        *mutex;
-	gboolean       abort_on_error;
+	GMutex   *mutex;
+	gchar    *filename;
+	gint      verbosity;
+	gboolean  abort_on_error;
 } TrackerLog;
 
 static TrackerLog *log = NULL;
@@ -106,16 +104,15 @@ log_output (const char *message)
 }
 
 void
-tracker_log_init (TrackerConfig *config,
-		  const gchar   *filename, 
+tracker_log_init (const gchar   *filename, 
+		  gint           verbosity,
                   gboolean       abort_on_error) 
 {
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
 	g_return_if_fail (filename != NULL);
 	
 	log = g_new0 (TrackerLog, 1);
 
-	log->config = g_object_ref (config);
+	log->verbosity = verbosity;
 
 	log->filename = g_strdup (filename);
 
@@ -131,25 +128,7 @@ tracker_log_term (void)
 	g_mutex_free (log->mutex);
 	g_free (log->filename);
 
-	g_object_unref (log->config);
-
 	g_free (log);
-}
-
-void 
-tracker_log_set_abort_on_error (gboolean abort) 
-{
-	g_return_if_fail (log != NULL);
-
-	log->abort_on_error = abort;
-}
-
-gboolean
-tracker_log_get_abort_on_error (void) 
-{
-	g_return_val_if_fail (log != NULL, FALSE);
-
-	return log->abort_on_error;
 }
 
 void
@@ -160,7 +139,7 @@ tracker_log (const char *message, ...)
 
 	g_return_if_fail (log != NULL);
 
-	if (tracker_config_get_verbosity (log->config) < 1) {
+	if (log->verbosity < 1) {
 		return;
 	}
 
@@ -180,7 +159,7 @@ tracker_info (const char *message, ...)
 
 	g_return_if_fail (log != NULL);
 
-	if (tracker_config_get_verbosity (log->config) < 2) {
+	if (log->verbosity < 2) {
 		return;
 	}
 
@@ -200,7 +179,7 @@ tracker_debug (const char *message, ...)
 
 	g_return_if_fail (log != NULL);
 
-	if (tracker_config_get_verbosity (log->config) < 3) {
+	if (log->verbosity < 3) {
 		return;
 	}
 
