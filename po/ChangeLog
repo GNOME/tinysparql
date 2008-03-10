@@ -1,3 +1,8 @@
+2008-03-10  Alexander Nyakhaychyk  <nab@mail.by>
+
+	* be.po: Added Belarusian Translation.
+	* LINGUAS: Added Belarusian Translation.
+
 2008-03-09  Philip Withnall  <pwithnall@svn.gnome.org>
 
 	* en_GB.po: Updated British English translation.
