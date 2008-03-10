@@ -1,8 +1,9 @@
 2008-03-10  Martyn Russell  <martyn@imendio.com>
 
-	* src/trackerd/tracker-indexer.c: Fix missing
+	* src/trackerd/tracker-indexer.c:
+	* src/trackerd/tracker-utils.c: Fix missing
 	libtracker-common/tracker-config.h dependency and clean up
-	function which requires it.
+	function which requires it. 
 
 2008-03-10  Martyn Russell  <martyn@imendio.com>
 

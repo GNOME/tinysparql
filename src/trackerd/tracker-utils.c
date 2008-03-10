@@ -51,6 +51,7 @@
 #include <glib/gpattern.h>
 
 #include <libtracker-common/tracker-log.h>
+#include <libtracker-common/tracker-config.h>
 #include "../xdgmime/xdgmime.h"
 
 #include "tracker-dbus.h"
