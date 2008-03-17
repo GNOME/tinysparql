@@ -1,3 +1,9 @@
+2008-03-17  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-log.c:
+	(tracker_log_init): Safe guard initialising the tracker log more
+	than once. Patch by Ivan Frade.
+
 2008-03-10  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-configuration.c: (string_replace):

@@ -110,6 +110,11 @@ tracker_log_init (const gchar   *filename,
 {
 	g_return_if_fail (filename != NULL);
 	
+	if (log != NULL) {
+		tracker_error ("Logger already initialized (%s)", log->filename);
+		return;
+	}
+
 	log = g_new0 (TrackerLog, 1);
 
 	log->verbosity = verbosity;
@@ -129,6 +134,9 @@ tracker_log_term (void)
 	g_free (log->filename);
 
 	g_free (log);
+
+	/* Reset the log pointer so we can re-initialise if we want */
+	log = NULL;
 }
 
 void
