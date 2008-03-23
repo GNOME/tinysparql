@@ -25,19 +25,25 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-#include <strings.h>
-#include <string.h>
 #include <time.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+
 #include <glib.h>
 #include <glib/gi18n.h>
+
 #include <X11/X.h>
 #include <gdk/gdkx.h>
 #include <gdk/gdkkeysyms.h>
+
 #include <gtk/gtk.h>
+
 #include <libnotify/notify.h>
+
 #include <dbus/dbus-glib.h>
 #include <dbus/dbus-glib-bindings.h>
+
 #include <glade/glade.h>
 
 #include "tracker-applet.h"
@@ -91,8 +97,12 @@ typedef enum {
 
 
 static char *index_icons[4] =
-	{ TRACKER_ICON, TRACKER_ICON_PAUSED, TRACKER_ICON_INDEX1,
-TRACKER_ICON_INDEX2 };
+{
+   TRACKER_ICON,
+   TRACKER_ICON_PAUSED,
+   TRACKER_ICON_INDEX1,
+   TRACKER_ICON_INDEX2
+};
 
 
 typedef struct _TrayIconPrivate {
@@ -152,18 +162,6 @@ typedef struct _TrayIconPrivate {
 	GtkWidget *btn_close;
 
 } TrayIconPrivate;
-
-static void tray_icon_class_init (TrayIconClass * klass);
-static void tray_icon_init (GTypeInstance * instance, gpointer g_class);
-static void tray_icon_clicked (GtkStatusIcon * icon, guint button,
-			       guint timestamp, gpointer data);
-static void preferences_menu_activated (GtkMenuItem * item, gpointer data);
-static void about_menu_activated (GtkMenuItem * item, gpointer data);
-static void statistics_menu_activated (GtkMenuItem * item, gpointer data);
-static void quit_menu_activated (GtkMenuItem * item, gpointer data);
-static gboolean set_icon (TrayIconPrivate * priv);
-static void set_auto_pause (TrayIcon * icon, gboolean pause);
-static void create_prefs (TrayIcon * icon);
 
 static TrayIcon *main_icon;
 
@@ -346,46 +344,85 @@ can_auto_pause (TrayIcon * icon)
 
 }
 
-static gboolean
-auto_pause_timeout (TrayIcon * icon)
-{
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	time_t t = time (NULL);
-
-	if (priv->indexer_stopped)
-		return FALSE;
-
-	if ((t >= (priv->auto_pause_last_time_event + 2))) {
-		set_auto_pause (icon, FALSE);
-		return FALSE;
-	}
-
-	dbus_g_proxy_begin_call (priv->tracker->proxy, "PromptIndexSignals",
-				 NULL, NULL, NULL, G_TYPE_INVALID);
-
-	return TRUE;
-}
-
 static void
-start_auto_pause_timer (TrayIcon * icon)
+set_tracker_icon (TrayIconPrivate * priv)
 {
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+	char *path;
+	const char *name;
 
-	if (!can_auto_pause (icon))
-		return;
+	name = index_icons[priv->index_icon];
 
-	priv->auto_pause_last_time_event = time (NULL);
+	path = g_build_filename (TRACKER_DATADIR "/tracker/icons", name,
+				 NULL);
 
-	if (!priv->auto_pause_timer_active) {
-		g_timeout_add_seconds (2, (GSourceFunc) auto_pause_timeout,
-				       icon);
-		set_auto_pause (icon, TRUE);
-
+	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
+		gtk_status_icon_set_from_file (priv->icon, path);
 	}
+
+	g_free (path);
 
 }
 
+static gboolean
+set_icon (TrayIconPrivate * priv)
+{
+
+	if (!priv->user_pause) {
+
+		if (priv->index_state == INDEX_IDLE) {
+
+			priv->animated = FALSE;
+			priv->animated_timer_active = FALSE;
+
+			if (priv->index_icon != ICON_DEFAULT) {
+				priv->index_icon = ICON_DEFAULT;
+				set_tracker_icon (priv);
+			}
+
+			return FALSE;
+		}
+
+	}
+
+
+	if (priv->user_pause || priv->auto_pause
+	    || priv->pause_state != PAUSE_NONE) {
+
+
+		if (priv->index_icon != ICON_PAUSED) {
+			priv->index_icon = ICON_PAUSED;
+			set_tracker_icon (priv);
+		}
+
+		priv->animated = FALSE;
+		priv->animated_timer_active = FALSE;
+		return FALSE;
+
+	}
+
+	if (priv->index_state != INDEX_IDLE) {
+
+		if (priv->index_icon == ICON_INDEX2 || !priv->show_animation) {
+			priv->index_icon = ICON_DEFAULT;
+		} else if (priv->index_icon != ICON_INDEX1) {
+			priv->index_icon = ICON_INDEX1;
+		} else {
+			priv->index_icon = ICON_INDEX2;
+		}
+
+		set_tracker_icon (priv);
+
+		return TRUE;
+	}
+
+
+
+	return FALSE;
+
+}
+
+static gboolean
+auto_pause_timeout (TrayIcon * icon);
 
 static void
 set_auto_pause (TrayIcon * icon, gboolean pause)
@@ -437,6 +474,45 @@ set_auto_pause (TrayIcon * icon, gboolean pause)
 
 }
 
+static gboolean
+auto_pause_timeout (TrayIcon * icon)
+{
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	time_t t = time (NULL);
+
+	if (priv->indexer_stopped)
+		return FALSE;
+
+	if ((t >= (priv->auto_pause_last_time_event + 2))) {
+		set_auto_pause (icon, FALSE);
+		return FALSE;
+	}
+
+	dbus_g_proxy_begin_call (priv->tracker->proxy, "PromptIndexSignals",
+				 NULL, NULL, NULL, G_TYPE_INVALID);
+
+	return TRUE;
+}
+
+static void
+start_auto_pause_timer (TrayIcon * icon)
+{
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	if (!can_auto_pause (icon))
+		return;
+
+	priv->auto_pause_last_time_event = time (NULL);
+
+	if (!priv->auto_pause_timer_active) {
+		g_timeout_add_seconds (2, (GSourceFunc) auto_pause_timeout,
+				       icon);
+		set_auto_pause (icon, TRUE);
+
+	}
+
+}
 
 static void
 set_user_pause (TrayIcon * icon, gboolean pause)
@@ -716,16 +792,211 @@ set_auto_pause_setting (TrayIcon * icon, AutoPauseEnum auto_pause)
 	priv->auto_pause_setting = auto_pause;
 }
 
+static void
+save_options (TrayIcon * icon)
+{
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	g_key_file_set_boolean (priv->keyfile, "Applet",
+				"AnimateWhenIndexing",
+				gtk_toggle_button_get_active
+				(GTK_TOGGLE_BUTTON (priv->chk_animate)));
+	g_key_file_set_boolean (priv->keyfile, "Applet", "AutoHideIcon",
+				gtk_toggle_button_get_active
+				(GTK_TOGGLE_BUTTON (priv->chk_show_icon)));
+	g_key_file_set_integer (priv->keyfile, "Applet", "SmartPause",
+				priv->auto_pause_setting);
+
+
+	GError *error = NULL;
+	guint length = 0;
+	char *contents = g_key_file_to_data (priv->keyfile, &length, &error);
+
+	if (error) {
+		g_error ("failed: g_key_file_to_data(): %s\n",
+			 error->message);
+
+		return;
+	}
+
+
+	g_file_set_contents (priv->filename, contents, -1, NULL);
+
+	g_free (contents);
+
+}
 
 static void
-applet_preferences_menu_activated (GtkMenuItem * item, gpointer data)
+prefs_closed (GtkWidget * widget, gpointer data)
 {
 	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (data);
 
-	create_prefs (data);
+	save_options (data);
 
-	gtk_widget_show (priv->prefs_window);
+	gtk_widget_destroy (priv->prefs_window);
 }
+
+static void
+opt_pause_off_group_changed_cb (GtkToggleButton * check_button,
+				gpointer user_data)
+{
+	if (!gtk_toggle_button_get_active (check_button))
+		return;
+
+
+
+	TrayIcon *icon = user_data;
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	const char *name = gtk_widget_get_name (GTK_WIDGET (check_button));
+
+	if (g_str_equal (name, "opt_pause_off")) {
+		priv->auto_pause_setting = AUTO_PAUSE_NONE;
+		priv->auto_pause = FALSE;
+		stop_watching_events (icon);
+		return;
+	}
+
+	if (g_str_equal (name, "opt_pause_index")) {
+
+		priv->auto_pause_setting = AUTO_PAUSE_INDEXING;
+
+		if (can_auto_pause (icon)) {
+			start_watching_events (icon);
+		} else {
+			stop_watching_events (icon);
+		}
+		return;
+	}
+
+
+	if (g_str_equal (name, "opt_pause_merge")) {
+
+		priv->auto_pause_setting = AUTO_PAUSE_MERGING;
+		if (can_auto_pause (icon)) {
+			start_watching_events (icon);
+		} else {
+			stop_watching_events (icon);
+		}
+		return;
+	}
+
+
+
+}
+
+static void
+chk_animate_toggled_cb (GtkToggleButton * check_button, gpointer user_data)
+{
+	TrayIcon *icon = user_data;
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	priv->show_animation = gtk_toggle_button_get_active (check_button);
+}
+
+static void
+chk_show_icon_toggled_cb (GtkToggleButton * check_button, gpointer user_data)
+{
+	TrayIcon *icon = user_data;
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	if (gtk_toggle_button_get_active (check_button)) {
+		priv->auto_hide = TRUE;
+		gtk_status_icon_set_visible (priv->icon, FALSE);
+	} else {
+		priv->auto_hide = FALSE;
+		if (!priv->disabled)
+			gtk_status_icon_set_visible (priv->icon, TRUE);
+	}
+
+}
+
+static void
+create_prefs (TrayIcon * icon)
+{
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	GladeXML *gxml =
+		glade_xml_new (TRACKER_DATADIR
+			       "/tracker/tracker-applet-prefs.glade", NULL,
+			       NULL);
+
+	if (gxml == NULL) {
+		g_error ("Unable to find locate tracker-applet-prefs.glade");
+		priv->prefs_window = NULL;
+		return;
+	}
+
+
+
+	priv->prefs_window = glade_xml_get_widget (gxml, "wnd_prefs");
+	gtk_widget_hide (priv->prefs_window);
+	gtk_window_set_deletable (GTK_WINDOW (priv->prefs_window), FALSE);
+
+	priv->chk_animate = glade_xml_get_widget (gxml, "chk_animate");
+	priv->chk_show_icon = glade_xml_get_widget (gxml, "chk_show_icon");
+	priv->opt_pause_off = glade_xml_get_widget (gxml, "opt_pause_off");
+	priv->opt_pause_index =
+		glade_xml_get_widget (gxml, "opt_pause_index");
+	priv->opt_pause_merge =
+		glade_xml_get_widget (gxml, "opt_pause_merge");
+	priv->btn_close = glade_xml_get_widget (gxml, "btn_close");
+
+
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->chk_animate),
+				      priv->show_animation);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->chk_show_icon),
+				      priv->auto_hide);
+
+	switch (priv->auto_pause_setting) {
+
+	case AUTO_PAUSE_NONE:
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
+					      (priv->opt_pause_off), TRUE);
+
+		break;
+
+	case AUTO_PAUSE_INDEXING:
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
+					      (priv->opt_pause_index), TRUE);
+
+
+		break;
+
+	case AUTO_PAUSE_MERGING:
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
+					      (priv->opt_pause_merge), TRUE);
+
+
+
+		break;
+
+	}
+
+
+	/* connect signal handlers */
+
+	g_signal_connect (GTK_TOGGLE_BUTTON (priv->chk_animate), "toggled",
+			  G_CALLBACK (chk_animate_toggled_cb), main_icon);
+	g_signal_connect (GTK_TOGGLE_BUTTON (priv->chk_show_icon), "toggled",
+			  G_CALLBACK (chk_show_icon_toggled_cb), main_icon);
+	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_off), "toggled",
+			  G_CALLBACK (opt_pause_off_group_changed_cb),
+			  main_icon);
+	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_index),
+			  "toggled",
+			  G_CALLBACK (opt_pause_off_group_changed_cb),
+			  main_icon);
+	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_merge),
+			  "toggled",
+			  G_CALLBACK (opt_pause_off_group_changed_cb),
+			  main_icon);
+	g_signal_connect (priv->btn_close, "clicked",
+			  G_CALLBACK (prefs_closed), main_icon);
+
+
+}
+
 
 
 
@@ -789,6 +1060,234 @@ reindex (GtkMenuItem * item, TrayIcon * icon)
 
 }
 
+static void
+applet_preferences_menu_activated (GtkMenuItem * item, gpointer data)
+{
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (data);
+
+	create_prefs (data);
+
+	gtk_widget_show (priv->prefs_window);
+}
+
+static void
+preferences_menu_activated (GtkMenuItem * item, gpointer data)
+{
+	const gchar *command = "tracker-preferences";
+
+	if (!g_spawn_command_line_async (command, NULL))
+		g_warning ("Unable to execute command: %s", command);
+}
+
+static void
+stat_window_free (GtkWidget * widget, gint arg, gpointer data)
+{
+	TrayIcon *icon = TRAY_ICON (data);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	priv->stat_window_active = FALSE;
+
+	gtk_widget_destroy (widget);
+}
+
+static void
+statistics_menu_activated (GtkMenuItem * item, gpointer data)
+{
+	TrayIcon *icon = TRAY_ICON (data);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+	int i;
+
+	GtkWidget *dialog = gtk_dialog_new_with_buttons (_("Statistics"),
+							 NULL,
+							 GTK_DIALOG_NO_SEPARATOR
+							 |
+							 GTK_DIALOG_DESTROY_WITH_PARENT,
+							 GTK_STOCK_CLOSE,
+							 GTK_RESPONSE_CLOSE,
+							 NULL);
+
+	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+	gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
+	gtk_window_set_icon_name (GTK_WINDOW (dialog), "gtk-info");
+	gtk_window_set_type_hint (GTK_WINDOW (dialog),
+				  GDK_WINDOW_TYPE_HINT_DIALOG);
+	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
+
+
+
+	GtkWidget *table = gtk_table_new (13, 2, TRUE);
+	gtk_table_set_row_spacings (GTK_TABLE (table), 4);
+	gtk_table_set_col_spacings (GTK_TABLE (table), 65);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 8);
+
+	GtkWidget *title_label = gtk_label_new (NULL);
+	gtk_label_set_markup (GTK_LABEL (title_label),
+			      _
+			      ("<span weight=\"bold\" size=\"larger\">Index statistics</span>"));
+	gtk_misc_set_alignment (GTK_MISC (title_label), 0, 0);
+	gtk_table_attach_defaults (GTK_TABLE (table), title_label, 0, 2, 0,
+				   1);
+
+	for (i = 0; i < 12; i++) {
+
+		GtkWidget *label_to_add = gtk_label_new (stat_info[i].label);
+
+		gtk_label_set_selectable (GTK_LABEL (label_to_add), TRUE);
+		gtk_misc_set_alignment (GTK_MISC (label_to_add), 0, 0);
+		gtk_table_attach_defaults (GTK_TABLE (table), label_to_add, 0,
+					   1, i + 1, i + 2);
+
+		stat_info[i].stat_label = gtk_label_new ("");
+
+		gtk_label_set_selectable (GTK_LABEL (stat_info[i].stat_label),
+					  TRUE);
+		gtk_misc_set_alignment (GTK_MISC (stat_info[i].stat_label), 0,
+					0);
+		gtk_table_attach_defaults (GTK_TABLE (table),
+					   stat_info[i].stat_label, 1, 2,
+					   i + 1, i + 2);
+
+	}
+
+	priv->stat_window_active = TRUE;
+
+	refresh_stats (icon);
+
+	GtkWidget *dialog_hbox = gtk_hbox_new (FALSE, 12);
+	GtkWidget *info_icon =
+		gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO,
+					  GTK_ICON_SIZE_DIALOG);
+	gtk_misc_set_alignment (GTK_MISC (info_icon), 0, 0);
+	gtk_container_add (GTK_CONTAINER (dialog_hbox), info_icon);
+	gtk_container_add (GTK_CONTAINER (dialog_hbox), table);
+
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox),
+			   dialog_hbox);
+
+	g_signal_connect (G_OBJECT (dialog),
+			  "response", G_CALLBACK (stat_window_free), icon);
+
+	gtk_widget_show_all (dialog);
+}
+
+static void
+open_uri (GtkWindow * parent, const char *uri)
+{
+	GtkWidget *dialog;
+	GdkScreen *screen;
+	GError *error = NULL;
+	gchar *cmdline;
+
+	screen = gtk_window_get_screen (parent);
+
+	cmdline = g_strconcat ("xdg-open ", uri, NULL);
+
+	if (gdk_spawn_command_line_on_screen (screen, cmdline, &error) ==
+	    FALSE) {
+		dialog = gtk_message_dialog_new (parent,
+						 GTK_DIALOG_DESTROY_WITH_PARENT,
+						 GTK_MESSAGE_ERROR,
+						 GTK_BUTTONS_CLOSE,
+						 error->message);
+		gtk_dialog_run (GTK_DIALOG (dialog));
+		gtk_widget_destroy (dialog);
+		g_error_free (error);
+	}
+
+	g_free (cmdline);
+}
+
+static void
+about_url_hook (GtkAboutDialog * dialog, const gchar * url, gpointer data)
+{
+	open_uri (GTK_WINDOW (dialog), url);
+}
+
+static void
+about_email_hook (GtkAboutDialog * dialog, const gchar * email, gpointer data)
+{
+	gchar *uri;
+
+	uri = g_strconcat ("mailto:", email, NULL);
+	open_uri (GTK_WINDOW (dialog), uri);
+	g_free (uri);
+}
+
+static void
+about_menu_activated (GtkMenuItem * item, gpointer data)
+{
+
+	const gchar *authors[] = {
+		"Jamie McCracken <jamiemcc at gnome.org>",
+		"Saleem Abdulrasool <compnerd at compnerd.org>"
+			"Laurent Aguerreche <laurent.aguerreche at free fr>",
+		"Luca Ferretti <elle.uca@libero.it>",
+		"Eugenio <me at eugesoftware com>",
+		"Michael Biebl <mbiebl at gmail com>",
+		"Edward Duffy <eduffy at gmail com>",
+		"Gergan Penkov <gergan at gmail com>",
+		"Deji Akingunola <dakingun gmail com>",
+		"Julien <julienc psychologie-fr org>",
+		"Tom <tpgww@onepost.net>",
+		"Samuel Cormier-Iijima <sciyoshi at gmail com>",
+		"Eskil Bylund <eskil at letterboxes org>",
+		"Ulrik Mikaelsson <ulrik mikaelsson gmail com>",
+		"tobutaz <tobutaz gmail com>",
+		"Mikkel Kamstrup Erlandsen <mikkel kamstrup gmail com>",
+		"Baptiste Mille-Mathias <baptiste.millemathias gmail com>",
+		"Richard Quirk <quirky@zoom.co.uk>",
+		"Marcus Fritzsch <fritschy at googlemail com>",
+		"Jedy Wang <Jedy Wang at Sun COM>",
+		"Anders Aagaard <aagaande at gmail com>",
+		"Fabien VALLON <fabien at sonappart net>",
+		"Jaime Frutos Morales <acidborg at gmail com>",
+		"Christoph Laimburg <christoph laimburg at rolmail net>",
+		NULL
+	};
+	const gchar *documenters[] = {
+		NULL
+	};
+	const gchar *license[] = {
+		N_("Tracker is free software; you can redistribute it and/or modify " "it under the terms of the GNU General Public License as published by " "the Free Software Foundation; either version 2 of the License, or " "(at your option) any later version."),
+		N_("Tracker is distributed in the hope that it will be useful, " "but WITHOUT ANY WARRANTY; without even the implied warranty of " "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the " "GNU General Public License for more details."),
+		N_("You should have received a copy of the GNU General Public License " "along with Tracker; if not, write to the Free Software Foundation, Inc., " "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA")
+	};
+	gchar *license_trans;
+
+	license_trans = g_strjoin ("\n\n", _(license[0]), _(license[1]),
+				   _(license[2]), NULL);
+
+	/* Make URLs and email clickable in about dialog */
+	gtk_about_dialog_set_url_hook (about_url_hook, NULL, NULL);
+	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
+
+	gtk_show_about_dialog (NULL,
+			       "version", VERSION,
+			       "comments",
+			       _
+			       ("Tracker is a tool designed to extract info and metadata about your personal data so that it can be searched easily and quickly"),
+			       "copyright",
+			       _("Copyright \xC2\xA9 2005-2008 "
+				 "The Tracker authors"), "license",
+			       license_trans, "wrap-license", TRUE, "authors",
+			       authors, "documenters", documenters,
+			       /* Translators should localize the following string
+			        * which will be displayed at the bottom of the about
+			        * box to give credit to the translator(s).
+			        */
+			       "translator-credits", _("translator-credits"),
+			       "logo-icon-name", "tracker",
+			       "website", "http://www.tracker-project.org/",
+			       "website-label", _("Tracker Web Site"), NULL);
+
+	g_free (license_trans);
+}
+
+static void
+quit_menu_activated (GtkMenuItem * item, gpointer data)
+{
+	gtk_main_quit ();
+}
 
 static void
 create_context_menu (TrayIcon * icon)
@@ -882,83 +1381,8 @@ create_context_menu (TrayIcon * icon)
 }
 
 
-static void
-set_tracker_icon (TrayIconPrivate * priv)
-{
-	char *path;
-	const char *name;
-
-	name = index_icons[priv->index_icon];
-
-	path = g_build_filename (TRACKER_DATADIR "/tracker/icons", name,
-				 NULL);
-
-	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
-		gtk_status_icon_set_from_file (priv->icon, path);
-	}
-
-	g_free (path);
-
-}
 
 
-static gboolean
-set_icon (TrayIconPrivate * priv)
-{
-
-	if (!priv->user_pause) {
-
-		if (priv->index_state == INDEX_IDLE) {
-
-			priv->animated = FALSE;
-			priv->animated_timer_active = FALSE;
-
-			if (priv->index_icon != ICON_DEFAULT) {
-				priv->index_icon = ICON_DEFAULT;
-				set_tracker_icon (priv);
-			}
-
-			return FALSE;
-		}
-
-	}
-
-
-	if (priv->user_pause || priv->auto_pause
-	    || priv->pause_state != PAUSE_NONE) {
-
-
-		if (priv->index_icon != ICON_PAUSED) {
-			priv->index_icon = ICON_PAUSED;
-			set_tracker_icon (priv);
-		}
-
-		priv->animated = FALSE;
-		priv->animated_timer_active = FALSE;
-		return FALSE;
-
-	}
-
-	if (priv->index_state != INDEX_IDLE) {
-
-		if (priv->index_icon == ICON_INDEX2 || !priv->show_animation) {
-			priv->index_icon = ICON_DEFAULT;
-		} else if (priv->index_icon != ICON_INDEX1) {
-			priv->index_icon = ICON_INDEX1;
-		} else {
-			priv->index_icon = ICON_INDEX2;
-		}
-
-		set_tracker_icon (priv);
-
-		return TRUE;
-	}
-
-
-
-	return FALSE;
-
-}
 
 
 
@@ -1279,6 +1703,18 @@ setup_dbus_connection (TrayIcon * icon)
 	return FALSE;
 }
 
+static void
+tray_icon_clicked (GtkStatusIcon * icon, guint button, guint timestamp,
+		   gpointer data)
+{
+	TrayIcon *self = TRAY_ICON (data);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
+
+
+	gtk_menu_popup (GTK_MENU (priv->menu), NULL, NULL,
+			gtk_status_icon_position_menu, icon, button,
+			timestamp);
+}
 
 static void
 tray_icon_init (GTypeInstance * instance, gpointer g_class)
@@ -1361,29 +1797,9 @@ tray_icon_show_message (TrayIcon * icon, const char *message, ...)
 }
 
 
-static void
-tray_icon_clicked (GtkStatusIcon * icon, guint button, guint timestamp,
-		   gpointer data)
-{
-	TrayIcon *self = TRAY_ICON (data);
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (self);
-
-
-	gtk_menu_popup (GTK_MENU (priv->menu), NULL, NULL,
-			gtk_status_icon_position_menu, icon, button,
-			timestamp);
-}
 
 
 
-static void
-preferences_menu_activated (GtkMenuItem * item, gpointer data)
-{
-	const gchar *command = "tracker-preferences";
-
-	if (!g_spawn_command_line_async (command, NULL))
-		g_warning ("Unable to execute command: %s", command);
-}
 
 
 
@@ -1410,16 +1826,6 @@ get_stat_value (gchar *** stat_array, const gchar * stat)
 	return NULL;
 }
 
-static void
-stat_window_free (GtkWidget * widget, gint arg, gpointer data)
-{
-	TrayIcon *icon = TRAY_ICON (data);
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	priv->stat_window_active = FALSE;
-
-	gtk_widget_destroy (widget);
-}
 
 
 static void
@@ -1481,204 +1887,11 @@ refresh_stats (TrayIcon * icon)
 }
 
 
-static void
-statistics_menu_activated (GtkMenuItem * item, gpointer data)
-{
-	TrayIcon *icon = TRAY_ICON (data);
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-	int i;
-
-	GtkWidget *dialog = gtk_dialog_new_with_buttons (_("Statistics"),
-							 NULL,
-							 GTK_DIALOG_NO_SEPARATOR
-							 |
-							 GTK_DIALOG_DESTROY_WITH_PARENT,
-							 GTK_STOCK_CLOSE,
-							 GTK_RESPONSE_CLOSE,
-							 NULL);
-
-	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
-	gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
-	gtk_window_set_icon_name (GTK_WINDOW (dialog), "gtk-info");
-	gtk_window_set_type_hint (GTK_WINDOW (dialog),
-				  GDK_WINDOW_TYPE_HINT_DIALOG);
-	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
 
 
 
-	GtkWidget *table = gtk_table_new (13, 2, TRUE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (table), 65);
-	gtk_container_set_border_width (GTK_CONTAINER (table), 8);
 
-	GtkWidget *title_label = gtk_label_new (NULL);
-	gtk_label_set_markup (GTK_LABEL (title_label),
-			      _
-			      ("<span weight=\"bold\" size=\"larger\">Index statistics</span>"));
-	gtk_misc_set_alignment (GTK_MISC (title_label), 0, 0);
-	gtk_table_attach_defaults (GTK_TABLE (table), title_label, 0, 2, 0,
-				   1);
 
-	for (i = 0; i < 12; i++) {
-
-		GtkWidget *label_to_add = gtk_label_new (stat_info[i].label);
-
-		gtk_label_set_selectable (GTK_LABEL (label_to_add), TRUE);
-		gtk_misc_set_alignment (GTK_MISC (label_to_add), 0, 0);
-		gtk_table_attach_defaults (GTK_TABLE (table), label_to_add, 0,
-					   1, i + 1, i + 2);
-
-		stat_info[i].stat_label = gtk_label_new ("");
-
-		gtk_label_set_selectable (GTK_LABEL (stat_info[i].stat_label),
-					  TRUE);
-		gtk_misc_set_alignment (GTK_MISC (stat_info[i].stat_label), 0,
-					0);
-		gtk_table_attach_defaults (GTK_TABLE (table),
-					   stat_info[i].stat_label, 1, 2,
-					   i + 1, i + 2);
-
-	}
-
-	priv->stat_window_active = TRUE;
-
-	refresh_stats (icon);
-
-	GtkWidget *dialog_hbox = gtk_hbox_new (FALSE, 12);
-	GtkWidget *info_icon =
-		gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO,
-					  GTK_ICON_SIZE_DIALOG);
-	gtk_misc_set_alignment (GTK_MISC (info_icon), 0, 0);
-	gtk_container_add (GTK_CONTAINER (dialog_hbox), info_icon);
-	gtk_container_add (GTK_CONTAINER (dialog_hbox), table);
-
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox),
-			   dialog_hbox);
-
-	g_signal_connect (G_OBJECT (dialog),
-			  "response", G_CALLBACK (stat_window_free), icon);
-
-	gtk_widget_show_all (dialog);
-}
-
-static void
-open_uri (GtkWindow * parent, const char *uri)
-{
-	GtkWidget *dialog;
-	GdkScreen *screen;
-	GError *error = NULL;
-	gchar *cmdline;
-
-	screen = gtk_window_get_screen (parent);
-
-	cmdline = g_strconcat ("xdg-open ", uri, NULL);
-
-	if (gdk_spawn_command_line_on_screen (screen, cmdline, &error) ==
-	    FALSE) {
-		dialog = gtk_message_dialog_new (parent,
-						 GTK_DIALOG_DESTROY_WITH_PARENT,
-						 GTK_MESSAGE_ERROR,
-						 GTK_BUTTONS_CLOSE,
-						 error->message);
-		gtk_dialog_run (GTK_DIALOG (dialog));
-		gtk_widget_destroy (dialog);
-		g_error_free (error);
-	}
-
-	g_free (cmdline);
-}
-
-static void
-about_url_hook (GtkAboutDialog * dialog, const gchar * url, gpointer data)
-{
-	open_uri (GTK_WINDOW (dialog), url);
-}
-
-static void
-about_email_hook (GtkAboutDialog * dialog, const gchar * email, gpointer data)
-{
-	gchar *uri;
-
-	uri = g_strconcat ("mailto:", email, NULL);
-	open_uri (GTK_WINDOW (dialog), uri);
-	g_free (uri);
-}
-
-static void
-about_menu_activated (GtkMenuItem * item, gpointer data)
-{
-
-	const gchar *authors[] = {
-		"Jamie McCracken <jamiemcc at gnome.org>",
-		"Saleem Abdulrasool <compnerd at compnerd.org>"
-			"Laurent Aguerreche <laurent.aguerreche at free fr>",
-		"Luca Ferretti <elle.uca@libero.it>",
-		"Eugenio <me at eugesoftware com>",
-		"Michael Biebl <mbiebl at gmail com>",
-		"Edward Duffy <eduffy at gmail com>",
-		"Gergan Penkov <gergan at gmail com>",
-		"Deji Akingunola <dakingun gmail com>",
-		"Julien <julienc psychologie-fr org>",
-		"Tom <tpgww@onepost.net>",
-		"Samuel Cormier-Iijima <sciyoshi at gmail com>",
-		"Eskil Bylund <eskil at letterboxes org>",
-		"Ulrik Mikaelsson <ulrik mikaelsson gmail com>",
-		"tobutaz <tobutaz gmail com>",
-		"Mikkel Kamstrup Erlandsen <mikkel kamstrup gmail com>",
-		"Baptiste Mille-Mathias <baptiste.millemathias gmail com>",
-		"Richard Quirk <quirky@zoom.co.uk>",
-		"Marcus Fritzsch <fritschy at googlemail com>",
-		"Jedy Wang <Jedy Wang at Sun COM>",
-		"Anders Aagaard <aagaande at gmail com>",
-		"Fabien VALLON <fabien at sonappart net>",
-		"Jaime Frutos Morales <acidborg at gmail com>",
-		"Christoph Laimburg <christoph laimburg at rolmail net>",
-		NULL
-	};
-	const gchar *documenters[] = {
-		NULL
-	};
-	const gchar *license[] = {
-		N_("Tracker is free software; you can redistribute it and/or modify " "it under the terms of the GNU General Public License as published by " "the Free Software Foundation; either version 2 of the License, or " "(at your option) any later version."),
-		N_("Tracker is distributed in the hope that it will be useful, " "but WITHOUT ANY WARRANTY; without even the implied warranty of " "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the " "GNU General Public License for more details."),
-		N_("You should have received a copy of the GNU General Public License " "along with Tracker; if not, write to the Free Software Foundation, Inc., " "59 Temple Place, Suite 330, Boston, MA  02111-1307  USA")
-	};
-	gchar *license_trans;
-
-	license_trans = g_strjoin ("\n\n", _(license[0]), _(license[1]),
-				   _(license[2]), NULL);
-
-	/* Make URLs and email clickable in about dialog */
-	gtk_about_dialog_set_url_hook (about_url_hook, NULL, NULL);
-	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
-
-	gtk_show_about_dialog (NULL,
-			       "version", VERSION,
-			       "comments",
-			       _
-			       ("Tracker is a tool designed to extract info and metadata about your personal data so that it can be searched easily and quickly"),
-			       "copyright",
-			       _("Copyright \xC2\xA9 2005-2008 "
-				 "The Tracker authors"), "license",
-			       license_trans, "wrap-license", TRUE, "authors",
-			       authors, "documenters", documenters,
-			       /* Translators should localize the following string
-			        * which will be displayed at the bottom of the about
-			        * box to give credit to the translator(s).
-			        */
-			       "translator-credits", _("translator-credits"),
-			       "logo-icon-name", "tracker",
-			       "website", "http://www.tracker-project.org/",
-			       "website-label", _("Tracker Web Site"), NULL);
-
-	g_free (license_trans);
-}
-
-static void
-quit_menu_activated (GtkMenuItem * item, gpointer data)
-{
-	gtk_main_quit ();
-}
 
 GType
 tray_icon_get_type (void)
@@ -1706,80 +1919,8 @@ tray_icon_get_type (void)
 }
 
 
-static void
-chk_animate_toggled_cb (GtkToggleButton * check_button, gpointer user_data)
-{
-	TrayIcon *icon = user_data;
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	priv->show_animation = gtk_toggle_button_get_active (check_button);
-}
-
-static void
-chk_show_icon_toggled_cb (GtkToggleButton * check_button, gpointer user_data)
-{
-	TrayIcon *icon = user_data;
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	if (gtk_toggle_button_get_active (check_button)) {
-		priv->auto_hide = TRUE;
-		gtk_status_icon_set_visible (priv->icon, FALSE);
-	} else {
-		priv->auto_hide = FALSE;
-		if (!priv->disabled)
-			gtk_status_icon_set_visible (priv->icon, TRUE);
-	}
-
-}
-
-static void
-opt_pause_off_group_changed_cb (GtkToggleButton * check_button,
-				gpointer user_data)
-{
-	if (!gtk_toggle_button_get_active (check_button))
-		return;
 
 
-
-	TrayIcon *icon = user_data;
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	const char *name = gtk_widget_get_name (GTK_WIDGET (check_button));
-
-	if (g_str_equal (name, "opt_pause_off")) {
-		priv->auto_pause_setting = AUTO_PAUSE_NONE;
-		priv->auto_pause = FALSE;
-		stop_watching_events (icon);
-		return;
-	}
-
-	if (g_str_equal (name, "opt_pause_index")) {
-
-		priv->auto_pause_setting = AUTO_PAUSE_INDEXING;
-
-		if (can_auto_pause (icon)) {
-			start_watching_events (icon);
-		} else {
-			stop_watching_events (icon);
-		}
-		return;
-	}
-
-
-	if (g_str_equal (name, "opt_pause_merge")) {
-
-		priv->auto_pause_setting = AUTO_PAUSE_MERGING;
-		if (can_auto_pause (icon)) {
-			start_watching_events (icon);
-		} else {
-			stop_watching_events (icon);
-		}
-		return;
-	}
-
-
-
-}
 
 
 
@@ -1895,135 +2036,8 @@ load_options (TrayIcon * icon)
 }
 
 
-static void
-save_options (TrayIcon * icon)
-{
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	g_key_file_set_boolean (priv->keyfile, "Applet",
-				"AnimateWhenIndexing",
-				gtk_toggle_button_get_active
-				(GTK_TOGGLE_BUTTON (priv->chk_animate)));
-	g_key_file_set_boolean (priv->keyfile, "Applet", "AutoHideIcon",
-				gtk_toggle_button_get_active
-				(GTK_TOGGLE_BUTTON (priv->chk_show_icon)));
-	g_key_file_set_integer (priv->keyfile, "Applet", "SmartPause",
-				priv->auto_pause_setting);
 
 
-	GError *error = NULL;
-	guint length = 0;
-	char *contents = g_key_file_to_data (priv->keyfile, &length, &error);
-
-	if (error) {
-		g_error ("failed: g_key_file_to_data(): %s\n",
-			 error->message);
-
-		return;
-	}
-
-
-	g_file_set_contents (priv->filename, contents, -1, NULL);
-
-	g_free (contents);
-
-}
-
-static void
-prefs_closed (GtkWidget * widget, gpointer data)
-{
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (data);
-
-	save_options (data);
-
-	gtk_widget_destroy (priv->prefs_window);
-}
-
-static void
-create_prefs (TrayIcon * icon)
-{
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	GladeXML *gxml =
-		glade_xml_new (TRACKER_DATADIR
-			       "/tracker/tracker-applet-prefs.glade", NULL,
-			       NULL);
-
-	if (gxml == NULL) {
-		g_error ("Unable to find locate tracker-applet-prefs.glade");
-		priv->prefs_window = NULL;
-		return;
-	}
-
-
-
-	priv->prefs_window = glade_xml_get_widget (gxml, "wnd_prefs");
-	gtk_widget_hide (priv->prefs_window);
-	gtk_window_set_deletable (GTK_WINDOW (priv->prefs_window), FALSE);
-
-	priv->chk_animate = glade_xml_get_widget (gxml, "chk_animate");
-	priv->chk_show_icon = glade_xml_get_widget (gxml, "chk_show_icon");
-	priv->opt_pause_off = glade_xml_get_widget (gxml, "opt_pause_off");
-	priv->opt_pause_index =
-		glade_xml_get_widget (gxml, "opt_pause_index");
-	priv->opt_pause_merge =
-		glade_xml_get_widget (gxml, "opt_pause_merge");
-	priv->btn_close = glade_xml_get_widget (gxml, "btn_close");
-
-
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->chk_animate),
-				      priv->show_animation);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->chk_show_icon),
-				      priv->auto_hide);
-
-	switch (priv->auto_pause_setting) {
-
-	case AUTO_PAUSE_NONE:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-					      (priv->opt_pause_off), TRUE);
-
-		break;
-
-	case AUTO_PAUSE_INDEXING:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-					      (priv->opt_pause_index), TRUE);
-
-
-		break;
-
-	case AUTO_PAUSE_MERGING:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-					      (priv->opt_pause_merge), TRUE);
-
-
-
-		break;
-
-	}
-
-
-	/* connect signal handlers */
-
-	g_signal_connect (GTK_TOGGLE_BUTTON (priv->chk_animate), "toggled",
-			  G_CALLBACK (chk_animate_toggled_cb), main_icon);
-	g_signal_connect (GTK_TOGGLE_BUTTON (priv->chk_show_icon), "toggled",
-			  G_CALLBACK (chk_show_icon_toggled_cb), main_icon);
-	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_off), "toggled",
-			  G_CALLBACK (opt_pause_off_group_changed_cb),
-			  main_icon);
-	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_index),
-			  "toggled",
-			  G_CALLBACK (opt_pause_off_group_changed_cb),
-			  main_icon);
-	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_merge),
-			  "toggled",
-			  G_CALLBACK (opt_pause_off_group_changed_cb),
-			  main_icon);
-	g_signal_connect (priv->btn_close, "clicked",
-			  G_CALLBACK (prefs_closed), main_icon);
-
-
-}
 
 int
 main (int argc, char *argv[])
