@@ -202,9 +202,6 @@ static Stat_Info stat_info[13] = {
 };
 
 
-static void refresh_stats (TrayIcon * icon);
-static inline void start_notice_events (Window window);
-
 static gboolean
 query_pointer_timeout (Window window)
 {
@@ -314,7 +311,6 @@ set_status_hint (TrayIcon * icon)
 	g_string_free (hint, TRUE);
 
 }
-
 
 static gboolean
 can_auto_pause (TrayIcon * icon)
@@ -535,61 +531,6 @@ set_user_pause (TrayIcon * icon, gboolean pause)
 
 }
 
-
-static GdkFilterReturn
-filter_x_events (GdkXEvent * xevent, GdkEvent * event, gpointer data)
-{
-	XEvent *ev;
-
-	ev = xevent;
-
-	TrayIcon *icon = data;
-
-
-	switch (ev->xany.type) {
-	case KeyPress:
-	case KeyRelease:
-	case ButtonPress:
-	case ButtonRelease:
-		start_auto_pause_timer (icon);
-		break;
-
-	case PropertyNotify:
-		if (ev->xproperty.atom ==
-		    gdk_x11_get_xatom_by_name ("_NET_WM_USER_TIME")) {
-			start_auto_pause_timer (icon);
-		}
-		break;
-
-	case CreateNotify:
-		{
-			Window window = ev->xcreatewindow.window;
-			start_notice_events (window);
-		}
-		break;
-
-	case MotionNotify:
-		if (ev->xmotion.is_hint) {
-			/* need to respond to hints so we continue to get events */
-			g_timeout_add (1000,
-				       (GSourceFunc) query_pointer_timeout,
-				       GINT_TO_POINTER (ev->xmotion.window));
-		}
-
-		start_auto_pause_timer (icon);
-		break;
-
-	default:
-		break;
-	}
-
-
-	return GDK_FILTER_CONTINUE;
-
-
-}
-
-
 static void
 notice_events_inner (Window window, gboolean enable, gboolean top)
 {
@@ -709,17 +650,69 @@ notice_events (Window window, gboolean enable)
 }
 
 static inline void
-stop_notice_events (Window window)
-{
-	notice_events (window, FALSE);
-}
-
-static inline void
 start_notice_events (Window window)
 {
 	notice_events (window, TRUE);
 }
 
+static GdkFilterReturn
+filter_x_events (GdkXEvent * xevent, GdkEvent * event, gpointer data)
+{
+	XEvent *ev;
+
+	ev = xevent;
+
+	TrayIcon *icon = data;
+
+
+	switch (ev->xany.type) {
+	case KeyPress:
+	case KeyRelease:
+	case ButtonPress:
+	case ButtonRelease:
+		start_auto_pause_timer (icon);
+		break;
+
+	case PropertyNotify:
+		if (ev->xproperty.atom ==
+		    gdk_x11_get_xatom_by_name ("_NET_WM_USER_TIME")) {
+			start_auto_pause_timer (icon);
+		}
+		break;
+
+	case CreateNotify:
+		{
+			Window window = ev->xcreatewindow.window;
+			start_notice_events (window);
+		}
+		break;
+
+	case MotionNotify:
+		if (ev->xmotion.is_hint) {
+			/* need to respond to hints so we continue to get events */
+			g_timeout_add (1000,
+				       (GSourceFunc) query_pointer_timeout,
+				       GINT_TO_POINTER (ev->xmotion.window));
+		}
+
+		start_auto_pause_timer (icon);
+		break;
+
+	default:
+		break;
+	}
+
+
+	return GDK_FILTER_CONTINUE;
+
+
+}
+
+static inline void
+stop_notice_events (Window window)
+{
+	notice_events (window, FALSE);
+}
 
 static void
 start_watching_events (TrayIcon * icon)
@@ -771,7 +764,6 @@ search_menu_activated (GtkMenuItem * item, gpointer data)
 	activate_icon (NULL, NULL);
 }
 
-
 static void
 pause_menu_toggled (GtkCheckMenuItem * item, gpointer data)
 {
@@ -781,8 +773,6 @@ pause_menu_toggled (GtkCheckMenuItem * item, gpointer data)
 			gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM
 							(item)));
 }
-
-
 
 static inline void
 set_auto_pause_setting (TrayIcon * icon, AutoPauseEnum auto_pause)
@@ -997,9 +987,6 @@ create_prefs (TrayIcon * icon)
 
 }
 
-
-
-
 static void
 restart_tracker (GtkDialog * dialog, gint response, TrayIcon * icon)
 {
@@ -1023,7 +1010,6 @@ restart_tracker (GtkDialog * dialog, gint response, TrayIcon * icon)
 
 	}
 }
-
 
 static void
 reindex (GtkMenuItem * item, TrayIcon * icon)
@@ -1088,6 +1074,82 @@ stat_window_free (GtkWidget * widget, gint arg, gpointer data)
 	priv->stat_window_active = FALSE;
 
 	gtk_widget_destroy (widget);
+}
+
+static gchar *
+get_stat_value (gchar *** stat_array, const gchar * stat)
+{
+	gchar **array;
+	gint i = 0;
+
+	while (stat_array[i][0]) {
+
+		array = stat_array[i];
+
+		if (array[0] && strcasecmp (stat, array[0]) == 0) {
+			return array[1];
+		}
+
+		i++;
+	}
+
+	return NULL;
+}
+
+static void
+update_stats (GPtrArray * array, GError * error, gpointer data)
+{
+	TrayIcon *icon = TRAY_ICON (data);
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	if (error) {
+		g_warning ("an error has occured: %s", error->message);
+		g_error_free (error);
+		priv->stat_request_pending = FALSE;
+		return;
+	}
+
+	if (!array) {
+		return;
+	}
+
+	guint i = array->len;
+
+
+	if (i < 1 || !priv->stat_window_active) {
+		g_ptr_array_free (array, TRUE);
+		return;
+	}
+
+	gchar ***pdata = (gchar ***) array->pdata;
+
+	for (i = 0; i < 12; i++) {
+		gtk_label_set_text (GTK_LABEL (stat_info[i].stat_label),
+				    get_stat_value (pdata,
+						    stat_info[i].name));
+	}
+
+	g_ptr_array_free (array, TRUE);
+
+	priv->stat_request_pending = FALSE;
+
+}
+
+static void
+refresh_stats (TrayIcon * icon)
+{
+
+	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	if (!priv->stat_window_active || priv->stat_request_pending) {
+		return;
+	}
+
+	priv->stat_request_pending = TRUE;
+
+	tracker_get_stats_async (priv->tracker,
+				 (TrackerGPtrArrayReply) update_stats, icon);
+
 }
 
 static void
@@ -1380,13 +1442,6 @@ create_context_menu (TrayIcon * icon)
 	gtk_widget_show_all (GTK_WIDGET (priv->menu));
 }
 
-
-
-
-
-
-
-
 static void
 index_finished (DBusGProxy * proxy, int time_taken, TrayIcon * icon)
 {
@@ -1415,7 +1470,6 @@ index_finished (DBusGProxy * proxy, int time_taken, TrayIcon * icon)
 	stop_watching_events (icon);
 
 }
-
 
 static void
 index_state_changed (DBusGProxy * proxy, const gchar * state,
@@ -1547,7 +1601,6 @@ index_progress_changed (DBusGProxy * proxy, const gchar * service,
 
 }
 
-
 static void
 init_settings (TrayIcon * icon)
 {
@@ -1613,8 +1666,6 @@ name_owner_changed (DBusGProxy * proxy, const gchar * name,
 
 	}
 }
-
-
 
 static gboolean
 setup_dbus_connection (TrayIcon * icon)
@@ -1743,8 +1794,6 @@ tray_icon_init (GTypeInstance * instance, gpointer g_class)
 
 }
 
-
-
 void
 tray_icon_set_tooltip (TrayIcon * icon, const gchar * format, ...)
 {
@@ -1761,8 +1810,6 @@ tray_icon_set_tooltip (TrayIcon * icon, const gchar * format, ...)
 
 	g_free (tooltip);
 }
-
-
 
 void
 tray_icon_show_message (TrayIcon * icon, const char *message, ...)
@@ -1796,103 +1843,6 @@ tray_icon_show_message (TrayIcon * icon, const char *message, ...)
 
 }
 
-
-
-
-
-
-
-
-
-
-
-static gchar *
-get_stat_value (gchar *** stat_array, const gchar * stat)
-{
-	gchar **array;
-	gint i = 0;
-
-	while (stat_array[i][0]) {
-
-		array = stat_array[i];
-
-		if (array[0] && strcasecmp (stat, array[0]) == 0) {
-			return array[1];
-		}
-
-		i++;
-	}
-
-	return NULL;
-}
-
-
-
-static void
-update_stats (GPtrArray * array, GError * error, gpointer data)
-{
-	TrayIcon *icon = TRAY_ICON (data);
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	if (error) {
-		g_warning ("an error has occured: %s", error->message);
-		g_error_free (error);
-		priv->stat_request_pending = FALSE;
-		return;
-	}
-
-	if (!array) {
-		return;
-	}
-
-	guint i = array->len;
-
-
-	if (i < 1 || !priv->stat_window_active) {
-		g_ptr_array_free (array, TRUE);
-		return;
-	}
-
-	gchar ***pdata = (gchar ***) array->pdata;
-
-	for (i = 0; i < 12; i++) {
-		gtk_label_set_text (GTK_LABEL (stat_info[i].stat_label),
-				    get_stat_value (pdata,
-						    stat_info[i].name));
-	}
-
-	g_ptr_array_free (array, TRUE);
-
-	priv->stat_request_pending = FALSE;
-
-}
-
-
-
-static void
-refresh_stats (TrayIcon * icon)
-{
-
-	TrayIconPrivate *priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	if (!priv->stat_window_active || priv->stat_request_pending) {
-		return;
-	}
-
-	priv->stat_request_pending = TRUE;
-
-	tracker_get_stats_async (priv->tracker,
-				 (TrackerGPtrArrayReply) update_stats, icon);
-
-}
-
-
-
-
-
-
-
-
 GType
 tray_icon_get_type (void)
 {
@@ -1917,13 +1867,6 @@ tray_icon_get_type (void)
 
 	return type;
 }
-
-
-
-
-
-
-
 
 static void
 load_options (TrayIcon * icon)
@@ -2034,10 +1977,6 @@ load_options (TrayIcon * icon)
 	}
 
 }
-
-
-
-
 
 int
 main (int argc, char *argv[])
