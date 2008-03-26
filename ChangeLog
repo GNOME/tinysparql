@@ -1,3 +1,14 @@
+2008-03-26  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/Makefile.am:
+	* src/trackerd/tracker-process-files.[ch]:
+	* src/trackerd/tracker-process-requests.[ch]: 
+	* src/trackerd/trackerd.c: Added these files to split out the
+	indexing functionality which was in trackerd.c. 
+	
+	* src/trackerd/tracker-utils.h: Removed two members of the Tracker
+	struct which are not used globally.
+
 2008-03-17  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-log.c:

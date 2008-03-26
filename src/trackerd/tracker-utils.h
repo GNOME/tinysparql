@@ -370,8 +370,6 @@ typedef struct {
 	GMutex		*request_stopped_mutex;
 
 	GThread 	*file_metadata_thread;
-	GThread 	*file_process_thread;
-	GThread 	*user_request_thread;
 
 	GCond 		*file_thread_signal;
 	GCond 		*metadata_thread_signal;

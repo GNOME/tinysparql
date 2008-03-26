@@ -84,6 +84,10 @@ trackerd_SOURCES =							\
 	tracker-email-kmail.h						\
 	tracker-metadata.c						\
 	tracker-metadata.h						\
+	tracker-process-files.c						\
+	tracker-process-files.h						\
+	tracker-process-requests.c					\
+	tracker-process-requests.h					\
 	tracker-rdf-query.c						\
 	tracker-rdf-query.h						\
 	tracker-utils.c							\
