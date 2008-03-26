@@ -4,7 +4,7 @@
 	* src/trackerd/tracker-process-files.[ch]:
 	* src/trackerd/tracker-process-requests.[ch]: 
 	* src/trackerd/trackerd.c: Added these files to split out the
-	indexing functionality which was in trackerd.c. 
+	indexing functionality which was in trackerd.c. Fixes bug #521803.
 	
 	* src/trackerd/tracker-utils.h: Removed two members of the Tracker
 	struct which are not used globally.
