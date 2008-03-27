@@ -1,3 +1,10 @@
+2008-03-27  Martyn Russell  <martyn@imendio.com>
+
+	* data/sqlite-stored-procs.sql:
+	* src/trackerd/tracker-dbus-files.c:
+	(tracker_dbus_method_files_get_text_contents): Implemented the
+	GetTextContents method. This fixes bug #514553.
+
 2008-03-26  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/Makefile.am:

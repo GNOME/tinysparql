@@ -70,6 +70,7 @@ SaveServiceContents REPLACE into ServiceContents (ServiceID, MetadataID, Content
 DeleteContent DELETE FROM ServiceContents where ServiceID = ? and MetadataId = ?;
 DeleteAllContents DELETE FROM ServiceContents where ServiceID = ?;
 GetContents Select uncompress (Content) from ServiceContents where ServiceID = ? and MetadataID = ? and Content is not null;
+GetFileContents Select substr(uncompress (Content), ?, ?) from ServiceContents where ServiceID = ?;
 GetAllContents Select uncompress (Content) from ServiceContents where ServiceID = ? and Content is not null;
 
 GetKeywordList Select distinct K.MetaDataValue, count(*) as totalcount from Services S, ServiceKeywordMetaData K where K.ServiceID = S.ID AND (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = ? or Parent = ?)) AND  K.MetaDataId = 19 group by K.MetaDataValue order by totalcount desc, K.MetaDataValue asc;

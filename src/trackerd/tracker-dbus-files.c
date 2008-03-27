@@ -361,8 +361,10 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 {
 	DBConnection *db_con;
 	DBusError    dbus_error;
-	char	     *uri;
+	char	     *uri, *service_id;
 	int	     offset, max_length;
+	char 	     *str_offset, *str_max_length;
+	char 	     ***res;
 
 /*
 		<!-- Get the "File.Content" field for a file and allows you to specify the offset and amount of text to retrieve  -->
@@ -389,52 +391,62 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 		return;
 	}
 
-	if (uri) {
-		char *name, *path, *str_offset, *str_max_length;
-		char ***res;
-
-		if (uri[0] == G_DIR_SEPARATOR) {
-			name = g_path_get_basename (uri);
-			path = g_path_get_dirname (uri);
-		} else {
-			name = tracker_get_vfs_name (uri);
-			path = tracker_get_vfs_path (uri);
-		}
-
-		str_offset = tracker_int_to_str (offset);
-		str_max_length = tracker_int_to_str (max_length);
-
-		res = tracker_exec_proc (db_con, "GetFileContents", 4, path, name, str_offset, str_max_length);
-
-		g_free (str_offset);
-		g_free (str_max_length);
-		g_free (path);
-		g_free (name);
-
-		if (res) {
-			char **row;
-
-			row = tracker_db_get_row (res, 0);
-
-			if (row && row[0]) {
-				DBusMessage *reply;
-				const char  *result;
-
-				result = row[0];
-
-				reply = dbus_message_new_method_return (rec->message);
-
-				dbus_message_append_args (reply,
-							  DBUS_TYPE_STRING, &result,
-							  DBUS_TYPE_INVALID);
-
-				dbus_connection_send (rec->connection, reply, NULL);
-				dbus_message_unref (reply);
-			}
-
-			tracker_db_free_result (res);
-		}
+	if (!uri) {
+		tracker_set_error (rec, "No uri was specified");
+		return;
 	}
+
+	if (offset < 0) {
+		tracker_set_error (rec, "Offset must be positive");
+		return;
+	}
+
+	if (max_length < 0) {
+		tracker_set_error (rec, "Length of content must be positive");
+		return;
+	}
+
+
+	service_id = tracker_db_get_id (db_con, "Files", uri);
+
+	if (!service_id) {
+		service_id = tracker_db_get_id (db_con, "Emails", uri);
+	}
+
+	if (!service_id) {
+		g_free (service_id);
+		tracker_set_error (rec, "Unable to retrieve serviceID for uri %s", uri);
+		return;		
+	} 
+	
+	str_offset = tracker_int_to_str (offset);
+	str_max_length = tracker_int_to_str (max_length);
+	res = tracker_exec_proc (db_con->blob, "GetFileContents", 
+				 3, str_offset, str_max_length, service_id);
+	g_free (str_offset);
+	g_free (str_max_length);
+	g_free (service_id);
+
+	const gchar *txt;
+
+	if (res && res[0][0]) {
+		txt = res[0][0];
+
+		DBusMessage *reply;
+
+		reply = dbus_message_new_method_return (rec->message);
+
+		dbus_message_append_args (reply,
+					  DBUS_TYPE_STRING, &txt,
+					  DBUS_TYPE_INVALID);
+
+		dbus_connection_send (rec->connection, reply, NULL);
+		dbus_message_unref (reply);
+		tracker_db_free_result (res);		
+	} else {
+		tracker_set_error (rec, "Contents of the URI not stored");
+	}
+	
 }
 
 
