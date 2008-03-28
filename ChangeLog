@@ -1,3 +1,7 @@
+2008-03-28  Jerry Tan <jerry.tan@sun.com>
+        * src/libtracker-common/tracker-configuration.c
+        to make it build on solaris with sunstudio
+
 2008-03-27  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-parser.c: Fix compiler warning.

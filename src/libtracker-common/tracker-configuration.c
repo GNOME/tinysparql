@@ -460,16 +460,16 @@ tracker_configuration_set_list (const gchar * const key, GType g_type, GSList * 
 {
 	switch (g_type) {
 		case G_TYPE_BOOLEAN:
-			return tracker_configuration_set_boolean_list (key, value);
+			tracker_configuration_set_boolean_list (key, value);
 			break;
 		case G_TYPE_DOUBLE:
-			return tracker_configuration_set_double_list (key, value);
+			tracker_configuration_set_double_list (key, value);
 			break;
 		case G_TYPE_INT:
-			return tracker_configuration_set_integer_list (key, value);
+			tracker_configuration_set_integer_list (key, value);
 			break;
 		case G_TYPE_STRING:
-			return tracker_configuration_set_string_list (key, value);
+			tracker_configuration_set_string_list (key, value);
 			break;
 		default:
 			g_assert_not_reached ();
