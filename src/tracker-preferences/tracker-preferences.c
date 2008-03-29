@@ -247,7 +247,7 @@ tracker_preferences_new (void)
 
 
 static void
-set_bool_option (TrackerPreferencesPrivate *priv, const char *name, gboolean value)
+set_bool_option (TrackerPreferencesPrivate *priv, const gchar *name, gboolean value)
 {
 	dbus_g_proxy_begin_call (priv->tracker_proxy,
 				 "SetBoolOption",
@@ -261,7 +261,7 @@ set_bool_option (TrackerPreferencesPrivate *priv, const char *name, gboolean val
 
 
 static void
-set_int_option (TrackerPreferencesPrivate *priv, const char *name, int value)
+set_int_option (TrackerPreferencesPrivate *priv, const gchar *name, int value)
 {
 	dbus_g_proxy_begin_call (priv->tracker_proxy,
 				 "SetIntOption",
@@ -281,7 +281,7 @@ setup_page_general (TrackerPreferences *preferences)
 		TRACKER_PREFERENCES_GET_PRIVATE (self);
 
 	gint sleep = 45;
-	char *str_value = NULL;
+	gchar *str_value = NULL;
 	gboolean value = FALSE;
 	GtkWidget *widget = NULL;
 
@@ -299,6 +299,10 @@ setup_page_general (TrackerPreferences *preferences)
 
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
 	str_value = tracker_configuration_get_string ("/Indexing/Language", NULL);
+        if (str_value == NULL) {
+                /* no value for language? Default to "en" */
+                str_value = g_strdup( "en" ) ;
+        }
 
 	gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 2);
 
@@ -575,7 +579,7 @@ tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data)
 	GSList *list_old = NULL;
 	int ivalue, ivalue_old;
 	gboolean bvalue, bvalue_old;
-	char *str_value;
+	gchar *str_value;
 
 	/* save general settings */
 	widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
@@ -605,6 +609,10 @@ tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data)
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
 	gint i = gtk_combo_box_get_active (GTK_COMBO_BOX (widget));
 	str_value = tracker_configuration_get_string ("/Indexing/Language", NULL);
+        if (str_value == NULL) {
+                /* no value for language? Default to "en" */
+                str_value = g_strdup( "en" ) ;
+        }
 	if (i != -1) {
 		if (strcmp (str_value, LanguageMap[i].language) != 0) {
 			flag_restart = TRUE;
@@ -1109,22 +1117,20 @@ populate_list (GtkWidget *treeview, GSList *list)
 static gboolean
 str_slist_equal (GSList *a, GSList *b)
 {
-	guint lena = g_slist_length (a);
-	guint lenb = g_slist_length (b);
+	guint len_a = g_slist_length (a);
+	guint len_b = g_slist_length (b);
 
-	if (lena != lenb)
+	if (len_a != len_b)
 		return FALSE;
 
-	GSList *l, *find;
-
-	for (l = a; l; l = g_slist_next (l)) {
-		find = g_slist_find_custom (b, (const gchar *)(l->data), _strcmp);
+	GSList *lst;
+	for (lst = a; lst; lst = lst->next) {
+		GSList *find = g_slist_find_custom (b, (const gchar *)(lst->data), _strcmp);
 		if (!find)
 			return FALSE;
 	}
 
 	return TRUE;
-
 }
 
 GType
