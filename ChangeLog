@@ -1,12 +1,13 @@
-2008-01-11 Laurent Aguerreche <laurent.aguerreche at free fr>
+2008-03-29 Laurent Aguerreche <laurent.aguerreche at free fr>
 
-	* src/tracker-preferences/tracker-preferences.c
-	avoid tracker-preference crashes when configuration file
-	does not have a "/Indexing/Language" entry
+	* src/tracker-preferences/tracker-preferences.c:
+	avoid tracker-preference crashes when configuration file does not
+	have a "/Indexing/Language" entry.
 
 2008-03-28  Jerry Tan <jerry.tan@sun.com>
-        * src/libtracker-common/tracker-configuration.c
-        to make it build on solaris with sunstudio
+
+	* src/libtracker-common/tracker-configuration.c:
+	to make it build on solaris with sunstudio.
 
 2008-03-27  Martyn Russell  <martyn@imendio.com>
 
