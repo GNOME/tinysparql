@@ -61,9 +61,7 @@
 #define KEY_LOW_DISK_SPACE_LIMIT		 "LowDiskSpaceLimit"
 
 #define GROUP_EMAILS				 "Emails"
-#define KEY_INDEX_EVOLUTION_EMAILS		 "IndexEvolutionEmails"
-#define KEY_INDEX_KMAIL_EMAILS			 "IndexKMailEmails"
-#define KEY_INDEX_THUNDERBIRD_EMAILS		 "IndexThunderbirdEmails"
+#define KEY_EMAIL_CLIENT                         "IndexEMailClient"
 
 #define GROUP_PERFORMANCE			 "Performance"
 #define KEY_MAX_TEXT_TO_INDEX			 "MaxTextToIndex"
@@ -92,9 +90,7 @@
 #define DEFAULT_SKIP_MOUNT_POINTS		 FALSE
 #define DEFAULT_DISABLE_INDEXING_ON_BATTERY	 TRUE
 #define DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT FALSE
-#define DEFAULT_INDEX_EVOLUTION_EMAILS		 TRUE
-#define DEFAULT_INDEX_KMAIL_EMAILS		 TRUE
-#define DEFAULT_INDEX_THUNDERBIRD_EMAILS	 TRUE
+#define DEFAULT_INDEX_EMAIL_CLIENT               "evolution"
 #define DEFAULT_LOW_DISK_SPACE_LIMIT		 1	  /* 0->100 / -1 */
 #define DEFAULT_MAX_TEXT_TO_INDEX		 1048576  /* Bytes */
 #define DEFAULT_MAX_WORDS_TO_INDEX		 10000
@@ -138,9 +134,7 @@ struct _TrackerConfigPriv {
 	gint	  low_disk_space_limit;
 
 	/* Emails */
-	gboolean  index_evolution_emails;
-	gboolean  index_kmail_emails;
-	gboolean  index_thunderbird_emails;
+	gchar    *email_client;
 
 	/* Performance */
 	gint	  max_text_to_index;
@@ -196,9 +190,7 @@ enum {
 	PROP_LOW_DISK_SPACE_LIMIT,
 
 	/* Emails */
-	PROP_INDEX_EVOLUTION_EMAILS,
-	PROP_INDEX_KMAIL_EMAILS,
-	PROP_INDEX_THUNDERBIRD_EMAILS,
+	PROP_EMAIL_CLIENT,
 
 	/* Performance */
 	PROP_MAX_TEXT_TO_INDEX,
@@ -401,27 +393,13 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	/* Emails */
-	g_object_class_install_property (object_class,
-					 PROP_INDEX_EVOLUTION_EMAILS,
-					 g_param_spec_boolean ("index-evolution-emails",
-							       "Index evolution emails",
-							       "Index evolution emails",
-							       DEFAULT_INDEX_EVOLUTION_EMAILS,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_INDEX_KMAIL_EMAILS,
-					 g_param_spec_boolean ("index-kmail-emails",
-							       "Index kmail emails",
-							       "Index kmail emails",
-							       DEFAULT_INDEX_KMAIL_EMAILS,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-					 PROP_INDEX_THUNDERBIRD_EMAILS,
-					 g_param_spec_boolean ("index-thunderbird-emails",
-							       "Index thunderbird emails",
-							       "Index thunderbird emails",
-							       DEFAULT_INDEX_THUNDERBIRD_EMAILS,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+        g_object_class_install_property (object_class,
+					 PROP_EMAIL_CLIENT,
+					 g_param_spec_string ("email-client",
+							      "Email client",
+							      "Email client to index",
+							      DEFAULT_INDEX_EMAIL_CLIENT,
+							      G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	/* Performance */
 	g_object_class_install_property (object_class,
@@ -614,14 +592,8 @@ config_get_property (GObject	*object,
 		break;
 
 		/* Emails */
-	case PROP_INDEX_EVOLUTION_EMAILS:
-		g_value_set_boolean (value, priv->index_evolution_emails);
-		break;
-	case PROP_INDEX_KMAIL_EMAILS:
-		g_value_set_boolean (value, priv->index_kmail_emails);
-		break;
-	case PROP_INDEX_THUNDERBIRD_EMAILS:
-		g_value_set_boolean (value, priv->index_thunderbird_emails);
+	case PROP_EMAIL_CLIENT:
+		g_value_set_string (value, priv->email_client);
 		break;
 
 		/* Performance */
@@ -750,17 +722,9 @@ config_set_property (GObject	  *object,
 		break;
 
 		/* Emails */
-	case PROP_INDEX_EVOLUTION_EMAILS:
-		tracker_config_set_index_evolution_emails (TRACKER_CONFIG (object),
-							   g_value_get_boolean (value));
-		break;
-	case PROP_INDEX_KMAIL_EMAILS:
-		tracker_config_set_index_kmail_emails (TRACKER_CONFIG (object),
-						       g_value_get_boolean (value));
-		break;
-	case PROP_INDEX_THUNDERBIRD_EMAILS:
-		tracker_config_set_index_thunderbird_emails (TRACKER_CONFIG (object),
-							     g_value_get_boolean (value));
+	case PROP_EMAIL_CLIENT:
+		tracker_config_set_email_client (TRACKER_CONFIG (object),
+						 g_value_get_string (value));
 		break;
 
 		/* Performance */
@@ -1068,9 +1032,7 @@ config_create_with_defaults (const gchar *filename)
 				NULL);
 
 	/* Emails */
-	g_key_file_set_boolean (key_file, GROUP_EMAILS, KEY_INDEX_EVOLUTION_EMAILS, DEFAULT_INDEX_EVOLUTION_EMAILS);
-	g_key_file_set_boolean (key_file, GROUP_EMAILS, KEY_INDEX_KMAIL_EMAILS, DEFAULT_INDEX_KMAIL_EMAILS);
-	g_key_file_set_boolean (key_file, GROUP_EMAILS, KEY_INDEX_THUNDERBIRD_EMAILS, DEFAULT_INDEX_THUNDERBIRD_EMAILS);
+	g_key_file_set_string  (key_file, GROUP_EMAILS, KEY_EMAIL_CLIENT, DEFAULT_INDEX_EMAIL_CLIENT);
 
 	/* Performance */
 	g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX, DEFAULT_MAX_TEXT_TO_INDEX);
@@ -1334,9 +1296,7 @@ config_load (TrackerConfig *config)
 	config_load_int (config, "low-disk-space-limit", key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT);
 
 	/* Emails */
-	config_load_boolean (config, "index-evolution-emails", key_file, GROUP_EMAILS, KEY_INDEX_EVOLUTION_EMAILS);
-	config_load_boolean (config, "index-kmail-emails", key_file, GROUP_EMAILS, KEY_INDEX_KMAIL_EMAILS);
-	config_load_boolean (config, "index-thunderbird-emails", key_file, GROUP_EMAILS, KEY_INDEX_THUNDERBIRD_EMAILS);
+	config_load_string (config, "email-client", key_file, GROUP_EMAILS, KEY_EMAIL_CLIENT);
 
 	/* Performance */
 	config_load_int (config, "max-text-to-index", key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
@@ -1639,40 +1599,16 @@ tracker_config_get_low_disk_space_limit (TrackerConfig *config)
 	return priv->low_disk_space_limit;
 }
 
-gboolean
-tracker_config_get_index_evolution_emails (TrackerConfig *config)
+const gchar *
+tracker_config_get_email_client (TrackerConfig *config)
 {
 	TrackerConfigPriv *priv;
 
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_EVOLUTION_EMAILS);
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_EMAIL_CLIENT);
 
 	priv = GET_PRIV (config);
 
-	return priv->index_evolution_emails;
-}
-
-gboolean
-tracker_config_get_index_kmail_emails (TrackerConfig *config)
-{
-	TrackerConfigPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_KMAIL_EMAILS);
-
-	priv = GET_PRIV (config);
-
-	return priv->index_kmail_emails;
-}
-
-gboolean
-tracker_config_get_index_thunderbird_emails (TrackerConfig *config)
-{
-	TrackerConfigPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_THUNDERBIRD_EMAILS);
-
-	priv = GET_PRIV (config);
-
-	return priv->index_thunderbird_emails;
+	return priv->email_client;
 }
 
 gint
@@ -2059,45 +1995,24 @@ tracker_config_set_low_disk_space_limit (TrackerConfig *config,
 }
 
 void
-tracker_config_set_index_evolution_emails (TrackerConfig *config,
-					   gboolean	  value)
+tracker_config_set_email_client (TrackerConfig *config,
+				 const gchar   *value)
 {
 	TrackerConfigPriv *priv;
+	gchar *email_client;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	priv = GET_PRIV (config);
 
-	priv->index_evolution_emails = value;
-	g_object_notify (G_OBJECT (config), "index-evolution-emails");
-}
+	email_client = g_strdup (value);
 
-void
-tracker_config_set_index_kmail_emails (TrackerConfig *config,
-				       gboolean	      value)
-{
-	TrackerConfigPriv *priv;
+	if (priv->email_client) {
+		g_free (priv->email_client);
+	}
 
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = GET_PRIV (config);
-
-	priv->index_kmail_emails = value;
-	g_object_notify (G_OBJECT (config), "index-kmail-emails");
-}
-
-void
-tracker_config_set_index_thunderbird_emails (TrackerConfig *config,
-					     gboolean	    value)
-{
-	TrackerConfigPriv *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = GET_PRIV (config);
-
-	priv->index_thunderbird_emails = value;
-	g_object_notify (G_OBJECT (config), "index-thunderbird-emails");
+	priv->email_client = email_client;
+	g_object_notify (G_OBJECT (config), "email-client");
 }
 
 void

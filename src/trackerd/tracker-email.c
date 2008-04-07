@@ -20,113 +20,123 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <gmodule.h>
 
 #include <libtracker-common/tracker-config.h>
 
 #include "tracker-email.h"
 #include "tracker-email-utils.h"
-#include "tracker-email-evolution.h"
-#include "tracker-email-thunderbird.h"
-#include "tracker-email-kmail.h"
 
 extern Tracker *tracker;
+
+static GModule *module = NULL;
 
 
 /* must be called before any work on files containing mails */
 void
 tracker_email_add_service_directories (DBConnection *db_con)
 {
+	TrackerMailWatchEmails func;
 
-	g_mime_init (0);
+	if (!module)
+		return;
 
-	if (tracker_config_get_index_evolution_emails (tracker->config)) {
-		if (evolution_init_module ()) {
-			evolution_watch_emails (db_con);
-		}
-	}
-
-	if (tracker_config_get_index_kmail_emails (tracker->config)) {
-		if (kmail_init_module ()) {
-			kmail_watch_emails (db_con);
-		}
-	}
-
-	if (tracker_config_get_index_thunderbird_emails (tracker->config)) {
-		if (thunderbird_init_module ()) {
-			thunderbird_watch_emails (db_con);
-		}
-	}
+	if (g_module_symbol (module, "tracker_email_watch_emails", (gpointer *) &func)) {
+		(func) (db_con);
+        }
 }
 
 
 void
 tracker_email_end_email_watching (void)
 {
-	//email_free_root_path_for_attachments ();
+	TrackerMailFinalize func;
 
-	if (evolution_module_is_running ()) {
-		evolution_finalize_module ();
-	}
+	if (!module)
+		return;
 
-	if (kmail_module_is_running ()) {
-		kmail_finalize_module ();
-	}
-
-	if (thunderbird_module_is_running ()) {
-		thunderbird_finalize_module ();
+	if (g_module_symbol (module, "tracker_email_finalize", (gpointer *) &func)) {
+		(func) ();
 	}
 
 	g_mime_shutdown ();
-} 
-
-
-gboolean
-tracker_email_file_is_interesting (FileInfo *info, const char *service)
-{
-	g_return_val_if_fail (info, FALSE);
-
-	if (g_str_has_prefix (service, "Evolution") && evolution_module_is_running ()) {
-		return evolution_file_is_interesting (info, service);
-	
-	} else if (g_str_has_prefix (service, "KMail") && kmail_module_is_running ()) {
-		return kmail_file_is_interesting (info, service);
-
-	} else if (g_str_has_prefix (service, "Thunderbird") && thunderbird_module_is_running ()) {
-		return thunderbird_file_is_interesting (info, service);
-	
-	} else {
-		return FALSE;
-	}
-
-
 }
 
 
 gboolean
-tracker_email_index_file (DBConnection *db_con, FileInfo *info, const char *service)
+tracker_email_index_file (DBConnection *db_con, FileInfo *info)
 {
-	gboolean has_been_handled;
+	TrackerMailIndexFile func;
 
 	g_return_val_if_fail (db_con, FALSE);
 	g_return_val_if_fail (info, FALSE);
 
-	has_been_handled = TRUE;
+	if (!module)
+		return FALSE;
 
-	if (evolution_module_is_running () && evolution_file_is_interesting (info, service)) {
-		evolution_index_file (db_con, info);
+	if (!g_module_symbol (module, "tracker_email_index_file", (gpointer *) &func))
+		return FALSE;
 
-	} else if (kmail_module_is_running () && kmail_file_is_interesting (info, service)) {
-		kmail_index_file (db_con, info);
-
-	} else if (thunderbird_module_is_running () && thunderbird_file_is_interesting (info, service)) {
-		thunderbird_index_file (db_con, info);
-
-	} else {
-		has_been_handled = FALSE;
-	}
-
-	return has_been_handled;
+	return (func) (db_con, info);
 }
 
+gboolean
+tracker_email_init (void)
+{
+	TrackerMailInit func;
+	const gchar *email_client;
+	gchar *module_name, *module_path;
+	gboolean result = FALSE;
 
+	if (module)
+		return result;
 
+	email_client = tracker_config_get_email_client (tracker->config);
+
+	if (!email_client)
+		return result;
+
+	if (!g_module_supported ()) {
+		g_error ("Modules are not supported by this platform");
+		return result;
+	}
+
+	module_name = g_strdup_printf ("libemail-%s.so", email_client);
+	module_path = g_build_filename (MAIL_MODULES_DIR, module_name, NULL);
+
+	module = g_module_open (module_path, G_MODULE_BIND_LOCAL);
+
+	if (!module) {
+		g_warning ("Could not load EMail module: %s\n", module_name);
+		g_free (module_name);
+		g_free (module_path);
+		return result;
+	}
+
+	g_module_make_resident (module);
+
+	if (g_module_symbol (module, "tracker_email_init", (gpointer *) &func)) {
+		g_mime_init (0);
+
+		result = (func) ();
+	}
+
+	g_free (module_name);
+	g_free (module_path);
+
+	return result;
+}
+
+const gchar *
+tracker_email_get_name (void)
+{
+	TrackerMailGetName func;
+
+	if (!module)
+		return NULL;
+
+	if (!g_module_symbol (module, "tracker_email_get_name", (gpointer *) &func))
+		return NULL;
+
+	return (func) ();
+}

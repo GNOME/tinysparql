@@ -118,7 +118,7 @@ static gchar *language = NULL;
 static gboolean disable_indexing = FALSE;
 static gboolean reindex = FALSE;
 static gboolean fatal_errors = FALSE;
-static gboolean low_memory, enable_evolution, enable_thunderbird, enable_kmail;
+static gboolean low_memory;
 static gint throttle = -1;
 static gint verbosity = 0;
 static gint initial_sleep = -1; /* >= 0 is valid and will be set */
@@ -654,12 +654,8 @@ sanity_check_option_values (void)
                      tracker_config_get_enable_content_indexing (tracker->config) ? "yes" : "no");
 	tracker_log ("  Thumbnailing enabled  .................  %s", 
                      tracker_config_get_enable_thumbnails (tracker->config) ? "yes" : "no");
- 	tracker_log ("  Evolution email indexing enabled  .....  %s", 
-                     tracker_config_get_index_evolution_emails (tracker->config) ? "yes" : "no");
- 	tracker_log ("  KMail email indexing enabled  .........  %s", 
-                     tracker_config_get_index_kmail_emails (tracker->config) ? "yes" : "no");
- 	tracker_log ("  Thunderbird email indexing enabled  ...  %s", 
-                     tracker_config_get_index_thunderbird_emails (tracker->config) ? "yes" : "no");
+	tracker_log ("  Email client to index .................  %s",
+		     tracker_config_get_email_client (tracker->config));
 
 	tracker_log ("Tracker indexer parameters:");
 	tracker_log ("  Indexer language code  ................  %s", 
@@ -1030,18 +1026,6 @@ main (gint argc, gchar *argv[])
 		tracker_config_set_language (tracker->config, language);
 	}
 
-	if (enable_evolution) {
-		tracker_config_set_index_evolution_emails (tracker->config, TRUE);
-	}
-	
-	if (enable_kmail) {
-		tracker_config_set_index_kmail_emails (tracker->config, TRUE);
-	}
-
-	if (enable_thunderbird) {
-		tracker_config_set_index_thunderbird_emails (tracker->config, TRUE);
-	}
-
 	if (throttle != -1) {
 		tracker_config_set_throttle (tracker->config, throttle);
 	}
@@ -1203,6 +1187,8 @@ main (gint argc, gchar *argv[])
 	}
 
 	tracker->user_request_queue = g_async_queue_new ();
+
+	tracker_email_init ();
 
   	tracker->loop = g_main_loop_new (NULL, TRUE);
 

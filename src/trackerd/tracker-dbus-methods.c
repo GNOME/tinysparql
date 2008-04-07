@@ -459,7 +459,7 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 
 	dbus_error_init (&dbus_error);
 
-	/*	<!-- sets boolean options in tracker - option can be one of "Pause", "EnableIndexing", "LowMemoryMode", "IndexFileContents", "EnableEvolution" -->
+	/*	<!-- sets boolean options in tracker - option can be one of "Pause", "EnableIndexing", "LowMemoryMode", "IndexFileContents" -->
 		<method name="SetBoolOption">
 			<arg type="s" name="option" direction="in" />
 			<arg type="b" name="value" direction="in" />
@@ -506,9 +506,6 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 	} else if (strcasecmp (option, "SkipMountPoints") == 0) {
                 tracker_config_set_skip_mount_points (tracker->config, value);
 		tracker_log ("Skip mounted directories set to %d", value);
-	} else if (strcasecmp (option, "EnableEvolution") == 0) {
-                tracker_config_set_index_evolution_emails (tracker->config, value);
-		tracker_log ("evolution support set to %d", value);
 	} else if (strcasecmp (option, "BatteryIndex") == 0) {
                 tracker_config_set_disable_indexing_on_battery (tracker->config, !value);
 		tracker_log ("Disable index on battery set to %d", !value);

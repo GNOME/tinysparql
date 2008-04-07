@@ -27,7 +27,6 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-config.h>
 
-#include "tracker-email-thunderbird.h"
 #include "tracker-db-email.h"
 #include "tracker-watch.h"
 
@@ -85,14 +84,25 @@ static glong    get_date_from_string            (const gchar *date_string);
 static void     free_parser_data                (gpointer user_data);
 
 
+static gboolean
+thunderbird_module_is_running (void)
+{
+	return thunderbird_mail_dir != NULL;
+}
 
+static gboolean
+thunderbird_file_is_interesting (FileInfo *info)
+{
+        //Filename should be objectX.tms (Thunderbird Message Summary)
+        return g_str_has_suffix (info->uri, ".tms") ;
+}
 
 /********************************************************************************************
  Public functions
 *********************************************************************************************/
 
 gboolean
-thunderbird_init_module (void)
+tracker_email_init (void)
 {
 	if (!thunderbird_mail_dir) {
 		thunderbird_mail_dir = g_build_filename (g_get_home_dir (), THUNDERBIRD_MAIL_DIR_S, NULL);
@@ -103,14 +113,7 @@ thunderbird_init_module (void)
 
 
 gboolean
-thunderbird_module_is_running (void)
-{
-	return thunderbird_mail_dir != NULL;
-}
-
-
-gboolean
-thunderbird_finalize_module (void)
+tracker_email_finalize (void)
 {
 	if (thunderbird_mail_dir) {
 		g_free (thunderbird_mail_dir);
@@ -122,7 +125,7 @@ thunderbird_finalize_module (void)
 
 
 void
-thunderbird_watch_emails (DBConnection *db_con)
+tracker_email_watch_emails (DBConnection *db_con)
 {
         if( thunderbird_mail_dir != NULL ) {
             tracker_log("Thunderbird directory lookup: \"%s\"", thunderbird_mail_dir);
@@ -132,27 +135,27 @@ thunderbird_watch_emails (DBConnection *db_con)
 
 
 gboolean
-thunderbird_file_is_interesting (FileInfo *info, const gchar *service)
+tracker_email_index_file (DBConnection *db_con, FileInfo *info)
 {
-        //Filename should be objectX.tms (Thunderbird Message Summary)
-        return g_str_has_suffix (info->uri, ".tms") ;
-}
+	g_return_val_if_fail (db_con, FALSE);
+	g_return_val_if_fail (info, FALSE);
 
-
-void
-thunderbird_index_file (DBConnection *db_con, FileInfo *info)
-{
-	g_return_if_fail (db_con);
-	g_return_if_fail (info);
+	if (!thunderbird_file_is_interesting (info))
+		return FALSE;
 
         tracker_log ("Thunderbird file index: \"%s\"\n",info->uri);
         if (email_parse_mail_tms_file_and_save_new_emails (db_con, MAIL_APP_THUNDERBIRD, info->uri)) {
                 unlink(info->uri);
         }
+
+	return TRUE;
 }
 
-
-
+const gchar *
+tracker_email_get_name (void)
+{
+	return "ThunderbirdEmails";
+}
 
 /********************************************************************************************
  Private functions

@@ -376,7 +376,7 @@ process_index_entity (Tracker  *tracker,
 
                 db_con = tracker->index_db;
 
-		if (!tracker_email_index_file (db_con, info, service_info)) {
+		if (!tracker_email_index_file (db_con, info)) {
 			g_free (service_info);
 			return;
 		}
@@ -800,9 +800,6 @@ process_index_emails (Tracker *tracker)
 {
         DBConnection  *db_con;
         TrackerConfig *config;
-        gboolean       index_evolution_emails;
-        gboolean       index_kmail_emails;
-        gboolean       index_thunderbird_emails;
        
         db_con = tracker->index_db;
         config = tracker->config;
@@ -825,54 +822,21 @@ process_index_emails (Tracker *tracker)
         }
         
         tracker_db_start_index_transaction (tracker->index_db);
-              
-        index_evolution_emails = tracker_config_get_index_evolution_emails (config);
-        index_kmail_emails = tracker_config_get_index_kmail_emails (config);
-        index_thunderbird_emails = tracker_config_get_index_thunderbird_emails (config);
-        
-        if (index_evolution_emails ||
-            index_kmail_emails ||
-            index_thunderbird_emails) {
+
+	if (tracker_config_get_email_client (tracker->config)) {
+		const gchar *name;
+
                 tracker_email_add_service_directories (db_con->emails);
                 tracker_log ("Starting email indexing...");
                 
                 tracker_db_start_transaction (db_con->cache);
-                
-                if (index_evolution_emails) {
+
+		name = tracker_email_get_name ();
+
+                if (name) {
                         GSList *list;
 
-                        list = tracker_get_service_dirs ("EvolutionEmails");
-                        tracker_add_root_directories (list);
-                        process_directory_list (tracker, list, TRUE);
-                        g_slist_free (list);
-                        
-                        /* If initial indexing has not finished reset
-                         * mtime on all email stuff so they are
-                         * rechecked 
-                         */
-                        if (tracker_db_get_option_int (db_con->common, "InitialIndex") == 1) {
-                                gchar *sql;
-
-                                sql = g_strdup_printf ("update Services set mtime = 0 where path like '%s/.evolution/%%'", 
-                                                       g_get_home_dir ());
-                                tracker_exec_sql (tracker->index_db, sql);
-                                g_free (sql);
-                        }
-                }
-                
-                if (index_kmail_emails) {
-                        GSList *list;
-
-                        list = tracker_get_service_dirs ("KMailEmails");
-                        tracker_add_root_directories (list);
-                        process_directory_list (tracker, list, TRUE);
-                        g_slist_free (list);
-                }
-                
-                if (index_thunderbird_emails) {
-                        GSList *list;
-
-                        list = tracker_get_service_dirs ("ThunderbirdEmails");
+                        list = tracker_get_service_dirs (name);
                         tracker_add_root_directories (list);
                         process_directory_list (tracker, list, TRUE);
                         g_slist_free (list);

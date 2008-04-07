@@ -37,9 +37,6 @@
 #include "tracker-db-email.h"
 #include "tracker-dbus.h"
 #include "tracker-email-utils.h"
-#include "tracker-email-evolution.h"
-#include "tracker-email-thunderbird.h"
-#include "tracker-email-kmail.h"
 #include "tracker-watch.h"
 
 extern Tracker *tracker;

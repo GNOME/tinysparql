@@ -27,7 +27,6 @@
 
 #include <libtracker-common/tracker-log.h>
 
-#include "tracker-email-kmail.h"
 #include "tracker-email-utils.h"
 #include "tracker-db-email.h"
 #include "tracker-watch.h"
@@ -90,6 +89,11 @@ static gchar *          expand_string                   (const gchar *s);
 
 
 
+static gboolean
+kmail_module_is_running (void)
+{
+        return kmail_config != NULL;
+}
 
 /********************************************************************************************
  Public functions
@@ -115,14 +119,7 @@ kmail_init_module (void)
 
 
 gboolean
-kmail_module_is_running (void)
-{
-        return kmail_config != NULL;
-}
-
-
-gboolean
-kmail_finalize_module (void)
+tracker_email_finalize (void)
 {
         if (!kmail_config) {
                 return TRUE;
@@ -136,7 +133,7 @@ kmail_finalize_module (void)
 
 
 void
-kmail_watch_emails (DBConnection *db_con)
+tracker_email_watch_emails (DBConnection *db_con)
 {
         g_return_if_fail (kmail_config);
 
@@ -156,8 +153,8 @@ kmail_watch_emails (DBConnection *db_con)
 }
 
 
-gboolean
-kmail_file_is_interesting (FileInfo *info, const gchar *service)
+static gboolean
+kmail_file_is_interesting (FileInfo *info)
 {
         const GSList *account;
 
@@ -182,13 +179,16 @@ kmail_file_is_interesting (FileInfo *info, const gchar *service)
 }
 
 
-void
-kmail_index_file (DBConnection *db_con, FileInfo *info)
+gboolean
+tracker_email_index_file (DBConnection *db_con, FileInfo *info)
 {
         KMailMailProtocol mail_protocol;
 
-        g_return_if_fail (db_con);
-        g_return_if_fail (info);
+        g_return_val_if_fail (db_con, FALSE);
+        g_return_val_if_fail (info, FALSE);
+
+	if (!kmail_file_is_interesting (info))
+		return FALSE;
 
         mail_protocol = find_mail_protocol (info->uri);
 
@@ -229,7 +229,7 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
                                 MailStore *store = tracker_db_email_get_mbox_details (db_con, info->uri);
                                 if (!store) {
                                         tracker_error ("ERROR: could not retrieve store for file %s", info->uri);
-                                        return;
+                                        return FALSE;
                                 }
 
                                 if (mail_protocol == KMAIL_MAIL_PROTOCOL_MBOX) {
@@ -259,9 +259,15 @@ kmail_index_file (DBConnection *db_con, FileInfo *info)
                         break;
                 }
         }
+
+	return TRUE;
 }
 
-
+const gchar *
+tracker_email_get_name (void)
+{
+	return "KMailEmails";
+}
 
 /********************************************************************************************
  Private functions

@@ -1,8 +1,12 @@
+module_flags = -module -avoid-version -no-undefined
+mail_modulesdir = $(libdir)/tracker/mail-modules
+
 INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	$(GLIB2_CFLAGS)							\
+	$(GMODULE_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
 	$(GMIME_CFLAGS)							\
 	$(HAL_CFLAGS)							\
@@ -11,6 +15,7 @@ INCLUDES =								\
 	$(SQLITE3_CFLAGS)						\
 	$(QDBM_CFLAGS)							\
 	$(UNAC_CFLAGS)							\
+	-DMAIL_MODULES_DIR=\"$(mail_modulesdir)\"			\
 	-I$(top_srcdir)/src
 
 if HAVE_INOTIFY
@@ -76,12 +81,6 @@ trackerd_SOURCES =							\
 	tracker-email.h							\
 	tracker-email-utils.c						\
 	tracker-email-utils.h						\
-	tracker-email-evolution.c					\
-	tracker-email-evolution.h					\
-	tracker-email-thunderbird.c					\
-	tracker-email-thunderbird.h					\
-	tracker-email-kmail.c						\
-	tracker-email-kmail.h						\
 	tracker-metadata.c						\
 	tracker-metadata.h						\
 	tracker-process-files.c						\
@@ -103,6 +102,7 @@ endif
 
 trackerd_LDADD =							\
 	$(GLIB2_LIBS)							\
+	$(GMODULE_LIBS)							\
 	$(FAM_LIBS)							\
 	$(DBUS_LIBS)							\
 	$(PANGO_LIBS)							\
@@ -118,3 +118,20 @@ trackerd_LDADD =							\
 	$(top_builddir)/src/libstemmer/libstemmer-private.la 		\
 	$(top_builddir)/src/xdgmime/libxdgmime.la 			\
 	$(trackerd_win_libs)
+
+mail_modules_LTLIBRARIES = \
+	libemail-evolution.la \
+	libemail-thunderbird.la \
+	libemail-kmail.la
+
+libemail_evolution_la_SOURCES = tracker-email-evolution.c
+libemail_evolution_la_LDFLAGS = $(module_flags)
+libemail_evolution_la_LIBADD = $(GLIB2_LIBS)
+
+libemail_thunderbird_la_SOURCES = tracker-email-thunderbird.c
+libemail_thunderbird_la_LDFLAGS = $(module_flags)
+libemail_thunderbird_la_LIBADD = $(GLIB2_LIBS)
+
+libemail_kmail_la_SOURCES = tracker-email-kmail.c
+libemail_kmail_la_LDFLAGS = $(module_flags)
+libemail_kmail_la_LIBADD = $(GLIB2_LIBS)

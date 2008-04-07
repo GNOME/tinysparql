@@ -34,7 +34,6 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-config.h>
 
-#include "tracker-email-evolution.h"
 #include "tracker-email-utils.h"
 #include "tracker-db-email.h"
 #include "tracker-cache.h"
@@ -218,13 +217,18 @@ static inline gboolean	skip_token_decoding	(FILE *f);
 static gchar * g_unescape_uri_string (const gchar *escaped, const gchar *illegal_characters);
 static void  check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *store);
 
+static gboolean
+evolution_module_is_running (void)
+{
+	return evolution_config != NULL;
+}
 
 /********************************************************************************************
  Public functions
 *********************************************************************************************/
 
 gboolean
-evolution_init_module (void)
+tracker_email_init (void)
 {
 	EvolutionConfig *conf;
 
@@ -243,14 +247,7 @@ evolution_init_module (void)
 
 
 gboolean
-evolution_module_is_running (void)
-{
-	return evolution_config != NULL;
-}
-
-
-gboolean
-evolution_finalize_module (void)
+tracker_email_finalize (void)
 {
 	if (!evolution_config) {
 		return TRUE;
@@ -264,10 +261,18 @@ evolution_finalize_module (void)
 
 
 void
-evolution_watch_emails (DBConnection *db_con)
+tracker_email_watch_emails (DBConnection *db_con)
 {
 	gchar ***res, **row;
 	gint  j;
+
+	/* if initial indexing has not finished reset mtime on all email stuff so they are rechecked */
+	if (tracker_db_get_option_int (db_con->common, "InitialIndex") == 1) {
+		char *sql = g_strdup_printf ("update Services set mtime = 0 where path like '%s/.evolution/%s'", g_get_home_dir (), "%");
+
+		tracker_exec_sql (db_con, sql);
+		g_free (sql);
+	}
 
 	/* check all registered mbox/paths for deletions */
 	res = tracker_db_email_get_mboxes (db_con);
@@ -296,8 +301,8 @@ evolution_watch_emails (DBConnection *db_con)
 }
 
 
-gboolean
-evolution_file_is_interesting (FileInfo *info, const gchar *service)
+static gboolean
+evolution_file_is_interesting (FileInfo *info)
 {
 	GSList *dir;
 
@@ -352,13 +357,16 @@ evolution_file_is_interesting (FileInfo *info, const gchar *service)
 }
 
 
-void
-evolution_index_file (DBConnection *db_con, FileInfo *info)
+gboolean
+tracker_email_index_file (DBConnection *db_con, FileInfo *info)
 {
 	gchar *file_name;
 
-	g_return_if_fail (db_con);
-	g_return_if_fail (info);
+	g_return_val_if_fail (db_con, FALSE);
+	g_return_val_if_fail (info, FALSE);
+
+	if (!evolution_file_is_interesting (info))
+		return FALSE;
 
 	file_name = g_path_get_basename (info->uri);
 
@@ -512,9 +520,15 @@ evolution_index_file (DBConnection *db_con, FileInfo *info)
 
  end_index:
 	g_free (file_name);
+
+	return TRUE;
 }
 
-
+const gchar *
+tracker_email_get_name (void)
+{
+	return "EvolutionEmails";
+}
 
 
 /********************************************************************************************

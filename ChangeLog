@@ -1,3 +1,34 @@
+2008-04-07  Carlos Garnacho  <carlos@imendio.com>
+
+	Make Mail indexing modular. Bug #526761.
+
+	* src/libtracker-common/tracker-config.[ch]: Add a string
+	configuration parameter instead of a boolean value for each mail
+	client.
+
+	* src/trackerd/Makefile.am: Build mail client dependent code in
+	separate modules
+
+	* src/trackerd/tracker-email-evolution.c:
+	* src/trackerd/tracker-email-kmail.c:
+	* src/trackerd/tracker-email-thunderbird.c: Modified to run as a
+	module.
+
+	* src/trackerd/tracker-email-evolution.h:
+	* src/trackerd/tracker-email-kmail.h:
+	* src/trackerd/tracker-email-thunderbird.h: Removed, no longer
+	necessary. The three modules share now the same public interface, 
+	and these are called through GModule.
+
+	* src/trackerd/tracker-email.[ch]: Use GModule to load the selected
+	mail client code and call the module methods.
+
+	* src/trackerd/tracker-email-utils.c:
+	* src/trackerd/tracker-process-files.c:
+	* src/trackerd/trackerd.c:
+	* src/trackerd/tracker-dbus-methods: Change to work with modular mail
+	indexing.
+
 2008-03-29 Laurent Aguerreche <laurent.aguerreche at free fr>
 
 	* src/tracker-preferences/tracker-preferences.c:
