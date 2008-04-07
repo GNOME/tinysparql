@@ -34,20 +34,17 @@
 #include <glib/gstdio.h>
 #include <png.h>
 
+#define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
+
 
 static gchar *
-rfc1123_to_iso8160_date (gchar *rfc_date)
+rfc1123_to_iso8601_date (gchar *rfc_date)
 {
         /* ex. RFC1123 date: "22 May 1997 18:07:10 -0600"
            To
-           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+           ex. ISO8601 date: "2007-05-22T18:07:10-0600"
         */
-
-        steps steps_to_do[] = {
-                DAY_STR, DAY, MONTH, YEAR, TIME, TIMEZONE, LAST_STEP
-        };
-
-        return tracker_generic_date_extractor (rfc_date, steps_to_do);
+        return tracker_generic_date_to_iso8601 (rfc_date, RFC1123_DATE_FORMAT);
 }
 
 
@@ -65,7 +62,7 @@ static struct {
   { "Description",        "Image:Description",  NULL},
   { "Comment",            "Image:Comments",     NULL},
   { "Copyright",          "File:Copyright",     NULL},
-  { "Creation Time",      "Image:Date",         rfc1123_to_iso8160_date},
+  { "Creation Time",      "Image:Date",         rfc1123_to_iso8601_date},
   { "Title",              "Image:Title",        NULL},
   { "Software",           "Image:Software",     NULL},
   { "Disclaimer",         "File:License",       NULL},

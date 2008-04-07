@@ -25,30 +25,16 @@
 #include <glib.h>
 #include <libexif/exif-data.h>
 
+#define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
 
 static gchar *
-date_to_iso8160 (gchar *exif_date)
+date_to_iso8601 (gchar *exif_date)
 {
         /* ex; date "2007:04:15 15:35:58"
            To
            ex. "2007-04-15T17:35:58+0200 where +0200 is localtime
         */
-
-        gsize len = strlen (exif_date);
-        guint i;
-
-        /* We transform "2007:04:15 15:35:58" into  "2007 04 15 15:35:58" */
-        for (i = 0; i < len && i < 10; i++) {
-                if (exif_date[i] == ':') {
-                        exif_date[i] = ' ';
-                }
-        }
-
-        steps steps_to_do[] = {
-                YEAR, MONTH, DAY, TIME, LAST_STEP
-        };
-
-        return tracker_generic_date_extractor (exif_date, steps_to_do);
+        return tracker_generic_date_to_iso8601 (exif_date, EXIF_DATE_FORMAT);
 }
 
 
@@ -121,7 +107,7 @@ TagType tags[] = {
 	{ EXIF_TAG_RELATED_IMAGE_WIDTH, "Image:Width", NULL },
 	{ EXIF_TAG_DOCUMENT_NAME, "Image:Title", NULL },
 	/* { -1, "Image:Album", NULL }, */
-	{ EXIF_TAG_DATE_TIME, "Image:Date", date_to_iso8160 },
+	{ EXIF_TAG_DATE_TIME, "Image:Date", date_to_iso8601 },
 	/* { -1, "Image:Keywords", NULL }, */
 	{ EXIF_TAG_ARTIST, "Image:Creator", NULL },
 	{ EXIF_TAG_USER_COMMENT, "Image:Comments", NULL },

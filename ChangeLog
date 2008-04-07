@@ -1,3 +1,16 @@
+2008-04-07  Ivan Frade  <ivan.frade@nokia.com>
+
+	Using standard C functions to parse dates. Bug #526727
+	Replaced iso8160 with iso8601
+
+	* tracker-extract.[ch]: Replaced tracker_generic_data_extractor 
+	and his	auxiliar functions with tracker_generic_date_to_iso8601,
+	strftime and strptime.
+
+	* tracker-extract-ps.c:
+	* tracker-extract-png.c:
+	* tracker-extract-exif.c: Updated to use the new function.
+
 2008-04-07  Carlos Garnacho  <carlos@imendio.com>
 
 	Make Mail indexing modular. Bug #526761.

@@ -40,7 +40,6 @@
 #undef getdelim
 #undef getline
 
-
 static ssize_t
 igetdelim (gchar **linebuf, size_t *linebufsz, gint delimiter, FILE *file)
 {
@@ -103,14 +102,10 @@ static gchar
 {
         /* ex. date: "(18:07 Tuesday 22 May 2007)"
            To
-           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+           ex. ISO8601 date: "2007-05-22T18:07:10-0600"
         */
 
-        steps steps_to_do[] = {
-                TIME, DAY_STR, DAY, MONTH, YEAR, LAST_STEP
-        };
-
-        return tracker_generic_date_extractor (date + 1, steps_to_do);
+        return tracker_generic_date_to_iso8601 (date, "(%H:%M %A %d %B %Y)");
 }
 
 
@@ -119,14 +114,9 @@ day_str_month_day (gchar *date)
 {
         /* ex. date: "Tue May 22 18:07:10 2007"
            To
-           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+           ex. ISO8601 date: "2007-05-22T18:07:10-0600"
         */
-
-        steps steps_to_do[] = {
-                DAY_STR, MONTH, DAY, TIME, YEAR, LAST_STEP
-        };
-
-        return tracker_generic_date_extractor (date, steps_to_do);
+        return tracker_generic_date_to_iso8601 (date, "%A %B %d %H:%M:%S %Y");
 }
 
 
@@ -135,14 +125,9 @@ day_month_year_date (gchar *date)
 {
         /* ex. date: "22 May 1997 18:07:10 -0600"
            To
-           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+           ex. ISO8601 date: "2007-05-22T18:07:10-0600"
         */
-
-        steps steps_to_do[] = {
-                DAY_STR, MONTH, DAY, TIME, YEAR, LAST_STEP
-        };
-
-        return tracker_generic_date_extractor (date, steps_to_do);
+        return tracker_generic_date_to_iso8601 (date, "%d %B %Y %H:%M:%S %z");
 }
 
 
@@ -151,19 +136,14 @@ hour_month_day_date (gchar *date)
 {
         /* ex. date: "6:07 PM May 22, 2007"
            To
-           ex. ISO8160 date: "2007-05-22T18:07:10-0600"
+           ex. ISO8601 date: "2007-05-22T18:07:10-0600"
         */
-
-        steps steps_to_do[] = {
-                TIME, DAY_PART, MONTH, DAY, YEAR, LAST_STEP
-        };
-
-        return tracker_generic_date_extractor (date, steps_to_do);
+        return tracker_generic_date_to_iso8601 (date, "%I:%M %p %B %d, %Y");
 }
 
 
 static gchar *
-date_to_iso8160 (gchar *date)
+date_to_iso8601 (gchar *date)
 {
         if (date && date[1] && date[2]) {
                 if (date[0] == '(') {
@@ -185,7 +165,7 @@ date_to_iso8160 (gchar *date)
                            "6:07 PM May 22, 2007" */
                         return hour_month_day_date (date);
 
-                }
+                } 
         }
 
         return NULL;
@@ -233,7 +213,7 @@ tracker_extract_ps (const gchar *filename, GHashTable *metadata)
                                                      g_strdup ("Doc:Author"), g_strdup (line + 11));
 
 			} else if (!header_finished && strncmp (line, "%%CreationDate:", 15) == 0) {
-                                gchar *date = date_to_iso8160 (line + 16);
+                                gchar *date = date_to_iso8601 (line + 16);
                                 if (date) {
                                         g_hash_table_insert (metadata, g_strdup ("Doc:Created"), date);
                                 }

@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <locale.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #ifndef OS_WIN32
@@ -34,263 +33,41 @@
 #include <glib.h>
 #include <gmodule.h>
 
+#define _XOPEN_SOURCE
+#include <time.h>
+
 #include "tracker-extract.h"
 
 #define MAX_MEM 128
 #define MAX_MEM_AMD64 512
 
-typedef enum {
-	IGNORE_METADATA,
-	NO_METADATA,
-	DOC_METADATA,
-	IMAGE_METADATA,
-	VIDEO_METADATA,
-	AUDIO_METADATA
-} MetadataFileType;
-
+#define ISO8601_FORMAT "%Y-%m-%dT%H:%M:%S%z"
 
 GArray *extractors = NULL;
 
 
-static gboolean
-read_day (gchar *day, gint *ret)
-{
-        guint64 val = g_ascii_strtoull (day, NULL, 10);
-
-        if (val == G_MAXUINT64) {
-                return FALSE;
-        } else {
-                *ret = CLAMP (val, 1, 31);
-                return TRUE;
-        }
-}
-
-
-static gboolean
-read_month (gchar *month, gint *ret)
-{
-        if (g_ascii_isdigit (month[0])) {
-                /* month is already given in a numerical form */
-                guint64 val = g_ascii_strtoull (month, NULL, 10) - 1;
-
-                if (val == G_MAXUINT64) {
-                        return FALSE;
-                } else {
-                        *ret = CLAMP (val, 0, 11);
-                        return TRUE;
-                }
-        } else {
-                /* month is given by its name */
-                gchar *months[] = {
-                        "Ja", "Fe", "Mar", "Av", "Ma", "Jun",
-                        "Jul", "Au", "Se", "Oc", "No", "De",
-                        NULL };
-                gchar **tmp;
-                gint i;
-
-                for (tmp = months, i = 0; *tmp; tmp++, i++) {
-                        if (g_str_has_prefix (month, *tmp)) {
-                                *ret = i;
-                                return TRUE;
-                        }
-                }
-
-                return FALSE;
-        }
-}
-
-
-static gboolean
-read_year (gchar *year, gint *ret)
-{
-        guint64 val = g_ascii_strtoull (year, NULL, 10);
-
-        if (val == G_MAXUINT64) {
-                return FALSE;
-        } else {
-                *ret = CLAMP (val, 0, G_MAXINT) - 1900;
-                return TRUE;
-        }
-}
-
-
-static gboolean
-read_time (gchar *time, gint *ret_hour, gint *ret_min, gint *ret_sec)
-{
-        /* Hours */
-        guint64 val = g_ascii_strtoull (time, &time, 10);
-        if (val == G_MAXUINT64 || *time != ':') {
-                return FALSE;
-        }
-        *ret_hour = CLAMP (val, 0, 24);
-        time++;
-
-        /* Minutes */
-        val = g_ascii_strtoull (time, &time, 10);
-        if (val == G_MAXUINT64) {
-                return FALSE;
-        }
-        *ret_min = CLAMP (val, 0, 99);
-
-        if (*time == ':') {
-                /* Yeah! We have seconds. */
-                time++;
-                val = g_ascii_strtoull (time, &time, 10);
-                if (val == G_MAXUINT64) {
-                        return FALSE;
-                }
-                *ret_sec = CLAMP (val, 0, 99);
-        }
-
-        return TRUE;
-}
-
-
-static gboolean
-read_timezone (gchar *timezone, gchar *ret, gsize ret_len)
-{
-        /* checks that we are not reading word "GMT" instead of timezone */
-        if (timezone[0] && g_ascii_isdigit (timezone[1])) {
-                gchar *n = timezone + 1;  /* "+1" to not read timezone sign */
-                gint  hours, minutes;
-
-                if (strlen (n) < 4) {
-                        return FALSE;  
-                }
-
-                #define READ_PAIR(ret, min, max)                        \
-                {                                                       \
-                        gchar buff[3];                                  \
-                        guint64 val;                                    \
-                        buff[0] = n[0];                                 \
-                        buff[1] = n[1];                                 \
-                        buff[2] = '\0';                                 \
-                                                                        \
-                        val = g_ascii_strtoull (buff, NULL, 10);        \
-                        if (val == G_MAXUINT64) {                       \
-                                return FALSE;                           \
-                        }                                               \
-                        ret = CLAMP (val, min, max);                    \
-                        n += 2;                                         \
-                }
-
-                READ_PAIR (hours, 0, 24);
-                if (*n == ':') {
-                        /* that should not happen, but he... */
-                        n++;
-                }
-                READ_PAIR (minutes, 0, 99);
-
-                g_snprintf (ret, ret_len,
-                            "%c%.2d%.2d",
-                            (timezone[0] == '-' ? '-' : '+'),
-                            hours, minutes);
-
-                #undef READ_PAIR
-
-                return TRUE;
-
-        } else if (g_ascii_isalpha (timezone[1])) {
-                /* GMT, so we keep current time */
-                if (ret_len >= 2) {
-                        ret[0] = 'Z';
-                        ret[1] = '\0';
-                        return TRUE;
-
-                } else {
-                        return FALSE;
-                }
-
-        } else {
-                return FALSE;
-        }
-}
-
-
 gchar *
-tracker_generic_date_extractor (gchar *date, steps steps_to_do[])
+tracker_generic_date_to_iso8601 (const gchar *date, const gchar *format)
 {
-        gchar buffer[20], timezone_buffer[6];
-        gchar **date_parts;
-        gsize count;
-        guint i;
 
-        g_return_val_if_fail (date, NULL);
+        gchar *processed;
+        gchar *result;
+        struct tm date_tm;
+        
+        memset (&date_tm, 0, sizeof (struct tm));
 
-        struct tm tm;
-        memset (&tm, 0, sizeof (struct tm));
-
-        date_parts = g_strsplit (date, " ", 0);
-
-        for (i = 0; date_parts[i] && steps_to_do[i] != LAST_STEP; i++) {
-                gchar *part = date_parts[i];
-
-                switch (steps_to_do[i]) {
-                        case TIME: {
-                                if (!read_time (part, &tm.tm_hour, &tm.tm_min, &tm.tm_sec)) {
-                                        goto error;
-                                }
-                                break;
-                        }
-                        case TIMEZONE: {
-                                if (!read_timezone (part,
-                                                    timezone_buffer,
-                                                    G_N_ELEMENTS (timezone_buffer))) {
-                                        goto error;
-                                }
-                                break;
-                        }
-                        case DAY_PART: {
-                                if (strcmp (part, "AM") == 0) {
-                                        /* We do nothing... */
-                                } else if (strcmp (part, "PM") == 0) {
-                                        tm.tm_hour += 12;
-                                }
-                                break;
-                        }
-                        case DAY_STR: {
-                                /* We do not care about monday, tuesday, etc. */
-                                break;
-                        }
-                        case DAY: {
-                                if (!read_day (part, &tm.tm_mday)) {
-                                        goto error;
-                                }
-                                break;
-                        }
-                        case MONTH: {
-                                if (!read_month (part, &tm.tm_mon)) {
-                                        goto error;
-                                }
-                                break;
-                        }
-                        case YEAR : {
-                                if (!read_year (part, &tm.tm_year)) {
-                                        goto error;
-                                }
-                                break;
-                        }
-                        default: {
-                                /* that cannot happen! */
-                                g_strfreev (date_parts);
-                                g_return_val_if_reached (NULL);
-                        }
-                }
-        }
-
-        count = strftime (buffer, sizeof (buffer), "%FT%T", &tm);
-
-        g_strfreev (date_parts);
-
-        if (count > 0) {
-                return g_strconcat (buffer, timezone_buffer, NULL);
-        } else {
+        processed = strptime (date, format, &date_tm);
+        
+        if (processed == NULL) {
+                // Unable to parse the input
                 return NULL;
         }
 
- error:
-        g_strfreev (date_parts);
-        return NULL;
+        result = g_malloc (sizeof (char)*25);
+
+        strftime (result, 25, ISO8601_FORMAT , &date_tm);
+
+        return result;
 }
 
 

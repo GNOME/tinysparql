@@ -22,18 +22,6 @@
 
 #include <glib.h>
 
-
-typedef enum {
-        TIME = 0,       /* hh:mm:ss (seconds are optionals) */
-        TIMEZONE,       /* time added to current time */
-        DAY_PART,       /* AM or PM?  */
-        DAY_STR,        /* Monday, Tuesday, etc. */
-        DAY,            /* day 01, 02, 03, or... 31 in a month */
-        MONTH,          /* month? 0 to 11. Or, Jan, Feb, etc. */
-        YEAR,           /* 1900 - year */
-        LAST_STEP       /* This is the end... The end my friend... */
-} steps;
-
 typedef struct TrackerExtractorData TrackerExtractorData;
 typedef TrackerExtractorData * (* TrackerExtractorDataFunc) (void);
 
@@ -45,7 +33,7 @@ struct TrackerExtractorData {
 };
 
 
-gchar *         tracker_generic_date_extractor (gchar *date, steps steps_to_do[]);
+gchar *         tracker_generic_date_to_iso8601 (const gchar *date, const gchar *format);
 
 gboolean        tracker_is_empty_string (const gchar *s);
 
