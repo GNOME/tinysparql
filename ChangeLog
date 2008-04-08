@@ -1,3 +1,9 @@
+2008-04-08  Michael Biebl  <mbiebl@gmail.com>
+
+	* NEWS: Revamp the NEWS file. Patch by Tshepang Lekhonkhobe.
+	* README: Update the documentation about compilation, runtime
+	requirements, configuration and usage. Patch by Tshepang Lekhonkhobe.
+
 2008-04-07  Ivan Frade  <ivan.frade@nokia.com>
 
 	Using standard C functions to parse dates. Bug #526727
