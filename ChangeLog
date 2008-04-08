@@ -1,5 +1,13 @@
 2008-04-08  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/trackerd/tracker-service.h
+	* src/trackerd/tracker-service-manager.c
+	* src/trackerd/tracker-service-manager.h
+	* src/trackerd/tracker-service.c: Added files missing in previous
+	commit.
+	
+2008-04-08  Ivan Frade  <ivan.frade@nokia.com>
+
 	Service type information encapsulated in TrackerService GObject.
 	Service-type/mime/mime prefixes relations in tracker_service_manager.
 	Bug #523200
