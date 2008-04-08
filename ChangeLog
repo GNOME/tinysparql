@@ -1,3 +1,56 @@
+2008-04-08  Ivan Frade  <ivan.frade@nokia.com>
+
+	Service type information encapsulated in TrackerService GObject.
+	Service-type/mime/mime prefixes relations in tracker_service_manager.
+	Bug #523200
+	
+	* data/services/default.service: Add HasFulltext, HasMetadata,
+	HasThumbs properties with proper values.
+	
+	* data/sqlite-stored-procs.sql: Add method to obtain service
+	type related mimes.
+
+	* src/trackerd/Makefile.am: Add new files for compilation.
+	
+	* src/trackerd/tracker-process-files.c: 
+	* src/trackerd/trackerd.c:
+	* src/trackerd/tracker-dbus-keywords.c
+	* src/trackerd/tracker-dbus-search.c
+	* src/trackerd/tracker-dbus-files.c:
+	* src/trackerd/tracker-dbus-metadata.c
+	* src/trackerd/tracker-dbus-methods.c:
+	* src/trackerd/tracker-rdf-query.c
+	* src/trackerd/tracker-db-sqlite.h
+	* src/trackerd/tracker-db.c
+	* src/trackerd/tracker-db-email.c: Use new methods.
+	
+	* src/trackerd/tracker-db-sqlite.c: Use new methods. 
+	(tracker_db_mime_query): New helper function to obtain mime and mime
+	prefixes for a service type.
+	(tracker_db_get_mimes_for_service_id):
+	(tracker_db_get_mime_prefixes_for_service_id): New wrapper functions to
+	tracker_db_mime_query.
+	(db_row_to_service): Convert a service type row in the database to
+	a new TrackerService object.
+	
+	* src/tracker-preferences/tracker-preferences.c:
+	* src/trackerd/tracker-dbus.[ch]: renamed TRACKER_SERVICE to
+	TRACKER_DBUS_SERVICE
+	
+	* src/trackerd/tracker-indexer.c: Reformatted code.
+	
+	* src/trackerd/tracker-metadata.c: Removed hardcoded mimes and
+	logic to solve mime->service_type
+	
+	* src/trackerd/tracker-service-manager.[ch]: Code handling service
+	types, mimes and mime prefixes.
+	
+	* src/trackerd/tracker-service.[ch]: GObject representing a
+	service type
+
+	* src/trackerd/tracker-utils.[ch]: Removed ServiceDef struct and
+	related methods.
+
 2008-04-08  Michael Biebl  <mbiebl@gmail.com>
 
 	* NEWS: Revamp the NEWS file. Patch by Tshepang Lekhonkhobe.

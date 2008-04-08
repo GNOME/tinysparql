@@ -23,7 +23,6 @@
 
 #include "tracker-rdf-query.h"
 
-
 /* RDF Query Condition
 <rdfq:Condition>
 	<rdfq:and>
@@ -1024,7 +1023,7 @@ get_select_header (const char *service)
 	int type;
 		
 	result = g_string_new ("");
-	type = tracker_get_id_for_service (service);
+	type = tracker_service_manager_get_id_for_service (service);
 
 	switch (type) {
 

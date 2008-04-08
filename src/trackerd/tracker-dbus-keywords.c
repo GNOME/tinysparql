@@ -89,7 +89,9 @@ tracker_dbus_signal_keywords_added (const char *service, const char *uri, const 
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
 
-	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE_KEYWORDS, TRACKER_SIGNAL_KEYWORD_ADDED);
+	msg = dbus_message_new_signal (TRACKER_OBJECT, 
+                                       TRACKER_INTERFACE_KEYWORDS, 
+                                       TRACKER_SIGNAL_KEYWORD_ADDED);
 				
 	if (!msg || !tracker->dbus_con) {
 		return;
@@ -131,7 +133,9 @@ tracker_dbus_signal_keywords_removed (const char *service, const char *uri, cons
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
 
-	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE_KEYWORDS, TRACKER_SIGNAL_KEYWORD_REMOVED);
+	msg = dbus_message_new_signal (TRACKER_OBJECT, 
+                                       TRACKER_INTERFACE_KEYWORDS, 
+                                       TRACKER_SIGNAL_KEYWORD_REMOVED);
 				
 	if (!msg || !tracker->dbus_con) {
 		return;
@@ -200,7 +204,7 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -249,7 +253,7 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -330,7 +334,7 @@ tracker_dbus_method_keywords_add (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -408,7 +412,7 @@ tracker_dbus_method_keywords_remove (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -483,7 +487,7 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -556,7 +560,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -598,10 +602,10 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 
 	g_string_free (str_words, TRUE);
 
-	int smin, smax;
+	gint  smin, smax;
 	char *str_min, *str_max;
 	
-	smin = tracker_get_id_for_service (service);
+	smin = tracker_service_manager_get_id_for_service (service);
 
 	if (smin == 0) {
 		smax = 8;

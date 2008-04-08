@@ -52,6 +52,7 @@
 #include "tracker-metadata.h"
 #include "tracker-utils.h"
 #include "tracker-watch.h"
+#include "tracker-service-manager.h"
 
 #define MAX_TEXT_BUFFER 65567
 #define MAX_COMPRESS_BUFFER 65565
@@ -189,9 +190,9 @@ sqlite3_get_service_name (sqlite3_context *context, int argc, sqlite3_value **ar
 		}
 
 		default:{
-			char *output;
+			gchar *output;
 
-			output = tracker_get_service_by_id (sqlite3_value_int (argv[0]));
+			output = tracker_service_manager_get_service_by_id (sqlite3_value_int (argv[0]));
 			sqlite3_result_text (context, output, strlen (output), g_free);
 		}
 	}
@@ -209,9 +210,11 @@ sqlite3_get_service_type (sqlite3_context *context, int argc, sqlite3_value **ar
 		}
 
 		default:{
-			int output;
+                        const gchar *service;
+			gint         output;
 
-			output = tracker_get_id_for_service ((char *) sqlite3_value_text (argv[0]));
+                        service = (const gchar*) sqlite3_value_text (argv[0]);
+			output = tracker_service_manager_get_id_for_service (service);
 			sqlite3_result_int (context, output);
 		}
 	}
@@ -229,9 +232,11 @@ sqlite3_get_max_service_type (sqlite3_context *context, int argc, sqlite3_value 
 		}
 
 		default:{
-			int output;
+                        const gchar *service;
+			gint          output;
 
-			output = tracker_get_id_for_service ((char *) sqlite3_value_text (argv[0]));
+                        service = (const gchar*) sqlite3_value_text (argv[0]);
+			output = tracker_service_manager_get_id_for_service (service);
 
 			if (output == 0) {
 				output = 8;
@@ -780,7 +785,7 @@ tracker_db_connect_common (void)
 
 	open_common_db (db_con);
 
-	db_con->db_type = DB_COMMON;
+	db_con->db_type = TRACKER_DB_TYPE_COMMON;
 	
 	db_con->cache = NULL;
 	db_con->emails = NULL;
@@ -1029,7 +1034,7 @@ tracker_db_connect (void)
 
 	g_free (dbname);
 
-	db_con->db_type = DB_DATA;
+	db_con->db_type = TRACKER_DB_TYPE_DATA;
 	db_con->db_category = DB_CATEGORY_FILES;
 
 	sqlite3_busy_timeout (db_con->db, 10000000);
@@ -1128,7 +1133,7 @@ tracker_db_connect_file_meta (void)
 
 	db_con = g_new0 (DBConnection, 1);
 
-	db_con->db_type = DB_INDEX;
+	db_con->db_type = TRACKER_DB_TYPE_INDEX;
 	db_con->db_category = DB_CATEGORY_FILES;
 	db_con->index = db_con;
 
@@ -1157,7 +1162,7 @@ tracker_db_connect_email_meta (void)
 
 	db_con = g_new0 (DBConnection, 1);
 
-	db_con->db_type = DB_INDEX;
+	db_con->db_type = TRACKER_DB_TYPE_INDEX;
 	db_con->db_category = DB_CATEGORY_EMAILS;
 
 	db_con->index = db_con;
@@ -1198,7 +1203,7 @@ tracker_db_connect_file_content (void)
 
 	db_con = g_new0 (DBConnection, 1);
 
-	db_con->db_type = DB_CONTENT;
+	db_con->db_type = TRACKER_DB_TYPE_CONTENT;
 	db_con->db_category = DB_CATEGORY_FILES;
 	db_con->blob = db_con;
 
@@ -1237,7 +1242,7 @@ tracker_db_connect_email_content (void)
 
 	db_con = g_new0 (DBConnection, 1);
 
-	db_con->db_type = DB_CONTENT;
+	db_con->db_type = TRACKER_DB_TYPE_CONTENT;
 	db_con->db_category = DB_CATEGORY_EMAILS;
 	db_con->blob = db_con;
 
@@ -1342,7 +1347,7 @@ tracker_db_connect_cache (void)
 
 	g_free (dbname);
 
-	db_con->db_type = DB_CACHE;
+	db_con->db_type = TRACKER_DB_TYPE_CACHE;
 	db_con->cache = db_con;
 
 	sqlite3_busy_timeout (db_con->db, 10000000);
@@ -1397,7 +1402,7 @@ tracker_db_connect_emails (void)
 	g_free (dbname);
 
 
-	db_con->db_type = DB_EMAIL;
+	db_con->db_type = TRACKER_DB_TYPE_EMAIL;
 	db_con->db_category = DB_CATEGORY_EMAILS;
 
 	db_con->emails = db_con;
@@ -1461,8 +1466,11 @@ tracker_db_connect_emails (void)
 char *
 tracker_db_get_alias (const char *service)
 {
-	int id = tracker_get_id_for_parent_service (service);
-	char *parent = tracker_get_service_by_id (id);
+	gchar *parent;
+	gint   id;
+
+        id = tracker_service_manager_get_id_for_parent_service (service);
+        parent = tracker_service_manager_get_service_by_id (id);
 
 	if (strcmp (parent, "Files") == 0) {
 		g_free (parent);
@@ -2408,39 +2416,10 @@ tracker_update_db (DBConnection *db_con)
 }
 
 
-int
-tracker_metadata_is_key (const char *service, const char *meta_name)
+gint
+tracker_metadata_is_key (const gchar *service, const gchar *meta_name)
 {
-	int	 i;
-
-	char *name = g_utf8_strdown (service, -1);
-
-	ServiceDef *def =  g_hash_table_lookup (tracker->service_table, name);
-
-	g_free (name);
-
-	if (!def) {
-		tracker_log ("WARNING: service %s not found", service);
-		return 0;
-	}
-
-	GSList *list;
-	i = 0;
-	for (list=def->key_metadata; list; list=list->next) {
-
-		i++;		
-		if (list->data) {
-			char *meta = (char *) list->data;
-
-			if (strcasecmp (meta, meta_name) == 0) {
-				return i;
-			}
-		}
-
-	}
-
-	return 0;
-
+	return tracker_service_manager_metadata_in_service (service, meta_name);
 }
 
 
@@ -3343,6 +3322,7 @@ static void
 update_metadata_index (DBConnection *db_con, const char *id, const char *service, FieldDef *def, const char *old_value, const char *new_value) 
 {
 	GHashTable *old_table, *new_table;
+	gint        sid;
 
 	if (!def) {
 		tracker_error ("ERROR: cannot find details for metadata type");
@@ -3354,7 +3334,11 @@ update_metadata_index (DBConnection *db_con, const char *id, const char *service
 	new_table = NULL;
 
 	if (old_value) {
-		old_table = tracker_parse_text (old_table, old_value, def->weight, def->filtered, def->delimited);
+		old_table = tracker_parse_text (old_table, 
+                                                old_value, 
+                                                def->weight, 
+                                                def->filtered, 
+                                                def->delimited);
 	}
 
 	/* parse new metadata value */
@@ -3363,10 +3347,7 @@ update_metadata_index (DBConnection *db_con, const char *id, const char *service
 	}
 
 	/* we only do differential updates so only changed words scores are updated */
-	
-	int sid;
-
-	sid = tracker_get_id_for_service (service);
+	sid = tracker_service_manager_get_id_for_service (service);
 	tracker_db_update_differential_index (db_con, old_table, new_table, id, sid);
 
 	tracker_word_table_free (old_table);
@@ -3808,7 +3789,9 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				tracker_exec_proc (db_con, "SetMetadataKeyword", 3, id, def->id, values[i]);
 
 				/* backup non-embedded data for embedded services */
-				if (do_backup && !def->embedded && tracker_is_service_embedded (service)) {
+				if (do_backup && 
+                                    !def->embedded && 
+                                    tracker_service_manager_is_service_embedded (service)) {
 					backup_non_embedded_metadata (db_con, id, def->id, values[i]);
 				}
 
@@ -3836,7 +3819,9 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				}
 
 				/* backup non-embedded data for embedded services */
-				if (do_backup && !def->embedded && tracker_is_service_embedded (service)) {
+				if (do_backup &&
+                                    !def->embedded && 
+                                    tracker_service_manager_is_service_embedded (service)) {
 					backup_non_embedded_metadata (db_con, id, def->id, values[i]);
 				}
 
@@ -3870,7 +3855,9 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				if (!values[i] || !values[i][0]) continue;
 
 				/* backup non-embedded data for embedded services */
-				if (do_backup && !def->embedded && tracker_is_service_embedded (service)) {
+				if (do_backup && 
+                                    !def->embedded && 
+                                    tracker_service_manager_is_service_embedded (service)) {
 					backup_non_embedded_metadata (db_con, id, def->id, values[i]);
 				}
 
@@ -3890,7 +3877,9 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				if (!values[i] || !values[i][0]) continue;
 
 				/* backup non-embedded data for embedded services */
-				if (do_backup && !def->embedded && tracker_is_service_embedded (service)) {
+				if (do_backup && 
+                                    !def->embedded && 
+                                    tracker_service_manager_is_service_embedded (service)) {
 					backup_non_embedded_metadata (db_con, id, def->id, values[i]);
 				}
 
@@ -3908,7 +3897,9 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				if (!values[i] || !values[i][0]) continue;
 
 				/* backup non-embedded data for embedded services */
-				if (do_backup && !def->embedded && tracker_is_service_embedded (service)) {
+				if (do_backup && 
+                                    !def->embedded && 
+                                    tracker_service_manager_is_service_embedded (service)) {
 					backup_non_embedded_metadata (db_con, id, def->id, values[i]);
 				}
 
@@ -3935,7 +3926,9 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, mvalue); 
 
 				/* backup non-embedded data for embedded services */
-				if (do_backup && !def->embedded && tracker_is_service_embedded (service)) {
+				if (do_backup && 
+                                    !def->embedded && 
+                                    tracker_service_manager_is_service_embedded (service)) {
 					backup_non_embedded_metadata (db_con, id, def->id, mvalue);
 				}
 
@@ -4058,7 +4051,8 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 	}
 
 
-	if (!def->embedded && tracker_is_service_embedded (service)) {
+	if (!def->embedded && 
+            tracker_service_manager_is_service_embedded (service)) {
 		backup_delete_non_embedded_metadata_value (db_con, id, def->id, value);
 	}
 
@@ -4197,7 +4191,8 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 		return;
 	}
 	
-	if (!def->embedded && tracker_is_service_embedded (service)) {
+	if (!def->embedded && 
+            tracker_service_manager_is_service_embedded (service)) {
 		backup_delete_non_embedded_metadata (db_con, id, def->id);
 	}
 
@@ -4337,7 +4332,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 	str_mtime = tracker_gint32_to_str (info->mtime);
 	str_offset = tracker_gint32_to_str (info->offset);
 
-	service_type_id = tracker_get_id_for_service (service);
+	service_type_id = tracker_service_manager_get_id_for_service (service);
 
 	if (info->mime) {
 		tracker_debug ("service id for %s is %d and sid is %s with mime %s", service, service_type_id, sid, info->mime);
@@ -4350,6 +4345,8 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 	str_aux = tracker_int_to_str (info->aux_id);
 
 	if (service_type_id != -1) {
+		gchar *parent;
+
               //  gchar *apath = tracker_escape_string (path);
              //   gchar *aname = tracker_escape_string (name);
 
@@ -4383,7 +4380,7 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 
 		tracker_exec_proc (db_con->common, "IncStat", 1, service);
 
-		char *parent = tracker_get_parent_service (service);
+                parent = tracker_service_manager_get_parent_service (service);
 		
 		if (parent) {
 			tracker_exec_proc (db_con->common, "IncStat", 1, parent);
@@ -4501,12 +4498,16 @@ delete_cache_words (guint32 file_id)
 static void
 dec_stat (DBConnection *db_con, int id)
 {
-	char *service = tracker_get_service_by_id (id);
+	gchar *service;
+        
+        service = tracker_service_manager_get_service_by_id (id);
 
 	if (service) {
+		gchar *parent;
+
 		tracker_exec_proc (db_con->common, "DecStat", 1, service);
 
-		char *parent = tracker_get_parent_service (service);
+                parent = tracker_service_manager_get_parent_service (service);
 		
 		if (parent) {
 			tracker_exec_proc (db_con->common, "DecStat", 1, parent);
@@ -4526,10 +4527,10 @@ dec_stat (DBConnection *db_con, int id)
 char *
 tracker_db_get_id (DBConnection *db_con, const char *service, const char *uri)
 {
-	int	service_id;
+	gint    service_id;
 	guint32	id;
 
-	service_id = tracker_get_id_for_service (service);
+	service_id = tracker_service_manager_get_id_for_service (service);
 
 	if (service_id == -1) {
 		return NULL;
@@ -4933,19 +4934,19 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 	GSList 	     *hit_list, *result_list;
 	const GSList *tmp;
 	int 	     count;
+	gint         service_array[8];
 
 	result = NULL;
 	result_list = NULL;
 	 
-	int service_array[8];
-	service_array[0] = tracker_get_id_for_service ("Files");
-	service_array[1] = tracker_get_id_for_service ("Folders");
-	service_array[2] = tracker_get_id_for_service ("Documents");
-	service_array[3] = tracker_get_id_for_service ("Images");
-	service_array[4] = tracker_get_id_for_service ("Music");
-	service_array[5] = tracker_get_id_for_service ("Videos");
-	service_array[6] = tracker_get_id_for_service ("Text");
-	service_array[7] = tracker_get_id_for_service ("Other");
+	service_array[0] = tracker_service_manager_get_id_for_service ("Files");
+	service_array[1] = tracker_service_manager_get_id_for_service ("Folders");
+	service_array[2] = tracker_service_manager_get_id_for_service ("Documents");
+	service_array[3] = tracker_service_manager_get_id_for_service ("Images");
+	service_array[4] = tracker_service_manager_get_id_for_service ("Music");
+	service_array[5] = tracker_service_manager_get_id_for_service ("Videos");
+	service_array[6] = tracker_service_manager_get_id_for_service ("Text");
+	service_array[7] = tracker_service_manager_get_id_for_service ("Other");
 
 	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 8, 0, 999999);
 
@@ -5050,19 +5051,19 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 	GSList 	     *hit_list, *result_list;
 	const GSList *tmp;
 	int 	     count;
+	gint          service_array[8];
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
 	 
-	int service_array[8];
-	service_array[0] = tracker_get_id_for_service ("Files");
-	service_array[1] = tracker_get_id_for_service ("Folders");
-	service_array[2] = tracker_get_id_for_service ("Documents");
-	service_array[3] = tracker_get_id_for_service ("Images");
-	service_array[4] = tracker_get_id_for_service ("Music");
-	service_array[5] = tracker_get_id_for_service ("Videos");
-	service_array[6] = tracker_get_id_for_service ("Text");
-	service_array[7] = tracker_get_id_for_service ("Other");
+	service_array[0] = tracker_service_manager_get_id_for_service ("Files");
+	service_array[1] = tracker_service_manager_get_id_for_service ("Folders");
+	service_array[2] = tracker_service_manager_get_id_for_service ("Documents");
+	service_array[3] = tracker_service_manager_get_id_for_service ("Images");
+	service_array[4] = tracker_service_manager_get_id_for_service ("Music");
+	service_array[5] = tracker_service_manager_get_id_for_service ("Videos");
+	service_array[6] = tracker_service_manager_get_id_for_service ("Text");
+	service_array[7] = tracker_service_manager_get_id_for_service ("Other");
 
 	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 8, 0, 999999);
 
@@ -5165,19 +5166,19 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 	GSList 	     *hit_list, *result_list;
 	const GSList *tmp;
 	int	     count;
+	gint          service_array[8];
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
 		 
-	int service_array[8];
-	service_array[0] = tracker_get_id_for_service ("Files");
-	service_array[1] = tracker_get_id_for_service ("Folders");
-	service_array[2] = tracker_get_id_for_service ("Documents");
-	service_array[3] = tracker_get_id_for_service ("Images");
-	service_array[4] = tracker_get_id_for_service ("Music");
-	service_array[5] = tracker_get_id_for_service ("Videos");
-	service_array[6] = tracker_get_id_for_service ("Text");
-	service_array[7] = tracker_get_id_for_service ("Other");
+	service_array[0] = tracker_service_manager_get_id_for_service ("Files");
+	service_array[1] = tracker_service_manager_get_id_for_service ("Folders");
+	service_array[2] = tracker_service_manager_get_id_for_service ("Documents");
+	service_array[3] = tracker_service_manager_get_id_for_service ("Images");
+	service_array[4] = tracker_service_manager_get_id_for_service ("Music");
+	service_array[5] = tracker_service_manager_get_id_for_service ("Videos");
+	service_array[6] = tracker_service_manager_get_id_for_service ("Text");
+	service_array[7] = tracker_service_manager_get_id_for_service ("Other");
 
 	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 8, 0, 999999);
 
@@ -5687,28 +5688,152 @@ tracker_db_get_keyword_list (DBConnection *db_con, const char *service)
 	return res;
 }
 
+GSList *
+tracker_db_mime_query (DBConnection *db_con, 
+                       const gchar  *stored_proc, 
+                       gint          service_id)
+{
+
+	GSList  *result = NULL;
+	gchar   *service_id_str;
+        gchar ***result_set;
+
+	service_id_str = g_strdup_printf ("%d", service_id);
+	result_set = tracker_exec_proc (db_con, stored_proc, 1, service_id_str);
+	g_free (service_id_str);
+
+	if (result_set) {
+		gchar **row;
+		gint    k;
+		
+		for (k = 0; (row = tracker_db_get_row (result_set, k)); k++) {
+			result = g_slist_prepend (result, g_strdup(row[0]));
+		}
+
+		tracker_db_free_result (result_set);
+
+	}
+
+	return result;
+}
+
+GSList *
+tracker_db_get_mimes_for_service_id (DBConnection *db_con, 
+                                     gint          service_id) 
+{
+	return  tracker_db_mime_query (db_con, "GetMimeForServiceId", service_id);
+}
+
+GSList *
+tracker_db_get_mime_prefixes_for_service_id (DBConnection *db_con,
+                                             gint          service_id) 
+{
+	return tracker_db_mime_query (db_con, "GetMimePrefixForServiceId", service_id);
+}
+
+static TrackerService *
+db_row_to_service (gchar **row)
+{
+        TrackerService *service;
+        GSList         *new_list;
+        gint            id;
+        const gchar    *name;
+        gint            i;
+
+        if (!row[0] || !row[1] || 
+            !row[2] || !row[3] || 
+            !row[4] || !row[5] || 
+            !row[6] || !row[7] || 
+            !row[8]) {
+                return NULL;
+        }
+               
+        service = tracker_service_new ();
+        
+        new_list = NULL;
+        id = atoi (row[0]);
+        name = row[1];
+
+        tracker_service_set_id (service, id);
+        tracker_service_set_name (service, name);
+        tracker_service_set_parent (service, row[2]);
+        tracker_service_set_enabled (service, row[3][0] == '1');
+        tracker_service_set_embedded (service, row[4][0] == '1');
+        tracker_service_set_has_metadata (service, row[5][0] == '1');
+        tracker_service_set_has_full_text (service, row[6][0] == '1');
+        tracker_service_set_has_thumbs (service, row[7][0] == '1');
+        
+        if (row[8][1]) {
+                tracker_service_set_content_metadata (service, row[8]);
+        }
+        
+        if (g_str_has_prefix (name, "Email") ||
+            g_str_has_suffix (name, "Emails")) {
+                tracker_service_set_db_type (service, TRACKER_DB_TYPE_EMAIL);
+                
+                if (tracker->email_service_min == 0 || 
+                    id < tracker->email_service_min) {
+                        tracker->email_service_min = id;
+                }
+                
+                if (tracker->email_service_max == 0 || 
+                    id > tracker->email_service_max) {
+                        tracker->email_service_max = id;
+                }
+        } else {
+                tracker_service_set_db_type (service, TRACKER_DB_TYPE_DATA);
+        }
+        
+        tracker_service_set_show_service_files (service, row[10][0] == '1');
+        tracker_service_set_show_service_directories (service, row[11][0] == '1');
+        
+        for (i = 12; i < 23; i++) {
+                if (row[i] && row[i][1]) {
+                        /* We do not duplicate the data here because
+                         * the TrackerService will do this for us.
+                         */
+                        new_list = g_slist_prepend (new_list, row[i]);
+                }
+        }
+        
+        /* Hack to prevent db change late in the cycle, check the
+         * service name matches "Applications", then add some voodoo.
+         */
+        if (strcmp (name, "Applications") == 0) {
+                /* These strings should be definitions at the top of
+                 * this file somewhere really.
+                 */
+                new_list = g_slist_prepend (new_list, "App:DisplayName");
+                new_list = g_slist_prepend (new_list, "App:Exec");
+                new_list = g_slist_prepend (new_list, "App:Icon");
+        }
+        
+        new_list = g_slist_reverse (new_list);
+        
+        tracker_service_set_key_metadata (service, new_list);
+        g_slist_free (new_list);
+
+        return service;
+} 
 
 /* get static data like metadata field definitions and services definitions and load them into hashtables */
 void
 tracker_db_get_static_data (DBConnection *db_con)
 {
-	int i = 0, j;
-	char ***res;
+	gchar ***res;
+	gint     i = 0;
+        gint     j;
 
-
-	/* get static metadata info */
+	/* Get static metadata info */
 	res  = tracker_exec_proc (db_con, "GetMetadataTypes", 0);
 
-
 	if (res) {
-		char **row;
+		gchar **row;
 
 		while ((row = tracker_db_get_row (res, i))) {
-
 			i++;
 
 			if (row[0] && row[1] && row[2] && row[3] && row[4] && row[5] && row[6] && row[7] && row[8] && row[9]) {
-	
 				FieldDef *def = NULL;				
 	
 				def = g_new (FieldDef, 1);
@@ -5733,7 +5858,6 @@ tracker_db_get_static_data (DBConnection *db_con)
 					char **row2;
 
 					while ((row2 = tracker_db_get_row (res2, j))) {
-				
 						j++;
 
 						if (row2[1]) {
@@ -5744,97 +5868,59 @@ tracker_db_get_static_data (DBConnection *db_con)
 				}
 
 				g_hash_table_insert (tracker->metadata_table, g_utf8_strdown  (row[1], -1), def);
-				tracker_debug ("loading metadata def %s with weight %d", def->field_name, def->weight);
-
+				tracker_debug ("loading metadata def %s with weight %d", 
+                                               def->field_name, def->weight);
 			} 
-
 		}		
+
 		tracker_db_free_result (res);
 	}
 
-
-	/* get static service info */	
-	
+	/* Get static service info */	
 	res  = tracker_exec_proc_ignore_nulls (db_con, "GetAllServices", 0);
 	
 	if (res) {
-		char **row;
+		gchar **row;
+
 		i = 0;
 
 		 tracker->email_service_min = 0;
 		 tracker->email_service_max = 0;
 
-		while ((row = tracker_db_get_row (res, i))) {
+		while ((row = tracker_db_get_row (res, i++))) {
+                        TrackerService *service;
+                        gint            id;
+                        const gchar    *name;
+                        GSList         *mimes;
+                        GSList         *mime_prefixes;
 
-			i++;
+                        service = db_row_to_service (row);
 
-			if (row[0] && row[1] && row[2] && row[3] && row[4] && row[5] && row[6] && row[7] && row[8]) {
-				ServiceDef *def = g_new0 (ServiceDef, 1);
-
-				def->id = atoi (row[0]);
-				def->name = g_strdup (row[1]);
-				def->parent = g_strdup (row[2]);
-				def->enabled = (row[3][0] == '1');
-				def->embedded = (row[4][0] == '1');
-				def->has_metadata = (row[5][0] == '1');
-				def->has_fulltext = (row[6][0] == '1');
-				def->has_thumbs = (row[7][0] == '1');
-
-				def->content_metadata = NULL;
-				if (row[8][1]) {
-					def->content_metadata = g_strdup (row[8]);
+                        if (!service) {
+                                continue;
 				}
 
-				if (g_str_has_prefix (def->name, "Email") || g_str_has_suffix (def->name, "Emails")) {
-					def->database = DB_EMAIL;
+                        id = tracker_service_get_id (service);
+                        name = tracker_service_get_name (service);
 
-					if (tracker->email_service_min == 0 || def->id < tracker->email_service_min) {
-						tracker->email_service_min = def->id;
-					}
+                        mimes = tracker_db_get_mimes_for_service_id (db_con, id);
+                        mime_prefixes = tracker_db_get_mime_prefixes_for_service_id (db_con, id);
 
-					if (tracker->email_service_max == 0 || def->id > tracker->email_service_max) {
-						tracker->email_service_max = def->id;
-					}
+                        tracker_debug ("Adding service definition for %s with id %d", name, id);
+                        tracker_service_manager_add_service (service, 
+                                                             mimes, 
+                                                             mime_prefixes);
 
+                        g_slist_free (mimes);
+                        g_slist_free (mime_prefixes);
 
-
-				} else {
-					def->database = DB_DATA;
+                        g_object_unref (service);
 				}
 
-				def->show_service_files = (row[10][0] == '1');
-			 	def->show_service_directories = (row[11][0] == '1');
-				
-				def->key_metadata = NULL;
-
-				int j;
-
-				for (j=12; j<23; j++) {
-					if (row[j] && row[j][1]) {
-						def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup (row[j]));
-					}
-				}
-
-				/* hack to prevent db change late in the cycle */
-				if (strcmp (def->name, "Applications") == 0) {
-					def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup ("App:DisplayName"));
-					def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup ("App:Exec"));
-					def->key_metadata = g_slist_prepend (def->key_metadata, g_strdup ("App:Icon"));
-				}
-
-
-				def->key_metadata = g_slist_reverse (def->key_metadata);
-
-				tracker_debug ("adding service definition for %s with id %s", def->name, row[0]);
-				g_hash_table_insert (tracker->service_table, g_utf8_strdown (def->name, -1), def);
-				g_hash_table_insert (tracker->service_id_table, g_strdup (row[0]), def);
-			} 
-
-		}		
 		tracker_db_free_result (res);
 		
 		/* check for web history */
-		if (!g_hash_table_lookup (tracker->service_table, "Webhistory")) {
+		if (!tracker_service_manager_get_service ("Webhistory")) {
 			tracker_log ("Adding missing Webhistory service");
 			tracker_exec_proc (db_con, "InsertServiceType", 1, "Webhistory");	
 		}
@@ -5846,11 +5932,11 @@ tracker_db_get_static_data (DBConnection *db_con)
 DBConnection *
 tracker_db_get_service_connection (DBConnection *db_con, const char *service)
 {
-	DBTypes type;
+	TrackerDBType type;
 
-	type = tracker_get_db_for_service (service);
+	type = tracker_service_manager_get_db_for_service (service);
 
-	if (type == DB_EMAIL) {
+	if (type == TRACKER_DB_TYPE_EMAIL) {
 		return db_con->emails;
 	}
 
@@ -5966,23 +6052,18 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 				} else {
 					id = atoi (def->id);
 				}
-
 			} else if (is_service) {
+				TrackerService *service;
 				
-				char *name = g_utf8_strdown (*array, -1);
+				tracker_log ("Trying to obtain service %s in cache", *array);
+				service = tracker_service_manager_get_service (*array);
 
-				ServiceDef *def =  g_hash_table_lookup (tracker->service_table, *array);
-
-				g_free (name);
-
-				if (!def) {
+				if (!service) {
 					tracker_exec_proc (db_con, "InsertServiceType", 1, *array);	
 					id = sqlite3_last_insert_rowid (db_con->db);		
 				} else {
-					id = def->id;
+					id = tracker_service_get_id (service);
 				}
-
-				
 			} else {
 				/* TODO add support for extractors here */;
 			}

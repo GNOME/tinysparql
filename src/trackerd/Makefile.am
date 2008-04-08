@@ -91,6 +91,10 @@ trackerd_SOURCES =							\
 	tracker-rdf-query.h						\
 	tracker-utils.c							\
 	tracker-utils.h							\
+	tracker-service.c						\
+	tracker-service.h						\
+	tracker-service-manager.c					\
+	tracker-service-manager.h					\
 	tracker-ioprio.c						\
 	tracker-ioprio.h						\
 	tracker-os-dependant.h						\

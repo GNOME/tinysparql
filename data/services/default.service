@@ -33,6 +33,9 @@ Mimes=application/rtf;text/richtext;application/msword;application/pdf;applicati
 MimePrefixes=application/vnd.oasis.opendocument;application/vnd.sun.xml;application/vnd.stardivision;
 ShowServiceFiles=true
 ShowServiceDirectories=true
+HasMetadata=true
+HasFullText=true
+HasThumbs=true
 
 [WebHistory]
 DisplayName=Web History
@@ -47,7 +50,9 @@ TabularMetadata=File:Name;File:Mime;Doc:Title;Doc:URL;Doc:Author;File:Size;File:
 TileMetadata=Doc:Title;Doc:URL;Doc:Subject;Doc:Author;Doc:Created;Doc:PageCount;File:Size;
 ShowServiceFiles=false
 ShowServiceDirectories=false
-
+HasMetadata=true
+HasFullText=true
+HasThumbs=true
 
 
 [Images]
@@ -69,6 +74,9 @@ Mimes=application/vnd.oasis.opendocument.image;application/x-krita;
 MimePrefixes=image/;
 ShowServiceFiles=true
 ShowServiceDirectories=true
+HasMetadata=true
+HasFullText=false
+HasThumbs=true
 
 
 [Music]
@@ -95,6 +103,9 @@ Mimes=application/ogg;
 MimePrefixes=audio/;
 ShowServiceFiles=true
 ShowServiceDirectories=true
+HasMetadata=true
+HasFullText=false
+HasThumbs=false
 
 
 [Videos]
@@ -115,6 +126,9 @@ TileMetadata=Video:Title;Video:Author;Video:Height;Video:Width;Video:Duration;Vi
 MimePrefixes=video/;
 ShowServiceFiles=true
 ShowServiceDirectories=true
+HasMetadata=true
+HasFullText=false
+HasThumbs=true
 
 
 [Text]
@@ -127,6 +141,9 @@ ContentMetadata=File:Contents
 Mimes=text/plain;text/x-authors;text/x-changelog;text/x-copying;text/x-credits;text/x-install;text/x-readme;
 ShowServiceFiles=true
 ShowServiceDirectories=true
+HasMetadata=false
+HasFullText=true
+HasThumbs=false
 
 
 [Development]
@@ -139,6 +156,9 @@ ContentMetadata=File:Contents
 Mimes=application/x-perl;application/x-shellscript;application/x-php;application/x-java;application/x-javascript;application/x-glade;application/x-csh;application/x-class-file;application/x-awk;application/x-asp;application/x-ruby;application/x-m4;text/x-m4;text/x-c++;text/x-adasrc;text/x-c;text/x-c++hdr;text/x-chdr;text/x-csharp;text/x-c++src;text/x-csrc;text/x-dcl;text/x-dsrc;text/x-emacs-lisp;text/x-fortran;text/x-haskell;text/x-literate-haskell;text/x-java;text/x-java-source" ,text/x-makefile;text/x-objcsrc;text/x-pascal;text/x-patch;text/x-python;text/x-scheme;text/x-sql;text/x-tcl;
 ShowServiceFiles=true
 ShowServiceDirectories=true
+HasMetadata=false
+HasFullText=true
+HasThumbs=false
 
 [Other]
 DisplayName=Other Files
@@ -146,6 +166,9 @@ Description=All other files that do not belong in any other category
 Parent=Files
 ShowServiceFiles=true
 ShowServiceDirectories=true
+HasMetadata=true
+HasFullText=true
+HasThumbs=true
 
 [Emails]
 DisplayName=Emails
@@ -218,6 +241,9 @@ Description=Conversation log files
 UIVisible=true
 Icon=stock_help-chat
 ShowServiceFiles=true
+HasMetadata=false
+HasFullText=true
+HasThumbs=false
 
 [GaimConversations]
 DisplayName=Gaim Conversations
@@ -225,6 +251,9 @@ Description=All Gaim Conversation logs
 Parent=Conversations
 Icon=stock_help-chat
 ShowServiceFiles=true
+HasMetadata=false
+HasFullText=true
+HasThumbs=false
 
 [Applications]
 DisplayName=Applications
@@ -236,3 +265,6 @@ KeyMetadata1=App:DisplayName
 KeyMetadata2=App:Exec
 KeyMetadata3=App:Icon
 TileMetadata=App:GenericName;AppComment;App:Categories
+HasMetadata=false
+HasFullText=false
+HasThumbs=false

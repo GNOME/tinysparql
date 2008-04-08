@@ -44,6 +44,7 @@
 #include "tracker-os-dependant.h"
 #include "tracker-utils.h"
 #include "tracker-watch.h"
+#include "tracker-service.h"
 
 static void
 process_my_yield (void)
@@ -325,9 +326,8 @@ static void
 process_index_entity (Tracker  *tracker, 
                       FileInfo *info)
 {
-        ServiceDef *def;
+        TrackerService *def;
 	gchar      *service_info;
-	gchar      *str;
 
 	g_return_if_fail (info);
 	g_return_if_fail (tracker_check_uri (info->uri));
@@ -348,9 +348,7 @@ process_index_entity (Tracker  *tracker,
 		return;
 	}
 
-        str = g_utf8_strdown (service_info, -1);
-	def = g_hash_table_lookup (tracker->service_table, str);
-	g_free (str);
+	def = tracker_service_manager_get_service (service_info);
 
 	if (!def) {
 		if (service_info) {
@@ -363,12 +361,12 @@ process_index_entity (Tracker  *tracker,
 	}
 
 	if (info->is_directory) {
-		info->is_hidden = !def->show_service_directories;
+		info->is_hidden = !tracker_service_get_show_service_directories (def);
 		tracker_db_index_file (tracker->index_db, info, NULL, NULL);
 		g_free (service_info);
 		return;
 	} else {
-		info->is_hidden = !def->show_service_files;
+		info->is_hidden = !tracker_service_get_show_service_files (def);
 	}
 
 	if (g_str_has_suffix (service_info, "Emails")) {

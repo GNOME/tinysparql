@@ -32,6 +32,7 @@
 #include "tracker-email.h"
 #include "tracker-metadata.h"
 #include "tracker-os-dependant.h"
+#include "tracker-service-manager.h"
 
 extern Tracker *tracker;
 
@@ -796,13 +797,6 @@ tracker_db_insert_pending_file (DBConnection *db_con, guint32 file_id, const cha
 }
 
 
-gboolean
-tracker_is_valid_service (DBConnection *db_con, const char *service)
-{
-	return tracker_get_id_for_service (service) != -1;
-}
-
-
 static void
 restore_backup_data (gpointer mtype,
 			 gpointer value,
@@ -850,7 +844,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 		uri = attachment_uri;
 	}
 
-	info->service_type_id = tracker_get_id_for_service (service);
+	info->service_type_id = tracker_service_manager_get_id_for_service (service);
 
 	if (info->service_type_id == -1) {
 		tracker_log ("Service %s not supported yet", service);
@@ -952,7 +946,7 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 	}
 
 	if (attachment_service) {
-		info->service_type_id = tracker_get_id_for_service (attachment_service);
+		info->service_type_id = tracker_service_manager_get_id_for_service (attachment_service);
 	}
 
 	/* save stuff to Db */
@@ -1094,9 +1088,6 @@ tracker_db_index_master_files (DBConnection *db_con, const gchar *dirname, const
 void
 tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachment_uri, const char *attachment_service)
 {
-	char *services_with_metadata[] = {"Documents", "Music", "Videos", "Images","WebHistory", NULL};
-	char *services_with_text[] = {"Documents", "Development", "Text", "WebHistory",NULL};
-	char *services_with_thumbs[] = {"Documents", "Images", "Videos", "WebHistory",NULL};
 
 	GHashTable	*meta_table;
 	const char	*ext;
@@ -1129,7 +1120,7 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 
 		tracker_info ("mime is %s for %s", info->mime, info->uri);
 
-		service_name = tracker_get_service_type_for_mime (info->mime);
+		service_name = tracker_service_manager_get_service_type_for_mime (info->mime);
 
 	}
 
@@ -1216,14 +1207,25 @@ tracker_db_index_file (DBConnection *db_con, FileInfo *info, const char *attachm
 
 
 		is_external_service = g_str_has_prefix (info->mime, "service/");
-		is_file_indexable = (!info->is_directory && (strcmp (info->mime, "unknown") != 0) && (strcmp (info->mime, "symlink") != 0) && tracker_file_is_indexable (info->uri));
+		is_file_indexable = (!info->is_directory && 
+                                     (strcmp (info->mime, "unknown") != 0) && 
+                                     (strcmp (info->mime, "symlink") != 0) &&
+                                     tracker_file_is_indexable (info->uri));
 
-		service_has_metadata = (is_external_service ||
-					(is_file_indexable && (tracker_str_in_array (service_name, services_with_metadata) != -1))) && !is_sidecar;
-		service_has_fulltext = (is_external_service ||
-					(is_file_indexable && (tracker_str_in_array (service_name, services_with_text) != -1))) && !is_sidecar;
-		service_has_thumbs = (is_external_service ||
-				      (is_file_indexable && (tracker_str_in_array (service_name, services_with_thumbs) != -1)));
+		service_has_metadata = 
+                        (is_external_service ||
+                         (is_file_indexable && 
+                          tracker_service_manager_has_metadata (service_name))) &&
+                        !is_sidecar;
+		service_has_fulltext = 
+                        (is_external_service ||
+                         (is_file_indexable && 
+                          tracker_service_manager_has_text (service_name))) && 
+                        !is_sidecar;
+		service_has_thumbs = 
+                        (is_external_service ||
+                         (is_file_indexable && 
+                          tracker_service_manager_has_thumbnails (service_name)));
 
 		#ifdef HAVE_EXEMPI
 		if (!info->is_directory) {

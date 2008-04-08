@@ -30,7 +30,7 @@
 #include <dbus/dbus-glib.h>
 
 
-#define TRACKER_SERVICE					"org.freedesktop.Tracker"
+#define TRACKER_DBUS_SERVICE		 	        "org.freedesktop.Tracker"
 #define TRACKER_OBJECT					"/org/freedesktop/tracker"
 #define TRACKER_INTERFACE				"org.freedesktop.Tracker"
 #define TRACKER_INTERFACE_METADATA			"org.freedesktop.Tracker.Metadata"

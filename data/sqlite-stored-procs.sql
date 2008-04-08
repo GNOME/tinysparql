@@ -124,6 +124,9 @@ GetServiceTable select M.MetaName, M.ID from MetaDataTypes M where M.ID in (sele
 InsertMimes replace into FileMimes (Mime) Values (?);
 InsertMimePrefixes replace into FileMimePrefixes (MimePrefix) Values (?);
 
+GetMimeForServiceId select Mime from FileMimes where ServiceTypeId = ?;
+GetMimePrefixeForServiceId select MimePrefix from FileMimesPrefix where ServiceTypeId = ?;
+
 ExistsPendingFiles select count (*) from FilePending where Action <> 20;
 InsertPendingFile INSERT INTO FilePending (FileID, Action, PendingDate, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) VALUES (?,?,?,?,?,?,?,?,?,?);
 CountPendingMetadataFiles select count (*) from FilePending where Action = 20;

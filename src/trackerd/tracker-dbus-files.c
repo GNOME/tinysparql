@@ -24,6 +24,7 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-metadata.h"
 #include "tracker-dbus-files.h"
+#include "tracker-service-manager.h"
 
 void
 tracker_dbus_method_files_exists (DBusRec *rec)
@@ -85,7 +86,7 @@ tracker_dbus_method_files_exists (DBusRec *rec)
 			service = g_strdup ("Files");
 		} else {
 			info->mime = tracker_get_mime_type (uri);
-			service = tracker_get_service_type_for_mime (info->mime);
+			service = tracker_service_manager_get_service_type_for_mime (info->mime);
 			info = tracker_get_file_info (info);
 		}
 
@@ -161,7 +162,7 @@ tracker_dbus_method_files_create (DBusRec *rec)
 	info = tracker_create_file_info (uri, 1, 0, 0);
 
 	info->mime = g_strdup (mime);
-	service = tracker_get_service_type_for_mime (mime);
+	service = tracker_service_manager_get_service_type_for_mime (mime);
 	info->is_directory = is_dir;
 	info->file_size = size;
 	info->mtime = mtime;
@@ -334,7 +335,7 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 
 	mime = tracker_get_metadata (db_con, "Files", str_id, "File:Mime");
 
-	result = tracker_get_service_type_for_mime (mime);
+	result = tracker_service_manager_get_service_type_for_mime (mime);
 
 	tracker_log ("Info for file %s is : id=%u, mime=%s, service=%s", uri, file_id, mime, result); 
 
@@ -647,7 +648,7 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}

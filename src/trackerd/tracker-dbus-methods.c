@@ -140,7 +140,7 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 			service = g_strdup ("Files");
 		} else {
 			info->mime = tracker_get_mime_type (uri_in_locale);
-			service = tracker_get_service_type_for_mime (info->mime);
+			service = tracker_service_manager_get_service_type_for_mime (info->mime);
 			info = tracker_get_file_info (info);
 		}
 

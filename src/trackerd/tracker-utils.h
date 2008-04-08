@@ -91,17 +91,6 @@ typedef enum {
 
 
 typedef enum {
-	DB_DATA, 
-	DB_INDEX,
-	DB_COMMON, 
-	DB_CONTENT,
-	DB_EMAIL, 
-	DB_CACHE,
-	DB_USER
-} DBTypes;
-
-
-typedef enum {
 	DB_CATEGORY_FILES, 
 	DB_CATEGORY_EMAILS,
 	DB_CATEGORY_USER
@@ -162,26 +151,6 @@ typedef struct {
 	guint           needs_join : 1;
 
 } FieldData;
-
-
-typedef struct {
-
-	int		id;
-	char 		*name;
-	char		*parent;
-	char		*content_metadata;
-	GSList		*key_metadata;
-	DBTypes		database;
-
-	guint           enabled : 1;
-	guint           embedded : 1;
-	guint           has_metadata : 1;
-	guint           has_fulltext : 1;
-	guint           has_thumbs : 1;
-	guint           show_service_files : 1;
-	guint           show_service_directories : 1;
-
-} ServiceDef;
 
 
 typedef struct {
@@ -297,8 +266,6 @@ typedef struct {
 	GSList		*service_directory_list;
 
 	/* lookup tables for service and metadata IDs */
-	GHashTable	*service_table;
-	GHashTable	*service_id_table;
 	GHashTable	*metadata_table;
 
 	/* email config options */
@@ -485,17 +452,6 @@ typedef struct {
 	int			ref_count;
 
 } FileInfo;
-
-ServiceDef *	tracker_get_service 			(const char *service);
-int		tracker_get_id_for_service 		(const char *service);
-int		tracker_get_id_for_parent_service 	(const char *service);
-char *		tracker_get_service_by_id 		(int service_type_id);
-char *		tracker_get_parent_service 		(const char *service);
-char *		tracker_get_parent_service_by_id 	(int service_type_id);
-int		tracker_get_parent_id_for_service_id 	(int service_type_id);
-DBTypes		tracker_get_db_for_service 		(const char *service);
-gboolean 	tracker_is_service_embedded 		(const char *service);
-
 
 GSList *	tracker_filename_array_to_list		(gchar **array);
 GSList *	tracker_string_list_to_gslist   	(const gchar **array);

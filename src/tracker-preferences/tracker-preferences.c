@@ -206,7 +206,7 @@ tracker_preferences_init (GTypeInstance *instance, gpointer g_class)
 	}
 
 	priv->tracker_proxy = dbus_g_proxy_new_for_name (priv->connection,
-							 TRACKER_SERVICE,
+							 TRACKER_DBUS_SERVICE,
 							 TRACKER_OBJECT,
 							 TRACKER_INTERFACE);
 
@@ -490,7 +490,7 @@ name_owner_changed (DBusGProxy *proxy, const gchar *name,
 		    const gchar *prev_owner, const gchar *new_owner,
 		    gpointer data)
 {
-	if (!g_str_equal (name, TRACKER_SERVICE))
+	if (!g_str_equal (name, TRACKER_DBUS_SERVICE))
 		return;
 
 	if (!first_time)

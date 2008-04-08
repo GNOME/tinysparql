@@ -26,7 +26,7 @@
 #include <glib.h>
 
 #include "tracker-utils.h"
-
+#include "tracker-service-manager.h"
 
 
 typedef enum {
@@ -42,7 +42,7 @@ typedef enum {
 
 typedef struct {
 	sqlite3		*db;
-	DBTypes		db_type;
+	TrackerDBType    db_type;
 	DBCategory	db_category;
 	char		*err;
 	char		*name;

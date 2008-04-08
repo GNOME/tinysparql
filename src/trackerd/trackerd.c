@@ -60,6 +60,8 @@
 #include "tracker-process-requests.h"
 #include "tracker-watch.h"
 
+#include "tracker-service-manager.h"
+  
 #ifdef OS_WIN32
 #include <windows.h>
 #include <pthread.h>
@@ -709,12 +711,15 @@ sanity_check_option_values (void)
 
         tracker_log ("Throttle level is %d\n", tracker_config_get_throttle (tracker->config));
 
-	tracker->metadata_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
-	tracker->service_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
-	tracker->service_id_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
-	tracker->service_directory_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
+	tracker->metadata_table = g_hash_table_new_full (g_str_hash,
+                                                         g_str_equal, 
+                                                         NULL, 
+                                                         NULL);
+	tracker->service_directory_table = g_hash_table_new_full (g_str_hash, 
+                                                                  g_str_equal, 
+                                                                  NULL, 
+                                                                  NULL);
 }
-
 
 static void
 create_index (gboolean need_data)
@@ -1045,6 +1050,9 @@ main (gint argc, gchar *argv[])
 	tracker->fatal_errors = fatal_errors;
 
 	sanity_check_option_values ();
+
+        /* Initialize the service manager */
+        tracker_service_manager_init ();
 
 	/* set thread safe DB connection */
 	tracker_db_thread_init ();

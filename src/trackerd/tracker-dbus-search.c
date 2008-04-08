@@ -25,9 +25,9 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-rdf-query.h"
 #include "tracker-indexer.h"
+#include "tracker-service-manager.h"
 
 extern Tracker *tracker;
-
 
 void
 tracker_dbus_method_search_get_hit_count (DBusRec *rec)
@@ -68,7 +68,7 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -86,27 +86,27 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 	DBusMessage *reply;
 	int service_count = 1;
 
-	service_array[0] = tracker_get_id_for_service (service);
+	service_array[0] = tracker_service_manager_get_id_for_service (service);
 
 	if (strcmp (service, "Files") == 0) {
-		service_array[1] = tracker_get_id_for_service ("Folders");
-		service_array[2] = tracker_get_id_for_service ("Documents");
-		service_array[3] = tracker_get_id_for_service ("Images");
-		service_array[4] = tracker_get_id_for_service ("Videos");
-		service_array[5] = tracker_get_id_for_service ("Music");
-		service_array[6] = tracker_get_id_for_service ("Text");
-		service_array[7] = tracker_get_id_for_service ("Development");
-		service_array[8] = tracker_get_id_for_service ("Other");
+		service_array[1] = tracker_service_manager_get_id_for_service ("Folders");
+		service_array[2] = tracker_service_manager_get_id_for_service ("Documents");
+		service_array[3] = tracker_service_manager_get_id_for_service ("Images");
+		service_array[4] = tracker_service_manager_get_id_for_service ("Videos");
+		service_array[5] = tracker_service_manager_get_id_for_service ("Music");
+		service_array[6] = tracker_service_manager_get_id_for_service ("Text");
+		service_array[7] = tracker_service_manager_get_id_for_service ("Development");
+		service_array[8] = tracker_service_manager_get_id_for_service ("Other");
 		service_count = 9;
 
 	} else if (strcmp (service, "Emails") == 0) {
-		service_array[1] = tracker_get_id_for_service ("EvolutionEmails");
-		service_array[2] = tracker_get_id_for_service ("KMailEmails");
-		service_array[3] = tracker_get_id_for_service ("ThunderbirdEmails");
+		service_array[1] = tracker_service_manager_get_id_for_service ("EvolutionEmails");
+		service_array[2] = tracker_service_manager_get_id_for_service ("KMailEmails");
+		service_array[3] = tracker_service_manager_get_id_for_service ("ThunderbirdEmails");
 		service_count = 4;
 
  	} else if (strcmp (service, "Conversations") == 0) {
-		service_array[1] = tracker_get_id_for_service ("GaimConversations");
+		service_array[1] = tracker_service_manager_get_id_for_service ("GaimConversations");
 		service_count = 2;
 	}
 
@@ -251,7 +251,7 @@ tracker_dbus_method_search_text (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -368,7 +368,7 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -439,7 +439,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -624,7 +624,7 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -691,7 +691,7 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -790,7 +790,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}

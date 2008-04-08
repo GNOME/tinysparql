@@ -61,7 +61,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}
@@ -159,7 +159,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 		return;
 	}
 
-	if (!tracker_is_valid_service (db_con, service)) {
+	if (!tracker_service_manager_is_valid_service (service)) {
 		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
 		return;
 	}

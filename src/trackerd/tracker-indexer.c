@@ -52,6 +52,7 @@
 #include "tracker-indexer.h"
 #include "tracker-cache.h"
 #include "tracker-dbus.h"
+#include "tracker-service-manager.h"
 
 extern Tracker *tracker;
 
@@ -1632,19 +1633,30 @@ tracker_get_hit_counts (SearchQuery *query)
 		GSList *tmp;
 
 		for (tmp = query->hits; tmp; tmp=tmp->next) {
-			SearchHit *hit = tmp->data;
-			guint32 count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id))) + 1;
+			SearchHit *hit;
+                        gpointer   data;
+			guint32    count;
+			gint       parent_id;
 
-			g_hash_table_insert (table, GUINT_TO_POINTER (hit->service_type_id), GUINT_TO_POINTER (count));
+                        hit = tmp->data;
+                        data = g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id));
+                        count = GPOINTER_TO_UINT (data) + 1;
+
+			g_hash_table_insert (table, 
+                                             GUINT_TO_POINTER (hit->service_type_id), 
+                                             GUINT_TO_POINTER (count));
 
 
-			/* update service's parent count too (if it has a parent) */
-			gint parent_id = tracker_get_parent_id_for_service_id (hit->service_type_id);
+			/* Update service's parent count too (if it has a parent) */
+			parent_id = tracker_service_manager_get_parent_id_for_service_id (hit->service_type_id);
 
 			if (parent_id != -1) {
-				count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id))) + 1;
+                                data = g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id));
+                                count = GPOINTER_TO_UINT (data) + 1;
 	
-				g_hash_table_insert (table, GUINT_TO_POINTER (parent_id), GUINT_TO_POINTER (count));
+				g_hash_table_insert (table, 
+                                                     GUINT_TO_POINTER (parent_id), 
+                                                     GUINT_TO_POINTER (count));
 			}
         	}
 		tracker_index_free_hit_list (query->hits);
@@ -1660,18 +1672,29 @@ tracker_get_hit_counts (SearchQuery *query)
 		GSList *tmp;
 	
 		for (tmp = query->hits; tmp; tmp=tmp->next) {
-			SearchHit *hit = tmp->data;
-			guint32 count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id))) + 1;
+			SearchHit *hit;
+                        gpointer   data;
+			guint32    count;
+			gint       parent_id;
 
-			g_hash_table_insert (table, GUINT_TO_POINTER (hit->service_type_id), GUINT_TO_POINTER (count));
+                        hit = tmp->data;
+                        data = g_hash_table_lookup (table, GUINT_TO_POINTER (hit->service_type_id));
+                        count = GPOINTER_TO_UINT (data) + 1;
+
+			g_hash_table_insert (table, 
+                                             GUINT_TO_POINTER (hit->service_type_id), 
+                                             GUINT_TO_POINTER (count));
 
 			/* update service's parent count too (if it has a parent) */
-			gint parent_id = tracker_get_parent_id_for_service_id (hit->service_type_id);
+			parent_id = tracker_service_manager_get_parent_id_for_service_id (hit->service_type_id);
 
 			if (parent_id != -1) {
-				count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id))) + 1;
+                                data = g_hash_table_lookup (table, GUINT_TO_POINTER (parent_id));
+				count = GPOINTER_TO_UINT (data) + 1;
 
-				g_hash_table_insert (table, GUINT_TO_POINTER (parent_id), GUINT_TO_POINTER (count));
+				g_hash_table_insert (table, 
+                                                     GUINT_TO_POINTER (parent_id), 
+                                                     GUINT_TO_POINTER (count));
 			}
 	        }
 
@@ -1697,6 +1720,10 @@ tracker_get_hit_counts (SearchQuery *query)
 	i = 0;
 
 	for (lst = list; i < len && lst; lst = lst->next) {
+                gpointer   data;
+		guint32    service;
+		guint32    count;
+		gchar    **row;
 
 		if (!lst || !lst->data) {
 			tracker_error ("ERROR: in get hit counts");
@@ -1704,11 +1731,13 @@ tracker_get_hit_counts (SearchQuery *query)
 			continue;
 		}
 
-		guint32 service = GPOINTER_TO_UINT (lst->data);
-		guint32 count = GPOINTER_TO_UINT (g_hash_table_lookup (table, GUINT_TO_POINTER (service)));
+                service = GPOINTER_TO_UINT (lst->data);
+                data = g_hash_table_lookup (table, GUINT_TO_POINTER (service));
+                count = GPOINTER_TO_UINT (data);
 
-		gchar **row = g_new0 (gchar *, 3);
-		row[0] = tracker_get_service_by_id ((int) service);
+                row = g_new0 (gchar *, 3);
+
+		row[0] = tracker_service_manager_get_service_by_id ((gint) service);
 		row[1] = tracker_uint_to_str (count);
 		row[2] = NULL;
 

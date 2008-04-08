@@ -69,7 +69,10 @@ tracker_dbus_init (void)
 
 	dbus_error_init (&error);
 
-	ret = dbus_bus_request_name (connection, TRACKER_SERVICE, DBUS_NAME_FLAG_DO_NOT_QUEUE, &error);
+	ret = dbus_bus_request_name (connection, 
+                                     TRACKER_DBUS_SERVICE, 
+                                     DBUS_NAME_FLAG_DO_NOT_QUEUE, 
+                                     &error);
 
 	if (dbus_error_is_set (&error)) {
 		tracker_error ("ERROR: could not acquire service name due to '%s'", error.message);
@@ -81,7 +84,10 @@ tracker_dbus_init (void)
 		exit (EXIT_FAILURE);
 	}
 
-	if (!dbus_connection_register_object_path (connection, TRACKER_OBJECT, &tracker_vtable, NULL)) {
+	if (!dbus_connection_register_object_path (connection, 
+                                                   TRACKER_OBJECT, 
+                                                   &tracker_vtable, 
+                                                   NULL)) {
 		tracker_error ("ERROR: could not register D-BUS handlers");
 		connection = NULL;
 	}
@@ -116,7 +122,9 @@ tracker_dbus_send_index_status_change_signal ()
 	gboolean       battery_pause;
         gboolean       enable_indexing;
 
-	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_STATUS_CHANGE);
+	msg = dbus_message_new_signal (TRACKER_OBJECT, 
+                                       TRACKER_INTERFACE, 
+                                       TRACKER_SIGNAL_INDEX_STATUS_CHANGE);
 				
 	if (!msg || !tracker->dbus_con) {
 		return;
@@ -172,7 +180,9 @@ tracker_dbus_send_index_progress_signal (const char *service, const char *uri)
 	dbus_uint32_t serial = 0;
 	int count, processed;
 
-	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_PROGRESS);
+	msg = dbus_message_new_signal (TRACKER_OBJECT, 
+                                       TRACKER_INTERFACE, 
+                                       TRACKER_SIGNAL_INDEX_PROGRESS);
 				
 	if (!msg || !tracker->dbus_con) {
 		return;
@@ -240,7 +250,9 @@ tracker_dbus_send_index_finished_signal ()
 	dbus_uint32_t serial = 0;
 	int i =  time (NULL) - tracker->index_time_start;
 
-	msg = dbus_message_new_signal (TRACKER_OBJECT, TRACKER_INTERFACE, TRACKER_SIGNAL_INDEX_FINISHED);
+	msg = dbus_message_new_signal (TRACKER_OBJECT, 
+                                       TRACKER_INTERFACE, 
+                                       TRACKER_SIGNAL_INDEX_FINISHED);
 				
 	if (!msg || !tracker->dbus_con) {
 		return;
@@ -297,7 +309,9 @@ message_func (DBusConnection *conn,
 	}
 
 	/* process shutdown calls in this thread */
-	if (dbus_message_is_method_call (message, TRACKER_INTERFACE, TRACKER_METHOD_SHUTDOWN)) {
+	if (dbus_message_is_method_call (message, 
+                                         TRACKER_INTERFACE, 
+                                         TRACKER_METHOD_SHUTDOWN)) {
 	
 		DBusMessage 	*reply;
 		DBusError   	dbus_error;
