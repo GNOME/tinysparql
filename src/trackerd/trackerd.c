@@ -1170,16 +1170,13 @@ main (gint argc, gchar *argv[])
 	
 	
 
-	Indexer *index = tracker_indexer_open ("file-index.db");
-	index->main_index = TRUE;
+	Indexer *index = tracker_indexer_open ("file-index.db", TRUE);
 	tracker->file_index = index;
 
-	index = tracker_indexer_open ("file-update-index.db");
-	index->main_index = FALSE;
+	index = tracker_indexer_open ("file-update-index.db", FALSE);
 	tracker->file_update_index = index;
 
-	index = tracker_indexer_open ("email-index.db");
-	index->main_index = TRUE;
+	index = tracker_indexer_open ("email-index.db", TRUE);
 	tracker->email_index = index;
 
 	db_con->word_index = tracker->file_index;

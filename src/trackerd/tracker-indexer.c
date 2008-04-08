@@ -41,7 +41,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
-#include <sqlite3.h>
+
+#include <depot.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -55,6 +56,16 @@
 #include "tracker-service-manager.h"
 
 extern Tracker *tracker;
+
+struct Indexer_ {
+	DEPOT  		*word_index;	/* file hashtable handle for the word -> {serviceID, ServiceTypeID, Score}  */
+	GMutex 		*word_mutex;
+	char   		*name;
+	gpointer  	emails; /* pointer to email indexer */
+	gpointer  	data; /* pointer to file indexer */
+	gboolean	main_index;
+	gboolean	needs_merge; /* should new stuff be added directly or merged later on from a new index */
+};
 
 static inline gint16
 get_score (WordDetails *details)
@@ -257,7 +268,7 @@ get_index_file (const char *name)
 }
 
 Indexer *
-tracker_indexer_open (const gchar *name)
+tracker_indexer_open (const gchar *name, gboolean main_index)
 {
 	char *word_dir;
 	DEPOT *word_index;
@@ -273,7 +284,7 @@ tracker_indexer_open (const gchar *name)
 
 	result = g_new0 (Indexer, 1);
 
-	result->main_index = FALSE;
+	result->main_index = main_index;
 	
 	result->needs_merge = FALSE;
 
@@ -349,6 +360,14 @@ tracker_indexer_free (Indexer *indexer, gboolean remove_file)
 	g_free (indexer);
 
 	
+}
+
+const gchar *   
+tracker_indexer_get_name (Indexer *indexer) 
+{
+        g_return_val_if_fail (indexer != NULL, NULL);
+        
+        return dpname (indexer->word_index);
 }
 
 
@@ -499,7 +518,7 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 	tracker_indexer_free (src, TRUE);
 
 	if (update) {
-		tracker->file_update_index = tracker_indexer_open ("file-update-index.db");
+		tracker->file_update_index = tracker_indexer_open ("file-update-index.db", FALSE);
 	}
 	
 	tracker->in_merge = FALSE;
@@ -663,7 +682,7 @@ tracker_indexer_merge_indexes (IndexType type)
 
 					if (g_file_test (file->data, G_FILE_TEST_EXISTS)) {
 
-                                                Indexer *tmp_index = tracker_indexer_open (name);
+                                                Indexer *tmp_index = tracker_indexer_open (name, FALSE);
 						if (tmp_index) {
 							index_list = g_slist_prepend (index_list, tmp_index);
 						}
@@ -712,9 +731,9 @@ tracker_indexer_merge_indexes (IndexType type)
 	tracker_dbus_send_index_status_change_signal ();
 
 	if (type == INDEX_TYPE_FILES) {
-		final_index = tracker_indexer_open ("file-index-final");
+		final_index = tracker_indexer_open ("file-index-final", TRUE);
 	} else {
-		final_index = tracker_indexer_open ("email-index-final");
+		final_index = tracker_indexer_open ("email-index-final", TRUE);
 	}
 
 	if (!final_index) {
@@ -1770,3 +1789,173 @@ tracker_get_hit_count (SearchQuery *query)
 		return query->hit_count;
 	}
 }
+
+/* int levenshtein ()
+ * Original license: GNU Lesser Public License
+ * from the Dixit project, (http://dixit.sourceforge.net/)
+ * Author: Octavian Procopiuc <oprocopiuc@gmail.com>
+ * Created: July 25, 2004
+ * Copied into tracker, by Edward Duffy
+ */
+
+static int
+levenshtein(const char *source, char *target, int maxdist)
+{
+	char n, m;
+	int l;
+	l = strlen (source);
+	if (l > 50)
+		return -1;
+	n = l;
+
+	l = strlen (target);
+	if (l > 50)
+		return -1;
+	m = l;
+
+	if (maxdist == 0)
+		maxdist = MAX(m, n);
+	if (n == 0)
+		return MIN(m, maxdist);
+	if (m == 0)
+		return MIN(n, maxdist);
+
+	// Store the min. value on each column, so that, if it reaches
+	// maxdist, we break early.
+	char mincolval;
+
+	char matrix[51][51];
+
+	char j;
+	char i;
+	char cell;
+
+	for (j = 0; j <= m; j++)
+		matrix[0][(int)j] = j;
+
+	for (i = 1; i <= n; i++) {
+
+		mincolval = MAX(m, i);
+		matrix[(int)i][0] = i;
+
+		char s_i = source[i-1];
+
+		for (j = 1; j <= m; j++) {
+
+			char t_j = target[j-1];
+
+			char cost = (s_i == t_j ? 0 : 1);
+
+			char above = matrix[i-1][(int)j];
+			char left = matrix[(int)i][j-1];
+			char diag = matrix[i-1][j-1];
+			cell = MIN(above + 1, MIN(left + 1, diag + cost));
+
+			// Cover transposition, in addition to deletion,
+			// insertion and substitution. This step is taken from:
+			// Berghel, Hal ; Roach, David : "An Extension of Ukkonen's 
+			// Enhanced Dynamic Programming ASM Algorithm"
+			// (http://www.acm.org/~hlb/publications/asm/asm.html)
+
+			if (i > 2 && j > 2) {
+				char trans = matrix[i-2][j-2] + 1;
+				if (source[i-2] != t_j)
+					trans++;
+				if (s_i != target[j-2])
+					trans++;
+				if (cell > trans)
+					cell = trans;
+			}
+
+			mincolval = MIN(mincolval, cell);
+			matrix[(int)i][(int)j] = cell;
+		}
+
+		if (mincolval >= maxdist)
+			break;
+
+	}
+
+	if (i == n + 1)
+		return (int) matrix[(int)n][(int)m];
+	else
+		return maxdist;
+}
+
+static int
+count_hits_for_word (Indexer *indexer, const gchar *str) {
+        
+        gint tsiz, hits = 0;
+
+        tsiz = count_hit_size_for_word (indexer, str);
+
+        if (tsiz == -1 || tsiz % sizeof (WordDetails) != 0) {
+                return -1;
+        }
+
+        hits = tsiz / sizeof (WordDetails);
+
+        return hits;
+}
+
+
+char *
+tracker_indexer_get_suggestion (Indexer *indexer, const gchar *term, gint maxdist)
+{
+
+	gchar		*str;
+	gint		dist; 
+	gchar		*winner_str;
+	gint		winner_dist;
+	gint		hits;
+	GTimeVal	start, current;
+
+	winner_str = g_strdup (term);
+        winner_dist = G_MAXINT;  /* Initialize to the worst case */
+
+        dpiterinit (indexer->word_index);
+
+	g_get_current_time (&start);
+
+	str = dpiternext (indexer->word_index, NULL);
+
+	while (str != NULL) {
+
+		dist = levenshtein (term, str, 0);
+
+		if (dist != -1 && dist < maxdist && dist < winner_dist) {
+
+                        hits = count_hits_for_word (indexer, str);
+
+                        if (hits < 0) {
+
+                                g_free (winner_str);
+                                g_free (str);
+                                return NULL;
+
+			} else if (hits > 0) {
+
+                                g_free (winner_str);
+                                winner_str = g_strdup (str);
+                                winner_dist = dist;
+
+                        } else {
+				tracker_log ("No hits for %s!", str);
+			}
+		}
+
+		g_free (str);
+
+		g_get_current_time (&current);
+
+		if (current.tv_sec - start.tv_sec >= 2) { /* 2 second time out */
+			tracker_log ("Timeout in tracker_dbus_method_search_suggest");
+                        break;
+		}
+
+		str = dpiternext (indexer->word_index, NULL);
+	}
+
+        return winner_str;
+}
+

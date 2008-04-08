@@ -65,7 +65,7 @@ create_merge_index (const char *name)
 		break;
 	}
 
-	indexer = tracker_indexer_open (temp_file_name);
+	indexer = tracker_indexer_open (temp_file_name, FALSE);
 
 	g_free (temp_file_name);
 
@@ -162,7 +162,7 @@ tracker_cache_flush_all ()
 		/* determine is index has been written to significantly before and create new ones if so */
 		if (tracker_indexer_size (tracker->file_index) > 4000000) {
 			index_con.file_index = create_merge_index ("file-index.tmp.");
-			tracker_log ("flushing to %s", dpname (index_con.file_index->word_index));
+			tracker_log ("flushing to %s", tracker_indexer_get_name (index_con.file_index));
 			using_file_tmp = TRUE;
 		} else {
 			index_con.file_index = tracker->file_index;
@@ -170,7 +170,7 @@ tracker_cache_flush_all ()
 		
 		if (tracker_indexer_size (tracker->email_index) > 4000000) {
 			index_con.email_index = create_merge_index ("email-index.tmp.");
-			tracker_log ("flushing to %s", dpname (index_con.email_index->word_index));
+			tracker_log ("flushing to %s", tracker_indexer_get_name (index_con.email_index));
 			using_email_tmp = TRUE;
 		} else {
 			index_con.email_index = tracker->email_index;

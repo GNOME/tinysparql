@@ -1,5 +1,21 @@
 2008-04-08  Ivan Frade  <ivan.frade@nokia.com>
 
+	Hide indexer struct to improve modularity. Bug #525403
+	
+	* src/trackerd/tracker-utils.h: WordDetails moved to the indexer.
+	
+	* src/trackerd/tracker-dbus-search.c: Levenshtein algorythm moved
+	to the indexer.
+	
+	* src/trackerd/tracker-cache.c: 
+	* src/trackerd/trackerd.c: Updated to new functions
+
+	* src/trackerd/tracker-indexer.[ch]: Hide indexer struct
+	implementation. Added Levenshtein code and WordDetails struct.
+	
+
+2008-04-08  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/trackerd/tracker-service.h
 	* src/trackerd/tracker-service-manager.c
 	* src/trackerd/tracker-service-manager.h

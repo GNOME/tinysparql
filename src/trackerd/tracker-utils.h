@@ -56,25 +56,10 @@ extern char *tracker_actions[];
 #define OPTIMIZATION_COUNT		10000
 #define MAX_WORDS_TO_INDEX		10000
 
-/* default indexer options */
-#define MIN_INDEX_BUCKET_COUNT		131072    /* minimum bucket number of word index per division (total buckets = INDEXBNUM * INDEXDIV) */
-#define INDEX_DIVISIONS	        	4        /* no. of divisions of file */
-#define MAX_INDEX_BUCKET_COUNT 		262144	 /* max no of buckets to use  */
-#define INDEX_BUCKET_RATIO		1	 /* desired ratio of unused buckets to have (range 0 to 4)*/
-#define INDEX_PADDING	 		2
-
-
-typedef struct {                         /* type of structure for an element of search result */
-	guint32 	id;              /* Service ID number of the document */
-	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
-} WordDetails;
-
-
 typedef struct {                         
 	int	 	id;              /* word ID of the cached word */
 	int 		count;     	 /* cummulative count of the cached word */
 } CacheWord;
-
 
 typedef enum {
 	DATA_KEYWORD,	

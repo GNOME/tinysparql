@@ -25,9 +25,12 @@
 
 #include <stdlib.h>
 #include <glib.h>
-#include <depot.h>
 
-#include "tracker-utils.h"
+typedef struct {                         /* type of structure for an element of search result */
+	guint32 	id;              /* Service ID number of the document */
+	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
+} WordDetails;
+
 
 typedef struct {                         	 
 	guint32 	service_id;              /* Service ID of the document */
@@ -51,17 +54,7 @@ typedef struct {
 } SearchWord;
 
 
-typedef struct {
-	DEPOT  		*word_index;	/* file hashtable handle for the word -> {serviceID, ServiceTypeID, Score}  */
-	GMutex 		*word_mutex;
-	char   		*name;
-	gpointer  	emails; /* pointer to email indexer */
-	gpointer  	data; /* pointer to file indexer */
-	gboolean	main_index;
-	gboolean	needs_merge; /* should new stuff be added directly or merged later on from a new index */
-} Indexer;
-
-
+typedef struct Indexer_ Indexer;
 
 typedef struct {                        
 	Indexer 	*indexer;
@@ -99,13 +92,13 @@ void		tracker_add_query_word 			(SearchQuery *query, const gchar *word, WordType
 guint32		tracker_indexer_calc_amalgamated 	(gint service, gint score);
 void		tracker_index_free_hit_list		(GSList *hit_list);
 
-Indexer * 	tracker_indexer_open 			(const gchar *name);
+Indexer * 	tracker_indexer_open 			(const gchar *name, gboolean main_index);
 void		tracker_indexer_close 			(Indexer *indexer);
 gboolean	tracker_indexer_repair 			(const char *name);
 void		tracker_indexer_free 			(Indexer *indexer, gboolean remove_file);
 gboolean	tracker_indexer_has_merge_index 	(Indexer *indexer, gboolean update);
 
-
+const gchar *   tracker_indexer_get_name                (Indexer *indexer);
 guint32		tracker_indexer_size 			(Indexer *indexer);
 gboolean	tracker_indexer_optimize		(Indexer *indexer);
 void		tracker_indexer_sync 			(Indexer *indexer);
@@ -131,5 +124,6 @@ gint		tracker_get_hit_count 			(SearchQuery *query);
 
 gboolean	tracker_remove_dud_hits 		(Indexer *indexer, const gchar *word, GSList *dud_list);
 
+char *          tracker_indexer_get_suggestion          (Indexer *indexer, const gchar *term, gint maxdist);
 
 #endif

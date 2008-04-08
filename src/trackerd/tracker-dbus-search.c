@@ -858,97 +858,6 @@ tracker_dbus_method_search_query (DBusRec *rec)
 }
 
 
-/* int levenshtein ()
- * Original license: GNU Lesser Public License
- * from the Dixit project, (http://dixit.sourceforge.net/)
- * Author: Octavian Procopiuc <oprocopiuc@gmail.com>
- * Created: July 25, 2004
- * Copied into tracker, by Edward Duffy
- */
-
-static int
-levenshtein(char *source, char *target, int maxdist)
-{
-	char n, m;
-	int l;
-	l = strlen (source);
-	if (l > 50)
-		return -1;
-	n = l;
-
-	l = strlen (target);
-	if (l > 50)
-		return -1;
-	m = l;
-
-	if (maxdist == 0)
-		maxdist = MAX(m, n);
-	if (n == 0)
-		return MIN(m, maxdist);
-	if (m == 0)
-		return MIN(n, maxdist);
-
-	// Store the min. value on each column, so that, if it reaches
-	// maxdist, we break early.
-	char mincolval;
-
-	char matrix[51][51];
-
-	char j;
-	char i;
-	char cell;
-
-	for (j = 0; j <= m; j++)
-		matrix[0][(int)j] = j;
-
-	for (i = 1; i <= n; i++) {
-
-		mincolval = MAX(m, i);
-		matrix[(int)i][0] = i;
-
-		char s_i = source[i-1];
-
-		for (j = 1; j <= m; j++) {
-
-			char t_j = target[j-1];
-
-			char cost = (s_i == t_j ? 0 : 1);
-
-			char above = matrix[i-1][(int)j];
-			char left = matrix[(int)i][j-1];
-			char diag = matrix[i-1][j-1];
-			cell = MIN(above + 1, MIN(left + 1, diag + cost));
-
-			// Cover transposition, in addition to deletion,
-			// insertion and substitution. This step is taken from:
-			// Berghel, Hal ; Roach, David : "An Extension of Ukkonen's 
-			// Enhanced Dynamic Programming ASM Algorithm"
-			// (http://www.acm.org/~hlb/publications/asm/asm.html)
-
-			if (i > 2 && j > 2) {
-				char trans = matrix[i-2][j-2] + 1;
-				if (source[i-2] != t_j)
-					trans++;
-				if (s_i != target[j-2])
-					trans++;
-				if (cell > trans)
-					cell = trans;
-			}
-
-			mincolval = MIN(mincolval, cell);
-			matrix[(int)i][(int)j] = cell;
-		}
-
-		if (mincolval >= maxdist)
-			break;
-
-	}
-
-	if (i == n + 1)
-		return (int) matrix[(int)n][(int)m];
-	else
-		return maxdist;
-}
 
 
 void
@@ -956,14 +865,9 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 {
 	DBusError	dbus_error;
 	DBusMessage 	*reply;
-	gchar		*term, *str;
+	gchar		*term;
 	gint		maxdist;
-	gint		dist, tsiz;
 	gchar		*winner_str;
-	gint		winner_dist;
-	char		*tmp;
-	int		hits;
-	GTimeVal	start, current;
 
 	/*
 		<method name="Suggest">
@@ -983,60 +887,14 @@ tracker_dbus_method_search_suggest (DBusRec *rec)
 		return;
 	}
 
-	winner_str = NULL;
-        winner_dist = -1;  /* to initialize winner_dist with something */
-
-
 	Indexer *index = tracker->file_index;
 
-	dpiterinit (index->word_index);
+        winner_str = tracker_indexer_get_suggestion (index, term, maxdist);
 
-	g_get_current_time (&start);
-
-	str = dpiternext (index->word_index, NULL);
-	while (str != NULL) {
-		dist = levenshtein (term, str, 0);
-		if (dist != -1 && dist < maxdist) {
-			hits = 0;
-			if ((tmp = dpget (index->word_index, str, -1, 0, -1, &tsiz)) != NULL) {
-				hits = tsiz / sizeof (WordDetails);
-				free (tmp);
-				if (tsiz % sizeof (WordDetails) != 0) {
-					tracker_set_error (rec, "Possible data error from dpget  Aborting tracker_dbus_method_search_suggest.");
-					g_free (str);
-					if (winner_str) {
-						g_free (winner_str);
-					}
-					return;
-				}
-			}
-			if (hits > 0) {
-				if (winner_str == NULL) {
-					winner_str = strdup (str);
-					winner_dist = dist;
-				}
-				else if (dist < winner_dist) {
-					free (winner_str);
-					winner_str = strdup (str);
-					winner_dist = dist;
-				}
-			}
-			else {
-				tracker_log ("No hits for %s!", str);
-			}
-		}
-		free (str);
-		g_get_current_time (&current);
-		if (current.tv_sec - start.tv_sec >= 2) { /* 2 second time out */
-			tracker_log ("Timeout in tracker_dbus_method_search_suggest");
-			break;
-		}
-		str = dpiternext (index->word_index, NULL);
-	}
-
-	if (winner_str == NULL) {
-		winner_str = strdup (term);
-	}
+        if (!winner_str) {
+                tracker_set_error (rec, "Possible data error in index. Aborting tracker_dbus_method_search_suggest.");
+                return;
+        }
 
 	tracker_log ("Suggested spelling for %s is %s.", term, winner_str);
 
