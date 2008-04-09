@@ -1,3 +1,8 @@
+2008-04-09  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-process-files.c (process_index_entity): Use the
+	correct database when indexing mail archives.
+
 2008-04-08  Ivan Frade <ivan.frade@nokia.com>
 
 	* data/sqlite-stored-procs.sql: Fixed names in stored proc.

@@ -374,7 +374,7 @@ process_index_entity (Tracker  *tracker,
 
                 db_con = tracker->index_db;
 
-		if (!tracker_email_index_file (db_con, info)) {
+		if (!tracker_email_index_file (db_con->emails, info)) {
 			g_free (service_info);
 			return;
 		}
