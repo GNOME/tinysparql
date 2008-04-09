@@ -1,4 +1,4 @@
-# translation of sk.po to Slovak
+# translation of tracker to Slovak
 # Slovak translation of Tracker
 # Copyright (C) 2006, 2007, Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-26 23:51+0100\n"
-"PO-Revision-Date: 2008-03-24 14:53+0100\n"
+"POT-Creation-Date: 2008-04-09 17:11+0200\n"
+"PO-Revision-Date: 2008-04-09 17:03+0200\n"
 "Last-Translator: Pavol Klačanský <pavolzetor@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "MIME-Version: 1.0\n"
@@ -358,21 +358,21 @@ msgstr "Neznámy"
 
 #: ../src/libtracker-gtk/tracker-tag-bar.c:250
 msgid "Type tags you want to add here, separated by commas"
-msgstr "Zadajte značky, ktoré chcete sem pridať, oddeľujú sa čiarkami"
+msgstr "Zadajte emblémy, ktoré chcete sem pridať, oddeľujú sa čiarkami"
 
 #: ../src/libtracker-gtk/tracker-tag-bar.c:365
 msgid "Tags :"
-msgstr "Značky :"
+msgstr "Emblémy :"
 
 #. Search For Tag
 #: ../src/libtracker-gtk/tracker-tag-bar.c:392
 msgid "_Search For Tag"
-msgstr "_Hľadať značku"
+msgstr "_Hľadať emblém"
 
 #. Remove Tag
 #: ../src/libtracker-gtk/tracker-tag-bar.c:404
 msgid "_Remove Tag"
-msgstr "O_dstrániť značku"
+msgstr "O_dstrániť emblém"
 
 #: ../src/libtracker/tracker-search.c:34
 msgid "Limit the number of results showed to N"
@@ -411,7 +411,7 @@ msgstr ""
 
 #: ../src/libtracker/tracker-search.c:97
 msgid "The list of recognized services is:"
-msgstr ""
+msgstr "Zoznam odpovedajúcich služieb je:"
 
 #: ../src/libtracker/tracker-search.c:114
 #: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
@@ -440,7 +440,7 @@ msgstr ""
 #: ../src/libtracker/tracker-search.c:147
 #, c-format
 msgid "Service not recognized, searching in Other Files...\n"
-msgstr ""
+msgstr "Služba neodpovedá, hľadá sa v ostatných súboroch...\n"
 
 #: ../src/libtracker/tracker-search.c:164
 #: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
@@ -468,28 +468,28 @@ msgstr ""
 
 #: ../src/libtracker/tracker-tag.c:41
 msgid "Add specified tag to a file"
-msgstr "Pridať označenú značku do súboru"
+msgstr "Pridať označený emblém do súboru"
 
 #: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
 #: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
 msgid "TAG"
-msgstr "ZNAČKA"
+msgstr "EMBLÉM"
 
 #: ../src/libtracker/tracker-tag.c:42
 msgid "Remove specified tag from a file"
-msgstr "Odstrániť označenú značku zo súboru"
+msgstr "Odstrániť označený emblém zo súboru"
 
 #: ../src/libtracker/tracker-tag.c:43
 msgid "Remove all tags from a file"
-msgstr "Odstrániť všetky značky zo súboru"
+msgstr "Odstrániť všetky emblémy zo súboru"
 
 #: ../src/libtracker/tracker-tag.c:44
 msgid "List all defined tags"
-msgstr ""
+msgstr "Zoznam všetkých definovaných emblémov"
 
 #: ../src/libtracker/tracker-tag.c:45
 msgid "Search for files with specified tag"
-msgstr "Hľadať súbory s označenou zadanou"
+msgstr "Hľadať súbory s označeným emblémom"
 
 #: ../src/libtracker/tracker-tag.c:46
 msgid "FILE..."
@@ -499,14 +499,14 @@ msgstr "SÚBOR..."
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/libtracker/tracker-tag.c:90
 msgid "FILE... - manipulate tags on files"
-msgstr "SÚBOR... - manipulovať so značkami súborov"
+msgstr "SÚBOR... - manipulovať so emblémami súborov"
 
 #: ../src/libtracker/tracker-tag.c:99
 msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
 "options like:"
 msgstr ""
-"Pre pridanie, odstránenie, alebo hľadanie početných značiek v tomto čase, "
+"Pre pridanie, odstránenie, alebo hľadanie početných emblémov v tomto čase, "
 "pripojiť početné voľby ako:"
 
 #: ../src/libtracker/tracker-tag.c:121
@@ -519,38 +519,38 @@ msgstr "%s: nesprávne parametre"
 msgid "%s: file %s not found"
 msgstr "%s: súbor %s nebol nájdený"
 
-#: ../src/trackerd/trackerd.c:127
+#: ../src/trackerd/trackerd.c:129
 msgid "Directory to exclude from indexing"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:127 ../src/trackerd/trackerd.c:128
-#: ../src/trackerd/trackerd.c:129
+#: ../src/trackerd/trackerd.c:129 ../src/trackerd/trackerd.c:130
+#: ../src/trackerd/trackerd.c:131
 msgid "/PATH/DIR"
 msgstr "/CESTA/ADRESÁR"
 
-#: ../src/trackerd/trackerd.c:128
+#: ../src/trackerd/trackerd.c:130
 msgid "Directory to include in indexing"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:129
+#: ../src/trackerd/trackerd.c:131
 msgid "Directory to crawl for indexing at start up only"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:130
+#: ../src/trackerd/trackerd.c:132
 msgid "Disable any indexing or watching taking place"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:131
+#: ../src/trackerd/trackerd.c:133
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:131 ../src/trackerd/trackerd.c:132
+#: ../src/trackerd/trackerd.c:133 ../src/trackerd/trackerd.c:134
 msgid "VALUE"
 msgstr "HODNOTA"
 
-#: ../src/trackerd/trackerd.c:132
+#: ../src/trackerd/trackerd.c:134
 msgid ""
 "Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
@@ -558,42 +558,42 @@ msgstr ""
 "Hodnota na použitie pre obmedzenie indexovania. Hodnota musí byť v rozsahu 0-"
 "99 (štandartne 0), s nižšími hodnotami sa zvyšuje rýchlosť indexovania"
 
-#: ../src/trackerd/trackerd.c:133
+#: ../src/trackerd/trackerd.c:135
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimalizuje využitie pamäte, ale môže spomaliť indexovanie"
 
-#: ../src/trackerd/trackerd.c:134
+#: ../src/trackerd/trackerd.c:136
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:135
+#: ../src/trackerd/trackerd.c:137
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:135
+#: ../src/trackerd/trackerd.c:137
 msgid "LANG"
 msgstr "JAZYK"
 
-#: ../src/trackerd/trackerd.c:136
+#: ../src/trackerd/trackerd.c:138
 msgid "Force a re-index of all content"
 msgstr "Vynútiť preindexovanie všetkého obsahu"
 
-#: ../src/trackerd/trackerd.c:137
+#: ../src/trackerd/trackerd.c:139
 msgid "Make tracker errors fatal"
 msgstr "Urobiť chybu programu tracker nenapraviteľnou"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:794
+#: ../src/trackerd/trackerd.c:795
 msgid "- start the tracker daemon"
 msgstr "- spustiť tracker démona"
 
-#: ../src/trackerd/trackerd.c:795 ../src/trackerd/trackerd.c:796
+#: ../src/trackerd/trackerd.c:796 ../src/trackerd/trackerd.c:797
 msgid "DIRECTORY"
 msgstr "PRIEČINOK"
 
-#: ../src/trackerd/trackerd.c:803
+#: ../src/trackerd/trackerd.c:804
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -623,7 +623,7 @@ msgstr "Indexuje sa"
 
 #: ../src/tracker-applet/tracker-applet.c:251
 msgid "Merging"
-msgstr ""
+msgstr "Triedi sa"
 
 #: ../src/tracker-applet/tracker-applet.c:261
 msgid " (paused by user)"
@@ -882,36 +882,32 @@ msgstr "_Skryť ikonu (okrem toho, keď sú zobrazované správy pre používate
 msgid "_Off"
 msgstr "V_ypnuté"
 
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:10
-msgid "gtk-close"
-msgstr "gtk-close"
-
-#: ../src/tracker-preferences/tracker-preferences.c:808
+#: ../src/tracker-preferences/tracker-preferences.c:816
 msgid "Data must be reindexed"
 msgstr "Dáta musia byť preindexované"
 
-#: ../src/tracker-preferences/tracker-preferences.c:809
+#: ../src/tracker-preferences/tracker-preferences.c:817
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
 "be performed the next time the Tracker daemon is restarted."
 msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.c:816
+#: ../src/tracker-preferences/tracker-preferences.c:824
 msgid "_Reindex"
 msgstr "P_reindexovať"
 
-#: ../src/tracker-preferences/tracker-preferences.c:819
+#: ../src/tracker-preferences/tracker-preferences.c:827
 msgid "Tracker daemon must be restarted"
 msgstr "Démon programu Tracker musí byť reštartovaný"
 
-#: ../src/tracker-preferences/tracker-preferences.c:821
+#: ../src/tracker-preferences/tracker-preferences.c:829
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
 msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.c:826
+#: ../src/tracker-preferences/tracker-preferences.c:834
 msgid "_Restart"
 msgstr "_Reštartovať"
 
@@ -1470,6 +1466,9 @@ msgstr "odkaz na %s"
 #: ../trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
 msgstr "Služba Tracker na hľadanie a indexovanie"
+
+#~ msgid "gtk-close"
+#~ msgstr "gtk-close"
 
 #~ msgid "_Search..."
 #~ msgstr "_Hľadať..."
