@@ -1,5 +1,10 @@
 2008-04-10  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-email.c (tracker_email_index_file): Revert last
+	change, it was already fixed in r1261.
+
+2008-04-10  Carlos Garnacho  <carlos@imendio.com>
+
 	Add a query extension tree, at the moment supports And and Or
 	operations. Fixes #509607.
 
