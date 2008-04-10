@@ -1,3 +1,17 @@
+2008-04-10  Carlos Garnacho  <carlos@imendio.com>
+
+	Add a query extension tree, at the moment supports And and Or
+	operations. Fixes #509607.
+
+	* src/trackerd/tracker-query-tree.[ch]: New files, implement the
+	expression tree, and return a hit list based on the evaluation of the
+	search terms with the logical expressions.
+	* src/trackerd/Makefile.am: Added these files.
+	* src/trackerd/tracker-indexer.[ch]: Remove SearchQuery related code,
+	implemented now by TrackerQueryTree.
+	* src/trackerd/tracker-db-sqlite.c:
+	* src/trackerd/tracker-dbus-search.c: Use new TrackerQueryTree API.
+
 2008-04-10  Philip Van Hoof  <pvanhoof@gnome.org>
 
 	* python/deskbar-handler/tracker-module.py

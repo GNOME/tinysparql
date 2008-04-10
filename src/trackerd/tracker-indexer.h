@@ -32,13 +32,6 @@ typedef struct {                         /* type of structure for an element of 
 } WordDetails;
 
 
-typedef struct {                         	 
-	guint32 	service_id;              /* Service ID of the document */
-	guint32 	service_type_id;         /* Service type ID of the document */
-	guint32 	score;            	 /* Ranking score */
-} SearchHit;
-
-
 typedef enum {
 	WordNormal,
 	WordWildCard,
@@ -56,26 +49,6 @@ typedef struct {
 
 typedef struct Indexer_ Indexer;
 
-typedef struct {                        
-	Indexer 	*indexer;
-	gint 		*service_array;    
-	gint 		service_array_count;
-	gint 		hit_count;
-	GSList	        *hits;
-	GSList		*words;
-	GSList		*duds;
-	gint		offset;
-	gint		limit;
-} SearchQuery;
-
-
-typedef enum {
-	BoolAnd,
-	BoolOr,
-	BoolNot
-} BoolOp;
-
-
 typedef enum 
 {
 	INDEX_TYPE_FILES,
@@ -84,13 +57,7 @@ typedef enum
 } IndexType;
 
 
-SearchQuery * 	tracker_create_query 			(Indexer *indexer, gint *service_array, gint service_array_count, gint offset, gint limit);
-void		tracker_free_query 			(SearchQuery *query);
-
-void		tracker_add_query_word 			(SearchQuery *query, const gchar *word, WordType word_type);
-
 guint32		tracker_indexer_calc_amalgamated 	(gint service, gint score);
-void		tracker_index_free_hit_list		(GSList *hit_list);
 
 Indexer * 	tracker_indexer_open 			(const gchar *name, gboolean main_index);
 void		tracker_indexer_close 			(Indexer *indexer);
@@ -117,13 +84,13 @@ gboolean	tracker_indexer_update_word 		(Indexer *indexer, const gchar *word, gui
 gboolean	tracker_indexer_update_word_chunk	(Indexer *indexer, const gchar *word, WordDetails *details, gint word_detail_count);
 gboolean	tracker_indexer_update_word_list 	(Indexer *indexer, const gchar *word, GSList *update_list);
 
-
-gboolean	tracker_indexer_get_hits 		(SearchQuery *query);
-gchar ***	tracker_get_hit_counts 			(SearchQuery *query);
-gint		tracker_get_hit_count 			(SearchQuery *query);
+WordDetails *   tracker_indexer_get_word_hits           (Indexer *indexer, const gchar *word, guint *count);
 
 gboolean	tracker_remove_dud_hits 		(Indexer *indexer, const gchar *word, GSList *dud_list);
 
 char *          tracker_indexer_get_suggestion          (Indexer *indexer, const gchar *term, gint maxdist);
+
+guint8          tracker_word_details_get_service_type   (WordDetails *details);
+gint16          tracker_word_details_get_score          (WordDetails *details);
 
 #endif

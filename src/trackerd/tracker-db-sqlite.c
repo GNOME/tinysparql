@@ -53,6 +53,7 @@
 #include "tracker-utils.h"
 #include "tracker-watch.h"
 #include "tracker-service-manager.h"
+#include "tracker-query-tree.h"
 
 #define MAX_TEXT_BUFFER 65567
 #define MAX_COMPRESS_BUFFER 65565
@@ -2997,35 +2998,27 @@ tracker_db_check_tables (DBConnection *db_con)
 {
 }
 
-
-static void
-delete_dud (SearchWord *search_word, SearchQuery *query)
-{
-	tracker_remove_dud_hits (query->indexer, search_word->word, query->duds);
-}
-
-
-
 char ***
 tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results, gboolean detailed)
 {
+	TrackerQueryTree *tree;
 	char 		***result, **array;
-	GSList 		*hit_list;
+	GArray          *hits;
 	int 		count;
-	const GSList	*tmp;
 	gboolean	detailed_emails = FALSE, detailed_apps = FALSE;
 	int		service_array[255];
 	const gchar     *procedure;
+	GArray          *services = NULL;
+	guint           i, j;
+	GSList          *duds = NULL;
 
 	array = tracker_parse_text_into_array (search_string);
 
 	char ***res = tracker_exec_proc (db_con->common, "GetRelatedServiceIDs", 2, service, service);
-	
-	int i = 0,j =0;
+	i = j = 0;
 	char **row;
 	
 	if (res) {	
-	
 		while ((row = tracker_db_get_row (res, i))) {
 
 			if (row[0]) {
@@ -3035,34 +3028,20 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 
 			i++;
 		}
-			
+
+		service_array[j] = 0;
+		services = g_array_new (TRUE, TRUE, sizeof (gint));
+		g_array_append_vals (services, service_array, j);
+
 		tracker_db_free_result (res);
 	}
 
-	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, j, offset, limit);
-
-	char **pstr;
-
-	for (pstr = array; *pstr; pstr++) {
-		tracker_add_query_word (query, *pstr, WordNormal);	
-		
-	}
-
-	g_strfreev (array);
-
-	if (!tracker_indexer_get_hits (query)) {
-
-		tracker_free_query (query);
-		return NULL;
-
-	}
-
-	hit_list = query->hits;
-
+	tree = tracker_query_tree_new (search_string, db_con->word_index, services);
+	hits = tracker_query_tree_get_hits (tree, offset, limit);
 	result = NULL;
 
 	if (!save_results) {
-		count = g_slist_length (hit_list);
+		count = hits->len;
 
 		if (count > limit) count = limit;
 
@@ -3074,23 +3053,22 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 
 	count = 0;
 
-	for (tmp = hit_list; tmp; tmp = tmp->next) {
-
-		SearchHit *hit;
+	for (i = 0; i < hits->len; i++) {
+		TrackerSearchHit hit;
 		char	  *str_id;
 		char	  ***res;
 
 		if (count >= limit) break;
 
-		hit = tmp->data;
+		hit = g_array_index (hits, TrackerSearchHit, i);
 
-		str_id = tracker_uint_to_str (hit->service_id);
+		str_id = tracker_uint_to_str (hit.service_id);
 
 		/* we save results into SearchResults table instead of returing an array of array of strings */
 		if (save_results) {
 			char *str_score;
 
-			str_score = tracker_int_to_str (hit->score);
+			str_score = tracker_int_to_str (hit.score);
 
 			tracker_exec_proc (db_con, "InsertSearchResult1", 2, str_id, str_score);
 
@@ -3141,7 +3119,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		} else {
 			tracker_log ("dud hit for search detected");
 			/* add to dud list */
-			query->duds = g_slist_prepend (query->duds, hit);
+			duds = g_slist_prepend (duds, &hit);
 		}
 
 	}
@@ -3153,11 +3131,23 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	}
 
 	/* delete duds */
-	if (query->duds) {
-		g_slist_foreach (query->words, (GFunc) delete_dud, query);
+	if (duds) {
+		GSList *words, *w;
+		Indexer *indexer;
+
+		words = tracker_query_tree_get_words (tree);
+		indexer = tracker_query_tree_get_indexer (tree);
+
+		for (w = words; w; w = w->next) {
+			tracker_remove_dud_hits (indexer, (const gchar *) w->data, duds);
+		}
+
+		g_slist_free (words);
 	}
 
-	tracker_free_query (query);
+	g_object_unref (tree);
+	g_array_free (hits, TRUE);
+	g_array_free (services, TRUE);
 
 	return (char ***)result;
 }
@@ -4930,15 +4920,19 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 char ***
 tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime_array, int n)
 {
-	char 	     **result, **array;
-	GSList 	     *hit_list, *result_list;
+	TrackerQueryTree *tree;
+	GArray       *hits;
+	char 	     **result;
+	GSList 	     *result_list;
 	const GSList *tmp;
+	guint        i;
 	int 	     count;
 	gint         service_array[8];
+	GArray       *services;
 
 	result = NULL;
 	result_list = NULL;
-	 
+
 	service_array[0] = tracker_service_manager_get_id_for_service ("Files");
 	service_array[1] = tracker_service_manager_get_id_for_service ("Folders");
 	service_array[2] = tracker_service_manager_get_id_for_service ("Documents");
@@ -4948,37 +4942,22 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 	service_array[6] = tracker_service_manager_get_id_for_service ("Text");
 	service_array[7] = tracker_service_manager_get_id_for_service ("Other");
 
-	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 8, 0, 999999);
+	services = g_array_new (TRUE, TRUE, sizeof (gint));
+	g_array_append_vals (services, service_array, 8);
 
-	array = tracker_parse_text_into_array (text);
-
-	char **pstr;
-
-	for (pstr = array; *pstr; pstr++) {
-		tracker_add_query_word (query, *pstr, WordNormal);	
-	}
-
-	g_strfreev (array);
-
-	if (!tracker_indexer_get_hits (query)) {
-
-		tracker_free_query (query);
-		return NULL;
-
-	}
-
-	hit_list = query->hits;
+	tree = tracker_query_tree_new (text, db_con->word_index, services);
+	hits = tracker_query_tree_get_hits (tree, 0, 0);
 
 	count = 0;
 
-	for (tmp = hit_list; tmp; tmp = tmp->next) {
-		SearchHit *hit;
+	for (i = 0; i < hits->len; i++) {
+		TrackerSearchHit hit;
 		char	  *str_id;
 		char	  ***res;
 
-		hit = tmp->data;
+		hit = g_array_index (hits, TrackerSearchHit, i);
 
-		str_id = tracker_uint_to_str (hit->service_id);
+		str_id = tracker_uint_to_str (hit.service_id);
 
 		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
 
@@ -5018,8 +4997,6 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 		}
 	}
 
-	tracker_free_query (query);
-
 	if (!result_list) {
 		return NULL;
 	}
@@ -5038,6 +5015,9 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 	}
 
 	g_slist_free (result_list);
+	g_object_unref (tree);
+	g_array_free (hits, TRUE);
+	g_array_free (services, TRUE);
 
 	return (char ***) result;
 }
@@ -5046,16 +5026,19 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 char ***
 tracker_db_search_text_location (DBConnection *db_con, const char *text, const char *location)
 {
+	TrackerQueryTree *tree;
+	GArray       *hits;
 	char	     *location_prefix;
-	char 	     **result, **array;
-	GSList 	     *hit_list, *result_list;
+	char 	     **result;
+	GSList 	     *result_list;
 	const GSList *tmp;
 	int 	     count;
-	gint          service_array[8];
+	gint         service_array[8];
+	guint        i;
+	GArray       *services;
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
-	 
 	service_array[0] = tracker_service_manager_get_id_for_service ("Files");
 	service_array[1] = tracker_service_manager_get_id_for_service ("Folders");
 	service_array[2] = tracker_service_manager_get_id_for_service ("Documents");
@@ -5065,39 +5048,24 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 	service_array[6] = tracker_service_manager_get_id_for_service ("Text");
 	service_array[7] = tracker_service_manager_get_id_for_service ("Other");
 
-	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 8, 0, 999999);
+	services = g_array_new (TRUE, TRUE, sizeof (gint));
+	g_array_append_vals (services, service_array, 8);
 
-	array = tracker_parse_text_into_array (text);
-
-	char **pstr;
-
-	for (pstr = array; *pstr; pstr++) {
-		tracker_add_query_word (query, *pstr, WordNormal);	
-	}
-
-	g_strfreev (array);
-
-	if (!tracker_indexer_get_hits (query)) {
-
-		tracker_free_query (query);
-		return NULL;
-
-	}
-
-	hit_list = query->hits;
+	tree = tracker_query_tree_new (text, db_con->word_index, services);
+	hits = tracker_query_tree_get_hits (tree, 0, 0);
 
 	result_list = NULL;
 
 	count = 0;
 
-	for (tmp = hit_list; tmp; tmp = tmp->next) {
-		SearchHit *hit;
+	for (i = 0; i < hits->len; i++) {
+		TrackerSearchHit hit;
 		char	  *str_id;
 		char	  ***res;
 
-		hit = tmp->data;
+		hit = g_array_index (hits, TrackerSearchHit, i);
 
-		str_id = tracker_uint_to_str (hit->service_id);
+		str_id = tracker_uint_to_str (hit.service_id);
 
 		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
 
@@ -5133,8 +5101,6 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 
 	g_free (location_prefix);
 
-	tracker_free_query (query);
-
 	if (!result_list) {
 		return NULL;
 	}
@@ -5153,6 +5119,9 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 	}
 
 	g_slist_free (result_list);
+	g_object_unref (tree);
+	g_array_free (hits, TRUE);
+	g_array_free (services, TRUE);
 
 	return (char ***) result;
 }
@@ -5161,16 +5130,19 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 char ***
 tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, char **mime_array, int n, const char *location)
 {
+	TrackerQueryTree *tree;
+	GArray       *hits;
 	char	     *location_prefix;
-	char 	     **result, **array;
-	GSList 	     *hit_list, *result_list;
+	char 	     **result;
+	GSList 	     *result_list;
 	const GSList *tmp;
 	int	     count;
-	gint          service_array[8];
+	gint         service_array[8];
+	guint        i;
+	GArray       *services;
 
 	location_prefix = g_strconcat (location, G_DIR_SEPARATOR_S, NULL);
 
-		 
 	service_array[0] = tracker_service_manager_get_id_for_service ("Files");
 	service_array[1] = tracker_service_manager_get_id_for_service ("Folders");
 	service_array[2] = tracker_service_manager_get_id_for_service ("Documents");
@@ -5180,39 +5152,24 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 	service_array[6] = tracker_service_manager_get_id_for_service ("Text");
 	service_array[7] = tracker_service_manager_get_id_for_service ("Other");
 
-	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, 8, 0, 999999);
+	services = g_array_new (TRUE, TRUE, sizeof (gint));
+	g_array_append_vals (services, service_array, 8);
 
-	array = tracker_parse_text_into_array (text);
-
-	char **pstr;
-
-	for (pstr = array; *pstr; pstr++) {
-		tracker_add_query_word (query, *pstr, WordNormal);	
-	}
-
-	g_strfreev (array);
-
-	if (!tracker_indexer_get_hits (query)) {
-
-		tracker_free_query (query);
-		return NULL;
-
-	}
-
-	hit_list = query->hits;
+	tree = tracker_query_tree_new (text, db_con->word_index, services);
+	hits = tracker_query_tree_get_hits (tree, 0, 0);
 
 	result_list = NULL;
 
 	count = 0;
 
-	for (tmp = hit_list; tmp; tmp = tmp->next) {
-		SearchHit *hit;
+	for (i = 0; i < hits->len; i++) {
+		TrackerSearchHit hit;
 		char	  *str_id;
 		char	  ***res;
 
-		hit = tmp->data;
+		hit = g_array_index (hits, TrackerSearchHit, i);
 
-		str_id = tracker_uint_to_str (hit->service_id);
+		str_id = tracker_uint_to_str (hit.service_id);
 
 		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
 
@@ -5257,8 +5214,6 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 
 	g_free (location_prefix);
 
-	tracker_free_query (query);
-
 	if (!result_list) {
 		return NULL;
 	}
@@ -5276,6 +5231,9 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 	}
 
 	g_slist_free (result_list);
+	g_object_unref (tree);
+	g_array_free (hits, TRUE);
+	g_array_free (services, TRUE);
 
 	return (char ***) result;
 }

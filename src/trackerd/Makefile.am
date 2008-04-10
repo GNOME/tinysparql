@@ -87,6 +87,8 @@ trackerd_SOURCES =							\
 	tracker-process-files.h						\
 	tracker-process-requests.c					\
 	tracker-process-requests.h					\
+	tracker-query-tree.c						\
+	tracker-query-tree.h						\
 	tracker-rdf-query.c						\
 	tracker-rdf-query.h						\
 	tracker-utils.c							\

@@ -24,6 +24,7 @@
 
 #include "tracker-dbus-methods.h"
 #include "tracker-rdf-query.h"
+#include "tracker-query-tree.h"
 #include "tracker-indexer.h"
 #include "tracker-service-manager.h"
 
@@ -32,6 +33,7 @@ extern Tracker *tracker;
 void
 tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 {
+	TrackerQueryTree *tree;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	gchar	     *service;
@@ -80,11 +82,10 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 
 	//tracker_log ("Executing GetHitCount with params %s, %s", service, str);
 
-	gchar **array;
 	gint service_array[12];
+	GArray *services;
 	gint result;
 	DBusMessage *reply;
-	int service_count = 1;
 
 	service_array[0] = tracker_service_manager_get_id_for_service (service);
 
@@ -97,38 +98,24 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 		service_array[6] = tracker_service_manager_get_id_for_service ("Text");
 		service_array[7] = tracker_service_manager_get_id_for_service ("Development");
 		service_array[8] = tracker_service_manager_get_id_for_service ("Other");
-		service_count = 9;
-
+		service_array[9] = 0;
 	} else if (strcmp (service, "Emails") == 0) {
 		service_array[1] = tracker_service_manager_get_id_for_service ("EvolutionEmails");
 		service_array[2] = tracker_service_manager_get_id_for_service ("KMailEmails");
 		service_array[3] = tracker_service_manager_get_id_for_service ("ThunderbirdEmails");
 		service_array[4] = tracker_service_manager_get_id_for_service ("ModestEmails");
-		service_count = 5;
-
+		service_array[5] = 0;
  	} else if (strcmp (service, "Conversations") == 0) {
 		service_array[1] = tracker_service_manager_get_id_for_service ("GaimConversations");
-		service_count = 2;
+		service_array[2] = 0;
 	}
 
+	services = g_array_new (TRUE, TRUE, sizeof (gint));
+	g_array_append_vals (services, service_array, G_N_ELEMENTS (service_array));
 
 	db_con = tracker_db_get_service_connection (db_con, service);
-
-	SearchQuery *query = tracker_create_query (db_con->word_index, service_array, service_count, 0, 999999);
-
-	array = tracker_parse_text_into_array (str);
-
-	gchar **pstr;
-
-	for (pstr = array; *pstr; pstr++) {
-		tracker_add_query_word (query, *pstr, WordNormal);
-	}
-
-	g_strfreev (array);
-
-	result = tracker_get_hit_count (query);
-
-	tracker_free_query (query);
+	tree = tracker_query_tree_new (str, db_con->word_index, services);
+	result = tracker_query_tree_get_hit_count (tree);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -140,15 +127,20 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 	dbus_connection_send (rec->connection, reply, NULL);
 
 	dbus_message_unref (reply);
+	g_object_unref (tree);
+	g_array_free (services, TRUE);
 }
 
 
 void
 tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 {
+	TrackerQueryTree *tree;
+	GArray       *hit_counts, *mail_hit_counts;
 	DBConnection *db_con;
 	DBusError    dbus_error;
-	gchar	     *str;
+	gchar	     ***res, *str;
+	guint        i;
 
 	g_return_if_fail (rec);
 	g_return_if_fail (rec->user_data);
@@ -180,27 +172,35 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 
 	//tracker_log ("Executing detailed search with params %s, %s, %d, %d", service, str, offset, limit);
 
-	gchar ***res, **array;
+	tree = tracker_query_tree_new (str, db_con->word_index, NULL);
+	hit_counts = tracker_query_tree_get_hit_counts (tree);
 
-	SearchQuery *query = tracker_create_query (db_con->word_index, NULL, 0, 0, 999999);
+	tracker_query_tree_set_indexer (tree, tracker->email_index);
+	mail_hit_counts = tracker_query_tree_get_hit_counts (tree);
+	g_array_append_vals (hit_counts, mail_hit_counts->data, mail_hit_counts->len);
+	g_array_free (mail_hit_counts, TRUE);
 
-	array = tracker_parse_text_into_array (str);
+	res = g_new0 (gchar **, hit_counts->len + 1);
 
-	gchar **pstr;
+	for (i = 0; i < hit_counts->len; i++) {
+		TrackerHitCount count;
+		gchar **elem;
 
-	for (pstr = array; *pstr; pstr++) {
-		tracker_add_query_word (query, *pstr, WordNormal);	
+		count = g_array_index (hit_counts, TrackerHitCount, i);
+		elem = g_new (char *, 3);
+
+		elem[0] = tracker_service_manager_get_service_by_id (count.service_type_id);
+		elem[1] = tracker_uint_to_str (count.count);
+		elem[2] = NULL;
+
+		res[i] = elem;
 	}
-
-	g_strfreev (array);
-
-	res = tracker_get_hit_counts (query);
-
-	tracker_free_query (query);	
 
 	tracker_dbus_reply_with_query_result (rec, res);
 
 	tracker_db_free_result (res);
+	g_array_free (hit_counts, TRUE);
+	g_object_unref (tree);
 }
 
 
