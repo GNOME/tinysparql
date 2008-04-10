@@ -42,15 +42,16 @@
 #include "tracker-watch.h"
 
 
-#define MODEST_MAIL_DIR_S ".modest/cache/mail"
-#define MODEST_LOCAL_MAIL_DIR_S ".modest/local_folders"
+#define MODEST_HOME	".modest"
+#define MODEST_HOME_CACHE_MAIL MODEST_HOME G_DIR_SEPARATOR_S "cache" G_DIR_SEPARATOR_S "mail"
+#define MODEST_HOME_LOCAL_FOLDERS MODEST_HOME G_DIR_SEPARATOR_S "local_folders"
+#define MODEST_HOME_OUTBOXES MODEST_HOME G_DIR_SEPARATOR_S "outboxes"
 
 
 typedef struct {
 	gchar		*mail_dir;	/* something like "/home/laurent.modest/mail" */
-	GSList		*imap_dirs;	/* list of IMAP directories */
-	GSList		*pop_dirs;	/* list of POP directories */
-	GSList		*maildir_dirs;	/* list of maildir directories */
+	GSList		*dirs;
+	GSList		*dynamic_dirs;
 } ModestConfig;
 
 
@@ -87,11 +88,6 @@ typedef struct {
 	gint32		junk_count;
 	gchar 		*uri_prefix;
 } SummaryFileHeader;
-
-/* Some infos are only accessible throw a deep code path but we need to retreive them. */
-typedef struct {
-	gchar		*mail_uid;
-} ModestAdHocInfos;
 
 
 extern Tracker		*tracker;
@@ -232,9 +228,7 @@ free_modest_config (ModestConfig *conf)
 		g_slist_foreach (list, (GFunc) free_fct, NULL);		\
 		g_slist_free (list);
 
-	FREE_MY_LIST (conf->imap_dirs, g_free);
-	FREE_MY_LIST (conf->pop_dirs, g_free);
-	FREE_MY_LIST (conf->maildir_dirs, g_free);
+	FREE_MY_LIST (conf->dirs, g_free);
 
 	#undef FREE_MY_LIST
 
@@ -274,9 +268,8 @@ tracker_email_watch_emails (DBConnection *db_con)
 		tracker_db_free_result (res);
 	}
 
-	g_slist_foreach (modest_config->imap_dirs, (GFunc) email_watch_directory, "ModestEmails");
-	g_slist_foreach (modest_config->pop_dirs, (GFunc) email_watch_directory, "ModestEmails");
-	g_slist_foreach (modest_config->maildir_dirs, (GFunc) email_watch_directory, "ModestEmails");
+	g_slist_foreach (modest_config->dirs, (GFunc) email_watch_directory, "ModestEmails");
+	g_slist_foreach (modest_config->dynamic_dirs, (GFunc) email_watch_directory, "ModestEmails");
 }
 
 static gboolean
@@ -476,6 +469,8 @@ moredir (char *name, char *lastname, GSList *list) {
 	return list;
 }
 
+
+
 static gboolean
 load_modest_config (ModestConfig **conf)
 {
@@ -486,28 +481,34 @@ load_modest_config (ModestConfig **conf)
 		free_modest_config (*conf);
 	}
 
+	tracker_log ("Checking for Modest email accounts...");
+
 	*conf = g_slice_new0 (ModestConfig);
 	m_conf = *conf;
 
-	m_conf->mail_dir = g_build_filename (g_get_home_dir (), MODEST_MAIL_DIR_S, NULL);
+	m_conf->mail_dir = g_build_filename (g_get_home_dir (), MODEST_HOME_CACHE_MAIL, NULL);
 
 	dir_imap = g_build_filename (m_conf->mail_dir, "imap", NULL);
+	m_conf->dirs = moredir (dir_imap, m_conf->mail_dir, m_conf->dirs);
+	g_free (dir_imap);
+
 	dir_pop = g_build_filename (m_conf->mail_dir, "pop", NULL);
-	dir_maildir = g_build_filename (g_get_home_dir (), MODEST_LOCAL_MAIL_DIR_S, NULL);
+	m_conf->dirs = moredir (dir_pop, m_conf->mail_dir, m_conf->dirs);
+	g_free (dir_pop);
 
-	tracker_log ("Checking for Modest email accounts...");
+	dir_maildir = g_build_filename (g_get_home_dir (), MODEST_HOME_LOCAL_FOLDERS, NULL);
+	m_conf->dirs = moredir (dir_maildir, dir_maildir, m_conf->dirs);
+	g_free (dir_maildir);
 
-	m_conf->imap_dirs = moredir (dir_imap, m_conf->mail_dir, m_conf->imap_dirs);
-	m_conf->pop_dirs = moredir (dir_pop, m_conf->mail_dir, m_conf->pop_dirs);
+	dir_maildir = g_build_filename (g_get_home_dir (), MODEST_HOME_OUTBOXES, NULL);
+	m_conf->dirs = moredir (dir_maildir, dir_maildir, m_conf->dirs);
+	g_free (dir_maildir);
+
 
 	/* TODO: Future support
-	 * m_conf->maildir_dirs must be updated whenever an MMC card gets inserted */
+	 * m_conf->dynamic_dirs must be updated whenever an MMC card gets inserted */
 
-	m_conf->maildir_dirs = moredir (dir_maildir, dir_maildir, m_conf->maildir_dirs);
-
-	g_free (dir_imap);
-	g_free (dir_pop);
-	g_free (dir_maildir);
+	m_conf->dynamic_dirs = NULL;
 
 	return TRUE;
 }
@@ -714,10 +715,10 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 				const gchar *pos_folders = strstr (dir, G_DIR_SEPARATOR_S "folders" G_DIR_SEPARATOR_S);
 				char *piece;
 				char *tdir = g_strdup (dir);
-				char *loc = strstr (tdir, MODEST_MAIL_DIR_S);
+				char *loc = strstr (tdir, MODEST_HOME_CACHE_MAIL);
 				char *tloc;
 
-				loc += strlen (MODEST_MAIL_DIR_S) + 1;
+				loc += strlen (MODEST_HOME_CACHE_MAIL) + 1;
 
 				loc = strchr (loc, '/'); loc++; /* word imap|pop */
 				tloc = strchr (loc, '/'); /* word account name */
