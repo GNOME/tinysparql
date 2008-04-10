@@ -178,7 +178,7 @@ email_parse_mail_tms_file_and_save_new_emails (DBConnection *db_con, MailApplica
             
         if (mail_msg->parent_mail_file->mail_app == MAIL_APP_THUNDERBIRD ) {
 //           || mail_msg->parent_mail_file->mail_app == MAIL_APP_THUNDERBIRD_FEED) {
-                tracker_db_email_save_email (db_con, mail_msg);
+                tracker_db_email_save_email (db_con, mail_msg, mail_app);
                 email_free_mail_file(mail_msg->parent_mail_file);
                 email_free_mail_message (mail_msg);
                 return TRUE;

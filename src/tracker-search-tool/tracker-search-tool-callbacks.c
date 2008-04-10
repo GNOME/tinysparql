@@ -603,6 +603,8 @@ open_file_cb (GtkAction * action,
 		if (gsearch->type == SERVICE_EMAILS) {
 			if (strstr (mime, "Evolution")) {
 				exec = g_strdup_printf ("evolution \"%s\"", uri);
+			} else if (strstr (mime, "Modest")) {
+				exec = g_strdup_printf ("modest-open \"%s\"", uri);
 			} else if (strstr (mime, "KMail")) {
 				exec = g_strdup_printf ("kmail --view \"%s\"", uri);
 			} else if (strstr (mime, "Thunderbird")) {

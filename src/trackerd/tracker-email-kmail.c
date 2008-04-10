@@ -721,7 +721,7 @@ index_mail_file_in_maildir_dir (DBConnection *db_con, const gchar *dir, FileInfo
         tracker_log ("Looking for email file \"%s\"", info->uri);
 
         if (!tracker_db_email_is_saved_email_file (db_con, info->uri)) {
-                MailMessage *mail_msg = email_parse_mail_message_by_path (MAIL_APP_KMAIL, info->uri, NULL, NULL);
+                MailMessage *mail_msg = email_parse_mail_message_by_path (MAIL_APP_KMAIL, info->uri, NULL, NULL, NULL);
 
                 if (!mail_msg) {
                         tracker_log ("WARNING: email %s not found", info->uri);
@@ -736,7 +736,7 @@ index_mail_file_in_maildir_dir (DBConnection *db_con, const gchar *dir, FileInfo
                 mail_msg->uri = g_strdup (mail_msg->path);
                 mail_msg->store = store;
                 mail_msg->mtime = tracker_get_file_mtime (mail_msg->path);
-                tracker_db_email_save_email (db_con, mail_msg);
+                tracker_db_email_save_email (db_con, mail_msg, MAIL_APP_KMAIL);
 
                 email_free_mail_file (mail_msg->parent_mail_file);
                 email_free_mail_message (mail_msg);

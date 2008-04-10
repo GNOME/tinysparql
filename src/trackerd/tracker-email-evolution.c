@@ -1401,7 +1401,7 @@ index_mail_messages_by_summary_file (DBConnection                 *db_con,
 				if (!(*save_ondisk_mail) (db_con, mail_msg)) {
 					tracker_log ("WARNING: Message, or message parts, could not be found locally - if you are using IMAP make sure you have selected the \"copy folder content locally for offline operation\" option in Evolution");
 					/* we do not have all infos but we still save them */
-					if (!tracker_db_email_save_email (db_con, mail_msg)) {
+					if (!tracker_db_email_save_email (db_con, mail_msg, MAIL_APP_EVOLUTION)) {
 						tracker_log ("Failed to save email");
 					}
 				}
@@ -2308,7 +2308,7 @@ do_save_ondisk_email_message_for_imap (DBConnection *db_con, MailMessage *mail_m
 			tracker_log ("... Treatment of mail parts of \"%s\" finished", mail_msg->uri);
 
 			if (ret) {
-				tracker_db_email_save_email (db_con, mail_msg);
+				tracker_db_email_save_email (db_con, mail_msg, MAIL_APP_EVOLUTION);
 			}
 		} else {
                         tracker_log ("...Indexing of mail parts failed");
@@ -2337,7 +2337,7 @@ do_save_ondisk_email_message (DBConnection *db_con, MailMessage *mail_msg)
 		MailMessage *mail_msg_on_disk = NULL;
 
 		mail_msg_on_disk = email_parse_mail_message_by_path (MAIL_APP_EVOLUTION,
-                                                                     mail_msg->path, NULL, NULL);
+				mail_msg->path, NULL, NULL, NULL);
 
 		if (mail_msg_on_disk && mail_msg_on_disk->parent_mail_file) {
 
@@ -2345,9 +2345,9 @@ do_save_ondisk_email_message (DBConnection *db_con, MailMessage *mail_msg)
 			mail_msg_on_disk->uri = g_strdup (mail_msg->uri);
 			mail_msg_on_disk->store = mail_msg->store;
 
-			tracker_db_email_save_email (db_con, mail_msg_on_disk);
+			tracker_db_email_save_email (db_con, mail_msg_on_disk, MAIL_APP_EVOLUTION);
 
-                        email_free_mail_file (mail_msg_on_disk->parent_mail_file);
+			email_free_mail_file (mail_msg_on_disk->parent_mail_file);
 			email_free_mail_message (mail_msg_on_disk);
 
 			return TRUE;
@@ -2652,7 +2652,7 @@ decode_##type (FILE *in, type *dest)			\
 	gint i = sizeof (type) - 1;			\
 	gint v = EOF;					\
 							\
-        while (i >= 0 && (v = fgetc (in)) != EOF) {	\
+	while (i >= 0 && (v = fgetc (in)) != EOF) {	\
 		save |= ((type)v) << (i * 8);		\
 		i--;					\
 	}						\

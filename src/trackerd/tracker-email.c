@@ -77,7 +77,7 @@ tracker_email_index_file (DBConnection *db_con, FileInfo *info)
 	if (!g_module_symbol (module, "tracker_email_index_file", (gpointer *) &func))
 		return FALSE;
 
-	return (func) (db_con, info);
+	return (func) (db_con->emails, info);
 }
 
 gboolean

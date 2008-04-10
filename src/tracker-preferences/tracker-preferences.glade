@@ -878,6 +878,19 @@ Swedish</property>
                       </packing>
                     </child>
                     <child>
+                      <widget class="GtkCheckButton" id="chkEnableModestIndexing">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Enable _Modest email indexing</property>
+                        <property name="use_underline">True</property>
+                        <property name="response_id">0</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="GtkCheckButton" id="chkEnableThunderbirdIndexing">
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>

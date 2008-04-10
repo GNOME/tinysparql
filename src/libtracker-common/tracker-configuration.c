@@ -140,6 +140,8 @@ write_default_config (void)
 				"[Emails]\n",
 				"# Index email messages from Evolution\n",
 				"IndexEvolutionEmails = true\n",
+				"# Index email messages from Modest\n",
+				"IndexModestEmails = false\n",
 				"# Index email messages from Thunderbird\n",
 				"IndexThunderbirdEmails = true\n\n",
 				"[Performance]\n",

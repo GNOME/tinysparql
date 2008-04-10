@@ -65,7 +65,7 @@ tracker_db_email_register_mbox (DBConnection    *db_con,
                                 const gchar     *filename,
                                 const gchar     *uri_prefix)
 {
-	gchar *types[5] = {"MBOX", "IMAP", "IMAP4", "MAIL_TYPE_MAILDIR", "MAIL_TYPE_MH"};
+	gchar *types[6] = {"MBOX", "IMAP", "IMAP4", "MAIL_TYPE_MAILDIR", "MAIL_TYPE_MH", "MAIL_TYPE_POP"};
 
 	gchar *str_mail_app = tracker_int_to_str (mail_app);
 	gchar *str_mail_type = tracker_int_to_str (mail_type);
@@ -393,6 +393,8 @@ get_service_name (MailApplication app)
 {
        if (app == MAIL_APP_EVOLUTION) {
                return g_strdup ("EvolutionEmails");
+       } else if (app == MAIL_APP_MODEST) {
+               return g_strdup ("ModestEmails");
        } else if (app == MAIL_APP_KMAIL) {
                return g_strdup ("KMailEmails");
        } else if (app == MAIL_APP_THUNDERBIRD) {
@@ -410,6 +412,8 @@ get_mime (MailApplication app)
 {
        if (app == MAIL_APP_EVOLUTION) {
                return g_strdup ("Evolution/Email");
+       } else if (app == MAIL_APP_MODEST) {
+               return g_strdup ("Modest/Email");
        } else if (app == MAIL_APP_KMAIL) {
                return g_strdup ("KMail/Email");
        } else if (app == MAIL_APP_THUNDERBIRD) {
@@ -427,6 +431,8 @@ get_attachment_service_name (MailApplication app)
 {
        if (app == MAIL_APP_EVOLUTION) {
                return g_strdup ("EvolutionAttachments");
+       } else if (app == MAIL_APP_MODEST) {
+               return g_strdup ("ModestAttachments");
        } else if (app == MAIL_APP_KMAIL) {
                return g_strdup ("KMailAttachments");
        } else if (app == MAIL_APP_THUNDERBIRD) {
@@ -458,7 +464,7 @@ limit_address_count (int len)
 
 
 gboolean
-tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
+tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm, MailApplication mail_app)
 {
        	gint  mbox_id, type_id, id, len;
 	gchar *service, *attachment_service, *mime;
@@ -523,10 +529,9 @@ tracker_db_email_save_email (DBConnection *db_con, MailMessage *mm)
 	} else {
 		mbox_id = 0;
 		mm->offset =0;
-                service = g_strdup ("EvolutionEmails");
-                mime = g_strdup ("Evolution/Email");
-                attachment_service = g_strdup ("EvolutionAttachments");
-
+                service = get_service_name (mail_app);
+                mime = get_mime (mail_app);
+                attachment_service = get_attachment_service_name (mail_app);
 	}
 
 	type_id = tracker_service_manager_get_id_for_service (service);

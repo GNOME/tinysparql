@@ -86,13 +86,13 @@ email_parse_and_save_mail_message (DBConnection *db_con, MailApplication mail_ap
 	g_return_val_if_fail (path, FALSE);
 
 	mail_msg = email_parse_mail_message_by_path (mail_app, path,
-                                                     read_mail_helper, read_mail_user_data);
+                                                     read_mail_helper, read_mail_user_data, NULL);
 
 	if (!mail_msg) {
 		return FALSE;
 	}
 
-	tracker_db_email_save_email (db_con, mail_msg);
+	tracker_db_email_save_email (db_con, mail_msg, mail_app);
 
 	email_free_mail_message (mail_msg);
 
@@ -123,7 +123,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 	tracker->mbox_count++;
 	tracker_dbus_send_index_progress_signal ("Emails", path);
 
-	while ((mail_msg = email_mail_file_parse_next (mf, read_mail_helper, read_mail_user_data))) {
+	while ((mail_msg = email_mail_file_parse_next (mf, read_mail_helper, read_mail_user_data, NULL))) {
 
 		if (!tracker->is_running) {
 			email_free_mail_message (mail_msg);
@@ -154,7 +154,7 @@ email_parse_mail_file_and_save_new_emails (DBConnection *db_con, MailApplication
 			deleted++;
 		}
 
-		tracker_db_email_save_email (db_con, mail_msg);
+		tracker_db_email_save_email (db_con, mail_msg, mail_app);
 		tracker_db_email_update_mbox_offset (db_con, mf);
 
 		email_free_mail_message (mail_msg);
@@ -426,6 +426,10 @@ email_free_mail_message (MailMessage *mail_msg)
 
 	/* we do not free parent_mail_file of course... */
 
+	if (mail_msg->uid) {
+		g_free (mail_msg->uid);
+	}
+
 	if (mail_msg->path) {
 		g_free (mail_msg->path);
 	}
@@ -493,7 +497,7 @@ email_free_mail_message (MailMessage *mail_msg)
 
 
 MailMessage *
-email_mail_file_parse_next (MailFile *mf, ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data)
+email_mail_file_parse_next (MailFile *mf, ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data, FindAttachmentsHelperFct find_attachments_helper)
 {
 	MailMessage  *mail_msg;
 	guint64      msg_offset;
@@ -543,13 +547,16 @@ email_mail_file_parse_next (MailFile *mf, ReadMailHelperFct read_mail_helper, gp
 	mail_msg->content_type = g_strdup (is_html ? "text/html" : "text/plain");
 
 	if (read_mail_helper) {
-                (*read_mail_helper) (g_m_message, mail_msg, read_mail_user_data);
+		(*read_mail_helper) (g_m_message, mail_msg, read_mail_user_data);
 	}
 
 	mail_msg->attachments = NULL;
 
 	/* find then save attachments in sys tmp directory of Tracker and save entries in MailMessage struct */
-	g_mime_message_foreach_part (g_m_message, find_attachment, mail_msg);
+	if (find_attachments_helper == NULL) 
+		find_attachments_helper = find_attachment;
+
+	g_mime_message_foreach_part (g_m_message, find_attachments_helper, mail_msg);
 
 	g_object_unref (g_m_message);
 
@@ -559,7 +566,7 @@ email_mail_file_parse_next (MailFile *mf, ReadMailHelperFct read_mail_helper, gp
 
 MailMessage *
 email_parse_mail_message_by_path (MailApplication mail_app, const gchar *path,
-                                  ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data)
+                                  ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data, FindAttachmentsHelperFct find_attachments_helper)
 {
 	MailFile    *mf;
 	MailMessage *mail_msg;
@@ -571,7 +578,7 @@ email_parse_mail_message_by_path (MailApplication mail_app, const gchar *path,
                 return NULL;
         }
 
-	mail_msg = email_mail_file_parse_next (mf, read_mail_helper, read_mail_user_data);
+	mail_msg = email_mail_file_parse_next (mf, read_mail_helper, read_mail_user_data, find_attachments_helper);
 
 	if (mail_msg) {
 		mail_msg->path = g_strdup (path);

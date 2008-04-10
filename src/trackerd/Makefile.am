@@ -126,7 +126,12 @@ trackerd_LDADD =							\
 mail_modules_LTLIBRARIES = \
 	libemail-evolution.la \
 	libemail-thunderbird.la \
-	libemail-kmail.la
+	libemail-kmail.la \
+	libemail-modest.la
+
+libemail_modest_la_SOURCES = tracker-email-modest.c
+libemail_modest_la_LDFLAGS = $(module_flags)
+libemail_modest_la_LIBADD = $(GLIB2_LIBS)
 
 libemail_evolution_la_SOURCES = tracker-email-evolution.c
 libemail_evolution_la_LDFLAGS = $(module_flags)

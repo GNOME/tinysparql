@@ -103,7 +103,8 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 		service_array[1] = tracker_service_manager_get_id_for_service ("EvolutionEmails");
 		service_array[2] = tracker_service_manager_get_id_for_service ("KMailEmails");
 		service_array[3] = tracker_service_manager_get_id_for_service ("ThunderbirdEmails");
-		service_count = 4;
+		service_array[4] = tracker_service_manager_get_id_for_service ("ModestEmails");
+		service_count = 5;
 
  	} else if (strcmp (service, "Conversations") == 0) {
 		service_array[1] = tracker_service_manager_get_id_for_service ("GaimConversations");

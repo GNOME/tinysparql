@@ -31,6 +31,7 @@ typedef enum {
 	MAIL_APP_KMAIL,
 	MAIL_APP_THUNDERBIRD,
         MAIL_APP_THUNDERBIRD_FEED,
+	MAIL_APP_MODEST,
 	MAIL_APP_UNKNOWN
 } MailApplication;
 
@@ -41,7 +42,8 @@ typedef enum {
 	MAIL_TYPE_IMAP,
 	MAIL_TYPE_IMAP4,
 	MAIL_TYPE_MAILDIR,
-	MAIL_TYPE_MH
+	MAIL_TYPE_MH,
+	MAIL_TYPE_POP,
 } MailType;
 
 
@@ -119,13 +121,15 @@ typedef struct {
 	gchar		*content_type;		/* text/plain or text/html etc. */
 	gchar		*body;
 	GSList		*attachments;		/* names of attachments */
-	MailStore	*store;	
+	MailStore	*store;
+	gchar		*uid;
 } MailMessage;
 
 
 void		email_watch_directory				(const gchar *dir, const gchar *service);
 void		email_watch_directories				(const GSList *dirs, const gchar *service);
 
+typedef void ( * FindAttachmentsHelperFct) (GMimeObject *obj, gpointer data);
 typedef void (* ReadMailHelperFct) (GMimeMessage *g_m_message, MailMessage *msg, gpointer read_mail_user_data);
 typedef gchar* (* MakeURIHelperFct) (MailMessage *msg, gpointer read_mail_user_data);
 
@@ -154,10 +158,12 @@ void		email_free_mail_message				(MailMessage *msg);
 
 MailFile *	email_open_mail_file_at_offset			(MailApplication mail_app, const char *path, off_t offset, gboolean scan_from_for_mbox);
 void		email_free_mail_file				(MailFile *mf);
-MailMessage *	email_mail_file_parse_next			(MailFile *mf, ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data);
+MailMessage *	email_mail_file_parse_next			(MailFile *mf, ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data,
+                                                                 FindAttachmentsHelperFct find_attachments_helper);
 
 MailMessage *	email_parse_mail_message_by_path                (MailApplication mail_app, const gchar *path,
-                                                                 ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data);
+                                                                 ReadMailHelperFct read_mail_helper, gpointer read_mail_user_data,
+                                                                 FindAttachmentsHelperFct find_attachments_helper);
 
 MimeInfos *	email_allocate_mime_infos			(void);
 void		email_free_mime_infos				(MimeInfos *infos);

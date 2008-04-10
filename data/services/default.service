@@ -193,6 +193,18 @@ TabularMetadata=Email:Sender;Email:Subject;Email:Date;
 TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
 ContentMetadata=Email:Body
 
+[ModestEmails]
+DisplayName=Modest Emails
+Description=Modest based emails
+Parent=Emails
+ViewerExec=modest-open "%1"
+KeyMetadata1=Email:Subject
+KeyMetadata2=Email:Sender
+KeyMetadata3=Email:Date
+TabularMetadata=Email:Sender;Email:Subject;Email:Date;
+TileMetadata=Email:Sender;Email:Subject;Email:Date;Email:SentTo;Email:CC;Email:Attachments
+ContentMetadata=Email:Body
+
 [ThunderbirdEmails]
 DisplayName=Thunderbird Emails
 Description=Thunderbird based emails
@@ -226,6 +238,12 @@ Icon=stock_attach
 [EvolutionAttachments]
 DisplayName=Evolution Email Attachments
 Description=All files that are attached to an Evolution Email
+Parent=EmailAttachments
+Icon=stock_attach
+
+[ModestAttachments]
+DisplayName=Modest Email Attachments
+Description=All files that are attached to an Modest Email
 Parent=EmailAttachments
 Icon=stock_attach
 

@@ -1,3 +1,27 @@
+2008-04-10  Philip Van Hoof  <pvanhoof@gnome.org>
+
+	* python/deskbar-handler/tracker-module.py
+	* python/deskbar-handler/tracker-handler.py
+	* src/trackerd/tracker-db-email.c
+	* src/trackerd/tracker-db-email.h
+	* src/trackerd/tracker-email-thunderbird.c
+	* src/trackerd/tracker-dbus-search.c
+	* src/trackerd/tracker-email-modest.c
+	* src/trackerd/tracker-email-modest.h
+	* src/trackerd/tracker-email-utils.c
+	* src/trackerd/tracker-email.c
+	* src/trackerd/tracker-email-utils.h
+	* src/trackerd/tracker-email-evolution.c
+	* src/trackerd/tracker-email-kmail.c
+	* src/trackerd/Makefile.am
+	* src/libtracker-common/tracker-configuration.c
+	* src/tracker-search-tool/tracker-search-tool-callbacks.c
+	* src/tracker-preferences/tracker-preferences.glade
+	* src/tracker-preferences/tracker-preferences.c
+	* docs/tracker.cfg.5
+	* data/services/default.service: Added support for the mobile
+	E-mail client Modest
+
 2008-04-09  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-process-files.c (process_index_entity): Use the

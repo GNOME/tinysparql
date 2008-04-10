@@ -468,6 +468,13 @@ setup_page_emails (TrackerPreferences *preferences)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
 
 	widget = glade_xml_get_widget (priv->gxml,
+				       "chkEnableModestIndexing");
+	value = tracker_configuration_get_boolean ("/Emails/IndexModestEmails",
+						   NULL);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
+
+
+	widget = glade_xml_get_widget (priv->gxml,
 				       "chkEnableThunderbirdIndexing");
 	value = tracker_configuration_get_boolean ("/Emails/IndexThunderbirdEmails",
 						   NULL);
@@ -748,6 +755,16 @@ tracker_preferences_cmd_apply (GtkWidget *widget, gpointer data)
 	if (bvalue != bvalue_old) {
 		set_bool_option (priv, "EnableEvolution", bvalue);
 		tracker_configuration_set_boolean ("/Emails/IndexEvolutionEmails", bvalue);
+	}
+
+
+	widget = glade_xml_get_widget (priv->gxml, "chkEnableModestIndexing");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+	bvalue_old = tracker_configuration_get_boolean ("/Emails/IndexModestEmails",
+							NULL);
+	if (bvalue != bvalue_old) {
+		set_bool_option (priv, "EnableModest", bvalue);
+		tracker_configuration_set_boolean ("/Emails/IndexModestEmails", bvalue);
 	}
 
 	widget = glade_xml_get_widget (priv->gxml, "chkEnableThunderbirdIndexing");
