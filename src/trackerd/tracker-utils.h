@@ -470,6 +470,8 @@ char *		tracker_array_to_str 		(char **array, int length, char sep);
 
 GSList *	tracker_get_service_dirs 	(const char *service);
 void		tracker_add_service_path 	(const char *service, const char *path);
+void		tracker_del_service_path 	(const char *service,  const char *path);
+
 char *		tracker_get_service_for_uri 	(const char *uri);
 gboolean	tracker_is_service_file 	(const char *uri);
 

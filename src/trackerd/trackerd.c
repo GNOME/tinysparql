@@ -717,8 +717,8 @@ sanity_check_option_values (void)
                                                          NULL);
 	tracker->service_directory_table = g_hash_table_new_full (g_str_hash, 
                                                                   g_str_equal, 
-                                                                  NULL, 
-                                                                  NULL);
+                                                                  g_free, 
+                                                                  g_free);
 }
 
 static void

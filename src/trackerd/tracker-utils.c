@@ -1400,11 +1400,25 @@ tracker_add_service_path (const char *service,  const char *path)
 	char *dir_path = g_strdup (path);
 	char *service_type = g_strdup (service);
 
-	tracker->service_directory_list = g_slist_prepend (tracker->service_directory_list, dir_path);
-
+	tracker->service_directory_list = g_slist_prepend (tracker->service_directory_list, g_strdup (path));
 	g_hash_table_insert (tracker->service_directory_table, dir_path, service_type);
 }
 
+
+void
+tracker_del_service_path (const char *service,  const char *path)
+{
+	if (!service || !path) {
+		return;
+	}
+	GSList *found = g_slist_find_custom (tracker->service_directory_list, path, (GCompareFunc) strcmp);
+	if (found) {
+		g_free (found->data);
+		tracker->service_directory_list = g_slist_remove_link (tracker->service_directory_list, found);
+		g_slist_free (found);
+	}
+	g_hash_table_remove (tracker->service_directory_table, path);
+}
 
 char *
 tracker_get_service_for_uri (const char *uri)

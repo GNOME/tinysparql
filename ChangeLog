@@ -1,3 +1,14 @@
+2008-04-11  Philip Van Hoof  <pvanhoof@gnome.org>
+
+	* src/trackerd/tracker-email-modest.c
+	* src/trackerd/tracker-utils.c
+	* src/trackerd/tracker-utils.h
+	* src/trackerd/tracker-email-utils.c
+	* src/trackerd/tracker-email-utils.h
+	* src/trackerd/trackerd.c: Added stopping watching E-mail service
+	paths. Also fixes a potential memory leak with the Hashtable
+	service_directory_table
+
 2008-04-10  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-email.c (tracker_email_index_file): Revert last

@@ -126,6 +126,7 @@ typedef struct {
 } MailMessage;
 
 
+void		email_unwatch_directory				(const gchar *dir, const gchar *service);
 void		email_watch_directory				(const gchar *dir, const gchar *service);
 void		email_watch_directories				(const GSList *dirs, const gchar *service);
 

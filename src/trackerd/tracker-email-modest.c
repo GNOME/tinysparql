@@ -168,6 +168,41 @@ static inline gboolean	skip_token_decoding	(FILE *f);
 
 static void  check_summary_file (DBConnection *db_con, const gchar *filename, MailStore *store);
 
+static void
+load_current_dynamic_folders (ModestConfig *modest_config)
+{
+	/* TODO: Load and add existing dynamic-found dirs to modest_config->dynamic_dirs */
+
+	email_watch_directories (modest_config->dynamic_dirs, "ModestEmails");
+}
+
+#if 0
+
+unused
+
+static void
+add_dynamic_folder (ModestConfig *modest_config, const gchar *dir_name)
+{
+	char *dirn = g_strdup (dir_name);
+	modest_config->dynamic_dirs = g_slist_prepend (modest_config->dynamic_dirs, dirn);
+	email_watch_directory (dirn, "ModestEmails");
+}
+
+static void
+del_dynamic_folder (ModestConfig *modest_config, const gchar *dir_name)
+{
+	GSList *found = g_slist_find_custom (modest_config->dynamic_dirs, dir_name, (GCompareFunc) strcmp);
+	if (found) {
+		gchar *rem_name = found->data;
+		/* */
+		email_unwatch_directory (rem_name, "ModestEmails");
+		g_free (rem_name);
+		modest_config->dynamic_dirs = g_slist_remove_link (modest_config->dynamic_dirs, found);
+		g_slist_free (found);
+	}
+}
+
+#endif
 
 static gboolean
 modest_module_is_running (void)
@@ -268,8 +303,8 @@ tracker_email_watch_emails (DBConnection *db_con)
 		tracker_db_free_result (res);
 	}
 
-	g_slist_foreach (modest_config->dirs, (GFunc) email_watch_directory, "ModestEmails");
-	g_slist_foreach (modest_config->dynamic_dirs, (GFunc) email_watch_directory, "ModestEmails");
+	email_watch_directories (modest_config->dirs, "ModestEmails");
+	load_current_dynamic_folders (modest_config);
 }
 
 static gboolean
@@ -504,10 +539,7 @@ load_modest_config (ModestConfig **conf)
 	m_conf->dirs = moredir (dir_maildir, dir_maildir, m_conf->dirs);
 	g_free (dir_maildir);
 
-
-	/* TODO: Future support
-	 * m_conf->dynamic_dirs must be updated whenever an MMC card gets inserted */
-
+	/* Init to NULL here */
 	m_conf->dynamic_dirs = NULL;
 
 	return TRUE;
