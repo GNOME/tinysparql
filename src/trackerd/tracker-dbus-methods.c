@@ -503,9 +503,12 @@ tracker_dbus_method_set_bool_option (DBusRec *rec)
 	} else if (strcasecmp (option, "GenerateThumbs") == 0) {
                 tracker_config_set_enable_thumbnails (tracker->config, value);
 		tracker_log ("Generate thumbnails set to %d", value);	
-	} else if (strcasecmp (option, "SkipMountPoints") == 0) {
-                tracker_config_set_skip_mount_points (tracker->config, value);
-		tracker_log ("Skip mounted directories set to %d", value);
+	} else if (strcasecmp (option, "IndexMountedDirectories") == 0) {
+                tracker_config_set_index_mounted_directories (tracker->config, value);
+		tracker_log ("Index mounted directories set to %d", value);
+	} else if (strcasecmp (option, "IndexRemovableDevices") == 0) {
+                tracker_config_set_index_removable_devices (tracker->config, value);
+		tracker_log ("Index removable media set to %d", value);
 	} else if (strcasecmp (option, "BatteryIndex") == 0) {
                 tracker_config_set_disable_indexing_on_battery (tracker->config, !value);
 		tracker_log ("Disable index on battery set to %d", !value);

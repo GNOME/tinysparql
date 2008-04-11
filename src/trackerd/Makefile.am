@@ -40,6 +40,12 @@ else
 unix_sources = tracker-os-dependant-unix.c
 endif
 
+if HAVE_HAL
+hal_sources = 								\
+	tracker-hal.c             					\
+	tracker-hal.h
+endif
+
 db_sources =								\
 	tracker-indexer.c						\
 	tracker-indexer.h						\
@@ -60,6 +66,7 @@ trackerd_SOURCES =							\
 	$(watch_sources)						\
 	$(win_sources)							\
 	$(unix_sources)							\
+	$(hal_sources)							\
 	$(db_sources)							\
 	tracker-apps.c							\
 	tracker-apps.h							\

@@ -36,6 +36,7 @@
 #include <libtracker-common/tracker-log.h>
 
 #include "tracker-watch.h"
+#include "tracker-process-files.h"
 
 #define INOTIFY_WATCH_LIMIT "/proc/sys/fs/inotify/max_user_watches"
 
@@ -106,7 +107,7 @@ process_event (const char *uri, gboolean is_dir, TrackerChangeAction action, gui
 
 	info = tracker_create_file_info (uri, action, 1, WATCH_OTHER);
 
-	if (!tracker_file_info_is_valid (info)) {
+	if (!tracker_process_files_is_file_info_valid (info)) {
 		return;
 	}
 
@@ -414,9 +415,11 @@ process_inotify_events (void)
 			str = g_build_filename(dir_utf8_uri, file_utf8_uri, NULL);
 		}
 
-		
-
-		if (str && str[0] == '/' && (!tracker_ignore_file (str) || action_type == TRACKER_ACTION_DIRECTORY_MOVED_FROM) && !tracker_file_is_crawled (str) && !tracker_file_is_no_watched (str)) {
+		if (str && str[0] == '/' && 
+                    (!tracker_process_files_should_be_ignored (str) || 
+                     action_type == TRACKER_ACTION_DIRECTORY_MOVED_FROM) && 
+                    tracker_process_files_should_be_crawled (tracker, str) && 
+                    tracker_process_files_should_be_watched (tracker->config, str)) {
 			process_event (str, tracker_is_directory (str), action_type, cookie);
 		} else {
 			tracker_debug ("ignoring action %d on file %s", action_type, str);

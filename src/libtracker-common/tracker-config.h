@@ -68,10 +68,11 @@ gint           tracker_config_get_min_word_length                  (TrackerConfi
 gint           tracker_config_get_max_word_length                  (TrackerConfig *config);
 const gchar *  tracker_config_get_language                         (TrackerConfig *config);
 gboolean       tracker_config_get_enable_stemmer                   (TrackerConfig *config);
-gboolean       tracker_config_get_skip_mount_points                (TrackerConfig *config);
 gboolean       tracker_config_get_disable_indexing_on_battery      (TrackerConfig *config);
 gboolean       tracker_config_get_disable_indexing_on_battery_init (TrackerConfig *config);
 gint           tracker_config_get_low_disk_space_limit             (TrackerConfig *config);
+gboolean       tracker_config_get_index_removable_devices            (TrackerConfig *config);
+gboolean       tracker_config_get_index_mounted_directories        (TrackerConfig *config);
 const gchar *  tracker_config_get_email_client                     (TrackerConfig *config);
 gint           tracker_config_get_max_text_to_index                (TrackerConfig *config);
 gint           tracker_config_get_max_words_to_index               (TrackerConfig *config);
@@ -108,14 +109,16 @@ void           tracker_config_set_language                         (TrackerConfi
 								    const gchar   *value);
 void           tracker_config_set_enable_stemmer                   (TrackerConfig *config,
 								    gboolean       value);
-void           tracker_config_set_skip_mount_points                (TrackerConfig *config,
-								    gboolean       value);
 void           tracker_config_set_disable_indexing_on_battery      (TrackerConfig *config,
 								    gboolean       value);
 void           tracker_config_set_disable_indexing_on_battery_init (TrackerConfig *config,
 								    gboolean       value);
 void           tracker_config_set_low_disk_space_limit             (TrackerConfig *config,
 								    gint           value);
+void           tracker_config_set_index_removable_devices          (TrackerConfig *config,
+								    gboolean       value);
+void           tracker_config_set_index_mounted_directories        (TrackerConfig *config,
+								    gboolean       value);
 void           tracker_config_set_email_client                     (TrackerConfig *config,
 								    const gchar   *value);
 void           tracker_config_set_max_text_to_index                (TrackerConfig *config,

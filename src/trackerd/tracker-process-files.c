@@ -40,11 +40,38 @@
 #include "tracker-dbus-methods.h"
 #include "tracker-cache.h"
 #include "tracker-email.h"
+#include "tracker-hal.h"
 #include "tracker-indexer.h"
 #include "tracker-os-dependant.h"
 #include "tracker-utils.h"
 #include "tracker-watch.h"
 #include "tracker-service.h"
+#include "tracker-process-files.h"
+
+static GSList       *ignore_pattern_list;
+static GSList       *temp_black_list;
+static GSList       *crawl_directories;
+        
+static gchar       **ignore_pattern;
+
+static const gchar  *ignore_suffix[] = {
+        "~", ".o", ".la", ".lo", ".loT", ".in", 
+        ".csproj", ".m4", ".rej", ".gmo", ".orig", 
+        ".pc", ".omf", ".aux", ".tmp", ".po", 
+        ".vmdk",".vmx",".vmxf",".vmsd",".nvram", 
+        ".part", NULL
+};
+
+static const gchar  *ignore_prefix[] = { 
+        "autom4te", "conftest.", "confstat", 
+        "config.", NULL 
+};
+
+static const gchar  *ignore_name[] = { 
+        "po", "CVS", "aclocal", "Makefile", "CVS", 
+        "SCCS", "ltmain.sh","libtool", "config.status", 
+        "conftest", "confdefs.h", NULL
+};
 
 static void
 process_my_yield (void)
@@ -56,11 +83,120 @@ process_my_yield (void)
 #endif
 }
 
-static void
-process_watch_list_add_dirs (Tracker  *tracker,
-                             GSList   *dir_list, 
-                             gboolean  check_dirs)
+static GSList *
+process_get_files (Tracker    *tracker,
+                   const char *dir, 
+                   gboolean    dir_only, 
+                   gboolean    skip_ignored_files, 
+                   const char *filter_prefix)
 {
+	GDir   *dirp;
+	GSList *files;
+	char   *dir_in_locale;
+
+	dir_in_locale = g_filename_from_utf8 (dir, -1, NULL, NULL, NULL);
+
+	if (!dir_in_locale) {
+		tracker_error ("ERROR: dir could not be converted to utf8 format");
+		g_free (dir_in_locale);
+		return NULL;
+	}
+
+	files = NULL;
+
+   	if ((dirp = g_dir_open (dir_in_locale, 0, NULL))) {
+		const gchar *name;
+
+   		while ((name = g_dir_read_name (dirp))) {
+                        gchar *filename;
+			gchar *built_filename;
+
+			if (!tracker->is_running) {
+				g_free (dir_in_locale);
+				g_dir_close (dirp);
+				return NULL;
+			}
+
+			filename = g_filename_to_utf8 (name, -1, NULL, NULL, NULL);
+
+			if (!filename) {
+				continue;
+			}
+
+			if (filter_prefix && !g_str_has_prefix (filename, filter_prefix)) {
+				g_free (filename);
+				continue;
+			}
+
+			if (skip_ignored_files && 
+                            tracker_process_files_should_be_ignored (filename)) {
+				g_free (filename);
+				continue;
+			}
+
+			built_filename = g_build_filename (dir, filename, NULL);
+			g_free (filename);
+
+ 			if (!tracker_file_is_valid (built_filename)) {
+				g_free (built_filename);
+				continue;
+			}
+
+                        if (!tracker_process_files_should_be_crawled (tracker, built_filename)) {
+                                g_free (built_filename);
+                                continue;
+                        }
+
+			if (!dir_only || tracker_is_directory (built_filename)) {
+				if (tracker_process_files_should_be_watched (tracker->config, built_filename)) {
+					files = g_slist_prepend (files, built_filename);
+                                } else {
+                                        g_free (built_filename);
+                                }
+                        } else {
+                                g_free (built_filename);
+			}
+		}
+
+ 		g_dir_close (dirp);
+	}
+
+	g_free (dir_in_locale);
+
+	if (!tracker->is_running) {
+		if (files) {
+			g_slist_foreach (files, (GFunc) g_free, NULL);
+			g_slist_free (files);
+		}
+
+		return NULL;
+	}
+
+	return files;
+}
+
+static void
+process_get_directories (Tracker     *tracker, 
+                         const char  *dir, 
+                         GSList     **files)
+{
+	GSList *l;
+
+        l = process_get_files (tracker, dir, TRUE, TRUE, NULL);
+
+        if (*files) {
+                *files = g_slist_concat (*files, l);
+        } else {
+                *files = l;
+	}
+}
+
+static void
+process_watch_directories (Tracker *tracker,
+                           GSList  *dirs)
+{
+        GSList *list;
+
         if (!tracker->is_running) {
 		return;
 	}
@@ -68,98 +204,77 @@ process_watch_list_add_dirs (Tracker  *tracker,
 	/* Add sub directories breadth first recursively to avoid
          * running out of file handles.
          */
-	while (dir_list) {
-                GSList *file_list = NULL;
-                GSList *tmp;
+        list = dirs;
+        
+	while (list) {
+                GSList *files = NULL;
+                GSList *l;
 
-		for (tmp = dir_list; tmp; tmp = tmp->next) {
-                        gchar *str;
+		for (l = list; l; l = l->next) {
+                        gchar *dir;
+                        guint  watches;
 
-                        str = tmp->data;
+                        if (!l->data) {
+                                continue;
+                        }
 
-			if (str && !tracker_file_is_no_watched (str)) {
-				tracker->dir_list = g_slist_prepend (tracker->dir_list, g_strdup (str));
-
-				if (!tracker_config_get_enable_watches (tracker->config) || 
-                                    tracker_file_is_crawled (str)) {
+                        if (!g_utf8_validate (l->data, -1, NULL)) {
+                                dir = g_filename_to_utf8 (l->data, -1, NULL,NULL,NULL);
+                                if (!dir) {
+                                        tracker_error ("Directory to watch was not valid UTF-8 and couldn't be converted either");
                                         continue;
                                 }
+                        } else {
+                                dir = g_strdup (l->data);
+                        }
 
-				if ((tracker_count_watch_dirs () + g_slist_length (dir_list)) < tracker->watch_limit) {
-					if (!tracker_add_watch_dir (str, tracker->index_db) && tracker_is_directory (str)) {
-						tracker_debug ("Watch failed for %s", str);
-					}
-				}
-			}
+                        if (!tracker_file_is_valid (dir)) {
+                                g_free (dir);
+                                continue;
+                        }
+                        
+                        if (!tracker_is_directory (dir)) {
+                                g_free (dir);
+                                continue;
+                        }
+                                  
+			if (!tracker_process_files_should_be_watched (tracker->config, dir) || 
+                            !tracker_process_files_should_be_watched (tracker->config, dir)) {
+                                continue;
+                        }
+
+                        crawl_directories = g_slist_prepend (crawl_directories, dir);
+                        
+                        if (!tracker_config_get_enable_watches (tracker->config)) {
+                                continue;
+                        }
+                        
+                        watches = tracker_count_watch_dirs () + g_slist_length (list);
+                        
+                        if (watches < tracker->watch_limit) {
+                                if (!tracker_add_watch_dir (dir, tracker->index_db)) {
+                                        tracker_debug ("Watch failed for %s", dir);
+                                }
+                        }
 		}
 
-		g_slist_foreach (dir_list, (GFunc) tracker_get_dirs, &file_list);
-		g_slist_foreach (dir_list, (GFunc) g_free, NULL);
-		g_slist_free (dir_list);
+                for (l = list; l; l = l->next) {
+                        process_get_directories (tracker, l->data, &files);
+                }
 
-		dir_list = file_list;
+                /* Don't free original list */
+                if (list != dirs) {
+                        g_slist_foreach (list, (GFunc) g_free, NULL);
+                        g_slist_free (list);
+                }
+
+		list = files;
 	}
-}
-
-static gboolean
-process_watch_dir (Tracker     *tracker,
-                   const gchar *dir)
-{
-	gchar *dir_utf8;
-
-	if (!tracker->is_running) {
-		return TRUE;
-	}
-
-	if (!dir) {
-		return FALSE;
-	}
-
-	if (!g_utf8_validate (dir, -1, NULL)) {
-		dir_utf8 = g_filename_to_utf8 (dir, -1, NULL,NULL,NULL);
-		if (!dir_utf8) {
-			tracker_error ("ERROR: watch_dir could not be converted to utf8 format");
-			return FALSE;
-		}
-	} else {
-		dir_utf8 = g_strdup (dir);
-	}
-
-	if (!tracker_file_is_valid (dir_utf8)) {
-		g_free (dir_utf8);
-		return FALSE;
-	}
-
-	if (!tracker_is_directory (dir_utf8)) {
-		g_free (dir_utf8);
-		return FALSE;
-	}
-
-	if (tracker_file_is_crawled (dir_utf8)) {
-		g_free (dir_utf8);
-		return FALSE;
-	}
-
-	if (!tracker_file_is_no_watched (dir_utf8)) {
-		GSList *mylist = NULL;
-
-		mylist = g_slist_prepend (mylist, dir_utf8);
-		process_watch_list_add_dirs (tracker, mylist, TRUE);
-	}
-
-	return TRUE;
 }
 
 static void
-process_watch_dir_foreach (const gchar  *dir, 
-                           Tracker      *tracker)
-{
-        process_watch_dir (tracker, dir);
-}
-
-static void
-process_schedule_dir_check_foreach (const gchar  *uri, 
-                                    Tracker      *tracker)
+process_schedule_directory_check_foreach (const gchar  *uri, 
+                                          Tracker      *tracker)
 {
 	if (!tracker->is_running) {
 		return;
@@ -170,37 +285,6 @@ process_schedule_dir_check_foreach (const gchar  *uri,
 
 	tracker_db_insert_pending_file (tracker->index_db, 0, uri, NULL, "unknown", 0, 
                                         TRACKER_ACTION_DIRECTORY_REFRESH, TRUE, FALSE, -1);
-}
-
-static inline void
-process_directory_list (Tracker  *tracker, 
-                        GSList   *list, 
-                        gboolean  recurse)
-{
-	tracker->dir_list = NULL;
-
-	if (!list) {
-		return;
-	}
-
-	g_slist_foreach (list, 
-                         (GFunc) process_watch_dir_foreach, 
-                         tracker);
-	g_slist_foreach (list, 
-                         (GFunc) process_schedule_dir_check_foreach, 
-                         tracker);
-
-	if (recurse && tracker->dir_list) {
-		g_slist_foreach (tracker->dir_list, 
-                                 (GFunc) process_schedule_dir_check_foreach, 
-                                 tracker);
-	}
-
-	if (tracker->dir_list) {
-		g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
-		g_slist_free (tracker->dir_list);
-                tracker->dir_list = NULL;
-	}
 }
 
 static void
@@ -218,9 +302,40 @@ process_schedule_file_check_foreach (const gchar  *uri,
 	process_my_yield ();
 
 	if (!tracker_is_directory (uri)) {
-		tracker_db_insert_pending_file (tracker->index_db, 0, uri, NULL, "unknown", 0, TRACKER_ACTION_CHECK, 0, FALSE, -1);
+		tracker_db_insert_pending_file (tracker->index_db, 0, uri, NULL, "unknown", 0, 
+                                                TRACKER_ACTION_CHECK, 0, FALSE, -1);
 	} else {
-		process_schedule_dir_check_foreach (uri, tracker);
+		process_schedule_directory_check_foreach (uri, tracker);
+	}
+}
+
+static inline void
+process_directory_list (Tracker  *tracker, 
+                        GSList   *list, 
+                        gboolean  recurse)
+{
+	crawl_directories = NULL;
+
+	if (!list) {
+		return;
+	}
+
+        process_watch_directories (tracker, list);
+
+	g_slist_foreach (list, 
+                         (GFunc) process_schedule_directory_check_foreach, 
+                         tracker);
+
+	if (recurse && crawl_directories) {
+		g_slist_foreach (crawl_directories, 
+                                 (GFunc) process_schedule_directory_check_foreach, 
+                                 tracker);
+	}
+
+	if (crawl_directories) {
+		g_slist_foreach (crawl_directories, (GFunc) g_free, NULL);
+		g_slist_free (crawl_directories);
+                crawl_directories = NULL;
 	}
 }
 
@@ -228,7 +343,7 @@ static void
 process_scan_directory (Tracker     *tracker,
                         const gchar *uri)
 {
-	GSList *file_list;
+	GSList *files;
 
 	if (!tracker->is_running) {
 		return;
@@ -241,21 +356,22 @@ process_scan_directory (Tracker     *tracker,
 	/* Keep mainloop responsive */
 	process_my_yield ();
 
-	file_list = tracker_get_files (uri, FALSE);
-	tracker_debug ("Scanning %s for %d files", uri, g_slist_length(file_list));
+        files = process_get_files (tracker, uri, FALSE, TRUE, NULL);
 
-	g_slist_foreach (file_list, 
+	tracker_debug ("Scanning %s for %d files", uri, g_slist_length (files));
+
+	g_slist_foreach (files, 
                          (GFunc) process_schedule_file_check_foreach, 
                          tracker);
-	g_slist_foreach (file_list, 
+	g_slist_foreach (files, 
                          (GFunc) g_free, 
                          NULL);
-	g_slist_free (file_list);
+	g_slist_free (files);
 
 	/* Recheck directory to update its mtime if its changed whilst
          * scanning.
          */
-	process_schedule_dir_check_foreach (uri, tracker);
+	process_schedule_directory_check_foreach (uri, tracker);
 	tracker_debug ("Finished scanning");
 }
 
@@ -394,13 +510,13 @@ process_index_entity (Tracker  *tracker,
 }
 
 static void
-process_delete_file (Tracker  *tracker, 
-                     FileInfo *info)
+process_index_delete_file (Tracker  *tracker, 
+                           FileInfo *info)
 {
 	/* Info struct may have been deleted in transit here so check
          * if still valid and intact.
          */
-	g_return_if_fail (tracker_file_info_is_valid (info));
+	g_return_if_fail (tracker_process_files_is_file_info_valid (info));
 
 	/* If we dont have an entry in the db for the deleted file, we
          * ignore it.
@@ -415,13 +531,13 @@ process_delete_file (Tracker  *tracker,
 }
 
 static void
-process_delete_dir (Tracker  *tracker, 
-                    FileInfo *info)
+process_index_delete_directory (Tracker  *tracker, 
+                                FileInfo *info)
 {
 	/* Info struct may have been deleted in transit here so check
          * if still valid and intact.
          */
-	g_return_if_fail (tracker_file_info_is_valid (info));
+	g_return_if_fail (tracker_process_files_is_file_info_valid (info));
 
 	/* If we dont have an entry in the db for the deleted
          * directory, we ignore it.
@@ -438,14 +554,18 @@ process_delete_dir (Tracker  *tracker,
 }
 
 static void
-process_delete_dir_check (Tracker     *tracker,
-                          const gchar *uri)
+process_index_delete_directory_check (Tracker     *tracker,
+                                      const gchar *uri)
 {
 	gchar **files;
         gchar **p;
 
 	/* Check for any deletions*/
 	files = tracker_db_get_files_in_folder (tracker->index_db, uri);
+
+        if (!files) {
+                return;
+        }
 
 	for (p = files; *p; p++) {
 		gchar *str = *p;
@@ -457,54 +577,15 @@ process_delete_dir_check (Tracker     *tracker,
 			info = tracker_db_get_file_info (tracker->index_db, info);
 
 			if (!info->is_directory) {
-				process_delete_file (tracker, info);
+				process_index_delete_file (tracker, info);
 			} else {
-				process_delete_dir (tracker, info);
+				process_index_delete_directory (tracker, info);
 			}
 			tracker_free_file_info (info);
 		}
 	}
 
 	g_strfreev (files);
-}
-
-static void
-process_add_dirs_to_list (Tracker *tracker, 
-                          GSList  *dir_list)
-{
-	GSList *new_dir_list = NULL;
-        GSList *l;
-
-	if (!tracker->is_running) {
-		return;
-	}
-
-	for (l = dir_list; l; l = l->next) {
-		if (l) {
-			new_dir_list = g_slist_prepend (new_dir_list, 
-                                                        g_strdup (l->data));
-		}
-	}
-
-	/* Add sub directories breadth first recursively to avoid
-         * running out of file handles.
-         */
-	while (new_dir_list) {
-                GSList *file_list = NULL;
-
-		for (l = new_dir_list; l; l = l->next) {
-                        gchar *str = l->data;
-
-			if (str && !tracker_file_is_no_watched (str)) {
-				tracker->dir_list = g_slist_prepend (tracker->dir_list, g_strdup (str));
-			}
-		}
-
-		g_slist_foreach (new_dir_list, (GFunc) tracker_get_dirs, &file_list);
-		g_slist_foreach (new_dir_list, (GFunc) g_free, NULL);
-		g_slist_free (new_dir_list);
-		new_dir_list = file_list;
-	}
 }
 
 static inline void
@@ -523,7 +604,7 @@ static void
 process_check_directory (Tracker     *tracker,
                          const gchar *uri)
 {
-	GSList *file_list = NULL;
+	GSList *files;
 
 	if (!tracker->is_running) {
 		return;
@@ -532,12 +613,12 @@ process_check_directory (Tracker     *tracker,
 	g_return_if_fail (tracker_check_uri (uri));
 	g_return_if_fail (tracker_is_directory (uri));
 
-	file_list = tracker_get_files (uri, FALSE);
-	tracker_debug ("Checking %s for %d files", uri, g_slist_length (file_list));
+        files = process_get_files (tracker, uri, FALSE, TRUE, NULL);
+	tracker_debug ("Checking %s for %d files", uri, g_slist_length (files));
 
-	g_slist_foreach (file_list, (GFunc) process_queue_files_foreach, tracker);
-	g_slist_foreach (file_list, (GFunc) g_free, NULL);
-	g_slist_free (file_list);
+	g_slist_foreach (files, (GFunc) process_queue_files_foreach, tracker);
+	g_slist_foreach (files, (GFunc) g_free, NULL);
+	g_slist_free (files);
 
         process_queue_files_foreach (uri, tracker);
 
@@ -571,8 +652,6 @@ process_index_applications (Tracker *tracker)
         tracker_applications_add_service_directories ();
         
         list = tracker_get_service_dirs ("Applications");
-
-        tracker_add_root_directories (list);
         process_directory_list (tracker, list, FALSE);
 
         tracker_db_end_transaction (db_con->cache);
@@ -581,11 +660,96 @@ process_index_applications (Tracker *tracker)
 }
 
 static void
+process_index_get_remote_roots (Tracker  *tracker,
+                                GSList  **mounted_directory_roots, 
+                                GSList  **removable_device_roots)
+{
+        GSList *l1 = NULL;
+        GSList *l2 = NULL;
+
+#ifdef HAVE_HAL        
+        l1 = tracker_hal_get_mounted_directory_roots (tracker->hal);
+        l2 = tracker_hal_get_removable_device_roots (tracker->hal);
+#endif 
+        
+        /* The options to index removable media and the index mounted
+         * directories are both mutually exclusive even though
+         * removable media is mounted on a directory.
+         *
+         * Since we get ALL mounted directories from HAL, we need to
+         * remove those which are removable device roots.
+         */
+        if (l2) {
+                GSList *l;
+                GSList *list = NULL;
+                       
+                for (l = l1; l; l = l->next) {
+                        if (g_slist_find_custom (l2, l->data, (GCompareFunc) strcmp)) {
+                                continue;
+                        } 
+                        
+                        list = g_slist_prepend (list, l->data);
+                }
+
+                *mounted_directory_roots = g_slist_reverse (list);
+        } else {
+                *mounted_directory_roots = NULL;
+        }
+
+        *removable_device_roots = g_slist_copy (l2);
+}
+
+static void
+process_index_get_roots (Tracker  *tracker,
+                         GSList  **included,
+                         GSList  **excluded)
+{
+        GSList *watch_directory_roots;
+        GSList *no_watch_directory_roots;
+        GSList *mounted_directory_roots;
+        GSList *removable_device_roots;
+
+        *included = NULL;
+        *excluded = NULL;
+
+        process_index_get_remote_roots (tracker,
+                                        &mounted_directory_roots, 
+                                        &removable_device_roots);        
+        
+        /* Delete all stuff in the no watch dirs */
+        watch_directory_roots = 
+                tracker_config_get_watch_directory_roots (tracker->config);
+        
+        no_watch_directory_roots = 
+                tracker_config_get_no_watch_directory_roots (tracker->config);
+
+        /* Create list for enabled roots based on config */
+        *included = g_slist_concat (*included, g_slist_copy (watch_directory_roots));
+        
+        /* Create list for disabled roots based on config */
+        *excluded = g_slist_concat (*excluded, g_slist_copy (no_watch_directory_roots));
+
+        /* Add or remove roots which pertain to removable media */
+        if (tracker_config_get_index_removable_devices (tracker->config)) {
+                *included = g_slist_concat (*included, g_slist_copy (removable_device_roots));
+        } else {
+                *excluded = g_slist_concat (*excluded, g_slist_copy (removable_device_roots));
+        }
+
+        /* Add or remove roots which pertain to mounted directories */
+        if (tracker_config_get_index_mounted_directories (tracker->config)) {
+                *included = g_slist_concat (*included, g_slist_copy (mounted_directory_roots));
+        } else {
+                *excluded = g_slist_concat (*excluded, g_slist_copy (mounted_directory_roots));
+        }
+}
+
+static void
 process_index_files (Tracker *tracker)
 {
         DBConnection *db_con;
-        GSList       *watch_directory_roots;
-        GSList       *no_watch_directory_roots;
+        GSList       *index_include;
+        GSList       *index_exclude;
         gint          initial_sleep;
 
         tracker_log ("Starting file indexing...");
@@ -614,70 +778,118 @@ process_index_files (Tracker *tracker)
         
         tracker->pause_io = FALSE;
         tracker_dbus_send_index_status_change_signal ();
-        
-        tracker->dir_list = NULL;
+
+        /* FIXME: Is this safe? shouldn't we free first? */
+        crawl_directories = NULL;
         
         tracker_db_start_index_transaction (db_con);
 	
-        /* Delete all stuff in the no watch dirs */
-        watch_directory_roots = 
-                tracker_config_get_watch_directory_roots (tracker->config);
-        
-        no_watch_directory_roots = 
-                tracker_config_get_no_watch_directory_roots (tracker->config);
-        
-        if (no_watch_directory_roots) {
+        process_index_get_roots (tracker, &index_include, &index_exclude);
+
+        if (index_exclude) {
                 GSList *l;
                 
-                tracker_log ("Deleting entities in no watch directories...");
+                tracker_log ("Deleting entities where indexing is disabled or are not watched:");
                 
-                for (l = no_watch_directory_roots; l; l = l->next) {
-                        guint32 f_id = tracker_db_get_file_id (db_con, l->data);
+                for (l = index_exclude; l; l = l->next) {
+                        guint32 id;
+
+                        tracker_log ("  %s", l->data);
+
+                        id = tracker_db_get_file_id (db_con, l->data);
                         
-                        if (f_id > 0) {
-                                tracker_db_delete_directory (db_con, f_id, l->data);
+                        if (id > 0) {
+                                tracker_db_delete_directory (db_con, id, l->data);
                         }
                 }
+
+                g_slist_free (index_exclude);
         }
         
-        if (!watch_directory_roots) {
+        if (!index_include) {
+                tracker_log ("No directory roots to index!");
                 return;
         }
         
         tracker_db_start_transaction (db_con->cache);
-        tracker_add_root_directories (watch_directory_roots);
         
-        /* index watched dirs first */
-        g_slist_foreach (watch_directory_roots, 
-                         (GFunc) process_watch_dir_foreach, 
+        /* Index watched dirs first */
+        process_watch_directories (tracker, index_include);
+       
+        g_slist_foreach (crawl_directories, 
+                         (GFunc) process_schedule_directory_check_foreach, 
                          tracker);
         
-        g_slist_foreach (tracker->dir_list, 
-                         (GFunc) process_schedule_dir_check_foreach, 
-                         tracker);
-        
-        if (tracker->dir_list) {
-                g_slist_foreach (tracker->dir_list, 
+        if (crawl_directories) {
+                g_slist_foreach (crawl_directories, 
                                  (GFunc) g_free, 
                                  NULL);
-                g_slist_free (tracker->dir_list);
-                tracker->dir_list = NULL;
+                g_slist_free (crawl_directories);
+                crawl_directories = NULL;
         }
         
-        g_slist_foreach (watch_directory_roots, 
-                         (GFunc) process_schedule_dir_check_foreach, 
+        g_slist_foreach (index_include, 
+                         (GFunc) process_schedule_directory_check_foreach, 
                          tracker);
         
-        if (tracker->dir_list) {
-                g_slist_foreach (tracker->dir_list, 
+        if (crawl_directories) {
+                g_slist_foreach (crawl_directories, 
                                  (GFunc) g_free, 
                                  NULL);
-                g_slist_free (tracker->dir_list);
-                tracker->dir_list = NULL;
+                g_slist_free (crawl_directories);
+                crawl_directories = NULL;
         }
         
         tracker_db_end_transaction (db_con->cache);
         tracker_dbus_send_index_progress_signal ("Files", "");
+
+        g_slist_free (index_include);
+}
+
+static void
+process_index_crawl_add_directories (Tracker *tracker, 
+                                     GSList  *dirs)
+{
+	GSList *new_dirs = NULL;
+        GSList *l;
+
+	if (!tracker->is_running) {
+		return;
+	}
+
+	for (l = dirs; l; l = l->next) {
+		if (!l->data) {
+                        continue;
+                }
+
+                new_dirs = g_slist_prepend (new_dirs, g_strdup (l->data));
+	}
+
+	/* Add sub directories breadth first recursively to avoid
+         * running out of file handles.
+         */
+	while (new_dirs) {
+                GSList *files = NULL;
+
+		for (l = new_dirs; l; l = l->next) {
+                        if (!l->data) {
+                                continue;
+                        }
+
+			if (tracker_process_files_should_be_watched (tracker->config, l->data)) {
+				crawl_directories = g_slist_prepend (crawl_directories, g_strdup (l->data));
+			}
+		}
+
+                for (l = new_dirs; l; l = l->next) {
+                        process_get_directories (tracker, l->data, &files);
+                }
+
+		g_slist_foreach (new_dirs, (GFunc) g_free, NULL);
+		g_slist_free (new_dirs);
+
+		new_dirs = files;
+	}
 }
 
 static void
@@ -689,8 +901,8 @@ process_index_crawl_files (Tracker *tracker)
         db_con = tracker->index_db;
 
         tracker_log ("Starting directory crawling...");
-        tracker->dir_list = NULL;
-        
+
+        crawl_directories = NULL;
         crawl_directory_roots = 
                 tracker_config_get_crawl_directory_roots (tracker->config);
         
@@ -699,28 +911,27 @@ process_index_crawl_files (Tracker *tracker)
         }
         
         tracker_db_start_transaction (db_con->cache);
-        tracker_add_root_directories (crawl_directory_roots);
         
-        process_add_dirs_to_list (tracker, crawl_directory_roots);
+        process_index_crawl_add_directories (tracker, crawl_directory_roots);
         
-        g_slist_foreach (tracker->dir_list, 
-                         (GFunc) process_schedule_dir_check_foreach, 
+        g_slist_foreach (crawl_directories, 
+                         (GFunc) process_schedule_directory_check_foreach, 
                          tracker);
         
-        if (tracker->dir_list) {
-                g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
-                g_slist_free (tracker->dir_list);
-                tracker->dir_list = NULL;
+        if (crawl_directories) {
+                g_slist_foreach (crawl_directories, (GFunc) g_free, NULL);
+                g_slist_free (crawl_directories);
+                crawl_directories = NULL;
         }
         
         g_slist_foreach (crawl_directory_roots, 
-                         (GFunc) process_schedule_dir_check_foreach, 
+                         (GFunc) process_schedule_directory_check_foreach, 
                          tracker);
         
-        if (tracker->dir_list) {
-                g_slist_foreach (tracker->dir_list, (GFunc) g_free, NULL);
-                g_slist_free (tracker->dir_list);
-                tracker->dir_list = NULL;
+        if (crawl_directories) {
+                g_slist_foreach (crawl_directories, (GFunc) g_free, NULL);
+                g_slist_free (crawl_directories);
+                crawl_directories = NULL;
         }
         
         tracker_db_end_transaction (db_con->cache);
@@ -755,7 +966,6 @@ process_index_conversations (Tracker *tracker)
 
                 tracker_log ("Starting chat log indexing...");
                 tracker_db_start_transaction (db_con->cache);
-                tracker_add_root_directories (list);
                 process_directory_list (tracker, list, TRUE);
                 tracker_db_end_transaction (db_con->cache);
                 g_slist_free (list);
@@ -784,7 +994,6 @@ process_index_webhistory (Tracker *tracker)
                 tracker_add_service_path ("WebHistory", firefox_dir);
                 
                 tracker_db_start_transaction (db_con->cache);		
-                tracker_add_root_directories (list);
                 process_directory_list (tracker, list, TRUE);
                 tracker_db_end_transaction (db_con->cache);
                 g_slist_free (list);
@@ -835,7 +1044,6 @@ process_index_emails (Tracker *tracker)
                         GSList *list;
 
                         list = tracker_get_service_dirs (name);
-                        tracker_add_root_directories (list);
                         process_directory_list (tracker, list, TRUE);
                         g_slist_free (list);
                 }
@@ -1008,7 +1216,8 @@ process_action (Tracker  *tracker,
                 break;
                 
         case TRACKER_ACTION_DIRECTORY_REFRESH:
-                if (need_index && !tracker_file_is_no_watched (info->uri)) {
+                if (need_index && 
+                    tracker_process_files_should_be_watched (tracker->config, info->uri)) {
                         g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
                         
                         if (tracker->index_status != INDEX_EMAILS) {
@@ -1020,11 +1229,12 @@ process_action (Tracker  *tracker,
                 break;
                 
         case TRACKER_ACTION_DIRECTORY_CHECK:
-                if (need_index && !tracker_file_is_no_watched (info->uri)) {
+                if (need_index && 
+                    tracker_process_files_should_be_watched (tracker->config, info->uri)) {
                         g_async_queue_push (tracker->dir_queue, g_strdup (info->uri));
 			
                         if (info->indextime > 0) {
-                                process_delete_dir_check (tracker, info->uri);
+                                process_index_delete_directory_check (tracker, info->uri);
                         }
                 }
                 
@@ -1042,12 +1252,18 @@ process_action (Tracker  *tracker,
                 /* Schedule a rescan for all files in folder
                  * to avoid race conditions.
                  */
-                if (!tracker_file_is_no_watched (info->uri)) {
+                if (tracker_process_files_should_be_watched (tracker->config, info->uri)) {
+                        GSList *list;
+
                         /* Add to watch folders (including
                          * subfolders).
                          */
-                        process_watch_dir (tracker, info->uri);
+                        list = g_slist_prepend (NULL, info->uri);
+
+                        process_watch_directories (tracker, list);
                         process_scan_directory (tracker, info->uri);
+
+                        g_slist_free (list);
                 } else {
                         tracker_debug ("Blocked scan of directory %s as its in the no watch list", 
                                        info->uri);
@@ -1071,7 +1287,7 @@ process_action_prechecks (Tracker  *tracker,
         /* Info struct may have been deleted in transit here
          * so check if still valid and intact.
          */
-        if (!tracker_file_info_is_valid (info)) {
+        if (!tracker_process_files_is_file_info_valid (info)) {
                 return TRUE;
         }
 
@@ -1107,6 +1323,7 @@ process_action_prechecks (Tracker  *tracker,
         
         if (info->action != TRACKER_ACTION_DELETE &&
             info->action != TRACKER_ACTION_DIRECTORY_DELETED &&
+            info->action != TRACKER_ACTION_DIRECTORY_UNMOUNTED &&
             info->action != TRACKER_ACTION_FILE_DELETED) {
                 if (!tracker_file_is_valid (info->uri) ) {
                         gboolean invalid = TRUE;
@@ -1127,13 +1344,14 @@ process_action_prechecks (Tracker  *tracker,
                  */
         } else {
                 if (info->action == TRACKER_ACTION_FILE_DELETED) {
-                        process_delete_file (tracker, info);
+                        process_index_delete_file (tracker, info);
                         info = tracker_dec_info_ref (info);
                         return TRUE;
                 } else {
-                        if (info->action == TRACKER_ACTION_DIRECTORY_DELETED) {
-                                process_delete_file (tracker, info);
-                                process_delete_dir (tracker, info);
+                        if (info->action == TRACKER_ACTION_DIRECTORY_DELETED ||
+                            info->action == TRACKER_ACTION_DIRECTORY_UNMOUNTED) {
+                                process_index_delete_file (tracker, info);
+                                process_index_delete_directory (tracker, info);
                                 info = tracker_dec_info_ref (info);
                                 return TRUE;
                         }
@@ -1161,6 +1379,48 @@ process_block_signals (void)
 #endif
 }
 
+#ifdef HAVE_HAL
+
+static void
+process_mount_point_added_cb (TrackerHal  *hal,
+                              const gchar *mount_point,
+                              Tracker     *tracker)
+{
+        GSList *list;
+        
+        tracker_log ("** TRAWLING THROUGH NEW MOUNT POINT '%s'", mount_point);
+        
+        list = g_slist_prepend (NULL, (gchar*) mount_point);
+        process_directory_list (tracker, list, TRUE);
+        g_slist_free (list);
+}
+
+static void
+process_mount_point_removed_cb (TrackerHal  *hal,
+                                const gchar *mount_point,
+                                Tracker     *tracker)
+{
+        tracker_log ("** CLEANING UP OLD MOUNT POINT '%s'", mount_point);
+        
+        process_index_delete_directory_check (tracker, mount_point); 
+}
+
+#endif /* HAVE_HAL */
+
+static inline gboolean
+process_is_in_path (const gchar *uri, 
+                    const gchar *path)
+{
+	gchar    *str;
+        gboolean  result;
+
+        str = g_strconcat (path, G_DIR_SEPARATOR_S, NULL);
+	result = g_str_has_prefix (uri, str);
+	g_free (str);
+
+	return result;
+}
+
 /* This is the thread entry point for the indexer to start processing
  * files and all other categories for processing.
  */
@@ -1180,6 +1440,35 @@ tracker_process_files (gpointer data)
 
         process_block_signals ();
 
+        /* When initially run, we set up variables */
+        if (!ignore_pattern_list) {
+                GSList *no_index_file_types;
+                
+                no_index_file_types = tracker_config_get_no_index_file_types (tracker->config);
+
+                if (no_index_file_types) {
+                        GPatternSpec  *spec;
+                        gchar        **p;
+
+                        ignore_pattern = tracker_gslist_to_string_list (no_index_file_types);
+                        
+                        for (p = ignore_pattern; *p; p++) {
+                                spec = g_pattern_spec_new (*p);
+                                ignore_pattern_list = g_slist_prepend (ignore_pattern_list, spec);
+                        }
+                        
+                        ignore_pattern_list = g_slist_reverse (ignore_pattern_list);
+                }
+        }
+
+        g_signal_connect (tracker->hal, "mount-point-added", 
+                          G_CALLBACK (process_mount_point_added_cb),
+                          tracker);
+        g_signal_connect (tracker->hal, "mount-point-removed", 
+                          G_CALLBACK (process_mount_point_removed_cb),
+                          tracker);
+
+        /* Start processing */
 	g_mutex_lock (tracker->files_signal_mutex);
 	g_mutex_lock (tracker->files_stopped_mutex);
 
@@ -1312,6 +1601,13 @@ tracker_process_files (gpointer data)
 		tracker_dec_info_ref (info);
 	}
 
+        g_signal_handlers_disconnect_by_func (tracker->hal, 
+                                              process_mount_point_added_cb,
+                                              tracker);
+        g_signal_handlers_disconnect_by_func (tracker->hal, 
+                                              process_mount_point_removed_cb,
+                                              tracker);
+
 	xdg_mime_shutdown ();
 
 	tracker_db_close_all (tracker->index_db);
@@ -1320,4 +1616,269 @@ tracker_process_files (gpointer data)
 	g_mutex_unlock (tracker->files_stopped_mutex);
 
         return NULL;
+}
+
+gboolean
+tracker_process_files_should_be_watched (TrackerConfig *config,
+                                         const gchar   *uri)
+{
+        GSList *no_watch_directory_roots;
+	GSList *l;
+
+        g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
+        g_return_val_if_fail (uri != NULL, FALSE);
+
+	if (!tracker_check_uri (uri)) {
+		return FALSE;
+	}
+
+	if (process_is_in_path (uri, g_get_tmp_dir ())) {
+		return FALSE;
+	}
+
+	if (process_is_in_path (uri, "/proc")) {
+		return FALSE;
+	}
+
+	if (process_is_in_path (uri, "/dev")) {
+		return FALSE;
+	}
+
+	if (process_is_in_path (uri, "/tmp")) {
+		return FALSE;
+	}
+
+        no_watch_directory_roots = tracker_config_get_no_watch_directory_roots (config);
+
+	for (l = no_watch_directory_roots; l; l = l->next) {
+                if (!l->data) {
+                        continue;
+                }
+
+		/* Check if equal or a prefix with an appended '/' */
+		if (strcmp (uri, l->data) == 0) {
+			tracker_log ("Blocking watch of %s (already being watched)", uri);
+			return FALSE;
+		}
+
+		if (process_is_in_path (uri, l->data)) {
+			tracker_log ("Blocking watch of %s (already a watch in parent path)", uri);
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_process_files_should_be_crawled (Tracker     *tracker,
+                                         const gchar *uri)
+{
+        GSList   *crawl_directory_roots;
+        GSList   *mounted_directory_roots = NULL;
+        GSList   *removable_device_roots = NULL;
+	GSList   *l;
+        gboolean  index_mounted_directories;
+        gboolean  index_removable_devices;
+        gboolean  should_be_crawled = TRUE;
+
+        g_return_val_if_fail (tracker != NULL, FALSE);
+        g_return_val_if_fail (uri != NULL, FALSE);
+        g_return_val_if_fail (uri[0] == G_DIR_SEPARATOR, FALSE);
+
+        index_mounted_directories = tracker_config_get_index_mounted_directories (tracker->config);
+        index_removable_devices = tracker_config_get_index_removable_devices (tracker->config);
+        
+        if (!index_mounted_directories || !index_removable_devices) {
+                process_index_get_remote_roots (tracker,
+                                                &mounted_directory_roots, 
+                                                &removable_device_roots);        
+        }
+
+        l = tracker_config_get_crawl_directory_roots (tracker->config);
+
+        crawl_directory_roots = g_slist_copy (l);
+
+        if (!index_mounted_directories) {
+                crawl_directory_roots = g_slist_concat (crawl_directory_roots, 
+                                                        mounted_directory_roots);
+        }
+
+        if (!index_removable_devices) {
+                crawl_directory_roots = g_slist_concat (crawl_directory_roots, 
+                                                        removable_device_roots);
+        }
+
+	for (l = crawl_directory_roots; l && should_be_crawled; l = l->next) {
+		/* Check if equal or a prefix with an appended '/' */
+		if (strcmp (uri, l->data) == 0) {
+			should_be_crawled = FALSE;
+		}
+
+		if (process_is_in_path (uri, l->data)) {
+			should_be_crawled = FALSE;
+		}
+	}
+
+        g_slist_free (crawl_directory_roots);
+
+        tracker_log ("Indexer %s %s", 
+                     should_be_crawled ? "crawling" : "blocking",
+                     uri);
+
+	return should_be_crawled;
+}
+
+gboolean
+tracker_process_files_should_be_ignored (const char *uri)
+{
+	GSList       *l;
+	gchar        *name = NULL;
+	const gchar **p;
+        gboolean      should_be_ignored = TRUE;
+
+	if (tracker_is_empty_string (uri)) {
+		goto done;
+	}
+
+	name = g_path_get_basename (uri);
+
+	if (!name || name[0] == '.') {
+		goto done;
+	}
+
+	if (process_is_in_path (uri, g_get_tmp_dir ())) {
+		goto done;
+	}
+
+	if (process_is_in_path (uri, "/proc")) {
+		goto done;
+	}
+
+	if (process_is_in_path (uri, "/dev")) {
+		goto done;
+	}
+
+	if (process_is_in_path (uri, "/tmp")) {
+		goto done;
+	}
+
+	/* Test suffixes */
+	for (p = ignore_suffix; *p; p++) {
+		if (g_str_has_suffix (name, *p)) {
+                        goto done;
+		}
+	}
+
+	/* Test prefixes */
+	for (p = ignore_prefix; *p; p++) {
+		if (g_str_has_prefix (name, *p)) {
+                        goto done;
+		}
+	}
+
+	/* Test exact names */
+	for (p = ignore_name; *p; p++) {
+		if (strcmp (name, *p) == 0) {
+                        goto done;
+		}
+	}
+
+	/* Test ignore types */
+	if (ignore_pattern_list) {
+                for (l = ignore_pattern_list; l; l = l->next) {
+                        if (g_pattern_match_string (l->data, name)) {
+                                goto done;
+                        }
+                }
+	}
+	
+	/* Test tmp black list */
+	for (l = temp_black_list; l; l = l->next) {
+		if (!l->data) {
+                        continue;
+                }
+
+		if (strcmp (uri, l->data) == 0) {
+                        goto done;
+		}
+	}
+
+        should_be_ignored = FALSE;
+
+done:
+	g_free (name);
+
+	return should_be_ignored;
+}
+
+GSList *
+tracker_process_files_get_temp_black_list (void)
+{
+        GSList *l;
+
+        l = g_slist_copy (temp_black_list);
+        
+        return temp_black_list;
+}
+
+void
+tracker_process_files_set_temp_black_list (GSList *black_list)
+{
+        g_slist_foreach (temp_black_list, 
+                         (GFunc) g_free,
+                         NULL);
+        g_slist_free (temp_black_list);
+        
+        temp_black_list = black_list;
+}
+
+void
+tracker_process_files_append_temp_black_list (const gchar *str)
+{
+        g_return_if_fail (str != NULL);
+
+        temp_black_list = g_slist_append (temp_black_list, g_strdup (str));
+}
+
+void
+tracker_process_files_get_all_dirs (Tracker     *tracker, 
+                                    const char  *dir, 
+                                    GSList     **files)
+{
+	GSList *l;
+
+        l = process_get_files (tracker, dir, TRUE, FALSE, NULL);
+
+        if (*files) {
+                *files = g_slist_concat (*files, l);
+        } else {
+                *files = l;
+	}
+}
+
+GSList *
+tracker_process_files_get_files_with_prefix (Tracker    *tracker,
+                                             const char *dir, 
+                                             const char *prefix)
+{
+	return process_get_files (tracker, dir, FALSE, FALSE, prefix);
+}
+
+gboolean
+tracker_process_files_is_file_info_valid (FileInfo *info)
+{
+        g_return_val_if_fail (info != NULL, FALSE);
+        g_return_val_if_fail (info->uri != NULL, FALSE);
+
+        if (!g_utf8_validate (info->uri, -1, NULL)) {
+                tracker_log ("Expected UTF-8 validation of FileInfo URI");
+                return FALSE;
+        }
+
+        if (info->action == TRACKER_ACTION_IGNORE) {
+                return FALSE;
+        }
+                               
+        return TRUE;
 }

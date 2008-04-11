@@ -30,6 +30,7 @@
 #include "tracker-email-utils.h"
 #include "tracker-db-email.h"
 #include "tracker-watch.h"
+#include "tracker-process-files.h"
 
 typedef struct {
         gchar            *imap_path;
@@ -640,20 +641,20 @@ get_dirs_to_watch (DBConnection *db_con, const gchar *dir_path, gboolean in_imap
         g_return_val_if_fail (db_con, NULL);
         g_return_val_if_fail (dir_path, NULL);
 
-        if (tracker_file_is_no_watched (dir_path)) {
+        if (!tracker_process_files_should_be_watched (tracker->config, dir_path)) {
                 return NULL;
         }
 
         dirs = NULL;
         tmp_dirs = NULL;
 
-        tracker_get_all_dirs (dir_path, &tmp_dirs);
+        tracker_process_files_get_all_dirs (tracker, dir_path, &tmp_dirs);
 
         for (dir = tmp_dirs; dir; dir = dir->next) {
                 gchar *dir_path = g_unescape_uri_string (dir->data, "");
                 gchar *dir_name = g_path_get_basename (dir_path);
 
-                if (!tracker_file_is_no_watched (dir_path) && !ignore_email (dir_path) &&
+                if (tracker_process_files_should_be_watched (tracker->config, dir_path) && !ignore_email (dir_path) &&
                     (( in_imap_dir && dir_name[0] == '.' && g_str_has_suffix (dir_name, ".directory")) ||
                       !in_imap_dir )
                     ) {

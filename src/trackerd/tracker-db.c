@@ -33,6 +33,7 @@
 #include "tracker-metadata.h"
 #include "tracker-os-dependant.h"
 #include "tracker-service-manager.h"
+#include "tracker-process-files.h"
 
 extern Tracker *tracker;
 
@@ -172,8 +173,8 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	g_return_val_if_fail (db_con, info);
 	g_return_val_if_fail (info, info);
 
-	if (!tracker_file_info_is_valid (info)) {
-		return info;
+	if (!tracker_process_files_is_file_info_valid (info)) {
+		return NULL;
 	}
 
 	name = g_path_get_basename (info->uri);
@@ -636,14 +637,15 @@ index_blacklist_file (char *uri)
 static gboolean
 index_black_list ()
 {
+        GSList *black_list;
 
-	g_slist_foreach (tracker->tmp_black_list, (GFunc) index_blacklist_file, NULL);
-	
-	g_slist_foreach (tracker->tmp_black_list, (GFunc) g_free, NULL);
-	
-	g_slist_free (tracker->tmp_black_list);
-	
-	tracker->tmp_black_list = NULL;
+        black_list = tracker_process_files_get_temp_black_list ();
+	g_slist_foreach (black_list, 
+                         (GFunc) index_blacklist_file, 
+                         NULL);
+        g_slist_free (black_list);
+
+        tracker_process_files_set_temp_black_list (NULL);
 	
 	tracker->black_list_timer_active = FALSE;
 	
@@ -703,7 +705,7 @@ check_uri_changed_frequently (const char *uri)
 			
 			tracker_log ("blacklisting %s", change->uri);
 			
-			tracker->tmp_black_list = g_slist_prepend (tracker->tmp_black_list, g_strdup (change->uri));
+                        tracker_process_files_append_temp_black_list (change->uri);
 			
 			if (!tracker->black_list_timer_active) {
 				tracker->black_list_timer_active = TRUE;

@@ -268,7 +268,7 @@ AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
   
 AC_ARG_ENABLE(hal, AS_HELP_STRING([--disable-hal],[Disable HAL support for ac power detection]),,[enable_hal=yes])
 if test "x$enable_hal" = "xyes"; then
-	PKG_CHECK_MODULES(HAL, [hal >= 0.5], [have_hal=yes] , [have_hal=no])
+	PKG_CHECK_MODULES(HAL, [hal >= 0.5 hal-storage], [have_hal=yes] , [have_hal=no])
 	AC_SUBST(HAL_CFLAGS)
 	AC_SUBST(HAL_LIBS)
 else
@@ -278,6 +278,8 @@ fi
 if test "x$have_hal" = "xyes"; then
 	AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
 fi
+
+AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
 ####################################################################
 # check for GStreamer or Xine. Otherwise, call an external video
@@ -845,7 +847,7 @@ Tracker-$VERSION:
 	inotify header location:		$inotify_header
 	ioprio support:				$ioprio_support
 	Win32:					$native_win32
-	HAL (battery detection) support:	$have_hal
+	HAL support:                    	$have_hal
 	unac accent stripper support:		$enable_unac
 	deskbar-applet support:			$enable_deskbar_applet
 	build search tool (GNOME):		$have_gnome

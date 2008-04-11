@@ -40,15 +40,6 @@
 #include "tracker-ioprio.h"
 #endif
 
-
-#ifdef HAVE_HAL
-#include <dbus/dbus-glib-lowlevel.h>
-#include <libhal.h>
-#endif
-
-#define BATTERY_OFF "ac_adapter.present"
-#define AC_ADAPTER "ac_adapter"
-
 #include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-language.h>
 #include <libtracker-common/tracker-log.h>
@@ -59,6 +50,7 @@
 #include "tracker-process-files.h"
 #include "tracker-process-requests.h"
 #include "tracker-watch.h"
+#include "tracker-hal.h"
 
 #include "tracker-service-manager.h"
   
@@ -112,7 +104,6 @@ DBConnection	       *main_thread_cache_con;
 
 gchar *type_array[] =   {"index", "string", "numeric", "date", NULL};
 
-static gchar **ignore_pattern = NULL; 
 static gchar **no_watch_dirs = NULL;
 static gchar **watch_dirs = NULL;
 static gchar **crawl_dirs = NULL;
@@ -157,135 +148,6 @@ get_update_count (DBConnection *db_con)
 
 	return count;
 }
-
-#ifdef HAVE_HAL
-
-static void
-property_callback (LibHalContext *ctx, const char *udi, const char *key,
-                   dbus_bool_t is_removed, dbus_bool_t is_added)
-{
-
-	tracker_log ("HAL property change detected for udi %s and key %s", udi, key);
-
-	gboolean current_state = tracker->pause_battery;
-
-	if (strcmp (udi, tracker->battery_udi) == 0) {
-
-		tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
-		
-		char *bat_state[2] = {"off","on"};
-		tracker_log ("Battery power is now %s", bat_state[tracker->pause_battery]);
-
-	} else {
-		return;
-	}
-
-	/* if we have come off battery power wakeup index thread */
-	if (current_state && !tracker->pause_battery) {
-		tracker_notify_file_data_available ();
-	}
-
-}
-
-
-LibHalContext *
-tracker_hal_init ()
-{
-	LibHalContext *ctx;
-  	char **devices;
-  	int num;
-	DBusError error;
-	DBusConnection *connection;
-
-	dbus_error_init (&error);
-
-	connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
-
-	g_print ("starting HAL detection for ac adaptors...");
-
-	if (!connection) {
-		if (dbus_error_is_set (&error)) {
-			tracker_error ("Could not connect to system bus due to %s", error.message);
-			dbus_error_free (&error);
-		} else {
-			tracker_error ("Could not connect to system bus");
-		}			
-
-		return NULL;
-	}
-
-  	dbus_connection_setup_with_g_main (connection, NULL);
-
-	ctx = libhal_ctx_new ();
-		
-	if (!ctx) {
-		tracker_error ("Could not create HAL context");
-		return NULL;
-	}
-
-                                           	
-
-  	libhal_ctx_set_dbus_connection (ctx, connection);
-
-	if (!libhal_ctx_init (ctx, &error)) {
-
-		if (dbus_error_is_set (&error)) {
-			tracker_error ("Could not initialise HAL connection due to %s", error.message);
-			dbus_error_free (&error);
-		} else {
-			tracker_error ("Could not initialise HAL connection -is hald running?");
-		}
-
-	 	libhal_ctx_free (ctx);
-
-		return NULL;
-	}
-
-  	devices = libhal_find_device_by_capability (ctx, AC_ADAPTER, &num, &error);
-
-	if (dbus_error_is_set (&error)) {
-		tracker_error ("Could not get HAL devices due to %s", error.message);
-		dbus_error_free (&error);
-		return NULL;
-	}
-
-  	if (!devices || !devices[0]) {
-		tracker->pause_battery = FALSE;
-		tracker->battery_udi = NULL;
-		g_print ("none found\n");
-		return ctx;
-	}
-
-	/* there should only be one ac-adaptor so use first one */
-	tracker->battery_udi = g_strdup (devices[0]);
-	g_print ("found %s\n", devices[0]);
-
-	libhal_ctx_set_device_property_modified (ctx, property_callback);
-
-	libhal_device_add_property_watch (ctx, devices[0], &error);
-	if (dbus_error_is_set (&error)) {
-		tracker_error ("Could not set watch on HAL device %s due to %s", devices[0], error.message);
-		dbus_error_free (&error);
-		return NULL;
-	}
-
-
-	tracker->pause_battery = !libhal_device_get_property_bool (ctx, tracker->battery_udi, BATTERY_OFF, NULL);
-
-	if (tracker->pause_battery) {
-		tracker_log ("system is on battery");
-	} else {
-		tracker_log ("system is on AC power");
-	}
-
-  	dbus_free_string_array (devices);
-
-  	return ctx;
-
-}
-
-#endif /* HAVE_HAL */
-
 
 gboolean
 tracker_die ()
@@ -340,6 +202,8 @@ reset_blacklist_file (char *uri)
 gboolean
 tracker_do_cleanup (const gchar *sig_msg)
 {
+        GSList *black_list;
+
 	tracker->status = STATUS_SHUTDOWN;
 
 	if (sig_msg) {
@@ -420,7 +284,11 @@ tracker_do_cleanup (const gchar *sig_msg)
 
 
 	/* reset black list files */
-	g_slist_foreach (tracker->tmp_black_list, (GFunc) reset_blacklist_file, NULL);
+        black_list = tracker_process_files_get_temp_black_list ();
+	g_slist_foreach (black_list,
+                         (GFunc) reset_blacklist_file, 
+                         NULL);
+        g_slist_free (black_list);
 
 	tracker_db_close (main_thread_db_con);
 
@@ -432,6 +300,11 @@ tracker_do_cleanup (const gchar *sig_msg)
 		tracker_remove_dirs (tracker->data_dir);
 		g_mkdir_with_parents (tracker->data_dir, 00755);
 	}
+
+        if (tracker->hal) {
+                g_object_unref (tracker->hal);
+                tracker->hal = NULL;
+        }
 
 	tracker_debug ("Shutting down main thread");
 
@@ -603,8 +476,6 @@ set_defaults (void)
 
 	tracker->services_dir = g_build_filename (SHAREDIR, "tracker", "services", NULL);
 
-	tracker->root_directory_devices = NULL;
-
 	tracker->folders_count = 0;
 	tracker->folders_processed = 0;
 	tracker->mbox_count = 0;
@@ -768,8 +639,6 @@ main (gint argc, gchar *argv[])
 	gchar             *example;
 	gboolean 	   need_index, need_data;
 	DBConnection      *db_con;
-	gchar            **st;
-	GPatternSpec      *spec;
 	gchar             *tmp_dir;
 	gchar             *old_tracker_dir;
 	gchar             *log_filename;
@@ -1002,10 +871,6 @@ main (gint argc, gchar *argv[])
 
 	tracker->battery_udi = NULL;
 
-#ifdef HAVE_HAL
-	tracker->hal_con = tracker_hal_init ();
-#endif
-
 	if (error) {
 		g_printerr ("invalid arguments: %s\n", error->message);
 		return 1;
@@ -1116,21 +981,6 @@ main (gint argc, gchar *argv[])
 		tracker_db_set_option_int (db_con, "InitialIndex", 1);
 	}
 
-        GSList *no_index_file_types;
-
-        no_index_file_types = tracker_config_get_no_index_file_types (tracker->config);
-
-	if (no_index_file_types) {
-               ignore_pattern = tracker_gslist_to_string_list (no_index_file_types);
- 
-               for (st = ignore_pattern; *st; st++) {
-                       spec = g_pattern_spec_new (*st);
-                       tracker->ignore_pattern_list = g_slist_prepend (tracker->ignore_pattern_list, spec);
-               }
-
-	       tracker->ignore_pattern_list = g_slist_reverse (tracker->ignore_pattern_list);
-	}
-
 	db_con->cache = tracker_db_connect_cache ();
 	db_con->common = tracker_db_connect_common ();
 	db_con->index = db_con;
@@ -1196,6 +1046,11 @@ main (gint argc, gchar *argv[])
 	tracker_email_init ();
 
   	tracker->loop = g_main_loop_new (NULL, TRUE);
+
+#ifdef HAVE_HAL 
+        /* Create tracker HAL object */
+ 	tracker->hal = tracker_hal_new ();       
+#endif
 
 	/* this var is used to tell the threads when to quit */
 	tracker->is_running = TRUE;

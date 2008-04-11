@@ -55,10 +55,11 @@
 #define KEY_MAX_WORD_LENGTH			 "MaxWorldLength"
 #define KEY_LANGUAGE				 "Language"
 #define KEY_ENABLE_STEMMER			 "EnableStemmer"
-#define KEY_SKIP_MOUNT_POINTS			 "SkipMountPoints"
 #define KEY_DISABLE_INDEXING_ON_BATTERY		 "BatteryIndex"
 #define KEY_DISABLE_INDEXING_ON_BATTERY_INIT	 "BatteryIndexInitial"
 #define KEY_LOW_DISK_SPACE_LIMIT		 "LowDiskSpaceLimit"
+#define KEY_INDEX_MOUNTED_DIRECTORIES	         "IndexMountedDirectories"
+#define KEY_INDEX_REMOVABLE_DEVICES		 "IndexRemovableMedia"
 
 #define GROUP_EMAILS				 "Emails"
 #define KEY_EMAIL_CLIENT                         "IndexEMailClient"
@@ -87,9 +88,10 @@
 #define DEFAULT_MIN_WORD_LENGTH			 3	  /* 0->30 */
 #define DEFAULT_MAX_WORD_LENGTH			 30	  /* 0->200 */
 #define DEFAULT_ENABLE_STEMMER			 TRUE
-#define DEFAULT_SKIP_MOUNT_POINTS		 FALSE
 #define DEFAULT_DISABLE_INDEXING_ON_BATTERY	 TRUE
 #define DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT FALSE
+#define DEFAULT_INDEX_MOUNTED_DIRECTORIES  	 TRUE 
+#define DEFAULT_INDEX_REMOVABLE_DEVICES	         TRUE 
 #define DEFAULT_INDEX_EMAIL_CLIENT               "evolution"
 #define DEFAULT_LOW_DISK_SPACE_LIMIT		 1	  /* 0->100 / -1 */
 #define DEFAULT_MAX_TEXT_TO_INDEX		 1048576  /* Bytes */
@@ -128,10 +130,11 @@ struct _TrackerConfigPriv {
 	gint	  max_word_length;
 	gchar	 *language;
 	gboolean  enable_stemmer;
-	gboolean  skip_mount_points;
 	gboolean  disable_indexing_on_battery;
 	gboolean  disable_indexing_on_battery_init;
 	gint	  low_disk_space_limit;
+	gboolean  index_mounted_directories;
+	gboolean  index_removable_devices;
 
 	/* Emails */
 	gchar    *email_client;
@@ -184,10 +187,11 @@ enum {
 	PROP_MAX_WORD_LENGTH,
 	PROP_LANGUAGE,
 	PROP_ENABLE_STEMMER,
-	PROP_SKIP_MOUNT_POINTS,
 	PROP_DISABLE_INDEXING_ON_BATTERY,
 	PROP_DISABLE_INDEXING_ON_BATTERY_INIT,
 	PROP_LOW_DISK_SPACE_LIMIT,
+	PROP_INDEX_MOUNTED_DIRECTORIES,
+	PROP_INDEX_REMOVABLE_DEVICES,
 
 	/* Emails */
 	PROP_EMAIL_CLIENT,
@@ -358,14 +362,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							       DEFAULT_ENABLE_STEMMER,
 							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property (object_class,
-					 PROP_SKIP_MOUNT_POINTS,
-					 g_param_spec_boolean ("skip-mount-points",
-							       "Skip mount points",
-							       "Don't traverse mount points "
-							       "when indexing",
-							       DEFAULT_SKIP_MOUNT_POINTS,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
 					 PROP_DISABLE_INDEXING_ON_BATTERY,
 					 g_param_spec_boolean ("disable-indexing-on-battery",
 							       "Disable indexing on battery",
@@ -391,6 +387,22 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							   100,
 							   DEFAULT_LOW_DISK_SPACE_LIMIT,
 							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+					 PROP_INDEX_MOUNTED_DIRECTORIES,
+					 g_param_spec_boolean ("index-mounted-directories",
+							       "Index mounted directories",
+							       "Don't traverse mounted directories "
+							       "which are not on the same file system",
+							       DEFAULT_INDEX_MOUNTED_DIRECTORIES,
+							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	g_object_class_install_property (object_class,
+					 PROP_INDEX_REMOVABLE_DEVICES,
+					 g_param_spec_boolean ("index-removable-devices",
+							       "index removable devices",
+							       "Don't traverse mounted directories "
+							       "which are for removable devices",
+							       DEFAULT_INDEX_REMOVABLE_DEVICES,
+							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
 	/* Emails */
         g_object_class_install_property (object_class,
@@ -578,9 +590,6 @@ config_get_property (GObject	*object,
 	case PROP_ENABLE_STEMMER:
 		g_value_set_boolean (value, priv->enable_stemmer);
 		break;
-	case PROP_SKIP_MOUNT_POINTS:
-		g_value_set_boolean (value, priv->skip_mount_points);
-		break;
 	case PROP_DISABLE_INDEXING_ON_BATTERY:
 		g_value_set_boolean (value, priv->disable_indexing_on_battery);
 		break;
@@ -589,6 +598,12 @@ config_get_property (GObject	*object,
 		break;
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		g_value_set_int (value, priv->low_disk_space_limit);
+		break;
+	case PROP_INDEX_MOUNTED_DIRECTORIES:
+		g_value_set_boolean (value, priv->index_mounted_directories);
+		break;
+	case PROP_INDEX_REMOVABLE_DEVICES:
+		g_value_set_boolean (value, priv->index_removable_devices);
 		break;
 
 		/* Emails */
@@ -704,10 +719,6 @@ config_set_property (GObject	  *object,
 		tracker_config_set_enable_stemmer (TRACKER_CONFIG (object),
 						   g_value_get_boolean (value));
 		break;
-	case PROP_SKIP_MOUNT_POINTS:
-		tracker_config_set_skip_mount_points (TRACKER_CONFIG (object),
-						      g_value_get_boolean (value));
-		break;
 	case PROP_DISABLE_INDEXING_ON_BATTERY:
 		tracker_config_set_disable_indexing_on_battery (TRACKER_CONFIG (object),
 								g_value_get_boolean (value));
@@ -719,6 +730,14 @@ config_set_property (GObject	  *object,
 	case PROP_LOW_DISK_SPACE_LIMIT:
 		tracker_config_set_low_disk_space_limit (TRACKER_CONFIG (object),
 							 g_value_get_int (value));
+		break;
+	case PROP_INDEX_MOUNTED_DIRECTORIES:
+		tracker_config_set_index_mounted_directories (TRACKER_CONFIG (object),
+							      g_value_get_boolean (value));
+		break;
+	case PROP_INDEX_REMOVABLE_DEVICES:
+		tracker_config_set_index_removable_devices (TRACKER_CONFIG (object),
+								g_value_get_boolean (value));
 		break;
 
 		/* Emails */
@@ -1013,10 +1032,6 @@ config_create_with_defaults (const gchar *filename)
 	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER,
 				" Set to false to disable language specific stemmer",
 				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_SKIP_MOUNT_POINTS, DEFAULT_SKIP_MOUNT_POINTS);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_SKIP_MOUNT_POINTS,
-				" Set to true to disable traversing directories on mount points",
-				NULL);
 	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY, DEFAULT_DISABLE_INDEXING_ON_BATTERY);
 	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY,
 				" Set to true to disable indexing when running on battery",
@@ -1029,6 +1044,15 @@ config_create_with_defaults (const gchar *filename)
 	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT,
 				" Pause indexer when disk space is <= this value\n"
 				" (0->100, value is in % of $HOME file system, -1=disable pausing)",
+				NULL);
+	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES, DEFAULT_INDEX_MOUNTED_DIRECTORIES);
+	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES,
+				" Set to true to enable traversing mounted directories on other file systems\n"
+				" (this excludes removable devices)",
+				NULL);
+	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES, DEFAULT_INDEX_REMOVABLE_DEVICES);
+	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES,
+				" Set to true to enable traversing mounted directories for removable devices",
 				NULL);
 
 	/* Emails */
@@ -1290,10 +1314,11 @@ config_load (TrackerConfig *config)
 	config_load_int (config, "max-word-length", key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
 	config_load_string (config, "language", key_file, GROUP_INDEXING, KEY_LANGUAGE);
 	config_load_boolean (config, "enable-stemmer", key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER);
-	config_load_boolean (config, "skip-mount-points", key_file, GROUP_INDEXING, KEY_SKIP_MOUNT_POINTS);
 	config_load_boolean (config, "disable-indexing-on-battery", key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY);
 	config_load_boolean (config, "disable-indexing-on-battery-init", key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT);
 	config_load_int (config, "low-disk-space-limit", key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT);
+	config_load_boolean (config, "index-mounted-directories", key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES);
+	config_load_boolean (config, "index-removable-devices", key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES);
 
 	/* Emails */
 	config_load_string (config, "email-client", key_file, GROUP_EMAILS, KEY_EMAIL_CLIENT);
@@ -1552,18 +1577,6 @@ tracker_config_get_enable_stemmer (TrackerConfig *config)
 }
 
 gboolean
-tracker_config_get_skip_mount_points (TrackerConfig *config)
-{
-	TrackerConfigPriv *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_SKIP_MOUNT_POINTS);
-
-	priv = GET_PRIV (config);
-
-	return priv->skip_mount_points;
-}
-
-gboolean
 tracker_config_get_disable_indexing_on_battery (TrackerConfig *config)
 {
 	TrackerConfigPriv *priv;
@@ -1597,6 +1610,30 @@ tracker_config_get_low_disk_space_limit (TrackerConfig *config)
 	priv = GET_PRIV (config);
 
 	return priv->low_disk_space_limit;
+}
+
+gboolean
+tracker_config_get_index_mounted_directories (TrackerConfig *config)
+{
+	TrackerConfigPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_MOUNTED_DIRECTORIES);
+
+	priv = GET_PRIV (config);
+
+	return priv->index_mounted_directories;
+}
+
+gboolean
+tracker_config_get_index_removable_devices (TrackerConfig *config)
+{
+	TrackerConfigPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_INDEX_REMOVABLE_DEVICES);
+
+	priv = GET_PRIV (config);
+
+	return priv->index_removable_devices;
 }
 
 const gchar *
@@ -1935,20 +1972,6 @@ tracker_config_set_enable_stemmer (TrackerConfig *config,
 }
 
 void
-tracker_config_set_skip_mount_points (TrackerConfig *config,
-				      gboolean	     value)
-{
-	TrackerConfigPriv *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = GET_PRIV (config);
-
-	priv->skip_mount_points = value;
-	g_object_notify (G_OBJECT (config), "skip-mount-points");
-}
-
-void
 tracker_config_set_disable_indexing_on_battery (TrackerConfig *config,
 						gboolean       value)
 {
@@ -1995,23 +2018,51 @@ tracker_config_set_low_disk_space_limit (TrackerConfig *config,
 }
 
 void
-tracker_config_set_email_client (TrackerConfig *config,
-				 const gchar   *value)
+tracker_config_set_index_mounted_directories (TrackerConfig *config,
+					      gboolean	     value)
 {
 	TrackerConfigPriv *priv;
-	gchar *email_client;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 
 	priv = GET_PRIV (config);
 
-	email_client = g_strdup (value);
+	priv->index_mounted_directories = value;
+	g_object_notify (G_OBJECT (config), "index-mounted-directories");
+}
 
-	if (priv->email_client) {
-		g_free (priv->email_client);
+void
+tracker_config_set_index_removable_devices (TrackerConfig *config,
+					  gboolean       value)
+{
+	TrackerConfigPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = GET_PRIV (config);
+
+	priv->index_removable_devices = value;
+	g_object_notify (G_OBJECT (config), "index-removable-devices");
+}
+
+void
+tracker_config_set_email_client (TrackerConfig *config,
+				 const gchar   *value)
+{
+	TrackerConfigPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = GET_PRIV (config);
+
+	g_free (priv->email_client);
+
+	if (value) {
+		priv->email_client = g_strdup (value);
+	} else {
+		priv->email_client = NULL;
 	}
 
-	priv->email_client = email_client;
 	g_object_notify (G_OBJECT (config), "email-client");
 }
 

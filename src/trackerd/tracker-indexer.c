@@ -56,6 +56,8 @@
 #include "tracker-dbus.h"
 #include "tracker-service-manager.h"
 #include "tracker-query-tree.h"
+#include "tracker-hal.h"
+#include "tracker-process-files.h"
 
 extern Tracker *tracker;
 
@@ -387,8 +389,12 @@ tracker_indexer_apply_changes (Indexer *dest, Indexer *src,  gboolean update)
 		interval = 2000;
 	}
 
+#ifdef HAVE_HAL 
 	/* halve the interval value as notebook hard drives are smaller */
-	if (tracker->battery_udi) interval = interval / 2;
+	if (tracker_hal_get_battery_exists (tracker->hal)) {
+                interval /= 2;
+        }
+#endif
 
 	dpiterinit (src->word_index);
 	
@@ -459,9 +465,9 @@ tracker_indexer_has_tmp_merge_files (IndexType type)
 
 
 	if (type == INDEX_TYPE_FILES) {
-		files =  tracker_get_files_with_prefix (tracker->data_dir, "file-index.tmp.");
+		files =  tracker_process_files_get_files_with_prefix (tracker, tracker->data_dir, "file-index.tmp.");
 	} else {
-		files =  tracker_get_files_with_prefix (tracker->data_dir, "email-index.tmp.");
+		files =  tracker_process_files_get_files_with_prefix (tracker, tracker->data_dir, "email-index.tmp.");
 	}
 
 	result = (files != NULL);
@@ -485,10 +491,10 @@ tracker_indexer_has_merge_files (IndexType type)
 	char *final;
 
 	if (type == INDEX_TYPE_FILES) {
-		files =  tracker_get_files_with_prefix (tracker->data_dir, "file-index.tmp.");
+		files =  tracker_process_files_get_files_with_prefix (tracker, tracker->data_dir, "file-index.tmp.");
 		final = g_build_filename(tracker->data_dir, "file-index-final", NULL);
 	} else {
-		files =  tracker_get_files_with_prefix (tracker->data_dir, "email-index.tmp.");
+		files =  tracker_process_files_get_files_with_prefix (tracker, tracker->data_dir, "email-index.tmp.");
 		final = g_build_filename (tracker->data_dir, "email-index-final", NULL);
 	}
 
@@ -586,7 +592,7 @@ tracker_indexer_merge_indexes (IndexType type)
 		g_free (tmp);
 	}
 	
-	file_list = tracker_get_files_with_prefix (tracker->data_dir, prefix);
+	file_list = tracker_process_files_get_files_with_prefix (tracker, tracker->data_dir, prefix);
 
 	if (!file_list || !file_list->data) {
 		
@@ -710,8 +716,12 @@ tracker_indexer_merge_indexes (IndexType type)
 							interval = 3000;
 						}
 
+#ifdef HAVE_HAL 
 						/* halve the interval value as notebook hard drives are smaller */
-						if (tracker->battery_udi) interval = interval / 2;
+                                                if (tracker_hal_get_battery_exists (tracker->hal)) {
+                                                        interval /=  2;
+                                                }
+#endif
 					}
 				}
 			

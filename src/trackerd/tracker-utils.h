@@ -168,7 +168,7 @@ typedef struct {
 	int		pid;
 
 	gpointer	dbus_con;
-	gpointer	hal_con;
+	gpointer	hal;
 
 	gboolean	reindex;
 
@@ -176,8 +176,6 @@ typedef struct {
         gpointer        language;
 
 	/* config options */
-	GSList		*ignore_pattern_list;
-
 	guint32		watch_limit;
 
 	gboolean	fatal_errors;
@@ -237,8 +235,6 @@ typedef struct {
 
 	const char	*current_uri;
 	
-	GSList *	root_directory_devices;
-
 	IndexStatus	index_status;
 
 	int		grace_period;
@@ -264,7 +260,6 @@ typedef struct {
 
 	/* Queue for recorad file changes */
 	GQueue		*file_change_queue;
-	GSList		*tmp_black_list;
 	gboolean	black_list_timer_active;
 	
 	/* progress info for merges */
@@ -311,7 +306,6 @@ typedef struct {
 	GAsyncQueue 	*user_request_queue;
 
 	GAsyncQueue 	*dir_queue;
-	GSList		*dir_list;
 
 	GMutex		*files_check_mutex;
 	GMutex		*metadata_check_mutex;
@@ -360,6 +354,7 @@ typedef enum {
 	TRACKER_ACTION_DIRECTORY_CHECK,
 	TRACKER_ACTION_DIRECTORY_CREATED,
 	TRACKER_ACTION_DIRECTORY_DELETED,
+	TRACKER_ACTION_DIRECTORY_UNMOUNTED,
 	TRACKER_ACTION_DIRECTORY_MOVED_FROM,
 	TRACKER_ACTION_DIRECTORY_MOVED_TO,
 	TRACKER_ACTION_DIRECTORY_REFRESH, 	/* re checks all files in folder */
@@ -483,8 +478,6 @@ FileInfo *	tracker_dec_info_ref 		(FileInfo *info);
 
 FileInfo *	tracker_free_file_info   	(FileInfo *info);
 
-gboolean	tracker_file_info_is_valid 	(FileInfo *info);
-
 char *		tracker_get_vfs_path 		(const char *uri);
 
 char *		tracker_get_vfs_name 		(const char *uri);
@@ -494,27 +487,12 @@ gboolean 	tracker_file_is_valid 		(const char *uri);
 
 gboolean	tracker_file_is_indexable 	(const char *uri);
 
+gboolean	tracker_is_mounted	        (const char *dir);
 gboolean 	tracker_is_directory 		(const char *dir);
-
-gboolean	tracker_file_is_no_watched 	(const char *uri);
-gboolean	tracker_file_is_crawled 	(const char *uri);
-
-void		tracker_add_root_dir		(const char *uri);  /* add a directory to the list of watch/crawl/service roots */
-void		tracker_add_root_directories	(GSList *uri_list); /* adds a bunch of directories to the list of watch/crawl/service roots */
-gboolean	tracker_file_is_in_root_dir	(const char *uri);  /* test if a given file resides in the watch/crawl/service roots */
-
-GSList * 	tracker_get_all_files 		(const char *dir, gboolean dir_only);
-GSList * 	tracker_get_files 		(const char *dir, gboolean dir_only);
-GSList *	tracker_get_files_with_prefix 	(const char *dir, const char *prefix);
-
-void 		tracker_get_all_dirs 		(const char *dir, GSList **file_list);
-void 		tracker_get_dirs 		(const char *dir, GSList **file_list);
 
 void		tracker_load_config_file 	(void);
 
 GSList * 	tracker_get_watch_root_dirs 	(void);
-
-gboolean	tracker_ignore_file 		(const char *uri);
 
 void		tracker_print_object_allocations (void);
 
@@ -554,6 +532,8 @@ char *		tracker_get_status 		(void);
 
 void		free_file_change		(FileChange **user_data);
 gboolean	tracker_do_cleanup 		(const gchar *sig_msg);
+gboolean        tracker_watch_dir               (const gchar *uri);
+void            tracker_scan_directory          (const gchar *uri);
 
 gboolean	tracker_pause_on_battery 	(void);
 gboolean	tracker_low_diskspace		(void);

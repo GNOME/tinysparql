@@ -1,3 +1,25 @@
+2008-04-11  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/libtracker-common/tracker-config.[ch]: Added options
+	"index-mounted-directories" and "index-removable-devices".
+	
+	* src/trackerd/Makefile.am: 
+	* src/trackerd/tracker-hal.[ch]: Added to do all things HAL.
+
+	* src/trackerd/tracker-db.c:
+	* src/trackerd/tracker-dbus-methods.c:
+	* src/trackerd/tracker-email-kmail.c:
+	* src/trackerd/tracker-fam.c:
+	* src/trackerd/tracker-indexer.c:
+	* src/trackerd/tracker-inotify.c:
+	* src/trackerd/tracker-process-files.[ch]:
+	* src/trackerd/tracker-utils.[ch]: 
+	* src/trackerd/trackerd.c: Moved a LOT of code out of
+	tracker-utils.[ch] and into tracker-process-files.[ch] since
+	that's the only place they were used. Moved HAL code out to new
+	module. Fixes bug #503725.
+
 2008-04-11  Philip Van Hoof  <pvanhoof@gnome.org>
 
 	* src/trackerd/tracker-email-modest.c
