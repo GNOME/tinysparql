@@ -1,3 +1,9 @@
+2008-04-17  Takeshi AIHANA <takeshi.aihana@gmail.com>
+
+	* LINGUAS: Added 'ja' (Japanese).
+	* ja.po: Added Japanese translation by Takao Fujiwara
+	<takao.fujiwara@sun.com>.
+
 2008-04-16  Theppitak Karoonboonyanan  <thep@linux.thai.net>
 
 	* th.po: Updated Thai translation.
