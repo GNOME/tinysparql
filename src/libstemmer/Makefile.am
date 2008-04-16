@@ -11,6 +11,7 @@ libstemmer_private_la_SOURCES = \
 	src_c/stem_UTF_8_finnish.c \
 	src_c/stem_UTF_8_french.c \
 	src_c/stem_UTF_8_german.c \
+	src_c/stem_UTF_8_hungarian.c \
 	src_c/stem_UTF_8_italian.c \
 	src_c/stem_UTF_8_norwegian.c \
 	src_c/stem_UTF_8_porter.c \
@@ -28,6 +29,7 @@ libstemmer_private_la_SOURCES = \
 	src_c/stem_UTF_8_finnish.h \
 	src_c/stem_UTF_8_french.h \
 	src_c/stem_UTF_8_german.h \
+	src_c/stem_UTF_8_hungarian.h \
 	src_c/stem_UTF_8_italian.h \
 	src_c/stem_UTF_8_norwegian.h \
 	src_c/stem_UTF_8_porter.h \

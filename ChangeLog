@@ -1,3 +1,17 @@
+2008-04-16  Patch from Szilveszter Farkas <szilveszter.farkas@gmail.com>
+	
+	* src/libstemmer/src_c/stem_UTF_8_hungarian.c
+	* src/libstemmer/src_c/stem_UTF_8_hungarian.h
+	* src/libstemmer/Makefile.am
+	* src/libtracker-common/tracker-language.c
+	* src/tracker-preferences/tracker-preferences.glade
+	* data/languages/stopwords.hu
+	* data/languages/Makefile.am
+	
+	Added hungarian stemmer and stopword list
+
+
+
 2008-04-11  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:

@@ -7,6 +7,7 @@ config_DATA =  		\
 	stopwords.es 	\
 	stopwords.fi 	\
 	stopwords.fr 	\
+	stopwords.hu	\
 	stopwords.it 	\
 	stopwords.nb 	\
 	stopwords.nl 	\

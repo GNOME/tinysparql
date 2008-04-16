@@ -52,6 +52,7 @@ static Languages all_langs[] = {
         { "fi", "finnish" },
         { "fr", "french" },
         { "de", "german" },
+	{ "hu", "hungarian" },
         { "it", "italian" },
         { "nb", "norwegian" },
         { "pt", "portuguese" },
