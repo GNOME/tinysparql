@@ -1143,7 +1143,7 @@ process_files (Tracker *tracker)
         tracker->index_status = INDEX_FINISHED;
         
         if (tracker->is_running && tracker->first_time_index) {
-                tracker->status = STATUS_OPTIMIZING;
+                tracker_set_status (tracker, STATUS_OPTIMIZING, 0, FALSE);
                 tracker->do_optimize = FALSE;
                 
                 tracker->first_time_index = FALSE;
@@ -1170,8 +1170,7 @@ process_files (Tracker *tracker)
          * sleep until awoken by a new
          * signal.
          */
-        tracker->status = STATUS_IDLE;
-        tracker_dbus_send_index_status_change_signal ();
+        tracker_set_status (tracker, STATUS_IDLE, 0, TRUE);
         
         g_cond_wait (tracker->file_thread_signal, 
                      tracker->files_signal_mutex);
@@ -1493,16 +1492,12 @@ tracker_process_files (gpointer data)
 		db_con = tracker->index_db;
 
 		if (!tracker_cache_process_events (tracker->index_db, TRUE) ) {
-			tracker->status = STATUS_SHUTDOWN;
-			tracker_dbus_send_index_status_change_signal ();
+			tracker_set_status (tracker, STATUS_SHUTDOWN, 0, TRUE);
 			break;	
 		}
 
-		if (tracker->status != STATUS_INDEXING) {
-			tracker->status = STATUS_INDEXING;
-			tracker_dbus_send_index_status_change_signal ();
-		}
-						
+		tracker_set_status (tracker, STATUS_INDEXING, 0, TRUE);
+
 		info = g_async_queue_try_pop (tracker->file_process_queue);
 
 		/* Check pending table if we haven't got anything */
@@ -1535,7 +1530,7 @@ tracker_process_files (gpointer data)
 			if (res) {
 				gchar **row;
 
-				tracker->status = STATUS_PENDING;
+				tracker_set_status (tracker, STATUS_PENDING, 0, FALSE);
 
 				while ((row = tracker_db_get_row (res, k))) {
 					FileInfo	    *info_tmp;
@@ -1576,7 +1571,7 @@ tracker_process_files (gpointer data)
 			continue;
 		}
 
-		tracker->status = STATUS_INDEXING;
+		tracker_set_status (tracker, STATUS_INDEXING, 0, TRUE);
 
                 if (process_action_prechecks (tracker, info)) {
                         continue;

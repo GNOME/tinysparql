@@ -1,3 +1,15 @@
+2008-04-17  Philip Van Hoof  <pvanhoof@gnome.org>
+
+	* src/trackerd/tracker-email-modest.c
+	* src/trackerd/tracker-utils.c
+	* src/trackerd/tracker-utils.h
+	* src/trackerd/trackerd.c
+	* src/trackerd/tracker-email-evolution.c
+	* src/trackerd/tracker-process-files.c
+	* src/trackerd/tracker-indexer.c
+
+	Introduced tracker_set_status
+
 2008-04-16  Patch from Szilveszter Farkas <szilveszter.farkas@gmail.com>
 	
 	* src/libstemmer/src_c/stem_UTF_8_hungarian.c
@@ -9,8 +21,6 @@
 	* data/languages/Makefile.am
 	
 	Added hungarian stemmer and stopword list
-
-
 
 2008-04-11  Martyn Russell  <martyn@imendio.com>
 

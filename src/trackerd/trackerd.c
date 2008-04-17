@@ -204,7 +204,7 @@ tracker_do_cleanup (const gchar *sig_msg)
 {
         GSList *black_list;
 
-	tracker->status = STATUS_SHUTDOWN;
+	tracker_set_status (tracker, STATUS_SHUTDOWN, 0, FALSE);
 
 	if (sig_msg) {
 		tracker_log ("Received signal '%s' so now shutting down", sig_msg);
@@ -737,7 +737,7 @@ main (gint argc, gchar *argv[])
 
 	add_local_dbus_connection_monitoring (tracker->dbus_con);
 
-	tracker->status = STATUS_INIT;
+	tracker_set_status (tracker, STATUS_INIT, 0, FALSE);
 
  	tracker->is_running = FALSE;
 	tracker->shutdown = FALSE;

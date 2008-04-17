@@ -539,4 +539,6 @@ gboolean	tracker_pause_on_battery 	(void);
 gboolean	tracker_low_diskspace		(void);
 gboolean	tracker_pause			(void);
 
+void		tracker_set_status		(Tracker *tracker, TrackerStatus status, gdouble percentage, gboolean signal);
+
 #endif

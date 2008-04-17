@@ -690,8 +690,7 @@ tracker_indexer_merge_indexes (IndexType type)
 
 				if (i > 101 && (i % 100 == 0)) {
 					if (!tracker_cache_process_events (NULL, FALSE)) {
-						tracker->status = STATUS_SHUTDOWN;
-						tracker_dbus_send_index_status_change_signal ();
+						tracker_set_status (tracker, STATUS_SHUTDOWN, 0, TRUE);
 						return;	
 					}
 				}

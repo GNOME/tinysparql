@@ -2621,7 +2621,16 @@ tracker_index_too_big ()
 
 }
 
+void
+tracker_set_status (Tracker *tracker, TrackerStatus status, gdouble percentage, gboolean signal)
+{
+	TrackerStatus old = tracker->status;
 
+	tracker->status = status;
+
+	if (signal && old != status)
+		tracker_dbus_send_index_status_change_signal ();
+}
 
 gboolean
 tracker_pause (void)
