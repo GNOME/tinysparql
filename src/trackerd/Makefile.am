@@ -142,7 +142,7 @@ mail_modules_LTLIBRARIES = \
 	libemail-kmail.la \
 	libemail-modest.la
 
-libemail_modest_la_SOURCES = tracker-email-modest.c
+libemail_modest_la_SOURCES = tracker-email-modest.c tracker-email-modest.h
 libemail_modest_la_LDFLAGS = $(module_flags)
 libemail_modest_la_LIBADD = $(GLIB2_LIBS)
 
