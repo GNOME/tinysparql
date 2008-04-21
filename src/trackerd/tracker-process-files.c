@@ -647,14 +647,14 @@ process_index_applications (Tracker *tracker)
         db_con = tracker->index_db;
 
         tracker_db_start_index_transaction (db_con);
-        tracker_db_start_transaction (db_con->cache);
+        tracker_db_interface_start_transaction (db_con->cache->db);
         
         tracker_applications_add_service_directories ();
         
         list = tracker_get_service_dirs ("Applications");
         process_directory_list (tracker, list, FALSE);
 
-        tracker_db_end_transaction (db_con->cache);
+        tracker_db_interface_end_transaction (db_con->cache->db);
         
         g_slist_free (list);
 }
@@ -811,7 +811,7 @@ process_index_files (Tracker *tracker)
                 return;
         }
         
-        tracker_db_start_transaction (db_con->cache);
+        tracker_db_interface_start_transaction (db_con->cache->db);
         
         /* Index watched dirs first */
         process_watch_directories (tracker, index_include);
@@ -840,7 +840,7 @@ process_index_files (Tracker *tracker)
                 crawl_directories = NULL;
         }
         
-        tracker_db_end_transaction (db_con->cache);
+        tracker_db_interface_end_transaction (db_con->cache->db);
         tracker_dbus_send_index_progress_signal ("Files", "");
 
         g_slist_free (index_include);
@@ -910,7 +910,7 @@ process_index_crawl_files (Tracker *tracker)
                 return;
         }
         
-        tracker_db_start_transaction (db_con->cache);
+        tracker_db_interface_start_transaction (db_con->cache->db);
         
         process_index_crawl_add_directories (tracker, crawl_directory_roots);
         
@@ -934,7 +934,7 @@ process_index_crawl_files (Tracker *tracker)
                 crawl_directories = NULL;
         }
         
-        tracker_db_end_transaction (db_con->cache);
+        tracker_db_interface_end_transaction (db_con->cache->db);
 }
 
 static void
@@ -965,9 +965,9 @@ process_index_conversations (Tracker *tracker)
                 db_con = tracker->index_db;
 
                 tracker_log ("Starting chat log indexing...");
-                tracker_db_start_transaction (db_con->cache);
+                tracker_db_interface_start_transaction (db_con->cache->db);
                 process_directory_list (tracker, list, TRUE);
-                tracker_db_end_transaction (db_con->cache);
+                tracker_db_interface_end_transaction (db_con->cache->db);
                 g_slist_free (list);
         }
         
@@ -993,9 +993,9 @@ process_index_webhistory (Tracker *tracker)
                 tracker_log ("Starting Firefox web history indexing...");
                 tracker_add_service_path ("WebHistory", firefox_dir);
                 
-                tracker_db_start_transaction (db_con->cache);		
+                tracker_db_interface_start_transaction (db_con->cache->db);
                 process_directory_list (tracker, list, TRUE);
-                tracker_db_end_transaction (db_con->cache);
+                tracker_db_interface_end_transaction (db_con->cache->db);
                 g_slist_free (list);
         }
 
@@ -1036,7 +1036,7 @@ process_index_emails (Tracker *tracker)
                 tracker_email_add_service_directories (db_con->emails);
                 tracker_log ("Starting email indexing...");
                 
-                tracker_db_start_transaction (db_con->cache);
+                tracker_db_interface_start_transaction (db_con->cache->db);
 
 		name = tracker_email_get_name ();
 
@@ -1048,7 +1048,7 @@ process_index_emails (Tracker *tracker)
                         g_slist_free (list);
                 }
                 
-                tracker_db_end_transaction (db_con->cache);
+                tracker_db_interface_end_transaction (db_con->cache->db);
         }
 }
 
@@ -1155,13 +1155,13 @@ process_files (Tracker *tracker)
                 
                 tracker_log ("Updating database stats, please wait...");
                 
-                tracker_db_start_transaction (db_con);
+                tracker_db_interface_start_transaction (db_con->db);
                 tracker_db_exec_no_reply (db_con, "ANALYZE");
-                tracker_db_end_transaction (db_con);
+                tracker_db_interface_end_transaction (db_con->db);
                 
-                tracker_db_start_transaction (db_con->emails);
+                tracker_db_interface_start_transaction (db_con->emails->db);
                 tracker_db_exec_no_reply (db_con->emails, "ANALYZE");
-                tracker_db_end_transaction (db_con->emails);
+                tracker_db_interface_end_transaction (db_con->emails->db);
                 
                 tracker_log ("Finished optimizing, waiting for new events...");
         }
@@ -1502,7 +1502,7 @@ tracker_process_files (gpointer data)
 
 		/* Check pending table if we haven't got anything */
 		if (!info) {
-			gchar ***res;
+			TrackerDBResultSet *result_set;
 			gint     k;
 
 			if (!tracker_db_has_pending_files (tracker->index_db)) {
@@ -1522,35 +1522,40 @@ tracker_process_files (gpointer data)
                                 }
                         }
 
-			res = tracker_db_get_pending_files (tracker->index_db);
+			result_set = tracker_db_get_pending_files (tracker->index_db);
 
 			k = 0;
 			pushed_events = FALSE;
 
-			if (res) {
-				gchar **row;
+			if (result_set) {
+				gboolean is_valid = TRUE;
 
 				tracker_set_status (tracker, STATUS_PENDING, 0, FALSE);
 
-				while ((row = tracker_db_get_row (res, k))) {
+				while (is_valid) {
 					FileInfo	    *info_tmp;
 					TrackerChangeAction  tmp_action;
+					gchar               *uri;
 
 					if (!tracker->is_running) {
-						tracker_db_free_result (res);
+						g_object_unref (result_set);
 						break;
 					}
 
-					k++;
+					tracker_db_result_set_get (result_set,
+								   1, &uri,
+								   2, &tmp_action,
+								   -1);
 
-					tmp_action = atoi (row[2]);
-
-					info_tmp = tracker_create_file_info (row[1], tmp_action, 0, WATCH_OTHER);
+					info_tmp = tracker_create_file_info (uri, tmp_action, 0, WATCH_OTHER);
 					g_async_queue_push (tracker->file_process_queue, info_tmp);
+					is_valid = tracker_db_result_set_iter_next (result_set);
 					pushed_events = TRUE;
+
+					g_free (uri);
 				}
 
-				tracker_db_free_result (res);
+				g_object_unref (result_set);
 			}
 
 			if (!tracker->is_running) {
@@ -1564,7 +1569,7 @@ tracker_process_files (gpointer data)
                          * should sleep for 100ms (only occurs when
                          * using FAM or inotify move/create). 
                          */
-			if (!pushed_events && k == 0) {
+			if (!pushed_events) {
 				g_usleep (100000);
 			}
 
@@ -1606,7 +1611,6 @@ tracker_process_files (gpointer data)
 	xdg_mime_shutdown ();
 
 	tracker_db_close_all (tracker->index_db);
-	tracker_db_thread_end ();
 
 	g_mutex_unlock (tracker->files_stopped_mutex);
 

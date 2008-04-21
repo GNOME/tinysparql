@@ -61,8 +61,8 @@ free_metadata_list (GSList *list)
 gboolean
 tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *id)
 {
+	TrackerDBResultSet *result_set;
 	char	*path, *name;
-	char	***res;
 	gint32	index_time;
 
 	g_return_val_if_fail (db_con, FALSE);
@@ -76,7 +76,7 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 		path = tracker_get_vfs_path (uri);
 	}
 
-	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
+	result_set = tracker_exec_proc (db_con, "GetServiceID", path, name, NULL);
 
 	g_free (path);
 	g_free (name);
@@ -84,32 +84,13 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 	index_time = 0;
 	*id = 0;
 
-	if (res) {
-		char **row;
+	if (result_set) {
+		tracker_db_result_set_get (result_set,
+					   0, id,
+					   1, &index_time,
+					   -1);
 
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[0]) {
-			long long tmp_id;
-
-			tmp_id = atoll (row[0]);
-
-			if (tmp_id > G_MAXUINT32) {
-				tracker_error ("ERROR: file id is too big (> G_MAXUINT32)! Is database corrupted?");
-				tracker_db_free_result (res);
-				return FALSE;
-
-			} else {
-				*id = (guint32) tmp_id;
-			}
-		}
-
-		if (row && row[1]) {
-			index_time = atoi (row[1]);
-		}
-
-		tracker_db_free_result (res);
-
+		g_object_unref (result_set);
 	} else {
 		return FALSE;
 	}
@@ -125,8 +106,8 @@ tracker_db_is_file_up_to_date (DBConnection *db_con, const char *uri, guint32 *i
 guint32
 tracker_db_get_file_id (DBConnection *db_con, const char *uri)
 {
+	TrackerDBResultSet *result_set;
 	char	*path, *name;
-	char	***res;
 	guint32	id;
 
 	g_return_val_if_fail (db_con, 0);
@@ -140,23 +121,16 @@ tracker_db_get_file_id (DBConnection *db_con, const char *uri)
 		path = tracker_get_vfs_path (uri);
 	}
 
-	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
+	result_set = tracker_exec_proc (db_con->index, "GetServiceID", path, name, NULL);
 
 	g_free (path);
 	g_free (name);
 
 	id = 0;
 
-	if (res) {
-		char **row;
-
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[0]) {
-			id = atoi (row[0]);
-		}
-
-		tracker_db_free_result (res);
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &id, -1);
+		g_object_unref (result_set);
 	}
 
 	return id;
@@ -166,9 +140,8 @@ tracker_db_get_file_id (DBConnection *db_con, const char *uri)
 FileInfo *
 tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 {
-	char *path, *name;
-//	char *apath, *aname;
-	char ***res;
+	TrackerDBResultSet *result_set;
+	gchar *path, *name;
 
 	g_return_val_if_fail (db_con, info);
 	g_return_val_if_fail (info, info);
@@ -183,7 +156,7 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	//apath = tracker_escape_string (path);
 	//aname = tracker_escape_string (name);
 
-	res = tracker_exec_proc (db_con->index, "GetServiceID", 2, path, name);
+	result_set = tracker_exec_proc (db_con->index, "GetServiceID", path, name, NULL);
 
 //	g_free (aname);
 //	g_free (apath);
@@ -191,30 +164,27 @@ tracker_db_get_file_info (DBConnection *db_con, FileInfo *info)
 	g_free (name);
 	g_free (path);
 
-	if (res) {
-		char **row;
+	if (result_set) {
+		gint id, indextime, service_type_id;
+		gboolean is_directory;
 
-		row = tracker_db_get_row (res, 0);
+		tracker_db_result_set_get (result_set,
+					   0, &id,
+					   1, &indextime,
+					   2, &is_directory,
+					   3, &service_type_id,
+					   -1);
 
-		if (row && row[0]) {
-			info->file_id = atol (row[0]);
+		if (id > 0) {
+			info->file_id = id;
 			info->is_new = FALSE;
 		}
 
-		if (row && row[1]) {
-			info->indextime = atoi (row[1]);
-		}
+		info->indextime = indextime;
+		info->is_directory = is_directory;
+		info->service_type_id = service_type_id;
 
-		if (row && row[2]) {
-			info->is_directory = (strcmp (row[2], "1") == 0) ;
-		}
-
-		if (row && row[3]) {
-			info->service_type_id = atoi (row[3]);
-		}
-
-
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	return info;
@@ -316,7 +286,7 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 
 		small_thumb_file = tracker_escape_string (small_thumb);
 /* 		tracker_db_set_metadata (db_con, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, TRUE, FALSE, TRUE); */
-/* 		tracker_exec_proc (db_con, "SetMetadata", 5, "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1"); */
+/* 		tracker_exec_proc (db_con, "SetMetadata", "Files", str_file_id, "File.SmallThumbnailPath", small_thumb_file, "1", NULL); */
 		g_free (small_thumb_file);
 	}
 
@@ -335,55 +305,40 @@ tracker_db_save_thumbs (DBConnection *db_con, const char *small_thumb, const cha
 char **
 tracker_db_get_files_in_folder (DBConnection *db_con, const char *folder_uri)
 {
-	char **array;
-	char ***res;
+	TrackerDBResultSet *result_set;
+	GPtrArray *array;
 
 	g_return_val_if_fail (db_con, NULL);
 	g_return_val_if_fail (db_con->index, NULL);
 	g_return_val_if_fail (folder_uri, NULL);
 	g_return_val_if_fail (folder_uri[0] != '\0', NULL);
 
-	res = tracker_exec_proc (db_con->index, "SelectFileChild", 1, folder_uri);
+	result_set = tracker_exec_proc (db_con->index, "SelectFileChild", folder_uri, NULL);
+	array = g_ptr_array_new ();
 
-	if (res) {
-		int row_count;
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *name, *prefix;
 
-		row_count = tracker_get_row_count (res);
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   1, &prefix,
+						   2, &name,
+						   -1);
 
-		if (row_count > 0) {
-			char	**row;
-			int	i;
+			g_ptr_array_add (array, g_build_filename (prefix, name, NULL));
 
-			array = g_new (char *, row_count + 1);
-
-			i = 0;
-
-			while ((row = tracker_db_get_row (res, i))) {
-
-				if (row[1] && row[2]) {
-					array[i] = g_build_filename (row[1], row[2], NULL);
-
-				} else {
-					array[i] = NULL;
-				}
-				i++;
-			}
-
-			array [row_count] = NULL;
-
-		} else {
-			array = g_new (char *, 1);
-			array[0] = NULL;
+			g_free (prefix);
+			g_free (name);
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		tracker_db_free_result (res);
-
-	} else {
-		array = g_new (char *, 1);
-		array[0] = NULL;
+		g_object_unref (result_set);
 	}
 
-	return array;
+	g_ptr_array_add (array, NULL);
+
+	return (gchar **) g_ptr_array_free (array, FALSE);
 }
 
 
@@ -413,29 +368,36 @@ tracker_metadata_is_date (DBConnection *db_con, const char *meta)
 FileInfo *
 tracker_db_get_pending_file (DBConnection *db_con, const char *uri)
 {
+	TrackerDBResultSet *result_set;
 	FileInfo *info;
-	char	 ***res;
 
 	info = NULL;
+	result_set = tracker_exec_proc (db_con->cache, "SelectPendingByUri", uri, NULL);
 
-	res = tracker_exec_proc (db_con->cache, "SelectPendingByUri", 1, uri);
+	if (result_set) {
+		gboolean is_directory, is_new, extract_embedded, extract_contents;
+		gint counter, service_type_id;
+		gchar *mimetype;
 
-	if (res) {
-		char **row;
+		tracker_db_result_set_get (result_set,
+					   2, &counter,
+					   3, &mimetype,
+					   4, &is_directory,
+					   5, &is_new,
+					   6, &extract_embedded,
+					   7, &extract_contents,
+					   8, &service_type_id,
+					   -1);
 
-		row = tracker_db_get_row (res, 0);
+		info = tracker_create_file_info (uri, counter, 0, 0);
+		info->mime = mimetype;
+		info->is_directory = is_directory;
+		info->is_new = is_new;
+		info->extract_embedded = extract_embedded;
+		info->extract_contents = extract_contents;
+		info->service_type_id = service_type_id;
 
-		if (row && row[0] && row[1] && row[2] && row[3] && row[4] && row[5] && row[6] && row[7] && row[8]) {
-			info = tracker_create_file_info (uri, atoi (row[2]), 0, 0);
-			info->mime = g_strdup (row[3]);
-			info->is_directory = (strcmp (row[4], "1") == 0);
-			info->is_new = (strcmp (row[5], "1") == 0);
-			info->extract_embedded = (strcmp (row[6], "1") == 0);
-			info->extract_contents = (strcmp (row[7], "1") == 0);
-			info->service_type_id = atoi (row[8]);
-		}
-
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	return info;
@@ -964,9 +926,9 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 		old_table = tracker_db_get_indexable_content_words (db_con, info->file_id, old_table, TRUE);
 
 		/* delete any exisitng embedded metadata */
-		tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata1", 1, str_file_id);
-		tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata2", 1, str_file_id);
-		tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata3", 1, str_file_id);
+		tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata1", str_file_id, NULL);
+		tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata2", str_file_id, NULL);
+		tracker_exec_proc (db_con, "DeleteEmbeddedServiceMetadata3", str_file_id, NULL);
 
 	}
 
@@ -991,35 +953,35 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 
 	/* check for backup user defined metadata */
 	if (info->is_new) {
-
+		TrackerDBResultSet *result_set;
 		char *name = tracker_get_vfs_name (info->uri);
 		char *path = tracker_get_vfs_path (info->uri);
 
-		char ***result_set = tracker_exec_proc (db_con->common, "GetBackupMetadata", 2, path, name); 
+		result_set = tracker_exec_proc (db_con->common, "GetBackupMetadata", path, name, NULL);
 
 		if (result_set) {
-			char **row;
-			int  k;
+			gboolean valid = TRUE;
+			GHashTable *meta_table;
+			DatabaseAction db_action;
+			gchar *key, *value;
 
-			k = 0;
-			GHashTable *meta_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) free_metadata_list);
+			meta_table = g_hash_table_new_full (g_str_hash, g_str_equal,
+							    (GDestroyNotify) g_free,
+							    (GDestroyNotify) free_metadata_list);
 
-			while ((row = tracker_db_get_row (result_set, k))) {
+			while (valid) {
+				tracker_db_result_set_get (result_set,
+							   0, &key,
+							   1, &value,
+							   -1);
 
-				k++;
+				tracker_log ("found backup metadata for %s\%s with key %s and value %s", path, name, key, value);
+				tracker_add_metadata_to_table (meta_table, key, value);
 
-				if (row[0] && row[1]) {
-
-					tracker_add_metadata_to_table  (meta_table, g_strdup (row[0]), g_strdup (row[1]));
-
-					tracker_log ("found backup metadata for %s\%s with key %s and value %s", path, name, row[0], row[1]);
-
-				}
+				valid = tracker_db_result_set_iter_next (result_set);
 			}
 
-			tracker_db_free_result (result_set);
-
-			DatabaseAction db_action;
+			g_object_unref (result_set);
 
 			db_action.db_con = db_con;
 			db_action.file_id = str_file_id;
@@ -1033,8 +995,6 @@ tracker_db_index_service (DBConnection *db_con, FileInfo *info, const char *serv
 			g_hash_table_foreach (meta_table, restore_backup_data, &db_action);	
 
 			g_hash_table_destroy (meta_table);
-					
-
 		}
 
 		g_free (name);

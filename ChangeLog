@@ -1,3 +1,30 @@
+2008-04-14  Carlos Garnacho  <carlos@imendio.com>
+
+	Implement a database abstraction interface, with a sqlite
+	implementation. Queries/procedures return a TrackerDBResultSet object,
+	which simplifies result data extraction. Fixes bug #528051.
+
+	* src/trackerd/tracker-db-interface.[ch]: Added. Interface to access
+	databases.
+
+	* src/trackerd/tracker-db-interface-sqlite.[ch]: Added. Sqlite
+	implementation.
+
+	* src/trackerd/Makefile.am: add these files.
+
+	* src/trackerd/tracker-db-email.[ch], tracker-db-sqlite.[ch],
+	tracker-db.c, tracker-dbus-files.c, tracker-dbus-keywords.c,
+	tracker-dbus-metadata.c, tracker-dbus-search.c,
+	tracker-email-evolution.c, tracker-email-modest.c, tracker-inotify.c,
+	tracker-process-files.c, tracker-process-requests.c, trackerd.c: Use
+	the new API.
+
+	* src/trackerd/tracker-dbus-methods.[ch]: Modify to build a
+	DBusMessage from a TrackerDBResultSet.
+
+	* src/trackerd/tracker-email.c: Report the error in case the mail
+	client module can't be loaded.
+
 2008-04-17  Philip Van Hoof  <pvanhoof@gnome.org>
 
 	* src/trackerd/tracker-email-modest.c

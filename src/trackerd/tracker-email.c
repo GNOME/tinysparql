@@ -107,7 +107,7 @@ tracker_email_init (void)
 	module = g_module_open (module_path, G_MODULE_BIND_LOCAL);
 
 	if (!module) {
-		g_warning ("Could not load EMail module: %s\n", module_name);
+		g_warning ("Could not load EMail module: %s , %s\n", module_name, g_module_error ());
 		g_free (module_name);
 		g_free (module_path);
 		return result;

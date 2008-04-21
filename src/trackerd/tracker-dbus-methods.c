@@ -67,35 +67,18 @@ tracker_set_error (DBusRec 	  *rec,
 char *
 tracker_get_metadata (DBConnection *db_con, const char *service, const char *id, const char *key)
 {
-	char ***res;
+	TrackerDBResultSet *result_set;
 	char *value;
 
 	g_return_val_if_fail (db_con && !tracker_is_empty_string (id), NULL);
 
 	value = g_strdup (" ");
 
-	res = tracker_db_get_metadata (db_con, service, id, key);
+	result_set = tracker_db_get_metadata (db_con, service, id, key);
 
-	if (res) {
-		int  row_count;
-
-		row_count = tracker_get_row_count (res);
-
-		if (row_count > 0) {
-			char **row;
-
-			row = tracker_db_get_row (res, 0);
-
-			if (row && row[0]) {
-				g_free (value);
-				value = g_strdup (row[0]);
-			}
-
-		} else {
-			tracker_log ("Result set is empty");
-		}
-
-		tracker_db_free_result (res);
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &value, -1);
+		g_object_unref (result_set);
 	}
 
 	tracker_log ("Metadata %s is %s", key, value);
@@ -158,16 +141,20 @@ tracker_get_file_id (DBConnection *db_con, const char *uri, gboolean create_reco
 
 
 void
-tracker_dbus_reply_with_query_result (DBusRec *rec, char ***res)
+tracker_dbus_reply_with_query_result (DBusRec            *rec,
+				      TrackerDBResultSet *result_set)
 {
 	DBusMessage	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter2;
-	char **row;
-	int  k;
+	gboolean valid = TRUE;
+	gint columns;
+
+	if (result_set) {
+		columns = tracker_db_result_set_get_n_columns (result_set);
+	}
 
 	reply = dbus_message_new_method_return (rec->message);
-
 	dbus_message_iter_init_append (reply, &iter);
 
 	dbus_message_iter_open_container (&iter,
@@ -175,42 +162,40 @@ tracker_dbus_reply_with_query_result (DBusRec *rec, char ***res)
 					  "as",
 					  &iter2);
 
-	k = 0;
-
-	while ((row = tracker_db_get_row (res, k)) != NULL) {
-
+	while (result_set && valid) {
 		DBusMessageIter iter_array;
-		char 		**values;	
+		gint            i;
+		GValue          transform = { 0, };
 
-		k++;
-
+		g_value_init (&transform, G_TYPE_STRING);
 		dbus_message_iter_open_container (&iter2,
 						  DBUS_TYPE_ARRAY,
 						  DBUS_TYPE_STRING_AS_STRING,
 						  &iter_array);
 
 		/* append fields to the array */
-		for (values = row; *values; values++) {
-			char *value;
+		for (i = 0; i < columns; i++) {
+			GValue value = { 0, };
+			const gchar *str;
 
-			if (!tracker_is_empty_string (*values)) {
-				value = *values;
-				//tracker_log (value);
+			_tracker_db_result_set_get_value (result_set, i, &value);
+
+			if (g_value_transform (&value, &transform)) {
+				str = g_value_get_string (&transform);
 			} else {
-				/* dbus does not like NULLs */
-				value = " ";
+				str = "";
 			}
 
 			dbus_message_iter_append_basic (&iter_array,
 							DBUS_TYPE_STRING,
-							&value);
+							&str);
+			g_value_unset (&value);
+			g_value_reset (&transform);
 		}
 
-
 		dbus_message_iter_close_container (&iter2, &iter_array);
-
+		valid = tracker_db_result_set_iter_next (result_set);
 	}
-
 
 	dbus_message_iter_close_container (&iter, &iter2);
 	dbus_connection_send (rec->connection, reply, NULL);
@@ -221,114 +206,89 @@ tracker_dbus_reply_with_query_result (DBusRec *rec, char ***res)
 
 
 void
-tracker_add_query_result_to_dict (char ***res, DBusMessageIter *iter_dict)
+tracker_add_query_result_to_dict (TrackerDBResultSet *result_set,
+				  DBusMessageIter    *iter_dict)
 {
-	int  row_count;
+	gint field_count;
+	gboolean valid = TRUE;
 
-	g_return_if_fail (res);
+	g_return_if_fail (result_set);
 
-	row_count = tracker_get_row_count (res);
+	field_count = tracker_db_result_set_get_n_columns (result_set);
 
-	if (row_count > 0) {
-		char **row;
-		int  field_count;
-		int  k;
+	while (valid) {
+		DBusMessageIter iter_dict_entry;
+		DBusMessageIter iter_var, iter_array;
+		char		*key;
+		int		i;
+		GValue          transform;
 
-		field_count = tracker_get_field_count (res);
+		g_value_init (&transform, G_TYPE_STRING);
+		tracker_db_result_set_get (result_set, 0, &key, -1);
 
-		k = 0;
+		dbus_message_iter_open_container (iter_dict,
+						  DBUS_TYPE_DICT_ENTRY,
+						  NULL,
+						  &iter_dict_entry);
 
-		while ((row = tracker_db_get_row (res, k)) != NULL) {
-			DBusMessageIter iter_dict_entry;
-			DBusMessageIter iter_var, iter_array;
-			char		*key;
-			int		i;
+		dbus_message_iter_append_basic (&iter_dict_entry, DBUS_TYPE_STRING, &key);
 
-			k++;
 
-			if (row[0]) {
-				key = row[0];
+		dbus_message_iter_open_container (&iter_dict_entry,
+						  DBUS_TYPE_VARIANT,
+						  DBUS_TYPE_ARRAY_AS_STRING
+						  DBUS_TYPE_STRING_AS_STRING,
+						  &iter_var);
+
+		dbus_message_iter_open_container (&iter_var,
+						  DBUS_TYPE_ARRAY,
+						  DBUS_TYPE_STRING_AS_STRING,
+						  &iter_array);
+
+		/* append additional fields to the variant */
+		for (i = 1; i < field_count; i++) {
+			GValue value;
+			const gchar *str;
+
+			_tracker_db_result_set_get_value (result_set, i, &value);
+
+			if (g_value_transform (&value, &transform)) {
+				str = g_value_get_string (&transform);
 			} else {
-				continue;
+				str = "";
 			}
 
-			dbus_message_iter_open_container (iter_dict,
-						  	  DBUS_TYPE_DICT_ENTRY,
-						  	  NULL,
-							  &iter_dict_entry);
-
-			dbus_message_iter_append_basic (&iter_dict_entry, DBUS_TYPE_STRING, &key);
-
-
-			dbus_message_iter_open_container (&iter_dict_entry,
-							  DBUS_TYPE_VARIANT,
-							  DBUS_TYPE_ARRAY_AS_STRING
-							  DBUS_TYPE_STRING_AS_STRING,
-							  &iter_var);
-
-			dbus_message_iter_open_container (&iter_var,
-							  DBUS_TYPE_ARRAY,
-							  DBUS_TYPE_STRING_AS_STRING,
-							  &iter_array);
-
-			/* append additional fields to the variant */
-			for (i = 1; i < field_count; i++) {
-				char *value;
-
-				if (!tracker_is_empty_string (row[i])) {
-					value = g_strdup (row[i]);
-					} else {
-					/* dbus does not like NULLs */
-					value = g_strdup (" ");
-				}
-
-				dbus_message_iter_append_basic (&iter_array,
-								DBUS_TYPE_STRING,
-								&value);
-
-				g_free (value);
-			}
-
-			dbus_message_iter_close_container (&iter_var, &iter_array);
-			dbus_message_iter_close_container (&iter_dict_entry, &iter_var);
-			dbus_message_iter_close_container (iter_dict, &iter_dict_entry);
+			dbus_message_iter_append_basic (&iter_array,
+							DBUS_TYPE_STRING,
+							&str);
+			g_value_unset (&value);
+			g_value_reset (&transform);
 		}
 
-	} else {
-		tracker_log ("Result set is empty");
+		dbus_message_iter_close_container (&iter_var, &iter_array);
+		dbus_message_iter_close_container (&iter_dict_entry, &iter_var);
+		dbus_message_iter_close_container (iter_dict, &iter_dict_entry);
+
+		valid = tracker_db_result_set_iter_next (result_set);
 	}
 }
 
 
 char **
-tracker_get_query_result_as_array (char ***res, int *row_count)
+tracker_get_query_result_as_array (TrackerDBResultSet *result_set,
+				   int                *row_count)
 {
+	gboolean valid = TRUE;
 	char **array;
+	gint i = 0;
 
-	*row_count = tracker_get_row_count (res);
+	*row_count = tracker_db_result_set_get_n_rows (result_set);
+	array = g_new (char *, *row_count);
 
-	if (*row_count > 0) {
-		char **row;
-		int  i;
-
-		array = g_new (char *, *row_count);
-
-		i = 0;
-
-		while ((row = tracker_db_get_row (res, i))) {
-
-			if (row && row[0]) {
-				array[i] = g_strdup (row[0]);
-			} else {
-				array[i] = NULL;
-			}
-			i++;
-		}
-
-	} else {
-		array = g_new (char *, 1);
-
-		array[0] = NULL;
+	while (valid) {
+		tracker_db_result_set_get (result_set, 0, &array[i], -1);
+		valid = tracker_db_result_set_iter_next (result_set);
+		i++;
 	}
 
 	return array;
@@ -338,13 +298,13 @@ tracker_get_query_result_as_array (char ***res, int *row_count)
 void
 tracker_dbus_method_get_services (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection	*db_con;
 	DBusError	dbus_error;
 	DBusMessage	*reply;
 	DBusMessageIter iter;
 	DBusMessageIter iter_dict;
 	gboolean	main_only;
-	char		***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -360,7 +320,7 @@ tracker_dbus_method_get_services (DBusRec *rec)
 		return;
 	}
 	
-	res = tracker_exec_proc (db_con, "GetServices", 0);
+	result_set = tracker_exec_proc (db_con, "GetServices", 0);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -374,9 +334,9 @@ tracker_dbus_method_get_services (DBusRec *rec)
 					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
 					  &iter_dict);
 
-	if (res) {
-		tracker_add_query_result_to_dict (res, &iter_dict);
-		tracker_db_free_result (res);
+	if (result_set) {
+		tracker_add_query_result_to_dict (result_set, &iter_dict);
+		g_object_unref (result_set);
 	}
 
 	dbus_message_iter_close_container (&iter, &iter_dict);
@@ -388,8 +348,8 @@ tracker_dbus_method_get_services (DBusRec *rec)
 void
 tracker_dbus_method_get_stats (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection	*db_con;
-	char		***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -397,12 +357,11 @@ tracker_dbus_method_get_stats (DBusRec *rec)
 
 	tracker_log ("Executing GetStats Dbus Call");
 
-	res = tracker_exec_proc (db_con, "GetStats", 0);
-	
-	tracker_dbus_reply_with_query_result (rec, res);
+	result_set = tracker_exec_proc (db_con, "GetStats", 0);
 
-	tracker_db_free_result (res);
+	tracker_dbus_reply_with_query_result (rec, result_set);
 
+	g_object_unref (result_set);
 }
 
 void

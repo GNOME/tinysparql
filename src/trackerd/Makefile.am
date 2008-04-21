@@ -53,6 +53,10 @@ db_sources =								\
 	tracker-cache.h							\
 	tracker-parser.c						\
 	tracker-parser.h						\
+	tracker-db-interface.c						\
+	tracker-db-interface.h						\
+	tracker-db-interface-sqlite.c					\
+	tracker-db-interface-sqlite.h					\
 	tracker-db-sqlite.c						\
 	tracker-db-sqlite.h						\
 	tracker-db-email.c						\

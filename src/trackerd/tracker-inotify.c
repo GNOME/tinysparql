@@ -60,8 +60,8 @@ static gboolean process_moved_events ();
 gboolean
 tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 {
-	char ***res;
-	char **row;
+	TrackerDBResultSet *result_set;
+	gint id;
 
 	g_return_val_if_fail (dir != NULL && dir[0] == G_DIR_SEPARATOR, FALSE);
 
@@ -69,21 +69,16 @@ tracker_is_directory_watched (const char * dir, DBConnection *db_con)
 		return FALSE;
 	}
 
-	res = tracker_exec_proc (db_con->cache, "GetWatchID", 1, dir);
+	result_set = tracker_exec_proc (db_con->cache, "GetWatchID", dir, NULL);
 
-	if (!res) {
+	if (!result_set) {
 		return FALSE;
 	}
 
-	row = tracker_db_get_row (res, 0);
+	tracker_db_result_set_get (result_set, 0, &id, -1);
+	g_object_unref (result_set);
 
-	if (!row || !row[0] || atoi (row[0]) < 0) {
-		tracker_db_free_result (res);
-		return FALSE;
-	}
-
-	tracker_db_free_result (res);
-	return TRUE;
+	return (id >= 0);
 }
 
 
@@ -322,11 +317,11 @@ static gboolean
 process_inotify_events (void)
 {
 	while (g_queue_get_length (inotify_queue) > 0) {
+		TrackerDBResultSet   *result_set;
 		TrackerChangeAction  action_type;
 		char		     *str = NULL, *filename = NULL, *monitor_name = NULL, *str_wd;
 		char		     *file_utf8_uri = NULL, *dir_utf8_uri = NULL;
 		guint		     cookie;
-		char		     ***res;
 
 		struct inotify_event *event;
 
@@ -359,30 +354,22 @@ process_inotify_events (void)
 
 		str_wd = g_strdup_printf ("%d", event->wd);
 
-		res = tracker_exec_proc (main_thread_db_con->cache, "GetWatchUri", 1, str_wd);
+		result_set = tracker_exec_proc (main_thread_db_con->cache, "GetWatchUri", str_wd, NULL);
 
 		g_free (str_wd);
 
-		if (res) {
-			char **row;
+		if (result_set) {
+			tracker_db_result_set_get (result_set, 0, &monitor_name, -1);
+			g_object_unref (result_set);
 
-			row = tracker_db_get_row (res, 0);
-
-			if (row && row[0]) {
-				monitor_name = g_strdup (row[0]);
-			} else {
-				monitor_name = NULL;
+			if (!monitor_name) {
 				g_free (event);
 				continue;
 			}
-
-			tracker_db_free_result (res);
 		} else {
 			g_free (event);
 			continue;
 		}
-
-		
 
 		if (tracker_is_empty_string (filename)) {
 			//tracker_log ("WARNING: inotify event has no filename");
@@ -578,7 +565,7 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 		}
 
 		str_wd = g_strdup_printf ("%d", wd);
-		tracker_exec_proc (db_con->cache, "InsertWatch", 2, dir, str_wd);
+		tracker_exec_proc (db_con->cache, "InsertWatch", dir, str_wd, NULL);
 		g_free (str_wd);
 		inotify_count++;
 		tracker_log ("Watching directory %s (total watches = %d)", dir, inotify_count);
@@ -594,33 +581,24 @@ tracker_add_watch_dir (const char *dir, DBConnection *db_con)
 static gboolean
 delete_watch (const char *dir, DBConnection *db_con)
 {
-	char ***res;
-	int	    wd;
-	char  **row;
+	TrackerDBResultSet *result_set;
+	int wd;
 
 	g_return_val_if_fail (dir != NULL && dir[0] == G_DIR_SEPARATOR, FALSE);
 
-	res = tracker_exec_proc (db_con->cache, "GetWatchID", 1, dir);
+	result_set = tracker_exec_proc (db_con->cache, "GetWatchID", dir, NULL);
 
 	wd = -1;
 
-	if (!res) {
+	if (!result_set) {
 		tracker_log ("WARNING: watch id not found for uri %s", dir);
 		return FALSE;
 	}
 
-	row = tracker_db_get_row (res, 0);
+	tracker_db_result_set_get (result_set, 0, &wd, -1);
+	g_object_unref (result_set);
 
-	if (!row || !row[0]) {
-		tracker_log ("WARNING: watch id not found for uri %s", dir);
-		return FALSE;
-	}
-
-	wd = atoi (row[0]);
-
-	tracker_db_free_result (res);
-
-	tracker_exec_proc (db_con->cache, "DeleteWatch", 1, dir);
+	tracker_exec_proc (db_con->cache, "DeleteWatch", dir, NULL);
 
 	if (wd > -1) {
 		inotify_rm_watch (inotify_monitor_fd, wd);
@@ -634,10 +612,9 @@ delete_watch (const char *dir, DBConnection *db_con)
 void
 tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection *db_con)
 {
-	char ***res;
-	char **row;
-	int  k;
-	int  wd;
+	TrackerDBResultSet *result_set;
+	gboolean valid = TRUE;
+	int wd;
 
 	g_return_if_fail (dir != NULL && dir[0] == G_DIR_SEPARATOR);
 
@@ -647,17 +624,17 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 		return;
 	}
 
-	res = tracker_db_get_sub_watches (db_con, dir);
+	result_set = tracker_db_get_sub_watches (db_con, dir);
 
 	wd = -1;
 
-	if (!res) {
+	if (!result_set) {
 		return;
 	}
 
-	for (k = 0; (row = tracker_db_get_row (res, k)) && row[0]; k++) {
-
-		wd = atoi (row[0]);
+	while (valid) {
+		tracker_db_result_set_get (result_set, 0, &wd, -1);
+		valid = tracker_db_result_set_iter_next (result_set);
 
 		if (wd < 0) {
 			continue;
@@ -667,8 +644,7 @@ tracker_remove_watch_dir (const char *dir, gboolean delete_subdirs, DBConnection
 		inotify_count--;
 	}
 
-	tracker_db_free_result (res);
-
+	g_object_unref (result_set);
 	tracker_db_delete_sub_watches (db_con, dir);
 }
 

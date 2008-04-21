@@ -33,25 +33,17 @@
 static gint
 tracker_db_email_get_mbox_offset (DBConnection *db_con, const gchar *mbox_uri)
 {
-	gchar ***res;
-	gchar **row;
+	TrackerDBResultSet *result_set;
 	gint  offset;
 
-	res = tracker_exec_proc (db_con, "GetMBoxDetails", 1, mbox_uri);
+	result_set = tracker_exec_proc (db_con, "GetMBoxDetails", mbox_uri, NULL);
 
-	if (!res) {
+	if (!result_set) {
 		return -1;
 	}
 
-	row = tracker_db_get_row (res, 0);
-
-	if (!(row && row[0] && row[4])) {
-		return -1;
-	} else {
-		offset = atoi (row[4]);
-	}
-
-	tracker_db_free_result (res);
+	tracker_db_result_set_get (result_set, 4, &offset, -1);
+	g_object_unref (result_set);
 
 	return offset;
 }
@@ -70,7 +62,7 @@ tracker_db_email_register_mbox (DBConnection    *db_con,
 	gchar *str_mail_app = tracker_int_to_str (mail_app);
 	gchar *str_mail_type = tracker_int_to_str (mail_type);
 
-	tracker_exec_proc (db_con, "InsertMboxDetails", 5, str_mail_app, str_mail_type, filename, path, uri_prefix);
+	tracker_exec_proc (db_con, "InsertMboxDetails", str_mail_app, str_mail_type, filename, path, uri_prefix, NULL);
 
 	tracker_log ("Registered email store %s of type %s", filename, types[mail_type]);
 
@@ -82,21 +74,21 @@ tracker_db_email_register_mbox (DBConnection    *db_con,
 void
 tracker_db_email_flag_mbox_junk (DBConnection *db_con, const gchar *mbox_uri)
 {
-	tracker_exec_proc (db_con, "SetJunkMbox", 2, "1", mbox_uri);
+	tracker_exec_proc (db_con, "SetJunkMbox", "1", mbox_uri, NULL);
 }
 
 
 void
 tracker_db_email_reset_mbox_junk (DBConnection *db_con, const gchar *mbox_uri)
 {
-	tracker_exec_proc (db_con, "SetJunkMbox", 2, "0", mbox_uri);
+	tracker_exec_proc (db_con, "SetJunkMbox", "0", mbox_uri, NULL);
 }
 
 
-gchar ***
+TrackerDBResultSet *
 tracker_db_email_get_mboxes (DBConnection *db_con)
 {
-	return tracker_exec_proc (db_con, "GetMboxes", 0);
+	return tracker_exec_proc (db_con, "GetMboxes", NULL);
 }
 
 
@@ -114,7 +106,7 @@ tracker_db_email_insert_junk (DBConnection *db_con, const gchar *mbox_uri, guint
 
 	if (!tracker_db_email_lookup_junk (db_con, str_mbox_id, uid)) {
 
-		tracker_exec_proc (db_con, "InsertJunk", 2, str_uid, str_mbox_id);
+		tracker_exec_proc (db_con, "InsertJunk", str_uid, str_mbox_id, NULL);
 	}
 
 	g_free (str_uid);	
@@ -125,39 +117,29 @@ tracker_db_email_insert_junk (DBConnection *db_con, const gchar *mbox_uri, guint
 MailStore *
 tracker_db_email_get_mbox_details (DBConnection *db_con, const gchar *mbox_uri)
 {
-        gchar     ***res;
-        gchar     **row;
+	TrackerDBResultSet *result_set;
         MailStore *mail_store;
 
-        res = tracker_exec_proc (db_con, "GetMBoxDetails", 1, mbox_uri);
+        result_set = tracker_exec_proc (db_con, "GetMBoxDetails", mbox_uri, NULL);
 
-        if (!res) {
+        if (!result_set) {
                 return NULL;
         }
 
-        mail_store = NULL;
+	mail_store = g_slice_new0 (MailStore);
+	tracker_db_result_set_get (result_set,
+				   1, &mail_store->type,
+				   3, &mail_store->uri_prefix,
+				   4, &mail_store->offset,
+				   6, &mail_store->mail_count,
+				   7, &mail_store->junk_count,
+				   8, &mail_store->delete_count,
+				   -1);
 
-        row = tracker_db_get_row (res, 0);
+	g_object_unref (result_set);
 
-        if (!(row && row[3] && row[4])) {
-                return NULL;
-
-        } else {
-                mail_store = g_slice_new0 (MailStore);
-
-                mail_store->offset = atoi (row[4]);
-                mail_store->mail_count = atoi (row[6]);
-                mail_store->junk_count = atoi (row[7]);
-                mail_store->delete_count = atoi (row[8]);
-                mail_store->uri_prefix = g_strdup (row[3]);
-                mail_store->type = atoi (row[1]);
-        }
-
-        tracker_db_free_result (res);
-
-        return mail_store;
+	return mail_store;
 }
-
 
 void
 tracker_db_email_free_mail_store (MailStore *store)
@@ -175,25 +157,17 @@ tracker_db_email_free_mail_store (MailStore *store)
 gint
 tracker_db_email_get_mbox_id (DBConnection *db_con, const gchar *mbox_uri)
 {
-	gchar ***res;
-	gchar **row;
+	TrackerDBResultSet *result_set;
 	gint  id;
 
-	res = tracker_exec_proc (db_con, "GetMboxID", 1, mbox_uri);
+	result_set = tracker_exec_proc (db_con, "GetMboxID", mbox_uri, NULL);
 
-	if (!res) {
+	if (!result_set) {
 		return -1;
 	}
 
-	row = tracker_db_get_row (res, 0);
-
-	if (!(row && row[0])) {
-		return -1;
-	} else {
-		id = atoi (row[0]);
-	}
-
-	tracker_db_free_result (res);
+	tracker_db_result_set_get (result_set, 0, &id, -1);
+	g_object_unref (result_set);
 
 	return id;
 }
@@ -202,25 +176,17 @@ tracker_db_email_get_mbox_id (DBConnection *db_con, const gchar *mbox_uri)
 gchar *
 tracker_db_email_get_mbox_uri_prefix (DBConnection *db_con, const gchar *mbox_uri)
 {
-	gchar ***res;
-	gchar **row;
+	TrackerDBResultSet *result_set;
 	gchar *uri;
 
-	res = tracker_exec_proc (db_con, "GetMBoxDetails", 1, mbox_uri);
+	result_set = tracker_exec_proc (db_con, "GetMBoxDetails", mbox_uri, NULL);
 
-	if (!res) {
+	if (!result_set) {
 		return NULL;
 	}
 
-	row = tracker_db_get_row (res, 0);
-
-	if (!(row && row[3])) {
-		return NULL;
-	} else {
-		uri = g_strdup (row[3]);
-	}
-
-	tracker_db_free_result (res);
+	tracker_db_result_set_get (result_set, 3, &uri, -1);
+	g_object_unref (result_set);
 
 	return uri;
 }
@@ -229,25 +195,17 @@ tracker_db_email_get_mbox_uri_prefix (DBConnection *db_con, const gchar *mbox_ur
 gchar *
 tracker_db_email_get_mbox_path (DBConnection *db_con, const gchar *filename)
 {
-	gchar ***res;
-	gchar **row;
+	TrackerDBResultSet *result_set;
 	gchar *path;
 
-	res = tracker_exec_proc (db_con, "GetMBoxPath", 1, filename);
+	result_set = tracker_exec_proc (db_con, "GetMBoxPath", filename, NULL);
 
-	if (!res) {
+	if (!result_set) {
 		return NULL;
 	}
 
-	row = tracker_db_get_row (res, 0);
-
-	if (!(row && row[0])) {
-		return NULL;
-	} else {
-		path = g_strdup (row[0]);
-	}
-
-	tracker_db_free_result (res);
+	tracker_db_result_set_get (result_set, 0, &path, -1);
+	g_object_unref (result_set);
 
 	return path;
 }
@@ -260,31 +218,25 @@ tracker_db_email_get_message_counts (DBConnection *db_con,
                                      gint         *junk_count,
                                      gint         *delete_count)
 {
-	gchar ***res;
-	gchar **row;
+	TrackerDBResultSet *result_set;
 
 	*mail_count = 0;
 	*junk_count = 0;
 	*delete_count = 0;
 
-	res = tracker_exec_proc (db_con, "GetMBoxDetails", 1, mbox_file_path);
+	result_set = tracker_exec_proc (db_con, "GetMBoxDetails", mbox_file_path, NULL);
 
-	if (!res) {
+	if (!result_set) {
 		return;
 	}
 
-	row = tracker_db_get_row (res, 0);
+	tracker_db_result_set_get (result_set,
+				   6, mail_count,
+				   7, junk_count,
+				   8, delete_count,
+				   -1);
 
-	if (!(row && row[6] && row[7] && row[8] )) {
-		return;
-	} else {
-		*mail_count = atoi (row[6]);
-		*junk_count = atoi (row[7]);
-		*delete_count = atoi (row[8]);
-		
-	}
-
-	tracker_db_free_result (res);
+	g_object_unref (result_set);
 }
 
 
@@ -306,7 +258,7 @@ tracker_db_email_set_message_counts (DBConnection *db_con,
 		str_junk_count = tracker_uint_to_str (junk_count);
 		str_delete_count = tracker_uint_to_str (delete_count);
 
-		tracker_exec_proc (db_con, "UpdateMboxCounts", 4, str_mail_count, str_junk_count, str_delete_count, dir_path);
+		tracker_exec_proc (db_con, "UpdateMboxCounts", str_mail_count, str_junk_count, str_delete_count, dir_path, NULL);
 
 		g_free (str_mail_count);
 		g_free (str_junk_count);
@@ -353,7 +305,7 @@ tracker_db_email_update_mbox_offset (DBConnection *db_con, MailFile *mf)
 		gchar *str_offset;
 
 		str_offset = tracker_uint_to_str (mf->next_email_offset);
-		tracker_exec_proc (db_con, "UpdateMboxOffset", 2, str_offset, mf->path);
+		tracker_exec_proc (db_con, "UpdateMboxOffset", str_offset, mf->path, NULL);
 
 		g_free (str_offset);
 
@@ -825,30 +777,22 @@ tracker_db_email_delete_email (DBConnection *db_con, const gchar *uri)
 gboolean
 tracker_db_email_lookup_junk (DBConnection *db_con, const gchar *mbox_id, gint uid)
 {
+	TrackerDBResultSet *result_set;
         gchar *str_uid;
-	gchar ***res;
-	gchar **row;
+	gint id;
 
 	str_uid = tracker_uint_to_str (uid);
 
-	res = tracker_exec_proc (db_con, "LookupJunk", 2, str_uid, mbox_id);
-
-	if (!res) {
-		g_free (str_uid);
-		return FALSE;
-	}
-
-	row = tracker_db_get_row (res, 0);
-
-	if (!(row && row[0] )) {
-		tracker_db_free_result (res);
-		g_free (str_uid);
-		return FALSE;
-	}
-
-	tracker_db_free_result (res);
+	result_set = tracker_exec_proc (db_con, "LookupJunk", str_uid, mbox_id, NULL);
 
 	g_free (str_uid);
 
-	return TRUE;
+	if (!result_set) {
+		return FALSE;
+	}
+
+	tracker_db_result_set_get (result_set, 0, &id, -1);
+	g_object_unref (result_set);
+
+	return (id > 0);
 }

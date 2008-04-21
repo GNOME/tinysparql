@@ -126,6 +126,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 void
 tracker_dbus_method_metadata_get (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection 	*db_con;
 	DBusError	dbus_error;
 	DBusMessage 	*reply;
@@ -133,7 +134,6 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 	char 		**keys, **array;
 	char		*uri, *id, *str, *service, *res_service;
 	GString 	*sql, *sql_join;
-	char		***res;
 
 
 	g_return_if_fail (rec && rec->user_data);
@@ -232,7 +232,7 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 	tracker_log (str);
 
-	res = tracker_exec_sql_ignore_nulls (db_con, str);
+	result_set = tracker_db_interface_execute_query (db_con->db, NULL, str);
 
 	g_free (str);
 	g_free (id);
@@ -242,43 +242,30 @@ tracker_dbus_method_metadata_get (DBusRec *rec)
 
 	row_count = 0;
 
-	if (res) {
+	if (result_set) {
+		GValue transform = { 0, };
 
-//		tracker_db_log_result (res);
+		row_count = key_count;
+		array = g_new (char *, key_count);
 
-		row_count = tracker_get_row_count (res);
+		g_value_init (&transform, G_TYPE_STRING);
 
-		i = 0;
+		for (i = 0; i < key_count; i++) {
+			GValue value = { 0, };
 
-		if (row_count > 0) {
-			char **row;
+			_tracker_db_result_set_get_value (result_set, i, &value);
 
-			array = g_new (char *, key_count);
-
-			row = tracker_db_get_row (res, 0);
-
-			for (i = 0; i < key_count; i++) {
-
-
-				if (row[i]) {
-					array[i] = g_strdup (row[i]);
-				} else {
-					array[i] = g_strdup ("");
-				}
+			if (g_value_transform (&value, &transform)) {
+				array[i] = g_value_dup_string (&transform);
+			} else {
+				array[i] = g_strdup ("");
 			}
 
-			row_count = key_count;
-
-		} else {
-			tracker_log ("Result set is empty");
-			row_count = 1;
-			array = g_new (char *, 1);
-			array[0] = g_strdup ("");
-
+			g_value_unset (&value);
+			g_value_reset (&transform);
 		}
 
-		tracker_db_free_result (res);
-
+		g_object_unref (result_set);
 	} else {
 		row_count = 1;
 		array = g_new (char *, 1);
@@ -339,7 +326,7 @@ tracker_dbus_method_metadata_register_type (DBusRec *rec)
 		return;
 	}
 
-	tracker_exec_proc (db_con, "InsertMetadataType", 4, meta, type_id, "0", "1");
+	tracker_exec_proc (db_con, "InsertMetadataType", meta, type_id, "0", "1", NULL);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -352,11 +339,13 @@ tracker_dbus_method_metadata_register_type (DBusRec *rec)
 void
 tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *meta, *data_type;
 	gboolean     is_embedded, is_writable;
+	gint         id;
 
 /*
 		<method name="GetTypeDetails">
@@ -389,38 +378,21 @@ tracker_dbus_method_metadata_get_type_details (DBusRec *rec)
 		return;
 	}
 
-	char ***res;
+	result_set = tracker_exec_proc (db_con, "GetMetadataTypeInfo", meta, NULL);
 
-	res = tracker_exec_proc (db_con, "GetMetadataTypeInfo", 1, meta);
-
-	if (!res) {
+	if (!result_set) {
 		tracker_set_error (rec, "Unknown metadata type %s", meta);
 		return;
 	}
 
-	char **row;
+	tracker_db_result_set_get (result_set,
+				   1, &id,
+				   2, &is_embedded,
+				   3, &is_writable,
+				   -1);
 
-	row = tracker_db_get_row (res, 0);
-
-	if (!(row && row[1] && row[2] && row[3])) {
-		tracker_set_error (rec, "Bad info for metadata type %s", meta);
-		return;
-	}
-
-	int i;
-
-	i = atoi (row[1]);
-
-	if (i > 3 || i < 0) {
-		tracker_set_error (rec, "Bad info for metadata type %s", meta);
-		return;
-	}
-
-	data_type = type_array[i];
-	is_embedded = (strcmp (row[2], "1") == 0);
-	is_writable = (strcmp (row[3], "1") == 0);
-
-	tracker_db_free_result (res);
+	data_type = type_array[id];
+	g_object_unref (result_set);
 
 	reply = dbus_message_new_method_return (rec->message);
 
@@ -469,13 +441,13 @@ tracker_dbus_method_metadata_get_registered_types (DBusRec *rec)
 	row_count = 0;
 
 	if (class) {
-		char ***res;
+		TrackerDBResultSet *result_set;
 
-		res = tracker_db_get_metadata_types (db_con, class, TRUE);
+		result_set = tracker_db_get_metadata_types (db_con, class, TRUE);
 
-		if (res) {
-			array = tracker_get_query_result_as_array (res, &row_count);
-			tracker_db_free_result (res);
+		if (result_set) {
+			array = tracker_get_query_result_as_array (result_set, &row_count);
+			g_object_unref (result_set);
 		}
 	}
 
@@ -528,17 +500,17 @@ tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
 	row_count = 0;
 
 	if (class) {
-		char ***res;
+		TrackerDBResultSet *result_set;
 
 		class_formatted = g_strconcat (class, ".*", NULL);
 
-		res = tracker_db_get_metadata_types (db_con, class_formatted, TRUE);
+		result_set = tracker_db_get_metadata_types (db_con, class_formatted, TRUE);
 
 		g_free (class_formatted);
 
-		if (res) {
-			array = tracker_get_query_result_as_array (res, &row_count);
-			tracker_db_free_result (res);
+		if (result_set) {
+			array = tracker_get_query_result_as_array (result_set, &row_count);
+			g_object_unref (result_set);
 		}
 	}
 
@@ -558,11 +530,11 @@ tracker_dbus_method_metadata_get_writeable_types (DBusRec *rec)
 void
 tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusMessage  *reply;
 	char	     **array;
 	int	     row_count;
-	char	     ***res;
 
 /*
 		<!-- returns an array of all metadata type classes that are registered -->
@@ -575,14 +547,14 @@ tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
 
 	db_con = rec->user_data;
 
-	res = tracker_exec_proc (db_con, "SelectMetadataClasses", 0);
+	result_set = tracker_exec_proc (db_con, "SelectMetadataClasses", NULL);
 
 	array = NULL;
 	row_count = 0;
 
-	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		tracker_db_free_result (res);
+	if (result_set) {
+		array = tracker_get_query_result_as_array (result_set, &row_count);
+		g_object_unref (result_set);
 	}
 
 	reply = dbus_message_new_method_return (rec->message);

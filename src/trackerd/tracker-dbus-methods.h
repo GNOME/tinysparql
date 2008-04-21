@@ -24,6 +24,7 @@
 
 #include "tracker-dbus.h"
 #include "tracker-db.h"
+#include "tracker-db-interface.h"
 
 
 void	tracker_set_error			(DBusRec *rec, const char *fmt, ...);
@@ -34,14 +35,14 @@ void	tracker_set_metadata			(DBConnection *db_con, const char *service, const ch
 
 guint32	tracker_get_file_id 			(DBConnection *db_con, const char *uri, gboolean create_record);
 
-void	tracker_dbus_reply_with_query_result 	(DBusRec *rec, char ***res);
+void	tracker_dbus_reply_with_query_result 	(DBusRec *rec, TrackerDBResultSet *result_set);
 
-void	tracker_add_query_result_to_dict 	(char ***res, DBusMessageIter *iter_dict);
+void	tracker_add_query_result_to_dict 	(TrackerDBResultSet *result_set, DBusMessageIter *iter_dict);
 
 char *	tracker_format_search_terms 		(const char *str, gboolean *do_bool_search);
 
 
-char **	tracker_get_query_result_as_array 	(char ***res, int *row_count);
+char **	tracker_get_query_result_as_array 	(TrackerDBResultSet *result_set, int *row_count);
 
 void	tracker_dbus_method_get_stats	 	(DBusRec *rec);
 void	tracker_dbus_method_get_status 		(DBusRec *rec);

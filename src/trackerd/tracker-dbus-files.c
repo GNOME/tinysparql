@@ -211,13 +211,13 @@ tracker_dbus_method_files_create (DBusRec *rec)
 void
 tracker_dbus_method_files_delete (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusMessage  *reply;
 	DBusError    dbus_error;
 	char	     *uri, *name, *path, *str_file_id;
 	guint32	     file_id;
 	gboolean     is_dir;
-	char	     ***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -256,18 +256,11 @@ tracker_dbus_method_files_delete (DBusRec *rec)
 	str_file_id = tracker_uint_to_str (file_id);
 	is_dir = FALSE;
 
-	res = tracker_exec_proc (db_con, "GetServiceID", 2, path, name);
+	result_set = tracker_exec_proc (db_con, "GetServiceID", path, name, NULL);
 
-	if (res) {
-		char **row;
-
-		row = tracker_db_get_row (res, 0);
-
-		if (row && row[2] ) {
-			is_dir = (strcmp (row[2], "1") == 0);
-		}
-
-		tracker_db_free_result (res);
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 2, &is_dir, -1);
+		g_object_unref (result_set);
 	}
 
 	if (file_id != 0) {
@@ -360,12 +353,12 @@ tracker_dbus_method_files_get_service_type (DBusRec *rec)
 void
 tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	char	     *uri, *service_id;
 	int	     offset, max_length;
 	char 	     *str_offset, *str_max_length;
-	char 	     ***res;
 
 /*
 		<!-- Get the "File.Content" field for a file and allows you to specify the offset and amount of text to retrieve  -->
@@ -417,24 +410,23 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 	if (!service_id) {
 		g_free (service_id);
 		tracker_set_error (rec, "Unable to retrieve serviceID for uri %s", uri);
-		return;		
-	} 
-	
+		return;
+	}
+
 	str_offset = tracker_int_to_str (offset);
 	str_max_length = tracker_int_to_str (max_length);
-	res = tracker_exec_proc (db_con->blob, "GetFileContents", 
-				 3, str_offset, str_max_length, service_id);
+	result_set = tracker_exec_proc (db_con->blob, "GetFileContents",
+					str_offset, str_max_length, service_id, NULL);
 	g_free (str_offset);
 	g_free (str_max_length);
 	g_free (service_id);
 
 	const gchar *txt;
 
-	if (res && res[0][0]) {
-		txt = res[0][0];
-
+	if (result_set) {
 		DBusMessage *reply;
 
+		tracker_db_result_set_get (result_set, 0, &txt, -1);
 		reply = dbus_message_new_method_return (rec->message);
 
 		dbus_message_append_args (reply,
@@ -443,11 +435,10 @@ tracker_dbus_method_files_get_text_contents (DBusRec *rec)
 
 		dbus_connection_send (rec->connection, reply, NULL);
 		dbus_message_unref (reply);
-		tracker_db_free_result (res);		
+		g_object_unref (result_set);
 	} else {
 		tracker_set_error (rec, "Contents of the URI not stored");
 	}
-	
 }
 
 
@@ -490,8 +481,8 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 	}
 
 	if (uri) {
+		TrackerDBResultSet *result_set = NULL;
 		char *path, *name, *str_max_length;
-		char ***res;
 
 
 		if (uri[0] == G_DIR_SEPARATOR) {
@@ -510,16 +501,13 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 		g_free (path);
 		g_free (name);
 
-		if (res) {
-			char **row;
+		if (result_set) {
+			char *result;
 
-			row = tracker_db_get_row (res, 0);
+			tracker_db_result_set_get (result_set, 0, &result, -1);
 
-			if (row && row[0]) {
+			if (result) {
 				DBusMessage *reply;
-				const char  *result;
-
-				result = row[0];
 
 				reply = dbus_message_new_method_return (rec->message);
 
@@ -529,9 +517,10 @@ tracker_dbus_method_files_search_text_contents (DBusRec *rec)
 
 				dbus_connection_send (rec->connection, reply, NULL);
 				dbus_message_unref (reply);
+				g_free (result);
 			}
 
-			tracker_db_free_result (res);
+			g_object_unref (result_set);
 		}
 	}
 }
@@ -566,8 +555,8 @@ tracker_dbus_method_files_get_mtime (DBusRec *rec)
 	}
 
 	if (uri) {
+		TrackerDBResultSet *result_set;
 		char *path, *name;
-		char ***res;
 
 		if (uri[0] == G_DIR_SEPARATOR) {
 			name = g_path_get_basename (uri);
@@ -577,32 +566,27 @@ tracker_dbus_method_files_get_mtime (DBusRec *rec)
 			path = tracker_get_vfs_path (uri);
 		}
 
-		res = tracker_exec_proc (db_con, "GetFileMTime", 2, path, name);
+		result_set = tracker_exec_proc (db_con, "GetFileMTime", path, name, NULL);
 
 		g_free (path);
 		g_free (name);
 
-		if (res) {
-			char **row;
+		if (result_set) {
+			DBusMessage *reply;
+			int result;
 
-			row = tracker_db_get_row (res, 0);
+			tracker_db_result_set_get (result_set, 0, &result, -1);
 
-			if (row && row[0]) {
-				DBusMessage *reply;
-				int	    result;
+			reply = dbus_message_new_method_return (rec->message);
 
-				result = atoi (row[0]);
-				reply = dbus_message_new_method_return (rec->message);
+			dbus_message_append_args (reply,
+						  DBUS_TYPE_INT32, &result,
+						  DBUS_TYPE_INVALID);
 
-				dbus_message_append_args (reply,
-							  DBUS_TYPE_INT32, &result,
-							  DBUS_TYPE_INVALID);
+			dbus_connection_send (rec->connection, reply, NULL);
+			dbus_message_unref (reply);
 
-				dbus_connection_send (rec->connection, reply, NULL);
-				dbus_message_unref (reply);
-			}
-
-			tracker_db_free_result (res);
+			g_object_unref (result_set);
 		}
 	}
 }
@@ -611,13 +595,13 @@ tracker_dbus_method_files_get_mtime (DBusRec *rec)
 void
 tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	int 	     query_id, limit, offset, row_count;
 	char 	     *service;
 	char 	     **array;
-	char	     ***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -654,14 +638,14 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 	}
 
 
-	res = tracker_db_get_files_by_service (db_con, service, offset, limit);
+	result_set = tracker_db_get_files_by_service (db_con, service, offset, limit);
 
 	array = NULL;
 	row_count = 0;
 
-	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		tracker_db_free_result (res);
+	if (result_set) {
+		array = tracker_get_query_result_as_array (result_set, &row_count);
+		g_object_unref (result_set);
 	}
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -680,12 +664,12 @@ tracker_dbus_method_files_get_by_service_type (DBusRec *rec)
 void
 tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	int	     query_id, n, offset, limit, row_count;
 	char	     **array, **mimes;
-	char	     ***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -719,14 +703,14 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 		return;
 	}
 
-	res = tracker_db_get_files_by_mime (db_con, mimes, n, offset, limit, FALSE);
+	result_set = tracker_db_get_files_by_mime (db_con, mimes, n, offset, limit, FALSE);
 
 	array = NULL;
 	row_count = 0;
 
-	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		tracker_db_free_result (res);
+	if (result_set) {
+		array = tracker_get_query_result_as_array (result_set, &row_count);
+		g_object_unref (result_set);
 	}
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -745,12 +729,12 @@ tracker_dbus_method_files_get_by_mime_type (DBusRec *rec)
 void
 tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	int	     query_id, n, offset, limit, row_count;
 	char	     **array, **mimes;
-	char	     ***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -779,14 +763,14 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 		return;
 	}
 
-	res = tracker_db_get_files_by_mime (db_con, mimes, n, offset, limit, TRUE);
+	result_set = tracker_db_get_files_by_mime (db_con, mimes, n, offset, limit, TRUE);
 
 	array = NULL;
 	row_count = 0;
 
-	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		tracker_db_free_result (res);
+	if (result_set) {
+		array = tracker_get_query_result_as_array (result_set, &row_count);
+		g_object_unref (result_set);
 	}
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -805,13 +789,13 @@ tracker_dbus_method_files_get_by_mime_type_vfs (DBusRec *rec)
 void
 tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection	*db_con;
 	DBusError		dbus_error;
 	int		i, query_id, folder_name_len, file_id, n;
 	char		*tmp_folder, *folder, *str;
 	char		**array;
 	GString		*sql;
-	char		***res;
 	FieldDef	*defs[255];
 	gboolean 	needs_join[255];
 
@@ -922,26 +906,26 @@ tracker_dbus_method_files_get_metadata_for_files_in_folder (DBusRec *rec)
 
 	tracker_debug (str);
 
-	res = tracker_exec_sql_ignore_nulls (db_con, str);
+	result_set = tracker_db_interface_execute_query (db_con->db, NULL, str);
 
 	g_free (str);
 
-	tracker_dbus_reply_with_query_result (rec, res);
+	tracker_dbus_reply_with_query_result (rec, result_set);
 
-	tracker_db_free_result (res);
+	g_object_unref (result_set);
 }
 
 
 void
 tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *str;
 	char	     **array;
 	int	     n, row_count;
-	char	     ***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -957,37 +941,34 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 		return;
 	}
 
-	res = tracker_db_search_text_mime (db_con, str, array, n);
+	result_set = tracker_db_search_text_mime (db_con, str, array);
 
 	array = NULL;
 	row_count = 0;
 
-	if (res) {
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *prefix, *name;
+		gint i = 0;
 
-		row_count = tracker_get_row_count (res);
+		row_count = tracker_db_result_set_get_n_rows (result_set);
+		array = g_new (gchar *, row_count);
 
-		if (row_count > 0) {
-			char **row;
-			int  i;
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   0, &prefix,
+						   1, &name,
+						   -1);
 
-			array = g_new (char *, row_count);
+			array[i] = g_build_filename (prefix, name, NULL);
+			valid = tracker_db_result_set_iter_next (result_set);
+			i++;
 
-			i = 0;
-
-			while ((row = tracker_db_get_row (res, i))) {
-
-				if (row && row[0] && row[1]) {
-					array[i] = g_build_filename (row[0], row[1], NULL);
-				}
-				i++;
-			}
-
-		} else {
-			tracker_log ("Result set is empty");
+			g_free (prefix);
+			g_free (name);
 		}
 
-		tracker_db_free_result (res);
-
+		g_object_unref (result_set);
 	} else {
 		array = g_new (char *, 1);
 
@@ -1011,13 +992,13 @@ tracker_dbus_method_files_search_by_text_mime (DBusRec *rec)
 void
 tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *str, *location;
 	char	     **array;
 	int	     row_count;
-	char	     ***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -1033,37 +1014,34 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 		return;
 	}
 
-	res = tracker_db_search_text_location (db_con, str, location);
+	result_set = tracker_db_search_text_location (db_con, str, location);
 
 	array = NULL;
 	row_count = 0;
 
-	if (res) {
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *prefix, *name;
+		gint i = 0;
 
-		row_count = tracker_get_row_count (res);
+		row_count = tracker_db_result_set_get_n_rows (result_set);
+		array = g_new (char *, row_count);
 
-		if (row_count > 0) {
-			char **row;
-			int  i;
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   0, &prefix,
+						   1, &name,
+						   -1);
 
-			array = g_new (char *, row_count);
+			array[i] = g_build_filename (prefix, name, NULL);
+			valid = tracker_db_result_set_iter_next (result_set);
+			i++;
 
-			i = 0;
-
-			while ((row = tracker_db_get_row (res, i))) {
-
-				if (row && row[0] && row[1]) {
-					array[i] = g_build_filename (row[0], row[1], NULL);
-				}
-				i++;
-			}
-
-		} else {
-			tracker_log ("Result set is empty");
+			g_free (prefix);
+			g_free (name);
 		}
 
-		tracker_db_free_result (res);
-
+		g_object_unref (result_set);
 	} else {
 		array = g_new (char *, 1);
 
@@ -1087,13 +1065,13 @@ tracker_dbus_method_files_search_by_text_location (DBusRec *rec)
 void
 tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	char	     *str, *location;
 	char	     **array;
 	int	     n, row_count;
-	char	     ***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -1110,37 +1088,34 @@ tracker_dbus_method_files_search_by_text_mime_location (DBusRec *rec)
 		return;
 	}
 
-	res = tracker_db_search_text_mime_location (db_con, str, array, n, location);
+	result_set = tracker_db_search_text_mime_location (db_con, str, array, location);
 
 	array = NULL;
 	row_count = 0;
 
-	if (res) {
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *prefix, *name;
+		gint i = 0;
 
-		row_count = tracker_get_row_count (res);
+		row_count = tracker_db_result_set_get_n_rows (result_set);
+		array = g_new (char *, row_count);
 
-		if (row_count > 0) {
-			char **row;
-			int  i;
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   0, &prefix,
+						   1, &name,
+						   -1);
 
-			array = g_new (char *, row_count);
+			array[i] = g_build_filename (prefix, name, NULL);
+			valid = tracker_db_result_set_iter_next (result_set);
+			i++;
 
-			i = 0;
-
-			while ((row = tracker_db_get_row (res, i))) {
-
-				if (row && row[0] && row[1]) {
-					array[i] = g_build_filename (row[0], row[1], NULL);
-				}
-				i++;
-			}
-
-		} else {
-			tracker_log ("Result set is empty");
+			g_free (prefix);
+			g_free (name);
 		}
 
-		tracker_db_free_result (res);
-
+		g_object_unref (result_set);
 	} else {
 		array = g_new (char *, 1);
 

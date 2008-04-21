@@ -273,34 +273,41 @@ free_modest_config (ModestConfig *conf)
 void
 tracker_email_watch_emails (DBConnection *db_con)
 {
-	gchar ***res, **row;
-	gint  j;
+	TrackerDBResultSet *result_set;
 
 	/* if initial indexing has not finished reset mtime on all email stuff so they are rechecked */
 	if (tracker_db_get_option_int (db_con->common, "InitialIndex") == 1) {
 		char *sql = g_strdup_printf ("update Services set mtime = 0 where path like '%s/.modest/%s'", g_get_home_dir (), "%");
 
-		tracker_exec_sql (db_con, sql);
+		tracker_db_interface_execute_query (db_con->db, NULL, sql);
 		g_free (sql);
 	}
 
 	/* check all registered mbox/paths for deletions */
-	res = tracker_db_email_get_mboxes (db_con);
+	result_set = tracker_db_email_get_mboxes (db_con);
 
-	for (j = 0; (row = tracker_db_get_row (res, j)); j++) {
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *filename, *path;
+		MailStore *store;
 
-		if (row[2] && row[3]) {
-			MailStore *store = tracker_db_email_get_mbox_details (db_con, row[3]);
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   2, &filename,
+						   3, &path,
+						   -1);
+
+			store = tracker_db_email_get_mbox_details (db_con, path);
 
 			if (store) {
-				check_summary_file (db_con, row[2], store);
+				check_summary_file (db_con, filename, store);
 				tracker_db_email_free_mail_store (store);
 			}
-		}
-	}
 
-	if (res) {
-		tracker_db_free_result (res);
+			valid = tracker_db_result_set_iter_next (result_set);
+		}
+
+		g_object_unref (result_set);
 	}
 
 	email_watch_directories (modest_config->dirs, "ModestEmails");

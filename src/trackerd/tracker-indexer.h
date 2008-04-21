@@ -25,12 +25,13 @@
 
 #include <stdlib.h>
 #include <glib.h>
+#include "tracker-utils.h"
+#include "tracker-db-interface.h"
 
 typedef struct {                         /* type of structure for an element of search result */
 	guint32 	id;              /* Service ID number of the document */
 	int 		amalgamated;     /* amalgamation of service_type and score of the word in the document's metadata */
 } WordDetails;
-
 
 typedef enum {
 	WordNormal,

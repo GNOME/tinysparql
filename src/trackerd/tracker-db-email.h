@@ -36,7 +36,6 @@ gboolean  tracker_db_email_delete_emails_of_mbox (DBConnection *db_con, const gc
 gboolean  tracker_db_email_delete_email          (DBConnection *db_con, const gchar *uri);
 gint	  tracker_db_email_get_mbox_id 	         (DBConnection *db_con, const gchar *mbox_uri);
 void	  tracker_db_email_insert_junk 	         (DBConnection *db_con, const gchar *mbox_uri, guint32 uid);
-gchar *** tracker_db_email_get_mbox_junk         (DBConnection *db_con);
 void	  tracker_db_email_reset_mbox_junk       (DBConnection *db_con, const gchar *mbox_uri);
 void	  tracker_db_email_flag_mbox_junk        (DBConnection *db_con, const gchar *mbox_uri);
 void	  tracker_db_email_register_mbox         (DBConnection *db_con, MailApplication mail_app, MailType mail_type,
@@ -63,7 +62,7 @@ tracker_db_email_free_mail_store (MailStore *store);
 MailStore *
 tracker_db_email_get_mbox_details (DBConnection *db_con, const gchar *mbox_uri);
 
-gchar ***
+TrackerDBResultSet *
 tracker_db_email_get_mboxes (DBConnection *db_con);
 
 #endif

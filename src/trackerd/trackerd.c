@@ -135,15 +135,21 @@ static GOptionEntry entries[] = {
 static gint
 get_update_count (DBConnection *db_con)
 {
-
+	TrackerDBResultSet *result_set;
+	gchar *str;
 	gint  count = 0;
-	gchar ***res = tracker_exec_proc (db_con, "GetUpdateCount", 0);
 
-	if (res) {
-		if (res[0] && res[0][0]) {
-			count = atoi (res[0][0]);
-		}
-		tracker_db_free_result (res);
+	result_set = tracker_exec_proc (db_con, "GetUpdateCount", NULL);
+
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &str, -1);
+
+		if (str) {
+			count = atoi (str);
+                }
+
+		g_free (str);
+		g_object_unref (result_set);
 	}
 
 	return count;
@@ -190,7 +196,7 @@ reset_blacklist_file (char *uri)
 	tracker_log ("resetting black list file %s", uri);
 
 	/* reset mtime on parent folder of all outstanding black list files so they get indexed when next restarted */
-	tracker_exec_proc (main_thread_db_con, "UpdateFileMTime", 3, "0", parent_path, parent_name);
+	tracker_exec_proc (main_thread_db_con, "UpdateFileMTime", "0", parent_path, parent_name, NULL);
 
 	g_free (parent);
 	g_free (parent_name);
@@ -922,7 +928,7 @@ main (gint argc, gchar *argv[])
 	/* set thread safe DB connection */
 	tracker_db_thread_init ();
 
-	if (!tracker_db_initialize (tracker->data_dir)) {
+	if (!tracker_db_initialize ()) {
 		tracker_log ("ERROR: failed to initialise database engine - exiting...");
 		return 1;
 	}

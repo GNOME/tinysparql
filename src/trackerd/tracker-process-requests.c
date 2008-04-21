@@ -392,7 +392,6 @@ tracker_process_requests (gpointer data)
 	}
 
 	tracker_db_close_all (db_con);
-        tracker_db_thread_end ();
 
 	tracker_debug ("Request thread has exited successfully");
 

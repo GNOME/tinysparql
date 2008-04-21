@@ -135,11 +135,12 @@ tracker_dbus_method_search_get_hit_count (DBusRec *rec)
 void
 tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set = NULL;
 	TrackerQueryTree *tree;
 	GArray       *hit_counts, *mail_hit_counts;
 	DBConnection *db_con;
 	DBusError    dbus_error;
-	gchar	     ***res, *str;
+	gchar	     *str;
 	guint        i;
 
 	g_return_if_fail (rec);
@@ -180,33 +181,47 @@ tracker_dbus_method_search_get_hit_count_all (DBusRec *rec)
 	g_array_append_vals (hit_counts, mail_hit_counts->data, mail_hit_counts->len);
 	g_array_free (mail_hit_counts, TRUE);
 
-	res = g_new0 (gchar **, hit_counts->len + 1);
-
 	for (i = 0; i < hit_counts->len; i++) {
 		TrackerHitCount count;
-		gchar **elem;
+		GValue value = { 0, };
+
+		if (G_UNLIKELY (!result_set)) {
+			result_set = _tracker_db_result_set_new (2);
+		}
 
 		count = g_array_index (hit_counts, TrackerHitCount, i);
-		elem = g_new (char *, 3);
+		_tracker_db_result_set_append (result_set);
 
-		elem[0] = tracker_service_manager_get_service_by_id (count.service_type_id);
-		elem[1] = tracker_uint_to_str (count.count);
-		elem[2] = NULL;
+		g_value_init (&value, G_TYPE_STRING);
+		g_value_take_string (&value, tracker_service_manager_get_service_by_id (count.service_type_id));
+		_tracker_db_result_set_set_value (result_set, 0, &value);
+		g_value_unset (&value);
 
-		res[i] = elem;
+		g_value_init (&value, G_TYPE_INT);
+		g_value_set_int (&value, count.count);
+		_tracker_db_result_set_set_value (result_set, 1, &value);
+		g_value_unset (&value);
 	}
 
-	tracker_dbus_reply_with_query_result (rec, res);
+	if (result_set) {
+		tracker_db_result_set_rewind (result_set);
+	}
 
-	tracker_db_free_result (res);
+	tracker_dbus_reply_with_query_result (rec, result_set);
+
 	g_array_free (hit_counts, TRUE);
 	g_object_unref (tree);
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
 }
 
 
 void
 tracker_dbus_method_search_text (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
@@ -214,7 +229,6 @@ tracker_dbus_method_search_text (DBusRec *rec)
 	gint	     row_count, i;
 	gint	     limit, query_id, offset;
 	gchar	     *service;
-	gchar	     ***res;
 	gchar	     *str;
 
 	g_return_if_fail (rec);
@@ -270,36 +284,34 @@ tracker_dbus_method_search_text (DBusRec *rec)
 
 	db_con = tracker_db_get_service_connection (db_con, service);
 
-	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, FALSE);
+	result_set = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, FALSE);
 
 	row_count = 0;
 	array = NULL;
 
-	if (res) {
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *prefix, *name;
 
-		row_count = tracker_get_row_count (res);
+		row_count = tracker_db_result_set_get_n_rows (result_set);
+		array = g_new (gchar *, row_count);
+		i = 0;
 
-		if (row_count > 0) {
-			gchar **row;
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   0, &prefix,
+						   1, &name,
+						   -1);
 
-			array = g_new (gchar *, row_count);
+			array[i] = g_build_filename (prefix, name, NULL);
+			valid = tracker_db_result_set_iter_next (result_set);
+			i++;
 
-			i = 0;
-
-			while ((row = tracker_db_get_row (res, i))) {
-
-				if (row && row[0] && row[1]) {
-					array[i] = g_build_filename (row[0], row[1], NULL);
-				}
-				i++;
-			}
-
-		} else {
-			tracker_log ("search returned no results");
+			g_free (prefix);
+			g_free (name);
 		}
 
-		tracker_db_free_result (res);
-
+		g_object_unref (result_set);
 	} else {
 		array = g_new (gchar *, 1);
 		array[0] = NULL;
@@ -327,11 +339,11 @@ tracker_dbus_method_search_text (DBusRec *rec)
 void
 tracker_dbus_method_search_text_detailed (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	gint	     limit, query_id, offset;
 	gchar	     *service;
-	gchar	     ***res;
 	gchar	     *str;
 
 	g_return_if_fail (rec);
@@ -387,21 +399,26 @@ tracker_dbus_method_search_text_detailed (DBusRec *rec)
 
 	db_con = tracker_db_get_service_connection (db_con, service);
 
-	res = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, TRUE);
+	result_set = tracker_db_search_text (db_con, service, str, offset, limit, FALSE, TRUE);
 
+	/*
 	if (tracker_config_get_verbosity (tracker->config) > 0) {
 		tracker_db_log_result (res);
 	}
+	*/
 
-	tracker_dbus_reply_with_query_result (rec, res);
+	tracker_dbus_reply_with_query_result (rec, result_set);
 
-	tracker_db_free_result (res);
+	if (result_set) {
+		g_object_unref (result_set);
+	}
 }
 
 
 void
 tracker_dbus_method_search_get_snippet (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
@@ -460,30 +477,24 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 		return;		
 	}
 
-	gchar ***res;
-	const gchar *txt;
-
 	snippet = NULL;
 
-	res = tracker_exec_proc (db_con->blob, "GetAllContents", 1, service_id);
+	result_set = tracker_exec_proc (db_con->blob, "GetAllContents", service_id, NULL);
 	g_free (service_id);
 	
-	if (res) {
-		if (res[0][0]) {
-			txt = res[0][0];
+	if (result_set) {
+		gchar **array, *text;
 
-			gchar **array = 	tracker_parse_text_into_array (str);
+		tracker_db_result_set_get (result_set, 0, &text, -1);
+		array = tracker_parse_text_into_array (str);
 
-			if (array && array[0]) {
-				snippet = tracker_get_snippet (txt, array, 120);
-			}
-
-			g_strfreev (array);
-
-			tracker_db_free_result (res);
-				
+		if (array && array[0]) {
+			snippet = tracker_get_snippet (text, array, 120);
 		}
-		
+
+		g_strfreev (array);
+		g_free (text);
+		g_object_unref (result_set);
 	}
 
 	/* do not pass NULL to dbus or it will crash */
@@ -509,6 +520,7 @@ tracker_dbus_method_search_get_snippet (DBusRec *rec)
 void
 tracker_dbus_method_search_files_by_text (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	DBusMessage 	*reply;
@@ -517,7 +529,6 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 	gchar 		*text;
 	gint		limit, query_id, offset;
 	gboolean	sort;
-	gchar		***res;
 
 	g_return_if_fail (rec);
 	g_return_if_fail (rec->user_data);
@@ -554,28 +565,25 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 		return;
 	}
 
-	res = tracker_db_search_files_by_text (db_con, text, offset, limit, sort);
+	result_set = tracker_db_search_files_by_text (db_con, text, offset, limit, sort);
 
-	if (res) {
-
-		reply = dbus_message_new_method_return (rec->message);
-
-		dbus_message_iter_init_append (reply, &iter);
-
-		dbus_message_iter_open_container (&iter,
-						  DBUS_TYPE_ARRAY,
-						  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
-						  DBUS_TYPE_STRING_AS_STRING
-						  DBUS_TYPE_VARIANT_AS_STRING
-						  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
-						  &iter_dict);
-
-		tracker_add_query_result_to_dict (res, &iter_dict);
-		tracker_db_free_result (res);
-
-	} else {
+	if (!result_set)
 		return;
-	}
+
+	reply = dbus_message_new_method_return (rec->message);
+
+	dbus_message_iter_init_append (reply, &iter);
+
+	dbus_message_iter_open_container (&iter,
+					  DBUS_TYPE_ARRAY,
+					  DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING
+					  DBUS_TYPE_STRING_AS_STRING
+					  DBUS_TYPE_VARIANT_AS_STRING
+					  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
+					  &iter_dict);
+
+	tracker_add_query_result_to_dict (result_set, &iter_dict);
+	g_object_unref (result_set);
 
 	dbus_message_iter_close_container (&iter, &iter_dict);
 	dbus_connection_send (rec->connection, reply, NULL);
@@ -586,13 +594,13 @@ tracker_dbus_method_search_files_by_text (DBusRec *rec)
 void
 tracker_dbus_method_search_metadata (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	DBusMessage  *reply;
 	gchar 	     *service, *field, *text;
 	gchar 	     **array;
 	gint 	     limit, row_count = 0, offset;
-	gchar	     ***res;
 
 	g_return_if_fail (rec);
 	g_return_if_fail (rec->user_data);
@@ -630,14 +638,14 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 		return;
 	}
 
-//	res = tracker_db_search_metadata (db_con, service, field, text, offset, limit);
-	res = NULL;
+//	result_set = tracker_db_search_metadata (db_con, service, field, text, offset, limit);
+	result_set = NULL;
 
 	array = NULL;
 
-	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		tracker_db_free_result (res);
+	if (result_set) {
+		array = tracker_get_query_result_as_array (result_set, &row_count);
+		g_object_unref (result_set);
 	}
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -656,10 +664,10 @@ tracker_dbus_method_search_metadata (DBusRec *rec)
 void
 tracker_dbus_method_search_matching_fields (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection *db_con;
 	DBusError    dbus_error;
 	gchar 	     *text, *service, *id;
-	gchar	     ***res;
 
 	g_return_if_fail (rec);
 	g_return_if_fail (rec->user_data);
@@ -702,9 +710,9 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 		return;
 	}
 	db_con = tracker_db_get_service_connection (db_con, service);
-	res = tracker_db_search_matching_metadata (db_con, service, id, text);
+	result_set = tracker_db_search_matching_metadata (db_con, service, id, text);
 
-	if (res) {
+	if (result_set) {
 		DBusMessage	*reply;
 		DBusMessageIter iter;
 		DBusMessageIter iter_dict;
@@ -721,8 +729,8 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 						  DBUS_DICT_ENTRY_END_CHAR_AS_STRING,
 						  &iter_dict);
 
-		tracker_add_query_result_to_dict (res, &iter_dict);
-		tracker_db_free_result (res);
+		tracker_add_query_result_to_dict (result_set, &iter_dict);
+		g_object_unref (result_set);
 
 		dbus_message_iter_close_container (&iter, &iter_dict);
 		dbus_connection_send (rec->connection, reply, NULL);
@@ -734,11 +742,11 @@ tracker_dbus_method_search_matching_fields (DBusRec *rec)
 void
 tracker_dbus_method_search_query (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection	*db_con;
 	DBusError    dbus_error;
 	gchar		**fields;
 	gint		limit, row_count, query_id, offset;
-	gchar		***res;
 	gchar		*query, *search_text, *service, *keyword;
 	gboolean	sort_results;
 
@@ -800,7 +808,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		limit = 1024;
 	}
 
-	res = NULL;
+	result_set = NULL;
 
 	if (query) {
 		gchar	 *str;
@@ -845,7 +853,7 @@ tracker_dbus_method_search_query (DBusRec *rec)
 			tracker_db_search_text (db_con, service, search_text, 0, 999999, TRUE, FALSE);
 		}
 
-		res = tracker_exec_sql_ignore_nulls (db_con, str);
+		result_set = tracker_db_interface_execute_query (db_con->db, NULL, str);
 
 		g_free (str);
 
@@ -853,9 +861,9 @@ tracker_dbus_method_search_query (DBusRec *rec)
 		return;
 	}
 
-	tracker_dbus_reply_with_query_result (rec, res);
+	tracker_dbus_reply_with_query_result (rec, result_set);
 
-	tracker_db_free_result (res);
+	g_object_unref (result_set);
 }
 
 

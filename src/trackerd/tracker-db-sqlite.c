@@ -46,6 +46,7 @@
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-config.h>
 
+#include "tracker-db-interface-sqlite.h"
 #include "tracker-db-sqlite.h"
 #include "tracker-indexer.h"
 #include "tracker-cache.h"
@@ -80,7 +81,7 @@ typedef struct {
 /* sqlite utf-8 user defined collation sequence */
 
 static int 
-sqlite3_utf8_collation (void *NotUsed,  int len1, const void *str1,  int len2, const void *str2)
+utf8_collation_func (gchar *str1, gint len1, gchar *str2, int len2)
 {
 	char *word1, *word2;
 	int result;
@@ -104,150 +105,129 @@ sqlite3_utf8_collation (void *NotUsed,  int len1, const void *str1,  int len2, c
 /* sqlite user defined functions for use in sql */
 
 /* converts date/time in UTC format to ISO 8160 standardised format for display */
-static void
-sqlite3_date_to_str (sqlite3_context *context, int argc, sqlite3_value **argv)
+static GValue
+function_date_to_str (TrackerDBInterface *interface,
+		      gint                argc,
+		      GValue              values[])
 {
-	const char *output;
+	GValue result = { 0, };
+	gchar *str;
 
-	switch (sqlite3_value_type (argv[0])) {
+	str = tracker_date_to_str (g_value_get_double (&values[0]));
+	g_value_init (&result, G_TYPE_STRING);
+	g_value_take_string (&result, str);
 
-		case SQLITE_NULL: 
-			sqlite3_result_null (context);
-			break;
-		
-
-		default:
-			output = tracker_date_to_str (sqlite3_value_double (argv[0]));
-			sqlite3_result_text (context, output, strlen (output), g_free);
-		
-	}
+	return result;
 }
 
-
-/* implements regexp functionality */
-static void
-sqlite3_regexp (sqlite3_context *context, int argc, sqlite3_value **argv)
+static GValue
+function_regexp (TrackerDBInterface *interface,
+		 gint                argc,
+		 GValue              values[])
 {
-	int	ret;
+	GValue result = { 0, };
 	regex_t	regex;
+	int	ret;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
-		return;
+		g_critical ("Invalid argument count");
+		return result;
 	}
 
-	ret = regcomp (&regex, (char *) sqlite3_value_text(argv[0]), REG_EXTENDED | REG_NOSUB);
+	ret = regcomp (&regex,
+		       g_value_get_string (&values[0]),
+		       REG_EXTENDED | REG_NOSUB);
 
 	if (ret != 0) {
-		sqlite3_result_error (context, "error compiling regular expression", -1);
-		return;
+		g_critical ("Error compiling regular expression");
+		return result;
 	}
 
-	ret = regexec (&regex, (char *) sqlite3_value_text(argv[1]), 0, NULL, 0);
+	ret = regexec (&regex,
+		       g_value_get_string (&values[1]),
+		       0, NULL, 0);
+
+	g_value_init (&result, G_TYPE_INT);
+	g_value_set_int (&result, (ret == REG_NOMATCH) ? 0 : 1);
 	regfree (&regex);
 
-	sqlite3_result_int (context, (ret == REG_NOMATCH) ? 0 : 1);
+	return result;
 }
-
 
 /* unzips data */
-static void
-sqlite3_uncompress (sqlite3_context *context, int argc, sqlite3_value **argv)
+static GValue
+function_uncompress (TrackerDBInterface *interface,
+		     gint                argc,
+		     GValue              values[])
 {
-	switch (sqlite3_value_type (argv[0])) {
+	GByteArray *array;
+	GValue result = { 0, };
+	gchar *output;
+	gint len;
 
-		case SQLITE_NULL: {
-			sqlite3_result_null (context);
-			break;
-		}
+	array = g_value_get_boxed (&values[0]);
 
-		default:{
-			int  len1, len2;
-			char *output;
-
-			len1 = sqlite3_value_bytes (argv[0]);
-
-			output = tracker_uncompress (sqlite3_value_blob (argv[0]), len1, &len2);
-
-			if (output) {
-				sqlite3_result_text (context, output, len2, g_free);
-			} else {
-				tracker_error ("ERROR: decompression failed");
-				sqlite3_result_text (context, sqlite3_value_blob (argv[0]), len1, NULL);
-			}
-		}
+	if (!array) {
+		return result;
 	}
-}
- 
 
-static void
-sqlite3_get_service_name (sqlite3_context *context, int argc, sqlite3_value **argv)
-{
-	switch (sqlite3_value_type (argv[0])) {
+	output = tracker_uncompress ((const gchar *) array->data, array->len, &len);
 
-		case SQLITE_NULL: {
-			sqlite3_result_null (context);
-			break;
-		}
-
-		default:{
-			gchar *output;
-
-			output = tracker_service_manager_get_service_by_id (sqlite3_value_int (argv[0]));
-			sqlite3_result_text (context, output, strlen (output), g_free);
-		}
+	if (!output) {
+		g_warning ("Uncompress failed");
+		return result;
 	}
+
+	g_value_init (&result, G_TYPE_STRING);
+	g_value_take_string (&result, output);
+
+	return result;
 }
 
-
-static void
-sqlite3_get_service_type (sqlite3_context *context, int argc, sqlite3_value **argv)
+static GValue
+function_get_service_name (TrackerDBInterface *interface,
+			   gint                argc,
+			   GValue              values[])
 {
-	switch (sqlite3_value_type (argv[0])) {
+	GValue result = { 0, };
+	gchar *str;
 
-		case SQLITE_NULL: {
-			sqlite3_result_null (context);
-			break;
-		}
+	str = tracker_service_manager_get_service_by_id (g_value_get_int (&values[0]));
+	g_value_init (&result, G_TYPE_STRING);
+	g_value_take_string (&result, str);
 
-		default:{
-                        const gchar *service;
-			gint         output;
-
-                        service = (const gchar*) sqlite3_value_text (argv[0]);
-			output = tracker_service_manager_get_id_for_service (service);
-			sqlite3_result_int (context, output);
-		}
-	}
+	return result;
 }
 
-
-static void
-sqlite3_get_max_service_type (sqlite3_context *context, int argc, sqlite3_value **argv)
+static GValue
+function_get_service_type (TrackerDBInterface *interface,
+			   gint                argc,
+			   GValue              values[])
 {
-	switch (sqlite3_value_type (argv[0])) {
+	GValue result = { 0, };
+	gint id;
 
-		case SQLITE_NULL: {
-			sqlite3_result_null (context);
-			break;
-		}
+	id = tracker_service_manager_get_id_for_service (g_value_get_string (&values[0]));
+	g_value_init (&result, G_TYPE_INT);
+	g_value_set_int (&result, id);
 
-		default:{
-                        const gchar *service;
-			gint          output;
-
-                        service = (const gchar*) sqlite3_value_text (argv[0]);
-			output = tracker_service_manager_get_id_for_service (service);
-
-			if (output == 0) {
-				output = 8;
-			}
-
-			sqlite3_result_int (context, output);
-		}
-	}
+	return result;
 }
 
+static GValue
+function_get_max_service_type (TrackerDBInterface *interface,
+			       gint                argc,
+			       GValue              values[])
+{
+	GValue result = { 0, };
+	gint id;
+
+	id = tracker_service_manager_get_id_for_service (g_value_get_string (&values[0]));
+	g_value_init (&result, G_TYPE_INT);
+	g_value_set_int (&result, id);
+
+	return result;
+}
 
 static void
 load_sql_file (DBConnection *db_con, const char *sql_file)
@@ -339,54 +319,6 @@ tracker_db_get_row (char ***result, int num)
 	return NULL;
 }
 
-
-void
-tracker_db_log_result (char ***result)
-{
-	char ***rows;
-
-	if (!result) {
-		tracker_log ("no records");
-		return;
-	}
-
-	for (rows = result; *rows; rows++) {
-		char **row;
-		char *str;
-
-		str = NULL;
-
-		for (row = *rows; *row; row++) {
-			char *value;
-
-                        value = tracker_string_replace (*row, "%", "%%");
-
-			if (!value) {
-				value = "NULL";
-			}
-
-			if (str) {
-				char *tmp;
-
-				tmp = g_strdup (str);
-				g_free (str);
-				str = g_strconcat (tmp, ", ", value, NULL);
-				g_free (tmp);
-			} else {
-				str = g_strconcat (value, NULL);
-			}
-
-			g_free (value);
-		}
-
-		if (str) {
-			tracker_log (str);
-			g_free (str);
-		}
-	}
-}
-
-
 void
 tracker_db_free_result (char ***result)
 {
@@ -462,21 +394,13 @@ unlock_connection (DBConnection *db_con)
 
 
 gboolean
-tracker_db_initialize (const char *datadir)
+tracker_db_initialize (void)
 {
 	FILE	 *file;
 	char	 *sql_file;
 	GTimeVal *tv;
 	int i = 0;
 
-
-	//g_assert (sqlite3_threadsafe() != 0);
-
-	tracker_log ("Using Sqlite version %s", sqlite3_version);
-
-	//sequence_mutex = g_mutex_new ();
-
-	/* load prepared queries */
 	prepared_queries = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
 	tracker_log ("Loading prepared queries...");
@@ -515,15 +439,15 @@ tracker_db_initialize (const char *datadir)
 		sep = strchr (buffer, ' ');
 
 		if (sep) {
-			char *query, *name;
+			const char *query, *name;
 
 			*sep = '\0';
 
-			query = g_strdup (sep + 1);
-			name = g_strdup (buffer);
+			query = sep + 1;
+			name = buffer;
 
 			//tracker_log ("installing query %s with sql %s", name, query);
-			g_hash_table_insert (prepared_queries, name, query);
+			g_hash_table_insert (prepared_queries, g_strdup (name), g_strdup (query));
 		} else {
 			continue;
 		}
@@ -547,60 +471,20 @@ tracker_db_thread_init (void)
 //	sqlite3_enable_shared_cache (1);
 }
 
-
-void
-tracker_db_thread_end (void)
-{
-	sqlite3_thread_cleanup ();
-}
-
-
 void
 tracker_db_finalize (void)
 {
 }
 
-
-static void
-finalize_statement (gpointer key,
-		    gpointer value,
-		    gpointer user_data)
-{
-	sqlite3_stmt *stmt;
-
-	stmt = value;
-
-	if (key && stmt) {
-		if (sqlite3_finalize (stmt)!= SQLITE_OK) {
-			DBConnection *db_con;
-
-			db_con = user_data;
-
-			tracker_error ("ERROR: statement could not be finalized for %s with error %s", (char *) key, sqlite3_errmsg (db_con->db));
-		}
-	}
-}
-
-
-
 static inline void
 close_db (DBConnection *db_con)
 {
-	if (db_con->statements) {
-		g_hash_table_foreach (db_con->statements, finalize_statement, db_con);
+	if (db_con->db) {
+		g_object_unref (db_con->db);
+		db_con->db = NULL;
 	}
 
-	g_hash_table_destroy (db_con->statements);
-	db_con->statements = NULL;
-
-	if (sqlite3_close (db_con->db) != SQLITE_OK) {
-		tracker_error ("ERROR: database close operation failed for thread %s due to %s", db_con->thread, sqlite3_errmsg (db_con->db));
-	} else {
-		if (db_con->thread)
-			tracker_debug ("Database closed for thread %s", db_con->thread);
-	}
-
-
+	tracker_debug ("Database closed for thread %s", db_con->thread);
 }
 
 
@@ -648,65 +532,54 @@ test_data (gpointer key,
 */
 
 
-static sqlite3 *
+static TrackerDBInterface *
 open_user_db (const char *name, gboolean *create_table)
 {
-	char	     	*dbname;
-	sqlite3 	*db;
+	TrackerDBInterface *db;
+	gboolean db_exists;
+	char *dbname;
 
-	*create_table = FALSE;
-	
 	dbname = g_build_filename (tracker->user_data_dir, name, NULL);
+	db_exists = g_file_test (dbname, G_FILE_TEST_IS_REGULAR);
 
-	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
+	if (!db_exists) {
 		tracker_log ("database file %s is not present - will create", dbname);
-		*create_table = TRUE;
-	} 
-
-
-	if (sqlite3_open (dbname, &db) != SQLITE_OK) {
-		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db));
-		exit (1);
 	}
 
-	sqlite3_extended_result_codes (db, 0);
+	if (create_table) {
+		*create_table = db_exists;
+	}
 
+	db = tracker_db_interface_sqlite_new (dbname);
+	tracker_db_interface_set_procedure_table (db, prepared_queries);
 	g_free (dbname);
 
-	sqlite3_busy_timeout (db, 10000000);
-
 	return db;
-
 }
 
 
 
-static sqlite3 *
+static TrackerDBInterface *
 open_db (const char *name, gboolean *create_table)
 {
-	char	     	*dbname;
-	sqlite3 	*db;
+	TrackerDBInterface *db;
+	gboolean db_exists;
+	char *dbname;
 
-	*create_table = FALSE;
-	
 	dbname = g_build_filename (tracker->data_dir, name, NULL);
+	db_exists = g_file_test (dbname, G_FILE_TEST_IS_REGULAR);
 
-	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
+	if (!db_exists) {
 		tracker_log ("database file %s is not present - will create", dbname);
-		*create_table = TRUE;
-	} 
-
-
-	if (sqlite3_open (dbname, &db) != SQLITE_OK) {
-		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db));
-		exit (1);
 	}
 
-	sqlite3_extended_result_codes (db, 0);
+	if (create_table) {
+		*create_table = db_exists;
+	}
 
+	db = tracker_db_interface_sqlite_new (dbname);
+	tracker_db_interface_set_procedure_table (db, prepared_queries);
 	g_free (dbname);
-
-	sqlite3_busy_timeout (db, 10000000);
 
 	return db;
 
@@ -716,49 +589,28 @@ open_db (const char *name, gboolean *create_table)
 static void
 set_params (DBConnection *db_con, int cache_size, gboolean add_functions)
 {
-	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
 	tracker_db_set_default_pragmas (db_con);
 
-	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 4096");
+	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = %d", 4096);
 
-	char *prag;
-
-	if (!tracker_config_get_low_memory_mode (tracker->config)) {
-		prag = g_strdup_printf ("PRAGMA cache_size = %d", cache_size);
-	} else {
-		prag = g_strdup_printf ("PRAGMA cache_size = %d", cache_size/2);
+	if (tracker_config_get_low_memory_mode (tracker->config)) {
+		cache_size /= 2;
 	}
 
-	tracker_db_exec_no_reply (db_con, prag);
-
-	sqlite3_busy_timeout (db_con->db, 10000000);
-
-	g_free (prag);
+	tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = %d", cache_size);
 
 	if (add_functions) {
-		/* create user defined utf-8 collation sequence */
-		if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
-			tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+		if (! tracker_db_interface_sqlite_set_collation_function (TRACKER_DB_INTERFACE_SQLITE (db_con->db),
+									  "UTF8", utf8_collation_func)) {
+			tracker_error ("ERROR: collation sequence failed");
 		}
-	
 
 		/* create user defined functions that can be used in sql */
-		if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-			tracker_error ("ERROR: function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
-		}
-		if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
-			tracker_error ("ERROR: function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
-		}
-		if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
-			tracker_error ("ERROR: function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
-		}
-		if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
-			tracker_error ("ERROR: function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
-		}
-		if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
-			tracker_error ("ERROR: function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
-		}
+		tracker_db_interface_sqlite_create_function (db_con->db, "FormatDate", function_date_to_str, 1);
+		tracker_db_interface_sqlite_create_function (db_con->db, "GetServiceName", function_get_service_name, 1);
+		tracker_db_interface_sqlite_create_function (db_con->db, "GetServiceTypeID", function_get_service_type, 1);
+		tracker_db_interface_sqlite_create_function (db_con->db, "GetMaxServiceTypeID", function_get_max_service_type, 1);
+		tracker_db_interface_sqlite_create_function (db_con->db, "REGEXP", function_regexp, 2);
 	}
 }
 
@@ -804,28 +656,17 @@ tracker_db_connect_common (void)
 void
 tracker_db_attach_db (DBConnection *db_con, const char *name)
 {
-
-	char *sql = NULL;
+	gchar *path;
 
 	if (strcmp (name, "common") == 0) {
-	
-		char *path = g_build_filename (tracker->user_data_dir, "common.db", NULL);
-		sql = g_strdup_printf ("ATTACH '%s' as %s", path, name);
-		g_free (path);
-
-		tracker_db_exec_no_reply (db_con, sql);
-
+		path = g_build_filename (tracker->user_data_dir, "common.db", NULL);
+		tracker_db_exec_no_reply (db_con, "ATTACH '%s' as %s", path, name);
 	} else if (strcmp (name, "cache") == 0) {
-	
-		char *path = g_build_filename (tracker->sys_tmp_root_dir, "cache.db", NULL);
-		sql = g_strdup_printf ("ATTACH '%s' as %s", path, name);
-		g_free (path);
-
-		tracker_db_exec_no_reply (db_con, sql);
-
+		path = g_build_filename (tracker->sys_tmp_root_dir, "cache.db", NULL);
+		tracker_db_exec_no_reply (db_con, "ATTACH '%s' as %s", path, name);
 	}
 
-	g_free (sql);
+	g_free (path);
 }
 
 static inline void
@@ -938,25 +779,17 @@ tracker_db_close_all (DBConnection *db_con)
 void
 tracker_db_start_index_transaction (DBConnection *db_con)
 {
-	DBConnection *tmp;
 	DBConnection *email_db_con = db_con->emails;
 
-
-	tmp = db_con->common;
-	if (!tmp->in_transaction) tracker_db_start_transaction (tmp);
-	
+	tracker_db_interface_start_transaction (db_con->common->db);
 
 	/* files */
-	if (!db_con->in_transaction) tracker_db_start_transaction (db_con);
-
-	tmp = db_con->blob;
-	if (!tmp->in_transaction) tracker_db_start_transaction (tmp);
+	tracker_db_interface_start_transaction (db_con->db);
+	tracker_db_interface_start_transaction (db_con->blob->db);
 
 	/* emails */
-	if (!email_db_con->in_transaction) tracker_db_start_transaction (email_db_con);
-
-	tmp = email_db_con->blob;
-	if (!tmp->in_transaction) tracker_db_start_transaction (tmp);
+	tracker_db_interface_start_transaction (email_db_con->db);
+	tracker_db_interface_start_transaction (email_db_con->blob->db);
 }
 
 
@@ -964,34 +797,17 @@ tracker_db_start_index_transaction (DBConnection *db_con)
 void
 tracker_db_end_index_transaction (DBConnection *db_con)
 {
-	DBConnection *tmp;
 	DBConnection *email_db_con = db_con->emails;
 
-	tmp = db_con->common;
-	if (tmp->in_transaction) {
-		tracker_db_end_transaction (tmp);
-	}
+	tracker_db_interface_end_transaction (db_con->common->db);
 
 	/* files */
-	if (db_con->in_transaction) {
-		tracker_db_end_transaction (db_con);
-	}
-
-	tmp = db_con->blob;
-	if (tmp->in_transaction) {
-		tracker_db_end_transaction (tmp);
-	}
+	tracker_db_interface_end_transaction (db_con->db);
+	tracker_db_interface_end_transaction (db_con->blob->db);
 
 	/* emails */
-	if (email_db_con->in_transaction) {
-		tracker_db_end_transaction (email_db_con);
-	}
-
-	tmp = email_db_con->blob;
-	if (tmp->in_transaction) {
-		tracker_db_end_transaction (tmp);
-	}
-
+	tracker_db_interface_end_transaction (email_db_con->db);
+	tracker_db_interface_end_transaction (email_db_con->blob->db);
 }
 
 
@@ -1014,65 +830,47 @@ tracker_db_set_default_pragmas (DBConnection *db_con)
 DBConnection *
 tracker_db_connect (void)
 {
-	char	     *dbname;
 	DBConnection *db_con;
-
 	gboolean create_table = FALSE;
+	char *dbname;
 
 	dbname = g_build_filename (tracker->data_dir, "file-meta.db", NULL);
 
 	if (!g_file_test (dbname, G_FILE_TEST_IS_REGULAR)) {
 		tracker_log ("database file %s is not present - will create", dbname);
 		create_table = TRUE;
-	} 
-
-	db_con = g_new0 (DBConnection, 1);
-
-	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
-		exit (1);
 	}
 
+	db_con = g_new0 (DBConnection, 1);
+	db_con->db = tracker_db_interface_sqlite_new (dbname);
+	tracker_db_interface_set_procedure_table (db_con->db, prepared_queries);
 	g_free (dbname);
 
 	db_con->db_type = TRACKER_DB_TYPE_DATA;
 	db_con->db_category = DB_CATEGORY_FILES;
 
-	sqlite3_busy_timeout (db_con->db, 10000000);
-
 	db_con->data = db_con;
-
-	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 	tracker_db_set_default_pragmas (db_con);
 	
 	if (!tracker_config_get_low_memory_mode (tracker->config)) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 32");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = %d", 32);
 	} else {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 16");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = %d", 16);
 	}
 
 	/* create user defined utf-8 collation sequence */
-	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
-		tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+	if (! tracker_db_interface_sqlite_set_collation_function (TRACKER_DB_INTERFACE_SQLITE (db_con->db),
+								  "UTF8", utf8_collation_func)) {
+		tracker_error ("ERROR: collation sequence failed");
 	}
 
 	/* create user defined functions that can be used in sql */
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-		tracker_error ("ERROR: function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
-		tracker_error ("ERROR: function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
-		tracker_error ("ERROR: function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
-		tracker_error ("ERROR: function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
-		tracker_error ("ERROR: function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
-	}
+	tracker_db_interface_sqlite_create_function (db_con->db, "FormatDate", function_date_to_str, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "GetServiceName", function_get_service_name, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "GetServiceTypeID", function_get_service_type, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "GetMaxServiceTypeID", function_get_max_service_type, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "REGEXP", function_regexp, 2);
 
 	if (create_table) {
 		tracker_log ("Creating file database...");
@@ -1191,10 +989,7 @@ open_file_content_db (DBConnection *db_con)
 		tracker_log ("creating file content table");
 	}
 
-	sqlite3_create_function (db_con->db, "uncompress", 1, SQLITE_ANY, NULL, &sqlite3_uncompress, NULL, NULL);
-
-	
-
+	tracker_db_interface_sqlite_create_function (db_con->db, "uncompress", function_uncompress, 1);
 }
 
 DBConnection *
@@ -1230,10 +1025,7 @@ open_email_content_db (DBConnection *db_con)
 		tracker_log ("creating email content table");
 	}
 
-	sqlite3_create_function (db_con->db, "uncompress", 1, SQLITE_ANY, NULL, &sqlite3_uncompress, NULL, NULL);
-
-	
-
+	tracker_db_interface_sqlite_create_function (db_con->db, "uncompress", function_uncompress, 1);
 }
 
 DBConnection *
@@ -1262,8 +1054,7 @@ tracker_db_refresh_all (DBConnection *db_con)
 	DBConnection *cache = db_con->cache;
 	DBConnection *emails = db_con->emails;
 
-	if (cache && cache->in_transaction) {
-		tracker_db_end_transaction (cache);
+	if (cache && tracker_db_interface_end_transaction (cache->db)) {
 		cache_trans = TRUE;
 	}
 
@@ -1283,7 +1074,7 @@ tracker_db_refresh_all (DBConnection *db_con)
 	open_email_db (emails);
 		
 	if (cache_trans) {
-		tracker_db_start_transaction (cache);
+		tracker_db_interface_start_transaction (cache->db);
 	}
 
 
@@ -1295,8 +1086,7 @@ tracker_db_refresh_email (DBConnection *db_con)
 	gboolean cache_trans = FALSE;
 	DBConnection *cache = db_con->cache;
 
-	if (cache && cache->in_transaction) {
-		tracker_db_end_transaction (cache);
+	if (cache && tracker_db_interface_end_transaction (cache->db)) {
 		cache_trans = TRUE;
 	}
 
@@ -1313,10 +1103,8 @@ tracker_db_refresh_email (DBConnection *db_con)
 	open_email_db (emails);
 
 	if (cache_trans) {
-		tracker_db_start_transaction (cache);
+		tracker_db_interface_start_transaction (cache->db);
 	}
-
-	
 }
 
 DBConnection *
@@ -1340,27 +1128,19 @@ tracker_db_connect_cache (void)
 	}
 
 	db_con = g_new0 (DBConnection, 1);
-
-	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
-		exit (1);
-	}
-
+	db_con->db = tracker_db_interface_sqlite_new (dbname);
+	tracker_db_interface_set_procedure_table (db_con->db, prepared_queries);
 	g_free (dbname);
 
 	db_con->db_type = TRACKER_DB_TYPE_CACHE;
 	db_con->cache = db_con;
 
-	sqlite3_busy_timeout (db_con->db, 10000000);
-
-	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
 	tracker_db_set_default_pragmas (db_con);
 
 	if (!tracker_config_get_low_memory_mode (tracker->config)) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 128");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = %d", 128);
 	} else {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 32");
+		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = %d", 32);
 	}
 
 
@@ -1394,12 +1174,8 @@ tracker_db_connect_emails (void)
 
 
 	db_con = g_new0 (DBConnection, 1);
-
-	if (sqlite3_open (dbname, &db_con->db) != SQLITE_OK) {
-		tracker_error ("FATAL ERROR: can't open database at %s: %s", dbname, sqlite3_errmsg (db_con->db));
-		exit (1);
-	}
-
+	db_con->db = tracker_db_interface_sqlite_new (dbname);
+	tracker_db_interface_set_procedure_table (db_con->db, prepared_queries);
 	g_free (dbname);
 
 
@@ -1408,43 +1184,24 @@ tracker_db_connect_emails (void)
 
 	db_con->emails = db_con;
 
-	sqlite3_busy_timeout (db_con->db, 10000000);
-
-	db_con->statements = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-
-	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = 4096");
+	tracker_db_exec_no_reply (db_con, "PRAGMA page_size = %d", 4096);
 
 	tracker_db_set_default_pragmas (db_con);
 
-	if (!tracker_config_get_low_memory_mode (tracker->config)) {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
-	} else {
-		tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = 8");
-	}
-
+	tracker_db_exec_no_reply (db_con, "PRAGMA cache_size = %d", 8);
 
 	/* create user defined utf-8 collation sequence */
-	if (SQLITE_OK != sqlite3_create_collation (db_con->db, "UTF8", SQLITE_UTF8, 0, &sqlite3_utf8_collation)) {
-		tracker_error ("ERROR: collation sequence failed due to %s", sqlite3_errmsg (db_con->db));
+	if (! tracker_db_interface_sqlite_set_collation_function (TRACKER_DB_INTERFACE_SQLITE (db_con->db),
+								  "UTF8", utf8_collation_func)) {
+		tracker_error ("ERROR: collation sequence failed");
 	}
-	
 
 	/* create user defined functions that can be used in sql */
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "FormatDate", 1, SQLITE_ANY, NULL, &sqlite3_date_to_str, NULL, NULL)) {
-		tracker_error ("ERROR: function FormatDate failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceName", 1, SQLITE_ANY, NULL, &sqlite3_get_service_name, NULL, NULL)) {
-		tracker_error ("ERROR: function GetServiceName failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_service_type, NULL, NULL)) {
-		tracker_error ("ERROR: function GetServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "GetMaxServiceTypeID", 1, SQLITE_ANY, NULL, &sqlite3_get_max_service_type, NULL, NULL)) {
-		tracker_error ("ERROR: function GetMaxServiceTypeID failed due to %s", sqlite3_errmsg (db_con->db));
-	}
-	if (SQLITE_OK != sqlite3_create_function (db_con->db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite3_regexp, NULL, NULL)) {
-		tracker_error ("ERROR: function REGEXP failed due to %s", sqlite3_errmsg (db_con->db));
-	}
+	tracker_db_interface_sqlite_create_function (db_con->db, "FormatDate", function_date_to_str, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "GetServiceName", function_get_service_name, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "GetServiceTypeID", function_get_service_type, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "GetMaxServiceTypeID", function_get_max_service_type, 1);
+	tracker_db_interface_sqlite_create_function (db_con->db, "REGEXP", function_regexp, 2);
 
 	if (create_table) {
 		tracker_log ("Creating email database...");
@@ -1604,166 +1361,27 @@ tracker_db_prepare_queries (DBConnection *db_con)
 
 
 gboolean
-tracker_db_exec_no_reply (DBConnection *db_con, const char *query)
+tracker_db_exec_no_reply (DBConnection *db_con, const char *query, ...)
 {
-	char *msg = NULL;	
-	int rc,  busy_count = 0;
+	TrackerDBResultSet *result_set;
+	va_list args;
 
 	lock_db();
 
-	while ((rc = sqlite3_exec (db_con->db, query, NULL, NULL, &msg)) == SQLITE_BUSY) {
+	va_start (args, query);
+	result_set = tracker_db_interface_execute_vquery (db_con->db, NULL, query, args);
+	va_end (args);
 
-		unlock_db ();
-		busy_count++;
-
-		if (msg) {
-			sqlite3_free (msg);
-			msg = NULL;
-		}
-
-		if (busy_count > 1000000) {
-			tracker_error ("WARNING: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
-			busy_count = 0;
-		}
-			
-
-		if (busy_count > 50) {
-			g_usleep (g_random_int_range (1000, busy_count * 200));
-		} else {
-			g_usleep (100);
-		}
-
-		lock_db();
-		
+	/* This function is meant for queries that don't return any result set,
+	 * if it's passed some query that returns a result set, just discard it.
+	 */
+	if (G_UNLIKELY (result_set)) {
+		g_object_unref (result_set);
 	}
+
 	unlock_db ();
-
-	if (rc != SQLITE_OK) {
-
-		if (msg) {
-			tracker_error ("WARNING: sql query %s failed because %s", query, msg);	
-			sqlite3_free (msg);
-		} else {
-			tracker_error ("WARNING: sql query %s failed with code %d", query, rc);	
-		}
-
-		return FALSE;
-	}
 
 	return TRUE;
-
-}
-
-
-
-static char ***
-exec_sql (DBConnection *db_con, const char *query, gboolean ignore_nulls)
-{
-	char **array, **result;
-	int  cols, rows;
-	char *msg = NULL;
-	int  i, busy_count, totalrows, k;
-
-	g_return_val_if_fail (query, NULL);
-
-	array = NULL;
-	msg = NULL;
-
-	if (!lock_db ()) {
-		return NULL;
-	}
-
-	busy_count = 0;
-
-	i = SQLITE_BUSY;
-
-	while (i == SQLITE_BUSY) {
-
-		lock_connection (db_con);
-	
-		i = sqlite3_get_table (db_con->db, query, &array, &rows, &cols, &msg);
-
-		unlock_connection (db_con);
-
-		if (i == SQLITE_BUSY) {
-		
-			if (array) {
-				sqlite3_free_table (array);
-				array = NULL;
-			}
-
-			if (msg) {
-				sqlite3_free (msg);
-				msg = NULL;
-			}
-		
-
-			busy_count++;
-
-			if (busy_count > 10000) {
-				tracker_error ("ERROR: excessive busy count in query %s and thread %s", query, db_con->thread);
-				busy_count = 0;
-			}
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-	
-		}
-	}
-
-	if (i != SQLITE_OK) {
-		unlock_db ();
-		tracker_error ("ERROR: query %s failed with error: %s", query, msg);
-		sqlite3_free (msg);
-		return NULL;
-	}
-
-	unlock_db ();
-
-	if (msg) {
-		sqlite3_free (msg);
-	}
-
-	if (!array || rows == 0 || cols == 0) {
-
-		if (array) sqlite3_free_table (array);
-		return NULL;
-	}
-
-
-	result = g_new (char *, rows+1);
-	result[rows] = NULL;
-
-	totalrows = (rows+1) * cols;
-
-	//tracker_log ("total rows is %d", totalrows);
-	//for (i=0;i<totalrows;i++) tracker_log (array[i]);
-
-	for (i = cols, k = 0; i < totalrows; i += cols, k++) {
-		char **row;
-		int  j;
-
-		row = g_new (char *, cols + 1);
-		row[cols] = NULL;
-
-		for (j = 0; j < cols; j++) {
-			if (ignore_nulls && !array[i+j]) {
-				row[j] = g_strdup ("");
-			} else {
-				row[j] = g_strdup (array[i+j]);
-			}
-			//tracker_log ("data for row %d, col %d is %s", k, j, row[j]);
-		}
-
-		result[k] = (gpointer) row;
-	}
-
-	sqlite3_free_table (array);
-
-	return (char ***) result;
 }
 
 void
@@ -1772,450 +1390,53 @@ tracker_db_release_memory (void)
 
 }
 
-
-char ***
-tracker_exec_sql (DBConnection *db_con, const char *query)
-{
-	return exec_sql (db_con, query, FALSE);
-}
-
-
-char ***
-tracker_exec_sql_ignore_nulls (DBConnection *db_con, const char *query)
-{
-	return exec_sql (db_con, query, TRUE);
-}
-
-
 char *
 tracker_escape_string (const char *in)
 {
+	gchar **array, *out;
 
+	if (strchr (in, '\'')) {
+		return g_strdup (in);
+	}
 
-	char *str = sqlite3_mprintf ("%q", in);
+	/* double single quotes */
+	array = g_strsplit (in, "'", -1);
+	out = g_strjoinv ("''", array);
+	g_strfreev (array);
 
-	/* copy this as sqlite3_free needs to be called to prevent invalid delete error */
-	char *str2 = g_strdup (str);
-
-	sqlite3_free (str);
-
-	return str2;
-
-
+	return out;
 }
 
-
-
-static sqlite3_stmt *
-get_prepared_query (DBConnection *db_con, const char *procedure)
+TrackerDBResultSet *
+tracker_exec_proc (DBConnection *db_con, const char *procedure, ...)
 {
-	sqlite3_stmt *stmt;
+	TrackerDBResultSet *result_set;
+	va_list args;
 
-	/* check if query is already prepared (i.e. is in table) */
-	stmt = g_hash_table_lookup (db_con->statements, procedure);
-
-	/* check if query is in list and prepare it if so */
-	if (!stmt || sqlite3_expired (stmt) != 0) {
-		char *query;
-
-		query = g_hash_table_lookup (prepared_queries, procedure);
-
-		if (!query) {
-			tracker_error ("ERROR: prepared query %s not found", procedure);
-			return NULL;
-		} else {
-			int rc;
-
-			/* prepare the query */
-			rc = sqlite3_prepare_v2 (db_con->db, query, -1, &stmt, NULL);
-
-			if (rc == SQLITE_OK && stmt) {
-				//tracker_log ("successfully prepared query %s", procedure);
-				g_hash_table_insert (db_con->statements, g_strdup (procedure), stmt);
-			} else {
-
-				rc = sqlite3_step (stmt);
-	
-				if (rc == SQLITE_OK && stmt) {
-					//tracker_log ("successfully prepared query %s", procedure);
-	
-					g_hash_table_insert (db_con->statements, g_strdup (procedure), stmt);
-				} else {
-					tracker_error ("ERROR: failed to prepare query %s with sql %s due to code %d and %s", procedure, query, sqlite3_errcode(db_con->db), sqlite3_errmsg (db_con->db));
-					return NULL;
-				}
-			}
-		}
-
-	} else {
-		sqlite3_reset (stmt);
-	}
-
-	return stmt;
-}
-
-
-char ***
-tracker_exec_proc (DBConnection *db_con, const char *procedure, int param_count, ...)
-{
-	GPtrArray    *res;
-	va_list      args;
-	int 	     i, busy_count, cols;
-	sqlite3_stmt *stmt;
-	int	     rc;
-
-	stmt = get_prepared_query (db_con, procedure);
-
-	va_start (args, param_count);
-
-	if (param_count != sqlite3_bind_parameter_count (stmt)) {
-		tracker_error ("ERROR: incorrect no of parameters %d supplied to %s", param_count, procedure);
-	}
-
-	for (i = 0; i < param_count; i++) {
-		char *str;
-
-		str = va_arg (args, char *);
-
-		if (!str) {
-			tracker_debug ("WARNING: parameter %d is null when executing SP %s", i, procedure);
-			if  (sqlite3_bind_null (stmt, i+1)) {
-				tracker_error ("ERROR: null parameter %d could not be bound to %s", i, procedure);
-			}
-		} else {
-
-			if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
-				tracker_error ("ERROR: parameter %d could not be bound to %s", i, procedure);
-			}
-		}
-	}
-
+	va_start (args, procedure);
+	result_set = tracker_db_interface_execute_vprocedure (db_con->db, NULL, procedure, args);
 	va_end (args);
 
-	cols = sqlite3_column_count (stmt);
-	res = g_ptr_array_sized_new (100);
-
-	busy_count = 0;
-
-	lock_connection (db_con);
-	while (TRUE) {
-
-		if (!lock_db ()) {
-			unlock_connection (db_con);	
-			return NULL;
-		}
-		
-		db_con->in_error = FALSE;
-		
-		rc = sqlite3_step (stmt);
-
-		if (rc == SQLITE_ERROR) {
-			sqlite3_reset (stmt);
-			unlock_db ();
-			db_con->in_error = TRUE;
-			break;
-		} else if (rc == SQLITE_BUSY) {
-			unlock_db ();
-			unlock_connection (db_con);
-			busy_count++;
-
-			if (busy_count > 100000) {
-				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
-				busy_count = 0;
-			}
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-
-			lock_connection (db_con);
-		} else if (rc == SQLITE_ROW) {
-			char **new_row;
-
-			new_row = g_new0 (char *, cols+1);
-
-			unlock_db ();
-			
-
-			for (i = 0; i < cols; i++) {
-				const char *st;
-
-				st = (char *) sqlite3_column_text (stmt, i);
-
-				if (st) {
-					new_row[i] = g_strdup (st);
-					//tracker_log ("%s : row %d, col %d is %s", procedure, row, i, st);
-				} else {
-					tracker_info ("WARNING: null detected in query return result for %s", procedure);
-				}
-			}
-
-			if (new_row[0]) {
-				g_ptr_array_add (res, new_row);
-			} else {
-				g_strfreev (new_row);
-			}
-		} else {
-			unlock_db ();
-			break;
-		}
-	}
-
-	unlock_connection (db_con);
-
-	if (rc != SQLITE_DONE) {
-		tracker_error ("ERROR: execution of prepared query %s failed due to %s with return code %d", procedure, sqlite3_errmsg (db_con->db), rc);
-		db_con->in_error = TRUE;
-
-		if (rc == SQLITE_CORRUPT) {
-			tracker->reindex = TRUE;
-
-			g_timeout_add_full (G_PRIORITY_LOW,
-			     		    1,
-		 	    		    (GSourceFunc) tracker_do_cleanup,
-			     		    NULL, NULL
-			   		    );
-			return NULL;
-		}
-
-	}
-
-	if (res->len == 0) {
-		g_ptr_array_free (res, TRUE);
-		return NULL;
-	}
-
-	g_ptr_array_add (res, NULL);
-
-	return (char ***) g_ptr_array_free (res, FALSE);
+	return result_set;
 }
 
 
 gboolean
-tracker_exec_proc_no_reply (DBConnection *db_con, const char *procedure, int param_count, ...)
+tracker_exec_proc_no_reply (DBConnection *db_con, const char *procedure, ...)
 {
-	va_list      args;
-	int 	     i, busy_count, cols, row;
-	sqlite3_stmt *stmt;
-	GSList	     *result;
-	int	     rc;
+	TrackerDBResultSet *result_set;
+	va_list args;
 
-	stmt = get_prepared_query (db_con, procedure);
-
-	va_start (args, param_count);
-
-	if (param_count != sqlite3_bind_parameter_count (stmt)) {
-		tracker_error ("ERROR: incorrect no of parameters %d supplied to %s", param_count, procedure);
-	}
-
-	for (i = 0; i < param_count; i++) {
-		char *str;
-
-		str = va_arg (args, char *);
-
-		if (!str) {
-			tracker_debug ("WARNING: parameter %d is null when executing SP %s", i, procedure);
-			if  (sqlite3_bind_null (stmt, i+1)) {
-				tracker_error ("ERROR: null parameter %d could not be bound to %s", i, procedure);
-			}
-		} else {
-
-			if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
-				tracker_error ("ERROR: parameter %d could not be bound to %s", i, procedure);
-			}
-		}
-	}
-
+	va_start (args, procedure);
+	result_set = tracker_db_interface_execute_vprocedure (db_con->db, NULL, procedure, args);
 	va_end (args);
 
-	cols = sqlite3_column_count (stmt);
-
-	busy_count = 0;
-	row = 0;
-
-	result = NULL;
-	
-	lock_connection (db_con);
-	while (TRUE) {
-
-		if (!lock_db ()) {
-			unlock_connection (db_con);	
-			return FALSE;
-		}
-		
-		db_con->in_error = FALSE;
-		
-		rc = sqlite3_step (stmt);
-
-		if (rc == SQLITE_ERROR) {
-			sqlite3_reset (stmt);
-			unlock_db ();
-			db_con->in_error = TRUE;
-			break;
-		}
-		
-
-		if (rc == SQLITE_BUSY) {
-			unlock_db ();
-			unlock_connection (db_con);
-			busy_count++;
-
-			if (busy_count > 100000) {
-				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
-				busy_count = 0;
-			}
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-
-			lock_connection (db_con);
-			continue;
-		}
-
-		
-
-		unlock_db ();
-		break;
-	}
-
-	unlock_connection (db_con);
-
-	if (rc != SQLITE_DONE) {
-		tracker_error ("ERROR: execution of prepared query %s failed due to %s with return code %d", procedure, sqlite3_errmsg (db_con->db), rc);
-		db_con->in_error = TRUE;
-		return FALSE;
-
+	if (result_set) {
+		g_object_unref (result_set);
 	}
 
 	return TRUE;
 }
-
-
-char ***
-tracker_exec_proc_ignore_nulls (DBConnection *db_con, const char *procedure, int param_count, ...)
-{
-	va_list      args;
-	GPtrArray    *res;
-	int 	     i, busy_count, cols;
-	sqlite3_stmt *stmt;
-	int	     rc;
-
-	stmt = get_prepared_query (db_con, procedure);
-
-	va_start (args, param_count);
-
-	if (param_count != sqlite3_bind_parameter_count (stmt)) {
-		tracker_error ("ERROR: incorrect no. of paramters %d supplied to %s", param_count, procedure);
-	}
-
-	for (i = 0; i < param_count; i++) {
-		char *str;
-
-		str = va_arg (args, char *);
-
-		if (!str) {
-			tracker_debug ("WARNING: parameter %d is null when executing SP %s", i, procedure);
-			if  (sqlite3_bind_null (stmt, i+1)) {
-				tracker_error ("ERROR: null parameter %d could not be bound to %s", i, procedure);
-			}
-		} else {
-
-			if (sqlite3_bind_text (stmt, i+1, str, strlen (str), SQLITE_TRANSIENT) != SQLITE_OK) {
-				tracker_error ("ERROR: parameter %d could not be bound to %s", i, procedure);
-			}
-		}
-	}
-
-	va_end (args);
-
-	res = g_ptr_array_sized_new (100);
-	cols = sqlite3_column_count (stmt);
-
-	busy_count = 0;
-
-	lock_connection (db_con);
-	while (TRUE) {
-
-		if (!lock_db ()) {
-			unlock_connection (db_con);	
-			return NULL;
-		}
-
-		
-		rc = sqlite3_step (stmt);
-		
-
-		if (rc == SQLITE_BUSY) {
-			unlock_db ();
-			unlock_connection (db_con);
-			busy_count++;
-
-			if (busy_count > 1000000) {
-				tracker_error ("ERROR: excessive busy count in query %s and thread %s", procedure, db_con->thread);
-				busy_count = 0;
-			}
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-
-			lock_connection (db_con);
-		} else if (rc == SQLITE_ROW) {
-			char **new_row;
-
-			new_row = g_new0 (char *, cols+1);
-
-			unlock_db ();
-			
-
-			for (i = 0; i < cols; i++) {
-				const char *st;
-
-				st = (char *) sqlite3_column_text (stmt, i);
-
-				if (st) {
-					new_row[i] = g_strdup (st);
-				} else {
-					new_row[i] = g_strdup (" ");
-				}
-			}
-
-			if (new_row[0]) {
-				g_ptr_array_add (res, new_row);
-			} else {
-				g_strfreev (new_row);
-			}
-		} else {
-			unlock_db ();
-			break;
-		}
-	}
-
-	unlock_connection (db_con);
-
-	if (rc != SQLITE_DONE) {
-		tracker_error ("ERROR: prepared query %s failed due to %s", procedure, sqlite3_errmsg (db_con->db));
-	}
-
-	if (res->len == 0) {
-		g_ptr_array_free (res, TRUE);
-		return NULL;
-	}
-
-	g_ptr_array_add (res, NULL);
-
-	return (char ***) g_ptr_array_free (res, FALSE);
-}
-
-
-
 
 void
 tracker_db_load_stored_procs (DBConnection *db_con)
@@ -2263,28 +1484,6 @@ tracker_create_db (void)
 
 	
 }
-
-
-
-
-
-void
-tracker_log_sql (DBConnection *db_con, const char *query)
-{
-	char ***res;
-
-	res = tracker_exec_sql (db_con, query);
-
-	if (!res) {
-		return;
-	}
-
-	tracker_db_log_result (res);
-
-	tracker_db_free_result (res);
-}
-
-
 
 static gboolean
 db_exists (const char *name)
@@ -2334,29 +1533,22 @@ tracker_db_needs_data ()
 gboolean
 tracker_update_db (DBConnection *db_con)
 {
-	char ***res;
-	char **row;
+	TrackerDBResultSet *result_set;
 	char *version;
 	int i;
 
-	res = tracker_exec_sql (db_con, "SELECT OptionValue FROM Options WHERE OptionKey = 'DBVersion'");
+	result_set = tracker_db_interface_execute_query
+		(db_con->db, NULL, "SELECT OptionValue FROM Options WHERE OptionKey = 'DBVersion'");
 
-	if (!res) {
+	if (!result_set) {
 		return FALSE;
 	}
 
-	row = tracker_db_get_row (res, 0);
-
-	if (!row || !row[0]) {
-		tracker_db_free_result (res);
-		return FALSE;
-	}
-
-
-	version = row[0];
+	tracker_db_result_set_get (result_set, 0, &version, -1);
 	i = atoi (version);
 
-	tracker_db_free_result (res);
+	g_object_unref (result_set);
+	g_free (version);
 
 	tracker_log ("Checking tracker DB version...Current version is %d and needed version is %d", i, TRACKER_DB_VERSION_REQUIRED);
 
@@ -2381,9 +1573,9 @@ tracker_update_db (DBConnection *db_con)
 		load_sql_file (db_con, "sqlite-service-types.sql");
 		load_sql_file (db_con, "sqlite-metadata.sql");
 
-		tracker_exec_sql (db_con, "update Options set OptionValue = '16' where OptionKey = 'DBVersion'");
-
-		tracker_exec_sql (db_con, "ANALYZE");
+		tracker_db_interface_execute_query (db_con->db, NULL,
+						    "update Options set OptionValue = '16' where OptionKey = 'DBVersion'");
+		tracker_db_interface_execute_query (db_con->db, NULL, "ANALYZE");
 	}
 
 	/* apply and table changes for each version update */
@@ -2469,77 +1661,32 @@ tracker_db_get_display_field (FieldDef *def)
 GHashTable *
 tracker_db_get_file_contents_words (DBConnection *db_con, guint32 id, GHashTable *old_table)
 {
-	sqlite3_stmt 	*stmt;
-	char		*str_file_id;
-	int 		busy_count;
-	int		rc;
+	TrackerDBResultSet *result_set;
+	char *str_file_id;
+	gboolean valid = TRUE;
 
 	str_file_id = tracker_uint_to_str (id);
 
-	stmt = get_prepared_query (db_con, "GetAllContents");
-
-	sqlite3_bind_text (stmt, 1, str_file_id, strlen (str_file_id), SQLITE_STATIC);
-
-	busy_count = 0;
-
 	lock_connection (db_con);
-	while (TRUE) {
-
-		if (!lock_db ()) {
-			unlock_connection (db_con);
-			g_free (str_file_id);
-			return NULL;
-		}
-
-		
-		rc = sqlite3_step (stmt);
-		
-
-		if (rc == SQLITE_BUSY) {
-			unlock_db ();
-			unlock_connection (db_con);
-			busy_count++;
-
-			if (busy_count > 1000000) {
-				tracker_error ("ERROR: excessive busy count in query %s and thread %s", "save file contents", db_con->thread);
-				busy_count = 0;
-			}
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, (busy_count * 200) ));
-			} else {
-				g_usleep (100);
-			}
-			lock_connection (db_con);
-			continue;
-		}
-
-
-		if (rc == SQLITE_ROW) {
-			const char *st;
-
-			st = (char *) sqlite3_column_text (stmt, 0);
-
-			unlock_db ();
-
-			if (st) {
-
-				old_table = tracker_parse_text (old_table, st, 1, TRUE, FALSE);
-			}
-
-			continue;
-		}
-
-		unlock_db ();
-		break;
-	}
+	result_set = tracker_db_interface_execute_procedure (db_con->db, NULL, "GetAllContents", str_file_id, NULL);
 	unlock_connection (db_con);
 
-	if (rc != SQLITE_DONE) {
-		tracker_error ("WARNING: retrieval of text contents has failed");
+	g_free (str_file_id);
+
+	if (!result_set)
+		return NULL;
+
+	while (valid) {
+		gchar *st;
+
+		tracker_db_result_set_get (result_set, 0, &st, -1);
+		old_table = tracker_parse_text (old_table, st, 1, TRUE, FALSE);
+
+		valid = tracker_db_result_set_iter_next (result_set);
+		g_free (st);
 	}
 
-	g_free (str_file_id);
+	g_object_unref (result_set);
 
 	return old_table;
 }
@@ -2548,50 +1695,63 @@ tracker_db_get_file_contents_words (DBConnection *db_con, guint32 id, GHashTable
 GHashTable *
 tracker_db_get_indexable_content_words (DBConnection *db_con, guint32 id, GHashTable *table, gboolean embedded_only)
 {
-	char ***res;
+	TrackerDBResultSet *result_set;
 	char *str_id;
 
 	str_id = tracker_uint_to_str (id);
 
 	if (embedded_only) {
-		res = tracker_exec_proc (db_con, "GetAllIndexable", 2, str_id, "1");
+		result_set = tracker_exec_proc (db_con, "GetAllIndexable", str_id, "1", NULL);
 	} else {
-		res = tracker_exec_proc (db_con, "GetAllIndexable", 2, str_id, "0");
+		result_set = tracker_exec_proc (db_con, "GetAllIndexable", str_id, "0", NULL);
 	}
 
-	if (res) {
-		int  k;
-		char **row;
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *value;
+		gint weight;
 
-		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   0, &value,
+						   1, &weight,
+						   -1);
 
-			if (row[0] && row[1]) {
-				table = tracker_parse_text_fast (table, row[0], atoi (row[1]));
-			}
+			table = tracker_parse_text_fast (table, value, weight);
+
+			g_free (value);
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	if (embedded_only) {
-		res = tracker_exec_proc (db_con, "GetAllIndexableKeywords", 2, str_id, "1");
+		result_set = tracker_exec_proc (db_con, "GetAllIndexableKeywords", str_id, "1", NULL);
 	} else {
-		res = tracker_exec_proc (db_con, "GetAllIndexableKeywords", 2, str_id, "0");
+		result_set = tracker_exec_proc (db_con, "GetAllIndexableKeywords", str_id, "0", NULL);
 	}
 
+	if (result_set) {
+		gboolean valid = TRUE;
+		gboolean filtered, delimited;
+		gchar *value;
+		gint weight;
 
-	if (res) {
-		int  k;
-		char **row;
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   0, &value,
+						   1, &weight,
+						   2, &filtered,
+						   3, &delimited
+						   -1);
 
-		for (k = 0; (row = tracker_db_get_row (res, k)); k++) {
-
-			if (row[0] && row[1] && row[2] && row[3]) {
-				table = tracker_parse_text (table, row[0], atoi (row[1]), !strcmp (row[2], "1"), !strcmp (row[3], "1"));
-			}
+			table = tracker_parse_text (table, value, weight, filtered, delimited);
+			valid = tracker_db_result_set_iter_next (result_set);
+			g_free (value);
 		}
 
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	g_free (str_id);
@@ -2602,90 +1762,37 @@ tracker_db_get_indexable_content_words (DBConnection *db_con, guint32 id, GHashT
 static void
 save_full_text_bytes (DBConnection *blob_db_con, const char *str_file_id, GByteArray *byte_array)
 {
-	sqlite3_stmt 	*stmt;
-	int		busy_count;
-	int		rc;
+	FieldDef *def;
 
-	stmt = get_prepared_query (blob_db_con, "SaveServiceContents");
-
-	FieldDef *def = tracker_db_get_field_def (blob_db_con, "File:Contents");
+	def = tracker_db_get_field_def (blob_db_con, "File:Contents");
 
 	if (!def) {
 		tracker_error ("WARNING: metadata not found for type %s", "File:Contents");
 		return;
 	}
 
-	sqlite3_bind_text (stmt, 1, str_file_id, strlen (str_file_id), SQLITE_STATIC);
-	sqlite3_bind_text (stmt, 2, def->id, strlen (def->id), SQLITE_STATIC);
-	sqlite3_bind_blob (stmt, 3, (void *) byte_array->data, byte_array->len, SQLITE_STATIC);
-	sqlite3_bind_int  (stmt, 4, 0);
-
-	busy_count = 0;
-	lock_connection (blob_db_con);
-
-	while (TRUE) {
-
-		if (!lock_db ()) {
-
-			unlock_connection (blob_db_con);
-
-			return;
-		}
-
-		
-		rc = sqlite3_step (stmt);
-		
-
-		if (rc == SQLITE_BUSY) {
-			unlock_db ();
-			unlock_connection (blob_db_con);
-			busy_count++;
-
-			if (busy_count > 1000000) {
-				tracker_log ("WARNING: excessive busy count in query %s and thread %s", "save file contents", blob_db_con->thread);
-				busy_count = 0;
-			}
-			
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-			lock_connection (blob_db_con);
-			continue;
-		}
-
-		unlock_db ();
-		break;
-	}
-
-	unlock_connection (blob_db_con);
-	
-	if (rc != SQLITE_DONE) {
-		tracker_error ("WARNING: failed to update contents ");
-	}
+	tracker_db_interface_execute_procedure_len (blob_db_con->db,
+						    NULL,
+						    "SaveServiceContents",
+						    str_file_id, -1,
+						    def->id, -1,
+						    byte_array->data, byte_array->len,
+						    NULL);
 }
 
 
 static void
 save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *text, int length)
 {
-	char		*value;
-	sqlite3_stmt 	*stmt;
-	char		*compressed;
-	int		bytes_compressed;
-	int		busy_count;
-	int		rc;
-
-	stmt = get_prepared_query (blob_db_con, "SaveServiceContents");
+	gchar *compressed, *value = NULL;
+	gint bytes_compressed;
+	FieldDef *def;
 
 	compressed = tracker_compress (text, length, &bytes_compressed);
 
 	if (compressed) {
 		tracker_debug ("compressed full text size of %d to %d", length, bytes_compressed);
 		value = compressed;
-		
 	} else {
 		tracker_error ("WARNING: compression has failed");
 		value = g_strdup (text);
@@ -2693,7 +1800,7 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 	}
 
 
-	FieldDef *def = tracker_db_get_field_def (blob_db_con, "File:Contents");
+	def = tracker_db_get_field_def (blob_db_con, "File:Contents");
 
 	if (!def) {
 		tracker_error ("WARNING: metadata not found for type %s", "File:Contents");
@@ -2701,65 +1808,14 @@ save_full_text (DBConnection *blob_db_con, const char *str_file_id, const char *
 		return;
 	}
 
-	sqlite3_bind_text (stmt, 1, str_file_id, strlen (str_file_id), SQLITE_STATIC);
-	sqlite3_bind_text (stmt, 2, def->id, strlen (def->id), SQLITE_STATIC);
-	sqlite3_bind_text (stmt, 3, value, bytes_compressed, SQLITE_STATIC);
-	sqlite3_bind_int (stmt, 4, 0);
-
-	busy_count = 0;
-	lock_connection (blob_db_con);
-
-	while (TRUE) {
-
-		if (!lock_db ()) {
-			
-
-			if (value) {
-				g_free (value);
-			}
-
-			unlock_connection (blob_db_con);
-
-			return;
-		}
-
-		
-		rc = sqlite3_step (stmt);
-		
-
-		if (rc == SQLITE_BUSY) {
-			unlock_db ();
-			unlock_connection (blob_db_con);
-			busy_count++;
-
-			if (busy_count > 1000000) {
-				tracker_log ("WARNING: excessive busy count in query %s and thread %s", "save file contents", blob_db_con->thread);
-				busy_count = 0;
-			}
-			
-
-			if (busy_count > 50) {
-				g_usleep (g_random_int_range (1000, busy_count * 200));
-			} else {
-				g_usleep (100);
-			}
-			lock_connection (blob_db_con);
-			continue;
-		}
-
-		unlock_db ();
-		break;
-	}
-
-	unlock_connection (blob_db_con);
-
-	if (value) {
-		g_free (value);
-	}
-
-	if (rc != SQLITE_DONE) {
-		tracker_error ("WARNING: failed to update contents ");
-	}
+	tracker_db_interface_execute_procedure_len (blob_db_con->db,
+						    NULL,
+						    "SaveServiceContents",
+						    str_file_id, -1,
+						    def->id, -1,
+						    value, bytes_compressed,
+						    NULL);
+	g_free (value);
 }
 
 
@@ -2947,93 +2003,55 @@ tracker_db_save_file_contents (DBConnection *db_con, GHashTable *index_table, GH
 void
 tracker_db_clear_temp (DBConnection *db_con)
 {
-	tracker_db_start_transaction (db_con->cache);
+	tracker_db_interface_start_transaction (db_con->cache->db);
 	tracker_db_exec_no_reply (db_con->cache, "DELETE FROM FilePending");
 	tracker_db_exec_no_reply (db_con->cache, "DELETE FROM FileWatches");
-	tracker_db_end_transaction (db_con->cache);
+	tracker_db_interface_end_transaction (db_con->cache->db);
 }
-
-
-
-gboolean
-tracker_db_start_transaction (DBConnection *db_con)
-{
-	//if (db_con->in_transaction) {
-	//	tracker_error ("Error - cannot start transaction - database is already in a transaction");
-	//}
-
-	if (!tracker_db_exec_no_reply (db_con, "BEGIN TRANSACTION")) {
-		tracker_error ("could not start transaction");
-		return FALSE;
-	}
-
-	db_con->in_transaction = TRUE;
-	return TRUE;
-}
-
-
-gboolean
-tracker_db_end_transaction (DBConnection *db_con)
-{
-
-	if (!db_con->in_transaction) {
-		tracker_error ("Error - cannot end transaction. Rolling back...");
-		return FALSE;
-	}
-
-	db_con->in_transaction = FALSE;
-
-	if (!tracker_db_exec_no_reply (db_con, "COMMIT")) {
-		tracker_error ("could not commit transaction");
-		tracker_db_exec_no_reply (db_con, "ROLLBACK");		
-		return FALSE;
-	}	
-	
-	return TRUE;
-}
-
 
 void
 tracker_db_check_tables (DBConnection *db_con)
 {
 }
 
-char ***
+
+TrackerDBResultSet *
 tracker_db_search_text (DBConnection *db_con, const char *service, const char *search_string, int offset, int limit, gboolean save_results, gboolean detailed)
 {
 	TrackerQueryTree *tree;
-	char 		***result, **array;
+	TrackerDBResultSet *result_set, *result;
+	char 		**array;
 	GArray          *hits;
 	int 		count;
 	gboolean	detailed_emails = FALSE, detailed_apps = FALSE;
 	int		service_array[255];
 	const gchar     *procedure;
 	GArray          *services = NULL;
-	guint           i, j;
 	GSList          *duds = NULL;
+	guint           i = 0;
 
 	array = tracker_parse_text_into_array (search_string);
 
-	char ***res = tracker_exec_proc (db_con->common, "GetRelatedServiceIDs", 2, service, service);
-	i = j = 0;
-	char **row;
-	
-	if (res) {	
-		while ((row = tracker_db_get_row (res, i))) {
+	result_set = tracker_exec_proc (db_con->common, "GetRelatedServiceIDs", service, service, NULL);
 
-			if (row[0]) {
-				service_array[j] = atoi (row[0]);
-				j++;
-			}
+	if (result_set) {
+		gboolean valid = TRUE;
+		gint type_id;
 
+		while (valid) {
+			g_print ("aaaandaya %d\n", i);
+			tracker_db_result_set_get (result_set, 0, &type_id, -1);
+			service_array[i] = type_id;
 			i++;
+
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		service_array[j] = 0;
+		service_array[i] = 0;
 		services = g_array_new (TRUE, TRUE, sizeof (gint));
-		g_array_append_vals (services, service_array, j);
+		g_array_append_vals (services, service_array, i);
 
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	tree = tracker_query_tree_new (search_string, db_con->word_index, services);
@@ -3044,11 +2062,9 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 		count = hits->len;
 
 		if (count > limit) count = limit;
-
-		result = g_new (char **, count + 1);
 	} else {
-		tracker_db_start_transaction (db_con);
-		tracker_exec_proc (db_con, "DeleteSearchResults1", 0);
+		tracker_db_interface_start_transaction (db_con->db);
+		tracker_exec_proc (db_con, "DeleteSearchResults1", NULL);
 	}
 
 	count = 0;
@@ -3056,7 +2072,6 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	for (i = 0; i < hits->len; i++) {
 		TrackerSearchHit hit;
 		char	  *str_id;
-		char	  ***res;
 
 		if (count >= limit) break;
 
@@ -3070,7 +2085,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 
 			str_score = tracker_int_to_str (hit.score);
 
-			tracker_exec_proc (db_con, "InsertSearchResult1", 2, str_id, str_score);
+			tracker_exec_proc (db_con, "InsertSearchResult1", str_id, str_score, NULL);
 
 			g_free (str_id);
 			g_free (str_score);
@@ -3092,30 +2107,40 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 			procedure = "GetFileByID";
 		}
 
-		res = tracker_exec_proc_ignore_nulls (db_con, procedure, 1, str_id);
+		result_set = tracker_exec_proc (db_con, procedure, str_id, NULL);
 		g_free (str_id);
 
-		if (res) {
-			if (res[0] && res[0][0] && res[0][1]) {
+		if (result_set) {
+			gchar *path;
 
-				char **row = NULL;
+			tracker_db_result_set_get (result_set, 0, &path, -1);
 
-				if (detailed) {
-					if (detailed_emails || detailed_apps)
-						row = res[0];
-					else {
-						if (res[0][2] && g_file_test (res[0][0], G_FILE_TEST_EXISTS))
-							row = res[0];
-					}
-				} else {
-					row = res[0];
+			if (!detailed || detailed_emails || detailed_apps ||
+			    (detailed && g_file_test (path, G_FILE_TEST_EXISTS))) {
+				guint columns, i;
+
+				columns = tracker_db_result_set_get_n_columns (result_set);
+
+				if (G_UNLIKELY (!result)) {
+					guint columns;
+
+					columns = tracker_db_result_set_get_n_columns (result_set);
+					result = _tracker_db_result_set_new (columns);
 				}
-				
-				result[count] = row;
-				count++;
+
+				_tracker_db_result_set_append (result);
+
+				for (i = 0; i < columns; i++) {
+					GValue value = { 0, };
+
+					_tracker_db_result_set_get_value (result_set, i, &value);
+					_tracker_db_result_set_set_value (result, i, &value);
+					g_value_unset (&value);
+				}
 			}
 
-			g_free (res);
+			g_free (path);
+			g_object_unref (result_set);
 		} else {
 			tracker_log ("dud hit for search detected");
 			/* add to dud list */
@@ -3125,9 +2150,7 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	}
 
 	if (save_results) {
-		tracker_db_end_transaction (db_con);
-	} else {
-		result[count] = NULL;
+		tracker_db_interface_end_transaction (db_con->db);
 	}
 
 	/* delete duds */
@@ -3149,26 +2172,31 @@ tracker_db_search_text (DBConnection *db_con, const char *service, const char *s
 	g_array_free (hits, TRUE);
 	g_array_free (services, TRUE);
 
-	return (char ***)result;
-}
+	if (!result)
+		return NULL;
 
+	if (tracker_db_result_set_get_n_rows (result) == 0) {
+		g_object_unref (result);
+		return NULL;
+	}
 
-char ***
-tracker_db_search_files_by_text (DBConnection *db_con, const char *text, int offset, int limit, gboolean sort)
-{
-	char ***result;
-
-	result = NULL;
+	tracker_db_result_set_rewind (result);
 
 	return result;
 }
 
+TrackerDBResultSet *
+tracker_db_search_files_by_text (DBConnection *db_con, const char *text, int offset, int limit, gboolean sort)
+{
+	return NULL;
+}
 
-char ***
+
+TrackerDBResultSet *
 tracker_db_search_metadata (DBConnection *db_con, const char *service, const char *field, const char *text, int offset, int limit)
 {
 	FieldDef *def;
-	char	 ***res;
+	TrackerDBResultSet *result_set;
 
 	g_return_val_if_fail ((service && field && text), NULL);
 
@@ -3182,61 +2210,34 @@ tracker_db_search_metadata (DBConnection *db_con, const char *service, const cha
 	switch (def->type) {
 
 		case 0: 
-		case 1: res = tracker_exec_proc (db_con, "SearchMetadata", 2, def->id, text); break;
+		case 1: result_set = tracker_exec_proc (db_con, "SearchMetadata", def->id, text, NULL); break;
 
 		case 2:
-		case 3: res = tracker_exec_proc (db_con, "SearchMetadataNumeric", 2, def->id, text); break;
+		case 3: result_set = tracker_exec_proc (db_con, "SearchMetadataNumeric", def->id, text, NULL); break;
 
-		case 5: res = tracker_exec_proc (db_con, "SearchMetadataKeywords", 2, def->id, text); break;
+		case 5: result_set = tracker_exec_proc (db_con, "SearchMetadataKeywords", def->id, text, NULL); break;
 
-		default: tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
+		default: tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type); result_set = NULL;
 	}
 
 
-	return res;
+	return result_set;
 }
 
 
-char ***
+TrackerDBResultSet *
 tracker_db_search_matching_metadata (DBConnection *db_con, const char *service, const char *id, const char *text)
 {
-	char ***result;
-
 	g_return_val_if_fail (id, NULL);
 
-	result = NULL;
-
-	return result;
+	return NULL;
 }
 
-
-/*
-static int
-get_metadata_type (DBConnection *db_con, const char *meta)
-{
-	char ***res;
-	int  result;
-
-	res = tracker_exec_proc (db_con, "GetMetaDataTypeID", 1, meta);
-
-	if (res && res[0][0]) {
-		result = atoi (res[0][0]);
-		tracker_db_free_result (res);
-	} else {
-		result = -1;
-	}
-
-	return result;
-}
-*/
-
-
-
-char ***
+TrackerDBResultSet *
 tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *id, const char *key)
 {
+	TrackerDBResultSet *result_set;
 	FieldDef *def;
-	char	 ***res;
 
 	g_return_val_if_fail (id, NULL);
 
@@ -3248,25 +2249,27 @@ tracker_db_get_metadata (DBConnection *db_con, const char *service, const char *
 	}
 
 	switch (def->type) {
-		
 		case DATA_INDEX:
 		case DATA_STRING:
 		case DATA_DOUBLE:
-			res = tracker_exec_proc (db_con, "GetMetadata", 2, id, def->id); break;
-
+			result_set = tracker_exec_proc (db_con, "GetMetadata", id, def->id, NULL);
+			break;
 		case DATA_INTEGER:
-		case DATA_DATE: res = tracker_exec_proc (db_con, "GetMetadataNumeric", 2, id, def->id); break;
-
-		case DATA_FULLTEXT: res = tracker_exec_proc (db_con, "GetContents", 2, id, def->id); break;
-			
+		case DATA_DATE:
+			result_set = tracker_exec_proc (db_con, "GetMetadataNumeric", id, def->id, NULL);
+			break;
+		case DATA_FULLTEXT:
+			result_set = tracker_exec_proc (db_con, "GetContents", id, def->id, NULL);
+			break;
 		case DATA_KEYWORD:
-			res = tracker_exec_proc (db_con, "GetMetadataKeyword", 2, id, def->id); break;
+			result_set = tracker_exec_proc (db_con, "GetMetadataKeyword", id, def->id, NULL);
+			break;
 
-		default: tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type); res = NULL;
+		default:
+			tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type); result_set = NULL;
 	}
 
-
-	return res;
+	return result_set;
 }
 
 
@@ -3275,28 +2278,28 @@ char *
 tracker_db_get_metadata_delimited (DBConnection *db_con, const char *service, const char *id, const char *key)
 {
 	GString *gstr = NULL;
-	char **row;
+	TrackerDBResultSet *result_set;
 
-	char ***res = tracker_db_get_metadata (db_con, service, id, key);
-	
-	if (res) {
-		int i = 0;
+	result_set = tracker_db_get_metadata (db_con, service, id, key);
 
-		while ((row = tracker_db_get_row (res, i))) {
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *str;
 
-			if (row[0]) {
-				if (gstr) {
-					g_string_append_printf (gstr, "|%s", row[0]);
-				} else {
-					gstr = g_string_new (row[0]);
-				}						
+		while (valid) {
+			tracker_db_result_set_get (result_set, 0, &str, -1);
+
+			if (gstr) {
+				g_string_append_printf (gstr, "|%s", str);
+			} else {
+				gstr = g_string_new (str);
 			}
-		
-			i++;
+
+			g_free (str);
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		tracker_db_free_result (res);
-
+		g_object_unref (result_set);
 	}
 
 	if (gstr) {
@@ -3304,7 +2307,6 @@ tracker_db_get_metadata_delimited (DBConnection *db_con, const char *service, co
 	} else {
 		return NULL;
 	}
-
 }
 
 
@@ -3349,34 +2351,31 @@ update_metadata_index (DBConnection *db_con, const char *id, const char *service
 char *
 tracker_get_related_metadata_names (DBConnection *db_con, const char *name)
 {
-	char	 ***res = NULL;
+	TrackerDBResultSet *result_set;
 
-	res = tracker_exec_proc (db_con, "GetMetadataAliasesForName", 2, name, name);
+	result_set = tracker_exec_proc (db_con, "GetMetadataAliasesForName", name, name, NULL);
 
-	if (res) {
-		int k = 0;
-		GString *str;
-		char **row;
+	if (result_set) {
+		GString *gstr = NULL;
+		gboolean valid = TRUE;
+		gint id;
 
-		str = g_string_new ("");
+		while (valid) {
+			tracker_db_result_set_get (result_set, 1, &id, -1);
 
-		while ((row = tracker_db_get_row (res, k))) {
-			if (row[1]) {
-				if (k==0) {
-					g_string_append (str, row[1]);
-				} else {
-					g_string_append_printf (str, ", %s", row[1]);
-				}
+			if (gstr) {
+				g_string_append_printf (gstr, ", %d", id);
+			} else {
+				gstr = g_string_new ("");
+				g_string_append_printf (gstr, "%d", id);
 			}
-		
-			k++;
+
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		char *value = g_string_free (str, FALSE);
-		
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 
-		return value;
+		return g_string_free (gstr, FALSE);
 	}
 
 	return NULL;
@@ -3487,7 +2486,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
 					g_free (mvalue);
 				}
 	
-				tracker_exec_proc (db_con, "SetMetadataKeyword", 3, id, def->id, values[i]); 
+				tracker_exec_proc (db_con, "SetMetadataKeyword", id, def->id, values[i], NULL);
 			}
 
 			break;
@@ -3507,7 +2506,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
 					table = tracker_parse_text_fast (table, mvalue, def->weight);
 				}
 				
-				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]); 
+				tracker_exec_proc (db_con, "SetMetadata", id, def->id, mvalue, values[i], NULL);
 				
 				g_free (mvalue);
 			}
@@ -3537,7 +2536,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
                                         continue;
                                 }
 
-				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, " ", values[i]); 
+				tracker_exec_proc (db_con, "SetMetadata", id, def->id, " ", values[i], NULL);
 			}
 
                         break;
@@ -3551,7 +2550,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
 
 				gchar *mvalue = tracker_parse_text_to_string (values[i], def->filtered,  def->filtered, def->delimited);
 
-				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]);
+				tracker_exec_proc (db_con, "SetMetadata", id, def->id, mvalue, values[i], NULL);
 
 				g_free (mvalue);
 			}
@@ -3565,7 +2564,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
                                         continue;
                                 }
 
-				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, values[i]); 
+				tracker_exec_proc (db_con, "SetMetadataNumeric", id, def->id, values[i], NULL);
 			}
 
 			break;
@@ -3584,7 +2583,7 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
 					continue;
 				}
 
-				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, mvalue); 
+				tracker_exec_proc (db_con, "SetMetadataNumeric", id, def->id, mvalue, NULL);
 
 				g_free (mvalue);
 			}
@@ -3617,13 +2616,11 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
 				g_free (my_val);
 			}
 
-			gchar *sql = g_strdup_printf ("update Services set KeyMetadata%d = '%s' where id = %s",
-                                                      key_field, esc_value, id);
-
-			tracker_db_exec_no_reply (db_con, sql);
+			tracker_db_exec_no_reply (db_con,
+						  "update Services set KeyMetadata%d = '%s' where id = %s",
+						  key_field, esc_value, id);
 
 			g_free (esc_value);
-			g_free (sql);
 		}
 	}
 }
@@ -3632,31 +2629,25 @@ tracker_db_insert_embedded_metadata (DBConnection *db_con, const gchar *service,
 static char *
 get_backup_id (DBConnection *db_con, const char *id)
 {
+	TrackerDBResultSet *result_set;
 	char *backup_id = NULL;
-	DBConnection *db_common = db_con;
 
-	char ***res = tracker_exec_proc (db_common, "GetBackupServiceByID", 1, id);
+	result_set = tracker_exec_proc (db_con, "GetBackupServiceByID", id, NULL);
 
-	if (res) {
-		if (res[0] && res[0][0]) {
-			backup_id = g_strdup (res[0][0]);	
-		} else {
-			tracker_exec_proc (db_common, "InsertBackupService", 1, id);
-			backup_id = tracker_int_to_str (sqlite3_last_insert_rowid (db_common->db));
-
-		}
-
-		tracker_db_free_result (res);
-
-	} else {
-		tracker_exec_proc (db_common, "InsertBackupService", 1, id);
-		backup_id = tracker_int_to_str (sqlite3_last_insert_rowid (db_common->db));
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &backup_id, -1);
+		g_object_unref (result_set);
 	}
 
+	if (!backup_id) {
+		gint64 id;
+
+		tracker_exec_proc (db_con, "InsertBackupService", id, NULL);
+		id = tracker_db_interface_sqlite_get_last_insert_id (TRACKER_DB_INTERFACE_SQLITE (db_con->db));
+		backup_id = tracker_int_to_str (id);
+	}
 
 	return backup_id;
-
-
 }
 
 
@@ -3667,7 +2658,7 @@ backup_non_embedded_metadata (DBConnection *db_con, const char *id, const char *
 	char *backup_id = get_backup_id (db_con, id);
 
 	if (backup_id) {
-		tracker_exec_proc (db_con->common, "SetBackupMetadata", 3, backup_id, key_id, value);
+		tracker_exec_proc (db_con->common, "SetBackupMetadata", backup_id, key_id, value, NULL);
 		g_free (backup_id);
 	}
 
@@ -3682,7 +2673,7 @@ backup_delete_non_embedded_metadata_value (DBConnection *db_con, const char *id,
 	char *backup_id = get_backup_id (db_con, id);
 
 	if (backup_id) {
-		tracker_exec_proc (db_con->common, "DeleteBackupMetadataValue", 3, backup_id, key_id, value);
+		tracker_exec_proc (db_con->common, "DeleteBackupMetadataValue", backup_id, key_id, value, NULL);
 		g_free (backup_id);
 	}
 
@@ -3695,7 +2686,7 @@ backup_delete_non_embedded_metadata (DBConnection *db_con, const char *id, const
 	char *backup_id = get_backup_id (db_con, id);
 
 	if (backup_id) {
-		tracker_exec_proc (db_con->common, "DeleteBackupMetadata", 2, backup_id, key_id);
+		tracker_exec_proc (db_con->common, "DeleteBackupMetadata", backup_id, key_id, NULL);
 		g_free (backup_id);
 	}
 
@@ -3776,7 +2767,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 				if (!values[i] || !values[i][0]) continue;
 
-				tracker_exec_proc (db_con, "SetMetadataKeyword", 3, id, def->id, values[i]);
+				tracker_exec_proc (db_con, "SetMetadataKeyword", id, def->id, values[i], NULL);
 
 				/* backup non-embedded data for embedded services */
 				if (do_backup && 
@@ -3818,7 +2809,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered,  def->filtered, def->delimited);
 
-				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]); 
+				tracker_exec_proc (db_con, "SetMetadata", id, def->id, mvalue, values[i], NULL);
 
 				g_free (mvalue);
 
@@ -3853,7 +2844,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 				char *mvalue = tracker_parse_text_to_string (values[i], def->filtered,  def->filtered, def->delimited);
 
-				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, mvalue, values[i]);
+				tracker_exec_proc (db_con, "SetMetadata", id, def->id, mvalue, values[i], NULL);
 
 				g_free (mvalue);
 			}
@@ -3874,7 +2865,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				}
 
 
-				tracker_exec_proc (db_con, "SetMetadata", 4, id, def->id, " ", values[i]); 
+				tracker_exec_proc (db_con, "SetMetadata", id, def->id, " ", values[i], NULL);
 
 			}
 			break;
@@ -3894,7 +2885,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 				}
 
 
-				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, values[i]); 
+				tracker_exec_proc (db_con, "SetMetadataNumeric", id, def->id, values[i], NULL);
 			}
 
 			break;
@@ -3913,7 +2904,7 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 				}
 
-				tracker_exec_proc (db_con, "SetMetadataNumeric", 3, id, def->id, mvalue); 
+				tracker_exec_proc (db_con, "SetMetadataNumeric", id, def->id, mvalue, NULL);
 
 				/* backup non-embedded data for embedded services */
 				if (do_backup && 
@@ -3959,12 +2950,11 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 			}
 
-			char *sql = g_strdup_printf ("update Services set KeyMetadata%d = '%s' where id = %s", key_field, esc_value, id);
+			tracker_db_exec_no_reply (db_con,
+						  "update Services set KeyMetadata%d = '%s' where id = %s",
+						  key_field, esc_value, id);
 
-			tracker_db_exec_no_reply (db_con, sql);
-
-			g_free (esc_value);	
-			g_free (sql);
+			g_free (esc_value);
 		}
 
 	}
@@ -4080,26 +3070,26 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 		case DATA_INDEX:
 		case DATA_STRING:
 			mvalue = tracker_parse_text_to_string (value, def->filtered,  def->filtered, def->delimited);
-			tracker_exec_proc (db_con, "DeleteMetadataValue", 3, id, def->id, mvalue); 
+			tracker_exec_proc (db_con, "DeleteMetadataValue", id, def->id, mvalue, NULL);
 			g_free (mvalue);
 			break;
 
 
 		case DATA_DOUBLE:
-			tracker_exec_proc (db_con, "DeleteMetadataValue", 3, id, def->id, value); 
+			tracker_exec_proc (db_con, "DeleteMetadataValue", id, def->id, value, NULL);
 			break;
 
 		
 		case DATA_INTEGER:
 		case DATA_DATE:
 
-			tracker_exec_proc (db_con, "DeleteMetadataNumericValue", 3, id, def->id, value);  
+			tracker_exec_proc (db_con, "DeleteMetadataNumericValue", id, def->id, value, NULL);
 			break;
 
 		
 		case DATA_KEYWORD:
 			
-			tracker_exec_proc (db_con, "DeleteMetadataKeywordValue", 3, id, def->id, value); 
+			tracker_exec_proc (db_con, "DeleteMetadataKeywordValue", id, def->id, value, NULL);
 			break;
 		
 		default:	
@@ -4110,45 +3100,36 @@ tracker_db_delete_metadata_value (DBConnection *db_con, const char *service, con
 	}
 
 	if (key_field > 0) {
-	
-		char ***res = tracker_db_get_metadata (db_con, service, id, key);
-	
-		if (res) {
-			char **row;
-	
-			row = tracker_db_get_row (res, 0);
+		TrackerDBResultSet *result_set;
+		gchar *value;
 
-			if (row && row[0]) {
-				char *esc_value = tracker_escape_string (row[0]);
-				char *sql = g_strdup_printf ("update Services set KeyMetadata%d = '%s' where id = %s", key_field, esc_value, id);
+		result_set = tracker_db_get_metadata (db_con, service, id, key);
 
-				tracker_db_exec_no_reply (db_con, sql);
+		if (result_set) {
+			tracker_db_result_set_get (result_set, 0, &value, -1);
 
-				g_free (esc_value);	
-				g_free (sql);	
+			if (value) {
+				char *esc_value = tracker_escape_string (value);
 
+				tracker_db_exec_no_reply (db_con,
+							 "update Services set KeyMetadata%d = '%s' where id = %s",
+							  key_field, esc_value, id);
+
+				g_free (esc_value);
+				g_free (value);
 			} else {
-				char *sql = g_strdup_printf ("update Services set KeyMetadata%d = NULL where id = %s", key_field, id);
-
-				tracker_db_exec_no_reply (db_con, sql);
-		
-				g_free (sql);
-
+				tracker_db_exec_no_reply (db_con,
+							  "update Services set KeyMetadata%d = NULL where id = %s",
+							  key_field, id);
 			}
 
-			tracker_db_free_result (res);
-		
+			g_object_unref (result_set);
 		} else {
-			char *sql = g_strdup_printf ("update Services set KeyMetadata%d = NULL where id = %s", key_field, id);
-
-			tracker_db_exec_no_reply (db_con, sql);
-		
-			g_free (sql);
-
-
+			tracker_db_exec_no_reply (db_con,
+						  "update Services set KeyMetadata%d = NULL where id = %s",
+						  key_field, id);
 		}
-				
-	} 
+	}
 
 
 	/* update fulltext index differentially with old and new values */
@@ -4210,11 +3191,9 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 
 	
 	if (key_field > 0) {
-		char *sql = g_strdup_printf ("update Services set KeyMetadata%d = NULL where id = %s", key_field, id);
-
-		tracker_db_exec_no_reply (db_con, sql);
-		
-		g_free (sql);
+		tracker_db_exec_no_reply (db_con,
+					  "update Services set KeyMetadata%d = NULL where id = %s",
+					  key_field, id);
 	}
 	
 	
@@ -4224,23 +3203,23 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 		case DATA_INDEX:
 		case DATA_STRING:
 		case DATA_DOUBLE:
-			tracker_exec_proc (db_con, "DeleteMetadata", 2, id, def->id); 
+			tracker_exec_proc (db_con, "DeleteMetadata", id, def->id, NULL);
 			break;
 
 		case DATA_INTEGER:
 		case DATA_DATE:
-			tracker_exec_proc (db_con, "DeleteMetadataNumeric", 2, id, def->id);  
+			tracker_exec_proc (db_con, "DeleteMetadataNumeric", id, def->id, NULL);
 			break;
 
 		
 		case DATA_KEYWORD:
-			tracker_exec_proc (db_con, "DeleteMetadataKeyword", 2, id, def->id); 
+			tracker_exec_proc (db_con, "DeleteMetadataKeyword", id, def->id, NULL);
 			break;
 
 		case DATA_FULLTEXT:
 
-			tracker_exec_proc (db_con, "DeleteContent", 2, id, def->id); 
-			break;						
+			tracker_exec_proc (db_con, "DeleteContent", id, def->id, NULL);
+			break;
 
 		default:
 			tracker_error ("ERROR: metadata could not be deleted as this operation is not supported by type %d for metadata %s", def->type, key);
@@ -4264,7 +3243,7 @@ tracker_db_delete_metadata (DBConnection *db_con, const char *service, const cha
 guint32
 tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *info)
 {
-	char	   ***res;
+	TrackerDBResultSet *result_set;
 	int	   i;
 	guint32	   id = 0;
 	char	   *sid;
@@ -4291,20 +3270,22 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 
 	/* get a new unique ID for the service - use mutex to prevent race conditions */
 
-	res = tracker_exec_proc (db_con->common, "GetNewID", 0);
+	result_set = tracker_exec_proc (db_con->common, "GetNewID", NULL);
 
-	if (!res || !res[0] || !res[0][0]) {
+	if (!result_set) {
 		tracker_error ("ERROR: could not create service - GetNewID failed");
 		return 0;
 	}
 
-	i = atoi (res[0][0]);
+	tracker_db_result_set_get (result_set, 0, &sid, -1);
+	i = atoi (sid);
+	g_free (sid);
 	i++;
 
 	sid = tracker_int_to_str (i);
-	tracker_exec_proc (db_con->common, "UpdateNewID",1, sid);
+	tracker_exec_proc (db_con->common, "UpdateNewID", sid, NULL);
 
-	tracker_db_free_result (res);
+	g_object_unref (result_set);
 
 	if (info->is_directory) {
 		str_is_dir = "1";
@@ -4340,9 +3321,9 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
               //  gchar *apath = tracker_escape_string (path);
              //   gchar *aname = tracker_escape_string (name);
 
-		tracker_exec_proc (db_con, "CreateService", 11, sid, path, name,
+		tracker_exec_proc (db_con, "CreateService", sid, path, name,
                                    str_service_type_id, info->mime, str_filesize,
-                                   str_is_dir, str_is_link, str_offset, str_mtime, str_aux);
+                                   str_is_dir, str_is_link, str_offset, str_mtime, str_aux, NULL);
               //  g_free (apath);
              //   g_free (aname);
 
@@ -4358,22 +3339,20 @@ tracker_db_create_service (DBConnection *db_con, const char *service, FileInfo *
 			g_free (str_offset);
 			return 0;
 		}
-		id = sqlite3_last_insert_rowid (db_con->db);
+		id = tracker_db_interface_sqlite_get_last_insert_id (TRACKER_DB_INTERFACE_SQLITE (db_con->db));
 
 		if (info->is_hidden) {
-			char *sql = g_strdup_printf ("Update services set Enabled = 0 where ID = %d", (int) id);
-
-			tracker_db_exec_no_reply (db_con, sql);
-
-			g_free (sql);
+			tracker_db_exec_no_reply (db_con,
+						  "Update services set Enabled = 0 where ID = %d",
+						  (int) id);
 		}
 
-		tracker_exec_proc (db_con->common, "IncStat", 1, service);
+		tracker_exec_proc (db_con->common, "IncStat", service, NULL);
 
                 parent = tracker_service_manager_get_parent_service (service);
 		
 		if (parent) {
-			tracker_exec_proc (db_con->common, "IncStat", 1, parent);
+			tracker_exec_proc (db_con->common, "IncStat", parent, NULL);
 			g_free (parent);
 		}
 
@@ -4416,7 +3395,7 @@ delete_index_for_service (DBConnection *db_con, guint32 id)
 
 	str_file_id = tracker_uint_to_str (id);
 
-	tracker_exec_proc (db_con->blob, "DeleteAllContents", 1, str_file_id);
+	tracker_exec_proc (db_con->blob, "DeleteAllContents", str_file_id, NULL);
 
 	g_free (str_file_id);
 
@@ -4495,12 +3474,12 @@ dec_stat (DBConnection *db_con, int id)
 	if (service) {
 		gchar *parent;
 
-		tracker_exec_proc (db_con->common, "DecStat", 1, service);
+		tracker_exec_proc (db_con->common, "DecStat", service, NULL);
 
                 parent = tracker_service_manager_get_parent_service (service);
 		
 		if (parent) {
-			tracker_exec_proc (db_con->common, "DecStat", 1, parent);
+			tracker_exec_proc (db_con->common, "DecStat", parent, NULL);
 			g_free (parent);
 		}
 
@@ -4541,34 +3520,35 @@ void
 tracker_db_delete_file (DBConnection *db_con, guint32 file_id)
 {
 	char *str_file_id, *name = NULL, *path;
+	TrackerDBResultSet *result_set;
+	gint id;
 
 	delete_index_for_service (db_con, file_id);
 
 	str_file_id = tracker_uint_to_str (file_id);
 
-	char ***res = tracker_exec_proc (db_con, "GetFileByID3", 1, str_file_id);
+	result_set = tracker_exec_proc (db_con, "GetFileByID3", str_file_id, NULL);
 
-	if (res) {
-		
-		if (res[0] && res[0][0] && res[0][1]) {
-			name = res[0][0];
-			path = res[0][1];
-		} else {
-			tracker_db_free_result (res);
-			g_free (str_file_id);
-			return;
+	if (result_set) {
+		tracker_db_result_set_get (result_set,
+					   0, &name,
+					   1, &path,
+					   3, &id,
+					   -1);
+
+		if (name && path) {
+			dec_stat (db_con, id);
+
+			tracker_exec_proc (db_con, "DeleteService1", str_file_id, NULL);
+			tracker_exec_proc (db_con->common, "DeleteService6", path, name, NULL);
+			tracker_exec_proc (db_con->common, "DeleteService7", path, name, NULL);
+			tracker_exec_proc (db_con->common, "DeleteService9", path, name, NULL);
+
+			g_free (name);
+			g_free (path);
 		}
 
-		if (res[0] && res[0][3]) {
-			dec_stat (db_con, atoi (res[0][3]));
-		}
-
-		tracker_exec_proc (db_con, "DeleteService1", 1, str_file_id);
-		tracker_exec_proc (db_con->common, "DeleteService6", 2, path, name);
-		tracker_exec_proc (db_con->common, "DeleteService7", 2, path, name);
-		tracker_exec_proc (db_con->common, "DeleteService9", 2, path, name);
-
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	g_free (str_file_id);
@@ -4578,7 +3558,7 @@ tracker_db_delete_file (DBConnection *db_con, guint32 file_id)
 void
 tracker_db_delete_directory (DBConnection *db_con, guint32 file_id, const char *uri)
 {
-	char ***res;
+	TrackerDBResultSet *result_set;
 	char *str_file_id, *uri_prefix;
 
 	str_file_id = tracker_uint_to_str (file_id);
@@ -4588,34 +3568,32 @@ tracker_db_delete_directory (DBConnection *db_con, guint32 file_id, const char *
 	delete_index_for_service (db_con, file_id);
 
 	/* get all file id's for all files recursively under directory amd delete them */
-	res = tracker_exec_proc (db_con, "SelectSubFileIDs", 2, uri, uri_prefix);
+	result_set = tracker_exec_proc (db_con, "SelectSubFileIDs", uri, uri_prefix, NULL);
 
-	if (res) {
-		char **row;
-		int  i;
+	if (result_set) {
+		gboolean valid = TRUE;
+		gint id;
 
-		for (i = 0; (row = tracker_db_get_row (res, i)); i++) {
-			if (row[0]) {
-				tracker_db_delete_file (db_con, atoi (row[0]));
-		
-			}
+		while (valid) {
+			tracker_db_result_set_get (result_set, 0, &id, -1);
+			tracker_db_delete_file (db_con, id);
 
-
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 
 	/* delete all files underneath directory 
-	tracker_db_start_transaction (db_con);
-	tracker_exec_proc (db_con, "DeleteService2", 1, uri);
-	tracker_exec_proc (db_con, "DeleteService3", 1, uri_prefix);
-	tracker_exec_proc (db_con, "DeleteService4", 1, uri);
-	tracker_exec_proc (db_con, "DeleteService5", 1, uri_prefix);
-	tracker_exec_proc (db_con, "DeleteService8", 2, uri, uri_prefix);
-	tracker_exec_proc (db_con, "DeleteService10", 2, uri, uri_prefix);
-	tracker_db_end_transaction (db_con);
+	tracker_db_interface_start_transaction (db_con->db);
+	tracker_exec_proc (db_con, "DeleteService2", uri, NULL);
+	tracker_exec_proc (db_con, "DeleteService3", uri_prefix, NULL);
+	tracker_exec_proc (db_con, "DeleteService4", uri, NULL);
+	tracker_exec_proc (db_con, "DeleteService5", uri_prefix, NULL);
+	tracker_exec_proc (db_con, "DeleteService8", uri, uri_prefix, NULL);
+	tracker_exec_proc (db_con, "DeleteService10", uri, uri_prefix, NULL);
+	tracker_db_interface_end_transaction (db_con->db);
 	*/
 
 	/* delete directory */
@@ -4654,7 +3632,7 @@ tracker_db_update_file (DBConnection *db_con, FileInfo *info)
 	name = g_path_get_basename (info->uri);
 	path = g_path_get_dirname (info->uri);
 
-	tracker_exec_proc (db_con->index, "UpdateFile", 8, str_service_type_id, path, name, info->mime, str_size, str_mtime, str_offset, str_file_id);
+	tracker_exec_proc (db_con->index, "UpdateFile", str_service_type_id, path, name, info->mime, str_size, str_mtime, str_offset, str_file_id, NULL);
 	
 	g_free (str_service_type_id);
 	g_free (str_size);
@@ -4669,7 +3647,7 @@ tracker_db_update_file (DBConnection *db_con, FileInfo *info)
 gboolean
 tracker_db_has_pending_files (DBConnection *db_con)
 {
-	char	 ***res;
+	TrackerDBResultSet *result_set;
 	gboolean has_pending;
 
 	if (!tracker->is_running) {
@@ -4678,22 +3656,15 @@ tracker_db_has_pending_files (DBConnection *db_con)
 
 	has_pending = FALSE;
 
-	res = tracker_exec_proc (db_con->cache, "ExistsPendingFiles", 0);
+	result_set = tracker_exec_proc (db_con->cache, "ExistsPendingFiles", NULL);
 
-	if (res) {
-		char **row;
+	if (result_set) {
+		gint pending_file_count;
 
-		row = tracker_db_get_row (res, 0);
+		tracker_db_result_set_get (result_set, 0, &pending_file_count, -1);
+		has_pending = (pending_file_count > 0);
 
-		if (row && row[0]) {
-			int pending_file_count;
-
-			pending_file_count = atoi (row[0]);
-			tracker_debug ("%d files are pending with count %s", pending_file_count, row[0]);
-			has_pending = (pending_file_count > 0);
-		}
-
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	return has_pending;
@@ -4703,7 +3674,7 @@ tracker_db_has_pending_files (DBConnection *db_con)
 gboolean
 tracker_db_has_pending_metadata (DBConnection *db_con)
 {
-	char	 ***res;
+	TrackerDBResultSet *result_set;
 	gboolean has_pending;
 
 	if (!tracker->is_running) {
@@ -4712,53 +3683,47 @@ tracker_db_has_pending_metadata (DBConnection *db_con)
 
 	has_pending = FALSE;
 
-	res = tracker_exec_proc (db_con->cache, "CountPendingMetadataFiles", 0);
+	result_set = tracker_exec_proc (db_con->cache, "CountPendingMetadataFiles", 0);
 
-	if (res) {
-		char **row;
+	if (result_set) {
+		gint pending_file_count;
 
-		row = tracker_db_get_row (res, 0);
+		tracker_db_result_set_get (result_set, 0, &pending_file_count, -1);
+		has_pending = (pending_file_count > 0);
 
-		if (row && row[0]) {
-			int pending_file_count;
-
-			pending_file_count = atoi (row[0]);
-			tracker_debug ("metadata queue has %d rows pending", atoi (row[0]));
-			has_pending = (pending_file_count > 0);
-		}
-
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
 	return has_pending;
 }
 
 
-char ***
+TrackerDBResultSet *
 tracker_db_get_pending_files (DBConnection *db_con)
 {
+	DBConnection *cache;
 	time_t time_now;
-	char *time_str, *str;
 
 	if (!tracker->is_running) {
 		return NULL;
 	}
 
+	cache = db_con->cache;
 	time (&time_now);
 
-	time_str = tracker_int_to_str (time_now);
+	tracker_db_exec_no_reply (cache, "DELETE FROM FileTemp");
 
+	tracker_db_exec_no_reply (cache,
+				  "INSERT INTO FileTemp (ID, FileID, Action, FileUri, MimeType,"
+				  " IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) "
+				  "SELECT ID, FileID, Action, FileUri, MimeType,"
+				  " IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID "
+				  "FROM FilePending WHERE (PendingDate < %d) AND (Action <> 20) LIMIT 250",
+				  (gint) time_now);
 
-	tracker_db_exec_no_reply (db_con->cache, "DELETE FROM FileTemp");
-	str = g_strconcat ("INSERT INTO FileTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) SELECT ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FilePending WHERE (PendingDate < ", time_str, ") AND (Action <> 20) LIMIT 250", NULL);
-	tracker_db_exec_no_reply (db_con->cache, str);
-	tracker_db_exec_no_reply (db_con->cache, "DELETE FROM FilePending WHERE ID IN (SELECT ID FROM FileTemp)");
+	tracker_db_exec_no_reply (cache, "DELETE FROM FilePending WHERE ID IN (SELECT ID FROM FileTemp)");
 
-
-	g_free (str);
-	g_free (time_str);
-
-	return tracker_exec_sql (db_con->cache, "SELECT FileID, FileUri, Action, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FileTemp ORDER BY ID");
+	return tracker_db_interface_execute_query (cache->db, NULL, "SELECT FileID, FileUri, Action, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FileTemp ORDER BY ID");
 }
 
 
@@ -4769,29 +3734,25 @@ tracker_db_remove_pending_files (DBConnection *db_con)
 }
 
 
-char ***
+TrackerDBResultSet *
 tracker_db_get_pending_metadata (DBConnection *db_con)
 {
+	DBConnection *cache;
 	const char *str;
 
 	if (!tracker->is_running) {
 		return NULL;
 	}
 
+	cache = db_con->cache;
+
 	str = "INSERT INTO MetadataTemp (ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID) SELECT ID, FileID, Action, FileUri, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM FilePending WHERE Action = 20 LIMIT 250";
 
-	tracker_db_exec_no_reply (db_con->cache, "DELETE FROM MetadataTemp");
-	tracker_db_exec_no_reply (db_con->cache, str);
-	tracker_db_exec_no_reply (db_con->cache, "DELETE FROM FilePending WHERE ID IN (SELECT ID FROM MetadataTemp)");
+	tracker_db_exec_no_reply (cache, "DELETE FROM MetadataTemp");
+	tracker_db_exec_no_reply (cache, str);
+	tracker_db_exec_no_reply (cache, "DELETE FROM FilePending WHERE ID IN (SELECT ID FROM MetadataTemp)");
 
-	return tracker_exec_sql (db_con->cache, "SELECT FileID, FileUri, Action, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM MetadataTemp ORDER BY ID");
-}
-
-
-unsigned int
-tracker_db_get_last_id (DBConnection *db_con)
-{
-	return sqlite3_last_insert_rowid (db_con->db);
+	return tracker_db_interface_execute_query (cache->db, NULL, "SELECT FileID, FileUri, Action, MimeType, IsDir, IsNew, RefreshEmbedded, RefreshContents, ServiceTypeID FROM MetadataTemp ORDER BY ID");
 }
 
 
@@ -4830,9 +3791,9 @@ tracker_db_insert_pending (DBConnection *db_con, const char *id, const char *act
 	str_service_type_id = tracker_int_to_str (service_type_id);
 
 	if (is_dir) {
-		tracker_exec_proc (db_con->cache, "InsertPendingFile", 10, id, action, time_str, uri, mime, "1", str_new, "1", "1", str_service_type_id);
+		tracker_exec_proc (db_con->cache, "InsertPendingFile", id, action, time_str, uri, mime, "1", str_new, "1", "1", str_service_type_id, NULL);
 	} else {
-		tracker_exec_proc (db_con->cache, "InsertPendingFile", 10, id, action, time_str, uri, mime, "0", str_new, "1", "1", str_service_type_id);
+		tracker_exec_proc (db_con->cache, "InsertPendingFile", id, action, time_str, uri, mime, "0", str_new, "1", "1", str_service_type_id, NULL);
 	}
 
 	g_free (str_service_type_id);
@@ -4853,36 +3814,35 @@ tracker_db_update_pending (DBConnection *db_con, const char *counter, const char
 
 	time_str = tracker_int_to_str (time_now + i);
 
-	tracker_exec_proc (db_con->cache, "UpdatePendingFile", 3, time_str, action, uri);
+	tracker_exec_proc (db_con->cache, "UpdatePendingFile", time_str, action, uri, NULL);
 
 	g_free (time_str);
 }
 
 
-char ***
+TrackerDBResultSet *
 tracker_db_get_files_by_service (DBConnection *db_con, const char *service, int offset, int limit)
 {
+	TrackerDBResultSet *result_set;
 	char *str_limit, *str_offset;
-	char ***res;
 
 	str_limit = tracker_int_to_str (limit);
 	str_offset = tracker_int_to_str (offset);
 
-	res = tracker_exec_proc (db_con, "GetByServiceType", 4, service, service, str_offset, str_limit);
+	result_set = tracker_exec_proc (db_con, "GetByServiceType", service, service, str_offset, str_limit, NULL);
 
 	g_free (str_offset);
 	g_free (str_limit);
 
-	return res;
+	return result_set;
 }
 
-
-char ***
+TrackerDBResultSet *
 tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int offset, int limit, gboolean vfs)
 {
+	TrackerDBResultSet *result_set;
 	int	i;
 	char *service;
-	char	***res;
 	char	*query;
 	GString	*str;
 
@@ -4909,22 +3869,20 @@ tracker_db_get_files_by_mime (DBConnection *db_con, char **mimes, int n, int off
 
 	tracker_debug ("getting files with mimes using sql %s", query);
 
-	res = tracker_exec_sql (db_con, query);
+	result_set = tracker_db_interface_execute_query (db_con->db, NULL, query);
 
 	g_free (query);
 
-	return res;
+	return result_set;
 }
 
-
-char ***
-tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime_array, int n)
+TrackerDBResultSet *
+tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime_array)
 {
 	TrackerQueryTree *tree;
+	TrackerDBResultSet *result;
 	GArray       *hits;
-	char 	     **result;
 	GSList 	     *result_list;
-	const GSList *tmp;
 	guint        i;
 	int 	     count;
 	gint         service_array[8];
@@ -4947,49 +3905,48 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 
 	tree = tracker_query_tree_new (text, db_con->word_index, services);
 	hits = tracker_query_tree_get_hits (tree, 0, 0);
-
 	count = 0;
 
 	for (i = 0; i < hits->len; i++) {
+		TrackerDBResultSet *result_set;
 		TrackerSearchHit hit;
-		char	  *str_id;
-		char	  ***res;
+		char *str_id, *mimetype;
 
 		hit = g_array_index (hits, TrackerSearchHit, i);
 
 		str_id = tracker_uint_to_str (hit.service_id);
 
-		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+		result_set = tracker_exec_proc (db_con, "GetFileByID", str_id, NULL);
 
 		g_free (str_id);
 
-		if (res) {
-			if (res[0] && res[0][0] && res[0][1] && res[0][2]) {
-				int i;
+		if (result_set) {
+			tracker_db_result_set_get (result_set, 2, &mimetype, -1);
 
-				for (i = 0; i < n; i++) {
+			if (tracker_str_in_array (mimetype, mime_array) != -1) {
+				GValue value = { 0, };
 
-					if (strcasecmp (mime_array[i], res[0][2]) == 0) {
-						char **row;
-
-						row = g_new (char *, 3);
-
-						row[0] = g_strdup (res[0][0]);
-						row[1] = g_strdup (res[0][1]);
-						row[2] = NULL;
-
-						tracker_debug ("hit is %s", row[1]);
-
-						result_list = g_slist_prepend (result_list, row);
-
-						count++;
-
-						break;
-					}
+				if (G_UNLIKELY (!result)) {
+					result = _tracker_db_result_set_new (2);
 				}
+
+				_tracker_db_result_set_append (result);
+
+				/* copy value in column 0 */
+				_tracker_db_result_set_get_value (result_set, 0, &value);
+				_tracker_db_result_set_set_value (result, 0, &value);
+				g_value_unset (&value);
+
+				/* copy value in column 1 */
+				_tracker_db_result_set_get_value (result_set, 1, &value);
+				_tracker_db_result_set_set_value (result, 1, &value);
+				g_value_unset (&value);
+
+				count++;
 			}
 
-			tracker_db_free_result (res);
+			g_free (mimetype);
+			g_object_unref (result_set);
 		}
 
 		if (count > 2047) {
@@ -4997,41 +3954,30 @@ tracker_db_search_text_mime (DBConnection *db_con, const char *text, char **mime
 		}
 	}
 
-	if (!result_list) {
-		return NULL;
-	}
-
-	count = g_slist_length (result_list);
-	result_list = g_slist_reverse (result_list);
-
-	result = g_new ( char *, count + 1);
-	result[count] = NULL;
-
-	count = 0;
-
-	for (tmp = result_list; tmp; tmp = tmp->next) {
-		result[count] = (char *) tmp->data;
-		count++;
-	}
-
-	g_slist_free (result_list);
 	g_object_unref (tree);
 	g_array_free (hits, TRUE);
 	g_array_free (services, TRUE);
 
-	return (char ***) result;
+	if (!result)
+		return NULL;
+
+	if (tracker_db_result_set_get_n_rows (result) == 0) {
+		g_object_unref (result);
+		return NULL;
+	}
+
+	tracker_db_result_set_rewind (result);
+
+	return result;
 }
 
-
-char ***
+TrackerDBResultSet *
 tracker_db_search_text_location (DBConnection *db_con, const char *text, const char *location)
 {
+	TrackerDBResultSet *result;
 	TrackerQueryTree *tree;
 	GArray       *hits;
 	char	     *location_prefix;
-	char 	     **result;
-	GSList 	     *result_list;
-	const GSList *tmp;
 	int 	     count;
 	gint         service_array[8];
 	guint        i;
@@ -5053,45 +3999,47 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 
 	tree = tracker_query_tree_new (text, db_con->word_index, services);
 	hits = tracker_query_tree_get_hits (tree, 0, 0);
-
-	result_list = NULL;
-
 	count = 0;
 
 	for (i = 0; i < hits->len; i++) {
+		TrackerDBResultSet *result_set;
 		TrackerSearchHit hit;
-		char	  *str_id;
-		char	  ***res;
+		char *str_id, *path;
 
 		hit = g_array_index (hits, TrackerSearchHit, i);
 
 		str_id = tracker_uint_to_str (hit.service_id);
 
-		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+		result_set = tracker_exec_proc (db_con, "GetFileByID", str_id, NULL);
 
 		g_free (str_id);
 
-		if (res) {
-			if (res[0] && res[0][0] && res[0][1]) {
+		if (result_set) {
+			tracker_db_result_set_get (result_set, 0, &path, -1);
 
-				if (g_str_has_prefix (res[0][0], location_prefix) || (strcmp (res[0][0], location) == 0)) {
-					char **row;
+			if (g_str_has_prefix (path, location_prefix) || (strcmp (path, location) == 0)) {
+				GValue value = { 0, };
 
-					row = g_new (char *, 3);
-
-					row[0] = g_strdup (res[0][0]);
-					row[1] = g_strdup (res[0][1]);
-					row[2] = NULL;
-
-					//tracker_log ("hit is %s", row[1]);
-
-					result_list = g_slist_prepend (result_list, row);
-
-					count++;
+				if (G_UNLIKELY (!result)) {
+					result = _tracker_db_result_set_new (2);
 				}
+
+				_tracker_db_result_set_append (result);
+
+				/* copy value in column 0 */
+				_tracker_db_result_set_get_value (result_set, 0, &value);
+				_tracker_db_result_set_set_value (result, 0, &value);
+				g_value_unset (&value);
+
+				/* copy value in column 1 */
+				_tracker_db_result_set_get_value (result_set, 1, &value);
+				_tracker_db_result_set_set_value (result, 1, &value);
+				g_value_unset (&value);
+
+				count++;
 			}
 
-			tracker_db_free_result (res);
+			g_object_unref (result_set);
 		}
 
 		if (count > 2047) {
@@ -5101,41 +4049,30 @@ tracker_db_search_text_location (DBConnection *db_con, const char *text, const c
 
 	g_free (location_prefix);
 
-	if (!result_list) {
-		return NULL;
-	}
-
-	count = g_slist_length (result_list);
-	result_list = g_slist_reverse (result_list);
-
-	result = g_new (char *, count + 1);
-	result[count] = NULL;
-
-	count = 0;
-
-	for (tmp = result_list; tmp; tmp = tmp->next) {
-		result[count] = (char *) tmp->data;
-		count++;
-	}
-
-	g_slist_free (result_list);
 	g_object_unref (tree);
 	g_array_free (hits, TRUE);
 	g_array_free (services, TRUE);
 
-	return (char ***) result;
+	if (!result)
+		return NULL;
+
+	if (tracker_db_result_set_get_n_rows (result) == 0) {
+		g_object_unref (result);
+		return NULL;
+	}
+
+	tracker_db_result_set_rewind (result);
+
+	return result;
 }
 
-
-char ***
-tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, char **mime_array, int n, const char *location)
+TrackerDBResultSet *
+tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, char **mime_array, const char *location)
 {
+	TrackerDBResultSet *result;
 	TrackerQueryTree *tree;
 	GArray       *hits;
 	char	     *location_prefix;
-	char 	     **result;
-	GSList 	     *result_list;
-	const GSList *tmp;
 	int	     count;
 	gint         service_array[8];
 	guint        i;
@@ -5157,54 +4094,53 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 
 	tree = tracker_query_tree_new (text, db_con->word_index, services);
 	hits = tracker_query_tree_get_hits (tree, 0, 0);
-
-	result_list = NULL;
-
 	count = 0;
 
 	for (i = 0; i < hits->len; i++) {
+		TrackerDBResultSet *result_set;
 		TrackerSearchHit hit;
-		char	  *str_id;
-		char	  ***res;
+		char *str_id, *path, *mimetype;
 
 		hit = g_array_index (hits, TrackerSearchHit, i);
 
 		str_id = tracker_uint_to_str (hit.service_id);
 
-		res = tracker_exec_proc (db_con, "GetFileByID", 1, str_id);
+		result_set = tracker_exec_proc (db_con, "GetFileByID", str_id, NULL);
 
 		g_free (str_id);
 
-		if (res) {
-			if (res[0] && res[0][0] && res[0][1] && res[0][2]) {
+		if (result_set) {
+			tracker_db_result_set_get (result_set,
+						   0, &path,
+						   2, &mimetype,
+						   -1);
 
-				if (g_str_has_prefix (res[0][0], location_prefix) || (strcmp (res[0][0], location) == 0)) {
-					int i;
+			if ((g_str_has_prefix (path, location_prefix) || (strcmp (path, location) == 0)) &&
+			    tracker_str_in_array (mimetype, mime_array) != -1) {
+				GValue value = { 0, };
 
-					for (i = 0; i < n; i++) {
-
-						if ((mime_array[i]) && (res[0][2] != 0) && (strcasecmp (mime_array[i], res[0][2]) == 0)) {
-							char **row;
-
-							row = g_new (char *, 3);
-
-							row[0] = g_strdup (res[0][0]);
-							row[1] = g_strdup (res[0][1]);
-							row[2] = NULL;
-
-							//tracker_log ("hit is %s", row[1]);
-
-							result_list = g_slist_prepend (result_list, row);
-
-							count++;
-
-							break;
-						}
-					}
+				if (G_UNLIKELY (!result)) {
+					result = _tracker_db_result_set_new (2);
 				}
+
+				_tracker_db_result_set_append (result);
+
+				/* copy value in column 0 */
+				_tracker_db_result_set_get_value (result_set, 0, &value);
+				_tracker_db_result_set_set_value (result, 0, &value);
+				g_value_unset (&value);
+
+				/* copy value in column 1 */
+				_tracker_db_result_set_get_value (result_set, 1, &value);
+				_tracker_db_result_set_set_value (result, 1, &value);
+				g_value_unset (&value);
+
+				count++;
 			}
 
-			tracker_db_free_result (res);
+			g_free (path);
+			g_free (mimetype);
+			g_object_unref (result_set);
 		}
 
 		if (count > 2047) {
@@ -5214,80 +4150,71 @@ tracker_db_search_text_mime_location (DBConnection *db_con, const char *text, ch
 
 	g_free (location_prefix);
 
-	if (!result_list) {
-		return NULL;
-	}
-
-	count = g_slist_length (result_list);
-	result_list = g_slist_reverse (result_list);
-
-	result = g_new (char *, count + 1);
-	result[count] = NULL;
-
-	count = 0;
-	for (tmp = result_list; tmp; tmp = tmp->next) {
-		result[count] = (char *) tmp->data;
-		count++;
-	}
-
-	g_slist_free (result_list);
 	g_object_unref (tree);
 	g_array_free (hits, TRUE);
 	g_array_free (services, TRUE);
 
-	return (char ***) result;
+	if (!result)
+		return NULL;
+
+	if (tracker_db_result_set_get_n_rows (result) == 0) {
+		g_object_unref (result);
+		return NULL;
+	}
+
+	tracker_db_result_set_rewind (result);
+
+	return result;
 }
 
-
-char ***
+TrackerDBResultSet *
 tracker_db_get_metadata_types (DBConnection *db_con, const char *class, gboolean writeable)
 {
 	if (strcmp (class, "*") == 0) {
 		if (writeable) {
-			return tracker_exec_proc (db_con, "GetWriteableMetadataTypes", 0);
+			return tracker_exec_proc (db_con, "GetWriteableMetadataTypes", NULL);
 		} else {
-			return tracker_exec_proc (db_con, "GetMetadataTypes", 0);
+			return tracker_exec_proc (db_con, "GetMetadataTypes", NULL);
 		}
 
 	} else {
 		if (writeable) {
-			return tracker_exec_proc (db_con, "GetWriteableMetadataTypesLike", 1, class);
+			return tracker_exec_proc (db_con, "GetWriteableMetadataTypesLike", class, NULL);
 		} else {
-			return tracker_exec_proc (db_con, "GetMetadataTypesLike", 1, class);
+			return tracker_exec_proc (db_con, "GetMetadataTypesLike", class, NULL);
 		}
 	}
 }
 
-
-char ***
+TrackerDBResultSet *
 tracker_db_get_sub_watches (DBConnection *db_con, const char *dir)
 {
-	char ***res;
+	TrackerDBResultSet *result_set;
 	char *folder;
 
 	folder = g_strconcat (dir, G_DIR_SEPARATOR_S, "*", NULL);
 
-	res = tracker_exec_proc (db_con->cache, "GetSubWatches", 1, folder);
+	result_set = tracker_exec_proc (db_con->cache, "GetSubWatches", folder, NULL);
 
 	g_free (folder);
 
-	return res;
+	return result_set;
 }
 
 
-char ***
+TrackerDBResultSet *
 tracker_db_delete_sub_watches (DBConnection *db_con, const char *dir)
 {
+	TrackerDBResultSet *result_set;
 	char *folder;
-	char ***res;
 
 	folder = g_strconcat (dir, G_DIR_SEPARATOR_S, "*", NULL);
 
-	res = tracker_exec_proc (db_con->cache, "DeleteSubWatches", 1, folder);
+	result_set = tracker_exec_proc (db_con->cache, "DeleteSubWatches", folder, NULL);
 
 	g_free (folder);
 
-	return res;
+	return result_set;
 }
 
 
@@ -5302,7 +4229,7 @@ tracker_db_move_file (DBConnection *db_con, const char *moved_from_uri, const ch
 	if (id == 0) {
 		tracker_debug ("WARNING: original file %s not found in DB", moved_from_uri);
 		tracker_db_insert_pending_file (db_con, id, moved_to_uri,  NULL, "unknown", 0, TRACKER_ACTION_WRITABLE_FILE_CLOSED, FALSE, TRUE, -1);
-		tracker_db_end_transaction (db_con);
+		tracker_db_interface_end_transaction (db_con->db);
 		return;
 	}
 
@@ -5314,7 +4241,7 @@ tracker_db_move_file (DBConnection *db_con, const char *moved_from_uri, const ch
 
 
 	/* update db so that fileID reflects new uri */
-	tracker_exec_proc (db_con, "UpdateFileMove", 3, path, name, str_file_id);
+	tracker_exec_proc (db_con, "UpdateFileMove", path, name, str_file_id, NULL);
 
 	/* update File:Path and File:Filename metadata */
 	tracker_db_set_single_metadata (db_con, "Files", str_file_id, "File:Path", path, FALSE);
@@ -5327,7 +4254,7 @@ tracker_db_move_file (DBConnection *db_con, const char *moved_from_uri, const ch
 	}
 
 	/* update backup service if necessary */
-	tracker_exec_proc (db_con->common, "UpdateBackupService", 4, path, name, old_path, old_name);
+	tracker_exec_proc (db_con->common, "UpdateBackupService", path, name, old_path, old_name, NULL);
 
 	g_free (str_file_id);
 	g_free (name);
@@ -5370,37 +4297,38 @@ str_get_after_prefix (const char *source,
 static void
 move_directory_files (DBConnection *db_con, const char *moved_from_uri, const char *moved_to_uri)
 {
+	TrackerDBResultSet *result_set;
 
 	/* get all sub files (excluding folders) that were moved and add watches */
-	char ***res = tracker_exec_proc (db_con, "SelectFileChildWithoutDirs", 1, moved_from_uri); 
+	result_set = tracker_exec_proc (db_con, "SelectFileChildWithoutDirs", moved_from_uri, NULL);
 
-	if (res) {
-		char **row;
-		int  k;
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *prefix, *name, *file_name, *moved_file_name;
 
-		k = 0;
+		while (valid) {
+			tracker_db_result_set_get (result_set,
+						   0, &prefix,
+						   1, &name,
+						   -1);
 
-		while ((row = tracker_db_get_row (res, k))) {
+			if (prefix && name) {
+				file_name = g_build_filename (prefix, name, NULL);
+				moved_file_name = g_build_filename (moved_to_uri, name, NULL);
 
-			k++;
+				tracker_db_move_file (db_con, file_name, moved_file_name);
 
-			if (!row || !row[0] || !row[1]) {
-				continue;
+				g_free (moved_file_name);
+				g_free (file_name);
+				g_free (prefix);
+				g_free (name);
 			}
 
-			char *file_name = g_build_filename (row[0], row[1], NULL);
-			char *moved_file_name = g_build_filename (moved_to_uri, row[1], NULL);
-
-			tracker_db_move_file (db_con, file_name, moved_file_name);
-
-			g_free (moved_file_name);
-			g_free (file_name);
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
-	
-		tracker_db_free_result (res);
-		
+
+		g_object_unref (result_set);
 	}
-			
 }
 
 
@@ -5424,31 +4352,27 @@ move_directory (DBConnection *db_con, const char *moved_from_uri, const char *mo
 void
 tracker_db_move_directory (DBConnection *db_con, const char *moved_from_uri, const char *moved_to_uri)
 {
+	TrackerDBResultSet *result_set;
 	char *old_path;
-	char ***res;
 
 	old_path = g_strconcat (moved_from_uri, G_DIR_SEPARATOR_S, NULL);
 
 	/* get all sub folders that were moved and add watches */
-	res = tracker_db_get_file_subfolders (db_con, moved_from_uri);
+	result_set = tracker_db_get_file_subfolders (db_con, moved_from_uri);
 
-	if (res) {
-		char **row;
-		int  k;
+	if (result_set) {
+		gboolean valid = TRUE;
 
-		k = 0;
+		while (valid) {
+			gchar *prefix, *name;
+			gchar *dir_name, *sep, *new_path;
 
-		while ((row = tracker_db_get_row (res, k))) {
+			tracker_db_result_set_get (result_set,
+						   1, &prefix,
+						   2, &name,
+						   -1);
 
-			char *dir_name, *sep, *new_path;
-			k++;
-
-			if (!row || !row[0] || !row[1] || !row[2]) {
-				continue;
-			}
-
-			dir_name = g_build_filename (row[1], row[2], NULL);
-
+			dir_name = g_build_filename (prefix, name, NULL);
 			sep = str_get_after_prefix (dir_name, old_path);
 
 			if (!sep) {
@@ -5460,39 +4384,41 @@ tracker_db_move_directory (DBConnection *db_con, const char *moved_from_uri, con
 			g_free (sep);
 
 			tracker_info ("moving subfolder %s to %s", dir_name, new_path);
-			
+
 			move_directory (db_con, dir_name, new_path);
 
 			g_usleep (1000);
-						
+
+			g_free (prefix);
+			g_free (name);
 			g_free (new_path);
 			g_free (dir_name);
 
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		tracker_db_free_result (res);
+		g_object_unref (result_set);
 	}
 
-	move_directory (db_con, moved_from_uri, moved_to_uri);	
-	
-	g_free (old_path);
+	move_directory (db_con, moved_from_uri, moved_to_uri);
 
+	g_free (old_path);
 }
 
 
-char ***
+TrackerDBResultSet *
 tracker_db_get_file_subfolders (DBConnection *db_con, const char *uri)
 {
-	char ***res;
+	TrackerDBResultSet *result_set;
 	char *folder;
 
 	folder = g_strconcat (uri, G_DIR_SEPARATOR_S, "*", NULL);
 
-	res = tracker_exec_proc (db_con, "SelectFileSubFolders", 2, uri, folder);
+	result_set = tracker_exec_proc (db_con, "SelectFileSubFolders", uri, folder, NULL);
 
 	g_free (folder);
 
-	return res;
+	return result_set;
 }
 
 
@@ -5636,14 +4562,12 @@ tracker_db_update_differential_index (DBConnection *db_con, GHashTable *old_tabl
 }
 
 
-char ***
+TrackerDBResultSet *
 tracker_db_get_keyword_list (DBConnection *db_con, const char *service)
 {
 
 	tracker_debug (service);
-	char ***res = tracker_exec_proc (db_con, "GetKeywordList", 2, service, service);
-
-	return res;
+	return tracker_exec_proc (db_con, "GetKeywordList", service, service, NULL);
 }
 
 GSList *
@@ -5651,25 +4575,25 @@ tracker_db_mime_query (DBConnection *db_con,
                        const gchar  *stored_proc, 
                        gint          service_id)
 {
-
+	TrackerDBResultSet *result_set;
 	GSList  *result = NULL;
 	gchar   *service_id_str;
-        gchar ***result_set;
 
 	service_id_str = g_strdup_printf ("%d", service_id);
-	result_set = tracker_exec_proc (db_con, stored_proc, 1, service_id_str);
+	result_set = tracker_exec_proc (db_con, stored_proc, service_id_str, NULL);
 	g_free (service_id_str);
 
 	if (result_set) {
-		gchar **row;
-		gint    k;
-		
-		for (k = 0; (row = tracker_db_get_row (result_set, k)); k++) {
-			result = g_slist_prepend (result, g_strdup(row[0]));
+		gboolean valid = TRUE;
+		gchar *str;
+
+		while (valid) {
+			tracker_db_result_set_get (result_set, 0, &str, -1);
+			result = g_slist_prepend (result, str);
+			valid = tracker_db_result_set_iter_next (result_set);
 		}
 
-		tracker_db_free_result (result_set);
-
+		g_object_unref (result_set);
 	}
 
 	return result;
@@ -5690,41 +4614,41 @@ tracker_db_get_mime_prefixes_for_service_id (DBConnection *db_con,
 }
 
 static TrackerService *
-db_row_to_service (gchar **row)
+db_row_to_service (TrackerDBResultSet *result_set)
 {
         TrackerService *service;
-        GSList         *new_list;
-        gint            id;
-        const gchar    *name;
-        gint            i;
+        GSList         *new_list = NULL;
+        gint            id, i;
+	gchar          *name, *parent, *content_metadata;
+	gboolean        enabled, embedded, has_metadata, has_fulltext;
+	gboolean        has_thumbs, show_service_files, show_service_directories;
 
-        if (!row[0] || !row[1] || 
-            !row[2] || !row[3] || 
-            !row[4] || !row[5] || 
-            !row[6] || !row[7] || 
-            !row[8]) {
-                return NULL;
-        }
-               
         service = tracker_service_new ();
-        
-        new_list = NULL;
-        id = atoi (row[0]);
-        name = row[1];
+
+	tracker_db_result_set_get (result_set,
+				   0, &id,
+				   1, &name,
+				   2, &parent,
+				   3, &enabled,
+				   4, &embedded,
+				   5, &has_metadata,
+				   6, &has_fulltext,
+				   7, &has_thumbs,
+				   8, &content_metadata,
+				   10, &show_service_files,
+				   11, &show_service_directories,
+				   -1);
 
         tracker_service_set_id (service, id);
         tracker_service_set_name (service, name);
-        tracker_service_set_parent (service, row[2]);
-        tracker_service_set_enabled (service, row[3][0] == '1');
-        tracker_service_set_embedded (service, row[4][0] == '1');
-        tracker_service_set_has_metadata (service, row[5][0] == '1');
-        tracker_service_set_has_full_text (service, row[6][0] == '1');
-        tracker_service_set_has_thumbs (service, row[7][0] == '1');
-        
-        if (row[8][1]) {
-                tracker_service_set_content_metadata (service, row[8]);
-        }
-        
+        tracker_service_set_parent (service, parent);
+        tracker_service_set_enabled (service, enabled);
+        tracker_service_set_embedded (service, embedded);
+        tracker_service_set_has_metadata (service, has_metadata);
+        tracker_service_set_has_full_text (service, has_fulltext);
+        tracker_service_set_has_thumbs (service, has_thumbs);
+	tracker_service_set_content_metadata (service, content_metadata);
+
         if (g_str_has_prefix (name, "Email") ||
             g_str_has_suffix (name, "Emails")) {
                 tracker_service_set_db_type (service, TRACKER_DB_TYPE_EMAIL);
@@ -5742,16 +4666,17 @@ db_row_to_service (gchar **row)
                 tracker_service_set_db_type (service, TRACKER_DB_TYPE_DATA);
         }
         
-        tracker_service_set_show_service_files (service, row[10][0] == '1');
-        tracker_service_set_show_service_directories (service, row[11][0] == '1');
+        tracker_service_set_show_service_files (service, show_service_files);
+        tracker_service_set_show_service_directories (service, show_service_directories);
         
         for (i = 12; i < 23; i++) {
-                if (row[i] && row[i][1]) {
-                        /* We do not duplicate the data here because
-                         * the TrackerService will do this for us.
-                         */
-                        new_list = g_slist_prepend (new_list, row[i]);
-                }
+		gchar *metadata;
+
+		tracker_db_result_set_get (result_set, i, &metadata, -1);
+
+		if (metadata) {
+			new_list = g_slist_prepend (new_list, metadata);
+		}
         }
         
         /* Hack to prevent db change late in the cycle, check the
@@ -5761,14 +4686,15 @@ db_row_to_service (gchar **row)
                 /* These strings should be definitions at the top of
                  * this file somewhere really.
                  */
-                new_list = g_slist_prepend (new_list, "App:DisplayName");
-                new_list = g_slist_prepend (new_list, "App:Exec");
-                new_list = g_slist_prepend (new_list, "App:Icon");
+                new_list = g_slist_prepend (new_list, g_strdup ("App:DisplayName"));
+                new_list = g_slist_prepend (new_list, g_strdup ("App:Exec"));
+                new_list = g_slist_prepend (new_list, g_strdup ("App:Icon"));
         }
         
         new_list = g_slist_reverse (new_list);
         
         tracker_service_set_key_metadata (service, new_list);
+	g_slist_foreach (new_list, (GFunc) g_free, NULL);
         g_slist_free (new_list);
 
         return service;
@@ -5778,85 +4704,90 @@ db_row_to_service (gchar **row)
 void
 tracker_db_get_static_data (DBConnection *db_con)
 {
-	gchar ***res;
-	gint     i = 0;
-        gint     j;
+	TrackerDBResultSet *result_set;
 
-	/* Get static metadata info */
-	res  = tracker_exec_proc (db_con, "GetMetadataTypes", 0);
+	/* get static metadata info */
+	result_set  = tracker_exec_proc (db_con, "GetMetadataTypes", 0);
 
-	if (res) {
-		gchar **row;
+	if (result_set) {
+		gboolean valid = TRUE;
+		gchar *name;
+		gint id;
 
-		while ((row = tracker_db_get_row (res, i))) {
-			i++;
+		while (valid) {
+			TrackerDBResultSet *result_set2;
+			gboolean embedded, multiple_values, delimited, filtered, store_metadata;
+			FieldDef *def;
 
-			if (row[0] && row[1] && row[2] && row[3] && row[4] && row[5] && row[6] && row[7] && row[8] && row[9]) {
-				FieldDef *def = NULL;				
-	
-				def = g_new (FieldDef, 1);
-				def->id = g_strdup (row[0]);
-				def->type = atoi (row[2]);
-				def->field_name = g_strdup (row[3]);
-				def->weight = atoi (row[4]);
-				def->embedded = (row[5][0] == '1');
-				def->multiple_values = (row[6][0] == '1');
-				def->delimited = (row[7][0] == '1');
-				def->filtered = (row[8][0] == '1');
-				def->store_metadata = (row[9][0] == '1');
-				
+			def = g_new0 (FieldDef, 1);
 
-				def->child_ids = NULL;
-				
+			tracker_db_result_set_get (result_set,
+						   0, &id,
+						   1, &name,
+						   2, &def->type,
+						   3, &def->field_name,
+						   4, &def->weight,
+						   5, &embedded,
+						   6, &multiple_values,
+						   7, &delimited,
+						   8, &filtered,
+						   9, &store_metadata,
+						   -1);
 
-				j=0;
-				char ***res2 = tracker_exec_proc (db_con, "GetMetadataAliases", 1, def->id);
+			def->id = tracker_int_to_str (id);
+			def->embedded = embedded;
+			def->multiple_values = multiple_values;
+			def->delimited = delimited;
+			def->filtered = filtered;
+			def->store_metadata = store_metadata;
 
-				if (res2) {
-					char **row2;
+			result_set2 = tracker_exec_proc (db_con, "GetMetadataAliases", def->id, NULL);
 
-					while ((row2 = tracker_db_get_row (res2, j))) {
-						j++;
+			if (result_set2) {
+				valid = TRUE;
 
-						if (row2[1]) {
-							def->child_ids = g_slist_prepend (def->child_ids, g_strdup (row[1]));
-						}
-					}
-					tracker_db_free_result (res2);	
+				while (valid) {
+					tracker_db_result_set_get (result_set2, 1, &id, -1);
+					def->child_ids = g_slist_prepend (def->child_ids,
+									  tracker_int_to_str (id));
+
+					valid = tracker_db_result_set_iter_next (result_set2);
 				}
 
-				g_hash_table_insert (tracker->metadata_table, g_utf8_strdown  (row[1], -1), def);
-				tracker_debug ("loading metadata def %s with weight %d", 
-                                               def->field_name, def->weight);
-			} 
-		}		
+				g_object_unref (result_set2);
+			}
 
-		tracker_db_free_result (res);
+			g_hash_table_insert (tracker->metadata_table, g_utf8_strdown (name, -1), def);
+			tracker_debug ("loading metadata def %s with weight %d", def->field_name, def->weight);
+
+			g_free (name);
+
+			valid = tracker_db_result_set_iter_next (result_set);
+		}
+
+		g_object_unref (result_set);
 	}
 
-	/* Get static service info */	
-	res  = tracker_exec_proc_ignore_nulls (db_con, "GetAllServices", 0);
-	
-	if (res) {
-		gchar **row;
+	/* get static service info */	
+	result_set  = tracker_exec_proc (db_con, "GetAllServices", 0);
 
-		i = 0;
+	if (result_set) {
+		gboolean valid = TRUE;
+		
+		tracker->email_service_min = 0;
+		tracker->email_service_max = 0;
 
-		 tracker->email_service_min = 0;
-		 tracker->email_service_max = 0;
+		while (valid) {
+			TrackerService *service;
+			GSList *mimes, *mime_prefixes;
+			const gchar *name;
+			gint id;
 
-		while ((row = tracker_db_get_row (res, i++))) {
-                        TrackerService *service;
-                        gint            id;
-                        const gchar    *name;
-                        GSList         *mimes;
-                        GSList         *mime_prefixes;
-
-                        service = db_row_to_service (row);
+                        service = db_row_to_service (result_set);
 
                         if (!service) {
                                 continue;
-				}
+			}
 
                         id = tracker_service_get_id (service);
                         name = tracker_service_get_name (service);
@@ -5871,20 +4802,19 @@ tracker_db_get_static_data (DBConnection *db_con)
 
                         g_slist_free (mimes);
                         g_slist_free (mime_prefixes);
-
                         g_object_unref (service);
-				}
 
-		tracker_db_free_result (res);
-		
+			valid = tracker_db_result_set_iter_next (result_set);
+		}
+
+		g_object_unref (result_set);
+
 		/* check for web history */
 		if (!tracker_service_manager_get_service ("Webhistory")) {
 			tracker_log ("Adding missing Webhistory service");
-			tracker_exec_proc (db_con, "InsertServiceType", 1, "Webhistory");	
+			tracker_exec_proc (db_con, "InsertServiceType", "Webhistory", NULL);
 		}
-		
 	}
-
 }
 
 DBConnection *
@@ -5905,23 +4835,17 @@ tracker_db_get_service_connection (DBConnection *db_con, const char *service)
 char *
 tracker_db_get_service_for_entity (DBConnection *db_con, const char *id)
 {
-	char ***res;
+	TrackerDBResultSet *result_set;
 	char *result = NULL;
 
-	res  = tracker_exec_proc (db_con, "GetFileByID2", 1, id);
-	
-	if (res) {
-		if (res[0][1]) {
-			
-			result = g_strdup (res[0][1]);
-		}
+	result_set = tracker_exec_proc (db_con, "GetFileByID2", id, NULL);
 
-		tracker_db_free_result (res);
-
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 1, &result, -1);
+		g_object_unref (result_set);
 	}
 
 	return result;
-	
 }
 
 
@@ -5964,7 +4888,7 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 {
 	GKeyFile 		*key_file = NULL;
 	const char * const 	*locale_array;
-	char 			*service_file, *sql;
+	char 			*service_file;
 	gboolean		is_metadata = FALSE, is_service = FALSE, is_extractor = FALSE;
 	int			id;
 
@@ -6005,8 +4929,8 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 				FieldDef *def = tracker_db_get_field_def (db_con, *array);
 
 				if (!def) {
-					tracker_exec_proc (db_con, "InsertMetadataType", 1, *array);			
-					id = sqlite3_last_insert_rowid (db_con->db);		
+					tracker_exec_proc (db_con, "InsertMetadataType", *array, NULL);
+					id = tracker_db_interface_sqlite_get_last_insert_id (TRACKER_DB_INTERFACE_SQLITE (db_con->db));
 				} else {
 					id = atoi (def->id);
 				}
@@ -6017,8 +4941,8 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 				service = tracker_service_manager_get_service (*array);
 
 				if (!service) {
-					tracker_exec_proc (db_con, "InsertServiceType", 1, *array);	
-					id = sqlite3_last_insert_rowid (db_con->db);		
+					tracker_exec_proc (db_con, "InsertServiceType", *array, NULL);
+					id = tracker_db_interface_sqlite_get_last_insert_id (TRACKER_DB_INTERFACE_SQLITE (db_con->db));
 				} else {
 					id = tracker_service_get_id (service);
 				}
@@ -6054,27 +4978,25 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 
 						if (strcasecmp (*array2, "Parent") == 0) {
 
-							tracker_exec_proc (db_con, "InsertMetaDataChildren", 2, str_id, value);		
+							tracker_exec_proc (db_con, "InsertMetaDataChildren", str_id, value, NULL);
 
 						} else if (strcasecmp (*array2, "DataType") == 0) {
 
 							int data_id = tracker_str_in_array (value, DataTypeArray);
 
 							if (data_id != -1) {
-								sql = g_strdup_printf ("update MetaDataTypes set DataTypeID = %d where ID = %s", data_id, str_id);
-								tracker_db_exec_no_reply (db_con, sql);
-								g_free (sql);
-								
+								tracker_db_exec_no_reply (db_con,
+											  "update MetaDataTypes set DataTypeID = %d where ID = %s",
+											  data_id, str_id);
 							}
 						
 
 						} else {
 							char *esc_value = tracker_escape_string (value);
 
-							sql = g_strdup_printf ("update MetaDataTypes set  %s = '%s' where ID = %s", *array2, esc_value, str_id);
-								
-							tracker_db_exec_no_reply (db_con, sql);
-							g_free (sql);
+							tracker_db_exec_no_reply (db_con,
+										  "update MetaDataTypes set  %s = '%s' where ID = %s",
+										  *array2, esc_value, str_id);
 							g_free (esc_value);
 						}
 	
@@ -6087,7 +5009,7 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 							char **tmp;
 							for (tmp = tab_array; *tmp; tmp++) { 			
 
-								tracker_exec_proc (db_con, "InsertServiceTabularMetadata", 2, str_id, *tmp);		
+								tracker_exec_proc (db_con, "InsertServiceTabularMetadata", str_id, *tmp, NULL);
 								
 							}
 
@@ -6102,7 +5024,7 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 							char **tmp;
 							for (tmp = tab_array; *tmp; tmp++) { 			
 
-								tracker_exec_proc (db_con, "InsertServiceTileMetadata", 2, str_id, *tmp);		
+								tracker_exec_proc (db_con, "InsertServiceTileMetadata", str_id, *tmp, NULL);
 							}
 
 							g_strfreev (tab_array);
@@ -6113,11 +5035,11 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 
 							char **tmp;
 							for (tmp = tab_array; *tmp; tmp++) { 			
-								tracker_exec_proc (db_con, "InsertMimes", 1, *tmp);		
+								tracker_exec_proc (db_con, "InsertMimes", *tmp, NULL);
 							
-								sql = g_strdup_printf ("update FileMimes set ServiceTypeID = %s where Mime = '%s'", str_id, *tmp);
-								tracker_db_exec_no_reply (db_con, sql);
-								g_free (sql);
+								tracker_db_exec_no_reply (db_con,
+											  "update FileMimes set ServiceTypeID = %s where Mime = '%s'",
+											  str_id, *tmp);
 							}
 
 							g_strfreev (tab_array);
@@ -6128,11 +5050,11 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 
 							char **tmp;
 							for (tmp = tab_array; *tmp; tmp++) { 			
-								tracker_exec_proc (db_con, "InsertMimePrefixes", 1, *tmp);		
-							
-								sql = g_strdup_printf ("update FileMimePrefixes set ServiceTypeID = %s where MimePrefix = '%s'", str_id, *tmp);
-								tracker_db_exec_no_reply (db_con, sql);
-								g_free (sql);
+								tracker_exec_proc (db_con, "InsertMimePrefixes", *tmp, NULL);
+
+								tracker_db_exec_no_reply (db_con,
+											  "update FileMimePrefixes set ServiceTypeID = %s where MimePrefix = '%s'",
+											  str_id, *tmp);
 							}
 
 							g_strfreev (tab_array);
@@ -6140,9 +5062,10 @@ tracker_db_load_service_file (DBConnection *db_con, const char *filename, gboole
 
 						} else {
 							char *esc_value = tracker_escape_string (value);
-							sql = g_strdup_printf ("update ServiceTypes set  %s = '%s' where TypeID = %s", *array2, esc_value, str_id);
-							tracker_db_exec_no_reply (db_con, sql);
-							g_free (sql);
+
+							tracker_db_exec_no_reply (db_con,
+										  "update ServiceTypes set  %s = '%s' where TypeID = %s",
+										  *array2, esc_value, str_id);
 							g_free (esc_value);
 						}
 	
@@ -6244,16 +5167,14 @@ tracker_db_get_metadata_field (DBConnection *db_con, const char *service, const 
 char *
 tracker_db_get_option_string (DBConnection *db_con, const char *option)
 {
+	TrackerDBResultSet *result_set;
+	gchar *value = NULL;
 
-	char *value = "";
+	result_set = tracker_exec_proc (db_con->common, "GetOption", option, NULL);
 
-	gchar ***res = tracker_exec_proc (db_con->common, "GetOption", 1, option);
-
-	if (res) {
-		if (res[0] && res[0][0]) {
-			value = g_strdup (res[0][0]);
-		}
-		tracker_db_free_result (res);
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &value, -1);
+		g_object_unref (result_set);
 	}
 
 	return value;
@@ -6263,23 +5184,28 @@ tracker_db_get_option_string (DBConnection *db_con, const char *option)
 void
 tracker_db_set_option_string (DBConnection *db_con, const char *option, const char *value)
 {
-	tracker_exec_proc (db_con->common, "SetOption", 2, value, option);
+	tracker_exec_proc (db_con->common, "SetOption", value, option, NULL);
 }
 
 
 int
 tracker_db_get_option_int (DBConnection *db_con, const char *option)
 {
-
+	TrackerDBResultSet *result_set;
+	gchar *str;
 	int value = 0;
 
-	gchar ***res = tracker_exec_proc (db_con->common, "GetOption", 1, option);
+	result_set = tracker_exec_proc (db_con->common, "GetOption", option, NULL);
 
-	if (res) {
-		if (res[0] && res[0][0]) {
-			value = atoi (res[0][0]);
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &str, -1);
+
+		if (str) {
+			value = atoi (str);
+			g_free (str);
 		}
-		tracker_db_free_result (res);
+
+		g_object_unref (result_set);
 	}
 
 	return value;
@@ -6291,8 +5217,8 @@ tracker_db_set_option_int (DBConnection *db_con, const char *option, int value)
 {
 	char *str_value = tracker_int_to_str (value);
 
-	tracker_exec_proc (db_con->common, "SetOption", 2, str_value, option);
-		
+	tracker_exec_proc (db_con->common, "SetOption", str_value, option, NULL);
+
 	g_free (str_value);
 }
 
@@ -6321,19 +5247,24 @@ tracker_db_regulate_transactions (DBConnection *db_con, int interval)
 gboolean
 tracker_db_integrity_check (DBConnection *db_con)
 {
+	TrackerDBResultSet *result_set;
 	gboolean integrity_check = TRUE;
 
-	char ***res = tracker_exec_sql (db_con, "pragma integrity_check;");
+	result_set = tracker_db_interface_execute_query (db_con->db, NULL, "pragma integrity_check;");
 
-	if (!res) {
+	if (!result_set) {
 		integrity_check = FALSE;
 	} else {
+		gchar *check;
 
-		char **row = tracker_db_get_row (res, 0);
+		tracker_db_result_set_get (result_set, 0, &check, -1);
 
-		if (row && row[0]) {
-			integrity_check = (strcasecmp (row[0], "ok") == 0);
+		if (check) {
+			integrity_check = (strcasecmp (check, "ok") == 0);
+			g_free (check);
 		}
+
+		g_object_unref (result_set);
 	}
 
 	return integrity_check;

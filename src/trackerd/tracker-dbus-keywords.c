@@ -175,10 +175,10 @@ tracker_dbus_signal_keywords_removed (const char *service, const char *uri, cons
 void
 tracker_dbus_method_keywords_get_list (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	char 		*service;
-	char		***res;
 
 	g_return_if_fail (rec && rec->user_data);
 
@@ -211,23 +211,23 @@ tracker_dbus_method_keywords_get_list (DBusRec *rec)
 
 	db_con = tracker_db_get_service_connection (db_con, service);
 
-	res = tracker_db_get_keyword_list (db_con, service);
+	result_set = tracker_db_get_keyword_list (db_con, service);
 
-	tracker_dbus_reply_with_query_result (rec, res);
+	tracker_dbus_reply_with_query_result (rec, result_set);
 
-	tracker_db_free_result (res);
+	g_object_unref (result_set);
 }
 
 
 void
 tracker_dbus_method_keywords_get (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	char 		*id, *uri, *service;
 	char 		**array;
-	char		***res;
 	int 		row_count;
 
 	g_return_if_fail (rec && rec->user_data);
@@ -274,16 +274,16 @@ tracker_dbus_method_keywords_get (DBusRec *rec)
 
 	
 
-	res = tracker_db_get_metadata (db_con, service, id, "User:Keywords");
+	result_set = tracker_db_get_metadata (db_con, service, id, "User:Keywords");
 
 	g_free (id);
 
 	row_count = 0;
 	array = NULL;
 
-	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		tracker_db_free_result (res);
+	if (result_set) {
+		array = tracker_get_query_result_as_array (result_set, &row_count);
+		g_object_unref (result_set);
 	}
 
 	reply = dbus_message_new_method_return (rec->message);
@@ -521,13 +521,13 @@ tracker_dbus_method_keywords_remove_all (DBusRec *rec)
 void
 tracker_dbus_method_keywords_search (DBusRec *rec)
 {
+	TrackerDBResultSet *result_set;
 	DBConnection 	*db_con;
 	DBusError    dbus_error;
 	DBusMessage 	*reply;
 	char 		*service;
 	char 		**array;
 	int 		row_count, limit, query_id, offset;
-	char		***res;
 	GString		*str_words, *str_select, *str_where;
 	char		*query_sel, *query_where, *query;
 	int		i;
@@ -631,7 +631,7 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	query = g_strconcat (query_sel, query_where, NULL);
 
 	tracker_log (query);
-	res = tracker_exec_sql (db_con, query);
+	result_set = tracker_db_interface_execute_query (db_con->db, NULL, query);
 
 	g_free (query_sel);
 	g_free (query_where);
@@ -641,9 +641,9 @@ tracker_dbus_method_keywords_search (DBusRec *rec)
 	row_count = 0;
 	array = NULL;
 	
-	if (res) {
-		array = tracker_get_query_result_as_array (res, &row_count);
-		tracker_db_free_result (res);
+	if (result_set) {
+		array = tracker_get_query_result_as_array (result_set, &row_count);
+		g_object_unref (result_set);
 	}
 
 	reply = dbus_message_new_method_return (rec->message);
