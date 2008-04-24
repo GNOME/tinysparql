@@ -1,4 +1,10 @@
-2008-04-14  Carlos Garnacho  <carlos@imendio.com>
+2008-04-23  Patch from Joshua Gerrish 
+
+	*  src/libtracker-common/tracker-configuration.c
+	Config var initialised + fix string_replace funtion
+
+
+2008-04-21  Carlos Garnacho  <carlos@imendio.com>
 
 	Implement a database abstraction interface, with a sqlite
 	implementation. Queries/procedures return a TrackerDBResultSet object,

@@ -186,15 +186,17 @@ string_replace (const gchar * haystack, gchar * needle, gchar * replacement)
 
 	str = g_string_new ("");
 	needle_len = g_utf8_strlen(needle, -1);
+	start_pos = haystack;
 
 	while ((end_pos = strstr (start_pos, needle)) != NULL) {
-		str = g_string_append_len (str, start_pos, start_pos - end_pos);
+		str = g_string_append_len (str, start_pos, end_pos - start_pos);
 		if (replacement) {
 			str = g_string_append (str, replacement);
 		}
 
 		start_pos = end_pos + needle_len;
 	}
+	str = g_string_append_len (str, start_pos, g_utf8_strlen(start_pos, -1));
 
 	return g_string_free (str, FALSE);
 }
@@ -219,6 +221,10 @@ tracker_configuration_load (void)
 		write_default_config();
 	}
 
+	if (configuration) {
+		g_key_file_free(configuration);
+	}
+	configuration = g_key_file_new();
 	g_key_file_load_from_file (configuration, filename, G_KEY_FILE_KEEP_COMMENTS, &error);
 	if (error)
 		g_error ("failed: g_key_file_load_from_file(): %s\n", error->message);
