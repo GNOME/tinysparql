@@ -1,3 +1,5 @@
+
+
 2008-04-23  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	reviewed by: <delete if not using a buddy>
@@ -9,13 +11,19 @@
 	(tracker_configuration_load):
 		Fix spelling of 'Portuguese'.  Fixes bug #467151.
 
-2008-04-23  Patch from Marcin Banasiak
+
+2008-04-23	Patch from Tshepang Lekhonkhobe <tshepang@gmail.com>
+	* README and TODO updates
+
+
+2008-04-23	Patch from Marcin Banasiak 
 
 	*  src/tracker-preferences/tracker-preferences.c
 	Use strcmp instead of strcasecmp when comparing file names
 
 
-2008-04-23  Patch from Joshua Gerrish 
+
+2008-04-23	Patch from Joshua Gerrish 
 
 	*  src/libtracker-common/tracker-configuration.c
 	Config var initialised + fix string_replace funtion
@@ -50,6 +58,11 @@
 
 	* src/trackerd/tracker-email.c: Report the error in case the mail
 	client module can't be loaded.
+
+
+
+
+
 
 2008-04-17  Philip Van Hoof  <pvanhoof@gnome.org>
 

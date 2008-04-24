@@ -12,7 +12,9 @@ Table of Contents
         5.1 Notes on Solaris
         5.2 Compile Options
     6 Running Tracker
-        6.1 Setting Inotify Watch Limit
+        6.1 Usage
+        6.2 Setting Inotify Watch Limit
+        6.3 Tracker files
     7 Tracker & Nautilus Search
     8 Tracker & Deskbar applet
     9 Tracker tools
@@ -117,6 +119,8 @@ Table of Contents
 
   * Provides option to disable indexing when running on battery.
 
+  * Provides option to index removable devices.
+
   * Implements the freedesktop specification for metadata 
   (http://freedesktop.org/wiki/Standards/shared-filemetadata-spec).
 
@@ -175,7 +179,10 @@ Table of Contents
   * libglade 2.5
   * unac (accent stripper)
   * exempi
-  * libxml2
+  * libxml2 (for extracting html/xml content)
+  * hal 0.5 (for detection of removable devices, mounted
+    directories, as well as whether the computer is running on
+    battery)
 
 
 4.3 For building Tracker's Deskbar-applet backend
@@ -277,13 +284,21 @@ Table of Contents
   --enable-external-qdbm : use system qdbm instead of one included 
   in Tracker
 
-  --disable-hal : disables HAL support for ac-power detection
+  --disable-hal : disables HAL support, which is for detecting
+  whether the computer is running on battery (for EG, determining
+  whether to run the indexer in such a case), whether a removable
+  device has been attached (for EG, determining whether to index
+  its contents), and for detecting mounted directories (for EG,
+  determining whether to index such)
 
   --disable-trackerapplet : disables Tracker's notification applet
 
 
 
 6 Running Tracker
+
+
+6.1 Usage
 
   To run Tracker, you need to manually start the Tracker daemon, 
   trackerd. By default trackerd will index your entire home 
@@ -336,9 +351,9 @@ Table of Contents
 
   "WatchDirectoryRoots=directory1;directory2;directory3""
 
-  An additional option is the "--reindex" option which indexes
-  user data from scratch, removing the need to remove Tracker
-  database manually.
+  An additional option is "--reindex" which indexes user data from
+  scratch, removing the need to delete Tracker's database manually.
+  Keywords and metadata definitions are preserved however.
 
   On the first run, Tracker will automatically create a new 
   database and start populating it with metadata by browsing 
@@ -354,7 +369,7 @@ Table of Contents
   tracker-search SEARCHTERM)
   
 
-6.1 Setting Inotify Watch Limit
+6.2 Setting Inotify Watch Limit
 
   When watching large numbers of folders, its ppossible to exceed
   the default number of inotify watches. In order to get real time 
@@ -367,6 +382,23 @@ Table of Contents
 
   2. Reboot the system OR (on a Debian-like system) run
      "sudo /etc/init.d/procps restart"
+
+
+6.3 Tracker files
+
+  Here is some of the files that Tracker uses during its operation,
+  apart from "~/.config/tracker" which is stated above, in Sec 6.1:
+
+  * "~/.local/share/tracker" is used for non-expendable content,
+    like keywords and metadata definitions.
+
+  * "~/.cache/tracker" is used for the expendable indexes and
+    expendable metadata that can be rebuilt if deleted (this is the
+    purpose of the ".cache" - its more a permanent tmp directory than
+    sys tmp but can be deleted if more disk space is needed).
+
+  * The system tmp ("/var/tmp" and "/tmp") is used for short-lived
+    session data.
 
 
 
