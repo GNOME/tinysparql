@@ -1,8 +1,12 @@
+2008-04-23  Saleem Abdulrasool  <compnerd@compnerd.org>
+
+	* src/tracker-preferences/tracker-preferences.c:
+	(tracker_preferences_init):
+	* src/tracker-preferences/tracker-preferences.glade:
+		Set alignment of buttons in glade rather than in code
 
 
 2008-04-23  Saleem Abdulrasool  <compnerd@compnerd.org>
-
-	reviewed by: <delete if not using a buddy>
 
 	* src/libtracker-common/tracker-config.c:
 	(config_create_with_defaults):

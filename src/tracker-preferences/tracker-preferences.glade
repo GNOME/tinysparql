@@ -65,8 +65,8 @@
                                         <property name="adjustment">0 0 1000 1 300 300</property>
                                         <property name="climb_rate">1</property>
                                         <accessibility>
-                                          <atkrelation target="lblInitialSleep" type="labelled-by"/>
                                           <atkrelation target="lblInitialSleepSeconds" type="labelled-by"/>
+                                          <atkrelation target="lblInitialSleep" type="labelled-by"/>
                                         </accessibility>
                                       </widget>
                                     </child>
@@ -889,19 +889,6 @@ Swedish</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkCheckButton" id="chkEnableThunderbirdIndexing">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="label" translatable="yes">Enable _Thunderbird email indexing</property>
-                        <property name="use_underline">True</property>
-                        <property name="response_id">0</property>
-                        <property name="draw_indicator">True</property>
-                      </widget>
-                      <packing>
-                        <property name="expand">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -917,6 +904,20 @@ Swedish</property>
                       <packing>
                         <property name="expand">False</property>
                         <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkCheckButton" id="chkEnableThunderbirdIndexing">
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="label" translatable="yes">Enable _Thunderbird email indexing</property>
+                        <property name="use_underline">True</property>
+                        <property name="response_id">0</property>
+                        <property name="draw_indicator">True</property>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </widget>
@@ -1041,32 +1042,20 @@ Swedish</property>
                                 <property name="column_spacing">12</property>
                                 <property name="row_spacing">6</property>
                                 <child>
-                                  <widget class="GtkLabel" id="lblThrottlingLevel">
+                                  <widget class="GtkHScale" id="scaThrottle">
                                     <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Indexing speed:</property>
+                                    <property name="adjustment">0 0 99 1 1 0</property>
+                                    <property name="digits">0</property>
                                     <accessibility>
-                                      <atkrelation target="scaThrottle" type="label-for"/>
+                                      <atkrelation target="lblThrottlingLevel" type="labelled-by"/>
                                     </accessibility>
                                   </widget>
                                   <packing>
-                                    <property name="right_attach">3</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label24">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                    <property name="label" translatable="yes">Faster</property>
-                                  </widget>
-                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
+                                    <property name="y_options">GTK_FILL</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -1086,20 +1075,32 @@ Swedish</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkHScale" id="scaThrottle">
+                                  <widget class="GtkLabel" id="label24">
                                     <property name="visible">True</property>
-                                    <property name="adjustment">0 0 99 1 1 0</property>
-                                    <property name="digits">0</property>
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                    <property name="label" translatable="yes">Faster</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="lblThrottlingLevel">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Indexing speed:</property>
                                     <accessibility>
-                                      <atkrelation target="lblThrottlingLevel" type="labelled-by"/>
+                                      <atkrelation target="scaThrottle" type="label-for"/>
                                     </accessibility>
                                   </widget>
                                   <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="y_options">GTK_FILL</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
                                   </packing>
                                 </child>
                               </widget>
@@ -1256,44 +1257,14 @@ Swedish</property>
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label30">
+                                  <widget class="GtkLabel" id="label33">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Maximum _amount of text to index:</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="mnemonic_widget">spnMaxText</property>
+                                    <property name="label" translatable="yes">kB</property>
                                   </widget>
                                   <packing>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label31">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Maximum number of unique _words to index:</property>
-                                    <property name="use_markup">True</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="mnemonic_widget">spnMaxWords</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkSpinButton" id="spnMaxText">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="adjustment">1024 1 1000000 1 300 300</property>
-                                    <property name="climb_rate">1</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
@@ -1315,14 +1286,44 @@ Swedish</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label33">
+                                  <widget class="GtkSpinButton" id="spnMaxText">
                                     <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">kB</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="adjustment">1024 1 1000000 1 300 300</property>
+                                    <property name="climb_rate">1</property>
                                   </widget>
                                   <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="right_attach">3</property>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label31">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Maximum number of unique _words to index:</property>
+                                    <property name="use_markup">True</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">spnMaxWords</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label30">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Maximum _amount of text to index:</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="mnemonic_widget">spnMaxText</property>
+                                  </widget>
+                                  <packing>
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
@@ -1376,7 +1377,7 @@ Swedish</property>
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_EDGE</property>
+            <property name="layout_style">GTK_BUTTONBOX_END</property>
             <child>
               <widget class="GtkButton" id="cmdHelp">
                 <property name="visible">True</property>

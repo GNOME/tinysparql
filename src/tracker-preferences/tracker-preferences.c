@@ -127,10 +127,6 @@ tracker_preferences_init (GTypeInstance *instance, gpointer g_class)
 			  self);
 	gtk_widget_hide (widget);
 
-	widget = glade_xml_get_widget (priv->gxml, "dialog-action_area1");
-	gtk_button_box_set_layout (GTK_BUTTON_BOX (widget),
-				   GTK_BUTTONBOX_END);
-
 	widget = glade_xml_get_widget (priv->gxml, "cmdApply");
 	g_signal_connect (widget, "clicked", G_CALLBACK (tracker_preferences_cmd_apply),
 			  self);
