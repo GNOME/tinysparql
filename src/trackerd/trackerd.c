@@ -733,6 +733,11 @@ main (gint argc, gchar *argv[])
 	log_filename = g_build_filename (tracker->root_dir, "tracker.log", NULL);
 	tracker_unlink (log_filename);
 
+	/* Change verbosity config if set on command line */
+	if (verbosity != 0) {
+		tracker_config_set_verbosity (tracker->config, verbosity);
+	}
+
 	tracker_log_init (log_filename, 
                           tracker_config_get_verbosity (tracker->config), 
                           fatal_errors);
@@ -910,9 +915,7 @@ main (gint argc, gchar *argv[])
 		tracker_config_set_low_memory_mode (tracker->config, TRUE);
 	}
 
-	if (verbosity != 0) {
-		tracker_config_set_verbosity (tracker->config, verbosity);
-	}
+	/* verbosity is already set when the log is initialized */
 
 	if (initial_sleep >= 0) {
 		tracker_config_set_initial_sleep (tracker->config, initial_sleep);

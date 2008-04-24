@@ -8,6 +8,9 @@
 
 	*  src/libtracker-common/tracker-configuration.c
 	Config var initialised + fix string_replace funtion
+	
+	* src/trackerd/trackerd.c
+	correct config/command line usage of verbosity
 
 
 2008-04-21  Carlos Garnacho  <carlos@imendio.com>
