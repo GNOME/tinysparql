@@ -1023,7 +1023,7 @@ config_create_with_defaults (const gchar *filename)
 				" - de (German)\n"
 				" - it (Italian)\n"
 				" - nb (Norwegian)\n"
-				" - pt (Portugese)\n"
+				" - pt (Portuguese)\n"
 				" - ru (Russian)\n"
 				" - es (Spanish)\n"
 				" - sv (Swedish)",

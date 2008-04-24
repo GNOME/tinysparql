@@ -34,7 +34,7 @@ const LanguageMapEntry LanguageMap[] = {
 	{ "de", "German" },
 	{ "it", "Italian" },
 	{ "nb", "Norwegian" },
-	{ "pt", "Portugese" },
+	{ "pt", "Portuguese" },
 	{ "ru", "Russian" },
 	{ "es", "Spanish" },
 	{ "sv", "Swedish" },
@@ -121,7 +121,7 @@ write_default_config (void)
 				"#   'de'  (german)\n"
 				"#   'it'  (italian)\n"
 				"#   'nb'  (norwegian)\n"
-				"#   'pt'  (portugese)\n"
+				"#   'pt'  (portuguese)\n"
 				"#   'ru'  (russian)\n"
 				"#   'es'  (spanish)\n"
 				"#   'sv'  (swedish)\n",
@@ -196,8 +196,8 @@ string_replace (const gchar * haystack, gchar * needle, gchar * replacement)
 
 		start_pos = end_pos + needle_len;
 	}
-	str = g_string_append_len (str, start_pos, g_utf8_strlen(start_pos, -1));
 
+	str = g_string_append_len (str, start_pos, g_utf8_strlen(start_pos, -1));
 	return g_string_free (str, FALSE);
 }
 
@@ -224,10 +224,12 @@ tracker_configuration_load (void)
 	if (configuration) {
 		g_key_file_free(configuration);
 	}
+
 	configuration = g_key_file_new();
 	g_key_file_load_from_file (configuration, filename, G_KEY_FILE_KEEP_COMMENTS, &error);
-	if (error)
+	if (error) {
 		g_error ("failed: g_key_file_load_from_file(): %s\n", error->message);
+	}
 }
 
 void
