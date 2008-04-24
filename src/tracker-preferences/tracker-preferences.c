@@ -929,7 +929,7 @@ tracker_preferences_cmd_add_index_path (GtkWidget *widget, gpointer data)
 	if (!path)
 		return;
 
-	if (!strcasecmp (path, g_get_home_dir ())) {
+	if (!strcmp (path, g_get_home_dir ())) {
 		item = glade_xml_get_widget (priv->gxml,
 					     "chkIndexHomeDirectory");
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item), TRUE);
@@ -1025,7 +1025,7 @@ append_item_to_list (TrackerPreferences *dialog, const gchar *const item,
 			gtk_tree_model_get (GTK_TREE_MODEL (model), &iter, 0,
 					    &value, -1);
 
-			if (!strcasecmp (item, value))
+			if (!strcmp (item, value))
 				return;
 		} while (gtk_tree_model_iter_next
 			 (GTK_TREE_MODEL (model), &iter));

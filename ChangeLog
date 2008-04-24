@@ -1,3 +1,9 @@
+2008-04-23  Patch from Marcin Banasiak
+
+	*  src/tracker-preferences/tracker-preferences.c
+	Use strcmp instead of strcasecmp when comparing file names
+
+
 2008-04-23  Patch from Joshua Gerrish 
 
 	*  src/libtracker-common/tracker-configuration.c
