@@ -511,7 +511,17 @@ tracker_metadata_get_registered_classes (TrackerClient *client, GError **error)
 
 
 
+char **		
+tracker_metadata_get_unique_values (TrackerClient *client, const char *meta_type, int offset, int max_hits, GError **error)
+{
+	char **array = NULL;
 
+	if (!org_freedesktop_Tracker_Metadata_get_unique_values (client->proxy_metadata, meta_type, offset, max_hits, &array, &*error)) {
+		return NULL;
+	}
+
+	return array;
+}
 
 
 GPtrArray *	
@@ -1098,6 +1108,20 @@ tracker_metadata_get_registered_classes_async (TrackerClient *client, TrackerArr
 }
 
 
+
+void
+tracker_metadata_get_unique_values_async (TrackerClient *client, const char *meta_type, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data)
+{
+	
+        ArrayCallBackStruct *callback_struct;
+
+        callback_struct = g_new (ArrayCallBackStruct, 1);
+        callback_struct->callback = callback;
+        callback_struct->data = user_data;
+
+        org_freedesktop_Tracker_Metadata_get_unique_values_async (client->proxy_search, meta_type, offset, max_hits, tracker_array_reply, callback_struct);
+	
+}
 
 
 

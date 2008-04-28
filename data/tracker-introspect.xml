@@ -220,6 +220,14 @@
 			<arg type="as" name="result" direction="out" />
 		</method>
 
+		<!-- returns an array of all unique values of given metadata type -->
+		<method name="GetUniqueValues">
+			<arg type="s" name="meta_type" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+
 		<!-- signal emitted whenever metadata for a service entity is changed. The keys are the metadata names that have changed -->
 		<signal name="Changed">
 			<arg type="s" name="service"/>

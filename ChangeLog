@@ -1,3 +1,18 @@
+2008-04-28 Patch from Iago Toral Quiroga <itoral@igalia.com> (reviewed by Jamie)
+
+	* src/trackerd/tracker-process-requests.c
+	* src/trackerd/tracker-dbus.c
+	* src/trackerd/tracker-dbus.h
+	* src/trackerd/tracker-dbus-metadata.c
+	* src/trackerd/tracker-dbus-metadata.h
+	* src/trackerd/tracker-db-sqlite.c
+	* src/trackerd/tracker-db-sqlite.h
+	* src/libtracker/tracker.h
+	* src/libtracker/tracker.c
+
+	Added GetUniqueValues dbus method 
+
+
 2008-04-23  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-preferences/tracker-preferences.c:

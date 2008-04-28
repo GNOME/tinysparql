@@ -139,6 +139,8 @@ char *		tracker_db_get_metadata_delimited (DBConnection *db_con, const char *ser
 char *		tracker_db_set_metadata		  (DBConnection *db_con, const char *service, const char *id, const char *key, char **values, int length, gboolean do_backup);
 void		tracker_db_set_single_metadata 	  (DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, gboolean do_backup);
 
+TrackerDBResultSet * tracker_db_get_unique_metadata_values (DBConnection *db_con, const char *meta_type, int offset, int limit);
+
 void		tracker_db_insert_embedded_metadata		(DBConnection *db_con, const char *service, const char *id, const char *key, char **values, int length, GHashTable *table);
 void		tracker_db_insert_single_embedded_metadata 	(DBConnection *db_con, const char *service, const char *id, const char *key, const char *value, GHashTable *table);
 

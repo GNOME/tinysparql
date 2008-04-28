@@ -125,7 +125,7 @@ MetaDataTypeDetails *	tracker_metadata_get_type_details		(TrackerClient *client,
 char **			tracker_metadata_get_registered_types		(TrackerClient *client, const char *classname, GError **error);
 char **			tracker_metadata_get_writeable_types		(TrackerClient *client, const char *classname, GError **error);
 char **			tracker_metadata_get_registered_classes		(TrackerClient *client, GError **error);
-
+char **		        tracker_metadata_get_unique_values              (TrackerClient *client, const char *meta_type, int offset, int max_hits, GError **error);
 
 GPtrArray *	tracker_keywords_get_list			(TrackerClient *client, ServiceType service, GError **error);
 char **		tracker_keywords_get				(TrackerClient *client, ServiceType service, const char *id, GError **error);
@@ -184,7 +184,7 @@ void		tracker_metadata_register_type_async 			(TrackerClient *client, const char
 void		tracker_metadata_get_registered_types_async 		(TrackerClient *client, const char *classname, TrackerArrayReply callback, gpointer user_data);
 void		tracker_metadata_get_writeable_types_async 		(TrackerClient *client, const char *classname, TrackerArrayReply callback, gpointer user_data);
 void		tracker_metadata_get_registered_classes_async 		(TrackerClient *client, TrackerArrayReply callback, gpointer user_data);
-
+void		tracker_metadata_get_unique_values_async                (TrackerClient *client, const char *meta_type, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data);
 
 void		tracker_keywords_get_list_async 			(TrackerClient *client, ServiceType service, TrackerGPtrArrayReply callback, gpointer user_data);
 void		tracker_keywords_get_async 				(TrackerClient *client, ServiceType service, const char *id, TrackerArrayReply callback, gpointer user_data);

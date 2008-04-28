@@ -2980,6 +2980,47 @@ tracker_db_set_metadata (DBConnection *db_con, const char *service, const char *
 
 }
 
+TrackerDBResultSet *
+tracker_db_get_unique_metadata_values (DBConnection *db_con, const char *meta_type, int offset, int limit)
+{
+        FieldDef           *def;
+        char	           *str_offset, *str_limit;
+        TrackerDBResultSet *result_set;
+
+        g_return_val_if_fail ((meta_type), NULL);
+
+        def = tracker_db_get_field_def (db_con, meta_type);
+
+        if (!def) {
+                tracker_error ("ERROR: metadata not found for type %s", meta_type);
+                return NULL;
+        }
+
+	str_offset = tracker_int_to_str (offset);
+	str_limit = tracker_int_to_str (limit);
+
+        switch (def->type) {
+
+                case DATA_INDEX:
+                case DATA_STRING:
+                case DATA_DOUBLE:
+		        result_set = tracker_exec_proc (db_con, "GetMetadataValues", def->id, str_offset, str_limit, NULL); break;
+
+                case DATA_INTEGER:
+                case DATA_DATE:
+		        result_set = tracker_exec_proc (db_con, "GetMetadataNumericValues", def->id, str_offset, str_limit, NULL); break;
+
+                case DATA_KEYWORD:
+		        result_set = tracker_exec_proc (db_con, "GetMetadataKeywordValues", def->id, str_offset, str_limit, NULL); break;
+
+                default: tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type); result_set = NULL;
+	}
+
+	return result_set;
+
+}
+
+
 static char *
 remove_value (const char *str, const char *del_str) 
 {

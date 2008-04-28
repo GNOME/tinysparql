@@ -568,3 +568,62 @@ tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
 	dbus_connection_send (rec->connection, reply, NULL);
 	dbus_message_unref (reply);
 }
+
+
+void
+tracker_dbus_method_metadata_get_unique_values (DBusRec *rec)
+{
+	DBConnection       *db_con;
+	DBusError          dbus_error;
+	DBusMessage        *reply;
+	gchar 	           *meta_type;
+	gchar 	           **array;
+	gint 	           limit, offset;
+	int	           row_count;
+	TrackerDBResultSet *result_set;
+/*
+		<!-- returns an array of all unique values of given metadata type -->
+		<method name="GetUniqueValues">
+			<arg type="s" name="meta_type" direction="in" />
+			<arg type="i" name="offset" direction="in" />
+			<arg type="i" name="max_hits" direction="in" />
+			<arg type="as" name="result" direction="out" />
+		</method>
+*/
+
+	g_return_if_fail (rec && rec->user_data);
+
+	db_con = rec->user_data;
+
+        dbus_error_init (&dbus_error);
+        if (!dbus_message_get_args (rec->message, NULL,
+                               DBUS_TYPE_STRING, &meta_type,
+                               DBUS_TYPE_INT32, &offset,
+                               DBUS_TYPE_INT32, &limit,
+                               DBUS_TYPE_INVALID)) {
+                tracker_set_error (rec, "DBusError: %s;%s", dbus_error.name, dbus_error.message);
+                dbus_error_free (&dbus_error);
+	        return;
+        }
+
+	result_set = tracker_db_get_unique_metadata_values (db_con, meta_type, offset, limit);
+
+        array = NULL;
+        row_count = 0;
+
+        if (result_set) {
+                array = tracker_get_query_result_as_array (result_set, &row_count);
+                g_object_unref (result_set);
+	}
+
+        reply = dbus_message_new_method_return (rec->message);
+
+        dbus_message_append_args (reply,
+                                  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
+                                  DBUS_TYPE_INVALID);
+
+        tracker_free_array (array, row_count);
+
+        dbus_connection_send (rec->connection, reply, NULL);
+        dbus_message_unref (reply);
+}

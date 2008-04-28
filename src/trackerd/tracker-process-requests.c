@@ -206,7 +206,11 @@ tracker_process_requests (gpointer data)
                 case DBUS_ACTION_METADATA_GET_REGISTERED_CLASSES:
                         tracker_dbus_method_metadata_get_registered_classes (rec);
                         break;
-                        
+
+                case DBUS_ACTION_METADATA_GET_UNIQUE_VALUES:
+                        tracker_dbus_method_metadata_get_unique_values (rec);
+                        break;
+
                 case DBUS_ACTION_KEYWORDS_GET_LIST:
                         tracker->request_waiting = TRUE;
                         tracker->grace_period = 2;

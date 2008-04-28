@@ -33,4 +33,6 @@ void	tracker_dbus_method_metadata_get_registered_types	(DBusRec *rec);
 void	tracker_dbus_method_metadata_get_writeable_types	(DBusRec *rec);
 void	tracker_dbus_method_metadata_get_registered_classes	(DBusRec *rec);
 
+void	tracker_dbus_method_metadata_get_unique_values          (DBusRec *rec);
+
 #endif

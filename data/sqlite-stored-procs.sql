@@ -83,6 +83,10 @@ GetMetadataKeyword SELECT MetaDataValue FROM ServiceKeywordMetaData WHERE Servic
 GetMetadata SELECT MetaDataDisplay FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 GetMetadataNumeric SELECT MetaDataValue FROM ServiceNumericMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 
+GetMetadataKeywordValues SELECT DISTINCT MetaDataValue FROM ServiceKeywordMetaData WHERE MetaDataID = ? LIMIT ?,?;
+GetMetadataValues SELECT DISTINCT MetaDataDisplay FROM ServiceMetaData WHERE MetaDataID = ? LIMIT ?,?;
+GetMetadataNumericValues SELECT DISTINCT MetaDataValue FROM ServiceNumericMetaData WHERE MetaDataID = ? LIMIT ?,?;
+
 SetMetadataKeyword INSERT INTO ServiceKeywordMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
 SetMetadata INSERT INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue, MetaDataDisplay) VALUES (?,?,?,?);
 SetMetadataNumeric INSERT INTO ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
