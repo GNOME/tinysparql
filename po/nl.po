@@ -1,14 +1,14 @@
 # Dutch translation for tracker
-# Copyright (C) 2006 THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) 2008 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
-# Roel Huybrechts <roelhuybrechts@skynet.be>, 2007
-#
+# Roel Huybrechts <roelhuybrechts@skynet.be>, 2007.
+# Tino Meinen <a.t.meinen@chello.nl>, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-08-13 04:02+0200\n"
-"PO-Revision-Date: 2007-05-16 08:51-0000\n"
+"POT-Creation-Date: 2008-04-16 23:05+0100\n"
+"PO-Revision-Date: 2008-04-30 19:23+0200\n"
 "Last-Translator: Roel Huybrechts <roelhuybrechts@skynet.be>\n"
 "Language-Team: nl\n"
 "MIME-Version: 1.0\n"
@@ -16,213 +16,367 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../trackerd.desktop.in.in.h:1
-msgid "Tracker"
+#: ../python/deskbar-handler/tracker-handler.py:36
+#: ../python/deskbar-handler/tracker-module.py:100
+#, python-format
+msgid "Launch %s (%s)"
+msgstr "%s opstarten (%s)"
+
+# discussie/gesprek/conversatie
+#: ../python/deskbar-handler/tracker-handler.py:41
+#: ../python/deskbar-handler/tracker-module.py:105
+#, python-format
+msgid ""
+"See %s conversation\n"
+"%s %s\n"
+"from %s"
 msgstr ""
 
-#: ../trackerd.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
+#: ../python/deskbar-handler/tracker-handler.py:47
+#: ../python/deskbar-handler/tracker-module.py:110
+#, python-format
+msgid "Email from %s"
+msgstr "E-mails van %s"
+
+# Luister naar [muziekbestand] in [programmanaam]?
+# geluidsbestand/muziekbestand
+#: ../python/deskbar-handler/tracker-handler.py:60
+#: ../python/deskbar-handler/tracker-module.py:122
+#, python-format
+msgid ""
+"Listen to music %s\n"
+"in %s"
 msgstr ""
+
+# bekijken/inzien/bezien/weergeven
+#: ../python/deskbar-handler/tracker-handler.py:65
+#: ../python/deskbar-handler/tracker-module.py:128
+#, python-format
+msgid ""
+"See document %s\n"
+"in %s"
+msgstr ""
+"Document %s weergeven\n"
+"met %s"
+
+# met/in [programmanaam]
+#: ../python/deskbar-handler/tracker-handler.py:70
+#: ../python/deskbar-handler/tracker-handler.py:87
+#: ../python/deskbar-handler/tracker-handler.py:124
+#: ../python/deskbar-handler/tracker-module.py:133
+#: ../python/deskbar-handler/tracker-module.py:155
+#: ../python/deskbar-handler/tracker-module.py:207
+#: ../python/deskbar-handler/tracker-module.py:243
+#, python-format
+msgid ""
+"Open file %s\n"
+"in %s"
+msgstr ""
+"Bestand %s openen\n"
+"met %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:75
+#: ../python/deskbar-handler/tracker-module.py:138
+#, python-format
+msgid ""
+"View image %s\n"
+"in %s"
+msgstr ""
+"Afbeelding %s bekijken\n"
+"met %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:81
+#: ../python/deskbar-handler/tracker-module.py:144
+#, python-format
+msgid ""
+"Watch video  %s\n"
+"in %s"
+msgstr ""
+"Video %s kijken\n"
+"met %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:92
+#: ../python/deskbar-handler/tracker-module.py:150
+#, python-format
+msgid ""
+"Open folder %s\n"
+"%s"
+msgstr ""
+"Map %s openen\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:210
+#: ../python/deskbar-handler/tracker-module.py:351
+msgid "with"
+msgstr "met"
+
+#: ../python/deskbar-handler/tracker-handler.py:218
+#: ../python/deskbar-handler/tracker-module.py:359
+msgid "in channel"
+msgstr "in kanaal"
+
+#: ../python/deskbar-handler/tracker-handler.py:385
+msgid "Search all of your documents, <b>as you type</b>"
+msgstr "Al uw documenten doorzoeken <b>terwijl u typt</b>"
+
+#: ../python/deskbar-handler/tracker-handler.py:389
+#: ../python/deskbar-handler/tracker-module.py:295
+#, fuzzy
+msgid "Development Files"
+msgstr "Ontwikkeling"
+
+#: ../python/deskbar-handler/tracker-handler.py:392
+#: ../python/deskbar-handler/tracker-module.py:298
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
+msgid "Music"
+msgstr "Muziek"
+
+#: ../python/deskbar-handler/tracker-handler.py:395
+#: ../python/deskbar-handler/tracker-module.py:301
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
+msgid "Images"
+msgstr "Afbeeldingen"
+
+#: ../python/deskbar-handler/tracker-handler.py:398
+#: ../python/deskbar-handler/tracker-module.py:304
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
+msgid "Videos"
+msgstr "Video's"
+
+#: ../python/deskbar-handler/tracker-handler-static.py:37
+#: ../python/deskbar-handler/tracker-module.py:65
+#: ../python/deskbar-handler/tracker-module.py:160
+#, python-format
+msgid "Search for %s with Tracker Search Tool"
+msgstr "Zoeken naar %s met het Tracker zoekprogramma"
+
+#: ../python/deskbar-handler/tracker-handler-static.py:68
+msgid "Search all of your documents with Tracker Search Tool"
+msgstr "Al uw documenten doorzoeken met het Tracker zoekprogramma"
+
+#: ../python/deskbar-handler/tracker-module.py:79
+msgid "Tracker Search"
+msgstr "Tracker zoekprogramma"
+
+#: ../python/deskbar-handler/tracker-module.py:80
+msgid "Search with Tracker Search Tool"
+msgstr "Zoeken met het Tracker zoekprogramma"
+
+#: ../python/deskbar-handler/tracker-module.py:290
+#, fuzzy
+msgid "Tracker Live Search"
+msgstr "Tracker zoekprogramma"
+
+#: ../python/deskbar-handler/tracker-module.py:291
+msgid "Search with Tracker, as you type"
+msgstr "Zoeken met Tracker, terwijl u typt"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:453
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:472
 #, c-format
 msgid "Path : <b>%s</b>"
 msgstr "Pad: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:454
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:473
 #, c-format
 msgid "Modified : <b>%s</b>"
 msgstr "Gewijzigd: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:455
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:641
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:474
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:660
 #, c-format
 msgid "Size : <b>%s</b>"
 msgstr "Grootte: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:456
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:475
 #, c-format
 msgid "Accessed : <b>%s</b>"
 msgstr "Geraadpleegd: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:457
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:476
 #, c-format
 msgid "Mime : <b>%s</b>"
 msgstr "Mime: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:509
-#, fuzzy, c-format
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:528
+#, c-format
 msgid "Sender : <b>%s</b>"
-msgstr "Genre: <b>%s</b>"
+msgstr "Afzender: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:510
-#, fuzzy, c-format
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:529
+#, c-format
 msgid "Date : <b>%s</b>"
-msgstr "Pad: <b>%s</b>"
+msgstr "Datum: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:550
-#, fuzzy, c-format
+# opmerking/commentaar/bijschrift
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:569
+#, c-format
 msgid "Comment : <b>%s</b>"
 msgstr "Commentaar: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:551
-#, fuzzy, c-format
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:570
+#, c-format
 msgid "Categories : <b>%s</b>"
-msgstr "Aangemaakt op: <b>%s</b>"
+msgstr "Categoriën: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:637
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:742
+# tijdsduur/lengte
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:656
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:761
 #, c-format
 msgid "Duration : <b>%s</b>"
-msgstr "Tijdspanne: <b>%s</b>"
+msgstr "Tijdsduur: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:638
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:657
 #, c-format
 msgid "Genre : <b>%s</b>"
 msgstr "Genre: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:639
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:658
 #, c-format
 msgid "Bitrate : <b>%s Kbs</b>"
 msgstr "Bitsnelheid: <b>%s Kbs</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:640
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:659
 #, c-format
 msgid "Year : <b>%s</b>"
 msgstr "Jaar: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:642
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:661
 #, c-format
 msgid "Codec : <b>%s</b>"
 msgstr "Codec: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:683
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:702
 #, c-format
 msgid " taken with a <span size='large'><i>%s</i></span>"
 msgstr " gemaakt met een <span size='large'><i>%s</i></span>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:688
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:707
 #, c-format
 msgid " <span size='large'><i>%s</i></span>"
 msgstr " <span size='large'><i>%s</i></span>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:708
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:740
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:727
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:759
 #, c-format
 msgid "Dimensions : <b>%d x %d</b>"
 msgstr "Afmetingen: <b>%d x %d</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:709
+# wanneer een foto genomen is
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:728
 #, c-format
 msgid "Date Taken : <b>%s</b>"
 msgstr "Opnamedatum: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:710
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:729
 #, c-format
 msgid "Orientation : <b>%s</b>"
 msgstr "Oriëntatie: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:711
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:730
 #, c-format
 msgid "Flash : <b>%s</b>"
 msgstr "Flash: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:712
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:731
 #, c-format
 msgid "Focal Length : <b>%s</b>"
 msgstr "Focuslengte: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:713
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:732
 #, c-format
 msgid "Exposure Time : <b>%s</b>"
 msgstr "Belichtingstijd: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:741
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:774
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:760
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:793
 #, c-format
 msgid "Author : <b>%s</b>"
 msgstr "Auteur: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:743
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:762
 #, c-format
 msgid "Bitrate : <b>%s</b>"
 msgstr "Bitsnelheid: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:744
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:763
 #, c-format
 msgid "Encoded In : <b>%s</b>"
 msgstr "Gecodeerd in: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:745
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:764
 #, c-format
 msgid "Framerate : <b>%s</b>"
 msgstr "Framerate: <b>%s</b>"
 
 #. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:773
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:792
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:824
 #, c-format
 msgid "Subject : <b>%s</b>"
 msgstr "Onderwerp: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:775
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:794
 #, c-format
 msgid "Page Count : <b>%s</b>"
 msgstr "Aantal pagina's: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:776
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:795
 #, c-format
 msgid "Word Count : <b>%s</b>"
 msgstr "Aantal woorden: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:777
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:796
 #, c-format
 msgid "Created : <b>%s</b>"
 msgstr "Aangemaakt op: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:778
+# bijschrift/commentaar/opmerking
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:797
 #, c-format
 msgid "Comments : <b>%s</b>"
 msgstr "Commentaar: <b>%s</b>"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:862
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:917
 #, c-format
 msgid "%.1f KB"
 msgstr "%.1f KB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:866
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:921
 #, c-format
 msgid "%.1f MB"
 msgstr "%.1f MB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:870
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:925
 #, c-format
 msgid "%.1f GB"
 msgstr "%.1f GB"
 
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:908
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:974
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:996
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1016
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:964
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1004
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1027
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1049
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:251
+# trefwoorden
+#: ../src/libtracker-gtk/tracker-tag-bar.c:250
 msgid "Type tags you want to add here, separated by commas"
 msgstr "Typ hier de tags die u wenst, gescheiden door komma's"
 
-#: ../src/libtracker-gtk/tracker-tag-bar.c:361
+# trefwoorden
+#: ../src/libtracker-gtk/tracker-tag-bar.c:365
 msgid "Tags :"
 msgstr "Tags:"
 
 #. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:383
+#: ../src/libtracker-gtk/tracker-tag-bar.c:392
 msgid "_Search For Tag"
 msgstr "_Zoek naar tag"
 
 #. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:395
+#: ../src/libtracker-gtk/tracker-tag-bar.c:404
 msgid "_Remove Tag"
 msgstr "_Verwijder tag"
 
@@ -288,14 +442,17 @@ msgstr "%s: geen verbinding met tracker daemon"
 
 #: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
 #: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
+#, c-format
 msgid "Ensure \"trackerd\" is running before launch this command."
 msgstr "Controleer dat \"trackerd\" draait voordat u dit commando gebruikt."
 
 #: ../src/libtracker/tracker-search.c:147
+#, c-format
 msgid "Service not recognized, searching in Other Files...\n"
 msgstr "Service niet herkend, bezig met zoeken in Andere Bestanden...\n"
 
-#: ../src/libtracker/tracker-search.c:164 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-search.c:164
+#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
 #: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
 #: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
 #, c-format
@@ -304,6 +461,7 @@ msgstr "%s: interne tracker fout: %s"
 
 #. FIXME!! coreutilus don't print anything on no-results
 #: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
+#, c-format
 msgid "No results found matching your query"
 msgstr "Geen resultaten gevonden die voldoen aan uw opzoeking"
 
@@ -370,29 +528,29 @@ msgstr "%s: ongeldige argumenten"
 msgid "%s: file %s not found"
 msgstr "%s: bestand %s niet gevonden"
 
-#: ../src/trackerd/trackerd.c:158
+#: ../src/trackerd/trackerd.c:120
 msgid "Directory to exclude from indexing"
 msgstr "Map die niet geïndexeerd mag worden"
 
-#: ../src/trackerd/trackerd.c:158 ../src/trackerd/trackerd.c:159
-#: ../src/trackerd/trackerd.c:160
+#: ../src/trackerd/trackerd.c:120 ../src/trackerd/trackerd.c:121
+#: ../src/trackerd/trackerd.c:122
 msgid "/PATH/DIR"
 msgstr "/PAD/MAP"
 
-#: ../src/trackerd/trackerd.c:159
+#: ../src/trackerd/trackerd.c:121
 msgid "Directory to include in indexing"
 msgstr "Map die geïndexeerd moet worden"
 
-#: ../src/trackerd/trackerd.c:160
+#: ../src/trackerd/trackerd.c:122
 #, fuzzy
 msgid "Directory to crawl for indexing at start up only"
 msgstr "Map die niet geïndexeerd mag worden"
 
-#: ../src/trackerd/trackerd.c:161
+#: ../src/trackerd/trackerd.c:123
 msgid "Disable any indexing or watching taking place"
 msgstr "Schakel alle indexerings- en controleprocessen uit"
 
-#: ../src/trackerd/trackerd.c:162
+#: ../src/trackerd/trackerd.c:124
 msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
@@ -400,53 +558,58 @@ msgstr ""
 "Waarde die de log-level bepaalt. Toegestane waarden zijn 0 (toont/logt enkel "
 "fouten), 1 (minimaal), 2 (gedetailleerd), en 3 (debug)"
 
-#: ../src/trackerd/trackerd.c:162 ../src/trackerd/trackerd.c:163
+#: ../src/trackerd/trackerd.c:124 ../src/trackerd/trackerd.c:125
 msgid "VALUE"
 msgstr "WAARDE"
 
-#: ../src/trackerd/trackerd.c:163
+#: ../src/trackerd/trackerd.c:125
+#, fuzzy
 msgid ""
-"Value to use for throttling indexing. Value must be in range 0-20 (default "
+"Value to use for throttling indexing. Value must be in range 0-99 (default "
 "0) with lower values increasing indexing speed"
 msgstr ""
 "Waarde te gebruiken voor het throttlen van het indexeren. De waarden moet "
 "gelegen zijn tussen 0-20 (standaard 0), lagere waarden versnellen de "
 "indexeringssnelheid"
 
-#: ../src/trackerd/trackerd.c:164
+#: ../src/trackerd/trackerd.c:126
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Verminderd het geheugengebruik maar kan het indexeren vertragen"
 
-#: ../src/trackerd/trackerd.c:165
+#: ../src/trackerd/trackerd.c:127
 msgid "Initial sleep time, just before indexing, in seconds"
 msgstr ""
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:128
 msgid ""
 "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
 msgstr ""
 "Taal om te gebruiken voor de stam- en stop-woordenlijst (ISO 639-1 2 "
 "karakters code)"
 
-#: ../src/trackerd/trackerd.c:166
+#: ../src/trackerd/trackerd.c:128
 msgid "LANG"
 msgstr "TAAL"
 
-#: ../src/trackerd/trackerd.c:167
+#: ../src/trackerd/trackerd.c:129
 msgid "Force a re-index of all content"
 msgstr "Dwing een herindexering van alle data af"
 
+#: ../src/trackerd/trackerd.c:130
+msgid "Make tracker errors fatal"
+msgstr ""
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:2047
+#: ../src/trackerd/trackerd.c:664
 msgid "- start the tracker daemon"
 msgstr "- start de tracker daemon"
 
-#: ../src/trackerd/trackerd.c:2048 ../src/trackerd/trackerd.c:2049
+#: ../src/trackerd/trackerd.c:665 ../src/trackerd/trackerd.c:666
 msgid "DIRECTORY"
 msgstr "MAP"
 
-#: ../src/trackerd/trackerd.c:2056
+#: ../src/trackerd/trackerd.c:673
 msgid ""
 "To include or exclude multiple directories at the same time, join multiple "
 "options like:"
@@ -454,14 +617,318 @@ msgstr ""
 "Om meerdere mappen tegelijkertijd bij te voegen of te verwijderen voegt u "
 "meerder opties samen. Bijvoorbeeld:"
 
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
+msgid "Control and monitor the Tracker search and indexing service"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
+#: ../src/tracker-applet/tracker-applet.c:54
+msgid "Tracker Applet"
+msgstr "Tracker-applet"
+
+# tooltip
+#. Translators: this will appear like "Tracker : Idle"
+#: ../src/tracker-applet/tracker-applet.c:238
+msgid "Tracker : "
+msgstr "Tracker is "
+
+# in rust/niet bezig
+#: ../src/tracker-applet/tracker-applet.c:243
+msgid "Idle"
+msgstr "niet bezig"
+
+#: ../src/tracker-applet/tracker-applet.c:247
+msgid "Indexing"
+msgstr "bezig met indexeren"
+
+#: ../src/tracker-applet/tracker-applet.c:251
+msgid "Merging"
+msgstr "bezig met samenvoegen"
+
+#: ../src/tracker-applet/tracker-applet.c:261
+msgid " (paused by user)"
+msgstr " (gepauzeerd door de gebruiker)"
+
+#: ../src/tracker-applet/tracker-applet.c:263
+#: ../src/tracker-applet/tracker-applet.c:274
+msgid " (paused by system)"
+msgstr " (gepauzeerd door het systeem)"
+
+#: ../src/tracker-applet/tracker-applet.c:278
+msgid " (paused by battery)"
+msgstr " (gepauzeerd door de accu)"
+
+#: ../src/tracker-applet/tracker-applet.c:291
+msgid "folders"
+msgstr "mappen"
+
+#: ../src/tracker-applet/tracker-applet.c:293
+msgid "mailboxes"
+msgstr "mailboxen"
+
+#: ../src/tracker-applet/tracker-applet.c:1021
+msgid "Re-index your system?"
+msgstr "Uw systeem opnieuw indexeren?"
+
+#: ../src/tracker-applet/tracker-applet.c:1024
+msgid "Indexing can take a long time. Are you sure you want to re-index?"
+msgstr "Indexeren kan veel tijd in beslag nemen. Weet u zeker dat u opnieuw wilt indexeren?"
+
+#: ../src/tracker-applet/tracker-applet.c:1162
+msgid "Statistics"
+msgstr "Statistiek"
+
+# geen letterlijke vertaling
+#: ../src/tracker-applet/tracker-applet.c:1188
+msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">Indexeringsoverzicht</span>"
+
+#: ../src/tracker-applet/tracker-applet.c:1313
+msgid ""
+"Tracker is free software; you can redistribute it and/or modify it under the "
+"terms of the GNU General Public License as published by the Free Software "
+"Foundation; either version 2 of the License, or (at your option) any later "
+"version."
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1314
+msgid ""
+"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details."
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1315
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
+"Place, Suite 330, Boston, MA  02111-1307  USA"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1330
+msgid ""
+"Tracker is a tool designed to extract info and metadata about your personal "
+"data so that it can be searched easily and quickly"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet.c:1332
+msgid "Copyright © 2005-2008 The Tracker authors"
+msgstr "Copyright © 2005-2008 De auteurs van Tracker"
+
+#. Translators should localize the following string
+#. * which will be displayed at the bottom of the about
+#. * box to give credit to the translator(s).
+#.
+#: ../src/tracker-applet/tracker-applet.c:1340
+msgid "translator-credits"
+msgstr ""
+"Roel Huybrechts\n"
+"Tino Meinen"
+
+#: ../src/tracker-applet/tracker-applet.c:1343
+msgid "Tracker Web Site"
+msgstr "Tracker website"
+
+#: ../src/tracker-applet/tracker-applet.c:1363
+msgid "_Pause All Indexing"
+msgstr "Indexeren _pauzeren"
+
+# rechtermuis menu
+# hiermee wordt het zoekvenster/scherm geopend, dus geen zoekopdracht gestart
+#: ../src/tracker-applet/tracker-applet.c:1374
+msgid "_Search"
+msgstr "_Zoekvenster tonen"
+
+#: ../src/tracker-applet/tracker-applet.c:1384
+msgid "_Re-index"
+msgstr "_Opnieuw indexeren"
+
+#: ../src/tracker-applet/tracker-applet.c:1393
+msgid "_Preferences"
+msgstr "_Voorkeuren"
+
+#: ../src/tracker-applet/tracker-applet.c:1404
+msgid "_Indexer Preferences"
+msgstr "Inde_xeringsvoorkeuren"
+
+#: ../src/tracker-applet/tracker-applet.c:1413
+msgid "S_tatistics"
+msgstr "_Statistiek"
+
+#: ../src/tracker-applet/tracker-applet.c:1422
+msgid "_About"
+msgstr "I_nfo"
+
+#: ../src/tracker-applet/tracker-applet.c:1434
+msgid "_Quit"
+msgstr "A_fsluiten"
+
+#: ../src/tracker-applet/tracker-applet.c:1997 ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../src/tracker-applet/tracker-applet.c:2004
+msgid ""
+"Your computer is about to be indexed so you can perform fast searches of "
+"your files and emails"
+msgstr "Uw computer wordt zodirekt geïndexeerd zodat u snel naar uw bestanden en e-mails kunt zoeken"
+
+#: ../src/tracker-applet/tracker-applet.c:2007
+msgid ""
+"You can pause indexing at any time and configure index settings by right "
+"clicking here"
+msgstr "U kunt het indexeren altijd pauzeren en configureren door hier met de rechtermuisknop te klikken."
+
+# heeft het indexeren voltooid/afgerond
+#: ../src/tracker-applet/tracker-applet.c:2010
+msgid "Tracker has finished indexing your system"
+msgstr "Tracker heeft uw systeem geïndexeerd"
+
+#: ../src/tracker-applet/tracker-applet.c:2011
+#, c-format
+msgid " in %d hours and %d minutes"
+msgstr " in %d uur en %d minuten"
+
+#: ../src/tracker-applet/tracker-applet.c:2012
+#, c-format
+msgid " in %d minutes and %d seconds"
+msgstr " in %d minuten en %d seconden"
+
+#: ../src/tracker-applet/tracker-applet.c:2013
+#, c-format
+msgid " in %d seconds"
+msgstr " in %d seconden"
+
+#: ../src/tracker-applet/tracker-applet.c:2015
+msgid "You can now perform searches by clicking here"
+msgstr "U kunt nu zoekopdrachten geven door hier te klikken"
+
+#: ../src/tracker-applet/tracker-applet.c:2018
+msgid "Files:"
+msgstr "Bestanden:"
+
+#: ../src/tracker-applet/tracker-applet.c:2019
+msgid "    Folders:"
+msgstr "    Mappen:"
+
+#: ../src/tracker-applet/tracker-applet.c:2020
+msgid "    Documents:"
+msgstr "    Documenten:"
+
+#: ../src/tracker-applet/tracker-applet.c:2021
+msgid "    Images:"
+msgstr "    Afbeeldingen:"
+
+#: ../src/tracker-applet/tracker-applet.c:2022
+msgid "    Music:"
+msgstr "    Muziek:"
+
+#: ../src/tracker-applet/tracker-applet.c:2023
+msgid "    Videos:"
+msgstr "    Video's:"
+
+#: ../src/tracker-applet/tracker-applet.c:2024
+msgid "    Text:"
+msgstr "    Tekst:"
+
+#: ../src/tracker-applet/tracker-applet.c:2025
+msgid "    Development:"
+msgstr "    Ontwikkeling:"
+
+#: ../src/tracker-applet/tracker-applet.c:2026
+msgid "    Other:"
+msgstr "    Overig:"
+
+#: ../src/tracker-applet/tracker-applet.c:2027
+msgid "Applications:"
+msgstr "Toepassingen:"
+
+# conversaties/discussies/gesprekken
+#: ../src/tracker-applet/tracker-applet.c:2028
+msgid "Conversations:"
+msgstr "Gesprekken:"
+
+#: ../src/tracker-applet/tracker-applet.c:2029
+msgid "Emails:"
+msgstr "E-mails:"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
+msgid "<b>Animation</b>"
+msgstr "<b>Animatie</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
+msgid "<b>Smart Pausing</b>"
+msgstr "<b>Slim pauzeren</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
+msgid "<b>Visibility</b>"
+msgstr "<b>Zichtbaarheid</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
+#, fuzzy
+msgid "Animate _icon when indexing"
+msgstr "Schakel Evolution e-mail indexering in"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
+msgid "Applet Preferences"
+msgstr "Applet voorkeuren"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
+msgid ""
+"Automatically _pause if indexing may degrade performance of other "
+"applications in active use"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
+msgid "_Automatically pause all indexing when computer is in active use"
+msgstr ""
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
+msgid "_Hide Icon (except when displaying messages to user)"
+msgstr "_Pictogram verbergen (behalve wanneer berichten aan de gebruiker getoond worden)"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
+msgid "_Off"
+msgstr "_Uit"
+
+#: ../src/tracker-preferences/tracker-preferences.c:833
+msgid "Data must be reindexed"
+msgstr "Data moet opnieuw geïndexeerd worden"
+
+#: ../src/tracker-preferences/tracker-preferences.c:834
+msgid ""
+"In order for your changes to take effect, Tracker must reindex your files. "
+"Click the Reindex button to start reindexing now, otherwise this action will "
+"be performed the next time the Tracker daemon is restarted."
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.c:841
+msgid "_Reindex"
+msgstr "_Herindexeren"
+
+#: ../src/tracker-preferences/tracker-preferences.c:844
+msgid "Tracker daemon must be restarted"
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.c:846
+msgid ""
+"In order for your changes to take effect, the Tracker daemon has to be "
+"restarted. Click the Restart button to restart the daemon now."
+msgstr ""
+
+#: ../src/tracker-preferences/tracker-preferences.c:851
+msgid "_Restart"
+msgstr "He_rstarten"
+
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
 #, fuzzy
 msgid "Configure file indexing with Tracker"
 msgstr "Configureer bestandsindexering"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Indexing Preferences"
-msgstr "Indexeringsvoorkeuren"
+msgid "Search and Indexing"
+msgstr "Zoeken en indexeren"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
@@ -477,30 +944,28 @@ msgstr "<b>Genegeerde paden</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:4
 #, fuzzy
-msgid "<b>Indexing Limits (per file)</b>"
+msgid "<b>Index Merging</b>"
 msgstr "<b>Indexeringsmodus</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:5
-#, fuzzy
-msgid "<b>Indexing options</b>"
-msgstr "<b>Indexeringsmodus</b>"
+msgid "<b>Indexing Limits (per file)</b>"
+msgstr "<b>Indexeringslimieten (per bestand)</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:6
-#, fuzzy
-msgid "<b>Indexing</b>"
-msgstr "<b>Indexeringsmodus</b>"
+msgid "<b>Indexing Options</b>"
+msgstr "<b>Indexeringsopties</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:7
-msgid "<b>Mailboxes</b>"
-msgstr "<b>Mailboxen</b>"
+msgid "<b>Indexing</b>"
+msgstr "<b>Indexering</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:8
-#, fuzzy
-msgid "<b>Resource Usage</b>"
-msgstr "<b>Services</b>"
+msgid "<b>Power management</b>"
+msgstr "<b>Energiebeheer</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:9
-msgid "<b>Services</b>"
+#, fuzzy
+msgid "<b>Resource Usage</b>"
 msgstr "<b>Services</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:10
@@ -512,9 +977,10 @@ msgstr "<b>Opstarten</b>"
 msgid "<b>Stemming</b>"
 msgstr "<b>Polling</b>"
 
+# beperken/begrenzen
 #: ../src/tracker-preferences/tracker-preferences.glade.h:12
 msgid "<b>Throttling</b>"
-msgstr "<b>Throttlen</b>"
+msgstr "<b>Begrenzen</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:13
 #, fuzzy
@@ -522,7 +988,8 @@ msgid "<b>Watch Directories</b>"
 msgstr "<b>Services</b>"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Additional mbox mailboxes to index:"
+#, fuzzy
+msgid "Additional mbox style mailboxes to index:"
 msgstr "Bijkomende mbox mailboxen om te indexeren:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:15
@@ -531,135 +998,179 @@ msgid "Additional paths to index and watch:"
 msgstr "Bijkomende paden om te indexeren:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
-msgid "Additional paths to index on startup (but not watch for updates)"
-msgstr ""
+#, fuzzy
+msgid "Additional paths to index on startup (but not watch for updates):"
+msgstr "Bijkomende paden om te indexeren:"
 
+# moet dit alfabetisch blijven? of moet dit op volgorde blijven
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
-msgid "Enable Evolution email indexing"
+msgid ""
+"Danish\n"
+"Dutch\n"
+"English\n"
+"Finnish\n"
+"French\n"
+"German\n"
+"Hungarian\n"
+"Italian\n"
+"Norwegian\n"
+"Portuguese\n"
+"Russian\n"
+"Spanish\n"
+"Swedish"
+msgstr ""
+"Deens\n"
+"Nederlands\n"
+"Engels\n"
+"Fins\n"
+"Frans\n"
+"Duits\n"
+"Hongaars\n"
+"Italiaans\n"
+"Noors\n"
+"Portugees\n"
+"Russisch\n"
+"Spaans\n"
+"Zweeds"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+msgid "Disable all Indexing when on battery"
+msgstr "Bij accustroom al het indexeren uitschakelen"
+
+# aanvankelijke/initiële/controleindex
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "Disable initial index sweep when on battery"
+msgstr "Bij accustroom de aanvankelijke indexering uitschakelen"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Email"
+msgstr "E-mail"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#, fuzzy
+msgid "Enable _Evolution email indexing"
 msgstr "Schakel Evolution e-mail indexering in"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:18
-msgid "Enable KMail email indexing"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#, fuzzy
+msgid "Enable _KMail email indexing"
 msgstr "Schakel KMail e-mail indexering in"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:19
-msgid "Enable Thunderbird email indexing"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#, fuzzy
+msgid "Enable _Modest email indexing"
+msgstr "Schakel KMail e-mail indexering in"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+#, fuzzy
+msgid "Enable _Thunderbird email indexing"
 msgstr "Schakel Thunderbird e-mail indexering in"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:20
-msgid "Enable _Indexing"
-msgstr "Schakel _indexering in"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:21
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 #, fuzzy
-msgid "Enable _Watching"
+msgid "Enable _watching"
 msgstr "Schakel _indexering in"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
-msgid "Faster"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#, fuzzy
+msgid "Enable i_ndexing"
+msgstr "Schakel _indexering in"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "Faster"
+msgstr "Sneller"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "File patterns to ignore during indexing:"
 msgstr "Bestandspatronen om te negeren tijdens het indexeren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
-msgid "Generate _thumbnails"
-msgstr "Genereer kleine _afbeeldingen"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+msgid "Files"
+msgstr "Bestanden"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+msgid "General"
+msgstr "Algemeen"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+msgid "Generate thum_bnails"
+msgstr "_Miniaturen genereren"
+
+# Genegeerde bestandspatronen/genegeerde bestanden
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+msgid "Ignored Files"
+msgstr "Genegeerde bestanden"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
 msgid "Index _delay: "
 msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
 msgid "Index _file contents"
-msgstr "Indexeer _bestandsinhoud"
+msgstr "_Bestandsinhoud indexeren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+msgid "Index _mounted directories"
+msgstr "Aa_ngekoppelde mappen indexeren"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
 #, fuzzy
 msgid "Index and watch my home _directory"
 msgstr "Indexeer mijn _thuismap"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
-msgid "Maximum _amount of text to Index (KB)"
+# snelheid
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
+#, fuzzy
+msgid "Indexing speed:"
+msgstr "I_ndexeren"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
+msgid "Maximum _amount of text to index:"
 msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Maximum number of unique _words to index"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+msgid "Maximum number of unique _words to index:"
 msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "P_erformance"
-msgstr "_Prestaties"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
 msgid "Path roots to be ignored during indexing:"
 msgstr "Paden om te negeren tijdens de indexering:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Seconds"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+msgid "Perform fast index merges (may affect system performance)"
 msgstr ""
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
+msgid "Performance"
+msgstr "Prestaties"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:55
 msgid "Slower"
-msgstr ""
+msgstr "Langzamer"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:56
 msgid "Tracker Preferences"
 msgstr "Tracker voorkeuren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
-#, fuzzy
-msgid "_Emails"
-msgstr "E-mails"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-#, fuzzy
-msgid "_Files"
-msgstr "Alle bestanden"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "_General"
-msgstr "_Algemeen"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
-#, fuzzy
-msgid "_Ignored Files"
-msgstr "<b>Genegeerde bestandspatronen</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
-#, fuzzy
-msgid "_Indexing speed:"
-msgstr "I_ndexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:57
 msgid "_Language:"
-msgstr ""
+msgstr "_Taal:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
-#, fuzzy
+#: ../src/tracker-preferences/tracker-preferences.glade.h:58
 msgid "_Minimize memory usage (slower indexing)"
-msgstr "Verminderd het geheugengebruik maar kan het indexeren vertragen"
+msgstr "_Geheugengebruik minimaliseren (langzamer indexeren)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
-msgid "_Use additonal memory for faster indexing"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.glade.h:59
+msgid "_Use additional memory for faster indexing"
+msgstr "E_xtra geheugen gebruiken om sneller te indexeren"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
-msgid ""
-"danish\n"
-"dutch\n"
-"english\n"
-"finnish\n"
-"french\n"
-"german\n"
-"italian\n"
-"norwegian\n"
-"portugese\n"
-"russian\n"
-"spanish\n"
-"swedish"
-msgstr ""
+#: ../src/tracker-preferences/tracker-preferences.glade.h:60
+msgid "kB"
+msgstr "kB"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:61
+msgid "seconds"
+msgstr "seconden"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:65
 msgid "Search from a specific service"
@@ -681,20 +1192,8 @@ msgstr "Mappen"
 msgid "Documents"
 msgstr "Documenten"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
-msgid "Images"
-msgstr "Afbeeldingen"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
-msgid "Music"
-msgstr "Muziek"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:142
-msgid "Videos"
-msgstr "Video's"
-
 #: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1224
+#: ../src/tracker-search-tool/tracker-search-tool.c:1213
 msgid "Text"
 msgstr "Tekst"
 
@@ -708,123 +1207,139 @@ msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:146
 msgid "Applications"
+msgstr "Toepassingen"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:147
+msgid "WebHistory"
 msgstr ""
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:207
 msgid "_Open"
-msgstr "_Open"
+msgstr "_Openen"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:208
 msgid "O_pen Folder"
-msgstr "O_pen map"
+msgstr "_Map openen"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:209
 msgid "Mo_ve to Trash"
-msgstr "_Verplaats naar prullenmand"
+msgstr "_Verplaatsen naar prullenmand"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:210
 msgid "_Save Results As..."
-msgstr "_Resultaten bewaren als..."
+msgstr "_Resultaten opslaan als..."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:254
+#: ../src/tracker-search-tool/tracker-search-tool.c:238
 #, c-format
 msgid "Character set conversion failed for \"%s\""
-msgstr "Karakterset conversie gefaald voor \"%s\""
+msgstr "Tekensetconversie voor ‘%s’ is mislukt"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:281
-msgid "The following error has occured :"
-msgstr ""
+#: ../src/tracker-search-tool/tracker-search-tool.c:265
+msgid "The following error has occurred :"
+msgstr "Er is een fout opgetreden:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:656
+#: ../src/tracker-search-tool/tracker-search-tool.c:269
+msgid "Error"
+msgstr "Fout"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:644
 msgid "Did you mean"
 msgstr "Bedoelde u"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:687
+#: ../src/tracker-search-tool/tracker-search-tool.c:675
 msgid "Your search returned no results."
 msgstr "Uw zoekopdracht leverde geen resultaten op."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:702
+#: ../src/tracker-search-tool/tracker-search-tool.c:690
 msgid "Tracker Search Tool-"
 msgstr "Tracker zoekprogramma-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:863
-#: ../src/tracker-search-tool/tracker-search-tool.c:2199
+#: ../src/tracker-search-tool/tracker-search-tool.c:851
+#: ../src/tracker-search-tool/tracker-search-tool.c:2221
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Tracker zoekprogramma"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1053
-#, fuzzy
+#: ../src/tracker-search-tool/tracker-search-tool.c:1041
 msgid "Search _results: "
-msgstr "Zoekresultaten:"
+msgstr "Zoek_resultaten: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1059
+#: ../src/tracker-search-tool/tracker-search-tool.c:1047
 msgid "no search performed"
-msgstr ""
+msgstr "geen zoekopdracht uitgevoerd"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1113
-#: ../src/tracker-search-tool/tracker-search-tool.c:1274
+#: ../src/tracker-search-tool/tracker-search-tool.c:1107
+#: ../src/tracker-search-tool/tracker-search-tool.c:1267
 msgid "List View"
 msgstr "Toon als lijst"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1185
+#: ../src/tracker-search-tool/tracker-search-tool.c:1179
 msgid "Icon"
-msgstr "Icoon"
+msgstr "Pictogram"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1197
+#: ../src/tracker-search-tool/tracker-search-tool.c:1191
 msgid "Name"
 msgstr "Naam"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1292
+#: ../src/tracker-search-tool/tracker-search-tool.c:1285
 msgid "_Categories"
-msgstr ""
+msgstr "_Categoriën"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1572
-#, fuzzy, c-format
-msgid "%d - %d of %d hits"
-msgstr "Resultaten %d - %d van %d"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1565
+#, c-format
+msgid "%d - %d of %d items"
+msgstr "Zoekresultaten: %d - %d uit %d items"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1575
+#: ../src/tracker-search-tool/tracker-search-tool.c:1568
 #, c-format
 msgid "%d item"
-msgid_plural "%d hits"
-msgstr[0] ""
-msgstr[1] ""
+msgid_plural "%d items"
+msgstr[0] "%d item"
+msgstr[1] "%d items"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1976
+#: ../src/tracker-search-tool/tracker-search-tool.c:1616
+#: ../src/tracker-search-tool/tracker-search-tool.c:1811
+msgid "Could not connect to search service as it may be busy"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2012
 msgid "_Search:"
 msgstr "_Zoek:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1996
-#: ../src/tracker-search-tool/tracker-search-tool.c:1997
+#: ../src/tracker-search-tool/tracker-search-tool.c:2026
+msgid "Tracker is still indexing so not all search results are available yet"
+msgstr ""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2040
+#: ../src/tracker-search-tool/tracker-search-tool.c:2041
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 "Typ een zoekterm bestaande uit meerdere woorden gescheiden door spaties."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1997
+#: ../src/tracker-search-tool/tracker-search-tool.c:2041
 msgid "search_entry"
 msgstr "zoek_opdracht"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2043
+#: ../src/tracker-search-tool/tracker-search-tool.c:2087
 msgid "Click to perform a search."
 msgstr "Klik om een opzoeking te doen."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
 msgid "Could not open help document."
-msgstr "Kon het helpdocument niet openen."
+msgstr "Kon het hulpdocument niet openen."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] "Bent u zeker dat u %d document wilt openen?"
-msgstr[1] "Bent u zeker dat u %d documenten wilt openen?"
+msgstr[0] "Weet u zeker dat u %d document wilt openen?"
+msgstr[1] "Weet u zeker dat u %d documenten wilt openen?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:676
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:689
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
@@ -834,108 +1349,107 @@ msgstr[1] "Dit zal %d nieuwe vensters openen."
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
 msgid "Could not open document \"%s\"."
-msgstr "Kon document \"%s\" niet openen."
+msgstr "Kon het document ‘%s’ niet openen."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
 #, c-format
 msgid "Could not open folder \"%s\"."
-msgstr "Kon map \"%s\" niet openen."
+msgstr "Kon de map ‘%s’ niet openen."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
 msgid "The nautilus file manager is not running."
-msgstr "De nautilus bestandsbeheerder draait niet."
+msgstr "De bestandsbeheerderprogramma: nautilus draait niet."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:615
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:628
 msgid "Application could not be opened"
-msgstr ""
+msgstr "Toepassing kon niet geopend worden"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:630
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:950
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:643
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:963
 msgid "The document does not exist."
 msgstr "Dit document bestaat niet."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:646
+# geschikt ipv geïnstalleerd
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:659
 msgid "There is no installed viewer capable of displaying the document."
-msgstr "Er is geen geïnstalleerd programma dat dit document kan weergeven."
+msgstr "Er is geen geschikt programma dat dit document kan weergeven."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:671
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:684
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] "Bent u zeker dat u %d map wilt openen?"
-msgstr[1] "Bent u zeker dat u %d mappen wilt openen?"
+msgstr[0] "Weet u zeker dat u %d map wilt openen?"
+msgstr[1] "Weet u zeker dat u %d mappen wilt openen?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:775
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:788
 #, c-format
 msgid "Could not move \"%s\" to trash."
-msgstr "Kon \"%s\" niet naar de prullenmand verplaatsen."
+msgstr "Kon ‘%s’ niet naar de prullenmand verplaatsen."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:806
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:819
 #, c-format
 msgid "Do you want to delete \"%s\" permanently?"
-msgstr "Wilt u \"%s\" permanent verwijderen?"
+msgstr "Wilt u ‘%s’ definitief verwijderen?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:809
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:822
 #, c-format
 msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr ""
-"De prullenmand in niet beschikbaar.  Kon \"%s\" niet naar de prullenmand "
-"verplaatsen."
+msgstr "De prullenmand is niet beschikbaar.  Kon ‘%s’ niet naar de prullenmand verplaatsen."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:848
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:861
 #, c-format
 msgid "Could not delete \"%s\"."
-msgstr "Kon \"%s\" niet verwijderen."
+msgstr "Kon ‘%s’ niet verwijderen."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:972
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:985
 #, c-format
 msgid "Moving \"%s\" failed: %s."
-msgstr "Het verplaatsen van \"%s\" mislukte: %s."
+msgstr "Het verplaatsen van ‘%s’ is mislukt: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1006
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1019
 #, c-format
 msgid "Deleting \"%s\" failed: %s."
-msgstr "Het verwijderen van \"%s\" mislukte: %s."
+msgstr "Het verwijderen van ‘%s’ is mislukt: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1292
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1305
 msgid "Activate to view this email"
-msgstr "Activeer om deze e-mail te bekijken"
+msgstr "Activeren om deze e-mail te bekijken"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1468
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1481
 msgid "Save Search Results As..."
 msgstr "Zoekresultaten opslaan als..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1503
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1516
 msgid "Could not save document."
 msgstr "Kon document niet opslaan."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1504
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1517
 msgid "You did not select a document name."
 msgstr "U selecteerde geen documentnaam."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1534
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "Kon \"%s\" document niet opslaan naar \"%s\"."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1568
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1581
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "Het document \"%s\" bestaat reeds. Wilt u het vervangen?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1572
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1585
 msgid "If you replace an existing file, its contents will be overwritten."
 msgstr "Als u een bestand vervangt zal de inhoud ervan overschreven worden."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1587
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1600
 msgid "_Replace"
 msgstr "_Vervang"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1637
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1650
 msgid "The document name you selected is a folder."
 msgstr "De documentnaam die u selecteerde is een map."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1686
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1699
 msgid "You may not have write permissions to the document."
 msgstr "Het is mogelijk dat u geen schrijfrechten heeft op het document."
 
@@ -982,6 +1496,16 @@ msgstr "link (niet bereikbaar)"
 #, c-format
 msgid "link to %s"
 msgstr "link naar %s"
+
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr ""
+
+#~ msgid "<b>Mailboxes</b>"
+#~ msgstr "<b>Mailboxen</b>"
+
+#~ msgid "<b>Services</b>"
+#~ msgstr "<b>Services</b>"
 
 #~ msgid "<b>File Metadata</b>"
 #~ msgstr "<b>Metadata van bestand</b>"
