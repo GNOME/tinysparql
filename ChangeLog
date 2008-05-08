@@ -1,3 +1,14 @@
+2008-05-08  Laurent Aguerreche  <laurent.aguerreche@free.fr>
+
+	* src/trackerd/trackerd.c
+	* src/trackerd/tracker-process-files.[ch]
+	* src/trackerd/tracker-db.c
+	
+	Added tracker_process_files_free_temp_black_list to not free anywhere
+	memory obtained with tracker_process_files_get_temp_black_list. Also
+	fixed random crashes with tracker_process_files_set_temp_black_list.
+
+
 2008-04-28 Patch from Iago Toral Quiroga <itoral@igalia.com> (reviewed by Jamie)
 
 	* src/trackerd/tracker-process-requests.c

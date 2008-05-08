@@ -1824,12 +1824,20 @@ tracker_process_files_get_temp_black_list (void)
 void
 tracker_process_files_set_temp_black_list (GSList *black_list)
 {
+        tracker_process_files_free_temp_black_list ();
+        temp_black_list = black_list;
+}
+
+void
+tracker_process_files_free_temp_black_list (void)
+{
         g_slist_foreach (temp_black_list, 
                          (GFunc) g_free,
                          NULL);
+
         g_slist_free (temp_black_list);
-        
-        temp_black_list = black_list;
+
+        temp_black_list = NULL;
 }
 
 void

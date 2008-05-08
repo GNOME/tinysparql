@@ -605,7 +605,6 @@ index_black_list ()
 	g_slist_foreach (black_list, 
                          (GFunc) index_blacklist_file, 
                          NULL);
-        g_slist_free (black_list);
 
         tracker_process_files_set_temp_black_list (NULL);
 	

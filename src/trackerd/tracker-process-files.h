@@ -36,6 +36,7 @@ gboolean tracker_process_files_should_be_ignored      (const char     *uri);
 /* Black list API */
 GSList  *tracker_process_files_get_temp_black_list    (void);
 void     tracker_process_files_set_temp_black_list    (GSList         *black_list);
+void     tracker_process_files_free_temp_black_list   (void);
 void     tracker_process_files_append_temp_black_list (const gchar    *str);
 
 /* File/Directory API */

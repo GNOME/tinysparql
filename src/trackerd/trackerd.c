@@ -200,9 +200,7 @@ reset_blacklist_file (char *uri)
 
 	g_free (parent);
 	g_free (parent_name);
-	g_free (parent_path);		 
-
-
+	g_free (parent_path);
 }
 
 gboolean
@@ -294,7 +292,7 @@ tracker_do_cleanup (const gchar *sig_msg)
 	g_slist_foreach (black_list,
                          (GFunc) reset_blacklist_file, 
                          NULL);
-        g_slist_free (black_list);
+        tracker_process_files_free_temp_black_list ();
 
 	tracker_db_close (main_thread_db_con);
 
