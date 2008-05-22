@@ -60,7 +60,7 @@ struct _TrackerTagBarPrivate
 };
 
 /* CALLBACKS */
-void 
+static void 
 _keywords_reply (char **array, GError *error, TrackerTagBar *bar)
 {
 	TrackerTagBarPrivate *priv;
