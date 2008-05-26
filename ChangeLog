@@ -1,3 +1,8 @@
+2008-05-28  Philip Van Hoof  <pvanhoof@gnome.org>
+
+	* src/trackerd/tracker-process-files.c: Fixed the build for
+	--disable-hal (trivial patch)
+
 2008-05-08  Laurent Aguerreche  <laurent.aguerreche@free.fr>
 
 	* src/trackerd/trackerd.c

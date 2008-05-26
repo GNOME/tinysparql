@@ -1460,12 +1460,17 @@ tracker_process_files (gpointer data)
                 }
         }
 
+
+#ifdef HAVE_HAL
+
         g_signal_connect (tracker->hal, "mount-point-added", 
                           G_CALLBACK (process_mount_point_added_cb),
                           tracker);
         g_signal_connect (tracker->hal, "mount-point-removed", 
                           G_CALLBACK (process_mount_point_removed_cb),
                           tracker);
+
+#endif
 
         /* Start processing */
 	g_mutex_lock (tracker->files_signal_mutex);
@@ -1601,12 +1606,16 @@ tracker_process_files (gpointer data)
 		tracker_dec_info_ref (info);
 	}
 
+
+#ifdef HAVE_HAL
+
         g_signal_handlers_disconnect_by_func (tracker->hal, 
                                               process_mount_point_added_cb,
                                               tracker);
         g_signal_handlers_disconnect_by_func (tracker->hal, 
                                               process_mount_point_removed_cb,
                                               tracker);
+#endif
 
 	xdg_mime_shutdown ();
 
