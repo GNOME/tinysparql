@@ -724,7 +724,7 @@ build_sql (ParserData *data)
 			if (sub) {
 				g_string_append_printf (str, " (%s glob '%s') ", field_data->where_field, data->current_value);
 			} else {
-				if (field_data->data_type == DATA_DATE || field_data->data_type == DATA_INTEGER || field_data->data_type == DATA_DOUBLE) {
+				if (field_data->data_type == DATA_DATE || field_data->data_type == DATA_INTEGER || field_data->data_type == DATA_DOUBLE || field_data->data_type == DATA_STRING || field_data->data_type == DATA_INDEX) {
 					g_string_append_printf (str, " (%s = %s) ", field_data->where_field, value);
 				} else {
 					g_string_append_printf (str, " (%s = '%s') ", field_data->where_field, value);
@@ -1210,4 +1210,98 @@ tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *s
 	return result;
 }
 
+/* 
+ * The following function turns an rdf query into a filter that can be used for example
+ * for getting unique values of a field with a certain query.
+ * FIXME It is not pretty. The calling function needs to define Services S that is joined in this method.
+ */
 
+void
+tracker_rdf_filter_to_sql (DBConnection *db_con, const char *query, const char *service, char **from, char **where, GError *error)
+{
+	static     gboolean inited = FALSE;
+	ParserData data;
+
+	if (!inited) {
+		error_quark = g_quark_from_static_string ("RDF-parser-error-quark");
+		inited = TRUE;
+	}
+
+	memset (&data, 0, sizeof (data));
+	data.db_con = db_con;
+	data.statement_count = 0;
+	data.service = (char *) service;
+
+	data.sql_from = g_string_new ("");
+	data.sql_where = g_string_new ("");
+
+	if (strlen (query) < 10) {
+		g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
+	} else {
+		g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) AND ", service, service);
+	}
+
+	data.parser = g_new0 (GMarkupParser, 1);
+	data.parser->start_element = start_element_handler;
+	data.parser->text = text_handler;
+	data.parser->end_element = end_element_handler;
+	data.parser->error = error_handler;
+
+	data.current_operator = OP_NONE;
+	data.current_logic_operator = LOP_NONE;
+	data.query_okay = FALSE;
+
+	data.context = g_markup_parse_context_new (data.parser, 0, &data, NULL);
+
+	push_stack (&data, STATE_START);
+
+	if (!g_markup_parse_context_parse (data.context, query, -1, &error)) {
+
+                *from = NULL;
+		*where = NULL;
+
+		g_string_free (data.sql_from, TRUE);
+		g_string_free (data.sql_where, TRUE);
+
+	} else {
+		const GSList *tmp;
+		FieldData    *tmp_field;
+
+		for (tmp = data.fields; tmp; tmp = tmp->next) {
+			tmp_field = tmp->data;
+
+			if (!tmp_field->is_condition) {
+				if (tmp_field->needs_join) {
+					g_string_append_printf (data.sql_from, "\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, tmp_field->id_field);
+				}
+			} else {
+				char *related_metadata = tracker_get_related_metadata_names (db_con, tmp_field->field_name);
+				g_string_append_printf (data.sql_from, "\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ", tmp_field->table_name, tmp_field->alias, tmp_field->alias, tmp_field->alias, related_metadata);
+				g_free (related_metadata);
+			}
+		}
+		
+		*from  = g_strdup (data.sql_from->str);
+		*where = g_strdup (data.sql_where->str);
+		g_string_free (data.sql_from, TRUE);
+		g_string_free (data.sql_where, TRUE);
+		
+
+	}
+
+	g_slist_foreach (data.fields, (GFunc) tracker_free_metadata_field, NULL);
+	g_slist_free (data.fields);
+
+	g_slist_free (data.stack);
+	g_markup_parse_context_free (data.context);
+
+	if (data.current_field) {
+		g_free (data.current_field);
+	}
+
+	if (data.current_value) {
+		g_free (data.current_value);
+	}
+
+	g_free (data.parser);
+}

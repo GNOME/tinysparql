@@ -121,6 +121,7 @@ tracker_dbus_method_metadata_set (DBusRec *rec)
 	dbus_message_unref (reply);
 }
 
+#include "tracker-rdf-query.h"
 
 
 void
@@ -573,21 +574,37 @@ tracker_dbus_method_metadata_get_registered_classes (DBusRec *rec)
 void
 tracker_dbus_method_metadata_get_unique_values (DBusRec *rec)
 {
-	DBConnection       *db_con;
-	DBusError          dbus_error;
-	DBusMessage        *reply;
-	gchar 	           *meta_type;
-	gchar 	           **array;
-	gint 	           limit, offset;
-	int	           row_count;
+	DBConnection *db_con;
+	DBusError    dbus_error;
+	gchar 	     **meta_types = NULL;
+	gchar        *service;
+	gchar        *query = NULL;
+	gint         meta_count;
+	gboolean     order_desc;
+	gint 	     limit, offset;
+
+	FieldDef     *def;
 	TrackerDBResultSet *result_set;
+	GString      *select;
+	GString      *from;
+	GString      *where;
+	GString      *group;
+	GString      *order;
+	char	     *str_offset, *str_limit;
+	gchar        *sql;
+
+	int          i;
+
 /*
 		<!-- returns an array of all unique values of given metadata type -->
 		<method name="GetUniqueValues">
-			<arg type="s" name="meta_type" direction="in" />
+		        <arg type="s" name="service" direction="in" />
+			<arg type="as" name="meta_types" direction="in" />
+			<arg type="s" name="query" direction="in" />
+		        <arg type="b" name="descending" direction="in" />
 			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="as" name="result" direction="out" />
+			<arg type="aas" name="result" direction="out" />
 		</method>
 */
 
@@ -595,9 +612,14 @@ tracker_dbus_method_metadata_get_unique_values (DBusRec *rec)
 
 	db_con = rec->user_data;
 
+	result_set = NULL;
+
         dbus_error_init (&dbus_error);
         if (!dbus_message_get_args (rec->message, NULL,
-                               DBUS_TYPE_STRING, &meta_type,
+			       DBUS_TYPE_STRING, &service,
+                               DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &meta_types, &meta_count,
+			       DBUS_TYPE_STRING, &query,
+			       DBUS_TYPE_BOOLEAN, &order_desc,
                                DBUS_TYPE_INT32, &offset,
                                DBUS_TYPE_INT32, &limit,
                                DBUS_TYPE_INVALID)) {
@@ -606,24 +628,139 @@ tracker_dbus_method_metadata_get_unique_values (DBusRec *rec)
 	        return;
         }
 
-	result_set = tracker_db_get_unique_metadata_values (db_con, meta_type, offset, limit);
-
-        array = NULL;
-        row_count = 0;
-
-        if (result_set) {
-                array = tracker_get_query_result_as_array (result_set, &row_count);
-                g_object_unref (result_set);
+	if (!tracker_service_manager_is_valid_service (service)) {
+		tracker_set_error (rec, "Invalid service %s or service has not been implemented yet", service);
+		return;
 	}
 
-        reply = dbus_message_new_method_return (rec->message);
+	db_con = tracker_db_get_service_connection (db_con, service);
 
-        dbus_message_append_args (reply,
-                                  DBUS_TYPE_ARRAY, DBUS_TYPE_STRING, &array, row_count,
-                                  DBUS_TYPE_INVALID);
+	if (limit < 1) {
+		limit = 1024;
+	}
 
-        tracker_free_array (array, row_count);
+	if(!meta_count) {
+		tracker_set_error (rec, "ERROR: No metadata type specified");
+		return;
+	}
 
-        dbus_connection_send (rec->connection, reply, NULL);
-        dbus_message_unref (reply);
+	str_offset = tracker_int_to_str (offset);
+	str_limit = tracker_int_to_str (limit);
+
+	select = g_string_new ("SELECT ");
+	from   = g_string_new ("\nFROM Services S ");
+	where  = g_string_new ("\nWHERE ");
+	order  = g_string_new ("\nORDER BY ");
+	group  = g_string_new ("\nGROUP BY ");
+
+	for (i=0;i<meta_count;i++) {
+		def = tracker_db_get_field_def (db_con, meta_types[i]);
+
+		if (!def) {
+			tracker_set_error (rec, "ERROR: metadata not found for type %s", meta_types[i]);
+			return;
+		}
+	  
+		if (i) {
+			g_string_append_printf (where, " AND ");
+			g_string_append_printf (select, ", ");
+			g_string_append_printf (group, ", ");
+			g_string_append_printf (order, ", ");
+		}
+		
+		switch (def->type) {
+		  
+		case DATA_INDEX:
+		case DATA_STRING:
+		case DATA_DOUBLE:
+			g_string_append_printf (select, "D%d.MetaDataDisplay", i);
+			g_string_append_printf (from, "INNER JOIN ServiceMetaData D%d ON (S.ID = D%d.ServiceID) ", i,i);
+			g_string_append_printf (where, "(D%d.MetaDataID = %s)", i, def->id);
+			g_string_append_printf (group, "D%d.MetaDataDisplay", i);
+			if (order_desc) {
+				g_string_append_printf (order, "D%d.MetaDataDisplay DESC", i);
+			} else {
+				g_string_append_printf (order, "D%d.MetaDataDisplay ASC", i);
+			}
+			break;
+			
+		case DATA_INTEGER:
+		case DATA_DATE:
+			g_string_append_printf (select, "D%d.MetaDataValue", i);
+			g_string_append_printf (from, "INNER JOIN ServiceNumericMetaData D%d ON (S.ID = D%d.ServiceID) ", i, i);
+			g_string_append_printf (where, "(D%d.MetaDataID = %s)", i, def->id);
+			g_string_append_printf (group, "D%d.MetaDataValue", i);
+			if (order_desc) {
+				g_string_append_printf (order, "D%d.MetaDataValue DESC", i);
+			} else {
+				g_string_append_printf (order, "D%d.MetaDataValue ASC", i);
+			}
+			break;
+			
+		case DATA_KEYWORD:
+			g_string_append_printf (select, "D%d.MetaDataValue", i);
+			g_string_append_printf (from, "INNER JOIN ServiceKeywordMetaData D%d ON (S.ID = D%d.ServiceID) ", i, i);
+			g_string_append_printf (where, "(D%d.MetaDataID = %s)", i,def->id);
+			g_string_append_printf (group, "D%d.MetaDataValue", i);
+			if (order_desc) {
+				g_string_append_printf (order, "D%d.MetaDataValue DESC", i);
+			} else {
+				g_string_append_printf (order, "D%d.MetaDataValue ASC", i);
+			}
+			break;
+	    
+		default: 
+		        tracker_error ("ERROR: metadata could not be retrieved as type %d is not supported", def->type);
+			g_string_free (select, TRUE);
+			g_string_free (from, TRUE);
+			g_string_free (where, TRUE);
+			g_string_free (group, TRUE);
+			g_string_free (order, TRUE);
+		}
+	}
+	
+	g_string_append_printf (select, ", COUNT (*) ");
+	
+	if (query) {
+		char *rdf_where;
+		char *rdf_from;
+		GError *error = NULL;
+		
+		tracker_rdf_filter_to_sql (db_con, query, service, &rdf_from, &rdf_where, error);
+		
+		if (error) {
+			tracker_set_error (rec, "ERROR: Parse error: %s", error->message);
+			g_error_free (error);
+			return;
+		}
+		
+		g_string_append_printf (from, " %s ", rdf_from);
+		g_string_append_printf (where, " AND %s", rdf_where);
+
+		g_free (rdf_from);
+		g_free (rdf_where);
+	}
+
+	g_string_append_printf (order, " LIMIT %s,%s", str_offset, str_limit);
+	sql = g_strconcat (select->str, " ", from->str, " ", where->str, " ", group->str, " ", order->str, NULL);
+
+	g_string_free (select, TRUE);
+	g_string_free (from, TRUE);
+	g_string_free (where, TRUE);
+	g_string_free (group, TRUE);
+	g_string_free (order, TRUE);
+	g_free (str_offset);
+	g_free (str_limit);
+
+	g_message ("Unique value query executed:\n%s", sql);
+
+	result_set =  tracker_db_interface_execute_query (db_con->db, NULL, sql);
+
+	g_free (sql);
+
+	tracker_dbus_reply_with_query_result (rec, result_set);
+
+	if (result_set) {
+	        g_object_unref (result_set);
+	}
 }

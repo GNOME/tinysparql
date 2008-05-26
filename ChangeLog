@@ -1,4 +1,21 @@
-2008-05-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-26  Ivan Frade  <ivan.frade@nokia.com>
+
+	Patch from Mikael Ottela <mikael.ottela@ixonos.com>
+	
+	* src/trackerd/tracker-dbus-search.c
+	* src/trackerd/tracker-dbus.c
+	* src/trackerd/tracker-dbus-metadata.c
+	* src/trackerd/tracker-rdf-query.c
+	* src/trackerd/tracker-rdf-query.h
+	* src/trackerd/tracker-db-sqlite.c
+	* src/libtracker/tracker.h
+	* src/libtracker/Makefile.am
+	* src/libtracker/tracker.c
+	* data/sqlite-stored-procs.sql
+	* data/tracker-introspect.xml: 	Updating GetUniqueValues method. 
+	Now a RDF Query can be used to filter the results.
+	
+2008-05-26  Philip Van Hoof  <pvanhoof@gnome.org>
 
 	* src/trackerd/tracker-process-files.c: Fixed the build for
 	--disable-hal (trivial patch)

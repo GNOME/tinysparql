@@ -20,7 +20,7 @@ tracker-client.h: $(top_srcdir)/data/tracker-introspect.xml Makefile.am
 
 include_HEADERS = tracker.h tracker-client.h		
 
-bin_PROGRAMS = tracker-search tracker-query tracker-meta-folder tracker-stats tracker-tag tracker-files tracker-status
+bin_PROGRAMS = tracker-search tracker-query tracker-meta-folder tracker-stats tracker-tag tracker-files tracker-status tracker-unique
 
 tracker_search_SOURCES = tracker-search.c
 
@@ -72,4 +72,11 @@ tracker_files_LDADD = 	$(GLIB2_LIBS) 	\
 		 	$(GOBJECT_LIBS)	\
 			libtrackerclient.la
  
+tracker_unique_SOURCES = tracker-unique.c
+
+tracker_unique_LDADD = 	$(GLIB2_LIBS) 	\
+		 	$(DBUS_LIBS)	\
+		 	$(GOBJECT_LIBS)	\
+			libtrackerclient.la
+
 CLEANFILES = $(BUILT_SOURCES)

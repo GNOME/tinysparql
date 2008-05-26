@@ -510,17 +510,17 @@ tracker_metadata_get_registered_classes (TrackerClient *client, GError **error)
 }
 
 
-
-char **		
-tracker_metadata_get_unique_values (TrackerClient *client, const char *meta_type, int offset, int max_hits, GError **error)
+GPtrArray *	
+tracker_metadata_get_unique_values (TrackerClient *client, ServiceType service, char **meta_types, char *query, gboolean descending, int offset, int max_hits, GError **error)
 {
-	char **array = NULL;
-
-	if (!org_freedesktop_Tracker_Metadata_get_unique_values (client->proxy_metadata, meta_type, offset, max_hits, &array, &*error)) {
-		return NULL;
-	}
-
-	return array;
+        GPtrArray *table;
+ 	char *service_str = tracker_service_types[service];
+  
+ 	if (!org_freedesktop_Tracker_Metadata_get_unique_values (client->proxy_metadata, service_str, (const char **)meta_types, query, descending, offset, max_hits, &table, &*error)) {
+ 		return NULL;
+ 	}
+  
+ 	return table;
 }
 
 
@@ -1108,18 +1108,18 @@ tracker_metadata_get_registered_classes_async (TrackerClient *client, TrackerArr
 }
 
 
-
 void
-tracker_metadata_get_unique_values_async (TrackerClient *client, const char *meta_type, int offset, int max_hits, TrackerArrayReply callback, gpointer user_data)
+tracker_metadata_get_unique_values_async (TrackerClient *client, ServiceType service, char **meta_types, const char *query, gboolean descending, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data)
 {
 	
-        ArrayCallBackStruct *callback_struct;
+        GPtrArrayCallBackStruct *callback_struct;
+	char *service_str = tracker_service_types[service];
 
-        callback_struct = g_new (ArrayCallBackStruct, 1);
+        callback_struct = g_new (GPtrArrayCallBackStruct, 1);
         callback_struct->callback = callback;
         callback_struct->data = user_data;
 
-        org_freedesktop_Tracker_Metadata_get_unique_values_async (client->proxy_search, meta_type, offset, max_hits, tracker_array_reply, callback_struct);
+        org_freedesktop_Tracker_Metadata_get_unique_values_async (client->proxy_metadata, service_str, (const char **) meta_types, query, descending, offset, max_hits, tracker_GPtrArray_reply, callback_struct);
 	
 }
 
@@ -1559,6 +1559,3 @@ tracker_search_metadata_by_text_and_location_async (TrackerClient *client, const
 	client->last_pending_call = org_freedesktop_Tracker_Files_search_by_text_and_location_async (client->proxy_files, query, location,  tracker_array_reply, callback_struct);
 	
 }
-
-
-

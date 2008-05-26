@@ -863,7 +863,9 @@ tracker_dbus_method_search_query (DBusRec *rec)
 
 	tracker_dbus_reply_with_query_result (rec, result_set);
 
-	g_object_unref (result_set);
+	if (result_set) {
+	        g_object_unref (result_set);
+	}
 }
 
 

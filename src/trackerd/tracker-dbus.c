@@ -452,6 +452,13 @@ message_func (DBusConnection *conn,
 
 
 
+	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_METADATA, TRACKER_METHOD_METADATA_GET_UNIQUE_VALUES)) {
+
+		dbus_message_ref (message);
+		rec->action = DBUS_ACTION_METADATA_GET_UNIQUE_VALUES;
+
+
+
 	} else if (dbus_message_is_method_call (message, TRACKER_INTERFACE_KEYWORDS, TRACKER_METHOD_KEYWORDS_GET_LIST)) {
 
 		dbus_message_ref (message);

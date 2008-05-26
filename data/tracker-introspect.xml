@@ -220,12 +220,18 @@
 			<arg type="as" name="result" direction="out" />
 		</method>
 
-		<!-- returns an array of all unique values of given metadata type -->
+		<!-- returns an array of all unique values of given metadata types. Optionally a rdf query can be
+		     used to filter the results. The results are sorted based on the metadata fields either in
+		     ascending or descending order.
+		-->
 		<method name="GetUniqueValues">
-			<arg type="s" name="meta_type" direction="in" />
+			<arg type="s" name="service" direction="in" />
+			<arg type="as" name="meta_types" direction="in" />
+			<arg type="s" name="query" direction="in" />
+			<arg type="b" name="descending" direction="in" />
 			<arg type="i" name="offset" direction="in" />
 			<arg type="i" name="max_hits" direction="in" />
-			<arg type="as" name="result" direction="out" />
+			<arg type="aas" name="result" direction="out" />
 		</method>
 
 		<!-- signal emitted whenever metadata for a service entity is changed. The keys are the metadata names that have changed -->

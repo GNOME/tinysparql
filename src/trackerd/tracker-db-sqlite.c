@@ -21,6 +21,8 @@
 #define _GNU_SOURCE
 #endif
 
+#include "tracker-rdf-query.h"
+
 #include "config.h"
 
 #include <stdarg.h>
@@ -5186,8 +5188,8 @@ tracker_db_get_metadata_field (DBConnection *db_con, const char *service, const 
 			g_free (disp_field);
 			field_data->needs_join = TRUE;
 		}
-			
-		if (def->type == DATA_DOUBLE) {
+		g_print ("Type for %d is %d", field_count, def->type);
+		if (def->type == DATA_DOUBLE || def->type == DATA_STRING || def->type == DATA_INDEX) {
 			field_data->where_field = g_strdup_printf ("M%d.MetaDataDisplay", field_count);
 		} else {
 			field_data->where_field = g_strdup_printf ("M%d.MetaDataValue", field_count);

@@ -29,4 +29,5 @@
 
 char *	tracker_rdf_query_to_sql (DBConnection *db_con, const char *query, const char *service, char **fields, int field_count, const char *search_text, const char *keyword, gboolean sort_by_service, int offset, int limit, GError *error);
 
+void tracker_rdf_filter_to_sql (DBConnection *db_con, const char *query, const char *service, char **from, char **where, GError *error);
 #endif
