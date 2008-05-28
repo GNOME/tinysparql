@@ -685,6 +685,8 @@ build_sql (ParserData *data)
 		g_free (avalue);
 		g_free (data->current_field);
 		g_free (data->current_value);
+		data->current_field = NULL;
+		data->current_value = NULL;
 		return FALSE;
 	}
 

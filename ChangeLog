@@ -1,3 +1,9 @@
+2008-05-27 Mikael Ottela <mikael.ottela@ixonos.com>
+
+	* src/trackerd/tracker-rdf-query.c
+
+	A bug fix that removes a potential double free from the rdf query.
+
 2008-05-26  Ivan Frade  <ivan.frade@nokia.com>
 
 	Patch from Mikael Ottela <mikael.ottela@ixonos.com>
