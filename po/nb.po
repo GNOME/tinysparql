@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-09 19:28+0200\n"
-"PO-Revision-Date: 2008-05-09 19:31+0200\n"
+"POT-Creation-Date: 2008-06-07 11:59+0200\n"
+"PO-Revision-Date: 2008-06-07 12:01+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: Norwegian bokmal <i18n-nb@lister.ping.uio.no>\n"
 "MIME-Version: 1.0\n"
@@ -30,6 +30,9 @@ msgid ""
 "%s %s\n"
 "from %s"
 msgstr ""
+"Se samtaler i %s\n"
+"%s %s\n"
+"fra %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:47
 #: ../python/deskbar-handler/tracker-module.py:110
@@ -44,6 +47,8 @@ msgid ""
 "Listen to music %s\n"
 "in %s"
 msgstr ""
+"Lytt til musikk %s\n"
+"i %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:65
 #: ../python/deskbar-handler/tracker-module.py:128
@@ -67,6 +72,8 @@ msgid ""
 "Open file %s\n"
 "in %s"
 msgstr ""
+"Åpne fil %s\n"
+"i %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:75
 #: ../python/deskbar-handler/tracker-module.py:138
@@ -75,6 +82,8 @@ msgid ""
 "View image %s\n"
 "in %s"
 msgstr ""
+"Vis bilde %s\n"
+"i %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:81
 #: ../python/deskbar-handler/tracker-module.py:144
@@ -83,6 +92,8 @@ msgid ""
 "Watch video  %s\n"
 "in %s"
 msgstr ""
+"Se på video %s\n"
+"i %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:92
 #: ../python/deskbar-handler/tracker-module.py:150
@@ -102,11 +113,11 @@ msgstr "med"
 #: ../python/deskbar-handler/tracker-handler.py:218
 #: ../python/deskbar-handler/tracker-module.py:359
 msgid "in channel"
-msgstr ""
+msgstr "i kanal"
 
 #: ../python/deskbar-handler/tracker-handler.py:385
 msgid "Search all of your documents, <b>as you type</b>"
-msgstr ""
+msgstr "Søk i alle dine dokumenter, <b>etter hvert som du skriver</b>"
 
 #: ../python/deskbar-handler/tracker-handler.py:389
 #: ../python/deskbar-handler/tracker-module.py:295
@@ -136,7 +147,7 @@ msgstr "Videoer"
 #: ../python/deskbar-handler/tracker-module.py:160
 #, python-format
 msgid "Search for %s with Tracker Search Tool"
-msgstr ""
+msgstr "Søk etter %s med Tracker søkeverktøy"
 
 #: ../python/deskbar-handler/tracker-handler-static.py:68
 msgid "Search all of your documents with Tracker Search Tool"
@@ -144,7 +155,7 @@ msgstr ""
 
 #: ../python/deskbar-handler/tracker-module.py:79
 msgid "Tracker Search"
-msgstr ""
+msgstr "Tracker søk"
 
 #: ../python/deskbar-handler/tracker-module.py:80
 msgid "Search with Tracker Search Tool"
@@ -162,18 +173,18 @@ msgstr ""
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:472
 #, c-format
 msgid "Path : <b>%s</b>"
-msgstr ""
+msgstr "Sti : <b>%s</b>"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:473
 #, c-format
 msgid "Modified : <b>%s</b>"
-msgstr ""
+msgstr "Endret : <b>%s</b>"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:474
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:660
 #, c-format
 msgid "Size : <b>%s</b>"
-msgstr ""
+msgstr "Størrelse : <b>%s</b>"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:475
 #, c-format
@@ -329,12 +340,12 @@ msgstr ""
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:921
 #, c-format
 msgid "%.1f MB"
-msgstr ""
+msgstr "%.1f MB"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:925
 #, c-format
 msgid "%.1f GB"
-msgstr ""
+msgstr "%.1f GB"
 
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:964
 #: ../src/libtracker-gtk/tracker-metadata-tile.c:1004
