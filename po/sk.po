@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-06 07:37+0200\n"
-"PO-Revision-Date: 2008-06-04 20:02+0200\n"
+"POT-Creation-Date: 2008-06-19 06:28+0200\n"
+"PO-Revision-Date: 2008-06-18 20:03+0200\n"
 "Last-Translator: Pavol Klačanský <pavolzetor@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "MIME-Version: 1.0\n"
@@ -545,6 +545,8 @@ msgid ""
 "Value that controls the level of logging. Valid values are 0 (displays/logs "
 "only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 msgstr ""
+"Hodnota, ktorá ovláda úroveň záznamu. Správne hodnoty sú 0 (zobraziť/"
+"zaznamenať len chyby), 1 (minimálny), 2 (podrobný), a 3 (ladenie)"
 
 #: ../src/trackerd/trackerd.c:124 ../src/trackerd/trackerd.c:125
 msgid "VALUE"
@@ -1348,7 +1350,7 @@ msgstr "Dokument neexistuje."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:659
 msgid "There is no installed viewer capable of displaying the document."
-msgstr ""
+msgstr "Nie je tu nainštalovaný žiadny prehliadač schopný zobraziť dokument."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:684
 #, c-format
