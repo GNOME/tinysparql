@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: oc\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-09 15:22+0200\n"
+"POT-Creation-Date: 2008-07-02 09:01+0200\n"
 "PO-Revision-Date: 2008-06-11 11:58+0200\n"
 "Last-Translator: Yannig Marchegay (Kokoyaya) <yannig@marchegay.org>\n"
 "Language-Team: Occitan <ubuntu-l10n-oci@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: ../python/deskbar-handler/tracker-handler.py:36
 #: ../python/deskbar-handler/tracker-module.py:100
@@ -1259,7 +1259,9 @@ msgstr[1] "Sètz segur que volètz dobrir %d documents ?"
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:689
 #, c-format
 msgid "This will open %d separate window."
-msgstr ""
+msgid_plural "This will open %d separate windows."
+msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
