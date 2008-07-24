@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-17 19:11+0200\n"
-"PO-Revision-Date: 2008-04-17 19:12+0100\n"
+"POT-Creation-Date: 2008-07-24 16:25+0200\n"
+"PO-Revision-Date: 2008-07-24 16:25+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -584,16 +584,16 @@ msgstr "Gör fel i tracker till ödesdigra"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/trackerd/trackerd.c:664
+#: ../src/trackerd/trackerd.c:668
 msgid "- start the tracker daemon"
 msgstr "- starta tracker-demonen"
 
-#: ../src/trackerd/trackerd.c:665
-#: ../src/trackerd/trackerd.c:666
+#: ../src/trackerd/trackerd.c:669
+#: ../src/trackerd/trackerd.c:670
 msgid "DIRECTORY"
 msgstr "KATALOG"
 
-#: ../src/trackerd/trackerd.c:673
+#: ../src/trackerd/trackerd.c:677
 msgid "To include or exclude multiple directories at the same time, join multiple options like:"
 msgstr "För att inkludera eller undanta flera kataloger samtidigt kan flera flaggor sättas samman som:"
 
@@ -848,27 +848,27 @@ msgstr "_Dölj ikonen (förutom när meddelanden visas)"
 msgid "_Off"
 msgstr "A_v"
 
-#: ../src/tracker-preferences/tracker-preferences.c:833
+#: ../src/tracker-preferences/tracker-preferences.c:829
 msgid "Data must be reindexed"
 msgstr "Data måste indexeras om"
 
-#: ../src/tracker-preferences/tracker-preferences.c:834
+#: ../src/tracker-preferences/tracker-preferences.c:830
 msgid "In order for your changes to take effect, Tracker must reindex your files. Click the Reindex button to start reindexing now, otherwise this action will be performed the next time the Tracker daemon is restarted."
 msgstr "Tracker-demonen måste startas om för att dina ändringar ska bli aktiva. Klicka på Indexera om-knappen för att indexera om nu, annars kommer denna åtgärd att genomföras nästa gång Tracker-demonen startas."
 
-#: ../src/tracker-preferences/tracker-preferences.c:841
+#: ../src/tracker-preferences/tracker-preferences.c:837
 msgid "_Reindex"
 msgstr "Indexera _om"
 
-#: ../src/tracker-preferences/tracker-preferences.c:844
+#: ../src/tracker-preferences/tracker-preferences.c:840
 msgid "Tracker daemon must be restarted"
 msgstr "Tracker-demonen måste startas om"
 
-#: ../src/tracker-preferences/tracker-preferences.c:846
+#: ../src/tracker-preferences/tracker-preferences.c:842
 msgid "In order for your changes to take effect, the Tracker daemon has to be restarted. Click the Restart button to restart the daemon now."
 msgstr "Tracker-demonen måste startas om för att dina ändringar ska bli aktiva. Klicka på Starta om-knappen för att starta om demonen nu."
 
-#: ../src/tracker-preferences/tracker-preferences.c:851
+#: ../src/tracker-preferences/tracker-preferences.c:847
 msgid "_Restart"
 msgstr "Starta _om"
 
@@ -878,7 +878,7 @@ msgstr "Konfigurera filindexering med Tracker"
 
 #: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
 msgid "Search and Indexing"
-msgstr "Sök och indexering"
+msgstr "Sökning och indexering"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:1
 msgid "<b>Crawled Directories</b>"
