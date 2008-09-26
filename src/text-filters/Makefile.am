@@ -1,1 +1,0 @@
-SUBDIRS = ooo_converter
