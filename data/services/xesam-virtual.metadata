@@ -1,0 +1,23 @@
+[xesam:contentCategory]
+Parents=
+Categories=xesam:DataObject
+ValueType=string
+Description=Identifier of content category
+
+[xesam:sourceCategory]
+Parents=
+Categories=xesam:DataObject
+ValueType=List of strings
+Description=Identifier of source category
+
+[xesam:relevancyRating]
+Parents=
+Categories=xesam:DataObject
+ValueType=float
+Description=Query relevancy rating of the object 
+
+[xesam:snippet]
+Parents=
+Categories=xesam:DataObject
+ValueType=string
+Description=Data snippet relevant to the search query 

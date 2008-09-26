@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+   The "service" input parameters are a string representing the
+   service type. A list of service types can be obtained by calling
+   method GetServices and will *potentially* include the following:
+
+   "Files" 
+   "Folders" *
+   "Documents" *
+   "Images" *
+   "Music" *
+   "Videos" *
+   "Text Files" *
+   "Development Files" *
+   "Other Files" *
+   "VFS Files"
+   "VFS Folders" **
+   "VFS Documents" **
+   "VFS Images" **
+   "VFS Music" **
+   "VFS Videos" **
+   "VFS Text Files" **
+   "VFS Development Files" **
+   "VFS Other Files" **
+   "Conversations"
+   "Playlists"
+   "Applications"	
+   "Contacts"
+   "Emails"	
+   "EmailAttachments"
+   "Notes"
+   "Appointments"
+   "Tasks"
+   "Bookmarks"
+   "History"
+   "Projects"
+   
+   
+   (*) - these services are a subset of "Files" service.
+   (**) - these services are a subset of "VFSFiles" service.
+   
+   Services may also have a corresponding metadata class associated
+   with them (EG Files has "File" class, Documents "Doc" etc see the
+   spec at:
+   
+   http://freedesktop.org/wiki/Standards/shared-filemetadata-spec 
+
+   for more details on metadata classes).
+   
+   The "id" input parameters can represent, in the case of a file, the
+   full path and name of the file. In other cases, "id" can also be a
+   unique name or URI for the specified service. 
+   
+   The "id" field uniquely identifies an entity in Tracker regardless
+   of its service type. The live_query_id parameters in some search
+   and retrieval methods is used to indicate whether the query should
+   be "live". Liveness means the query can receive signals in real
+   time to remove hits that are no longer valid and add new ones that
+   are. These signals are emitted in response to file or volume
+   notifications. A value of -1 should be passed if live query
+   functionality is not desired. A live_query_id can be obtained in
+   the future from the LiveQuery Interface.  
+  -->
+
+<node name="/">
+  <interface name="org.freedesktop.Tracker">
+   
+    <!-- Returns the version number of tracker as an integer as XXXXXX
+	 where each XX pair represents part of the version (e.g. "100" is
+	 returned for version 0.1.0 and "14523" would represent version
+	 1.45.23).
+      -->
+    <method name="GetVersion">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="i" name="version" direction="out" />
+    </method>
+    
+    <!-- Return the status of tracker daemon - status is one of
+	 "Initializing", "Watching", "Indexing", "Pending",
+	 "Optimizing", "Idle", "Shutdown".
+      --> 
+    <method name="GetStatus">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="status" direction="out" />
+    </method>
+    
+    <!-- Gets all implemented services and also returns any
+	 corresponding metadata type class for the service (i.e. "File",
+	 "Doc", "Image" etc). 
+	 If main_services_only is set to true then only the major
+	 services are returned.
+	 Output is in dict format: (service -> description, parent).
+    --> 
+    <method name="GetServices">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="b" name="main_services_only" direction="in" />
+      <arg type="a{sv}" name="result" direction="out" />
+    </method>
+        
+    <!-- Get statistics for services that have been indexed. Output is
+	 in string array format: [service, no of entities]  
+      --> 
+    <method name="GetStats">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="aas" name="service_stats" direction="out" />
+    </method>
+        
+    <!-- Sets boolean options in tracker - option can be one of
+	 "Pause", "EnableIndexing", "LowMemoryMode", "IndexFileContents",
+	 "EnableEvolution".
+      -->
+    <method name="SetBoolOption">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="option" direction="in" />
+      <arg type="b" name="value" direction="in" />
+    </method>
+    
+    <!-- Sets integer based option values in tracker - option can be
+	 one of "Throttle", "IndexDelay".
+      -->
+    <method name="SetIntOption">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="option" direction="in" />
+      <arg type="i" name="value" direction="in" />
+    </method>
+    
+    <!-- Shutdown tracker service with optional reindex. -->
+    <method name="Shutdown">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="b" name="reindex" direction="in" />
+    </method>
+        
+    <!-- Prompts tracker to send progress/state signals -->
+    <method name="PromptIndexSignals">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+    </method>
+    
+    <!-- Signal change in index status - states are:
+	 "Initializing", "Watching", "Indexing", "Pending",
+	 "Optimizing", "Idle", "Shutdown".
+
+	 - is_initial_index indicates if this is the first time index
+	 (or reindex).
+	 - in_merge indicates merge indexing is taking place (or
+	 reindex).
+	 - is_manual_paused indicates if user has manually paused the
+	 indexer.
+	 - is_battery_paused indicates if indexer is paused whilst on
+	 battery power.
+	 - is_io_paused indicates if indexer has paused itself as it
+	 has detected other apps writing to disk.
+      -->
+    <signal name="IndexStateChange">
+      <arg type="s" name="state" />
+      <arg type="b" name="initial_index" />
+      <arg type="b" name="in_merge" />
+      <arg type="b" name="is_manual_paused" />
+      <arg type="b" name="is_battery_paused" />
+      <arg type="b" name="is_io_paused" />
+      <arg type="b" name="is_indexing_enabled" />
+    </signal>
+    
+    <!-- Signal when index has completed.  -->
+    <signal name="IndexFinished">
+      <arg type="d" name="seconds_elapsed"/>
+    </signal>
+    
+    <!-- Signal progress of indexing, returns current service
+	 (Files/Conversations/Emails).
+	 - folders_processed = number of folders/mail boxes indexed.
+	 - folders_total = total number of folders/mail boxes.
+      -->
+    <signal name="IndexProgress">
+      <arg type="s" name="service"/>
+      <arg type="s" name="current_uri"/>
+      <arg type="i" name="items_done"/>
+      <arg type="i" name="items_remaining"/>
+      <arg type="i" name="items_total"/>
+      <arg type="d" name="seconds_elapsed"/>
+    </signal>
+
+    <!-- Signal whenever the count of a category changed. Look at GetStats for
+	 the format of service_stats. 
+      -->
+    <signal name="ServiceStatisticsUpdated">
+      <arg type="aas" name="statistics"/>
+    </signal>
+  </interface>
+</node>

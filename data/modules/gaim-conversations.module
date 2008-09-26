@@ -1,0 +1,19 @@
+[General]
+Description=GAIM Conversations
+Enabled=true
+
+[Monitors]
+Directories=
+RecurseDirectories=$HOME/.gaim/logs;$HOME/.purple/logs;
+
+[Ignored]
+Directories=
+Files=
+
+[Index]
+Service=Files
+MimeTypes=
+Files=
+
+[Specific]
+# Options specific to this module

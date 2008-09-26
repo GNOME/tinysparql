@@ -1,0 +1,32 @@
+
+[xesam:Alarm]
+Parents=xesam:PIM
+Description=Alarm
+
+[xesam:ApplicationDesktopEntry]
+Parents=xesam:DesktopEntry
+Description=Application Desktop Entry
+
+[xesam:DesktopEntry]
+Parents=xesam:Content
+Description=Desktop Entry(typically a .desktop file)
+
+[xesam:Event]
+Parents=xesam:PIM
+Description=Event
+
+[xesam:FreeBusy]
+Parents=xesam:PIM
+Description=FreeBusy
+
+[xesam:Journal]
+Parents=xesam:PIM
+Description=Journal
+
+[xesam:PIM]
+Parents=xesam:Content
+Description=Generic PIM
+
+[xesam:Task]
+Parents=xesam:PIM
+Description=Task

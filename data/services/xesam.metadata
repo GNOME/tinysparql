@@ -1,0 +1,1470 @@
+
+[xesam:35mmEquivalent]
+Parents=
+Categories=xesam:Photo
+ValueType=float
+Description=Photo metering mode
+
+
+[xesam:acl]
+Parents=
+Categories=xesam:Filelike
+ValueType=List of strings
+Description=File access control list
+
+
+[xesam:album]
+Parents=
+Categories=xesam:Media
+ValueType=string
+Description=Media album
+
+
+[xesam:albumArtist]
+Parents=xesam:author
+Categories=xesam:Audio
+ValueType=List of strings
+Description=Music album artist
+
+
+[xesam:albumGain]
+Parents=
+Categories=xesam:Audio
+ValueType=float
+Description=Gain adjustment of album
+
+
+[xesam:albumPeakGain]
+Parents=
+Categories=xesam:Audio
+ValueType=float
+Description=Peak gain adjustment of album
+
+
+[xesam:albumTrackCount]
+Parents=
+Categories=xesam:Audio
+ValueType=integer
+Description=Album track count
+
+
+[xesam:aperture]
+Parents=
+Categories=xesam:Photo
+ValueType=float
+Description=Photo aperture
+
+
+[xesam:artist]
+Parents=xesam:author
+Categories=xesam:Audio
+ValueType=List of strings
+Description=Music artist
+
+
+[xesam:asText]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content plain-text representation for indexing purposes
+
+
+[xesam:aspectRatio]
+Parents=
+Categories=xesam:Visual
+ValueType=string
+Description=Visual content aspect ratio
+
+
+[xesam:attachmentEncoding]
+Parents=
+Categories=xesam:EmailAttachment
+ValueType=string
+Description=Email attachment encoding(base64,utf-7, etc)
+
+
+[xesam:audioBPM]
+Parents=
+Categories=xesam:Audio
+ValueType=integer
+Description=Beats per minute
+
+
+[xesam:audioBitrate]
+Parents=xesam:mediaBitrate
+Categories=xesam:Audio
+ValueType=integer
+Description=Audio Bitrate
+
+
+[xesam:audioChannels]
+Parents=xesam:sampleConfiguration
+Categories=xesam:Audio
+ValueType=string
+Description=Audio channels
+
+
+[xesam:audioCodec]
+Parents=xesam:mediaCodec
+Categories=xesam:Audio
+ValueType=string
+Description=Audio codec
+
+
+[xesam:audioCodecType]
+Parents=xesam:mediaCodecType
+Categories=xesam:Audio
+ValueType=string
+Description=Audio codec type
+
+
+[xesam:audioSampleBitDepth]
+Parents=xesam:sampleBitDepth
+Categories=xesam:Audio
+ValueType=integer
+Description=Audio sample data bit depth
+
+
+[xesam:audioSampleCount]
+Parents=xesam:setCount
+Categories=xesam:Audio
+ValueType=integer
+Description=Audio sample count
+
+
+[xesam:audioSampleDataType]
+Parents=xesam:sampleDataType
+Categories=xesam:Audio
+ValueType=string
+Description=Audio sample data type
+
+
+[xesam:audioSampleRate]
+Parents=xesam:setRate
+Categories=xesam:Audio
+ValueType=float
+Description=Audio sample rate
+
+
+[xesam:author]
+Parents=xesam:creator
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content author. Primary contributor.
+
+
+[xesam:autoRating]
+Parents=
+Categories=xesam:Source
+ValueType=Abstract field. Contains no data.
+Description=Rating of the object provided automatically by software, inferred from user behavior or other indirect indicators.
+
+
+[xesam:baseRevisionID]
+Parents=
+Categories=xesam:RevisionControlledFile
+ValueType=string
+Description=RevisionID on which a revision-controlled file is based
+
+
+[xesam:bcc]
+Parents=xesam:secondaryRecipient
+Categories=xesam:Email
+ValueType=List of strings
+Description=BCC:
+
+
+[xesam:birthDate]
+Parents=
+Categories=xesam:Person
+ValueType=dateTime
+Description=Contact birthDate
+
+
+[xesam:blogContactURL]
+Parents=xesam:contactURL
+Categories=xesam:Contact
+ValueType=List of Urls
+Description=Contact blog URL
+
+
+[xesam:cameraManufacturer]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo camera manufacturer
+
+
+[xesam:cameraModel]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo camera model
+
+
+[xesam:cc]
+Parents=xesam:secondaryRecipient
+Categories=xesam:Email
+ValueType=List of strings
+Description=CC:
+
+
+[xesam:ccdWidth]
+Parents=
+Categories=xesam:Photo
+ValueType=float
+Description=Photo CCD Width
+
+
+[xesam:cellPhoneNumber]
+Parents=xesam:phoneNumber
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact cell phone number
+
+
+[xesam:changeCommitTime]
+Parents=
+Categories=xesam:RevisionControlledFile
+ValueType=dateTime
+Description=Time of the last change to the base file in the repository(preceding the baseRevisionID?)
+
+
+[xesam:changeCommitter]
+Parents=
+Categories=xesam:RevisionControlledFile
+ValueType=string
+Description=Who made the last change to the base file in the repository(preceding the baseRevisionID?)
+
+
+[xesam:characterCount]
+Parents=
+Categories=xesam:Text
+ValueType=integer
+Description=Text character count
+
+
+[xesam:charset]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content charset encoding
+
+
+[xesam:chatRoom]
+Parents=xesam:communicationChannel
+Categories=xesam:IMMessage
+ValueType=List of strings
+Description=Chatroom this message belongs to
+
+
+[xesam:colorCount]
+Parents=
+Categories=xesam:Visual
+ValueType=integer
+Description=Visual content color count for palettes
+
+
+[xesam:colorSpace]
+Parents=xesam:sampleConfiguration
+Categories=xesam:Visual
+ValueType=string
+Description=Visual content color space(RGB, CMYK etc)
+
+
+[xesam:columnCount]
+Parents=
+Categories=xesam:Spreadsheet
+ValueType=integer
+Description=Spreadsheet column count
+
+
+[xesam:comment]
+Parents=
+Categories=xesam:DataObject
+ValueType=List of strings
+Description=Object comment
+
+
+[xesam:commentCharacterCount]
+Parents=
+Categories=xesam:SourceCode
+ValueType=integer
+Description=Source code comment character count
+
+
+[xesam:commitDiff]
+Parents=
+Categories=xesam:RevisionControlledFile
+ValueType=Abstract field. Contains no data.
+Description=The diff of the content and the base file
+
+
+[xesam:communicationChannel]
+Parents=
+Categories=xesam:Message
+ValueType=List of strings
+Description=Message communication channel like chatroom name or mailing list
+
+
+[xesam:composer]
+Parents=xesam:author
+Categories=xesam:Audio
+ValueType=List of strings
+Description=Music composer
+
+
+[xesam:compressionAlgorithm]
+Parents=
+Categories=xesam:ArchivedFile
+ValueType=string
+Description=Compression algorithm for archivers which support several
+
+
+[xesam:compressionLevel]
+Parents=
+Categories=xesam:ArchivedFile;xesam:Media
+ValueType=string
+Description=Level of compression. How much effort was spent towards achieving maximal compression ratio.
+
+
+[xesam:conflicts]
+Parents=xesam:related
+Categories=xesam:SoftwarePackage
+ValueType=List of Uris
+Description=Software conflicts with
+
+
+[xesam:contactMedium]
+Parents=
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Generic contact medium
+
+
+[xesam:contactNick]
+Parents=
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact nick
+
+
+[xesam:contactURL]
+Parents=xesam:contactMedium
+Categories=xesam:Contact
+ValueType=List of Urls
+Description=Contact URL
+
+
+[xesam:contains]
+Parents=xesam:depends
+Categories=xesam:Content
+ValueType=List of Uris
+Description=Containment relation
+
+
+[xesam:contentComment]
+Parents=xesam:comment
+Categories=xesam:Content
+ValueType=string
+Description=Content comment
+
+
+[xesam:contentCreated]
+Parents=
+Categories=xesam:Content
+ValueType=dateTime
+Description=Content creation time
+
+
+[xesam:contentKeyword]
+Parents=xesam:keyword
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content keyword/tag
+
+
+[xesam:contentModified]
+Parents=
+Categories=xesam:Content
+ValueType=dateTime
+Description=Content last modification time
+
+
+[xesam:contentType]
+Parents=
+Categories=xesam:Email
+ValueType=string
+Description=Email content mime type/charset
+
+
+[xesam:contributor]
+Parents=xesam:creator
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content contributor. Secondary contributor.
+
+
+[xesam:copyright]
+Parents=xesam:legal
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content copyright
+
+
+[xesam:creator]
+Parents=
+Categories=xesam:Content
+ValueType=Abstract field. Contains no data.
+Description=Abstract content creator. Use children
+
+
+[xesam:definesClass]
+Parents=
+Categories=xesam:SourceCode
+ValueType=List of strings
+Description=Source code defines class
+
+
+[xesam:definesFunction]
+Parents=
+Categories=xesam:SourceCode
+ValueType=List of strings
+Description=Source code defines function
+
+
+[xesam:definesGlobalVariable]
+Parents=
+Categories=xesam:SourceCode
+ValueType=List of strings
+Description=Source code defines global variable
+
+
+[xesam:deletionTime]
+Parents=
+Categories=xesam:DeletedFile
+ValueType=dateTime
+Description=File deletion time
+
+
+[xesam:depends]
+Parents=xesam:related
+Categories=xesam:Content
+ValueType=List of Uris
+Description=Dependency relation
+
+
+[xesam:derivedFrom]
+Parents=xesam:links
+Categories=xesam:Content
+ValueType=List of Uris
+Description=Links to the original content from which this content is derived
+
+
+[xesam:description]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content description. Description of content an order of magnitude more elaborate than Title
+
+
+[xesam:discNumber]
+Parents=
+Categories=xesam:Audio
+ValueType=integer
+Description=Audio cd number
+
+
+[xesam:disclaimer]
+Parents=xesam:legal
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content disclaimer
+
+
+[xesam:documentCategory]
+Parents=
+Categories=xesam:Document
+ValueType=List of strings
+Description=Document category: book, article, flyer, pamphlet whatever
+
+
+[xesam:emailAddress]
+Parents=xesam:contactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact email address
+
+
+[xesam:exposureBias]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo exposure bias
+
+
+[xesam:exposureProgram]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo exposure program
+
+
+[xesam:exposureTime]
+Parents=
+Categories=xesam:Photo
+ValueType=dateTime
+Description=Photo exposure time
+
+
+[xesam:familyName]
+Parents=
+Categories=xesam:Person
+ValueType=List of strings
+Description=Person family name
+
+
+[xesam:faxPhoneNumber]
+Parents=xesam:phoneNumber
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact fax phone number
+
+
+[xesam:fileExtension]
+Parents=
+Categories=xesam:Filelike
+ValueType=string
+Description=File extension
+
+
+[xesam:fileSystemType]
+Parents=
+Categories=xesam:FileSystem
+ValueType=string
+Description=File system type e.g. ext3
+
+
+[xesam:fingerprint]
+Parents=
+Categories=xesam:Content
+ValueType=Abstract field. Contains no data.
+Description=Content fingerprint: a small ID calculated from content byte stream, aimed at uniquely identifying the content. Abstract.
+
+
+[xesam:firstUsed]
+Parents=
+Categories=xesam:Source
+ValueType=dateTime
+Description=When the content was used for the first time
+
+
+[xesam:flashUsed]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo flash used
+
+
+[xesam:focalLength]
+Parents=
+Categories=xesam:Photo
+ValueType=float
+Description=Photo focal length
+
+
+[xesam:focusDistance]
+Parents=
+Categories=xesam:Photo
+ValueType=float
+Description=Photo focus distance
+
+
+[xesam:formatSubtype]
+Parents=
+Categories=xesam:Content
+ValueType=List of strings
+Description=Format subtype. Use to indicate format extensions/specifics
+
+
+[xesam:frameCount]
+Parents=xesam:setCount
+Categories=xesam:Visual
+ValueType=integer
+Description=Visual content frame count
+
+
+[xesam:frameRate]
+Parents=xesam:setRate
+Categories=xesam:Visual
+ValueType=float
+Description=Visual content frame rate
+
+
+[xesam:freeSpace]
+Parents=
+Categories=xesam:FileSystem
+ValueType=integer
+Description=File system free space
+
+
+[xesam:gender]
+Parents=
+Categories=xesam:Person
+ValueType=string
+Description=Contact gender
+
+
+[xesam:generator]
+Parents=
+Categories=xesam:Content
+ValueType=List of strings
+Description=Software used to generate the content byte stream
+
+
+[xesam:generatorOptions]
+Parents=
+Categories=xesam:Content
+ValueType=List of strings
+Description=Generator software options
+
+
+[xesam:genre]
+Parents=
+Categories=xesam:Media
+ValueType=List of strings
+Description=Media genre
+
+
+[xesam:givenName]
+Parents=
+Categories=xesam:Person
+ValueType=List of strings
+Description=Person given name
+
+
+[xesam:group]
+Parents=
+Categories=xesam:Filelike
+ValueType=List of strings
+Description=File group
+
+
+[xesam:height]
+Parents=
+Categories=xesam:Visual
+ValueType=integer
+Description=Visual content height
+
+
+[xesam:homeEmailAddress]
+Parents=xesam:emailAddress
+Categories=xesam:Person
+ValueType=List of strings
+Description=Contact home email address
+
+
+[xesam:homePhoneNumber]
+Parents=xesam:phoneNumber
+Categories=xesam:Person
+ValueType=List of strings
+Description=Contact home phone number
+
+
+[xesam:homePostalAddress]
+Parents=xesam:physicalAddress
+Categories=xesam:Person
+ValueType=List of strings
+Description=Contact home address
+
+
+[xesam:homepageContactURL]
+Parents=xesam:contactURL
+Categories=xesam:Contact
+ValueType=List of Urls
+Description=Contact homepage URL
+
+
+[xesam:honorificPrefix]
+Parents=
+Categories=xesam:Person
+ValueType=List of strings
+Description=Person honorific name prefix
+
+
+[xesam:honorificSuffix]
+Parents=
+Categories=xesam:Person
+ValueType=List of strings
+Description=Person honorific name suffix
+
+
+[xesam:horizontalResolution]
+Parents=
+Categories=xesam:Visual
+ValueType=integer
+Description=Visual content horizontal resolution
+
+
+[xesam:id]
+Parents=
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content ID
+
+
+[xesam:imContactMedium]
+Parents=xesam:contactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Generic IM contact medium
+
+
+[xesam:inReplyTo]
+Parents=xesam:derivedFrom
+Categories=xesam:Email
+ValueType=List of strings
+Description=In-Reply-To:
+
+
+[xesam:interest]
+Parents=
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact interests/hobbies
+
+
+[xesam:interlaceMode]
+Parents=
+Categories=xesam:Visual
+ValueType=string
+Description=Visual content interlace mode
+
+
+[xesam:ircContactMedium]
+Parents=xesam:imContactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact IRC ID@server
+
+
+[xesam:isContentEncrypted]
+Parents=
+Categories=xesam:Content
+ValueType=boolean
+Description=Is some portion of content encrypted? Setting this field doesn't imply that all data is encrypted.
+
+
+[xesam:isEncrypted]
+Parents=
+Categories=xesam:DataObject
+ValueType=List of booleans
+Description=Is Object or part of it encrypted?
+
+
+[xesam:isImportant]
+Parents=
+Categories=xesam:MessageboxMessage
+ValueType=boolean
+Description=Is the message important
+
+
+[xesam:isInProgress]
+Parents=
+Categories=xesam:MessageboxMessage
+ValueType=boolean
+Description=Is the message in progress
+
+
+[xesam:isPublicChannel]
+Parents=
+Categories=xesam:CommunicationChannel
+ValueType=boolean
+Description=Is channel public?
+
+
+[xesam:isRead]
+Parents=
+Categories=xesam:MessageboxMessage
+ValueType=boolean
+Description=Is the message read
+
+
+[xesam:isSourceEncrypted]
+Parents=xesam:isEncrypted
+Categories=xesam:ArchivedFile
+ValueType=boolean
+Description=Is archived file password-protected?
+
+
+[xesam:isoEquivalent]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo ISO equivalent
+
+
+[xesam:jabberContactMedium]
+Parents=xesam:imContactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact Jabber ID
+
+
+[xesam:keyword]
+Parents=
+Categories=xesam:DataObject
+ValueType=List of strings
+Description=Object keyword/tag
+
+
+[xesam:knows]
+Parents=xesam:related
+Categories=xesam:Contact
+ValueType=List of Uris
+Description=FOAF:knows relation. Points to a contact known by this contact.
+
+
+[xesam:language]
+Parents=
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content language
+
+
+[xesam:lastRefreshed]
+Parents=
+Categories=xesam:RemoteResource
+ValueType=dateTime
+Description=Last time the resource info was refreshed
+
+
+[xesam:lastUsed]
+Parents=
+Categories=xesam:Source
+ValueType=dateTime
+Description=When the content was last used. Different from last access as this only accounts usage by the user e.g. playing a song as opposed to apps scanning the HD
+
+
+[xesam:legal]
+Parents=
+Categories=xesam:Content
+ValueType=List of strings
+Description=Abstract content legal notice.
+
+
+[xesam:license]
+Parents=xesam:legal
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content license
+
+
+[xesam:licenseType]
+Parents=xesam:legal
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content license type
+
+
+[xesam:lineCount]
+Parents=
+Categories=xesam:Text
+ValueType=integer
+Description=Text line count
+
+
+[xesam:links]
+Parents=xesam:related
+Categories=xesam:Content
+ValueType=List of Uris
+Description=Linking/mention relation
+
+
+[xesam:localRevision]
+Parents=
+Categories=xesam:Source
+ValueType=string
+Description=Local revision number. An automatically generated ID that is changed everytime the generator software/revisioning system deems the content has changed.
+
+
+[xesam:lyricist]
+Parents=xesam:author
+Categories=xesam:Audio
+ValueType=List of strings
+Description=Music lyricist
+
+
+[xesam:mailingList]
+Parents=xesam:communicationChannel
+Categories=xesam:MailingListEmail
+ValueType=List of strings
+Description=Mailing list this message belongs to
+
+
+[xesam:mailingPostalAddress]
+Parents=xesam:physicalAddress
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact mailing address
+
+
+[xesam:maintainer]
+Parents=xesam:creator
+Categories=xesam:Content
+ValueType=List of strings
+Description=Content maintainer.
+
+
+[xesam:markupCharacterCount]
+Parents=
+Categories=xesam:XML
+ValueType=integer
+Description=XML markup character count
+
+
+[xesam:md5Hash]
+Parents=xesam:fingerprint
+Categories=xesam:Content
+ValueType=Abstract field. Contains no data.
+Description=MD5 hash
+
+
+[xesam:mediaBitrate]
+Parents=
+Categories=xesam:Media
+ValueType=List of integers
+Description=Media bitrate
+
+
+[xesam:mediaCodec]
+Parents=
+Categories=xesam:Media
+ValueType=List of strings
+Description=Media codec
+
+
+[xesam:mediaCodecType]
+Parents=
+Categories=xesam:Media
+ValueType=List of strings
+Description=Media codec type: lossless, CBR, ABR, VBR
+
+
+[xesam:mediaDuration]
+Parents=
+Categories=xesam:Media
+ValueType=List of dateTimes
+Description=Media duration
+
+
+[xesam:mergeConflict]
+Parents=
+Categories=xesam:RevisionControlledFile
+ValueType=boolean
+Description=If true, the file has a merge conflict(can't be cleanly merged into the repository)
+
+
+[xesam:meteringMode]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo metering mode
+
+
+[xesam:mimeType]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content mime-type
+
+
+[xesam:mountPoint]
+Parents=
+Categories=xesam:FileSystem
+ValueType=List of strings
+Description=File system mount point
+
+
+[xesam:name]
+Parents=
+Categories=xesam:Source
+ValueType=string
+Description=Name provided by container
+
+
+[xesam:newsGroup]
+Parents=xesam:communicationChannel
+Categories=xesam:NewsGroupEmail
+ValueType=List of strings
+Description=News group this message belongs to
+
+
+[xesam:occupiedSpace]
+Parents=
+Categories=xesam:FileSystem
+ValueType=integer
+Description=File system occupied space
+
+
+[xesam:orientation]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo orientation
+
+
+[xesam:originURL]
+Parents=
+Categories=xesam:Source
+ValueType=Url
+Description=Origin URL, e.g. where the file had been downloaded from
+
+
+[xesam:originalLocation]
+Parents=
+Categories=xesam:DeletedFile
+ValueType=string
+Description=Deleted file original location
+
+
+[xesam:otherName]
+Parents=
+Categories=xesam:Person
+ValueType=List of strings
+Description=Person other name
+
+
+[xesam:owner]
+Parents=
+Categories=xesam:Filelike
+ValueType=string
+Description=File owner
+
+
+[xesam:pageCount]
+Parents=
+Categories=xesam:Document
+ValueType=integer
+Description=Document page count. Slide count for presentations
+
+
+[xesam:paragrapCount]
+Parents=
+Categories=xesam:Document
+ValueType=integer
+Description=Document paragraph count
+
+
+[xesam:performer]
+Parents=xesam:author
+Categories=xesam:Audio
+ValueType=List of strings
+Description=Music performer
+
+
+[xesam:permissions]
+Parents=
+Categories=xesam:Filelike
+ValueType=string
+Description=File permissions
+
+
+[xesam:personPhoto]
+Parents=
+Categories=xesam:Person
+ValueType=List of Uris
+Description=Contact photo/avatar
+
+
+[xesam:phoneNumber]
+Parents=xesam:contactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact phone number
+
+
+[xesam:physicalAddress]
+Parents=xesam:contactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact postal address
+
+
+[xesam:pixelDataBitDepth]
+Parents=xesam:sampleBitDepth
+Categories=xesam:Visual
+ValueType=integer
+Description=Visual content pixel data bit depth
+
+
+[xesam:pixelDataType]
+Parents=xesam:sampleDataType
+Categories=xesam:Visual
+ValueType=string
+Description=Visual content pixel data type
+
+
+[xesam:primaryRecipient]
+Parents=xesam:recipient
+Categories=xesam:Message
+ValueType=List of strings
+Description=Message primary recipient
+
+
+[xesam:programmingLanguage]
+Parents=
+Categories=xesam:SourceCode
+ValueType=string
+Description=Source code programming language
+
+
+[xesam:receptionTime]
+Parents=
+Categories=xesam:Message
+ValueType=dateTime
+Description=Message reception time
+
+
+[xesam:recipient]
+Parents=
+Categories=xesam:Message
+ValueType=List of strings
+Description=Message recipient
+
+
+[xesam:related]
+Parents=
+Categories=xesam:Content
+ValueType=List of Uris
+Description=Abstract content relation. Use children
+
+
+[xesam:remotePassword]
+Parents=
+Categories=xesam:RemoteResource
+ValueType=string
+Description=Remote resource user password
+
+
+[xesam:remotePort]
+Parents=
+Categories=xesam:RemoteResource
+ValueType=integer
+Description=Server port
+
+
+[xesam:remoteServer]
+Parents=
+Categories=xesam:RemoteResource
+ValueType=string
+Description=The server hosting the remote resource
+
+
+[xesam:remoteUser]
+Parents=
+Categories=xesam:RemoteResource
+ValueType=string
+Description=Remote resource user name
+
+
+[xesam:replyTo]
+Parents=
+Categories=xesam:Email
+ValueType=string
+Description=ReplyTo:
+
+
+[xesam:rowCount]
+Parents=xesam:lineCount
+Categories=xesam:Spreadsheet
+ValueType=integer
+Description=Spreadsheet row count
+
+
+[xesam:rssFeed]
+Parents=xesam:communicationChannel
+Categories=xesam:RSSMessage
+ValueType=List of strings
+Description=RSS feed that provided the message
+
+
+[xesam:sampleBitDepth]
+Parents=
+Categories=xesam:Media
+ValueType=List of integers
+Description=Media sample data bit depth: 8, 16, 24, 32 etc
+
+
+[xesam:sampleConfiguration]
+Parents=
+Categories=xesam:Media
+ValueType=Abstract field. Contains no data.
+Description=Media sample configuration/arrangement of components
+
+
+[xesam:sampleDataType]
+Parents=
+Categories=xesam:Media
+ValueType=List of strings
+Description=Media sample data type: int, float
+
+
+[xesam:secondaryRecipient]
+Parents=xesam:recipient
+Categories=xesam:Message
+ValueType=List of strings
+Description=Message secondary recipient
+
+
+[xesam:seenAttachedAs]
+Parents=xesam:name
+Categories=xesam:OfflineMedia
+ValueType=List of strings
+Description=Name of block device seen to contain the Content when it was online.
+
+
+[xesam:setCount]
+Parents=
+Categories=xesam:Media
+ValueType=List of integers
+Description=Media set count. Sample count for audio(set=one sample per channel), frame count for video
+
+
+[xesam:setRate]
+Parents=
+Categories=xesam:Media
+ValueType=List of floats
+Description=Media set rate. Sample rate for audio(set=one sample per channel), FPS for video
+
+
+[xesam:sha1Hash]
+Parents=xesam:fingerprint
+Categories=xesam:Content
+ValueType=Abstract field. Contains no data.
+Description=SHA1 hash
+
+
+[xesam:size]
+Parents=
+Categories=xesam:Content
+ValueType=integer
+Description=Content/data size in bytes. See also storageSize
+
+
+[xesam:sourceCreated]
+Parents=
+Categories=xesam:Source
+ValueType=dateTime
+Description=Local copy creation time
+
+
+[xesam:sourceModified]
+Parents=
+Categories=xesam:Source
+ValueType=dateTime
+Description=Local copy modification time
+
+
+[xesam:storedSize]
+Parents=
+Categories=xesam:Source
+ValueType=integer
+Description=Actual space occupied by the object in the source storage. e.g. compressed file size in archive
+
+
+[xesam:subject]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content subject. The shortest possible description of content
+
+
+[xesam:summary]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content summary. Description of content an order of magnitude more elaborate than Description
+
+
+[xesam:supercedes]
+Parents=xesam:related
+Categories=xesam:SoftwarePackage
+ValueType=List of Uris
+Description=Software supercedes
+
+
+[xesam:targetQuality]
+Parents=
+Categories=xesam:Media
+ValueType=List of strings
+Description=The desired level of quality loss of lossy compression
+
+
+[xesam:title]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content title. Description of content an order of magnitude more elaborate than Subject
+
+
+[xesam:to]
+Parents=xesam:primaryRecipient
+Categories=xesam:Email
+ValueType=List of strings
+Description=To:
+
+
+[xesam:totalSpace]
+Parents=
+Categories=xesam:FileSystem
+ValueType=integer
+Description=File system total usable space, unlike size, which is the byte size of the entire filesystem including overhead.
+
+
+[xesam:totalUncompressedSize]
+Parents=
+Categories=xesam:Archive
+ValueType=integer
+Description=Archive total uncompressed size
+
+
+[xesam:trackGain]
+Parents=
+Categories=xesam:Audio
+ValueType=float
+Description=Gain adjustment of track
+
+
+[xesam:trackNumber]
+Parents=
+Categories=xesam:Audio
+ValueType=integer
+Description=Audio track number
+
+
+[xesam:trackPeakGain]
+Parents=
+Categories=xesam:Audio
+ValueType=float
+Description=Peak gain adjustment of track
+
+
+[xesam:url]
+Parents=
+Categories=xesam:Source
+ValueType=List of Urls
+Description=URL to access the content
+
+
+[xesam:useCount]
+Parents=
+Categories=xesam:Source
+ValueType=integer
+Description=How many times the content was used. Only usage by the user(not general software access) counts.
+
+
+[xesam:userComment]
+Parents=xesam:comment
+Categories=xesam:Source
+ValueType=List of strings
+Description=User-provided comment
+
+
+[xesam:userKeyword]
+Parents=xesam:keyword
+Categories=xesam:Source
+ValueType=List of strings
+Description=User-provided keywords
+
+
+[xesam:userRating]
+Parents=
+Categories=xesam:Source
+ValueType=Abstract field. Contains no data.
+Description=User-provided rating of the object
+
+
+[xesam:usesNamespace]
+Parents=
+Categories=xesam:XML
+ValueType=List of strings
+Description=Namespace referenced by the XML
+
+
+[xesam:version]
+Parents=
+Categories=xesam:Content
+ValueType=string
+Description=Content version
+
+
+[xesam:verticalResolution]
+Parents=
+Categories=xesam:Visual
+ValueType=integer
+Description=Visual content vertical resolution
+
+
+[xesam:videoBitrate]
+Parents=xesam:mediaBitrate
+Categories=xesam:Video
+ValueType=integer
+Description=Video Bitrate
+
+
+[xesam:videoCodec]
+Parents=xesam:mediaCodec
+Categories=xesam:Video
+ValueType=string
+Description=Video codec
+
+
+[xesam:videoCodecType]
+Parents=xesam:mediaCodecType
+Categories=xesam:Video
+ValueType=string
+Description=Video codec type
+
+
+[xesam:whiteBalance]
+Parents=
+Categories=xesam:Photo
+ValueType=string
+Description=Photo white balance
+
+
+[xesam:width]
+Parents=
+Categories=xesam:Visual
+ValueType=integer
+Description=Visual content width
+
+
+[xesam:wordCount]
+Parents=
+Categories=xesam:Text
+ValueType=integer
+Description=Text word count
+
+
+[xesam:workEmailAddress]
+Parents=xesam:emailAddress
+Categories=xesam:Person
+ValueType=List of strings
+Description=Contact work email address
+
+
+[xesam:workPhoneNumber]
+Parents=xesam:phoneNumber
+Categories=xesam:Person
+ValueType=List of strings
+Description=Contact work phone number
+
+
+[xesam:workPostalAddress]
+Parents=xesam:physicalAddress
+Categories=xesam:Person
+ValueType=List of strings
+Description=Contact work address
+

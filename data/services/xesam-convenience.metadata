@@ -1,0 +1,301 @@
+
+[xesam:actionAccessClassification]
+Parents=
+Categories=xesam:Event;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry access classification
+
+
+[xesam:actionContact]
+Parents=
+Categories=xesam:Event;xesam:FreeBusy;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry contact
+
+
+[xesam:actionDuration]
+Parents=
+Categories=xesam:Alarm;xesam:Event;xesam:FreeBusy;xesam:Task
+ValueType=List of strings
+Description=PIM entry action duration
+
+
+[xesam:actionEnd]
+Parents=
+Categories=xesam:Event;xesam:FreeBusy
+ValueType=List of strings
+Description=PIM entry action end
+
+
+[xesam:actionExceptionDate]
+Parents=
+Categories=xesam:Event;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry exception date
+
+
+[xesam:actionExceptionRule]
+Parents=
+Categories=xesam:Event;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry exception rule
+
+
+[xesam:actionLocation]
+Parents=
+Categories=xesam:Event;xesam:Task
+ValueType=List of strings
+Description=PIM entry location
+
+
+[xesam:actionOrganizer]
+Parents=
+Categories=xesam:Event;xesam:FreeBusy;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry organizer
+
+
+[xesam:actionPriority]
+Parents=
+Categories=xesam:Event;xesam:Task
+ValueType=List of strings
+Description=PIM entry priority
+
+
+[xesam:actionRecurrenceDate]
+Parents=
+Categories=xesam:Event;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry recurrence date
+
+
+[xesam:actionRecurrenceID]
+Parents=
+Categories=xesam:Event;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry recurrence ID
+
+
+[xesam:actionRecurrenceRule]
+Parents=
+Categories=xesam:Event;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry recurrence rule
+
+
+[xesam:actionResources]
+Parents=
+Categories=xesam:Event;xesam:Task
+ValueType=List of strings
+Description=PIM activity has alarm
+
+
+[xesam:actionStart]
+Parents=
+Categories=xesam:Event;xesam:FreeBusy;xesam:Task
+ValueType=List of strings
+Description=PIM entry action start
+
+
+[xesam:actionStatus]
+Parents=
+Categories=xesam:Event;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry status
+
+
+[xesam:actionTrigger]
+Parents=
+Categories=xesam:Alarm;xesam:Event;xesam:Task
+ValueType=List of strings
+Description=PIM entry action trigger
+
+
+[xesam:actionURL]
+Parents=
+Categories=xesam:Event;xesam:FreeBusy;xesam:Journal;xesam:Task
+ValueType=List of Urls
+Description=PIM entry URL
+
+
+[xesam:aimContactMedium]
+Parents=xesam:imContactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact AIM ID
+
+
+[xesam:alarmAction]
+Parents=
+Categories=xesam:Alarm
+ValueType=List of strings
+Description=Alarm action
+
+
+[xesam:alarmRepeat]
+Parents=
+Categories=xesam:Alarm
+ValueType=List of strings
+Description=Alarm repeat
+
+
+[xesam:applicationDesktopEntryExec]
+Parents=
+Categories=xesam:ApplicationDesktopEntry
+ValueType=string
+Description=Command to execute, possibly with arguments
+
+
+[xesam:attendee]
+Parents=
+Categories=xesam:Alarm;xesam:Event;xesam:FreeBusy;xesam:Journal;xesam:Task
+ValueType=List of strings
+Description=PIM entry attendee
+
+
+[xesam:desktopEntryIcon]
+Parents=
+Categories=xesam:DesktopEntry
+ValueType=string
+Description=Desktop entry Icon field value conforming to http://freedesktop.org/wiki/Standards/icon-theme-spec
+
+
+[xesam:desktopMenuCategory]
+Parents=
+Categories=xesam:DesktopEntry
+ValueType=List of strings
+Description=Category in which the entry should be shown in the desktop menu. http://www.freedesktop.org/Standards/menu-spec
+
+
+[xesam:eventEnd]
+Parents=
+Categories=xesam:Event
+ValueType=List of strings
+Description=Event end time
+
+
+[xesam:eventLocation]
+Parents=
+Categories=xesam:Event
+ValueType=List of strings
+Description=Event location
+
+
+[xesam:eventStart]
+Parents=
+Categories=xesam:Event
+ValueType=List of strings
+Description=Event start time
+
+
+[xesam:eventTransparrent]
+Parents=
+Categories=xesam:Event
+ValueType=List of strings
+Description=Is event transparrent(makes person busy)
+
+
+[xesam:icqContactMedium]
+Parents=xesam:imContactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact ICQ ID
+
+
+[xesam:imdbId]
+Parents=xesam:id
+Categories=xesam:Video
+ValueType=Abstract field. Contains no data.
+Description=IMDB.com video ID
+
+
+[xesam:isrc]
+Parents=xesam:id
+Categories=xesam:Media
+ValueType=Abstract field. Contains no data.
+Description=International Standard Recording Code
+
+
+[xesam:msnContactMedium]
+Parents=xesam:imContactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact MSN ID
+
+
+[xesam:musicBrainzAlbumArtistID]
+Parents=xesam:id
+Categories=xesam:Audio
+ValueType=List of strings
+Description=MusicBrainz album artist ID in UUID format
+
+
+[xesam:musicBrainzAlbumID]
+Parents=xesam:id
+Categories=xesam:Audio
+ValueType=List of strings
+Description=MusicBrainz album ID in UUID format
+
+
+[xesam:musicBrainzArtistID]
+Parents=xesam:id
+Categories=xesam:Audio
+ValueType=List of strings
+Description=MusicBrainz artist ID in UUID format
+
+
+[xesam:musicBrainzFingerprint]
+Parents=xesam:fingerprint
+Categories=xesam:Audio
+ValueType=Abstract field. Contains no data.
+Description=MusicBrainz track fingerprint
+
+
+[xesam:musicBrainzTrackID]
+Parents=xesam:id
+Categories=xesam:Audio
+ValueType=List of strings
+Description=MusicBrainz track ID in UUID format
+
+
+[xesam:skypeContactMedium]
+Parents=xesam:imContactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact Skype ID
+
+
+[xesam:supportedMimeType]
+Parents=
+Categories=xesam:ApplicationDesktopEntry
+ValueType=List of strings
+Description=The MIME type supported by this application
+
+
+[xesam:taskCompleted]
+Parents=
+Categories=xesam:Task
+ValueType=List of booleans
+Description=Is task completed?
+
+
+[xesam:taskDue]
+Parents=
+Categories=xesam:Task
+ValueType=List of dateTimes
+Description=Task due date/time
+
+
+[xesam:taskPercentComplete]
+Parents=
+Categories=xesam:Task
+ValueType=List of integers
+Description=Task completeness
+
+
+[xesam:yahooContactMedium]
+Parents=xesam:imContactMedium
+Categories=xesam:Contact
+ValueType=List of strings
+Description=Contact Yahoo ID
+

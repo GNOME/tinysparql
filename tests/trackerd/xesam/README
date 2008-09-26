@@ -1,0 +1,5 @@
+These file came from xesam-glib and are needed to build mock objects and 
+infrastructure needed for xesam-glib.
+
+Perhaps we should discuss with Kamstrup (author of xesam-glib) how and if
+we can share this in a more decent way?

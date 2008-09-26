@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+<busconfig>
+    <policy context="default">
+      <deny send_interface="org.freedesktop.Tracker.Indexer"/>
+      <allow send_destination="org.freedesktop.Tracker"/>
+    </policy>
+</busconfig>
+-->
+
+<node name="/">
+  <interface name="org.freedesktop.Tracker.Indexer">  
+    <method name="FilesCheck">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="module" direction="in" />
+      <arg type="as" name="files" direction="in" />
+    </method>
+    <method name="FilesUpdate">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="module" direction="in" />
+      <arg type="as" name="files" direction="in" />
+    </method>
+    <method name="FilesDelete">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="module" direction="in" />
+      <arg type="as" name="files" direction="in" />
+    </method>
+    <method name="FileMove">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="module" direction="in" />
+      <arg type="s" name="file_from" direction="in" />
+      <arg type="s" name="file_to" direction="in" />
+    </method>
+
+    <method name="PropertySet">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="service_type" direction="in" />
+      <arg type="s" name="uri" direction="in" />
+      <arg type="s" name="property" direction="in"/>
+      <arg type="as" name="values" direction="in"/>
+    </method>      
+
+    <method name="PropertyRemove">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="service_type" direction="in" />
+      <arg type="s" name="uri" direction="in" />
+      <arg type="s" name="property" direction="in"/>
+      <arg type="as" name="values" direction="in"/>
+    </method>
+
+    <method name="Pause">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+    </method>
+    <method name="PauseForDuration">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="u" name="seconds" direction="in" />
+    </method>
+    <method name="Continue">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+    </method>
+    <method name="Shutdown">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+    </method>
+
+    <!-- Signals --> 
+    <signal name="Status">
+      <arg type="d" name="elapsed_time" />
+      <arg type="s" name="current_module_name" />
+      <arg type="u" name="items_done" />
+      <arg type="u" name="items_remaining" />
+    </signal>
+    <signal name="Started" />
+    <signal name="Paused" />
+    <signal name="Continued" />
+    <signal name="Finished">
+      <arg type="d" name="elapsed_time" />
+      <arg type="u" name="items_done" />
+      <arg type="b" name="interrupted" />
+    </signal>
+    <signal name="ModuleStarted">
+      <arg type="s" name="module_name" />
+    </signal>
+    <signal name="ModuleFinished">
+      <arg type="s" name="module_name" />
+    </signal>
+  </interface>
+</node>

@@ -1,0 +1,71 @@
+#! /bin/sh
+
+SCRIPTS_DIR=@top_srcdir@/tests/scripts
+SQLITE_EXEC=@sqlite_exec@
+
+. $SCRIPTS_DIR/xdg_dirs.source
+
+mkdir -p $XDG_CACHE_HOME/tracker
+
+echo -n Creating   
+
+#
+## file-metadata.db
+#
+
+echo -n file-metadata.db, 
+
+$SQLITE_EXEC $XDG_CACHE_HOME/tracker/file-meta.db < $SCRIPTS_DIR/data/file-meta.sql
+
+#
+## file-contents.db
+#
+
+echo -n file-contents.db, 
+
+$SQLITE_EXEC $XDG_CACHE_HOME/tracker/file-contents.db < $SCRIPTS_DIR/data/file-contents.sql
+
+#
+## email-meta.db
+#
+
+echo -n email-meta.db, 
+
+$SQLITE_EXEC $XDG_CACHE_HOME/tracker/email-meta.db < $SCRIPTS_DIR/data/email-meta.sql
+
+#
+## email-contents.db
+#
+
+echo -n email-contents.db, 
+
+$SQLITE_EXEC $XDG_CACHE_HOME/tracker/email-contents.db < $SCRIPTS_DIR/data/email-contents.sql
+
+#
+## xesam.db
+#
+
+echo -n xesam.db, 
+
+$SQLITE_EXEC $XDG_CACHE_HOME/tracker/xesam.db < $SCRIPTS_DIR/data/xesam.sql
+
+
+mkdir -p $XDG_DATA_HOME/tracker/data
+
+#
+## common.db
+#
+
+echo -n common.db, 
+
+$SQLITE_EXEC $XDG_DATA_HOME/tracker/data/common.db < $SCRIPTS_DIR/data/common.sql
+
+
+#
+## cache.db
+#
+
+echo cache.db .. done
+
+# Done by trackerd or tracker-indexer
+

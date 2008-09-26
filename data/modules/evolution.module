@@ -1,0 +1,19 @@
+[General]
+Description=Evolution
+Enabled=true
+
+[Monitors]
+Directories=
+RecurseDirectories=$HOME/.evolution/mail/local/;$HOME/.evolution/mail/imap/
+
+[Ignored]
+Directories=
+Files=
+
+[Index]
+Service=EvolutionEmails
+MimeTypes=
+Files=
+
+[Specific]
+# Options specific to this module

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Generic search interface (see other interfaces for file/keyword
+     specific searches). 
+  -->
+<node name="/org/freedesktop/xesam">
+  <interface name="org.freedesktop.xesam.Search">
+
+    <method name="NewSession">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="session" direction="out" />
+    </method>
+
+
+    <method name="SetProperty">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="session" direction="in" />
+      <arg type="s" name="prop" direction="in" />
+      <arg type="v" name="val" direction="in" />
+      <arg type="v" name="new_val" direction="out" />
+    </method>
+
+    <method name="GetProperty">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="session" direction="in" />
+      <arg type="s" name="prop" direction="in" />
+      <arg type="v" name="value" direction="out" />
+    </method>
+
+    <method name="CloseSession">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="session" direction="in" />
+    </method>
+
+
+    <method name="NewSearch">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="session" direction="in" />
+      <arg type="s" name="query_xml" direction="in" />
+      <arg type="s" name="search" direction="out" />
+    </method>
+
+    <method name="StartSearch">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="search" direction="in" />
+    </method>
+
+    <method name="GetHitCount">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="search" direction="in" />
+      <arg type="u" name="count" direction="out" />
+    </method>
+
+    <method name="GetHits">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="search" direction="in" />
+      <arg type="u" name="count" direction="in" />
+      <arg type="aav" name="hits" direction="out" />
+    </method>
+
+
+    <method name="GetHitData">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="search" direction="in" />
+      <arg type="au" name="hit_ids" direction="in" />
+      <arg type="as" name="fields" direction="in" />
+      <arg type="aav" name="hit_data" direction="out" />
+    </method>
+
+    <method name="CloseSearch">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="search" direction="in" />
+    </method>
+
+    <method name="GetState">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="as" name="state_info" direction="out" />
+    </method>
+
+    <signal name="HitsAdded">
+      <arg type="s" name="search" />
+      <arg type="u" name="count" />
+    </signal>
+
+    <signal name="HitsRemoved">
+      <arg type="s" name="search" />
+      <arg type="au" name="hit_ids" />
+    </signal>
+
+    <signal name="HitsModified">
+      <arg type="s" name="search" />
+      <arg type="au" name="hit-ids" />
+    </signal>
+
+    <signal name="SearchDone">
+      <arg type="s" name="search" />
+    </signal>
+
+    <signal name="StateChanged">
+      <arg type="as" name="state_info" />
+    </signal>
+
+  </interface>
+  <interface name="org.freedesktop.xesam.PagedSearch">
+      <method name="GetRangeHits">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="search" direction="in" />
+      <arg type="u" name="a" direction="in" />
+      <arg type="u" name="b" direction="in" />
+      <arg type="aav" name="hits" direction="out" />
+    </method>
+
+    <method name="GetRangeHitData">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="search" direction="in" />
+      <arg type="u" name="a" direction="in" />
+      <arg type="u" name="b" direction="in" />
+      <arg type="as" name="fields" direction="in" />
+      <arg type="aav" name="hit_data" direction="out" />
+    </method>
+  </interface>
+
+</node>

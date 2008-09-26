@@ -1,0 +1,24 @@
+#!/bin/sh
+
+tmpdir=${TMPDIR-/tmp}
+tmpdir="$tmpdir"/tmpdir.$$
+
+tmptxtfile=`mktemp`
+
+(umask 077 && mkdir "$tmpdir") || exit 1
+
+tmpfile="$tmpdir"/tmpfile.$$
+
+cp "$1" "$tmpfile"
+
+# Change the working directory to $tmpdir which we can safely deleter later.
+# Some distributions ship a version of wvText which extracts the image files
+# from the word document and places them in the current working directory.
+
+cd "$tmpdir"
+
+nice -n19 wvText "$tmpfile" "$tmptxtfile"
+
+rm -rf "$tmpdir"
+rm "$tmptxtfile"
+

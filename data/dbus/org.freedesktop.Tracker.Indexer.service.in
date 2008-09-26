@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.freedesktop.Tracker.Indexer
+Exec=@libexecdir@/tracker-indexer

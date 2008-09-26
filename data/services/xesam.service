@@ -1,0 +1,244 @@
+
+[xesam:Annotation]
+Parents=xesam:Content
+Description=Generic annotation. Annotation provides a set of document description properties(like subject, title, description) for a list of objects it links to. It can link to other annotations, however interpretation of this may differ between specific annotation classes..
+
+[xesam:Archive]
+Parents=xesam:Content
+Description=Generic archive
+
+[xesam:ArchivedFile]
+Parents=xesam:Filelike
+Description=File stored in an archive
+
+[xesam:Audio]
+Parents=xesam:Media
+Description=Defines audio aspect of content. The content itself may have other aspects.
+
+[xesam:AudioList]
+Parents=xesam:MediaList
+Description=Generic audio list(playlist). Linking to other content types is forbidden
+
+[xesam:BlockDevice]
+Parents=xesam:Source
+Description=Generic block device. Typically contains partitions/filesystems
+
+[xesam:Bookmark]
+Parents=xesam:Annotation
+Description=Bookmark. Currently there's nothing that would distinguish bookmarks and tags
+
+[xesam:CommunicationChannel]
+Parents=xesam:Content
+Description=Communication channel
+
+[xesam:Contact]
+Parents=xesam:Content
+Description=Contact
+
+[xesam:ContactGroup]
+Parents=xesam:Content
+Description=ContactGroup
+
+[xesam:Content]
+Parents=xesam:DataObject
+Description=Generic content
+
+[xesam:DataObject]
+Parents=
+Description=Generic data object. Unites form and essense aspects represented by Content and Source. Used to aggreate properties that may be extracted from both content and source.
+
+[xesam:DeletedFile]
+Parents=xesam:Filelike
+Description=File deleted to trash
+
+[xesam:Document]
+Parents=xesam:Text
+Description=Document is an arrangement of various atomic data types with text being the primary data type.
+
+[xesam:Documentation]
+Parents=xesam:Document
+Description=Documentation is a document containing help, manuals, guides.
+
+[xesam:Email]
+Parents=xesam:Message
+Description=Email message
+
+[xesam:EmailAttachment]
+Parents=xesam:EmbeddedObject
+Description=Generic storage
+
+[xesam:EmbeddedObject]
+Parents=xesam:Source
+Description=Generic embedded/inlined object: attachment, inlined SVG, script etc.
+
+[xesam:File]
+Parents=xesam:Filelike
+Description=Regular file stored in a filesystem
+
+[xesam:FileSystem]
+Parents=xesam:Content
+Description=Filesystem differs from other containers in that it has total/free/occupied space(though DBs too have similar properties), has volume(content.title), UUID for *ix(content.ID), mount point(if mounted)
+
+[xesam:Filelike]
+Parents=xesam:Source
+Description=File-like object
+
+[xesam:Folder]
+Parents=xesam:Annotation
+Description=Generic folder. In general, folders represent a tree-like structure(taxonomy), however on occasion this rule may violated in cases like symlinks.
+
+[xesam:IMAP4Message]
+Parents=xesam:RemoteMessageboxMessage
+Description=IMAP4 mailbox message
+
+[xesam:IMMessage]
+Parents=xesam:Message
+Description=Generic Instant Messaging message
+
+[xesam:Image]
+Parents=xesam:Visual
+Description=Visual content
+
+[xesam:MailingList]
+Parents=xesam:ContactGroup;xesam:CommunicationChannel
+Description=Mailing list
+
+[xesam:MailingListEmail]
+Parents=xesam:Email
+Description=Email message addressed at/received from a mailing list
+
+[xesam:Media]
+Parents=xesam:Content
+Description=Generic raster/sampled media is considered consisting of Sets of Samples being reproduced(played/shown) at once. We describe: sample data type(int/float), data bit depth,configuration(color space for images, channel count for audio); set configuration(pixel dimensions for image); set count and rate.
+
+[xesam:MediaList]
+Parents=xesam:Annotation
+Description=Generic media content list(playlist). Linking to other content types is forbidden
+
+[xesam:Message]
+Parents=xesam:Content
+Description=Generic message
+
+[xesam:MessageboxMessage]
+Parents=xesam:Source
+Description=Message stored in a message box
+
+[xesam:Music]
+Parents=xesam:Audio
+Description=Music content
+
+[xesam:NewsGroup]
+Parents=xesam:CommunicationChannel
+Description=News group
+
+[xesam:NewsGroupEmail]
+Parents=xesam:Email
+Description=Email message addressed at/received from a news group
+
+[xesam:OfflineMedia]
+Parents=xesam:Source
+Description=Generic offline media. e.g. USB drive not attached at this moment.
+
+[xesam:Organization]
+Parents=xesam:Contact
+Description=Organization
+
+[xesam:POP3Message]
+Parents=xesam:RemoteMessageboxMessage
+Description=POP3 mailbox message
+
+[xesam:Person]
+Parents=xesam:Contact
+Description=Person
+
+[xesam:PersonalEmail]
+Parents=xesam:Email
+Description=Personal email message(not related to a mailing list or discussion group)
+
+[xesam:Photo]
+Parents=xesam:Image
+Description=An image with EXIF tags(photo)
+
+[xesam:Presentation]
+Parents=xesam:Document
+Description=Presentation document
+
+[xesam:Project]
+Parents=xesam:Annotation
+Description=Generic project
+
+[xesam:RSSFeed]
+Parents=xesam:CommunicationChannel
+Description=RSS feed
+
+[xesam:RSSMessage]
+Parents=xesam:Message
+Description=RSS message(RSS feed item)
+
+[xesam:RemoteFile]
+Parents=xesam:RemoteResource;xesam:Filelike
+Description=Remote file
+
+[xesam:RemoteMessageboxMessage]
+Parents=xesam:RemoteResource;xesam:MessageboxMessage
+Description=Remote messagebox message
+
+[xesam:RemoteResource]
+Parents=xesam:Source
+Description=Generic remote resource
+
+[xesam:RevisionControlledFile]
+Parents=xesam:File
+Description=File managed by a revision control system
+
+[xesam:RevisionControlledRepository]
+Parents=xesam:Content
+Description=Revision-controlled repository. In case of distributed repositories, those must be linked with derivation relations.
+
+[xesam:SoftwarePackage]
+Parents=xesam:Content
+Description=Software distribution package
+
+[xesam:Source]
+Parents=xesam:DataObject
+Description=Generic source
+
+[xesam:SourceCode]
+Parents=xesam:Text
+Description=Source Code
+
+[xesam:Spreadsheet]
+Parents=xesam:Document
+Description=Spreadsheet document
+
+[xesam:SystemResource]
+Parents=xesam:Source
+Description=Generic system resource like man documentation
+
+[xesam:Tag]
+Parents=xesam:Annotation
+Description=Tag/keyword. As opposed to folders, there are no limitations on the structure of tags and arbitrary overlaps are possible.
+
+[xesam:Text]
+Parents=xesam:Content
+Description=Defines a textual aspect of content. Properties represent only actual content intended for the user, not markup. Other parts of content like markup should be described using other clsses. Abstract class.
+
+[xesam:TextDocument]
+Parents=xesam:Document
+Description=Text document. For word processing apps.
+
+[xesam:UncategorizedText]
+Parents=xesam:Text
+Description=Text content which doesn't fit any other text-based classes. Corresponds to Tracker's Text category.
+
+[xesam:Video]
+Parents=xesam:Audio;xesam:Visual
+Description=Video content
+
+[xesam:Visual]
+Parents=xesam:Media
+Description=Visual content
+
+[xesam:XML]
+Parents=xesam:Text
+Description=XML content

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/usr/bin/nice -n19 /usr/bin/hildon-thumb-gdk-pixbuf file:"$1" image/jpeg $2 0 $3 $3
+
