@@ -2674,7 +2674,6 @@ tracker_db_manager_get_db_interface_by_service (const gchar *service)
 	TrackerDBType		   type;
 
 	g_return_val_if_fail (initialized != FALSE, NULL);
-	g_return_val_if_fail (service != NULL, NULL);
 
 	type = tracker_ontology_get_service_db_by_name (service);
 

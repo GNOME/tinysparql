@@ -201,8 +201,7 @@ tracker_keywords_get (TrackerKeywords	     *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-	id = tracker_db_file_get_id_as_string (iface, service_type, uri);
+	id = tracker_db_file_get_id_as_string (service_type, uri);
 	if (!id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -213,6 +212,7 @@ tracker_keywords_get (TrackerKeywords	     *object,
 		return;
 	}
 
+	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 	result_set = tracker_db_metadata_get (iface,
 					      id,
 					      "User:Keywords");
@@ -241,7 +241,6 @@ tracker_keywords_add (TrackerKeywords	     *object,
 		      DBusGMethodInvocation  *context,
 		      GError		     **error)
 {
-	TrackerDBInterface  *iface;
 	guint		     request_id;
 	gchar		    *id;
 	GError		    *actual_error = NULL;
@@ -277,8 +276,7 @@ tracker_keywords_add (TrackerKeywords	     *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-	id = tracker_db_file_get_id_as_string (iface, service_type, uri);
+	id = tracker_db_file_get_id_as_string (service_type, uri);
 	if (!id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -320,7 +318,6 @@ tracker_keywords_remove (TrackerKeywords	*object,
 			 DBusGMethodInvocation	*context,
 			 GError		       **error)
 {
-	TrackerDBInterface  *iface;
 	guint		     request_id;
 	gchar		    *service_id;
 	GError		    *actual_error = NULL;
@@ -357,8 +354,7 @@ tracker_keywords_remove (TrackerKeywords	*object,
 	}
 
 	/* Check the uri exists, so we dont start the indexer in vain */
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-	service_id = tracker_db_file_get_id_as_string (iface, service_type, uri);
+	service_id = tracker_db_file_get_id_as_string (service_type, uri);
 	if (!service_id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -399,7 +395,6 @@ tracker_keywords_remove_all (TrackerKeywords	    *object,
 			     DBusGMethodInvocation  *context,
 			     GError		   **error)
 {
-	TrackerDBInterface *iface;
 	guint		    request_id;
 	gchar		  **values;
 	gchar		   *service_id;
@@ -436,8 +431,7 @@ tracker_keywords_remove_all (TrackerKeywords	    *object,
 	}
 
 	/* Check the uri exists, so we dont start the indexer in vain */
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-	service_id = tracker_db_file_get_id_as_string (iface, service_type, uri);
+	service_id = tracker_db_file_get_id_as_string (service_type, uri);
 	if (!service_id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,

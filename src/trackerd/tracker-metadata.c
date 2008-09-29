@@ -164,9 +164,7 @@ tracker_metadata_get (TrackerMetadata	     *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-
-	service_id = tracker_db_file_get_id_as_string (iface, service_type, uri);
+	service_id = tracker_db_file_get_id_as_string (service_type, uri);
 	if (!service_id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -196,6 +194,8 @@ tracker_metadata_get (TrackerMetadata	     *object,
 	 *
 	 * Note: Does this matter?
 	 */
+	iface = tracker_db_manager_get_db_interface_by_service (service_type);
+
 	service_result = tracker_db_service_get_by_entity (iface, service_id);
 	if (!service_result) {
 	       g_free (service_id);
@@ -239,7 +239,6 @@ tracker_metadata_set (TrackerMetadata	     *object,
 		      DBusGMethodInvocation  *context,
 		      GError		    **error)
 {
-	TrackerDBInterface *iface;
 	guint		    request_id;
 	gchar		   *service_id;
 	guint		    i;
@@ -269,10 +268,8 @@ tracker_metadata_set (TrackerMetadata	     *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-
 	/* Check the uri exists, so we dont start the indexer in vain */
-	service_id = tracker_db_file_get_id_as_string (iface, service_type, uri);
+	service_id = tracker_db_file_get_id_as_string (service_type, uri);
 	if (!service_id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,

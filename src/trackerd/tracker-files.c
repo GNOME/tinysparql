@@ -105,7 +105,6 @@ tracker_files_exist (TrackerFiles	    *object,
 		     DBusGMethodInvocation  *context,
 		     GError		   **error)
 {
-	TrackerDBInterface *iface;
 	guint		    request_id;
 	guint32		    file_id;
 	gboolean	    exists;
@@ -137,9 +136,7 @@ tracker_files_exist (TrackerFiles	    *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-
-	file_id = tracker_db_file_get_id (iface, uri);
+	file_id = tracker_db_file_get_id (TRACKER_DB_FOR_VIRTUAL_SERVICE, uri);
 	exists = file_id > 0;
 
 	dbus_g_method_return (context, exists);
@@ -226,18 +223,42 @@ tracker_files_delete (TrackerFiles	     *object,
 	tracker_dbus_request_success (request_id);
 }
 
+static const gchar *
+get_file_id_and_db_service (const gchar *uri, gint *id)
+{
+	*id = 0;
+
+	*id = tracker_db_file_get_id (TRACKER_DB_FOR_FILE_SERVICE, uri);
+	if (*id) {
+		return TRACKER_DB_FOR_FILE_SERVICE;
+	}
+	
+	*id = tracker_db_file_get_id (TRACKER_DB_FOR_EMAIL_SERVICE, uri);
+	if (*id) {
+		return TRACKER_DB_FOR_EMAIL_SERVICE;
+	}
+
+	*id = tracker_db_file_get_id (TRACKER_DB_FOR_VIRTUAL_SERVICE, uri);
+	if (*id) {
+		return TRACKER_DB_FOR_VIRTUAL_SERVICE;
+	}
+
+	return NULL;
+}
+
 void
 tracker_files_get_service_type (TrackerFiles	       *object,
 				const gchar	       *uri,
 				DBusGMethodInvocation  *context,
 				GError		      **error)
 {
-	TrackerDBInterface *iface;
+	TrackerDBInterface *iface = NULL;
 	TrackerDBResultSet *result_set;
 	guint		    request_id;
-	guint32		    file_id;
+	gint		    file_id;
 	gchar		   *file_id_str;
 	gchar		   *value = NULL;
+	const gchar        *service_type;
 	const gchar	   *mime = NULL;
 	GError		   *actual_error = NULL;
 
@@ -250,11 +271,7 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 				  "uri:'%s'",
 				  uri);
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-
-	/* FIXME why dont obtain the service type directly from the DB??? */
-
-	file_id = tracker_db_file_get_id (iface, uri);
+	service_type = get_file_id_and_db_service (uri, &file_id); 
 
 	if (file_id < 1) {
 		tracker_dbus_request_failed (request_id,
@@ -269,6 +286,7 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 	/* Get mime */
 	file_id_str = tracker_guint_to_string (file_id);
 
+	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 	mime = NULL;
 	result_set = tracker_db_metadata_get (iface,
 					      file_id_str,
@@ -319,6 +337,7 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 
 }
 
+
 void
 tracker_files_get_text_contents (TrackerFiles		*object,
 				 const gchar		*uri,
@@ -330,10 +349,12 @@ tracker_files_get_text_contents (TrackerFiles		*object,
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 	guint		    request_id;
-	gchar		   *service_id;
+	gint		    service_id;
+	gchar              *service_id_str;
 	gchar		   *offset_str;
 	gchar		   *max_length_str;
 	gchar		   *value;
+	const gchar        *service_type;
 	GError		   *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -350,28 +371,23 @@ tracker_files_get_text_contents (TrackerFiles		*object,
 				  offset,
 				  max_length);
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-
-	/* FIXME iface is already for "Files". Makes no sense to try Files and Emails */
-	service_id = tracker_db_file_get_id_as_string (iface, "Files", uri);
-	if (!service_id) {
-
-		service_id = tracker_db_file_get_id_as_string (iface, "Emails", uri);
-
-		if (!service_id) {
-			tracker_dbus_request_failed (request_id,
-						     &actual_error,
-						     "Unable to retrieve service ID for uri '%s'",
-						     uri);
-			dbus_g_method_return_error (context, actual_error);
-			g_error_free (actual_error);
-			return;
-		}
+	service_type = get_file_id_and_db_service (uri, &service_id);
+	if (!service_type || service_id == 0) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "Unable to retrieve service ID for uri '%s'",
+					     uri);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
 	}
+
 
 	offset_str = tracker_gint_to_string (offset);
 	max_length_str = tracker_gint_to_string (max_length);
 
+	iface = tracker_db_manager_get_db_interface_by_service (service_type);
+	service_id_str = g_strdup_printf ("%d", service_id);
 	result_set = tracker_db_exec_proc (iface,
 					   "GetFileContents",
 					   offset_str,
@@ -381,7 +397,7 @@ tracker_files_get_text_contents (TrackerFiles		*object,
 
 	g_free (max_length_str);
 	g_free (offset_str);
-	g_free (service_id);
+	g_free (service_id_str);
 
 	if (result_set) {
 		tracker_db_result_set_get (result_set, 0, &value, -1);
@@ -513,7 +529,7 @@ tracker_files_get_by_service_type (TrackerFiles		  *object,
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
+	iface = tracker_db_manager_get_db_interface_by_service (service); 
 
 	result_set = tracker_db_files_get_by_service (iface,
 						      service,
@@ -757,7 +773,7 @@ tracker_files_get_metadata_for_files_in_folder (TrackerFiles	       *object,
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
 	/* Get file ID in database */
-	file_id = tracker_db_file_get_id (iface, uri_filtered);
+	file_id = tracker_db_file_get_id (NULL, uri_filtered);
 	if (file_id == 0) {
 		g_free (uri_filtered);
 		tracker_dbus_request_failed (request_id,

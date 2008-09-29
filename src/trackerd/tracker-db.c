@@ -2685,15 +2685,23 @@ tracker_db_service_get_by_entity (TrackerDBInterface *iface,
 
 
 guint32
-tracker_db_file_get_id (TrackerDBInterface *iface,
+tracker_db_file_get_id (const gchar        *service_type,
 			const gchar	   *uri)
 {
 	TrackerDBResultSet *result_set;
+	TrackerDBInterface *iface;
 	gchar		   *path, *name;
-	guint32		    id;
+	guint32		    id = 0;
 
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), 0);
 	g_return_val_if_fail (uri != NULL, 0);
+
+	iface = tracker_db_manager_get_db_interface_by_service (service_type);
+	
+	if (!iface) {
+		g_warning ("Unable to obtain interface for service type '%s'",
+			   service_type);
+		return 0;
+	}
 
 	tracker_file_get_path_and_name (uri, &path, &name);
 
@@ -2706,8 +2714,6 @@ tracker_db_file_get_id (TrackerDBInterface *iface,
 	g_free (path);
 	g_free (name);
 
-	id = 0;
-
 	if (result_set) {
 		tracker_db_result_set_get (result_set, 0, &id, -1);
 		g_object_unref (result_set);
@@ -2717,24 +2723,14 @@ tracker_db_file_get_id (TrackerDBInterface *iface,
 }
 
 gchar *
-tracker_db_file_get_id_as_string (TrackerDBInterface *iface,
-				  const gchar	     *service,
+tracker_db_file_get_id_as_string (const gchar	     *service_type,
 				  const gchar	     *uri)
 {
-	gint	service_id;
 	guint32	id;
 
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (service != NULL, NULL);
+	g_return_val_if_fail (uri != NULL, NULL);
 
-	/* Do we really need service here? */
-	service_id = tracker_ontology_get_service_id_by_name (service);
-
-	if (service_id == -1) {
-		return NULL;
-	}
-
-	id = tracker_db_file_get_id (iface, uri);
+	id = tracker_db_file_get_id (service_type, uri);
 
 	if (id > 0) {
 		return tracker_guint_to_string (id);

@@ -53,6 +53,7 @@ typedef enum {
 
 #define TRACKER_DB_FOR_FILE_SERVICE	"Files"
 #define TRACKER_DB_FOR_EMAIL_SERVICE	"Emails"
+#define TRACKER_DB_FOR_VIRTUAL_SERVICE  "Virtual"
 #define TRACKER_DB_FOR_XESAM_SERVICE	"Xesam"
 
 GType	     tracker_db_get_type			    (void) G_GNUC_CONST;

@@ -804,7 +804,7 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (service);
 
-	service_id = tracker_db_file_get_id_as_string (iface, service, id);
+	service_id = tracker_db_file_get_id_as_string (service, id);
 	if (!service_id) {
 		g_set_error (&actual_error,
 			     TRACKER_DBUS_ERROR,

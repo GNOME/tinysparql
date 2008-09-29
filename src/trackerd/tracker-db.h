@@ -142,10 +142,9 @@ TrackerDBResultSet *tracker_db_files_get_by_mime		 (TrackerDBInterface  *iface,
 								  gint		       offset,
 								  gint		       limit,
 								  gboolean	       vfs);
-guint32		    tracker_db_file_get_id			 (TrackerDBInterface  *iface,
+guint32		    tracker_db_file_get_id			 (const gchar         *service_type,
 								  const gchar	      *uri);
-gchar *		    tracker_db_file_get_id_as_string		 (TrackerDBInterface  *iface,
-								  const gchar	      *service,
+gchar *		    tracker_db_file_get_id_as_string		 (const gchar	      *service_type,
 								  const gchar	      *uri);
 
 /* Keywords API */

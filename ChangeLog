@@ -1,3 +1,19 @@
+2008-09-29  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/libtracker-db/tracker-db-manager.[ch]:
+	Added new TRACKER_DB_FOR_VIRTUAL_SERVICES. Will be used in the
+	user.db implementation.
+
+	* src/trackerd/tracker-db.[ch]
+	(tracker_db_file_get_id): Removed TrackerDBInterface from method 
+	signature. Now it chooses internally the DB connection using the 
+	service type.
+	
+	* src/trackerd/tracker-files.c
+	* src/trackerd/tracker-keywords.c
+	* src/trackerd/tracker-metadata.c
+	* src/trackerd/tracker-search.c: Updated to the new API.
+	
 2008-09-26  Martyn Russell  <martyn@imendio.com>
 
 	* Merge indexer-split branch.
