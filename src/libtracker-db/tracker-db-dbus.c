@@ -19,9 +19,159 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <string.h>
+
 #include <libtracker-common/tracker-dbus.h>
 
 #include "tracker-db-dbus.h"
+
+typedef struct {
+	gint     key;
+	gpointer value;
+} OneRow;
+
+typedef struct {
+	gpointer value;
+} OneElem;
+
+static inline void
+row_add (GPtrArray *row, gchar *value)
+{
+	OneElem *elem = g_slice_new (OneElem);
+	GSList  *list = NULL;
+
+	list = g_slist_prepend (list, value);
+	elem->value = list;
+	g_ptr_array_add (row, elem);
+}
+
+static inline void
+row_insert (GPtrArray *row, gchar *value, guint index)
+{
+	OneElem *elem = g_ptr_array_index (row, index);
+	GSList  *list = elem->value;
+	GSList  *iter;
+
+	/* We check for duplicate values here so that
+	 * we can have several multivalued fields in
+	 * the same query.
+	 */
+
+	for (iter = list; iter; iter=iter->next) {
+		if (strcmp (iter->data, value) == 0) {
+			return;
+		}
+	}
+
+	list = g_slist_prepend (list, value);
+	elem->value = list;
+}
+
+static inline void
+row_destroy (GPtrArray *row)
+{
+	guint i;
+
+	for (i = 0; i < row->len; i++) {
+		OneElem *elem;
+		GSList *list;
+
+		elem = g_ptr_array_index (row, i);
+		list = elem->value;
+		g_slist_foreach (list,
+				 (GFunc) g_free,
+				 NULL);
+		g_slist_free (list);
+		g_slice_free (OneElem, elem);
+	}
+
+	g_ptr_array_free (row, TRUE);
+}
+
+static inline gpointer
+rows_lookup (GPtrArray *rows, gint key)
+{
+	guint	 i;
+	gpointer value = NULL;
+
+	for (i = 0; i < rows->len; i++) {
+		OneRow *row = g_ptr_array_index (rows, i);
+		if (row->key == key) {
+			value = row->value;
+			break;
+		}
+	}
+
+	return value;
+}
+
+static inline void
+rows_destroy (GPtrArray *rows)
+{
+	guint i;
+
+	for (i = 0; i < rows->len; i++) {
+		OneRow *row;
+		row = g_ptr_array_index (rows, i);
+		row_destroy (row->value);
+		g_slice_free (OneRow, row);
+	}
+
+	g_ptr_array_free (rows, TRUE);
+}
+
+static inline void
+rows_add (GPtrArray *rows, gint key, gpointer value)
+{
+	OneRow *row = g_slice_new (OneRow);
+
+	row->key = key;
+	row->value = value;
+
+	g_ptr_array_add (rows, row);
+}
+
+static inline void
+rows_migrate (GPtrArray *rows, GPtrArray *result)
+{
+	guint i,j;
+
+	/* Go thought the lists and join with | separator */
+	for (i = 0; i < rows->len; i++) {
+		OneRow      *row;
+		GPtrArray   *array;
+		gchar      **strv;
+
+		row   = g_ptr_array_index (rows, i);
+		array = row->value;
+
+		strv = g_new0 (gchar*, array->len + 1);
+
+		for (j = 0; j < array->len; j++) {
+			OneElem   *elem;
+			GSList    *list;
+			GSList    *iter;
+			GString   *string;
+
+			elem   = g_ptr_array_index (array, j);
+			list   = elem->value;
+			string = g_string_new((gchar *)list->data);
+
+			for (iter = list->next; iter; iter = iter->next) {
+				g_string_append_printf (string, "|%s", (gchar *)iter->data);
+			}
+
+			strv[j] = string->str;
+
+			g_string_free (string, FALSE);
+		}
+
+		strv[array->len] = NULL;
+
+		g_ptr_array_add (result, strv);
+	}
+}
+
 
 static gchar **
 dbus_query_result_to_strv (TrackerDBResultSet *result_set,
@@ -234,8 +384,8 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 	}
 
 	while (valid) {
-		GSList	*list = NULL;
-		gchar  **p;
+		GSList	              *list = NULL;
+		gchar                **p;
 
 		/* Append fields to the array */
 		for (i = 0; i < columns; i++) {
@@ -281,3 +431,91 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 	return ptr_array;
 }
 
+GPtrArray *
+tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
+{
+	GPtrArray  *result;
+	GPtrArray  *rows;
+	gboolean    valid = FALSE;
+	gint	    columns;
+
+	rows = g_ptr_array_new ();
+
+	if (result_set) {
+		valid = TRUE;
+
+		/* Make sure we rewind before iterating the result set */
+		tracker_db_result_set_rewind (result_set);
+
+		/* Find out how many columns to iterate */
+		columns = tracker_db_result_set_get_n_columns (result_set);
+	}
+
+	while (valid) {
+		gint		       key;		
+		GPtrArray             *row;
+
+		gint	               column;
+		gboolean	       add = FALSE;
+		GValue		       value_in = {0, };
+
+		/* Get the key and the matching row if exists */
+		_tracker_db_result_set_get_value (result_set, 0, &value_in);
+		key = g_value_get_int (&value_in);		
+		row = rows_lookup (rows, key);				
+		if (!row) {
+			row = g_ptr_array_new ();
+			add = TRUE;
+		}
+
+		/* Append fields or values to the array */
+		for (column = 1; column < columns; column++) {
+			GValue	   transform = { 0, };
+			GValue	   value = { 0, };
+			gchar     *str;
+
+			g_value_init (&transform, G_TYPE_STRING);
+
+			_tracker_db_result_set_get_value (result_set,
+							  column,
+							  &value);
+
+			if (g_value_transform (&value, &transform)) {
+				str = g_value_dup_string (&transform);
+				
+				if (!str) {
+					str = g_strdup ("");
+				} else if (!g_utf8_validate (str, -1, NULL)) {
+					g_warning ("Could not add string:'%s' to GStrv, invalid UTF-8", str);
+					g_free (str);
+					str = g_strdup ("");
+				}
+			} else {
+				str = g_strdup ("");				
+			}
+
+			if (add) {
+				row_add (row, str);
+			} else {				
+				row_insert (row, str, column-1);
+			}		       
+
+			g_value_unset (&value);
+			g_value_unset (&transform);
+		}
+
+
+		if (add) {
+			rows_add (rows, key, row);
+		}
+
+		valid = tracker_db_result_set_iter_next (result_set);
+	}
+
+	result = g_ptr_array_new();
+
+	rows_migrate (rows, result);
+	rows_destroy (rows);
+	
+	return result;
+}

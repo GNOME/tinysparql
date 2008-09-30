@@ -1182,7 +1182,7 @@ tracker_search_query (TrackerSearch	     *object,
 		g_free (query_translated);
 	}
 
-	values = tracker_dbus_query_result_to_ptr_array (result_set);
+	values = tracker_dbus_query_result_multi_to_ptr_array (result_set);
 
 	dbus_g_method_return (context, values);
 

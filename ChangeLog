@@ -1,3 +1,12 @@
+2008-09-29  Mikael Ottela <mikael.ottela@ixonos.com>
+	* src/libtracker-db/tracker-db-dbus.c:
+	* src/libtracker-db/tracker-db-dbus.h: Added functions to handle
+	multi-valued fields. Different values are separated by '|'
+	* src/trackerd/tracker-search.c:
+	* src/trackerd/tracker-rdf-query.c: Changed rdf-query to support
+	multi-valued fields.
+	* tests/libtracker-db/tracker-db-dbus-test.c: Added test cases.
+
 2008-09-29  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/libtracker-db/tracker-db-manager.[ch]:
