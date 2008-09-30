@@ -1247,6 +1247,61 @@ tracker_db_metadata_get (TrackerDBInterface *iface,
 				     NULL);
 }
 
+static void
+db_result_set_to_ptr_array (TrackerDBResultSet *result_set,
+			    GPtrArray         **previous)
+{
+	gchar        *prop_id_str;
+	gchar        *value;
+	TrackerField *field;
+	gboolean      valid = result_set != NULL;
+
+	while (valid) {
+		/* Item is a pair (property_name, value) */
+		gchar **item = g_new0 (gchar *, 2);
+
+		tracker_db_result_set_get (result_set, 0, &prop_id_str, 1, &value, -1);
+		item[1] = g_strdup (value);
+
+		field = tracker_ontology_get_field_by_id (GPOINTER_TO_UINT (prop_id_str));
+
+		item[0] = g_strdup (tracker_field_get_name (field));
+
+		g_ptr_array_add (*previous, item);
+		
+		valid = tracker_db_result_set_iter_next (result_set);
+	}
+}
+
+GPtrArray *
+tracker_db_metadata_get_all (const gchar *service_type,
+			     const gchar *service_id) 
+{
+	TrackerDBInterface *iface;
+	TrackerDBResultSet *result_set;
+	GPtrArray          *result;
+
+	result = g_ptr_array_new ();
+
+	iface = tracker_db_manager_get_db_interface_by_service (service_type);
+	if (!iface) {
+		g_warning ("Unable to obtain a DB connection for service type '%s'",
+			   service_type);
+		return result;
+	}
+
+	result_set = tracker_db_exec_proc (iface, "GetAllMetadata", service_id, service_id, service_id, NULL);
+
+	if (result_set) {
+		db_result_set_to_ptr_array (result_set, &result);
+		g_object_unref (result_set);
+	}
+
+	return result;
+
+}
+
+
 TrackerDBResultSet *
 tracker_db_metadata_get_array (TrackerDBInterface *iface,
 			       const gchar	  *service_type,
@@ -2858,13 +2913,13 @@ tracker_db_files_get_by_mime (TrackerDBInterface  *iface,
 
 TrackerDBResultSet *
 tracker_db_metadata_get_types (TrackerDBInterface *iface,
-			       const gchar	  *class,
-			       gboolean		   writeable)
+			       const gchar        *klass,
+			       gboolean            writeable)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (class != NULL, NULL);
+	g_return_val_if_fail (klass != NULL, NULL);
 
-	if (strcmp (class, "*") == 0) {
+	if (strcmp (klass, "*") == 0) {
 		if (writeable) {
 			return tracker_db_exec_proc (iface,
 						     "GetWriteableMetadataTypes",
@@ -2878,12 +2933,12 @@ tracker_db_metadata_get_types (TrackerDBInterface *iface,
 		if (writeable) {
 			return tracker_db_exec_proc (iface,
 						     "GetWriteableMetadataTypesLike",
-						     class,
+						     klass,
 						     NULL);
 		} else {
 			return tracker_db_exec_proc (iface,
 						     "GetMetadataTypesLike",
-						     class,
+						     klass,
 						     NULL);
 		}
 	}

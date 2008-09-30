@@ -109,6 +109,8 @@ GetMetadataIDValueKeyword SELECT MetadataID, MetadataValue FROM ServiceKeywordMe
 GetMetadataIDValue SELECT MetadataID, MetadataValue FROM ServiceMetadata WHERE ServiceID = ? ORDER BY MetadataID
 GetMetadataIDValueNumeric SELECT MetadataID, MetadataValue FROM ServiceNumericMetadata WHERE ServiceID = ? ORDER BY MetadataID
 
+GetAllMetadata SELECT MetadataID, MetadataDisplay FROM ServiceMetadata WHERE ServiceID = ? UNION SELECT MetadataID, MetadataValue FROM ServiceKeywordMetadata WHERE ServiceID = ? UNION SELECT MetadataID, upper(MetadataValue) FROM ServiceNumericMetadata WHERE ServiceID = ?;
+
 SetMetadataKeyword INSERT INTO ServiceKeywordMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
 SetMetadata INSERT INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue, MetaDataDisplay) VALUES (?,?,?,?);
 SetMetadataNumeric INSERT INTO ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);

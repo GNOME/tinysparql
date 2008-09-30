@@ -70,6 +70,8 @@ const gchar *	    tracker_db_metadata_get_table		 (TrackerFieldType     type);
 TrackerDBResultSet *tracker_db_metadata_get			 (TrackerDBInterface  *iface,
 								  const gchar	      *id,
 								  const gchar	      *key);
+GPtrArray *         tracker_db_metadata_get_all                  (const gchar         *service_type,
+								  const gchar         *service_id);
 TrackerDBResultSet *tracker_db_metadata_get_array		 (TrackerDBInterface *iface,
 								  const gchar	     *service_type,
 								  const gchar	     *service_id,
@@ -100,7 +102,7 @@ void		    tracker_db_metadata_delete			 (TrackerDBInterface  *iface,
 								  const gchar	      *key,
 								  gboolean	       update_indexes);
 TrackerDBResultSet *tracker_db_metadata_get_types		 (TrackerDBInterface  *iface,
-								  const gchar	      *class,
+								  const gchar	      *klass,
 								  gboolean	       writeable);
 
 /* Search API */

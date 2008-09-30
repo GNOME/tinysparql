@@ -58,6 +58,11 @@ void		 tracker_metadata_get			 (TrackerMetadata	 *object,
 							  gchar			**keys,
 							  DBusGMethodInvocation  *context,
 							  GError		**error);
+void             tracker_metadata_get_all                (TrackerMetadata	 *object,
+					                  const gchar	         *service_type,
+					                  const gchar	         *uri,
+							  DBusGMethodInvocation  *context,
+							  GError		**error);
 void		 tracker_metadata_set			 (TrackerMetadata	 *object,
 							  const gchar		 *service_type,
 							  const gchar		 *uri,

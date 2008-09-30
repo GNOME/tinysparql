@@ -14,6 +14,16 @@
       <arg type="as" name="metadata" direction="out" />
     </method>
     
+    <!-- Retrieves all known metadata of the service/uri in an array of
+	 key,value
+    -->
+    <method name="GetAll">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
+      <arg type="s" name="service_type" direction="in" />
+      <arg type="s" name="uri" direction="in" />
+      <arg type="aas" name="metadata" direction="out" />
+    </method>
+
     <!-- Sets specified metadata keys to the specified metadata values
 	 for a service and id pair.
       -->

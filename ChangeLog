@@ -1,10 +1,27 @@
+2008-09-29  Ivan Frade  <ivan.frade@nokia.com>
+
+	* data/dbus/tracker-metadata.xml
+	* src/trackerd/tracker-metadata.[ch]: New GetAll method in the 
+	DBus API to obtain all metadata available for a URI.
+	
+	* src/trackerd/tracker-db.[ch]
+	(tracker_db_metadata_get_all): New function with the neccesary
+	code to retrieve all metadata of a file from the DB.
+	(tracker_db_metadata_get_types): Renamed parameter class to klass
+	to avoid possible conflicts with C++.
+	
+	* data/sqlite-store-procs.sql:
+	New GetAllMetadata stored proc.
+	
 2008-09-29  Mikael Ottela <mikael.ottela@ixonos.com>
-	* src/libtracker-db/tracker-db-dbus.c:
-	* src/libtracker-db/tracker-db-dbus.h: Added functions to handle
+	
+	* src/libtracker-db/tracker-db-dbus.[ch]: Added functions to handle
 	multi-valued fields. Different values are separated by '|'
+
 	* src/trackerd/tracker-search.c:
 	* src/trackerd/tracker-rdf-query.c: Changed rdf-query to support
 	multi-valued fields.
+	
 	* tests/libtracker-db/tracker-db-dbus-test.c: Added test cases.
 
 2008-09-29  Ivan Frade  <ivan.frade@nokia.com>
