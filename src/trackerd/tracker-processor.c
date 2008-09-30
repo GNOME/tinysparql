@@ -761,6 +761,9 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 
 	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
 
+	tracker_crawler_use_module_paths (crawler, FALSE);
+	tracker_crawler_special_paths_clear (crawler);
+
 #ifdef HAVE_HAL
 	roots = tracker_hal_get_removable_device_roots (processor->private->hal);
 #else  /* HAVE_HAL */
@@ -799,14 +802,12 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 		}
 
 		g_message ("    %s", (gchar*) l->data);
-		tracker_crawler_add_path (crawler, l->data);
+		tracker_crawler_special_paths_add (crawler, l->data);
 	}
 
 	if (g_slist_length (roots) == 0) {
 		g_message ("    NONE");
 	}
-
-	tracker_crawler_set_use_module_paths (crawler, FALSE);
 }
 
 static void
@@ -822,6 +823,9 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 	const gchar    *module_name = "files";
 
 	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
+
+	tracker_crawler_use_module_paths (crawler, TRUE);
+	tracker_crawler_special_paths_clear (crawler);
 
 	no_watch_roots = tracker_config_get_no_watch_directory_roots (processor->private->config);
 	watch_roots = tracker_config_get_watch_directory_roots (processor->private->config);
@@ -877,7 +881,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 		}
 
 		g_message ("    %s", (gchar*) l->data);
-		tracker_crawler_add_path (crawler, l->data);
+		tracker_crawler_special_paths_add (crawler, l->data);
 	}
 
 	for (l = crawl_roots; l; l = l->next) {
@@ -886,7 +890,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 		}
 
 		g_message ("    %s", (gchar*) l->data);
-		tracker_crawler_add_path (crawler, l->data);
+		tracker_crawler_special_paths_add (crawler, l->data);
 
 		crawl_root_count++;
 	}

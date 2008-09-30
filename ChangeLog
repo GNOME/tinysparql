@@ -1,5 +1,15 @@
 2008-09-30  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-crawler.c: 
+	* src/trackerd/tracker-crawler.h:
+	* src/trackerd/tracker-processor.c: Make sure we reset the boolean
+	we used to know if we have already iterated the paths,
+	recurse_paths and special_paths lists when we _start(). The API
+	was improved and a new function added to clear the special_paths()
+	list. 
+	
+2008-09-30  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-crawler.c: Improve the crawler by adding a
 	"special_paths" category used for legacy config paths and for mmc
 	paths which are not in the module config. Also, removed some code

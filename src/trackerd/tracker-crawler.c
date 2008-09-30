@@ -947,6 +947,11 @@ tracker_crawler_start (TrackerCrawler *crawler)
 	priv->files_found = 0;
 	priv->files_ignored = 0;
 
+	/* Reset paths which have been iterated */
+	priv->paths_are_done = FALSE;
+	priv->recurse_paths_are_done = FALSE;
+	priv->special_paths_are_done = FALSE;
+
 	return TRUE;
 }
 
@@ -991,8 +996,8 @@ tracker_crawler_stop (TrackerCrawler *crawler)
  * "Files" module, for example.
  */
 void
-tracker_crawler_add_path (TrackerCrawler *crawler,
-			  const gchar	 *path)
+tracker_crawler_special_paths_add (TrackerCrawler *crawler,
+				   const gchar	 *path)
 {
 	TrackerCrawlerPrivate *priv;
 
@@ -1007,8 +1012,7 @@ tracker_crawler_add_path (TrackerCrawler *crawler,
 }
 
 void
-tracker_crawler_set_use_module_paths (TrackerCrawler *crawler,
-				      gboolean	      use_paths)
+tracker_crawler_special_paths_clear (TrackerCrawler *crawler)
 {
 	TrackerCrawlerPrivate *priv;
 
@@ -1016,7 +1020,22 @@ tracker_crawler_set_use_module_paths (TrackerCrawler *crawler,
 
 	priv = crawler->private;
 
-	priv->use_module_paths = use_paths;
+	g_slist_foreach (priv->special_paths, (GFunc) g_free, NULL);
+	g_slist_free (priv->special_paths);
+	priv->special_paths = NULL;
+}
+
+void
+tracker_crawler_use_module_paths (TrackerCrawler *crawler,
+				  gboolean        use_module_paths)
+{
+	TrackerCrawlerPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
+
+	priv = crawler->private;
+
+	priv->use_module_paths = use_module_paths;
 }
 
 gboolean
