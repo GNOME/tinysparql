@@ -121,6 +121,7 @@ void		tracker_shutdown				(TrackerClient *client, gboolean reindex, GError **err
 void		tracker_prompt_index_signals			(TrackerClient *client, GError **error);
 
 char **			tracker_metadata_get				(TrackerClient *client, ServiceType service, const char *id, char **keys, GError **error);
+GPtrArray *             tracker_metadata_get_all                        (TrackerClient *client, ServiceType service, const gchar *uri, GError **error);
 void			tracker_metadata_set				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, GError **error);
 void			tracker_metadata_register_type			(TrackerClient *client, const char *name, MetadataTypes type, GError **error);
 MetaDataTypeDetails *	tracker_metadata_get_type_details		(TrackerClient *client, const char *name, GError **error);

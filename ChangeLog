@@ -1,3 +1,13 @@
+2008-10-01  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/libtracker/tracker.[ch]:
+	(tracker_metadata_get_all) Mapped new method in the DBus API in
+	the library
+
+	* src/tracker-utils/tracker-info.c
+	* src/tracker-utils/Makefile.am: New program (tracker-info) to 
+	ask all available metadata of a	certain file.
+	
 2008-09-30  Mikael Ottela   <mikael.ottela@ixonos.com>
 
 	* src/libtracker-db/tracker-db-manager.c: Fixed a bug that

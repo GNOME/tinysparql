@@ -440,6 +440,18 @@ tracker_metadata_get (TrackerClient *client, ServiceType service, const char *id
 	return array;
 }
 
+GPtrArray *
+tracker_metadata_get_all (TrackerClient *client, ServiceType service, const gchar *uri, GError **error)
+{
+        gchar *service_str = tracker_service_types[service];
+        GPtrArray *response = NULL;
+
+        if (!org_freedesktop_Tracker_Metadata_get_all (client->proxy_metadata, service_str, uri, &response, &*error)) {
+                return NULL;
+        }
+
+        return response;
+}
 
 void
 tracker_metadata_set (TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, GError **error)
