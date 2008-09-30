@@ -79,31 +79,6 @@ TrackerDBResultSet *tracker_db_metadata_get_array		 (TrackerDBInterface *iface,
 gchar *		    tracker_db_metadata_get_delimited		 (TrackerDBInterface  *iface,
 								  const gchar	      *id,
 								  const gchar	      *key);
-gchar *		    tracker_db_metadata_set			 (TrackerDBInterface  *iface,
-								  const gchar	      *service,
-								  const gchar	      *id,
-								  const gchar	      *key,
-								  gchar		     **values,
-								  gboolean	       do_backup);
-void		    tracker_db_metadata_set_single		 (TrackerDBInterface  *iface,
-								  const gchar	      *service,
-								  const gchar	      *id,
-								  const gchar	      *key,
-								  const gchar	      *value,
-								  gboolean	       do_backup);
-void		    tracker_db_metadata_delete_value		 (TrackerDBInterface  *iface,
-								  const gchar	      *service,
-								  const gchar	      *id,
-								  const gchar	      *key,
-								  const gchar	      *value);
-void		    tracker_db_metadata_delete			 (TrackerDBInterface  *iface,
-								  const gchar	      *service,
-								  const gchar	      *id,
-								  const gchar	      *key,
-								  gboolean	       update_indexes);
-TrackerDBResultSet *tracker_db_metadata_get_types		 (TrackerDBInterface  *iface,
-								  const gchar	      *klass,
-								  gboolean	       writeable);
 
 /* Search API */
 TrackerDBResultSet *tracker_db_search_text			 (TrackerDBInterface  *iface,
@@ -125,9 +100,6 @@ TrackerDBResultSet *tracker_db_search_text_and_mime_and_location (TrackerDBInter
 								  const gchar	      *location);
 
 /* Service API */
-guint32		    tracker_db_service_create			 (TrackerDBInterface  *iface,
-								  const gchar	      *service,
-								  TrackerDBFileInfo   *info);
 gchar *		    tracker_db_service_get_by_entity		 (TrackerDBInterface  *iface,
 								  const gchar	      *id);
 

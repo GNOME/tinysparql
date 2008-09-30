@@ -1,5 +1,27 @@
 2008-09-29  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/trackerd/tracker-db.[ch]: Removing unused functions
+	static functions:
+	(compress_string)
+	(db_save_full_text)
+	(update_metadata_index)
+	(get_backup_id)
+	(backup_non_embedded_metadata)
+	(backup_delete_non_embedded_metadata_value)
+	(backup_delete_non_embedded_metadata)
+	(remove_value)
+	(db_create_event)
+
+	public functions: (this functionality is now in the indexer)
+	(tracker_db_metadata_set_single)
+	(tracker_db_metadata_set)
+	(tracker_db_metadata_delete_value)
+	(tracker_db_metadata_delete)
+	(tracker_db_service_create)
+	(tracker_db_metadata_get_types)
+	
+2008-09-29  Ivan Frade  <ivan.frade@nokia.com>
+
 	* data/dbus/tracker-metadata.xml
 	* src/trackerd/tracker-metadata.[ch]: New GetAll method in the 
 	DBus API to obtain all metadata available for a URI.
