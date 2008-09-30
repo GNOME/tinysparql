@@ -66,14 +66,23 @@ struct _TrackerCrawlerPrivate {
 	/* Options */
 	gboolean	use_module_paths;
 
-	/* Actual paths that exist which we are crawling */
+	/* Actual paths that exist which we are crawling:
+	 *
+	 *  - 'Paths' are non-recursive.
+	 *  - 'Recurse Paths' are recursive.
+	 *  - 'Special Paths' are paths no in module config.
+	 */
 	GSList	       *paths;
-	GSList	       *current_path;
-	gboolean	handled_paths;
+	GSList	       *paths_current;
+	gboolean	paths_are_done;
 
 	GSList	       *recurse_paths;
-	GSList	       *current_recurse_path;
-	gboolean	handled_recurse_paths;
+	GSList	       *recurse_paths_current;
+	gboolean	recurse_paths_are_done;
+
+	GSList	       *special_paths;
+	GSList	       *special_paths_current;
+	gboolean	special_paths_are_done;
 
 	GList	       *ignored_directory_patterns;
 	GList	       *ignored_file_patterns;
@@ -217,6 +226,9 @@ tracker_crawler_finalize (GObject *object)
 
 	g_slist_foreach (priv->recurse_paths, (GFunc) g_free, NULL);
 	g_slist_free (priv->recurse_paths);
+
+	g_slist_foreach (priv->special_paths, (GFunc) g_free, NULL);
+	g_slist_free (priv->special_paths);
 
 	if (priv->idle_id) {
 		g_source_remove (priv->idle_id);
@@ -506,26 +518,26 @@ process_func (gpointer data)
 	}
 
 	/* Process next path in list */
-	if (!priv->handled_paths) {
+	if (!priv->paths_are_done) {
 		/* This is done so we don't go over the list again
 		 * when we get to the end and the current item = NULL.
 		 */
-		priv->handled_paths = TRUE;
+		priv->paths_are_done = TRUE;
 
-		if (!priv->current_path) {
-			priv->current_path = priv->paths;
+		if (!priv->paths_current) {
+			priv->paths_current = priv->paths;
 		}
 	} else {
-		if (priv->current_path) {
-			priv->current_path = priv->current_path->next;
+		if (priv->paths_current) {
+			priv->paths_current = priv->paths_current->next;
 		}
 	}
 
-	if (priv->current_path) {
+	if (priv->paths_current) {
 		g_message ("  Searching directory:'%s'",
-			   (gchar*) priv->current_path->data);
+			   (gchar*) priv->paths_current->data);
 
-		file = g_file_new_for_path (priv->current_path->data);
+		file = g_file_new_for_path (priv->paths_current->data);
 		add_directory (crawler, file);
 		g_object_unref (file);
 
@@ -533,26 +545,53 @@ process_func (gpointer data)
 	}
 
 	/* Process next recursive path in list */
-	if (!priv->handled_recurse_paths) {
+	if (!priv->recurse_paths_are_done) {
 		/* This is done so we don't go over the list again
 		 * when we get to the end and the current item = NULL.
 		 */
-		priv->handled_recurse_paths = TRUE;
+		priv->recurse_paths_are_done = TRUE;
 
-		if (!priv->current_recurse_path) {
-			priv->current_recurse_path = priv->recurse_paths;
+		if (!priv->recurse_paths_current) {
+			priv->recurse_paths_current = priv->recurse_paths;
 		}
 	} else {
-		if (priv->current_recurse_path) {
-			priv->current_recurse_path = priv->current_recurse_path->next;
+		if (priv->recurse_paths_current) {
+			priv->recurse_paths_current = priv->recurse_paths_current->next;
 		}
 	}
 
-	if (priv->current_recurse_path) {
+	if (priv->recurse_paths_current) {
 		g_message ("  Searching directory:'%s' (recursively)",
-			   (gchar *) priv->current_recurse_path->data);
+			   (gchar *) priv->recurse_paths_current->data);
 
-		file = g_file_new_for_path (priv->current_recurse_path->data);
+		file = g_file_new_for_path (priv->recurse_paths_current->data);
+		add_directory (crawler, file);
+		g_object_unref (file);
+
+		return TRUE;
+	}
+
+	/* Process next special path in list */
+	if (!priv->special_paths_are_done) {
+		/* This is done so we don't go over the list again
+		 * when we get to the end and the current item = NULL.
+		 */
+		priv->special_paths_are_done = TRUE;
+
+		if (!priv->special_paths_current) {
+			priv->special_paths_current = priv->special_paths;
+		}
+	} else {
+		if (priv->special_paths_current) {
+			priv->special_paths_current = priv->special_paths_current->next;
+		}
+	}
+
+	if (priv->special_paths_current) {
+		g_message ("  Searching directory:'%s' (special)",
+			   (gchar *) priv->special_paths_current->data);
+
+		file = g_file_new_for_path (priv->special_paths_current->data);
 		add_directory (crawler, file);
 		g_object_unref (file);
 
@@ -657,7 +696,7 @@ file_enumerate_next_cb (GObject      *object,
 			 * path is NULL, meaning they have all been traversed
 			 * already.
 			 */
-			if (crawler->private->handled_paths) {
+			if (crawler->private->paths_are_done) {
 				add_directory (crawler, child);
 			}
 		} else {
@@ -726,24 +765,24 @@ file_enumerate_children (TrackerCrawler *crawler,
 					 crawler);
 }
 
-static void
-prune_none_existing_paths (TrackerCrawler *crawler)
+static GSList *
+prune_none_existing_gslist_paths (TrackerCrawler *crawler, 
+				  GSList         *paths,
+				  const gchar    *path_type)
 {
 	TrackerCrawlerPrivate *priv;
+	GSList                *new_paths = NULL;
 
 	priv = crawler->private;
 
-	if (priv->recurse_paths) {
-		GSList	 *new_list;
+	if (paths) {
 		GSList	 *l;
 		GFile	 *file;
 		gchar	 *path;
 		gboolean  exists;
 
-		new_list = NULL;
-
 		/* Check the currently set recurse paths are real */
-		for (l = priv->recurse_paths; l; l = l->next) {
+		for (l = paths; l; l = l->next) {
 			path = l->data;
 
 			/* Check location exists before we do anything */
@@ -751,9 +790,12 @@ prune_none_existing_paths (TrackerCrawler *crawler)
 			exists = g_file_query_exists (file, NULL);
 
 			if (exists) {
-				g_message ("  Directory:'%s' added to list to crawl (recursively)",
-					   path);
-				new_list = g_slist_prepend (new_list, g_strdup (path));
+				g_message ("  Directory:'%s' added to list to crawl exists %s%s%s",
+					   path,
+					   path_type ? "(" : "",
+					   path_type ? path_type : "",
+					   path_type ? ")" : "");
+				new_paths = g_slist_prepend (new_paths, g_strdup (path));
 			} else {
 				g_message ("  Directory:'%s' does not exist",
 					   path);
@@ -762,25 +804,43 @@ prune_none_existing_paths (TrackerCrawler *crawler)
 			g_object_unref (file);
 		}
 
-		new_list = g_slist_reverse (new_list);
-		g_slist_foreach (priv->recurse_paths, (GFunc) g_free, NULL);
-		g_slist_free (priv->recurse_paths);
-		priv->recurse_paths = new_list;
+		new_paths = g_slist_reverse (new_paths);
 	}
+
+	return new_paths;
+}
+
+static GSList *
+prune_none_existing_glist_paths (TrackerCrawler *crawler, 
+				 GList          *paths,
+				 const gchar    *path_type)
+{
+	GSList *temporary_paths;
+	GSList *new_paths;
+	GList  *l;
+
+	/* The only difference with this function is that it takes a
+	 * GList instead of a GSList.
+	 */
+
+	temporary_paths = NULL;
+
+	for (l = paths; l; l = l->next) {
+		temporary_paths = g_slist_prepend (temporary_paths, l->data);
+	}
+
+	temporary_paths = g_slist_reverse (temporary_paths);
+	new_paths = prune_none_existing_gslist_paths (crawler, temporary_paths, path_type);
+	g_slist_free (temporary_paths);
+
+	return new_paths;
 }
 
 gboolean
 tracker_crawler_start (TrackerCrawler *crawler)
 {
 	TrackerCrawlerPrivate *priv;
-	GFile		      *file;
-	GSList		      *paths = NULL;
-	GList		      *recurse_directories;
-	GList		      *directories;
-	GList		      *l;
-	GSList		      *sl;
-	gchar		      *path;
-	gboolean	       exists;
+	GSList                *l;
 
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), FALSE);
 
@@ -789,104 +849,83 @@ tracker_crawler_start (TrackerCrawler *crawler)
 	g_message ("Crawling directories for module:'%s'",
 		   crawler->private->module_name);
 
-	prune_none_existing_paths (crawler);
-
 	if (priv->use_module_paths) {
-		recurse_directories =
-			tracker_module_config_get_monitor_recurse_directories (priv->module_name);
-		directories =
-			tracker_module_config_get_monitor_directories (priv->module_name);
+		GSList *new_paths;
+		GList  *recurse_paths;
+		GList  *paths;
 
-		if (recurse_directories || directories) {
+		g_message ("  Using module paths");
+
+		recurse_paths =	tracker_module_config_get_monitor_recurse_directories (priv->module_name);
+		paths = tracker_module_config_get_monitor_directories (priv->module_name);
+
+		if (recurse_paths || paths) {
 			/* First we do non-recursive directories */
-			for (l = directories; l; l = l->next) {
-				path = l->data;
-
-				/* Check location exists before we do anything */
-				file = g_file_new_for_path (path);
-				exists = g_file_query_exists (file, NULL);
-
-				if (!exists) {
-					g_message ("  Directory:'%s' does not exist",
-						   path);
-					g_object_unref (file);
-					continue;
-				}
-
-				g_message ("  Directory:'%s' added to list to crawl",
-					   path);
-
-				priv->paths = g_slist_append (priv->paths, g_strdup (l->data));
-				g_object_unref (file);
-			}
-
-			g_list_free (directories);
+			new_paths = prune_none_existing_glist_paths (crawler, paths, NULL);
+			g_slist_foreach (priv->paths, (GFunc) g_free, NULL);
+			g_slist_free (priv->paths);
+			priv->paths = new_paths;
 
 			/* Second we do recursive directories */
-			for (l = recurse_directories; l; l = l->next) {
-				path = l->data;
-
-				/* Check location exists before we do anything */
-				file = g_file_new_for_path (path);
-				exists = g_file_query_exists (file, NULL);
-
-				if (!exists) {
-					g_message ("  Directory:'%s' does not exist",
-						   path);
-					g_object_unref (file);
-					continue;
-				}
-
-				g_message ("  Directory:'%s' added to list to crawl (recursively)",
-					   path);
-
-				priv->recurse_paths = g_slist_append (priv->recurse_paths, g_strdup (l->data));
-				g_object_unref (file);
-			}
-
-			g_list_free (recurse_directories);
+			new_paths = prune_none_existing_glist_paths (crawler, recurse_paths, "recursively");
+			g_slist_foreach (priv->recurse_paths, (GFunc) g_free, NULL);
+			g_slist_free (priv->recurse_paths);
+			priv->recurse_paths = new_paths;
 		} else {
 			g_message ("  No directories from module config");
 		}
 	} else {
+		GSList *new_paths;
+
 		g_message ("  Not using module config paths, using special paths added");
+
+		new_paths = prune_none_existing_gslist_paths (crawler, priv->special_paths, "special");
+		g_slist_foreach (priv->special_paths, (GFunc) g_free, NULL);
+		g_slist_free (priv->special_paths);
+		priv->special_paths = new_paths;
 	}
 
-	if (!priv->paths && !priv->recurse_paths) {
+	if (!priv->paths && !priv->recurse_paths && !priv->special_paths) {
 		g_message ("  No directories that actually exist to iterate, doing nothing");
 		return FALSE;
 	}
 
 	/* Filter duplicates */
-	sl = priv->paths;
+	l = priv->paths;
 	priv->paths = tracker_path_list_filter_duplicates (priv->paths);
 
-	g_slist_foreach (sl, (GFunc) g_free, NULL);
-	g_slist_free (sl);
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
 
-	sl = priv->recurse_paths;
+	l = priv->recurse_paths;
 	priv->recurse_paths = tracker_path_list_filter_duplicates (priv->recurse_paths);
 
-	g_slist_foreach (sl, (GFunc) g_free, NULL);
-	g_slist_free (sl);
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
+
+	l = priv->special_paths;
+	priv->special_paths = tracker_path_list_filter_duplicates (priv->special_paths);
+
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
 
 	/* Set up legacy NoWatchDirectoryRoots so we don't have to get
 	 * them from the config for EVERY file we traverse.
 	 */
 	g_slist_foreach (priv->no_watch_directory_roots, (GFunc) g_free, NULL);
 	g_slist_free (priv->no_watch_directory_roots);
-	sl = tracker_config_get_no_watch_directory_roots (priv->config);
-	priv->no_watch_directory_roots = tracker_gslist_copy_with_string_data (sl);
+	l = tracker_config_get_no_watch_directory_roots (priv->config);
+	priv->no_watch_directory_roots = tracker_gslist_copy_with_string_data (l);
 
 	g_slist_foreach (priv->watch_directory_roots, (GFunc) g_free, NULL);
 	g_slist_free (priv->watch_directory_roots);
-	sl = tracker_config_get_watch_directory_roots (priv->config);
-	priv->watch_directory_roots = tracker_gslist_copy_with_string_data (sl);
+	l = tracker_config_get_watch_directory_roots (priv->config);
+	priv->watch_directory_roots = tracker_gslist_copy_with_string_data (l);
 
 	g_slist_foreach (priv->crawl_directory_roots, (GFunc) g_free, NULL);
 	g_slist_free (priv->crawl_directory_roots);
-	sl = tracker_config_get_crawl_directory_roots (priv->config);
-	priv->crawl_directory_roots = tracker_gslist_copy_with_string_data (sl);
+	l = tracker_config_get_crawl_directory_roots (priv->config);
+	priv->crawl_directory_roots = tracker_gslist_copy_with_string_data (l);
 
 	/* Time the event */
 	if (priv->timer) {
@@ -907,8 +946,6 @@ tracker_crawler_start (TrackerCrawler *crawler)
 	priv->directories_ignored = 0;
 	priv->files_found = 0;
 	priv->files_ignored = 0;
-
-	g_slist_free (paths);
 
 	return TRUE;
 }
@@ -966,7 +1003,7 @@ tracker_crawler_add_path (TrackerCrawler *crawler,
 
 	g_return_if_fail (priv->running == FALSE);
 
-	priv->recurse_paths = g_slist_append (priv->recurse_paths, g_strdup (path));
+	priv->special_paths = g_slist_append (priv->special_paths, g_strdup (path));
 }
 
 void

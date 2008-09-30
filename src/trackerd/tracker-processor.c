@@ -774,11 +774,11 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 
 		/* This is dreadfully inefficient */
 		if (path_should_be_ignored_for_media (processor, l->data)) {
-			g_message ("	%s (ignored due to config)", (gchar*) l->data);
+			g_message ("    %s (ignored due to config)", (gchar*) l->data);
 			continue;
 		}
 
-		g_message ("	%s", (gchar*) l->data);
+		g_message ("    %s", (gchar*) l->data);
 
 		file = g_file_new_for_path (l->data);
 		tracker_monitor_add (processor->private->monitor, module_name, file);
@@ -786,7 +786,7 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 	}
 
 	if (g_slist_length (roots) == 0) {
-		g_message ("	NONE");
+		g_message ("    NONE");
 	}
 
 	g_message ("  Removable media crawls being added:");
@@ -794,16 +794,16 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 	for (l = roots; l; l = l->next) {
 		/* This is dreadfully inefficient */
 		if (path_should_be_ignored_for_media (processor, l->data)) {
-			g_message ("	%s (ignored due to config)", (gchar*) l->data);
+			g_message ("    %s (ignored due to config)", (gchar*) l->data);
 			continue;
 		}
 
-		g_message ("	%s", (gchar*) l->data);
+		g_message ("    %s", (gchar*) l->data);
 		tracker_crawler_add_path (crawler, l->data);
 	}
 
 	if (g_slist_length (roots) == 0) {
-		g_message ("	NONE");
+		g_message ("    NONE");
 	}
 
 	tracker_crawler_set_use_module_paths (crawler, FALSE);
@@ -837,11 +837,11 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 	/* Print ignored locations */
 	g_message ("  User ignored crawls & monitors:");
 	for (l = no_watch_roots; l; l = l->next) {
-		g_message ("	%s", (gchar*) l->data);
+		g_message ("    %s", (gchar*) l->data);
 	}
 
 	if (g_slist_length (no_watch_roots) == 0) {
-		g_message ("	NONE");
+		g_message ("    NONE");
 	}
 
 	/* Add monitors, from WatchDirectoryRoots config key */
@@ -853,7 +853,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 			continue;
 		}
 
-		g_message ("	%s", (gchar*) l->data);
+		g_message ("    %s", (gchar*) l->data);
 
 		file = g_file_new_for_path (l->data);
 		tracker_monitor_add (processor->private->monitor, module_name, file);
@@ -863,7 +863,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 	}
 
 	if (g_slist_length (watch_roots) == 0) {
-		g_message ("	NONE");
+		g_message ("    NONE");
 	}
 
 	/* Add crawls, from WatchDirectoryRoots and
@@ -876,7 +876,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 			continue;
 		}
 
-		g_message ("	%s", (gchar*) l->data);
+		g_message ("    %s", (gchar*) l->data);
 		tracker_crawler_add_path (crawler, l->data);
 	}
 
@@ -885,7 +885,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 			continue;
 		}
 
-		g_message ("	%s", (gchar*) l->data);
+		g_message ("    %s", (gchar*) l->data);
 		tracker_crawler_add_path (crawler, l->data);
 
 		crawl_root_count++;
@@ -893,7 +893,7 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 
 	if (g_slist_length (watch_roots) == 0 &&
 	    g_slist_length (crawl_roots) == 0) {
-		g_message ("	NONE");
+		g_message ("    NONE");
 	}
 }
 

@@ -1,3 +1,10 @@
+2008-09-30  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-crawler.c: Improve the crawler by adding a
+	"special_paths" category used for legacy config paths and for mmc
+	paths which are not in the module config. Also, removed some code
+	duplication.
+
 2008-09-29  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/trackerd/tracker-db.[ch]: Removing unused functions
