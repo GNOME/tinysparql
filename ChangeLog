@@ -1,3 +1,8 @@
+2008-09-30  Mikael Ottela   <mikael.ottela@ixonos.com>
+
+	* src/libtracker-db/tracker-db-manager.c: Fixed a bug that
+	forced reindex at every startup.
+
 2008-09-30  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-crawler.c: 

@@ -2245,7 +2245,6 @@ db_get_version (void)
 		/* Check version is correct */
 		if (G_LIKELY (g_file_get_contents (filename, &contents, NULL, NULL))) {
 			if (contents && strlen (contents) <= 2) {
-				TrackerDBVersion version;
 
 				version = atoi (contents);
 			} else {
