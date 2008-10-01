@@ -1361,11 +1361,16 @@ tracker_module_file_get_metadata (TrackerFile *file)
 }
 
 static gchar *
-get_message_encoding (GMimeMessage *message)
+get_object_encoding (GMimeObject *object)
 {
-        const gchar *content_type, *start_encoding, *end_encoding;
+        const gchar *start_encoding, *end_encoding;
+        const gchar *content_type = NULL;
 
-        content_type = g_mime_message_get_header (message, "Content-Type");
+        if (GMIME_IS_MESSAGE (object)) {
+                content_type = g_mime_message_get_header (GMIME_MESSAGE (object), "Content-Type");
+        } else if (GMIME_IS_PART (object)) {
+                content_type = g_mime_part_get_content_header (GMIME_PART (object), "Content-Type");
+        }
 
         if (!content_type) {
                 return NULL;
@@ -1414,7 +1419,7 @@ get_text_for_mbox (TrackerFile *file)
                 return NULL;
         }
 
-        encoding = get_message_encoding (data->message);
+        encoding = get_object_encoding (GMIME_OBJECT (data->message));
 
         if (!encoding) {
                 /* FIXME: could still puke on non-utf8
@@ -1431,12 +1436,73 @@ get_text_for_mbox (TrackerFile *file)
         return utf8_text;
 }
 
+static void
+extract_message_text (GMimeObject *object,
+                      gpointer     user_data)
+{
+        GString *body = (GString *) user_data;
+        GMimePart *part;
+        const gchar *content, *disposition, *filename;
+        gchar *encoding, *part_body;
+        gsize len;
+
+        if (GMIME_IS_MESSAGE_PART (object)) {
+		GMimeMessage *message;
+
+		message = g_mime_message_part_get_message (GMIME_MESSAGE_PART (object));
+
+		if (message) {
+			g_mime_message_foreach_part (message, extract_message_text, user_data);
+			g_object_unref (message);
+		}
+
+		return;
+        } else if (GMIME_IS_MULTIPART (object)) {
+                g_mime_multipart_foreach (GMIME_MULTIPART (object), extract_message_text, user_data);
+                return;
+        }
+
+	part = GMIME_PART (object);
+        filename = g_mime_part_get_filename (part);
+	disposition = g_mime_part_get_content_disposition (part);
+
+	if (disposition &&
+	    strcmp (disposition, GMIME_DISPOSITION_ATTACHMENT) == 0) {
+		return;
+	}
+
+        if (filename &&
+            (strcmp (filename, "signature.asc") == 0 ||
+             strcmp (filename, "signature.pgp") == 0)) {
+                return;
+        }
+
+        content = g_mime_part_get_content (GMIME_PART (object), &len);
+        encoding = get_object_encoding (object);
+
+        if (!encoding) {
+                /* FIXME: This will break for non-utf8 text without
+                 * the proper content type set
+                 */
+                g_string_append_len (body, content, (gssize) len);
+        } else {
+                part_body = g_convert (content, (gssize) len, "utf8", encoding, NULL, NULL, NULL);
+                g_string_append (body, part_body);
+
+                g_free (part_body);
+                g_free (encoding);
+        }
+}
+
 static gchar *
 get_text_for_imap (TrackerFile *file)
 {
 	EvolutionImapData *data;
 	gchar *message_path;
-	gchar *body = NULL;
+        GMimeStream *stream;
+        GMimeParser *parser;
+        GMimeMessage *message;
+        GString *body = NULL;
 
 	data = file->data;
 
@@ -1446,10 +1512,32 @@ get_text_for_imap (TrackerFile *file)
 	}
 
 	message_path = get_imap_message_path (file, data->cur_message_uid);
-	g_file_get_contents (message_path, &body, NULL, NULL);
+
+#if defined(__linux__)
+        stream = email_get_stream (message_path, O_RDONLY | O_NOATIME, 0);
+#else
+        stream = email_get_stream (message_path, O_RDONLY, 0);
+#endif
+
+        if (!stream) {
+                return NULL;
+        }
+
+        parser = g_mime_parser_new_with_stream (stream);
+        g_mime_parser_set_scan_from (parser, FALSE);
+        message = g_mime_parser_construct_message (parser);
+
+        if (message) {
+                body = g_string_new (NULL);
+                g_mime_message_foreach_part (message, extract_message_text, body);
+                g_object_unref (message);
+        }
+
+        g_object_unref (stream);
+        g_object_unref (parser);
 	g_free (message_path);
 
-	return body;
+	return (body) ? g_string_free (body, FALSE) : NULL;
 }
 
 gchar *

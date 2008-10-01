@@ -1,3 +1,15 @@
+2008-10-01  Carlos Garnacho  <carlos@imendio.com>
+
+	Handle properly multipart messages in Evolution's IMAP.
+
+	* src/tracker-indexer/modules/evolution.c (get_message_encoding):
+	Renamed to get_object_encoding(), since it will also be used for IMAP
+	message parts.
+	(get_text_for_mbox): Update caller.
+	(extract_message_text) (get_text_for_imap): Use GMime to parse
+	individual messages, and iterate through mail parts to extract the
+	contained text.
+
 2008-10-01  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/libtracker-db/tracker-db-manager.c:
@@ -17,6 +29,8 @@
 	* src/libtracker/tracker.h: GetUniqueValuesWithCountAndSum mapped
 	to the library.
 	
+=======
+>>>>>>> 2008-10-01  Carlos Garnacho  <carlos@imendio.com>:ChangeLog
 2008-10-01  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/modules/applications.c: Added some debugging
