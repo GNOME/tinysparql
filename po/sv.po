@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-30 18:31+0200\n"
-"PO-Revision-Date: 2008-09-30 18:42+0100\n"
+"POT-Creation-Date: 2008-10-01 17:13+0200\n"
+"PO-Revision-Date: 2008-10-01 17:35+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -56,7 +56,7 @@ msgid ""
 "Listen to music %s\n"
 "in %s"
 msgstr ""
-"Lyssna på musik %s\n"
+"Lyssna på musiken/ljudet %s\n"
 "i %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:65
@@ -111,7 +111,7 @@ msgid ""
 "Open folder %s\n"
 "%s"
 msgstr ""
-"Öppna mapp %s\n"
+"Öppna mappen %s\n"
 "i %s"
 
 #: ../python/deskbar-handler/tracker-handler.py:210
@@ -436,11 +436,11 @@ msgstr "Färdig"
 
 #: ../src/tracker-applet/tracker-applet.c:308
 msgid "Estimated"
-msgstr ""
+msgstr "Uppskattat"
 
 #: ../src/tracker-applet/tracker-applet.c:310
 msgid "Elapsed"
-msgstr ""
+msgstr "Förflutet"
 
 #: ../src/tracker-applet/tracker-applet.c:1035
 msgid "Re-index your system?"
@@ -496,7 +496,7 @@ msgstr "Webbplats för Tracker"
 
 #: ../src/tracker-applet/tracker-applet.c:1409
 msgid "_Pause All Indexing"
-msgstr "_Pausa all indexering"
+msgstr "Gör _paus i all indexering"
 
 #: ../src/tracker-applet/tracker-applet.c:1419
 msgid "_Search"
@@ -536,7 +536,7 @@ msgstr "Du kan nu genomföra sökningar genom att klicka här"
 
 #: ../src/tracker-applet/tracker-applet.c:2091
 msgid "- Tracker applet for quick control of your desktop search tools"
-msgstr ""
+msgstr "- Panelprogrammet Tracker för snabb kontroll över dina skrivbordssökningsverktyg"
 
 #: ../src/tracker-applet/tracker-applet.c:2116
 msgid "Your computer is about to be indexed so you can perform fast searches of your files and emails"
@@ -544,7 +544,7 @@ msgstr "Din dator är på väg att bli indexerad så att du kan genomföra snabb
 
 #: ../src/tracker-applet/tracker-applet.c:2119
 msgid "You can pause indexing at any time and configure index settings by right clicking here"
-msgstr "Du kan pausa indexeringen när som helst och ändra konfigurationen genom att högerklicka här "
+msgstr "Du kan göra en paus i indexeringen när som helst och ändra konfigurationen genom att högerklicka här "
 
 #: ../src/tracker-applet/tracker-applet.c:2122
 msgid "Files:"
@@ -620,7 +620,7 @@ msgstr "Inställningar för panelprogram"
 
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
 msgid "Automatically _pause if indexing may degrade performance of other applications in active use"
-msgstr "_Pausa automatiskt vid indexering kan försämra prestandan för andra program som används aktivt"
+msgstr "_Pausa automatiskt om indexeringen försämrar prestandan för andra program som används aktivt"
 
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
 msgid "_Automatically pause all indexing when computer is in active use"
@@ -637,15 +637,15 @@ msgstr "A_v"
 #: ../src/tracker-indexer/tracker-main.c:71
 #: ../src/trackerd/tracker-main.c:123
 msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
-msgstr ""
+msgstr "Loggning, 0 = endast fel, 1 = minimalt, 2 = detaljerat samt 3 = felsökning (standard = 0)"
 
 #: ../src/tracker-indexer/tracker-main.c:76
 msgid "Whether to process data from all configured modules to be indexed"
-msgstr ""
+msgstr "Huruvida data ska behandlas från alla konfigurerade moduler för indexering"
 
 #: ../src/tracker-indexer/tracker-main.c:80
 msgid "Run forever, only interesting for debugging purposes"
-msgstr ""
+msgstr "Kör för alltid, endast intressant för felsökningsändamål"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -1242,9 +1242,8 @@ msgstr "länk till %s"
 #: ../src/tracker-utils/tracker-query.c:56
 #: ../src/tracker-utils/tracker-search.c:46
 #: ../src/tracker-utils/tracker-tag.c:65
-#, fuzzy
 msgid "Limit the number of results shown"
-msgstr "Begränsa antalet visade resultat till N"
+msgstr "Begränsa antalet visade resultat"
 
 #: ../src/tracker-utils/tracker-files.c:47
 #: ../src/tracker-utils/tracker-query.c:57
@@ -1258,7 +1257,7 @@ msgstr "512"
 #: ../src/tracker-utils/tracker-search.c:50
 #: ../src/tracker-utils/tracker-tag.c:69
 msgid "Offset the results"
-msgstr ""
+msgstr "Positionera resultat"
 
 #: ../src/tracker-utils/tracker-files.c:51
 #: ../src/tracker-utils/tracker-query.c:61
@@ -1284,35 +1283,35 @@ msgstr "- Sök efter filer efter tjänst eller MIME-typ"
 #: ../src/tracker-utils/tracker-tag.c:172
 #: ../src/tracker-utils/tracker-unique.c:130
 msgid "Could not establish a DBus connection to Tracker"
-msgstr ""
+msgstr "Kunde inte etablera en DBus-anslutning till Tracker"
 
 #: ../src/tracker-utils/tracker-files.c:113
 msgid "Could not get files by service type"
-msgstr ""
+msgstr "Kunde inte få tag på filer efter tjänstetyp"
 
 #: ../src/tracker-utils/tracker-files.c:123
 msgid "No files found by that service type"
-msgstr ""
+msgstr "Inga filer hittades med den tjänstetypen"
 
 #: ../src/tracker-utils/tracker-files.c:129
 #: ../src/tracker-utils/tracker-files.c:166
 #: ../src/tracker-utils/tracker-meta-folder.c:251
 #: ../src/tracker-utils/tracker-search.c:249
-#: ../src/tracker-utils/tracker-unique.c:217
+#: ../src/tracker-utils/tracker-unique.c:218
 msgid "Results"
 msgstr "Resultat"
 
 #: ../src/tracker-utils/tracker-files.c:151
 msgid "Could not get files by MIME type"
-msgstr ""
+msgstr "Kunde inte få tag på filer efter MIME-typ"
 
 #: ../src/tracker-utils/tracker-files.c:160
 msgid "No files found by those MIME types"
-msgstr ""
+msgstr "Inga filer hittades med dessa MIME-typer"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:40
 msgid "Path to use for directory to get metadata information about"
-msgstr ""
+msgstr "Sökväg att använda för katalog att hämta in metadatainformation om"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:62
 msgid "Filename"
@@ -1323,14 +1322,14 @@ msgstr "Filnamn"
 #.
 #: ../src/tracker-utils/tracker-meta-folder.c:155
 msgid "Retrieve meta-data information about files in a directory"
-msgstr ""
+msgstr "Hämta in metadatainformation om filer i en katalog"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options, showing an usage example.
 #.
 #: ../src/tracker-utils/tracker-meta-folder.c:160
 msgid "To use multiple meta-data types simply list them, for example:"
-msgstr ""
+msgstr "För att använda flera metadatatyper kan du helt enkelt lista dem. Exempel:"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:163
 msgid "PATH"
@@ -1348,24 +1347,24 @@ msgstr "Inga fält angavs"
 #: ../src/tracker-utils/tracker-query.c:167
 #: ../src/tracker-utils/tracker-unique.c:154
 msgid "Could not get UTF-8 path from path"
-msgstr ""
+msgstr "Kunde inte få tag på UTF-8-sökväg från sökvägen"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:236
 msgid "Could not get meta-data for files in directory"
-msgstr ""
+msgstr "Kunde inte få tag på metadata för filer i katalogen"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:248
 msgid "No meta-data found for files in that directory"
-msgstr ""
+msgstr "Inget metadata hittades för filer i den katalogen"
 
 #: ../src/tracker-utils/tracker-query.c:48
 #: ../src/tracker-utils/tracker-unique.c:46
 msgid "Path to use in query"
-msgstr ""
+msgstr "Sökväg att använda i frågesats"
 
 #: ../src/tracker-utils/tracker-query.c:64
 msgid "Adds a fulltext search filter"
-msgstr ""
+msgstr "Lägger till ett fulltextsökfilter"
 
 #: ../src/tracker-utils/tracker-query.c:68
 msgid "Adds a keyword filter"
@@ -1377,7 +1376,7 @@ msgstr "Metadatafält"
 
 #: ../src/tracker-utils/tracker-query.c:116
 msgid "- Query using RDF and return results with specified metadata fields"
-msgstr ""
+msgstr "- Fråga med RDF och returnera resultat med angivna metadatafält"
 
 #: ../src/tracker-utils/tracker-query.c:126
 msgid "Path or fields are missing"
@@ -1387,7 +1386,7 @@ msgstr "Sökväg eller fält saknas"
 #: ../src/tracker-utils/tracker-search.c:178
 #: ../src/tracker-utils/tracker-unique.c:136
 msgid "Defaulting to 'files' service"
-msgstr ""
+msgstr "Faller tillbaka på standardtjänsten \"files\""
 
 #: ../src/tracker-utils/tracker-query.c:160
 #: ../src/tracker-utils/tracker-search.c:186
@@ -1403,24 +1402,23 @@ msgstr "Kunde inte läsa filen"
 #: ../src/tracker-utils/tracker-query.c:196
 #: ../src/tracker-utils/tracker-unique.c:183
 msgid "Could not convert query file to UTF-8"
-msgstr ""
+msgstr "Kunde inte konvertera frågefil till UTF-8"
 
 #: ../src/tracker-utils/tracker-query.c:221
-#: ../src/tracker-utils/tracker-unique.c:205
+#: ../src/tracker-utils/tracker-unique.c:206
 msgid "Could not query search"
-msgstr ""
+msgstr "Kunde inte genomföra sökning"
 
 #: ../src/tracker-utils/tracker-query.c:230
 #: ../src/tracker-utils/tracker-search.c:215
 #: ../src/tracker-utils/tracker-search.c:246
-#: ../src/tracker-utils/tracker-unique.c:214
+#: ../src/tracker-utils/tracker-unique.c:215
 msgid "No results found matching your query"
 msgstr "Inga resultat hittades som matchade din sökning"
 
 #: ../src/tracker-utils/tracker-search.c:54
-#, fuzzy
 msgid "Show more detailed results with service and mime type"
-msgstr "Visa mera detaljerade resultat med tjänsten så väl som mime-typen"
+msgstr "Visa mera detaljerade resultat med tjänsten och mime-typen"
 
 #: ../src/tracker-utils/tracker-search.c:59
 msgid "search terms"
@@ -1448,11 +1446,11 @@ msgstr "- Sök efter filer enligt specifika villkor"
 #. and before the list of options.
 #: ../src/tracker-utils/tracker-search.c:119
 msgid "Specifying multiple terms apply an AND operator to the search performed"
-msgstr ""
+msgstr "Du kan lägga till en AND-operator till sökningen för att ange flera sökvillkor "
 
 #: ../src/tracker-utils/tracker-search.c:122
 msgid "This means if you search for 'foo' and 'bar', they must BOTH exist"
-msgstr ""
+msgstr "Det betyder att om du söker efter \"foo\" och \"bar\" så måste de BÅDA finnas"
 
 #: ../src/tracker-utils/tracker-search.c:126
 msgid "Recognized services include:"
@@ -1460,11 +1458,11 @@ msgstr "Listan över kända tjänster är:"
 
 #: ../src/tracker-utils/tracker-search.c:152
 msgid "Search terms are missing"
-msgstr ""
+msgstr "Sökvillkor saknas"
 
 #: ../src/tracker-utils/tracker-search.c:204
 msgid "Could not get find detailed results by text"
-msgstr ""
+msgstr "Kunde inte få tag på detaljerade sökresultat efter texten"
 
 #: ../src/tracker-utils/tracker-search.c:218
 msgid "Results:"
@@ -1472,7 +1470,7 @@ msgstr "Resultat:"
 
 #: ../src/tracker-utils/tracker-search.c:235
 msgid "Could not get find results by text"
-msgstr ""
+msgstr "Kunde inte få tag på sökresultat för texten"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -1493,9 +1491,8 @@ msgid "Statistics:"
 msgstr "Statistik:"
 
 #: ../src/tracker-utils/tracker-status.c:58
-#, fuzzy
 msgid "Could not get Tracker status"
-msgstr "Kunde inte ta bort \"%s\"."
+msgstr "Kunde inte få tag på Tracker-status"
 
 #: ../src/tracker-utils/tracker-status.c:68
 #, c-format
@@ -1544,7 +1541,6 @@ msgstr "Lägg till, ta bort eller sök efter taggar"
 #. * and before the list of options, showing an usage example.
 #.
 #: ../src/tracker-utils/tracker-tag.c:130
-#, fuzzy
 msgid "To add, remove, or search for multiple tags at the same time, join multiple options, for example:"
 msgstr "För att lägga till, ta bort eller söka efter flera taggar samtidigt kan flera flaggor sättas samman som:"
 
@@ -1554,11 +1550,11 @@ msgstr "Inga filer angavs"
 
 #: ../src/tracker-utils/tracker-tag.c:146
 msgid "Add and delete actions can not be used with remove all actions"
-msgstr ""
+msgstr "Lägga till och ta bort åtgärder kan inte användas med ta bort alla åtgärder"
 
 #: ../src/tracker-utils/tracker-tag.c:148
 msgid "Files are not needed with searching"
-msgstr ""
+msgstr "Filer behövs inte med sökningen"
 
 #: ../src/tracker-utils/tracker-tag.c:150
 msgid "No arguments were provided"
@@ -1607,7 +1603,7 @@ msgstr "Kunde inte söka i taggar"
 
 #: ../src/tracker-utils/tracker-unique.c:54
 msgid "Count instances of unique fields of this type"
-msgstr ""
+msgstr "Räkna förekomster av unika fält av denna typ"
 
 #: ../src/tracker-utils/tracker-unique.c:58
 msgid "Sum the values of this field"
@@ -1627,7 +1623,7 @@ msgstr "Fält saknas"
 
 #: ../src/trackerd/tracker-main.c:128
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
-msgstr ""
+msgstr "Sekunder att vänta innan en insamling eller indexering (standard = 45)"
 
 #: ../src/trackerd/tracker-main.c:132
 msgid "Minimizes the use of memory but may slow indexing down"
@@ -1635,19 +1631,19 @@ msgstr "Minimerar minnesanvändningen men kan göra indexeringen långsammare"
 
 #: ../src/trackerd/tracker-main.c:136
 msgid "Directories to exclude for file change monitoring (you can do -e <path> -e <path>)"
-msgstr ""
+msgstr "Kataloger att undanta för filändringsövervakning (du kan använda -e <sökväg> -e <sökväg>)"
 
 #: ../src/trackerd/tracker-main.c:140
 msgid "Directories to include for file change monitoring (you can do -i <path> -i <path>)"
-msgstr ""
+msgstr "Kataloger att inkludera för filändringsövervakning (du kan använda -i <sökväg> -i <sökväg>)"
 
 #: ../src/trackerd/tracker-main.c:144
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
-msgstr ""
+msgstr "Kataloger att genomsöka för indexering (du kan använda -c <sökväg> -c <sökväg>)"
 
 #: ../src/trackerd/tracker-main.c:148
 msgid "Disable modules from being processed (you can do -d <module> -d <module)"
-msgstr ""
+msgstr "Inaktivera moduler från att behandlas (du kan använda -d <modul> -d <modul)"
 
 #: ../src/trackerd/tracker-main.c:156
 msgid "Force a re-index of all content"
@@ -1670,11 +1666,11 @@ msgstr "- starta tracker-demonen"
 
 #: ../src/trackerd/tracker-main.c:677
 msgid "Daemon Options"
-msgstr ""
+msgstr "Flaggor för demonen"
 
 #: ../src/trackerd/tracker-main.c:678
 msgid "Show daemon options"
-msgstr ""
+msgstr "Visa demonflaggor"
 
 #: ../src/trackerd/tracker-main.c:686
 msgid "Indexer Options"
@@ -1682,7 +1678,7 @@ msgstr "Indexeringsalternativ"
 
 #: ../src/trackerd/tracker-main.c:687
 msgid "Show indexer options"
-msgstr ""
+msgstr "Visa indexeringsflaggor"
 
 #~ msgid "N"
 #~ msgstr "N"
