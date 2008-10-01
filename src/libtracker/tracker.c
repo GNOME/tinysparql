@@ -579,6 +579,19 @@ tracker_metadata_get_unique_values_with_count (TrackerClient *client, ServiceTyp
 	return table;
 }
 
+GPtrArray *
+tracker_metadata_get_unique_values_with_count_and_sum (TrackerClient *client, ServiceType service, char **meta_types, char *query, char *count, char *sum, gboolean descending, int offset, int max_hits, GError **error)
+{
+	GPtrArray *table;
+	char *service_str = tracker_service_types[service];
+
+	if (!org_freedesktop_Tracker_Metadata_get_unique_values_with_count_and_sum (client->proxy_metadata, service_str, (const char **)meta_types, query, count, sum, descending, offset, max_hits, &table, &*error)) {
+		return NULL;
+	}
+
+	return table;
+}
+
 
 GPtrArray *
 tracker_keywords_get_list (TrackerClient *client, ServiceType service, GError **error)
@@ -1211,6 +1224,21 @@ tracker_metadata_get_unique_values_with_count_async (TrackerClient *client, Serv
 	callback_struct->data = user_data;
 
 	client->last_pending_call = org_freedesktop_Tracker_Metadata_get_unique_values_with_count_async (client->proxy_metadata, service_str, (const char **) meta_types, query, count, descending, offset, max_hits, tracker_GPtrArray_reply, callback_struct);
+
+}
+
+void
+tracker_metadata_get_unique_values_with_count_and_sum_async (TrackerClient *client, ServiceType service, char **meta_types, const char *query, char *count, char *sum, gboolean descending, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data)
+{
+
+	GPtrArrayCallBackStruct *callback_struct;
+	char *service_str = tracker_service_types[service];
+
+	callback_struct = g_new (GPtrArrayCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	client->last_pending_call = org_freedesktop_Tracker_Metadata_get_unique_values_with_count_and_sum_async (client->proxy_metadata, service_str, (const char **) meta_types, query, count, sum, descending, offset, max_hits, tracker_GPtrArray_reply, callback_struct);
 
 }
 

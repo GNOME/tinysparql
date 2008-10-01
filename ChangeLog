@@ -1,3 +1,13 @@
+2008-10-01  Mikael Ottela   <mikael.ottela@ixonos.com>
+	* data/dbus/tracker-metadata.xml:
+	* src/trackerd/tracker-metadata.c:
+	* src/trackerd/tracker-metadata.h: Added GetUniqueValuesWithCountAndSum
+	back to the API.
+	* src/tracker-utils/tracker-unique.c:
+	* src/libtracker/tracker.c:
+	* src/libtracker/tracker.h: GetUniqueValuesWithCountAndSum mapped
+	to the library.
+	
 2008-10-01  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/modules/applications.c: Added some debugging

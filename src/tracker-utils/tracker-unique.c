@@ -38,7 +38,7 @@ static gchar	    **fields;
 static gchar	     *service;
 static gchar	     *path;
 static gchar	     *count;
-static gchar	     *sum;
+static gchar         *sum;
 static gboolean       descending;
 
 static GOptionEntry   entries[] = {
@@ -189,15 +189,16 @@ main (int argc, char **argv)
 		}
 	}
 
-	array = tracker_metadata_get_unique_values_with_count (client,
-							       type,
-							       fields,
-							       buffer,
-							       count,
-							       descending,
-							       0,
-							       512,
-							       &error);
+	array = tracker_metadata_get_unique_values_with_count_and_sum (client,
+								       type,
+								       fields,
+								       buffer,
+								       count,
+								       sum,
+								       descending,
+								       0,
+								       512,
+								       &error);
 	g_free (buffer);
 
 	if (error) {
