@@ -1834,24 +1834,53 @@ db_interface_get_common (void)
 	iface = db_interface_get (TRACKER_DB_COMMON, &create);
 
 	if (create) {
+
+		GDir        *services;
+		const gchar *conf_file;
+
 		tracker_db_interface_start_transaction (iface);
 		/* Create tables */
 		load_sql_file (iface, "sqlite-tracker.sql", NULL);
 		load_sql_file (iface, "sqlite-metadata.sql", NULL);
 		load_sql_file (iface, "sqlite-service-types.sql", NULL);
 
-		/* Load services info */
+		/*
+		 * Loading .service and .metadata files. "default." first because
+		 * contain the parent categories. 
+		 *
+		 * Skipping xesam files to keep the previous behaviour.
+		 */
 		load_service_file (iface, "default.service");
-
-		/* Load metadata info */
 		load_metadata_file (iface, "default.metadata");
-		load_metadata_file (iface, "file.metadata");
-		load_metadata_file (iface, "audio.metadata");
-		load_metadata_file (iface, "application.metadata");
-		load_metadata_file (iface, "document.metadata");
-		load_metadata_file (iface, "email.metadata");
-		load_metadata_file (iface, "image.metadata");
-		load_metadata_file (iface, "video.metadata");
+
+		services = g_dir_open (services_dir, 0, NULL);
+
+		conf_file = g_dir_read_name (services);
+
+		while (conf_file) {
+
+			if (!strcmp (conf_file, "default.service")
+			    || !strcmp (conf_file, "default.metadata")
+			    || g_str_has_prefix (conf_file, "xesam")) {
+				conf_file = g_dir_read_name (services);
+				continue;
+			}
+
+			if (g_str_has_suffix (conf_file, ".service")) {
+				g_debug ("Loading service file %s", conf_file);
+				load_service_file (iface, conf_file);
+			}
+
+			if (g_str_has_suffix (conf_file, ".metadata")) {
+				g_debug ("Loading metadata file %s", conf_file);
+				load_metadata_file (iface, conf_file);
+			}
+
+			conf_file = g_dir_read_name (services);
+		}
+
+		g_dir_close (services);
+
 		tracker_db_interface_end_transaction (iface);
 	}
 
@@ -2162,15 +2191,33 @@ db_interface_get_xesam (void)
 	iface = db_interface_get (TRACKER_DB_XESAM, &create);
 
 	if (create) {
+
+		GDir        *services;
+		const gchar *conf_file;
+
 		tracker_db_interface_start_transaction (iface);
 		load_sql_file (iface, "sqlite-xesam.sql", NULL);
-		load_service_file_xesam (iface, "xesam.metadata");
-		load_service_file_xesam (iface, "xesam-convenience.metadata");
-		load_service_file_xesam (iface, "xesam-virtual.metadata");
-		load_service_file_xesam (iface, "xesam.service");
-		load_service_file_xesam (iface, "xesam-convenience.service");
-		load_service_file_xesam (iface, "xesam-service.smapping");
-		load_service_file_xesam (iface, "xesam-metadata.mmapping");
+
+
+		services = g_dir_open (services_dir, 0, NULL);
+
+		conf_file = g_dir_read_name (services);
+
+		while (conf_file) {
+
+			if (!g_str_has_prefix (conf_file, "xesam")) {
+				conf_file = g_dir_read_name (services);
+				continue;
+			}
+
+			g_debug ("Loading xesam configuration file %s", conf_file);
+			load_service_file_xesam (iface, conf_file);
+
+			conf_file = g_dir_read_name (services);
+		}
+
+		g_dir_close (services);
+
 		db_xesam_create_lookup (iface);
 		tracker_db_interface_end_transaction (iface);
 	}

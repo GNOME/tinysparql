@@ -1,4 +1,13 @@
+2008-10-01  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/libtracker-db/tracker-db-manager.c:
+	(db_interface_get_xesam)
+	(db_interface_get_common) Scan the services directory to load the
+	service and metadata descriptions, instead of the previous
+	hardcoded list.
+	
 2008-10-01  Mikael Ottela   <mikael.ottela@ixonos.com>
+	
 	* data/dbus/tracker-metadata.xml:
 	* src/trackerd/tracker-metadata.c:
 	* src/trackerd/tracker-metadata.h: Added GetUniqueValuesWithCountAndSum
