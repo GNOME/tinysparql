@@ -29,8 +29,6 @@
 	* src/libtracker/tracker.h: GetUniqueValuesWithCountAndSum mapped
 	to the library.
 	
-=======
->>>>>>> 2008-10-01  Carlos Garnacho  <carlos@imendio.com>:ChangeLog
 2008-10-01  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/modules/applications.c: Added some debugging
