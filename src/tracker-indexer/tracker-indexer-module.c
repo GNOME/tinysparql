@@ -175,7 +175,6 @@ tracker_indexer_module_file_get_service_type (GModule	  *module,
 
 }
 
-
 TrackerMetadata *
 tracker_indexer_module_file_get_metadata (GModule     *module,
 					  TrackerFile *file)

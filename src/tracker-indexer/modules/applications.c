@@ -115,11 +115,13 @@ tracker_module_file_get_metadata (TrackerFile *file)
 	key_file = g_key_file_new ();
 
 	if (!g_key_file_load_from_file (key_file, file->path, G_KEY_FILE_NONE, NULL)) {
+                g_debug ("Couldn't load desktop file:'%s'", file->path);
 		g_key_file_free (key_file);
 		return NULL;
 	}
 
 	if (g_key_file_get_boolean (key_file, GROUP_DESKTOP_ENTRY, KEY_HIDDEN, NULL)) {
+                g_debug ("Desktop file is 'hidden', not gathering metadata for it");
 		g_key_file_free (key_file);
 		return NULL;
 	}
@@ -127,6 +129,7 @@ tracker_module_file_get_metadata (TrackerFile *file)
 	type = g_key_file_get_string (key_file, GROUP_DESKTOP_ENTRY, KEY_TYPE, NULL);
 
 	if (!type || g_ascii_strcasecmp (type, "Application") != 0) {
+                g_debug ("Desktop file is not of type 'Application', not gathering metadata for it");
 		g_key_file_free (key_file);
 		g_free (type);
 		return NULL;

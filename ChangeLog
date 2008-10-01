@@ -1,3 +1,20 @@
+2008-10-01  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-indexer/modules/applications.c: Added some debugging
+	to know why some .desktop files are not indexed because the module
+	returns no metadata.
+
+	* src/tracker-indexer/modules/files.c: Don't check files for to
+	see if they should be excluded in this module - the daemon
+	currently does this. This can still be enabled with a #define
+	because this is problematic for standalone testing of the indexer
+	with the -p switch. 
+	
+	* src/tracker-indexer/tracker-indexer.c: Improve the debugging so
+	it doesn't look like we delete items in the database which should
+	be indexed. Instead explain there is no metadata so we are
+	removing the item from the database.
+	
 2008-10-01  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/libtracker/tracker.[ch]:

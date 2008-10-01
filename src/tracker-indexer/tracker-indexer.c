@@ -1256,11 +1256,11 @@ item_update_content (TrackerIndexer *indexer,
 }
 
 static void
-item_create_or_update (TrackerIndexer  *indexer,
-		       PathInfo        *info,
-		       const gchar     *dirname,
-		       const gchar     *basename,
-		       TrackerMetadata *metadata)
+item_add_or_update (TrackerIndexer  *indexer,
+		    PathInfo        *info,
+		    const gchar     *dirname,
+		    const gchar     *basename,
+		    TrackerMetadata *metadata)
 {
 	TrackerService *service;
 	gchar *service_type;
@@ -1287,7 +1287,9 @@ item_create_or_update (TrackerIndexer  *indexer,
 		gchar *new_text;
 
 		/* Update case */
-		g_debug ("Updating item '%s/%s'", dirname, basename);
+		g_debug ("Updating item '%s/%s'", 
+			 dirname, 
+			 basename);
 
 		/*
 		 * Using DB directly: get old (embedded) metadata,
@@ -1311,7 +1313,9 @@ item_create_or_update (TrackerIndexer  *indexer,
 		return;
 	}
 
-	g_debug ("Creating item '%s/%s'", dirname, basename);
+	g_debug ("Adding item '%s/%s'", 
+		 dirname, 
+		 basename);
 
 	/* Service wasn't previously indexed */
 	id = tracker_db_get_new_service_id (indexer->private->common);
@@ -1368,7 +1372,7 @@ item_move (TrackerIndexer  *indexer,
 		return;
 	}
 
-	g_debug ("Moving file from '%s' to '%s'",
+	g_debug ("Moving item from '%s' to '%s'",
 		 info->file->path,
 		 info->other_file->path);
 
@@ -1397,7 +1401,7 @@ item_move (TrackerIndexer  *indexer,
 }
 
 static void
-item_delete (TrackerIndexer *indexer,
+item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
 	     const gchar    *dirname,
 	     const gchar    *basename)
@@ -1409,7 +1413,9 @@ item_delete (TrackerIndexer *indexer,
 
 	service_type = tracker_module_config_get_index_service (info->module_name);
 
-	g_debug ("Deleting item: '%s/%s'", dirname, basename);
+	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
+		 dirname, 
+		 basename);
 
 	if (!service_type || !service_type[0]) {
 		gchar *name;
@@ -1974,10 +1980,10 @@ process_file (TrackerIndexer *indexer,
 		metadata = tracker_indexer_module_file_get_metadata (info->module, info->file);
 
 		if (metadata) {
-			item_create_or_update (indexer, info, dirname, basename, metadata);
+			item_add_or_update (indexer, info, dirname, basename, metadata);
 			tracker_metadata_free (metadata);
 		} else {
-			item_delete (indexer, info, dirname, basename);
+			item_remove (indexer, info, dirname, basename);
 		}
 	}
 

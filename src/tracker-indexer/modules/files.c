@@ -42,6 +42,13 @@
 #define METADATA_FILE_MODIFIED	     "File:Modified"
 #define METADATA_FILE_ACCESSED	     "File:Accessed"
 
+/* This is ONLY needed for the indexer to run standalone with
+ * the -p option, otherwise it will pick up all sorts of crap
+ * from the file system to get the metadata for. The daemon
+ * currently does all this for us.
+ */
+#undef ENABLE_FILE_EXCLUDE_CHECKING
+
 G_CONST_RETURN gchar *
 tracker_module_get_name (void)
 {
@@ -61,6 +68,8 @@ tracker_module_file_get_service_type (TrackerFile *file)
 
 	return service_type;
 }
+
+#ifdef ENABLE_FILE_EXCLUDE_CHECKING
 
 static gboolean
 check_exclude_file (const gchar *path)
@@ -128,30 +137,28 @@ check_exclude_file (const gchar *path)
 	return FALSE;
 }
 
+#endif /* ENABLE_FILE_EXCLUDE_CHECKING */
+
 TrackerMetadata *
 tracker_module_file_get_metadata (TrackerFile *file)
 {
-	const gchar *path;
-
-	path = file->path;
-
-	if (check_exclude_file (path)) {
+#ifdef ENABLE_FILE_EXCLUDE_CHECKING
+	if (check_exclude_file (file->path)) {
 		return NULL;
 	}
+#endif /* ENABLE_FILE_EXCLUDE_CHECKING */
 
-	return tracker_metadata_utils_get_data (path);
+	return tracker_metadata_utils_get_data (file->path);
 }
 
 gchar *
 tracker_module_file_get_text (TrackerFile *file)
 {
-	const gchar *path;
-
-	path = file->path;
-
-	if (check_exclude_file (path)) {
+#ifdef ENABLE_FILE_EXCLUDE_CHECKING
+	if (check_exclude_file (file->path)) {
 		return NULL;
 	}
+#endif /* ENABLE_FILE_EXCLUDE_CHECKING */
 
-	return tracker_metadata_utils_get_text (path);
+	return tracker_metadata_utils_get_text (file->path);
 }
