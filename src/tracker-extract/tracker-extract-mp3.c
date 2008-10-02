@@ -41,6 +41,7 @@
 #endif
 
 #include "tracker-extract.h"
+#include "tracker-albumart.h"
 
 #define MAX_FILE_READ	  1024 * 1024 * 10
 #define MAX_MP3_SCAN_DEEP 16768
@@ -58,6 +59,11 @@ typedef struct {
 	gchar *comment;
 	gchar *genre;
 } id3tag;
+
+typedef struct {
+	unsigned char *data;
+	size_t         size;
+} album_art;
 
 enum {
 	MPEG_ERR,
@@ -499,7 +505,8 @@ mp3_parse (const gchar *data,
 static void
 get_id3v24_tags (const gchar *data,
 		 size_t       size,
-		 GHashTable  *metadata)
+		 GHashTable  *metadata,
+		 album_art   *albumart)
 {
 	gint	unsync;
 	gint	extendedHdr;
@@ -666,6 +673,29 @@ get_id3v24_tags (const gchar *data,
 			i++;
 		}
 
+		/* Check for embedded images */
+		if (strncmp (&data[pos], "APIC", 4) == 0) {
+			gchar          text_type;
+			const gchar   *mime;
+			gchar          pic_type;
+			const gchar   *desc;
+			guint          offset;
+
+
+			text_type =  data[pos+10];
+			mime      = &data[pos+11];
+			pic_type  =  data[pos+11+strlen(mime)+1];
+			desc      = &data[pos+11+strlen(mime)+1+1];
+
+			if (pic_type == 3) {
+
+				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
+
+				albumart->data = (unsigned char *)&data[offset];
+				albumart->size = csize;
+			}
+		}
+
 		pos += 10 + csize;
 	}
 }
@@ -673,7 +703,8 @@ get_id3v24_tags (const gchar *data,
 static void
 get_id3v23_tags (const gchar *data,
 		 size_t       size,
-		 GHashTable  *metadata)
+		 GHashTable  *metadata,
+		 album_art   *albumart)
 {
 	gint	unsync;
 	gint	extendedHdr;
@@ -838,6 +869,29 @@ get_id3v23_tags (const gchar *data,
 			i++;
 		}
 
+		/* Check for embedded images */
+		if (strncmp (&data[pos], "APIC", 4) == 0) {
+			gchar          text_type;
+			const gchar   *mime;
+			gchar          pic_type;
+			const gchar   *desc;
+			guint          offset;
+
+
+			text_type =  data[pos+10];
+			mime      = &data[pos+11];
+			pic_type  =  data[pos+11+strlen(mime)+1];
+			desc      = &data[pos+11+strlen(mime)+1+1];
+
+			if (pic_type == 3) {
+
+				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
+
+				albumart->data = (unsigned char *)&data[offset];
+				albumart->size = csize;
+			}
+		}
+
 		pos += 10 + csize;
 	}
 }
@@ -845,7 +899,8 @@ get_id3v23_tags (const gchar *data,
 static void
 get_id3v2_tags (const gchar *data,
 		size_t	     size,
-		GHashTable  *metadata)
+		GHashTable  *metadata,
+		album_art   *albumart)
 {
 	gint	unsync;
 	guint	tsize;
@@ -968,6 +1023,25 @@ get_id3v2_tags (const gchar *data,
 			i++;
 		}
 
+		/* Check for embedded images */
+		if (strncmp (&data[pos], "PIC", 3) == 0) {
+			gchar          pic_type;
+			const gchar   *desc;
+			guint          offset;
+
+			pic_type  =  data[pos+6+3+1+3];
+			desc      = &data[pos+6+3+1+3+1];
+
+			if (pic_type == 3) {
+
+				offset = pos+6+3+1+3+1+strlen(desc)+1;
+
+				albumart->data = (unsigned char *)&data[offset];
+				albumart->size = csize;
+			}
+		}
+
+
 		pos += 6 + csize;
 	}
 }
@@ -981,6 +1055,7 @@ extract_mp3 (const gchar *filename,
 	struct stat  fstatbuf;
 	size_t	     size;
 	id3tag	     info;
+	album_art    albumart;
 
 	info.title = NULL;
 	info.artist = NULL;
@@ -988,6 +1063,9 @@ extract_mp3 (const gchar *filename,
 	info.year = NULL;
 	info.comment = NULL;
 	info.genre = NULL;
+
+	albumart.data = NULL;
+	albumart.size = 0;
 
 #if defined(__linux__)
 	file = g_open (filename, (O_RDONLY | O_NOATIME), 0);
@@ -1066,13 +1144,21 @@ extract_mp3 (const gchar *filename,
 	free (info.comment);
 
 	/* Get other embedded tags */
-	get_id3v2_tags (buffer, size, metadata);
-	get_id3v23_tags (buffer, size, metadata);
-	get_id3v24_tags (buffer, size, metadata);
+	get_id3v2_tags (buffer, size, metadata, &albumart);
+	get_id3v23_tags (buffer, size, metadata, &albumart);
+	get_id3v24_tags (buffer, size, metadata, &albumart);
 
 	/* Get mp3 stream info */
 	mp3_parse (buffer, size, metadata);
 
+	/* Save embedded album art */
+	if (albumart.data && albumart.size) {
+		tracker_save_albumart (albumart.data, albumart.size,
+				       g_hash_table_lookup (metadata, "Audio:Artist") ,
+				       g_hash_table_lookup (metadata, "Audio:Album"),
+				       filename);
+	}
+	
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {
 		g_hash_table_insert (metadata,

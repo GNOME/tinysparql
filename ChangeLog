@@ -1,3 +1,12 @@
+2008-10-02  Mikael Ottela   <mikael.ottela@ixonos.com>
+	* configure.ac:
+	* src/tracker-extract/tracker-albumart.c:
+	* src/tracker-extract/tracker-extract-mp3.c:
+	* src/tracker-extract/tracker-albumart.h:
+	* src/tracker-extract/Makefile.am: Added extraction of embedded
+	album art to mp3. The implementatio is based on the current draft
+	of the album art spec.
+
 2008-10-02  Martyn Russell  <martyn@imendio.com>
 
 	* Makefile.am: Fixed make distcheck for the documentation addition.

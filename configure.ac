@@ -124,6 +124,12 @@ PKG_CHECK_MODULES(GMIME, [gmime-2.0 >= $GMIME_REQUIRED])
 AC_SUBST(GMIME_CFLAGS)
 AC_SUBST(GMIME_LIBS)
 
+# Check GdkPixbuf
+GDK_PIXBUF_CHECK="gdk-pixbuf-2.0 >= 2.12.0"
+PKG_CHECK_MODULES(GDK_PIXBUF, $GDK_PIXBUF_CHECK)
+AC_SUBST(GDK_PIXBUF_LIBS)
+AC_SUBST(GDK_PIXBUF_CFLAGS)
+
 # Check for Dbus 0.50 or higher
 PKG_CHECK_MODULES(DBUS, [dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_REQUIRED])
 AC_SUBST(DBUS_CFLAGS)
@@ -390,6 +396,7 @@ if test "x$have_hal" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
+
 
 ####################################################################
 # check for GStreamer or Xine. Otherwise, call an external video

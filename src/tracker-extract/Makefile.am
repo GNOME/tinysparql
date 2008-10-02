@@ -16,6 +16,7 @@ INCLUDES = 								\
 	$(POPPLER_GLIB_CFLAGS) 						\
 	$(GSTREAMER_CFLAGS) 						\
 	$(XINE_CFLAGS) 							\
+	$(GDK_PIXBUF_CFLAGS)						\
 	-I$(top_srcdir)/src 						\
 	-DMODULES_DIR=\"$(modulesdir)\"
 
@@ -66,6 +67,11 @@ xmp_sources = 								\
 	tracker-xmp.c							\
 	tracker-xmp.h
 
+# Common AlbumArt sources
+albumart_sources =							\
+	tracker-albumart.c						\
+	tracker-albumart.h
+
 # ABW
 libextract_abw_la_SOURCES = tracker-extract-abw.c
 libextract_abw_la_LDFLAGS = $(module_flags)
@@ -77,9 +83,9 @@ libextract_imagemagick_la_LDFLAGS = $(module_flags)
 libextract_imagemagick_la_LIBADD = $(GLIB2_LIBS) $(EXEMPI_LIBS)
 
 # MP3
-libextract_mp3_la_SOURCES = tracker-extract-mp3.c
+libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources)
 libextract_mp3_la_LDFLAGS = $(module_flags)
-libextract_mp3_la_LIBADD = $(GLIB2_LIBS)
+libextract_mp3_la_LIBADD = $(GLIB2_LIBS) $(GDK_PIXBUF_LIBS)
 
 # MPlayer
 libextract_mplayer_la_SOURCES = tracker-extract-mplayer.c
