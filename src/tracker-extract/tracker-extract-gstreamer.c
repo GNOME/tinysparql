@@ -59,8 +59,10 @@
 
 #include <glib.h>
 #include <gst/gst.h>
+#include <gst/tag/tag.h>
 
 #include "tracker-extract.h"
+#include "tracker-albumart.h"
 
 typedef enum {
 	EXTRACT_MIME_UNDEFINED=0,
@@ -89,6 +91,10 @@ typedef struct {
 	gint		video_fps_d;
 	gint		audio_channels;
 	gint		audio_samplerate;
+
+	unsigned char  *album_art_data;
+	guint           album_art_size;
+
 } MetadataExtractor;
 
 static void extract_gstreamer_audio (const gchar *uri, GHashTable *metadata);
@@ -514,8 +520,48 @@ get_media_duration (MetadataExtractor *extractor)
 }
 
 static void
+get_embedded_album_art(MetadataExtractor *extractor)
+{
+	const GValue *value;
+	guint         index;
+
+	index = 0;
+
+	do {
+		value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_IMAGE, index);
+
+		if (value) {
+			GstBuffer    *buffer;
+			GstCaps      *caps;
+			GstStructure *caps_struct;
+			gint          type;
+
+			buffer = gst_value_get_buffer (value);
+			caps   = gst_buffer_get_caps (buffer);
+			caps_struct = gst_caps_get_structure (buffer->caps, 0);
+
+			gst_structure_get_enum (caps_struct,
+						"image-type",
+						GST_TYPE_TAG_IMAGE_TYPE,
+						&type);
+			
+			if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER) {
+				extractor->album_art_data = buffer->data;
+				extractor->album_art_size = buffer->size;
+
+				return;
+			}
+
+			gst_object_unref (caps);
+
+			index++;
+		}
+	} while (value);
+}
+
+static void
 extract_metadata (MetadataExtractor *extractor,
-		  GHashTable	    *metadata)
+		  GHashTable  *metadata)
 {
 	g_return_if_fail (extractor);
 	g_return_if_fail (metadata);
@@ -615,6 +661,8 @@ extract_metadata (MetadataExtractor *extractor,
 			if (duration >= 0) {
 				add_int64_info (metadata, g_strdup ("Audio:Duration"), duration);
 			}
+
+			get_embedded_album_art (extractor);
 		}
 	}
 
@@ -773,6 +821,9 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	extractor->mime = type;
 
+	extractor->album_art_data = NULL;
+	extractor->album_art_size = 0;
+
 	extractor->playbin = gst_element_factory_make ("playbin", "playbin");
 
 	/* Add bus callback */
@@ -800,6 +851,14 @@ tracker_extract_gstreamer (const gchar *uri,
 	poll_for_state_change (extractor, GST_STATE_PAUSED);
 
 	extract_metadata (extractor, metadata);
+
+	/* Save embedded art */
+	if (extractor->album_art_data && extractor->album_art_size) {
+		tracker_save_albumart (extractor->album_art_data, extractor->album_art_size,
+				       g_hash_table_lookup (metadata, "Audio:Artist") ,
+				       g_hash_table_lookup (metadata, "Audio:Album"),
+				       uri);
+	}
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {

@@ -409,7 +409,7 @@ AC_ARG_ENABLE(video-extractor,
               [enable_video_extractor=auto])
 
 PKG_CHECK_MODULES(GSTREAMER,
-		  [gstreamer-0.10 >= 0.10.0],
+		  [gstreamer-0.10 >= 0.10.12 gstreamer-tag-0.10 >= 0.10.12],
 		  [have_libgstreamer=yes],
 		  [have_libgstreamer=no])
 

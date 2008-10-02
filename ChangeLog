@@ -1,3 +1,9 @@
+2008-10-03  Mikael Ottela   <mikael.ottela@ixonos.com>
+	* configure.ac:
+	* src/tracker-extract/Makefile.am:
+	* src/tracker-extract/tracker-extract-gstreamer.c: Added extraction
+	of embedded album art to gstreamer based extractor.
+
 2008-10-02  Mikael Ottela   <mikael.ottela@ixonos.com>
 	* configure.ac:
 	* src/tracker-extract/tracker-albumart.c:
