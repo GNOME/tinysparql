@@ -1,3 +1,8 @@
+2008-10-02  Martyn Russell  <martyn@imendio.com>
+
+	* POTFILES.in: Fixed make distcheck missing
+	src/tracker-utils/tracker-info.
+
 2008-10-01  Daniel Nylander <po@danielnylander.se>
 
 	* sv.po: Updated Swedish translation.
