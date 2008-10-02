@@ -897,11 +897,10 @@ libinotify_event_check_timeout_cb (gpointer data)
 							  &is_directory);
 
 		switch (event_type) {
-		case IN_MOVE_SELF:
 		case IN_MOVED_FROM:
 		case IN_DELETE:
 		case IN_DELETE_SELF:
-			/* So we new the source, but not the
+			/* So we knew the source, but not the
 			 * target location for the event.
 			 */
 			g_signal_emit (monitor,
@@ -1111,7 +1110,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       is_directory);
 			break;
 
-		case IN_MOVE_SELF:
 		case IN_MOVED_FROM:
 		case IN_DELETE:
 		case IN_DELETE_SELF:
@@ -1173,6 +1171,12 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       file,
 				       is_directory);
 			break;
+
+		case IN_MOVE_SELF:
+			/* We ignore this one because it is a
+			 * convenience state and we handle the
+			 * MOVE_TO and MOVE_FROM already. 
+			 */
 
 		case IN_Q_OVERFLOW:
 		case IN_OPEN:

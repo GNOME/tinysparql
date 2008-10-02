@@ -1,3 +1,17 @@
+2008-10-02  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/Makefile.am: Fix the linking order here.
+	
+	* src/trackerd/tracker-monitor.c:
+	(libinotify_event_check_timeout_cb),
+	(libinotify_monitor_event_cb): Don't use IN_MOVE_SELF for the
+	ITEM_DELETED event. This meant that when we get this convenience
+	event from inotify, we were signalling a delete event (which is
+	wrong since we support proper move events now) and delete file
+	changes are signalled to the indexer BEFORE all other events. So
+	the indexer would get DELETE followed by MOVE and not find the
+	source to MOVE in the database.
+
 2008-10-01  Carlos Garnacho  <carlos@imendio.com>
 
 	Handle properly multipart messages in Evolution's IMAP.

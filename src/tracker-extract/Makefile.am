@@ -100,8 +100,8 @@ libextract_png_la_LIBADD = $(GLIB2_LIBS) $(LIBPNG_LIBS) $(EXEMPI_LIBS)
 libextract_ps_la_SOURCES = tracker-extract-ps.c
 libextract_ps_la_LDFLAGS = $(module_flags)
 libextract_ps_la_LIBADD = 						\
-	$(GLIB2_LIBS) 							\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(GLIB2_LIBS)
 
 # Totem
 libextract_totem_la_SOURCES = tracker-extract-totem.c
@@ -159,6 +159,6 @@ tracker_extract_SOURCES = 						\
 
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(GLIB2_LIBS)							\
+	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
-	$(GMODULE_LIBS)
+	$(GLIB2_LIBS)
