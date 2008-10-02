@@ -1,5 +1,9 @@
 2008-10-02  Martyn Russell  <martyn@imendio.com>
 
+	* Makefile.am: Fixed make distcheck for the documentation addition.
+
+2008-10-02  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac: Added version information and new documentation
 	Makefiles. 
 	

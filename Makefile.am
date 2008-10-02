@@ -25,7 +25,8 @@ DISTCLEANFILES = 				\
 
 DISTCHECK_CONFIGURE_FLAGS =			\
 	--with-session-bus-services-dir="\$(datadir)"/dbus-1/services \
-	--disable-deskbar-applet
+	--disable-deskbar-applet		\
+	--enable-gtk-doc
 
 if OLD_EXEC_REMOVE_ALL
 install-exec-hook:
@@ -41,3 +42,4 @@ install-data-hook:
 	rm -Rf $(DESTDIR)$(datadir)/tracker/sqlite-service-stored-procs.sql
 	rm -Rf $(DESTDIR)$(datadir)/tracker/tracker-introspect.xml
 endif	
+
