@@ -29,4 +29,11 @@ man_MANS = 			\
 	$(ta)			\
 	$(tp)
 
-EXTRA_DIST = $(man_MANS)
+architecture_docs =		\
+	trackerd.dia		\
+	trackerd.png
+
+EXTRA_DIST = 			\
+	$(man_MANS)		\
+	$(architecture_docs)
+	

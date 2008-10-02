@@ -1,5 +1,11 @@
 2008-10-02  Martyn Russell  <martyn@imendio.com>
 
+	* docs/trackerd.dia:
+	* docs/trackerd.png: Added to illustrate the architectural design
+	of the daemon.
+
+2008-10-02  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/Makefile.am: Fix the linking order here.
 	
 	* src/trackerd/tracker-monitor.c:
