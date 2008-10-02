@@ -1,5 +1,26 @@
 2008-10-02  Martyn Russell  <martyn@imendio.com>
 
+	* configure.ac:
+	* docs/Makefile.am:
+	* docs/tracker-applet.1:
+	* docs/tracker-extract.1:
+	* docs/tracker-files.1:
+	* docs/tracker-meta-folder.1:
+	* docs/tracker-preferences.1:
+	* docs/tracker-query.1:
+	* docs/tracker-search-tool.1:
+	* docs/tracker-search.1:
+	* docs/tracker-services.7:
+	* docs/tracker-stats.1:
+	* docs/tracker-status.1:
+	* docs/tracker-tag.1:
+	* docs/tracker-thumbnailer.1:
+	* docs/tracker.cfg.5:
+	* docs/trackerd.1: Moved all manpages to docs/manpages and moved
+	all architecture docs to docs/design.
+
+2008-10-02  Martyn Russell  <martyn@imendio.com>
+
 	* docs/trackerd.dia:
 	* docs/trackerd.png: Added to illustrate the architectural design
 	of the daemon.

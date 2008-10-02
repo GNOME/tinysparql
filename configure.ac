@@ -1028,6 +1028,8 @@ AC_CONFIG_FILES([
 	data/tracker.pc
 	data/trackerd.desktop.in
 	docs/Makefile
+	docs/design/Makefile
+	docs/manpages/Makefile
 	filters/application/Makefile
 	filters/Makefile
 	filters/text/Makefile
