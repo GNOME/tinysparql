@@ -1,5 +1,27 @@
 2008-10-02  Martyn Russell  <martyn@imendio.com>
 
+	* configure.ac: Added version information and new documentation
+	Makefiles. 
+	
+	* docs/Makefile.am:
+	* docs/reference/COPYING:
+	* docs/reference/Makefile.am:
+	* docs/reference/README:
+	* docs/reference/libtracker-common/libtracker-common-docs.sgml:
+	* docs/reference/libtracker-common/libtracker-common-sections.txt:
+	Added for initial libtracker-common documentation.
+
+	* src/libtracker-common/tracker-config.[ch]: Removed unused
+	function declaration.
+	
+	* src/tracker-applet/tracker-applet.c: 
+	* src/tracker-indexer/tracker-main.c:
+	* src/tracker-search-tool/tracker-search-tool.c:
+	* src/trackerd/tracker-daemon.c: 
+	* src/trackerd/tracker-main.c: Fixed VERSION to be PACKAGE_VERSION.
+
+2008-10-02  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac:
 	* docs/Makefile.am:
 	* docs/tracker-applet.1:

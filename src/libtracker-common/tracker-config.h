@@ -47,8 +47,6 @@ struct _TrackerConfigClass {
 
 GType	       tracker_config_get_type				   (void) G_GNUC_CONST;
 
-void	       tracker_config_load_file				   (void);
-
 TrackerConfig *tracker_config_new				   (void);
 gint	       tracker_config_get_verbosity			   (TrackerConfig *config);
 gint	       tracker_config_get_initial_sleep			   (TrackerConfig *config);

@@ -1,4 +1,4 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = manpages design
+SUBDIRS = manpages design reference
 	

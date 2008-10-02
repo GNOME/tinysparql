@@ -3,10 +3,59 @@
 # This file is part of Tracker.
 
 AC_PREREQ(2.59)
-AC_INIT([tracker],[0.6.6],[tracker-list@gnome.org])
+
+# Making releases:
+#   TRACKER_MICRO_VERSION += 1;
+#   TRACKER_INTERFACE_AGE += 1;
+#   TRACKER_BINARY_AGE += 1;
+# if any functions have been added, set TRACKER_INTERFACE_AGE to 0.
+# if backwards compatibility has been broken,
+# set TRACKER_BINARY_AGE and TRACKER_INTERFACE_AGE to 0.
+m4_define([tracker_major_version], [0])
+m4_define([tracker_minor_version], [6])
+m4_define([tracker_micro_version], [6])
+m4_define([tracker_interface_age], [0])
+m4_define([tracker_binary_age],
+          [m4_eval(100 * tracker_minor_version + tracker_micro_version)])
+m4_define([tracker_version],
+          [tracker_major_version.tracker_minor_version.tracker_micro_version])
+# This is the X.Y used in -llibtracker-FOO-X.Y
+m4_define([tracker_api_version], [0.6])
+
+# Define a string for the earliest version that this release has
+# backwards binary compatibility with for all interfaces a module
+# might. Unless we add module-only API with lower stability
+# guarantees, this should be unchanged until we break binary compat
+# for Tracker.
+#
+# TRACKER_BINARY_VERSION=$TRACKER_MAJOR_VERSION.$TRACKER_MINOR_VERSION.$LT_CURRENT
+m4_define([tracker_binary_version], [0.6.0])
+
+AC_INIT([tracker], [tracker_version],
+        [http://bugzilla.gnome.org/enter_bug.cgi?product=tracker],
+	[tracker])
 
 AC_CONFIG_SRCDIR([src/trackerd/tracker-main.c])
-AM_INIT_AUTOMAKE([dist-bzip2])
+
+AM_INIT_AUTOMAKE(no-define)
+AM_CONFIG_HEADER(config.h)
+
+TRACKER_MAJOR_VERSION=tracker_major_version
+TRACKER_MINOR_VERSION=tracker_minor_version
+TRACKER_MICRO_VERSION=tracker_micro_version
+TRACKER_INTERFACE_AGE=tracker_interface_age
+TRACKER_BINARY_AGE=tracker_binary_age
+TRACKER_VERSION=tracker_version
+TRACKER_API_VERSION=tracker_api_version
+TRACKER_BINARY_VERSION=tracker_binary_version
+AC_SUBST(TRACKER_MAJOR_VERSION)
+AC_SUBST(TRACKER_MINOR_VERSION)
+AC_SUBST(TRACKER_MICRO_VERSION)
+AC_SUBST(TRACKER_INTERFACE_AGE)
+AC_SUBST(TRACKER_BINARY_AGE)
+AC_SUBST(TRACKER_API_VERSION)
+AC_SUBST(TRACKER_VERSION)
+AC_SUBST(TRACKER_BINARY_VERSION)
 
 AC_SUBST(PACKAGE_URL, [http://www.tracker-project.org])
 
@@ -926,6 +975,15 @@ if test "$have_imagemagick" = "yes" ; then
    AC_DEFINE(HAVE_IMAGEMAGICK, 1, [Define if we have imagemagick])
 fi
 
+##################################################
+# Checks for gtk-doc and docbook-tools
+##################################################
+
+GTK_DOC_CHECK([1.8])
+
+AC_CHECK_PROG(DB2HTML, db2html, true, false)
+AM_CONDITIONAL(HAVE_DOCBOOK, $DB2HTML)
+
 ##################################################################
 # Check for Hildon-thumbnail
 ##################################################################
@@ -1030,6 +1088,9 @@ AC_CONFIG_FILES([
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
+	docs/reference/Makefile
+	docs/reference/libtracker-common/Makefile
+	docs/reference/libtracker-common/version.xml
 	filters/application/Makefile
 	filters/Makefile
 	filters/text/Makefile
@@ -1075,8 +1136,6 @@ AC_CONFIG_FILES([
 	utils/Makefile
 	utils/qdbm/Makefile
 ])
-
-AC_CONFIG_HEADERS([config.h])
 
 AC_OUTPUT
 

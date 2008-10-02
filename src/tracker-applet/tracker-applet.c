@@ -1369,7 +1369,7 @@ about_menu_activated (GtkMenuItem * item, gpointer data)
 	gtk_about_dialog_set_email_hook (about_email_hook, NULL, NULL);
 
 	gtk_show_about_dialog (NULL,
-			       "version", VERSION,
+			       "version", PACKAGE_VERSION,
 			       "comments",
 			       _
 			       ("Tracker is a tool designed to extract info and metadata about your personal data so that it can be searched easily and quickly"),

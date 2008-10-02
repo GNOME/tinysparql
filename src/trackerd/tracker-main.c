@@ -68,7 +68,7 @@
 #endif
 
 #define ABOUT								  \
-	"Tracker " VERSION "\n"						  \
+	"Tracker " PACKAGE_VERSION "\n"					  \
 	"Copyright (c) 2005-2008 Jamie McCracken (jamiemcc@gnome.org)\n"
 
 #define LICENSE								  \

@@ -2208,7 +2208,7 @@ main (gint argc,
 	textdomain (GETTEXT_PACKAGE);
 
 	program = gnome_program_init ("tracker-search-tool",
-				      VERSION,
+				      PACKAGE_VERSION,
 				      LIBGNOMEUI_MODULE,
 				      argc, argv,
 				      GNOME_PARAM_APP_DATADIR, TRACKER_DATADIR,

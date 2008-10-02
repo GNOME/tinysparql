@@ -1298,6 +1298,14 @@ config_int_validate (TrackerConfig *config,
 	return TRUE;
 }
 
+/**
+ * tracker_config_new:
+ *
+ * Creates a new GObject for handling Tracker's config file.
+ *
+ * Return value: A new TrackerConfig object. Must be unreferenced when
+ * finished with.
+ */
 TrackerConfig *
 tracker_config_new (void)
 {
@@ -1309,6 +1317,24 @@ tracker_config_new (void)
 	return config;
 }
 
+/**
+ * tracker_config_get_verbosity:
+ * @config: a #TrackerConfig
+ *
+ * Gets the verbosity of the logging in the indexer and the daemon.
+ *
+ * If the verbosity is 0, there is no logging except for warnings and
+ * errors.
+ * If the verbosity is 1, information is displayed.
+ * If the verbosity is 2, general messages are displayed.
+ * If the verbosity is 3, debug messages are displayed.
+ *
+ * Note, you receive logging for anything less priority than the
+ * verbosity level as well as the level you set. So if the verbosity
+ * is 3 you receive debug, messages, info and warnings.
+ *
+ * Return value: An integer value from 0 to 3.
+ */
 gint
 tracker_config_get_verbosity (TrackerConfig *config)
 {

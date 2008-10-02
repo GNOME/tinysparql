@@ -379,7 +379,7 @@ tracker_daemon_get_version (TrackerDaemon	   *object,
 				  "DBus request to get daemon version");
 
 
-	sscanf (VERSION, "%d.%d.%d", &major, &minor, &revision);
+	sscanf (PACKAGE_VERSION, "%d.%d.%d", &major, &minor, &revision);
 	str = g_strdup_printf ("%d%d%d", major, minor, revision);
 	version = atoi (str);
 	g_free (str);
