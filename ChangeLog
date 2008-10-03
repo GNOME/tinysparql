@@ -1,3 +1,6 @@
+2008-10-03  Mikael Ottela    <mikael.ottela@ixonos.com>
+	* src/tracker-extract/Makefile.am: Fixed building with GdkPixbuf.
+
 2008-10-03  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-common/tracker-hal.c:
