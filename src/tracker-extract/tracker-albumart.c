@@ -1,5 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
-/* Tracker AlbumArt - Album art helper functions
+/*
  * Copyright (C) 2008, Nokia
  *
  * This program is free software; you can redistribute it and/or
@@ -18,20 +18,23 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <glib.h>
 #include <glib/gprintf.h>
+
 #include <gio/gio.h>
+
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include "config.h"
 #include "tracker-albumart.h"
 
 gboolean
 tracker_save_albumart (const unsigned char *buffer,
-		       size_t len,
-		       const gchar *artist, 
-		       const gchar *album,
-		       const gchar *uri)
+		       size_t               len,
+		       const gchar         *artist, 
+		       const gchar         *album,
+		       const gchar         *uri)
 {
 	GdkPixbufLoader *loader;
 	GdkPixbuf       *pixbuf = NULL;
@@ -41,7 +44,7 @@ tracker_save_albumart (const unsigned char *buffer,
 	gchar           *checksum;
 	GError          *error = NULL;
 
-	g_type_init();
+	g_type_init ();
 
 	if (artist && album) {
 		g_sprintf (name, "%s %s", album, artist);
@@ -60,28 +63,26 @@ tracker_save_albumart (const unsigned char *buffer,
 				".album_art",
 				NULL);
 
-	filename = g_build_filename (dir,
-				     name,
-				     NULL);
+	filename = g_build_filename (dir, name, NULL);
 
-	if(g_file_test (filename, G_FILE_TEST_EXISTS)) {
+	if (g_file_test (filename, G_FILE_TEST_EXISTS)) {
 		g_free (filename);
 		g_free (dir);
 
 		return TRUE;
 	}
 
-	if(!g_file_test (dir, G_FILE_TEST_EXISTS)) {
+	if (!g_file_test (dir, G_FILE_TEST_EXISTS)) {
 		g_mkdir_with_parents (dir, 0770);
 	}
 
 	g_free (dir);
 
-	loader = gdk_pixbuf_loader_new();
+	loader = gdk_pixbuf_loader_new ();
 
 	if (!gdk_pixbuf_loader_write (loader, buffer, len, &error)) {
-		g_warning("%s\n", error->message);
-		g_error_free(error);
+		g_warning ("%s\n", error->message);
+		g_error_free (error);
 
 		gdk_pixbuf_loader_close (loader, NULL);
 		g_free (filename);
@@ -91,22 +92,22 @@ tracker_save_albumart (const unsigned char *buffer,
 	pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
 
 	if (!gdk_pixbuf_save (pixbuf, filename, "jpeg", &error, NULL)) {
-		g_warning("%s\n", error->message);
-		g_error_free(error);
+		g_warning ("%s\n", error->message);
+		g_error_free (error);
 
 		g_free (filename);
-		g_object_unref(pixbuf);
+		g_object_unref (pixbuf);
 
 		gdk_pixbuf_loader_close (loader, NULL);
 		return FALSE;
 	}
 
 	g_free (filename);
-	g_object_unref(pixbuf);
+	g_object_unref (pixbuf);
 
 	if (!gdk_pixbuf_loader_close (loader, &error)) {
-		g_warning("%s\n", error->message);
-		g_error_free(error);
+		g_warning ("%s\n", error->message);
+		g_error_free (error);
 		return FALSE;
 	}
 

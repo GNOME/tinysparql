@@ -38,10 +38,13 @@
 
 #ifndef G_OS_WIN32
 #include <sys/mman.h>
-#endif
+#endif /* G_OS_WIN32 */
 
 #include "tracker-extract.h"
+
+#ifdef HAVE_GDKPIXBUF
 #include "tracker-albumart.h"
+#endif /* HAVE_GDKPIXBUF */
 
 #define MAX_FILE_READ	  1024 * 1024 * 10
 #define MAX_MP3_SCAN_DEEP 16768
@@ -1152,12 +1155,14 @@ extract_mp3 (const gchar *filename,
 	mp3_parse (buffer, size, metadata);
 
 	/* Save embedded album art */
+#ifdef HAVE_GDKPIXBUF
 	if (albumart.data && albumart.size) {
 		tracker_save_albumart (albumart.data, albumart.size,
 				       g_hash_table_lookup (metadata, "Audio:Artist") ,
 				       g_hash_table_lookup (metadata, "Audio:Album"),
 				       filename);
 	}
+#endif /* HAVE_GDKPIXBUF */
 	
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {

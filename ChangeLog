@@ -1,5 +1,15 @@
 2008-10-03  Martyn Russell  <martyn@imendio.com>
 
+	* configure.ac:
+	* src/tracker-extract/Makefile.am:
+	* src/tracker-extract/tracker-albumart.[ch]: 
+	* src/tracker-extract/tracker-extract-mp3.c: Don't require
+	GdkPixbuf for MP3 album art extraction. Instead make it optionally
+	disabled for the Maemo platform while we wait for the latest
+	GdkPixbuf to be available.
+
+2008-10-03  Martyn Russell  <martyn@imendio.com>
+
 	* docs/reference/libtracker-common/libtracker-common-sections.txt:
 	Change the order of the functions so all the
 	new/free/init/shutdown functions are at the top.

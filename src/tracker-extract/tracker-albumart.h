@@ -17,15 +17,19 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef _TRACKER_ALBUMART_H_
-#define _TRACKER_ALBUMART_H_
+#ifndef __TRACKER_ALBUMART_H__
+#define __TRACKER_ALBUMART_H__
 
 #include <glib.h>
 
-gboolean tracker_save_albumart (const unsigned char *buffer, 
-				size_t len, 
-				const char *artist, 
-				const char *album,
-				const gchar *uri);
+G_BEGIN_DECLS
 
-#endif /* _TRACKER_ALBUMART_H_ */
+gboolean tracker_save_albumart (const unsigned char *buffer,
+                                size_t               len,
+                                const gchar         *artist,
+                                const gchar         *album,
+                                const gchar         *uri);
+
+G_END_DECLS
+
+#endif /* __TRACKER_ALBUMART_H__ */

@@ -90,22 +90,23 @@ DBUS_REQUIRED=0.60
 GLIB_REQUIRED=2.16.0
 PANGO_REQUIRED=1.0.0
 GMIME_REQUIRED=2.1.0
+GDKPIXBUF_REQUIRED=2.12.0
 
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
-# Check for gthread 2.0
+# Check for GThread 2.0
 PKG_CHECK_MODULES(GTHREAD, [ gthread-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GTHREAD_CFLAGS)
 AC_SUBST(GTHREAD_LIBS)
 
-# Check for gobject 2.0
+# Check for GObject 2.0
 PKG_CHECK_MODULES(GOBJECT, [gobject-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GOBJECT_CFLAGS)
 AC_SUBST(GOBJECT_LIBS)
 
-# Check for gmodule 2.0
+# Check for GModule 2.0
 PKG_CHECK_MODULES(GMODULE, [gmodule-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GMODULE_CFLAGS)
 AC_SUBST(GMODULE_LIBS)
@@ -114,7 +115,7 @@ PKG_CHECK_MODULES(GIO, [gio-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GIO_CFLAGS)
 AC_SUBST(GIO_LIBS)
 
-# Check for pango
+# Check for Pango
 PKG_CHECK_MODULES(PANGO, [pango >= $PANGO_REQUIRED])
 AC_SUBST(PANGO_CFLAGS)
 AC_SUBST(PANGO_LIBS)
@@ -123,12 +124,6 @@ AC_SUBST(PANGO_LIBS)
 PKG_CHECK_MODULES(GMIME, [gmime-2.0 >= $GMIME_REQUIRED])
 AC_SUBST(GMIME_CFLAGS)
 AC_SUBST(GMIME_LIBS)
-
-# Check GdkPixbuf
-GDK_PIXBUF_CHECK="gdk-pixbuf-2.0 >= 2.12.0"
-PKG_CHECK_MODULES(GDK_PIXBUF, $GDK_PIXBUF_CHECK)
-AC_SUBST(GDK_PIXBUF_LIBS)
-AC_SUBST(GDK_PIXBUF_CFLAGS)
 
 # Check for Dbus 0.50 or higher
 PKG_CHECK_MODULES(DBUS, [dbus-1 >= $DBUS_REQUIRED dbus-glib-1 >= $DBUS_REQUIRED])
@@ -398,8 +393,37 @@ fi
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
 
+##################################################################
+# Check for GdkPixbuf, needed for the MP3 album art extractor
+##################################################################
+
+# Check GdkPixbuf
+
+AC_ARG_ENABLE(gdkpixbuf, 
+	      AS_HELP_STRING([--disable-gdkpixbuf],
+			     [Disable GdkPixbuf support, required for MP3 album art extraction]),,
+	      [enable_gdkpixbuf=yes])
+
+if test "x$enable_gdkpixbuf" = "xyes"; then
+   PKG_CHECK_MODULES(GDKPIXBUF,
+		     [gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED],
+		     [have_gdkpixbuf=yes],
+		     [have_gdkpixbuf=no])
+   AC_SUBST(GDKPIXBUF_LIBS)
+   AC_SUBST(GDKPIXBUF_CFLAGS)
+else
+   have_gdkpixbuf="no (disabled)"
+fi
+
+if test "x$have_gdkpixbuf" = "xyes"; then
+   AC_DEFINE(HAVE_GDKPIXBUF, [], [Define if we have GdkPixbuf])
+fi
+
+AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
+
+
 ####################################################################
-# check for GStreamer or Xine. Otherwise, call an external video
+# Check for GStreamer or Xine. Otherwise, call an external video
 # player (Totem or MPlayer).
 ####################################################################
 
@@ -426,40 +450,40 @@ AC_SUBST(XINE_LIBS)
 
 if test "x$enable_video_extractor" = "xauto"; then
    if test "$have_libgstreamer" = "yes"; then
-      videos_handler="GStreamer"
-      videos_are_handled="yes"
+      have_video_handler_app="GStreamer"
+      have_video_handler="yes"
    elif test "$have_libxine" = "yes"; then
-      videos_handler="Xine"
-      videos_are_handled="yes"
+      have_video_handler_app="Xine"
+      have_video_handler="yes"
    else
-      videos_are_handled="?"
-      videos_handler="An external video player will be called"
+      have_video_handler="?"
+      have_video_handler_app="An external video player will be called"
    fi
 elif test "x$enable_video_extractor" = "xgstreamer"; then
    if test "$have_libgstreamer" = "yes"; then
-      videos_handler="GStreamer"
-      videos_are_handled="yes"
+      have_video_handler_app="GStreamer"
+      have_video_handler="yes"
    else
       AC_MSG_ERROR([***Gstreamer requested but not found - exiting!])
    fi
 elif test "x$enable_video_extractor" = "xxine"; then
    if test "$have_libxine" = "yes"; then
-      videos_handler="Xine"
-      videos_are_handled="yes"
+      have_video_handler_app="Xine"
+      have_video_handler="yes"
    else
       AC_MSG_ERROR([***libxine requested but not found - exiting!])
    fi
 else
-   videos_are_handled="?"
-   videos_handler="An external video player will be called"
+   have_video_handler="?"
+   have_video_handler_app="An external video player will be called"
 fi
 
-if test "$videos_handler" = "GStreamer"; then
+if test "$have_video_handler_app" = "GStreamer"; then
    AC_DEFINE(HAVE_GSTREAMER, [], [Define if we have GStreamer])
    AM_CONDITIONAL(HAVE_GSTREAMER, true)
    AM_CONDITIONAL(HAVE_LIBXINE, false)
    AM_CONDITIONAL(USING_EXTERNAL_VIDEO_PLAYER, false)
-elif test "$videos_handler" = "Xine"; then
+elif test "$have_video_handler_app" = "Xine"; then
    AC_DEFINE(HAVE_LIBXINE, [], [Define if we have Libxine])
    AM_CONDITIONAL(HAVE_LIBXINE, true)
    AM_CONDITIONAL(HAVE_GSTREAMER, false)
@@ -1178,14 +1202,15 @@ Applications:
 
 Metadata Extractors:
 
-	Support png:				yes
-	Support pdf:				$have_poppler
-	Support jpeg:				$have_libjpeg (xmp: $have_exempi exif: $have_libexif)
-	Support tiff:				$have_libtiff (xmp: $have_exempi exif: yes)
-	Support ms & openoffice (gsf):	        $have_libgsf
-	Support xml / html formats:		$have_libxml2
-	Support embedded / sidecar xmp:		$have_exempi
-	Support video files:			$videos_are_handled ($videos_handler)
+	Support PNG:				yes
+	Support PDF:				$have_poppler
+	Support JPEG:				$have_libjpeg (xmp: $have_exempi exif: $have_libexif)
+	Support TIFF:				$have_libtiff (xmp: $have_exempi exif: yes)
+	Support MS & Open Office (gsf):	        $have_libgsf
+	Support XML / HTML formats:		$have_libxml2
+	Support embedded / sidecar XMP:		$have_exempi
+	Support video formats:			$have_video_handler ($have_video_handler_app)
+	Support MP3 album art (w/ GdkPixbuf):	$have_gdkpixbuf
 
 Thumbnailers:
 

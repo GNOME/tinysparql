@@ -62,15 +62,20 @@ if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
 endif
 
+
 # Common XMP Sources
 xmp_sources = 								\
 	tracker-xmp.c							\
 	tracker-xmp.h
 
 # Common AlbumArt sources
-albumart_sources =							\
+albumart_sources =
+
+if HAVE_GDKPIXBUF
+albumart_sources +=							\
 	tracker-albumart.c						\
 	tracker-albumart.h
+endif
 
 # ABW
 libextract_abw_la_SOURCES = tracker-extract-abw.c
