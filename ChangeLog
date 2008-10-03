@@ -1,3 +1,13 @@
+2008-10-03  Martyn Russell  <martyn@imendio.com>
+
+	* docs/reference/libtracker-common/libtracker-common-sections.txt:
+	Change the order of the functions so all the
+	new/free/init/shutdown functions are at the top.
+
+	* src/libtracker-common/tracker-hal.h: Don't define the TrackerHal
+	object differently depending on if we HAVE_HAL. This was causing
+	an error in the documentation building.
+
 2008-10-03  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/modules/evolution.c (extract_message_text): Just

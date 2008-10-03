@@ -2,6 +2,9 @@
 <SECTION>
 <FILE>tracker-config</FILE>
 <TITLE>Config</TITLE>
+TrackerConfig
+tracker_config_new
+tracker_config_get_type
 tracker_config_add_crawl_directory_roots
 tracker_config_add_disabled_modules
 tracker_config_add_no_watch_directory_roots
@@ -33,10 +36,8 @@ tracker_config_get_nfs_locking
 tracker_config_get_no_index_file_types
 tracker_config_get_no_watch_directory_roots
 tracker_config_get_throttle
-tracker_config_get_type
 tracker_config_get_verbosity
 tracker_config_get_watch_directory_roots
-tracker_config_new
 tracker_config_remove_disabled_modules
 tracker_config_set_disable_indexing_on_battery
 tracker_config_set_disable_indexing_on_battery_init
@@ -71,13 +72,6 @@ tracker_config_set_verbosity
 tracker_date_format
 tracker_date_to_string
 tracker_date_to_time_string
-</SECTION>
-
-<INCLUDE>libtracker-common/tracker-service.h</INCLUDE>
-<SECTION>
-<FILE>tracker-service</FILE>
-<TITLE>Services</TITLE>
-tracker_db_type_get_type
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-dbus.h</INCLUDE>
@@ -140,6 +134,9 @@ tracker_throttle
 <SECTION>
 <FILE>tracker-field</FILE>
 <TITLE>Fields</TITLE>
+TrackerField
+tracker_field_new
+tracker_field_get_type
 tracker_field_append_child_id
 tracker_field_get_child_ids
 tracker_field_get_data_type
@@ -151,9 +148,7 @@ tracker_field_get_id
 tracker_field_get_multiple_values
 tracker_field_get_name
 tracker_field_get_store_metadata
-tracker_field_get_type
 tracker_field_get_weight
-tracker_field_new
 tracker_field_set_child_ids
 tracker_field_set_data_type
 tracker_field_set_delimited
@@ -173,6 +168,8 @@ tracker_field_type_to_string
 <SECTION>
 <FILE>tracker-field-data</FILE>
 <TITLE>Field Data</TITLE>
+tracker_field_data_new
+tracker_field_data_get_type
 tracker_field_data_get_alias
 tracker_field_data_get_data_type
 tracker_field_data_get_field_name
@@ -183,9 +180,7 @@ tracker_field_data_get_multiple_values
 tracker_field_data_get_needs_join
 tracker_field_data_get_select_field
 tracker_field_data_get_table_name
-tracker_field_data_get_type
 tracker_field_data_get_where_field
-tracker_field_data_new
 tracker_field_data_set_alias
 tracker_field_data_set_data_type
 tracker_field_data_set_field_name
@@ -223,12 +218,13 @@ tracker_string_to_uint
 <SECTION>
 <FILE>tracker-hal</FILE>
 <TITLE>HAL</TITLE>
+TrackerHal
+tracker_hal_new
+tracker_hal_get_type
 tracker_hal_get_battery_exists
 tracker_hal_get_battery_in_use
 tracker_hal_get_mounted_directory_roots
 tracker_hal_get_removable_device_roots
-tracker_hal_get_type
-tracker_hal_new
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-ioprio.h</INCLUDE>
@@ -242,12 +238,13 @@ tracker_ioprio_init
 <SECTION>
 <FILE>tracker-language</FILE>
 <TITLE>Language</TITLE>
+TrackerLanguage
+tracker_language_new
+tracker_language_get_type
 tracker_language_check_exists
 tracker_language_get_config
 tracker_language_get_default_code
 tracker_language_get_stop_words
-tracker_language_get_type
-tracker_language_new
 tracker_language_set_config
 tracker_language_stem_word
 </SECTION>
@@ -264,6 +261,8 @@ tracker_log_shutdown
 <SECTION>
 <FILE>tracker-module-config</FILE>
 <TITLE>Module Config</TITLE>
+tracker_module_config_init
+tracker_module_config_shutdown
 tracker_module_config_get_description
 tracker_module_config_get_enabled
 tracker_module_config_get_ignored_directories
@@ -277,8 +276,6 @@ tracker_module_config_get_index_service
 tracker_module_config_get_modules
 tracker_module_config_get_monitor_directories
 tracker_module_config_get_monitor_recurse_directories
-tracker_module_config_init
-tracker_module_config_shutdown
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-nfs-lock.h</INCLUDE>
@@ -295,10 +292,8 @@ tracker_nfs_lock_shutdown
 <SECTION>
 <FILE>tracker-ontology</FILE>
 <TITLE>Ontology</TITLE>
-tracker_ontology_field_add
-tracker_ontology_field_get_display_name
-tracker_ontology_field_get_id
-tracker_ontology_field_is_child_of
+tracker_ontology_init
+tracker_ontology_shutdown
 tracker_ontology_get_field_by_id
 tracker_ontology_get_field_by_name
 tracker_ontology_get_field_name_by_service_name
@@ -312,7 +307,6 @@ tracker_ontology_get_service_names_registered
 tracker_ontology_get_service_parent
 tracker_ontology_get_service_parent_by_id
 tracker_ontology_get_service_parent_id_by_id
-tracker_ontology_init
 tracker_ontology_service_add
 tracker_ontology_service_get_key_metadata
 tracker_ontology_service_get_show_directories
@@ -322,16 +316,20 @@ tracker_ontology_service_has_metadata
 tracker_ontology_service_has_text
 tracker_ontology_service_has_thumbnails
 tracker_ontology_service_is_valid
-tracker_ontology_shutdown
+tracker_ontology_field_add
+tracker_ontology_field_get_display_name
+tracker_ontology_field_get_id
+tracker_ontology_field_is_child_of
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-parser.h</INCLUDE>
 <SECTION>
 <FILE>tracker-parser</FILE>
 <TITLE>Parser</TITLE>
+TrackerParser
+tracker_parser_new
 tracker_parser_free
 tracker_parser_is_stop_word
-tracker_parser_new
 tracker_parser_next
 tracker_parser_process_word
 tracker_parser_reset
@@ -345,6 +343,10 @@ tracker_parser_text_to_string
 <SECTION>
 <FILE>tracker-service</FILE>
 <TITLE>Service</TITLE>
+TrackerService
+tracker_service_new
+tracker_service_get_type
+tracker_db_type_get_type
 tracker_service_get_content_metadata
 tracker_service_get_db_type
 tracker_service_get_embedded
@@ -359,8 +361,6 @@ tracker_service_get_parent
 tracker_service_get_property_prefix
 tracker_service_get_show_service_directories
 tracker_service_get_show_service_files
-tracker_service_get_type
-tracker_service_new
 tracker_service_set_content_metadata
 tracker_service_set_db_type
 tracker_service_set_embedded
