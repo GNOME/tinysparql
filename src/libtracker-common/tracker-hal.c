@@ -129,8 +129,8 @@ tracker_hal_class_init (TrackerHalClass *klass)
 	g_object_class_install_property (object_class,
 					 PROP_BATTERY_IN_USE,
 					 g_param_spec_boolean ("battery-in-use",
-							       "Battery exists",
-							       "There is a battery on this machine",
+							       "Battery in use",
+							       "Whether the battery is being used",
 							       FALSE,
 							       G_PARAM_READABLE));
 
@@ -819,12 +819,27 @@ hal_device_property_modified_cb (LibHalContext *context,
 	}
 }
 
+/**
+ * tracker_hal_new:
+ *
+ * Creates a new instance of #TrackerHal.
+ *
+ * Returns: The newly created #TrackerHal.
+ **/
 TrackerHal *
-tracker_hal_new (void)
+tracker_hal_new ()
 {
 	return g_object_new (TRACKER_TYPE_HAL, NULL);
 }
 
+/**
+ * tracker_hal_get_battery_in_use:
+ * @hal: A #TrackerHal.
+ *
+ * Returns whether the computer battery (if any) is currently in use.
+ *
+ * Returns: #TRUE if the computer is running on battery power.
+ **/
 gboolean
 tracker_hal_get_battery_in_use (TrackerHal *hal)
 {
@@ -837,6 +852,14 @@ tracker_hal_get_battery_in_use (TrackerHal *hal)
 	return priv->battery_in_use;
 }
 
+/**
+ * tracker_hal_get_battery_exists:
+ * @hal: A #TrackerHal
+ *
+ * Returns whether the computer has batteries.
+ *
+ * Returns: #TRUE if the computer has batteries available.
+ **/
 gboolean
 tracker_hal_get_battery_exists (TrackerHal *hal)
 {
@@ -881,6 +904,15 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
 	libhal_volume_free (volume);
 }
 
+/**
+ * tracker_hal_get_mounted_directory_roots:
+ * @hal: A #TrackerHal
+ *
+ * Returns a #GSlist of strings containing the root directories for mounted devices.
+ * Each element must be freed using g_free() and the list itself using g_slist_free().
+ *
+ * Returns: The list of root directories.
+ **/
 GSList *
 tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
 {
@@ -901,6 +933,15 @@ tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
 	return gr.roots;
 }
 
+/**
+ * tracker_hal_get_removable_device_roots:
+ * @hal: A #TrackerHal
+ *
+ * Returns a #GSList of strings containing the root directories for removable devices.
+ * Each element must be freed using g_free() and the list itself through g_slist_free().
+ *
+ * Returns: The list of root directories.
+ **/
 GSList *
 tracker_hal_get_removable_device_roots (TrackerHal *hal)
 {

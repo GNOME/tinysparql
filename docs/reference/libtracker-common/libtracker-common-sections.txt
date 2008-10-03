@@ -4,7 +4,6 @@
 <TITLE>Config</TITLE>
 TrackerConfig
 tracker_config_new
-tracker_config_get_type
 tracker_config_add_crawl_directory_roots
 tracker_config_add_disabled_modules
 tracker_config_add_no_watch_directory_roots
@@ -63,6 +62,15 @@ tracker_config_set_min_word_length
 tracker_config_set_nfs_locking
 tracker_config_set_throttle
 tracker_config_set_verbosity
+<SUBSECTION Standard>
+TrackerConfigClass
+TRACKER_CONFIG
+TRACKER_IS_CONFIG
+TRACKER_TYPE_CONFIG
+tracker_config_get_type
+TRACKER_CONFIG_CLASS
+TRACKER_IS_CONFIG_CLASS
+TRACKER_CONFIG_GET_CLASS
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-type-utils.h</INCLUDE>
@@ -136,7 +144,6 @@ tracker_throttle
 <TITLE>Fields</TITLE>
 TrackerField
 tracker_field_new
-tracker_field_get_type
 tracker_field_append_child_id
 tracker_field_get_child_ids
 tracker_field_get_data_type
@@ -160,16 +167,25 @@ tracker_field_set_multiple_values
 tracker_field_set_name
 tracker_field_set_store_metadata
 tracker_field_set_weight
-tracker_field_type_get_type
 tracker_field_type_to_string
-<SECTION>
+<SUBSECTION Standard>
+TRACKER_FIELD
+TRACKER_IS_FIELD
+TRACKER_TYPE_FIELD
+tracker_field_get_type
+TRACKER_FIELD_CLASS
+TRACKER_IS_FIELD_CLASS
+TRACKER_FIELD_GET_CLASS
+TRACKER_TYPE_FIELD_TYPE
+tracker_field_type_get_type
+</SECTION>
 
 <INCLUDE>libtracker-common/tracker-field-data.h</INCLUDE>
 <SECTION>
 <FILE>tracker-field-data</FILE>
 <TITLE>Field Data</TITLE>
+TrackerFieldData
 tracker_field_data_new
-tracker_field_data_get_type
 tracker_field_data_get_alias
 tracker_field_data_get_data_type
 tracker_field_data_get_field_name
@@ -192,7 +208,15 @@ tracker_field_data_set_needs_join
 tracker_field_data_set_select_field
 tracker_field_data_set_table_name
 tracker_field_data_set_where_field
-<SECTION>
+<SUBSECTION Standard>
+TRACKER_FIELD_DATA
+TRACKER_IS_FIELD_DATA
+TRACKER_TYPE_FIELD_DATA
+tracker_field_data_get_type
+TRACKER_FIELD_DATA_CLASS
+TRACKER_IS_FIELD_DATA_CLASS
+TRACKER_FIELD_DATA_GET_CLASS
+</SECTION>
 
 <INCLUDE>libtracker-common/tracker-type-utils.h</INCLUDE>
 <SECTION>
@@ -220,11 +244,19 @@ tracker_string_to_uint
 <TITLE>HAL</TITLE>
 TrackerHal
 tracker_hal_new
-tracker_hal_get_type
 tracker_hal_get_battery_exists
 tracker_hal_get_battery_in_use
 tracker_hal_get_mounted_directory_roots
 tracker_hal_get_removable_device_roots
+<SUBSECTION Standard>
+TrackerHalClass
+TRACKER_HAL
+TRACKER_IS_HAL
+TRACKER_TYPE_HAL
+tracker_hal_get_type
+TRACKER_HAL_CLASS
+TRACKER_IS_HAL_CLASS
+TRACKER_HAL_GET_CLASS
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-ioprio.h</INCLUDE>
@@ -240,13 +272,20 @@ tracker_ioprio_init
 <TITLE>Language</TITLE>
 TrackerLanguage
 tracker_language_new
-tracker_language_get_type
 tracker_language_check_exists
 tracker_language_get_config
 tracker_language_get_default_code
 tracker_language_get_stop_words
 tracker_language_set_config
 tracker_language_stem_word
+<SUBSECTION Standard>
+TRACKER_LANGUAGE
+TRACKER_IS_LANGUAGE
+TRACKER_TYPE_LANGUAGE
+tracker_language_get_type
+TRACKER_LANGUAGE_CLASS
+TRACKER_IS_LANGUAGE_CLASS
+TRACKER_LANGUAGE_GET_CLASS
 </SECTION>
 
 <INCLUDE>libtracker-common/tracker-log.h</INCLUDE>
@@ -345,8 +384,6 @@ tracker_parser_text_to_string
 <TITLE>Service</TITLE>
 TrackerService
 tracker_service_new
-tracker_service_get_type
-tracker_db_type_get_type
 tracker_service_get_content_metadata
 tracker_service_get_db_type
 tracker_service_get_embedded
@@ -375,4 +412,12 @@ tracker_service_set_parent
 tracker_service_set_property_prefix
 tracker_service_set_show_service_directories
 tracker_service_set_show_service_files
+<SUBSECTION Standard>
+TRACKER_SERVICE
+TRACKER_IS_SERVICE
+TRACKER_TYPE_SERVICE
+tracker_service_get_type
+TRACKER_SERVICE_CLASS
+TRACKER_IS_SERVICE_CLASS
+TRACKER_SERVICE_GET_CLASS
 </SECTION>

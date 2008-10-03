@@ -386,6 +386,13 @@ field_int_validate (TrackerField *field,
 	return TRUE;
 }
 
+/**
+ * tracker_field_new:
+ *
+ * Creates a new #TrackerField instance.
+ *
+ * Returns: The newly created #TrackerField
+ **/
 TrackerField *
 tracker_field_new (void)
 {

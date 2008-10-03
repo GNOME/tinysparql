@@ -1,3 +1,19 @@
+2008-10-03  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-hal.c:
+	* src/libtracker-common/tracker-field.c: Add some docs.
+
+	* docs/reference/libtracker-common/libtracker-common-sections.txt:
+	Make gtk-doc interpret GObjects as such. Finish correctly the
+	"SECTION" tag so gtk-doc also dumps output for TrackerField and
+	TrackerFieldData.
+
+	* docs/reference/libtracker-common/libtracker-common-docs.sgml: Add
+	the sections for TrackerField and TrackerFieldData.
+
+	* docs/reference/libtracker-common/Makefile.am: Fixes to compile the
+	docs scanner.
+
 2008-10-03  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:
