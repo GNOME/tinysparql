@@ -1098,6 +1098,8 @@ AC_CONFIG_FILES([
 	docs/reference/Makefile
 	docs/reference/libtracker-common/Makefile
 	docs/reference/libtracker-common/version.xml
+	docs/reference/tracker-indexer/Makefile
+	docs/reference/tracker-indexer/version.xml
 	filters/application/Makefile
 	filters/Makefile
 	filters/text/Makefile

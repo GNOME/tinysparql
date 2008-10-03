@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY tracker-module SYSTEM "xml/tracker-module.xml">
+<!ENTITY tracker-metadata SYSTEM "xml/tracker-metadata.xml">
+<!ENTITY tracker-metadata-utils SYSTEM "xml/tracker-metadata-utils.xml">
+<!ENTITY version SYSTEM "version.xml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Tracker Indexer Reference Manual</title>
+    <releaseinfo>for tracker-indexer &version;</releaseinfo>
+  </bookinfo>
+  
+  <part id="libtracker-common">
+    <title>Overview</title>
+    <partintro>
+      <para>
+	The tracker-indexer is responsible for indexing all content it is given. The indexer is completely modular, this means that there are modules or 'backends' which are used for indexing specific content types. This reference manual attempts to help developers write 3rd party modules to extract content not commonly supported by Tracker.
+      </para>
+      <para>
+      </para>
+    </partintro>
+  </part>
+
+    <chapter>
+      <title>Modules</title>
+      &tracker-module;
+    </chapter>
+
+    <chapter>
+      <title>Metadata</title>
+      &tracker-metadata;
+      &tracker-metadata-utils;
+    </chapter>
+</book>

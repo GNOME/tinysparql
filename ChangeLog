@@ -1,18 +1,31 @@
 2008-10-03  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:
+	* docs/reference/Makefile.am:
+	* docs/reference/libtracker-common/Makefile.am:
+	* docs/reference/libtracker-common/libtracker-common-docs.sgml:
+	* docs/reference/tracker-indexer/Makefile.am:
+	* docs/reference/tracker-indexer/tracker-indexer-docs.sgml:
+	* docs/reference/tracker-indexer/tracker-indexer-sections.txt:
+	Added new documentation module for tracker-indexer module creation.
+
+2008-10-03  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
 	* docs/design/Makefile.am:
 	* docs/manpages/Makefile.am:
 	* docs/reference/libtracker-common/Makefile.am: Added missing
 	Makefile.am files.
 
 2008-10-03  Mikael Ottela   <mikael.ottela@ixonos.com>
+
 	* configure.ac:
 	* src/tracker-extract/Makefile.am:
 	* src/tracker-extract/tracker-extract-gstreamer.c: Added extraction
 	of embedded album art to gstreamer based extractor.
 
 2008-10-02  Mikael Ottela   <mikael.ottela@ixonos.com>
+
 	* configure.ac:
 	* src/tracker-extract/tracker-albumart.c:
 	* src/tracker-extract/tracker-extract-mp3.c:

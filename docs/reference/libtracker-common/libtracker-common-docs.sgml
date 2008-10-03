@@ -21,7 +21,7 @@
 ]>
 <book id="index">
   <bookinfo>
-    <title>The libtracker-common Reference Manual</title>
+    <title>Tracker Common Library Reference Manual</title>
     <releaseinfo>for libtracker-common &version;</releaseinfo>
   </bookinfo>
   
