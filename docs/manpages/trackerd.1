@@ -24,24 +24,25 @@ option to specify other directories to be indexed.
 A brief help message including some examples.
 
 .TP
-\-e, --exclude-dir=/PATH/DIR
+\-e, --monitors-exclude-dir=/PATH/DIR
 Specifies a directory to be excluded from indexing (including all
-subdirectories). Can be repeated to exclude more than one directory.
+subdirectories). Can be repeated (-e <path> -e <path>) to exclude 
+more than one directory.
 
 .TP
-\-i, --include-dir=/PATH/DIR
+\-i, --monitors-include-dir=/PATH/DIR
 Specifies a directory to be included for indexing. All non-hidden
 subdirectories of the specified directory will also be indexed. If this
 param is set then the user's home directory is no longer indexed by
 default (you can still add the home directory with this option).
 
 .TP
-\-c, --crawl-dir=/PATH/DIR
+\-c, --crawler-include-dirs=/PATH/DIR
 Specify directories to crawl. Crawling of directories means index every
 indexable content but do not watch for directory or file changes.
 
 .TP
-\-n, --no-indexing
+\-n, --disable-indexing
 Prevent
 .B trackerd
 from indexing and watching. Searching is still
@@ -52,11 +53,6 @@ possible.
 Makes trackerd log/print more information. Value can be one of 0 - show
 only errors, 1 - show only minimal output, 2 - show detailed output and
 3 - show debug output (don't do this, unless you know what you are doing).
-
-.TP
-\-t, --throttle=value
-Value to throttle indexing. Value must be in range 0-20, with lower
-values increasing indexing speed.
 
 .TP
 \-m, --low-memory
@@ -74,11 +70,10 @@ Language to use for stemmer and stop words list (ISO 639-1 2 characters
 code).
 
 .TP
-\-R, --reindex
+\-R, --force-reindex
 This forces trackerd to re-index all watched files and directories.
 Since every watched directory and any previously indexed file has to be
-read and processed again, this may degrade the whole system performance,
-see also --throttle.
+read and processed again, this may degrade the whole system performance.
 
 .TP
 \-f, --fatal-errors
@@ -109,4 +104,5 @@ to be running within your current session.
 .BR tracer-query (1),
 .BR tracker-meta-folder (1),
 .BR tracker-files (1),
-.BR tracker-services (7).
+.BR tracker-services (1).
+.BR tracker-info (1)

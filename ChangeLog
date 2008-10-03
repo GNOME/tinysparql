@@ -1,3 +1,27 @@
+2008-10-03  Ivan Frade  <ivan.frade@nokia.com>
+
+	* docs/manpages/tracker-extract.1
+	* docs/manpages/tracker-files.1
+	* docs/manpages/tracker-meta-folder.1
+	* docs/manpages/tracker-query.1
+	* docs/manpages/tracker-search-tool.1
+	* docs/manpages/tracker-search.1
+	* docs/manpages/tracker-services.1
+	* docs/manpages/tracker-stats.1
+	* docs/manpages/tracker-tag.1
+	* docs/manpages/tracker-thumbnailer.1
+	* docs/manpages/tracker.cfg.5
+	* docs/manpages/trackerd.1: Updated map pages
+
+	* docs/manpages/Makefile.am
+	* docs/manpages/tracker-info.1
+	* docs/manpages/tracker-unique.1: New man pages for the new utils
+
+	* docs/manpages/tracker-services.7: Moved to tracker-services.1
+
+	* src/libtracker-common/tracker-config.c:
+	Updated path for indexer modules in the option message.
+
 2008-10-03  Mikael Ottela    <mikael.ottela@ixonos.com>
 	* src/tracker-extract/Makefile.am: Fixed building with GdkPixbuf.
 

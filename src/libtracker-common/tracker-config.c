@@ -843,7 +843,7 @@ config_create_with_defaults (const gchar *filename,
 				    empty_string_list, 0);
 	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
 				" List of disabled modules (separator=;)\n"
-				" The modules that are indexed are kept in $prefix/share/tracker/modules",
+				" The modules that are indexed are kept in $prefix/lib/tracker/indexer-modules",
 				NULL);
 	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_FAST_MERGES, DEFAULT_FAST_MERGES);
 	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_FAST_MERGES,

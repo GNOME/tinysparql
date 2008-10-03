@@ -5,12 +5,17 @@ tracker-extract \- extract metadata from file and display them.
 
 .SH SYNOPSYS
 .B tracker-extract
-.I file
 
 .SH DESCRIPTION
 .B tracker-extract
-read the file provided in paramater and extract the metadata from this
+read the file and mimetype provided in stdin and extract the metadata from this
 file; then it displays the metadata on the standard output.
+
+.SH EXAMPLES
+.TP
+Using tracker-extract from command line to extract metadata from one file:
+.BR
+$ echo -e "/x/y/z.mp3\\naudio/mpeg" | tracker-extract
 
 .SH SEE ALSO
 .BR trackerd (1)

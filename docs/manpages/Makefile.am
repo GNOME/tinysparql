@@ -24,7 +24,9 @@ man_MANS = 			\
 	tracker-tag.1		\
 	tracker-status.1	\
 	tracker.cfg.5		\
-	tracker-services.7	\
+	tracker-services.1	\
+	tracker-info.1		\
+	tracker-unique.1	\
 	$(tst)			\
 	$(ta)			\
 	$(tp)
