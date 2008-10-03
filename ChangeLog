@@ -1,3 +1,11 @@
+2008-10-03  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* docs/design/Makefile.am:
+	* docs/manpages/Makefile.am:
+	* docs/reference/libtracker-common/Makefile.am: Added missing
+	Makefile.am files.
+
 2008-10-03  Mikael Ottela   <mikael.ottela@ixonos.com>
 	* configure.ac:
 	* src/tracker-extract/Makefile.am:
