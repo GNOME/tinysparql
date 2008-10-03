@@ -599,7 +599,7 @@
 	* src/tracker-indexer/tracker-metadata-utils.h: Removed unused
 	function signatures and structs/enums.
 
-2008-09-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-09-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-metadata-utils.c:
 	* src/tracker-indexer/tracker-dbus.[ch]:
@@ -1009,7 +1009,7 @@
 	check for UTF-8 validity so we don't stop on exactly 'x' bytes but
 	where the last valid character is.
 
-2008-09-03  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-09-03  Philip Van Hoof  <philip@codeminded.be>
 
 	* ChangeLog:
 	* src/trackerd/tracker-processor.c: Reverted revision 2159
@@ -1059,7 +1059,7 @@
 	Splitted the code in functions. Fixed some memory leaks. Fixed
 	crash with incorrect parameters
 	
-2008-08-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-metadata-utils.c
 	* src/tracker-indexer/tracker-metadata-utils.h
@@ -1212,7 +1212,7 @@
 	* tests/libtracker-common/Makefile.am: Fixed detail in enum
 	definition and added testing for enum->string function.
 
-2008-08-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-daemon.c: Fixed a memory problem allocating 0
 	bytes, found using valgrind
@@ -1257,14 +1257,14 @@
 	* tests/libtracker-common/Makefile.am:
 	* tests/libtracker-db/Makefile.am: Fix distcheck, to some extent.
 
-2008-08-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-main.c: raised the "wait for more"
 	timeout to 5 minutes. The indexer is harmless for the system's
 	resources while waiting. VS. stopping and starting the indexer often
 	isn't harmless for the system's resources.
 
-2008-08-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-processor.c: a patch fix for the processor. It
 	seems that a timeout that happens after the indexer has shut down
@@ -1272,19 +1272,19 @@
 
 	When Martyn is back from holiday he should take a look at this.
 
-2008-08-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-daemon.c: Changed the way we emit the
 	stats-changed signal. Fixes a crash.
 
-2008-08-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.c
 	* src/libtracker-db/tracker-db-index.h
 	* src/libtracker-db/tracker-db-index.c: Making flushing the index more
 	responsive
 
-2008-08-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-index.c: removed a mutex. The API of
 	tracker-db-index.h is never used by more than one thread. Therefore 
@@ -1292,7 +1292,7 @@
 	reverting this wont suffice: changes that will happen after this
 	commit will require using a recursive mutex instead.
 
-2008-08-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-daemon.c
 	* src/trackerd/tracker-marshal.list
@@ -1469,7 +1469,7 @@
 	(tracker_indexer_pause_for_duration) (tracker_indexer_continue):
 	Update callers.
 
-2008-08-21  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-21  Philip Van Hoof  <philip@codeminded.be>
 
         * src/libtracker-db/tracker-db-index.c: Regression fix on "There's 
 	no need to flush the word index on pausing the indexer.": the current
@@ -1517,7 +1517,7 @@
 	tracker_indexer_module_file_get_service_type(), since it could return
 	NULL for files the module doesn't handle.
 
-2008-08-21  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-21  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-main.c: Run forever feature for the
 	indexer, for debugging purposes
@@ -1682,12 +1682,12 @@
 	* trackerd.desktop.in.in: Moved trackerd.desktop.in.in to data/. Also
 	correct path to trackerd.
 
-2008-08-19  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-19  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-keywords.c: Removing keywords was not passing
 	service_type correctly
 
-2008-08-19  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-19  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.c
 	* src/tracker-indexer/tracker-indexer.h
@@ -1913,7 +1913,7 @@
 	* src/trackerd/tracker-metadata.c: Fixed limit and offset in unique
 	values queries.
 
-2008-08-18  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-08-18  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-index.c: Added a FIXME comment
 	* ChangeLog: changed my E-mail address
@@ -3117,7 +3117,7 @@
 	(index_text_contents): Added function to add the contents of the
 	file into QDBM.
 
-2008-07-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-index-manager.c:
 	* src/trackerd/tracker-main.c:
@@ -3157,12 +3157,12 @@
 	* src/libtracker-common/tracker-parser.c:
 	(tracker_parser_text): Fixed max words to index
 
-2008-07-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Added compress and
 	uncompress functions for attached database connections
 
-2008-07-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-metadata.c:
 	* src/libtracker-db/tracker-db-dbus.h:
@@ -3181,12 +3181,12 @@
 	* src/trackerd/tracker-monitor.c (tracker_monitor_init): Do not leak
 	the test monitor.
 
-2008-07-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* utils/qdbm/print-words.c: Open the qdbm file in DP_ONOLCK mode, like
 	the application itself does
 
-2008-07-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-index.c:
 	* src/tracker-indexer/tracker-index.h:
@@ -3294,12 +3294,12 @@
 	* tests/trackerd/tracker-indexer-test.c: Tests to the new
 	functionality. This tests use GIO to copy a file.
 
-2008-07-25  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-25  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus.c: Don't try to pause the indexer if
 	it's not running
 
-2008-07-25  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-25  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker/tracker-query.c
 	* src/libtracker/tracker-search.c
@@ -3524,7 +3524,7 @@
 	are passed. This has halved the memory consumption of the daemon
 	and speed things up. It also shouldn't hang while crawling now.
 
-2008-07-23  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus.c: Style fixes
 	* src/trackerd/tracker-xesam.c: Wrapped db related functions
@@ -3534,7 +3534,7 @@
 	* src/tracker-indexer/tracker-index.c:
 	Use the new TrackerIndexItem instead old duplicate code.
 
-2008-07-22  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-22  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus.c:
 	* src/trackerd/tracker-indexer.c:
@@ -3551,7 +3551,7 @@
 	* configure.ac: Create symbolic links in autoconf instead a bash
 	script.
 
-2008-07-22  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-22  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.c:
 	* src/trackerd/tracker-search.c:
@@ -3610,14 +3610,14 @@
 	* src/trackerd/tracker-main.c: Removed some debugging which was
 	duplicated when we changed state between paused/resumed.
 
-2008-07-22  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-22  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.c:
 	* src/libtracker-common/tracker-ontology.c:
 
 	Fixed two major problems with r1898
 
-2008-07-22  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-22  Philip Van Hoof  <philip@codeminded.be>
 
 	* data/sqlite-stored-procs.sql:
 	* data/sqlite-cache.sql:
@@ -3672,7 +3672,7 @@
 	the module files which are owned by root. Added config option
 	"disabled-modules".
 
-2008-07-21  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-21  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/modules/files.c:
 	* src/tracker-indexer/modules/evolution.c:
@@ -3695,7 +3695,7 @@
 	items to the indexer into the processor module so it is in ONE
 	place not TWO.
 
-2008-07-21  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-21  Philip Van Hoof  <philip@codeminded.be>
 
 	* Reverted TrackerField instances as hash keys patch
 
@@ -3709,7 +3709,7 @@
 	move all the code which sends file notifications to the indexer
 	into the processor.
 
-2008-07-21  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-21  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Functions for attached
 	connections
@@ -3741,7 +3741,7 @@
 	and add_monitors(), they are not needed. Added the code to handle
 	adding monitors from the process-directory callback in the crawler.
 
-2008-07-18  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-18  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-search.c: Fixed assertions that are not
 	necessary (and even wrong).
@@ -3757,7 +3757,7 @@
 	Obtain the mimetype and service type from the file, instead from
 	the module name.
 
-2008-07-18  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-18  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.c:
 	* src/tracker-indexer/tracker-indexer.h:
@@ -3794,7 +3794,7 @@
 	deleted). This means we now don't just send "Files" as the service
 	type when telling the indexer about monitor events.
 
-2008-07-17  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-17  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-search.c:
 	* data/dbus/tracker-search.xml:
@@ -3823,7 +3823,7 @@
 	* src/trackerd/tracker-metadata.[ch]:
 	Async metadata API.
 
-2008-07-17  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-17  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Add the functions for the
 	combine-attached db connections
@@ -4059,7 +4059,7 @@
 	functionality in the indexer including unit tests. Delete a word
 	from a document means to add the word with weight = -1.
 
-2008-07-04  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-04  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-daemon.c: Error handling for some DBus Apis
 
@@ -4146,7 +4146,7 @@
 	longer have, "OptimizationSweepCount", "Divisions",
 	"BucketRatio" and  "Padding".
 
-2008-07-04  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-04  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/modules/evolution.c: Avoid a crash in case the
 	url string of a Evolution account is empty.
@@ -4216,7 +4216,7 @@
 
 	* src/tracker-indexer/tracker-indexer.c: Added throttling support.
 
-2008-07-03  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-03  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-main.c:
 	* src/trackerd/tracker-main.c:
@@ -4225,7 +4225,7 @@
 
 	LowMemoryMode for the new generation!
 
-2008-07-03  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-03  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-files.c: Using the indexer to implement
 	deleting files from the index
@@ -4256,7 +4256,7 @@
 	* src/trackerd/tracker-monitor.c: Don't add any monitors if it is
 	disabled in the config. Also, make the debugging ALWAYS available.
 
-2008-07-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-main.c
 	* src/trackerd/tracker-main.c
@@ -4339,7 +4339,7 @@
 	instead of a GAsyncQueue. We don't have any threads so there is no
 	need for the extra locking overhead.
 
-2008-07-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-db.c:
 	* src/trackerd/tracker-db.h:
@@ -4354,7 +4354,7 @@
 	g_free() to free a GFile. This is a hangover from when the files
 	and directories queues had strings in them, now they have GFiles.
 
-2008-07-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-metadata.c:
 	* src/trackerd/tracker-main.c:
@@ -4388,11 +4388,11 @@
 	* src/trackerd/tracker-crawler.c: (tracker_crawler_start):
 	Actually set the path before checking if it exists or not, eek.
 
-2008-07-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Memory leak fix
 
-2008-07-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-search.c:
 	* src/trackerd/tracker-files.c:
@@ -4402,7 +4402,7 @@
 
 	Replaced a few strings with defines
 
-2008-07-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer-db.c:
 	* src/tracker-indexer/tracker-indexer-db.h:
@@ -4411,7 +4411,7 @@
 	Transactions per TRANSACTION_MAX items
 	One possible cause for the constraint errors fixed
 
-2008-07-01  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-07-01  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.h:
 	* src/trackerd/tracker-search.c:
@@ -4622,7 +4622,7 @@
 
 	* tests/**: Added license in .c/.h files.
 
-2008-06-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* svn merge -r 1769:1798 ../xesam-support
 
@@ -4640,13 +4640,13 @@
 	(test_date_to_string): now it doesnt depend on the timezone of the
 	tester.
 
-2008-06-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* tests/libtracker-db/union-performance.c: Added a performance test
 	for a UNION query structure vs. views that me and ottela want to
 	start using for certain Xesam related queries
 
-2008-06-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-query.c:
 	* src/trackerd/tracker-rdf-query.c:
@@ -4674,7 +4674,7 @@
 	real paths. This is now used by the module config and the main
 	config module when loading directory strings or string lists.
 
-2008-06-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/Makefile.am: Fixed a LIBS in an INCLUDES
 
@@ -4742,13 +4742,13 @@
 	tracker-process and clean up any place that depends on functions
 	from there currently.
 
-2008-06-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-query-tree.c: Replaced a g_value_get_pointer
 	with a g_value_get_object. It seems that the indexer instance is
 	nowadays a GObject rather than a arbritary pointer.
 
-2008-06-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Giving out correct ifaces
 	with correct attachments for service-specific database connections
@@ -4767,7 +4767,7 @@
 	JUST the daemons needs here. All the indexing code is in the
 	indexer instead now.
 
-2008-06-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* svn merge -r 1726:1769 ../xesam-support
 
@@ -4915,7 +4915,7 @@
 	* src/tracker-indexer/modules/applications.c:
 	* src/tracker-indexer/modules/files.c: Adapt to the new API.
 
-2008-06-24  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-24  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.c:
 	* src/libtracker-db/tracker-db-manager.c:
@@ -4967,7 +4967,7 @@
 	provide the warning (if we reach the limit) only once and make the
 	number of monitors we couldn't add available by API.
 
-2008-06-24  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-24  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-db.c:
 	* src/trackerd/tracker-xesam-manager.c:
@@ -4976,7 +4976,7 @@
 
 	Fix for a warning about table Events not existing
 
-2008-06-24  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-24  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-main.c:
 	* src/trackerd/tracker-main.c:
@@ -4986,18 +4986,18 @@
 	tracker_db_manager_shutdown must not remove the directory in tmp with
 	cache.db in case the indexer calls it.
 
-2008-06-24  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-24  Philip Van Hoof  <philip@codeminded.be>
 
 	src/tracker-indexer/tracker-indexer.c: The table Events for
 	tracker_db_create_event only exists in cache.db, not in common.db,
 	therefore patched it to use a priv->cache instead of priv->common
 
-2008-06-24  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-24  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Normalizing attachments (for
 	example cache.db was attached twice, which gave warnings).
 
-2008-06-23  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Fix for "database cache is
 	already in use" warning (removing a hack that is no longer needed,
@@ -5016,7 +5016,7 @@
 	done so we know how many we loaded as a measure of testing it
 	worked properly.
 
-2008-06-23  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Also setting DB parameters
 	in case of attach_all=true. Fixes load_sql_file for sqlite-services.sql
@@ -5030,12 +5030,12 @@
 	cache and attach all settings into a flag we pass when
 	initialising the database manager.
 
-2008-06-23  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Putting a warning in case of
 	problems while loading a .sql file
 
-2008-06-23  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* tests/scripts/dummy_data_start.sh.in
 	* tests/scripts/data/email-contents.sql
@@ -5048,7 +5048,7 @@
 	Cleaned up the test data now that the databases are (more or less)
 	initialized correctly
 
-2008-06-20  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-20  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c:
 	* data/sqlite-service-triggers.sql:
@@ -5253,7 +5253,7 @@
 	* src/trackerd/tracker-monitor.c: Push all events to the indexer
 	after queueing them first.
 
-2008-06-17  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-17  Philip Van Hoof  <philip@codeminded.be>
 
 	* tests/scripts/dummy_data_start.sh.in:
 	* tests/scripts/xdg_dirs.source:
@@ -5297,7 +5297,7 @@
 	UTF-8 validity check here instead of later on when we have wasted
 	more time processing files and folders.
 
-2008-06-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-crawler.c: Bugfix, no longer freeing up
 	already freed GStrv
@@ -5336,11 +5336,11 @@
 	* src/libtracker-common/tracker-type-utils.c: Minor fixes to pass
 	the tests.
 
-2008-06-13  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* svn merge -r 1656:1683 ../xesam-support
 
-2008-06-13  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-crawler.c: No more blocking of the mainloop
 
@@ -5366,7 +5366,7 @@
 	don't want DBus calling _exit() for us if the string is invalid
 	UTF-8.
 
-2008-06-13  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* tests/trackerd/tracker-xesam-test.c:
 	* tests/trackerd/tracker-xesam-session-test.c:
@@ -5376,7 +5376,7 @@
 
 	Making the Xesam unit tests work
 
-2008-06-13  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* tests/trackerd/tracker-xesam-test.c
 	* tests/trackerd/tracker-xesam-hit-test.c
@@ -5392,7 +5392,7 @@
 	make them succeed in order to support Xesam, the tests themselves are
 	or should be ~ correct).
 
-2008-06-13  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* tests/trackerd/tracker-xesam-test.c:
 	* tests/trackerd/tracker-xesam-session-test.c:
@@ -5470,7 +5470,7 @@
 	* src/trackerd/tracker-monitor.c: Save the config variable on
 	initialisation.
 
-2008-06-12  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-12  Philip Van Hoof  <philip@codeminded.be>
 
 	* svn merge -r 1538:1656 ../xesam-support
 
@@ -5493,11 +5493,11 @@
 	* src/trackerd/tracker-monitor.[ch]: Pass the TrackerConfig since
 	we need it to know if we shouldn't monitor certain locations.
 
-2008-06-12  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-12  Philip Van Hoof  <philip@codeminded.be>
 
 	* svn merge -r 1538:1656 ../xesam-support
 
-2008-06-12  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-12  Philip Van Hoof  <philip@codeminded.be>
 
 	* tests/trackerd/tracker-xesam-test.c:
 	* tests/trackerd/Makefile.am:
@@ -5564,7 +5564,7 @@
 	hashtables have to take ownership of the strings passed.
 
 
-2008-06-11  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-11  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c:
 	* src/libtracker-common/tracker-xesam-field.c:
@@ -5640,12 +5640,12 @@
 	Tracker struct so the shutdown function can stop it immediately.
 
 
-2008-06-10  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-10  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c: Preserving the sort order
 	in get_hit_data
 
-2008-06-10  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-10  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c:
 	* src/trackerd/tracker-db.c:
@@ -5655,7 +5655,7 @@
 	that you can distinguish between actual items-to-return and
 	records (lines) that will add a item to the list-value field
 
-2008-06-10  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-10  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c:
 	* src/trackerd/tracker-db.c:
@@ -5741,7 +5741,7 @@
 	RECENT GLIB.
 
 
-2008-06-09  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-09  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c: get_hit_data improvements
 
@@ -5888,13 +5888,13 @@
 	first stage in removing DBConnection. The attach statements and
 	threadding have yet to be finished here.
 
-2008-06-06  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-06  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c: Memory leak fixes
 	* src/trackerd/tracker-xesam-live-search.c: SearchDone's delayer
 	correction
 
-2008-06-06  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-06  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-interface-sqlite.c:
 	* src/trackerd/tracker-xesam-live-search.c: Some minor bugfixes. Delaying
@@ -5919,7 +5919,7 @@
 	(tracker_db_create_service): Take into account directories when
 	marking services as disabled.
 
-2008-06-05  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-05  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c: Fixed a crash for searches
 	that yield no results.
@@ -5973,7 +5973,7 @@
 	* src/trackerd/tracker-db-sqlite.c
 	Initial xesam get_hits implementation
 
-2008-06-04  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-04  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-manager.c: Fixed the db-names of
 	certain ATTACH statements
@@ -6073,7 +6073,7 @@
 	functionality using unac, is now in libtracker-common, so link
 	libtracker-common against unac, not trackerd.
 
-2008-06-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-db-sqlite.c:
 	* src/trackerd/tracker-xesam-manager.c:
@@ -6082,7 +6082,7 @@
 	Waking up the LiveSearches for not-yet refactored methods that also
 	(still) insert, delete and update the database
 
-2008-06-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer-db.c:
 	* src/tracker-indexer/tracker-indexer-db.h:
@@ -6174,7 +6174,7 @@
 	* src/trackerd/tracker-utils.c: Removed the _add_io_grace()
 	function now it is no longer used.
 
-2008-06-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-06-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer-db.c:
 	* src/tracker-indexer/tracker-indexer-db.h:
@@ -6251,19 +6251,19 @@
 	* tracker-indexer.c (process_file): Pass around the TrackerService
 	instead of having to look it up in the ontology several times.
 
-2008-05-30  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* Merged indexer-split with xesam-support
 	svn merge -r 1495:1538 ../xesam-support
 
 
-2008-05-30  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* data/sqlite-stored-procs.sql: Fixed syntax error of a stored
 	procedure (LiveSearchStopSearch)
 	* src/trackerd/tracker-xesam-manager.c: Unneeded casting removed
 
-2008-05-30  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* tracker-xesam-live-search.h:
 	* tracker-xesam-ontology.c:
@@ -6275,7 +6275,7 @@
 	respective authors of the files involved in this patch (i.e.
 	Ottela Mikael for xesam-query and xesam-ontology)
 
-2008-05-29  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-29  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-xesam.c:
 	* src/trackerd/tracker-dbus-xesam.h:
@@ -6284,7 +6284,7 @@
 	tracker_xesam_live_search_emit_done
 
 
-2008-05-30  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c:
 	* src/trackerd/tracker-xesam-live-search.h:
@@ -6294,7 +6294,7 @@
 	finetune the periodic LiveSearch query in future
 
 
-2008-05-29  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-29  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-xesam.c:
 	* src/trackerd/tracker-dbus-xesam.h:
@@ -6302,7 +6302,7 @@
 	Refactored tracker_dbus_xesam_emit_search_done to
 	tracker_xesam_live_search_emit_done
 
-2008-05-29  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-29  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-xesam.c:
 	* src/trackerd/tracker-dbus-xesam.h:
@@ -6563,7 +6563,7 @@
 	* data/sqlite-service-stored-procs.sql: Removed this, it is no
 	longer used.
 
-2008-05-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-28  Philip Van Hoof  <philip@codeminded.be>
 
 	 * src/trackerd/tracker-xesam-live-search.c:
 	 * src/trackerd/tracker-db-sqlite.c:
@@ -6572,7 +6572,7 @@
 
 	Detecting Creates, fixed the initial HitsAdded after StartSearch
 
-2008-05-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-28  Philip Van Hoof  <philip@codeminded.be>
 
 	 * src/trackerd/tracker-xesam-live-search.c:
 	 * src/trackerd/tracker-db-sqlite.c:
@@ -6627,7 +6627,7 @@
 	and tracker-field-data modules to libtracker-common because they
 	are shared by the indexer and the daemon.
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c
 	* src/trackerd/tracker-xesam-query.c
@@ -6638,12 +6638,12 @@
 	Emit HitsAdded after StartSearch
 	Emit StartDone after StartSearch is finished searching
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-query.c: Memory corruption fix in
 	tracker_xesam_query_to_sql
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
         * Merged indexer-split with xesam-support
 	 svn merge -r 1481:1495 ../xesam-support
@@ -6661,21 +6661,21 @@
 	begin indexing from scratch at startup.
 	* src/tracker-indexer/main.c: connect reindex to command line option.
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus.c: On/Off configuration of Xesam
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* Fixed the Xesam DBus namespaces for Xesam r0.95
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* Fixes some bugs with xesam search structures and
 	field definitions
 	* Patch by Ottela Mikael <mikael.ottela@ixonos.com>
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
         * Merged indexer-split with xesam-support
 	 svn merge -r 1481:1495 ../xesam-support
@@ -6693,15 +6693,15 @@
 	begin indexing from scratch at startup.
 	* src/tracker-indexer/main.c: connect reindex to command line option.
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus.c: On/Off configuration of Xesam
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* Fixed the Xesam DBus namespaces for Xesam r0.95
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* Fixes some bugs with xesam search structures and
 	field definitions
@@ -6738,17 +6738,17 @@
 	Various improvements to the database handling
 	Added Xesam ontology mapping helper functions
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* Fixed the Xesam DBus namespaces for Xesam r0.95
 
-2008-05-27  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-27  Philip Van Hoof  <philip@codeminded.be>
 
 	* Fixes some bugs with xesam search structures and
 	field definitions
 	* Patch by Ottela Mikael <mikael.ottela@ixonos.com>
 
-2008-05-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-search.c: Bugfix in
 	dbus_search_highlight_terms
@@ -6756,7 +6756,7 @@
 	 svn merge -r 1475:1479 ../indexer-split
 	 svn merge -r 1479:1481 ../indexer-split
 
-2008-05-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-search.c: Bugfix in
 	dbus_search_highlight_terms
@@ -6794,18 +6794,18 @@
 	Various improvements to the database handling
 	Added Xesam ontology mapping helper functions
 
-2008-05-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-26  Philip Van Hoof  <philip@codeminded.be>
 
         * Merged xesam-support with indexer-split
 	 svn merge -r 1475:1479 ../indexer-split
 	 svn merge -r 1479:1481 ../indexer-split
 
-2008-05-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-search.c: Bugfix in
 	dbus_search_highlight_terms
 
-2008-05-26  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-main.c/h: Fixed the build
 	for --disable-hal
@@ -7039,18 +7039,18 @@
 	* src/libtracker-db/Makefile.am: do not link libtracker-db with
 	libtracker-common, it's not necessary.
 
-2008-05-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* DBus initialization. We must be more early at detecting whether or
 	not another DBus trackerd service is already running. Else during the
 	creation of the SQLite tables, a client that makes the DBus trackerd
 	service start would cause two trackerd instances to be running.
 
-2008-05-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* Fixed a few g_warnings about tracker_log not being initialized yet
 
-2008-05-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* Merge from our own repository back to GNOME's Subversion server. We
 	did this because caused by the SSH exploit, the GNOME Subversion
@@ -7067,7 +7067,7 @@
 	parsing so we actually set the verbosity and some of the other
 	options. Also, don't start the indexer thread if it is disabled.
 
-2008-05-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* data/sqlite-stored-procs.sql: Prepended a query with its db-name
 	* src/trackerd/tracker-main.c:
@@ -7076,7 +7076,7 @@
 	* src/trackerd/tracker-process-files.c: Gave the indexer thread its
 	own DBConnection
 
-2008-05-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* Reverted the GThreadPool trick to exclude it from being the possible
 	cause of various problems
@@ -7098,11 +7098,11 @@
 	sanity check list so we can confirm things are starting up
 	correctly.
 
-2008-05-16  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* Applied a patch that fixes the DBConnection tracker->index_db
 
-2008-05-14  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-14  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/modules/Makefile.am: Linker error fix
 	* src/trackerd/tracker-dbus.c: Corrected a GStrv to be NULL terminated
@@ -7150,7 +7150,7 @@
 	taken information from the Tracker struct to the process-files
 	module. This information is not used publically.
 
-2008-05-14  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-14  Philip Van Hoof  <philip@codeminded.be>
 
 	* Merged xesam-support to indexer-split
 	->  svn merge -r 1398:1423 ../xesam-support
@@ -7180,7 +7180,7 @@
 	and moved the GHashTable of sessions to this module and out of the
 	Tracker struct.
 
-2008-05-14  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-14  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-interface-sqlite.c: No reply queries
 	must not immediately return for their arguments might otherwise be
@@ -7323,7 +7323,7 @@
 
 	* src/trackerd/tracker-convert-file.c: Removed, it is not in use.
 
-2008-05-14  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-14  Philip Van Hoof  <philip@codeminded.be>
 
 	* Merged with indexer-split (rev 1417)
 	-> svn merge -r 1409:1417 ../indexer-split
@@ -7331,7 +7331,7 @@
 	* Fixed Xesam error reporting
 	* Fixed a few warnings
 
-2008-05-13  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/*xesam*: Various infrastructure for Xesam added
 	* Merged with indexer-split (Rev 1410)
@@ -7342,12 +7342,12 @@
 	* Initial patch for Xesam queries
 	* Committed by Philip Van Hoof
 
-2008-05-13  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* First removed xesam-support branch
 	* Branchpoint from indexer-split to xesam-support
 
-2008-05-14  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-14  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-interface-sqlite.c: No reply queries
 	must not immediately return for their arguments might otherwise be
@@ -7507,7 +7507,7 @@
 
 	* src/trackerd/tracker-process-files.c: Log when the thread exits.
 
-2008-05-12  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-12  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c
 	* src/trackerd/tracker-xesam-live-search.h
@@ -7582,7 +7582,7 @@
 	(tracker_db_exec_no_reply): Uses TrackerDBInterface instead of
 	DBConnection.
 
-2008-05-09  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-09  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-db-sqlite.c:
 	* src/libtracker-db/tracker-db-interface.h:
@@ -7627,7 +7627,7 @@
 	tracker_dbus_query_result_to_ptr_array() since it creates the
 	return value even if the result set is empty.
 
-2008-05-08  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-08  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-db-sqlite.c:
 	* src/libtracker-db/tracker-db-interface-sqlite.h:
@@ -7636,7 +7636,7 @@
 	work needs some refactoring later. Especially the changes in
 	tracker-db-sqlite.c are not quite the way I eventually want them.
 
-2008-05-08  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-08  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-search.c: Bugfix when the amount of search
 	results was 0
@@ -7661,7 +7661,7 @@
 	structure by removing members which are not used. Also removed the
 	structures in the tracker-main.h file which are not used.
 
-2008-05-08  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-08  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-db-sqlite.c:
 	* src/libtracker-db/tracker-db-interface.h:
@@ -7669,7 +7669,7 @@
 	* src/libtracker-db/tracker-db-interface.c: Improvement for void returning
 	queries
 
-2008-05-08  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-08  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-db-sqlite.c:
 	* src/trackerd/tracker-db-sqlite.h:
@@ -7694,7 +7694,7 @@
 	* src/trackerd/tracker-xesam.c:
 	* src/trackerd/trackerd.[ch]: Renamed trackerd.[ch] to tracker-main.[ch].
 
-2008-05-08  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-08  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-interface-sqlite.c:
 	Moved all sqlite3 queries to one thread in GThreadPool, prepared the
@@ -7858,14 +7858,14 @@
 	* src/libtracker-common/tracker-file-utils.[ch]: Moved the
 	function which removes directory roots to here from the daemon.
 
-2008-05-06  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-06  Philip Van Hoof  <philip@codeminded.be>
 
 	* Bumped the version of SQLite from 3.4 to 3.5 because
 		- We require --enable-threadsafe
 		- This version allows concurrent access from different
 		threads sharing the same connection
 
-2008-05-06  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-06  Philip Van Hoof  <philip@codeminded.be>
 
 	* Xesam property setters and getters
 
@@ -7896,14 +7896,14 @@
 	(tracker_db_get_field_def) Removed db_con parameter (unused)
 
 
-2008-05-05  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-05  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-dbus-xesam.c
 	* src/trackerd/tracker-xesam.c
 	* src/trackerd/tracker-db-sqlite.c: Added proper locking for the db
 	while dealing with Events for LiveSearches
 
-2008-05-02  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-05-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.c
 	* src/trackerd/tracker-xesam-live-search.h
@@ -8065,21 +8065,21 @@
 	* src/trackerd/tracker-indexer.h: Updated files to include new
 	libtracker-db files.
 
-2008-04-28  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-04-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* Merged branches/xesam-support back to brances/indexer-split
 
-2008-04-25  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-04-25  Philip Van Hoof  <philip@codeminded.be>
 
 	* Adapted the TrackerXesamSearch DBus proxy to use
 	org.freedesktop.DBus.GLib.Async
 
-2008-04-23  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-04-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* Added error reporting
 	* Added some more ad-hoc implementations in TrackerXesamSearch
 
-2008-04-22  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-04-22  Philip Van Hoof  <philip@codeminded.be>
 
 	* Branched as xesam-support
 	* Added Xesam skeleton
@@ -8203,7 +8203,7 @@
 	* src/trackerd/tracker-utils.[ch]: Moved functions to relevant
 	modules and removed all other unused code.
 
-2008-04-17  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-04-17  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-email-modest.c
 	* src/trackerd/tracker-utils.c
@@ -8280,7 +8280,7 @@
 	that's the only place they were used. Moved HAL code out to new
 	module. Fixes bug #503725.
 
-2008-04-11  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-04-11  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-email-modest.c
 	* src/trackerd/tracker-utils.c
@@ -8310,7 +8310,7 @@
 	* src/trackerd/tracker-db-sqlite.c:
 	* src/trackerd/tracker-dbus-search.c: Use new TrackerQueryTree API.
 
-2008-04-10  Philip Van Hoof  <pvanhoof@gnome.org>
+2008-04-10  Philip Van Hoof  <philip@codeminded.be>
 
 	* python/deskbar-handler/tracker-module.py
 	* python/deskbar-handler/tracker-handler.py
