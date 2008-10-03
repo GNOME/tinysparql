@@ -1,3 +1,8 @@
+2008-10-03  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/modules/evolution.c (extract_message_text): Just
+	try to convert if part contents don't validate as utf8.
+
 2008-10-03  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:

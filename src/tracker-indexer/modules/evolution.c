@@ -1478,6 +1478,16 @@ extract_message_text (GMimeObject *object,
         }
 
         content = g_mime_part_get_content (GMIME_PART (object), &len);
+
+        if (!content) {
+                return;
+        }
+
+        if (g_utf8_validate (content, len, NULL)) {
+                g_string_append_len (body, content, (gssize) len);
+                return;
+        }
+
         encoding = get_object_encoding (object);
 
         if (!encoding) {
