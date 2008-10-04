@@ -22,7 +22,8 @@ bin_PROGRAMS = 							\
 	tracker-files						\
 	tracker-status						\
 	tracker-unique						\
-	tracker-info
+	tracker-info						\
+	tracker-services
 
 tracker_search_SOURCES = tracker-search.c
 tracker_search_LDADD = $(libs)
@@ -50,3 +51,6 @@ tracker_unique_LDADD = $(libs)
 
 tracker_info_SOURCES = tracker-info.c
 tracker_info_LDADD = $(libs)
+
+tracker_services_SOURCES = tracker-services.c
+tracker_services_LDADD = $(libs)

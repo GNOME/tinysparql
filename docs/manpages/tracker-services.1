@@ -1,17 +1,37 @@
 .TH tracker-services 1 "July 2007" GNU "Conventions"
 
 .SH NAME
-tracker-services \- service types of trackerd
+tracker-services \- shows service types and propeties available in trackerd
 
-.SH INTRODUCTION
-Trackerd understands a number of different services which are used to
+.SH SYNOPSIS
+.B tracker-services
+[-sp] 
+
+.SH DESCRIPTION
+.PP
+.B tracker-services
+returns the services types and properties available in 
+.BR tracker (1)
+.PP
+Trackerd understands a number of different service types which are used to
 group search results and documents together. All searches and queries can
-be refined by specifying a service to search from.
+be refined by specifying a service type to search from.
 .PP
 For example one could search for "Roses" in the service Conversations
 which would only return hits from chat conversations.
 
+.SH OPTIONS
+.TP
+\-s 
+Return service types.
+.TP
+\-p
+Return properties.
+.PP
+These options can be used simultaneously.
+
 .SH SERVICE TYPES
+Default services types (Note than applications can add more):
 .TP
 Files
 Search for files only. This does not include Emails or Conversations.
@@ -21,7 +41,7 @@ Search for folders i.e. directories.
 .TP
 Documents
 Searches for general documents like word processing,
-spreadsheets or text files.
+spreadsheets or PDF.
 .TP
 Emails
 Searches for Emails.
@@ -39,8 +59,7 @@ Videos
 Search for video files.
 .TP
 Text
-Search for text files, like word processing files, but e.g. not
-spreadsheets.
+Search for plain text files.
 .TP
 Development
 Search for development files. This includes make files,

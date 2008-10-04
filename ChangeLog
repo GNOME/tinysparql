@@ -1,3 +1,11 @@
+2008-10-04  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-utils/Makefile.am
+	* src/tracker-utils/tracker-services.c
+	* docs/manpages/tracker-services.1:
+	Added new tracker-services tool to ask the daemon available
+	services types and properties. Updated the man page.
+
 2008-10-03  Ivan Frade  <ivan.frade@nokia.com>
 
 	* docs/manpages/tracker-extract.1
