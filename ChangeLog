@@ -1,3 +1,8 @@
+2008-10-06  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-extract/dummy.c:
+	Dummy extractor to use as example in the documentation.
+	
 2008-10-04  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-utils/Makefile.am
