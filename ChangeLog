@@ -1,3 +1,9 @@
+2008-10-06  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/modules/evolution.c (extract_message_text): Also
+	check the mime part doesn't contain raw/binary data before processing
+	it as text.
+
 2008-10-06  Martyn Russell  <martyn@imendio.com>
 
 	* docs/reference/tracker-indexer/Makefile.am: Fixed a build issue.

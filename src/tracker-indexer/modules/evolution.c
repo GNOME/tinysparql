@@ -1441,6 +1441,7 @@ extract_message_text (GMimeObject *object,
                       gpointer     user_data)
 {
         GString *body = (GString *) user_data;
+        GMimePartEncodingType encoding;
         GMimePart *part;
         const gchar *content, *disposition, *filename;
         gchar *encoding, *part_body;
@@ -1465,6 +1466,13 @@ extract_message_text (GMimeObject *object,
 	part = GMIME_PART (object);
         filename = g_mime_part_get_filename (part);
 	disposition = g_mime_part_get_content_disposition (part);
+        encoding = g_mime_part_get_encoding (part);
+
+        if (encoding == GMIME_PART_ENCODING_BINARY ||
+            encoding == GMIME_PART_ENCODING_BASE64 ||
+            encoding == GMIME_PART_ENCODING_UUENCODE) {
+                return;
+        }
 
 	if (disposition &&
 	    strcmp (disposition, GMIME_DISPOSITION_ATTACHMENT) == 0) {
