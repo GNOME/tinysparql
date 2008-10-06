@@ -1,5 +1,9 @@
 2008-10-06  Martyn Russell  <martyn@imendio.com>
 
+	* docs/reference/tracker-indexer/Makefile.am: Fixed a build issue.
+
+2008-10-06  Martyn Russell  <martyn@imendio.com>
+
 	* docs/reference/tracker-indexer/Makefile.am:
 	* docs/reference/tracker-indexer/adding-categories-and-properties.sgml:
 	* docs/reference/tracker-indexer/tracker-indexer-docs.sgml:

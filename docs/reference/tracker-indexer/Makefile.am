@@ -66,11 +66,11 @@ MKDB_OPTIONS=--sgml-mode --output-format=xml
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
 content_files =					\
 	version.xml				\
-	adding-categories.sgml			\
+	adding-categories-and-properties.sgml	\
 	writing-an-extractor.sgml
 
 expand_content_files =				\
-	adding-categories.sgml			\
+	adding-categories-and-properties.sgml	\
 	writing-an-extractor.sgml
 
 # Images to copy into HTML directory
