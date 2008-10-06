@@ -4,6 +4,8 @@
 <!ENTITY tracker-module SYSTEM "xml/tracker-module.xml">
 <!ENTITY tracker-metadata SYSTEM "xml/tracker-metadata.xml">
 <!ENTITY tracker-metadata-utils SYSTEM "xml/tracker-metadata-utils.xml">
+<!ENTITY adding-categories-and-properties SYSTEM "xml/adding-categories-and-properties.sgml">
+<!ENTITY writing-an-extractor SYSTEM "xml/writing-an-extractor.sgml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -12,13 +14,16 @@
     <releaseinfo>for tracker-indexer &version;</releaseinfo>
   </bookinfo>
   
-  <part id="libtracker-common">
+  <part id="tracker-indexer">
     <title>Overview</title>
     <partintro>
       <para>
-	The tracker-indexer is responsible for indexing all content it is given. The indexer is completely modular, this means that there are modules or 'backends' which are used for indexing specific content types. This reference manual attempts to help developers write 3rd party modules to extract content not commonly supported by Tracker.
-      </para>
-      <para>
+	The tracker-indexer is responsible for indexing all content it
+	is given. The indexer is completely modular, this means that
+	there are modules or 'backends' which are used for indexing
+	specific content types. This reference manual attempts to help
+	developers write 3rd party modules to extract content not
+	commonly supported by Tracker. 
       </para>
     </partintro>
   </part>
@@ -33,4 +38,17 @@
       &tracker-metadata;
       &tracker-metadata-utils;
     </chapter>
+
+    <part id="integrating-applications">
+      <title>Integrating Applications</title>
+
+      <para>
+	This part describes how you can add your own application
+	categories and extractors to Tracker to be able to index (and
+	ultimately track) your content.
+      </para>
+
+      &adding-categories-and-properties;
+      &writing-an-extractor;
+    </part>
 </book>

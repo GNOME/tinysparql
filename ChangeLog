@@ -1,5 +1,14 @@
 2008-10-06  Martyn Russell  <martyn@imendio.com>
 
+	* docs/reference/tracker-indexer/Makefile.am:
+	* docs/reference/tracker-indexer/adding-categories-and-properties.sgml:
+	* docs/reference/tracker-indexer/tracker-indexer-docs.sgml:
+	* docs/reference/tracker-indexer/writing-an-extractor.sgml: Added
+	Ivan's live.gnome.org documentation so it is available in the
+	reference documentation.
+
+2008-10-06  Martyn Russell  <martyn@imendio.com>
+
 	* docs/design/Makefile.am: Added tracker-indexer.dia to illustrate
 	the design of the indexer.
 
