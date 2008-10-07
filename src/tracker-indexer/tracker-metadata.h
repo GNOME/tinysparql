@@ -23,7 +23,7 @@
 #define __TRACKER_METADATA_H__
 
 #include <glib.h>
-#include <libtracker-common/tracker-field.h>
+#include <libtracker-common/tracker-common.h>
 
 typedef struct TrackerMetadata TrackerMetadata;
 

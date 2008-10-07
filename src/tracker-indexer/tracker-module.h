@@ -25,7 +25,7 @@
 G_BEGIN_DECLS
 
 #include <glib.h>
-#include <tracker-indexer/tracker-metadata.h>
+#include "tracker-metadata.h"
 
 typedef struct TrackerFile TrackerFile;
 

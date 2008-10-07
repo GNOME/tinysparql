@@ -1,5 +1,14 @@
 2008-10-07  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/Makefile.am: Split the relevant parts of
+	tracker-indexer into libtracker-indexer.so, make tracker-indexer use
+	it.
+	* src/tracker-indexer/tracker-metadata.h:
+	* src/tracker-indexer/tracker-module.h: Fix includes so it doesn't
+	give problems when compiling modules out of tree.
+
+2008-10-07  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-parser.[ch]: Do not expose the
 	TrackerParser struct in the header, it was pulling pango.h
 	unnecessarily.
