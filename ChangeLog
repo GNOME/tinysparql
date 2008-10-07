@@ -1,3 +1,8 @@
+2008-10-07  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-applet/Makefile.am: Added -DTRACKER_COMPILATION to
+	fix the build.
+
 2008-10-07  Ivan Frade  <ivan.frade@nokia.com>
 
 	Added initial support for playlists. The playlist files are now in
