@@ -1,5 +1,10 @@
 2008-10-07  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/Makefile.am: Install relevant headers so
+	they're available for public use.
+
+2008-10-07  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-common.h: New file. Do not allow
 	compiling unless TRACKER_ENABLE_INTERNALS or TRACKER_COMPILATION is
 	defined.

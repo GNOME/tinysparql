@@ -13,6 +13,7 @@ INCLUDES =						\
 	$(GLIB2_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker
+libtracker_commonincludedir=$(includedir)/tracker-1.0/libtracker-common/
 libtracker_common_LTLIBRARIES = libtracker-common.la
 
 if OS_WIN32
@@ -50,19 +51,22 @@ libtracker_common_la_SOURCES =	 			\
 
 noinst_HEADERS =					\
 	$(hal_headers)					\
-	tracker-config.h				\
 	tracker-configuration.h				\
 	tracker-dbus.h					\
 	tracker-field-data.h				\
+	tracker-ioprio.h				\
+	tracker-log.h					\
+	tracker-nfs-lock.h				\
+	tracker-os-dependant.h
+
+libtracker_commoninclude_HEADERS =			\
+	tracker-common.h				\
+	tracker-config.h				\
 	tracker-field.h					\
 	tracker-file-utils.h				\
-	tracker-ioprio.h				\
 	tracker-language.h				\
-	tracker-log.h					\
 	tracker-module-config.h				\
-	tracker-nfs-lock.h				\
 	tracker-ontology.h				\
-	tracker-os-dependant.h				\
 	tracker-parser.h				\
 	tracker-service.h				\
 	tracker-type-utils.h				\
