@@ -22,6 +22,8 @@
 #ifndef __LIBTRACKER_COMMON_H__
 #define __LIBTRACKER_COMMON_H__
 
+#include <glib.h>
+
 G_BEGIN_DECLS
 
 #if !defined (TRACKER_ENABLE_INTERNALS) && !defined (TRACKER_COMPILATION)
