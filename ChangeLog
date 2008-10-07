@@ -1,5 +1,12 @@
 2008-10-07  Carlos Garnacho  <carlos@imendio.com>
 
+	* configure.ac:
+	* data/Makefile.am:
+	* data/tracker-indexer-module-1.0.pc.in: New file. All-in-one
+	pkg-config file for developing tracker-indexer standalone modules.
+
+2008-10-07  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/Makefile.am: Split the relevant parts of
 	tracker-indexer into libtracker-indexer.so, make tracker-indexer use
 	it.
