@@ -12,6 +12,7 @@ config_DATA = 				\
 	file.metadata 			\
 	image.metadata 			\
 	video.metadata 			\
+	playlist.metadata		\
 	xesam-convenience.metadata 	\
 	xesam-convenience.service 	\
 	xesam.metadata 			\

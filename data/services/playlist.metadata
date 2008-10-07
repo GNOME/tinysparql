@@ -1,0 +1,22 @@
+[Playlist:TotalLength]
+DisplayName=Length
+Description=Total length of songs in the playlist in seconds
+DataType=integer
+Weight=1
+Filtered=false
+
+
+[Playlist:Songs]
+DisplayName=Songs
+Description=Numbers of tracks in the playlist
+DataType=integer
+Weight=1
+Filtered=false
+
+[Playlist:Name]
+DisplayName=Name
+Description=Name describing the playlist
+DataType=index
+Weight=10
+Filtered=false
+Embedded=false

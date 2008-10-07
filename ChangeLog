@@ -1,3 +1,21 @@
+2008-10-07  Ivan Frade  <ivan.frade@nokia.com>
+
+	Added initial support for playlists. The playlist files are now in
+	a "Playlists" category, but only (and partially) m3u files provide
+	some metadata.
+	
+	* src/trackerd/tracker-db.c
+	(tracker_db_create_array_of_services): Added Playlist as
+	subcategory if Files
+	
+	* src/tracker-extract/tracker-extract-m3u.c
+	* src/tracker-extract/Makefile.am: New extractor for m3u files.
+	
+	* data/services/playlist.metadata
+	* data/services/default.service
+	* data/services/Makefile.am: New category and properties for
+	Playlists.
+	
 2008-10-07  Carlos Garnacho  <carlos@imendio.com>
 
 	* configure.ac:

@@ -297,3 +297,15 @@ TileMetadata=App:GenericName;AppComment;App:Categories
 HasMetadata=false
 HasFullText=false
 HasThumbs=false
+
+[Playlists]
+DisplayName=Playlists
+Description=Music playlists
+Parent=Files
+PropertyPrefix=Playlist
+Mimes=audio/x-mpegurl;audio/mpegurl;audio/x-scpls;audio/vnd.rn-realaudio;audio/x-pn-realaudio;application/ram;application/vnd.ms-wpl;application/smil;audio/x-ms-asx
+KeyMetadata1=Playlist:TotalLength
+KeyMetadata2=Playlist:Songs
+HasMetadata=true
+HasFullText=false
+HasThumbs=false

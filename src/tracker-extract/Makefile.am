@@ -23,6 +23,7 @@ INCLUDES = 								\
 
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\
+	libextract-m3u.la						\
 	libextract-imagemagick.la 					\
 	libextract-mp3.la				 		\
 	libextract-mplayer.la 						\
@@ -87,6 +88,11 @@ libextract_abw_la_LIBADD = $(GLIB2_LIBS)
 libextract_imagemagick_la_SOURCES = tracker-extract-imagemagick.c $(xmp_sources)
 libextract_imagemagick_la_LDFLAGS = $(module_flags)
 libextract_imagemagick_la_LIBADD = $(GLIB2_LIBS) $(EXEMPI_LIBS)
+
+# M3U
+libextract_m3u_la_SOURCES = tracker-extract-m3u.c
+libextract_m3u_la_LDFLAGS = $(module_flags)
+libextract_m3u_la_LIBADD = $(GLIB2_LIBS)
 
 # MP3
 libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources)

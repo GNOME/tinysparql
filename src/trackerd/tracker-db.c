@@ -146,6 +146,7 @@ tracker_db_create_array_of_services (const gchar *service,
 	if (add_files) {
 		services[count++] = tracker_ontology_get_service_id_by_name ("Files");
 		services[count++] = tracker_ontology_get_service_id_by_name ("Applications");
+		services[count++] = tracker_ontology_get_service_id_by_name ("Playlists");
 		services[count++] = tracker_ontology_get_service_id_by_name ("Folders");
 		services[count++] = tracker_ontology_get_service_id_by_name ("Documents");
 		services[count++] = tracker_ontology_get_service_id_by_name ("Images");
