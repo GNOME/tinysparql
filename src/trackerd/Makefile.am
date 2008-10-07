@@ -6,6 +6,7 @@ INCLUDES =								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker/mail-modules\"         \
 	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(GMIME_CFLAGS)							\
 	$(FAM_CFLAGS)							\

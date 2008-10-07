@@ -26,6 +26,10 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 #define TRACKER_TYPE_DB_TYPE (tracker_db_type_get_type ())
 
 typedef enum {

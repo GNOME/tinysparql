@@ -22,6 +22,7 @@ TEST_PROGS += 								\
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
 	$(DBUS_CFLAGS)							\

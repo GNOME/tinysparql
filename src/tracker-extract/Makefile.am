@@ -18,7 +18,8 @@ INCLUDES = 								\
 	$(XINE_CFLAGS) 							\
 	$(GDKPIXBUF_CFLAGS)						\
 	-I$(top_srcdir)/src 						\
-	-DMODULES_DIR=\"$(modulesdir)\"
+	-DMODULES_DIR=\"$(modulesdir)\"					\
+	-DTRACKER_COMPILATION
 
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\

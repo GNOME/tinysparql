@@ -22,8 +22,11 @@
 #ifndef __LIBTRACKER_COMMON_UTILS_H__
 #define __LIBTRACKER_COMMON_UTILS_H__
 
-#include <glib.h>
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
 
+#include <glib.h>
 #include "tracker-config.h"
 
 gboolean tracker_is_empty_string	    (const char    *str);

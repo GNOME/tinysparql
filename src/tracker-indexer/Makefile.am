@@ -9,10 +9,11 @@ INCLUDES =								\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"	\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(DBUS_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
-	$(GMODULE_CFLAGS)						
+	$(GMODULE_CFLAGS)
 
 libexec_PROGRAMS = tracker-indexer
 

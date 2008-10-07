@@ -22,6 +22,10 @@
 #ifndef __LIBTRACKER_COMMON_OS_DEPENDANT_H__
 #define __LIBTRACKER_COMMON_OS_DEPENDANT_H__
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 #include <glib.h>
 #include <glib/gstdio.h>
 

@@ -26,6 +26,10 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 void	 tracker_nfs_lock_init	   (gboolean nfs);
 void	 tracker_nfs_lock_shutdown (void);
 gboolean tracker_nfs_lock_obtain   (void);

@@ -25,6 +25,10 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 typedef struct _LanguageMapEntry {
 	const gchar * const code;
 	const gchar * const language;

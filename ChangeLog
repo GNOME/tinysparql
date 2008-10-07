@@ -1,3 +1,12 @@
+2008-10-07  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-common.h: New file. Do not allow
+	compiling unless TRACKER_ENABLE_INTERNALS or TRACKER_COMPILATION is
+	defined.
+	* src/libtracker-common/*.h: Do not allow including anything but
+	libtracker-common/tracker-common.h outside of tracker.
+	* */Makefile.am: define TRACKER_COMPILATION.
+
 2008-10-06  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/modules/evolution.c (extract_message_text): How

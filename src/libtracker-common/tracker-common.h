@@ -1,6 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2006, Anders Aagaard
+ * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,17 +19,31 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_IOPRIO_H__
-#define __LIBTRACKER_IOPRIO_H__
+#ifndef __LIBTRACKER_COMMON_H__
+#define __LIBTRACKER_COMMON_H__
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
+#if !defined (TRACKER_ENABLE_INTERNALS) && !defined (TRACKER_COMPILATION)
+#error "TRACKER_ENABLE_INTERNALS not defined, this must be defined to use tracker's internal functions"
 #endif
 
-void tracker_ioprio_init (void);
+#define __LIBTRACKER_COMMON_INSIDE__
+
+#include "tracker-config.h"
+#include "tracker-field.h"
+#include "tracker-file-utils.h"
+#include "tracker-language.h"
+#include "tracker-module-config.h"
+#include "tracker-ontology.h"
+#include "tracker-parser.h"
+#include "tracker-service.h"
+#include "tracker-type-utils.h"
+#include "tracker-utils.h"
+
+#undef __LIBTRACKER_COMMON_INSIDE__
+
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_IOPRIO_H__ */
+#endif /* __LIBTRACKER_COMMON_H__ */

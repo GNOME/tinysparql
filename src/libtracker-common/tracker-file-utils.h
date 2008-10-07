@@ -22,6 +22,10 @@
 #ifndef __LIBTRACKER_COMMON_FILE_UTILS_H__
 #define __LIBTRACKER_COMMON_FILE_UTILS_H__
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 #include <glib.h>
 
 gint	 tracker_file_open			   (const gchar *uri,

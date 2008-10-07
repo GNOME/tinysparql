@@ -10,6 +10,7 @@ INCLUDES =								\
 	-DINDEXER_MODULES_DIR=\"$(indexer_modulesdir)\"			\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-D_GNU_SOURCE							\
+	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(GMODULE_CFLAGS)						\
 	$(GIO_CFLAGS)							\

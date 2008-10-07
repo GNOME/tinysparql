@@ -11,13 +11,14 @@ INCLUDES = 								\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"	\
 	-DLIBDIR=\""$(libdir)"\"					\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
+	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
 	$(DBUS_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)			
+	$(GLIB2_CFLAGS)
 
 tracker_metadata_utils_SOURCES = 					\
 	tracker-dbus.c							\

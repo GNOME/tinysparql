@@ -26,6 +26,10 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 gchar *  tracker_date_format		       (const gchar  *time_string);
 gchar *  tracker_date_to_time_string	       (const gchar  *date_string);
 time_t	 tracker_string_to_date		       (const gchar  *time_string);

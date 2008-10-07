@@ -26,6 +26,10 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
 gboolean tracker_log_init     (const char *filename,
 			       gint	   verbosity);
 void	 tracker_log_shutdown (void);
