@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <pango/pango.h>
 
 #include "tracker-parser.h"
 #include "tracker-log.h"
@@ -61,6 +62,39 @@ typedef enum {
 	TRACKER_PARSER_WORD_IGNORE,
 	TRACKER_PARSER_WORD_NEWLINE
 } TrackerParserWordType;
+
+typedef enum {
+	TRACKER_PARSER_ENCODING_ASCII,
+	TRACKER_PARSER_ENCODING_LATIN,
+	TRACKER_PARSER_ENCODING_CJK,
+	TRACKER_PARSER_ENCODING_OTHER
+} TrackerParserEncoding;
+
+struct TrackerParser {
+	const gchar	      *txt;
+	gint		       txt_size;
+
+	TrackerLanguage       *language;
+	gboolean	       enable_stemmer;
+	gboolean	       enable_stop_words;
+	guint		       max_words_to_index;
+	guint		       max_word_length;
+	guint		       min_word_length;
+	gboolean	       delimit_words;
+	gboolean	       parse_reserved_words;
+
+	/* Private members */
+	gchar			*word;
+	gint			word_length;
+	guint			word_position;
+	TrackerParserEncoding	encoding;
+	const gchar		*cursor;
+
+	/* Pango members for CJK text parsing */
+	PangoLogAttr	      *attrs;
+	guint		       attr_length;
+	guint		       attr_pos;
+};
 
 static inline TrackerParserWordType
 get_word_type (gunichar c)

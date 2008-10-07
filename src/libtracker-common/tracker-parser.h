@@ -23,7 +23,6 @@
 #define __TRACKERD_PARSER_H__
 
 #include <glib.h>
-#include <pango/pango.h>
 
 #include "tracker-language.h"
 
@@ -33,38 +32,7 @@ G_BEGIN_DECLS
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
-typedef enum {
-	TRACKER_PARSER_ENCODING_ASCII,
-	TRACKER_PARSER_ENCODING_LATIN,
-	TRACKER_PARSER_ENCODING_CJK,
-	TRACKER_PARSER_ENCODING_OTHER
-} TrackerParserEncoding;
-
-typedef struct {
-	const gchar	      *txt;
-	gint		       txt_size;
-
-	TrackerLanguage       *language;
-	gboolean	       enable_stemmer;
-	gboolean	       enable_stop_words;
-	guint		       max_words_to_index;
-	guint		       max_word_length;
-	guint		       min_word_length;
-	gboolean	       delimit_words;
-	gboolean	       parse_reserved_words;
-
-	/* Private members */
-	gchar			*word;
-	gint			word_length;
-	guint			word_position;
-	TrackerParserEncoding	encoding;
-	const gchar		*cursor;
-
-	/* Pango members for CJK text parsing */
-	PangoLogAttr	      *attrs;
-	guint		       attr_length;
-	guint		       attr_pos;
-} TrackerParser;
+typedef struct TrackerParser TrackerParser;
 
 TrackerParser *tracker_parser_new	      (TrackerLanguage *language,
 					       gint		max_word_length,

@@ -1,5 +1,11 @@
 2008-10-07  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/tracker-parser.[ch]: Do not expose the
+	TrackerParser struct in the header, it was pulling pango.h
+	unnecessarily.
+
+2008-10-07  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/Makefile.am: Install relevant headers so
 	they're available for public use.
 
