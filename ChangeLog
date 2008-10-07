@@ -1,3 +1,8 @@
+2008-10-07  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-db.c (tracker_db_create_array_of_services):
+	Don't be naughty and overwrite memory we don't own.
+
 2008-10-07  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-applet/Makefile.am: Added -DTRACKER_COMPILATION to

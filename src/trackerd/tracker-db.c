@@ -106,7 +106,7 @@ tracker_db_create_array_of_services (const gchar *service,
 				     gboolean	  basic_services)
 {
 	GArray	 *array;
-	gint	  services[12];
+	gint	  services[16];
 	gint	  count;
 	gboolean  add_files;
 	gboolean  add_emails;
