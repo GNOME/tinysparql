@@ -1,3 +1,8 @@
+2008-10-08  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-file-utils.c
+	(tracker_file_get_mime_type): do not unref a possibly NULL GFileInfo.
+
 2008-10-08  Mikael Ottela    <mikael.ottela@ixonos.com>
 	* data/services/image.metadata: Changed some field types for images
 	to ones that make more sense.

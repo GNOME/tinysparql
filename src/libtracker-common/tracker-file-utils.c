@@ -269,9 +269,9 @@ tracker_file_get_mime_type (const gchar *path)
 		content_type = NULL;
 	} else {
 		content_type = g_strdup (g_file_info_get_content_type (info));
+		g_object_unref (info);
 	}
 
-	g_object_unref (info);
 	g_object_unref (file);
 
 	return content_type ? content_type : g_strdup ("unknown");
