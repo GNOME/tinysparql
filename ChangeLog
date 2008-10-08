@@ -1,3 +1,18 @@
+2008-10-08  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/libtracker-common/tracker-ontology.[ch]
+	(tracker_ontology_get_subcategory_ids) New method to obtain all
+	the subcategory ids of a service type. The returned array contains
+	the id of the searched service type as well. 
+	
+	* src/trackerd/tracker-db.c
+	(tracker_db_create_array_of_services): Use the new
+	tracker-ontology method instead of hardcoded arrays.
+	(tracker_db_search_text): Use tracker_db_create_array_of_services
+	
+	* tests/libtracker-common/tracker-ontology-test.c: Test for the
+	new functionality	
+	
 2008-10-08  Carlos Garnacho  <carlos@imendio.com>
 
 	* docs/reference/tracker-indexer/writing-an-indexer-plugin.sgml:

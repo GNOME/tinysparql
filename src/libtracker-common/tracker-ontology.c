@@ -51,6 +51,9 @@ static GHashTable *field_names;
 /* FieldType enum class */
 static gpointer    field_type_enum_class;
 
+/* Category - subcategory ids cache */
+static GHashTable *subcategories_cache;
+
 static void
 ontology_mime_prefix_foreach (gpointer data,
 			      gpointer user_data)
@@ -112,6 +115,12 @@ ontology_hash_lookup_by_id (GHashTable	*hash_table,
 	return data;
 }
 
+static void
+free_int_array (gpointer data) 
+{
+	g_array_free ((GArray *)data, TRUE);
+}
+
 void
 tracker_ontology_init (void)
 {
@@ -138,6 +147,11 @@ tracker_ontology_init (void)
 					     g_str_equal,
 					     g_free,
 					     g_object_unref);
+
+	subcategories_cache = g_hash_table_new_full (g_str_hash,
+						     g_str_equal,
+						     g_free,
+						     free_int_array);
 
 	/* We will need the class later in order to match strings to enum values
 	 * when inserting metadata types in the DB, so the enum class needs to be
@@ -166,6 +180,9 @@ tracker_ontology_shutdown (void)
 
 	g_hash_table_unref (field_names);
 	field_names = NULL;
+
+	g_hash_table_unref (subcategories_cache);
+	subcategories_cache = NULL;
 
 	if (service_mime_prefixes) {
 		g_slist_foreach (service_mime_prefixes,
@@ -451,6 +468,51 @@ tracker_ontology_get_field_names_registered (const gchar *service_str)
 	g_list_free (fields);
 
 	return names;
+}
+
+typedef struct {
+	gchar  *name;
+	GArray *subcategories;
+} CalculateSubcategoriesForEach;
+
+static void
+calculate_subcategories_foreach (gpointer key, gpointer value, gpointer user_data) 
+{
+	TrackerService                *service_def;
+	CalculateSubcategoriesForEach *data;
+
+	service_def = (TrackerService *)value;
+	data = (CalculateSubcategoriesForEach *)user_data;
+
+	if (!g_strcmp0 (tracker_service_get_name (service_def), data->name)
+	    || !g_strcmp0 (tracker_service_get_parent (service_def), data->name)
+	    || !g_strcmp0 ("*", data->name)) {
+		gint id =  tracker_service_get_id (service_def);
+		g_array_append_val (data->subcategories, id);
+	}
+}
+
+GArray *
+tracker_ontology_get_subcategory_ids (const gchar *service_str)
+{
+	GArray *subcategories;
+
+	subcategories = g_hash_table_lookup (subcategories_cache, service_str);
+
+	if (!subcategories) {
+		CalculateSubcategoriesForEach data;
+
+		data.name = g_strdup (service_str);
+		data.subcategories = g_array_new (TRUE, TRUE, sizeof (int));
+
+		g_hash_table_foreach (service_names, calculate_subcategories_foreach, &data);
+		
+		g_hash_table_insert (subcategories_cache, data.name, data.subcategories);
+
+		subcategories = data.subcategories;
+	}
+
+	return subcategories;
 }
 
 /*

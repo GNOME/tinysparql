@@ -384,6 +384,30 @@ test_metadata_key_in_service (void)
 	g_assert_cmpint (key, ==, 0);
 }
 
+static void
+test_get_subcategories (void)
+{
+	GArray *result;
+
+	result = tracker_ontology_get_subcategory_ids ("Applications");
+
+	g_assert_cmpint (result->len, ==, 1);
+	
+	result = tracker_ontology_get_subcategory_ids ("Conversations");
+/*	
+	 Conversations, GaimConversations, GossipConversations 
+	   FIXME implement more than one level of hierarchy!
+*/
+	g_assert_cmpint (result->len, ==, 3);
+	
+
+	result = tracker_ontology_get_subcategory_ids ("*");
+
+	g_assert_cmpint (result->len, ==, 7);
+
+	g_array_free (result, TRUE);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -428,6 +452,9 @@ main (int argc, char **argv)
 
 	g_test_add_func ("/libtracker-common/tracker-ontology/test_metadata_key_in_service",
 			 test_metadata_key_in_service);
+
+	g_test_add_func ("/libtracker-common/tracker-ontology/test_get_subcategories",
+			 test_get_subcategories);
 
 	result = g_test_run ();
 

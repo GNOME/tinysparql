@@ -106,71 +106,14 @@ tracker_db_create_array_of_services (const gchar *service,
 				     gboolean	  basic_services)
 {
 	GArray	 *array;
-	gint	  services[16];
-	gint	  count;
-	gboolean  add_files;
-	gboolean  add_emails;
-	gboolean  add_conversations;
 
 	if (service) {
-		if (g_ascii_strcasecmp (service, "Files") == 0) {
-			add_files = TRUE;
-			add_emails = FALSE;
-			add_conversations = FALSE;
-		} else if (g_ascii_strcasecmp (service, "Emails") == 0) {
-			add_files = FALSE;
-			add_emails = TRUE;
-			add_conversations = FALSE;
-		} else if (g_ascii_strcasecmp (service, "Conversations") == 0) {
-			add_files = FALSE;
-			add_emails = FALSE;
-			add_conversations = TRUE;
-		} else {
-			/* Maybe set them all to TRUE? */
-			add_files = FALSE;
-			add_emails = FALSE;
-			add_conversations = FALSE;
-		}
+		array = tracker_ontology_get_subcategory_ids (service);
 	} else if (basic_services) {
-		add_files = TRUE;
-		add_emails = FALSE;
-		add_conversations = FALSE;
+		array = tracker_ontology_get_subcategory_ids ("Files");
 	} else {
-		add_files = TRUE;
-		add_emails = TRUE;
-		add_conversations = TRUE;
+		array = tracker_ontology_get_subcategory_ids ("*");
 	}
-
-	count = 0;
-
-	if (add_files) {
-		services[count++] = tracker_ontology_get_service_id_by_name ("Files");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Applications");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Playlists");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Folders");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Documents");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Images");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Videos");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Music");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Text");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Development");
-		services[count++] = tracker_ontology_get_service_id_by_name ("Other");
-	}
-
-	if (add_emails) {
-		services[count++] = tracker_ontology_get_service_id_by_name ("EvolutionEmails");
-		services[count++] = tracker_ontology_get_service_id_by_name ("KMailEmails");
-		services[count++] = tracker_ontology_get_service_id_by_name ("ThunderbirdEmails");
-	}
-
-	if (add_conversations) {
-		services[count++] = tracker_ontology_get_service_id_by_name ("GaimConversations");
-	}
-
-	services[count] = 0;
-
-	array = g_array_new (TRUE, TRUE, sizeof (gint));
-	g_array_append_vals (array, services, count);
 
 	return array;
 }
@@ -331,7 +274,6 @@ tracker_db_search_text (TrackerDBInterface *iface,
 	GArray		    *hits;
 	gint		     count;
 	gboolean	     detailed_emails = FALSE, detailed_apps = FALSE;
-	gint		     service_array[255];
 	const gchar	    *procedure;
 	GArray		    *services = NULL;
 	GSList		    *duds = NULL;
@@ -350,30 +292,7 @@ tracker_db_search_text (TrackerDBInterface *iface,
 						tracker_config_get_max_word_length (private->config),
 						tracker_config_get_min_word_length (private->config));
 
-	result_set = tracker_db_exec_proc (iface,
-					   "GetRelatedServiceIDs",
-					   service,
-					   service,
-					   NULL);
-
-	if (result_set) {
-		gboolean valid = TRUE;
-		gint	 type_id;
-
-		while (valid) {
-			tracker_db_result_set_get (result_set, 0, &type_id, -1);
-			service_array[i] = type_id;
-			i++;
-
-			valid = tracker_db_result_set_iter_next (result_set);
-		}
-
-		service_array[i] = 0;
-		services = g_array_new (TRUE, TRUE, sizeof (gint));
-		g_array_append_vals (services, service_array, i);
-		g_object_unref (result_set);
-	}
-
+	services = tracker_db_create_array_of_services (service, FALSE);
 	/* FIXME: Do we need both index and services here? We used to have it */
 	tree = tracker_query_tree_new (search_string,
 				       private->config,
@@ -505,7 +424,6 @@ tracker_db_search_text (TrackerDBInterface *iface,
 
 	g_object_unref (tree);
 	g_array_free (hits, TRUE);
-	g_array_free (services, TRUE);
 
 	if (!result) {
 		return NULL;
@@ -602,7 +520,6 @@ tracker_db_search_text_and_mime (TrackerDBInterface  *iface,
 
 	g_object_unref (tree);
 	g_array_free (hits, TRUE);
-	g_array_free (services, TRUE);
 
 	if (!result_set1) {
 		return NULL;
@@ -702,7 +619,6 @@ tracker_db_search_text_and_location (TrackerDBInterface *iface,
 	g_free (location_prefix);
 	g_object_unref (tree);
 	g_array_free (hits, TRUE);
-	g_array_free (services, TRUE);
 
 	if (!result_set1) {
 		return NULL;
@@ -809,7 +725,6 @@ tracker_db_search_text_and_mime_and_location (TrackerDBInterface  *iface,
 	g_free (location_prefix);
 	g_object_unref (tree);
 	g_array_free (hits, TRUE);
-	g_array_free (services, TRUE);
 
 	if (!result_set1) {
 		return NULL;
