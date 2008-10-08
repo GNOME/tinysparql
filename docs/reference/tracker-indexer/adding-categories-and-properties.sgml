@@ -37,6 +37,7 @@ MimePrefixes=Prefix to match mimetypes (e.g. audio/ will match all mime types as
 HasMetadata=Should tracker extract meta-data from these files?
 HasFullText=Shoudl tracker extract text content from these files?
 HasThumb= Should tracker generate thumbnails from these files?
+ShowServiceFiles=Do we want to see these files in the text search results?
       </programlisting>
     </para>
     <note>
@@ -55,6 +56,7 @@ Mimes=audio/x-mpegurl
 HasMetadata=true
 HasFullText=false
 HasThumbs=false 
+ShowServiceFiles=true
       </programlisting>
     </example>
 

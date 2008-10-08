@@ -1,5 +1,11 @@
 2008-10-08  Ivan Frade  <ivan.frade@nokia.com>
 
+	* docs/reference/tracker-indexer/adding-categories-and-properties.sgml
+	Added ShowServiceFiles to the documentation. Set this variable is
+	essential to see the category files in search results.
+	
+2008-10-08  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/libtracker-common/tracker-ontology.[ch]
 	(tracker_ontology_get_subcategory_ids) New method to obtain all
 	the subcategory ids of a service type. The returned array contains
