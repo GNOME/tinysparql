@@ -1,5 +1,12 @@
 2008-10-08  Carlos Garnacho  <carlos@imendio.com>
 
+	* docs/reference/tracker-indexer/writing-an-indexer-plugin.sgml:
+	* docs/reference/tracker-indexer/tracker-indexer-docs.sgml:
+	* docs/reference/tracker-indexer/Makefile.am: Add an initial draft on
+	how to develop indexer modules.
+
+2008-10-08  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-extract/tracker-extract.c (print_file_metadata)
 	(process_input_cb) (main): Make tracker-extract process inmediately
 	and exit if path/mimetype are passed through argv. It will be useful

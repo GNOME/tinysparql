@@ -6,6 +6,7 @@
 <!ENTITY tracker-metadata-utils SYSTEM "xml/tracker-metadata-utils.xml">
 <!ENTITY adding-categories-and-properties SYSTEM "xml/adding-categories-and-properties.sgml">
 <!ENTITY writing-an-extractor SYSTEM "xml/writing-an-extractor.sgml">
+<!ENTITY writing-an-indexer-plugin SYSTEM "xml/writing-an-indexer-plugin.sgml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -50,5 +51,6 @@
 
       &adding-categories-and-properties;
       &writing-an-extractor;
+      &writing-an-indexer-plugin;
     </part>
 </book>

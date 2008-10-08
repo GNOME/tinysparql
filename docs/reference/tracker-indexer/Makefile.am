@@ -67,11 +67,13 @@ MKDB_OPTIONS=--sgml-mode --output-format=xml
 content_files =					\
 	version.xml				\
 	adding-categories-and-properties.sgml	\
-	writing-an-extractor.sgml
+	writing-an-extractor.sgml		\
+	writing-an-indexer-plugin.sgml
 
 expand_content_files =				\
 	adding-categories-and-properties.sgml	\
-	writing-an-extractor.sgml
+	writing-an-extractor.sgml		\
+	writing-an-indexer-plugin.sgml
 
 # Images to copy into HTML directory
 HTML_IMAGES =
