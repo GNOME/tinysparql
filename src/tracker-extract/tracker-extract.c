@@ -324,23 +324,11 @@ reset_shutdown_timeout (GMainLoop *main_loop)
 	shutdown_timeout_id = g_timeout_add (30000, shutdown_app_timeout, main_loop);
 }
 
-static gboolean
-process_input_cb (GIOChannel   *channel,
-		  GIOCondition	condition,
-		  gpointer	user_data)
+static void
+print_file_metadata (const gchar *filename,
+		     const gchar *mimetype)
 {
 	GHashTable *meta;
-	gchar *filename, *mimetype;
-
-	debug ("Extractor - Processing input");
-
-	reset_shutdown_timeout ((GMainLoop *) user_data);
-
-	g_io_channel_read_line (channel, &filename, NULL, NULL, NULL);
-	g_io_channel_read_line (channel, &mimetype, NULL, NULL, NULL);
-
-	g_strstrip (filename);
-	g_strstrip (mimetype);
 
 	if (mimetype && *mimetype) {
 		meta = tracker_get_file_metadata (filename, mimetype);
@@ -357,6 +345,26 @@ process_input_cb (GIOChannel   *channel,
 	 * knows when to stop reading
 	 */
 	g_print ("\n");
+}
+
+static gboolean
+process_input_cb (GIOChannel   *channel,
+		  GIOCondition	condition,
+		  gpointer	user_data)
+{
+	gchar *filename, *mimetype;
+
+	debug ("Extractor - Processing input");
+
+	reset_shutdown_timeout ((GMainLoop *) user_data);
+
+	g_io_channel_read_line (channel, &filename, NULL, NULL, NULL);
+	g_io_channel_read_line (channel, &mimetype, NULL, NULL, NULL);
+
+	g_strstrip (filename);
+	g_strstrip (mimetype);
+
+	print_file_metadata (filename, mimetype);
 
 	g_free (filename);
 	g_free (mimetype);
@@ -382,6 +390,17 @@ main (int argc, char *argv[])
 	setlocale (LC_ALL, "");
 
 	initialize_extractors ();
+
+	if (argc >= 2) {
+		if (argc >= 3) {
+			print_file_metadata (argv[1], argv[2]);
+		} else {
+			print_file_metadata (argv[1], NULL);
+		}
+
+		return EXIT_SUCCESS;
+	}
+
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	input = g_io_channel_unix_new (STDIN_FILENO);

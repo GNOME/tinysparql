@@ -1,5 +1,12 @@
 2008-10-08  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-extract/tracker-extract.c (print_file_metadata)
+	(process_input_cb) (main): Make tracker-extract process inmediately
+	and exit if path/mimetype are passed through argv. It will be useful
+	for testing purposes.
+
+2008-10-08  Carlos Garnacho  <carlos@imendio.com>
+
 	* docs/reference/libtracker-common/libtracker-common.types: Forgot to
 	add this, now the GObject scanner is compiled correctly.
 	* docs/reference/libtracker-common/Makefile.am: Add
