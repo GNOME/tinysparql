@@ -50,19 +50,19 @@ struct _Languages {
 };
 
 static Languages all_langs[] = {
-	{ "da", "danish" },
-	{ "nl", "dutch" },
-	{ "en", "english" },
-	{ "fi", "finnish" },
-	{ "fr", "french" },
-	{ "de", "german" },
-	{ "hu", "hungarian" },
-	{ "it", "italian" },
-	{ "nb", "norwegian" },
-	{ "pt", "portuguese" },
-	{ "ru", "russian" },
-	{ "es", "spanish" },
-	{ "sv", "swedish" },
+	{ "da", "Danish" },
+	{ "nl", "Dutch" },
+	{ "en", "English" },
+	{ "fi", "Finnish" },
+	{ "fr", "French" },
+	{ "de", "German" },
+	{ "hu", "Hungarian" },
+	{ "it", "Italian" },
+	{ "nb", "Norwegian" },
+	{ "pt", "Portuguese" },
+	{ "ru", "Russian" },
+	{ "es", "Spanish" },
+	{ "sv", "Swedish" },
 	{ NULL, NULL },
 };
 
@@ -83,7 +83,6 @@ static void	    language_set_property      (GObject       *object,
 						guint	       param_id,
 						const GValue  *value,
 						GParamSpec    *pspec);
-static const gchar *language_get_name_for_code (const gchar   *language_code);
 static void	    language_notify_cb	       (TrackerConfig *config,
 						GParamSpec    *param,
 						gpointer       user_data);
@@ -133,7 +132,7 @@ tracker_language_init (TrackerLanguage *language)
 
 	priv->stemmer_mutex = g_mutex_new ();
 
-	stem_language = language_get_name_for_code (NULL);
+	stem_language = tracker_language_get_name_by_code (NULL);
 	priv->stemmer = sb_stemmer_new (stem_language, NULL);
 }
 
@@ -228,24 +227,6 @@ language_get_stopword_filename (const gchar *language_code)
 	return filename;
 }
 
-static const gchar *
-language_get_name_for_code (const gchar *language_code)
-{
-	gint i;
-
-	if (!language_code || language_code[0] == '\0') {
-		return "english";
-	}
-
-	for (i = 0; all_langs[i].code; i++) {
-		if (g_str_has_prefix (language_code, all_langs[i].code)) {
-			return all_langs[i].name;
-		}
-	}
-
-	return "";
-}
-
 static void
 language_add_stopwords (TrackerLanguage *language,
 			const gchar	*filename)
@@ -287,7 +268,8 @@ language_set_stopword_list (TrackerLanguage *language,
 {
 	TrackerLanguagePriv *priv;
 	gchar		    *stopword_filename;
-	const gchar	    *stem_language;
+	gchar               *stem_language_lower;
+	const gchar         *stem_language;
 
 	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
 
@@ -308,7 +290,8 @@ language_set_stopword_list (TrackerLanguage *language,
 
 	g_message ("Setting up stemmer for language code:'%s'", language_code);
 
-	stem_language = language_get_name_for_code (language_code);
+	stem_language = tracker_language_get_name_by_code (language_code);
+	stem_language_lower = g_ascii_strdown (stem_language, -1);
 
 	g_mutex_lock (priv->stemmer_mutex);
 
@@ -316,13 +299,15 @@ language_set_stopword_list (TrackerLanguage *language,
 		sb_stemmer_delete (priv->stemmer);
 	}
 
-	priv->stemmer = sb_stemmer_new (stem_language, NULL);
+	priv->stemmer = sb_stemmer_new (stem_language_lower, NULL);
 	if (!priv->stemmer) {
 		g_message ("No stemmer could be found for language:'%s'",
-			   stem_language);
+			   stem_language_lower);
 	}
 
 	g_mutex_unlock (priv->stemmer_mutex);
+
+	g_free (stem_language_lower);
 }
 
 static void
@@ -486,4 +471,74 @@ tracker_language_get_default_code (void)
 	}
 
 	return g_strdup ("en");
+}
+
+GSList *
+tracker_language_get_all_by_name (void)
+{
+	GSList *list = NULL;
+	gint i;
+
+	/* Shouldn't we use g_get_language_names() instead? -mr */
+
+	for (i = 0; all_langs[i].code; i++) {
+		list = g_slist_prepend (list, all_langs[i].name);
+	}
+
+	list = g_slist_reverse (list);
+
+	return list;
+}
+
+GSList *
+tracker_language_get_all_by_code (void)
+{
+	GSList *list = NULL;
+	gint i;
+
+	/* Shouldn't we use g_get_language_names() instead? -mr */
+
+	for (i = 0; all_langs[i].code; i++) {
+		list = g_slist_prepend (list, all_langs[i].code);
+	}
+
+	list = g_slist_reverse (list);
+
+	return list;
+}
+
+const gchar *
+tracker_language_get_name_by_code (const gchar *language_code)
+{
+	gint i;
+
+	if (!language_code || language_code[0] == '\0') {
+		return "english";
+	}
+
+	for (i = 0; all_langs[i].code; i++) {
+		if (g_str_has_prefix (language_code, all_langs[i].code)) {
+			return all_langs[i].name;
+		}
+	}
+
+	return "";
+}
+
+const gchar *
+tracker_language_get_code_by_name (const gchar *language_name)
+{
+	gint i;
+
+	if (!language_name || language_name[0] == '\0') {
+		return "en";
+	}
+
+	for (i = 0; all_langs[i].name; i++) {
+		if (g_str_has_prefix (language_name, all_langs[i].name)) {
+			return all_langs[i].code;
+		}
+	}
+
+	return "";
 }

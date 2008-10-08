@@ -1,3 +1,30 @@
+2008-10-08  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/Makefile.am:
+	* src/libtracker-common/tracker-config.[ch]: Added more functions
+	to be able to more easily manipulate the lists we store in the
+	configuration. Also make it possible to save the config.
+	
+	* src/libtracker-common/tracker-configuration.[ch]: Removed in
+	favour of tracker-config.
+
+	* src/libtracker-common/tracker-file-utils.c: Completely reworked
+	tracker_path_list_filter_duplicates() so it works similarly to the
+	hash table function. Also removed some of the debugging here and
+	casting which was unnecessary.
+	
+	* src/libtracker-common/tracker-language.[ch]: Added functions
+	needed by tracker-preferences to get all languages and codes for
+	stemmers. 
+	
+	* src/tracker-preferences/Makefile.am: Reworked the Makefile to be
+	inline with others we have. Fixed the linking order.
+	
+	* src/tracker-preferences/tracker-preferences-main.c:
+	* src/tracker-preferences/tracker-preferences.c: Completely
+	reworked the source here to use TrackerConfig instead of
+	TrackerConfiguration. 
+
 2008-10-08  Ivan Frade  <ivan.frade@nokia.com>
 
 	* data/services/default.service:
@@ -14,6 +41,7 @@
 	(tracker_file_get_mime_type): do not unref a possibly NULL GFileInfo.
 
 2008-10-08  Mikael Ottela    <mikael.ottela@ixonos.com>
+	
 	* data/services/image.metadata: Changed some field types for images
 	to ones that make more sense.
 

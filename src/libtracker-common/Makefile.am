@@ -33,7 +33,6 @@ libtracker_common_la_SOURCES =	 			\
 	$(os_sources)					\
 	$(hal_sources)					\
 	tracker-config.c 				\
-	tracker-configuration.c 			\
 	tracker-dbus.c	 				\
 	tracker-field.c					\
 	tracker-field-data.c				\
@@ -51,7 +50,6 @@ libtracker_common_la_SOURCES =	 			\
 
 noinst_HEADERS =					\
 	$(hal_headers)					\
-	tracker-configuration.h				\
 	tracker-dbus.h					\
 	tracker-field-data.h				\
 	tracker-ioprio.h				\

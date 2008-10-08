@@ -52,6 +52,8 @@ struct _TrackerConfigClass {
 GType	       tracker_config_get_type				   (void) G_GNUC_CONST;
 
 TrackerConfig *tracker_config_new				   (void);
+gboolean       tracker_config_save                                 (TrackerConfig *config);
+
 gint	       tracker_config_get_verbosity			   (TrackerConfig *config);
 gint	       tracker_config_get_initial_sleep			   (TrackerConfig *config);
 gboolean       tracker_config_get_low_memory_mode		   (TrackerConfig *config);
@@ -130,7 +132,7 @@ void	       tracker_config_set_max_bucket_count		   (TrackerConfig *config,
 void	       tracker_config_set_min_bucket_count		   (TrackerConfig *config,
 								    gint	   value);
 
-/* Directory root APIs*/
+/* List APIs*/
 void	       tracker_config_add_watch_directory_roots		   (TrackerConfig *config,
 								    gchar * const *roots);
 void	       tracker_config_add_crawl_directory_roots		   (TrackerConfig *config,
@@ -139,8 +141,30 @@ void	       tracker_config_add_no_watch_directory_roots	   (TrackerConfig *confi
 								    gchar * const *roots);
 void	       tracker_config_add_disabled_modules		   (TrackerConfig *config,
 								    gchar * const *modules);
+void	       tracker_config_add_no_index_file_types		   (TrackerConfig *config,
+								    gchar * const *file_types);
+
+void	       tracker_config_remove_watch_directory_roots         (TrackerConfig *config,
+								    const gchar   *root);
+void	       tracker_config_remove_crawl_directory_roots         (TrackerConfig *config,
+								    const gchar   *root);
+void	       tracker_config_remove_no_watch_directory_roots      (TrackerConfig *config,
+								    const gchar   *root);
 void	       tracker_config_remove_disabled_modules		   (TrackerConfig *config,
 								    const gchar   *module);
+void	       tracker_config_remove_no_index_file_types	   (TrackerConfig *config,
+								    const gchar   *file_types);
+
+void	       tracker_config_set_watch_directory_roots		   (TrackerConfig *config,
+								    GSList        *roots);
+void	       tracker_config_set_crawl_directory_roots		   (TrackerConfig *config,
+								    GSList        *roots);
+void	       tracker_config_set_no_watch_directory_roots	   (TrackerConfig *config,
+								    GSList        *roots);
+void	       tracker_config_set_disabled_modules		   (TrackerConfig *config,
+								    GSList        *modules);
+void	       tracker_config_set_no_index_file_types		   (TrackerConfig *config,
+								    GSList        *types);
 
 G_END_DECLS
 

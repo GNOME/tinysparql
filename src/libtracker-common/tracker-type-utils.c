@@ -739,6 +739,7 @@ tracker_gslist_copy_with_string_data (GSList *list)
 
 	return new_list;
 }
+
 gchar *
 tracker_string_boolean_to_string_gint (const gchar *value)
 {

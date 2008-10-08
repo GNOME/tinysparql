@@ -35,6 +35,7 @@
 #include "tracker-log.h"
 #include "tracker-os-dependant.h"
 #include "tracker-file-utils.h"
+#include "tracker-type-utils.h"
 
 #define TEXT_SNIFF_SIZE 4096
 
@@ -481,19 +482,17 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 	GHashTableIter iter1, iter2;
 	gpointer       key;
 
-	g_debug ("Filtering duplicates in path hash table:");
-
 	g_hash_table_iter_init (&iter1, roots);
 	while (g_hash_table_iter_next (&iter1, &key, NULL)) {
 		const gchar *path;
 
-		path = (const gchar*) key;
+		path = key;
 
 		g_hash_table_iter_init (&iter2, roots);
 		while (g_hash_table_iter_next (&iter2, &key, NULL)) {
 			const gchar *in_path;
 
-			in_path = (const gchar*) key;
+			in_path = key;
 
 			if (path == in_path) {
 				continue;
@@ -518,7 +517,7 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 	}
 
 #ifdef TESTING
-	g_debug ("Using the following roots to crawl:");
+	g_debug ("Hash table paths were filtered down to:");
 
 	if (TRUE) {
 		GList *keys, *l;
@@ -537,87 +536,74 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 GSList *
 tracker_path_list_filter_duplicates (GSList *roots)
 {
-	GSList *checked_roots = NULL;
 	GSList *l1, *l2;
+	GSList *new_list;
 
-	/* This function CREATES a new list and the data in the list
-	 * is new too! g_free() must be called on the list data and
-	 * g_slist_free() on the list too when done with.
-	 */
+	new_list = tracker_gslist_copy_with_string_data (roots);
+	l1 = new_list;
 
-	/* ONLY HERE do we add separators on each location we check.
-	 * The reason for this is that these locations are user
-	 * entered in the configuration and we need to make sure we
-	 * don't include the same location more than once.
-	 */
+	while (l1) {
+		const gchar *path;
+		gboolean     reset = FALSE;
 
-	for (l1 = roots; l1; l1 = l1->next) {
-		gchar	 *path;
-		gboolean  should_add = TRUE;
+		path = l1->data;
 
-		if (!g_str_has_suffix (l1->data, G_DIR_SEPARATOR_S)) {
-			path = g_strconcat (l1->data, G_DIR_SEPARATOR_S, NULL);
-		} else {
-			path = g_strdup (l1->data);
-		}
+		l2 = new_list;
 
-		l2 = checked_roots;
+		while (l2 && !reset) {
+			const gchar *in_path;
 
-		while (l2 && should_add) {
-			/* If the new path exists as a lower level
-			 * path or is the same as an existing checked
-			 * root we disgard it, it will be checked
-			 * anyway.
-			 */
-			if (g_str_has_prefix (path, l2->data)) {
-				should_add = FALSE;
-			}
+			in_path = l2->data;
+			
+			if (path == in_path) {
+				/* Do nothing */
+			} 
+			else if (tracker_path_is_in_path (path, in_path)) {
+				g_debug ("Removing path:'%s', it is in path:'%s'",
+					 path, in_path);
 
-			/* If the new path exists as a higher level
-			 * path to one already in the checked roots,
-			 * we remove the checked roots version
-			 */
-			if (g_str_has_prefix (l2->data, path)) {
-				checked_roots = g_slist_remove_link (checked_roots, l2);
+				g_free (l1->data);
+				new_list = g_slist_delete_link (new_list, l1);
+				l1 = new_list;
+
+				reset = TRUE;
+
+				continue;
+			} 
+			else if (tracker_path_is_in_path (in_path, path)) {
+				g_debug ("Removing path:'%s', it is in path:'%s'",
+					 in_path, path);
+				
 				g_free (l2->data);
+				new_list = g_slist_delete_link (new_list, l2);
+				l1 = new_list;
 
-				l2 = checked_roots;
+				reset = TRUE;
+
 				continue;
 			}
 
 			l2 = l2->next;
 		}
-
-		if (should_add) {
-			gint len;
-
-			/* Don't use the trailing '/' and make sure we
-			 * don't remove '/' if that is the content of
-			 * the string or it is '//'.
-			 */
-			len = strlen (path);
-			if (len > 2) {
-				path[len - 1] = '\0';
-			}
-
-			checked_roots = g_slist_prepend (checked_roots, path);
-			continue;
+		
+		if (G_LIKELY (!reset)) {
+			l1 = l1->next;
 		}
-
-		g_free (path);
 	}
 
-	checked_roots = g_slist_reverse (checked_roots);
-
 #ifdef TESTING
-	g_debug ("Using the following roots to crawl:");
+	g_debug ("GSList paths were filtered down to:");
 
-	for (l1 = checked_roots; l1; l1 = l1->next) {
-		g_debug ("  %s", (gchar*) l1->data);
+	if (TRUE) {
+		GSList *l;
+
+		for (l = new_list; l; l = l->next) {
+			g_debug ("  %s", (gchar*) l->data);
+		}
 	}
 #endif /* TESTING */
 
-	return checked_roots;
+	return new_list;
 }
 
 gchar *

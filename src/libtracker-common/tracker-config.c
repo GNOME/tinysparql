@@ -31,6 +31,7 @@
 #include "tracker-language.h"
 #include "tracker-config.h"
 #include "tracker-file-utils.h"
+#include "tracker-type-utils.h"
 
 #define TRACKER_CONFIG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CONFIG, TrackerConfigPrivate))
 
@@ -104,6 +105,8 @@ struct _TrackerConfigPrivate {
 	GFile	     *file;
 	GFileMonitor *monitor;
 
+	GKeyFile     *key_file;
+
 	/* General */
 	gint	      verbosity;
 	gint	      initial_sleep;
@@ -144,16 +147,17 @@ struct _TrackerConfigPrivate {
 	gboolean      enable_xesam;
 };
 
-static void config_finalize	(GObject      *object);
-static void config_get_property (GObject      *object,
-				 guint	       param_id,
-				 GValue	      *value,
-				 GParamSpec   *pspec);
-static void config_set_property (GObject      *object,
-				 guint	       param_id,
-				 const GValue *value,
-				 GParamSpec   *pspec);
-static void config_load		(TrackerConfig *config);
+static void     config_finalize     (GObject       *object);
+static void     config_get_property (GObject       *object,
+				     guint          param_id,
+				     GValue        *value,
+				     GParamSpec    *pspec);
+static void     config_set_property (GObject       *object,
+				     guint          param_id,
+				     const GValue  *value,
+				     GParamSpec    *pspec);
+static void     config_load         (TrackerConfig *config);
+static gboolean config_save         (TrackerConfig *config);
 
 enum {
 	PROP_0,
@@ -463,6 +467,11 @@ tracker_config_class_init (TrackerConfigClass *klass)
 static void
 tracker_config_init (TrackerConfig *object)
 {
+	TrackerConfigPrivate *priv;
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (object);
+
+	priv->key_file = g_key_file_new ();
 }
 
 static void
@@ -485,6 +494,10 @@ config_finalize (GObject *object)
 	g_slist_free (priv->no_index_file_types);
 
 	g_free (priv->language);
+
+	if (priv->key_file) {
+		g_key_file_free (priv->key_file);
+	}
 
 	if (priv->monitor) {
 		g_object_unref (priv->monitor);
@@ -955,6 +968,10 @@ config_string_list_to_gslist (const gchar **value,
 	GSList *list = NULL;
 	gint	i;
 
+	if (!value) {
+		return NULL;
+	}
+
 	for (i = 0; value[i]; i++) {
 		const gchar *str;
 		gchar	    *validated;
@@ -1053,61 +1070,127 @@ config_load_string_list (TrackerConfig *config,
 	TrackerConfigPrivate  *priv;
 	GSList		      *l;
 	gchar		     **value;
+	gboolean               is_directory_list = TRUE;
 
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
+	if (strcmp (property, "no-index-file-types") == 0 || 
+	    strcmp (property, "disabled-modules") == 0) {
+		is_directory_list = FALSE;
+	}
+
 	value = g_key_file_get_string_list (key_file, group, key, NULL, NULL);
+	l = config_string_list_to_gslist ((const gchar **) value, is_directory_list);
 
 	if (strcmp (property, "watch-directory-roots") == 0) {
-		if (value) {
-			priv->watch_directory_roots = l =
-				config_string_list_to_gslist ((const gchar **) value, TRUE);
-			priv->watch_directory_roots =
-				tracker_path_list_filter_duplicates (priv->watch_directory_roots);
-
-			g_slist_foreach (l, (GFunc) g_free, NULL);
-			g_slist_free (l);
-		}
+		priv->watch_directory_roots = tracker_path_list_filter_duplicates (l); 
 	}
 	else if (strcmp (property, "crawl-directory-roots") == 0) {
-		if (value) {
-			priv->crawl_directory_roots = l =
-				config_string_list_to_gslist ((const gchar **) value, TRUE);
-			priv->crawl_directory_roots =
-				tracker_path_list_filter_duplicates (priv->crawl_directory_roots);
-
-			g_slist_foreach (l, (GFunc) g_free, NULL);
-			g_slist_free (l);
-		}
+		priv->crawl_directory_roots = tracker_path_list_filter_duplicates (l);
 	}
 	else if (strcmp (property, "no-watch-directory-roots") == 0) {
-		if (value) {
-			priv->no_watch_directory_roots = l =
-				config_string_list_to_gslist ((const gchar **) value, TRUE);
-			priv->no_watch_directory_roots =
-				tracker_path_list_filter_duplicates (priv->no_watch_directory_roots);
-
-			g_slist_foreach (l, (GFunc) g_free, NULL);
-			g_slist_free (l);
-		}
+		priv->no_watch_directory_roots = tracker_path_list_filter_duplicates (l);
 	}
 	else if (strcmp (property, "no-index-file-types") == 0) {
-		if (value) {
-			priv->no_index_file_types =
-				config_string_list_to_gslist ((const gchar **) value, FALSE);
-		}
+		priv->no_index_file_types = l;
 	}
 	else if (strcmp (property, "disabled-modules") == 0) {
-		if (value) {
-			priv->disabled_modules =
-				config_string_list_to_gslist ((const gchar **) value, FALSE);
-		}
+		priv->disabled_modules = l;
 	}
 	else {
 		g_warning ("Property '%s' not recognized to set string list from key '%s'",
 			   property, key);
+		return;
 	}
 
+	if (is_directory_list) {
+		g_slist_foreach (l, (GFunc) g_free, NULL);
+		g_slist_free (l);
+	}
+
+	g_strfreev (value);
+}
+
+static void
+config_save_int (TrackerConfig *config,
+		 const gchar   *property,
+		 GKeyFile      *key_file,
+		 const gchar   *group,
+		 const gchar   *key)
+{
+	gint value;
+
+	g_object_get (G_OBJECT (config), property, &value, NULL);
+	g_key_file_set_integer (key_file, group, key, value);
+}
+
+static void
+config_save_boolean (TrackerConfig *config,
+		     const gchar   *property,
+		     GKeyFile	   *key_file,
+		     const gchar   *group,
+		     const gchar   *key)
+{
+	gboolean value;
+
+	g_object_get (G_OBJECT (config), property, &value, NULL);
+	g_key_file_set_boolean (key_file, group, key, value);
+}
+
+static void
+config_save_string (TrackerConfig *config,
+		    const gchar	  *property,
+		    GKeyFile	  *key_file,
+		    const gchar	  *group,
+		    const gchar	  *key)
+{
+	gchar *value;
+
+	g_object_get (G_OBJECT (config), property, &value, NULL);
+	g_key_file_set_string (key_file, group, key, value);
+	g_free (value);
+}
+
+static void
+config_save_string_list (TrackerConfig *config,
+			 const gchar   *property,
+			 GKeyFile      *key_file,
+			 const gchar   *group,
+			 const gchar   *key)
+{
+	TrackerConfigPrivate  *priv;
+	GSList		      *list;
+	gchar		     **value;
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	if (strcmp (property, "watch-directory-roots") == 0) {
+		list = priv->watch_directory_roots;
+	}
+	else if (strcmp (property, "crawl-directory-roots") == 0) {
+		list = priv->crawl_directory_roots;
+	}
+	else if (strcmp (property, "no-watch-directory-roots") == 0) {
+		list = priv->no_watch_directory_roots;
+	}
+	else if (strcmp (property, "no-index-file-types") == 0) {
+		list = priv->no_index_file_types;
+	}
+	else if (strcmp (property, "disabled-modules") == 0) {
+		list = priv->disabled_modules;
+	}
+	else {
+		g_warning ("Property '%s' not recognized to set string list from key '%s'",
+			   property, key);
+		return;
+	}
+
+	value = tracker_gslist_to_string_list (list);
+	g_key_file_set_string_list (key_file, 
+				    group, 
+				    key, 
+				    (const gchar * const *) value, 
+				    (gsize) g_slist_length (list));
 	g_strfreev (value);
 }
 
@@ -1145,13 +1228,10 @@ static void
 config_load (TrackerConfig *config)
 {
 	TrackerConfigPrivate *priv;
-	GKeyFile	     *key_file;
 	GError		     *error = NULL;
 	gchar		     *filename;
 	gchar		     *directory;
 	gboolean	      value;
-
-	key_file = g_key_file_new ();
 
 	/* Check we have a config file and if not, create it based on
 	 * the default settings.
@@ -1186,57 +1266,60 @@ config_load (TrackerConfig *config)
 	}
 
 	/* Load options */
-	g_key_file_load_from_file (key_file, filename, G_KEY_FILE_NONE, &error);
+	g_key_file_load_from_file (priv->key_file, 
+				   filename, 
+				   G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
+				   &error);
 	if (error) {
-		config_create_with_defaults (filename, key_file);
+		config_create_with_defaults (filename, priv->key_file);
 		g_clear_error (&error);
 	}
 
 	g_free (filename);
 
 	/* General */
-	config_load_int (config, "verbosity", key_file, GROUP_GENERAL, KEY_VERBOSITY);
-	config_load_int (config, "initial-sleep", key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP);
-	config_load_boolean (config, "low-memory-mode", key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE);
-	config_load_boolean (config, "nfs-locking", key_file, GROUP_GENERAL, KEY_NFS_LOCKING);
+	config_load_int (config, "verbosity", priv->key_file, GROUP_GENERAL, KEY_VERBOSITY);
+	config_load_int (config, "initial-sleep", priv->key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP);
+	config_load_boolean (config, "low-memory-mode", priv->key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE);
+	config_load_boolean (config, "nfs-locking", priv->key_file, GROUP_GENERAL, KEY_NFS_LOCKING);
 
 	/* Watches */
-	config_load_string_list (config, "watch-directory-roots", key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS);
-	config_load_string_list (config, "crawl-directory-roots", key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS);
-	config_load_string_list (config, "no-watch-directory-roots", key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS);
-	config_load_boolean (config, "enable-watches", key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES);
+	config_load_string_list (config, "watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS);
+	config_load_string_list (config, "crawl-directory-roots", priv->key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS);
+	config_load_string_list (config, "no-watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS);
+	config_load_boolean (config, "enable-watches", priv->key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES);
 
 	/* Indexing */
-	config_load_int (config, "throttle", key_file, GROUP_INDEXING, KEY_THROTTLE);
-	config_load_boolean (config, "enable-indexing", key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING);
-	config_load_boolean (config, "enable-content-indexing", key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING);
-	config_load_boolean (config, "enable-thumbnails", key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS);
-	config_load_string_list (config, "disabled-modules", key_file, GROUP_INDEXING, KEY_DISABLED_MODULES);
-	config_load_boolean (config, "fast-merges", key_file, GROUP_INDEXING, KEY_FAST_MERGES);
-	config_load_string_list (config, "no-index-file-types", key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES);
-	config_load_int (config, "min-word-length", key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH);
-	config_load_int (config, "max-word-length", key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
-	config_load_string (config, "language", key_file, GROUP_INDEXING, KEY_LANGUAGE);
-	config_load_boolean (config, "enable-stemmer", key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER);
-	config_load_boolean (config, "disable-indexing-on-battery", key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY);
-	config_load_boolean (config, "disable-indexing-on-battery-init", key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT);
-	config_load_int (config, "low-disk-space-limit", key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT);
-	config_load_boolean (config, "index-mounted-directories", key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES);
-	config_load_boolean (config, "index-removable-devices", key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES);
+	config_load_int (config, "throttle", priv->key_file, GROUP_INDEXING, KEY_THROTTLE);
+	config_load_boolean (config, "enable-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING);
+	config_load_boolean (config, "enable-content-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING);
+	config_load_boolean (config, "enable-thumbnails", priv->key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS);
+	config_load_string_list (config, "disabled-modules", priv->key_file, GROUP_INDEXING, KEY_DISABLED_MODULES);
+	config_load_boolean (config, "fast-merges", priv->key_file, GROUP_INDEXING, KEY_FAST_MERGES);
+	config_load_string_list (config, "no-index-file-types", priv->key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES);
+	config_load_int (config, "min-word-length", priv->key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH);
+	config_load_int (config, "max-word-length", priv->key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
+	config_load_string (config, "language", priv->key_file, GROUP_INDEXING, KEY_LANGUAGE);
+	config_load_boolean (config, "enable-stemmer", priv->key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER);
+	config_load_boolean (config, "disable-indexing-on-battery", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY);
+	config_load_boolean (config, "disable-indexing-on-battery-init", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT);
+	config_load_int (config, "low-disk-space-limit", priv->key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT);
+	config_load_boolean (config, "index-mounted-directories", priv->key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES);
+	config_load_boolean (config, "index-removable-devices", priv->key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES);
 
 	/* Performance */
-	config_load_int (config, "max-text-to-index", key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
-	config_load_int (config, "max-words-to-index", key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
-	config_load_int (config, "max-bucket-count", key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT);
-	config_load_int (config, "min-bucket-count", key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT);
+	config_load_int (config, "max-text-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
+	config_load_int (config, "max-words-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
+	config_load_int (config, "max-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT);
+	config_load_int (config, "min-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT);
 
 	/* Services */
-	config_load_boolean (config, "enable-xesam", key_file, GROUP_SERVICES, KEY_ENABLE_XESAM);
+	config_load_boolean (config, "enable-xesam", priv->key_file, GROUP_SERVICES, KEY_ENABLE_XESAM);
 
 	/*
 	 * Legacy options no longer supported:
 	 */
-	value = g_key_file_get_boolean (key_file, "Emails", "IndexEvolutionEmails", &error);
+	value = g_key_file_get_boolean (priv->key_file, "Emails", "IndexEvolutionEmails", &error);
 	if (!error) {
 		gchar * const modules[2] = { "evolution", NULL };
 
@@ -1254,7 +1337,7 @@ config_load (TrackerConfig *config)
 		g_clear_error (&error);
 	}
 
-	value = g_key_file_get_boolean (key_file, "Emails", "IndexThunderbirdEmails", &error);
+	value = g_key_file_get_boolean (priv->key_file, "Emails", "IndexThunderbirdEmails", &error);
 	if (!error) {
 		g_message ("Legacy config option 'IndexThunderbirdEmails' found");
 		g_message ("  This option is no longer supported and has no effect");
@@ -1262,7 +1345,7 @@ config_load (TrackerConfig *config)
 		g_clear_error (&error);
 	}
 
-	value = g_key_file_get_boolean (key_file, "Indexing", "SkipMountPoints", &error);
+	value = g_key_file_get_boolean (priv->key_file, "Indexing", "SkipMountPoints", &error);
 	if (!error) {
 		g_message ("Legacy config option 'SkipMountPoints' found");
 		tracker_config_set_index_mounted_directories (config, !value);
@@ -1270,8 +1353,101 @@ config_load (TrackerConfig *config)
 	} else {
 		g_clear_error (&error);
 	}
+}
 
-	g_key_file_free (key_file);
+static gboolean
+config_save (TrackerConfig *config)
+{
+	TrackerConfigPrivate *priv;
+	GError		     *error = NULL;
+	gchar		     *filename;
+	gchar		     *data;
+	gsize                 size;
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	if (!priv->key_file) {
+		g_critical ("Could not save config, GKeyFile was NULL, has the config been loaded?");
+
+		return FALSE;
+	}
+
+	g_message ("Setting details to GKeyFile object...");
+
+	/* Set properties to GKeyFile */
+	config_save_int (config, "verbosity", priv->key_file, GROUP_GENERAL, KEY_VERBOSITY);
+	config_save_int (config, "initial-sleep", priv->key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP);
+	config_save_boolean (config, "low-memory-mode", priv->key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE);
+	config_save_boolean (config, "nfs-locking", priv->key_file, GROUP_GENERAL, KEY_NFS_LOCKING);
+
+	/* Watches */
+	config_save_string_list (config, "watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS);
+	config_save_string_list (config, "crawl-directory-roots", priv->key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS);
+	config_save_string_list (config, "no-watch-directory-roots", priv->key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS);
+	config_save_boolean (config, "enable-watches", priv->key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES);
+
+	/* Indexing */
+	config_save_int (config, "throttle", priv->key_file, GROUP_INDEXING, KEY_THROTTLE);
+	config_save_boolean (config, "enable-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING);
+	config_save_boolean (config, "enable-content-indexing", priv->key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING);
+	config_save_boolean (config, "enable-thumbnails", priv->key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS);
+	config_save_string_list (config, "disabled-modules", priv->key_file, GROUP_INDEXING, KEY_DISABLED_MODULES);
+	config_save_boolean (config, "fast-merges", priv->key_file, GROUP_INDEXING, KEY_FAST_MERGES);
+	config_save_string_list (config, "no-index-file-types", priv->key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES);
+	config_save_int (config, "min-word-length", priv->key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH);
+	config_save_int (config, "max-word-length", priv->key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH);
+	config_save_string (config, "language", priv->key_file, GROUP_INDEXING, KEY_LANGUAGE);
+	config_save_boolean (config, "enable-stemmer", priv->key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER);
+	config_save_boolean (config, "disable-indexing-on-battery", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY);
+	config_save_boolean (config, "disable-indexing-on-battery-init", priv->key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT);
+	config_save_int (config, "low-disk-space-limit", priv->key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT);
+	config_save_boolean (config, "index-mounted-directories", priv->key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES);
+	config_save_boolean (config, "index-removable-devices", priv->key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES);
+
+	/* Performance */
+	config_save_int (config, "max-text-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX);
+	config_save_int (config, "max-words-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
+	config_save_int (config, "max-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT);
+	config_save_int (config, "min-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT);
+
+	/* Services */
+	config_save_boolean (config, "enable-xesam", priv->key_file, GROUP_SERVICES, KEY_ENABLE_XESAM);
+
+	g_message ("Saving config to disk...");
+
+	/* Do the actual saving to disk now */
+	data = g_key_file_to_data (priv->key_file, &size, &error);
+	if (error) {
+		g_warning ("Could not get config data to write to file, %s",
+			   error->message);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	filename = g_file_get_path (priv->file);
+
+	g_file_set_contents (filename, data, size, &error);
+	g_free (data);
+
+	if (error) {
+		g_warning ("Could not write %d bytes to file '%s', %s",
+			   size,
+			   filename,
+			   error->message);
+		g_free (filename);
+		g_error_free (error);
+
+		return FALSE;
+	}
+
+	g_message ("Wrote config to '%s' (%d bytes)",
+		   filename, 
+		   size);
+
+	g_free (filename);
+
+	return TRUE;
 }
 
 static gboolean
@@ -1315,6 +1491,22 @@ tracker_config_new (void)
 	config_load (config);
 
 	return config;
+}
+
+/**
+ * tracker_config_save:
+ * @config: a #TrackerConfig
+ *
+ * Writes the configuration stored in TrackerConfig to disk.
+ *
+ * Return value: %TRUE on success, %FALSE otherwise.
+ */
+gboolean
+tracker_config_save (TrackerConfig *config)
+{
+	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
+
+	return config_save (config);
 }
 
 /**
@@ -2214,6 +2406,106 @@ tracker_config_add_disabled_modules (TrackerConfig *config,
 }
 
 void
+tracker_config_add_no_index_file_types (TrackerConfig *config,
+					gchar * const *file_types)
+{
+	TrackerConfigPrivate *priv;
+	GSList		     *new_file_types;
+	gchar * const	     *p;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+	g_return_if_fail (file_types != NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	new_file_types = NULL;
+
+	for (p = file_types; *p; p++) {
+		if (g_slist_find_custom (priv->no_index_file_types,
+					 *p,
+					 (GCompareFunc) strcmp)) {
+			continue;
+		}
+
+		new_file_types = g_slist_append (new_file_types, g_strdup (*p));
+	}
+
+	priv->no_index_file_types = g_slist_concat (priv->no_index_file_types,
+						    new_file_types);
+
+	g_object_notify (G_OBJECT (config), "no-index-file-types");
+}
+
+void
+tracker_config_remove_watch_directory_roots (TrackerConfig *config,
+					     const gchar   *root)
+{
+	TrackerConfigPrivate *priv;
+	GSList		     *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+	g_return_if_fail (root != NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = g_slist_find_custom (priv->watch_directory_roots,
+				 root,
+				 (GCompareFunc) strcmp);
+
+	if (l) {
+		g_free (l->data);
+		priv->watch_directory_roots = g_slist_delete_link (priv->watch_directory_roots, l);
+		g_object_notify (G_OBJECT (config), "watch-directory-roots");
+	}
+}
+
+void
+tracker_config_remove_crawl_directory_roots (TrackerConfig *config,
+					     const gchar   *root)
+{
+	TrackerConfigPrivate *priv;
+	GSList		     *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+	g_return_if_fail (root != NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = g_slist_find_custom (priv->crawl_directory_roots,
+				 root,
+				 (GCompareFunc) strcmp);
+
+	if (l) {
+		g_free (l->data);
+		priv->crawl_directory_roots = g_slist_delete_link (priv->crawl_directory_roots, l);
+		g_object_notify (G_OBJECT (config), "crawl-directory-roots");
+	}
+}
+
+void
+tracker_config_remove_no_watch_directory_roots (TrackerConfig *config,
+						const gchar   *root)
+{
+	TrackerConfigPrivate *priv;
+	GSList		     *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+	g_return_if_fail (root != NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = g_slist_find_custom (priv->no_watch_directory_roots,
+				 root,
+				 (GCompareFunc) strcmp);
+
+	if (l) {
+		g_free (l->data);
+		priv->no_watch_directory_roots = g_slist_delete_link (priv->no_watch_directory_roots, l);
+		g_object_notify (G_OBJECT (config), "no-watch-directory-roots");
+	}
+}
+
+void
 tracker_config_remove_disabled_modules (TrackerConfig *config,
 					const gchar   *module)
 {
@@ -2234,4 +2526,152 @@ tracker_config_remove_disabled_modules (TrackerConfig *config,
 		priv->disabled_modules = g_slist_delete_link (priv->disabled_modules, l);
 		g_object_notify (G_OBJECT (config), "disabled-modules");
 	}
+}
+
+void
+tracker_config_remove_no_index_file_types (TrackerConfig *config,
+					   const gchar   *file_type)
+{
+	TrackerConfigPrivate *priv;
+	GSList		     *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+	g_return_if_fail (file_type != NULL);
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = g_slist_find_custom (priv->no_index_file_types,
+				 file_type,
+				 (GCompareFunc) strcmp);
+
+	if (l) {
+		g_free (l->data);
+		priv->no_index_file_types = g_slist_delete_link (priv->no_index_file_types, l);
+		g_object_notify (G_OBJECT (config), "no-index-file-types");
+	}
+}
+
+void	       
+tracker_config_set_watch_directory_roots (TrackerConfig *config,
+					  GSList        *roots)
+{
+	TrackerConfigPrivate *priv;
+	GSList               *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = priv->watch_directory_roots;
+
+	if (!roots) {
+		priv->watch_directory_roots = NULL;
+	} else {
+		priv->watch_directory_roots = tracker_gslist_copy_with_string_data (roots);
+	}
+
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
+
+	g_object_notify (G_OBJECT (config), "watch-directory-roots");
+}
+
+void	       
+tracker_config_set_crawl_directory_roots (TrackerConfig *config,
+					  GSList        *roots)
+{
+	TrackerConfigPrivate *priv;
+	GSList               *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = priv->crawl_directory_roots;
+
+	if (!roots) {
+		priv->crawl_directory_roots = NULL;
+	} else {
+		priv->crawl_directory_roots = tracker_gslist_copy_with_string_data (roots);
+	}
+
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
+
+	g_object_notify (G_OBJECT (config), "crawl-directory-roots");
+}
+
+void	       
+tracker_config_set_no_watch_directory_roots (TrackerConfig *config,
+					     GSList        *roots)
+{
+	TrackerConfigPrivate *priv;
+	GSList               *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+	
+	l = priv->no_watch_directory_roots;
+
+	if (!roots) {
+		priv->no_watch_directory_roots = NULL;
+	} else {
+		priv->no_watch_directory_roots = tracker_gslist_copy_with_string_data (roots);
+	}
+
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
+
+	g_object_notify (G_OBJECT (config), "no-watch-directory-roots");
+}
+
+void	       
+tracker_config_set_disabled_modules (TrackerConfig *config,
+				     GSList        *modules)
+{
+	TrackerConfigPrivate *priv;
+	GSList               *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = priv->disabled_modules;
+
+	if (!modules) {
+		priv->disabled_modules = NULL;
+	} else {
+		priv->disabled_modules = tracker_gslist_copy_with_string_data (modules);
+	}
+
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
+
+	g_object_notify (G_OBJECT (config), "disabled-modules");
+}
+
+void	       
+tracker_config_set_no_index_file_types (TrackerConfig *config,
+					GSList        *file_types)
+{
+	TrackerConfigPrivate *priv;
+	GSList               *l;
+
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	priv = TRACKER_CONFIG_GET_PRIVATE (config);
+
+	l = priv->no_index_file_types;
+
+	if (!file_types) {
+		priv->no_index_file_types = NULL;
+	} else {
+		priv->no_index_file_types = tracker_gslist_copy_with_string_data (file_types);
+	}
+
+	g_slist_foreach (l, (GFunc) g_free, NULL);
+	g_slist_free (l);
+
+	g_object_notify (G_OBJECT (config), "no-index-file-types");
 }

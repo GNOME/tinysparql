@@ -1,4 +1,4 @@
-/* Tracker - indexer and metadata database engine
+/*
  * Copyright (C) 2007, Saleem Abdulrasool (compnerd@gentoo.org)
  *
  * This library is free software; you can redistribute it and/or
@@ -17,19 +17,20 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdlib.h>
+
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 
 #include "tracker-preferences.h"
-#include "config.h"
-
 
 gint
 main (gint argc, gchar * argv[])
 {
-	TrackerPreferences *preferences = NULL;
+	TrackerPreferences *preferences;
 
 	bindtextdomain (GETTEXT_PACKAGE, TRACKER_LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");

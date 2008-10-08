@@ -11,33 +11,34 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
 pkgdata_DATA = tracker-preferences.glade
 
-INCLUDES = \
-	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" \
-	-DTRACKER_LOCALEDIR=\""$(localedir)"\" \
-	-DTRACKER_BINDIR=\""$(bindir)"\" \
-	-DTRACKER_COMPILATION \
-	$(GLIB_CFLAGS) \
-	$(GTK2_CFLAGS) \
-	$(LIBGLADE_CFLAGS) \
-	$(DBUS_CFLAGS) \
-	-I$(top_srcdir)/src/libtracker
+INCLUDES = 								\
+	-DTRACKER_DATADIR=\""$(datadir)/tracker"\" 			\
+	-DTRACKER_LOCALEDIR=\""$(localedir)"\" 				\
+	-DTRACKER_BINDIR=\""$(bindir)"\" 				\
+	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\" 			\
+	-DTRACKER_COMPILATION 						\
+	$(LIBGLADE_CFLAGS) 						\
+	$(GTK2_CFLAGS) 							\
+	$(DBUS_CFLAGS) 							\
+	$(GLIB_CFLAGS) 							\
+	-I$(top_srcdir)/src
 
-tracker_preferences_SOURCES = \
-	tracker-preferences.c \
-	tracker-preferences.h \
-	tracker-preferences-dialogs.c \
-	tracker-preferences-dialogs.h \
-	tracker-preferences-main.c \
-	tracker-preferences-utils.c \
+tracker_preferences_SOURCES = 						\
+	tracker-preferences.c 						\
+	tracker-preferences.h 						\
+	tracker-preferences-dialogs.c 					\
+	tracker-preferences-dialogs.h 					\
+	tracker-preferences-main.c 					\
+	tracker-preferences-utils.c 					\
 	tracker-preferences-utils.h
 
-tracker_preferences_LDADD = \
-	$(GLIB_LIBS) \
-	$(GTK2_LIBS) \
-	$(LIBGLADE_LIBS) \
-	$(DBUS_LIBS) \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(top_builddir)/src/libtracker/libtrackerclient.la
+tracker_preferences_LDADD = 						\
+	$(top_builddir)/src/libtracker/libtrackerclient.la		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(LIBGLADE_LIBS)						\
+	$(GTK2_LIBS) 							\
+	$(DBUS_LIBS) 							\
+	$(GLIB_LIBS)
 
 EXTRA_DIST = $(pkgdata_DATA)
 
