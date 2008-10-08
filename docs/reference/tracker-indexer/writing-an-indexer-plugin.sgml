@@ -1,0 +1,216 @@
+<chapter id="writing-an-indexer-plugin">
+  <chapterinfo>
+    <author>
+      <firstname>Carlos</firstname>
+      <surname>Garnacho</surname>
+      <affiliation>
+	<address>
+	  <email>carlos@@imendio.com</email>
+	</address>
+      </affiliation>
+    </author>
+  </chapterinfo>
+
+  <title>Writing An Indexer Plugin</title>
+
+  <para>
+    Tracker's indexer has a modular design, so applications can
+    specify where to locate the data to extract metadata from,
+    plus how it should be extracted. To achieve this,
+    tracker-indexer needs two files, one to define module behavior
+    (.module files) plus a .so file that will be called on each
+    of the files the module is interested in.
+  </para>
+
+  <section id="creating-module-definition-file">
+    <title>Creating a module definition file</title>
+
+    <para>
+      .module files are a key file with the following format:
+
+      <programlisting>
+[General]
+Description=My extractor
+Enabled=true
+
+[Monitors]
+Directories=
+RecurseDirectories=$HOME/Documents;$HOME/Music
+
+[Ignored]
+Directories=
+Files=
+
+[Index]
+Service=EvolutionEmails
+MimeTypes=
+Files=
+      </programlisting>
+
+      This file will be installed in $prefix/share/tracker/modules/ and
+      it must share the same name with the corresponding .so file, prefixed with
+      "libtracker-indexer-" (that is, for my-extractor.module, there must be
+      a libtracker-indexer-my-extractor.so)
+    </para>
+
+    <table pgwide="1">
+      <title>Module file description</title>
+
+      <tgroup cols="2">
+        <colspec colname="field" />
+        <colspec colname="def" />
+        <spanspec spanname="title-span" namest="field" nameend="def" align="center" />
+        <thead>
+          <row colspan="2">
+            <entry spanname="title-span">General</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>Description</entry>
+            <entry>A short description for the module</entry>
+          </row>
+          <row>
+            <entry>Enabled</entry>
+            <entry>Whether the module is enabled or not. This is useful at a sysadmin level.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+
+      <tgroup cols="2">
+        <colspec colname="field" />
+        <colspec colname="def" />
+        <spanspec spanname="title-span" namest="field" nameend="def" align="center" />
+        <thead>
+          <row colspan="2">
+            <entry spanname="title-span">Monitors</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>Directories</entry>
+            <entry>
+              Semicolon separated list of directories that
+              the module will handle, the indexer will not
+              recurse into their contents.
+            </entry>
+          </row>
+          <row>
+            <entry>RecurseDirectories</entry>
+            <entry>
+              Semicolon separated list of directories
+              that the module will handle, the indexer
+              will recurse inside these directories' contents.
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+
+      <tgroup cols="2">
+        <colspec colname="field" />
+        <colspec colname="def" />
+        <spanspec spanname="title-span" namest="field" nameend="def" align="center" />
+        <thead>
+          <row colspan="2">
+            <entry spanname="title-span">Ignored</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>Directories</entry>
+            <entry>Directories that the indexer will skip.</entry>
+          </row>
+          <row>
+            <entry>Files</entry>
+            <entry>Files that the indexer will skip.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+
+      <!-- FIXME: Missing Index section -->
+    </table>
+  </section>
+
+  <section id="creating-extractor-module-binary">
+    <title>Creating an extractor module binary</title>
+
+    <para>
+      Modules are implemented as standalone .so files with a defined API,
+      the indexer's task is to crawl through all defined directories, and
+      store metadata, so everything modules have to do is to return metadata
+      for each queried file (or NULL if the file is not interesting to the
+      indexer).
+    </para>
+
+    <para>
+      The API to implement is the following:
+
+      <programlisting>
+void     tracker_module_init (void);
+void     tracker_module_shutdown (void);
+
+gpointer tracker_module_file_get_data      (const gchar *path);
+void     tracker_module_file_free_data     (gpointer file_data);
+gboolean tracker_module_file_iter_contents (TrackerFile *file);
+
+void     tracker_module_file_get_uri (TrackerFile  *file,
+                                      gchar       **dirname,
+                                      gchar       **basename);
+
+gchar *  tracker_module_file_get_service_type (TrackerFile *file);
+
+TrackerMetadata * tracker_module_file_get_metadata (TrackerFile *file);
+gchar *           tracker_module_file_get_text     (TrackerFile *file);
+      </programlisting>
+    </para>
+  </section>
+
+  <section id="tracker-file-struct">
+    <title>The TrackerFile struct</title>
+
+    <para>
+      The TrackerFile struct is quite simple, suited for the modules' purposes:
+
+      <programlisting>
+struct TrackerFile {
+        gchar    *path;
+        gpointer  data;
+};
+      </programlisting>
+    </para>
+  </section>
+
+  <section id="tracker-metadata">
+    <title>TrackerMetadata</title>
+
+    <para>
+      The TrackerMetadata struct will contain metadata in the form of
+      field name/value pairs, modules are responsible of creating and filling
+      it in tracker_module_file_get_metadata(), so the indexer is able to
+      process it.
+    </para>
+
+    <para>
+      Depending on the field being filled in, tracker will allow or not multiple
+      values for the same field name.
+    </para>
+
+    <!-- FIXME: Must explain the ontology, how could users know whether a value takes multiple values? -->
+
+    <para>
+      From the modules point of view, it has the following useful API:
+
+      <programlisting>
+  TrackerMetadata * tracker_metadata_new    (void);
+
+  void              tracker_metadata_insert (TrackerMetadata *metadata,
+                                             const gchar     *field_name,
+                                             gchar           *value);
+
+  void              tracker_metadata_insert_multiple_values (TrackerMetadata *metadata,
+                                                             const gchar     *field_name,
+                                                             GList           *list);
+      </programlisting>
+    </para>
+  </section>
+</chapter>
