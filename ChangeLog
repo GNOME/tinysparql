@@ -1,3 +1,10 @@
+2008-10-08  Carlos Garnacho  <carlos@imendio.com>
+
+	* docs/reference/libtracker-common/libtracker-common.types: Forgot to
+	add this, now the GObject scanner is compiled correctly.
+	* docs/reference/libtracker-common/Makefile.am: Add
+	-DTRACKER_COMPILATION to build things.
+
 2008-10-07  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-common/tracker-common.h: Make sure we include glib.h.

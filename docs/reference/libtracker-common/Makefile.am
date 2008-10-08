@@ -27,6 +27,7 @@ IGNORE_HFILES=
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
 # if $(DOC_MODULE).types is non-empty.
 INCLUDES = 						\
+	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
 	$(HAL_CFLAGS)					\
 	$(DBUS_CFLAGS)					\
