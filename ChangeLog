@@ -1,3 +1,13 @@
+2008-10-08  Ivan Frade  <ivan.frade@nokia.com>
+
+	* data/services/default.service:
+	Added ShowServiceFiles property to get playlists as results of
+	text search.
+
+	* src/tracker-search-tool/tracker-search-tool.c:
+	Added Playlists to the categories list, so it shows the
+	number of results on the left panel.
+	
 2008-10-08  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-common/tracker-file-utils.c

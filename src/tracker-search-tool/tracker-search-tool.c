@@ -134,7 +134,7 @@ static char *search_service_types[] = {
 NULL
 };
 
-static service_info_t services[16] = {
+static service_info_t services[17] = {
 	{ "Emails",	   N_("Emails"),       "stock_mail",		   NULL, SERVICE_EMAILS,	    NULL, FALSE, 0, 0},
 	{ "EvolutionEmails",
 			   N_("Emails"),       "stock_mail",		   NULL, SERVICE_EMAILS,	    NULL, FALSE, 0, 0},
@@ -146,6 +146,7 @@ static service_info_t services[16] = {
 	{ "Documents",	   N_("Documents"),    "x-office-document",	   NULL, SERVICE_DOCUMENTS,	    NULL, FALSE, 0, 0},
 	{ "Images",	   N_("Images"),       "image-x-generic",	   NULL, SERVICE_IMAGES,	    NULL, FALSE, 0, 0},
 	{ "Music",	   N_("Music"),        "audio-x-generic",	   NULL, SERVICE_MUSIC,		    NULL, FALSE, 0, 0},
+	{ "Playlists",	   N_("Playlists"),    "audio-x-generic",	   NULL, SERVICE_PLAYLISTS,	    NULL, FALSE, 0, 0},
 	{ "Videos",	   N_("Videos"),       "video-x-generic",	   NULL, SERVICE_VIDEOS,	    NULL, FALSE, 0, 0},
 	{ "Text",	   N_("Text"),	       "text-x-generic",	   NULL, SERVICE_TEXT_FILES,	    NULL, FALSE, 0, 0},
 	{ "Development",   N_("Development"),  "applications-development", NULL, SERVICE_DEVELOPMENT_FILES, NULL, FALSE, 0, 0},

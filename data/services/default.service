@@ -309,3 +309,4 @@ KeyMetadata2=Playlist:Songs
 HasMetadata=true
 HasFullText=false
 HasThumbs=false
+ShowServiceFiles=true
