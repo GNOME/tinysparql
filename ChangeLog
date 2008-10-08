@@ -1,3 +1,7 @@
+2008-10-08  Mikael Ottela    <mikael.ottela@ixonos.com>
+	* data/services/image.metadata: Changed some field types for images
+	to ones that make more sense.
+
 2008-10-08  Carlos Garnacho  <carlos@imendio.com>
 
 	* docs/reference/tracker-indexer/writing-an-indexer-plugin.sgml:

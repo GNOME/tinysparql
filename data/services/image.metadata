@@ -91,12 +91,12 @@ DataType=string
 [Image:ExposureTime]
 DisplayName=Exposure time
 Description=Exposure time in seconds
-DataType=integer
+DataType=double
 
 [Image:FNumber]
 DisplayName=F number
 Description=The F number
-DataType=integer
+DataType=double
 
 [Image:Flash]
 DisplayName=Flash
