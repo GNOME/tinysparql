@@ -1,5 +1,6 @@
 2008-10-09  Philip Van Hoof  <philip@codeminded.be>
 
+	* configure.ac
 	* src/libtracker-db/tracker-db-interface-sqlite.c
 	* src/libtracker-db/tracker-db-interface-sqlite.h
 	* src/libtracker-db/tracker-db-manager.c

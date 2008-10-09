@@ -541,7 +541,7 @@ fi
 #  SQLite check
 ####################################################################
 
-SQLITE_REQUIRED=3.4
+SQLITE_REQUIRED=3.5
 
 PKG_CHECK_MODULES(SQLITE3, [sqlite3 >= $SQLITE_REQUIRED])
 
