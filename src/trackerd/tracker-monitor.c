@@ -91,12 +91,18 @@ struct _TrackerMonitorPrivate {
 
 #ifdef USE_LIBINOTIFY
 	GHashTable    *event_pairs;
-	GHashTable    *event_time_by_cookie;
-	GHashTable    *event_type_by_cookie;
+	guint	       event_pairs_timeout_id;
 
-	guint	       event_check_timeout_id;
+	GHashTable    *cached_events;
+	guint	       cached_events_timeout_id;
 #endif /* USE_LIBINOTIFY */
 };
+
+typedef struct {
+	GFile    *file;
+	GTimeVal  time;
+	guint32   event_type;
+} EventPairData;
 
 enum {
 	ITEM_CREATED,
@@ -111,18 +117,24 @@ enum {
 	PROP_ENABLED
 };
 
-static void	      tracker_monitor_finalize	   (GObject	   *object);
-static void	      tracker_monitor_set_property (GObject	   *object,
-						    guint	    prop_id,
+static void           tracker_monitor_finalize     (GObject        *object);
+static void           tracker_monitor_set_property (GObject        *object,
+						    guint           prop_id,
 						    const GValue   *value,
-						    GParamSpec	   *pspec);
-static void	      tracker_monitor_get_property (GObject	   *object,
-						    guint	    prop_id,
-						    GValue	   *value,
-						    GParamSpec	   *pspec);
-static gboolean       black_list_check_items_cb    (gpointer	    data);
-static void	      black_list_print_all	   (TrackerMonitor *monitor);
-static guint	      get_inotify_limit		   (void);
+						    GParamSpec     *pspec);
+static void           tracker_monitor_get_property (GObject        *object,
+						    guint           prop_id,
+						    GValue         *value,
+						    GParamSpec     *pspec);
+static EventPairData *event_pair_data_new          (GFile          *file,
+						    GTimeVal        t,
+						    guint           event_type);
+
+static void           event_pair_data_free         (gpointer        data);
+static gboolean       black_list_check_items_cb    (gpointer        data);
+static void           black_list_print_all         (TrackerMonitor *monitor);
+static guint          get_inotify_limit            (void);
+
 
 #ifdef USE_LIBINOTIFY
 static INotifyHandle *libinotify_monitor_directory (TrackerMonitor *monitor,
@@ -254,17 +266,12 @@ tracker_monitor_init (TrackerMonitor *object)
 		g_hash_table_new_full (g_direct_hash,
 				       g_direct_equal,
 				       NULL,
-				       g_object_unref);
-	priv->event_time_by_cookie =
-		g_hash_table_new_full (g_direct_hash,
-				       g_direct_equal,
+				       event_pair_data_free);
+	priv->cached_events =
+		g_hash_table_new_full (g_file_hash,
+				       (GEqualFunc) g_file_equal,
 				       NULL,
-				       NULL);
-	priv->event_type_by_cookie =
-		g_hash_table_new_full (g_direct_hash,
-				       g_direct_equal,
-				       NULL,
-				       NULL);
+				       event_pair_data_free);
 #endif /* USE_LIBINOTIFY */
 
 	all_modules = tracker_module_config_get_modules ();
@@ -391,12 +398,15 @@ tracker_monitor_finalize (GObject *object)
 	g_hash_table_unref (priv->black_list_count);
 
 #ifdef USE_LIBINOTIFY
-	if (priv->event_check_timeout_id) {
-		g_source_remove (priv->event_check_timeout_id);
+	if (priv->cached_events_timeout_id) {
+		g_source_remove (priv->cached_events_timeout_id);
 	}
 
-	g_hash_table_unref (priv->event_type_by_cookie);
-	g_hash_table_unref (priv->event_time_by_cookie);
+	if (priv->event_pairs_timeout_id) {
+		g_source_remove (priv->event_pairs_timeout_id);
+	}
+
+	g_hash_table_unref (priv->cached_events);
 	g_hash_table_unref (priv->event_pairs);
 #endif /* USE_LIBINOTIFY */
 
@@ -446,6 +456,32 @@ tracker_monitor_get_property (GObject	   *object,
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 	}
+}
+
+static EventPairData *
+event_pair_data_new (GFile    *file, 
+		     GTimeVal  t,
+		     guint     event_type)
+{
+	EventPairData *event;
+
+	event = g_new0 (EventPairData, 1);
+	
+	event->file = g_object_ref (file);
+	event->time = t;
+	event->event_type = event_type;
+
+	return event;
+}
+		     
+static void
+event_pair_data_free (gpointer data)
+{
+	EventPairData *event;
+
+	event = data;
+	
+	g_object_unref (event->file);
 }
 
 static guint
@@ -842,10 +878,10 @@ libinotify_monitor_event_to_string (guint32 event_type)
 }
 
 static gboolean
-libinotify_event_check_timeout_cb (gpointer data)
+libinotify_event_pairs_timeout_cb (gpointer data)
 {
 	TrackerMonitor *monitor;
-	GTimeVal	t;
+	GTimeVal	now;
 	GHashTableIter	iter;
 	gpointer	key, value;
 
@@ -853,25 +889,25 @@ libinotify_event_check_timeout_cb (gpointer data)
 
 	g_debug ("Checking for event pairs which have timed out...");
 
-	g_get_current_time (&t);
+	g_get_current_time (&now);
 
-	g_hash_table_iter_init (&iter, monitor->private->event_time_by_cookie);
+	g_hash_table_iter_init (&iter, monitor->private->event_pairs);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		glong	     seconds;
-		glong	     seconds_then;
-		guint32      event_type;
-		GFile	    *file;
-		const gchar *module_name;
-		gboolean     is_directory;
-		gpointer     p;
+		EventPairData *event;
+		glong	       seconds;
+		glong	       seconds_then;
+		const gchar   *module_name;
+		gboolean       is_directory;
 
-		seconds_then = GPOINTER_TO_SIZE (value);
+		event = value;
 
-		seconds  = t.tv_sec;
+		seconds_then = event->time.tv_sec;
+
+		seconds  = now.tv_sec;
 		seconds -= seconds_then;
 
 		g_debug ("Comparing now:%ld to then:%ld, diff:%ld",
-			 t.tv_sec,
+			 now.tv_sec,
 			 seconds_then,
 			 seconds);
 
@@ -879,24 +915,20 @@ libinotify_event_check_timeout_cb (gpointer data)
 			continue;
 		}
 
-		file = g_hash_table_lookup (monitor->private->event_pairs, key);
-		p = g_hash_table_lookup (monitor->private->event_type_by_cookie, key);
-		event_type = GPOINTER_TO_UINT (p);
-
 		/* We didn't receive an event pair for this
 		 * cookie, so we just generate the CREATE or
 		 * DELETE event for the file we know about.
 		 */
 		g_debug ("Event:%d with cookie:%d has timed out (%ld seconds have elapsed)",
-			 event_type,
+			 event->event_type,
 			 GPOINTER_TO_UINT (key),
 			 seconds);
 
 		module_name = get_module_name_from_gfile (monitor,
-							  file,
+							  event->file,
 							  &is_directory);
 
-		switch (event_type) {
+		switch (event->event_type) {
 		case IN_MOVED_FROM:
 		case IN_DELETE:
 		case IN_DELETE_SELF:
@@ -906,7 +938,7 @@ libinotify_event_check_timeout_cb (gpointer data)
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
-				       file,
+				       event->file,
 				       is_directory);
 			break;
 
@@ -918,23 +950,114 @@ libinotify_event_check_timeout_cb (gpointer data)
 			g_signal_emit (monitor,
 				       signals[ITEM_CREATED], 0,
 				       module_name,
-				       file,
+				       event->file,
 				       is_directory);
 			break;
 		}
 
 		/* Clean up */
 		g_hash_table_remove (monitor->private->event_pairs, key);
-		g_hash_table_remove (monitor->private->event_time_by_cookie, key);
-		g_hash_table_remove (monitor->private->event_type_by_cookie, key);
 
 		/* Reset the iter, so we start from the top */
-		g_hash_table_iter_init (&iter, monitor->private->event_time_by_cookie);
+		g_hash_table_iter_init (&iter, monitor->private->event_pairs);
 	}
 
-	if (g_hash_table_size (monitor->private->event_time_by_cookie) < 1) {
+	if (g_hash_table_size (monitor->private->event_pairs) < 1) {
 		g_debug ("No more events to pair, removing timeout");
-		monitor->private->event_check_timeout_id = 0;
+		monitor->private->event_pairs_timeout_id = 0;
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static gboolean
+libinotify_cached_events_timeout_cb (gpointer data)
+{
+	TrackerMonitor *monitor;
+	GTimeVal	now;
+	GHashTableIter	iter;
+	gpointer	key, value;
+
+	monitor = data;
+
+	g_debug ("Checking for cached events that have timed out...");
+
+	g_get_current_time (&now);
+
+	g_hash_table_iter_init (&iter, monitor->private->cached_events);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		EventPairData *event;
+		glong	       seconds;
+		glong	       seconds_then;
+		const gchar   *module_name;
+		gboolean       is_directory;
+
+		event = value;
+
+		seconds_then = event->time.tv_sec;
+
+		seconds  = now.tv_sec;
+		seconds -= seconds_then;
+
+		g_debug ("Comparing now:%ld to then:%ld, diff:%ld",
+			 now.tv_sec,
+			 seconds_then,
+			 seconds);
+
+		if (seconds < 2) {
+			continue;
+		}
+
+		/* We didn't receive an event pair for this
+		 * cookie, so we just generate the CREATE or
+		 * DELETE event for the file we know about.
+		 */
+		g_debug ("Cached event:%d has timed out (%ld seconds have elapsed)",
+			 event->event_type,
+			 seconds);
+
+		module_name = get_module_name_from_gfile (monitor,
+							  event->file,
+							  &is_directory);
+
+		switch (event->event_type) {
+		case IN_MOVED_FROM:
+		case IN_DELETE:
+		case IN_DELETE_SELF:
+			/* So we knew the source, but not the
+			 * target location for the event.
+			 */
+			g_signal_emit (monitor,
+				       signals[ITEM_DELETED], 0,
+				       module_name,
+				       event->file,
+				       is_directory);
+			break;
+
+		case IN_CREATE:
+		case IN_MOVED_TO:
+			/* So we new the target, but not the
+			 * source location for the event.
+			 */
+			g_signal_emit (monitor,
+				       signals[ITEM_CREATED], 0,
+				       module_name,
+				       event->file,
+				       is_directory);
+			break;
+		}
+
+		/* Clean up */
+		g_hash_table_remove (monitor->private->cached_events, key);
+
+		/* Reset the iter, so we start from the top */
+		g_hash_table_iter_init (&iter, monitor->private->cached_events);
+	}
+
+	if (g_hash_table_size (monitor->private->cached_events) < 1) {
+		g_debug ("No more cached events, removing timeout");
+		monitor->private->cached_events_timeout_id = 0;
 		return FALSE;
 	}
 
@@ -1037,6 +1160,9 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 	g_free (event_type_str);
 
 	if (!black_list_file_check (monitor, file)) {
+		EventPairData *data = NULL;
+		GTimeVal       now;
+
 		if (monitor->private->unpause_timeout_id != 0) {
 			g_source_remove (monitor->private->unpause_timeout_id);
 		} else {
@@ -1059,37 +1185,29 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			/* First check if we already have a file in
 			 * the event pairs hash table.
 			 */
-			other_file = g_hash_table_lookup (monitor->private->event_pairs,
-							  GINT_TO_POINTER (cookie));
-			if (!other_file) {
-				GTimeVal t;
+			data = g_hash_table_lookup (monitor->private->event_pairs,
+						    GUINT_TO_POINTER (cookie));
 
-				g_get_current_time (&t);
+			if (!data) {
+				g_get_current_time (&now);
+				data = event_pair_data_new (file, now, event_type);
+				
 				g_hash_table_insert (monitor->private->event_pairs,
 						     GUINT_TO_POINTER (cookie),
-						     g_object_ref (file));
-				g_hash_table_insert (monitor->private->event_time_by_cookie,
-						     GUINT_TO_POINTER (cookie),
-						     GSIZE_TO_POINTER (t.tv_sec));
-				g_hash_table_insert (monitor->private->event_type_by_cookie,
-						     GUINT_TO_POINTER (cookie),
-						     GUINT_TO_POINTER (event_type));
+						     data);
 			} else {
-				gchar *other_path;
-
-				other_path = g_file_get_path (other_file);
-				g_free (other_path);
+				other_file = data->file;
 			}
 
 			/* Add a check for old cookies we didn't
 			 * receive the follow up pair event for.
 			 */
-			if (!monitor->private->event_check_timeout_id) {
+			if (!monitor->private->event_pairs_timeout_id) {
 				g_debug ("Setting up event pair timeout check");
 
-				monitor->private->event_check_timeout_id =
+				monitor->private->event_pairs_timeout_id =
 					g_timeout_add_seconds (2,
-							       libinotify_event_check_timeout_cb,
+							       libinotify_event_pairs_timeout_cb,
 							       monitor);
 			}
 		}
@@ -1103,6 +1221,16 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 
 		case IN_CLOSE_WRITE:
 		case IN_ATTRIB:
+			if (g_hash_table_lookup (monitor->private->cached_events, file)) {
+				/* We already have an even we will
+				 * signal when we timeout. So don't
+				 * propagate this event.
+				 *
+				 * See IN_CREATE.
+				 */
+				break;
+			}			
+
 			g_signal_emit (monitor,
 				       signals[ITEM_UPDATED], 0,
 				       module_name,
@@ -1128,15 +1256,34 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 					       is_directory);
 				g_hash_table_remove (monitor->private->event_pairs,
 						     GUINT_TO_POINTER (cookie));
-				g_hash_table_remove (monitor->private->event_time_by_cookie,
-						     GUINT_TO_POINTER (cookie));
-				g_hash_table_remove (monitor->private->event_type_by_cookie,
-						     GUINT_TO_POINTER (cookie));
 			}
 
 			break;
 
 		case IN_CREATE:
+			/* Here we just wait with CREATE events and
+			 * if we get MODIFY after, we drop the MODIFY
+			 * and just emit CREATE because otherwise we
+			 * send twice as much traffic to the indexer.
+			 */
+			g_get_current_time (&now);
+			data = event_pair_data_new (file, now, event_type);
+
+			g_hash_table_insert (monitor->private->cached_events,
+					     data->file,
+					     data);
+
+			if (!monitor->private->cached_events_timeout_id) {
+				g_debug ("Setting up cached events timeout check");
+
+				monitor->private->cached_events_timeout_id =
+					g_timeout_add_seconds (2,
+							       libinotify_cached_events_timeout_cb,
+							       monitor);
+			}
+
+			break;
+
 		case IN_MOVED_TO:
 			/* FIXME: What if we don't monitor the other
 			 * location?
@@ -1155,10 +1302,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 					       file,
 					       is_directory);
 				g_hash_table_remove (monitor->private->event_pairs,
-						     GUINT_TO_POINTER (cookie));
-				g_hash_table_remove (monitor->private->event_time_by_cookie,
-						     GUINT_TO_POINTER (cookie));
-				g_hash_table_remove (monitor->private->event_type_by_cookie,
 						     GUINT_TO_POINTER (cookie));
 			}
 

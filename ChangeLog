@@ -1,3 +1,10 @@
+2008-10-09  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-monitor.c: Added an event cache so we don't
+	send 2 events for a cp command to the indexer - this is an
+	efficiency improvement. Now we just send CREATED to the indexer
+	instead of CREATED & UPDATED. This fixes NB#88769.
+
 2008-10-09  Philip Van Hoof  <philip@codeminded.be>
 
 	* configure.ac
