@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-01 17:13+0200\n"
-"PO-Revision-Date: 2008-10-01 17:35+0100\n"
+"POT-Creation-Date: 2008-10-09 08:21+0200\n"
+"PO-Revision-Date: 2008-10-09 08:24+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -147,7 +147,7 @@ msgstr "Bilder"
 
 #: ../python/deskbar-handler/tracker-handler.py:398
 #: ../python/deskbar-handler/tracker-module.py:304
-#: ../src/tracker-search-tool/tracker-search-tool.c:149
+#: ../src/tracker-search-tool/tracker-search-tool.c:150
 msgid "Videos"
 msgstr "Videoklipp"
 
@@ -654,27 +654,27 @@ msgstr "Kör för alltid, endast intressant för felsökningsändamål"
 msgid "- start the tracker indexer"
 msgstr "- starta tracker-indexeraren"
 
-#: ../src/tracker-preferences/tracker-preferences.c:837
+#: ../src/tracker-preferences/tracker-preferences.c:647
 msgid "Data must be reindexed"
 msgstr "Data måste indexeras om"
 
-#: ../src/tracker-preferences/tracker-preferences.c:838
+#: ../src/tracker-preferences/tracker-preferences.c:648
 msgid "In order for your changes to take effect, Tracker must reindex your files. Click the Reindex button to start reindexing now, otherwise this action will be performed the next time the Tracker daemon is restarted."
 msgstr "Tracker-demonen måste startas om för att dina ändringar ska bli aktiva. Klicka på Indexera om-knappen för att indexera om nu, annars kommer denna åtgärd att genomföras nästa gång Tracker-demonen startas."
 
-#: ../src/tracker-preferences/tracker-preferences.c:845
+#: ../src/tracker-preferences/tracker-preferences.c:655
 msgid "_Reindex"
 msgstr "Indexera _om"
 
-#: ../src/tracker-preferences/tracker-preferences.c:848
+#: ../src/tracker-preferences/tracker-preferences.c:658
 msgid "Tracker daemon must be restarted"
 msgstr "Tracker-demonen måste startas om"
 
-#: ../src/tracker-preferences/tracker-preferences.c:850
+#: ../src/tracker-preferences/tracker-preferences.c:660
 msgid "In order for your changes to take effect, the Tracker daemon has to be restarted. Click the Restart button to restart the daemon now."
 msgstr "Tracker-demonen måste startas om för att dina ändringar ska bli aktiva. Klicka på Starta om-knappen för att starta om demonen nu."
 
-#: ../src/tracker-preferences/tracker-preferences.c:855
+#: ../src/tracker-preferences/tracker-preferences.c:665
 msgid "_Restart"
 msgstr "Starta _om"
 
@@ -939,137 +939,141 @@ msgstr "Mappar"
 msgid "Documents"
 msgstr "Dokument"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:150
-#: ../src/tracker-search-tool/tracker-search-tool.c:1220
+#: ../src/tracker-search-tool/tracker-search-tool.c:149
+msgid "Playlists"
+msgstr "Spellistor"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:151
+#: ../src/tracker-search-tool/tracker-search-tool.c:1221
 msgid "Text"
 msgstr "Text"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:151
+#: ../src/tracker-search-tool/tracker-search-tool.c:152
 msgid "Development"
 msgstr "Utveckling"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:152
+#: ../src/tracker-search-tool/tracker-search-tool.c:153
 msgid "Chat Logs"
 msgstr "Chattloggar"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:153
+#: ../src/tracker-search-tool/tracker-search-tool.c:154
 msgid "Applications"
 msgstr "Program"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:154
+#: ../src/tracker-search-tool/tracker-search-tool.c:155
 msgid "WebHistory"
 msgstr "Webbhistorik"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:214
+#: ../src/tracker-search-tool/tracker-search-tool.c:215
 msgid "_Open"
 msgstr "_Öppna"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:215
+#: ../src/tracker-search-tool/tracker-search-tool.c:216
 msgid "O_pen Folder"
 msgstr "Öppna _mapp"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:216
+#: ../src/tracker-search-tool/tracker-search-tool.c:217
 msgid "Mo_ve to Trash"
 msgstr "Flytta till _papperskorg"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:217
+#: ../src/tracker-search-tool/tracker-search-tool.c:218
 msgid "_Save Results As..."
 msgstr "_Spara resultat som..."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:245
+#: ../src/tracker-search-tool/tracker-search-tool.c:246
 #, c-format
 msgid "Character set conversion failed for \"%s\""
 msgstr "Konvertering av teckenkodning misslyckades för \"%s\""
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:272
+#: ../src/tracker-search-tool/tracker-search-tool.c:273
 msgid "The following error has occurred :"
 msgstr "Följande fel har inträffat :"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:276
+#: ../src/tracker-search-tool/tracker-search-tool.c:277
 msgid "Error"
 msgstr "Fel"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:651
+#: ../src/tracker-search-tool/tracker-search-tool.c:652
 msgid "Did you mean"
 msgstr "Menade du"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:682
+#: ../src/tracker-search-tool/tracker-search-tool.c:683
 msgid "Your search returned no results."
 msgstr "Din sökning returnerade inga träffar."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:697
+#: ../src/tracker-search-tool/tracker-search-tool.c:698
 msgid "Tracker Search Tool-"
 msgstr "Sökverktyget Tracker-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:858
-#: ../src/tracker-search-tool/tracker-search-tool.c:2218
+#: ../src/tracker-search-tool/tracker-search-tool.c:859
+#: ../src/tracker-search-tool/tracker-search-tool.c:2219
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Sökverktyget Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1048
+#: ../src/tracker-search-tool/tracker-search-tool.c:1049
 msgid "Search _results: "
 msgstr "Sök_resultat: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1054
+#: ../src/tracker-search-tool/tracker-search-tool.c:1055
 msgid "no search performed"
 msgstr "ingen sökning genomförd"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1114
-#: ../src/tracker-search-tool/tracker-search-tool.c:1274
+#: ../src/tracker-search-tool/tracker-search-tool.c:1115
+#: ../src/tracker-search-tool/tracker-search-tool.c:1275
 msgid "List View"
 msgstr "Listvy"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1186
+#: ../src/tracker-search-tool/tracker-search-tool.c:1187
 msgid "Icon"
 msgstr "Ikon"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1198
+#: ../src/tracker-search-tool/tracker-search-tool.c:1199
 msgid "Name"
 msgstr "Namn"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1292
+#: ../src/tracker-search-tool/tracker-search-tool.c:1293
 msgid "_Categories"
 msgstr "_Kategorier"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1572
+#: ../src/tracker-search-tool/tracker-search-tool.c:1573
 #, c-format
 msgid "%d - %d of %d items"
 msgstr "%d - %d av %d objekt"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1575
+#: ../src/tracker-search-tool/tracker-search-tool.c:1576
 #, c-format
 msgid "%d item"
 msgid_plural "%d items"
 msgstr[0] "%d objekt"
 msgstr[1] "%d objekt"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1623
-#: ../src/tracker-search-tool/tracker-search-tool.c:1816
+#: ../src/tracker-search-tool/tracker-search-tool.c:1624
+#: ../src/tracker-search-tool/tracker-search-tool.c:1817
 msgid "Could not connect to search service as it may be busy"
 msgstr "Kunde inte ansluta till söktjänsten eftersom den kan vara upptagen"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2009
+#: ../src/tracker-search-tool/tracker-search-tool.c:2010
 msgid "_Search:"
 msgstr "_Sök:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2023
+#: ../src/tracker-search-tool/tracker-search-tool.c:2024
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr "Tracker indexerar fortfarande så alla sökresultat är inte tillgängliga än"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2037
 #: ../src/tracker-search-tool/tracker-search-tool.c:2038
+#: ../src/tracker-search-tool/tracker-search-tool.c:2039
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr "Ange ett sökvillkor med flera ord separerade med blanksteg."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2038
+#: ../src/tracker-search-tool/tracker-search-tool.c:2039
 msgid "search_entry"
 msgstr "sökinmatning"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2084
+#: ../src/tracker-search-tool/tracker-search-tool.c:2085
 msgid "Click to perform a search."
 msgstr "Klicka för att genomföra en sökning."
 
@@ -1275,9 +1279,11 @@ msgid "- Search for files by service or by MIME type"
 msgstr "- Sök efter filer efter tjänst eller MIME-typ"
 
 #: ../src/tracker-utils/tracker-files.c:94
+#: ../src/tracker-utils/tracker-info.c:101
 #: ../src/tracker-utils/tracker-meta-folder.c:196
 #: ../src/tracker-utils/tracker-query.c:142
 #: ../src/tracker-utils/tracker-search.c:168
+#: ../src/tracker-utils/tracker-services.c:96
 #: ../src/tracker-utils/tracker-stats.c:76
 #: ../src/tracker-utils/tracker-status.c:49
 #: ../src/tracker-utils/tracker-tag.c:172
@@ -1308,6 +1314,49 @@ msgstr "Kunde inte få tag på filer efter MIME-typ"
 #: ../src/tracker-utils/tracker-files.c:160
 msgid "No files found by those MIME types"
 msgstr "Inga filer hittades med dessa MIME-typer"
+
+#: ../src/tracker-utils/tracker-info.c:39
+msgid "Service type of the file"
+msgstr "Tjänstetyp för filen"
+
+#: ../src/tracker-utils/tracker-info.c:44
+#: ../src/tracker-utils/tracker-tag.c:78
+msgid "FILE..."
+msgstr "FIL..."
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-info.c:74
+msgid "- Get all information from a certain file"
+msgstr "- Få all information från en specifik fil"
+
+#: ../src/tracker-utils/tracker-info.c:85
+msgid "Uri missing"
+msgstr "Uri saknas"
+
+#: ../src/tracker-utils/tracker-info.c:107
+#: ../src/tracker-utils/tracker-query.c:152
+#: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker-utils/tracker-unique.c:136
+msgid "Defaulting to 'files' service"
+msgstr "Faller tillbaka på standardtjänsten \"files\""
+
+#: ../src/tracker-utils/tracker-info.c:115
+msgid "Service type not recognized, using 'Other' ..."
+msgstr "Tjänstetypen känns inte igen, använder \"Övriga\" ..."
+
+#: ../src/tracker-utils/tracker-info.c:125
+msgid "Unable to retrieve data for uri"
+msgstr "Kunde inte hämta data för uri"
+
+#: ../src/tracker-utils/tracker-info.c:136
+msgid "No metadata available for that uri"
+msgstr "Inget metadata tillgängligt för den uri:n"
+
+#: ../src/tracker-utils/tracker-info.c:139
+#: ../src/tracker-utils/tracker-search.c:218
+msgid "Results:"
+msgstr "Resultat:"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:40
 msgid "Path to use for directory to get metadata information about"
@@ -1381,12 +1430,6 @@ msgstr "- Fråga med RDF och returnera resultat med angivna metadatafält"
 #: ../src/tracker-utils/tracker-query.c:126
 msgid "Path or fields are missing"
 msgstr "Sökväg eller fält saknas"
-
-#: ../src/tracker-utils/tracker-query.c:152
-#: ../src/tracker-utils/tracker-search.c:178
-#: ../src/tracker-utils/tracker-unique.c:136
-msgid "Defaulting to 'files' service"
-msgstr "Faller tillbaka på standardtjänsten \"files\""
 
 #: ../src/tracker-utils/tracker-query.c:160
 #: ../src/tracker-utils/tracker-search.c:186
@@ -1464,13 +1507,47 @@ msgstr "Sökvillkor saknas"
 msgid "Could not get find detailed results by text"
 msgstr "Kunde inte få tag på detaljerade sökresultat efter texten"
 
-#: ../src/tracker-utils/tracker-search.c:218
-msgid "Results:"
-msgstr "Resultat:"
-
 #: ../src/tracker-utils/tracker-search.c:235
 msgid "Could not get find results by text"
 msgstr "Kunde inte få tag på sökresultat för texten"
+
+#: ../src/tracker-utils/tracker-services.c:39
+msgid "Return the known service types"
+msgstr "Returnera de kända tjänstetyperna"
+
+#: ../src/tracker-utils/tracker-services.c:43
+msgid "Return the known properties"
+msgstr "Returnera de kända egenskaperna"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-services.c:76
+msgid " - Show all available service types and properties in tracker"
+msgstr " - Visa alla tillgängliga tjänstetyper och egenskaper i tracker"
+
+#: ../src/tracker-utils/tracker-services.c:105
+msgid "Could not get Tracker services"
+msgstr "Kunde inte få tag på Tracker-tjänster"
+
+#: ../src/tracker-utils/tracker-services.c:114
+msgid "No services available"
+msgstr "Inga tjänster tillgängliga"
+
+#: ../src/tracker-utils/tracker-services.c:117
+msgid "Service types available in Tracker:"
+msgstr "Tjänstetyper tillgängliga i Tracker:"
+
+#: ../src/tracker-utils/tracker-services.c:130
+msgid "Could not get Tracker properties"
+msgstr "Kunde inte få tag på Tracker-egenskaper"
+
+#: ../src/tracker-utils/tracker-services.c:139
+msgid "No properties available"
+msgstr "Inga egenskaper tillgängliga"
+
+#: ../src/tracker-utils/tracker-services.c:142
+msgid "Properties available in Tracker:"
+msgstr "Egenskaper tillgängliga i Tracker:"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -1525,10 +1602,6 @@ msgstr "Lista alla definierade taggar"
 #: ../src/tracker-utils/tracker-tag.c:73
 msgid "Search for files with specified tag"
 msgstr "Sök efter filer med specifik tagg"
-
-#: ../src/tracker-utils/tracker-tag.c:78
-msgid "FILE..."
-msgstr "FIL..."
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
