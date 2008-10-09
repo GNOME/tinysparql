@@ -6,6 +6,12 @@
 
 2008-10-09  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/trackerd/tracker-search.c: Timeout based SQLite connection for
+	the direct-sql SqlQuery feature. The connection stays open for 10
+	minutes before being recyled
+
+2008-10-09  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/libtracker-db/tracker-db-interface-sqlite.c
 	* src/libtracker-db/tracker-db-interface-sqlite.h
 	* src/libtracker-db/tracker-db-manager.c

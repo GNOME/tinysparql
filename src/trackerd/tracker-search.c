@@ -44,7 +44,8 @@
 
 #define TRACKER_SEARCH_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_SEARCH, TrackerSearchPrivate))
 
-#define DEFAULT_SEARCH_MAX_HITS 1024
+#define DEFAULT_SEARCH_MAX_HITS 		1024
+#define SEARCH_KEEPALIVE_TIME_FOR_SQL_QUERY	600
 
 typedef struct {
 	TrackerConfig	*config;
@@ -52,6 +53,10 @@ typedef struct {
 	TrackerDBIndex	*file_index;
 	TrackerDBIndex	*email_index;
 } TrackerSearchPrivate;
+
+static TrackerDBInterface   *sql_query_iface = NULL;
+static guint		     sql_query_cleanup_timeout_id = 0;
+
 
 static void tracker_search_finalize (GObject *object);
 
@@ -1248,6 +1253,22 @@ tracker_search_suggest (TrackerSearch	       *object,
 	tracker_dbus_request_success (request_id);
 }
 
+
+static void
+sql_query_cleanup_destroy_notify_cb (gpointer user_data)
+{
+	g_object_unref (user_data);
+	sql_query_cleanup_timeout_id = 0;
+}
+
+static gboolean 
+cleanup_search_sql_query_iface (gpointer user_data)
+{
+	g_object_unref (sql_query_iface);
+	sql_query_iface = NULL;
+	return FALSE;
+}
+
 void
 tracker_search_sql_query (TrackerSearch		*object,
 			  gchar 		*query,
@@ -1255,7 +1276,6 @@ tracker_search_sql_query (TrackerSearch		*object,
 			  GError		**error)
 {
 	GError 		     *actual_error = NULL;
-	TrackerDBInterface   *iface;
 	TrackerDBResultSet   *result_set;
 	guint		      request_id;
 
@@ -1268,16 +1288,23 @@ tracker_search_sql_query (TrackerSearch		*object,
 				  "query:'%s'",
 				  query);
 
-	iface = tracker_db_manager_get_db_interfaces_ro (7,
-							 TRACKER_DB_CACHE,
-							 TRACKER_DB_COMMON,
-							 TRACKER_DB_FILE_CONTENTS,
-							 TRACKER_DB_FILE_METADATA,
-							 TRACKER_DB_EMAIL_CONTENTS,
-							 TRACKER_DB_EMAIL_METADATA,
-							 TRACKER_DB_XESAM);
+	if (sql_query_cleanup_timeout_id != 0) {
+		g_source_remove (sql_query_cleanup_timeout_id);
+		sql_query_cleanup_timeout_id = 0;
+	}
 
-	result_set = tracker_db_interface_execute_query (iface,
+	if (!sql_query_iface) {
+		sql_query_iface = tracker_db_manager_get_db_interfaces_ro (7,
+								 TRACKER_DB_CACHE,
+								 TRACKER_DB_COMMON,
+								 TRACKER_DB_FILE_CONTENTS,
+								 TRACKER_DB_FILE_METADATA,
+								 TRACKER_DB_EMAIL_CONTENTS,
+								 TRACKER_DB_EMAIL_METADATA,
+								 TRACKER_DB_XESAM);
+	}
+
+	result_set = tracker_db_interface_execute_query (sql_query_iface,
 							 &actual_error,
 							 query);
 
@@ -1293,7 +1320,12 @@ tracker_search_sql_query (TrackerSearch		*object,
 		g_object_unref (result_set);
 	}
 
-	g_object_unref (iface);
+	sql_query_cleanup_timeout_id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 
+								   SEARCH_KEEPALIVE_TIME_FOR_SQL_QUERY, 
+								   cleanup_search_sql_query_iface, 
+								   g_object_ref (sql_query_iface),
+								   sql_query_cleanup_destroy_notify_cb);
+
 
 	tracker_dbus_request_success (request_id);
 }
