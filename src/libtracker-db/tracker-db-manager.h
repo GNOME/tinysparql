@@ -71,6 +71,8 @@ TrackerDBInterface *
 TrackerDBInterface *
 	     tracker_db_manager_get_db_interfaces	    (gint num, ...);
 TrackerDBInterface *
+	     tracker_db_manager_get_db_interfaces_ro	    (gint num, ...);
+TrackerDBInterface *
 	     tracker_db_manager_get_db_interface_by_service (const gchar	   *service);
 TrackerDBInterface *
 	     tracker_db_manager_get_db_interface_by_type    (const gchar	   *service,

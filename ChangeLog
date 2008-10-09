@@ -1,3 +1,16 @@
+2008-10-09  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-db/tracker-db-interface-sqlite.c
+	* src/libtracker-db/tracker-db-interface-sqlite.h
+	* src/libtracker-db/tracker-db-manager.c
+	* src/libtracker-db/tracker-db-manager.h
+	* src/trackerd/tracker-search.c
+	* src/trackerd/tracker-search.h
+	* data/dbus/tracker-search.xml: Added a method to access the database
+	using normal SQL queries. Please do not use this API in applications
+	unless you understand the consequences of the DB schema changing at
+	unannounced moments.
+
 2008-10-08  Ivan Frade  <ivan.frade@nokia.com>
 
 	* docs/reference/tracker-indexer/adding-categories-and-properties.sgml

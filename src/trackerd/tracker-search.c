@@ -1249,3 +1249,53 @@ tracker_search_suggest (TrackerSearch	       *object,
 
 	tracker_dbus_request_success (request_id);
 }
+
+void
+tracker_search_sql_query (TrackerSearch		*object,
+			  gchar 		*query,
+			  DBusGMethodInvocation	*context,
+			  GError		**error)
+{
+	GError 		     *actual_error = NULL;
+	TrackerDBInterface   *iface;
+	TrackerDBResultSet   *result_set;
+	guint		      request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (query != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request for SQL Query, "
+				  "query:'%s'",
+				  query);
+
+	iface = tracker_db_manager_get_db_interfaces_ro (7,
+							 TRACKER_DB_CACHE,
+							 TRACKER_DB_COMMON,
+							 TRACKER_DB_FILE_CONTENTS,
+							 TRACKER_DB_FILE_METADATA,
+							 TRACKER_DB_EMAIL_CONTENTS,
+							 TRACKER_DB_EMAIL_METADATA,
+							 TRACKER_DB_XESAM);
+
+	result_set = tracker_db_interface_execute_query (iface,
+							 &actual_error,
+							 query);
+
+	if (!result_set) {
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+	} else {
+		GPtrArray *values;
+
+		values = tracker_dbus_query_result_multi_to_ptr_array (result_set);
+		dbus_g_method_return (context, values);
+		tracker_dbus_results_ptr_array_free (&values);
+		g_object_unref (result_set);
+	}
+
+	g_object_unref (iface);
+
+	tracker_dbus_request_success (request_id);
+}

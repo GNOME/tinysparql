@@ -35,6 +35,7 @@ struct TrackerDBInterfaceSqlitePrivate {
 	GSList *function_data;
 
 	guint in_transaction : 1;
+	guint ro : 1;
 };
 
 struct SqliteFunctionData {
@@ -47,7 +48,8 @@ static void tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *ifa
 enum {
 	PROP_0,
 	PROP_FILENAME,
-	PROP_IN_TRANSACTION
+	PROP_IN_TRANSACTION,
+	PROP_RO
 };
 
 G_DEFINE_TYPE_WITH_CODE (TrackerDBInterfaceSqlite, tracker_db_interface_sqlite, G_TYPE_OBJECT,
@@ -68,10 +70,18 @@ tracker_db_interface_sqlite_constructor (GType			type,
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (object);
 	g_assert (priv->filename != NULL);
 
-	if (sqlite3_open (priv->filename, &priv->db) != SQLITE_OK) {
-		g_critical ("Could not open sqlite3 database:'%s'", priv->filename);
+	if (!priv->ro) {
+		if (sqlite3_open (priv->filename, &priv->db) != SQLITE_OK) {
+			g_critical ("Could not open sqlite3 database:'%s'", priv->filename);
+		} else {
+			g_message ("Opened sqlite3 database:'%s'", priv->filename);
+		}
 	} else {
-		g_message ("Opened sqlite3 database:'%s'", priv->filename);
+		if (sqlite3_open_v2 (priv->filename, &priv->db, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
+			g_critical ("Could not open sqlite3 database:'%s'", priv->filename);
+		} else {
+			g_message ("Opened sqlite3 database:'%s'", priv->filename);
+		}
 	}
 
 	sqlite3_extended_result_codes (priv->db, 0);
@@ -91,6 +101,9 @@ tracker_db_interface_sqlite_set_property (GObject	*object,
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (object);
 
 	switch (prop_id) {
+	case PROP_RO:
+		priv->ro = g_value_get_boolean (value);
+		break;
 	case PROP_FILENAME:
 		priv->filename = g_value_dup_string (value);
 		break;
@@ -113,6 +126,9 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (object);
 
 	switch (prop_id) {
+	case PROP_RO:
+		g_value_set_boolean (value, priv->ro);
+		break;
 	case PROP_FILENAME:
 		g_value_set_string (value, priv->filename);
 		break;
@@ -170,6 +186,14 @@ tracker_db_interface_sqlite_class_init (TrackerDBInterfaceSqliteClass *class)
 					  PROP_IN_TRANSACTION,
 					  "in-transaction");
 
+	g_object_class_install_property (object_class,
+						 PROP_RO,
+						 g_param_spec_boolean ("read-only",
+								   "Read only",
+								   "Whether the connection is read only",
+								   FALSE,
+								   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+
 	g_type_class_add_private (object_class,
 				  sizeof (TrackerDBInterfaceSqlitePrivate));
 }
@@ -181,6 +205,7 @@ tracker_db_interface_sqlite_init (TrackerDBInterfaceSqlite *db_interface)
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
 
+	priv->ro = FALSE;
 	priv->statements = g_hash_table_new_full (g_str_hash, g_str_equal,
 						  (GDestroyNotify) g_free,
 						  (GDestroyNotify) sqlite3_finalize);
@@ -559,6 +584,15 @@ tracker_db_interface_sqlite_new (const gchar *filename)
 {
 	return g_object_new (TRACKER_TYPE_DB_INTERFACE_SQLITE,
 			     "filename", filename,
+			     NULL);
+}
+
+TrackerDBInterface *
+tracker_db_interface_sqlite_new_ro (const gchar *filename)
+{
+	return g_object_new (TRACKER_TYPE_DB_INTERFACE_SQLITE,
+				 "filename", filename,
+				 "read-only", TRUE,
 			     NULL);
 }
 

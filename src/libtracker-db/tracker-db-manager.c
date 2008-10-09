@@ -2682,6 +2682,39 @@ tracker_db_manager_get_db_interfaces (gint num, ...)
 	return connection;
 }
 
+TrackerDBInterface *
+tracker_db_manager_get_db_interfaces_ro (gint num, ...)
+{
+	gint		    n_args;
+	va_list		    args;
+	TrackerDBInterface *connection = NULL;
+
+	g_return_val_if_fail (initialized != FALSE, NULL);
+
+	va_start (args, num);
+	for (n_args = 1; n_args <= num; n_args++) {
+		TrackerDB db = va_arg (args, TrackerDB);
+
+		if (!connection) {
+			connection = tracker_db_interface_sqlite_new_ro (dbs[db].abs_filename);
+			tracker_db_interface_set_procedure_table (connection,
+								  prepared_queries);
+			db_set_params (connection,
+				       dbs[db].cache_size,
+				       dbs[db].page_size,
+				       TRUE);
+		} else {
+			db_exec_no_reply (connection,
+					  "ATTACH '%s' as '%s'",
+					  dbs[db].abs_filename,
+					  dbs[db].name);
+		}
+
+	}
+	va_end (args);
+
+	return connection;
+}
 
 
 /**
