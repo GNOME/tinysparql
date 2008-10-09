@@ -558,7 +558,22 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 		 * name of the file.
 		 */
 		parent = g_file_get_parent (file);
+
+		if (!parent) {
+			gchar *path;
+
+			path = g_file_get_path (file);
+
+			g_warning ("Could not get module name from GFile (path:'%s')",
+				   path);
+
+			g_free (path);
+
+			return NULL;
+		}
+
 		module_name = get_queue_from_gfile (monitor->private->modules, parent);
+		g_object_unref (parent);
 
 		if (!module_name) {
 			gchar *child_path;

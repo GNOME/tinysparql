@@ -8,6 +8,11 @@
 
 2008-10-09  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-monitor.c (get_module_name_from_gfile): Plug a
+	leak.
+
+2008-10-09  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/trackerd/tracker-search.c (tracker_search_get_hit_count)
 	(tracker_search_get_hit_count_all): Do not free memory owned by
 	TrackerOntology.
