@@ -8,6 +8,15 @@
 
 2008-10-09  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-db.c (tracker_db_search_text)
+	(tracker_db_get_metadata_field):
+	* src/trackerd/tracker-metadata.c (tracker_metadata_get):
+	* src/trackerd/tracker-query-tree.c (tracker_query_tree_finalize)
+	(tracker_query_tree_get_hits) (tracker_query_tree_get_hit_counts):
+	Plug leaks everywhere.
+
+2008-10-09  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/trackerd/tracker-monitor.c (get_module_name_from_gfile): Plug a
 	leak.
 

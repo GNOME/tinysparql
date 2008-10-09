@@ -186,6 +186,7 @@ tracker_query_tree_finalize (GObject *object)
 
 	tree_node_free (priv->tree);
 	g_free (priv->query_str);
+	g_array_free (priv->services, TRUE);
 
 	G_OBJECT_CLASS (tracker_query_tree_parent_class)->finalize (object);
 }
@@ -793,6 +794,8 @@ tracker_query_tree_get_hits (TrackerQueryTree *tree,
 		g_array_remove_range (array, limit, array->len - limit);
 	}
 
+	g_hash_table_destroy (table);
+
 	return array;
 }
 
@@ -876,6 +879,8 @@ tracker_query_tree_get_hit_counts (TrackerQueryTree *tree)
 	}
 
 	g_hash_table_foreach (table, (GHFunc) get_hit_count_foreach, counts);
+
+	g_hash_table_destroy (table);
 	g_array_free (hits, TRUE);
 
 	return counts;

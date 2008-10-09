@@ -270,7 +270,6 @@ tracker_db_search_text (TrackerDBInterface *iface,
 	TrackerDBPrivate    *private;
 	TrackerQueryTree    *tree;
 	TrackerDBResultSet  *result_set, *result;
-	gchar		   **array;
 	GArray		    *hits;
 	gint		     count;
 	gboolean	     detailed_emails = FALSE, detailed_apps = FALSE;
@@ -286,11 +285,6 @@ tracker_db_search_text (TrackerDBInterface *iface,
 
 	private = g_static_private_get (&private_key);
 	g_return_val_if_fail (private != NULL, NULL);
-
-	array = tracker_parser_text_into_array (search_string,
-						private->language,
-						tracker_config_get_max_word_length (private->config),
-						tracker_config_get_min_word_length (private->config));
 
 	services = tracker_db_create_array_of_services (service, FALSE);
 	/* FIXME: Do we need both index and services here? We used to have it */
@@ -420,6 +414,7 @@ tracker_db_search_text (TrackerDBInterface *iface,
 		}
 
 		g_slist_free (words);
+		g_slist_free (duds);
 	}
 
 	g_object_unref (tree);
@@ -1739,6 +1734,7 @@ tracker_db_get_metadata_field (TrackerDBInterface *iface,
 
 		tracker_field_data_set_where_field (field_data, where_field);
 		g_free (where_field);
+		g_free (alias);
 	}
 
 	return field_data;

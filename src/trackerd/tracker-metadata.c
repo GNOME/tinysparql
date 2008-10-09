@@ -226,6 +226,8 @@ tracker_metadata_get (TrackerMetadata	     *object,
 
 	dbus_g_method_return (context, values);
 	g_strfreev (values);
+	g_free (service_id);
+	g_free (service_result);
 
 	tracker_dbus_request_success (request_id);
 }
