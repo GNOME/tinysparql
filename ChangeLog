@@ -1,3 +1,7 @@
+2008-10-09  Mikael Ottela   <mikael.ottela@ixonos.com>
+	* src/tracker-extract/tracker-extract-mp3.c: Fixed conversions
+	between different character encodings in the tags.
+
 2008-10-09  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-monitor.c: (libinotify_monitor_directory):

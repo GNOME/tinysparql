@@ -12,8 +12,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public
+ * * You should have received a copy of the GNU General Public
  * License along with this program; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
@@ -277,20 +276,6 @@ static TrackerExtractorData data[] = {
 	{ NULL, NULL }
 };
 
-static gchar *
-get_utf8 (const gchar *txt,
-	  gint	       size,
-	  gpointer     p1,
-	  gpointer     p2,
-	  gpointer     p3)
-{
-	if (!g_utf8_validate (txt, size, NULL)) {
-		return g_locale_to_utf8 (txt, size, NULL, NULL, NULL);
-	} else {
-		return g_strndup (txt, size);
-	}
-}
-
 static gboolean
 get_id3 (const gchar *data,
 	 size_t       size,
@@ -310,16 +295,32 @@ get_id3 (const gchar *data,
 
 	pos += 3;
 
-	id3->title = get_utf8 (pos, 30, NULL, NULL, NULL);
+	id3->title = g_convert (pos, 30,
+				"UTF-8",
+				"ISO-8859-1",
+				NULL, NULL, NULL);
+
 	pos += 30;
-	id3->artist = get_utf8 (pos, 30, NULL, NULL, NULL);
+	id3->artist = g_convert (pos, 30,
+				 "UTF-8",
+				 "ISO-8859-1",
+				 NULL, NULL, NULL);
 	pos += 30;
-	id3->album = get_utf8 (pos, 30, NULL, NULL, NULL);
+	id3->album = g_convert (pos, 30,
+				"UTF-8",
+				"ISO-8859-1",
+				NULL, NULL, NULL);
 	pos += 30;
-	id3->year = get_utf8 (pos, 4, NULL, NULL, NULL);
+	id3->year = g_convert (pos, 4,
+			       "UTF-8",
+			       "ISO-8859-1",
+			       NULL, NULL, NULL);
 
 	pos += 4;
-	id3->comment = get_utf8 (pos, 30, NULL, NULL, NULL);
+	id3->comment = g_convert (pos, 30,
+				  "UTF-8",
+				  "ISO-8859-1",
+				  NULL, NULL, NULL);
 	pos += 30;
 	id3->genre = "";
 
@@ -606,6 +607,8 @@ get_id3v24_tags (const gchar *data,
 			if (strncmp (tmap[i].text, (const char*) &data[pos], 4) == 0) {
 				gchar * word;
 
+				const gchar *end;
+
 				if ((flags & 0x20) > 0) {
 					/* The "group" identifier, skip a byte */
 					pos++;
@@ -616,28 +619,31 @@ get_id3v24_tags (const gchar *data,
 				 * try to convert strings to UTF-8
 				 * if it fails, then forget it
 				 */
+
 				switch (data[pos + 10]) {
 				case 0x00:
-					word = get_utf8 ((const char*) &data[pos + 11],
+					word = g_convert(&data[pos+11],
 							 csize,
+							 "UTF-8",
+							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
 				case 0x01 :
-					word = get_utf8 ((const char*) &data[pos + 11],
+					word = g_convert(&data[pos+11],
 							 csize,
+							 "UTF-8",
+							 "UTF-16",
 							 NULL, NULL, NULL);
 					break;
 				case 0x02 :
-					word = get_utf8 ((const char*) &data[pos + 11],
+					word = g_convert(&data[pos+11],
 							 csize,
+							 "UTF-8",
+							 "UTF-16BE",
 							 NULL, NULL, NULL);
 					break;
 				case 0x03 :
-					word = malloc (csize + 1);
-					memcpy (word,
-						&data[pos + 11],
-						csize);
-					word[csize] = '\0';
+					word = strndup (&data[pos+11], csize-1);
 					break;
 
 				default:
@@ -645,8 +651,10 @@ get_id3v24_tags (const gchar *data,
 					 * try to convert from
 					 * iso-8859-1
 					 */
-					word = get_utf8 ((const char*) &data[pos + 11],
+					word = g_convert(&data[pos+11],
 							 csize,
+							 "UTF-8",
+							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
 				}
@@ -829,21 +837,27 @@ get_id3v23_tags (const gchar *data,
 
 				switch (data[pos + 10]) {
 				case 0x00:
-					word = get_utf8 ((const gchar*) &data[pos + 11],
+					word = g_convert(&data[pos+11],
 							 csize,
+							 "UTF-8",
+							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
 				case 0x01 :
-					word = get_utf8 ((const gchar*) &data[pos + 11],
+					word = g_convert(&data[pos+11],
 							 csize,
+							 "UTF-8",
+							 "UCS-2",
 							 NULL, NULL, NULL);
-					break;
 				default:
-					/* Bad encoding byte, try to
-					 * convert from iso-8859-1
+					/* Bad encoding byte,
+					 * try to convert from
+					 * iso-8859-1
 					 */
-					word = get_utf8 ((const gchar*) &data[pos + 11],
+					word = g_convert(&data[pos+11],
 							 csize,
+							 "UTF-8",
+							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
 				}
@@ -981,22 +995,32 @@ get_id3v2_tags (const gchar *data,
 
 				/* This byte describes the encoding
 				 * try to convert strings to UTF-8 if
-				 * it fails, then forget it.
+				 * it fails, then forget it./
 				 */
-
 				switch (data[pos + 6]) {
 				case 0x00:
-					word = get_utf8 ((const gchar*) &data[pos + 7],
+					word = g_convert(&data[pos+7],
 							 csize,
+							 "UTF-8",
+							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
-
-				default:
-					/* Bad encoding byte, try to
-					 * convert from iso-8859-1.
-					 */
-					word = get_utf8 ((const gchar*) &data[pos + 7],
+				case 0x01 :
+					word = g_convert(&data[pos+7],
 							 csize,
+							 "UTF-8",
+							 "UCS-2",
+							 NULL, NULL, NULL);
+					break;
+				default:
+					/* Bad encoding byte,
+					 * try to convert from
+					 * iso-8859-1
+					 */
+					word = g_convert(&data[pos+7],
+							 csize,
+							 "UTF-8",
+							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
 				}
