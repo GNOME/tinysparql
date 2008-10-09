@@ -1,3 +1,9 @@
+2008-10-09  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-search.c (tracker_search_get_hit_count)
+	(tracker_search_get_hit_count_all): Do not free memory owned by
+	TrackerOntology.
+
 2008-10-09  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-db/tracker-db-interface-sqlite.c

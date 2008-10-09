@@ -483,7 +483,6 @@ tracker_search_get_hit_count (TrackerSearch	     *object,
 	dbus_g_method_return (context, tracker_query_tree_get_hit_count (tree));
 
 	g_object_unref (tree);
-	g_array_free (array, TRUE);
 
 	tracker_dbus_request_success (request_id);
 }
@@ -530,7 +529,6 @@ tracker_search_get_hit_count_all (TrackerSearch		 *object,
 				       priv->config,
 				       priv->language,
 				       array);
-	g_array_free (array, TRUE);
 
 	hit_counts = tracker_query_tree_get_hit_counts (tree);
 
