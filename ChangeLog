@@ -1,3 +1,7 @@
+2008-10-09  Mikael Ottela   <mikael.ottela@ixonos.com>
+	* src/tracker-extract/Makefile.am: Fixed a gdk_pixbuf related typo 
+	in the makefile.
+
 2008-10-09  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-monitor.c: Added an event cache so we don't

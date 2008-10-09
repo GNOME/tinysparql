@@ -149,7 +149,7 @@ libextract_pdf_la_LIBADD = $(GLIB2_LIBS) $(POPPLER_GLIB_LIBS) $(EXEMPI_LIBS)
 # GStreamer
 libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c $(albumart_sources)
 libextract_gstreamer_la_LDFLAGS = $(module_flags)
-libextract_gstreamer_la_LIBADD = $(GLIB2_LIBS) $(GSTREAMER_LIBS) $(GDK_PIXBUF_LIBS)
+libextract_gstreamer_la_LIBADD = $(GLIB2_LIBS) $(GSTREAMER_LIBS) $(GDKPIXBUF_LIBS)
 
 # Xine
 libextract_xine_la_SOURCES = tracker-extract-libxine.c
