@@ -62,7 +62,10 @@
 #include <gst/tag/tag.h>
 
 #include "tracker-extract.h"
+
+#ifdef HAVE_GDKPIXBUF
 #include "tracker-albumart.h"
+#endif /* HAVE_GDKPIXBUF */
 
 typedef enum {
 	EXTRACT_MIME_UNDEFINED=0,
@@ -854,10 +857,12 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	/* Save embedded art */
 	if (extractor->album_art_data && extractor->album_art_size) {
+#ifdef HAVE_GDKPIXBUF
 		tracker_save_albumart (extractor->album_art_data, extractor->album_art_size,
 				       g_hash_table_lookup (metadata, "Audio:Artist") ,
 				       g_hash_table_lookup (metadata, "Audio:Album"),
 				       uri);
+#endif /* HAVE_GDKPIXBUF */
 	}
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */

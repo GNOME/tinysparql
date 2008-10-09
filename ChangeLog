@@ -1,3 +1,11 @@
+2008-10-09  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/Makefile.am: Don't link with GdkPixbuf
+	unless we have it.
+	
+	* src/tracker-extract/tracker-extract-gstreamer.c: Don't call
+	GdkPixbuf module functions unless we have GdkPixbuf.
+
 2008-10-09  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-search.c (tracker_search_get_hit_count)
