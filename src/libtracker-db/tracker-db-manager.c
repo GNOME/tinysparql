@@ -2379,7 +2379,8 @@ tracker_db_get_type (void)
 
 void
 tracker_db_manager_init (TrackerDBManagerFlags	flags,
-			 gboolean	       *first_time)
+			 gboolean	       *first_time,
+			 gboolean	        shared_cache)
 {
 	GType		    etype;
 	TrackerDBVersion    version;
@@ -2395,6 +2396,9 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	if (initialized) {
 		return;
 	}
+
+	if (shared_cache)
+		tracker_db_interface_sqlite_enable_shared_cache ();
 
 	need_reindex = FALSE;
 

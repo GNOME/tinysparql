@@ -316,7 +316,7 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	tracker_db_manager_init (flags, NULL);
+	tracker_db_manager_init (flags, NULL, FALSE);
 	if (!tracker_db_index_manager_init (0,
 					    tracker_config_get_min_bucket_count (config),
 					    tracker_config_get_max_bucket_count (config))) {

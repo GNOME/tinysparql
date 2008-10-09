@@ -65,6 +65,7 @@ gboolean	     tracker_db_interface_sqlite_set_collation_function (TrackerDBInter
 
 gint64		     tracker_db_interface_sqlite_get_last_insert_id	(TrackerDBInterfaceSqlite *interface);
 
+void		     tracker_db_interface_sqlite_enable_shared_cache (void);
 
 G_END_DECLS
 

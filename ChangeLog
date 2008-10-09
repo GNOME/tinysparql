@@ -1,3 +1,13 @@
+2008-10-09  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-db/tracker-db-interface-sqlite.c
+	* src/libtracker-db/tracker-db-interface-sqlite.h
+	* src/libtracker-db/tracker-db-manager.c
+	* src/libtracker-db/tracker-db-manager.h
+	* src/trackerd/tracker-main.c
+	* src/tracker-indexer/tracker-main.c: utilizing SQLite's shared cache 
+	feature in the daemon.
+
 2008-10-09  Mikael Ottela   <mikael.ottela@ixonos.com>
 	* src/tracker-extract/Makefile.am: Fixed a gdk_pixbuf related typo 
 	in the makefile.

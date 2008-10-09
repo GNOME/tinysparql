@@ -817,7 +817,7 @@ main (gint argc, gchar *argv[])
 		flags |= TRACKER_DB_MANAGER_LOW_MEMORY_MODE;
 	}
 
-	tracker_db_manager_init (flags, &is_first_time_index);
+	tracker_db_manager_init (flags, &is_first_time_index, TRUE);
 	tracker_status_set_is_first_time_index (is_first_time_index);
 
 	if (!tracker_db_index_manager_init (index_flags,

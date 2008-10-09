@@ -56,6 +56,12 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDBInterfaceSqlite, tracker_db_interface_sqlite, 
 			 G_IMPLEMENT_INTERFACE (TRACKER_TYPE_DB_INTERFACE,
 						tracker_db_interface_sqlite_iface_init))
 
+void 
+tracker_db_interface_sqlite_enable_shared_cache (void) 
+{
+	sqlite3_enable_shared_cache (1);
+}
+
 static GObject *
 tracker_db_interface_sqlite_constructor (GType			type,
 					 guint			n_construct_properties,
