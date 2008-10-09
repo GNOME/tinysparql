@@ -4,8 +4,10 @@ module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker/extract-modules
 
 INCLUDES = 								\
-	$(GLIB2_CFLAGS) 						\
-	$(GMODULE_CFLAGS) 						\
+	-DLOCALEDIR=\""$(localedir)"\" 					\
+	-DMODULESDIR=\"$(modulesdir)\"					\
+	-DTRACKER_COMPILATION						\
+	-I$(top_srcdir)/src 						\
 	$(EXEMPI_CFLAGS) 						\
 	$(LIBJPEG_CFLAGS) 						\
 	$(LIBTIFF_CFLAGS) 						\
@@ -17,9 +19,8 @@ INCLUDES = 								\
 	$(GSTREAMER_CFLAGS) 						\
 	$(XINE_CFLAGS) 							\
 	$(GDKPIXBUF_CFLAGS)						\
-	-I$(top_srcdir)/src 						\
-	-DMODULES_DIR=\"$(modulesdir)\"					\
-	-DTRACKER_COMPILATION
+	$(GMODULE_CFLAGS) 						\
+	$(GLIB2_CFLAGS)
 
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\

@@ -34,6 +34,7 @@
 #include <unistd.h>
 
 #include <glib.h>
+#include <glib/gi18n.h>
 #include <gmodule.h>
 
 #ifndef G_OS_WIN32
@@ -144,7 +145,7 @@ initialize_extractors (void)
 						sizeof (TrackerExtractorData),
 						10);
 
-	dir = g_dir_open (MODULES_DIR, 0, &error);
+	dir = g_dir_open (MODULESDIR, 0, &error);
 
 	if (!dir) {
 		g_error ("Error opening modules directory: %s", error->message);
@@ -165,7 +166,7 @@ initialize_extractors (void)
 			continue;
 		}
 
-		module_path = g_build_filename (MODULES_DIR, name, NULL);
+		module_path = g_build_filename (MODULESDIR, name, NULL);
 
 		module = g_module_open (module_path, G_MODULE_BIND_LOCAL);
 
@@ -345,6 +346,8 @@ print_file_metadata (const gchar *filename,
 	 * knows when to stop reading
 	 */
 	g_print ("\n");
+
+	debug ("Extractor - Waiting for work");
 }
 
 static gboolean
@@ -362,7 +365,10 @@ process_input_cb (GIOChannel   *channel,
 	g_io_channel_read_line (channel, &mimetype, NULL, NULL, NULL);
 
 	g_strstrip (filename);
-	g_strstrip (mimetype);
+
+	if (mimetype) {
+		g_strstrip (mimetype);
+	}
 
 	print_file_metadata (filename, mimetype);
 
@@ -375,8 +381,44 @@ process_input_cb (GIOChannel   *channel,
 int
 main (int argc, char *argv[])
 {
-	GMainLoop  *main_loop;
-	GIOChannel *input;
+	GOptionContext *context;
+	GMainLoop      *main_loop;
+	GIOChannel     *input;
+	gchar          *summary;
+
+	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	textdomain (GETTEXT_PACKAGE);
+
+	/* Translators: this messagge will apper immediately after the	*/
+	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
+	context = g_option_context_new (_("- Extract file meta data"));
+
+	/* Translators: this message will appear after the usage string */
+	/* and before the list of options.				*/
+	summary = g_strconcat (_("Given the following format (without quotes):"),
+			       "\n",
+			       "\n",
+			       "  '[filename]\\n[mime-type]'\n",
+			       "\n",
+			       _("This is interpreted from STDIN and then processed."),
+			       "\n",
+			       "\n",
+			       _("If this command is run without any arguments, "
+				 "it will wait for work to do."),
+			       "\n",
+			       "\n",
+			       _("Here are some examples of how to use this command:"),
+			       "\n",
+			       "\n",
+			       "  echo -e \"/home/foo/bar/baz.mp3\\naudio/x-mpeg\" | tracker-extract",
+			       NULL);
+
+	g_option_context_set_summary (context, summary);
+	g_option_context_parse (context, &argc, &argv, NULL);
+	g_option_context_free (context);
+
+	g_free (summary);
 
 	debug ("Extractor - Initializing...");
 	tracker_memory_setrlimits ();

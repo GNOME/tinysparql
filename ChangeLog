@@ -1,5 +1,16 @@
 2008-10-09  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/Makefile.am: Put all definitions and
+	includes before CFLAGS (like everywhere else). Fix linking order.
+	
+	* src/tracker-extract/tracker-extract.c: Don't call g_strstrip()
+	on NULL values, check the mime type first since it can be NULL.
+	Fixes a warning that was being produced. Also added GOption
+	support so users can do --help to see how to use the extractor
+	from the terminal.
+
+2008-10-09  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/Makefile.am: Don't link with GdkPixbuf
 	unless we have it.
 	
