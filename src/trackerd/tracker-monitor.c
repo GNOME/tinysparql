@@ -1361,18 +1361,13 @@ libinotify_monitor_directory (TrackerMonitor *monitor,
 	gchar	      *path;
 	guint32	       mask;
 	unsigned long  flags;
-	gboolean       is_directory;
 
-	is_directory = TRUE;
-	flags = 0;
-	mask = IN_ALL_EVENTS;
+	flags  = 0;
+	flags &= ~IN_FLAG_FILE_BASED;
+	mask   =  IN_ALL_EVENTS;
 
 	/* For files */
-	if (is_directory) {
-		flags &= ~IN_FLAG_FILE_BASED;
-	} else {
-		flags |= IN_FLAG_FILE_BASED;
-	}
+	/* flags |= IN_FLAG_FILE_BASED; */
 
 	path = g_file_get_path (file);
 	handle = inotify_monitor_add (path,

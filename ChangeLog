@@ -1,5 +1,11 @@
 2008-10-09  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-monitor.c: (libinotify_monitor_directory):
+	Removed the if is_directory check on EVERY file monitor we add
+	since we know we only monitor directories.
+
+2008-10-09  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/Makefile.am: Put all definitions and
 	includes before CFLAGS (like everywhere else). Fix linking order.
 	
