@@ -132,16 +132,17 @@ read_summary (FILE *summary,
 	while ((value_type = va_arg (args, gint)) != -1) {
 		switch (value_type) {
 		case SUMMARY_TYPE_TIME_T: {
-			time_t value, *dest;
+			guint32 value;
+			time_t *dest;
 
-			if (fread (&value, sizeof (time_t), 1, summary) != 1) {
+			if (fread (&value, sizeof (guint32), 1, summary) != 1) {
 				return FALSE;
 			}
 
 			dest = va_arg (args, time_t*);
 
 			if (dest) {
-				*dest = g_ntohl (value);
+				*dest = (time_t) g_ntohl (value);
 			}
 			break;
 		}

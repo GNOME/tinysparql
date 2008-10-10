@@ -1,3 +1,10 @@
+2008-10-10  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/modules/evolution.c (read_summary): Turns out
+	Evolution always store times with 32bits width regardless of the
+	platform. Switching back so the parser doesn't go astray where time_t
+	is 64bits wide.
+
 2008-10-09  Mikael Ottela   <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Fixed conversions
