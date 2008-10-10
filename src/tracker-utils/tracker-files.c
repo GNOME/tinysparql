@@ -60,11 +60,12 @@ static GOptionEntry entries[] = {
 int
 main (int argc, char **argv)
 {
-
 	TrackerClient  *client;
 	ServiceType	type;
 	GOptionContext *context;
 	GError	       *error = NULL;
+
+	setlocale (LC_ALL, "");
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");

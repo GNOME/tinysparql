@@ -1,3 +1,17 @@
+2008-10-10  Mikael Ottela    <mikael.ottela@ixonos.com>
+	* src/tracker-utils/tracker-query.c:
+	* src/tracker-utils/tracker-search.c:
+	* src/tracker-utils/tracker-unique.c:
+	* src/tracker-utils/tracker-info.c:
+	* src/tracker-utils/tracker-tag.c:
+	* src/tracker-utils/tracker-stats.c:
+	* src/tracker-utils/tracker-meta-folder.c:
+	* src/tracker-utils/tracker-files.c:
+	* src/tracker-utils/tracker-status.c:
+	* src/tracker-utils/tracker-services.c: Added locale definitions
+	to all the tracker utils to fix problems with command line arguments
+	containing non-ascii (C) characters.
+
 2008-10-10  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/modules/evolution.c (read_summary): Turns out
