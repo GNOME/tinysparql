@@ -1,4 +1,5 @@
 2008-10-09  Mikael Ottela   <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c: Fixed conversions
 	between different character encodings in the tags.
 
