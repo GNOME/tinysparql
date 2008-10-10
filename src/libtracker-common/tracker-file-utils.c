@@ -485,6 +485,7 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 	g_hash_table_iter_init (&iter1, roots);
 	while (g_hash_table_iter_next (&iter1, &key, NULL)) {
 		const gchar *path;
+		gchar       *p;
 
 		path = key;
 
@@ -512,6 +513,15 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 				g_hash_table_iter_remove (&iter2);
 				g_hash_table_iter_init (&iter1, roots);
 				break;
+			}
+		}
+
+		/* Make sure the path doesn't have the '/' suffix. */	
+		p = strrchr (path, G_DIR_SEPARATOR);
+
+		if (p) {
+			if (*(p + 1) == '\0') {
+				*p = '\0';
 			}
 		}
 	}
@@ -544,6 +554,7 @@ tracker_path_list_filter_duplicates (GSList *roots)
 
 	while (l1) {
 		const gchar *path;
+		gchar       *p;
 		gboolean     reset = FALSE;
 
 		path = l1->data;
@@ -586,6 +597,16 @@ tracker_path_list_filter_duplicates (GSList *roots)
 			l2 = l2->next;
 		}
 		
+		/* Make sure the path doesn't have the '/' suffix. */	
+		p = strrchr (path, G_DIR_SEPARATOR);
+
+		if (p) {
+			if (*(p + 1) == '\0') {
+				*p = '\0';
+			}
+		}
+
+		/* Continue in list unless reset. */	
 		if (G_LIKELY (!reset)) {
 			l1 = l1->next;
 		}

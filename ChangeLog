@@ -1,4 +1,15 @@
+2008-10-10  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-file-utils.c:
+	(tracker_path_hash_table_filter_duplicates),
+	(tracker_path_list_filter_duplicates): In both these functions
+	strip any trailing G_DIR_SEPARATOR from paths since that is the
+	format we use. Ivan't test case showed that I didn't do this in my
+	reimplementation and also from that I realised the hash table
+	variant wasn't removing the trailing G_DIR_SEPARATOR either.
+
 2008-10-10  Mikael Ottela    <mikael.ottela@ixonos.com>
+	
 	* src/tracker-utils/tracker-query.c:
 	* src/tracker-utils/tracker-search.c:
 	* src/tracker-utils/tracker-unique.c:
@@ -86,6 +97,7 @@
 	feature in the daemon.
 
 2008-10-09  Mikael Ottela   <mikael.ottela@ixonos.com>
+	
 	* src/tracker-extract/Makefile.am: Fixed a gdk_pixbuf related typo 
 	in the makefile.
 

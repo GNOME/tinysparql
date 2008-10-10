@@ -1,3 +1,7 @@
+2008-10-10  Martyn Russell  <martyn@imendio.com>
+
+	* POTFILES.in: Fixed from make check.
+
 2008-10-09  Daniel Nylander <po@danielnylander.se>
 
 	* sv.po: Updated Swedish translation.
