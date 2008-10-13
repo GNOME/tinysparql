@@ -29,7 +29,7 @@
 	we unmount, add the directory to the deleted queue to be processed
 	by the indexer for now. This needs to be fixed properly at some
 	point (i.e. just disabling the items in the database, awaiting
-	SQLite FTS for that).
+	SQLite FTS for that). This fixes NB#87525.
 
 2008-10-13  Carlos Garnacho  <carlos@imendio.com>
 
