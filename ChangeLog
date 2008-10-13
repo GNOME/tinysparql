@@ -1,3 +1,14 @@
+2008-10-13  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-search.c (search_highlight_terms): Do not leak
+	like if there was no tomorrow, save one unnecessary allocation.
+	(search_get_snippet): Rework code, do not read out of bounds.
+	(tracker_search_get_snippet): Actually highlight the search terms.
+	(search_utf8_strcasestr_array): Pass a const gchar** for search terms.
+
+	* src/trackerd/tracker-crawler.c (tracker_crawler_finalize): Plug a
+	leak.
+
 2008-10-13  Ivan Frade  <ivan.frade@nokia.com>
 
 	* python/SearchTool/COPYING
@@ -49,7 +60,6 @@
 	* data/sqlite-user-data.sql:
 	* data/sqlite-xesam.sql: Moved all database files to data/db.
 
->>>>>>> .r2359
 2008-10-12 Jamie McCracken <jamiemcc at gnome org>
 
 	* src/tracker-search-tool/tracker-search-tool.h:

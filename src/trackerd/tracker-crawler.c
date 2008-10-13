@@ -214,6 +214,10 @@ tracker_crawler_finalize (GObject *object)
 		g_list_free (priv->index_file_patterns);
 	}
 
+	if (priv->ignored_directory_patterns) {
+		g_list_free (priv->ignored_directory_patterns);
+	}
+
 	if (priv->ignored_file_patterns) {
 		g_list_free (priv->ignored_file_patterns);
 	}

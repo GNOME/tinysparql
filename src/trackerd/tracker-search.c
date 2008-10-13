@@ -159,13 +159,13 @@ search_utf8_p_from_offset_skipping_decomp (const gchar *str,
 
 static const char *
 search_utf8_strcasestr_array (const gchar  *haystack,
-			      gchar	  **needles)
+			      const gchar **needles)
 {
 	gsize	      needle_len;
 	gsize	      haystack_len;
 	const gchar  *ret = NULL;
 	const gchar  *needle;
-	gchar	    **array;
+	const gchar **array;
 	gchar	     *p;
 	gchar	     *casefold;
 	gchar	     *caseless_haystack;
@@ -252,9 +252,9 @@ search_is_word_break (const char a)
 
 static char *
 search_highlight_terms (const gchar  *text,
-			gchar	    **terms)
+			const gchar **terms)
 {
-	GStrv	      p;
+	const gchar **p;
 	GString      *s;
 	const gchar  *str;
 	gchar	     *text_copy;
@@ -264,18 +264,13 @@ search_highlight_terms (const gchar  *text,
 		return NULL;
 	}
 
-	s = NULL;
+	s = g_string_new ("");
 	text_copy = g_strdup (text);
 
 	for (p = terms; *p; p++) {
-		const gchar  *text_p;
-		gchar	    **single_term;
+		const gchar *text_p;
+		const gchar *single_term[2] = { *p, NULL };
 
-		single_term = g_new (gchar*, 2);
-		single_term[0] = g_strdup (*p);
-		single_term[1] = NULL;
-
-		s = g_string_new ("");
 		text_p = text_copy;
 
 		while ((str = search_utf8_strcasestr_array (text_p, single_term))) {
@@ -296,8 +291,6 @@ search_highlight_terms (const gchar  *text,
 		if (text_p) {
 			g_string_append (s, text_p);
 		}
-
-		g_strfreev (single_term);
 	}
 
 	g_free (text_copy);
@@ -308,7 +301,7 @@ search_highlight_terms (const gchar  *text,
 
 static gchar *
 search_get_snippet (const gchar  *text,
-		    gchar	**terms,
+		    const gchar **terms,
 		    gint	  length)
 {
 	const gchar *ptr = NULL;
@@ -332,65 +325,51 @@ search_get_snippet (const gchar  *text,
 		tmp = ptr;
 		i = 0;
 
-		/* Get snippet before  the matching term */
-		while ((ptr = g_utf8_prev_char (ptr)) && ptr >= text && i < length) {
-			if (*ptr == '\n') {
-				break;
-			}
-
+		/* Get snippet before the matching term, try to keep it in the middle */
+		while (ptr != NULL && *ptr != '\n' && i < length / 2) {
+			ptr = g_utf8_find_prev_char (text, ptr);
 			i++;
 		}
 
-		/* Try to start beginning of snippet on a word break */
-		if (*ptr != '\n' && ptr > text) {
-			i = 0;
-
-			while (!search_is_word_break (*ptr) && i < (length / 2)) {
-				ptr = g_utf8_next_char (ptr);
-				i++;
+		if (!ptr) {
+			/* No newline was found before highlighted term */
+			ptr = text;
+		} else if (*ptr != '\n') {
+			/* Try to start beginning of snippet on a word break */
+			while (!search_is_word_break (*ptr) && ptr != tmp) {
+				ptr = g_utf8_find_next_char (ptr, NULL);
 			}
+		} else {
+			ptr = g_utf8_find_next_char (ptr, NULL);
 		}
 
-		ptr = g_utf8_next_char (ptr);
-
-		if (!ptr || ptr < text) {
-			return NULL;
-		}
-
-		end_ptr = tmp;
+		end_ptr = ptr;
 		i = 0;
 
-		/* Get snippet after match */
-		while ((end_ptr = g_utf8_next_char (end_ptr)) &&
-		       end_ptr <= text_len + text &&
-		       i < length) {
+		while (end_ptr != NULL && *end_ptr != '\n' && i < length) {
+			end_ptr = g_utf8_find_next_char (end_ptr, NULL);
 			i++;
+		}
 
-			if (*end_ptr == '\n') {
-				break;
+		if (end_ptr && *end_ptr != '\n') {
+			/* Try to end snippet on a word break */
+			while (!search_is_word_break (*end_ptr) && end_ptr != tmp) {
+				end_ptr = g_utf8_find_prev_char (text, end_ptr);
+			}
+
+			if (end_ptr == tmp) {
+				end_ptr = NULL;
 			}
 		}
 
-		while (end_ptr > text_len + text) {
-			end_ptr = g_utf8_prev_char (end_ptr);
+		if (!end_ptr) {
+			/* Copy to the end of the string */
+			snippet = g_strdup (ptr);
+		} else {
+			snippet = g_strndup (ptr, end_ptr - ptr);
 		}
 
-		/* Try to end snippet on a word break */
-		if (*end_ptr != '\n' && end_ptr < text_len + text) {
-			i=0;
-			while (!search_is_word_break (*end_ptr) && i < (length / 2)) {
-				end_ptr = g_utf8_prev_char (end_ptr);
-				i++;
-			}
-		}
-
-		if (!end_ptr || !ptr) {
-			return NULL;
-		}
-
-		snippet = g_strndup (ptr, end_ptr - ptr);
-		i = strlen (snippet);
-		snippet_escaped = g_markup_escape_text (snippet, i);
+		snippet_escaped = g_markup_escape_text (snippet, -1);
 		g_free (snippet);
 
 		snippet_highlighted = search_highlight_terms (snippet_escaped, terms);
@@ -833,13 +812,13 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 		priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
 		tracker_db_result_set_get (result_set, 0, &text, -1);
-		strv = tracker_parser_text_into_array (text,
+
+		strv = tracker_parser_text_into_array (search_text,
 						       priv->language,
 						       tracker_config_get_max_word_length (priv->config),
 						       tracker_config_get_min_word_length (priv->config));
-
 		if (strv && strv[0]) {
-			snippet = search_get_snippet (text, strv, 120);
+			snippet = search_get_snippet (text, (const gchar **) strv, 120);
 		}
 
 		g_strfreev (strv);
