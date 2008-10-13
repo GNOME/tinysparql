@@ -1101,6 +1101,7 @@ AM_CONDITIONAL(OLD_DATA_REMOVE_ALL, test -n "$old_data_message")
 ##################################################################
 
 AC_CONFIG_FILES([
+	data/db/Makefile
 	data/dbus/Makefile
 	data/icons/16x16/Makefile
 	data/icons/22x22/Makefile

@@ -1,18 +1,33 @@
+2008-10-13  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* data/Makefile.am:
+	* data/db/Makefile.am:
+	* data/sqlite-cache.sql:
+	* data/sqlite-contents.sql:
+	* data/sqlite-email.sql:
+	* data/sqlite-metadata.sql:
+	* data/sqlite-service-triggers.sql:
+	* data/sqlite-service-types.sql:
+	* data/sqlite-service.sql:
+	* data/sqlite-stored-procs.sql:
+	* data/sqlite-tracker-triggers.sql:
+	* data/sqlite-tracker.sql:
+	* data/sqlite-user-data.sql:
+	* data/sqlite-xesam.sql: Moved all database files to data/db.
+
 2008-10-12 Jamie McCracken <jamiemcc at gnome org>
 
-
-	* src/tracker-search-tool/tracker-search-tool.h
-	* src/tracker-search-tool/tracker-search-tool-support.c
-	* src/tracker-search-tool/tracker-search-tool-callbacks.c
-	* src/tracker-search-tool/Makefile.am
-	* src/tracker-search-tool/tracker-search-tool-support.h
-	* src/tracker-search-tool/tracker-search-tool.c
-	* src/tracker-search-tool/tracker-search-tool-callbacks.h
+	* src/tracker-search-tool/tracker-search-tool.h:
+	* src/tracker-search-tool/tracker-search-tool-support.c:
+	* src/tracker-search-tool/tracker-search-tool-callbacks.c:
+	* src/tracker-search-tool/Makefile.am:
+	* src/tracker-search-tool/tracker-search-tool-support.h:
+	* src/tracker-search-tool/tracker-search-tool.c:
+	* src/tracker-search-tool/tracker-search-tool-callbacks.h:
 
 	Patch from John Millikin <jmillikin@gmail.com>
 	Modified search tool to use GIO instead of Gnome VFS
-	
-
 
 2008-10-10  Martyn Russell  <martyn@imendio.com>
 
