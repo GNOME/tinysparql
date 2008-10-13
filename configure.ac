@@ -87,10 +87,10 @@ AC_CHECK_FUNCS([getline])
 
 # Library Checks
 DBUS_REQUIRED=0.60
-GLIB_REQUIRED=2.16.0
+GLIB_REQUIRED=2.12.0
 PANGO_REQUIRED=1.0.0
 GMIME_REQUIRED=2.1.0
-GDKPIXBUF_REQUIRED=2.12.0
+GDKPIXBUF_REQUIRED=2.16.0
 
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
 AC_SUBST(GLIB2_CFLAGS)
@@ -392,35 +392,37 @@ fi
 
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
-
 ##################################################################
 # Check for GdkPixbuf, needed for the MP3 album art extractor
 ##################################################################
 
-# Check GdkPixbuf
-
 AC_ARG_ENABLE(gdkpixbuf, 
 	      AS_HELP_STRING([--disable-gdkpixbuf],
 			     [Disable GdkPixbuf support, required for MP3 album art extraction]),,
-	      [enable_gdkpixbuf=yes])
+	      [enable_gdkpixbuf=auto])
 
-if test "x$enable_gdkpixbuf" = "xyes"; then
+if test "x$enable_gdkpixbuf" != "xno"; then
    PKG_CHECK_MODULES(GDKPIXBUF,
 		     [gdk-pixbuf-2.0 >= $GDKPIXBUF_REQUIRED],
 		     [have_gdkpixbuf=yes],
 		     [have_gdkpixbuf=no])
    AC_SUBST(GDKPIXBUF_LIBS)
    AC_SUBST(GDKPIXBUF_CFLAGS)
+
+   if test "x$have_gdkpixbuf" = "xyes"; then
+      AC_DEFINE(HAVE_GDKPIXBUF, [], [Define if we have GdkPixbuf])
+   fi
 else
    have_gdkpixbuf="no (disabled)"
 fi
 
-if test "x$have_gdkpixbuf" = "xyes"; then
-   AC_DEFINE(HAVE_GDKPIXBUF, [], [Define if we have GdkPixbuf])
+if test "x$enable_gdkpixbuf" = "xyes"; then
+   if test "x$have_gdkpixbuf" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find GdkPixbuf >= $GDKPIXBUF_REQUIRED.])
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_GDKPIXBUF, test "x$have_gdkpixbuf" = "xyes")
-
 
 ####################################################################
 # Check for GStreamer or Xine. Otherwise, call an external video
