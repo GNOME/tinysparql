@@ -37,10 +37,8 @@
 #include <sys/wait.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkcursor.h>
-#include <libgnomevfs/gnome-vfs-mime.h>
-#include <libgnomevfs/gnome-vfs-ops.h>
-#include <libgnomevfs/gnome-vfs-utils.h>
 #include <gtk/gtk.h>
+#include <gio/gio.h>
 
 
 
@@ -413,6 +411,11 @@ set_snippet (gchar * snippet,
 	gchar *snippet_markup;
 	GtkTreeIter iter;
 	SnippetRow *snippet_row = user_data;
+	
+	if (error)
+	{
+		g_warning ("set_snippet got error: %s", error->message);
+	}
 
 	g_return_if_fail (error == NULL);
 
@@ -493,7 +496,7 @@ add_email_to_search_results (const gchar * uri,
 }
 
 static void
-add_file_to_search_results (const gchar * file,
+add_file_to_search_results (const gchar * file_path,
 			    ServiceType service_type,
 			    const gchar * mime,
 			    GtkListStore * store,
@@ -501,84 +504,70 @@ add_file_to_search_results (const gchar * file,
 			    GSearchWindow * gsearch)
 {
 	GdkPixbuf * pixbuf;
-	GnomeVFSFileInfo * vfs_file_info;
+	GFile * file;
+	GFileInfo * file_info;
+	GError * error = NULL;
 
 	gchar * description;
 	gchar * base_name;
 	gchar * dir_name;
-	gchar * escape_path_string;
-	gchar * uri;
-
-	uri = g_filename_from_utf8 (file, -1, NULL, NULL, NULL);
-
-	if (!g_file_test (uri, G_FILE_TEST_EXISTS)) {
-		g_warning ("file %s does not exist", file);
-		g_free (uri);
+	
+	file = g_file_new_for_path (file_path);
+	file_info = g_file_query_info (file, "standard::*,access::*",
+	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                               NULL, &error);
+	if (!file_info) {
+		g_warning ("Error querying info for file %s: %s", file_path,
+		           error->message);
+		g_error_free (error);
+		g_object_unref (file);
 		return;
 	}
-
+	
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (gsearch->search_results_tree_view), FALSE);
 
-	vfs_file_info = gnome_vfs_file_info_new ();
-
-	escape_path_string = gnome_vfs_escape_path_string (uri);
-
-	gnome_vfs_get_file_info (escape_path_string, vfs_file_info,
-				 GNOME_VFS_FILE_INFO_DEFAULT |
-				 GNOME_VFS_FILE_INFO_FOLLOW_LINKS);
-
-
-	pixbuf = get_file_pixbuf (gsearch, uri, mime, vfs_file_info);
-
-	description = get_file_type_description (uri, mime, vfs_file_info);
-
+	pixbuf = get_file_pixbuf (gsearch, file, file_info);
+	description = get_file_type_description (file, file_info);
 	if (!description) {
 		description = g_strdup (mime);
 	}
-
-	base_name = g_path_get_basename (file);
-	dir_name = g_path_get_dirname (file);
-
-	gchar * search_term;
-
-	if (gsearch->search_term) {
-		search_term = gsearch->search_term;
-	} else {
-		search_term = NULL;
-	}
-
+	
+	g_return_if_fail (description != NULL);
+	
+	base_name = g_path_get_basename (file_path);
+	dir_name = g_path_get_dirname (file_path);
+	
 	gtk_list_store_append (GTK_LIST_STORE (store), iter);
 	gtk_list_store_set (GTK_LIST_STORE (store), iter,
-			    COLUMN_ICON, pixbuf,
-			    COLUMN_URI, file,
-			    COLUMN_NAME, base_name,
-			    COLUMN_PATH, dir_name,
-			    COLUMN_MIME, (description != NULL) ? description : mime,
-			    COLUMN_TYPE, service_type,
-			    COLUMN_NO_FILES_FOUND, FALSE,
-			    -1);
-
-	if (search_term  &&
+	                    COLUMN_ICON, pixbuf,
+	                    COLUMN_URI, file_path,
+	                    COLUMN_NAME, base_name,
+	                    COLUMN_PATH, dir_name,
+	                    COLUMN_MIME, description,
+	                    COLUMN_TYPE, service_type,
+	                    COLUMN_NO_FILES_FOUND, FALSE,
+	                    -1);
+	
+	if (gsearch->search_term  &&
 	    (service_type == SERVICE_DOCUMENTS ||
 	     service_type == SERVICE_TEXT_FILES ||
 	     service_type == SERVICE_DEVELOPMENT_FILES ||
 	     gsearch->type == SERVICE_CONVERSATIONS)) {
-
+	
 		SnippetRow * snippet_row;
-
+		
 		snippet_row = g_new (SnippetRow, 1);
 		snippet_row->gsearch = gsearch;
-		snippet_row->uri = g_strdup (uri);
+		snippet_row->uri = g_file_get_path (file);
 		snippet_row->type = service_type;
-
+		
 		g_queue_push_tail (gsearch->snippet_queue, snippet_row);
 	}
-
-	gnome_vfs_file_info_unref (vfs_file_info);
+	
+	g_object_unref (file);
+	g_object_unref (file_info);
 	g_free (base_name);
 	g_free (dir_name);
-	g_free (uri);
-	g_free (escape_path_string);
 	g_free (description);
 }
 

@@ -9,7 +9,7 @@ INCLUDES = 	\
 	-I$(top_srcdir)/src/libtracker				\
 	$(GLIB2_CFLAGS)						\
 	$(GNOME_UTILS_CFLAGS)					\
-	$(GNOMEVFS_CFLAGS)					\
+	$(GIO_CFLAGS)						\
 	$(GNOMEDESKTOP_CFLAGS)					\
 	$(DBUS_CFLAGS)						\
 	-DG_DISABLE_DEPRECATED					\
@@ -33,7 +33,7 @@ tracker_search_tool_SOURCES =     \
 tracker_search_tool_LDADD =   \
 	$(GLIB2_LIBS) \
 	$(GNOME_UTILS_LIBS) \
-	$(GNOMEVFS_LIBS)    \
+	$(GIO_LIBS)    \
 	$(GNOMEDESKTOP_LIBS) \
 	$(DBUS_LIBS)	\
         $(top_builddir)/src/libtracker-gtk/libtracker-gtk.la \

@@ -35,10 +35,7 @@
 #include <regex.h>
 #include <gdk/gdkx.h>
 #include <libart_lgpl/art_rgb.h>
-#include <libgnomevfs/gnome-vfs-mime.h>
-#include <libgnomevfs/gnome-vfs-mime-handlers.h>
-#include <libgnomevfs/gnome-vfs-ops.h>
-#include <libgnomevfs/gnome-vfs-utils.h>
+#include <gio/gio.h>
 #include <libgnome/gnome-desktop-item.h>
 #include <libgnomeui/gnome-thumbnail.h>
 
@@ -824,51 +821,17 @@ tracker_search_strdup_strftime (const gchar * format,
 }
 
 gchar *
-get_file_type_description (const gchar * file,
-			   const char *mime,
-			   GnomeVFSFileInfo * file_info)
+get_file_type_description (GFile * file, GFileInfo * file_info)
 {
-	gchar * desc;
-
-	if (file == NULL || mime == NULL) {
-		return g_strdup (gnome_vfs_mime_get_description (GNOME_VFS_MIME_TYPE_UNKNOWN));
+	const gchar *content_type;
+	content_type = g_file_info_get_attribute_string (file_info, "standard::content-type");
+	
+	if (content_type == NULL) {
+		content_type = "unknown";
 	}
-
-	desc = g_strdup (gnome_vfs_mime_get_description (mime));
-
-	if (file_info->symlink_name != NULL) {
-
-		gchar * absolute_symlink = NULL;
-		gchar * str = NULL;
-
-		if (g_path_is_absolute (file_info->symlink_name) != TRUE) {
-			gchar *dirname;
-
-			dirname = g_path_get_dirname (file);
-			absolute_symlink = g_strconcat (dirname, G_DIR_SEPARATOR_S, file_info->symlink_name, NULL);
-			g_free (dirname);
-		}
-		else {
-			absolute_symlink = g_strdup (file_info->symlink_name);
-		}
-
-		if (g_file_test (absolute_symlink, G_FILE_TEST_EXISTS) != TRUE) {
-		       if ((g_ascii_strcasecmp (mime, "x-special/socket") != 0) &&
-			   (g_ascii_strcasecmp (mime, "x-special/fifo") != 0)) {
-				g_free (absolute_symlink);
-				g_free (desc);
-				return g_strdup (_("link (broken)"));
-			}
-		}
-
-		str = g_strdup_printf (_("link to %s"), (desc != NULL) ? desc : mime);
-		g_free (absolute_symlink);
-		g_free (desc);
-		return str;
-	}
-	return desc;
+	
+	return g_content_type_get_description (content_type);
 }
-
 
 static GdkPixbuf *
 tracker_search_load_thumbnail_frame (void)
@@ -1050,13 +1013,13 @@ tracker_search_thumbnail_frame_image (GdkPixbuf ** pixbuf)
 }
 
 static GdkPixbuf *
-tracker_search_get_thumbnail_image (const gchar * file)
+tracker_search_get_thumbnail_image (GFile * file)
 {
 	GdkPixbuf * pixbuf = NULL;
 	gchar * thumbnail_path;
 	gchar * uri;
 
-	uri = gnome_vfs_get_uri_from_local_path (file);
+	uri = g_file_get_uri (file);
 	thumbnail_path = gnome_thumbnail_path_for_uri (uri, GNOME_THUMBNAIL_SIZE_NORMAL);
 
 	if (thumbnail_path != NULL) {
@@ -1098,53 +1061,84 @@ tracker_search_get_thumbnail_image (const gchar * file)
 
 static gchar *
 tracker_search_icon_lookup (GSearchWindow * gsearch,
-			    const gchar * file,
-			    const gchar * mime,
-			    GnomeVFSFileInfo * file_info,
-			    gboolean enable_thumbnails)
+                            GFile * file,
+                            GFileInfo * file_info,
+                            gboolean enable_thumbnails)
 {
 	GnomeIconLookupFlags lookup_flags = GNOME_ICON_LOOKUP_FLAGS_NONE;
 	gchar * icon_name = NULL;
 	gchar * uri;
-
-	uri = gnome_vfs_get_uri_from_local_path (file);
-
+	const gchar * content_type;
+	gchar *mime;
+	guint64 file_size;
+	GIcon *icon;
+	GtkIconTheme *icon_theme;
+	
+	uri = g_file_get_uri (file);
+	file_size = g_file_info_get_attribute_uint64 (file_info, "standard::size");
+	content_type = g_file_info_get_attribute_string (file_info, "standard::content-type");
+	mime = g_content_type_get_mime_type (content_type);
+	
 	if ((strncmp (mime, "image/", 6) != 0) ||
-	    ((int)file_info->size < (int)gsearch->show_thumbnails_file_size_limit)) {
+	    ((int)file_size < (int)gsearch->show_thumbnails_file_size_limit)) {
 		if (gsearch->thumbnail_factory == NULL) {
 			gsearch->thumbnail_factory = gnome_thumbnail_factory_new (GNOME_THUMBNAIL_SIZE_NORMAL);
 		}
 		lookup_flags = GNOME_ICON_LOOKUP_FLAGS_SHOW_SMALL_IMAGES_AS_THEMSELVES |
 			       GNOME_ICON_LOOKUP_FLAGS_ALLOW_SVG_AS_THEMSELVES;
+		
 	}
-
-	icon_name = gnome_icon_lookup (gtk_icon_theme_get_default (),
-				       gsearch->thumbnail_factory,
-				       uri,
-				       NULL,
-				       file_info,
-				       mime,
-				       lookup_flags,
-				       NULL);
+	
+	icon_theme = gtk_icon_theme_get_default ();
+	
+	icon = g_file_info_get_icon (file_info);
+	if (icon && G_IS_THEMED_ICON (icon)) {
+		GStrv names;
+		guint ii;
+		g_object_get (icon, "names", &names, NULL);
+		for (ii = 0; names[ii]; ii++)
+		{
+			if (gtk_icon_theme_has_icon (icon_theme, names[ii])) {
+				icon_name = names[ii];
+				break;
+			}
+		}
+	}
+	
+	if (!icon_name) {
+		icon_name = gnome_icon_lookup (icon_theme,
+					       gsearch->thumbnail_factory,
+					       uri,
+					       NULL,
+					       NULL,
+					       mime,
+					       lookup_flags,
+					       NULL);
+	}
+	
+	g_free (mime);
 	g_free (uri);
 	return icon_name;
 }
 
 GdkPixbuf *
 get_file_pixbuf (GSearchWindow * gsearch,
-		 const gchar * file,
-		 const char *mime,
-		 GnomeVFSFileInfo * file_info)
+                 GFile * file,
+                 GFileInfo * file_info)
 {
 	GdkPixbuf * pixbuf = NULL;
 	gchar * icon_name = NULL;
+	const gchar *content_type;
+	gchar *mime;
+	content_type = g_file_info_get_attribute_string (file_info, "standard::content-type");
+	mime = g_content_type_get_mime_type (content_type);
 
 	if (file == NULL || mime == NULL) {
 		icon_name = g_strdup (ICON_THEME_REGULAR_ICON);
 	}
 
-	else if ((g_file_test (file, G_FILE_TEST_IS_EXECUTABLE)) &&
-		 (g_ascii_strcasecmp (mime, "application/x-executable-binary") == 0)) {
+	else if (g_file_info_get_attribute_boolean (file_info, "access::can-execute") &&
+	         g_ascii_strcasecmp (mime, "application/x-executable-binary") == 0) {
 		icon_name = g_strdup (ICON_THEME_EXECUTABLE_ICON);
 	}
 	else if (g_ascii_strcasecmp (mime, "x-special/device-char") == 0) {
@@ -1164,6 +1158,7 @@ get_file_pixbuf (GSearchWindow * gsearch,
 		GdkPixbuf *thumbnail_pixbuf = tracker_search_get_thumbnail_image (file);
 
 		if (thumbnail_pixbuf != NULL) {
+			g_free (mime);
 
 			if ((gdk_pixbuf_get_width (thumbnail_pixbuf) > ICON_SIZE) ||
 			    (gdk_pixbuf_get_height (thumbnail_pixbuf) > ICON_SIZE)) {
@@ -1203,13 +1198,16 @@ get_file_pixbuf (GSearchWindow * gsearch,
 		/* check if image can be generated from file */
 
 		if ((strncmp (mime, "image/", 6) == 0)) {
-			pixbuf = gdk_pixbuf_new_from_file_at_scale (file, ICON_SIZE, ICON_SIZE, TRUE, NULL);
+			gchar *path = g_file_get_path (file);
+			pixbuf = gdk_pixbuf_new_from_file_at_scale (path, ICON_SIZE, ICON_SIZE, TRUE, NULL);
+			g_free (path);
 		}
 
 		if (pixbuf) {
+			g_free (mime);
 			return pixbuf;
 		} else {
-			icon_name = tracker_search_icon_lookup (gsearch, file, mime, file_info, TRUE);
+			icon_name = tracker_search_icon_lookup (gsearch, file, file_info, TRUE);
 		}
 
 
@@ -1225,17 +1223,19 @@ get_file_pixbuf (GSearchWindow * gsearch,
 	g_free (icon_name);
 
 
+	g_free (mime);
 	return pixbuf;
 }
 
 gboolean
-open_file_with_xdg_open (GtkWidget * window,
-			 const gchar * file)
+open_file_with_xdg_open (GtkWidget * window, GFile * file)
 {
 	gboolean  result;
-	gchar	  *quoted_filename = g_shell_quote (file);
+	gchar     *filename = g_file_get_path (file);
+	gchar     *quoted_filename = g_shell_quote (filename);
 	gchar	  *command = g_strconcat ("xdg-open ", quoted_filename, NULL);
 
+	g_free (filename);
 	g_free (quoted_filename);
 	result = g_spawn_command_line_async (command, NULL);
 	g_free (command);
@@ -1244,8 +1244,7 @@ open_file_with_xdg_open (GtkWidget * window,
 }
 
 gboolean
-open_file_with_nautilus (GtkWidget * window,
-			 const gchar * file)
+open_file_with_nautilus (GtkWidget * window, GFile * file)
 {
 	GnomeDesktopItem * ditem;
 	GdkScreen * screen;
@@ -1253,8 +1252,10 @@ open_file_with_nautilus (GtkWidget * window,
 	gchar * command;
 	gchar * contents;
 	gchar * escaped;
+	gchar * filename = g_file_get_path (file);
 
-	escaped = g_shell_quote (file);
+	escaped = g_shell_quote (filename);
+	g_free (filename);
 
 	command = g_strconcat ("nautilus ",
 			       "--sm-disable ",
@@ -1307,73 +1308,25 @@ open_file_with_nautilus (GtkWidget * window,
 }
 
 gboolean
-open_file_with_application (GtkWidget * window,
-			    const gchar * file)
+launch_file (GFile * file)
 {
-	GnomeVFSMimeApplication * application;
-	const char * mime;
-
-	mime = gnome_vfs_get_file_mime_type (file, NULL, FALSE);
-	application = gnome_vfs_mime_get_default_application (mime);
-
-	if (!g_file_test (file, G_FILE_TEST_IS_DIR)) {
-		if (application) {
-			const char *desktop_file;
-			GnomeDesktopItem *ditem;
-			GdkScreen *screen;
-			GError *error = NULL;
-			GList *uris = NULL;
-			gboolean result;
-			char *uri;
-
-			desktop_file = gnome_vfs_mime_application_get_desktop_file_path (application);
-
-			uri = gnome_vfs_get_uri_from_local_path (file);
-			uris = g_list_append (uris, uri);
-
-			if (!g_file_test (desktop_file, G_FILE_TEST_EXISTS)) {
-				result = (gnome_vfs_mime_application_launch (application, uris) == GNOME_VFS_OK);
-			}
-			else {
-				result = TRUE;
-				ditem = gnome_desktop_item_new_from_file (desktop_file, 0, &error);
-				if (error) {
-					result = FALSE;
-					g_error_free (error);
-				}
-				else {
-					screen = gtk_widget_get_screen (window);
-					gnome_desktop_item_set_launch_time (ditem, gtk_get_current_event_time ());
-					gnome_desktop_item_launch_on_screen (ditem, uris,
-						GNOME_DESKTOP_ITEM_LAUNCH_APPEND_PATHS, screen, -1, &error);
-					if (error) {
-						result = FALSE;
-						g_error_free (error);
-					}
-				}
-				gnome_desktop_item_unref (ditem);
-			}
-			gnome_vfs_mime_application_free (application);
-			g_list_free (uris);
-			g_free (uri);
-
-			return result;
-		}
-	}
-	return FALSE;
-}
-
-gboolean
-launch_file (const gchar * file)
-{
-	const char * mime = gnome_vfs_get_file_mime_type (file, NULL, FALSE);
+	GFileInfo *info;
+	const gchar *content_type;
+	gchar *mime;
+	
+	info = g_file_query_info (file, "standard::content-type,access::*", 0, NULL, NULL);
+	content_type = g_file_info_get_attribute_string (info, "standard::content-type");
+	mime = g_content_type_get_mime_type (content_type);
 	gboolean result = FALSE;
-
-	if ((g_file_test (file, G_FILE_TEST_IS_EXECUTABLE)) &&
-	    (g_ascii_strcasecmp (mime, BINARY_EXEC_MIME_TYPE) == 0)) {
-		result = g_spawn_command_line_async (file, NULL);
+	
+	if (g_file_info_get_attribute_boolean (info, "access::can-execute") &&
+	    g_ascii_strcasecmp (mime, BINARY_EXEC_MIME_TYPE) == 0) {
+		gchar *path = g_file_get_path (file);
+		result = g_spawn_command_line_async (path, NULL);
+		g_free (path);
 	}
-
+	g_free (mime);
+	
 	return result;
 }
 

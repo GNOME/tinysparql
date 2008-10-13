@@ -42,10 +42,6 @@ extern "C" {
 #include <gconf/gconf.h>
 #include <gconf/gconf-client.h>
 
-#include <libgnomevfs/gnome-vfs-mime.h>
-#include <libgnomevfs/gnome-vfs-ops.h>
-#include <libgnomevfs/gnome-vfs-utils.h>
-
 #include <libgnomeui/libgnomeui.h>
 
 #include "../libtracker/tracker.h"
@@ -115,7 +111,6 @@ typedef struct _GSearchWindow GSearchWindow;
 typedef struct _GSearchWindowClass GSearchWindowClass;
 typedef struct _GSearchCommandDetails GSearchCommandDetails;
 typedef struct _GSearchConstraint GSearchConstraint;
-typedef struct _GSearchMonitor GSearchMonitor;
 
 struct _GSearchWindow {
 	GtkWindow		parent_instance;
@@ -223,12 +218,6 @@ struct _GSearchConstraint {
 
 struct _GSearchWindowClass {
 	GtkWindowClass parent_class;
-};
-
-struct _GSearchMonitor {
-	GSearchWindow	      * gsearch;
-	GtkTreeRowReference   * reference;
-	GnomeVFSMonitorHandle * handle;
 };
 
 GType

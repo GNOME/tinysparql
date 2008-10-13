@@ -124,31 +124,25 @@ tracker_search_strdup_strftime (const gchar * format,
 				struct tm * time_pieces);
 
 gchar *
-get_file_type_description (const gchar * file,
-			   const char *mime,
-			   GnomeVFSFileInfo * file_info);
+get_file_type_description (GFile * file,
+                           GFileInfo * file_info);
 
 GdkPixbuf *
 get_file_pixbuf (GSearchWindow * gsearch,
-		 const gchar * file,
-		 const char * mime,
-		 GnomeVFSFileInfo * file_info);
+                 GFile * file,
+                 GFileInfo * file_info);
 
 
 gboolean
 open_file_with_xdg_open (GtkWidget * window,
-			 const gchar * file);
+                         GFile * file);
 
 gboolean
 open_file_with_nautilus (GtkWidget * window,
-			 const gchar * file);
+                         GFile * file);
 
 gboolean
-open_file_with_application (GtkWidget * window,
-			    const gchar * file);
-
-gboolean
-launch_file (const gchar * file);
+launch_file (GFile * file);
 
 gchar *
 tracker_search_get_unique_filename (const gchar * path,
