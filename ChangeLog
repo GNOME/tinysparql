@@ -1,3 +1,36 @@
+2008-10-13  Martyn Russell  <martyn@imendio.com>
+
+	* data/db/sqlite-stored-procs.sql: Completely reworked this file
+	and removed about 50% of it. This 50% was unused stored
+	procedures.
+	
+	* src/libtracker-common/tracker-file-utils.c:
+	(tracker_file_get_mime_type): If stat() fails, just make that a
+	normal message for now, not a warning, we should expect it.
+	
+	* src/libtracker-db/tracker-db-interface-sqlite.c: Added a few
+	debug commands to see what is happening. 
+	
+	* src/libtracker-db/tracker-db-manager.c: (load_prepared_queries):
+	Improved this function to actually allow for bracketed comments in
+	the .sql files.
+	
+	* src/tracker-indexer/tracker-indexer-db.[ch]: 
+	* src/tracker-indexer/tracker-indexer.ch: Added a function to
+	recursively delete a path, this is needed for when a memory card
+	is removed.
+	
+	* src/trackerd/tracker-db.c: Removed the stat() on every file that
+	is returned if we are running a detailed search. This is
+	unnecessary and causes a difference in the results returned if the
+	database is inaccurate (which it shouldn't be).
+	
+	* src/trackerd/tracker-processor.c: (mount_point_removed_cb): When
+	we unmount, add the directory to the deleted queue to be processed
+	by the indexer for now. This needs to be fixed properly at some
+	point (i.e. just disabling the items in the database, awaiting
+	SQLite FTS for that).
+
 2008-10-13  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-search.c (search_highlight_terms): Do not leak

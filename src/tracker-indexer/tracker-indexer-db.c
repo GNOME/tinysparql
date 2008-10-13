@@ -399,6 +399,8 @@ tracker_db_get_all_metadata (TrackerService *service,
 
 	metadata = tracker_metadata_new ();
 
+	g_return_val_if_fail (TRACKER_IS_SERVICE (service), metadata);
+
 	service_id_str = g_strdup_printf ("%d", service_id);
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
@@ -434,9 +436,8 @@ tracker_db_delete_service (TrackerService *service,
 	TrackerDBInterface *iface;
 	gchar *service_id_str;
 
-	if (service_id < 1) {
-		return;
-	}
+	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (service_id >= 1);
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
@@ -454,6 +455,37 @@ tracker_db_delete_service (TrackerService *service,
 }
 
 void
+tracker_db_delete_service_recursively (TrackerService *service,
+				       gchar          *service_path)
+{
+	TrackerDBInterface *iface;
+	gchar              *str;
+
+	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (service_path != NULL);
+
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+							     TRACKER_DB_CONTENT_TYPE_METADATA);
+
+	/* Delete from services table recursively */
+	str = g_strconcat (service_path, "/%", NULL);
+
+	/* We have to give two arguments. One is the actual path and
+	 * the second is a string representing the likeness to match
+	 * sub paths. Not sure how to do this in the .sql file
+	 * instead.
+	 */
+	tracker_db_interface_execute_procedure (iface,
+						NULL,
+						"DeleteServiceRecursively",
+						service_path,
+						str,
+						NULL);
+
+	g_free (str);
+}
+
+void
 tracker_db_move_service (TrackerService *service,
 			 const gchar	*from,
 			 const gchar	*to)
@@ -464,6 +496,10 @@ tracker_db_move_service (TrackerService *service,
 	gchar *from_basename;
 	gchar *to_dirname;
 	gchar *to_basename;
+
+	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (from != NULL);
+	g_return_if_fail (to != NULL);
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);

@@ -1408,6 +1408,7 @@ item_remove (TrackerIndexer *indexer,
 {
 	TrackerService *service;
 	gchar *content, *metadata;
+	gchar *service_path;
 	const gchar *service_type;
 	guint service_id, service_type_id;
 
@@ -1482,10 +1483,18 @@ item_remove (TrackerIndexer *indexer,
 	g_free (metadata);
 
 	/* Delete service */
+	service_path = g_build_path (G_DIR_SEPARATOR_S, 
+				     dirname, 
+				     basename, 
+				     NULL);
+
 	tracker_db_delete_service (service, service_id);
+	tracker_db_delete_service_recursively (service, service_path);
 	tracker_db_delete_all_metadata (service, service_id);
 
 	tracker_db_decrement_stats (indexer->private->common, service);
+
+	g_free (service_path);
 }
 
 static gboolean

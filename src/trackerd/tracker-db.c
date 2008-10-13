@@ -272,7 +272,6 @@ tracker_db_search_text (TrackerDBInterface *iface,
 	TrackerDBResultSet  *result_set, *result;
 	GArray		    *hits;
 	gint		     count;
-	gboolean	     detailed_emails = FALSE, detailed_apps = FALSE;
 	const gchar	    *procedure;
 	GArray		    *services = NULL;
 	GSList		    *duds = NULL;
@@ -335,10 +334,8 @@ tracker_db_search_text (TrackerDBInterface *iface,
 
 		if (detailed) {
 			if (strcmp (service, "Emails") == 0) {
-				detailed_emails = TRUE;
 				procedure = "GetEmailByID";
 			} else if (strcmp (service, "Applications") == 0) {
-				detailed_apps = TRUE;
 				procedure = "GetApplicationByID";
 			} else {
 				procedure = "GetFileByID2";
@@ -355,12 +352,9 @@ tracker_db_search_text (TrackerDBInterface *iface,
 
 		if (result_set) {
 			gchar *path;
+			guint  columns, i;
 
 			tracker_db_result_set_get (result_set, 0, &path, -1);
-
-			if (!detailed || detailed_emails || detailed_apps ||
-			    (detailed && g_file_test (path, G_FILE_TEST_EXISTS))) {
-				guint columns, i;
 
 				columns = tracker_db_result_set_get_n_columns (result_set);
 
@@ -380,7 +374,6 @@ tracker_db_search_text (TrackerDBInterface *iface,
 					_tracker_db_result_set_set_value (result, i, &value);
 					g_value_unset (&value);
 				}
-			}
 
 			g_free (path);
 			g_object_unref (result_set);

@@ -1417,14 +1417,16 @@ mount_point_removed_cb (TrackerHal  *hal,
 {
 	TrackerProcessor *processor;
 	GFile		 *file;
+	const gchar      *module_name = "files";
 
 	processor = user_data;
 
 	g_message ("** CLEANING UP OLD MOUNT POINT:'%s'", mount_point);
 
-	/* Remove the monitor? */
+	/* Remove the monitor and item from the database */
 	file = g_file_new_for_path (mount_point);
-	tracker_monitor_remove (processor->private->monitor, "files", file);
+	tracker_monitor_remove (processor->private->monitor, module_name, file);
+	processor_files_delete (processor, module_name, file, TRUE);
 	g_object_unref (file);
 }
 

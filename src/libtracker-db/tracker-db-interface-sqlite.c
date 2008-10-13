@@ -472,6 +472,7 @@ get_stored_stmt (TrackerDBInterfaceSqlite *db_interface,
 			return NULL;
 		}
 
+                /* g_debug ("Running procedure: '%s'", procedure); */
 		result = sqlite3_prepare_v2 (priv->db, procedure, -1, &stmt, NULL);
 
 		if (result == SQLITE_OK && stmt) {
@@ -552,6 +553,7 @@ tracker_db_interface_sqlite_execute_query (TrackerDBInterface  *db_interface,
 
 	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (db_interface);
 
+        /* g_debug ("Running query: '%s'", query); */
 	retval = sqlite3_prepare_v2 (priv->db, query, -1, &stmt, NULL);
 
 	if (retval != SQLITE_OK) {

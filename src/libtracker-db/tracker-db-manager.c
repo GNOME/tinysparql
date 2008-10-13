@@ -20,8 +20,8 @@
 
 #include "config.h"
 
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include <regex.h>
 #include <zlib.h>
 
@@ -922,21 +922,79 @@ load_prepared_queries (void)
 
 	if (queries) {
 		GStrv p;
+		gchar *start;
+		gchar *end;
+
+		start = NULL;
+		end = NULL;
 
 		for (p = queries; *p; p++) {
-			GStrv details;
+			GStrv        details;
+			gchar       *line;
+			const gchar *str;
 
-			if (**p == '#') {
+			line = NULL;
+
+			/* Check for comments */
+			if (start) {
+				if ((str = strstr (*p, "*/")) != NULL) {
+					str += 2;
+					end = g_strndup (str, strlen (*p) - strlen (str));
+				} else {
+					continue;
+				}
+			} else {
+				if ((str = strstr (*p, "/*")) != NULL) {
+					start = g_strndup (*p, str - *p);
+
+					if ((str = strstr (*p, "*/")) != NULL) {
+						str += 2;
+						end = g_strndup (str, strlen (*p) - strlen (str));
+					} else {
+						continue;
+					}
+				} 			
+			}
+
+			/* Remove comments */
+			if (start && end) {
+				if (start[0] != '\0' && end[0] != '\0') {
+					line = g_strconcat (start, end, NULL);
+				}
+
+				g_free (start);
+				g_free (end);
+
+				start = NULL;
+				end = NULL;
+
+				if (!line) {
+					continue;
+				}
+			} else {
+				line = *p;
+			}
+
+			/* Check for comments and empty lines */
+			if (line[0] == '#' || line[0] == '\0') {
+				if (line != *p) {
+					g_free (line);
+				}
+
 				continue;
 			}
 
-			details = g_strsplit (*p, " ", 2);
+			/* Continue processing */
+			details = g_strsplit (line, " ", 2);
+
+			if (line != *p) {
+				g_free (line);
+			}
 
 			if (!details) {
 				continue;
-			}
-
-			if (!details[0] || !details[1]) {
+			} 
+			else if (!details[0] || !details[1]) {
 				g_strfreev (details);
 				continue;
 			}

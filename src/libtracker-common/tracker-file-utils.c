@@ -264,7 +264,7 @@ tracker_file_get_mime_type (const gchar *path)
 				  &error);
 
 	if (G_UNLIKELY (error)) {
-		g_warning ("Could not guess mimetype, %s\n",
+		g_message ("Could not guess mimetype, %s\n",
 			   error->message);
 		g_error_free (error);
 		content_type = NULL;
