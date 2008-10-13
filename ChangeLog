@@ -1,4 +1,18 @@
-2008-10-13  Ivan Frade <ivan.frade@nokia.com>
+2008-10-13  Ivan Frade  <ivan.frade@nokia.com>
+
+	* python/SearchTool/COPYING
+	* python/nautilus/tracker-tags-tab.py
+	* src/qdbm/depot.[ch]
+	* src/qdbm/myconf.[ch]
+	* src/tracker-extract/tracker-extract-gstreamer.c
+	* src/tracker-search-tool/sexy-icon-entry.[ch]
+	* src/tracker-applet/tracker-applet.c
+	* COPYING
+
+	Updated Free Software Foundation address. 
+	This fixes bug #518265
+	
+2008-10-13  Ivan Frade  <ivan.frade@nokia.com>
 
 	* docs/manpages/trackerd.1
 	Fixed typo. Close bug #548561.
