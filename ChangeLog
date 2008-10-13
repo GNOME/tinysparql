@@ -1,5 +1,9 @@
 2008-10-13  Martyn Russell  <martyn@imendio.com>
 
+	* tracker.spec: Moved this file to data/.
+
+2008-10-13  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac: Change the way GdkPixbuf is detected by using
 	"auto". This means it won't stop the build if it doesn't exist
 	unless the user explicitly asks for it with --enable-gdkpixbuf.
