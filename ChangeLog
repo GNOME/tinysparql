@@ -1,5 +1,10 @@
 2008-10-14  Martyn Russell  <martyn@imendio.com>
 
+	* data/modules/files.module: Fixed the ignored file patterns.
+	Changed *~* to *~. Patch committed from Tshepang Lekhonkhobe.
+
+2008-10-14  Martyn Russell  <martyn@imendio.com>
+
 	* TODO: Updated TODO. Patch committed from Tshepang Lekhonkhobe.
 
 2008-10-14  Martyn Russell  <martyn@imendio.com>
