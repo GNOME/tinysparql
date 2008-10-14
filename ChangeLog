@@ -1,5 +1,11 @@
 2008-10-14  Martyn Russell  <martyn@imendio.com>
 
+	* data/db/sqlite-stored-procs.sql: Removed the DISTINCT keyword
+	from statements which use a WHERE clause comparing a unique ID.
+	This was adding unnecessary slowness to querying.
+
+2008-10-14  Martyn Russell  <martyn@imendio.com>
+
 	* src/libinotify/Makefile.am:
 	* src/libinotify/inotify-handle.c:
 	* src/libinotify/inotify-monitor.c: Include <sys/inotify.h>, not

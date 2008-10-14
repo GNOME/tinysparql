@@ -6,11 +6,11 @@
 /*
  * Metadata queries
  */
-GetApplicationByID             SELECT DISTINCT (S.Path || '/' || S.Name) AS uri, 'Applications', 'Application', S.KeyMetadata1, S.KeyMetadata2, S.KeyMetadata3 FROM Services S WHERE S.ID = ?;
+GetApplicationByID             SELECT (S.Path || '/' || S.Name) AS uri, 'Applications', 'Application', S.KeyMetadata1, S.KeyMetadata2, S.KeyMetadata3 FROM Services S WHERE S.ID = ?;
 GetAllServices                 SELECT TypeID, TypeName, Parent, PropertyPrefix, Enabled, Embedded, HasMetadata, HasFullText, HasThumbs, ContentMetadata, Database, ShowServiceFiles, ShowServiceDirectories, KeyMetadata1, KeyMetadata2, KeyMetadata3, KeyMetadata4, KeyMetadata5, KeyMetadata6, KeyMetadata7, KeyMetadata8, KeyMetadata9, KeyMetadata10, KeyMetadata11 FROM ServiceTypes;
-GetEmailByID                   SELECT DISTINCT (S.Path || '/' || S.Name) AS uri, 'Emails', S.Mime, S.KeyMetadata1, S.KeyMetadata2, S.KeyMetadata3 FROM Services S WHERE S.ID = ?;
-GetFileByID                    SELECT DISTINCT Path, Name, Mime, ServiceTypeID FROM Services WHERE ID = ? AND Enabled = 1;
-GetFileByID2                   SELECT DISTINCT (Path || '/' || Name) AS uri, GetServiceName (ServiceTypeID), Mime FROM Services WHERE ID = ? AND Enabled = 1;
+GetEmailByID                   SELECT (S.Path || '/' || S.Name) AS uri, 'Emails', S.Mime, S.KeyMetadata1, S.KeyMetadata2, S.KeyMetadata3 FROM Services S WHERE S.ID = ?;
+GetFileByID                    SELECT Path, Name, Mime, ServiceTypeID FROM Services WHERE ID = ? AND Enabled = 1;
+GetFileByID2                   SELECT (Path || '/' || Name) AS uri, GetServiceName (ServiceTypeID), Mime FROM Services WHERE ID = ? AND Enabled = 1;
 GetFileMTime                   SELECT M.MetaDataValue FROM Services F inner join ServiceNumericMetaData M ON F.ID = M.ServiceID WHERE F.Path = ? AND F.Name = ? AND M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Modified');
 GetServices                    SELECT TypeName, Description, Parent FROM ServiceTypes ORDER BY TypeID;
 
