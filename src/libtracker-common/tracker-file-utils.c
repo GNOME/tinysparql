@@ -763,7 +763,7 @@ static gboolean
 path_has_write_access_or_was_created (const gchar *path)
 {
 	gboolean writable;
-	gboolean exists;
+	gboolean exists = FALSE;
 
 	writable = path_has_write_access (path, &exists);
 	if (exists) {

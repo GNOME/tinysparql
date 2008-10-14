@@ -607,8 +607,6 @@ get_id3v24_tags (const gchar *data,
 			if (strncmp (tmap[i].text, (const char*) &data[pos], 4) == 0) {
 				gchar * word;
 
-				const gchar *end;
-
 				if ((flags & 0x20) > 0) {
 					/* The "group" identifier, skip a byte */
 					pos++;

@@ -410,7 +410,7 @@ tracker_ontology_get_field_names_registered (const gchar *service_str)
 	GList	       *fields;
 	GList	       *l;
 	GSList	       *names;
-	const gchar    *prefix;
+	const gchar    *prefix = NULL;
 	const gchar    *parent_prefix;
 
 	parent_prefix = NULL;
