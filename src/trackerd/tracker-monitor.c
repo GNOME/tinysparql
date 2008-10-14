@@ -72,8 +72,7 @@ struct _TrackerMonitorPrivate {
 	gboolean       enabled;
 
 	guint	       black_list_timeout_id;
-	GHashTable    *black_list_count;
-	GHashTable    *black_list_timestamps;
+	GHashTable    *black_list;
 
 	GType	       monitor_backend;
 
@@ -102,7 +101,8 @@ typedef struct {
 	GFile    *file;
 	GTimeVal  time;
 	guint32   event_type;
-} EventPairData;
+	guint     black_list_count;
+} EventData;
 
 enum {
 	ITEM_CREATED,
@@ -126,20 +126,19 @@ static void           tracker_monitor_get_property (GObject        *object,
 						    guint           prop_id,
 						    GValue         *value,
 						    GParamSpec     *pspec);
-static EventPairData *event_pair_data_new          (GFile          *file,
+static EventData *    event_data_new               (GFile          *file,
 						    GTimeVal        t,
-						    guint           event_type);
-
-static void           event_pair_data_free         (gpointer        data);
+						    guint32         event_type,
+						    guint           black_list_count);
+static void           event_data_free              (gpointer        data);
 static gboolean       black_list_check_items_cb    (gpointer        data);
 static void           black_list_print_all         (TrackerMonitor *monitor);
 static guint          get_inotify_limit            (void);
 
-
 #ifdef USE_LIBINOTIFY
 static INotifyHandle *libinotify_monitor_directory (TrackerMonitor *monitor,
-						    GFile	   *file);
-static void	      libinotify_monitor_cancel    (gpointer	    data);
+						    GFile          *file);
+static void           libinotify_monitor_cancel    (gpointer        data);
 #endif /* USE_LIBINOTIFY */
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -247,16 +246,11 @@ tracker_monitor_init (TrackerMonitor *object)
 	 * the stack. This is black list is not saved, it is per
 	 * session for the daemon only.
 	 */
-	priv->black_list_count =
+	priv->black_list =
 		g_hash_table_new_full (g_file_hash,
 				       (GEqualFunc) g_file_equal,
-				       g_object_unref,
-				       NULL);
-	priv->black_list_timestamps =
-		g_hash_table_new_full (g_file_hash,
-				       (GEqualFunc) g_file_equal,
-				       g_object_unref,
-				       NULL);
+				       NULL,
+				       event_data_free);
 
 #ifdef USE_LIBINOTIFY
 	/* We have a hash table with cookies so we can pair up move
@@ -266,12 +260,12 @@ tracker_monitor_init (TrackerMonitor *object)
 		g_hash_table_new_full (g_direct_hash,
 				       g_direct_equal,
 				       NULL,
-				       event_pair_data_free);
+				       event_data_free);
 	priv->cached_events =
 		g_hash_table_new_full (g_file_hash,
 				       (GEqualFunc) g_file_equal,
 				       NULL,
-				       event_pair_data_free);
+				       event_data_free);
 #endif /* USE_LIBINOTIFY */
 
 	all_modules = tracker_module_config_get_modules ();
@@ -394,8 +388,11 @@ tracker_monitor_finalize (GObject *object)
 
 	black_list_print_all (TRACKER_MONITOR (object));
 
-	g_hash_table_unref (priv->black_list_timestamps);
-	g_hash_table_unref (priv->black_list_count);
+	if (priv->black_list_timeout_id) {
+		g_source_remove (priv->black_list_timeout_id);
+	}
+
+	g_hash_table_unref (priv->black_list);
 
 #ifdef USE_LIBINOTIFY
 	if (priv->cached_events_timeout_id) {
@@ -409,10 +406,6 @@ tracker_monitor_finalize (GObject *object)
 	g_hash_table_unref (priv->cached_events);
 	g_hash_table_unref (priv->event_pairs);
 #endif /* USE_LIBINOTIFY */
-
-	if (priv->black_list_timeout_id) {
-		g_source_remove (priv->black_list_timeout_id);
-	}
 
 	g_hash_table_unref (priv->modules);
 
@@ -458,26 +451,28 @@ tracker_monitor_get_property (GObject	   *object,
 	}
 }
 
-static EventPairData *
-event_pair_data_new (GFile    *file, 
-		     GTimeVal  t,
-		     guint     event_type)
+static EventData *
+event_data_new (GFile    *file, 
+		GTimeVal  t,
+		guint32   event_type,
+		guint     black_list_count)
 {
-	EventPairData *event;
+	EventData *event;
 
-	event = g_new0 (EventPairData, 1);
+	event = g_new0 (EventData, 1);
 	
 	event->file = g_object_ref (file);
 	event->time = t;
 	event->event_type = event_type;
+	event->black_list_count = black_list_count;
 
 	return event;
 }
 		     
 static void
-event_pair_data_free (gpointer data)
+event_data_free (gpointer data)
 {
-	EventPairData *event;
+	EventData *event;
 
 	event = data;
 	
@@ -601,33 +596,54 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 }
 
 static gboolean
+black_list_file_should_be_ignored (TrackerMonitor *monitor,
+				   GFile          *file)
+{
+	EventData *event;
+	gpointer   data;
+
+	data = g_hash_table_lookup (monitor->private->black_list, file);
+
+	if (!data) {
+		return FALSE;
+	}
+		
+	event = data;
+
+	return event->black_list_count >= BLACK_LIST_MAX_HITS;
+}
+
+static gboolean
 black_list_check_items_cb (gpointer data)
 {
 	TrackerMonitor *monitor;
 	GHashTableIter	iter;
-	GTimeVal	t;
+	GTimeVal	now;
 	gchar	       *path;
 	gpointer	key;
 	gpointer	value;
-	gsize		seconds;
-	gsize		seconds_now;
-	gsize		seconds_diff;
-	guint		count;
 
 	monitor = data;
 
-	g_get_current_time (&t);
-	seconds_now = t.tv_sec;
+	g_get_current_time (&now);
 
-	g_hash_table_iter_init (&iter, monitor->private->black_list_timestamps);
+	g_hash_table_iter_init (&iter, monitor->private->black_list);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		seconds = GPOINTER_TO_SIZE (value);
-		seconds_diff = seconds_now - seconds;
+		EventData *event;
+		glong	   seconds;
+		glong      seconds_then;
+
+		event = value;
+
+		seconds_then = event->time.tv_sec;
+
+		seconds  = now.tv_sec;
+		seconds -= seconds_then;
 
 		/* Do absolutely nothing if this file hasn't been
 		 * black listed for at least BLACK_LIST_MAX_SECONDS.
 		 */
-		if (seconds_diff < BLACK_LIST_MAX_SECONDS) {
+		if (seconds < BLACK_LIST_MAX_SECONDS) {
 			continue;
 		}
 
@@ -640,10 +656,7 @@ black_list_check_items_cb (gpointer data)
 		 * make sure that we signal the indexer that this
 		 * file needs a check.
 		 */
-		value = g_hash_table_lookup (monitor->private->black_list_count, key);
-		count = GPOINTER_TO_UINT (value);
-
-		if (count >= BLACK_LIST_MAX_HITS) {
+		if (black_list_file_should_be_ignored (monitor, key)) {
 			const gchar *module_name;
 			gboolean     is_directory;
 
@@ -654,26 +667,56 @@ black_list_check_items_cb (gpointer data)
 				continue;
 			}
 
-			g_signal_emit (data,
-				       signals[ITEM_CREATED], 0,
-				       module_name,
-				       key,
-				       is_directory);
+			switch (event->event_type) {
+			case IN_MODIFY:
+			case IN_CLOSE_WRITE:
+			case IN_ATTRIB:
+				g_signal_emit (monitor,
+					       signals[ITEM_UPDATED], 0,
+					       module_name,
+					       key,
+					       is_directory);
+				break;
+
+			case IN_DELETE:
+			case IN_DELETE_SELF:
+				g_signal_emit (monitor,
+					       signals[ITEM_DELETED], 0,
+					       module_name,
+					       key,
+					       is_directory);
+				break;
+				
+			case IN_CREATE:
+				g_signal_emit (monitor,
+					       signals[ITEM_CREATED], 0,
+					       module_name,
+					       key,
+					       is_directory);
+				break;
+
+			case IN_UNMOUNT:
+				g_signal_emit (monitor,
+					       signals[ITEM_DELETED], 0,
+					       module_name,
+					       key,
+					       is_directory);
+				break;
+			}
 		}
 
 		/* Remove from hash tables (i.e. white list it) */
-		g_hash_table_remove (monitor->private->black_list_count, key);
-		g_hash_table_remove (monitor->private->black_list_timestamps, key);
+		g_hash_table_remove (monitor->private->black_list, key);
 
 		/* Reset iterators */
-		g_hash_table_iter_init (&iter, monitor->private->black_list_timestamps);
+		g_hash_table_iter_init (&iter, monitor->private->black_list);
 	}
 
 	/* If the hash tables are empty, don't keep calling this
 	 * callback, this interrupts and wastes battery. Set up the
 	 * timeout again when we need it instead.
 	 */
-	if (g_hash_table_size (monitor->private->black_list_count) < 1) {
+	if (g_hash_table_size (monitor->private->black_list) < 1) {
 		g_debug ("No further items on the black list, removing check timeout");
 		monitor->private->black_list_timeout_id = 0;
 		return FALSE;
@@ -682,43 +725,48 @@ black_list_check_items_cb (gpointer data)
 	return TRUE;
 }
 
-static gboolean
-black_list_file_check (TrackerMonitor *monitor,
-		       GFile	      *file)
-{
-	gpointer data;
-	guint	 count;
-
-	data = g_hash_table_lookup (monitor->private->black_list_count, file);
-	count = GPOINTER_TO_UINT (data);
-
-	return count >= BLACK_LIST_MAX_HITS;
-}
-
 static void
 black_list_file_increment (TrackerMonitor *monitor,
-			   GFile	  *file)
+			   GFile	  *file,
+			   guint32         event_type)
 {
-	GTimeVal  t;
-	gchar	 *path;
-	gpointer  data;
-	guint	  count;
+	EventData *event;
+	GTimeVal   now;
+	gchar	  *path;
+	gpointer   data;
 
-	data = g_hash_table_lookup (monitor->private->black_list_count, file);
-	count = GPOINTER_TO_UINT (data);
+	data = g_hash_table_lookup (monitor->private->black_list, file);
+	event = data;
 
-	/* Replace the black listed item with the updated count for
-	 * how many times an event has occurred for this path
-	 */
-	count++;
-	g_get_current_time (&t);
+	g_get_current_time (&now);
 
-	g_hash_table_replace (monitor->private->black_list_count,
-			      g_object_ref (file),
-			      GUINT_TO_POINTER (count));
-	g_hash_table_replace (monitor->private->black_list_timestamps,
-			      g_object_ref (file),
-			      GSIZE_TO_POINTER (t.tv_sec));
+	if (!event) {
+		event = event_data_new (file, now, event_type, 0);
+		
+		g_hash_table_insert (monitor->private->black_list,
+				     event->file,
+				     event);
+	} else {
+		/* Replace the black listed item with the updated count for
+		 * how many times an event has occurred for this path and the
+		 * last time an event occured.
+		 */
+		event->time = now;
+
+		/* Should we just set the event type? What if we get
+		 * CREATED then UPDATED? We should probably emit
+		 * UPDATED because the CREATED is cached already.
+		 *
+		 * If we get UPDATED, UPDATED, UPDATED then DELETED,
+		 * we should send DELETED instead. 
+		 *
+		 * So this is always the LAST event we got. If there
+		 * are any cases where we shouldn't do this, feel free
+		 * to change this implementation.
+		 */
+		event->event_type = event_type;
+		event->black_list_count++;
+	}
 
 	if (monitor->private->black_list_timeout_id == 0) {
 		monitor->private->black_list_timeout_id =
@@ -730,7 +778,7 @@ black_list_file_increment (TrackerMonitor *monitor,
 	path = g_file_get_path (file);
 	g_debug ("Adding '%s' to black list count:%d (MAX is %d)",
 		 path,
-		 count,
+		 event->black_list_count,
 		 BLACK_LIST_MAX_HITS);
 	g_free (path);
 }
@@ -742,24 +790,24 @@ black_list_print_all (TrackerMonitor *monitor)
 	gchar	       *path;
 	gpointer	key;
 	gpointer	value;
-	guint		count;
 	gboolean	none = TRUE;
 
 	g_message ("Summary of black list: (with >= %d events)",
 		   BLACK_LIST_MAX_HITS);
 
-	g_hash_table_iter_init (&iter, monitor->private->black_list_count);
+	g_hash_table_iter_init (&iter, monitor->private->black_list);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		count = GPOINTER_TO_UINT (value);
+		EventData *event;
 
-		if (count < BLACK_LIST_MAX_HITS) {
+		if (!black_list_file_should_be_ignored (monitor, key)) {
 			continue;
 		}
 
+		event = value;
 		none = FALSE;
 
 		path = g_file_get_path (key);
-		g_message ("  %s (%d events)", path, count);
+		g_message ("  %s (%d events)", path, event->black_list_count);
 		g_free (path);
 	}
 
@@ -908,11 +956,11 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 
 	g_hash_table_iter_init (&iter, monitor->private->event_pairs);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		EventPairData *event;
-		glong	       seconds;
-		glong	       seconds_then;
-		const gchar   *module_name;
-		gboolean       is_directory;
+		EventData   *event;
+		glong	     seconds;
+		glong	     seconds_then;
+		const gchar *module_name;
+		gboolean     is_directory;
 
 		event = value;
 
@@ -1002,11 +1050,11 @@ libinotify_cached_events_timeout_cb (gpointer data)
 
 	g_hash_table_iter_init (&iter, monitor->private->cached_events);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		EventPairData *event;
-		glong	       seconds;
-		glong	       seconds_then;
-		const gchar   *module_name;
-		gboolean       is_directory;
+		EventData   *event;
+		glong	     seconds;
+		glong	     seconds_then;
+		const gchar *module_name;
+		gboolean     is_directory;
 
 		event = value;
 
@@ -1037,12 +1085,23 @@ libinotify_cached_events_timeout_cb (gpointer data)
 							  &is_directory);
 
 		switch (event->event_type) {
+		case IN_MODIFY:
+		case IN_CLOSE_WRITE:
+		case IN_ATTRIB:
+			g_signal_emit (monitor,
+				       signals[ITEM_UPDATED], 0,
+				       module_name,
+				       event->file,
+				       is_directory);
+			break;
+
 		case IN_MOVED_FROM:
-		case IN_DELETE:
-		case IN_DELETE_SELF:
 			/* So we knew the source, but not the
 			 * target location for the event.
 			 */
+
+		case IN_DELETE:
+		case IN_DELETE_SELF:
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
@@ -1050,11 +1109,12 @@ libinotify_cached_events_timeout_cb (gpointer data)
 				       is_directory);
 			break;
 
-		case IN_CREATE:
 		case IN_MOVED_TO:
 			/* So we new the target, but not the
 			 * source location for the event.
 			 */
+
+		case IN_CREATE:
 			g_signal_emit (monitor,
 				       signals[ITEM_CREATED], 0,
 				       module_name,
@@ -1153,10 +1213,13 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		 * black list count to avoid missing the second event
 		 * to pair the two up.
 		 */
+
+	case IN_UNMOUNT:
+		/* Don't black list this event, it is important */
 		break;
 
 	default:
-		black_list_file_increment (monitor, file);
+		black_list_file_increment (monitor, file, event_type);
 		break;
 	}
 
@@ -1174,9 +1237,10 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		   cookie);
 	g_free (event_type_str);
 
-	if (!black_list_file_check (monitor, file)) {
-		EventPairData *data = NULL;
-		GTimeVal       now;
+	if (!black_list_file_should_be_ignored (monitor, file)) {
+		EventData *data = NULL;
+		GTimeVal   now;
+		gboolean   set_up_cache_timeout = FALSE;
 
 		if (monitor->private->unpause_timeout_id != 0) {
 			g_source_remove (monitor->private->unpause_timeout_id);
@@ -1205,7 +1269,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 
 			if (!data) {
 				g_get_current_time (&now);
-				data = event_pair_data_new (file, now, event_type);
+				data = event_data_new (file, now, event_type, 0);
 				
 				g_hash_table_insert (monitor->private->event_pairs,
 						     GUINT_TO_POINTER (cookie),
@@ -1246,11 +1310,20 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				break;
 			}			
 
-			g_signal_emit (monitor,
-				       signals[ITEM_UPDATED], 0,
-				       module_name,
-				       file,
-				       is_directory);
+			/* Here we just wait to make sure we don't get
+			 * any more MODIFY events and after 2 seconds
+			 * of no MODIFY events we emit it. This saves
+			 * spamming. 
+			 */
+			g_get_current_time (&now);
+			data = event_data_new (file, now, event_type, 0);
+
+			g_hash_table_insert (monitor->private->cached_events,
+					     data->file,
+					     data);
+
+			set_up_cache_timeout = TRUE;
+			
 			break;
 
 		case IN_MOVED_FROM:
@@ -1282,20 +1355,13 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			 * send twice as much traffic to the indexer.
 			 */
 			g_get_current_time (&now);
-			data = event_pair_data_new (file, now, event_type);
+			data = event_data_new (file, now, event_type, 0);
 
 			g_hash_table_insert (monitor->private->cached_events,
 					     data->file,
 					     data);
 
-			if (!monitor->private->cached_events_timeout_id) {
-				g_debug ("Setting up cached events timeout check");
-
-				monitor->private->cached_events_timeout_id =
-					g_timeout_add_seconds (2,
-							       libinotify_cached_events_timeout_cb,
-							       monitor);
-			}
+			set_up_cache_timeout = TRUE;
 
 			break;
 
@@ -1335,14 +1401,17 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			 * convenience state and we handle the
 			 * MOVE_TO and MOVE_FROM already. 
 			 */
-
-		case IN_Q_OVERFLOW:
-		case IN_OPEN:
-		case IN_CLOSE_NOWRITE:
-		case IN_ACCESS:
-		case IN_IGNORED:
-			/* Do nothing */
 			break;
+		}
+
+		if (set_up_cache_timeout && 
+		    monitor->private->cached_events_timeout_id == 0) {
+			g_debug ("Setting up cached events timeout check");
+			
+			monitor->private->cached_events_timeout_id =
+				g_timeout_add_seconds (2,
+						       libinotify_cached_events_timeout_cb,
+						       monitor);
 		}
 	} else {
 		g_message ("Not propagating event, file is black listed");
@@ -1449,7 +1518,7 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 	 * path we get an event for. If the count is too high, we
 	 * then don't propagate the event up.
 	 */
-	black_list_file_increment (monitor, file);
+	black_list_file_increment (monitor, file, event_type);
 
 	if (other_file) {
 		str2 = g_file_get_path (other_file);
@@ -1463,7 +1532,7 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		   str1,
 		   str2 ? str2 : "");
 
-	if (!black_list_file_check (monitor, file)) {
+	if (!black_list_file_should_be_ignored (monitor, file)) {
 		if (monitor->private->unpause_timeout_id != 0) {
 			g_source_remove (monitor->private->unpause_timeout_id);
 		} else {

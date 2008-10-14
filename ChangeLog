@@ -1,5 +1,13 @@
 2008-10-14  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-monitor.c: Try to improve on the NB#88769
+	fix I added previously. Now we don't use 2 GHashTables for the
+	black list we use the EventData structure we use for all other
+	event data too. We now emit the correct event on the black list
+	timeout too (which is the last event we got).
+
+2008-10-14  Martyn Russell  <martyn@imendio.com>
+
 	* data/db/sqlite-stored-procs.sql: Removed the DISTINCT keyword
 	from statements which use a WHERE clause comparing a unique ID.
 	This was adding unnecessary slowness to querying.
