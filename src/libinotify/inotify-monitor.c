@@ -21,9 +21,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <glib.h>
-#include <linux/inotify.h>
-
-#include "linux-inotify-syscalls.h"
+#include <sys/inotify.h>
+#include <unistd.h>
 
 #include "inotify-handle.h"
 #include "inotify-listhash.h"

@@ -1,5 +1,13 @@
 2008-10-14  Martyn Russell  <martyn@imendio.com>
 
+	* src/libinotify/Makefile.am:
+	* src/libinotify/inotify-handle.c:
+	* src/libinotify/inotify-monitor.c: Include <sys/inotify.h>, not
+	<linux/inotify.h> and removed libinotify/linux-inotify-syscalls.h,
+	this fixes bug #556196 (John Millikin).
+
+2008-10-14  Martyn Russell  <martyn@imendio.com>
+
 	* data/modules/files.module: Fixed the ignored file patterns.
 	Changed *~* to *~. Patch committed from Tshepang Lekhonkhobe.
 

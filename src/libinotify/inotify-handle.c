@@ -20,7 +20,7 @@
 
 #include <string.h>
 #include <glib.h>
-#include <linux/inotify.h>
+#include <sys/inotify.h>
 
 #include "inotify-handle.h"
 #include "inotify-log.h"

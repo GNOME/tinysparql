@@ -15,7 +15,6 @@ libinotify_la_SOURCES = 				\
 	inotify-handle.h 				\
 	inotify-listhash.h 				\
 	inotify-log.h 					\
-	linux-inotify-syscalls.h			\
 	libinotify.h
 
 libinotify_la_LDFLAGS = -version-info 0:0:0
