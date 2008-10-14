@@ -1,3 +1,7 @@
+2008-10-14  Martyn Russell  <martyn@imendio.com>
+
+	* NEWS: Updated news. Patch committed from Tshepang Lekhonkhobe.
+
 2008-10-13  Martyn Russell  <martyn@imendio.com>
 
 	* data/db/sqlite-stored-procs.sql: Completely reworked this file

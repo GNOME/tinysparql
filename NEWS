@@ -1,3 +1,25 @@
+Tracker 0.6.90
+============= (UNRELEASED)
+
+  Major refactoring work
+  * Cleaner code, some things moved to libaries.
+  * Refactored DBus interface: Now with introspection! (The method names don't
+    change, but the objects do, so the client applications must be updated)
+  * New DB access code (libtracker-db library).
+  * New binary, tracker-indexer, created so to separate indexing functionality
+    away from user requests in the daemon.
+
+  Miscellaneous
+  * Added support for indexing removable media.
+  * Added support for the mobile email client, Modest. This adds to Evolution,
+    Thunderbird, and KMail, among supported clients.
+  * Added support for OR search operations.
+  * Initial xesam support.
+  * Addition of unit tests.
+  * In-house file monitoring dropped in favour of GLib's GIO.
+  * New functionality to estimate remaining indexing time period.
+
+
 Tracker 0.6.6
 ============= (03 Mar 2008)
 
