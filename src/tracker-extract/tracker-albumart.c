@@ -29,6 +29,52 @@
 
 #include "tracker-albumart.h"
 
+
+static void
+get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, gchar **path)
+{
+	gchar *art_filename, *str;
+	gchar *dir = NULL;
+	gchar *_tmp14, *_tmp13, *down;
+
+	if (!prefix)
+		prefix = "album";
+
+	if (!a && !b) {
+		*path = NULL;
+		return;
+	}
+
+	if (!a)
+		a = "";
+
+	if (!b)
+		b = "";
+
+	down = g_utf8_strdown (_tmp14 = (g_strconcat ((_tmp13 = g_strconcat (a, " ", NULL)), b, NULL)),-1);
+
+	g_free (_tmp14);
+	g_free (_tmp13);
+
+	dir = g_build_filename (g_get_user_cache_dir (), "media-art", NULL);
+
+	*path = NULL;
+
+	if(!g_file_test (dir, G_FILE_TEST_EXISTS))
+		g_mkdir_with_parents (dir, 0770);
+
+	str = g_compute_checksum_for_string (G_CHECKSUM_MD5, down, -1);
+
+	art_filename = g_strdup_printf ("%s-%s.jpeg", prefix, str);
+
+	*path = g_build_filename (dir, art_filename, NULL);
+
+	g_free (str);
+	g_free (art_filename);
+	g_free (down);
+	g_free (dir);
+}
+
 gboolean
 tracker_save_albumart (const unsigned char *buffer,
 		       size_t               len,
@@ -38,45 +84,17 @@ tracker_save_albumart (const unsigned char *buffer,
 {
 	GdkPixbufLoader *loader;
 	GdkPixbuf       *pixbuf = NULL;
-	gchar            name[128];
 	gchar           *filename;
-	gchar           *dir;
-	gchar           *checksum;
 	GError          *error = NULL;
 
 	g_type_init ();
 
-	if (artist && album) {
-		g_sprintf (name, "%s %s", album, artist);
-	} else if (uri) {
-		g_sprintf (name, "%s", uri);
-	} else {
-		g_warning ("No identification data for embedded image");		
+	if (!artist && !album) {
+		g_warning ("No identification data for embedded image");
 		return FALSE;
 	}
 
-	checksum = g_compute_checksum_for_string (G_CHECKSUM_MD5, name, -1);
-	g_sprintf (name, "%s.png", checksum);
-	g_free (checksum);
-
-	dir = g_build_filename (g_get_home_dir (),
-				".album_art",
-				NULL);
-
-	filename = g_build_filename (dir, name, NULL);
-
-	if (g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		g_free (filename);
-		g_free (dir);
-
-		return TRUE;
-	}
-
-	if (!g_file_test (dir, G_FILE_TEST_EXISTS)) {
-		g_mkdir_with_parents (dir, 0770);
-	}
-
-	g_free (dir);
+	get_albumart_path (artist, album, "album", &filename);
 
 	loader = gdk_pixbuf_loader_new ();
 
