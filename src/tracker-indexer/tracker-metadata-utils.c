@@ -90,15 +90,19 @@ process_context_child_watch_cb (GPid	 pid,
 				gint	 status,
 				gpointer user_data)
 {
-	g_debug ("Process '%d' exited with code: %d->'%s'",
-		 pid,
-		 status,
-		 g_strerror (status));
+	ProcessContext *context;
 
-	if (user_data == metadata_context) {
-		process_context_destroy (metadata_context);
+	g_debug ("Process '%d' exited with code %d",
+		 pid,
+		 status);
+
+	context = (ProcessContext *) user_data;
+
+	if (context == metadata_context) {
 		metadata_context = NULL;
 	}
+
+	process_context_destroy (context);
 }
 
 static ProcessContext *
@@ -205,7 +209,6 @@ metadata_setup (void)
 
 	metadata_context = process_context_create (argv,
 						   metadata_read_cb);
-
 	if (!metadata_context) {
 		return FALSE;
 	}
@@ -233,7 +236,6 @@ metadata_query_file (const gchar *path,
 	utf_path = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
 
 	if (!utf_path) {
-		g_free (utf_path);
 		return NULL;
 	}
 
@@ -264,6 +266,8 @@ metadata_query_file (const gchar *path,
 
 		if (status == G_IO_STATUS_ERROR) {
 			/* No point in trying again */
+			process_context_destroy (metadata_context);
+			metadata_context = NULL;
 			g_free (str);
 			return NULL;
 		}
@@ -629,6 +633,11 @@ get_file_thumbnail_queue_cb (DBusGProxy     *proxy,
 	dbus_g_proxy_end_call (proxy, call, &error,
 			       G_TYPE_UINT, &handle,
 			       G_TYPE_INVALID);
+
+	if (error) {
+		g_warning (error->message);
+		g_error_free (error);
+	}
 }
 
 #endif /* HAVE_HILDON_THUMBNAIL */
@@ -647,7 +656,13 @@ get_file_thumbnail (const gchar *path,
 	}
 
 	if (count < 51) {
-		batch[count++] = g_strdup (path);
+		gchar *utf_path;
+
+		utf_path = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
+
+		if (utf_path) {
+			batch[count++] = utf_path;
+		}
 	}
 
 	if (count == 51) {
@@ -699,8 +714,6 @@ get_file_thumbnail (const gchar *path,
 	g_free (argv[1]);
 	g_free (argv[2]);
 	g_free (argv[3]);
-
-	process_context_destroy (context);
 
 	if (!thumbnail->str || !*thumbnail->str) {
 		g_string_free (thumbnail, TRUE);
@@ -766,8 +779,6 @@ get_file_content_by_filter (const gchar *path,
 	 * text has been processed
 	 */
 	g_main_loop_run (context->data_incoming_loop);
-
-	process_context_destroy (context);
 
 	return g_string_free (text, FALSE);
 }

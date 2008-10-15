@@ -1,3 +1,17 @@
+2008-10-15  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-metadata-utils.c
+	(process_context_child_watch_cb): Inconditionally destroy here the
+	context, even if it's not the metadata one. Avoids leaks when for some
+	reason the metadata extractor dies immediately.
+	(get_file_thumbnail) (get_file_content_by_filter): Don't destroy the
+	context here.
+	(get_file_thumbnail): Do not send non-utf8 over DBus.
+	(get_file_thumbnail_queue_cb): Plug a leak.
+	(metadata_query_file): Ensure the context is destroyed if any attempt
+	to write fails.
+	(metadata_query_file): Removed unnecessary g_free()
+
 2008-10-14 Jamie McCracken <jamiemcc at gnome org>
 
 	* tests/tracker-fts/tracker-fts-test.c:
