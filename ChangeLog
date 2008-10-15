@@ -1,5 +1,13 @@
 2008-10-15  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/tracker-extract/tracker-extract-mp3.c
+	* src/tracker-extract/tracker-albumart.c
+	* src/tracker-extract/tracker-albumart.h
+	* src/tracker-extract/Makefile.am
+	* src/tracker-extract/tracker-extract-gstreamer.c: Handling of albumart
+
+2008-10-15  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/tracker-extract/tracker-albumart.c: Adapted to new spec available
 	at http://live.gnome.org/MediaArtStorageSpec
 	* configure.ac: Downgraded GdkPixbuf requirement from 2.16 to 2.12

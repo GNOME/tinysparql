@@ -26,12 +26,66 @@
 #include <gio/gio.h>
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <dbus/dbus-glib-bindings.h>
+
+#define ALBUMARTER_SERVICE      "com.nokia.albumart"
+#define ALBUMARTER_PATH         "/com/nokia/albumart/Requester"
+#define ALBUMARTER_INTERFACE    "com.nokia.albumart.Requester"
+
 
 #include "tracker-albumart.h"
 
+static gboolean 
+tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gchar *filename)
+{
+	// TODO: implement and return TRUE if something was found and copied 
+	return FALSE;
+}
+
+
+
+static DBusGProxy*
+tracker_dbus_get_albumart_requester (void)
+{
+	static DBusGProxy *albart_proxy = NULL;
+
+	if (!albart_proxy) {
+		GError          *error = NULL;
+		DBusGConnection *connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+		if (!error) {
+			albart_proxy = dbus_g_proxy_new_for_name (connection,
+								  ALBUMARTER_SERVICE,
+								  ALBUMARTER_PATH,
+								  ALBUMARTER_INTERFACE);
+		} else
+			g_error_free (error);
+	}
+
+	return albart_proxy;
+}
 
 static void
-get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, gchar **path)
+get_file_albumart_queue_cb (DBusGProxy     *proxy,
+			    DBusGProxyCall *call,
+			    gpointer	     user_data)
+{
+	GError *error = NULL;
+	guint	handle;
+
+	/* FIXME: What is the point of this? */
+	dbus_g_proxy_end_call (proxy, call, &error,
+			       G_TYPE_UINT, &handle,
+			       G_TYPE_INVALID);
+
+	if (error) {
+		g_warning (error->message);
+		g_error_free (error);
+	}
+}
+
+static void
+tracker_get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, gchar **path)
 {
 	gchar *art_filename, *str;
 	gchar *dir = NULL;
@@ -75,7 +129,7 @@ get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, gchar **
 	g_free (dir);
 }
 
-gboolean
+static gboolean
 tracker_save_albumart (const unsigned char *buffer,
 		       size_t               len,
 		       const gchar         *artist, 
@@ -94,7 +148,7 @@ tracker_save_albumart (const unsigned char *buffer,
 		return FALSE;
 	}
 
-	get_albumart_path (artist, album, "album", &filename);
+	tracker_get_albumart_path (artist, album, "album", &filename);
 
 	loader = gdk_pixbuf_loader_new ();
 
@@ -130,4 +184,42 @@ tracker_save_albumart (const unsigned char *buffer,
 	}
 
 	return TRUE;
+}
+
+
+gboolean
+tracker_process_albumart (const unsigned char *buffer,
+                          size_t               len,
+                          const gchar         *artist,
+                          const gchar         *album,
+                          const gchar         *filename)
+{
+	gchar *art_path;
+	gboolean retval = TRUE;
+
+	tracker_get_albumart_path (artist, album, "album", &art_path);
+
+	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
+
+		if (buffer && len) {
+			retval = tracker_save_albumart (buffer, len,
+						       artist,
+						       album,
+						       filename);
+
+		} else if (!tracker_heuristic_albumart (artist, album, filename)) {
+
+			dbus_g_proxy_begin_call (tracker_dbus_get_albumart_requester (),
+				 "Queue",
+				 get_file_albumart_queue_cb,
+				 NULL, NULL,
+				 G_TYPE_STRING, artist,
+				 G_TYPE_STRING, album,
+				 G_TYPE_STRING, "album",
+				 G_TYPE_UINT, 0,
+				 G_TYPE_INVALID);
+		}
+	}
+
+	return retval;
 }

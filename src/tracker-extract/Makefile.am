@@ -20,6 +20,7 @@ INCLUDES = 								\
 	$(XINE_CFLAGS) 							\
 	$(GDKPIXBUF_CFLAGS)						\
 	$(GMODULE_CFLAGS) 						\
+	$(DBUS_CFLAGS)							\
 	$(GLIB2_CFLAGS)
 
 modules_LTLIBRARIES = 							\
@@ -73,15 +74,17 @@ xmp_sources = 								\
 
 # Common AlbumArt sources
 albumart_sources =
-albumart_libs =
+albumart_libs = 
+albumart_flags = 
 
 if HAVE_GDKPIXBUF
 albumart_sources +=							\
 	tracker-albumart.c						\
 	tracker-albumart.h
 
+albumart_flags += $(DBUS_CFLAGS)
 albumart_libs += 							\
-	$(GDKPIXBUF_LIBS)
+	$(GDKPIXBUF_LIBS) $(DBUS_LIBS)
 endif
 
 # ABW
@@ -101,7 +104,7 @@ libextract_m3u_la_LIBADD = $(GLIB2_LIBS)
 
 # MP3
 libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources)
-libextract_mp3_la_LDFLAGS = $(module_flags)
+libextract_mp3_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_mp3_la_LIBADD = $(albumart_libs) $(GLIB2_LIBS)
 
 # MPlayer
@@ -153,7 +156,7 @@ libextract_pdf_la_LIBADD = $(GLIB2_LIBS) $(POPPLER_GLIB_LIBS) $(EXEMPI_LIBS)
 
 # GStreamer
 libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c $(albumart_sources)
-libextract_gstreamer_la_LDFLAGS = $(module_flags)
+libextract_gstreamer_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_gstreamer_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS)
 
 # Xine

@@ -24,7 +24,7 @@
 
 G_BEGIN_DECLS
 
-gboolean tracker_save_albumart (const unsigned char *buffer,
+gboolean tracker_process_albumart (const unsigned char *buffer,
                                 size_t               len,
                                 const gchar         *artist,
                                 const gchar         *album,
