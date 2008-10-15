@@ -221,5 +221,7 @@ tracker_process_albumart (const unsigned char *buffer,
 		}
 	}
 
+	g_free (art_path);
+
 	return retval;
 }
