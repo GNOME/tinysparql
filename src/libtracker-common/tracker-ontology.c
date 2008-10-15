@@ -798,3 +798,18 @@ tracker_ontology_field_is_child_of (const gchar *field_str_child,
 
 	return FALSE;
 }
+
+const gchar *
+tracker_ontology_get_field_name_by_id (gint id)
+{
+	TrackerField *field;
+
+	field = tracker_ontology_get_field_by_id (id);
+
+	if (field) {
+		return tracker_field_get_name (field);
+	}
+	
+	return NULL;
+}
+

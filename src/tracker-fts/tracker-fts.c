@@ -285,10 +285,11 @@
 #include <ctype.h>
 #include <sqlite3ext.h>
 
-#include <libtracker-common/tracker-config.h>
-#include <libtracker-common/tracker-language.h>
-#include <libtracker-common/tracker-parser.h>
+#define TRACKER_ENABLE_INTERNALS
+#include <libtracker-common/tracker-common.h>
 
+
+#include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-fts.h"
 #include "tracker-fts-hash.h"
@@ -315,6 +316,95 @@ SQLITE_EXTENSION_INIT1
 #else
 # define FTSTRACE(A)
 #endif
+
+
+/*  functions needed from tracker */
+
+static TrackerDBResultSet *
+db_metadata_get (TrackerDBInterface *iface, 
+		 const gchar        *id, 
+		 const gchar        *key)
+{
+	TrackerField *def;
+	const gchar  *proc = NULL;
+
+	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
+	g_return_val_if_fail (id, NULL);
+	g_return_val_if_fail (key, NULL);
+
+	def = tracker_ontology_get_field_by_name (key);
+	
+	if (!def) {
+		g_warning ("Metadata not found for id:'%s' and type:'%s'", id, key);
+		return NULL;
+	}
+
+	switch (tracker_field_get_data_type (def)) {
+	case TRACKER_FIELD_TYPE_INDEX:
+	case TRACKER_FIELD_TYPE_STRING:
+	case TRACKER_FIELD_TYPE_DOUBLE:
+		proc = "GetMetadata";
+		break;
+
+	case TRACKER_FIELD_TYPE_INTEGER:
+	case TRACKER_FIELD_TYPE_DATE:
+		proc = "GetMetadataNumeric";
+		break;
+
+	case TRACKER_FIELD_TYPE_FULLTEXT:
+		proc = "GetContents";
+		break;
+
+	case TRACKER_FIELD_TYPE_KEYWORD:
+		proc = "GetMetadataKeyword";
+		break;
+		
+	default:
+		g_warning ("Metadata could not be retrieved as type:%d is not supported", 
+			   tracker_field_get_data_type (def)); 
+		return NULL;
+	}
+
+	return tracker_db_interface_execute_procedure (iface,
+						       NULL, 
+				     		       proc, 
+				     		       id, 
+				     		       tracker_field_get_id (def),
+				     		       NULL);
+}
+
+
+
+static gchar *
+db_get_text (const char     *service,
+	     const char     *key,    
+	     const char     *id) 
+{
+	TrackerDBInterface *iface;
+	gchar              *contents = NULL;
+	TrackerDBResultSet *result_set;
+	
+	if (strcmp (key, "File:Contents") == 0) {
+		iface = tracker_db_manager_get_db_interface_by_type (service,
+								     TRACKER_DB_CONTENT_TYPE_CONTENTS);
+	} else {
+		iface = tracker_db_manager_get_db_interface_by_type (service,
+								     TRACKER_DB_CONTENT_TYPE_METADATA);
+	}
+
+	result_set = db_metadata_get (iface, id, key);
+
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &contents, -1);
+		g_object_unref (result_set);
+	}
+
+	return contents;
+}
+
+
+
+
 
 /*
 ** Default span for NEAR operators.
@@ -348,9 +438,11 @@ int sqlite3_extension_init(
 
 
 typedef enum DocListType {
-  DL_DOCIDS,		  /* docids only */
-  DL_POSITIONS,		  /* docids + positions */
-  DL_POSITIONS_OFFSETS	  /* docids + positions + offsets */
+
+  DL_DOCIDS,              /* docids only */
+  DL_POSITIONS,           /* docids + positions */
+  DL_POSITIONS_RANK,      /* docids + catid + rank + positions */
+  DL_POSITIONS_OFFSETS    /* docids + positions + offsets */
 } DocListType;
 
 /*
@@ -603,6 +695,12 @@ typedef struct DLReader {
   int nData;
 
   sqlite_int64 iDocid;
+  
+#ifdef STORE_CATEGORY
+  int Catid;
+#endif
+  
+  
   int nElement;
 } DLReader;
 
@@ -614,6 +712,14 @@ static sqlite_int64 dlrDocid(DLReader *pReader){
   assert( !dlrAtEnd(pReader) );
   return pReader->iDocid;
 }
+
+#ifdef STORE_CATEGORY
+static int dlrCatid(DLReader *pReader){
+  //assert( !dlrAtEnd(pReader) );
+  return pReader->Catid;
+}
+#endif
+
 static const char *dlrDocData(DLReader *pReader){
   assert( !dlrAtEnd(pReader) );
   return pReader->pData;
@@ -633,12 +739,24 @@ static int dlrAllDataBytes(DLReader *pReader){
 static const char *dlrPosData(DLReader *pReader){
   sqlite_int64 iDummy;
   int n = fts3GetVarint(pReader->pData, &iDummy);
+  
+#ifdef STORE_CATEGORY    
+  int Catid;
+  n += fts3GetVarint32(pReader->pData+n, &Catid);
+#endif
+  
   assert( !dlrAtEnd(pReader) );
   return pReader->pData+n;
 }
 static int dlrPosDataLen(DLReader *pReader){
   sqlite_int64 iDummy;
   int n = fts3GetVarint(pReader->pData, &iDummy);
+  
+#ifdef STORE_CATEGORY    
+  int Catid;
+  n += fts3GetVarint32(pReader->pData+n, &Catid);
+#endif
+  
   assert( !dlrAtEnd(pReader) );
   return pReader->nElement-n;
 }
@@ -653,8 +771,16 @@ static void dlrStep(DLReader *pReader){
   /* If there is more data, read the next doclist element. */
   if( pReader->nData!=0 ){
     sqlite_int64 iDocidDelta;
+    
     int iDummy, n = fts3GetVarint(pReader->pData, &iDocidDelta);
     pReader->iDocid += iDocidDelta;
+
+#ifdef STORE_CATEGORY    
+    int Catid;
+    n += fts3GetVarint32(pReader->pData+n, &Catid);
+    pReader->Catid = Catid;
+#endif
+    
     if( pReader->iType>=DL_POSITIONS ){
       assert( n<pReader->nData );
       while( 1 ){
@@ -684,6 +810,10 @@ static void dlrInit(DLReader *pReader, DocListType iType,
   pReader->nElement = 0;
   pReader->iDocid = 0;
 
+#ifdef STORE_CATEGORY    
+  pReader->Catid = 0;
+#endif
+
   /* Load the first element's data.  There must be a first element. */
   dlrStep(pReader);
 }
@@ -706,6 +836,12 @@ static void docListValidate(DocListType iType, const char *pData, int nData,
     sqlite_int64 iDocidDelta;
     int n = fts3GetVarint(pData, &iDocidDelta);
     iPrevDocid += iDocidDelta;
+    
+#ifdef STORE_CATEGORY    
+    int Catid;
+    n += fts3GetVarint32(pData+n, &Catid);
+#endif
+
     if( iType>DL_DOCIDS ){
       int iDummy;
       while( 1 ){
@@ -812,6 +948,29 @@ static void dlwCopy(DLWriter *pWriter, DLReader *pReader){
   dlwAppend(pWriter, dlrDocData(pReader), dlrDocDataBytes(pReader),
 	    dlrDocid(pReader), dlrDocid(pReader));
 }
+
+
+#ifdef STORE_CATEGORY    
+static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid, int Catid){
+  char c[VARINT_MAX];
+  int n = fts3PutVarint(c, iDocid-pWriter->iPrevDocid);
+
+  /* Docids must ascend. */
+  assert( !pWriter->has_iPrevDocid || iDocid>pWriter->iPrevDocid );
+  assert( pWriter->iType==DL_DOCIDS );
+
+  dataBufferAppend(pWriter->b, c, n);
+  pWriter->iPrevDocid = iDocid;
+  
+  n = fts3PutVarint(c, Catid);
+  dataBufferAppend(pWriter->b, c, n);
+  
+#ifndef NDEBUG
+  pWriter->has_iPrevDocid = 1;
+#endif
+}
+#else
+
 static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid){
   char c[VARINT_MAX];
   int n = fts3PutVarint(c, iDocid-pWriter->iPrevDocid);
@@ -826,6 +985,8 @@ static void dlwAdd(DLWriter *pWriter, sqlite_int64 iDocid){
   pWriter->has_iPrevDocid = 1;
 #endif
 }
+
+#endif
 
 /*******************************************************************/
 /* PLReader is used to read data from a document's position list.  As
@@ -923,6 +1084,7 @@ static void plrDestroy(PLReader *pReader){
   SCRAMBLE(pReader);
 }
 
+
 /*******************************************************************/
 /* PLWriter is used in constructing a document's position list.  As a
 ** convenience, if iType is DL_DOCIDS, PLWriter becomes a no-op.
@@ -995,6 +1157,35 @@ static void plwCopy(PLWriter *pWriter, PLReader *pReader){
   plwAdd(pWriter, plrColumn(pReader), plrPosition(pReader),
 	 plrStartOffset(pReader), plrEndOffset(pReader));
 }
+
+
+#ifdef STORE_CATEGORY
+static void plwInit(PLWriter *pWriter, DLWriter *dlw, sqlite_int64 iDocid, int Catid){
+  char c[VARINT_MAX];
+  int n;
+
+  pWriter->dlw = dlw;
+
+  /* Docids must ascend. */
+  assert( !pWriter->dlw->has_iPrevDocid || iDocid>pWriter->dlw->iPrevDocid );
+  n = fts3PutVarint(c, iDocid-pWriter->dlw->iPrevDocid);
+  dataBufferAppend(pWriter->dlw->b, c, n);
+  pWriter->dlw->iPrevDocid = iDocid;
+  
+  n = fts3PutVarint(c, Catid);
+  dataBufferAppend(pWriter->dlw->b, c, n);
+    
+#ifndef NDEBUG
+  pWriter->dlw->has_iPrevDocid = 1;
+#endif
+
+  pWriter->iColumn = 0;
+  pWriter->iPos = 0;
+  pWriter->iOffset = 0;
+}
+
+#else
+
 static void plwInit(PLWriter *pWriter, DLWriter *dlw, sqlite_int64 iDocid){
   char c[VARINT_MAX];
   int n;
@@ -1006,6 +1197,7 @@ static void plwInit(PLWriter *pWriter, DLWriter *dlw, sqlite_int64 iDocid){
   n = fts3PutVarint(c, iDocid-pWriter->dlw->iPrevDocid);
   dataBufferAppend(pWriter->dlw->b, c, n);
   pWriter->dlw->iPrevDocid = iDocid;
+    
 #ifndef NDEBUG
   pWriter->dlw->has_iPrevDocid = 1;
 #endif
@@ -1014,7 +1206,13 @@ static void plwInit(PLWriter *pWriter, DLWriter *dlw, sqlite_int64 iDocid){
   pWriter->iPos = 0;
   pWriter->iOffset = 0;
 }
-/* TODO(shess) Should plwDestroy() also terminate the doclist?	But
+
+#endif
+
+
+
+/* TODO(shess) Should plwDestroy() also terminate the doclist?  But
+
 ** then plwDestroy() would no longer be just a destructor, it would
 ** also be doing work, which isn't consistent with the overall idiom.
 ** Another option would be for plwAdd() to always append any necessary
@@ -1070,14 +1268,35 @@ static void dlcAddDoclist(DLCollector *pCollector, DataBuffer *b){
     dataBufferAppend(b, pCollector->b.pData, pCollector->b.nData);
   }
 }
+
+static void dlcAddPos(DLCollector *pCollector, int iColumn, int iPos,
+                      int iStartOffset, int iEndOffset){
+  plwAdd(&pCollector->plw, iColumn, iPos, iStartOffset, iEndOffset);
+}
+
+
+#ifdef STORE_CATEGORY
+static void dlcNext(DLCollector *pCollector, sqlite_int64 iDocid, int Catid){
+  plwTerminate(&pCollector->plw);
+  plwDestroy(&pCollector->plw);
+  plwInit(&pCollector->plw, &pCollector->dlw, iDocid, Catid);
+}
+
+
+static DLCollector *dlcNew(sqlite_int64 iDocid, DocListType iType, int Catid){
+  DLCollector *pCollector = sqlite3_malloc(sizeof(DLCollector));
+  dataBufferInit(&pCollector->b, 0);
+  dlwInit(&pCollector->dlw, iType, &pCollector->b);
+  plwInit(&pCollector->plw, &pCollector->dlw, iDocid, Catid);
+  return pCollector;
+}
+
+#else
+
 static void dlcNext(DLCollector *pCollector, sqlite_int64 iDocid){
   plwTerminate(&pCollector->plw);
   plwDestroy(&pCollector->plw);
   plwInit(&pCollector->plw, &pCollector->dlw, iDocid);
-}
-static void dlcAddPos(DLCollector *pCollector, int iColumn, int iPos,
-		      int iStartOffset, int iEndOffset){
-  plwAdd(&pCollector->plw, iColumn, iPos, iStartOffset, iEndOffset);
 }
 
 static DLCollector *dlcNew(sqlite_int64 iDocid, DocListType iType){
@@ -1087,6 +1306,9 @@ static DLCollector *dlcNew(sqlite_int64 iDocid, DocListType iType){
   plwInit(&pCollector->plw, &pCollector->dlw, iDocid);
   return pCollector;
 }
+
+#endif
+
 static void dlcDelete(DLCollector *pCollector){
   plwDestroy(&pCollector->plw);
   dlwDestroy(&pCollector->dlw);
@@ -1125,12 +1347,18 @@ static void docListTrim(DocListType iType, const char *pData, int nData,
 
     while( !plrAtEnd(&plReader) ){
       if( iColumn==-1 || plrColumn(&plReader)==iColumn ){
-	if( !match ){
-	  plwInit(&plWriter, &dlWriter, dlrDocid(&dlReader));
-	  match = 1;
-	}
-	plwAdd(&plWriter, plrColumn(&plReader), plrPosition(&plReader),
-	       plrStartOffset(&plReader), plrEndOffset(&plReader));
+
+        if( !match ){
+        
+#ifdef STORE_CATEGORY        
+          plwInit(&plWriter, &dlWriter, dlrDocid(&dlReader), dlrCatid(&dlReader));
+#else
+          plwInit(&plWriter, &dlWriter, dlrDocid(&dlReader));
+#endif
+          match = 1;
+        }
+        plwAdd(&plWriter, plrColumn(&plReader), plrPosition(&plReader),
+               plrStartOffset(&plReader), plrEndOffset(&plReader));
       }
       plrStep(&plReader);
     }
@@ -1315,7 +1543,13 @@ static void posListUnion(DLReader *pLeft, DLReader *pRight, DLWriter *pOut){
 
   plrInit(&left, pLeft);
   plrInit(&right, pRight);
+  
+#ifdef STORE_CATEGORY        
+  plwInit(&writer, pOut, dlrDocid(pLeft), dlrCatid(pLeft));
+#else
   plwInit(&writer, pOut, dlrDocid(pLeft));
+#endif
+
 
   while( !plrAtEnd(&left) || !plrAtEnd(&right) ){
     int c = posListCmp(&left, &right);
@@ -1435,16 +1669,22 @@ static void posListPhraseMerge(
       plrStep(&right);
     }else{
       if( (plrPosition(&right)-plrPosition(&left))<=(nNear+1) ){
-	if( !match ){
+
+        if( !match ){
+        
+#ifdef STORE_CATEGORY        
+	  plwInit(&writer, pOut, dlrDocid(pLeft), dlrCatid(pLeft));
+#else
 	  plwInit(&writer, pOut, dlrDocid(pLeft));
-	  match = 1;
-	}
-	if( !isSaveLeft ){
-	  plwAdd(&writer, plrColumn(&right), plrPosition(&right), 0, 0);
-	}else{
-	  plwAdd(&writer, plrColumn(&left), plrPosition(&left), 0, 0);
-	}
-	plrStep(&right);
+#endif
+          match = 1;
+        }
+        if( !isSaveLeft ){
+          plwAdd(&writer, plrColumn(&right), plrPosition(&right), 0, 0);
+        }else{
+          plwAdd(&writer, plrColumn(&left), plrPosition(&left), 0, 0);
+        }
+        plrStep(&right);
       }else{
 	plrStep(&left);
       }
@@ -1563,33 +1803,40 @@ static void docListPhraseMerge(
 	  PLReader pr1 = {0};
 	  PLReader pr2 = {0};
 
-	  PLWriter plwriter;
-	  plwInit(&plwriter, &writer, dlrDocid(dlrAtEnd(&dr1)?&dr2:&dr1));
+          PLWriter plwriter;
+          
+            
+#ifdef STORE_CATEGORY        
+          plwInit(&plwriter, &writer, dlrDocid(dlrAtEnd(&dr1)?&dr2:&dr1), dlrCatid(dlrAtEnd(&dr1)?&dr2:&dr1));
+#else
+          plwInit(&plwriter, &writer, dlrDocid(dlrAtEnd(&dr1)?&dr2:&dr1));
+#endif
 
-	  if( one.nData ) plrInit(&pr1, &dr1);
-	  if( two.nData ) plrInit(&pr2, &dr2);
-	  while( !plrAtEnd(&pr1) || !plrAtEnd(&pr2) ){
-	    int iCompare = plrCompare(&pr1, &pr2);
-	    switch( iCompare ){
-	      case -1:
-		plwCopy(&plwriter, &pr1);
-		plrStep(&pr1);
-		break;
-	      case 1:
-		plwCopy(&plwriter, &pr2);
-		plrStep(&pr2);
-		break;
-	      case 0:
-		plwCopy(&plwriter, &pr1);
-		plrStep(&pr1);
-		plrStep(&pr2);
-		break;
-	    }
-	  }
-	  plwTerminate(&plwriter);
-	}
-	dataBufferDestroy(&one);
-	dataBufferDestroy(&two);
+          if( one.nData ) plrInit(&pr1, &dr1); 
+          if( two.nData ) plrInit(&pr2, &dr2);
+          while( !plrAtEnd(&pr1) || !plrAtEnd(&pr2) ){
+            int iCompare = plrCompare(&pr1, &pr2);
+            switch( iCompare ){
+              case -1:
+                plwCopy(&plwriter, &pr1);
+                plrStep(&pr1);
+                break;
+              case 1:
+                plwCopy(&plwriter, &pr2);
+                plrStep(&pr2);
+                break;
+              case 0:
+                plwCopy(&plwriter, &pr1);
+                plrStep(&pr1);
+                plrStep(&pr2);
+                break;
+            }
+          }
+          plwTerminate(&plwriter);
+        }
+        dataBufferDestroy(&one);
+        dataBufferDestroy(&two);
+
       }
       dlrStep(&left);
       dlrStep(&right);
@@ -1605,6 +1852,7 @@ static void docListPhraseMerge(
 ** Write the intersection of these two doclists into pOut as a
 ** DL_DOCIDS doclist.
 */
+#ifdef STORE_CATEGORY
 static void docListAndMerge(
   const char *pLeft, int nLeft,
   const char *pRight, int nRight,
@@ -1614,6 +1862,58 @@ static void docListAndMerge(
   DLWriter writer;
 
   if( nLeft==0 || nRight==0 ) return;
+
+
+  dlrInit(&left, DL_POSITIONS, pLeft, nLeft);
+  dlrInit(&right, DL_POSITIONS, pRight, nRight);
+  dlwInit(&writer, DL_POSITIONS, pOut);
+  
+ 
+
+  while( !dlrAtEnd(&left) && !dlrAtEnd(&right) ){
+    if(dlrDocid(&left)<dlrDocid(&right) ){
+      dlrStep(&left);
+    }else if( dlrDocid(&right)<dlrDocid(&left) ){
+      dlrStep(&right);
+    }else{
+      /* treat col 0 (Contents) as prevalent when it comes to deciding which position data to use */
+      PLReader plReader;
+      gboolean copied = FALSE;
+      plrInit(&plReader, &right);
+      if (!plrAtEnd(&plReader)) {
+	if (plrColumn(&plReader) == 0) {
+	  dlwCopy(&writer, &right);
+	  copied = TRUE;
+	}
+      } 
+      
+      plrDestroy (&plReader);
+      
+      if (!copied) {
+        dlwCopy(&writer, &left);
+      }
+
+      dlrStep(&left);
+      dlrStep(&right);
+    }
+  }
+
+  dlrDestroy(&left);
+  dlrDestroy(&right);
+  dlwDestroy(&writer);
+}  
+  
+#else
+static void docListAndMerge(
+  const char *pLeft, int nLeft,
+  const char *pRight, int nRight,
+  DataBuffer *pOut      /* Write the combined doclist here */
+){
+  DLReader left, right;
+  DLWriter writer;
+
+  if( nLeft==0 || nRight==0 ) return;
+
 
   dlrInit(&left, DL_DOCIDS, pLeft, nLeft);
   dlrInit(&right, DL_DOCIDS, pRight, nRight);
@@ -1625,7 +1925,84 @@ static void docListAndMerge(
     }else if( dlrDocid(&right)<dlrDocid(&left) ){
       dlrStep(&right);
     }else{
+   
       dlwAdd(&writer, dlrDocid(&left));
+      
+      dlrStep(&left);
+      dlrStep(&right);
+    }
+  }
+
+  dlrDestroy(&left);
+  dlrDestroy(&right);
+  dlwDestroy(&writer);
+}
+#endif
+
+/* We have two DL_DOCIDS doclists:  pLeft and pRight.
+** Write the union of these two doclists into pOut as a
+** DL_DOCIDS doclist.
+*/
+
+#ifdef STORE_CATEGORY        
+static void docListOrMerge(
+  const char *pLeft, int nLeft,
+  const char *pRight, int nRight,
+  DataBuffer *pOut	/* Write the combined doclist here */
+){
+  DLReader left, right;
+  DLWriter writer;
+
+  if( nLeft==0 ){
+    if( nRight!=0 ) dataBufferAppend(pOut, pRight, nRight);
+    return;
+  }
+  if( nRight==0 ){
+    dataBufferAppend(pOut, pLeft, nLeft);
+    return;
+  }
+
+  dlrInit(&left, DL_POSITIONS, pLeft, nLeft);
+  dlrInit(&right, DL_POSITIONS, pRight, nRight);
+  dlwInit(&writer, DL_POSITIONS, pOut);
+
+  while( !dlrAtEnd(&left) || !dlrAtEnd(&right) ){
+    if( dlrAtEnd(&right) ){
+      dlwCopy (&writer, &left);
+      dlrStep(&left);
+    }else if( dlrAtEnd(&left) ){
+      
+      dlwCopy (&writer, &right);
+      dlrStep(&right);
+    }else if( dlrDocid(&left)<dlrDocid(&right) ){
+
+      dlwCopy (&writer, &left);
+
+      dlrStep(&left);
+    }else if( dlrDocid(&right)<dlrDocid(&left) ){
+
+      dlwCopy (&writer, &right);
+
+      dlrStep(&right);
+    }else{
+
+      /* treat col 0 (Contents) as prevalent when it comes to deciding which position data to use */
+      PLReader plReader;
+      gboolean copied = FALSE;
+      plrInit(&plReader, &right);
+      if (!plrAtEnd(&plReader)) {
+	if (plrColumn(&plReader) == 0) {
+	  dlwCopy(&writer, &right);
+	  copied = TRUE;
+	}
+      } 
+      
+      plrDestroy (&plReader);
+      
+      if (!copied) {
+        dlwCopy(&writer, &left);
+      }
+
       dlrStep(&left);
       dlrStep(&right);
     }
@@ -1636,14 +2013,12 @@ static void docListAndMerge(
   dlwDestroy(&writer);
 }
 
-/* We have two DL_DOCIDS doclists:  pLeft and pRight.
-** Write the union of these two doclists into pOut as a
-** DL_DOCIDS doclist.
-*/
+#else
+
 static void docListOrMerge(
   const char *pLeft, int nLeft,
   const char *pRight, int nRight,
-  DataBuffer *pOut	/* Write the combined doclist here */
+  DataBuffer *pOut      /* Write the combined doclist here */
 ){
   DLReader left, right;
   DLWriter writer;
@@ -1664,18 +2039,32 @@ static void docListOrMerge(
   while( !dlrAtEnd(&left) || !dlrAtEnd(&right) ){
     if( dlrAtEnd(&right) ){
       dlwAdd(&writer, dlrDocid(&left));
+      
+
       dlrStep(&left);
     }else if( dlrAtEnd(&left) ){
+      
       dlwAdd(&writer, dlrDocid(&right));
+      
       dlrStep(&right);
     }else if( dlrDocid(&left)<dlrDocid(&right) ){
+
       dlwAdd(&writer, dlrDocid(&left));
+
+
       dlrStep(&left);
     }else if( dlrDocid(&right)<dlrDocid(&left) ){
+
       dlwAdd(&writer, dlrDocid(&right));
+
+      
+
       dlrStep(&right);
     }else{
+
       dlwAdd(&writer, dlrDocid(&left));
+
+
       dlrStep(&left);
       dlrStep(&right);
     }
@@ -1685,15 +2074,50 @@ static void docListOrMerge(
   dlrDestroy(&right);
   dlwDestroy(&writer);
 }
+#endif
 
 /* We have two DL_DOCIDS doclists:  pLeft and pRight.
 ** Write into pOut as DL_DOCIDS doclist containing all documents that
 ** occur in pLeft but not in pRight.
 */
+#ifdef STORE_CATEGORY   
 static void docListExceptMerge(
   const char *pLeft, int nLeft,
   const char *pRight, int nRight,
   DataBuffer *pOut	/* Write the combined doclist here */
+){
+  DLReader left, right;
+  DLWriter writer;
+
+  if( nLeft==0 ) return;
+  if( nRight==0 ){
+    dataBufferAppend(pOut, pLeft, nLeft);
+    return;
+  }
+
+  dlrInit(&left, DL_POSITIONS, pLeft, nLeft);
+  dlrInit(&right, DL_POSITIONS, pRight, nRight);
+  dlwInit(&writer, DL_POSITIONS, pOut);
+
+  while( !dlrAtEnd(&left) ){
+    while( !dlrAtEnd(&right) && dlrDocid(&right)<dlrDocid(&left) ){
+      dlrStep(&right);
+    }
+    if( dlrAtEnd(&right) || dlrDocid(&left)<dlrDocid(&right) ){
+      dlwCopy (&writer, &left);
+    }
+    dlrStep(&left);
+  }
+
+  dlrDestroy(&left);
+  dlrDestroy(&right);
+  dlwDestroy(&writer);
+}
+#else
+static void docListExceptMerge(
+  const char *pLeft, int nLeft,
+  const char *pRight, int nRight,
+  DataBuffer *pOut      /* Write the combined doclist here */
 ){
   DLReader left, right;
   DLWriter writer;
@@ -1713,6 +2137,7 @@ static void docListExceptMerge(
       dlrStep(&right);
     }
     if( dlrAtEnd(&right) || dlrDocid(&left)<dlrDocid(&right) ){
+      
       dlwAdd(&writer, dlrDocid(&left));
     }
     dlrStep(&left);
@@ -1722,6 +2147,7 @@ static void docListExceptMerge(
   dlrDestroy(&right);
   dlwDestroy(&writer);
 }
+#endif
 
 static char *string_dup_n(const char *s, int n){
   char *str = sqlite3_malloc(n + 1);
@@ -1891,13 +2317,14 @@ typedef struct Snippet {
   int nMatch;	  /* Total number of matches */
   int nAlloc;	  /* Space allocated for aMatch[] */
   struct snippetMatch { /* One entry for each matching term */
-    char snStatus;	 /* Status flag for use while constructing snippets */
-    short int iCol;	 /* The column that contains the match */
-    short int iTerm;	 /* The index in Query.pTerms[] of the matching term */
-    int iToken;		 /* The index of the matching document token */
-    short int nByte;	 /* Number of bytes in the term */
-    int iStart;		 /* The offset to the first character of the term */
-  } *aMatch;	  /* Points to space obtained from malloc */
+    char snStatus;       /* Status flag for use while constructing snippets */
+    short int iCol;      /* The column that contains the match */
+    short int iTerm;     /* The index in Query.pTerms[] of the matching term */
+    int iToken;          /* The index of the matching document token */
+    short int nByte;     /* Number of bytes in the term */
+    int iStart;          /* The offset to the first character of the term */
+    int rank;		 /* the rank of the snippet */
+  } *aMatch;      /* Points to space obtained from malloc */
   char *zOffset;  /* Text rendering of aMatch[] */
   int nOffset;	  /* strlen(zOffset) */
   char *zSnippet; /* Snippet text */
@@ -2039,6 +2466,8 @@ typedef struct fulltext_cursor {
   int iColumn;			   /* Column being searched */
   DataBuffer result;		   /* Doclist results from fulltextQuery */
   DLReader reader;		   /* Result reader if result not empty */
+  sqlite_int64 currentDocid;
+  int currentCatid;
 } fulltext_cursor;
 
 static struct fulltext_vtab *cursor_vtab(fulltext_cursor *c){
@@ -3251,6 +3680,7 @@ static void snippetAppendMatch(
   pMatch->nByte = nByte;
 }
 
+
 /*
 ** Sizing information for the circular buffer used in snippetOffsetsOfColumn()
 */
@@ -3267,6 +3697,9 @@ static void snippetOffsetsOfColumn(
   int iColumn,
   const char *zDoc,
   int nDoc
+#ifdef STORE_CATEGORY
+  , int position
+#endif  
 ){
 
   fulltext_vtab *pVtab;		       /* The full text index */
@@ -3302,9 +3735,10 @@ static void snippetOffsetsOfColumn(
 
   while(1){
 //    rc = pTModule->xNext(pTCursor, &zToken, &nToken, &iBegin, &iEnd, &iPos);
-
-    zToken = tracker_parser_next (pVtab->parser,
-				  &iPos,
+   
+    
+    zToken = tracker_parser_next (pVtab->parser, 
+    				  &iPos,
 				  &iBegin,
 				  &iEnd,
 				  &new_paragraph,
@@ -3316,7 +3750,8 @@ static void snippetOffsetsOfColumn(
     if (stop_word) {
       continue;
     }
-
+    
+ 
     iRotorBegin[iRotor&FTS3_ROTOR_MASK] = iBegin;
     iRotorLen[iRotor&FTS3_ROTOR_MASK] = iEnd-iBegin;
     match = 0;
@@ -3443,19 +3878,89 @@ static void trimSnippetOffsetsForNear(Query *pQuery, Snippet *pSnippet){
   }
 }
 
+
+
 /*
 ** Compute all offsets for the current row of the query.
 ** If the offsets have already been computed, this routine is a no-op.
 */
 static void snippetAllOffsets(fulltext_cursor *p){
-  int nColumn;
   int iColumn, i;
-  int iFirst, iLast;
   fulltext_vtab *pFts;
 
   if( p->snippet.nMatch ) return;
   if( p->q.nTerms==0 ) return;
   pFts = p->q.pFts;
+  
+#ifdef STORE_CATEGORY  
+  PLReader plReader;
+  int col_array[255];
+  gpointer pos_array[255];
+  
+  for (i=0; i<255; i++) {
+    col_array[i] = 0;
+    pos_array[i] = NULL;
+  }
+  
+  
+  int iPos = 0;
+  
+  printf ("calc snippet\n");
+
+  
+  plrInit(&plReader, &p->reader);
+  
+  if (plrAtEnd(&plReader)) return;
+  
+  iColumn = -1;
+    
+  for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
+        
+    if (plrColumn (&plReader) != iColumn) {
+    
+      iColumn = plrColumn(&plReader);
+      col_array[iColumn] += 1;
+    }
+        
+    iPos = plrPosition(&plReader);
+    GSList *l = pos_array[iColumn];
+    l = g_slist_prepend (l, GINT_TO_POINTER (iPos)); 
+  }
+
+  plrDestroy(&plReader);
+  
+  if (!dlrAtEnd (&p->reader)) {
+ //   dlrStep (&p->reader);
+  }
+
+  /* get the column with most hits */  
+  int hit_column = 0;
+  int hit_column_count = col_array[0];  
+  
+  /*bias field id 0 more as its the main content field */
+ // if (hit_column_count > 0) hit_column_count++;
+  
+  for (i=1; i<255; i++) {
+    if (col_array [i] > hit_column_count) {
+      hit_column = i;
+      hit_column_count =col_array[i];
+    }
+    
+    g_slist_free (pos_array[i]);
+  }
+
+
+  const char *zDoc;
+  int nDoc;
+  zDoc = (const char*)sqlite3_column_text(p->pStmt, hit_column+1);
+  nDoc = sqlite3_column_bytes(p->pStmt, hit_column+1);
+  snippetOffsetsOfColumn(&p->q, &p->snippet, hit_column, zDoc, nDoc, iPos);
+  
+  
+#else  
+  int iFirst, iLast;
+  int nColumn;
+      
   nColumn = pFts->nColumn;
   iColumn = (p->iCursorType - QUERY_FULLTEXT);
   if( iColumn<0 || iColumn>=nColumn ){
@@ -3465,6 +3970,8 @@ static void snippetAllOffsets(fulltext_cursor *p){
     iFirst = iColumn;
     iLast = iColumn;
   }
+  
+    
   for(i=iFirst; i<=iLast; i++){
     const char *zDoc;
     int nDoc;
@@ -3472,7 +3979,8 @@ static void snippetAllOffsets(fulltext_cursor *p){
     nDoc = sqlite3_column_bytes(p->pStmt, i+1);
     snippetOffsetsOfColumn(&p->q, &p->snippet, i, zDoc, nDoc);
   }
-
+#endif  
+  
   trimSnippetOffsetsForNear(&p->q, &p->snippet);
 }
 
@@ -3718,7 +4226,11 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
       return SQLITE_OK;
     }
     rc = sqlite3_bind_int64(c->pStmt, 1, dlrDocid(&c->reader));
+    c->currentDocid = dlrDocid(&c->reader);
+    c->currentCatid = dlrCatid(&c->reader);
+
     dlrStep(&c->reader);
+    
     if( rc!=SQLITE_OK ) return rc;
     /* TODO(shess) Handle SQLITE_SCHEMA AND SQLITE_BUSY. */
     rc = sqlite3_step(c->pStmt);
@@ -3763,8 +4275,15 @@ static int docListOfTerm(
   assert( v->nPendingData<0 );
 
   dataBufferInit(&left, 0);
+  
+  #ifdef STORE_CATEGORY
   rc = termSelect(v, iColumn, pQTerm->pTerm, pQTerm->nTerm, pQTerm->isPrefix,
-		  (0<pQTerm->nPhrase ? DL_POSITIONS : DL_DOCIDS), &left);
+                  DL_POSITIONS, &left);
+  #else
+  rc = termSelect(v, iColumn, pQTerm->pTerm, pQTerm->nTerm, pQTerm->isPrefix,
+                  (0<pQTerm->nPhrase ? DL_POSITIONS : DL_DOCIDS), &left);
+  #endif                
+                  
   if( rc ) return rc;
   for(i=1; i<=pQTerm->nPhrase && left.nData>0; i++){
     /* If this token is connected to the next by a NEAR operator, and
@@ -3786,10 +4305,20 @@ static int docListOfTerm(
       return rc;
     }
     dataBufferInit(&new, 0);
+    
+    #ifdef STORE_CATEGORY
     docListPhraseMerge(left.pData, left.nData, right.pData, right.nData,
-		       pQTerm[i-1].nNear, pQTerm[i-1].iPhrase + nPhraseRight,
-		       ((i<pQTerm->nPhrase) ? DL_POSITIONS : DL_DOCIDS),
-		       &new);
+                       pQTerm[i-1].nNear, pQTerm[i-1].iPhrase + nPhraseRight,
+                       DL_POSITIONS,
+                       &new);
+    
+    #else
+    docListPhraseMerge(left.pData, left.nData, right.pData, right.nData,
+                       pQTerm[i-1].nNear, pQTerm[i-1].iPhrase + nPhraseRight,
+                       ((i<pQTerm->nPhrase) ? DL_POSITIONS : DL_DOCIDS),
+                       &new);
+
+    #endif                   
     dataBufferDestroy(&left);
     dataBufferDestroy(&right);
     left = new;
@@ -4210,7 +4739,14 @@ static int fulltextFilter(
       rc = fulltextQuery(v, idxNum-QUERY_FULLTEXT, zQuery, -1, &c->result, &c->q);
       if( rc!=SQLITE_OK ) return rc;
       if( c->result.nData!=0 ){
-	dlrInit(&c->reader, DL_DOCIDS, c->result.pData, c->result.nData);
+
+#ifdef STORE_CATEGORY
+        dlrInit(&c->reader, DL_POSITIONS, c->result.pData, c->result.nData);
+#else      
+        dlrInit(&c->reader, DL_DOCIDS, c->result.pData, c->result.nData);
+
+#endif   
+        
       }
       break;
     }
@@ -4239,6 +4775,13 @@ static int fulltextColumn(sqlite3_vtab_cursor *pCursor,
   fulltext_cursor *c = (fulltext_cursor *) pCursor;
   fulltext_vtab *v = cursor_vtab(c);
 
+#ifdef STORE_CATEGORY 
+  if (idxCol == 0) {
+    sqlite3_result_int (pContext, c->currentCatid);
+    return SQLITE_OK;
+  }
+#endif
+    	
   if( idxCol<v->nColumn ){
     sqlite3_value *pVal = sqlite3_column_value(c->pStmt, idxCol+1);
     sqlite3_result_value(pContext, pVal);
@@ -4271,7 +4814,11 @@ static int fulltextRowid(sqlite3_vtab_cursor *pCursor, sqlite_int64 *pRowid){
 ** we also store positions and offsets in the hash table using that
 ** column number.
 */
-static int buildTerms(fulltext_vtab *v, sqlite_int64 iDocid,
+static int buildTerms(fulltext_vtab *v, sqlite_int64 iDocid, 
+
+#ifdef STORE_CATEGORY      
+int Catid,
+#endif
 		      const char *zText, int iColumn){
   const char *pToken;
   int nTokenBytes;
@@ -4317,14 +4864,28 @@ static int buildTerms(fulltext_vtab *v, sqlite_int64 iDocid,
     p = fts3HashFind(&v->pendingTerms, pToken, nTokenBytes);
     if( p==NULL ){
       nData = 0;
+      
+#ifdef STORE_CATEGORY       
+      p = dlcNew(iDocid, DL_DEFAULT, Catid);
+#else
       p = dlcNew(iDocid, DL_DEFAULT);
+#endif
+
       fts3HashInsert(&v->pendingTerms, pToken, nTokenBytes, p);
 
       /* Overhead for our hash table entry, the key, and the value. */
       v->nPendingData += sizeof(struct fts3HashElem)+sizeof(*p)+nTokenBytes;
     }else{
       nData = p->b.nData;
-      if( p->dlw.iPrevDocid!=iDocid ) dlcNext(p, iDocid);
+      if( p->dlw.iPrevDocid!=iDocid ) {
+#ifdef STORE_CATEGORY       
+        dlcNext(p, iDocid, Catid);
+#else
+        dlcNext(p, iDocid);
+#endif
+
+      
+      }
     }
     if( iColumn>=0 ){
       dlcAddPos(p, iColumn, iPosition, iStartOffset, iEndOffset);
@@ -4348,11 +4909,25 @@ static int buildTerms(fulltext_vtab *v, sqlite_int64 iDocid,
 static int insertTerms(fulltext_vtab *v, sqlite_int64 iDocid,
 		       sqlite3_value **pValues){
   int i;
+  
+#ifdef STORE_CATEGORY   
+  
+  for(i = 1; i < v->nColumn ; ++i){
+    char *zText = (char*)sqlite3_value_text(pValues[i]);
+    int rc = buildTerms(v, iDocid, sqlite3_value_int (pValues[0]), zText, i);
+    if( rc!=SQLITE_OK ) return rc;
+  }
+  
+#else
+
   for(i = 0; i < v->nColumn ; ++i){
     char *zText = (char*)sqlite3_value_text(pValues[i]);
     int rc = buildTerms(v, iDocid, zText, i);
     if( rc!=SQLITE_OK ) return rc;
   }
+  
+#endif  
+
   return SQLITE_OK;
 }
 
@@ -4369,10 +4944,19 @@ static int deleteTerms(fulltext_vtab *v, sqlite_int64 iDocid){
   rc = content_select(v, iDocid, &pValues);
   if( rc!=SQLITE_OK ) return rc;
 
+#ifdef STORE_CATEGORY   
+  
+  for(i = 1 ; i < v->nColumn; ++i) {
+    rc = buildTerms(v, iDocid, atoi(pValues[0]), pValues[i], -1);
+    if( rc!=SQLITE_OK ) break;
+  }
+
+#else
   for(i = 0 ; i < v->nColumn; ++i) {
     rc = buildTerms(v, iDocid, pValues[i], -1);
     if( rc!=SQLITE_OK ) break;
   }
+#endif
 
   freeStringArray(v->nColumn, pValues);
   return SQLITE_OK;
@@ -7175,13 +7759,6 @@ static const sqlite3_module fts3Module = {
   /* xFindFunction */ fulltextFindFunction,
   /* xRename */       fulltextRename,
 };
-
-static void hashDestroy(void *p){
-  fts3Hash *pHash = (fts3Hash *)p;
-  sqlite3Fts3HashClear(pHash);
-  sqlite3_free(pHash);
-}
-
 
 int sqlite3Fts3InitHashTable(sqlite3 *, fts3Hash *, const char *);
 

@@ -8,8 +8,10 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	$(GLIB2_CFLAGS)							\
 	$(SQLITE3_CFLAGS)						\
-	$(PANGO_CFLAGS)
+	$(PANGO_CFLAGS)							\
+	-DSTORE_CATEGORY=1			
 
+	
 tracker_fts_modules_LTLIBRARIES = tracker-fts.la
 		
 
@@ -21,7 +23,7 @@ tracker_fts_la_SOURCES = 						\
 tracker_fts_la_LDFLAGS = $(module_flags)
 
 tracker_fts_la_LIBADD =							\
-	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
+	$(top_builddir)/src/libtracker-db/libtracker-db.la              \
 	$(SQLITE3_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(PANGO_LIBS)							\

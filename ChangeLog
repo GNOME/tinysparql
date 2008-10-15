@@ -1,3 +1,17 @@
+2008-10-14 Jamie McCracken <jamiemcc at gnome org>
+
+	* tests/tracker-fts/tracker-fts-test.c:
+	* src/libtracker-common/tracker-ontology.c
+        * src/libtracker-common/tracker-ontology.h
+	* src/tracker-fts/tracker-fts.c
+        * src/tracker-fts/Makefile.am
+
+	Updated FTS code with metadata and onto support functions
+	Added category to be stored in index (similar to qdbm)
+	Modified handling of postion data so that all searches uses it
+	Improve speed of generating snippets+offsets using position data
+		
+
 2008-10-14  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-monitor.c: Try to improve on the NB#88769
