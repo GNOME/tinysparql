@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-08 15:56+0000\n"
-"PO-Revision-Date: 2008-10-11 17:48+0200\n"
+"POT-Creation-Date: 2008-10-13 12:36+0000\n"
+"PO-Revision-Date: 2008-10-16 21:10+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -137,19 +137,19 @@ msgstr "Archivos de desarrollo"
 
 #: ../python/deskbar-handler/tracker-handler.py:392
 #: ../python/deskbar-handler/tracker-module.py:298
-#: ../src/tracker-search-tool/tracker-search-tool.c:148
+#: ../src/tracker-search-tool/tracker-search-tool.c:146
 msgid "Music"
 msgstr "Música"
 
 #: ../python/deskbar-handler/tracker-handler.py:395
 #: ../python/deskbar-handler/tracker-module.py:301
-#: ../src/tracker-search-tool/tracker-search-tool.c:147
+#: ../src/tracker-search-tool/tracker-search-tool.c:145
 msgid "Images"
 msgstr "Imágenes"
 
 #: ../python/deskbar-handler/tracker-handler.py:398
 #: ../python/deskbar-handler/tracker-module.py:304
-#: ../src/tracker-search-tool/tracker-search-tool.c:150
+#: ../src/tracker-search-tool/tracker-search-tool.c:148
 msgid "Videos"
 msgstr "Vídeos"
 
@@ -487,10 +487,11 @@ msgstr ""
 "detalles."
 
 #: ../src/tracker-applet/tracker-applet.c:1359
+#, fuzzy
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
-"Place, Suite 330, Boston, MA  02111-1307  USA"
+"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA  02110-1301, USA."
 msgstr ""
 "Debería haber recibido una copia de la Licencia Pública General GNU junto "
 "con Tracker; si no es el caso, escriba a la Free Software Foundation, Inc., "
@@ -564,6 +565,8 @@ msgstr "Ahora puede realizar búsquedas pulsando aquí"
 #: ../src/tracker-applet/tracker-applet.c:2091
 msgid "- Tracker applet for quick control of your desktop search tools"
 msgstr ""
+"- Miniaplicación Tracker para controlar rápidamente sus herramientas de "
+"búsqueda del escritorio"
 
 #: ../src/tracker-applet/tracker-applet.c:2116
 msgid ""
@@ -674,6 +677,31 @@ msgstr "_Ocultar icono (excepto cuando se muestren mensajes al usuario)"
 msgid "_Off"
 msgstr "Apaga_r"
 
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-extract/tracker-extract.c:395
+msgid "- Extract file meta data"
+msgstr "- Extraer los metadatos del archivo"
+
+#. Translators: this message will appear after the usage string
+#. and before the list of options.
+#: ../src/tracker-extract/tracker-extract.c:399
+msgid "Given the following format (without quotes):"
+msgstr "Dado el siguiente formato (sin comillas):"
+
+#: ../src/tracker-extract/tracker-extract.c:404
+msgid "This is interpreted from STDIN and then processed."
+msgstr "Esto está interpretado desde STDIN y después procesado."
+
+#: ../src/tracker-extract/tracker-extract.c:407
+msgid ""
+"If this command is run without any arguments, it will wait for work to do."
+msgstr ""
+
+#: ../src/tracker-extract/tracker-extract.c:411
+msgid "Here are some examples of how to use this command:"
+msgstr "Aquí hay algunos ejemplos de cómo usar este comando:"
+
 #: ../src/tracker-indexer/tracker-main.c:71 ../src/trackerd/tracker-main.c:123
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -692,15 +720,14 @@ msgstr ""
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-indexer/tracker-main.c:273
-#, fuzzy
 msgid "- start the tracker indexer"
-msgstr "iniciar el demonio de tracker"
+msgstr "- iniciar el indexador de tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.c:837
+#: ../src/tracker-preferences/tracker-preferences.c:647
 msgid "Data must be reindexed"
 msgstr "Los datos deben ser reindexados"
 
-#: ../src/tracker-preferences/tracker-preferences.c:838
+#: ../src/tracker-preferences/tracker-preferences.c:648
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
@@ -710,15 +737,15 @@ msgstr ""
 "Pulse el botón Reindexar para comenzar el reindexado ahora, de otra forma "
 "esta acción se realizará la próxima vez que se inicie el demonio de Tracker."
 
-#: ../src/tracker-preferences/tracker-preferences.c:845
+#: ../src/tracker-preferences/tracker-preferences.c:655
 msgid "_Reindex"
 msgstr "_Reindexar"
 
-#: ../src/tracker-preferences/tracker-preferences.c:848
+#: ../src/tracker-preferences/tracker-preferences.c:658
 msgid "Tracker daemon must be restarted"
 msgstr "Se debe reiniciar el demonio de Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.c:850
+#: ../src/tracker-preferences/tracker-preferences.c:660
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
@@ -726,7 +753,7 @@ msgstr ""
 "Para que sus cambios tengan efecto se debe reiniciar el demonio de Tracker. "
 "Pulse el botón Reiniciar para reiniciar el demonio ahora."
 
-#: ../src/tracker-preferences/tracker-preferences.c:855
+#: ../src/tracker-preferences/tracker-preferences.c:665
 msgid "_Restart"
 msgstr "_Reiniciar"
 
@@ -963,7 +990,7 @@ msgstr "KiB"
 msgid "seconds"
 msgstr "segundos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
+#: ../src/tracker-search-tool/tracker-search-tool.c:63
 #: ../src/tracker-utils/tracker-files.c:42
 #: ../src/tracker-utils/tracker-query.c:52
 #: ../src/tracker-utils/tracker-search.c:42
@@ -971,293 +998,272 @@ msgstr "segundos"
 msgid "Search from a specific service"
 msgstr "Buscar en un servicio específico"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
+#: ../src/tracker-search-tool/tracker-search-tool.c:63
 msgid "SERVICE"
 msgstr "SERVICIO"
 
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
 #: ../src/tracker-search-tool/tracker-search-tool.c:138
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
 #: ../src/tracker-search-tool/tracker-search-tool.c:141
-#: ../src/tracker-search-tool/tracker-search-tool.c:143
 msgid "Emails"
 msgstr "Correos-e"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:144
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
 msgid "All Files"
 msgstr "Todos los archivos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:145
+#: ../src/tracker-search-tool/tracker-search-tool.c:143
 msgid "Folders"
 msgstr "Carpetas"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:146
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
 msgid "Documents"
 msgstr "Documentos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:149
+#: ../src/tracker-search-tool/tracker-search-tool.c:147
 msgid "Playlists"
-msgstr ""
+msgstr "Listas de reproducción"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:151
-#: ../src/tracker-search-tool/tracker-search-tool.c:1221
+#: ../src/tracker-search-tool/tracker-search-tool.c:149
+#: ../src/tracker-search-tool/tracker-search-tool.c:1210
 msgid "Text"
 msgstr "Texto"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:152
+#: ../src/tracker-search-tool/tracker-search-tool.c:150
 msgid "Development"
 msgstr "Desarrollo"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:153
+#: ../src/tracker-search-tool/tracker-search-tool.c:151
 msgid "Chat Logs"
 msgstr "Registros de chat"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:154
+#: ../src/tracker-search-tool/tracker-search-tool.c:152
 msgid "Applications"
 msgstr "Aplicaciones"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:155
+#: ../src/tracker-search-tool/tracker-search-tool.c:153
 msgid "WebHistory"
 msgstr "Histórico web"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:215
+#: ../src/tracker-search-tool/tracker-search-tool.c:213
 msgid "_Open"
 msgstr "_Abrir"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:216
+#: ../src/tracker-search-tool/tracker-search-tool.c:214
 msgid "O_pen Folder"
 msgstr "Abrir _carpeta"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:217
+#: ../src/tracker-search-tool/tracker-search-tool.c:215
 msgid "Mo_ve to Trash"
 msgstr "_Mover a la papelera"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:218
+#: ../src/tracker-search-tool/tracker-search-tool.c:216
 msgid "_Save Results As..."
 msgstr "_Guardar resultado como..."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:246
+#: ../src/tracker-search-tool/tracker-search-tool.c:244
 #, c-format
 msgid "Character set conversion failed for \"%s\""
 msgstr "Falló la conversión del conjunto de caracteres para «%s»"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:273
+#: ../src/tracker-search-tool/tracker-search-tool.c:271
 msgid "The following error has occurred :"
 msgstr "Ocurrió el siguiente error:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:277
+#: ../src/tracker-search-tool/tracker-search-tool.c:275
 msgid "Error"
 msgstr "Error"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:652
+#: ../src/tracker-search-tool/tracker-search-tool.c:641
 msgid "Did you mean"
 msgstr "Quiso decir"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:683
+#: ../src/tracker-search-tool/tracker-search-tool.c:672
 msgid "Your search returned no results."
 msgstr "Su búsqueda no devolvió ningún resultado."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:698
+#: ../src/tracker-search-tool/tracker-search-tool.c:687
 msgid "Tracker Search Tool-"
 msgstr "Herramienta de búsqueda Tracker-"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:859
-#: ../src/tracker-search-tool/tracker-search-tool.c:2219
+#: ../src/tracker-search-tool/tracker-search-tool.c:848
+#: ../src/tracker-search-tool/tracker-search-tool.c:2208
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
 msgid "Tracker Search Tool"
 msgstr "Herramienta de búsqueda Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1049
+#: ../src/tracker-search-tool/tracker-search-tool.c:1038
 msgid "Search _results: "
 msgstr "_Resultados de la búsqueda: "
 
 #. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1055
+#: ../src/tracker-search-tool/tracker-search-tool.c:1044
 msgid "no search performed"
 msgstr "no se realizó ninguna búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1115
-#: ../src/tracker-search-tool/tracker-search-tool.c:1275
+#: ../src/tracker-search-tool/tracker-search-tool.c:1104
+#: ../src/tracker-search-tool/tracker-search-tool.c:1264
 msgid "List View"
 msgstr "Vista lista"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1187
+#: ../src/tracker-search-tool/tracker-search-tool.c:1176
 msgid "Icon"
 msgstr "Icono"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1199
+#: ../src/tracker-search-tool/tracker-search-tool.c:1188
 msgid "Name"
 msgstr "Nombre"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1293
+#: ../src/tracker-search-tool/tracker-search-tool.c:1282
 msgid "_Categories"
 msgstr "_Categorías"
 
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1573
+#: ../src/tracker-search-tool/tracker-search-tool.c:1562
 #, c-format
 msgid "%d - %d of %d items"
 msgstr "%d - %d de %d elementos"
 
 #. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1576
+#: ../src/tracker-search-tool/tracker-search-tool.c:1565
 #, c-format
 msgid "%d item"
 msgid_plural "%d items"
 msgstr[0] "%d elemento"
 msgstr[1] "%d impactos"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1624
-#: ../src/tracker-search-tool/tracker-search-tool.c:1817
+#: ../src/tracker-search-tool/tracker-search-tool.c:1613
+#: ../src/tracker-search-tool/tracker-search-tool.c:1806
 msgid "Could not connect to search service as it may be busy"
 msgstr ""
 "No se pudo conectar con el servicio de búsqueda ya que puede estar ocupado"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2010
+#: ../src/tracker-search-tool/tracker-search-tool.c:1999
 msgid "_Search:"
 msgstr "_Buscar:"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2024
+#: ../src/tracker-search-tool/tracker-search-tool.c:2013
 msgid "Tracker is still indexing so not all search results are available yet"
 msgstr ""
 "Tracker aún está indexando así que no todos los resultados de búsqueda están "
 "disponibles"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2038
-#: ../src/tracker-search-tool/tracker-search-tool.c:2039
+#: ../src/tracker-search-tool/tracker-search-tool.c:2027
+#: ../src/tracker-search-tool/tracker-search-tool.c:2028
 msgid "Enter a search term with multiple words seperated with spaces."
 msgstr ""
 "Introduzca un término de búsqueda con varias palabras separadas por espacios."
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2039
+#: ../src/tracker-search-tool/tracker-search-tool.c:2028
 msgid "search_entry"
 msgstr "entrada_búsqueda"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:2085
+#: ../src/tracker-search-tool/tracker-search-tool.c:2074
 msgid "Click to perform a search."
 msgstr "Pulse para realizar una búsqueda."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:129
 msgid "Could not open help document."
 msgstr "No se pudo abrir el documento de ayuda."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:324
 #, c-format
 msgid "Are you sure you want to open %d document?"
 msgid_plural "Are you sure you want to open %d documents?"
 msgstr[0] "¿Esta seguro de que quiere abrir %d documento?"
 msgstr[1] "¿Esta seguro de que quiere abrir %d documentos?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:689
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:329
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:678
 #, c-format
 msgid "This will open %d separate window."
 msgid_plural "This will open %d separate windows."
 msgstr[0] "Esto abrirá %d ventana separada."
 msgstr[1] "Esto abrirá %d ventanas separadas."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:369
 #, c-format
 msgid "Could not open document \"%s\"."
 msgstr "No se pudo abrir el documento «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:398
 #, c-format
 msgid "Could not open folder \"%s\"."
 msgstr "No se pudo abrir la carpeta «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:406
 msgid "The nautilus file manager is not running."
 msgstr "El gestor de archivos Nautilus no se está ejecutando."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:628
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:626
 msgid "Application could not be opened"
 msgstr "No se pudo abrir la aplicación"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:643
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:963
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:637
 msgid "The document does not exist."
 msgstr "El documento no existe."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:659
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:649
 msgid "There is no installed viewer capable of displaying the document."
 msgstr "No hay un visor instalado capaz de mostrar el documento."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:684
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:673
 #, c-format
 msgid "Are you sure you want to open %d folder?"
 msgid_plural "Are you sure you want to open %d folders?"
 msgstr[0] "¿Esta seguro de que quiere abrir una carpeta?"
 msgstr[1] "¿Esta seguro de que quiere abrir %d carpetas?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:788
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:775
 #, c-format
 msgid "Could not move \"%s\" to trash."
 msgstr "No se pudo mover «%s» a la papelera."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:819
-#, c-format
-msgid "Do you want to delete \"%s\" permanently?"
-msgstr "¿Quiere borrar «%s» permanentemente?"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:822
-#, c-format
-msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:861
-#, c-format
-msgid "Could not delete \"%s\"."
-msgstr "No se pudo borrar «%s»."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:985
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:842
 #, c-format
 msgid "Moving \"%s\" failed: %s."
 msgstr "Fallo al mover «%s»: %s."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1019
-#, c-format
-msgid "Deleting \"%s\" failed: %s."
-msgstr "Fallo al borrar «%s»: %s."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1305
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1123
 msgid "Activate to view this email"
 msgstr "Activar para ver este correo-e"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1481
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1292
 msgid "Save Search Results As..."
 msgstr "Guardar los resultados de la búsqueda como..."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1516
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1327
 msgid "Could not save document."
 msgstr "No se pudo guardar el documento."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1517
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1328
 msgid "You did not select a document name."
 msgstr "No seleccionó un nombre de documento."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1358
 #, c-format
 msgid "Could not save \"%s\" document to \"%s\"."
 msgstr "No se pudo guardar el documento «%s» en «%s»."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1581
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1392
 #, c-format
 msgid "The document \"%s\" already exists.  Would you like to replace it?"
 msgstr "El documento «%s» ya existe. ¿Desea reemplazarlo?"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1585
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1396
 msgid "If you replace an existing file, its contents will be overwritten."
 msgstr "Si reemplaza un archivo existente, su contenido se sobreescribirá."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1600
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1411
 msgid "_Replace"
 msgstr "_Reemplazar"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1650
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1461
 msgid "The document name you selected is a folder."
 msgstr "El nombre de documento que ha seleccionado es una carpeta."
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1699
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1510
 msgid "You may not have write permissions to the document."
 msgstr "Puede que no tenga permisos de escritura sobre el documento."
 
@@ -1269,7 +1275,7 @@ msgstr ""
 "Localice documentos y carpetas en este equipo por nombre o contenido usando "
 "Tracker"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:69
 #, c-format
 msgid ""
 "GConf error:\n"
@@ -1283,27 +1289,18 @@ msgstr ""
 #. on age of a file.  Please modify the format of the timestamp to match
 #. your locale.  For example, to display 24 hour time replace the '%-I'
 #. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:671
 msgid "today at %-I:%M %p"
 msgstr "hoy a las %-H:%M"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:673
 msgid "yesterday at %-I:%M %p"
 msgstr "ayer a las %-H:%M"
 
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:675
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:677
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A, %B %-d %Y a las %-H:%M:%S"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
-msgid "link (broken)"
-msgstr "enlace (roto)"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
-#, c-format
-msgid "link to %s"
-msgstr "enlace a %s"
 
 #: ../src/tracker-utils/tracker-files.c:46
 #: ../src/tracker-utils/tracker-query.c:56
@@ -1318,7 +1315,7 @@ msgstr "Limitar el número de resultados mostrados a N"
 #: ../src/tracker-utils/tracker-search.c:47
 #: ../src/tracker-utils/tracker-tag.c:66
 msgid "512"
-msgstr ""
+msgstr "512"
 
 #: ../src/tracker-utils/tracker-files.c:50
 #: ../src/tracker-utils/tracker-query.c:60
@@ -1332,53 +1329,53 @@ msgstr ""
 #: ../src/tracker-utils/tracker-search.c:51
 #: ../src/tracker-utils/tracker-tag.c:70
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: ../src/tracker-utils/tracker-files.c:54
 msgid "MIME types (can be used multiple times)"
-msgstr ""
+msgstr "Tipos MIME (se puede usar varias veces)"
 
-#: ../src/tracker-utils/tracker-files.c:73
+#: ../src/tracker-utils/tracker-files.c:74
 #, fuzzy
 msgid "- Search for files by service or by MIME type"
 msgstr "Buscar archivos con la etiqueta especificada"
 
-#: ../src/tracker-utils/tracker-files.c:94
-#: ../src/tracker-utils/tracker-info.c:101
-#: ../src/tracker-utils/tracker-meta-folder.c:196
-#: ../src/tracker-utils/tracker-query.c:142
-#: ../src/tracker-utils/tracker-search.c:168
-#: ../src/tracker-utils/tracker-services.c:96
-#: ../src/tracker-utils/tracker-stats.c:76
-#: ../src/tracker-utils/tracker-status.c:49
-#: ../src/tracker-utils/tracker-tag.c:172
-#: ../src/tracker-utils/tracker-unique.c:130
+#: ../src/tracker-utils/tracker-files.c:95
+#: ../src/tracker-utils/tracker-info.c:103
+#: ../src/tracker-utils/tracker-meta-folder.c:198
+#: ../src/tracker-utils/tracker-query.c:144
+#: ../src/tracker-utils/tracker-search.c:170
+#: ../src/tracker-utils/tracker-services.c:98
+#: ../src/tracker-utils/tracker-stats.c:78
+#: ../src/tracker-utils/tracker-status.c:51
+#: ../src/tracker-utils/tracker-tag.c:174
+#: ../src/tracker-utils/tracker-unique.c:132
 msgid "Could not establish a DBus connection to Tracker"
-msgstr ""
+msgstr "No se pudo establecer una conexión de DBus a Tracker"
 
-#: ../src/tracker-utils/tracker-files.c:113
+#: ../src/tracker-utils/tracker-files.c:114
 msgid "Could not get files by service type"
-msgstr ""
+msgstr "No se pudieron obtener archivos por el tipo de servicio"
 
-#: ../src/tracker-utils/tracker-files.c:123
+#: ../src/tracker-utils/tracker-files.c:124
 msgid "No files found by that service type"
-msgstr ""
+msgstr "No se encontró ningún archivo por ese tipo de servicio"
 
-#: ../src/tracker-utils/tracker-files.c:129
-#: ../src/tracker-utils/tracker-files.c:166
-#: ../src/tracker-utils/tracker-meta-folder.c:251
-#: ../src/tracker-utils/tracker-search.c:249
-#: ../src/tracker-utils/tracker-unique.c:218
+#: ../src/tracker-utils/tracker-files.c:130
+#: ../src/tracker-utils/tracker-files.c:167
+#: ../src/tracker-utils/tracker-meta-folder.c:253
+#: ../src/tracker-utils/tracker-search.c:251
+#: ../src/tracker-utils/tracker-unique.c:220
 msgid "Results"
-msgstr ""
+msgstr "Resultados"
 
-#: ../src/tracker-utils/tracker-files.c:151
+#: ../src/tracker-utils/tracker-files.c:152
 msgid "Could not get files by MIME type"
-msgstr ""
+msgstr "No se pudieron obtener archivos por su tipo MIME"
 
-#: ../src/tracker-utils/tracker-files.c:160
+#: ../src/tracker-utils/tracker-files.c:161
 msgid "No files found by those MIME types"
-msgstr ""
+msgstr "No se encontró ningún archivo por esos tipos MIME"
 
 #: ../src/tracker-utils/tracker-info.c:39
 msgid "Service type of the file"
@@ -1391,36 +1388,36 @@ msgstr "ARCHIVO..."
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:74
+#: ../src/tracker-utils/tracker-info.c:76
 msgid "- Get all information from a certain file"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:85
+#: ../src/tracker-utils/tracker-info.c:87
 msgid "Uri missing"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:107
-#: ../src/tracker-utils/tracker-query.c:152
-#: ../src/tracker-utils/tracker-search.c:178
-#: ../src/tracker-utils/tracker-unique.c:136
+#: ../src/tracker-utils/tracker-info.c:109
+#: ../src/tracker-utils/tracker-query.c:154
+#: ../src/tracker-utils/tracker-search.c:180
+#: ../src/tracker-utils/tracker-unique.c:138
 msgid "Defaulting to 'files' service"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:115
+#: ../src/tracker-utils/tracker-info.c:117
 #, fuzzy
 msgid "Service type not recognized, using 'Other' ..."
 msgstr "Servicio no reconocido, buscando en Otros archivos...\n"
 
-#: ../src/tracker-utils/tracker-info.c:125
+#: ../src/tracker-utils/tracker-info.c:127
 msgid "Unable to retrieve data for uri"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:136
+#: ../src/tracker-utils/tracker-info.c:138
 msgid "No metadata available for that uri"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-info.c:139
-#: ../src/tracker-utils/tracker-search.c:218
+#: ../src/tracker-utils/tracker-info.c:141
+#: ../src/tracker-utils/tracker-search.c:220
 msgid "Results:"
 msgstr ""
 
@@ -1436,41 +1433,41 @@ msgstr "Archivos"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-meta-folder.c:155
+#: ../src/tracker-utils/tracker-meta-folder.c:157
 msgid "Retrieve meta-data information about files in a directory"
 msgstr ""
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options, showing an usage example.
 #.
-#: ../src/tracker-utils/tracker-meta-folder.c:160
+#: ../src/tracker-utils/tracker-meta-folder.c:162
 msgid "To use multiple meta-data types simply list them, for example:"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-meta-folder.c:163
+#: ../src/tracker-utils/tracker-meta-folder.c:165
 #, fuzzy
 msgid "PATH"
 msgstr "/RUTA/DIR"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:172
+#: ../src/tracker-utils/tracker-meta-folder.c:174
 msgid "No path was given"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-meta-folder.c:174
+#: ../src/tracker-utils/tracker-meta-folder.c:176
 msgid "No fields were given"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-meta-folder.c:217
-#: ../src/tracker-utils/tracker-query.c:167
-#: ../src/tracker-utils/tracker-unique.c:154
+#: ../src/tracker-utils/tracker-meta-folder.c:219
+#: ../src/tracker-utils/tracker-query.c:169
+#: ../src/tracker-utils/tracker-unique.c:156
 msgid "Could not get UTF-8 path from path"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-meta-folder.c:236
+#: ../src/tracker-utils/tracker-meta-folder.c:238
 msgid "Could not get meta-data for files in directory"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-meta-folder.c:248
+#: ../src/tracker-utils/tracker-meta-folder.c:250
 msgid "No meta-data found for files in that directory"
 msgstr ""
 
@@ -1491,41 +1488,41 @@ msgstr ""
 msgid "Metadata Fields"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-query.c:116
+#: ../src/tracker-utils/tracker-query.c:118
 msgid "- Query using RDF and return results with specified metadata fields"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-query.c:126
+#: ../src/tracker-utils/tracker-query.c:128
 msgid "Path or fields are missing"
 msgstr "Faltan rutas o campos"
 
-#: ../src/tracker-utils/tracker-query.c:160
-#: ../src/tracker-utils/tracker-search.c:186
-#: ../src/tracker-utils/tracker-unique.c:144
+#: ../src/tracker-utils/tracker-query.c:162
+#: ../src/tracker-utils/tracker-search.c:188
+#: ../src/tracker-utils/tracker-unique.c:146
 #, fuzzy
 msgid "Service not recognized, searching in other files..."
 msgstr "Servicio no reconocido, buscando en Otros archivos...\n"
 
-#: ../src/tracker-utils/tracker-query.c:179
-#: ../src/tracker-utils/tracker-unique.c:166
+#: ../src/tracker-utils/tracker-query.c:181
+#: ../src/tracker-utils/tracker-unique.c:168
 #, fuzzy
 msgid "Could not read file"
 msgstr "No se pudo abrir la carpeta «%s»."
 
-#: ../src/tracker-utils/tracker-query.c:196
-#: ../src/tracker-utils/tracker-unique.c:183
+#: ../src/tracker-utils/tracker-query.c:198
+#: ../src/tracker-utils/tracker-unique.c:185
 msgid "Could not convert query file to UTF-8"
 msgstr "No se pudo convertir el archivo consulta a UTF-8"
 
-#: ../src/tracker-utils/tracker-query.c:221
-#: ../src/tracker-utils/tracker-unique.c:206
+#: ../src/tracker-utils/tracker-query.c:223
+#: ../src/tracker-utils/tracker-unique.c:208
 msgid "Could not query search"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-query.c:230
-#: ../src/tracker-utils/tracker-search.c:215
-#: ../src/tracker-utils/tracker-search.c:246
-#: ../src/tracker-utils/tracker-unique.c:215
+#: ../src/tracker-utils/tracker-query.c:232
+#: ../src/tracker-utils/tracker-search.c:217
+#: ../src/tracker-utils/tracker-search.c:248
+#: ../src/tracker-utils/tracker-unique.c:217
 msgid "No results found matching your query"
 msgstr "No se encontraron resultados coincidentes con su consulta"
 
@@ -1553,35 +1550,35 @@ msgstr "Tipo MIME"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-search.c:115
+#: ../src/tracker-utils/tracker-search.c:117
 #, fuzzy
 msgid "- Search files for certain terms"
 msgstr "TÉRMINO: buscar en los archivos un término específico"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
-#: ../src/tracker-utils/tracker-search.c:119
+#: ../src/tracker-utils/tracker-search.c:121
 msgid "Specifying multiple terms apply an AND operator to the search performed"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:122
+#: ../src/tracker-utils/tracker-search.c:124
 msgid "This means if you search for 'foo' and 'bar', they must BOTH exist"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:126
+#: ../src/tracker-utils/tracker-search.c:128
 #, fuzzy
 msgid "Recognized services include:"
 msgstr "La lista de servicios reconocidos es:"
 
-#: ../src/tracker-utils/tracker-search.c:152
+#: ../src/tracker-utils/tracker-search.c:154
 msgid "Search terms are missing"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:204
+#: ../src/tracker-utils/tracker-search.c:206
 msgid "Could not get find detailed results by text"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-search.c:235
+#: ../src/tracker-utils/tracker-search.c:237
 msgid "Could not get find results by text"
 msgstr "No se pudieron encontrar resultados por texto"
 
@@ -1595,60 +1592,60 @@ msgstr "Devolver las propiedades conocidas"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-services.c:76
+#: ../src/tracker-utils/tracker-services.c:78
 msgid " - Show all available service types and properties in tracker"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-services.c:105
+#: ../src/tracker-utils/tracker-services.c:107
 msgid "Could not get Tracker services"
 msgstr "No se pudieron obtener los servicios de Tracker"
 
-#: ../src/tracker-utils/tracker-services.c:114
+#: ../src/tracker-utils/tracker-services.c:116
 msgid "No services available"
 msgstr "No hay servicios disponibles"
 
-#: ../src/tracker-utils/tracker-services.c:117
+#: ../src/tracker-utils/tracker-services.c:119
 msgid "Service types available in Tracker:"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-services.c:130
+#: ../src/tracker-utils/tracker-services.c:132
 msgid "Could not get Tracker properties"
 msgstr "No se pudieron obtener las propiedades de Tracker"
 
-#: ../src/tracker-utils/tracker-services.c:139
+#: ../src/tracker-utils/tracker-services.c:141
 msgid "No properties available"
 msgstr "No hay propiedades disponibles"
 
-#: ../src/tracker-utils/tracker-services.c:142
+#: ../src/tracker-utils/tracker-services.c:144
 msgid "Properties available in Tracker:"
 msgstr "Propiedades disponibles en Tracker:"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-stats.c:68
+#: ../src/tracker-utils/tracker-stats.c:70
 #, fuzzy
 msgid " - Show number of indexed files for each service"
 msgstr " - mostrar el número de archivos indexados para cada servicio"
 
-#: ../src/tracker-utils/tracker-stats.c:84
+#: ../src/tracker-utils/tracker-stats.c:86
 msgid "Could not get Tracker statistics"
 msgstr "No se pudieron obtener las estadísticas de Tracker"
 
-#: ../src/tracker-utils/tracker-stats.c:93
+#: ../src/tracker-utils/tracker-stats.c:95
 msgid "No statistics available"
 msgstr "No hay estadísticas disponibles"
 
-#: ../src/tracker-utils/tracker-stats.c:96
+#: ../src/tracker-utils/tracker-stats.c:98
 #, fuzzy
 msgid "Statistics:"
 msgstr "Estadísticas"
 
-#: ../src/tracker-utils/tracker-status.c:58
+#: ../src/tracker-utils/tracker-status.c:60
 #, fuzzy
 msgid "Could not get Tracker status"
 msgstr "No se pudo borrar «%s»."
 
-#: ../src/tracker-utils/tracker-status.c:68
+#: ../src/tracker-utils/tracker-status.c:70
 #, c-format
 msgid "Tracker status is '%s'"
 msgstr "El estado de Tracker es «%s»"
@@ -1659,7 +1656,7 @@ msgstr "Añadir etiqueta especificada a un archivo"
 
 #: ../src/tracker-utils/tracker-tag.c:50 ../src/tracker-utils/tracker-tag.c:54
 #: ../src/tracker-utils/tracker-tag.c:74
-#: ../src/tracker-utils/tracker-tag.c:134
+#: ../src/tracker-utils/tracker-tag.c:136
 msgid "TAG"
 msgstr "ETIQUETA"
 
@@ -1682,14 +1679,14 @@ msgstr "Buscar archivos con la etiqueta especificada"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-tag.c:125
+#: ../src/tracker-utils/tracker-tag.c:127
 msgid "Add, remove or search for tags"
 msgstr "Añadir, quitar o buscar etiquetas"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options, showing an usage example.
 #.
-#: ../src/tracker-utils/tracker-tag.c:130
+#: ../src/tracker-utils/tracker-tag.c:132
 #, fuzzy
 msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
@@ -1698,61 +1695,61 @@ msgstr ""
 "Para añadir, quitar o buscar etiquetas múltiples al mismo tiempo, una varias "
 "opciones como:"
 
-#: ../src/tracker-utils/tracker-tag.c:144
+#: ../src/tracker-utils/tracker-tag.c:146
 #, fuzzy
 msgid "No files were specified"
 msgstr "Buscar archivos con la etiqueta especificada"
 
-#: ../src/tracker-utils/tracker-tag.c:146
+#: ../src/tracker-utils/tracker-tag.c:148
 msgid "Add and delete actions can not be used with remove all actions"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:148
+#: ../src/tracker-utils/tracker-tag.c:150
 msgid "Files are not needed with searching"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:150
+#: ../src/tracker-utils/tracker-tag.c:152
 msgid "No arguments were provided"
 msgstr ""
 
-#: ../src/tracker-utils/tracker-tag.c:230
+#: ../src/tracker-utils/tracker-tag.c:232
 #, fuzzy, c-format
 msgid "Could not remove all tags for '%s'"
 msgstr "No se pudo mover «%s» a la papelera."
 
-#: ../src/tracker-utils/tracker-tag.c:250
+#: ../src/tracker-utils/tracker-tag.c:252
 #, fuzzy, c-format
 msgid "Could not add tags for '%s'"
 msgstr "No se pudo abrir la carpeta «%s»."
 
-#: ../src/tracker-utils/tracker-tag.c:270
+#: ../src/tracker-utils/tracker-tag.c:272
 #, fuzzy, c-format
 msgid "Could not remove tags for '%s'"
 msgstr "No se pudo mover «%s» a la papelera."
 
-#: ../src/tracker-utils/tracker-tag.c:291
+#: ../src/tracker-utils/tracker-tag.c:293
 msgid "Could not get tag list"
 msgstr "No se pudo obtener una lista de etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:297
-#: ../src/tracker-utils/tracker-tag.c:374
+#: ../src/tracker-utils/tracker-tag.c:299
+#: ../src/tracker-utils/tracker-tag.c:376
 msgid "No tags found"
 msgstr "No se encontró ninguna etiqueta"
 
-#: ../src/tracker-utils/tracker-tag.c:300
+#: ../src/tracker-utils/tracker-tag.c:302
 msgid "All tags"
 msgstr "Todas las etiquetas"
 
-#: ../src/tracker-utils/tracker-tag.c:310
+#: ../src/tracker-utils/tracker-tag.c:312
 msgid "Tags found"
 msgstr "Etiquetas encontradas"
 
-#: ../src/tracker-utils/tracker-tag.c:321
+#: ../src/tracker-utils/tracker-tag.c:323
 #, c-format
 msgid "Could not get tags for file:'%s'"
 msgstr "No se pudo obtener ninguna etiqueta para el archivo: «%s»"
 
-#: ../src/tracker-utils/tracker-tag.c:368
+#: ../src/tracker-utils/tracker-tag.c:370
 msgid "Could not search tags"
 msgstr "No se pudieron buscar las etiquetas"
 
@@ -1772,7 +1769,7 @@ msgstr "Ordenar en orden descendente"
 msgid "Required fields"
 msgstr "Campos requeridos"
 
-#: ../src/tracker-utils/tracker-unique.c:114
+#: ../src/tracker-utils/tracker-unique.c:116
 msgid "Fields are missing"
 msgstr "Faltan campos"
 
@@ -1842,6 +1839,24 @@ msgstr "Opciones del indexador"
 #: ../src/trackerd/tracker-main.c:687
 msgid "Show indexer options"
 msgstr "Mostrar las opciones del indexador"
+
+#~ msgid "Do you want to delete \"%s\" permanently?"
+#~ msgstr "¿Quiere borrar «%s» permanentemente?"
+
+#~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+#~ msgstr "La papelera no está disponible. No se pudo mover «%s» a la papelera."
+
+#~ msgid "Could not delete \"%s\"."
+#~ msgstr "No se pudo borrar «%s»."
+
+#~ msgid "Deleting \"%s\" failed: %s."
+#~ msgstr "Fallo al borrar «%s»: %s."
+
+#~ msgid "link (broken)"
+#~ msgstr "enlace (roto)"
+
+#~ msgid "link to %s"
+#~ msgstr "enlace a %s"
 
 #~ msgid "N"
 #~ msgstr "N"
