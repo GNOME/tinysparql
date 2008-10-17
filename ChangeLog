@@ -1,3 +1,9 @@
+2008-10-17  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-extract/Makefile.am:
+	Added ifdefs to select the extractor modules. The checks were
+	already in place in configure.ac.
+	
 2008-10-17  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:

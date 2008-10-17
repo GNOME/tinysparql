@@ -26,13 +26,15 @@ INCLUDES = 								\
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\
 	libextract-m3u.la						\
-	libextract-imagemagick.la 					\
 	libextract-mp3.la				 		\
-	libextract-mplayer.la 						\
 	libextract-oasis.la 						\
 	libextract-png.la 						\
-	libextract-ps.la 						\
-	libextract-totem.la
+	libextract-ps.la 						
+
+
+if HAVE_IMAGEMAGICK
+modules_LTLIBRARIES += libextract-imagemagick.la
+endif
 
 if HAVE_EXEMPI
 modules_LTLIBRARIES += libextract-xmp.la
@@ -65,6 +67,12 @@ endif
 if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
 endif
+
+if USING_EXTERNAL_VIDEO_PLAYER
+modules_LTLIBRARIES +=	libextract-mplayer.la 				\
+			libextract-totem.la
+endif
+
 
 
 # Common XMP Sources
