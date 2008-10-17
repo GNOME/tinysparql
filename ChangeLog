@@ -1,3 +1,12 @@
+2008-10-17  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c
+	* src/tracker-extract/tracker-extract-mp3.c
+	* src/tracker-extract/Makefile.am
+	* src/tracker-extract/tracker-extract-gstreamer.c: Handling of albumart
+	in case we don't have GDKPIXBUF (don't handle embedded albumart, for
+	this we would need a pixbuf lib to save the RAW data as a JPEG).
+
 2008-10-15  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-extract-mp3.c

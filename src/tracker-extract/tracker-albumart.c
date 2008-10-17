@@ -25,7 +25,10 @@
 
 #include <gio/gio.h>
 
+#ifdef HAVE_GDKPIXBUF
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#endif
+
 #include <dbus/dbus-glib-bindings.h>
 
 #define ALBUMARTER_SERVICE      "com.nokia.albumart"
@@ -129,6 +132,8 @@ tracker_get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, 
 	g_free (dir);
 }
 
+#ifdef HAVE_GDKPIXBUF
+
 static gboolean
 tracker_save_albumart (const unsigned char *buffer,
 		       size_t               len,
@@ -186,6 +191,7 @@ tracker_save_albumart (const unsigned char *buffer,
 	return TRUE;
 }
 
+#endif
 
 gboolean
 tracker_process_albumart (const unsigned char *buffer,
@@ -201,24 +207,33 @@ tracker_process_albumart (const unsigned char *buffer,
 
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
 
+#ifdef HAVE_GDKPIXBUF
+
 		if (buffer && len) {
 			retval = tracker_save_albumart (buffer, len,
 						       artist,
 						       album,
 						       filename);
 
-		} else if (!tracker_heuristic_albumart (artist, album, filename)) {
+		} else {
+#endif
+			if (!tracker_heuristic_albumart (artist, album, filename)) {
 
-			dbus_g_proxy_begin_call (tracker_dbus_get_albumart_requester (),
-				 "Queue",
-				 get_file_albumart_queue_cb,
-				 NULL, NULL,
-				 G_TYPE_STRING, artist,
-				 G_TYPE_STRING, album,
-				 G_TYPE_STRING, "album",
-				 G_TYPE_UINT, 0,
-				 G_TYPE_INVALID);
+				dbus_g_proxy_begin_call (tracker_dbus_get_albumart_requester (),
+					 "Queue",
+					 get_file_albumart_queue_cb,
+					 NULL, NULL,
+					 G_TYPE_STRING, artist,
+					 G_TYPE_STRING, album,
+					 G_TYPE_STRING, "album",
+					 G_TYPE_UINT, 0,
+					 G_TYPE_INVALID);
+			}
+#ifdef HAVE_GDKPIXBUF
+
 		}
+
+#endif
 	}
 
 	g_free (art_path);

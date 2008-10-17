@@ -40,10 +40,7 @@
 #endif /* G_OS_WIN32 */
 
 #include "tracker-extract.h"
-
-#ifdef HAVE_GDKPIXBUF
 #include "tracker-albumart.h"
-#endif /* HAVE_GDKPIXBUF */
 
 #define MAX_FILE_READ	  1024 * 1024 * 10
 #define MAX_MP3_SCAN_DEEP 16768
@@ -1180,6 +1177,11 @@ extract_mp3 (const gchar *filename,
 #ifdef HAVE_GDKPIXBUF
 
 	tracker_process_albumart (albumart.data, albumart.size,
+				  g_hash_table_lookup (metadata, "Audio:Artist"),
+				  g_hash_table_lookup (metadata, "Audio:Album"),
+				  filename);
+#else
+	tracker_process_albumart (NULL, 0,
 				  g_hash_table_lookup (metadata, "Audio:Artist"),
 				  g_hash_table_lookup (metadata, "Audio:Album"),
 				  filename);

@@ -73,15 +73,14 @@ xmp_sources = 								\
 	tracker-xmp.h
 
 # Common AlbumArt sources
-albumart_sources =
+
 albumart_libs = 
 albumart_flags = 
-
-if HAVE_GDKPIXBUF
-albumart_sources +=							\
+albumart_sources =							\
 	tracker-albumart.c						\
 	tracker-albumart.h
 
+if HAVE_GDKPIXBUF
 albumart_flags += $(DBUS_CFLAGS)
 albumart_libs += 							\
 	$(GDKPIXBUF_LIBS) $(DBUS_LIBS)

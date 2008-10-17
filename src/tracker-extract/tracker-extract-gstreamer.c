@@ -63,10 +63,7 @@
 #include <gst/tag/tag.h>
 
 #include "tracker-extract.h"
-
-#ifdef HAVE_GDKPIXBUF
 #include "tracker-albumart.h"
-#endif /* HAVE_GDKPIXBUF */
 
 typedef enum {
 	EXTRACT_MIME_UNDEFINED=0,
@@ -863,6 +860,12 @@ tracker_extract_gstreamer (const gchar *uri,
 				       g_hash_table_lookup (metadata, "Audio:Artist") ,
 				       g_hash_table_lookup (metadata, "Audio:Album"),
 				       uri);
+#else
+		tracker_process_albumart (NULL, 0,
+				       g_hash_table_lookup (metadata, "Audio:Artist") ,
+				       g_hash_table_lookup (metadata, "Audio:Album"),
+				       uri);
+
 #endif /* HAVE_GDKPIXBUF */
 	}
 
