@@ -1,3 +1,13 @@
+2008-10-17  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* tests/Makefile.am:
+	* tests/tracker-fts/Makefile.am:
+	* tests/tracker-fts/tracker-fts-test.c:
+	* utils/Makefile.am:
+	* utils/tracker-fts/Makefile.am: Moved the tracker-fts-test
+	application to utils/tracker-fts/ since it is not a GLib test. 
+
 2008-10-17  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c

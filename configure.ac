@@ -1165,13 +1165,13 @@ AC_CONFIG_FILES([
 	tests/scripts/Makefile
 	tests/trackerd/Makefile
 	tests/trackerd/xesam/Makefile
-	tests/tracker-fts/Makefile
 	tests/tracker-indexer/Makefile
 	thumbnailers/application/Makefile
 	thumbnailers/image/Makefile
 	thumbnailers/Makefile
 	utils/Makefile
 	utils/qdbm/Makefile
+	utils/tracker-fts/Makefile
 ])
 
 AC_OUTPUT

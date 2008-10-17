@@ -1,8 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-TEST_PROGS += tracker-fts-test
+noinst_PROGRAMS = tracker-fts-test
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
