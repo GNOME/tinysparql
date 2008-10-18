@@ -297,6 +297,7 @@ tracker_metadata_set (TrackerMetadata	     *object,
 	gchar		   *service_id;
 	guint		    i;
 	GError		   *actual_error = NULL;
+	TrackerField       *field_def;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -336,8 +337,8 @@ tracker_metadata_set (TrackerMetadata	     *object,
 
 	/* Checking keys */
 	for (i = 0; i < g_strv_length (keys); i++) {
-		TrackerField *field_def;
-		gchar	    **value;
+		gchar **tmp_values;
+		gint    len;
 
 		field_def = tracker_ontology_get_field_by_name (keys[i]);
 
@@ -361,6 +362,26 @@ tracker_metadata_set (TrackerMetadata	     *object,
 			return;
 		}
 
+		tmp_values = tracker_string_to_string_list (values[i]);
+		len = g_strv_length (tmp_values);
+		g_strfreev (tmp_values);
+
+		if (!tracker_field_get_multiple_values (field_def) && len > 1) {
+			tracker_dbus_request_failed (request_id,
+						     &actual_error,
+						     "Field type: '%s' doesnt support multiple values (trying to set %d)",
+						     tracker_field_get_name (field_def),
+						     len);
+			dbus_g_method_return_error (context, actual_error);
+			g_error_free (actual_error);
+			return;
+		}
+	}
+
+	/* Real insertion */
+	for (i = 0; i < g_strv_length (keys); i++) {
+		gchar	    **value;
+
 		value = tracker_string_to_string_list (values[i]);
 		org_freedesktop_Tracker_Indexer_property_set (tracker_dbus_indexer_get_proxy (),
 							      service_type,
@@ -375,8 +396,6 @@ tracker_metadata_set (TrackerMetadata	     *object,
 			g_error_free (actual_error);
 			return;
 		}
-
-
 	}
 
 	g_free (service_id);

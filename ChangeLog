@@ -1,3 +1,11 @@
+2008-10-18  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/trackerd/tracker-metadata.c
+	(tracker_metadata_set): Check all metadata before send them to the
+	indexer. This does the operation a little bit more atomic: less
+	chances to find an error during the insertions and end up with
+	only half of the metadata set.
+	
 2008-10-17  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-extract/Makefile.am:
