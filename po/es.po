@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-16 19:11+0000\n"
-"PO-Revision-Date: 2008-10-18 15:34+0200\n"
+"POT-Creation-Date: 2008-10-18 13:35+0000\n"
+"PO-Revision-Date: 2008-10-18 15:40+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -1472,19 +1472,19 @@ msgstr ""
 #: ../src/tracker-utils/tracker-query.c:48
 #: ../src/tracker-utils/tracker-unique.c:46
 msgid "Path to use in query"
-msgstr ""
+msgstr "Ruta que usar en la consulta"
 
 #: ../src/tracker-utils/tracker-query.c:64
 msgid "Adds a fulltext search filter"
-msgstr ""
+msgstr "Añade un filtro de búsqueda de texto completo"
 
 #: ../src/tracker-utils/tracker-query.c:68
 msgid "Adds a keyword filter"
-msgstr ""
+msgstr "Añade un filtro de palabra clave"
 
 #: ../src/tracker-utils/tracker-query.c:73
 msgid "Metadata Fields"
-msgstr ""
+msgstr "Campos de metadatos"
 
 #: ../src/tracker-utils/tracker-query.c:118
 msgid "- Query using RDF and return results with specified metadata fields"
@@ -1502,9 +1502,8 @@ msgstr "Servicio no reconocido, buscando en otros archivos..."
 
 #: ../src/tracker-utils/tracker-query.c:181
 #: ../src/tracker-utils/tracker-unique.c:168
-#, fuzzy
 msgid "Could not read file"
-msgstr "No se pudo abrir la carpeta «%s»."
+msgstr "No se pudo leer el archivo"
 
 #: ../src/tracker-utils/tracker-query.c:198
 #: ../src/tracker-utils/tracker-unique.c:185
@@ -1514,7 +1513,7 @@ msgstr "No se pudo convertir el archivo consulta a UTF-8"
 #: ../src/tracker-utils/tracker-query.c:223
 #: ../src/tracker-utils/tracker-unique.c:208
 msgid "Could not query search"
-msgstr ""
+msgstr "No se pudo consultar la búsqueda"
 
 #: ../src/tracker-utils/tracker-query.c:232
 #: ../src/tracker-utils/tracker-search.c:217
@@ -1524,14 +1523,12 @@ msgid "No results found matching your query"
 msgstr "No se encontraron resultados coincidentes con su consulta"
 
 #: ../src/tracker-utils/tracker-search.c:54
-#, fuzzy
 msgid "Show more detailed results with service and mime type"
 msgstr "Mostrar resultados más detallados con el tipo de servicio y tipo mime"
 
 #: ../src/tracker-utils/tracker-search.c:59
-#, fuzzy
 msgid "search terms"
-msgstr "%s: faltan los términos de búsqueda"
+msgstr "términos de búsqueda"
 
 #: ../src/tracker-utils/tracker-search.c:79
 msgid "Path"
@@ -1548,9 +1545,8 @@ msgstr "Tipo MIME"
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-search.c:117
-#, fuzzy
 msgid "- Search files for certain terms"
-msgstr "TÉRMINO: buscar en los archivos un término específico"
+msgstr "- Buscar archivos para determinados términos"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
@@ -1563,9 +1559,8 @@ msgid "This means if you search for 'foo' and 'bar', they must BOTH exist"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-search.c:128
-#, fuzzy
 msgid "Recognized services include:"
-msgstr "La lista de servicios reconocidos es:"
+msgstr "Los servicios reconocidos incluyen:"
 
 #: ../src/tracker-utils/tracker-search.c:154
 msgid "Search terms are missing"
@@ -1603,7 +1598,7 @@ msgstr "No hay servicios disponibles"
 
 #: ../src/tracker-utils/tracker-services.c:119
 msgid "Service types available in Tracker:"
-msgstr ""
+msgstr "Tipos de servicio disponibles en Tracker:"
 
 #: ../src/tracker-utils/tracker-services.c:132
 msgid "Could not get Tracker properties"
@@ -1620,9 +1615,8 @@ msgstr "Propiedades disponibles en Tracker:"
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-stats.c:70
-#, fuzzy
 msgid " - Show number of indexed files for each service"
-msgstr " - mostrar el número de archivos indexados para cada servicio"
+msgstr " - Mostrar el número de archivos indexados para cada servicio"
 
 #: ../src/tracker-utils/tracker-stats.c:86
 msgid "Could not get Tracker statistics"
@@ -1633,14 +1627,12 @@ msgid "No statistics available"
 msgstr "No hay estadísticas disponibles"
 
 #: ../src/tracker-utils/tracker-stats.c:98
-#, fuzzy
 msgid "Statistics:"
-msgstr "Estadísticas"
+msgstr "Estadísticas:"
 
 #: ../src/tracker-utils/tracker-status.c:60
-#, fuzzy
 msgid "Could not get Tracker status"
-msgstr "No se pudo borrar «%s»."
+msgstr "No se pudo obtener es estado de Tracker"
 
 #: ../src/tracker-utils/tracker-status.c:70
 #, c-format
