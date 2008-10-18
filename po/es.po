@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-13 12:36+0000\n"
-"PO-Revision-Date: 2008-10-16 21:10+0200\n"
+"POT-Creation-Date: 2008-10-16 19:11+0000\n"
+"PO-Revision-Date: 2008-10-18 15:34+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -487,7 +487,6 @@ msgstr ""
 "detalles."
 
 #: ../src/tracker-applet/tracker-applet.c:1359
-#, fuzzy
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -495,7 +494,7 @@ msgid ""
 msgstr ""
 "Debería haber recibido una copia de la Licencia Pública General GNU junto "
 "con Tracker; si no es el caso, escriba a la Free Software Foundation, Inc., "
-"59 Temple Place, Suite 330, Boston, MA  02111-1307  EE. UU."
+"51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, EE. UU."
 
 #: ../src/tracker-applet/tracker-applet.c:1375
 msgid ""
@@ -697,6 +696,8 @@ msgstr "Esto está interpretado desde STDIN y después procesado."
 msgid ""
 "If this command is run without any arguments, it will wait for work to do."
 msgstr ""
+"Si el comando se ejecuta sin ningún argumento, esperará a que haya trabajo "
+"que realizar."
 
 #: ../src/tracker-extract/tracker-extract.c:411
 msgid "Here are some examples of how to use this command:"
@@ -711,10 +712,12 @@ msgstr ""
 #: ../src/tracker-indexer/tracker-main.c:76
 msgid "Whether to process data from all configured modules to be indexed"
 msgstr ""
+"Indica si se deben procesar datos de todos los módulos configurados para ser "
+"indexados"
 
 #: ../src/tracker-indexer/tracker-main.c:80
 msgid "Run forever, only interesting for debugging purposes"
-msgstr ""
+msgstr "Ejecutar siempre, sólo interesante para propósitos de depuración"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
@@ -1306,9 +1309,8 @@ msgstr "%A, %B %-d %Y a las %-H:%M:%S"
 #: ../src/tracker-utils/tracker-query.c:56
 #: ../src/tracker-utils/tracker-search.c:46
 #: ../src/tracker-utils/tracker-tag.c:65
-#, fuzzy
 msgid "Limit the number of results shown"
-msgstr "Limitar el número de resultados mostrados a N"
+msgstr "Limitar el número de resultados mostrados"
 
 #: ../src/tracker-utils/tracker-files.c:47
 #: ../src/tracker-utils/tracker-query.c:57
@@ -1336,9 +1338,8 @@ msgid "MIME types (can be used multiple times)"
 msgstr "Tipos MIME (se puede usar varias veces)"
 
 #: ../src/tracker-utils/tracker-files.c:74
-#, fuzzy
 msgid "- Search for files by service or by MIME type"
-msgstr "Buscar archivos con la etiqueta especificada"
+msgstr "- Buscar archivos por servicio o tipo MIME"
 
 #: ../src/tracker-utils/tracker-files.c:95
 #: ../src/tracker-utils/tracker-info.c:103
@@ -1379,7 +1380,7 @@ msgstr "No se encontró ningún archivo por esos tipos MIME"
 
 #: ../src/tracker-utils/tracker-info.c:39
 msgid "Service type of the file"
-msgstr ""
+msgstr "Tipo de servicio del archivo"
 
 #: ../src/tracker-utils/tracker-info.c:44
 #: ../src/tracker-utils/tracker-tag.c:78
@@ -1390,11 +1391,11 @@ msgstr "ARCHIVO..."
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-info.c:76
 msgid "- Get all information from a certain file"
-msgstr ""
+msgstr "- Obtener toda la información de un determinado archivo"
 
 #: ../src/tracker-utils/tracker-info.c:87
 msgid "Uri missing"
-msgstr ""
+msgstr "Falta el URI"
 
 #: ../src/tracker-utils/tracker-info.c:109
 #: ../src/tracker-utils/tracker-query.c:154
@@ -1404,31 +1405,29 @@ msgid "Defaulting to 'files' service"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-info.c:117
-#, fuzzy
 msgid "Service type not recognized, using 'Other' ..."
-msgstr "Servicio no reconocido, buscando en Otros archivos...\n"
+msgstr "Tipo de servicio no reconocido, usando «Otro» ..."
 
 #: ../src/tracker-utils/tracker-info.c:127
 msgid "Unable to retrieve data for uri"
-msgstr ""
+msgstr "No se pudieron obtener datos para el URI"
 
 #: ../src/tracker-utils/tracker-info.c:138
 msgid "No metadata available for that uri"
-msgstr ""
+msgstr "No existen metadatos disponibles para ese URI"
 
 #: ../src/tracker-utils/tracker-info.c:141
 #: ../src/tracker-utils/tracker-search.c:220
 msgid "Results:"
-msgstr ""
+msgstr "Resultados:"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:40
 msgid "Path to use for directory to get metadata information about"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-meta-folder.c:62
-#, fuzzy
 msgid "Filename"
-msgstr "Archivos"
+msgstr "Nombre del archivo"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
@@ -1445,9 +1444,8 @@ msgid "To use multiple meta-data types simply list them, for example:"
 msgstr ""
 
 #: ../src/tracker-utils/tracker-meta-folder.c:165
-#, fuzzy
 msgid "PATH"
-msgstr "/RUTA/DIR"
+msgstr "RUTA"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:174
 msgid "No path was given"
@@ -1499,9 +1497,8 @@ msgstr "Faltan rutas o campos"
 #: ../src/tracker-utils/tracker-query.c:162
 #: ../src/tracker-utils/tracker-search.c:188
 #: ../src/tracker-utils/tracker-unique.c:146
-#, fuzzy
 msgid "Service not recognized, searching in other files..."
-msgstr "Servicio no reconocido, buscando en Otros archivos...\n"
+msgstr "Servicio no reconocido, buscando en otros archivos..."
 
 #: ../src/tracker-utils/tracker-query.c:181
 #: ../src/tracker-utils/tracker-unique.c:168
