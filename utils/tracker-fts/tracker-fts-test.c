@@ -104,7 +104,7 @@ main (int argc, char **argv)
 //	sql = g_strdup_printf ("select cat, count (*) from recipe where recipe match '%s' group by Cat", argv[1]);
 //	exec_sql (db, sql);
 //	g_free (sql);
-	sql = g_strdup_printf ("select rowid, cat, name, ingredients, snippet(recipe) from recipe where recipe match '%s' and Cat<8", argv[1]);
+	sql = g_strdup_printf ("select rowid, cat, name, ingredients, offsets(recipe) from recipe where recipe match '%s' and Cat<8", argv[1]);
 	exec_sql (db, sql);
 	g_free (sql);
 	

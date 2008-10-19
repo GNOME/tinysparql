@@ -1,3 +1,12 @@
+2008-10-19 Jamie McCracken <jamiemcc at gnome org>
+
+	* utils/tracker-fts/tracker-fts-test.c:
+	* src/tracker-fts/tracker-fts.c
+
+	adjusted offsets function to output cached values from position 
+	data in index. Output format is now comma separated list of ColumnID,
+	WordPostion...
+
 2008-10-18  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/trackerd/tracker-metadata.c

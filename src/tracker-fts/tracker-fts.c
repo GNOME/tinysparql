@@ -1085,6 +1085,17 @@ static void plrDestroy(PLReader *pReader){
 }
 
 
+/* because plrDestroy should only be called when plrAtEnd is true, 
+we create a new convenience function to do this in one call */
+static void plrEndAndDestroy (PLReader *pReader){
+
+	while (!plrAtEnd(pReader)) {
+		plrStep (pReader);
+	}
+	
+	plrDestroy (pReader);
+}
+
 /*******************************************************************/
 /* PLWriter is used in constructing a document's position list.  As a
 ** convenience, if iType is DL_DOCIDS, PLWriter becomes a no-op.
@@ -1886,8 +1897,8 @@ static void docListAndMerge(
 	  copied = TRUE;
 	}
       } 
-      
-      plrDestroy (&plReader);
+     
+      plrEndAndDestroy (&plReader);
       
       if (!copied) {
         dlwCopy(&writer, &left);
@@ -1997,7 +2008,7 @@ static void docListOrMerge(
 	}
       } 
       
-      plrDestroy (&plReader);
+      plrEndAndDestroy (&plReader);
       
       if (!copied) {
         dlwCopy(&writer, &left);
@@ -2467,7 +2478,8 @@ typedef struct fulltext_cursor {
   DataBuffer result;		   /* Doclist results from fulltextQuery */
   DLReader reader;		   /* Result reader if result not empty */
   sqlite_int64 currentDocid;
-  int currentCatid;
+  int currentCatid;		  /* (tracker) Category (service type ID) of the document */
+  GString *offsets;		  /* (tracker) pre computed offsets from position data in index */
 } fulltext_cursor;
 
 static struct fulltext_vtab *cursor_vtab(fulltext_cursor *c){
@@ -3623,6 +3635,9 @@ static int fulltextOpen(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor){
     memset(c, 0, sizeof(fulltext_cursor));
     /* sqlite will initialize c->base */
     *ppCursor = &c->base;
+    
+    c->offsets = g_string_new ("");
+    
     FTSTRACE(("FTS3 Open %p: %p\n", pVTab, c));
     return SQLITE_OK;
   }else{
@@ -3907,6 +3922,7 @@ static void snippetAllOffsets(fulltext_cursor *p){
   
   printf ("calc snippet\n");
 
+  if (dlrAtEnd (&p->reader)) return;
   
   plrInit(&plReader, &p->reader);
   
@@ -3927,12 +3943,9 @@ static void snippetAllOffsets(fulltext_cursor *p){
     l = g_slist_prepend (l, GINT_TO_POINTER (iPos)); 
   }
 
-  plrDestroy(&plReader);
+  plrEndAndDestroy(&plReader);
   
-  if (!dlrAtEnd (&p->reader)) {
- //   dlrStep (&p->reader);
-  }
-
+  
   /* get the column with most hits */  
   int hit_column = 0;
   int hit_column_count = col_array[0];  
@@ -4191,6 +4204,7 @@ static int fulltextClose(sqlite3_vtab_cursor *pCursor){
   sqlite3_finalize(c->pStmt);
   queryClear(&c->q);
   snippetClear(&c->snippet);
+  g_string_free (c->offsets, TRUE);
   if( c->result.nData!=0 ) dlrDestroy(&c->reader);
   dataBufferDestroy(&c->result);
   sqlite3_free(c);
@@ -4228,6 +4242,30 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
     rc = sqlite3_bind_int64(c->pStmt, 1, dlrDocid(&c->reader));
     c->currentDocid = dlrDocid(&c->reader);
     c->currentCatid = dlrCatid(&c->reader);
+
+    /* (tracker) read position offsets here */
+    
+    PLReader plReader;
+    gboolean first_pos = TRUE;
+  
+    printf ("calc offsets\n");
+    
+    c->offsets = g_string_assign (c->offsets, "");
+
+    plrInit(&plReader, &c->reader);
+  
+    
+    for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
+   
+      if (first_pos) {
+        g_string_append_printf (c->offsets, "%d,%d", plrColumn (&plReader), plrPosition (&plReader));
+        first_pos = FALSE;
+      } else {
+        g_string_append_printf (c->offsets, ",%d,%d", plrColumn (&plReader), plrPosition (&plReader));
+      }
+    }
+       
+    plrDestroy(&plReader);
 
     dlrStep(&c->reader);
     
@@ -6995,6 +7033,8 @@ static void snippetFunc(
 
 /*
 ** Implementation of the offsets() function for FTS3
+** altered by tracker to omit query term position as that
+** info is not stored in the poisiton data in the index
 */
 static void snippetOffsetsFunc(
   sqlite3_context *pContext,
@@ -7008,10 +7048,10 @@ static void snippetOffsetsFunc(
     sqlite3_result_error(pContext, "illegal first argument to offsets",-1);
   }else{
     memcpy(&pCursor, sqlite3_value_blob(argv[0]), sizeof(pCursor));
-    snippetAllOffsets(pCursor);
-    snippetOffsetText(&pCursor->snippet);
+    
+    /* (tracker) output caches position data in column, position string format */
     sqlite3_result_text(pContext,
-			pCursor->snippet.zOffset, pCursor->snippet.nOffset,
+			pCursor->offsets->str, pCursor->offsets->len,
 			SQLITE_STATIC);
   }
 }
