@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-18 13:35+0000\n"
-"PO-Revision-Date: 2008-10-18 15:40+0200\n"
+"POT-Creation-Date: 2008-10-18 13:41+0000\n"
+"PO-Revision-Date: 2008-10-19 14:23+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -1402,7 +1402,7 @@ msgstr "Falta el URI"
 #: ../src/tracker-utils/tracker-search.c:180
 #: ../src/tracker-utils/tracker-unique.c:138
 msgid "Defaulting to 'files' service"
-msgstr ""
+msgstr "Usando el servicio «archivos» predeterminado"
 
 #: ../src/tracker-utils/tracker-info.c:117
 msgid "Service type not recognized, using 'Other' ..."
@@ -1424,6 +1424,8 @@ msgstr "Resultados:"
 #: ../src/tracker-utils/tracker-meta-folder.c:40
 msgid "Path to use for directory to get metadata information about"
 msgstr ""
+"Ruta que usar para el directorio del que obtener la información de los "
+"metadatos"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:62
 msgid "Filename"
@@ -1435,6 +1437,7 @@ msgstr "Nombre del archivo"
 #: ../src/tracker-utils/tracker-meta-folder.c:157
 msgid "Retrieve meta-data information about files in a directory"
 msgstr ""
+"Obtener la información de los metadatos de los archivos en un directorio"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options, showing an usage example.
@@ -1442,6 +1445,7 @@ msgstr ""
 #: ../src/tracker-utils/tracker-meta-folder.c:162
 msgid "To use multiple meta-data types simply list them, for example:"
 msgstr ""
+"Para usar múltiples tipos de metadatos simplemente lístelos, por ejemplo:"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:165
 msgid "PATH"
@@ -1449,25 +1453,26 @@ msgstr "RUTA"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:174
 msgid "No path was given"
-msgstr ""
+msgstr "No se proporcionó ninguna ruta"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:176
 msgid "No fields were given"
-msgstr ""
+msgstr "No se proporcionó ningún campo"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:219
 #: ../src/tracker-utils/tracker-query.c:169
 #: ../src/tracker-utils/tracker-unique.c:156
 msgid "Could not get UTF-8 path from path"
-msgstr ""
+msgstr "No se pudo obtener la ruta UTF-8 de la ruta"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:238
 msgid "Could not get meta-data for files in directory"
 msgstr ""
+"No se pudieron obtener los metadatos para los archivos en el directorio"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:250
 msgid "No meta-data found for files in that directory"
-msgstr ""
+msgstr "No se encontró ningún metadato para los archivos en ese directorio"
 
 #: ../src/tracker-utils/tracker-query.c:48
 #: ../src/tracker-utils/tracker-unique.c:46
@@ -1489,6 +1494,8 @@ msgstr "Campos de metadatos"
 #: ../src/tracker-utils/tracker-query.c:118
 msgid "- Query using RDF and return results with specified metadata fields"
 msgstr ""
+"- Consultar usando RDF y devolver los resultados con los campos de metadatos "
+"especificados"
 
 #: ../src/tracker-utils/tracker-query.c:128
 msgid "Path or fields are missing"
@@ -1587,6 +1594,7 @@ msgstr "Devolver las propiedades conocidas"
 #: ../src/tracker-utils/tracker-services.c:78
 msgid " - Show all available service types and properties in tracker"
 msgstr ""
+" - Mostrar todos los tipos de servicio y propiedades disponibles en tracker"
 
 #: ../src/tracker-utils/tracker-services.c:107
 msgid "Could not get Tracker services"
@@ -1676,45 +1684,44 @@ msgstr "Añadir, quitar o buscar etiquetas"
 #. * and before the list of options, showing an usage example.
 #.
 #: ../src/tracker-utils/tracker-tag.c:132
-#, fuzzy
 msgid ""
 "To add, remove, or search for multiple tags at the same time, join multiple "
 "options, for example:"
 msgstr ""
-"Para añadir, quitar o buscar etiquetas múltiples al mismo tiempo, una varias "
-"opciones como:"
+"Para añadir, quitar o buscar múltiples etiquetas al mismo tiempo, una varias "
+"opciones, por ejemplo:"
 
 #: ../src/tracker-utils/tracker-tag.c:146
-#, fuzzy
 msgid "No files were specified"
-msgstr "Buscar archivos con la etiqueta especificada"
+msgstr "No se especificó ningún archivo"
 
 #: ../src/tracker-utils/tracker-tag.c:148
 msgid "Add and delete actions can not be used with remove all actions"
 msgstr ""
+"Añadir y borrar acciones que no se pueden usar con quitar todas las acciones"
 
 #: ../src/tracker-utils/tracker-tag.c:150
 msgid "Files are not needed with searching"
-msgstr ""
+msgstr "No se necesitan archivos con las búsquedas"
 
 #: ../src/tracker-utils/tracker-tag.c:152
 msgid "No arguments were provided"
-msgstr ""
+msgstr "No se proporcionó ningún argumento"
 
 #: ../src/tracker-utils/tracker-tag.c:232
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove all tags for '%s'"
-msgstr "No se pudo mover «%s» a la papelera."
+msgstr "No se pudieron quitar todas las etiquetas de «%s»"
 
 #: ../src/tracker-utils/tracker-tag.c:252
-#, fuzzy, c-format
+#, c-format
 msgid "Could not add tags for '%s'"
-msgstr "No se pudo abrir la carpeta «%s»."
+msgstr "No se pudieron añadir las etiquetas a «%s»"
 
 #: ../src/tracker-utils/tracker-tag.c:272
-#, fuzzy, c-format
+#, c-format
 msgid "Could not remove tags for '%s'"
-msgstr "No se pudo mover «%s» a la papelera."
+msgstr "No se pudieron quitar las etiquetas de «%s»"
 
 #: ../src/tracker-utils/tracker-tag.c:293
 msgid "Could not get tag list"
@@ -1765,6 +1772,8 @@ msgstr "Faltan campos"
 #: ../src/trackerd/tracker-main.c:128
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
+"Segundos que esperar antes de iniciar una búsqueda o indexado "
+"(predeterminado = 45)"
 
 #: ../src/trackerd/tracker-main.c:132
 msgid "Minimizes the use of memory but may slow indexing down"
