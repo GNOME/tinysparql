@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-18 13:41+0000\n"
-"PO-Revision-Date: 2008-10-19 14:23+0200\n"
+"POT-Creation-Date: 2008-10-19 12:25+0000\n"
+"PO-Revision-Date: 2008-10-19 19:53+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -708,6 +708,8 @@ msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
 msgstr ""
+"Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
+"(predeterminado = 0)"
 
 #: ../src/tracker-indexer/tracker-main.c:76
 msgid "Whether to process data from all configured modules to be indexed"
@@ -1324,7 +1326,7 @@ msgstr "512"
 #: ../src/tracker-utils/tracker-search.c:50
 #: ../src/tracker-utils/tracker-tag.c:69
 msgid "Offset the results"
-msgstr ""
+msgstr "Compensar los resultados"
 
 #: ../src/tracker-utils/tracker-files.c:51
 #: ../src/tracker-utils/tracker-query.c:61
@@ -1560,10 +1562,11 @@ msgstr "- Buscar archivos para determinados términos"
 #: ../src/tracker-utils/tracker-search.c:121
 msgid "Specifying multiple terms apply an AND operator to the search performed"
 msgstr ""
+"Especificar múltiples términos aplica un operador AND a la búsqueda realizada"
 
 #: ../src/tracker-utils/tracker-search.c:124
 msgid "This means if you search for 'foo' and 'bar', they must BOTH exist"
-msgstr ""
+msgstr "Esto significa que si busca «foo» y «bar», AMBOS deben existir"
 
 #: ../src/tracker-utils/tracker-search.c:128
 msgid "Recognized services include:"
@@ -1571,11 +1574,11 @@ msgstr "Los servicios reconocidos incluyen:"
 
 #: ../src/tracker-utils/tracker-search.c:154
 msgid "Search terms are missing"
-msgstr ""
+msgstr "Faltan los términos de búsqueda"
 
 #: ../src/tracker-utils/tracker-search.c:206
 msgid "Could not get find detailed results by text"
-msgstr ""
+msgstr "No se pudieron obtener resultados detallados por texto"
 
 #: ../src/tracker-utils/tracker-search.c:237
 msgid "Could not get find results by text"
@@ -1784,21 +1787,29 @@ msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
 msgstr ""
+"Directorios que excluir para la monitorización del cambio de archivos (puede "
+"hacer -e <ruta> -e <ruta>)"
 
 #: ../src/trackerd/tracker-main.c:140
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
 msgstr ""
+"Directorios que incluir para la monitorización del cambio de archivos (puede "
+"hacer -i <ruta> -i <ruta>)"
 
 #: ../src/trackerd/tracker-main.c:144
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
+"Directorios en los que arrastrarse para indexar sus archivos (puede hacer -c "
+"<ruta> -c <ruta>)"
 
 #: ../src/trackerd/tracker-main.c:148
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module)"
 msgstr ""
+"Desactivar módulos para que no sean procesados (puede hacer -d <módulo> -d "
+"<módulo>)"
 
 #: ../src/trackerd/tracker-main.c:156
 msgid "Force a re-index of all content"
