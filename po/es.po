@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-19 12:25+0000\n"
-"PO-Revision-Date: 2008-10-19 19:53+0200\n"
+"POT-Creation-Date: 2008-10-20 10:19+0000\n"
+"PO-Revision-Date: 2008-10-20 19:31+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -703,7 +703,7 @@ msgstr ""
 msgid "Here are some examples of how to use this command:"
 msgstr "Aquí hay algunos ejemplos de cómo usar este comando:"
 
-#: ../src/tracker-indexer/tracker-main.c:71 ../src/trackerd/tracker-main.c:123
+#: ../src/tracker-indexer/tracker-main.c:72 ../src/trackerd/tracker-main.c:123
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -711,20 +711,24 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = 0)"
 
-#: ../src/tracker-indexer/tracker-main.c:76
+#: ../src/tracker-indexer/tracker-main.c:77
 msgid "Whether to process data from all configured modules to be indexed"
 msgstr ""
 "Indica si se deben procesar datos de todos los módulos configurados para ser "
 "indexados"
 
-#: ../src/tracker-indexer/tracker-main.c:80
+#: ../src/tracker-indexer/tracker-main.c:81
 msgid "Run forever, only interesting for debugging purposes"
 msgstr "Ejecutar siempre, sólo interesante para propósitos de depuración"
+
+#: ../src/tracker-indexer/tracker-main.c:85
+msgid "Modules to be used when processing data"
+msgstr "Módulos que usar al procesar datos"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-indexer/tracker-main.c:273
+#: ../src/tracker-indexer/tracker-main.c:278
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
