@@ -1,5 +1,11 @@
 2008-10-20  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/modules/evolution.c: Resort to a copy of the old
+	code to decode time_t, should definitely fix summaries parsing in
+	64bit platforms...
+
+2008-10-20  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.[ch] 
 	(tracker_indexer_process_modules): New public function to specify 
 	which modules should the indexer actually use.

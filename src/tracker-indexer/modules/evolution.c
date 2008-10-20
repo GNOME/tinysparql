@@ -132,18 +132,26 @@ read_summary (FILE *summary,
 	while ((value_type = va_arg (args, gint)) != -1) {
 		switch (value_type) {
 		case SUMMARY_TYPE_TIME_T: {
-			guint32 value;
-			time_t *dest;
+                        time_t value = 0;
+                        time_t *dest;
+                        int size = sizeof (time_t) - 1;
+                        int c = EOF;
 
-			if (fread (&value, sizeof (guint32), 1, summary) != 1) {
-				return FALSE;
-			}
+                        while (size >= 0 && (c = fgetc (summary)) != EOF) {
+                                value |= ((time_t) c) << (size * 8);
+                                size--;
+                        }
 
-			dest = va_arg (args, time_t*);
+                        dest = va_arg (args, time_t*);
 
-			if (dest) {
-				*dest = (time_t) g_ntohl (value);
-			}
+                        if (dest) {
+                                *dest = value;
+                        }
+
+                        if (c == EOF) {
+                                return FALSE;
+                        }
+
 			break;
 		}
 		case SUMMARY_TYPE_INT32: {
