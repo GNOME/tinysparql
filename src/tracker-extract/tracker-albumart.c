@@ -88,6 +88,8 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 			for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir))
 				count++;
 
+			g_dir_rewind  (dir);
+
 			if ((trackcnt != -1 && trackcnt < count + 3 && trackcnt > count - 3) || (trackcnt == -1 && count > 8 && count < 50)) {
 				gchar * found = NULL;
 
