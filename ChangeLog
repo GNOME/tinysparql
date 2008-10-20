@@ -1,3 +1,10 @@
+2008-10-20  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-metadata-utils.c
+	(get_file_content_read_cb): Issue error and quit the channel watch on
+	error, this should fix misterious crashes with i.e. invalid UTF8
+	coming from the text filters.
+
 2008-10-20  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c

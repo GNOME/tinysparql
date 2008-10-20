@@ -369,18 +369,23 @@ get_file_content_read_cb (GIOChannel   *channel,
 
 	if (condition & G_IO_IN || condition & G_IO_PRI) {
 		do {
-			status = g_io_channel_read_line (channel, &line, NULL, NULL, NULL);
+			GError *error = NULL;
+
+			status = g_io_channel_read_line (channel, &line, NULL, NULL, &error);
 
 			if (status == G_IO_STATUS_NORMAL) {
 				g_string_append (text, line);
 				g_free (line);
+			} else if (error) {
+				g_warning (error->message);
+				g_error_free (error);
 			}
 		} while (status == G_IO_STATUS_NORMAL);
 
 		if (status == G_IO_STATUS_EOF ||
 		    status == G_IO_STATUS_ERROR) {
 			g_main_loop_quit (context->data_incoming_loop);
-			return TRUE;
+			return FALSE;
 		}
 	}
 
