@@ -3980,6 +3980,60 @@ static void snippetAllOffsets(fulltext_cursor *p){
   trimSnippetOffsetsForNear(&p->q, &p->snippet);
 }
 
+static void snippetJustCount (fulltext_cursor *p){
+  int iColumn, i;
+  fulltext_vtab *pFts;
+  int hit_column = 0;
+  int hit_column_count;
+  PLReader plReader;
+  int col_array[255];
+  gpointer pos_array[255];
+  int iPos = 0;
+  const char *zDoc;
+  int nDoc;
+
+  if( p->snippet.nMatch ) return;
+  if( p->q.nTerms==0 ) return;
+  pFts = p->q.pFts;
+
+  for (i=0; i<255; i++) {
+    col_array[i] = 0;
+    pos_array[i] = NULL;
+  }
+
+  if (dlrAtEnd (&p->reader)) return;
+
+  plrInit(&plReader, &p->reader);
+
+  if (plrAtEnd(&plReader)) return;
+
+  iColumn = -1;
+
+  for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
+    if (plrColumn (&plReader) != iColumn) {
+      iColumn = plrColumn(&plReader);
+      col_array[iColumn] += 1;
+    }
+    iPos = plrPosition(&plReader);
+  }
+
+  plrEndAndDestroy(&plReader);
+
+  hit_column_count = col_array[0];
+
+  for (i=0; i<255; i++) {
+    if (col_array [i] > hit_column_count) {
+      hit_column = i;
+      hit_column_count =col_array[i];
+    }
+  }
+
+  zDoc = (const char*)sqlite3_column_text(p->pStmt, hit_column+1);
+	printf ("%s\n", zDoc);
+  nDoc = sqlite3_column_bytes(p->pStmt, hit_column+1);
+  snippetOffsetsOfColumn(&p->q, &p->snippet, hit_column, zDoc, nDoc, iPos);
+
+}
 /*
 ** Convert the information in the aMatch[] array of the snippet
 ** into the string zOffset[0..nOffset-1].
@@ -7012,6 +7066,30 @@ static void snippetFunc(
   }
 }
 
+
+/*
+** Implementation of the rank() function for FTS3
+*/
+static void rankFunc(
+  sqlite3_context *pContext,
+  int argc,
+  sqlite3_value **argv
+){
+
+	// TODO
+
+  fulltext_cursor *pCursor;
+  if( argc<1 ) return;
+  if( sqlite3_value_type(argv[0])!=SQLITE_BLOB ||
+      sqlite3_value_bytes(argv[0])!=sizeof(pCursor) ){
+    sqlite3_result_error(pContext, "illegal first argument to html_snippet",-1);
+  }else{
+    memcpy(&pCursor, sqlite3_value_blob(argv[0]), sizeof(pCursor));
+    snippetJustCount(pCursor);
+    sqlite3_result_int(pContext, pCursor->snippet.nMatch);
+  }
+}
+
 /*
 ** Implementation of the offsets() function for FTS3
 ** altered by tracker to omit query term position as that
@@ -7713,6 +7791,9 @@ static int fulltextFindFunction(
   }else if( strcmp(zName,"offsets")==0 ){
     *pxFunc = snippetOffsetsFunc;
     return 1;
+  }else if( strcmp(zName,"rank")==0 ){
+    *pxFunc = rankFunc;
+    return 1;
   }else if( strcmp(zName,"optimize")==0 ){
     *pxFunc = optimizeFunc;
     return 1;
@@ -7797,6 +7878,7 @@ int sqlite3Fts3Init(sqlite3 *db){
   ** module with sqlite.
   */
   if( SQLITE_OK==rc
+   && SQLITE_OK==(rc = sqlite3_overload_function(db, "rank", -1))
    && SQLITE_OK==(rc = sqlite3_overload_function(db, "snippet", -1))
    && SQLITE_OK==(rc = sqlite3_overload_function(db, "offsets", -1))
    && SQLITE_OK==(rc = sqlite3_overload_function(db, "optimize", -1))

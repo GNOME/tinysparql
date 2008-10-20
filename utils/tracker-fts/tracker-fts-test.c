@@ -76,7 +76,7 @@ main (int argc, char **argv)
 		g_printerr ("EG: %s stew\n", argv[0]);
 		return EXIT_FAILURE;
 	}
-	
+	g_unlink ("/tmp/test.db");
 	db_exists = g_file_test ("/tmp/test.db", G_FILE_TEST_EXISTS);
 	
 	rc = sqlite3_open ("/tmp/test.db", &db);
@@ -96,15 +96,16 @@ main (int argc, char **argv)
 	
 	if (!db_exists) {
 		exec_sql (db, "create virtual table recipe using trackerfts (cat, name, ingredients)");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (3, 'broccoli stew', 'broccoli,peppers,cheese and tomatoes')");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (4, 'pumpkin stew', 'pumpkin,onions,garlic and celery')");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (2, 'broccoli pie', 'broccoli,cheese,onions and flour.')");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (7, 'pumpkin pie', 'pumpkin,sugar,flour and butter.')");
+		exec_sql (db, "insert into recipe (cat, name, ingredients) values (3, 'broccoli stew stew stew', 'broccoli,peppers,cheese and tomatoes')");
+		exec_sql (db, "insert into recipe (cat, name, ingredients) values (4, 'pumpkin stew stew stew', 'pumpkin,onions,garlic and celery')");
+		exec_sql (db, "insert into recipe (cat, name, ingredients) values (2, 'broccoli pie stew', 'broccoli,cheese,onions and flour.')");
+		exec_sql (db, "insert into recipe (cat, name, ingredients) values (7, 'stew pumpkin pie stew', 'pumpkin,sugar,flour and butter.')");
+		exec_sql (db, "insert into recipe (cat, name, ingredients) values (6, 'stew pumpkin pie stew', 'pumpkin,sugar,flour and butter.')");
 	}
 //	sql = g_strdup_printf ("select cat, count (*) from recipe where recipe match '%s' group by Cat", argv[1]);
 //	exec_sql (db, sql);
 //	g_free (sql);
-	sql = g_strdup_printf ("select rowid, cat, name, ingredients, offsets(recipe) from recipe where recipe match '%s' and Cat<8", argv[1]);
+	sql = g_strdup_printf ("select rowid, cat, name, ingredients, offsets(recipe), rank(recipe) from recipe where recipe match '%s' and Cat<8", argv[1]);
 	exec_sql (db, sql);
 	g_free (sql);
 	
