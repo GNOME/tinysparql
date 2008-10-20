@@ -4001,7 +4001,12 @@ static void snippetJustCount (fulltext_cursor *p){
     pos_array[i] = NULL;
   }
 
-  if (dlrAtEnd (&p->reader)) return;
+  if (dlrAtEnd (&p->reader)) {
+	  // TODO: this is the case for the last row, which means that we don't do
+	  // a count for that row. I don't yet understand how to fix this. (PVH 20
+	  // Oct. Msg for Jamie).
+	return;
+  }
 
   plrInit(&plReader, &p->reader);
 
@@ -4029,7 +4034,6 @@ static void snippetJustCount (fulltext_cursor *p){
   }
 
   zDoc = (const char*)sqlite3_column_text(p->pStmt, hit_column+1);
-	printf ("%s\n", zDoc);
   nDoc = sqlite3_column_bytes(p->pStmt, hit_column+1);
   snippetOffsetsOfColumn(&p->q, &p->snippet, hit_column, zDoc, nDoc, iPos);
 
