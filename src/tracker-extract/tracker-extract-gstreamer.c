@@ -859,11 +859,13 @@ tracker_extract_gstreamer (const gchar *uri,
 		tracker_process_albumart (extractor->album_art_data, extractor->album_art_size,
 				       g_hash_table_lookup (metadata, "Audio:Artist") ,
 				       g_hash_table_lookup (metadata, "Audio:Album"),
+				       g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
 				       uri);
 #else
 		tracker_process_albumart (NULL, 0,
 				       g_hash_table_lookup (metadata, "Audio:Artist") ,
 				       g_hash_table_lookup (metadata, "Audio:Album"),
+				       g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
 				       uri);
 
 #endif /* HAVE_GDKPIXBUF */

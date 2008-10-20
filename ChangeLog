@@ -1,3 +1,10 @@
+2008-10-20  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c
+	* src/tracker-extract/tracker-extract-mp3.c
+	* src/tracker-extract/tracker-albumart.h
+	* src/tracker-extract/tracker-extract-gstreamer.c: Album art heuristics
+
 2008-10-20  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/modules/evolution.c: Resort to a copy of the old

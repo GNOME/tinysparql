@@ -22,6 +22,7 @@
 
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <stdlib.h>
 
 #include <gio/gio.h>
 
@@ -38,11 +39,115 @@
 
 #include "tracker-albumart.h"
 
-static gboolean 
-tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gchar *filename)
+static void tracker_get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, gchar **path);
+
+
+#include <ctype.h>
+
+#ifndef HAVE_STRCASESTR
+static char *
+strcasestr (const char *haystack, const char *needle)
 {
-	// TODO: implement and return TRUE if something was found and copied 
-	return FALSE;
+	char *p, *startn = 0, *np = 0;
+
+	for (p = (char *) haystack; *p; p++) {
+		if (np) {
+			if (toupper(*p) == toupper(*np)) {
+				if (!*++np)
+					return startn;
+			} else
+				np = 0;
+		} else if (toupper(*p) == toupper(*needle)) {
+			np = (char *) needle + 1;
+			startn = p;
+		}
+	}
+
+	return 0;
+}
+#endif
+
+
+static gboolean 
+tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gchar *trackcnt_str, const gchar *filename)
+{
+	GFile *file = g_file_new_for_path (filename);
+	gchar *dirp = g_file_get_basename (file);
+	gint trackcnt = -1;
+	gboolean retval = FALSE;
+
+	if (trackcnt_str)
+		trackcnt = atoi (trackcnt_str);
+
+	if (dirp) {
+		GDir *dir = g_dir_open (dirp, 0, NULL);
+		const gchar *filen;
+		gint count = 0;
+
+		if (dir) {
+			for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir))
+				count++;
+
+			if ((trackcnt != -1 && trackcnt < count + 3 && trackcnt > count - 3) || (trackcnt == -1 && count > 8 && count < 50)) {
+				gchar * found = NULL;
+
+				for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir)) {
+					if ((artist && strcasestr (filen, artist)) || (album && strcasestr (filen, album)) || (strcasestr (filen, "cover"))) {
+						gchar *target = NULL;
+						GError *error = NULL;
+
+						found = g_build_filename (dirp, filen, NULL);
+						tracker_get_albumart_path (artist, album, "album", &target);
+
+						if (g_str_has_suffix (found, "jpeg") || g_str_has_suffix (found, "jpg")) {
+							GFile *file1 = g_file_new_for_path (found);
+							GFile *file2 = g_file_new_for_path (target);
+
+							g_file_copy (file1, file2, 0, NULL, NULL, NULL, &error);
+
+							if (!error)
+								retval = TRUE;
+							else {
+								g_error_free (error);
+								retval = FALSE;
+							}
+
+							g_object_unref (file1);
+							g_object_unref (file2);
+						} else {
+#ifdef HAVE_GDKPIXBUF
+							GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file (found, &error);
+
+							if (error) {
+								g_error_free (error);
+								retval = FALSE;
+							} else {
+								gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
+								if (!error)
+									retval = TRUE;
+								else {
+									g_error_free (error);
+									retval = FALSE;
+								}
+							}
+#else
+							retval = FALSE;
+#endif
+						}
+
+						g_free (target);
+					}
+				}
+
+				g_free (found);
+			}
+			g_dir_close (dir);
+		}
+		g_free (dirp);
+	}
+	g_object_unref (file);
+
+	return retval;
 }
 
 
@@ -198,6 +303,7 @@ tracker_process_albumart (const unsigned char *buffer,
                           size_t               len,
                           const gchar         *artist,
                           const gchar         *album,
+                          const gchar         *trackercnt_str,
                           const gchar         *filename)
 {
 	gchar *art_path;
@@ -217,7 +323,7 @@ tracker_process_albumart (const unsigned char *buffer,
 
 		} else {
 #endif
-			if (!tracker_heuristic_albumart (artist, album, filename)) {
+			if (!tracker_heuristic_albumart (artist, album, trackercnt_str, filename)) {
 
 				dbus_g_proxy_begin_call (tracker_dbus_get_albumart_requester (),
 					 "Queue",
