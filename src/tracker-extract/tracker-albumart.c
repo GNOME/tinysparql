@@ -136,6 +136,8 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 						}
 
 						g_free (target);
+
+						break;
 					}
 				}
 
