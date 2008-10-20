@@ -1650,15 +1650,17 @@ static void docListUnion(
 ** then the docid is added to pOut. If pOut is of type DL_POSITIONS,
 ** then a positionids "6" and "21" are also added to pOut.
 **
-** If boolean argument isSaveLeft is true, then positionids are copied
+** If boolean argument isSaveLeft = 1, then positionids are copied
 ** from pLeft instead of pRight. In the example above, the positions "5"
 ** and "20" would be added instead of "6" and "21".
+** If isSaveLeft = 2 then both positions are added, 3 or above and postions are appended to left
 */
 static void posListPhraseMerge(
   DLReader *pLeft,
   DLReader *pRight,
   int nNear,
   int isSaveLeft,
+  int term_num,
   DLWriter *pOut
 ){
   PLReader left, right;
@@ -1670,6 +1672,8 @@ static void posListPhraseMerge(
 
   plrInit(&left, pLeft);
   plrInit(&right, pRight);
+  
+
 
   while( !plrAtEnd(&left) && !plrAtEnd(&right) ){
     if( plrColumn(&left)<plrColumn(&right) ){
@@ -1690,11 +1694,22 @@ static void posListPhraseMerge(
 #endif
           match = 1;
         }
-        if( !isSaveLeft ){
+        if( isSaveLeft == 0 ){
           plwAdd(&writer, plrColumn(&right), plrPosition(&right), 0, 0);
-        }else{
+        }else if( isSaveLeft == 1 ){
           plwAdd(&writer, plrColumn(&left), plrPosition(&left), 0, 0);
+        } else {
+          
+          int iPosRight  = plrPosition(&right);
+          int iColumnRight = plrColumn(&right);
+          int i;
+          
+          for (i=term_num; i>=0; i--) {
+            plwAdd(&writer, iColumnRight, iPosRight - i, 0, 0);
+          }
+          
         }
+        
         plrStep(&right);
       }else{
 	plrStep(&left);
@@ -1768,7 +1783,8 @@ static void docListPhraseMerge(
   int nNear,		/* 0 for a phrase merge, non-zero for a NEAR merge */
   int nPhrase,		/* Number of tokens in left+right operands to NEAR */
   DocListType iType,	/* Type of doclist to write to pOut */
-  DataBuffer *pOut	/* Write the combined doclist here */
+  DataBuffer *pOut,	/* Write the combined doclist here */
+  int term		/* (tracker) term number */
 ){
   DLReader left, right;
   DLWriter writer;
@@ -1780,7 +1796,7 @@ static void docListPhraseMerge(
   dlrInit(&left, DL_POSITIONS, pLeft, nLeft);
   dlrInit(&right, DL_POSITIONS, pRight, nRight);
   dlwInit(&writer, iType, pOut);
-
+  
   while( !dlrAtEnd(&left) && !dlrAtEnd(&right) ){
     if( dlrDocid(&left)<dlrDocid(&right) ){
       dlrStep(&left);
@@ -1788,7 +1804,7 @@ static void docListPhraseMerge(
       dlrStep(&right);
     }else{
       if( nNear==0 ){
-	posListPhraseMerge(&left, &right, 0, 0, &writer);
+        posListPhraseMerge(&left, &right, 0, 2, term,  &writer);
       }else{
 	/* This case occurs when two terms (simple terms or phrases) are
 	 * connected by a NEAR operator, span (nNear+1). i.e.
@@ -1803,9 +1819,9 @@ static void docListPhraseMerge(
 	DLReader dr2 = {0, 0, 0, 0, 0};
 
 	dlwInit(&dlwriter2, iType, &one);
-	posListPhraseMerge(&right, &left, nNear-3+nPhrase, 1, &dlwriter2);
+	posListPhraseMerge(&right, &left, nNear-3+nPhrase, 1, term, &dlwriter2);
 	dlwInit(&dlwriter2, iType, &two);
-	posListPhraseMerge(&left, &right, nNear-1, 0, &dlwriter2);
+	posListPhraseMerge(&left, &right, nNear-1, 0, term, &dlwriter2);
 
 	if( one.nData) dlrInit(&dr1, iType, one.pData, one.nData);
 	if( two.nData) dlrInit(&dr2, iType, two.pData, two.nData);
@@ -1887,23 +1903,7 @@ static void docListAndMerge(
     }else if( dlrDocid(&right)<dlrDocid(&left) ){
       dlrStep(&right);
     }else{
-      /* treat col 0 (Contents) as prevalent when it comes to deciding which position data to use */
-      PLReader plReader;
-      gboolean copied = FALSE;
-      plrInit(&plReader, &right);
-      if (!plrAtEnd(&plReader)) {
-	if (plrColumn(&plReader) == 0) {
-	  dlwCopy(&writer, &right);
-	  copied = TRUE;
-	}
-      } 
-     
-      plrEndAndDestroy (&plReader);
-      
-      if (!copied) {
-        dlwCopy(&writer, &left);
-      }
-
+      posListUnion(&left, &right, &writer);
       dlrStep(&left);
       dlrStep(&right);
     }
@@ -1997,22 +1997,7 @@ static void docListOrMerge(
       dlrStep(&right);
     }else{
 
-      /* treat col 0 (Contents) as prevalent when it comes to deciding which position data to use */
-      PLReader plReader;
-      gboolean copied = FALSE;
-      plrInit(&plReader, &right);
-      if (!plrAtEnd(&plReader)) {
-	if (plrColumn(&plReader) == 0) {
-	  dlwCopy(&writer, &right);
-	  copied = TRUE;
-	}
-      } 
-      
-      plrEndAndDestroy (&plReader);
-      
-      if (!copied) {
-        dlwCopy(&writer, &left);
-      }
+      posListUnion(&left, &right, &writer);
 
       dlrStep(&left);
       dlrStep(&right);
@@ -3920,8 +3905,6 @@ static void snippetAllOffsets(fulltext_cursor *p){
   
   int iPos = 0;
   
-  printf ("calc snippet\n");
-
   if (dlrAtEnd (&p->reader)) return;
   
   plrInit(&plReader, &p->reader);
@@ -4247,9 +4230,7 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
     
     PLReader plReader;
     gboolean first_pos = TRUE;
-  
-    printf ("calc offsets\n");
-    
+   
     c->offsets = g_string_assign (c->offsets, "");
 
     plrInit(&plReader, &c->reader);
@@ -4343,18 +4324,18 @@ static int docListOfTerm(
       return rc;
     }
     dataBufferInit(&new, 0);
-    
+
     #ifdef STORE_CATEGORY
     docListPhraseMerge(left.pData, left.nData, right.pData, right.nData,
                        pQTerm[i-1].nNear, pQTerm[i-1].iPhrase + nPhraseRight,
                        DL_POSITIONS,
-                       &new);
+                       &new, i);
     
     #else
     docListPhraseMerge(left.pData, left.nData, right.pData, right.nData,
                        pQTerm[i-1].nNear, pQTerm[i-1].iPhrase + nPhraseRight,
                        ((i<pQTerm->nPhrase) ? DL_POSITIONS : DL_DOCIDS),
-                       &new);
+                       &new, i);
 
     #endif                   
     dataBufferDestroy(&left);

@@ -1,5 +1,10 @@
 2008-10-19 Jamie McCracken <jamiemcc at gnome org>
 
+	* src/tracker-fts/tracker-fts.c
+	fixed offsets for multiple word and,or and phrase searches
+
+2008-10-19 Jamie McCracken <jamiemcc at gnome org>
+
 	* utils/tracker-fts/tracker-fts-test.c:
 	* src/tracker-fts/tracker-fts.c
 
