@@ -64,6 +64,7 @@ static guint	     quit_timeout_id;
 static gint	     verbosity = -1;
 static gboolean      process_all = FALSE;
 static gboolean      run_forever = FALSE;
+static gchar       **modules = NULL;
 
 static GOptionEntry  entries[] = {
 	{ "verbosity", 'v', 0,
@@ -79,6 +80,10 @@ static GOptionEntry  entries[] = {
 	  G_OPTION_ARG_NONE, &run_forever,
 	  N_("Run forever, only interesting for debugging purposes"),
 	  NULL },
+        { "modules", 'm', 0,
+          G_OPTION_ARG_STRING_ARRAY, &modules,
+          N_("Modules to be used when processing data"),
+          NULL },
 
 	{ NULL }
 };
@@ -356,7 +361,9 @@ main (gint argc, gchar *argv[])
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */
 		tracker_indexer_process_all (indexer);
-	}
+	} else if (modules) {
+                tracker_indexer_process_modules (indexer, modules);
+        }
 
 	g_message ("Starting...");
 

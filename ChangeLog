@@ -1,3 +1,11 @@
+2008-10-20  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.[ch] 
+	(tracker_indexer_process_modules): New public function to specify 
+	which modules should the indexer actually use.
+	* src/tracker-indexer/tracker-main.c: Add --modules parameter to
+	specify a closed list of modules, as opposed to --process-all.
+
 2008-10-20  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-fts/tracker-fts.c:

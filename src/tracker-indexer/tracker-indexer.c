@@ -2384,6 +2384,22 @@ tracker_indexer_process_all (TrackerIndexer *indexer)
 }
 
 void
+tracker_indexer_process_modules (TrackerIndexer  *indexer,
+				 gchar          **modules)
+{
+	GList *l;
+	gint i;
+
+	for (l = indexer->private->module_names; l; l = l->next) {
+		for (i = 0; modules[i]; i++) {
+			if (strcmp (l->data, modules[i]) == 0) {
+				g_queue_push_tail (indexer->private->modules_queue, g_strdup (l->data));
+			}
+		}
+	}
+}
+
+void
 tracker_indexer_files_check (TrackerIndexer *indexer,
 			     const gchar *module_name,
 			     GStrv files,

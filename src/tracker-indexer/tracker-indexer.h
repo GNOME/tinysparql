@@ -78,6 +78,8 @@ void		tracker_indexer_set_running	   (TrackerIndexer	   *indexer,
 						    gboolean		    running);
 void		tracker_indexer_stop		   (TrackerIndexer	   *indexer);
 void		tracker_indexer_process_all	   (TrackerIndexer	   *indexer);
+void            tracker_indexer_process_modules    (TrackerIndexer         *indexer,
+						    gchar                 **modules);
 
 /* DBus methods */
 void		tracker_indexer_pause		   (TrackerIndexer	   *indexer,
