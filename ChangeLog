@@ -1,6 +1,6 @@
 2008-10-20  Philip Van Hoof  <philip@codeminded.be>
 
-	* src/tracker-fts/tracker-fts.c
+	* src/tracker-fts/tracker-fts.c:
 	* utils/tracker-fts/tracker-fts-test.c: Simple rank() impl. without
 	weighting (just counting). It seems the last matching row ain't being
 	counted but I haven't found howcome yet (sqlite is just not calling
@@ -8,21 +8,20 @@
 
 2008-10-19 Jamie McCracken <jamiemcc at gnome org>
 
-	* src/tracker-fts/tracker-fts.c
+	* src/tracker-fts/tracker-fts.c:
 	fixed offsets for multiple word and,or and phrase searches
 
 2008-10-19 Jamie McCracken <jamiemcc at gnome org>
 
 	* utils/tracker-fts/tracker-fts-test.c:
-	* src/tracker-fts/tracker-fts.c
-
+	* src/tracker-fts/tracker-fts.c:
 	adjusted offsets function to output cached values from position 
 	data in index. Output format is now comma separated list of ColumnID,
 	WordPostion...
 
 2008-10-18  Ivan Frade  <ivan.frade@nokia.com>
 
-	* src/trackerd/tracker-metadata.c
+	* src/trackerd/tracker-metadata.c:
 	(tracker_metadata_set): Check all metadata before send them to the
 	indexer. This does the operation a little bit more atomic: less
 	chances to find an error during the insertions and end up with
