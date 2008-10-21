@@ -23,6 +23,9 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <gio/gio.h>
 
@@ -87,11 +90,11 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 		if (dir) {
 			gchar *target = NULL;
 			GFile *file2 = NULL;
+			struct stat bf;
 
-			for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir))
-				count++;
+			stat (dirp, &bf);
 
-			g_dir_rewind  (dir);
+			count = bf.st_nlink;
 
 			if ((trackcnt != -1 && trackcnt < count + 3 && trackcnt > count - 3) || (trackcnt == -1 && count > 8 && count < 50)) {
 				gchar * found = NULL;
