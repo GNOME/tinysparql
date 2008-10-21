@@ -85,6 +85,12 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 		gint count = 0;
 
 		if (dir) {
+			gchar *target;
+			GFile *file2;
+
+			tracker_get_albumart_path (artist, album, "album", &target);
+			file2 = g_file_new_for_path (target);
+
 			for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir))
 				count++;
 
@@ -95,15 +101,13 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 
 				for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir)) {
 					if ((artist && strcasestr (filen, artist)) || (album && strcasestr (filen, album)) || (strcasestr (filen, "cover"))) {
-						gchar *target = NULL;
 						GError *error = NULL;
 
-						found = g_build_filename (dirp, filen, NULL);
-						tracker_get_albumart_path (artist, album, "album", &target);
+						if (g_str_has_suffix (filen, "jpeg") || g_str_has_suffix (filen, "jpg")) {
+							GFile *file1;
 
-						if (g_str_has_suffix (found, "jpeg") || g_str_has_suffix (found, "jpg")) {
-							GFile *file1 = g_file_new_for_path (found);
-							GFile *file2 = g_file_new_for_path (target);
+							found = g_build_filename (dirp, filen, NULL);
+ 							file1 = g_file_new_for_path (found);
 
 							g_file_copy (file1, file2, 0, NULL, NULL, NULL, &error);
 
@@ -114,11 +118,14 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 								retval = FALSE;
 							}
 
+							g_free (found);
 							g_object_unref (file1);
-							g_object_unref (file2);
 						} else {
 #ifdef HAVE_GDKPIXBUF
-							GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file (found, &error);
+							GdkPixbuf *pixbuf;
+
+							found = g_build_filename (dirp, filen, NULL);
+							pixbuf = gdk_pixbuf_new_from_file (found, &error);
 
 							if (error) {
 								g_error_free (error);
@@ -132,20 +139,24 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 									retval = FALSE;
 								}
 							}
+
+							g_free (found);
+
 #else
 							retval = FALSE;
 #endif
 						}
 
-						g_free (target);
-
 						break;
 					}
 				}
 
-				g_free (found);
 			}
+
 			g_dir_close (dir);
+			g_object_unref (file2);
+			g_free (target);
+
 		}
 		g_free (dirp);
 	}

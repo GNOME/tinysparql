@@ -2,6 +2,7 @@
 
 	* src/tracker-indexer/tracker-metadata-utils.c: Adapted to new D-Bus API
 	for thumbnailing
+	* src/tracker-extract/tracker-albumart.c: Some minor optimizations
 
 2008-10-21  Carlos Garnacho  <carlos@imendio.com>
 
