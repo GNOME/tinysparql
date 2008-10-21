@@ -86,7 +86,10 @@ heuristic_albumart (const gchar *artist,
 		    const gchar *filename)
 {
 	GFile *file;
+	GFile *file2 = NULL;
 	GDir *dir;
+	struct stat st;
+	gchar *target = NULL;
 	gchar *basename;
 	const gchar *name;
 	gboolean retval;
@@ -95,58 +98,81 @@ heuristic_albumart (const gchar *artist,
 	
 	file = g_file_new_for_path (filename);
 	basename = g_file_get_basename (file);
+	g_object_unref (file);
 
 	if (!basename) {
-		g_object_unref (file);
 		return FALSE;
 	}
 
+	dir = g_dir_open (basename, 0, NULL);
+
+	if (!dir) {
+		g_free (basename);
+	}
+	
+	retval = FALSE;
+
+	g_stat (basename, &st);
+	count = st.st_nlink;
+	
 	if (tracks_str) {
 		tracks = atoi (tracks_str);
 	} else {
 		tracks = -1;
 	}
-
-	dir = g_dir_open (basename, 0, NULL);
 	
-	count = 0;
-	retval = FALSE;
-
-	if (dir) {
-		gchar *target = NULL;
-		GFile *file2 = NULL;
-		struct stat bf;
+	if ((tracks != -1 && tracks < count + 3 && tracks > count - 3) || 
+	    (tracks == -1 && count > 8 && count < 50)) {
+		gchar *found = NULL;
 		
-		g_stat (basename, &bf);
-		
-		count = bf.st_nlink;
-		
-		if ((tracks != -1 && tracks < count + 3 && tracks > count - 3) || 
-		    (tracks == -1 && count > 8 && count < 50)) {
-			gchar *found = NULL;
-			
-			for (name = g_dir_read_name (dir); name; name = g_dir_read_name (dir)) {
-				if ((artist && strcasestr (name, artist)) || 
-				    (album && strcasestr (name, album)) || 
-				    (strcasestr (name, "cover"))) {
-					GError *error = NULL;
+		for (name = g_dir_read_name (dir); name; name = g_dir_read_name (dir)) {
+			if ((artist && strcasestr (name, artist)) || 
+			    (album && strcasestr (name, album)) || 
+			    (strcasestr (name, "cover"))) {
+				GError *error = NULL;
+				
+				if (g_str_has_suffix (name, "jpeg") || 
+				    g_str_has_suffix (name, "jpg")) {
+					GFile *file1;
 					
-					if (g_str_has_suffix (name, "jpeg") || 
-					    g_str_has_suffix (name, "jpg")) {
-						GFile *file1;
-						
+					if (!target) {
+						get_albumart_path (artist, album, "album", &target);
+					}
+					
+					if (!file2) {
+						file2 = g_file_new_for_path (target);
+					}
+					
+					found = g_build_filename (basename, name, NULL);
+					file1 = g_file_new_for_path (found);
+					
+					g_file_copy (file1, file2, 0, NULL, NULL, NULL, &error);
+					
+					if (!error) {
+						retval = TRUE;
+					} else {
+						g_error_free (error);
+						retval = FALSE;
+					}
+					
+					g_free (found);
+					g_object_unref (file1);
+				} else {
+#ifdef HAVE_GDKPIXBUF
+					GdkPixbuf *pixbuf;
+					
+					found = g_build_filename (basename, name, NULL);
+					pixbuf = gdk_pixbuf_new_from_file (found, &error);
+					
+					if (error) {
+						g_error_free (error);
+						retval = FALSE;
+					} else {
 						if (!target) {
 							get_albumart_path (artist, album, "album", &target);
 						}
 						
-						if (!file2) {
-							file2 = g_file_new_for_path (target);
-						}
-						
-						found = g_build_filename (basename, name, NULL);
-						file1 = g_file_new_for_path (found);
-						
-						g_file_copy (file1, file2, 0, NULL, NULL, NULL, &error);
+						gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
 						
 						if (!error) {
 							retval = TRUE;
@@ -154,57 +180,28 @@ heuristic_albumart (const gchar *artist,
 							g_error_free (error);
 							retval = FALSE;
 						}
-						
-						g_free (found);
-						g_object_unref (file1);
-					} else {
-#ifdef HAVE_GDKPIXBUF
-						GdkPixbuf *pixbuf;
-						
-						found = g_build_filename (basename, name, NULL);
-						pixbuf = gdk_pixbuf_new_from_file (found, &error);
-						
-						if (error) {
-							g_error_free (error);
-							retval = FALSE;
-						} else {
-							if (!target) {
-								get_albumart_path (artist, album, "album", &target);
-							}
-							
-							gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
-
-							if (!error) {
-								retval = TRUE;
-							} else {
-								g_error_free (error);
-								retval = FALSE;
-							}
-						}
-						
-						g_free (found);
-#else  /* HAVE_GDKPIXBUF */
-						retval = FALSE;
-#endif /* HAVE_GDKPIXBUF */
 					}
 					
-					break;
+					g_free (found);
+#else  /* HAVE_GDKPIXBUF */
+					retval = FALSE;
+#endif /* HAVE_GDKPIXBUF */
 				}
+				
+				break;
 			}
-			
 		}
 		
-		g_dir_close (dir);
-		
-		if (file2) {
-			g_object_unref (file2);
-		}
-		
-		g_free (target);
 	}
-
+	
+	g_dir_close (dir);
+	
+	if (file2) {
+		g_object_unref (file2);
+	}
+	
+	g_free (target);
 	g_free (basename);
-	g_object_unref (file);
 
 	return retval;
 }
@@ -381,7 +378,6 @@ tracker_process_albumart (const unsigned char *buffer,
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
 			if (!heuristic_albumart (artist, album, trackercnt_str, filename)) {
-
 				dbus_g_proxy_begin_call (tracker_dbus_get_albumart_requester (),
 					 "Queue",
 					 get_file_albumart_queue_cb,
