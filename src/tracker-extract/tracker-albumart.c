@@ -208,7 +208,7 @@ heuristic_albumart (const gchar *artist,
 }
 
 static DBusGProxy*
-tracker_dbus_get_albumart_requester (void)
+get_albumart_requester (void)
 {
 	static DBusGProxy *albart_proxy = NULL;
 
@@ -379,7 +379,7 @@ tracker_process_albumart (const unsigned char *buffer,
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
 			if (!heuristic_albumart (artist, album, trackercnt_str, filename)) {
-				dbus_g_proxy_begin_call (tracker_dbus_get_albumart_requester (),
+				dbus_g_proxy_begin_call (get_albumart_requester (),
 					 "Queue",
 					 get_file_albumart_queue_cb,
 					 NULL, NULL,
