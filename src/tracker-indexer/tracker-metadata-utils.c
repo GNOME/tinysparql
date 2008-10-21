@@ -653,6 +653,7 @@ get_file_thumbnail (const gchar *path,
 {
 #ifdef HAVE_HILDON_THUMBNAIL
 	static gchar   *batch[51];
+	static gchar   *hints[51];
 	static guint	count = 0;
 	static gboolean not_available = FALSE;
 
@@ -666,7 +667,12 @@ get_file_thumbnail (const gchar *path,
 		utf_path = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
 
 		if (utf_path) {
-			batch[count++] = utf_path;
+			batch[count] = utf_path;
+			if (mime)
+				hints[count] = g_strdup (mime);
+			else 
+				hints[count] = g_strdup ("unknown/unknown");
+			count++;
 		}
 	}
 
@@ -674,6 +680,7 @@ get_file_thumbnail (const gchar *path,
 		guint i;
 
 		batch[51] = NULL;
+		hints[51] = NULL;
 
 		g_debug ("Requesting thumbnails");
 
@@ -682,11 +689,13 @@ get_file_thumbnail (const gchar *path,
 					 get_file_thumbnail_queue_cb,
 					 NULL, NULL,
 					 G_TYPE_STRV, batch,
+					 G_TYPE_STRV, hints,
 					 G_TYPE_UINT, 0,
 					 G_TYPE_INVALID);
 
 		for (i = 0; i <= count; i++) {
 			g_free (batch[i]);
+			g_free (hints[i]);
 		}
 
 		count = 0;
