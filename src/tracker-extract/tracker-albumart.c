@@ -86,7 +86,6 @@ heuristic_albumart (const gchar *artist,
 		    const gchar *filename)
 {
 	GFile *file;
-	GFile *file2 = NULL;
 	GDir *dir;
 	struct stat st;
 	gchar *target = NULL;
@@ -108,9 +107,11 @@ heuristic_albumart (const gchar *artist,
 
 	if (!dir) {
 		g_free (basename);
+		return FALSE;
 	}
 	
 	retval = FALSE;
+	file = NULL;
 
 	g_stat (basename, &st);
 	count = st.st_nlink;
@@ -133,20 +134,20 @@ heuristic_albumart (const gchar *artist,
 				
 				if (g_str_has_suffix (name, "jpeg") || 
 				    g_str_has_suffix (name, "jpg")) {
-					GFile *file1;
+					GFile *file_found;
 					
 					if (!target) {
 						get_albumart_path (artist, album, "album", &target);
 					}
 					
-					if (!file2) {
-						file2 = g_file_new_for_path (target);
+					if (!file) {
+						file = g_file_new_for_path (target);
 					}
 					
 					found = g_build_filename (basename, name, NULL);
-					file1 = g_file_new_for_path (found);
+					file_found = g_file_new_for_path (found);
 					
-					g_file_copy (file1, file2, 0, NULL, NULL, NULL, &error);
+					g_file_copy (file_found, file, 0, NULL, NULL, NULL, &error);
 					
 					if (!error) {
 						retval = TRUE;
@@ -156,7 +157,7 @@ heuristic_albumart (const gchar *artist,
 					}
 					
 					g_free (found);
-					g_object_unref (file1);
+					g_object_unref (file_found);
 				} else {
 #ifdef HAVE_GDKPIXBUF
 					GdkPixbuf *pixbuf;
@@ -196,8 +197,8 @@ heuristic_albumart (const gchar *artist,
 	
 	g_dir_close (dir);
 	
-	if (file2) {
-		g_object_unref (file2);
+	if (file) {
+		g_object_unref (file);
 	}
 	
 	g_free (target);
