@@ -788,6 +788,16 @@ get_file_content_by_filter (const gchar *path,
 	return g_string_free (text, FALSE);
 }
 
+/**
+ * tracker_metadata_utils_get_text:
+ * @path: Path to a local file
+ *
+ * Gets the text from a given file, if the file is considered as
+ * containing plain text, it will be extracted, else this function
+ * will resort to the installed text filters for the file MIME type.
+ *
+ * Returns: A newly allocated string containing the file text, or %NULL.
+ **/
 gchar *
 tracker_metadata_utils_get_text (const gchar *path)
 {
@@ -813,6 +823,15 @@ tracker_metadata_utils_get_text (const gchar *path)
 	return text;
 }
 
+/**
+ * tracker_metadata_utils_get_data:
+ * @path: Path to a local file
+ *
+ * Returns a #TrackerMetadata filled with the most generic
+ * metadata for files, such as file size, MIME type, mtime...
+ *
+ * Returns: A newly created #TrackerMetadata, or %NULL if the file is not found.
+ **/
 TrackerMetadata *
 tracker_metadata_utils_get_data (const gchar *path)
 {

@@ -1,3 +1,8 @@
+2008-10-21  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-metadata-utils.c:
+	* src/tracker-indexer/tracker-metadata.c: Add some methods docs.
+
 2008-10-20  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-metadata-utils.c

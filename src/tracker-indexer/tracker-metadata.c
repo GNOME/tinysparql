@@ -27,6 +27,13 @@ struct TrackerMetadata {
 	GHashTable *table;
 };
 
+/**
+ * tracker_metadata_new:
+ *
+ * Creates a new #TrackerMetadata with no data in it.
+ *
+ * Returns: The newly created #TrackerMetadata
+ **/
 TrackerMetadata *
 tracker_metadata_new (void)
 {
@@ -62,6 +69,12 @@ remove_metadata_foreach (gpointer key,
 	return TRUE;
 }
 
+/**
+ * tracker_metadata_free:
+ * @metadata: A #TrackerMetadata
+ *
+ * Frees the #TrackerMetadata and any contained data.
+ **/
 void
 tracker_metadata_free (TrackerMetadata *metadata)
 {
@@ -73,6 +86,14 @@ tracker_metadata_free (TrackerMetadata *metadata)
 	g_slice_free (TrackerMetadata, metadata);
 }
 
+/**
+ * tracker_metadata_insert:
+ * @metadata: A #TrackerMetadata
+ * @field_name: Field name for the metadata to insert.
+ * @value: Value for the metadata to insert.
+ *
+ * Inserts a new metadata element into @metadata.
+ **/
 void
 tracker_metadata_insert (TrackerMetadata *metadata,
 			 const gchar	 *field_name,
@@ -95,6 +116,15 @@ tracker_metadata_insert (TrackerMetadata *metadata,
 			     value);
 }
 
+/**
+ * tracker_metadata_insert_multiple_values:
+ * @metadata: A #TrackerMetadata
+ * @field_name: Field name for the metadata to insert
+ * @list: Value list for the metadata to insert
+ *
+ * Inserts a list of values into @metadata for the given @field_name.
+ * The ontology has to specify that @field_name allows multiple values.
+ **/
 void
 tracker_metadata_insert_multiple_values (TrackerMetadata *metadata,
 					 const gchar	 *field_name,
@@ -112,6 +142,15 @@ tracker_metadata_insert_multiple_values (TrackerMetadata *metadata,
 			     list);
 }
 
+/**
+ * tracker_metadata_lookup:
+ * @metadata: A #TrackerMetadata
+ * @field_name: Field name to look up
+ *
+ * Returns the value corresponding to the metadata specified by @field_name.
+ *
+ * Returns: The value. This string is owned by @metadata and must not be modified or freed.
+ **/
 G_CONST_RETURN gchar *
 tracker_metadata_lookup (TrackerMetadata *metadata,
 			 const gchar	 *field_name)
@@ -126,6 +165,16 @@ tracker_metadata_lookup (TrackerMetadata *metadata,
 	return g_hash_table_lookup (metadata->table, field);
 }
 
+/**
+ * tracker_metadata_lookup_multiple_values:
+ * @metadata: A #TrackerMetadata
+ * @field_name: Field name to look up
+ *
+ * Returns the value list corresponding to the metadata specified by @field_name.
+ *
+ * Returns: A List containing strings. Both the list and the contained strings
+ *          are owned by @metadata and must not be modified or freed.
+ **/
 G_CONST_RETURN GList *
 tracker_metadata_lookup_multiple_values (TrackerMetadata *metadata,
 					 const gchar	 *field_name)
@@ -140,6 +189,14 @@ tracker_metadata_lookup_multiple_values (TrackerMetadata *metadata,
 	return g_hash_table_lookup (metadata->table, field);
 }
 
+/**
+ * tracker_metadata_foreach:
+ * @metadata: A #TrackerMetadata.
+ * @func: The function to call with each metadata.
+ * @user_data: user data to pass to the function.
+ *
+ * Calls a function for each element in @metadata.
+ **/
 void
 tracker_metadata_foreach (TrackerMetadata	 *metadata,
 			  TrackerMetadataForeach  func,
