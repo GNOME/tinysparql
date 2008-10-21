@@ -1,3 +1,8 @@
+2008-10-21  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/tracker-albumart.c: Cleaned up the code
+	here. Removed unnecessary memory allocation and code obfuscation.
+
 2008-10-21  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-metadata-utils.c: Adapted to new D-Bus API

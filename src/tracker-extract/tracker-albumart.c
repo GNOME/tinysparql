@@ -20,12 +20,15 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <glib/gprintf.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <ctype.h>
+
+#include <glib.h>
+#include <glib/gprintf.h>
+#include <glib/gstdio.h>
 
 #include <gio/gio.h>
 
@@ -35,148 +38,176 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
+#include "tracker-albumart.h"
+
 #define ALBUMARTER_SERVICE      "com.nokia.albumart"
 #define ALBUMARTER_PATH         "/com/nokia/albumart/Requester"
 #define ALBUMARTER_INTERFACE    "com.nokia.albumart.Requester"
 
-
-#include "tracker-albumart.h"
-
-static void tracker_get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, gchar **path);
-
-
-#include <ctype.h>
+static void get_albumart_path (const gchar  *a, 
+			       const gchar  *b, 
+			       const gchar  *prefix, 
+			       gchar       **path);
 
 #ifndef HAVE_STRCASESTR
-static char *
-strcasestr (const char *haystack, const char *needle)
-{
-	char *p, *startn = 0, *np = 0;
 
-	for (p = (char *) haystack; *p; p++) {
+static gchar *
+strcasestr (const gchar *haystack, 
+	    const gchar *needle)
+{
+	gchar *p;
+	gchar *startn = NULL;
+	gchar *np = NULL;
+
+	for (p = (gchar *) haystack; *p; p++) {
 		if (np) {
-			if (toupper(*p) == toupper(*np)) {
-				if (!*++np)
+			if (toupper (*p) == toupper (*np)) {
+				if (!*++np) {
 					return startn;
-			} else
+				}
+			} else {
 				np = 0;
-		} else if (toupper(*p) == toupper(*needle)) {
-			np = (char *) needle + 1;
+			}
+		} else if (toupper (*p) == toupper (*needle)) {
+			np = (gchar *) needle + 1;
 			startn = p;
 		}
 	}
 
-	return 0;
+	return NULL;
 }
-#endif
 
+#endif /* HAVE_STRCASESTR */
 
 static gboolean 
-tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gchar *trackcnt_str, const gchar *filename)
+heuristic_albumart (const gchar *artist,  
+		    const gchar *album, 
+		    const gchar *tracks_str, 
+		    const gchar *filename)
 {
-	GFile *file = g_file_new_for_path (filename);
-	gchar *dirp = g_file_get_basename (file);
-	gint trackcnt = -1;
-	gboolean retval = FALSE;
+	GFile *file;
+	GDir *dir;
+	gchar *basename;
+	const gchar *name;
+	gboolean retval;
+	gint tracks;
+	gint count;
+	
+	file = g_file_new_for_path (filename);
+	basename = g_file_get_basename (file);
 
-	if (trackcnt_str)
-		trackcnt = atoi (trackcnt_str);
-
-	if (dirp) {
-		GDir *dir = g_dir_open (dirp, 0, NULL);
-		const gchar *filen;
-		gint count = 0;
-
-		if (dir) {
-			gchar *target = NULL;
-			GFile *file2 = NULL;
-			struct stat bf;
-
-			stat (dirp, &bf);
-
-			count = bf.st_nlink;
-
-			if ((trackcnt != -1 && trackcnt < count + 3 && trackcnt > count - 3) || (trackcnt == -1 && count > 8 && count < 50)) {
-				gchar * found = NULL;
-
-				for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir)) {
-					if ((artist && strcasestr (filen, artist)) || (album && strcasestr (filen, album)) || (strcasestr (filen, "cover"))) {
-						GError *error = NULL;
-
-						if (g_str_has_suffix (filen, "jpeg") || g_str_has_suffix (filen, "jpg")) {
-							GFile *file1;
-
-							if (!target)
-								tracker_get_albumart_path (artist, album, "album", &target);
-
-							if (!file2)
-								file2 = g_file_new_for_path (target);
-
-							found = g_build_filename (dirp, filen, NULL);
- 							file1 = g_file_new_for_path (found);
-
-							g_file_copy (file1, file2, 0, NULL, NULL, NULL, &error);
-
-							if (!error)
-								retval = TRUE;
-							else {
-								g_error_free (error);
-								retval = FALSE;
-							}
-
-							g_free (found);
-							g_object_unref (file1);
-						} else {
-#ifdef HAVE_GDKPIXBUF
-							GdkPixbuf *pixbuf;
-
-							found = g_build_filename (dirp, filen, NULL);
-							pixbuf = gdk_pixbuf_new_from_file (found, &error);
-
-							if (error) {
-								g_error_free (error);
-								retval = FALSE;
-							} else {
-
-								if (!target)
-									tracker_get_albumart_path (artist, album, "album", &target);
-
-								gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
-								if (!error)
-									retval = TRUE;
-								else {
-									g_error_free (error);
-									retval = FALSE;
-								}
-							}
-
-							g_free (found);
-
-#else
-							retval = FALSE;
-#endif
-						}
-
-						break;
-					}
-				}
-
-			}
-
-			g_dir_close (dir);
-			if (file2)
-				g_object_unref (file2);
-			g_free (target);
-
-		}
-		g_free (dirp);
+	if (!basename) {
+		g_object_unref (file);
+		return FALSE;
 	}
+
+	if (tracks_str) {
+		tracks = atoi (tracks_str);
+	} else {
+		tracks = -1;
+	}
+
+	dir = g_dir_open (basename, 0, NULL);
+	
+	count = 0;
+	retval = FALSE;
+
+	if (dir) {
+		gchar *target = NULL;
+		GFile *file2 = NULL;
+		struct stat bf;
+		
+		g_stat (basename, &bf);
+		
+		count = bf.st_nlink;
+		
+		if ((tracks != -1 && tracks < count + 3 && tracks > count - 3) || 
+		    (tracks == -1 && count > 8 && count < 50)) {
+			gchar *found = NULL;
+			
+			for (name = g_dir_read_name (dir); name; name = g_dir_read_name (dir)) {
+				if ((artist && strcasestr (name, artist)) || 
+				    (album && strcasestr (name, album)) || 
+				    (strcasestr (name, "cover"))) {
+					GError *error = NULL;
+					
+					if (g_str_has_suffix (name, "jpeg") || 
+					    g_str_has_suffix (name, "jpg")) {
+						GFile *file1;
+						
+						if (!target) {
+							get_albumart_path (artist, album, "album", &target);
+						}
+						
+						if (!file2) {
+							file2 = g_file_new_for_path (target);
+						}
+						
+						found = g_build_filename (basename, name, NULL);
+						file1 = g_file_new_for_path (found);
+						
+						g_file_copy (file1, file2, 0, NULL, NULL, NULL, &error);
+						
+						if (!error) {
+							retval = TRUE;
+						} else {
+							g_error_free (error);
+							retval = FALSE;
+						}
+						
+						g_free (found);
+						g_object_unref (file1);
+					} else {
+#ifdef HAVE_GDKPIXBUF
+						GdkPixbuf *pixbuf;
+						
+						found = g_build_filename (basename, name, NULL);
+						pixbuf = gdk_pixbuf_new_from_file (found, &error);
+						
+						if (error) {
+							g_error_free (error);
+							retval = FALSE;
+						} else {
+							if (!target) {
+								get_albumart_path (artist, album, "album", &target);
+							}
+							
+							gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
+
+							if (!error) {
+								retval = TRUE;
+							} else {
+								g_error_free (error);
+								retval = FALSE;
+							}
+						}
+						
+						g_free (found);
+#else  /* HAVE_GDKPIXBUF */
+						retval = FALSE;
+#endif /* HAVE_GDKPIXBUF */
+					}
+					
+					break;
+				}
+			}
+			
+		}
+		
+		g_dir_close (dir);
+		
+		if (file2) {
+			g_object_unref (file2);
+		}
+		
+		g_free (target);
+	}
+
+	g_free (basename);
 	g_object_unref (file);
 
 	return retval;
 }
-
-
 
 static DBusGProxy*
 tracker_dbus_get_albumart_requester (void)
@@ -185,15 +216,18 @@ tracker_dbus_get_albumart_requester (void)
 
 	if (!albart_proxy) {
 		GError          *error = NULL;
-		DBusGConnection *connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+		DBusGConnection *connection;
+
+		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 		if (!error) {
 			albart_proxy = dbus_g_proxy_new_for_name (connection,
 								  ALBUMARTER_SERVICE,
 								  ALBUMARTER_PATH,
 								  ALBUMARTER_INTERFACE);
-		} else
+		} else {
 			g_error_free (error);
+		}
 	}
 
 	return albart_proxy;
@@ -207,7 +241,6 @@ get_file_albumart_queue_cb (DBusGProxy     *proxy,
 	GError *error = NULL;
 	guint	handle;
 
-	/* FIXME: What is the point of this? */
 	dbus_g_proxy_end_call (proxy, call, &error,
 			       G_TYPE_UINT, &handle,
 			       G_TYPE_INVALID);
@@ -219,58 +252,58 @@ get_file_albumart_queue_cb (DBusGProxy     *proxy,
 }
 
 static void
-tracker_get_albumart_path (const gchar *a, const gchar *b, const gchar *prefix, gchar **path)
+get_albumart_path (const gchar  *a, 
+		   const gchar  *b, 
+		   const gchar  *prefix, 
+		   gchar       **path)
 {
-	gchar *art_filename, *str;
-	gchar *dir = NULL;
-	gchar *_tmp14, *_tmp13, *down;
+	gchar *art_filename;
+	gchar *dir;
+	gchar *str;
+	gchar *down;
 
-	if (!prefix)
+	if (!prefix) {
 		prefix = "album";
-
-	if (!a && !b) {
-		*path = NULL;
-		return;
 	}
-
-	if (!a)
-		a = "";
-
-	if (!b)
-		b = "";
-
-	down = g_utf8_strdown (_tmp14 = (g_strconcat ((_tmp13 = g_strconcat (a, " ", NULL)), b, NULL)),-1);
-
-	g_free (_tmp14);
-	g_free (_tmp13);
-
-	dir = g_build_filename (g_get_user_cache_dir (), "media-art", NULL);
 
 	*path = NULL;
 
-	if(!g_file_test (dir, G_FILE_TEST_EXISTS))
+	if (!a && !b) {
+		return;
+	}
+
+	str = g_strconcat (a ? a : "", 
+			   " ", 
+			   b ? b : "", 
+			   NULL);
+	down = g_utf8_strdown (str, -1);
+	g_free (str);
+
+	dir = g_build_filename (g_get_user_cache_dir (), "media-art", NULL);
+
+	if (!g_file_test (dir, G_FILE_TEST_EXISTS)) {
 		g_mkdir_with_parents (dir, 0770);
+	}
 
 	str = g_compute_checksum_for_string (G_CHECKSUM_MD5, down, -1);
+	g_free (down);
 
 	art_filename = g_strdup_printf ("%s-%s.jpeg", prefix, str);
+	g_free (str);
 
 	*path = g_build_filename (dir, art_filename, NULL);
-
-	g_free (str);
-	g_free (art_filename);
-	g_free (down);
 	g_free (dir);
+	g_free (art_filename);
 }
 
 #ifdef HAVE_GDKPIXBUF
 
 static gboolean
-tracker_save_albumart (const unsigned char *buffer,
-		       size_t               len,
-		       const gchar         *artist, 
-		       const gchar         *album,
-		       const gchar         *uri)
+set_albumart (const unsigned char *buffer,
+	      size_t               len,
+	      const gchar         *artist, 
+	      const gchar         *album,
+	      const gchar         *uri)
 {
 	GdkPixbufLoader *loader;
 	GdkPixbuf       *pixbuf = NULL;
@@ -284,7 +317,7 @@ tracker_save_albumart (const unsigned char *buffer,
 		return FALSE;
 	}
 
-	tracker_get_albumart_path (artist, album, "album", &filename);
+	get_albumart_path (artist, album, "album", &filename);
 
 	loader = gdk_pixbuf_loader_new ();
 
@@ -322,7 +355,7 @@ tracker_save_albumart (const unsigned char *buffer,
 	return TRUE;
 }
 
-#endif
+#endif /* HAVE_GDKPIXBUF */
 
 gboolean
 tracker_process_albumart (const unsigned char *buffer,
@@ -335,21 +368,19 @@ tracker_process_albumart (const unsigned char *buffer,
 	gchar *art_path;
 	gboolean retval = TRUE;
 
-	tracker_get_albumart_path (artist, album, "album", &art_path);
+	get_albumart_path (artist, album, "album", &art_path);
 
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-
 #ifdef HAVE_GDKPIXBUF
-
 		if (buffer && len) {
-			retval = tracker_save_albumart (buffer, len,
-						       artist,
-						       album,
-						       filename);
-
+			retval = set_albumart (buffer, len,
+					       artist,
+					       album,
+					       filename);
+			
 		} else {
-#endif
-			if (!tracker_heuristic_albumart (artist, album, trackercnt_str, filename)) {
+#endif /* HAVE_GDK_PIXBUF */
+			if (!heuristic_albumart (artist, album, trackercnt_str, filename)) {
 
 				dbus_g_proxy_begin_call (tracker_dbus_get_albumart_requester (),
 					 "Queue",
@@ -365,7 +396,7 @@ tracker_process_albumart (const unsigned char *buffer,
 
 		}
 
-#endif
+#endif /* HAVE_GDKPIXBUF */
 	}
 
 	g_free (art_path);

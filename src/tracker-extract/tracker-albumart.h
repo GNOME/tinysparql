@@ -25,11 +25,11 @@
 G_BEGIN_DECLS
 
 gboolean tracker_process_albumart (const unsigned char *buffer,
-                                size_t               len,
-                                const gchar         *artist,
-                                const gchar         *album,
-                                const gchar         *trackercnt_str,
-                                const gchar         *uri);
+                                   size_t               len,
+                                   const gchar         *artist,
+                                   const gchar         *album,
+                                   const gchar         *trackercnt_str,
+                                   const gchar         *uri);
 
 G_END_DECLS
 
