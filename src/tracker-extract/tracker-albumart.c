@@ -85,11 +85,8 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 		gint count = 0;
 
 		if (dir) {
-			gchar *target;
-			GFile *file2;
-
-			tracker_get_albumart_path (artist, album, "album", &target);
-			file2 = g_file_new_for_path (target);
+			gchar *target = NULL;
+			GFile *file2 = NULL;
 
 			for (filen = g_dir_read_name (dir); filen; filen = g_dir_read_name (dir))
 				count++;
@@ -105,6 +102,12 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 
 						if (g_str_has_suffix (filen, "jpeg") || g_str_has_suffix (filen, "jpg")) {
 							GFile *file1;
+
+							if (!target)
+								tracker_get_albumart_path (artist, album, "album", &target);
+
+							if (!file2)
+								file2 = g_file_new_for_path (target);
 
 							found = g_build_filename (dirp, filen, NULL);
  							file1 = g_file_new_for_path (found);
@@ -131,6 +134,10 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 								g_error_free (error);
 								retval = FALSE;
 							} else {
+
+								if (!target)
+									tracker_get_albumart_path (artist, album, "album", &target);
+
 								gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
 								if (!error)
 									retval = TRUE;
@@ -154,7 +161,8 @@ tracker_heuristic_albumart (const gchar *artist,  const gchar *album, const gcha
 			}
 
 			g_dir_close (dir);
-			g_object_unref (file2);
+			if (file2)
+				g_object_unref (file2);
 			g_free (target);
 
 		}
