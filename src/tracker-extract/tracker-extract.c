@@ -34,6 +34,7 @@
 #include <unistd.h>
 
 #include <glib.h>
+#include <glib-object.h>
 #include <glib/gi18n.h>
 #include <gmodule.h>
 
@@ -422,6 +423,8 @@ main (int argc, char *argv[])
 
 	debug ("Extractor - Initializing...");
 	tracker_memory_setrlimits ();
+
+	g_type_init ();
 
 	if (!g_thread_supported ()) {
 		g_thread_init (NULL);
