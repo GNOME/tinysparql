@@ -636,13 +636,16 @@ extract_metadata (MetadataExtractor *extractor,
 
 		duration = get_media_duration (extractor);
 
-		if (extractor->mime == EXTRACT_MIME_IMAGE &&
-		    extractor->has_video) {
+		/* FIXME Use the has_video and has_audio rather than mime type once dsp problems are solved */
+/* 		if (extractor->mime == EXTRACT_MIME_IMAGE && */
+/* 		    extractor->has_video) { */
+		if (extractor->mime == EXTRACT_MIME_IMAGE) {
 			add_string_gst_tag (metadata, "Image:Title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, "Image:Comments", extractor->tagcache, GST_TAG_COMMENT);
 			add_string_gst_tag (metadata, "Image:Author", extractor->tagcache, GST_TAG_ARTIST);
 
-		} else if (extractor->has_video) {
+/* 		} else if (extractor->has_video) { */
+		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			add_string_gst_tag (metadata, "Video:Title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, "Video:Comments", extractor->tagcache, GST_TAG_COMMENT);
 
@@ -653,7 +656,8 @@ extract_metadata (MetadataExtractor *extractor,
 			if (duration >= 0) {
 				add_int64_info (metadata, g_strdup ("Video:Duration"), duration);
 			}
-		} else if (extractor->has_audio) {
+/* 		} else if (extractor->has_audio) { */
+		} else if (extractor->mime == EXTRACT_MIME_AUDIO) {
 			/* No video? So we assume we are treating a song */
 			add_string_gst_tag (metadata, "Audio:Title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, "Audio:Artist", extractor->tagcache, GST_TAG_ARTIST);
@@ -872,20 +876,31 @@ tracker_extract_gstreamer (const gchar *uri,
 	}
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
-	if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-		g_hash_table_insert (metadata, g_strdup ("Audio:Title"), g_strdup ("tracker:unknown"));
-	}
 
-	if (!g_hash_table_lookup (metadata, "Audio:Album")) {
-		g_hash_table_insert (metadata, g_strdup ("Audio:Album"), g_strdup ("tracker:unknown"));
-	}
-
-	if (!g_hash_table_lookup (metadata, "Audio:Artist")) {
-		g_hash_table_insert (metadata, g_strdup ("Audio:Artist"), g_strdup ("tracker:unknown"));
-	}
-
-	if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
-		g_hash_table_insert (metadata, g_strdup ("Audio:Genre"), g_strdup ("tracker:unknown"));
+	if (type==EXTRACT_MIME_AUDIO) {
+		if (!g_hash_table_lookup (metadata, "Audio:Title")) {
+			g_hash_table_insert (metadata, g_strdup ("Audio:Title"), g_strdup ("tracker:unknown"));
+		}
+		
+		if (!g_hash_table_lookup (metadata, "Audio:Album")) {
+			g_hash_table_insert (metadata, g_strdup ("Audio:Album"), g_strdup ("tracker:unknown"));
+		}
+		
+		if (!g_hash_table_lookup (metadata, "Audio:Artist")) {
+			g_hash_table_insert (metadata, g_strdup ("Audio:Artist"), g_strdup ("tracker:unknown"));
+		}
+		
+		if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
+			g_hash_table_insert (metadata, g_strdup ("Audio:Genre"), g_strdup ("tracker:unknown"));
+		}
+	} else if (type==EXTRACT_MIME_VIDEO) {
+		if (!g_hash_table_lookup (metadata, "Video:Title")) {
+			g_hash_table_insert (metadata, g_strdup ("Video:Title"), g_strdup ("tracker:unknown"));
+		}
+		
+		if (!g_hash_table_lookup (metadata, "Video:Author")) {
+			g_hash_table_insert (metadata, g_strdup ("Video:Author"), g_strdup ("tracker:unknown"));
+		}
 	}
 
 	/* Also clean up */

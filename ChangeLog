@@ -1,3 +1,7 @@
+2008-10-22  Mikael Ottela <mikael.ottela@ixonos.com>
+	* src/tracker-extract/tracker-extract-gstreamer.c: Changes
+	to cope with problems gstreamer has with hardware acceleration.
+
 2008-10-22  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/libtracker-db/tracker-db-dbus.c
