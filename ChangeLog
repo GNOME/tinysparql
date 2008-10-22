@@ -1,3 +1,8 @@
+2008-10-22  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Cleaned up some more
+	code
+
 2008-10-21 Jamie McCracken <jamiemcc at gnome org>
 
 	* src/tracker-fts/tracker-fts.c:

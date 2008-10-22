@@ -260,10 +260,6 @@ get_albumart_path (const gchar  *a,
 	gchar *str;
 	gchar *down;
 
-	if (!prefix) {
-		prefix = "album";
-	}
-
 	*path = NULL;
 
 	if (!a && !b) {
@@ -286,7 +282,7 @@ get_albumart_path (const gchar  *a,
 	str = g_compute_checksum_for_string (G_CHECKSUM_MD5, down, -1);
 	g_free (down);
 
-	art_filename = g_strdup_printf ("%s-%s.jpeg", prefix, str);
+	art_filename = g_strdup_printf ("%s-%s.jpeg", prefix?prefix:"album", str);
 	g_free (str);
 
 	*path = g_build_filename (dir, art_filename, NULL);
