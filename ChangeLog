@@ -1,3 +1,8 @@
+2008-10-21 Jamie McCracken <jamiemcc at gnome org>
+
+	* src/tracker-fts/tracker-fts.c:
+	fixed rank function and made it efficient
+
 2008-10-21  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-extract/tracker-albumart.c: Cleaned up the code

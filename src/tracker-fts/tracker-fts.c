@@ -2465,6 +2465,7 @@ typedef struct fulltext_cursor {
   sqlite_int64 currentDocid;
   int currentCatid;		  /* (tracker) Category (service type ID) of the document */
   GString *offsets;		  /* (tracker) pre computed offsets from position data in index */
+  double  rank;		  	  /* (tracker) pre computed rank from position data in index */
 } fulltext_cursor;
 
 static struct fulltext_vtab *cursor_vtab(fulltext_cursor *c){
@@ -3980,64 +3981,6 @@ static void snippetAllOffsets(fulltext_cursor *p){
   trimSnippetOffsetsForNear(&p->q, &p->snippet);
 }
 
-static void snippetJustCount (fulltext_cursor *p){
-  int iColumn, i;
-  fulltext_vtab *pFts;
-  int hit_column = 0;
-  int hit_column_count;
-  PLReader plReader;
-  int col_array[255];
-  gpointer pos_array[255];
-  int iPos = 0;
-  const char *zDoc;
-  int nDoc;
-
-  if( p->snippet.nMatch ) return;
-  if( p->q.nTerms==0 ) return;
-  pFts = p->q.pFts;
-
-  for (i=0; i<255; i++) {
-    col_array[i] = 0;
-    pos_array[i] = NULL;
-  }
-
-  if (dlrAtEnd (&p->reader)) {
-	  // TODO: this is the case for the last row, which means that we don't do
-	  // a count for that row. I don't yet understand how to fix this. (PVH 20
-	  // Oct. Msg for Jamie).
-	return;
-  }
-
-  plrInit(&plReader, &p->reader);
-
-  if (plrAtEnd(&plReader)) return;
-
-  iColumn = -1;
-
-  for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
-    if (plrColumn (&plReader) != iColumn) {
-      iColumn = plrColumn(&plReader);
-      col_array[iColumn] += 1;
-    }
-    iPos = plrPosition(&plReader);
-  }
-
-  plrEndAndDestroy(&plReader);
-
-  hit_column_count = col_array[0];
-
-  for (i=0; i<255; i++) {
-    if (col_array [i] > hit_column_count) {
-      hit_column = i;
-      hit_column_count =col_array[i];
-    }
-  }
-
-  zDoc = (const char*)sqlite3_column_text(p->pStmt, hit_column+1);
-  nDoc = sqlite3_column_bytes(p->pStmt, hit_column+1);
-  snippetOffsetsOfColumn(&p->q, &p->snippet, hit_column, zDoc, nDoc, iPos);
-
-}
 /*
 ** Convert the information in the aMatch[] array of the snippet
 ** into the string zOffset[0..nOffset-1].
@@ -4290,12 +4233,14 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
     gboolean first_pos = TRUE;
    
     c->offsets = g_string_assign (c->offsets, "");
+    c->rank = 0;
 
     plrInit(&plReader, &c->reader);
   
     
     for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
    
+      c->rank++;
       if (first_pos) {
         g_string_append_printf (c->offsets, "%d,%d", plrColumn (&plReader), plrPosition (&plReader));
         first_pos = FALSE;
@@ -7089,8 +7034,7 @@ static void rankFunc(
     sqlite3_result_error(pContext, "illegal first argument to html_snippet",-1);
   }else{
     memcpy(&pCursor, sqlite3_value_blob(argv[0]), sizeof(pCursor));
-    snippetJustCount(pCursor);
-    sqlite3_result_int(pContext, pCursor->snippet.nMatch);
+    sqlite3_result_double(pContext, pCursor->rank);
   }
 }
 
