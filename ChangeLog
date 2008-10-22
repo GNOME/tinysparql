@@ -1,3 +1,14 @@
+2008-10-22  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/libtracker-db/tracker-db-dbus.c
+	(tracker_dbus_query_result_columns_to_strv): Added support for
+	multiple rows in the result set. It was returning only the
+	first value. This should fix the Metadata.Get method asking for
+	properties with multiple values.
+	
+	* tests/libtracker-db/tracker-db-dbus-test.c
+	Added test for the new cases.
+	
 2008-10-22  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-common.h: Included tracker-hal and

@@ -250,9 +250,11 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 					   gint until_column,
 					   gboolean rewind)
 {
-	gchar **strv = NULL;
-	gint	i = 0;
-	gint	columns;
+	gchar   **strv = NULL;
+	gint	  i = 0;
+	gint	  columns;
+	gint      row_counter = 0;
+	gboolean  valid = TRUE;
 
 	if (result_set) {
 		columns = tracker_db_result_set_get_n_columns (result_set);
@@ -274,21 +276,43 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 
 	strv = g_new (gchar*, until_column + 1);
 
+	while (valid) {
 
-	for (i = offset_column ; i < until_column; i++) {
-		GValue value = {0, };
-		GValue	transform = {0, };
+		for (i = offset_column ; i < until_column; i++) {
+			GValue value = {0, };
+			GValue	transform = {0, };
+			
+			g_value_init (&transform, G_TYPE_STRING);
+			
+			_tracker_db_result_set_get_value (result_set, i, &value);
+			if (g_value_transform (&value, &transform)) {
+				if (row_counter == 0) {
+					strv[i] = g_value_dup_string (&transform);
+				} else {
+					gchar *new_value, *old_value;
 
-		g_value_init (&transform, G_TYPE_STRING);
+					new_value = g_value_dup_string (&transform);
+					if (new_value != NULL && strlen (new_value) > 0) {
+						old_value = strv [i];
 
-		_tracker_db_result_set_get_value (result_set, i, &value);
-		if (g_value_transform (&value, &transform)) {
-			strv[i] = g_value_dup_string (&transform);
+						strv[i] = g_strconcat (old_value, "|", new_value, NULL);
+						
+						g_free (old_value);
+					}
+
+					if (new_value) {
+						g_free (new_value);
+					}
+					
+				}
+			}
+			g_value_unset (&value);
+			g_value_unset (&transform);
 		}
-		g_value_unset (&value);
-		g_value_unset (&transform);
-	}
 
+		row_counter += 1;
+		valid = tracker_db_result_set_iter_next (result_set);
+	}
 	strv[i] = NULL;
 
 	return strv;

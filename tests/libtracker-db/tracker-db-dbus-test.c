@@ -22,7 +22,7 @@
 
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-interface.h>
-
+#include "tracker-test-helpers.h"
 
 static TrackerDBResultSet *
 get_mock_tracker_db_result (gint results, gint columns, gboolean set_null) {
@@ -38,7 +38,7 @@ get_mock_tracker_db_result (gint results, gint columns, gboolean set_null) {
 		for (j = 0; j < columns; j++) {
 
 			GValue value = {0,};
-			gchar * text = g_strdup_printf ("value %d", i);
+			gchar * text = g_strdup_printf ("value %d", j);
 
 			g_value_init (&value, G_TYPE_STRING);
 			g_value_set_string (&value, (set_null ? NULL : text));
@@ -100,6 +100,46 @@ get_mock_tracker_db_multi_result (gint results, gint columns, gboolean set_null)
 
 }
 
+/*
+ * Returns this result set:
+ * -----------------
+ * value 0 | value 1
+ * value 0 | NULL
+ * -----------------
+ */
+static TrackerDBResultSet *
+get_custom_mock_tracker_db_result ()
+{
+	TrackerDBResultSet *mock;
+	gint i, j, results = 2, columns = 2;
+	
+	mock = _tracker_db_result_set_new (columns);
+
+	for (i = 0; i < results; i++) {
+		_tracker_db_result_set_append (mock);
+
+		for (j = 0; j < columns; j++) {
+
+			GValue value = {0,};
+			gchar * text = g_strdup_printf ("value %d", j);
+
+			g_value_init (&value, G_TYPE_STRING);
+			if (j == 1 && (i % 2) != 0) {
+				g_value_set_string (&value, NULL);
+			} else {
+				g_value_set_string (&value, text);
+			}
+			_tracker_db_result_set_set_value (mock, j, &value);
+
+			g_value_unset (&value);
+			g_free (text);
+		}
+	}
+
+	tracker_db_result_set_rewind (mock);
+
+	return mock;
+}
 
 static void
 test_dbus_query_result_to_strv ()
@@ -251,6 +291,75 @@ test_dbus_query_result_multi_to_ptr_array ()
 
 }
 
+static void
+test_dbus_query_result_columns_to_strv ()
+{
+	TrackerDBResultSet *result_set = NULL;
+	gchar **result = NULL;
+
+	/* NULL */
+	result = tracker_dbus_query_result_columns_to_strv (result_set,
+							    -1, 
+							    -1, 
+							    TRUE);
+	g_assert_cmpint (g_strv_length (result), ==, 0);
+	g_strfreev (result);
+
+	/* 1 results, 1 column */
+	result_set = get_mock_tracker_db_result (1, 1, FALSE);
+	result = tracker_dbus_query_result_columns_to_strv (result_set, -1, -1, TRUE);
+
+	g_assert_cmpint (g_strv_length (result), ==, 1);
+	g_strfreev (result);
+
+	g_object_unref (result_set);
+
+	/* 1 results, 5 column */
+	result_set = get_mock_tracker_db_result (1, 5, FALSE);
+	result = tracker_dbus_query_result_columns_to_strv (result_set, -1, -1, TRUE);
+
+	g_assert_cmpint (g_strv_length (result), ==, 5);
+	tracker_test_helpers_cmpstr_equal (result[0], "value 0");
+	tracker_test_helpers_cmpstr_equal (result[1], "value 1");
+	g_strfreev (result);
+
+	g_object_unref (result_set);
+	
+	/* 2 results, 1 column */
+	result_set = get_mock_tracker_db_result (2, 1, FALSE);
+	result = tracker_dbus_query_result_columns_to_strv (result_set, -1, -1, TRUE);
+
+	g_assert_cmpint (g_strv_length (result), ==, 1);
+	tracker_test_helpers_cmpstr_equal (result[0], "value 0|value 0");
+	g_strfreev (result);
+
+	g_object_unref (result_set);
+
+	/* 2 results, 2 columns */
+	result_set = get_mock_tracker_db_result (2, 2, FALSE);
+	result = tracker_dbus_query_result_columns_to_strv (result_set, -1, -1, TRUE);
+
+	g_assert_cmpint (g_strv_length (result), ==, 2);
+	tracker_test_helpers_cmpstr_equal (result[0], "value 0|value 0");
+	tracker_test_helpers_cmpstr_equal (result[1], "value 1|value 1");
+	g_strfreev (result);
+
+	g_object_unref (result_set);
+
+	/* 2 results, 2 columns with NULL values in (1,1) 
+	 * first row 0, first column 0
+	 */
+	result_set = get_custom_mock_tracker_db_result ();
+	result = tracker_dbus_query_result_columns_to_strv (result_set, -1, -1, TRUE);
+
+	g_assert_cmpint (g_strv_length (result), ==, 2);
+ 	tracker_test_helpers_cmpstr_equal (result[0], "value 0|value 0");
+	tracker_test_helpers_cmpstr_equal (result[1], "value 1");
+	g_strfreev (result);
+
+	g_object_unref (result_set);
+
+}
 
 gint
 main (gint argc, gchar **argv)
@@ -269,7 +378,8 @@ main (gint argc, gchar **argv)
 			 test_dbus_query_result_to_ptr_array);
 	g_test_add_func ("/libtracker-db/tracker-db-dbus/query_result_multi_to_ptr_array",
 			 test_dbus_query_result_multi_to_ptr_array);
-
+	g_test_add_func ("/libtracker-db/tracker-db-dbus/query_result_columns_to_strv",
+			 test_dbus_query_result_columns_to_strv);
 	result = g_test_run ();
 
 	/* End */
