@@ -34,7 +34,9 @@ G_BEGIN_DECLS
 
 #include "tracker-config.h"
 #include "tracker-field.h"
+#include "tracker-field-data.h"
 #include "tracker-file-utils.h"
+#include "tracker-hal.h"
 #include "tracker-language.h"
 #include "tracker-module-config.h"
 #include "tracker-ontology.h"
