@@ -647,31 +647,68 @@ get_file_thumbnail_queue_cb (DBusGProxy     *proxy,
 
 #endif /* HAVE_HILDON_THUMBNAIL */
 
+static gboolean
+thumbnail_this (GStrv list, const gchar *mime)
+{
+	guint i = 0;
+	gboolean retval = FALSE;
+
+	if (!list)
+		return TRUE;
+
+	while (list[i] != NULL && !retval) {
+		if (g_ascii_strcasecmp (list[i], mime) == 0)
+			retval = TRUE;
+		i++;
+	}
+
+	return retval;
+}
+
 static void
 get_file_thumbnail (const gchar *path,
 		    const gchar *mime)
 {
 #ifdef HAVE_HILDON_THUMBNAIL
+
+	static guint    count = 0;
+	static gboolean tried = FALSE;
+
+	/* It's known that these 51 * 2 lists of strings are leaked at least
+	 * once at the end of the process. */
+
 	static gchar   *batch[51];
 	static gchar   *hints[51];
-	static guint	count = 0;
-	static gboolean not_available = FALSE;
 
-	if (not_available) {
-		return;
+	/* It's known that this relatively small GStrv is leaked */
+	static GStrv    thumbnailable = NULL;
+
+	if (!tried) {
+		GStrv mimes = NULL;
+		GError *error = NULL;
+
+		dbus_g_proxy_call (tracker_dbus_get_thumb_manager(),
+				   "GetSupported", &error, G_TYPE_INVALID,
+				   G_TYPE_STRV, &mimes, G_TYPE_INVALID);
+		if (error)
+			g_error_free (error);
+		else if (mimes)
+			thumbnailable = mimes;
+		tried = TRUE;
 	}
 
-	if (count < 51) {
+	if (count < 51 && thumbnail_this (thumbnailable, mime)) {
 		gchar *utf_path;
 
 		utf_path = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
 
 		if (utf_path) {
-			batch[count] = utf_path;
+			batch[count] = g_strdup_printf ("file://%s", utf_path);
 			if (mime)
 				hints[count] = g_strdup (mime);
 			else 
 				hints[count] = g_strdup ("unknown/unknown");
+			g_free (utf_path);
 			count++;
 		}
 	}

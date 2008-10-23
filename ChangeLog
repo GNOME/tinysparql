@@ -1,3 +1,9 @@
+2008-10-23  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/tracker-metadata-utils.c
+	* src/tracker-indexer/tracker-dbus.c
+	* src/tracker-indexer/tracker-dbus.h: Fixes for requesting thumbnails
+
 2008-10-23  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-main.c (initialize_signal_handler):

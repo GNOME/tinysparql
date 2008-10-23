@@ -31,9 +31,13 @@
 #define THUMBNAILER_PATH	 "/org/freedesktop/thumbnailer/Generic"
 #define THUMBNAILER_INTERFACE	 "org.freedesktop.thumbnailer.Generic"
 
+#define THUMBMAN_PATH		 "/org/freedesktop/thumbnailer/Manager"
+#define THUMBMAN_INTERFACE	 "org.freedesktop.thumbnailer.Manager"
+
 static DBusGConnection *connection;
 static DBusGProxy      *proxy;
 static DBusGProxy      *thumb_proxy;
+static DBusGProxy      *thumbm_proxy;
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
@@ -113,6 +117,12 @@ tracker_dbus_get_thumbnailer (void)
 	return thumb_proxy;
 }
 
+DBusGProxy*
+tracker_dbus_get_thumb_manager (void)
+{
+	return thumbm_proxy;
+}
+
 static gboolean
 dbus_register_names (void)
 {
@@ -154,6 +164,11 @@ dbus_register_names (void)
 						 THUMBNAILER_SERVICE,
 						 THUMBNAILER_PATH,
 						 THUMBNAILER_INTERFACE);
+
+	thumbm_proxy = dbus_g_proxy_new_for_name (connection,
+						 THUMBNAILER_SERVICE,
+						 THUMBMAN_PATH,
+						 THUMBMAN_INTERFACE);
 	return TRUE;
 }
 
