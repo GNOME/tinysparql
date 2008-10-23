@@ -199,8 +199,44 @@ tracker_xmp_iter_simple (GHashTable *metadata,
 	}
 	/* Exif basic scheme */
 	else if (strcmp (schema, NS_EXIF) == 0) {
-		if (strcmp (name, "title") == 0) {
+		if (strcmp (name, "Title") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append);
+		}
+		else if (strcmp (name, "DateTimeOriginal") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:Date", value, append);
+		}
+		else if (strcmp (name, "Artist") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append);
+		}
+		else if (strcmp (name, "Software") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:Software", value, append);
+		}
+		else if (strcmp (name, "Make") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:CameraMake", value, append);
+		}
+		else if (strcmp (name, "Model") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:CameraModel", value, append);
+		}
+		else if (strcmp (name, "Orientation") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:Orientation", value, append);
+		}
+		else if (strcmp (name, "ExposureProgram") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:ExposureProgram", value, append);
+		}
+		else if (strcmp (name, "ExposureTime") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:ExposureTime", value, append);
+		}
+		else if (strcmp (name, "FNumber") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:FNumber", value, append);
+		}
+		else if (strcmp (name, "FocalLength") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:FocalLength", value, append);
+		}
+		else if (strcmp (name, "WhiteBalance") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:WhiteBalance", value, append);
+		}
+		else if (strcmp (name, "Copyright") == 0) {
+			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append);
 		}
 	}
 

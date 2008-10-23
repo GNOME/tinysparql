@@ -77,6 +77,7 @@ static TagType tags[] = {
 	{ EXIF_TAG_DOCUMENT_NAME, "Image:Title", NULL },
 	/* { -1, "Image:Album", NULL }, */
 	{ EXIF_TAG_DATE_TIME, "Image:Date", date_to_iso8601 },
+	{ EXIF_TAG_DATE_TIME_ORIGINAL, "Image:Date", date_to_iso8601 },
 	/* { -1, "Image:Keywords", NULL }, */
 	{ EXIF_TAG_ARTIST, "Image:Creator", NULL },
 	{ EXIF_TAG_USER_COMMENT, "Image:Comments", NULL },

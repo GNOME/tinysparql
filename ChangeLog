@@ -1,3 +1,8 @@
+2008-10-23  Mikael Ottela    <mikael.ottela@ixonos.com>
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-xmp.c: Adds support
+	to more XMP and EXIF image metadata fields. Fixes NB #90506.	
+
 2008-10-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-metadata-utils.c
