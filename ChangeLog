@@ -1,4 +1,11 @@
+2008-10-23  Ivan Frade  <ivan.frade@nokia.com>
+
+	* data/services/video.metadata:
+	Added new properties for video: LastPlayedFrame, PausePosition,
+	PlayCount and Source.
+	
 2008-10-22  Mikael Ottela <mikael.ottela@ixonos.com>
+	
 	* src/tracker-extract/tracker-extract-gstreamer.c: Changes
 	to cope with problems gstreamer has with hardware acceleration.
 

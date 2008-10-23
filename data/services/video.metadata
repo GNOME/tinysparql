@@ -49,3 +49,28 @@ DataType=string
 DisplayName=Bitrate
 Description=Bitrate in bits/sec
 DataType=double
+
+[Video:PlayCount]
+DisplayName=Play Count
+Description=Number of times the video has been played
+DataType=integer
+Embedded=false
+
+[Video:PausePosition]
+DisplayName=Paused time
+Description=The playing has been paused in this position (seconds fromthe beggining)
+DataType=integer
+Embedded=false
+
+[Video:LastPlayedFrame]
+DisplayName=Last played frame
+Description=File uri of the last played frame screenshot.
+DataType=keyword
+Embedded=false
+
+[Video:Source]
+DisplayName=Source of the video
+Description=Description of the physical device that took the video.
+DataType=keyword
+Embedded=false
+
