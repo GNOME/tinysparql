@@ -665,20 +665,54 @@ thumbnail_this (GStrv list, const gchar *mime)
 	return retval;
 }
 
+/* It's known that these 51 * 2 lists of strings are leaked at least
+ * once at the end of the process. */
+
+static gchar   *batch[51];
+static gchar   *hints[51];
+static guint    count = 0;
+static gboolean timeout_runs = FALSE;
+
+static gboolean
+request_thumbnails (gpointer data)
+{
+	if (timeout_runs) {
+		guint i;
+
+		timeout_runs = FALSE;
+		batch[count] = NULL;
+		hints[count] = NULL;
+
+		g_debug ("Requesting thumbnails");
+
+		dbus_g_proxy_begin_call (tracker_dbus_get_thumbnailer (),
+					 "Queue",
+					 get_file_thumbnail_queue_cb,
+					 NULL, NULL,
+					 G_TYPE_STRV, batch,
+					 G_TYPE_STRV, hints,
+					 G_TYPE_UINT, 0,
+					 G_TYPE_INVALID);
+
+		for (i = 0; i <= count; i++) {
+			g_free (batch[i]);
+			g_free (hints[i]);
+		}
+
+		count = 0;
+	}
+
+	return FALSE;
+}
+
 static void
 get_file_thumbnail (const gchar *path,
 		    const gchar *mime)
 {
 #ifdef HAVE_HILDON_THUMBNAIL
 
-	static guint    count = 0;
 	static gboolean tried = FALSE;
 
-	/* It's known that these 51 * 2 lists of strings are leaked at least
-	 * once at the end of the process. */
-
-	static gchar   *batch[51];
-	static gchar   *hints[51];
 
 	/* It's known that this relatively small GStrv is leaked */
 	static GStrv    thumbnailable = NULL;
@@ -711,32 +745,17 @@ get_file_thumbnail (const gchar *path,
 			g_free (utf_path);
 			count++;
 		}
+
+		if (!timeout_runs) {
+			timeout_runs = TRUE;
+			g_timeout_add_seconds (30, request_thumbnails, NULL);
+		}
 	}
 
 	if (count == 51) {
-		guint i;
-
-		batch[51] = NULL;
-		hints[51] = NULL;
-
-		g_debug ("Requesting thumbnails");
-
-		dbus_g_proxy_begin_call (tracker_dbus_get_thumbnailer (),
-					 "Queue",
-					 get_file_thumbnail_queue_cb,
-					 NULL, NULL,
-					 G_TYPE_STRV, batch,
-					 G_TYPE_STRV, hints,
-					 G_TYPE_UINT, 0,
-					 G_TYPE_INVALID);
-
-		for (i = 0; i <= count; i++) {
-			g_free (batch[i]);
-			g_free (hints[i]);
-		}
-
-		count = 0;
+		request_thumbnails (NULL);
 	}
+
 #else /* HAVE_HILDON_THUMBNAIL */
 	ProcessContext *context;
 
