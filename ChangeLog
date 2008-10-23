@@ -1,3 +1,8 @@
+2008-10-23  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-main.c (initialize_signal_handler):
+	Actually ignore SIGPIPE, since we already handle it where necessary.
+
 2008-10-23  Ivan Frade  <ivan.frade@nokia.com>
 
 	* data/services/video.metadata:

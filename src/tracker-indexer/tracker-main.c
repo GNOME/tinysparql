@@ -192,7 +192,7 @@ initialize_signal_handler (void)
 	sigaction (SIGABRT, &act, NULL);
 	sigaction (SIGUSR1, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
-	/* sigaction (SIGPIPE, &ign_act, NULL); */
+	sigaction (SIGPIPE, &ign_act, NULL);
 #endif
 }
 
