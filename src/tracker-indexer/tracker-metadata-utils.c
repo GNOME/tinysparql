@@ -50,6 +50,11 @@
 #define TEXT_MAX_SIZE		     1048576  /* bytes */
 #define TEXT_CHECK_SIZE		     65535    /* bytes */
 
+static gchar   *batch[51];
+static gchar   *hints[51];
+static guint    count = 0;
+static gboolean timeout_runs = FALSE;
+
 typedef struct {
 	GPid pid;
 	guint stdout_watch_id;
@@ -664,14 +669,6 @@ thumbnail_this (GStrv list, const gchar *mime)
 
 	return retval;
 }
-
-/* It's known that these 51 * 2 lists of strings are leaked at least
- * once at the end of the process. */
-
-static gchar   *batch[51];
-static gchar   *hints[51];
-static guint    count = 0;
-static gboolean timeout_runs = FALSE;
 
 static gboolean
 request_thumbnails (gpointer data)
