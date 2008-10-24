@@ -1293,7 +1293,7 @@ tracker_search_sql_query (TrackerSearch		*object,
 	} else {
 		GPtrArray *values;
 
-		values = tracker_dbus_query_result_multi_to_ptr_array (result_set);
+		values = tracker_dbus_query_result_to_ptr_array (result_set);
 		dbus_g_method_return (context, values);
 		tracker_dbus_results_ptr_array_free (&values);
 		g_object_unref (result_set);
