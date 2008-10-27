@@ -123,16 +123,8 @@ DisplayName=White balance
 Description=Indicates the white balance mode set when the image was shot (auto/manual)
 DataType=string
 
-
-
-
-
-
-
-
-
-
-
-
-
+[Image:Rating]
+DisplayName=Rating
+Description=Rating given to the image. 
+DataType=integer
 

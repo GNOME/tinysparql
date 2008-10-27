@@ -1,3 +1,9 @@
+2008-10-17  Mikael Ottela    <mikael.ottela@ixonos.com>
+	* data/services/default.service:
+	* data/services/image.metadata:
+	* src/tracker-extract/tracker-xmp.c: Added Image:Rating field and
+	XMP:XAP:Rating support.
+	
 2008-10-24  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-search.c: Bugfix in SqlQuery

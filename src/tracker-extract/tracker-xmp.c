@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* Tracker Xmp - Xmp helper functions
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  *
@@ -237,6 +238,12 @@ tracker_xmp_iter_simple (GHashTable *metadata,
 		}
 		else if (strcmp (name, "Copyright") == 0) {
 			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append);
+		}
+	}
+	/* XAP (XMP)scheme */
+	else if (strcmp (schema, NS_XAP) == 0) {
+	        if (strcmp (name, "Rating") == 0) {
+		        tracker_append_string_to_hash_table (metadata, "Image:Rating", value, append);
 		}
 	}
 
