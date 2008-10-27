@@ -1,4 +1,32 @@
+2008-10-27  Martyn Russell  <martyn@imendio.com>
+
+	Fixes NB#88140.
+	
+	* src/trackerd/tracker-crawler.[ch]: Added a function to be able
+	to request a new directory to be looked at at any stage of the
+	crawler's life. This is so that newly created directories or
+	directories moved into monitored locations are crawled. Before
+	just the directory would be indexed. Now its content is traversed
+	in teh same fashion as all other content.
+	
+	* src/trackerd/tracker-files.c: Small improvement.
+	
+	* src/trackerd/tracker-marshal.list: Changed the move signal so we
+	actually state if the source was monitored or not. This allows the
+	processor to decide if we should try to crawl the target because
+	it is new or if it is a simple move operation in the DB.
+	
+	* src/trackerd/tracker-monitor.c: get_module_name_from_gfile() was
+	incorrectly determining GFile pointers as directories or files. So
+	now we do a stat() when we need to know. 
+	
+	* src/trackerd/tracker-processor.c: Add some indication in
+	debugging if the events we receive are for a file or directory.
+	Also call the new function in TrackerCrawler to request traversal
+	of a newly found directory upon monitor events.
+
 2008-10-17  Mikael Ottela    <mikael.ottela@ixonos.com>
+
 	* data/services/default.service:
 	* data/services/image.metadata:
 	* src/tracker-extract/tracker-xmp.c: Added Image:Rating field and

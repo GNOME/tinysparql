@@ -55,6 +55,8 @@ void            tracker_crawler_stop                (TrackerCrawler *crawler);
 gboolean        tracker_crawler_is_path_ignored     (TrackerCrawler *crawler,
 						     const gchar    *path,
 						     gboolean        is_directory);
+void            tracker_crawler_add_unexpected_path (TrackerCrawler *crawler,
+						     const gchar    *path);
 
 /* Convenience API for old .cfg file */
 void            tracker_crawler_special_paths_add   (TrackerCrawler *crawler,

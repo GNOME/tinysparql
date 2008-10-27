@@ -226,8 +226,6 @@ tracker_files_delete (TrackerFiles	     *object,
 static const gchar *
 get_file_id_and_db_service (const gchar *uri, gint *id)
 {
-	*id = 0;
-
 	*id = tracker_db_file_get_id (TRACKER_DB_FOR_FILE_SERVICE, uri);
 	if (*id) {
 		return TRACKER_DB_FOR_FILE_SERVICE;
@@ -313,7 +311,6 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 	value = tracker_ontology_get_service_by_mime (mime);
 
 	if (value) {
-
 		tracker_dbus_request_comment (request_id,
 					      "Info for file '%s', "
 					      "id:%d, mime:'%s', service:'%s'",
@@ -334,9 +331,7 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 	}
-
 }
-
 
 void
 tracker_files_get_text_contents (TrackerFiles		*object,

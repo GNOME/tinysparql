@@ -70,7 +70,7 @@ struct _TrackerCrawlerPrivate {
 	 *
 	 *  - 'Paths' are non-recursive.
 	 *  - 'Recurse Paths' are recursive.
-	 *  - 'Special Paths' are paths no in module config.
+	 *  - 'Special Paths' are recursive but not in module config.
 	 */
 	GSList	       *paths;
 	GSList	       *paths_current;
@@ -84,6 +84,7 @@ struct _TrackerCrawlerPrivate {
 	GSList	       *special_paths_current;
 	gboolean	special_paths_are_done;
 
+	/* Ignore/Index patterns */
 	GList	       *ignored_directory_patterns;
 	GList	       *ignored_file_patterns;
 	GList	       *index_file_patterns;
@@ -102,8 +103,9 @@ struct _TrackerCrawlerPrivate {
 	guint		files_ignored;
 
 	/* Status */
-	gboolean	running;
-	gboolean	finished;
+	gboolean	is_running;
+	gboolean	is_finished;
+	gboolean        was_started;
 };
 
 enum {
@@ -603,7 +605,7 @@ process_func (gpointer data)
 	}
 
 	priv->idle_id = 0;
-	priv->finished = TRUE;
+	priv->is_finished = TRUE;
 
 	tracker_crawler_stop (crawler);
 
@@ -670,7 +672,7 @@ file_enumerate_next_cb (GObject      *object,
 						     result,
 						     NULL);
 
-	if (!files || !crawler->private->running) {
+	if (!files || !crawler->private->is_running) {
 		/* No more files or we are stopping anyway, so clean
 		 * up and close all file enumerators.
 		 */
@@ -850,6 +852,8 @@ tracker_crawler_start (TrackerCrawler *crawler)
 
 	priv = crawler->private;
 
+	priv->was_started = TRUE;
+
 	g_message ("Crawling directories for module:'%s'",
 		   crawler->private->module_name);
 
@@ -938,12 +942,9 @@ tracker_crawler_start (TrackerCrawler *crawler)
 
 	priv->timer = g_timer_new ();
 
-	/* Set idle handler to process directories and files found */
-	priv->idle_id = g_idle_add (process_func, crawler);
-
 	/* Set as running now */
-	priv->running = TRUE;
-	priv->finished = FALSE;
+	priv->is_running = TRUE;
+	priv->is_finished = FALSE;
 
 	/* Reset stats */
 	priv->directories_found = 0;
@@ -955,6 +956,9 @@ tracker_crawler_start (TrackerCrawler *crawler)
 	priv->paths_are_done = FALSE;
 	priv->recurse_paths_are_done = FALSE;
 	priv->special_paths_are_done = FALSE;
+
+	/* Set idle handler to process directories and files found */
+	priv->idle_id = g_idle_add (process_func, crawler);
 
 	return TRUE;
 }
@@ -968,8 +972,9 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 
 	priv = crawler->private;
 
+
 	g_message ("  %s crawling files in %4.4f seconds",
-		   priv->finished ? "Finished" : "Stopped",
+		   priv->is_finished ? "Finished" : "Stopped",
 		   g_timer_elapsed (priv->timer, NULL));
 	g_message ("  Found %d directories, ignored %d directories",
 		   priv->directories_found,
@@ -978,14 +983,17 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 		   priv->files_found,
 		   priv->files_ignored);
 
-	priv->running = FALSE;
+	priv->is_running = FALSE;
 
 	if (priv->idle_id) {
 		g_source_remove (priv->idle_id);
+		priv->idle_id = 0;
 	}
 
-	g_timer_destroy (priv->timer);
-	priv->timer = NULL;
+	if (priv->timer) {
+		g_timer_destroy (priv->timer);
+		priv->timer = NULL;
+	}
 
 	g_signal_emit (crawler, signals[FINISHED], 0,
 		       priv->module_name,
@@ -995,13 +1003,62 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 		       priv->files_ignored);
 }
 
+/* This function is a convenience for the monitor module so we can
+ * just ask it to crawl another path which we didn't know about
+ * before.
+ */
+void
+tracker_crawler_add_unexpected_path (TrackerCrawler *crawler,
+				     const gchar    *path)
+{
+	TrackerCrawlerPrivate *priv;
+	GFile                 *file;
+
+	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
+	g_return_if_fail (path != NULL);
+
+	priv = crawler->private;
+
+	/* This check should be fine, the reason being, that if we
+	 * call this, it is because we have received a monitor event
+	 * in the first place. This means we must already have been
+	 * started at some point.
+	 */
+	g_return_if_fail (priv->was_started);
+
+	/* FIXME: Should we check paths_are_done to see if we
+	 * need to actually call add_directory()?
+	 */
+	file = g_file_new_for_path (path);
+	add_directory (crawler, file);
+	g_object_unref (file);
+	
+	/* FIXME: Should we reset the stats? */
+	if (!priv->idle_id) {
+		/* Time the event */
+		if (priv->timer) {
+			g_timer_destroy (priv->timer);
+		}
+		
+		priv->timer = g_timer_new ();
+		
+		/* Set as running now */
+		priv->is_running = TRUE;
+		priv->is_finished = FALSE;
+	
+		/* Set idle handler to process directories and files found */
+		priv->idle_id = g_idle_add (process_func, crawler);
+	}
+}
+
+
 /* This is a convenience function to add extra locations because
  * sometimes we want to add locations like the MMC or others to the
  * "Files" module, for example.
  */
 void
 tracker_crawler_special_paths_add (TrackerCrawler *crawler,
-				   const gchar	 *path)
+				   const gchar    *path)
 {
 	TrackerCrawlerPrivate *priv;
 
@@ -1010,7 +1067,7 @@ tracker_crawler_special_paths_add (TrackerCrawler *crawler,
 
 	priv = crawler->private;
 
-	g_return_if_fail (priv->running == FALSE);
+	g_return_if_fail (!priv->is_running);
 
 	priv->special_paths = g_slist_append (priv->special_paths, g_strdup (path));
 }
@@ -1023,6 +1080,8 @@ tracker_crawler_special_paths_clear (TrackerCrawler *crawler)
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
 	priv = crawler->private;
+
+	g_return_if_fail (!priv->is_running);
 
 	g_slist_foreach (priv->special_paths, (GFunc) g_free, NULL);
 	g_slist_free (priv->special_paths);
@@ -1038,6 +1097,8 @@ tracker_crawler_use_module_paths (TrackerCrawler *crawler,
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
 	priv = crawler->private;
+
+	g_return_if_fail (priv->is_running == FALSE);
 
 	priv->use_module_paths = use_module_paths;
 }

@@ -198,12 +198,13 @@ tracker_monitor_class_init (TrackerMonitorClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__STRING_OBJECT_OBJECT_BOOLEAN,
+			      tracker_marshal_VOID__STRING_OBJECT_OBJECT_BOOLEAN_BOOLEAN,
 			      G_TYPE_NONE,
-			      4,
+			      5,
 			      G_TYPE_STRING,
 			      G_TYPE_OBJECT,
 			      G_TYPE_OBJECT,
+			      G_TYPE_BOOLEAN,
 			      G_TYPE_BOOLEAN);
 
 	g_object_class_install_property (object_class,
@@ -571,11 +572,15 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 		g_object_unref (parent);
 
 		if (!module_name) {
-			gchar *child_path;
 			gchar *parent_path;
+			gchar *child_path;
 
-			child_path = g_file_get_path (file);
 			parent_path = g_file_get_path (parent);
+			child_path = g_file_get_path (file);
+
+			if (is_directory) {
+				*is_directory = g_file_test (child_path, G_FILE_TEST_IS_DIR);
+			}
 
 			g_warning ("Could not get module name from GFile (path:'%s' or parent:'%s')",
 				   child_path,
@@ -585,10 +590,14 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 			g_free (child_path);
 
 			return NULL;
-		}
+		} else {
+			if (is_directory) {
+				gchar *child_path;
 
-		if (is_directory) {
-			*is_directory = FALSE;
+				child_path = g_file_get_path (file);
+				*is_directory = g_file_test (child_path, G_FILE_TEST_IS_DIR);
+				g_free (child_path);
+			}
 		}
 	}
 
@@ -1186,10 +1195,8 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 	}
 
 	other_file = NULL;
+	module_name = get_module_name_from_gfile (monitor, file, &is_directory);
 
-	module_name = get_module_name_from_gfile (monitor,
-						  file,
-						  &is_directory);
 	if (!module_name) {
 		g_free (str1);
 		g_object_unref (file);
@@ -1341,7 +1348,8 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 					       module_name,
 					       file,
 					       other_file,
-					       is_directory);
+					       is_directory, 
+					       TRUE);
 				g_hash_table_remove (monitor->private->event_pairs,
 						     GUINT_TO_POINTER (cookie));
 			}
@@ -1366,9 +1374,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			break;
 
 		case IN_MOVED_TO:
-			/* FIXME: What if we don't monitor the other
-			 * location?
-			 */
 			if (cookie == 0) {
 				g_signal_emit (monitor,
 					       signals[ITEM_CREATED], 0,
@@ -1376,12 +1381,32 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 					       file,
 					       is_directory);
 			} else if (other_file) {
+				gboolean is_source_indexed;
+
+				/* We check for the event pair in the
+				 * hash table here. If it doesn't
+				 * exist even though we have a cookie
+				 * it means we didn't have a monitor
+				 * set up on the source location.
+				 * This means we need to get the
+				 * processor to crawl the new
+				 * location.
+				 */
+
+				if (g_hash_table_lookup (monitor->private->event_pairs, 
+							 GUINT_TO_POINTER (cookie))) {
+					is_source_indexed = TRUE;
+				} else {
+					is_source_indexed = FALSE;
+				}
+
 				g_signal_emit (monitor,
 					       signals[ITEM_MOVED], 0,
 					       module_name,
 					       other_file,
 					       file,
-					       is_directory);
+					       is_directory,
+					       is_source_indexed);
 				g_hash_table_remove (monitor->private->event_pairs,
 						     GUINT_TO_POINTER (cookie));
 			}

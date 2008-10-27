@@ -140,6 +140,7 @@ static void monitor_item_moved_cb	    (TrackerMonitor   *monitor,
 					     GFile	      *file,
 					     GFile	      *other_file,
 					     gboolean	       is_directory,
+					     gboolean          is_source_monitored,
 					     gpointer	       user_data);
 static void crawler_processing_file_cb	    (TrackerCrawler   *crawler,
 					     const gchar      *module_name,
@@ -1145,20 +1146,23 @@ processor_files_check (TrackerProcessor *processor,
 	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
 	ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
 
-	g_debug ("%s:'%s' (create monitor event or user request)",
+	g_debug ("%s:'%s' (%s) (create monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
-		 path);
+		 path,
+		 is_directory ? "DIR" : "FILE");
 
-	g_free (path);
-
-	if (ignored) {
-		return;
+	if (!ignored) {
+		if (!is_directory) {
+			queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
+			g_queue_push_tail (queue, g_object_ref (file));
+			
+			item_queue_handlers_set_up (processor);
+		} else {
+			tracker_crawler_add_unexpected_path (crawler, path);
+		}
 	}
 
-	queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
-	g_queue_push_tail (queue, g_object_ref (file));
-
-	item_queue_handlers_set_up (processor);
+	g_free (path);
 }
 
 static void
@@ -1176,20 +1180,19 @@ processor_files_update (TrackerProcessor *processor,
 	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
 	ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
 
-	g_debug ("%s:'%s' (update monitor event or user request)",
+	g_debug ("%s:'%s' (%s) (update monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
-		 path);
+		 path,
+		 is_directory ? "DIR" : "FILE");
 
-	g_free (path);
-
-	if (ignored) {
-		return;
+	if (!ignored) {
+		queue = g_hash_table_lookup (processor->private->items_updated_queues, module_name);
+		g_queue_push_tail (queue, g_object_ref (file));
+		
+		item_queue_handlers_set_up (processor);
 	}
 
-	queue = g_hash_table_lookup (processor->private->items_updated_queues, module_name);
-	g_queue_push_tail (queue, g_object_ref (file));
-
-	item_queue_handlers_set_up (processor);
+	g_free (path);
 }
 
 static void
@@ -1207,20 +1210,19 @@ processor_files_delete (TrackerProcessor *processor,
 	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
 	ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
 
-	g_debug ("%s:'%s' (delete monitor event or user request)",
+	g_debug ("%s:'%s' (%s) (delete monitor event or user request)",
 		 ignored ? "Ignored" : "Found ",
-		 path);
+		 path,
+		 is_directory ? "DIR" : "FILE");
 
-	g_free (path);
-
-	if (ignored) {
-		return;
+	if (!ignored) {
+		queue = g_hash_table_lookup (processor->private->items_deleted_queues, module_name);
+		g_queue_push_tail (queue, g_object_ref (file));
+		
+		item_queue_handlers_set_up (processor);
 	}
 
-	queue = g_hash_table_lookup (processor->private->items_deleted_queues, module_name);
-	g_queue_push_tail (queue, g_object_ref (file));
-
-	item_queue_handlers_set_up (processor);
+	g_free (path);
 }
 
 static void
@@ -1244,34 +1246,43 @@ processor_files_move (TrackerProcessor *processor,
 	path_ignored = tracker_crawler_is_path_ignored (crawler, path, is_directory);
 	other_path_ignored = tracker_crawler_is_path_ignored (crawler, other_path, is_directory);
 
-	g_debug ("%s:'%s'->'%s':%s (move monitor event or user request)",
+	g_debug ("%s:'%s'->'%s':%s (%s) (move monitor event or user request)",
 		 path_ignored ? "Ignored" : "Found ",
 		 path,
 		 other_path,
-		 other_path_ignored ? "Ignored" : " Found");
-
-	g_free (other_path);
-	g_free (path);
+		 other_path_ignored ? "Ignored" : " Found",
+		 is_directory ? "DIR" : "FILE");
 
 	if (path_ignored && other_path_ignored) {
 		/* Do nothing */
-		return;
 	} else if (path_ignored) {
 		/* Check new file */
-		queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
-		g_queue_push_tail (queue, g_object_ref (other_file));
+		if (!is_directory) {
+			queue = g_hash_table_lookup (processor->private->items_created_queues, module_name);
+			g_queue_push_tail (queue, g_object_ref (other_file));
+
+			item_queue_handlers_set_up (processor);
+		}
+
+		/* If this is a directory we need to crawl it */
+		tracker_crawler_add_unexpected_path (crawler, other_path);
 	} else if (other_path_ignored) {
 		/* Delete old file */
 		queue = g_hash_table_lookup (processor->private->items_deleted_queues, module_name);
 		g_queue_push_tail (queue, g_object_ref (file));
+
+		item_queue_handlers_set_up (processor);
 	} else {
 		/* Move old file to new file */
 		queue = g_hash_table_lookup (processor->private->items_moved_queues, module_name);
 		g_queue_push_tail (queue, g_object_ref (file));
 		g_queue_push_tail (queue, g_object_ref (other_file));
+
+		item_queue_handlers_set_up (processor);
 	}
 
-	item_queue_handlers_set_up (processor);
+	g_free (other_path);
+	g_free (path);
 }
 
 static void
@@ -1310,9 +1321,24 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		       GFile	      *file,
 		       GFile	      *other_file,
 		       gboolean        is_directory,
+		       gboolean        is_source_monitored,
 		       gpointer        user_data)
 {
-	processor_files_move (user_data, module_name, file, other_file, is_directory);
+	if (!is_source_monitored) {
+		TrackerProcessor *processor;
+		TrackerCrawler   *crawler;
+		gchar            *path;
+
+		processor = user_data;
+
+		/* If the source is not monitored, we need to crawl it. */
+		path = g_file_get_path (other_file);
+		crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
+		tracker_crawler_add_unexpected_path (crawler, path);
+		g_free (path);
+	} else {
+		processor_files_move (user_data, module_name, file, other_file, is_directory);
+	}
 }
 
 static void
@@ -1611,7 +1637,7 @@ tracker_processor_files_check (TrackerProcessor *processor,
 	g_return_if_fail (TRACKER_IS_PROCESSOR (processor));
 	g_return_if_fail (module_name != NULL);
 	g_return_if_fail (G_IS_FILE (file));
-
+	
 	processor_files_check (processor, module_name, file, is_directory);
 }
 
