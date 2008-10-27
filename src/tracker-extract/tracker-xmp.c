@@ -246,6 +246,22 @@ tracker_xmp_iter_simple (GHashTable *metadata,
 		        tracker_append_string_to_hash_table (metadata, "Image:Rating", value, append);
 		}
 	}
+	/* IPTC4XMP scheme */
+	else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
+	        if (strcmp (name, "Location") == 0) {
+		        tracker_append_string_to_hash_table (metadata, "Image:Location", value, append);
+		}
+	}
+	/* Photoshop scheme */
+	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {
+	        if (strcmp (name, "City") == 0) {
+		        tracker_append_string_to_hash_table (metadata, "Image:City", value, append);
+		}
+		else if (strcmp (name, "Country") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:Country", value, append);
+		}
+	}
+
 
 	g_free (name);
 }

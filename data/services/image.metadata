@@ -128,3 +128,17 @@ DisplayName=Rating
 Description=Rating given to the image. 
 DataType=integer
 
+[Image:Location]
+DisplayName=Location
+Description=Location where the image was taken or the location shown in the image.
+DataType=string
+
+[Image:Country]
+DisplayName=Country
+Description=Country where the image was taken or the country shown in the image.
+DataType=string
+
+[Image:City]
+DisplayName=City
+Description=City where the image was taken or the city shown in the image.
+DataType=string

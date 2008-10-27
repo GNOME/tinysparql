@@ -1,3 +1,10 @@
+2008-10-27  Mikael Ottela    <mikael.ottela@ixonos.com>
+	
+	* data/services/image.metadata:
+	* src/tracker-extract/tracker-xmp.c: Added Image:City, 
+	Image:Country and Image:Location fields and support for them 
+	in the extractors. Fixes NB#90455.	
+
 2008-10-27  Martyn Russell  <martyn@imendio.com>
 
 	Fixes NB#88140.
@@ -25,12 +32,12 @@
 	Also call the new function in TrackerCrawler to request traversal
 	of a newly found directory upon monitor events.
 
-2008-10-17  Mikael Ottela    <mikael.ottela@ixonos.com>
-
+2008-10-27  Mikael Ottela    <mikael.ottela@ixonos.com>
+	
 	* data/services/default.service:
 	* data/services/image.metadata:
-	* src/tracker-extract/tracker-xmp.c: Added Image:Rating field and
-	XMP:XAP:Rating support.
+	* src/tracker-extract/tracker-xmp.c:  Added Image:Rating field 
+	and XMP:XAP:Rating support. Fixes NB#90374.
 	
 2008-10-24  Philip Van Hoof  <philip@codeminded.be>
 
