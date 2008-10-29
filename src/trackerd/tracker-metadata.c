@@ -182,7 +182,7 @@ tracker_metadata_get (TrackerMetadata	     *object,
 			tracker_dbus_request_failed (request_id,
 						     &actual_error,
 						     "Metadata field '%s' not registered in the system",
-						     uri);
+						     keys[i]);
 			dbus_g_method_return_error (context, actual_error);
 			g_error_free (actual_error);
 			return;

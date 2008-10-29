@@ -1,5 +1,13 @@
 2008-10-29  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/tracker/tracker-metadata.c
+	(tracker_metadata_get): Fixed error message. It was printing the
+	wrong variable, causing confusion to the users.
+
+	Fixes NB#91053.
+	
+2008-10-29  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/trackerd/tracker-keywords.c
 	(tracker_keywords_add): Check that none of the keywords is an
 	empty string.
