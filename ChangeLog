@@ -1,5 +1,11 @@
 2008-10-29  Mikael Ottela <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-extract-mp3.c: We take embedded
+	album art with no type defition if front cover is not found.
+
+2008-10-29  Mikael Ottela <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c: Additional genre tags
 	are now returned as text rather than numbers. We no longer mix up
 	artist and the original artist.

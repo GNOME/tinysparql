@@ -708,7 +708,7 @@ get_id3v24_tags (const gchar *data,
 			pic_type  =  data[pos+11+strlen(mime)+1];
 			desc      = &data[pos+11+strlen(mime)+1+1];
 
-			if (pic_type == 3) {
+			if ((pic_type == 3)||((pic_type == 0)&&(albumart->size == 0))) {
 
 				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
 
@@ -924,8 +924,8 @@ get_id3v23_tags (const gchar *data,
 			mime      = &data[pos+11];
 			pic_type  =  data[pos+11+strlen(mime)+1];
 			desc      = &data[pos+11+strlen(mime)+1+1];
-
-			if (pic_type == 3) {
+			
+			if ((pic_type == 3)||((pic_type == 0)&&(albumart->size == 0))) {
 
 				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
 
@@ -1084,7 +1084,7 @@ get_id3v2_tags (const gchar *data,
 			pic_type  =  data[pos+6+3+1+3];
 			desc      = &data[pos+6+3+1+3+1];
 
-			if (pic_type == 3) {
+			if ((pic_type == 3)||((pic_type == 0)&&(albumart->size == 0))) {
 
 				offset = pos+6+3+1+3+1+strlen(desc)+1;
 

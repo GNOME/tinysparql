@@ -546,7 +546,8 @@ get_embedded_album_art(MetadataExtractor *extractor)
 						GST_TYPE_TAG_IMAGE_TYPE,
 						&type);
 			
-			if (type == GST_TAG_IMAGE_TYPE_FRONT_COVER) {
+			if ((type == GST_TAG_IMAGE_TYPE_FRONT_COVER)||
+			    ((type == GST_TAG_IMAGE_TYPE_UNDEFINED)&&(extractor->album_art_size == 0))) {
 				extractor->album_art_data = buffer->data;
 				extractor->album_art_size = buffer->size;
 
