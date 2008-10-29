@@ -1,3 +1,11 @@
+2008-10-29  Mikael Ottela <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Additional genre tags
+	are now returned as text rather than numbers. We no longer mix up
+	artist and the original artist.
+
+	Fixes NB #91165.
+
 2008-10-29  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker/tracker-metadata.c

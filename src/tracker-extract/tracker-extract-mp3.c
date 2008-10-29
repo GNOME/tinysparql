@@ -528,7 +528,7 @@ get_id3v24_tags (const gchar *data,
 		{"TPE1", "Audio:Artist"},
 		{"TPE2", "Audio:Artist"},
 		{"TPE3", "Audio:Performer"},
-		{"TOPE", "Audio:Artist"},
+		/*	{"TOPE", "Audio:Artist"}, We dont' want the original artist for now */
 		{"TPUB", "DC:Publishers"},
 		{"TOAL", "Audio:Album"},
 		{"TALB", "Audio:Album"},
@@ -666,6 +666,21 @@ get_id3v24_tags (const gchar *data,
 						word = s;
 					}
 
+					/* Genre to text */
+					if ((strcmp (tmap[i].text, "TCON") == 0) ||
+					    (strcmp (tmap[i].text, "TIT1") == 0)) {
+						guint genre;
+
+						genre = strtoul (word, NULL, 10);
+						if ((guint) genre < G_N_ELEMENTS (genre_names)) {
+							gchar *s;
+						
+							s = g_strdup (genre_names[genre]);
+							g_free (word);
+							word = s;
+						}
+					}
+
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
 							     g_strdup (word));
@@ -731,7 +746,7 @@ get_id3v23_tags (const gchar *data,
 		{"TPE2", "Audio:Artist"},
 		{"TPE3", "Audio:Performer"},
 		{"TIME", "Audio:ReleaseDate"},
-		{"TOPE", "Audio:Artist"},
+		/*	{"TOPE", "Audio:Artist"}, We don't want the original artist for now */
 		{"TPUB", "DC:Publishers"},
 		{"TOAL", "Audio:Album"},
 		{"TALB", "Audio:Album"},
@@ -866,6 +881,21 @@ get_id3v23_tags (const gchar *data,
 						s = g_strdup (word + strlen (word) + 1);
 						g_free (word);
 						word = s;
+					}
+
+					/* Genre to text */
+					if ((strcmp (tmap[i].text, "TCON") == 0) ||
+					    (strcmp (tmap[i].text, "TIT1") == 0)) {
+						guint genre;
+
+						genre = strtoul (word, NULL, 10);
+						if ((guint) genre < G_N_ELEMENTS (genre_names)) {
+							gchar *s;
+						
+							s = g_strdup (genre_names[genre]);
+							g_free (word);
+							word = s;
+						}
 					}
 
 					g_hash_table_insert (metadata,
