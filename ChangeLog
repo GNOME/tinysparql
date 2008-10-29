@@ -1,5 +1,13 @@
 2008-10-29  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/trackerd/tracker-keywords.c
+	(tracker_keywords_add): Check that none of the keywords is an
+	empty string.
+
+	Fixes gnome bug #402063.
+	
+2008-10-29  Ivan Frade  <ivan.frade@nokia.com>
+
 	* data/services/default.service
 	Removed audio/vnd.rn-realaudio from the [Playlist] mimetypes. This
 	mimetype indicates audio and not playlist.

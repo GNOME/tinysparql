@@ -286,6 +286,24 @@ tracker_keywords_add (TrackerKeywords	     *object,
 		g_error_free (actual_error);
 		return;
 	}
+	
+	gchar **check;
+	gchar  *stripped_value;
+	for (check = keywords; *check != NULL; check++) {
+		stripped_value = g_strstrip (g_strdup (*check));
+
+		if (tracker_is_empty_string (stripped_value)) {
+			g_free (stripped_value);
+			tracker_dbus_request_failed (request_id,
+						     &actual_error,
+						     "Blank spaces are not allowed as keywords");
+			dbus_g_method_return_error (context, actual_error);
+			g_free (id);
+			g_error_free (actual_error);
+			return;
+		}
+		g_free (stripped_value);
+	}
 
 	org_freedesktop_Tracker_Indexer_property_set (tracker_dbus_indexer_get_proxy (),
 						      service_type,
@@ -300,6 +318,7 @@ tracker_keywords_add (TrackerKeywords	     *object,
 					     NULL);
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
+		g_free (id);
 		return;
 	}
 
