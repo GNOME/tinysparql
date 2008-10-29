@@ -1497,6 +1497,10 @@ item_remove (TrackerIndexer *indexer,
 	g_free (service_path);
 }
 
+/*
+ * TODO: Check how are we using this functions. 
+ *       I think 99% of the time "values" has only 1 element.
+ */
 static gboolean
 handle_metadata_add (TrackerIndexer *indexer,
 		     const gchar    *service_type,
@@ -1506,10 +1510,12 @@ handle_metadata_add (TrackerIndexer *indexer,
 		     GError	   **error)
 {
 	TrackerService *service;
-	TrackerField *field;
-	guint service_id, i;
-	gchar *joined, *dirname = NULL, *basename = NULL;
-	gint len;
+	TrackerField   *field;
+	guint           service_id, i, j = 0;
+	gchar         **setted_values;
+	gchar          *joined, *dirname = NULL, *basename = NULL;
+	gchar         **old_contents;
+	gint            len;
 
 	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
@@ -1574,13 +1580,11 @@ handle_metadata_add (TrackerIndexer *indexer,
 		return FALSE;
 	}
 
-	if (!tracker_field_get_multiple_values (field)) {
+	old_contents = tracker_db_get_property_values (service,
+						       service_id,
+						       field);
+	if (!tracker_field_get_multiple_values (field) && old_contents) {
 		/* Remove old value from DB and index */
-		gchar **old_contents;
-
-		old_contents = tracker_db_get_property_values (service,
-							       service_id,
-							       field);
 		len = g_strv_length (old_contents);
 
 		if (old_contents && len > 1) {
@@ -1601,25 +1605,29 @@ handle_metadata_add (TrackerIndexer *indexer,
 							 tracker_field_get_weight (field));
 			}
 			tracker_db_delete_metadata (service, service_id, field, old_contents[0]);
-			g_strfreev (old_contents);
 		}
 	}
 
-	for (i = 0; values[i] != NULL; i++) {
+	setted_values = g_new0 (gchar *, g_strv_length (values));
+
+	for (i = 0, j = 0; values[i] != NULL; i++) {
 		g_debug ("Setting metadata: service_type '%s' id '%d' field '%s' value '%s'",
 			 tracker_service_get_name (service),
 			 service_id,
 			 tracker_field_get_name (field),
 			 values[i]);
 
-		tracker_db_set_metadata (service,
-					 service_id,
-					 field,
-					 values[i],
-					 NULL);
-	}
+		if (tracker_field_get_multiple_values (field) 
+		    && (tracker_string_in_string_list (values[i], old_contents) > -1) ) {
+			continue;
+		}
 
-	joined = g_strjoinv (" ", values);
+		tracker_db_set_metadata (service, service_id, field, values[i], NULL);
+		setted_values [j++] = values[i];
+	}
+	setted_values [j] = NULL;
+	
+	joined = g_strjoinv (" ", setted_values);
 	if (tracker_field_get_filtered (field)) {
 		index_text_no_parsing (indexer,
 				       service_id,
@@ -1633,6 +1641,13 @@ handle_metadata_add (TrackerIndexer *indexer,
 					 joined,
 					 tracker_field_get_weight (field));
 	}
+
+	if (old_contents) {
+		g_strfreev (old_contents);
+	}
+
+	/* Not g_strfreev because. It contains the pointers of "values"! */
+	g_free (setted_values);
 	g_free (joined);
 
 	return TRUE;

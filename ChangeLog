@@ -1,3 +1,11 @@
+2008-10-27  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-indexer/tracker-indexer.c
+	(handle_metadata_add): Check the previous values to dont insert
+	duplicated values. 
+
+	Fixes NB#88048 and gnome bug #402054.
+
 2008-10-27  Mikael Ottela    <mikael.ottela@ixonos.com>
 	
 	* data/services/image.metadata:
