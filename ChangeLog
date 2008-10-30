@@ -1,3 +1,8 @@
+2008-10-30  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Support for storing local
+	album art on removable devices
+
 2008-10-29  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer.c:

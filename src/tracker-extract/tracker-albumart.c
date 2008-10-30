@@ -20,6 +20,7 @@
 
 #include "config.h"
 
+#include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -47,7 +48,9 @@
 static void get_albumart_path (const gchar  *a, 
 			       const gchar  *b, 
 			       const gchar  *prefix, 
-			       gchar       **path);
+			       const gchar  *uri,
+			       gchar       **path,
+			       gchar       **local);
 
 #ifndef HAVE_STRCASESTR
 
@@ -78,6 +81,25 @@ strcasestr (const gchar *haystack,
 }
 
 #endif /* HAVE_STRCASESTR */
+
+static void
+perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
+{
+	/* TODO: determine whether or not we want to copy to the local removable
+	 * device. Note that we receive all kinds of paths here: On the local
+	 * filesystem, on remote URIs and on mount points like /media */
+
+	if (FALSE) {
+		GFile *local_file, *from;
+
+		from = g_file_new_for_path (filename);
+		local_file = g_file_new_for_uri (local_uri);
+		g_file_copy_async (from, local_file, 0, 0, 
+				   NULL, NULL, NULL, NULL, NULL);
+		g_object_unref (local_file);
+		g_object_unref (from);
+	}
+}
 
 static gboolean 
 heuristic_albumart (const gchar *artist,  
@@ -137,7 +159,9 @@ heuristic_albumart (const gchar *artist,
 					GFile *file_found;
 					
 					if (!target) {
-						get_albumart_path (artist, album, "album", &target);
+						get_albumart_path (artist, album, 
+								   "album", NULL, 
+								   &target, NULL);
 					}
 					
 					if (!file) {
@@ -170,7 +194,12 @@ heuristic_albumart (const gchar *artist,
 						retval = FALSE;
 					} else {
 						if (!target) {
-							get_albumart_path (artist, album, "album", &target);
+							get_albumart_path (artist, 
+									   album, 
+									   "album", 
+									   NULL, 
+									   &target, 
+									   NULL);
 						}
 						
 						gdk_pixbuf_save (pixbuf, target, "jpeg", &error, NULL);
@@ -253,7 +282,9 @@ static void
 get_albumart_path (const gchar  *a, 
 		   const gchar  *b, 
 		   const gchar  *prefix, 
-		   gchar       **path)
+		   const gchar  *uri,
+		   gchar       **path,
+		   gchar       **local)
 {
 	gchar *art_filename;
 	gchar *dir;
@@ -285,10 +316,24 @@ get_albumart_path (const gchar  *a,
 	art_filename = g_strdup_printf ("%s-%s.jpeg", prefix?prefix:"album", str);
 	g_free (str);
 
+	if (local && uri) {
+		gchar *uri_t = g_strdup (uri);
+		gchar *ptr = strrchr (uri_t, '/');
+
+		if (ptr)
+			*ptr = '\0';
+
+		/* g_build_filename can't be used here, it's a URI */
+		*local = g_strdup_printf ("%s/.mediaartlocal/%s", 
+					  uri_t, art_filename);
+		g_free (uri_t);
+	}
+
 	*path = g_build_filename (dir, art_filename, NULL);
 	g_free (dir);
 	g_free (art_filename);
 }
+
 
 #ifdef HAVE_GDKPIXBUF
 
@@ -311,7 +356,7 @@ set_albumart (const unsigned char *buffer,
 		return FALSE;
 	}
 
-	get_albumart_path (artist, album, "album", &filename);
+	get_albumart_path (artist, album, "album", NULL, &filename, NULL);
 
 	loader = gdk_pixbuf_loader_new ();
 
@@ -361,8 +406,18 @@ tracker_process_albumart (const unsigned char *buffer,
 {
 	gchar *art_path;
 	gboolean retval = TRUE;
+	gchar *local_uri = NULL;
+	gchar *filename_uri;
 
-	get_albumart_path (artist, album, "album", &art_path);
+	/* To support remote locations, filename should be passed as a URI here */
+
+	if (strchr (filename, ':'))
+		filename_uri = g_strdup (filename);
+	else
+		filename_uri = g_strdup_printf ("file://%s", filename);
+
+	get_albumart_path (artist, album, "album", filename_uri, 
+			   &art_path, &local_uri);
 
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
 #ifdef HAVE_GDKPIXBUF
@@ -390,9 +445,14 @@ tracker_process_albumart (const unsigned char *buffer,
 		}
 
 #endif /* HAVE_GDKPIXBUF */
+
+		if (g_file_test (art_path, G_FILE_TEST_EXISTS))
+			perhaps_copy_to_local (art_path, local_uri);
 	}
 
 	g_free (art_path);
+	g_free (filename_uri);
+	g_free (local_uri);
 
 	return retval;
 }
