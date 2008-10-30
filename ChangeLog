@@ -1,5 +1,10 @@
 2008-10-30  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/tracker-extract/tracker-albumart.c: Stripping album and artist
+	strings
+
+2008-10-30  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/tracker-extract/tracker-albumart.c: Support for storing local
 	album art on removable devices
 
