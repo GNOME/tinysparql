@@ -39,6 +39,8 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
+#include <libtracker-common/tracker-common.h>
+
 #include "tracker-albumart.h"
 
 #define ALBUMARTER_SERVICE      "com.nokia.albumart"
@@ -160,17 +162,57 @@ strip_characters (const gchar *original)
 static void
 perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 {
-	/* TODO: determine whether or not we want to copy to the local removable
-	 * device. Note that we receive all kinds of paths here: On the local
-	 * filesystem, on remote URIs and on mount points like /media */
+	GSList *removableroots, *copy = NULL;
+	gboolean on_removable_device = FALSE;
+	guint flen;
 
-	if (FALSE) {
+	if (!filename || !local_uri)
+		return;
+
+	flen = strlen (filename);
+
+	/* Determining if we are on a removable device */
+
+#ifdef HAVE_HAL
+	TrackerHal *hal = tracker_hal_new ();
+	removableroots = tracker_hal_get_removable_device_roots (hal);
+	g_object_unref (hal);
+#else
+	removableroots = g_slist_append (removableroots, "/media");
+	removableroots = g_slist_append (removableroots, "/mnt");
+#endif
+
+	copy = removableroots;
+
+	while (copy) {
+		guint len = strlen (copy->data);
+		if (flen >= len && strncmp (filename, copy->data, len)) {
+			on_removable_device = TRUE;
+			break;
+		}
+		copy = g_slist_next (copy);
+	}
+
+#ifdef HAVE_HAL
+	g_slist_foreach (removableroots, (GFunc) g_free, NULL);
+#endif
+
+	g_slist_free (removableroots);
+
+	if (on_removable_device) {
 		GFile *local_file, *from;
 
 		from = g_file_new_for_path (filename);
 		local_file = g_file_new_for_uri (local_uri);
-		g_file_copy_async (from, local_file, 0, 0, 
-				   NULL, NULL, NULL, NULL, NULL);
+
+		/* We don't try to overwrite, but we also ignore all errors.
+		 * Such an error could be that the removable device is 
+		 * read-only. Well that's fine then ... ignore */
+
+		if (!g_file_query_exists (local_file, NULL))
+			g_file_copy_async (from, local_file, 0, 0, 
+					   NULL, NULL, NULL, NULL, NULL);
+
 		g_object_unref (local_file);
 		g_object_unref (from);
 	}
@@ -180,7 +222,9 @@ static gboolean
 heuristic_albumart (const gchar *artist_,  
 		    const gchar *album_, 
 		    const gchar *tracks_str, 
-		    const gchar *filename)
+		    const gchar *filename,
+		    const gchar *local_uri,
+		    gboolean    *copied)
 {
 	GFile *file;
 	GDir *dir;
@@ -193,6 +237,37 @@ heuristic_albumart (const gchar *artist_,
 	gint count;
 	gchar *artist = NULL;
 	gchar *album = NULL;
+
+	/* Copy from local album art (.mediaartlocal) to spec */
+
+	if (local_uri) {
+	  GFile *local_file;
+
+	  local_file = g_file_new_for_uri (local_uri);
+
+	  if (g_file_query_exists (local_file, NULL)) {
+
+		get_albumart_path (artist, album, 
+				   "album", NULL, 
+				   &target, NULL);
+
+		file = g_file_new_for_path (target);
+
+		g_file_copy_async (local_file, file, 0, 0, 
+				   NULL, NULL, NULL, NULL, NULL);
+
+		g_object_unref (file);
+		g_object_unref (local_file);
+
+		*copied = TRUE;
+		g_free (target);
+
+		return TRUE;
+	  }
+	  g_object_unref (local_file);
+	}
+
+	*copied = FALSE;
 
 	file = g_file_new_for_path (filename);
 	basename = g_file_get_basename (file);
@@ -208,7 +283,7 @@ heuristic_albumart (const gchar *artist_,
 		g_free (basename);
 		return FALSE;
 	}
-	
+
 	retval = FALSE;
 	file = NULL;
 
@@ -226,10 +301,14 @@ heuristic_albumart (const gchar *artist_,
 	if (album_)
 		album = strip_characters (album_);
 
+	/* If amount of files and amount of tracks in the album somewhat match */
+
 	if ((tracks != -1 && tracks < count + 3 && tracks > count - 3) || 
 	    (tracks == -1 && count > 8 && count < 50)) {
 		gchar *found = NULL;
-		
+
+		/* Try to find cover art in the directory */
+
 		for (name = g_dir_read_name (dir); name; name = g_dir_read_name (dir)) {
 			if ((artist && strcasestr (name, artist)) || 
 			    (album && strcasestr (name, album)) || 
@@ -377,6 +456,8 @@ get_albumart_path (const gchar  *a,
 	gchar *down;
 	gchar *f_a = NULL, *f_b = NULL;
 
+	/* http://live.gnome.org/MediaArtStorageSpec */
+
 	*path = NULL;
 
 	if (!a && !b) {
@@ -420,6 +501,7 @@ get_albumart_path (const gchar  *a,
 			*ptr = '\0';
 
 		/* g_build_filename can't be used here, it's a URI */
+
 		*local = g_strdup_printf ("%s/.mediaartlocal/%s", 
 					  uri_t, art_filename);
 		g_free (uri_t);
@@ -504,8 +586,7 @@ tracker_process_albumart (const unsigned char *buffer,
 	gboolean retval = TRUE;
 	gchar *local_uri = NULL;
 	gchar *filename_uri;
-
-	/* To support remote locations, filename should be passed as a URI here */
+	gboolean lcopied = FALSE;
 
 	if (strchr (filename, ':'))
 		filename_uri = g_strdup (filename);
@@ -516,7 +597,11 @@ tracker_process_albumart (const unsigned char *buffer,
 			   &art_path, &local_uri);
 
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
+
 #ifdef HAVE_GDKPIXBUF
+
+		/* If we have embedded album art */
+
 		if (buffer && len) {
 			retval = set_albumart (buffer, len,
 					       artist,
@@ -525,7 +610,14 @@ tracker_process_albumart (const unsigned char *buffer,
 			
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
-			if (!heuristic_albumart (artist, album, trackercnt_str, filename)) {
+
+			/* If not, we perform a heuristic on the dir */
+
+			if (!heuristic_albumart (artist, album, trackercnt_str, filename, local_uri, &lcopied)) {
+
+				/* If the heuristic failed, we request the download 
+				 * of the media-art to the media-art downloaders */
+
 				dbus_g_proxy_begin_call (get_albumart_requester (),
 					 "Queue",
 					 get_file_albumart_queue_cb,
@@ -542,7 +634,12 @@ tracker_process_albumart (const unsigned char *buffer,
 
 #endif /* HAVE_GDKPIXBUF */
 
-		if (g_file_test (art_path, G_FILE_TEST_EXISTS))
+		/* If the heuristic didn't copy from the .mediaartlocal, then 
+		 * we'll perhaps copy it to .mediaartlocal (perhaps because this
+		 * only copies in case the media is located on a removable 
+		 * device */
+
+		if (!lcopied && g_file_test (art_path, G_FILE_TEST_EXISTS))
 			perhaps_copy_to_local (art_path, local_uri);
 	}
 

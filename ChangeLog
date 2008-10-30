@@ -1,7 +1,8 @@
 2008-10-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Stripping album and artist
-	strings
+	strings. Code cleanups, added some comments. Support for local album
+	art on removable devices (added it to the heuristic scanner)
 
 2008-10-30  Philip Van Hoof  <philip@codeminded.be>
 
