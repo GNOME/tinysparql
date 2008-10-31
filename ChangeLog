@@ -1,3 +1,10 @@
+2008-10-31  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-applet/tracker-applet.c
+	Added translation domain loading the glade file.
+
+	Patch committed from Gabor Kelemen. Fixes #558613.
+	
 2008-10-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Stripping album and artist

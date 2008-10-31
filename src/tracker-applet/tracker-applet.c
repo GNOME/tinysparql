@@ -933,7 +933,7 @@ create_prefs (TrayIcon *icon)
 				     "tracker",
 				     "tracker-applet-prefs.glade",
 				     NULL);
-	glade = glade_xml_new (filename, NULL, NULL);
+	glade = glade_xml_new (filename, NULL, "tracker");
 
 	if (!glade) {
 		g_error ("Unable to find locate '%s'", filename);
