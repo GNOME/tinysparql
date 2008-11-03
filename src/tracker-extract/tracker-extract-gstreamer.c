@@ -894,6 +894,9 @@ tracker_extract_gstreamer (const gchar *uri,
 		if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
 			g_hash_table_insert (metadata, g_strdup ("Audio:Genre"), g_strdup ("tracker:unknown"));
 		}
+		if (!g_hash_table_lookup (metadata, "Audio:PlayCount")) {
+			g_hash_table_insert (metadata, g_strdup ("Audio:PlayCount"), g_strdup ("0"));
+		}
 	} else if (type==EXTRACT_MIME_VIDEO) {
 		if (!g_hash_table_lookup (metadata, "Video:Title")) {
 			g_hash_table_insert (metadata, g_strdup ("Video:Title"), g_strdup ("tracker:unknown"));

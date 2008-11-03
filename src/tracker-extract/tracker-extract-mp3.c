@@ -1246,6 +1246,12 @@ extract_mp3 (const gchar *filename,
 				     g_strdup ("tracker:unknown"));
 	}
 
+	if (!g_hash_table_lookup (metadata, "Audio:PlayCount")) {
+		g_hash_table_insert (metadata,
+				     g_strdup ("Audio:PlayCount"),
+				     g_strdup ("0"));
+	}	
+
 #ifndef G_OS_WIN32
 	munmap (buffer, size);
 #endif
