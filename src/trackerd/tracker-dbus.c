@@ -200,8 +200,13 @@ dbus_request_new_cb (guint    request_id,
 	DBusGProxy *proxy;
 	GError	   *error = NULL;
 	gboolean    set_paused = TRUE;
+	TrackerStatus status;
 
-	if (tracker_status_get () != TRACKER_STATUS_INDEXING) {
+	status = tracker_status_get ();
+
+	if (status != TRACKER_STATUS_INDEXING &&
+	    status != TRACKER_STATUS_DISK_FULL &&
+	    status != TRACKER_STATUS_LOW_BATT) {
 		return;
 	}
 
@@ -484,6 +489,7 @@ tracker_dbus_indexer_get_proxy (void)
 					 G_TYPE_INVALID);
 		dbus_g_proxy_add_signal (proxy_for_indexer,
 					 "Paused",
+					 G_TYPE_STRING,
 					 G_TYPE_INVALID);
 		dbus_g_proxy_add_signal (proxy_for_indexer,
 					 "Continued",

@@ -58,19 +58,18 @@ enum {
 	LAST_SIGNAL
 };
 
-static void tracker_daemon_finalize (GObject	*object);
-static void indexer_pause_cb	    (DBusGProxy *proxy,
-				     GError	*error,
-				     gpointer	 user_data);
-static void indexer_continue_cb     (DBusGProxy *proxy,
-				     GError	*error,
-				     gpointer	 user_data);
-static void indexer_paused_cb	    (DBusGProxy *proxy,
-				     GError	*error,
-				     gpointer	 user_data);
-static void indexer_continued_cb    (DBusGProxy *proxy,
-				     GError	*error,
-				     gpointer	 user_data);
+static void tracker_daemon_finalize (GObject	 *object);
+static void indexer_pause_cb	    (DBusGProxy  *proxy,
+				     GError	 *error,
+				     gpointer	  user_data);
+static void indexer_continue_cb     (DBusGProxy  *proxy,
+				     GError	 *error,
+				     gpointer	  user_data);
+static void indexer_paused_cb	    (DBusGProxy  *proxy,
+				     const gchar *reason,
+				     gpointer	  user_data);
+static void indexer_continued_cb    (DBusGProxy  *proxy,
+				     gpointer	  user_data);
 
 static guint signals[LAST_SIGNAL] = {0};
 
@@ -343,19 +342,27 @@ indexer_continue_cb (DBusGProxy *proxy,
 }
 
 static void
-indexer_paused_cb (DBusGProxy *proxy,
-		   GError     *error,
-		   gpointer    user_data)
+indexer_paused_cb (DBusGProxy  *proxy,
+		   const gchar *reason,
+		   gpointer     user_data)
 {
-	g_message ("The indexer has paused");
+	g_message ("The indexer has paused (Reason: %s)", reason);
+
+	if (reason) {
+		if (strcmp (reason, "Disk full") == 0) {
+			tracker_status_set_and_signal (TRACKER_STATUS_DISK_FULL);
+		} else if (strcmp (reason, "Battery low") == 0) {
+			tracker_status_set_and_signal (TRACKER_STATUS_LOW_BATT);
+		}
+	}
 }
 
 static void
 indexer_continued_cb (DBusGProxy *proxy,
-		      GError	 *error,
 		      gpointer	  user_data)
 {
 	g_message ("The indexer has continued");
+	tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
 }
 
 /*

@@ -168,7 +168,8 @@ enum TrackerIndexerState {
 	TRACKER_INDEXER_STATE_FLUSHING	= 1 << 0,
 	TRACKER_INDEXER_STATE_PAUSED	= 1 << 1,
 	TRACKER_INDEXER_STATE_DISK_FULL = 1 << 2,
-	TRACKER_INDEXER_STATE_STOPPED	= 1 << 3
+	TRACKER_INDEXER_STATE_STOPPED	= 1 << 3,
+	TRACKER_INDEXER_STATE_LOW_BATT  = 1 << 4
 };
 
 enum {
@@ -538,9 +539,9 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerIndexerClass, paused),
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__VOID,
+			      g_cclosure_marshal_VOID__STRING,
 			      G_TYPE_NONE,
-			      0);
+			      1, G_TYPE_STRING);
 	signals[CONTINUED] =
 		g_signal_new ("continued",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -2206,10 +2207,7 @@ state_check (TrackerIndexer *indexer)
 
 	state = indexer->private->state;
 
-	if ((state & TRACKER_INDEXER_STATE_FLUSHING) ||
-	    (state & TRACKER_INDEXER_STATE_DISK_FULL) ||
-	    (state & TRACKER_INDEXER_STATE_STOPPED) ||
-	    (state & TRACKER_INDEXER_STATE_PAUSED)) {
+	if (state != 0) {
 		check_disk_space_stop (indexer);
 		signal_status_timeout_stop (indexer);
 		stop_scheduled_flush (indexer);
@@ -2240,16 +2238,52 @@ static void
 state_set_flags (TrackerIndexer      *indexer,
 		 TrackerIndexerState  state)
 {
+	guint old_state;
+
+	old_state = indexer->private->state;
 	indexer->private->state |= state;
 	state_check (indexer);
+
+	/* Just emit ::paused for the states that
+	 * could be relevant outside the indexer
+	 */
+	if ((! (old_state & TRACKER_INDEXER_STATE_PAUSED)) &&
+	    (! (old_state & TRACKER_INDEXER_STATE_DISK_FULL)) &&
+	    (! (old_state & TRACKER_INDEXER_STATE_LOW_BATT)) &&
+	    (state & TRACKER_INDEXER_STATE_PAUSED ||
+	     state & TRACKER_INDEXER_STATE_DISK_FULL ||
+	     state & TRACKER_INDEXER_STATE_LOW_BATT)) {
+		const gchar *reason = NULL;
+
+		if (state & TRACKER_INDEXER_STATE_DISK_FULL) {
+			reason = "Disk full";
+		} else if (state & TRACKER_INDEXER_STATE_LOW_BATT) {
+			reason = "Battery low";
+		}
+
+		g_signal_emit (indexer, signals[PAUSED], 0, reason);
+	}
 }
 
 static void
 state_unset_flags (TrackerIndexer      *indexer,
 		   TrackerIndexerState	state)
 {
+	guint old_state, new_state;
+
+	old_state = indexer->private->state;
 	indexer->private->state &= ~(state);
+	new_state = indexer->private->state;
 	state_check (indexer);
+
+	if ((old_state & TRACKER_INDEXER_STATE_PAUSED ||
+	     old_state & TRACKER_INDEXER_STATE_DISK_FULL ||
+	     old_state & TRACKER_INDEXER_STATE_LOW_BATT) &&
+	    (! (new_state & TRACKER_INDEXER_STATE_PAUSED)) &&
+	    (! (new_state & TRACKER_INDEXER_STATE_DISK_FULL)) &&
+	    (! (new_state & TRACKER_INDEXER_STATE_LOW_BATT))) {
+		g_signal_emit (indexer, signals[CONTINUED], 0);
+	}
 }
 
 void
@@ -2265,15 +2299,11 @@ tracker_indexer_set_running (TrackerIndexer *indexer,
 
 		tracker_db_index_set_paused (indexer->private->file_index, FALSE);
 		tracker_db_index_set_paused (indexer->private->email_index, FALSE);
-
-		g_signal_emit (indexer, signals[CONTINUED], 0);
 	} else if (!running && !(state & TRACKER_INDEXER_STATE_PAUSED)) {
 		state_set_flags (indexer, TRACKER_INDEXER_STATE_PAUSED);
 
 		tracker_db_index_set_paused (indexer->private->file_index, TRUE);
 		tracker_db_index_set_paused (indexer->private->email_index, TRUE);
-
-		g_signal_emit (indexer, signals[PAUSED], 0);
 	}
 }
 

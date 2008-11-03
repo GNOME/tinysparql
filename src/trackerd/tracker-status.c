@@ -150,6 +150,12 @@ tracker_status_get_type (void)
 			{ TRACKER_STATUS_SHUTDOWN,
 			  "TRACKER_STATUS_SHUTDOWN",
 			  "Shutdown" },
+			{ TRACKER_STATUS_DISK_FULL,
+			  "TRACKER_STATUS_DISK_FULL",
+			  "Disk full" },
+			{ TRACKER_STATUS_LOW_BATT,
+			  "TRACKER_STATUS_LOW_BATT",
+			  "Battery low" },
 			{ 0, NULL, NULL }
 		};
 

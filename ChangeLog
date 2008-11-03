@@ -1,3 +1,16 @@
+2008-11-03  Carlos Garnacho  <carlos@imendio.com>
+
+	* data/dbus/tracker-indexer.xml: Add "reason" parameter to ::Paused.
+	* src/tracker-indexer/tracker-indexer.c: Add "Low batt" state. Add
+	extra parameter to ::paused and emit it for any state that could be
+	relevant for the daemon. Same for ::continued.
+	* src/trackerd/tracker-daemon.c (indexer_paused_cb): Change status
+	depending on the reason for the indexer to be paused
+	(indexer_continued_cb): And make it continue here.
+	* src/trackerd/tracker-status.[ch]: Add "Disk full" and "Low batt" to
+	TrackerStatus enum.
+	* src/trackerd/tracker-dbus.c: Miscellaneous changes.
+
 2008-11-03  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Fixed a bug that
