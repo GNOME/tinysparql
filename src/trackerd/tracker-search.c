@@ -1089,7 +1089,6 @@ tracker_search_query (TrackerSearch	     *object,
 	if (!tracker_ontology_service_is_valid (service)) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
-					     0,
 					     "Service '%s' is invalid or has not been implemented yet",
 					     service);
 		dbus_g_method_return_error (context, actual_error);
@@ -1137,7 +1136,6 @@ tracker_search_query (TrackerSearch	     *object,
 		} else if (!query_translated) {
 			tracker_dbus_request_failed (request_id,
 						     &actual_error,
-						     0,
 						     "Invalid rdf query, no error given");
 			dbus_g_method_return_error (context, actual_error);
 			g_error_free (actual_error);
