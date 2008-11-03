@@ -70,23 +70,44 @@ static void get_file_thumbnail (const gchar *path,
 static ProcessContext *metadata_context = NULL;
 
 static void
-process_context_destroy (ProcessContext *context)
+process_context_invalidate (ProcessContext *context)
 {
-	g_io_channel_shutdown (context->stdin_channel, FALSE, NULL);
-	g_io_channel_unref (context->stdin_channel);
-
-	g_source_remove (context->stdout_watch_id);
-	g_io_channel_shutdown (context->stdout_channel, FALSE, NULL);
-	g_io_channel_unref (context->stdout_channel);
-
-	if (g_main_loop_is_running (context->data_incoming_loop)) {
-		g_main_loop_quit (context->data_incoming_loop);
+	if (context->stdin_channel) {
+		g_io_channel_shutdown (context->stdin_channel, FALSE, NULL);
+		g_io_channel_unref (context->stdin_channel);
+		context->stdin_channel = NULL;
 	}
 
-	g_main_loop_unref (context->data_incoming_loop);
+	if (context->stdout_watch_id != 0) {
+		g_source_remove (context->stdout_watch_id);
+		context->stdout_watch_id = 0;
+	}
 
-	g_spawn_close_pid (context->pid);
+	if (context->stdout_channel) {
+		g_io_channel_shutdown (context->stdout_channel, FALSE, NULL);
+		g_io_channel_unref (context->stdout_channel);
+		context->stdout_channel = NULL;
+	}
 
+	if (context->data_incoming_loop) {
+		if (g_main_loop_is_running (context->data_incoming_loop)) {
+			g_main_loop_quit (context->data_incoming_loop);
+		}
+
+		g_main_loop_unref (context->data_incoming_loop);
+		context->data_incoming_loop = NULL;
+	}
+
+	if (context->pid != 0) {
+		g_spawn_close_pid (context->pid);
+		context->pid = 0;
+	}
+}
+
+static void
+process_context_destroy (ProcessContext *context)
+{
+	process_context_invalidate (context);
 	g_free (context);
 }
 
@@ -208,7 +229,7 @@ metadata_setup (void)
 	};
 
 	if (metadata_context) {
-		process_context_destroy (metadata_context);
+		process_context_invalidate (metadata_context);
 		metadata_context = NULL;
 	}
 
@@ -271,7 +292,7 @@ metadata_query_file (const gchar *path,
 
 		if (status == G_IO_STATUS_ERROR) {
 			/* No point in trying again */
-			process_context_destroy (metadata_context);
+			process_context_invalidate (metadata_context);
 			metadata_context = NULL;
 			g_free (str);
 			return NULL;
