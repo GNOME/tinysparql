@@ -1,5 +1,10 @@
 2008-11-03  Mikael Ottela    <mikael.ottela@ixonos.com>
 
+        * src/tracker-extract/tracker-extract-gstreamer.c: Added a default
+	value for Video:PlayCount.
+
+2008-11-03  Mikael Ottela    <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c:
         * src/tracker-extract/tracker-extract-gstreamer.c: Added a default
 	value for Audio:PlayCount for simplifying queries.
