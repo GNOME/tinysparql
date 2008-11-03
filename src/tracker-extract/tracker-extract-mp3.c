@@ -859,6 +859,7 @@ get_id3v23_tags (const gchar *data,
 							 "UTF-8",
 							 "UCS-2",
 							 NULL, NULL, NULL);
+					break;
 				default:
 					/* Bad encoding byte,
 					 * try to convert from
