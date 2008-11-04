@@ -65,6 +65,13 @@
 #include "tracker-extract.h"
 #include "tracker-albumart.h"
 
+/*
+ * Some fluendo plugins use non-standard tag names currently which cause
+ * them to be ignored. Including the following define these tags are
+ * checked separately. FIXME Remove when no longer needed.
+ */
+#define INCLUDE_FLUENDO_TAGS 
+
 typedef enum {
 	EXTRACT_MIME_UNDEFINED=0,
 	EXTRACT_MIME_AUDIO,
@@ -626,6 +633,13 @@ extract_metadata (MetadataExtractor *extractor,
 		add_year_of_gdate_gst_tag (metadata, "Audio:ReleaseDate", extractor->tagcache, GST_TAG_DATE);
 		add_string_gst_tag (metadata, "Audio:Genre", extractor->tagcache, GST_TAG_GENRE);
 		add_string_gst_tag (metadata, "Audio:Codec", extractor->tagcache, GST_TAG_AUDIO_CODEC);
+
+#ifdef INCLUDE_FLUENDO_TAGS /* FIXME Should be removed eventually. See the top */
+		add_string_gst_tag (metadata, "Audio:Album", extractor->tagcache, "WM/AlbumTitle");
+		add_string_gst_tag (metadata, "Audio:TrackNo", extractor->tagcache, "WM/TrackNumber");
+		add_string_gst_tag (metadata, "Audio:ReleaseDate", extractor->tagcache, "WM/Year");
+		add_string_gst_tag (metadata, "Audio:Genre", extractor->tagcache, "WM/Genre");
+#endif
 
 		/* Video */
 		add_string_gst_tag (metadata, "Video:Codec", extractor->tagcache, GST_TAG_VIDEO_CODEC);
