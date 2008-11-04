@@ -55,6 +55,7 @@ GType	    tracker_hal_get_type		    (void) G_GNUC_CONST;
 TrackerHal *tracker_hal_new			    (void);
 gboolean    tracker_hal_get_battery_in_use	    (TrackerHal *hal);
 gboolean    tracker_hal_get_battery_exists	    (TrackerHal *hal);
+gdouble     tracker_hal_get_battery_percentage      (TrackerHal *hal);
 GSList *    tracker_hal_get_mounted_directory_roots (TrackerHal *hal);
 GSList *    tracker_hal_get_removable_device_roots  (TrackerHal *hal);
 

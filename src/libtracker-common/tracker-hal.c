@@ -34,11 +34,13 @@
 #include "tracker-hal.h"
 #include "tracker-utils.h"
 
-#define DEVICE_AC_ADAPTER  "ac_adapter"
-#define DEVICE_VOLUME	   "volume"
+#define CAPABILITY_AC_ADAPTER  "ac_adapter"
+#define CAPABILITY_BATTERY     "battery"
+#define CAPABILITY_VOLUME      "volume"
 
-#define PROP_AC_ADAPTER_ON "ac_adapter.present"
-#define PROP_IS_MOUNTED    "volume.is_mounted"
+#define PROP_AC_ADAPTER_ON   "ac_adapter.present"
+#define PROP_BATT_PERCENTAGE "battery.charge_level.percentage"
+#define PROP_IS_MOUNTED      "volume.is_mounted"
 
 #define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_HAL, TrackerHalPriv))
 
@@ -48,9 +50,11 @@ typedef struct {
 	GHashTable    *all_devices;
 	GHashTable    *mounted_devices;
 	GHashTable    *removable_devices;
+	GHashTable    *batteries;
 
-	gchar	      *battery_udi;
+	gchar	      *ac_adapter_udi;
 	gboolean       battery_in_use;
+	gdouble        battery_percentage;
 } TrackerHalPriv;
 
 typedef struct {
@@ -66,7 +70,13 @@ static void	hal_get_property		(GObject	 *object,
 						 GValue		 *value,
 						 GParamSpec	 *pspec);
 static gboolean hal_setup_devices		(TrackerHal	 *hal);
+static gboolean hal_setup_ac_adapters		(TrackerHal	 *hal);
 static gboolean hal_setup_batteries		(TrackerHal	 *hal);
+
+static void     hal_battery_modify              (TrackerHal      *hal,
+						 const gchar     *udi);
+static void     hal_battery_remove              (TrackerHal      *hal,
+						 const gchar     *udi);
 
 static gboolean hal_device_add			(TrackerHal	 *hal,
 						 LibHalVolume	 *volume);
@@ -84,6 +94,7 @@ enum {
 	PROP_0,
 	PROP_BATTERY_IN_USE,
 	PROP_BATTERY_EXISTS,
+	PROP_BATTERY_PERCENTAGE
 };
 
 enum {
@@ -141,6 +152,13 @@ tracker_hal_class_init (TrackerHalClass *klass)
 							       "There is a battery on this machine",
 							       FALSE,
 							       G_PARAM_READABLE));
+	g_object_class_install_property (object_class,
+					 PROP_BATTERY_PERCENTAGE,
+					 g_param_spec_double ("battery-percentage",
+							      "Battery percentage",
+							      "Battery percentage",
+							      0.0, 1.0, 0.0,
+							      G_PARAM_READABLE));
 
 	g_type_class_add_private (object_class, sizeof (TrackerHalPriv));
 }
@@ -170,6 +188,10 @@ tracker_hal_init (TrackerHal *hal)
 							 g_str_equal,
 							 (GDestroyNotify) g_free,
 							 (GDestroyNotify) g_free);
+	priv->batteries = g_hash_table_new_full (g_str_hash,
+						 g_str_equal,
+						 (GDestroyNotify) g_free,
+						 NULL);
 
 	dbus_error_init (&error);
 
@@ -219,6 +241,11 @@ tracker_hal_init (TrackerHal *hal)
 		return;
 	}
 
+	/* Get all AC adapters info and set them up */
+	if (!hal_setup_ac_adapters (hal)) {
+		return;
+	}
+
 	/* Get all battery devices and set them up */
 	if (!hal_setup_batteries (hal)) {
 		return;
@@ -244,7 +271,9 @@ tracker_hal_finalize (GObject *object)
 		g_hash_table_unref (priv->all_devices);
 	}
 
-	g_free (priv->battery_udi);
+	if (priv->batteries) {
+		g_hash_table_unref (priv->batteries);
+	}
 
 	if (priv->context) {
 		libhal_ctx_set_user_data (priv->context, NULL);
@@ -269,7 +298,10 @@ hal_get_property (GObject    *object,
 		g_value_set_boolean (value, priv->battery_in_use);
 		break;
 	case PROP_BATTERY_EXISTS:
-		g_value_set_boolean (value, priv->battery_udi != NULL);
+		g_value_set_boolean (value, priv->ac_adapter_udi != NULL);
+		break;
+	case PROP_BATTERY_PERCENTAGE:
+		g_value_set_double (value, priv->battery_percentage);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -290,7 +322,7 @@ hal_setup_devices (TrackerHal *hal)
 	dbus_error_init (&error);
 
 	devices = libhal_find_device_by_capability (priv->context,
-						    DEVICE_VOLUME,
+						    CAPABILITY_VOLUME,
 						    &num,
 						    &error);
 
@@ -340,7 +372,7 @@ hal_setup_devices (TrackerHal *hal)
 }
 
 static gboolean
-hal_setup_batteries (TrackerHal *hal)
+hal_setup_ac_adapters (TrackerHal *hal)
 {
 	TrackerHalPriv	*priv;
 	DBusError	 error;
@@ -352,7 +384,7 @@ hal_setup_batteries (TrackerHal *hal)
 	dbus_error_init (&error);
 
 	devices = libhal_find_device_by_capability (priv->context,
-						    DEVICE_AC_ADAPTER,
+						    CAPABILITY_AC_ADAPTER,
 						    &num,
 						    &error);
 
@@ -371,16 +403,16 @@ hal_setup_batteries (TrackerHal *hal)
 		priv->battery_in_use = FALSE;
 		g_object_notify (G_OBJECT (hal), "battery-in-use");
 
-		priv->battery_udi = NULL;
+		priv->ac_adapter_udi = NULL;
 		g_object_notify (G_OBJECT (hal), "battery-exists");
 
 		return TRUE;
 	}
 
 	for (p = devices; *p; p++) {
-		if (!priv->battery_udi) {
+		if (!priv->ac_adapter_udi) {
 			/* For now just use the first one we find */
-			priv->battery_udi = g_strdup (*p);
+			priv->ac_adapter_udi = g_strdup (*p);
 			g_object_notify (G_OBJECT (hal), "battery-exists");
 
 			g_message (" - Device '%s' (default)", *p);
@@ -393,19 +425,19 @@ hal_setup_batteries (TrackerHal *hal)
 
 	/* Make sure we watch changes to the battery use */
 	libhal_device_add_property_watch (priv->context,
-					  priv->battery_udi,
+					  priv->ac_adapter_udi,
 					  &error);
 
 	if (dbus_error_is_set (&error)) {
 		g_critical ("Could not add device:'%s' to property watch, %s",
-			       priv->battery_udi, error.message);
+			       priv->ac_adapter_udi, error.message);
 		dbus_error_free (&error);
 		return FALSE;
 	}
 
 	/* Get current state, are we using the battery now? */
 	priv->battery_in_use = !libhal_device_get_property_bool (priv->context,
-								 priv->battery_udi,
+								 priv->ac_adapter_udi,
 								 PROP_AC_ADAPTER_ON,
 								 NULL);
 
@@ -413,6 +445,55 @@ hal_setup_batteries (TrackerHal *hal)
 		   priv->battery_in_use ? "battery" : "AC adapter");
 
 	g_object_notify (G_OBJECT (hal), "battery-in-use");
+
+	return TRUE;
+}
+
+static gboolean
+hal_setup_batteries (TrackerHal *hal)
+{
+	TrackerHalPriv	*priv;
+	DBusError	 error;
+	gchar	       **devices, **p;
+	gint		 num;
+
+	priv = GET_PRIV (hal);
+
+	dbus_error_init (&error);
+
+	devices = libhal_find_device_by_capability (priv->context,
+						    CAPABILITY_BATTERY,
+						    &num,
+						    &error);
+
+	if (dbus_error_is_set (&error)) {
+		g_critical ("Could not get Battery HAL info, %s",
+			    error.message);
+		dbus_error_free (&error);
+		return FALSE;
+	}
+
+	g_message ("HAL found %d batteries", num);
+
+	if (!devices || !devices[0]) {
+		libhal_free_string_array (devices);
+		return TRUE;
+	}
+
+	for (p = devices; *p; p++) {
+		g_message (" - Device '%s'", *p);
+
+		hal_battery_modify (hal, *p);
+		libhal_device_add_property_watch (priv->context, *p, &error);
+
+		if (dbus_error_is_set (&error)) {
+			g_critical ("Could not add device:'%s' to property watch, %s",
+				    *p, error.message);
+			dbus_error_free (&error);
+		}
+	}
+
+	libhal_free_string_array (devices);
 
 	return TRUE;
 }
@@ -597,6 +678,64 @@ hal_device_should_be_tracked (TrackerHal  *hal,
 	return eligible;
 }
 
+static void
+hal_battery_notify (TrackerHal *hal)
+{
+	TrackerHalPriv *priv;
+	GList *values, *v;
+	gint percentage, n_values;
+
+	priv = GET_PRIV (hal);
+	percentage = n_values = 0;
+
+	values = g_hash_table_get_values (priv->batteries);
+
+	for (v = values; v; v = v->next) {
+		percentage += GPOINTER_TO_INT (v->data);
+		n_values++;
+	}
+
+	if (n_values > 0) {
+		priv->battery_percentage = (gdouble) percentage / n_values;
+		priv->battery_percentage /= 100;
+	} else {
+		priv->battery_percentage = 0;
+	}
+
+	g_object_notify (G_OBJECT (hal), "battery-percentage");
+}
+
+static void
+hal_battery_modify (TrackerHal  *hal,
+		    const gchar *udi)
+{
+	TrackerHalPriv *priv;
+	gint percentage;
+
+	priv = GET_PRIV (hal);
+	percentage = libhal_device_get_property_int (priv->context, udi,
+						     PROP_BATT_PERCENTAGE,
+						     NULL);
+
+	g_hash_table_insert (priv->batteries,
+			     g_strdup (udi),
+			     GINT_TO_POINTER (percentage));
+
+	hal_battery_notify (hal);
+}
+
+static void
+hal_battery_remove (TrackerHal  *hal,
+		    const gchar *udi)
+{
+	TrackerHalPriv *priv;
+
+	priv = GET_PRIV (hal);
+
+	g_hash_table_remove (priv->batteries, udi);
+	hal_battery_notify (hal);
+}
+
 static gboolean
 hal_device_add (TrackerHal   *hal,
 		LibHalVolume *volume)
@@ -654,36 +793,39 @@ hal_device_added_cb (LibHalContext *context,
 		     const gchar   *udi)
 {
 	TrackerHal   *hal;
-	DBusError     error;
 	LibHalVolume *volume;
 
-	dbus_error_init (&error);
+	hal = libhal_ctx_get_user_data (context);
 
-	volume = libhal_volume_from_udi (context, udi);
-	if (!volume) {
-		/* Not a device with a volume */
-		return;
+	if (libhal_device_query_capability (context, udi, CAPABILITY_BATTERY, NULL)) {
+		hal_battery_modify (hal, udi);
+	} else if (libhal_device_query_capability (context, udi, CAPABILITY_VOLUME, NULL)) {
+		volume = libhal_volume_from_udi (context, udi);
+
+		if (!volume) {
+			/* Not a device with a volume */
+			return;
+		}
+
+		g_message ("HAL device added:\n"
+			   " - udi	    : %s\n"
+			   " - mount point: %s\n"
+			   " - device file: %s\n"
+			   " - uuid	    : %s\n"
+			   " - mounted    : %s\n"
+			   " - file system: %s\n"
+			   " - label	    : %s",
+			   udi,
+			   libhal_volume_get_mount_point (volume),
+			   libhal_volume_get_device_file (volume),
+			   libhal_volume_get_uuid (volume),
+			   libhal_volume_is_mounted (volume) ? "yes" : "no",
+			   libhal_volume_get_fstype (volume),
+			   libhal_volume_get_label (volume));
+
+		hal_device_add (hal, volume);
+		libhal_volume_free (volume);
 	}
-
-	g_message ("HAL device added:\n"
-		     " - udi	    : %s\n"
-		     " - mount point: %s\n"
-		     " - device file: %s\n"
-		     " - uuid	    : %s\n"
-		     " - mounted    : %s\n"
-		     " - file system: %s\n"
-		     " - label	    : %s",
-		     udi,
-		     libhal_volume_get_mount_point (volume),
-		     libhal_volume_get_device_file (volume),
-		     libhal_volume_get_uuid (volume),
-		     libhal_volume_is_mounted (volume) ? "yes" : "no",
-		     libhal_volume_get_fstype (volume),
-		     libhal_volume_get_label (volume));
-
-	hal = (TrackerHal*) libhal_ctx_get_user_data (context);
-	hal_device_add (hal, volume);
-	libhal_volume_free (volume);
 }
 
 static void
@@ -698,26 +840,30 @@ hal_device_removed_cb (LibHalContext *context,
 	hal = (TrackerHal*) libhal_ctx_get_user_data (context);
 	priv = GET_PRIV (hal);
 
-	device_file = g_hash_table_lookup (priv->all_devices, udi);
+	if (g_hash_table_lookup (priv->batteries, udi)) {
+		hal_battery_remove (hal, udi);
+	} else if (g_hash_table_lookup (priv->all_devices, udi)) {
+		device_file = g_hash_table_lookup (priv->all_devices, udi);
 
-	if (!device_file) {
-		/* Don't report about unknown devices */
-		return;
+		if (!device_file) {
+			/* Don't report about unknown devices */
+			return;
+		}
+
+		mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
+
+		g_message ("HAL device removed:\n"
+			   " - udi	    : %s\n"
+			   " - mount point: %s\n"
+			   " - device_file: %s",
+			   udi,
+			   mount_point,
+			   device_file);
+
+		g_hash_table_remove (priv->all_devices, udi);
+
+		hal_mount_point_remove (hal, udi);
 	}
-
-	mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
-
-	g_message ("HAL device removed:\n"
-		     " - udi	    : %s\n"
-		     " - mount point: %s\n"
-		     " - device_file: %s",
-		     udi,
-		     mount_point,
-		     device_file);
-
-	g_hash_table_remove (priv->all_devices, udi);
-
-	hal_mount_point_remove (hal, udi);
 }
 
 static void
@@ -730,29 +876,16 @@ hal_device_property_modified_cb (LibHalContext *context,
 	TrackerHal     *hal;
 	TrackerHalPriv *priv;
 	DBusError	error;
-	gboolean	device_is_battery;
-	gboolean	current_state;
 
 	hal = (TrackerHal*) libhal_ctx_get_user_data (context);
 	priv = GET_PRIV (hal);
 
-	current_state = priv->battery_in_use;
-	device_is_battery = priv->battery_udi && strcmp (priv->battery_udi, udi) == 0;
-
-	if (!device_is_battery &&
-	    !g_hash_table_lookup (priv->all_devices, udi)) {
-		g_message ("HAL device property change for another device, ignoring");
-		return;
-	}
-
 	dbus_error_init (&error);
 
-	/* We either get notifications about the battery state OR a
-	 * device being mounted/umounted.
-	 */
-	if (device_is_battery) {
+	if (priv->ac_adapter_udi && strcmp (priv->ac_adapter_udi, udi) == 0) {
+		/* Property change is on the AC adapter */
 		priv->battery_in_use = !libhal_device_get_property_bool (priv->context,
-									 priv->battery_udi,
+									 priv->ac_adapter_udi,
 									 PROP_AC_ADAPTER_ON,
 									 &error);
 		g_message ("HAL reports system is now powered by %s",
@@ -766,7 +899,12 @@ hal_device_property_modified_cb (LibHalContext *context,
 			dbus_error_free (&error);
 			return;
 		}
-	} else {
+	} else if (g_hash_table_lookup (priv->batteries, udi)) {
+		/* Property change is on any battery */
+		if (strcmp (key, PROP_BATT_PERCENTAGE) == 0) {
+			hal_battery_modify (hal, udi);
+		}
+	} else if (g_hash_table_lookup (priv->all_devices, udi)) {
 		gboolean is_mounted;
 
 		g_message ("HAL device property change for udi:'%s' and key:'%s'",
@@ -869,7 +1007,28 @@ tracker_hal_get_battery_exists (TrackerHal *hal)
 
 	priv = GET_PRIV (hal);
 
-	return priv->battery_udi != NULL;
+	return priv->ac_adapter_udi != NULL;
+}
+
+/**
+ * tracker_hal_get_battery_percentage:
+ * @hal: A #TrackerHal
+ *
+ * Returns the battery percentage left on the
+ * computer, or #0.0 if no batteries are present.
+ *
+ * Returns: The battery percentage left.
+ **/
+gdouble
+tracker_hal_get_battery_percentage (TrackerHal *hal)
+{
+	TrackerHalPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_HAL (hal), 0.0);
+
+	priv = GET_PRIV (hal);
+
+	return priv->battery_percentage;
 }
 
 static void

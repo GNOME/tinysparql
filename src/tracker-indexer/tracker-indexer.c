@@ -405,6 +405,8 @@ set_up_throttle (TrackerIndexer *indexer)
 			g_message ("Not setting throttle, it is currently set to %d",
 				   throttle);
 		}
+
+		state_unset_flags (indexer, TRACKER_INDEXER_STATE_LOW_BATT);
 	}
 }
 
@@ -413,6 +415,31 @@ notify_battery_in_use_cb (GObject *gobject,
 			  GParamSpec *arg1,
 			  gpointer user_data)
 {
+	set_up_throttle (TRACKER_INDEXER (user_data));
+}
+
+static void
+notify_battery_percentage_cb (GObject    *object,
+			      GParamSpec *pspec,
+			      gpointer    user_data)
+{
+	TrackerIndexer *indexer;
+	gdouble percentage;
+	gboolean battery_in_use;
+
+	indexer = user_data;
+
+	percentage = tracker_hal_get_battery_percentage (TRACKER_HAL (object));
+	battery_in_use = tracker_hal_get_battery_in_use (TRACKER_HAL (object));
+
+	/* FIXME: This could be a configuration option */
+	if (battery_in_use && percentage <= 0.05) {
+		/* Running on low batteries, stop indexing for now */
+		state_set_flags (indexer, TRACKER_INDEXER_STATE_LOW_BATT);
+	} else {
+		state_unset_flags (indexer, TRACKER_INDEXER_STATE_LOW_BATT);
+	}
+
 	set_up_throttle (TRACKER_INDEXER (user_data));
 }
 
@@ -453,6 +480,9 @@ tracker_indexer_finalize (GObject *object)
 #ifdef HAVE_HAL
 	g_signal_handlers_disconnect_by_func (priv->hal,
 					      notify_battery_in_use_cb,
+					      TRACKER_INDEXER (object));
+	g_signal_handlers_disconnect_by_func (priv->hal,
+					      notify_battery_percentage_cb,
 					      TRACKER_INDEXER (object));
 
 	g_object_unref (priv->hal);
@@ -802,6 +832,9 @@ tracker_indexer_init (TrackerIndexer *indexer)
 
 	g_signal_connect (priv->hal, "notify::battery-in-use",
 			  G_CALLBACK (notify_battery_in_use_cb),
+			  indexer);
+	g_signal_connect (priv->hal, "notify::battery-percentage",
+			  G_CALLBACK (notify_battery_percentage_cb),
 			  indexer);
 
 	set_up_throttle (indexer);

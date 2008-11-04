@@ -1,3 +1,11 @@
+2008-11-04  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-hal.[ch]: Add capability for reading
+	batteries percentage.
+	* src/tracker-indexer/tracker-indexer.c: Stop indexing if battery
+	level is too low (< 0.05 at the moment, but should be user
+	configurable).
+
 2008-11-04  Mikael Ottela <mikael.ottela@ixonos.com>
 	* src/tracker-extract/tracker-extract-gstreamer.c:
 	Added support for non-standard metadata tags that some fluendo
@@ -15,7 +23,7 @@
 	generate the RDF for a pair attribute-value.
 
 	This fixes NB #89965.
-	
+
 2008-11-03  Mikael Ottela    <mikael.ottela@ixonos.com>
 
         * src/tracker-extract/tracker-extract-gstreamer.c: Added a default
