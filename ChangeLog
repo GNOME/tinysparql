@@ -2,6 +2,8 @@
 	* src/tracker-extract/tracker-extract-mp3.c: Fixed
 	comment tags in id3v23 and id3v24.
 
+	Fixes NB #91655.
+	
 2008-11-04  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/modules/evolution.c (get_mbox_message_id):
