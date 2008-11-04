@@ -614,7 +614,12 @@ get_mbox_message_id (GMimeMessage *message)
 	gint id;
 
 	header = g_mime_message_get_header (message, "X-Evolution");
-	pos = strchr (header, '-');
+
+        if (!header) {
+                return -1;
+        }
+
+        pos = strchr (header, '-');
 
 	number = g_strndup (header, pos - header);
 	id = strtoul (number, NULL, 16);
@@ -642,11 +647,20 @@ get_mbox_uri (TrackerFile   *file,
 	      gchar	   **basename)
 {
 	gchar *dir, *name;
+        gint message_id;
+
+        message_id = get_mbox_message_id (message);
+
+        if (message_id < 0) {
+                *dirname = NULL;
+                *basename = NULL;
+                return;
+        }
 
 	dir = tracker_string_replace (file->path, local_dir, NULL);
 	dir = tracker_string_remove (dir, ".sbd");
 
-	name = g_strdup_printf ("%s;uid=%d", dir, get_mbox_message_id (message));
+        name = g_strdup_printf ("%s;uid=%d", dir, message_id);
 
 	*dirname = g_strdup ("email://local@local");
 	*basename = name;
@@ -661,13 +675,22 @@ get_mbox_attachment_uri (TrackerFile   *file,
 			 gchar	      **dirname,
 			 gchar	      **basename)
 {
+        gint message_id;
 	gchar *dir;
+
+        message_id = get_mbox_message_id (message);
+
+        if (message_id < 0) {
+                *dirname = NULL;
+                *basename = NULL;
+                return;
+        }
 
 	dir = tracker_string_replace (file->path, local_dir, NULL);
 	dir = tracker_string_remove (dir, ".sbd");
 
 	*dirname = g_strdup_printf ("email://local@local/%s;uid=%d",
-				    dir, get_mbox_message_id (message));
+				    dir, message_id);
 	*basename = g_strdup (g_mime_part_get_filename (part));
 
 	g_free (dir);
