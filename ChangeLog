@@ -1,3 +1,16 @@
+2008-11-04  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/trackerd/tracker-search.c
+	(tracker_search_metadata) Implemented this method creating
+	internally and RDF query. Extracted the common code with
+	tracker_search_query to a new function (perform_rdf_query).
+
+	* src/tracker/tracker-rdf-query.[ch]
+	(tracker_rdf_query_for_attr_value): New helper function to
+	generate the RDF for a pair attribute-value.
+
+	This fixes NB #89965.
+	
 2008-11-03  Mikael Ottela    <mikael.ottela@ixonos.com>
 
         * src/tracker-extract/tracker-extract-gstreamer.c: Added a default

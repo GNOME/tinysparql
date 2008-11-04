@@ -1506,3 +1506,51 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 
 	g_free (data.parser);
 }
+
+gchar *
+tracker_rdf_query_for_attr_value (const gchar *field,
+                                  const gchar *value)
+{
+        TrackerField *field_def;
+        const gchar *CONDITION_OPEN = "<rdfq:Condition><rdfq:equals>";
+        const gchar *CONDITION_CLOSE = "</rdfq:equals></rdfq:Condition>";
+        gchar       *CLAUSE = g_strdup_printf ("<rdfq:Property name=\"%s\"/>", field);
+        gchar       *rdf_type, *rdf_value;
+
+        gchar        *rdf_query;
+
+        field_def = tracker_ontology_get_field_by_name (field);
+
+        if (!field_def) {
+                return NULL;
+        }
+
+        switch (tracker_field_get_data_type (field_def)) {
+        case TRACKER_FIELD_TYPE_KEYWORD:
+        case TRACKER_FIELD_TYPE_INDEX:
+        case TRACKER_FIELD_TYPE_FULLTEXT:
+        case TRACKER_FIELD_TYPE_STRING:
+                rdf_type = "rdf:String";
+                break;
+	case TRACKER_FIELD_TYPE_INTEGER:
+	case TRACKER_FIELD_TYPE_DOUBLE:
+	case TRACKER_FIELD_TYPE_DATE:
+                rdf_type = "rdf:Integer";
+                break;
+	case TRACKER_FIELD_TYPE_BLOB:
+	case TRACKER_FIELD_TYPE_STRUCT:
+	case TRACKER_FIELD_TYPE_LINK:
+                g_warning ("Unsupport field type for property %s\n", tracker_field_get_name (field_def));
+                return NULL; 
+        }
+
+        rdf_value = g_strdup_printf ("<%s>%s</%s>", rdf_type, value, rdf_type);
+        
+        rdf_query = g_strconcat (CONDITION_OPEN, CLAUSE, rdf_value, CONDITION_CLOSE, NULL);
+
+        g_free (rdf_value);
+
+        return rdf_query;
+
+
+}

@@ -47,6 +47,8 @@
 #define DEFAULT_SEARCH_MAX_HITS 		1024
 #define SEARCH_KEEPALIVE_TIME_FOR_SQL_QUERY	600
 
+static GQuark error_quark;
+
 typedef struct {
 	TrackerConfig	*config;
 	TrackerLanguage *language;
@@ -894,6 +896,91 @@ tracker_search_files_by_text (TrackerSearch	    *object,
 	tracker_dbus_request_success (request_id);
 }
 
+static TrackerDBResultSet *
+perform_rdf_query (gint		  request_id,
+		   const gchar	 *service,
+		   gchar	**fields,
+		   const gchar	 *search_text,
+		   const gchar	 *keyword,
+		   const gchar	 *query_condition,
+		   gboolean	  sort_by_service,
+		   gchar	**sort_fields,
+		   gboolean	  sort_desc,
+		   gint		  offset,
+		   gint		  max_hits,
+		   GError	**error) 
+{
+	static gboolean inited = FALSE;
+	TrackerDBInterface *iface;
+	TrackerDBResultSet *result_set;
+
+	if (!inited) {
+		error_quark = g_quark_from_static_string ("RDF-processing-error");
+		inited = TRUE;
+	}
+
+	result_set = NULL;
+
+	iface = tracker_db_manager_get_db_interface_by_service (service);
+
+	if (query_condition) {
+		GError *query_error = NULL;
+		gchar  *query_translated;
+
+		tracker_dbus_request_comment (request_id,
+					      "Executing RDF query:'%s' with search "
+					      "term:'%s' and keyword:'%s'",
+					      query_condition,
+					      search_text,
+					      keyword);
+
+		query_translated = tracker_rdf_query_to_sql (iface,
+							     query_condition,
+							     service,
+							     fields,
+							     g_strv_length (fields),
+							     search_text,
+							     keyword,
+							     sort_by_service,
+							     sort_fields,
+							     (sort_fields ? g_strv_length (sort_fields) : 0),
+							     sort_desc,
+							     offset,
+							     search_sanity_check_max_hits (max_hits),
+							     &query_error);
+
+		if (query_error) {
+			g_propagate_error (error, query_error);
+			return NULL;
+		} else if (!query_translated) {
+			g_set_error (error, error_quark, 0, "Invalid rdf query, no error given");
+			return NULL;
+		}
+
+		tracker_dbus_request_comment (request_id,
+					      "Translated RDF query:'%s'",
+					      query_translated);
+
+		if (!tracker_is_empty_string (search_text)) {
+			tracker_db_search_text (iface,
+						service,
+						search_text,
+						0,
+						999999,
+						TRUE,
+						FALSE);
+		}
+
+		result_set = tracker_db_interface_execute_query (iface,
+								 NULL,
+								 query_translated);
+		g_free (query_translated);
+	}
+
+	return result_set;
+}
+
+
 void
 tracker_search_metadata (TrackerSearch		*object,
 			 const gchar		*service,
@@ -905,7 +992,6 @@ tracker_search_metadata (TrackerSearch		*object,
 			 GError		       **error)
 {
 	GError		   *actual_error = NULL;
-	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 	guint		    request_id;
 	gchar		  **values;
@@ -929,32 +1015,34 @@ tracker_search_metadata (TrackerSearch		*object,
 				  max_hits);
 
 	if (!tracker_ontology_service_is_valid (service)) {
-		g_set_error (&actual_error,
-			     TRACKER_DBUS_ERROR,
-			     0,
-			     "Service '%s' is invalid or has not been implemented yet",
-			     service);
+		tracker_dbus_request_failed (request_id, 
+					     &actual_error, 
+					     "Service '%s' is invalid or has not been implemented yet",
+					     service);
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service);
+	if (tracker_ontology_get_field_by_name (field) == NULL) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "Metadata field '%s' not registered in the system",
+					     field);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
 
-	/* FIXME: This function no longer exists, it was returning
-	 * NULL in every case, this DBus function needs rewriting or
-	 * to be removed.
-	 */
-	result_set = NULL;
 
-	/* result_set = tracker_db_search_metadata (iface,  */
-	/*					 service,  */
-	/*					 field,  */
-	/*					 text,	*/
-	/*					 offset,  */
-	/*					 search_sanity_check_max_hits (max_hits)); */
+	gchar *fields[] = {"File:NameDelimited", NULL};
+	gchar *query_condition = tracker_rdf_query_for_attr_value (field, search_text);
 
-	values = tracker_dbus_query_result_to_strv (result_set, 0, NULL);
+	result_set = perform_rdf_query (request_id, service, fields, "", "", query_condition,
+					FALSE, NULL, FALSE, offset, max_hits, &actual_error);
+
+	g_free (query_condition);
+	values = tracker_dbus_query_result_to_strv (result_set, 1, NULL);
 
 	dbus_g_method_return (context, values);
 
@@ -1041,6 +1129,7 @@ tracker_search_matching_fields (TrackerSearch	      *object,
 	tracker_dbus_request_success (request_id);
 }
 
+
 void
 tracker_search_query (TrackerSearch	     *object,
 		      gint		      live_query_id,
@@ -1058,7 +1147,6 @@ tracker_search_query (TrackerSearch	     *object,
 		      GError		    **error)
 {
 	GError		   *actual_error = NULL;
-	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 	guint		    request_id;
 	GPtrArray	   *values = NULL;
@@ -1096,70 +1184,17 @@ tracker_search_query (TrackerSearch	     *object,
 		return;
 	}
 
-	result_set = NULL;
 
-	iface = tracker_db_manager_get_db_interface_by_service (service);
+	result_set = perform_rdf_query (request_id, service, fields, search_text, keyword, query_condition,
+					sort_by_service, sort_fields, sort_desc, offset, max_hits, &actual_error);
 
-	if (query_condition) {
-		GError *query_error = NULL;
-		gchar  *query_translated;
-
-		tracker_dbus_request_comment (request_id,
-					      "Executing RDF query:'%s' with search "
-					      "term:'%s' and keyword:'%s'",
-					      query_condition,
-					      search_text,
-					      keyword);
-
-		query_translated = tracker_rdf_query_to_sql (iface,
-							     query_condition,
-							     service,
-							     fields,
-							     g_strv_length (fields),
-							     search_text,
-							     keyword,
-							     sort_by_service,
-							     sort_fields,
-							     g_strv_length (sort_fields),
-							     sort_desc,
-							     offset,
-							     search_sanity_check_max_hits (max_hits),
-							     &query_error);
-
-		if (query_error) {
-			tracker_dbus_request_failed (request_id,
-						     &query_error,
-						     NULL);
-			dbus_g_method_return_error (context, query_error);
-			g_error_free (query_error);
-			return;
-		} else if (!query_translated) {
-			tracker_dbus_request_failed (request_id,
-						     &actual_error,
-						     "Invalid rdf query, no error given");
-			dbus_g_method_return_error (context, actual_error);
-			g_error_free (actual_error);
-			return;
-		}
-
-		tracker_dbus_request_comment (request_id,
-					      "Translated RDF query:'%s'",
-					      query_translated);
-
-		if (!tracker_is_empty_string (search_text)) {
-			tracker_db_search_text (iface,
-						service,
-						search_text,
-						0,
-						999999,
-						TRUE,
-						FALSE);
-		}
-
-		result_set = tracker_db_interface_execute_query (iface,
-								 NULL,
-								 query_translated);
-		g_free (query_translated);
+	if (actual_error) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
 	}
 
 	values = tracker_dbus_query_result_multi_to_ptr_array (result_set);

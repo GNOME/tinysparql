@@ -50,6 +50,9 @@ void tracker_rdf_filter_to_sql	(TrackerDBInterface  *iface,
 				 gchar		    **where,
 				 GError		    **error);
 
+gchar *tracker_rdf_query_for_attr_value (const gchar *field,
+					 const gchar *value);
+
 G_END_DECLS
 
 #endif /* __TRACKERD_RDF_QUERY_H__ */
