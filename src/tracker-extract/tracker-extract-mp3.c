@@ -518,7 +518,6 @@ get_id3v24_tags (const gchar *data,
 	guint	ehdrSize;
 	guint	padding;
 	Matches tmap[] = {
-		{"COMM", "Audio:Comment"},
 		{"TCOP", "File:Copyright"},
 		{"TDRC", "Audio:ReleaseDate"},
 		{"TCON", "Audio:Genre"},
@@ -657,15 +656,7 @@ get_id3v24_tags (const gchar *data,
 				pos++;
 				csize--;
 
-				if (word != NULL && strlen (word) > 0) {
-					if (strcmp (tmap[i].text, "COMM") == 0) {
-						gchar *s;
-
-						s = g_strdup (word + strlen (word) + 1);
-						g_free (word);
-						word = s;
-					}
-
+				if (word != NULL && strlen (word) > 0) {       
 					/* Genre to text */
 					if ((strcmp (tmap[i].text, "TCON") == 0) ||
 					    (strcmp (tmap[i].text, "TIT1") == 0)) {
@@ -693,6 +684,72 @@ get_id3v24_tags (const gchar *data,
 
 			i++;
 		}
+
+		if (strncmp (&data[pos], "COMM", 4) == 0) {
+			gchar * word;
+							
+			gchar          text_encode;
+			const gchar   *text_language;
+			const gchar   *text_desc;
+			const gchar   *text;
+			guint          offset;
+
+			text_encode   =  data[pos+10]; /* $xx */
+			text_language = &data[pos+11]; /* $xx xx xx */
+			text_desc     = &data[pos+14]; /* <text string according to encoding> $00 (00) */
+			text          = &data[pos+14+strlen(text_desc)+1]; /* <full text string according to encoding> */
+			
+			offset = 4+strlen(text_desc)+1;
+
+			switch (text_encode) {
+			case 0x00:
+				word = g_convert(text,
+						 csize-offset,
+						 "UTF-8",
+						 "ISO-8859-1",
+						 NULL, NULL, NULL);
+				break;
+			case 0x01 :
+				word = g_convert(text,
+						 csize-offset,
+						 "UTF-8",
+						 "UTF-16",
+						 NULL, NULL, NULL);
+				break;
+			case 0x02 :
+				word = g_convert(text,
+						 csize-offset,
+						 "UTF-8",
+						 "UTF-16BE",
+						 NULL, NULL, NULL);
+				break;
+			case 0x03 :
+				word = strndup (text, csize-offset);
+				break;
+				
+			default:
+				/* Bad encoding byte,
+				 * try to convert from
+				 * iso-8859-1
+				 */
+				word = g_convert(text,
+						 csize,
+						 "UTF-8",
+						 "ISO-8859-1",
+						 NULL, NULL, NULL);
+				break;
+			}
+
+			if (word != NULL && strlen (word) > 0) {
+				g_hash_table_insert (metadata,
+						     g_strdup ("Audio:Comment"),
+						     g_strdup (word));	
+			} else {
+				g_free (word);
+			}
+
+		}	
+	
 
 		/* Check for embedded images */
 		if (strncmp (&data[pos], "APIC", 4) == 0) {
@@ -735,7 +792,6 @@ get_id3v23_tags (const gchar *data,
 	guint	ehdrSize;
 	guint	padding;
 	Matches tmap[] = {
-		{"COMM", "Audio:Comment"},
 		{"TCOP", "File:Copyright"},
 		{"TDAT", "Audio:ReleaseDate"},
 		{"TCON", "Audio:Genre"},
@@ -910,6 +966,60 @@ get_id3v23_tags (const gchar *data,
 			}
 
 			i++;
+		}
+
+		if (strncmp (&data[pos], "COMM", 4) == 0) {
+			gchar * word;
+							
+			gchar          text_encode;
+			const gchar   *text_language;
+			const gchar   *text_desc;
+			const gchar   *text;
+			guint          offset;
+
+			text_encode   =  data[pos+10]; /* $xx */
+			text_language = &data[pos+11]; /* $xx xx xx */
+			text_desc     = &data[pos+14]; /* <text string according to encoding> $00 (00) */
+			text          = &data[pos+14+strlen(text_desc)+1]; /* <full text string according to encoding> */
+			
+			offset = 4+strlen(text_desc)+1;
+
+			switch (text_encode) {
+			case 0x00:
+				word = g_convert(text,
+						 csize-offset,
+						 "UTF-8",
+						 "ISO-8859-1",
+						 NULL, NULL, NULL);
+				break;
+			case 0x01 :
+				word = g_convert(text,
+						 csize-offset,
+						 "UTF-8",
+						 "UCS-2",
+						 NULL, NULL, NULL);
+				break;
+			default:
+				/* Bad encoding byte,
+				 * try to convert from
+				 * iso-8859-1
+				 */
+				word = g_convert(text,
+						 csize-offset,
+						 "UTF-8",
+						 "ISO-8859-1",
+						 NULL, NULL, NULL);
+				break;
+			}
+
+			if (word != NULL && strlen (word) > 0) {
+				g_hash_table_insert (metadata,
+						     g_strdup ("Audio:Comment"),
+						     g_strdup (word));	
+			} else {
+				g_free (word);
+			}
+
 		}
 
 		/* Check for embedded images */
