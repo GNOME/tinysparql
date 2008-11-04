@@ -275,6 +275,8 @@ tracker_hal_finalize (GObject *object)
 		g_hash_table_unref (priv->batteries);
 	}
 
+	g_free (priv->ac_adapter_udi);
+
 	if (priv->context) {
 		libhal_ctx_set_user_data (priv->context, NULL);
 		libhal_ctx_free (priv->context);
