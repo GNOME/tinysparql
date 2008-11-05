@@ -1008,7 +1008,7 @@ get_imap_uri (TrackerFile  *file,
 			/* now remove all relevant info to create the email:// basename */
 			subdirs = g_strdup (path);
 			subdirs = tracker_string_remove (subdirs, dir);
-			subdirs = tracker_string_remove (subdirs, "/folders");
+			subdirs = tracker_string_remove (subdirs, "/folders/");
 			subdirs = tracker_string_remove (subdirs, "/subfolders");
 			subdirs = tracker_string_remove (subdirs, "/summary");
 
