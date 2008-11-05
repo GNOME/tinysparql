@@ -227,7 +227,7 @@ tracker_db_create_service (TrackerService  *service,
 {
 	TrackerDBInterface *iface;
 	gchar *id_str, *service_type_id_str, *path;
-	gboolean is_dir, is_symlink, enabled;
+	gboolean is_dir, is_symlink;
 
 	if (!service) {
 		return FALSE;
@@ -241,10 +241,10 @@ tracker_db_create_service (TrackerService  *service,
 
 	path = g_build_filename (dirname, basename, NULL);
 
+	/* FIXME: Could need the same for non local paths */
 	is_dir = g_file_test (path, G_FILE_TEST_IS_DIR);
 	is_symlink = g_file_test (path, G_FILE_TEST_IS_SYMLINK);
 
-	/* FIXME: do not hardcode arguments */
 	tracker_db_interface_execute_procedure (iface, NULL, "CreateService",
 						id_str,
 						dirname,
@@ -258,16 +258,6 @@ tracker_db_create_service (TrackerService  *service,
 						tracker_metadata_lookup (metadata, "File:Modified"),
 						"0", /* Aux ID */
 						NULL);
-
-	enabled = is_dir ?
-		tracker_service_get_show_service_directories (service) :
-		tracker_service_get_show_service_files (service);
-
-	if (!enabled) {
-		tracker_db_interface_execute_query (iface, NULL,
-						    "Update services set Enabled = 0 where ID = %d",
-						    id);
-	}
 
 	g_free (id_str);
 	g_free (service_type_id_str);
