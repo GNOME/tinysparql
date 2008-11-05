@@ -52,6 +52,8 @@
 	Added support for non-standard metadata tags that some fluendo
 	plugins are using.
 
+	Fixes NB #90138
+	
 2008-11-04  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/trackerd/tracker-search.c
@@ -69,13 +71,15 @@
 
         * src/tracker-extract/tracker-extract-gstreamer.c: Added a default
 	value for Video:PlayCount.
-
+	
 2008-11-03  Mikael Ottela    <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c:
         * src/tracker-extract/tracker-extract-gstreamer.c: Added a default
 	value for Audio:PlayCount for simplifying queries.
 
+	Fixes NB #89254
+	
 2008-11-03  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-metadata-utils.c
