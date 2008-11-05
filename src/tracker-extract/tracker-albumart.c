@@ -90,7 +90,7 @@ strip_characters (const gchar *original)
 {
 	const gchar *foo = "()[]<>{}_!@#$^&*+=|\\/\"'?~";
 	guint osize = strlen (original);
-	gchar *retval = (gchar *) g_malloc0 (sizeof (gchar *) * osize);
+	gchar *retval = (gchar *) g_malloc0 (sizeof (gchar *) * osize + 1);
 	guint i = 0, y = 0;
 
 	while (i < osize) {
