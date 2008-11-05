@@ -1,3 +1,9 @@
+2008-11-05  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Saw the hope for change become
+	realized and then fixed creating the .mediaartlocal directory for local
+	media art on removable devices
+
 2008-11-05  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer-db.c

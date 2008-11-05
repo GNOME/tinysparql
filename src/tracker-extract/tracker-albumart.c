@@ -205,13 +205,21 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 		from = g_file_new_for_path (filename);
 		local_file = g_file_new_for_uri (local_uri);
 
+
 		/* We don't try to overwrite, but we also ignore all errors.
 		 * Such an error could be that the removable device is 
 		 * read-only. Well that's fine then ... ignore */
 
-		if (!g_file_query_exists (local_file, NULL))
+		if (!g_file_query_exists (local_file, NULL)) {
+			GFile *dirf;
+
+			dirf = g_file_get_parent (local_file);
+			g_file_make_directory_with_parents (dirf, NULL, NULL);
+			g_object_unref (dirf);
+
 			g_file_copy_async (from, local_file, 0, 0, 
 					   NULL, NULL, NULL, NULL, NULL);
+		}
 
 		g_object_unref (local_file);
 		g_object_unref (from);
