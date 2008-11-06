@@ -87,7 +87,7 @@ tracker_spawn_async_with_channels (const gchar **argv,
 {
 	GError	 *error = NULL;
 	gboolean  result;
-	gint	  stdin, stdout, stderr;
+	gint	  tmpstdin, tmpstdout, tmpstderr;
 
 	g_return_val_if_fail (argv != NULL, FALSE);
 	g_return_val_if_fail (argv[0] != NULL, FALSE);
@@ -101,9 +101,9 @@ tracker_spawn_async_with_channels (const gchar **argv,
 					   tracker_spawn_child_func,
 					   GINT_TO_POINTER (timeout),
 					   pid,
-					   stdin_channel ? &stdin : NULL,
-					   stdout_channel ? &stdout : NULL,
-					   stderr_channel ? &stderr : NULL,
+					   stdin_channel ? &tmpstdin : NULL,
+					   stdout_channel ? &tmpstdout : NULL,
+					   stderr_channel ? &tmpstderr : NULL,
 					   &error);
 
 	if (error) {
@@ -114,15 +114,15 @@ tracker_spawn_async_with_channels (const gchar **argv,
 	}
 
 	if (stdin_channel) {
-		*stdin_channel = result ? g_io_channel_unix_new (stdin) : NULL;
+		*stdin_channel = result ? g_io_channel_unix_new (tmpstdin) : NULL;
 	}
 
 	if (stdout_channel) {
-		*stdout_channel = result ? g_io_channel_unix_new (stdout) : NULL;
+		*stdout_channel = result ? g_io_channel_unix_new (tmpstdout) : NULL;
 	}
 
 	if (stderr_channel) {
-		*stderr_channel = result ? g_io_channel_unix_new (stderr) : NULL;
+		*stderr_channel = result ? g_io_channel_unix_new (tmpstderr) : NULL;
 	}
 
 	return result;

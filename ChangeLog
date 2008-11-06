@@ -1,3 +1,9 @@
+2008-11-06  Philip Van Hoof  <philip@codeminded.be>
+	Patch from Jerry Tan <Jerry.Tan@Sun.COM>
+
+	* src/libtracker-common/tracker-os-dependant-unix.c: stdin/stdout is 
+	keyword for compile, replace it
+
 2008-11-05  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Bugfix incase of the empty
