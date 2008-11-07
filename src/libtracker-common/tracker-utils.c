@@ -106,7 +106,7 @@ tracker_escape_string (const gchar *in)
 {
 	gchar **array, *out;
 
-	if (strchr (in, '\'')) {
+	if (!strchr (in, '\'')) {
 		return g_strdup (in);
 	}
 
