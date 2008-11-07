@@ -734,11 +734,16 @@ tracker_db_set_metadata (TrackerService *service,
 	metadata_key = tracker_ontology_service_get_key_metadata (tracker_service_get_name (service),
 								  tracker_field_get_name (field));
 	if (metadata_key > 0) {
+		gchar *escaped_str;
+
+		escaped_str = tracker_escape_string (value);
+
 		tracker_db_interface_execute_query (iface, NULL,
 						    "update Services set KeyMetadata%d = '%s' where id = %d",
 						    metadata_key,
-						    value,
+						    escaped_str,
 						    id);
+		g_free (escaped_str);
 	}
 
 	g_free (id_str);

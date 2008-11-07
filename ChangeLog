@@ -1,5 +1,11 @@
 2008-11-07  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer-db.c (tracker_db_set_metadata):
+	Escape the value being inserted, so little Bobby Tables doesn't bite
+	us in the ass.
+
+2008-11-07  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-utils.c (tracker_escape_string): Fix
 	logic, so it actually escapes single quotes...
 
