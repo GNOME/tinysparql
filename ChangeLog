@@ -1,3 +1,8 @@
+2008-11-07  Ivan Frade  <ivan.frade@nokia.com>
+
+	* data/languages/stopwords.en: Removed "help" from the stopwords
+	list for english.
+	
 2008-11-07  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/modules/evolution.c (get_imap_uri): Make sure we
