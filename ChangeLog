@@ -1,5 +1,10 @@
 2008-11-07  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/modules/evolution.c (get_imap_uri): Make sure we
+	decompose the URI following the same procedure than Tracker.
+
+2008-11-07  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer-db.c (tracker_db_set_metadata):
 	Escape the value being inserted, so little Bobby Tables doesn't bite
 	us in the ass.

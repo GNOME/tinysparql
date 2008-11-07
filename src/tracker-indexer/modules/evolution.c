@@ -993,7 +993,7 @@ get_imap_uri (TrackerFile  *file,
 	      gchar	  **basename)
 {
 	GList *keys, *k;
-	gchar *path, *dir, *subdirs;
+	gchar *path, *uri, *dir, *subdirs;
 
 	path = file->path;
 	keys = g_hash_table_get_keys (accounts);
@@ -1001,8 +1001,6 @@ get_imap_uri (TrackerFile  *file,
 
 	for (k = keys; k; k = k->next) {
 		if (strstr (path, k->data)) {
-			*uri_base = g_strdup_printf ("email://%s", (gchar *) g_hash_table_lookup (accounts, k->data));
-
 			dir = g_build_filename (imap_dir, k->data, NULL);
 
 			/* now remove all relevant info to create the email:// basename */
@@ -1012,10 +1010,15 @@ get_imap_uri (TrackerFile  *file,
 			subdirs = tracker_string_remove (subdirs, "/subfolders");
 			subdirs = tracker_string_remove (subdirs, "/summary");
 
-			*basename = g_strdup_printf ("%s;uid=%s", subdirs, uid);
+                        uri = g_strdup_printf ("email://%s/%s;uid=%s",
+                                               (gchar *) g_hash_table_lookup (accounts, k->data),
+                                               subdirs, uid);
+
+                        tracker_file_get_path_and_name (uri, uri_base, basename);
 
 			g_free (subdirs);
 			g_free (dir);
+                        g_free (uri);
 
 			break;
 		}
