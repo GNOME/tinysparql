@@ -39,7 +39,8 @@ typedef enum {
 	TIFF_TAGTYPE_STRING,
 	TIFF_TAGTYPE_UINT16,
 	TIFF_TAGTYPE_UINT32,
-	TIFF_TAGTYPE_DOUBLE
+	TIFF_TAGTYPE_DOUBLE,
+	TIFF_TAGTYPE_C16_UINT16
 } TagType;
 
 typedef struct {
@@ -82,11 +83,11 @@ TiffTag exiftags[] = {
 	{EXIFTAG_EXPOSURETIME, "Image:ExposureTime", TIFF_TAGTYPE_DOUBLE, NULL},
 	{EXIFTAG_FNUMBER, "Image:FNumber", TIFF_TAGTYPE_DOUBLE, NULL},
 	{EXIFTAG_EXPOSUREPROGRAM, "Image:ExposureProgram", TIFF_TAGTYPE_UINT16 ,NULL },
-	{EXIFTAG_ISOSPEEDRATINGS, "Image:ISOSpeed",TIFF_TAGTYPE_UINT32, NULL},
+	{EXIFTAG_ISOSPEEDRATINGS, "Image:ISOSpeed",TIFF_TAGTYPE_C16_UINT16, NULL},
 	{EXIFTAG_DATETIMEORIGINAL, "Image:Date", TIFF_TAGTYPE_STRING,date_to_iso8601},
 	{EXIFTAG_METERINGMODE, "Image:MeteringMode", TIFF_TAGTYPE_UINT16, NULL},
 	{EXIFTAG_FLASH, "Image:Flash", TIFF_TAGTYPE_UINT16, NULL},
-	{EXIFTAG_FOCALLENGTH, "Image:FocalLength", TIFF_TAGTYPE_UINT16, NULL},
+	{EXIFTAG_FOCALLENGTH, "Image:FocalLength", TIFF_TAGTYPE_DOUBLE, NULL},
 	{EXIFTAG_PIXELXDIMENSION, "Image:Width",TIFF_TAGTYPE_UINT32, NULL},
 	{EXIFTAG_PIXELYDIMENSION, "Image:Height", TIFF_TAGTYPE_UINT32,NULL},
 	{EXIFTAG_WHITEBALANCE, "Image:WhiteBalance", TIFF_TAGTYPE_UINT16,NULL},
@@ -105,6 +106,10 @@ tracker_extract_tiff (const gchar *filename, GHashTable *metadata)
 	gchar buffer[1024];
 	guint16 varui16 = 0;
 	guint32 varui32 = 0;
+	
+	void *data;
+	guint16 count16;
+
 	float vardouble;
 
 #ifdef HAVE_EXEMPI
@@ -143,8 +148,8 @@ tracker_extract_tiff (const gchar *filename, GHashTable *metadata)
 						continue;
 					}
 					break;
-				case TIFF_TAGTYPE_UINT16:
-					if (!TIFFGetField(image, tag->tag, &varui32)) {
+				case TIFF_TAGTYPE_UINT16:						
+					if (!TIFFGetField(image, tag->tag, &varui16)) {
 						continue;
 					}
 
@@ -164,6 +169,15 @@ tracker_extract_tiff (const gchar *filename, GHashTable *metadata)
 
 					sprintf(buffer,"%f",vardouble);
 					break;
+				case TIFF_TAGTYPE_C16_UINT16:						
+					if (!TIFFGetField(image, tag->tag, &count16, &data)) {
+						continue;
+					}
+
+					/* We only take only the first for now */
+					sprintf(buffer,"%i",*(guint16 *)data);
+					break;	
+
 				default:
 					continue;
 					break;
@@ -190,7 +204,7 @@ tracker_extract_tiff (const gchar *filename, GHashTable *metadata)
 				}
 				break;
 			case TIFF_TAGTYPE_UINT16:
-				if (!TIFFGetField(image, tag->tag, &varui32)) {
+				if (!TIFFGetField(image, tag->tag, &varui16)) {
 					continue;
 				}
 

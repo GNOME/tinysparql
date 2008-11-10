@@ -1,3 +1,10 @@
+2008-11-10  Mikael Ottela   <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-tiff.c: Fixed a bug in array
+	handling of Tiff tags.
+
+	Fixes NB #91516 and NB #91488
+	
 2008-11-10  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:
