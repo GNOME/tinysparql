@@ -318,6 +318,8 @@ SQLITE_EXTENSION_INIT1
 #endif
 
 
+static int default_column = 0;
+
 /*  functions needed from tracker */
 
 static TrackerDBResultSet *
@@ -402,7 +404,18 @@ db_get_text (const char     *service,
 	return contents;
 }
 
+static inline int
+get_metadata_weight (int id)
+{
+  if (id == 0) return 1;
 
+  TrackerField *field = tracker_ontology_get_field_by_id (id);
+  
+  if (!field) return 1;
+
+  return tracker_field_get_weight (field);
+
+}
 
 
 
@@ -1074,7 +1087,7 @@ static void plrInit(PLReader *pReader, DLReader *pDLReader){
   pReader->pData = dlrPosData(pDLReader);
   pReader->nData = dlrPosDataLen(pDLReader);
   pReader->iType = pDLReader->iType;
-  pReader->iColumn = 0;
+  pReader->iColumn = default_column;
   pReader->iPosition = 0;
   pReader->iStartOffset = 0;
   pReader->iEndOffset = 0;
@@ -1190,7 +1203,9 @@ static void plwInit(PLWriter *pWriter, DLWriter *dlw, sqlite_int64 iDocid, int C
   pWriter->dlw->has_iPrevDocid = 1;
 #endif
 
-  pWriter->iColumn = 0;
+  /* [tracker] - the default column (ID = 0) should be that of File:Contents for Files db and Email:Body for email db 
+  that way we avoid wrting a column ID and cosuming more bytes for the most voluminous cases */
+  pWriter->iColumn = default_column;
   pWriter->iPos = 0;
   pWriter->iOffset = 0;
 }
@@ -3616,6 +3631,7 @@ static int fulltextDestroy(sqlite3_vtab *pVTab){
 static int fulltextOpen(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor){
   fulltext_cursor *c;
 
+  fulltext_vtab *v = (fulltext_vtab *)pVTab;
   c = (fulltext_cursor *) sqlite3_malloc(sizeof(fulltext_cursor));
   if( c ){
     memset(c, 0, sizeof(fulltext_cursor));
@@ -3623,7 +3639,7 @@ static int fulltextOpen(sqlite3_vtab *pVTab, sqlite3_vtab_cursor **ppCursor){
     *ppCursor = &c->base;
     
     c->offsets = g_string_new ("");
-    
+        
     FTSTRACE(("FTS3 Open %p: %p\n", pVTab, c));
     return SQLITE_OK;
   }else{
@@ -4239,13 +4255,16 @@ static int fulltextNext(sqlite3_vtab_cursor *pCursor){
   
     
     for ( ; !plrAtEnd(&plReader); plrStep(&plReader) ){
-   
-      c->rank++;
+     
+      int col = plrColumn (&plReader);
+      
+      c->rank += get_metadata_weight (col);
+      
       if (first_pos) {
-        g_string_append_printf (c->offsets, "%d,%d", plrColumn (&plReader), plrPosition (&plReader));
+        g_string_append_printf (c->offsets, "%d,%d", col, plrPosition (&plReader));
         first_pos = FALSE;
       } else {
-        g_string_append_printf (c->offsets, ",%d,%d", plrColumn (&plReader), plrPosition (&plReader));
+        g_string_append_printf (c->offsets, ",%d,%d", col, plrPosition (&plReader));
       }
     }
        
@@ -4842,6 +4861,7 @@ static int buildTerms(fulltext_vtab *v, sqlite_int64 iDocid,
 int Catid,
 #endif
 		      const char *zText, int iColumn){
+		      
   const char *pToken;
   int nTokenBytes;
   int iStartOffset, iEndOffset, iPosition, stop_word, new_paragraph;
@@ -4934,9 +4954,13 @@ static int insertTerms(fulltext_vtab *v, sqlite_int64 iDocid,
   
 #ifdef STORE_CATEGORY   
   
+  /* tracker- category is at column 0 so we dont want to add that value to index */
   for(i = 1; i < v->nColumn ; ++i){
     char *zText = (char*)sqlite3_value_text(pValues[i]);
-    int rc = buildTerms(v, iDocid, sqlite3_value_int (pValues[0]), zText, i);
+    
+    /* tracker - as for col id we want col 0 to be the default metadata field (file:contents or email:body) , 
+    col 1 to be meatdata id 1, col 2 to be metadat id 2 etc so need to decrement i here */
+    int rc = buildTerms(v, iDocid, sqlite3_value_int (pValues[0]), zText, i-1);
     if( rc!=SQLITE_OK ) return rc;
   }
   

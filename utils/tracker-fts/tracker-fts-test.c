@@ -95,17 +95,17 @@ main (int argc, char **argv)
 	}
 	
 	if (!db_exists) {
-		exec_sql (db, "create virtual table recipe using trackerfts (cat, name, ingredients)");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (3, 'broccoli stew stew stew', 'broccoli,peppers,cheese and tomatoes')");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (4, 'pumpkin stew stew stew', 'pumpkin,onions,garlic and celery')");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (2, 'broccoli pie stew', 'broccoli,cheese,onions and flour.')");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (7, 'stew pumpkin pie stew', 'pumpkin,sugar,flour and butter.')");
-		exec_sql (db, "insert into recipe (cat, name, ingredients) values (6, 'stew pumpkin pie stew', 'pumpkin,sugar,flour and butter.')");
+		exec_sql (db, "create virtual table recipe using trackerfts (cat, col_default, col_1, col_2)");
+		exec_sql (db, "insert into recipe (cat, col_default, col_1, col_2) values (3, 'broccoli stew stew stew', 'broccoli,peppers,cheese and tomatoes', 'mix them all up and have fun')");
+		exec_sql (db, "insert into recipe (cat, col_default, col_1, col_2) values (4, 'pumpkin stew stew stew', 'pumpkin,onions,garlic and celery', 'spread them thinly')");
+		exec_sql (db, "insert into recipe (cat, col_default, col_1, col_2) values (2, 'broccoli pie stew', 'broccoli,cheese,onions and flour.', 'mash em up')");
+		exec_sql (db, "insert into recipe (cat, col_default, col_1, col_2) values (7, 'stew pumpkin pie stew', 'pumpkin,sugar,flour and butter.', 'spread them all thinly')");
+		exec_sql (db, "insert into recipe (cat, col_default, col_1, col_2) values (6, 'stew pumpkin pie stew', 'pumpkin,sugar,flour and butter.', 'mash and spread')");
 	}
 //	sql = g_strdup_printf ("select cat, count (*) from recipe where recipe match '%s' group by Cat", argv[1]);
 //	exec_sql (db, sql);
 //	g_free (sql);
-	sql = g_strdup_printf ("select rowid, cat, name, ingredients, offsets(recipe), rank(recipe) from recipe where recipe match '%s' and Cat<8", argv[1]);
+	sql = g_strdup_printf ("select rowid, cat, col_default, col_1, col_2, offsets(recipe), rank(recipe) from recipe where recipe match '%s' and Cat<8 order by rank(recipe) desc", argv[1]);
 	exec_sql (db, sql);
 	g_free (sql);
 	

@@ -1,3 +1,12 @@
+2008-11-09 Jamie McCracken <jamiemcc at gnome org>
+
+	* src/tracker-fts/tracker-fts.c:
+	made rank func use meatdata ranking
+	set up default column for storing positions efficiently spacewise
+
+	* utils/tracker-fts/tracker-fts-test.c:
+	updated example
+	
 2008-11-07  Ivan Frade  <ivan.frade@nokia.com>
 
 	* data/languages/stopwords.en: Removed "help" from the stopwords
