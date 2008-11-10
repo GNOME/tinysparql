@@ -1,3 +1,8 @@
+2008-11-10  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Function is only available
+	on very recent versions of glib.
+
 2008-11-09 Jamie McCracken <jamiemcc at gnome org>
 
 	* src/tracker-fts/tracker-fts.c:
