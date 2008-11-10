@@ -676,6 +676,7 @@ black_list_check_items_cb (gpointer data)
 				continue;
 			}
 
+#ifdef USE_LIBINOTIFY
 			switch (event->event_type) {
 			case IN_MODIFY:
 			case IN_CLOSE_WRITE:
@@ -712,6 +713,13 @@ black_list_check_items_cb (gpointer data)
 					       is_directory);
 				break;
 			}
+#else  /* USE_LIBINOTIFY */
+			g_signal_emit (monitor,
+				       signals[ITEM_UPDATED], 0,
+				       module_name,
+				       key,
+				       is_directory);
+#endif /* USE_LIBINOTIFY */
 		}
 
 		/* Remove from hash tables (i.e. white list it) */

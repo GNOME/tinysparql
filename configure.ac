@@ -226,30 +226,6 @@ DESKBAR_MODULE_DIR="$module_dir"
 AC_SUBST(DESKBAR_MODULE_DIR)
 
 ####################################################################
-# Compiler warning checks
-####################################################################
-
-AC_ARG_ENABLE(warnings,
-              AS_HELP_STRING([--disable-warnings], [disable GCC warnings]),,
-              [enable_warnings=yes])
-
-# Only use -Wall if we have gcc
-if test "x$GCC" = "xyes"; then
-   if test "x$enable_warnings" = "xyes"; then
-      CFLAGS="\
-	-Wall \
-	-Wunused \
-	-Wchar-subscripts \
-	-Wmissing-declarations \
-	-Wmissing-prototypes \
-	-Wnested-externs \
-	-Wpointer-arith \
-	-Wsign-compare \
-	$CFLAGS"
-   fi
-fi
-
-####################################################################
 # gettext/intltool support
 ####################################################################
 
@@ -522,16 +498,8 @@ fi
 #  libinotify
 ####################################################################
 
-AC_MSG_CHECKING(for inotify)
-AC_TRY_COMPILE(,
-	[
-        #include <sys/inotify.h>
-
-        inotify_init(void);
-	],
-	have_inotify=no; AC_MSG_RESULT(no),
-	have_inotify=yes; AC_MSG_RESULT(yes),
-)
+have_inotify=no
+AC_CHECK_HEADERS([sys/inotify.h],[have_inotify=yes])
 
 AM_CONDITIONAL(HAVE_INOTIFY, test "$have_inotify" = "yes")
 
@@ -1190,7 +1158,7 @@ Build Configuration:
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$enable_unac
 
-	Support for file monitoring:           	gio
+	Support for file monitoring:           	gio (w/ libinotify: $have_inotify)
 	Support for ioprio:			$have_ioprio
 	Support for HAL:                    	$have_hal
 

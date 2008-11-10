@@ -1,3 +1,9 @@
+2008-11-10  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/trackerd/tracker-monitor.c: (black_list_check_items_cb):
+	Fixed check for inotify and also fixed build when we don't have it.
+
 2008-11-10  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Function is only available
