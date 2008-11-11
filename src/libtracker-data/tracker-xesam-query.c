@@ -47,8 +47,9 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-data-manager.h"
+#include "tracker-data-schema.h"
 #include "tracker-xesam-query.h"
-#include "tracker-db.h"
 
 /* XESAM Query Condition
  * <query>
@@ -396,9 +397,9 @@ add_metadata_field (ParserData	*data,
 
 	/* Do the xesam mapping */
 	if (!strcmp(xesam_name,FIELD_NAME_FULL_TEXT_FIELDS)) {
-		result_set = tracker_db_xesam_get_all_text_metadata_names (data->iface);
+		result_set = tracker_data_schema_xesam_get_text_metadata_names (data->iface);
 	} else {
-		result_set = tracker_db_xesam_get_metadata_names (data->iface, xesam_name);
+		result_set = tracker_data_schema_xesam_get_metadata_names (data->iface, xesam_name);
 	}
 
 	if (!result_set) {
@@ -432,7 +433,7 @@ add_metadata_field (ParserData	*data,
 		}
 
 		if (!field_exists) {
-			field_data = tracker_db_get_metadata_field (data->iface,
+			field_data = tracker_data_schema_get_metadata_field (data->iface,
 								    data->service,
 								    field_name,
 								    g_slist_length (data->fields),
@@ -493,7 +494,7 @@ start_element_handler (GMarkupParseContext  *context,
 		if(content) {
 			TrackerDBResultSet *result_set;
 
-			result_set = tracker_db_xesam_get_service_names (data->iface,
+			result_set = tracker_data_schema_xesam_get_service_names (data->iface,
 									 content);
 
 			content = g_strdup (content);
@@ -1449,7 +1450,7 @@ tracker_xesam_query_to_sql (TrackerDBInterface	*iface,
 			} else {
 				gchar *related_metadata;
 
-				related_metadata = tracker_db_metadata_get_related_names (iface,
+				related_metadata = tracker_data_schema_metadata_field_get_related_names (iface,
 											  tracker_field_data_get_field_name (l->data));
 				g_string_append_printf (data.sql_join,
 							" INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",

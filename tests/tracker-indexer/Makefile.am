@@ -25,19 +25,16 @@ tracker_metadata_utils_SOURCES = 					\
 	tracker-dbus.h							\
 	tracker-indexer.c						\
 	tracker-indexer.h						\
-	tracker-indexer-db.c						\
-	tracker-indexer-db.h						\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-marshal-main.c						\
-	tracker-metadata.c						\
-	tracker-metadata.h						\
 	tracker-metadata-utils.c 					\
 	tracker-metadata-utils.h 					\
 	tracker-metadata-utils-test.c 					\
 	tracker-module.h
 
 tracker_metadata_utils_LDADD =	                                        \
+	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la           \

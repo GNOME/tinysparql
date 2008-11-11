@@ -23,12 +23,14 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
+#include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-data/tracker-data-live-search.h>
+#include <libtracker-data/tracker-xesam-query.h>
+
 #include "tracker-xesam-live-search.h"
 #include "tracker-xesam.h"
 #include "tracker-xesam-manager.h"
-#include "tracker-xesam-query.h"
 #include "tracker-dbus.h"
-#include "tracker-db.h"
 
 struct _TrackerXesamLiveSearchPriv {
 	TrackerXesamSession *session;
@@ -283,7 +285,7 @@ get_hits_added_modified (TrackerXesamLiveSearch  *self,
 	/* Right now we are ignoring flags (both creates and updates are
 	 * searched) */
 
-	result_set = tracker_db_live_search_get_new_ids (iface,
+	result_set = tracker_data_live_search_get_new_ids (iface,
 							 tracker_xesam_live_search_get_id (self),
 							 tracker_xesam_live_search_get_from_query (self),
 							 tracker_xesam_live_search_get_join_query (self),
@@ -352,7 +354,7 @@ get_all_hits (TrackerXesamLiveSearch  *self,
 
 	*hits = NULL;
 
-	result_set = tracker_db_live_search_get_all_ids (iface,
+	result_set = tracker_data_live_search_get_ids (iface,
 							 tracker_xesam_live_search_get_id (self));
 
 	if (!result_set) {
@@ -414,7 +416,7 @@ tracker_xesam_live_search_match_with_events (TrackerXesamLiveSearch  *self,
 
 	if (flags & MATCH_WITH_EVENTS_DELETES) {
 		/* Deleted items */
-		result_set = tracker_db_live_search_get_deleted_ids (iface,
+		result_set = tracker_data_live_search_get_deleted_ids (iface,
 								     tracker_xesam_live_search_get_id (self));
 
 		if (result_set) {
@@ -484,7 +486,7 @@ tracker_xesam_live_search_close (TrackerXesamLiveSearch  *self,
 		g_message ("Closing search '%s'",
 			   tracker_xesam_live_search_get_id (self));
 
-		tracker_db_live_search_stop (iface,
+		tracker_data_live_search_stop (iface,
 					     tracker_xesam_live_search_get_id (self));
 	}
 
@@ -527,7 +529,7 @@ tracker_xesam_live_search_get_hit_count (TrackerXesamLiveSearch  *self,
 
 		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_XESAM_SERVICE);
 
-		result_set = tracker_db_live_search_get_hit_count (iface,
+		result_set = tracker_data_live_search_get_hit_count (iface,
 								   tracker_xesam_live_search_get_id (self));
 		_tracker_db_result_set_get_value (result_set, 0, &value);
 		*count = g_value_get_int (&value);
@@ -869,7 +871,7 @@ tracker_xesam_live_search_get_hits (TrackerXesamLiveSearch  *self,
 
 			/* For ottela: fetch results for get_hits */
 
-			result_set = tracker_db_live_search_get_hit_data (iface,
+			result_set = tracker_data_live_search_get_hit_data (iface,
 									  tracker_xesam_live_search_get_id (self),
 									  fields);
 
@@ -934,7 +936,7 @@ tracker_xesam_live_search_get_range_hits (TrackerXesamLiveSearch  *self,
 
 			fields = g_value_get_boxed (value);
 
-			result_set = tracker_db_live_search_get_hit_data (iface,
+			result_set = tracker_data_live_search_get_hit_data (iface,
 									  tracker_xesam_live_search_get_id (self),
 									  fields);
 
@@ -1009,7 +1011,7 @@ tracker_xesam_live_search_get_hit_data (TrackerXesamLiveSearch	*self,
 
 		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_XESAM_SERVICE);
 
-		result_set = tracker_db_live_search_get_hit_data (iface,
+		result_set = tracker_data_live_search_get_hit_data (iface,
 								  tracker_xesam_live_search_get_id (self),
 								  fields);
 
@@ -1054,7 +1056,7 @@ tracker_xesam_live_search_get_range_hit_data (TrackerXesamLiveSearch  *self,
 
 		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_XESAM_SERVICE);
 
-		result_set = tracker_db_live_search_get_hit_data (iface,
+		result_set = tracker_data_live_search_get_hit_data (iface,
 								  tracker_xesam_live_search_get_id (self),
 								  fields);
 
@@ -1116,7 +1118,7 @@ tracker_xesam_live_search_activate (TrackerXesamLiveSearch  *self,
 
 		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_XESAM_SERVICE);
 
-		tracker_db_live_search_start (iface,
+		tracker_data_live_search_start (iface,
 					      tracker_xesam_live_search_get_from_query (self),
 					      tracker_xesam_live_search_get_join_query (self),
 					      tracker_xesam_live_search_get_where_query (self),

@@ -139,7 +139,7 @@ check_exclude_file (const gchar *path)
 
 #endif /* ENABLE_FILE_EXCLUDE_CHECKING */
 
-TrackerMetadata *
+TrackerDataMetadata *
 tracker_module_file_get_metadata (TrackerFile *file)
 {
 #ifdef ENABLE_FILE_EXCLUDE_CHECKING

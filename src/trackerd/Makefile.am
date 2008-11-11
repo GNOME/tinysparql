@@ -33,8 +33,6 @@ trackerd_SOURCES =							\
 	tracker-crawler.h						\
 	tracker-daemon.c						\
 	tracker-daemon.h						\
-	tracker-db.c							\
-	tracker-db.h							\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
 	tracker-files.c							\
@@ -50,10 +48,6 @@ trackerd_SOURCES =							\
 	tracker-metadata.h						\
 	tracker-monitor.c						\
 	tracker-monitor.h						\
-	tracker-query-tree.c						\
-	tracker-query-tree.h						\
-	tracker-rdf-query.c						\
-	tracker-rdf-query.h						\
 	tracker-search.c						\
 	tracker-search.h						\
 	tracker-status.c						\
@@ -64,8 +58,6 @@ trackerd_SOURCES =							\
 	tracker-xesam.h							\
 	tracker-xesam-manager.c						\
 	tracker-xesam-manager.h						\
-	tracker-xesam-query.c						\
-	tracker-xesam-query.h						\
 	tracker-xesam-session.c						\
 	tracker-xesam-session.h						\
 	tracker-xesam-live-search.c					\
@@ -76,6 +68,7 @@ trackerd_win_libs = -lws2_32 -lkernel32
 endif
 
 trackerd_LDADD =							\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\

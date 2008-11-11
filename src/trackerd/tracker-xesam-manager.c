@@ -29,6 +29,8 @@
 
 #include <libtracker-db/tracker-db-manager.h>
 
+#include <libtracker-data/tracker-data-update.h>
+
 #include "tracker-xesam-manager.h"
 #include "tracker-dbus.h"
 #include "tracker-main.h"
@@ -385,7 +387,7 @@ live_search_handler (gpointer data)
 
 	g_list_free (sessions);
 
-	tracker_db_xesam_delete_handled_events (xesam_db_iface);
+	tracker_data_update_delete_handled_events (xesam_db_iface);
 
 	return reason_to_live;
 }

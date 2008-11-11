@@ -1016,13 +1016,9 @@ AC_CONFIG_LINKS(tests/tracker-indexer/tracker-dbus.c:src/tracker-indexer/tracker
                 tests/tracker-indexer/tracker-dbus.h:src/tracker-indexer/tracker-dbus.h
                 tests/tracker-indexer/tracker-indexer.c:src/tracker-indexer/tracker-indexer.c
                 tests/tracker-indexer/tracker-indexer.h:src/tracker-indexer/tracker-indexer.h
-                tests/tracker-indexer/tracker-indexer-db.c:src/tracker-indexer/tracker-indexer-db.c
-                tests/tracker-indexer/tracker-indexer-db.h:src/tracker-indexer/tracker-indexer-db.h
                 tests/tracker-indexer/tracker-indexer-module.c:src/tracker-indexer/tracker-indexer-module.c
                 tests/tracker-indexer/tracker-indexer-module.h:src/tracker-indexer/tracker-indexer-module.h
                 tests/tracker-indexer/tracker-marshal-main.c:src/tracker-indexer/tracker-marshal-main.c
-		tests/tracker-indexer/tracker-metadata.c:src/tracker-indexer/tracker-metadata.c 
-                tests/tracker-indexer/tracker-metadata.h:src/tracker-indexer/tracker-metadata.h
                 tests/tracker-indexer/tracker-metadata-utils.c:src/tracker-indexer/tracker-metadata-utils.c
                 tests/tracker-indexer/tracker-metadata-utils.h:src/tracker-indexer/tracker-metadata-utils.h
                 tests/tracker-indexer/tracker-module.h:src/tracker-indexer/tracker-module.h
@@ -1106,6 +1102,7 @@ AC_CONFIG_FILES([
 	src/libinotify/Makefile
 	src/libstemmer/Makefile
 	src/libtracker-common/Makefile
+	src/libtracker-data/Makefile
 	src/libtracker-db/Makefile
 	src/libtracker-gtk/Makefile
 	src/libtracker/Makefile

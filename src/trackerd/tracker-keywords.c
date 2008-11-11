@@ -29,9 +29,13 @@
 #include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-manager.h>
 
+#include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-data-schema.h>
+#include <libtracker-data/tracker-data-search.h>
+
 #include "tracker-dbus.h"
 #include "tracker-keywords.h"
-#include "tracker-db.h"
 #include "tracker-marshal.h"
 #include "tracker-indexer-client.h"
 
@@ -144,7 +148,7 @@ tracker_keywords_get_list (TrackerKeywords  *object,
 	}
 
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-	result_set = tracker_db_keywords_get_list (iface, service_type);
+	result_set = tracker_data_search_keywords_get_list (iface, service_type);
 	values = tracker_dbus_query_result_to_ptr_array (result_set);
 
 	if (result_set) {
@@ -201,7 +205,7 @@ tracker_keywords_get (TrackerKeywords	     *object,
 		return;
 	}
 
-	id = tracker_db_file_get_id_as_string (service_type, uri);
+	id = tracker_data_query_file_id_as_string (service_type, uri);
 	if (!id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -213,7 +217,7 @@ tracker_keywords_get (TrackerKeywords	     *object,
 	}
 
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-	result_set = tracker_db_metadata_get (iface,
+	result_set = tracker_data_query_metadata_field (iface,
 					      id,
 					      "User:Keywords");
 	values = tracker_dbus_query_result_to_strv (result_set, 0, NULL);
@@ -276,7 +280,7 @@ tracker_keywords_add (TrackerKeywords	     *object,
 		return;
 	}
 
-	id = tracker_db_file_get_id_as_string (service_type, uri);
+	id = tracker_data_query_file_id_as_string (service_type, uri);
 	if (!id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -373,7 +377,7 @@ tracker_keywords_remove (TrackerKeywords	*object,
 	}
 
 	/* Check the uri exists, so we dont start the indexer in vain */
-	service_id = tracker_db_file_get_id_as_string (service_type, uri);
+	service_id = tracker_data_query_file_id_as_string (service_type, uri);
 	if (!service_id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -450,7 +454,7 @@ tracker_keywords_remove_all (TrackerKeywords	    *object,
 	}
 
 	/* Check the uri exists, so we dont start the indexer in vain */
-	service_id = tracker_db_file_get_id_as_string (service_type, uri);
+	service_id = tracker_data_query_file_id_as_string (service_type, uri);
 	if (!service_id) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
@@ -496,15 +500,8 @@ tracker_keywords_search (TrackerKeywords	*object,
 			 DBusGMethodInvocation	*context,
 			 GError		       **error)
 {
-	TrackerDBInterface  *iface;
 	TrackerDBResultSet  *result_set;
 	guint		     request_id;
-	const gchar	   **p;
-	GString		    *search;
-	GString		    *select;
-	GString		    *where;
-	gchar		    *related_metadata;
-	gchar		    *query;
 	gchar		   **values;
 	GError		    *actual_error = NULL;
 
@@ -522,78 +519,22 @@ tracker_keywords_search (TrackerKeywords	*object,
 				  offset,
 				  max_hits);
 
-	if (!tracker_ontology_service_is_valid (service_type)) {
-		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     "Service_Type '%s' is invalid or has not been implemented yet",
-					     service_type);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
+	result_set = tracker_data_search_keywords (service_type,
+						   keywords,
+						   offset,
+						   max_hits,
+						   &actual_error);
+
+	if (actual_error) {
+		g_propagate_error (error, actual_error);
 		return;
 	}
 
-	iface = tracker_db_manager_get_db_interface_by_service (service_type);
-
-	/* Sanity check values */
-	offset = MAX (offset, 0);
-
-	/* Create keyword search string */
-	search = g_string_new ("");
-	g_string_append_printf (search,
-				"'%s'",
-				keywords[0]);
-
-	for (p = keywords + 1; *p; p++) {
-		g_string_append_printf (search, ", '%s'", *p);
-	}
-
-	tracker_dbus_request_comment (request_id,
-				      "Executing keyword search on %s",
-				      search->str);
-
-	/* Create select string */
-	select = g_string_new (" Select distinct S.Path || '");
-	select = g_string_append (select, G_DIR_SEPARATOR_S);
-	select = g_string_append (select,
-				  "' || S.Name as EntityName from Services S, ServiceKeywordMetaData M ");
-
-	/* Create where string */
-	related_metadata = tracker_db_metadata_get_related_names (iface, "User:Keywords");
-
-	where = g_string_new ("");
-	g_string_append_printf (where,
-				" where S.ID = M.ServiceID and M.MetaDataID in (%s) and M.MetaDataValue in (%s) ",
-				related_metadata,
-				search->str);
-	g_free (related_metadata);
-	g_string_free (search, TRUE);
-
-	g_string_append_printf (where,
-				"  and	(S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ",
-				service_type,
-				service_type);
-
-	/* Add offset and max_hits */
-	g_string_append_printf (where,
-				" Limit %d,%d",
-				offset,
-				max_hits);
-
-	/* Finalize query */
-	query = g_strconcat (select->str, where->str, NULL);
-	g_string_free (select, TRUE);
-	g_string_free (where, TRUE);
-
-	g_debug (query);
-
-	result_set = tracker_db_interface_execute_query (iface, NULL, query);
 	values = tracker_dbus_query_result_to_strv (result_set, 0, NULL);
 
 	if (result_set) {
 		g_object_unref (result_set);
 	}
-
-	g_free (query);
 
 	dbus_g_method_return (context, values);
 

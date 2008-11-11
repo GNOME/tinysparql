@@ -35,7 +35,7 @@
 
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
-#include "tracker-db.h"
+#include <libtracker-data/tracker-data-manager.h>
 #include "tracker-indexer-client.h"
 #include "tracker-main.h"
 #include "tracker-status.h"
@@ -172,7 +172,7 @@ indexer_finished_cb (DBusGProxy *proxy,
 	 * lookup the in a to compare in b, just compare index based.
 	 * Maybe we want to change this nonetheless later?
 	 */
-	result_set = tracker_db_exec_proc (iface, "GetStats", 0);
+	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
 	new_stats = tracker_dbus_query_result_to_ptr_array (result_set);
 
 	if (result_set) {
@@ -262,7 +262,7 @@ tracker_daemon_init (TrackerDaemon *object)
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_db_exec_proc (iface, "GetStats", 0);
+	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
 	priv->last_stats = tracker_dbus_query_result_to_ptr_array (result_set);
 
 	if (result_set) {
@@ -449,7 +449,7 @@ tracker_daemon_get_services (TrackerDaemon	    *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_db_exec_proc (iface, "GetServices", 0);
+	result_set = tracker_data_manager_exec_proc (iface, "GetServices", 0);
 	values = tracker_dbus_query_result_to_hash_table (result_set);
 
 	if (result_set) {
@@ -488,7 +488,7 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_db_exec_proc (iface, "GetStats", 0);
+	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
 	values = tracker_dbus_query_result_to_ptr_array (result_set);
 
 	if (result_set) {

@@ -35,30 +35,31 @@
 #include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-manager.h>
 
-#include "tracker-db.h"
+#include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-data-schema.h>
+#include <libtracker-data/tracker-data-search.h>
+#include <libtracker-data/tracker-query-tree.h>
+#include <libtracker-data/tracker-rdf-query.h>
+
 #include "tracker-dbus.h"
 #include "tracker-search.h"
-#include "tracker-rdf-query.h"
-#include "tracker-query-tree.h"
 #include "tracker-marshal.h"
 
 #define TRACKER_SEARCH_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_SEARCH, TrackerSearchPrivate))
 
-#define DEFAULT_SEARCH_MAX_HITS 		1024
-#define SEARCH_KEEPALIVE_TIME_FOR_SQL_QUERY	600
-
-static GQuark error_quark;
+#define DEFAULT_SEARCH_MAX_HITS      1024
+#define KEEPALIVE_TIME_FOR_SQL_QUERY 600
 
 typedef struct {
-	TrackerConfig	*config;
-	TrackerLanguage *language;
-	TrackerDBIndex	*file_index;
-	TrackerDBIndex	*email_index;
+	TrackerConfig	   *config;
+	TrackerLanguage    *language;
+	TrackerDBIndex	   *file_index;
+	TrackerDBIndex	   *email_index;
+
+	TrackerDBInterface *sql_query_iface;
+	guint               sql_query_timeout_id;
 } TrackerSearchPrivate;
-
-static TrackerDBInterface   *sql_query_iface = NULL;
-static guint		     sql_query_cleanup_timeout_id = 0;
-
 
 static void tracker_search_finalize (GObject *object);
 
@@ -87,6 +88,14 @@ tracker_search_finalize (GObject *object)
 	TrackerSearchPrivate *priv;
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
+
+	if (priv->sql_query_timeout_id != 0) {
+		g_source_remove (priv->sql_query_timeout_id);
+	}
+
+	if (priv->sql_query_iface) {
+		g_object_unref (priv->sql_query_iface);
+	}
 
 	g_object_unref (priv->email_index);
 	g_object_unref (priv->file_index);
@@ -413,6 +422,87 @@ search_get_snippet (const gchar  *text,
 	}
 }
 
+static TrackerDBResultSet *
+search_perform_rdf_query (gint	        request_id,
+			  const gchar  *service,
+			  const gchar **fields,
+			  const gchar  *search_text,
+			  const gchar  *keyword,
+			  const gchar  *query_condition,
+			  gboolean      sort_by_service,
+			  const gchar **sort_fields,
+			  gboolean      sort_desc,
+			  gint	        offset,
+			  gint	        max_hits,
+			  GError      **error) 
+{
+	TrackerDBInterface *iface;
+	TrackerDBResultSet *result_set;
+
+	result_set = NULL;
+
+	iface = tracker_db_manager_get_db_interface_by_service (service);
+
+	if (query_condition) {
+		GError *query_error = NULL;
+		gchar  *query_translated;
+
+		tracker_dbus_request_comment (request_id,
+					      "Executing RDF query:'%s' with search "
+					      "term:'%s' and keyword:'%s'",
+					      query_condition,
+					      search_text,
+					      keyword);
+
+		query_translated = tracker_rdf_query_to_sql (iface,
+							     query_condition,
+							     service,
+							     fields,
+							     g_strv_length ((GStrv) fields),
+							     search_text,
+							     keyword,
+							     sort_by_service,
+							     sort_fields,
+							     sort_fields ? g_strv_length ((GStrv) sort_fields) : 0,
+							     sort_desc,
+							     offset,
+							     search_sanity_check_max_hits (max_hits),
+							     &query_error);
+
+		if (query_error) {
+			g_propagate_error (error, query_error);
+			return NULL;
+		} else if (!query_translated) {
+			g_set_error (error, 
+				     tracker_rdf_error_quark (), 
+				     0, 
+				     "Invalid rdf query, no error given");
+			return NULL;
+		}
+
+		tracker_dbus_request_comment (request_id,
+					      "Translated RDF query:'%s'",
+					      query_translated);
+
+		if (!tracker_is_empty_string (search_text)) {
+			tracker_data_search_text (iface,
+						  service,
+						  search_text,
+						  0,
+						  999999,
+						  TRUE,
+						  FALSE);
+		}
+
+		result_set = tracker_db_interface_execute_query (iface,
+								 NULL,
+								 query_translated);
+		g_free (query_translated);
+	}
+
+	return result_set;
+}
+
 void
 tracker_search_get_hit_count (TrackerSearch	     *object,
 			      const gchar	     *service,
@@ -460,7 +550,7 @@ tracker_search_get_hit_count (TrackerSearch	     *object,
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
-	array = tracker_db_create_array_of_services (service, FALSE);
+	array = tracker_data_schema_create_service_array (service, FALSE);
 	tree = tracker_query_tree_new (search_text,
 				       priv->config,
 				       priv->language,
@@ -510,7 +600,7 @@ tracker_search_get_hit_count_all (TrackerSearch		 *object,
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
 
-	array = tracker_db_create_array_of_services (NULL, FALSE);
+	array = tracker_data_schema_create_service_array (NULL, FALSE);
 	tree = tracker_query_tree_new (search_text,
 				       priv->config,
 				       priv->language,
@@ -568,9 +658,9 @@ tracker_search_text (TrackerSearch	    *object,
 		     DBusGMethodInvocation  *context,
 		     GError		   **error)
 {
-	GError		    *actual_error = NULL;
 	TrackerDBInterface  *iface;
 	TrackerDBResultSet  *result_set;
+	GError		    *actual_error = NULL;
 	guint		     request_id;
 	gchar		   **strv = NULL;
 
@@ -612,7 +702,7 @@ tracker_search_text (TrackerSearch	    *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (service);
 
-	result_set = tracker_db_search_text (iface,
+	result_set = tracker_data_search_text (iface,
 					     service,
 					     search_text,
 					     offset,
@@ -672,9 +762,9 @@ tracker_search_text_detailed (TrackerSearch	     *object,
 			      DBusGMethodInvocation  *context,
 			      GError		    **error)
 {
-	GError		   *actual_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
+	GError		   *actual_error = NULL;
 	guint		    request_id;
 	GPtrArray	   *values = NULL;
 
@@ -716,7 +806,7 @@ tracker_search_text_detailed (TrackerSearch	     *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (service);
 
-	result_set = tracker_db_search_text (iface,
+	result_set = tracker_data_search_text (iface,
 					     service,
 					     search_text,
 					     offset,
@@ -745,9 +835,9 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 			    DBusGMethodInvocation  *context,
 			    GError		  **error)
 {
-	GError		   *actual_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
+	GError		   *actual_error = NULL;
 	guint		    request_id;
 	gchar		   *snippet = NULL;
 	gchar		   *service_id;
@@ -788,7 +878,7 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (service);
 
-	service_id = tracker_db_file_get_id_as_string (service, id);
+	service_id = tracker_data_query_file_id_as_string (service, id);
 	if (!service_id) {
 		g_set_error (&actual_error,
 			     TRACKER_DBUS_ERROR,
@@ -800,7 +890,7 @@ tracker_search_get_snippet (TrackerSearch	   *object,
 		return;
 	}
 
-	result_set = tracker_db_exec_proc (iface,
+	result_set = tracker_data_manager_exec_proc (iface,
 					   "GetAllContents",
 					   service_id,
 					   NULL);
@@ -850,7 +940,6 @@ tracker_search_files_by_text (TrackerSearch	    *object,
 			      DBusGMethodInvocation  *context,
 			      GError		    **error)
 {
-	/* TrackerDBInterface *iface; */
 	TrackerDBResultSet *result_set;
 	guint		    request_id;
 	GHashTable	   *values = NULL;
@@ -869,14 +958,13 @@ tracker_search_files_by_text (TrackerSearch	    *object,
 				  max_hits,
 				  group_results ? "yes" : "no");
 
-	/* iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE); */
-
 	/* FIXME: This function no longer exists, it was returning
 	 * NULL in every case, this DBus function needs rewriting or
 	 * to be removed.
 	 */
 	result_set = NULL;
 
+	/* iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE); */
 	/* result_set = tracker_db_search_files_by_text (iface,  */
 	/*					      search_text,  */
 	/*					      offset,  */
@@ -896,91 +984,6 @@ tracker_search_files_by_text (TrackerSearch	    *object,
 	tracker_dbus_request_success (request_id);
 }
 
-static TrackerDBResultSet *
-perform_rdf_query (gint		  request_id,
-		   const gchar	 *service,
-		   gchar	**fields,
-		   const gchar	 *search_text,
-		   const gchar	 *keyword,
-		   const gchar	 *query_condition,
-		   gboolean	  sort_by_service,
-		   gchar	**sort_fields,
-		   gboolean	  sort_desc,
-		   gint		  offset,
-		   gint		  max_hits,
-		   GError	**error) 
-{
-	static gboolean inited = FALSE;
-	TrackerDBInterface *iface;
-	TrackerDBResultSet *result_set;
-
-	if (!inited) {
-		error_quark = g_quark_from_static_string ("RDF-processing-error");
-		inited = TRUE;
-	}
-
-	result_set = NULL;
-
-	iface = tracker_db_manager_get_db_interface_by_service (service);
-
-	if (query_condition) {
-		GError *query_error = NULL;
-		gchar  *query_translated;
-
-		tracker_dbus_request_comment (request_id,
-					      "Executing RDF query:'%s' with search "
-					      "term:'%s' and keyword:'%s'",
-					      query_condition,
-					      search_text,
-					      keyword);
-
-		query_translated = tracker_rdf_query_to_sql (iface,
-							     query_condition,
-							     service,
-							     fields,
-							     g_strv_length (fields),
-							     search_text,
-							     keyword,
-							     sort_by_service,
-							     sort_fields,
-							     (sort_fields ? g_strv_length (sort_fields) : 0),
-							     sort_desc,
-							     offset,
-							     search_sanity_check_max_hits (max_hits),
-							     &query_error);
-
-		if (query_error) {
-			g_propagate_error (error, query_error);
-			return NULL;
-		} else if (!query_translated) {
-			g_set_error (error, error_quark, 0, "Invalid rdf query, no error given");
-			return NULL;
-		}
-
-		tracker_dbus_request_comment (request_id,
-					      "Translated RDF query:'%s'",
-					      query_translated);
-
-		if (!tracker_is_empty_string (search_text)) {
-			tracker_db_search_text (iface,
-						service,
-						search_text,
-						0,
-						999999,
-						TRUE,
-						FALSE);
-		}
-
-		result_set = tracker_db_interface_execute_query (iface,
-								 NULL,
-								 query_translated);
-		g_free (query_translated);
-	}
-
-	return result_set;
-}
-
-
 void
 tracker_search_metadata (TrackerSearch		*object,
 			 const gchar		*service,
@@ -991,10 +994,15 @@ tracker_search_metadata (TrackerSearch		*object,
 			 DBusGMethodInvocation	*context,
 			 GError		       **error)
 {
-	GError		   *actual_error = NULL;
 	TrackerDBResultSet *result_set;
+	GError		   *actual_error = NULL;
 	guint		    request_id;
 	gchar		  **values;
+	gchar              *query_condition;
+	const gchar        *fields[] = { 
+		"File:NameDelimited", 
+		NULL
+	};
 
 	/* FIXME: This function is completely redundant */
 
@@ -1035,13 +1043,21 @@ tracker_search_metadata (TrackerSearch		*object,
 	}
 
 
-	gchar *fields[] = {"File:NameDelimited", NULL};
-	gchar *query_condition = tracker_rdf_query_for_attr_value (field, search_text);
-
-	result_set = perform_rdf_query (request_id, service, fields, "", "", query_condition,
-					FALSE, NULL, FALSE, offset, max_hits, &actual_error);
-
+	query_condition = tracker_rdf_query_for_attr_value (field, search_text);
+	result_set = search_perform_rdf_query (request_id, 
+					       service, 
+					       fields,
+					       "", 
+					       "", 
+					       query_condition,
+					       FALSE,
+					       NULL,
+					       FALSE,
+					       offset,
+					       max_hits,
+					       &actual_error);
 	g_free (query_condition);
+
 	values = tracker_dbus_query_result_to_strv (result_set, 1, NULL);
 
 	dbus_g_method_return (context, values);
@@ -1063,9 +1079,9 @@ tracker_search_matching_fields (TrackerSearch	      *object,
 				DBusGMethodInvocation  *context,
 				GError		      **error)
 {
-	GError		   *actual_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
+	GError		   *actual_error = NULL;
 	guint		    request_id;
 	GHashTable	   *values = NULL;
 
@@ -1129,25 +1145,24 @@ tracker_search_matching_fields (TrackerSearch	      *object,
 	tracker_dbus_request_success (request_id);
 }
 
-
 void
 tracker_search_query (TrackerSearch	     *object,
 		      gint		      live_query_id,
 		      const gchar	     *service,
-		      gchar		    **fields,
+		      const gchar	    **fields,
 		      const gchar	     *search_text,
 		      const gchar	     *keyword,
 		      const gchar	     *query_condition,
 		      gboolean		      sort_by_service,
-		      gchar		    **sort_fields,
+		      const gchar           **sort_fields,
 		      gboolean		      sort_desc,
 		      gint		      offset,
 		      gint		      max_hits,
 		      DBusGMethodInvocation  *context,
 		      GError		    **error)
 {
-	GError		   *actual_error = NULL;
 	TrackerDBResultSet *result_set;
+	GError		   *actual_error = NULL;
 	guint		    request_id;
 	GPtrArray	   *values = NULL;
 
@@ -1185,8 +1200,18 @@ tracker_search_query (TrackerSearch	     *object,
 	}
 
 
-	result_set = perform_rdf_query (request_id, service, fields, search_text, keyword, query_condition,
-					sort_by_service, sort_fields, sort_desc, offset, max_hits, &actual_error);
+	result_set = search_perform_rdf_query (request_id, 
+					       service, 
+					       fields, 
+					       search_text, 
+					       keyword, 
+					       query_condition,
+					       sort_by_service,
+					       sort_fields, 
+					       sort_desc, 
+					       offset, 
+					       max_hits, 
+					       &actual_error);
 
 	if (actual_error) {
 		tracker_dbus_request_failed (request_id,
@@ -1265,19 +1290,17 @@ tracker_search_suggest (TrackerSearch	       *object,
 	tracker_dbus_request_success (request_id);
 }
 
-
-static void
-sql_query_cleanup_destroy_notify_cb (gpointer user_data)
-{
-	g_object_unref (user_data);
-	sql_query_cleanup_timeout_id = 0;
-}
-
 static gboolean 
-cleanup_search_sql_query_iface (gpointer user_data)
+search_sql_iface_cleanup_cb (gpointer user_data)
 {
-	g_object_unref (sql_query_iface);
-	sql_query_iface = NULL;
+	TrackerSearchPrivate *priv;
+
+	priv = TRACKER_SEARCH_GET_PRIVATE (user_data);
+
+	g_object_unref (priv->sql_query_iface);
+	priv->sql_query_iface = NULL;
+	priv->sql_query_timeout_id = 0;
+
 	return FALSE;
 }
 
@@ -1287,8 +1310,9 @@ tracker_search_sql_query (TrackerSearch		*object,
 			  DBusGMethodInvocation	*context,
 			  GError		**error)
 {
-	GError 		     *actual_error = NULL;
+	TrackerSearchPrivate *priv;
 	TrackerDBResultSet   *result_set;
+	GError 		     *actual_error = NULL;
 	guint		      request_id;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -1300,13 +1324,16 @@ tracker_search_sql_query (TrackerSearch		*object,
 				  "query:'%s'",
 				  query);
 
-	if (sql_query_cleanup_timeout_id != 0) {
-		g_source_remove (sql_query_cleanup_timeout_id);
-		sql_query_cleanup_timeout_id = 0;
+	priv = TRACKER_SEARCH_GET_PRIVATE (object);
+
+	if (priv->sql_query_timeout_id != 0) {
+		g_source_remove (priv->sql_query_timeout_id);
+		priv->sql_query_timeout_id = 0;
 	}
 
-	if (!sql_query_iface) {
-		sql_query_iface = tracker_db_manager_get_db_interfaces_ro (7,
+	if (priv->sql_query_iface == NULL) {
+		priv->sql_query_iface = 
+			tracker_db_manager_get_db_interfaces_ro (7,
 								 TRACKER_DB_CACHE,
 								 TRACKER_DB_COMMON,
 								 TRACKER_DB_FILE_CONTENTS,
@@ -1316,7 +1343,7 @@ tracker_search_sql_query (TrackerSearch		*object,
 								 TRACKER_DB_XESAM);
 	}
 
-	result_set = tracker_db_interface_execute_query (sql_query_iface,
+	result_set = tracker_db_interface_execute_query (priv->sql_query_iface,
 							 &actual_error,
 							 query);
 
@@ -1332,11 +1359,10 @@ tracker_search_sql_query (TrackerSearch		*object,
 		g_object_unref (result_set);
 	}
 
-	sql_query_cleanup_timeout_id = g_timeout_add_seconds_full (G_PRIORITY_DEFAULT, 
-								   SEARCH_KEEPALIVE_TIME_FOR_SQL_QUERY, 
-								   cleanup_search_sql_query_iface, 
-								   g_object_ref (sql_query_iface),
-								   sql_query_cleanup_destroy_notify_cb);
+	priv->sql_query_timeout_id = 
+		g_timeout_add_seconds (KEEPALIVE_TIME_FOR_SQL_QUERY, 
+				       search_sql_iface_cleanup_cb, 
+				       object);
 
 
 	tracker_dbus_request_success (request_id);

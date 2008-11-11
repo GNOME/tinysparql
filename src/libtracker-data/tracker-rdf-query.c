@@ -25,8 +25,9 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
+#include "tracker-data-manager.h"
+#include "tracker-data-schema.h"
 #include "tracker-rdf-query.h"
-#include "tracker-db.h"
 
 /* RDF Query Condition
  * <rdfq:Condition>
@@ -168,8 +169,6 @@ typedef struct {
 	gchar		    *service;
 } ParserData;
 
-static GQuark error_quark;
-
 static void start_element_handler (GMarkupParseContext	*context,
 				   const gchar		*element_name,
 				   const gchar	       **attribute_names,
@@ -255,7 +254,7 @@ set_error (GError	       **err,
 	va_end (args);
 
 	g_set_error (err,
-		     error_quark,
+		     tracker_rdf_error_quark (),
 		     error_code,
 		     "Line %d character %d: %s",
 		     line, ch, str);
@@ -399,12 +398,12 @@ add_metadata_field (ParserData	*data,
 	}
 
 	if (!field_exists) {
-		field_data = tracker_db_get_metadata_field (data->iface,
-							    data->service,
-							    field_name,
-							    g_slist_length (data->fields),
-							    is_select,
-							    is_condition);
+		field_data = tracker_data_schema_get_metadata_field (data->iface,
+                                                                     data->service,
+                                                                     field_name,
+                                                                     g_slist_length (data->fields),
+                                                                     is_select,
+                                                                     is_condition);
 		if (field_data) {
 			data->fields = g_slist_prepend (data->fields, field_data);
 			if (is_select) {
@@ -1057,7 +1056,6 @@ end_element_handler (GMarkupParseContext *context,
 	}
 }
 
-
 static void
 text_handler (GMarkupParseContext *context,
 	      const gchar	  *text,
@@ -1073,19 +1071,18 @@ text_handler (GMarkupParseContext *context,
 
 	switch (state) {
 
-		case STATE_INTEGER:
-		case STATE_STRING:
-		case STATE_DATE:
-		case STATE_FLOAT:
+        case STATE_INTEGER:
+        case STATE_STRING:
+        case STATE_DATE:
+        case STATE_FLOAT:
 
-			data->current_value = g_strstrip (g_strndup (text, text_len));
-			break;
+                data->current_value = g_strstrip (g_strndup (text, text_len));
+                break;
 
-		default :
-			break;
+        default :
+                break;
 	}
 }
-
 
 static void
 error_handler (GMarkupParseContext *context,
@@ -1094,7 +1091,6 @@ error_handler (GMarkupParseContext *context,
 {
 	g_message ("in rdf query parse: %s", error->message);
 }
-
 
 static GString *
 get_select_header (const char *service)
@@ -1107,49 +1103,53 @@ get_select_header (const char *service)
 
 	switch (type) {
 
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-		case 6:
-		case 7:
-		case 8:
-			g_string_append_printf (result, " Select DISTINCT S.ID, (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
-			break;
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+                g_string_append_printf (result, " Select DISTINCT S.ID, (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
+                break;
 
-		default :
-			g_string_append_printf (result, " Select DISTINCT S.ID, (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
-			break;
+        default :
+                g_string_append_printf (result, " Select DISTINCT S.ID, (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
+                break;
 	}
 
 	return result;
 
 }
 
+GQuark
+tracker_rdf_error_quark (void)
+{
+	return g_quark_from_static_string (TRACKER_RDF_ERROR_DOMAIN);
+}
 
 gchar *
 tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			  const gchar	      *query,
 			  const gchar	      *service,
-			  gchar		     **fields,
+			  const gchar        **fields,
 			  gint		       field_count,
 			  const gchar	      *search_text,
 			  const gchar	      *keyword,
 			  gboolean	       sort_by_service,
-			  gchar		     **sort_fields,
+			  const gchar	     **sort_fields,
 			  gint		       sort_field_count,
 			  gboolean	       sort_desc,
 			  gint		       offset,
 			  gint		       limit,
 			  GError	     **error)
 {
-	static gboolean  inited = FALSE;
-	ParserData	 data;
-	gchar		*result;
-	gchar		*table_name;
-	gboolean	 do_search = FALSE;
+	ParserData  data;
+	gchar	   *result;
+	gchar	   *table_name;
+	gboolean    do_search = FALSE;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
 	g_return_val_if_fail (query != NULL, NULL);
@@ -1157,11 +1157,6 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 	g_return_val_if_fail (fields != NULL, NULL);
 	g_return_val_if_fail (search_text != NULL, NULL);
 	g_return_val_if_fail (keyword != NULL, NULL);
-
-	if (!inited) {
-		error_quark = g_quark_from_static_string ("RDF-parser-error-quark");
-		inited = TRUE;
-	}
 
 	memset (&data, 0, sizeof (data));
 	data.iface = iface;
@@ -1179,7 +1174,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 			if (!field_data) {
 				g_set_error (error,
-					     error_quark,
+					     tracker_rdf_error_quark (),
 					     PARSE_ERROR,
 					     "RDF Query failed, field:'%s' not found",
 					     sort_fields[i]);
@@ -1213,8 +1208,8 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 	if (!tracker_is_empty_string (keyword)) {
 		gchar *keyword_metadata;
 
-		keyword_metadata = tracker_db_metadata_get_related_names (iface,
-									  "DC:Keywords");
+		keyword_metadata = tracker_data_schema_metadata_field_get_related_names (iface,
+                                                                                         "DC:Keywords");
 		g_string_append_printf (data.sql_from,
 					"\n INNER JOIN ServiceKeywordMetaData K ON S.ID = K.ServiceID and K.MetaDataID in (%s) and K.MetaDataValue = '%s' ",
 					keyword_metadata,
@@ -1257,7 +1252,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 	}
 
-	if (sort_field_count>0) {
+	if (sort_field_count > 0) {
 		gint i;
 
 		for (i = 0; i < sort_field_count; i++) {
@@ -1267,7 +1262,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 			if (!field_data) {
 				g_set_error (error,
-					     error_quark,
+					     tracker_rdf_error_quark (),
 					     PARSE_ERROR,
 					     "RDF Query failed, sort field:'%s' not found",
 					     sort_fields[i]);
@@ -1338,8 +1333,8 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			} else {
 				gchar *related_metadata;
 
-				related_metadata = tracker_db_metadata_get_related_names (iface,
-											  tracker_field_data_get_field_name (l->data));
+				related_metadata = tracker_data_schema_metadata_field_get_related_names (iface,
+                                                                                                         tracker_field_data_get_field_name (l->data));
 				g_string_append_printf (data.sql_from,
 							"\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
 							tracker_field_data_get_table_name (l->data),
@@ -1401,18 +1396,12 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 			   char		     **where,
 			   GError	     **error)
 {
-	static gboolean inited = FALSE;
-	ParserData	data;
+	ParserData data;
 
 	g_return_if_fail (TRACKER_IS_DB_INTERFACE (iface));
 	g_return_if_fail (service != NULL);
 	g_return_if_fail (from != NULL);
 	g_return_if_fail (where != NULL);
-
-	if (!inited) {
-		error_quark = g_quark_from_static_string ("RDF-parser-error-quark");
-		inited = TRUE;
-	}
 
 	memset (&data, 0, sizeof (data));
 	data.iface = iface;
@@ -1469,8 +1458,8 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 			} else {
 				gchar *related_metadata;
 
-				related_metadata = tracker_db_metadata_get_related_names (iface,
-											  tracker_field_data_get_field_name (l->data));
+				related_metadata = tracker_data_schema_metadata_field_get_related_names (iface,
+                                                                                                         tracker_field_data_get_field_name (l->data));
 				g_string_append_printf (data.sql_from,
 							"\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
 							tracker_field_data_get_table_name (l->data),
@@ -1511,46 +1500,45 @@ gchar *
 tracker_rdf_query_for_attr_value (const gchar *field,
                                   const gchar *value)
 {
-        TrackerField *field_def;
-        const gchar *CONDITION_OPEN = "<rdfq:Condition><rdfq:equals>";
-        const gchar *CONDITION_CLOSE = "</rdfq:equals></rdfq:Condition>";
-        gchar       *CLAUSE = g_strdup_printf ("<rdfq:Property name=\"%s\"/>", field);
-        gchar       *rdf_type, *rdf_value;
-
-        gchar        *rdf_query;
-
-        field_def = tracker_ontology_get_field_by_name (field);
-
-        if (!field_def) {
+ 	TrackerField *field_def;
+ 	gchar        *rdf_type;
+ 	gchar        *rdf_query;
+ 	
+ 	field_def = tracker_ontology_get_field_by_name (field);
+ 	
+ 	if (!field_def) {
                 return NULL;
-        }
-
-        switch (tracker_field_get_data_type (field_def)) {
-        case TRACKER_FIELD_TYPE_KEYWORD:
-        case TRACKER_FIELD_TYPE_INDEX:
-        case TRACKER_FIELD_TYPE_FULLTEXT:
-        case TRACKER_FIELD_TYPE_STRING:
+ 	}
+ 	
+ 	switch (tracker_field_get_data_type (field_def)) {
+ 	case TRACKER_FIELD_TYPE_KEYWORD:
+ 	case TRACKER_FIELD_TYPE_INDEX:
+ 	case TRACKER_FIELD_TYPE_FULLTEXT:
+ 	case TRACKER_FIELD_TYPE_STRING:
                 rdf_type = "rdf:String";
                 break;
-	case TRACKER_FIELD_TYPE_INTEGER:
-	case TRACKER_FIELD_TYPE_DOUBLE:
-	case TRACKER_FIELD_TYPE_DATE:
+
+ 	case TRACKER_FIELD_TYPE_INTEGER:
+ 	case TRACKER_FIELD_TYPE_DOUBLE:
+ 	case TRACKER_FIELD_TYPE_DATE:
                 rdf_type = "rdf:Integer";
                 break;
-	case TRACKER_FIELD_TYPE_BLOB:
-	case TRACKER_FIELD_TYPE_STRUCT:
-	case TRACKER_FIELD_TYPE_LINK:
-                g_warning ("Unsupport field type for property %s\n", tracker_field_get_name (field_def));
-                return NULL; 
-        }
 
-        rdf_value = g_strdup_printf ("<%s>%s</%s>", rdf_type, value, rdf_type);
-        
-        rdf_query = g_strconcat (CONDITION_OPEN, CLAUSE, rdf_value, CONDITION_CLOSE, NULL);
+ 	case TRACKER_FIELD_TYPE_BLOB:
+ 	case TRACKER_FIELD_TYPE_STRUCT:
+ 	case TRACKER_FIELD_TYPE_LINK:
+                g_warning ("Unsupport field type for property %s", 
+                           tracker_field_get_name (field_def));
+                return NULL;
+ 	}
 
-        g_free (rdf_value);
+ 	rdf_query = g_strconcat ("<rdfq:Condition>",
+                                 "  <rdfq:equals>", 
+                                 "    <rdfq:Property name=\"", field, "\"/>",
+                                 "      <", rdf_type, ">", value, "</", rdf_type, ">", 
+                                 "  </rdfq:equals>"
+                                 "</rdfq:Condition>", 
+                                 NULL);
 
-        return rdf_query;
-
-
-}
+ 	return rdf_query;
+} 

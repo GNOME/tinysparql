@@ -25,7 +25,7 @@
 G_BEGIN_DECLS
 
 #include <glib.h>
-#include "tracker-metadata.h"
+#include <libtracker-data/tracker-data-metadata.h>
 
 typedef struct TrackerFile TrackerFile;
 
@@ -48,7 +48,7 @@ typedef void		  (* TrackerModuleFileGetUriFunc)	  (TrackerFile	*file,
 								   gchar       **dirname,
 								   gchar       **basename);
 
-typedef TrackerMetadata * (* TrackerModuleFileGetMetadataFunc)	  (TrackerFile	*file);
+typedef TrackerDataMetadata * (* TrackerModuleFileGetMetadataFunc)	  (TrackerFile	*file);
 typedef gchar *		  (* TrackerModuleFileGetText)		  (TrackerFile	*path);
 typedef gboolean	  (* TrackerModuleFileIterContents)	  (TrackerFile	*path);
 
@@ -62,7 +62,7 @@ gchar *		      tracker_module_file_get_service_type (TrackerFile  *file);
 void		      tracker_module_file_get_uri	   (TrackerFile  *file,
 							    gchar	**dirname,
 							    gchar	**basename);
-TrackerMetadata *     tracker_module_file_get_metadata	   (TrackerFile  *file);
+TrackerDataMetadata * tracker_module_file_get_metadata	   (TrackerFile  *file);
 gchar *		      tracker_module_file_get_text	   (TrackerFile  *file);
 gboolean	      tracker_module_file_iter_contents    (TrackerFile  *file);
 

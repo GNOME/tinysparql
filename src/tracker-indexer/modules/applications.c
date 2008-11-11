@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <tracker-indexer/tracker-module.h>
-#include <tracker-indexer/tracker-metadata.h>
+#include <libtracker-data/tracker-data-metadata.h>
 
 #define GROUP_DESKTOP_ENTRY "Desktop Entry"
 #define KEY_TYPE	    "Type"
@@ -51,7 +51,7 @@ tracker_module_get_name (void)
 }
 
 static void
-insert_data_from_desktop_file (TrackerMetadata *metadata,
+insert_data_from_desktop_file (TrackerDataMetadata *metadata,
 			       const gchar     *metadata_key,
 			       GKeyFile        *desktop_file,
 			       const gchar     *key,
@@ -66,12 +66,12 @@ insert_data_from_desktop_file (TrackerMetadata *metadata,
 	}
 
 	if (str) {
-		tracker_metadata_insert (metadata, metadata_key, str);
+		tracker_data_metadata_insert (metadata, metadata_key, str);
 	}
 }
 
 static void
-insert_list_from_desktop_file (TrackerMetadata *metadata,
+insert_list_from_desktop_file (TrackerDataMetadata *metadata,
 			       const gchar     *metadata_key,
 			       GKeyFile        *desktop_file,
 			       const gchar     *key,
@@ -96,14 +96,14 @@ insert_list_from_desktop_file (TrackerMetadata *metadata,
 		list = g_list_reverse (list);
 		g_free (arr);
 
-		tracker_metadata_insert_multiple_values (metadata, metadata_key, list);
+		tracker_data_metadata_insert_values (metadata, metadata_key, list);
 	}
 }
 
-TrackerMetadata *
+TrackerDataMetadata *
 tracker_module_file_get_metadata (TrackerFile *file)
 {
-	TrackerMetadata *metadata;
+	TrackerDataMetadata *metadata;
 	GKeyFile *key_file;
 	gchar *type, *filename;
 
@@ -136,7 +136,7 @@ tracker_module_file_get_metadata (TrackerFile *file)
 	}
 
 	/* Begin collecting data */
-	metadata = tracker_metadata_new ();
+	metadata = tracker_data_metadata_new ();
 
 	insert_data_from_desktop_file (metadata, METADATA_APP_NAME, key_file, KEY_NAME, FALSE);
 	insert_data_from_desktop_file (metadata, METADATA_APP_DISPLAY_NAME, key_file, KEY_NAME, TRUE);
@@ -149,7 +149,7 @@ tracker_module_file_get_metadata (TrackerFile *file)
 	insert_list_from_desktop_file (metadata, METADATA_APP_CATEGORIES, key_file, KEY_CATEGORIES, FALSE);
 
 	filename = g_filename_display_basename (file->path);
-	tracker_metadata_insert (metadata, METADATA_FILE_NAME, filename);
+	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME, filename);
 
 	g_key_file_free (key_file);
 	g_free (type);

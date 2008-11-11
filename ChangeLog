@@ -1,3 +1,52 @@
+2008-11-11  Martyn Russell  <martyn@imendio.com>
+
+	* ALL: Merged libtracker-data branch into TRUNK. 
+
+	Conflicts involved src/trackerd/tracker-search.c with the
+	tracker_search_sql_query() which was changed by Ivan for NB
+	#89965, if this regression still exists, it is my fault.
+
+2008-11-11  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-data/tracker-data-live-search.h:
+	* src/libtracker-data/tracker-data-metadata.[ch]:
+	* src/libtracker-data/tracker-data-query.[ch]:
+	* src/libtracker-data/tracker-data-schema.h:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/tracker-indexer/modules/applications.c:
+	* src/tracker-indexer/modules/evolution.c: Updated
+	tracker_data_metadata_insert_multiple_values() and removed the
+	_multiple_ since it is implied in the _values(). Fixed some coding
+	style issues in the headers.
+
+2008-11-10  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-data-search.h:
+	* src/trackerd/tracker-keywords.c:
+
+	Move SQL query from trackerd/tracker-keywords to
+	libtracker-data/tracker-data-search
+
+2008-11-10  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-data-search.h:
+	* src/trackerd/tracker-files.c:
+
+	Move SQL query from trackerd/tracker-files to
+	libtracker-data/tracker-data-search
+
+2008-11-10  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-data-search.h:
+	* src/trackerd/tracker-metadata.c:
+
+	Move SQL queries from trackerd/tracker-metadata to
+	libtracker-data/tracker-data-search
+
 2008-11-10  Mikael Ottela   <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-tiff.c: Fixed a bug in array
@@ -46,6 +95,129 @@
 	* src/libtracker-common/tracker-utils.c (tracker_escape_string): Fix
 	logic, so it actually escapes single quotes...
 
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-query.c:
+	* src/libtracker-data/tracker-data-query.h:
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-data-search.h:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+
+	Use more consistent parameter names
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-live-search.c:
+	* src/libtracker-data/tracker-data-query.c:
+	* src/libtracker-data/tracker-data-schema.c:
+	* src/libtracker-data/tracker-data-schema.h:
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/libtracker-data/tracker-xesam-query.c:
+	* src/trackerd/tracker-files.c:
+	* src/trackerd/tracker-keywords.c:
+	* src/trackerd/tracker-metadata.c:
+	* src/trackerd/tracker-search.c:
+
+	Use tracker_data_schema as function namespace
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-live-search.c:
+	* src/libtracker-data/tracker-data-live-search.h:
+	* src/trackerd/tracker-xesam-live-search.c:
+
+	Rename tracker_data_live_search_get_all_ids to
+	tracker_data_live_search_get_ids
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-live-search.c:
+	* src/libtracker-data/tracker-data-live-search.h:
+	* src/trackerd/tracker-xesam-live-search.c:
+
+	Use tracker_data_live_search as function namespace
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/trackerd/tracker-xesam-manager.c:
+
+	Rename tracker_db_xesam_delete_handled_events to
+	tracker_data_update_delete_handled_events
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/trackerd/tracker-files.c:
+	* src/trackerd/tracker-metadata.c:
+	* src/trackerd/tracker-xesam-manager.c:
+
+	Move tracker_db_xesam_delete_handled_events to tracker-data-update
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-data/tracker-data-live-search.c:
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-data-query.c:
+	* src/libtracker-data/tracker-data-schema.c:
+	* src/libtracker-data/tracker-data-schema.h:
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/libtracker-data/tracker-xesam-query.c:
+	* src/trackerd/tracker-keywords.c:
+	* src/trackerd/tracker-search.c:
+
+	Move Schema API to tracker-data-schema.[ch]
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-live-search.c:
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/libtracker-data/tracker-xesam-query.c:
+	* src/trackerd/tracker-files.c:
+	* src/trackerd/tracker-keywords.c:
+
+	Revert unintentional renaming of tracker_db_metadata_get_field_*
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-data/tracker-data-live-search.c:
+	* src/libtracker-data/tracker-data-live-search.h:
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/trackerd/tracker-xesam-live-search.c:
+
+	Move Live Search API to tracker-data-live-search.[ch]
+
+2008-11-06  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-data-query.c:
+	* src/libtracker-data/tracker-data-query.h:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/libtracker-data/tracker-xesam-query.c:
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/trackerd/tracker-files.c:
+	* src/trackerd/tracker-keywords.c:
+	* src/trackerd/tracker-metadata.c:
+	* src/trackerd/tracker-search.c:
+
+	Use tracker_data_query as function namespace
+	
 2008-11-06  Philip Van Hoof  <philip@codeminded.be>
 
 	Patch from Jerry Tan <Jerry.Tan@Sun.COM>
@@ -53,6 +225,64 @@
 	* src/libtracker-common/tracker-os-dependant-unix.c: stdin/stdout is 
 	keyword for compile, replace it
 
+2008-11-05  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-data-query.c:
+	* src/libtracker-data/tracker-data-query.h:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+
+	Move Query API to tracker-data-query.[ch]
+
+2008-11-05  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-data-search.h:
+	* src/trackerd/tracker-files.c:
+	* src/trackerd/tracker-keywords.c:
+	* src/trackerd/tracker-search.c:
+
+	Use tracker_data_search as function namespace
+
+2008-11-05  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-data-search.h:
+	* src/trackerd/tracker-files.c:
+
+	Move Search API to tracker-data-search.[ch]
+
+2008-11-05  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-data-metadata.c:
+	* src/libtracker-data/tracker-data-metadata.h:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/tracker-indexer/modules/applications.c:
+	* src/tracker-indexer/modules/evolution.c:
+	* src/tracker-indexer/modules/files.c:
+	* src/tracker-indexer/tracker-indexer-module.c:
+	* src/tracker-indexer/tracker-indexer-module.h:
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/tracker-indexer/tracker-metadata-utils.c:
+	* src/tracker-indexer/tracker-metadata-utils.h:
+	* src/tracker-indexer/tracker-module.h:
+	* src/trackerd/tracker-daemon.c:
+	* src/trackerd/tracker-files.c:
+	* src/trackerd/tracker-main.c:
+	* src/trackerd/tracker-search.c:
+
+	Use tracker_data_manager, tracker_data_metadata, and
+	tracker_data_update as function namespaces
+	
 2008-11-05  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Bugfix incase of the empty
@@ -76,6 +306,66 @@
 	* src/tracker-indexer/modules/evolution.c (get_imap_uri): Make sure we
 	remove leading '/' in email URIs basename.
 
+2008-11-04  Jürg Billeter  <j@bitron.ch>
+
+	* src/libtracker-data/tracker-data-manager.h:
+
+	Remove declarations for tracker_db_get_file_contents_words and
+	tracker_db_get_indexable_content_words as the functions are never
+	defined
+
+2008-11-04  Jürg Billeter  <j@bitron.ch>
+
+	* configure.ac:
+	* src/Makefile.am:
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-data/tracker-data-manager.c:
+	* src/libtracker-data/tracker-data-manager.h:
+	* src/libtracker-data/tracker-data-metadata.c:
+	* src/libtracker-data/tracker-data-metadata.h:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/libtracker-data/tracker-query-tree.c:
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/libtracker-data/tracker-xesam-query.c:
+	* src/tracker-indexer/Makefile.am:
+	* src/tracker-indexer/modules/applications.c:
+	* src/tracker-indexer/modules/dummy.c:
+	* src/tracker-indexer/modules/evolution.c:
+	* src/tracker-indexer/tracker-indexer-db.c:
+	* src/tracker-indexer/tracker-indexer-db.h:
+	* src/tracker-indexer/tracker-indexer-module.h:
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/tracker-indexer/tracker-main.c:
+	* src/tracker-indexer/tracker-metadata-utils.h:
+	* src/tracker-indexer/tracker-metadata.c:
+	* src/tracker-indexer/tracker-metadata.h:
+	* src/tracker-indexer/tracker-module.h:
+	* src/trackerd/Makefile.am:
+	* src/trackerd/tracker-daemon.c:
+	* src/trackerd/tracker-db.c:
+	* src/trackerd/tracker-db.h:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/tracker-files.c:
+	* src/trackerd/tracker-keywords.c:
+	* src/trackerd/tracker-metadata.c:
+	* src/trackerd/tracker-query-tree.c:
+	* src/trackerd/tracker-query-tree.h:
+	* src/trackerd/tracker-rdf-query.c:
+	* src/trackerd/tracker-rdf-query.h:
+	* src/trackerd/tracker-search.c:
+	* src/trackerd/tracker-xesam-live-search.c:
+	* src/trackerd/tracker-xesam-query.c:
+	* src/trackerd/tracker-xesam-query.h:
+	* src/trackerd/tracker-xesam.c:
+	* src/trackerd/tracker-xesam.h:
+	* tests/tracker-indexer/Makefile.am:
+
+	Add libtracker-data library, move tracker-db, tracker-query-tree,
+	tracker-rdf-query, and tracker-xesam-query from src/trackerd to
+	src/libtracker-data, and move tracker-indexer-db and tracker-metadata
+	from src/tracker-indexer to src/libtracker-data.
+	
 2008-11-04  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Fixed

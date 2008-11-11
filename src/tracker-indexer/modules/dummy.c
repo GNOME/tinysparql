@@ -18,7 +18,7 @@
  */
 
 #include <glib.h>
-#include <tracker-indexer/tracker-metadata.h>
+#include <libtracker-data/tracker-data-metadata.h>
 
 void
 tracker_module_init (void)

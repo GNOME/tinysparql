@@ -36,8 +36,8 @@
 #include "tracker-xesam.h"
 #include "tracker-status.h"
 #include "tracker-xesam-manager.h"
-#include "tracker-rdf-query.h"
-#include "tracker-query-tree.h"
+#include <libtracker-data/tracker-rdf-query.h>
+#include <libtracker-data/tracker-query-tree.h>
 #include "tracker-marshal.h"
 
 enum {

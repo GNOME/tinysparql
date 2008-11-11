@@ -68,9 +68,11 @@
 #include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-interface-sqlite.h>
 
+#include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-data-update.h>
+
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
-#include "tracker-indexer-db.h"
 #include "tracker-marshal.h"
 #include "tracker-module.h"
 
@@ -962,9 +964,9 @@ index_metadata_item (TrackerField	 *field,
 	}
 
 	if (data->add) {
-		tracker_db_set_metadata (data->service, data->id, field, (gchar *) value, parsed_value);
+		tracker_data_update_set_metadata (data->service, data->id, field, (gchar *) value, parsed_value);
 	} else {
-		tracker_db_delete_metadata (data->service, data->id, field, (gchar *)value);
+		tracker_data_update_delete_metadata (data->service, data->id, field, (gchar *)value);
 	}
 
 	g_strfreev (arr);
@@ -1009,7 +1011,7 @@ static void
 index_metadata (TrackerIndexer	*indexer,
 		guint32		 id,
 		TrackerService	*service,
-		TrackerMetadata *metadata)
+		TrackerDataMetadata *metadata)
 {
 	MetadataForeachData data;
 
@@ -1019,7 +1021,7 @@ index_metadata (TrackerIndexer	*indexer,
 	data.id = id;
 	data.add = TRUE;
 
-	tracker_metadata_foreach (metadata, index_metadata_foreach, &data);
+	tracker_data_metadata_foreach (metadata, index_metadata_foreach, &data);
 
 	schedule_flush (indexer, FALSE);
 }
@@ -1028,7 +1030,7 @@ static void
 unindex_metadata (TrackerIndexer  *indexer,
 		  guint32	   id,
 		  TrackerService  *service,
-		  TrackerMetadata *metadata)
+		  TrackerDataMetadata *metadata)
 {
 	MetadataForeachData data;
 
@@ -1038,7 +1040,7 @@ unindex_metadata (TrackerIndexer  *indexer,
 	data.id = id;
 	data.add = FALSE;
 
-	tracker_metadata_foreach (metadata, index_metadata_foreach, &data);
+	tracker_data_metadata_foreach (metadata, index_metadata_foreach, &data);
 
 	schedule_flush (indexer, FALSE);
 }
@@ -1278,11 +1280,11 @@ item_update_content (TrackerIndexer *indexer,
 
 	/* Remove old text and set new one in the db */
 	if (old_text) {
-		tracker_db_delete_text (service, id);
+		tracker_data_update_delete_content (service, id);
 	}
 
 	if (new_text) {
-		tracker_db_set_text (service, id, new_text);
+		tracker_data_update_set_content (service, id, new_text);
 	}
 
 	g_hash_table_unref (old_words);
@@ -1294,7 +1296,7 @@ item_add_or_update (TrackerIndexer  *indexer,
 		    PathInfo        *info,
 		    const gchar     *dirname,
 		    const gchar     *basename,
-		    TrackerMetadata *metadata)
+		    TrackerDataMetadata *metadata)
 {
 	TrackerService *service;
 	gchar *service_type;
@@ -1315,8 +1317,8 @@ item_add_or_update (TrackerIndexer  *indexer,
 		return;
 	}
 
-	if (tracker_db_check_service (service, dirname, basename, &id, NULL)) {
-		TrackerMetadata *old_metadata;
+	if (tracker_data_query_service_exists (service, dirname, basename, &id, NULL)) {
+		TrackerDataMetadata *old_metadata;
 		gchar *old_text;
 		gchar *new_text;
 
@@ -1329,20 +1331,20 @@ item_add_or_update (TrackerIndexer  *indexer,
 		 * Using DB directly: get old (embedded) metadata,
 		 * unindex, index the new metadata
 		 */
-		old_metadata = tracker_db_get_all_metadata (service, id, TRUE);
+		old_metadata = tracker_data_query_embedded_metadata (service, id);
 		unindex_metadata (indexer, id, service, old_metadata);
 		index_metadata (indexer, id, service, metadata);
 
 		/* Take the old text -> the new one, calculate
 		 * difference and add the words.
 		 */
-		old_text = tracker_db_get_text (service, id);
+		old_text = tracker_data_query_content (service, id);
 		new_text = tracker_indexer_module_file_get_text (info->module, info->file);
 
 		item_update_content (indexer, service, id, old_text, new_text);
 		g_free (old_text);
 		g_free (new_text);
-		tracker_metadata_free (old_metadata);
+		tracker_data_metadata_free (old_metadata);
 
 		return;
 	}
@@ -1352,16 +1354,16 @@ item_add_or_update (TrackerIndexer  *indexer,
 		 basename);
 
 	/* Service wasn't previously indexed */
-	id = tracker_db_get_new_service_id (indexer->private->common);
+	id = tracker_data_update_get_new_service_id (indexer->private->common);
 
-	tracker_db_create_service (service,
+	tracker_data_update_create_service (service,
 				   id,
 				   dirname,
 				   basename,
 				   metadata);
 
-	tracker_db_create_event (indexer->private->cache, id, "Create");
-	tracker_db_increment_stats (indexer->private->common, service);
+	tracker_data_update_create_event (indexer->private->cache, id, "Create");
+	tracker_data_update_increment_stats (indexer->private->common, service);
 
 	index_metadata (indexer, id, service, metadata);
 
@@ -1376,7 +1378,7 @@ item_add_or_update (TrackerIndexer  *indexer,
 					 1);
 
 		/* Save in the DB */
-		tracker_db_set_text (service, id, text);
+		tracker_data_update_set_content (service, id, text);
 		g_free (text);
 	}
 }
@@ -1388,7 +1390,7 @@ item_move (TrackerIndexer  *indexer,
 	   const gchar	   *basename)
 {
 	TrackerService *service;
-	TrackerMetadata *metadata;
+	TrackerDataMetadata *metadata;
 	gchar *service_type;
 	guint32 id;
 
@@ -1411,7 +1413,7 @@ item_move (TrackerIndexer  *indexer,
 		 info->other_file->path);
 
 	/* Get 'source' ID */
-	if (!tracker_db_check_service (service,
+	if (!tracker_data_query_service_exists (service,
 				       dirname,
 				       basename,
 				       &id,
@@ -1421,7 +1423,7 @@ item_move (TrackerIndexer  *indexer,
 		return;
 	}
 
-	tracker_db_move_service (service,
+	tracker_data_update_move_service (service,
 				 info->file->path,
 				 info->other_file->path);
 
@@ -1429,7 +1431,7 @@ item_move (TrackerIndexer  *indexer,
 	 * Using DB directly: get old (embedded) metadata, unindex,
 	 * index the new metadata
 	 */
-	metadata = tracker_db_get_all_metadata (service, id, TRUE);
+	metadata = tracker_data_query_embedded_metadata (service, id);
 	unindex_metadata (indexer, id, service, metadata);
 	index_metadata (indexer, id, service, metadata);
 }
@@ -1458,7 +1460,7 @@ item_remove (TrackerIndexer *indexer,
 		/* The file is not anymore in the filesystem. Obtain
 		 * the service type from the DB.
 		 */
-		service_type_id = tracker_db_get_service_type (dirname, basename);
+		service_type_id = tracker_data_query_service_type_id (dirname, basename);
 
 		if (service_type_id == 0) {
 			/* File didn't exist, nothing to delete */
@@ -1473,7 +1475,7 @@ item_remove (TrackerIndexer *indexer,
 		service_type_id = tracker_service_get_id (service);
 	}
 
-	tracker_db_check_service (service, dirname, basename, &service_id, NULL);
+	tracker_data_query_service_exists (service, dirname, basename, &service_id, NULL);
 
 	if (service_id < 1) {
 		g_debug ("  File does not exist anyway "
@@ -1483,7 +1485,7 @@ item_remove (TrackerIndexer *indexer,
 	}
 
 	/* Get content, unindex the words and delete the contents */
-	content = tracker_db_get_text (service, service_id);
+	content = tracker_data_query_content (service, service_id);
 	if (content) {
 		unindex_text_with_parsing (indexer,
 					   service_id,
@@ -1491,11 +1493,11 @@ item_remove (TrackerIndexer *indexer,
 					   content,
 					   1);
 		g_free (content);
-		tracker_db_delete_text (service, service_id);
+		tracker_data_update_delete_content (service, service_id);
 	}
 
 	/* Get metadata from DB to remove it from the index */
-	metadata = tracker_db_get_parsed_metadata (service,
+	metadata = tracker_data_query_parsed_metadata (service,
 						   service_id);
 	unindex_text_no_parsing (indexer,
 				 service_id,
@@ -1507,7 +1509,7 @@ item_remove (TrackerIndexer *indexer,
 	/* The weight depends on metadata, but a number high enough
 	 * force deletion.
 	 */
-	metadata = tracker_db_get_unparsed_metadata (service,
+	metadata = tracker_data_query_unparsed_metadata (service,
 						     service_id);
 	unindex_text_with_parsing (indexer,
 				   service_id,
@@ -1522,11 +1524,11 @@ item_remove (TrackerIndexer *indexer,
 				     basename, 
 				     NULL);
 
-	tracker_db_delete_service (service, service_id);
-	tracker_db_delete_service_recursively (service, service_path);
-	tracker_db_delete_all_metadata (service, service_id);
+	tracker_data_update_delete_service (service, service_id);
+	tracker_data_update_delete_service_recursively (service, service_path);
+	tracker_data_update_delete_all_metadata (service, service_id);
 
-	tracker_db_decrement_stats (indexer->private->common, service);
+	tracker_data_update_decrement_stats (indexer->private->common, service);
 
 	g_free (service_path);
 }
@@ -1598,7 +1600,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 
 	tracker_file_get_path_and_name (uri, &dirname, &basename);
 
-	tracker_db_check_service (service,
+	tracker_data_query_service_exists (service,
 				  dirname,
 				  basename,
 				  &service_id,
@@ -1614,7 +1616,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 		return FALSE;
 	}
 
-	old_contents = tracker_db_get_property_values (service,
+	old_contents = tracker_data_query_metadata_field_values (service,
 						       service_id,
 						       field);
 	if (!tracker_field_get_multiple_values (field) && old_contents) {
@@ -1638,7 +1640,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 							 old_contents[0],
 							 tracker_field_get_weight (field));
 			}
-			tracker_db_delete_metadata (service, service_id, field, old_contents[0]);
+			tracker_data_update_delete_metadata (service, service_id, field, old_contents[0]);
 		}
 	}
 
@@ -1656,7 +1658,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 			continue;
 		}
 
-		tracker_db_set_metadata (service, service_id, field, values[i], NULL);
+		tracker_data_update_set_metadata (service, service_id, field, values[i], NULL);
 		setted_values [j++] = values[i];
 	}
 	setted_values [j] = NULL;
@@ -1733,7 +1735,7 @@ handle_metadata_remove (TrackerIndexer *indexer,
 
 	tracker_file_get_path_and_name (uri, &dirname, &basename);
 
-	tracker_db_check_service (service, dirname, basename, &service_id, NULL);
+	tracker_data_query_service_exists (service, dirname, basename, &service_id, NULL);
 
 	g_free (dirname);
 	g_free (basename);
@@ -1752,7 +1754,7 @@ handle_metadata_remove (TrackerIndexer *indexer,
 	 */
 	if (g_strv_length (values) > 0) {
 		for (i = 0; values[i] != NULL; i++) {
-			tracker_db_delete_metadata (service,
+			tracker_data_update_delete_metadata (service,
 						    service_id,
 						    field,
 						    values[i]);
@@ -1761,11 +1763,11 @@ handle_metadata_remove (TrackerIndexer *indexer,
 	} else {
 		gchar **old_contents;
 
-		old_contents = tracker_db_get_property_values (service,
+		old_contents = tracker_data_query_metadata_field_values (service,
 							       service_id,
 							       field);
 		if (old_contents) {
-			tracker_db_delete_metadata (service,
+			tracker_data_update_delete_metadata (service,
 						    service_id,
 						    field,
 						    NULL);
@@ -1825,7 +1827,7 @@ should_index_file (TrackerIndexer *indexer,
 	/* Check the file/directory exists. If it doesn't we
 	 * definitely want to index it.
 	 */
-	if (!tracker_db_check_service (service,
+	if (!tracker_data_query_service_exists (service,
 				       dirname,
 				       basename,
 				       NULL,
@@ -1920,7 +1922,7 @@ should_index_file (TrackerIndexer *indexer,
 		/* We don't have the mtime for the dirname yet, we do
 		 * if this is a info->file->path of course.
 		 */
-		exists = tracker_db_check_service (service,
+		exists = tracker_data_query_service_exists (service,
 						   parent_dirname,
 						   parent_basename,
 						   NULL,
@@ -1973,7 +1975,7 @@ static gboolean
 process_file (TrackerIndexer *indexer,
 	      PathInfo	     *info)
 {
-	TrackerMetadata *metadata;
+	TrackerDataMetadata *metadata;
 	gchar *dirname;
 	gchar *basename;
 
@@ -2039,7 +2041,7 @@ process_file (TrackerIndexer *indexer,
 
 		if (metadata) {
 			item_add_or_update (indexer, info, dirname, basename, metadata);
-			tracker_metadata_free (metadata);
+			tracker_data_metadata_free (metadata);
 		} else {
 			item_remove (indexer, info, dirname, basename);
 		}

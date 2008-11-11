@@ -28,7 +28,7 @@
 
 #include <libtracker-db/tracker-db-index.h>
 
-#include "tracker-db.h"
+#include <libtracker-data/tracker-data-manager.h>
 
 #define TRACKER_XESAM_SERVICE	      "org.freedesktop.xesam.searcher"
 #define TRACKER_XESAM_PATH	      "/org/freedesktop/xesam/searcher/main"

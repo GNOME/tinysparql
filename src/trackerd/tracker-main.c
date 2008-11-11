@@ -500,7 +500,7 @@ initialize_databases (void)
 		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
 		g_message ("*** DELETING STATS *** ");
-		tracker_db_exec_no_reply (iface,
+		tracker_data_manager_exec_no_reply (iface,
 					  "update ServiceTypes set TypeCount = 0 where Embedded = 1");
 
 	}
@@ -508,17 +508,17 @@ initialize_databases (void)
 	/* Check db integrity if not previously shut down cleanly */
 	if (!tracker_status_get_is_readonly () &&
 	    !tracker_status_get_is_first_time_index () &&
-	    tracker_db_get_option_int ("IntegrityCheck") == 1) {
+	    tracker_data_manager_get_db_option_int ("IntegrityCheck") == 1) {
 		g_message ("Performing integrity check as the daemon was not shutdown cleanly");
 		/* FIXME: Finish */
 	}
 
 	if (!tracker_status_get_is_readonly ()) {
-		tracker_db_set_option_int ("IntegrityCheck", 1);
+		tracker_data_manager_set_db_option_int ("IntegrityCheck", 1);
 	}
 
 	if (tracker_status_get_is_first_time_index ()) {
-		tracker_db_set_option_int ("InitialIndex", 1);
+		tracker_data_manager_set_db_option_int ("InitialIndex", 1);
 	}
 
 	return TRUE;
@@ -534,7 +534,7 @@ static void
 shutdown_databases (void)
 {
 	/* Reset integrity status as threads have closed cleanly */
-	tracker_db_set_option_int ("IntegrityCheck", 0);
+	tracker_data_manager_set_db_option_int ("IntegrityCheck", 0);
 }
 
 static void
@@ -859,7 +859,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_db_init (config, language, file_index, email_index);
+	tracker_data_manager_init (config, language, file_index, email_index);
 	tracker_xesam_manager_init ();
 
 	private->processor = tracker_processor_new (config, hal);
@@ -951,7 +951,7 @@ main (gint argc, gchar *argv[])
 	tracker_dbus_shutdown ();
 	tracker_db_manager_shutdown ();
 	tracker_db_index_manager_shutdown ();
-	tracker_db_shutdown ();
+	tracker_data_manager_shutdown ();
 	tracker_module_config_shutdown ();
 	tracker_nfs_lock_shutdown ();
 	tracker_status_shutdown ();

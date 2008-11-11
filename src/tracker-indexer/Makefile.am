@@ -20,11 +20,9 @@ libtracker_indexerincludedir=$(includedir)/tracker-1.0/libtracker-indexer/
 libtracker_indexer_LTLIBRARIES = libtracker-indexer.la
 
 libtracker_indexer_la_SOURCES =	 					\
-	tracker-metadata.c						\
 	tracker-metadata-utils.c
 
 libtracker_indexerinclude_HEADERS =					\
-	tracker-metadata.h						\
 	tracker-metadata-utils.h					\
 	tracker-module.h
 
@@ -36,8 +34,6 @@ tracker_indexer_SOURCES =						\
 	tracker-dbus.h							\
 	tracker-indexer.c						\
 	tracker-indexer.h						\
-	tracker-indexer-db.c						\
-	tracker-indexer-db.h						\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
@@ -45,6 +41,7 @@ tracker_indexer_SOURCES =						\
 
 tracker_indexer_LDADD =							\
 	libtracker-indexer.la						\
+	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\

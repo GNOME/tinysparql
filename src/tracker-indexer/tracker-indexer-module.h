@@ -24,7 +24,7 @@
 
 #include <glib.h>
 #include "tracker-module.h"
-#include "tracker-metadata.h"
+#include <libtracker-data/tracker-data-metadata.h>
 
 G_BEGIN_DECLS
 
@@ -46,7 +46,7 @@ gboolean		tracker_indexer_module_file_get_uri	      (GModule	    *module,
 								       gchar	   **basename);
 gchar *			tracker_indexer_module_file_get_service_type  (GModule	    *module,
 								       TrackerFile  *file);
-TrackerMetadata *	tracker_indexer_module_file_get_metadata      (GModule	    *module,
+TrackerDataMetadata *	tracker_indexer_module_file_get_metadata      (GModule	    *module,
 								       TrackerFile  *file);
 gchar *			tracker_indexer_module_file_get_text	      (GModule	    *module,
 								       TrackerFile  *file);

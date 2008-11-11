@@ -43,7 +43,7 @@
 
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
-#include "tracker-indexer-db.h"
+#include <libtracker-data/tracker-data-update.h>
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"					  \

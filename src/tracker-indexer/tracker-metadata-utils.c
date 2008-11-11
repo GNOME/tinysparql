@@ -316,9 +316,9 @@ metadata_query_file (const gchar *path,
 }
 
 static void
-metadata_utils_get_embedded (const char      *path,
-			     const char      *mime_type,
-			     TrackerMetadata *metadata)
+metadata_utils_get_embedded (const char          *path,
+			     const char          *mime_type,
+			     TrackerDataMetadata *metadata)
 {
 	gchar **values;
 	gchar  *service_type;
@@ -373,7 +373,7 @@ metadata_utils_get_embedded (const char      *path,
 		if (!utf_value)
 			continue;
 
-		tracker_metadata_insert (metadata, name, utf_value);
+		tracker_data_metadata_insert (metadata, name, utf_value);
 	}
 
 	g_strfreev (values);
@@ -910,15 +910,15 @@ tracker_metadata_utils_get_text (const gchar *path)
  * tracker_metadata_utils_get_data:
  * @path: Path to a local file
  *
- * Returns a #TrackerMetadata filled with the most generic
+ * Returns a #TrackerDataMetadata filled with the most generic
  * metadata for files, such as file size, MIME type, mtime...
  *
- * Returns: A newly created #TrackerMetadata, or %NULL if the file is not found.
+ * Returns: A newly created #TrackerDataMetadata, or %NULL if the file is not found.
  **/
-TrackerMetadata *
+TrackerDataMetadata *
 tracker_metadata_utils_get_data (const gchar *path)
 {
-	TrackerMetadata *metadata;
+	TrackerDataMetadata *metadata;
 	struct stat st;
 	const gchar *ext;
 	gchar *mime_type;
@@ -927,22 +927,22 @@ tracker_metadata_utils_get_data (const gchar *path)
 		return NULL;
 	}
 
-	metadata = tracker_metadata_new ();
+	metadata = tracker_data_metadata_new ();
 	ext = strrchr (path, '.');
 
 	if (ext) {
-		tracker_metadata_insert (metadata, METADATA_FILE_EXT, g_strdup (ext + 1));
+		tracker_data_metadata_insert (metadata, METADATA_FILE_EXT, g_strdup (ext + 1));
 	}
 
 	mime_type = tracker_file_get_mime_type (path);
 
-	tracker_metadata_insert (metadata, METADATA_FILE_NAME,
+	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME,
 				 g_filename_display_basename (path));
-	tracker_metadata_insert (metadata, METADATA_FILE_PATH,
+	tracker_data_metadata_insert (metadata, METADATA_FILE_PATH,
 				 g_path_get_dirname (path));
-	tracker_metadata_insert (metadata, METADATA_FILE_NAME_DELIMITED,
+	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME_DELIMITED,
 				 g_filename_to_utf8 (path, -1, NULL, NULL, NULL));
-	tracker_metadata_insert (metadata, METADATA_FILE_MIMETYPE,
+	tracker_data_metadata_insert (metadata, METADATA_FILE_MIMETYPE,
 				 mime_type);
 
 	if (mime_type) {
@@ -957,17 +957,17 @@ tracker_metadata_utils_get_data (const gchar *path)
 		gchar *link_path;
 
 		link_path = g_file_read_link (path, NULL);
-		tracker_metadata_insert (metadata, METADATA_FILE_LINK,
+		tracker_data_metadata_insert (metadata, METADATA_FILE_LINK,
 					 g_filename_to_utf8 (link_path, -1, NULL, NULL, NULL));
 		g_free (link_path);
 	}
 
 	/* FIXME: These should be dealt directly as integer/times/whatever, not strings */
-	tracker_metadata_insert (metadata, METADATA_FILE_SIZE,
+	tracker_data_metadata_insert (metadata, METADATA_FILE_SIZE,
 				 tracker_guint_to_string (st.st_size));
-	tracker_metadata_insert (metadata, METADATA_FILE_MODIFIED,
+	tracker_data_metadata_insert (metadata, METADATA_FILE_MODIFIED,
 				 tracker_date_to_string (st.st_mtime));
-	tracker_metadata_insert (metadata, METADATA_FILE_ACCESSED,
+	tracker_data_metadata_insert (metadata, METADATA_FILE_ACCESSED,
 				 tracker_date_to_string (st.st_atime));
 
 	metadata_utils_get_embedded (path, mime_type, metadata);

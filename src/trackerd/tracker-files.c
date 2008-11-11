@@ -33,9 +33,13 @@
 #include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-manager.h>
 
+#include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-data-schema.h>
+#include <libtracker-data/tracker-data-search.h>
+
 #include "tracker-dbus.h"
 #include "tracker-files.h"
-#include "tracker-db.h"
 #include "tracker-marshal.h"
 #include "tracker-indexer-client.h"
 
@@ -136,7 +140,7 @@ tracker_files_exist (TrackerFiles	    *object,
 		return;
 	}
 
-	file_id = tracker_db_file_get_id (TRACKER_DB_FOR_VIRTUAL_SERVICE, uri);
+	file_id = tracker_data_query_file_id (TRACKER_DB_FOR_VIRTUAL_SERVICE, uri);
 	exists = file_id > 0;
 
 	dbus_g_method_return (context, exists);
@@ -226,17 +230,17 @@ tracker_files_delete (TrackerFiles	     *object,
 static const gchar *
 get_file_id_and_db_service (const gchar *uri, gint *id)
 {
-	*id = tracker_db_file_get_id (TRACKER_DB_FOR_FILE_SERVICE, uri);
+	*id = tracker_data_query_file_id (TRACKER_DB_FOR_FILE_SERVICE, uri);
 	if (*id) {
 		return TRACKER_DB_FOR_FILE_SERVICE;
 	}
 	
-	*id = tracker_db_file_get_id (TRACKER_DB_FOR_EMAIL_SERVICE, uri);
+	*id = tracker_data_query_file_id (TRACKER_DB_FOR_EMAIL_SERVICE, uri);
 	if (*id) {
 		return TRACKER_DB_FOR_EMAIL_SERVICE;
 	}
 
-	*id = tracker_db_file_get_id (TRACKER_DB_FOR_VIRTUAL_SERVICE, uri);
+	*id = tracker_data_query_file_id (TRACKER_DB_FOR_VIRTUAL_SERVICE, uri);
 	if (*id) {
 		return TRACKER_DB_FOR_VIRTUAL_SERVICE;
 	}
@@ -286,7 +290,7 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 	mime = NULL;
-	result_set = tracker_db_metadata_get (iface,
+	result_set = tracker_data_query_metadata_field (iface,
 					      file_id_str,
 					      "File:Mime");
 
@@ -383,7 +387,7 @@ tracker_files_get_text_contents (TrackerFiles		*object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 	service_id_str = g_strdup_printf ("%d", service_id);
-	result_set = tracker_db_exec_proc (iface,
+	result_set = tracker_data_manager_exec_proc (iface,
 					   "GetFileContents",
 					   offset_str,
 					   max_length_str,
@@ -526,7 +530,7 @@ tracker_files_get_by_service_type (TrackerFiles		  *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (service); 
 
-	result_set = tracker_db_files_get_by_service (iface,
+	result_set = tracker_data_search_files_get_by_service (iface,
 						      service,
 						      offset,
 						      max_hits);
@@ -576,7 +580,7 @@ tracker_files_get_by_mime_type (TrackerFiles	       *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_db_files_get_by_mime (iface,
+	result_set = tracker_data_search_files_get_by_mime (iface,
 						   mime_types,
 						   g_strv_length (mime_types),
 						   offset,
@@ -631,7 +635,7 @@ tracker_files_get_by_mime_type_vfs (TrackerFiles	   *object,
 	/* NOTE: The only difference between this function and the
 	 * non-VFS version is the boolean in this function call:
 	 */
-	result_set = tracker_db_files_get_by_mime (iface,
+	result_set = tracker_data_search_files_get_by_mime (iface,
 						   mime_types,
 						   g_strv_length (mime_types),
 						   offset,
@@ -679,7 +683,7 @@ tracker_files_get_mtime (TrackerFiles		*object,
 
 	tracker_file_get_path_and_name (uri, &path, &name);
 
-	result_set = tracker_db_exec_proc (iface,
+	result_set = tracker_data_manager_exec_proc (iface,
 					   "GetFileMTime",
 					   path,
 					   name,
@@ -713,16 +717,8 @@ tracker_files_get_metadata_for_files_in_folder (TrackerFiles	       *object,
 						DBusGMethodInvocation  *context,
 						GError		      **error)
 {
-	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
-	TrackerField	   *defs[255];
 	guint		    request_id;
-	guint		    i;
-	gchar		   *uri_filtered;
-	guint32		    file_id;
-	GString		   *sql;
-	gboolean	    needs_join[255];
-	gchar		   *query;
 	GPtrArray	   *values;
 	GError		   *actual_error = NULL;
 
@@ -739,111 +735,20 @@ tracker_files_get_metadata_for_files_in_folder (TrackerFiles	       *object,
 				  uri,
 				  g_strv_length (fields));
 
+	result_set = tracker_data_search_metadata_in_path (uri,
+							   fields,
+							   &actual_error);
 
-	/* Get fields for metadata list provided */
-	for (i = 0; i < g_strv_length (fields); i++) {
-		defs[i] = tracker_ontology_get_field_by_name (fields[i]);
-
-		if (!defs[i]) {
-			tracker_dbus_request_failed (request_id,
-						     &actual_error,
-						     "Metadata field '%s' was not found",
-						     fields[i]);
-			dbus_g_method_return_error (context, actual_error);
-			g_error_free (actual_error);
-			return;
-		}
-
-	}
-	defs [g_strv_length (fields)] = NULL;
-
-
-	if (g_str_has_suffix (uri, G_DIR_SEPARATOR_S)) {
-		/* Remove trailing 'G_DIR_SEPARATOR' */
-		uri_filtered = g_strndup (uri, strlen (uri) - 1);
-	} else {
-		uri_filtered = g_strdup (uri);
-	}
-
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-
-	/* Get file ID in database */
-	file_id = tracker_db_file_get_id (NULL, uri_filtered);
-	if (file_id == 0) {
-		g_free (uri_filtered);
-		tracker_dbus_request_failed (request_id,
-					     &actual_error,
-					     "File or directory was not in database, uri:'%s'",
-					     uri);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
+	if (actual_error) {
+		g_propagate_error (error, actual_error);
 		return;
 	}
 
-	/* Build SELECT clause */
-	sql = g_string_new (" ");
-	g_string_append_printf (sql,
-				"SELECT (F.Path || '%s' || F.Name) as PathName ",
-				G_DIR_SEPARATOR_S);
-
-	for (i = 1; i <= g_strv_length (fields); i++) {
-		gchar *field;
-
-		field = tracker_db_get_field_name ("Files", fields[i-1]);
-
-		if (field) {
-			g_string_append_printf (sql, ", F.%s ", field);
-			g_free (field);
-			needs_join[i - 1] = FALSE;
-		} else {
-			gchar *display_field;
-
-			display_field = tracker_ontology_field_get_display_name (defs[i-1]);
-			g_string_append_printf (sql, ", M%d.%s ", i, display_field);
-			g_free (display_field);
-			needs_join[i - 1] = TRUE;
-		}
-	}
-
-	/* Build FROM clause */
-	g_string_append (sql,
-			 " FROM Services F ");
-
-	for (i = 0; i < g_strv_length (fields); i++) {
-		const gchar *table;
-
-		if (!needs_join[i]) {
-			continue;
-		}
-
-		table = tracker_db_metadata_get_table (tracker_field_get_data_type (defs[i]));
-
-		g_string_append_printf (sql,
-					" LEFT OUTER JOIN %s M%d ON "
-					"F.ID = M%d.ServiceID AND "
-					"M%d.MetaDataID = %s ",
-					table,
-					i+1,
-					i+1,
-					i+1,
-					tracker_field_get_id (defs[i]));
-	}
-
-	/* Build WHERE clause */
-	g_string_append_printf (sql,
-				" WHERE F.Path = '%s' ",
-				uri_filtered);
-	g_free (uri_filtered);
-
-	query = g_string_free (sql, FALSE);
-	result_set = tracker_db_interface_execute_query (iface, NULL, query);
 	values = tracker_dbus_query_result_to_ptr_array (result_set);
 
 	if (result_set) {
 		g_object_unref (result_set);
 	}
-
-	g_free (query);
 
 	dbus_g_method_return (context, values);
 
@@ -878,7 +783,7 @@ tracker_files_search_by_text_and_mime (TrackerFiles	      *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_db_search_text_and_mime (iface, text, mime_types);
+	result_set = tracker_data_search_text_and_mime (iface, text, mime_types);
 
 	if (result_set) {
 		gboolean  valid = TRUE;
@@ -940,7 +845,7 @@ tracker_files_search_by_text_and_location (TrackerFiles		  *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_db_search_text_and_location (iface, text, uri);
+	result_set = tracker_data_search_text_and_location (iface, text, uri);
 
 	if (result_set) {
 		gboolean  valid = TRUE;
@@ -1006,7 +911,7 @@ tracker_files_search_by_text_and_mime_and_location (TrackerFiles	   *object,
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_db_search_text_and_mime_and_location (iface, text, mime_types, uri);
+	result_set = tracker_data_search_text_and_mime_and_location (iface, text, mime_types, uri);
 
 	if (result_set) {
 		gboolean  valid = TRUE;

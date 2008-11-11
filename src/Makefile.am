@@ -34,6 +34,7 @@ SUBDIRS = 					\
 	$(build_libinotify)			\
 	libtracker-common 			\
 	libtracker-db				\
+	libtracker-data				\
 	libtracker				\
 	$(build_sqlite_fts)			\
 	trackerd				\
@@ -52,6 +53,7 @@ DIST_SUBDIRS = 					\
 	libinotify				\
 	libtracker-common 			\
 	libtracker-db				\
+	libtracker-data				\
 	libtracker				\
 	tracker-fts				\
 	trackerd				\
