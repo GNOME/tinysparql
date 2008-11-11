@@ -617,21 +617,21 @@ get_id3v24_tags (const gchar *data,
 				switch (data[pos + 10]) {
 				case 0x00:
 					word = g_convert(&data[pos+11],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
 				case 0x01 :
 					word = g_convert(&data[pos+11],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "UTF-16",
 							 NULL, NULL, NULL);
 					break;
 				case 0x02 :
 					word = g_convert(&data[pos+11],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "UTF-16BE",
 							 NULL, NULL, NULL);
@@ -646,7 +646,7 @@ get_id3v24_tags (const gchar *data,
 					 * iso-8859-1
 					 */
 					word = g_convert(&data[pos+11],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "ISO-8859-1",
 							 NULL, NULL, NULL);
@@ -657,24 +657,10 @@ get_id3v24_tags (const gchar *data,
 				csize--;
 
 				if (word != NULL && strlen (word) > 0) {       
-					/* Genre to text */
-					if ((strcmp (tmap[i].text, "TCON") == 0) ||
-					    (strcmp (tmap[i].text, "TIT1") == 0)) {
-						guint genre;
-
-						genre = strtoul (word, NULL, 10);
-						if ((guint) genre < G_N_ELEMENTS (genre_names)) {
-							gchar *s;
-						
-							s = g_strdup (genre_names[genre]);
-							g_free (word);
-							word = s;
-						}
-					}
 
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
-							     g_strdup (word));
+							     word);
 				} else {
 					g_free (word);
 				}
@@ -704,27 +690,27 @@ get_id3v24_tags (const gchar *data,
 			switch (text_encode) {
 			case 0x00:
 				word = g_convert(text,
-						 csize-offset,
+						 csize-offset-1,
 						 "UTF-8",
 						 "ISO-8859-1",
 						 NULL, NULL, NULL);
 				break;
 			case 0x01 :
 				word = g_convert(text,
-						 csize-offset,
+						 csize-offset-1,
 						 "UTF-8",
 						 "UTF-16",
 						 NULL, NULL, NULL);
 				break;
 			case 0x02 :
 				word = g_convert(text,
-						 csize-offset,
+						 csize-offset-1,
 						 "UTF-8",
 						 "UTF-16BE",
 						 NULL, NULL, NULL);
 				break;
 			case 0x03 :
-				word = strndup (text, csize-offset);
+				word = strndup (text, csize-offset-1);
 				break;
 				
 			default:
@@ -743,7 +729,7 @@ get_id3v24_tags (const gchar *data,
 			if (word != NULL && strlen (word) > 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
-						     g_strdup (word));	
+						     word);	
 			} else {
 				g_free (word);
 			}
@@ -894,8 +880,6 @@ get_id3v23_tags (const gchar *data,
 					csize--;
 				}
 
-				csize--;
-
 				/* This byte describes the encoding
 				 * try to convert strings to UTF-8 if
 				 * it fails, then forget it./
@@ -904,14 +888,14 @@ get_id3v23_tags (const gchar *data,
 				switch (data[pos + 10]) {
 				case 0x00:
 					word = g_convert(&data[pos+11],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "ISO-8859-1",
 							 NULL, NULL, NULL);
 					break;
 				case 0x01 :
 					word = g_convert(&data[pos+11],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "UCS-2",
 							 NULL, NULL, NULL);
@@ -922,7 +906,7 @@ get_id3v23_tags (const gchar *data,
 					 * iso-8859-1
 					 */
 					word = g_convert(&data[pos+11],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "ISO-8859-1",
 							 NULL, NULL, NULL);
@@ -930,6 +914,7 @@ get_id3v23_tags (const gchar *data,
 				}
 
 				pos++;
+				csize--;
 
 				if (word != NULL && strlen(word) > 0) {
 					if (strcmp (tmap[i].text, "COMM") == 0) {
@@ -940,24 +925,9 @@ get_id3v23_tags (const gchar *data,
 						word = s;
 					}
 
-					/* Genre to text */
-					if ((strcmp (tmap[i].text, "TCON") == 0) ||
-					    (strcmp (tmap[i].text, "TIT1") == 0)) {
-						guint genre;
-
-						genre = strtoul (word, NULL, 10);
-						if ((guint) genre < G_N_ELEMENTS (genre_names)) {
-							gchar *s;
-						
-							s = g_strdup (genre_names[genre]);
-							g_free (word);
-							word = s;
-						}
-					}
-
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
-							     g_strdup (word));
+							     word);
 				} else {
 					g_free (word);
 				}
@@ -987,14 +957,14 @@ get_id3v23_tags (const gchar *data,
 			switch (text_encode) {
 			case 0x00:
 				word = g_convert(text,
-						 csize-offset,
+						 csize-offset-1,
 						 "UTF-8",
 						 "ISO-8859-1",
 						 NULL, NULL, NULL);
 				break;
 			case 0x01 :
 				word = g_convert(text,
-						 csize-offset,
+						 csize-offset-1,
 						 "UTF-8",
 						 "UCS-2",
 						 NULL, NULL, NULL);
@@ -1005,7 +975,7 @@ get_id3v23_tags (const gchar *data,
 				 * iso-8859-1
 				 */
 				word = g_convert(text,
-						 csize-offset,
+						 csize-offset-1,
 						 "UTF-8",
 						 "ISO-8859-1",
 						 NULL, NULL, NULL);
@@ -1015,7 +985,7 @@ get_id3v23_tags (const gchar *data,
 			if (word != NULL && strlen (word) > 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
-						     g_strdup (word));	
+						     word);	
 			} else {
 				g_free (word);
 			}
