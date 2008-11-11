@@ -1,3 +1,8 @@
+2008-11-11  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Some minor leak and bug
+	fixes to the mp3 extractor.
+	
 2008-11-11  Martyn Russell  <martyn@imendio.com>
 
 	* ALL: Merged libtracker-data branch into TRUNK. 
