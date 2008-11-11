@@ -85,7 +85,7 @@ strcasestr (const gchar *haystack,
 #endif /* HAVE_STRCASESTR */
 
 
-#ifndef g_file_make_directory_with_parents
+#if !GLIB_CHECK_VERSION (2, 18, 0)
 
 static gboolean
 g_file_make_directory_with_parents (GFile         *file,
