@@ -21,11 +21,11 @@ INCLUDES = 								\
 	$(GDKPIXBUF_CFLAGS)						\
 	$(GMODULE_CFLAGS) 						\
 	$(DBUS_CFLAGS)							\
-	$(GLIB2_CFLAGS)
+	$(GLIB2_CFLAGS)							\
+	$(TOTEM_PL_PARSER_CFLAGS)
 
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\
-	libextract-m3u.la						\
 	libextract-mp3.la				 		\
 	libextract-oasis.la 						\
 	libextract-png.la 						\
@@ -73,7 +73,9 @@ modules_LTLIBRARIES +=	libextract-mplayer.la 				\
 			libextract-totem.la
 endif
 
-
+if HAVE_TOTEM_PL_PARSER
+modules_LTLIBRARIES += libextract-playlist.la
+endif
 
 # Common XMP Sources
 xmp_sources = 								\
@@ -103,11 +105,6 @@ libextract_abw_la_LIBADD = $(GLIB2_LIBS)
 libextract_imagemagick_la_SOURCES = tracker-extract-imagemagick.c $(xmp_sources)
 libextract_imagemagick_la_LDFLAGS = $(module_flags)
 libextract_imagemagick_la_LIBADD = $(GLIB2_LIBS) $(EXEMPI_LIBS)
-
-# M3U
-libextract_m3u_la_SOURCES = tracker-extract-m3u.c
-libextract_m3u_la_LDFLAGS = $(module_flags)
-libextract_m3u_la_LIBADD = $(GLIB2_LIBS)
 
 # MP3
 libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources)
@@ -180,6 +177,11 @@ libextract_jpeg_la_LIBADD = $(GLIB2_LIBS) $(LIBJPEG_LIBS) $(LIBEXIF_LIBS) $(EXEM
 libextract_tiff_la_SOURCES = tracker-extract-tiff.c $(xmp_sources)
 libextract_tiff_la_LDFLAGS = $(module_flags)
 libextract_tiff_la_LIBADD = $(GLIB2_LIBS) $(LIBTIFF_LIBS) $(EXEMPI_LIBS)
+
+# Playlists using totem-pl-parser
+libextract_playlist_la_SOURCES = tracker-extract-playlist.c 
+libextract_playlist_la_LDFLAGS = $(module_flags)
+libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS)
 
 #
 # Binaries

@@ -1,3 +1,14 @@
+2008-11-12  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-extract/tracker-extract-playlist.c: Extractor using
+	totem playlist parser.
+	* src/tracker-extract/tracker-extract-m3u.c: Removed
+	* src/tracker-extract/Makefile.am
+	* configure.ac
+
+	Added support for playlists using totem-plparser (only counting tracks). Removed
+	the old uncomplete and useless extrator for m3u.
+	
 2008-11-11  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Some minor leak and bug

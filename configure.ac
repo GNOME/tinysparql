@@ -976,6 +976,30 @@ if test "$have_imagemagick" = "yes" ; then
    AC_DEFINE(HAVE_IMAGEMAGICK, 1, [Define if we have imagemagick])
 fi
 
+###############################################
+# Checking totem-pl-parser
+###############################################
+AC_ARG_ENABLE(playlist, 
+	      AS_HELP_STRING([--disable-playlist],
+			     [Disable playlist support]),
+			     [enable_playlist=no],
+			     [enable_playlist=yes])
+
+if test "x$enable_playlist" = "xyes"; then
+   PKG_CHECK_MODULES(TOTEM_PL_PARSER, 
+    	  	     [totem-plparser], 
+		     [have_playlist_parser=yes], 
+		     [have_playlist_parser=no 
+		      AC_MSG_ERROR(totem-plparser is not available in the system. You can try with --disable-playlist option.)])
+   AC_SUBST(TOTEM_PL_PARSER_CFLAGS)
+   AC_SUBST(TOTEM_PL_PARSER_LIBS)
+else
+   have_playlist_parser="no (disabled)"
+fi
+
+AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist_parser" = "xyes")
+
+
 ##################################################
 # Checks for gtk-doc and docbook-tools
 ##################################################
@@ -1180,6 +1204,7 @@ Metadata Extractors:
 	Support embedded / sidecar XMP:		$have_exempi
 	Support video formats:			$have_video_handler ($have_video_handler_app)
 	Support MP3 album art (w/ GdkPixbuf):	$have_gdkpixbuf
+	Support Playlists:                      $have_playlist_parser
 
 Thumbnailers:
 
