@@ -1,3 +1,8 @@
+2008-11-13  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Fixed symbol troubles for
+	most recent GLib
+
 2008-11-12  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-extract/tracker-extract-playlist.c: Extractor using

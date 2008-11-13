@@ -85,12 +85,10 @@ strcasestr (const gchar *haystack,
 #endif /* HAVE_STRCASESTR */
 
 
-#if !GLIB_CHECK_VERSION (2, 18, 0)
-
 static gboolean
-g_file_make_directory_with_parents (GFile         *file,
-                                    GCancellable  *cancellable,
-                                    GError       **error)
+tracker_make_directory_with_parents (GFile         *file,
+                                     GCancellable  *cancellable,
+                                     GError       **error)
 {
   gboolean result;
   GFile *parent_file, *work_file;
@@ -147,7 +145,6 @@ g_file_make_directory_with_parents (GFile         *file,
 }
 
 
-#endif
 
 static gchar*
 strip_characters (const gchar *original)
@@ -278,7 +275,7 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 			GFile *dirf;
 
 			dirf = g_file_get_parent (local_file);
-			g_file_make_directory_with_parents (dirf, NULL, NULL);
+			tracker_make_directory_with_parents (dirf, NULL, NULL);
 			g_object_unref (dirf);
 
 			g_file_copy_async (from, local_file, 0, 0, 
