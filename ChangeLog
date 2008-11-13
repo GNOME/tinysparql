@@ -1,3 +1,9 @@
+2008-11-13  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/trackerd/tracker-main.c
+	(entries_daemon): Fixed typo in help message for disable-modules
+	option. This fixes gnome bug #560581.
+	
 2008-11-13  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-data/tracker-data-search.c:

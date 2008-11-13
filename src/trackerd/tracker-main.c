@@ -145,7 +145,7 @@ static GOptionEntry	entries_daemon[] = {
 	  NULL },
 	{ "disable-modules", 'd', 0,
 	  G_OPTION_ARG_STRING_ARRAY, &disable_modules,
-	  N_("Disable modules from being processed (you can do -d <module> -d <module)"),
+	  N_("Disable modules from being processed (you can do -d <module> -d <module>)"),
 	  NULL },
 	{ NULL }
 };
