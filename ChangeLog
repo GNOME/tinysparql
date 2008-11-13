@@ -1,3 +1,9 @@
+2008-11-13  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-data/tracker-data-search.c:
+	* src/trackerd/tracker-keywords.c: Don't crash when we pass an
+	empty GStrv to tracker_keywords_search().
+
 2008-11-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Fixed symbol troubles for

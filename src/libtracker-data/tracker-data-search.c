@@ -1502,6 +1502,7 @@ tracker_data_search_keywords (const gchar	*service_type,
 
 	g_return_val_if_fail (service_type != NULL, NULL);
 	g_return_val_if_fail (keywords != NULL, NULL);
+	g_return_val_if_fail (keywords[0] != NULL, NULL);
 
 	if (!tracker_ontology_service_is_valid (service_type)) {
 		g_set_error (error, TRACKER_DBUS_ERROR, 0,
@@ -1517,9 +1518,7 @@ tracker_data_search_keywords (const gchar	*service_type,
 
 	/* Create keyword search string */
 	search = g_string_new ("");
-	g_string_append_printf (search,
-				"'%s'",
-				keywords[0]);
+	g_string_append_printf (search, "'%s'", keywords[0]);
 
 	for (p = keywords + 1; *p; p++) {
 		g_string_append_printf (search, ", '%s'", *p);
