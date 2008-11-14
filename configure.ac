@@ -97,6 +97,7 @@ CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
 EXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
+EXEMPI_REQUIRED=1.99.2
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -748,7 +749,7 @@ if test "x$enable_poppler_glib" != "xno" ; then
    AC_SUBST(POPPLER_GLIB_CFLAGS)
    AC_SUBST(POPPLER_GLIB_LIBS)
 
-   if test "x$have_gdkpixbuf" = "xyes"; then
+   if test "x$have_poppler_glib" = "xyes"; then
       AC_DEFINE(HAVE_POPPLER_GLIB, [], [Define if we have poppler-glib])
    fi
 else
@@ -770,9 +771,9 @@ AM_CONDITIONAL(HAVE_POPPLER_GLIB, test "x$have_poppler_glib" = "xyes")
 AC_ARG_ENABLE(exif, 
               AS_HELP_STRING([--disable-exif],
 		             [disable extractor for exif data]),,
-	      [enable_exif=auto])
+	      [enable_libexif=auto])
 
-if test "x$enable_exif" != "xno" ; then
+if test "x$enable_libexif" != "xno" ; then
    PKG_CHECK_MODULES(LIBEXIF, 
 	             [libexif >= $LIBEXIF_REQUIRED],
 		     [have_libexif=yes],
@@ -803,9 +804,9 @@ AM_CONDITIONAL(HAVE_EXIF, test "x$have_libexif" = "xyes")
 AC_ARG_ENABLE(gsf, 
               AS_HELP_STRING([--disable-gsf], 
 	                     [disable extractor for GSF data]),,
-	      [enable_gsf=auto])
+	      [enable_libgsf=auto])
 
-if test "x$enable_gsf" != "xno" ; then
+if test "x$enable_libgsf" != "xno" ; then
    PKG_CHECK_MODULES(LIBGSF,
                      [libgsf-1 >= $LIBGSF_REQUIRED],
 		     [have_libgsf=yes],
@@ -844,9 +845,9 @@ LIBS=""
 AC_ARG_ENABLE(jpeg, 
 	      AS_HELP_STRING([--disable-jpeg], 
 	                     [disable extractor for JPEG data]),,
-	      [enable_jpeg=auto])
+	      [enable_libjpeg=auto])
 
-if test "x$enable_jpeg" != "xno" ; then
+if test "x$enable_libjpeg" != "xno" ; then
    AC_CHECK_HEADER(jpeglib.h,
    AC_CHECK_LIB(jpeg, jpeg_CreateCompress))
 
@@ -891,9 +892,9 @@ LIBS=""
 AC_ARG_ENABLE(tiff, 
               AS_HELP_STRING([--disable-tiff], 
      	                     [disable extractor for TIFF data]),,
-	      [enable_tiff=auto])
+	      [enable_libtiff=auto])
 
-if test "x$enable_tiff" != "xno" ; then
+if test "x$enable_libtiff" != "xno" ; then
    AC_CHECK_HEADER(tiff.h,
 		   AC_CHECK_LIB(tiff, TIFFOpen))
 
@@ -961,14 +962,12 @@ AC_MSG_RESULT([$have_ioprio])
 # Check for exempi
 ##################################################################
 
-EXEMPI_REQUIRED=1.99.2
-
 AC_ARG_ENABLE(xmp, 
               AS_HELP_STRING([--disable-xmp], 
 	                     [disable extractor for XMP data]),,
-	      [enable_xmp=auto])
+	      [enable_exempi=auto])
 
-if test "x$enable_xmp" != "xno" ; then
+if test "x$enable_exempi" != "xno" ; then
    PKG_CHECK_MODULES(EXEMPI,
 		     [exempi-2.0 >= $EXEMPI_REQUIRED],
 		     [have_exempi=yes], 
@@ -1071,10 +1070,12 @@ if test "x$enable_hildon_thumbnail" != "xno" ; then
    AC_SUBST(HILDON_THUMBNAIL_CFLAGS)
    AC_SUBST(HILDON_THUMBNAIL_LIBS)
 
+   if test "x$have_hildon_thumbnail" = "xyes" ; then
    AC_CHECK_PROG(have_hildon_thumbnail_gdk_pixbuf, hildon-thumb-gdk-pixbuf, "yes", "no",)
 
-   if test "x$have_hildon_thumbnail_gdk_pixbuf" = "xno" ; then
+      if test "x$have_hildon_thumbnail_gdk_pixbuf" != "xyes" ; then
       have_hildon_thumbnail="no"      
+   fi
    fi
 
    if test "x$have_hildon_thumbnail" = "xyes" ; then
