@@ -890,11 +890,23 @@ tracker_extract_gstreamer (const gchar *uri,
 #endif /* HAVE_GDKPIXBUF */
 	}
 
-	/* Check that we have the minimum data. FIXME We should not need to do this */
+	/* Check that we have the minimum data. FIXME We should not need to do this FIXME We only take the part before first .*/
 
 	if (type==EXTRACT_MIME_AUDIO) {
 		if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Title"), g_strdup ("tracker:unknown"));
+			gchar  *basename = g_filename_display_basename(uri);
+			gchar **parts    = g_strsplit (basename, ".", -1);
+			gchar  *title    = g_strdup(parts[0]);
+			
+			g_strfreev (parts);
+			g_free (basename);
+
+			title = g_strdelimit (title, "_", ' ');
+			title = g_strstrip (title);
+			
+			g_hash_table_insert (metadata,
+					     g_strdup ("Audio:Title"),
+					     title);
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Album")) {
@@ -918,7 +930,19 @@ tracker_extract_gstreamer (const gchar *uri,
 		}
 	} else if (type==EXTRACT_MIME_VIDEO) {
 		if (!g_hash_table_lookup (metadata, "Video:Title")) {
-			g_hash_table_insert (metadata, g_strdup ("Video:Title"), g_strdup ("tracker:unknown"));
+			gchar  *basename = g_filename_display_basename(uri);
+			gchar **parts    = g_strsplit (basename, ".", -1);
+			gchar  *title    = g_strdup(parts[0]);
+			
+			g_strfreev (parts);
+			g_free (basename);
+
+			title = g_strdelimit (title, "_", ' ');
+			title = g_strstrip (title);
+			
+			g_hash_table_insert (metadata,
+					     g_strdup ("Video:Title"),
+					     title);
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Video:Author")) {

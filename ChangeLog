@@ -1,5 +1,13 @@
 2008-11-14  Mikael Ottela <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-extract-mp3.c: Stripped filename
+	is used as the default title.
+
+	Fixes NB #91009.
+	
+2008-11-14  Mikael Ottela <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c:
 	* src/tracker-extract/tracker-extract-gstreamer.c: Added a default value for durations.
 

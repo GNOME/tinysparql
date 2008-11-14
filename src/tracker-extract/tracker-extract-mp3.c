@@ -1303,9 +1303,19 @@ extract_mp3 (const gchar *filename,
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {
+		gchar  *basename = g_filename_display_basename(filename);
+		gchar **parts    = g_strsplit (basename, ".", -1);
+		gchar  *title    = g_strdup(parts[0]);
+		
+		g_strfreev (parts);
+		g_free (basename);
+		
+		title = g_strdelimit (title, "_", ' ');
+		title = g_strstrip (title);
+			
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Title"),
-				     g_strdup ("tracker:unknown"));
+				     title);
 	}
 
 	if (!g_hash_table_lookup (metadata, "Audio:Album")) {
