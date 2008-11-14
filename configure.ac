@@ -814,7 +814,7 @@ if test "x$enable_gsf" != "xno" ; then
    AC_SUBST(LIBGSF_CFLAGS)
    AC_SUBST(LIBGSF_LIBS)
 
-   if test "x$have_libexif" = "xyes"; then
+   if test "x$have_libgsf" = "xyes"; then
       AC_DEFINE(HAVE_LIBGSF, [], [Define if we have libgsf])
    fi
 else
