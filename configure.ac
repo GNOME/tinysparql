@@ -88,8 +88,10 @@ AC_CHECK_FUNCS([getline])
 # Library required versions
 DBUS_REQUIRED=0.60
 GLIB_REQUIRED=2.12.0
+GLIB_WITH_UNIT_TESTING=2.15.0
 PANGO_REQUIRED=1.0.0
 GMIME_REQUIRED=2.1.0
+LIBXML2_REQUIRED=0.6
 GDKPIXBUF_REQUIRED=2.12.0
 UNAC_REQUIRED=1.0.0
 POPPLER_GLIB_REQUIRED=0.4.5
@@ -252,8 +254,6 @@ IT_PROG_INTLTOOL([0.35.0])
 # * glib binaries must be in the PATH (i.e PATH=$PATH:/opt/xxx/bin)
 ####################################################################
 
-GLIB_WITH_UNIT_TESTING=2.15.0
-
 have_xesam_glib=no
 
 AC_ARG_ENABLE(unit_tests,
@@ -326,8 +326,6 @@ AC_SUBST(QDBM_LIBS)
 # Check for libxml2
 ##################################################################
 
-LIBXML2_REQUIRED=0.6
-
 AC_ARG_ENABLE(libxml2, 
 	      AS_HELP_STRING([--disable-libxml2],
 			     [disable HTML/XML extractors (full-text will still be available)]),,
@@ -356,7 +354,7 @@ AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
 
 AC_ARG_ENABLE(hal, 
 	      AS_HELP_STRING([--disable-hal],
-			     [disable HAL support for ac power detection]),,
+			     [disable HAL support for AC power detection]),,
 	      [enable_hal=yes])
 
 if test "x$enable_hal" = "xyes"; then
@@ -733,8 +731,8 @@ AM_CONDITIONAL(ENABLE_TRACKER_PREFERENCES, test "$enable_tracker_preferences" = 
 # Check for poppler's glib bingings
 ##################################################################
 
-AC_ARG_ENABLE(pdf, 
-	      AS_HELP_STRING([--disable-pdf], 
+AC_ARG_ENABLE(poppler-glib, 
+	      AS_HELP_STRING([--disable-poppler-glib], 
 	      		     [disable extractor for PDF data]),,
 	      [enable_poppler_glib=auto])
 
@@ -768,8 +766,8 @@ AM_CONDITIONAL(HAVE_POPPLER_GLIB, test "x$have_poppler_glib" = "xyes")
 # Check for libexif
 ##################################################################
 
-AC_ARG_ENABLE(exif, 
-              AS_HELP_STRING([--disable-exif],
+AC_ARG_ENABLE(libexif, 
+              AS_HELP_STRING([--disable-libexif],
 		             [disable extractor for exif data]),,
 	      [enable_libexif=auto])
 
@@ -801,8 +799,8 @@ AM_CONDITIONAL(HAVE_EXIF, test "x$have_libexif" = "xyes")
 # Check for libgsf
 ##################################################################
 
-AC_ARG_ENABLE(gsf, 
-              AS_HELP_STRING([--disable-gsf], 
+AC_ARG_ENABLE(libgsf, 
+              AS_HELP_STRING([--disable-libgsf], 
 	                     [disable extractor for GSF data]),,
 	      [enable_libgsf=auto])
 
@@ -842,8 +840,8 @@ OLD_LIBS="$LIBS"
 CFLAGS=""
 LIBS=""
 
-AC_ARG_ENABLE(jpeg, 
-	      AS_HELP_STRING([--disable-jpeg], 
+AC_ARG_ENABLE(libjpeg, 
+	      AS_HELP_STRING([--disable-libjpeg], 
 	                     [disable extractor for JPEG data]),,
 	      [enable_libjpeg=auto])
 
@@ -889,8 +887,8 @@ OLD_LIBS="$LIBS"
 CFLAGS=""
 LIBS=""
 
-AC_ARG_ENABLE(tiff, 
-              AS_HELP_STRING([--disable-tiff], 
+AC_ARG_ENABLE(libtiff, 
+              AS_HELP_STRING([--disable-libtiff], 
      	                     [disable extractor for TIFF data]),,
 	      [enable_libtiff=auto])
 
@@ -962,8 +960,8 @@ AC_MSG_RESULT([$have_ioprio])
 # Check for exempi
 ##################################################################
 
-AC_ARG_ENABLE(xmp, 
-              AS_HELP_STRING([--disable-xmp], 
+AC_ARG_ENABLE(exempi, 
+              AS_HELP_STRING([--disable-exempi], 
 	                     [disable extractor for XMP data]),,
 	      [enable_exempi=auto])
 
