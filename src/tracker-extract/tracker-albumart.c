@@ -84,11 +84,15 @@ strcasestr (const gchar *haystack,
 
 #endif /* HAVE_STRCASESTR */
 
-
+/* NOTE: This function was stolen from GLib 2.18.x. Since upstream and
+ * the Maemo branch don't have this in circulation yet, we have copied
+ * it here. This can be removed an replaced with
+ * g_file_make_directory_with_parents() when we get it. -mr
+ */
 static gboolean
-tracker_make_directory_with_parents (GFile         *file,
-                                     GCancellable  *cancellable,
-                                     GError       **error)
+make_directory_with_parents (GFile         *file,
+			     GCancellable  *cancellable,
+			     GError       **error)
 {
   gboolean result;
   GFile *parent_file, *work_file;
@@ -275,7 +279,7 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 			GFile *dirf;
 
 			dirf = g_file_get_parent (local_file);
-			tracker_make_directory_with_parents (dirf, NULL, NULL);
+			make_directory_with_parents (dirf, NULL, NULL);
 			g_object_unref (dirf);
 
 			g_file_copy_async (from, local_file, 0, 0, 

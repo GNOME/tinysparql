@@ -1,5 +1,11 @@
 2008-11-14  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-albumart.c: (perhaps_copy_to_local):
+	Renamed the make_directory_with_parents and added a comment
+	detailing why we stole it from GLib.
+
+2008-11-14  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac:
 	* docs/manpages/Makefile.am:
 	* src/Makefile.am:
