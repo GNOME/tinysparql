@@ -4,11 +4,11 @@ if HAVE_GNOME
 tst = tracker-search-tool.1
 endif
 
-if ENABLE_TRACKERAPPLET
+if ENABLE_TRACKER_APPLET
 ta = tracker-applet.1
 endif
 
-if ENABLE_PREFERENCES
+if ENABLE_TRACKER_PREFERENCES
 tp = tracker-preferences.1
 endif
 

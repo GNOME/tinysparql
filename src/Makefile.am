@@ -16,16 +16,16 @@ if ENABLE_SQLITE_FTS
 build_sqlite_fts = tracker-fts
 endif
 
-if ENABLE_PREFERENCES
+if ENABLE_TRACKER_PREFERENCES
 build_tracker_preferences = tracker-preferences
+endif
+
+if ENABLE_TRACKER_APPLET
+build_tracker_applet = tracker-applet
 endif
 
 if ENABLE_LIBTRACKERGTK
 build_libtrackergtk = libtracker-gtk
-endif
-
-if ENABLE_TRACKERAPPLET
-build_trackerapplet = tracker-applet
 endif
 
 SUBDIRS = 					\
@@ -43,7 +43,7 @@ SUBDIRS = 					\
 	tracker-thumbnailer			\
 	tracker-indexer				\
 	$(build_libtrackergtk)			\
-	$(build_trackerapplet) 			\
+	$(build_tracker_applet)			\
 	$(build_tracker_search_tool)		\
 	$(build_tracker_preferences)
 

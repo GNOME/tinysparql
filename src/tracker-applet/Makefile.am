@@ -5,7 +5,7 @@ INCLUDES =								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
-	$(TRACKERAPPLET_CFLAGS)						\
+	$(TRACKER_APPLET_CFLAGS)					\
 	$(LIBGLADE_CFLAGS)
 
 bin_PROGRAMS = tracker-applet
@@ -13,7 +13,7 @@ bin_PROGRAMS = tracker-applet
 tracker_applet_LDADD = 							\
 	$(top_builddir)/src/libtracker/libtrackerclient.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
-	$(TRACKERAPPLET_LIBS)						\
+	$(TRACKER_APPLET_LIBS)						\
 	$(LIBGLADE_LIBS)
 
 tracker_applet_SOURCES = 						\

@@ -1,3 +1,13 @@
+2008-11-14  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* docs/manpages/Makefile.am:
+	* src/Makefile.am:
+	* src/tracker-applet/Makefile.am: Fixed the configure script to
+	make certain extensions automatic not required so that package
+	maintainers can specify what they want to include beyond the
+	required extensions we choose.
+
 2008-11-14  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer.c:
