@@ -7,9 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-20 10:19+0000\n"
-"PO-Revision-Date: 2008-10-20 19:31+0200\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&amp;component=general\n"
+"POT-Creation-Date: 2008-11-13 15:53+0000\n"
+"PO-Revision-Date: 2008-11-15 00:13+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -678,28 +679,28 @@ msgstr "Apaga_r"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-extract.c:395
+#: ../src/tracker-extract/tracker-extract.c:396
 msgid "- Extract file meta data"
 msgstr "- Extraer los metadatos del archivo"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
-#: ../src/tracker-extract/tracker-extract.c:399
+#: ../src/tracker-extract/tracker-extract.c:400
 msgid "Given the following format (without quotes):"
 msgstr "Dado el siguiente formato (sin comillas):"
 
-#: ../src/tracker-extract/tracker-extract.c:404
+#: ../src/tracker-extract/tracker-extract.c:405
 msgid "This is interpreted from STDIN and then processed."
 msgstr "Esto está interpretado desde STDIN y después procesado."
 
-#: ../src/tracker-extract/tracker-extract.c:407
+#: ../src/tracker-extract/tracker-extract.c:408
 msgid ""
 "If this command is run without any arguments, it will wait for work to do."
 msgstr ""
 "Si el comando se ejecuta sin ningún argumento, esperará a que haya trabajo "
 "que realizar."
 
-#: ../src/tracker-extract/tracker-extract.c:411
+#: ../src/tracker-extract/tracker-extract.c:412
 msgid "Here are some examples of how to use this command:"
 msgstr "Aquí hay algunos ejemplos de cómo usar este comando:"
 
@@ -1810,7 +1811,7 @@ msgstr ""
 
 #: ../src/trackerd/tracker-main.c:148
 msgid ""
-"Disable modules from being processed (you can do -d <module> -d <module)"
+"Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Desactivar módulos para que no sean procesados (puede hacer -d <módulo> -d "
 "<módulo>)"
