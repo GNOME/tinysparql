@@ -11,6 +11,7 @@
 	* src/tracker-extract/tracker-extract-mp3.c:
 	* src/tracker-extract/tracker-extract-gstreamer.c: Added a default value for durations.
 
+	Fixes NB #89160, NB #89757, NB #91621, NB #92319
 	
 2008-11-13  Ivan Frade  <ivan.frade@nokia.com>
 
