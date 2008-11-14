@@ -1332,6 +1332,13 @@ extract_mp3 (const gchar *filename,
 				     g_strdup ("0"));
 	}	
 
+	if (!g_hash_table_lookup (metadata, "Audio:Duration")) {
+		g_hash_table_insert (metadata,
+				     g_strdup ("Audio:Duration"),
+				     g_strdup ("0"));
+	}	
+
+
 #ifndef G_OS_WIN32
 	munmap (buffer, size);
 #endif
