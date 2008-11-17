@@ -1,3 +1,40 @@
+2008-11-17  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac: Removed Enable warnings|debug statement when
+	configure is finished, they are no longer used. Fixed the checks
+	for HAL and libxml2 to actually error if the user specifically
+	asked to enable them. Also make the HAL error more obvious since
+	it is usually likely the hal-storage package is the one missing.
+	
+	* src/libinotify/inotify-listhash.c:
+	* src/libtracker-common/tracker-config.c: 
+	* src/libtracker-common/tracker-dbus.c:
+	* src/libtracker-common/tracker-nfs-lock.c: 
+	* src/libtracker-data/tracker-data-query.c:
+	* src/libtracker-data/tracker-data-search.c:
+	* src/libtracker-data/tracker-xesam-query.c:
+	* src/libtracker-db/tracker-db-interface-sqlite.c:
+	* src/libtracker-db/tracker-db-interface.c:
+	* src/libtracker-db/tracker-db-manager.c: 
+	* src/tracker-applet/tracker-applet.c: 
+	* src/tracker-extract/tracker-albumart.c:
+	* src/tracker-indexer/tracker-metadata-utils.c:
+	* src/tracker-preferences/tracker-preferences.c:
+	* src/tracker-search-tool/tracker-search-tool-callbacks.c:
+	* src/tracker-search-tool/tracker-search-tool.c:
+	* src/tracker-utils/tracker-files.c: 
+	* src/tracker-utils/tracker-info.c:
+	* src/tracker-utils/tracker-meta-folder.c:
+	* src/tracker-utils/tracker-query.c: 
+	* src/tracker-utils/tracker-search.c:
+	* src/tracker-utils/tracker-services.c:
+	* src/tracker-utils/tracker-tag.c: 
+	* src/tracker-utils/tracker-unique.c:
+	* src/trackerd/tracker-search.c: 
+	* src/trackerd/tracker-xesam-live-search.c:
+	* utils/qdbm/print-words.c:
+	* utils/qdbm/search-word.c: Fixed all 64bit compilation warnings.
+
 2008-11-14  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac: Fixed some broken issues.

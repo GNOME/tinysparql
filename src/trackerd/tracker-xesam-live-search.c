@@ -1263,6 +1263,7 @@ tracker_xesam_live_search_parse_query (TrackerXesamLiveSearch  *self,
 		g_set_error (error,
 			     TRACKER_XESAM_ERROR_DOMAIN,
 			     TRACKER_XESAM_ERROR_PARSING_FAILED,
+			     "%s",
 			     str);
 		g_free (str);
 		g_error_free (parse_error);

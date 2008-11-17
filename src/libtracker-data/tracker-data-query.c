@@ -209,9 +209,9 @@ tracker_data_query_metadata_fields (TrackerDBInterface *iface,
 
 	query = g_string_free (sql, FALSE);
 
-	g_debug (query);
+	g_debug ("%s", query);
 
-	result_set = tracker_db_interface_execute_query (iface, NULL, query);
+	result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
 
 	g_free (query);
 
@@ -511,7 +511,7 @@ db_get_metadata (TrackerService *service,
 					 service_id);
 	}
 
-	result_set = tracker_db_interface_execute_query (iface, NULL, query);
+	result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
 	g_free (query);
 
 	if (result_set) {

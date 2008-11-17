@@ -159,7 +159,7 @@ main (int argc, char **argv)
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
-		g_printerr (help);
+		g_printerr ("%s", help);
 		g_free (help);
 
 		return EXIT_FAILURE;

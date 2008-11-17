@@ -245,7 +245,8 @@ display_dialog_character_set_conversion_error (GtkWidget * window,
 					 string);
 
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
-						  (error == NULL) ? " " : error->message);
+						  "%s",
+						  error == NULL ? " " : error->message);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), "");
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
@@ -265,12 +266,15 @@ display_error_dialog (GtkWidget * window,
 	GtkWidget * dialog;
 
 	dialog = gtk_message_dialog_new (GTK_WINDOW (window),
-				 GTK_DIALOG_DESTROY_WITH_PARENT,
-				 GTK_MESSAGE_ERROR,
-				 GTK_BUTTONS_OK,
-				 _("The following error has occurred :"));
+					 GTK_DIALOG_DESTROY_WITH_PARENT,
+					 GTK_MESSAGE_ERROR,
+					 GTK_BUTTONS_OK,
+					 "%s",
+					 _("The following error has occurred :"));
 
-	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), error);
+	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), 
+						  "%s", 
+						  error);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), _("Error"));
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);

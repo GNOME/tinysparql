@@ -402,7 +402,7 @@ tracker_db_interface_start_transaction (TrackerDBInterface *interface)
 					    "BEGIN TRANSACTION");
 
 	if (error) {
-		g_warning (error->message);
+		g_warning ("%s", error->message);
 		g_error_free (error);
 		return FALSE;
 	}
@@ -428,7 +428,7 @@ tracker_db_interface_end_transaction (TrackerDBInterface *interface)
 	tracker_db_interface_execute_query (interface, &error, "COMMIT");
 
 	if (error) {
-		g_warning (error->message);
+		g_warning ("%s", error->message);
 		g_error_free (error);
 
 		tracker_db_interface_execute_query (interface, NULL, "ROLLBACK");
@@ -617,7 +617,7 @@ tracker_db_result_set_get (TrackerDBResultSet *result_set,
 		}
 
 		if (error) {
-			g_warning (error);
+			g_warning ("%s", error);
 			g_free (error);
 		}
 	}

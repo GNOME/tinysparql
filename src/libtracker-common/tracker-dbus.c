@@ -299,7 +299,7 @@ tracker_dbus_request_failed (gint	   request_id,
 		str = g_strdup_vprintf (format, args);
 		va_end (args);
 
-		g_set_error (error, TRACKER_DBUS_ERROR, 0, str);
+		g_set_error (error, TRACKER_DBUS_ERROR, 0, "%s", str);
 	} else if (*error != NULL) {
 		str = g_strdup ((*error)->message);
 	} else {

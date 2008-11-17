@@ -27,107 +27,107 @@
 static GHashTable *inotify_wd_table;
 
 GSList *
-inotify_listhash_get( gint32 wd )
+inotify_listhash_get (gint32 wd)
 {
-  GSList *list;
+        GSList *list;
 
-  list = g_hash_table_lookup( inotify_wd_table, (gpointer) wd );
+        list = g_hash_table_lookup (inotify_wd_table, GINT_TO_POINTER (wd));
 
-  return list;
+        return list;
 }
 
 int
-inotify_listhash_remove( INotifyHandle *inh )
+inotify_listhash_remove (INotifyHandle *inh)
 {
-  GSList *list;
-  gint32 wd;
+        GSList *list;
+        gint32 wd;
 
-  wd = inotify_handle_get_wd( inh );
+        wd = inotify_handle_get_wd (inh);
 
-  list = g_hash_table_lookup( inotify_wd_table, (gpointer) wd );
+        list = g_hash_table_lookup (inotify_wd_table, GINT_TO_POINTER (wd));
 
-  if( list == NULL )
-    return -1;
+        if (list == NULL)
+                return -1;
 
-  list = g_slist_remove( list, inh );
-  inotify_handle_unref( inh );
+        list = g_slist_remove (list, inh);
+        inotify_handle_unref (inh);
 
-  if( list != NULL )
-    g_hash_table_replace( inotify_wd_table, (gpointer) wd, list );
-  else
-    g_hash_table_remove( inotify_wd_table, (gpointer) wd );
+        if (list != NULL)
+                g_hash_table_replace (inotify_wd_table, GINT_TO_POINTER (wd), list);
+        else
+                g_hash_table_remove (inotify_wd_table, GINT_TO_POINTER (wd));
 
-  return g_slist_length( list );
+        return g_slist_length (list);
 }
 
 void
-inotify_listhash_append( INotifyHandle *inh, gint32 wd )
+inotify_listhash_append (INotifyHandle *inh, gint32 wd)
 {
-  GSList *list;
+        GSList *list;
 
-  inotify_handle_ref( inh );
-  inotify_handle_set_wd( inh, wd );
+        inotify_handle_ref (inh);
+        inotify_handle_set_wd (inh, wd);
 
-  list = g_hash_table_lookup( inotify_wd_table, (gpointer) wd );
-  list = g_slist_append( list, inh );
-  g_hash_table_replace( inotify_wd_table, (gpointer) wd, list );
+        list = g_hash_table_lookup (inotify_wd_table, GINT_TO_POINTER (wd));
+        list = g_slist_append (list, inh);
+        g_hash_table_replace (inotify_wd_table, GINT_TO_POINTER (wd), list);
 }
 
 int
-inotify_listhash_ignore( gint32 wd )
+inotify_listhash_ignore (gint32 wd)
 {
-  GSList *link, *next;
+        GSList *link, *next;
 
-  link = g_hash_table_lookup( inotify_wd_table, (gpointer) wd );
-  g_hash_table_remove( inotify_wd_table, (gpointer) wd );
+        link = g_hash_table_lookup (inotify_wd_table, GINT_TO_POINTER (wd));
+        g_hash_table_remove (inotify_wd_table, GINT_TO_POINTER (wd));
 
-  if( link == NULL )
-    return -1;
+        if (link == NULL)
+                return -1;
 
-  for( ; link; link = next )
-  {
-    next = link->next;
+        for (; link; link = next)
+        {
+                next = link->next;
 
-    inotify_handle_unref( link->data );
-    g_slist_free_1( link );
-  }
+                inotify_handle_unref (link->data);
+                g_slist_free_1 (link);
+        }
 
-  return 0;
+        return 0;
 }
 
 int
-inotify_listhash_length( gint32 wd )
+inotify_listhash_length (gint32 wd)
 {
-  GSList *list;
+        GSList *list;
 
-  list = g_hash_table_lookup( inotify_wd_table, (gpointer) wd );
+        list = g_hash_table_lookup (inotify_wd_table, GINT_TO_POINTER (wd));
 
-  return g_slist_length( list );
+        return g_slist_length (list);
 }
 
 guint32
-inotify_listhash_get_mask( gint32 wd )
+inotify_listhash_get_mask (gint32 wd)
 {
-  GSList *list;
-  guint32 mask;
+        GSList *list;
+        guint32 mask;
 
-  list = g_hash_table_lookup( inotify_wd_table, (gpointer) wd );
+        list = g_hash_table_lookup (inotify_wd_table, GINT_TO_POINTER (wd));
 
-  for( mask = 0; list; list = list->next )
-    mask |= inotify_handle_get_mask( list->data );
+        for (mask = 0; list; list = list->next)
+                mask |= inotify_handle_get_mask (list->data);
 
-  return mask;
+        return mask;
 }
 
 void
-inotify_listhash_initialise( void )
+inotify_listhash_initialise (void)
 {
-  inotify_wd_table = g_hash_table_new( NULL, NULL );
+        inotify_wd_table = g_hash_table_new (NULL, NULL);
 }
 
 void
-inotify_listhash_destroy( void )
+inotify_listhash_destroy (void)
 {
-  g_hash_table_destroy( inotify_wd_table );
+        g_hash_table_destroy (inotify_wd_table);
 }
 

@@ -132,7 +132,7 @@ main (gint argc, gchar** argv)
 		g_printerr ("Invalid arguments, %s\n", error->message);
 
 		help = g_option_context_get_help (context, TRUE, NULL);
-		g_printerr (help);
+		g_printerr ("%s", help);
 
 		g_free (help);
 		g_clear_error (&error);
@@ -145,7 +145,7 @@ main (gint argc, gchar** argv)
 		gchar *help;
 
 		help = g_option_context_get_help (context, TRUE, NULL);
-		g_printerr (help);
+		g_printerr ("%s", help);
 
 		g_free (help);
 		g_option_context_free (context);

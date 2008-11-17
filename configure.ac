@@ -92,6 +92,7 @@ GLIB_WITH_UNIT_TESTING=2.15.0
 PANGO_REQUIRED=1.0.0
 GMIME_REQUIRED=2.1.0
 LIBXML2_REQUIRED=0.6
+HAL_REQUIRED=0.5
 GDKPIXBUF_REQUIRED=2.12.0
 UNAC_REQUIRED=1.0.0
 POPPLER_GLIB_REQUIRED=0.4.5
@@ -338,12 +339,18 @@ if test "x$enable_libxml2" = "xyes"; then
 		    [have_libxml2=no])
    AC_SUBST(LIBXML2_CFLAGS)
    AC_SUBST(LIBXML2_LIBS)
+
+   if test "x$have_libxml2" = "xyes"; then
+      AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
+   fi
 else
    have_libxml2="no  (disabled)"
 fi
 
-if test "x$have_libxml2" = "xyes"; then
-   AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
+if test "x$enable_libxml2" = "xyes"; then
+   if test "x$have_libxml2" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libxml2 >= $LIBXML2_REQUIRED.])
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
@@ -359,17 +366,23 @@ AC_ARG_ENABLE(hal,
 
 if test "x$enable_hal" = "xyes"; then
    PKG_CHECK_MODULES(HAL, 
-    	  	     [hal >= 0.5 hal-storage], 
+    	  	     [hal >= $HAL_REQUIRED hal-storage], 
 		     [have_hal=yes] , 
 		     [have_hal=no])
    AC_SUBST(HAL_CFLAGS)
    AC_SUBST(HAL_LIBS)
+
+   if test "x$have_hal" = "xyes"; then
+      AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
+   fi
 else
    have_hal="no  (disabled)"
 fi
 
-if test "x$have_hal" = "xyes"; then
-   AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
+if test "x$enable_hal" = "xyes"; then
+   if test "x$have_hal" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find HAL >= $HAL_REQUIRED and HAL storage.])
+   fi
 fi
 
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
@@ -1251,8 +1264,6 @@ Build Configuration:
 
 	Win32:					$native_win32
 
-	Enable warnings:			$enable_warnings
-	Enable debug symbols:    		$enable_debug_code
 	Enable unit tests:			$have_unit_tests
 	Enable unac accent stripper:	  	$enable_unac
 

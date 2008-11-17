@@ -496,6 +496,7 @@ search_perform_rdf_query (gint	        request_id,
 
 		result_set = tracker_db_interface_execute_query (iface,
 								 NULL,
+								 "%s", 
 								 query_translated);
 		g_free (query_translated);
 	}
@@ -1345,6 +1346,7 @@ tracker_search_sql_query (TrackerSearch		*object,
 
 	result_set = tracker_db_interface_execute_query (priv->sql_query_iface,
 							 &actual_error,
+							 "%s",
 							 query);
 
 	if (!result_set) {

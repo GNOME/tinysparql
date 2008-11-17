@@ -1431,9 +1431,10 @@ config_save (TrackerConfig *config)
 	g_free (data);
 
 	if (error) {
-		g_warning ("Could not write %d bytes to file '%s', %s",
+		g_warning ("Could not write %" G_GSIZE_FORMAT " bytes to file '%s', %s",
 			   size,
 			   filename,
+			   "%s",
 			   error->message);
 		g_free (filename);
 		g_error_free (error);
@@ -1441,7 +1442,7 @@ config_save (TrackerConfig *config)
 		return FALSE;
 	}
 
-	g_message ("Wrote config to '%s' (%d bytes)",
+	g_message ("Wrote config to '%s' (%" G_GSIZE_FORMAT " bytes)",
 		   filename, 
 		   size);
 

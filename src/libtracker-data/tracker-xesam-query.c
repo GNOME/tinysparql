@@ -1007,7 +1007,7 @@ build_sql (ParserData *data)
 			gint   cvalue;
 
 			bvalue = tracker_date_format (avalue);
-			g_debug (bvalue);
+			g_debug ("%s", bvalue);
 			cvalue = tracker_string_to_date (bvalue);
 			g_debug ("%d", cvalue);
 			value = tracker_gint_to_string (cvalue);

@@ -128,6 +128,7 @@ click_help_cb (GtkWidget * widget,
 						 GTK_BUTTONS_OK,
 						 _("Could not open help document."));
 		gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+							  "%s",
 							  error->message);
 
 		gtk_window_set_title (GTK_WINDOW (dialog), "");
@@ -335,8 +336,10 @@ display_dialog_file_open_limit (GtkWidget * window,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_QUESTION,
 					 GTK_BUTTONS_CANCEL,
+					 "%s",
 					 primary);
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+						  "%s",
 						  secondary);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), "");
@@ -372,8 +375,10 @@ display_dialog_could_not_open_file (GtkWidget * window,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_ERROR,
 					 GTK_BUTTONS_OK,
+					 "%s",
 					 primary);
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+						  "%s",
 						  message);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), "");
@@ -401,6 +406,7 @@ display_dialog_could_not_open_folder (GtkWidget * window,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_ERROR,
 					 GTK_BUTTONS_OK,
+					 "%s",
 					 primary);
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
 						  _("The nautilus file manager is not running."));
@@ -684,8 +690,10 @@ display_dialog_folder_open_limit (GtkWidget * window,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_QUESTION,
 					 GTK_BUTTONS_CANCEL,
+					 "%s",
 					 primary);
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+						  "%s",
 						  secondary);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), "");
@@ -778,8 +786,10 @@ display_dialog_could_not_move_to_trash (GtkWidget * window,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_ERROR,
 					 GTK_BUTTONS_OK,
+					 "%s",
 					 primary);
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+						  "%s",
 						  message);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), "");
@@ -1331,8 +1341,10 @@ display_dialog_could_not_save_no_name (GtkWidget * window)
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_ERROR,
 					 GTK_BUTTONS_OK,
+					 "%s",
 					 primary);
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+						  "%s",
 						  secondary);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), "");
@@ -1363,8 +1375,10 @@ display_dialog_could_not_save_to (GtkWidget * window,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_MESSAGE_ERROR,
 					 GTK_BUTTONS_OK,
+					 "%s",
 					 primary);
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+						  "%s",
 						  message);
 
 	gtk_window_set_title (GTK_WINDOW (dialog), "");

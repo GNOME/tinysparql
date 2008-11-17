@@ -225,7 +225,7 @@ load_sql_file (TrackerDBInterface *iface,
 			continue;
 		}
 
-		tracker_db_interface_execute_query (iface, &error, sql);
+		tracker_db_interface_execute_query (iface, &error, "%s", sql);
 
 		if (error) {
 			g_warning ("Error loading query:'%s' #%d, %s", file, i, error->message);

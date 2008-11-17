@@ -431,12 +431,13 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 		}
 
 		if (!error) {
-			g_warning (sqlite3_errmsg (priv->db));
+			g_warning ("%s", sqlite3_errmsg (priv->db));
 		} else {
 			g_set_error (error,
 				     TRACKER_DB_INTERFACE_ERROR,
 				     TRACKER_DB_QUERY_ERROR,
-				     sqlite3_errmsg (priv->db));
+				     "%s", 
+                                     sqlite3_errmsg (priv->db));
 		}
 
 		/* If there was an error, result set may be invalid or incomplete */
@@ -560,7 +561,8 @@ tracker_db_interface_sqlite_execute_query (TrackerDBInterface  *db_interface,
 		g_set_error (error,
 			     TRACKER_DB_INTERFACE_ERROR,
 			     TRACKER_DB_QUERY_ERROR,
-			     sqlite3_errmsg (priv->db));
+			     "%s", 
+                             sqlite3_errmsg (priv->db));
 		return NULL;
 	} else if (stmt == NULL) {
 		g_set_error (error,

@@ -800,7 +800,7 @@ save_options (TrayIcon *icon)
 {
 	TrayIconPrivate *priv;
 	GError *error = NULL;
-	guint length;
+	gsize size;
 	gchar *contents;
 
 	priv = TRAY_ICON_GET_PRIVATE (icon);
@@ -814,7 +814,7 @@ save_options (TrayIcon *icon)
 	g_key_file_set_integer (priv->keyfile, "Applet", "SmartPause",
 				priv->auto_pause_setting);
 
-	contents = g_key_file_to_data (priv->keyfile, &length, &error);
+	contents = g_key_file_to_data (priv->keyfile, &size, &error);
 
 	if (error) {
 		g_error ("failed: g_key_file_to_data(): %s\n",
@@ -1040,9 +1040,12 @@ reindex (GtkMenuItem *item,
 	dialog = gtk_message_dialog_new (NULL,
 					 GTK_DIALOG_MODAL,
 					 GTK_MESSAGE_WARNING,
-					 GTK_BUTTONS_YES_NO, primary);
+					 GTK_BUTTONS_YES_NO, 
+                                         "%s",
+                                         primary);
 
 	gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+                                                  "%s",
 						  secondary);
 
 	g_free (primary);
@@ -1289,6 +1292,7 @@ open_uri (GtkWindow  *parent,
 						 GTK_DIALOG_DESTROY_WITH_PARENT,
 						 GTK_MESSAGE_ERROR,
 						 GTK_BUTTONS_CLOSE,
+                                                 "%s",
 						 error->message);
 		gtk_dialog_run (GTK_DIALOG (dialog));
 		gtk_widget_destroy (dialog);

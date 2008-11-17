@@ -46,7 +46,7 @@ get_nlinks (const gchar *filename)
 	}
 }
 
-static gint
+static time_t
 get_mtime (const gchar *filename)
 {
 	struct stat st;

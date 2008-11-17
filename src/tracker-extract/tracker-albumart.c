@@ -509,7 +509,7 @@ get_file_albumart_queue_cb (DBusGProxy     *proxy,
 			       G_TYPE_INVALID);
 
 	if (error) {
-		g_warning (error->message);
+		g_warning ("%s", error->message);
 		g_error_free (error);
 	}
 }

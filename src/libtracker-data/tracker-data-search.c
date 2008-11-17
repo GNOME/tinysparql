@@ -609,7 +609,7 @@ tracker_data_search_files_get_by_mime (TrackerDBInterface  *iface,
 				limit);
 
 	query = g_string_free (str, FALSE);
-	result_set = tracker_db_interface_execute_query (iface, NULL, query);
+	result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
 	g_free (query);
 
 	return result_set;
@@ -810,7 +810,7 @@ tracker_data_search_get_unique_values (const gchar	 *service_type,
 
 	g_message ("Unique values query executed:\n%s", sql);
 
-	result_set =  tracker_db_interface_execute_query (iface, NULL, sql);
+	result_set =  tracker_db_interface_execute_query (iface, NULL, "%s", sql);
 
 	g_free (sql);
 
@@ -964,7 +964,7 @@ tracker_data_search_get_unique_values_with_count (const gchar	      *service_typ
 
 	g_message ("Unique values query executed:\n%s", sql);
 
-	result_set =  tracker_db_interface_execute_query (iface, NULL, sql);
+	result_set =  tracker_db_interface_execute_query (iface, NULL, "%s", sql);
 
 	g_free (sql);
 
@@ -1155,7 +1155,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 
 	g_message ("Unique values query executed:\n%s", sql);
 
-	result_set =  tracker_db_interface_execute_query (iface, NULL, sql);
+	result_set =  tracker_db_interface_execute_query (iface, NULL, "%s", sql);
 
 	g_free (sql);
 
@@ -1258,7 +1258,7 @@ tracker_data_search_get_sum (const gchar	 *service_type,
 
 	g_debug ("Sum query executed:\n%s", sql);
 
-	result_set =  tracker_db_interface_execute_query (iface, NULL, sql);
+	result_set =  tracker_db_interface_execute_query (iface, NULL, "%s", sql);
 
 	g_free (sql);
 
@@ -1355,7 +1355,7 @@ tracker_data_search_get_count (const gchar	   *service_type,
 
 	g_message ("Count query executed:\n%s", sql);
 
-	result_set =  tracker_db_interface_execute_query (iface, NULL, sql);
+	result_set =  tracker_db_interface_execute_query (iface, NULL, "%s", sql);
 
 	g_free (sql);
 
@@ -1477,7 +1477,7 @@ tracker_data_search_metadata_in_path (const gchar	       *path,
 	g_free (uri_filtered);
 
 	query = g_string_free (sql, FALSE);
-	result_set = tracker_db_interface_execute_query (iface, NULL, query);
+	result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
 
 	g_free (query);
 
@@ -1557,9 +1557,9 @@ tracker_data_search_keywords (const gchar	*service_type,
 	g_string_free (select, TRUE);
 	g_string_free (where, TRUE);
 
-	g_debug (query);
+	g_debug ("%s", query);
 
-	result_set = tracker_db_interface_execute_query (iface, NULL, query);
+	result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
 
 	g_free (query);
 

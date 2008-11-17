@@ -403,7 +403,7 @@ get_file_content_read_cb (GIOChannel   *channel,
 				g_string_append (text, line);
 				g_free (line);
 			} else if (error) {
-				g_warning (error->message);
+				g_warning ("%s", error->message);
 				g_error_free (error);
 			}
 		} while (status == G_IO_STATUS_NORMAL);
@@ -542,8 +542,7 @@ get_file_content (const gchar *path)
 			bytes_read += bytes;
 			bytes_remaining -= bytes;
 
-			g_debug ("  Read %d bytes",
-				 bytes);
+			g_debug ("  Read %" G_GSSIZE_FORMAT " bytes", bytes);
 		}
 
 		/* Set the NULL termination after the last byte read */
@@ -562,7 +561,7 @@ get_file_content (const gchar *path)
 		if (bytes_read_total == 0) {
 			if (bytes_read == buf_size &&
 			    strchr (buf, '\n') == NULL) {
-				g_debug ("  No '\\n' in the first %d bytes, not indexing file",
+				g_debug ("  No '\\n' in the first %" G_GSSIZE_FORMAT " bytes, not indexing file",
 					 buf_size);
 				break;
 			} else if (bytes_read <= 2) {
@@ -586,7 +585,10 @@ get_file_content (const gchar *path)
 			has_reached_max = TRUE;
 		}
 
-		g_debug ("  Read %d bytes total, %d bytes this time, more data:%s, reached max:%s",
+		g_debug ("  Read "
+			 "%" G_GSSIZE_FORMAT " bytes total, "
+			 "%" G_GSSIZE_FORMAT " bytes this time, "
+			 "more data:%s, reached max:%s",
 			 bytes_read_total,
 			 bytes_read,
 			 has_more_data ? "yes" : "no",
@@ -632,7 +634,7 @@ get_file_content (const gchar *path)
 		s = g_string_truncate (s, bytes_valid);
 	}
 #else	/* TRY_LOCALE_TO_UTF8_CONVERSION */
-	g_debug ("  Truncating to last valid UTF-8 character (%d/%d bytes)",
+	g_debug ("  Truncating to last valid UTF-8 character (%" G_GSSIZE_FORMAT "/%" G_GSSIZE_FORMAT " bytes)",
 		 bytes_valid,
 		 s->len);
 	s = g_string_truncate (s, bytes_valid);
@@ -666,7 +668,7 @@ get_file_thumbnail_queue_cb (DBusGProxy     *proxy,
 			       G_TYPE_INVALID);
 
 	if (error) {
-		g_warning (error->message);
+		g_warning ("%s", error->message);
 		g_error_free (error);
 	}
 }
