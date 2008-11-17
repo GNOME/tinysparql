@@ -160,9 +160,11 @@ static void crawler_finished_cb		    (TrackerCrawler   *crawler,
 
 #ifdef HAVE_HAL
 static void mount_point_added_cb	    (TrackerHal       *hal,
+					     const gchar      *volume_uuid,
 					     const gchar      *mount_point,
 					     gpointer	       user_data);
 static void mount_point_removed_cb	    (TrackerHal       *hal,
+					     const gchar      *volume_uuid,
 					     const gchar      *mount_point,
 					     gpointer	       user_data);
 #endif /* HAVE_HAL */
@@ -1411,6 +1413,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 
 static void
 mount_point_added_cb (TrackerHal  *hal,
+		      const gchar *udi,
 		      const gchar *mount_point,
 		      gpointer	   user_data)
 {
@@ -1418,8 +1421,6 @@ mount_point_added_cb (TrackerHal  *hal,
 	TrackerStatus	  status;
 
 	processor = user_data;
-
-	g_message ("** TRAWLING THROUGH NEW MOUNT POINT:'%s'", mount_point);
 
 	status = tracker_status_get ();
 
@@ -1438,6 +1439,7 @@ mount_point_added_cb (TrackerHal  *hal,
 
 static void
 mount_point_removed_cb (TrackerHal  *hal,
+			const gchar *udi,
 			const gchar *mount_point,
 			gpointer     user_data)
 {
@@ -1446,8 +1448,6 @@ mount_point_removed_cb (TrackerHal  *hal,
 	const gchar      *module_name = "files";
 
 	processor = user_data;
-
-	g_message ("** CLEANING UP OLD MOUNT POINT:'%s'", mount_point);
 
 	/* Remove the monitor and item from the database */
 	file = g_file_new_for_path (mount_point);

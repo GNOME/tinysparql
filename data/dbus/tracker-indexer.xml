@@ -33,6 +33,13 @@
       <arg type="s" name="file_to" direction="in" />
     </method>
 
+    <method name="VolumeUpdateState">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="volume_id" direction="in" />
+      <arg type="s" name="path" direction="in" />
+      <arg type="b" name="enabled" direction="in" />
+    </method>
+
     <method name="PropertySet">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="service_type" direction="in" />

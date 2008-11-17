@@ -1,3 +1,23 @@
+2008-11-17  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-hal.c: Added the UDI to the
+	mount-pointer-added and mount-point-removed signals.
+	
+	* src/trackerd/tracker-processor.c: 
+	* src/libtracker-common/Makefile.am: 
+	* src/libtracker-common/tracker-marshal-main.c:
+	* src/libtracker-common/tracker-marshal.list: Added marshalling
+	for VOID__STRING_STRING function signature.
+
+	* data/dbus/tracker-indexer.xml:
+	* src/tracker-indexer/tracker-indexer.[ch]: Added function to
+	allow the daemon to tell us when a volume has changed state so we
+	can update the Volume table in the database.
+
+	* src/trackerd/tracker-main.c: Added volume monitoring here so we
+	can notify the Indexer that it should update the Volumes table in
+	teh database.
+
 2008-11-17  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Also copy in case the

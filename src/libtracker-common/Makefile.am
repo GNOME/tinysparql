@@ -40,6 +40,7 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-ioprio.c				\
 	tracker-language.c				\
 	tracker-log.c	 				\
+	tracker-marshal-main.c				\
 	tracker-module-config.c				\
 	tracker-nfs-lock.c				\
 	tracker-ontology.c				\
@@ -80,3 +81,24 @@ libtracker_common_la_LIBADD = 				\
 	$(GIO_LIBS)					\
 	$(GLIB2_LIBS)
 
+
+tracker-marshal.h: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+
+tracker-marshal.c: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
+
+tracker-marshal-main.c: tracker-marshal.c tracker-marshal.h
+
+marshal_sources =                              		\
+        tracker-marshal.h              			\
+        tracker-marshal.c
+
+BUILT_SOURCES =						\
+	$(marshal_sources)
+
+CLEANFILES = $(BUILT_SOURCES)
+
+EXTRA_DIST = 						\
+	$(BUILT_SOURCES)				\
+	tracker-marshal.list

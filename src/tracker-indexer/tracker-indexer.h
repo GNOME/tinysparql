@@ -70,66 +70,72 @@ struct TrackerIndexerClass {
 				 const gchar	*module_name);
 };
 
-GType		tracker_indexer_get_type	   (void) G_GNUC_CONST;
+GType		tracker_indexer_get_type	    (void) G_GNUC_CONST;
 
-TrackerIndexer *tracker_indexer_new		   (void);
-gboolean	tracker_indexer_get_running	   (TrackerIndexer	   *indexer);
-void		tracker_indexer_set_running	   (TrackerIndexer	   *indexer,
-						    gboolean		    running);
-void		tracker_indexer_stop		   (TrackerIndexer	   *indexer);
-void		tracker_indexer_process_all	   (TrackerIndexer	   *indexer);
-void            tracker_indexer_process_modules    (TrackerIndexer         *indexer,
-						    gchar                 **modules);
+TrackerIndexer *tracker_indexer_new                 (void);
+gboolean        tracker_indexer_get_running         (TrackerIndexer         *indexer);
+void            tracker_indexer_set_running         (TrackerIndexer         *indexer,
+						     gboolean                running);
+void            tracker_indexer_stop                (TrackerIndexer         *indexer);
+void            tracker_indexer_process_all         (TrackerIndexer         *indexer);
+void            tracker_indexer_process_modules     (TrackerIndexer         *indexer,
+						     gchar                 **modules);
 
 /* DBus methods */
-void		tracker_indexer_pause		   (TrackerIndexer	   *indexer,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_pause_for_duration (TrackerIndexer	   *indexer,
-						    guint		    seconds,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_continue	   (TrackerIndexer	   *indexer,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_files_check	   (TrackerIndexer	   *indexer,
-						    const gchar		   *module,
-						    GStrv		    files,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_files_update	   (TrackerIndexer	   *indexer,
-						    const gchar		   *module,
-						    GStrv		    files,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_files_delete	   (TrackerIndexer	   *indexer,
-						    const gchar		   *module,
-						    GStrv		    files,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_file_move	   (TrackerIndexer	   *indexer,
-						    const gchar		   *module_name,
-						    gchar		   *from,
-						    gchar		   *to,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_property_set	   (TrackerIndexer	   *indexer,
-						    const gchar		   *service_type,
-						    const gchar		   *uri,
-						    const gchar		   *property,
-						    GStrv		    values,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_property_remove    (TrackerIndexer	   *indexer,
-						    const gchar		   *service_type,
-						    const gchar		   *uri,
-						    const gchar		   *property,
-						    GStrv		    values,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
-void		tracker_indexer_shutdown	   (TrackerIndexer	   *indexer,
-						    DBusGMethodInvocation  *context,
-						    GError		  **error);
+void            tracker_indexer_pause               (TrackerIndexer         *indexer,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_pause_for_duration  (TrackerIndexer         *indexer,
+						     guint                   seconds,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_continue            (TrackerIndexer         *indexer,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_files_check         (TrackerIndexer         *indexer,
+						     const gchar            *module,
+						     GStrv                   files,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_files_update        (TrackerIndexer         *indexer,
+						     const gchar            *module,
+						     GStrv                   files,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_files_delete        (TrackerIndexer         *indexer,
+						     const gchar            *module,
+						     GStrv                   files,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_file_move           (TrackerIndexer         *indexer,
+						     const gchar            *module_name,
+						     gchar                  *from,
+						     gchar                  *to,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
+						     const gchar            *volume_uuid,
+						     const gchar            *path,
+						     gboolean                enabled,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_property_set        (TrackerIndexer         *indexer,
+						     const gchar            *service_type,
+						     const gchar            *uri,
+						     const gchar            *property,
+						     GStrv                   values,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_property_remove     (TrackerIndexer         *indexer,
+						     const gchar            *service_type,
+						     const gchar            *uri,
+						     const gchar            *property,
+						     GStrv                   values,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_shutdown            (TrackerIndexer         *indexer,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
 
 G_END_DECLS
 

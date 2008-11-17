@@ -288,6 +288,69 @@ check_runtime_level (TrackerConfig *config,
 	return runlevel;
 }
 
+#ifdef HAVE_HAL
+
+static void
+mount_point_set_cb (DBusGProxy *proxy, 
+		    GError     *error, 
+		    gpointer    user_data)
+{
+	switch (GPOINTER_TO_INT (user_data)) {
+	case 1:
+		g_message ("Indexer now knows about mount point addition");
+		break;
+	case 2:
+		g_message ("Indexer now knows about mount point removal");
+		break;
+	}
+}
+
+static void
+mount_point_added_cb (TrackerHal  *hal,
+		      const gchar *udi,
+		      const gchar *mount_point,
+		      gpointer	   user_data)
+{
+	TrackerMainPrivate *private;
+	GError *error = NULL;
+	
+	private = g_static_private_get (&private_key);
+
+	g_message ("Indexer is being notified about added mount point:'%s'", 
+		   mount_point);
+
+	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
+								   udi,
+								   mount_point,
+								   TRUE,
+								   mount_point_set_cb,
+								   GINT_TO_POINTER (1));
+}
+
+static void
+mount_point_removed_cb (TrackerHal  *hal,
+			const gchar *udi,
+			const gchar *mount_point,
+			gpointer     user_data)
+{
+	TrackerMainPrivate *private;
+	GError *error = NULL;
+	
+	private = g_static_private_get (&private_key);
+
+	g_message ("Indexer is being notified about removed mount point:'%s'", 
+		   mount_point);
+
+	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
+								   udi,
+								   mount_point,
+								   FALSE,
+								   mount_point_set_cb,
+								   GINT_TO_POINTER (2));
+}
+
+#endif /* HAVE_HAL */
+
 static void
 log_option_list (GSList      *list,
 		 const gchar *str)
@@ -648,13 +711,14 @@ main (gint argc, gchar *argv[])
 
 	g_type_init ();
 
+	if (!g_thread_supported ()) {
+		g_thread_init (NULL);
+	}
+
 	private = g_new0 (TrackerMainPrivate, 1);
 	g_static_private_set (&private_key,
 			      private,
 			      private_free);
-
-	if (!g_thread_supported ())
-		g_thread_init (NULL);
 
 	dbus_g_thread_init ();
 
@@ -745,6 +809,12 @@ main (gint argc, gchar *argv[])
 	g_signal_connect (hal, "notify::battery-in-use",
 			  G_CALLBACK (notify_battery_in_use_cb),
 			  config);
+	g_signal_connect (hal, "mount-point-added",
+			  G_CALLBACK (mount_point_added_cb),
+			  NULL);
+	g_signal_connect (hal, "mount-point-removed",
+			  G_CALLBACK (mount_point_removed_cb),
+			  NULL);
 
 	set_up_throttle (hal, config);
 #endif /* HAVE_HAL */
@@ -905,15 +975,6 @@ main (gint argc, gchar *argv[])
 		g_main_loop_run (private->main_loop);
 	}
 
-#if 0
-	/* We can block on this since we are likely to block on
-	 * shutting down otherwise anyway.
-	 */
-	org_freedesktop_Tracker_Indexer_pause_for_duration (tracker_dbus_indexer_get_proxy (),
-							    2,
-							    NULL);
-#endif
-
 	/*
 	 * Shutdown the daemon
 	 */
@@ -961,6 +1022,12 @@ main (gint argc, gchar *argv[])
 	g_signal_handlers_disconnect_by_func (hal,
 					      notify_battery_in_use_cb,
 					      config);
+	g_signal_handlers_disconnect_by_func (hal,
+					      mount_point_added_cb,
+					      NULL);
+	g_signal_handlers_disconnect_by_func (hal,
+					      mount_point_removed_cb,
+					      NULL);
 
 	g_object_unref (hal);
 #endif /* HAVE_HAL */

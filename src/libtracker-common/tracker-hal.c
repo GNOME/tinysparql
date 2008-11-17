@@ -33,14 +33,15 @@
 #include "tracker-log.h"
 #include "tracker-hal.h"
 #include "tracker-utils.h"
+#include "tracker-marshal.h"
 
 #define CAPABILITY_AC_ADAPTER  "ac_adapter"
 #define CAPABILITY_BATTERY     "battery"
 #define CAPABILITY_VOLUME      "volume"
 
-#define PROP_AC_ADAPTER_ON   "ac_adapter.present"
-#define PROP_BATT_PERCENTAGE "battery.charge_level.percentage"
-#define PROP_IS_MOUNTED      "volume.is_mounted"
+#define PROP_AC_ADAPTER_ON     "ac_adapter.present"
+#define PROP_BATT_PERCENTAGE   "battery.charge_level.percentage"
+#define PROP_IS_MOUNTED        "volume.is_mounted"
 
 #define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_HAL, TrackerHalPriv))
 
@@ -98,8 +99,8 @@ enum {
 };
 
 enum {
-	SIG_MOUNT_POINT_ADDED,
-	SIG_MOUNT_POINT_REMOVED,
+	MOUNT_POINT_ADDED,
+	MOUNT_POINT_REMOVED,
 	LAST_SIGNAL
 };
 
@@ -117,25 +118,29 @@ tracker_hal_class_init (TrackerHalClass *klass)
 	object_class->finalize	   = tracker_hal_finalize;
 	object_class->get_property = hal_get_property;
 
-	signals[SIG_MOUNT_POINT_ADDED] =
+	signals[MOUNT_POINT_ADDED] =
 		g_signal_new ("mount-point-added",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__STRING,
+			      tracker_marshal_VOID__STRING_STRING,
 			      G_TYPE_NONE,
-			      1, G_TYPE_STRING);
+			      2, 
+			      G_TYPE_STRING,
+			      G_TYPE_STRING);
 
-	signals[SIG_MOUNT_POINT_REMOVED] =
+	signals[MOUNT_POINT_REMOVED] =
 		g_signal_new ("mount-point-removed",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      g_cclosure_marshal_VOID__STRING,
+			      tracker_marshal_VOID__STRING_STRING,
 			      G_TYPE_NONE,
-			      1, G_TYPE_STRING);
+			      2, 
+			      G_TYPE_STRING,
+			      G_TYPE_STRING);
 
 	g_object_class_install_property (object_class,
 					 PROP_BATTERY_IN_USE,
@@ -349,13 +354,13 @@ hal_setup_devices (TrackerHal *hal)
 		}
 
 		g_message ("HAL device found:\n"
-			   " - udi	  : %s\n"
+			   " - udi        : %s\n"
 			   " - mount point: %s\n"
 			   " - device file: %s\n"
-			   " - uuid	  : %s\n"
-			   " - mounted	  : %s\n"
+			   " - uuid       : %s\n"
+			   " - mounted    : %s\n"
 			   " - file system: %s\n"
-			   " - label	  : %s",
+			   " - label      : %s",
 			   libhal_volume_get_udi (volume),
 			   libhal_volume_get_mount_point (volume),
 			   libhal_volume_get_device_file (volume),
@@ -511,9 +516,9 @@ hal_mount_point_add (TrackerHal  *hal,
 	priv = GET_PRIV (hal);
 
 	g_message ("HAL device with mount point:'%s', removable:%s now being tracked",
-		     mount_point,
-		     removable_device ? "yes" : "no");
-
+		   mount_point,
+		   removable_device ? "yes" : "no");
+	
 	g_hash_table_insert (priv->mounted_devices,
 			     g_strdup (udi),
 			     g_strdup (mount_point));
@@ -524,7 +529,7 @@ hal_mount_point_add (TrackerHal  *hal,
 				     g_strdup (mount_point));
 	}
 
-	g_signal_emit (hal, signals[SIG_MOUNT_POINT_ADDED], 0, mount_point, NULL);
+	g_signal_emit (hal, signals[MOUNT_POINT_ADDED], 0, udi, mount_point, NULL);
 }
 
 static void
@@ -532,20 +537,24 @@ hal_mount_point_remove (TrackerHal  *hal,
 			const gchar *udi)
 {
 	TrackerHalPriv *priv;
+	LibHalVolume   *volume;
 	const gchar    *mount_point;
+	const gchar    *volume_uuid;
 
 	priv = GET_PRIV (hal);
 
 	mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
+
 	if (!mount_point) {
 		return;
 	}
 
-	g_message ("HAL device with mount point:'%s', removable:%s NO LONGER being tracked",
-		     mount_point,
-		     g_hash_table_remove (priv->removable_devices, udi) ? "yes" : "no");
-
-	g_signal_emit (hal, signals[SIG_MOUNT_POINT_REMOVED], 0, mount_point, NULL);
+	g_message ("HAL device with mount point:'%s' (uuid:'%s'), removable:%s NO LONGER being tracked",
+		   mount_point,
+		   udi,
+		   g_hash_table_remove (priv->removable_devices, udi) ? "yes" : "no");
+	
+	g_signal_emit (hal, signals[MOUNT_POINT_REMOVED], 0, udi, mount_point, NULL);
 
 	g_hash_table_remove (priv->mounted_devices, udi);
 	g_hash_table_remove (priv->removable_devices, udi);
@@ -810,13 +819,13 @@ hal_device_added_cb (LibHalContext *context,
 		}
 
 		g_message ("HAL device added:\n"
-			   " - udi	    : %s\n"
+			   " - udi	  : %s\n"
 			   " - mount point: %s\n"
 			   " - device file: %s\n"
-			   " - uuid	    : %s\n"
+			   " - uuid	  : %s\n"
 			   " - mounted    : %s\n"
 			   " - file system: %s\n"
-			   " - label	    : %s",
+			   " - label	  : %s",
 			   udi,
 			   libhal_volume_get_mount_point (volume),
 			   libhal_volume_get_device_file (volume),
@@ -855,7 +864,7 @@ hal_device_removed_cb (LibHalContext *context,
 		mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
 
 		g_message ("HAL device removed:\n"
-			   " - udi	    : %s\n"
+			   " - udi        : %s\n"
 			   " - mount point: %s\n"
 			   " - device_file: %s",
 			   udi,
