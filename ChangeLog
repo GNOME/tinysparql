@@ -1,3 +1,8 @@
+2008-11-17  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Also copy in case the
+	album art got requested
+
 2008-11-17  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac: Removed Enable warnings|debug statement when

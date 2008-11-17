@@ -496,17 +496,30 @@ get_albumart_requester (void)
 	return albart_proxy;
 }
 
+typedef struct {
+	gchar *art_path, *local_uri;
+} GetFileInfo;
+
 static void
 get_file_albumart_queue_cb (DBusGProxy     *proxy,
 			    DBusGProxyCall *call,
 			    gpointer	     user_data)
 {
-	GError *error = NULL;
-	guint	handle;
+	GError      *error = NULL;
+	guint        handle;
+	GetFileInfo *info = user_data;
 
 	dbus_g_proxy_end_call (proxy, call, &error,
 			       G_TYPE_UINT, &handle,
 			       G_TYPE_INVALID);
+
+	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS))
+		perhaps_copy_to_local (info->art_path, info->local_uri);
+
+	g_free (info->art_path);
+	g_free (info->local_uri);
+
+	g_slice_free (GetFileInfo, info);
 
 	if (error) {
 		g_warning ("%s", error->message);
@@ -687,14 +700,22 @@ tracker_process_albumart (const unsigned char *buffer,
 			/* If not, we perform a heuristic on the dir */
 
 			if (!heuristic_albumart (artist, album, trackercnt_str, filename, local_uri, &lcopied)) {
+				GetFileInfo *info;
 
 				/* If the heuristic failed, we request the download 
 				 * of the media-art to the media-art downloaders */
 
+				lcopied = TRUE;
+
+				info = g_slice_new (GetFileInfo);
+
+				info->local_uri = g_strdup (local_uri);
+				info->art_path = g_strdup (art_path);
+
 				dbus_g_proxy_begin_call (get_albumart_requester (),
 					 "Queue",
 					 get_file_albumart_queue_cb,
-					 NULL, NULL,
+					 info, NULL,
 					 G_TYPE_STRING, artist,
 					 G_TYPE_STRING, album,
 					 G_TYPE_STRING, "album",
