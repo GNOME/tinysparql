@@ -337,11 +337,11 @@ tracker_processor_finalize (GObject *object)
 
 static void
 get_remote_roots (TrackerProcessor  *processor,
-		  GSList	   **mounted_directory_roots,
-		  GSList	   **removable_device_roots)
+		  GList	           **mounted_directory_roots,
+		  GList	           **removable_device_roots)
 {
-	GSList *l1;
-	GSList *l2;
+	GList *l1;
+	GList *l2;
 
 #ifdef HAVE_HAL
 	l1 = tracker_hal_get_mounted_directory_roots (processor->private->hal);
@@ -359,33 +359,33 @@ get_remote_roots (TrackerProcessor  *processor,
 	 * remove those which are removable device roots.
 	 */
 	if (l2) {
-		GSList *l;
-		GSList *list = NULL;
+		GList *l;
+		GList *list = NULL;
 
 		for (l = l1; l; l = l->next) {
-			if (g_slist_find_custom (l2, l->data, (GCompareFunc) strcmp)) {
+			if (g_list_find_custom (l2, l->data, (GCompareFunc) strcmp)) {
 				continue;
 			}
 
-			list = g_slist_prepend (list, l->data);
+			list = g_list_prepend (list, l->data);
 		}
 
-		*mounted_directory_roots = g_slist_reverse (list);
+		*mounted_directory_roots = g_list_reverse (list);
 	} else {
 		*mounted_directory_roots = NULL;
 	}
 
-	*removable_device_roots = g_slist_copy (l2);
+	*removable_device_roots = g_list_copy (l2);
 }
 
 static gboolean
 path_should_be_ignored_for_media (TrackerProcessor *processor,
 				  const gchar	   *path)
 {
-	GSList	 *roots = NULL;
-	GSList	 *mounted_directory_roots = NULL;
-	GSList	 *removable_device_roots = NULL;
-	GSList	 *l;
+	GList	 *roots = NULL;
+	GList	 *mounted_directory_roots = NULL;
+	GList	 *removable_device_roots = NULL;
+	GList	 *l;
 	gboolean  ignore_mounted_directories;
 	gboolean  ignore_removable_devices;
 	gboolean  ignore = FALSE;
@@ -402,11 +402,11 @@ path_should_be_ignored_for_media (TrackerProcessor *processor,
 	}
 
 	if (ignore_mounted_directories) {
-		roots = g_slist_concat (roots, mounted_directory_roots);
+		roots = g_list_concat (roots, mounted_directory_roots);
 	}
 
 	if (ignore_removable_devices) {
-		roots = g_slist_concat (roots, removable_device_roots);
+		roots = g_list_concat (roots, removable_device_roots);
 	}
 
 	for (l = roots; l && !ignore; l = l->next) {
@@ -426,7 +426,7 @@ path_should_be_ignored_for_media (TrackerProcessor *processor,
 		}
 	}
 
-	g_slist_free (roots);
+	g_list_free (roots);
 
 	return ignore;
 }
@@ -758,8 +758,8 @@ static void
 process_module_files_add_removable_media (TrackerProcessor *processor)
 {
 	TrackerCrawler *crawler;
-	GSList	       *roots;
-	GSList	       *l;
+	GList	       *roots;
+	GList	       *l;
 	const gchar    *module_name = "files";
 
 	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
@@ -791,7 +791,7 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 		g_object_unref (file);
 	}
 
-	if (g_slist_length (roots) == 0) {
+	if (g_list_length (roots) == 0) {
 		g_message ("    NONE");
 	}
 
@@ -808,7 +808,7 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 		tracker_crawler_special_paths_add (crawler, l->data);
 	}
 
-	if (g_slist_length (roots) == 0) {
+	if (g_list_length (roots) == 0) {
 		g_message ("    NONE");
 	}
 }

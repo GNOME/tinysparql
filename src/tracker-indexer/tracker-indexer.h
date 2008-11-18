@@ -113,6 +113,9 @@ void            tracker_indexer_file_move           (TrackerIndexer         *ind
 						     gchar                  *to,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
+void            tracker_indexer_volume_disable_all  (TrackerIndexer         *indexer,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
 void            tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 						     const gchar            *volume_uuid,
 						     const gchar            *path,

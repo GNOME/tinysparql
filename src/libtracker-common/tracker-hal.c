@@ -60,7 +60,7 @@ typedef struct {
 
 typedef struct {
 	LibHalContext *context;
-	GSList	      *roots;
+	GList	      *roots;
 } GetRoots;
 
 static void	tracker_hal_class_init		(TrackerHalClass *klass);
@@ -1068,7 +1068,7 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
 	is_mounted = libhal_volume_is_mounted (volume);
 
 	if (is_mounted && mount_point) {
-		gr->roots = g_slist_prepend (gr->roots, g_strdup (mount_point));
+		gr->roots = g_list_prepend (gr->roots, g_strdup (mount_point));
 	}
 
 	libhal_volume_free (volume);
@@ -1078,12 +1078,12 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
  * tracker_hal_get_mounted_directory_roots:
  * @hal: A #TrackerHal
  *
- * Returns a #GSlist of strings containing the root directories for mounted devices.
- * Each element must be freed using g_free() and the list itself using g_slist_free().
+ * Returns a #Glist of strings containing the root directories for mounted devices.
+ * Each element must be freed using g_free() and the list itself using g_list_free().
  *
  * Returns: The list of root directories.
  **/
-GSList *
+GList *
 tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
 {
 	TrackerHalPriv *priv;
@@ -1107,12 +1107,12 @@ tracker_hal_get_mounted_directory_roots (TrackerHal *hal)
  * tracker_hal_get_removable_device_roots:
  * @hal: A #TrackerHal
  *
- * Returns a #GSList of strings containing the root directories for removable devices.
- * Each element must be freed using g_free() and the list itself through g_slist_free().
+ * Returns a #GList of strings containing the root directories for removable devices.
+ * Each element must be freed using g_free() and the list itself through g_list_free().
  *
  * Returns: The list of root directories.
  **/
-GSList *
+GList *
 tracker_hal_get_removable_device_roots (TrackerHal *hal)
 {
 	TrackerHalPriv *priv;
@@ -1130,6 +1130,87 @@ tracker_hal_get_removable_device_roots (TrackerHal *hal)
 			      &gr);
 
 	return gr.roots;
+}
+
+/**
+ * tracker_hal_get_removable_device_udis:
+ * @hal: A #TrackerHal
+ *
+ * Returns a #GList of strings containing the UDI for removable devices.
+ * Each element is owned by the #GHashTable internally, the list
+ * itself through should be freed using g_list_free().
+ *
+ * Returns: The list of UDIs.
+ **/
+GList *
+tracker_hal_get_removable_device_udis (TrackerHal *hal)
+{
+	TrackerHalPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+
+	priv = GET_PRIV (hal);
+	
+	return g_hash_table_get_keys (priv->removable_devices);
+}
+
+/**
+ * tracker_hal_udi_get_mount_point:
+ * @hal: A #TrackerHal
+ * @udi: A string pointer to the UDI for the device.
+ *
+ * Returns: The mount point for @udi, this should not be freed.
+ **/
+const gchar *
+tracker_hal_udi_get_mount_point (TrackerHal  *hal,
+				 const gchar *udi)
+{
+	TrackerHalPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_HAL (hal), NULL);
+	g_return_val_if_fail (udi != NULL, NULL);
+
+	priv = GET_PRIV (hal);
+	
+	return g_hash_table_lookup (priv->removable_devices, udi);
+}
+
+/**
+ * tracker_hal_udi_get_mount_point:
+ * @hal: A #TrackerHal
+ * @udi: A #gboolean
+ *
+ * Returns: The %TRUE if @udi is mounted or %FALSE if it isn't.
+ **/
+gboolean    
+tracker_hal_udi_get_is_mounted (TrackerHal  *hal,
+				const gchar *udi)
+{
+	TrackerHalPriv *priv;
+	LibHalVolume   *volume;
+	const gchar    *mount_point;
+	gboolean        is_mounted;
+
+	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
+	g_return_val_if_fail (udi != NULL, FALSE);
+
+	priv = GET_PRIV (hal);
+
+	volume = libhal_volume_from_udi (priv->context, udi);
+	if (!volume) {
+		g_message ("HAL device with udi:'%s' has no volume, "
+			   "should we delete?",
+			   udi);
+		return;
+	}
+
+	mount_point = libhal_volume_get_mount_point (volume);
+	is_mounted = libhal_volume_is_mounted (volume);
+
+	libhal_volume_free (volume);
+
+	return is_mounted && mount_point;
+
 }
 
 #endif /* HAVE_HAL */

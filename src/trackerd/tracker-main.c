@@ -295,14 +295,18 @@ mount_point_set_cb (DBusGProxy *proxy,
 		    GError     *error, 
 		    gpointer    user_data)
 {
-	switch (GPOINTER_TO_INT (user_data)) {
-	case 1:
-		g_message ("Indexer now knows about mount point addition");
-		break;
-	case 2:
-		g_message ("Indexer now knows about mount point removal");
-		break;
+	if (error) {
+		g_critical ("Couldn't set mount point state, %s", 
+			    error->message);
+		g_error_free (error);
+		g_free (user_data);
+		return;
 	}
+
+	g_message ("Indexer now knows about UDI state:");
+	g_message ("  %s", (gchar*) user_data);
+
+	g_free (user_data);
 }
 
 static void
@@ -316,15 +320,15 @@ mount_point_added_cb (TrackerHal  *hal,
 	
 	private = g_static_private_get (&private_key);
 
-	g_message ("Indexer is being notified about added mount point:'%s'", 
-		   mount_point);
+	g_message ("Indexer is being notified about added UDI:");
+	g_message ("  %s", udi);
 
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
 								   udi,
 								   mount_point,
 								   TRUE,
 								   mount_point_set_cb,
-								   GINT_TO_POINTER (1));
+								   g_strdup (udi));
 }
 
 static void
@@ -338,15 +342,15 @@ mount_point_removed_cb (TrackerHal  *hal,
 	
 	private = g_static_private_get (&private_key);
 
-	g_message ("Indexer is being notified about removed mount point:'%s'", 
-		   mount_point);
+	g_message ("Indexer is being notified about removed UDI:");
+	g_message ("  %s", udi);
 
 	org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
 								   udi,
 								   mount_point,
 								   FALSE,
 								   mount_point_set_cb,
-								   GINT_TO_POINTER (2));
+								   g_strdup (udi));
 }
 
 #endif /* HAVE_HAL */
@@ -622,6 +626,57 @@ shutdown_directories (void)
 #ifdef HAVE_HAL
 
 static void
+set_up_mount_points_cb (DBusGProxy *proxy, 
+			GError     *error,
+			gpointer    user_data)
+{
+	TrackerHal *hal;
+	GList *roots, *l;
+
+	if (error) {
+		g_critical ("Couldn't disable all volumes, %s", 
+			    error->message);
+		g_error_free (error);
+		return;
+	}
+
+	g_message ("Indexer is being notified about ALL UDIs");
+
+	hal = user_data;
+	roots = tracker_hal_get_removable_device_udis (hal);
+	
+	for (l = roots; l; l = l->next) {
+		gchar       *udi;
+		const gchar *mount_point;
+		gboolean     is_mounted;
+
+		udi = l->data;
+		mount_point = tracker_hal_udi_get_mount_point (hal, udi);
+		is_mounted = tracker_hal_udi_get_is_mounted (hal, udi);
+
+		g_message ("  %s", udi);
+
+		org_freedesktop_Tracker_Indexer_volume_update_state_async (tracker_dbus_indexer_get_proxy (), 
+									   udi,
+									   mount_point,
+									   is_mounted,
+									   mount_point_set_cb,
+									   g_strdup (udi));
+	}
+
+	g_list_free (roots);
+}
+
+static void
+set_up_mount_points (TrackerHal *hal)
+{
+	g_message ("Indexer is being notified to disable all volumes");
+	org_freedesktop_Tracker_Indexer_volume_disable_all_async (tracker_dbus_indexer_get_proxy (), 
+								  set_up_mount_points_cb,
+								  hal);
+}
+
+static void
 set_up_throttle (TrackerHal    *hal,
 		 TrackerConfig *config)
 {
@@ -663,9 +718,9 @@ set_up_throttle (TrackerHal    *hal,
 }
 
 static void
-notify_battery_in_use_cb (GObject *gobject,
+notify_battery_in_use_cb (GObject    *gobject,
 			  GParamSpec *arg1,
-			  gpointer user_data)
+			  gpointer    user_data)
 {
 	set_up_throttle (TRACKER_HAL (gobject),
 			 TRACKER_CONFIG (user_data));
@@ -803,22 +858,6 @@ main (gint argc, gchar *argv[])
 	config = tracker_config_new ();
 	language = tracker_language_new (config);
 
-#ifdef HAVE_HAL
-	hal = tracker_hal_new ();
-
-	g_signal_connect (hal, "notify::battery-in-use",
-			  G_CALLBACK (notify_battery_in_use_cb),
-			  config);
-	g_signal_connect (hal, "mount-point-added",
-			  G_CALLBACK (mount_point_added_cb),
-			  NULL);
-	g_signal_connect (hal, "mount-point-removed",
-			  G_CALLBACK (mount_point_removed_cb),
-			  NULL);
-
-	set_up_throttle (hal, config);
-#endif /* HAVE_HAL */
-
 	/* Daemon command line arguments */
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
@@ -896,6 +935,20 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+#ifdef HAVE_HAL
+	hal = tracker_hal_new ();
+
+	g_signal_connect (hal, "notify::battery-in-use",
+			  G_CALLBACK (notify_battery_in_use_cb),
+			  config);
+	g_signal_connect (hal, "mount-point-added",
+			  G_CALLBACK (mount_point_added_cb),
+			  NULL);
+	g_signal_connect (hal, "mount-point-removed",
+			  G_CALLBACK (mount_point_removed_cb),
+			  NULL);
+#endif /* HAVE_HAL */
+
 	/*
 	 * Check instances running
 	 */
@@ -931,6 +984,16 @@ main (gint argc, gchar *argv[])
 
 	tracker_data_manager_init (config, language, file_index, email_index);
 	tracker_xesam_manager_init ();
+
+#ifdef HAVE_HAL
+	/* We set up the throttle and mount points here. For the mount
+	 * points, this means contacting the Indexer. This means that
+	 * we have to have already initialised the databases if we
+	 * are going to do that.
+	 */
+	set_up_throttle (hal, config);
+	set_up_mount_points (hal);
+#endif /* HAVE_HAL */
 
 	private->processor = tracker_processor_new (config, hal);
 

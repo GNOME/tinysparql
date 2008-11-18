@@ -2561,11 +2561,11 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 	GError *actual_error;
 	PathInfo *info;
 
+	request_id = tracker_dbus_get_next_request_id ();
+
 	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
 	tracker_dbus_async_return_if_fail (from != NULL, context);
 	tracker_dbus_async_return_if_fail (to != NULL, context);
-
-	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to move '%s' to '%s'",
@@ -2591,6 +2591,25 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 	tracker_dbus_request_success (request_id);
 }
 
+void            
+tracker_indexer_volume_disable_all (TrackerIndexer         *indexer,
+				    DBusGMethodInvocation  *context,
+				    GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to disable all volumes");
+
+
+	dbus_g_method_return (context);
+	tracker_dbus_request_success (request_id);
+}
+
 void
 tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 				     const gchar            *volume_uuid,
@@ -2601,11 +2620,11 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 {
 	guint request_id;
 
+	request_id = tracker_dbus_get_next_request_id ();
+
 	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
 	tracker_dbus_async_return_if_fail (volume_uuid != NULL, context);
 	tracker_dbus_async_return_if_fail (path != NULL, context);
-
-	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to update volume "

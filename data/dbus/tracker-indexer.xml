@@ -33,6 +33,10 @@
       <arg type="s" name="file_to" direction="in" />
     </method>
 
+    <method name="VolumeDisableAll">
+      <annotation name="org.freedesktop.DBus.GLib.Async"
+      value="true"/>
+    </method>
     <method name="VolumeUpdateState">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="volume_id" direction="in" />

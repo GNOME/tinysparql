@@ -227,7 +227,10 @@ strip_characters (const gchar *original)
 static void
 perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 {
-	GSList *removableroots, *copy = NULL;
+#ifdef HAVE_HAL
+	TrackerHal *hal;
+#endif
+	GList *removable_roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
 
@@ -239,37 +242,36 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 	/* Determining if we are on a removable device */
 
 #ifdef HAVE_HAL
-	TrackerHal *hal = tracker_hal_new ();
-	removableroots = tracker_hal_get_removable_device_roots (hal);
+	hal = tracker_hal_new ();
+	removable_roots = tracker_hal_get_removable_device_roots (hal);
 	g_object_unref (hal);
 #else
-	removableroots = g_slist_append (removableroots, "/media");
-	removableroots = g_slist_append (removableroots, "/mnt");
+	removable_roots = g_list_append (removable_roots, "/media");
+	removable_roots = g_list_append (removable_roots, "/mnt");
 #endif
 
-	copy = removableroots;
+	for (l = removable_roots; l; l = l->next) {
+		guint len;
+		
+		len = strlen (l->data);
 
-	while (copy) {
-		guint len = strlen (copy->data);
-		if (flen >= len && strncmp (filename, copy->data, len)) {
+		if (flen >= len && strncmp (filename, l->data, len)) {
 			on_removable_device = TRUE;
 			break;
 		}
-		copy = g_slist_next (copy);
 	}
 
 #ifdef HAVE_HAL
-	g_slist_foreach (removableroots, (GFunc) g_free, NULL);
+	g_list_foreach (removable_roots, (GFunc) g_free, NULL);
 #endif
 
-	g_slist_free (removableroots);
+	g_list_free (removable_roots);
 
 	if (on_removable_device) {
 		GFile *local_file, *from;
 
 		from = g_file_new_for_path (filename);
 		local_file = g_file_new_for_uri (local_uri);
-
 
 		/* We don't try to overwrite, but we also ignore all errors.
 		 * Such an error could be that the removable device is 

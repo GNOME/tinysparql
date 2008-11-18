@@ -1,3 +1,19 @@
+2008-11-18  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-hal.[ch]: Added API to get all
+	* src/tracker-extract/tracker-albumart.c: 
+	* src/trackerd/tracker-processor.c:
+	UDIs for removable media and then to get the mount point and
+	mounted state of those UDIs too. Also changed the API to use GList
+	instead of GSList since we want to be consistent.
+	
+	* data/dbus/tracker-indexer.xml: 
+	* src/tracker-indexer/tracker-indexer.[ch]:
+	* src/trackerd/tracker-main.c: Added VolumeDisableAll API so the
+	daemon can tell the indexer to disable all volumes in the Volumes
+	table. This is proceded shortly with Enable for volumes which
+	actually exist at the time we start the daemon.
+
 2008-11-18  Jürg Billeter  <j@bitron.ch>
 
 	* data/db/sqlite-stored-procs.sql: Add procedures to handle volumes

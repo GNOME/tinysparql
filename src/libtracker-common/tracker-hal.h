@@ -50,14 +50,22 @@ struct _TrackerHalClass {
 
 #ifdef HAVE_HAL
 
-GType	    tracker_hal_get_type		    (void) G_GNUC_CONST;
+GType	     tracker_hal_get_type		     (void) G_GNUC_CONST;
 
-TrackerHal *tracker_hal_new			    (void);
-gboolean    tracker_hal_get_battery_in_use	    (TrackerHal *hal);
-gboolean    tracker_hal_get_battery_exists	    (TrackerHal *hal);
-gdouble     tracker_hal_get_battery_percentage      (TrackerHal *hal);
-GSList *    tracker_hal_get_mounted_directory_roots (TrackerHal *hal);
-GSList *    tracker_hal_get_removable_device_roots  (TrackerHal *hal);
+TrackerHal * tracker_hal_new                         (void);
+
+gboolean     tracker_hal_get_battery_in_use          (TrackerHal  *hal);
+gboolean     tracker_hal_get_battery_exists          (TrackerHal  *hal);
+gdouble      tracker_hal_get_battery_percentage      (TrackerHal  *hal);
+
+GList *      tracker_hal_get_mounted_directory_roots (TrackerHal  *hal);
+GList *      tracker_hal_get_removable_device_roots  (TrackerHal  *hal);
+GList *      tracker_hal_get_removable_device_udis   (TrackerHal  *hal);
+
+const gchar *tracker_hal_udi_get_mount_point         (TrackerHal  *hal,
+						      const gchar *udi);
+gboolean     tracker_hal_udi_get_is_mounted          (TrackerHal  *hal,
+						      const gchar *udi);
 
 #endif /* HAVE_HAL */
 
