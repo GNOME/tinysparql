@@ -2606,6 +2606,8 @@ tracker_indexer_volume_disable_all (TrackerIndexer         *indexer,
 				  "DBus request to disable all volumes");
 
 
+	tracker_data_update_disable_all_volumes ();
+
 	dbus_g_method_return (context);
 	tracker_dbus_request_success (request_id);
 }
@@ -2634,9 +2636,9 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 				  enabled ? "yes" : "no");
 
 	if (enabled) {
-		tracker_data_update_add_volume (volume_uuid, path);
+		tracker_data_update_enable_volume (volume_uuid, path);
 	} else {
-		tracker_data_update_remove_volume (volume_uuid);
+		tracker_data_update_disable_volume (volume_uuid);
 	}
 
 	dbus_g_method_return (context);

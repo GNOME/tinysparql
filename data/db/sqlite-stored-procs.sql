@@ -137,6 +137,7 @@ GetVolumeByPath                SELECT VolumeID FROM Volumes WHERE Enabled = 1 AN
 InsertVolume                   INSERT INTO Volumes (MountPath, UDI, Enabled) VALUES (?, ?, 1);
 EnableVolume                   UPDATE Volumes SET MountPath = ?, Enabled = 1 WHERE UDI = ?;
 DisableVolume                  UPDATE Volumes SET Enabled = 0 WHERE UDI = ?;
+DisableAllVolumes              UPDATE Volumes SET Enabled = 0;
 
 /*
  * XESAM queries

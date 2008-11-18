@@ -81,9 +81,10 @@ void     tracker_data_update_create_event               (TrackerDBInterface  *if
 void     tracker_data_update_delete_handled_events      (TrackerDBInterface  *iface);
 
 /* Volume handling */
-void tracker_data_update_add_volume                     (const gchar         *udi,
+void tracker_data_update_enable_volume                  (const gchar         *udi,
                                                          const gchar         *mount_path);
-void tracker_data_update_remove_volume                  (const gchar         *udi);
+void tracker_data_update_disable_volume                 (const gchar         *udi);
+void tracker_data_update_disable_all_volumes            (void);
 
 G_END_DECLS
 

@@ -1,3 +1,11 @@
+2008-11-18  Jürg Billeter  <j@bitron.ch>
+
+	* data/db/sqlite-stored-procs.sql:
+	* src/libtracker-data/tracker-data-update.[ch]:
+	* src/tracker-indexer/tracker-indexer.c:
+	Add tracker_data_update_disable_all_volumes function to disable
+	all volumes on startup
+
 2008-11-18  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-hal.[ch]: Added API to get all
