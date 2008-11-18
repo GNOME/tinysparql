@@ -80,6 +80,11 @@ void     tracker_data_update_create_event               (TrackerDBInterface  *if
 /* XESAM API */
 void     tracker_data_update_delete_handled_events      (TrackerDBInterface  *iface);
 
+/* Volume handling */
+void tracker_data_update_add_volume                     (const gchar         *udi,
+                                                         const gchar         *mount_path);
+void tracker_data_update_remove_volume                  (const gchar         *udi);
+
 G_END_DECLS
 
 #endif /* __TRACKER_DATA_UPDATE_H__ */

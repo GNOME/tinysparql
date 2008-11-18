@@ -1,3 +1,12 @@
+2008-11-18  Jürg Billeter  <j@bitron.ch>
+
+	* data/db/sqlite-stored-procs.sql: Add procedures to handle volumes
+
+	* src/libtracker-data/tracker-data-update.[ch]:
+	* src/tracker-indexer/tracker-indexer.c: Update Volumes table when
+	volume is added or removed, set AuxID in Services table to VolumeID
+	when inserting new entry
+
 2008-11-17  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-hal.c: Added the UDI to the

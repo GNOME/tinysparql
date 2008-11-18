@@ -151,12 +151,27 @@ tracker_data_update_create_service (TrackerService      *service,
 				    TrackerDataMetadata *metadata)
 {
 	TrackerDBInterface *iface;
-	gchar *id_str, *service_type_id_str, *path;
+	TrackerDBResultSet *result_set;
+	guint32	volume_id = 0;
+	gchar *id_str, *service_type_id_str, *path, *volume_id_str;
 	gboolean is_dir, is_symlink, enabled;
 
 	if (!service) {
 		return FALSE;
 	}
+
+	/* retrieve VolumeID */
+	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
+	result_set = tracker_db_interface_execute_procedure (iface, NULL,
+							     "GetVolumeByPath",
+							     dirname,
+							     dirname,
+							     NULL);
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &volume_id, -1);
+		g_object_unref (result_set);
+	}
+	volume_id_str = tracker_guint32_to_string (volume_id);
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
@@ -181,7 +196,7 @@ tracker_data_update_create_service (TrackerService      *service,
 						is_symlink ? "1" : "0",
 						"0", /* Offset */
 						tracker_data_metadata_lookup (metadata, "File:Modified"),
-						"0", /* Aux ID */
+						volume_id_str, /* Aux ID */
 						NULL);
 
 	enabled = is_dir ?
@@ -196,6 +211,7 @@ tracker_data_update_create_service (TrackerService      *service,
 
 	g_free (id_str);
 	g_free (service_type_id_str);
+	g_free (volume_id_str);
 	g_free (path);
 
 	return TRUE;
@@ -552,5 +568,59 @@ tracker_data_update_delete_handled_events (TrackerDBInterface *iface)
 	g_return_if_fail (TRACKER_IS_DB_INTERFACE (iface));
 
 	tracker_data_manager_exec (iface, "DELETE FROM Events WHERE BeingHandled = 1");
+}
+
+void
+tracker_data_update_add_volume (const gchar *udi,
+                                const gchar *mount_path)
+{
+	TrackerDBInterface *iface;
+	TrackerDBResultSet *result_set;
+	guint32		    id = 0;
+
+	g_return_if_fail (udi != NULL);
+	g_return_if_fail (mount_path != NULL);
+
+	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
+
+	result_set = tracker_db_interface_execute_procedure (iface, NULL,
+					   "GetVolumeID",
+					   udi,
+					   NULL);
+
+
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &id, -1);
+		g_object_unref (result_set);
+	}
+
+	if (id == 0) {
+		tracker_db_interface_execute_procedure (iface, NULL,
+							"InsertVolume",
+							mount_path,
+							udi,
+							NULL);
+	} else {
+		tracker_db_interface_execute_procedure (iface, NULL,
+							"EnableVolume",
+							mount_path,
+							udi,
+							NULL);
+	}
+}
+
+void
+tracker_data_update_remove_volume (const gchar *udi)
+{
+	TrackerDBInterface *iface;
+
+	g_return_if_fail (udi != NULL);
+
+	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
+	
+	tracker_db_interface_execute_procedure (iface, NULL,
+						"DisableVolume",
+						udi,
+						NULL);
 }
 

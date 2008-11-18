@@ -2614,6 +2614,12 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 				  path,
 				  enabled ? "yes" : "no");
 
+	if (enabled) {
+		tracker_data_update_add_volume (volume_uuid, path);
+	} else {
+		tracker_data_update_remove_volume (volume_uuid);
+	}
+
 	dbus_g_method_return (context);
 	tracker_dbus_request_success (request_id);
 }

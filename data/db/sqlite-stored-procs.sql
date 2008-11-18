@@ -129,6 +129,16 @@ GetStats                       SELECT TypeName, TypeCount FROM ServiceTypes GROU
 GetHitDetails                  SELECT ROWID, HitCount, HitArraySize FROM HitIndex WHERE word = ?;
 
 /*
+ * Volume handling
+ */
+
+GetVolumeID                    SELECT VolumeID FROM Volumes WHERE UDI = ?;
+GetVolumeByPath                SELECT VolumeID FROM Volumes WHERE Enabled = 1 AND (? = MountPath OR ? LIKE (MountPath || '/%'));
+InsertVolume                   INSERT INTO Volumes (MountPath, UDI, Enabled) VALUES (?, ?, 1);
+EnableVolume                   UPDATE Volumes SET MountPath = ?, Enabled = 1 WHERE UDI = ?;
+DisableVolume                  UPDATE Volumes SET Enabled = 0 WHERE UDI = ?;
+
+/*
  * XESAM queries
  */
 InsertXesamMetadataType        INSERT INTO XesamMetaDataTypes (MetaName) VALUES (?);
