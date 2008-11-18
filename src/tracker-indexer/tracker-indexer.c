@@ -94,6 +94,12 @@
 #define TRACKER_INDEXER_ERROR	   "tracker-indexer-error-domain"
 #define TRACKER_INDEXER_ERROR_CODE  0
 
+/* Properties that change in move event */
+#define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
+#define METADATA_FILE_EXT	     "File:Ext"
+#define METADATA_FILE_PATH	     "File:Path"
+#define METADATA_FILE_NAME	     "File:Name"
+
 typedef struct PathInfo PathInfo;
 typedef struct MetadataForeachData MetadataForeachData;
 typedef struct MetadataRequest MetadataRequest;
@@ -1383,6 +1389,17 @@ item_add_or_update (TrackerIndexer  *indexer,
 	}
 }
 
+static gboolean 
+filter_invalid_after_move_properties (TrackerField *field,
+				      gpointer value,
+				      gpointer user_data) 
+{
+	return g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_NAME_DELIMITED) 
+		&& g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_NAME)
+		&& g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_PATH)
+		&& g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_EXT);
+}
+
 static void
 item_move (TrackerIndexer  *indexer,
 	   PathInfo	   *info,
@@ -1390,8 +1407,9 @@ item_move (TrackerIndexer  *indexer,
 	   const gchar	   *basename)
 {
 	TrackerService *service;
-	TrackerDataMetadata *metadata;
+	TrackerDataMetadata *old_metadata, *new_metadata;
 	gchar *service_type;
+	gchar *new_path, *new_name, *ext;
 	guint32 id;
 
 	service_type = tracker_indexer_module_file_get_service_type (info->module,
@@ -1428,12 +1446,37 @@ item_move (TrackerIndexer  *indexer,
 				 info->other_file->path);
 
 	/*
-	 * Using DB directly: get old (embedded) metadata, unindex,
-	 * index the new metadata
+	 *  Updating what changes in move event (Path related properties)
 	 */
-	metadata = tracker_data_query_embedded_metadata (service, id);
-	unindex_metadata (indexer, id, service, metadata);
-	index_metadata (indexer, id, service, metadata);
+	old_metadata = tracker_data_query_embedded_metadata (service, id);
+
+	tracker_data_metadata_foreach_remove (old_metadata, 
+					      filter_invalid_after_move_properties, 
+					      NULL);
+
+	unindex_metadata (indexer, id, service, old_metadata);
+
+	
+	new_metadata = tracker_data_metadata_new ();
+
+	tracker_file_get_path_and_name (info->other_file->path, &new_path, &new_name);
+	tracker_data_metadata_insert (new_metadata, METADATA_FILE_PATH, new_path);
+	tracker_data_metadata_insert (new_metadata, METADATA_FILE_NAME, new_name);
+	tracker_data_metadata_insert (new_metadata, 
+				      METADATA_FILE_NAME_DELIMITED, 
+				      g_strdup (info->other_file->path));
+
+	ext = strrchr (info->other_file->path, '.');
+	if (ext) {
+		tracker_data_metadata_insert (new_metadata, METADATA_FILE_EXT, g_strdup (ext + 1));
+	}
+
+
+	index_metadata (indexer, id, service, new_metadata);
+
+	/* tracker_data_metadata_free frees the values */
+	tracker_data_metadata_free (old_metadata);
+	tracker_data_metadata_free (new_metadata);
 }
 
 static void

@@ -206,3 +206,23 @@ tracker_data_metadata_foreach (TrackerDataMetadata	  *metadata,
 			      (GHFunc) func,
 			      user_data);
 }
+
+/**
+ * tracker_data_metadata_foreach_remove:
+ * @metadata: A #TrackerDataMetadata.
+ * @func: The function to call with each metadata. 
+ * @user_data: user data to pass to the function.
+ *
+ * Calls a function for each element in @metadata and remove the element
+ * if @func returns %TRUE.
+ **/
+void
+tracker_data_metadata_foreach_remove (TrackerDataMetadata       *metadata,
+				      TrackerDataMetadataRemove  func,
+				      gpointer		         user_data)
+{
+	g_hash_table_foreach_remove (metadata->table,
+				     (GHRFunc) func,
+				     user_data);
+}
+

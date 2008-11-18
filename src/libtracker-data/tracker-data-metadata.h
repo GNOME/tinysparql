@@ -31,22 +31,29 @@ typedef struct TrackerDataMetadata TrackerDataMetadata;
 typedef void (* TrackerDataMetadataForeach) (TrackerField *field,
 					     gpointer      value,
 					     gpointer      user_data);
+typedef gboolean (* TrackerDataMetadataRemove) (TrackerField *field,
+						gpointer      value,
+						gpointer      user_data);
 
-TrackerDataMetadata * tracker_data_metadata_new           (void);
-void                  tracker_data_metadata_free          (TrackerDataMetadata        *metadata);
-void                  tracker_data_metadata_insert        (TrackerDataMetadata        *metadata,
-							   const gchar                *field_name,
-							   gchar                      *value);
-void                  tracker_data_metadata_insert_values (TrackerDataMetadata        *metadata,
-							   const gchar                *field_name,
-							   GList                      *list);
-G_CONST_RETURN gchar *tracker_data_metadata_lookup        (TrackerDataMetadata        *metadata,
-							   const gchar                *field_name);
-G_CONST_RETURN GList *tracker_data_metadata_lookup_values (TrackerDataMetadata        *metadata,
-							   const gchar                *field_name);
-void                  tracker_data_metadata_foreach       (TrackerDataMetadata        *metadata,
-							   TrackerDataMetadataForeach  func,
-							   gpointer                    user_data);
+TrackerDataMetadata * tracker_data_metadata_new            (void);
+void                  tracker_data_metadata_free           (TrackerDataMetadata        *metadata);
+void                  tracker_data_metadata_insert         (TrackerDataMetadata        *metadata,
+							    const gchar                *field_name,
+							    gchar                      *value);
+void                  tracker_data_metadata_insert_values  (TrackerDataMetadata        *metadata,
+							    const gchar                *field_name,
+							    GList                      *list);
+G_CONST_RETURN gchar *tracker_data_metadata_lookup         (TrackerDataMetadata        *metadata,
+							    const gchar                *field_name);
+G_CONST_RETURN GList *tracker_data_metadata_lookup_values  (TrackerDataMetadata        *metadata,
+							    const gchar                *field_name);
+void                  tracker_data_metadata_foreach        (TrackerDataMetadata        *metadata,
+							    TrackerDataMetadataForeach  func,
+							    gpointer                    user_data);
+void                  tracker_data_metadata_foreach_remove (TrackerDataMetadata        *metadata,
+							    TrackerDataMetadataRemove   func,
+							    gpointer                    user_data);
+
 G_END_DECLS
 
 #endif /* __TRACKER_DATA_METADATA_H__*/

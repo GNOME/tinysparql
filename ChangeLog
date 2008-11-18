@@ -1,3 +1,14 @@
+2008-11-18  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/libtracker-data/tracker-data-metadata.[ch]
+	(tracker_data_metadata_foreach_remove): New function. Wrapper for
+	g_hash_table_forearch_remove.	
+	* src/tracker-indexer/tracker-indexer.c: Handling correctly the
+	metadata when move a file. Updating only the metadata related with
+	path. 
+	
+	Fixes NB #91842
+	
 2008-11-18  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/tracker-metadata-utils.c: Fix the way we
