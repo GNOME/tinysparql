@@ -1,3 +1,10 @@
+2008-11-18 Mikael Ottela <mikael.ottela@ixonos.com>
+	
+	* src/tracker-extract/tracker-extract-png.c: Fixed the extractor to
+	check the whole file for text chunks instead of just the header.
+
+	Fixes NB #90455
+
 2008-11-18  Jürg Billeter  <j@bitron.ch>
 
 	* data/db/sqlite-stored-procs.sql:
