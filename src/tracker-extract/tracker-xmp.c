@@ -233,6 +233,9 @@ tracker_xmp_iter_simple (GHashTable *metadata,
 		else if (strcmp (name, "FocalLength") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:FocalLength", value, append);
 		}
+		else if (strcmp (name, "ISOSpeedRatings") == 0) {
+			tracker_append_string_to_hash_table (metadata, "Image:ISOSpeed", value, append);
+		}
 		else if (strcmp (name, "WhiteBalance") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:WhiteBalance", value, append);
 		}

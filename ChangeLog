@@ -1,3 +1,10 @@
+2008-11-18  Mikael Ottela <mikael.ottela@ixonos.com>
+
+	src/tracker-extract/tracker-xmp.c: Added ISOSpeedRatings to
+	xmp exif namespace.
+
+	Fixes NB #92708	
+
 2008-11-18  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/libtracker-data/tracker-data-metadata.[ch]
