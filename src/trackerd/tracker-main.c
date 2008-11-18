@@ -84,7 +84,7 @@
 
 typedef enum {
 	TRACKER_RUNNING_NON_ALLOWED,
-	TRACKER_RUNNING_READ_ONLY,
+	TRACKER_RUNNING_READONLY,
 	TRACKER_RUNNING_MAIN_INSTANCE
 } TrackerRunningLevel;
 
@@ -219,8 +219,8 @@ check_runtime_level (TrackerConfig *config,
 	g_message ("Checking instances running...");
 
 	if (!tracker_config_get_enable_indexing (config)) {
-		g_message ("Indexing disabled, running in read-only mode");
-		return TRACKER_RUNNING_READ_ONLY;
+		g_message ("Indexing disabled in config, running in read-only mode");
+		return TRACKER_RUNNING_READONLY;
 	}
 
 	use_nfs = tracker_config_get_nfs_locking (config);
@@ -246,7 +246,7 @@ check_runtime_level (TrackerConfig *config,
 		if (use_nfs) {
 			g_message ("Already running, running in "
 				   "read-only mode (with NFS)");
-			runlevel = TRACKER_RUNNING_READ_ONLY;
+			runlevel = TRACKER_RUNNING_READONLY;
 		} else {
 			g_message ("Already running, not allowed "
 				   "multiple instances (without NFS)");
@@ -268,7 +268,7 @@ check_runtime_level (TrackerConfig *config,
 			g_message ("Battery in use");
 			g_message ("Config is set to not index on battery");
 			g_message ("Running in read only mode");
-			runlevel = TRACKER_RUNNING_READ_ONLY;
+			runlevel = TRACKER_RUNNING_READONLY;
 		}
 
 		/* Special case first time situation which are
@@ -280,7 +280,7 @@ check_runtime_level (TrackerConfig *config,
 			g_message ("Battery in use & reindex is needed");
 			g_message ("Config is set to not index on battery for initial index");
 			g_message ("Running in read only mode");
-			runlevel = TRACKER_RUNNING_READ_ONLY;
+			runlevel = TRACKER_RUNNING_READONLY;
 		}
 #endif /* HAVE_HAL */
 	}
@@ -958,7 +958,7 @@ main (gint argc, gchar *argv[])
 	case TRACKER_RUNNING_NON_ALLOWED:
 		return EXIT_FAILURE;
 
-	case TRACKER_RUNNING_READ_ONLY:
+	case TRACKER_RUNNING_READONLY:
 		tracker_status_set_is_readonly (TRUE);
 		break;
 

@@ -1,3 +1,13 @@
+2008-11-18  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-indexer/tracker-metadata-utils.c: Fix the way we
+	check if we should do thumbnailing. Don't explicitly #define
+	HAVE_HILDON_THUMBNAIL now, use the config.h value instead. This
+	was causing a lot of indexer log warnings about not being able to
+	contact the thumbnailer daemon.
+	
+	* src/trackerd/tracker-main.c: Small code cleanups.
+
 2008-11-18 Mikael Ottela <mikael.ottela@ixonos.com>
 	
 	* src/tracker-extract/tracker-extract-png.c: Fixed the extractor to

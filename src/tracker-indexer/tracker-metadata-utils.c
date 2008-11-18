@@ -33,9 +33,6 @@
 #include "tracker-metadata-utils.h"
 #include "tracker-dbus.h"
 
-#define THUMBNAIL_RETRIEVAL_ENABLED
-#define HAVE_HILDON_THUMBNAIL
-
 #define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
 #define METADATA_FILE_EXT	     "File:Ext"
 #define METADATA_FILE_PATH	     "File:Path"
@@ -651,7 +648,6 @@ get_file_content (const gchar *path)
 	return s ? g_string_free (s, FALSE) : NULL;
 }
 
-#ifdef THUMBNAIL_RETRIEVAL_ENABLED
 #ifdef HAVE_HILDON_THUMBNAIL
 
 static void
@@ -673,8 +669,6 @@ get_file_thumbnail_queue_cb (DBusGProxy     *proxy,
 	}
 }
 
-#endif /* HAVE_HILDON_THUMBNAIL */
-
 static gboolean
 thumbnail_this (GStrv list, const gchar *mime)
 {
@@ -691,6 +685,7 @@ thumbnail_this (GStrv list, const gchar *mime)
 	}
 
 	return retval;
+
 }
 
 static gboolean
@@ -724,6 +719,8 @@ request_thumbnails (gpointer data)
 
 	return FALSE;
 }
+
+#endif /* HAVE_HILDON_THUMBNAIL */
 
 static void
 get_file_thumbnail (const gchar *path,
@@ -775,8 +772,9 @@ get_file_thumbnail (const gchar *path,
 	if (count == 51) {
 		request_thumbnails (NULL);
 	}
+#endif /* HAVE_HILDON_THUMBNAIL */
 
-#else /* HAVE_HILDON_THUMBNAIL */
+#ifdef HAVE_IMAGEMAGICK
 	ProcessContext *context;
 
 	GString *thumbnail;
@@ -813,10 +811,8 @@ get_file_thumbnail (const gchar *path,
 	g_debug ("Got thumbnail '%s' for '%s'", thumbnail->str, path);
 
 	g_string_free (thumbnail, TRUE);
-#endif /* HAVE_HILDON_THUMBNAIL */
+#endif /* HAVE_IMAGEMAGICK */
 }
-
-#endif /* THUMBNIAL_RETRIEVAL_ENABLED */
 
 static gchar *
 get_file_content_by_filter (const gchar *path,

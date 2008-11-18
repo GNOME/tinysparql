@@ -2605,7 +2605,6 @@ tracker_indexer_volume_disable_all (TrackerIndexer         *indexer,
 	tracker_dbus_request_new (request_id,
 				  "DBus request to disable all volumes");
 
-
 	tracker_data_update_disable_all_volumes ();
 
 	dbus_g_method_return (context);
