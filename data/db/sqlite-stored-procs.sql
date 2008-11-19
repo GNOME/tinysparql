@@ -66,9 +66,6 @@ GetAllMetadata                 SELECT MetadataID, MetadataDisplay FROM ServiceMe
 GetMetadata                    SELECT MetaDataDisplay FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 GetMetadataAliases             SELECT DISTINCT M.MetaName, M.ID FROM MetaDataTypes M, MetaDataChildren C WHERE M.ID = C.ChildID AND C.MetaDataID = ?; 
 GetMetadataAliasesForName      SELECT DISTINCT M.MetaName, M.ID FROM MetaDataTypes M, MetaDataChildren C WHERE M.ID = C.ChildID AND C.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = ?) UNION SELECT M.MetaName, M.ID FROM MetaDataTypes M WHERE M.MetaName = ?; 
-GetMetadataIDValue             SELECT MetadataID, MetadataValue FROM ServiceMetadata WHERE ServiceID = ? ORDER BY MetadataID
-GetMetadataIDValueKeyword      SELECT MetadataID, MetadataValue FROM ServiceKeywordMetadata WHERE ServiceID = ? ORDER BY MetadataID
-GetMetadataIDValueNumeric      SELECT MetadataID, MetadataValue FROM ServiceNumericMetadata WHERE ServiceID = ? ORDER BY MetadataID
 GetMetadataKeyword             SELECT MetaDataValue FROM ServiceKeywordMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 GetMetadataNumeric             SELECT MetaDataValue FROM ServiceNumericMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 GetMetadataTypes               SELECT ID, MetaName, DataTypeID, FieldName, Weight, Embedded, MultipleValues, Delimited, Filtered, Abstract FROM MetaDataTypes;

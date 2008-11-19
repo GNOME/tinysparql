@@ -383,34 +383,41 @@ tracker_data_query_service_type_id (const gchar *dirname,
 static void
 result_set_to_metadata (TrackerDBResultSet  *result_set,
 			TrackerDataMetadata *metadata,
-			gboolean	     numeric,
 			gboolean	     only_embedded)
 {
 	TrackerField *field;
-	gchar	     *value;
 	gint	      numeric_value;
 	gint	      metadata_id;
 	gboolean      valid = TRUE;
 
 	while (valid) {
-		if (numeric) {
-			tracker_db_result_set_get (result_set,
-						   0, &metadata_id,
-						   1, &numeric_value,
-						   -1);
-			value = g_strdup_printf ("%d", numeric_value);
+		GValue transform = {0, };
+		GValue value = {0, };
+		gchar *str;
+		
+		g_value_init (&transform, G_TYPE_STRING);
+		tracker_db_result_set_get (result_set, 0, &metadata_id, -1);
+		_tracker_db_result_set_get_value (result_set, 1, &value);
+
+		if (g_value_transform (&value, &transform)) {
+			str = g_value_dup_string (&transform);
+			
+			if (!str) {
+				str = g_strdup ("");
+			} else if (!g_utf8_validate (str, -1, NULL)) {
+				g_warning ("Could not add string:'%s' to GStrv, invalid UTF-8", str);
+				g_free (str);
+				str = g_strdup ("");
+			}
 		} else {
-			tracker_db_result_set_get (result_set,
-						   0, &metadata_id,
-						   1, &value,
-						   -1);
+			str = g_strdup ("");
 		}
 
 		field = tracker_ontology_get_field_by_id (metadata_id);
 		if (!field) {
 			g_critical ("Field id %d in database but not in tracker-ontology",
 				    metadata_id);
-			g_free (value);
+			g_free (str);
 			return;
 		}
 
@@ -426,17 +433,17 @@ result_set_to_metadata (TrackerDBResultSet  *result_set,
 					new_values = g_list_copy ((GList *) old_values);
 				}
 
-				new_values = g_list_prepend (new_values, value);
+				new_values = g_list_prepend (new_values, str);
 				tracker_data_metadata_insert_values (metadata,
 								     tracker_field_get_name (field),
 								     new_values);
 			} else {
 				tracker_data_metadata_insert (metadata,
 							 tracker_field_get_name (field),
-							 value);
+							 str);
 			}
 		} else {
-			g_free (value);
+			g_free (str);
 		}
 
 		valid = tracker_db_result_set_iter_next (result_set);
@@ -460,21 +467,14 @@ tracker_data_query_embedded_metadata (TrackerService *service,
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
-	result_set = tracker_db_interface_execute_procedure (iface, NULL, "GetMetadataIDValue", service_id_str, NULL);
-	if (result_set) {
-		result_set_to_metadata (result_set, metadata, FALSE, TRUE);
-		g_object_unref (result_set);
-	}
 
-	result_set = tracker_db_interface_execute_procedure (iface, NULL, "GetMetadataIDValueKeyword", service_id_str, NULL);
+	result_set = tracker_data_manager_exec_proc (iface,
+						     "GetAllMetadata", 
+						     service_id_str,
+						     service_id_str,
+						     service_id_str, NULL);
 	if (result_set) {
-		result_set_to_metadata (result_set, metadata, FALSE, TRUE);
-		g_object_unref (result_set);
-	}
-
-	result_set = tracker_db_interface_execute_procedure (iface, NULL, "GetMetadataIDValueNumeric", service_id_str, NULL);
-	if (result_set) {
-		result_set_to_metadata (result_set, metadata, TRUE, TRUE);
+		result_set_to_metadata (result_set, metadata, TRUE);
 		g_object_unref (result_set);
 	}
 
