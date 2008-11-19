@@ -1,8 +1,7 @@
 2008-11-19  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-data/tracker-data-search.c:
-	* src/tracker-extract/tracker-extract-gstreamer.c:
-	* src/tracker-extract/tracker-extract.c: 
+	* src/tracker-extract/tracker-extract-gstreamer.c: Code clean ups.
 
 2008-11-19  Ivan Frade  <ivan.frade@nokia.com>
 
