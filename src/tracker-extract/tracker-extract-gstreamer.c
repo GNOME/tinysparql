@@ -876,27 +876,27 @@ tracker_extract_gstreamer (const gchar *uri,
 	if (extractor->album_art_data && extractor->album_art_size) {
 #ifdef HAVE_GDKPIXBUF
 		tracker_process_albumart (extractor->album_art_data, extractor->album_art_size,
-				       g_hash_table_lookup (metadata, "Audio:Artist") ,
-				       g_hash_table_lookup (metadata, "Audio:Album"),
-				       g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
-				       uri);
+					  g_hash_table_lookup (metadata, "Audio:Artist") ,
+					  g_hash_table_lookup (metadata, "Audio:Album"),
+					  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
+					  uri);
 #else
 		tracker_process_albumart (NULL, 0,
-				       g_hash_table_lookup (metadata, "Audio:Artist") ,
-				       g_hash_table_lookup (metadata, "Audio:Album"),
-				       g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
-				       uri);
+					  g_hash_table_lookup (metadata, "Audio:Artist") ,
+					  g_hash_table_lookup (metadata, "Audio:Album"),
+					  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
+					  uri);
 
 #endif /* HAVE_GDKPIXBUF */
 	}
 
 	/* Check that we have the minimum data. FIXME We should not need to do this FIXME We only take the part before first .*/
 
-	if (type==EXTRACT_MIME_AUDIO) {
+	if (type == EXTRACT_MIME_AUDIO) {
 		if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-			gchar  *basename = g_filename_display_basename(uri);
+			gchar  *basename = g_filename_display_basename (uri);
 			gchar **parts    = g_strsplit (basename, ".", -1);
-			gchar  *title    = g_strdup(parts[0]);
+			gchar  *title    = g_strdup (parts[0]);
 			
 			g_strfreev (parts);
 			g_free (basename);
@@ -938,11 +938,11 @@ tracker_extract_gstreamer (const gchar *uri,
 					     g_strdup ("Audio:Duration"), 
 					     g_strdup ("0"));
 		}
-	} else if (type==EXTRACT_MIME_VIDEO) {
+	} else if (type == EXTRACT_MIME_VIDEO) {
 		if (!g_hash_table_lookup (metadata, "Video:Title")) {
-			gchar  *basename = g_filename_display_basename(uri);
+			gchar  *basename = g_filename_display_basename (uri);
 			gchar **parts    = g_strsplit (basename, ".", -1);
-			gchar  *title    = g_strdup(parts[0]);
+			gchar  *title    = g_strdup (parts[0]);
 			
 			g_strfreev (parts);
 			g_free (basename);

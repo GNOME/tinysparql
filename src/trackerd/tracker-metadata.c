@@ -504,11 +504,11 @@ tracker_metadata_get_unique_values (TrackerMetadata	   *object,
 				  query_condition);
 
 	result_set = tracker_data_search_get_unique_values (service_type, fields,
-						     query_condition,
-						     order_desc,
-						     offset,
-						     max_hits,
-						     &actual_error);
+							    query_condition,
+							    order_desc,
+							    offset,
+							    max_hits,
+							    &actual_error);
 
 	if (actual_error) {
 		g_propagate_error (error, actual_error);
