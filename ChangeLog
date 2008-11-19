@@ -1,3 +1,9 @@
+2008-11-19  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-indexer/tracker-metadata-utils.c:
+	(get_file_thumbnail): Fixed a missing semi colon, spotted by
+	Laurent Aguerreche. 
+
 2008-11-18  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	src/tracker-extract/tracker-xmp.c: Added ISOSpeedRatings to

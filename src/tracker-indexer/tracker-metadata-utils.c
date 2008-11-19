@@ -787,7 +787,7 @@ get_file_thumbnail (const gchar *path,
 	argv[4] = NULL;
 
 	context = process_context_create ((const gchar **) argv,
-					  get_file_content_read_cb)
+					  get_file_content_read_cb);
 
 	if (!context) {
 		return;
