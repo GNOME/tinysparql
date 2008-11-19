@@ -526,8 +526,6 @@ tracker_metadata_get_unique_values (TrackerMetadata	   *object,
 	}
 
 	tracker_dbus_request_success (request_id);
-
-	return;
 }
 
 void
@@ -544,9 +542,7 @@ tracker_metadata_get_unique_values_with_count (TrackerMetadata	      *object,
 {
 	TrackerDBResultSet *result_set = NULL;
 	guint		    request_id;
-
 	GPtrArray	   *values = NULL;
-
 	GError		   *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -563,15 +559,16 @@ tracker_metadata_get_unique_values_with_count (TrackerMetadata	      *object,
 				  query_condition,
 				  count_field);
 
-	result_set = tracker_data_search_get_unique_values_with_count (service_type,
-								fields,
-								query_condition,
-								count_field,
-								order_desc,
-								offset,
-								max_hits,
-								&actual_error);
-
+	result_set = 
+		tracker_data_search_get_unique_values_with_count (service_type,
+								  fields,
+								  query_condition,
+								  count_field,
+								  order_desc,
+								  offset,
+								  max_hits,
+								  &actual_error);
+	
 	if (actual_error) {
 		g_propagate_error (error, actual_error);
 		return;
@@ -588,8 +585,6 @@ tracker_metadata_get_unique_values_with_count (TrackerMetadata	      *object,
 	}
 
 	tracker_dbus_request_success (request_id);
-
-	return;
 }
 
 void
@@ -607,9 +602,7 @@ tracker_metadata_get_unique_values_with_count_and_sum (TrackerMetadata	      *ob
 {
 	TrackerDBResultSet *result_set = NULL;
 	guint		    request_id;
-
 	GPtrArray	   *values = NULL;
-
 	GError		   *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
@@ -628,15 +621,16 @@ tracker_metadata_get_unique_values_with_count_and_sum (TrackerMetadata	      *ob
 				  count_field,
 				  sum_field);
 
-	result_set = tracker_data_search_get_unique_values_with_count_and_sum (service_type,
-									fields,
-									query_condition,
-									count_field,
-									sum_field,
-									order_desc,
-									offset,
-									max_hits,
-									&actual_error);
+	result_set = 
+		tracker_data_search_get_unique_values_with_count_and_sum (service_type,
+									  fields,
+									  query_condition,
+									  count_field,
+									  sum_field,
+									  order_desc,
+									  offset,
+									  max_hits,
+									  &actual_error);
 
 	if (actual_error) {
 		g_propagate_error (error, actual_error);
@@ -654,8 +648,6 @@ tracker_metadata_get_unique_values_with_count_and_sum (TrackerMetadata	      *ob
 	}
 
 	tracker_dbus_request_success (request_id);
-
-	return;
 }
 
 void
@@ -666,11 +658,9 @@ tracker_metadata_get_sum (TrackerMetadata	 *object,
 			  DBusGMethodInvocation  *context,
 			  GError		**error)
 {
-	guint		    request_id;
-
-	gint		    sum;
-
-	GError		   *actual_error = NULL;
+	guint   request_id;
+	gint    sum;
+	GError *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -686,9 +676,9 @@ tracker_metadata_get_sum (TrackerMetadata	 *object,
 				  query_condition);
 
 	sum = tracker_data_search_get_sum (service_type,
-				    field,
-				    query_condition,
-				    &actual_error);
+					   field,
+					   query_condition,
+					   &actual_error);
 
 	if (actual_error) {
 		g_propagate_error (error, actual_error);
@@ -698,10 +688,7 @@ tracker_metadata_get_sum (TrackerMetadata	 *object,
 	dbus_g_method_return (context, sum);
 
 	tracker_dbus_request_success (request_id);
-
-	return;
 }
-
 
 void
 tracker_metadata_get_count (TrackerMetadata	   *object,
@@ -711,10 +698,10 @@ tracker_metadata_get_count (TrackerMetadata	   *object,
 			    DBusGMethodInvocation  *context,
 			    GError		  **error)
 {
-	guint		    request_id;
-	gint		    count;
+	guint	request_id;
+	gint    count;
 
-	GError		   *actual_error = NULL;
+	GError *actual_error = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -730,9 +717,9 @@ tracker_metadata_get_count (TrackerMetadata	   *object,
 				  query_condition);
 
 	count = tracker_data_search_get_count (service_type,
-				      field,
-				      query_condition,
-				      &actual_error);
+					       field,
+					       query_condition,
+					       &actual_error);
 
 	if (actual_error) {
 		g_propagate_error (error, actual_error);
@@ -742,7 +729,5 @@ tracker_metadata_get_count (TrackerMetadata	   *object,
 	dbus_g_method_return (context, count);
 
 	tracker_dbus_request_success (request_id);
-
-	return;
 }
 
