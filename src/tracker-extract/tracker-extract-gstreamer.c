@@ -910,23 +910,33 @@ tracker_extract_gstreamer (const gchar *uri,
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Album")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Album"), g_strdup ("tracker:unknown"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Audio:Album"), 
+					     g_strdup (""));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Artist")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Artist"), g_strdup ("tracker:unknown"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Audio:Artist"), 
+					     g_strdup (""));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Genre"), g_strdup ("tracker:unknown"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Audio:Genre"), 
+					     g_strdup (""));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Audio:PlayCount")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:PlayCount"), g_strdup ("0"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Audio:PlayCount"), 
+					     g_strdup ("0"));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Audio:Duration")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Duration"), g_strdup ("0"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Audio:Duration"), 
+					     g_strdup ("0"));
 		}
 	} else if (type==EXTRACT_MIME_VIDEO) {
 		if (!g_hash_table_lookup (metadata, "Video:Title")) {
@@ -946,15 +956,21 @@ tracker_extract_gstreamer (const gchar *uri,
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Video:Author")) {
-			g_hash_table_insert (metadata, g_strdup ("Video:Author"), g_strdup ("tracker:unknown"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Video:Author"),
+					     g_strdup (""));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Video:PlayCount")) {
-			g_hash_table_insert (metadata, g_strdup ("Video:PlayCount"), g_strdup ("0"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Video:PlayCount"), 
+					     g_strdup ("0"));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Video:Duration")) {
-			g_hash_table_insert (metadata, g_strdup ("Video:Duration"), g_strdup ("0"));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Video:Duration"), 
+					     g_strdup ("0"));
 		}
 	}
 

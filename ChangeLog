@@ -1,5 +1,11 @@
 2008-11-19  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-extract-mp3.c: Don't use
+	"tracker:unknown" when we don't know a metadata value, return "".
+
+2008-11-19  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-metadata.c: Fixed formatting and removed
 	some unnecessary code.
 
