@@ -304,7 +304,7 @@ tracker_db_index_manager_get_index_by_service_id (gint id)
 {
 	TrackerDBType	    type;
 	TrackerDBIndexType  index_type;
-	gchar		   *service;
+	const gchar        *service;
 
 	g_return_val_if_fail (initialized == TRUE, NULL);
 
@@ -314,7 +314,6 @@ tracker_db_index_manager_get_index_by_service_id (gint id)
 	}
 
 	type = tracker_ontology_get_service_db_by_name (service);
-	g_free (service);
 
 	switch (type) {
 	case TRACKER_DB_TYPE_FILES:

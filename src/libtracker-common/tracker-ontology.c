@@ -246,7 +246,7 @@ tracker_ontology_get_service_by_name (const gchar *service_str)
 	return g_hash_table_lookup (service_names, service_str);
 }
 
-gchar *
+G_CONST_RETURN gchar *
 tracker_ontology_get_service_by_id (gint id)
 {
 	TrackerService *service;
@@ -257,10 +257,10 @@ tracker_ontology_get_service_by_id (gint id)
 		return NULL;
 	}
 
-	return g_strdup (tracker_service_get_name (service));
+	return tracker_service_get_name (service);
 }
 
-gchar *
+G_CONST_RETURN gchar *
 tracker_ontology_get_service_by_mime (const gchar *mime)
 {
 	gpointer	     id;

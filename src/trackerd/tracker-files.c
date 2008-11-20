@@ -259,7 +259,7 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 	guint		    request_id;
 	gint		    file_id;
 	gchar		   *file_id_str;
-	gchar		   *value = NULL;
+	const gchar	   *value;
 	const gchar        *service_type;
 	const gchar	   *mime = NULL;
 	GError		   *actual_error = NULL;
@@ -323,7 +323,6 @@ tracker_files_get_service_type (TrackerFiles	       *object,
 					      mime,
 					      value);
 		dbus_g_method_return (context, value);
-		g_free (value);
 
 		tracker_dbus_request_success (request_id);
 	} else {

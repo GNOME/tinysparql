@@ -1,5 +1,26 @@
 2008-11-20  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/tracker-ontology.[ch]
+	(tracker_ontology_get_service_by_id)
+	(tracker_ontology_get_service_by_mime):
+	* src/libtracker-data/tracker-data-query.[ch]
+	(tracker_data_query_service_type_by_id): Make them return const
+	gchar*, since the strings are stored in the ontology and guaranteed to
+	be there until it shuts down.
+
+	* src/libtracker-db/tracker-db-index-manager.c
+	(tracker_db_index_manager_get_index_by_service_id):
+	* src/libtracker-db/tracker-db-manager.c (function_get_service_name):
+	* src/tracker-indexer/tracker-indexer.c (item_remove):
+	* src/tracker-indexer/tracker-metadata-utils.c
+	(metadata_utils_get_embedded) (tracker_metadata_utils_get_text):
+	* src/trackerd/tracker-files.c (tracker_files_get_service_type):
+	* src/trackerd/tracker-metadata.c (tracker_metadata_get):
+	* src/trackerd/tracker-search.c (tracker_search_get_hit_count_all):
+	Adapt to API change.
+
+2008-11-20  Carlos Garnacho  <carlos@imendio.com>
+
 	* configure.ac:
 	* src/tracker-indexer/modules/gaim-conversations.c:
 	* tests/tracker-indexer/Makefile.am: Remove any references to

@@ -318,8 +318,8 @@ metadata_utils_get_embedded (const char          *path,
 			     TrackerDataMetadata *metadata)
 {
 	gchar **values;
-	gchar  *service_type;
-	gint	i;
+	const gchar *service_type;
+	gint i;
 
 	service_type = tracker_ontology_get_service_by_mime (mime_type);
 	if (!service_type) {
@@ -327,11 +327,8 @@ metadata_utils_get_embedded (const char          *path,
 	}
 
 	if (!tracker_ontology_service_has_metadata (service_type)) {
-		g_free (service_type);
 		return;
 	}
-
-	g_free (service_type);
 
 	values = metadata_query_file (path, mime_type);
 
@@ -884,7 +881,8 @@ get_file_content_by_filter (const gchar *path,
 gchar *
 tracker_metadata_utils_get_text (GFile *file)
 {
-	gchar *path, *mime_type, *service_type, *text;
+	const gchar *service_type;
+	gchar *path, *mime_type, *text;
 
 	path = g_file_get_path (file);
 
@@ -900,7 +898,6 @@ tracker_metadata_utils_get_text (GFile *file)
 		text = get_file_content_by_filter (path, mime_type);
 	}
 
-	g_free (service_type);
 	g_free (mime_type);
 	g_free (path);
 

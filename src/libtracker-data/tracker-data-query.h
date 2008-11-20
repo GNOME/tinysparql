@@ -72,7 +72,8 @@ guint                tracker_data_query_service_type_id       (const gchar      
 							       const gchar         *basename);
 
 /* Service API */
-gchar *              tracker_data_query_service_type_by_id    (TrackerDBInterface  *iface,
+G_CONST_RETURN gchar *
+                     tracker_data_query_service_type_by_id    (TrackerDBInterface  *iface,
 							       const gchar         *service_id);
 
 /* Files API */

@@ -1287,11 +1287,11 @@ function_get_service_name (TrackerDBInterface *interface,
 			   GValue	       values[])
 {
 	GValue	result = { 0, };
-	gchar  *str;
+	const gchar  *str;
 
 	str = tracker_ontology_get_service_by_id (g_value_get_int (&values[0]));
 	g_value_init (&result, G_TYPE_STRING);
-	g_value_take_string (&result, str);
+	g_value_set_string (&result, str);
 
 	return result;
 }

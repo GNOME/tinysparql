@@ -77,7 +77,8 @@ tracker_metadata_get (TrackerMetadata	     *object,
 	TrackerDBInterface  *iface;
 	TrackerDBResultSet  *result_set;
 	guint		     request_id;
-	gchar		    *service_id, *service_result;
+	const gchar         *service_result;
+	gchar		    *service_id;
 	guint		     i;
 	gchar		   **values;
 	GError		    *actual_error = NULL;
@@ -167,7 +168,6 @@ tracker_metadata_get (TrackerMetadata	     *object,
 	dbus_g_method_return (context, values);
 	g_strfreev (values);
 	g_free (service_id);
-	g_free (service_result);
 
 	tracker_dbus_request_success (request_id);
 }

@@ -1536,7 +1536,7 @@ item_remove (TrackerIndexer *indexer,
 		 basename);
 
 	if (!service_type || !service_type[0]) {
-		gchar *name;
+		const gchar *name;
 
 		/* The file is not anymore in the filesystem. Obtain
 		 * the service type from the DB.
@@ -1550,7 +1550,6 @@ item_remove (TrackerIndexer *indexer,
 
 		name = tracker_ontology_get_service_by_id (service_type_id);
 		service = tracker_ontology_get_service_by_name (name);
-		g_free (name);
 	} else {
 		service = tracker_ontology_get_service_by_name (service_type);
 		service_type_id = tracker_service_get_id (service);

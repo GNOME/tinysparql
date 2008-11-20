@@ -227,13 +227,13 @@ tracker_data_query_metadata_fields (TrackerDBInterface *iface,
 /*
  * Obtain the concrete service type name for the file id.
  */
-gchar *
+G_CONST_RETURN gchar *
 tracker_data_query_service_type_by_id (TrackerDBInterface *iface,
 				       const gchar	  *service_id)
 {
 	TrackerDBResultSet *result_set;
 	gint		    service_type_id;
-	gchar		   *result = NULL;
+	const gchar	   *result = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
 	g_return_val_if_fail (service_id != NULL, NULL);

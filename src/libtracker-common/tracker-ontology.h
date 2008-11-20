@@ -41,8 +41,10 @@ void		tracker_ontology_service_add			(TrackerService *service,
 								 GSList		*mimes,
 								 GSList		*mime_prefixes);
 TrackerService *tracker_ontology_get_service_by_name		(const gchar	*service_str);
-gchar *		tracker_ontology_get_service_by_id		(gint		 id);
-gchar *		tracker_ontology_get_service_by_mime		(const gchar	*mime);
+G_CONST_RETURN gchar *
+                tracker_ontology_get_service_by_id		(gint		 id);
+G_CONST_RETURN gchar *
+                tracker_ontology_get_service_by_mime		(const gchar	*mime);
 gint		tracker_ontology_get_service_id_by_name		(const gchar	*service_str);
 TrackerDBType	tracker_ontology_get_service_db_by_name		(const gchar	*service_str);
 gchar *		tracker_ontology_get_service_parent		(const gchar	*service_str);

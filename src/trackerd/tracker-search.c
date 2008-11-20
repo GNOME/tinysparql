@@ -621,8 +621,8 @@ tracker_search_get_hit_count_all (TrackerSearch		 *object,
 		_tracker_db_result_set_append (result_set);
 
 		g_value_init (&value, G_TYPE_STRING);
-		g_value_take_string (&value,
-				     tracker_ontology_get_service_by_id (count.service_type_id));
+		g_value_set_string (&value,
+				    tracker_ontology_get_service_by_id (count.service_type_id));
 		_tracker_db_result_set_set_value (result_set, 0, &value);
 		g_value_unset (&value);
 
