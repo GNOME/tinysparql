@@ -352,6 +352,7 @@ tracker_data_update_delete_all_metadata (TrackerService *service,
 						"DeleteServiceNumericMetadata",
 						service_id_str,
 						NULL);
+	g_free (service_id_str);
 }
 
 void

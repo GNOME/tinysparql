@@ -1,5 +1,13 @@
 2008-11-20  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/tracker-hal.c (hal_battery_notify):
+	* src/libtracker-data/tracker-data-update.c
+	(tracker_data_update_delete_all_metadata):
+	* src/tracker-indexer/modules/evolution-imap.c
+	(tracker_evolution_imap_file_finalize): Plug some leaks.
+
+2008-11-20  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-ontology.[ch]
 	(tracker_ontology_get_service_by_id)
 	(tracker_ontology_get_service_by_mime):

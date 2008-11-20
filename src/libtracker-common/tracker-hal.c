@@ -713,6 +713,8 @@ hal_battery_notify (TrackerHal *hal)
 		priv->battery_percentage = 0;
 	}
 
+	g_list_free (values);
+
 	g_object_notify (G_OBJECT (hal), "battery-percentage");
 }
 

@@ -117,6 +117,7 @@ tracker_evolution_imap_file_finalize (GObject *object)
 
         file = TRACKER_EVOLUTION_IMAP_FILE (object);
 
+        g_free (file->imap_dir);
         g_free (file->cur_message_uid);
 
         fclose (file->summary);
