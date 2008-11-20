@@ -18,7 +18,6 @@
  */
 
 #include <glib.h>
-#include <tracker-indexer/tracker-module.h>
 
 G_CONST_RETURN gchar *
 tracker_module_get_name (void)

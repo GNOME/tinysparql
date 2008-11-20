@@ -31,7 +31,10 @@ tracker_metadata_utils_SOURCES = 					\
 	tracker-metadata-utils.c 					\
 	tracker-metadata-utils.h 					\
 	tracker-metadata-utils-test.c 					\
-	tracker-module.h
+	tracker-module-file.c						\
+	tracker-module-file.h						\
+	tracker-module-iteratable.c					\
+	tracker-module-iteratable.h
 
 tracker_metadata_utils_LDADD =	                                        \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
