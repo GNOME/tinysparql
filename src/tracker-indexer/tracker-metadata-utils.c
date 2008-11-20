@@ -47,8 +47,8 @@
 #define TEXT_MAX_SIZE		     1048576  /* bytes */
 #define TEXT_CHECK_SIZE		     65535    /* bytes */
 
-static gchar   *batch[51];
-static gchar   *hints[51];
+static gchar   *batch[51] = { 0 };
+static gchar   *hints[51] = { 0 };
 static guint    count = 0;
 static gboolean timeout_runs = FALSE;
 
@@ -712,6 +712,8 @@ request_thumbnails (gpointer data)
 		for (i = 0; i <= count; i++) {
 			g_free (batch[i]);
 			g_free (hints[i]);
+			batch[i] = NULL;
+			hints[i] = NULL;
 		}
 
 		count = 0;
@@ -748,7 +750,7 @@ get_file_thumbnail (const gchar *path,
 		tried = TRUE;
 	}
 
-	if (count < 51 && thumbnail_this (thumbnailable, mime)) {
+	if (count < 50 && thumbnail_this (thumbnailable, mime)) {
 		gchar *utf_path;
 
 		utf_path = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
@@ -769,7 +771,7 @@ get_file_thumbnail (const gchar *path,
 		}
 	}
 
-	if (count == 51) {
+	if (count == 50) {
 		request_thumbnails (NULL);
 	}
 #endif /* HAVE_HILDON_THUMBNAIL */
