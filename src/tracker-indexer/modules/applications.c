@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 #include <glib.h>
-#include <tracker-indexer/tracker-module.h>
+#include <tracker-indexer/tracker-module-file.h>
 #include <libtracker-data/tracker-data-metadata.h>
 
 #define GROUP_DESKTOP_ENTRY "Desktop Entry"
@@ -43,11 +43,43 @@
 #define METADATA_APP_MIMETYPE	  "App:MimeType"
 #define METADATA_APP_CATEGORIES   "App:Categories"
 
-G_CONST_RETURN gchar *
-tracker_module_get_name (void)
+#define TRACKER_TYPE_APPLICATION_FILE    (tracker_application_file_get_type ())
+#define TRACKER_APPLICATION_FILE(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_APPLICATION_FILE, TrackerApplicationFile))
+
+typedef struct TrackerApplicationFile TrackerApplicationFile;
+typedef struct TrackerApplicationFileClass TrackerApplicationFileClass;
+
+struct TrackerApplicationFile {
+        TrackerModuleFile parent_instance;
+};
+
+struct TrackerApplicationFileClass {
+        TrackerModuleFileClass parent_class;
+};
+
+
+static TrackerDataMetadata * tracker_application_file_get_metadata  (TrackerModuleFile *file);
+
+
+G_DEFINE_DYNAMIC_TYPE (TrackerApplicationFile, tracker_application_file, TRACKER_TYPE_MODULE_FILE);
+
+
+static void
+tracker_application_file_class_init (TrackerApplicationFileClass *klass)
 {
-	/* Return module name here */
-	return "Applications";
+        TrackerModuleFileClass *file_class = TRACKER_MODULE_FILE_CLASS (klass);
+
+        file_class->get_metadata = tracker_application_file_get_metadata;
+}
+
+static void
+tracker_application_file_class_finalize (TrackerApplicationFileClass *klass)
+{
+}
+
+static void
+tracker_application_file_init (TrackerApplicationFile *file)
+{
 }
 
 static void
@@ -100,29 +132,36 @@ insert_list_from_desktop_file (TrackerDataMetadata *metadata,
 	}
 }
 
-TrackerDataMetadata *
-tracker_module_file_get_metadata (TrackerFile *file)
+static TrackerDataMetadata *
+tracker_application_file_get_metadata (TrackerModuleFile *file)
 {
 	TrackerDataMetadata *metadata;
 	GKeyFile *key_file;
-	gchar *type, *filename;
+        GFile *f;
+	gchar *path, *type, *filename;
+
+        f = tracker_module_file_get_file (file);
+        path = g_file_get_path (f);
 
 	/* Check we're dealing with a desktop file */
-	if (!g_str_has_suffix (file->path, ".desktop")) {
+	if (!g_str_has_suffix (path, ".desktop")) {
+                g_free (path);
 		return NULL;
 	}
 
 	key_file = g_key_file_new ();
 
-	if (!g_key_file_load_from_file (key_file, file->path, G_KEY_FILE_NONE, NULL)) {
-                g_debug ("Couldn't load desktop file:'%s'", file->path);
+	if (!g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, NULL)) {
+                g_debug ("Couldn't load desktop file:'%s'", path);
 		g_key_file_free (key_file);
+                g_free (path);
 		return NULL;
 	}
 
 	if (g_key_file_get_boolean (key_file, GROUP_DESKTOP_ENTRY, KEY_HIDDEN, NULL)) {
                 g_debug ("Desktop file is 'hidden', not gathering metadata for it");
 		g_key_file_free (key_file);
+                g_free (path);
 		return NULL;
 	}
 
@@ -132,6 +171,7 @@ tracker_module_file_get_metadata (TrackerFile *file)
                 g_debug ("Desktop file is not of type 'Application', not gathering metadata for it");
 		g_key_file_free (key_file);
 		g_free (type);
+                g_free (path);
 		return NULL;
 	}
 
@@ -148,11 +188,32 @@ tracker_module_file_get_metadata (TrackerFile *file)
 	insert_list_from_desktop_file (metadata, METADATA_APP_MIMETYPE, key_file, KEY_MIMETYPE, FALSE);
 	insert_list_from_desktop_file (metadata, METADATA_APP_CATEGORIES, key_file, KEY_CATEGORIES, FALSE);
 
-	filename = g_filename_display_basename (file->path);
+	filename = g_filename_display_basename (path);
 	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME, filename);
 
 	g_key_file_free (key_file);
 	g_free (type);
+        g_free (path);
 
 	return metadata;
+}
+
+
+void
+indexer_module_initialize (GTypeModule *module)
+{
+        tracker_application_file_register_type (module);
+}
+
+void
+indexer_module_shutdown (void)
+{
+}
+
+TrackerModuleFile *
+indexer_module_create_file (GFile *file)
+{
+        return g_object_new (TRACKER_TYPE_APPLICATION_FILE,
+                             "file", file,
+                             NULL);
 }

@@ -74,7 +74,6 @@
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
-#include "tracker-module.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
@@ -153,10 +152,11 @@ struct TrackerIndexerPrivate {
 };
 
 struct PathInfo {
-	GModule *module;
-	TrackerFile *file;
-	TrackerFile *other_file;
-	gchar *module_name;
+	TrackerIndexerModule *module;
+	GFile *file;
+	GFile *other_file;
+	TrackerModuleFile *module_file;
+	TrackerModuleFile *other_module_file;
 };
 
 struct MetadataForeachData {
@@ -209,22 +209,24 @@ static guint signals[LAST_SIGNAL] = { 0, };
 G_DEFINE_TYPE (TrackerIndexer, tracker_indexer, G_TYPE_OBJECT)
 
 static PathInfo *
-path_info_new (GModule *module,
-	       const gchar *module_name,
-	       const gchar *path,
-	       const gchar *other_path)
+path_info_new (TrackerIndexerModule *module,
+	       GFile                *file,
+	       GFile                *other_file)
 {
 	PathInfo *info;
 
 	info = g_slice_new (PathInfo);
 	info->module = module;
-	info->module_name = g_strdup (module_name);
-	info->file = tracker_indexer_module_file_new (module, path);
 
-	if (G_UNLIKELY (other_path)) {
-		info->other_file = tracker_indexer_module_file_new (module, other_path);
+	info->file = g_object_ref (file);
+	info->module_file = tracker_indexer_module_create_file (module, file);
+
+	if (G_UNLIKELY (other_file)) {
+		info->other_file = g_object_ref (other_file);
+		info->other_module_file = tracker_indexer_module_create_file (module, other_file);
 	} else {
 		info->other_file = NULL;
+		info->other_module_file = NULL;
 	}
 
 	return info;
@@ -234,11 +236,18 @@ static void
 path_info_free (PathInfo *info)
 {
 	if (G_UNLIKELY (info->other_file)) {
-		tracker_indexer_module_file_free (info->module, info->other_file);
+		g_object_unref (info->other_file);
 	}
 
-	tracker_indexer_module_file_free (info->module, info->file);
-	g_free (info->module_name);
+	if (G_UNLIKELY (info->other_module_file)) {
+		g_object_unref (info->other_module_file);
+	}
+
+	if (G_LIKELY (info->module_file)) {
+		g_object_unref (info->module_file);
+	}
+
+	g_object_unref (info->file);
 	g_slice_free (PathInfo, info);
 }
 
@@ -634,13 +643,6 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 }
 
 static void
-close_module (GModule *module)
-{
-	tracker_indexer_module_shutdown (module);
-	g_module_close (module);
-}
-
-static void
 check_started (TrackerIndexer *indexer)
 {
 	TrackerIndexerState state;
@@ -859,23 +861,18 @@ tracker_indexer_init (TrackerIndexer *indexer)
 		g_quark_from_string (l->data);
 	}
 
-	priv->indexer_modules = g_hash_table_new_full (g_str_hash,
-						       g_str_equal,
-						       NULL,
-						       (GDestroyNotify) close_module);
+	priv->indexer_modules = g_hash_table_new (g_str_hash, g_str_equal);
 
 	for (l = priv->module_names; l; l = l->next) {
-		GModule *module;
+		TrackerIndexerModule *module;
 
 		if (!tracker_module_config_get_enabled (l->data)) {
 			continue;
 		}
 
-		module = tracker_indexer_module_load (l->data);
+		module = tracker_indexer_module_get (l->data);
 
 		if (module) {
-			tracker_indexer_module_init (module);
-
 			g_hash_table_insert (priv->indexer_modules,
 					     l->data, module);
 		}
@@ -1297,6 +1294,26 @@ item_update_content (TrackerIndexer *indexer,
 	g_hash_table_unref (new_words);
 }
 
+static TrackerService *
+get_service_for_file (TrackerModuleFile    *file,
+		      TrackerIndexerModule *module)
+{
+	TrackerService *service;
+	const gchar *service_type;
+
+	service_type = tracker_module_file_get_service_type (file);
+
+	if (!service_type) {
+		service_type = tracker_module_config_get_index_service (module->name);
+	}
+
+	if (!service_type) {
+		return NULL;
+	}
+
+	return tracker_ontology_get_service_by_name (service_type);
+}
+
 static gboolean
 remove_existing_non_emb_metadata (TrackerField *field,
 				  gpointer value,
@@ -1325,19 +1342,10 @@ item_add_or_update (TrackerIndexer  *indexer,
 		    TrackerDataMetadata *metadata)
 {
 	TrackerService *service;
-	gchar *service_type;
 	gchar *text;
 	guint32 id;
 
-	service_type = tracker_indexer_module_file_get_service_type (info->module,
-								     info->file);
-
-	if (!service_type) {
-		return;
-	}
-
-	service = tracker_ontology_get_service_by_name (service_type);
-	g_free (service_type);
+	service = get_service_for_file (info->module_file, info->module);
 
 	if (!service) {
 		return;
@@ -1377,7 +1385,7 @@ item_add_or_update (TrackerIndexer  *indexer,
 		 * difference and add the words.
 		 */
 		old_text = tracker_data_query_content (service, id);
-		new_text = tracker_indexer_module_file_get_text (info->module, info->file);
+		new_text = tracker_module_file_get_text (info->module_file);
 
 		item_update_content (indexer, service, id, old_text, new_text);
 		g_free (old_text);
@@ -1406,7 +1414,7 @@ item_add_or_update (TrackerIndexer  *indexer,
 
 	index_metadata (indexer, id, service, metadata);
 
-	text = tracker_indexer_module_file_get_text (info->module, info->file);
+	text = tracker_module_file_get_text (info->module_file);
 
 	if (text) {
 		/* Save in the index */
@@ -1443,25 +1451,20 @@ item_move (TrackerIndexer  *indexer,
 	TrackerDataMetadata *old_metadata, *new_metadata;
 	gchar *service_type;
 	gchar *new_path, *new_name, *ext;
+	GFile *file, *other_file;
+	gchar *path, *other_path;
 	guint32 id;
 
-	service_type = tracker_indexer_module_file_get_service_type (info->module,
-								     info->other_file);
-
-	if (!service_type) {
-		return;
-	}
-
-	service = tracker_ontology_get_service_by_name (service_type);
-	g_free (service_type);
+	service = get_service_for_file (info->other_module_file, info->module);
 
 	if (!service) {
 		return;
 	}
 
-	g_debug ("Moving item from '%s' to '%s'",
-		 info->file->path,
-		 info->other_file->path);
+	path = g_file_get_path (info->file);
+	other_path = g_file_get_path (info->other_file);
+
+	g_debug ("Moving item from '%s' to '%s'", path, other_path);
 
 	/* Get 'source' ID */
 	if (!tracker_data_query_service_exists (service,
@@ -1469,37 +1472,36 @@ item_move (TrackerIndexer  *indexer,
 				       basename,
 				       &id,
 				       NULL)) {
-		g_message ("Source file '%s' not found in database to move",
-			   info->file->path);
+		g_message ("Source file '%s' not found in database to move", path);
+		g_free (path);
+		g_free (other_path);
+
 		return;
 	}
 
-	tracker_data_update_move_service (service,
-				 info->file->path,
-				 info->other_file->path);
+	tracker_data_update_move_service (service, path, other_path);
 
 	/*
 	 *  Updating what changes in move event (Path related properties)
 	 */
 	old_metadata = tracker_data_query_embedded_metadata (service, id);
 
-	tracker_data_metadata_foreach_remove (old_metadata, 
-					      filter_invalid_after_move_properties, 
+	tracker_data_metadata_foreach_remove (old_metadata,
+					      filter_invalid_after_move_properties,
 					      NULL);
 
 	unindex_metadata (indexer, id, service, old_metadata);
 
-	
 	new_metadata = tracker_data_metadata_new ();
 
-	tracker_file_get_path_and_name (info->other_file->path, &new_path, &new_name);
+	tracker_file_get_path_and_name (other_path, &new_path, &new_name);
 	tracker_data_metadata_insert (new_metadata, METADATA_FILE_PATH, new_path);
 	tracker_data_metadata_insert (new_metadata, METADATA_FILE_NAME, new_name);
-	tracker_data_metadata_insert (new_metadata, 
-				      METADATA_FILE_NAME_DELIMITED, 
-				      g_strdup (info->other_file->path));
+	tracker_data_metadata_insert (new_metadata,
+				      METADATA_FILE_NAME_DELIMITED,
+				      g_strdup (other_path));
 
-	ext = strrchr (info->other_file->path, '.');
+	ext = strrchr (other_path, '.');
 	if (ext) {
 		tracker_data_metadata_insert (new_metadata, METADATA_FILE_EXT, g_strdup (ext + 1));
 	}
@@ -1510,6 +1512,9 @@ item_move (TrackerIndexer  *indexer,
 	/* tracker_data_metadata_free frees the values */
 	tracker_data_metadata_free (old_metadata);
 	tracker_data_metadata_free (new_metadata);
+
+	g_free (path);
+	g_free (other_path);
 }
 
 static void
@@ -1524,7 +1529,7 @@ item_remove (TrackerIndexer *indexer,
 	const gchar *service_type;
 	guint service_id, service_type_id;
 
-	service_type = tracker_module_config_get_index_service (info->module_name);
+	service_type = tracker_module_config_get_index_service (info->module->name);
 
 	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
 		 dirname, 
@@ -1880,21 +1885,14 @@ should_index_file (TrackerIndexer *indexer,
 		   const gchar	  *basename)
 {
 	TrackerService *service;
-	gchar *service_type;
+	gchar *path;
 	const gchar *str;
 	gboolean is_dir;
 	gboolean should_be_cached;
 	struct stat st;
 	time_t mtime;
 
-	service_type = tracker_indexer_module_file_get_service_type (info->module, info->file);
-
-	if (!service_type) {
-		return FALSE;
-	}
-
-	service = tracker_ontology_get_service_by_name (service_type);
-	g_free (service_type);
+	service = get_service_for_file (info->module_file, info->module);
 
 	if (!service) {
 		return TRUE;
@@ -1917,7 +1915,10 @@ should_index_file (TrackerIndexer *indexer,
 	 * the database. If it does, then we can ignore any files
 	 * immediately in this parent directory.
 	 */
-	if (g_lstat (info->file->path, &st) == -1) {
+	path = g_file_get_path (info->file);
+
+	if (g_lstat (path, &st) == -1) {
+		g_free (path);
 		return TRUE;
 	}
 
@@ -1958,7 +1959,7 @@ should_index_file (TrackerIndexer *indexer,
 	 * or not. All operations are done using the same string.
 	 */
 	if (is_dir) {
-		str = info->file->path;
+		str = path;
 	} else {
 		str = dirname;
 	}
@@ -1981,6 +1982,8 @@ should_index_file (TrackerIndexer *indexer,
 			 is_dir ? "Path" : "Parent path",
 			 str,
 			 should_index ? "should index" : "should not index");
+
+		g_free (path);
 
 		return should_index;
 	}
@@ -2010,6 +2013,7 @@ should_index_file (TrackerIndexer *indexer,
 
 			g_free (parent_basename);
 			g_free (parent_dirname);
+			g_free (path);
 
 			return TRUE;
 		}
@@ -2020,6 +2024,7 @@ should_index_file (TrackerIndexer *indexer,
 
 			g_free (parent_basename);
 			g_free (parent_dirname);
+			g_free (path);
 
 			return TRUE;
 		}
@@ -2032,6 +2037,7 @@ should_index_file (TrackerIndexer *indexer,
 		g_debug ("%s:'%s' has indifferent mtime and should not be indexed",
 			 is_dir ? "Path" : "Parent path",
 			 str);
+		g_free (path);
 
 		return FALSE;
 	}
@@ -2045,29 +2051,40 @@ should_index_file (TrackerIndexer *indexer,
 			      g_strdup (str),
 			      GINT_TO_POINTER (1));
 
+	g_free (path);
+
 	return TRUE;
 }
+
 static gboolean
 process_file (TrackerIndexer *indexer,
 	      PathInfo	     *info)
 {
 	TrackerDataMetadata *metadata;
-	gchar *dirname;
-	gchar *basename;
+	gchar *uri, *dirname, *basename;
 
 	/* Note: If info->other_file is set, the PathInfo is for a
 	 * MOVE event not for normal file event.
 	 */
 
-	/* Set the current module */
-	indexer->private->current_module = g_quark_from_string (info->module_name);
-
-	if (!tracker_indexer_module_file_get_uri (info->module,
-						  info->file,
-						  &dirname,
-						  &basename)) {
-		return !tracker_indexer_module_file_iter_contents (info->module, info->file);
+	if (!info->module_file) {
+		return TRUE;
 	}
+
+	/* Set the current module */
+	indexer->private->current_module = g_quark_from_string (info->module->name);
+	uri = tracker_module_file_get_uri (info->module_file);
+
+	if (!uri) {
+		if (TRACKER_IS_MODULE_ITERATABLE (info->module_file)) {
+			return !tracker_module_iteratable_iter_contents (TRACKER_MODULE_ITERATABLE (info->module_file));
+		}
+
+		return TRUE;
+	}
+
+	tracker_file_get_path_and_name (uri, &dirname, &basename);
+	g_free (uri);
 
 	/*
 	 * FIRST:
@@ -2087,17 +2104,22 @@ process_file (TrackerIndexer *indexer,
 	 * basename which are returned by the module are combined to
 	 * look like:
 	 *
-	 *   email://1192717939.16218.20@petunia//INBOX;uid=1
+	 *   email://1192717939.16218.20@petunia/INBOX;uid=1
 	 *
 	 * We simply check the dirname[0] to make sure it isn't an
 	 * email based dirname.
 	 */
 	if (G_LIKELY (!info->other_file) && dirname[0] == G_DIR_SEPARATOR) {
 		if (!should_index_file (indexer, info, dirname, basename)) {
-			g_debug ("File is already up to date: '%s'", info->file->path);
+			gchar *path;
+
+			path = g_file_get_path (info->file);
+
+			g_debug ("File is already up to date: '%s'", path);
 
 			g_free (dirname);
 			g_free (basename);
+			g_free (path);
 
 			return TRUE;
 		}
@@ -2113,7 +2135,7 @@ process_file (TrackerIndexer *indexer,
 	if (G_UNLIKELY (info->other_file)) {
 		item_move (indexer, info, dirname, basename);
 	} else {
-		metadata = tracker_indexer_module_file_get_metadata (info->module, info->file);
+		metadata = tracker_module_file_get_metadata (info->module_file);
 
 		if (metadata) {
 			item_add_or_update (indexer, info, dirname, basename, metadata);
@@ -2128,7 +2150,11 @@ process_file (TrackerIndexer *indexer,
 	g_free (dirname);
 	g_free (basename);
 
-	return !tracker_indexer_module_file_iter_contents (info->module, info->file);
+	if (TRACKER_IS_MODULE_ITERATABLE (info->module_file)) {
+		return !tracker_module_iteratable_iter_contents (TRACKER_MODULE_ITERATABLE (info->module_file));
+	}
+
+	return TRUE;
 }
 
 static void
@@ -2136,39 +2162,48 @@ process_directory (TrackerIndexer *indexer,
 		   PathInfo *info,
 		   gboolean recurse)
 {
+	gchar *path;
 	const gchar *name;
 	GDir *dir;
 
-	g_debug ("Processing directory:'%s'", info->file->path);
+	path = g_file_get_path (info->file);
 
-	dir = g_dir_open (info->file->path, 0, NULL);
+	/* FIXME: Use gio to iterate the directory */
+	g_debug ("Processing directory:'%s'", path);
+
+	dir = g_dir_open (path, 0, NULL);
 
 	if (!dir) {
+		g_free (path);
 		return;
 	}
 
 	while ((name = g_dir_read_name (dir)) != NULL) {
 		PathInfo *new_info;
-		gchar *path;
+		GFile *child;
+		gchar *child_path;
 
 		if (name[0] == '.') {
 			continue;
 		}
 
-		path = g_build_filename (info->file->path, name, NULL);
+		child = g_file_get_child (info->file, name);
+		child_path = g_file_get_path (child);
 
-		new_info = path_info_new (info->module, info->module_name, path, NULL);
+		new_info = path_info_new (info->module, child, NULL);
 		add_file (indexer, new_info);
 
-		if (recurse && g_file_test (path, G_FILE_TEST_IS_DIR)) {
-			new_info = path_info_new (info->module, info->module_name, path, NULL);
+		if (recurse && g_file_test (child_path, G_FILE_TEST_IS_DIR)) {
+			new_info = path_info_new (info->module, child, NULL);
 			add_directory (indexer, new_info);
 		}
 
-		g_free (path);
+		g_object_unref (child);
+		g_free (child_path);
 	}
 
 	g_dir_close (dir);
+	g_free (path);
 }
 
 static void
@@ -2193,7 +2228,7 @@ static void
 process_module (TrackerIndexer *indexer,
 		const gchar *module_name)
 {
-	GModule *module;
+	TrackerIndexerModule *module;
 	GList *dirs, *d;
 
 	module = g_hash_table_lookup (indexer->private->indexer_modules, module_name);
@@ -2216,9 +2251,13 @@ process_module (TrackerIndexer *indexer,
 
 	for (d = dirs; d; d = d->next) {
 		PathInfo *info;
+		GFile *file;
 
-		info = path_info_new (module, module_name, d->data, NULL);
+		file = g_file_new_for_path (d->data);
+		info = path_info_new (module, file, NULL);
 		add_directory (indexer, info);
+
+		g_object_unref (file);
 	}
 
 	g_list_free (dirs);
@@ -2562,7 +2601,7 @@ tracker_indexer_files_check (TrackerIndexer *indexer,
 			     DBusGMethodInvocation *context,
 			     GError **error)
 {
-	GModule *module;
+	TrackerIndexerModule *module;
 	guint request_id;
 	gint i;
 	GError *actual_error = NULL;
@@ -2591,9 +2630,13 @@ tracker_indexer_files_check (TrackerIndexer *indexer,
 	/* Add files to the queue */
 	for (i = 0; files[i]; i++) {
 		PathInfo *info;
+		GFile *file;
 
-		info = path_info_new (module, module_name, files[i], NULL);
+		file = g_file_new_for_path (files[i]);
+		info = path_info_new (module, file, NULL);
 		add_file (indexer, info);
+
+		g_object_unref (file);
 	}
 
 	dbus_g_method_return (context);
@@ -2632,7 +2675,7 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 			   DBusGMethodInvocation  *context,
 			   GError		 **error)
 {
-	GModule *module;
+	TrackerIndexerModule *module;
 	guint request_id;
 	GError *actual_error;
 	PathInfo *info;
@@ -2660,7 +2703,9 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 	}
 
 	/* Add files to the queue */
-	info = path_info_new (module, module_name, from, to);
+	info = path_info_new (module,
+			      g_file_new_for_path (from),
+			      g_file_new_for_path (to));
 	add_file (indexer, info);
 
 	dbus_g_method_return (context);

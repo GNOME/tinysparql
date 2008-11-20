@@ -25,22 +25,10 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <tracker-indexer/tracker-metadata-utils.h>
-#include <tracker-indexer/tracker-module.h>
-
-#define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
-#define METADATA_FILE_EXT	     "File:Ext"
-#define METADATA_FILE_PATH	     "File:Path"
-#define METADATA_FILE_NAME	     "File:Name"
-#define METADATA_FILE_LINK	     "File:Link"
-#define METADATA_FILE_MIMETYPE	     "File:Mime"
-#define METADATA_FILE_SIZE	     "File:Size"
-#define METADATA_FILE_MODIFIED	     "File:Modified"
-#define METADATA_FILE_ACCESSED	     "File:Accessed"
+#include <tracker-indexer/tracker-module-file.h>
 
 /* This is ONLY needed for the indexer to run standalone with
  * the -p option, otherwise it will pick up all sorts of crap
@@ -49,22 +37,64 @@
  */
 #undef ENABLE_FILE_EXCLUDE_CHECKING
 
-G_CONST_RETURN gchar *
-tracker_module_get_name (void)
+#define TRACKER_TYPE_REGULAR_FILE    (tracker_regular_file_get_type ())
+#define TRACKER_REGULAR_FILE(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_REGULAR_FILE, TrackerRegularFile))
+
+typedef struct TrackerRegularFile TrackerRegularFile;
+typedef struct TrackerRegularFileClass TrackerRegularFileClass;
+
+struct TrackerRegularFile {
+        TrackerModuleFile parent_instance;
+};
+
+struct TrackerRegularFileClass {
+        TrackerModuleFileClass parent_class;
+};
+
+
+static const gchar *         tracker_regular_file_get_service_type (TrackerModuleFile *file);
+static gchar *               tracker_regular_file_get_text         (TrackerModuleFile *file);
+static TrackerDataMetadata * tracker_regular_file_get_metadata     (TrackerModuleFile *file);
+
+
+G_DEFINE_DYNAMIC_TYPE (TrackerRegularFile, tracker_regular_file, TRACKER_TYPE_MODULE_FILE);
+
+
+static void
+tracker_regular_file_class_init (TrackerRegularFileClass *klass)
 {
-	/* Return module name here */
-	return "Files";
+        TrackerModuleFileClass *file_class = TRACKER_MODULE_FILE_CLASS (klass);
+
+        file_class->get_service_type = tracker_regular_file_get_service_type;
+        file_class->get_text = tracker_regular_file_get_text;
+        file_class->get_metadata = tracker_regular_file_get_metadata;
 }
 
-gchar *
-tracker_module_file_get_service_type (TrackerFile *file)
+static void
+tracker_regular_file_class_finalize (TrackerRegularFileClass *klass)
 {
-	gchar *mime_type;
-	gchar *service_type;
+}
 
-	mime_type = tracker_file_get_mime_type (file->path);
+static void
+tracker_regular_file_init (TrackerRegularFile *file)
+{
+}
+
+static const gchar *
+tracker_regular_file_get_service_type (TrackerModuleFile *file)
+{
+        GFile *f;
+	const gchar *service_type;
+	gchar *mime_type, *path;
+
+        f = tracker_module_file_get_file (file);
+        path = g_file_get_path (f);
+
+	mime_type = tracker_file_get_mime_type (path);
 	service_type = tracker_ontology_get_service_by_mime (mime_type);
+
 	g_free (mime_type);
+        g_free (path);
 
 	return service_type;
 }
@@ -139,26 +169,46 @@ check_exclude_file (const gchar *path)
 
 #endif /* ENABLE_FILE_EXCLUDE_CHECKING */
 
-TrackerDataMetadata *
-tracker_module_file_get_metadata (TrackerFile *file)
+static TrackerDataMetadata *
+tracker_regular_file_get_metadata (TrackerModuleFile *file)
 {
 #ifdef ENABLE_FILE_EXCLUDE_CHECKING
 	if (check_exclude_file (file->path)) {
 		return NULL;
 	}
-#endif /* ENABLE_FILE_EXCLUDE_CHECKING */
+#endif
 
-	return tracker_metadata_utils_get_data (file->path);
+	return tracker_metadata_utils_get_data (tracker_module_file_get_file (file));
 }
 
-gchar *
-tracker_module_file_get_text (TrackerFile *file)
+static gchar *
+tracker_regular_file_get_text (TrackerModuleFile *file)
 {
 #ifdef ENABLE_FILE_EXCLUDE_CHECKING
 	if (check_exclude_file (file->path)) {
 		return NULL;
 	}
-#endif /* ENABLE_FILE_EXCLUDE_CHECKING */
+#endif
 
-	return tracker_metadata_utils_get_text (file->path);
+	return tracker_metadata_utils_get_text (tracker_module_file_get_file (file));
+}
+
+
+void
+indexer_module_initialize (GTypeModule *module)
+{
+        tracker_regular_file_register_type (module);
+}
+
+void
+indexer_module_shutdown (void)
+{
+}
+
+TrackerModuleFile *
+indexer_module_create_file (GFile *file)
+{
+        return g_object_new (TRACKER_TYPE_REGULAR_FILE,
+                             "file", file,
+                             NULL);
 }

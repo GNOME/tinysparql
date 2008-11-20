@@ -54,7 +54,12 @@ indexer_modules_LTLIBRARIES += 						\
 	libtracker-indexer-evolution.la
 
 # Evolution
-libtracker_indexer_evolution_la_SOURCES = evolution.c
+libtracker_indexer_evolution_la_SOURCES =				\
+	evolution-common.c						\
+	evolution-imap.c						\
+	evolution-pop.c							\
+	evolution.c
+
 libtracker_indexer_evolution_la_LDFLAGS = $(module_flags)
 libtracker_indexer_evolution_la_LIBADD = 				\
 	$(GMODULE_LIBS)							\

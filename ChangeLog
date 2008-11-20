@@ -1,5 +1,37 @@
 2008-11-20  Carlos Garnacho  <carlos@imendio.com>
 
+	Make indexer modules API GObject oriented, which allows easier
+	bindings development and more flexible behavior for modules.
+
+	* src/tracker-indexer/tracker-module-file.[ch]:
+	* src/tracker-indexer/tracker-module-iteratable.[ch]: Definition of
+	abstract base object and interface for modules to implement.
+
+	* src/tracker-indexer/tracker-indexer-module.[ch]: Build on top of
+	GTypeModule.
+	* src/tracker-indexer/tracker-indexer.c: Modify to use new modules
+	API.
+
+	* src/tracker-indexer/tracker-module.h: Removed, no longer needed.
+
+	* src/tracker-indexer/tracker-metadata-utils.[ch]: Switch API to
+	GFile, since modules API now also deals with it.
+
+	* src/modules/evolution-common.[ch]:
+	* src/modules/evolution-imap.[ch]:
+	* src/modules/evolution-pop.[ch]:
+	* src/modules/evolution.c: Implement new modules API, split POP3/IMAP
+	implementations, and make the module return different
+	TrackerModuleFile objects depending on the parsed file.
+
+	* src/modules/dummy.c:
+	* src/modules/files.c:
+	* src/modules/applications.c: Implement new modules API.
+
+	* data/modules/files.c: Specify service type.
+
+2008-11-20  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-metadata-utils.c: Leave one place for
 	the trailing NULL in the batch and hints arrays so they can behave
 	like GStrv. Also initialize the array and set freed elements to NULL

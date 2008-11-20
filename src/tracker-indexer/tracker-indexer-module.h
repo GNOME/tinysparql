@@ -23,36 +23,39 @@
 #define __TRACKER_INDEXER_MODULE_H__
 
 #include <glib.h>
-#include "tracker-module.h"
-#include <libtracker-data/tracker-data-metadata.h>
+#include "tracker-module-file.h"
+#include "tracker-module-iteratable.h"
 
 G_BEGIN_DECLS
 
-GModule *		tracker_indexer_module_load		      (const gchar  *module_name);
+#define TRACKER_TYPE_INDEXER_MODULE    (tracker_indexer_module_get_type ())
+#define TRACKER_INDEXER_MODULE(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_INDEXER_MODULE, TrackerIndexerModule))
 
-void			tracker_indexer_module_init		      (GModule	    *module);
-void			tracker_indexer_module_shutdown		      (GModule	    *module);
+typedef struct TrackerIndexerModule TrackerIndexerModule;
+typedef struct TrackerIndexerModuleClass TrackerIndexerModuleClass;
 
-G_CONST_RETURN gchar *	tracker_indexer_module_get_name		      (GModule	    *module);
+struct TrackerIndexerModule {
+	GTypeModule parent_instance;
 
-TrackerFile *		tracker_indexer_module_file_new		      (GModule	    *module,
-								       const gchar  *path);
-void			tracker_indexer_module_file_free	      (GModule	    *module,
-								       TrackerFile  *file);
+	GModule *module;
+	gchar *name;
 
-gboolean		tracker_indexer_module_file_get_uri	      (GModule	    *module,
-								       TrackerFile  *file,
-								       gchar	   **dirname,
-								       gchar	   **basename);
-gchar *			tracker_indexer_module_file_get_service_type  (GModule	    *module,
-								       TrackerFile  *file);
-TrackerDataMetadata *	tracker_indexer_module_file_get_metadata      (GModule	    *module,
-								       TrackerFile  *file);
-gchar *			tracker_indexer_module_file_get_text	      (GModule	    *module,
-								       TrackerFile  *file);
+	void (* initialize) (GTypeModule *module);
+	void (* shutdown) (void);
+	TrackerModuleFile * (* create_file) (GFile *file);
+};
 
-gboolean		tracker_indexer_module_file_iter_contents     (GModule	    *module,
-								       TrackerFile  *file);
+struct TrackerIndexerModuleClass {
+	GTypeModuleClass parent_class;
+};
+
+
+GType                   tracker_indexer_module_get_type               (void) G_GNUC_CONST;
+
+TrackerIndexerModule *  tracker_indexer_module_get                    (const gchar          *name);
+TrackerModuleFile *     tracker_indexer_module_create_file            (TrackerIndexerModule *module,
+								       GFile                *file);
+
 
 G_END_DECLS
 

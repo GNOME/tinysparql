@@ -23,11 +23,12 @@
 #define __TRACKER_METADATA_UTILS_H__
 
 #include <libtracker-data/tracker-data-metadata.h>
+#include <tracker-indexer/tracker-module-file.h>
 
 G_BEGIN_DECLS
 
-TrackerDataMetadata *tracker_metadata_utils_get_data (const gchar *path);
-gchar *		     tracker_metadata_utils_get_text (const gchar *path);
+TrackerDataMetadata *tracker_metadata_utils_get_data (GFile *file);
+gchar *		     tracker_metadata_utils_get_text (GFile *file);
 
 G_END_DECLS
 
