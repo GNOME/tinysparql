@@ -1,3 +1,10 @@
+2008-11-21  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/Makefile.am:
+	* configure.ac:
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c: Added initial
+	Gstreamer Helix Bin (Real Media) extractor implementation.
+
 2008-11-20  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-common/tracker-hal.c (hal_battery_notify):

@@ -492,6 +492,43 @@ else
    AM_CONDITIONAL(HAVE_LIBXINE, false)
 fi
 
+##################################################################
+# Check for Helixbin for GStreamer
+##################################################################
+
+AC_ARG_ENABLE(gstreamer-helix, 
+	      AS_HELP_STRING([--enable-gstreamer-helix=@<:@no/yes/auto@:>@],
+			     [enable GStreamer helixbin extractor (Real Media) (yes/no/auto)]),,
+	      [enable_gst_helix=no])
+
+if test "x$enable_gst_helix" != "xno"; then
+   PKG_CHECK_MODULES(GST_HELIX,
+		     [gstreamer0.10-helixbin],
+		     [have_gst_helix=yes],
+		     [have_gst_helix=no])
+   AC_SUBST(GST_HELIX_LIBS)
+   AC_SUBST(GST_HELIX_CFLAGS)
+
+   if test "x$have_gst_helix" = "xyes"; then
+      if test "x$have_libgstreamer" = "xyes"; then 
+      	 AC_DEFINE(HAVE_GST_HELIX, [], [Define if we have GStreamer Helix Bin])
+      fi
+   fi
+else
+   have_gst_helix="no  (disabled)"
+fi
+
+if test "x$enable_gst_helix" = "xyes"; then
+   if test "x$have_gst_helix" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find GStreamer Helix Bin])
+   fi
+   if test "x$have_libgstreamer" != "xyes"; then
+      AC_MSG_ERROR([GStreamer is not found/used but GStreamer Helix Bin requested])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_GST_HELIX, test "x$have_gst_helix" = "xyes")
+
 ####################################################################
 # Windows check
 ####################################################################

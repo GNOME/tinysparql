@@ -64,6 +64,10 @@ if HAVE_GSTREAMER
 modules_LTLIBRARIES += libextract-gstreamer.la
 endif
 
+if HAVE_GST_HELIX
+modules_LTLIBRARIES += libextract-gstreamer-helix.la
+endif 
+
 if HAVE_LIBXINE
 modules_LTLIBRARIES += libextract-xine.la
 endif
@@ -162,6 +166,11 @@ libextract_pdf_la_LIBADD = $(GLIB2_LIBS) $(POPPLER_GLIB_LIBS) $(EXEMPI_LIBS)
 libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c $(albumart_sources)
 libextract_gstreamer_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_gstreamer_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS)
+
+# GStreamer helix
+libextract_gstreamer_helix_la_SOURCES = tracker-extract-gstreamer-helix.c $(albumart_sources)
+libextract_gstreamer_helix_la_LDFLAGS = $(module_flags) $(albumart_flags)
+libextract_gstreamer_helix_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS)
 
 # Xine
 libextract_xine_la_SOURCES = tracker-extract-libxine.c
