@@ -1,3 +1,27 @@
+2008-11-20  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-type-utils.[ch]: 
+	* src/tracker-extract/tracker-extract.[ch]: 
+	* src/tracker-extract/tracker-extract-mp3.c: 
+	* src/tracker-extract/tracker-extract-gstreamer.c: Revert changes
+	that removed "tracker:unknown" when we didn't know the metadata
+	value for some fields. Now we have METADATA_UNKNOWN defined in
+	tracker-extract.h so we can be consistent everywhere with this.
+	Moved tracker_generic_date_to_iso8601() here from
+	tracker-extract.c since it is so common.
+
+	* src/tracker-extract/tracker-extract-exif.c: Code clean up and
+	remark that this module is not used.
+
+	* src/tracker-extract/tracker-extract-imagemagick.c:
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-extract-ps.c: 
+	* src/tracker-extract/tracker-extract-tiff.c: Code clean up and
+	used the new date function in tracker-type-utils.
+	
+	* src/tracker-extract/tracker-extract-png.c: Fixed a warning and
+	used the new date function in tracker-type-utils.
+
 2008-11-19  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-data/tracker-data-search.c:

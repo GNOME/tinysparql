@@ -51,7 +51,6 @@
 #define MAX_MEM       128
 #define MAX_MEM_AMD64 512
 
-#define ISO8601_FORMAT "%Y-%m-%dT%H:%M:%S%z"
 
 #define DISABLE_DEBUG
 
@@ -77,26 +76,6 @@
 
 static GArray *extractors = NULL;
 static guint   shutdown_timeout_id = 0;
-
-gchar *
-tracker_generic_date_to_iso8601 (const gchar *date,
-				 const gchar *format)
-{
-	gchar *result;
-	struct tm date_tm;
-
-	memset (&date_tm, 0, sizeof (struct tm));
-
-	if (strptime (date, format, &date_tm) == NULL) {
-		return NULL;
-	}
-
-	result = g_malloc (sizeof (char)*25);
-
-	strftime (result, 25, ISO8601_FORMAT , &date_tm);
-
-	return result;
-}
 
 #ifndef DISABLE_DEBUG
 

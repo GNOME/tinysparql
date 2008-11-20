@@ -26,9 +26,16 @@
 
 G_BEGIN_DECLS
 
+/* FIXME: We use this to say that we don't actually have any metadata
+ * for this keyword. This is bad because it means we have to string
+ * check every value returned in clients that use the Tracker API.
+ * This will be fixed in due course after January some time, -mr.
+ */
+#define METADATA_UNKNONN "tracker:unknown"
+
 typedef struct TrackerExtractorData TrackerExtractorData;
 
-typedef TrackerExtractorData * (* TrackerExtractorDataFunc) (void);
+typedef TrackerExtractorData * (*TrackerExtractorDataFunc)(void);
 
 struct TrackerExtractorData {
 	const gchar *mime;
@@ -37,9 +44,7 @@ struct TrackerExtractorData {
 			    GHashTable	*metadata);
 };
 
-gchar *		      tracker_generic_date_to_iso8601 (const gchar  *date,
-						       const gchar  *format);
-TrackerExtractorData *tracker_get_extractor_data      (void);
+TrackerExtractorData *tracker_get_extractor_data (void);
 
 G_END_DECLS
 

@@ -19,80 +19,20 @@
 
 #include "config.h"
 
-#include "tracker-extract.h"
 #include <stdio.h>
 #include <string.h>
+
 #include <glib.h>
+
 #include <libexif/exif-data.h>
+
+#include <libtracker-common/tracker-type-utils.h>
+
+#include "tracker-extract.h"
 
 #define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
 
-static gchar *
-date_to_iso8601 (gchar *exif_date)
-{
-	/* ex; date "2007:04:15 15:35:58"
-	   To
-	   ex. "2007-04-15T17:35:58+0200 where +0200 is localtime
-	*/
-	return tracker_generic_date_to_iso8601 (exif_date, EXIF_DATE_FORMAT);
-}
-
-
-static gchar *
-fix_focal_length (gchar *fl)
-{
-	return g_strndup (fl, (strstr (fl, "mm") - fl));
-}
-
-
-static gchar *
-fix_flash (gchar *flash)
-{
-	if (g_str_has_prefix (flash, "No")) {
-		return g_strdup ("0");
-	} else {
-		return g_strdup ("1");
-	}
-}
-
-
-static gchar *
-fix_fnumber (gchar *fn)
-{
-	if (fn && fn[0] == 'F') {
-		fn[0] = ' ';
-
-	} else if (fn && fn[0] == 'f' && fn[1] == '/') {
-		fn[0] = ' ', fn[1] = ' ';
-	}
-
-	return fn;
-}
-
-
-static gchar *
-fix_exposure_time (gchar *et)
-{
-	gchar *sep = strchr (et, '/');
-
-	if (sep) {
-		gdouble fraction = g_ascii_strtod (sep+1, NULL);
-
-		if (fraction > 0) {
-			gdouble val = 1.0f / fraction;
-			char str_value[30];
-
-			g_ascii_dtostr (str_value, 30, val);
-			return g_strdup (str_value);
-		}
-	}
-
-	return et;
-}
-
-
 typedef gchar * (*PostProcessor) (gchar *);
-
 
 typedef struct {
 	ExifTag       tag;
@@ -100,8 +40,15 @@ typedef struct {
 	PostProcessor post;
 } TagType;
 
+static gchar *date_to_iso8601   (gchar       *exif_date);
+static gchar *fix_focal_length  (gchar       *fl);
+static gchar *fix_flash         (gchar       *flash);
+static gchar *fix_fnumber       (gchar       *fn);
+static gchar *fix_exposure_time (gchar       *et);
+static void   extract_exif      (const gchar *filename,
+                                 GHashTable  *metadata);
 
-TagType tags[] = {
+static TagType tags[] = {
 	{ EXIF_TAG_PIXEL_Y_DIMENSION, "Image:Height", NULL },
 	{ EXIF_TAG_PIXEL_X_DIMENSION, "Image:Width", NULL },
 	{ EXIF_TAG_RELATED_IMAGE_WIDTH, "Image:Width", NULL },
@@ -128,9 +75,74 @@ TagType tags[] = {
 	{ -1, NULL, NULL }
 };
 
+static TrackerExtractorData data[] = {
+	{ "image/jpeg", extract_exif },
+	{ NULL, NULL }
+};
+
+static gchar *
+date_to_iso8601 (gchar *exif_date)
+{
+	/* ex; date "2007:04:15 15:35:58"
+	   To
+	   ex. "2007-04-15T17:35:58+0200 where +0200 is localtime
+	*/
+	return tracker_date_format_to_iso8601 (exif_date, EXIF_DATE_FORMAT);
+}
+
+static gchar *
+fix_focal_length (gchar *fl)
+{
+	return g_strndup (fl, (strstr (fl, "mm") - fl));
+}
+
+
+static gchar *
+fix_flash (gchar *flash)
+{
+	if (g_str_has_prefix (flash, "No")) {
+		return g_strdup ("0");
+	} else {
+		return g_strdup ("1");
+	}
+}
+
+static gchar *
+fix_fnumber (gchar *fn)
+{
+	if (fn && fn[0] == 'F') {
+		fn[0] = ' ';
+
+	} else if (fn && fn[0] == 'f' && fn[1] == '/') {
+		fn[0] = ' ', fn[1] = ' ';
+	}
+
+	return fn;
+}
+
+static gchar *
+fix_exposure_time (gchar *et)
+{
+	gchar *sep = strchr (et, '/');
+
+	if (sep) {
+		gdouble fraction = g_ascii_strtod (sep+1, NULL);
+
+		if (fraction > 0) {
+			gdouble val = 1.0f / fraction;
+			char str_value[30];
+
+			g_ascii_dtostr (str_value, 30, val);
+			return g_strdup (str_value);
+		}
+	}
+
+	return et;
+}
 
 static void
-tracker_extract_exif (const gchar *filename, GHashTable *metadata)
+extract_exif (const gchar *filename, 
+              GHashTable  *metadata)
 {
 	ExifData *exif;
 	TagType  *p;
@@ -156,13 +168,9 @@ tracker_extract_exif (const gchar *filename, GHashTable *metadata)
 	}
 }
 
-
-TrackerExtractorData data[] = {
-	{ "image/jpeg", tracker_extract_exif },
-	{ NULL, NULL }
-};
-
-
+/* FIXME: Note, tracker-extract-exif is completely unused right now so
+ * any changes to this code are uncompiled, -mr.
+ */
 TrackerExtractorData *
 tracker_get_extractor_data (void)
 {

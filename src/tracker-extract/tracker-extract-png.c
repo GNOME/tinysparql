@@ -27,6 +27,7 @@
 
 #include <fcntl.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -35,6 +36,8 @@
 
 #include <glib.h>
 #include <glib/gstdio.h>
+
+#include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-extract.h"
 #include "tracker-xmp.h"
@@ -72,12 +75,12 @@ static TrackerExtractorData data[] = {
 };
 
 static gchar *
-rfc1123_to_iso8601_date (gchar *rfc_date)
+rfc1123_to_iso8601_date (gchar *date)
 {
 	/* From: ex. RFC1123 date: "22 May 1997 18:07:10 -0600"
 	 * To  : ex. ISO8601 date: "2007-05-22T18:07:10-0600"
 	 */
-	return tracker_generic_date_to_iso8601 (rfc_date, RFC1123_DATE_FORMAT);
+	return tracker_date_format_to_iso8601 (date, RFC1123_DATE_FORMAT);
 }
 
 static void
@@ -211,12 +214,14 @@ extract_png (const gchar *filename,
 		/* Read the image. FIXME We should be able to skip this step and
 		 * just get the info from the end. This causes some errors atm.
 		 */
-		row_pointers = (png_bytepp)malloc(height * sizeof(png_bytep));		
+		row_pointers = (png_bytepp) malloc (height * sizeof (png_bytep));		
 		for (row = 0; row < height; row++) {
-			row_pointers[row] = png_malloc(png_ptr,
-						       png_get_rowbytes(png_ptr,info_ptr));
+			row_pointers[row] = png_malloc (png_ptr,
+							png_get_rowbytes(png_ptr,info_ptr));
 		}
+
 		png_read_image (png_ptr, row_pointers);
+
 		for (row = 0; row < height; row++) {
 			png_free (png_ptr, row_pointers[row]);
 		}
@@ -229,7 +234,6 @@ extract_png (const gchar *filename,
 		
 		/* We want native have higher priority than XMP etc.
 		 */
-
 		g_hash_table_insert (metadata,
 				     g_strdup ("Image:Width"),
 				     g_strdup_printf ("%ld", width));

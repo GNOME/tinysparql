@@ -32,8 +32,17 @@
 #include "tracker-extract.h"
 #include "tracker-xmp.h"
 
+static void extract_imagemagick (const gchar *filename, 
+				 GHashTable  *metadata);
+
+static TrackerExtractorData data[] = {
+	{ "image/*", extract_imagemagick },
+	{ NULL, NULL }
+};
+
 static void
-tracker_extract_imagemagick (const gchar *filename, GHashTable *metadata)
+extract_imagemagick (const gchar *filename, 
+		     GHashTable  *metadata)
 {
 	gchar *argv[6];
 	gchar *identify;
@@ -42,7 +51,7 @@ tracker_extract_imagemagick (const gchar *filename, GHashTable *metadata)
 
 	g_return_if_fail (filename != NULL);
 
-	/* imagemagick crashes trying to extract from xcf files */
+	/* Imagemagick crashes trying to extract from xcf files */
 	if (g_str_has_suffix (filename, ".xcf")) {
 		return;
 	}
@@ -50,29 +59,39 @@ tracker_extract_imagemagick (const gchar *filename, GHashTable *metadata)
 	argv[0] = g_strdup ("identify");
 	argv[1] = g_strdup ("-format");
 	argv[2] = g_strdup ("%w;\\n%h;\\n%c;\\n");
+
 	if (g_str_has_suffix (filename, ".xcf")) {
 		argv[3] = g_strdup (filename);
 		argv[4] = NULL;
-	}
-	else {
+	} else {
 		argv[3] = g_strdup ("-ping");
 		argv[4] = g_strdup (filename);
 	}
+
 	argv[5] = NULL;
 
 	if (tracker_spawn (argv, 10, &identify, &exit_status)) {
 		if (exit_status == EXIT_SUCCESS) {
 			lines = g_strsplit (identify, ";\n", 4);
-			g_hash_table_insert (metadata, g_strdup ("Image:Width"), g_strdup (lines[0]));
-			g_hash_table_insert (metadata, g_strdup ("Image:Height"), g_strdup (lines[1]));
-			g_hash_table_insert (metadata, g_strdup ("Image:Comments"), g_strdup (g_strescape (lines[2], "")));
+
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Image:Width"), 
+					     g_strdup (lines[0]));
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Image:Height"), 
+					     g_strdup (lines[1]));
+
+			/* FIXME: Should we use METADATA_UNKNOWN
+			 * (tracker:unknown) here? -mr
+			 */
+			g_hash_table_insert (metadata, 
+					     g_strdup ("Image:Comments"), 
+					     g_strdup (g_strescape (lines[2], "")));
 		}
 	}
 
 #ifdef HAVE_EXEMPI
-
-	/* convert is buggy atm so disable temporarily */
-
+	/* FIXME: Convert is buggy atm so disable temporarily */
 	return;
 
 	gchar *xmp;
@@ -87,15 +106,8 @@ tracker_extract_imagemagick (const gchar *filename, GHashTable *metadata)
 			tracker_read_xmp (xmp, strlen (xmp), metadata);
 		}
 	}
-#endif
+#endif /* HAVE_EXEMPI */
 }
-
-
-TrackerExtractorData data[] = {
-	{ "image/*", tracker_extract_imagemagick },
-	{ NULL, NULL }
-};
-
 
 TrackerExtractorData *
 tracker_get_extractor_data (void)

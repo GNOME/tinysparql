@@ -34,8 +34,20 @@
 
 #include <jpeglib.h>
 
+#include <libtracker-common/tracker-type-utils.h>
+
 #include "tracker-extract.h"
 #include "tracker-xmp.h"
+
+#ifdef HAVE_EXEMPI
+#define XMP_NAMESPACE	     "http://ns.adobe.com/xap/1.0/\x00"
+#define XMP_NAMESPACE_LENGTH 29
+#endif /* HAVE_EXEMPI */
+
+#ifdef HAVE_LIBEXIF
+#include <libexif/exif-data.h>
+#define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
+#endif /* HAVE_LIBEXIF */
 
 static void extract_jpeg (const gchar *filename,
 			  GHashTable  *metadata);
@@ -45,18 +57,9 @@ static TrackerExtractorData data[] = {
 	{ NULL, NULL }
 };
 
-#ifdef HAVE_EXEMPI
-#define XMP_NAMESPACE	     "http://ns.adobe.com/xap/1.0/\x00"
-#define XMP_NAMESPACE_LENGTH 29
-#endif /* HAVE_EXEMPI */
-
 #ifdef HAVE_LIBEXIF
 
-#include <libexif/exif-data.h>
-
-#define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
-
-typedef gchar * (*PostProcessor) (const gchar *);
+typedef gchar * (*PostProcessor) (const gchar*);
 
 typedef struct {
 	ExifTag       tag;
@@ -99,12 +102,12 @@ static TagType tags[] = {
 };
 
 static gchar *
-date_to_iso8601 (const gchar *exif_date)
+date_to_iso8601 (const gchar *date)
 {
 	/* From: ex; date "2007:04:15 15:35:58"
 	 * To  : ex. "2007-04-15T17:35:58+0200 where +0200 is localtime
 	 */
-	return tracker_generic_date_to_iso8601 (exif_date, EXIF_DATE_FORMAT);
+	return tracker_date_format_to_iso8601 (date, EXIF_DATE_FORMAT);
 }
 
 static gchar *
@@ -169,14 +172,11 @@ fix_exposure_time (const gchar *et)
 	return g_strdup (et);
 }
 
-#endif /* HAVE_LIBEXIF */
-
 static void
 read_exif (const unsigned char *buffer,
 	   size_t		len,
 	   GHashTable	       *metadata)
 {
-#ifdef HAVE_LIBEXIF
 	ExifData *exif;
 	TagType  *p;
 
@@ -203,8 +203,9 @@ read_exif (const unsigned char *buffer,
 			}
 		}
 	}
-#endif /* HAVE_LIBEXIF */
 }
+
+#endif /* HAVE_LIBEXIF */
 
 static void
 extract_jpeg (const gchar *filename,
@@ -257,7 +258,7 @@ extract_jpeg (const gchar *filename,
 				break;
 
 			case JPEG_APP0+1:
-#if defined(HAVE_LIBEXIF)
+#ifdef HAVE_LIBEXIF
 				if (strncmp ("Exif", (gchar*) (marker->data), 5) == 0) {
 					read_exif ((unsigned char*) marker->data,
 						   marker->data_length,
@@ -265,7 +266,7 @@ extract_jpeg (const gchar *filename,
 				}
 #endif /* HAVE_LIBEXIF */
 
-#if defined(HAVE_EXEMPI)
+#ifdef HAVE_EXEMPI
 				str = (gchar*) marker->data;
 				len = marker->data_length;
 

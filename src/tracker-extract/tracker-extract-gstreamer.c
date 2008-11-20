@@ -73,7 +73,7 @@
 #define INCLUDE_FLUENDO_TAGS 
 
 typedef enum {
-	EXTRACT_MIME_UNDEFINED=0,
+	EXTRACT_MIME_UNDEFINED,
 	EXTRACT_MIME_AUDIO,
 	EXTRACT_MIME_VIDEO,
 	EXTRACT_MIME_IMAGE
@@ -912,19 +912,19 @@ tracker_extract_gstreamer (const gchar *uri,
 		if (!g_hash_table_lookup (metadata, "Audio:Album")) {
 			g_hash_table_insert (metadata, 
 					     g_strdup ("Audio:Album"), 
-					     g_strdup (""));
+					     g_strdup (METADATA_UNKNONN));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Artist")) {
 			g_hash_table_insert (metadata, 
 					     g_strdup ("Audio:Artist"), 
-					     g_strdup (""));
+					     g_strdup (METADATA_UNKNONN));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
 			g_hash_table_insert (metadata, 
 					     g_strdup ("Audio:Genre"), 
-					     g_strdup (""));
+					     g_strdup (METADATA_UNKNONN));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Audio:PlayCount")) {
@@ -958,7 +958,7 @@ tracker_extract_gstreamer (const gchar *uri,
 		if (!g_hash_table_lookup (metadata, "Video:Author")) {
 			g_hash_table_insert (metadata, 
 					     g_strdup ("Video:Author"),
-					     g_strdup (""));
+					     g_strdup (METADATA_UNKNONN));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Video:PlayCount")) {

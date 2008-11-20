@@ -28,6 +28,8 @@
 #include "tracker-utils.h"
 #include "tracker-type-utils.h"
 
+#define DATE_FORMAT_ISO8601 "%Y-%m-%dT%H:%M:%S%z"
+
 static const char *months[] = {
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -74,16 +76,16 @@ parse_month (const gchar *month)
 
 /* Determine date format and convert to ISO 8601 format */
 gchar *
-tracker_date_format (const gchar *timestamp)
+tracker_date_format (const gchar *date_string)
 {
 	gchar buf[30];
 	gint  len;
 
-	if (!timestamp) {
+	if (!date_string) {
 		return NULL;
 	}
 
-	len = strlen (timestamp);
+	len = strlen (date_string);
 
 	/* We cannot format a date without at least a four digit
 	 * year.
@@ -96,11 +98,11 @@ tracker_date_format (const gchar *timestamp)
 	 * Audio.ReleaseDate as 4 digit year)
 	 */
 	if (len == 4) {
-		if (is_int (timestamp)) {
-			buf[0] = timestamp[0];
-			buf[1] = timestamp[1];
-			buf[2] = timestamp[2];
-			buf[3] = timestamp[3];
+		if (is_int (date_string)) {
+			buf[0] = date_string[0];
+			buf[1] = date_string[1];
+			buf[2] = date_string[2];
+			buf[3] = date_string[3];
 			buf[4] = '-';
 			buf[5] = '0';
 			buf[6] = '1';
@@ -124,16 +126,16 @@ tracker_date_format (const gchar *timestamp)
 		}
 	} else if (len == 10)  {
 		/* Check for date part only YYYY-MM-DD*/
-		buf[0] = timestamp[0];
-		buf[1] = timestamp[1];
-		buf[2] = timestamp[2];
-		buf[3] = timestamp[3];
+		buf[0] = date_string[0];
+		buf[1] = date_string[1];
+		buf[2] = date_string[2];
+		buf[3] = date_string[3];
 		buf[4] = '-';
-		buf[5] = timestamp[5];
-		buf[6] = timestamp[6];
+		buf[5] = date_string[5];
+		buf[6] = date_string[6];
 		buf[7] = '-';
-		buf[8] = timestamp[8];
-		buf[9] = timestamp[9];
+		buf[8] = date_string[8];
+		buf[9] = date_string[9];
 		buf[10] = 'T';
 		buf[11] = '0';
 		buf[12] = '0';
@@ -150,101 +152,101 @@ tracker_date_format (const gchar *timestamp)
 		/* Check for pdf format EG 20050315113224-08'00' or
 		 * 20050216111533Z
 		 */
-		buf[0] = timestamp[0];
-		buf[1] = timestamp[1];
-		buf[2] = timestamp[2];
-		buf[3] = timestamp[3];
+		buf[0] = date_string[0];
+		buf[1] = date_string[1];
+		buf[2] = date_string[2];
+		buf[3] = date_string[3];
 		buf[4] = '-';
-		buf[5] = timestamp[4];
-		buf[6] = timestamp[5];
+		buf[5] = date_string[4];
+		buf[6] = date_string[5];
 		buf[7] = '-';
-		buf[8] = timestamp[6];
-		buf[9] = timestamp[7];
+		buf[8] = date_string[6];
+		buf[9] = date_string[7];
 		buf[10] = 'T';
-		buf[11] = timestamp[8];
-		buf[12] = timestamp[9];
+		buf[11] = date_string[8];
+		buf[12] = date_string[9];
 		buf[13] = ':';
-		buf[14] = timestamp[10];
-		buf[15] = timestamp[11];
+		buf[14] = date_string[10];
+		buf[15] = date_string[11];
 		buf[16] = ':';
-		buf[17] = timestamp[12];
-		buf[18] = timestamp[13];
+		buf[17] = date_string[12];
+		buf[18] = date_string[13];
 		buf[19] = '\0';
 
 		return g_strdup (buf);
-	} else if (len == 15 && timestamp[14] == 'Z') {
-		buf[0] = timestamp[0];
-		buf[1] = timestamp[1];
-		buf[2] = timestamp[2];
-		buf[3] = timestamp[3];
+	} else if (len == 15 && date_string[14] == 'Z') {
+		buf[0] = date_string[0];
+		buf[1] = date_string[1];
+		buf[2] = date_string[2];
+		buf[3] = date_string[3];
 		buf[4] = '-';
-		buf[5] = timestamp[4];
-		buf[6] = timestamp[5];
+		buf[5] = date_string[4];
+		buf[6] = date_string[5];
 		buf[7] = '-';
-		buf[8] = timestamp[6];
-		buf[9] = timestamp[7];
+		buf[8] = date_string[6];
+		buf[9] = date_string[7];
 		buf[10] = 'T';
-		buf[11] = timestamp[8];
-		buf[12] = timestamp[9];
+		buf[11] = date_string[8];
+		buf[12] = date_string[9];
 		buf[13] = ':';
-		buf[14] = timestamp[10];
-		buf[15] = timestamp[11];
+		buf[14] = date_string[10];
+		buf[15] = date_string[11];
 		buf[16] = ':';
-		buf[17] = timestamp[12];
-		buf[18] = timestamp[13];
+		buf[17] = date_string[12];
+		buf[18] = date_string[13];
 		buf[19] = 'Z';
 		buf[20] = '\0';
 
 		return g_strdup (buf);
-	} else if (len == 21 && (timestamp[14] == '-' || timestamp[14] == '+' )) {
-		buf[0] = timestamp[0];
-		buf[1] = timestamp[1];
-		buf[2] = timestamp[2];
-		buf[3] = timestamp[3];
+	} else if (len == 21 && (date_string[14] == '-' || date_string[14] == '+' )) {
+		buf[0] = date_string[0];
+		buf[1] = date_string[1];
+		buf[2] = date_string[2];
+		buf[3] = date_string[3];
 		buf[4] = '-';
-		buf[5] = timestamp[4];
-		buf[6] = timestamp[5];
+		buf[5] = date_string[4];
+		buf[6] = date_string[5];
 		buf[7] = '-';
-		buf[8] = timestamp[6];
-		buf[9] = timestamp[7];
+		buf[8] = date_string[6];
+		buf[9] = date_string[7];
 		buf[10] = 'T';
-		buf[11] = timestamp[8];
-		buf[12] = timestamp[9];
+		buf[11] = date_string[8];
+		buf[12] = date_string[9];
 		buf[13] = ':';
-		buf[14] = timestamp[10];
-		buf[15] = timestamp[11];
+		buf[14] = date_string[10];
+		buf[15] = date_string[11];
 		buf[16] = ':';
-		buf[17] = timestamp[12];
-		buf[18] = timestamp[13];
-		buf[19] = timestamp[14];
-		buf[20] = timestamp[15];
-		buf[21] =  timestamp[16];
+		buf[17] = date_string[12];
+		buf[18] = date_string[13];
+		buf[19] = date_string[14];
+		buf[20] = date_string[15];
+		buf[21] = date_string[16];
 		buf[22] =  ':';
-		buf[23] =  timestamp[18];
-		buf[24] = timestamp[19];
+		buf[23] = date_string[18];
+		buf[24] = date_string[19];
 		buf[25] = '\0';
 
 		return g_strdup (buf);
-	} else if ((len == 24) && (timestamp[3] == ' ')) {
+	} else if ((len == 24) && (date_string[3] == ' ')) {
 		/* Check for msoffice date format "Mon Feb  9 10:10:00 2004" */
 		gint  num_month;
 		gchar mon1;
 		gchar day1;
 
-		num_month = parse_month (timestamp + 4);
+		num_month = parse_month (date_string + 4);
 
 		mon1 = imonths[num_month];
 
-		if (timestamp[8] == ' ') {
+		if (date_string[8] == ' ') {
 			day1 = '0';
 		} else {
-			day1 = timestamp[8];
+			day1 = date_string[8];
 		}
 
-		buf[0] = timestamp[20];
-		buf[1] = timestamp[21];
-		buf[2] = timestamp[22];
-		buf[3] = timestamp[23];
+		buf[0] = date_string[20];
+		buf[1] = date_string[21];
+		buf[2] = date_string[22];
+		buf[3] = date_string[23];
 		buf[4] = '-';
 
 		if (num_month < 10) {
@@ -257,63 +259,86 @@ tracker_date_format (const gchar *timestamp)
 
 		buf[7] = '-';
 		buf[8] = day1;
-		buf[9] = timestamp[9];
+		buf[9] = date_string[9];
 		buf[10] = 'T';
-		buf[11] = timestamp[11];
-		buf[12] = timestamp[12];
+		buf[11] = date_string[11];
+		buf[12] = date_string[12];
 		buf[13] = ':';
-		buf[14] = timestamp[14];
-		buf[15] = timestamp[15];
+		buf[14] = date_string[14];
+		buf[15] = date_string[15];
 		buf[16] = ':';
-		buf[17] = timestamp[17];
-		buf[18] = timestamp[18];
+		buf[17] = date_string[17];
+		buf[18] = date_string[18];
 		buf[19] = '\0';
 
 		return g_strdup (buf);
-	} else if ((len == 19) && (timestamp[4] == ':') && (timestamp[7] == ':')) {
+	} else if ((len == 19) && (date_string[4] == ':') && (date_string[7] == ':')) {
 		/* Check for Exif date format "2005:04:29 14:56:54" */
-		buf[0] = timestamp[0];
-		buf[1] = timestamp[1];
-		buf[2] = timestamp[2];
-		buf[3] = timestamp[3];
+		buf[0] = date_string[0];
+		buf[1] = date_string[1];
+		buf[2] = date_string[2];
+		buf[3] = date_string[3];
 		buf[4] = '-';
-		buf[5] = timestamp[5];
-		buf[6] = timestamp[6];
+		buf[5] = date_string[5];
+		buf[6] = date_string[6];
 		buf[7] = '-';
-		buf[8] = timestamp[8];
-		buf[9] = timestamp[9];
+		buf[8] = date_string[8];
+		buf[9] = date_string[9];
 		buf[10] = 'T';
-		buf[11] = timestamp[11];
-		buf[12] = timestamp[12];
+		buf[11] = date_string[11];
+		buf[12] = date_string[12];
 		buf[13] = ':';
-		buf[14] = timestamp[14];
-		buf[15] = timestamp[15];
+		buf[14] = date_string[14];
+		buf[15] = date_string[15];
 		buf[16] = ':';
-		buf[17] = timestamp[17];
-		buf[18] = timestamp[18];
+		buf[17] = date_string[17];
+		buf[18] = date_string[18];
 		buf[19] = '\0';
 
 		return g_strdup (buf);
 	}
 
-	return g_strdup (timestamp);
+	return g_strdup (date_string);
 }
 
 gchar *
-tracker_date_to_time_string (const gchar  *time_string)
+tracker_date_format_to_iso8601 (const gchar *date_string,
+				const gchar *format)
 {
-	gchar *dvalue;
+	gchar *result;
+	struct tm date_tm;
 
-	dvalue = tracker_date_format (time_string);
+	g_return_val_if_fail (date_string != NULL, NULL);
+	g_return_val_if_fail (format != NULL, NULL);
 
-	if (dvalue) {
-		time_t time;
+	memset (&date_tm, 0, sizeof (struct tm));
 
-		time = tracker_string_to_date (dvalue);
-		g_free (dvalue);
+	if (strptime (date_string, format, &date_tm) == 0) {
+		return NULL;
+	}
 
-		if (time != -1) {
-			return tracker_gint_to_string (time);
+	result = g_malloc (sizeof (char)*25);
+
+	strftime (result, 25, DATE_FORMAT_ISO8601 , &date_tm);
+
+	return result;
+}
+
+gchar *
+tracker_date_to_time_string (const gchar *date_string)
+{
+	gchar *str;
+
+	str = tracker_date_format (date_string);
+
+	if (str) {
+		time_t t;
+
+		t = tracker_string_to_date (str);
+		g_free (str);
+
+		if (t != -1) {
+			return tracker_gint_to_string (t);
 		}
 	}
 
@@ -321,70 +346,70 @@ tracker_date_to_time_string (const gchar  *time_string)
 }
 
 static gboolean
-is_valid_8601_datetime (const gchar *timestamp)
+is_valid_8601_datetime (const gchar *date_string)
 {
 	gint len;
 
-	len = strlen (timestamp);
+	len = strlen (date_string);
 
 	if (len < 19) {
 		return FALSE;
 	}
 
-	if (!g_ascii_isdigit (timestamp[0]) ||
-	    !g_ascii_isdigit (timestamp[1]) ||
-	    !g_ascii_isdigit (timestamp[2]) ||
-	    !g_ascii_isdigit (timestamp[3])) {
+	if (!g_ascii_isdigit (date_string[0]) ||
+	    !g_ascii_isdigit (date_string[1]) ||
+	    !g_ascii_isdigit (date_string[2]) ||
+	    !g_ascii_isdigit (date_string[3])) {
 		return FALSE;
 	}
 
-	if (timestamp[4] != '-') {
+	if (date_string[4] != '-') {
 		return FALSE;
 	}
 
-	if (!g_ascii_isdigit (timestamp[5]) ||
-	    !g_ascii_isdigit (timestamp[6])) {
+	if (!g_ascii_isdigit (date_string[5]) ||
+	    !g_ascii_isdigit (date_string[6])) {
 		return FALSE;
 	}
 
-	if (timestamp[7] != '-') {
+	if (date_string[7] != '-') {
 		return FALSE;
 	}
 
-	if (!g_ascii_isdigit (timestamp[8]) ||
-	    !g_ascii_isdigit (timestamp[9])) {
+	if (!g_ascii_isdigit (date_string[8]) ||
+	    !g_ascii_isdigit (date_string[9])) {
 		return FALSE;
 	}
 
-	if ((timestamp[10] != 'T')) {
+	if ((date_string[10] != 'T')) {
 		return FALSE;
 	}
 
-	if (!g_ascii_isdigit (timestamp[11]) ||
-	    !g_ascii_isdigit (timestamp[12])) {
+	if (!g_ascii_isdigit (date_string[11]) ||
+	    !g_ascii_isdigit (date_string[12])) {
 		return FALSE;
 	}
 
-	if (timestamp[13] != ':') {
+	if (date_string[13] != ':') {
 		return FALSE;
 	}
 
-	if (!g_ascii_isdigit (timestamp[14]) ||
-	    !g_ascii_isdigit (timestamp[15])) {
+	if (!g_ascii_isdigit (date_string[14]) ||
+	    !g_ascii_isdigit (date_string[15])) {
 		return FALSE;
 	}
 
-	if (timestamp[16] != ':'){
+	if (date_string[16] != ':'){
 		return FALSE;
 	}
 
-	if (!g_ascii_isdigit (timestamp[17]) ||
-	    !g_ascii_isdigit (timestamp[18])) {
+	if (!g_ascii_isdigit (date_string[17]) ||
+	    !g_ascii_isdigit (date_string[18])) {
 		return FALSE;
 	}
 
 	if (len == 20) {
-		if (timestamp[19] != 'Z') {
+		if (date_string[19] != 'Z') {
 			return FALSE;
 		}
 	} else {
@@ -396,13 +421,13 @@ is_valid_8601_datetime (const gchar *timestamp)
 				return FALSE;
 			}
 
-			if (timestamp[19] != '+' &&
-			    timestamp[19] != '-') {
+			if (date_string[19] != '+' &&
+			    date_string[19] != '-') {
 				return FALSE;
 			}
 
-			if (!g_ascii_isdigit (timestamp[20]) ||
-			    !g_ascii_isdigit (timestamp[21])) {
+			if (!g_ascii_isdigit (date_string[20]) ||
+			    !g_ascii_isdigit (date_string[21])) {
 				return FALSE;
 			}
 		}
@@ -412,57 +437,57 @@ is_valid_8601_datetime (const gchar *timestamp)
 }
 
 time_t
-tracker_string_to_date (const gchar *timestamp)
+tracker_string_to_date (const gchar *date_string)
 {
 	struct tm tm;
 	long	  val;
 	time_t	  t;
 
-	g_return_val_if_fail (timestamp, -1);
+	g_return_val_if_fail (date_string, -1);
 
 	/* We should have a valid iso 8601 date in format
 	 * YYYY-MM-DDThh:mm:ss with optional TZ
 	 */
-	if (!is_valid_8601_datetime (timestamp)) {
+	if (!is_valid_8601_datetime (date_string)) {
 		return -1;
 	}
 
 	memset (&tm, 0, sizeof (struct tm));
-	val = strtoul (timestamp, (gchar**) &timestamp, 10);
+	val = strtoul (date_string, (gchar**) &date_string, 10);
 
-	if (*timestamp == '-') {
+	if (*date_string == '-') {
 		/* YYYY-MM-DD */
 		tm.tm_year = val - 1900;
-		timestamp++;
-		tm.tm_mon = strtoul (timestamp, (gchar **) &timestamp, 10) - 1;
+		date_string++;
+		tm.tm_mon = strtoul (date_string, (gchar **) &date_string, 10) - 1;
 
-		if (*timestamp++ != '-') {
+		if (*date_string++ != '-') {
 			return -1;
 		}
 
-		tm.tm_mday = strtoul (timestamp, (gchar **) &timestamp, 10);
+		tm.tm_mday = strtoul (date_string, (gchar **) &date_string, 10);
 	}
 
-	if (*timestamp++ != 'T') {
+	if (*date_string++ != 'T') {
 		g_critical ("Date validation failed for '%s' st '%c'",
-			    timestamp,
-			    *timestamp);
+			    date_string,
+			    *date_string);
 		return -1;
 	}
 
-	val = strtoul (timestamp, (gchar**) &timestamp, 10);
+	val = strtoul (date_string, (gchar**) &date_string, 10);
 
-	if (*timestamp == ':') {
+	if (*date_string == ':') {
 		/* hh:mm:ss */
 		tm.tm_hour = val;
-		timestamp++;
-		tm.tm_min = strtoul (timestamp, (gchar**) &timestamp, 10);
+		date_string++;
+		tm.tm_min = strtoul (date_string, (gchar**) &date_string, 10);
 
-		if (*timestamp++ != ':') {
+		if (*date_string++ != ':') {
 			return -1;
 		}
 
-		tm.tm_sec = strtoul (timestamp, (gchar**) &timestamp, 10);
+		tm.tm_sec = strtoul (date_string, (gchar**) &date_string, 10);
 	}
 
 	/* mktime() always assumes that "tm" is in locale time but we
@@ -471,48 +496,48 @@ tracker_string_to_date (const gchar *timestamp)
 	t  = mktime (&tm);
 	t -= timezone;
 
-	if (*timestamp == '+' ||
-	    *timestamp == '-') {
+	if (*date_string == '+' ||
+	    *date_string == '-') {
 		gint sign;
 
-		sign = *timestamp++ == '+' ? -1 : 1;
+		sign = *date_string++ == '+' ? -1 : 1;
 
 		/* We have format hh:mm or hhmm */
 		/* Now, we are reading hours */
-		if (timestamp[0] &&
-		    timestamp[1]) {
-			if (g_ascii_isdigit (timestamp[0]) &&
-			    g_ascii_isdigit (timestamp[1])) {
+		if (date_string[0] &&
+		    date_string[1]) {
+			if (g_ascii_isdigit (date_string[0]) &&
+			    g_ascii_isdigit (date_string[1])) {
 				gchar buff[3];
 
-				buff[0] = timestamp[0];
-				buff[1] = timestamp[1];
+				buff[0] = date_string[0];
+				buff[1] = date_string[1];
 				buff[2] = '\0';
 
 				val = strtoul (buff, NULL, 10);
 				t += sign * (3600 * val);
-				timestamp += 2;
+				date_string += 2;
 			}
 
-			if (*timestamp == ':' || *timestamp == '\'') {
-				timestamp++;
+			if (*date_string == ':' || *date_string == '\'') {
+				date_string++;
 			}
 		}
 
 		/* Now, we are reading minutes */
-		if (timestamp[0] &&
-		    timestamp[1]) {
-			if (g_ascii_isdigit (timestamp[0]) &&
-			    g_ascii_isdigit (timestamp[1])) {
+		if (date_string[0] &&
+		    date_string[1]) {
+			if (g_ascii_isdigit (date_string[0]) &&
+			    g_ascii_isdigit (date_string[1])) {
 				gchar buff[3];
 
-				buff[0] = timestamp[0];
-				buff[1] = timestamp[1];
+				buff[0] = date_string[0];
+				buff[1] = date_string[1];
 				buff[2] = '\0';
 
 				val = strtoul (buff, NULL, 10);
 				t += sign * (60 * val);
-				timestamp += 2;
+				date_string += 2;
 			}
 		}
 	}
