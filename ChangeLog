@@ -1,3 +1,13 @@
+2008-11-20  Ivan Frade  <ivan.frade@nokia.com>
+	
+	* src/libtracker-data/tracker-data-query.[ch]
+	(tracker_data_query_non_embedded_metadata): New method to retrieve
+	non-mebedded metadata of a service.
+	
+	* src/tracker-indexer/tracker-indexer.c: Handled correctly the
+	non-embedded metadata coming from the extractor with default
+	values when we update a file. 
+	
 2008-11-20  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-type-utils.[ch]: 

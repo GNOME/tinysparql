@@ -1297,6 +1297,26 @@ item_update_content (TrackerIndexer *indexer,
 	g_hash_table_unref (new_words);
 }
 
+static gboolean
+remove_existing_non_emb_metadata (TrackerField *field,
+				  gpointer value,
+				  gpointer user_data)
+{
+	TrackerDataMetadata *old_metadata = (TrackerDataMetadata *)user_data;
+	const gchar *name;
+	
+	if (tracker_field_get_embedded (field)) {
+		return FALSE;
+	}
+
+	name = tracker_field_get_name (field);
+	if (tracker_field_get_multiple_values (field)) {
+		return (tracker_data_metadata_lookup_values (old_metadata, name) != NULL);
+	} else {
+		return (tracker_data_metadata_lookup (old_metadata, name) != NULL);
+	}
+}
+
 static void
 item_add_or_update (TrackerIndexer  *indexer,
 		    PathInfo        *info,
@@ -1324,7 +1344,7 @@ item_add_or_update (TrackerIndexer  *indexer,
 	}
 
 	if (tracker_data_query_service_exists (service, dirname, basename, &id, NULL)) {
-		TrackerDataMetadata *old_metadata;
+		TrackerDataMetadata *old_metadata_emb, *old_metadata_non_emb;
 		gchar *old_text;
 		gchar *new_text;
 
@@ -1334,11 +1354,23 @@ item_add_or_update (TrackerIndexer  *indexer,
 			 basename);
 
 		/*
-		 * Using DB directly: get old (embedded) metadata,
-		 * unindex, index the new metadata
+		 * "metadata" (new metadata) contains embedded props and can contain
+		 * non-embedded properties with default values! Dont overwrite those 
+		 * in the DB if they already has a value.
+		 * 
+		 * 1) Remove all old embedded metadata from index and DB
+		 * 2) Remove from new metadata all non embedded properties that already have value.
+		 * 3) Save the remain new metadata.
 		 */
-		old_metadata = tracker_data_query_embedded_metadata (service, id);
-		unindex_metadata (indexer, id, service, old_metadata);
+		old_metadata_emb = tracker_data_query_embedded_metadata (service, id);
+		old_metadata_non_emb = tracker_data_query_non_embedded_metadata (service, id);
+
+		unindex_metadata (indexer, id, service, old_metadata_emb);
+		
+		tracker_data_metadata_foreach_remove (metadata, 
+						      remove_existing_non_emb_metadata,
+						      old_metadata_non_emb);
+
 		index_metadata (indexer, id, service, metadata);
 
 		/* Take the old text -> the new one, calculate
@@ -1350,7 +1382,8 @@ item_add_or_update (TrackerIndexer  *indexer,
 		item_update_content (indexer, service, id, old_text, new_text);
 		g_free (old_text);
 		g_free (new_text);
-		tracker_data_metadata_free (old_metadata);
+		tracker_data_metadata_free (old_metadata_emb);
+		tracker_data_metadata_free (old_metadata_non_emb);
 
 		return;
 	}
