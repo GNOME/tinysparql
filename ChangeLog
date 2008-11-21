@@ -1,3 +1,27 @@
+2008-11-21  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-ontology.c: Code clean ups, don't
+	unnecessarily cast and coding style.
+	
+	* src/tracker-indexer/modules/Makefile.am: Included new evolution
+	module header files so make distcheck works.
+	
+	* src/tracker-indexer/modules/applications.c:
+	* src/tracker-indexer/modules/dummy.c:
+	* src/tracker-indexer/modules/evolution-common.[ch]:
+	* src/tracker-indexer/modules/evolution-imap.[ch]:
+	* src/tracker-indexer/modules/evolution-pop.[ch]:
+	* src/tracker-indexer/modules/evolution.c:
+	* src/tracker-indexer/modules/files.c:
+	* src/tracker-indexer/modules/gaim-conversations.c: Added common.h
+	include and formatting line at the top of these files.
+	
+	* tests/libtracker-common/tracker-ontology-test.c: Fixed several
+	leaks and updated the calls which now return static data so we
+	don't free the result. Also don't free the return from
+	tracker_ontology_get_subcategory_ids() since it is a const array.
+	This was crashing the test cases.
+
 2008-11-21  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/Makefile.am:

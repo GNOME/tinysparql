@@ -1,4 +1,6 @@
-/* Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia
 
  * This library is free software; you can redistribute it and/or
@@ -21,7 +23,9 @@
 #define __EVOLUTION_COMMON_H__
 
 #include <glib.h>
+
 #include <gmime/gmime.h>
+
 #include <libtracker-data/tracker-data-metadata.h>
 
 G_BEGIN_DECLS
@@ -34,7 +38,6 @@ G_BEGIN_DECLS
 #define METADATA_EMAIL_SUBJECT	     "Email:Subject"
 #define METADATA_EMAIL_SENT_TO	     "Email:SentTo"
 #define METADATA_EMAIL_CC	     "Email:CC"
-
 
 enum EvolutionFlags {
 	EVOLUTION_MESSAGE_ANSWERED     = 1 << 0,
@@ -51,10 +54,8 @@ enum EvolutionFlags {
 GMimeStream *         evolution_common_get_stream           (const gchar      *path,
                                                              gint              flags,
                                                              off_t             start);
-
 TrackerDataMetadata * evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper);
 gchar *               evolution_common_get_object_encoding  (GMimeObject      *object);
-
 
 G_END_DECLS
 

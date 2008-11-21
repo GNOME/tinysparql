@@ -1,4 +1,6 @@
-/* Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia
 
  * This library is free software; you can redistribute it and/or
@@ -17,7 +19,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <libtracker-data/tracker-data-metadata.h>
+
 #include <tracker-indexer/tracker-module-file.h>
 #include <tracker-indexer/tracker-module-iteratable.h>
 

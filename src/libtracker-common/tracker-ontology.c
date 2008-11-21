@@ -19,6 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -30,6 +32,11 @@ typedef struct {
 	gchar *prefix;
 	gint   service;
 } ServiceMimePrefixes;
+
+typedef struct {
+	gchar  *name;
+	GArray *subcategories;
+} CalculateSubcategoriesForEach;
 
 static gboolean    initialized;
 
@@ -60,7 +67,7 @@ ontology_mime_prefix_foreach (gpointer data,
 {
 	ServiceMimePrefixes *mime_prefix;
 
-	mime_prefix = (ServiceMimePrefixes*) data;
+	mime_prefix = data;
 
 	g_free (mime_prefix->prefix);
 	g_free (mime_prefix);
@@ -407,11 +414,11 @@ tracker_ontology_get_service_names_registered (void)
 GSList *
 tracker_ontology_get_field_names_registered (const gchar *service_str)
 {
-	GList	       *fields;
-	GList	       *l;
-	GSList	       *names;
-	const gchar    *prefix = NULL;
-	const gchar    *parent_prefix;
+	GList	    *fields;
+	GList	    *l;
+	GSList	    *names;
+	const gchar *prefix = NULL;
+	const gchar *parent_prefix;
 
 	parent_prefix = NULL;
 
@@ -470,24 +477,21 @@ tracker_ontology_get_field_names_registered (const gchar *service_str)
 	return names;
 }
 
-typedef struct {
-	gchar  *name;
-	GArray *subcategories;
-} CalculateSubcategoriesForEach;
-
 static void
-calculate_subcategories_foreach (gpointer key, gpointer value, gpointer user_data) 
+calculate_subcategories_foreach (gpointer key, 
+				 gpointer value,
+				 gpointer user_data) 
 {
-	TrackerService                *service_def;
+	TrackerService                *service;
 	CalculateSubcategoriesForEach *data;
 
-	service_def = (TrackerService *)value;
-	data = (CalculateSubcategoriesForEach *)user_data;
+	service = value;
+	data = user_data;
 
-	if (!g_strcmp0 (tracker_service_get_name (service_def), data->name)
-	    || !g_strcmp0 (tracker_service_get_parent (service_def), data->name)
-	    || !g_strcmp0 ("*", data->name)) {
-		gint id =  tracker_service_get_id (service_def);
+	if (!g_strcmp0 (tracker_service_get_name (service), data->name) ||
+	    !g_strcmp0 (tracker_service_get_parent (service), data->name) ||
+	    !g_strcmp0 ("*", data->name)) {
+		gint id = tracker_service_get_id (service);
 		g_array_append_val (data->subcategories, id);
 	}
 }
@@ -506,7 +510,6 @@ tracker_ontology_get_subcategory_ids (const gchar *service_str)
 		data.subcategories = g_array_new (TRUE, TRUE, sizeof (int));
 
 		g_hash_table_foreach (service_names, calculate_subcategories_foreach, &data);
-		
 		g_hash_table_insert (subcategories_cache, data.name, data.subcategories);
 
 		subcategories = data.subcategories;

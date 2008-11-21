@@ -56,8 +56,11 @@ indexer_modules_LTLIBRARIES += 						\
 # Evolution
 libtracker_indexer_evolution_la_SOURCES =				\
 	evolution-common.c						\
+	evolution-common.h						\
 	evolution-imap.c						\
+	evolution-imap.h						\
 	evolution-pop.c							\
+	evolution-pop.h							\
 	evolution.c
 
 libtracker_indexer_evolution_la_LDFLAGS = $(module_flags)

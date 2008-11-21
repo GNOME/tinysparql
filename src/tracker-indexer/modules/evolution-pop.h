@@ -1,4 +1,6 @@
-/* Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  * Copyright (C) 2008, Nokia
 
  * This library is free software; you can redistribute it and/or
@@ -21,8 +23,10 @@
 #define __TRACKER_EVOLUTION_POP_H__
 
 #include <glib.h>
-#include <tracker-indexer/tracker-module-file.h>
+
 #include <gmime/gmime.h>
+
+#include <tracker-indexer/tracker-module-file.h>
 
 G_BEGIN_DECLS
 

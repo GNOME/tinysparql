@@ -121,6 +121,7 @@ typedef struct _TrayIconPrivate {
 	IndexStateEnum index_state;
 	PauseStateEnum pause_state;
 	IndexIcon index_icon;
+        gboolean initial_index;
 	gboolean animated;
 	gboolean animated_timer_active;
 	gboolean is_watching_events;
@@ -136,7 +137,8 @@ typedef struct _TrayIconPrivate {
 	/* Main window */
 	GtkMenu *menu;
 
-	gboolean initial_index_msg_shown;
+	gboolean shown_starting_msg;
+	gboolean shown_finished_msg;
 
 	/* Tracker connection */
 	TrackerClient *tracker;
@@ -159,9 +161,6 @@ static void set_auto_pause (TrayIcon *icon,
 			    gboolean  pause);
 
 static TrayIcon *main_icon;
-
-static gchar *initial_index_1;
-static gchar *initial_index_2;
 
 static gchar *index_icons[4] = {
 	"tracker-applet-default.png",
@@ -1489,17 +1488,41 @@ index_finished (DBusGProxy *proxy,
 		gdouble     seconds_elapsed,
 		TrayIcon   *icon)
 {
-	gchar *str;
+        TrayIconPrivate *priv;
 
-	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
-	tray_icon_show_message (icon,
-				"%s in %s.\n"
-				"\n"
-				"%s",
-				_("Tracker has finished indexing your system"),
-				str,
-				_("You can now perform searches by clicking here"));
-	g_free (str);
+	priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	g_print ("Indexing finished in %f seconds\n",
+		 seconds_elapsed);
+
+	priv->indexer_stopped = FALSE;
+
+        priv->index_state = INDEX_IDLE;
+	priv->pause_state = PAUSE_NONE;
+
+	priv->user_pause = FALSE;
+	priv->auto_pause = FALSE;
+
+	if (!priv->shown_finished_msg && priv->initial_index) {
+                gchar *str;
+
+		priv->shown_finished_msg = TRUE;
+                
+                str = tracker_seconds_to_string (seconds_elapsed, FALSE);
+                tray_icon_show_message (icon,
+                                        "%s in %s.\n"
+                                        "\n"
+                                        "%s",
+                                        _("Tracker has finished indexing your system"),
+                                        str,
+                                        _("You can now perform searches by clicking here"));
+                g_free (str);
+        }
+
+	set_icon (priv);
+	set_status_hint (icon);
+
+	refresh_stats (icon);
 
 	stop_watching_events (icon);
 }
@@ -1523,7 +1546,9 @@ index_state_changed (DBusGProxy  *proxy,
 	}
 
 	priv = TRAY_ICON_GET_PRIVATE (icon);
+
 	priv->indexer_stopped = FALSE;
+        priv->initial_index = initial_index;
 
 	paused = FALSE;
 
@@ -1538,9 +1563,20 @@ index_state_changed (DBusGProxy  *proxy,
 		}
 	}
 
-	if (!priv->initial_index_msg_shown && initial_index) {
-		priv->initial_index_msg_shown = TRUE;
+	if (!priv->shown_starting_msg && priv->initial_index) {
+                static gchar *initial_index_1;
+                static gchar *initial_index_2;
+                              
+		priv->shown_starting_msg = TRUE;
+
 		g_usleep (G_USEC_PER_SEC / 10);
+
+                initial_index_1 =
+                        _("Your computer is about to be indexed so "
+                          "you can perform fast searches of your files and emails");
+                initial_index_2 =
+                        _("You can pause indexing at any time and "
+                          "configure index settings by right clicking here");
 		tray_icon_show_message (icon,
 					"%s\n"
 					"\n"
@@ -1643,19 +1679,7 @@ init_settings (TrayIcon *icon)
 	priv->pause_state = PAUSE_NONE;
 	priv->auto_pause_setting = AUTO_PAUSE_MERGING;
 	priv->index_icon = ICON_DEFAULT;
-	priv->animated = FALSE;
-	priv->animated_timer_active = FALSE;
-	priv->user_pause = FALSE;
-	priv->auto_pause = FALSE;
-	priv->auto_hide = FALSE;
-	priv->disabled = FALSE;
 	priv->show_animation = TRUE;
-	priv->auto_pause_timer_active = FALSE;
-	priv->is_watching_events = FALSE;
-	priv->initial_index_msg_shown = FALSE;
-	priv->stat_window_active = FALSE;
-	priv->stat_request_pending = FALSE;
-	priv->indexer_stopped = FALSE;
 
 	set_tracker_icon (priv);
 }
@@ -2115,13 +2139,6 @@ main (int argc, char *argv[])
 
 	gtk_window_set_default_icon_name ("tracker");
 	g_set_application_name (_("Tracker"));
-
-	initial_index_1 =
-		_("Your computer is about to be indexed so "
-		  "you can perform fast searches of your files and emails");
-	initial_index_2 =
-		_("You can pause indexing at any time and "
-		  "configure index settings by right clicking here");
 
 	stat_info[0].label = _("Files:");
 	stat_info[1].label = _("    Folders:");
