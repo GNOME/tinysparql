@@ -1,3 +1,9 @@
+2008-11-21  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-ontology.c
+	(tracker_ontology_get_service_by_mime): Return a const gchar* in all
+	cases.
+
 2008-11-21  Mikael Ottela <mikael.ottela@ixonos.com>
 	* src/tracker-extract/tracker-extract-mp3.c:
 	* src/tracker-extract/tracker-extract-gstreamer-helix.c:

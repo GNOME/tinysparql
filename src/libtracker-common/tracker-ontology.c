@@ -274,7 +274,7 @@ tracker_ontology_get_service_by_mime (const gchar *mime)
 	ServiceMimePrefixes *item;
 	GSList		    *prefix_service;
 
-	g_return_val_if_fail (mime != NULL, g_strdup ("Other"));
+	g_return_val_if_fail (mime != NULL, "Other");
 
 	/* Try a complete mime */
 	id = g_hash_table_lookup (mimes_to_service_ids, mime);
@@ -293,7 +293,7 @@ tracker_ontology_get_service_by_mime (const gchar *mime)
 	}
 
 	/* Default option */
-	return g_strdup ("Other");
+	return "Other";
 }
 
 gint
