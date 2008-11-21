@@ -824,19 +824,19 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 
 	if (type==EXTRACT_MIME_AUDIO) {
 		if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Title"), g_strdup (METADATA_UNKNONN));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Title"), g_strdup (METADATA_UNKNOWN));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Album")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Album"), g_strdup (METADATA_UNKNONN));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Album"), g_strdup (METADATA_UNKNOWN));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Artist")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Artist"), g_strdup (METADATA_UNKNONN));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Artist"), g_strdup (METADATA_UNKNOWN));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
-			g_hash_table_insert (metadata, g_strdup ("Audio:Genre"), g_strdup (METADATA_UNKNONN));
+			g_hash_table_insert (metadata, g_strdup ("Audio:Genre"), g_strdup (METADATA_UNKNOWN));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Audio:PlayCount")) {
@@ -844,11 +844,11 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 		}
 	} else if (type==EXTRACT_MIME_VIDEO) {
 		if (!g_hash_table_lookup (metadata, "Video:Title")) {
-			g_hash_table_insert (metadata, g_strdup ("Video:Title"), g_strdup (METADATA_UNKNONN));
+			g_hash_table_insert (metadata, g_strdup ("Video:Title"), g_strdup (METADATA_UNKNOWN));
 		}
 		
 		if (!g_hash_table_lookup (metadata, "Video:Author")) {
-			g_hash_table_insert (metadata, g_strdup ("Video:Author"), g_strdup (METADATA_UNKNONN));
+			g_hash_table_insert (metadata, g_strdup ("Video:Author"), g_strdup (METADATA_UNKNOWN));
 		}
 
 		if (!g_hash_table_lookup (metadata, "Video:PlayCount")) {

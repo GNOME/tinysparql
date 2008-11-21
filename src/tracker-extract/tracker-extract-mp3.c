@@ -1321,19 +1321,19 @@ extract_mp3 (const gchar *filename,
 	if (!g_hash_table_lookup (metadata, "Audio:Album")) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Album"),
-				     g_strdup (METADATA_UNKNONN));
+				     g_strdup (METADATA_UNKNOWN));
 	}
 
 	if (!g_hash_table_lookup (metadata, "Audio:Artist")) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Artist"),
-				     g_strdup (METADATA_UNKNONN));
+				     g_strdup (METADATA_UNKNOWN));
 	}
 
 	if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Genre"),
-				     g_strdup (METADATA_UNKNONN));
+				     g_strdup (METADATA_UNKNOWN));
 	}
 
 	if (!g_hash_table_lookup (metadata, "Audio:PlayCount")) {

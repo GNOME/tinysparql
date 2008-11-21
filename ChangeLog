@@ -1,4 +1,10 @@
 2008-11-21  Mikael Ottela <mikael.ottela@ixonos.com>
+	* src/tracker-extract/tracker-extract-mp3.c:
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c:
+	* src/tracker-extract/tracker-extract.h:
+	* src/tracker-extract/tracker-extract-gstreamer.c: Fixed some typos
+
+2008-11-21  Mikael Ottela <mikael.ottela@ixonos.com>
 	* configure.ac: Changed helixbin to be included by default.
 
 2008-11-21  Martyn Russell  <martyn@imendio.com>

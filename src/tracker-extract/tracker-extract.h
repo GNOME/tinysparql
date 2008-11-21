@@ -31,7 +31,7 @@ G_BEGIN_DECLS
  * check every value returned in clients that use the Tracker API.
  * This will be fixed in due course after January some time, -mr.
  */
-#define METADATA_UNKNONN "tracker:unknown"
+#define METADATA_UNKNOWN "tracker:unknown"
 
 typedef struct TrackerExtractorData TrackerExtractorData;
 
