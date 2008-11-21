@@ -498,7 +498,7 @@ fi
 
 AC_ARG_ENABLE(gstreamer-helix, 
 	      AS_HELP_STRING([--enable-gstreamer-helix=@<:@no/yes/auto@:>@],
-			     [enable GStreamer helixbin extractor (Real Media) (yes/no/auto)]),,
+			     [enable GStreamer helixbin extractor (Real Media)]),,
 	      [enable_gst_helix=auto])
 
 if test "x$enable_gst_helix" != "xno"; then

@@ -1,5 +1,9 @@
 2008-11-21  Martyn Russell  <martyn@imendio.com>
 
+	* configure.ac: Small improvement.
+
+2008-11-21  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c: (tracker_indexer_init):
 	Set the state initially to _STOPPED. The problem was, if the
 	indexer was told to do something other than process files, it was
@@ -27,6 +31,7 @@
 	* src/tracker-extract/tracker-extract-gstreamer.c: Fixed some typos
 
 2008-11-21  Mikael Ottela <mikael.ottela@ixonos.com>
+	
 	* configure.ac: Changed helixbin to be included by default.
 
 2008-11-21  Martyn Russell  <martyn@imendio.com>
