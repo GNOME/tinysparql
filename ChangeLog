@@ -1,3 +1,6 @@
+2008-11-21  Mikael Ottela <mikael.ottela@ixonos.com>
+	* configure.ac: Changed helixbin to be included by default.
+
 2008-11-21  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-ontology.c: Code clean ups, don't
