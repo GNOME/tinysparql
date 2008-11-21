@@ -826,10 +826,20 @@ tracker_indexer_init (TrackerIndexer *indexer)
 
 	priv = indexer->private = TRACKER_INDEXER_GET_PRIVATE (indexer);
 
+	/* NOTE: We set this to stopped because it is likely the
+	 * daemon sends a request for something other than to check
+	 * files initially and we don't want to signal finished and
+	 * have the process func in use with nothing in any of the
+	 * queues. When we get files, this flag is unset.
+	 */
+	priv->state = TRACKER_INDEXER_STATE_STOPPED;
+
 	priv->items_processed = 0;
 	priv->in_transaction = FALSE;
+
 	priv->dir_queue = g_queue_new ();
 	priv->file_queue = g_queue_new ();
+
 	priv->mtime_cache = g_hash_table_new_full (g_str_hash,
 						   g_str_equal,
 						   g_free,

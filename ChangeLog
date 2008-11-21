@@ -1,3 +1,14 @@
+2008-11-21  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c: (tracker_indexer_init):
+	Set the state initially to _STOPPED. The problem was, if the
+	indexer was told to do something other than process files, it was
+	sending the FINISHED signal even though no files had been
+	processed. Setting the state to stopped initially means, the
+	process_func() is only set up if state = 0, for that, it has to
+	NOT be stopped and NOT have other factors like low battery or low
+	disk space.
+
 2008-11-21  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer-helix.c: Fixed the
