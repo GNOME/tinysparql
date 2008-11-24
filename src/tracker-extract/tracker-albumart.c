@@ -40,7 +40,6 @@
 #include <dbus/dbus-glib-bindings.h>
 
 #include <libtracker-common/tracker-common.h>
-#include <tracker-indexer/tracker-thumbnailer.h>
 
 #include "tracker-albumart.h"
 
