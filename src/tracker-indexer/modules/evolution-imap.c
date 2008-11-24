@@ -25,7 +25,7 @@
 
 #include <gconf/gconf-client.h>
 
-#include <libtracker-data/tracker-data-metadata.h>o
+#include <libtracker-data/tracker-data-metadata.h>
 
 #include <tracker-indexer/tracker-module-file.h>
 #include <tracker-indexer/tracker-module-iteratable.h>
