@@ -285,7 +285,7 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 	gchar **as_uri;
 	gchar **hints;
 
-	if (!filename || !local_uri)
+	if (!filename)
 		return;
 
 	as_uri = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
@@ -305,6 +305,9 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 
 	g_strfreev (as_uri);
 	g_strfreev (hints);
+
+	if (!local_uri)
+		return;
 
 	flen = strlen (filename);
 
