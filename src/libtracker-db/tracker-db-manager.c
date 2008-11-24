@@ -74,6 +74,7 @@ typedef struct {
 	gint		    page_size;
 	gboolean	    add_functions;
 	gboolean	    attached;
+	gboolean	    is_index;
 } TrackerDBDefinition;
 
 static TrackerDBDefinition dbs[] = {
@@ -86,6 +87,7 @@ static TrackerDBDefinition dbs[] = {
 	  32,
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  FALSE,
+	  FALSE,
 	  FALSE },
 	{ TRACKER_DB_COMMON,
 	  TRACKER_DB_LOCATION_USER_DATA_DIR,
@@ -95,6 +97,7 @@ static TrackerDBDefinition dbs[] = {
 	  NULL,
 	  32,
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  FALSE,
 	  FALSE,
 	  FALSE },
 	{ TRACKER_DB_CACHE,
@@ -106,6 +109,7 @@ static TrackerDBDefinition dbs[] = {
 	  128,
 	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
+	  FALSE,
 	  FALSE },
 	{ TRACKER_DB_FILE_METADATA,
 	  TRACKER_DB_LOCATION_DATA_DIR,
@@ -116,7 +120,19 @@ static TrackerDBDefinition dbs[] = {
 	  512,
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
+	  FALSE,
 	  FALSE },
+	{ TRACKER_DB_FILE_FULLTEXT,
+	  TRACKER_DB_LOCATION_DATA_DIR,
+	  NULL,
+	  "file-fulltext.db",
+	  "file-fulltext",
+	  NULL,
+	  512,
+	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRUE,
+	  FALSE,
+	  TRUE },  
 	{ TRACKER_DB_FILE_CONTENTS,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -125,6 +141,7 @@ static TrackerDBDefinition dbs[] = {
 	  NULL,
 	  1024,
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  FALSE,
 	  FALSE,
 	  FALSE },
 	{ TRACKER_DB_EMAIL_METADATA,
@@ -137,6 +154,17 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
 	  FALSE},
+	{ TRACKER_DB_EMAIL_FULLTEXT,
+	  TRACKER_DB_LOCATION_DATA_DIR,
+	  NULL,
+	  "email-fulltext.db",
+	  "email-fulltext",
+	  NULL,
+	  512,
+	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRUE,
+	  FALSE,
+	  TRUE},
 	{ TRACKER_DB_EMAIL_CONTENTS,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -145,6 +173,7 @@ static TrackerDBDefinition dbs[] = {
 	  NULL,
 	  512,
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  FALSE,
 	  FALSE,
 	  FALSE },
 	{ TRACKER_DB_XESAM,
@@ -156,6 +185,7 @@ static TrackerDBDefinition dbs[] = {
 	  512,
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
+	  FALSE,
 	  FALSE },
 };
 
@@ -1984,6 +2014,23 @@ db_interface_get_file_metadata (void)
 }
 
 static TrackerDBInterface *
+db_interface_get_file_fulltext (void)
+{
+	TrackerDBInterface *iface;
+	gboolean	    create;
+
+	iface = db_interface_get (TRACKER_DB_FILE_FULLTEXT, &create);
+
+	if (create) {
+		tracker_db_interface_start_transaction (iface);
+		load_sql_file (iface, "sqlite-fulltext.sql", NULL);
+		tracker_db_interface_end_transaction (iface);
+	}
+
+	return iface;
+}
+
+static TrackerDBInterface *
 db_interface_get_file_contents (void)
 {
 	TrackerDBInterface *iface;
@@ -2009,6 +2056,8 @@ db_interface_get_file_contents (void)
 	return iface;
 }
 
+
+
 static TrackerDBInterface *
 db_interface_get_email_metadata (void)
 {
@@ -2022,6 +2071,23 @@ db_interface_get_email_metadata (void)
 		load_sql_file (iface, "sqlite-service.sql", NULL);
 		load_sql_file (iface, "sqlite-email.sql", NULL);
 		load_sql_file (iface, "sqlite-service-triggers.sql", "!");
+		tracker_db_interface_end_transaction (iface);
+	}
+
+	return iface;
+}
+
+static TrackerDBInterface *
+db_interface_get_email_fulltext (void)
+{
+	TrackerDBInterface *iface;
+	gboolean	    create;
+
+	iface = db_interface_get (TRACKER_DB_EMAIL_FULLTEXT, &create);
+
+	if (create) {
+		tracker_db_interface_start_transaction (iface);
+		load_sql_file (iface, "sqlite-fulltext.sql", NULL);
 		tracker_db_interface_end_transaction (iface);
 	}
 
@@ -2301,13 +2367,19 @@ db_interface_create (TrackerDB db)
 
 	case TRACKER_DB_FILE_METADATA:
 		return db_interface_get_file_metadata ();
+		
+	case TRACKER_DB_FILE_FULLTEXT:
+		return db_interface_get_file_fulltext ();	
 
 	case TRACKER_DB_FILE_CONTENTS:
 		return db_interface_get_file_contents ();
 
 	case TRACKER_DB_EMAIL_METADATA:
 		return db_interface_get_email_metadata ();
-
+		
+	case TRACKER_DB_EMAIL_FULLTEXT:
+		return db_interface_get_email_fulltext ();	
+		
 	case TRACKER_DB_EMAIL_CONTENTS:
 		return db_interface_get_email_contents ();
 

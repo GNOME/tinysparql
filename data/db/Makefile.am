@@ -7,6 +7,7 @@ config_DATA =				\
 	sqlite-contents.sql		\
 	sqlite-email.sql		\
 	sqlite-metadata.sql 		\
+	sqlite-fulltext.sql 		\
 	sqlite-service.sql		\
 	sqlite-service-triggers.sql 	\
 	sqlite-service-types.sql 	\
