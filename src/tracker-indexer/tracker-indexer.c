@@ -74,6 +74,7 @@
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
+#include "tracker-thumbnailer.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
@@ -1463,6 +1464,7 @@ item_move (TrackerIndexer  *indexer,
 	gchar *new_path, *new_name, *ext;
 	GFile *file, *other_file;
 	gchar *path, *other_path;
+	gchar *uri, *other_uri, *mime_type;
 	guint32 id;
 
 	service = get_service_for_file (info->other_module_file, info->module);
@@ -1474,7 +1476,20 @@ item_move (TrackerIndexer  *indexer,
 	path = g_file_get_path (info->file);
 	other_path = g_file_get_path (info->other_file);
 
+
 	g_debug ("Moving item from '%s' to '%s'", path, other_path);
+
+	/* TODO URI branch: these are URI conversions */
+
+	uri = g_file_get_uri (info->file);
+	other_uri = g_file_get_uri (info->other_file);
+
+	mime_type = tracker_file_get_mime_type (path);
+	tracker_thumbnailer_move (uri, mime_type, other_uri);
+
+	g_free (mime_type);
+	g_free (other_uri);
+	g_free (uri);
 
 	/* Get 'source' ID */
 	if (!tracker_data_query_service_exists (service,
@@ -1534,7 +1549,11 @@ item_remove (TrackerIndexer *indexer,
 	     const gchar    *basename)
 {
 	TrackerService *service;
-	gchar *content, *metadata;
+	GFile *file;
+	gchar *content;
+	gchar *metadata;
+	gchar *uri;
+	gchar *mime_type;
 	gchar *service_path;
 	const gchar *service_type;
 	guint service_id, service_type_id;
@@ -1544,6 +1563,29 @@ item_remove (TrackerIndexer *indexer,
 	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
 		 dirname, 
 		 basename);
+
+	/* TODO URI branch: this is a URI conversion */
+	service_path = g_build_path (G_DIR_SEPARATOR_S, 
+				     dirname, 
+				     basename, 
+				     NULL);
+
+	file = g_file_new_for_path (service_path);
+	uri = g_file_get_uri (file);
+	g_object_unref (file);
+
+	/* This is done this way to minimize merging work for URI
+	 * branch (I know the exact same thing is being done later in
+	 * the code. there are no caveats, you can just replace this
+	 * while merging, indeed).
+	 */
+	mime_type = tracker_file_get_mime_type (service_path);
+
+	tracker_thumbnailer_remove (uri, mime_type);
+
+	g_free (mime_type);
+	g_free (uri);
+	g_free (service_path); 
 
 	if (!service_type || !service_type[0]) {
 		const gchar *name;

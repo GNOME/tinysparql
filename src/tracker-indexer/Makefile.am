@@ -39,7 +39,9 @@ tracker_indexer_SOURCES =						\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
-	tracker-marshal-main.c
+	tracker-marshal-main.c						\
+	tracker-thumbnailer.c						\
+	tracker-thumbnailer.h
 
 tracker_indexer_LDADD =							\
 	libtracker-indexer.la						\

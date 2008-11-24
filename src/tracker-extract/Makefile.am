@@ -32,9 +32,9 @@ modules_LTLIBRARIES = 							\
 	libextract-ps.la 						
 
 
-if HAVE_IMAGEMAGICK
-modules_LTLIBRARIES += libextract-imagemagick.la
-endif
+# if HAVE_IMAGEMAGICK
+# modules_LTLIBRARIES += libextract-imagemagick.la
+# endif
 
 if HAVE_EXEMPI
 modules_LTLIBRARIES += libextract-xmp.la
@@ -106,9 +106,9 @@ libextract_abw_la_LDFLAGS = $(module_flags)
 libextract_abw_la_LIBADD = $(GLIB2_LIBS)
 
 # Imagemagick
-libextract_imagemagick_la_SOURCES = tracker-extract-imagemagick.c $(xmp_sources)
-libextract_imagemagick_la_LDFLAGS = $(module_flags)
-libextract_imagemagick_la_LIBADD = $(GLIB2_LIBS) $(EXEMPI_LIBS)
+# libextract_imagemagick_la_SOURCES = tracker-extract-imagemagick.c $(xmp_sources)
+# libextract_imagemagick_la_LDFLAGS = $(module_flags)
+# libextract_imagemagick_la_LIBADD = $(GLIB2_LIBS) $(EXEMPI_LIBS)
 
 # MP3
 libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources)

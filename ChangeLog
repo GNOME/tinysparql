@@ -1,3 +1,20 @@
+2008-11-24  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Requesting thumbnails of 
+	album art
+
+	* src/tracker-indexer/tracker-metadata-utils.c
+	* src/tracker-indexer/tracker-main.c
+	* src/tracker-indexer/tracker-indexer.c
+	* src/tracker-indexer/Makefile.am
+	* src/tracker-extract/Makefile.am
+	* thumbnailers/image/Makefile.am
+	* tests/tracker-indexer/Makefile.am
+	* configure.ac
+	* src/tracker-indexer/tracker-thumbnailer.c
+	* src/tracker-indexer/tracker-thumbnailer.h: Cleaning up thumbnails when
+	originals are removed. Refactored the thumbnailing code
+
 2008-11-24  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/modules/evolution-imap.c: Fixed a typo in

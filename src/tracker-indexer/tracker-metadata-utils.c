@@ -31,7 +31,7 @@
 #include <libtracker-common/tracker-ontology.h>
 
 #include "tracker-metadata-utils.h"
-#include "tracker-dbus.h"
+#include "tracker-thumbnailer.h"
 
 #define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
 #define METADATA_FILE_EXT	     "File:Ext"
@@ -47,11 +47,6 @@
 #define TEXT_MAX_SIZE		     1048576  /* bytes */
 #define TEXT_CHECK_SIZE		     65535    /* bytes */
 
-static gchar   *batch[51] = { 0 };
-static gchar   *hints[51] = { 0 };
-static guint    count = 0;
-static gboolean timeout_runs = FALSE;
-
 typedef struct {
 	GPid pid;
 	guint stdout_watch_id;
@@ -60,9 +55,6 @@ typedef struct {
 	GMainLoop  *data_incoming_loop;
 	gpointer data;
 } ProcessContext;
-
-static void get_file_thumbnail (const gchar *path,
-				const gchar *mime);
 
 static ProcessContext *metadata_context = NULL;
 
@@ -645,174 +637,6 @@ get_file_content (const gchar *path)
 	return s ? g_string_free (s, FALSE) : NULL;
 }
 
-#ifdef HAVE_HILDON_THUMBNAIL
-
-static void
-get_file_thumbnail_queue_cb (DBusGProxy     *proxy,
-			     DBusGProxyCall *call,
-			     gpointer	     user_data)
-{
-	GError *error = NULL;
-	guint	handle;
-
-	/* FIXME: What is the point of this? */
-	dbus_g_proxy_end_call (proxy, call, &error,
-			       G_TYPE_UINT, &handle,
-			       G_TYPE_INVALID);
-
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
-	}
-}
-
-static gboolean
-thumbnail_this (GStrv list, const gchar *mime)
-{
-	guint i = 0;
-	gboolean retval = FALSE;
-
-	if (!list)
-		return TRUE;
-
-	while (list[i] != NULL && !retval) {
-		if (g_ascii_strcasecmp (list[i], mime) == 0)
-			retval = TRUE;
-		i++;
-	}
-
-	return retval;
-
-}
-
-static gboolean
-request_thumbnails (gpointer data)
-{
-	if (timeout_runs) {
-		guint i;
-
-		timeout_runs = FALSE;
-		batch[count] = NULL;
-		hints[count] = NULL;
-
-		g_debug ("Requesting thumbnails");
-
-		dbus_g_proxy_begin_call (tracker_dbus_get_thumbnailer (),
-					 "Queue",
-					 get_file_thumbnail_queue_cb,
-					 NULL, NULL,
-					 G_TYPE_STRV, batch,
-					 G_TYPE_STRV, hints,
-					 G_TYPE_UINT, 0,
-					 G_TYPE_INVALID);
-
-		for (i = 0; i <= count; i++) {
-			g_free (batch[i]);
-			g_free (hints[i]);
-			batch[i] = NULL;
-			hints[i] = NULL;
-		}
-
-		count = 0;
-	}
-
-	return FALSE;
-}
-
-#endif /* HAVE_HILDON_THUMBNAIL */
-
-static void
-get_file_thumbnail (const gchar *path,
-		    const gchar *mime)
-{
-#ifdef HAVE_HILDON_THUMBNAIL
-
-	static gboolean tried = FALSE;
-
-
-	/* It's known that this relatively small GStrv is leaked */
-	static GStrv    thumbnailable = NULL;
-
-	if (!tried) {
-		GStrv mimes = NULL;
-		GError *error = NULL;
-
-		dbus_g_proxy_call (tracker_dbus_get_thumb_manager(),
-				   "GetSupported", &error, G_TYPE_INVALID,
-				   G_TYPE_STRV, &mimes, G_TYPE_INVALID);
-		if (error)
-			g_error_free (error);
-		else if (mimes)
-			thumbnailable = mimes;
-		tried = TRUE;
-	}
-
-	if (count < 50 && thumbnail_this (thumbnailable, mime)) {
-		gchar *utf_path;
-
-		utf_path = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
-
-		if (utf_path) {
-			batch[count] = g_strdup_printf ("file://%s", utf_path);
-			if (mime)
-				hints[count] = g_strdup (mime);
-			else 
-				hints[count] = g_strdup ("unknown/unknown");
-			g_free (utf_path);
-			count++;
-		}
-
-		if (!timeout_runs) {
-			timeout_runs = TRUE;
-			g_timeout_add_seconds (30, request_thumbnails, NULL);
-		}
-	}
-
-	if (count == 50) {
-		request_thumbnails (NULL);
-	}
-#endif /* HAVE_HILDON_THUMBNAIL */
-
-#ifdef HAVE_IMAGEMAGICK
-	ProcessContext *context;
-
-	GString *thumbnail;
-	gchar *argv[5];
-
-	argv[0] = g_strdup (LIBEXEC_PATH G_DIR_SEPARATOR_S "tracker-thumbnailer");
-	argv[1] = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
-	argv[2] = g_strdup (mime);
-	argv[3] = g_strdup ("normal");
-	argv[4] = NULL;
-
-	context = process_context_create ((const gchar **) argv,
-					  get_file_content_read_cb);
-
-	if (!context) {
-		return;
-	}
-
-	thumbnail = g_string_new (NULL);
-	context->data = thumbnail;
-
-	g_main_loop_run (context->data_incoming_loop);
-
-	g_free (argv[0]);
-	g_free (argv[1]);
-	g_free (argv[2]);
-	g_free (argv[3]);
-
-	if (!thumbnail->str || !*thumbnail->str) {
-		g_string_free (thumbnail, TRUE);
-		return;
-	}
-
-	g_debug ("Got thumbnail '%s' for '%s'", thumbnail->str, path);
-
-	g_string_free (thumbnail, TRUE);
-#endif /* HAVE_IMAGEMAGICK */
-}
-
 static gchar *
 get_file_content_by_filter (const gchar *path,
 			    const gchar *mime)
@@ -932,7 +756,8 @@ tracker_metadata_utils_get_data (GFile *file)
 	ext = strrchr (path, '.');
 
 	if (ext) {
-		tracker_data_metadata_insert (metadata, METADATA_FILE_EXT, g_strdup (ext + 1));
+		ext++;
+		tracker_data_metadata_insert (metadata, METADATA_FILE_EXT, g_strdup (ext));
 	}
 
 	mime_type = tracker_file_get_mime_type (path);
@@ -947,11 +772,11 @@ tracker_metadata_utils_get_data (GFile *file)
 				      mime_type);
 
 	if (mime_type) {
-		/* FIXME:
-		 * We should determine here for which items we do and for which
-		 * items we don't want to pre-create the thumbnail. */
+		gchar *uri;
 
-		get_file_thumbnail (path, mime_type);
+		uri = g_file_get_uri (file);
+		tracker_thumbnailer_get_file_thumbnail (uri, mime_type);
+		g_free (uri);
 	}
 
 	if (S_ISLNK (st.st_mode)) {

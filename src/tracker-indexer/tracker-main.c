@@ -41,9 +41,11 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-index-manager.h>
 
+#include <libtracker-data/tracker-data-update.h>
+
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
-#include <libtracker-data/tracker-data-update.h>
+#include "tracker-thumbnailer.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"					  \
@@ -358,6 +360,9 @@ main (gint argc, gchar *argv[])
 			  G_CALLBACK (indexer_finished_cb),
 			  NULL);
 
+        /* Set up connections to the thumbnailer if supported */
+        tracker_thumbnailer_init ();
+
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */
 		tracker_indexer_process_all (indexer);
@@ -380,6 +385,7 @@ main (gint argc, gchar *argv[])
 	g_object_unref (indexer);
 	g_object_unref (config);
 
+        tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_db_index_manager_shutdown ();
 	tracker_db_manager_shutdown ();

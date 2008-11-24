@@ -101,6 +101,7 @@ GDK_REQUIRED=1.0
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=1.99.2
+HILDON_THUMBNAIL_REQUIRED=3.0.10
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -1039,33 +1040,6 @@ fi
 
 AM_CONDITIONAL(HAVE_EXEMPI, test "x$have_exempi" = "xyes")
 
-##################################################################
-# Check for Imagemagick
-##################################################################
-
-AC_ARG_ENABLE(imagemagick, 
-              AS_HELP_STRING([--disable-imagemagick], 
-	                     [disable thumbnailing with Imagemagick]),,
-	      [enable_imagemagick=no])
-
-if test "x$enable_imagemagic" != "xno" ; then
-   AC_CHECK_PROG(have_imagemagick, convert, "yes", "no",)
-
-   if test "x$have_imagemagick" = "xyes" ; then
-      AC_DEFINE(HAVE_IMAGEMAGICK, 1, [Define if we have imagemagick])
-   fi
-else
-   have_imagemagick="no  (disabled)"
-fi
-
-if test "x$enable_imagemagick" = "xyes"; then
-   if test "x$have_imagemagick" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find imagemagick.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_IMAGEMAGICK, test "x$have_imagemagick" = "xyes")
-
 ####################################################################
 # Checking totem-pl-parser
 ####################################################################
@@ -1098,42 +1072,6 @@ if test "x$enable_playlist" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
-
-####################################################################
-# Check for Hildon-thumbnail
-####################################################################
-
-AC_ARG_ENABLE(hildon-thumbnail, 
-              AS_HELP_STRING([--disable-hildon-thumbnail], 
-	                     [disable thumbnailing with Hildon]),,
-	      [enable_hildon_thumbnail=auto])
-
-if test "x$enable_hildon_thumbnail" != "xno" ; then
-   hildon_thumbnail_pkgconfig_tmp="hildon-thumbnail"
-   PKG_CHECK_MODULES(HILDON_THUMBNAIL, 
-                     $hildon_thumbnail_pkgconfig_tmp,  
-                     [have_hildon_thumbnail=yes], 
-                     [have_hildon_thumbnail=no])
-
-   AC_SUBST(HILDON_THUMBNAIL_CFLAGS)
-   AC_SUBST(HILDON_THUMBNAIL_LIBS)
-
-   if test "x$have_hildon_thumbnail" = "xyes" ; then
-   AC_CHECK_PROG(have_hildon_thumbnail_gdk_pixbuf, hildon-thumb-gdk-pixbuf, "yes", "no",)
-
-      if test "x$have_hildon_thumbnail_gdk_pixbuf" != "xyes" ; then
-      have_hildon_thumbnail="no"      
-   fi
-   fi
-
-   if test "x$have_hildon_thumbnail" = "xyes" ; then
-      AC_DEFINE(HAVE_HILDON_THUMBNAIL, 1, [Define if we have hildon-thumbnail])
-   fi
-else
-   have_hildon_thumbnail="no  (disabled)"
-fi
-
-AM_CONDITIONAL(HAVE_HILDON_THUMBNAIL, test "x$have_hildon_thumbnail" = "xyes")
 
 ##################################################################
 # Enable SQLite FTS support?
@@ -1176,6 +1114,8 @@ AC_CONFIG_LINKS(tests/tracker-indexer/tracker-dbus.c:src/tracker-indexer/tracker
                 tests/tracker-indexer/tracker-module-file.h:src/tracker-indexer/tracker-module-file.h
                 tests/tracker-indexer/tracker-module-iteratable.c:src/tracker-indexer/tracker-module-iteratable.c
                 tests/tracker-indexer/tracker-module-iteratable.h:src/tracker-indexer/tracker-module-iteratable.h
+		tests/tracker-indexer/tracker-thumbnailer.h:src/tracker-indexer/tracker-thumbnailer.h
+		tests/tracker-indexer/tracker-thumbnailer.c:src/tracker-indexer/tracker-thumbnailer.c
 )
 
 ##################################################################
@@ -1333,11 +1273,6 @@ Metadata Extractors:
 	Support video formats:			$have_video_handler ($have_video_handler_app)
 	Support MP3 album art (w/ GdkPixbuf):	$have_gdkpixbuf
 	Support Playlists (w/ Totem):           $have_playlist
-
-Thumbnailers:
-
-	Have Imagemagick			$have_imagemagick
-	Have hildon-thumbnail			$have_hildon_thumbnail
 
 Warning:
 
