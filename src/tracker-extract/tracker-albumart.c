@@ -60,6 +60,31 @@ static void get_albumart_path (const gchar  *a,
 			       gchar       **path,
 			       gchar       **local);
 
+
+static DBusGProxy*
+get_thumb_requester (void)
+{
+	static DBusGProxy *thumb_proxy = NULL;
+
+	if (!thumb_proxy) {
+		GError          *error = NULL;
+		DBusGConnection *connection;
+
+		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+		if (!error) {
+			thumb_proxy = dbus_g_proxy_new_for_name (connection,
+								 THUMBNAILER_SERVICE,
+								 THUMBNAILER_PATH,
+								 THUMBNAILER_INTERFACE);
+		} else {
+			g_error_free (error);
+		}
+	}
+
+	return thumb_proxy;
+}
+
 #ifndef HAVE_STRCASESTR
 
 static gchar *
@@ -231,6 +256,24 @@ strip_characters (const gchar *original)
 }
 
 static void
+thumbnail_generic_cb (DBusGProxy     *proxy,
+		      DBusGProxyCall *call,
+		      gpointer	     user_data)
+{
+	GError *error = NULL;
+	guint	handle;
+
+	dbus_g_proxy_end_call (proxy, call, &error,
+			       G_TYPE_UINT, &handle,
+			       G_TYPE_INVALID);
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+	}
+}
+
+static void
 perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 {
 #ifdef HAVE_HAL
@@ -239,9 +282,29 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 	GList *removable_roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
+	gchar **as_uri;
+	gchar **hints;
 
 	if (!filename || !local_uri)
 		return;
+
+	as_uri = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
+	hints = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
+
+	as_uri[0] = g_strdup_printf ("file://%s", filename);
+	hints[0] = g_strdup ("image/jpeg");
+
+	dbus_g_proxy_begin_call (get_thumb_requester (),
+				 "Queue",
+				 thumbnail_generic_cb,
+				 NULL, NULL,
+				 G_TYPE_STRV, as_uri,
+				 G_TYPE_STRV, hints,
+				 G_TYPE_UINT, 0,
+				 G_TYPE_INVALID);
+
+	g_strfreev (as_uri);
+	g_strfreev (hints);
 
 	flen = strlen (filename);
 
@@ -504,53 +567,10 @@ get_albumart_requester (void)
 	return albart_proxy;
 }
 
-
-static DBusGProxy*
-get_thumb_requester (void)
-{
-	static DBusGProxy *thumb_proxy = NULL;
-
-	if (!thumb_proxy) {
-		GError          *error = NULL;
-		DBusGConnection *connection;
-
-		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-		if (!error) {
-			thumb_proxy = dbus_g_proxy_new_for_name (connection,
-								 THUMBNAILER_SERVICE,
-								 THUMBNAILER_PATH,
-								 THUMBNAILER_INTERFACE);
-		} else {
-			g_error_free (error);
-		}
-	}
-
-	return thumb_proxy;
-}
-
 typedef struct {
 	gchar *art_path, *local_uri;
 } GetFileInfo;
 
-
-static void
-thumbnail_generic_cb (DBusGProxy     *proxy,
-		      DBusGProxyCall *call,
-		      gpointer	     user_data)
-{
-	GError *error = NULL;
-	guint	handle;
-
-	dbus_g_proxy_end_call (proxy, call, &error,
-			       G_TYPE_UINT, &handle,
-			       G_TYPE_INVALID);
-
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
-	}
-}
 
 static void
 get_file_albumart_queue_cb (DBusGProxy     *proxy,
@@ -566,24 +586,6 @@ get_file_albumart_queue_cb (DBusGProxy     *proxy,
 			       G_TYPE_INVALID);
 
 	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
-		gchar **as_uri = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
-		gchar **hints = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
-
-		as_uri[0] = g_strdup_printf ("file://%s", info->art_path);
-		hints[0] = g_strdup ("image/jpeg");
-
-		dbus_g_proxy_begin_call (get_thumb_requester (),
-					 "Queue",
-					 thumbnail_generic_cb,
-					 NULL, NULL,
-					 G_TYPE_STRV, as_uri,
-					 G_TYPE_STRV, hints,
-					 G_TYPE_UINT, 0,
-					 G_TYPE_INVALID);
-
-		g_strfreev (as_uri);
-		g_strfreev (hints);
-
 		perhaps_copy_to_local (info->art_path, info->local_uri);
 	}
 
