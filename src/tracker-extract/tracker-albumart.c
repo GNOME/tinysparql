@@ -40,12 +40,18 @@
 #include <dbus/dbus-glib-bindings.h>
 
 #include <libtracker-common/tracker-common.h>
+#include <tracker-indexer/tracker-thumbnailer.h>
 
 #include "tracker-albumart.h"
 
 #define ALBUMARTER_SERVICE      "com.nokia.albumart"
 #define ALBUMARTER_PATH         "/com/nokia/albumart/Requester"
 #define ALBUMARTER_INTERFACE    "com.nokia.albumart.Requester"
+
+#define THUMBNAILER_SERVICE      "org.freedesktop.thumbnailer"
+#define THUMBNAILER_PATH         "/org/freedesktop/thumbnailer/Generic"
+#define THUMBNAILER_INTERFACE    "org.freedesktop.thumbnailer.Generic"
+
 
 static void get_albumart_path (const gchar  *a, 
 			       const gchar  *b, 
@@ -498,14 +504,58 @@ get_albumart_requester (void)
 	return albart_proxy;
 }
 
+
+static DBusGProxy*
+get_thumb_requester (void)
+{
+	static DBusGProxy *thumb_proxy = NULL;
+
+	if (!thumb_proxy) {
+		GError          *error = NULL;
+		DBusGConnection *connection;
+
+		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+		if (!error) {
+			thumb_proxy = dbus_g_proxy_new_for_name (connection,
+								 THUMBNAILER_SERVICE,
+								 THUMBNAILER_PATH,
+								 THUMBNAILER_INTERFACE);
+		} else {
+			g_error_free (error);
+		}
+	}
+
+	return thumb_proxy;
+}
+
 typedef struct {
 	gchar *art_path, *local_uri;
 } GetFileInfo;
 
+
+static void
+thumbnail_generic_cb (DBusGProxy     *proxy,
+		      DBusGProxyCall *call,
+		      gpointer	     user_data)
+{
+	GError *error = NULL;
+	guint	handle;
+
+	dbus_g_proxy_end_call (proxy, call, &error,
+			       G_TYPE_UINT, &handle,
+			       G_TYPE_INVALID);
+
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+	}
+}
+
 static void
 get_file_albumart_queue_cb (DBusGProxy     *proxy,
 			    DBusGProxyCall *call,
-			    gpointer	     user_data)
+			    gpointer	    user_data)
 {
 	GError      *error = NULL;
 	guint        handle;
@@ -515,8 +565,27 @@ get_file_albumart_queue_cb (DBusGProxy     *proxy,
 			       G_TYPE_UINT, &handle,
 			       G_TYPE_INVALID);
 
-	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS))
+	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
+		gchar **as_uri = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
+		gchar **hints = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
+
+		as_uri[0] = g_strdup_printf ("file://%s", info->art_path);
+		hints[0] = g_strdup ("image/jpeg");
+
+		dbus_g_proxy_begin_call (get_thumb_requester (),
+					 "Queue",
+					 thumbnail_generic_cb,
+					 NULL, NULL,
+					 G_TYPE_STRV, as_uri,
+					 G_TYPE_STRV, hints,
+					 G_TYPE_UINT, 0,
+					 G_TYPE_INVALID);
+
+		g_strfreev (as_uri);
+		g_strfreev (hints);
+
 		perhaps_copy_to_local (info->art_path, info->local_uri);
+	}
 
 	g_free (info->art_path);
 	g_free (info->local_uri);
