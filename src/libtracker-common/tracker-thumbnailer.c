@@ -47,7 +47,21 @@
 
 #define THUMBNAIL_REQUEST_LIMIT 50
 
+typedef struct {
+	GStrv     supported_mime_types;
 
+	gchar    *uris[THUMBNAIL_REQUEST_LIMIT + 1];
+	gchar    *mime_types[THUMBNAIL_REQUEST_LIMIT + 1];
+
+	guint     request_id;
+	guint     timeout_id;
+	guint     count;
+
+	gboolean  service_is_prepared;
+	gboolean  service_is_available;
+} TrackerThumbnailerPrivate;
+
+static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 static DBusGProxy*
 get_thumb_requester (void)
@@ -97,21 +111,6 @@ get_thumb_manager (void)
 
 	return thumbm_proxy;
 }
-
-typedef struct {
-	GStrv     supported_mime_types;
-
-	gchar    *uris[THUMBNAIL_REQUEST_LIMIT + 1];
-	gchar    *mime_types[THUMBNAIL_REQUEST_LIMIT + 1];
-
-	guint     request_id;
-	guint     count;
-	guint     timeout_id;
-
-	gboolean  service_is_prepared;
-} TrackerThumbnailerPrivate;
-
-static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 static void
 private_free (gpointer data)
@@ -266,13 +265,16 @@ thumbnailer_prepare (void)
 	if (error) {
 		g_warning ("Thumbnailer service did not return supported mime types, %s",
 			   error->message);
+
 		g_error_free (error);
 	} else if (mime_types) {
 		g_message ("Thumbnailer supports %d mime types", 
 			   g_strv_length (mime_types));
+
 		private->supported_mime_types = mime_types;
-	}
-	
+		private->service_is_available = TRUE;
+	}	
+
 	private->service_is_prepared = TRUE;
 }
 
@@ -313,6 +315,10 @@ tracker_thumbnailer_move (const gchar *from_uri,
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
+
+	if (!private->service_is_available) {
+		return;
+	}
 
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
 		g_debug ("Thumbnailer ignoring mime type:'%s'",
@@ -355,6 +361,10 @@ tracker_thumbnailer_remove (const gchar *uri,
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
+	if (!private->service_is_available) {
+		return;
+	}
+
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
 		g_debug ("Thumbnailer ignoring mime type:'%s' and uri:'%s'",
 			 mime_type,
@@ -389,6 +399,10 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
+	if (!private->service_is_available) {
+		return;
+	}
+
 	private->request_id++;
 
 	g_message ("Requesting thumbnailer cleanup URI:'%s', request_id:%d...",
@@ -407,7 +421,6 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 #endif /* THUMBNAILING_OVER_DBUS */
 }
 
-
 void
 tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 					const gchar *mime_type)
@@ -420,6 +433,10 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
+
+	if (!private->service_is_available) {
+		return;
+	}
 
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
 		g_debug ("Thumbnailer ignoring mime type:'%s' and uri:'%s'",

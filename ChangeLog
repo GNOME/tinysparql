@@ -1,5 +1,13 @@
 2008-11-25  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-common/tracker-thumbnailer.c: Set a flag if the
+	prepare function succeeds so we know the service can be contacted.
+	If it can't be contacted for some reason, don't keep trying and
+	waiting for the timeout for every file the indexer sends us.
+	Instead, just return.
+
+2008-11-25  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-applet/tracker-applet.c: Don't output logging with
 	g_print(), indexer status updates were being picked up in
 	~/.xsession-errors which in turn was pausing the indexing making
