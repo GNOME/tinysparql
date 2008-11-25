@@ -17,7 +17,7 @@
 	* tests/tracker-indexer/Makefile.am: Added code to clean up
 	database volumes which have been disabled for more than 3 days.
 	Moved the thumbnailer code to libtracker-common since it is used
-	by the indexer and the daemon. This patch was written by Phillip.
+	by the indexer and the daemon. This patch was written by Philip.
 
 2008-11-24  Philip Van Hoof  <philip@codeminded.be>
 
