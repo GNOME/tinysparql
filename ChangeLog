@@ -1,5 +1,12 @@
 2008-11-25  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-applet/tracker-applet.c: Don't output logging with
+	g_print(), indexer status updates were being picked up in
+	~/.xsession-errors which in turn was pausing the indexing making
+	it take longer than it needs to unnecessarily.
+
+2008-11-25  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac:
 	* data/db/sqlite-stored-procs.sql:
 	* data/db/sqlite-tracker.sql:

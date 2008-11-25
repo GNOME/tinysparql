@@ -54,6 +54,8 @@
 #include "tracker-applet.h"
 #include "tracker-applet-marshallers.h"
 
+#define TRAY_ICON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TYPE_TRAY_ICON, TrayIconPrivate))
+
 #define PROGRAM			"tracker-applet"
 #define PROGRAM_NAME		N_("Tracker Applet")
 
@@ -64,7 +66,27 @@
 #define DBUS_PATH_TRACKER	"/org/freedesktop/tracker"
 #define DBUS_INTERFACE_TRACKER	"org.freedesktop.Tracker"
 
-#define TRAY_ICON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TYPE_TRAY_ICON, TrayIconPrivate))
+#define DISABLE_DEBUG
+
+#ifdef G_HAVE_ISO_VARARGS
+#  ifdef DISABLE_DEBUG
+#    define debug(...)
+#  else
+#    define debug(...) debug_impl (__VA_ARGS__)
+#  endif
+#elif defined(G_HAVE_GNUC_VARARGS)
+#  if DISABLE_DEBUG
+#    define debug(fmt...)
+#  else
+#    define debug(fmt...) debug_impl(fmt)
+#  endif
+#else
+#  if DISABLE_DEBUG
+#    define debug(x)
+#  else
+#    define debug debug_impl
+#  endif
+#endif
 
 typedef enum {
 	ICON_DEFAULT,
@@ -194,6 +216,22 @@ static GOptionEntry entries[] = {
 	},
 	{ NULL }
 };
+
+#ifndef DISABLE_DEBUG
+
+static void
+debug_impl (const gchar *msg, ...)
+{
+	va_list args;
+
+	va_start (args, msg);
+	g_vfprintf (stderr, msg, args);
+	va_end (args);
+
+	g_fprintf (stderr, "\n");
+}
+
+#endif /* DISABLE_DEBUG */
 
 static gboolean
 query_pointer_timeout (Window window)
@@ -754,7 +792,7 @@ activate_icon (GtkStatusIcon *icon,
 	GError *error = NULL;
 	const gchar *command = "tracker-search-tool";
 
-	g_print ("Spawning command:'%s'\n", command);
+	debug ("Spawning command:'%s'\n", command);
 
 	if (!g_spawn_command_line_async (command, &error)) {
 		g_warning ("Unable to execute command:'%s', %s",
@@ -1008,7 +1046,7 @@ restart_tracker (GtkDialog *dialog,
 	if (response == GTK_RESPONSE_YES) {
 		TrayIconPrivate *priv;
 
-		g_print ("Attempting to restart tracker\n");
+		debug ("Attempting to restart tracker\n");
 
 		priv = TRAY_ICON_GET_PRIVATE (icon);
 		priv->reindex = TRUE;
@@ -1080,7 +1118,7 @@ preferences_menu_activated (GtkMenuItem *item,
 	GError *error = NULL;
 	const gchar *command = "tracker-preferences";
 
-	g_print ("Spawning command:'%s'\n", command);
+	debug ("Spawning command:'%s'\n", command);
 
 	if (!g_spawn_command_line_async (command, &error)) {
 		g_warning ("Unable to execute command:'%s', %s",
@@ -1492,7 +1530,7 @@ index_finished (DBusGProxy *proxy,
 
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 
-	g_print ("Indexing finished in %f seconds\n",
+	debug ("Indexing finished in %f seconds\n",
 		 seconds_elapsed);
 
 	priv->indexer_stopped = FALSE;
@@ -1656,7 +1694,7 @@ index_progress_changed (DBusGProxy  *proxy,
 
 	priv->email_indexing = strcmp (service, "Emails") == 0;
 
-	g_print ("Indexed %d/%d, seconds elapsed:%f\n",
+	debug ("Indexed %d/%d, seconds elapsed:%f\n",
 		 items_done,
 		 items_total,
 		 seconds_elapsed);
@@ -1717,7 +1755,7 @@ name_owner_changed (DBusGProxy	*proxy,
 		gtk_status_icon_set_visible (priv->icon, FALSE);
 		priv->indexer_stopped = TRUE;
 
-		g_print ("The Tracker daemon has exited (%s)\n",
+		debug ("The Tracker daemon has exited (%s)\n",
 			 priv->reindex ? "reindexing" : "not reindexing");
 
 		if (priv->reindex) {
@@ -1726,10 +1764,10 @@ name_owner_changed (DBusGProxy	*proxy,
 
 			priv->reindex = FALSE;
 
-			g_print ("Restarting Tracker daemon in 1 second\n");
+			debug ("Restarting Tracker daemon in 1 second\n");
 			g_usleep (G_USEC_PER_SEC);
 
-			g_print ("Spawning command:'%s'\n", command);
+			debug ("Spawning command:'%s'\n", command);
 
 			if (!g_spawn_command_line_async (command, &error)) {
 				g_warning ("Unable to execute command:'%s', %s",
@@ -1753,7 +1791,7 @@ setup_dbus_connection (TrayIcon *icon)
 	priv->tracker = tracker_connect (FALSE);
 
 	if (!priv->tracker) {
-		g_printerr ("Could not connect to the Tracker daemon\n");
+		g_critical ("Could not connect to the Tracker daemon\n");
 		exit (EXIT_FAILURE);
 	}
 
@@ -2123,11 +2161,11 @@ main (int argc, char *argv[])
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);
 
-	g_print ("Initializing GTK+\n");
+	debug ("Initializing GTK+\n");
 
 	gtk_init (&argc, &argv);
 
-	g_print ("Initializing libnotify\n");
+	debug ("Initializing libnotify\n");
 
 	if (!notify_is_initted () &&
 	    !notify_init (PROGRAM_NAME)) {
@@ -2135,7 +2173,7 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	g_print ("Initializing strings\n");
+	debug ("Initializing strings\n");
 
 	gtk_window_set_default_icon_name ("tracker");
 	g_set_application_name (_("Tracker"));
@@ -2153,13 +2191,13 @@ main (int argc, char *argv[])
 	stat_info[10].label = _("Conversations:");
 	stat_info[11].label = _("Emails:");
 
-	g_print ("Initializing tray icon\n");
+	debug ("Initializing tray icon\n");
 
 	main_icon = g_object_new (TYPE_TRAY_ICON, NULL);
 
 	priv = TRAY_ICON_GET_PRIVATE (main_icon);
 
-	g_print ("Initializing config\n");
+	debug ("Initializing config\n");
 
 	priv->keyfile = NULL;
 	priv->filename = g_build_filename (g_get_user_config_dir (),
@@ -2171,11 +2209,11 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	g_print ("Starting main loop\n");
+	debug ("Starting main loop\n");
 
 	gtk_main ();
 
-	g_print ("Shutting down\n");
+	debug ("Shutting down\n");
 
 	notify_uninit ();
 
