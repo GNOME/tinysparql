@@ -60,6 +60,7 @@
 #include "tracker-processor.h"
 #include "tracker-status.h"
 #include "tracker-xesam-manager.h"
+#include "tracker-cleanup.h"
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -984,6 +985,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_data_manager_init (config, language, file_index, email_index);
 	tracker_xesam_manager_init ();
+	tracker_cleanup_init ();
 
 #ifdef HAVE_HAL
 	/* We set up the throttle and mount points here. For the mount
@@ -1071,6 +1073,7 @@ main (gint argc, gchar *argv[])
 	shutdown_directories ();
 
 	/* Shutdown major subsystems */
+	tracker_cleanup_shutdown ();
 	tracker_xesam_manager_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_db_manager_shutdown ();

@@ -37,6 +37,7 @@ void tracker_thumbnailer_move               (const gchar *from_uri,
 					     const gchar *to_uri);
 void tracker_thumbnailer_remove             (const gchar *uri,
 					     const gchar *mime_type);
+void tracker_thumbnailer_cleanup            (const gchar *uri_prefix);
 
 G_END_DECLS
 

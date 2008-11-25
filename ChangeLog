@@ -1,3 +1,24 @@
+2008-11-25  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* data/db/sqlite-stored-procs.sql:
+	* data/db/sqlite-tracker.sql:
+	* src/libtracker-common/Makefile.am:
+	* src/libtracker-common/tracker-thumbnailer.[ch]:
+	* src/tracker-extract/tracker-albumart.c:
+	* src/tracker-indexer/Makefile.am:
+	* src/tracker-indexer/tracker-dbus.c:
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/tracker-indexer/tracker-main.c:
+	* src/tracker-indexer/tracker-metadata-utils.c:
+	* src/tracker-indexer/tracker-thumbnailer.[ch]:
+	* src/trackerd/Makefile.am:
+	* src/trackerd/tracker-main.c: 
+	* tests/tracker-indexer/Makefile.am: Added code to clean up
+	database volumes which have been disabled for more than 3 days.
+	Moved the thumbnailer code to libtracker-common since it is used
+	by the indexer and the daemon. This patch was written by Phillip.
+
 2008-11-24  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Requesting thumbnails of 

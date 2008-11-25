@@ -1114,8 +1114,6 @@ AC_CONFIG_LINKS(tests/tracker-indexer/tracker-dbus.c:src/tracker-indexer/tracker
                 tests/tracker-indexer/tracker-module-file.h:src/tracker-indexer/tracker-module-file.h
                 tests/tracker-indexer/tracker-module-iteratable.c:src/tracker-indexer/tracker-module-iteratable.c
                 tests/tracker-indexer/tracker-module-iteratable.h:src/tracker-indexer/tracker-module-iteratable.h
-		tests/tracker-indexer/tracker-thumbnailer.h:src/tracker-indexer/tracker-thumbnailer.h
-		tests/tracker-indexer/tracker-thumbnailer.c:src/tracker-indexer/tracker-thumbnailer.c
 )
 
 ##################################################################

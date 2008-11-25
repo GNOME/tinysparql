@@ -29,9 +29,9 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-metadata-utils.h"
-#include "tracker-thumbnailer.h"
 
 #define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
 #define METADATA_FILE_EXT	     "File:Ext"

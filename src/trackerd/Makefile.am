@@ -61,7 +61,9 @@ trackerd_SOURCES =							\
 	tracker-xesam-session.c						\
 	tracker-xesam-session.h						\
 	tracker-xesam-live-search.c					\
-	tracker-xesam-live-search.h
+	tracker-xesam-live-search.h					\
+	tracker-cleanup.c						\
+	tracker-cleanup.h
 
 if OS_WIN32
 trackerd_win_libs = -lws2_32 -lkernel32

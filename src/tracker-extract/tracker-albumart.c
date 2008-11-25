@@ -40,6 +40,7 @@
 #include <dbus/dbus-glib-bindings.h>
 
 #include <libtracker-common/tracker-common.h>
+#include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-albumart.h"
 
@@ -58,31 +59,6 @@ static void get_albumart_path (const gchar  *a,
 			       const gchar  *uri,
 			       gchar       **path,
 			       gchar       **local);
-
-
-static DBusGProxy*
-get_thumb_requester (void)
-{
-	static DBusGProxy *thumb_proxy = NULL;
-
-	if (!thumb_proxy) {
-		GError          *error = NULL;
-		DBusGConnection *connection;
-
-		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-		if (!error) {
-			thumb_proxy = dbus_g_proxy_new_for_name (connection,
-								 THUMBNAILER_SERVICE,
-								 THUMBNAILER_PATH,
-								 THUMBNAILER_INTERFACE);
-		} else {
-			g_error_free (error);
-		}
-	}
-
-	return thumb_proxy;
-}
 
 #ifndef HAVE_STRCASESTR
 
@@ -254,23 +230,6 @@ strip_characters (const gchar *original)
 	return retval;
 }
 
-static void
-thumbnail_generic_cb (DBusGProxy     *proxy,
-		      DBusGProxyCall *call,
-		      gpointer	     user_data)
-{
-	GError *error = NULL;
-	guint	handle;
-
-	dbus_g_proxy_end_call (proxy, call, &error,
-			       G_TYPE_UINT, &handle,
-			       G_TYPE_INVALID);
-
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
-	}
-}
 
 static void
 perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
@@ -287,23 +246,7 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 	if (!filename)
 		return;
 
-	as_uri = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
-	hints = (gchar **) g_malloc0 (sizeof (gchar *) * 2);
-
-	as_uri[0] = g_strdup_printf ("file://%s", filename);
-	hints[0] = g_strdup ("image/jpeg");
-
-	dbus_g_proxy_begin_call (get_thumb_requester (),
-				 "Queue",
-				 thumbnail_generic_cb,
-				 NULL, NULL,
-				 G_TYPE_STRV, as_uri,
-				 G_TYPE_STRV, hints,
-				 G_TYPE_UINT, 0,
-				 G_TYPE_INVALID);
-
-	g_strfreev (as_uri);
-	g_strfreev (hints);
+	tracker_thumbnailer_get_file_thumbnail (filename, "image/jpeg");
 
 	if (!local_uri)
 		return;

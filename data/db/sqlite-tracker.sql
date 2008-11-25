@@ -17,8 +17,8 @@ CREATE TABLE  Volumes
 	UDI		Text,
 	VolumeName	Text,
 	MountPath	Text,
-	Enabled		Integer default 0
-
+	Enabled		Integer default 0,
+	DisabledDate	Text
 );
 
 

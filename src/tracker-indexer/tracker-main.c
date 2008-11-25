@@ -37,6 +37,7 @@
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-index-manager.h>
@@ -45,7 +46,6 @@
 
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
-#include "tracker-thumbnailer.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"					  \

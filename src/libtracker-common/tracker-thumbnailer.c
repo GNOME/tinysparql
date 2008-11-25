@@ -38,7 +38,65 @@
 
 #ifdef THUMBNAILING_OVER_DBUS
 
+#define THUMBNAILER_SERVICE	 "org.freedesktop.thumbnailer"
+#define THUMBNAILER_PATH	 "/org/freedesktop/thumbnailer/Generic"
+#define THUMBNAILER_INTERFACE	 "org.freedesktop.thumbnailer.Generic"
+
+#define THUMBMAN_PATH		 "/org/freedesktop/thumbnailer/Manager"
+#define THUMBMAN_INTERFACE	 "org.freedesktop.thumbnailer.Manager"
+
 #define THUMBNAIL_REQUEST_LIMIT 50
+
+
+
+static DBusGProxy*
+get_thumb_requester (void)
+{
+	static DBusGProxy *thumb_proxy = NULL;
+
+	if (!thumb_proxy) {
+		GError          *error = NULL;
+		DBusGConnection *connection;
+
+		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+		if (!error) {
+			thumb_proxy = dbus_g_proxy_new_for_name (connection,
+								 THUMBNAILER_SERVICE,
+								 THUMBNAILER_PATH,
+								 THUMBNAILER_INTERFACE);
+		} else {
+			g_error_free (error);
+		}
+	}
+
+	return thumb_proxy;
+}
+
+
+static DBusGProxy*
+get_thumb_manager (void)
+{
+	static DBusGProxy *thumbm_proxy = NULL;
+
+	if (!thumbm_proxy) {
+		GError          *error = NULL;
+		DBusGConnection *connection;
+
+		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+		if (!error) {
+			thumbm_proxy = dbus_g_proxy_new_for_name (connection,
+								 THUMBNAILER_SERVICE,
+								 THUMBMAN_PATH,
+								 THUMBMAN_INTERFACE);
+		} else {
+			g_error_free (error);
+		}
+	}
+
+	return thumbm_proxy;
+}
 
 typedef struct {
 	GStrv     supported_mime_types;
@@ -146,7 +204,7 @@ thumbnailer_request_timeout_cb (gpointer data)
 		   private->count,
 		   private->request_id);
 	
-	dbus_g_proxy_begin_call (tracker_dbus_get_thumbnailer (),
+	dbus_g_proxy_begin_call (get_thumb_requester (),
 				 "Queue",
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id), 
@@ -199,7 +257,7 @@ thumbnailer_prepare (void)
 
 	g_message ("Thumbnailer supported mime types being requested...");
 
-	dbus_g_proxy_call (tracker_dbus_get_thumb_manager (),
+	dbus_g_proxy_call (get_thumb_manager (),
 			   "GetSupported", &error, 
 			   G_TYPE_INVALID,
 			   G_TYPE_STRV, &mime_types, 
@@ -272,7 +330,7 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	to[0] = to_uri;
 	from[0] = from_uri;
 	
-	dbus_g_proxy_begin_call (tracker_dbus_get_thumbnailer (),
+	dbus_g_proxy_begin_call (get_thumb_requester (),
 				 "Move",
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id), 
@@ -312,7 +370,7 @@ tracker_thumbnailer_remove (const gchar *uri,
 		   uri,
 		   private->request_id); 
 	
-	dbus_g_proxy_begin_call (tracker_dbus_get_thumbnailer (),
+	dbus_g_proxy_begin_call (get_thumb_requester (),
 				 "Delete",
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id),
@@ -321,6 +379,34 @@ tracker_thumbnailer_remove (const gchar *uri,
 				 G_TYPE_INVALID);
 #endif /* THUMBNAILING_OVER_DBUS */
 }
+
+void 
+tracker_thumbnailer_cleanup (const gchar *uri_prefix)
+{
+#ifdef THUMBNAILING_OVER_DBUS
+	TrackerThumbnailerPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	private->request_id++;
+
+	g_message ("Requesting thumbnailer cleanup URI:'%s', request_id:%d...",
+		   uri_prefix,
+		   private->request_id); 
+
+	dbus_g_proxy_begin_call (get_thumb_requester (),
+				 "Cleanup",
+				 thumbnailer_reply_cb,
+				 GUINT_TO_POINTER (private->request_id),
+				 NULL,
+				 G_TYPE_STRING, uri_prefix,
+				 G_TYPE_INT64, 0,
+				 G_TYPE_INVALID);
+
+#endif /* THUMBNAILING_OVER_DBUS */
+}
+
 
 void
 tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
