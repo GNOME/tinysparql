@@ -8,7 +8,7 @@
 	Enabled value as well as the Services table so we don't show files
 	which are disabled because the memory card isn't mounted. We also
 	now don't delete memory card data in the Services table when we
-	unmount.
+	unmount. This work was partly done by Jürg.
 
 	Fixes NB#92788.
 
