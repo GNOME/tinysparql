@@ -1,3 +1,17 @@
+2008-11-26  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* data/services/default.metadata: Made DC:Subject and DC:Keywords
+	multivalued.
+	
+	* src/tracker-extract/tracker-xmp.c: Handle multivalued fields
+	correctly and use '|' as separator.
+	
+	* src/libtracker-data/tracker-rdf-query.c: Fixed some bugs introduced
+	by recent changes.
+	
+	* src/tracker-indexer/tracker-metadata-utils.c: Added support for
+	multivalued field extraction using '|' as the separator.	
+
 2008-11-26  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-cleanup.[ch]: Committed the changes I made

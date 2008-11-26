@@ -50,7 +50,7 @@ tracker_append_string_to_hash_table (GHashTable *metadata, const gchar *key, con
 	if (append) {
 		gchar *orig;
 		if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer)&orig )) {
-			new_value = g_strconcat (orig, " ", value, NULL);
+			new_value = g_strconcat (orig, "|", value, NULL);
 		} else {
 			new_value = g_strdup (value);
 		}

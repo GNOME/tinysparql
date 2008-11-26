@@ -312,6 +312,7 @@ metadata_utils_get_embedded (const char          *path,
 	gchar **values;
 	const gchar *service_type;
 	gint i;
+	TrackerField *field;
 
 	service_type = tracker_ontology_get_service_by_mime (mime_type);
 	if (!service_type) {
@@ -349,17 +350,50 @@ metadata_utils_get_embedded (const char          *path,
 
 		if (!name || !value)
 			continue;
+		
+		field = tracker_ontology_get_field_by_name (name);
 
-		if (!g_utf8_validate (value, -1, NULL)) {
-			utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
-		} else {
-			utf_value = g_strdup (value);
-		}
-
-		if (!utf_value)
+		if (!field) {
+			g_warning ("Field name '%s' isn't described in the ontology", name);
 			continue;
+		}
+		
+		if (tracker_field_get_multiple_values (field)) {
+			GStrv  values = NULL;
+			GList *list = NULL;
+			guint  i;
 
-		tracker_data_metadata_insert (metadata, name, utf_value);
+			values = g_strsplit (value, "|",-1);
+
+			for (i = 0; values[i]; i++) {
+				if (!g_utf8_validate (values[i], -1, NULL)) {
+					utf_value = g_locale_to_utf8 (values[i], -1, NULL, NULL, NULL);
+				} else {
+					utf_value = g_strdup (values[i]);
+				}
+				
+				if (!utf_value)
+					continue;
+
+				list = g_list_prepend (list, utf_value);
+			}
+			
+			g_strfreev (values);
+
+			tracker_data_metadata_insert_values (metadata, name, list);
+
+		} else {
+			if (!g_utf8_validate (value, -1, NULL)) {
+				utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
+			} else {
+				utf_value = g_strdup (value);
+			}
+			
+			if (!utf_value)
+				continue;
+			
+			tracker_data_metadata_insert (metadata, name, utf_value);
+		}
 	}
 
 	g_strfreev (values);

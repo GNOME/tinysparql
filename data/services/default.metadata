@@ -75,12 +75,14 @@ Abstract=true
 DisplayName=Subject
 Description=specifies the topic of the content of the resource
 DataType=index
+MultipleValues=true
 
 [DC:Keywords]
 Abstract=true
 DisplayName=Keywords
 Description=Keywords that are used to tag a resource
 DataType=keyword
+MultipleValues=true
 
 [DC:Title]
 Abstract=true

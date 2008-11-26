@@ -1219,13 +1219,13 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 	data.sql_where = g_string_new ("");
 
-	g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
+	g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
 
 	/* only search for items on enabled volumes */
-	g_string_append (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
+	g_string_append_printf (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
 
 	if (strlen (query) >= 10) {
-		g_string_append (data.sql_where, "AND ");
+		g_string_append_printf (data.sql_where, "AND ");
 	}
 
 	if (limit < 1) {
