@@ -10,6 +10,8 @@
 	now don't delete memory card data in the Services table when we
 	unmount.
 
+	Fixes NB#92788.
+
 2008-11-25  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-thumbnailer.c: Set a flag if the
