@@ -1,5 +1,10 @@
 2008-11-26  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-cleanup.[ch]: Committed the changes I made
+	to these files.
+
+2008-11-26  Martyn Russell  <martyn@imendio.com>
+
 	* data/db/sqlite-stored-procs.sql:
 	* src/libtracker-data/tracker-data-search.c:
 	* src/libtracker-data/tracker-rdf-query.c:

@@ -25,9 +25,14 @@
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-data/tracker-data-update.h>
 
-#define MORE_THAN_A_DAY_OF_SECONDS 86400 + 60
+/* Deals with cleaning up resident data after longer timeouts (days,
+ * sessions).
+ */
+#define SECONDS_PER_DAY (60 * 60 * 24)
 
-/* Deals with cleaning up resident data after longer timeouts (days, sessions) */
+typedef struct {
+	guint timeout_id;
+} TrackerCleanupPrivate;
 
 static gboolean
 check_for_volumes_to_cleanup (gpointer user_data)
@@ -37,14 +42,16 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 
-	/* The stored statements of volume management have the "every one that 
-	 * is older than three days since their last unmount time" logic embed-
-	 * ded in the SQL statements. Take a look at sqlite-stored-procs.sql */
-
-	result_set = tracker_db_interface_execute_procedure (iface, NULL,
-					   "GetVolumesToClean",
-					   NULL);
-
+	/* The stored statements of volume management have the "every
+	 * one that is older than three days since their last unmount
+	 * time" logic embedded in the SQL statements. Take a look at
+	 * sqlite-stored-procs.sql.
+	 */
+	result_set = 
+		tracker_db_interface_execute_procedure (iface, NULL,
+							"GetVolumesToClean",
+							NULL);
+	
 	if (result_set) {
 		gboolean is_valid = TRUE;
 
@@ -70,11 +77,6 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 	return TRUE;
 }
-
-
-typedef struct {
-	guint     timeout_id;
-} TrackerCleanupPrivate;
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
@@ -105,12 +107,15 @@ tracker_cleanup_init (void)
 
 	check_for_volumes_to_cleanup (private);
 
+	/* We use +1 because we want to make sure we trigger this
+	 * into the 4th day, not on the 3rd day. This guarantees at
+	 * least 3 days worth.
+	 */
 	private->timeout_id =
-		g_timeout_add_seconds (MORE_THAN_A_DAY_OF_SECONDS, 
+		g_timeout_add_seconds (SECONDS_PER_DAY + 1, 
 				       check_for_volumes_to_cleanup,
 				       private);
 }
-
 
 void tracker_cleanup_shutdown (void)
 {

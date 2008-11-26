@@ -21,7 +21,11 @@
 #ifndef __TRACKERD_CLEANUP_H__
 #define __TRACKERD_CLEANUP_H__
 
-void tracker_cleanup_init (void);
+G_BEGIN_DECLS
+
+void tracker_cleanup_init     (void);
 void tracker_cleanup_shutdown (void);
+
+G_END_DECLS
 
 #endif /* __TRACKERD_CLEANUP_H__ */
