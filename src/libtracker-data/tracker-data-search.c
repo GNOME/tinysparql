@@ -593,7 +593,19 @@ tracker_data_search_files_get_by_mime (TrackerDBInterface  *iface,
 		service = "Files";
 	}
 
-	str = g_string_new ("SELECT  DISTINCT F.Path || '/' || F.Name AS uri FROM Services F INNER JOIN ServiceKeywordMetaData M ON F.ID = M.ServiceID WHERE M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Mime') AND (M.MetaDataValue IN ");
+	str = g_string_new ("SELECT DISTINCT S.Path || '/' || S.Name AS uri "
+			    "FROM Services AS S "
+			    "INNER JOIN ServiceKeywordMetaData AS M "
+			    "ON "
+			    "S.ID = M.ServiceID "
+			    "WHERE "
+			    "S.Enabled = 1 "
+			    "AND "
+			    "(S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) "
+			    "AND "
+			    "(M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Mime')) "
+			    "AND "
+			    "(M.MetaDataValue IN ");
 
 	g_string_append_printf (str, "('%s'", mimes[0]);
 
@@ -601,8 +613,12 @@ tracker_data_search_files_get_by_mime (TrackerDBInterface  *iface,
 		g_string_append_printf (str, ", '%s'", mimes[i]);
 	}
 
+	g_string_append (str, ")) ");
+
 	g_string_append_printf (str,
-				")) AND (F.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) LIMIT %d,%d",
+				"AND "
+				"(S.ServiceTypeID IN (SELECT TypeId FROM ServiceTypes WHERE TypeName = '%s' OR Parent = '%s')) "
+				"LIMIT %d,%d",
 				service,
 				service,
 				offset,
@@ -740,7 +756,7 @@ tracker_data_search_get_unique_values (const gchar  *service_type,
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 
 	sql_select = g_string_new ("SELECT DISTINCT ");
-	sql_from   = g_string_new ("\nFROM Services S ");
+	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 	sql_order  = g_string_new ("\nORDER BY ");
 
@@ -862,7 +878,7 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 
 	sql_select = g_string_new ("SELECT DISTINCT ");
-	sql_from   = g_string_new ("\nFROM Services S ");
+	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 	sql_order  = g_string_new ("\nORDER BY ");
 	sql_group  = g_string_new ("\nGROUP BY ");
@@ -1018,7 +1034,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 
 	sql_select = g_string_new ("SELECT DISTINCT ");
-	sql_from   = g_string_new ("\nFROM Services S ");
+	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 	sql_order  = g_string_new ("\nORDER BY ");
 	sql_group  = g_string_new ("\nGROUP BY ");
@@ -1203,7 +1219,7 @@ tracker_data_search_get_sum (const gchar	 *service_type,
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 
 	sql_select = g_string_new ("SELECT ");
-	sql_from   = g_string_new ("\nFROM Services S ");
+	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 
 	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, FALSE, TRUE);
@@ -1312,7 +1328,7 @@ tracker_data_search_get_count (const gchar	   *service_type,
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 
 	sql_select = g_string_new ("SELECT ");
-	sql_from   = g_string_new ("\nFROM Services S ");
+	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 
 	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, FALSE, TRUE);
@@ -1429,7 +1445,7 @@ tracker_data_search_metadata_in_path (const gchar	       *path,
 	/* Build SELECT clause */
 	sql = g_string_new (" ");
 	g_string_append_printf (sql,
-				"SELECT (F.Path || '%s' || F.Name) as PathName ",
+				"SELECT (S.Path || '%s' || S.Name) as PathName ",
 				G_DIR_SEPARATOR_S);
 
 	for (i = 1; i <= g_strv_length (fields); i++) {
@@ -1438,7 +1454,7 @@ tracker_data_search_metadata_in_path (const gchar	       *path,
 		field = tracker_data_schema_get_field_name ("Files", fields[i-1]);
 
 		if (field) {
-			g_string_append_printf (sql, ", F.%s ", field);
+			g_string_append_printf (sql, ", S.%s ", field);
 			g_free (field);
 			needs_join[i - 1] = FALSE;
 		} else {
@@ -1453,7 +1469,7 @@ tracker_data_search_metadata_in_path (const gchar	       *path,
 
 	/* Build FROM clause */
 	g_string_append (sql,
-			 " FROM Services F ");
+			 " FROM Services AS S ");
 
 	for (i = 0; i < g_strv_length (fields); i++) {
 		const gchar *table;
@@ -1466,7 +1482,7 @@ tracker_data_search_metadata_in_path (const gchar	       *path,
 
 		g_string_append_printf (sql,
 					" LEFT OUTER JOIN %s M%d ON "
-					"F.ID = M%d.ServiceID AND "
+					"S.ID = M%d.ServiceID AND "
 					"M%d.MetaDataID = %s ",
 					table,
 					i + 1,
@@ -1477,8 +1493,15 @@ tracker_data_search_metadata_in_path (const gchar	       *path,
 
 	/* Build WHERE clause */
 	g_string_append_printf (sql,
-				" WHERE F.Path = '%s' ",
+				" "
+				"WHERE "
+				"S.Path = '%s' "
+				"AND "
+				"S.Enabled = 1 "
+				"AND "
+				"(S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ",
 				uri_filtered);
+
 	g_free (uri_filtered);
 
 	query = g_string_free (sql, FALSE);
@@ -1533,7 +1556,7 @@ tracker_data_search_keywords (const gchar	*service_type,
 	select = g_string_new (" Select distinct S.Path || '");
 	select = g_string_append (select, G_DIR_SEPARATOR_S);
 	select = g_string_append (select,
-				  "' || S.Name as EntityName from Services S, ServiceKeywordMetaData M ");
+				  "' || S.Name as EntityName from Services AS S, ServiceKeywordMetaData AS M ");
 
 	/* Create where string */
 	related_metadata = tracker_data_schema_metadata_field_get_related_names (iface, "User:Keywords");

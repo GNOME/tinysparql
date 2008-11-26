@@ -1449,10 +1449,15 @@ mount_point_removed_cb (TrackerHal  *hal,
 
 	processor = user_data;
 
-	/* Remove the monitor and item from the database */
+	/* Remove the monitor, the volumes are updated somewhere else
+	 * in main. 
+	 * 
+	 * FIXME: we _should_ really remove all monitors recursively
+	 * here, because we are leaking each time a new MMC is
+	 * inserted :O -mr
+	 */
 	file = g_file_new_for_path (mount_point);
 	tracker_monitor_remove (processor->private->monitor, module_name, file);
-	processor_files_delete (processor, module_name, file, TRUE);
 	g_object_unref (file);
 }
 

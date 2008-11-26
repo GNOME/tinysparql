@@ -1146,10 +1146,10 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			  gint		       limit,
 			  GError	     **error)
 {
-	ParserData  data;
-	gchar	   *result;
-	gchar	   *table_name;
-	gboolean    do_search = FALSE;
+	ParserData   data;
+	gchar	    *result;
+	const gchar *table_name;
+	gboolean     do_search = FALSE;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
 	g_return_val_if_fail (query != NULL, NULL);
@@ -1197,11 +1197,11 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 	if (!tracker_is_empty_string (search_text)) {
 		do_search = TRUE;
 		g_string_append_printf (data.sql_from,
-					"\n FROM %s S INNER JOIN SearchResults1 M ON S.ID = M.SID ",
+					"\n FROM %s AS S INNER JOIN SearchResults1 M ON S.ID = M.SID ",
 					table_name);
 	} else {
 		g_string_append_printf (data.sql_from,
-					"\n FROM %s S ",
+					"\n FROM %s AS S ",
 					table_name);
 	}
 
@@ -1219,16 +1219,13 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 	data.sql_where = g_string_new ("");
 
-	if (strlen (query) < 10) {
-		g_string_append_printf (data.sql_where,
-					"\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ",
-					service,
-					service);
-	} else {
-		g_string_append_printf (data.sql_where,
-					"\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) AND ",
-					service,
-					service);
+	g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
+
+	/* only search for items on enabled volumes */
+	g_string_append (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
+
+	if (strlen (query) >= 10) {
+		g_string_append (data.sql_where, "AND ");
 	}
 
 	if (limit < 1) {
@@ -1309,9 +1306,9 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 	push_stack (&data, STATE_START);
 
-	result = NULL;
-
 	if (!g_markup_parse_context_parse (data.context, query, -1, error)) {
+                result = NULL;
+
 		g_string_free (data.sql_select, TRUE);
 		g_string_free (data.sql_from, TRUE);
 		g_string_free (data.sql_where, TRUE);
@@ -1413,10 +1410,13 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 
 	data.fields = *fields;
 
-	if (strlen (query) < 10) {
-		g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
-	} else {
-		g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) AND ", service, service);
+	g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
+
+	/* only search for items on enabled volumes */
+	g_string_append (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
+
+	if (strlen (query) >= 10) {
+		g_string_append (data.sql_where, "AND ");
 	}
 
 	data.parser = g_new0 (GMarkupParser, 1);
