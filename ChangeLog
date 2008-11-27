@@ -1,3 +1,7 @@
+2008-11-27  Jürg Billeter  <j@bitron.ch>
+
+	* configure.ac: Drop unused GnomeVFS dependency
+
 2008-11-26  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* data/services/default.metadata: Made DC:Subject and DC:Keywords

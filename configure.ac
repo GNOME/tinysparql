@@ -680,7 +680,6 @@ GTK_REQUIRED=2.8.0
 LIBGNOME_DESKTOP_REQUIRED=2.9.91
 LIBGNOME_REQUIRED=2.13.2
 LIBGNOMEUI_REQUIRED=2.13.7
-GNOMEVFS_REQUIRED=2.8.4
 
 AC_ARG_ENABLE(tracker-search-tool, 
               AS_HELP_STRING([--disable-tracker-search-tool], 
@@ -694,13 +693,6 @@ if test "x$enable_tracker_search_tool" = "xyes"; then
 		      libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED],
 	             [have_gnome=yes], 
 		     [have_gnome=no])
-   if test "$have_gnome" = "yes"; then
-       PKG_CHECK_MODULES(GNOMEVFS, 
-			 [gnome-vfs-2.0 >= $GNOMEVFS_REQUIRED
-			  gnome-vfs-module-2.0 >= $GNOMEVFS_REQUIRED],
-		         [have_gnome=yes], 
-			 [have_gnome=no])
-   fi
 
    if test "$have_gnome" = "yes"; then
       PKG_CHECK_MODULES(GNOMEDESKTOP, 
@@ -711,9 +703,6 @@ if test "x$enable_tracker_search_tool" = "xyes"; then
 
    AC_SUBST(GNOME_UTILS_CFLAGS)
    AC_SUBST(GNOME_UTILS_LIBS)
-
-   AC_SUBST(GNOMEVFS_CFLAGS)
-   AC_SUBST(GNOMEVFS_LIBS)
 
    AC_SUBST(GNOMEDESKTOP_CFLAGS)
    AC_SUBST(GNOMEDESKTOP_LIBS)
