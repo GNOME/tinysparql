@@ -253,8 +253,8 @@ inotify_handle_event_applicable( INotifyHandle *inh, guint32 type,
       return type;
 
     default:
-      if( state != inh_state_created )
-	inotify_warn( "Received direct event on non-created inh" );
+      /* if( state != inh_state_created ) */
+      /*   inotify_warn( "Received direct event on non-created inh" ); */
 
       inotify_debug( "	event is other type.  passing through" );
 

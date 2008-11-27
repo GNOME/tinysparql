@@ -723,10 +723,7 @@ black_list_check_items_cb (gpointer data)
 		}
 
 		/* Remove from hash tables (i.e. white list it) */
-		g_hash_table_remove (monitor->private->black_list, key);
-
-		/* Reset iterators */
-		g_hash_table_iter_init (&iter, monitor->private->black_list);
+		g_hash_table_iter_remove (&iter);
 	}
 
 	/* If the hash tables are empty, don't keep calling this
@@ -1036,10 +1033,7 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 		}
 
 		/* Clean up */
-		g_hash_table_remove (monitor->private->event_pairs, key);
-
-		/* Reset the iter, so we start from the top */
-		g_hash_table_iter_init (&iter, monitor->private->event_pairs);
+		g_hash_table_iter_remove (&iter);
 	}
 
 	if (g_hash_table_size (monitor->private->event_pairs) < 1) {
@@ -1141,10 +1135,7 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		}
 
 		/* Clean up */
-		g_hash_table_remove (monitor->private->cached_events, key);
-
-		/* Reset the iter, so we start from the top */
-		g_hash_table_iter_init (&iter, monitor->private->cached_events);
+		g_hash_table_iter_remove (&iter);
 	}
 
 	if (g_hash_table_size (monitor->private->cached_events) < 1) {

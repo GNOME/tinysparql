@@ -1,3 +1,15 @@
+2008-11-27  Martyn Russell  <martyn@imendio.com>
+
+	* src/libinotify/inotify-handle.c: Disable warning causing breaks
+	in gdb, it makes no difference either way.
+	
+	* src/trackerd/tracker-monitor.c: Don't call g_hash_table_remove
+	(key) when we can use g_hash_table_iter_remove() instead. Also,
+	don't reset the iter making us go round every item again after
+	removing one. This seriously impedes performance. The removal
+	wasn't actually working either. Meaning trackerd was using 100%
+	CPU power in a continous while loop.
+
 2008-11-27  Jürg Billeter  <j@bitron.ch>
 
 	* configure.ac: Drop unused GnomeVFS dependency
