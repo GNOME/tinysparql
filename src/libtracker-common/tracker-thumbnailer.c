@@ -263,7 +263,7 @@ thumbnailer_prepare (void)
 			   G_TYPE_INVALID);
 	
 	if (error) {
-		g_warning ("Thumbnailer service did not return supported mime types, %s",
+		g_message ("Thumbnailer service did not return supported mime types, %s",
 			   error->message);
 
 		g_error_free (error);

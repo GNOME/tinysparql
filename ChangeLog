@@ -1,3 +1,8 @@
+2008-11-27  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-common/tracker-thumbnailer.c: Replaced a non-critical
+	warning with a message
+
 2008-11-27  Martyn Russell  <martyn@imendio.com>
 
 	* src/libinotify/inotify-handle.c: Disable warning causing breaks
