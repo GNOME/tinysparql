@@ -74,7 +74,6 @@
 	it take longer than it needs to unnecessarily.
 
 2008-11-25  Martyn Russell  <martyn@imendio.com>
-	    Philip Van Hoof  <philip@codeminded.be>
 
 	* configure.ac:
 	* data/db/sqlite-stored-procs.sql:
@@ -95,7 +94,7 @@
 	Moved the thumbnailer code to libtracker-common since it is used
 	by the indexer, the daemon and the extractor processes.
 	
-	This patch was written by Philip and reviewed by Martyn.
+	This patch was written by Philip and reviewed/updated by Martyn.
 
 2008-11-24  Philip Van Hoof  <philip@codeminded.be>
 
