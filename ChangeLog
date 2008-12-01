@@ -1,5 +1,15 @@
 2008-12-01  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/trackerd/tracker-keywords.c
+	(tracker_keywords_search)
+	* src/trackerd/tracker-files.c
+	(tracker_files_get_metadata_for_files_in_folder)
+
+	Using dbus_method_return_error error instead of g_propagate_error.
+	This should prevent timeout returning errors in the DBus API.
+	
+2008-12-01  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/trackerd/tracker-metadata.c:
 	Some errors were reported using g_error_propagate and not the dbus
 	methods, so it was causing a dbus timeout in the tools.

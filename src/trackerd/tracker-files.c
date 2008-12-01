@@ -739,7 +739,9 @@ tracker_files_get_metadata_for_files_in_folder (TrackerFiles	       *object,
 							   &actual_error);
 
 	if (actual_error) {
-		g_propagate_error (error, actual_error);
+		tracker_dbus_request_failed (request_id, &actual_error, NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
 		return;
 	}
 
