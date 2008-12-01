@@ -29,13 +29,17 @@
 #define DUMMY_TYPE_FILE    (dummy_file_get_type ())
 #define DUMMY_FILE(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), DUMMY_TYPE_FILE, DummyFile))
 
-#define MODULE_IMPLEMENT_INTERFACE(TYPE_IFACE, iface_init) \
-{ \
-    const GInterfaceInfo g_implement_interface_info = { \
-      (GInterfaceInitFunc) iface_init, NULL, NULL \
-  }; \
-  g_type_module_add_interface (type_module, g_define_type_id, TYPE_IFACE, &g_implement_interface_info); \
-}
+#define MODULE_IMPLEMENT_INTERFACE(TYPE_IFACE, iface_init)		   \
+	{								   \
+		const GInterfaceInfo g_implement_interface_info = {	   \
+			(GInterfaceInitFunc) iface_init, NULL, NULL	   \
+		};							   \
+									   \
+		g_type_module_add_interface (type_module,		   \
+					     g_define_type_id,		   \
+					     TYPE_IFACE,		   \
+					     &g_implement_interface_info); \
+	}
 
 typedef struct DummyFile DummyFile;
 typedef struct DummyFileClass DummyFileClass;
@@ -47,7 +51,6 @@ struct DummyFile {
 struct DummyFileClass {
         TrackerModuleFileClass parent_class;
 };
-
 
 static void          dummy_file_iteratable_init  (TrackerModuleIteratableIface *iface);
 
@@ -84,9 +87,13 @@ dummy_file_class_init (DummyFileClass *klass)
 }
 
 static void
+dummy_file_class_finalize (DummyFileClass *klass)
+{
+}
+
+static void
 dummy_file_init (DummyFile *file)
 {
-
 }
 
 static void

@@ -30,13 +30,12 @@
 #include <tracker-test-helpers.h>
 
 static void
-test_date_format ()
+test_date_format (void)
 {
 	gchar *result;
 
 	result = tracker_date_format ("");
 	g_assert (result == NULL);
-
 
 	/* Fails
 	result = tracker_date_format ("1978"); //Audio.ReleaseDate
@@ -55,23 +54,23 @@ test_date_format ()
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T00:00:00Z"));
 	g_free (result);
 
-	result = tracker_date_format ("Mon Jun 14 04:20:20 2008"); //MS Office
+	result = tracker_date_format ("Mon Jun 14 04:20:20 2008"); /* MS Office */
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
 	g_free (result);
 
-	result = tracker_date_format ("2008:06:14 04:20:20"); //Exif style
+	result = tracker_date_format ("2008:06:14 04:20:20"); /* Exif style */
 	g_assert (tracker_test_helpers_cmpstr_equal (result, "2008-06-14T04:20:20"));
 	g_free (result);
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_date_format (NULL);
 	}
-	g_test_trap_assert_failed ();
 
+	g_test_trap_assert_failed ();
 }
 
 static void
-test_string_to_date ()
+test_string_to_date (void)
 {
 	GDate	  *expected;
 	GDate	  *result;
@@ -107,7 +106,7 @@ test_string_to_date ()
 }
 
 static void
-test_date_to_string ()
+test_date_to_string (void)
 {
 	struct tm *original;
 	time_t	   input;
@@ -129,9 +128,8 @@ test_date_to_string ()
 	g_assert (result != NULL && strncmp (result, "2008-06-16T23:53:10", 19) == 0);
 }
 
-
 static void
-test_long_to_string ()
+test_long_to_string (void)
 {
 	glong n;
 	gchar *result;
@@ -148,7 +146,7 @@ test_long_to_string ()
 }
 
 static void
-test_int_to_string ()
+test_int_to_string (void)
 {
 	gint n;
 	gchar *result;
@@ -165,9 +163,8 @@ test_int_to_string ()
 
 }
 
-
 static void
-test_uint_to_string ()
+test_uint_to_string (void)
 {
 	guint n;
 	gchar *result;
@@ -179,7 +176,7 @@ test_uint_to_string ()
 }
 
 static void
-test_gint32_to_string ()
+test_gint32_to_string (void)
 {
 	gint32 n;
 	gchar *result;
@@ -196,9 +193,8 @@ test_gint32_to_string ()
 
 }
 
-
 static void
-test_guint32_to_string ()
+test_guint32_to_string (void)
 {
 	guint32 n;
 	gchar *result;
@@ -210,9 +206,8 @@ test_guint32_to_string ()
 
 }
 
-
 static void
-test_string_to_uint ()
+test_string_to_uint (void)
 {
 	guint num_result, rc;
 
@@ -227,9 +222,8 @@ test_string_to_uint ()
 	}
 	g_test_trap_assert_failed ();
 
-	// ???? FIXME
+	/* ???? FIXME */
 	rc = tracker_string_to_uint ("-20", &num_result);
-	// ????
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		tracker_string_to_uint (NULL, &num_result);
@@ -246,9 +240,8 @@ test_string_to_uint ()
 	g_assert_cmpint (rc, ==, 0);
 }
 
-
 static void
-test_string_in_string_list ()
+test_string_in_string_list (void)
 {
 	gchar *complete = "This is an extract of text with different terms an props like Audio:Title ...";
 	gchar **pieces;
@@ -270,7 +263,7 @@ test_string_in_string_list ()
 }
 
 static void
-test_gslist_to_string_list ()
+test_gslist_to_string_list (void)
 {
 	GSList *input = NULL;
 	gchar **result;
@@ -282,22 +275,22 @@ test_gslist_to_string_list ()
 
 	result = tracker_gslist_to_string_list (input);
 
-	g_assert (tracker_test_helpers_cmpstr_equal (result[0], "one")
-		  && tracker_test_helpers_cmpstr_equal (result[1], "two")
-		  && tracker_test_helpers_cmpstr_equal (result[2], "three")
-		  && tracker_test_helpers_cmpstr_equal (result[3], "four"));
+	g_assert (tracker_test_helpers_cmpstr_equal (result[0], "one") &&
+		  tracker_test_helpers_cmpstr_equal (result[1], "two") &&
+		  tracker_test_helpers_cmpstr_equal (result[2], "three") &&
+		  tracker_test_helpers_cmpstr_equal (result[3], "four"));
 
 	g_strfreev (result);
 
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		result = tracker_gslist_to_string_list (NULL);
 	}
+
 	g_test_trap_assert_failed ();
 }
 
-
 static void
-test_string_list_to_string ()
+test_string_list_to_string (void)
 {
 	gchar *input = "one two three four";
 	gchar **pieces;
@@ -330,9 +323,8 @@ test_string_list_to_string ()
 	g_strfreev (pieces);
 }
 
-
 static void
-test_boolean_as_text_to_number ()
+test_boolean_as_text_to_number (void)
 {
 	gchar *result;
 
@@ -383,11 +375,10 @@ test_boolean_as_text_to_number ()
 	g_test_trap_assert_failed ();
 }
 
-
 int
-main (int argc, char **argv) {
-
-	int result;
+main (int argc, char **argv)
+{
+	gint result;
 
 	g_type_init ();
 	g_test_init (&argc, &argv, NULL);

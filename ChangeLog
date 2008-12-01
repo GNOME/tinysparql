@@ -1,3 +1,15 @@
+2008-12-01  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-indexer/modules/dummy.c: Small code clean up.
+	
+	* src/tracker-indexer/modules/gaim-conversations.c: Used the
+	dummy.c for this module. The indexer logging was complaining about
+	some modular functions not existing.
+
+	* tests/libtracker-common/tracker-dbus-test.c: 
+	* tests/libtracker-common/tracker-type-utils-test.c: Small code
+	clean ups.
+
 2008-12-01  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-common/tracker-hal.c: Fixed a crash when HAL didn't 

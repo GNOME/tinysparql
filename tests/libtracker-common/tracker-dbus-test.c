@@ -19,9 +19,10 @@
  */
 #include <glib.h>
 #include <glib/gtestutils.h>
-#include <libtracker-common/tracker-dbus.h>
-#include <tracker-test-helpers.h>
 
+#include <libtracker-common/tracker-dbus.h>
+
+#include <tracker-test-helpers.h>
 
 static void
 slist_to_strv (gboolean utf8)
@@ -44,7 +45,7 @@ slist_to_strv (gboolean utf8)
 
 	g_assert_cmpint (g_strv_length (input_as_strv), ==, (utf8 ? strings : 0));
 
-	g_slist_foreach (input, (GFunc)g_free, NULL);
+	g_slist_foreach (input, (GFunc) g_free, NULL);
 	g_slist_free (input);
 
 	g_strfreev (input_as_strv);
@@ -85,12 +86,10 @@ async_queue_to_strv (gboolean utf8)
 
 	g_assert_cmpint (g_strv_length (queue_as_strv), ==, (utf8 ? strings : 0));
 
-	// Queue empty by tracker_dbus_async_queue_to_strv
+	/* Queue empty by tracker_dbus_async_queue_to_strv */
 	g_queue_free (queue);
 	g_strfreev (queue_as_strv);
-
 }
-
 
 static void
 test_async_queue_to_strv (void)
@@ -160,13 +159,14 @@ test_dbus_request_failed (void)
 	if (g_test_trap_fork (0, G_TEST_TRAP_SILENCE_STDERR)) {
 		tracker_dbus_request_failed (1, &error, NULL);
 	}
+
 	g_test_trap_assert_stderr ("*Unset error and no error message*");
 }
 
 int
 main (int argc, char **argv) {
 
-	int result;
+	gint result;
 
 	g_type_init ();
 	g_thread_init (NULL);
