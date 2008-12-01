@@ -42,8 +42,15 @@
 #include "tracker-extract.h"
 #include "tracker-albumart.h"
 
-#define MAX_FILE_READ	  1024 * 1024 * 10
+/* FIXME The max file read is not a good idea as basic 
+ * id3 are the _last_ 128 bits of the file. We should
+ * probably read 2 buffers (beginning, end) instead.
+*/
+#define MAX_FILE_READ	  1024 * 1024 * 20
 #define MAX_MP3_SCAN_DEEP 16768
+
+#define MAX_FRAMES_SCAN   1024 * 3
+#define VBR_THRESHOLD     64
 
 typedef struct {
 	gchar *text;
@@ -231,8 +238,6 @@ static const char *const genre_names[] = {
 	"JPop",
 	"Synthpop"
 };
-
-static const guint max_frames_scan = 1024;
 
 static const guint sync_mask = 0xE0FF;
 static const guint mpeg_ver_mask = 0x1800;
@@ -459,9 +464,9 @@ mp3_parse (const gchar *data,
 		frame_size = 144 * bitrate / (sample_rate ? sample_rate : 1) + ((header & pad_mask) >> 17);
 		avg_bps += bitrate / 1000;
 
-		pos += frame_size - 4;
+		pos += frame_size;
 
-		if (frames > max_frames_scan) {
+		if (frames > MAX_FRAMES_SCAN) {
 			/* Optimization */
 			break;
 		}
@@ -475,6 +480,10 @@ mp3_parse (const gchar *data,
 			break;
 		}
 
+		if ((!vbr_flag) && (frames > VBR_THRESHOLD)) {
+			break;
+		}
+
 		memcpy(&header, &data[pos], sizeof (header));
 	} while ((header & sync_mask) == sync_mask);
 
@@ -485,8 +494,8 @@ mp3_parse (const gchar *data,
 
 	avg_bps /= frames;
 
-	if (max_frames_scan) {
-		/* If not all frames scaned */
+	if ((!vbr_flag || frames > VBR_THRESHOLD) || (frames > MAX_FRAMES_SCAN)) {
+		/* If not all frames scanned */
 		length = size / (avg_bps ? avg_bps : bitrate ? bitrate : 0xFFFFFFFF) / 125;
 	} else{
 		length = 1152 * frames / (sample_rate ? sample_rate : 0xFFFFFFFF);

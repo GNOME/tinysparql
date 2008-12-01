@@ -1,3 +1,10 @@
+2008-12-01  Mikael Ottela <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Bug fix and small
+	improvements to the duration calculation of mp3 files.
+
+	Fixes NB #93348.
+
 2008-12-01  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/trackerd/tracker-keywords.c
