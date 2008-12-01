@@ -13,7 +13,9 @@
 2008-12-01  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-common/tracker-hal.c: Fixed a crash when HAL didn't 
-	initialize successfully
+	initialize successfully. 
+
+	Fixes NB#93962.
 
 2008-11-28  Martyn Russell  <martyn@imendio.com>
 
