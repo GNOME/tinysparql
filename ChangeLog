@@ -1,3 +1,8 @@
+2008-12-01  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-common/tracker-hal.c: Fixed a crash when HAL didn't 
+	initialize successfully
+
 2008-11-28  Martyn Russell  <martyn@imendio.com>
 
 	* data/modules/files.module: Added "core-dumps" to the list of

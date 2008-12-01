@@ -231,6 +231,7 @@ tracker_hal_init (TrackerHal *hal)
 		}
 
 		libhal_ctx_free (priv->context);
+		priv->context = NULL;
 		return;
 	}
 
