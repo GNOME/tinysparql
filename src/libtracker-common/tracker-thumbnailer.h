@@ -19,26 +19,25 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_METADATA_UTILS_H__
-#define __TRACKER_METADATA_UTILS_H__
+#ifndef __TRACKER_THUMBNAILER_H__
+#define __TRACKER_THUMBNAILER_H__
 
-#include <libtracker-data/tracker-data-metadata.h>
-#include <tracker-indexer/tracker-module-file.h>
+#include "tracker-config.h"
 
 G_BEGIN_DECLS
 
-void tracker_thumbnailer_init               (void);
+void tracker_thumbnailer_init               (TrackerConfig *config);
 void tracker_thumbnailer_shutdown           (void);
 
-void tracker_thumbnailer_get_file_thumbnail (const gchar *path,
-					     const gchar *mime);
-void tracker_thumbnailer_move               (const gchar *from_uri,
-					     const gchar *mime_type,
-					     const gchar *to_uri);
-void tracker_thumbnailer_remove             (const gchar *uri,
-					     const gchar *mime_type);
-void tracker_thumbnailer_cleanup            (const gchar *uri_prefix);
+void tracker_thumbnailer_get_file_thumbnail (const gchar   *path,
+					     const gchar   *mime);
+void tracker_thumbnailer_move               (const gchar   *from_uri,
+					     const gchar   *mime_type,
+					     const gchar   *to_uri);
+void tracker_thumbnailer_remove             (const gchar   *uri,
+					     const gchar   *mime_type);
+void tracker_thumbnailer_cleanup            (const gchar   *uri_prefix);
 
 G_END_DECLS
 
-#endif /* __TRACKER_METADATA_UTILS_H__ */
+#endif /* __TRACKER_THUMBNAILER_H__ */

@@ -361,7 +361,7 @@ main (gint argc, gchar *argv[])
 			  NULL);
 
         /* Set up connections to the thumbnailer if supported */
-        tracker_thumbnailer_init ();
+        tracker_thumbnailer_init (config);
 
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */

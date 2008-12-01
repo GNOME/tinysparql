@@ -1,5 +1,15 @@
 2008-12-01  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-common/tracker-thumbnailer.[ch]: 
+	* src/tracker-indexer/tracker-dbus.c:
+	* src/tracker-indexer/tracker-main.c: Fixed the header which was
+	using the same ifdefs as another header. Fixed the leak where by
+	we were not cleaning up the DBusGProxy objects. Only get
+	thumbnails if enabled in the config, previously, no checks were
+	done before requesting thumbnails. 
+
+2008-12-01  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-common/tracker-type-utils.[ch]: Added function to
 	deep copy a GList of strings.
 	

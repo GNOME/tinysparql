@@ -21,22 +21,12 @@
 
 #include "config.h"
 
+#include <libtracker-data/tracker-data-metadata.h>
+
+#include <tracker-indexer/tracker-module-file.h>
+
+#include "tracker-config.h"
 #include "tracker-dbus.h"
-
-/* Undef this to disable thumbnailing (don't remove unless you
- * understand that that either you need to put in place another method
- * to disable/enable this and that what will be used by the packager
- * is probably *your* default, or unless you want to break expected
- * functionality on-purpose) (It's not the first time that these
- * ifdef-else-endifs where rewrapped incorrectly, and that way
- * obviously broke the feature)
- */
-
-#ifndef THUMBNAILING_OVER_DBUS
-#define THUMBNAILING_OVER_DBUS
-#endif 
-
-#ifdef THUMBNAILING_OVER_DBUS
 
 #define THUMBNAILER_SERVICE	 "org.freedesktop.thumbnailer"
 #define THUMBNAILER_PATH	 "/org/freedesktop/thumbnailer/Generic"
@@ -48,69 +38,29 @@
 #define THUMBNAIL_REQUEST_LIMIT 50
 
 typedef struct {
-	GStrv     supported_mime_types;
+	TrackerConfig *config;
 
-	gchar    *uris[THUMBNAIL_REQUEST_LIMIT + 1];
-	gchar    *mime_types[THUMBNAIL_REQUEST_LIMIT + 1];
+	DBusGProxy *requester_proxy;
+	DBusGProxy *manager_proxy;
 
-	guint     request_id;
-	guint     timeout_id;
-	guint     count;
+	GStrv supported_mime_types;
 
-	gboolean  service_is_prepared;
-	gboolean  service_is_available;
+	gchar *uris[THUMBNAIL_REQUEST_LIMIT + 1];
+	gchar *mime_types[THUMBNAIL_REQUEST_LIMIT + 1];
+
+	guint request_id;
+	guint timeout_id;
+	guint count;
+
+	gboolean service_is_available;
+	gboolean service_is_enabled;
 } TrackerThumbnailerPrivate;
 
+static void thumbnailer_enabled_cb (GObject    *pspec,
+				    GParamSpec *gobject,
+				    gpointer    user_data);
+
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
-
-static DBusGProxy*
-get_thumb_requester (void)
-{
-	static DBusGProxy *thumb_proxy = NULL;
-
-	if (!thumb_proxy) {
-		GError          *error = NULL;
-		DBusGConnection *connection;
-
-		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-		if (!error) {
-			thumb_proxy = dbus_g_proxy_new_for_name (connection,
-								 THUMBNAILER_SERVICE,
-								 THUMBNAILER_PATH,
-								 THUMBNAILER_INTERFACE);
-		} else {
-			g_error_free (error);
-		}
-	}
-
-	return thumb_proxy;
-}
-
-
-static DBusGProxy*
-get_thumb_manager (void)
-{
-	static DBusGProxy *thumbm_proxy = NULL;
-
-	if (!thumbm_proxy) {
-		GError          *error = NULL;
-		DBusGConnection *connection;
-
-		connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
-
-		if (!error) {
-			thumbm_proxy = dbus_g_proxy_new_for_name (connection,
-								 THUMBNAILER_SERVICE,
-								 THUMBMAN_PATH,
-								 THUMBMAN_INTERFACE);
-		} else {
-			g_error_free (error);
-		}
-	}
-
-	return thumbm_proxy;
-}
 
 static void
 private_free (gpointer data)
@@ -119,7 +69,23 @@ private_free (gpointer data)
 	gint i;
 
 	private = data;
+
+	if (private->config) {
+		g_signal_handlers_disconnect_by_func (private->config, 
+						      thumbnailer_enabled_cb, 
+						      NULL); 
+
+		g_object_unref (private->config);
+	}
 	
+	if (private->requester_proxy) {
+		g_object_unref (private->requester_proxy);
+	}
+
+	if (private->manager_proxy) {
+		g_object_unref (private->manager_proxy);
+	}
+
 	g_strfreev (private->supported_mime_types);
 
 	for (i = 0; i <= private->count; i++) {
@@ -154,6 +120,22 @@ should_be_thumbnailed (GStrv        list,
 	}
 
 	return should_thumbnail;
+}
+
+static void 
+thumbnailer_enabled_cb (GObject    *pspec,
+			GParamSpec *gobject,
+			gpointer    user_data)
+{
+	TrackerThumbnailerPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
+
+	g_message ("Thumbnailer service %s", 
+		   private->service_is_enabled ? "enabled" : "disabled");
 }
 
 static void
@@ -203,7 +185,7 @@ thumbnailer_request_timeout_cb (gpointer data)
 		   private->count,
 		   private->request_id);
 	
-	dbus_g_proxy_begin_call (get_thumb_requester (),
+	dbus_g_proxy_begin_call (private->requester_proxy,
 				 "Queue",
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id), 
@@ -226,18 +208,55 @@ thumbnailer_request_timeout_cb (gpointer data)
 	return FALSE;
 }
 
-static void
-thumbnailer_prepare (void)
+void
+tracker_thumbnailer_init (TrackerConfig *config)
 {
 	TrackerThumbnailerPrivate *private;
+	DBusGConnection *connection;
 	GStrv mime_types = NULL;
 	GError *error = NULL;
 
-	private = g_static_private_get (&private_key);
-	
-	if (private->service_is_prepared) {
+	g_return_if_fail (TRACKER_IS_CONFIG (config));
+
+	private = g_new0 (TrackerThumbnailerPrivate, 1);
+
+	private->config = g_object_ref (config);
+	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
+
+	g_signal_connect (private->config, "notify::enable-thumbnails",
+			  G_CALLBACK (thumbnailer_enabled_cb), 
+			  NULL);
+
+	g_static_private_set (&private_key,
+			      private,
+			      private_free);
+
+	g_message ("Thumbnailer connections being set up...");
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!connection) {
+		g_critical ("Could not connect to the DBus session bus, %s",
+			    error ? error->message : "no error given.");
+		g_clear_error (&error);
+
+		private->service_is_available = FALSE;
+
 		return;
 	}
+
+	private->requester_proxy = 
+		dbus_g_proxy_new_for_name (connection,
+					   THUMBNAILER_SERVICE,
+					   THUMBNAILER_PATH,
+					   THUMBNAILER_INTERFACE);
+
+	private->manager_proxy = 
+		dbus_g_proxy_new_for_name (connection,
+					   THUMBNAILER_SERVICE,
+					   THUMBMAN_PATH,
+					   THUMBMAN_INTERFACE);
+	
 
 	/* It's known that this relatively small GStrv is leaked: it contains
 	 * the MIME types that the DBus thumbnailer supports. If a MIME type
@@ -254,9 +273,9 @@ thumbnailer_prepare (void)
 	 * priority now, though (therefore, is this a TODO). 
 	 */
 
-	g_message ("Thumbnailer supported mime types being requested...");
+	g_message ("Thumbnailer supported mime types requested...");
 
-	dbus_g_proxy_call (get_thumb_manager (),
+	dbus_g_proxy_call (private->manager_proxy,
 			   "GetSupported", &error, 
 			   G_TYPE_INVALID,
 			   G_TYPE_STRV, &mime_types, 
@@ -274,23 +293,6 @@ thumbnailer_prepare (void)
 		private->supported_mime_types = mime_types;
 		private->service_is_available = TRUE;
 	}	
-
-	private->service_is_prepared = TRUE;
-}
-
-#endif /* THUMBNAILING_OVER_DBUS */
-
-void
-tracker_thumbnailer_init (void)
-{
-	TrackerThumbnailerPrivate *private;
-
-	private = g_new0 (TrackerThumbnailerPrivate, 1);
-	g_static_private_set (&private_key,
-			      private,
-			      private_free);
-
-	thumbnailer_prepare ();
 }
 
 void
@@ -304,7 +306,6 @@ tracker_thumbnailer_move (const gchar *from_uri,
 			  const gchar *mime_type,
 			  const gchar *to_uri)
 {
-#ifdef THUMBNAILING_OVER_DBUS
 	TrackerThumbnailerPrivate *private;
 	const gchar *to[2] = { NULL, NULL };
 	const gchar *from[2] = { NULL, NULL };
@@ -316,6 +317,10 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
+	/* NOTE: We don't check the service_is_enabled flag here
+	 * because we might want to manage thumbnails even if we are
+	 * not creating any new ones. 
+	 */
 	if (!private->service_is_available) {
 		return;
 	}
@@ -336,7 +341,7 @@ tracker_thumbnailer_move (const gchar *from_uri,
 	to[0] = to_uri;
 	from[0] = from_uri;
 	
-	dbus_g_proxy_begin_call (get_thumb_requester (),
+	dbus_g_proxy_begin_call (private->requester_proxy,
 				 "Move",
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id), 
@@ -344,14 +349,12 @@ tracker_thumbnailer_move (const gchar *from_uri,
 				 G_TYPE_STRV, from,
 				 G_TYPE_STRV, to,
 				 G_TYPE_INVALID);
-#endif /* THUMBNAILING_OVER_DBUS */
 }
 
 void
 tracker_thumbnailer_remove (const gchar *uri, 
 			    const gchar *mime_type)
 {
-#ifdef THUMBNAILING_OVER_DBUS
 	TrackerThumbnailerPrivate *private;
 	const gchar *uris[2] = { NULL, NULL };
 
@@ -361,6 +364,10 @@ tracker_thumbnailer_remove (const gchar *uri,
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
+	/* NOTE: We don't check the service_is_enabled flag here
+	 * because we might want to manage thumbnails even if we are
+	 * not creating any new ones. 
+	 */
 	if (!private->service_is_available) {
 		return;
 	}
@@ -380,25 +387,27 @@ tracker_thumbnailer_remove (const gchar *uri,
 		   uri,
 		   private->request_id); 
 	
-	dbus_g_proxy_begin_call (get_thumb_requester (),
+	dbus_g_proxy_begin_call (private->requester_proxy,
 				 "Delete",
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id),
 				 NULL,
 				 G_TYPE_STRV, uri,
 				 G_TYPE_INVALID);
-#endif /* THUMBNAILING_OVER_DBUS */
 }
 
 void 
 tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 {
-#ifdef THUMBNAILING_OVER_DBUS
 	TrackerThumbnailerPrivate *private;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
+	/* NOTE: We don't check the service_is_enabled flag here
+	 * because we might want to manage thumbnails even if we are
+	 * not creating any new ones. 
+	 */
 	if (!private->service_is_available) {
 		return;
 	}
@@ -409,7 +418,7 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 		   uri_prefix,
 		   private->request_id); 
 
-	dbus_g_proxy_begin_call (get_thumb_requester (),
+	dbus_g_proxy_begin_call (private->requester_proxy,
 				 "Cleanup",
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id),
@@ -417,15 +426,12 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 				 G_TYPE_STRING, uri_prefix,
 				 G_TYPE_INT64, 0,
 				 G_TYPE_INVALID);
-
-#endif /* THUMBNAILING_OVER_DBUS */
 }
 
 void
 tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 					const gchar *mime_type)
 {
-#ifdef THUMBNAILING_OVER_DBUS
 	TrackerThumbnailerPrivate *private;
 
 	g_return_if_fail (uri != NULL);
@@ -434,7 +440,8 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	if (!private->service_is_available) {
+	if (!private->service_is_available ||
+	    !private->service_is_enabled) {
 		return;
 	}
 
@@ -481,5 +488,4 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 					       thumbnailer_request_timeout_cb, 
 					       NULL);
 	}
-#endif /* THUMBNAILING_OVER_DBUS */
 }
