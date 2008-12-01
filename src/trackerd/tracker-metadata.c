@@ -511,7 +511,9 @@ tracker_metadata_get_unique_values (TrackerMetadata	   *object,
 							    &actual_error);
 
 	if (actual_error) {
-		g_propagate_error (error, actual_error);
+		tracker_dbus_request_failed (request_id, &actual_error, NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
 		return;
 	}
 
@@ -570,7 +572,9 @@ tracker_metadata_get_unique_values_with_count (TrackerMetadata	      *object,
 								  &actual_error);
 	
 	if (actual_error) {
-		g_propagate_error (error, actual_error);
+		tracker_dbus_request_failed (request_id, &actual_error, NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
 		return;
 	}
 
@@ -613,8 +617,8 @@ tracker_metadata_get_unique_values_with_count_and_sum (TrackerMetadata	      *ob
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to get unique values with count and sum, "
-				  "service type:'%s', query '%s'"
-				  "count field :'%s'",
+				  "service type:'%s', query '%s', "
+				  "count field :'%s', "
 				  "sum field :'%s'",
 				  service_type,
 				  query_condition,
@@ -633,7 +637,9 @@ tracker_metadata_get_unique_values_with_count_and_sum (TrackerMetadata	      *ob
 									  &actual_error);
 
 	if (actual_error) {
-		g_propagate_error (error, actual_error);
+		tracker_dbus_request_failed (request_id, &actual_error, NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
 		return;
 	}
 
@@ -681,7 +687,9 @@ tracker_metadata_get_sum (TrackerMetadata	 *object,
 					   &actual_error);
 
 	if (actual_error) {
-		g_propagate_error (error, actual_error);
+		tracker_dbus_request_failed (request_id, &actual_error, NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
 		return;
 	}
 
@@ -722,7 +730,9 @@ tracker_metadata_get_count (TrackerMetadata	   *object,
 					       &actual_error);
 
 	if (actual_error) {
-		g_propagate_error (error, actual_error);
+		tracker_dbus_request_failed (request_id, &actual_error, NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
 		return;
 	}
 

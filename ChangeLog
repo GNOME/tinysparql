@@ -1,3 +1,11 @@
+2008-12-01  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/trackerd/tracker-metadata.c:
+	Some errors were reported using g_error_propagate and not the dbus
+	methods, so it was causing a dbus timeout in the tools.
+
+	Fixes NB #93935.
+	
 2008-12-01  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/modules/dummy.c: Small code clean up.
