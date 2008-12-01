@@ -19,8 +19,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <glib.h>
+
 #include <libtracker-common/tracker-ontology.h>
+
 #include "tracker-data-metadata.h"
 
 struct TrackerDataMetadata {
@@ -78,6 +82,8 @@ remove_metadata_foreach (gpointer key,
 void
 tracker_data_metadata_free (TrackerDataMetadata *metadata)
 {
+	g_return_if_fail (metadata != NULL);
+
 	g_hash_table_foreach_remove (metadata->table,
 				     remove_metadata_foreach,
 				     NULL);
@@ -97,23 +103,22 @@ tracker_data_metadata_free (TrackerDataMetadata *metadata)
 void
 tracker_data_metadata_insert (TrackerDataMetadata *metadata,
 			      const gchar	  *field_name,
-			      gchar		  *value)
+			      const gchar         *value)
 {
 	TrackerField *field;
 
+	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (field_name != NULL);
+	g_return_if_fail (value != NULL);
+
 	field = tracker_ontology_get_field_by_name (field_name);
 
-	if (!field) {
-		g_warning ("Field name '%s' has isn't described in the ontology", field_name);
-		g_free (value);
-		return;
-	}
-
+	g_return_if_fail (TRACKER_IS_FIELD (field));
         g_return_if_fail (tracker_field_get_multiple_values (field) == FALSE);
 
 	g_hash_table_insert (metadata->table,
 			     g_object_ref (field),
-			     value);
+			     g_strdup (value));
 }
 
 /**
@@ -124,13 +129,24 @@ tracker_data_metadata_insert (TrackerDataMetadata *metadata,
  *
  * Inserts a list of values into @metadata for the given @field_name.
  * The ontology has to specify that @field_name allows multiple values.
+ * 
+ * The values in @list and the list itself are copied, the caller is
+ * still responsible for the memory @list uses after calling this
+ * function. 
  **/
 void
 tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
-				     const gchar	  *field_name,
-				     GList		  *list)
+				     const gchar         *field_name,
+				     GList	         *list)
 {
 	TrackerField *field;
+
+	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (field_name != NULL);
+
+	if (!list) {
+		return;
+	}
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
@@ -139,7 +155,7 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 
 	g_hash_table_insert (metadata->table,
 			     g_object_ref (field),
-			     list);
+			     tracker_glist_copy_with_string_data (list));
 }
 
 /**
@@ -147,15 +163,20 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
  * @metadata: A #TrackerDataMetadata
  * @field_name: Field name to look up
  *
- * Returns the value corresponding to the metadata specified by @field_name.
+ * Returns the value corresponding to the metadata specified by
+ * @field_name. 
  *
- * Returns: The value. This string is owned by @metadata and must not be modified or freed.
+ * Returns: The value. This string is owned by @metadata and must not
+ * be modified or freed. 
  **/
 G_CONST_RETURN gchar *
 tracker_data_metadata_lookup (TrackerDataMetadata *metadata,
 			      const gchar	  *field_name)
 {
 	TrackerField *field;
+
+	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (field_name != NULL);
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
@@ -170,16 +191,21 @@ tracker_data_metadata_lookup (TrackerDataMetadata *metadata,
  * @metadata: A #TrackerDataMetadata
  * @field_name: Field name to look up
  *
- * Returns the value list corresponding to the metadata specified by @field_name.
+ * Returns the value list corresponding to the metadata specified by
+ * @field_name. 
  *
- * Returns: A List containing strings. Both the list and the contained strings
- *          are owned by @metadata and must not be modified or freed.
+ * Returns: A List containing strings. Both the list and the contained
+ *          strings are owned by @metadata and must not be modified or
+ *          freed. 
  **/
 G_CONST_RETURN GList *
 tracker_data_metadata_lookup_values (TrackerDataMetadata *metadata,
-				     const gchar	  *field_name)
+				     const gchar         *field_name)
 {
 	TrackerField *field;
+
+	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (field_name != NULL);
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
@@ -202,6 +228,9 @@ tracker_data_metadata_foreach (TrackerDataMetadata	  *metadata,
 			       TrackerDataMetadataForeach  func,
 			       gpointer			   user_data)
 {
+	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (func != NULL);
+
 	g_hash_table_foreach (metadata->table,
 			      (GHFunc) func,
 			      user_data);
@@ -213,14 +242,17 @@ tracker_data_metadata_foreach (TrackerDataMetadata	  *metadata,
  * @func: The function to call with each metadata. 
  * @user_data: user data to pass to the function.
  *
- * Calls a function for each element in @metadata and remove the element
- * if @func returns %TRUE.
+ * Calls a function for each element in @metadata and remove the
+ * element if @func returns %TRUE. 
  **/
 void
 tracker_data_metadata_foreach_remove (TrackerDataMetadata       *metadata,
 				      TrackerDataMetadataRemove  func,
 				      gpointer		         user_data)
 {
+	g_return_if_fail (metadata != NULL);
+	g_return_if_fail (func != NULL);
+
 	g_hash_table_foreach_remove (metadata->table,
 				     (GHRFunc) func,
 				     user_data);

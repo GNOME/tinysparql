@@ -106,6 +106,7 @@ insert_data_from_desktop_file (TrackerDataMetadata *metadata,
 
 	if (str) {
 		tracker_data_metadata_insert (metadata, metadata_key, str);
+		g_free (str);
 	}
 }
 
@@ -136,6 +137,8 @@ insert_list_from_desktop_file (TrackerDataMetadata *metadata,
 		g_free (arr);
 
 		tracker_data_metadata_insert_values (metadata, metadata_key, list);
+		g_list_foreach (list, (GFunc) g_free, NULL);
+		g_list_free (list);
 	}
 }
 
@@ -197,6 +200,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 
 	filename = g_filename_display_basename (path);
 	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME, filename);
+	g_free (filename);
 
 	g_key_file_free (key_file);
 	g_free (type);

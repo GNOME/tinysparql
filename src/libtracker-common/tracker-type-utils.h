@@ -53,6 +53,7 @@ gchar *  tracker_string_list_to_string	       (gchar	    **strv,
 gchar ** tracker_string_to_string_list	       (const gchar  *str);
 gchar ** tracker_gslist_to_string_list	       (GSList	     *list);
 GSList * tracker_gslist_copy_with_string_data  (GSList	     *list);
+GList *  tracker_glist_copy_with_string_data   (GList        *list);
 gchar *  tracker_string_boolean_to_string_gint (const gchar  *value);
 
 G_END_DECLS

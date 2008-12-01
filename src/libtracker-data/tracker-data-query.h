@@ -50,10 +50,9 @@ TrackerDBResultSet * tracker_data_query_metadata_fields       (TrackerDBInterfac
 							       const gchar         *service_type,
 							       const gchar         *service_id,
 							       gchar              **fields);
-TrackerDataMetadata *tracker_data_query_embedded_metadata     (TrackerService      *service,
-							       guint32              service_id);
-TrackerDataMetadata *tracker_data_query_non_embedded_metadata (TrackerService      *service,
-							       guint32              service_id);
+TrackerDataMetadata *tracker_data_query_metadata              (TrackerService      *service,
+							       guint32              service_id,
+							       gboolean             embedded);
 gchar *              tracker_data_query_parsed_metadata       (TrackerService      *service,
 							       guint32              service_id);
 gchar *              tracker_data_query_unparsed_metadata     (TrackerService      *service,

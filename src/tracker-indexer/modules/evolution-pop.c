@@ -332,25 +332,31 @@ static TrackerDataMetadata *
 get_message_metadata (GMimeMessage *message)
 {
 	TrackerDataMetadata *metadata;
-	time_t date;
+	time_t t;
 	GList *list;
+	gchar *date;
 
 	metadata = tracker_data_metadata_new ();
 
-	g_mime_message_get_date (message, &date, NULL);
-	tracker_data_metadata_insert (metadata, METADATA_EMAIL_DATE,
-                                      tracker_guint_to_string (date));
+	g_mime_message_get_date (message, &t, NULL);
 
-	tracker_data_metadata_insert (metadata, METADATA_EMAIL_SENDER,
-                                      g_strdup (g_mime_message_get_sender (message)));
-	tracker_data_metadata_insert (metadata, METADATA_EMAIL_SUBJECT,
-                                      g_strdup (g_mime_message_get_subject (message)));
+	date = tracker_guint_to_string (t);
+
+	tracker_data_metadata_insert (metadata, METADATA_EMAIL_DATE, date);
+	tracker_data_metadata_insert (metadata, METADATA_EMAIL_SENDER, g_mime_message_get_sender (message));
+	tracker_data_metadata_insert (metadata, METADATA_EMAIL_SUBJECT, g_mime_message_get_subject (message));
+
+	g_free (date);
 
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_TO);
 	tracker_data_metadata_insert_values (metadata, METADATA_EMAIL_SENT_TO, list);
+	g_list_foreach (list, (GFunc) g_free, NULL);
+	g_list_free (list);
 
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_CC);
 	tracker_data_metadata_insert_values (metadata, METADATA_EMAIL_CC, list);
+	g_list_foreach (list, (GFunc) g_free, NULL);
+	g_list_free (list);
 
 	return metadata;
 }

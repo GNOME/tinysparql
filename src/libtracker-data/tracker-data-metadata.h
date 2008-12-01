@@ -39,7 +39,7 @@ TrackerDataMetadata * tracker_data_metadata_new            (void);
 void                  tracker_data_metadata_free           (TrackerDataMetadata        *metadata);
 void                  tracker_data_metadata_insert         (TrackerDataMetadata        *metadata,
 							    const gchar                *field_name,
-							    gchar                      *value);
+							    const gchar                *value);
 void                  tracker_data_metadata_insert_values  (TrackerDataMetadata        *metadata,
 							    const gchar                *field_name,
 							    GList                      *list);

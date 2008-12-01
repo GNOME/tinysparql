@@ -19,6 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -753,14 +755,31 @@ tracker_gslist_copy_with_string_data (GSList *list)
 	new_list = NULL;
 
 	for (l = list; l; l = l->next) {
-		if (!l->data) {
-			continue;
-		}
-
 		new_list = g_slist_prepend (new_list, g_strdup (l->data));
 	}
 
 	new_list = g_slist_reverse (new_list);
+
+	return new_list;
+}
+
+GList *
+tracker_glist_copy_with_string_data (GList *list)
+{
+	GList *l;
+	GList *new_list;
+
+	if (!list) {
+		return NULL;
+	}
+
+	new_list = NULL;
+
+	for (l = list; l; l = l->next) {
+		new_list = g_list_prepend (new_list, g_strdup (l->data));
+	}
+
+	new_list = g_list_reverse (new_list);
 
 	return new_list;
 }

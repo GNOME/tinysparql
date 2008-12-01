@@ -216,7 +216,9 @@ tracker_module_file_get_metadata (TrackerModuleFile *file)
 
                 tracker_data_metadata_insert (metadata, METADATA_FILE_PATH, dirname);
                 tracker_data_metadata_insert (metadata, METADATA_FILE_NAME, basename);
-
+                
+                g_free (dirname);
+                g_free (basename);
                 g_free (uri);
         }
 

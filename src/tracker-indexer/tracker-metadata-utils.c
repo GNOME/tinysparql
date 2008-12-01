@@ -183,6 +183,26 @@ metadata_read_cb (GIOChannel   *channel,
 	status = G_IO_STATUS_NORMAL;
 	line = NULL;
 
+	if (!array) {
+		/* FIXME: What do we do here? This has happened to me
+		 * before and we get warnings when we try to add to
+		 * the empty array later.
+		 */
+		g_message ("EEEEEK!!!\n"
+			   "\n"
+			   "Expected metadata array to be non-NULL!\n"
+			   "\n"
+			   "This usually means we probably got '\\n' too many times "
+			   "and closed the pipe when there is more content available "
+			   "to read\n"
+			   "\n"
+			   "Stopping main loop and this callback");
+
+		g_main_loop_quit (metadata_context->data_incoming_loop);
+
+		return FALSE;
+	}
+
 	if ((condition & G_IO_IN) || (condition & G_IO_PRI)) {
 		do {
 			status = g_io_channel_read_line (metadata_context->stdout_channel,
@@ -381,7 +401,8 @@ metadata_utils_get_embedded (const char          *path,
 			g_strfreev (values);
 
 			tracker_data_metadata_insert_values (metadata, name, list);
-
+			g_list_foreach (list, (GFunc) g_free, NULL);
+			g_list_free (list);
 		} else {
 			if (!g_utf8_validate (value, -1, NULL)) {
 				utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
@@ -389,10 +410,12 @@ metadata_utils_get_embedded (const char          *path,
 				utf_value = g_strdup (value);
 			}
 			
-			if (!utf_value)
+			if (!utf_value) {
 				continue;
+			}
 			
 			tracker_data_metadata_insert (metadata, name, utf_value);
+			g_free (utf_value);
 		}
 	}
 
@@ -777,7 +800,9 @@ tracker_metadata_utils_get_data (GFile *file)
 	TrackerDataMetadata *metadata;
 	struct stat st;
 	const gchar *ext;
-	gchar *mime_type, *path;
+	gchar *path, *mime_type;
+	gchar *dirname, *basename, *path_delimited;
+	gchar *size, *mtime, *atime;
 
 	path = g_file_get_path (file);
 
@@ -791,19 +816,23 @@ tracker_metadata_utils_get_data (GFile *file)
 
 	if (ext) {
 		ext++;
-		tracker_data_metadata_insert (metadata, METADATA_FILE_EXT, g_strdup (ext));
+		tracker_data_metadata_insert (metadata, METADATA_FILE_EXT, ext);
 	}
 
 	mime_type = tracker_file_get_mime_type (path);
 
-	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME,
-				      g_filename_display_basename (path));
-	tracker_data_metadata_insert (metadata, METADATA_FILE_PATH,
-				      g_path_get_dirname (path));
-	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME_DELIMITED,
-				      g_filename_to_utf8 (path, -1, NULL, NULL, NULL));
-	tracker_data_metadata_insert (metadata, METADATA_FILE_MIMETYPE,
-				      mime_type);
+	dirname = g_path_get_dirname (path);
+	basename = g_filename_display_basename (path);
+	path_delimited = g_filename_to_utf8 (path, -1, NULL, NULL, NULL);
+
+	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME, basename);
+	tracker_data_metadata_insert (metadata, METADATA_FILE_PATH, dirname);
+	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME_DELIMITED, path_delimited);
+	tracker_data_metadata_insert (metadata, METADATA_FILE_MIMETYPE, mime_type);
+
+	g_free (path_delimited);
+	g_free (basename);
+	g_free (dirname);
 
 	if (mime_type) {
 		gchar *uri;
@@ -815,23 +844,33 @@ tracker_metadata_utils_get_data (GFile *file)
 
 	if (S_ISLNK (st.st_mode)) {
 		gchar *link_path;
+		gchar *link_path_delimited;
 
 		link_path = g_file_read_link (path, NULL);
-		tracker_data_metadata_insert (metadata, METADATA_FILE_LINK,
-					      g_filename_to_utf8 (link_path, -1, NULL, NULL, NULL));
+		link_path_delimited = g_filename_to_utf8 (link_path, -1, NULL, NULL, NULL);
+
+		tracker_data_metadata_insert (metadata, METADATA_FILE_LINK, link_path_delimited);
+
+		g_free (link_path_delimited);
 		g_free (link_path);
 	}
 
 	/* FIXME: These should be dealt directly as integer/times/whatever, not strings */
-	tracker_data_metadata_insert (metadata, METADATA_FILE_SIZE,
-				      tracker_guint_to_string (st.st_size));
-	tracker_data_metadata_insert (metadata, METADATA_FILE_MODIFIED,
-				      tracker_date_to_string (st.st_mtime));
-	tracker_data_metadata_insert (metadata, METADATA_FILE_ACCESSED,
-				      tracker_date_to_string (st.st_atime));
+	size = tracker_guint_to_string (st.st_size);
+	mtime = tracker_date_to_string (st.st_mtime);
+	atime = tracker_date_to_string (st.st_atime);
+
+	tracker_data_metadata_insert (metadata, METADATA_FILE_SIZE, size);
+	tracker_data_metadata_insert (metadata, METADATA_FILE_MODIFIED, mtime);
+	tracker_data_metadata_insert (metadata, METADATA_FILE_ACCESSED, atime);
+
+	g_free (atime);
+	g_free (mtime);
+	g_free (size);
 
 	metadata_utils_get_embedded (path, mime_type, metadata);
 
+	g_free (mime_type);
 	g_free (path);
 
 	return metadata;

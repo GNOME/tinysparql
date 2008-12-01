@@ -1381,8 +1381,8 @@ item_add_or_update (TrackerIndexer  *indexer,
 		 * 2) Remove from new metadata all non embedded properties that already have value.
 		 * 3) Save the remain new metadata.
 		 */
-		old_metadata_emb = tracker_data_query_embedded_metadata (service, id);
-		old_metadata_non_emb = tracker_data_query_non_embedded_metadata (service, id);
+		old_metadata_emb = tracker_data_query_metadata (service, id, TRUE);
+		old_metadata_non_emb = tracker_data_query_metadata (service, id, FALSE);
 
 		unindex_metadata (indexer, id, service, old_metadata_emb);
 		
@@ -1493,11 +1493,12 @@ item_move (TrackerIndexer  *indexer,
 
 	/* Get 'source' ID */
 	if (!tracker_data_query_service_exists (service,
-				       dirname,
-				       basename,
-				       &id,
-				       NULL)) {
+						dirname,
+						basename,
+						&id,
+						NULL)) {
 		g_message ("Source file '%s' not found in database to move", path);
+
 		g_free (path);
 		g_free (other_path);
 
@@ -1509,7 +1510,7 @@ item_move (TrackerIndexer  *indexer,
 	/*
 	 *  Updating what changes in move event (Path related properties)
 	 */
-	old_metadata = tracker_data_query_embedded_metadata (service, id);
+	old_metadata = tracker_data_query_metadata (service, id, TRUE);
 
 	tracker_data_metadata_foreach_remove (old_metadata,
 					      filter_invalid_after_move_properties,
@@ -1520,17 +1521,19 @@ item_move (TrackerIndexer  *indexer,
 	new_metadata = tracker_data_metadata_new ();
 
 	tracker_file_get_path_and_name (other_path, &new_path, &new_name);
+
 	tracker_data_metadata_insert (new_metadata, METADATA_FILE_PATH, new_path);
 	tracker_data_metadata_insert (new_metadata, METADATA_FILE_NAME, new_name);
-	tracker_data_metadata_insert (new_metadata,
-				      METADATA_FILE_NAME_DELIMITED,
-				      g_strdup (other_path));
+	tracker_data_metadata_insert (new_metadata, METADATA_FILE_NAME_DELIMITED, other_path);
+
+	g_free (new_path);
+	g_free (new_name);
 
 	ext = strrchr (other_path, '.');
 	if (ext) {
-		tracker_data_metadata_insert (new_metadata, METADATA_FILE_EXT, g_strdup (ext + 1));
+		ext++;
+		tracker_data_metadata_insert (new_metadata, METADATA_FILE_EXT, ext);
 	}
-
 
 	index_metadata (indexer, id, service, new_metadata);
 

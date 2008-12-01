@@ -1,3 +1,24 @@
+2008-12-01  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-type-utils.[ch]: Added function to
+	deep copy a GList of strings.
+	
+	* src/libtracker-data/tracker-data-metadata.[ch]:
+	* src/libtracker-data/tracker-data-query.[ch]:
+	* src/tracker-extract/tracker-extract.c:
+	* src/tracker-indexer/modules/applications.c:
+	* src/tracker-indexer/modules/evolution-imap.c:
+	* src/tracker-indexer/modules/evolution-pop.c:
+	* src/tracker-indexer/tracker-indexer.c: 
+	* src/tracker-indexer/tracker-metadata-utils.c:
+	* src/tracker-indexer/tracker-module-file.c: Added more variable
+	checking to the tracker_data_metadata_() public API. Now all calls
+	to the tracker_data_metadata_() API take a const argument and are
+	copied, not inherited. This also fixes a bug where we were double
+	freeing a GList.
+
+	Fixes NB #93960.
+
 2008-12-01  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Bug fix and small

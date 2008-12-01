@@ -876,8 +876,9 @@ get_message_metadata (TrackerModuleFile *file)
         TrackerEvolutionImapFile *self;
 	TrackerDataMetadata *metadata = NULL;
 	gchar *subject, *from, *to, *cc;
+	gchar *date;
 	gint32 i, count, flags;
-	time_t date;
+	time_t t;
 	GList *list;
 	gboolean deleted;
 
@@ -900,7 +901,7 @@ get_message_metadata (TrackerModuleFile *file)
 	if (!read_summary (self->summary,
 			   SUMMARY_TYPE_UINT32, NULL,	  /* size */
 			   SUMMARY_TYPE_TIME_T, NULL,	  /* date sent */
-			   SUMMARY_TYPE_TIME_T, &date,	  /* date received */
+			   SUMMARY_TYPE_TIME_T, &t,	  /* date received */
 			   SUMMARY_TYPE_STRING, &subject, /* subject */
 			   SUMMARY_TYPE_STRING, &from,	  /* from */
 			   SUMMARY_TYPE_STRING, &to,	  /* to */
@@ -915,21 +916,32 @@ get_message_metadata (TrackerModuleFile *file)
 	}
 
 	if (!deleted) {
+		gchar *date;
+
 		metadata = tracker_data_metadata_new ();
 
-		tracker_data_metadata_insert (metadata, METADATA_EMAIL_DATE,
-                                              tracker_guint_to_string (date));
+		date = tracker_guint_to_string (t);
 
+		tracker_data_metadata_insert (metadata, METADATA_EMAIL_DATE, date);
 		tracker_data_metadata_insert (metadata, METADATA_EMAIL_SENDER, from);
 		tracker_data_metadata_insert (metadata, METADATA_EMAIL_SUBJECT, subject);
 
+		g_free (date);
+
 		list = get_recipient_list (to);
 		tracker_data_metadata_insert_values (metadata, METADATA_EMAIL_SENT_TO, list);
+		g_list_foreach (list, (GFunc) g_free, NULL);
+		g_list_free (list);
 
 		list = get_recipient_list (cc);
 		tracker_data_metadata_insert_values (metadata, METADATA_EMAIL_CC, list);
+		g_list_foreach (list, (GFunc) g_free, NULL);
+		g_list_free (list);
+
 	}
 
+	g_free (subject);
+	g_free (from);
 	g_free (to);
 	g_free (cc);
 
