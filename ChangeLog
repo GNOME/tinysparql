@@ -1,5 +1,10 @@
 2008-12-02  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* configure.ac: Replaced the package check for helixbin with only an
+	enable-switch.
+
+2008-12-02  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-png.c:
 	* src/tracker-extract/tracker-extract-jpeg.c:
 	* src/tracker-extract/tracker-extract-tiff.c: Added a default value
