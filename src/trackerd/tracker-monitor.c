@@ -862,7 +862,7 @@ unpause_cb (gpointer data)
 	monitor->private->unpause_timeout_id = 0;
 	tracker_status_set_is_paused_for_io (FALSE);
 
-	g_message ("Resumming indexing now we have stopped "
+	g_message ("Resuming indexing now we have stopped "
 		   "receiving monitor events for %d seconds",
 		   PAUSE_FOR_IO_SECONDS);
 
