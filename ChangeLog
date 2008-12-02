@@ -1,3 +1,12 @@
+2008-12-02  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-png.c:
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-extract-tiff.c: Added a default value
+	for the Image:Date property.
+
+	Fixes NB #93928 and NB #91827
+
 2008-12-01  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-thumbnailer.[ch]: 

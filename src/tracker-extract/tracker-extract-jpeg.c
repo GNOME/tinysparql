@@ -294,6 +294,19 @@ extract_jpeg (const gchar *filename,
 				     g_strdup ("Image:Height"),
 				     g_strdup_printf ("%u", cinfo.image_height));
 
+		/* Check that we have the minimum data. FIXME We should not need to do this */
+
+		if (!g_hash_table_lookup (metadata, "Image:Date")) {
+			struct stat st;
+
+			if (g_lstat(filename, &st) >= 0) {
+
+				g_hash_table_insert (metadata, 
+					     g_strdup ("Image:Date"), 
+					     tracker_date_to_string (st.st_mtime));				
+			}
+		}
+
 		jpeg_destroy_decompress (&cinfo);
 
 		fclose (jpeg);
