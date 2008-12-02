@@ -2201,7 +2201,7 @@ main (int argc, char *argv[])
 
 	priv->keyfile = NULL;
 	priv->filename = g_build_filename (g_get_user_config_dir (),
-					   "tracker"
+					   "tracker",
 					   "tracker-applet.cfg",
 					   NULL);
 
