@@ -1,5 +1,15 @@
 2008-12-03  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/tracker-type-utils.[ch]
+	(tracker_string_in_gslist): New function to know whether a string is
+	contained in a GSList of strings.
+	* src/tracker-indexer/tracker-indexer.c
+	(tracker_indexer_load_modules): Refactor out modules loading to this
+	function, also do not load ignored modules by tracker.cfg.
+	(tracker_indexer_finalize) (tracker_indexer_init): Misc changes.
+
+2008-12-03  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-config.c (config_finalize): Plug a
 	leak.
 

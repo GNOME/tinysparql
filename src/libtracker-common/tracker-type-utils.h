@@ -45,6 +45,8 @@ gboolean tracker_string_to_uint		       (const gchar  *s,
 						guint	     *ret);
 gint	 tracker_string_in_string_list	       (const gchar  *str,
 						gchar	    **strv);
+gboolean tracker_string_in_gslist              (const gchar  *str,
+						GSList       *list);
 GSList * tracker_string_list_to_gslist	       (gchar	    **strv,
 						gsize	      length);
 gchar *  tracker_string_list_to_string	       (gchar	    **strv,

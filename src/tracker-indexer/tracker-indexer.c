@@ -515,6 +515,8 @@ tracker_indexer_finalize (GObject *object)
 	g_free (priv->db_dir);
 
 	g_hash_table_unref (priv->indexer_modules);
+
+	g_list_foreach (priv->module_names, (GFunc) g_free, NULL);
 	g_list_free (priv->module_names);
 
 	g_queue_foreach (priv->modules_queue, (GFunc) g_free, NULL);
@@ -819,6 +821,45 @@ signal_status_timeout_stop (TrackerIndexer *indexer)
 }
 
 static void
+tracker_indexer_load_modules (TrackerIndexer *indexer)
+{
+	TrackerIndexerPrivate *priv;
+	GSList *disabled_modules;
+	GList *modules, *l;
+
+	priv = indexer->private;
+	priv->indexer_modules = g_hash_table_new (g_str_hash, g_str_equal);
+
+	disabled_modules = tracker_config_get_disabled_modules (priv->config);
+	modules = tracker_module_config_get_modules ();
+
+	for (l = modules; l; l = l->next) {
+		TrackerIndexerModule *module;
+
+		if (!tracker_module_config_get_enabled (l->data)) {
+			continue;
+		}
+
+		if (tracker_string_in_gslist (l->data, disabled_modules)) {
+			continue;
+		}
+
+		module = tracker_indexer_module_get (l->data);
+
+		if (module) {
+			g_hash_table_insert (priv->indexer_modules,
+					     l->data, module);
+
+			priv->module_names = g_list_prepend (priv->module_names,
+							     g_strdup (l->data));
+			g_quark_from_string (l->data);
+		}
+	}
+
+	g_list_free (modules);
+}
+
+static void
 tracker_indexer_init (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
@@ -867,27 +908,7 @@ tracker_indexer_init (TrackerIndexer *indexer)
 					 "tracker",
 					 NULL);
 
-	priv->module_names = tracker_module_config_get_modules ();
-	for (l = priv->module_names; l; l = l->next) {
-		g_quark_from_string (l->data);
-	}
-
-	priv->indexer_modules = g_hash_table_new (g_str_hash, g_str_equal);
-
-	for (l = priv->module_names; l; l = l->next) {
-		TrackerIndexerModule *module;
-
-		if (!tracker_module_config_get_enabled (l->data)) {
-			continue;
-		}
-
-		module = tracker_indexer_module_get (l->data);
-
-		if (module) {
-			g_hash_table_insert (priv->indexer_modules,
-					     l->data, module);
-		}
-	}
+	tracker_indexer_load_modules (indexer);
 
 	/* Set up indexer */
 	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);

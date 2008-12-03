@@ -644,6 +644,23 @@ tracker_string_in_string_list (const gchar  *str,
 	return -1;
 }
 
+gboolean
+tracker_string_in_gslist (const gchar *str,
+			  GSList      *list)
+{
+	GSList *l;
+
+	g_return_val_if_fail (str != NULL, FALSE);
+
+	for (l = list; l; l = l->next) {
+		if (g_strcmp0 (l->data, str) == 0) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 GSList *
 tracker_string_list_to_gslist (gchar **strv,
 			       gsize   size)
