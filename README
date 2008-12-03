@@ -42,12 +42,11 @@ Table of Contents
   Supported first class objects include:
 
   * Files, Documents, Music, Images, Videos, Applications, Emails,
-    Conversations, History
+    Conversations, History, Playlists
 
   Planned support:
 
-  * Appointments, Contacts, Projects, Tasks, Bookmarks, Playlists,
-    Notes
+  * Appointments, Contacts, Projects, Tasks, Bookmarks, Notes
 
   All discussion related to tracker happens on the Tracker
   mailing list
@@ -176,6 +175,7 @@ Table of Contents
     directories, as well as whether the computer is running on
     battery)
   * GTK and GNOME stack (for GUI tools)
+  * totem-plparser (for playlist extraction)
 
 
 4.2 For building Tracker's Deskbar-applet backend
@@ -327,8 +327,9 @@ Table of Contents
 
 6.3 Tracker files
 
-  Here is some of the files that Tracker uses during its operation,
-  apart from "~/.config/tracker" which is stated above, in Sec 6.1:
+  Here are some of the files that Tracker creates and uses for its
+  operation, apart from "~/.config/tracker/tracker.cfg" which is stated
+  in Sec 6.1 above:
 
   * "~/.local/share/tracker" is used for non-expendable content,
     like keywords and metadata definitions.
@@ -366,7 +367,8 @@ Table of Contents
 
 9 Tracker Tools
 
-  Tracker comes with a number of utilities that you can use. These are
-  hosted in src/utils/. To find out how to use them, provide the
-  --help command line switch to know how to they are used.
+  The Tracker distribution comes with a number of useful utilities which
+  are listed at the bottom of trackerd man page, "man trackerd". It's
+  recommended that you use the "--help" command line switch
+  (e.g., "tracker-services --help") for a more up-to-date usage info.
 

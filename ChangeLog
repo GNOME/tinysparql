@@ -1,5 +1,12 @@
 2008-12-03  Martyn Russell  <martyn@imendio.com>
 
+	* NEWS:
+	* README:
+	* docs/manpages/trackerd.1: Patch from Tshepang Lekhonkhobe to
+	update documentation.
+
+2008-12-03  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac: Bumped version requirement of GLib to 2.16. We
 	depend on it anyway.
 
