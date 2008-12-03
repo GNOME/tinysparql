@@ -1,3 +1,14 @@
+2008-12-03  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-preferences/tracker-preferences.glade
+	* src/tracker-preferences/tracker-preferences.c:
+	Using gtk tree model in the language combo box (instead of setting 
+	options in glade file). The previous code to read the language was
+	forcing a reindex everytime you closed the preferences dialog. 
+
+	Use "No" instead of "Cancel" from the stock in the "reindex"
+	dialog. It is a yes/no answer.
+	
 2008-12-03  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:

@@ -405,17 +405,22 @@ cmd_apply (GtkWidget *widget,
 	TrackerPreferencesPrivate *priv;
 	GSList *list;
 	GSList *list_old;
-        gchar *language;
-        const gchar *language_old;
+        gchar *lang_code;
+        const gchar *lang_code_old;
 	gboolean bvalue, bvalue_old;
 	gint ivalue, ivalue_old;
+        GtkTreeIter   iter;
+        GtkTreeModel *model;
 
         priv = TRACKER_PREFERENCES_GET_PRIVATE (data);
 
 	/* Save general settings */
 	widget = glade_xml_get_widget (priv->gxml, "spnInitialSleep");
+        ivalue_old = tracker_config_get_initial_sleep (priv->config);
 	ivalue = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON (widget));
-	tracker_config_set_initial_sleep (priv->config, ivalue);
+        if (ivalue_old != ivalue) {
+                tracker_config_set_initial_sleep (priv->config, ivalue);
+        }
 
 #ifdef ENABLE_DEPRECATED
 	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
@@ -440,20 +445,23 @@ cmd_apply (GtkWidget *widget,
 	}
 
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
-        language = gtk_combo_box_get_active_text (GTK_COMBO_BOX (widget));
-        language_old = tracker_config_get_language (priv->config);
 
-        if (language && language_old && strcmp (language, language_old) == 0) {
+        gtk_combo_box_get_active_iter (GTK_COMBO_BOX (widget), &iter);
+        model = gtk_combo_box_get_model (GTK_COMBO_BOX (widget));
+        
+        gtk_tree_model_get (model, &iter, 1, &lang_code, -1);
+        lang_code_old = tracker_config_get_language (priv->config);
+
+        if (lang_code 
+            && lang_code_old 
+            && strcmp (lang_code, lang_code_old) == 0) {
                 /* Same, do nothing */
         } else {
-                const gchar *code;
-
                 priv->should_restart = TRUE;
                 priv->should_reindex = TRUE;
 
-                /* Note, language can be NULL */
-                code = tracker_language_get_code_by_name (language);
-		tracker_config_set_language (priv->config, code);
+                /* Note, language can be NULL??? */
+		tracker_config_set_language (priv->config, lang_code);
         }
         
 	widget = glade_xml_get_widget (priv->gxml, "chkDisableBatteryIndex");
@@ -642,7 +650,7 @@ cmd_apply (GtkWidget *widget,
 		gchar *primary;
 		gchar *secondary;
 		gchar *button;
-
+                
 		if (priv->should_reindex) {
 			primary = g_strdup (_("Data must be reindexed"));
 			secondary = g_strdup (_("In order for your changes to "
@@ -677,7 +685,7 @@ cmd_apply (GtkWidget *widget,
 							  secondary);
 
 		gtk_dialog_add_buttons (GTK_DIALOG (dialog),
-					GTK_STOCK_CANCEL, GTK_RESPONSE_NO,
+					GTK_STOCK_NO, GTK_RESPONSE_NO,
 					button, GTK_RESPONSE_YES, NULL);
 
 		g_free (primary);
@@ -859,8 +867,8 @@ setup_page_general (TrackerPreferences *preferences)
 	TrackerPreferencesPrivate *priv;
 	GtkWidget *widget;
         const gchar *language;
-	gchar *default_language = NULL;
         GSList *language_codes, *l;
+        GtkTreeStore *language_model;
 	gboolean value;
 	gint sleep;
 
@@ -884,26 +892,34 @@ setup_page_general (TrackerPreferences *preferences)
 #endif
 
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
+        language_model = gtk_tree_store_new (2, 
+                                             G_TYPE_STRING, 
+                                             G_TYPE_STRING);
+        gtk_combo_box_set_model (GTK_COMBO_BOX (widget), 
+                                 GTK_TREE_MODEL (language_model));
+
 	language = tracker_config_get_language (priv->config);
 	if (!language) {
 		/* No value for language? Default to "en" */
-		language = default_language = tracker_language_get_default_code ();
+		language = tracker_language_get_default_code ();
 	}
-
-        /* Default to English */
-	gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 2);
         
         language_codes = tracker_language_get_all_by_code ();
         
 	for (l = language_codes; l; l = l->next) {
+
+                GtkTreeIter iter;
+                gtk_tree_store_append (language_model, &iter, NULL);
+                gtk_tree_store_set (language_model, &iter, 
+                                    0, tracker_language_get_name_by_code (l->data), 
+                                    1, l->data,
+                                    -1);
+
 		if (strcasecmp (language, l->data) == 0) {
                         gtk_combo_box_set_active (GTK_COMBO_BOX (widget), 
                                                   g_slist_index (language_codes, l->data));
-                        break;
                 }
 	}
-
-        g_free (default_language);
 
 	widget = glade_xml_get_widget (priv->gxml, "chkDisableBatteryIndex");
 	value = tracker_config_get_disable_indexing_on_battery (priv->config);
