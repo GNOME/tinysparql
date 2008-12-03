@@ -493,6 +493,9 @@ config_finalize (GObject *object)
 	g_slist_foreach (priv->no_index_file_types, (GFunc) g_free, NULL);
 	g_slist_free (priv->no_index_file_types);
 
+	g_slist_foreach (priv->disabled_modules, (GFunc) g_free, NULL);
+	g_slist_free (priv->disabled_modules);
+
 	g_free (priv->language);
 
 	if (priv->key_file) {

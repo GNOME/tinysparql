@@ -1,3 +1,8 @@
+2008-12-03  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-config.c (config_finalize): Plug a
+	leak.
+
 2008-12-03  Martyn Russell  <martyn@imendio.com>
 
 	* NEWS:
