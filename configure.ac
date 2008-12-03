@@ -85,6 +85,22 @@ AC_CHECK_DECLS(posix_fadvise, [], [], [
 AC_CHECK_FUNCS([posix_fadvise])
 AC_CHECK_FUNCS([getline])
 
+# Check for defines we expect
+AC_TRY_COMPILE(,
+	[
+#include "stdio.h"
+printf ("%s", __FUNCTION__);
+	],
+	have_function=yes,
+	have_function=no,
+)
+
+if test "x$have_function" = "xno" ; then
+   AC_DEFINE(__FUNCTION__, 
+   	     __func__, 
+   	     [Defined for compilers not supporting __FUNCTION__])
+fi
+
 # Library required versions
 DBUS_REQUIRED=0.60
 GLIB_REQUIRED=2.16.0
@@ -243,7 +259,7 @@ AC_SUBST(DESKBAR_MODULE_DIR)
 
 GETTEXT_PACKAGE=AC_PACKAGE_NAME
 AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [The gettext translation domain])
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [The gettext translation domain])
 
 AM_GLIB_GNU_GETTEXT
 IT_PROG_INTLTOOL([0.35.0])

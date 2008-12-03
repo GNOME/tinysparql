@@ -483,7 +483,7 @@ tracker_files_search_text_contents (TrackerFiles	   *object,
 	tracker_dbus_request_failed (request_id,
 				     &actual_error,
 				     "%s not implemented yet",
-				     __PRETTY_FUNCTION__);
+				     __FUNCTION__);
 	dbus_g_method_return_error (context, actual_error);
 	g_error_free (actual_error);
 }

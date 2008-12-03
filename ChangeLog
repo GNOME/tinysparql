@@ -1,3 +1,10 @@
+2008-12-03  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/tracker-indexer/modules/evolution-common.c:
+	* src/trackerd/tracker-files.c: Support __FUNCTION__ for compilers
+	which don't have it as standard. Based on a patch from Jerry Tan.
+
 2008-12-03  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-common/tracker-type-utils.[ch]

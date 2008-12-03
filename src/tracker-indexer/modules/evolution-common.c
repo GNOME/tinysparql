@@ -24,6 +24,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #include <tracker-indexer/tracker-metadata-utils.h>
 
