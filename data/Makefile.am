@@ -2,8 +2,9 @@ include $(top_srcdir)/Makefile.decl
 
 SUBDIRS = db dbus modules languages icons services
 
-trackerd.desktop: trackerd.desktop.in
-	@sed -e "s|@libexec[@]|${libexecdir}|" $< > $@
+trackerd.desktop.in: trackerd.desktop.in.in
+	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
+	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
 autostartdir = $(sysconfdir)/xdg/autostart
 autostart_in_files = trackerd.desktop.in

@@ -1155,7 +1155,6 @@ AC_CONFIG_FILES([
 	data/services/Makefile
 	data/tracker.pc
 	data/tracker-indexer-module-1.0.pc
-	data/trackerd.desktop.in
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
