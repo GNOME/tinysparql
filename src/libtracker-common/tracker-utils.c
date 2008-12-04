@@ -152,7 +152,7 @@ tracker_seconds_to_string (gdouble  seconds_elapsed,
 	gdouble  total;
 	gint	 days, hours, minutes, seconds;
 
-	g_return_val_if_fail (seconds_elapsed >= 0.0, g_strdup (_("unknown time")));
+	g_return_val_if_fail (seconds_elapsed >= 0.0, g_strdup (_("less than one second")));
 
 	total	 = seconds_elapsed;
 
@@ -211,7 +211,7 @@ tracker_seconds_to_string (gdouble  seconds_elapsed,
 
 	if (str[0] == '\0') {
 		g_free (str);
-		str = g_strdup (_("unknown time"));
+		str = g_strdup (_("less than one second"));
 	} else {
 		g_strchug (str);
 	}
