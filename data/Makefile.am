@@ -15,7 +15,7 @@ autostart_DATA = trackerd.desktop
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 			\
 	tracker.pc			\
-	tracker-indexer-module-1.0.pc
+	tracker-module-1.0.pc
 
 if ENABLE_LIBTRACKERGTK
 pkgconfig_DATA += libtracker-gtk.pc

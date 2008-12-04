@@ -1,0 +1,44 @@
+<INCLUDE>libtracker-module/tracker-module-file.h</INCLUDE>
+<SECTION>
+<FILE>tracker-module-file</FILE>
+<TITLE>Module files</TITLE>
+TrackerModuleFile
+tracker_module_file_get_file
+tracker_module_file_get_service_type
+tracker_module_file_get_uri
+tracker_module_file_get_text
+tracker_module_file_get_metadata
+</SECTION>
+
+<INCLUDE>libtracker-module/tracker-module-iteratable.h</INCLUDE>
+<SECTION>
+<FILE>tracker-module-iteratable</FILE>
+<TITLE>Iteratable files</TITLE>
+TrackerModuleIteratable
+tracker_module_iteratable_iter_contents
+tracker_module_iteratable_get_count
+</SECTION>
+
+<INCLUDE>libtracker-module/tracker-module-metadata.h</INCLUDE>
+<SECTION>
+<FILE>tracker-module-metadata</FILE>
+<TITLE>Metadata Object</TITLE>
+TrackerModuleMetadata
+tracker_module_metadata_new
+tracker_module_metadata_clear_field
+tracker_module_metadata_add_take_string
+tracker_module_metadata_add_string
+tracker_module_metadata_add_int
+tracker_module_metadata_add_uint
+tracker_module_metadata_add_double
+tracker_module_metadata_add_float
+tracker_module_metadata_add_date
+</SECTION>
+
+<INCLUDE>libtracker-module/tracker-module-metadata-utils.h</INCLUDE>
+<SECTION>
+<FILE>tracker-module-metadata-utils</FILE>
+<TITLE>Metadata Convenience Fallback Functions</TITLE>
+tracker_module_metadata_utils_get_data
+tracker_module_metadata_utils_get_text
+</SECTION>

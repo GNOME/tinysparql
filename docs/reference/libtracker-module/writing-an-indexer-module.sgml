@@ -1,4 +1,4 @@
-<chapter id="writing-an-indexer-plugin">
+<chapter id="writing-an-indexer-module">
   <chapterinfo>
     <author>
       <firstname>Carlos</firstname>
@@ -11,7 +11,7 @@
     </author>
   </chapterinfo>
 
-  <title>Writing An Indexer Plugin</title>
+  <title>Writing An Indexer Module</title>
 
   <para>
     Tracker's indexer has a modular design, so applications can

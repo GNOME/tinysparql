@@ -3,10 +3,10 @@ include $(top_srcdir)/Makefile.decl
 AUTOMAKE_OPTIONS = 1.6
 
 # The name of the module.
-DOC_MODULE=tracker-indexer
+DOC_MODULE=libtracker-module
 
 # The top-level SGML file.
-DOC_MAIN_SGML_FILE=tracker-indexer-docs.sgml
+DOC_MAIN_SGML_FILE=libtracker-module-docs.sgml
 
 # Extra options to supply to gtkdoc-scan
 # SCAN_OPTIONS=--deprecated-guards="G_GNUC_DEPRECATED"
@@ -68,12 +68,12 @@ content_files =					\
 	version.xml				\
 	adding-categories-and-properties.sgml	\
 	writing-an-extractor.sgml		\
-	writing-an-indexer-plugin.sgml
+	writing-an-indexer-module.sgml
 
 expand_content_files =				\
 	adding-categories-and-properties.sgml	\
 	writing-an-extractor.sgml		\
-	writing-an-indexer-plugin.sgml
+	writing-an-indexer-module.sgml
 
 # Images to copy into HTML directory
 HTML_IMAGES =

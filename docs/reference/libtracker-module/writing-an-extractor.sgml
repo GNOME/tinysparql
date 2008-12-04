@@ -162,6 +162,6 @@ void name_of_the_function (const gchar *filename,
 <!--
 Local variables:
 mode: sgml
-sgml-parent-document: ("tracker-indexer-docs.sgml" "book" "part" "chapter")
+sgml-parent-document: ("libtracker-module-docs.sgml" "book" "part" "chapter")
 End:
 -->

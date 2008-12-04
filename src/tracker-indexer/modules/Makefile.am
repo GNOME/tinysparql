@@ -19,31 +19,30 @@ INCLUDES =								\
 	$(GMIME_CFLAGS)
 
 indexer_modules_LTLIBRARIES = 						\
-	libtracker-indexer-applications.la				\
-	libtracker-indexer-files.la					\
-	libtracker-indexer-gaim-conversations.la
+	libtracker-module-applications.la				\
+	libtracker-module-files.la					\
+	libtracker-module-gaim-conversations.la
 
 # Applications module
-libtracker_indexer_applications_la_SOURCES = applications.c
-libtracker_indexer_applications_la_LDFLAGS = $(module_flags)
-libtracker_indexer_applications_la_LIBADD = 				\
+libtracker_module_applications_la_SOURCES = applications.c
+libtracker_module_applications_la_LDFLAGS = $(module_flags)
+libtracker_module_applications_la_LIBADD = 				\
 	$(GMODULE_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
 
 # Files module
-libtracker_indexer_files_la_SOURCES = files.c
-libtracker_indexer_files_la_LDFLAGS = $(module_flags)
-libtracker_indexer_files_la_LIBADD = 					\
-	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
+libtracker_module_files_la_SOURCES = files.c
+libtracker_module_files_la_LDFLAGS = $(module_flags)
+libtracker_module_files_la_LIBADD = 					\
 	$(GMODULE_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
 
 # Instant messaging module
-libtracker_indexer_gaim_conversations_la_SOURCES = gaim-conversations.c
-libtracker_indexer_gaim_conversations_la_LDFLAGS = $(module_flags)
-libtracker_indexer_gaim_conversations_la_LIBADD = 			\
+libtracker_module_gaim_conversations_la_SOURCES = gaim-conversations.c
+libtracker_module_gaim_conversations_la_LDFLAGS = $(module_flags)
+libtracker_module_gaim_conversations_la_LIBADD = 			\
 	$(GMODULE_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
@@ -51,10 +50,10 @@ libtracker_indexer_gaim_conversations_la_LIBADD = 			\
 if HAVE_GCONF
 
 indexer_modules_LTLIBRARIES += 						\
-	libtracker-indexer-evolution.la
+	libtracker-module-evolution.la
 
 # Evolution
-libtracker_indexer_evolution_la_SOURCES =				\
+libtracker_module_evolution_la_SOURCES =				\
 	evolution-common.c						\
 	evolution-common.h						\
 	evolution-imap.c						\
@@ -63,8 +62,8 @@ libtracker_indexer_evolution_la_SOURCES =				\
 	evolution-pop.h							\
 	evolution.c
 
-libtracker_indexer_evolution_la_LDFLAGS = $(module_flags)
-libtracker_indexer_evolution_la_LIBADD = 				\
+libtracker_module_evolution_la_LDFLAGS = $(module_flags)
+libtracker_module_evolution_la_LIBADD = 				\
 	$(GMODULE_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GCONF_LIBS)							\

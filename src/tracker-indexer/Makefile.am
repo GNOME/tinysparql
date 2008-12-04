@@ -15,17 +15,17 @@ INCLUDES =								\
 	$(PANGO_CFLAGS)							\
 	$(GMODULE_CFLAGS)
 
-libtracker_indexerdir = $(libdir)/tracker
-libtracker_indexerincludedir=$(includedir)/tracker-1.0/libtracker-indexer/
-libtracker_indexer_LTLIBRARIES = libtracker-indexer.la
+libtracker_moduledir = $(libdir)/tracker
+libtracker_moduleincludedir=$(includedir)/tracker-1.0/libtracker-module/
+libtracker_module_LTLIBRARIES = libtracker-module.la
 
-libtracker_indexer_la_SOURCES =	 					\
+libtracker_module_la_SOURCES =	 					\
 	tracker-module-file.c						\
 	tracker-module-iteratable.c					\
 	tracker-module-metadata-utils.c					\
 	tracker-module-metadata.c
 
-libtracker_indexerinclude_HEADERS =					\
+libtracker_moduleinclude_HEADERS =					\
 	tracker-module-file.h						\
 	tracker-module-iteratable.h					\
 	tracker-module-metadata-utils.h					\
@@ -45,7 +45,7 @@ tracker_indexer_SOURCES =						\
 	tracker-module-metadata-private.h
 
 tracker_indexer_LDADD =							\
-	libtracker-indexer.la						\
+	libtracker-module.la						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\

@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
-<!ENTITY tracker-module SYSTEM "xml/tracker-module.xml">
-<!ENTITY tracker-metadata SYSTEM "xml/tracker-metadata.xml">
-<!ENTITY tracker-metadata-utils SYSTEM "xml/tracker-metadata-utils.xml">
+<!ENTITY tracker-module-file SYSTEM "xml/tracker-module-file.xml">
+<!ENTITY tracker-module-iteratable SYSTEM "xml/tracker-module-iteratable.xml">
+<!ENTITY tracker-module-metadata SYSTEM "xml/tracker-module-metadata.xml">
+<!ENTITY tracker-module-metadata-utils SYSTEM "xml/tracker-module-metadata-utils.xml">
 <!ENTITY adding-categories-and-properties SYSTEM "xml/adding-categories-and-properties.sgml">
 <!ENTITY writing-an-extractor SYSTEM "xml/writing-an-extractor.sgml">
 <!ENTITY writing-an-indexer-plugin SYSTEM "xml/writing-an-indexer-plugin.sgml">
@@ -31,13 +32,14 @@
 
     <chapter>
       <title>Modules</title>
-      &tracker-module;
+      &tracker-module-file;
+      &tracker-module-iteratable;
     </chapter>
 
     <chapter>
       <title>Metadata</title>
-      &tracker-metadata;
-      &tracker-metadata-utils;
+      &tracker-module-metadata;
+      &tracker-module-metadata-utils;
     </chapter>
 
     <part id="integrating-applications">

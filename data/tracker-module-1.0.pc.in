@@ -7,5 +7,5 @@ Name: tracker-indexer-module
 Description: A library to develop tracker indexer modules
 Version: @VERSION@
 Requires: glib-2.0 pango
-Libs: -L${libdir}/tracker -ltracker-common -ltracker-indexer
+Libs: -L${libdir}/tracker -ltracker-module
 Cflags: -I${includedir}/tracker-1.0

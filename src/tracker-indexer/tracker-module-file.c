@@ -145,6 +145,14 @@ tracker_module_file_get_property (GObject    *object,
         }
 }
 
+/**
+ * tracker_module_file_get_file:
+ * @file: A #TrackerModuleFile
+ *
+ * Returns a #GFile corresponding to the file managed by #TrackerModuleFile.
+ *
+ * Returns: a #GFile, this object should not be unreferenced.
+ **/
 GFile *
 tracker_module_file_get_file (TrackerModuleFile *file)
 {
@@ -198,6 +206,14 @@ tracker_module_file_get_text (TrackerModuleFile *file)
         return TRACKER_MODULE_FILE_GET_CLASS (file)->get_text (file);
 }
 
+/**
+ * tracker_module_file_get_metadata:
+ * @file: A #TrackerModuleFile
+ *
+ * Extracts all the metadata corresponding to @file in the current state.
+ *
+ * Returns: A #TrackerModuleMetadata containing all the extracted metadata.
+ **/
 TrackerModuleMetadata *
 tracker_module_file_get_metadata (TrackerModuleFile *file)
 {

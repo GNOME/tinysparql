@@ -746,10 +746,10 @@ get_file_content_by_filter (const gchar *path,
 }
 
 /**
- * tracker_metadata_utils_get_text:
- * @path: Path to a local file
+ * tracker_module_metadata_utils_get_text:
+ * @file: A #GFile
  *
- * Gets the text from a given file, if the file is considered as
+ * Gets the text from @file, if the file is considered as
  * containing plain text, it will be extracted, else this function
  * will resort to the installed text filters for the file MIME type.
  *
@@ -782,8 +782,8 @@ tracker_module_metadata_utils_get_text (GFile *file)
 }
 
 /**
- * tracker_metadata_utils_get_data:
- * @path: Path to a local file
+ * tracker_module_metadata_utils_get_data:
+ * @file: A #GFile
  *
  * Returns a #TrackerModuleMetadata filled in with all the
  * metadata that could be extracted for the given file.

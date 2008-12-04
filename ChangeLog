@@ -14,6 +14,33 @@
 
 2008-12-04  Carlos Garnacho  <carlos@imendio.com>
 
+	Rename libtracker-indexer to libtracker-module for consistence, as
+	it's not a library to make indexers, but to make modules.
+
+	* src/tracker-indexer/Makefile.am: Rename the library to
+	libtracker-module.
+
+	* data/tracker-indexer-module-1.0.pc.in: Moved to
+	* data/tracker-module-1.0.pc.in: Added
+
+	* docs/reference/tracker-indexer: Moved to
+	* docs/reference/libtracker-module: Adapt to new modules API.
+
+	* configure.ac:
+	* data/Makefile.am:
+	* docs/reference/Makefile.am: Misc changes.
+
+	* src/tracker-indexer/modules/Makefile.am: Compile modules as
+	libtracker-module-*.so, instead of libtracker-indexer-*.so
+
+	* src/tracker-indexer/tracker-indexer-module.c: Just load
+	libtracker-module-*.so.
+
+	* src/tracker-indexer/tracker-module-file.c:
+	* src/tracker-indexer/tracker-module-metadata-utils.c: Add a few docs.
+
+2008-12-04  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-module-metadata.[ch]:
 	* src/tracker-indexer/tracker-module-metadata-private.h: New files.
 	TrackerModuleMetadata is the object used for exchanging information

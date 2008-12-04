@@ -1170,15 +1170,15 @@ AC_CONFIG_FILES([
 	data/modules/Makefile
 	data/services/Makefile
 	data/tracker.pc
-	data/tracker-indexer-module-1.0.pc
+	data/tracker-module-1.0.pc
 	docs/Makefile
 	docs/design/Makefile
 	docs/manpages/Makefile
 	docs/reference/Makefile
 	docs/reference/libtracker-common/Makefile
 	docs/reference/libtracker-common/version.xml
-	docs/reference/tracker-indexer/Makefile
-	docs/reference/tracker-indexer/version.xml
+	docs/reference/libtracker-module/Makefile
+	docs/reference/libtracker-module/version.xml
 	filters/application/Makefile
 	filters/Makefile
 	filters/text/Makefile

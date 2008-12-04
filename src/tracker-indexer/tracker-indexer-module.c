@@ -51,7 +51,7 @@ tracker_indexer_module_load (GTypeModule *module)
 
 	indexer_module = TRACKER_INDEXER_MODULE (module);
 
-	full_name = g_strdup_printf ("libtracker-indexer-%s", indexer_module->name);
+	full_name = g_strdup_printf ("libtracker-module-%s", indexer_module->name);
 	path = g_build_filename (INDEXER_MODULES_DIR, full_name, NULL);
 
 	indexer_module->module = g_module_open (path, G_MODULE_BIND_LOCAL);
