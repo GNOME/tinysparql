@@ -261,11 +261,12 @@ restart_tracker (GtkDialog *dialog,
 					 priv->should_reindex, G_TYPE_INVALID);
 
 		priv->is_first_time = TRUE;
-		priv->should_restart = FALSE;
-		priv->should_reindex = FALSE;
 	} else if (priv->should_quit) {
 		gtk_main_quit ();
 	}
+
+        priv->should_restart = FALSE;
+        priv->should_reindex = FALSE;
 }
 
 static void
