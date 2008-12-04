@@ -1,3 +1,10 @@
+2008-12-04  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-preferences/tracker-preferences.c:
+	Enabled the evolution option in tracker-preferences. Now evolution
+	can be added/removed from the disabled modules list using
+	tracker-preferences.
+	
 2008-12-04  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker/tracker.c: Included config.h so we get the

@@ -594,6 +594,34 @@ cmd_apply (GtkWidget *widget,
 		set_bool_option (priv, "EnableThunderbird", bvalue);
 		tracker_configuration_set_boolean ("/Emails/IndexThunderbirdEmails", bvalue);
 	}
+#else
+	widget = glade_xml_get_widget (priv->gxml, "chkEnableEvolutionIndexing");
+	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
+
+        list = tracker_config_get_disabled_modules (priv->config);
+        bvalue_old = !tracker_string_in_gslist ("evolution", list);
+	if (bvalue != bvalue_old) {
+
+                priv->should_restart = TRUE;
+                if (bvalue) {
+                        /* Activated evolution module (was disabled)*/
+                        GSList *evo_module;
+
+                        evo_module = g_slist_find_custom (list, "evolution", (GCompareFunc)strcmp);
+                        list = g_slist_remove_link (list, evo_module);
+                        tracker_config_set_disabled_modules (priv->config, list);
+                } else {
+                        /*
+                         * Desactivated evolution module (was enabled)
+                         * Force reindex to remove emails from the DBs
+                         */
+                        priv->should_reindex = TRUE;
+                
+                        list = g_slist_prepend (list, "evolution");
+                        tracker_config_set_disabled_modules (priv->config, list);
+                }
+	}
+
 #endif
 
 	/* Performance settings */
@@ -1054,6 +1082,8 @@ setup_page_emails (TrackerPreferences *preferences)
 {
 	TrackerPreferencesPrivate *priv;
 	GtkWidget *widget;
+        gboolean no_evo;
+        GSList  *disabled_mods;
 
         priv = TRACKER_PREFERENCES_GET_PRIVATE (preferences);
 
@@ -1079,7 +1109,12 @@ setup_page_emails (TrackerPreferences *preferences)
 #else 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "chkEnableEvolutionIndexing");
-        gtk_widget_set_sensitive (widget, FALSE);
+        gtk_widget_set_sensitive (widget, TRUE);
+
+        disabled_mods = tracker_config_get_disabled_modules (priv->config);
+        no_evo = tracker_string_in_gslist ("evolution", disabled_mods);
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), 
+                                      !no_evo);
 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "chkEnableModestIndexing");
