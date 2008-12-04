@@ -690,6 +690,12 @@ black_list_check_items_cb (gpointer data)
 
 			case IN_DELETE:
 			case IN_DELETE_SELF:
+				if (is_directory) {
+					tracker_monitor_remove (monitor, 
+								module_name, 
+								event->file);
+				}
+
 				g_signal_emit (monitor,
 					       signals[ITEM_DELETED], 0,
 					       module_name,
@@ -706,6 +712,12 @@ black_list_check_items_cb (gpointer data)
 				break;
 
 			case IN_UNMOUNT:
+				if (is_directory) {
+					tracker_monitor_remove (monitor, 
+								module_name, 
+								key);
+				}
+
 				g_signal_emit (monitor,
 					       signals[ITEM_DELETED], 0,
 					       module_name,
@@ -1012,6 +1024,12 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 			/* So we knew the source, but not the
 			 * target location for the event.
 			 */
+			if (is_directory) {
+ 				tracker_monitor_remove (monitor, 
+							module_name, 
+							event->file);
+			}
+
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
@@ -1113,6 +1131,12 @@ libinotify_cached_events_timeout_cb (gpointer data)
 
 		case IN_DELETE:
 		case IN_DELETE_SELF:
+			if (is_directory) {
+ 				tracker_monitor_remove (monitor, 
+							module_name, 
+							event->file);
+			}
+
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
@@ -1336,6 +1360,12 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		case IN_DELETE:
 		case IN_DELETE_SELF:
 			if (cookie == 0) {
+				if (is_directory) {
+					tracker_monitor_remove (monitor, 
+								module_name, 
+								file);
+				}
+
 				g_signal_emit (monitor,
 					       signals[ITEM_DELETED], 0,
 					       module_name,
@@ -1413,6 +1443,10 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			break;
 
 		case IN_UNMOUNT:
+			if (is_directory) {
+				tracker_monitor_remove (monitor, module_name, file);
+			}
+
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
@@ -1592,6 +1626,12 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 			break;
 
 		case G_FILE_MONITOR_EVENT_DELETED:
+			if (is_directory) {
+				tracker_monitor_remove (monitor, 
+							module_name, 
+							file);
+			}
+
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
@@ -1783,20 +1823,16 @@ tracker_monitor_add (TrackerMonitor *monitor,
 gboolean
 tracker_monitor_remove (TrackerMonitor *monitor,
 			const gchar    *module_name,
-			GFile	       *file)
+			GFile          *file)
 {
-	GFileMonitor *file_monitor;
-	GHashTable   *monitors;
-	gchar	     *path;
+	GHashTable *monitors;
+	gchar      *path;
+	gboolean    removed;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (module_name != NULL, FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	if (!tracker_config_get_enable_watches (monitor->private->config)) {
-		return TRUE;
-	}
-
+	
 	monitors = g_hash_table_lookup (monitor->private->modules, module_name);
 	if (!monitors) {
 		g_warning ("No monitor hash table for module:'%s'",
@@ -1804,26 +1840,66 @@ tracker_monitor_remove (TrackerMonitor *monitor,
 		return FALSE;
 	}
 
-	file_monitor = g_hash_table_lookup (monitors, file);
-	if (!file_monitor) {
-		return TRUE;
-	}
-
-	/* We reset this because now it is possible we have limit - 1 */
-	monitor->private->monitor_limit_warned = FALSE;
-
-	g_hash_table_remove (monitors, file);
-
+	removed = g_hash_table_remove (monitors, file);
 	path = g_file_get_path (file);
-
+	
 	g_debug ("Removed monitor for module:'%s', path:'%s', total monitors:%d",
 		 module_name,
 		 path,
 		 g_hash_table_size (monitors));
-
+	
 	g_free (path);
 
-	return TRUE;
+	/* tracker_monitor_remove_recursively (monitor, event->file); */
+	
+	return removed;
+}
+
+	
+gboolean
+tracker_monitor_remove_recursively (TrackerMonitor *monitor,
+				    GFile          *file)
+{
+	GHashTableIter iter1;
+	gpointer       iter_module_name, iter_hash_table;
+	guint          items_removed = 0;
+
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
+	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+
+	g_hash_table_iter_init (&iter1, monitor->private->modules);
+	while (g_hash_table_iter_next (&iter1, &iter_module_name, &iter_hash_table)) {
+		GHashTableIter iter2;
+		gpointer       iter_file, iter_file_monitor;
+
+		g_hash_table_iter_init (&iter2, iter_hash_table);
+		while (g_hash_table_iter_next (&iter2, &iter_file, &iter_file_monitor)) {
+			gchar *path;
+		
+			if (!g_file_has_prefix (iter_file, file) &&
+			    !g_file_equal (iter_file, file)) {
+				continue;
+			}
+
+			path = g_file_get_path (iter_file);
+			
+			g_debug ("Removed monitor for module:'%s', path:'%s', total monitors:%d",
+				 iter_module_name,
+				 path,
+				 g_hash_table_size (iter_hash_table));
+
+			g_free (path);
+
+			g_hash_table_iter_remove (&iter2);
+		
+			/* We reset this because now it is possible we have limit - 1 */
+			monitor->private->monitor_limit_warned = FALSE;
+			
+			items_removed++;
+		}
+	}
+
+	return items_removed > 0;
 }
 
 gboolean

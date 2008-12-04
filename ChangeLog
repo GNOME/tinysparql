@@ -1,3 +1,11 @@
+2008-12-04  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-monitor.[ch]: 
+	* src/trackerd/tracker-processor.c: Make sure we recursively
+	remove all monitors for mount points which are unmounted. Also,
+	when a directory is deleted, remove the monitor, don't keep it
+	around! 
+
 2008-12-04  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-module-metadata.[ch]:

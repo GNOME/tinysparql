@@ -57,8 +57,10 @@ void		tracker_monitor_set_enabled	     (TrackerMonitor *monitor,
 gboolean	tracker_monitor_add		     (TrackerMonitor *monitor,
 						      const gchar    *module_name,
 						      GFile	     *file);
-gboolean	tracker_monitor_remove		     (TrackerMonitor *monitor,
+gboolean        tracker_monitor_remove               (TrackerMonitor *monitor,
 						      const gchar    *module_name,
+						      GFile          *file);
+gboolean        tracker_monitor_remove_recursively   (TrackerMonitor *monitor,
 						      GFile	     *file);
 gboolean	tracker_monitor_is_watched	     (TrackerMonitor *monitor,
 						      const gchar    *module_name,

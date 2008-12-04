@@ -1457,7 +1457,7 @@ mount_point_removed_cb (TrackerHal  *hal,
 	 * inserted :O -mr
 	 */
 	file = g_file_new_for_path (mount_point);
-	tracker_monitor_remove (processor->private->monitor, module_name, file);
+	tracker_monitor_remove_recursively (processor->private->monitor, file);
 	g_object_unref (file);
 }
 
