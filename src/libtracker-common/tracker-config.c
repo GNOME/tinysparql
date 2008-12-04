@@ -958,7 +958,7 @@ config_create_with_defaults (const gchar *filename,
 		return FALSE;
 	}
 
-	g_print ("Writting default configuration to file:'%s'\n", filename);
+	g_print ("Writing default configuration to file:'%s'\n", filename);
 	g_free (content);
 
 	return TRUE;
