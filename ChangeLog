@@ -1,3 +1,9 @@
+2008-12-04  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-indexer/tracker-indexer.c
+	(item_remove): Call recursively delete only when the uri is a
+	Folder. This speed up a lot the delete operation.
+	
 2008-12-04  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-utils.c: Improve the strings used

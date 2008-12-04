@@ -1681,8 +1681,10 @@ item_remove (TrackerIndexer *indexer,
 				     NULL);
 
 	tracker_data_update_delete_service (service, service_id);
-	tracker_data_update_delete_service_recursively (service, service_path);
 	tracker_data_update_delete_all_metadata (service, service_id);
+	if (strcmp (service_type, "Folders") == 0) {
+		tracker_data_update_delete_service_recursively (service, service_path);
+	}
 
 	tracker_data_update_decrement_stats (indexer->private->common, service);
 
