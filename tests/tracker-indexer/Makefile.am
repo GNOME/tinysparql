@@ -28,8 +28,11 @@ tracker_metadata_utils_SOURCES = 					\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-marshal-main.c						\
-	tracker-module-metadata-utils.c 					\
-	tracker-module-metadata-utils.h 					\
+	tracker-module-metadata.c					\
+	tracker-module-metadata.h					\
+	tracker-module-metadata-private.h				\
+	tracker-module-metadata-utils.c 				\
+	tracker-module-metadata-utils.h 				\
 	tracker-metadata-utils-test.c 					\
 	tracker-module-file.c						\
 	tracker-module-file.h						\

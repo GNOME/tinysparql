@@ -14,6 +14,11 @@
 
 2008-12-04  Carlos Garnacho  <carlos@imendio.com>
 
+	* configure.ac:
+	* tests/tracker-indexer/Makefile.am: Fix tests build.
+
+2008-12-04  Carlos Garnacho  <carlos@imendio.com>
+
 	Rename libtracker-indexer to libtracker-module for consistence, as
 	it's not a library to make indexers, but to make modules.
 
