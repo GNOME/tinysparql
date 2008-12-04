@@ -1,3 +1,8 @@
+2008-12-05  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (tracker_indexer_process_all):
+	Unset the stopped flag set during init(), so -p works again.
+
 2008-12-04  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c: (item_add_or_update),

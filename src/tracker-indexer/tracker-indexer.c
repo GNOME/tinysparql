@@ -2655,6 +2655,8 @@ tracker_indexer_process_all (TrackerIndexer *indexer)
 {
 	GList *l;
 
+	state_unset_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
+
 	for (l = indexer->private->module_names; l; l = l->next) {
 		g_queue_push_tail (indexer->private->modules_queue, g_strdup (l->data));
 	}
