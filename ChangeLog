@@ -1,5 +1,10 @@
 2008-12-04  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker/tracker.c: Included config.h so we get the
+	__FUNCTION__ definition on Sun builds.
+
+2008-12-04  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac:
 	* src/Makefile.am:
 	* src/tracker-thumbnailer/Makefile.am:
