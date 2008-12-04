@@ -43,7 +43,7 @@ gboolean tracker_data_update_create_service             (TrackerService      *se
 							 guint32              service_id,
 							 const gchar         *dirname,
 							 const gchar         *basename,
-							 TrackerDataMetadata *metadata);
+							 GHashTable          *metadata);
 void     tracker_data_update_delete_service             (TrackerService      *service,
 							 guint32              service_id);
 void     tracker_data_update_delete_service_recursively (TrackerService      *service,

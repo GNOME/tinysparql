@@ -1,3 +1,32 @@
+2008-12-04  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-module-metadata.[ch]:
+	* src/tracker-indexer/tracker-module-metadata-private.h: New files.
+	TrackerModuleMetadata is the object used for exchanging information
+	between the indexer and the modules, similar to TrackerDataMetadata,
+	but more suited to the task, and in the correct library.
+
+	* src/tracker-indexer/tracker-metadata-utils.[ch]: Moved to
+	* src/tracker-indexer/tracker-module-metadata-utils.[ch]: Just for
+	consistency.
+
+	* src/tracker-indexer/Makefile.am: Compile the new files.
+
+	* src/tracker-indexer/tracker-module-file.[ch]:
+	* src/tracker-indexer/tracker-indexer.c: Updated to use
+	TrackerModuleMetadata where it's relevant.
+
+	* src/tracker-indexer/modules/*.c: Update to these changes.
+
+	* src/libtracker-data/tracker-data-update.[ch]
+	(tracker_data_update_create_service): Modify to receive a GHashTable
+	instead of a TrackerDataMetadata. to avoid type conversions, circular
+	dependencies, etc...
+
+	* configure.ac:
+	* tests/tracker-indexer/Makefile.am: Update to latest changes to get
+	testcases compiling.
+
 2008-12-04  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-preferences/tracker-preferences.c:

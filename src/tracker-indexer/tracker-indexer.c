@@ -75,6 +75,7 @@
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
+#include "tracker-module-metadata-private.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
@@ -1043,10 +1044,10 @@ index_metadata_foreach (TrackerField *field,
 }
 
 static void
-index_metadata (TrackerIndexer	*indexer,
-		guint32		 id,
-		TrackerService	*service,
-		TrackerDataMetadata *metadata)
+index_metadata (TrackerIndexer	      *indexer,
+		guint32		       id,
+		TrackerService	      *service,
+		TrackerModuleMetadata *metadata)
 {
 	MetadataForeachData data;
 
@@ -1056,15 +1057,15 @@ index_metadata (TrackerIndexer	*indexer,
 	data.id = id;
 	data.add = TRUE;
 
-	tracker_data_metadata_foreach (metadata, index_metadata_foreach, &data);
+	tracker_module_metadata_foreach (metadata, index_metadata_foreach, &data);
 
 	schedule_flush (indexer, FALSE);
 }
 
 static void
-unindex_metadata (TrackerIndexer  *indexer,
-		  guint32	   id,
-		  TrackerService  *service,
+unindex_metadata (TrackerIndexer      *indexer,
+		  guint32	       id,
+		  TrackerService      *service,
 		  TrackerDataMetadata *metadata)
 {
 	MetadataForeachData data;
@@ -1348,17 +1349,18 @@ get_service_for_file (TrackerModuleFile    *file,
 
 static gboolean
 remove_existing_non_emb_metadata (TrackerField *field,
-				  gpointer value,
-				  gpointer user_data)
+				  gpointer      value,
+				  gpointer      user_data)
 {
-	TrackerDataMetadata *old_metadata = (TrackerDataMetadata *)user_data;
+	TrackerDataMetadata *old_metadata = (TrackerDataMetadata *) user_data;
 	const gchar *name;
-	
+
 	if (tracker_field_get_embedded (field)) {
 		return FALSE;
 	}
 
 	name = tracker_field_get_name (field);
+
 	if (tracker_field_get_multiple_values (field)) {
 		return (tracker_data_metadata_lookup_values (old_metadata, name) != NULL);
 	} else {
@@ -1367,11 +1369,11 @@ remove_existing_non_emb_metadata (TrackerField *field,
 }
 
 static void
-item_add_or_update (TrackerIndexer  *indexer,
-		    PathInfo        *info,
-		    const gchar     *dirname,
-		    const gchar     *basename,
-		    TrackerDataMetadata *metadata)
+item_add_or_update (TrackerIndexer        *indexer,
+		    PathInfo              *info,
+		    const gchar           *dirname,
+		    const gchar           *basename,
+		    TrackerModuleMetadata *metadata)
 {
 	TrackerService *service;
 	gchar *text;
@@ -1406,10 +1408,10 @@ item_add_or_update (TrackerIndexer  *indexer,
 		old_metadata_non_emb = tracker_data_query_metadata (service, id, FALSE);
 
 		unindex_metadata (indexer, id, service, old_metadata_emb);
-		
-		tracker_data_metadata_foreach_remove (metadata, 
-						      remove_existing_non_emb_metadata,
-						      old_metadata_non_emb);
+
+		tracker_module_metadata_foreach_remove (metadata,
+							remove_existing_non_emb_metadata,
+							old_metadata_non_emb);
 
 		index_metadata (indexer, id, service, metadata);
 
@@ -1420,45 +1422,44 @@ item_add_or_update (TrackerIndexer  *indexer,
 		new_text = tracker_module_file_get_text (info->module_file);
 
 		item_update_content (indexer, service, id, old_text, new_text);
+
 		g_free (old_text);
 		g_free (new_text);
-		tracker_data_metadata_free (old_metadata_emb);
-		tracker_data_metadata_free (old_metadata_non_emb);
+		g_object_unref (old_metadata_emb);
+		g_object_unref (old_metadata_non_emb);
+	} else {
+		g_debug ("Adding item '%s/%s'",
+			 dirname,
+			 basename);
 
-		return;
-	}
+		/* Service wasn't previously indexed */
+		id = tracker_data_update_get_new_service_id (indexer->private->common);
 
-	g_debug ("Adding item '%s/%s'", 
-		 dirname, 
-		 basename);
+		tracker_data_update_create_service (service,
+						    id,
+						    dirname,
+						    basename,
+						    tracker_module_metadata_get_hash_table (metadata));
 
-	/* Service wasn't previously indexed */
-	id = tracker_data_update_get_new_service_id (indexer->private->common);
+		tracker_data_update_create_event (indexer->private->cache, id, "Create");
+		tracker_data_update_increment_stats (indexer->private->common, service);
 
-	tracker_data_update_create_service (service,
-				   id,
-				   dirname,
-				   basename,
-				   metadata);
+		index_metadata (indexer, id, service, metadata);
 
-	tracker_data_update_create_event (indexer->private->cache, id, "Create");
-	tracker_data_update_increment_stats (indexer->private->common, service);
+		text = tracker_module_file_get_text (info->module_file);
 
-	index_metadata (indexer, id, service, metadata);
+		if (text) {
+			/* Save in the index */
+			index_text_with_parsing (indexer,
+						 id,
+						 tracker_service_get_id (service),
+						 text,
+						 1);
 
-	text = tracker_module_file_get_text (info->module_file);
-
-	if (text) {
-		/* Save in the index */
-		index_text_with_parsing (indexer,
-					 id,
-					 tracker_service_get_id (service),
-					 text,
-					 1);
-
-		/* Save in the DB */
-		tracker_data_update_set_content (service, id, text);
-		g_free (text);
+			/* Save in the DB */
+			tracker_data_update_set_content (service, id, text);
+			g_free (text);
+		}
 	}
 }
 
@@ -1480,7 +1481,8 @@ item_move (TrackerIndexer  *indexer,
 	   const gchar	   *basename)
 {
 	TrackerService *service;
-	TrackerDataMetadata *old_metadata, *new_metadata;
+	TrackerDataMetadata *old_metadata;
+	TrackerModuleMetadata *new_metadata;
 	gchar *service_type;
 	gchar *new_path, *new_name, *ext;
 	GFile *file, *other_file;
@@ -1496,7 +1498,6 @@ item_move (TrackerIndexer  *indexer,
 
 	path = g_file_get_path (info->file);
 	other_path = g_file_get_path (info->other_file);
-
 
 	g_debug ("Moving item from '%s' to '%s'", path, other_path);
 
@@ -1539,13 +1540,13 @@ item_move (TrackerIndexer  *indexer,
 
 	unindex_metadata (indexer, id, service, old_metadata);
 
-	new_metadata = tracker_data_metadata_new ();
+	new_metadata = tracker_module_metadata_new ();
 
 	tracker_file_get_path_and_name (other_path, &new_path, &new_name);
 
-	tracker_data_metadata_insert (new_metadata, METADATA_FILE_PATH, new_path);
-	tracker_data_metadata_insert (new_metadata, METADATA_FILE_NAME, new_name);
-	tracker_data_metadata_insert (new_metadata, METADATA_FILE_NAME_DELIMITED, other_path);
+	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_PATH, new_path);
+	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME, new_name);
+	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME_DELIMITED, other_path);
 
 	g_free (new_path);
 	g_free (new_name);
@@ -1553,14 +1554,13 @@ item_move (TrackerIndexer  *indexer,
 	ext = strrchr (other_path, '.');
 	if (ext) {
 		ext++;
-		tracker_data_metadata_insert (new_metadata, METADATA_FILE_EXT, ext);
+		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
 	}
 
 	index_metadata (indexer, id, service, new_metadata);
 
-	/* tracker_data_metadata_free frees the values */
-	tracker_data_metadata_free (old_metadata);
-	tracker_data_metadata_free (new_metadata);
+	g_object_unref (old_metadata);
+	g_object_unref (new_metadata);
 
 	g_free (path);
 	g_free (other_path);
@@ -2137,7 +2137,7 @@ static gboolean
 process_file (TrackerIndexer *indexer,
 	      PathInfo	     *info)
 {
-	TrackerDataMetadata *metadata;
+	TrackerModuleMetadata *metadata;
 	gchar *uri, *dirname, *basename;
 
 	/* Note: If info->other_file is set, the PathInfo is for a
@@ -2216,7 +2216,7 @@ process_file (TrackerIndexer *indexer,
 
 		if (metadata) {
 			item_add_or_update (indexer, info, dirname, basename, metadata);
-			tracker_data_metadata_free (metadata);
+			g_object_unref (metadata);
 		} else {
 			item_remove (indexer, info, dirname, basename);
 		}

@@ -25,8 +25,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <gio/gio.h>
 
-#include <tracker-indexer/tracker-metadata-utils.h>
+#include <tracker-indexer/tracker-module-metadata-utils.h>
 
 #include "evolution-common.h"
 
@@ -53,10 +54,10 @@ evolution_common_get_stream (const gchar *path,
 	return stream;
 }
 
-TrackerDataMetadata *
+TrackerModuleMetadata *
 evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper)
 {
-	TrackerDataMetadata *metadata;
+	TrackerModuleMetadata *metadata;
 	GMimeStream *stream;
 	gchar *path;
 	gint fd;
@@ -73,7 +74,7 @@ evolution_common_get_wrapper_metadata (GMimeDataWrapper *wrapper)
                 file = g_file_new_for_path (path);
 		g_mime_stream_flush (stream);
 
-		metadata = tracker_metadata_utils_get_data (file);
+		metadata = tracker_module_metadata_utils_get_data (file);
 
                 g_object_unref (file);
 		g_unlink (path);

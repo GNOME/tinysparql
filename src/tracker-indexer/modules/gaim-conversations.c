@@ -61,7 +61,7 @@ static void          gaim_file_initialize       (TrackerModuleFile *file);
 static const gchar * gaim_file_get_service_type (TrackerModuleFile *file);
 static gchar *       gaim_file_get_uri          (TrackerModuleFile *file);
 static gchar *       gaim_file_get_text         (TrackerModuleFile *file);
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
                      gaim_file_get_metadata     (TrackerModuleFile *file);
 
 static gboolean      gaim_file_iter_contents    (TrackerModuleIteratable *iteratable);
@@ -157,10 +157,10 @@ gaim_file_get_text (TrackerModuleFile *file)
 	return NULL;
 }
 
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
 gaim_file_get_metadata (TrackerModuleFile *file)
 {
-	/* Return a TrackerDataMetadata filled with metadata for file,
+	/* Return a TrackerModuleMetadata filled with metadata for file,
          * given the current state. Also see TrackerModuleIteratable.
 	 */
 	return NULL;

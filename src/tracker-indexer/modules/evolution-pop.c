@@ -46,7 +46,7 @@ static void          tracker_evolution_pop_file_initialize       (TrackerModuleF
 static const gchar * tracker_evolution_pop_file_get_service_type (TrackerModuleFile *file);
 static gchar *       tracker_evolution_pop_file_get_uri          (TrackerModuleFile *file);
 static gchar *       tracker_evolution_pop_file_get_text         (TrackerModuleFile *file);
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
                      tracker_evolution_pop_file_get_metadata     (TrackerModuleFile *file);
 
 static void          tracker_evolution_pop_file_iteratable_init  (TrackerModuleIteratableIface *iface);
@@ -328,43 +328,44 @@ get_message_recipients (GMimeMessage *message,
 	return g_list_reverse (list);
 }
 
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
 get_message_metadata (GMimeMessage *message)
 {
-	TrackerDataMetadata *metadata;
+	TrackerModuleMetadata *metadata;
 	time_t t;
-	GList *list;
-	gchar *date;
+	GList *list, *l;
 
-	metadata = tracker_data_metadata_new ();
+	metadata = tracker_module_metadata_new ();
 
 	g_mime_message_get_date (message, &t, NULL);
 
-	date = tracker_guint_to_string (t);
-
-	tracker_data_metadata_insert (metadata, METADATA_EMAIL_DATE, date);
-	tracker_data_metadata_insert (metadata, METADATA_EMAIL_SENDER, g_mime_message_get_sender (message));
-	tracker_data_metadata_insert (metadata, METADATA_EMAIL_SUBJECT, g_mime_message_get_subject (message));
-
-	g_free (date);
+	tracker_module_metadata_add_date (metadata, METADATA_EMAIL_DATE, t);
+	tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SENDER, g_mime_message_get_sender (message));
+	tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SUBJECT, g_mime_message_get_subject (message));
 
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_TO);
-	tracker_data_metadata_insert_values (metadata, METADATA_EMAIL_SENT_TO, list);
-	g_list_foreach (list, (GFunc) g_free, NULL);
+
+	for (l = list; l; l = l->next) {
+		tracker_module_metadata_add_string (metadata, METADATA_EMAIL_SENT_TO, l->data);
+		g_free (l->data);
+	}
+
 	g_list_free (list);
 
 	list = get_message_recipients (message, GMIME_RECIPIENT_TYPE_CC);
-	tracker_data_metadata_insert_values (metadata, METADATA_EMAIL_CC, list);
-	g_list_foreach (list, (GFunc) g_free, NULL);
-	g_list_free (list);
 
-	return metadata;
+	for (l = list; l; l = l->next) {
+		tracker_module_metadata_add_string (metadata, METADATA_EMAIL_CC, l->data);
+		g_free (l->data);
+	}
+
+	g_list_free (list);
 }
 
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
 get_attachment_metadata (GMimePart *part)
 {
-	TrackerDataMetadata *metadata;
+	TrackerModuleMetadata *metadata;
 	GMimeDataWrapper *content;
 
 	content = g_mime_part_get_content_object (part);
@@ -379,11 +380,11 @@ get_attachment_metadata (GMimePart *part)
 	return metadata;
 }
 
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
 tracker_evolution_pop_file_get_metadata (TrackerModuleFile *file)
 {
         TrackerEvolutionPopFile *self;
-        TrackerDataMetadata *metadata;
+        TrackerModuleMetadata *metadata;
         guint flags;
 
         self = TRACKER_EVOLUTION_POP_FILE (file);

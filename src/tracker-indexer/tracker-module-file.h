@@ -22,7 +22,7 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
-#include <libtracker-data/tracker-data-metadata.h>
+#include "tracker-module-metadata.h"
 
 G_BEGIN_DECLS
 
@@ -48,17 +48,17 @@ struct TrackerModuleFileClass {
         G_CONST_RETURN gchar * (* get_service_type) (TrackerModuleFile *file);
         gchar * (* get_uri) (TrackerModuleFile *file);
         gchar * (* get_text) (TrackerModuleFile *file);
-        TrackerDataMetadata * (* get_metadata) (TrackerModuleFile *file);
+        TrackerModuleMetadata * (* get_metadata) (TrackerModuleFile *file);
 };
 
 
 GType tracker_module_file_get_type (void) G_GNUC_CONST;
 
-GFile *                tracker_module_file_get_file         (TrackerModuleFile *file);
-G_CONST_RETURN gchar * tracker_module_file_get_service_type (TrackerModuleFile *file);
-gchar *                tracker_module_file_get_uri          (TrackerModuleFile *file);
-gchar *                tracker_module_file_get_text         (TrackerModuleFile *file);
-TrackerDataMetadata *  tracker_module_file_get_metadata     (TrackerModuleFile *file);
+GFile *                 tracker_module_file_get_file         (TrackerModuleFile *file);
+G_CONST_RETURN gchar *  tracker_module_file_get_service_type (TrackerModuleFile *file);
+gchar *                 tracker_module_file_get_uri          (TrackerModuleFile *file);
+gchar *                 tracker_module_file_get_text         (TrackerModuleFile *file);
+TrackerModuleMetadata * tracker_module_file_get_metadata     (TrackerModuleFile *file);
 
 
 G_END_DECLS

@@ -20,14 +20,16 @@ libtracker_indexerincludedir=$(includedir)/tracker-1.0/libtracker-indexer/
 libtracker_indexer_LTLIBRARIES = libtracker-indexer.la
 
 libtracker_indexer_la_SOURCES =	 					\
-	tracker-metadata-utils.c					\
 	tracker-module-file.c						\
-	tracker-module-iteratable.c
+	tracker-module-iteratable.c					\
+	tracker-module-metadata-utils.c					\
+	tracker-module-metadata.c
 
 libtracker_indexerinclude_HEADERS =					\
-	tracker-metadata-utils.h					\
 	tracker-module-file.h						\
-	tracker-module-iteratable.h
+	tracker-module-iteratable.h					\
+	tracker-module-metadata-utils.h					\
+	tracker-module-metadata.h
 
 libexec_PROGRAMS = tracker-indexer
 
@@ -39,7 +41,8 @@ tracker_indexer_SOURCES =						\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
-	tracker-marshal-main.c						
+	tracker-marshal-main.c						\
+	tracker-module-metadata-private.h
 
 tracker_indexer_LDADD =							\
 	libtracker-indexer.la						\

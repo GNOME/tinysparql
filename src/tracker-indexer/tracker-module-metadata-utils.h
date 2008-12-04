@@ -27,8 +27,8 @@
 
 G_BEGIN_DECLS
 
-TrackerDataMetadata *tracker_metadata_utils_get_data (GFile *file);
-gchar *		     tracker_metadata_utils_get_text (GFile *file);
+TrackerModuleMetadata *tracker_module_metadata_utils_get_data (GFile *file);
+gchar *		       tracker_module_metadata_utils_get_text (GFile *file);
 
 G_END_DECLS
 

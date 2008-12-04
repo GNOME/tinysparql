@@ -32,7 +32,7 @@
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
 
-#include <tracker-indexer/tracker-metadata-utils.h>
+#include <tracker-indexer/tracker-module-metadata-utils.h>
 #include <tracker-indexer/tracker-module-file.h>
 
 /* This is ONLY needed for the indexer to run standalone with
@@ -57,9 +57,9 @@ struct TrackerRegularFileClass {
 };
 
 
-static const gchar *         tracker_regular_file_get_service_type (TrackerModuleFile *file);
-static gchar *               tracker_regular_file_get_text         (TrackerModuleFile *file);
-static TrackerDataMetadata * tracker_regular_file_get_metadata     (TrackerModuleFile *file);
+static const gchar *           tracker_regular_file_get_service_type (TrackerModuleFile *file);
+static gchar *                 tracker_regular_file_get_text         (TrackerModuleFile *file);
+static TrackerModuleMetadata * tracker_regular_file_get_metadata     (TrackerModuleFile *file);
 
 
 G_DEFINE_DYNAMIC_TYPE (TrackerRegularFile, tracker_regular_file, TRACKER_TYPE_MODULE_FILE);
@@ -174,7 +174,7 @@ check_exclude_file (const gchar *path)
 
 #endif /* ENABLE_FILE_EXCLUDE_CHECKING */
 
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
 tracker_regular_file_get_metadata (TrackerModuleFile *file)
 {
 #ifdef ENABLE_FILE_EXCLUDE_CHECKING
@@ -183,7 +183,7 @@ tracker_regular_file_get_metadata (TrackerModuleFile *file)
 	}
 #endif
 
-	return tracker_metadata_utils_get_data (tracker_module_file_get_file (file));
+	return tracker_module_metadata_utils_get_data (tracker_module_file_get_file (file));
 }
 
 static gchar *
@@ -195,7 +195,7 @@ tracker_regular_file_get_text (TrackerModuleFile *file)
 	}
 #endif
 
-	return tracker_metadata_utils_get_text (tracker_module_file_get_file (file));
+	return tracker_module_metadata_utils_get_text (tracker_module_file_get_file (file));
 }
 
 

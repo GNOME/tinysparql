@@ -65,7 +65,7 @@ struct TrackerApplicationFileClass {
 };
 
 
-static TrackerDataMetadata * tracker_application_file_get_metadata  (TrackerModuleFile *file);
+static TrackerModuleMetadata * tracker_application_file_get_metadata  (TrackerModuleFile *file);
 
 
 G_DEFINE_DYNAMIC_TYPE (TrackerApplicationFile, tracker_application_file, TRACKER_TYPE_MODULE_FILE);
@@ -90,11 +90,11 @@ tracker_application_file_init (TrackerApplicationFile *file)
 }
 
 static void
-insert_data_from_desktop_file (TrackerDataMetadata *metadata,
-			       const gchar     *metadata_key,
-			       GKeyFile        *desktop_file,
-			       const gchar     *key,
-			       gboolean		use_locale)
+insert_data_from_desktop_file (TrackerModuleMetadata *metadata,
+			       const gchar           *metadata_key,
+			       GKeyFile              *desktop_file,
+			       const gchar           *key,
+			       gboolean		      use_locale)
 {
 	gchar *str;
 
@@ -105,17 +105,17 @@ insert_data_from_desktop_file (TrackerDataMetadata *metadata,
 	}
 
 	if (str) {
-		tracker_data_metadata_insert (metadata, metadata_key, str);
+		tracker_module_metadata_add_string (metadata, metadata_key, str);
 		g_free (str);
 	}
 }
 
 static void
-insert_list_from_desktop_file (TrackerDataMetadata *metadata,
-			       const gchar     *metadata_key,
-			       GKeyFile        *desktop_file,
-			       const gchar     *key,
-			       gboolean		use_locale)
+insert_list_from_desktop_file (TrackerModuleMetadata *metadata,
+			       const gchar           *metadata_key,
+			       GKeyFile              *desktop_file,
+			       const gchar           *key,
+			       gboolean		      use_locale)
 {
 	gchar **arr;
 
@@ -126,26 +126,20 @@ insert_list_from_desktop_file (TrackerDataMetadata *metadata,
 	}
 
 	if (arr) {
-		GList *list = NULL;
 		gint i;
 
 		for (i = 0; arr[i]; i++) {
-			list = g_list_prepend (list, arr[i]);
+			tracker_module_metadata_add_string (metadata, metadata_key, arr[i]);
 		}
 
-		list = g_list_reverse (list);
-		g_free (arr);
-
-		tracker_data_metadata_insert_values (metadata, metadata_key, list);
-		g_list_foreach (list, (GFunc) g_free, NULL);
-		g_list_free (list);
+		g_strfreev (arr);
 	}
 }
 
-static TrackerDataMetadata *
+static TrackerModuleMetadata *
 tracker_application_file_get_metadata (TrackerModuleFile *file)
 {
-	TrackerDataMetadata *metadata;
+	TrackerModuleMetadata *metadata;
 	GKeyFile *key_file;
         GFile *f;
 	gchar *path, *type, *filename;
@@ -186,7 +180,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 	}
 
 	/* Begin collecting data */
-	metadata = tracker_data_metadata_new ();
+	metadata = tracker_module_metadata_new ();
 
 	insert_data_from_desktop_file (metadata, METADATA_APP_NAME, key_file, KEY_NAME, FALSE);
 	insert_data_from_desktop_file (metadata, METADATA_APP_DISPLAY_NAME, key_file, KEY_NAME, TRUE);
@@ -199,7 +193,7 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 	insert_list_from_desktop_file (metadata, METADATA_APP_CATEGORIES, key_file, KEY_CATEGORIES, FALSE);
 
 	filename = g_filename_display_basename (path);
-	tracker_data_metadata_insert (metadata, METADATA_FILE_NAME, filename);
+	tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME, filename);
 	g_free (filename);
 
 	g_key_file_free (key_file);

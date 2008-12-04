@@ -144,11 +144,11 @@ tracker_data_update_create_event (TrackerDBInterface *iface,
 }
 
 gboolean
-tracker_data_update_create_service (TrackerService      *service,
-				    guint32	        service_id,
-				    const gchar	       *dirname,
-				    const gchar	       *basename,
-				    TrackerDataMetadata *metadata)
+tracker_data_update_create_service (TrackerService *service,
+				    guint32	    service_id,
+				    const gchar	   *dirname,
+				    const gchar	   *basename,
+				    GHashTable     *metadata)
 {
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
@@ -184,18 +184,17 @@ tracker_data_update_create_service (TrackerService      *service,
 	is_dir = g_file_test (path, G_FILE_TEST_IS_DIR);
 	is_symlink = g_file_test (path, G_FILE_TEST_IS_SYMLINK);
 
-	/* FIXME: do not hardcode arguments */
 	tracker_db_interface_execute_procedure (iface, NULL, "CreateService",
 						id_str,
 						dirname,
 						basename,
 						service_type_id_str,
-						is_dir ? "Folder" : tracker_data_metadata_lookup (metadata, "File:Mime"),
-						tracker_data_metadata_lookup (metadata, "File:Size"),
+						is_dir ? "Folder" : g_hash_table_lookup (metadata, "File:Mime"),
+						g_hash_table_lookup (metadata, "File:Size"),
 						is_dir ? "1" : "0",
 						is_symlink ? "1" : "0",
 						"0", /* Offset */
-						tracker_data_metadata_lookup (metadata, "File:Modified"),
+						g_hash_table_lookup (metadata, "File:Modified"),
 						volume_id_str, /* Aux ID */
 						NULL);
 

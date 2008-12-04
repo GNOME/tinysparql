@@ -18,6 +18,7 @@
  */
 
 #include <libtracker-common/tracker-file-utils.h>
+#include "tracker-module-metadata-private.h"
 #include "tracker-module-file.h"
 
 #define METADATA_FILE_PATH	     "File:Path"
@@ -197,26 +198,26 @@ tracker_module_file_get_text (TrackerModuleFile *file)
         return TRACKER_MODULE_FILE_GET_CLASS (file)->get_text (file);
 }
 
-TrackerDataMetadata *
+TrackerModuleMetadata *
 tracker_module_file_get_metadata (TrackerModuleFile *file)
 {
-        TrackerDataMetadata *metadata = NULL;
+        TrackerModuleMetadata *metadata = NULL;
 
         if (TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata != NULL) {
                 metadata = TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata (file);
         }
 
         if (metadata &&
-            !tracker_data_metadata_lookup (metadata, METADATA_FILE_PATH) &&
-            !tracker_data_metadata_lookup (metadata, METADATA_FILE_NAME)) {
+            !tracker_module_metadata_lookup (metadata, METADATA_FILE_PATH, NULL) &&
+            !tracker_module_metadata_lookup (metadata, METADATA_FILE_NAME, NULL)) {
                 gchar *uri, *dirname, *basename;
 
                 uri = tracker_module_file_get_uri (file);
                 tracker_file_get_path_and_name (uri, &dirname, &basename);
 
-                tracker_data_metadata_insert (metadata, METADATA_FILE_PATH, dirname);
-                tracker_data_metadata_insert (metadata, METADATA_FILE_NAME, basename);
-                
+                tracker_module_metadata_add_string (metadata, METADATA_FILE_PATH, dirname);
+                tracker_module_metadata_add_string (metadata, METADATA_FILE_NAME, basename);
+
                 g_free (dirname);
                 g_free (basename);
                 g_free (uri);
