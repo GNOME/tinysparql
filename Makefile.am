@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-SUBDIRS = data src filters thumbnailers docs po python utils
+SUBDIRS = data src filters docs po python utils
 
 if HAVE_UNIT_TESTS
 SUBDIRS += tests

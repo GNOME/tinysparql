@@ -1,5 +1,9 @@
 2008-12-04  Ivan Frade  <ivan.frade@nokia.com>
 
+	* Makefile.am: Remove "thumbnailers" from SUBDIRS.
+	
+2008-12-04  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/tracker-preferences/tracker-preferences.c:
 	Enabled the evolution option in tracker-preferences. Now evolution
 	can be added/removed from the disabled modules list using
