@@ -1,3 +1,30 @@
+2008-12-04  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/Makefile.am:
+	* src/tracker-thumbnailer/Makefile.am:
+	* src/tracker-thumbnailer/tracker-thumbnailer.c:
+	* thumbnailers/Makefile.am:
+	* thumbnailers/application/Makefile.am:
+	* thumbnailers/application/pdf_thumbnailer:
+	* thumbnailers/application/vnd.oasis.opendocument.graphics_thumbnai
+	ler:
+	* thumbnailers/application/vnd.oasis.opendocument.presentation_thum
+	bnailer:
+	* thumbnailers/application/vnd.oasis.opendocument.spreadsheet_thumb
+	nailer:
+	* thumbnailers/application/vnd.oasis.opendocument.text_thumbnailer:
+	* thumbnailers/image/Makefile.am:
+	* thumbnailers/image/gif_thumbnailer:
+	* thumbnailers/image/hildon/gif_thumbnailer:
+	* thumbnailers/image/hildon/jpeg_thumbnailer:
+	* thumbnailers/image/hildon/png_thumbnailer:
+	* thumbnailers/image/hildon/tiff_thumbnailer:
+	* thumbnailers/image/jpeg_thumbnailer:
+	* thumbnailers/image/png_thumbnailer:
+	* thumbnailers/image/tiff_thumbnailer: Removed all unused
+	thumbnail code and scripts now they are unused.
+
 2008-12-04  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-indexer/tracker-indexer.c

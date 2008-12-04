@@ -1,3 +1,0 @@
-#!/bin/sh
-
-nice -n19 unzip -p "$1" Thumbnails/thumbnail.png | convert - -resize $3x$3 "$2"

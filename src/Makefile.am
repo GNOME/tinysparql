@@ -40,7 +40,6 @@ SUBDIRS = 					\
 	trackerd				\
 	tracker-utils				\
 	tracker-extract				\
-	tracker-thumbnailer			\
 	tracker-indexer				\
 	$(build_libtrackergtk)			\
 	$(build_tracker_applet)			\
@@ -59,7 +58,6 @@ DIST_SUBDIRS = 					\
 	trackerd				\
 	tracker-utils				\
 	tracker-extract				\
-	tracker-thumbnailer			\
 	tracker-indexer				\
 	libtracker-gtk				\
 	tracker-applet	 			\

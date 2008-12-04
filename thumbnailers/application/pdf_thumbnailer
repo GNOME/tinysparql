@@ -1,4 +1,0 @@
-#!/bin/sh
-
-nice -n19  evince-thumbnailer  -s $3 "$1" $2
-

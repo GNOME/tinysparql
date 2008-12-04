@@ -1206,7 +1206,6 @@ AC_CONFIG_FILES([
 	src/tracker-preferences/tracker-preferences.desktop.in
 	src/tracker-search-tool/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
-	src/tracker-thumbnailer/Makefile
 	src/tracker-utils/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
@@ -1218,9 +1217,6 @@ AC_CONFIG_FILES([
 	tests/trackerd/Makefile
 	tests/trackerd/xesam/Makefile
 	tests/tracker-indexer/Makefile
-	thumbnailers/application/Makefile
-	thumbnailers/image/Makefile
-	thumbnailers/Makefile
 	utils/Makefile
 	utils/qdbm/Makefile
 	utils/tracker-fts/Makefile
