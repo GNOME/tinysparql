@@ -46,7 +46,7 @@ SelectFileChild                SELECT ID, Path, Name, IsDirectory FROM Services 
 
 DeleteContent                  DELETE FROM ServiceContents WHERE ServiceID = ? AND MetadataId = ?;
 DeleteService1                 DELETE FROM Services WHERE ID = ?;
-DeleteServiceRecursively       DELETE FROM Services WHERE Path = ? OR Path LIKE ?;
+DeleteServiceRecursively       DELETE FROM Services WHERE Path = ? OR Path LIKE (? || '/%');
 DeleteServiceMetadata          DELETE FROM ServiceMetaData WHERE ServiceID = ?;
 DeleteServiceKeywordMetadata   DELETE FROM ServiceMetaData WHERE ServiceID = ?;
 DeleteServiceNumericMetadata   DELETE FROM ServiceMetaData WHERE ServiceID = ?;
