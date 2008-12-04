@@ -1,5 +1,11 @@
 2008-12-04  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c: (item_add_or_update),
+	(item_move), (item_remove): Don't call stat() when we remove and
+	move thumbnails. Just use the current metadata we hold for a URI.
+
+2008-12-04  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-monitor.[ch]: 
 	* src/trackerd/tracker-processor.c: Make sure we recursively
 	remove all monitors for mount points which are unmounted. Also,

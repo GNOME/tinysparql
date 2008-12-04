@@ -1425,8 +1425,8 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		g_free (old_text);
 		g_free (new_text);
-		g_object_unref (old_metadata_emb);
-		g_object_unref (old_metadata_non_emb);
+		tracker_data_metadata_free (old_metadata_emb);
+		tracker_data_metadata_free (old_metadata_non_emb);
 	} else {
 		g_debug ("Adding item '%s/%s'",
 			 dirname,
@@ -1488,7 +1488,7 @@ item_move (TrackerIndexer  *indexer,
 	GFile *file, *other_file;
 	gchar *path, *other_path;
 	gchar *uri, *other_uri, *mime_type;
-	guint32 id;
+	guint32 service_id;
 
 	service = get_service_for_file (info->other_module_file, info->module);
 
@@ -1501,23 +1501,11 @@ item_move (TrackerIndexer  *indexer,
 
 	g_debug ("Moving item from '%s' to '%s'", path, other_path);
 
-	/* TODO URI branch: these are URI conversions */
-
-	uri = g_file_get_uri (info->file);
-	other_uri = g_file_get_uri (info->other_file);
-
-	mime_type = tracker_file_get_mime_type (path);
-	tracker_thumbnailer_move (uri, mime_type, other_uri);
-
-	g_free (mime_type);
-	g_free (other_uri);
-	g_free (uri);
-
 	/* Get 'source' ID */
 	if (!tracker_data_query_service_exists (service,
 						dirname,
 						basename,
-						&id,
+						&service_id,
 						NULL)) {
 		g_message ("Source file '%s' not found in database to move", path);
 
@@ -1527,18 +1515,38 @@ item_move (TrackerIndexer  *indexer,
 		return;
 	}
 
+	/* Get mime type and move thumbnail from thumbnailerd */
+	old_metadata = tracker_data_query_metadata (service, service_id, TRUE);
+
+	if (old_metadata) {
+		GFile *file;
+		const gchar *mime_type;
+		gchar *uri;
+
+		/* TODO URI branch: this is a URI conversion */
+		uri = g_file_get_uri (info->file);
+		other_uri = g_file_get_uri (info->other_file);
+
+		mime_type = tracker_data_metadata_lookup (old_metadata, "File:Mime");
+		tracker_thumbnailer_move (uri, mime_type, other_uri);
+		
+		g_free (other_uri);
+		g_free (uri);
+	} else {
+		g_message ("Could not get mime type to remove thumbnail for:'%s'",
+			   path);
+	}
+
 	tracker_data_update_move_service (service, path, other_path);
 
 	/*
 	 *  Updating what changes in move event (Path related properties)
 	 */
-	old_metadata = tracker_data_query_metadata (service, id, TRUE);
-
 	tracker_data_metadata_foreach_remove (old_metadata,
 					      filter_invalid_after_move_properties,
 					      NULL);
 
-	unindex_metadata (indexer, id, service, old_metadata);
+	unindex_metadata (indexer, service_id, service, old_metadata);
 
 	new_metadata = tracker_module_metadata_new ();
 
@@ -1557,9 +1565,9 @@ item_move (TrackerIndexer  *indexer,
 		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
 	}
 
-	index_metadata (indexer, id, service, new_metadata);
+	index_metadata (indexer, service_id, service, new_metadata);
 
-	g_object_unref (old_metadata);
+	tracker_data_metadata_free (old_metadata);
 	g_object_unref (new_metadata);
 
 	g_free (path);
@@ -1573,43 +1581,18 @@ item_remove (TrackerIndexer *indexer,
 	     const gchar    *basename)
 {
 	TrackerService *service;
-	GFile *file;
+	TrackerDataMetadata *data_metadata;
 	gchar *content;
 	gchar *metadata;
-	gchar *uri;
-	gchar *mime_type;
-	gchar *service_path;
+	gchar *path;
 	const gchar *service_type;
 	guint service_id, service_type_id;
-
-	service_type = tracker_module_config_get_index_service (info->module->name);
 
 	g_debug ("Removing item: '%s/%s' (no metadata was given by module)", 
 		 dirname, 
 		 basename);
 
-	/* TODO URI branch: this is a URI conversion */
-	service_path = g_build_path (G_DIR_SEPARATOR_S, 
-				     dirname, 
-				     basename, 
-				     NULL);
-
-	file = g_file_new_for_path (service_path);
-	uri = g_file_get_uri (file);
-	g_object_unref (file);
-
-	/* This is done this way to minimize merging work for URI
-	 * branch (I know the exact same thing is being done later in
-	 * the code. there are no caveats, you can just replace this
-	 * while merging, indeed).
-	 */
-	mime_type = tracker_file_get_mime_type (service_path);
-
-	tracker_thumbnailer_remove (uri, mime_type);
-
-	g_free (mime_type);
-	g_free (uri);
-	g_free (service_path); 
+	service_type = tracker_module_config_get_index_service (info->module->name);
 
 	if (!service_type || !service_type[0]) {
 		const gchar *name;
@@ -1640,6 +1623,32 @@ item_remove (TrackerIndexer *indexer,
 		return;
 	}
 
+	/* This is needed in a few places. */
+	path = g_build_path (G_DIR_SEPARATOR_S, dirname, basename, NULL);
+
+	/* Get mime type and remove thumbnail from thumbnailerd */
+	data_metadata = tracker_data_query_metadata (service, service_id, TRUE);
+
+	if (data_metadata) {
+		GFile *file;
+		const gchar *mime_type;
+		gchar *uri;
+
+		/* TODO URI branch: this is a URI conversion */
+		file = g_file_new_for_path (path);
+		uri = g_file_get_uri (file);
+		g_object_unref (file);
+		
+		mime_type = tracker_data_metadata_lookup (data_metadata, "File:Mime");
+		tracker_thumbnailer_remove (uri, mime_type);
+
+		tracker_data_metadata_free (data_metadata);
+		g_free (uri);
+	} else {
+		g_message ("Could not get mime type to remove thumbnail for:'%s'",
+			   path);
+	}
+
 	/* Get content, unindex the words and delete the contents */
 	content = tracker_data_query_content (service, service_id);
 	if (content) {
@@ -1654,7 +1663,7 @@ item_remove (TrackerIndexer *indexer,
 
 	/* Get metadata from DB to remove it from the index */
 	metadata = tracker_data_query_parsed_metadata (service,
-						   service_id);
+						       service_id);
 	unindex_text_no_parsing (indexer,
 				 service_id,
 				 service_type_id,
@@ -1666,7 +1675,7 @@ item_remove (TrackerIndexer *indexer,
 	 * force deletion.
 	 */
 	metadata = tracker_data_query_unparsed_metadata (service,
-						     service_id);
+							 service_id);
 	unindex_text_with_parsing (indexer,
 				   service_id,
 				   service_type_id,
@@ -1675,20 +1684,16 @@ item_remove (TrackerIndexer *indexer,
 	g_free (metadata);
 
 	/* Delete service */
-	service_path = g_build_path (G_DIR_SEPARATOR_S, 
-				     dirname, 
-				     basename, 
-				     NULL);
-
 	tracker_data_update_delete_service (service, service_id);
 	tracker_data_update_delete_all_metadata (service, service_id);
+
 	if (strcmp (service_type, "Folders") == 0) {
-		tracker_data_update_delete_service_recursively (service, service_path);
+		tracker_data_update_delete_service_recursively (service, path);
 	}
 
 	tracker_data_update_decrement_stats (indexer->private->common, service);
 
-	g_free (service_path);
+	g_free (path);
 }
 
 /*
