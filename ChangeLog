@@ -1,5 +1,13 @@
 2008-12-05  Carlos Garnacho  <carlos@imendio.com>
 
+	* docs/reference/libtracker-module/tmpl/tracker-module-file.sgml:
+	* docs/reference/libtracker-module/tmpl/tracker-module-iteratable.sgml:
+	* docs/reference/libtracker-module/tmpl/tracker-module-metadata.sgml:
+	* docs/reference/libtracker-module/tmpl/tracker-module-metadata-utils.sgml:
+	Add short/long descriptions and other missings docs. 100% coverage!
+
+2008-12-05  Carlos Garnacho  <carlos@imendio.com>
+
 	* docs/reference/libtracker-module/libtracker-module-docs.sgml: Fix
 	missing reference.
 

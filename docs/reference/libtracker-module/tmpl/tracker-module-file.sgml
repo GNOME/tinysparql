@@ -1,0 +1,79 @@
+<!-- ##### SECTION Title ##### -->
+Module files
+
+<!-- ##### SECTION Short_Description ##### -->
+Implementation of files for Tracker modules.
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+TrackerModuleFile represents a file, providing the necessary
+methods to provide information that Tracker can index. Files
+could also implement the TrackerModuleIteratable interface for
+files that could contain a set individual entities that could
+be relevant to Tracker (such as mail summaries)
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+TrackerModuleIteratable
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### TYPEDEF TrackerModuleFile ##### -->
+<para>
+Representation of a given file, used by the Tracker indexer to index contents.
+</para>
+
+
+<!-- ##### ARG TrackerModuleFile:file ##### -->
+<para>
+The GFile that corresponds to the TrackerModuleFile
+</para>
+
+<!-- ##### FUNCTION tracker_module_file_get_file ##### -->
+<para>
+
+</para>
+
+@file: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_module_file_get_service_type ##### -->
+<para>
+
+</para>
+
+@file: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_module_file_get_uri ##### -->
+<para>
+
+</para>
+
+@file: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_module_file_get_text ##### -->
+<para>
+
+</para>
+
+@file: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_module_file_get_metadata ##### -->
+<para>
+
+</para>
+
+@file: 
+@Returns: 
+
+
