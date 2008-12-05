@@ -49,8 +49,8 @@ Files=
 
       This file will be installed in $prefix/share/tracker/modules/ and
       it must share the same name with the corresponding .so file, prefixed with
-      "libtracker-indexer-" (that is, for my-extractor.module, there must be
-      a libtracker-indexer-my-extractor.so)
+      "libtracker-module-" (that is, for my-extractor.module, there must be
+      a libtracker-module-my-extractor.so)
     </para>
 
     <table pgwide="1">
@@ -136,81 +136,27 @@ Files=
 
     <para>
       Modules are implemented as standalone .so files with a defined API,
-      the indexer's task is to crawl through all defined directories, and
-      store metadata, so everything modules have to do is to return metadata
-      for each queried file (or NULL if the file is not interesting to the
-      indexer).
+      the indexer's task is to crawl through all the defined directories in
+      the .module file and ask the module for information about that file.
     </para>
 
     <para>
       The API to implement is the following:
 
       <programlisting>
-void     tracker_module_init (void);
-void     tracker_module_shutdown (void);
-
-gpointer tracker_module_file_get_data      (const gchar *path);
-void     tracker_module_file_free_data     (gpointer file_data);
-gboolean tracker_module_file_iter_contents (TrackerFile *file);
-
-void     tracker_module_file_get_uri (TrackerFile  *file,
-                                      gchar       **dirname,
-                                      gchar       **basename);
-
-gchar *  tracker_module_file_get_service_type (TrackerFile *file);
-
-TrackerMetadata * tracker_module_file_get_metadata (TrackerFile *file);
-gchar *           tracker_module_file_get_text     (TrackerFile *file);
+void     indexer_module_initialize (void); /* GTypes and other static data initialization */
+void     indexer_module_shutdown   (void); /* Free all static resources here */
+#TrackerModuleFile *
+         indexer_module_create_file (GFile *file);
       </programlisting>
     </para>
-  </section>
-
-  <section id="tracker-file-struct">
-    <title>The TrackerFile struct</title>
 
     <para>
-      The TrackerFile struct is quite simple, suited for the modules' purposes:
-
-      <programlisting>
-struct TrackerFile {
-        gchar    *path;
-        gpointer  data;
-};
-      </programlisting>
-    </para>
-  </section>
-
-  <section id="tracker-metadata">
-    <title>TrackerMetadata</title>
-
-    <para>
-      The TrackerMetadata struct will contain metadata in the form of
-      field name/value pairs, modules are responsible of creating and filling
-      it in tracker_module_file_get_metadata(), so the indexer is able to
-      process it.
-    </para>
-
-    <para>
-      Depending on the field being filled in, tracker will allow or not multiple
-      values for the same field name.
-    </para>
-
-    <!-- FIXME: Must explain the ontology, how could users know whether a value takes multiple values? -->
-
-    <para>
-      From the modules point of view, it has the following useful API:
-
-      <programlisting>
-  TrackerMetadata * tracker_metadata_new    (void);
-
-  void              tracker_metadata_insert (TrackerMetadata *metadata,
-                                             const gchar     *field_name,
-                                             gchar           *value);
-
-  void              tracker_metadata_insert_multiple_values (TrackerMetadata *metadata,
-                                                             const gchar     *field_name,
-                                                             GList           *list);
-      </programlisting>
+      Modules can implement one or many #TrackerModuleFile objects, which will
+      be used by the indexer to extract information. Optionally, #TrackerModuleFile
+      objects can also implement the #TrackerModuleIteratable interface, so the
+      indexer can iterate through the contents of the file and index them as
+      separate entities.
     </para>
   </section>
 </chapter>
