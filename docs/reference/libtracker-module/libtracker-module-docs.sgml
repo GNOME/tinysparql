@@ -7,7 +7,7 @@
 <!ENTITY tracker-module-metadata-utils SYSTEM "xml/tracker-module-metadata-utils.xml">
 <!ENTITY adding-categories-and-properties SYSTEM "xml/adding-categories-and-properties.sgml">
 <!ENTITY writing-an-extractor SYSTEM "xml/writing-an-extractor.sgml">
-<!ENTITY writing-an-indexer-plugin SYSTEM "xml/writing-an-indexer-plugin.sgml">
+<!ENTITY writing-an-indexer-module SYSTEM "xml/writing-an-indexer-module.sgml">
 <!ENTITY version SYSTEM "version.xml">
 ]>
 <book id="index">
@@ -15,7 +15,7 @@
     <title>Tracker Indexer Reference Manual</title>
     <releaseinfo>for tracker-indexer &version;</releaseinfo>
   </bookinfo>
-  
+
   <part id="tracker-indexer">
     <title>Overview</title>
     <partintro>
@@ -25,7 +25,7 @@
 	there are modules or 'backends' which are used for indexing
 	specific content types. This reference manual attempts to help
 	developers write 3rd party modules to extract content not
-	commonly supported by Tracker. 
+	commonly supported by Tracker.
       </para>
     </partintro>
   </part>
@@ -53,6 +53,6 @@
 
       &adding-categories-and-properties;
       &writing-an-extractor;
-      &writing-an-indexer-plugin;
+      &writing-an-indexer-module;
     </part>
 </book>

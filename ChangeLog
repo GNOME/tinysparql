@@ -1,5 +1,10 @@
 2008-12-05  Carlos Garnacho  <carlos@imendio.com>
 
+	* docs/reference/libtracker-module/libtracker-module-docs.sgml: Fix
+	missing reference.
+
+2008-12-05  Carlos Garnacho  <carlos@imendio.com>
+
 	* docs/reference/libtracker-module/libtracker-module.types: Added so
 	we get proper GObject documentation.
 	* docs/reference/libtracker-module/Makefile.am: Added missing lib to
