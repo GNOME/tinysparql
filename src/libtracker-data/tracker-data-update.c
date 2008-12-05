@@ -244,19 +244,15 @@ tracker_data_update_delete_service (TrackerService *service,
 
 void
 tracker_data_update_delete_service_recursively (TrackerService *service,
-						gchar          *service_path)
+						const gchar    *service_path)
 {
 	TrackerDBInterface *iface;
-	gchar              *str;
 
 	g_return_if_fail (TRACKER_IS_SERVICE (service));
 	g_return_if_fail (service_path != NULL);
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
-
-	/* Delete from services table recursively */
-	str = g_strconcat (service_path, "/%", NULL);
 
 	/* We have to give two arguments. One is the actual path and
 	 * the second is a string representing the likeness to match
@@ -267,10 +263,8 @@ tracker_data_update_delete_service_recursively (TrackerService *service,
 						NULL,
 						"DeleteServiceRecursively",
 						service_path,
-						str,
+						service_path,
 						NULL);
-
-	g_free (str);
 }
 
 void

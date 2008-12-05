@@ -47,7 +47,7 @@ gboolean tracker_data_update_create_service             (TrackerService      *se
 void     tracker_data_update_delete_service             (TrackerService      *service,
 							 guint32              service_id);
 void     tracker_data_update_delete_service_recursively (TrackerService      *service,
-							 gchar               *service_path);
+							 const gchar         *service_path);
 void     tracker_data_update_move_service               (TrackerService      *service,
 							 const gchar         *from,
 							 const gchar         *to);

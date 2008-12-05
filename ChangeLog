@@ -1,5 +1,12 @@
 2008-12-05  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-data/tracker-data-update.h
+	(tracker_data_update_delete_service_recursively): Make it take a const
+	gchar*, do not append ourselves the '/', Since it's done in the stored
+	procedure now.
+
+2008-12-05  Carlos Garnacho  <carlos@imendio.com>
+
 	* docs/reference/libtracker-module/tmpl/tracker-module-file.sgml:
 	* docs/reference/libtracker-module/tmpl/tracker-module-iteratable.sgml:
 	* docs/reference/libtracker-module/tmpl/tracker-module-metadata.sgml:
