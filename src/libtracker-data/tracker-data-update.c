@@ -300,14 +300,16 @@ tracker_data_update_move_service (TrackerService *service,
 						from_dirname, from_basename,
 						NULL);
 
-	/* FIXME: This procedure should use LIKE statement */
-	tracker_db_interface_execute_procedure (iface,
-						&error,
-						"MoveServiceChildren",
-						from,
-						to,
-						from,
-						NULL);
+	if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
+		tracker_db_interface_execute_procedure (iface,
+							&error,
+							"MoveServiceChildren",
+							from,
+							to,
+							from,
+							from,
+							NULL);
+	}
 
 	g_free (to_dirname);
 	g_free (to_basename);

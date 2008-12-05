@@ -1,3 +1,10 @@
+2008-12-05  Jürg Billeter  <j@bitron.ch>
+
+	* data/db/sqlite-stored-procs.sql:
+	* src/libtracker-data/tracker-data-update.c:
+	(tracker_data_update_move_service): Only execute MoveServiceChildren
+	for folders and add condition to UPDATE statement
+
 2008-12-05  Carlos Garnacho  <carlos@imendio.com>
 
 	* docs/reference/libtracker-module/writing-an-indexer-module.sgml:

@@ -40,7 +40,7 @@ SetOption                      REPLACE INTO Options (OptionKey, OptionValue) VAL
 CreateService                  INSERT INTO Services (ID, Path, Name, ServiceTypeID, Mime, Size, IsDirectory, IsLink, Offset, IndexTime, AuxilaryID) VALUES (?,?,?,?,?,?,?,?,?,?,?); 
 
 MoveService                    UPDATE Services SET Path = ?, Name = ? WHERE Path = ? AND Name = ?;
-MoveServiceChildren            UPDATE Services SET Path = replace (Path, ?, ?);
+MoveServiceChildren            UPDATE Services SET Path = replace (Path, ?, ?) WHERE Path = ? OR Path LIKE (? || '/%');
 
 SelectFileChild                SELECT ID, Path, Name, IsDirectory FROM Services WHERE Path = ?;
 
