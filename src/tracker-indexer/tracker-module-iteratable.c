@@ -37,12 +37,28 @@ tracker_module_iteratable_get_type (void)
         return type;
 }
 
+/**
+ * tracker_module_iteratable_iter_contents:
+ * @iteratable: A #TrackerModuleIteratable
+ *
+ * Iterates to the next element contained in @iteratable.
+ *
+ * Returns: %TRUE if there was such next element, %FALSE otherwise
+ **/
 gboolean
 tracker_module_iteratable_iter_contents (TrackerModuleIteratable *iteratable)
 {
         return TRACKER_MODULE_ITERATABLE_GET_IFACE (iteratable)->iter_contents (iteratable);
 }
 
+/**
+ * tracker_module_iteratable_get_count:
+ * @iteratable: A #TrackerModuleIteratable
+ *
+ * Returns the number of elements contained in @iteratable
+ *
+ * Returns: The elements count.
+ **/
 guint
 tracker_module_iteratable_get_count (TrackerModuleIteratable *iteratable)
 {

@@ -1,5 +1,11 @@
 2008-12-05  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-module-file.c:
+	* src/tracker-indexer/tracker-module-iteratable.c: Document missing
+	symbols.
+
+2008-12-05  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-module.h: Added, all-in-one header for
 	developing tracker indexer modules.
 	* src/tracker-indexer/Makefile.am: Install that new header.

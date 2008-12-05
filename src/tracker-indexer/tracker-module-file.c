@@ -163,6 +163,15 @@ tracker_module_file_get_file (TrackerModuleFile *file)
         return priv->file;
 }
 
+/**
+ * tracker_module_file_get_service_type:
+ * @file: A #TrackerModuleFile
+ *
+ * Returns the service type for @file in the current
+ * state (See #TrackerModuleIteratable).
+ *
+ * Returns: The service type name.
+ **/
 G_CONST_RETURN gchar *
 tracker_module_file_get_service_type (TrackerModuleFile *file)
 {
@@ -173,6 +182,14 @@ tracker_module_file_get_service_type (TrackerModuleFile *file)
         return TRACKER_MODULE_FILE_GET_CLASS (file)->get_service_type (file);
 }
 
+/**
+ * tracker_module_file_get_uri:
+ * @file: A #TrackerModuleFile
+ *
+ * Returns a unique URI for @file in the current state (See #TrackerModuleIteratable)
+ *
+ * Returns: A newly allocated string containing the URI for the element.
+ **/
 gchar *
 tracker_module_file_get_uri (TrackerModuleFile *file)
 {
@@ -196,6 +213,16 @@ tracker_module_file_get_uri (TrackerModuleFile *file)
         return uri;
 }
 
+/**
+ * tracker_module_file_get_text:
+ * @file: A #TrackerModuleFile
+ *
+ * Extracts all the text that @file could contain in the current
+ * state (see #TrackerModuleIteratable) or %NULL if the element
+ * does not contain any text.
+ *
+ * Returns: A newly allocated string containing valid UTF-8, or %NULL.
+ **/
 gchar *
 tracker_module_file_get_text (TrackerModuleFile *file)
 {
@@ -210,9 +237,12 @@ tracker_module_file_get_text (TrackerModuleFile *file)
  * tracker_module_file_get_metadata:
  * @file: A #TrackerModuleFile
  *
- * Extracts all the metadata corresponding to @file in the current state.
+ * Extracts all the metadata corresponding to @file in the current
+ * state (see #TrackerModuleIteratable) or %NULL if the element should not
+ * be indexed.
  *
- * Returns: A #TrackerModuleMetadata containing all the extracted metadata.
+ * Returns: A newly created #TrackerModuleMetadata containing all
+ *          the extracted metadata, or %NULL.
  **/
 TrackerModuleMetadata *
 tracker_module_file_get_metadata (TrackerModuleFile *file)
