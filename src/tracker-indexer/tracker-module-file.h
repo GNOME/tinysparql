@@ -26,6 +26,11 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__TRACKER_MODULE_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-module/tracker-module.h> must be included directly."
+#endif
+
+
 #define TRACKER_TYPE_MODULE_FILE         (tracker_module_file_get_type())
 #define TRACKER_MODULE_FILE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MODULE_FILE, TrackerModuleFile))
 #define TRACKER_MODULE_FILE_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_MODULE_FILE, TrackerModuleFileClass))

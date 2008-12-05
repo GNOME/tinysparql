@@ -1,8 +1,8 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008, Nokia
-
+ * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either
@@ -19,22 +19,20 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_METADATA_UTILS_H__
-#define __TRACKER_METADATA_UTILS_H__
+#ifndef __TRACKER_MODULE_H__
+#define __TRACKER_MODULE_H__
 
-#include "tracker-module-metadata.h"
-#include "tracker-module-file.h"
+#include <glib.h>
 
 G_BEGIN_DECLS
 
-#if !defined (__TRACKER_MODULE_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-module/tracker-module.h> must be included directly."
-#endif
+#define __TRACKER_MODULE_INSIDE__
 
+#include "tracker-module-file.h"
+#include "tracker-module-iteratable.h"
+#include "tracker-module-metadata.h"
+#include "tracker-module-metadata-utils.h"
 
-TrackerModuleMetadata *tracker_module_metadata_utils_get_data (GFile *file);
-gchar *		       tracker_module_metadata_utils_get_text (GFile *file);
+#undef __TRACKER_MODULE_INSIDE__
 
-G_END_DECLS
-
-#endif /* __TRACKER_METADATA_UTILS_H__ */
+#endif /* __TRACKER_MODULE_H__ */

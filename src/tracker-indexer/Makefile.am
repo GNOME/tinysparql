@@ -26,6 +26,7 @@ libtracker_module_la_SOURCES =	 					\
 	tracker-module-metadata.c
 
 libtracker_moduleinclude_HEADERS =					\
+	tracker-module.h						\
 	tracker-module-file.h						\
 	tracker-module-iteratable.h					\
 	tracker-module-metadata-utils.h					\

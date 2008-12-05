@@ -25,6 +25,11 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__TRACKER_MODULE_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-module/tracker-module.h> must be included directly."
+#endif
+
+
 #define TRACKER_TYPE_MODULE_ITERATABLE         (tracker_module_iteratable_get_type ())
 #define TRACKER_MODULE_ITERATABLE(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_MODULE_ITERATABLE, TrackerModuleIteratable))
 #define TRACKER_IS_MODULE_ITERATABLE(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_MODULE_ITERATABLE))
