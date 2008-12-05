@@ -50,6 +50,7 @@ GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
+	$(top_builddir)/src/tracker-indexer/libtracker-module.la	\
 	$(trackerd_win_libs)						\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
