@@ -2041,9 +2041,9 @@ load_options (TrayIcon *icon)
 		gchar *tracker_dir;
 		gchar *contents;
 
-		tracker_dir = g_build_path (g_get_user_config_dir (),
-					    "tracker",
-					    NULL);
+		tracker_dir = g_build_filename (g_get_user_config_dir (),
+					        "tracker",
+					        NULL);
 
 		if (!g_file_test (tracker_dir, G_FILE_TEST_EXISTS)) {
 			g_mkdir_with_parents (tracker_dir, 0700);
