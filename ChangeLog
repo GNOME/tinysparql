@@ -2,6 +2,13 @@
 
 	* src/tracker-utils/tracker-files.c:
 	Inform to the user if we are defaulting to 'Other' service type.
+	Now using the same code as in "tracker-search". It is ugly but
+	consistent between tools.
+	
+2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-utils/tracker-files.c:
+	Inform to the user if we are defaulting to 'Other' service type.
 	
 2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
 
