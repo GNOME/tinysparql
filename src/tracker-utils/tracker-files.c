@@ -125,15 +125,16 @@ main (int argc, char **argv)
 				    _("Could not get files by service type"),
 				    suggested_name,
 				    error->message);
+			g_free (suggested_name);
 			g_error_free (error);
 
 			return EXIT_FAILURE;
 		}
+		g_free (suggested_name);
 
 		if (!array) {
 			g_print ("%s\n",
 				 _("No files found by that service type"));
-
 			return EXIT_FAILURE;
 		}
 
