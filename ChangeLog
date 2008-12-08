@@ -1,3 +1,9 @@
+2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-applet/tracker-applet.c:
+	Applied patch from Wendy Hu preventing the raise of a second
+	preferences window from the applet. This fixes #528684.
+	
 2008-12-05  Jürg Billeter  <j@bitron.ch>
 
 	* data/db/sqlite-stored-procs.sql:

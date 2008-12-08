@@ -874,6 +874,8 @@ prefs_closed (GtkWidget *widget,
 	save_options (data);
 
 	gtk_widget_destroy (priv->prefs_window);
+
+        priv->prefs_window = NULL;
 }
 
 static void
@@ -1106,7 +1108,9 @@ applet_preferences_menu_activated (GtkMenuItem *item,
 
 	priv = TRAY_ICON_GET_PRIVATE (data);
 
-	create_prefs (data);
+        if (priv->prefs_window == NULL) {
+                create_prefs (data);
+        }
 
 	gtk_widget_show (priv->prefs_window);
 }
