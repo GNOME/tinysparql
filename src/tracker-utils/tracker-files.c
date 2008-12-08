@@ -99,8 +99,19 @@ main (int argc, char **argv)
 	if (service) {
 		gchar **array;
 		gchar **p_strarray;
+		gchar  *suggested_name;
 
 		type = tracker_service_name_to_type (service);
+
+		/* Get the name of the type to detect if it is defaulting to OTHER
+		 *  Ugly, but there is no other solution with current libtracker API
+		 */
+		suggested_name = tracker_type_to_service_name (type);
+
+		if (g_ascii_strcasecmp (suggested_name, service)) {
+			g_print (_("Defaulting to '%s' service\n"),
+				 suggested_name);
+		}
 
 		array = tracker_files_get_by_service_type (client,
 							   time (NULL),
@@ -112,7 +123,7 @@ main (int argc, char **argv)
 		if (error) {
 			g_printerr ("%s:'%s', %s\n",
 				    _("Could not get files by service type"),
-				    service,
+				    suggested_name,
 				    error->message);
 			g_error_free (error);
 

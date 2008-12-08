@@ -1,5 +1,10 @@
 2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/tracker-utils/tracker-files.c:
+	Inform to the user if we are defaulting to 'Other' service type.
+	
+2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/tracker-applet/tracker-applet.c:
 	Applied patch from Wendy Hu preventing the raise of a second
 	preferences window from the applet. This fixes #528684.
