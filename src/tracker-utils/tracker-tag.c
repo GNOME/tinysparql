@@ -179,14 +179,13 @@ main (int argc, char **argv)
 		files_resolved = g_new0 (gchar*, g_strv_length (files) + 1);
 
 		for (i = 0, j = 0; files[i] != NULL; i++) {
-			/* GFile *file; */
-			/* gchar *path; */
+			GFile *file;
 
-			/* file = g_file_new_for_commandline_arg (files[i]); */
-			/* path = g_file_get_path (file); */
-			/* g_object_unref (file); */
+			file = g_file_new_for_commandline_arg (files[i]);
 
-			files_resolved[j++] = g_strdup (files[i]);
+			files_resolved[j++] = g_file_get_path (file); 
+
+			g_object_unref (file);
 		}
 
 		files_resolved[j] = NULL;

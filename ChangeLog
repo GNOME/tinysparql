@@ -1,5 +1,14 @@
 2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
 
+	* tracker-query.c
+	* tracker-tag.c
+	* tracker-info.c
+	* tracker-meta-folder.c:
+	Allow this tools to receive relative paths as parameters.
+	Fixes #563666.
+	
+2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/tracker-utils/tracker-files.c:
 	Inform to the user if we are defaulting to 'Other' service type.
 	Now using the same code as in "tracker-search". It is ugly but

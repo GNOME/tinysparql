@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <gio/gio.h>
 
 #include <libtracker/tracker.h>
 
@@ -61,6 +62,8 @@ main (int argc, char **argv)
 {
 	TrackerClient	*client;
 	ServiceType	 type;
+	GFile           *file;
+	gchar           *abs_path;
 	GOptionContext	*context;
 	GError		*error = NULL;
 	GPtrArray	*results;
@@ -118,10 +121,16 @@ main (int argc, char **argv)
 		}
 	}
 
+	file = g_file_new_for_commandline_arg (uri[0]);
+	abs_path = g_file_get_path (file);
+
 	results = tracker_metadata_get_all (client,
 					    type,
-					    uri[0],
+					    abs_path,
 					    &error);
+	g_free (abs_path);
+	g_object_unref (file);
+	
 	if (error) {
 		g_printerr ("%s, %s\n",
 			    _("Unable to retrieve data for uri"),

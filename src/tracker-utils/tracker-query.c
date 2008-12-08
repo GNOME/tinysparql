@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <gio/gio.h>
 
 #include <libtracker/tracker.h>
 
@@ -103,7 +104,8 @@ main (int argc, char **argv)
 	ServiceType	 type;
 	GOptionContext	*context;
 	GError		*error = NULL;
-	gchar		*path_in_utf8;
+	GFile           *file;
+	gchar		*path_in_utf8, *abs_path;
 	gchar		*content;
 	gchar		*buffer;
 	gsize		 size;
@@ -175,20 +177,27 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	g_file_get_contents (path_in_utf8, &content, &size, &error);
+	file = g_file_new_for_commandline_arg (path_in_utf8);
+	abs_path = g_file_get_path (file);
+
+	g_file_get_contents (abs_path, &content, &size, &error);
 	if (error) {
 		g_printerr ("%s:'%s', %s\n",
 			    _("Could not read file"),
-			    path_in_utf8,
+			    abs_path,
 			    error->message);
 		g_error_free (error);
 		g_free (path_in_utf8);
+		g_free (abs_path);
+		g_object_unref (file);
 		tracker_disconnect (client);
 
 		return EXIT_FAILURE;
 	}
 
 	g_free (path_in_utf8);
+	g_free (abs_path);
+	g_object_unref (file);
 
 	buffer = g_locale_to_utf8 (content, size, NULL, NULL, &error);
 	g_free (content);

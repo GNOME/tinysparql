@@ -27,6 +27,7 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <gio/gio.h>
 
 #include <libtracker/tracker.h>
 
@@ -138,10 +139,11 @@ main (int argc, char **argv)
 	TrackerClient	*client;
 	GOptionContext	*context;
 	GError		*error = NULL;
+	GFile           *file;
 	gchar		*summary;
 	const gchar	*failed = NULL;
 	gchar	       **fields_resolved = NULL;
-	gchar		*path_in_utf8;
+	gchar		*path_in_utf8, *abs_path;
 	GPtrArray	*array;
 	gint		 i, j;
 
@@ -225,13 +227,18 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
+	file = g_file_new_for_commandline_arg (path_in_utf8);
+	abs_path = g_file_get_path (file);
+
 	array = tracker_files_get_metadata_for_files_in_folder (client,
 								time (NULL),
-								path_in_utf8,
+								abs_path,
 								fields_resolved,
 								&error);
 
 	g_free (path_in_utf8);
+	g_free (abs_path);
+	g_object_unref (file);
 
 	if (error) {
 		g_printerr ("%s:'%s', %s\n",
