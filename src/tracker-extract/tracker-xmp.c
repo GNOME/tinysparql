@@ -162,6 +162,9 @@ tracker_xmp_iter_simple (GHashTable *metadata,
 		}
 		else if (strcmp (name, "subject") == 0) {
 			tracker_append_string_to_hash_table (metadata, "DC:Subject", value, append);
+
+			/* The subject field may contain keywords as well */
+			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
 		}
 		else if (strcmp (name, "publisher") == 0) {
 			tracker_append_string_to_hash_table (metadata, "DC:Publisher", value, append);
@@ -253,15 +256,24 @@ tracker_xmp_iter_simple (GHashTable *metadata,
 	else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
 	        if (strcmp (name, "Location") == 0) {
 		        tracker_append_string_to_hash_table (metadata, "Image:Location", value, append);
+
+			/* Added to the valid keywords */
+		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
 		}
 	}
 	/* Photoshop scheme */
 	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {
 	        if (strcmp (name, "City") == 0) {
 		        tracker_append_string_to_hash_table (metadata, "Image:City", value, append);
+
+			/* Added to the valid keywords */
+		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
 		}
 		else if (strcmp (name, "Country") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Country", value, append);
+
+			/* Added to the valid keywords */
+		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
 		}
 	}
 

@@ -40,7 +40,7 @@ static gchar	     *path;
 static gchar	     *search;
 static gchar	    **fields;
 static gchar	     *service;
-static gchar	     *keyword;
+static gchar	    **keywords;
 static gint	      limit = 512;
 static gint	      offset;
 
@@ -65,7 +65,7 @@ static GOptionEntry   entries[] = {
 	  N_("Adds a fulltext search filter"),
 	  NULL,
 	},
-	{ "keyword", 'k', 0, G_OPTION_ARG_STRING, &keyword,
+	{ "keyword", 'k', 0, G_OPTION_ARG_STRING_ARRAY, &keywords,
 	  N_("Adds a keyword filter"),
 	  NULL
 	},
@@ -217,7 +217,7 @@ main (int argc, char **argv)
 				      type,
 				      fields,
 				      search,
-				      keyword,
+				      keywords,
 				      buffer,
 				      offset,
 				      limit,

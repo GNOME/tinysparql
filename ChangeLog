@@ -1,3 +1,21 @@
+2008-12-09  Mikael Ottela   <mikael.ottela@ixonos.com>
+
+	* data/dbus/tracker-search.xml: 
+	* src/trackerd/tracker-search.c:                         
+	* src/trackerd/tracker-search.h:  
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/libtracker-data/tracker-rdf-query.h:  
+	* src/libtracker/tracker.h:
+	* src/libtracker/tracker.c: The keyword field in query method now
+	supports multiple values.
+
+	* src/tracker-utils/tracker-query.c: Changed the command line tool
+	to work with multiple keywords.
+
+	* data/services/image.metadata:
+	* src/tracker-extract/tracker-xmp.c: Image:Keywords is now a
+	multivalue field and used in extraction.
+	
 2008-12-09  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-module-metadata.c

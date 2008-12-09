@@ -427,7 +427,7 @@ search_perform_rdf_query (gint	        request_id,
 			  const gchar  *service,
 			  const gchar **fields,
 			  const gchar  *search_text,
-			  const gchar  *keyword,
+			  const gchar **keywords,
 			  const gchar  *query_condition,
 			  gboolean      sort_by_service,
 			  const gchar **sort_fields,
@@ -449,10 +449,9 @@ search_perform_rdf_query (gint	        request_id,
 
 		tracker_dbus_request_comment (request_id,
 					      "Executing RDF query:'%s' with search "
-					      "term:'%s' and keyword:'%s'",
+					      "term:'%s'",
 					      query_condition,
-					      search_text,
-					      keyword);
+					      search_text);
 
 		query_translated = tracker_rdf_query_to_sql (iface,
 							     query_condition,
@@ -460,7 +459,8 @@ search_perform_rdf_query (gint	        request_id,
 							     fields,
 							     g_strv_length ((GStrv) fields),
 							     search_text,
-							     keyword,
+							     keywords,
+							     keywords ? g_strv_length ((GStrv) keywords) : 0,
 							     sort_by_service,
 							     sort_fields,
 							     sort_fields ? g_strv_length ((GStrv) sort_fields) : 0,
@@ -1152,7 +1152,7 @@ tracker_search_query (TrackerSearch	     *object,
 		      const gchar	     *service,
 		      const gchar	    **fields,
 		      const gchar	     *search_text,
-		      const gchar	     *keyword,
+		      const gchar	    **keywords,
 		      const gchar	     *query_condition,
 		      gboolean		      sort_by_service,
 		      const gchar           **sort_fields,
@@ -1172,18 +1172,17 @@ tracker_search_query (TrackerSearch	     *object,
 	tracker_dbus_async_return_if_fail (service != NULL, context);
 	tracker_dbus_async_return_if_fail (fields != NULL, context);
 	tracker_dbus_async_return_if_fail (search_text != NULL, context);
-	tracker_dbus_async_return_if_fail (keyword != NULL, context);
+	tracker_dbus_async_return_if_fail (keywords != NULL, context);
 	tracker_dbus_async_return_if_fail (query_condition != NULL, context);
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to search query, "
 				  "query id:%d, service:'%s', search text '%s', "
-				  "keyword:'%s', query condition:'%s', offset:%d, "
+				  "query condition:'%s', offset:%d, "
 				  "max hits:%d, sort by service:'%s', sort descending'%s'",
 				  live_query_id,
 				  service,
 				  search_text,
-				  keyword,
 				  query_condition,
 				  offset,
 				  max_hits,
@@ -1205,7 +1204,7 @@ tracker_search_query (TrackerSearch	     *object,
 					       service, 
 					       fields, 
 					       search_text, 
-					       keyword, 
+					       keywords, 
 					       query_condition,
 					       sort_by_service,
 					       sort_fields, 

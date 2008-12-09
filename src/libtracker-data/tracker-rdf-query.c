@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* Tracker - indexer and metadata database engine
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
  *
@@ -18,6 +19,7 @@
  */
 
 #include <string.h>
+#include <glib/ghash.h>
 
 #include <libtracker-common/tracker-field-data.h>
 #include <libtracker-common/tracker-log.h>
@@ -1137,7 +1139,8 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			  const gchar        **fields,
 			  gint		       field_count,
 			  const gchar	      *search_text,
-			  const gchar	      *keyword,
+			  const gchar	     **keywords,
+			  gint                 keyword_count,
 			  gboolean	       sort_by_service,
 			  const gchar	     **sort_fields,
 			  gint		       sort_field_count,
@@ -1156,7 +1159,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 	g_return_val_if_fail (service != NULL, NULL);
 	g_return_val_if_fail (fields != NULL, NULL);
 	g_return_val_if_fail (search_text != NULL, NULL);
-	g_return_val_if_fail (keyword != NULL, NULL);
+	g_return_val_if_fail (keywords != NULL, NULL);
 
 	memset (&data, 0, sizeof (data));
 	data.iface = iface;
@@ -1205,16 +1208,67 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 					table_name);
 	}
 
-	if (!tracker_is_empty_string (keyword)) {
-		gchar *keyword_metadata;
+	if (keyword_count > 0) {
+		guint keyword;
+		GHashTable *table = NULL;
+		GHashTableIter iter;
+		GList *list = NULL;
+		guint count = 0;
+		gchar *key;
 
-		keyword_metadata = tracker_data_schema_metadata_field_get_related_names (iface,
-                                                                                         "DC:Keywords");
-		g_string_append_printf (data.sql_from,
-					"\n INNER JOIN ServiceKeywordMetaData K ON S.ID = K.ServiceID and K.MetaDataID in (%s) and K.MetaDataValue = '%s' ",
-					keyword_metadata,
-					keyword);
-		g_free (keyword_metadata);
+		table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+		for (keyword=0; keyword<keyword_count; keyword++) {
+			gchar *full;
+			gchar *sep;
+			gchar *value;
+
+			full = g_strdup (keywords[keyword]);
+
+			sep = strchr (full, '=');
+			if (sep) {
+				sep[0]= '\0';
+				key   = full;
+				value = sep+1;
+
+			} else {
+				key   = g_strdup ("DC:Keywords");
+				value = g_strdup (keywords[keyword]);
+			}
+
+			g_debug ("Adding key: %s Value:%s", key, value);
+
+			list = g_hash_table_lookup (table, key);
+			list = g_list_prepend (list, g_strdup (value));
+			g_hash_table_insert (table, g_strdup (key), list);
+
+			g_free (full);
+		}
+		
+		g_hash_table_iter_init (&iter, table);
+		while (g_hash_table_iter_next (&iter, (gpointer) &key, (gpointer) &list)) {
+		
+			GList *l = NULL;
+			gchar *keyword_metadata;
+
+			count++;
+			keyword_metadata = tracker_data_schema_metadata_field_get_related_names (iface, key);
+			g_string_append_printf (data.sql_from,
+						"\n INNER JOIN ServiceKeywordMetaData K%d ON K%d.MetaDataID in (%s)",
+						count, count, keyword_metadata);
+
+			for (l = list; l; l = l->next) {
+				g_string_append_printf (data.sql_from,
+							" AND S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetadataValue = '%s')",
+							l->data);
+			}
+
+			g_list_foreach(list, (GFunc)g_free, NULL);
+			g_list_free (list);
+			g_free (keyword_metadata);
+			
+		}
+		g_hash_table_destroy (table);
 	}
 
 	data.sql_where = g_string_new ("");

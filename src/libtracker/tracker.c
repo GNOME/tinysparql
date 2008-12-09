@@ -758,12 +758,12 @@ tracker_search_metadata	(TrackerClient *client, ServiceType service, const char 
 
 
 GPtrArray *
-tracker_search_query (TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, const char *keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, char **sort_fields, gboolean sort_descending, GError **error)
+tracker_search_query (TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text, char **keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, char **sort_fields, gboolean sort_descending, GError **error)
 {
 	GPtrArray *table;
 	char *service_str = tracker_service_types[service];
 
-	if (!org_freedesktop_Tracker_Search_query (client->proxy_search, live_query_id, service_str, (const char **)fields, search_text, keywords, query, sort_by_service, (const char **)sort_fields, sort_descending, offset, max_hits , &table, &*error)) {
+	if (!org_freedesktop_Tracker_Search_query (client->proxy_search, live_query_id, service_str, (const char **)fields, search_text, (const char **)keywords, query, sort_by_service, (const char **)sort_fields, sort_descending, offset, max_hits , &table, &*error)) {
 		return NULL;
 	}
 
@@ -1447,7 +1447,7 @@ tracker_search_metadata_async	(TrackerClient *client, ServiceType service, const
 }
 
 void
-tracker_search_query_async (TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text,  const char *keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, char **sort_fields, gboolean sort_descending, TrackerGPtrArrayReply callback, gpointer user_data)
+tracker_search_query_async (TrackerClient *client, int live_query_id, ServiceType service, char **fields, const char *search_text,  char **keywords, const char *query, int offset, int max_hits, gboolean sort_by_service, char **sort_fields, gboolean sort_descending, TrackerGPtrArrayReply callback, gpointer user_data)
 {
 	GPtrArrayCallBackStruct *callback_struct;
 
@@ -1457,7 +1457,7 @@ tracker_search_query_async (TrackerClient *client, int live_query_id, ServiceTyp
 
 	char *service_str = tracker_service_types[service];
 
-	client->last_pending_call = org_freedesktop_Tracker_Search_query_async (client->proxy_search, live_query_id, service_str, (const char **)fields, search_text, keywords, query, sort_by_service, (const char **)sort_fields, sort_descending, offset, max_hits,	tracker_GPtrArray_reply, callback_struct);
+	client->last_pending_call = org_freedesktop_Tracker_Search_query_async (client->proxy_search, live_query_id, service_str, (const char **)fields, search_text, (const char **)keywords, query, sort_by_service, (const char **)sort_fields, sort_descending, offset, max_hits,	tracker_GPtrArray_reply, callback_struct);
 
 }
 

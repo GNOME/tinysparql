@@ -102,7 +102,7 @@
       <arg type="s" name="service" direction="in" />
       <arg type="as" name="fields" direction="in" />
       <arg type="s" name="search_text" direction="in" />
-      <arg type="s" name="keyword" direction="in" />
+      <arg type="as" name="keywords" direction="in" />
       <arg type="s" name="query_condition" direction="in" />
       <arg type="b" name="sort_by_service" direction="in" />
       <arg type="as" name="sort_fields" direction="in" />

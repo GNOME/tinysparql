@@ -14,6 +14,7 @@ Parent=DC:Keywords
 Weight=20
 Filtered=false
 Delimited=true
+MultipleValues=true
 
 [Image:Height]
 DisplayName=Height
