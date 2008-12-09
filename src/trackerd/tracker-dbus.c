@@ -19,6 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <libtracker-common/tracker-config.h>
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-log.h>
@@ -27,6 +29,7 @@
 #include <libtracker-db/tracker-db-manager.h>
 
 #include <libtracker-data/tracker-data-manager.h>
+
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
 #include "tracker-daemon-glue.h"

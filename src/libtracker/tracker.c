@@ -21,13 +21,13 @@
 
 #include <string.h>
 
+#include "tracker.h"
+
 #include "tracker-daemon-glue.h"
 #include "tracker-files-glue.h"
 #include "tracker-keywords-glue.h"
 #include "tracker-metadata-glue.h"
 #include "tracker-search-glue.h"
-
-#include "tracker.h"
 
 #define TRACKER_SERVICE			"org.freedesktop.Tracker"
 #define TRACKER_OBJECT			"/org/freedesktop/Tracker"

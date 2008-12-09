@@ -1,3 +1,9 @@
+2008-12-09  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker/tracker.[ch]: Fixes bug #563706
+
+	* src/trackerd/tracker-dbus.c: Include config.h.
+
 2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
 
 	* tracker-query.c
@@ -23,7 +29,7 @@
 
 	* src/tracker-applet/tracker-applet.c:
 	Applied patch from Wendy Hu preventing the raise of a second
-	preferences window from the applet. This fixes #528684.
+	preferences window from the applet. This fixes bug #528684.
 	
 2008-12-05  Jürg Billeter  <j@bitron.ch>
 
@@ -364,7 +370,7 @@
 	* src/libtracker-common/tracker-hal.c: Fixed a crash when HAL didn't 
 	initialize successfully. 
 
-	Fixes NB#93962.
+	Fixes NB #93962.
 
 2008-11-28  Martyn Russell  <martyn@imendio.com>
 
@@ -424,7 +430,7 @@
 	now don't delete memory card data in the Services table when we
 	unmount. This work was partly done by Jürg.
 
-	Fixes NB#92788.
+	Fixes NB #92788.
 
 2008-11-25  Martyn Russell  <martyn@imendio.com>
 
@@ -870,7 +876,7 @@
 
 	* src/trackerd/tracker-main.c
 	(entries_daemon): Fixed typo in help message for disable-modules
-	option. This fixes gnome bug #560581.
+	option. This fixes bug #560581.
 	
 2008-11-13  Martyn Russell  <martyn@imendio.com>
 
@@ -1368,7 +1374,7 @@
 	* src/tracker-applet/tracker-applet.c
 	Added translation domain loading the glade file.
 
-	Patch committed from Gabor Kelemen. Fixes #558613.
+	Patch committed from Gabor Kelemen. Fixes bug #558613.
 	
 2008-10-30  Philip Van Hoof  <philip@codeminded.be>
 
@@ -1409,7 +1415,7 @@
 	(tracker_keywords_add): Check that none of the keywords is an
 	empty string.
 
-	Fixes gnome bug #402063.
+	Fixes bug #402063.
 	
 2008-10-29  Ivan Frade  <ivan.frade@nokia.com>
 
@@ -1417,7 +1423,7 @@
 	Removed audio/vnd.rn-realaudio from the [Playlist] mimetypes. This
 	mimetype indicates audio and not playlist.
 
-	Fixes NB#90876.
+	Fixes NB #90876.
 	
 2008-10-29  Ivan Frade  <ivan.frade@nokia.com>
 
@@ -1425,18 +1431,18 @@
 	(handle_metadata_add): Check the previous values to dont insert
 	duplicated values. 
 
-	Fixes NB#88048 and gnome bug #402054.
+	Fixes NB #88048 and fixes bug #402054.
 
 2008-10-27  Mikael Ottela    <mikael.ottela@ixonos.com>
 	
 	* data/services/image.metadata:
 	* src/tracker-extract/tracker-xmp.c: Added Image:City, 
 	Image:Country and Image:Location fields and support for them 
-	in the extractors. Fixes NB#90455.	
+	in the extractors. Fixes NB #90455.	
 
 2008-10-27  Martyn Russell  <martyn@imendio.com>
 
-	Fixes NB#88140.
+	Fixes NB #88140.
 	
 	* src/trackerd/tracker-crawler.[ch]: Added a function to be able
 	to request a new directory to be looked at at any stage of the
@@ -1466,7 +1472,7 @@
 	* data/services/default.service:
 	* data/services/image.metadata:
 	* src/tracker-extract/tracker-xmp.c:  Added Image:Rating field 
-	and XMP:XAP:Rating support. Fixes NB#90374.
+	and XMP:XAP:Rating support. Fixes NB #90374.
 	
 2008-10-24  Philip Van Hoof  <philip@codeminded.be>
 
@@ -1747,7 +1753,7 @@
 	we unmount, add the directory to the deleted queue to be processed
 	by the indexer for now. This needs to be fixed properly at some
 	point (i.e. just disabling the items in the database, awaiting
-	SQLite FTS for that). This fixes NB#87525.
+	SQLite FTS for that). This fixes NB #87525.
 
 2008-10-13  Carlos Garnacho  <carlos@imendio.com>
 
@@ -1932,7 +1938,7 @@
 	* src/trackerd/tracker-monitor.c: Added an event cache so we don't
 	send 2 events for a cp command to the indexer - this is an
 	efficiency improvement. Now we just send CREATED to the indexer
-	instead of CREATED & UPDATED. This fixes NB#88769.
+	instead of CREATED & UPDATED. This fixes NB #88769.
 
 2008-10-09  Philip Van Hoof  <philip@codeminded.be>
 
