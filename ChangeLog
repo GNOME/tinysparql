@@ -1,5 +1,13 @@
 2008-12-09  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-module-metadata.c
+	(tracker_module_metadata_get_hash_table): Make it return a new
+	hashtable with field names as keys for easier use.
+	* src/tracker-indexer/tracker-indexer.c (item_add_or_update): Destroy
+	the hashtable that tracker_module_metadata_get_hash_table() returns.
+
+2008-12-09  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c (check_disk_space_cb)
 	(state_check): Do not stop disk space check when pausing the indexer.
 

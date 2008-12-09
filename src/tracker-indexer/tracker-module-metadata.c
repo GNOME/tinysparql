@@ -364,10 +364,31 @@ tracker_module_metadata_foreach_remove (TrackerModuleMetadata       *metadata,
 				     user_data);
 }
 
+static void
+get_hash_table_foreach (gpointer key,
+			gpointer value,
+			gpointer user_data)
+{
+	TrackerField *field;
+	GHashTable *table;
+
+	field = TRACKER_FIELD (key);
+	table = user_data;
+
+	g_hash_table_insert (table,
+			     (gpointer) tracker_field_get_name (field),
+			     value);
+}
+
 GHashTable *
 tracker_module_metadata_get_hash_table (TrackerModuleMetadata *metadata)
 {
-	return metadata->table;
+	GHashTable *table;
+
+	table = g_hash_table_new (g_str_hash, g_str_equal);
+	g_hash_table_foreach (metadata->table, (GHFunc) get_hash_table_foreach, table);
+
+	return table;
 }
 
 /**

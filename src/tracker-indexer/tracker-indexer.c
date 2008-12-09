@@ -1425,18 +1425,21 @@ item_add_or_update (TrackerIndexer        *indexer,
 		tracker_data_metadata_free (old_metadata_emb);
 		tracker_data_metadata_free (old_metadata_non_emb);
 	} else {
+		GHashTable *data;
+
 		g_debug ("Adding item '%s/%s'",
 			 dirname,
 			 basename);
 
 		/* Service wasn't previously indexed */
 		id = tracker_data_update_get_new_service_id (indexer->private->common);
+		data = tracker_module_metadata_get_hash_table (metadata);
 
 		tracker_data_update_create_service (service,
 						    id,
 						    dirname,
 						    basename,
-						    tracker_module_metadata_get_hash_table (metadata));
+						    data);
 
 		tracker_data_update_create_event (indexer->private->cache, id, "Create");
 		tracker_data_update_increment_stats (indexer->private->common, service);
@@ -1457,6 +1460,8 @@ item_add_or_update (TrackerIndexer        *indexer,
 			tracker_data_update_set_content (service, id, text);
 			g_free (text);
 		}
+
+		g_hash_table_destroy (data);
 	}
 }
 
