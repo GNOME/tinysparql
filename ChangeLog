@@ -1,3 +1,8 @@
+2008-12-09  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (check_disk_space_cb)
+	(state_check): Do not stop disk space check when pausing the indexer.
+
 2008-12-09  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker/tracker.[ch]: Fixes bug #563706

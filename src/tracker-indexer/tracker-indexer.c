@@ -743,9 +743,6 @@ check_disk_space_cb (TrackerIndexer *indexer)
 
 	if (disk_space_low) {
 		state_set_flags (indexer, TRACKER_INDEXER_STATE_DISK_FULL);
-
-		/* The function above stops the low disk check, restart it */
-		check_disk_space_start (indexer);
 	} else {
 		state_unset_flags (indexer, TRACKER_INDEXER_STATE_DISK_FULL);
 	}
@@ -2440,7 +2437,6 @@ state_check (TrackerIndexer *indexer)
 	state = indexer->private->state;
 
 	if (state != 0) {
-		check_disk_space_stop (indexer);
 		signal_status_timeout_stop (indexer);
 		stop_scheduled_flush (indexer);
 		stop_transaction (indexer);
