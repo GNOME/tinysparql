@@ -353,6 +353,10 @@ EXPONENT [eE][+-]?[0-9]+
 [Ee][Xx][Pp][Ll][Aa][Ii][Nn] { return EXPLAIN; }
 [Gg][Rr][Oo][Uu][Pp] { return GROUP; }
 [Cc][Oo][Uu][Nn][Tt] { return COUNT; }
+[Ss][Uu][Mm] { return SUM; }
+[Aa][Vv][Gg] { return AVERAGE; }
+[Mm][Ii][Nn] { return MINIMUM; }
+[Mm][Aa][Xx] { return MAXIMUM; }
 [Aa][Ss] { BEGIN(SPID); return AS; }
 [Dd][Ee][Ll][Ee][Tt][Ee]  { return DELETE; }
 [Ii][Nn][Ss][Ee][Rr][Tt]  { return INSERT; }
