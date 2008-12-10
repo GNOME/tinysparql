@@ -72,7 +72,7 @@ static GOptionEntry   entries[] = {
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &fields,
 	  N_("Metadata Fields"),
-	  NULL
+	  N_("FIELD [FIELD...]")
 	},
 	{ NULL }
 };

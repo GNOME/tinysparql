@@ -1,4 +1,13 @@
-2008-12-09  Mikael Ottela   <mikael.ottela@ixonos.com>
+2008-12-10  Mikael Ottela   <mikael.ottela@ixonos.com>
+	* src/tracker-utils/tracker-query.c:
+	* src/tracker-utils/tracker-search.c:
+	* src/tracker-utils/tracker-unique.c:
+	* src/tracker-utils/tracker-tag.c:
+	* src/tracker-utils/tracker-info.c:
+	* src/tracker-utils/tracker-meta-folder.c: Fixed help output of the
+	command line tools.
+
+2008-12-10  Mikael Ottela   <mikael.ottela@ixonos.com>
 
 	* src/libtracker-common/tracker-parser.c:
 	* src/tracker-extract/tracker-extract.c: Fixed support for empty

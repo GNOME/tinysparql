@@ -57,7 +57,7 @@ static GOptionEntry   entries[] = {
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &terms,
 	  N_("search terms"),
-	  NULL
+	  N_("EXPRESSION")
 	},
 	{ NULL }
 };

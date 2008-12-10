@@ -63,7 +63,7 @@ static GOptionEntry   entries[] = {
 	  NULL},
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &fields,
-	  N_("Required fields"), NULL},
+	  N_("Required fields"), N_("FIELD [FIELD...]")},
 	{ NULL }
 };
 
