@@ -795,10 +795,10 @@ rasqal_query_get_all_variable_sequence(rasqal_query* query)
 rasqal_variable*
 rasqal_query_get_variable(rasqal_query* query, int idx)
 {
-  if(!query->selects || idx < 0 || idx > query->select_variables_count)
+  if(!query->selects || idx < 0 || idx >= query->select_variables_count)
     return NULL;
   
-  return rasqal_variables_table_get(query->vars_table, idx);
+  return (rasqal_variable*)raptor_sequence_get_at(query->selects, idx);
 }
 
 
