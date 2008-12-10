@@ -939,8 +939,12 @@ tracker_parser_text_to_string (const gchar     *text,
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
 
-	if (text == NULL || text[0] == '\0') {
+	if (text == NULL) {
 		return NULL;
+	}
+
+	if (text[0] == '\0') {
+		return g_strdup ("");
 	}
 
 	p = text;

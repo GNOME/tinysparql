@@ -1,5 +1,11 @@
 2008-12-09  Mikael Ottela   <mikael.ottela@ixonos.com>
 
+	* src/libtracker-common/tracker-parser.c:
+	* src/tracker-extract/tracker-extract.c: Fixed support for empty
+	strings as metadata values
+
+2008-12-09  Mikael Ottela   <mikael.ottela@ixonos.com>
+
 	* data/dbus/tracker-search.xml: 
 	* src/trackerd/tracker-search.c:                         
 	* src/trackerd/tracker-search.h:  
