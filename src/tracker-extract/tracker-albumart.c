@@ -664,6 +664,8 @@ set_albumart (const unsigned char *buffer,
 		return FALSE;
 	}
 
+	tracker_thumbnailer_get_file_thumbnail (filename, "image/jpeg");
+
 	g_free (filename);
 	g_object_unref (pixbuf);
 
@@ -711,6 +713,9 @@ tracker_process_albumart (const unsigned char *buffer,
 					       artist,
 					       album,
 					       filename);
+
+			lcopied = retval;
+
 			
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
