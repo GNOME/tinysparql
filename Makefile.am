@@ -16,8 +16,6 @@ EXTRA_DIST = 					\
 	intltool-merge.in 			\
 	intltool-update.in 
 
-CLEANFILES = $(autostart_DATA)
-
 DISTCLEANFILES = 				\
 	intltool-extract 			\
 	intltool-merge 				\
