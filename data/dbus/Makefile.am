@@ -12,20 +12,17 @@ config_DATA =						\
 	tracker-indexer.xml
 
 # Services
-org.freedesktop.Tracker_servicedir = $(DBUS_SERVICES_DIR)
-org.freedesktop.Tracker_service_DATA = org.freedesktop.Tracker.service
-
-org.freedesktop.Tracker.Indexer_servicedir = $(DBUS_SERVICES_DIR)
-org.freedesktop.Tracker.Indexer_service_DATA = org.freedesktop.Tracker.Indexer.service
+servicedir = $(DBUS_SERVICES_DIR)
+service_in_files =					\
+	org.freedesktop.Tracker.service.in		\
+	org.freedesktop.Tracker.Indexer.service.in
+service_DATA = $(service_in_files:.service.in=.service)
 
 %.service: %.service.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" $< > $@
 
 EXTRA_DIST = 						\
-	$(org.freedesktop.Tracker_service_DATA)		\
-	$(org.freedesktop.Tracker.Indexer_service_DATA)	\
+	$(service_in_files)				\
 	$(config_DATA)
 
-CLEANFILES = 						\
-	$(org.freedesktop.Tracker_service_DATA)		\
-	$(org.freedesktop.Tracker.Indexer_service_DATA)
+CLEANFILES = $(service_DATA)	
