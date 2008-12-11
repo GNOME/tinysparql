@@ -5,8 +5,7 @@ include $(top_srcdir)/Makefile.decl
 bin_PROGRAMS = tracker-preferences
 
 desktopdir = $(datadir)/applications
-desktop_in_files = tracker-preferences.desktop.in
-desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+desktop_DATA =  tracker-preferences.desktop
 
 pkgdata_DATA = tracker-preferences.glade
 

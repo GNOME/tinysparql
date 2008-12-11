@@ -2,9 +2,6 @@ include $(top_srcdir)/Makefile.decl
 
 @INTLTOOL_DESKTOP_RULE@
 
-desktopdir = $(datadir)/applications
-icondir = $(datadir)/tracker/icons
-
 INCLUDES = 	\
 	-I$(top_srcdir)/src/libtracker				\
 	$(GLIB2_CFLAGS)						\
@@ -40,10 +37,10 @@ tracker_search_tool_LDADD =   \
 	$(top_builddir)/src/libtracker/libtrackerclient.la 
 
 
-desktop_in_files = tracker-search-tool.desktop.in
-desktop_files = $(desktop_in_files:.desktop.in=.desktop)
- 
-desktop_DATA = $(desktop_files)
+desktopdir = $(datadir)/applications
+desktop_DATA = tracker-search-tool.desktop
+
+icondir = $(datadir)/tracker/icons
 icon_DATA = thumbnail_frame.png
 
 EXTRA_DIST = $(icon_DATA)

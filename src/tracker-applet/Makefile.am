@@ -33,8 +33,7 @@ icon_DATA = 								\
 @INTLTOOL_DESKTOP_RULE@
 
 autostartdir = $(sysconfdir)/xdg/autostart
-autostart_in_files = tracker-applet.desktop.in
-autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
+autostart_DATA = tracker-applet.desktop
 
 pkgdata_DATA = tracker-applet-prefs.glade
 
