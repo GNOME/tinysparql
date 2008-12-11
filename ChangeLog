@@ -2,6 +2,7 @@
 
 	* src/tracker-extract/tracker-albumart.c: Requesting a thumbnail
 	for embedded album-art
+	* src/libtracker-common/tracker-thumbnailer.c: coping with paths
 
 2008-12-10  Mikael Ottela   <mikael.ottela@ixonos.com>
 	* src/tracker-utils/tracker-query.c:

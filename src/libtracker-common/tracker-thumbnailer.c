@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #include <libtracker-data/tracker-data-metadata.h>
 
 #include <tracker-indexer/tracker-module-file.h>
@@ -471,8 +473,11 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 		thumbnailer_request_timeout_cb (NULL);
 	}
 
-	/* Add new URI */
-	private->uris[private->count] = g_strdup (uri);
+	/* Add new URI (detect if we got passed a path) */
+	if (!strstr (uri, ":/"))
+		private->uris[private->count] = g_strdup_printf ("file://", uri);
+	else
+		private->uris[private->count] = g_strdup (uri);
 
 	if (mime_type) {
 		private->mime_types[private->count] = g_strdup (mime_type);
