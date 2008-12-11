@@ -309,8 +309,8 @@ tracker_thumbnailer_move (const gchar *from_uri,
 			  const gchar *to_uri)
 {
 	TrackerThumbnailerPrivate *private;
-	const gchar *to[2] = { NULL, NULL };
-	const gchar *from[2] = { NULL, NULL };
+	gchar *to[2] = { NULL, NULL };
+	gchar *from[2] = { NULL, NULL };
 
 	g_return_if_fail (from_uri != NULL);
 	g_return_if_fail (mime_type != NULL);
@@ -340,8 +340,16 @@ tracker_thumbnailer_move (const gchar *from_uri,
 		   to_uri,
 		   private->request_id); 
 
-	to[0] = to_uri;
-	from[0] = from_uri;
+	if (!strstr (to_uri, ":/"))
+		to[0] = g_strdup_printf ("file://%s", to_uri);
+	else
+		to[0] = g_strdup (to_uri);
+
+	if (!strstr (from_uri, ":/"))
+		from[0] = g_strdup_printf ("file://%s", from_uri);
+	else
+		from[0] = g_strdup (from_uri);
+
 	
 	dbus_g_proxy_begin_call (private->requester_proxy,
 				 "Move",
@@ -351,6 +359,10 @@ tracker_thumbnailer_move (const gchar *from_uri,
 				 G_TYPE_STRV, from,
 				 G_TYPE_STRV, to,
 				 G_TYPE_INVALID);
+
+	g_free (from[0]);
+	g_free (to[0]);
+
 }
 
 void
@@ -358,7 +370,7 @@ tracker_thumbnailer_remove (const gchar *uri,
 			    const gchar *mime_type)
 {
 	TrackerThumbnailerPrivate *private;
-	const gchar *uris[2] = { NULL, NULL };
+	gchar *uris[2] = { NULL, NULL };
 
 	g_return_if_fail (uri != NULL);
 	g_return_if_fail (mime_type != NULL);
@@ -383,7 +395,10 @@ tracker_thumbnailer_remove (const gchar *uri,
 
 	private->request_id++;
 
-	uris[0] = uri;
+	if (!strstr (uri, ":/"))
+		uris[0] = g_strdup_printf ("file://%s", uri);
+	else
+		uris[0] = g_strdup (uri);
 
 	g_message ("Requesting thumbnailer removes URI:'%s', request_id:%d...",
 		   uri,
@@ -394,8 +409,10 @@ tracker_thumbnailer_remove (const gchar *uri,
 				 thumbnailer_reply_cb,
 				 GUINT_TO_POINTER (private->request_id),
 				 NULL,
-				 G_TYPE_STRV, uri,
+				 G_TYPE_STRV, uris,
 				 G_TYPE_INVALID);
+
+	g_free (uris[0]);
 }
 
 void 
@@ -475,7 +492,7 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 
 	/* Add new URI (detect if we got passed a path) */
 	if (!strstr (uri, ":/"))
-		private->uris[private->count] = g_strdup_printf ("file://", uri);
+		private->uris[private->count] = g_strdup_printf ("file://%s", uri);
 	else
 		private->uris[private->count] = g_strdup (uri);
 
