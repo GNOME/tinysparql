@@ -7,6 +7,7 @@ trackerd.desktop.in: trackerd.desktop.in.in
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@
 
 autostartdir = $(sysconfdir)/xdg/autostart
+autostart_in_in_files = trackerd.desktop.in.in
 autostart_in_files = trackerd.desktop.in
 autostart_DATA = trackerd.desktop
 
@@ -21,6 +22,6 @@ if ENABLE_LIBTRACKERGTK
 pkgconfig_DATA += libtracker-gtk.pc
 endif
 
-CLEANFILES = $(autostart_DATA)
+CLEANFILES = $(autostart_DATA) $(autostart_in_files)
 
-DISTCLEANFILES = $(autostart_in_files)
+EXTRA_DIST = $(autostart_in_in_files)
