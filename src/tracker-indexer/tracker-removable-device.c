@@ -51,14 +51,15 @@
 
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
-#include <libtracker-data/tracker-turtle.h>
 
-#include "tracker-module-metadata-private.h"
 #endif
+
+#include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-removable-device.h"
 
 #ifdef HAVE_RAPTOR
+#include "tracker-module-metadata-private.h"
 
 typedef struct {
 	const gchar *ttl_file;
@@ -301,12 +302,12 @@ typedef struct {
 	raptor_serializer *serializer;
 	gchar *about_uri;
 } AddMetadataInfo;
-#endif
+
+#ifdef HAVE_RAPTOR
 
 static void
 set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 {
-#ifdef HAVE_RAPTOR
 	raptor_statement    *statement;
 	AddMetadataInfo     *item = user_data;
 	const gchar         *about_uri = item->about_uri;
@@ -331,8 +332,8 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 	g_free ((unsigned char *) statement->object);
 
 	g_free (statement);
-#endif
 }
+#endif
 
 
 /* TODO URI branch: path -> uri */

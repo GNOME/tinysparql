@@ -25,6 +25,11 @@
 
 2008-12-16  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/tracker-indexer/tracker-removable-device.c: Compilation warnings
+	if you don't have libraptor-dev installed
+
+2008-12-16  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/tracker-indexer/tracker-removable-device.c
 	* src/tracker-indexer/tracker-removable-device.h
 	* src/tracker-indexer/tracker-main.c
