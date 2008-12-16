@@ -62,7 +62,7 @@ struct TrackerEvolutionImapFileClass {
         TrackerModuleFileClass parent_class;
 };
 
-void                tracker_evolution_pop_file_register (GTypeModule *module);
+void                tracker_evolution_imap_file_register (GTypeModule *module);
 
 TrackerModuleFile * tracker_evolution_imap_file_new     (GFile *file);
 

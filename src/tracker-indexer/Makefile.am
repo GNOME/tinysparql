@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 SUBDIRS = modules
 
 INCLUDES =								\
+	-Wall								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\

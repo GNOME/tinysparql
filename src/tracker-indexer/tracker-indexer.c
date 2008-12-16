@@ -877,7 +877,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
 	TrackerDBIndex *index;
-	GList *l;
 
 	priv = indexer->private = TRACKER_INDEXER_GET_PRIVATE (indexer);
 
@@ -1343,7 +1342,6 @@ static TrackerService *
 get_service_for_file (TrackerModuleFile    *file,
 		      TrackerIndexerModule *module)
 {
-	TrackerService *service;
 	const gchar *service_type;
 
 	service_type = tracker_module_file_get_service_type (file);
@@ -1527,11 +1525,9 @@ item_move (TrackerIndexer  *indexer,
 	TrackerService *service;
 	TrackerDataMetadata *old_metadata;
 	TrackerModuleMetadata *new_metadata;
-	gchar *service_type;
 	gchar *new_path, *new_name, *ext;
-	GFile *file, *other_file;
 	gchar *path, *other_path;
-	gchar *uri, *other_uri, *mime_type;
+	gchar *other_uri;
 	guint32 service_id;
 	gchar *mount_point = NULL;
 
@@ -1564,7 +1560,6 @@ item_move (TrackerIndexer  *indexer,
 	old_metadata = tracker_data_query_metadata (service, service_id, TRUE);
 
 	if (old_metadata) {
-		GFile *file;
 		const gchar *mime_type;
 		gchar *uri;
 
@@ -1574,7 +1569,7 @@ item_move (TrackerIndexer  *indexer,
 
 		mime_type = tracker_data_metadata_lookup (old_metadata, "File:Mime");
 		tracker_thumbnailer_move (uri, mime_type, other_uri);
-		
+
 		g_free (other_uri);
 		g_free (uri);
 	} else {

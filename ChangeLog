@@ -1,3 +1,15 @@
+2008-12-16  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/Makefile.am:
+	* src/tracker-indexer/modules/Makefile.am: Enable -Wall
+
+	* src/tracker-indexer/modules/evolution-common.c:
+	* src/tracker-indexer/modules/evolution-imap.[ch]:
+	* src/tracker-indexer/modules/evolution-pop.[ch]:
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/tracker-indexer/tracker-module-metadata.c: Fix compiler
+	warnings.
+
 2008-12-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-removable-device.c

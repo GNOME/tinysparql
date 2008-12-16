@@ -4,6 +4,7 @@ module_flags = -module -avoid-version -no-undefined
 indexer_modulesdir = $(libdir)/tracker/indexer-modules
 
 INCLUDES =								\
+	-Wall								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\

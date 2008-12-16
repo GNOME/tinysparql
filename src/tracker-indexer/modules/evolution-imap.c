@@ -876,7 +876,6 @@ get_message_metadata (TrackerModuleFile *file)
         TrackerEvolutionImapFile *self;
 	TrackerModuleMetadata *metadata = NULL;
 	gchar *subject, *from, *to, *cc;
-	gchar *date;
 	gint32 i, count, flags;
 	time_t t;
 	GList *list, *l;

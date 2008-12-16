@@ -55,7 +55,7 @@ tracker_module_metadata_init (TrackerModuleMetadata *metadata)
 						 NULL);
 }
 
-static gboolean
+static void
 free_metadata (TrackerField *field,
 	       gpointer      data)
 {

@@ -23,6 +23,8 @@
 
 #include <string.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <libtracker-data/tracker-data-metadata.h>
 
@@ -51,7 +53,6 @@ static TrackerModuleMetadata *
 
 static void          tracker_evolution_pop_file_iteratable_init  (TrackerModuleIteratableIface *iface);
 static gboolean      tracker_evolution_pop_file_iter_contents    (TrackerModuleIteratable *iteratable);
-static guint         tracker_evolution_pop_file_get_count        (TrackerModuleIteratable *iteratable);
 
 
 G_DEFINE_DYNAMIC_TYPE_EXTENDED (TrackerEvolutionPopFile, tracker_evolution_pop_file, TRACKER_TYPE_MODULE_FILE, 0,
@@ -192,7 +193,7 @@ get_message_uri (TrackerModuleFile *file,
                  GMimeMessage      *message)
 {
         TrackerEvolutionPopFile *self;
-	gchar *path, *uri, *name;
+	gchar *path, *uri;
         gint message_id;
 
         self = TRACKER_EVOLUTION_POP_FILE (file);
@@ -360,6 +361,8 @@ get_message_metadata (GMimeMessage *message)
 	}
 
 	g_list_free (list);
+
+	return metadata;
 }
 
 static TrackerModuleMetadata *
