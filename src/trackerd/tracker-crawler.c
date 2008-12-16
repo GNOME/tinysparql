@@ -900,20 +900,17 @@ tracker_crawler_start (TrackerCrawler *crawler)
 
 	/* Filter duplicates */
 	l = priv->paths;
-	priv->paths = tracker_path_list_filter_duplicates (priv->paths);
-
+	priv->paths = tracker_path_list_filter_duplicates (priv->paths, ".");
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
 	l = priv->recurse_paths;
-	priv->recurse_paths = tracker_path_list_filter_duplicates (priv->recurse_paths);
-
+	priv->recurse_paths = tracker_path_list_filter_duplicates (priv->recurse_paths, ".");
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 
 	l = priv->special_paths;
-	priv->special_paths = tracker_path_list_filter_duplicates (priv->special_paths);
-
+	priv->special_paths = tracker_path_list_filter_duplicates (priv->special_paths, ".");
 	g_slist_foreach (l, (GFunc) g_free, NULL);
 	g_slist_free (l);
 

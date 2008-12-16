@@ -544,7 +544,8 @@ tracker_path_hash_table_filter_duplicates (GHashTable *roots)
 }
 
 GSList *
-tracker_path_list_filter_duplicates (GSList *roots)
+tracker_path_list_filter_duplicates (GSList      *roots,
+				     const gchar *basename_exception_prefix)
 {
 	GSList *l1, *l2;
 	GSList *new_list;
@@ -568,8 +569,38 @@ tracker_path_list_filter_duplicates (GSList *roots)
 			
 			if (path == in_path) {
 				/* Do nothing */
+				l2 = l2->next;
+				continue;
 			} 
-			else if (tracker_path_is_in_path (path, in_path)) {
+
+			if (basename_exception_prefix) {
+				gchar *basename;
+				gboolean has_prefix = FALSE;
+
+				basename = g_path_get_basename (path);
+				if (!g_str_has_prefix (basename, basename_exception_prefix)) {
+					g_free (basename);
+					
+					basename = g_path_get_basename (in_path);
+					if (g_str_has_prefix (basename, basename_exception_prefix)) {
+						has_prefix = TRUE;
+					}	
+				} else {
+					has_prefix = TRUE;
+				}
+
+				g_free (basename);
+
+				/* This is so we can ignore this check
+				 * on files which prefix with ".".
+				 */
+				if (has_prefix) {
+					l2 = l2->next;
+					continue;
+				}
+			}
+
+			if (tracker_path_is_in_path (path, in_path)) {
 				g_debug ("Removing path:'%s', it is in path:'%s'",
 					 path, in_path);
 

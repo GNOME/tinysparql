@@ -1,3 +1,15 @@
+2008-12-16  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-config.c:
+	* src/libtracker-common/tracker-file-utils.[ch]:
+	* src/trackerd/tracker-crawler.c:
+	* tests/libtracker-common/tracker-file-utils-test.c: In function
+	tracker_path_list_filter_duplicates(), don't filter basenames
+	which have a particular prefix. This prefix is currently always
+	"." but can be specified.
+
+	Fixes NB #95545.
+
 2008-12-15  Philip Van Hoof   <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Filenames for album-art.

@@ -46,7 +46,8 @@ void	 tracker_path_remove			   (const gchar *uri);
 gboolean tracker_path_is_in_path		   (const gchar *path,
 						    const gchar *in_path);
 void	 tracker_path_hash_table_filter_duplicates (GHashTable	*roots);
-GSList * tracker_path_list_filter_duplicates	   (GSList	*roots);
+GSList * tracker_path_list_filter_duplicates	   (GSList	*roots,
+						    const gchar *basename_exception_prefix);
 gchar *  tracker_path_evaluate_name		   (const gchar *uri);
 gboolean tracker_env_check_xdg_dirs		   (void);
 
