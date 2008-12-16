@@ -15,6 +15,7 @@ INCLUDES = 								\
 	-DTRACKER_BINDIR=\""$(bindir)"\" 				\
 	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\" 			\
 	-DTRACKER_COMPILATION 						\
+	$(WARN_CFLAGS)							\
 	$(LIBGLADE_CFLAGS) 						\
 	$(GTK2_CFLAGS) 							\
 	$(DBUS_CFLAGS) 							\

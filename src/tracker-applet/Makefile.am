@@ -5,6 +5,7 @@ INCLUDES =								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
+	$(WARN_CFLAGS)							\
 	$(TRACKER_APPLET_CFLAGS)					\
 	$(LIBGLADE_CFLAGS)
 

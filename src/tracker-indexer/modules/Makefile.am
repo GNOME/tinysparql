@@ -4,7 +4,6 @@ module_flags = -module -avoid-version -no-undefined
 indexer_modulesdir = $(libdir)/tracker/indexer-modules
 
 INCLUDES =								\
-	-Wall								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
@@ -13,6 +12,7 @@ INCLUDES =								\
 	-D_GNU_SOURCE							\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
+	$(WARN_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GIO_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\

@@ -1,3 +1,9 @@
+2008-12-16  Carlos Garnacho  <carlos@imendio.com>
+
+	* acinclude.m4: Add macro to enable compile warnings.
+	* configure.ac: call it.
+	* src/*/Makefile.am: Add WARN_CFLAGS to INCLUDES.
+
 2008-12-16  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-monitor.c: Fixed a compiler warning and

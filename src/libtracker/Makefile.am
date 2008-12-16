@@ -4,6 +4,7 @@ INCLUDES = 					\
 	-DLOCALEDIR=\""$(localedir)"\" 		\
 	-DG_LOG_DOMAIN=\"Tracker\"		\
 	-I$(top_srcdir)/src			\
+	$(WARN_CFLAGS)				\
 	$(GLIB2_CFLAGS)				\
 	$(DBUS_CFLAGS)			
 

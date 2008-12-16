@@ -330,11 +330,8 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 
 	g_free (statement);
 }
-#endif
-
 
 /* TODO URI branch: path -> uri */
-#ifdef HAVE_RAPTOR
 static void
 foreach_in_metadata_set_metadata (TrackerField *field,
 				  gpointer      value,
@@ -354,7 +351,7 @@ foreach_in_metadata_set_metadata (TrackerField *field,
 	}
 
 }
-#endif
+#endif /* HAVE_RAPTOR */
 
 void
 tracker_removable_device_add_metadata (TrackerIndexer        *indexer, 

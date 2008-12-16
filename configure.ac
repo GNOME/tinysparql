@@ -40,6 +40,8 @@ AC_CONFIG_SRCDIR([src/trackerd/tracker-main.c])
 AM_INIT_AUTOMAKE(no-define)
 AM_CONFIG_HEADER(config.h)
 
+IDT_COMPILE_WARNINGS
+
 TRACKER_MAJOR_VERSION=tracker_major_version
 TRACKER_MINOR_VERSION=tracker_minor_version
 TRACKER_MICRO_VERSION=tracker_micro_version
