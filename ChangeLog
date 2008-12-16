@@ -1,3 +1,10 @@
+2008-12-16  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c: Added a
+	missing mimetype to helixbin.
+
+	Fixes NB #95928.
+
 2008-12-16  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-config.c:

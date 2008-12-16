@@ -77,6 +77,7 @@ static TrackerExtractorData data[] = {
 	{ "audio/x-pn-realaudio-plugin",  extract_gstreamer_helix_audio },
 	{ "video/vnd.rn-realvideo", extract_gstreamer_helix_video },
 	{ "video/x-pn-realvideo", extract_gstreamer_helix_video },
+	{ "application/vnd.rn-realmedia", extract_gstreamer_helix_video },
 	{ NULL, NULL }
 };
 
