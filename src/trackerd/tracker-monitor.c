@@ -62,7 +62,12 @@
  * the indexer for a few seconds before continuing. We have to receive
  * NO events for at least a few seconds before unpausing.
  */
-#define PAUSE_FOR_IO_SECONDS   5
+#define PAUSE_ON_IO_SECONDS   5
+
+/* If this is defined, we pause the indexer when we get events. If it
+ * is not, we don't do any pausing.
+ */
+#undef  PAUSE_ON_IO
 
 struct _TrackerMonitorPrivate {
 	TrackerConfig *config;
@@ -85,8 +90,10 @@ struct _TrackerMonitorPrivate {
 	 */
 	gboolean       use_changed_event;
 
+#ifdef PAUSE_ON_IO
 	/* Timeout id for pausing when we get IO */
 	guint	       unpause_timeout_id;
+#endif /* PAUSE_ON_IO */
 
 #ifdef USE_LIBINOTIFY
 	GHashTable    *event_pairs;
@@ -383,9 +390,11 @@ tracker_monitor_finalize (GObject *object)
 
 	priv = TRACKER_MONITOR_GET_PRIVATE (object);
 
+#ifdef PAUSE_ON_IO
 	if (priv->unpause_timeout_id) {
 		g_source_remove (priv->unpause_timeout_id);
 	}
+#endif /* PAUSE_ON_IO */
 
 	black_list_print_all (TRACKER_MONITOR (object));
 
@@ -802,10 +811,15 @@ black_list_file_increment (TrackerMonitor *monitor,
 	}
 
 	path = g_file_get_path (file);
-	g_debug ("Adding '%s' to black list count:%d (MAX is %d)",
-		 path,
-		 event->black_list_count,
-		 BLACK_LIST_MAX_HITS);
+
+	if (event->black_list_count <= BLACK_LIST_MAX_HITS) {
+		g_debug ("Adding '%s' to black list count:%d (MAX is %d) %s",
+			 path,
+			 event->black_list_count,
+			 BLACK_LIST_MAX_HITS,
+			 event->black_list_count == BLACK_LIST_MAX_HITS ? "- LAST NOTICE" : "");
+	}
+
 	g_free (path);
 }
 
@@ -842,6 +856,8 @@ black_list_print_all (TrackerMonitor *monitor)
 	}
 }
 
+#ifdef PAUSE_ON_IO 
+
 static void
 indexer_pause_cb (DBusGProxy *proxy,
 		  GError     *error,
@@ -876,7 +892,7 @@ unpause_cb (gpointer data)
 
 	g_message ("Resuming indexing now we have stopped "
 		   "receiving monitor events for %d seconds",
-		   PAUSE_FOR_IO_SECONDS);
+		   PAUSE_ON_IO_SECONDS);
 
 	if (!tracker_status_get_is_paused_manually ()) {
 		org_freedesktop_Tracker_Indexer_continue_async (tracker_dbus_indexer_get_proxy (),
@@ -886,6 +902,8 @@ unpause_cb (gpointer data)
 
 	return FALSE;
 }
+
+#endif /* PAUSE_ON_IO */
 
 #ifdef USE_LIBINOTIFY
 
@@ -1117,6 +1135,13 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		case IN_MODIFY:
 		case IN_CLOSE_WRITE:
 		case IN_ATTRIB:
+			/* Remove any black list events for this file,
+			 * since it can not be cached and black listed
+			 * if one or the other expires. 
+			 */
+			g_hash_table_remove (monitor->private->black_list, 
+					     event->file);
+
 			g_signal_emit (monitor,
 				       signals[ITEM_UPDATED], 0,
 				       module_name,
@@ -1137,11 +1162,19 @@ libinotify_cached_events_timeout_cb (gpointer data)
 							event->file);
 			}
 
+			/* Remove any black list events for this file,
+			 * since it can not be cached and black listed
+			 * if one or the other expires. 
+			 */
+			g_hash_table_remove (monitor->private->black_list, 
+					     event->file);
+
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
 				       event->file,
 				       is_directory);
+
 			break;
 
 		case IN_MOVED_TO:
@@ -1150,11 +1183,19 @@ libinotify_cached_events_timeout_cb (gpointer data)
 			 */
 
 		case IN_CREATE:
+			/* Remove any black list events for this file,
+			 * since it can not be cached and black listed
+			 * if one or the other expires. 
+			 */
+			g_hash_table_remove (monitor->private->black_list, 
+					     event->file);
+
 			g_signal_emit (monitor,
 				       signals[ITEM_CREATED], 0,
 				       module_name,
 				       event->file,
 				       is_directory);
+
 			break;
 		}
 
@@ -1272,6 +1313,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		GTimeVal   now;
 		gboolean   set_up_cache_timeout = FALSE;
 
+#ifdef PAUSE_ON_IO
 		if (monitor->private->unpause_timeout_id != 0) {
 			g_source_remove (monitor->private->unpause_timeout_id);
 		} else {
@@ -1286,9 +1328,10 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		}
 
 		monitor->private->unpause_timeout_id =
-			g_timeout_add_seconds (PAUSE_FOR_IO_SECONDS,
+			g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
 					       unpause_cb,
 					       monitor);
+#endif /* PAUSE_ON_IO */
 
 		if (cookie > 0) {
 			/* First check if we already have a file in
@@ -1591,6 +1634,7 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		   str2 ? str2 : "");
 
 	if (!black_list_file_should_be_ignored (monitor, file)) {
+#ifdef PAUSE_ON_IO
 		if (monitor->private->unpause_timeout_id != 0) {
 			g_source_remove (monitor->private->unpause_timeout_id);
 		} else {
@@ -1605,9 +1649,10 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		}
 
 		monitor->private->unpause_timeout_id =
-			g_timeout_add_seconds (PAUSE_FOR_IO_SECONDS,
+			g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
 					       unpause_cb,
 					       monitor);
+#endif /* PAUSE_ON_IO */
 
 		switch (event_type) {
 		case G_FILE_MONITOR_EVENT_CHANGED:
@@ -1884,7 +1929,7 @@ tracker_monitor_remove_recursively (TrackerMonitor *monitor,
 			path = g_file_get_path (iter_file);
 			
 			g_debug ("Removed monitor for module:'%s', path:'%s', total monitors:%d",
-				 iter_module_name,
+				 (gchar*) iter_module_name,
 				 path,
 				 g_hash_table_size (iter_hash_table));
 

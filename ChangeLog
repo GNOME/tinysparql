@@ -1,3 +1,16 @@
+2008-12-16  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-monitor.c: Fixed a compiler warning and
+	made pausing the indexer on IO a #define. Also we now by default
+	DON'T pause the indexer on IO events. If this is problematic for
+	performance reasons, we can switch this back. This dramatically
+	improves indexing speed for files we download or copy on the Nokia
+	device. 
+
+	This commit was partially patched by Attila.
+
+	Fixes NB #90111.
+
 2008-12-16  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/Makefile.am:
