@@ -172,7 +172,7 @@ consume_triple_storer (void* user_data, const raptor_statement* triple)
 			/* TODO: ontology */
 			/* Change this when Files and Emails becomes File and Email */
 
-			info->rdf_type = g_strdup_printf ("%ss", triple->object);
+			info->rdf_type = g_strdup_printf ("%ss", (gchar *) triple->object);
 		} else {
 			tracker_module_metadata_add_string (info->metadata,
 							    predicate,
@@ -254,9 +254,8 @@ tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point
 				 "metadata", "metadata.ttl", NULL);
 
 	if (g_file_test (file, G_FILE_TEST_EXISTS)) {
-		static gboolean   has_init = FALSE;
 		TurtleStorerInfo *info;
-		gchar            *copy_file, *ptr, *base_uri;
+		gchar            *base_uri;
 
 		info = g_slice_new0 (TurtleStorerInfo);
 
@@ -303,8 +302,6 @@ typedef struct {
 	gchar *about_uri;
 } AddMetadataInfo;
 
-#ifdef HAVE_RAPTOR
-
 static void
 set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 {
@@ -343,11 +340,6 @@ foreach_in_metadata_set_metadata (TrackerField *field,
 				  gpointer      value,
 				  gpointer      user_data)
 {
-	AddMetadataInfo *info = user_data;
-	gchar *parsed_value;
-	gint   throttle;
-
-
 	if (!tracker_field_get_multiple_values (field)) {
 		set_metadata (tracker_field_get_name (field), value, user_data);
 	} else {
@@ -440,10 +432,9 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar *rdf_type)
 {
 #ifdef HAVE_RAPTOR
-	gchar               *file, *about_uri, *dirname, *muri;
+	gchar               *file, *about_uri;
 	FILE                *target_file;
 	raptor_uri          *suri;
-	raptor_statement    *statement;
 	raptor_serializer   *serializer;
 	AddMetadataInfo     *info;
 
