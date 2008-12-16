@@ -24,6 +24,10 @@
 #include <string.h>
 #include <pango/pango.h>
 
+#ifdef HAVE_UNAC
+#include <unac.h>
+#endif
+
 #include "tracker-parser.h"
 #include "tracker-log.h"
 #include "tracker-utils.h"
