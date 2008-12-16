@@ -29,6 +29,7 @@
 
 #include "tracker-config.h"
 #include "tracker-dbus.h"
+#include "tracker-thumbnailer.h"
 
 #define THUMBNAILER_SERVICE	 "org.freedesktop.thumbnailer"
 #define THUMBNAILER_PATH	 "/org/freedesktop/thumbnailer/Generic"

@@ -51,8 +51,8 @@ tracker_data_query_metadata_field (TrackerDBInterface *iface,
 	const gchar  *proc = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (id, NULL);
-	g_return_val_if_fail (field, NULL);
+	g_return_val_if_fail (id != NULL, NULL);
+	g_return_val_if_fail (field != NULL, NULL);
 
 	def = tracker_ontology_get_field_by_name (field);
 
@@ -153,7 +153,6 @@ tracker_data_query_all_metadata (const gchar *service_type,
 
 }
 
-
 TrackerDBResultSet *
 tracker_data_query_metadata_fields (TrackerDBInterface *iface,
 				    const gchar	       *service_type,
@@ -223,7 +222,6 @@ tracker_data_query_metadata_fields (TrackerDBInterface *iface,
 	return result_set;
 }
 
-
 /*
  * Obtain the concrete service type name for the file id.
  */
@@ -253,10 +251,9 @@ tracker_data_query_service_type_by_id (TrackerDBInterface *iface,
 	return result;
 }
 
-
 guint32
-tracker_data_query_file_id (const gchar    *service_type,
-			    const gchar	   *path)
+tracker_data_query_file_id (const gchar *service_type,
+			    const gchar *path)
 {
 	TrackerDBResultSet *result_set;
 	TrackerDBInterface *iface;
@@ -395,7 +392,6 @@ result_set_to_metadata (TrackerDBResultSet  *result_set,
 			gboolean	     embedded)
 {
 	TrackerField *field;
-	gint	      numeric_value;
 	gint	      metadata_id;
 	gboolean      valid = TRUE;
 
@@ -500,7 +496,6 @@ tracker_data_query_backup_metadata (TrackerService *service)
 {
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
-	GHashTable          *results;
 
 	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
 

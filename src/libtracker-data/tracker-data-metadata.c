@@ -193,8 +193,8 @@ tracker_data_metadata_lookup (TrackerDataMetadata *metadata,
 {
 	TrackerField *field;
 
-	g_return_if_fail (metadata != NULL);
-	g_return_if_fail (field_name != NULL);
+	g_return_val_if_fail (metadata != NULL, NULL);
+	g_return_val_if_fail (field_name != NULL, NULL);
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
@@ -222,8 +222,8 @@ tracker_data_metadata_lookup_values (TrackerDataMetadata *metadata,
 {
 	TrackerField *field;
 
-	g_return_if_fail (metadata != NULL);
-	g_return_if_fail (field_name != NULL);
+	g_return_val_if_fail (metadata != NULL, NULL);
+	g_return_val_if_fail (field_name != NULL, NULL);
 
 	field = tracker_ontology_get_field_by_name (field_name);
 

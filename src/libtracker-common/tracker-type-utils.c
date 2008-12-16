@@ -21,6 +21,10 @@
 
 #include "config.h"
 
+#define _XOPEN_SOURCE
+#include <time.h>
+
+#include <strings.h>
 #include <string.h>
 #include <stdlib.h>
 

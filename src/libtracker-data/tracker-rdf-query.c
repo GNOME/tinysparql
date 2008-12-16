@@ -1260,7 +1260,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			for (l = list; l; l = l->next) {
 				g_string_append_printf (data.sql_from,
 							" AND S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetadataValue = '%s')",
-							l->data);
+							(gchar*) l->data);
 			}
 
 			g_list_foreach(list, (GFunc)g_free, NULL);

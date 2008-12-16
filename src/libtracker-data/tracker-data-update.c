@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <string.h>
 #include <stdlib.h>
 
 #include <libtracker-common/tracker-type-utils.h>
@@ -32,6 +33,7 @@
 
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
+#include "tracker-data-query.h"
 
 typedef struct {
 	TrackerService *service;
@@ -575,8 +577,6 @@ tracker_data_update_delete_handled_events (TrackerDBInterface *iface)
 	tracker_data_manager_exec (iface, "DELETE FROM Events WHERE BeingHandled = 1");
 }
 
-/* TODO: URI branch path -> uri */
-
 void
 tracker_data_update_delete_service_by_path (const gchar *path,
 					    const gchar *rdf_type)
@@ -592,11 +592,11 @@ tracker_data_update_delete_service_by_path (const gchar *path,
 
 	service = tracker_ontology_get_service_by_name (rdf_type);
 	service_type = tracker_service_get_name (service);
-	service_id =  tracker_data_query_file_id (service_type, path);
+	service_id = tracker_data_query_file_id (service_type, path);
 
 	/* When merging from the decomposed branch to trunk then this function
-	 * wont exist in the decomposed branch. Create it based on this one. */
-
+	 * wont exist in the decomposed branch. Create it based on this one. 
+	 */
 	if (service_id != 0) {
 		tracker_data_update_delete_service (service, service_id);
 		if (strcmp (service_type, "Folders") == 0) {
@@ -605,8 +605,6 @@ tracker_data_update_delete_service_by_path (const gchar *path,
 		tracker_data_update_delete_all_metadata (service, service_id);
 	}
 }
-
-/* TODO: URI branch path -> uri */
 
 static void
 set_metadata (TrackerField *field, 
@@ -622,8 +620,8 @@ set_metadata (TrackerField *field,
 
 	/* TODO untested and unfinished port that came from the decomposed 
 	 * branch of Jürg. When merging from the decomposed branch to trunk
-	 * then pick the version in the decomposed branch for this function */
-
+	 * then pick the version in the decomposed branch for this function 
+	 */
 	parsed_value = tracker_parser_text_to_string (value,
 						      info->language,
 						      tracker_config_get_max_word_length (info->config),
@@ -654,7 +652,6 @@ set_metadata (TrackerField *field,
 
 	g_free (parsed_value);
 	g_strfreev (arr);
-
 }
 
 static void
@@ -662,11 +659,11 @@ foreach_in_metadata_set_metadata (gpointer   predicate,
 				  gpointer   value,
 				  gpointer   user_data)
 {
-	ForeachInMetadataInfo *info = user_data;
-	gchar *parsed_value;
-	gint throttle;
 	TrackerField *field;
+	ForeachInMetadataInfo *info;
+	gint throttle;
 
+	info = user_data;
 	field = tracker_ontology_get_field_by_name (predicate);
 
 	if (!field)
@@ -682,12 +679,11 @@ foreach_in_metadata_set_metadata (gpointer   predicate,
 		set_metadata (field, value, user_data);
 	} else {
 		GList *list;
+
 		for (list = value; list; list = list->next)
 			set_metadata (field, list->data, user_data);
 	}
 }
-
-/* TODO: URI branch path -> uri */
 
 void 
 tracker_data_update_replace_service (const gchar *path,
@@ -711,7 +707,8 @@ tracker_data_update_replace_service (const gchar *path,
 	 * compare the features, as this version is more recent and has 
 	 * implemented a few significant items, whereas the version in the
 	 * decomposed branch was a proof of concept implementation, and might
-	 * not have these needed features. */
+	 * not have these needed features. 
+	 */
 
 	if (!rdf_type)
 		return;
@@ -776,7 +773,6 @@ tracker_data_update_replace_service (const gchar *path,
 		g_value_unset (&is_value);
 
 		g_object_unref (result_set);
-
 	} else {
 		guint32     id;
 
@@ -801,7 +797,6 @@ tracker_data_update_replace_service (const gchar *path,
 
 			g_slice_free (ForeachInMetadataInfo, info);
 		}
-
 	}
 
 	g_free (dirname);

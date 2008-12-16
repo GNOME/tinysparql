@@ -538,9 +538,7 @@ hal_mount_point_remove (TrackerHal  *hal,
 			const gchar *udi)
 {
 	TrackerHalPriv *priv;
-	LibHalVolume   *volume;
 	const gchar    *mount_point;
-	const gchar    *volume_uuid;
 
 	priv = GET_PRIV (hal);
 
@@ -1277,7 +1275,7 @@ tracker_hal_udi_get_is_mounted (TrackerHal  *hal,
 		g_message ("HAL device with udi:'%s' has no volume, "
 			   "should we delete?",
 			   udi);
-		return;
+		return FALSE;
 	}
 
 	mount_point = libhal_volume_get_mount_point (volume);

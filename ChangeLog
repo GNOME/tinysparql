@@ -1,3 +1,16 @@
+2008-12-16  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-config.c:
+	* src/libtracker-common/tracker-hal.c: 
+	* src/libtracker-common/tracker-thumbnailer.[ch]:
+	* src/libtracker-common/tracker-type-utils.c:
+	* src/libtracker-data/tracker-data-metadata.c:
+	* src/libtracker-data/tracker-data-query.c:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/trackerd/tracker-search.c: Fixed a bunch of warnings now we
+	have more compiler flags to catch these things. 
+
 2008-12-16  Carlos Garnacho  <carlos@imendio.com>
 
 	* acinclude.m4: Add macro to enable compile warnings.
