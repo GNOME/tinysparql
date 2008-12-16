@@ -52,6 +52,13 @@ void     tracker_data_update_move_service               (TrackerService      *se
 							 const gchar         *from,
 							 const gchar         *to);
 
+/* Turtle importing */
+void     tracker_data_update_replace_service            (const gchar         *path,
+							 const gchar         *rdf_type,
+							 GHashTable          *metadata);
+void     tracker_data_update_delete_service_by_path     (const gchar         *path,
+							 const gchar         *rdf_type);
+
 /* Metadata */
 void     tracker_data_update_set_metadata               (TrackerService      *service,
 							 guint32              service_id,

@@ -17,6 +17,7 @@ INCLUDES =								\
 	$(GIO_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
+	$(RAPTOR_CFLAGS)						\
 	$(GLIB2_CFLAGS)
 
 if HAVE_INOTIFY
@@ -29,6 +30,8 @@ endif
 libexec_PROGRAMS = trackerd
 
 trackerd_SOURCES =							\
+	tracker-backup.h						\
+	tracker-backup.c						\
 	tracker-crawler.c						\
 	tracker-crawler.h						\
 	tracker-daemon.c						\
@@ -85,6 +88,7 @@ trackerd_LDADD =							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(RAPTOR_LIBS)							\
 	$(trackerd_win_libs)						\
 	-lz								\
 	-lm

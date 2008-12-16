@@ -66,6 +66,10 @@ const gchar *tracker_hal_udi_get_mount_point         (TrackerHal  *hal,
 						      const gchar *udi);
 gboolean     tracker_hal_udi_get_is_mounted          (TrackerHal  *hal,
 						      const gchar *udi);
+gboolean     tracker_hal_path_is_on_removable_device (TrackerHal  *hal,
+						      const gchar *path,
+						      gchar      **mount_point,
+						      gboolean    *available);
 
 #endif /* HAVE_HAL */
 

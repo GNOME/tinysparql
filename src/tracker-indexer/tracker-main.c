@@ -43,6 +43,7 @@
 #include <libtracker-db/tracker-db-index-manager.h>
 
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
@@ -370,12 +371,17 @@ main (gint argc, gchar *argv[])
                 tracker_indexer_process_modules (indexer, modules);
         }
 
+	tracker_turtle_init ();
+
 	g_message ("Starting...");
+
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (main_loop);
 
 	g_message ("Shutdown started");
+
+	tracker_turtle_shutdown ();
 
 	if (quit_timeout_id) {
 		g_source_remove (quit_timeout_id);

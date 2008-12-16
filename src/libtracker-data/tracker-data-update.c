@@ -26,11 +26,20 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-file-utils.h>
 
+#include <libtracker-db/tracker-db-index-manager.h>
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-dbus.h>
 
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
+
+typedef struct {
+	TrackerService *service;
+	guint32 iid_value;
+	TrackerLanguage *language;
+	TrackerConfig *config;
+} ForeachInMetadataInfo;
+
 
 guint32
 tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
@@ -564,6 +573,239 @@ tracker_data_update_delete_handled_events (TrackerDBInterface *iface)
 	g_return_if_fail (TRACKER_IS_DB_INTERFACE (iface));
 
 	tracker_data_manager_exec (iface, "DELETE FROM Events WHERE BeingHandled = 1");
+}
+
+/* TODO: URI branch path -> uri */
+
+void
+tracker_data_update_delete_service_by_path (const gchar *path,
+					    const gchar *rdf_type)
+{
+	TrackerService *service;
+	const gchar    *service_type; 
+	guint32         service_id;
+
+	g_return_if_fail (path != NULL);
+
+	if (!rdf_type)
+		return;
+
+	service = tracker_ontology_get_service_by_name (rdf_type);
+	service_type = tracker_service_get_name (service);
+	service_id =  tracker_data_query_file_id (service_type, path);
+
+	/* When merging from the decomposed branch to trunk then this function
+	 * wont exist in the decomposed branch. Create it based on this one. */
+
+	if (service_id != 0) {
+		tracker_data_update_delete_service (service, service_id);
+		if (strcmp (service_type, "Folders") == 0) {
+			tracker_data_update_delete_service_recursively (service, (gchar *) path);
+		}
+		tracker_data_update_delete_all_metadata (service, service_id);
+	}
+}
+
+/* TODO: URI branch path -> uri */
+
+static void
+set_metadata (TrackerField *field, 
+	      gpointer value, 
+	      ForeachInMetadataInfo *info)
+{
+	TrackerDBIndex *index;
+	gchar *parsed_value;
+	gchar **arr;
+	gint service_id;
+	gint i;
+	gint score;
+
+	/* TODO untested and unfinished port that came from the decomposed 
+	 * branch of Jürg. When merging from the decomposed branch to trunk
+	 * then pick the version in the decomposed branch for this function */
+
+	parsed_value = tracker_parser_text_to_string (value,
+						      info->language,
+						      tracker_config_get_max_word_length (info->config),
+						      tracker_config_get_min_word_length (info->config),
+						      tracker_field_get_filtered (field),
+						      tracker_field_get_filtered (field),
+						      tracker_field_get_delimited (field));
+
+	if (!parsed_value) {
+		return;
+	}
+
+	score = tracker_field_get_weight (field);
+
+	arr = g_strsplit (parsed_value, " ", -1);
+	service_id = tracker_service_get_id (info->service);
+	index = tracker_db_index_manager_get_index_by_service_id (service_id);
+
+	for (i = 0; arr[i]; i++) {
+		tracker_db_index_add_word (index,
+					   arr[i],
+					   info->iid_value,
+					   tracker_service_get_id (info->service),
+					   score);
+	}
+
+	tracker_data_update_set_metadata (info->service, info->iid_value, field, value, parsed_value);
+
+	g_free (parsed_value);
+	g_strfreev (arr);
+
+}
+
+static void
+foreach_in_metadata_set_metadata (gpointer   predicate,
+				  gpointer   value,
+				  gpointer   user_data)
+{
+	ForeachInMetadataInfo *info = user_data;
+	gchar *parsed_value;
+	gint throttle;
+	TrackerField *field;
+
+	field = tracker_ontology_get_field_by_name (predicate);
+
+	if (!field)
+		return;
+
+	/* Throttle indexer, value 9 is from older code, why 9? */
+	throttle = tracker_config_get_throttle (info->config);
+	if (throttle > 9) {
+		tracker_throttle (info->config, throttle * 100);
+	}
+
+	if (!tracker_field_get_multiple_values (field)) {
+		set_metadata (field, value, user_data);
+	} else {
+		GList *list;
+		for (list = value; list; list = list->next)
+			set_metadata (field, list->data, user_data);
+	}
+}
+
+/* TODO: URI branch path -> uri */
+
+void 
+tracker_data_update_replace_service (const gchar *path,
+				     const gchar *rdf_type,
+				     GHashTable  *metadata)
+{
+	TrackerDBInterface  *iface;
+	TrackerDBResultSet  *result_set;
+	const gchar         *modified;
+	GError              *error = NULL;
+	TrackerService      *service;
+	gchar               *escaped_path;
+	gchar               *dirname;
+	const gchar         *basename;
+
+	g_return_if_fail (path != NULL);
+	g_return_if_fail (metadata != NULL);
+
+	/* When merging from the decomposed branch to trunk then pick the version
+	 * in the decomposed branch for this function. However, carefully 
+	 * compare the features, as this version is more recent and has 
+	 * implemented a few significant items, whereas the version in the
+	 * decomposed branch was a proof of concept implementation, and might
+	 * not have these needed features. */
+
+	if (!rdf_type)
+		return;
+
+	service = tracker_ontology_get_service_by_name (rdf_type);
+
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+							     TRACKER_DB_CONTENT_TYPE_METADATA);
+
+	modified = g_hash_table_lookup (metadata, "File:Modified");
+
+	if (!modified) {
+		return;
+	}
+
+	escaped_path = tracker_escape_string (path);
+
+	basename = g_basename (escaped_path);
+	dirname = g_dirname (escaped_path);
+
+	/* TODO Warning: comparing Modified against Accessed. Do we have a
+	 * better field for this? */
+
+	result_set = tracker_db_interface_execute_query (iface, &error,
+							 "SELECT ID, Accessed < '%s' FROM Services "
+							 "WHERE Path = '%s' AND "
+							 "Name = '%s'",
+							 modified,
+							 dirname, basename);
+
+	if (error) {
+		g_error_free (error);
+	}
+
+	if (result_set) {
+		GValue id_value = { 0, };
+		GValue is_value = { 0, };
+		gint   iid_value, iis_value;
+
+		_tracker_db_result_set_get_value (result_set, 0, &id_value);
+		iid_value = g_value_get_int (&id_value);
+
+		_tracker_db_result_set_get_value (result_set, 1, &is_value);
+		iis_value = g_value_get_int (&is_value);
+
+		if (iis_value) {
+			ForeachInMetadataInfo *info = g_slice_new (ForeachInMetadataInfo);
+			info->service = service;
+			info->iid_value = iid_value;
+
+			info->config = tracker_data_manager_get_config ();
+			info->language = tracker_data_manager_get_language ();
+
+			g_hash_table_foreach (metadata, 
+					      foreach_in_metadata_set_metadata,
+					      info);
+
+			g_slice_free (ForeachInMetadataInfo, info);
+		}
+
+		g_value_unset (&id_value);
+		g_value_unset (&is_value);
+
+		g_object_unref (result_set);
+
+	} else {
+		guint32     id;
+
+		id = tracker_data_update_get_new_service_id (iface);
+
+		if (tracker_data_update_create_service (service, id,
+							dirname, basename,
+							metadata)) {
+			ForeachInMetadataInfo *info;
+
+			info = g_slice_new (ForeachInMetadataInfo);
+
+			info->service = service;
+			info->iid_value = id;
+
+			info->config = tracker_data_manager_get_config ();
+			info->language = tracker_data_manager_get_language ();
+
+			g_hash_table_foreach (metadata, 
+					      foreach_in_metadata_set_metadata,
+					      info);
+
+			g_slice_free (ForeachInMetadataInfo, info);
+		}
+
+	}
+
+	g_free (dirname);
+	g_free (escaped_path);
 }
 
 void

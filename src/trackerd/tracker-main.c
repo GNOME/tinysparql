@@ -61,6 +61,7 @@
 #include "tracker-status.h"
 #include "tracker-xesam-manager.h"
 #include "tracker-cleanup.h"
+#include "tracker-backup.h"
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -96,7 +97,8 @@ typedef struct {
 	gchar		 *data_dir;
 	gchar		 *user_data_dir;
 	gchar		 *sys_tmp_dir;
-
+	gchar            *ttl_backup_file;
+	
 	gboolean	  reindex_on_shutdown;
 
 	TrackerProcessor *processor;
@@ -182,6 +184,7 @@ private_free (gpointer data)
 	g_free (private->user_data_dir);
 	g_free (private->data_dir);
 
+	g_free (private->ttl_backup_file);
 	g_free (private->log_filename);
 
 	g_main_loop_unref (private->main_loop);
@@ -501,6 +504,11 @@ initialize_locations (void)
 				  NULL);
 	g_free (filename);
 
+	private->ttl_backup_file = 
+		g_build_filename (private->user_data_dir, 
+				  "tracker-userdata-backup.ttl",
+				  NULL);
+
 	/* Private locations */
 	private->log_filename =
 		g_build_filename (g_get_user_data_dir (),
@@ -601,6 +609,14 @@ shutdown_indexer (void)
 static void
 shutdown_databases (void)
 {
+	TrackerMainPrivate *private;
+
+	private = g_static_private_get (&private_key);
+
+	/* If we are reindexing, save the user metadata  */
+	if (private->reindex_on_shutdown) {
+		tracker_backup_save (private->ttl_backup_file);
+	}
 	/* Reset integrity status as threads have closed cleanly */
 	tracker_data_manager_set_db_option_int ("IntegrityCheck", 0);
 }
@@ -622,6 +638,102 @@ shutdown_directories (void)
 	if (private->reindex_on_shutdown) {
 		tracker_db_manager_remove_all ();
 	}
+}
+
+static const gchar *
+get_ttl_backup_filename (void) 
+{
+
+	TrackerMainPrivate *private;
+
+	private = g_static_private_get (&private_key);
+
+	return private->ttl_backup_file;
+}
+
+static void
+backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
+{
+	TrackerDBIndex		   *file_index;
+	TrackerDBIndex		   *email_index;
+	gboolean                    is_first_time_index;
+
+	g_message ("Saving metadata in %s", get_ttl_backup_filename ());
+	
+	/*
+	 *  Init the DB stack to get the user metadata
+	 */
+	tracker_db_manager_init (0, &is_first_time_index, TRUE);
+
+	/*
+	 * If some database is missing or the dbs dont exists, we dont need
+	 * to backup anything.
+	 */
+	if (is_first_time_index) {
+		tracker_db_manager_shutdown ();
+		return;
+	}
+	
+	tracker_db_index_manager_init (0,
+				       tracker_config_get_min_bucket_count (config),
+				       tracker_config_get_max_bucket_count (config));
+	
+	file_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
+	email_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	
+	tracker_data_manager_init (config, language, file_index, email_index);
+	
+	/* Actual save of the metadata */
+	tracker_backup_save (get_ttl_backup_filename ());
+	
+	/* Shutdown the DB stack */
+	tracker_data_manager_shutdown ();
+	tracker_db_index_manager_shutdown ();
+	tracker_db_manager_shutdown ();
+}
+
+/*
+ * TODO: Ugly hack counting signals because the indexer is sending two "Finished" signals
+ *  and only the second really mean "finished processing modules".
+ *
+ * Saving the last backup file to help with debugging.
+ */
+static void
+crawling_finished_cb (TrackerProcessor *processor, gpointer user_data)
+{
+	gulong *callback_id = user_data;
+	GError *error;
+	static gint counter = 0;
+	
+	counter += 1;
+
+	if (counter >= 2) {
+		gchar *rebackup;
+
+		g_debug ("Uninstalling initial crawling callback");
+		g_signal_handler_disconnect (processor, *callback_id);
+
+		org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (), 
+								get_ttl_backup_filename (),
+								&error);
+		rebackup = g_strdup_printf ("%s.old",
+					    get_ttl_backup_filename ());
+		g_rename (get_ttl_backup_filename (), rebackup);
+		g_free (rebackup);
+	} else {
+		g_debug ("%d finished signal", counter);
+	}
+}
+
+static void
+backup_restore_on_crawling_finished (TrackerProcessor *processor)
+{
+	gulong                      restore_cb_id;
+
+	g_debug ("Setting callback for crawling finish detection");
+	restore_cb_id = g_signal_connect (processor, "finished", 
+					  G_CALLBACK (crawling_finished_cb), 
+					  &restore_cb_id);
 }
 
 #ifdef HAVE_HAL
@@ -786,7 +898,7 @@ main (gint argc, gchar *argv[])
 
 	/* Set timezone info */
 	tzset ();
-
+	
 	/* Translators: this messagge will apper immediately after the
 	 * usage string - Usage: COMMAND <THIS_MESSAGE>
 	 */
@@ -913,12 +1025,16 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	tracker_turtle_init ();
+
 	tracker_module_config_init ();
 
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 	index_flags |= TRACKER_DB_INDEX_MANAGER_READONLY;
 
 	if (force_reindex) {
+		backup_user_metadata (config, language);
+
 		flags |= TRACKER_DB_MANAGER_FORCE_REINDEX;
 		index_flags |= TRACKER_DB_INDEX_MANAGER_FORCE_REINDEX;
 	}
@@ -1035,6 +1151,11 @@ main (gint argc, gchar *argv[])
 		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 	}
 
+	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX ||
+	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
+		backup_restore_on_crawling_finished (private->processor);
+	}
+
 	if (tracker_status_get_is_running ()) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
@@ -1082,6 +1203,7 @@ main (gint argc, gchar *argv[])
 	tracker_module_config_shutdown ();
 	tracker_nfs_lock_shutdown ();
 	tracker_status_shutdown ();
+	tracker_turtle_shutdown ();
 	tracker_log_shutdown ();
 
 #ifdef HAVE_HAL
@@ -1141,3 +1263,4 @@ tracker_set_reindex_on_shutdown (gboolean value)
 
 	private->reindex_on_shutdown = value;
 }
+

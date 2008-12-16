@@ -188,13 +188,15 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 		list = g_list_prepend (list, value);
 		data = list;
 	} else {
-		/* FIXME: warn if data already exists */
+		data = g_hash_table_lookup (metadata->table, field);
+		g_free (data);
 		data = value;
 	}
 
-	g_hash_table_insert (metadata->table,
-			     g_object_ref (field),
-			     data);
+	g_hash_table_replace (metadata->table,
+			      g_object_ref (field),
+			      data);
+
 	return TRUE;
 }
 

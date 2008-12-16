@@ -42,7 +42,7 @@ void                  tracker_data_metadata_insert         (TrackerDataMetadata 
 							    const gchar                *value);
 void                  tracker_data_metadata_insert_values  (TrackerDataMetadata        *metadata,
 							    const gchar                *field_name,
-							    GList                      *list);
+							    const GList                *list);
 G_CONST_RETURN gchar *tracker_data_metadata_lookup         (TrackerDataMetadata        *metadata,
 							    const gchar                *field_name);
 G_CONST_RETURN GList *tracker_data_metadata_lookup_values  (TrackerDataMetadata        *metadata,

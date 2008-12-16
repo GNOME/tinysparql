@@ -2726,12 +2726,20 @@ tracker_db_manager_shutdown (void)
 	g_free (services_dir);
 	g_free (sql_dir);
 
-	if (file_iface)
+	if (file_iface) {
 		g_object_unref (file_iface);
-	if (email_iface)
+		file_iface = NULL;
+	}
+
+	if (email_iface) {
 		g_object_unref (email_iface);
-	if (xesam_iface)
+		email_iface = NULL;
+	}
+
+	if (xesam_iface) {
 		g_object_unref (xesam_iface);
+		xesam_iface = NULL;
+	}
 
 
 	/* Since we don't reference this enum anywhere, we do

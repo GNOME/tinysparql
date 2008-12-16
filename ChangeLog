@@ -1,3 +1,45 @@
+2008-12-16  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/tracker-removable-device.c
+	* src/tracker-indexer/tracker-removable-device.h
+	* src/tracker-indexer/tracker-main.c
+	* src/tracker-indexer/tracker-indexer.c
+	* src/tracker-indexer/Makefile.am
+	* src/tracker-indexer/tracker-indexer.h
+	* src/tracker-indexer/tracker-module-metadata.c
+	* src/libtracker-data/tracker-data-query.c
+	* src/libtracker-data/tracker-turtle.c
+	* src/libtracker-data/tracker-data-query.h
+	* src/libtracker-data/tracker-turtle.h
+	* src/libtracker-data/tracker-data-metadata.c
+	* src/libtracker-data/tracker-data-update.c
+	* src/libtracker-data/tracker-data-metadata.h
+	* src/libtracker-data/tracker-data-update.h
+	* src/libtracker-data/Makefile.am
+	* src/trackerd/tracker-main.c
+	* src/trackerd/tracker-backup.c
+	* src/trackerd/tracker-backup.h
+	* src/trackerd/Makefile.am
+	* src/libtracker-db/tracker-db-manager.c
+	* src/libtracker-common/tracker-hal.c
+	* src/libtracker-common/tracker-hal.h
+	* tests/tracker-indexer/Makefile.am
+	* configure.ac
+	* data/db/sqlite-stored-procs.sql
+	* data/dbus/tracker-indexer.xml: Committed the Turtle branch merge to
+	trunk
+
+2008-12-16  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/tracker-removable-device.c
+	* src/tracker-indexer/tracker-indexer.c
+	* src/libtracker-data/tracker-turtle.h
+	* src/libtracker-data/tracker-data-metadata.c
+	* src/libtracker-data/tracker-data-update.c
+	* src/libtracker-data/tracker-data-update.h
+	* src/trackerd/tracker-main.c
+	* src/libtracker-common/tracker-hal.c: Fixed comments from martyn
+
 2008-12-16  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer-helix.c: Added a
@@ -27,6 +69,37 @@
 	* src/tracker-extract/tracker-albumart.c: Requesting a thumbnail
 	for embedded album-art
 	* src/libtracker-common/tracker-thumbnailer.c: coping with paths
+
+2008-12-11  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/tracker-removable-device.c
+	* src/tracker-indexer/tracker-removable-device.h
+	* src/tracker-indexer/tracker-main.c
+	* src/tracker-indexer/tracker-indexer.c
+	* src/tracker-indexer/Makefile.am
+	* src/tracker-indexer/tracker-indexer.h
+	* src/tracker-indexer/tracker-module-metadata.c
+	* src/libtracker-data/tracker-data-query.c
+	* src/libtracker-data/tracker-turtle.c
+	* src/libtracker-data/tracker-data-query.h
+	* src/libtracker-data/tracker-turtle.h
+	* src/libtracker-data/tracker-data-metadata.c
+	* src/libtracker-data/tracker-data-update.c
+	* src/libtracker-data/tracker-data-metadata.h
+	* src/libtracker-data/tracker-data-update.h
+	* src/libtracker-data/Makefile.am
+	* src/trackerd/tracker-main.c
+	* src/trackerd/tracker-backup.c
+	* src/trackerd/tracker-backup.h
+	* src/trackerd/Makefile.am
+	* src/libtracker-db/tracker-db-manager.c
+	* src/libtracker-common/tracker-hal.c
+	* src/libtracker-common/tracker-hal.h
+	* tests/tracker-indexer/Makefile.am
+	* configure.ac
+	* data/db/sqlite-stored-procs.sql
+	* data/dbus/tracker-indexer.xml: Recreated the Turtle branch, and 
+	applied merge-to-trunk patch on it
 
 2008-12-10  Mikael Ottela   <mikael.ottela@ixonos.com>
 

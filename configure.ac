@@ -170,6 +170,15 @@ AC_SUBST(GCONF_LIBS)
 
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
+# Check for Raptor
+PKG_CHECK_MODULES(RAPTOR, [raptor], have_raptor=yes, have_raptor=no)
+AC_SUBST(RAPTOR_CFLAGS)
+AC_SUBST(RAPTOR_LIBS)
+
+if test x$have_raptor == "xyes"; then
+  AC_DEFINE(HAVE_RAPTOR, 1, [Raptor RDF parsers])
+fi
+
 # Check we have the DBUS binding tool we need
 AC_PATH_PROG(DBUSBINDINGTOOL, dbus-binding-tool)
 if test -z $DBUSBINDINGTOOL; then
@@ -1113,6 +1122,8 @@ AC_CONFIG_LINKS(tests/tracker-indexer/tracker-dbus.c:src/tracker-indexer/tracker
                 tests/tracker-indexer/tracker-module-file.h:src/tracker-indexer/tracker-module-file.h
                 tests/tracker-indexer/tracker-module-iteratable.c:src/tracker-indexer/tracker-module-iteratable.c
                 tests/tracker-indexer/tracker-module-iteratable.h:src/tracker-indexer/tracker-module-iteratable.h
+		tests/tracker-indexer/tracker-removable-device.c:src/tracker-indexer/tracker-removable-device.c
+		tests/tracker-indexer/tracker-removable-device.h:src/tracker-indexer/tracker-removable-device.h
 )
 
 ##################################################################

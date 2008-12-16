@@ -1057,7 +1057,7 @@ hal_get_mount_point_by_udi_foreach (gpointer key,
 	gboolean       is_mounted;
 
 	gr = (GetRoots*) user_data;
-	udi = (const gchar*) key;
+	udi = key;
 
 	volume = libhal_volume_from_udi (gr->context, udi);
 	if (!volume) {
@@ -1134,6 +1134,79 @@ tracker_hal_get_removable_device_roots (TrackerHal *hal)
 
 	return gr.roots;
 }
+
+/**
+ * tracker_hal_path_is_on_removable_device:
+ * @hal: A #TrackerHal
+ * @path: a path
+ * @mount_mount: if @path is on a removable device, the mount point will
+ * be filled in here. You must free the returned result
+ * @available: if @path is on a removable device, this will be set to 
+ * TRUE in case the file is available right now
+ *
+ * Returns Whether or not @path is on a known removable device
+ *
+ * Returns: TRUE if @path on a known removable device, FALSE otherwise
+ **/
+gboolean
+tracker_hal_path_is_on_removable_device (TrackerHal  *hal,
+					 const gchar *path,
+					 gchar      **mount_point,
+					 gboolean    *available)
+{
+	TrackerHalPriv *priv;
+	GHashTableIter  iter;
+	gboolean        found = FALSE;
+	gpointer        key, value;
+
+	g_return_val_if_fail (TRACKER_IS_HAL (hal), FALSE);
+
+	if (!path)
+		return FALSE;
+
+	priv = GET_PRIV (hal);
+
+	g_hash_table_iter_init (&iter, priv->removable_devices);
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		LibHalVolume  *volume;
+		const gchar   *udi;
+		const gchar   *mp;
+
+		udi = key;
+
+		volume = libhal_volume_from_udi (priv->context, udi);
+
+		if (!volume) {
+			g_message ("HAL device with udi:'%s' has no volume, "
+				   "should we delete?",
+				   udi);
+			continue;
+		}
+
+		mp = libhal_volume_get_mount_point (volume);
+
+		if (g_strcmp0 (mp, path) != 0) {
+			if (g_strrstr (path, mp)) {
+				found = TRUE;
+
+				if (mount_point)
+					*mount_point = g_strdup (mp);
+
+				if (available)
+					*available = libhal_volume_is_mounted (volume);
+
+				libhal_volume_free (volume);
+				break;
+			}
+		}
+
+		libhal_volume_free (volume);
+	}
+
+	return found;
+}
+
 
 /**
  * tracker_hal_get_removable_device_udis:

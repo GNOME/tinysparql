@@ -71,11 +71,13 @@
 
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
 #include "tracker-marshal.h"
 #include "tracker-module-metadata-private.h"
+#include "tracker-removable-device.h"
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
@@ -84,9 +86,6 @@
 
 #define LOW_DISK_CHECK_FREQUENCY    10
 #define SIGNAL_STATUS_FREQUENCY     10
-
-/* Transaction every 'x' items */
-#define TRANSACTION_MAX		    2000
 
 /* Throttle defaults */
 #define THROTTLE_DEFAULT	    0
@@ -383,6 +382,22 @@ schedule_flush (TrackerIndexer *indexer,
 	indexer->private->flush_id = g_timeout_add_seconds (FLUSH_FREQUENCY,
 							    (GSourceFunc) flush_data,
 							    indexer);
+}
+
+
+void 
+tracker_indexer_transaction_commit (TrackerIndexer *indexer)
+{
+	stop_transaction (indexer);
+	tracker_indexer_set_running (indexer, TRUE);
+
+}
+
+void
+tracker_indexer_transaction_open (TrackerIndexer *indexer)
+{
+	tracker_indexer_set_running (indexer, FALSE);
+	start_transaction (indexer);
 }
 
 #ifdef HAVE_HAL
@@ -1365,6 +1380,7 @@ remove_existing_non_emb_metadata (TrackerField *field,
 	}
 }
 
+
 static void
 item_add_or_update (TrackerIndexer        *indexer,
 		    PathInfo              *info,
@@ -1375,6 +1391,8 @@ item_add_or_update (TrackerIndexer        *indexer,
 	TrackerService *service;
 	gchar *text;
 	guint32 id;
+	gchar *mount_point = NULL;
+	gchar *service_path;
 
 	service = get_service_for_file (info->module_file, info->module);
 
@@ -1419,11 +1437,11 @@ item_add_or_update (TrackerIndexer        *indexer,
 		new_text = tracker_module_file_get_text (info->module_file);
 
 		item_update_content (indexer, service, id, old_text, new_text);
-
 		g_free (old_text);
 		g_free (new_text);
 		tracker_data_metadata_free (old_metadata_emb);
 		tracker_data_metadata_free (old_metadata_non_emb);
+
 	} else {
 		GHashTable *data;
 
@@ -1463,7 +1481,31 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		g_hash_table_destroy (data);
 	}
+
+	/* TODO: URI branch path -> uri */
+
+	service_path = g_build_path (G_DIR_SEPARATOR_S, 
+				     dirname, 
+				     basename, 
+				     NULL);
+
+	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
+						     service_path, 
+						     &mount_point,
+						     NULL)) {
+
+		tracker_removable_device_add_metadata (indexer, 
+						       mount_point, 
+						       service_path, 
+						       tracker_service_get_name (service),
+						       metadata);
+	}
+
+	g_free (mount_point);
+	g_free (service_path);
+
 }
+
 
 static gboolean 
 filter_invalid_after_move_properties (TrackerField *field,
@@ -1491,6 +1533,7 @@ item_move (TrackerIndexer  *indexer,
 	gchar *path, *other_path;
 	gchar *uri, *other_uri, *mime_type;
 	guint32 service_id;
+	gchar *mount_point = NULL;
 
 	service = get_service_for_file (info->other_module_file, info->module);
 
@@ -1541,6 +1584,32 @@ item_move (TrackerIndexer  *indexer,
 
 	tracker_data_update_move_service (service, path, other_path);
 
+	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
+						     path, 
+						     &mount_point,
+						     NULL) ) {
+
+		if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
+						     other_path, 
+						     NULL,
+						     NULL) ) {
+
+			tracker_removable_device_add_move (indexer, 
+							   mount_point, 
+							   path, 
+							   other_path,
+							   tracker_service_get_name (service));
+
+		} else {
+			tracker_removable_device_add_removal (indexer, 
+							      mount_point, 
+							      path,
+							      tracker_service_get_name (service));
+		}
+	}
+
+	g_free (mount_point);
+
 	/*
 	 *  Updating what changes in move event (Path related properties)
 	 */
@@ -1576,6 +1645,7 @@ item_move (TrackerIndexer  *indexer,
 	g_free (other_path);
 }
 
+
 static void
 item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
@@ -1587,6 +1657,7 @@ item_remove (TrackerIndexer *indexer,
 	gchar *content;
 	gchar *metadata;
 	gchar *path;
+	gchar *mount_point = NULL;
 	const gchar *service_type;
 	guint service_id, service_type_id;
 
@@ -1693,8 +1764,19 @@ item_remove (TrackerIndexer *indexer,
 		tracker_data_update_delete_service_recursively (service, path);
 	}
 
+	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
+						     path, 
+						     &mount_point,
+						     NULL)) {
+
+		tracker_removable_device_add_removal (indexer, mount_point, 
+						      path,
+						      tracker_service_get_name (service));
+	}
+
 	tracker_data_update_decrement_stats (indexer->private->common, service);
 
+	g_free (mount_point);
 	g_free (path);
 }
 
@@ -2392,7 +2474,7 @@ process_func (gpointer data)
 			/* Signal stopped and clean up */
 			check_stopped (indexer, FALSE);
 			check_disk_space_stop (indexer);
-
+			
 			return FALSE;
 		}
 
@@ -2400,7 +2482,7 @@ process_func (gpointer data)
 		g_free (module_name);
 	}
 
-	if (indexer->private->items_processed > TRANSACTION_MAX) {
+	if (indexer->private->items_processed > TRACKER_INDEXER_TRANSACTION_MAX) {
 		schedule_flush (indexer, TRUE);
 	}
 
@@ -2848,6 +2930,13 @@ tracker_indexer_volume_update_state (TrackerIndexer         *indexer,
 
 	dbus_g_method_return (context);
 	tracker_dbus_request_success (request_id);
+
+	/* tracker_turtle_process_ttl will be spinning the mainloop, therefore
+	   we can already return the DBus method */
+
+	if (enabled) {
+		tracker_removable_device_load (indexer, path);
+	}
 }
 
 void
@@ -2940,6 +3029,63 @@ tracker_indexer_property_remove (TrackerIndexer		*indexer,
 	dbus_g_method_return (context);
 	tracker_dbus_request_success (request_id);
 }
+
+static void
+restore_backup_triple (void *user_data, const TrackerRaptorStatement *triple) {
+
+	const gchar    *values[2];
+	TrackerIndexer *indexer = user_data;
+	GError         *error = NULL;
+
+	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
+
+	g_debug ("Turtle loading <%s, %s, %s>",
+		 (gchar *)triple->subject, 
+		 (gchar *)triple->predicate, 
+		 (gchar *)triple->object);
+
+	values[0] = triple->object;
+	values[1] = NULL;
+
+	handle_metadata_add (indexer, 
+			     "Files", 
+			     triple->subject, 
+			     triple->predicate, 
+			     (GStrv) values, 
+			     &error);
+
+	if (error) {
+		g_warning ("Restoring backup: %s", error->message);
+		g_error_free (error);
+	}
+
+}
+
+void
+tracker_indexer_restore_backup (TrackerIndexer         *indexer,
+				const gchar            *backup_file,
+				DBusGMethodInvocation  *context,
+				GError                **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (TRACKER_IS_INDEXER (indexer), context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to restore backup data from '%s'",
+				  backup_file);
+	
+	tracker_turtle_process (backup_file, 
+				"/", 
+				(TurtleTripleCallback) restore_backup_triple, 
+				indexer);
+
+	dbus_g_method_return (context);
+	tracker_dbus_request_success (request_id);
+}
+
 
 void
 tracker_indexer_shutdown (TrackerIndexer	 *indexer,

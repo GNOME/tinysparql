@@ -386,6 +386,9 @@ tracker_data_query_service_type_id (const gchar *dirname,
 	return service_type_id;
 }
 
+/*
+ * Result set with (metadataID, value) per row
+ */
 static void
 result_set_to_metadata (TrackerDBResultSet  *result_set,
 			TrackerDataMetadata *metadata,
@@ -400,7 +403,7 @@ result_set_to_metadata (TrackerDBResultSet  *result_set,
 		GValue transform = {0, };
 		GValue value = {0, };
 		gchar *str;
-		
+
 		g_value_init (&transform, G_TYPE_STRING);
 		tracker_db_result_set_get (result_set, 0, &metadata_id, -1);
 		_tracker_db_result_set_get_value (result_set, 1, &value);
@@ -490,6 +493,23 @@ tracker_data_query_metadata (TrackerService *service,
 	g_free (service_id_str);
 
 	return metadata;
+}
+
+TrackerDBResultSet *
+tracker_data_query_backup_metadata (TrackerService *service)
+{
+	TrackerDBInterface *iface;
+	TrackerDBResultSet *result_set;
+	GHashTable          *results;
+
+	g_return_val_if_fail (TRACKER_IS_SERVICE (service), NULL);
+
+	iface = tracker_db_manager_get_db_interface_by_service (tracker_service_get_name (service));
+
+	result_set = tracker_data_manager_exec_proc (iface,
+						     "GetUserMetadataBackup", 
+						     NULL);
+	return result_set;
 }
 
 static gchar *

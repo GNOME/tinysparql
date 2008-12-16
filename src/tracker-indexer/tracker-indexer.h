@@ -30,6 +30,9 @@
 #define TRACKER_INDEXER_PATH	     "/org/freedesktop/Tracker/Indexer"
 #define TRACKER_INDEXER_INTERFACE    "org.freedesktop.Tracker.Indexer"
 
+/* Transaction every 'x' items */
+#define TRACKER_INDEXER_TRANSACTION_MAX	2000
+
 G_BEGIN_DECLS
 
 #define TRACKER_TYPE_INDEXER	     (tracker_indexer_get_type())
@@ -80,6 +83,8 @@ void            tracker_indexer_stop                (TrackerIndexer         *ind
 void            tracker_indexer_process_all         (TrackerIndexer         *indexer);
 void            tracker_indexer_process_modules     (TrackerIndexer         *indexer,
 						     gchar                 **modules);
+void		tracker_indexer_transaction_commit  (TrackerIndexer         *indexer);
+void		tracker_indexer_transaction_open    (TrackerIndexer         *indexer);
 
 /* DBus methods */
 void            tracker_indexer_pause               (TrackerIndexer         *indexer,
@@ -134,6 +139,10 @@ void            tracker_indexer_property_remove     (TrackerIndexer         *ind
 						     const gchar            *uri,
 						     const gchar            *property,
 						     GStrv                   values,
+						     DBusGMethodInvocation  *context,
+						     GError                **error);
+void            tracker_indexer_restore_backup      (TrackerIndexer         *indexer,
+						     const gchar            *backup_file,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
 void            tracker_indexer_shutdown            (TrackerIndexer         *indexer,

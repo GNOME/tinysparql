@@ -13,6 +13,7 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	$(DBUS_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
+	$(RAPTOR_CFLAGS)						\
 	$(GMODULE_CFLAGS)
 
 libtracker_moduledir = $(libdir)/tracker
@@ -42,8 +43,9 @@ tracker_indexer_SOURCES =						\
 	tracker-indexer-module.c					\
 	tracker-indexer-module.h					\
 	tracker-main.c							\
+	tracker-module-metadata-private.h				\
 	tracker-marshal-main.c						\
-	tracker-module-metadata-private.h
+	tracker-removable-device.c					
 
 tracker_indexer_LDADD =							\
 	libtracker-module.la						\
@@ -58,6 +60,7 @@ tracker_indexer_LDADD =							\
 	$(PANGO_LIBS)							\
 	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)							\
+	$(RAPTOR_LIBS)							\
 	-lz								\
 	-lm
 

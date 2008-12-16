@@ -18,6 +18,7 @@ INCLUDES = 								\
 	$(PANGO_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
+	$(RAPTOR_CFLAGS)						\
 	$(GLIB2_CFLAGS)
 
 tracker_metadata_utils_SOURCES = 					\
@@ -37,7 +38,9 @@ tracker_metadata_utils_SOURCES = 					\
 	tracker-module-file.c						\
 	tracker-module-file.h						\
 	tracker-module-iteratable.c					\
-	tracker-module-iteratable.h					
+	tracker-module-iteratable.h					\
+	tracker-removable-device.c					\
+	tracker-removable-device.h
 
 tracker_metadata_utils_LDADD =	                                        \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
@@ -49,6 +52,7 @@ tracker_metadata_utils_LDADD =	                                        \
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GIO_LIBS)							\
+	$(RAPTOR_LIBS)							\
 	$(GLIB2_LIBS)							
 
 #

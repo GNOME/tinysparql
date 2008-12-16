@@ -106,6 +106,7 @@ tracker_data_metadata_insert (TrackerDataMetadata *metadata,
 			      const gchar         *value)
 {
 	TrackerField *field;
+	gchar *old_value;
 
 	g_return_if_fail (metadata != NULL);
 	g_return_if_fail (field_name != NULL);
@@ -114,12 +115,16 @@ tracker_data_metadata_insert (TrackerDataMetadata *metadata,
 	field = tracker_ontology_get_field_by_name (field_name);
 
 	g_return_if_fail (TRACKER_IS_FIELD (field));
-        g_return_if_fail (tracker_field_get_multiple_values (field) == FALSE);
+	g_return_if_fail (tracker_field_get_multiple_values (field) == FALSE);
 
-	g_hash_table_insert (metadata->table,
-			     g_object_ref (field),
-			     g_strdup (value));
+	old_value = g_hash_table_lookup (metadata->table, field);
+	g_free (old_value);
+
+	g_hash_table_replace (metadata->table,
+			      g_object_ref (field),
+			      g_strdup (value));
 }
+
 
 /**
  * tracker_data_metadata_insert_values:
@@ -137,9 +142,10 @@ tracker_data_metadata_insert (TrackerDataMetadata *metadata,
 void
 tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 				     const gchar         *field_name,
-				     GList	         *list)
+				     const GList	 *list)
 {
 	TrackerField *field;
+	GList        *old_values;
 
 	g_return_if_fail (metadata != NULL);
 	g_return_if_fail (field_name != NULL);
@@ -150,12 +156,24 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
+	if (!field) {
+		g_warning ("Field name '%s' has isn't described in the ontology", field_name);
+		return;
+	}
+
 	g_return_if_fail (TRACKER_IS_FIELD (field));
 	g_return_if_fail (tracker_field_get_multiple_values (field) == TRUE);
 
-	g_hash_table_insert (metadata->table,
-			     g_object_ref (field),
-			     tracker_glist_copy_with_string_data (list));
+	old_values = g_hash_table_lookup (metadata->table, field);
+
+	if (old_values) {
+		g_list_foreach (old_values, (GFunc) g_free, NULL);
+		g_list_free (old_values);
+	}
+
+	g_hash_table_replace (metadata->table,
+			      g_object_ref (field),
+			      tracker_glist_copy_with_string_data ((GList *)list));
 }
 
 /**
