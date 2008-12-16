@@ -312,10 +312,10 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 
 	statement = g_new0 (raptor_statement, 1);
 
-	statement->subject = (void *) raptor_new_uri (about_uri);
+	statement->subject = (void *) raptor_new_uri ((const unsigned char *) about_uri);
 	statement->subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
-	statement->predicate = (void *) raptor_new_uri (key);
+	statement->predicate = (void *) raptor_new_uri ((const unsigned char *) key);
 	statement->predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
 	statement->object = (unsigned char *) g_strdup (value);
@@ -401,7 +401,7 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       RAPTOR_FEATURE_ALLOW_NON_NS_ATTRIBUTES, 1);
 
 	muri = g_strdup_printf ("file://%s/base", mount_point);
-	suri = raptor_new_uri (muri);
+	suri = raptor_new_uri ((const unsigned char *) muri);
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (info->serializer, 
@@ -432,9 +432,9 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar *rdf_type)
 {
 #ifdef HAVE_RAPTOR
-	gchar               *file, *about_uri;
+	gchar               *file, *about_uri, *muri;
 	FILE                *target_file;
-	raptor_uri          *suri;
+	raptor_uri          *suri = NULL;
 	raptor_serializer   *serializer;
 	AddMetadataInfo     *info;
 
@@ -463,6 +463,10 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	raptor_serializer_set_feature (serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
 
+	muri = g_strdup_printf ("file://%s/base", mount_point);
+	suri = raptor_new_uri ((const unsigned char *) muri);
+	g_free (muri);
+
 	raptor_serialize_start_to_file_handle (serializer, 
 					       suri, target_file);
 
@@ -474,6 +478,7 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	set_metadata ("rdf:type", rdf_type, info);
 	set_metadata (NULL, NULL, info);
 
+	raptor_free_uri (suri);
 	g_slice_free (AddMetadataInfo, info);
 	g_free (about_uri);
 	raptor_serialize_end (serializer);
@@ -496,7 +501,6 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	gchar               *file, *about_uri, *to_uri, *muri;
 	FILE                *target_file;
 	raptor_uri          *suri;
-	raptor_statement    *statement;
 	raptor_serializer   *serializer;
 	AddMetadataInfo     *info;
 
@@ -528,7 +532,7 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	to_uri = g_strdup (to_path+strlen (mount_point)+1);
 
 	muri = g_strdup_printf ("file://%s/", mount_point);
-	suri = raptor_new_uri (muri);
+	suri = raptor_new_uri ((const unsigned char *) muri);
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (serializer, 
