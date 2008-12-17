@@ -696,17 +696,21 @@ tracker_metadata_add_metadata_field (TrackerDBInterface *iface,
 				tracker_field_data_set_is_condition (field_data, TRUE);
 			}
 
+			if (is_select) {
+				tracker_field_data_set_is_select (field_data, TRUE);
+			}
+
 			break;
 		}
 	}
 
 	if (!field_exists) {
 		field_data = tracker_data_schema_get_metadata_field (iface,
-							    service,
-							    field_name,
-							    g_slist_length (*fields),
-							    is_select,
-							    is_condition);
+								     service,
+								     field_name,
+								     g_slist_length (*fields),
+								     is_select,
+								     is_condition);
 		if (field_data) {
 			*fields = g_slist_prepend (*fields, field_data);
 		}
@@ -763,7 +767,7 @@ tracker_data_search_get_unique_values (const gchar  *service_type,
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], FALSE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, FALSE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -887,7 +891,7 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], FALSE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, FALSE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -919,22 +923,26 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 	if (count_field && !(tracker_is_empty_string (count_field))) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, FALSE, TRUE);
+		if (strcmp (count_field, "*")) {
+			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, TRUE, FALSE);
 
-		if (!fd) {
-			g_string_free (sql_select, TRUE);
-			g_string_free (sql_from, TRUE);
-			g_string_free (sql_where, TRUE);
-			g_string_free (sql_order, TRUE);
-			g_string_free (sql_group, TRUE);
-
-			g_set_error (error, TRACKER_DBUS_ERROR, 0,
-				     "Invalid or non-existant metadata type '%s' specified",
-				     count_field);
-			return NULL;
+			if (!fd) {
+				g_string_free (sql_select, TRUE);
+				g_string_free (sql_from, TRUE);
+				g_string_free (sql_where, TRUE);
+				g_string_free (sql_order, TRUE);
+				g_string_free (sql_group, TRUE);
+				
+				g_set_error (error, TRACKER_DBUS_ERROR, 0,
+					     "Invalid or non-existant metadata type '%s' specified",
+					     count_field);
+				return NULL;
+			}
+			
+			g_string_append_printf (sql_select, ", COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
+		} else {
+			g_string_append_printf (sql_select, ", COUNT (DISTINCT S.ID)");			
 		}
-
-		g_string_append_printf (sql_select, ", COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
 	}
 
 	tracker_rdf_filter_to_sql (iface, query_condition, service_type,
@@ -1043,7 +1051,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], FALSE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, FALSE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -1075,29 +1083,33 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 	if (count_field && !(tracker_is_empty_string (count_field))) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, FALSE, TRUE);
-
-		if (!fd) {
-			g_string_free (sql_select, TRUE);
-			g_string_free (sql_from, TRUE);
-			g_string_free (sql_where, TRUE);
-			g_string_free (sql_order, TRUE);
-			g_string_free (sql_group, TRUE);
-
-			g_set_error (error, TRACKER_DBUS_ERROR, 0,
-				     "Invalid or non-existant metadata type '%s' specified",
-				     count_field);
-			return NULL;
+		if (strcmp (count_field, "*")) {
+			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, TRUE, FALSE);
+			
+			if (!fd) {
+				g_string_free (sql_select, TRUE);
+				g_string_free (sql_from, TRUE);
+				g_string_free (sql_where, TRUE);
+				g_string_free (sql_order, TRUE);
+				g_string_free (sql_group, TRUE);
+				
+				g_set_error (error, TRACKER_DBUS_ERROR, 0,
+					     "Invalid or non-existant metadata type '%s' specified",
+					     count_field);
+				return NULL;
+			}
+			
+			g_string_append_printf (sql_select, ", COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
+		} else {
+				g_string_append_printf (sql_select, ", COUNT (DISTINCT S.ID)");		
 		}
-
-		g_string_append_printf (sql_select, ", COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
 	}
 
 	if (sum_field && !(tracker_is_empty_string (sum_field))) {
 		TrackerFieldData *fd;
 		TrackerFieldType  data_type;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, sum_field, FALSE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, sum_field, TRUE, FALSE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -1222,7 +1234,7 @@ tracker_data_search_get_sum (const gchar	 *service_type,
 	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 
-	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, FALSE, TRUE);
+	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, FALSE);
 
 	if (!fd) {
 		g_string_free (sql_select, TRUE);
@@ -1331,20 +1343,24 @@ tracker_data_search_get_count (const gchar	   *service_type,
 	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 
-	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, FALSE, TRUE);
+	if (strcmp (field, "*")) {
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, FALSE);
+		
+		if (!fd) {
+			g_string_free (sql_select, TRUE);
+			g_string_free (sql_from, TRUE);
+			g_string_free (sql_where, TRUE);
+			
+			g_set_error (error, TRACKER_DBUS_ERROR, 0,
+				     "Invalid or non-existant metadata type '%s' specified",
+				     field);
+			return 0;
+		}
 
-	if (!fd) {
-		g_string_free (sql_select, TRUE);
-		g_string_free (sql_from, TRUE);
-		g_string_free (sql_where, TRUE);
-
-		g_set_error (error, TRACKER_DBUS_ERROR, 0,
-			     "Invalid or non-existant metadata type '%s' specified",
-			     field);
-		return 0;
+		g_string_append_printf (sql_select, "COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
+	} else {
+		g_string_append_printf (sql_select, "COUNT (DISTINCT S.ID)");
 	}
-
-	g_string_append_printf (sql_select, "COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
 
 	tracker_rdf_filter_to_sql (iface, query_condition, service_type,
 				   &fields, &rdf_from, &rdf_where, &actual_error);

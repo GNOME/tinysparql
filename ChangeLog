@@ -1,5 +1,11 @@
 2008-12-17  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/libtracker-data/tracker-data-search.c: Fixed joining of count
+	and sum fields. Added the support for * for count fields which
+	maps to ID internally for unique rows.
+
+2008-12-17  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract.c: Deactivated the extractor
 	debug output.
 
