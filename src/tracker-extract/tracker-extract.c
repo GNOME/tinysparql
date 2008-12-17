@@ -45,6 +45,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-extract.h"
 
@@ -363,6 +364,7 @@ main (int argc, char *argv[])
 	GMainLoop      *main_loop;
 	GIOChannel     *input;
 	gchar          *summary;
+	TrackerConfig  *config;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -423,7 +425,13 @@ main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	config = tracker_config_new ();
+	tracker_thumbnailer_init (config);
+
 	main_loop = g_main_loop_new (NULL, FALSE);
+
+	tracker_thumbnailer_shutdown ();
+	g_object_unref (config);
 
 	input = g_io_channel_unix_new (STDIN_FILENO);
 	g_io_add_watch (input, G_IO_IN, process_input_cb, main_loop);

@@ -1,3 +1,8 @@
+2008-12-17  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/trackerd/tracker-main.c
+	* src/tracker-extract/tracker-extract.c: Initialization of the thumbnailer
+
 2008-12-17  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-common/tracker-log.c:

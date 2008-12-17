@@ -47,6 +47,7 @@
 #include <libtracker-common/tracker-module-config.h>
 #include <libtracker-common/tracker-nfs-lock.h>
 #include <libtracker-common/tracker-ontology.h>
+#include <libtracker-common/tracker-thumbnailer.h>
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-db/tracker-db-index.h>
@@ -1026,6 +1027,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	tracker_turtle_init ();
+	tracker_thumbnailer_init (config);
 
 	tracker_module_config_init ();
 
@@ -1204,6 +1206,7 @@ main (gint argc, gchar *argv[])
 	tracker_nfs_lock_shutdown ();
 	tracker_status_shutdown ();
 	tracker_turtle_shutdown ();
+	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
 
 #ifdef HAVE_HAL
