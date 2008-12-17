@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <tracker-indexer/tracker-module.h>
 
 #include "evolution-pop.h"
 #include "evolution-imap.h"

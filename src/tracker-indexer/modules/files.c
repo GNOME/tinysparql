@@ -31,9 +31,7 @@
 
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-ontology.h>
-
-#include <tracker-indexer/tracker-module-metadata-utils.h>
-#include <tracker-indexer/tracker-module-file.h>
+#include <tracker-indexer/tracker-module.h>
 
 /* This is ONLY needed for the indexer to run standalone with
  * the -p option, otherwise it will pick up all sorts of crap
@@ -56,6 +54,8 @@ struct TrackerRegularFileClass {
         TrackerModuleFileClass parent_class;
 };
 
+
+static GType                   tracker_regular_file_get_type         (void) G_GNUC_CONST;
 
 static const gchar *           tracker_regular_file_get_service_type (TrackerModuleFile *file);
 static gchar *                 tracker_regular_file_get_text         (TrackerModuleFile *file);

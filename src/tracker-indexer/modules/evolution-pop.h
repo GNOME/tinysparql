@@ -58,6 +58,8 @@ struct TrackerEvolutionPopFileClass {
         TrackerModuleFileClass parent_class;
 };
 
+GType               tracker_evolution_pop_file_get_type (void) G_GNUC_CONST;
+
 void                tracker_evolution_pop_file_register (GTypeModule *module);
 
 TrackerModuleFile * tracker_evolution_pop_file_new      (GFile *file);

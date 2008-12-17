@@ -23,6 +23,7 @@
 #define __TRACKER_MODULE_H__
 
 #include <glib.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -32,6 +33,11 @@ G_BEGIN_DECLS
 #include "tracker-module-iteratable.h"
 #include "tracker-module-metadata.h"
 #include "tracker-module-metadata-utils.h"
+
+void                indexer_module_initialize  (GTypeModule *module);
+void                indexer_module_shutdown    (void);
+TrackerModuleFile * indexer_module_create_file (GFile *file);
+
 
 #undef __TRACKER_MODULE_INSIDE__
 

@@ -1555,7 +1555,7 @@ tracker_rdf_query_for_attr_value (const gchar *field,
                                   const gchar *value)
 {
  	TrackerField *field_def;
- 	gchar        *rdf_type;
+ 	gchar        *rdf_type = NULL;
  	gchar        *rdf_query;
  	
  	field_def = tracker_ontology_get_field_by_name (field);

@@ -21,10 +21,7 @@
 
 #include "config.h"
 
-#include <libtracker-data/tracker-data-metadata.h>
-
-#include <tracker-indexer/tracker-module-file.h>
-#include <tracker-indexer/tracker-module-iteratable.h>
+#include <tracker-indexer/tracker-module.h>
 
 #define GAIM_TYPE_FILE    (gaim_file_get_type ())
 #define GAIM_FILE(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), GAIM_TYPE_FILE, GaimFile))
@@ -52,6 +49,8 @@ struct GaimFileClass {
         TrackerModuleFileClass parent_class;
 };
 
+
+static GType         gaim_file_get_type         (void) G_GNUC_CONST;
 
 static void          gaim_file_iteratable_init  (TrackerModuleIteratableIface *iface);
 

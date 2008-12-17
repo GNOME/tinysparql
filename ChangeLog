@@ -1,3 +1,16 @@
+2008-12-17  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-log.c:
+	* src/libtracker-data/tracker-rdf-query.c:
+	* src/tracker-indexer/modules/applications.c:
+	* src/tracker-indexer/modules/evolution-imap.h:
+	* src/tracker-indexer/modules/evolution-pop.h:
+	* src/tracker-indexer/modules/evolution.c:
+	* src/tracker-indexer/modules/files.c:
+	* src/tracker-indexer/modules/gaim-conversations.c:
+	* src/tracker-indexer/tracker-module.h: Fixed more warnings that were
+	spotted with the new compiler flags.
+
 2008-12-16  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-config.c:

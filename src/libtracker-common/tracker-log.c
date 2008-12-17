@@ -63,7 +63,11 @@ log_output (const gchar    *domain,
 	/* Check log size, 10MiB limit */
 	if (size > (10 << 20) && fd) {
 		rewind (fd);
-		ftruncate (fileno (fd), 0);
+
+		if (ftruncate (fileno (fd), 0) != 0) {
+			/* FIXME: What should we do if this fails? */
+		}
+
 		size = 0;
 	}
 

@@ -25,9 +25,7 @@
 
 #include <glib.h>
 
-#include <tracker-indexer/tracker-module-file.h>
-
-#include <libtracker-data/tracker-data-metadata.h>
+#include <tracker-indexer/tracker-module.h>
 
 #define GROUP_DESKTOP_ENTRY "Desktop Entry"
 #define KEY_TYPE	    "Type"
@@ -64,7 +62,7 @@ struct TrackerApplicationFileClass {
         TrackerModuleFileClass parent_class;
 };
 
-
+static GType                   tracker_application_file_get_type      (void) G_GNUC_CONST;
 static TrackerModuleMetadata * tracker_application_file_get_metadata  (TrackerModuleFile *file);
 
 
