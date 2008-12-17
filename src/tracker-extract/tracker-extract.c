@@ -53,7 +53,7 @@
 #define MAX_MEM_AMD64 512
 
 
-#undef DISABLE_DEBUG
+#define DISABLE_DEBUG
 
 #ifdef G_HAVE_ISO_VARARGS
 #  ifdef DISABLE_DEBUG
