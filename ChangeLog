@@ -1,3 +1,10 @@
+2008-12-17  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-extract.c (print_meta_table_data):
+	Escapemetadata values so we allow multiline data and other stuff.
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	(metadata_utils_get_embedded): And compress it back here.
+
 2008-12-17  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-search.c: Fixed joining of count

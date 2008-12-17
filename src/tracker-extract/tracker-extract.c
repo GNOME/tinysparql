@@ -256,7 +256,7 @@ print_meta_table_data (gpointer key,
 		       gpointer value,
 		       gpointer user_data)
 {
-	gchar *value_utf8;
+	gchar *value_utf8, *value_escaped;
 
 	g_return_if_fail (key != NULL);
 	g_return_if_fail (value != NULL);
@@ -264,18 +264,21 @@ print_meta_table_data (gpointer key,
 	value_utf8 = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
 
 	if (value_utf8) {
+		value_escaped = g_strescape (value_utf8, NULL);
+
 		/* Replace any embedded semicolons or "=" as we use them for delimiters */
-		value_utf8 = g_strdelimit (value_utf8, ";", ',');
-		value_utf8 = g_strdelimit (value_utf8, "=", '-');
-		value_utf8 = g_strstrip (value_utf8);
-		
+		value_escaped = g_strdelimit (value_escaped, ";", ',');
+		value_escaped = g_strdelimit (value_escaped, "=", '-');
+		value_escaped = g_strstrip (value_escaped);
+
 		debug ("Extractor - Found '%s' = '%s'",
 		       (gchar*) key,
 		       value_utf8);
-		
-		g_print ("%s=%s;\n", (gchar*) key, value_utf8);
-		
+
+		g_print ("%s=%s;\n", (gchar*) key, value_escaped);
+
 		g_free (value_utf8);
+		g_free (value_escaped);
 	}
 }
 
@@ -376,22 +379,16 @@ main (int argc, char *argv[])
 
 	/* Translators: this message will appear after the usage string */
 	/* and before the list of options.				*/
-	summary = g_strconcat (_("Given the following format (without quotes):"),
+	summary = g_strconcat (_("This command works two ways:"),
 			       "\n",
 			       "\n",
-			       "  '[filename]\\n[mime-type]'\n",
+			       _(" - Passing arguments:"),
 			       "\n",
-			       _("This is interpreted from STDIN and then processed."),
+			       "     tracker-extract [filename] [mime-type]\n",
 			       "\n",
+			       _(" - Reading filename/mime-type pairs from STDIN"),
 			       "\n",
-			       _("If this command is run without any arguments, "
-				 "it will wait for work to do."),
-			       "\n",
-			       "\n",
-			       _("Here are some examples of how to use this command:"),
-			       "\n",
-			       "\n",
-			       "  echo -e \"/home/foo/bar/baz.mp3\\naudio/x-mpeg\" | tracker-extract",
+			       "     echo -e \"/home/foo/bar/baz.mp3\\naudio/x-mpeg\" | tracker-extract",
 			       NULL);
 
 	g_option_context_set_summary (context, summary);

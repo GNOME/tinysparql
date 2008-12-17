@@ -352,8 +352,8 @@ metadata_utils_get_embedded (const char            *path,
 	/* parse returned values and extract keys and associated metadata */
 	for (i = 0; values[i]; i++) {
 		gchar *meta_data, *sep;
-		const gchar *name, *value;
-		gchar *utf_value;
+		const gchar *name;
+		gchar *value, *utf_value;
 
 		meta_data = values[i];
 		sep = strchr (meta_data, '=');
@@ -366,18 +366,21 @@ metadata_utils_get_embedded (const char            *path,
 		 */
 		sep[0] = '\0';
 		name = meta_data;
-		value = sep + 1;
+		value = g_strcompress (sep + 1);
 
-		if (!name || !value)
+		if (!name || !value) {
+			g_free (value);
 			continue;
-		
+		}
+
 		field = tracker_ontology_get_field_by_name (name);
 
 		if (!field) {
 			g_warning ("Field name '%s' isn't described in the ontology", name);
+			g_free (value);
 			continue;
 		}
-		
+
 		if (tracker_field_get_multiple_values (field)) {
 			GStrv arr;
 			guint i;
@@ -391,11 +394,10 @@ metadata_utils_get_embedded (const char            *path,
 					utf_value = g_strdup (arr[i]);
 				}
 
-				if (!utf_value)
-					continue;
-
-				tracker_module_metadata_add_string (metadata, name, utf_value);
-				g_free (utf_value);
+				if (utf_value) {
+					tracker_module_metadata_add_string (metadata, name, utf_value);
+					g_free (utf_value);
+				}
 			}
 
 			g_strfreev (arr);
@@ -406,13 +408,13 @@ metadata_utils_get_embedded (const char            *path,
 				utf_value = g_strdup (value);
 			}
 
-			if (!utf_value) {
-				continue;
+			if (utf_value) {
+				tracker_module_metadata_add_string (metadata, name, utf_value);
+				g_free (utf_value);
 			}
-
-			tracker_module_metadata_add_string (metadata, name, utf_value);
-			g_free (utf_value);
 		}
+
+		g_free (value);
 	}
 
 	g_strfreev (values);
