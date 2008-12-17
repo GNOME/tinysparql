@@ -7,6 +7,7 @@
 
 	* src/trackerd/tracker-main.c
 	* src/tracker-extract/tracker-extract.c: Initialization of the thumbnailer
+	* src/tracker-extract/tracker-albumart.c: Bugfix
 
 2008-12-17  Carlos Garnacho  <carlos@imendio.com>
 

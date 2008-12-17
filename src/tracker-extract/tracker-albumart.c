@@ -400,7 +400,7 @@ heuristic_albumart (const gchar *artist_,
 
 		for (name = g_dir_read_name (dir); name; name = g_dir_read_name (dir)) {
 			if ((artist && strcasestr (name, artist)) || 
-			    (album && strcasestr (name, album)) || 
+			    (album && strcasestr (name, album))   || 
 			    (strcasestr (name, "cover"))) {
 				GError *error = NULL;
 				
@@ -467,8 +467,9 @@ heuristic_albumart (const gchar *artist_,
 					retval = FALSE;
 #endif /* HAVE_GDKPIXBUF */
 				}
-				
-				break;
+
+				if (retval)
+					break;
 			}
 		}
 		
