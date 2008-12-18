@@ -1947,9 +1947,9 @@ db_interface_get_common (void)
 
 		while (conf_file) {
 
-			if (!strcmp (conf_file, "default.service")
-			    || !strcmp (conf_file, "default.metadata")
-			    || g_str_has_prefix (conf_file, "xesam")) {
+			if (!strcmp (conf_file, "default.service") ||
+			    !strcmp (conf_file, "default.metadata") || 
+			    g_str_has_prefix (conf_file, "xesam")) {
 				conf_file = g_dir_read_name (services);
 				continue;
 			}
@@ -2670,7 +2670,6 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			g_object_unref (dbs[i].iface);
 			dbs[i].iface = NULL;
 		}
-
 	} else {
 		/* Make sure we remove and recreate the cache directory in tmp
 		 * each time we start up, this is meant to be a per-run
@@ -2766,6 +2765,51 @@ tracker_db_manager_remove_all (void)
 	g_return_if_fail (initialized != FALSE);
 
 	db_manager_remove_all ();
+}
+
+void
+tracker_db_manager_optimize (void)
+{
+	TrackerDBInterface *iface;
+	TrackerDB           db;
+	gboolean            dbs_are_open = FALSE;
+	gint                i;
+
+	g_return_if_fail (initialized != FALSE);
+
+	g_message ("Optimizing databases...");
+
+	g_message ("  Checking DBs are not open");
+
+	/* Check if any connections are open? */
+	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
+		if (G_OBJECT (dbs[i].iface)->ref_count > 1) {
+			g_message ("  DB:'%s' is still open with %d references!",
+				   dbs[i].name,
+				   G_OBJECT (dbs[i].iface)->ref_count);
+				   
+			dbs_are_open = TRUE;
+		}
+	}
+
+	if (dbs_are_open) {
+		g_message ("  Not optimizing DBs, some are still open with > 1 reference");
+		return;
+	}
+
+	/* Optimize the file content database first */
+	db = TRACKER_DB_FILE_METADATA;
+
+	g_message ("  Analysing DB:'%s'", dbs[db].name);
+	iface = tracker_db_manager_get_db_interface (db);
+	db_exec_no_reply (iface, "ANALYSE %s.Services", dbs[db].name);
+
+	/* Optimize the email contents database second */
+	db = TRACKER_DB_EMAIL_METADATA;
+
+	g_message ("  Analysing DB:'%s'", dbs[db].name);
+	iface = tracker_db_manager_get_db_interface (db);
+	db_exec_no_reply (iface, "ANALYSE %s.Services", dbs[db].name);
 }
 
 const gchar *

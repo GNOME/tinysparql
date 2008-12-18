@@ -1119,6 +1119,7 @@ indexer_finished_cb (DBusGProxy  *proxy,
 
 	/* Do we even need this step Optimizing ? */
 	tracker_status_set_and_signal (TRACKER_STATUS_OPTIMIZING);
+	tracker_db_manager_optimize ();
 
 	/* Now the indexer is done, we can signal our status as IDLE */
 	tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
@@ -1426,6 +1427,7 @@ mount_point_added_cb (TrackerHal  *hal,
 
 	processor->private->iterated_removable_media = FALSE;
 
+	/* FIXME: Do we need optimizing in here? */
 	if (status == TRACKER_STATUS_INDEXING ||
 	    status == TRACKER_STATUS_OPTIMIZING ||
 	    status == TRACKER_STATUS_IDLE) {
@@ -1620,8 +1622,8 @@ tracker_processor_stop (TrackerProcessor *processor)
 	 * indexer and we set the state to INDEXING
 	 */
 	if (processor->private->interrupted) {
-		/* Do we even need this step optimizing ? */
 		tracker_status_set_and_signal (TRACKER_STATUS_OPTIMIZING);
+		tracker_db_manager_optimize ();
 
 		/* All done */
 		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);

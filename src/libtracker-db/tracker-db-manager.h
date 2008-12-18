@@ -67,7 +67,7 @@ void	     tracker_db_manager_init			    (TrackerDBManagerFlags  flags,
 void	     tracker_db_manager_shutdown		    (void);
 
 void	     tracker_db_manager_remove_all		    (void);
-void	     tracker_db_manager_close_all		    (void);
+void         tracker_db_manager_optimize		    (void);
 
 const gchar *tracker_db_manager_get_file		    (TrackerDB		    db);
 TrackerDBInterface *

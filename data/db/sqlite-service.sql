@@ -40,8 +40,13 @@ CREATE TABLE  Services
 
 );
 
-CREATE INDEX  ServiceIndex1 ON Services (ServiceTypeID);
-
+/* Add indexes for Service table */
+CREATE INDEX ServiceTypeIndex1 ON Services (ServiceTypeID);
+CREATE INDEX ServiceAuxiliaryIDIndex1 ON Services (AuxilaryID);
+CREATE INDEX ServiceEnabledIndex1 ON Services (Enabled);
+CREATE INDEX ServiceKeyMetadata1Index1 ON Services (KeyMetadata1);
+CREATE INDEX ServiceKeyMetadata2Index1 ON Services (KeyMetadata2);
+CREATE INDEX ServiceKeyMetadata3Index1 ON Services (KeyMetadata3); 
 
 /* child service relationships for a specific group/struct metadata */
 CREATE TABLE ChildServices
