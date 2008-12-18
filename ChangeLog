@@ -95,7 +95,7 @@
 
 	This commit was partially patched by Attila.
 
-	Fixes NB #90111.
+	Fixes NB #90111 and NB #90700.
 
 2008-12-16  Carlos Garnacho  <carlos@imendio.com>
 
