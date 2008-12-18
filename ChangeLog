@@ -1,5 +1,11 @@
 2008-12-18  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-db/tracker-db-manager.c:
+	(tracker_db_manager_optimize): Don't use British English spelling
+	for ANALYZE.
+
+2008-12-18  Martyn Russell  <martyn@imendio.com>
+
 	* data/db/sqlite-service.sql: Added indexes for the Services table
 	on Enabled, AuxilaryID and KeyMetadata{1|2|3} to improve
 	performance for queries.

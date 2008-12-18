@@ -2800,16 +2800,16 @@ tracker_db_manager_optimize (void)
 	/* Optimize the file content database first */
 	db = TRACKER_DB_FILE_METADATA;
 
-	g_message ("  Analysing DB:'%s'", dbs[db].name);
+	g_message ("  Analyzing DB:'%s'", dbs[db].name);
 	iface = tracker_db_manager_get_db_interface (db);
-	db_exec_no_reply (iface, "ANALYSE %s.Services", dbs[db].name);
+	db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
 
 	/* Optimize the email contents database second */
 	db = TRACKER_DB_EMAIL_METADATA;
 
-	g_message ("  Analysing DB:'%s'", dbs[db].name);
+	g_message ("  Analyzing DB:'%s'", dbs[db].name);
 	iface = tracker_db_manager_get_db_interface (db);
-	db_exec_no_reply (iface, "ANALYSE %s.Services", dbs[db].name);
+	db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
 }
 
 const gchar *
