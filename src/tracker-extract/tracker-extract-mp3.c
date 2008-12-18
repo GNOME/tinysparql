@@ -375,66 +375,80 @@ mp3_parse (const gchar *data,
 		return;
 	};
 
+	switch (header & mpeg_ver_mask) {
+	    case 0x1000:
+		    mpeg_ver = MPEG_ERR;
+		    break;
+	    case 0x800:
+		    g_hash_table_insert (metadata,
+					 g_strdup ("Audio:Codec"),
+					 g_strdup ("MPEG"));
+		    g_hash_table_insert (metadata,
+					 g_strdup ("Audio:CodecVersion"),
+					 g_strdup ("2"));
+		    mpeg_ver = MPEG_V2;
+		    break;
+	    case 0x1800:
+		    g_hash_table_insert (metadata,
+					 g_strdup ("Audio:Codec"),
+					 g_strdup ("MPEG"));
+		    g_hash_table_insert (metadata,
+					 g_strdup ("Audio:CodecVersion"),
+					 g_strdup ("1"));
+		    mpeg_ver = MPEG_V1;
+		    break;
+	    case 0:
+		    g_hash_table_insert (metadata,
+					 g_strdup ("Audio:Codec"),
+					 g_strdup ("MPEG"));
+		    g_hash_table_insert (metadata,
+					 g_strdup ("Audio:CodecVersion"),
+					 g_strdup ("2.5"));
+		    mpeg_ver = MPEG_V25;
+		    break;
+	}
+
+	switch (header&mpeg_layer_mask) {
+	    case 0x400:
+		    layer_ver = LAYER_2;
+		    break;
+	    case 0x200:
+		    layer_ver = LAYER_3;
+		    break;
+	    case 0x600:
+		    layer_ver = LAYER_1;
+		    break;
+	    case 0:
+		    layer_ver = LAYER_ERR;
+	}
+	
+	if (!layer_ver || !mpeg_ver) {
+		/* Unknown mpeg type */
+		return;
+	}
+	
+	if (mpeg_ver<3) {
+		idx_num = (mpeg_ver - 1) * 3 + layer_ver - 1;
+	} else {
+		idx_num = 2 + layer_ver;
+	}
+	
+	if ((header & ch_mask) == ch_mask) {
+		ch = 1;
+		g_hash_table_insert (metadata,
+				     g_strdup ("Audio:Channels"),
+				     g_strdup ("1"));
+	} else {
+		ch=2; /*stereo non stereo select*/
+		g_hash_table_insert (metadata,
+				     g_strdup ("Audio:Channels"),
+				     g_strdup ("2"));
+	}
+	
+	/* We assume mpeg version, layer and channels are constant in frames */
+
 	do {
 		frames++;
-		switch (header & mpeg_ver_mask) {
-		case 0x1000:
-			mpeg_ver = MPEG_ERR;
-			break;
-		case 0x800:
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:Codec"),
-					     g_strdup ("MPEG"));
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:CodecVersion"),
-					     g_strdup ("2"));
-			mpeg_ver = MPEG_V2;
-			break;
-		case 0x1800:
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:Codec"),
-					     g_strdup ("MPEG"));
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:CodecVersion"),
-					     g_strdup ("1"));
-			mpeg_ver = MPEG_V1;
-			break;
-		case 0:
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:Codec"),
-					     g_strdup ("MPEG"));
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:CodecVersion"),
-					     g_strdup ("2.5"));
-			mpeg_ver = MPEG_V25;
-			break;
-		}
-
-		switch (header&mpeg_layer_mask) {
-		case 0x400:
-			layer_ver = LAYER_2;
-			break;
-		case 0x200:
-			layer_ver = LAYER_3;
-			break;
-		case 0x600:
-			layer_ver = LAYER_1;
-			break;
-		case 0:
-			layer_ver = LAYER_ERR;
-		}
-
-		if (!layer_ver || !mpeg_ver) {
-			/* Unknown mpeg type */
-			return;
-		}
-
-		if (mpeg_ver<3) {
-			idx_num = (mpeg_ver - 1) * 3 + layer_ver - 1;
-		} else {
-			idx_num = 2 + layer_ver;
-		}
-
 		bitrate = 1000 * bitrate_table[(header & bitrate_mask) >> 20][idx_num];
 
 		if (bitrate < 0) {
@@ -447,18 +461,6 @@ mp3_parse (const gchar *data,
 			/* Error in header */
 			frames--;
 			break;
-		}
-
-		if ((header & ch_mask) == ch_mask) {
-			ch = 1;
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:Channels"),
-					     g_strdup ("1"));
-		} else {
-			ch=2; /*stereo non stereo select*/
-			g_hash_table_insert (metadata,
-					     g_strdup ("Audio:Channels"),
-					     g_strdup ("2"));
 		}
 
 		frame_size = 144 * bitrate / (sample_rate ? sample_rate : 1) + ((header & pad_mask) >> 17);
@@ -510,6 +512,7 @@ mp3_parse (const gchar *data,
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Bitrate"),
 			     g_strdup_printf ("%d", avg_bps));
+
 }
 
 static void

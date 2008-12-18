@@ -1,3 +1,8 @@
+2008-12-18  Mikael Ottela  <mikael.ottela@ixonos.com>
+	
+	* src/tracker-extract/tracker-extract-mp3.c: Some optimizations to
+	reading mp3 frames.
+
 2008-12-18  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-db/tracker-db-manager.c:
