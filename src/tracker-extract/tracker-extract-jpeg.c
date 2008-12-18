@@ -193,13 +193,18 @@ read_exif (const unsigned char *buffer,
 			exif_entry_get_value (entry, buffer, 1024);
 
 			if (p->post) {
+				gchar *str;
+
+				str = (*p->post) (buffer);
+
 				g_hash_table_insert (metadata,
 						     g_strdup (p->name),
-						     (*p->post) (buffer));
+						     tracker_escape_metadata (str));
+				g_free (str);
 			} else {
 				g_hash_table_insert (metadata,
 						     g_strdup (p->name),
-						     g_strdup (buffer));
+						     tracker_escape_metadata (buffer));
 			}
 		}
 	}
@@ -249,12 +254,13 @@ extract_jpeg (const gchar *filename,
 		while (marker) {
 			switch (marker->marker) {
 			case JPEG_COM:
-				str = (gchar*) marker->data;
 				len = marker->data_length;
+				str = g_strndup ((gchar*) marker->data, len);
 
 				g_hash_table_insert (metadata,
 						     g_strdup ("Image:Comments"),
-						     g_strndup (str, len));
+						     tracker_escape_metadata (str));
+				g_free (str);
 				break;
 
 			case JPEG_APP0+1:
@@ -289,10 +295,10 @@ extract_jpeg (const gchar *filename,
 		/* We want native size to have priority over EXIF, XMP etc */
 		g_hash_table_insert (metadata,
 				     g_strdup ("Image:Width"),
-				     g_strdup_printf ("%u", cinfo.image_width));
+				     tracker_escape_metadata_printf ("%u", cinfo.image_width));
 		g_hash_table_insert (metadata,
 				     g_strdup ("Image:Height"),
-				     g_strdup_printf ("%u", cinfo.image_height));
+				     tracker_escape_metadata_printf ("%u", cinfo.image_height));
 
 		/* Check that we have the minimum data. FIXME We should not need to do this */
 
@@ -300,10 +306,14 @@ extract_jpeg (const gchar *filename,
 			struct stat st;
 
 			if (g_lstat(filename, &st) >= 0) {
+				gchar *date;
 
-				g_hash_table_insert (metadata, 
-					     g_strdup ("Image:Date"), 
-					     tracker_date_to_string (st.st_mtime));				
+				date = tracker_date_to_string (st.st_mtime);
+
+				g_hash_table_insert (metadata,
+						     g_strdup ("Image:Date"),
+						     tracker_escape_metadata (date));
+				g_free (date);
 			}
 		}
 

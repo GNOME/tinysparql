@@ -1,3 +1,14 @@
+2008-12-18  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-escape.[ch]: New methods to escape
+	metadata properly, so we don't barf on new lines, metadata separators,
+	etc...
+	* src/tracker-extract/Makefile.am: Add new files.
+	* src/tracker-extract/tracker-extract.h: Include header for modules.
+	* src/tracker-extract/tracker-extract-*.c:
+	* src/tracker-extract/tracker-xmp.c: Escape metadata properly in the
+	right places.
+
 2008-12-18  Mikael Ottela  <mikael.ottela@ixonos.com>
 	
 	* src/tracker-extract/tracker-extract-mp3.c: Some optimizations to

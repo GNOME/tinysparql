@@ -29,6 +29,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include "tracker-extract.h"
+#include "tracker-escape.h"
 
 static void extract_mplayer (const gchar *filename,
 			     GHashTable  *metadata);
@@ -81,7 +82,7 @@ copy_hash_table_entry (gpointer key,
 {
 	g_hash_table_insert (user_data,
 			     g_strdup (key),
-			     g_strdup (value));
+			     tracker_escape_metadata (value));
 }
 
 static void
@@ -149,7 +150,7 @@ extract_mplayer (const gchar *filename,
 					if (g_str_has_prefix (*line, audio_tags[i][0])) {
 						g_hash_table_insert (metadata,
 								     g_strdup (audio_tags[i][1]),
-								     g_strdup ((*line) + strlen (audio_tags[i][0]) + 1));
+								     tracker_escape_metadata ((*line) + strlen (audio_tags[i][0]) + 1));
 						break;
 					}
 				}
@@ -162,7 +163,7 @@ extract_mplayer (const gchar *filename,
 					if (g_str_has_prefix (*line, video_tags[i][0])) {
 						g_hash_table_insert (metadata,
 								     g_strdup (video_tags[i][1]),
-								     g_strdup ((*line) + strlen (video_tags[i][0]) + 1));
+								     tracker_escape_metadata ((*line) + strlen (video_tags[i][0]) + 1));
 						break;
 					}
 				}

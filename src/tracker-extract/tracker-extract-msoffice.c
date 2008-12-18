@@ -91,7 +91,9 @@ add_gvalue_in_hash_table (GHashTable   *table,
 				}
 
 				if (str_val) {
-					g_hash_table_insert (table, g_strdup (key), str_val);
+					g_hash_table_insert (table, g_strdup (key),
+							     tracker_escape_metadata (str_val));
+					g_free (str_val);
 				}
 			}
 

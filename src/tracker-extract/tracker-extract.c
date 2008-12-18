@@ -256,7 +256,7 @@ print_meta_table_data (gpointer key,
 		       gpointer value,
 		       gpointer user_data)
 {
-	gchar *value_utf8, *value_escaped;
+	gchar *value_utf8;
 
 	g_return_if_fail (key != NULL);
 	g_return_if_fail (value != NULL);
@@ -264,21 +264,15 @@ print_meta_table_data (gpointer key,
 	value_utf8 = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
 
 	if (value_utf8) {
-		value_escaped = g_strescape (value_utf8, NULL);
-
-		/* Replace any embedded semicolons or "=" as we use them for delimiters */
-		value_escaped = g_strdelimit (value_escaped, ";", ',');
-		value_escaped = g_strdelimit (value_escaped, "=", '-');
-		value_escaped = g_strstrip (value_escaped);
+		value_utf8 = g_strstrip (value_utf8);
 
 		debug ("Extractor - Found '%s' = '%s'",
 		       (gchar*) key,
 		       value_utf8);
 
-		g_print ("%s=%s;\n", (gchar*) key, value_escaped);
+		g_print ("%s=%s;\n", (gchar*) key, value_utf8);
 
 		g_free (value_utf8);
-		g_free (value_escaped);
 	}
 }
 

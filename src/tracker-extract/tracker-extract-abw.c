@@ -35,6 +35,7 @@
 #include <glib/gstdio.h>
 
 #include "tracker-extract.h"
+#include "tracker-escape.h"
 
 static void extract_abw (const gchar *filename,
 			 GHashTable  *metadata);
@@ -74,27 +75,27 @@ extract_abw (const gchar *filename,
 			if (g_str_has_prefix (line, "<m key=\"dc.title\">")) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:Title"),
-						     g_strdup (line + 18));
+						     tracker_escape_metadata (line + 18));
 			}
 			else if (g_str_has_prefix (line, "<m key=\"dc.subject\">")) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:Subject"),
-						     g_strdup (line + 20));
+						     tracker_escape_metadata (line + 20));
 			}
 			else if (g_str_has_prefix (line, "<m key=\"dc.creator\">")) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:Author"),
-						     g_strdup (line + 20));
+						     tracker_escape_metadata (line + 20));
 			}
 			else if (g_str_has_prefix (line, "<m key=\"abiword.keywords\">")) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:Keywords"),
-						     g_strdup (line + 26));
+						     tracker_escape_metadata (line + 26));
 			}
 			else if (g_str_has_prefix (line, "<m key=\"dc.description\">")) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:Comments"),
-						     g_strdup (line + 24));
+						     tracker_escape_metadata (line + 24));
 			}
 
 			g_free (line);

@@ -41,6 +41,7 @@
 
 #include "tracker-extract.h"
 #include "tracker-albumart.h"
+#include "tracker-escape.h"
 
 /* FIXME The max file read is not a good idea as basic 
  * id3 are the _last_ 128 bits of the file. We should
@@ -505,14 +506,13 @@ mp3_parse (const gchar *data,
 
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Duration"),
-			     g_strdup_printf ("%d", length));
+			     tracker_escape_metadata_printf ("%d", length));
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Samplerate"),
-			     g_strdup_printf ("%d", sample_rate));
+			     tracker_escape_metadata_printf ("%d", sample_rate));
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Bitrate"),
-			     g_strdup_printf ("%d", avg_bps));
-
+			     tracker_escape_metadata_printf ("%d", avg_bps));
 }
 
 static void
@@ -672,10 +672,10 @@ get_id3v24_tags (const gchar *data,
 
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
-							     word);
-				} else {
-					g_free (word);
+							     tracker_escape_metadata (word));
 				}
+
+				g_free (word);
 
 				break;
 			}
@@ -741,13 +741,12 @@ get_id3v24_tags (const gchar *data,
 			if (word != NULL && strlen (word) > 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
-						     word);	
-			} else {
-				g_free (word);
+						     tracker_escape_metadata (word));
 			}
 
-		}	
-	
+			g_free (word);
+		}
+
 
 		/* Check for embedded images */
 		if (strncmp (&data[pos], "APIC", 4) == 0) {
@@ -939,10 +938,10 @@ get_id3v23_tags (const gchar *data,
 
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
-							     word);
-				} else {
-					g_free (word);
+							     tracker_escape_metadata (word));
 				}
+
+				g_free (word);
 
 				break;
 			}
@@ -997,11 +996,10 @@ get_id3v23_tags (const gchar *data,
 			if (word != NULL && strlen (word) > 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
-						     word);	
-			} else {
-				g_free (word);
+						     tracker_escape_metadata (word));
 			}
 
+			g_free (word);
 		}
 
 		/* Check for embedded images */
@@ -1157,7 +1155,7 @@ get_id3v2_tags (const gchar *data,
 
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
-							     g_strdup (word));
+							     tracker_escape_metadata (word));
 				} else {
 					g_free (word);
 				}
@@ -1250,37 +1248,37 @@ extract_mp3 (const gchar *filename,
 	if (info.title && strlen (info.title) > 0) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Title"),
-				     g_strdup (info.title));
+				     tracker_escape_metadata (info.title));
 	}
 
 	if (info.artist && strlen (info.artist) > 0) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Artist"),
-				     g_strdup (info.artist));
+				     tracker_escape_metadata (info.artist));
 	}
 
 	if (info.album && strlen (info.album) > 0) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Album"),
-				     g_strdup (info.album));
+				     tracker_escape_metadata (info.album));
 	}
 
 	if (info.year && strlen (info.year) > 0) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:ReleaseDate"),
-				     g_strdup (info.year));
+				     tracker_escape_metadata (info.year));
 	}
 
 	if (info.genre && strlen (info.genre) > 0) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Genre"),
-				     g_strdup (info.genre));
+				     tracker_escape_metadata (info.genre));
 	}
 
 	if (info.comment && strlen (info.comment) > 0) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Comment"),
-				     g_strdup (info.comment));
+				     tracker_escape_metadata (info.comment));
 	}
 
 	free (info.title);
@@ -1327,7 +1325,9 @@ extract_mp3 (const gchar *filename,
 			
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Title"),
-				     title);
+				     tracker_escape_metadata (title));
+
+		g_free (title);
 	}
 
 	if (!g_hash_table_lookup (metadata, "Audio:Album")) {

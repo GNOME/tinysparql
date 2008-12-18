@@ -26,6 +26,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include "tracker-extract.h"
+#include "tracker-escape.h"
 
 static gchar *tags[][2] = {
 	{ "TOTEM_INFO_VIDEO_HEIGHT",		"Video:Height"		},
@@ -74,7 +75,7 @@ extract_totem (const gchar *filename,
 				if (g_str_has_prefix (*line, tags[i][0])) {
 					g_hash_table_insert (metadata,
 							     g_strdup (tags[i][1]),
-							     g_strdup ((*line) + strlen (tags[i][0]) + 1));
+							     tracker_escape_metadata ((*line) + strlen (tags[i][0]) + 1));
 					break;
 				}
 			}

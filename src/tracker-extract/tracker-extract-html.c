@@ -27,6 +27,7 @@
 #include <libxml/HTMLparser.h>
 
 #include "tracker-extract.h"
+#include "tracker-escape.h"
 
 typedef enum {
 	READ_TITLE,
@@ -110,7 +111,7 @@ startElement (void	     *info,
 			if (href) {
 				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
 						     g_strdup ("File:License"),
-						     g_strdup ((gchar*)  href));
+						     tracker_escape_metadata ((gchar*)  href));
 			}
 		}
 	} else if (strcasecmp ((gchar*)name, "title") == 0) {
@@ -124,7 +125,7 @@ startElement (void	     *info,
 			if (author) {
 				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
 						     g_strdup ("Doc:Author"),
-						     g_strdup ((gchar*) author));
+						     tracker_escape_metadata ((gchar*) author));
 			}
 		}
 
@@ -136,7 +137,7 @@ startElement (void	     *info,
 			if (desc) {
 				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
 						     g_strdup ("Doc:Comments"),
-						     g_strdup ((gchar*) desc));
+						     tracker_escape_metadata ((gchar*) desc));
 			}
 		}
 
@@ -149,7 +150,7 @@ startElement (void	     *info,
 			if (keywords) {
 				g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
 						     g_strdup ("Doc:Keywords"),
-						     g_strdup ((gchar*) keywords));
+						     tracker_escape_metadata ((gchar*) keywords));
 			}
 		}
 	}
@@ -164,7 +165,7 @@ characters (void	  *info,
 	case READ_TITLE:
 		g_hash_table_insert (((HTMLParseInfo*) info)->metadata,
 				     g_strdup ("Doc:Title"),
-				     g_strdup ((gchar*) ch));
+				     tracker_escape_metadata ((gchar*) ch));
 		break;
 	default:
 		break;

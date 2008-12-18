@@ -41,6 +41,7 @@
 
 #include "tracker-extract.h"
 #include "tracker-xmp.h"
+#include "tracker-escape.h"
 
 #define RFC1123_DATE_FORMAT "%d %B %Y %H:%M:%S %z"
 
@@ -120,12 +121,13 @@ read_metadata (png_structp png_ptr, png_infop info_ptr, GHashTable *metadata)
 						if (str) {
 							g_hash_table_insert (metadata,
 									     g_strdup (tag_processors[j].type),
-									     str);
+									     tracker_escape_metadata (str));
+							g_free (str);
 						}
 					} else {
 						g_hash_table_insert (metadata,
 								     g_strdup (tag_processors[j].type),
-								     g_strdup (text_ptr[i].text));
+								     tracker_escape_metadata (text_ptr[i].text));
 					}
 					
 					break;
@@ -236,10 +238,10 @@ extract_png (const gchar *filename,
 		 */
 		g_hash_table_insert (metadata,
 				     g_strdup ("Image:Width"),
-				     g_strdup_printf ("%ld", width));
+				     tracker_escape_metadata_printf ("%ld", width));
 		g_hash_table_insert (metadata,
 				     g_strdup ("Image:Height"),
-				     g_strdup_printf ("%ld", height));
+				     tracker_escape_metadata_printf ("%ld", height));
 		
 		/* Check that we have the minimum data. FIXME We should not need to do this */
 
@@ -247,10 +249,14 @@ extract_png (const gchar *filename,
 			struct stat st;
 
 			if (g_lstat(filename, &st) >= 0) {
+				gchar *date;
 
-				g_hash_table_insert (metadata, 
-					     g_strdup ("Image:Date"), 
-					     tracker_date_to_string (st.st_mtime));				
+				date = tracker_date_to_string (st.st_mtime);
+
+				g_hash_table_insert (metadata,
+						     g_strdup ("Image:Date"),
+						     tracker_escape_metadata (date));
+				g_free (date);
 			}
 		}
 

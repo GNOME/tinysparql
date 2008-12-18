@@ -38,6 +38,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include "tracker-extract.h"
+#include "tracker-escape.h"
 
 #ifndef HAVE_GETLINE
 
@@ -226,17 +227,17 @@ extract_ps (const gchar *filename,
 			if (!header_finished && strncmp (line, "%%Copyright:", 12) == 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("File:Other"),
-						     g_strdup (line + 13));
+						     tracker_escape_metadata (line + 13));
 
 			} else if (!header_finished && strncmp (line, "%%Title:", 8) == 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:Title"),
-						     g_strdup (line + 9));
+						     tracker_escape_metadata (line + 9));
 
 			} else if (!header_finished && strncmp (line, "%%Creator:", 10) == 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:Author"),
-						     g_strdup (line + 11));
+						     tracker_escape_metadata (line + 11));
 
 			} else if (!header_finished && strncmp (line, "%%CreationDate:", 15) == 0) {
 				gchar *date;
@@ -246,7 +247,9 @@ extract_ps (const gchar *filename,
 				if (date) {
 					g_hash_table_insert (metadata,
 							     g_strdup ("Doc:Created"),
-							     date);
+							     tracker_escape_metadata (date));
+
+					g_free (date);
 				}
 
 			} else if (strncmp (line, "%%Pages:", 8) == 0) {
@@ -255,7 +258,7 @@ extract_ps (const gchar *filename,
 				} else {
 					g_hash_table_insert (metadata,
 							     g_strdup ("Doc:PageCount"),
-							     g_strdup (line + 9));
+							     tracker_escape_metadata (line + 9));
 				}
 			} else if (strncmp (line, "%%EndComments", 14) == 0) {
 				header_finished = TRUE;

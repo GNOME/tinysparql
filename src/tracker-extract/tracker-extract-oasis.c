@@ -27,6 +27,7 @@
 #include <libtracker-common/tracker-os-dependant.h>
 
 #include "tracker-extract.h"
+#include "tracker-escape.h"
 
 typedef enum {
 	READ_TITLE,
@@ -142,12 +143,12 @@ start_element_handler (GMarkupParseContext  *context,
 			if (strcmp (*a, "meta:word-count") == 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:WordCount"),
-						     g_strdup (*v));
+						     tracker_escape_metadata (*v));
 			}
 			else if (strcmp (*a, "meta:page-count") == 0) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Doc:PageCount"),
-						     g_strdup (*v));
+						     tracker_escape_metadata (*v));
 			}
 		}
 
@@ -190,46 +191,50 @@ text_handler (GMarkupParseContext  *context,
 	case READ_TITLE:
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Title"),
-				     g_strdup (text));
+				     tracker_escape_metadata (text));
 		break;
 	case READ_SUBJECT:
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Subject"),
-				     g_strdup (text));
+				     tracker_escape_metadata (text));
 		break;
 	case READ_AUTHOR:
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Author"),
-				     g_strdup (text));
+				     tracker_escape_metadata (text));
 		break;
 	case READ_KEYWORDS: {
 		gchar *keywords;
 
 		if ((keywords = g_hash_table_lookup (metadata, "Doc:Keywords"))) {
+			gchar *escaped;
+
+			escaped = tracker_escape_metadata (text);
 			g_hash_table_replace (metadata,
 					      g_strdup ("Doc:Keywords"),
-					      g_strconcat (keywords, ",", text, NULL));
+					      g_strconcat (keywords, ",", escaped, NULL));
+			g_free (escaped);
 		} else {
 			g_hash_table_insert (metadata,
 					     g_strdup ("Doc:Keywords"),
-					     g_strdup (text));
+					     tracker_escape_metadata (text));
 		}
 	}
 		break;
 	case READ_COMMENTS:
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Comments"),
-				     g_strdup (text));
+				     tracker_escape_metadata (text));
 		break;
 	case READ_CREATED:
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Created"),
-				     g_strdup (text));
+				     tracker_escape_metadata (text));
 		break;
 	case READ_FILE_OTHER:
 		g_hash_table_insert (metadata,
 				     g_strdup ("File:Other"),
-				     g_strdup (text));
+				     tracker_escape_metadata (text));
 		break;
 
 	default:

@@ -50,12 +50,18 @@ tracker_append_string_to_hash_table (GHashTable *metadata, const gchar *key, con
 	if (append) {
 		gchar *orig;
 		if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer)&orig )) {
-			new_value = g_strconcat (orig, "|", value, NULL);
+			gchar *escaped;
+
+			escaped = tracker_escape_metadata (value);
+
+			new_value = g_strconcat (orig, "|", escaped, NULL);
+
+			g_free (escaped);
 		} else {
-			new_value = g_strdup (value);
+			new_value = tracker_escape_metadata (value);
 		}
 	} else {
-		new_value = g_strdup (value);
+		new_value = tracker_escape_metadata (value);
 	}
 
 	g_hash_table_insert (metadata, g_strdup (key), new_value);

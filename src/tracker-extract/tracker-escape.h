@@ -1,5 +1,5 @@
-/* Tracker Extract - extracts embedded metadata from files
- * Copyright (C) 2007, Jason Kivlighn (jkivlighn@gmail.com)
+/*
+ * Copyright (C) 2008, Nokia
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -17,35 +17,17 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "config.h"
+#ifndef __TRACKER_ESCAPE_H__
+#define __TRACKER_ESCAPE_H__
 
 #include <glib.h>
 
-#include "tracker-extract.h"
-#include "tracker-xmp.h"
-#include "tracker-escape.h"
+G_BEGIN_DECLS
 
+gchar * tracker_escape_metadata        (const gchar *str);
+gchar * tracker_escape_metadata_printf (const gchar *format,
+                                        ...);
 
-static void
-tracker_extract_xmp (const gchar* filename, GHashTable *metadata)
-{
-	gchar *contents;
-	gsize length;
-	GError *error;
+G_END_DECLS
 
-	if ( g_file_get_contents ( filename, &contents, &length, &error ) )
-		tracker_read_xmp (contents, length, metadata);
-}
-
-
-TrackerExtractorData data[] = {
-	{ "application/rdf+xml", tracker_extract_xmp },
-	{ NULL, NULL }
-};
-
-
-TrackerExtractorData *
-tracker_get_extractor_data (void)
-{
-	return data;
-}
+#endif /* __TRACKER_ESCAPE_H__ */

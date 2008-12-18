@@ -79,27 +79,27 @@ extract_pdf (const gchar *filename,
 	if (!tracker_is_empty_string (title)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Title"),
-				     g_strdup (title));
+				     tracker_escape_metadata (title));
 	}
 	if (!tracker_is_empty_string (author)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Author"),
-				     g_strdup (author));
+				     tracker_escape_metadata (author));
 	}
 	if (!tracker_is_empty_string (subject)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Subject"),
-				     g_strdup (subject));
+				     tracker_escape_metadata (subject));
 	}
 	if (!tracker_is_empty_string (keywords)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Doc:Keywords"),
-				     g_strdup (keywords));
+				     tracker_escape_metadata (keywords));
 	}
 
 	g_hash_table_insert (metadata,
 			     g_strdup ("Doc:PageCount"),
-			     g_strdup_printf ("%d", poppler_document_get_n_pages (document)));
+			     tracker_escape_metadata_printf ("%d", poppler_document_get_n_pages (document)));
 
 	if ( metadata_xml ) {
 		tracker_read_xmp (metadata_xml, strlen (metadata_xml), metadata);

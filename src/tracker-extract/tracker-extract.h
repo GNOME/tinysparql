@@ -23,6 +23,7 @@
 #define __TRACKER_EXTRACT_H__
 
 #include <glib.h>
+#include "tracker-escape.h"
 
 G_BEGIN_DECLS
 

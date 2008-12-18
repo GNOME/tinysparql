@@ -368,7 +368,7 @@ add_int64_info (GHashTable *metadata,
 {
 	gchar *str_info;
 
-	str_info = g_strdup_printf ("%" G_GINT64_FORMAT, info);
+	str_info = tracker_escape_metadata_printf ("%" G_GINT64_FORMAT, info);
 	g_hash_table_insert (metadata, key, str_info);
 }
 
@@ -379,7 +379,7 @@ add_uint_info (GHashTable *metadata,
 {
 	gchar *str_info;
 
-	str_info = g_strdup_printf ("%d", info);
+	str_info = tracker_escape_metadata_printf ("%d", info);
 	g_hash_table_insert (metadata, key, str_info);
 }
 
@@ -399,10 +399,10 @@ add_string_gst_tag (GHashTable	*metadata,
 		if (ret && s[0] != '\0') {
 			g_hash_table_insert (metadata,
 					     g_strdup (key),
-					     s);
-		} else {
-			g_free (s);
+					     tracker_escape_metadata (s));
 		}
+
+		g_free (s);
 	}
 }
 
@@ -420,7 +420,7 @@ add_uint_gst_tag (GHashTable  *metadata,
 	if (ret) {
 		g_hash_table_insert (metadata,
 				     g_strdup (key),
-				     g_strdup_printf ("%d", n));
+				     tracker_escape_metadata_printf ("%d", n));
 	}
 }
 
@@ -438,7 +438,7 @@ add_double_gst_tag (GHashTable	*metadata,
 	if (ret) {
 		g_hash_table_insert (metadata,
 				     g_strdup (key),
-				     g_strdup_printf ("%f", n));
+				     tracker_escape_metadata_printf ("%f", n));
 	}
 }
 
@@ -460,7 +460,7 @@ add_year_of_gdate_gst_tag (GHashTable  *metadata,
 		if (g_date_strftime (buf, 10, "%Y", date)) {
 			g_hash_table_insert (metadata,
 					     g_strdup (key),
-					     g_strdup (buf));
+					     tracker_escape_metadata (buf));
 		}
 	}
 

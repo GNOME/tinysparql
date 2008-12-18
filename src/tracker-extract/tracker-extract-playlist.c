@@ -110,11 +110,11 @@ extract_playlist (const gchar *filename,
 
 	g_hash_table_insert (metadata, 
 			     g_strdup (PLAYLIST_PROPERTY_DURATION), 
-			     g_strdup_printf ("%d", data.total_time));
+			     tracker_escape_metadata_printf ("%d", data.total_time));
 
 	g_hash_table_insert (metadata, 
 			     g_strdup (PLAYLIST_PROPERTY_NO_TRACKS), 
-			     g_strdup_printf ("%d", data.track_counter));
+			     tracker_escape_metadata_printf ("%d", data.track_counter));
 
 	g_free (proper_filename);
         g_object_unref (pl);

@@ -189,11 +189,11 @@ extract_tiff (const gchar *filename,
 				if (tag->post) {
 					g_hash_table_insert (metadata,
 							     g_strdup (tag->name),
-							     g_strdup ((*tag->post) (buffer)));
+							     tracker_escape_metadata ((*tag->post) (buffer)));
 				} else {
 					g_hash_table_insert (metadata, 
 							     g_strdup (tag->name),
-							     g_strdup (buffer));
+							     tracker_escape_metadata (buffer));
 				}
 			}
 		}
@@ -236,11 +236,11 @@ extract_tiff (const gchar *filename,
 		if (tag->post) {
 			g_hash_table_insert (metadata, 
 					     g_strdup (tag->name),
-					     g_strdup ((*tag->post) (buffer)));
+					     tracker_escape_metadata ((*tag->post) (buffer)));
 		} else {
 			g_hash_table_insert (metadata, 
 					     g_strdup (tag->name),
-					     g_strdup (buffer));
+					     tracker_escape_metadata (buffer));
 		}
 	}
 
@@ -250,10 +250,14 @@ extract_tiff (const gchar *filename,
 		struct stat st;
 		
 		if (g_lstat(filename, &st) >= 0) {
-			
-			g_hash_table_insert (metadata, 
-					     g_strdup ("Image:Date"), 
-					     tracker_date_to_string (st.st_mtime));
+			gchar *date;
+
+			date = tracker_date_to_string (st.st_mtime);
+
+			g_hash_table_insert (metadata,
+					     g_strdup ("Image:Date"),
+					     tracker_escape_metadata (date));
+			g_free (date);
 		}
 	}
 
