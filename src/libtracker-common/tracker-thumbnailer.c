@@ -373,8 +373,9 @@ tracker_thumbnailer_remove (const gchar *uri,
 	TrackerThumbnailerPrivate *private;
 	gchar *uris[2] = { NULL, NULL };
 
+	/* mime_type can be NULL */
+
 	g_return_if_fail (uri != NULL);
-	g_return_if_fail (mime_type != NULL);
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
@@ -387,7 +388,7 @@ tracker_thumbnailer_remove (const gchar *uri,
 		return;
 	}
 
-	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
+	if (mime_type && !should_be_thumbnailed (private->supported_mime_types, mime_type)) {
 		g_debug ("Thumbnailer ignoring mime type:'%s' and uri:'%s'",
 			 mime_type,
 			 uri);
