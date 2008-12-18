@@ -729,7 +729,7 @@ crawling_finished_cb (TrackerProcessor *processor, gpointer user_data)
 static void
 backup_restore_on_crawling_finished (TrackerProcessor *processor)
 {
-	gulong                      restore_cb_id;
+	static gulong restore_cb_id = 0;
 
 	g_debug ("Setting callback for crawling finish detection");
 	restore_cb_id = g_signal_connect (processor, "finished", 
@@ -1153,7 +1153,7 @@ main (gint argc, gchar *argv[])
 		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 	}
 
-	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX ||
+	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX &&
 	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
 		backup_restore_on_crawling_finished (private->processor);
 	}

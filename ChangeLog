@@ -1,3 +1,11 @@
+2008-12-18  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/trackerd/tracker-main.c: Set the restore callback if we
+	are in force-reindex AND we have a backup file.
+
+	(backup_restore_on_crawling_finished): static int to keep the
+	value in the callback.
+
 2008-12-17  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-extract.c (print_meta_table_data):
