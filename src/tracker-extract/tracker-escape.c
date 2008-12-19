@@ -78,7 +78,7 @@ tracker_escape_metadata_printf (const gchar *format,
                                 ...)
 {
         va_list args;
-        gchar *str, escaped;
+        gchar *str, *escaped;
 
         va_start (args, format);
         str = g_strdup_vprintf (format, args);

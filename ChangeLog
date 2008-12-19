@@ -1,3 +1,8 @@
+2008-12-19  Mikael Ottela   <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-escape.c: Fixed a small bug in
+	metadata escaping.
+
 2008-12-18  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-escape.[ch]: New methods to escape
