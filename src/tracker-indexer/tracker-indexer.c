@@ -1660,27 +1660,18 @@ item_remove (TrackerIndexer *indexer,
 		 dirname, 
 		 basename);
 
-	service_type = tracker_module_config_get_index_service (info->module->name);
+	/* The file is not anymore in the filesystem. Obtain
+	 * the service type from the DB.
+	 */
+	service_type_id = tracker_data_query_service_type_id (dirname, basename);
 
-	if (!service_type || !service_type[0]) {
-		const gchar *name;
-
-		/* The file is not anymore in the filesystem. Obtain
-		 * the service type from the DB.
-		 */
-		service_type_id = tracker_data_query_service_type_id (dirname, basename);
-
-		if (service_type_id == 0) {
-			/* File didn't exist, nothing to delete */
-			return;
-		}
-
-		name = tracker_ontology_get_service_by_id (service_type_id);
-		service = tracker_ontology_get_service_by_name (name);
-	} else {
-		service = tracker_ontology_get_service_by_name (service_type);
-		service_type_id = tracker_service_get_id (service);
+	if (service_type_id == 0) {
+		/* File didn't exist, nothing to delete */
+		return;
 	}
+
+	service_type = tracker_ontology_get_service_by_id (service_type_id);
+	service = tracker_ontology_get_service_by_name (service_type);
 
 	tracker_data_query_service_exists (service, dirname, basename, &service_id, NULL);
 

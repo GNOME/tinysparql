@@ -1,3 +1,16 @@
+2008-12-19  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (item_remove): Inconditionally
+	check the service type in the database for deleted files, since files
+	could not end always with the service type specified by the module
+	definition file, and there's no way to requery it for a deleted file.
+
+	This for example allows setting the correct services in the
+	ServiceStatisticsUpdated signal for any special (image, music, ...)
+	file that was indexed through the files module.
+
+	Fixes NB #95215.
+
 2008-12-19  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Fixed two spaces vs once space 
