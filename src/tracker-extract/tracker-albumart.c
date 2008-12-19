@@ -568,16 +568,19 @@ get_albumart_path (const gchar  *a,
 		return;
 	}
 
-	if (a && strlen (a) > 1)
-		f_a = strip_characters (a);
-	else 
+	if (!a || *a == '\0') 
 		f_a = g_strdup ("  ");
-
-	if (b && strlen (b) > 1)
-		f_b = strip_characters (b);
+	else if (strlen (a) == 1)
+		f_a = g_strconcat (a, " ");
 	else
-		f_b = g_strdup ("  ");
+		f_a = strip_characters (a);
 
+	if (!b || *b == '\0')
+		f_b = g_strdup ("  ");
+	else if (strlen (b) == 1)
+		f_b = g_strconcat (b, " ");
+	else
+		f_b = strip_characters (b);
 
 	down1 = g_utf8_strdown (f_a, -1);
 	down2 = g_utf8_strdown (f_b, -1);
