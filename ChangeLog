@@ -1,3 +1,10 @@
+2008-12-22  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-update.c: Added escaping to
+	metadata strings for SQL.
+
+	Fixes NB #95227.
+
 2008-12-22  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:
