@@ -102,6 +102,4 @@ BUILT_SOURCES =						\
 
 CLEANFILES = $(BUILT_SOURCES)
 
-EXTRA_DIST = 						\
-	$(BUILT_SOURCES)				\
-	tracker-marshal.list
+EXTRA_DIST = tracker-marshal.list

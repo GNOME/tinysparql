@@ -1,3 +1,14 @@
+2008-12-22  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/libtracker-common/Makefile.am:
+	* src/tracker-indexer/Makefile.am:
+	* src/trackerd/Makefile.am:
+	* tests/common/Makefile.am:
+	* tests/tracker-indexer/Makefile.am: Patch from Michael Biebl to
+	NOT use symbolic links for test cases and to clean up some of the
+	unnecessary EXTRA_DIST lines in Makefiles.
+
 2008-12-19  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (item_remove): Inconditionally

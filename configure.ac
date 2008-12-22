@@ -1104,30 +1104,6 @@ GTK_DOC_CHECK([1.8])
 AC_CHECK_PROG(DB2HTML, db2html, true, false)
 AM_CONDITIONAL(HAVE_DOCBOOK, $DB2HTML)
 
-####################################################################
-# Set up symbolic links
-####################################################################
-
-AC_CONFIG_LINKS(tests/tracker-indexer/tracker-dbus.c:src/tracker-indexer/tracker-dbus.c
-                tests/tracker-indexer/tracker-dbus.h:src/tracker-indexer/tracker-dbus.h
-                tests/tracker-indexer/tracker-indexer.c:src/tracker-indexer/tracker-indexer.c
-                tests/tracker-indexer/tracker-indexer.h:src/tracker-indexer/tracker-indexer.h
-                tests/tracker-indexer/tracker-indexer-module.c:src/tracker-indexer/tracker-indexer-module.c
-                tests/tracker-indexer/tracker-indexer-module.h:src/tracker-indexer/tracker-indexer-module.h
-                tests/tracker-indexer/tracker-marshal-main.c:src/tracker-indexer/tracker-marshal-main.c
-                tests/tracker-indexer/tracker-module-metadata.c:src/tracker-indexer/tracker-module-metadata.c
-                tests/tracker-indexer/tracker-module-metadata.h:src/tracker-indexer/tracker-module-metadata.h
-                tests/tracker-indexer/tracker-module-metadata-private.h:src/tracker-indexer/tracker-module-metadata-private.h
-                tests/tracker-indexer/tracker-module-metadata-utils.c:src/tracker-indexer/tracker-module-metadata-utils.c
-                tests/tracker-indexer/tracker-module-metadata-utils.h:src/tracker-indexer/tracker-module-metadata-utils.h
-                tests/tracker-indexer/tracker-module-file.c:src/tracker-indexer/tracker-module-file.c
-                tests/tracker-indexer/tracker-module-file.h:src/tracker-indexer/tracker-module-file.h
-                tests/tracker-indexer/tracker-module-iteratable.c:src/tracker-indexer/tracker-module-iteratable.c
-                tests/tracker-indexer/tracker-module-iteratable.h:src/tracker-indexer/tracker-module-iteratable.h
-		tests/tracker-indexer/tracker-removable-device.c:src/tracker-indexer/tracker-removable-device.c
-		tests/tracker-indexer/tracker-removable-device.h:src/tracker-indexer/tracker-removable-device.h
-)
-
 ##################################################################
 # Check for older tracker project files which can cause problems
 ##################################################################

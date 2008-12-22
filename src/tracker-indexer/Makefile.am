@@ -46,7 +46,8 @@ tracker_indexer_SOURCES =						\
 	tracker-main.c							\
 	tracker-module-metadata-private.h				\
 	tracker-marshal-main.c						\
-	tracker-removable-device.c					
+	tracker-removable-device.c					\
+	tracker-removable-device.h					
 
 tracker_indexer_LDADD =							\
 	libtracker-module.la						\
@@ -65,23 +66,11 @@ tracker_indexer_LDADD =							\
 	-lz								\
 	-lm
 
-#
-# Note: This rule is slightly different from the normal rule we would
-# use here because it copies the resulting file on success to the
-# tracker-indexer directory in the unit tests so that they can build.
-# We do this for the marshal generated source and for the dbus
-# generated glue files.
-#
-# Should we add the files for the unit tests to CLEANFILES?
-#
-
 tracker-marshal.h: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@ && \
-	$(LN_S) -sf $(top_srcdir)/src/tracker-indexer/$@ $(top_srcdir)/tests/tracker-indexer/$@
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
 
 tracker-marshal.c: tracker-marshal.list
-	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@ && 	\
-	$(LN_S) -sf $(top_srcdir)/src/tracker-indexer/$@ $(top_srcdir)/tests/tracker-indexer/$@
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
 
 tracker-marshal-main.c: tracker-marshal.c tracker-marshal.h
 
@@ -93,8 +82,7 @@ dbus_sources = 								\
 	tracker-indexer-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
-	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^ && \
-	$(LN_S) -sf $(top_srcdir)/src/tracker-indexer/$@ $(top_srcdir)/tests/tracker-indexer/$@
+	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = 							\
 	$(dbus_sources)							\
@@ -102,6 +90,4 @@ BUILT_SOURCES = 							\
 
 CLEANFILES = $(BUILT_SOURCES)
 
-EXTRA_DIST = 								\
-	$(BUILT_SOURCES)						\
-	tracker-marshal.list
+EXTRA_DIST = tracker-marshal.list

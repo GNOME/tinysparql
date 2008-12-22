@@ -1,12 +1,11 @@
 include $(top_srcdir)/Makefile.decl
 
-noinst_PROGRAMS = $(TEST_SETUP) $(TEST_PROGS)
+noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_SETUP  = $(generated_files)
 TEST_PROGS += tracker-metadata-utils
 
 INCLUDES = 								\
-	-g -DTEST							\
+	-DTEST								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"	\
 	-DLIBDIR=\""$(libdir)"\"					\
@@ -14,6 +13,7 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
+	-I$(top_builddir)/src/tracker-indexer				\
 	$(DBUS_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
@@ -21,26 +21,18 @@ INCLUDES = 								\
 	$(RAPTOR_CFLAGS)						\
 	$(GLIB2_CFLAGS)
 
-tracker_metadata_utils_SOURCES = 					\
-	tracker-dbus.c							\
-	tracker-dbus.h							\
-	tracker-indexer.c						\
-	tracker-indexer.h						\
-	tracker-indexer-module.c					\
-	tracker-indexer-module.h					\
-	tracker-marshal-main.c						\
-	tracker-module-metadata.c					\
-	tracker-module-metadata.h					\
-	tracker-module-metadata-private.h				\
-	tracker-module-metadata-utils.c 				\
-	tracker-module-metadata-utils.h 				\
-	tracker-metadata-utils-test.c 					\
-	tracker-module-file.c						\
-	tracker-module-file.h						\
-	tracker-module-iteratable.c					\
-	tracker-module-iteratable.h					\
-	tracker-removable-device.c					\
-	tracker-removable-device.h
+tracker_metadata_utils_SOURCES = 						\
+	$(top_srcdir)/src/tracker-indexer/tracker-dbus.c			\
+	$(top_srcdir)/src/tracker-indexer/tracker-indexer.c			\
+	$(top_srcdir)/src/tracker-indexer/tracker-indexer-module.c		\
+	$(top_srcdir)/src/tracker-indexer/tracker-marshal-main.c		\
+	$(top_srcdir)/src/tracker-indexer/tracker-module-metadata.c		\
+	$(top_srcdir)/src/tracker-indexer/tracker-module-metadata.h		\
+	$(top_srcdir)/src/tracker-indexer/tracker-module-metadata-utils.c 	\
+	$(top_srcdir)/src/tracker-indexer/tracker-module-file.c			\
+	$(top_srcdir)/src/tracker-indexer/tracker-module-iteratable.c		\
+	$(top_srcdir)/src/tracker-indexer/tracker-removable-device.c		\
+	tracker-metadata-utils-test.c 					
 
 tracker_metadata_utils_LDADD =	                                        \
 	$(top_builddir)/src/libtracker-data/libtracker-data.la 		\
@@ -54,22 +46,3 @@ tracker_metadata_utils_LDADD =	                                        \
 	$(GIO_LIBS)							\
 	$(RAPTOR_LIBS)							\
 	$(GLIB2_LIBS)							
-
-#
-# We don't add these to CLEANFILES because they are created from
-# src/tracker-indexer and will be overwritten when we rebuild from
-# there. 
-#
-marshal_sources =                                         		\
-        tracker-marshal.h                             			\
-        tracker-marshal.c
-
-dbus_sources = 								\
-	tracker-indexer-glue.h
-
-BUILT_SOURCES = 							\
-	$(dbus_sources)							\
-	$(marshal_sources)
-
-EXTRA_DIST = 								\
-	$(BUILT_SOURCES)
