@@ -17,7 +17,8 @@ INCLUDES =								\
 	$(GIO_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
 	$(GCONF_CFLAGS)							\
-	$(GMIME_CFLAGS)
+	$(GMIME_CFLAGS)							\
+	$(SQLITE3_CFLAGS)
 
 indexer_modules_LTLIBRARIES = 						\
 	libtracker-module-applications.la				\
@@ -57,6 +58,8 @@ indexer_modules_LTLIBRARIES += 						\
 libtracker_module_evolution_la_SOURCES =				\
 	evolution-common.c						\
 	evolution-common.h						\
+	evolution-imap-db.c						\
+	evolution-imap-db.h						\
 	evolution-imap.c						\
 	evolution-imap.h						\
 	evolution-pop.c							\
@@ -68,6 +71,7 @@ libtracker_module_evolution_la_LIBADD = 				\
 	$(GMODULE_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GCONF_LIBS)							\
-	$(GMIME_LIBS)
+	$(GMIME_LIBS)							\
+	$(SQLITE3_LIBS)
 
 endif

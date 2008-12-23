@@ -1,3 +1,16 @@
+2008-12-23  Carlos Garnacho  <carlos@imendio.com>
+
+	Support new Evolution database storage. Based on a patch by Philip Van
+	Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/modules/evolution-imap-db.[ch]: New
+	TrackerModuleFile implementations which get messages information for
+	the new Evolution sqlite storage.
+	* src/tracker-indexer/modules/Makefile.am: Build evo modulewith 
+	sqlite3 libs/cflags, add the new files.
+	* src/tracker-indexer/modules/evolution.c: Use the new implementation
+	if folders.db is found.
+
 2008-12-22  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-update.c: Added escaping to
