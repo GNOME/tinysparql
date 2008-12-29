@@ -70,8 +70,6 @@ void	     tracker_xesam_live_search_set_xml_query	  (TrackerXesamLiveSearch  *se
 							   const gchar		   *xml_query);
 void	     tracker_xesam_live_search_set_session	  (TrackerXesamLiveSearch  *self,
 							   gpointer		    session);
-void	     tracker_xesam_live_search_set_session	  (TrackerXesamLiveSearch  *self,
-							   gpointer		    session);
 void	     tracker_xesam_live_search_activate		  (TrackerXesamLiveSearch  *self,
 							   GError		  **error);
 gboolean     tracker_xesam_live_search_is_active	  (TrackerXesamLiveSearch  *self);

@@ -1,3 +1,8 @@
+2008-12-29  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/trackerd/tracker-xesam-live-search.h: Cleanup of duplicate
+	prototype in include header
+
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/libtracker-data/tracker-rdf-query.c
