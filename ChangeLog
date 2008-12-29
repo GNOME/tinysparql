@@ -5,6 +5,12 @@
 
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 
+	* data/services/playlist.metadata: 
+	Define Playlist:TotalLenght as non-embedded. The applications can
+	set a more refined value.
+
+2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/libtracker-data/tracker-rdf-query.c
 	* src/libtracker-gtk/tracker-keyword-store.h
 	* src/libtracker-common/tracker-os-dependant-win.c

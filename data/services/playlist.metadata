@@ -3,6 +3,7 @@ DisplayName=Length
 Description=Total length of songs in the playlist in seconds
 DataType=integer
 Weight=1
+Embedded=false
 Filtered=false
 
 
