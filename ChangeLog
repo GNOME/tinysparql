@@ -1,6 +1,23 @@
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 
-	Fixed compilation warnings in ultra-strict mode.
+	Fixed (some) compilation warnings in ultra-strict mode in
+	libtracker-db.
+
+	* src/libtracker-db/tracker-db-manager.c
+	(tracker_db_manager_get_db_interface_by_type)
+	(tracker_db_manager_get_db_interface_by_service)
+	(db_interface_create):
+	Added missing/default cases in switchs.
+
+	* src/libtracker-db/tracker-db-index.c:
+	Renamed local variable "index" as "indez" to avoid collision with
+	string.h
+	
+
+2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
+
+	Fixed compilation warnings in ultra-strict mode in
+	libtracker-common.
 	
 	* src/libtracker-common/tracker-language.[ch]
 	(tracker_language_get_all_by_name): Removed (unused)

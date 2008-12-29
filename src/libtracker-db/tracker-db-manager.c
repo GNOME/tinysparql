@@ -216,9 +216,9 @@ location_to_directory (TrackerDBLocation location)
 		return user_data_dir;
 	case TRACKER_DB_LOCATION_SYS_TMP_DIR:
 		return sys_tmp_dir;
+	default:
+		return NULL;
 	};
-
-	return NULL;
 }
 
 static void
@@ -2385,13 +2385,14 @@ db_interface_create (TrackerDB db)
 
 	case TRACKER_DB_XESAM:
 		return db_interface_get_xesam ();
+
+	default:
+		g_critical ("This TrackerDB type:%d->'%s' has no interface set up yet!!",
+			    db,
+			    db_type_to_string (db));
+		return NULL;
 	}
 
-	g_critical ("This TrackerDB type:%d->'%s' has no interface set up yet!!",
-		    db,
-		    db_type_to_string (db));
-
-	return NULL;
 }
 
 static void
@@ -2971,6 +2972,15 @@ tracker_db_manager_get_db_interface_by_service (const gchar *service)
 		iface = xesam_iface;
 		break;
 
+	case TRACKER_DB_TYPE_UNKNOWN:
+	case TRACKER_DB_TYPE_DATA:
+	case TRACKER_DB_TYPE_INDEX:
+	case TRACKER_DB_TYPE_COMMON:
+	case TRACKER_DB_TYPE_CONTENT:
+	case TRACKER_DB_TYPE_CACHE:
+	case TRACKER_DB_TYPE_USER:
+		g_warning ("Defaulting to Files DB. Strange DB Type for service %s", 
+			   service);
 	case TRACKER_DB_TYPE_FILES:
 	default:
 		if (!file_iface) {
@@ -3017,6 +3027,14 @@ tracker_db_manager_get_db_interface_by_type (const gchar	  *service,
 		}
 
 		break;
+	case TRACKER_DB_TYPE_UNKNOWN:
+	case TRACKER_DB_TYPE_DATA:
+	case TRACKER_DB_TYPE_INDEX:
+	case TRACKER_DB_TYPE_COMMON:
+	case TRACKER_DB_TYPE_CONTENT:
+	case TRACKER_DB_TYPE_CACHE:
+	case TRACKER_DB_TYPE_USER:
+	case TRACKER_DB_TYPE_XESAM:
 	default:
 		g_warning ("Database type not supported");
 		return NULL;
