@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -2158,9 +2159,12 @@ main (int argc, char *argv[])
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
+	setlocale (LC_ALL, "");
+
 	context = g_option_context_new (_("- Tracker applet for quick control of "
 					  "your desktop search tools"));
 
+	g_option_context_set_translation_domain(context, GETTEXT_PACKAGE);
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);

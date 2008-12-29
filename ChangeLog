@@ -1,3 +1,10 @@
+2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-applet/tracker-applet.c:
+	Fixed translation of --help output. 
+
+	Applied patch from Gabor Kelemen. Fixes #565928.
+	
 2008-12-23  Carlos Garnacho  <carlos@imendio.com>
 
 	Support new Evolution database storage. Based on a patch by Philip Van
