@@ -45,8 +45,8 @@ struct _TrackerLanguagePriv {
 };
 
 struct _Languages {
-	gchar *code;
-	gchar *name;
+	const gchar *code;
+	const gchar *name;
 };
 
 static Languages all_langs[] = {
@@ -474,23 +474,6 @@ tracker_language_get_default_code (void)
 }
 
 GSList *
-tracker_language_get_all_by_name (void)
-{
-	GSList *list = NULL;
-	gint i;
-
-	/* Shouldn't we use g_get_language_names() instead? -mr */
-
-	for (i = 0; all_langs[i].code; i++) {
-		list = g_slist_prepend (list, all_langs[i].name);
-	}
-
-	list = g_slist_reverse (list);
-
-	return list;
-}
-
-GSList *
 tracker_language_get_all_by_code (void)
 {
 	GSList *list = NULL;
@@ -499,7 +482,7 @@ tracker_language_get_all_by_code (void)
 	/* Shouldn't we use g_get_language_names() instead? -mr */
 
 	for (i = 0; all_langs[i].code; i++) {
-		list = g_slist_prepend (list, all_langs[i].code);
+		list = g_slist_prepend (list, (gchar *)all_langs[i].code);
 	}
 
 	list = g_slist_reverse (list);

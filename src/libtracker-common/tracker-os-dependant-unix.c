@@ -178,6 +178,9 @@ tracker_create_permission_string (struct stat finfo)
 		case S_IFBLK:  str[0] = 'b'; break;
 		case S_IFDIR:  str[0] = 'd'; break;
 		case S_IFREG:  str[0] = '-'; break;
+	default:
+		/* By default a regular file */
+		str[0] = '-';
 	}
 
 	for (bit = 0400, n = 1; bit; bit >>= 1, ++n) {

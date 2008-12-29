@@ -556,7 +556,7 @@ load_directory (void)
 }
 
 static void
-changed_cb (GFileMonitor     *monitor,
+changed_cb (GFileMonitor     *fmonitor,
 	    GFile	     *file,
 	    GFile	     *other_file,
 	    GFileMonitorEvent event_type,
@@ -576,8 +576,13 @@ changed_cb (GFileMonitor     *monitor,
 
 		load_directory ();
 		break;
-
+	case G_FILE_MONITOR_EVENT_DELETED:
+	case G_FILE_MONITOR_EVENT_CREATED:
+	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+	case G_FILE_MONITOR_EVENT_UNMOUNTED:
 	default:
+
 		break;
 	}
 }

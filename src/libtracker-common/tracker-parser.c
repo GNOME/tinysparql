@@ -353,7 +353,11 @@ analyze_text (const gchar      *text,
 			}
 
 			break;
-
+			
+		case TRACKER_PARSER_WORD_ALPHA:
+		case TRACKER_PARSER_WORD_ALPHA_NUM:
+		case TRACKER_PARSER_WORD_IGNORE:
+		case TRACKER_PARSER_WORD_NEWLINE:
 		default:
 			break;
 		}
@@ -640,6 +644,10 @@ parser_next (TrackerParser *parser,
 
 			break;
 
+		case TRACKER_PARSER_WORD_ALPHA:
+		case TRACKER_PARSER_WORD_ALPHA_NUM:
+		case TRACKER_PARSER_WORD_IGNORE:
+		case TRACKER_PARSER_WORD_NEWLINE:
 		default:
 			break;
 		}
@@ -870,11 +878,14 @@ tracker_parser_process_word (TrackerParser *parser,
 gboolean
 tracker_parser_is_stop_word (TrackerParser *parser, const gchar *word)
 {
+	gboolean result;
+	char *processed_word;
+
 	if (get_encoding (word) == TRACKER_PARSER_ENCODING_CJK) return FALSE;
 
+	processed_word = tracker_parser_process_word (parser, word, -1, TRUE);
+	result = is_stop_word (parser->language, processed_word);
 
-	char *processed_word = tracker_parser_process_word (parser, word, -1, TRUE);
-	gboolean result = is_stop_word (parser->language, processed_word);
 	g_free (processed_word);
 	return result;
 }

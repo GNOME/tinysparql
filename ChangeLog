@@ -1,3 +1,36 @@
+2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
+
+	Fixed compilation warnings in ultra-strict mode.
+	
+	* src/libtracker-common/tracker-language.[ch]
+	(tracker_language_get_all_by_name): Removed (unused)
+	Fixed const pointer.
+
+	* src/libtracker-common/tracker-hal.c: 
+	Removed prototypes of init functions.
+
+	* src/libtracker-common/tracker-parser.c
+	(tracker_parser_is_stop_word): Define and initialize variable in
+	different lines.
+	(analyze_text) 
+	(parser_next): Added missing case options.
+
+	* src/libtracker-common/tracker-module-config.c
+	(changed_cb): Added missing case options, renamed local variable
+	to avoid collision with global var.
+
+	* src/libtracker-common/tracker-config.[ch]
+	(tracker_config_add_disabled_modules): Use const gchar * const *
+	for the modules lists.
+	(config_changed_cb): Added missing case options.
+
+	* src/libtracker-common/tracker-log.c
+	(log_output): Added missing case options.
+
+	* src/libtracker-common/tracker-os-dependant-unix.c
+	(tracker_create_permission_string): Added default case in switch.
+	
+	
 2008-12-29  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-xesam-live-search.h: Cleanup of duplicate

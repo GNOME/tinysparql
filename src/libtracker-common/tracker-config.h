@@ -140,7 +140,7 @@ void	       tracker_config_add_crawl_directory_roots		   (TrackerConfig *config,
 void	       tracker_config_add_no_watch_directory_roots	   (TrackerConfig *config,
 								    gchar * const *roots);
 void	       tracker_config_add_disabled_modules		   (TrackerConfig *config,
-								    gchar * const *modules);
+								    const gchar * const *modules);
 void	       tracker_config_add_no_index_file_types		   (TrackerConfig *config,
 								    gchar * const *file_types);
 

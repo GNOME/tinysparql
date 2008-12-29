@@ -89,7 +89,12 @@ log_output (const gchar    *domain,
 	case G_LOG_LEVEL_ERROR:
 		log_level_str = "-Error **";
 		break;
-
+	case G_LOG_FLAG_RECURSION:
+	case G_LOG_FLAG_FATAL:
+	case G_LOG_LEVEL_MESSAGE:
+	case G_LOG_LEVEL_INFO:
+	case G_LOG_LEVEL_DEBUG:
+	case G_LOG_LEVEL_MASK:
 	default:
 		log_level_str = NULL;
 		break;

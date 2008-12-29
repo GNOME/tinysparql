@@ -1222,6 +1222,11 @@ config_changed_cb (GFileMonitor     *monitor,
 		config_load (config);
 		break;
 
+	case G_FILE_MONITOR_EVENT_DELETED:
+	case G_FILE_MONITOR_EVENT_CREATED:
+	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+	case G_FILE_MONITOR_EVENT_UNMOUNTED:
 	default:
 		break;
 	}
@@ -1324,7 +1329,7 @@ config_load (TrackerConfig *config)
 	 */
 	value = g_key_file_get_boolean (priv->key_file, "Emails", "IndexEvolutionEmails", &error);
 	if (!error) {
-		gchar * const modules[2] = { "evolution", NULL };
+		const gchar * const modules[2] = { "evolution", NULL };
 
 		g_message ("Legacy config option 'IndexEvolutionEmails' found");
 		g_message ("  This option has been replaced by 'DisabledModules'");
@@ -2379,11 +2384,11 @@ tracker_config_add_no_watch_directory_roots (TrackerConfig *config,
 
 void
 tracker_config_add_disabled_modules (TrackerConfig *config,
-				     gchar * const *modules)
+				     const gchar * const *modules)
 {
 	TrackerConfigPrivate *priv;
 	GSList		     *new_modules;
-	gchar * const	     *p;
+	const gchar * const  *p;
 
 	g_return_if_fail (TRACKER_IS_CONFIG (config));
 	g_return_if_fail (modules != NULL);

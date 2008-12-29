@@ -63,8 +63,6 @@ typedef struct {
 	GList	      *roots;
 } GetRoots;
 
-static void	tracker_hal_class_init		(TrackerHalClass *klass);
-static void	tracker_hal_init		(TrackerHal	 *hal);
 static void	tracker_hal_finalize		(GObject	 *object);
 static void	hal_get_property		(GObject	 *object,
 						 guint		  param_id,
@@ -593,9 +591,9 @@ hal_drive_type_to_string (LibHalDriveType type)
 		return "LIBHAL_DRIVE_TYPE_FLASHKEY";
 	case LIBHAL_DRIVE_TYPE_MO:
 		return "LIBHAL_DRIVE_TYPE_MO";
+	default:
+		return "";
 	}
-
-	return "";
 }
 
 static gboolean
