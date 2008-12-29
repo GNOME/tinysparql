@@ -1,5 +1,12 @@
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/tracker-search-tool/tracker-search-tool.c:
+	Marked some strings for translation.
+
+	Applied patch from Gabor Kelemen. Fixed #565932.
+	
+2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/tracker-applet/tracker-applet.c:
 	Fixed translation of --help output. 
 

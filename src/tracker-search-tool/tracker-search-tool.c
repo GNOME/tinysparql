@@ -615,7 +615,7 @@ add_application_to_search_results (const gchar * uri,
 			    COLUMN_ICON, pixbuf,
 			    COLUMN_URI, uri,
 			    COLUMN_NAME, display_name,
-			    COLUMN_PATH, "Application",
+			    COLUMN_PATH, _("Application"),
 			    COLUMN_MIME, "",
 			    COLUMN_TYPE, SERVICE_APPLICATIONS,
 			    COLUMN_EXEC, exec,
@@ -1464,7 +1464,7 @@ get_meta_table_data (gpointer value,
 	if (gsearch->type == SERVICE_EMAILS) {
 
 		if (meta[0] && meta[1] && meta[2]) {
-			gchar * subject = "Unknown email subject", * sender = "Unknown email sender";
+			gchar * subject = _("Unknown email subject"), * sender = _("Unknown email sender");
 
 			if (meta[3]) {
 				subject = meta[3];
@@ -1817,7 +1817,7 @@ end_search (GPtrArray * out_array,
 
 	if (error2) {
 		g_error_free (error2);
-		status = g_strdup ("Indexing");
+		status = g_strdup (_("Indexing"));
 	}
 
 	if (strcmp (status, "Idle") == 0) {
@@ -2040,7 +2040,7 @@ gsearch_app_create (GSearchWindow * gsearch)
 			  G_CALLBACK (text_changed_cb),
 			  (gpointer) gsearch);
 
-	gsearch->show_more_options_expander = gtk_expander_new_with_mnemonic ("Select more _options");
+	gsearch->show_more_options_expander = gtk_expander_new_with_mnemonic (_("Select more _options"));
 
 	/* paned container for search results and category sections */
 
