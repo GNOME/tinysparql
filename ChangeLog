@@ -1,4 +1,12 @@
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
+	
+	* src/libtracker-data/tracker-data-update.c
+	Replaced g_basename with g_path_get_basename
+	
+	Gnome Goal: Remove deprecated glib symbols.
+	Code taken from patch provided by Luis Menina (#565218)
+	
+2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-search-tool/tracker-search-tool.c:
 	Marked some strings for translation.

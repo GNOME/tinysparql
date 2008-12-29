@@ -701,7 +701,7 @@ tracker_data_update_replace_service (const gchar *path,
 	TrackerService      *service;
 	gchar               *escaped_path;
 	gchar               *dirname;
-	const gchar         *basename;
+	gchar               *basename;
 
 	g_return_if_fail (path != NULL);
 	g_return_if_fail (metadata != NULL);
@@ -730,8 +730,8 @@ tracker_data_update_replace_service (const gchar *path,
 
 	escaped_path = tracker_escape_string (path);
 
-	basename = g_basename (escaped_path);
-	dirname = g_dirname (escaped_path);
+	basename = g_path_get_basename (escaped_path);
+	dirname = g_path_get_dirname (escaped_path);
 
 	/* TODO Warning: comparing Modified against Accessed. Do we have a
 	 * better field for this? */
@@ -804,6 +804,7 @@ tracker_data_update_replace_service (const gchar *path,
 	}
 
 	g_free (dirname);
+	g_free (basename);
 	g_free (escaped_path);
 }
 
