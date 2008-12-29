@@ -1,5 +1,4 @@
 #include <glib.h>
-#include <glib/gtestutils.h>
 #include <string.h>
 
 #include <libtracker-common/tracker-config.h>

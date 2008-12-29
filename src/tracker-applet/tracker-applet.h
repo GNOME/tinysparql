@@ -23,13 +23,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
-#include <gtk/gtkstock.h>
-#include <gtk/gtkmenuitem.h>
-#include <gtk/gtkstatusicon.h>
-#include <gtk/gtkcheckmenuitem.h>
-#include <gtk/gtkimagemenuitem.h>
-#include <gtk/gtkseparatormenuitem.h>
+#include <gtk/gtk.h>
 
 #define TYPE_TRAY_ICON		    (tray_icon_get_type())
 #define TRAY_ICON(obj)		    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_TRAY_ICON, TrayIcon))

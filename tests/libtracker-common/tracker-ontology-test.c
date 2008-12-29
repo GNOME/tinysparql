@@ -23,7 +23,6 @@
 #include <string.h>
 
 #include <glib.h>
-#include <glib/gtestutils.h>
 
 #include <libtracker-common/tracker-service.h>
 #include <libtracker-common/tracker-field.h>

@@ -23,7 +23,6 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <glib/gtestutils.h>
 
 #include <libtracker-common/tracker-type-utils.h>
 

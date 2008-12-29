@@ -21,7 +21,6 @@
 #include <string.h>
 
 #include <glib.h>
-#include <glib/gtestutils.h>
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-file-utils.h>

@@ -18,7 +18,6 @@
  * Boston, MA  02110-1301, USA.
  */
 #include <glib.h>
-#include <glib/gtestutils.h>
 
 #include <dbus/dbus-glib-bindings.h>
 

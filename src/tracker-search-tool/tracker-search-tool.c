@@ -36,7 +36,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <glib/gi18n.h>
-#include <gdk/gdkcursor.h>
+#include <gdk/gdk.h>
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 

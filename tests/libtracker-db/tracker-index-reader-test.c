@@ -1,5 +1,4 @@
 #include <glib.h>
-#include <glib/gtestutils.h>
 #include <tracker-test-helpers.h>
 #include <gio/gio.h>
 

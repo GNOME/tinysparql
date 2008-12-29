@@ -15,7 +15,6 @@
  */
 
 #include <glib.h>
-#include <glib/gtestutils.h>
 #include <glib-object.h>
 
 #include <xesam-glib/xesam-glib.h>

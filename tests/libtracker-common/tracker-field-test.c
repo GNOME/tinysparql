@@ -1,5 +1,4 @@
 #include <glib.h>
-#include <glib/gtestutils.h>
 #include <libtracker-common/tracker-field.h>
 #include <tracker-test-helpers.h>
 

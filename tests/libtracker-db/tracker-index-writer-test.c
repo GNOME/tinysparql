@@ -22,7 +22,6 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <glib/gtestutils.h>
 #include <glib/gstdio.h>
 
 #include <libtracker-db/tracker-db-index.h>

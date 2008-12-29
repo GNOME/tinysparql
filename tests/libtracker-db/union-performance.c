@@ -18,8 +18,6 @@
  * Boston, MA  02110-1301, USA.
  */
 #include <glib.h>
-#include <glib/gtestutils.h>
-
 
 #include <libtracker-db/tracker-db-manager.h>
 #include "tracker-db-manager-common.h"

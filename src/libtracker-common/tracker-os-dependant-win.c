@@ -21,8 +21,7 @@
 
 #include "config.h"
 
-#include <glib/gspawn.h>
-#include <glib/gstring.h>
+#include <glib.h>
 
 #include "mingw-compat.h"
 

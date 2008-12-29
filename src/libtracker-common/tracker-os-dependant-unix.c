@@ -26,8 +26,6 @@
 #include <sys/resource.h>
 
 #include <glib.h>
-#include <glib/gspawn.h>
-#include <glib/gstring.h>
 
 #include "tracker-log.h"
 #include "tracker-os-dependant.h"

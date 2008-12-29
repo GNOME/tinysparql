@@ -31,7 +31,7 @@
 #endif
 
 #include <glib/gi18n.h>
-#include <glib/gdate.h>
+#include <glib.h>
 #include <regex.h>
 #include <gdk/gdkx.h>
 #include <libart_lgpl/art_rgb.h>

@@ -1,4 +1,35 @@
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/libtracker-data/tracker-rdf-query.c
+	* src/libtracker-gtk/tracker-keyword-store.h
+	* src/libtracker-common/tracker-os-dependant-win.c
+	* src/libtracker-common/tracker-os-dependant-unix.c
+	* src/tracker-search-tool/sexy-icon-entry.h
+	* src/tracker-search-tool/tracker-search-tool-support.c
+	* src/tracker-search-tool/tracker-search-tool.c
+	* src/tracker-applet/tracker-applet.h
+	* tests/trackerd/tracker-xesam-test.c
+	* tests/trackerd/tracker-xesam-session-test.c
+	* tests/trackerd/tracker-xesam-hit-test.c
+	* tests/trackerd/tracker-xesam-hits-test.c
+	* tests/libtracker-db/tracker-db-manager-test-attach.c
+	* tests/libtracker-db/tracker-db-dbus-test.c
+	* tests/libtracker-db/tracker-index-writer-test.c
+	* tests/libtracker-db/union-performance.c
+	* tests/libtracker-db/tracker-db-manager-test-unattach.c
+	* tests/libtracker-db/tracker-db-manager-test-custom.c
+	* tests/libtracker-db/tracker-index-reader-test.c
+	* tests/libtracker-common/tracker-ontology-test.c
+	* tests/libtracker-common/tracker-parser-test.c
+	* tests/libtracker-common/tracker-dbus-test.c
+	* tests/libtracker-common/tracker-file-utils-test.c
+	* tests/libtracker-common/tracker-type-utils-test.c
+	* tests/libtracker-common/tracker-field-test.c
+
+	Gnome Goal: Cleaned up gtk and glib includes.
+	Applied patch from Luis Menina. Fixes #565218.
+
+2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 	
 	* src/libtracker-data/tracker-data-update.c
 	Replaced g_basename with g_path_get_basename
@@ -11,7 +42,7 @@
 	* src/tracker-search-tool/tracker-search-tool.c:
 	Marked some strings for translation.
 
-	Applied patch from Gabor Kelemen. Fixed #565932.
+	Applied patch from Gabor Kelemen. Fixes #565932.
 	
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 

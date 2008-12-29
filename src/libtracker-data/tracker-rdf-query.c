@@ -19,7 +19,7 @@
  */
 
 #include <string.h>
-#include <glib/ghash.h>
+#include <glib.h>
 
 #include <libtracker-common/tracker-field-data.h>
 #include <libtracker-common/tracker-log.h>

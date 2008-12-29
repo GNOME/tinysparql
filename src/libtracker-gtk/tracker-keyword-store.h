@@ -25,7 +25,7 @@
 #ifndef TRACKER_KEYWORD_STORE_H
 #define TRACKER_KEYWORD_STORE_H
 
-#include <gtk/gtkliststore.h>
+#include <gtk/gtk.h>
 
 #include <tracker.h>
 
