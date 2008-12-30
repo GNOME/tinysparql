@@ -248,6 +248,8 @@ tracker_keywords_add (TrackerKeywords	     *object,
 	guint		     request_id;
 	gchar		    *id;
 	GError		    *actual_error = NULL;
+	gchar		   **check;
+	gchar		    *stripped_value;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -290,9 +292,7 @@ tracker_keywords_add (TrackerKeywords	     *object,
 		g_error_free (actual_error);
 		return;
 	}
-	
-	gchar **check;
-	gchar  *stripped_value;
+
 	for (check = keywords; *check != NULL; check++) {
 		stripped_value = g_strstrip (g_strdup (*check));
 

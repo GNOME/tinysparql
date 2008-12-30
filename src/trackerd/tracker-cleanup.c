@@ -24,6 +24,9 @@
 
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-common/tracker-thumbnailer.h>
+
+#include "tracker-cleanup.h"
 
 /* Deals with cleaning up resident data after longer timeouts (days,
  * sessions).

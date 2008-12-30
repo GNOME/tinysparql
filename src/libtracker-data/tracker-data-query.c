@@ -82,6 +82,9 @@ tracker_data_query_metadata_field (TrackerDBInterface *iface,
 		break;
 
 	default:
+	case TRACKER_FIELD_TYPE_BLOB:
+	case TRACKER_FIELD_TYPE_STRUCT:
+	case TRACKER_FIELD_TYPE_LINK:
 		g_warning ("Metadata could not be retrieved as type:%d is not supported",
 			   tracker_field_get_data_type (def));
 		return NULL;

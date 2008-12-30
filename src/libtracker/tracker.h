@@ -118,9 +118,9 @@ void		tracker_set_int_option				(TrackerClient *client, const char *option, int 
 void		tracker_shutdown				(TrackerClient *client, gboolean reindex, GError **error);
 void		tracker_prompt_index_signals			(TrackerClient *client, GError **error);
 
-char **			tracker_metadata_get				(TrackerClient *client, ServiceType service, const char *id, char **keys, GError **error);
+char **			tracker_metadata_get				(TrackerClient *client, ServiceType service, const char *id, const char **keys, GError **error);
 GPtrArray *             tracker_metadata_get_all                        (TrackerClient *client, ServiceType service, const gchar *uri, GError **error);
-void			tracker_metadata_set				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, GError **error);
+void			tracker_metadata_set				(TrackerClient *client, ServiceType service, const char *id, const char **keys, char **values, GError **error);
 void			tracker_metadata_register_type			(TrackerClient *client, const char *name, MetadataTypes type, GError **error);
 MetaDataTypeDetails *	tracker_metadata_get_type_details		(TrackerClient *client, const char *name, GError **error);
 char **			tracker_metadata_get_registered_types		(TrackerClient *client, const char *classname, GError **error);
@@ -184,8 +184,8 @@ void		tracker_set_int_option_async				(TrackerClient *client, const char *option
 void		tracker_shutdown_async					(TrackerClient *client, gboolean reindex, TrackerVoidReply callback, gpointer user_data);
 void		tracker_prompt_index_signals_async			(TrackerClient *client, TrackerVoidReply callback, gpointer user_data);
 
-void		tracker_metadata_get_async				(TrackerClient *client, ServiceType service, const char *id, char **keys, TrackerArrayReply callback, gpointer user_data);
-void		tracker_metadata_set_async				(TrackerClient *client, ServiceType service, const char *id, char **keys, char **values, TrackerVoidReply callback, gpointer user_data);
+void		tracker_metadata_get_async				(TrackerClient *client, ServiceType service, const char *id, const char **keys, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_set_async				(TrackerClient *client, ServiceType service, const char *id, const char **keys, char **values, TrackerVoidReply callback, gpointer user_data);
 void		tracker_metadata_register_type_async			(TrackerClient *client, const char *name, MetadataTypes type, TrackerVoidReply callback, gpointer user_data);
 void		tracker_metadata_get_registered_types_async		(TrackerClient *client, const char *classname, TrackerArrayReply callback, gpointer user_data);
 void		tracker_metadata_get_writeable_types_async		(TrackerClient *client, const char *classname, TrackerArrayReply callback, gpointer user_data);

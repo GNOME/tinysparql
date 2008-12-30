@@ -63,7 +63,7 @@ static void text_handler	  (GMarkupParseContext	*context,
 static void extract_oasis	  (const gchar		*filename,
 				   GHashTable		*metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractorData extractor_data[] = {
 	{ "application/vnd.oasis.opendocument.*", extract_oasis },
 	{ NULL, NULL }
 };
@@ -238,6 +238,7 @@ text_handler (GMarkupParseContext  *context,
 		break;
 
 	default:
+	case READ_STATS:
 		break;
 	}
 }
@@ -245,5 +246,5 @@ text_handler (GMarkupParseContext  *context,
 TrackerExtractorData *
 tracker_get_extractor_data (void)
 {
-	return data;
+	return extractor_data;
 }

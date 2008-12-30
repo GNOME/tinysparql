@@ -54,8 +54,8 @@
 #define VBR_THRESHOLD     64
 
 typedef struct {
-	gchar *text;
-	gchar *type;
+	const gchar *text;
+	const gchar *type;
 } Matches;
 
 typedef struct {
@@ -273,7 +273,7 @@ static gint freq_table[4][3] = {
 	{32000, 16000, 8000}
 };
 
-static TrackerExtractorData data[] = {
+static TrackerExtractorData extractor_data[] = {
 	{ "audio/mpeg", extract_mp3 },
 	{ "audio/x-mp3", extract_mp3 },
 	{ NULL, NULL }
@@ -325,7 +325,7 @@ get_id3 (const gchar *data,
 				  "ISO-8859-1",
 				  NULL, NULL, NULL);
 	pos += 30;
-	id3->genre = "";
+	id3->genre = (char *) "";
 
 	if ((guint) pos[0] < G_N_ELEMENTS (genre_names)) {
 		id3->genre = g_strdup (genre_names[(unsigned) pos[0]]);
@@ -407,6 +407,8 @@ mp3_parse (const gchar *data,
 					 g_strdup ("2.5"));
 		    mpeg_ver = MPEG_V25;
 		    break;
+	    default:
+		    break;
 	}
 
 	switch (header&mpeg_layer_mask) {
@@ -421,6 +423,8 @@ mp3_parse (const gchar *data,
 		    break;
 	    case 0:
 		    layer_ver = LAYER_ERR;
+	    default:
+		    break;
 	}
 	
 	if (!layer_ver || !mpeg_ver) {
@@ -1313,12 +1317,12 @@ extract_mp3 (const gchar *filename,
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {
-		gchar  *basename = g_filename_display_basename(filename);
-		gchar **parts    = g_strsplit (basename, ".", -1);
+		gchar  *basenam  = g_filename_display_basename(filename);
+		gchar **parts    = g_strsplit (basenam, ".", -1);
 		gchar  *title    = g_strdup(parts[0]);
 		
 		g_strfreev (parts);
-		g_free (basename);
+		g_free (basenam);
 		
 		title = g_strdelimit (title, "_", ' ');
 		title = g_strstrip (title);
@@ -1370,5 +1374,5 @@ extract_mp3 (const gchar *filename,
 TrackerExtractorData *
 tracker_get_extractor_data (void)
 {
-	return data;
+	return extractor_data;
 }

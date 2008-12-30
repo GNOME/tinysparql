@@ -91,14 +91,17 @@ get_meta_table_data (gpointer data,
 {
 	gchar **meta;
 	gchar **p;
-	gchar **fields;
+	/* Compilaton warning fix Dec. 30 2008
+	 * If the global variable was to be used here, then this was wrong 
+	 * if not, then this variable was unused.
+	 * gchar **fields; */
 	gchar  *basename;
 	gint	i;
 	gint	len;
 	gint	cols;
 
 	meta = data;
-	fields = user_data;
+	/* fields = user_data; */
 
 	basename = g_path_get_basename (*meta);
 	len = g_utf8_strlen (basename, -1);
@@ -112,10 +115,10 @@ get_meta_table_data (gpointer data,
 				 basename);
 
 			if (len > MAX_FILENAME_WIDTH) {
-				gint i = 0;
+				gint t = 0;
 
 				g_print ("\n");
-				while (i++ < MAX_FILENAME_WIDTH + 2) {
+				while (t++ < MAX_FILENAME_WIDTH + 2) {
 					g_print (" ");
 				}
 			}

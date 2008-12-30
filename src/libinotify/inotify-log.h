@@ -30,7 +30,7 @@
 # define inotify_debug(x, ...) g_log("libinotify", G_LOG_LEVEL_DEBUG, \
 				     x, ## __VA_ARGS__)
 #else
-# define inotify_debug(x, ...) 0
+# define inotify_debug(x, ...) 
 #endif
 
 #define inotify_warn(x, ...) g_log("libinotify", G_LOG_LEVEL_WARNING, \

@@ -876,7 +876,7 @@ static void
 tracker_indexer_init (TrackerIndexer *indexer)
 {
 	TrackerIndexerPrivate *priv;
-	TrackerDBIndex *index;
+	TrackerDBIndex *lindex;
 
 	priv = indexer->private = TRACKER_INDEXER_GET_PRIVATE (indexer);
 
@@ -923,11 +923,11 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	tracker_indexer_load_modules (indexer);
 
 	/* Set up indexer */
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	priv->file_index = g_object_ref (index);
+	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
+	priv->file_index = g_object_ref (lindex);
 
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-	priv->email_index = g_object_ref (index);
+	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	priv->email_index = g_object_ref (lindex);
 
 	/* Set up databases, these pointers are mostly used to
 	 * start/stop transactions, since TrackerDBManager treats
@@ -973,7 +973,7 @@ index_metadata_item (TrackerField	 *field,
 		     const gchar	 *value,
 		     MetadataForeachData *data)
 {
-	TrackerDBIndex *index;
+	TrackerDBIndex *lindex;
 	gchar *parsed_value;
 	gchar **arr;
 	gint service_id;
@@ -1000,10 +1000,10 @@ index_metadata_item (TrackerField	 *field,
 
 	arr = g_strsplit (parsed_value, " ", -1);
 	service_id = tracker_service_get_id (data->service);
-	index = tracker_db_index_manager_get_index_by_service_id (service_id);
+	lindex = tracker_db_index_manager_get_index_by_service_id (service_id);
 
 	for (i = 0; arr[i]; i++) {
-		tracker_db_index_add_word (index,
+		tracker_db_index_add_word (lindex,
 					   arr[i],
 					   data->id,
 					   tracker_service_get_id (data->service),
@@ -1101,7 +1101,7 @@ send_text_to_index (TrackerIndexer *indexer,
 		    gboolean	    full_parsing,
 		    gint	    weight_factor)
 {
-	TrackerDBIndex *index;
+	TrackerDBIndex *lindex;
 	GHashTable     *parsed;
 	GHashTableIter	iter;
 	gpointer	key, value;
@@ -1131,10 +1131,10 @@ send_text_to_index (TrackerIndexer *indexer,
 
 	g_hash_table_iter_init (&iter, parsed);
 
-	index = tracker_db_index_manager_get_index_by_service_id (service_type);
+	lindex = tracker_db_index_manager_get_index_by_service_id (service_type);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		tracker_db_index_add_word (index,
+		tracker_db_index_add_word (lindex,
 					   key,
 					   service_id,
 					   service_type,
@@ -1209,7 +1209,7 @@ update_word_foreach (gpointer key,
 		     gpointer value,
 		     gpointer user_data)
 {
-	TrackerDBIndex	       *index;
+	TrackerDBIndex	       *lindex;
 	UpdateWordsForeachData *data;
 	gchar		       *word;
 	gint			score;
@@ -1219,9 +1219,9 @@ update_word_foreach (gpointer key,
 
 	data = user_data;
 
-	index = tracker_db_index_manager_get_index_by_service_id (data->service_type_id);
+	lindex = tracker_db_index_manager_get_index_by_service_id (data->service_type_id);
 
-	tracker_db_index_add_word (index,
+	tracker_db_index_add_word (lindex,
 				   word,
 				   data->service_id,
 				   data->service_type_id,

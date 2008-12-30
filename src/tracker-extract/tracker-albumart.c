@@ -240,8 +240,6 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 	GList *removable_roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
-	gchar **as_uri;
-	gchar **hints;
 
 	if (!filename)
 		return;
@@ -571,14 +569,14 @@ get_albumart_path (const gchar  *a,
 	if (!a || *a == '\0') 
 		f_a = g_strdup ("  ");
 	else if (strlen (a) == 1)
-		f_a = g_strconcat (a, " ");
+		f_a = g_strconcat (a, " ", NULL);
 	else
 		f_a = strip_characters (a);
 
 	if (!b || *b == '\0')
 		f_b = g_strdup ("  ");
 	else if (strlen (b) == 1)
-		f_b = g_strconcat (b, " ");
+		f_b = g_strconcat (b, " ", NULL);
 	else
 		f_b = strip_characters (b);
 

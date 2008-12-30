@@ -383,15 +383,15 @@ metadata_utils_get_embedded (const char            *path,
 
 		if (tracker_field_get_multiple_values (field)) {
 			GStrv arr;
-			guint i;
+			guint t;
 
 			arr = g_strsplit (value, "|",-1);
 
-			for (i = 0; arr[i]; i++) {
-				if (!g_utf8_validate (arr[i], -1, NULL)) {
-					utf_value = g_locale_to_utf8 (arr[i], -1, NULL, NULL, NULL);
+			for (t = 0; arr[t]; t++) {
+				if (!g_utf8_validate (arr[t], -1, NULL)) {
+					utf_value = g_locale_to_utf8 (arr[t], -1, NULL, NULL, NULL);
 				} else {
-					utf_value = g_strdup (arr[i]);
+					utf_value = g_strdup (arr[t]);
 				}
 
 				if (utf_value) {

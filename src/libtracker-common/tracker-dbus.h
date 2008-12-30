@@ -41,22 +41,22 @@ G_BEGIN_DECLS
 #define TRACKER_DBUS_ERROR_DOMAIN "TrackerDBus"
 #define TRACKER_DBUS_ERROR	  tracker_dbus_error_quark()
 
-#define tracker_dbus_async_return_if_fail(expr,context)			\
-	G_STMT_START {							\
-		if G_LIKELY(expr) { } else {				\
-			GError *error = NULL;				\
-									\
-			g_set_error (&error,				\
-				     TRACKER_DBUS_ERROR,		\
-				     0,					\
-				     _("Assertion `%s' failed"),	\
-				     #expr);				\
-									\
-			dbus_g_method_return_error (context, error);	\
-			g_clear_error (&error);				\
-									\
-			return;						\
-		};							\
+#define tracker_dbus_async_return_if_fail(expr,context)				\
+	G_STMT_START {								\
+		if G_LIKELY(expr) { } else {					\
+			GError *assert_error = NULL;				\
+										\
+			g_set_error (&assert_error,				\
+				     TRACKER_DBUS_ERROR,			\
+				     0,						\
+				     _("Assertion `%s' failed"),		\
+				     #expr);					\
+										\
+			dbus_g_method_return_error (context, assert_error);	\
+			g_clear_error (&assert_error);				\
+										\
+			return;							\
+		};								\
 	} G_STMT_END
 
 #define tracker_dbus_return_val_if_fail(expr,val,error)			\

@@ -733,6 +733,8 @@ black_list_check_items_cb (gpointer data)
 					       key,
 					       is_directory);
 				break;
+			default:
+				break;
 			}
 #else  /* USE_LIBINOTIFY */
 			g_signal_emit (monitor,
@@ -1066,8 +1068,9 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 				       event->file,
 				       is_directory);
 			break;
+		default:
+			break;
 		}
-
 		/* Clean up */
 		g_hash_table_iter_remove (&iter);
 	}
@@ -1197,8 +1200,9 @@ libinotify_cached_events_timeout_cb (gpointer data)
 				       is_directory);
 
 			break;
+		default:
+			break;
 		}
-
 		/* Clean up */
 		g_hash_table_iter_remove (&iter);
 	}
@@ -1502,6 +1506,8 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			 * convenience state and we handle the
 			 * MOVE_TO and MOVE_FROM already. 
 			 */
+			break;
+		default:
 			break;
 		}
 

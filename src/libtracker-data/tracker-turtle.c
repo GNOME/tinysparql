@@ -80,7 +80,7 @@ foreach_in_hash (gpointer key, gpointer value, gpointer user_data)
 {
 	raptor_statement    *statement;
 	TurtleOptimizerInfo *item = user_data;
-	const gchar         *about_uri = item->last_subject;
+	const guchar        *about_uri = (const guchar *) item->last_subject;
 	raptor_serializer   *serializer = item->serializer;
 
 	statement = g_new0 (raptor_statement, 1);
@@ -172,7 +172,7 @@ foreach_in_metadata (TrackerField *field, gpointer value, gpointer user_data)
 {
 	raptor_statement          *statement;
 	TrackerTurtleMetadataItem *item = user_data;
-	const gchar               *about_uri = item->about_uri;
+	const guchar              *about_uri = (const guchar *) item->about_uri;
 	TurtleFile                *turtle = item->turtle;
 	raptor_serializer         *serializer = turtle->serializer;
 
@@ -190,7 +190,7 @@ foreach_in_metadata (TrackerField *field, gpointer value, gpointer user_data)
 	statement->subject = (void *) raptor_new_uri (about_uri);
 	statement->subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
-	statement->predicate = (void *) raptor_new_uri (tracker_field_get_name (field));
+	statement->predicate = (void *) raptor_new_uri ((unsigned char *) tracker_field_get_name (field));
 	statement->predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
 	statement->object = (unsigned char *) g_strdup (value);
@@ -213,10 +213,10 @@ foreach_in_metadata (TrackerField *field, gpointer value, gpointer user_data)
 TurtleFile *
 tracker_turtle_open (const gchar *turtle_file)
 {
-	g_return_val_if_fail (initialized, NULL);
-
 #ifdef HAVE_RAPTOR
 	TurtleFile *turtle;
+
+	g_return_val_if_fail (initialized, NULL);
 
 	turtle = g_new0 (TurtleFile, 1);
 
@@ -226,12 +226,14 @@ tracker_turtle_open (const gchar *turtle_file)
 		turtle->file = g_fopen (turtle_file, "w");
 
 	turtle->serializer = raptor_new_serializer ("turtle");
-	turtle->uri = raptor_new_uri ("/");
+	turtle->uri = raptor_new_uri ((unsigned char *) "/");
 	raptor_serialize_start_to_file_handle (turtle->serializer, 
 					       turtle->uri, turtle->file);
 
 	return turtle;
 #else 
+	g_return_val_if_fail (initialized, NULL);
+
 	return NULL;
 #endif
 }
@@ -321,7 +323,7 @@ tracker_turtle_process (const gchar          *turtle_file,
 			void                 *user_data)
 {
 #ifdef HAVE_RAPTOR
-	unsigned char *uri_string;
+	unsigned char  *uri_string;
 	raptor_uri     *uri, *buri;
 	raptor_parser  *parser;
 #endif
@@ -340,7 +342,7 @@ tracker_turtle_process (const gchar          *turtle_file,
 
 	uri_string = raptor_uri_filename_to_uri_string (turtle_file);
 	uri = raptor_new_uri (uri_string);
-	buri = raptor_new_uri (base_uri);
+	buri = raptor_new_uri ((unsigned char *) base_uri);
 
 	raptor_parse_file (parser, uri, buri);
 
@@ -384,7 +386,7 @@ tracker_turtle_optimize (const gchar *turtle_file)
 
 	info = g_slice_new0 (TurtleOptimizerInfo);
 	info->serializer = raptor_new_serializer ("turtle");
-	suri = raptor_new_uri ("/");
+	suri = raptor_new_uri ((unsigned char *) "/");
 
 	base_uri = g_strdup_printf ("file://%s", turtle_file);
 

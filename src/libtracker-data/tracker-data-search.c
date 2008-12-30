@@ -134,26 +134,26 @@ tracker_data_search_text (TrackerDBInterface *iface,
 
 		if (result_set) {
 			gchar *path;
-			guint  columns, i;
+			guint  columns, t;
 
 			tracker_db_result_set_get (result_set, 0, &path, -1);
 
 				columns = tracker_db_result_set_get_n_columns (result_set);
 
 				if (G_UNLIKELY (!result)) {
-					guint columns;
+					guint lcolumns;
 
-					columns = tracker_db_result_set_get_n_columns (result_set);
-					result = _tracker_db_result_set_new (columns);
+					lcolumns = tracker_db_result_set_get_n_columns (result_set);
+					result = _tracker_db_result_set_new (lcolumns);
 				}
 
 				_tracker_db_result_set_append (result);
 
-				for (i = 0; i < columns; i++) {
+				for (t = 0; t < columns; t++) {
 					GValue value = { 0, };
 
-					_tracker_db_result_set_get_value (result_set, i, &value);
-					_tracker_db_result_set_set_value (result, i, &value);
+					_tracker_db_result_set_get_value (result_set, t, &value);
+					_tracker_db_result_set_set_value (result, t, &value);
 					g_value_unset (&value);
 				}
 
@@ -579,7 +579,7 @@ tracker_data_search_files_get_by_mime (TrackerDBInterface  *iface,
 {
 	TrackerDBResultSet *result_set;
 	gint		    i;
-	gchar		   *service;
+	const gchar	   *service;
 	gchar		   *query;
 	GString		   *str;
 
@@ -1539,7 +1539,7 @@ tracker_data_search_keywords (const gchar	*service_type,
 	TrackerDBResultSet  *result_set;
 	const gchar	   **p;
 	GString		    *search;
-	GString		    *select;
+	GString		    *lselect;
 	GString		    *where;
 	gchar		    *related_metadata;
 	gchar		    *query;
@@ -1569,10 +1569,10 @@ tracker_data_search_keywords (const gchar	*service_type,
 	}
 
 	/* Create select string */
-	select = g_string_new (" Select distinct S.Path || '");
-	select = g_string_append (select, G_DIR_SEPARATOR_S);
-	select = g_string_append (select,
-				  "' || S.Name as EntityName from Services AS S, ServiceKeywordMetaData AS M ");
+	lselect = g_string_new (" Select distinct S.Path || '");
+	lselect = g_string_append (lselect, G_DIR_SEPARATOR_S);
+	lselect = g_string_append (lselect,
+				   "' || S.Name as EntityName from Services AS S, ServiceKeywordMetaData AS M ");
 
 	/* Create where string */
 	related_metadata = tracker_data_schema_metadata_field_get_related_names (iface, "User:Keywords");
@@ -1597,8 +1597,8 @@ tracker_data_search_keywords (const gchar	*service_type,
 				max_hits);
 
 	/* Finalize query */
-	query = g_strconcat (select->str, where->str, NULL);
-	g_string_free (select, TRUE);
+	query = g_strconcat (lselect->str, where->str, NULL);
+	g_string_free (lselect, TRUE);
 	g_string_free (where, TRUE);
 
 	g_debug ("%s", query);

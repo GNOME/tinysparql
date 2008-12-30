@@ -30,7 +30,7 @@
 #include "tracker-indexer-glue.h"
 
 static DBusGConnection *connection;
-static DBusGProxy      *proxy;
+static DBusGProxy      *gproxy;
 
 static gboolean
 dbus_register_service (DBusGProxy  *proxy,
@@ -114,7 +114,7 @@ dbus_register_names (void)
 		return FALSE;
 	}
 
-	if (proxy) {
+	if (gproxy) {
 		g_critical ("The DBusGProxy is already set, have we already initialized?");
 		return FALSE;
 	}
@@ -131,13 +131,13 @@ dbus_register_names (void)
 	/* The definitions below (DBUS_SERVICE_DBUS, etc) are
 	 * predefined for us to just use (dbus_g_proxy_...)
 	 */
-	proxy = dbus_g_proxy_new_for_name (connection,
-					   DBUS_SERVICE_DBUS,
-					   DBUS_PATH_DBUS,
-					   DBUS_INTERFACE_DBUS);
+	gproxy = dbus_g_proxy_new_for_name (connection,
+					    DBUS_SERVICE_DBUS,
+					    DBUS_PATH_DBUS,
+					    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker */
-	if (!dbus_register_service (proxy, TRACKER_INDEXER_SERVICE)) {
+	if (!dbus_register_service (gproxy, TRACKER_INDEXER_SERVICE)) {
 		return FALSE;
 	}
 
@@ -148,7 +148,7 @@ gboolean
 tracker_dbus_init (void)
 {
 	/* Don't reinitialize */
-	if (connection && proxy) {
+	if (connection && gproxy) {
 		return TRUE;
 	}
 
@@ -163,9 +163,9 @@ tracker_dbus_init (void)
 void
 tracker_dbus_shutdown (void)
 {
-	if (proxy) {
-		g_object_unref (proxy);
-		proxy = NULL;
+	if (gproxy) {
+		g_object_unref (gproxy);
+		gproxy = NULL;
 	}
 
 	connection = NULL;
@@ -174,7 +174,7 @@ tracker_dbus_shutdown (void)
 gboolean
 tracker_dbus_register_object (GObject *object)
 {
-	if (!connection || !proxy) {
+	if (!connection || !gproxy) {
 		g_critical ("DBus support must be initialized before registering objects!");
 		return FALSE;
 	}
@@ -182,7 +182,7 @@ tracker_dbus_register_object (GObject *object)
 	if (TRACKER_IS_INDEXER (object)) {
 		return dbus_register_object (object,
 					     connection,
-					     proxy,
+					     gproxy,
 					     &dbus_glib_tracker_indexer_object_info,
 					     TRACKER_INDEXER_PATH);
 	} else {

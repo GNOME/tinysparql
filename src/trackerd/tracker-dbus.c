@@ -52,7 +52,7 @@
 #define INDEXER_PAUSE_TIME_FOR_REQUESTS 10 /* seconds */
 
 static DBusGConnection *connection;
-static DBusGProxy      *proxy;
+static DBusGProxy      *gproxy;
 static DBusGProxy      *proxy_for_indexer;
 static GSList	       *objects;
 static guint		indexer_resume_timeout_id;
@@ -91,7 +91,7 @@ dbus_register_service (DBusGProxy  *proxy,
 }
 
 static void
-dbus_register_object (DBusGConnection	    *connection,
+dbus_register_object (DBusGConnection	    *lconnection,
 		      DBusGProxy	    *proxy,
 		      GObject		    *object,
 		      const DBusGObjectInfo *info,
@@ -102,7 +102,7 @@ dbus_register_object (DBusGConnection	    *connection,
 	g_message ("  Type:'%s'", G_OBJECT_TYPE_NAME (object));
 
 	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), info);
-	dbus_g_connection_register_g_object (connection, path, object);
+	dbus_g_connection_register_g_object (lconnection, path, object);
 }
 
 static void
@@ -122,7 +122,7 @@ dbus_register_names (TrackerConfig *config)
 		return FALSE;
 	}
 
-	if (proxy) {
+	if (gproxy) {
 		g_critical ("The DBusGProxy is already set, have we already initialized?");
 		return FALSE;
 	}
@@ -139,19 +139,19 @@ dbus_register_names (TrackerConfig *config)
 	/* The definitions below (DBUS_SERVICE_DBUS, etc) are
 	 * predefined for us to just use (dbus_g_proxy_...)
 	 */
-	proxy = dbus_g_proxy_new_for_name (connection,
-					   DBUS_SERVICE_DBUS,
-					   DBUS_PATH_DBUS,
-					   DBUS_INTERFACE_DBUS);
+	gproxy = dbus_g_proxy_new_for_name (connection,
+					    DBUS_SERVICE_DBUS,
+					    DBUS_PATH_DBUS,
+					    DBUS_INTERFACE_DBUS);
 
 	/* Register the service name for org.freedesktop.Tracker */
-	if (!dbus_register_service (proxy, TRACKER_DAEMON_SERVICE)) {
+	if (!dbus_register_service (gproxy, TRACKER_DAEMON_SERVICE)) {
 		return FALSE;
 	}
 
 	/* Register the service name for org.freedesktop.xesam if XESAM is enabled */
 	if (tracker_config_get_enable_xesam (config)) {
-		if (!dbus_register_service (proxy, TRACKER_XESAM_SERVICE)) {
+		if (!dbus_register_service (gproxy, TRACKER_XESAM_SERVICE)) {
 			return FALSE;
 		}
 	}
@@ -297,9 +297,9 @@ tracker_dbus_shutdown (void)
 		objects = NULL;
 	}
 
-	if (proxy) {
-		g_object_unref (proxy);
-		proxy = NULL;
+	if (gproxy) {
+		g_object_unref (gproxy);
+		gproxy = NULL;
 	}
 
 	if (proxy_for_indexer) {
@@ -324,7 +324,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	g_return_val_if_fail (TRACKER_IS_DB_INDEX (file_index), FALSE);
 	g_return_val_if_fail (TRACKER_IS_DB_INDEX (email_index), FALSE);
 
-	if (!connection || !proxy) {
+	if (!connection || !gproxy) {
 		g_critical ("DBus support must be initialized before registering objects!");
 		return FALSE;
 	}
@@ -337,7 +337,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 	dbus_register_object (connection,
-			      proxy,
+			      gproxy,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_daemon_object_info,
 			      TRACKER_DAEMON_PATH);
@@ -351,7 +351,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 	dbus_register_object (connection,
-			      proxy,
+			      gproxy,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_files_object_info,
 			      TRACKER_FILES_PATH);
@@ -365,7 +365,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 	dbus_register_object (connection,
-			      proxy,
+			      gproxy,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_keywords_object_info,
 			      TRACKER_KEYWORDS_PATH);
@@ -379,7 +379,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 	dbus_register_object (connection,
-			      proxy,
+			      gproxy,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_metadata_object_info,
 			      TRACKER_METADATA_PATH);
@@ -393,7 +393,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 	}
 
 	dbus_register_object (connection,
-			      proxy,
+			      gproxy,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_search_object_info,
 			      TRACKER_SEARCH_PATH);
@@ -408,17 +408,17 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 		}
 
 		dbus_register_object (connection,
-				      proxy,
+				      gproxy,
 				      G_OBJECT (object),
 				      &dbus_glib_tracker_xesam_object_info,
 				      TRACKER_XESAM_PATH);
 		objects = g_slist_prepend (objects, object);
 
-		dbus_g_proxy_add_signal (proxy, "NameOwnerChanged",
+		dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
 					 G_TYPE_STRING, G_TYPE_STRING,
 					 G_TYPE_STRING, G_TYPE_INVALID);
 
-		dbus_g_proxy_connect_signal (proxy, "NameOwnerChanged",
+		dbus_g_proxy_connect_signal (gproxy, "NameOwnerChanged",
 					     G_CALLBACK (tracker_xesam_name_owner_changed),
 					     g_object_ref (G_OBJECT (object)),
 					     dbus_name_owner_changed);

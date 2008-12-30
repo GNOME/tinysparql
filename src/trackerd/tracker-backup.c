@@ -20,15 +20,17 @@
  */
 #include "config.h"
 
-#include "tracker-backup.h"
-
-#include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-turtle.h>
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #ifdef HAVE_RAPTOR
 #include <raptor.h>
 #endif
+
+#include <libtracker-data/tracker-data-query.h>
+#include <libtracker-data/tracker-turtle.h>
+
+#include "tracker-backup.h"
 
 /*
  * (uri, metadataid, value)
@@ -39,11 +41,9 @@ extended_result_set_to_turtle (TrackerDBResultSet  *result_set, TurtleFile *turt
 	TrackerField        *field;
 	gint	             metadata_id;
 	gboolean             valid = TRUE;
-	TrackerDataMetadata *metadata;
 
 	while (valid) {
 		GValue transform = {0, };
-		GValue value = {0, };
 		gchar *str = NULL;
 		gchar *uri;
 		gchar *service_type;

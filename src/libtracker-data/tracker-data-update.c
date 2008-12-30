@@ -615,7 +615,7 @@ set_metadata (TrackerField *field,
 	      gpointer value, 
 	      ForeachInMetadataInfo *info)
 {
-	TrackerDBIndex *index;
+	TrackerDBIndex *lindex;
 	gchar *parsed_value;
 	gchar **arr;
 	gint service_id;
@@ -642,10 +642,10 @@ set_metadata (TrackerField *field,
 
 	arr = g_strsplit (parsed_value, " ", -1);
 	service_id = tracker_service_get_id (info->service);
-	index = tracker_db_index_manager_get_index_by_service_id (service_id);
+	lindex = tracker_db_index_manager_get_index_by_service_id (service_id);
 
 	for (i = 0; arr[i]; i++) {
-		tracker_db_index_add_word (index,
+		tracker_db_index_add_word (lindex,
 					   arr[i],
 					   info->iid_value,
 					   tracker_service_get_id (info->service),

@@ -69,7 +69,7 @@ static void
 private_free (gpointer data)
 {
 	TrackerThumbnailerPrivate *private;
-	gint i;
+	guint i;
 
 	private = data;
 

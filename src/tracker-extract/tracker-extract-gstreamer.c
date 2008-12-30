@@ -276,14 +276,14 @@ gst_bus_cb (GstBus	      *bus,
 
 	switch (msg_type) {
 	case GST_MESSAGE_ERROR: {
-		GstMessage *message  = NULL;
+		GstMessage *messag   = NULL;
 		GError	   *gsterror = NULL;
 		gchar	   *debug    = NULL;
 
-		gst_message_parse_error (message, &gsterror, &debug);
+		gst_message_parse_error (messag, &gsterror, &debug);
 		g_warning ("Error: %s (%s)", gsterror->message, debug);
 
-		gst_message_unref (message);
+		gst_message_unref (messag);
 		g_error_free (gsterror);
 		g_free (debug);
 	}
@@ -531,12 +531,12 @@ static void
 get_embedded_album_art(MetadataExtractor *extractor)
 {
 	const GValue *value;
-	guint         index;
+	guint         lindex;
 
-	index = 0;
+	lindex = 0;
 
 	do {
-		value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_IMAGE, index);
+		value = gst_tag_list_get_value_index (extractor->tagcache, GST_TAG_IMAGE, lindex);
 
 		if (value) {
 			GstBuffer    *buffer;
@@ -563,7 +563,7 @@ get_embedded_album_art(MetadataExtractor *extractor)
 
 			gst_object_unref (caps);
 
-			index++;
+			lindex++;
 		}
 	} while (value);
 }

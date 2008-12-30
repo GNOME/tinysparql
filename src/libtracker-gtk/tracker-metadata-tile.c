@@ -92,7 +92,7 @@ static inline gboolean is_empty_string (const char *s);
 
 /* structs & enums */
 
-static char *default_keys[] =
+static const char *default_keys[] =
 {
 	"File:Name",
 	"File:Path",
@@ -113,7 +113,7 @@ enum {
 	DEFAULT_N_KEYS
 };
 
-static char *doc_keys[] =
+static const char *doc_keys[] =
 {
 	"File:Name",
 	"Doc:Subject",
@@ -138,7 +138,7 @@ enum {
 
 
 
-static char *email_keys[] =
+static const char *email_keys[] =
 {
 	"Email:Sender",
 	"Email:Subject",
@@ -159,7 +159,7 @@ enum {
 	EMAIL_N_KEYS
 };
 
-static char *webhistory_keys[] =
+static const char *webhistory_keys[] =
 {
 	"Doc:URL",
 	"Doc:Title",
@@ -179,7 +179,7 @@ enum {
 };
 
 
-static char *app_keys[] =
+static const char *app_keys[] =
 {
 	"App:DisplayName",
 	"App:GenericName",
@@ -197,7 +197,7 @@ enum {
 };
 
 
-static char *audio_keys[] =
+static const char *audio_keys[] =
 {
 	"Audio:Title",
 	"Audio:Artist",
@@ -224,7 +224,7 @@ enum {
 	AUDIO_N_KEYS
 };
 
-static char *image_keys[] =
+static const char *image_keys[] =
 {
 	"File:Name",
 	"Image:Height",
@@ -253,7 +253,7 @@ enum {
 	IMAGE_N_KEYS
 };
 
-static char *video_keys[] =
+static const char *video_keys[] =
 {
 	"File:Name",
 	"Video:Height",
@@ -1043,9 +1043,9 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 static void
 tracker_metadata_tile_show (TrackerMetadataTile *tile)
 {
-	g_return_if_fail (TRACKER_IS_METADATA_TILE (tile));
-
 	TrackerMetadataTilePrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_METADATA_TILE (tile));
 
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
 
@@ -1091,6 +1091,11 @@ draw (GtkWidget *widget, cairo_t *cr)
 	GtkStyle *style;
 	GdkColor step1;
 	GdkColor step2;
+	cairo_pattern_t *pat;
+	cairo_text_extents_t extents;
+	double x,y;
+	int font_slant = CAIRO_FONT_SLANT_NORMAL;
+	int font_weight = CAIRO_FONT_WEIGHT_NORMAL;
 
 	tile = TRACKER_METADATA_TILE (widget);
 	priv = TRACKER_METADATA_TILE_GET_PRIVATE (tile);
@@ -1110,7 +1115,6 @@ draw (GtkWidget *widget, cairo_t *cr)
 	cairo_move_to(cr, 0, 0);
 	cairo_set_line_width(cr, 1.0);
 
-	cairo_pattern_t *pat;
 	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
 	/* main gradient */
@@ -1158,10 +1162,6 @@ draw (GtkWidget *widget, cairo_t *cr)
 	if (priv->type == NULL)
 		return;
 
-	cairo_text_extents_t extents;
-	double x,y;
-	int font_slant = CAIRO_FONT_SLANT_NORMAL;
-	int font_weight = CAIRO_FONT_WEIGHT_NORMAL;
 
 	cairo_select_font_face (cr, "Sans",font_slant, font_weight);
 	cairo_set_font_size (cr, 40);

@@ -1152,6 +1152,7 @@ build_sql (ParserData *data)
 			break;
 
 		default:
+		case OP_NONE:
 			break;
 		}
 
@@ -1384,7 +1385,7 @@ tracker_xesam_query_to_sql (TrackerDBInterface	*iface,
 	static gboolean  inited = FALSE;
 	ParserData	 data;
 	gchar		*result;
-	gchar		*table_name;
+	const gchar	*table_name;
 
 	g_return_if_fail (TRACKER_IS_DB_INTERFACE (iface));
 	g_return_if_fail (query != NULL);

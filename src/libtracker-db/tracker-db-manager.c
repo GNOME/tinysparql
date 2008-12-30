@@ -598,7 +598,7 @@ static void
 load_service_file_xesam_insert (TrackerDBInterface *iface,
 				const gchar	   *sql_format,
 				const gchar	   *data_to_split,
-				const gchar	   *data_to_insert)
+				const gchar	   *data_to_insert) 
 {
 	gchar **parents;
 	gchar **parent;
@@ -2774,7 +2774,7 @@ tracker_db_manager_optimize (void)
 	TrackerDBInterface *iface;
 	TrackerDB           db;
 	gboolean            dbs_are_open = FALSE;
-	gint                i;
+	guint               i;
 
 	g_return_if_fail (initialized != FALSE);
 

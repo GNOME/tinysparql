@@ -41,7 +41,7 @@
 
 gint
 tracker_file_open (const gchar *uri,
-		   gboolean	readahead)
+		   gboolean	lreadahead)
 {
 	gint fd;
 
@@ -60,7 +60,7 @@ tracker_file_open (const gchar *uri,
 	}
 
 #ifdef HAVE_POSIX_FADVISE
-	if (readahead) {
+	if (lreadahead) {
 		posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 	} else {
 		posix_fadvise (fd, 0, 0, POSIX_FADV_RANDOM);
@@ -574,22 +574,22 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 			} 
 
 			if (basename_exception_prefix) {
-				gchar *basename;
+				gchar *lbasename;
 				gboolean has_prefix = FALSE;
 
-				basename = g_path_get_basename (path);
-				if (!g_str_has_prefix (basename, basename_exception_prefix)) {
-					g_free (basename);
+				lbasename = g_path_get_basename (path);
+				if (!g_str_has_prefix (lbasename, basename_exception_prefix)) {
+					g_free (lbasename);
 					
-					basename = g_path_get_basename (in_path);
-					if (g_str_has_prefix (basename, basename_exception_prefix)) {
+					lbasename = g_path_get_basename (in_path);
+					if (g_str_has_prefix (lbasename, basename_exception_prefix)) {
 						has_prefix = TRUE;
 					}	
 				} else {
 					has_prefix = TRUE;
 				}
 
-				g_free (basename);
+				g_free (lbasename);
 
 				/* This is so we can ignore this check
 				 * on files which prefix with ".".

@@ -53,6 +53,8 @@
 #include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-index-manager.h>
 
+#include <libtracker-data/tracker-turtle.h>
+
 #include "tracker-crawler.h"
 #include "tracker-dbus.h"
 #include "tracker-indexer-client.h"
@@ -321,7 +323,6 @@ mount_point_added_cb (TrackerHal  *hal,
 		      gpointer	   user_data)
 {
 	TrackerMainPrivate *private;
-	GError *error = NULL;
 	
 	private = g_static_private_get (&private_key);
 
@@ -343,7 +344,6 @@ mount_point_removed_cb (TrackerHal  *hal,
 			gpointer     user_data)
 {
 	TrackerMainPrivate *private;
-	GError *error = NULL;
 	
 	private = g_static_private_get (&private_key);
 
@@ -1083,6 +1083,8 @@ main (gint argc, gchar *argv[])
 
 	case TRACKER_RUNNING_MAIN_INSTANCE:
 		tracker_status_set_is_readonly (FALSE);
+		break;
+	default:
 		break;
 	}
 

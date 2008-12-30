@@ -322,7 +322,7 @@ tracker_evolution_imap_db_file_initialize (TrackerModuleFile *file)
 				    -1, &self->stmt, NULL);
 		if (self->stmt) {
 			result = sqlite3_step (self->stmt);
-			self->cur_message_uid = g_strdup (sqlite3_column_text (self->stmt, 0));
+			self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
 			self->cur_message = 1;
 		}
 	}
@@ -698,11 +698,11 @@ get_message_metadata (TrackerModuleFile *file)
 
 	deleted = sqlite3_column_int (self->stmt, 1);
 	/* hasattach = sqlite3_column_int (self->stmt, 2); */
-	date = g_strdup (sqlite3_column_text (self->stmt, 3));
-	subject = g_strdup (sqlite3_column_text (self->stmt, 4));
-	from = g_strdup (sqlite3_column_text (self->stmt, 5));
-	to = g_strdup (sqlite3_column_text (self->stmt, 6));
-	cc = g_strdup (sqlite3_column_text (self->stmt, 7));
+	date = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 3));
+	subject = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 4));
+	from = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 5));
+	to = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 6));
+	cc = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 7));
 
 	if (!deleted) {
 		metadata = tracker_module_metadata_new ();
@@ -852,7 +852,7 @@ tracker_evolution_imap_db_file_iter_contents (TrackerModuleIteratable *iteratabl
         g_free (self->cur_message_uid);
         self->cur_message_uid = NULL;
 
-	self->cur_message_uid = g_strdup (sqlite3_column_text (self->stmt, 0));
+	self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
 	sqlite3_step (self->stmt);
 
         self->cur_message++;

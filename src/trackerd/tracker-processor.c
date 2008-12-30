@@ -30,6 +30,7 @@
 
 #include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-index-manager.h>
+#include <libtracker-db/tracker-db-manager.h>
 
 #include "tracker-processor.h"
 #include "tracker-crawler.h"
@@ -466,29 +467,29 @@ crawler_destroy_notify (gpointer data)
 	crawler = TRACKER_CRAWLER (data);
 
 	if (crawler) {
-		guint signals;
+		guint lsignals;
 
-		signals = g_signal_handlers_disconnect_matched (crawler,
-								G_SIGNAL_MATCH_FUNC,
-								0,
-								0,
-								NULL,
-								G_CALLBACK (crawler_processing_file_cb),
-								NULL);
-		signals = g_signal_handlers_disconnect_matched (crawler,
-								G_SIGNAL_MATCH_FUNC,
-								0,
-								0,
-								NULL,
-								G_CALLBACK (crawler_processing_directory_cb),
-								NULL);
-		signals = g_signal_handlers_disconnect_matched (crawler,
-								G_SIGNAL_MATCH_FUNC,
-								0,
-								0,
-								NULL,
-								G_CALLBACK (crawler_finished_cb),
-								NULL);
+		lsignals = g_signal_handlers_disconnect_matched (crawler,
+								 G_SIGNAL_MATCH_FUNC,
+								 0,
+								 0,
+								 NULL,
+								 G_CALLBACK (crawler_processing_file_cb),
+								 NULL);
+		lsignals = g_signal_handlers_disconnect_matched (crawler,
+								 G_SIGNAL_MATCH_FUNC,
+								 0,
+								 0,
+								 NULL,
+								 G_CALLBACK (crawler_processing_directory_cb),
+								 NULL);
+		lsignals = g_signal_handlers_disconnect_matched (crawler,
+								 G_SIGNAL_MATCH_FUNC,
+								 0,
+								 0,
+								 NULL,
+								 G_CALLBACK (crawler_finished_cb),
+								 NULL);
 
 		g_object_unref (crawler);
 	}
@@ -1005,7 +1006,7 @@ indexer_status_cb (DBusGProxy  *proxy,
 		   gpointer	user_data)
 {
 	TrackerProcessor *processor;
-	TrackerDBIndex	 *index;
+	TrackerDBIndex	 *lindex;
 	GQueue		 *queue;
 	GFile		 *file;
 	gchar		 *path = NULL;
@@ -1046,11 +1047,11 @@ indexer_status_cb (DBusGProxy  *proxy,
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	tracker_db_index_set_reload (index, TRUE);
+	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
+	tracker_db_index_set_reload (lindex, TRUE);
 
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-	tracker_db_index_set_reload (index, TRUE);
+	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	tracker_db_index_set_reload (lindex, TRUE);
 
 	/* Message to the console about state */
 	str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
@@ -1078,7 +1079,7 @@ indexer_finished_cb (DBusGProxy  *proxy,
 		     gpointer	  user_data)
 {
 	TrackerProcessor *processor;
-	TrackerDBIndex	 *index;
+	TrackerDBIndex	 *lindex;
 	GObject		 *object;
 	gchar		 *str;
 
@@ -1103,11 +1104,11 @@ indexer_finished_cb (DBusGProxy  *proxy,
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	tracker_db_index_set_reload (index, TRUE);
+	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
+	tracker_db_index_set_reload (lindex, TRUE);
 
-	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-	tracker_db_index_set_reload (index, TRUE);
+	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	tracker_db_index_set_reload (lindex, TRUE);
 
 	/* Message to the console about state */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
@@ -1447,7 +1448,6 @@ mount_point_removed_cb (TrackerHal  *hal,
 {
 	TrackerProcessor *processor;
 	GFile		 *file;
-	const gchar      *module_name = "files";
 
 	processor = user_data;
 

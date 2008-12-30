@@ -91,8 +91,6 @@ enum {
 	PROP_SERVICES
 };
 
-static void tracker_query_tree_class_init   (TrackerQueryTreeClass *class);
-static void tracker_query_tree_init	    (TrackerQueryTree	   *tree);
 static void tracker_query_tree_finalize     (GObject		   *object);
 static void tracker_query_tree_set_property (GObject		   *object,
 					     guint		    prop_id,
@@ -373,6 +371,7 @@ create_query_tree (TrackerQueryTree *tree)
 			last_element_is_term = FALSE;
 			break;
 		default:
+		case OP_NONE:
 			/* search term */
 			parsed_str = tracker_parser_text_to_string (strings[i],
 								    priv->language,
@@ -406,6 +405,7 @@ create_query_tree (TrackerQueryTree *tree)
 			g_queue_push_head (stack, node);
 			break;
 		default:
+		case OP_NONE:
 			g_queue_push_head (stack, node);
 			break;
 		}

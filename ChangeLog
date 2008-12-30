@@ -1,3 +1,45 @@
+2008-12-30  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker/tracker.h
+	* src/libtracker/tracker.c
+	* src/tracker-indexer/tracker-dbus.c
+	* src/tracker-indexer/modules/evolution.c
+	* src/tracker-indexer/modules/evolution-imap-db.c
+	* src/tracker-indexer/tracker-indexer.c
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	* src/tracker-utils/tracker-meta-folder.c
+	* src/libtracker-data/tracker-data-schema.c
+	* src/libtracker-data/tracker-data-search.c
+	* src/libtracker-data/tracker-data-query.c
+	* src/libtracker-data/tracker-rdf-query.c
+	* src/libtracker-data/tracker-turtle.c
+	* src/libtracker-data/tracker-xesam-query.c
+	* src/libtracker-data/tracker-data-update.c
+	* src/libtracker-data/tracker-query-tree.c
+	* src/trackerd/tracker-keywords.c
+	* src/trackerd/tracker-processor.c
+	* src/trackerd/tracker-main.c
+	* src/trackerd/tracker-backup.c
+	* src/trackerd/tracker-monitor.c
+	* src/trackerd/tracker-cleanup.c
+	* src/trackerd/tracker-dbus.c
+	* src/tracker-extract/tracker-albumart.c
+	* src/tracker-extract/tracker-extract-mp3.c
+	* src/tracker-extract/tracker-extract-oasis.c
+	* src/tracker-extract/tracker-extract-ps.c
+	* src/tracker-extract/tracker-extract-png.c
+	* src/tracker-extract/tracker-extract-gstreamer.c
+	* src/libtracker-gtk/tracker-metadata-tile.c
+	* src/libtracker-db/tracker-db-dbus.c
+	* src/libtracker-db/tracker-db-interface-sqlite.c
+	* src/libtracker-db/tracker-db-manager.c
+	* src/libtracker-db/tracker-db-index-manager.c
+	* src/libtracker-common/tracker-thumbnailer.c
+	* src/libtracker-common/tracker-file-utils.c
+	* src/libtracker-common/tracker-dbus.h
+	* src/libinotify/inotify-log.h
+	* src/libinotify/inotify-monitor.c: Compilation warning fixes
+
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 
 	Fixed (some) compilation warnings in ultra-strict mode in

@@ -65,17 +65,17 @@ static MailStorageType
 get_mail_storage_type_from_path (const gchar *path)
 {
 	MailStorageType type = MAIL_STORAGE_NONE;
-	gchar *basename;
+	gchar *basenam;
 
-	basename = g_path_get_basename (path);
+	basenam = g_path_get_basename (path);
 
 	if (g_str_has_prefix (path, local_dir) &&
-	    strchr (basename, '.') == NULL) {
+	    strchr (basenam, '.') == NULL) {
 		type = MAIL_STORAGE_LOCAL;
 	} else if (g_str_has_prefix (path, imap_dir)) {
-		if (strcmp (basename, "summary") == 0) {
+		if (strcmp (basenam, "summary") == 0) {
 			type = MAIL_STORAGE_IMAP;
-		} else if (strcmp (basename, "folders.db") == 0) {
+		} else if (strcmp (basenam, "folders.db") == 0) {
 			type = MAIL_STORAGE_IMAP_DB;
 		}
 	}
@@ -90,7 +90,7 @@ get_mail_storage_type_from_path (const gchar *path)
 		type = MAIL_STORAGE_NONE;
 	}
 
-	g_free (basename);
+	g_free (basenam);
 
 	return type;
 }

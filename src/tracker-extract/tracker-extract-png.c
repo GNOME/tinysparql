@@ -48,8 +48,8 @@
 typedef gchar * (*PostProcessor) (gchar *);
 
 typedef struct {
-	gchar	      *name;
-	gchar	      *type;
+	const gchar   *name;
+	const gchar   *type;
 	PostProcessor  post;
 } TagProcessors;
 

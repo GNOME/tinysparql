@@ -292,7 +292,7 @@ extract_ps_gz (const gchar *filename,
 	gchar	    *gunzipped;
 	gint	     fdz;
 	gint	     fd;
-	gboolean     stat;
+	gboolean     ptat;
 	const gchar *argv[4];
 
 	fd = g_file_open_tmp ("tracker-extract-ps-gunzipped.XXXXXX",
@@ -309,7 +309,7 @@ extract_ps_gz (const gchar *filename,
 	argv[2] = filename;
 	argv[3] = NULL;
 
-	stat = g_spawn_async_with_pipes (g_get_tmp_dir (),
+	ptat = g_spawn_async_with_pipes (g_get_tmp_dir (),
 					 (gchar **) argv,
 					 NULL,
 					 G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
@@ -321,7 +321,7 @@ extract_ps_gz (const gchar *filename,
 					 NULL,
 					 &error);
 
-	if (!stat) {
+	if (!ptat) {
 		g_unlink (gunzipped);
 		g_clear_error (&error);
 		return;

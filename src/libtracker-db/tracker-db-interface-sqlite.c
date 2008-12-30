@@ -417,6 +417,8 @@ create_result_set_from_stmt (TrackerDBInterfaceSqlite  *interface,
 
 			add_row (result_set, stmt);
 			break;
+		default:
+			break;
 		}
 	}
 

@@ -889,6 +889,7 @@ build_sql (ParserData *data)
 		break;
 
 	default:
+	case OP_NONE:
 		break;
 	}
 
@@ -1080,8 +1081,7 @@ text_handler (GMarkupParseContext *context,
 
                 data->current_value = g_strstrip (g_strndup (text, text_len));
                 break;
-
-        default :
+        default:
                 break;
 	}
 }
@@ -1218,7 +1218,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 		table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-		for (keyword=0; keyword<keyword_count; keyword++) {
+		for (keyword = 0; keyword < (guint) keyword_count; keyword++) {
 			gchar *full;
 			gchar *sep;
 			gchar *value;
@@ -1555,7 +1555,7 @@ tracker_rdf_query_for_attr_value (const gchar *field,
                                   const gchar *value)
 {
  	TrackerField *field_def;
- 	gchar        *rdf_type = NULL;
+ 	const gchar  *rdf_type = NULL;
  	gchar        *rdf_query;
  	
  	field_def = tracker_ontology_get_field_by_name (field);
@@ -1578,6 +1578,7 @@ tracker_rdf_query_for_attr_value (const gchar *field,
                 rdf_type = "rdf:Integer";
                 break;
 
+ 	default:
  	case TRACKER_FIELD_TYPE_BLOB:
  	case TRACKER_FIELD_TYPE_STRUCT:
  	case TRACKER_FIELD_TYPE_LINK:

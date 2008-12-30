@@ -46,9 +46,9 @@ row_add (GPtrArray *row, gchar *value)
 }
 
 static inline void
-row_insert (GPtrArray *row, gchar *value, guint index)
+row_insert (GPtrArray *row, gchar *value, guint lindex)
 {
-	OneElem *elem = g_ptr_array_index (row, index);
+	OneElem *elem = g_ptr_array_index (row, lindex);
 	GSList  *list = elem->value;
 	GSList  *iter;
 

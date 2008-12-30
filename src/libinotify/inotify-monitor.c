@@ -257,6 +257,9 @@ inotify_internal_callback( INotifyHandle *inh, const char *monitor_name,
 	inotify_monitor_remove_raw( child );
 
 	break;
+	default:
+	   break;
+
     }
 
     return;
@@ -289,6 +292,8 @@ inotify_internal_callback( INotifyHandle *inh, const char *monitor_name,
       /* Then unregister our watch with the kernel. */
       inotify_monitor_remove_raw( child );
       break;
+    default:
+      break;
   }
 }
 
@@ -318,17 +323,17 @@ inotify_monitor_add( const char *filename, guint32 mask, unsigned long flags,
   else
   {
     const char *parent = g_path_get_dirname( filename );
-    unsigned long flags;
-    guint32 mask;
+    unsigned long lflags;
+    guint32 lmask;
 
-    flags = IN_FLAG_FILE_BASED | IN_FLAG_SYNTH_CREATE;
-    mask = IN_MOVED_FROM | IN_MOVED_TO | IN_CREATE | IN_DELETE |
+    lflags = IN_FLAG_FILE_BASED | IN_FLAG_SYNTH_CREATE;
+    lmask = IN_MOVED_FROM | IN_MOVED_TO | IN_CREATE | IN_DELETE |
 	   IN_DELETE_SELF | IN_MOVE_SELF | IN_SYNTHETIC;
 
     inotify_debug( "Adding internal callback %p for %p(%s)",
 		   inotify_internal_callback, inh, parent );
 
-    pinh = inotify_monitor_add( parent, mask, flags,
+    pinh = inotify_monitor_add( parent, lmask, lflags,
 				inotify_internal_callback, inh );
 
     inotify_handle_set_parent( inh, pinh );

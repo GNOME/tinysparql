@@ -190,6 +190,9 @@ tracker_data_schema_metadata_field_get_db_table (TrackerFieldType type)
 		return "ServiceKeywordMetaData";
 
 	default:
+	case TRACKER_FIELD_TYPE_FULLTEXT:
+	case TRACKER_FIELD_TYPE_STRUCT:
+	case TRACKER_FIELD_TYPE_LINK:
 		break;
 	}
 
