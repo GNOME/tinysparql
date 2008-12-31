@@ -1,3 +1,7 @@
+2008-12-31  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/trackerd/tracker-cleanup.c: Bugfix when mount_point is NULL
+
 2008-12-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker/tracker.h

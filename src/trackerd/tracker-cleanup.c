@@ -68,7 +68,8 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 			/* Add cleanup items here */
 
-			tracker_thumbnailer_cleanup (mount_point);
+			if (mount_point)
+				tracker_thumbnailer_cleanup (mount_point);
 
 			g_value_unset (&value);
 
