@@ -1,5 +1,13 @@
 2009-01-02  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/tracker-applet/tracker-applet.c:
+	(set_status_hint): Fixed string and added comments for
+	translators. Patch from Gabor Kelemen. Fixes #565725.
+
+	Compilation warning fixes.
+	
+2009-01-02  Ivan Frade  <ivan.frade@nokia.com>
+
 	* python/nautilus/tracker-tags-tab.py:
 	Updated to use the new dbus namespaces.
 

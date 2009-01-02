@@ -116,7 +116,7 @@ typedef enum {
 } AutoPauseEnum;
 
 typedef struct {
-	gchar *name;
+	const gchar *name;
 	gchar *label;
 	GtkWidget *stat_label;
 } Stat_Info;
@@ -185,7 +185,7 @@ static void set_auto_pause (TrayIcon *icon,
 
 static TrayIcon *main_icon;
 
-static gchar *index_icons[4] = {
+static const gchar *index_icons[4] = {
 	"tracker-applet-default.png",
 	"tracker-applet-paused.png",
 	"tracker-applet-indexing1.png",
@@ -260,41 +260,60 @@ static void
 set_status_hint (TrayIcon *icon)
 {
 	TrayIconPrivate *priv;
-	const char *status = NULL;
+	const char *index_status = NULL;
+	const char *pause_status = NULL;
 	GString *hint;
 
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 
-	hint = g_string_new ("Tracker");
+	hint = g_string_new (NULL);
 
 	switch (priv->index_state) {
 	case INDEX_INITIALIZING:
-		status = _("Initializing");
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Initializing 
+                 */
+		index_status = _("Initializing");
 		break;
 	case INDEX_IDLE:
-		status = _("Idle");
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Idle 
+                 */
+		index_status = _("Idle");
 		break;
 	case INDEX_BUSY:
-		status = _("Indexing");
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Indexing 
+                 */
+		index_status = _("Indexing");
 		break;
 	case INDEX_MERGING:
-		status = _("Merging");
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Merging 
+                 */
+		index_status = _("Merging");
 		break;
-	}
-
-	if (status) {
-		g_string_append (hint, " : ");
-		g_string_append (hint, status);
+        default:
+                g_critical ("Unreachable status.");
 	}
 
 	if (priv->user_pause) {
-		status = _("paused by user");
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
+                 */
+		pause_status = _("paused by user");
 	} else if (priv->auto_pause) {
-		status = _("paused by system");
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Initializing/Idle/Indexing/Merging (paused by system) 
+                 */
+		pause_status = _("paused by system");
 	} else {
 		switch (priv->pause_state) {
 		case PAUSE_INTERNAL:
-			status = _("paused by system");
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
+                 */
+			pause_status = _("paused by system");
 			break;
 #if 0
 		case PAUSE_BATTERY:
@@ -302,18 +321,29 @@ set_status_hint (TrayIcon *icon)
 			 * battery first, this state purely means we
 			 * WILL pause on battery.
 			 */
-			status = _("paused by battery");
+                        /* Translators: this will be a status hint like: 
+                         * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
+                         */
+			pause_status = _("paused by battery");
 			break;
 #endif
 		default:
 		case PAUSE_NONE:
-			status = NULL;
+			pause_status = NULL;
 			break;
 		}
 	}
 
-	if (status) {
-		g_string_append_printf (hint, " (%s)", status);
+	if (pause_status) {
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Indexing (paused by system)
+                 */
+		g_string_printf (hint, _("Tracker: %s (%s)"), index_status, pause_status);
+	} else {
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Indexing
+                 */
+		g_string_printf (hint, _("Tracker: %s"), index_status);
 	}
 
 	if (priv->index_state == INDEX_BUSY) {
@@ -334,18 +364,12 @@ set_status_hint (TrayIcon *icon)
 			str2[0] = g_ascii_toupper (str2[0]);
 		}
 
+		g_string_append (hint,"\n\n");
 		g_string_append_printf (hint,
-					"\n"
-					"\n"
-					"%s : %d of %d\n"
-					"%s : %s\n"
-					"%s : %s",
-					_("Done"),
+					_("Done: %d of %d\nEstimated: %s\nElapsed: %s"),
 					priv->items_done,
 					priv->items_total,
-					_("Estimated"),
 					str1,
-					_("Elapsed"),
 					str2);
 
 		g_free (str2);
@@ -353,7 +377,11 @@ set_status_hint (TrayIcon *icon)
 	}
 
 	if (priv->index_state == INDEX_MERGING) {
-		g_string_append_printf (hint, " %d/%d indexes being merged",
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Merging\n
+                 *  %d/%d indexes being merged 
+                 */
+		g_string_append_printf (hint, _("\n%d/%d indexes being merged"),
 					priv->items_done,
 					priv->items_total);
 	}
@@ -384,6 +412,8 @@ can_auto_pause (TrayIcon *icon)
 		return priv->index_state != INDEX_IDLE;
 	case AUTO_PAUSE_MERGING:
 		return priv->index_state == INDEX_MERGING;
+        default:
+                g_critical ("Unreachable state in auto pause.");
 	}
 
 	return TRUE;
@@ -1017,6 +1047,8 @@ create_prefs (TrayIcon *icon)
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
 					      (priv->opt_pause_merge), TRUE);
 		break;
+        default:
+                g_critical ("Unreachable state in auto pause.");
 	}
 
 	/* connect signal handlers */
@@ -2144,6 +2176,8 @@ load_options (TrayIcon *icon)
 			stop_watching_events (icon);
 		}
 		break;
+        default:
+                g_critical ("Unreachable state in auto pause.");
 	}
 
 	return TRUE;
