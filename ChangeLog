@@ -1,5 +1,12 @@
 2009-01-02  Mikael Ottela <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-mp3.c: Corrected comment
+	buffer size.
+
+	Fixes NB #96999
+	
+2009-01-02  Mikael Ottela <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c: Fixed header seeking
 	bug in mp3 extraction.
 

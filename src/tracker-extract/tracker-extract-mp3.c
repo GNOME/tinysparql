@@ -724,27 +724,27 @@ get_id3v24_tags (const gchar *data,
 			switch (text_encode) {
 			case 0x00:
 				word = g_convert(text,
-						 csize-offset-1,
+						 csize-offset,
 						 "UTF-8",
 						 "ISO-8859-1",
 						 NULL, NULL, NULL);
 				break;
 			case 0x01 :
 				word = g_convert(text,
-						 csize-offset-1,
+						 csize-offset,
 						 "UTF-8",
 						 "UTF-16",
 						 NULL, NULL, NULL);
 				break;
 			case 0x02 :
 				word = g_convert(text,
-						 csize-offset-1,
+						 csize-offset,
 						 "UTF-8",
 						 "UTF-16BE",
 						 NULL, NULL, NULL);
 				break;
 			case 0x03 :
-				word = strndup (text, csize-offset-1);
+				word = strndup (text, csize-offset);
 				break;
 				
 			default:
@@ -753,7 +753,7 @@ get_id3v24_tags (const gchar *data,
 				 * iso-8859-1
 				 */
 				word = g_convert(text,
-						 csize,
+						 csize-offset,
 						 "UTF-8",
 						 "ISO-8859-1",
 						 NULL, NULL, NULL);
@@ -992,14 +992,14 @@ get_id3v23_tags (const gchar *data,
 			switch (text_encode) {
 			case 0x00:
 				word = g_convert(text,
-						 csize-offset-1,
+						 csize-offset,
 						 "UTF-8",
 						 "ISO-8859-1",
 						 NULL, NULL, NULL);
 				break;
 			case 0x01 :
 				word = g_convert(text,
-						 csize-offset-1,
+						 csize-offset,
 						 "UTF-8",
 						 "UCS-2",
 						 NULL, NULL, NULL);
@@ -1010,7 +1010,7 @@ get_id3v23_tags (const gchar *data,
 				 * iso-8859-1
 				 */
 				word = g_convert(text,
-						 csize-offset-1,
+						 csize-offset,
 						 "UTF-8",
 						 "ISO-8859-1",
 						 NULL, NULL, NULL);
