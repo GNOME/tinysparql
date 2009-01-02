@@ -1,3 +1,10 @@
+2009-01-02  Mikael Ottela <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Fixed header seeking
+	bug in mp3 extraction.
+
+	Fixes NB #95873.
+
 2009-01-02  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-applet/tracker-applet.c:

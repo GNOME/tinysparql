@@ -68,9 +68,11 @@ typedef struct {
 } id3tag;
 
 typedef struct {
-	unsigned char *data;
-	size_t         size;
-} album_art;
+	size_t         audio_offset;
+
+	unsigned char *albumartdata;
+	size_t         albumartsize;
+} file_data;
 
 enum {
 	MPEG_ERR,
@@ -249,7 +251,7 @@ static const guint ch_mask = 0xC0000000;
 static const guint pad_mask = 0x20000;
 
 static guint bitrate_table[16][6] = {
-	{0  , 0  , 0  , 0  , 0	, 0},
+	{ 0 ,  0 ,  0 ,  0 ,  0 , 0},
 	{32 , 32 , 32 , 32 , 32 , 8},
 	{64 , 48 , 40 , 64 , 48 , 16},
 	{96 , 56 , 48 , 96 , 56 , 24},
@@ -334,13 +336,13 @@ get_id3 (const gchar *data,
 	return TRUE;
 }
 
-static void
-mp3_parse (const gchar *data,
-	   size_t	size,
-	   GHashTable  *metadata)
+static gboolean
+mp3_parse_header (const gchar *data,
+		  size_t       size,
+		  size_t       seek_pos,
+		  GHashTable  *metadata)
 {
 	guint header;
-	gint counter = 0;
 	gchar mpeg_ver = 0;
 	gchar layer_ver = 0;
 	gint idx_num = 0;
@@ -354,27 +356,9 @@ mp3_parse (const gchar *data,
 	guint frames = 0;
 	size_t pos = 0;
 
-	do {
-		/* Seek for frame start */
-		if (pos + sizeof(header) > size) {
-			return;
-		}
-
-		memcpy (&header, &data[pos], sizeof (header));
-
-		if ((header&sync_mask) == sync_mask) {
-			/* Found header sync */
-			break;
-		}
-
-		pos++;
-		counter++;
-	} while (counter < MAX_MP3_SCAN_DEEP);
-
-	if (counter >= MAX_MP3_SCAN_DEEP) {
-		/* Give up to find mp3 header */
-		return;
-	};
+	pos = seek_pos;
+		       
+	memcpy (&header, &data[pos], sizeof (header));
 
 	switch (header & mpeg_ver_mask) {
 	    case 0x1000:
@@ -428,8 +412,9 @@ mp3_parse (const gchar *data,
 	}
 	
 	if (!layer_ver || !mpeg_ver) {
+		g_debug ("Unknown mpeg type: %d, %d", mpeg_ver, layer_ver);
 		/* Unknown mpeg type */
-		return;
+		return FALSE;
 	}
 	
 	if (mpeg_ver<3) {
@@ -451,21 +436,20 @@ mp3_parse (const gchar *data,
 	}
 	
 	/* We assume mpeg version, layer and channels are constant in frames */
-
 	do {
 		frames++;
 		bitrate = 1000 * bitrate_table[(header & bitrate_mask) >> 20][idx_num];
 
-		if (bitrate < 0) {
+		if (bitrate <= 0) {
 			frames--;
-			break;
+			return FALSE;
 		}
 
 		sample_rate = freq_table[(header & freq_mask) >> 18][mpeg_ver - 1];
 		if (sample_rate < 0) {
 			/* Error in header */
 			frames--;
-			break;
+			return FALSE;
 		}
 
 		frame_size = 144 * bitrate / (sample_rate ? sample_rate : 1) + ((header & pad_mask) >> 17);
@@ -494,9 +478,9 @@ mp3_parse (const gchar *data,
 		memcpy(&header, &data[pos], sizeof (header));
 	} while ((header & sync_mask) == sync_mask);
 
-	if (!frames) {
+	if (frames<2) { /* At least 2 frames to check the right position */
 		/* No valid frames */
-		return;
+		return FALSE;
 	}
 
 	avg_bps /= frames;
@@ -517,13 +501,45 @@ mp3_parse (const gchar *data,
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Bitrate"),
 			     tracker_escape_metadata_printf ("%d", avg_bps));
+
+	return TRUE;
+}
+
+static void
+mp3_parse (const gchar *data,
+	   size_t       size,
+	   GHashTable  *metadata,
+	   file_data   *filedata)
+{
+	guint header;
+	guint counter = 0;
+	guint pos = filedata->audio_offset;
+
+	do {
+		/* Seek for frame start */
+		if (pos + sizeof(header) > size) {
+			return;
+		}
+
+		memcpy (&header, &data[pos], sizeof (header));
+
+		if ((header&sync_mask) == sync_mask) {
+			/* Found header sync */
+			if (mp3_parse_header (data,size,pos,metadata)) {
+				return;
+			}
+		}
+
+		pos++;
+		counter++;
+	} while (counter < MAX_MP3_SCAN_DEEP);
 }
 
 static void
 get_id3v24_tags (const gchar *data,
 		 size_t       size,
 		 GHashTable  *metadata,
-		 album_art   *albumart)
+		 file_data   *filedata)
 {
 	gint	unsync;
 	gint	extendedHdr;
@@ -586,6 +602,8 @@ get_id3v24_tags (const gchar *data,
 			    ((data[13] & 0x7F) << 0));
 		pos += ehdrSize;
 	}
+
+	filedata->audio_offset = tsize + 10;
 
 	while (pos < tsize) {
 		size_t csize;
@@ -766,12 +784,12 @@ get_id3v24_tags (const gchar *data,
 			pic_type  =  data[pos+11+strlen(mime)+1];
 			desc      = &data[pos+11+strlen(mime)+1+1];
 
-			if ((pic_type == 3)||((pic_type == 0)&&(albumart->size == 0))) {
+			if ((pic_type == 3)||((pic_type == 0)&&(filedata->albumartsize == 0))) {
 
 				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
 
-				albumart->data = (unsigned char *)&data[offset];
-				albumart->size = csize;
+				filedata->albumartdata = (unsigned char *)&data[offset];
+				filedata->albumartsize = csize;
 			}
 		}
 
@@ -783,7 +801,7 @@ static void
 get_id3v23_tags (const gchar *data,
 		 size_t       size,
 		 GHashTable  *metadata,
-		 album_art   *albumart)
+		 file_data   *filedata)
 {
 	gint	unsync;
 	gint	extendedHdr;
@@ -856,6 +874,8 @@ get_id3v23_tags (const gchar *data,
 			return;
 		}
 	}
+
+	filedata->audio_offset = tsize + 10;
 
 	while (pos < tsize) {
 		size_t csize;
@@ -1020,12 +1040,12 @@ get_id3v23_tags (const gchar *data,
 			pic_type  =  data[pos+11+strlen(mime)+1];
 			desc      = &data[pos+11+strlen(mime)+1+1];
 			
-			if ((pic_type == 3)||((pic_type == 0)&&(albumart->size == 0))) {
+			if ((pic_type == 3)||((pic_type == 0)&&(filedata->albumartsize == 0))) {
 
 				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
 
-				albumart->data = (unsigned char *)&data[offset];
-				albumart->size = csize;
+				filedata->albumartdata = (unsigned char *)&data[offset];
+				filedata->albumartsize = csize;
 			}
 		}
 
@@ -1037,7 +1057,7 @@ static void
 get_id3v2_tags (const gchar *data,
 		size_t	     size,
 		GHashTable  *metadata,
-		album_art   *albumart)
+		file_data   *filedata)
 {
 	gint	unsync;
 	guint	tsize;
@@ -1091,6 +1111,8 @@ get_id3v2_tags (const gchar *data,
 	}
 
 	pos = 10;
+
+	filedata->audio_offset = tsize + 10;
 
 	while (pos < tsize) {
 		size_t csize;
@@ -1179,12 +1201,12 @@ get_id3v2_tags (const gchar *data,
 			pic_type  =  data[pos+6+3+1+3];
 			desc      = &data[pos+6+3+1+3+1];
 
-			if ((pic_type == 3)||((pic_type == 0)&&(albumart->size == 0))) {
+			if ((pic_type == 3)||((pic_type == 0)&&(filedata->albumartsize == 0))) {
 
 				offset = pos+6+3+1+3+1+strlen(desc)+1;
 
-				albumart->data = (unsigned char *)&data[offset];
-				albumart->size = csize;
+				filedata->albumartdata = (unsigned char *)&data[offset];
+				filedata->albumartsize = csize;
 			}
 		}
 
@@ -1203,7 +1225,7 @@ extract_mp3 (const gchar *filename,
 	struct stat  fstatbuf;
 	size_t	     size;
 	id3tag	     info;
-	album_art    albumart;
+	file_data    filedata;
 
 	info.title = NULL;
 	info.artist = NULL;
@@ -1212,8 +1234,9 @@ extract_mp3 (const gchar *filename,
 	info.comment = NULL;
 	info.genre = NULL;
 
-	albumart.data = NULL;
-	albumart.size = 0;
+	filedata.audio_offset = 0;
+	filedata.albumartdata = NULL;
+	filedata.albumartsize = 0;
 
 #if defined(__linux__)
 	file = g_open (filename, (O_RDONLY | O_NOATIME), 0);
@@ -1292,16 +1315,16 @@ extract_mp3 (const gchar *filename,
 	free (info.comment);
 
 	/* Get other embedded tags */
-	get_id3v2_tags (buffer, size, metadata, &albumart);
-	get_id3v23_tags (buffer, size, metadata, &albumart);
-	get_id3v24_tags (buffer, size, metadata, &albumart);
+	get_id3v2_tags (buffer, size, metadata, &filedata);
+	get_id3v23_tags (buffer, size, metadata, &filedata);
+	get_id3v24_tags (buffer, size, metadata, &filedata);
 
 	/* Get mp3 stream info */
-	mp3_parse (buffer, size, metadata);
+	mp3_parse (buffer, size, metadata, &filedata);
 
 #ifdef HAVE_GDKPIXBUF
 
-	tracker_process_albumart (albumart.data, albumart.size,
+	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize,
 				  g_hash_table_lookup (metadata, "Audio:Artist"),
 				  g_hash_table_lookup (metadata, "Audio:Album"),
 				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
