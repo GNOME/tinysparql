@@ -41,9 +41,12 @@ class TrackerTagsPage(nautilus.PropertyPageProvider):
    def __init__(self):
       bus = dbus.SessionBus()
       obj = bus.get_object('org.freedesktop.Tracker',
-                           '/org/freedesktop/tracker')
+                           '/org/freedesktop/Tracker')
       self.tracker = dbus.Interface(obj, 'org.freedesktop.Tracker')
-      self.keywords = dbus.Interface(obj, 'org.freedesktop.Tracker.Keywords')
+
+      obj_kw = bus.get_object('org.freedesktop.Tracker',
+                              '/org/freedesktop/Tracker/Keywords')
+      self.keywords = dbus.Interface(obj_kw, 'org.freedesktop.Tracker.Keywords')
 
    def _on_toggle(self, cell, path, files):
       on = not self.store.get_value(self.store.get_iter(path), 0)
