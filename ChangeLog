@@ -1,3 +1,10 @@
+2009-01-02  Ivan Frade  <ivan.frade@nokia.com>
+
+	* data/services/default.service: Added application/x-rpm in the
+	list of playlists mimetypes.
+
+	Fixes NB #95151
+	
 2009-01-02  Mikael Ottela <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Corrected comment
