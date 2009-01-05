@@ -1,5 +1,13 @@
 2009-01-05  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/trackerd/tracker-main.c:
+	Updated one more time the backup save/restore logic.
+	We must try to restore backup even when the force_reindex flag is
+	set to false. This is the case when call reindex from
+	tracker-preferences.
+	
+2009-01-05  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/tracker-preferences/tracker-preferences.glade:
 	Removed white space at the end of "Index delay: " label.
 

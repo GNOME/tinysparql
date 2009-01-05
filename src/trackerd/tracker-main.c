@@ -111,17 +111,17 @@ typedef struct {
 static GStaticPrivate	private_key = G_STATIC_PRIVATE_INIT;
 
 /* Private command line parameters */
-static gint		verbosity = -1;
-static gint		initial_sleep = -1;
-static gboolean		low_memory;
-static gchar	      **monitors_to_exclude;
-static gchar	      **monitors_to_include;
-static gchar	      **crawl_dirs;
-static gchar	      **disable_modules;
+static gint		     verbosity = -1;
+static gint		     initial_sleep = -1;
+static gboolean		     low_memory;
+static gchar	           **monitors_to_exclude;
+static gchar	           **monitors_to_include;
+static gchar	           **crawl_dirs;
+static const gchar * const  *disable_modules;
 
-static gboolean		force_reindex;
-static gboolean		disable_indexing;
-static gchar	       *language_code;
+static gboolean		     force_reindex;
+static gboolean		     disable_indexing;
+static gchar	            *language_code;
 
 static GOptionEntry	entries_daemon[] = {
 	{ "verbosity", 'v', 0,
@@ -714,13 +714,17 @@ crawling_finished_cb (TrackerProcessor *processor, gpointer user_data)
 		g_debug ("Uninstalling initial crawling callback");
 		g_signal_handler_disconnect (processor, *callback_id);
 
-		org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (), 
-								get_ttl_backup_filename (),
-								&error);
-		rebackup = g_strdup_printf ("%s.old",
-					    get_ttl_backup_filename ());
-		g_rename (get_ttl_backup_filename (), rebackup);
-		g_free (rebackup);
+		if (g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
+			org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (), 
+									get_ttl_backup_filename (),
+									&error);
+		
+			rebackup = g_strdup_printf ("%s.old",
+						    get_ttl_backup_filename ());
+			g_rename (get_ttl_backup_filename (), rebackup);
+			g_free (rebackup);
+		}
+
 	} else {
 		g_debug ("%d finished signal", counter);
 	}
@@ -1155,7 +1159,7 @@ main (gint argc, gchar *argv[])
 		tracker_status_set_and_signal (TRACKER_STATUS_IDLE);
 	}
 
-	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX &&
+	if (flags & TRACKER_DB_MANAGER_FORCE_REINDEX ||
 	    g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
 		backup_restore_on_crawling_finished (private->processor);
 	}
