@@ -1,14 +1,14 @@
 # Danish translation for tracker.
-# Copyright (C) 2006, 2007, 2008 Free Software Foundation
+# Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation
 # This file is distributed under the same license as the tracker package.
-# Mads Lundby <lundbymads@gmail.com>, 2008.
+# Mads Lundby <lundbymads@gmail.com>, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tracker&amp;component=general\n"
-"POT-Creation-Date: 2008-12-16 19:01+0000\n"
-"PO-Revision-Date: 2009-01-03 02:22+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-01-05 23:34+0100\n"
+"PO-Revision-Date: 2009-01-05 23:34+0100\n"
 "Last-Translator: Mads Lundby <lundbymads@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ../data/trackerd.desktop.in.in.h:1
-#: ../src/tracker-applet/tracker-applet.c:2183
+#: ../src/tracker-applet/tracker-applet.c:2221
 msgid "Tracker"
 msgstr "Tracker"
 
@@ -416,8 +416,12 @@ msgid "Applet Preferences"
 msgstr "Indstillinger for panelprogram"
 
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
-msgid "Automatically _pause if indexing may degrade performance of other applications in active use"
-msgstr "_Pause automatisk hvis indeksering kan forringe ydelsen af andre programmer i aktiv brug"
+msgid ""
+"Automatically _pause if indexing may degrade performance of other "
+"applications in active use"
+msgstr ""
+"_Pause automatisk hvis indeksering kan forringe ydelsen af andre programmer "
+"i aktiv brug"
 
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
 msgid "_Automatically pause all indexing when computer is in active use"
@@ -431,33 +435,52 @@ msgstr "_Skjul ikon (undtagen ved visning af beskeder til bruger)"
 msgid "_Off"
 msgstr "Slå _fra"
 
-#: ../src/tracker-applet/tracker-applet.c:60
+#: ../src/tracker-applet/tracker-applet.c:61
 #: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
 msgid "Tracker Applet"
 msgstr "Tracker panelprogram"
 
-#: ../src/tracker-applet/tracker-applet.c:271
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing
+#.
+#: ../src/tracker-applet/tracker-applet.c:276
 msgid "Initializing"
 msgstr "Initialiserer"
 
-#: ../src/tracker-applet/tracker-applet.c:274
+#. Translators: this will be a status hint like:
+#. * Tracker: Idle
+#.
+#: ../src/tracker-applet/tracker-applet.c:282
 msgid "Idle"
 msgstr "Tomgang"
 
-#: ../src/tracker-applet/tracker-applet.c:277
+#. Translators: this will be a status hint like:
+#. * Tracker: Indexing
+#.
+#: ../src/tracker-applet/tracker-applet.c:288
+#: ../src/tracker-search-tool/tracker-search-tool.c:1820
 msgid "Indexing"
 msgstr "Indekserer"
 
-#: ../src/tracker-applet/tracker-applet.c:280
+#. Translators: this will be a status hint like:
+#. * Tracker: Merging
+#.
+#: ../src/tracker-applet/tracker-applet.c:294
 msgid "Merging"
 msgstr "Fletter"
 
-#: ../src/tracker-applet/tracker-applet.c:290
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
+#.
+#: ../src/tracker-applet/tracker-applet.c:304
 msgid "paused by user"
 msgstr "pauset af bruger"
 
-#: ../src/tracker-applet/tracker-applet.c:292
-#: ../src/tracker-applet/tracker-applet.c:296
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
+#.
+#: ../src/tracker-applet/tracker-applet.c:309
+#: ../src/tracker-applet/tracker-applet.c:316
 msgid "paused by system"
 msgstr "pauset af system"
 
@@ -465,55 +488,113 @@ msgstr "pauset af system"
 #. * battery first, this state purely means we
 #. * WILL pause on battery.
 #.
-#: ../src/tracker-applet/tracker-applet.c:304
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
+#.
+#: ../src/tracker-applet/tracker-applet.c:327
 msgid "paused by battery"
 msgstr "pauset af batteri"
 
-#: ../src/tracker-applet/tracker-applet.c:342
-msgid "Done"
-msgstr "Færdig"
+#. Translators: this will be a status hint like:
+#. * Tracker: Indexing (paused by system)
+#.
+#: ../src/tracker-applet/tracker-applet.c:341
+#, c-format
+msgid "Tracker: %s (%s)"
+msgstr "Tracker: %s (%s)"
 
-#: ../src/tracker-applet/tracker-applet.c:345
-msgid "Estimated"
-msgstr "Anslået"
+#. Translators: this will be a status hint like:
+#. * Tracker: Indexing
+#.
+#: ../src/tracker-applet/tracker-applet.c:346
+#, c-format
+msgid "Tracker: %s"
+msgstr "Tracker: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:347
-msgid "Elapsed"
-msgstr "Forløbet"
+#: ../src/tracker-applet/tracker-applet.c:369
+#, c-format
+msgid ""
+"Done: %d of %d\n"
+"Estimated: %s\n"
+"Elapsed: %s"
+msgstr ""
+"Gennemført: %d af %d\n"
+"Anslået: %s\n"
+"Tidsforbrug: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1074
+#. Translators: this will be a status hint like:
+#. * Tracker: Merging\n
+#. *  %d/%d indexes being merged
+#.
+#: ../src/tracker-applet/tracker-applet.c:384
+#, c-format
+msgid ""
+"\n"
+"%d/%d indexes being merged"
+msgstr ""
+"\n"
+"%d/%d indeks flettes"
+
+#: ../src/tracker-applet/tracker-applet.c:1107
 msgid "Re-index your system?"
 msgstr "Genindeksér dit system?"
 
-#: ../src/tracker-applet/tracker-applet.c:1076
+#: ../src/tracker-applet/tracker-applet.c:1109
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
-msgstr "Indeksering kan tage lang tid. Er du sikker på, at du vil genindeksere?"
+msgstr ""
+"Indeksering kan tage lang tid. Er du sikker på, at du vil genindeksere?"
 
-#: ../src/tracker-applet/tracker-applet.c:1250
+#: ../src/tracker-applet/tracker-applet.c:1283
 msgid "Statistics"
 msgstr "Statistik"
 
-#: ../src/tracker-applet/tracker-applet.c:1273
+#: ../src/tracker-applet/tracker-applet.c:1306
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Indekseringsstatistik</span>"
 
-#: ../src/tracker-applet/tracker-applet.c:1402
-msgid "Tracker is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version."
-msgstr "Tracker er fri software. Du kan redistribuere og/eller modificere det under de betingelser, som er angivet i GNU General Public License, som er udgivet af Free Software Foundation. Enten version 2 af licensen eller (efter eget valg) enhver senere version."
+#: ../src/tracker-applet/tracker-applet.c:1435
+msgid ""
+"Tracker is free software; you can redistribute it and/or modify it under the "
+"terms of the GNU General Public License as published by the Free Software "
+"Foundation; either version 2 of the License, or (at your option) any later "
+"version."
+msgstr ""
+"Tracker er fri software. Du kan redistribuere og/eller modificere det under "
+"de betingelser, som er angivet i GNU General Public License, som er udgivet "
+"af Free Software Foundation. Enten version 2 af licensen eller (efter eget "
+"valg) enhver senere version."
 
-#: ../src/tracker-applet/tracker-applet.c:1403
-msgid "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details."
-msgstr "Tracker distribueres i håb om, at det vil vise sig nyttigt, men UDEN NOGEN FORM FOR GARANTI, uden selv de underforståede garantier omkring SALGBARHED eller EGNETHED TIL ET BESTEMT FORMÅL. Yderligere detaljer kan læses i GNU General Public License."
+#: ../src/tracker-applet/tracker-applet.c:1436
+msgid ""
+"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details."
+msgstr ""
+"Tracker distribueres i håb om, at det vil vise sig nyttigt, men UDEN NOGEN "
+"FORM FOR GARANTI, uden selv de underforståede garantier omkring SALGBARHED "
+"eller EGNETHED TIL ET BESTEMT FORMÅL. Yderligere detaljer kan læses i GNU "
+"General Public License."
 
-#: ../src/tracker-applet/tracker-applet.c:1404
-msgid "You should have received a copy of the GNU General Public License along with Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
-msgstr "Du skulle have modtaget en kopi af GNU General Public License sammen med dette program. Hvis ikke, så skriv til Free software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
+#: ../src/tracker-applet/tracker-applet.c:1437
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
+"Street, Fifth Floor, Boston, MA  02110-1301, USA."
+msgstr ""
+"Du skulle have modtaget en kopi af GNU General Public License sammen med "
+"dette program. Hvis ikke, så skriv til Free software Foundation, Inc., 51 "
+"Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA."
 
-#: ../src/tracker-applet/tracker-applet.c:1420
-msgid "Tracker is a tool designed to extract info and metadata about your personal data so that it can be searched easily and quickly"
-msgstr "Tracker er et værktøj, som er designet til at udtrække information og metadata om dine personlige data, så de kan gennemsøges let og hurtigt"
+#: ../src/tracker-applet/tracker-applet.c:1453
+msgid ""
+"Tracker is a tool designed to extract info and metadata about your personal "
+"data so that it can be searched easily and quickly"
+msgstr ""
+"Tracker er et værktøj, som er designet til at udtrække information og "
+"metadata om dine personlige data, så de kan gennemsøges let og hurtigt"
 
-#: ../src/tracker-applet/tracker-applet.c:1422
+#: ../src/tracker-applet/tracker-applet.c:1455
 msgid "Copyright © 2005-2008 The Tracker authors"
 msgstr "Copyright © 2005-2008 Forfatterne til Tracker"
 
@@ -521,7 +602,7 @@ msgstr "Copyright © 2005-2008 Forfatterne til Tracker"
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-applet/tracker-applet.c:1430
+#: ../src/tracker-applet/tracker-applet.c:1463
 msgid "translator-credits"
 msgstr ""
 "Mads Bille Lundby\n"
@@ -529,107 +610,117 @@ msgstr ""
 "Dansk-gruppen <dansk@dansk-gruppen.dk>\n"
 "Mere info: http://www.dansk-gruppen.dk"
 
-#: ../src/tracker-applet/tracker-applet.c:1433
+#: ../src/tracker-applet/tracker-applet.c:1466
 msgid "Tracker Web Site"
 msgstr "Trackers internetside"
 
-#: ../src/tracker-applet/tracker-applet.c:1454
+#: ../src/tracker-applet/tracker-applet.c:1487
 msgid "_Pause All Indexing"
 msgstr "_Pause al indeksering"
 
-#: ../src/tracker-applet/tracker-applet.c:1464
+#: ../src/tracker-applet/tracker-applet.c:1497
 msgid "_Search"
 msgstr "_Søg"
 
-#: ../src/tracker-applet/tracker-applet.c:1473
+#: ../src/tracker-applet/tracker-applet.c:1506
 msgid "_Re-index"
 msgstr "_Genindeksér"
 
-#: ../src/tracker-applet/tracker-applet.c:1481
+#: ../src/tracker-applet/tracker-applet.c:1514
 msgid "_Preferences"
 msgstr "_Indstillinger"
 
-#: ../src/tracker-applet/tracker-applet.c:1490
+#: ../src/tracker-applet/tracker-applet.c:1523
 msgid "_Indexer Preferences"
 msgstr "_Indekseringsindstillinger"
 
-#: ../src/tracker-applet/tracker-applet.c:1498
+#: ../src/tracker-applet/tracker-applet.c:1531
 msgid "S_tatistics"
 msgstr "S_tatistik"
 
-#: ../src/tracker-applet/tracker-applet.c:1506
+#: ../src/tracker-applet/tracker-applet.c:1539
 msgid "_About"
 msgstr "_Om"
 
-#: ../src/tracker-applet/tracker-applet.c:1517
+#: ../src/tracker-applet/tracker-applet.c:1550
 msgid "_Quit"
 msgstr "_Afslut"
 
-#: ../src/tracker-applet/tracker-applet.c:1558
+#: ../src/tracker-applet/tracker-applet.c:1591
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker har afsluttet indekseringen af dit system"
 
-#: ../src/tracker-applet/tracker-applet.c:1560
+#: ../src/tracker-applet/tracker-applet.c:1593
 msgid "You can now perform searches by clicking here"
 msgstr "Du kan nu foretage søgninger ved at klikke her"
 
-#: ../src/tracker-applet/tracker-applet.c:1617
-msgid "Your computer is about to be indexed so you can perform fast searches of your files and emails"
-msgstr "Din computer er ved at blive indekseret, så du kan foretage hurtige søgninger i dine filer og e-post"
+#: ../src/tracker-applet/tracker-applet.c:1650
+msgid ""
+"Your computer is about to be indexed so you can perform fast searches of "
+"your files and emails"
+msgstr ""
+"Din computer er ved at blive indekseret, så du kan foretage hurtige "
+"søgninger i dine filer og e-post"
 
-#: ../src/tracker-applet/tracker-applet.c:1620
-msgid "You can pause indexing at any time and configure index settings by right clicking here"
-msgstr "Du kan til enhver tid pause indeksering og konfigurere indekseringsindstillinger ved at højreklikke her"
+#: ../src/tracker-applet/tracker-applet.c:1653
+msgid ""
+"You can pause indexing at any time and configure index settings by right "
+"clicking here"
+msgstr ""
+"Du kan til enhver tid pause indeksering og konfigurere "
+"indekseringsindstillinger ved at højreklikke her"
 
-#: ../src/tracker-applet/tracker-applet.c:2161
+#: ../src/tracker-applet/tracker-applet.c:2198
 msgid "- Tracker applet for quick control of your desktop search tools"
-msgstr "- Tracker panelprogram for hurtig kontrol over dine værktøjer til skrivebordssøgning"
+msgstr ""
+"- Tracker panelprogram for hurtig kontrol over dine værktøjer til "
+"skrivebordssøgning"
 
-#: ../src/tracker-applet/tracker-applet.c:2185
+#: ../src/tracker-applet/tracker-applet.c:2223
 msgid "Files:"
 msgstr "Filer:"
 
-#: ../src/tracker-applet/tracker-applet.c:2186
+#: ../src/tracker-applet/tracker-applet.c:2224
 msgid "    Folders:"
 msgstr "    Mapper:"
 
-#: ../src/tracker-applet/tracker-applet.c:2187
+#: ../src/tracker-applet/tracker-applet.c:2225
 msgid "    Documents:"
 msgstr "    Dokumenter:"
 
-#: ../src/tracker-applet/tracker-applet.c:2188
+#: ../src/tracker-applet/tracker-applet.c:2226
 msgid "    Images:"
 msgstr "    Billeder:"
 
-#: ../src/tracker-applet/tracker-applet.c:2189
+#: ../src/tracker-applet/tracker-applet.c:2227
 msgid "    Music:"
 msgstr "    Musik:"
 
-#: ../src/tracker-applet/tracker-applet.c:2190
+#: ../src/tracker-applet/tracker-applet.c:2228
 msgid "    Videos:"
 msgstr "    Videoer:"
 
-#: ../src/tracker-applet/tracker-applet.c:2191
+#: ../src/tracker-applet/tracker-applet.c:2229
 msgid "    Text:"
 msgstr "    Tekst:"
 
-#: ../src/tracker-applet/tracker-applet.c:2192
+#: ../src/tracker-applet/tracker-applet.c:2230
 msgid "    Development:"
 msgstr "    Udvikling:"
 
-#: ../src/tracker-applet/tracker-applet.c:2193
+#: ../src/tracker-applet/tracker-applet.c:2231
 msgid "    Other:"
 msgstr "    Øvrige:"
 
-#: ../src/tracker-applet/tracker-applet.c:2194
+#: ../src/tracker-applet/tracker-applet.c:2232
 msgid "Applications:"
 msgstr "Programmer:"
 
-#: ../src/tracker-applet/tracker-applet.c:2195
+#: ../src/tracker-applet/tracker-applet.c:2233
 msgid "Conversations:"
 msgstr "Samtaler:"
 
-#: ../src/tracker-applet/tracker-applet.c:2196
+#: ../src/tracker-applet/tracker-applet.c:2234
 msgid "Emails:"
 msgstr "E-post:"
 
@@ -639,36 +730,36 @@ msgstr "Kontrollér og overvåg Tracker søge- og indekseringstjeneste"
 
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-extract.c:373
+#: ../src/tracker-extract/tracker-extract.c:372
 msgid "- Extract file meta data"
 msgstr "- Udtræk filmetadata"
 
 #. Translators: this message will appear after the usage string
 #. and before the list of options.
-#: ../src/tracker-extract/tracker-extract.c:377
-msgid "Given the following format (without quotes):"
-msgstr "Angivet følgende format (uden citationstegn):"
+#: ../src/tracker-extract/tracker-extract.c:376
+msgid "This command works two ways:"
+msgstr "Denne kommando virker på to måder:"
 
-#: ../src/tracker-extract/tracker-extract.c:382
-msgid "This is interpreted from STDIN and then processed."
-msgstr "Dette er tolket fra STDIN og siden behandlet."
+#: ../src/tracker-extract/tracker-extract.c:379
+msgid " - Passing arguments:"
+msgstr " - Overfører argumenter:"
 
-#: ../src/tracker-extract/tracker-extract.c:385
-msgid "If this command is run without any arguments, it will wait for work to do."
-msgstr "Hvis denne kommando køres uden nogen argumenter, vil den vente på arbejde at udføre."
+#: ../src/tracker-extract/tracker-extract.c:383
+msgid " - Reading filename/mime-type pairs from STDIN"
+msgstr " - Læser par af filnavn/mime-type fra STDIN"
 
-#: ../src/tracker-extract/tracker-extract.c:389
-msgid "Here are some examples of how to use this command:"
-msgstr "Her er nogle eksempler på, hvordan man kan bruge denne kommando:"
-
-#: ../src/tracker-indexer/tracker-main.c:75
-#: ../src/trackerd/tracker-main.c:126
-msgid "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
-msgstr "Logning, 0 = kun fejl, 1 = minimal, 2 = detaljeret og 3 = fejlsøgning (standard = 0)"
+#: ../src/tracker-indexer/tracker-main.c:75 ../src/trackerd/tracker-main.c:129
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
+"0)"
+msgstr ""
+"Logning, 0 = kun fejl, 1 = minimal, 2 = detaljeret og 3 = fejlsøgning "
+"(standard = 0)"
 
 #: ../src/tracker-indexer/tracker-main.c:80
 msgid "Whether to process data from all configured modules to be indexed"
-msgstr "Hvorvidt data skal behandles fra alle konfigurerede moduler for indeksering"
+msgstr ""
+"Hvorvidt data skal behandles fra alle konfigurerede moduler for indeksering"
 
 #: ../src/tracker-indexer/tracker-main.c:84
 msgid "Run forever, only interesting for debugging purposes"
@@ -690,8 +781,14 @@ msgid "Data must be reindexed"
 msgstr "Data skal genindekseres"
 
 #: ../src/tracker-preferences/tracker-preferences.c:685
-msgid "In order for your changes to take effect, Tracker must reindex your files. Click the Reindex button to start reindexing now, otherwise this action will be performed the next time the Tracker daemon is restarted."
-msgstr "Tracker skal genindeksere dine filer for at aktivere dine ændringer. Klik på Genindeksér-knappen for at starte genindeksering nu, ellers vil denne handling blive udført næste gang Tracker-dæmonen genstartes."
+msgid ""
+"In order for your changes to take effect, Tracker must reindex your files. "
+"Click the Reindex button to start reindexing now, otherwise this action will "
+"be performed the next time the Tracker daemon is restarted."
+msgstr ""
+"Tracker skal genindeksere dine filer for at aktivere dine ændringer. Klik på "
+"Genindeksér-knappen for at starte genindeksering nu, ellers vil denne "
+"handling blive udført næste gang Tracker-dæmonen genstartes."
 
 #: ../src/tracker-preferences/tracker-preferences.c:692
 msgid "_Reindex"
@@ -702,8 +799,12 @@ msgid "Tracker daemon must be restarted"
 msgstr "Tracker-dæmon skal genstartes"
 
 #: ../src/tracker-preferences/tracker-preferences.c:697
-msgid "In order for your changes to take effect, the Tracker daemon has to be restarted. Click the Restart button to restart the daemon now."
-msgstr "Tracker-dæmonen er nødt til at blive genstartet, for at dine ændringer bliver aktiveret. Klik på Genstart-knappen for at genstarte dæmonen nu."
+msgid ""
+"In order for your changes to take effect, the Tracker daemon has to be "
+"restarted. Click the Restart button to restart the daemon now."
+msgstr ""
+"Tracker-dæmonen er nødt til at blive genstartet, for at dine ændringer "
+"bliver aktiveret. Klik på Genstart-knappen for at genstarte dæmonen nu."
 
 #: ../src/tracker-preferences/tracker-preferences.c:702
 msgid "_Restart"
@@ -779,7 +880,9 @@ msgstr "Yderligere stier at indeksere og overvåge:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:16
 msgid "Additional paths to index on startup (but not watch for updates):"
-msgstr "Yderligere stier at indeksere under opstart (men ikke overvåge for opdateringer):"
+msgstr ""
+"Yderligere stier at indeksere under opstart (men ikke overvåge for "
+"opdateringer):"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:17
 msgid "Disable all Indexing when on battery"
@@ -842,8 +945,8 @@ msgid "Ignored Files"
 msgstr "Ignorerede filer"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Index _delay: "
-msgstr "Indekserings_forsinkelse: "
+msgid "Index _delay:"
+msgstr "Indekserings_forsinkelse:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Index _file contents"
@@ -952,7 +1055,8 @@ msgstr "Dokumentet eksisterer ikke."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:655
 msgid "There is no installed viewer capable of displaying the document."
-msgstr "Der er ingen installeret fremviser, som er i stand til at vise dokumentet."
+msgstr ""
+"Der er ingen installeret fremviser, som er i stand til at vise dokumentet."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:679
 #, c-format
@@ -999,7 +1103,8 @@ msgstr "Dokumentet \"%s\" eksisterer allerede. Vil du erstatte det?"
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1410
 msgid "If you replace an existing file, its contents will be overwritten."
-msgstr "Hvis du erstatter en eksisterende fil, vil dens indhold blive overskrevet."
+msgstr ""
+"Hvis du erstatter en eksisterende fil, vil dens indhold blive overskrevet."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1425
 msgid "_Replace"
@@ -1125,6 +1230,10 @@ msgstr "Den følgende fejl forekom :"
 msgid "Error"
 msgstr "Fejl"
 
+#: ../src/tracker-search-tool/tracker-search-tool.c:618
+msgid "Application"
+msgstr "Program"
+
 #: ../src/tracker-search-tool/tracker-search-tool.c:645
 msgid "Did you mean"
 msgstr "Mente du"
@@ -1169,6 +1278,14 @@ msgstr "Navn"
 msgid "_Categories"
 msgstr "_Kategorier"
 
+#: ../src/tracker-search-tool/tracker-search-tool.c:1467
+msgid "Unknown email subject"
+msgstr "Ukendt e-postemne"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1467
+msgid "Unknown email sender"
+msgstr "Ukendt e-postafsender"
+
 #. Translators: this will appear like "Search results: 5 - 10 of 30 items"
 #: ../src/tracker-search-tool/tracker-search-tool.c:1566
 #, c-format
@@ -1194,7 +1311,8 @@ msgstr "_Søg:"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2017
 msgid "Tracker is still indexing so not all search results are available yet"
-msgstr "Tracker indekserer stadig, så alle søgereultater er ikke tilgængelige endnu"
+msgstr ""
+"Tracker indekserer stadig, så alle søgereultater er ikke tilgængelige endnu"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:2031
 #: ../src/tracker-search-tool/tracker-search-tool.c:2032
@@ -1205,13 +1323,21 @@ msgstr "Indtast en søgetekst med flere ord adskilt af mellemrum."
 msgid "search_entry"
 msgstr "søge_indgang"
 
+#: ../src/tracker-search-tool/tracker-search-tool.c:2043
+msgid "Select more _options"
+msgstr "Vælg flere _indstillinger"
+
 #: ../src/tracker-search-tool/tracker-search-tool.c:2078
 msgid "Click to perform a search."
 msgstr "Klik for at foretage en søgning."
 
 #: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
-msgid "Locate documents and folders on this computer by name or content using Tracker"
-msgstr "Lokalisér dokumenter og mapper på denne computer ud fra navn eller indhold med Tracker"
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Lokalisér dokumenter og mapper på denne computer ud fra navn eller indhold "
+"med Tracker"
 
 #: ../src/tracker-utils/tracker-files.c:46
 #: ../src/tracker-utils/tracker-query.c:57
@@ -1252,7 +1378,7 @@ msgstr "-Søg efter filer efter tjeneste eller MIME-type"
 
 #: ../src/tracker-utils/tracker-files.c:95
 #: ../src/tracker-utils/tracker-info.c:106
-#: ../src/tracker-utils/tracker-meta-folder.c:200
+#: ../src/tracker-utils/tracker-meta-folder.c:203
 #: ../src/tracker-utils/tracker-query.c:146
 #: ../src/tracker-utils/tracker-search.c:170
 #: ../src/tracker-utils/tracker-services.c:98
@@ -1280,7 +1406,7 @@ msgstr "Ingen filer fundet af denne tjenestetype"
 
 #: ../src/tracker-utils/tracker-files.c:134
 #: ../src/tracker-utils/tracker-files.c:171
-#: ../src/tracker-utils/tracker-meta-folder.c:260
+#: ../src/tracker-utils/tracker-meta-folder.c:263
 #: ../src/tracker-utils/tracker-search.c:251
 #: ../src/tracker-utils/tracker-unique.c:220
 msgid "Results"
@@ -1359,40 +1485,41 @@ msgstr "Filnavn"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-meta-folder.c:159
+#: ../src/tracker-utils/tracker-meta-folder.c:162
 msgid "Retrieve meta-data information about files in a directory"
 msgstr "Hent metadata-informationer om filer i en mappe"
 
 #. Translators: this message will appear after the usage string
 #. * and before the list of options, showing an usage example.
 #.
-#: ../src/tracker-utils/tracker-meta-folder.c:164
-msgid "To use multiple meta-data types simply list them, for example:"
-msgstr "For at anvende flere metadatatyper kan de ganske enkelt listes her, f.eks.:"
-
 #: ../src/tracker-utils/tracker-meta-folder.c:167
+msgid "To use multiple meta-data types simply list them, for example:"
+msgstr ""
+"For at anvende flere metadatatyper kan de ganske enkelt listes her, f.eks.:"
+
+#: ../src/tracker-utils/tracker-meta-folder.c:170
 msgid "PATH"
 msgstr "STI"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:176
+#: ../src/tracker-utils/tracker-meta-folder.c:179
 msgid "No path was given"
 msgstr "Ingen sti blev angivet"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:178
+#: ../src/tracker-utils/tracker-meta-folder.c:181
 msgid "No fields were given"
 msgstr "Ingen felter blev angivet"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:221
+#: ../src/tracker-utils/tracker-meta-folder.c:224
 #: ../src/tracker-utils/tracker-query.c:171
 #: ../src/tracker-utils/tracker-unique.c:156
 msgid "Could not get UTF-8 path from path"
 msgstr "Kunne ikke hente UTF-8-sti fra sti"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:245
+#: ../src/tracker-utils/tracker-meta-folder.c:248
 msgid "Could not get meta-data for files in directory"
 msgstr "Kunne ikke hente metadata for filer i mappe"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:257
+#: ../src/tracker-utils/tracker-meta-folder.c:260
 msgid "No meta-data found for files in that directory"
 msgstr "Ingen metadata blev fundet  for filer i denne mappe"
 
@@ -1477,11 +1604,14 @@ msgstr "-Søg i filer efter bestemte termer"
 #. and before the list of options.
 #: ../src/tracker-utils/tracker-search.c:121
 msgid "Specifying multiple terms apply an AND operator to the search performed"
-msgstr "For at specificere flere søgetermer, anvend en OG-operator (AND) i søgningen"
+msgstr ""
+"For at specificere flere søgetermer, anvend en OG-operator (AND) i søgningen"
 
 #: ../src/tracker-utils/tracker-search.c:124
 msgid "This means if you search for 'foo' and 'bar', they must BOTH exist"
-msgstr "Dette betyder, at hvis du søger efter \"foo\" og \"bar\", skal de BEGGE findes"
+msgstr ""
+"Dette betyder, at hvis du søger efter \"foo\" og \"bar\", skal de BEGGE "
+"findes"
 
 #: ../src/tracker-utils/tracker-search.c:128
 msgid "Recognized services include:"
@@ -1570,8 +1700,7 @@ msgstr "Tracker-status er \"%s\""
 msgid "Add specified tag to a file"
 msgstr "Tilføj specifikt mærke til en fil"
 
-#: ../src/tracker-utils/tracker-tag.c:50
-#: ../src/tracker-utils/tracker-tag.c:54
+#: ../src/tracker-utils/tracker-tag.c:50 ../src/tracker-utils/tracker-tag.c:54
 #: ../src/tracker-utils/tracker-tag.c:74
 #: ../src/tracker-utils/tracker-tag.c:136
 msgid "TAG"
@@ -1608,8 +1737,12 @@ msgstr "Tilføj, fjern eller søg efter mærker"
 #. * and before the list of options, showing an usage example.
 #.
 #: ../src/tracker-utils/tracker-tag.c:132
-msgid "To add, remove, or search for multiple tags at the same time, join multiple options, for example:"
-msgstr "For at tilføje, fjerne eller søge efter flere mærker på samme tid, kombinér flere valgmuligheder, for eksempel:"
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options, for example:"
+msgstr ""
+"For at tilføje, fjerne eller søge efter flere mærker på samme tid, kombinér "
+"flere valgmuligheder, for eksempel:"
 
 #: ../src/tracker-utils/tracker-tag.c:146
 msgid "No files were specified"
@@ -1688,62 +1821,103 @@ msgstr "Påkrævede felter"
 msgid "Fields are missing"
 msgstr "Felter mangler"
 
-#: ../src/trackerd/tracker-main.c:131
+#: ../src/trackerd/tracker-main.c:134
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
-msgstr "Sekunders ventetid før påbegyndelse af gennemsøgning og indeksering (standard = 45)"
+msgstr ""
+"Sekunders ventetid før påbegyndelse af gennemsøgning og indeksering "
+"(standard = 45)"
 
-#: ../src/trackerd/tracker-main.c:135
+#: ../src/trackerd/tracker-main.c:138
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimerer forbrug af hukommelse, men kan gøre indeksering langsommere"
 
-#: ../src/trackerd/tracker-main.c:139
-msgid "Directories to exclude for file change monitoring (you can do -e <path> -e <path>)"
-msgstr "Mapper som skal udelukkes fra overvågning af filændringer (du kan anvende -e <sti> -e <sti>)"
+#: ../src/trackerd/tracker-main.c:142
+msgid ""
+"Directories to exclude for file change monitoring (you can do -e <path> -e "
+"<path>)"
+msgstr ""
+"Mapper som skal udelukkes fra overvågning af filændringer (du kan anvende -e "
+"<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:143
-msgid "Directories to include for file change monitoring (you can do -i <path> -i <path>)"
-msgstr "Mapper som skal inkluderes i overvågning af filændringer (du kan anvende -e <sti> -e <sti>)"
+#: ../src/trackerd/tracker-main.c:146
+msgid ""
+"Directories to include for file change monitoring (you can do -i <path> -i "
+"<path>)"
+msgstr ""
+"Mapper som skal inkluderes i overvågning af filændringer (du kan anvende -e "
+"<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:147
+#: ../src/trackerd/tracker-main.c:150
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
-msgstr "Mapper at gennemsøge for at indeksere filer (du kan anvende -c <sti> -c <sti>)"
+msgstr ""
+"Mapper at gennemsøge for at indeksere filer (du kan anvende -c <sti> -c "
+"<sti>)"
 
-#: ../src/trackerd/tracker-main.c:151
-msgid "Disable modules from being processed (you can do -d <module> -d <module>)"
-msgstr "Deaktivér moduler fra at blive behandlet (du kan anvende -d <modul> -d <modul>)"
+#: ../src/trackerd/tracker-main.c:154
+msgid ""
+"Disable modules from being processed (you can do -d <module> -d <module>)"
+msgstr ""
+"Deaktivér moduler fra at blive behandlet (du kan anvende -d <modul> -d "
+"<modul>)"
 
-#: ../src/trackerd/tracker-main.c:159
+#: ../src/trackerd/tracker-main.c:162
 msgid "Force a re-index of all content"
 msgstr "Gennemtving en genindeksering af alt indhold"
 
-#: ../src/trackerd/tracker-main.c:163
+#: ../src/trackerd/tracker-main.c:166
 msgid "Disable any indexing and monitoring"
 msgstr "Deaktivér enhver indeksering og overvågning"
 
-#: ../src/trackerd/tracker-main.c:166
-msgid "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
-msgstr "Sprog at anvende til dannelse af ordstamme og stopord (ISO 639-1 to-bogstavers kode)"
+#: ../src/trackerd/tracker-main.c:169
+msgid ""
+"Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
+msgstr ""
+"Sprog at anvende til dannelse af ordstamme og stopord (ISO 639-1 to-"
+"bogstavers kode)"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:905
+#: ../src/trackerd/tracker-main.c:910
 msgid "- start the tracker daemon"
 msgstr "- start tracker-dæmon"
 
-#: ../src/trackerd/tracker-main.c:909
+#: ../src/trackerd/tracker-main.c:914
 msgid "Daemon Options"
 msgstr "Dæmonindstillinger"
 
-#: ../src/trackerd/tracker-main.c:910
+#: ../src/trackerd/tracker-main.c:915
 msgid "Show daemon options"
 msgstr "Vis dæmonindstillinger"
 
-#: ../src/trackerd/tracker-main.c:918
+#: ../src/trackerd/tracker-main.c:923
 msgid "Indexer Options"
 msgstr "Indekseringsindstillinger"
 
-#: ../src/trackerd/tracker-main.c:919
+#: ../src/trackerd/tracker-main.c:924
 msgid "Show indexer options"
 msgstr "Vis indekseringsindstillinger"
 
+#~ msgid "Done"
+#~ msgstr "Færdig"
+
+#~ msgid "Estimated"
+#~ msgstr "Anslået"
+
+#~ msgid "Elapsed"
+#~ msgstr "Forløbet"
+
+#~ msgid "Given the following format (without quotes):"
+#~ msgstr "Angivet følgende format (uden citationstegn):"
+
+#~ msgid "This is interpreted from STDIN and then processed."
+#~ msgstr "Dette er tolket fra STDIN og siden behandlet."
+
+#~ msgid ""
+#~ "If this command is run without any arguments, it will wait for work to do."
+#~ msgstr ""
+#~ "Hvis denne kommando køres uden nogen argumenter, vil den vente på arbejde "
+#~ "at udføre."
+
+#~ msgid "Here are some examples of how to use this command:"
+#~ msgstr "Her er nogle eksempler på, hvordan man kan bruge denne kommando:"
