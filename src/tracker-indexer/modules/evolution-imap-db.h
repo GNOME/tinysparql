@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_EVOLUTION_IMAP_H__
-#define __TRACKER_EVOLUTION_IMAP_H__
+#ifndef __TRACKER_EVOLUTION_IMAP_DB_H__
+#define __TRACKER_EVOLUTION_IMAP_DB_H__
 
 #include <stdlib.h>
 #include <fcntl.h>
@@ -52,6 +52,9 @@ struct TrackerEvolutionImapDbFile {
 	sqlite3 *db;
 	sqlite3_stmt *stmt;
 
+	GList *folders;
+	GList *current_folder;
+
         guint n_messages;
         guint cur_message;
         gchar *cur_message_uid;
@@ -73,4 +76,4 @@ TrackerModuleFile * tracker_evolution_imap_db_file_new      (GFile *file);
 
 G_END_DECLS
 
-#endif /* __TRACKER_EVOLUTION_IMAP_H__ */
+#endif /* __TRACKER_EVOLUTION_IMAP_DB_H__ */

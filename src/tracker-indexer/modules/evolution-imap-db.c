@@ -136,6 +136,9 @@ tracker_evolution_imap_db_file_finalize (GObject *object)
 		sqlite3_finalize (file->stmt);
 	}
 
+	g_list_foreach (file->folders, (GFunc) g_free, NULL);
+	g_list_free (file->folders);
+
         G_OBJECT_CLASS (tracker_evolution_imap_db_file_parent_class)->finalize (object);
 }
 
@@ -291,6 +294,42 @@ ensure_imap_accounts (void)
 }
 
 static void
+prepare_folder_info (TrackerEvolutionImapDbFile *self,
+		     const gchar                *folder_name)
+{
+	sqlite3_stmt *stmt;
+	gint result = SQLITE_OK;
+	gchar *sql;
+
+	if (self->stmt) {
+		sqlite3_finalize (self->stmt);
+		self->stmt = NULL;
+	}
+
+	sql = g_strdup_printf ("select saved_count from folders where folder_name = '%s'", folder_name);
+	sqlite3_prepare_v2 (self->db, sql, -1, &stmt, NULL);
+	g_free (sql);
+
+	result = sqlite3_step (stmt);
+	self->n_messages = sqlite3_column_int (stmt, 0);
+	self->cur_message = 1;
+
+	if (self->n_messages > 0) {
+		sql = g_strdup_printf ("SELECT uid, deleted, attachment, dsent, subject, mail_from, mail_to, mail_cc, mlist FROM '%s' ORDER BY uid", folder_name);
+		sqlite3_prepare_v2 (self->db, sql, -1, &self->stmt, NULL);
+		g_free (sql);
+
+		if (self->stmt) {
+			result = sqlite3_step (self->stmt);
+			self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
+			self->cur_message = 1;
+		}
+	}
+
+	sqlite3_finalize (stmt);
+}
+
+static void
 tracker_evolution_imap_db_file_initialize (TrackerModuleFile *file)
 {
         TrackerEvolutionImapDbFile *self;
@@ -309,25 +348,29 @@ tracker_evolution_imap_db_file_initialize (TrackerModuleFile *file)
 	g_free (path);
 
 	sqlite3_prepare_v2 (self->db,
-			    "select saved_count from folders where folder_name = 'INBOX'",
+			    "select folder_name from folders",
 			    -1, &stmt, NULL);
 
-	result = sqlite3_step (stmt);
-	self->n_messages = sqlite3_column_int (stmt, 0);
-	self->cur_message = 1;
+	do {
+		result = sqlite3_step (stmt);
 
-	if (self->n_messages > 0) {
-		sqlite3_prepare_v2 (self->db,
-				    "SELECT uid, deleted, attachment, dsent, subject, mail_from, mail_to, mail_cc, mlist FROM INBOX",
-				    -1, &self->stmt, NULL);
-		if (self->stmt) {
-			result = sqlite3_step (self->stmt);
-			self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
-			self->cur_message = 1;
+		if (result != SQLITE_DONE) {
+			const gchar *folder;
+
+			folder = sqlite3_column_text (stmt, 0);
+
+			if (folder[0] != '.') {
+				self->folders = g_list_prepend (self->folders, g_strdup (folder));
+			}
 		}
-	}
+	} while (result != SQLITE_DONE);
+
+	self->current_folder = self->folders;
 
         ensure_imap_accounts ();
+	prepare_folder_info (self, (const gchar *) self->current_folder->data);
+
+	sqlite3_finalize (stmt);
 }
 
 static const gchar *
@@ -348,13 +391,21 @@ static gchar *
 get_message_path (TrackerModuleFile *file,
                   const gchar       *uid)
 {
+        TrackerEvolutionImapDbFile *self;
 	gchar *path, *prefix, *message_path;
+	gchar **folders, *subdir;
+
+        self = TRACKER_EVOLUTION_IMAP_DB_FILE (file);
 
         path = g_file_get_path (tracker_module_file_get_file (file));
 	prefix = g_strndup (path, strlen (path) - strlen ("folders.db"));
         g_free (path);
 
-        message_path = g_strconcat (prefix, uid, ".", NULL);
+	folders = g_strsplit (self->current_folder->data, "/", -1);
+	subdir = g_strjoinv ("/subfolders/", folders);
+	g_strfreev (folders);
+
+        message_path = g_strconcat (prefix, "folders/", subdir, "/", uid, ".", NULL);
 	g_free (prefix);
 
 	return message_path;
@@ -469,7 +520,7 @@ get_message_uri (TrackerModuleFile *file,
                  const gchar       *message_uid)
 {
         TrackerEvolutionImapDbFile *self;
-	gchar *path, *uri, *dir, *subdirs;
+	gchar *path, *uri;
         GList *keys, *k;
 
         self = TRACKER_EVOLUTION_IMAP_DB_FILE (file);
@@ -483,21 +534,10 @@ get_message_uri (TrackerModuleFile *file,
                         continue;
                 }
 
-                dir = g_build_filename (self->imap_dir, k->data, NULL);
-
-                /* now remove all relevant info to create the email:// basename */
-                subdirs = path;
-                subdirs = tracker_string_remove (subdirs, dir);
-                subdirs = tracker_string_remove (subdirs, "/folders/");
-                subdirs = tracker_string_remove (subdirs, "/subfolders");
-                subdirs = tracker_string_remove (subdirs, "/summary");
-
                 uri = g_strdup_printf ("email://%s/%s;uid=%s",
                                        (gchar *) g_hash_table_lookup (accounts, k->data),
-                                       subdirs,
+				       (gchar *) self->current_folder->data,
                                        message_uid);
-                g_free (subdirs);
-                g_free (dir);
 
                 break;
 	}
@@ -851,13 +891,24 @@ tracker_evolution_imap_db_file_iter_contents (TrackerModuleIteratable *iteratabl
 
         g_free (self->cur_message_uid);
         self->cur_message_uid = NULL;
+	self->cur_message++;
 
-	self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
-	sqlite3_step (self->stmt);
+	/* Iterate through messages, if any */
+	if (self->cur_message < self->n_messages) {
+		self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
+		sqlite3_step (self->stmt);
 
-        self->cur_message++;
+		return TRUE;
+	}
 
-        return (self->cur_message < self->n_messages);
+	self->current_folder = self->current_folder->next;
+
+	if (self->current_folder) {
+		prepare_folder_info (self, (const gchar *) self->current_folder->data);
+		return TRUE;
+	}
+
+        return FALSE;
 }
 
 static guint

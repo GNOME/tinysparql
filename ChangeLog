@@ -1,3 +1,10 @@
+2009-01-05  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/modules/evolution.c: Use the correct
+	TrackerDBFile for the new database format.
+	* src/tracker-indexer/modules/evolution-imap-db.[ch]: Also iterate
+	through folders, and parse appropriate paths for mail contents.
+
 2009-01-05  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/trackerd/tracker-main.c:

@@ -50,6 +50,7 @@ indexer_module_initialize (GTypeModule *module)
 
         tracker_evolution_pop_file_register (module);
         tracker_evolution_imap_file_register (module);
+	tracker_evolution_imap_db_file_register (module);
 }
 
 void
@@ -110,7 +111,7 @@ indexer_module_create_file (GFile *file)
         } else if (type == MAIL_STORAGE_IMAP) {
                 return tracker_evolution_imap_file_new (file);
         } else if (type == MAIL_STORAGE_IMAP_DB) {
-		return tracker_evolution_imap_file_new (file);
+		return tracker_evolution_imap_db_file_new (file);
 	}
 
         return NULL;
