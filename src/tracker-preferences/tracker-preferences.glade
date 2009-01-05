@@ -43,7 +43,7 @@
                                 <child>
                                   <widget class="GtkLabel" id="lblInitialSleep">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">Index _delay: </property>
+                                    <property name="label" translatable="yes">Index _delay:</property>
                                     <property name="use_underline">True</property>
                                     <property name="mnemonic_widget">spnInitialSleep</property>
                                     <accessibility>

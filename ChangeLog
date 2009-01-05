@@ -1,3 +1,10 @@
+2009-01-05  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-preferences/tracker-preferences.glade:
+	Removed white space at the end of "Index delay: " label.
+
+	Fixes #493049
+	
 2009-01-02  Ivan Frade  <ivan.frade@nokia.com>
 
 	* data/services/default.service: Added application/x-rpm in the
