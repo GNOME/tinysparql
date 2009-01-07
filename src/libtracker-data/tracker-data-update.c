@@ -165,7 +165,7 @@ tracker_data_update_create_service (TrackerService *service,
 	TrackerDBResultSet *result_set;
 	guint32	volume_id = 0;
 	gchar *id_str, *service_type_id_str, *path, *volume_id_str;
-	gboolean is_dir, is_symlink, enabled;
+	gboolean is_dir, is_symlink;
 
 	if (!service) {
 		return FALSE;
@@ -208,16 +208,6 @@ tracker_data_update_create_service (TrackerService *service,
 						g_hash_table_lookup (metadata, "File:Modified"),
 						volume_id_str, /* Aux ID */
 						NULL);
-
-	enabled = is_dir ?
-		tracker_service_get_show_service_directories (service) :
-		tracker_service_get_show_service_files (service);
-
-	if (!enabled) {
-		tracker_db_interface_execute_query (iface, NULL,
-						    "Update services set Enabled = 0 where ID = %d",
-						    service_id);
-	}
 
 	g_free (id_str);
 	g_free (service_type_id_str);

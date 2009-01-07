@@ -1,3 +1,9 @@
+2009-01-07  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-data/tracker-data-update.c
+	(tracker_data_update_create_service): Do not set Enabled=0 in any
+	case, since it fails for non-local files, again.
+
 2009-01-07  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-utils/tracker-files.c:
