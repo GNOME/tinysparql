@@ -348,7 +348,7 @@ tracker_evolution_imap_db_file_initialize (TrackerModuleFile *file)
 	g_free (path);
 
 	sqlite3_prepare_v2 (self->db,
-			    "select folder_name from folders",
+			    "select folder_name, saved_count from folders",
 			    -1, &stmt, NULL);
 
 	do {
@@ -361,6 +361,7 @@ tracker_evolution_imap_db_file_initialize (TrackerModuleFile *file)
 
 			if (folder[0] != '.') {
 				self->folders = g_list_prepend (self->folders, g_strdup (folder));
+				self->total_n_messages += sqlite3_column_int (stmt, 1);
 			}
 		}
 	} while (result != SQLITE_DONE);
@@ -921,7 +922,7 @@ tracker_evolution_imap_db_file_get_count (TrackerModuleIteratable *iteratable)
 
         self = TRACKER_EVOLUTION_IMAP_DB_FILE (iteratable);
 
-        return self->n_messages;
+        return self->total_n_messages;
 }
 
 void

@@ -66,5 +66,5 @@ tracker_module_iteratable_get_count (TrackerModuleIteratable *iteratable)
                 return TRACKER_MODULE_ITERATABLE_GET_IFACE (iteratable)->get_count (iteratable);
         }
 
-        return 0;
+        return 1;
 }

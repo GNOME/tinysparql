@@ -142,9 +142,9 @@ struct TrackerIndexerPrivate {
 	guint signal_status_id;
 	guint flush_id;
 
-	guint files_processed;
-	guint files_indexed;
+	guint items_indexed;
 	guint items_processed;
+	guint subelements_processed;
 
 	gboolean in_transaction;
 	gboolean in_process;
@@ -281,8 +281,6 @@ stop_transaction (TrackerIndexer *indexer)
 	tracker_db_interface_end_transaction (indexer->private->file_contents);
 	tracker_db_interface_end_transaction (indexer->private->cache);
 
-	indexer->private->files_indexed += indexer->private->files_processed;
-	indexer->private->files_processed = 0;
 	indexer->private->in_transaction = FALSE;
 
 	g_debug ("Transaction commit");
@@ -292,26 +290,36 @@ static void
 signal_status (TrackerIndexer *indexer,
 	       const gchar    *why)
 {
-	gdouble seconds_elapsed;
-	guint	files_remaining;
+	PathInfo *path;
+	gdouble   seconds_elapsed;
+	guint	  items_remaining;
 
-	files_remaining = g_queue_get_length (indexer->private->file_queue);
+	items_remaining = g_queue_get_length (indexer->private->file_queue);
 	seconds_elapsed = g_timer_elapsed (indexer->private->timer, NULL);
 
-	if (indexer->private->files_indexed > 0 &&
-	    files_remaining > 0) {
+	if ((path = g_queue_peek_head (indexer->private->file_queue)) != NULL) {
+		if (TRACKER_IS_MODULE_ITERATABLE (path->module_file)) {
+			guint count;
+
+			count = tracker_module_iteratable_get_count (TRACKER_MODULE_ITERATABLE (path->module_file));
+			items_remaining += count - indexer->private->subelements_processed;
+		}
+	}
+
+	if (indexer->private->items_indexed > 0 &&
+	    items_remaining > 0) {
 		gchar *str1;
 		gchar *str2;
 
 		str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
 							   TRUE,
-							   indexer->private->files_indexed,
-							   files_remaining);
+							   indexer->private->items_indexed,
+							   items_remaining);
 		str2 = tracker_seconds_to_string (seconds_elapsed, TRUE);
 
 		g_message ("Indexed %d/%d, module:'%s', %s left, %s elapsed (%s)",
-			   indexer->private->files_indexed,
-			   indexer->private->files_indexed + files_remaining,
+			   indexer->private->items_indexed,
+			   indexer->private->items_indexed + items_remaining,
 			   g_quark_to_string (indexer->private->current_module),
 			   str1,
 			   str2,
@@ -324,8 +332,8 @@ signal_status (TrackerIndexer *indexer,
 	g_signal_emit (indexer, signals[STATUS], 0,
 		       seconds_elapsed,
 		       g_quark_to_string (indexer->private->current_module),
-		       indexer->private->files_indexed,
-		       files_remaining);
+		       indexer->private->items_indexed,
+		       items_remaining);
 }
 
 static gboolean
@@ -343,6 +351,7 @@ flush_data (TrackerIndexer *indexer)
 	tracker_db_index_flush (indexer->private->email_index);
 	signal_status (indexer, "flush");
 
+	indexer->private->items_indexed += indexer->private->items_processed;
 	indexer->private->items_processed = 0;
 
 	state_unset_flags (indexer, TRACKER_INDEXER_STATE_FLUSHING);
@@ -710,15 +719,15 @@ check_stopped (TrackerIndexer *indexer,
 	/* Print out how long it took us */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
 
-	g_message ("Indexer finished in %s, %d files indexed in total",
+	g_message ("Indexer finished in %s, %d items indexed in total",
 		   str,
-		   indexer->private->files_indexed);
+		   indexer->private->items_indexed);
 	g_free (str);
 
 	/* Finally signal done */
 	g_signal_emit (indexer, signals[FINISHED], 0,
 		       seconds_elapsed,
-		       indexer->private->files_indexed,
+		       indexer->private->items_indexed,
 		       interrupted);
 }
 
@@ -2297,6 +2306,7 @@ process_file (TrackerIndexer *indexer,
 		}
 	}
 
+	indexer->private->subelements_processed++;
 	indexer->private->items_processed++;
 
 	g_free (dirname);
@@ -2432,7 +2442,7 @@ process_func (gpointer data)
 	if ((path = g_queue_peek_head (indexer->private->file_queue)) != NULL) {
 		/* Process file */
 		if (process_file (indexer, path)) {
-			indexer->private->files_processed++;
+			indexer->private->subelements_processed = 0;
 			path = g_queue_pop_head (indexer->private->file_queue);
 			path_info_free (path);
 		}

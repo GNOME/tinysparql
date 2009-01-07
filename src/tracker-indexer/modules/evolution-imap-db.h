@@ -55,6 +55,8 @@ struct TrackerEvolutionImapDbFile {
 	GList *folders;
 	GList *current_folder;
 
+	guint total_n_messages;
+
         guint n_messages;
         guint cur_message;
         gchar *cur_message_uid;

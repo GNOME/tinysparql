@@ -1,5 +1,16 @@
 2009-01-07  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/modules/evolution-imap-db.[ch]: Implement
+	get_count() taking into account all folders.
+	* src/tracker-indexer/tracker-module-iteratable.c
+	(tracker_module_iteratable_get_count): Return by default 1 element.
+	* src/tracker-indexer/tracker-indexer.c: Modified to keep track of the
+	number of processed/indexed elements, not just files. This also
+	improves feedback in the status signal (not treating the whole mbox as
+	one file, etc...)
+
+2009-01-07  Carlos Garnacho  <carlos@imendio.com>
+
 	Several improvements to the evolution module.
 
 	* src/tracker-indexer/modules/evolution-imap-db.c
