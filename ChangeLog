@@ -1,5 +1,12 @@
 2009-01-07  Ivan Frade  <ivan.frade@nokia.com>
 
+	* src/tracker-utils/tracker-files.c:
+	Updated command line options help.
+
+	Applied patch by Luca Ferretti. Fixes #562909
+	
+2009-01-07  Ivan Frade  <ivan.frade@nokia.com>
+
 	* src/tracker-preferences/tracker-preferences.desktop:
 	Added X-GNOME-PersonalSettings category.
 

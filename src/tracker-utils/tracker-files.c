@@ -21,7 +21,6 @@
 
 #include "config.h"
 
-#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -39,20 +38,24 @@ static gint	    offset;
 
 static GOptionEntry entries[] = {
 	{ "service", 's', 0, G_OPTION_ARG_STRING, &service,
-	  N_("Search from a specific service"),
-	  NULL
+	  N_("Search for specified service"),
+	/* Translators: this will appear like --option=STRING running --help */
+	  N_("STRING")
 	},
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
-	  N_("Limit the number of results shown"),
-	  N_("512")
+	  N_("Set the total number of displayed results (default 512)"),
+	/* Translators: this will appear like --option=NUMBER running --help */
+	  N_("NUMBER")
 	},
 	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
-	  N_("Offset the results"),
-	  N_("0")
+	  N_("Set the offset for displayed results (default 0)"),
+	/* Translators: this will appear like --option=NUMBER running --help */
+	  N_("NUMBER")
 	},
 	{ "add-mime", 'm', 0, G_OPTION_ARG_STRING_ARRAY, &mimes,
-	  N_("MIME types (can be used multiple times)"),
-	  NULL
+	  N_("Search for specified MIME type (can be used multiple times)"),
+	/* Translators: this will appear like --option=STRING running --help */
+	  N_("STRING")
 	},
 	{ NULL }
 };
@@ -72,7 +75,7 @@ main (int argc, char **argv)
 	textdomain (GETTEXT_PACKAGE);
 
 	context = g_option_context_new (_("- Search for files by service or by MIME type"));
-	g_option_context_add_main_entries (context, entries, "tracker-files");
+	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
 	if (!service && !mimes) {
