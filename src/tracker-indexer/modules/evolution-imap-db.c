@@ -354,7 +354,7 @@ tracker_evolution_imap_db_file_initialize (TrackerModuleFile *file)
 	do {
 		result = sqlite3_step (stmt);
 
-		if (result != SQLITE_DONE) {
+		if (result == SQLITE_ROW) {
 			const gchar *folder;
 
 			folder = sqlite3_column_text (stmt, 0);
@@ -648,9 +648,12 @@ extract_message_text (GMimeObject *object,
                 g_string_append_len (body, content, (gssize) len);
         } else {
                 part_body = g_convert (content, (gssize) len, "utf8", encoding, NULL, NULL, NULL);
-                g_string_append (body, part_body);
 
-                g_free (part_body);
+		if (part_body) {
+			g_string_append (body, part_body);
+			g_free (part_body);
+		}
+
                 g_free (encoding);
         }
 }
@@ -744,7 +747,7 @@ get_message_metadata (TrackerModuleFile *file)
 	to = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 6));
 	cc = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 7));
 
-	if (!deleted) {
+	if (!deleted && subject && from) {
 		metadata = tracker_module_metadata_new ();
 
 		tracker_module_metadata_add_string (metadata, METADATA_EMAIL_DATE, date);
@@ -895,8 +898,8 @@ tracker_evolution_imap_db_file_iter_contents (TrackerModuleIteratable *iteratabl
 
 	/* Iterate through messages, if any */
 	if (self->cur_message < self->n_messages) {
-		self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
 		sqlite3_step (self->stmt);
+		self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
 
 		return TRUE;
 	}

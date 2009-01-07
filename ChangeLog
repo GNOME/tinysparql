@@ -1,5 +1,22 @@
 2009-01-07  Carlos Garnacho  <carlos@imendio.com>
 
+	Several improvements to the evolution module.
+
+	* src/tracker-indexer/modules/evolution-imap-db.c
+	(tracker_evolution_imap_db_file_initialize): Do not try to extract
+	data from a busy database.
+	(extract_message_text): Handle g_convert() failures gracefully.
+	(get_message_metadata): Do not try to index the email if it doesn't
+	contain the essential information.
+	(tracker_evolution_imap_db_file_iter_contents): Make cur_message_uid
+	actuallly point to the current message.
+
+	* src/tracker-indexer/modules/evolution-imap.c (get_message_metadata):
+	Do not try to index the email if it doesn't contain the essential
+	information.
+
+2009-01-07  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-data/tracker-data-update.c
 	(tracker_data_update_create_service): Do not set Enabled=0 in any
 	case, since it fails for non-local files, again.

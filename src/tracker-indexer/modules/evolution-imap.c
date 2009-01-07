@@ -914,7 +914,7 @@ get_message_metadata (TrackerModuleFile *file)
 		return NULL;
 	}
 
-	if (!deleted) {
+	if (!deleted && subject && from) {
 		metadata = tracker_module_metadata_new ();
 
 		tracker_module_metadata_add_date (metadata, METADATA_EMAIL_DATE, t);
