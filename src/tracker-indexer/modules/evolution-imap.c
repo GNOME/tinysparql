@@ -75,6 +75,8 @@ static gchar *       tracker_evolution_imap_file_get_uri          (TrackerModule
 static gchar *       tracker_evolution_imap_file_get_text         (TrackerModuleFile *file);
 static TrackerModuleMetadata *
                      tracker_evolution_imap_file_get_metadata     (TrackerModuleFile *file);
+static TrackerModuleFlags
+                     tracker_evolution_imap_file_get_flags        (TrackerModuleFile *file);
 
 static void          tracker_evolution_imap_file_iteratable_init  (TrackerModuleIteratableIface *iface);
 static gboolean      tracker_evolution_imap_file_iter_contents    (TrackerModuleIteratable *iteratable);
@@ -99,6 +101,7 @@ tracker_evolution_imap_file_class_init (TrackerEvolutionImapFileClass *klass)
         file_class->get_uri = tracker_evolution_imap_file_get_uri;
         file_class->get_text = tracker_evolution_imap_file_get_text;
         file_class->get_metadata = tracker_evolution_imap_file_get_metadata;
+	file_class->get_flags = tracker_evolution_imap_file_get_flags;
 }
 
 static void
@@ -1070,6 +1073,12 @@ tracker_evolution_imap_file_get_metadata (TrackerModuleFile *file)
 	} else {
                 return get_message_metadata (file);
         }
+}
+
+static TrackerModuleFlags
+tracker_evolution_imap_file_get_flags (TrackerModuleFile *file)
+{
+	return TRACKER_FILE_CONTENTS_STATIC;
 }
 
 static GList *

@@ -41,6 +41,11 @@ G_BEGIN_DECLS
 
 typedef struct TrackerModuleFile TrackerModuleFile;
 typedef struct TrackerModuleFileClass TrackerModuleFileClass;
+typedef enum TrackerModuleFlags TrackerModuleFlags;
+
+enum TrackerModuleFlags {
+        TRACKER_FILE_CONTENTS_STATIC = 1 << 0
+};
 
 struct TrackerModuleFile {
         GObject parent_instance;
@@ -54,9 +59,10 @@ struct TrackerModuleFileClass {
         gchar * (* get_uri) (TrackerModuleFile *file);
         gchar * (* get_text) (TrackerModuleFile *file);
         TrackerModuleMetadata * (* get_metadata) (TrackerModuleFile *file);
+        TrackerModuleFlags (* get_flags) (TrackerModuleFile *file);
 };
 
-
+GType tracker_module_flags_get_type (void) G_GNUC_CONST;
 GType tracker_module_file_get_type (void) G_GNUC_CONST;
 
 GFile *                 tracker_module_file_get_file         (TrackerModuleFile *file);
@@ -64,6 +70,7 @@ G_CONST_RETURN gchar *  tracker_module_file_get_service_type (TrackerModuleFile 
 gchar *                 tracker_module_file_get_uri          (TrackerModuleFile *file);
 gchar *                 tracker_module_file_get_text         (TrackerModuleFile *file);
 TrackerModuleMetadata * tracker_module_file_get_metadata     (TrackerModuleFile *file);
+TrackerModuleFlags      tracker_module_file_get_flags        (TrackerModuleFile *file);
 
 
 G_END_DECLS

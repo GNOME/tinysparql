@@ -1,3 +1,17 @@
+2009-01-08  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-module-file.[ch]: Add get_flags()
+	method. TrackerModuleFlags at the moment contains
+	TRACKER_FILE_CONTENTS_STATIC, used for contents that are not prone to
+	change.
+	* src/tracker-indexer/tracker-indexer.c: Do not try to update static
+	items in the database, since all the metadata comparison is going to
+	be expensive and useless if the data isn't changing.
+	* src/tracker-indexer/modules/evolution-pop.c:
+	* src/tracker-indexer/modules/evolution-imap.c:
+	* src/tracker-indexer/modules/evolution-imap-db.c: Implement
+	get_flags().
+
 2009-01-07  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/modules/evolution-imap-db.[ch]: Implement

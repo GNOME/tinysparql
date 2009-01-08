@@ -1412,6 +1412,14 @@ item_add_or_update (TrackerIndexer        *indexer,
 		gchar *old_text;
 		gchar *new_text;
 
+		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
+			/* According to the module, the metadata can't change for this item */
+			g_debug ("Not updating static item '%s/%s'",
+				 dirname,
+				 basename);
+			return;
+		}
+
 		/* Update case */
 		g_debug ("Updating item '%s/%s'", 
 			 dirname, 

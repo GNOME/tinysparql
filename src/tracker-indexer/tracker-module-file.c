@@ -53,6 +53,23 @@ static void   tracker_module_file_get_property (GObject      *object,
 
 G_DEFINE_ABSTRACT_TYPE (TrackerModuleFile, tracker_module_file, G_TYPE_OBJECT)
 
+GType
+tracker_module_flags_get_type (void)
+{
+        static GType etype = 0;
+
+        if (!etype) {
+                static const GEnumValue values[] = {
+                        { TRACKER_FILE_CONTENTS_STATIC, "TRACKER_FILE_CONTENTS_STATIC", "contents-static" },
+                        { 0, NULL, NULL }
+                };
+
+                etype = g_enum_register_static ("TrackerModuleFlags", values);
+        }
+
+        return etype;
+}
+
 static void
 tracker_module_file_class_init (TrackerModuleFileClass *klass)
 {
@@ -270,4 +287,22 @@ tracker_module_file_get_metadata (TrackerModuleFile *file)
         }
 
         return metadata;
+}
+
+/**
+ * tracker_module_file_get_flags:
+ * @file: A #TrackerModuleFile
+ *
+ * Returns the flags correspoinding to @file in the current state (see #TrackerModuleIteratable)
+ *
+ * Returns: Flags for @file
+ **/
+TrackerModuleFlags
+tracker_module_file_get_flags (TrackerModuleFile *file)
+{
+        if (TRACKER_MODULE_FILE_GET_CLASS (file)->get_flags != NULL) {
+                return TRACKER_MODULE_FILE_GET_CLASS (file)->get_flags (file);
+        }
+
+        return 0;
 }
