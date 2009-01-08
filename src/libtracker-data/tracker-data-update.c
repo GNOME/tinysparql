@@ -164,7 +164,7 @@ tracker_data_update_create_service (TrackerService *service,
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 	guint32	volume_id = 0;
-	gchar *id_str, *service_type_id_str, *path, *volume_id_str;
+	gchar *id_str, *service_type_id_str, *path, *volume_id_str, *time_str;
 	gboolean is_dir, is_symlink;
 
 	if (!service) {
@@ -194,6 +194,7 @@ tracker_data_update_create_service (TrackerService *service,
 
 	is_dir = g_file_test (path, G_FILE_TEST_IS_DIR);
 	is_symlink = g_file_test (path, G_FILE_TEST_IS_SYMLINK);
+	time_str = tracker_date_to_time_string (g_hash_table_lookup (metadata, "File:Modified"));
 
 	tracker_db_interface_execute_procedure (iface, NULL, "CreateService",
 						id_str,
@@ -205,7 +206,7 @@ tracker_data_update_create_service (TrackerService *service,
 						is_dir ? "1" : "0",
 						is_symlink ? "1" : "0",
 						"0", /* Offset */
-						g_hash_table_lookup (metadata, "File:Modified"),
+						time_str,
 						volume_id_str, /* Aux ID */
 						NULL);
 
@@ -213,6 +214,7 @@ tracker_data_update_create_service (TrackerService *service,
 	g_free (service_type_id_str);
 	g_free (volume_id_str);
 	g_free (path);
+	g_free (time_str);
 
 	return TRUE;
 }
@@ -428,15 +430,20 @@ tracker_data_update_set_metadata (TrackerService *service,
 	metadata_key = tracker_ontology_service_get_key_metadata (tracker_service_get_name (service),
 								  tracker_field_get_name (field));
 	if (metadata_key > 0) {
-		gchar *escaped_value;
+		gchar *val;
 
-		escaped_value = tracker_escape_string (value);
+		if (tracker_field_get_data_type (field) == TRACKER_FIELD_TYPE_DATE) {
+			val = tracker_date_to_time_string (value);
+		} else {
+			val = tracker_escape_string (value);
+		}
+
 		tracker_db_interface_execute_query (iface, NULL,
 						    "update Services set KeyMetadata%d = '%s' where id = %d",
 						    metadata_key,
-						    escaped_value,
+						    val,
 						    service_id);
-		g_free (escaped_value);
+		g_free (val);
 	}
 
 	g_free (id_str);
