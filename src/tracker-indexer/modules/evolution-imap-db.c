@@ -370,9 +370,11 @@ tracker_evolution_imap_db_file_initialize (TrackerModuleFile *file)
 	} while (result != SQLITE_DONE);
 
 	self->current_folder = self->folders;
-
         ensure_imap_accounts ();
-	prepare_folder_info (self, (const gchar *) self->current_folder->data);
+
+	if (self->current_folder) {
+		prepare_folder_info (self, (const gchar *) self->current_folder->data);
+	}
 
 	sqlite3_finalize (stmt);
 }
@@ -679,6 +681,11 @@ tracker_evolution_imap_db_file_get_text (TrackerModuleFile *file)
 		return NULL;
 	}
 
+	if (!self->stmt) {
+		/* No folder opened */
+		return NULL;
+	}
+
 	message_path = get_message_path (file, self->cur_message_uid);
 
 #if defined(__linux__)
@@ -832,6 +839,11 @@ tracker_evolution_imap_db_file_get_metadata (TrackerModuleFile *file)
 
         self = TRACKER_EVOLUTION_IMAP_DB_FILE (file);
 
+	if (!self->stmt) {
+		/* No folder opened */
+		return NULL;
+	}
+
 	if (self->cur_message > self->n_messages) {
 		return NULL;
 	}
@@ -856,6 +868,11 @@ extract_mime_parts (TrackerEvolutionImapDbFile *self)
 	gint n_attachment = 0;
 	gchar *message_path;
 	GList *mime_parts = NULL;
+
+	if (!self->stmt) {
+		/* No folder opened */
+		return NULL;
+	}
 
 	message_path = get_message_path (TRACKER_MODULE_FILE (self),
                                          self->cur_message_uid);
@@ -912,6 +929,10 @@ tracker_evolution_imap_db_file_iter_contents (TrackerModuleIteratable *iteratabl
 		self->cur_message_uid = g_strdup ((const gchar *) sqlite3_column_text (self->stmt, 0));
 
 		return TRUE;
+	}
+
+	if (!self->current_folder) {
+		return FALSE;
 	}
 
 	self->current_folder = self->current_folder->next;
