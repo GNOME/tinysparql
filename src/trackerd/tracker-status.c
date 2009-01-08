@@ -221,7 +221,6 @@ tracker_status_signal (void)
 {
 	TrackerStatusPrivate *private;
 	GObject		     *object;
-	gboolean	      pause_on_battery;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
@@ -235,21 +234,13 @@ tracker_status_signal (void)
 		return;
 	}
 
-	if (private->is_first_time_index) {
-		pause_on_battery =
-			tracker_config_get_disable_indexing_on_battery_init (private->config);
-	} else {
-		pause_on_battery =
-			tracker_config_get_disable_indexing_on_battery (private->config);
-	}
-
 	g_signal_emit_by_name (object,
 			       "index-state-change",
 			       tracker_status_to_string (private->status),
 			       private->is_first_time_index,
 			       private->in_merge,
 			       private->is_paused_manually,
-			       pause_on_battery,
+			       private->status == TRACKER_STATUS_LOW_BATT,
 			       private->is_paused_for_io,
 			       !private->is_readonly);
 }

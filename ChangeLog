@@ -1,5 +1,11 @@
 2009-01-08  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-status.c (tracker_status_signal): Set the
+	paused_on_battery parameter to the current state, not the
+	configuration setting.
+
+2009-01-08  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/modules/evolution-imap-db.c: Handle databases
 	with no parseable folders.
 
