@@ -6,3 +6,5 @@ SUBDIRS = common 			\
 	trackerd 			\
 	scripts 			\
 	tracker-indexer
+
+#	tracker-extract

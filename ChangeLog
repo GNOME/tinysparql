@@ -1,3 +1,21 @@
+2009-01-08  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* configure.ac
+	* tests/Makefile.am                                           
+	* tests/tracker-extract 
+        * tests/tracker-extract/Makefile.am                           
+	* tests/tracker-extract/tracker-extract-mp3-test.c: Added some
+	initial unit tests for mp3 extraction.
+	
+	* tests/tracker-extract/data
+	* tests/tracker-extract/data/mp3
+	* tests/tracker-extract/data/mp3/*.data
+	* tests/tracker-extract/data/mp3/create_mp3_testdata: Test data
+	for the mp3 extraction unit tests and a script for creating the files.
+
+	* src/tracker-extract/tracker-extract-mp3.c: Added some missing
+	pieces of track number and release data extraction.
+	
 2009-01-08  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-module-file.[ch]: Add get_flags()

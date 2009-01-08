@@ -64,6 +64,7 @@ typedef struct {
 	gchar *album;
 	gchar *year;
 	gchar *comment;
+	gchar *trackno;
 	gchar *genre;
 } id3tag;
 
@@ -287,6 +288,7 @@ get_id3 (const gchar *data,
 	 id3tag      *id3)
 {
 	const gchar *pos;
+	gchar buf[5];
 
 	if (size < 128) {
 		return FALSE;
@@ -322,10 +324,23 @@ get_id3 (const gchar *data,
 			       NULL, NULL, NULL);
 
 	pos += 4;
-	id3->comment = g_convert (pos, 30,
-				  "UTF-8",
-				  "ISO-8859-1",
-				  NULL, NULL, NULL);
+
+	if (pos[28] != (guint)0) {
+		id3->comment = g_convert (pos, 30,
+					  "UTF-8",
+					  "ISO-8859-1",
+					  NULL, NULL, NULL);
+
+		id3->trackno = NULL;
+	} else {
+		id3->comment = g_convert (pos, 28,
+					  "UTF-8",
+					  "ISO-8859-1",
+					  NULL, NULL, NULL);
+		snprintf (buf, 5, "%d", pos[29]);
+		id3->trackno = strdup(buf);
+	}
+
 	pos += 30;
 	id3->genre = (char *) "";
 
@@ -567,6 +582,8 @@ get_id3v24_tags (const gchar *data,
 		{"TIT2", "Audio:Title"},
 		{"TIT3", "Audio:Comment"},
 		{"WCOP", "File:License"},
+		{"TDRL", "Audio:ReleaseDate"},
+		{"TRCK", "Audio:TrackNo"},
 		{NULL, 0},
 	};
 
@@ -691,6 +708,14 @@ get_id3v24_tags (const gchar *data,
 				csize--;
 
 				if (word != NULL && strlen (word) > 0) {       
+					
+					if (strcmp (tmap[i].text, "TRCK") == 0) {
+						gchar **parts;
+						parts = g_strsplit (word, "/", 2);
+						g_free (word);
+						word = g_strdup (parts[0]);
+						g_strfreev (parts);
+					}
 
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
@@ -828,6 +853,8 @@ get_id3v23_tags (const gchar *data,
 		{"TLAN", "File:Language"},
 		{"TIT2", "Audio:Title"},
 		{"WCOP", "File:License"},
+		{"TYER", "Audio:ReleaseDate"},
+		{"TRCK", "Audio:TrackNo"},
 		{NULL, 0},
 	};
 
@@ -952,12 +979,13 @@ get_id3v23_tags (const gchar *data,
 				csize--;
 
 				if (word != NULL && strlen(word) > 0) {
-					if (strcmp (tmap[i].text, "COMM") == 0) {
-						gchar *s;
 
-						s = g_strdup (word + strlen (word) + 1);
+					if (strcmp (tmap[i].text, "TRCK") == 0) {
+						gchar **parts;
+						parts = g_strsplit (word, "/", 2);
 						g_free (word);
-						word = s;
+						word = g_strdup (parts[0]);
+						g_strfreev (parts);
 					}
 
 					g_hash_table_insert (metadata,
@@ -1233,6 +1261,7 @@ extract_mp3 (const gchar *filename,
 	info.year = NULL;
 	info.comment = NULL;
 	info.genre = NULL;
+	info.trackno = NULL;
 
 	filedata.audio_offset = 0;
 	filedata.albumartdata = NULL;
@@ -1306,6 +1335,12 @@ extract_mp3 (const gchar *filename,
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Comment"),
 				     tracker_escape_metadata (info.comment));
+	}
+
+	if (info.trackno && strlen (info.trackno) > 0) {
+		g_hash_table_insert (metadata,
+				     g_strdup ("Audio:TrackNo"),
+				     tracker_escape_metadata (info.trackno));		
 	}
 
 	free (info.title);

@@ -1209,6 +1209,7 @@ AC_CONFIG_FILES([
 	tests/trackerd/Makefile
 	tests/trackerd/xesam/Makefile
 	tests/tracker-indexer/Makefile
+	tests/tracker-extract/Makefile
 	utils/Makefile
 	utils/qdbm/Makefile
 	utils/tracker-fts/Makefile
