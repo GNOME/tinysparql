@@ -93,7 +93,12 @@ tracker_regular_file_get_service_type (TrackerModuleFile *file)
 	gchar *mime_type, *path;
 
         f = tracker_module_file_get_file (file);
-        path = g_file_get_path (f);
+
+	if (!g_file_query_exists (f, NULL)) {
+		return NULL;
+	}
+
+	path = g_file_get_path (f);
 
 	mime_type = tracker_file_get_mime_type (path);
 	service_type = tracker_ontology_get_service_by_mime (mime_type);

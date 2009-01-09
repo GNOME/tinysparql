@@ -7,6 +7,12 @@
 
 2009-01-09  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/modules/files.c
+	(tracker_regular_file_get_service_type): Do not sniff mimetype and
+	return NULL service type if the file doesn't exist.
+
+2009-01-09  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-data/tracker-data-query.c
 	(tracker_data_query_service_exists): Dates are already stored as unix
 	times, and stored in the databases as integers.
