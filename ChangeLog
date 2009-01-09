@@ -111,7 +111,7 @@
 	* src/tracker-utils/tracker-files.c:
 	Updated command line options help.
 
-	Applied patch by Luca Ferretti. Fixes #562909
+	Applied patch by Luca Ferretti. Fixes #563909
 	
 2009-01-07  Ivan Frade  <ivan.frade@nokia.com>
 
