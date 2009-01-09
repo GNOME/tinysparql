@@ -133,6 +133,7 @@ KeyMetadata5=Video:Duration
 KeyMetadata6=Audio:Bitrate
 TabularMetadata=File:Name;Video:Title;Video:Author;Video:Height;Video:Width;Video:Duration;Video:Bitrate;
 TileMetadata=Video:Title;Video:Author;Video:Height;Video:Width;Video:Duration;Video:Bitrate;
+Mimes=application/vnd.rn-realmedia
 MimePrefixes=video/;
 ShowServiceFiles=true
 ShowServiceDirectories=true

@@ -1,3 +1,10 @@
+2009-01-09  Ivan Frade  <ivan.frade@nokia.com>
+
+	* data/services/default.service:
+	Added application/vnd.rn-realmedia to Video mimes.
+
+	Fixes NB #97512
+
 2009-01-09  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-main.c (indexer_finished_cb): Obey -f
