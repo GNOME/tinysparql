@@ -227,7 +227,7 @@ indexer_finished_cb (TrackerIndexer *indexer,
 {
 	g_message ("Finished indexing sent items");
 
-	if (interrupted) {
+	if (interrupted && !run_forever) {
 		g_message ("Indexer was told to shutdown");
 		g_main_loop_quit (main_loop);
 		return;

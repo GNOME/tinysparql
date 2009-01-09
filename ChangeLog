@@ -1,3 +1,8 @@
+2009-01-09  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-main.c (indexer_finished_cb): Obey -f
+	even if it's interrupted by trackerd shutting down.
+
 2009-01-09  Martyn Russell  <martyn@imendio.com>
 
 	* tests/Makefile.am:
