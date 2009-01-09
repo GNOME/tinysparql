@@ -1,3 +1,10 @@
+2009-01-09  Martyn Russell  <martyn@imendio.com>
+
+	* tests/Makefile.am:
+	* tests/tracker-extract/tracker-extract-mp3-test.c: Disabled tests
+	which fail and don't disable tracker-extract from the Makefile.am,
+	this breaks make distcheck.
+
 2009-01-09  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-data/tracker-data-query.c

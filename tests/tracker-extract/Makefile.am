@@ -20,7 +20,6 @@ INCLUDES = 								\
 test_tracker_extract_mp3_SOURCES = 					\
 	tracker-extract-mp3-test.c
 
-
 test_tracker_extract_mp3_LDADD =					\
 	$(top_builddir)/src/tracker-extract/libextract-mp3.la   	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
