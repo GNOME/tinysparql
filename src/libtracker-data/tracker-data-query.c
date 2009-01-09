@@ -333,19 +333,12 @@ tracker_data_query_service_exists (TrackerService *service,
 							     basename,
 							     NULL);
 	if (result_set) {
-		gchar *db_mtime_str;
-
 		tracker_db_result_set_get (result_set,
 					   0, &db_id,
-					   1, &db_mtime_str,
+					   1, &db_mtime,
 					   -1);
 		g_object_unref (result_set);
 		found = TRUE;
-
-		if (db_mtime_str) {
-			db_mtime = tracker_string_to_date (db_mtime_str);
-			g_free (db_mtime_str);
-		}
 	}
 
 	if (service_id) {
