@@ -282,6 +282,35 @@ static TrackerExtractorData extractor_data[] = {
 	{ NULL, NULL }
 };
 
+/* Convert from UCS-2 to UTF-8 checking the BOM.*/
+static gchar *
+ucs2_to_utf8(const gchar *data, guint len) {
+        gchar   *encoding = NULL;
+        guint16  c;
+	gboolean be;
+        gchar   *utf8;
+
+        memcpy(&c, data, 2);
+
+        switch (c) {
+        case 0xfeff:
+        case 0xfffe:
+		be = (G_BYTE_ORDER == G_BIG_ENDIAN);
+		be = (c == 0xfeff) ? be : !be;
+		encoding = be ? "UCS-2BE" : "UCS-2LE";
+                data += 2;
+                len -= 2;
+                break;
+        default:
+                encoding = "UCS-2";
+                break;
+        }
+
+        utf8 = g_convert(data, len, "UTF-8", encoding, NULL, NULL, NULL);
+        return utf8;
+}
+
+
 static gboolean
 get_id3 (const gchar *data,
 	 size_t       size,
@@ -845,7 +874,6 @@ get_id3v23_tags (const gchar *data,
 		{"TPE1", "Audio:Artist"},
 		{"TPE2", "Audio:Artist"},
 		{"TPE3", "Audio:Performer"},
-		{"TIME", "Audio:ReleaseDate"},
 		/*	{"TOPE", "Audio:Artist"}, We don't want the original artist for now */
 		{"TPUB", "DC:Publishers"},
 		{"TOAL", "Audio:Album"},
@@ -956,11 +984,13 @@ get_id3v23_tags (const gchar *data,
 							 NULL, NULL, NULL);
 					break;
 				case 0x01 :
-					word = g_convert(&data[pos+11],
-							 csize-1,
-							 "UTF-8",
-							 "UCS-2",
-							 NULL, NULL, NULL);
+/* 					word = g_convert(&data[pos+11], */
+/* 							 csize-1, */
+/* 							 "UTF-8", */
+/* 							 "UCS-2", */
+/* 							 NULL, NULL, NULL); */
+					word = ucs2_to_utf8 (&data[pos+11],
+							     csize-1);
 					break;
 				default:
 					/* Bad encoding byte,
@@ -1026,11 +1056,13 @@ get_id3v23_tags (const gchar *data,
 						 NULL, NULL, NULL);
 				break;
 			case 0x01 :
-				word = g_convert(text,
-						 csize-offset,
-						 "UTF-8",
-						 "UCS-2",
-						 NULL, NULL, NULL);
+/* 				word = g_convert(text, */
+/* 						 csize-offset, */
+/* 						 "UTF-8", */
+/* 						 "UCS-2", */
+/* 						 NULL, NULL, NULL); */
+				word = ucs2_to_utf8 (&data[pos+11],
+						     csize-offset);
 				break;
 			default:
 				/* Bad encoding byte,
@@ -1176,11 +1208,13 @@ get_id3v2_tags (const gchar *data,
 							 NULL, NULL, NULL);
 					break;
 				case 0x01 :
-					word = g_convert(&data[pos+7],
-							 csize,
-							 "UTF-8",
-							 "UCS-2",
-							 NULL, NULL, NULL);
+/* 					word = g_convert(&data[pos+7], */
+/* 							 csize, */
+/* 							 "UTF-8", */
+/* 							 "UCS-2", */
+/* 							 NULL, NULL, NULL); */
+					word = ucs2_to_utf8 (&data[pos+7],
+							     csize);
 					break;
 				default:
 					/* Bad encoding byte,

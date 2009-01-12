@@ -1,3 +1,11 @@
+2009-01-12  Mikael Ottela <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: BOM from UCS-2
+	encoded data was not removed correctly by all iconv
+	versions. Removed an incorrect TIME tag.
+
+	Fixes NB #97610.
+
 2009-01-12  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-extract/tracker-extract-playlist.c:
