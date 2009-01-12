@@ -86,9 +86,10 @@ static void
 extract_playlist (const gchar *filename,
 		  GHashTable  *metadata)
 {
-	TotemPlParser *pl;
-	PlaylistMetadata data = {0, 0};
-	gchar *proper_filename;
+	TotemPlParser       *pl;
+	TotemPlParserResult  result;
+	PlaylistMetadata     data = {0, 0};
+	gchar               *proper_filename;
 
 	pl = totem_pl_parser_new ();
 
@@ -103,10 +104,20 @@ extract_playlist (const gchar *filename,
 		proper_filename = g_strconcat ("file://", filename, NULL);
 	}
 
-        if (totem_pl_parser_parse (pl, 
-                                   proper_filename, 
-                                   FALSE) != TOTEM_PL_PARSER_RESULT_SUCCESS)
-                g_error ("Playlist parsing failed.");
+        result = totem_pl_parser_parse (pl, proper_filename, FALSE);
+
+        switch (result) {
+        case TOTEM_PL_PARSER_RESULT_SUCCESS:
+                break;
+        case TOTEM_PL_PARSER_RESULT_IGNORED:
+        case TOTEM_PL_PARSER_RESULT_ERROR:
+        case TOTEM_PL_PARSER_RESULT_UNHANDLED:
+		data.total_time = 0;
+		data.track_counter = 0;
+                break;
+        default:
+                g_warning ("Undefined result in totem-plparser");
+        }
 
 	g_hash_table_insert (metadata, 
 			     g_strdup (PLAYLIST_PROPERTY_DURATION), 

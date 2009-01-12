@@ -1,3 +1,11 @@
+2009-01-12  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-extract/tracker-extract-playlist.c:
+	(extract-playlist): Handling correctly the results of
+	totem-plparser to avoid crashing the extractor.
+
+	Fixes NB #95754
+	
 2009-01-09  Ivan Frade  <ivan.frade@nokia.com>
 
 	* data/services/default.service:
