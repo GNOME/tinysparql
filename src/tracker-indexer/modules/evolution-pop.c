@@ -292,6 +292,11 @@ get_message_flags (GMimeMessage *message)
 	const gchar *header, *pos;
 
 	header = g_mime_message_get_header (message, "X-Evolution");
+
+	if (!header) {
+		return 0;
+	}
+
 	pos = strchr (header, '-');
 
 	return (guint) strtoul (pos + 1, NULL, 16);

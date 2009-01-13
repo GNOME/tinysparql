@@ -1,3 +1,8 @@
+2009-01-13  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/modules/evolution-pop.c (get_message_flags): Fix
+	potential crasher.
+
 2009-01-13  Martyn Russell  <martyn@imendio.com>
 
 	* .svnignore:
