@@ -1,5 +1,11 @@
 2009-01-13  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c (process_module): Do not spew
+	a critical warning if the module has no dirs configured. Do not emit
+	module-finished/started signals for misconfigured modules.
+
+2009-01-13  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/modules/evolution-pop.c (get_message_flags): Fix
 	potential crasher.
 

@@ -2403,9 +2403,6 @@ process_module (TrackerIndexer *indexer,
 
 	module = g_hash_table_lookup (indexer->private->indexer_modules, module_name);
 
-	/* Signal module start/stop */
-	process_module_emit_signals (indexer, module_name);
-
 	if (!module) {
 		/* No need to signal stopped here, we will get that
 		 * signal the next time this function is called.
@@ -2414,10 +2411,16 @@ process_module (TrackerIndexer *indexer,
 		return;
 	}
 
+	dirs = tracker_module_config_get_monitor_recurse_directories (module_name);
+
+	if (!dirs) {
+		return;
+	}
+
 	g_message ("Starting module:'%s'", module_name);
 
-	dirs = tracker_module_config_get_monitor_recurse_directories (module_name);
-	g_return_if_fail (dirs != NULL);
+	/* Signal module start/stop */
+	process_module_emit_signals (indexer, module_name);
 
 	for (d = dirs; d; d = d->next) {
 		PathInfo *info;
