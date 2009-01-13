@@ -1,0 +1,13 @@
+Makefile
+Makefile.in
+*.stamp
+*.txt
+*.hierarchy
+*.interfaces
+*.args
+*.signals
+*.prerequisites
+tmpl
+version.xml
+html
+xml

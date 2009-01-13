@@ -1,3 +1,12 @@
+2009-01-13  Martyn Russell  <martyn@imendio.com>
+
+	* .svnignore:
+	* docs/.svnignore: Added these files for use with:
+	svn -R propset svn:ignore -F .svnignore ./ and also added special
+	additions for unique cases using: svn propedit svn:ignore ./ in
+	specific locations (like po/ and docs/reference/*). Now svn st
+	reports much less about files not in the repository.
+
 2009-01-13  Jürg Billeter  <j@bitron.ch>
 
 	* src/libtracker-common/Makefile.am:
