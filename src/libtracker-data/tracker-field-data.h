@@ -24,13 +24,9 @@
 
 #include <glib-object.h>
 
-#include "tracker-field.h"
+#include <libtracker-common/tracker-field.h>
 
 G_BEGIN_DECLS
-
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
 
 #define TRACKER_TYPE_FIELD_DATA		(tracker_field_data_get_type ())
 #define TRACKER_FIELD_DATA(o)		(G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_FIELD_DATA, TrackerFieldData))

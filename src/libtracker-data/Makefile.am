@@ -21,6 +21,7 @@ libtracker_data_la_SOURCES = 						\
 	tracker-data-schema.c						\
 	tracker-data-search.c						\
 	tracker-data-update.c						\
+	tracker-field-data.c						\
 	tracker-query-tree.c						\
 	tracker-rdf-query.c						\
 	tracker-turtle.c						\
@@ -34,6 +35,7 @@ noinst_HEADERS =							\
 	tracker-data-schema.h						\
 	tracker-data-search.h						\
 	tracker-data-update.h						\
+	tracker-field-data.h						\
 	tracker-query-tree.h						\
 	tracker-rdf-query.h						\
 	tracker-turtle.h						\

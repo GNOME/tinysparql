@@ -43,12 +43,12 @@
 #include <string.h>
 
 #include <libtracker-common/tracker-log.h>
-#include <libtracker-common/tracker-field-data.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-data-manager.h"
 #include "tracker-data-schema.h"
+#include "tracker-field-data.h"
 #include "tracker-xesam-query.h"
 
 /* XESAM Query Condition

@@ -21,7 +21,6 @@
 #include <string.h>
 #include <glib.h>
 
-#include <libtracker-common/tracker-field-data.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-ontology.h>
 #include <libtracker-common/tracker-type-utils.h>
@@ -29,6 +28,7 @@
 
 #include "tracker-data-manager.h"
 #include "tracker-data-schema.h"
+#include "tracker-field-data.h"
 #include "tracker-rdf-query.h"
 
 /* RDF Query Condition
