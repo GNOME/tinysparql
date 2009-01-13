@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-03 09:46+0100\n"
-"PO-Revision-Date: 2009-01-03 09:49+0100\n"
+"POT-Creation-Date: 2009-01-13 03:00+0100\n"
+"PO-Revision-Date: 2009-01-13 03:02+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -888,7 +888,7 @@ msgid "Ignored Files"
 msgstr "Ignorerade filer"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Index _delay: "
+msgid "Index _delay:"
 msgstr "Indexerings_fördröjning: "
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:33
@@ -1087,7 +1087,6 @@ msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A %d %B %Y klockan %H.%M.%S"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:63
-#: ../src/tracker-utils/tracker-files.c:42
 #: ../src/tracker-utils/tracker-query.c:53
 #: ../src/tracker-utils/tracker-search.c:42
 #: ../src/tracker-utils/tracker-unique.c:50
@@ -1275,43 +1274,39 @@ msgstr "Klicka för att genomföra en sökning."
 msgid "Locate documents and folders on this computer by name or content using Tracker"
 msgstr "Hitta dokument och mappar på den här datorn efter namn eller innehåll med Tracker"
 
+#: ../src/tracker-utils/tracker-files.c:41
+msgid "Search for specified service"
+msgstr "Sök efter angiven tjänst"
+
+#. Translators: this will appear like --option=STRING running --help
+#: ../src/tracker-utils/tracker-files.c:43
+#: ../src/tracker-utils/tracker-files.c:58
+msgid "STRING"
+msgstr "STRÄNG"
+
 #: ../src/tracker-utils/tracker-files.c:46
-#: ../src/tracker-utils/tracker-query.c:57
-#: ../src/tracker-utils/tracker-search.c:46
-#: ../src/tracker-utils/tracker-tag.c:65
-msgid "Limit the number of results shown"
-msgstr "Begränsa antalet visade resultat"
+msgid "Set the total number of displayed results (default 512)"
+msgstr "Ställ det totala antalet visade resultat (standard är 512)"
 
-#: ../src/tracker-utils/tracker-files.c:47
-#: ../src/tracker-utils/tracker-query.c:58
-#: ../src/tracker-utils/tracker-search.c:47
-#: ../src/tracker-utils/tracker-tag.c:66
-msgid "512"
-msgstr "512"
-
-#: ../src/tracker-utils/tracker-files.c:50
-#: ../src/tracker-utils/tracker-query.c:61
-#: ../src/tracker-utils/tracker-search.c:50
-#: ../src/tracker-utils/tracker-tag.c:69
-msgid "Offset the results"
-msgstr "Positionera resultat"
+#. Translators: this will appear like --option=NUMBER running --help
+#: ../src/tracker-utils/tracker-files.c:48
+#: ../src/tracker-utils/tracker-files.c:53
+msgid "NUMBER"
+msgstr "SIFFRA"
 
 #: ../src/tracker-utils/tracker-files.c:51
-#: ../src/tracker-utils/tracker-query.c:62
-#: ../src/tracker-utils/tracker-search.c:51
-#: ../src/tracker-utils/tracker-tag.c:70
-msgid "0"
-msgstr "0"
+msgid "Set the offset for displayed results (default 0)"
+msgstr "Ställ in position för visade resultat (standard är 0)"
 
-#: ../src/tracker-utils/tracker-files.c:54
-msgid "MIME types (can be used multiple times)"
-msgstr "MIME-typer (kan användas flera gånger)"
+#: ../src/tracker-utils/tracker-files.c:56
+msgid "Search for specified MIME type (can be used multiple times)"
+msgstr "Sök efter angiven MIME-typ (kan användas flera gånger)"
 
-#: ../src/tracker-utils/tracker-files.c:74
+#: ../src/tracker-utils/tracker-files.c:77
 msgid "- Search for files by service or by MIME type"
 msgstr "- Sök efter filer efter tjänst eller MIME-typ"
 
-#: ../src/tracker-utils/tracker-files.c:95
+#: ../src/tracker-utils/tracker-files.c:98
 #: ../src/tracker-utils/tracker-info.c:106
 #: ../src/tracker-utils/tracker-meta-folder.c:203
 #: ../src/tracker-utils/tracker-query.c:146
@@ -1324,34 +1319,34 @@ msgstr "- Sök efter filer efter tjänst eller MIME-typ"
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "Kunde inte etablera en DBus-anslutning till Tracker"
 
-#: ../src/tracker-utils/tracker-files.c:107
+#: ../src/tracker-utils/tracker-files.c:110
 #: ../src/tracker-utils/tracker-query.c:164
 #: ../src/tracker-utils/tracker-search.c:188
 #: ../src/tracker-utils/tracker-unique.c:146
 msgid "Service not recognized, searching in other files..."
 msgstr "Tjänsten känns inte igen, söker i övriga filer..."
 
-#: ../src/tracker-utils/tracker-files.c:119
+#: ../src/tracker-utils/tracker-files.c:122
 msgid "Could not get files by service type"
 msgstr "Kunde inte få tag på filer efter tjänstetyp"
 
-#: ../src/tracker-utils/tracker-files.c:129
+#: ../src/tracker-utils/tracker-files.c:132
 msgid "No files found by that service type"
 msgstr "Inga filer hittades med den tjänstetypen"
 
-#: ../src/tracker-utils/tracker-files.c:134
-#: ../src/tracker-utils/tracker-files.c:171
+#: ../src/tracker-utils/tracker-files.c:137
+#: ../src/tracker-utils/tracker-files.c:174
 #: ../src/tracker-utils/tracker-meta-folder.c:263
 #: ../src/tracker-utils/tracker-search.c:251
 #: ../src/tracker-utils/tracker-unique.c:220
 msgid "Results"
 msgstr "Resultat"
 
-#: ../src/tracker-utils/tracker-files.c:156
+#: ../src/tracker-utils/tracker-files.c:159
 msgid "Could not get files by MIME type"
 msgstr "Kunde inte få tag på filer efter MIME-typ"
 
-#: ../src/tracker-utils/tracker-files.c:165
+#: ../src/tracker-utils/tracker-files.c:168
 msgid "No files found by those MIME types"
 msgstr "Inga filer hittades med dessa MIME-typer"
 
@@ -1460,6 +1455,30 @@ msgstr "Inget metadata hittades för filer i den katalogen"
 #: ../src/tracker-utils/tracker-unique.c:46
 msgid "Path to use in query"
 msgstr "Sökväg att använda i frågesats"
+
+#: ../src/tracker-utils/tracker-query.c:57
+#: ../src/tracker-utils/tracker-search.c:46
+#: ../src/tracker-utils/tracker-tag.c:65
+msgid "Limit the number of results shown"
+msgstr "Begränsa antalet visade resultat"
+
+#: ../src/tracker-utils/tracker-query.c:58
+#: ../src/tracker-utils/tracker-search.c:47
+#: ../src/tracker-utils/tracker-tag.c:66
+msgid "512"
+msgstr "512"
+
+#: ../src/tracker-utils/tracker-query.c:61
+#: ../src/tracker-utils/tracker-search.c:50
+#: ../src/tracker-utils/tracker-tag.c:69
+msgid "Offset the results"
+msgstr "Positionera resultat"
+
+#: ../src/tracker-utils/tracker-query.c:62
+#: ../src/tracker-utils/tracker-search.c:51
+#: ../src/tracker-utils/tracker-tag.c:70
+msgid "0"
+msgstr "0"
 
 #: ../src/tracker-utils/tracker-query.c:65
 msgid "Adds a fulltext search filter"
@@ -1785,23 +1804,23 @@ msgstr "Språk att använda för bildande av ordstam och stoppord (tvåbokstavsk
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:906
+#: ../src/trackerd/tracker-main.c:910
 msgid "- start the tracker daemon"
 msgstr "- starta tracker-demonen"
 
-#: ../src/trackerd/tracker-main.c:910
+#: ../src/trackerd/tracker-main.c:914
 msgid "Daemon Options"
 msgstr "Flaggor för demonen"
 
-#: ../src/trackerd/tracker-main.c:911
+#: ../src/trackerd/tracker-main.c:915
 msgid "Show daemon options"
 msgstr "Visa demonflaggor"
 
-#: ../src/trackerd/tracker-main.c:919
+#: ../src/trackerd/tracker-main.c:923
 msgid "Indexer Options"
 msgstr "Indexeringsalternativ"
 
-#: ../src/trackerd/tracker-main.c:920
+#: ../src/trackerd/tracker-main.c:924
 msgid "Show indexer options"
 msgstr "Visa indexeringsflaggor"
 
@@ -1866,8 +1885,6 @@ msgstr "Visa indexeringsflaggor"
 #~ msgstr "länk till %s"
 #~ msgid "N"
 #~ msgstr "N"
-#~ msgid "Search for a specific service"
-#~ msgstr "Sök efter en specifik tjänst"
 #~ msgid ""
 #~ "Specifying more then one term, will be showed items containing ALL the "
 #~ "specified terms (term1 AND term2 - logical conjunction)"
