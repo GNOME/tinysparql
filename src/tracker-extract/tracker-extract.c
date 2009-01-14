@@ -421,9 +421,6 @@ main (int argc, char *argv[])
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
-	tracker_thumbnailer_shutdown ();
-	g_object_unref (config);
-
 	input = g_io_channel_unix_new (STDIN_FILENO);
 	g_io_add_watch (input, G_IO_IN, process_input_cb, main_loop);
 
@@ -431,6 +428,9 @@ main (int argc, char *argv[])
 
 	debug ("Extractor - Waiting for work");
 	g_main_loop_run (main_loop);
+
+	tracker_thumbnailer_shutdown ();
+	g_object_unref (config);
 
 	debug ("Extractor - Finished");
 
