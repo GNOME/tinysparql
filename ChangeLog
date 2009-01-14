@@ -5,6 +5,12 @@
 
 2009-01-14  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/modules/evolution-imap-db.c
+	(tracker_evolution_imap_db_file_finalize): finalize the query before
+	closing the database.
+
+2009-01-14  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Perform
 	binary search correctly, so it's able to find all items in the array.
 	(Fixes #441739)

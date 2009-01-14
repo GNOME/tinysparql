@@ -131,12 +131,12 @@ tracker_evolution_imap_db_file_finalize (GObject *object)
         g_free (file->imap_dir);
         g_free (file->cur_message_uid);
 
-	if (file->db) {
-		sqlite3_close (file->db);
-	}
-
 	if (file->stmt) {
 		sqlite3_finalize (file->stmt);
+	}
+
+	if (file->db) {
+		sqlite3_close (file->db);
 	}
 
 	g_list_foreach (file->folders, (GFunc) g_free, NULL);
