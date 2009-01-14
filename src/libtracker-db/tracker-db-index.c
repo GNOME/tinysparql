@@ -609,9 +609,9 @@ indexer_update_word (DEPOT	 *indez,
 			center += left;
 
 			if (new_hit->id > previous_hits[center].id) {
-				left = center;
+				left = center + 1;
 			} else if (new_hit->id < previous_hits[center].id) {
-				right = center;
+				right = center - 1;
 			} else if (new_hit->id == previous_hits[center].id) {
 				write_back = TRUE;
 
@@ -641,7 +641,7 @@ indexer_update_word (DEPOT	 *indez,
 			}
 
 			center = (right - left) / 2;
-		} while (center > 0);
+		} while (left < right);
 
 		/* Add hits that could not be updated directly here so
 		 * they can be appended later

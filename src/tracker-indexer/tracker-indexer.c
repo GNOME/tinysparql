@@ -1732,7 +1732,7 @@ item_remove (TrackerIndexer *indexer,
 					   service_id,
 					   service_type_id,
 					   content,
-					   1);
+					   1000);
 		g_free (content);
 		tracker_data_update_delete_content (service, service_id);
 	}

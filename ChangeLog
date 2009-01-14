@@ -1,3 +1,11 @@
+2009-01-14  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Perform
+	binary search correctly, so it's able to find all items in the array.
+	(Fixes #441739)
+	* src/tracker-indexer/tracker-indexer.c (item_remove): Pass big enough
+	weight to have elements removed from the index.
+
 2009-01-13  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (process_module): Do not spew
