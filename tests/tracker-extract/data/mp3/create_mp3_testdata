@@ -30,13 +30,20 @@ id3v2 --id3v2-only -t "The titlev23"  -a "The artistv23" -A "The album namev23" 
 
 #COMM
 echo Basic id3v23 tags 1| text2wave - | lame --resample 48 - "id3v23_comm_1.mp3"
-id3v2 --id3v2-only -t "The titlev23"  -a "The artistv23" -A "The album namev23" -y 1969 -c ""  -T 8  -g 8  "id3v23_comm_1.mp3"
+id3v2 --id3v2-only -t "The titlev23"  -a "The artistv23" -A "The album namev23" -y 1969 -c " - "  -T 8  -g 8  "id3v23_comm_1.mp3"
 
 echo Basic id3v23 tags 1| text2wave - | lame --resample 48 - "id3v23_comm_2.mp3"
 id3v2 --id3v2-only -t "The titlev23"  -a "The artistv23" -A "The album namev23" -y 1969 -c " "  -T 8  -g 8  "id3v23_comm_2.mp3"
 
 echo Basic id3v23 tags 1| text2wave - | lame --resample 48 - "id3v23_comm_3.mp3"
 id3v2 --id3v2-only -t "The titlev23"  -a "The artistv23" -A "The album namev23" -y 1969 -c "c"  -T 8  -g 8  "id3v23_comm_3.mp3"
+
+#Others
+echo Basic id3v23 tags 1| text2wave - | lame --resample 48 - "id3v23_tags_1.mp3"
+id3v2 --id3v2-only  --PCNT "4" --TALB "Album/Movie/Show" --TCON "content type" --TCOP "copyright me" --TDAT "2312" --TENC "julkaisija" --TEXT "Monday, monday.. yeah yeah.. monday" --TIT2 "Title or songname" --TLAN "fin" --TPE1 "lead performer" --TYER "2003" "id3v23_tags_1.mp3"
+
+echo Basic id3v23 tags 1| text2wave - | lame --resample 48 - "id3v23_tags_2.mp3"
+id3v2 --id3v2-only  --TIT1 "content group desc" --TOAL "original album title" --TPE2 "Orchestra" --TPUB "publisher" "id3v23_tags_2.mp3"
 
 # *** Basic header/calculated tags ***
 
@@ -69,6 +76,6 @@ echo Header bitrate 224| text2wave - | lame --resample 32 --cbr -b 224 - "header
 echo Header bitrate 256| text2wave - | lame --resample 32 --cbr -b 256 - "header_bitrate_mpeg1_13.mp3"
 echo Header bitrate 320| text2wave - | lame --resample 32 --cbr -b 320 - "header_bitrate_mpeg1_14.mp3"
 
-
-
-
+echo Header vbr 1| text2wave - | lame --resample 32 --abr 64  - "header_bitrate_vbr_mpeg1_1.mp3"
+echo Header vbr 1| text2wave - | lame --resample 32 --abr 128 - "header_bitrate_vbr_mpeg1_2.mp3"
+echo Header vbr 1| text2wave - | lame --resample 32 --abr 256 - "header_bitrate_vbr_mpeg1_3.mp3"

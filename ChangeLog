@@ -1,3 +1,27 @@
+2009-01-14  Mikael Ottela  <mikael.ottela@ixonos.com>
+	* tests/tracker-extract/data/mp3/*.data: Added data files for
+	testing
+
+	* tests/tracker-extract/data/mp3/create_mp3_perfdata: Script for
+	creating performance test data for mp3.
+	
+	* tests/tracker-extract/Makefile.am
+	* tests/tracker-extract/tracker-extract-testsuite-generic.h
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.h
+	* tests/tracker-extract/tracker-extract-mp3-test.c
+	* tests/tracker-extract/tracker-extract-test-utils.c
+	* tests/tracker-extract/tracker-extract-test-utils.h
+	* tests/tracker-extract/tracker-extract-testsuite-generic.c
+	* tests/tracker-extract/tracker-extract-gstreamer-test.c
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.c: Added
+	more mp3 tests and test cases for gstreamer mp3 extraction.
+
+	* src/tracker-extract/tracker-extract-mp3.c: Fixed genre handling
+	in id3v2 tags. Fixed frame size and count calculations for MPEG-2
+	and MPEG-25.
+
+	Fixes NB #97125
+
 2009-01-14  Philip Van Hoof  <philip@codeminded.be> 
 
 	* src/tracker-extract/tracker-extract.c: Fixed too early shutdown of

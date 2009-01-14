@@ -389,6 +389,8 @@ mp3_parse_header (const gchar *data,
 	guint header;
 	gchar mpeg_ver = 0;
 	gchar layer_ver = 0;
+	guint spfp8 = 0;
+	guint padsize = 0;
 	gint idx_num = 0;
 	guint bitrate = 0;
 	guint avg_bps = 0;
@@ -401,14 +403,14 @@ mp3_parse_header (const gchar *data,
 	size_t pos = 0;
 
 	pos = seek_pos;
-		       
+
 	memcpy (&header, &data[pos], sizeof (header));
 
 	switch (header & mpeg_ver_mask) {
-	    case 0x1000:
+	    case 0x800:
 		    mpeg_ver = MPEG_ERR;
 		    break;
-	    case 0x800:
+	    case 0x1000:
 		    g_hash_table_insert (metadata,
 					 g_strdup ("Audio:Codec"),
 					 g_strdup ("MPEG"));
@@ -416,6 +418,7 @@ mp3_parse_header (const gchar *data,
 					 g_strdup ("Audio:CodecVersion"),
 					 g_strdup ("2"));
 		    mpeg_ver = MPEG_V2;
+		    spfp8 = 72;
 		    break;
 	    case 0x1800:
 		    g_hash_table_insert (metadata,
@@ -425,6 +428,7 @@ mp3_parse_header (const gchar *data,
 					 g_strdup ("Audio:CodecVersion"),
 					 g_strdup ("1"));
 		    mpeg_ver = MPEG_V1;
+		    spfp8 = 144;
 		    break;
 	    case 0:
 		    g_hash_table_insert (metadata,
@@ -434,6 +438,7 @@ mp3_parse_header (const gchar *data,
 					 g_strdup ("Audio:CodecVersion"),
 					 g_strdup ("2.5"));
 		    mpeg_ver = MPEG_V25;
+		    spfp8 = 72;
 		    break;
 	    default:
 		    break;
@@ -442,21 +447,24 @@ mp3_parse_header (const gchar *data,
 	switch (header&mpeg_layer_mask) {
 	    case 0x400:
 		    layer_ver = LAYER_2;
+		    padsize = 1;
 		    break;
 	    case 0x200:
 		    layer_ver = LAYER_3;
+		    padsize = 1;
 		    break;
 	    case 0x600:
 		    layer_ver = LAYER_1;
+		    padsize = 4;
 		    break;
 	    case 0:
 		    layer_ver = LAYER_ERR;
 	    default:
 		    break;
 	}
-	
+
 	if (!layer_ver || !mpeg_ver) {
-		g_debug ("Unknown mpeg type: %d, %d", mpeg_ver, layer_ver);
+		//g_debug ("Unknown mpeg type: %d, %d", mpeg_ver, layer_ver);
 		/* Unknown mpeg type */
 		return FALSE;
 	}
@@ -496,7 +504,7 @@ mp3_parse_header (const gchar *data,
 			return FALSE;
 		}
 
-		frame_size = 144 * bitrate / (sample_rate ? sample_rate : 1) + ((header & pad_mask) >> 17);
+		frame_size = spfp8 * bitrate / (sample_rate ? sample_rate : 1) + padsize*((header & pad_mask) >> 17);
 		avg_bps += bitrate / 1000;
 
 		pos += frame_size;
@@ -544,7 +552,7 @@ mp3_parse_header (const gchar *data,
 			     tracker_escape_metadata_printf ("%d", sample_rate));
 	g_hash_table_insert (metadata,
 			     g_strdup ("Audio:Bitrate"),
-			     tracker_escape_metadata_printf ("%d", avg_bps));
+			     tracker_escape_metadata_printf ("%d", avg_bps*1000));
 
 	return TRUE;
 }
@@ -610,9 +618,9 @@ get_id3v24_tags (const gchar *data,
 		{"TLAN", "File:Language"},
 		{"TIT2", "Audio:Title"},
 		{"TIT3", "Audio:Comment"},
-		{"WCOP", "File:License"},
 		{"TDRL", "Audio:ReleaseDate"},
 		{"TRCK", "Audio:TrackNo"},
+		{"PCNT", "Audio:PlayCount"},
 		{NULL, 0},
 	};
 
@@ -745,6 +753,31 @@ get_id3v24_tags (const gchar *data,
 						word = g_strdup (parts[0]);
 						g_strfreev (parts);
 					}
+
+					if (strcmp (tmap[i].text, "TCON") == 0) {
+						if (g_pattern_match_simple ("(*)*", word)) {
+							gchar *begin;
+							gchar *end;
+							guint genre;
+							gchar *new_word;
+
+							begin = strchr (word,'(');
+							if (!begin)
+								continue;
+							begin++;
+							end = strchr (begin, ')');
+							if (!end)
+								continue;
+							end[0] = '\0';
+
+							genre = (guint)strtol(begin,&end,10);
+
+							if (begin != end) {
+								g_free (word);
+								word = g_strdup (genre_names[genre]);
+							}
+						}
+					}					
 
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
@@ -880,9 +913,9 @@ get_id3v23_tags (const gchar *data,
 		{"TALB", "Audio:Album"},
 		{"TLAN", "File:Language"},
 		{"TIT2", "Audio:Title"},
-		{"WCOP", "File:License"},
 		{"TYER", "Audio:ReleaseDate"},
 		{"TRCK", "Audio:TrackNo"},
+		{"PCNT", "Audio:PlayCount"},
 		{NULL, 0},
 	};
 
@@ -1018,6 +1051,31 @@ get_id3v23_tags (const gchar *data,
 						g_strfreev (parts);
 					}
 
+					if (strcmp (tmap[i].text, "TCON") == 0) {
+						if (g_pattern_match_simple ("(*)*", word)) {
+							gchar *begin;
+							gchar *end;
+							guint genre;
+							gchar *new_word;
+
+							begin = strchr (word,'(');
+							if (!begin)
+								continue;
+							begin++;
+							end = strchr (begin, ')');
+							if (!end)
+								continue;
+							end[0] = '\0';
+
+							genre = (guint)strtol(begin,&end,10);
+
+							if (begin != end) {
+								g_free (word);
+								word = g_strdup (genre_names[genre]);
+							}
+						}
+					}
+
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
 							     tracker_escape_metadata (word));
@@ -1132,7 +1190,6 @@ get_id3v2_tags (const gchar *data,
 		{"WAF", "DC:Location"},
 		{"WAR", "DC:Location"},
 		{"WAS", "DC:Location"},
-		{"WCP", "File:Copyright"},
 		{"WAF", "DC:Location"},
 		{"WCM", "File:License"},
 		{"TYE", "Audio:ReleaseDate"},
