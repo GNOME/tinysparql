@@ -17,6 +17,7 @@ INCLUDES =								\
 	$(RAPTOR_CFLAGS)						\
 	$(GMODULE_CFLAGS)
 
+
 libtracker_moduledir = $(libdir)/tracker
 libtracker_moduleincludedir=$(includedir)/tracker-1.0/libtracker-module/
 libtracker_module_LTLIBRARIES = libtracker-module.la
@@ -55,6 +56,7 @@ tracker_indexer_LDADD =							\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
+	$(top_builddir)/src/plugins/evolution/libtracker-evolution-indexer.la \
 	$(trackerd_win_libs)						\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\

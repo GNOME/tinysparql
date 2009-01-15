@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/">
+  <interface name="org.gnome.evolution.metadata.Manager">  
+    <method name="Register">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="o" name="registrar_path" direction="in" />
+      <arg type="u" name="last_checkout" direction="in" />
+    </method>
+  </interface>
+</node>
+

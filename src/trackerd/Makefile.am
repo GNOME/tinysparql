@@ -77,6 +77,7 @@ trackerd_LDADD =							\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
+	$(top_builddir)/src/plugins/evolution/libtracker-evolution.la	\
 	$(inotify_libs)							\
 	$(GMIME_LIBS)							\
 	$(FAM_LIBS)							\

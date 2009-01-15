@@ -37,6 +37,7 @@ SUBDIRS = 					\
 	libtracker-data				\
 	libtracker				\
 	$(build_sqlite_fts)			\
+	plugins					\
 	trackerd				\
 	tracker-utils				\
 	tracker-extract				\
@@ -62,4 +63,5 @@ DIST_SUBDIRS = 					\
 	libtracker-gtk				\
 	tracker-applet	 			\
 	tracker-search-tool			\
-	tracker-preferences
+	tracker-preferences			\
+	plugins

@@ -607,6 +607,35 @@ tracker_data_update_delete_service_by_path (const gchar *path,
 	}
 }
 
+
+void
+tracker_data_update_delete_service_all (const gchar *rdf_type)
+{
+	TrackerService     *service;
+	gchar              *service_type_id; 
+	TrackerDBInterface *iface;
+
+	if (!rdf_type)
+		return;
+
+	service = tracker_ontology_get_service_by_name (rdf_type);
+
+	g_return_if_fail (TRACKER_IS_SERVICE (service));
+
+	service_type_id = tracker_gint_to_string (tracker_service_get_id (service));
+
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+							     TRACKER_DB_CONTENT_TYPE_METADATA);
+
+	tracker_db_interface_execute_procedure (iface,
+						NULL,
+						"DeleteServiceAll",
+						service_type_id,
+						NULL);
+
+	g_free (service_type_id);
+}
+
 static void
 set_metadata (TrackerField *field, 
 	      gpointer value, 

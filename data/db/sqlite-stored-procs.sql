@@ -171,6 +171,11 @@ GetXesamMimeForServiceId       SELECT Mime FROM XesamFileMimes WHERE ServiceType
 GetXesamMimePrefixForServiceId SELECT MimePrefix FROM XesamFileMimePrefixes WHERE ServiceTypeId = ?;
 
 /*
+ * Turtle importing
+ */
+DeleteServiceAll               DELETE FROM Services WHERE ServiceTypeID = ?;
+
+/*
  * Deprecated
  */
 GetNewID                       SELECT OptionValue FROM Options WHERE OptionKey = 'Sequence';

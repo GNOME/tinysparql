@@ -58,6 +58,8 @@ void     tracker_data_update_replace_service            (const gchar         *pa
 							 GHashTable          *metadata);
 void     tracker_data_update_delete_service_by_path     (const gchar         *path,
 							 const gchar         *rdf_type);
+void     tracker_data_update_delete_service_all         (const gchar *rdf_type);
+
 
 /* Metadata */
 void     tracker_data_update_set_metadata               (TrackerService      *service,

@@ -44,6 +44,9 @@
 
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-turtle.h>
+#include <libtracker-data/tracker-data-manager.h>
+
+#include <plugins/evolution/tracker-evolution-indexer.h>
 
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
@@ -254,11 +257,14 @@ gint
 main (gint argc, gchar *argv[])
 {
 	TrackerConfig *config;
+	TrackerLanguage *language;
 	TrackerIndexer *indexer;
 	TrackerDBManagerFlags flags = 0;
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *filename;
+	TrackerDBIndex *file_index;
+	TrackerDBIndex *email_index;
 
 	g_type_init ();
 
@@ -296,6 +302,7 @@ main (gint argc, gchar *argv[])
 
 	/* Initialize logging */
 	config = tracker_config_new ();
+	language = tracker_language_new (config);
 
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
@@ -371,6 +378,15 @@ main (gint argc, gchar *argv[])
                 tracker_indexer_process_modules (indexer, modules);
         }
 
+	file_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
+	email_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+
+	tracker_data_manager_init (config, language, file_index, email_index);
+
+#ifdef HAVE_EVOLUTION_PLUGIN
+	tracker_evolution_storer_init (config, indexer);
+#endif
+
 	tracker_turtle_init ();
 
 	g_message ("Starting...");
@@ -383,15 +399,24 @@ main (gint argc, gchar *argv[])
 
 	tracker_turtle_shutdown ();
 
+
 	if (quit_timeout_id) {
 		g_source_remove (quit_timeout_id);
 	}
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (indexer);
-	g_object_unref (config);
 
-        tracker_thumbnailer_shutdown ();
+	g_object_unref (config);
+	g_object_unref (language);
+
+	tracker_data_manager_shutdown ();
+
+#ifdef HAVE_EVOLUTION_PLUGIN
+	tracker_evolution_storer_shutdown ();
+#endif
+
+	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_db_index_manager_shutdown ();
 	tracker_db_manager_shutdown ();

@@ -53,7 +53,10 @@
 #include <libtracker-db/tracker-db-index.h>
 #include <libtracker-db/tracker-db-index-manager.h>
 
+#include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-turtle.h>
+
+#include <plugins/evolution/tracker-evolution.h>
 
 #include "tracker-crawler.h"
 #include "tracker-dbus.h"
@@ -1030,10 +1033,10 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+	tracker_module_config_init ();
+
 	tracker_turtle_init ();
 	tracker_thumbnailer_init (config);
-
-	tracker_module_config_init ();
 
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 	index_flags |= TRACKER_DB_INDEX_MANAGER_READONLY;
@@ -1132,6 +1135,10 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
+#ifdef HAVE_EVOLUTION_PLUGIN
+	tracker_evolution_init (config);
+#endif
+
 	g_message ("Waiting for DBus requests...");
 
 	/* Set our status as running, if this is FALSE, threads stop
@@ -1202,6 +1209,11 @@ main (gint argc, gchar *argv[])
 	shutdown_directories ();
 
 	/* Shutdown major subsystems */
+	
+#ifdef HAVE_EVOLUTION_PLUGIN
+	tracker_evolution_shutdown ();
+#endif
+
 	tracker_cleanup_shutdown ();
 	tracker_xesam_manager_shutdown ();
 	tracker_dbus_shutdown ();

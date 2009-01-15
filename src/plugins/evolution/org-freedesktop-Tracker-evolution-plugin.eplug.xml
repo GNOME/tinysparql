@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<e-plugin-list>
+	<e-plugin id="org.freedesktop.Tracker.evolution_plugin" 
+		type="shlib"
+		location="+PLUGIN_INSTALL_DIR+/liborg-freedesktop-Tracker-evolution-plugin.so"
+		domain="+GETTEXT_PACKAGE+"
+		localedir="+LOCALEDIR+"
+		_name="TrackerEvolutionPlugin"
+		load-on-startup="after-ui">
+
+		<_description>Support for Tracker.</_description>
+
+		<author name="Philip Van Hoof" email="philip@codeminded.be"/>
+	</e-plugin>
+</e-plugin-list>

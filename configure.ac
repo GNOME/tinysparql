@@ -120,6 +120,8 @@ LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=1.99.2
 HILDON_THUMBNAIL_REQUIRED=3.0.10
+EVO_REQUIRED=2.25.5
+EDS_REQUIRED=2.25.5
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -180,6 +182,28 @@ AC_SUBST(RAPTOR_LIBS)
 if test x$have_raptor == "xyes"; then
   AC_DEFINE(HAVE_RAPTOR, 1, [Raptor RDF parsers])
 fi
+
+# Check for Evolution's plugin system
+PKG_CHECK_MODULES(EVOPLUG, [
+	evolution-plugin >= $EVO_REQUIRED
+	evolution-data-server-1.2 >= $EDS_REQUIRED], 
+	have_evoplug=yes, have_evoplug=no)
+AC_SUBST(EVOPLUG_CFLAGS)
+AC_SUBST(EVOPLUG_LIBS)
+
+if test x$have_evoplug == "xyes"; then
+EVOLUTION_PLUGIN_INSTALL_DIR=`$PKG_CONFIG evolution-plugin --variable=plugindir`
+else
+EVOLUTION_PLUGIN_INSTALL_DIR=/dev/null
+fi
+
+AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
+
+if test x$have_evoplug == "xyes"; then
+  AC_DEFINE(HAVE_EVOLUTION_PLUGIN, 1, [Evolution plugin])
+fi
+
+AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evoplug" = "yes")
 
 # Check we have the DBUS binding tool we need
 AC_PATH_PROG(DBUSBINDINGTOOL, dbus-binding-tool)
@@ -1199,6 +1223,8 @@ AC_CONFIG_FILES([
 	src/tracker-search-tool/Makefile
 	src/tracker-search-tool/tracker-search-tool.desktop.in
 	src/tracker-utils/Makefile
+	src/plugins/Makefile
+	src/plugins/evolution/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-db/Makefile
@@ -1255,6 +1281,11 @@ Metadata Extractors:
 	Support video formats:			$have_video_handler ($have_video_handler_app)
 	Support MP3 album art (w/ GdkPixbuf):	$have_gdkpixbuf
 	Support Playlists (w/ Totem):           $have_playlist
+
+Plugins:
+
+	Evolution support (old):	yes
+	Evolution plugin:			$have_evoplug
 
 Warning:
 

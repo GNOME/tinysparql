@@ -1,3 +1,36 @@
+2009-01-15  Philip Van Hoof  <philip@codeminded.be>
+
+        * src/tracker-indexer/modules/Makefile.am
+        * src/tracker-indexer/modules/evolution.c:
+
+        Selecting between the old and the new Evolution support, depending on
+        availability of the right version of EDS
+
+        * data/services/email.metadata: 
+        * data/db/sqlite-tracker.sql:
+        * configure.ac
+        * src/tracker-indexer/Makefile.am
+        * src/trackerd/Makefile.am
+        * src/Makefile.am
+        * src/tracker-evolution-plugin/tracker-evolution-plugin.h
+        * src/tracker-evolution-plugin/tracker-evolution-indexer.h
+        * src/tracker-evolution-plugin/tracker-evolution.h
+        * src/tracker-evolution-plugin/tracker-evolution-registrar.h
+        * src/tracker-evolution-plugin/tracker-evolution-plugin.xml
+        * src/tracker-evolution-plugin/org-freedesktop-Tracker-evolution-plugin.eplug.xml
+        * src/tracker-evolution-plugin/tracker-evolution-common.h
+        * src/tracker-evolution-plugin/Makefile.am
+        * src/tracker-evolution-plugin/tracker-evolution-plugin.c
+        * src/tracker-evolution-plugin/tracker-evolution-indexer.c
+        * src/tracker-evolution-plugin/tracker-evolution-registrar.xml
+        * src/tracker-evolution-plugin/tracker-evolution.c
+        * src/tracker-evolution-plugin/tracker-evolution-registrar.c: 
+
+        Implementation of the new Evolution support
+
+        * src/trackerd/tracker-main.c
+
+
 2009-01-14  Mikael Ottela  <mikael.ottela@ixonos.com>
 	* tests/tracker-extract/data/mp3/*.data: Added data files for
 	testing
