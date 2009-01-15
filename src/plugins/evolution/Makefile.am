@@ -5,13 +5,13 @@ INCLUDES =						\
 	-DTRACKER_COMPILATION				\
 	$(DBUS_CFLAGS)					\
 	$(GMIME_CFLAGS)					\
-	$(EVOPLUG_CFLAGS)
+	$(EVOLUTION_PLUGIN_CFLAGS)
 
 %.eplug.in: %.eplug.xml
 	LC_ALL=C $(INTLTOOL_MERGE) -x -u /tmp $< $@
 
 %.eplug: %.eplug.in
-	sed -e "s%+PLUGIN_INSTALL_DIR+%$(EVOPLUG_INSTALL_DIR)%" \
+	sed -e "s%+PLUGIN_INSTALL_DIR+%$(EVOLUTION_PLUGIN_INSTALL_DIR)%" \
 	-e "s%+GETTEXT_PACKAGE+%$(GETTEXT_PACKAGE)%" \
 	-e "s%+LOCALEDIR+%$(LOCALEDIR)%" \
 	$< > $@
@@ -67,7 +67,7 @@ liborg_freedesktop_Tracker_evolution_plugin_la_SOURCES = 		\
 
 liborg_freedesktop_Tracker_evolution_plugin_la_LDFLAGS = -module -avoid-version
 liborg_freedesktop_Tracker_evolution_plugin_la_LDLIBS = 		\
-	$(EVOPLUG_LIBS)							\
+	$(EVOLUTION_PLUGIN_LIBS)					\
 	$(DBUS_LIBS)
 
 dbus_sources = 								\

@@ -1,3 +1,12 @@
+2009-01-15  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/plugins/evolution/Makefile.am: Change
+	EVOPLUG_{CFLAGS|LDFLAGS} to EVOLUTION_PLUGIN_*. Also make the
+	evolution plugin a build time option so we error if it is
+	expicitly enabled but not available. This is disabled by default
+	for the up and coming release. 
+
 2009-01-15  Philip Van Hoof  <philip@codeminded.be>
 
         * src/tracker-indexer/modules/Makefile.am

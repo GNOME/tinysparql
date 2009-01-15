@@ -183,28 +183,6 @@ if test x$have_raptor == "xyes"; then
   AC_DEFINE(HAVE_RAPTOR, 1, [Raptor RDF parsers])
 fi
 
-# Check for Evolution's plugin system
-PKG_CHECK_MODULES(EVOPLUG, [
-	evolution-plugin >= $EVO_REQUIRED
-	evolution-data-server-1.2 >= $EDS_REQUIRED], 
-	have_evoplug=yes, have_evoplug=no)
-AC_SUBST(EVOPLUG_CFLAGS)
-AC_SUBST(EVOPLUG_LIBS)
-
-if test x$have_evoplug == "xyes"; then
-EVOLUTION_PLUGIN_INSTALL_DIR=`$PKG_CONFIG evolution-plugin --variable=plugindir`
-else
-EVOLUTION_PLUGIN_INSTALL_DIR=/dev/null
-fi
-
-AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
-
-if test x$have_evoplug == "xyes"; then
-  AC_DEFINE(HAVE_EVOLUTION_PLUGIN, 1, [Evolution plugin])
-fi
-
-AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evoplug" = "yes")
-
 # Check we have the DBUS binding tool we need
 AC_PATH_PROG(DBUSBINDINGTOOL, dbus-binding-tool)
 if test -z $DBUSBINDINGTOOL; then
@@ -1105,6 +1083,48 @@ fi
 AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 
 ##################################################################
+# Enable Evolution plugin support?
+##################################################################
+
+AC_ARG_ENABLE(evolution-plugin, 
+	      AS_HELP_STRING([--disable-evolution-plugin],
+			     [disable evolution plugin support]),,
+	      [enable_evolution_plugin=no])
+
+if test "x$enable_evolution_plugin" != "xno" ; then
+   PKG_CHECK_MODULES(EVOLUTION_PLUGIN, [
+   		     evolution-plugin >= $EVO_REQUIRED
+		     evolution-data-server-1.2 >= $EDS_REQUIRED], 
+		     have_evolution_plugin=yes, 
+		     have_evolution_plugin=no)
+
+   AC_SUBST(EVOLUTION_PLUGIN_CFLAGS)
+   AC_SUBST(EVOLUTION_PLUGIN_LIBS)
+
+   if test x$have_evolution_plugin == "xyes"; then
+      EVOLUTION_PLUGIN_INSTALL_DIR=`$PKG_CONFIG evolution-plugin --variable=plugindir`
+   else
+      EVOLUTION_PLUGIN_INSTALL_DIR=/dev/null
+   fi
+
+   AC_SUBST(EVOLUTION_PLUGIN_INSTALL_DIR)
+
+   if test "x$have_evolution_plugin" = "xyes"; then
+      AC_DEFINE(HAVE_EVOLUTION_PLUGIN, 1, [Define if we have Evolution plugin ])
+   fi
+else
+   have_evolution_plugin="no  (disabled)"
+fi
+
+if test "x$enable_evolution_plugin" = "xyes"; then
+   if test "x$have_evolution_plugin" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find Evolution plugin requirements (evolution-dev, evolution-data-server-dev).])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
+
+##################################################################
 # Enable SQLite FTS support?
 ##################################################################
 
@@ -1284,8 +1304,8 @@ Metadata Extractors:
 
 Plugins:
 
-	Evolution support (old):	yes
-	Evolution plugin:			$have_evoplug
+	Evolution extracter (data-pull):	yes (old)
+	Evolution plugin    (data-push):	$have_evolution_plugin
 
 Warning:
 
