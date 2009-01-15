@@ -1,3 +1,10 @@
+2009-01-15  Ivan Frade  <ivan.frade@nokia.com>
+
+	* data/services/default.service:
+	Added some Image properties in the Services tables.
+
+	Fixes NB #97765
+	
 2009-01-15  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:
