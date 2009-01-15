@@ -18,42 +18,46 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <locale.h>
 #include <string.h>
+
 #include <glib.h>
 
-#include "config.h"
 #include "tracker-xmp.h"
+#include "tracker-escape.h"
 
 #ifdef HAVE_EXEMPI
 
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
 
-static void tracker_xmp_iter	    (XmpPtr	     xmp,
+static void tracker_xmp_iter        (XmpPtr          xmp,
 				     XmpIteratorPtr  iter,
 				     GHashTable     *metadata,
-				     gboolean	     append);
-
-static void tracker_xmp_iter_simple (GHashTable  *metadata,
-				     const gchar *schema,
-				     const gchar *path,
-				     const gchar *value,
-				     gboolean	  append);
-
+				     gboolean        append);
+static void tracker_xmp_iter_simple (GHashTable     *metadata,
+				     const gchar    *schema,
+				     const gchar    *path,
+				     const gchar    *value,
+				     gboolean        append);
 
 static void
-tracker_append_string_to_hash_table (GHashTable *metadata, const gchar *key, const gchar *value, gboolean append)
+tracker_append_string_to_hash_table (GHashTable  *metadata, 
+				     const gchar *key, 
+				     const gchar *value, 
+				     gboolean     append)
 {
 	gchar *new_value;
 
 	if (append) {
 		gchar *orig;
-		if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer)&orig )) {
+
+		if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer) &orig)) {
 			gchar *escaped;
 
 			escaped = tracker_escape_metadata (value);
-
 			new_value = g_strconcat (orig, "|", escaped, NULL);
 
 			g_free (escaped);
@@ -71,53 +75,76 @@ tracker_append_string_to_hash_table (GHashTable *metadata, const gchar *key, con
 /* We have an array, now recursively iterate over it's children.  Set 'append' to true so that all values of the array are added
    under one entry. */
 static void
-tracker_xmp_iter_array (XmpPtr xmp, GHashTable *metadata, const gchar *schema, const gchar *path)
+tracker_xmp_iter_array (XmpPtr       xmp, 
+			GHashTable  *metadata, 
+			const gchar *schema, 
+			const gchar *path)
 {
-		XmpIteratorPtr iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
-		tracker_xmp_iter (xmp, iter, metadata, TRUE);
-		xmp_iterator_free (iter);
+	XmpIteratorPtr iter;
+
+	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
+	tracker_xmp_iter (xmp, iter, metadata, TRUE);
+	xmp_iterator_free (iter);
 }
 
 
 /* We have an array, now recursively iterate over it's children.  Set 'append' to false so that only one item is used. */
 static void
-tracker_xmp_iter_alt_text (XmpPtr xmp, GHashTable *metadata, const gchar *schema, const gchar *path)
+tracker_xmp_iter_alt_text (XmpPtr       xmp, 
+			   GHashTable  *metadata, 
+			   const gchar *schema, 
+			   const gchar *path)
 {
-		XmpIteratorPtr iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
-		tracker_xmp_iter (xmp, iter, metadata, FALSE);
-		xmp_iterator_free (iter);
+	XmpIteratorPtr iter;
+
+	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN);
+	tracker_xmp_iter (xmp, iter, metadata, FALSE);
+	xmp_iterator_free (iter);
 }
 
 
 /* We have a simple element, but need to iterate over the qualifiers */
 static void
-tracker_xmp_iter_simple_qual (XmpPtr xmp, GHashTable *metadata,
-			      const gchar *schema, const gchar *path, const gchar *value, gboolean append)
+tracker_xmp_iter_simple_qual (XmpPtr       xmp, 
+			      GHashTable  *metadata,
+			      const gchar *schema, 
+			      const gchar *path, 
+			      const gchar *value, 
+			      gboolean     append)
 {
-	XmpIteratorPtr iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN | XMP_ITER_JUSTLEAFNAME);
+	XmpIteratorPtr iter;
+	XmpStringPtr the_path;
+	XmpStringPtr the_prop;
+	gchar *locale;
+	gchar *sep;
+	gboolean ignore_element = FALSE;
 
-	XmpStringPtr the_path = xmp_string_new ();
-	XmpStringPtr the_prop = xmp_string_new ();
+	iter = xmp_iterator_new (xmp, schema, path, XMP_ITER_JUSTCHILDREN | XMP_ITER_JUSTLEAFNAME);
 
-	gchar *locale = setlocale (LC_ALL, NULL);
-	gchar *sep = strchr (locale,'.');
+	the_path = xmp_string_new ();
+	the_prop = xmp_string_new ();
+
+	locale = setlocale (LC_ALL, NULL);
+	sep = strchr (locale,'.');
+
 	if (sep) {
 		locale[sep - locale] = '\0';
 	}
+
 	sep = strchr (locale, '_');
 	if (sep) {
 		locale[sep - locale] = '-';
 	}
-
-	gboolean ignore_element = FALSE;
 
 	while (xmp_iterator_next (iter, NULL, the_path, the_prop, NULL)) {
 		const gchar *qual_path = xmp_string_cstr (the_path);
 		const gchar *qual_value = xmp_string_cstr (the_prop);
 
 		if (strcmp (qual_path, "xml:lang") == 0) {
-			/* is this a language we should ignore? */
-			if (strcmp (qual_value, "x-default") != 0 && strcmp (qual_value, "x-repair") != 0 && strcmp (qual_value, locale) != 0) {
+			/* Is this a language we should ignore? */
+			if (strcmp (qual_value, "x-default") != 0 && 
+			    strcmp (qual_value, "x-repair") != 0 && 
+			    strcmp (qual_value, locale) != 0) {
 				ignore_element = TRUE;
 				break;
 			}
@@ -134,14 +161,22 @@ tracker_xmp_iter_simple_qual (XmpPtr xmp, GHashTable *metadata,
 	xmp_iterator_free (iter);
 }
 
-
-/* We have a simple element. Add any metadata we know about to the hash table  */
+/* We have a simple element. Add any metadata we know about to the
+ * hash table.
+ */
 static void
-tracker_xmp_iter_simple (GHashTable *metadata,
-			 const gchar *schema, const gchar *path, const gchar *value, gboolean append)
+tracker_xmp_iter_simple (GHashTable  *metadata,
+			 const gchar *schema, 
+			 const gchar *path, 
+			 const gchar *value, 
+			 gboolean     append)
 {
-	gchar *name = g_strdup (strchr (path, ':') + 1);
-	const gchar *index = strrchr (name, '[');
+	gchar *name;
+	const gchar *index;
+
+	name = g_strdup (strchr (path, ':') + 1);
+	index = strrchr (name, '[');
+
 	if (index) {
 		name[index-name] = '\0';
 	}
@@ -283,20 +318,24 @@ tracker_xmp_iter_simple (GHashTable *metadata,
 		}
 	}
 
-
 	g_free (name);
 }
 
 
-/* Iterate over the XMP, dispatching to the appropriate element type (simple, simple w/qualifiers, or an array) handler */
+/* Iterate over the XMP, dispatching to the appropriate element type
+ * (simple, simple w/qualifiers, or an array) handler.
+ */
 void
-tracker_xmp_iter (XmpPtr xmp, XmpIteratorPtr iter, GHashTable *metadata, gboolean append)
+tracker_xmp_iter (XmpPtr          xmp, 
+		  XmpIteratorPtr  iter, 
+		  GHashTable     *metadata, 
+		  gboolean        append)
 {
 	XmpStringPtr the_schema = xmp_string_new ();
 	XmpStringPtr the_path = xmp_string_new ();
 	XmpStringPtr the_prop = xmp_string_new ();
-
 	uint32_t opt;
+
 	while (xmp_iterator_next (iter, the_schema, the_path, the_prop, &opt)) {
 		const gchar *schema = xmp_string_cstr (the_schema);
 		const gchar *path = xmp_string_cstr (the_path);
@@ -329,20 +368,25 @@ tracker_xmp_iter (XmpPtr xmp, XmpIteratorPtr iter, GHashTable *metadata, gboolea
 
 #endif /* HAVE_EXEMPI */
 
-
 void
-tracker_read_xmp (const gchar *buffer, size_t len, GHashTable *metadata)
+tracker_read_xmp (const gchar *buffer, 
+		  size_t       len, 
+		  GHashTable  *metadata)
 {
 #ifdef HAVE_EXEMPI
+	XmpPtr xmp;
+
 	xmp_init ();
 
-	XmpPtr xmp = xmp_new_empty ();
+	xmp = xmp_new_empty ();
 	xmp_parse (xmp, buffer, len);
+
 	if (xmp != NULL) {
-		XmpIteratorPtr iter = xmp_iterator_new (xmp, NULL, NULL, XMP_ITER_PROPERTIES);
+		XmpIteratorPtr iter;
+
+		iter = xmp_iterator_new (xmp, NULL, NULL, XMP_ITER_PROPERTIES);
 		tracker_xmp_iter (xmp, iter, metadata, FALSE);
 		xmp_iterator_free (iter);
-
 		xmp_free (xmp);
 	}
 

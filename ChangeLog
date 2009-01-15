@@ -1,3 +1,23 @@
+2009-01-15  Martyn Russell  <martyn@imendio.com>
+
+	* docs/reference/libtracker-common/libtracker-common-docs.sgml:
+	* docs/reference/libtracker-common/libtracker-common.types:
+	Removed tracker-data-field.[ch] now that it is in libtracker-data,
+	fixes documentation build.
+
+	* src/tracker-extract/tracker-escape.[ch]: Fixed include order.
+
+	* src/tracker-extract/tracker-xmp.c: Small code clean up and fixed
+	3 warnings from missing include.
+
+	* src/tracker-indexer/Makefile.am: 
+	* src/trackerd/Makefile.am: Don't link with
+	libtracker-evolution-plugin if we don't have support for it
+	enabled. 
+	
+	* tests/tracker-extract/Makefile.am: Don't try to build gstreamer
+	test cases if we don't have gstreamer support enabled.
+
 2009-01-15  Ivan Frade  <ivan.frade@nokia.com>
 
 	* data/services/default.service:

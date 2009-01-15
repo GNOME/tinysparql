@@ -14,7 +14,6 @@
 <!ENTITY tracker-hal SYSTEM "xml/tracker-hal.xml">
 <!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
 <!ENTITY tracker-field SYSTEM "xml/tracker-field.xml">
-<!ENTITY tracker-field-data SYSTEM "xml/tracker-field-data.xml">
 <!ENTITY tracker-dbus SYSTEM "xml/tracker-dbus.xml">
 <!ENTITY tracker-config SYSTEM "xml/tracker-config.xml">
 <!ENTITY version SYSTEM "version.xml">
@@ -52,7 +51,6 @@
       &tracker-ontology;
       &tracker-service;
       &tracker-field;
-      &tracker-field-data;
     </chapter>
 
     <chapter>

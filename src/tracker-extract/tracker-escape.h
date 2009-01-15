@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2008, Nokia
  *
@@ -24,9 +25,9 @@
 
 G_BEGIN_DECLS
 
-gchar * tracker_escape_metadata        (const gchar *str);
-gchar * tracker_escape_metadata_printf (const gchar *format,
-                                        ...);
+gchar *tracker_escape_metadata        (const gchar *str);
+gchar *tracker_escape_metadata_printf (const gchar *format,
+                                       ...);
 
 G_END_DECLS
 

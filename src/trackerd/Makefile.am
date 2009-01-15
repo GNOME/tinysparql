@@ -72,12 +72,17 @@ if OS_WIN32
 trackerd_win_libs = -lws2_32 -lkernel32
 endif
 
+if HAVE_EVOLUTION_PLUGIN
+plugin_libs =								\
+	$(top_builddir)/src/plugins/evolution/libtracker-evolution.la
+endif
+
 trackerd_LDADD =							\
+	$(plugin_libs)							\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-	$(top_builddir)/src/plugins/evolution/libtracker-evolution.la	\
 	$(inotify_libs)							\
 	$(GMIME_LIBS)							\
 	$(FAM_LIBS)							\

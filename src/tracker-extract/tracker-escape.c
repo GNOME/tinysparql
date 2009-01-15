@@ -19,9 +19,12 @@
  */
 
 #include "config.h"
-#include "tracker-escape.h"
-#include <glib.h>
+
 #include <string.h>
+
+#include <glib.h>
+
+#include "tracker-escape.h"
 
 gchar *
 tracker_escape_metadata (const gchar *str)

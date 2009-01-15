@@ -9,8 +9,12 @@ TEST_UTILS_SOURCES = tracker-extract-test-utils.c			\
 
 
 TEST_PROGS += 								\
-	test-tracker-extract-mp3					\
+	test-tracker-extract-mp3
+
+if HAVE_GSTREAMER
+TEST_PROGS += 								\
 	test-tracker-extract-gstreamer
+endif
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
@@ -35,6 +39,8 @@ test_tracker_extract_mp3_LDADD =					\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)
 
+if HAVE_GSTREAMER
+
 test_tracker_extract_gstreamer_SOURCES = 				\
 	tracker-extract-gstreamer-test.c				\
 	$(TEST_UTILS_SOURCES)
@@ -46,3 +52,5 @@ test_tracker_extract_gstreamer_LDADD =					\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(GSTREAMER_LIBS)
+
+endif

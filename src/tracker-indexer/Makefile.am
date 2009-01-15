@@ -50,13 +50,18 @@ tracker_indexer_SOURCES =						\
 	tracker-removable-device.c					\
 	tracker-removable-device.h					
 
+if HAVE_EVOLUTION_PLUGIN
+plugin_libs =								\
+	$(top_builddir)/src/plugins/evolution/libtracker-evolution-indexer.la
+endif
+
 tracker_indexer_LDADD =							\
+	$(plugin_libs)							\
 	libtracker-module.la						\
 	$(top_builddir)/src/libtracker-data/libtracker-data.la		\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		\
-	$(top_builddir)/src/plugins/evolution/libtracker-evolution-indexer.la \
 	$(trackerd_win_libs)						\
 	$(DBUS_LIBS)							\
 	$(GMODULE_LIBS)							\
