@@ -1,3 +1,10 @@
+2009-01-15  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-search.c: Added proper NULL
+	handling to queries.
+
+	Fixes NB #97029
+
 2009-01-15  Martyn Russell  <martyn@imendio.com>
 
 	* docs/reference/libtracker-common/libtracker-common-docs.sgml:

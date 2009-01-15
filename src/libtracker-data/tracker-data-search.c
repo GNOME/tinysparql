@@ -786,7 +786,7 @@ tracker_data_search_get_unique_values (const gchar  *service_type,
 			g_string_append_printf (sql_order, ",");
 		}
 
-		g_string_append_printf (sql_select, "%s", tracker_field_data_get_select_field (fd));
+		g_string_append_printf (sql_select, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 		g_string_append_printf (sql_order, " %s %s",
 					tracker_field_data_get_select_field (fd),
 					order_desc ? "DESC" : "ASC" );
@@ -912,11 +912,11 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 			g_string_append_printf (sql_group, ",");
 		}
 
-		g_string_append_printf (sql_select, "%s", tracker_field_data_get_select_field (fd));
+		g_string_append_printf (sql_select, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 		g_string_append_printf (sql_order, " %s %s",
 					tracker_field_data_get_select_field (fd),
 					order_desc ? "DESC" : "ASC" );
-		g_string_append_printf (sql_group, "%s", tracker_field_data_get_select_field (fd));
+		g_string_append_printf (sql_group, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 
 	}
 
@@ -939,7 +939,7 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 				return NULL;
 			}
 			
-			g_string_append_printf (sql_select, ", COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
+			g_string_append_printf (sql_select, ", COUNT (DISTINCT COALESCE(%s,''))", tracker_field_data_get_select_field (fd));
 		} else {
 			g_string_append_printf (sql_select, ", COUNT (DISTINCT S.ID)");			
 		}
@@ -1072,11 +1072,11 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 			g_string_append_printf (sql_group, ",");
 		}
 
-		g_string_append_printf (sql_select, "%s", tracker_field_data_get_select_field (fd));
+		g_string_append_printf (sql_select, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 		g_string_append_printf (sql_order, " %s %s",
 					tracker_field_data_get_select_field (fd),
 					order_desc ? "DESC" : "ASC" );
-		g_string_append_printf (sql_group, "%s", tracker_field_data_get_select_field (fd));
+		g_string_append_printf (sql_group, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 
 	}
 
@@ -1099,7 +1099,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 				return NULL;
 			}
 			
-			g_string_append_printf (sql_select, ", COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
+			g_string_append_printf (sql_select, ", COUNT (DISTINCT COALESCE(%s,''))", tracker_field_data_get_select_field (fd));
 		} else {
 				g_string_append_printf (sql_select, ", COUNT (DISTINCT S.ID)");		
 		}
@@ -1357,7 +1357,7 @@ tracker_data_search_get_count (const gchar	   *service_type,
 			return 0;
 		}
 
-		g_string_append_printf (sql_select, "COUNT (DISTINCT %s)", tracker_field_data_get_select_field (fd));
+		g_string_append_printf (sql_select, "COUNT (DISTINCT COALESCE(%s,''))", tracker_field_data_get_select_field (fd));
 	} else {
 		g_string_append_printf (sql_select, "COUNT (DISTINCT S.ID)");
 	}
