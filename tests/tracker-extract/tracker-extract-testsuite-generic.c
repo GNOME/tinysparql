@@ -18,11 +18,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-extract-testsuite-generic.h"
-
 #include <glib.h>
 
 #include "tracker-extract-test-utils.h"
+#include "tracker-extract-testsuite-generic.h"
 
 void
 test_tracker_extract_check_extractor_data (void)
@@ -30,7 +29,7 @@ test_tracker_extract_check_extractor_data (void)
 	TrackerExtractorData *data;
 	guint extractors = 0;
 
-	data = tracker_get_extractor_data();
+	data = tracker_get_extractor_data ();
 
 	while (data->mime) {
 		if (data->extractor == NULL) {

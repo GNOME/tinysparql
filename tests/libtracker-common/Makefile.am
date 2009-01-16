@@ -41,7 +41,7 @@ tracker_ontology_LDADD =						\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							
 
-tracker_dbus_SOURCES = \
+tracker_dbus_SOURCES = 							\
 	tracker-dbus-test.c
 
 tracker_dbus_LDADD =							\

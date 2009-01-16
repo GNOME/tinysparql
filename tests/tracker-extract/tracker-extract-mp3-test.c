@@ -21,6 +21,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
+
 #include <glib.h>
 
 #include <tracker-extract/tracker-extract.h>
@@ -32,13 +33,12 @@
 int
 main (int argc, char **argv) {
 
+	TrackerExtractorData *data;
 	gint result;
 
 	g_type_init ();
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
-
-	TrackerExtractorData *data;
 
 	g_test_message ("Testing extractor functionality");
 	g_test_add_func ("/tracker-extract/tracker-extract-mp3/check-extractor-data",
@@ -65,7 +65,6 @@ main (int argc, char **argv) {
 	}
 
 #endif
-
 
 	result = g_test_run ();
 

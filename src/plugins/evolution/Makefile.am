@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.decl
+
 INCLUDES =						\
 	-I$(top_srcdir)/src				\
 	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""	\

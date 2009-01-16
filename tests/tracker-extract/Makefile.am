@@ -2,12 +2,6 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_UTILS_SOURCES = tracker-extract-test-utils.c			\
-		     tracker-extract-testsuite-generic.c		\
-		     tracker-extract-testsuite-mp3.c
-
-
-
 TEST_PROGS += 								\
 	test-tracker-extract-mp3
 
@@ -28,9 +22,17 @@ INCLUDES = 								\
 	$(PANGO_CFLAGS)							\
 	$(GLIB2_CFLAGS)
 
+test_utils_sources = 							\
+	tracker-extract-test-utils.c					\
+	tracker-extract-test-utils.h					\
+	tracker-extract-testsuite-generic.c				\
+	tracker-extract-testsuite-generic.h				\
+	tracker-extract-testsuite-mp3.c					\
+	tracker-extract-testsuite-mp3.h
+
 test_tracker_extract_mp3_SOURCES = 					\
 	tracker-extract-mp3-test.c					\
-	$(TEST_UTILS_SOURCES)
+	$(test_utils_sources)
 
 test_tracker_extract_mp3_LDADD =					\
 	$(top_builddir)/src/tracker-extract/libextract-mp3.la   	\
@@ -43,7 +45,7 @@ if HAVE_GSTREAMER
 
 test_tracker_extract_gstreamer_SOURCES = 				\
 	tracker-extract-gstreamer-test.c				\
-	$(TEST_UTILS_SOURCES)
+	$(test_utils_sources)
 
 test_tracker_extract_gstreamer_LDADD =					\
 	$(top_builddir)/src/tracker-extract/libextract-gstreamer.la   	\

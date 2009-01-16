@@ -10,6 +10,7 @@ src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-gtk/tracker-metadata-tile.c
 src/libtracker-gtk/tracker-tag-bar.c
+src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
 src/tracker-applet/tracker-applet-prefs.glade
 src/tracker-applet/tracker-applet.c
 src/tracker-applet/tracker-applet.desktop.in.in

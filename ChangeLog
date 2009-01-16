@@ -1,3 +1,17 @@
+2009-01-16  Martyn Russell  <martyn@imendio.com>
+
+	* src/plugins/Makefile.am:
+	* src/plugins/evolution/Makefile.am: Added glib test Makefile.decl
+	includes to these new Makefiles so make distcheck doesn't fail.
+	
+	* tests/tracker-extract/Makefile.am: Include .h files needed in
+	TEST_UTILS_SOURCES so they are not left out of the tarball and
+	don't fail make distcheck.
+	
+	* tests/tracker-extract/tracker-extract-mp3-test.c:
+	* tests/tracker-extract/tracker-extract-testsuite-generic.c: Some
+	code clean ups.
+
 2009-01-16  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Define
