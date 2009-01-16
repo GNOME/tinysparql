@@ -1,3 +1,8 @@
+2009-01-16  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-search.c: Switched back to
+	using INNER JOINs because of performance issues.
+
 2009-01-15  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-search.c: Added proper NULL
