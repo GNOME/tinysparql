@@ -331,7 +331,11 @@ tracker_module_metadata_add_date (TrackerModuleMetadata *metadata,
 {
 	gchar *str;
 
-	str = tracker_date_to_string (value);
+	if (sizeof (time_t) == 8) {
+		str = g_strdup_printf ("%" G_GINT64_FORMAT, value);
+	} else {
+		str = g_strdup_printf ("%d", value);
+	}
 
 	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
 		g_free (str);

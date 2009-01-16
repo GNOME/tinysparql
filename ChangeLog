@@ -1,3 +1,18 @@
+2009-01-06  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-db/tracker-db-manager.c (load_metadata_file): Warn on
+	invalid/unparseable data types.
+	* src/tracker-indexer/tracker-module-metadata.c
+	(tracker_module_metadata_add_date): Convert time_t to string directly
+	instead of dates.
+	* src/libtracker-data/tracker-data-update.c
+	(tracker_data_update_create_service): So we don't have to convert them
+	back to unix times here.
+
+	* data/services/email.metadata:
+	* data/services/image.metadata: Fix invalid data types so Tracker now
+	recognizes them.
+
 2009-01-16  Martyn Russell  <martyn@imendio.com>
 
 	* src/plugins/Makefile.am:

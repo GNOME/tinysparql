@@ -340,6 +340,8 @@ load_metadata_file (TrackerDBInterface *iface,
 					tracker_db_interface_execute_query (iface, NULL,
 									    "update MetaDataTypes set DataTypeID = %d where ID = %d",
 									    enum_value->value, id);
+				} else {
+					g_critical ("Field '%s' doesn't have a valid data type '%s'", groups[i], new_value);
 				}
 			} else {
 				gchar *esc_value;

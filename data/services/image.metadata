@@ -35,7 +35,7 @@ Weight=5
 [Image:Date]
 DisplayName=Created
 Description=Date image was created or shot
-DataType=DateTime
+DataType=date
 Parent=DC:Date
 
 [Image:Creator]
