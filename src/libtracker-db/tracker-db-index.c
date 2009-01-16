@@ -592,7 +592,7 @@ indexer_update_word (DEPOT	 *indez,
 	old_hit_count = tsiz / sizeof (TrackerDBIndexItem);
 
 	for (j = 0; j < new_hits->len; j++) {
-		guint left, right, center;
+		gint left, right, center;
 
 		new_hit = &g_array_index (new_hits, TrackerDBIndexItem, j);
 		edited = FALSE;
