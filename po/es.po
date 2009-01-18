@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&amp;component=general\n"
-"POT-Creation-Date: 2008-12-29 13:45+0000\n"
-"PO-Revision-Date: 2009-01-02 12:10+0100\n"
+"product=tracker&component=general\n"
+"POT-Creation-Date: 2009-01-16 12:03+0000\n"
+"PO-Revision-Date: 2009-01-18 18:43+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 
 #: ../data/trackerd.desktop.in.in.h:1
-#: ../src/tracker-applet/tracker-applet.c:2187
+#: ../src/tracker-applet/tracker-applet.c:2221
 msgid "Tracker"
 msgstr "Tracker"
 
@@ -398,6 +398,14 @@ msgstr "_Buscar por etiqueta"
 msgid "_Remove Tag"
 msgstr "_Eliminar etiqueta"
 
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
+msgid "Support for Tracker."
+msgstr "Soporte para Tracker."
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
+msgid "TrackerEvolutionPlugin"
+msgstr "Complemento de Tracker para Evolution"
+
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
 msgid "<b>Animation</b>"
 msgstr "<b>Animación</b>"
@@ -444,29 +452,47 @@ msgstr "Apaga_r"
 msgid "Tracker Applet"
 msgstr "Miniaplicación Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:272
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing
+#.
+#: ../src/tracker-applet/tracker-applet.c:276
 msgid "Initializing"
 msgstr "Inicializando"
 
-#: ../src/tracker-applet/tracker-applet.c:275
+#. Translators: this will be a status hint like:
+#. * Tracker: Idle
+#.
+#: ../src/tracker-applet/tracker-applet.c:282
 msgid "Idle"
 msgstr "Ocioso"
 
-#: ../src/tracker-applet/tracker-applet.c:278
+#. Translators: this will be a status hint like:
+#. * Tracker: Indexing
+#.
+#: ../src/tracker-applet/tracker-applet.c:288
 #: ../src/tracker-search-tool/tracker-search-tool.c:1820
 msgid "Indexing"
 msgstr "Indexando"
 
-#: ../src/tracker-applet/tracker-applet.c:281
+#. Translators: this will be a status hint like:
+#. * Tracker: Merging
+#.
+#: ../src/tracker-applet/tracker-applet.c:294
 msgid "Merging"
 msgstr "Mezclando"
 
-#: ../src/tracker-applet/tracker-applet.c:291
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
+#.
+#: ../src/tracker-applet/tracker-applet.c:304
 msgid "paused by user"
 msgstr "pausado por el usuario"
 
-#: ../src/tracker-applet/tracker-applet.c:293
-#: ../src/tracker-applet/tracker-applet.c:297
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
+#.
+#: ../src/tracker-applet/tracker-applet.c:309
+#: ../src/tracker-applet/tracker-applet.c:316
 msgid "paused by system"
 msgstr "pausado por el sistema"
 
@@ -474,41 +500,74 @@ msgstr "pausado por el sistema"
 #. * battery first, this state purely means we
 #. * WILL pause on battery.
 #.
-#: ../src/tracker-applet/tracker-applet.c:305
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
+#.
+#: ../src/tracker-applet/tracker-applet.c:327
 msgid "paused by battery"
 msgstr "pausado por la batería"
 
-#: ../src/tracker-applet/tracker-applet.c:343
-msgid "Done"
-msgstr "Hecho"
+#. Translators: this will be a status hint like:
+#. * Tracker: Indexing (paused by system)
+#.
+#: ../src/tracker-applet/tracker-applet.c:341
+#, c-format
+#| msgid "Tracker : "
+msgid "Tracker: %s (%s)"
+msgstr "Tracker: %s (%s)"
 
+#. Translators: this will be a status hint like:
+#. * Tracker: Indexing
+#.
 #: ../src/tracker-applet/tracker-applet.c:346
-msgid "Estimated"
-msgstr "Estimado"
+#, c-format
+#| msgid "Tracker : "
+msgid "Tracker: %s"
+msgstr "Tracker: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:348
-msgid "Elapsed"
-msgstr "Transcurrido"
+#: ../src/tracker-applet/tracker-applet.c:369
+#, c-format
+msgid ""
+"Done: %d of %d\n"
+"Estimated: %s\n"
+"Elapsed: %s"
+msgstr ""
+"Completados: %d de %d\n"
+"Estimados: %s\n"
+"Transcurridos: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1075
+#. Translators: this will be a status hint like:
+#. * Tracker: Merging\n
+#. *  %d/%d indexes being merged
+#.
+#: ../src/tracker-applet/tracker-applet.c:384
+#, c-format
+msgid ""
+"\n"
+"%d/%d indexes being merged"
+msgstr ""
+"\n"
+"%d/%d los índices se están mezclando"
+
+#: ../src/tracker-applet/tracker-applet.c:1107
 msgid "Re-index your system?"
 msgstr "¿Reindexar su sistema?"
 
-#: ../src/tracker-applet/tracker-applet.c:1077
+#: ../src/tracker-applet/tracker-applet.c:1109
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
 msgstr ""
 "El indexado puede llevar un largo tiempo. ¿Está seguro de que quiere "
 "reindexar?"
 
-#: ../src/tracker-applet/tracker-applet.c:1251
+#: ../src/tracker-applet/tracker-applet.c:1283
 msgid "Statistics"
 msgstr "Estadísticas"
 
-#: ../src/tracker-applet/tracker-applet.c:1274
+#: ../src/tracker-applet/tracker-applet.c:1306
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Estadísticas del indexado</span>"
 
-#: ../src/tracker-applet/tracker-applet.c:1403
+#: ../src/tracker-applet/tracker-applet.c:1435
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -520,7 +579,7 @@ msgstr ""
 "Software Foundation; ya sea la versión 2 de la Licencia, o (a su elección) "
 "cualquier versión posterior."
 
-#: ../src/tracker-applet/tracker-applet.c:1404
+#: ../src/tracker-applet/tracker-applet.c:1436
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
@@ -532,7 +591,7 @@ msgstr ""
 "PARA UN PROPÓSITO PARTICULAR. Vea la Licencia Pública General GNU para más "
 "detalles."
 
-#: ../src/tracker-applet/tracker-applet.c:1405
+#: ../src/tracker-applet/tracker-applet.c:1437
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -542,7 +601,7 @@ msgstr ""
 "con Tracker; si no es el caso, escriba a la Free Software Foundation, Inc., "
 "51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, EE. UU."
 
-#: ../src/tracker-applet/tracker-applet.c:1421
+#: ../src/tracker-applet/tracker-applet.c:1453
 msgid ""
 "Tracker is a tool designed to extract info and metadata about your personal "
 "data so that it can be searched easily and quickly"
@@ -551,7 +610,7 @@ msgstr ""
 "sus archivos personales, de tal forma que pueda ser fácil y rápidamente "
 "buscada."
 
-#: ../src/tracker-applet/tracker-applet.c:1423
+#: ../src/tracker-applet/tracker-applet.c:1455
 msgid "Copyright © 2005-2008 The Tracker authors"
 msgstr "Copyright © 2005-2008 Los autores de Tracker"
 
@@ -559,55 +618,55 @@ msgstr "Copyright © 2005-2008 Los autores de Tracker"
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-applet/tracker-applet.c:1431
+#: ../src/tracker-applet/tracker-applet.c:1463
 msgid "translator-credits"
 msgstr "Jorge González <jorgegonz@svn.gnome.org>, 2007-2009"
 
-#: ../src/tracker-applet/tracker-applet.c:1434
+#: ../src/tracker-applet/tracker-applet.c:1466
 msgid "Tracker Web Site"
 msgstr "Página web de Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:1455
+#: ../src/tracker-applet/tracker-applet.c:1487
 msgid "_Pause All Indexing"
 msgstr "_Pausar todos los indexados"
 
-#: ../src/tracker-applet/tracker-applet.c:1465
+#: ../src/tracker-applet/tracker-applet.c:1497
 msgid "_Search"
 msgstr "_Buscar"
 
-#: ../src/tracker-applet/tracker-applet.c:1474
+#: ../src/tracker-applet/tracker-applet.c:1506
 msgid "_Re-index"
 msgstr "_Reindexar"
 
-#: ../src/tracker-applet/tracker-applet.c:1482
+#: ../src/tracker-applet/tracker-applet.c:1514
 msgid "_Preferences"
 msgstr "_Preferencias"
 
-#: ../src/tracker-applet/tracker-applet.c:1491
+#: ../src/tracker-applet/tracker-applet.c:1523
 msgid "_Indexer Preferences"
 msgstr "Preferencias del _indexado"
 
-#: ../src/tracker-applet/tracker-applet.c:1499
+#: ../src/tracker-applet/tracker-applet.c:1531
 msgid "S_tatistics"
 msgstr "Es_tadísticas"
 
-#: ../src/tracker-applet/tracker-applet.c:1507
+#: ../src/tracker-applet/tracker-applet.c:1539
 msgid "_About"
 msgstr "Acerca _de"
 
-#: ../src/tracker-applet/tracker-applet.c:1518
+#: ../src/tracker-applet/tracker-applet.c:1550
 msgid "_Quit"
 msgstr "_Salir"
 
-#: ../src/tracker-applet/tracker-applet.c:1559
+#: ../src/tracker-applet/tracker-applet.c:1591
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker ha terminado de indexar su sistema"
 
-#: ../src/tracker-applet/tracker-applet.c:1561
+#: ../src/tracker-applet/tracker-applet.c:1593
 msgid "You can now perform searches by clicking here"
 msgstr "Ahora puede realizar búsquedas pulsando aquí"
 
-#: ../src/tracker-applet/tracker-applet.c:1618
+#: ../src/tracker-applet/tracker-applet.c:1650
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
@@ -615,7 +674,7 @@ msgstr ""
 "Su equipo está a punto de ser indexado para que pueda realizar búsquedas "
 "rápidas de sus archivos y correos"
 
-#: ../src/tracker-applet/tracker-applet.c:1621
+#: ../src/tracker-applet/tracker-applet.c:1653
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
@@ -623,57 +682,57 @@ msgstr ""
 "Puede pausar el indexado en cualquier momento y configurar los ajustes de "
 "indexado pulsando con el botón derecho del ratón aquí"
 
-#: ../src/tracker-applet/tracker-applet.c:2164
+#: ../src/tracker-applet/tracker-applet.c:2198
 msgid "- Tracker applet for quick control of your desktop search tools"
 msgstr ""
 "- Miniaplicación Tracker para controlar rápidamente sus herramientas de "
 "búsqueda del escritorio"
 
-#: ../src/tracker-applet/tracker-applet.c:2189
+#: ../src/tracker-applet/tracker-applet.c:2223
 msgid "Files:"
 msgstr "Archivos:"
 
-#: ../src/tracker-applet/tracker-applet.c:2190
+#: ../src/tracker-applet/tracker-applet.c:2224
 msgid "    Folders:"
 msgstr "    Carpetas:"
 
-#: ../src/tracker-applet/tracker-applet.c:2191
+#: ../src/tracker-applet/tracker-applet.c:2225
 msgid "    Documents:"
 msgstr "    Documentos:"
 
-#: ../src/tracker-applet/tracker-applet.c:2192
+#: ../src/tracker-applet/tracker-applet.c:2226
 msgid "    Images:"
 msgstr "    Imágenes:"
 
-#: ../src/tracker-applet/tracker-applet.c:2193
+#: ../src/tracker-applet/tracker-applet.c:2227
 msgid "    Music:"
 msgstr "    Música:"
 
-#: ../src/tracker-applet/tracker-applet.c:2194
+#: ../src/tracker-applet/tracker-applet.c:2228
 msgid "    Videos:"
 msgstr "    Vídeos:"
 
-#: ../src/tracker-applet/tracker-applet.c:2195
+#: ../src/tracker-applet/tracker-applet.c:2229
 msgid "    Text:"
 msgstr "    Texto:"
 
-#: ../src/tracker-applet/tracker-applet.c:2196
+#: ../src/tracker-applet/tracker-applet.c:2230
 msgid "    Development:"
 msgstr "    Desarrollo:"
 
-#: ../src/tracker-applet/tracker-applet.c:2197
+#: ../src/tracker-applet/tracker-applet.c:2231
 msgid "    Other:"
 msgstr "    Otros:"
 
-#: ../src/tracker-applet/tracker-applet.c:2198
+#: ../src/tracker-applet/tracker-applet.c:2232
 msgid "Applications:"
 msgstr "Aplicaciones:"
 
-#: ../src/tracker-applet/tracker-applet.c:2199
+#: ../src/tracker-applet/tracker-applet.c:2233
 msgid "Conversations:"
 msgstr "Conversaciones:"
 
-#: ../src/tracker-applet/tracker-applet.c:2200
+#: ../src/tracker-applet/tracker-applet.c:2234
 msgid "Emails:"
 msgstr "Correos-e:"
 
@@ -702,7 +761,7 @@ msgid " - Reading filename/mime-type pairs from STDIN"
 msgstr ""
 " - Leyendo el nombre de archivo y/o los pares del tipo MIME desde STDIN"
 
-#: ../src/tracker-indexer/tracker-main.c:75 ../src/trackerd/tracker-main.c:127
+#: ../src/tracker-indexer/tracker-main.c:78 ../src/trackerd/tracker-main.c:132
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -710,24 +769,24 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = 0)"
 
-#: ../src/tracker-indexer/tracker-main.c:80
+#: ../src/tracker-indexer/tracker-main.c:83
 msgid "Whether to process data from all configured modules to be indexed"
 msgstr ""
 "Indica si se deben procesar datos de todos los módulos configurados para ser "
 "indexados"
 
-#: ../src/tracker-indexer/tracker-main.c:84
+#: ../src/tracker-indexer/tracker-main.c:87
 msgid "Run forever, only interesting for debugging purposes"
 msgstr "Ejecutar siempre, sólo interesante para propósitos de depuración"
 
-#: ../src/tracker-indexer/tracker-main.c:88
+#: ../src/tracker-indexer/tracker-main.c:91
 msgid "Modules to be used when processing data"
 msgstr "Módulos que usar al procesar datos"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-indexer/tracker-main.c:281
+#: ../src/tracker-indexer/tracker-main.c:287
 msgid "- start the tracker indexer"
 msgstr "- iniciar el indexador de tracker"
 
@@ -899,7 +958,8 @@ msgid "Ignored Files"
 msgstr "Archivos ignorados"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Index _delay: "
+#| msgid "Index _delay: "
+msgid "Index _delay:"
 msgstr "_Retardo de indexado: "
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:33
@@ -1100,7 +1160,6 @@ msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A, %B %-d %Y a las %-H:%M:%S"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:63
-#: ../src/tracker-utils/tracker-files.c:42
 #: ../src/tracker-utils/tracker-query.c:53
 #: ../src/tracker-utils/tracker-search.c:42
 #: ../src/tracker-utils/tracker-unique.c:50
@@ -1296,45 +1355,44 @@ msgstr ""
 "Localice documentos y carpetas en este equipo por nombre o contenido usando "
 "Tracker"
 
+#: ../src/tracker-utils/tracker-files.c:41
+#| msgid "Search for a specific service"
+msgid "Search for specified service"
+msgstr "Buscar un servicio específico"
+
+#. Translators: this will appear like --option=STRING running --help
+#: ../src/tracker-utils/tracker-files.c:43
+#: ../src/tracker-utils/tracker-files.c:58
+msgid "STRING"
+msgstr "CADENA"
+
 #: ../src/tracker-utils/tracker-files.c:46
-#: ../src/tracker-utils/tracker-query.c:57
-#: ../src/tracker-utils/tracker-search.c:46
-#: ../src/tracker-utils/tracker-tag.c:65
-msgid "Limit the number of results shown"
-msgstr "Limitar el número de resultados mostrados"
+msgid "Set the total number of displayed results (default 512)"
+msgstr "Establecer el número de resultados mostrados (predeterminado 512)"
 
-#: ../src/tracker-utils/tracker-files.c:47
-#: ../src/tracker-utils/tracker-query.c:58
-#: ../src/tracker-utils/tracker-search.c:47
-#: ../src/tracker-utils/tracker-tag.c:66
-msgid "512"
-msgstr "512"
-
-#: ../src/tracker-utils/tracker-files.c:50
-#: ../src/tracker-utils/tracker-query.c:61
-#: ../src/tracker-utils/tracker-search.c:50
-#: ../src/tracker-utils/tracker-tag.c:69
-msgid "Offset the results"
-msgstr "Compensar los resultados"
+#. Translators: this will appear like --option=NUMBER running --help
+#: ../src/tracker-utils/tracker-files.c:48
+#: ../src/tracker-utils/tracker-files.c:53
+msgid "NUMBER"
+msgstr "NÚMERO"
 
 #: ../src/tracker-utils/tracker-files.c:51
-#: ../src/tracker-utils/tracker-query.c:62
-#: ../src/tracker-utils/tracker-search.c:51
-#: ../src/tracker-utils/tracker-tag.c:70
-msgid "0"
-msgstr "0"
+msgid "Set the offset for displayed results (default 0)"
+msgstr ""
+"Establecer el desplazamiento para los resultados mostrados (predeterminado 0)"
 
-#: ../src/tracker-utils/tracker-files.c:54
-msgid "MIME types (can be used multiple times)"
-msgstr "Tipos MIME (se puede usar varias veces)"
+#: ../src/tracker-utils/tracker-files.c:56
+#| msgid "MIME types (can be used multiple times)"
+msgid "Search for specified MIME type (can be used multiple times)"
+msgstr "Buscar por tipos MIME específicos (se puede usar varias veces)"
 
-#: ../src/tracker-utils/tracker-files.c:74
+#: ../src/tracker-utils/tracker-files.c:77
 msgid "- Search for files by service or by MIME type"
 msgstr "- Buscar archivos por servicio o tipo MIME"
 
-#: ../src/tracker-utils/tracker-files.c:95
+#: ../src/tracker-utils/tracker-files.c:98
 #: ../src/tracker-utils/tracker-info.c:106
-#: ../src/tracker-utils/tracker-meta-folder.c:200
+#: ../src/tracker-utils/tracker-meta-folder.c:203
 #: ../src/tracker-utils/tracker-query.c:146
 #: ../src/tracker-utils/tracker-search.c:170
 #: ../src/tracker-utils/tracker-services.c:98
@@ -1345,34 +1403,34 @@ msgstr "- Buscar archivos por servicio o tipo MIME"
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "No se pudo establecer una conexión de DBus a Tracker"
 
-#: ../src/tracker-utils/tracker-files.c:107
+#: ../src/tracker-utils/tracker-files.c:110
 #: ../src/tracker-utils/tracker-query.c:164
 #: ../src/tracker-utils/tracker-search.c:188
 #: ../src/tracker-utils/tracker-unique.c:146
 msgid "Service not recognized, searching in other files..."
 msgstr "Servicio no reconocido, buscando en otros archivos..."
 
-#: ../src/tracker-utils/tracker-files.c:119
+#: ../src/tracker-utils/tracker-files.c:122
 msgid "Could not get files by service type"
 msgstr "No se pudieron obtener archivos por el tipo de servicio"
 
-#: ../src/tracker-utils/tracker-files.c:129
+#: ../src/tracker-utils/tracker-files.c:132
 msgid "No files found by that service type"
 msgstr "No se encontró ningún archivo por ese tipo de servicio"
 
-#: ../src/tracker-utils/tracker-files.c:134
-#: ../src/tracker-utils/tracker-files.c:171
-#: ../src/tracker-utils/tracker-meta-folder.c:260
+#: ../src/tracker-utils/tracker-files.c:137
+#: ../src/tracker-utils/tracker-files.c:174
+#: ../src/tracker-utils/tracker-meta-folder.c:263
 #: ../src/tracker-utils/tracker-search.c:251
 #: ../src/tracker-utils/tracker-unique.c:220
 msgid "Results"
 msgstr "Resultados"
 
-#: ../src/tracker-utils/tracker-files.c:156
+#: ../src/tracker-utils/tracker-files.c:159
 msgid "Could not get files by MIME type"
 msgstr "No se pudieron obtener archivos por su tipo MIME"
 
-#: ../src/tracker-utils/tracker-files.c:165
+#: ../src/tracker-utils/tracker-files.c:168
 msgid "No files found by those MIME types"
 msgstr "No se encontró ningún archivo por esos tipos MIME"
 
@@ -1442,7 +1500,7 @@ msgstr "Nombre del archivo"
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #.
-#: ../src/tracker-utils/tracker-meta-folder.c:159
+#: ../src/tracker-utils/tracker-meta-folder.c:162
 msgid "Retrieve meta-data information about files in a directory"
 msgstr ""
 "Obtener la información de los metadatos de los archivos en un directorio"
@@ -1450,35 +1508,35 @@ msgstr ""
 #. Translators: this message will appear after the usage string
 #. * and before the list of options, showing an usage example.
 #.
-#: ../src/tracker-utils/tracker-meta-folder.c:164
+#: ../src/tracker-utils/tracker-meta-folder.c:167
 msgid "To use multiple meta-data types simply list them, for example:"
 msgstr ""
 "Para usar múltiples tipos de metadatos simplemente lístelos, por ejemplo:"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:167
+#: ../src/tracker-utils/tracker-meta-folder.c:170
 msgid "PATH"
 msgstr "RUTA"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:176
+#: ../src/tracker-utils/tracker-meta-folder.c:179
 msgid "No path was given"
 msgstr "No se proporcionó ninguna ruta"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:178
+#: ../src/tracker-utils/tracker-meta-folder.c:181
 msgid "No fields were given"
 msgstr "No se proporcionó ningún campo"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:221
+#: ../src/tracker-utils/tracker-meta-folder.c:224
 #: ../src/tracker-utils/tracker-query.c:171
 #: ../src/tracker-utils/tracker-unique.c:156
 msgid "Could not get UTF-8 path from path"
 msgstr "No se pudo obtener la ruta UTF-8 de la ruta"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:245
+#: ../src/tracker-utils/tracker-meta-folder.c:248
 msgid "Could not get meta-data for files in directory"
 msgstr ""
 "No se pudieron obtener los metadatos para los archivos en el directorio"
 
-#: ../src/tracker-utils/tracker-meta-folder.c:257
+#: ../src/tracker-utils/tracker-meta-folder.c:260
 msgid "No meta-data found for files in that directory"
 msgstr "No se encontró ningún metadato para los archivos en ese directorio"
 
@@ -1486,6 +1544,30 @@ msgstr "No se encontró ningún metadato para los archivos en ese directorio"
 #: ../src/tracker-utils/tracker-unique.c:46
 msgid "Path to use in query"
 msgstr "Ruta que usar en la consulta"
+
+#: ../src/tracker-utils/tracker-query.c:57
+#: ../src/tracker-utils/tracker-search.c:46
+#: ../src/tracker-utils/tracker-tag.c:65
+msgid "Limit the number of results shown"
+msgstr "Limitar el número de resultados mostrados"
+
+#: ../src/tracker-utils/tracker-query.c:58
+#: ../src/tracker-utils/tracker-search.c:47
+#: ../src/tracker-utils/tracker-tag.c:66
+msgid "512"
+msgstr "512"
+
+#: ../src/tracker-utils/tracker-query.c:61
+#: ../src/tracker-utils/tracker-search.c:50
+#: ../src/tracker-utils/tracker-tag.c:69
+msgid "Offset the results"
+msgstr "Compensar los resultados"
+
+#: ../src/tracker-utils/tracker-query.c:62
+#: ../src/tracker-utils/tracker-search.c:51
+#: ../src/tracker-utils/tracker-tag.c:70
+msgid "0"
+msgstr "0"
 
 #: ../src/tracker-utils/tracker-query.c:65
 msgid "Adds a fulltext search filter"
@@ -1780,17 +1862,17 @@ msgstr "Campos requeridos"
 msgid "Fields are missing"
 msgstr "Faltan campos"
 
-#: ../src/trackerd/tracker-main.c:132
+#: ../src/trackerd/tracker-main.c:137
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Segundos que esperar antes de iniciar una búsqueda o indexado "
 "(predeterminado = 45)"
 
-#: ../src/trackerd/tracker-main.c:136
+#: ../src/trackerd/tracker-main.c:141
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimiza el uso de memoria pero puede ralentizar el indexado"
 
-#: ../src/trackerd/tracker-main.c:140
+#: ../src/trackerd/tracker-main.c:145
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1798,7 +1880,7 @@ msgstr ""
 "Directorios que excluir para la monitorización del cambio de archivos (puede "
 "hacer -e <ruta> -e <ruta>)"
 
-#: ../src/trackerd/tracker-main.c:144
+#: ../src/trackerd/tracker-main.c:149
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1806,28 +1888,28 @@ msgstr ""
 "Directorios que incluir para la monitorización del cambio de archivos (puede "
 "hacer -i <ruta> -i <ruta>)"
 
-#: ../src/trackerd/tracker-main.c:148
+#: ../src/trackerd/tracker-main.c:153
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Directorios en los que arrastrarse para indexar sus archivos (puede hacer -c "
 "<ruta> -c <ruta>)"
 
-#: ../src/trackerd/tracker-main.c:152
+#: ../src/trackerd/tracker-main.c:157
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Desactivar módulos para que no sean procesados (puede hacer -d <módulo> -d "
 "<módulo>)"
 
-#: ../src/trackerd/tracker-main.c:160
+#: ../src/trackerd/tracker-main.c:165
 msgid "Force a re-index of all content"
 msgstr "Forzar un reindexamiento de todo el contenido"
 
-#: ../src/trackerd/tracker-main.c:164
+#: ../src/trackerd/tracker-main.c:169
 msgid "Disable any indexing and monitoring"
 msgstr "Desactivar cualquier indexado y monitorización"
 
-#: ../src/trackerd/tracker-main.c:167
+#: ../src/trackerd/tracker-main.c:172
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1837,25 +1919,34 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:906
+#: ../src/trackerd/tracker-main.c:913
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/tracker-main.c:910
+#: ../src/trackerd/tracker-main.c:917
 msgid "Daemon Options"
 msgstr "Opciones del demonio"
 
-#: ../src/trackerd/tracker-main.c:911
+#: ../src/trackerd/tracker-main.c:918
 msgid "Show daemon options"
 msgstr "Mostrar las opciones del demonio"
 
-#: ../src/trackerd/tracker-main.c:919
+#: ../src/trackerd/tracker-main.c:926
 msgid "Indexer Options"
 msgstr "Opciones del indexador"
 
-#: ../src/trackerd/tracker-main.c:920
+#: ../src/trackerd/tracker-main.c:927
 msgid "Show indexer options"
 msgstr "Mostrar las opciones del indexador"
+
+#~ msgid "Done"
+#~ msgstr "Hecho"
+
+#~ msgid "Estimated"
+#~ msgstr "Estimado"
+
+#~ msgid "Elapsed"
+#~ msgstr "Transcurrido"
 
 #~ msgid "Given the following format (without quotes):"
 #~ msgstr "Dado el siguiente formato (sin comillas):"
@@ -1921,9 +2012,6 @@ msgstr "Mostrar las opciones del indexador"
 
 #~ msgid "N"
 #~ msgstr "N"
-
-#~ msgid "Search for a specific service"
-#~ msgstr "Buscar un servicio específico"
 
 #~ msgid ""
 #~ "Specifying more then one term, will be showed items containing ALL the "
@@ -1999,9 +2087,6 @@ msgstr "Mostrar las opciones del indexador"
 #~ msgstr ""
 #~ "Para incluir o excluir varios directorios a la vez, una varias opciones "
 #~ "como:"
-
-#~ msgid "Tracker : "
-#~ msgstr "Tracker: "
 
 #~ msgid "folders"
 #~ msgstr "carpetas"
