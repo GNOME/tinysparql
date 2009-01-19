@@ -82,7 +82,10 @@ struct TrackerProcessorPrivate {
 	GList	       *modules;
 	GList	       *current_module;
 	gboolean	iterated_modules;
-	gboolean	iterated_removable_media;
+
+	GList          *removable_devices_completed;
+	GList          *removable_devices_current;
+	GList          *removable_devices;
 
 	GTimer	       *timer;
 
@@ -318,6 +321,16 @@ tracker_processor_finalize (GObject *object)
 	g_object_unref (priv->monitor);
 
 #ifdef HAVE_HAL
+	if (priv->removable_devices) {
+		g_list_foreach (priv->removable_devices, (GFunc) g_free, NULL);
+		g_list_free (priv->removable_devices);
+	}
+
+	if (priv->removable_devices_completed) {
+		g_list_foreach (priv->removable_devices_completed, (GFunc) g_free, NULL);
+		g_list_free (priv->removable_devices_completed);
+	}
+
 	if (priv->hal) {
 		g_signal_handlers_disconnect_by_func (priv->hal,
 						      mount_point_added_cb,
@@ -759,58 +772,88 @@ static void
 process_module_files_add_removable_media (TrackerProcessor *processor)
 {
 	TrackerCrawler *crawler;
-	GList	       *roots;
-	GList	       *l;
 	const gchar    *module_name = "files";
+	gboolean        nothing_to_do;
+
+#ifndef HAVE_HAL
+	nothing_to_do = TRUE;
+#else
+	if (!processor->private->removable_devices) {
+		nothing_to_do = TRUE;
+	} else {
+		nothing_to_do = FALSE;
+	}
+#endif
+
+	if (nothing_to_do) {
+		g_message ("  Removable media being added (one at a time):");
+		g_message ("    NONE");
+
+		return;
+	}
 
 	crawler = g_hash_table_lookup (processor->private->crawlers, module_name);
 
 	tracker_crawler_use_module_paths (crawler, FALSE);
 	tracker_crawler_special_paths_clear (crawler);
 
-#ifdef HAVE_HAL
-	roots = tracker_hal_get_removable_device_roots (processor->private->hal);
-#else  /* HAVE_HAL */
-	roots = NULL;
-#endif /* HAVE_HAL */
+	/* So, that we do is:
+	 *
+	 *   1. Create a list of the removable device roots
+	 *   2. Process one of these roots
+	 *   3. Move that root to new "completed" list.
+	 *   4. Process the next item (goto #1).
+	 *
+	 * Conditions:
+	 * 
+	 *   a) An MMC is added:
+	 *      - We add the root to the list of removable device roots
+	 *      - We check the root is not already on the "completed" list.
+	 *      - We start the process_module if not running.
+	 *   b) An MMC is removed:
+	 *      - If we are running not running, do nothing.
+	 *      - If we are running and root is current root, FIXME: mr?
+	 *      - If we are running and root is not current root,
+	 *        remove it from list to of removable device roots.
+	 */
 
-	g_message ("  Removable media monitors being added:");
-
-	for (l = roots; l; l = l->next) {
+	for (; 
+	     processor->private->removable_devices_current; 
+	     processor->private->removable_devices_current = processor->private->removable_devices_current->next) {
 		GFile *file;
+		const gchar *root;
 
-		/* This is dreadfully inefficient */
-		if (path_should_be_ignored_for_media (processor, l->data)) {
-			g_message ("    %s (ignored due to config)", (gchar*) l->data);
+		root = processor->private->removable_devices_current->data;
+
+		/* Don't iterate a device we have already crawled. */
+		if (g_list_find_custom (processor->private->removable_devices_completed, 
+					root, 
+					(GCompareFunc) strcmp)) {
 			continue;
 		}
 
-		g_message ("    %s", (gchar*) l->data);
+		g_message ("  Removable media being added (one at a time):");
+			
+		if (path_should_be_ignored_for_media (processor, root)) {
+			g_message ("    %s (ignored due to config)", root);
 
-		file = g_file_new_for_path (l->data);
+			/* Add to completed list */
+			processor->private->removable_devices_completed = 
+				g_list_append (processor->private->removable_devices_completed, 
+					       g_strdup (root));
+
+			continue;
+		}
+
+		g_message ("    %s", root);
+
+		file = g_file_new_for_path (root);
 		tracker_monitor_add (processor->private->monitor, module_name, file);
 		g_object_unref (file);
-	}
+		
+		tracker_crawler_special_paths_add (crawler, root);
 
-	if (g_list_length (roots) == 0) {
-		g_message ("    NONE");
-	}
-
-	g_message ("  Removable media crawls being added:");
-
-	for (l = roots; l; l = l->next) {
-		/* This is dreadfully inefficient */
-		if (path_should_be_ignored_for_media (processor, l->data)) {
-			g_message ("    %s (ignored due to config)", (gchar*) l->data);
-			continue;
-		}
-
-		g_message ("    %s", (gchar*) l->data);
-		tracker_crawler_special_paths_add (crawler, l->data);
-	}
-
-	if (g_list_length (roots) == 0) {
-		g_message ("    NONE");
+		break;
 	}
 }
 
@@ -960,6 +1003,7 @@ static void
 process_module_next (TrackerProcessor *processor)
 {
 	const gchar *module_name;
+	gboolean     is_removable_media;
 
 	/* Don't recursively iterate the modules if this function is
 	 * called, check first.
@@ -976,11 +1020,9 @@ process_module_next (TrackerProcessor *processor)
 	if (!processor->private->current_module) {
 		processor->private->iterated_modules = TRUE;
 
-		/* If we have no more modules but some removable media
-		 * was added during the initial crawl, we then make
-		 * sure we crawl the new removable media too.
-		 */
-		if (processor->private->iterated_removable_media) {
+		/* Lastly we handle removable media */
+		if (g_list_length (processor->private->removable_devices) ==
+		    g_list_length (processor->private->removable_devices_completed)) {
 			processor->private->interrupted = FALSE;
 			tracker_processor_stop (processor);
 			return;
@@ -988,13 +1030,14 @@ process_module_next (TrackerProcessor *processor)
 
 		/* We use this for removable media */
 		module_name = "files";
-		processor->private->iterated_removable_media = TRUE;
+		is_removable_media = TRUE;
 	} else {
 		module_name = processor->private->current_module->data;
+		is_removable_media = FALSE;
 	}
 
 	/* Set up new crawler for new module */
-	process_module (processor, module_name, processor->private->iterated_removable_media);
+	process_module (processor, module_name, is_removable_media);
 }
 
 static void
@@ -1399,13 +1442,29 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		     gpointer	     user_data)
 {
 	TrackerProcessor *processor;
+	GList            *l;
 
 	processor = user_data;
 
+	/* Update stats */
 	processor->private->directories_found += directories_found;
 	processor->private->directories_ignored += directories_ignored;
 	processor->private->files_found += files_found;
 	processor->private->files_ignored += files_ignored;
+	
+	/* If we have iterated all other modules, we know we are
+	 * working on removable devices. 
+	 */
+	if (processor->private->iterated_modules && 
+	    processor->private->removable_devices_current) {
+		const gchar *root;
+
+		root = processor->private->removable_devices_current->data;
+
+		processor->private->removable_devices_completed = 
+			g_list_append (processor->private->removable_devices_completed, 
+				       g_strdup (root));
+	}
 
 	/* Proceed to next module */
 	process_module_next (processor);
@@ -1419,16 +1478,37 @@ mount_point_added_cb (TrackerHal  *hal,
 		      const gchar *mount_point,
 		      gpointer	   user_data)
 {
-	TrackerProcessor *processor;
-	TrackerStatus	  status;
+	TrackerProcessor        *processor;
+	TrackerProcessorPrivate *priv;
+	TrackerStatus	         status;
+	GList                   *l;
 
 	processor = user_data;
+	priv = processor->private;
 
 	status = tracker_status_get ();
 
-	processor->private->iterated_removable_media = FALSE;
+	/* Add removable device to list of known devices to iterate */
+	priv->removable_devices = g_list_append (priv->removable_devices, 
+						 g_strdup (mount_point));
 
-	/* FIXME: Do we need optimizing in here? */
+	/* Remove from completed list so we don't ignore it */
+	l = g_list_find_custom (priv->removable_devices_completed, 
+				mount_point,
+				(GCompareFunc) strcmp);
+
+	if (l) {
+		g_free (l->data);
+		priv->removable_devices_completed = 
+			g_list_delete_link (priv->removable_devices_completed, l);
+	}
+
+	/* Reset the current removable device */
+	processor->private->removable_devices_current = processor->private->removable_devices;
+
+	/* If we are idle/not doing anything, start up the processor
+	 * again so we handle the new location.
+	 */
 	if (status == TRACKER_STATUS_INDEXING ||
 	    status == TRACKER_STATUS_OPTIMIZING ||
 	    status == TRACKER_STATUS_IDLE) {
@@ -1446,20 +1526,42 @@ mount_point_removed_cb (TrackerHal  *hal,
 			const gchar *mount_point,
 			gpointer     user_data)
 {
-	TrackerProcessor *processor;
-	GFile		 *file;
+	TrackerProcessor        *processor;
+	TrackerProcessorPrivate *priv;
+	GFile		        *file;
+	GList                   *l;
 
 	processor = user_data;
+	priv = processor->private;
+
+	/* Remove directory from list of iterated_removable_media, so
+	 * we don't traverse it.
+	 */
+	l = g_list_find_custom (priv->removable_devices, 
+				mount_point,
+				(GCompareFunc) strcmp);
+
+	if (l) {
+		g_free (l->data);
+		priv->removable_devices = 
+			g_list_delete_link (priv->removable_devices, l);
+	}
+
+	l = g_list_find_custom (priv->removable_devices_completed, 
+				mount_point,
+				(GCompareFunc) strcmp);
+
+	if (l) {
+		g_free (l->data);
+		priv->removable_devices_completed = 
+			g_list_delete_link (priv->removable_devices_completed, l);
+	}
 
 	/* Remove the monitor, the volumes are updated somewhere else
 	 * in main. 
-	 * 
-	 * FIXME: we _should_ really remove all monitors recursively
-	 * here, because we are leaking each time a new MMC is
-	 * inserted :O -mr
 	 */
 	file = g_file_new_for_path (mount_point);
-	tracker_monitor_remove_recursively (processor->private->monitor, file);
+	tracker_monitor_remove_recursively (priv->monitor, file);
 	g_object_unref (file);
 }
 
@@ -1492,6 +1594,10 @@ tracker_processor_new (TrackerConfig *config,
 #ifdef HAVE_HAL
 	/* Set up hal */
 	priv->hal = g_object_ref (hal);
+
+	priv->removable_devices = tracker_hal_get_removable_device_roots (priv->hal);
+	priv->removable_devices_current = priv->removable_devices;
+	priv->removable_devices_completed = NULL;
 
 	g_signal_connect (priv->hal, "mount-point-added",
 			  G_CALLBACK (mount_point_added_cb),
@@ -1591,6 +1697,7 @@ tracker_processor_stop (TrackerProcessor *processor)
 		tracker_crawler_stop (crawler);
 
 	}
+
 
 	/* Now we have finished crawling, we enable monitor events */
 	g_message ("Enabling monitor events");
