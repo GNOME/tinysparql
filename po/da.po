@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-05 23:34+0100\n"
-"PO-Revision-Date: 2009-01-05 23:34+0100\n"
+"POT-Creation-Date: 2009-01-19 23:08+0100\n"
+"PO-Revision-Date: 2009-01-19 22:58+0100\n"
 "Last-Translator: Mads Lundby <lundbymads@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
@@ -395,6 +395,14 @@ msgstr "_Søg efter mærke"
 msgid "_Remove Tag"
 msgstr "_Fjern mærke"
 
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
+msgid "Support for Tracker."
+msgstr ""
+
+#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
+msgid "TrackerEvolutionPlugin"
+msgstr ""
+
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
 msgid "<b>Animation</b>"
 msgstr "<b>Animering</b>"
@@ -748,7 +756,7 @@ msgstr " - Overfører argumenter:"
 msgid " - Reading filename/mime-type pairs from STDIN"
 msgstr " - Læser par af filnavn/mime-type fra STDIN"
 
-#: ../src/tracker-indexer/tracker-main.c:75 ../src/trackerd/tracker-main.c:129
+#: ../src/tracker-indexer/tracker-main.c:78 ../src/trackerd/tracker-main.c:132
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -756,23 +764,23 @@ msgstr ""
 "Logning, 0 = kun fejl, 1 = minimal, 2 = detaljeret og 3 = fejlsøgning "
 "(standard = 0)"
 
-#: ../src/tracker-indexer/tracker-main.c:80
+#: ../src/tracker-indexer/tracker-main.c:83
 msgid "Whether to process data from all configured modules to be indexed"
 msgstr ""
 "Hvorvidt data skal behandles fra alle konfigurerede moduler for indeksering"
 
-#: ../src/tracker-indexer/tracker-main.c:84
+#: ../src/tracker-indexer/tracker-main.c:87
 msgid "Run forever, only interesting for debugging purposes"
 msgstr "Kør for evigt, kun interessant til fejlsøgningsformål"
 
-#: ../src/tracker-indexer/tracker-main.c:88
+#: ../src/tracker-indexer/tracker-main.c:91
 msgid "Modules to be used when processing data"
 msgstr "Moduler der skal anvendes under databehandling"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-indexer/tracker-main.c:281
+#: ../src/tracker-indexer/tracker-main.c:287
 msgid "- start the tracker indexer"
 msgstr "- start tracker-indekseringen"
 
@@ -1146,7 +1154,6 @@ msgid "%A, %B %-d %Y at %-I:%M:%S %p"
 msgstr "%A, %B %-d %Y at %-H:%M:%S"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:63
-#: ../src/tracker-utils/tracker-files.c:42
 #: ../src/tracker-utils/tracker-query.c:53
 #: ../src/tracker-utils/tracker-search.c:42
 #: ../src/tracker-utils/tracker-unique.c:50
@@ -1339,44 +1346,44 @@ msgstr ""
 "Lokalisér dokumenter og mapper på denne computer ud fra navn eller indhold "
 "med Tracker"
 
+#: ../src/tracker-utils/tracker-files.c:41
+msgid "Search for specified service"
+msgstr "Søg efter specificeret tjeneste"
+
+#. Translators: this will appear like --option=STRING running --help
+#: ../src/tracker-utils/tracker-files.c:43
+#: ../src/tracker-utils/tracker-files.c:58
+msgid "STRING"
+msgstr "STRENG"
+
 #: ../src/tracker-utils/tracker-files.c:46
-#: ../src/tracker-utils/tracker-query.c:57
-#: ../src/tracker-utils/tracker-search.c:46
-#: ../src/tracker-utils/tracker-tag.c:65
-msgid "Limit the number of results shown"
-msgstr "Begræns antallet af viste resultater"
+msgid "Set the total number of displayed results (default 512)"
+msgstr "Angiv det samlede antal viste resultater (standard 512)"
 
-#: ../src/tracker-utils/tracker-files.c:47
-#: ../src/tracker-utils/tracker-query.c:58
-#: ../src/tracker-utils/tracker-search.c:47
-#: ../src/tracker-utils/tracker-tag.c:66
-msgid "512"
-msgstr "512"
+# Dette skal vel være ANTAL, jf. oversættelsesstreng 1354 ???
+#. Translators: this will appear like --option=NUMBER running --help
+#: ../src/tracker-utils/tracker-files.c:48
+#: ../src/tracker-utils/tracker-files.c:53
+msgid "NUMBER"
+msgstr "ANTAL"
 
-# baseret på den svenske oversættelse
-#: ../src/tracker-utils/tracker-files.c:50
-#: ../src/tracker-utils/tracker-query.c:61
-#: ../src/tracker-utils/tracker-search.c:50
-#: ../src/tracker-utils/tracker-tag.c:69
-msgid "Offset the results"
-msgstr "Positionér resultater"
-
+# Offset skal nok forstås som fra det antal af resultater som visningen af resultater skal skubbes, altså som hvis man kun viser fra
+# nummer 10 af. Så hvis man oversætter det til "Angiv antallet af resultater som visningen af disse skal forskubbes (standard 0)" så passer "ANTAL" til dem begge to. 
 #: ../src/tracker-utils/tracker-files.c:51
-#: ../src/tracker-utils/tracker-query.c:62
-#: ../src/tracker-utils/tracker-search.c:51
-#: ../src/tracker-utils/tracker-tag.c:70
-msgid "0"
-msgstr "0"
+msgid "Set the offset for displayed results (default 0)"
+msgstr ""
+"Angiv antallet af resultater som visningen af disse skal forskubbes "
+"(standard 0)"
 
-#: ../src/tracker-utils/tracker-files.c:54
-msgid "MIME types (can be used multiple times)"
-msgstr "MIME-typer (kan anvendes flere gange)"
+#: ../src/tracker-utils/tracker-files.c:56
+msgid "Search for specified MIME type (can be used multiple times)"
+msgstr "Søg efter specificerede MIME-type (kan anvendes flere gange)"
 
-#: ../src/tracker-utils/tracker-files.c:74
+#: ../src/tracker-utils/tracker-files.c:77
 msgid "- Search for files by service or by MIME type"
 msgstr "-Søg efter filer efter tjeneste eller MIME-type"
 
-#: ../src/tracker-utils/tracker-files.c:95
+#: ../src/tracker-utils/tracker-files.c:98
 #: ../src/tracker-utils/tracker-info.c:106
 #: ../src/tracker-utils/tracker-meta-folder.c:203
 #: ../src/tracker-utils/tracker-query.c:146
@@ -1389,34 +1396,34 @@ msgstr "-Søg efter filer efter tjeneste eller MIME-type"
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "Kunne ikke etablere en DBus-forbindelse til Tracker"
 
-#: ../src/tracker-utils/tracker-files.c:107
+#: ../src/tracker-utils/tracker-files.c:110
 #: ../src/tracker-utils/tracker-query.c:164
 #: ../src/tracker-utils/tracker-search.c:188
 #: ../src/tracker-utils/tracker-unique.c:146
 msgid "Service not recognized, searching in other files..."
 msgstr "Tjeneste ikke genkendt, søger i øvrige filer..."
 
-#: ../src/tracker-utils/tracker-files.c:119
+#: ../src/tracker-utils/tracker-files.c:122
 msgid "Could not get files by service type"
 msgstr "Kunne ikke hente filer ud fra tjenestetype"
 
-#: ../src/tracker-utils/tracker-files.c:129
+#: ../src/tracker-utils/tracker-files.c:132
 msgid "No files found by that service type"
 msgstr "Ingen filer fundet af denne tjenestetype"
 
-#: ../src/tracker-utils/tracker-files.c:134
-#: ../src/tracker-utils/tracker-files.c:171
+#: ../src/tracker-utils/tracker-files.c:137
+#: ../src/tracker-utils/tracker-files.c:174
 #: ../src/tracker-utils/tracker-meta-folder.c:263
 #: ../src/tracker-utils/tracker-search.c:251
 #: ../src/tracker-utils/tracker-unique.c:220
 msgid "Results"
 msgstr "Resultater"
 
-#: ../src/tracker-utils/tracker-files.c:156
+#: ../src/tracker-utils/tracker-files.c:159
 msgid "Could not get files by MIME type"
 msgstr "Kunne ikke hente filer efter MIME-type"
 
-#: ../src/tracker-utils/tracker-files.c:165
+#: ../src/tracker-utils/tracker-files.c:168
 msgid "No files found by those MIME types"
 msgstr "Ingen filer fundet med disse MIME-typer"
 
@@ -1527,6 +1534,31 @@ msgstr "Ingen metadata blev fundet  for filer i denne mappe"
 #: ../src/tracker-utils/tracker-unique.c:46
 msgid "Path to use in query"
 msgstr "Sti til anvendelse i forespørgsel"
+
+#: ../src/tracker-utils/tracker-query.c:57
+#: ../src/tracker-utils/tracker-search.c:46
+#: ../src/tracker-utils/tracker-tag.c:65
+msgid "Limit the number of results shown"
+msgstr "Begræns antallet af viste resultater"
+
+#: ../src/tracker-utils/tracker-query.c:58
+#: ../src/tracker-utils/tracker-search.c:47
+#: ../src/tracker-utils/tracker-tag.c:66
+msgid "512"
+msgstr "512"
+
+# baseret på den svenske oversættelse
+#: ../src/tracker-utils/tracker-query.c:61
+#: ../src/tracker-utils/tracker-search.c:50
+#: ../src/tracker-utils/tracker-tag.c:69
+msgid "Offset the results"
+msgstr "Positionér resultater"
+
+#: ../src/tracker-utils/tracker-query.c:62
+#: ../src/tracker-utils/tracker-search.c:51
+#: ../src/tracker-utils/tracker-tag.c:70
+msgid "0"
+msgstr "0"
 
 #: ../src/tracker-utils/tracker-query.c:65
 msgid "Adds a fulltext search filter"
@@ -1698,7 +1730,7 @@ msgstr "Tracker-status er \"%s\""
 
 #: ../src/tracker-utils/tracker-tag.c:49
 msgid "Add specified tag to a file"
-msgstr "Tilføj specifikt mærke til en fil"
+msgstr "Tilføj specificeret mærke til en fil"
 
 #: ../src/tracker-utils/tracker-tag.c:50 ../src/tracker-utils/tracker-tag.c:54
 #: ../src/tracker-utils/tracker-tag.c:74
@@ -1821,17 +1853,17 @@ msgstr "Påkrævede felter"
 msgid "Fields are missing"
 msgstr "Felter mangler"
 
-#: ../src/trackerd/tracker-main.c:134
+#: ../src/trackerd/tracker-main.c:137
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Sekunders ventetid før påbegyndelse af gennemsøgning og indeksering "
 "(standard = 45)"
 
-#: ../src/trackerd/tracker-main.c:138
+#: ../src/trackerd/tracker-main.c:141
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimerer forbrug af hukommelse, men kan gøre indeksering langsommere"
 
-#: ../src/trackerd/tracker-main.c:142
+#: ../src/trackerd/tracker-main.c:145
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1839,7 +1871,7 @@ msgstr ""
 "Mapper som skal udelukkes fra overvågning af filændringer (du kan anvende -e "
 "<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:146
+#: ../src/trackerd/tracker-main.c:149
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1847,28 +1879,28 @@ msgstr ""
 "Mapper som skal inkluderes i overvågning af filændringer (du kan anvende -e "
 "<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:150
+#: ../src/trackerd/tracker-main.c:153
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Mapper at gennemsøge for at indeksere filer (du kan anvende -c <sti> -c "
 "<sti>)"
 
-#: ../src/trackerd/tracker-main.c:154
+#: ../src/trackerd/tracker-main.c:157
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Deaktivér moduler fra at blive behandlet (du kan anvende -d <modul> -d "
 "<modul>)"
 
-#: ../src/trackerd/tracker-main.c:162
+#: ../src/trackerd/tracker-main.c:165
 msgid "Force a re-index of all content"
 msgstr "Gennemtving en genindeksering af alt indhold"
 
-#: ../src/trackerd/tracker-main.c:166
+#: ../src/trackerd/tracker-main.c:169
 msgid "Disable any indexing and monitoring"
 msgstr "Deaktivér enhver indeksering og overvågning"
 
-#: ../src/trackerd/tracker-main.c:169
+#: ../src/trackerd/tracker-main.c:172
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -1878,23 +1910,23 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:910
+#: ../src/trackerd/tracker-main.c:913
 msgid "- start the tracker daemon"
 msgstr "- start tracker-dæmon"
 
-#: ../src/trackerd/tracker-main.c:914
+#: ../src/trackerd/tracker-main.c:917
 msgid "Daemon Options"
 msgstr "Dæmonindstillinger"
 
-#: ../src/trackerd/tracker-main.c:915
+#: ../src/trackerd/tracker-main.c:918
 msgid "Show daemon options"
 msgstr "Vis dæmonindstillinger"
 
-#: ../src/trackerd/tracker-main.c:923
+#: ../src/trackerd/tracker-main.c:926
 msgid "Indexer Options"
 msgstr "Indekseringsindstillinger"
 
-#: ../src/trackerd/tracker-main.c:924
+#: ../src/trackerd/tracker-main.c:927
 msgid "Show indexer options"
 msgstr "Vis indekseringsindstillinger"
 
