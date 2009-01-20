@@ -1,3 +1,10 @@
+2009-01-20  Philip Van Hoof  <philip@codeminded.be>
+
+	* utils/services/service2xml.py: A tool to convert a .service file to
+	an XML file. Usage: 
+
+	python utils/services/service2xml.py < data/services/service.service
+
 2009-01-19  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-processor.c: Fixed a nasty bug where
