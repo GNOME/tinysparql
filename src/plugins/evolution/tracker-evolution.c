@@ -263,12 +263,22 @@ activate_dbus_client (void)
 static gboolean 
 is_enabled (TrackerConfig *config)
 {
-	/* If none of the disabled modules include the Evolution module,
-	 * we assume we are enabled in the configuration. */
+	const gchar *module_name = "Evolution";
 
-	return (g_slist_find_custom (tracker_config_get_disabled_modules (config),
-				    "Evolution",
-				    (GCompareFunc) g_strcmp0) != NULL);
+	/* If none of the disabled modules include the Evolution module,
+	 * we assume we are enabled in the configuration. 
+	 */
+	if (!tracker_module_config_get_enabled (module_name)) {
+		return FALSE;
+	}
+
+	if (g_slist_find_custom (tracker_config_get_disabled_modules (config),
+				 module_name,
+				 (GCompareFunc) strcmp)) {
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static void 

@@ -1,3 +1,12 @@
+2009-01-20  Martyn Russell  <martyn@imendio.com>
+
+	* src/plugins/evolution/tracker-evolution.c:
+	* src/trackerd/tracker-main.c:
+	* src/trackerd/tracker-processor.c: Make sure we check the module
+	config AND the config for disabled modules and do that EVERYWHERE.
+	Don't recusively process the "files" module for removable devices
+	if the "files" module is disabled in the config or module config. 
+
 2009-01-20  Philip Van Hoof  <philip@codeminded.be>
 
 	* utils/services/service2rdf-xml.py: added a tool that spews out

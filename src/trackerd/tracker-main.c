@@ -410,7 +410,7 @@ sanity_check_option_values (TrackerConfig *config)
 	log_option_list (tracker_config_get_no_index_file_types (config),
 			 "File types excluded from indexing");
 	log_option_list (tracker_config_get_disabled_modules (config),
-			 "Disabled modules");
+			 "Disabled modules (config)");
 }
 
 static gboolean

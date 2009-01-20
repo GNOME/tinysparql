@@ -948,6 +948,25 @@ process_module_files_add_legacy_options (TrackerProcessor *processor)
 	}
 }
 
+static gboolean
+process_module_is_disabled (TrackerProcessor *processor,
+			    const gchar      *module_name)
+{
+	GSList *disabled_modules;
+	
+	if (!tracker_module_config_get_enabled (module_name)) {
+		return TRUE;
+	} 
+
+	disabled_modules = tracker_config_get_disabled_modules (processor->private->config);
+	
+	if (g_slist_find_custom (disabled_modules, module_name, (GCompareFunc) strcmp)) {
+		return TRUE;
+	} 
+
+	return FALSE;
+}
+
 static void
 process_module (TrackerProcessor *processor,
 		const gchar	 *module_name,
@@ -960,14 +979,14 @@ process_module (TrackerProcessor *processor,
 		   module_name,
 		   is_removable_media ? "(for removable media)" : "");
 
-	/* Check it is enabled */
+	/* Check it is not disabled by the module config */
 	if (!tracker_module_config_get_enabled (module_name)) {
-		g_message ("  Module disabled");
+		g_message ("  Module disabled by module config");
 		process_module_next (processor);
 		return;
 	}
 
-	/* Check it is is not disabled by the user locally */
+	/* Check it is not disabled by the user locally */
 	disabled_modules = tracker_config_get_disabled_modules (processor->private->config);
 	if (g_slist_find_custom (disabled_modules, module_name, (GCompareFunc) strcmp)) {
 		g_message ("  Module disabled by user");
@@ -1020,17 +1039,23 @@ process_module_next (TrackerProcessor *processor)
 	if (!processor->private->current_module) {
 		processor->private->iterated_modules = TRUE;
 
-		/* Lastly we handle removable media */
-		if (g_list_length (processor->private->removable_devices) ==
-		    g_list_length (processor->private->removable_devices_completed)) {
+		/* Handle removable media */
+		module_name = "files";
+		is_removable_media = TRUE;
+
+		/* Only if the module is not disabled. Otherwise we
+		 * get into a recursive loop. Also we make sure that
+		 * we haven't already handled all removable devices
+		 * already. 
+		 */
+		
+		if (process_module_is_disabled (processor, module_name) ||
+		    (g_list_length (processor->private->removable_devices) ==
+		     g_list_length (processor->private->removable_devices_completed))) {
 			processor->private->interrupted = FALSE;
 			tracker_processor_stop (processor);
 			return;
 		}
-
-		/* We use this for removable media */
-		module_name = "files";
-		is_removable_media = TRUE;
 	} else {
 		module_name = processor->private->current_module->data;
 		is_removable_media = FALSE;
