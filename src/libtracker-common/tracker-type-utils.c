@@ -312,12 +312,10 @@ tracker_date_format_to_iso8601 (const gchar *date_string,
 				const gchar *format)
 {
 	gchar *result;
-	struct tm date_tm;
+	struct tm date_tm = { 0 };
 
 	g_return_val_if_fail (date_string != NULL, NULL);
 	g_return_val_if_fail (format != NULL, NULL);
-
-	memset (&date_tm, 0, sizeof (struct tm));
 
 	if (strptime (date_string, format, &date_tm) == 0) {
 		return NULL;

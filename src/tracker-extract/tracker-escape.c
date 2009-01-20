@@ -31,6 +31,10 @@ tracker_escape_metadata (const gchar *str)
 {
         gchar *dest, *d;
 
+	if (!str) {
+		return NULL;
+	}
+
         d = dest = g_malloc (strlen (str) * 4 + 1);
 
         while (*str) {

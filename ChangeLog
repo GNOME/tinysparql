@@ -1,3 +1,13 @@
+2009-01-20  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-escape.c (tracker_escape_metadata):
+	* src/libtracker-common/tracker-utils.c (tracker_escape_string):
+	Accept NULL strings. (Fixes NB98170)
+
+	* src/libtracker-common/tracker-type-utils.c
+	(tracker_date_format_to_iso8601): Do not memset a stack allocated
+	variable.
+
 2009-01-20  Philip Van Hoof  <philip@codeminded.be>
 
 	* utils/services/service2xml.py: A tool to convert a .service file to
