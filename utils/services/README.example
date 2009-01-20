@@ -1,0 +1,1 @@
+python ./service2xml.py < ../../data/services/email.metadata > t.xml ; xsltproc sample.xsl t.xml
