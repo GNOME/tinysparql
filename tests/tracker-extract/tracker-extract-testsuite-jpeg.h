@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Copyright (C) 2008, Nokia (urho.konttori@nokia.com)
+ * Copyright (C) 2009, Nokia (urho.konttori@nokia.com)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -18,27 +18,16 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include <glib.h>
+#ifndef __TRACKER_EXTRACT_TESTSUITE_JPEG_H__
+#define __TRACKER_EXTRACT_TESTSUITE_JPEG_H__
 
-#include "tracker-extract-test-utils.h"
-#include "tracker-extract-testsuite-generic.h"
+#include <tracker-extract/tracker-extract.h>
 
-void
-test_tracker_extract_check_extractor_data (void)
-{
-	TrackerExtractorData *data;
-	guint extractors = 0;
+void test_tracker_extract_jpeg_basic_size       (gconstpointer data);
+void test_tracker_extract_jpeg_exif_size        (gconstpointer data);
+void test_tracker_extract_jpeg_exif_orientation (gconstpointer data);
+void test_tracker_extract_jpeg_exif_flash       (gconstpointer data);
 
-	data = tracker_get_extractor_data ();
+void test_tracker_extract_jpeg_exif_tags        (gconstpointer data);
 
-	while (data->mime) {
-		if (data->extractor == NULL) {
-			g_error ("Extractor for mime '%s' declared NULL", data->mime);
-		}
-
-		extractors++;
-		data++;
-	}
-
-	g_assert (extractors > 0);
-}
+#endif

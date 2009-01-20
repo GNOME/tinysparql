@@ -45,6 +45,86 @@ tracker_test_extract_get_extractor (const gchar *mime)
 	return NULL;
 }
 
+void
+extract_file (const TrackerExtractorData *data, const gchar *file, const gchar *testdatafile)
+{
+	GHashTable *metadata;
+	GHashTable *testdata;
+
+	gchar      *filename;	
+	gchar      *testdata_filename;
+
+	GHashTableIter iter;
+	gpointer key, value;
+
+	g_assert (data != NULL);
+	g_assert (file != NULL);
+	g_assert (testdatafile != NULL);
+
+	filename = g_strconcat (TEST_DATA_DIR, file, NULL);
+	testdata_filename = g_strconcat (TEST_DATA_DIR, testdatafile, NULL);
+
+	metadata = g_hash_table_new_full (g_str_hash,
+					  g_str_equal,
+					  g_free,
+					  g_free);
+
+	(*data->extractor) (filename, metadata);
+
+	testdata = parse_testdata_file (testdata_filename);
+
+	g_hash_table_iter_init (&iter, testdata);
+
+/*	dump_metadata(metadata); */
+
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		check_metadata (metadata, (gchar *)key, (gchar *)value);
+	}
+
+	g_hash_table_destroy (metadata);
+	g_hash_table_destroy (testdata);
+}
+
+void
+performance_extract_files (const TrackerExtractorData *data, const gchar *filematch, guint filecount)
+{
+	double perftime;
+	guint i;
+
+	g_assert (data != NULL);
+	g_assert (filematch != NULL);
+	g_assert (filecount >0 );
+	
+	g_test_timer_start();
+
+	for (i=1;i<=filecount;i++) {		
+		char filename[256];
+		GHashTable *metadata;
+
+		metadata = g_hash_table_new_full (g_str_hash,
+						  g_str_equal,
+						  g_free,
+						  g_free);
+
+		if (sprintf (filename, "%s%s%d.mp3",TEST_DATA_DIR,filematch,i) < 0) {
+			g_assert_not_reached();
+		}
+
+		(*data->extractor) (filename, metadata);
+
+		g_assert (g_hash_table_size (metadata) > 0);
+
+		g_hash_table_destroy (metadata);
+	}		
+
+	perftime = g_test_timer_elapsed();
+
+	g_debug ("Time was: %f", perftime);
+
+	g_test_minimized_result (perftime, "Time of the performance tests");
+}
+
+
 TrackerExtractorData *
 search_mime_extractor (const gchar *mime)
 {

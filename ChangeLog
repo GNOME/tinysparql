@@ -1,3 +1,24 @@
+2009-01-20  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* tests/tracker-extract/data/jpeg/*.data
+	* tests/tracker-extract/data/jpeg/create_jpeg_testdata
+	* tests/tracker-extract/Makefile.am
+	* tests/tracker-extract/tracker-extract-test-utils.c
+	* tests/tracker-extract/tracker-extract-test-utils.h    
+	* tests/tracker-extract/tracker-extract-testsuite-generic.c
+	* tests/tracker-extract/tracker-extract-gstreamer-test.c   
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.c
+	* tests/tracker-extract/tracker-extract-jpeg-test.c     
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.c
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.h: Added
+	some jpeg extraction tests.
+
+	* src/tracker-extract/tracker-extract-jpeg.c        
+	* src/tracker-extract/tracker-xmp.c: Fixed and unified jpeg and
+	image metadata extraction.
+
+	Fixes NB #96018
+
 2009-01-20  Martyn Russell  <martyn@imendio.com>
 
 	* src/plugins/evolution/tracker-evolution.c:

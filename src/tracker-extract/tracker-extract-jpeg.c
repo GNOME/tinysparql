@@ -19,6 +19,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+/*
+ * FIXME: Use EXIF_DATA_OPTION_FOLLOW_SPECIFICATION for libexif to get raw data.
+ */
+
 #include "config.h"
 
 #include <stdio.h>
@@ -113,16 +117,16 @@ date_to_iso8601 (const gchar *date)
 static gchar *
 fix_focal_length (const gchar *fl)
 {
-	return g_strndup (fl, strstr (fl, "mm") - fl);
+	return g_strndup (fl, strstr (fl, " mm") - fl);
 }
 
 static gchar *
 fix_flash (const gchar *flash)
 {
-	if (g_str_has_prefix (flash, "No")) {
-		return g_strdup ("0");
-	} else {
+	if (g_str_has_prefix (flash, "Flash fired")) {
 		return g_strdup ("1");
+	} else {
+		return g_strdup ("0");
 	}
 }
 
@@ -143,7 +147,7 @@ fix_fnumber (const gchar *fn)
 		new_fn[0] = new_fn[1] = ' ';
 	}
 
-	return new_fn;
+	return g_strstrip(new_fn);
 }
 
 static gchar *

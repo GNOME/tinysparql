@@ -27,7 +27,7 @@
 
 #include "tracker-extract-test-utils.h"
 #include "tracker-extract-testsuite-generic.h"
-#include "tracker-extract-testsuite-mp3.h"
+#include "tracker-extract-testsuite-jpeg.h"
 
 int
 main (int argc, char **argv) {
@@ -41,26 +41,31 @@ main (int argc, char **argv) {
 	TrackerExtractorData *data;
 
 	g_test_message ("Testing extractor functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extractor-data",
+	g_test_add_func ("/tracker-extract/tracker-extract-jpeg/check-extractor-data",
 			 test_tracker_extract_check_extractor_data);
-#if 0
-	data = tracker_test_extract_get_extractor ("audio/mpeg");
 
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/id3v1_basic",
-			      data, test_tracker_extract_mp3_id3v1_basic);
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/id3v23_basic",
-			      data, test_tracker_extract_mp3_id3v23_basic);
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/id3v23_tags",
-			      data, test_tracker_extract_mp3_id3v23_tags);
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/header_bitrate",
-			      data, test_tracker_extract_mp3_header_bitrate);
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/header_sampling",
-			      data, test_tracker_extract_mp3_header_sampling);
+#if 0
+	data = tracker_test_extract_get_extractor ("image/jpeg");
+
+	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/basic_size",
+			      data, test_tracker_extract_jpeg_basic_size);
+
+	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_size",
+			      data, test_tracker_extract_jpeg_exif_size);
+
+/* 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_orientation", */
+/* 			      data, test_tracker_extract_jpeg_exif_orientation); */
+
+	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_flash",
+			      data, test_tracker_extract_jpeg_exif_flash);
+
+	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_tags",
+			      data, test_tracker_extract_jpeg_exif_tags);
 
 	if (g_test_perf()) {
-		g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/performance_cbr",
-				      data, performance_tracker_extract_mp3);	
+	
 	}
+
 #endif
 
 

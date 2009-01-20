@@ -9,7 +9,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public
@@ -32,6 +32,86 @@
 
 #include <exempi/xmp.h>
 #include <exempi/xmpconsts.h>
+
+static gchar *
+fix_metering_mode (const gchar *mode)
+{
+	gint value;
+	value = atoi(mode);
+
+	switch (value) {
+	case 0:
+		return "unknown";
+	case 1:
+		return "Average";
+	case 2:
+		return "CenterWeightedAverage";
+	case 3:
+		return "Spot";
+	case 4:
+		return "MultiSpot";
+	case 5:
+		return "Pattern";
+	case 6:
+		return "Partial";
+	}
+
+	return "unknown";
+}
+
+static gchar *
+fix_flash (const gchar *flash)
+{
+	static const gint fired_mask = 0x1;
+	gint value;
+	value = atoi(flash);
+	if (value & fired_mask) {
+		return "1";
+	} else {
+		return "0";
+	}
+		
+}
+
+static gchar *
+fix_white_balance (const gchar *wb)
+{
+	gint value;
+	value = atoi(wb);
+	if (wb) {
+		return "Manual white balance";
+	} else {
+		return "Auto white balance";
+	}
+}
+
+static gchar *
+fix_orientation (const gchar *orientation)
+{
+	gint value;
+	value = atoi(orientation);
+
+	switch (value) {
+	case 1:
+		return "top - left";
+	case 2:
+		return "top - right";
+	case 3:
+		return "bottom - right";
+	case 4:
+		return "bottom - left";
+	case 5:
+		return "left - top";
+	case 6:
+		return "right - top";
+	case 7:
+		return "right - bottom";
+	case 8:
+		return "left - bottom";
+	}
+
+	return "top - left";
+}
 
 static void tracker_xmp_iter        (XmpPtr          xmp,
 				     XmpIteratorPtr  iter,
@@ -263,7 +343,22 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 			tracker_append_string_to_hash_table (metadata, "Image:CameraModel", value, append);
 		}
 		else if (strcmp (name, "Orientation") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Orientation", value, append);
+			tracker_append_string_to_hash_table (metadata, 
+							     "Image:Orientation", 
+							     fix_orientation(value), 
+							     append);
+		}
+		else if (strcmp (name, "Flash") == 0) {
+			tracker_append_string_to_hash_table (metadata, 
+							     "Image:Flash", 
+							     fix_flash (value), 
+							     append);
+		}
+		else if (strcmp (name, "MeteringMode") == 0) {
+			tracker_append_string_to_hash_table (metadata, 
+							     "Image:MeteringMode", 
+							     fix_metering_mode (value), 
+							     append);
 		}
 		else if (strcmp (name, "ExposureProgram") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:ExposureProgram", value, append);
@@ -281,7 +376,8 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 			tracker_append_string_to_hash_table (metadata, "Image:ISOSpeed", value, append);
 		}
 		else if (strcmp (name, "WhiteBalance") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:WhiteBalance", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:WhiteBalance",
+							     fix_white_balance (value), append);
 		}
 		else if (strcmp (name, "Copyright") == 0) {
 			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append);
