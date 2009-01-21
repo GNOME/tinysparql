@@ -14,6 +14,7 @@ Files=
 Service=EvolutionEmails
 MimeTypes=
 Files=
+ScanTimeout=3600
 
 [Specific]
 # Options specific to this module
