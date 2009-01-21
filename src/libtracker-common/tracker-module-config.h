@@ -46,6 +46,7 @@ GList *      tracker_module_config_get_ignored_files		   (const gchar *name);
 const gchar *tracker_module_config_get_index_service		   (const gchar *name);
 GList *      tracker_module_config_get_index_mime_types		   (const gchar *name);
 GList *      tracker_module_config_get_index_files		   (const gchar *name);
+gint         tracker_module_config_get_scan_timeout                (const gchar *name);
 
 /* Convenience functions */
 GList *      tracker_module_config_get_ignored_directory_patterns  (const gchar *name);

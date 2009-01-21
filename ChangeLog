@@ -1,5 +1,19 @@
 2009-01-21  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/tracker-module-config.[ch]: Add support for
+	ScanTimeout option, which forces such timeout (in seconds) after a
+	file pertaining to the module has changed before being sent to the
+	indexer.
+
+	* src/trackerd/tracker-monitor.c
+	(libinotify_cached_events_timeout_cb): Wait for the specified timeout
+	before sending files to the indexer.
+
+	* data/modules/evolution.module: Schedule reindexing of mails to 1h 
+	after the files change.
+
+2009-01-21  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-module-config.c (load_boolean)
 	(load_string) (load_string_list): Do not free the key file on error,
 	it will be done afterwards anyway.

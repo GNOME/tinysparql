@@ -1118,7 +1118,11 @@ libinotify_cached_events_timeout_cb (gpointer data)
 			 seconds_then,
 			 seconds);
 
-		if (seconds < 2) {
+		module_name = get_module_name_from_gfile (monitor,
+							  event->file,
+							  &is_directory);
+
+		if (seconds < MAX (2, tracker_module_config_get_scan_timeout (module_name))) {
 			continue;
 		}
 
@@ -1129,10 +1133,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		g_debug ("Cached event:%d has timed out (%ld seconds have elapsed)",
 			 event->event_type,
 			 seconds);
-
-		module_name = get_module_name_from_gfile (monitor,
-							  event->file,
-							  &is_directory);
 
 		switch (event->event_type) {
 		case IN_MODIFY:

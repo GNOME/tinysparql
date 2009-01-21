@@ -57,6 +57,7 @@ typedef struct {
 	GHashTable *index_mime_types;
 	GHashTable *index_files;
 	GList	   *index_file_patterns;
+	guint       scan_timeout;
 
 	/* Specific Options, FIXME: Finish */
 
@@ -266,6 +267,31 @@ load_boolean (GKeyFile	  *key_file,
 	return boolean;
 }
 
+static gint
+load_int (GKeyFile    *key_file,
+	  const gchar *group,
+	  const gchar *key)
+{
+	GError *error = NULL;
+	gint val;
+
+	val = g_key_file_get_integer (key_file, group, key, &error);
+
+	if (error) {
+		g_message ("Couldn't load module config integer in "
+			   "group:'%s' with key:'%s', %s",
+			   group,
+			   key,
+			   error->message);
+
+		g_error_free (error);
+
+		return 0;
+	}
+
+	return val;
+}
+
 static gchar *
 load_string (GKeyFile	 *key_file,
 	      const gchar *group,
@@ -450,6 +476,9 @@ load_file (const gchar *filename)
 					    "Files",
 					    FALSE,
 					    FALSE);
+	mc->scan_timeout = load_int (key_file,
+				     GROUP_INDEX,
+				     "ScanTimeout");
 
 	check_for_monitor_directory_conflicts (mc);
 
@@ -773,6 +802,19 @@ tracker_module_config_get_index_files (const gchar *name)
 	g_return_val_if_fail (mc, NULL);
 
 	return g_hash_table_get_keys (mc->index_files);
+}
+
+gint
+tracker_module_config_get_scan_timeout (const gchar *name)
+{
+	ModuleConfig *mc;
+
+	g_return_val_if_fail (name != NULL, 0);
+
+	mc = g_hash_table_lookup (modules, name);
+	g_return_val_if_fail (mc, 0);
+
+	return mc->scan_timeout;
 }
 
 /*
