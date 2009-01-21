@@ -60,6 +60,25 @@ static void get_albumart_path (const gchar  *a,
 			       gchar       **path,
 			       gchar       **local);
 
+static gchar *
+my_compute_checksum_for_data (GChecksumType  checksum_type,
+                              const guchar  *data,
+                              gsize          length)
+{
+  GChecksum *checksum;
+  gchar *retval;
+
+  checksum = g_checksum_new (checksum_type);
+  if (!checksum)
+    return NULL;
+
+  g_checksum_update (checksum, data, length);
+  retval = g_strdup (g_checksum_get_string (checksum));
+  g_checksum_free (checksum);
+
+  return retval;
+}
+
 #ifndef HAVE_STRCASESTR
 
 static gchar *
@@ -566,17 +585,13 @@ get_albumart_path (const gchar  *a,
 		return;
 	}
 
-	if (!a || *a == '\0') 
-		f_a = g_strdup ("  ");
-	else if (strlen (a) == 1)
-		f_a = g_strconcat (a, " ", NULL);
+	if (!a) 
+		f_a = g_strdup (" ");
 	else
 		f_a = strip_characters (a);
 
-	if (!b || *b == '\0')
-		f_b = g_strdup ("  ");
-	else if (strlen (b) == 1)
-		f_b = g_strconcat (b, " ", NULL);
+	if (!b)
+		f_b = g_strdup (" ");
 	else
 		f_b = strip_characters (b);
 
@@ -592,8 +607,8 @@ get_albumart_path (const gchar  *a,
 		g_mkdir_with_parents (dir, 0770);
 	}
 
-	str1 = g_compute_checksum_for_string (G_CHECKSUM_MD5, down1, -1);
-	str2 = g_compute_checksum_for_string (G_CHECKSUM_MD5, down2, -1);
+	str1 = my_compute_checksum_for_data (G_CHECKSUM_MD5, (const guchar *) down1, strlen (down1));
+	str2 = my_compute_checksum_for_data (G_CHECKSUM_MD5, (const guchar *) down2, strlen (down2));
 
 	g_free (down1);
 	g_free (down2);

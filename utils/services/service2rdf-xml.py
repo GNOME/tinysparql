@@ -73,7 +73,7 @@ def main():
                print "\t\t<rdfs:subClassOf>"
                print "\t\t\t<rdfs:Class rdf:about=\"" + uri + "/" +vvsplit[0] + "#" + vvsplit[1] + "\"/>"
                print "\t\t</rdfs:subClassOf>"
-        print "\t</rdf:Class>"
+        print "\t</rdfs:Class>"
 
      for mdata in metadata.sections():
         splitted = mdata.split (":")
