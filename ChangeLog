@@ -1,3 +1,17 @@
+2009-01-21  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-module-config.c (load_boolean)
+	(load_string) (load_string_list): Do not free the key file on error,
+	it will be done afterwards anyway.
+
+	(tracker_module_config_get_monitor_directories)
+	(tracker_module_config_get_monitor_recurse_directories)
+	(tracker_module_config_get_ignored_directories)
+	(tracker_module_config_get_ignored_files)
+	(tracker_module_config_get_index_mime_types)
+	(tracker_module_config_get_index_files): Return correct types if one
+	of the preconditions fails.
+
 2009-01-21  Philip Van Hoof  <philip@codeminded.be>
 
 	* utils/services/rdfsample.xsl: Added a small code generator that uses

@@ -259,7 +259,6 @@ load_boolean (GKeyFile	  *key_file,
 			   error->message);
 
 		g_error_free (error);
-		g_key_file_free (key_file);
 
 		return FALSE;
 	}
@@ -286,7 +285,6 @@ load_string (GKeyFile	 *key_file,
 			   error->message);
 
 		g_error_free (error);
-		g_key_file_free (key_file);
 
 		return NULL;
 	}
@@ -331,7 +329,6 @@ load_string_list (GKeyFile    *key_file,
 			   error->message);
 
 		g_error_free (error);
-		g_key_file_free (key_file);
 
 		return table;
 	}
@@ -692,7 +689,7 @@ tracker_module_config_get_monitor_directories (const gchar *name)
 {
 	ModuleConfig *mc;
 
-	g_return_val_if_fail (name != NULL, FALSE);
+	g_return_val_if_fail (name != NULL, NULL);
 
 	mc = g_hash_table_lookup (modules, name);
 	g_return_val_if_fail (mc, NULL);
@@ -705,7 +702,7 @@ tracker_module_config_get_monitor_recurse_directories (const gchar *name)
 {
 	ModuleConfig *mc;
 
-	g_return_val_if_fail (name != NULL, FALSE);
+	g_return_val_if_fail (name != NULL, NULL);
 
 	mc = g_hash_table_lookup (modules, name);
 	g_return_val_if_fail (mc, NULL);
@@ -718,7 +715,7 @@ tracker_module_config_get_ignored_directories (const gchar *name)
 {
 	ModuleConfig *mc;
 
-	g_return_val_if_fail (name != NULL, FALSE);
+	g_return_val_if_fail (name != NULL, NULL);
 
 	mc = g_hash_table_lookup (modules, name);
 	g_return_val_if_fail (mc, NULL);
@@ -731,7 +728,7 @@ tracker_module_config_get_ignored_files (const gchar *name)
 {
 	ModuleConfig *mc;
 
-	g_return_val_if_fail (name != NULL, FALSE);
+	g_return_val_if_fail (name != NULL, NULL);
 
 	mc = g_hash_table_lookup (modules, name);
 	g_return_val_if_fail (mc, NULL);
@@ -757,7 +754,7 @@ tracker_module_config_get_index_mime_types (const gchar *name)
 {
 	ModuleConfig *mc;
 
-	g_return_val_if_fail (name != NULL, FALSE);
+	g_return_val_if_fail (name != NULL, NULL);
 
 	mc = g_hash_table_lookup (modules, name);
 	g_return_val_if_fail (mc, NULL);
@@ -770,7 +767,7 @@ tracker_module_config_get_index_files (const gchar *name)
 {
 	ModuleConfig *mc;
 
-	g_return_val_if_fail (name != NULL, FALSE);
+	g_return_val_if_fail (name != NULL, NULL);
 
 	mc = g_hash_table_lookup (modules, name);
 	g_return_val_if_fail (mc, NULL);
