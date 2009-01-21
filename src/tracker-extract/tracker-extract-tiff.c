@@ -113,6 +113,7 @@ extract_tiff (const gchar *filename,
 	TiffTag *tag;
 
 	gchar buffer[1024];
+	gchar *text;
 	guint16 varui16 = 0;
 	guint32 varui32 = 0;
 	
@@ -147,9 +148,11 @@ extract_tiff (const gchar *filename,
 			for (tag = exiftags; tag->name; ++tag) {
 				switch (tag->type) {
 				case TIFF_TAGTYPE_STRING:
-					if (!TIFFGetField (image, tag->tag, &buffer)) {
+					if (!TIFFGetField (image, tag->tag, &text)) {
 						continue;
 					}
+
+					sprintf (buffer,"%s",text);
 					break;
 				case TIFF_TAGTYPE_UINT16:						
 					if (!TIFFGetField (image, tag->tag, &varui16)) {
@@ -203,9 +206,11 @@ extract_tiff (const gchar *filename,
 	for (tag = tags; tag->name; ++tag) {
 		switch (tag->type) {
 			case TIFF_TAGTYPE_STRING:
-				if (!TIFFGetField (image, tag->tag, &buffer)) {
+				if (!TIFFGetField (image, tag->tag, &text)) {
 					continue;
 				}
+
+				sprintf (buffer,"%s", text);
 				break;
 			case TIFF_TAGTYPE_UINT16:
 				if (!TIFFGetField (image, tag->tag, &varui16)) {

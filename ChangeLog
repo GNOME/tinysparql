@@ -1,3 +1,8 @@
+2009-01-21  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-tiff.c: A bugfix to tiff
+	ascii field handling.
+
 2009-01-21  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-module-metadata.c
