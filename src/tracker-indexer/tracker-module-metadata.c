@@ -332,9 +332,9 @@ tracker_module_metadata_add_date (TrackerModuleMetadata *metadata,
 	gchar *str;
 
 	if (sizeof (time_t) == 8) {
-		str = g_strdup_printf ("%" G_GINT64_FORMAT, value);
+		str = g_strdup_printf ("%" G_GINT64_FORMAT, (gint64) value);
 	} else {
-		str = g_strdup_printf ("%d", value);
+		str = g_strdup_printf ("%d", (gint32) value);
 	}
 
 	if (!tracker_module_metadata_add_take_string (metadata, field_name, str)) {
