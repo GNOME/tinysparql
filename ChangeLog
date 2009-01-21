@@ -1,5 +1,12 @@
 2009-01-21  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	(metadata_utils_add_embedded_data): Refactored out, transform ISO 8601
+	dates into unix times if we're adding a date field.
+	(metadata_utils_get_embedded): Use the function above to add metadata.
+
+2009-01-21  Carlos Garnacho  <carlos@imendio.com>
+
 	* data/modules/files.module:
 	* data/modules/gaim-conversations.module:
 	* data/modules/applications.module: Add default ScanTimeout to

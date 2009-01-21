@@ -325,6 +325,39 @@ metadata_query_file (const gchar *path,
 }
 
 static void
+metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
+				  TrackerField          *field,
+				  const gchar           *value)
+{
+	gchar *utf_value;
+
+	if (!g_utf8_validate (value, -1, NULL)) {
+		utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
+	} else {
+		utf_value = g_strdup (value);
+	}
+
+	if (utf_value) {
+		const gchar *name;
+
+		name = tracker_field_get_name (field);
+
+		if (tracker_field_get_data_type (field) == TRACKER_FIELD_TYPE_DATE) {
+			gchar *time_str;
+
+			/* Dates come in ISO 8601 format, we handle them as time_t */
+			time_str = tracker_date_to_time_string (utf_value);
+			tracker_module_metadata_add_string (metadata, name, time_str);
+			g_free (time_str);
+		} else {
+			tracker_module_metadata_add_string (metadata, name, utf_value);
+		}
+
+		g_free (utf_value);
+	}
+}
+
+static void
 metadata_utils_get_embedded (const char            *path,
 			     const char            *mime_type,
 			     TrackerModuleMetadata *metadata)
@@ -353,7 +386,7 @@ metadata_utils_get_embedded (const char            *path,
 	for (i = 0; values[i]; i++) {
 		gchar *meta_data, *sep;
 		const gchar *name;
-		gchar *value, *utf_value;
+		gchar *value;
 
 		meta_data = values[i];
 		sep = strchr (meta_data, '=');
@@ -388,30 +421,12 @@ metadata_utils_get_embedded (const char            *path,
 			arr = g_strsplit (value, "|",-1);
 
 			for (t = 0; arr[t]; t++) {
-				if (!g_utf8_validate (arr[t], -1, NULL)) {
-					utf_value = g_locale_to_utf8 (arr[t], -1, NULL, NULL, NULL);
-				} else {
-					utf_value = g_strdup (arr[t]);
-				}
-
-				if (utf_value) {
-					tracker_module_metadata_add_string (metadata, name, utf_value);
-					g_free (utf_value);
-				}
+				metadata_utils_add_embedded_data (metadata, field, arr[t]);
 			}
 
 			g_strfreev (arr);
 		} else {
-			if (!g_utf8_validate (value, -1, NULL)) {
-				utf_value = g_locale_to_utf8 (value, -1, NULL, NULL, NULL);
-			} else {
-				utf_value = g_strdup (value);
-			}
-
-			if (utf_value) {
-				tracker_module_metadata_add_string (metadata, name, utf_value);
-				g_free (utf_value);
-			}
+			metadata_utils_add_embedded_data (metadata, field, value);
 		}
 
 		g_free (value);
