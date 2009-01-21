@@ -1,5 +1,10 @@
 2009-01-21  Philip Van Hoof  <philip@codeminded.be>
 
+	* utils/services/rdfsample.xsl: Added a small code generator that uses
+	rdf:xml as input and outputs a hypothetical simple OO language
+
+2009-01-21  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/tracker-extract/tracker-albumart.c: Correction for album-art
 	that has one-character long album-names.
 	* utils/services/service2rdf-xml.py: Bugfix
