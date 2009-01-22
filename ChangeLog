@@ -1,5 +1,12 @@
 2009-01-21  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* data/services/default.service: Added audio/x-pn-realaudio-plugin
+	mimetype to the playlists.
+
+	Fixes NB #98322
+
+2009-01-21  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-tiff.c: A bugfix to tiff
 	ascii field handling.
 
