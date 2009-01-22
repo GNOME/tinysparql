@@ -51,6 +51,8 @@ main (int argc, char **argv) {
 			      data, test_tracker_extract_mp3_id3v1_basic);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/id3v23_basic",
 			      data, test_tracker_extract_mp3_id3v23_basic);
+	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/id3v23_tcon",
+			      data, test_tracker_extract_mp3_id3v23_tcon);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/id3v23_tags",
 			      data, test_tracker_extract_mp3_id3v23_tags);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/header_bitrate",

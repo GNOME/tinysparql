@@ -43,6 +43,16 @@ static const ExtractData data_id3v23_basic[] = {
 	{ NULL, NULL }
 };
 
+static const ExtractData data_id3v23_tcon[] = { 
+	{ "/mp3/id3v23_tcon_1.mp3", "/mp3/id3v23_tcon_1.data" },
+	{ "/mp3/id3v23_tcon_2.mp3", "/mp3/id3v23_tcon_2.data" },
+	{ "/mp3/id3v23_tcon_3.mp3", "/mp3/id3v23_tcon_3.data" },
+	{ "/mp3/id3v23_tcon_4.mp3", "/mp3/id3v23_tcon_4.data" },
+	{ "/mp3/id3v23_tcon_5.mp3", "/mp3/id3v23_tcon_5.data" },
+	{ "/mp3/id3v23_tcon_6.mp3", "/mp3/id3v23_tcon_6.data" },
+	{ NULL, NULL }
+};
+
 static const ExtractData data_id3v23_tags[] = { 
 	{ "/mp3/id3v23_trck_1.mp3", "/mp3/id3v23_trck_1.data" },
 	{ "/mp3/id3v23_comm_1.mp3", "/mp3/id3v23_comm_1.data" },
@@ -125,6 +135,18 @@ void test_tracker_extract_mp3_id3v23_tags(gconstpointer data)
 		extract_file (data,
 			      data_id3v23_tags[i].filename,
 			      data_id3v23_tags[i].testdata);		
+	}
+}
+
+void test_tracker_extract_mp3_id3v23_tcon(gconstpointer data)
+{
+	const TrackerExtractorData *extractor = data;
+	guint i;
+
+	for (i=0; data_id3v23_tcon[i].filename; i++) {
+		extract_file (data,
+			      data_id3v23_tcon[i].filename,
+			      data_id3v23_tcon[i].testdata);		
 	}
 }
 

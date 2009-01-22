@@ -1,3 +1,17 @@
+2009-01-22  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Added additional
+	regex for TCON to id3v1 genre code mapping.
+
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.c
+	* tests/tracker-extract/data/mp3/id3v23_tcon_?.data
+	* tests/tracker-extract/data/mp3/create_mp3_testdata
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.h
+	* tests/tracker-extract/tracker-extract-mp3-test.c: Added
+	appropriate testcases.
+
+	Fixes NB #91165
+	
 2009-01-22  Philip Van Hoof  <philip@codeminded.be>
 
 	* utils/services/rdfxml2metadatasample.xsl: added one more sample that

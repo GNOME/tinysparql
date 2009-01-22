@@ -292,7 +292,7 @@ ucs2_to_utf8(const gchar *data, guint len) {
 
         memcpy(&c, data, 2);
 
-        switch (c) {
+switch (c) {
         case 0xfeff:
         case 0xfffe:
 		be = (G_BYTE_ORDER == G_BIG_ENDIAN);
@@ -310,6 +310,47 @@ ucs2_to_utf8(const gchar *data, guint len) {
         return utf8;
 }
 
+/* Get the genre codes from regular expressions */
+static gboolean
+get_genre_number (const char *str, guint *genre)
+{
+	static GRegex *regex1 = NULL;
+	static GRegex *regex2 = NULL;
+	GMatchInfo *info = NULL;
+	gchar *result = NULL;
+
+	if (!regex1)
+		regex1 = g_regex_new("\\(([0-9]+)\\)", 0, 0, NULL);
+
+	if (!regex2)
+		regex2 = g_regex_new("([0-9]+)\\z", 0, 0, NULL);
+
+	if (g_regex_match(regex1, str, 0, &info)) {
+		result = g_match_info_fetch(info, 1);
+		if (result) {
+			*genre = atoi(result);
+			g_free (result);
+			g_match_info_free (info);
+			return TRUE;
+		}
+	}
+
+	g_match_info_free (info);
+
+	if (g_regex_match(regex2, str, 0, &info)) {
+		result = g_match_info_fetch(info, 1);
+		if (result) {
+			*genre = atoi(result);
+			g_free (result);
+			g_match_info_free (info);
+			return TRUE;
+		}	
+	}
+
+	g_match_info_free (info);
+
+	return FALSE;
+}
 
 static gboolean
 get_id3 (const gchar *data,
@@ -755,27 +796,10 @@ get_id3v24_tags (const gchar *data,
 					}
 
 					if (strcmp (tmap[i].text, "TCON") == 0) {
-						if (g_pattern_match_simple ("(*)*", word)) {
-							gchar *begin;
-							gchar *end;
-							guint genre;
-							gchar *new_word;
-
-							begin = strchr (word,'(');
-							if (!begin)
-								continue;
-							begin++;
-							end = strchr (begin, ')');
-							if (!end)
-								continue;
-							end[0] = '\0';
-
-							genre = (guint)strtol(begin,&end,10);
-
-							if (begin != end) {
-								g_free (word);
-								word = g_strdup (genre_names[genre]);
-							}
+						gint genre;
+						if (get_genre_number (word, &genre)) {
+							g_free (word);
+							word = g_strdup (genre_names[genre]);
 						}
 					}					
 
@@ -1052,27 +1076,10 @@ get_id3v23_tags (const gchar *data,
 					}
 
 					if (strcmp (tmap[i].text, "TCON") == 0) {
-						if (g_pattern_match_simple ("(*)*", word)) {
-							gchar *begin;
-							gchar *end;
-							guint genre;
-							gchar *new_word;
-
-							begin = strchr (word,'(');
-							if (!begin)
-								continue;
-							begin++;
-							end = strchr (begin, ')');
-							if (!end)
-								continue;
-							end[0] = '\0';
-
-							genre = (guint)strtol(begin,&end,10);
-
-							if (begin != end) {
-								g_free (word);
-								word = g_strdup (genre_names[genre]);
-							}
+						gint genre;
+						if (get_genre_number (word, &genre)) {
+							g_free (word);
+							word = g_strdup (genre_names[genre]);
 						}
 					}
 
