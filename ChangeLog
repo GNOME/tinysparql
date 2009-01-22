@@ -1,3 +1,8 @@
+2009-01-22  Philip Van Hoof  <philip@codeminded.be>
+
+	* utils/services/rdfxml2metadatasample.xsl: added one more sample that
+	attempts to convert a rdf:xml file to our current ontology .ini format
+
 2009-01-21  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* data/services/default.service: Added audio/x-pn-realaudio-plugin
