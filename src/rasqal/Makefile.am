@@ -20,6 +20,8 @@
 # the licenses in COPYING.LIB, COPYING and LICENSE-2.0.txt respectively.
 # 
 
+include $(top_srcdir)/Makefile.decl
+
 noinst_LTLIBRARIES = librasqal.la
 
 noinst_HEADERS = rasqal.h rasqal_internal.h rasqal_config.h win32_rasqal_config.h
