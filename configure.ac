@@ -290,7 +290,7 @@ have_xesam_glib=no
 AC_ARG_ENABLE(unit_tests,
 	      AS_HELP_STRING([--enable-unit-tests=@<:@no/yes/auto@:>@],
 			     [Enable unit tests (if available)]), ,
-	      [enable_unit_tests=auto])
+	      [enable_unit_tests=no])
 
 if test "x$enable_unit_tests" != "xno" ; then
    glib_pkgconfig_tmp="glib-2.0 >= $GLIB_WITH_UNIT_TESTING"
