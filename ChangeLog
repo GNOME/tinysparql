@@ -1,3 +1,7 @@
+2009-01-23  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* data/services/default.service: Small correction to the playlist mimes.
+
 2009-01-23  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac: Make unit tests disabled by default. They now have
