@@ -3,6 +3,12 @@
 	* src/libtracker-common/tracker-thumbnailer.c: Don't print debugging
 	messages when not compiled with -DDEBUG
 
+	* utils/services/rdfxmltoservice.xsl
+	* utils/services/rdfxml2metadatasample.xsl
+	* utils/services/service2rdf-xml.py
+	* utils/services/rdfxmlsample.xsl: rdf:Property was not with rfds as
+	namespace (fixed) 
+
 2009-01-22  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Added additional
