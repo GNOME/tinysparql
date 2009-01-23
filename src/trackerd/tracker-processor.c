@@ -606,9 +606,6 @@ item_queue_handlers_cb (gpointer user_data)
 		return TRUE;
 	}
 
-	/* Now we try to send items to the indexer */
-	tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
-
 	/* This is here so we don't try to send something if we are
 	 * still waiting for a response from the last send.
 	 */
@@ -649,6 +646,9 @@ item_queue_handlers_cb (gpointer user_data)
 					  &module_name);
 
 	if (queue) {
+		/* Now we try to send items to the indexer */
+		tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
+
 		files = tracker_dbus_queue_gfile_to_strv (queue, ITEMS_QUEUE_PROCESS_MAX);
 
 		g_message ("Queue for module:'%s' created items processed, sending first %d to the indexer",
@@ -674,6 +674,9 @@ item_queue_handlers_cb (gpointer user_data)
 					  &module_name);
 
 	if (queue) {
+		/* Now we try to send items to the indexer */
+		tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
+
 		files = tracker_dbus_queue_gfile_to_strv (queue, ITEMS_QUEUE_PROCESS_MAX);
 
 		g_message ("Queue for module:'%s' updated items processed, sending first %d to the indexer",
@@ -701,6 +704,9 @@ item_queue_handlers_cb (gpointer user_data)
 	if (queue) {
 		const gchar *source;
 		const gchar *target;
+
+		/* Now we try to send items to the indexer */
+		tracker_status_set_and_signal (TRACKER_STATUS_INDEXING);
 
 		files = tracker_dbus_queue_gfile_to_strv (queue, 2);
 

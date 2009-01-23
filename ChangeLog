@@ -1,3 +1,10 @@
+2009-01-23  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-processor.c (item_queue_handlers_cb): Only set
+	state to "indexing" if there are actually items to be sent to the
+	indexer, This fixes spurious "indexing" state when indexing new
+	elements, etc... Fixes NB #98516.
+
 2009-01-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-common/tracker-thumbnailer.c: Don't print debugging
