@@ -42,16 +42,9 @@
 <xsl:template match="rdf:RDF">
 <xsl:for-each select="rdf:Property">
 
-A
-
-<xsl:variable name="about" select="@rdf:about"/>
-
-<xsl:value-of select="substring-after(@rdf:about, '#')"/>
-
-[nco:<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>]
+[<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>]
 DataType=<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:range/@rdf:resource"/></xsl:with-param></xsl:call-template>
 Domain=<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:domain/@rdf:resource"/></xsl:with-param></xsl:call-template>
-
 
 </xsl:for-each>
 </xsl:template>
