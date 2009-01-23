@@ -40,7 +40,9 @@
 </xsl:template>
 
 <xsl:template match="rdf:RDF">
-<xsl:for-each select="rdfs:Property">
+<xsl:for-each select="rdf:Property">
+
+A
 
 <xsl:variable name="about" select="@rdf:about"/>
 

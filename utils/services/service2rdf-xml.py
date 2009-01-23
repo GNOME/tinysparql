@@ -77,7 +77,7 @@ def main():
 
      for mdata in metadata.sections():
         splitted = mdata.split (":")
-        print "\t<rdfs:Property rdf:about=\"" + uri + "#" + splitted[1] + "\">"
+        print "\t<rdf:Property rdf:about=\"" + uri + "#" + splitted[1] + "\">"
         print "\t\t<rdfs:label>" + splitted[1] + "</rdfs:label>"
 
         for name, value in metadata.items (mdata):
