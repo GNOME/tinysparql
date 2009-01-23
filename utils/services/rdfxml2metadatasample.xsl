@@ -24,17 +24,19 @@
 
 <xsl:template name="predicate-of">
  <xsl:param name="about"/>
- <xsl:param name="iteration">1</xsl:param>
- <element index="{$iteration}"/>
  <xsl:choose>
   <xsl:when test="substring-after($about, '/')">
    <xsl:call-template name="predicate-of">
      <xsl:with-param name="about" select="substring-after($about, '/')"/>
-     <xsl:with-param name="iteration" select="$iteration +1"/>
    </xsl:call-template>
   </xsl:when>
   <xsl:otherwise>
-   <xsl:if test="substring-before($about, '#') != 'XMLSchema'"><xsl:value-of select="substring-before($about, '#')"/>:</xsl:if><xsl:value-of select="substring-after($about, '#')"/>
+     <xsl:choose>
+       <xsl:when test="substring-after($about, '#')">
+         <xsl:if test="substring-before($about, '#') != 'XMLSchema'"><xsl:value-of select="substring-before($about, '#')"/>:</xsl:if><xsl:value-of select="substring-after($about, '#')"/>
+       </xsl:when>
+       <xsl:otherwise>DC:<xsl:value-of select="$about"/></xsl:otherwise>
+    </xsl:choose>
   </xsl:otherwise>
  </xsl:choose>
 </xsl:template>
@@ -43,9 +45,24 @@
 <xsl:for-each select="rdf:Property">
 
 [<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>]
+<xsl:choose>
+<xsl:when test="rdfs:range">
 DataType=<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:range/@rdf:resource"/></xsl:with-param></xsl:call-template>
-Domain=<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:domain/@rdf:resource"/></xsl:with-param></xsl:call-template>
+</xsl:when>
+<xsl:otherwise>Abstract=true</xsl:otherwise>
+</xsl:choose>
+<xsl:if test="rdfs:label">
+DisplayName=<xsl:value-of select="rdfs:label"/>
+</xsl:if>
 
+<xsl:if test="rdfs:domain">
+Domain=<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:domain/@rdf:resource"/></xsl:with-param></xsl:call-template></xsl:if>
+
+<xsl:if test="rdfs:subPropertyOf">
+SuperProperties=<xsl:for-each select="rdfs:subPropertyOf"><xsl:if test="@rdf:resource"><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:resource"/></xsl:with-param></xsl:call-template>;</xsl:if><xsl:for-each select="rdfs:subPropertyOf/rdf:Property"><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>;</xsl:for-each></xsl:for-each></xsl:if>
+
+<xsl:if test="rdfs:comment">
+Description=<xsl:value-of select="rdfs:comment"/></xsl:if>
 </xsl:for-each>
 </xsl:template>
 </xsl:stylesheet> 
