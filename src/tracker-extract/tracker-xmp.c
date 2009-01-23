@@ -127,7 +127,8 @@ static void
 tracker_append_string_to_hash_table (GHashTable  *metadata, 
 				     const gchar *key, 
 				     const gchar *value, 
-				     gboolean     append)
+				     gboolean     append,
+				     gboolean     prio)
 {
 	gchar *new_value;
 
@@ -144,11 +145,16 @@ tracker_append_string_to_hash_table (GHashTable  *metadata,
 		} else {
 			new_value = tracker_escape_metadata (value);
 		}
-	} else {
-		new_value = tracker_escape_metadata (value);
-	}
+		g_hash_table_insert (metadata, g_strdup (key), new_value);
 
-	g_hash_table_insert (metadata, g_strdup (key), new_value);
+	} else {
+		if (!(g_hash_table_lookup(metadata, key) && !prio)) {
+			new_value = tracker_escape_metadata (value);
+
+			g_hash_table_insert (metadata, g_strdup (key), new_value);		
+		}
+		
+	}
 }
 
 
@@ -264,153 +270,156 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 	/* Dublin Core */
 	if (strcmp (schema, NS_DC) == 0) {
 		if (strcmp (name, "title") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append, FALSE);
 		}
 		else if (strcmp (name, "rights") == 0) {
-			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append);
+			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append, FALSE);
 		}
 		else if (strcmp (name, "creator") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append, FALSE);
 		}
 		else if (strcmp (name, "description") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Description", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Description", value, append, FALSE);
 		}
 		else if (strcmp (name, "date") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Date", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Date", value, append, FALSE);
 		}
 		else if (strcmp (name, "keywords") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, append, FALSE);
 		}
 		else if (strcmp (name, "subject") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Subject", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Subject", value, append, FALSE);
 
 			/* The subject field may contain keywords as well */
-			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
+			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
 		}
 		else if (strcmp (name, "publisher") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Publisher", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Publisher", value, append, FALSE);
 		}
 		else if (strcmp (name, "contributor") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Contributor", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Contributor", value, append, FALSE);
 		}
 		else if (strcmp (name, "type") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Type", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Type", value, append, FALSE);
 		}
 		else if (strcmp (name, "format") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Format", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Format", value, append, FALSE);
 		}
 		else if (strcmp (name, "identifier") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Identifier", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Identifier", value, append, FALSE);
 		}
 		else if (strcmp (name, "source") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Source", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Source", value, append, FALSE);
 		}
 		else if (strcmp (name, "language") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Language", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Language", value, append, FALSE);
 		}
 		else if (strcmp (name, "relation") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Relation", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Relation", value, append, FALSE);
 		}
 		else if (strcmp (name, "coverage") == 0) {
-			tracker_append_string_to_hash_table (metadata, "DC:Coverage", value, append);
+			tracker_append_string_to_hash_table (metadata, "DC:Coverage", value, append, FALSE);
 		}
 
 	}
 	/* Creative Commons */
 	else if (strcmp (schema, NS_CC) == 0) {
 		if (strcmp (name, "license") == 0) {
-			tracker_append_string_to_hash_table (metadata, "File:License", value, append);
+			tracker_append_string_to_hash_table (metadata, "File:License", value, append, FALSE);
 		}
 	}
 	/* Exif basic scheme */
 	else if (strcmp (schema, NS_EXIF) == 0) {
 		if (strcmp (name, "Title") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Title", value, append, FALSE);
 		}
 		else if (strcmp (name, "DateTimeOriginal") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Date", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Date", value, append, TRUE);
 		}
 		else if (strcmp (name, "Artist") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Creator", value, append, FALSE);
 		}
 		else if (strcmp (name, "Software") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Software", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Software", value, append, FALSE);
 		}
 		else if (strcmp (name, "Make") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:CameraMake", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:CameraMake", value, append, FALSE);
 		}
 		else if (strcmp (name, "Model") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:CameraModel", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:CameraModel", value, append, FALSE);
 		}
 		else if (strcmp (name, "Orientation") == 0) {
 			tracker_append_string_to_hash_table (metadata, 
 							     "Image:Orientation", 
 							     fix_orientation(value), 
-							     append);
+							     append, FALSE);
 		}
 		else if (strcmp (name, "Flash") == 0) {
 			tracker_append_string_to_hash_table (metadata, 
 							     "Image:Flash", 
 							     fix_flash (value), 
-							     append);
+							     append, FALSE);
 		}
 		else if (strcmp (name, "MeteringMode") == 0) {
 			tracker_append_string_to_hash_table (metadata, 
 							     "Image:MeteringMode", 
 							     fix_metering_mode (value), 
-							     append);
+							     append, FALSE);
 		}
 		else if (strcmp (name, "ExposureProgram") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:ExposureProgram", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:ExposureProgram", value, append, FALSE);
 		}
 		else if (strcmp (name, "ExposureTime") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:ExposureTime", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:ExposureTime", value, append, FALSE);
 		}
 		else if (strcmp (name, "FNumber") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:FNumber", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:FNumber", value, append, FALSE);
 		}
 		else if (strcmp (name, "FocalLength") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:FocalLength", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:FocalLength", value, append, FALSE);
 		}
 		else if (strcmp (name, "ISOSpeedRatings") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:ISOSpeed", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:ISOSpeed", value, append, FALSE);
 		}
 		else if (strcmp (name, "WhiteBalance") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:WhiteBalance",
-							     fix_white_balance (value), append);
+							     fix_white_balance (value), append, FALSE);
 		}
 		else if (strcmp (name, "Copyright") == 0) {
-			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append);
+			tracker_append_string_to_hash_table (metadata, "File:Copyright", value, append, FALSE);
 		}
 	}
 	/* XAP (XMP)scheme */
 	else if (strcmp (schema, NS_XAP) == 0) {
 	        if (strcmp (name, "Rating") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:Rating", value, append);
+		        tracker_append_string_to_hash_table (metadata, "Image:Rating", value, append, FALSE);
+		}
+		if (strcmp (name, "MetadataDate") == 0) {
+		        tracker_append_string_to_hash_table (metadata, "Image:Date", value, append, FALSE);
 		}
 	}
 	/* IPTC4XMP scheme */
 	else if (strcmp (schema,  NS_IPTC4XMP) == 0) {
 	        if (strcmp (name, "Location") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:Location", value, append);
+		        tracker_append_string_to_hash_table (metadata, "Image:Location", value, append, FALSE);
 
 			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
+		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
 		}
 	}
 	/* Photoshop scheme */
 	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {
 	        if (strcmp (name, "City") == 0) {
-		        tracker_append_string_to_hash_table (metadata, "Image:City", value, append);
+		        tracker_append_string_to_hash_table (metadata, "Image:City", value, append, FALSE);
 
 			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
+		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
 		}
 		else if (strcmp (name, "Country") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Country", value, append);
+			tracker_append_string_to_hash_table (metadata, "Image:Country", value, append, FALSE);
 
 			/* Added to the valid keywords */
-		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE);
+		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
 		}
 	}
 

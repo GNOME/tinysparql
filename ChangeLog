@@ -1,3 +1,8 @@
+2009-01-23  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-xmp.c: Added more date fields to be
+	extracted and implemented a simple priority checking between tags.
+
 2009-01-23  Carlos Garnacho  <carlos@imendio.com>
 
 	Actually implement Gaim/Pidgin logs indexing.
