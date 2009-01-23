@@ -11,10 +11,10 @@ Directories=
 Files=
 
 [Index]
-Service=Files
+Service=GaimConversations
 MimeTypes=
 Files=
-ScanTimeout=0
+ScanTimeout=6000
 
 [Specific]
 # Options specific to this module

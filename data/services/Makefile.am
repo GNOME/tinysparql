@@ -5,6 +5,7 @@ configdir = $(datadir)/tracker/services
 config_DATA = 				\
 	application.metadata 		\
 	audio.metadata 			\
+	conversation.metadata		\
 	default.metadata 		\
 	default.service 		\
 	document.metadata 		\

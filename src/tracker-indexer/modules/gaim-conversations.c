@@ -22,6 +22,14 @@
 #include "config.h"
 
 #include <tracker-indexer/tracker-module.h>
+#include <time.h>
+
+#define METADATA_CONVERSATION_USER_ACCOUNT "Conversation:UserAccount"
+#define METADATA_CONVERSATION_PEER_ACCOUNT "Conversation:PeerAccount"
+#define METADATA_CONVERSATION_CHAT_ROOM    "Conversation:ChatRoom"
+#define METADATA_CONVERSATION_PROTOCOL     "Conversation:Protocol"
+#define METADATA_CONVERSATION_DATE         "Conversation:Date"
+#define METADATA_CONVERSATION_TEXT         "Conversation:Text"
 
 #define GAIM_TYPE_FILE    (gaim_file_get_type ())
 #define GAIM_FILE(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), GAIM_TYPE_FILE, GaimFile))
@@ -52,36 +60,18 @@ struct GaimFileClass {
 
 static GType         gaim_file_get_type         (void) G_GNUC_CONST;
 
-static void          gaim_file_iteratable_init  (TrackerModuleIteratableIface *iface);
-
-static void          gaim_file_finalize         (GObject           *object);
-
-static void          gaim_file_initialize       (TrackerModuleFile *file);
-static const gchar * gaim_file_get_service_type (TrackerModuleFile *file);
-static gchar *       gaim_file_get_uri          (TrackerModuleFile *file);
 static gchar *       gaim_file_get_text         (TrackerModuleFile *file);
 static TrackerModuleMetadata *
                      gaim_file_get_metadata     (TrackerModuleFile *file);
 
-static gboolean      gaim_file_iter_contents    (TrackerModuleIteratable *iteratable);
-static guint         gaim_file_get_count        (TrackerModuleIteratable *iteratable);
 
-
-G_DEFINE_DYNAMIC_TYPE_EXTENDED (GaimFile, gaim_file, TRACKER_TYPE_MODULE_FILE, 0,
-                                MODULE_IMPLEMENT_INTERFACE (TRACKER_TYPE_MODULE_ITERATABLE,
-                                                            gaim_file_iteratable_init))
+G_DEFINE_DYNAMIC_TYPE (GaimFile, gaim_file, TRACKER_TYPE_MODULE_FILE)
 
 static void
 gaim_file_class_init (GaimFileClass *klass)
 {
-        GObjectClass *object_class = G_OBJECT_CLASS (klass);
         TrackerModuleFileClass *file_class = TRACKER_MODULE_FILE_CLASS (klass);
 
-        object_class->finalize = gaim_file_finalize;
-
-        file_class->initialize = gaim_file_initialize;
-        file_class->get_service_type = gaim_file_get_service_type;
-        file_class->get_uri = gaim_file_get_uri;
         file_class->get_text = gaim_file_get_text;
         file_class->get_metadata = gaim_file_get_metadata;
 }
@@ -96,98 +86,49 @@ gaim_file_init (GaimFile *file)
 {
 }
 
-static void
-gaim_file_iteratable_init (TrackerModuleIteratableIface *iface)
-{
-        iface->iter_contents = gaim_file_iter_contents;
-        iface->get_count = gaim_file_get_count;
-}
-
-static void
-gaim_file_finalize (GObject *object)
-{
-        /* Free here all resources allocated by the object, if any */
-
-        /* Chain up to parent implementation */
-        G_OBJECT_CLASS (gaim_file_parent_class)->finalize (object);
-}
-
-static void
-gaim_file_initialize (TrackerModuleFile *file)
-{
-        /* Allocate here all resources for the file, if any */
-}
-
-static const gchar *
-gaim_file_get_service_type (TrackerModuleFile *file)
-{
-        /* Implementing this function is optional.
-         *
-         * Return the service type for the given file.
-         *
-         * If this function is not implemented, the indexer will use
-         * whatever service name is specified in the module configuration
-         * file.
-         */
-        return NULL;
-}
-
-static gchar *
-gaim_file_get_uri (TrackerModuleFile *file)
-{
-        /* Implementing this function is optional
-         *
-         * Return URI for the current item, with this method
-         * modules can specify different URIs for different
-         * elements contained in the file. See also
-         * TrackerModuleIteratable.
-         */
-        return NULL;
-}
-
 static gchar *
 gaim_file_get_text (TrackerModuleFile *file)
 {
-	/* Implementing this function is optional
-	 *
-	 * Return here full text for file, given the current state,
-	 * see also TrackerModuleIteratable.
-	 */
-	return NULL;
+	return tracker_module_metadata_utils_get_text (tracker_module_file_get_file (file));
 }
 
 static TrackerModuleMetadata *
 gaim_file_get_metadata (TrackerModuleFile *file)
 {
-	/* Return a TrackerModuleMetadata filled with metadata for file,
-         * given the current state. Also see TrackerModuleIteratable.
-	 */
-	return NULL;
-}
+	TrackerModuleMetadata *metadata;
+	GFile *f;
+	gchar *path;
+	gchar **path_decomposed;
+	guint len;
+	struct tm tm;
 
-static gboolean
-gaim_file_iter_contents (TrackerModuleIteratable *iteratable)
-{
-	/* This function is meant to iterate the internal state,
-	 * so it points to the next entity inside the file.
-	 * In case there is such next entity, this function must
-	 * return TRUE, else, returning FALSE will make the indexer
-	 * think it is done with this file and move on to the next one.
-	 *
-	 * What an "entity" is considered is left to the module
-	 * implementation.
-	 */
-        return FALSE;
-}
+	f = tracker_module_file_get_file (file);
+	path = g_file_get_path (f);
 
-static guint
-gaim_file_get_count (TrackerModuleIteratable *iteratable)
-{
-        /* This function is meant to return the number of entities
-         * contained in the file, what an "entity" is considered is
-         * left to the module implementation.
-         */
-        return 0;
+	if (!g_str_has_suffix (path, ".txt") &&
+	    !g_str_has_suffix (path, ".html")) {
+		/* Not a log file */
+		g_free (path);
+		return NULL;
+	}
+
+	path_decomposed = g_strsplit (path, G_DIR_SEPARATOR_S, -1);
+	len = g_strv_length (path_decomposed);
+
+	metadata = tracker_module_metadata_new ();
+
+	tracker_module_metadata_add_string (metadata, METADATA_CONVERSATION_USER_ACCOUNT, path_decomposed [len - 3]);
+	tracker_module_metadata_add_string (metadata, METADATA_CONVERSATION_PEER_ACCOUNT, path_decomposed [len - 2]);
+	tracker_module_metadata_add_string (metadata, METADATA_CONVERSATION_PROTOCOL, path_decomposed [len - 4]);
+
+	if (strptime (path_decomposed [len - 1], "%Y-%m-%d.%H%M%S%z", &tm) != NULL) {
+		tracker_module_metadata_add_date (metadata, METADATA_CONVERSATION_DATE, mktime (&tm));
+	}
+
+	g_strfreev (path_decomposed);
+	g_free (path);
+
+	return metadata;
 }
 
 void
