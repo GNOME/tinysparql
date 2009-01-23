@@ -31,11 +31,6 @@
 #include "tracker-dbus.h"
 #include "tracker-thumbnailer.h"
 
-#ifdef DEBUG
-#define debug g_message
-#else
-#define debug(...) 
-#endif
 
 #define THUMBNAILER_SERVICE	 "org.freedesktop.thumbnailer"
 #define THUMBNAILER_PATH	 "/org/freedesktop/thumbnailer/Generic"
@@ -143,7 +138,7 @@ thumbnailer_enabled_cb (GObject    *pspec,
 
 	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
 
-	debug ("Thumbnailer service %s", 
+	g_debug ("Thumbnailer service %s", 
 		   private->service_is_enabled ? "enabled" : "disabled");
 }
 
@@ -172,7 +167,7 @@ thumbnailer_reply_cb (DBusGProxy     *proxy,
 		return;
 	}
 
-	debug ("Received response from thumbnailer, request ID:%d",
+	g_debug ("Received response from thumbnailer, request ID:%d",
 	       GPOINTER_TO_UINT (user_data));
 }
 
@@ -190,7 +185,7 @@ thumbnailer_request_timeout_cb (gpointer data)
 	private->uris[private->count] = NULL;
 	private->mime_types[private->count] = NULL;
 	
-	debug ("Sending request to thumbnailer to queue %d files, request ID:%d...", 
+	g_debug ("Sending request to thumbnailer to queue %d files, request ID:%d...", 
 		   private->count,
 		   private->request_id);
 	
@@ -240,7 +235,7 @@ tracker_thumbnailer_init (TrackerConfig *config)
 			      private,
 			      private_free);
 
-	debug ("Thumbnailer connections being set up...");
+	g_debug ("Thumbnailer connections being set up...");
 
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
@@ -282,7 +277,7 @@ tracker_thumbnailer_init (TrackerConfig *config)
 	 * priority now, though (therefore, is this a TODO). 
 	 */
 
-	debug ("Thumbnailer supported mime types requested...");
+	g_debug ("Thumbnailer supported mime types requested...");
 
 	dbus_g_proxy_call (private->manager_proxy,
 			   "GetSupported", &error, 
@@ -291,12 +286,12 @@ tracker_thumbnailer_init (TrackerConfig *config)
 			   G_TYPE_INVALID);
 	
 	if (error) {
-		debug ("Thumbnailer service did not return supported mime types, %s",
+		g_debug ("Thumbnailer service did not return supported mime types, %s",
 			   error->message);
 
 		g_error_free (error);
 	} else if (mime_types) {
-		debug ("Thumbnailer supports %d mime types", 
+		g_debug ("Thumbnailer supports %d mime types", 
 			   g_strv_length (mime_types));
 
 		private->supported_mime_types = mime_types;
@@ -342,7 +337,7 @@ tracker_thumbnailer_move (const gchar *from_uri,
 
 	private->request_id++;
 
-	debug ("Requesting thumbnailer moves URI from:'%s' to:'%s', request_id:%d...",
+	g_debug ("Requesting thumbnailer moves URI from:'%s' to:'%s', request_id:%d...",
 		   from_uri,
 		   to_uri,
 		   private->request_id); 
@@ -408,7 +403,7 @@ tracker_thumbnailer_remove (const gchar *uri,
 	else
 		uris[0] = g_strdup (uri);
 
-	debug ("Requesting thumbnailer removes URI:'%s', request_id:%d...",
+	g_debug ("Requesting thumbnailer removes URI:'%s', request_id:%d...",
 		   uri,
 		   private->request_id); 
 	
@@ -441,7 +436,7 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 
 	private->request_id++;
 
-	debug ("Requesting thumbnailer cleanup URI:'%s', request_id:%d...",
+	g_debug ("Requesting thumbnailer cleanup URI:'%s', request_id:%d...",
 		   uri_prefix,
 		   private->request_id); 
 
@@ -481,7 +476,7 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 
 	private->request_id++;
 
-	debug ("Requesting thumbnailer to get thumbnail for URI:'%s', request_id:%d...",
+	g_debug ("Requesting thumbnailer to get thumbnail for URI:'%s', request_id:%d...",
 		   uri,
 		   private->request_id); 
 
