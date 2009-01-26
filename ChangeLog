@@ -2,6 +2,8 @@
 
 	* utils/services/rdfxml2unittest_data.xsl: added a sample xsl that
 	generates a libtracker-data unit test's data.ttl file
+	* utils/services/rdfxml2unittest_query.xsl: added a sample xsl that
+	generates a libtracker-data unit test's query file
 
 2009-01-23  Mikael Ottela  <mikael.ottela@ixonos.com>
 
