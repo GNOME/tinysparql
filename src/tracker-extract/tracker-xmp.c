@@ -85,34 +85,6 @@ fix_white_balance (const gchar *wb)
 	}
 }
 
-static gchar *
-fix_orientation (const gchar *orientation)
-{
-	gint value;
-	value = atoi(orientation);
-
-	switch (value) {
-	case 1:
-		return "top - left";
-	case 2:
-		return "top - right";
-	case 3:
-		return "bottom - right";
-	case 4:
-		return "bottom - left";
-	case 5:
-		return "left - top";
-	case 6:
-		return "right - top";
-	case 7:
-		return "right - bottom";
-	case 8:
-		return "left - bottom";
-	}
-
-	return "top - left";
-}
-
 static void tracker_xmp_iter        (XmpPtr          xmp,
 				     XmpIteratorPtr  iter,
 				     GHashTable     *metadata,
@@ -351,7 +323,7 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 		else if (strcmp (name, "Orientation") == 0) {
 			tracker_append_string_to_hash_table (metadata, 
 							     "Image:Orientation", 
-							     fix_orientation(value), 
+							     value, 
 							     append, FALSE);
 		}
 		else if (strcmp (name, "Flash") == 0) {

@@ -27,7 +27,7 @@
 
 #include "tracker-extract-test-utils.h"
 #include "tracker-extract-testsuite-generic.h"
-#include "tracker-extract-testsuite-jpeg.h"
+#include "tracker-extract-testsuite-tiff.h"
 
 int
 main (int argc, char **argv) {
@@ -41,26 +41,20 @@ main (int argc, char **argv) {
 	TrackerExtractorData *data;
 
 	g_test_message ("Testing extractor functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-jpeg/check-extractor-data",
+	g_test_add_func ("/tracker-extract/tracker-extract-tiff/check-extractor-data",
 			 test_tracker_extract_check_extractor_data);
 
 #if 1
-	data = tracker_test_extract_get_extractor ("image/jpeg");
+	data = tracker_test_extract_get_extractor ("image/tiff");
 
-	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/basic_size",
-			      data, test_tracker_extract_jpeg_basic_size);
+	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/basic_size",
+			      data, test_tracker_extract_tiff_basic_size);
 
-	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_size",
-			      data, test_tracker_extract_jpeg_exif_size);
+/* 	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/exif_size", */
+/* 			      data, test_tracker_extract_tiff_exif_size); */
 
-	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_orientation",
-			      data, test_tracker_extract_jpeg_exif_orientation);
-
-	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_flash",
-			      data, test_tracker_extract_jpeg_exif_flash);
-
-	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/exif_tags",
-			      data, test_tracker_extract_jpeg_exif_tags);
+	g_test_add_data_func ("/tracker-extract/tracker-extract-tiff/exif_orientation",
+			      data, test_tracker_extract_tiff_exif_orientation);
 
 	if (g_test_perf()) {
 	

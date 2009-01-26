@@ -81,8 +81,8 @@ Weight=1
 
 [Image:Orientation]
 DisplayName=Orientation
-Description=The Orientation mode of the image (portrait/landscape)
-DataType=string
+Description=The Orientation mode of the image (portrait/landscape, using exif enumeration)
+DataType=integer
 
 [Image:ExposureProgram]
 DisplayName=Exposure program

@@ -1,3 +1,22 @@
+2009-01-26  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-jpeg.c                           
+	* src/tracker-extract/tracker-xmp.c
+	* data/services/default.service	
+	* data/services/image.metadata: Changed Image:Orientation to
+	integer for consistency and updated the extractors. Orientation is
+	now a KeyMetadata.
+
+	* tests/tracker-extract/tracker-extract-jpeg-test.c
+	* tests/tracker-extract/tracker-extract-tiff-test.c                    
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.c               
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.c               
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.h
+	* tests/tracker-extract/Makefile.am                                    
+	* tests/tracker-extract/data/exif/*.data
+	* tests/tracker-extract/data/jpeg/*.data: Added the testcases and
+	testdata for tiffs and orientation in jpegs.
+
 2009-01-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* utils/services/rdfxml2unittest_data.xsl: added a sample xsl that

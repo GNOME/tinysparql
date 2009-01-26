@@ -76,6 +76,7 @@ static gchar *fix_focal_length	(const gchar *fl);
 static gchar *fix_flash		(const gchar *flash);
 static gchar *fix_fnumber	(const gchar *fn);
 static gchar *fix_exposure_time (const gchar *et);
+static gchar *fix_orientation   (const gchar *orientation);
 
 static TagType tags[] = {
 	{ EXIF_TAG_PIXEL_Y_DIMENSION, "Image:Height", NULL },
@@ -92,7 +93,7 @@ static TagType tags[] = {
 	{ EXIF_TAG_SOFTWARE, "Image:Software", NULL },
 	{ EXIF_TAG_MAKE, "Image:CameraMake", NULL },
 	{ EXIF_TAG_MODEL, "Image:CameraModel", NULL },
-	{ EXIF_TAG_ORIENTATION, "Image:Orientation", NULL },
+	{ EXIF_TAG_ORIENTATION, "Image:Orientation", fix_orientation },
 	{ EXIF_TAG_EXPOSURE_PROGRAM, "Image:ExposureProgram", NULL },
 	{ EXIF_TAG_EXPOSURE_TIME, "Image:ExposureTime", fix_exposure_time },
 	{ EXIF_TAG_FNUMBER, "Image:FNumber", fix_fnumber },
@@ -174,6 +175,32 @@ fix_exposure_time (const gchar *et)
 	}
 
 	return g_strdup (et);
+}
+
+static gchar *
+fix_orientation (const gchar *orientation)
+{
+	guint i;
+	static gchar *ostr[8] = {
+		"top - left",
+		"top - right",
+		"bottom - right",
+		"bottom - left",
+		"left - top",
+		"right - top",
+		"right - bottom",
+		"left - bottom"
+	};
+	
+	for (i=0;i<8;i++) {
+		if (strcmp(orientation,ostr[i])==0) {
+			gchar buffer[2];
+			snprintf (buffer,2,"%d", i+1);
+			return g_strdup(buffer);
+		}
+	}
+
+	return g_strdup("1"); /* We take this as default */
 }
 
 static void

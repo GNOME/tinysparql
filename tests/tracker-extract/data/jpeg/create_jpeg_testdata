@@ -3,11 +3,11 @@
 # Basic properties
 
 #size
-convert -size 320x240   pattern:checkerboard header_size_1.jpg
-convert -size 640x480   pattern:checkerboard header_size_2.jpg
-convert -size 1280x1024 pattern:checkerboard header_size_3.jpg
-convert -size 1600x1400 pattern:checkerboard header_size_4.jpg
-convert -size 11x2483   pattern:checkerboard header_size_5.jpg
+convert -size 320x240   pattern:checkerboard basic_size_1.jpg
+convert -size 640x480   pattern:checkerboard basic_size_2.jpg
+convert -size 1280x1024 pattern:checkerboard basic_size_3.jpg
+convert -size 1600x1400 pattern:checkerboard basic_size_4.jpg
+convert -size 11x2483   pattern:checkerboard basic_size_5.jpg
 
 #EXIF
 convert -size 320x240   pattern:checkerboard exif_size_1.jpg

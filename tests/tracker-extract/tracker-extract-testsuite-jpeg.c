@@ -45,6 +45,13 @@ static const ExtractData data_exif_size[] = {
 
 static const ExtractData data_exif_orientation[] = { 
 	{ "/jpeg/exif_orientation_1.jpg", "/jpeg/exif_orientation_1.data" },
+	{ "/jpeg/exif_orientation_2.jpg", "/jpeg/exif_orientation_2.data" },
+	{ "/jpeg/exif_orientation_3.jpg", "/jpeg/exif_orientation_3.data" },
+	{ "/jpeg/exif_orientation_4.jpg", "/jpeg/exif_orientation_4.data" },
+	{ "/jpeg/exif_orientation_5.jpg", "/jpeg/exif_orientation_5.data" },
+	{ "/jpeg/exif_orientation_6.jpg", "/jpeg/exif_orientation_6.data" },
+	{ "/jpeg/exif_orientation_7.jpg", "/jpeg/exif_orientation_7.data" },
+	{ "/jpeg/exif_orientation_8.jpg", "/jpeg/exif_orientation_8.data" },
 	{ NULL, NULL }
 };
 
@@ -90,6 +97,11 @@ static const ExtractData data_exif_tags[] = {
 	{ "/jpeg/exif_description_1.jpg", "/jpeg/exif_description_1.data" },
 	{ "/jpeg/exif_iso_1.jpg", "/jpeg/exif_iso_1.data" },
 	{ "/jpeg/exif_software_1.jpg", "/jpeg/exif_software_1.data" },
+	{ "/jpeg/exif_metering_1.jpg", "/jpeg/exif_metering_1.data" },
+	{ NULL, NULL }
+};
+
+static const ExtractData data_xmp_dc[] = {
 	{ "/jpeg/exif_metering_1.jpg", "/jpeg/exif_metering_1.data" },
 	{ NULL, NULL }
 };
