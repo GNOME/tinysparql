@@ -69,7 +69,8 @@
 
 <xsl:for-each select="/rdf:RDF/rdf:Property/rdfs:domain[@rdf:resource=$about]">
 <xsl:choose>
-<xsl:when test="substring-after(../rdfs:range/@rdf:resource, '#') = 'string'">_:a<xsl:value-of select="$pos"/><xsl:text> </xsl:text><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="../@rdf:about"/></xsl:with-param></xsl:call-template><xsl:text> </xsl:text>"stringly data"<xsl:text> </xsl:text>.
+<xsl:when test="substring-after(../rdfs:range/@rdf:resource, '#') = 'string'">_:a<xsl:value-of select="$pos"/><xsl:text> </xsl:text><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="../@rdf:about"/></xsl:with-param></xsl:call-template><xsl:text> "stringly data for </xsl:text><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="../@rdf:about"/></xsl:with-param></xsl:call-template><xsl:text>" .
+</xsl:text>
 </xsl:when>
 <xsl:otherwise>
 </xsl:otherwise>
