@@ -49,7 +49,8 @@
 <xsl:when test="rdfs:range">
 DataType=<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:range/@rdf:resource"/></xsl:with-param></xsl:call-template>
 </xsl:when>
-<xsl:otherwise>Abstract=true</xsl:otherwise>
+<xsl:otherwise>Abstract=true
+DataType=string</xsl:otherwise>
 </xsl:choose>
 <xsl:if test="rdfs:label">
 DisplayName=<xsl:value-of select="rdfs:label"/>
