@@ -44,7 +44,7 @@ main (int argc, char **argv) {
 	g_test_message ("Testing extractor functionality");
 	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extractor-data",
 			 test_tracker_extract_check_extractor_data);
-#if 1
+#if 0
 	data = tracker_test_extract_get_extractor ("audio/mpeg");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v1_basic",

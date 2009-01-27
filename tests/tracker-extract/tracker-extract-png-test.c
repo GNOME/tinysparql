@@ -44,7 +44,7 @@ main (int argc, char **argv) {
 	g_test_add_func ("/tracker-extract/tracker-extract-png/check-extractor-data",
 			 test_tracker_extract_check_extractor_data);
 
-#if 1
+#if 0
 	data = tracker_test_extract_get_extractor ("image/png");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-png/basic_size",
