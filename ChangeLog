@@ -1,3 +1,20 @@
+2009-01-27  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* tests/tracker-extract/tracker-extract-png-test.c
+	* tests/tracker-extract/tracker-extract-jpeg-test.c
+	* tests/tracker-extract/tracker-extract-tiff-test.c
+	* tests/tracker-extract/tracker-extract-testsuite-png.c
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.c
+	* tests/tracker-extract/tracker-extract-test-utils.c
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.c
+	* tests/tracker-extract/tracker-extract-testsuite-png.h
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.h
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.h
+	* tests/tracker-extract/data/png/create_png_perfdata
+	* tests/tracker-extract/data/jpeg/create_jpeg_perfdata
+	* tests/tracker-extract/data/tiff/create_tiff_perfdata: Added
+	performance tests for image extraction.
+
 2009-01-27  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-monitor.c (tracker_monitor_init)

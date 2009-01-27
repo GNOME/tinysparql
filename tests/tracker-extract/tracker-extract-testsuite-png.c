@@ -71,3 +71,10 @@ void test_tracker_extract_png_xmp_exif_orientation(gconstpointer data)
 			      data_xmp_exif_orientation[i].testdata);		
 	}
 }
+
+void performance_tracker_extract_png(gconstpointer data)
+{
+	const TrackerExtractorData *extractor = data;
+	
+	performance_extract_files (data, "/png/perf_png_%d.png", 1000);
+}

@@ -166,3 +166,9 @@ void test_tracker_extract_jpeg_exif_tags(gconstpointer data)
 	}
 }
 
+void performance_tracker_extract_jpeg(gconstpointer data)
+{
+	const TrackerExtractorData *extractor = data;
+	
+	performance_extract_files (data, "/jpeg/perf_jpeg_%d.jpg", 1000);
+}

@@ -27,4 +27,7 @@ void test_tracker_extract_tiff_basic_size       (gconstpointer data);
 void test_tracker_extract_tiff_exif_size        (gconstpointer data);
 void test_tracker_extract_tiff_exif_orientation (gconstpointer data);
 
+void performance_tracker_extract_tiff           (gconstpointer data);
+
+
 #endif

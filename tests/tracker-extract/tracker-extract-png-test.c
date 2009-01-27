@@ -54,7 +54,8 @@ main (int argc, char **argv) {
 /* 			      data, test_tracker_extract_png_xmp_exif_orientation); */
 
 	if (g_test_perf()) {
-	
+		g_test_add_data_func ("/tracker-extract/tracker-extract-png/performance",
+				      data, performance_tracker_extract_png);
 	}
 
 #endif

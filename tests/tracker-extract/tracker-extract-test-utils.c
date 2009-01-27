@@ -97,8 +97,9 @@ performance_extract_files (const TrackerExtractorData *data, const gchar *filema
 	
 	g_test_timer_start();
 
-	for (i=1;i<=filecount;i++) {		
+	for (i=1;i<=filecount;i++) {
 		char filename[256];
+		char tmp[256];
 		GHashTable *metadata;
 
 		metadata = g_hash_table_new_full (g_str_hash,
@@ -106,7 +107,13 @@ performance_extract_files (const TrackerExtractorData *data, const gchar *filema
 						  g_free,
 						  g_free);
 
-		if (sprintf (filename, "%s%s%d.mp3",TEST_DATA_DIR,filematch,i) < 0) {
+		
+
+		if (sprintf (tmp, "%s%s",TEST_DATA_DIR,filematch) < 0) {
+			g_assert_not_reached();
+		}
+
+		if (sprintf (filename, tmp, i) < 0) {
 			g_assert_not_reached();
 		}
 

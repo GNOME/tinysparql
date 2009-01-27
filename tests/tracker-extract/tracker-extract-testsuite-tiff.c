@@ -90,3 +90,10 @@ void test_tracker_extract_tiff_exif_orientation(gconstpointer data)
 			      data_exif_orientation[i].testdata);		
 	}
 }
+
+void performance_tracker_extract_tiff(gconstpointer data)
+{
+	const TrackerExtractorData *extractor = data;
+	
+	performance_extract_files (data, "/tiff/perf_tiff_%d.tif", 1000);
+}
