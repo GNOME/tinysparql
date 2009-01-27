@@ -1,3 +1,16 @@
+2009-01-27  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-monitor.c (tracker_monitor_init)
+	(libinotify_monitor_event_cb): Make cached events hash table keep a
+	reference as the key, so it doesn't get destroyed if the value is
+	replaced.
+
+	(get_module_name_from_gfile): Do not possibly use already freed
+	memory.
+
+	(libinotify_cached_events_timeout_cb): Discard cached events for
+	deleted items.
+
 2009-01-27  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-cleanup.c: (check_for_volumes_to_cleanup):

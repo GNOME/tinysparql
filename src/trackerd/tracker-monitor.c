@@ -235,7 +235,7 @@ tracker_monitor_init (TrackerMonitor *object)
 	priv->cached_events =
 		g_hash_table_new_full (g_file_hash,
 				       (GEqualFunc) g_file_equal,
-				       NULL,
+				       g_object_unref,
 				       event_data_free);
 #endif /* USE_LIBINOTIFY */
 
@@ -532,7 +532,6 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 		}
 
 		module_name = get_queue_from_gfile (monitor->private->modules, parent);
-		g_object_unref (parent);
 
 		if (!module_name) {
 			gchar *parent_path;
@@ -551,8 +550,6 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 
 			g_free (parent_path);
 			g_free (child_path);
-
-			return NULL;
 		} else {
 			if (is_directory) {
 				gchar *child_path;
@@ -562,6 +559,8 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 				g_free (child_path);
 			}
 		}
+
+		g_object_unref (parent);
 	}
 
 	return module_name;
@@ -831,6 +830,12 @@ libinotify_cached_events_timeout_cb (gpointer data)
 							  event->file,
 							  &is_directory);
 
+		if (!module_name) {
+			/* File was deleted before we could check its cached events, just discard it */
+			g_hash_table_iter_remove (&iter);
+			continue;
+		}
+
 		if (seconds < MAX (2, tracker_module_config_get_scan_timeout (module_name))) {
 			continue;
 		}
@@ -1056,7 +1061,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		data = event_data_new (file, event_type);
 
 		g_hash_table_insert (monitor->private->cached_events,
-				     data->file,
+				     g_object_ref (data->file),
 				     data);
 
 		set_up_cache_timeout = TRUE;
@@ -1101,7 +1106,7 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		data = event_data_new (file, event_type);
 
 		g_hash_table_insert (monitor->private->cached_events,
-				     data->file,
+				     g_object_ref (data->file),
 				     data);
 
 		set_up_cache_timeout = TRUE;
