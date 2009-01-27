@@ -1,3 +1,9 @@
+2009-01-27  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-monitor.c: (get_module_name_from_gfile):
+	Changed warnings to debug messages when we can't find a module
+	from a GFile.
+
 2009-01-27  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* tests/tracker-extract/tracker-extract-png-test.c

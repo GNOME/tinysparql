@@ -523,8 +523,8 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 
 			path = g_file_get_path (file);
 
-			g_warning ("Could not get module name from GFile (path:'%s')",
-				   path);
+			g_debug ("Could not get module name from GFile (path:'%s')",
+				 path);
 
 			g_free (path);
 
@@ -544,9 +544,9 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 				*is_directory = g_file_test (child_path, G_FILE_TEST_IS_DIR);
 			}
 
-			g_warning ("Could not get module name from GFile (path:'%s' or parent:'%s')",
-				   child_path,
-				   parent_path);
+			g_debug ("Could not get module name from GFile (path:'%s' or parent:'%s')",
+				 child_path,
+				 parent_path);
 
 			g_free (parent_path);
 			g_free (child_path);
