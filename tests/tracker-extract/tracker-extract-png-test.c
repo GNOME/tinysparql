@@ -27,8 +27,7 @@
 
 #include "tracker-extract-test-utils.h"
 #include "tracker-extract-testsuite-generic.h"
-#include "tracker-extract-testsuite-mp3.h"
-#include "tracker-extract-testsuite-avi.h"
+#include "tracker-extract-testsuite-png.h"
 
 int
 main (int argc, char **argv) {
@@ -42,31 +41,22 @@ main (int argc, char **argv) {
 	TrackerExtractorData *data;
 
 	g_test_message ("Testing extractor functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extractor-data",
+	g_test_add_func ("/tracker-extract/tracker-extract-png/check-extractor-data",
 			 test_tracker_extract_check_extractor_data);
+
 #if 1
-	data = tracker_test_extract_get_extractor ("audio/mpeg");
+	data = tracker_test_extract_get_extractor ("image/png");
 
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v1_basic",
-			      data, test_tracker_extract_mp3_id3v1_basic);
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v23_basic",
-			      data, test_tracker_extract_mp3_id3v23_basic);
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v23_tags",
-			      data, test_tracker_extract_mp3_id3v23_tags);
-/* 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/header_bitrate", */
-/* 			      data, test_tracker_extract_mp3_header_bitrate); */
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/header_sampling",
-			      data, test_tracker_extract_mp3_header_sampling);
+	g_test_add_data_func ("/tracker-extract/tracker-extract-png/basic_size",
+			      data, test_tracker_extract_png_basic_size);
 
-	data = tracker_test_extract_get_extractor ("video/avi");
-
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/avi/basic_tags",
-			      data, test_tracker_extract_avi_basic_tags);
+/* 	g_test_add_data_func ("/tracker-extract/tracker-extract-png/xmp_exif_orientation", */
+/* 			      data, test_tracker_extract_png_xmp_exif_orientation); */
 
 	if (g_test_perf()) {
-		g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/performance_cbr",
-				      data, performance_tracker_extract_mp3);	
+	
 	}
+
 #endif
 
 

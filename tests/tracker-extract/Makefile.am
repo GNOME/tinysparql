@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.decl
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
-	test-tracker-extract-mp3
+	test-tracker-extract-mp3					\
+	test-tracker-extract-png
 
 if HAVE_GSTREAMER
 TEST_PROGS += 								\
@@ -42,7 +43,11 @@ TEST_UTILS_SOURCES = 							\
 	tracker-extract-testsuite-jpeg.c				\
 	tracker-extract-testsuite-jpeg.h				\
 	tracker-extract-testsuite-tiff.c				\
-	tracker-extract-testsuite-tiff.h
+	tracker-extract-testsuite-tiff.h				\
+	tracker-extract-testsuite-png.c 				\
+	tracker-extract-testsuite-png.h 				\
+	tracker-extract-testsuite-avi.c					\
+	tracker-extract-testsuite-avi.h
 
 test_tracker_extract_mp3_SOURCES = 					\
 	tracker-extract-mp3-test.c					\
@@ -94,3 +99,17 @@ test_tracker_extract_tiff_LDADD =					\
 	$(GLIB2_LIBS)							\
 	$(LIBTIFF_LIBS)							\
 	$(EXEMPI_LIBS)
+
+test_tracker_extract_png_SOURCES = 					\
+	tracker-extract-png-test.c					\
+	$(TEST_UTILS_SOURCES)
+
+test_tracker_extract_png_LDADD =					\
+	$(top_builddir)/src/tracker-extract/libextract-png.la   	\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(GMODULE_LIBS)							\
+	$(GTHREAD_LIBS)							\
+	$(GLIB2_LIBS)							\
+	$(LIBPNG_LIBS)							\
+	$(EXEMPI_LIBS)
+
