@@ -1565,8 +1565,21 @@ item_move (TrackerIndexer  *indexer,
 						basename,
 						&service_id,
 						NULL)) {
-		g_message ("Source file '%s' not found in database to move", source_path);
+		TrackerModuleMetadata *metadata;
+		gchar *dest_dirname, *dest_basename;
 
+		g_message ("Source file '%s' not found in database to move, indexing '%s' from scratch", source_path, path);
+
+		metadata = tracker_module_file_get_metadata (info->module_file);
+		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
+
+		if (metadata) {
+			item_add_or_update (indexer, info, dest_dirname, dest_basename, metadata);
+			g_object_unref (metadata);
+		}
+
+		g_free (dest_dirname);
+		g_free (dest_basename);
 		g_free (path);
 		g_free (source_path);
 
