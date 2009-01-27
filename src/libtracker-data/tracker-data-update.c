@@ -268,7 +268,7 @@ tracker_data_update_delete_service_recursively (TrackerService *service,
 						NULL);
 }
 
-void
+gboolean
 tracker_data_update_move_service (TrackerService *service,
 				  const gchar	*from,
 				  const gchar	*to)
@@ -279,10 +279,11 @@ tracker_data_update_move_service (TrackerService *service,
 	gchar *from_basename;
 	gchar *to_dirname;
 	gchar *to_basename;
+	gboolean retval = TRUE;
 
-	g_return_if_fail (TRACKER_IS_SERVICE (service));
-	g_return_if_fail (from != NULL);
-	g_return_if_fail (to != NULL);
+	g_return_val_if_fail (TRACKER_IS_SERVICE (service), FALSE);
+	g_return_val_if_fail (from != NULL, FALSE);
+	g_return_val_if_fail (to != NULL, FALSE);
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
@@ -295,27 +296,40 @@ tracker_data_update_move_service (TrackerService *service,
 					&to_basename);
 
 	tracker_db_interface_execute_procedure (iface,
-						NULL,
+						&error,
 						"MoveService",
 						to_dirname, to_basename,
 						from_dirname, from_basename,
 						NULL);
 
-	if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
-		tracker_db_interface_execute_procedure (iface,
-							&error,
-							"MoveServiceChildren",
-							from,
-							to,
-							from,
-							from,
-							NULL);
+	if (error) {
+		g_warning ("%s", error->message);
+		g_error_free (error);
+		retval = FALSE;
+	} else {
+		if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
+			tracker_db_interface_execute_procedure (iface,
+								&error,
+								"MoveServiceChildren",
+								from,
+								to,
+								from,
+								from,
+								NULL);
+
+			if (error) {
+				g_warning ("%s", error->message);
+				g_error_free (error);
+			}
+		}
 	}
 
 	g_free (to_dirname);
 	g_free (to_basename);
 	g_free (from_dirname);
 	g_free (from_basename);
+
+	return retval;
 }
 
 void

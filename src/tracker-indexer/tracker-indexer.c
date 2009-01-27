@@ -205,6 +205,12 @@ static void	state_unset_flags      (TrackerIndexer	    *indexer,
 					TrackerIndexerState  state);
 static void	state_check	       (TrackerIndexer	    *indexer);
 
+static void     item_remove            (TrackerIndexer      *indexer,
+					PathInfo	    *info,
+					const gchar         *dirname,
+					const gchar         *basename);
+
+
 static guint signals[LAST_SIGNAL] = { 0, };
 
 G_DEFINE_TYPE (TrackerIndexer, tracker_indexer, G_TYPE_OBJECT)
@@ -1586,8 +1592,37 @@ item_move (TrackerIndexer  *indexer,
 		return;
 	}
 
-	/* Get mime type and move thumbnail from thumbnailerd */
+	/* Get mime type in order to move thumbnail from thumbnailerd */
 	old_metadata = tracker_data_query_metadata (service, service_id, TRUE);
+
+	if (!tracker_data_update_move_service (service, source_path, path)) {
+		gchar *dest_dirname, *dest_basename;
+
+		/* Move operation failed, which means the dest path
+		 * corresponded to an indexed file, remove any info
+		 * related to it.
+		 */
+
+		g_message ("Destination file '%s' already existed in database, removing", path);
+
+		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
+		item_remove (indexer, info, dest_dirname, dest_basename);
+
+		g_free (dest_dirname);
+		g_free (dest_basename);
+
+		if (!tracker_data_update_move_service (service, source_path, path)) {
+			/* It failed again, no point in trying anymore */
+			g_free (path);
+			g_free (source_path);
+
+			if (old_metadata) {
+				tracker_data_metadata_free (old_metadata);
+			}
+
+			return;
+		}
+	}
 
 	if (old_metadata) {
 		const gchar *mime_type;
@@ -1605,8 +1640,6 @@ item_move (TrackerIndexer  *indexer,
 		g_message ("Could not get mime type to remove thumbnail for:'%s'",
 			   path);
 	}
-
-	tracker_data_update_move_service (service, source_path, path);
 
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     source_path,

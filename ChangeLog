@@ -1,5 +1,14 @@
 2009-01-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-data/tracker-data-update.[ch]
+	(tracker_data_update_move_service): Make if return FALSE if the
+	operation failed.
+
+	* src/tracker-indexer/tracker-indexer.c (item_move): Handle move
+	operations that overwrite the dest file.
+
+2009-01-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c (item_move): If a file is
 	created and then immediately moved to another location. There's a
 	chance that the indexer hasn't yet processed the origin file, so the
