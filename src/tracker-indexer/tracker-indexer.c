@@ -155,9 +155,9 @@ struct TrackerIndexerPrivate {
 struct PathInfo {
 	TrackerIndexerModule *module;
 	GFile *file;
-	GFile *other_file;
+	GFile *source_file;
 	TrackerModuleFile *module_file;
-	TrackerModuleFile *other_module_file;
+	TrackerModuleFile *source_module_file;
 };
 
 struct MetadataForeachData {
@@ -212,7 +212,7 @@ G_DEFINE_TYPE (TrackerIndexer, tracker_indexer, G_TYPE_OBJECT)
 static PathInfo *
 path_info_new (TrackerIndexerModule *module,
 	       GFile                *file,
-	       GFile                *other_file)
+	       GFile                *source_file)
 {
 	PathInfo *info;
 
@@ -222,12 +222,12 @@ path_info_new (TrackerIndexerModule *module,
 	info->file = g_object_ref (file);
 	info->module_file = tracker_indexer_module_create_file (module, file);
 
-	if (G_UNLIKELY (other_file)) {
-		info->other_file = g_object_ref (other_file);
-		info->other_module_file = tracker_indexer_module_create_file (module, other_file);
+	if (G_UNLIKELY (source_file)) {
+		info->source_file = g_object_ref (source_file);
+		info->source_module_file = tracker_indexer_module_create_file (module, source_file);
 	} else {
-		info->other_file = NULL;
-		info->other_module_file = NULL;
+		info->source_file = NULL;
+		info->source_module_file = NULL;
 	}
 
 	return info;
@@ -236,12 +236,12 @@ path_info_new (TrackerIndexerModule *module,
 static void
 path_info_free (PathInfo *info)
 {
-	if (G_UNLIKELY (info->other_file)) {
-		g_object_unref (info->other_file);
+	if (G_UNLIKELY (info->source_file)) {
+		g_object_unref (info->source_file);
 	}
 
-	if (G_UNLIKELY (info->other_module_file)) {
-		g_object_unref (info->other_module_file);
+	if (G_UNLIKELY (info->source_module_file)) {
+		g_object_unref (info->source_module_file);
 	}
 
 	if (G_LIKELY (info->module_file)) {
@@ -1543,21 +1543,21 @@ item_move (TrackerIndexer  *indexer,
 	TrackerDataMetadata *old_metadata;
 	TrackerModuleMetadata *new_metadata;
 	gchar *new_path, *new_name, *ext;
-	gchar *path, *other_path;
-	gchar *other_uri;
+	gchar *path, *source_path;
+	gchar *source_uri, *uri;
 	guint32 service_id;
 	gchar *mount_point = NULL;
 
-	service = get_service_for_file (info->other_module_file, info->module);
+	service = get_service_for_file (info->module_file, info->module);
 
 	if (!service) {
 		return;
 	}
 
 	path = g_file_get_path (info->file);
-	other_path = g_file_get_path (info->other_file);
+	source_path = g_file_get_path (info->source_file);
 
-	g_debug ("Moving item from '%s' to '%s'", path, other_path);
+	g_debug ("Moving item from '%s' to '%s'", source_path, path);
 
 	/* Get 'source' ID */
 	if (!tracker_data_query_service_exists (service,
@@ -1565,10 +1565,10 @@ item_move (TrackerIndexer  *indexer,
 						basename,
 						&service_id,
 						NULL)) {
-		g_message ("Source file '%s' not found in database to move", path);
+		g_message ("Source file '%s' not found in database to move", source_path);
 
 		g_free (path);
-		g_free (other_path);
+		g_free (source_path);
 
 		return;
 	}
@@ -1578,44 +1578,43 @@ item_move (TrackerIndexer  *indexer,
 
 	if (old_metadata) {
 		const gchar *mime_type;
-		gchar *uri;
 
 		/* TODO URI branch: this is a URI conversion */
 		uri = g_file_get_uri (info->file);
-		other_uri = g_file_get_uri (info->other_file);
+		source_uri = g_file_get_uri (info->source_file);
 
 		mime_type = tracker_data_metadata_lookup (old_metadata, "File:Mime");
-		tracker_thumbnailer_move (uri, mime_type, other_uri);
+		tracker_thumbnailer_move (source_uri, mime_type, uri);
 
-		g_free (other_uri);
+		g_free (source_uri);
 		g_free (uri);
 	} else {
 		g_message ("Could not get mime type to remove thumbnail for:'%s'",
 			   path);
 	}
 
-	tracker_data_update_move_service (service, path, other_path);
+	tracker_data_update_move_service (service, source_path, path);
 
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     path, 
+						     source_path,
 						     &mount_point,
 						     NULL) ) {
 
 		if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     other_path, 
+						     path,
 						     NULL,
 						     NULL) ) {
 
 			tracker_removable_device_add_move (indexer, 
 							   mount_point, 
-							   path, 
-							   other_path,
+							   source_path,
+							   path,
 							   tracker_service_get_name (service));
 
 		} else {
 			tracker_removable_device_add_removal (indexer, 
 							      mount_point, 
-							      path,
+							      source_path,
 							      tracker_service_get_name (service));
 		}
 	}
@@ -1633,16 +1632,16 @@ item_move (TrackerIndexer  *indexer,
 
 	new_metadata = tracker_module_metadata_new ();
 
-	tracker_file_get_path_and_name (other_path, &new_path, &new_name);
+	tracker_file_get_path_and_name (path, &new_path, &new_name);
 
 	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_PATH, new_path);
 	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME, new_name);
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME_DELIMITED, other_path);
+	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME_DELIMITED, path);
 
 	g_free (new_path);
 	g_free (new_name);
 
-	ext = strrchr (other_path, '.');
+	ext = strrchr (path, '.');
 	if (ext) {
 		ext++;
 		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
@@ -1654,7 +1653,7 @@ item_move (TrackerIndexer  *indexer,
 	g_object_unref (new_metadata);
 
 	g_free (path);
-	g_free (other_path);
+	g_free (source_path);
 }
 
 
@@ -2232,7 +2231,7 @@ process_file (TrackerIndexer *indexer,
 	TrackerModuleMetadata *metadata;
 	gchar *uri, *dirname, *basename;
 
-	/* Note: If info->other_file is set, the PathInfo is for a
+	/* Note: If info->source_file is set, the PathInfo is for a
 	 * MOVE event not for normal file event.
 	 */
 
@@ -2242,7 +2241,12 @@ process_file (TrackerIndexer *indexer,
 
 	/* Set the current module */
 	indexer->private->current_module = g_quark_from_string (info->module->name);
-	uri = tracker_module_file_get_uri (info->module_file);
+
+	if (G_UNLIKELY (info->source_module_file)) {
+		uri = tracker_module_file_get_uri (info->source_module_file);
+	} else {
+		uri = tracker_module_file_get_uri (info->module_file);
+	}
 
 	if (!uri) {
 		if (TRACKER_IS_MODULE_ITERATABLE (info->module_file)) {
@@ -2278,7 +2282,7 @@ process_file (TrackerIndexer *indexer,
 	 * We simply check the dirname[0] to make sure it isn't an
 	 * email based dirname.
 	 */
-	if (G_LIKELY (!info->other_file) && dirname[0] == G_DIR_SEPARATOR) {
+	if (G_LIKELY (!info->source_file) && dirname[0] == G_DIR_SEPARATOR) {
 		if (!should_index_file (indexer, info, dirname, basename)) {
 			gchar *path;
 
@@ -2301,7 +2305,7 @@ process_file (TrackerIndexer *indexer,
 	 * metadata. For move PathInfo we use the db function to move
 	 * a service and set the metadata.
 	 */
-	if (G_UNLIKELY (info->other_file)) {
+	if (G_UNLIKELY (info->source_file)) {
 		item_move (indexer, info, dirname, basename);
 	} else {
 		metadata = tracker_module_file_get_metadata (info->module_file);
@@ -2878,8 +2882,8 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 
 	/* Add files to the queue */
 	info = path_info_new (module,
-			      g_file_new_for_path (from),
-			      g_file_new_for_path (to));
+			      g_file_new_for_path (to),
+			      g_file_new_for_path (from));
 	add_file (indexer, info);
 
 	dbus_g_method_return (context);

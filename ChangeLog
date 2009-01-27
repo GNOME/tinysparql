@@ -1,5 +1,12 @@
 2009-01-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c (struct PathInfo): replace 
+	other_file with	source_file, and make file point to the destination,
+	so we can map PathInfo for move operations into create/delete 
+	operations.
+
+2009-01-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/trackerd/tracker-monitor.c: Remove blacklist, since the events
 	cache already prevents spamming tracker-indexer with too frequent
 	update events.
