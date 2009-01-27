@@ -1,3 +1,11 @@
+2009-01-27  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-cleanup.c: (check_for_volumes_to_cleanup):
+	Commented out code which causes assertion warnings but doesn't
+	function properly. MMC thumbnail cleanup is disabled using
+	preprocessor statements now and	wasn't working properly in the
+	first place.
+
 2009-01-27  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-data/tracker-data-update.[ch]

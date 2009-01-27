@@ -59,17 +59,19 @@ check_for_volumes_to_cleanup (gpointer user_data)
 		gboolean is_valid = TRUE;
 
 		while (is_valid) {
-			GValue        value = { 0, };
-			const gchar  *mount_point;
+			GValue       value = { 0, };
+			const gchar *mount_point;
 
 			_tracker_db_result_set_get_value (result_set, 0, &value);
 
+#if 0
 			mount_point = g_value_get_string (&value);
 
 			/* Add cleanup items here */
-
-			if (mount_point)
+			if (mount_point) {
 				tracker_thumbnailer_cleanup (mount_point);
+			}
+#endif
 
 			g_value_unset (&value);
 
