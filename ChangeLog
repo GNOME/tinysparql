@@ -1,3 +1,15 @@
+2009-01-27  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* tests/tracker-extract/data/jpeg/create_jpeg_testdata
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.h
+	* tests/tracker-extract/tracker-extract-mp3-test.c
+	* tests/tracker-extract/tracker-extract-test-utils.c
+	* tests/tracker-extract/tracker-extract-test-utils.h
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.c
+	* tests/tracker-extract/data/mp3/create_mp3_testdata: Added file
+	access testing.
+
+	
 2009-01-27  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-monitor.c: (get_module_name_from_gfile):

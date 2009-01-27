@@ -2,6 +2,19 @@
 
 # Basic properties
 
+#file access test
+convert -size 320x240   pattern:checkerboard access_1.jpg
+chmod 777 access_1.jpg
+
+convert -size 320x240   pattern:checkerboard access_2.jpg
+chmod 777 access_2.jpg
+
+convert -size 320x240   pattern:checkerboard access_3.jpg
+chmod 555 access_3.jpg
+
+convert -size 320x240   pattern:checkerboard access_4.jpg
+chmod 444 access_4.jpg
+
 #size
 convert -size 320x240   pattern:checkerboard basic_size_1.jpg
 convert -size 640x480   pattern:checkerboard basic_size_2.jpg

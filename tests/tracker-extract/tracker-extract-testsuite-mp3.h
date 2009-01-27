@@ -23,6 +23,8 @@
 
 #include <tracker-extract/tracker-extract.h>
 
+void access_tracker_extract_mp3                 (gconstpointer data);
+
 void test_tracker_extract_mp3_id3v1_basic       (gconstpointer data);
 void test_tracker_extract_mp3_id3v23_basic      (gconstpointer data);
 void test_tracker_extract_mp3_id3v23_tcon       (gconstpointer data);

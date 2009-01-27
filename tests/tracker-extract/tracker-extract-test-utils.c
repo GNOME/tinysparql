@@ -131,6 +131,43 @@ performance_extract_files (const TrackerExtractorData *data, const gchar *filema
 	g_test_minimized_result (perftime, "Time of the performance tests");
 }
 
+void
+access_extract_files (const TrackerExtractorData *data, const gchar *filematch, guint filecount)
+{
+	double perftime;
+	guint i;
+
+	g_assert (data != NULL);
+	g_assert (filematch != NULL);
+	g_assert (filecount >0 );
+	
+	for (i=1;i<=filecount;i++) {
+		char filename[256];
+		char tmp[256];
+		GHashTable *metadata;
+
+		metadata = g_hash_table_new_full (g_str_hash,
+						  g_str_equal,
+						  g_free,
+						  g_free);
+
+		
+
+		if (sprintf (tmp, "%s%s",TEST_DATA_DIR,filematch) < 0) {
+			g_assert_not_reached();
+		}
+
+		if (sprintf (filename, tmp, i) < 0) {
+			g_assert_not_reached();
+		}
+
+		(*data->extractor) (filename, metadata);
+
+		g_assert (g_hash_table_size (metadata) > 0);
+
+		g_hash_table_destroy (metadata);
+	}		
+}
 
 TrackerExtractorData *
 search_mime_extractor (const gchar *mime)

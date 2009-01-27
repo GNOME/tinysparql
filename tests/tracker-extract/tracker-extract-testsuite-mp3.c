@@ -102,6 +102,13 @@ static const ExtractData data_header_sampling[] = {
 	{ NULL, NULL }
 };
 
+void access_tracker_extract_mp3(gconstpointer data)
+{
+	const TrackerExtractorData *extractor = data;
+	
+	access_extract_files (data, "/mp3/access_%d.mp3", 4);
+}
+
 void test_tracker_extract_mp3_id3v1_basic(gconstpointer data)
 {
 	const TrackerExtractorData *extractor = data;
@@ -192,6 +199,6 @@ void performance_tracker_extract_mp3(gconstpointer data)
 {
 	const TrackerExtractorData *extractor = data;
 	
-	performance_extract_files (data, "/mp3/perf_cbr_id3v1_", 1000);
+	performance_extract_files (data, "/mp3/perf_cbr_id3v1_%d.mp3", 1000);
 }
 

@@ -1,5 +1,18 @@
 #!/bin/sh
 
+#file access test
+echo Basic id3v1 tags 1| text2wave - | lame --resample 48 - "access_1.mp3"
+chmod 777 access_1.mp3
+
+echo Basic id3v1 tags 1| text2wave - | lame --resample 48 - "access_2.mp3"
+chmod 666 access_2.mp3
+
+echo Basic id3v1 tags 1| text2wave - | lame --resample 48 - "access_3.mp3"
+chmod 555 access_3.mp3
+
+echo Basic id3v1 tags 1| text2wave - | lame --resample 48 - "access_4.mp3"
+chmod 444 access_4.mp3
+
 # *** Basic id3v1 tags (ver 1 layer 3) ***
 
 echo Basic id3v1 tags 1| text2wave - | lame --resample 48 - "id3v1_basic_1.mp3"

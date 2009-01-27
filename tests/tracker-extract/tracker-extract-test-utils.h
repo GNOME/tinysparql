@@ -36,6 +36,9 @@ void              extract_file (const TrackerExtractorData *data,
 void              performance_extract_files (const TrackerExtractorData *data, 
 					     const gchar *filematch, 
 					     guint filecount);
+void              access_extract_files (const TrackerExtractorData *data, 
+					const gchar *filematch, 
+					guint filecount);
 
 GHashTable *            parse_testdata_file        (const gchar *filename);
 void                    dump_metadata              (GHashTable *metadata);
