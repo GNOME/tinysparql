@@ -41,23 +41,6 @@
 
 #define TRACKER_MONITOR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_MONITOR, TrackerMonitorPrivate))
 
-/* Each file that a monitor event is received for is added to the
- * black list with a number. This number is the count for how many
- * events we have received for that file. If the count is above this
- * number below, then it is officially black listed and we don't
- * propagate events up the stack.
- */
-#define BLACK_LIST_MAX_HITS    5
-
-/* Each file is only on the black list for a certain time before it
- * is removed. When it is removed, a signal is emitted to force the
- * indexer to check the file out. This means, for example, if you
- * download a file, the indexer only indexes it AFTER this timeout
- * below AFTER it has stopped getting events. The timeout is in
- * seconds.
- */
-#define BLACK_LIST_MAX_SECONDS 30
-
 /* When we receive IO monitor events, we pause sending information to
  * the indexer for a few seconds before continuing. We have to receive
  * NO events for at least a few seconds before unpausing.
@@ -75,9 +58,6 @@ struct _TrackerMonitorPrivate {
 	GHashTable    *modules;
 
 	gboolean       enabled;
-
-	guint	       black_list_timeout_id;
-	GHashTable    *black_list;
 
 	GType	       monitor_backend;
 
@@ -108,7 +88,6 @@ typedef struct {
 	GFile    *file;
 	GTimeVal  time;
 	guint32   event_type;
-	guint     black_list_count;
 } EventData;
 
 enum {
@@ -134,12 +113,8 @@ static void           tracker_monitor_get_property (GObject        *object,
 						    GValue         *value,
 						    GParamSpec     *pspec);
 static EventData *    event_data_new               (GFile          *file,
-						    GTimeVal        t,
-						    guint32         event_type,
-						    guint           black_list_count);
+						    guint32         event_type);
 static void           event_data_free              (gpointer        data);
-static gboolean       black_list_check_items_cb    (gpointer        data);
-static void           black_list_print_all         (TrackerMonitor *monitor);
 static guint          get_inotify_limit            (void);
 
 #ifdef USE_LIBINOTIFY
@@ -247,18 +222,6 @@ tracker_monitor_init (TrackerMonitor *object)
 				       g_str_equal,
 				       g_free,
 				       (GDestroyNotify) g_hash_table_unref);
-
-	/* The black list is for files which are CONSTANTLY being
-	 * updated causing a lot of traffic and processing. We add
-	 * these to the black list so we don't keep pushing events up
-	 * the stack. This is black list is not saved, it is per
-	 * session for the daemon only.
-	 */
-	priv->black_list =
-		g_hash_table_new_full (g_file_hash,
-				       (GEqualFunc) g_file_equal,
-				       NULL,
-				       event_data_free);
 
 #ifdef USE_LIBINOTIFY
 	/* We have a hash table with cookies so we can pair up move
@@ -396,14 +359,6 @@ tracker_monitor_finalize (GObject *object)
 	}
 #endif /* PAUSE_ON_IO */
 
-	black_list_print_all (TRACKER_MONITOR (object));
-
-	if (priv->black_list_timeout_id) {
-		g_source_remove (priv->black_list_timeout_id);
-	}
-
-	g_hash_table_unref (priv->black_list);
-
 #ifdef USE_LIBINOTIFY
 	if (priv->cached_events_timeout_id) {
 		g_source_remove (priv->cached_events_timeout_id);
@@ -462,19 +417,18 @@ tracker_monitor_get_property (GObject	   *object,
 }
 
 static EventData *
-event_data_new (GFile    *file, 
-		GTimeVal  t,
-		guint32   event_type,
-		guint     black_list_count)
+event_data_new (GFile   *file,
+		guint32  event_type)
 {
 	EventData *event;
+	GTimeVal now;
 
 	event = g_new0 (EventData, 1);
-	
+	g_get_current_time (&now);
+
 	event->file = g_object_ref (file);
-	event->time = t;
+	event->time = now;
 	event->event_type = event_type;
-	event->black_list_count = black_list_count;
 
 	return event;
 }
@@ -611,251 +565,6 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 	}
 
 	return module_name;
-}
-
-static gboolean
-black_list_file_should_be_ignored (TrackerMonitor *monitor,
-				   GFile          *file)
-{
-	EventData *event;
-	gpointer   data;
-
-	data = g_hash_table_lookup (monitor->private->black_list, file);
-
-	if (!data) {
-		return FALSE;
-	}
-		
-	event = data;
-
-	return event->black_list_count >= BLACK_LIST_MAX_HITS;
-}
-
-static gboolean
-black_list_check_items_cb (gpointer data)
-{
-	TrackerMonitor *monitor;
-	GHashTableIter	iter;
-	GTimeVal	now;
-	gchar	       *path;
-	gpointer	key;
-	gpointer	value;
-
-	monitor = data;
-
-	g_get_current_time (&now);
-
-	g_hash_table_iter_init (&iter, monitor->private->black_list);
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		EventData *event;
-		glong	   seconds;
-		glong      seconds_then;
-
-		event = value;
-
-		seconds_then = event->time.tv_sec;
-
-		seconds  = now.tv_sec;
-		seconds -= seconds_then;
-
-		/* Do absolutely nothing if this file hasn't been
-		 * black listed for at least BLACK_LIST_MAX_SECONDS.
-		 */
-		if (seconds < BLACK_LIST_MAX_SECONDS) {
-			continue;
-		}
-
-		path = g_file_get_path (key);
-		g_debug ("Removing '%s' from black list count", path);
-		g_free (path);
-
-		/* Only signal if count >= BLACK_LIST_MAX_HITS, since
-		 * we have mitigated signals due to spamming, so we
-		 * make sure that we signal the indexer that this
-		 * file needs a check.
-		 */
-		if (black_list_file_should_be_ignored (monitor, key)) {
-			const gchar *module_name;
-			gboolean     is_directory;
-
-			module_name = get_module_name_from_gfile (data,
-								  key,
-								  &is_directory);
-			if (!module_name) {
-				continue;
-			}
-
-#ifdef USE_LIBINOTIFY
-			switch (event->event_type) {
-			case IN_MODIFY:
-			case IN_CLOSE_WRITE:
-			case IN_ATTRIB:
-				g_signal_emit (monitor,
-					       signals[ITEM_UPDATED], 0,
-					       module_name,
-					       key,
-					       is_directory);
-				break;
-
-			case IN_DELETE:
-			case IN_DELETE_SELF:
-				if (is_directory) {
-					tracker_monitor_remove (monitor, 
-								module_name, 
-								event->file);
-				}
-
-				g_signal_emit (monitor,
-					       signals[ITEM_DELETED], 0,
-					       module_name,
-					       key,
-					       is_directory);
-				break;
-				
-			case IN_CREATE:
-				g_signal_emit (monitor,
-					       signals[ITEM_CREATED], 0,
-					       module_name,
-					       key,
-					       is_directory);
-				break;
-
-			case IN_UNMOUNT:
-				if (is_directory) {
-					tracker_monitor_remove (monitor, 
-								module_name, 
-								key);
-				}
-
-				g_signal_emit (monitor,
-					       signals[ITEM_DELETED], 0,
-					       module_name,
-					       key,
-					       is_directory);
-				break;
-			default:
-				break;
-			}
-#else  /* USE_LIBINOTIFY */
-			g_signal_emit (monitor,
-				       signals[ITEM_UPDATED], 0,
-				       module_name,
-				       key,
-				       is_directory);
-#endif /* USE_LIBINOTIFY */
-		}
-
-		/* Remove from hash tables (i.e. white list it) */
-		g_hash_table_iter_remove (&iter);
-	}
-
-	/* If the hash tables are empty, don't keep calling this
-	 * callback, this interrupts and wastes battery. Set up the
-	 * timeout again when we need it instead.
-	 */
-	if (g_hash_table_size (monitor->private->black_list) < 1) {
-		g_debug ("No further items on the black list, removing check timeout");
-		monitor->private->black_list_timeout_id = 0;
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static void
-black_list_file_increment (TrackerMonitor *monitor,
-			   GFile	  *file,
-			   guint32         event_type)
-{
-	EventData *event;
-	GTimeVal   now;
-	gchar	  *path;
-	gpointer   data;
-
-	data = g_hash_table_lookup (monitor->private->black_list, file);
-	event = data;
-
-	g_get_current_time (&now);
-
-	if (!event) {
-		event = event_data_new (file, now, event_type, 0);
-		
-		g_hash_table_insert (monitor->private->black_list,
-				     event->file,
-				     event);
-	} else {
-		/* Replace the black listed item with the updated count for
-		 * how many times an event has occurred for this path and the
-		 * last time an event occured.
-		 */
-		event->time = now;
-
-		/* Should we just set the event type? What if we get
-		 * CREATED then UPDATED? We should probably emit
-		 * UPDATED because the CREATED is cached already.
-		 *
-		 * If we get UPDATED, UPDATED, UPDATED then DELETED,
-		 * we should send DELETED instead. 
-		 *
-		 * So this is always the LAST event we got. If there
-		 * are any cases where we shouldn't do this, feel free
-		 * to change this implementation.
-		 */
-		event->event_type = event_type;
-		event->black_list_count++;
-	}
-
-	if (monitor->private->black_list_timeout_id == 0) {
-		monitor->private->black_list_timeout_id =
-			g_timeout_add_seconds (1,
-					       black_list_check_items_cb,
-					       monitor);
-	}
-
-	path = g_file_get_path (file);
-
-	if (event->black_list_count <= BLACK_LIST_MAX_HITS) {
-		g_debug ("Adding '%s' to black list count:%d (MAX is %d) %s",
-			 path,
-			 event->black_list_count,
-			 BLACK_LIST_MAX_HITS,
-			 event->black_list_count == BLACK_LIST_MAX_HITS ? "- LAST NOTICE" : "");
-	}
-
-	g_free (path);
-}
-
-static void
-black_list_print_all (TrackerMonitor *monitor)
-{
-	GHashTableIter	iter;
-	gchar	       *path;
-	gpointer	key;
-	gpointer	value;
-	gboolean	none = TRUE;
-
-	g_message ("Summary of black list: (with >= %d events)",
-		   BLACK_LIST_MAX_HITS);
-
-	g_hash_table_iter_init (&iter, monitor->private->black_list);
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		EventData *event;
-
-		if (!black_list_file_should_be_ignored (monitor, key)) {
-			continue;
-		}
-
-		event = value;
-		none = FALSE;
-
-		path = g_file_get_path (key);
-		g_message ("  %s (%d events)", path, event->black_list_count);
-		g_free (path);
-	}
-
-	if (none) {
-		g_message ("  NONE");
-	}
 }
 
 #ifdef PAUSE_ON_IO 
@@ -1138,13 +847,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		case IN_MODIFY:
 		case IN_CLOSE_WRITE:
 		case IN_ATTRIB:
-			/* Remove any black list events for this file,
-			 * since it can not be cached and black listed
-			 * if one or the other expires. 
-			 */
-			g_hash_table_remove (monitor->private->black_list, 
-					     event->file);
-
 			g_signal_emit (monitor,
 				       signals[ITEM_UPDATED], 0,
 				       module_name,
@@ -1165,13 +867,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 							event->file);
 			}
 
-			/* Remove any black list events for this file,
-			 * since it can not be cached and black listed
-			 * if one or the other expires. 
-			 */
-			g_hash_table_remove (monitor->private->black_list, 
-					     event->file);
-
 			g_signal_emit (monitor,
 				       signals[ITEM_DELETED], 0,
 				       module_name,
@@ -1186,13 +881,6 @@ libinotify_cached_events_timeout_cb (gpointer data)
 			 */
 
 		case IN_CREATE:
-			/* Remove any black list events for this file,
-			 * since it can not be cached and black listed
-			 * if one or the other expires. 
-			 */
-			g_hash_table_remove (monitor->private->black_list, 
-					     event->file);
-
 			g_signal_emit (monitor,
 				       signals[ITEM_CREATED], 0,
 				       module_name,
@@ -1232,6 +920,8 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 	gchar	       *str2;
 	gboolean	is_directory;
 	gchar	       *event_type_str;
+	EventData      *data = NULL;
+	gboolean        set_up_cache_timeout = FALSE;
 
 	monitor = user_data;
 
@@ -1275,29 +965,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		str1 = g_file_get_path (file);
 	}
 
-	/* This doesn't outright black list a file, it purely adds
-	 * each file to the hash table so we have a count for every
-	 * path we get an event for. If the count is too high, we
-	 * then don't propagate the event up.
-	 */
-	switch (event_type) {
-	case IN_MOVE_SELF:
-	case IN_MOVED_FROM:
-	case IN_MOVED_TO:
-		/* If the event is a move type, we don't increment the
-		 * black list count to avoid missing the second event
-		 * to pair the two up.
-		 */
-
-	case IN_UNMOUNT:
-		/* Don't black list this event, it is important */
-		break;
-
-	default:
-		black_list_file_increment (monitor, file, event_type);
-		break;
-	}
-
 	if (other_file) {
 		str2 = g_file_get_path (other_file);
 	} else {
@@ -1312,186 +979,98 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		   cookie);
 	g_free (event_type_str);
 
-	if (!black_list_file_should_be_ignored (monitor, file)) {
-		EventData *data = NULL;
-		GTimeVal   now;
-		gboolean   set_up_cache_timeout = FALSE;
-
 #ifdef PAUSE_ON_IO
-		if (monitor->private->unpause_timeout_id != 0) {
-			g_source_remove (monitor->private->unpause_timeout_id);
-		} else {
-			g_message ("Pausing indexing because we are "
-				   "receiving monitor events");
+	if (monitor->private->unpause_timeout_id != 0) {
+		g_source_remove (monitor->private->unpause_timeout_id);
+	} else {
+		g_message ("Pausing indexing because we are "
+			   "receiving monitor events");
 
-			tracker_status_set_is_paused_for_io (TRUE);
+		tracker_status_set_is_paused_for_io (TRUE);
 
-			org_freedesktop_Tracker_Indexer_pause_async (tracker_dbus_indexer_get_proxy (),
-								     indexer_pause_cb,
-								     NULL);
-		}
+		org_freedesktop_Tracker_Indexer_pause_async (tracker_dbus_indexer_get_proxy (),
+							     indexer_pause_cb,
+							     NULL);
+	}
 
-		monitor->private->unpause_timeout_id =
-			g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
-					       unpause_cb,
-					       monitor);
+	monitor->private->unpause_timeout_id =
+		g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
+				       unpause_cb,
+				       monitor);
 #endif /* PAUSE_ON_IO */
 
-		if (cookie > 0) {
-			/* First check if we already have a file in
-			 * the event pairs hash table.
-			 */
-			data = g_hash_table_lookup (monitor->private->event_pairs,
-						    GUINT_TO_POINTER (cookie));
+	if (cookie > 0) {
+		/* First check if we already have a file in
+		 * the event pairs hash table.
+		 */
+		data = g_hash_table_lookup (monitor->private->event_pairs,
+					    GUINT_TO_POINTER (cookie));
 
-			if (!data) {
-				g_get_current_time (&now);
-				data = event_data_new (file, now, event_type, 0);
-				
-				g_hash_table_insert (monitor->private->event_pairs,
-						     GUINT_TO_POINTER (cookie),
-						     data);
-			} else {
-				other_file = data->file;
-			}
+		if (!data) {
+			data = event_data_new (file, event_type);
 
-			/* Add a check for old cookies we didn't
-			 * receive the follow up pair event for.
-			 */
-			if (!monitor->private->event_pairs_timeout_id) {
-				g_debug ("Setting up event pair timeout check");
-
-				monitor->private->event_pairs_timeout_id =
-					g_timeout_add_seconds (2,
-							       libinotify_event_pairs_timeout_cb,
-							       monitor);
-			}
+			g_hash_table_insert (monitor->private->event_pairs,
+					     GUINT_TO_POINTER (cookie),
+					     data);
+		} else {
+			other_file = data->file;
 		}
 
-		switch (event_type) {
-		case IN_MODIFY:
-			if (!monitor->private->use_changed_event) {
-				/* Do nothing */
-				break;
-			}
+		/* Add a check for old cookies we didn't
+		 * receive the follow up pair event for.
+		 */
+		if (!monitor->private->event_pairs_timeout_id) {
+			g_debug ("Setting up event pair timeout check");
 
-		case IN_CLOSE_WRITE:
-		case IN_ATTRIB:
-			if (g_hash_table_lookup (monitor->private->cached_events, file)) {
-				/* We already have an even we will
-				 * signal when we timeout. So don't
-				 * propagate this event.
-				 *
-				 * See IN_CREATE.
-				 */
-				break;
-			}			
+			monitor->private->event_pairs_timeout_id =
+				g_timeout_add_seconds (2,
+						       libinotify_event_pairs_timeout_cb,
+						       monitor);
+		}
+	}
 
-			/* Here we just wait to make sure we don't get
-			 * any more MODIFY events and after 2 seconds
-			 * of no MODIFY events we emit it. This saves
-			 * spamming. 
+	switch (event_type) {
+	case IN_MODIFY:
+		if (!monitor->private->use_changed_event) {
+			/* Do nothing */
+			break;
+		}
+
+	case IN_CLOSE_WRITE:
+	case IN_ATTRIB:
+		if (g_hash_table_lookup (monitor->private->cached_events, file)) {
+			/* We already have an even we will
+			 * signal when we timeout. So don't
+			 * propagate this event.
+			 *
+			 * See IN_CREATE.
 			 */
-			g_get_current_time (&now);
-			data = event_data_new (file, now, event_type, 0);
-
-			g_hash_table_insert (monitor->private->cached_events,
-					     data->file,
-					     data);
-
-			set_up_cache_timeout = TRUE;
-			
 			break;
+		}
 
-		case IN_MOVED_FROM:
-		case IN_DELETE:
-		case IN_DELETE_SELF:
-			if (cookie == 0) {
-				if (is_directory) {
-					tracker_monitor_remove (monitor, 
-								module_name, 
-								file);
-				}
+		/* Here we just wait to make sure we don't get
+		 * any more MODIFY events and after 2 seconds
+		 * of no MODIFY events we emit it. This saves
+		 * spamming.
+		 */
+		data = event_data_new (file, event_type);
 
-				g_signal_emit (monitor,
-					       signals[ITEM_DELETED], 0,
-					       module_name,
-					       file,
-					       is_directory);
-			} else if (other_file) {
-				g_signal_emit (monitor,
-					       signals[ITEM_MOVED], 0,
-					       module_name,
-					       file,
-					       other_file,
-					       is_directory, 
-					       TRUE);
-				g_hash_table_remove (monitor->private->event_pairs,
-						     GUINT_TO_POINTER (cookie));
-			}
+		g_hash_table_insert (monitor->private->cached_events,
+				     data->file,
+				     data);
 
-			break;
+		set_up_cache_timeout = TRUE;
 
-		case IN_CREATE:
-			/* Here we just wait with CREATE events and
-			 * if we get MODIFY after, we drop the MODIFY
-			 * and just emit CREATE because otherwise we
-			 * send twice as much traffic to the indexer.
-			 */
-			g_get_current_time (&now);
-			data = event_data_new (file, now, event_type, 0);
+		break;
 
-			g_hash_table_insert (monitor->private->cached_events,
-					     data->file,
-					     data);
-
-			set_up_cache_timeout = TRUE;
-
-			break;
-
-		case IN_MOVED_TO:
-			if (cookie == 0) {
-				g_signal_emit (monitor,
-					       signals[ITEM_CREATED], 0,
-					       module_name,
-					       file,
-					       is_directory);
-			} else if (other_file) {
-				gboolean is_source_indexed;
-
-				/* We check for the event pair in the
-				 * hash table here. If it doesn't
-				 * exist even though we have a cookie
-				 * it means we didn't have a monitor
-				 * set up on the source location.
-				 * This means we need to get the
-				 * processor to crawl the new
-				 * location.
-				 */
-
-				if (g_hash_table_lookup (monitor->private->event_pairs, 
-							 GUINT_TO_POINTER (cookie))) {
-					is_source_indexed = TRUE;
-				} else {
-					is_source_indexed = FALSE;
-				}
-
-				g_signal_emit (monitor,
-					       signals[ITEM_MOVED], 0,
-					       module_name,
-					       other_file,
-					       file,
-					       is_directory,
-					       is_source_indexed);
-				g_hash_table_remove (monitor->private->event_pairs,
-						     GUINT_TO_POINTER (cookie));
-			}
-
-			break;
-
-		case IN_UNMOUNT:
+	case IN_MOVED_FROM:
+	case IN_DELETE:
+	case IN_DELETE_SELF:
+		if (cookie == 0) {
 			if (is_directory) {
-				tracker_monitor_remove (monitor, module_name, file);
+				tracker_monitor_remove (monitor,
+							module_name,
+							file);
 			}
 
 			g_signal_emit (monitor,
@@ -1499,29 +1078,106 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 				       module_name,
 				       file,
 				       is_directory);
-			break;
+		} else if (other_file) {
+			g_signal_emit (monitor,
+				       signals[ITEM_MOVED], 0,
+				       module_name,
+				       file,
+				       other_file,
+				       is_directory, 
+				       TRUE);
+			g_hash_table_remove (monitor->private->event_pairs,
+					     GUINT_TO_POINTER (cookie));
+		}
 
-		case IN_MOVE_SELF:
-			/* We ignore this one because it is a
-			 * convenience state and we handle the
-			 * MOVE_TO and MOVE_FROM already. 
+		break;
+
+	case IN_CREATE:
+		/* Here we just wait with CREATE events and
+		 * if we get MODIFY after, we drop the MODIFY
+		 * and just emit CREATE because otherwise we
+		 * send twice as much traffic to the indexer.
+		 */
+		data = event_data_new (file, event_type);
+
+		g_hash_table_insert (monitor->private->cached_events,
+				     data->file,
+				     data);
+
+		set_up_cache_timeout = TRUE;
+
+		break;
+
+	case IN_MOVED_TO:
+		if (cookie == 0) {
+			g_signal_emit (monitor,
+				       signals[ITEM_CREATED], 0,
+				       module_name,
+				       file,
+				       is_directory);
+		} else if (other_file) {
+			gboolean is_source_indexed;
+
+			/* We check for the event pair in the
+			 * hash table here. If it doesn't
+			 * exist even though we have a cookie
+			 * it means we didn't have a monitor
+			 * set up on the source location.
+			 * This means we need to get the
+			 * processor to crawl the new
+			 * location.
 			 */
-			break;
-		default:
-			break;
+
+			if (g_hash_table_lookup (monitor->private->event_pairs,
+						 GUINT_TO_POINTER (cookie))) {
+				is_source_indexed = TRUE;
+			} else {
+				is_source_indexed = FALSE;
+			}
+
+			g_signal_emit (monitor,
+				       signals[ITEM_MOVED], 0,
+				       module_name,
+				       other_file,
+				       file,
+				       is_directory,
+				       is_source_indexed);
+			g_hash_table_remove (monitor->private->event_pairs,
+					     GUINT_TO_POINTER (cookie));
 		}
 
-		if (set_up_cache_timeout && 
-		    monitor->private->cached_events_timeout_id == 0) {
-			g_debug ("Setting up cached events timeout check");
-			
-			monitor->private->cached_events_timeout_id =
-				g_timeout_add_seconds (2,
-						       libinotify_cached_events_timeout_cb,
-						       monitor);
+		break;
+
+	case IN_UNMOUNT:
+		if (is_directory) {
+			tracker_monitor_remove (monitor, module_name, file);
 		}
-	} else {
-		g_message ("Not propagating event, file is black listed");
+
+		g_signal_emit (monitor,
+			       signals[ITEM_DELETED], 0,
+			       module_name,
+			       file,
+			       is_directory);
+		break;
+
+	case IN_MOVE_SELF:
+		/* We ignore this one because it is a
+		 * convenience state and we handle the
+		 * MOVE_TO and MOVE_FROM already.
+		 */
+		break;
+	default:
+		break;
+	}
+
+	if (set_up_cache_timeout &&
+	    monitor->private->cached_events_timeout_id == 0) {
+		g_debug ("Setting up cached events timeout check");
+
+		monitor->private->cached_events_timeout_id =
+			g_timeout_add_seconds (2,
+					       libinotify_cached_events_timeout_cb,
+					       monitor);
 	}
 
 	g_free (str1);
@@ -1620,13 +1276,6 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 
 	str1 = g_file_get_path (file);
 
-	/* This doesn't outright black list a file, it purely adds
-	 * each file to the hash table so we have a count for every
-	 * path we get an event for. If the count is too high, we
-	 * then don't propagate the event up.
-	 */
-	black_list_file_increment (monitor, file, event_type);
-
 	if (other_file) {
 		str2 = g_file_get_path (other_file);
 	} else {
@@ -1639,79 +1288,75 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 		   str1,
 		   str2 ? str2 : "");
 
-	if (!black_list_file_should_be_ignored (monitor, file)) {
 #ifdef PAUSE_ON_IO
-		if (monitor->private->unpause_timeout_id != 0) {
-			g_source_remove (monitor->private->unpause_timeout_id);
-		} else {
-			g_message ("Pausing indexing because we are "
-				   "receiving monitor events");
+	if (monitor->private->unpause_timeout_id != 0) {
+		g_source_remove (monitor->private->unpause_timeout_id);
+	} else {
+		g_message ("Pausing indexing because we are "
+			   "receiving monitor events");
 
-			tracker_status_set_is_paused_for_io (TRUE);
+		tracker_status_set_is_paused_for_io (TRUE);
 
-			org_freedesktop_Tracker_Indexer_pause_async (tracker_dbus_indexer_get_proxy (),
-								     indexer_pause_cb,
-								     NULL);
-		}
+		org_freedesktop_Tracker_Indexer_pause_async (tracker_dbus_indexer_get_proxy (),
+							     indexer_pause_cb,
+							     NULL);
+	}
 
-		monitor->private->unpause_timeout_id =
-			g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
-					       unpause_cb,
-					       monitor);
+	monitor->private->unpause_timeout_id =
+		g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
+				       unpause_cb,
+				       monitor);
 #endif /* PAUSE_ON_IO */
 
-		switch (event_type) {
-		case G_FILE_MONITOR_EVENT_CHANGED:
-			if (!monitor->private->use_changed_event) {
-				/* Do nothing */
-				break;
-			}
-
-		case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-		case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
-			g_signal_emit (monitor,
-				       signals[ITEM_UPDATED], 0,
-				       module_name,
-				       file,
-				       is_directory);
-			break;
-
-		case G_FILE_MONITOR_EVENT_DELETED:
-			if (is_directory) {
-				tracker_monitor_remove (monitor, 
-							module_name, 
-							file);
-			}
-
-			g_signal_emit (monitor,
-				       signals[ITEM_DELETED], 0,
-				       module_name,
-				       file,
-				       is_directory);
-			break;
-
-		case G_FILE_MONITOR_EVENT_CREATED:
-			g_signal_emit (monitor,
-				       signals[ITEM_CREATED], 0,
-				       module_name,
-				       file,
-				       is_directory);
-			break;
-
-		case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
-			g_signal_emit (monitor,
-				       signals[ITEM_DELETED], 0,
-				       module_name,
-				       file,
-				       is_directory);
-			break;
-
-		case G_FILE_MONITOR_EVENT_UNMOUNTED:
+	switch (event_type) {
+	case G_FILE_MONITOR_EVENT_CHANGED:
+		if (!monitor->private->use_changed_event) {
 			/* Do nothing */
 			break;
 		}
-	} else {
-		g_message ("Not propagating event, file is black listed");
+
+	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
+	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
+		g_signal_emit (monitor,
+			       signals[ITEM_UPDATED], 0,
+			       module_name,
+			       file,
+			       is_directory);
+		break;
+
+	case G_FILE_MONITOR_EVENT_DELETED:
+		if (is_directory) {
+			tracker_monitor_remove (monitor,
+						module_name,
+						file);
+		}
+
+		g_signal_emit (monitor,
+			       signals[ITEM_DELETED], 0,
+			       module_name,
+			       file,
+			       is_directory);
+		break;
+
+	case G_FILE_MONITOR_EVENT_CREATED:
+		g_signal_emit (monitor,
+			       signals[ITEM_CREATED], 0,
+			       module_name,
+			       file,
+			       is_directory);
+		break;
+
+	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+		g_signal_emit (monitor,
+			       signals[ITEM_DELETED], 0,
+			       module_name,
+			       file,
+			       is_directory);
+		break;
+
+	case G_FILE_MONITOR_EVENT_UNMOUNTED:
+		/* Do nothing */
+		break;
 	}
 
 	g_free (str1);

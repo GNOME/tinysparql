@@ -1,3 +1,9 @@
+2009-01-27  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-monitor.c: Remove blacklist, since the events
+	cache already prevents spamming tracker-indexer with too frequent
+	update events.
+
 2009-01-26  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* tests/tracker-extract/Makefile.am
