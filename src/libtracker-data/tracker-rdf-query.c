@@ -725,11 +725,19 @@ start_element_handler (GMarkupParseContext  *context,
 static gchar *
 get_value (const gchar *value, gboolean quote)
 {
+	gchar *escaped;
+	gchar *ret;
+
+	escaped = tracker_escape_string(value);
 	if (quote) {
-		return g_strconcat (" '", value, "' ", NULL);
+		ret = g_strconcat (" '", escaped, "' ", NULL);
 	} else {
-		return g_strdup (value);
+		ret = g_strdup (escaped);
 	}
+
+	g_free (escaped);
+
+	return ret;
 }
 
 static gboolean
@@ -1236,10 +1244,8 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 				value = g_strdup (keywords[keyword]);
 			}
 
-			g_debug ("Adding key: %s Value:%s", key, value);
-
 			list = g_hash_table_lookup (table, key);
-			list = g_list_prepend (list, g_strdup (value));
+			list = g_list_prepend (list, tracker_escape_string(value));
 			g_hash_table_insert (table, g_strdup (key), list);
 
 			g_free (full);
