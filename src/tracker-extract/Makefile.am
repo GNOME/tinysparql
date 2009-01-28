@@ -64,9 +64,9 @@ if HAVE_GSTREAMER
 modules_LTLIBRARIES += libextract-gstreamer.la
 endif
 
-if HAVE_GSTREAMER
-modules_LTLIBRARIES += libextract-gstreamer-tagreadbin.la
-endif
+#if HAVE_GSTREAMER
+#modules_LTLIBRARIES += libextract-gstreamer-tagreadbin.la
+#endif
 
 if HAVE_GST_HELIX
 modules_LTLIBRARIES += libextract-gstreamer-helix.la
