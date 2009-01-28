@@ -176,9 +176,9 @@ libextract_gstreamer_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_gstreamer_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS)
 
 # GStreamer tagreadbin
-libextract_gstreamer_tagreadbin_la_SOURCES = tracker-extract-gstreamer-tagreadbin.c $(albumart_sources) $(escape_sources)
-libextract_gstreamer_tagreadbin_la_LDFLAGS = $(module_flags) $(albumart_flags)
-libextract_gstreamer_tagreadbin_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS)
+#libextract_gstreamer_tagreadbin_la_SOURCES = tracker-extract-gstreamer-tagreadbin.c $(albumart_sources) $(escape_sources)
+#libextract_gstreamer_tagreadbin_la_LDFLAGS = $(module_flags) $(albumart_flags)
+#libextract_gstreamer_tagreadbin_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS)
 
 # GStreamer helix
 libextract_gstreamer_helix_la_SOURCES = tracker-extract-gstreamer-helix.c $(albumart_sources) $(escape_sources)
