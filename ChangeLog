@@ -1,5 +1,10 @@
 2009-01-28  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/libtracker-data/tracker-rdf-query.c: Performance improved
+	way of including tags in queries.
+
+2009-01-28  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-gstreamer-tagreadbin.c:
 	Added an initial tagreadbin extractor.
 

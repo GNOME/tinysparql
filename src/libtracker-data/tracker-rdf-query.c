@@ -1216,6 +1216,13 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 					table_name);
 	}
 
+	data.sql_where = g_string_new ("");
+
+	g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
+
+	/* only search for items on enabled volumes */
+	g_string_append_printf (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
+
 	if (keyword_count > 0) {
 		guint keyword;
 		GHashTable *table = NULL;
@@ -1257,17 +1264,26 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			GList *l = NULL;
 			gchar *keyword_metadata;
 
-			count++;
 			keyword_metadata = tracker_data_schema_metadata_field_get_related_names (iface, key);
-			g_string_append_printf (data.sql_from,
-						"\n INNER JOIN ServiceKeywordMetaData K%d ON K%d.MetaDataID in (%s)",
-						count, count, keyword_metadata);
+			g_string_append_printf (data.sql_where,
+						" AND (S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetaDataID in (%s) AND ( ",
+						keyword_metadata);
 
+
+			count = 0;
 			for (l = list; l; l = l->next) {
-				g_string_append_printf (data.sql_from,
-							" AND S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetadataValue = '%s')",
+				if (count) {
+					g_string_append_printf (data.sql_where,
+								" OR ");
+				}
+				count++;
+				g_string_append_printf (data.sql_where,
+				    " (MetadataValue = '%s') ",
 							(gchar*) l->data);
 			}
+
+			g_string_append_printf (data.sql_where,
+						" ))) ");
 
 			g_list_foreach(list, (GFunc)g_free, NULL);
 			g_list_free (list);
@@ -1276,13 +1292,6 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 		}
 		g_hash_table_destroy (table);
 	}
-
-	data.sql_where = g_string_new ("");
-
-	g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
-
-	/* only search for items on enabled volumes */
-	g_string_append_printf (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
 
 	if (strlen (query) >= 10) {
 		g_string_append_printf (data.sql_where, "AND ");
