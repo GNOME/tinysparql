@@ -136,6 +136,7 @@ tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object,
 				 const gchar *subject, 
 				 const GStrv predicates,
 				 const GStrv values,
+				 const guint modseq,
 				 DBusGMethodInvocation *context,
 				 GError *derror)
 {
@@ -153,6 +154,7 @@ tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object,
 					    G_TYPE_STRING, subject,
 					    G_TYPE_STRV, predicates,
 					    G_TYPE_STRV, values,
+					    G_TYPE_UINT, modseq,
 					    G_TYPE_INVALID, 
 					    G_TYPE_INVALID);
 	}
@@ -165,6 +167,7 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 				      const GStrv subjects, 
 				      const GPtrArray *predicates,
 				      const GPtrArray *values,
+				      const guint modseq,
 				      DBusGMethodInvocation *context,
 				      GError *derror)
 {
@@ -185,6 +188,7 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 				    G_TYPE_STRV, subjects,
 				    TRACKER_TYPE_G_STRV_ARRAY, predicates,
 				    TRACKER_TYPE_G_STRV_ARRAY, values,
+				    G_TYPE_UINT, modseq,
 				    G_TYPE_INVALID, 
 				    G_TYPE_INVALID);
 
@@ -194,6 +198,7 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 void
 tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object, 
 					const GStrv subjects, 
+					const guint modseq,
 					DBusGMethodInvocation *context,
 					GError *derror)
 {
@@ -204,6 +209,7 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 	dbus_g_proxy_call_no_reply (priv->idx_proxy,
 				    "UnsetMany",
 				    G_TYPE_STRV, subjects,
+				    G_TYPE_UINT, modseq,
 				    G_TYPE_INVALID, 
 				    G_TYPE_INVALID);
 
@@ -213,6 +219,7 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 void
 tracker_evolution_registrar_unset (TrackerEvolutionRegistrar *object, 
 				   const gchar *subject, 
+				   const guint modseq,
 				   DBusGMethodInvocation *context,
 				   GError *derror)
 {
@@ -223,6 +230,7 @@ tracker_evolution_registrar_unset (TrackerEvolutionRegistrar *object,
 	dbus_g_proxy_call_no_reply (priv->idx_proxy,
 				    "Unset",
 				    G_TYPE_STRING, subject,
+				    G_TYPE_UINT, modseq,
 				    G_TYPE_INVALID, 
 				    G_TYPE_INVALID);
 
@@ -231,6 +239,7 @@ tracker_evolution_registrar_unset (TrackerEvolutionRegistrar *object,
 
 void
 tracker_evolution_registrar_cleanup (TrackerEvolutionRegistrar *object, 
+				     const guint modseq,
 				     DBusGMethodInvocation *context,
 				     GError *derror)
 {
@@ -238,6 +247,7 @@ tracker_evolution_registrar_cleanup (TrackerEvolutionRegistrar *object,
 
 	dbus_g_proxy_call_no_reply (priv->idx_proxy,
 				    "Cleanup",
+				    G_TYPE_UINT, modseq,
 				    G_TYPE_INVALID, 
 				    G_TYPE_INVALID);
 

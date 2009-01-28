@@ -650,6 +650,7 @@ introduce_walk_folders_in_folder (TrackerEvolutionPlugin *self,
 							    G_TYPE_STRV, subjects,
 							    TRACKER_TYPE_G_STRV_ARRAY, predicates_array,
 							    TRACKER_TYPE_G_STRV_ARRAY, values_array,
+							    G_TYPE_UINT, (guint) time (NULL),
 							    G_TYPE_INVALID, 
 							    G_TYPE_INVALID);
 
@@ -770,6 +771,7 @@ introduce_store_deal_with_deleted (TrackerEvolutionPlugin *self,
 			dbus_g_proxy_call_no_reply (info->registrar,
 						    "UnsetMany",
 						    G_TYPE_STRV, subjects,
+						    G_TYPE_UINT, (guint) time (NULL),
 						    G_TYPE_INVALID,
 						    G_TYPE_INVALID);
 
@@ -1091,6 +1093,7 @@ register_client (TrackerEvolutionPlugin *self,
 	if (last_checkout < too_old) {
 		dbus_g_proxy_call_no_reply (registrar,
 					    "Cleanup",
+					    G_TYPE_UINT, (guint) time (NULL),
 					    G_TYPE_INVALID,
 					    G_TYPE_INVALID);
 		info->last_checkout = 0;
@@ -1127,6 +1130,7 @@ metadata_set_many (TrackerEvolutionPlugin *self,
 					    G_TYPE_STRV, subjects,
 					    TRACKER_TYPE_G_STRV_ARRAY, predicates,
 					    TRACKER_TYPE_G_STRV_ARRAY, values,
+					    G_TYPE_UINT, (guint) time (NULL),
 					    G_TYPE_INVALID, 
 					    G_TYPE_INVALID);
 	}
@@ -1152,6 +1156,7 @@ metadata_unset_many (TrackerEvolutionPlugin *self,
 		dbus_g_proxy_call_no_reply (registrar,
 					    "UnsetMany",
 					    G_TYPE_STRV, subjects,
+					    G_TYPE_UINT, (guint) time (NULL),
 					    G_TYPE_INVALID, 
 					    G_TYPE_INVALID);
 	}

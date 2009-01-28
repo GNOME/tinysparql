@@ -36,6 +36,7 @@
 #include <gmime/gmime.h>
 
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-data-manager.h>
 
 /* This is okay, we run in-process of the indexer: we can access its symbols */
 #include <tracker-indexer/tracker-module.h>
@@ -475,11 +476,18 @@ perform_cleanup (TrackerEvolutionIndexer *object)
 	tracker_data_update_delete_service_all ("EvolutionEmails");
 }
 
+static void
+set_stored_last_modseq (guint last_modseq)
+{
+	tracker_data_manager_set_db_option_int ("EvolutionLastCheckout", (gint) last_modseq);
+}
+
 void
 tracker_evolution_indexer_set (TrackerEvolutionIndexer *object, 
 			       const gchar *subject, 
 			       const GStrv predicates,
 			       const GStrv values,
+			       const guint modseq,
 			       DBusGMethodInvocation *context,
 			       GError *derror)
 {
@@ -493,6 +501,8 @@ tracker_evolution_indexer_set (TrackerEvolutionIndexer *object,
 		perform_set (object, subject, predicates, values);
 	}
 
+	set_stored_last_modseq (modseq);
+
 	dbus_g_method_return (context);
 }
 
@@ -501,6 +511,7 @@ tracker_evolution_indexer_set_many (TrackerEvolutionIndexer *object,
 				    const GStrv subjects, 
 				    const GPtrArray *predicates,
 				    const GPtrArray *values,
+				    const guint modseq,
 				    DBusGMethodInvocation *context,
 				    GError *derror)
 {
@@ -525,12 +536,15 @@ tracker_evolution_indexer_set_many (TrackerEvolutionIndexer *object,
 		i++;
 	}
 
+	set_stored_last_modseq (modseq);
+
 	dbus_g_method_return (context);
 }
 
 void
 tracker_evolution_indexer_unset_many (TrackerEvolutionIndexer *object, 
 				      const GStrv subjects, 
+				      const guint modseq,
 				      DBusGMethodInvocation *context,
 				      GError *derror)
 {
@@ -545,12 +559,15 @@ tracker_evolution_indexer_unset_many (TrackerEvolutionIndexer *object,
 		i++;
 	}
 
+	set_stored_last_modseq (modseq);
+
 	dbus_g_method_return (context);
 }
 
 void
 tracker_evolution_indexer_unset (TrackerEvolutionIndexer *object, 
 				 const gchar *subject, 
+				 const guint modseq,
 				 DBusGMethodInvocation *context,
 				 GError *derror)
 {
@@ -563,10 +580,13 @@ tracker_evolution_indexer_unset (TrackerEvolutionIndexer *object,
 
 void
 tracker_evolution_indexer_cleanup (TrackerEvolutionIndexer *object, 
+				   const guint modseq,
 				   DBusGMethodInvocation *context,
 				   GError *derror)
 {
 	perform_cleanup (object);
+
+	set_stored_last_modseq (modseq);
 
 	dbus_g_method_return (context);
 }

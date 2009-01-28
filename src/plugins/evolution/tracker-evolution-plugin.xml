@@ -4,7 +4,7 @@
     <method name="Register">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="o" name="registrar_path" direction="in" />
-      <arg type="u" name="last_checkout" direction="in" />
+      <arg type="u" name="last_modseq" direction="in" />
     </method>
   </interface>
 </node>

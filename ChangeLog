@@ -1,3 +1,18 @@
+2009-01-28  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/plugins/evolution/tracker-evolution-indexer.h
+	* src/plugins/evolution/tracker-evolution-plugin.h
+	* src/plugins/evolution/tracker-evolution-registrar.h
+	* src/plugins/evolution/tracker-evolution-plugin.xml
+	* src/plugins/evolution/tracker-evolution-common.h
+	* src/plugins/evolution/tracker-evolution-indexer.c
+	* src/plugins/evolution/tracker-evolution-plugin.c
+	* src/plugins/evolution/tracker-evolution-registrar.xml
+	* src/plugins/evolution/tracker-evolution-registrar.c
+	* src/plugins/evolution/tracker-evolution.c
+	* data/db/sqlite-tracker.sql: Made the D-Bus API of the E-mail metadata
+	infrastructure less Evolution specific
+
 2009-01-28  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-rdf-query.c: Performance improved

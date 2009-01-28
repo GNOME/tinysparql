@@ -62,23 +62,28 @@ void  tracker_evolution_registrar_set         (TrackerEvolutionRegistrar *object
 					       const gchar *subject, 
 					       const GStrv predicates,
 					       const GStrv values,
+					       const guint modseq,
 					       DBusGMethodInvocation *context,
 					       GError *derror);
 void  tracker_evolution_registrar_set_many    (TrackerEvolutionRegistrar *object, 
 					       const GStrv subjects, 
 					       const GPtrArray *predicates,
 					       const GPtrArray *values,
+					       const guint modseq,
 					       DBusGMethodInvocation *context,
 					       GError *derror);
 void  tracker_evolution_registrar_unset_many  (TrackerEvolutionRegistrar *object, 
 					       const GStrv subjects, 
+					       const guint modseq,
 					       DBusGMethodInvocation *context,
 					       GError *derror);
 void  tracker_evolution_registrar_unset       (TrackerEvolutionRegistrar *object, 
 					       const gchar *subject, 
+					       const guint modseq,
 					       DBusGMethodInvocation *context,
 					       GError *derror);
 void  tracker_evolution_registrar_cleanup     (TrackerEvolutionRegistrar *object, 
+					       const guint modseq,
 					       DBusGMethodInvocation *context,
 					       GError *derror);
 

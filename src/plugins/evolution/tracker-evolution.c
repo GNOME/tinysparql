@@ -44,15 +44,9 @@ typedef struct {
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 static guint
-get_stored_last_checkout (void)
+get_stored_last_modseq (void)
 {
-	return (guint) tracker_data_manager_get_db_option_int ("EvolutionLastCheckout");
-}
-
-static void
-set_stored_last_checkout (guint last_checkout)
-{
-	tracker_data_manager_set_db_option_int ("EvolutionLastCheckout", (gint) last_checkout);
+	return (guint) tracker_data_manager_get_db_option_int ("EvolutionLastModseq");
 }
 
 static void
@@ -62,8 +56,6 @@ deactivate_registrar (void)
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
-
-	set_stored_last_checkout (time(NULL));
 
 	if (private->object) {
 		g_object_unref (private->object);
@@ -161,7 +153,7 @@ activate_registrar (void)
 		/* Registration of the registrar to the manager */
 		dbus_g_proxy_call_no_reply (private->manager_proxy, "Register",
 					    G_TYPE_OBJECT, private->object, /* TRACKER_EVOLUTION_REGISTRAR_PATH, */
-					    G_TYPE_UINT, get_stored_last_checkout (),
+					    G_TYPE_UINT, get_stored_last_modseq (),
 					    G_TYPE_INVALID,
 					    G_TYPE_INVALID);
 

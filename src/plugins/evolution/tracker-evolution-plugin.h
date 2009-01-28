@@ -51,7 +51,7 @@ GType tracker_evolution_plugin_get_type (void);
 
 void tracker_evolution_plugin_register  (TrackerEvolutionPlugin *object, 
 					 gchar *registrar_path,
-					 guint last_checkout, 
+					 guint last_modseq, 
 					 DBusGMethodInvocation *context,
 					 GError *derror);
 

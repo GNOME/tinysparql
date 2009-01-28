@@ -71,23 +71,28 @@ void  tracker_evolution_indexer_set         (TrackerEvolutionIndexer *object,
 					     const gchar *subject, 
 					     const GStrv predicates,
 					     const GStrv values,
+					     const guint modseq,
 					     DBusGMethodInvocation *context,
 					     GError *derror);
 void  tracker_evolution_indexer_set_many    (TrackerEvolutionIndexer *object, 
 					     const GStrv subjects, 
 					     const GPtrArray *predicates,
 					     const GPtrArray *values,
+					     const guint modseq,
 					     DBusGMethodInvocation *context,
 					     GError *derror);
 void  tracker_evolution_indexer_unset_many  (TrackerEvolutionIndexer *object, 
 					     const GStrv subjects, 
+					     const guint modseq,
 					     DBusGMethodInvocation *context,
 					     GError *derror);
 void  tracker_evolution_indexer_unset       (TrackerEvolutionIndexer *object, 
 					     const gchar *subject, 
+					     const guint modseq,
 					     DBusGMethodInvocation *context,
 					     GError *derror);
 void  tracker_evolution_indexer_cleanup     (TrackerEvolutionIndexer *object, 
+					     const guint modseq,
 					     DBusGMethodInvocation *context,
 					     GError *derror);
 
