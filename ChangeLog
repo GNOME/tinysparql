@@ -1,5 +1,13 @@
 2009-01-29  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c (remove_stale_children)
+	(item_add_or_update): Delete children that no longer exist in folders,
+	this check is needed if a file is deleted between tracker executions.
+
+	(tracker_indexer_file_move): Plug a leak.
+
+2009-01-29  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-data/tracker-data-update.c
 	(tracker_data_update_set_metadata): Also update IndexTime in the
 	Services table if necessary, so the indexer doesn't check against

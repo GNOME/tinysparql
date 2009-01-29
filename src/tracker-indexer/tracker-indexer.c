@@ -71,6 +71,7 @@
 
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
+#include <libtracker-data/tracker-data-search.h>
 #include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-indexer.h"
@@ -1382,6 +1383,38 @@ remove_existing_non_emb_metadata (TrackerField *field,
 	}
 }
 
+static void
+remove_stale_children (TrackerIndexer *indexer,
+		       TrackerService *service,
+		       PathInfo       *parent_info,
+		       const gchar    *path)
+{
+	TrackerDBInterface *iface;
+	gchar **children;
+	PathInfo *info;
+	gint i;
+
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+							     TRACKER_DB_CONTENT_TYPE_METADATA);
+
+	children = tracker_data_search_files_get (iface, path);
+
+	for (i = 0; children[i]; i++) {
+		GFile *file;
+
+		file = g_file_new_for_path (children[i]);
+
+		if (!g_file_query_exists (file, NULL)) {
+			/* File doesn't exist, check for deletion */
+			info = path_info_new (parent_info->module, file, NULL);
+			add_file (indexer, info);
+		}
+
+		g_object_unref (file);
+	}
+
+	g_strfreev (children);
+}
 
 static void
 item_add_or_update (TrackerIndexer        *indexer,
@@ -1447,11 +1480,24 @@ item_add_or_update (TrackerIndexer        *indexer,
 		new_text = tracker_module_file_get_text (info->module_file);
 
 		item_update_content (indexer, service, id, old_text, new_text);
+
+		if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
+			gchar *path;
+
+			/* Remove no longer existing children, this is necessary in case
+			 * there were files added/removed in a directory between tracker
+			 * executions
+			 */
+
+			path = g_build_path (G_DIR_SEPARATOR_S, dirname, basename, NULL);
+			remove_stale_children (indexer, service, info, path);
+			g_free (path);
+		}
+
 		g_free (old_text);
 		g_free (new_text);
 		tracker_data_metadata_free (old_metadata_emb);
 		tracker_data_metadata_free (old_metadata_non_emb);
-
 	} else {
 		GHashTable *data;
 
@@ -2767,6 +2813,7 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 	guint request_id;
 	GError *actual_error;
 	PathInfo *info;
+	GFile *file_from, *file_to;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -2790,14 +2837,18 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 		return;
 	}
 
+	file_from = g_file_new_for_path (from);
+	file_to = g_file_new_for_path (to);
+
 	/* Add files to the queue */
-	info = path_info_new (module,
-			      g_file_new_for_path (to),
-			      g_file_new_for_path (from));
+	info = path_info_new (module, file_to, file_from);
 	add_file (indexer, info);
 
 	dbus_g_method_return (context);
 	tracker_dbus_request_success (request_id);
+
+	g_object_unref (file_from);
+	g_object_unref (file_to);
 }
 
 void            
