@@ -1,5 +1,11 @@
 2009-01-29  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-module-file.c
+	(tracker_module_file_get_metadata): Set File:Modified to the current
+	time() if the module didn't provide any.
+
+2009-01-29  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c (should_index_file): Always
 	check item (not parent's) mtime, since mtime will only change for
 	dir if a file is added/deleted in there. Get rid of the mtime cache,

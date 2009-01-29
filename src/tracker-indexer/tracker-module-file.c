@@ -23,6 +23,7 @@
 
 #define METADATA_FILE_PATH	     "File:Path"
 #define METADATA_FILE_NAME	     "File:Name"
+#define METADATA_FILE_MODIFIED       "File:Modified"
 
 #define TRACKER_MODULE_FILE_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MODULE_FILE, TrackerModuleFilePrivate))
 
@@ -270,8 +271,11 @@ tracker_module_file_get_metadata (TrackerModuleFile *file)
                 metadata = TRACKER_MODULE_FILE_GET_CLASS (file)->get_metadata (file);
         }
 
-        if (metadata &&
-            !tracker_module_metadata_lookup (metadata, METADATA_FILE_PATH, NULL) &&
+        if (!metadata) {
+                return NULL;
+        }
+
+        if (!tracker_module_metadata_lookup (metadata, METADATA_FILE_PATH, NULL) &&
             !tracker_module_metadata_lookup (metadata, METADATA_FILE_NAME, NULL)) {
                 gchar *uri, *dirname, *basename;
 
@@ -284,6 +288,10 @@ tracker_module_file_get_metadata (TrackerModuleFile *file)
                 g_free (dirname);
                 g_free (basename);
                 g_free (uri);
+        }
+
+        if (!tracker_module_metadata_lookup (metadata, METADATA_FILE_MODIFIED, NULL)) {
+                tracker_module_metadata_add_date (metadata, METADATA_FILE_MODIFIED, time (NULL));
         }
 
         return metadata;
