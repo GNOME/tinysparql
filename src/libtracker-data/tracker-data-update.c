@@ -437,6 +437,13 @@ tracker_data_update_set_metadata (TrackerService *service,
 						    val,
 						    service_id);
 		g_free (val);
+	} else if (tracker_field_get_data_type (field) == TRACKER_FIELD_TYPE_DATE &&
+		   (strcmp (tracker_field_get_name (field), "File:Modified") == 0)) {
+		/* Handle mtime */
+		tracker_db_interface_execute_query (iface, NULL,
+						    "update Services set IndexTime = '%s' where ID = %d",
+						    value,
+						    service_id);
 	}
 
 	g_free (id_str);

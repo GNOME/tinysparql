@@ -1,5 +1,12 @@
 2009-01-29  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-data/tracker-data-update.c
+	(tracker_data_update_set_metadata): Also update IndexTime in the
+	Services table if necessary, so the indexer doesn't check against
+	outdated mtimes afterwards.
+
+2009-01-29  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-module-file.c
 	(tracker_module_file_get_metadata): Set File:Modified to the current
 	time() if the module didn't provide any.
