@@ -106,8 +106,8 @@ fi
 # Library required versions
 DBUS_REQUIRED=0.60
 GLIB_REQUIRED=2.16.0
-GLIB_WITH_UNIT_TESTING=2.15.0
 PANGO_REQUIRED=1.0.0
+QDBM_REQUIRED=1.8
 GMIME_REQUIRED=2.1.0
 LIBXML2_REQUIRED=0.6
 HAL_REQUIRED=0.5
@@ -217,7 +217,7 @@ AC_SUBST(DBUS_SERVICES_DIR)
 
 AC_ARG_ENABLE([deskbar_applet],
               AS_HELP_STRING([--enable-deskbar-applet=ARG], 
-	      		     [Enable support for deskbar applet (handler, module, auto)]),,
+	      		     [enable support for Deskbar applet]),,
               [enable_deskbar_applet=auto])
 
 if test "x$enable_deskbar_applet" = "xauto" ; then
@@ -234,7 +234,8 @@ AM_CONDITIONAL(USING_DESKBAR_HANDLER, test "x$enable_deskbar_applet" = "xhandler
 AM_CONDITIONAL(USING_DESKBAR_MODULE, test "x$enable_deskbar_applet" = "xmodule")
 
 AC_ARG_WITH([deskbar_applet_dir],
-            AS_HELP_STRING([--with-deskbar-applet-dir], [Path to Deskbar handler/module directory]))
+            AS_HELP_STRING([--with-deskbar-applet-dir], 
+	    		   [Path to Deskbar handler/module directory]))
 
 if test "x$enable_deskbar_applet" = "xhandler" ; then
    if test "x$with_deskbar_applet_dir" = "x" ; then
@@ -278,80 +279,76 @@ AM_GLIB_GNU_GETTEXT
 IT_PROG_INTLTOOL([0.35.0])
 
 ####################################################################
-# Check if glib includes GTests framework
-#
-# If glib is installed in a non-standard location (like /opt/xxx):
-# * PKG_CONFIG_PATH must be set correctly
-# * glib binaries must be in the PATH (i.e PATH=$PATH:/opt/xxx/bin)
+# Should we build GLib based unit tests
 ####################################################################
-
-have_xesam_glib=no
 
 AC_ARG_ENABLE(unit_tests,
 	      AS_HELP_STRING([--enable-unit-tests=@<:@no/yes/auto@:>@],
-			     [Enable unit tests (if available)]), ,
+			     [enable unit tests]), ,
 	      [enable_unit_tests=no])
 
 if test "x$enable_unit_tests" != "xno" ; then
-   glib_pkgconfig_tmp="glib-2.0 >= $GLIB_WITH_UNIT_TESTING"
-   PKG_CHECK_MODULES(GLIB_UNIT_TEST, 
-                     $glib_pkgconfig_tmp,  
-                     [have_unit_tests=yes], 
-                     [have_unit_tests=no])
+   have_unit_tests=yes
+   have_xesam_glib=no
 
-   if test "x$have_unit_tests" = "xyes" ; then
-      AC_DEFINE(HAVE_UNIT_TEST, 1, [Unit test framework available in glib])
+   AC_DEFINE(HAVE_UNIT_TEST, 1, [Define if we have GLib unit test framework])
 
-      AC_PATH_PROG(sqlite_exec, sqlite3)
-      if test -z $sqlite_exec; then
-         AC_MSG_ERROR([Could not find 'sqlite3'])
-      fi
+   AC_PATH_PROG(sqlite_exec, sqlite3)
+   if test -z $sqlite_exec; then
+      AC_MSG_ERROR([Could not find 'sqlite3'])
+   fi
 
-      glib_pkgconfig=$glib_pkgconfig_tmp
-      AC_PATH_PROG(GTESTER, [gtester], [no] )
-      if test "x$GTESTER" = "xno" ; then
-      	 AC_MSG_ERROR([*** Gtester is not in the path])
-      else
-	PKG_CHECK_MODULES(XESAM_GLIB, 
-		xesam-glib, [have_xesam_glib=yes], [have_xesam_glib=no])
-      fi
+   AC_PATH_PROG(gtester, gtester)
+   if test -z $gtester; then
+      AC_MSG_ERROR([Could not find 'gtester'])
+   else
+      PKG_CHECK_MODULES(XESAM_GLIB, 
+                        xesam-glib, 
+			[have_xesam_glib=yes], 
+			[have_xesam_glib=no])
    fi
 else
    have_unit_tests=no
-   glib_pkgconfig=
-fi
-
-if test "x$enable_unit_tests" = "xyes"; then
-   if test "x$have_unit_tests" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find unit test compatible glib.])
-   fi
+   have_xesam_glib=no
 fi
 
 AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
 AM_CONDITIONAL(HAVE_XESAM_GLIB, test "x$have_xesam_glib" = "xyes")
 
 ####################################################################
-# External QDBM check
+# QDBM check
 ####################################################################
 
-QDBM_REQUIRED=1.8
-
-AC_ARG_ENABLE(external_qdbm, 
+AC_ARG_ENABLE(external-qdbm, 
 	      AS_HELP_STRING([--enable-external-qdbm],
-			     [build using system's qdbm]),,
+			     [enable external QDBM, not our imported version]),,
               [enable_external_qdbm=no])
 
-if test "x$enable_external_qdbm" = "xyes"; then
-   PKG_CHECK_MODULES(QDBM, [ qdbm >= $QDBM_REQUIRED ])
-   AM_CONDITIONAL(USING_EXTERNAL_QDBM, true)
+if test "x$enable_external_qdbm" != "xno"; then
+   PKG_CHECK_MODULES(QDBM, 
+   		     [qdbm >= $QDBM_REQUIRED],
+		     [have_external_qdbm=yes],
+		     [have_external_qdbm=no])
+
+   if test "x$have_external_qdbm" = "xyes"; then
+      AC_DEFINE(HAVE_EXTERNAL_QDBM, [], [Define if we have external QDBM])
+   fi
 else
    QDBM_CFLAGS="-I\$(top_srcdir)/src/qdbm"
    QDBM_LIBS="\$(top_builddir)/src/qdbm/libqdbm-private.la"
-   AM_CONDITIONAL(USING_EXTERNAL_QDBM, false)
+   AC_DEFINE(HAVE_QDBM, [], [Define if we have QDBM (our imported version)])
+fi
+
+if test "x$enable_external_qdbm" = "xyes"; then
+   if test "x$have_external_qdbm" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find QDBM >= $QDBM_REQUIRED.])
+   fi
 fi
 
 AC_SUBST(QDBM_CFLAGS)
 AC_SUBST(QDBM_LIBS)
+
+AM_CONDITIONAL(HAVE_EXTERNAL_QDBM, test "x$have_external_qdbm" = "xyes")
 
 ##################################################################
 # Check for libxml2

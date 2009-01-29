@@ -1,3 +1,11 @@
+2009-01-29  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/Makefile.am: Bumped GLib dependency up from 2.15 to 2.16, so
+	we require the stable version. Clean up configure a bit in
+	relation to QDBM and also don't have a separate check for glib
+	unit tests since they come for free with GLib 2.16.
+
 2009-01-28  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/plugins/evolution/tracker-evolution-indexer.h

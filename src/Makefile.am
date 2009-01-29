@@ -8,7 +8,7 @@ if HAVE_INOTIFY
 build_libinotify = libinotify
 endif
 
-if !USING_EXTERNAL_QDBM
+if !HAVE_EXTERNAL_QDBM
 build_qdbm = qdbm
 endif
 
