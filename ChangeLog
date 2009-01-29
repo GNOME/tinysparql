@@ -1,5 +1,12 @@
 2009-01-29  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c: Fixed a typo
+	that gave wrong image widths.
+
+	Fixes NB #91312
+
+2009-01-29  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/libtracker-data/tracker-rdf-query.c: Fixed filtering for
 	multiple tags.
 

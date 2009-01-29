@@ -603,11 +603,11 @@ extract_metadata (MetadataExtractor *extractor,
 		if (extractor->mime == EXTRACT_MIME_IMAGE) {
 			add_uint_info (metadata,
 				       g_strdup ("Image:Width"),
-				       extractor->video_height);
+				       extractor->video_width);
 		} else {
 			add_uint_info (metadata,
 				       g_strdup ("Video:Width"),
-				       extractor->video_height);
+				       extractor->video_width);
 		}
 	}
 
