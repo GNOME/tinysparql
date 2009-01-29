@@ -1228,7 +1228,6 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 		GHashTable *table = NULL;
 		GHashTableIter iter;
 		GList *list = NULL;
-		guint count = 0;
 		gchar *key;
 
 		table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
@@ -1265,25 +1264,13 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			gchar *keyword_metadata;
 
 			keyword_metadata = tracker_data_schema_metadata_field_get_related_names (iface, key);
-			g_string_append_printf (data.sql_where,
-						" AND (S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetaDataID in (%s) AND ( ",
-						keyword_metadata);
 
-
-			count = 0;
 			for (l = list; l; l = l->next) {
-				if (count) {
-					g_string_append_printf (data.sql_where,
-								" OR ");
-				}
-				count++;
 				g_string_append_printf (data.sql_where,
-				    " (MetadataValue = '%s') ",
+				     " AND (S.ID IN (SELECT ServiceID FROM ServiceKeywordMetaData WHERE MetaDataID in (%s) AND MetadataValue = '%s')) ",
+							keyword_metadata,
 							(gchar*) l->data);
 			}
-
-			g_string_append_printf (data.sql_where,
-						" ))) ");
 
 			g_list_foreach(list, (GFunc)g_free, NULL);
 			g_list_free (list);

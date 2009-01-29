@@ -1,3 +1,8 @@
+2009-01-29  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-rdf-query.c: Fixed filtering for
+	multiple tags.
+
 2009-01-29  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (remove_stale_children)
