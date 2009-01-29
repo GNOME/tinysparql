@@ -111,8 +111,6 @@ struct TrackerIndexerPrivate {
 	GQueue *file_queue;
 	GQueue *modules_queue;
 
-	GHashTable *mtime_cache;
-
 	GList *module_names;
 	GQuark current_module;
 	GHashTable *indexer_modules;
@@ -553,8 +551,6 @@ tracker_indexer_finalize (GObject *object)
 	g_queue_foreach (priv->modules_queue, (GFunc) g_free, NULL);
 	g_queue_free (priv->modules_queue);
 
-	g_hash_table_unref (priv->mtime_cache);
-
 	g_queue_foreach (priv->dir_queue, (GFunc) path_info_free, NULL);
 	g_queue_free (priv->dir_queue);
 
@@ -718,9 +714,6 @@ check_stopped (TrackerIndexer *indexer,
 	tracker_db_index_close (indexer->private->email_index);
 
 	state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
-
-	/* Clean up temporary data */
-	g_hash_table_remove_all (indexer->private->mtime_cache);
 
 	/* Print out how long it took us */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
@@ -909,10 +902,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->dir_queue = g_queue_new ();
 	priv->file_queue = g_queue_new ();
 
-	priv->mtime_cache = g_hash_table_new_full (g_str_hash,
-						   g_str_equal,
-						   g_free,
-						   NULL);
 	priv->modules_queue = g_queue_new ();
 	priv->config = tracker_config_new ();
 
@@ -2100,9 +2089,6 @@ should_index_file (TrackerIndexer *indexer,
 {
 	TrackerService *service;
 	gchar *path;
-	const gchar *str;
-	gboolean is_dir;
-	gboolean should_be_cached;
 	struct stat st;
 	time_t mtime;
 
@@ -2136,134 +2122,12 @@ should_index_file (TrackerIndexer *indexer,
 		return TRUE;
 	}
 
-	/* It is most efficient to keep a hash table of mtime values
-	 * which are out of sync with the database. Since there are
-	 * more likely to be less of those than actual directories.
-	 * So we keep a list of them and if the dirname is in the
-	 * hash table we then say it needs reindexing. If not, we
-	 * assume that it must be up to date.
-	 *
-	 * This entry in the hash table is removed after each index is
-	 * complete.
-	 *
-	 * Note: info->file->path = '/tmp/foo/bar'
-	 *	 dirname	  = '/tmp/foo'
-	 *	 basename	  = 'bar'
-	 *
-	 * Example A. PathInfo is file.
-	 *   1) Lookup 'dirname', if exists then
-	 *     --> return TRUE
-	 *   2) Check 'dirname' mtime is newer, if not then
-	 *     --> return FALSE
-	 *   3) Add to hash table
-	 *     --> return TRUE
-	 *
-	 * Example B. PathInfo is directory.
-	 *   1) Lookup 'info->file->path', if exists then
-	 *     --> return TRUE
-	 *   2) Check 'info->file->path' mtime is newer, if not then
-	 *     --> return FALSE
-	 *   3) Add to hash table
-	 *     --> return TRUE
-	 */
-	is_dir = S_ISDIR (st.st_mode);
-	should_be_cached = TRUE;
-
-	/* Choose the path we evaluate based on if we have a directory
-	 * or not. All operations are done using the same string.
-	 */
-	if (is_dir) {
-		str = path;
-	} else {
-		str = dirname;
-	}
-
-	/* Step 1. */
-	if (g_hash_table_lookup (indexer->private->mtime_cache, str)) {
-		gboolean should_index;
-
-		if (!is_dir) {
-			/* Only index files in this directory which
-			 * have an old mtime.
-			 */
-			should_index = st.st_mtime > mtime;
-		} else {
-			/* We always index directories */
-			should_index = TRUE;
-		}
-
-		g_debug ("%s:'%s' exists in cache, %s",
-			 is_dir ? "Path" : "Parent path",
-			 str,
-			 should_index ? "should index" : "should not index");
-
-		g_free (path);
-
-		return should_index;
-	}
-
-	/* Step 2. */
-	if (!is_dir) {
-		gchar *parent_dirname;
-		gchar *parent_basename;
-		gboolean exists;
-
-		/* FIXME: What if there is no parent? */
-		parent_dirname = g_path_get_dirname (dirname);
-		parent_basename = g_path_get_basename (dirname);
-
-		/* We don't have the mtime for the dirname yet, we do
-		 * if this is a info->file->path of course.
-		 */
-		exists = tracker_data_query_service_exists (service,
-						   parent_dirname,
-						   parent_basename,
-						   NULL,
-						   &mtime);
-		if (!exists) {
-			g_message ("Expected path '%s/%s' to exist, not in database?",
-				   parent_dirname,
-				   parent_basename);
-
-			g_free (parent_basename);
-			g_free (parent_dirname);
-			g_free (path);
-
-			return TRUE;
-		}
-
-		if (g_lstat (dirname, &st) == -1) {
-			g_message ("Expected path '%s' to exist, could not stat()",
-				   parent_dirname);
-
-			g_free (parent_basename);
-			g_free (parent_dirname);
-			g_free (path);
-
-			return TRUE;
-		}
-
-		g_free (parent_basename);
-		g_free (parent_dirname);
-	}
-
 	if (st.st_mtime <= mtime) {
-		g_debug ("%s:'%s' has indifferent mtime and should not be indexed",
-			 is_dir ? "Path" : "Parent path",
-			 str);
+		g_debug ("'%s' has indifferent mtime and should not be indexed", path);
 		g_free (path);
 
 		return FALSE;
 	}
-
-	/* Step 3. */
-	g_debug ("%s:'%s' being added to cache and should be indexed",
-		 is_dir ? "Path" : "Parent path",
-		 str);
-
-	g_hash_table_replace (indexer->private->mtime_cache,
-			      g_strdup (str),
-			      GINT_TO_POINTER (1));
 
 	g_free (path);
 

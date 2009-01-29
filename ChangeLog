@@ -1,3 +1,10 @@
+2009-01-29  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (should_index_file): Always
+	check item (not parent's) mtime, since mtime will only change for
+	dir if a file is added/deleted in there. Get rid of the mtime cache,
+	since it's not useful anymore.
+
 2009-01-29  Martyn Russell  <martyn@imendio.com>
 
 	* NEWS:
