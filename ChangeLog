@@ -1,5 +1,10 @@
 2009-01-29  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c: Added a default
+	to Image:Date.
+
+2009-01-29  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-gstreamer.c: Fixed a typo
 	that gave wrong image widths.
 

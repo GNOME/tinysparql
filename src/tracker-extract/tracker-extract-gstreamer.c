@@ -62,6 +62,8 @@
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
+#include <libtracker-common/tracker-type-utils.h>
+
 #include "tracker-extract.h"
 #include "tracker-albumart.h"
 
@@ -974,7 +976,23 @@ tracker_extract_gstreamer (const gchar *uri,
 					     g_strdup ("Video:Duration"), 
 					     g_strdup ("0"));
 		}
+	} else if (type == EXTRACT_MIME_IMAGE) {
+		if (!g_hash_table_lookup (metadata, "Image:Date")) {
+			struct stat st;
+			
+			if (g_lstat(uri, &st) >= 0) {
+				gchar *date;
+				
+				date = tracker_date_to_string (st.st_mtime);
+				
+				g_hash_table_insert (metadata,
+						     g_strdup ("Image:Date"),
+						     tracker_escape_metadata (date));
+				g_free (date);
+			}
+		}
 	}
+
 
 	/* Also clean up */
 	gst_element_set_state (extractor->playbin, GST_STATE_NULL);
