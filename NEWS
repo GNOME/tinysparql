@@ -1,26 +1,68 @@
 Tracker 0.6.90
 ============= (UNRELEASED)
 
-  Major refactoring work
-  * Cleaner code, some things moved to libaries.
-  * Refactored DBus interface: Now with introspection! (The method names don't
-    change, but the objects do, so the client applications must be updated)
-  * New DB access code (libtracker-db library).
-  * New binary, tracker-indexer, created so to separate indexing functionality
-    away from user requests in the daemon.
+  What's Changed?
+  * Major re-factoring over the last 12 months for cleaner code.
+  * Modular approach with:
+     - libtracker-common 
+       (common functions shared across all binaries)
+     - libtracker-db     
+       (database abstraction and manipulation API)
+     - libtracker-data   
+       (a higher level data get/set API)
+     - libtracker-module
+       (an API used by 3rd parties to index their content)
+  * DBus re-factoring and use of GLib bindings (for maintainability).
+    (The method names haven't changed, but the objects have, so the
+     client applications will need to be updated).
+  * Extractors are now run as an external process detached from the
+    indexer to not crash the indexer for problematic files.
+  * The utility applications have all been improved and use GOption
+    for argument parsing.
+  * Configuration is now more centralised and used by applications as
+    well as the daemon/indexer.
+  * File monitoring has been rewritten using GIO and libinotify:
+  * GnomeVFS support dropped from the project.
 
-  GLib's GIO usage
-  * In-house file monitoring dropped.
-  * Addition of unit tests.
-  * TST (GUI search) migrated away from the deprecated gnome-vfs2
+  What's New?
+  * Requirement for GLib 2.16.x.
+  * Imported libinotify (for use in the daemon for file monitoring).
+    (due to lack of MOVE event information from GIO).
+  * Support for DBus introspection.
+  * Support for removable media indexing (MMC, USB sticks).
+  * Support for meta-data caching on removable devices
+    (see http://live.gnome.org/MetadataOnRemovableDevices)
+  * Support for searching with OR operations.
+  * Support for XESAM (initial support only).
+  * Added application dedicated to indexing (tracker-indexer).
+  * Added estimated time remaining while indexing.
+  * Added module API and framework for applications to add support for
+    their media files to be indexed. 
+  * Added utility applications:
+    - tracker-unique   
+      (searches for unique values with option RDF filters)
+    - tracker-services 
+      (lists all ontology services/properties)
+    - tracker-info     
+      (lists details known to tracker about a particular file)
+  * Added unit tests for:
+    - trackerd
+    - tracker-indexer
+    - tracker-extract
+    - libtracker-common
+    - libtracker-db
+  * Added documentation for:
+    - daemon/indexer design
+    - libtracker-common
+    - libtracker-module
 
-  Miscellaneous
-  * Added support for indexing removable media.
-  * Added support for the mobile email client, Modest. This adds to Evolution,
-    Thunderbird, and KMail, among supported clients.
-  * Added support for OR search operations.
-  * Initial xesam support.
-  * New functionality to estimate remaining indexing time period.
+  Missing Support
+  * Index merging has been removed in this release due to lack of
+    time to implementing it and with plans to redesign. SQLite FTS has
+    the feature internally and will be used in future releases. This
+    is noticeable only for very large data sets where a slowdown can be
+    observed. 
+
 
 
 Tracker 0.6.6

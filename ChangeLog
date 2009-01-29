@@ -1,5 +1,13 @@
 2009-01-29  Martyn Russell  <martyn@imendio.com>
 
+	* NEWS:
+	* README:
+	* TODO: Updated these based on a patch from Tshepang Lekhonkhobe.
+	All updated to include things missing on the top of my head. The
+	NEWS is mostly ready for release now.
+
+2009-01-29  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac:
 	* src/Makefile.am: Bumped GLib dependency up from 2.15 to 2.16, so
 	we require the stable version. Clean up configure a bit in

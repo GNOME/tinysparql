@@ -1,22 +1,22 @@
 Table of Contents
 
     1 Introduction
-    2 Use Cases
+    2 Use cases
     3 Features
     4 Dependencies
         4.1 Recommended dependencies
         4.2 For building Tracker's Deskbar-applet backend
     5 Compilation
         5.1 Notes on Solaris
-        5.2 Compile Options
+        5.2 Compile options
     6 Running Tracker
         6.1 Usage
-        6.2 Setting Inotify Watch Limit
+        6.2 Setting inotify watch limit
         6.3 Tracker files
-    7 Tracker & Nautilus Search
-    8 Tracker & Deskbar applet
-    9 Tracker tools
-
+    7 Integration with other tools
+        7.1 Nautilus search
+        7.2 Deskbar applet
+    8 Tracker tools
 
 1 Introduction
 
@@ -42,11 +42,12 @@ Table of Contents
   Supported first class objects include:
 
   * Files, Documents, Music, Images, Videos, Applications, Emails,
-    Conversations, History, Playlists
+    Conversations, Playlists
 
   Planned support:
 
-  * Appointments, Contacts, Projects, Tasks, Bookmarks, Notes
+  * Appointments, Contacts, Projects, Tasks, Bookmarks, Notes,
+    Firefox Web History
 
   All discussion related to tracker happens on the Tracker
   mailing list
@@ -64,7 +65,6 @@ Table of Contents
   More infomation on Tracker can be found at
 
         http://tracker-project.org.
-
 
 2 Use Cases
 
@@ -91,8 +91,6 @@ Table of Contents
 
   * Can provide a more intelligent desktop using statistical
   metadata.
-
-
 
 3 Features
 
@@ -150,9 +148,7 @@ Table of Contents
 
   * It auto-pauses indexing when running low on diskspace.
 
-
 4 Dependencies
-
 
 4.1 Recommended dependencies
 
@@ -177,13 +173,11 @@ Table of Contents
   * GTK and GNOME stack (for GUI tools)
   * totem-plparser (for playlist extraction)
 
-
 4.2 For building Tracker's Deskbar-applet backend
 
   * python-dev 2.3
   * python-gtk2-dev 2.3
   * deskbar-applet 2.16
-
 
 5 Compilation
 
@@ -198,7 +192,6 @@ Table of Contents
   and amend the dbus service file to the correct directory and/or
   might need to update ld_conf if you install into non-standard
   directories.)
-
 
 5.1 Notes on Solaris
 
@@ -228,14 +221,12 @@ Table of Contents
         make
         sudo make install
 
-
 5.2 Compile Options
 
   Tracker has several compiler options to enable/disable certain
   features. You can get a full listing by running
 
   	./configure --help
-
 
 6 Running Tracker
 
@@ -309,7 +300,6 @@ Table of Contents
   be started automatically via Dbus activation (e.g. by running
   tracker-search SEARCHTERM)
 
-
 6.2 Setting Inotify Watch Limit
 
   When watching large numbers of folders, its ppossible to exceed
@@ -323,7 +313,6 @@ Table of Contents
 
   2. Reboot the system OR (on a Debian-like system) run
      "sudo /etc/init.d/procps restart"
-
 
 6.3 Tracker files
 
@@ -342,8 +331,9 @@ Table of Contents
   * The system tmp ("/var/tmp" and "/tmp") is used for short-lived
     session data.
 
+7 Integration with other tools
 
-7 Tracker & Nautilus Search
+7.1 Nautilus Search
 
   Once you have installed Tracker and have some indexed contents,
   you should now compile Nautilus (ver 2.13.4 or higher) which
@@ -358,17 +348,29 @@ Table of Contents
   /usr/bin/trackerd). For non-GNOME installations, see the
   desktop docs for how to achieve similar.
 
+7.2 Deskbar applet
 
-8 Tracker & Deskbar applet
+  Tracker is also integrated into GNOME's deskbar applet.
+  
+  Here are the compile options on how to get it built:
 
-  Tracker is also integrated in GNOME's deskbar applet. See
-  Compile Options above on how to get it built.
+    --enable-deskbar-applet=(auto/handler/module)
 
+      Enables Deskbar-applet support; 'auto' should do since it
+      automatically chooses whether to install the 'handler' (for
+      Deskbar-applet >=2.16) or the 'module' (for Deskbar-applet
+      >=2.19) 	  	  	 
 
-9 Tracker Tools
+    --with-deskbar-applet-dir=(directory)
+    
+      This sets where Deskbar-applet should find the tracker-handler;
+      this should be automatically detected, perhaps in
+      /usr/lib/deskbar-applet/{handlers,modules-2.20-compatible} 
+
+8 Tracker Tools
 
   The Tracker distribution comes with a number of useful utilities which
   are listed at the bottom of trackerd man page, "man trackerd". It's
   recommended that you use the "--help" command line switch
-  (e.g., "tracker-services --help") for a more up-to-date usage info.
-
+  (e.g., "tracker-services --help") for more up-to-date usage
+  information.

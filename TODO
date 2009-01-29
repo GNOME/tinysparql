@@ -1,27 +1,39 @@
-General:
+Ideas:
+======
 
-* XESAM integration
-* Indexer backend independence (not just rely on SQLite)
+General:
+* Extended XESAM support
 * Automatic language detection
 
-Application support:
-
+Application Support:
 * Balsa mboxes
 * Brasero integration
 * Epiphany integration (bookmarks and history)
 * Rhythmbox integration
 * Tomboy notes indexing
+* Modest, a mobile email client (much work already exists in svn trunk)
 
 Search:
-
 * Search filtering (e.g. search within specific folders)
 * Search results that update in real time
 * Search within archives
-* "exact phrase" search
-* Wildcard search
+
+Internal:
+* Crawler to move to Indexer
+* FTS support (replacement of QDBM, the current index db)
+  * Enables "exact phrase" searches
+  * Enables wildcard searches
+  * Enables prefix searches (pre*)
+* Denormalised tables
+* Better libtracker support for Maemo platform applications?
+* Plugins
+  * For Evolution
+  * For KMail
+  * For Thunderbird
 
 
-Tracker SoC project ideas:
+2007 Tracker SoC project ideas:
+===============================
 
 1. HAL integration into Tracker
 
