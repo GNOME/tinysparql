@@ -677,8 +677,6 @@ set_albumart (const unsigned char *buffer,
 	if (!gdk_pixbuf_loader_close (loader, &error)) {
 		g_warning ("%s\n", error->message);
 		g_error_free (error);
-		g_free (filename);
-		return FALSE;
 	}
 
 	tracker_thumbnailer_get_file_thumbnail (filename, "image/jpeg");
