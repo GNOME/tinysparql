@@ -259,14 +259,9 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 	GList *removable_roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
-	gchar *asuri;
 
 	if (!filename)
 		return;
-
-	asuri = g_strdup_printf ("file://", filename);
-	tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
-	g_free (asuri);
 
 	if (!local_uri)
 		return;
@@ -552,6 +547,11 @@ get_file_albumart_queue_cb (DBusGProxy     *proxy,
 			       G_TYPE_INVALID);
 
 	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
+
+		gchar * asuri = g_strdup_printf ("file://", info->art_path);
+		tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
+		g_free (asuri);
+
 		perhaps_copy_to_local (info->art_path, info->local_uri);
 	}
 
@@ -763,6 +763,12 @@ tracker_process_albumart (const unsigned char *buffer,
 		 * we'll perhaps copy it to .mediaartlocal (perhaps because this
 		 * only copies in case the media is located on a removable 
 		 * device */
+
+		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
+			gchar *asuri = g_strdup_printf ("file://", art_path);
+			tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
+			g_free (asuri);
+		}
 
 		if (!lcopied && g_file_test (art_path, G_FILE_TEST_EXISTS))
 			perhaps_copy_to_local (art_path, local_uri);
