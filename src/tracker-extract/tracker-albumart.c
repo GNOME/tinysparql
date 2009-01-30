@@ -259,11 +259,14 @@ perhaps_copy_to_local (const gchar *filename, const gchar *local_uri)
 	GList *removable_roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
+	gchar *asuri;
 
 	if (!filename)
 		return;
 
-	tracker_thumbnailer_get_file_thumbnail (filename, "image/jpeg");
+	asuri = g_strdup_printf ("file://", filename);
+	tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
+	g_free (asuri);
 
 	if (!local_uri)
 		return;
@@ -720,9 +723,8 @@ tracker_process_albumart (const unsigned char *buffer,
 					       album,
 					       filename);
 
-			lcopied = retval;
+			lcopied = !retval;
 
-			
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
 
