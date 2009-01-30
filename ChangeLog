@@ -1,5 +1,12 @@
 2009-01-29  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-mp3.c: Don't fail if we
+	can't access a file with O_NOATIME, try without it.
+
+	Fixes NB #99281
+
+2009-01-29  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-gstreamer.c: Added a default
 	to Image:Date.
 

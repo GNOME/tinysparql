@@ -1366,7 +1366,11 @@ extract_mp3 (const gchar *filename,
 	filedata.albumartsize = 0;
 
 #if defined(__linux__)
+	/* O_NOATIME fails for files we do not own (even if we can read) */
 	file = g_open (filename, (O_RDONLY | O_NOATIME), 0);
+	if (file == -1) {
+		file = g_open (filename, O_RDONLY, 0);
+	}
 #else
 	file = g_open (filename, O_RDONLY, 0);
 #endif
