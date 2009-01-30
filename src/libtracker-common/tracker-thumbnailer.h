@@ -26,7 +26,8 @@
 
 G_BEGIN_DECLS
 
-void tracker_thumbnailer_init               (TrackerConfig *config);
+void tracker_thumbnailer_init               (TrackerConfig *config,
+					     guint timeout_seconds);
 void tracker_thumbnailer_shutdown           (void);
 
 void tracker_thumbnailer_get_file_thumbnail (const gchar   *path,

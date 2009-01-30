@@ -1,5 +1,14 @@
 2009-01-30  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/tracker-indexer/tracker-main.c
+	* src/trackerd/tracker-main.c
+	* src/tracker-extract/tracker-extract.c
+	* src/libtracker-common/tracker-thumbnailer.c
+	* src/libtracker-common/tracker-thumbnailer.h: No timeout to wait
+	for for tracker-extract
+
+2009-01-30  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/tracker-extract/tracker-albumart.c: Bugfix when album art 
 	was extracted from an embedded MP3, the copy to .mediaartlocal 
 	was not requested in case of removable media.

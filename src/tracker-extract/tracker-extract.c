@@ -417,7 +417,7 @@ main (int argc, char *argv[])
 	}
 
 	config = tracker_config_new ();
-	tracker_thumbnailer_init (config);
+	tracker_thumbnailer_init (config, 0);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 

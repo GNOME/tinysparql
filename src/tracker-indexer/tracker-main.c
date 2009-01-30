@@ -368,8 +368,8 @@ main (gint argc, gchar *argv[])
 			  G_CALLBACK (indexer_finished_cb),
 			  NULL);
 
-        /* Set up connections to the thumbnailer if supported */
-        tracker_thumbnailer_init (config);
+	/* Set up connections to the thumbnailer if supported */
+	tracker_thumbnailer_init (config, 10);
 
 	if (process_all) {
 		/* Tell the indexer to process all configured modules */

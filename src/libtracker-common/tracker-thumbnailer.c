@@ -55,6 +55,7 @@ typedef struct {
 	guint request_id;
 	guint timeout_id;
 	guint count;
+	guint timeout_seconds;
 
 	gboolean service_is_available;
 	gboolean service_is_enabled;
@@ -213,7 +214,7 @@ thumbnailer_request_timeout_cb (gpointer data)
 }
 
 void
-tracker_thumbnailer_init (TrackerConfig *config)
+tracker_thumbnailer_init (TrackerConfig *config, guint timeout_seconds)
 {
 	TrackerThumbnailerPrivate *private;
 	DBusGConnection *connection;
@@ -226,6 +227,7 @@ tracker_thumbnailer_init (TrackerConfig *config)
 
 	private->config = g_object_ref (config);
 	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
+	private->timeout_seconds = timeout_seconds;
 
 	g_signal_connect (private->config, "notify::enable-thumbnails",
 			  G_CALLBACK (thumbnailer_enabled_cb), 
@@ -507,10 +509,14 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 	
 	private->count++;
 	
-	if (private->timeout_id == 0) {
-		private->timeout_id = 
-			g_timeout_add_seconds (30, 
-					       thumbnailer_request_timeout_cb, 
-					       NULL);
+	if (private->timeout_seconds != 0) {
+		if (private->timeout_id == 0) {
+			private->timeout_id = 
+				g_timeout_add_seconds (private->timeout_seconds, 
+						       thumbnailer_request_timeout_cb, 
+						       NULL);
+		}
+	} else {
+		thumbnailer_request_timeout_cb (NULL);
 	}
 }
