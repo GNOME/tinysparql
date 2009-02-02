@@ -593,14 +593,6 @@ initialize_databases (void)
 		/* FIXME: Finish */
 	}
 
-	if (!tracker_status_get_is_readonly ()) {
-		tracker_data_manager_set_db_option_int ("IntegrityCheck", 1);
-	}
-
-	if (tracker_status_get_is_first_time_index ()) {
-		tracker_data_manager_set_db_option_int ("InitialIndex", 1);
-	}
-
 	return TRUE;
 }
 

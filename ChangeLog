@@ -1,5 +1,11 @@
 2009-02-02  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-main.c: (initialize_databases): Remove the
+	set_db_option_int() call for IntegrityCheck and InitialIndex.
+	These options are not used anywhere for anything.
+
+2009-02-02  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-data/tracker-data-manager.c:
 	(tracker_data_manager_set_db_option_int): Make sure we pass the
 	parameters the right way round to the SetOption stored procedure.
