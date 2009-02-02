@@ -1,3 +1,10 @@
+2009-02-02  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-data/tracker-data-manager.c:
+	(tracker_data_manager_set_db_option_int): Make sure we pass the
+	parameters the right way round to the SetOption stored procedure.
+	This fixes bug #570209 (TJ).
+
 2009-01-30  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-main.c

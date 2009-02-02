@@ -266,7 +266,7 @@ tracker_data_manager_set_db_option_int (const gchar *option,
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
 	str = tracker_gint_to_string (value);
-	result_set = tracker_data_manager_exec_proc (iface, "SetOption", str, option, NULL);
+	result_set = tracker_data_manager_exec_proc (iface, "SetOption", option, str, NULL);
 	g_free (str);
 
 	if (result_set) {
