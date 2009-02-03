@@ -58,6 +58,7 @@ typedef struct {
 	GHashTable *index_files;
 	GList	   *index_file_patterns;
 	guint       scan_timeout;
+	guint       cache_timeout;
 
 	/* Specific Options, FIXME: Finish */
 
@@ -479,6 +480,9 @@ load_file (const gchar *filename)
 	mc->scan_timeout = load_int (key_file,
 				     GROUP_INDEX,
 				     "ScanTimeout");
+	mc->cache_timeout = load_int (key_file,
+				      GROUP_INDEX,
+				      "CacheTimeout");
 
 	check_for_monitor_directory_conflicts (mc);
 
@@ -815,6 +819,19 @@ tracker_module_config_get_scan_timeout (const gchar *name)
 	g_return_val_if_fail (mc, 0);
 
 	return mc->scan_timeout;
+}
+
+gint
+tracker_module_config_get_cache_timeout (const gchar *name)
+{
+	ModuleConfig *mc;
+
+	g_return_val_if_fail (name != NULL, 0);
+
+	mc = g_hash_table_lookup (modules, name);
+	g_return_val_if_fail (mc, 0);
+
+	return mc->cache_timeout;
 }
 
 /*

@@ -86,7 +86,8 @@ struct _TrackerMonitorPrivate {
 
 typedef struct {
 	GFile    *file;
-	GTimeVal  time;
+	GTimeVal  start_time;
+	GTimeVal  last_time;
 	guint32   event_type;
 } EventData;
 
@@ -427,12 +428,23 @@ event_data_new (GFile   *file,
 	g_get_current_time (&now);
 
 	event->file = g_object_ref (file);
-	event->time = now;
+	event->start_time = now;
+	event->last_time = now;
 	event->event_type = event_type;
 
 	return event;
 }
-		     
+
+static void
+event_data_update (EventData *event)
+{
+	GTimeVal now;
+
+	g_get_current_time (&now);
+
+	event->last_time = now;
+}
+
 static void
 event_data_free (gpointer data)
 {
@@ -718,7 +730,7 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 
 		event = value;
 
-		seconds_then = event->time.tv_sec;
+		seconds_then = event->start_time.tv_sec;
 
 		seconds  = now.tv_sec;
 		seconds -= seconds_then;
@@ -767,7 +779,7 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 
 		case IN_CREATE:
 		case IN_MOVED_TO:
-			/* So we new the target, but not the
+			/* So we knew the target, but not the
 			 * source location for the event.
 			 */
 			g_signal_emit (monitor,
@@ -792,6 +804,62 @@ libinotify_event_pairs_timeout_cb (gpointer data)
 	return TRUE;
 }
 
+static void
+libinotify_cached_event_handle (TrackerMonitor *monitor,
+				EventData      *data,
+				const gchar    *module_name,
+				gboolean        is_directory)
+{
+	switch (data->event_type) {
+	case IN_MODIFY:
+	case IN_CLOSE_WRITE:
+	case IN_ATTRIB:
+		g_signal_emit (monitor,
+			       signals[ITEM_UPDATED], 0,
+			       module_name,
+			       data->file,
+			       is_directory);
+		break;
+
+	case IN_MOVED_FROM:
+		/* So we knew the source, but not the
+		 * target location for the event.
+		 */
+
+	case IN_DELETE:
+	case IN_DELETE_SELF:
+		if (is_directory) {
+			tracker_monitor_remove (monitor, 
+						module_name, 
+						data->file);
+		}
+
+		g_signal_emit (monitor,
+			       signals[ITEM_DELETED], 0,
+			       module_name,
+			       data->file,
+			       is_directory);
+
+		break;
+
+	case IN_MOVED_TO:
+		/* So we new the target, but not the
+		 * source location for the event.
+		 */
+
+	case IN_CREATE:
+		g_signal_emit (monitor,
+			       signals[ITEM_CREATED], 0,
+			       module_name,
+			       data->file,
+			       is_directory);
+
+		break;
+	default:
+		break;
+	}
+}
+
 static gboolean
 libinotify_cached_events_timeout_cb (gpointer data)
 {
@@ -809,22 +877,25 @@ libinotify_cached_events_timeout_cb (gpointer data)
 	g_hash_table_iter_init (&iter, monitor->private->cached_events);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		EventData   *event;
-		glong	     seconds;
-		glong	     seconds_then;
+		glong	     last_event_seconds;
+		glong        start_event_seconds;
+		gint         cache_timeout;
 		const gchar *module_name;
 		gboolean     is_directory;
+		gboolean     force_emit = FALSE;
+		gboolean     timed_out = FALSE;
 
 		event = value;
 
-		seconds_then = event->time.tv_sec;
+		last_event_seconds = now.tv_sec - event->last_time.tv_sec;
+		start_event_seconds = now.tv_sec - event->start_time.tv_sec;
 
-		seconds  = now.tv_sec;
-		seconds -= seconds_then;
-
-		g_debug ("Comparing now:%ld to then:%ld, diff:%ld",
+		g_debug ("Comparing now:%ld to then:%ld (start:%ld), diff:%ld (with start:%ld)",
 			 now.tv_sec,
-			 seconds_then,
-			 seconds);
+			 event->last_time.tv_sec,
+			 event->start_time.tv_sec,
+			 last_event_seconds,
+			 start_event_seconds);
 
 		module_name = get_module_name_from_gfile (monitor,
 							  event->file,
@@ -836,68 +907,61 @@ libinotify_cached_events_timeout_cb (gpointer data)
 			continue;
 		}
 
-		if (seconds < MAX (2, tracker_module_config_get_scan_timeout (module_name))) {
-			continue;
+		/* If the item has been in the cache for too long
+		 * according to the module config options, then we
+		 * force the cache to expire in order to not starve
+		 * the indexer of events for files which are ALWAYS
+		 * changing.
+		 */
+		cache_timeout = tracker_module_config_get_cache_timeout (module_name);
+
+		if (cache_timeout > 0) {
+			force_emit = start_event_seconds > cache_timeout;
 		}
 
-		/* We didn't receive an event pair for this
-		 * cookie, so we just generate the CREATE or
-		 * DELETE event for the file we know about.
+		timed_out = last_event_seconds >= MAX (2, tracker_module_config_get_scan_timeout (module_name));
+
+		/* Make sure the item is in the cache for at least 2
+		 * seconds OR the time as stated by the module config
+		 * options. This way, always changing files can not
+		 * be emitted too and flood the indexer with events.
 		 */
-		g_debug ("Cached event:%d has timed out (%ld seconds have elapsed)",
-			 event->event_type,
-			 seconds);
-
-		switch (event->event_type) {
-		case IN_MODIFY:
-		case IN_CLOSE_WRITE:
-		case IN_ATTRIB:
-			g_signal_emit (monitor,
-				       signals[ITEM_UPDATED], 0,
-				       module_name,
-				       event->file,
-				       is_directory);
-			break;
-
-		case IN_MOVED_FROM:
-			/* So we knew the source, but not the
-			 * target location for the event.
-			 */
-
-		case IN_DELETE:
-		case IN_DELETE_SELF:
-			if (is_directory) {
- 				tracker_monitor_remove (monitor, 
-							module_name, 
-							event->file);
+		if (!force_emit) {
+			if (!timed_out) {
+				continue;
 			}
 
-			g_signal_emit (monitor,
-				       signals[ITEM_DELETED], 0,
-				       module_name,
-				       event->file,
-				       is_directory);
-
-			break;
-
-		case IN_MOVED_TO:
-			/* So we new the target, but not the
-			 * source location for the event.
+			/* We didn't receive an event pair for this
+			 * cookie, so we just generate the CREATE or
+			 * DELETE event for the file we know about.
 			 */
-
-		case IN_CREATE:
-			g_signal_emit (monitor,
-				       signals[ITEM_CREATED], 0,
-				       module_name,
-				       event->file,
-				       is_directory);
-
-			break;
-		default:
-			break;
+			g_debug ("Cached event:%d has timed out (%ld seconds have elapsed)",
+				 event->event_type,
+				 last_event_seconds);
+		} else {
+			event->start_time = now;
+			g_debug ("Cached event:%d has been forced to signal (%ld seconds have elapsed since the beginning)",
+				 event->event_type,
+				 start_event_seconds);
 		}
-		/* Clean up */
-		g_hash_table_iter_remove (&iter);
+
+		/* Signal event */
+		libinotify_cached_event_handle (monitor,
+						event,
+						module_name,
+						is_directory);
+
+
+		if (timed_out) {
+			/* Clean up */
+			g_hash_table_iter_remove (&iter);
+		} else {
+			if (event->event_type == IN_CREATE) {
+				/* The file has been already created,
+				 * We want any further events to be IN_MODIFY */
+				event->event_type = IN_MODIFY;
+			}
+		}
 	}
 
 	if (g_hash_table_size (monitor->private->cached_events) < 1) {
@@ -907,6 +971,37 @@ libinotify_cached_events_timeout_cb (gpointer data)
 	}
 
 	return TRUE;
+}
+
+static void
+libinotify_monitor_force_emission (TrackerMonitor *monitor,
+				   GFile          *file,
+				   guint32         event_type,
+				   const gchar    *module_name,
+				   gboolean        is_directory)
+{
+	EventData *data;
+
+	data = g_hash_table_lookup (monitor->private->cached_events, file);
+
+	if (data) {
+		gchar *event_type_str;
+
+		event_type_str = libinotify_monitor_event_to_string (event_type);
+
+		g_debug ("Cached event:%d being handled before %s",
+			 data->event_type,
+			 event_type_str);
+
+		/* Signal event */
+		libinotify_cached_event_handle (monitor,
+						data,
+						module_name,
+						is_directory);
+
+		/* Clean up */
+		g_hash_table_remove (monitor->private->cached_events, data);
+	}
 }
 
 static void
@@ -1036,20 +1131,19 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 
 	switch (event_type) {
 	case IN_MODIFY:
-		if (!monitor->private->use_changed_event) {
-			/* Do nothing */
-			break;
-		}
-
 	case IN_CLOSE_WRITE:
 	case IN_ATTRIB:
-		if (g_hash_table_lookup (monitor->private->cached_events, file)) {
-			/* We already have an even we will
-			 * signal when we timeout. So don't
-			 * propagate this event.
+		set_up_cache_timeout = TRUE;
+
+		data = g_hash_table_lookup (monitor->private->cached_events, file);
+		if (data) {
+			/* We already have an event we will
+			 * signal when we timeout. So update
+			 * and don't propagate yet this event.
 			 *
 			 * See IN_CREATE.
 			 */
+			event_data_update (data);
 			break;
 		}
 
@@ -1063,15 +1157,23 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		g_hash_table_insert (monitor->private->cached_events,
 				     g_object_ref (data->file),
 				     data);
-
-		set_up_cache_timeout = TRUE;
-
 		break;
 
 	case IN_MOVED_FROM:
+		/* If the file is *ALREADY* in the cache, we need to
+		 * handle that cache first. Otherwise we have
+		 * disparity when the cache expires.
+		 */
+		libinotify_monitor_force_emission (monitor, file, event_type,
+						   module_name, is_directory);
+		/* fall through */
 	case IN_DELETE:
 	case IN_DELETE_SELF:
-		if (cookie == 0) {
+	case IN_UNMOUNT:
+		if (cookie == 0 ||
+		    event_type == IN_UNMOUNT) {
+			g_hash_table_remove (monitor->private->cached_events, file);
+
 			if (is_directory) {
 				tracker_monitor_remove (monitor,
 							module_name,
@@ -1103,17 +1205,24 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		 * and just emit CREATE because otherwise we
 		 * send twice as much traffic to the indexer.
 		 */
+		set_up_cache_timeout = TRUE;
+
 		data = event_data_new (file, event_type);
 
 		g_hash_table_insert (monitor->private->cached_events,
 				     g_object_ref (data->file),
 				     data);
-
-		set_up_cache_timeout = TRUE;
-
 		break;
 
 	case IN_MOVED_TO:
+		/* If the file is *ALREADY* in the cache, we need to
+		 * handle that cache first. Otherwise we have
+		 * disparity when the cache expires.
+		 */
+		libinotify_monitor_force_emission (monitor, file, event_type,
+						   module_name, is_directory);
+
+		/* Handle event */
 		if (cookie == 0) {
 			g_signal_emit (monitor,
 				       signals[ITEM_CREATED], 0,
@@ -1152,19 +1261,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		}
 
 		break;
-
-	case IN_UNMOUNT:
-		if (is_directory) {
-			tracker_monitor_remove (monitor, module_name, file);
-		}
-
-		g_signal_emit (monitor,
-			       signals[ITEM_DELETED], 0,
-			       module_name,
-			       file,
-			       is_directory);
-		break;
-
 	case IN_MOVE_SELF:
 		/* We ignore this one because it is a
 		 * convenience state and we handle the
@@ -1462,7 +1558,7 @@ tracker_monitor_add (TrackerMonitor *monitor,
 	/* Check this location isn't excluded in the config */
 	for (l = ignored_roots; l; l = l->next) {
 		if (strcmp (path, l->data) == 0) {
-			g_message ("Not adding montior for:'%s', path is in config ignore list",
+			g_message ("Not adding monitor for:'%s', path is in config ignore list",
 				   path);
 			g_free (path);
 			return FALSE;

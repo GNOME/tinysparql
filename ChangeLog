@@ -1,5 +1,23 @@
 2009-02-03  Martyn Russell  <martyn@imendio.com>
 
+	* data/modules/applications.module:
+	* data/modules/evolution.module:
+	* data/modules/files.module:
+	* data/modules/gaim-conversations.module:
+	* src/libtracker-common/tracker-module-config.[ch]: (load_file),
+	(tracker_module_config_get_scan_timeout): Added scan_timeout
+	option to modules and the module config. This means that if we are
+	downloading a file for 10 minutes, we can set the option to make
+	sure we get a signal up the stack *at least* every n seconds.
+	
+	* src/trackerd/tracker-monitor.c: Serious improvements to the
+	cache here and how it is used. Now the NOTIFY event is used in the
+	cache too. 
+
+	This fixes NB#98896.
+	
+2009-02-03  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-processor.c: (process_module_next),
 	(crawler_finished_cb): Make sure we stop processing modules if the
 	removable devices is less than the number of removable devices we

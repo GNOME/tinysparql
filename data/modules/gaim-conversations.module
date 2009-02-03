@@ -15,6 +15,7 @@ Service=GaimConversations
 MimeTypes=
 Files=
 ScanTimeout=6000
+CacheTimeout=120
 
 [Specific]
 # Options specific to this module

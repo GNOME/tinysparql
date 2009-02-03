@@ -15,6 +15,7 @@ Service=Files
 MimeTypes=
 Files=
 ScanTimeout=0
+CacheTimeout=60
 
 [Specific]
 # Options specific to this module
