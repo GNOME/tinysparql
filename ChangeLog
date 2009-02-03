@@ -1,3 +1,14 @@
+2009-02-03  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-processor.c: (process_module_next),
+	(crawler_finished_cb): Make sure we stop processing modules if the
+	removable devices is less than the number of removable devices we
+	have completed - i.e. there is some miscalculation somewhere.
+	Also, make sure we don't add removable devices into the completed
+	list AGAIN if we get the "finished" signal from the crawler
+	(because we added a new directory). This was causing some serious
+	lock ups.
+
 2009-02-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Bugfix for album-art

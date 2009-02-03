@@ -1056,7 +1056,7 @@ process_module_next (TrackerProcessor *processor)
 		 */
 		
 		if (process_module_is_disabled (processor, module_name) ||
-		    (g_list_length (processor->private->removable_devices) ==
+		    (g_list_length (processor->private->removable_devices) <=
 		     g_list_length (processor->private->removable_devices_completed))) {
 			processor->private->interrupted = FALSE;
 			tracker_processor_stop (processor);
@@ -1491,10 +1491,21 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		const gchar *root;
 
 		root = processor->private->removable_devices_current->data;
-
-		processor->private->removable_devices_completed = 
-			g_list_append (processor->private->removable_devices_completed, 
-				       g_strdup (root));
+		
+		/* Don't add to the list if *already* on it. How can
+		 * this happen I hear you ask? :) Well, the crawler
+		 * will emit finished if a new directory is added and
+		 * it isn't monitored and has to be crawled. This can
+		 * happen on a removable device that we have already
+		 * scanned. 
+		 */
+		if (!g_list_find_custom (processor->private->removable_devices_completed, 
+					 root, 
+					 (GCompareFunc) strcmp)) {
+			processor->private->removable_devices_completed = 
+				g_list_append (processor->private->removable_devices_completed, 
+					       g_strdup (root));
+		}
 	}
 
 	/* Proceed to next module */
