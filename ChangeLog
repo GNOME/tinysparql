@@ -1,3 +1,7 @@
+2009-02-02  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-albumart.c: Leak fix
+
 2009-02-03  Martyn Russell  <martyn@imendio.com>
 
 	* data/modules/applications.module:

@@ -621,6 +621,8 @@ get_albumart_path (const gchar  *a,
 	*path = g_build_filename (dir, art_filename, NULL);
 	g_free (dir);
 	g_free (art_filename);
+	g_free (str1);
+	g_free (str2);
 }
 
 
