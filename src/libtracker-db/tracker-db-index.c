@@ -641,7 +641,7 @@ indexer_update_word (DEPOT	 *indez,
 			}
 
 			center = (right - left) / 2;
-		} while (left < right);
+		} while (left <= right);
 
 		/* Add hits that could not be updated directly here so
 		 * they can be appended later
@@ -850,6 +850,11 @@ tracker_db_index_flush (TrackerDBIndex *indez)
 
 	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
 
+	if (priv->in_pause) {
+		g_debug ("Index was paused");
+		return 0;
+	}
+
 	if (priv->in_flush) {
 		g_debug ("Index was already in the middle of a flush");
 		return 0;
@@ -881,6 +886,10 @@ tracker_db_index_flush (TrackerDBIndex *indez)
 			}
 
 			g_main_context_iteration (NULL, FALSE);
+
+			if (priv->in_pause) {
+				break;
+			}
 		}
 
 		g_list_free (keys);

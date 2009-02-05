@@ -1,5 +1,12 @@
 2009-02-05  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Fix
+	glitch in binary search.
+	(tracker_db_index_flush): Break flushing when paused, so it doesn't
+	try to modify the closed index.
+
+2009-02-05  Carlos Garnacho  <carlos@imendio.com>
+
 	Let the indexer perform recursive move operations, so all files inside
 	get the path changed in the index. This also makes the whole move
 	operation asynchronous, so tracker-indexer can be paused in between.
