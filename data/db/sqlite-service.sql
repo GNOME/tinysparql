@@ -40,14 +40,6 @@ CREATE TABLE  Services
 
 );
 
-/* Add indexes for Service table */
-CREATE INDEX ServiceTypeIndex1 ON Services (ServiceTypeID);
-CREATE INDEX ServiceAuxiliaryIDIndex1 ON Services (AuxilaryID);
-CREATE INDEX ServiceEnabledIndex1 ON Services (Enabled);
-CREATE INDEX ServiceKeyMetadata1Index1 ON Services (KeyMetadata1);
-CREATE INDEX ServiceKeyMetadata2Index1 ON Services (KeyMetadata2);
-CREATE INDEX ServiceKeyMetadata3Index1 ON Services (KeyMetadata3); 
-
 /* child service relationships for a specific group/struct metadata */
 CREATE TABLE ChildServices
 (
@@ -57,9 +49,6 @@ CREATE TABLE ChildServices
 
 	primary key (ParentID, ChildID, MetaDataID)
 );
-
-CREATE INDEX  ChildServicesIndex1 ON ChildServices (ChildID);
-
 
 /* utf-8 based literal metadata. */
 CREATE TABLE  ServiceMetaData 
@@ -72,8 +61,7 @@ CREATE TABLE  ServiceMetaData
 
 );
 
-CREATE INDEX  ServiceMetaDataIndex1 ON ServiceMetaData (ServiceID);
-CREATE INDEX  ServiceMetaDataIndex2 ON ServiceMetaData (MetaDataID);
+CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceID, MetaDataID, MetaDataDisplay);
 
 /* metadata for all keyword types - keywords are db indexed for fast searching - they are also not processed like other metadata. */
 CREATE TABLE  ServiceKeywordMetaData 
@@ -84,9 +72,7 @@ CREATE TABLE  ServiceKeywordMetaData
 	MetaDataValue		Text COLLATE NOCASE
 );
 
-CREATE INDEX  ServiceKeywordMetaDataIndex1 ON ServiceKeywordMetaData (MetaDataID, MetaDataValue);
-CREATE INDEX  ServiceKeywordMetaDataIndex2 ON ServiceKeywordMetaData (ServiceID);
-
+CREATE INDEX ServiceKeywordMetaDataCompoundIndex ON ServiceKeywordMetaData (ServiceID, MetaDataID, MetaDataValue);
 
 /* metadata for all integer/date types */
 CREATE TABLE  ServiceNumericMetaData 
@@ -97,8 +83,5 @@ CREATE TABLE  ServiceNumericMetaData
 	MetaDataValue		Integer not null
 );
 
-CREATE INDEX  ServiceNumericMetaDataIndex1 ON ServiceNumericMetaData (MetaDataID, MetaDataValue);
-CREATE INDEX  ServiceNumericMetaDataIndex2 ON ServiceNumericMetaData (ServiceID);
-
-
+CREATE INDEX ServiceNumericMetaDataCompoundIndex ON ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue);
 

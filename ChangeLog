@@ -1,3 +1,9 @@
+2009-02-05  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* data/db/sqlite-service.sql
+	* src/libtracker-data/tracker-data-search.c: First part of the
+	database index scheme rewrite.
+
 2009-02-02  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-albumart.c: Leak fix

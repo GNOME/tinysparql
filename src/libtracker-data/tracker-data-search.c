@@ -767,7 +767,7 @@ tracker_data_search_get_unique_values (const gchar  *service_type,
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], FALSE, TRUE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -891,7 +891,7 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], FALSE, TRUE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -924,7 +924,7 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 		TrackerFieldData *fd;
 
 		if (strcmp (count_field, "*")) {
-			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, TRUE, TRUE);
+			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, FALSE, TRUE);
 
 			if (!fd) {
 				g_string_free (sql_select, TRUE);
@@ -1051,7 +1051,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], FALSE, TRUE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -1084,7 +1084,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 		TrackerFieldData *fd;
 
 		if (strcmp (count_field, "*")) {
-			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, TRUE, TRUE);
+			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, FALSE, TRUE);
 			
 			if (!fd) {
 				g_string_free (sql_select, TRUE);
@@ -1109,7 +1109,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 		TrackerFieldData *fd;
 		TrackerFieldType  data_type;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, sum_field, TRUE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, sum_field, FALSE, TRUE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -1234,7 +1234,7 @@ tracker_data_search_get_sum (const gchar	 *service_type,
 	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 
-	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, TRUE);
+	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, FALSE, TRUE);
 
 	if (!fd) {
 		g_string_free (sql_select, TRUE);
@@ -1344,7 +1344,7 @@ tracker_data_search_get_count (const gchar	   *service_type,
 	sql_where  = g_string_new ("\nWHERE ");
 
 	if (strcmp (field, "*")) {
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, FALSE, TRUE);
 		
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
