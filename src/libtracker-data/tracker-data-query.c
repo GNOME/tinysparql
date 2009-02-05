@@ -379,6 +379,52 @@ tracker_data_query_service_type_id (const gchar *dirname,
 	return service_type_id;
 }
 
+GHashTable *
+tracker_data_query_service_children (TrackerService *service,
+				     const gchar    *dirname)
+{
+	TrackerDBInterface *iface;
+	TrackerDBResultSet *result_set;
+	gboolean valid = TRUE;
+	GHashTable *children;
+
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+							     TRACKER_DB_CONTENT_TYPE_METADATA);
+
+	result_set = tracker_db_interface_execute_procedure (iface, NULL,
+							     "GetFileChildren",
+							     dirname,
+							     dirname,
+							     NULL);
+
+	if (!result_set) {
+		return NULL;
+	}
+
+	children = g_hash_table_new_full (g_direct_hash,
+					  g_direct_equal,
+					  NULL,
+					  (GDestroyNotify) g_free);
+
+	while (valid) {
+		guint32 id;
+		gchar *child_path;
+
+		tracker_db_result_set_get (result_set,
+					   0, &id,
+					   1, &child_path,
+					   -1);
+
+		g_hash_table_insert (children, GUINT_TO_POINTER (id), child_path);
+
+		valid = tracker_db_result_set_iter_next (result_set);
+	}
+
+	g_object_unref (result_set);
+
+	return children;
+}
+
 /*
  * Result set with (metadataID, value) per row
  */

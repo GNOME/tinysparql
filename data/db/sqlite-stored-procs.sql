@@ -13,7 +13,7 @@ GetFileByID                    SELECT S.Path, S.Name, S.Mime, S.ServiceTypeID FR
 GetFileByID2                   SELECT (S.Path || '/' || S.Name) AS uri, GetServiceName (ServiceTypeID), S.Mime FROM Services AS S WHERE S.ID = ? AND S.Enabled = 1 AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1));
 GetFileMTime                   SELECT M.MetaDataValue FROM Services AS S INNER JOIN ServiceNumericMetaData M ON S.ID = M.ServiceID WHERE S.Path = ? AND S.Name = ? AND M.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName ='File:Modified');
 GetServices                    SELECT TypeName, Description, Parent FROM ServiceTypes ORDER BY TypeID;
-
+GetFileChildren                SELECT ID, Name FROM Services WHERE Path = ?;
 
 /*
  * Live search queries

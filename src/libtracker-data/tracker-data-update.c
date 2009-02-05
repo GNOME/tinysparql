@@ -306,22 +306,6 @@ tracker_data_update_move_service (TrackerService *service,
 		g_warning ("%s", error->message);
 		g_error_free (error);
 		retval = FALSE;
-	} else {
-		if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
-			tracker_db_interface_execute_procedure (iface,
-								&error,
-								"MoveServiceChildren",
-								from,
-								to,
-								from,
-								from,
-								NULL);
-
-			if (error) {
-				g_warning ("%s", error->message);
-				g_error_free (error);
-			}
-		}
 	}
 
 	g_free (to_dirname);

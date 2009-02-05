@@ -1568,10 +1568,136 @@ filter_invalid_after_move_properties (TrackerField *field,
 				      gpointer value,
 				      gpointer user_data) 
 {
-	return g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_NAME_DELIMITED) 
-		&& g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_NAME)
-		&& g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_PATH)
-		&& g_strcmp0 (tracker_field_get_name (field), METADATA_FILE_EXT);
+	const gchar *name;
+
+	name = tracker_field_get_name (field);
+
+	if (g_strcmp0 (name, METADATA_FILE_NAME_DELIMITED) == 0 ||
+	    g_strcmp0 (name, METADATA_FILE_NAME) == 0 ||
+	    g_strcmp0 (name, METADATA_FILE_PATH) == 0 ||
+	    g_strcmp0 (name, METADATA_FILE_EXT) == 0) {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
+update_moved_item_thumbnail (TrackerIndexer      *indexer,
+			     TrackerDataMetadata *old_metadata,
+			     GFile               *file,
+			     GFile               *source_file)
+{
+	gchar *uri, *source_uri;
+	const gchar *mime_type;
+
+	if (!old_metadata) {
+		gchar *path;
+
+		path = g_file_get_path (file);
+		g_message ("Could not get mime type to remove thumbnail for:'%s'", path);
+		g_free (path);
+
+		return;
+	}
+
+	/* TODO URI branch: this is a URI conversion */
+	uri = g_file_get_uri (file);
+	source_uri = g_file_get_uri (source_file);
+
+	mime_type = tracker_data_metadata_lookup (old_metadata, "File:Mime");
+	tracker_thumbnailer_move (source_uri, mime_type, uri);
+
+	g_free (source_uri);
+	g_free (uri);
+}
+
+static void
+update_moved_item_removable_device (TrackerIndexer *indexer,
+				    TrackerService *service,
+				    GFile          *file,
+				    GFile          *source_file)
+{
+	const gchar *service_name;
+	gchar *path, *source_path;
+	gchar *mount_point = NULL;
+
+	service_name = tracker_service_get_name (service);
+	path = g_file_get_path (file);
+	source_path = g_file_get_path (source_file);
+
+	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
+						     source_path,
+						     &mount_point,
+						     NULL) ) {
+
+		if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
+						     path,
+						     NULL,
+						     NULL) ) {
+
+			tracker_removable_device_add_move (indexer,
+							   mount_point,
+							   source_path,
+							   path,
+							   service_name);
+
+		} else {
+			tracker_removable_device_add_removal (indexer,
+							      mount_point,
+							      source_path,
+							      service_name);
+		}
+	}
+
+	g_free (mount_point);
+	g_free (source_path);
+	g_free (path);
+}
+
+static void
+update_moved_item_index (TrackerIndexer      *indexer,
+			 TrackerService      *service,
+			 TrackerDataMetadata *old_metadata,
+			 guint32              service_id,
+			 GFile               *file,
+			 GFile               *source_file)
+{
+	TrackerModuleMetadata *new_metadata;
+	gchar *path, *new_path, *new_name;
+	const gchar *ext;
+
+	path = g_file_get_path (file);
+
+	/*
+	 *  Update what changes in move event (Path related properties)
+	 */
+	tracker_data_metadata_foreach_remove (old_metadata,
+					      filter_invalid_after_move_properties,
+					      NULL);
+
+	unindex_metadata (indexer, service_id, service, old_metadata);
+
+	new_metadata = tracker_module_metadata_new ();
+
+	tracker_file_get_path_and_name (path, &new_path, &new_name);
+
+	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_PATH, new_path);
+	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME, new_name);
+	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME_DELIMITED, path);
+
+	ext = strrchr (path, '.');
+	if (ext) {
+		ext++;
+		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
+	}
+
+	index_metadata (indexer, service_id, service, new_metadata);
+
+	g_object_unref (new_metadata);
+	g_free (new_path);
+	g_free (new_name);
+	g_free (path);
 }
 
 static void
@@ -1582,12 +1708,9 @@ item_move (TrackerIndexer  *indexer,
 {
 	TrackerService *service;
 	TrackerDataMetadata *old_metadata;
-	TrackerModuleMetadata *new_metadata;
-	gchar *new_path, *new_name, *ext;
 	gchar *path, *source_path;
-	gchar *source_uri, *uri;
 	guint32 service_id;
-	gchar *mount_point = NULL;
+	GHashTable *children = NULL;
 
 	service = get_service_for_file (info->module_file, info->module);
 
@@ -1627,6 +1750,10 @@ item_move (TrackerIndexer  *indexer,
 		return;
 	}
 
+	if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
+		children = tracker_data_query_service_children (service, source_path);
+	}
+
 	/* Get mime type in order to move thumbnail from thumbnailerd */
 	old_metadata = tracker_data_query_metadata (service, service_id, TRUE);
 
@@ -1659,82 +1786,44 @@ item_move (TrackerIndexer  *indexer,
 		}
 	}
 
-	if (old_metadata) {
-		const gchar *mime_type;
+	/* Update item being moved */
+	update_moved_item_thumbnail (indexer, old_metadata, info->file, info->source_file);
+	update_moved_item_removable_device (indexer, service, info->file, info->source_file);
+	update_moved_item_index (indexer, service, old_metadata, service_id, info->file, info->source_file);
 
-		/* TODO URI branch: this is a URI conversion */
-		uri = g_file_get_uri (info->file);
-		source_uri = g_file_get_uri (info->source_file);
+	if (children) {
+		GHashTableIter iter;
+		gpointer key, value;
 
-		mime_type = tracker_data_metadata_lookup (old_metadata, "File:Mime");
-		tracker_thumbnailer_move (source_uri, mime_type, uri);
+		g_hash_table_iter_init (&iter, children);
 
-		g_free (source_uri);
-		g_free (uri);
-	} else {
-		g_message ("Could not get mime type to remove thumbnail for:'%s'",
-			   path);
-	}
+		/* Queue children to be moved */
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			PathInfo *child_info;
+			const gchar *child_name;
+			GFile *child_file, *child_source_file;
 
-	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     source_path,
-						     &mount_point,
-						     NULL) ) {
+			child_name = (const gchar *) value;
 
-		if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
-						     path,
-						     NULL,
-						     NULL) ) {
+			child_file = g_file_get_child (info->file, child_name);
+			child_source_file = g_file_get_child (info->source_file, child_name);
 
-			tracker_removable_device_add_move (indexer, 
-							   mount_point, 
-							   source_path,
-							   path,
-							   tracker_service_get_name (service));
+			child_info = path_info_new (info->module, child_file, child_source_file);
+			add_file (indexer, child_info);
 
-		} else {
-			tracker_removable_device_add_removal (indexer, 
-							      mount_point, 
-							      source_path,
-							      tracker_service_get_name (service));
+			g_object_unref (child_file);
+			g_object_unref (child_source_file);
 		}
+
+		g_hash_table_destroy (children);
 	}
 
-	g_free (mount_point);
-
-	/*
-	 *  Updating what changes in move event (Path related properties)
-	 */
-	tracker_data_metadata_foreach_remove (old_metadata,
-					      filter_invalid_after_move_properties,
-					      NULL);
-
-	unindex_metadata (indexer, service_id, service, old_metadata);
-
-	new_metadata = tracker_module_metadata_new ();
-
-	tracker_file_get_path_and_name (path, &new_path, &new_name);
-
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_PATH, new_path);
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME, new_name);
-	tracker_module_metadata_add_string (new_metadata, METADATA_FILE_NAME_DELIMITED, path);
-
-	g_free (new_path);
-	g_free (new_name);
-
-	ext = strrchr (path, '.');
-	if (ext) {
-		ext++;
-		tracker_module_metadata_add_string (new_metadata, METADATA_FILE_EXT, ext);
+	if (old_metadata) {
+		tracker_data_metadata_free (old_metadata);
 	}
 
-	index_metadata (indexer, service_id, service, new_metadata);
-
-	tracker_data_metadata_free (old_metadata);
-	g_object_unref (new_metadata);
-
-	g_free (path);
 	g_free (source_path);
+	g_free (path);
 }
 
 
