@@ -1,3 +1,14 @@
+2009-02-05  Martyn Russell  <martyn@imendio.com>
+
+	* acinclude.m4: Added "maximum" to the arguments that can be used
+	in --with-compile-warnings. This was always available, just not
+	mentioned. It is the same as "error", just without -Werror. Also
+	make "maximum" the default not "error" (only for builds with
+	autogen.sh). 
+	
+	* configure.ac: Add a status string in the summary with the
+	compile warnings setting.
+
 2009-02-05  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* data/db/sqlite-service.sql

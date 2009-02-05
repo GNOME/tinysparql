@@ -94,14 +94,14 @@ x$B" | sed 's/^ *//' | sort -r | sed "s/x${A}/true/;s/x${B}/false/;1q"`
 dnl #########################################################################
 dnl Turn on the additional warnings last, so -Werror doesn't affect other tests.
 AC_DEFUN([IDT_COMPILE_WARNINGS],[
-   if test -f $srcdir/autogen.sh; then
-	default_compile_warnings="error"
+    if test -f $srcdir/autogen.sh; then
+	default_compile_warnings="maximum"
     else
 	default_compile_warnings="no"
     fi
 
     AC_ARG_WITH(compile-warnings,
-                AS_HELP_STRING([--with-compile-warnings=@<:@no/yes/error@:>@],
+                AS_HELP_STRING([--with-compile-warnings=@<:@no/yes/maximum/error@:>@],
                                [Compiler warnings]),
                 [enable_compile_warnings="$withval"],
                 [enable_compile_warnings="$default_compile_warnings"])

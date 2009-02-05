@@ -1266,6 +1266,7 @@ Build Configuration:
 	Prefix:					${prefix}
 	Source code location:			${srcdir}
 	Compiler:				${CC}
+	Compiler Warnings:			$enable_compile_warnings
 
 	Win32:					$native_win32
 
