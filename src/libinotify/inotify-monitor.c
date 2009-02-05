@@ -88,6 +88,11 @@ inotify_watch_func( GIOChannel *source, GIOCondition condition, gpointer data )
 
       size -= namesize;
 
+      /* Add some sort of yield to the main loop. */
+      while (g_main_context_pending (NULL)) {
+              g_main_context_iteration (NULL, FALSE);
+      }
+
       process_one_event( ine );
       memmove( ine, &ine[namesize], sizeof *ine * size );
     }

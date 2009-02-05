@@ -1,3 +1,15 @@
+2009-02-05  Martyn Russell  <martyn@imendio.com>
+
+	* src/libinotify/inotify-monitor.c: (inotify_watch_func), Add main
+	context iteration in the tight loop that is the event processing
+	for libinotify. Attila's bug shows how spamming NOTIFY events
+	means the libinotify code never returns back to the comfort of the
+	main event loop. This means we never handle any timeouts or other
+	event loop sources. I added an event loop iteration in there to
+	make sure we always submit to the event loop in such conditions.
+
+	Fixes NB#98896. For REAL.
+
 2009-02-05  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer.c
