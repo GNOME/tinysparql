@@ -71,6 +71,5 @@ Embedded=false
 [Video:Source]
 DisplayName=Source of the video
 Description=Description of the physical device that took the video.
-DataType=keyword
-Embedded=false
+DataType=string
 

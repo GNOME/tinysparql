@@ -74,6 +74,10 @@
  */
 #define INCLUDE_FLUENDO_TAGS 
 
+#ifndef GST_TAG_CLASSIFICATION
+#define GST_TAG_CLASSIFICATION "classification"
+#endif
+
 typedef enum {
 	EXTRACT_MIME_UNDEFINED,
 	EXTRACT_MIME_AUDIO,
@@ -669,6 +673,7 @@ extract_metadata (MetadataExtractor *extractor,
 			/* FIXME: is it a good idea to use GST_TAG_ARTIST as author?! */
 			add_string_gst_tag (metadata, "Video:Author", extractor->tagcache, GST_TAG_ARTIST);
 			add_string_gst_tag (metadata, "File:Copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
+			add_string_gst_tag (metadata, "Video:Source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 
 			if (duration >= 0) {
 				add_int64_info (metadata, g_strdup ("Video:Duration"), duration);

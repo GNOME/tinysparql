@@ -1,3 +1,8 @@
+2009-02-05  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-gstreamer.c
+	* data/services/video.metadata: Extract the Video:Source tag
+
 2009-02-05  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-data/tracker-turtle.c
