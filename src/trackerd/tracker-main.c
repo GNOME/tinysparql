@@ -846,7 +846,7 @@ start_cb (gpointer user_data)
 {
 	TrackerMainPrivate *private;
 
-	if (!tracker_status_get_is_running ()) {
+	if (!tracker_status_get_is_ready ()) {
 		return FALSE;
 	}
 
@@ -1012,8 +1012,6 @@ main (gint argc, gchar *argv[])
 	initialize_directories ();
 
 	/* Initialize other subsystems */
-	tracker_status_init (config);
-
 	tracker_log_init (private->log_filename, tracker_config_get_verbosity (config));
 	g_print ("Starting log:\n  File:'%s'\n", private->log_filename);
 
@@ -1024,6 +1022,8 @@ main (gint argc, gchar *argv[])
 	if (!tracker_dbus_init (config)) {
 		return EXIT_FAILURE;
 	}
+
+	tracker_status_init (config);
 
 	tracker_module_config_init ();
 
@@ -1136,7 +1136,7 @@ main (gint argc, gchar *argv[])
 	/* Set our status as running, if this is FALSE, threads stop
 	 * doing what they do and shutdown.
 	 */
-	tracker_status_set_is_running (TRUE);
+	tracker_status_set_is_ready (TRUE);
 
 	if (!tracker_status_get_is_readonly ()) {
 		gint seconds;
@@ -1163,7 +1163,7 @@ main (gint argc, gchar *argv[])
 		backup_restore_on_crawling_finished (private->processor);
 	}
 
-	if (tracker_status_get_is_running ()) {
+	if (tracker_status_get_is_ready ()) {
 		private->main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (private->main_loop);
 	}
@@ -1250,7 +1250,7 @@ tracker_shutdown (void)
 
 	private = g_static_private_get (&private_key);
 
-	tracker_status_set_is_running (FALSE);
+	tracker_status_set_is_ready (FALSE);
 
 	tracker_processor_stop (private->processor);
 

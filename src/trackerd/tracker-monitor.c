@@ -35,7 +35,6 @@
 
 #include "tracker-monitor.h"
 #include "tracker-dbus.h"
-#include "tracker-indexer-client.h"
 #include "tracker-marshal.h"
 #include "tracker-status.h"
 
@@ -580,28 +579,6 @@ get_module_name_from_gfile (TrackerMonitor *monitor,
 
 #ifdef PAUSE_ON_IO 
 
-static void
-indexer_pause_cb (DBusGProxy *proxy,
-		  GError     *error,
-		  gpointer    user_data)
-{
-	if (error) {
-		g_message ("Could not pause the indexer, %s",
-			   error->message);
-	}
-}
-
-static void
-indexer_continue_cb (DBusGProxy *proxy,
-		     GError	*error,
-		     gpointer	 user_data)
-{
-	if (error) {
-		g_message ("Could not continue the indexer, %s",
-			   error->message);
-	}
-}
-
 static gboolean
 unpause_cb (gpointer data)
 {
@@ -609,18 +586,12 @@ unpause_cb (gpointer data)
 
 	monitor = data;
 
-	monitor->private->unpause_timeout_id = 0;
-	tracker_status_set_is_paused_for_io (FALSE);
-
 	g_message ("Resuming indexing now we have stopped "
 		   "receiving monitor events for %d seconds",
 		   PAUSE_ON_IO_SECONDS);
 
-	if (!tracker_status_get_is_paused_manually ()) {
-		org_freedesktop_Tracker_Indexer_continue_async (tracker_dbus_indexer_get_proxy (),
-								indexer_continue_cb,
-								NULL);
-	}
+	monitor->private->unpause_timeout_id = 0;
+	tracker_status_set_is_paused_for_io (FALSE);
 
 	return FALSE;
 }
@@ -1087,10 +1058,6 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 			   "receiving monitor events");
 
 		tracker_status_set_is_paused_for_io (TRUE);
-
-		org_freedesktop_Tracker_Indexer_pause_async (tracker_dbus_indexer_get_proxy (),
-							     indexer_pause_cb,
-							     NULL);
 	}
 
 	monitor->private->unpause_timeout_id =
@@ -1397,10 +1364,6 @@ monitor_event_cb (GFileMonitor	    *file_monitor,
 			   "receiving monitor events");
 
 		tracker_status_set_is_paused_for_io (TRUE);
-
-		org_freedesktop_Tracker_Indexer_pause_async (tracker_dbus_indexer_get_proxy (),
-							     indexer_pause_cb,
-							     NULL);
 	}
 
 	monitor->private->unpause_timeout_id =

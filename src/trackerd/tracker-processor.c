@@ -600,8 +600,7 @@ item_queue_handlers_cb (gpointer user_data)
 	 * events but we still queue them ready to send when we are
 	 * unpaused.
 	 */
-	if (tracker_status_get_is_paused_manually () ||
-	    tracker_status_get_is_paused_for_io ()) {
+	if (tracker_status_get () == TRACKER_STATUS_PAUSED) {
 		g_message ("We are paused, sending nothing to the index until we are unpaused");
 		return TRUE;
 	}

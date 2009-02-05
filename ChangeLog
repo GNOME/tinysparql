@@ -1,5 +1,38 @@
 2009-02-05  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-applet/tracker-applet.c: (set_status_hint),
+	(can_auto_pause), (index_state_changed): Added new state (PAUSED)
+	and add to the tooltip when paused so it is known that it can also
+	be because of heave disk IO OR low disk space. Also uncommented
+	the code for the tooltip when we are paused due to low battery.
+	
+	* src/tracker-indexer/tracker-indexer.c: Make low disk space
+	warning a g_message() instead. Also added a state_to_string()
+	function so we can see state changes a bit more clearly in the
+	logs.
+	
+	* src/trackerd/tracker-daemon.c:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/tracker-main.c: 
+	* src/trackerd/tracker-monitor.c:
+	* src/trackerd/tracker-processor.c:
+	* src/trackerd/tracker-status.[ch]: Moved all indexer state
+	monitoring (paused/continued) to the tracker-status module. Now
+	when we use APIs like tracker_status_set_is_paused_manually() it
+	will now: 
+	  - Tell the indexer to pause/continue
+	  - Signal the applet that we are in a new state
+	  - Set the state internally.
+
+	All pausing/continuing is now handled collectively in the same
+	places and some bugs were fixed here. 
+
+	We now don't send queued files to the indexer when we are paused
+	for *ANY* reason (before it was just when paused for IO or
+	manually).
+
+2009-02-05  Martyn Russell  <martyn@imendio.com>
+
 	* src/libinotify/inotify-monitor.c: (inotify_watch_func), Add main
 	context iteration in the tight loop that is the event processing
 	for libinotify. Attila's bug shows how spamming NOTIFY events

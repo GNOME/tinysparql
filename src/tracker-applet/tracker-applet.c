@@ -99,6 +99,7 @@ typedef enum {
 typedef enum {
 	INDEX_INITIALIZING,
 	INDEX_IDLE,
+	INDEX_PAUSED,
 	INDEX_BUSY,
 	INDEX_MERGING
 } IndexStateEnum;
@@ -281,6 +282,12 @@ set_status_hint (TrayIcon *icon)
                  */
 		index_status = _("Idle");
 		break;
+	case INDEX_PAUSED:
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Idle 
+                 */
+		index_status = _("Paused");
+		break;
 	case INDEX_BUSY:
 		/* Translators: this will be a status hint like: 
                  * Tracker: Indexing 
@@ -293,29 +300,26 @@ set_status_hint (TrayIcon *icon)
                  */
 		index_status = _("Merging");
 		break;
-        default:
-                g_critical ("Unreachable status.");
 	}
 
 	if (priv->user_pause) {
 		/* Translators: this will be a status hint like: 
                  * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
                  */
-		pause_status = _("paused by user");
+		pause_status = _("by user");
 	} else if (priv->auto_pause) {
 		/* Translators: this will be a status hint like: 
                  * Tracker: Initializing/Idle/Indexing/Merging (paused by system) 
                  */
-		pause_status = _("paused by system");
+		pause_status = _("by system");
 	} else {
 		switch (priv->pause_state) {
 		case PAUSE_INTERNAL:
-		/* Translators: this will be a status hint like: 
-                 * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
-                 */
-			pause_status = _("paused by system");
+                        /* Translators: this will be a status hint like: 
+                         * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
+                         */
+			pause_status = _("low disk space or heavy disk use");
 			break;
-#if 0
 		case PAUSE_BATTERY:
 			/* FIXME: We need to check if we are on the
 			 * battery first, this state purely means we
@@ -324,9 +328,8 @@ set_status_hint (TrayIcon *icon)
                         /* Translators: this will be a status hint like: 
                          * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
                          */
-			pause_status = _("paused by battery");
+			pause_status = _("low battery");
 			break;
-#endif
 		default:
 		case PAUSE_NONE:
 			pause_status = NULL;
@@ -412,8 +415,6 @@ can_auto_pause (TrayIcon *icon)
 		return priv->index_state != INDEX_IDLE;
 	case AUTO_PAUSE_MERGING:
 		return priv->index_state == INDEX_MERGING;
-        default:
-                g_critical ("Unreachable state in auto pause.");
 	}
 
 	return TRUE;
@@ -1667,14 +1668,14 @@ index_state_changed (DBusGProxy  *proxy,
 	if (is_manual_paused) {
 		stop_watching_events (icon);
 
+		paused = TRUE;
+
 		if (!priv->auto_pause) {
 			priv->user_pause = TRUE;
 		}
-
-		paused = TRUE;
 	} else if (is_battery_paused) {
-		priv->pause_state = PAUSE_BATTERY;
 		paused = TRUE;
+		priv->pause_state = PAUSE_BATTERY;
 	} else if (is_io_paused) {
 		paused = TRUE;
 		priv->pause_state = PAUSE_INTERNAL;
@@ -1687,6 +1688,8 @@ index_state_changed (DBusGProxy  *proxy,
 		priv->index_state = INDEX_INITIALIZING;
 	} else if (g_ascii_strcasecmp (state, "Idle") == 0) {
 		priv->index_state = INDEX_IDLE;
+	} else if (g_ascii_strcasecmp (state, "Paused") == 0) {
+		priv->index_state = INDEX_PAUSED;
 	} else {
 		priv->index_state = INDEX_BUSY;
 		priv->animated = TRUE;

@@ -180,7 +180,9 @@ indexer_resume_cb (gpointer user_data)
 	proxy = user_data;
 
 	if (!tracker_status_get_is_paused_manually () &&
-	    !tracker_status_get_is_paused_for_io ()) {
+	    !tracker_status_get_is_paused_for_batt () && 
+	    !tracker_status_get_is_paused_for_io () && 
+	    !tracker_status_get_is_paused_for_space ()) {
 		org_freedesktop_Tracker_Indexer_continue_async (g_object_ref (proxy),
 								indexer_continue_async_cb,
 								NULL);
@@ -200,16 +202,20 @@ static void
 dbus_request_new_cb (guint    request_id,
 		     gpointer user_data)
 {
-	DBusGProxy *proxy;
-	GError	   *error = NULL;
-	gboolean    set_paused = TRUE;
-	TrackerStatus status;
+	DBusGProxy    *proxy;
+	GError	      *error = NULL;
+	gboolean       set_paused = TRUE;
+	TrackerStatus  status;
 
 	status = tracker_status_get ();
 
-	if (status != TRACKER_STATUS_INDEXING &&
-	    status != TRACKER_STATUS_DISK_FULL &&
-	    status != TRACKER_STATUS_LOW_BATT) {
+	/* Don't pause if already paused */
+	if (status == TRACKER_STATUS_PAUSED) {
+		return;
+	}
+
+	/* Don't try to pause unless we are in particular states */
+	if (status != TRACKER_STATUS_INDEXING) {
 		return;
 	}
 
@@ -233,14 +239,6 @@ dbus_request_new_cb (guint    request_id,
 					    indexer_resume_cb,
 					    g_object_ref (proxy),
 					    indexer_resume_destroy_notify_cb);
-
-	/* Third check if we are already paused, if we are there is
-	 * no need to tell the indexer.
-	 */
-	if (tracker_status_get_is_paused_manually ()) {
-		g_message ("Tracker is already manually paused, doing nothing");
-		return;
-	}
 
 	/* We really only do this because of the chance that we tell
 	 * the indexer to pause but don't get notified until the next

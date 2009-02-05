@@ -751,7 +751,7 @@ check_is_disk_space_low (TrackerIndexer *indexer)
 	}
 
 	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
-		g_warning ("Disk space is low");
+		g_message ("Disk space is low");
 		return TRUE;
 	}
 
@@ -2605,6 +2605,34 @@ state_check (TrackerIndexer *indexer)
 	}
 }
 
+static gchar *
+state_to_string (TrackerIndexerState state)
+{
+	GString *s;
+
+	s = g_string_new ("");
+	
+	if (state & TRACKER_INDEXER_STATE_FLUSHING) {
+		s = g_string_append (s, "FLUSHING | ");
+	}
+	if (state & TRACKER_INDEXER_STATE_PAUSED) {
+		s = g_string_append (s, "PAUSED | ");
+	}
+	if (state & TRACKER_INDEXER_STATE_DISK_FULL) {
+		s = g_string_append (s, "DISK FULL | ");
+	}
+	if (state & TRACKER_INDEXER_STATE_STOPPED) {
+		s = g_string_append (s, "STOPPED | ");
+	}
+	if (state & TRACKER_INDEXER_STATE_LOW_BATT) {
+		s = g_string_append (s, "LOW BATTERY | ");
+	}
+
+	s->str[s->len - 3] = '\0';
+
+	return g_string_free (s, FALSE);
+}
+
 static void
 state_set_flags (TrackerIndexer      *indexer,
 		 TrackerIndexerState  state)
@@ -2624,13 +2652,28 @@ state_set_flags (TrackerIndexer      *indexer,
 	    (state & TRACKER_INDEXER_STATE_PAUSED ||
 	     state & TRACKER_INDEXER_STATE_DISK_FULL ||
 	     state & TRACKER_INDEXER_STATE_LOW_BATT)) {
-		const gchar *reason = NULL;
+		const gchar *reason;
+		gchar *old_state_str;
+		gchar *state_str;
 
 		if (state & TRACKER_INDEXER_STATE_DISK_FULL) {
 			reason = "Disk full";
 		} else if (state & TRACKER_INDEXER_STATE_LOW_BATT) {
 			reason = "Battery low";
+		} else {
+			reason = NULL;
 		}
+
+		old_state_str = state_to_string (old_state);
+		state_str = state_to_string (indexer->private->state);
+
+		g_message ("State change from '%s' --> '%s' (reason:'%s')",
+			   old_state_str,
+			   state_str,
+			   reason ? reason : "None");
+
+		g_free (state_str);
+		g_free (old_state_str);
 
 		g_signal_emit (indexer, signals[PAUSED], 0, reason);
 	}
@@ -2653,6 +2696,19 @@ state_unset_flags (TrackerIndexer      *indexer,
 	    (! (new_state & TRACKER_INDEXER_STATE_PAUSED)) &&
 	    (! (new_state & TRACKER_INDEXER_STATE_DISK_FULL)) &&
 	    (! (new_state & TRACKER_INDEXER_STATE_LOW_BATT))) {
+		gchar *old_state_str;
+		gchar *state_str;
+
+		old_state_str = state_to_string (old_state);
+		state_str = state_to_string (indexer->private->state);
+
+		g_message ("State change from '%s' --> '%s'",
+			   old_state_str,
+			   state_str);
+
+		g_free (state_str);
+		g_free (old_state_str);
+
 		g_signal_emit (indexer, signals[CONTINUED], 0);
 	}
 }
