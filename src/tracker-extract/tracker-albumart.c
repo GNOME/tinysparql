@@ -548,7 +548,7 @@ get_file_albumart_queue_cb (DBusGProxy     *proxy,
 
 	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
 
-		gchar * asuri = g_strdup_printf ("file://%s", info->art_path);
+		gchar * asuri = g_filename_to_uri (info->art_path, NULL, NULL);
 		tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
 		g_free (asuri);
 
@@ -706,7 +706,7 @@ tracker_process_albumart (const unsigned char *buffer,
 	if (strchr (filename, ':'))
 		filename_uri = g_strdup (filename);
 	else
-		filename_uri = g_strdup_printf ("file://%s", filename);
+		filename_uri = g_filename_to_uri (filename, NULL, NULL);
 
 	get_albumart_path (artist, album, "album", filename_uri, 
 			   &art_path, &local_uri);
@@ -765,7 +765,7 @@ tracker_process_albumart (const unsigned char *buffer,
 		 * device */
 
 		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-			gchar *asuri = g_strdup_printf ("file://%s", art_path);
+			gchar *asuri = g_filename_to_uri (art_path, NULL, NULL);
 			tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
 			g_free (asuri);
 		}

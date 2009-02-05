@@ -1,3 +1,10 @@
+2009-02-05  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-data/tracker-turtle.c
+	* src/tracker-extract/tracker-albumart.c
+	* src/libtracker-common/tracker-thumbnailer.c: Using g_filename_to_uri
+	instead of doing filename to uri conversion wrong
+
 2009-02-05  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Fix

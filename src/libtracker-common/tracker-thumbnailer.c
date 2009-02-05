@@ -345,12 +345,12 @@ tracker_thumbnailer_move (const gchar *from_uri,
 		   private->request_id); 
 
 	if (!strstr (to_uri, ":/"))
-		to[0] = g_strdup_printf ("file://%s", to_uri);
+		to[0] = g_filename_to_uri (to_uri, NULL, NULL);
 	else
 		to[0] = g_strdup (to_uri);
 
 	if (!strstr (from_uri, ":/"))
-		from[0] = g_strdup_printf ("file://%s", from_uri);
+		from[0] = g_filename_to_uri (from_uri, NULL, NULL);
 	else
 		from[0] = g_strdup (from_uri);
 
@@ -401,7 +401,7 @@ tracker_thumbnailer_remove (const gchar *uri,
 	private->request_id++;
 
 	if (!strstr (uri, ":/"))
-		uris[0] = g_strdup_printf ("file://%s", uri);
+		uris[0] = g_filename_to_uri (uri, NULL, NULL);
 	else
 		uris[0] = g_strdup (uri);
 
@@ -497,7 +497,7 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 
 	/* Add new URI (detect if we got passed a path) */
 	if (!strstr (uri, ":/"))
-		private->uris[private->count] = g_strdup_printf ("file://%s", uri);
+		private->uris[private->count] = g_filename_to_uri (uri, NULL, NULL);
 	else
 		private->uris[private->count] = g_strdup (uri);
 

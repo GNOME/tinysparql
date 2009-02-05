@@ -388,7 +388,7 @@ tracker_turtle_optimize (const gchar *turtle_file)
 	info->serializer = raptor_new_serializer ("turtle");
 	suri = raptor_new_uri ((unsigned char *) "/");
 
-	base_uri = g_strdup_printf ("file://%s", turtle_file);
+	base_uri = g_filename_to_uri (turtle_file, NULL, NULL);
 
 	raptor_serialize_start_to_file_handle (info->serializer, 
 					       suri, target_file);
