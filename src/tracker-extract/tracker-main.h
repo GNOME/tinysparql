@@ -19,10 +19,11 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_EXTRACT_H__
-#define __TRACKER_EXTRACT_H__
+#ifndef __TRACKER_MAIN_H__
+#define __TRACKER_MAIN_H__
 
 #include <glib.h>
+
 #include "tracker-escape.h"
 
 G_BEGIN_DECLS
@@ -51,4 +52,4 @@ TrackerExtractorData *tracker_get_extractor_data (void);
 
 G_END_DECLS
 
-#endif /* __TRACKER_EXTRACT_H__ */
+#endif /* __TRACKER_MAIN_H__ */

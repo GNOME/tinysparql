@@ -211,11 +211,26 @@ libextract_playlist_la_LIBADD = $(GLIB2_LIBS) $(TOTEM_PL_PARSER_LIBS)
 libexec_PROGRAMS = tracker-extract
 
 tracker_extract_SOURCES = 						\
+	tracker-dbus.c							\
+	tracker-dbus.h							\
 	tracker-extract.c						\
-	tracker-extract.h
+	tracker-extract.h						\
+	tracker-main.c							\
+	tracker-main.h
 
 tracker_extract_LDADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)
+
+dbus_sources = 								\
+	tracker-extractor-glue.h
+
+%-glue.h: $(top_srcdir)/data/dbus/%.xml
+	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
+
+BUILT_SOURCES = 							\
+	$(dbus_sources)
+
+CLEANFILES = $(BUILT_SOURCES)
