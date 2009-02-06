@@ -229,21 +229,28 @@ extract_mplayer (const gchar *filename,
 		g_pattern_spec_free (pattern_ID_LENGTH);
 
 		if (has_video) {
-			g_hash_table_foreach (tmp_metadata_video, copy_hash_table_entry, metadata);
+			if (tmp_metadata_video) {
+				g_hash_table_foreach (tmp_metadata_video, 
+						      copy_hash_table_entry, 
+						      metadata);
+				g_hash_table_destroy (tmp_metadata_video);
+			}
 
 			if (duration) {
 				g_hash_table_insert (metadata, g_strdup ("Video:Duration"), duration);
 			}
 		} else if (has_audio) {
-			g_hash_table_foreach (tmp_metadata_audio, copy_hash_table_entry, metadata);
+			if (tmp_metadata_video) {
+				g_hash_table_foreach (tmp_metadata_audio, 
+						      copy_hash_table_entry, 
+						      metadata);
+				g_hash_table_destroy (tmp_metadata_audio);
+			}
 
 			if (duration) {
 				g_hash_table_insert (metadata, g_strdup ("Audio:Duration"), duration);
 			}
 		}
-
-		g_hash_table_destroy (tmp_metadata_audio);
-		g_hash_table_destroy (tmp_metadata_video);
 	}
 }
 
