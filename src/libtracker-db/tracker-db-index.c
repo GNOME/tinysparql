@@ -598,7 +598,7 @@ indexer_update_word (DEPOT	 *indez,
 		edited = FALSE;
 
 		left = 0;
-		right = old_hit_count;
+		right = old_hit_count - 1;
 		center = (right - left) / 2;
 
 		/* New items are going to have always a higher service ID,
