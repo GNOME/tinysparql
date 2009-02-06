@@ -39,13 +39,13 @@ main (int argc, char **argv) {
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
-	TrackerExtractorData *data;
+	TrackerExtractData *data;
 
-	g_test_message ("Testing extractor functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extractor-data",
-			 test_tracker_extract_check_extractor_data);
+	g_test_message ("Testing extract functionality");
+	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extract-data",
+			 test_tracker_extract_check_extract_data);
 #if 0
-	data = tracker_test_extract_get_extractor ("audio/mpeg");
+	data = tracker_test_extract_get_extract ("audio/mpeg");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v1_basic",
 			      data, test_tracker_extract_mp3_id3v1_basic);
@@ -58,7 +58,7 @@ main (int argc, char **argv) {
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/header_sampling",
 			      data, test_tracker_extract_mp3_header_sampling);
 
-	data = tracker_test_extract_get_extractor ("video/avi");
+	data = tracker_test_extract_get_extract ("video/avi");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/avi/basic_tags",
 			      data, test_tracker_extract_avi_basic_tags);

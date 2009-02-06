@@ -1,5 +1,10 @@
 2009-02-06  Martyn Russell  <martyn@imendio.com>
 
+	* tests/tracker-extract/tracker-extract-gstreamer-test.c: (main):
+	Fixed test cases missing namespace change for TrackerExtractor.
+
+2009-02-06  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/dummy.c:
 	* src/tracker-extract/tracker-extract-exif.c:
 	* src/tracker-extract/tracker-extract-gstreamer-helix.c:
