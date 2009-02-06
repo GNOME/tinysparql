@@ -143,6 +143,7 @@ struct TrackerIndexerPrivate {
 
 	guint items_indexed;
 	guint items_processed;
+	guint items_to_index;
 	guint subelements_processed;
 
 	gboolean in_transaction;
@@ -207,8 +208,7 @@ static void	state_check	       (TrackerIndexer	    *indexer);
 static void     item_remove            (TrackerIndexer      *indexer,
 					PathInfo	    *info,
 					const gchar         *dirname,
-					const gchar         *basename,
-					gboolean             recurse);
+					const gchar         *basename);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -312,7 +312,7 @@ signal_status (TrackerIndexer *indexer,
 		}
 	}
 
-	if (indexer->private->items_indexed > 0 &&
+	if (indexer->private->items_processed > 0 &&
 	    items_remaining > 0) {
 		gchar *str1;
 		gchar *str2;
@@ -323,9 +323,10 @@ signal_status (TrackerIndexer *indexer,
 							   items_remaining);
 		str2 = tracker_seconds_to_string (seconds_elapsed, TRUE);
 
-		g_message ("Indexed %d/%d, module:'%s', %s left, %s elapsed (%s)",
+		g_message ("Processed %d/%d, indexed %d, module:'%s', %s left, %s elapsed (%s)",
+			   indexer->private->items_processed,
+			   indexer->private->items_processed + items_remaining,
 			   indexer->private->items_indexed,
-			   indexer->private->items_indexed + items_remaining,
 			   g_quark_to_string (indexer->private->current_module),
 			   str1,
 			   str2,
@@ -338,6 +339,7 @@ signal_status (TrackerIndexer *indexer,
 	g_signal_emit (indexer, signals[STATUS], 0,
 		       seconds_elapsed,
 		       g_quark_to_string (indexer->private->current_module),
+		       indexer->private->items_processed,
 		       indexer->private->items_indexed,
 		       items_remaining);
 }
@@ -357,8 +359,8 @@ flush_data (TrackerIndexer *indexer)
 	tracker_db_index_flush (indexer->private->email_index);
 	signal_status (indexer, "flush");
 
-	indexer->private->items_indexed += indexer->private->items_processed;
-	indexer->private->items_processed = 0;
+	indexer->private->items_indexed += indexer->private->items_to_index;
+	indexer->private->items_to_index = 0;
 
 	state_unset_flags (indexer, TRACKER_INDEXER_STATE_FLUSHING);
 
@@ -596,11 +598,12 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerIndexerClass, status),
 			      NULL, NULL,
-			      tracker_marshal_VOID__DOUBLE_STRING_UINT_UINT,
+			      tracker_marshal_VOID__DOUBLE_STRING_UINT_UINT_UINT,
 			      G_TYPE_NONE,
-			      4,
+			      5,
 			      G_TYPE_DOUBLE,
 			      G_TYPE_STRING,
+			      G_TYPE_UINT,
 			      G_TYPE_UINT,
 			      G_TYPE_UINT);
 	signals[STARTED] =
@@ -636,10 +639,11 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 			      G_SIGNAL_RUN_LAST,
 			      G_STRUCT_OFFSET (TrackerIndexerClass, finished),
 			      NULL, NULL,
-			      tracker_marshal_VOID__DOUBLE_UINT_BOOL,
+			      tracker_marshal_VOID__DOUBLE_UINT_UINT_BOOL,
 			      G_TYPE_NONE,
-			      3,
+			      4,
 			      G_TYPE_DOUBLE,
+			      G_TYPE_UINT,
 			      G_TYPE_UINT,
 			      G_TYPE_BOOLEAN);
 	signals[MODULE_STARTED] =
@@ -720,14 +724,16 @@ check_stopped (TrackerIndexer *indexer,
 	/* Print out how long it took us */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
 
-	g_message ("Indexer finished in %s, %d items indexed in total",
+	g_message ("Indexer finished in %s, %d items processed in total (%d indexed)",
 		   str,
+		   indexer->private->items_processed,
 		   indexer->private->items_indexed);
 	g_free (str);
 
 	/* Finally signal done */
 	g_signal_emit (indexer, signals[FINISHED], 0,
 		       seconds_elapsed,
+		       indexer->private->items_processed,
 		       indexer->private->items_indexed,
 		       interrupted);
 }
@@ -1769,7 +1775,7 @@ item_move (TrackerIndexer  *indexer,
 		g_message ("Destination file '%s' already existed in database, removing", path);
 
 		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
-		item_remove (indexer, info, dest_dirname, dest_basename, TRUE);
+		item_remove (indexer, info, dest_dirname, dest_basename);
 
 		g_free (dest_dirname);
 		g_free (dest_basename);
@@ -1832,8 +1838,7 @@ static void
 item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
 	     const gchar    *dirname,
-	     const gchar    *basename,
-	     gboolean        recurse)
+	     const gchar    *basename)
 {
 	TrackerService *service;
 	TrackerDataMetadata *data_metadata;
@@ -1898,8 +1903,6 @@ item_remove (TrackerIndexer *indexer,
 			   path);
 	}
 
-	tracker_data_update_delete_content (service, service_id);
-
 #if 0
 	/* Get content, unindex the words and delete the contents */
 	content = tracker_data_query_content (service, service_id);
@@ -1940,7 +1943,7 @@ item_remove (TrackerIndexer *indexer,
 	tracker_data_update_delete_service (service, service_id);
 	tracker_data_update_delete_all_metadata (service, service_id);
 
-	if (recurse && strcmp (service_type, "Folders") == 0) {
+	if (strcmp (service_type, "Folders") == 0) {
 		tracker_data_update_delete_service_recursively (service, path);
 	}
 
@@ -2330,6 +2333,8 @@ process_file (TrackerIndexer *indexer,
 		if (!should_index_file (indexer, info, dirname, basename)) {
 			gchar *path;
 
+			indexer->private->items_processed++;
+
 			path = g_file_get_path (info->file);
 
 			g_debug ("File is already up to date: '%s'", path);
@@ -2337,6 +2342,7 @@ process_file (TrackerIndexer *indexer,
 			g_free (dirname);
 			g_free (basename);
 			g_free (path);
+
 
 			return TRUE;
 		}
@@ -2358,16 +2364,13 @@ process_file (TrackerIndexer *indexer,
 			item_add_or_update (indexer, info, dirname, basename, metadata);
 			g_object_unref (metadata);
 		} else {
-			/* Delete events are not atomic, so we don't recurse
-			 * here, since we'll have probably got already events
-			 * from children
-			 */
-			item_remove (indexer, info, dirname, basename, FALSE);
+			item_remove (indexer, info, dirname, basename);
 		}
 	}
 
 	indexer->private->subelements_processed++;
 	indexer->private->items_processed++;
+	indexer->private->items_to_index++;
 
 	g_free (dirname);
 	g_free (basename);
@@ -2541,7 +2544,7 @@ process_func (gpointer data)
 		g_free (module_name);
 	}
 
-	if (indexer->private->items_processed > TRACKER_INDEXER_TRANSACTION_MAX) {
+	if (indexer->private->items_to_index > TRACKER_INDEXER_TRANSACTION_MAX) {
 		schedule_flush (indexer, TRUE);
 	}
 

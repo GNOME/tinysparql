@@ -46,7 +46,8 @@ static void
 indexer_status_cb (DBusGProxy  *proxy,
 		   gdouble	seconds_elapsed,
 		   const gchar *current_module_name,
-		   guint	items_done,
+		   guint        items_processed,
+		   guint	items_indexed,
 		   guint	items_remaining,
 		   gpointer	user_data)
 {
@@ -67,7 +68,8 @@ indexer_started_cb (DBusGProxy *proxy,
 static void
 indexer_finished_cb (DBusGProxy *proxy,
 		     gdouble	 seconds_elapsed,
-		     guint	 items_done,
+		     guint       items_processed,
+		     guint	 items_indexed,
 		     gboolean	 interrupted,
 		     gpointer	 user_data)
 {

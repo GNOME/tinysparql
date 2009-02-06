@@ -59,6 +59,7 @@ struct TrackerIndexerClass {
 	void (*status)		(TrackerIndexer *indexer,
 				 gdouble	 seconds_elapsed,
 				 const gchar	*current_module_name,
+				 guint           items_processed,
 				 guint		 items_indexed,
 				 guint		 items_remaining);
 	void (*started)		(TrackerIndexer *indexer);
@@ -66,6 +67,7 @@ struct TrackerIndexerClass {
 	void (*continued)	(TrackerIndexer *indexer);
 	void (*finished)	(TrackerIndexer *indexer,
 				 gdouble	 seconds_elapsed,
+				 guint           items_processed,
 				 guint		 items_indexed);
 	void (*module_started)	(TrackerIndexer *indexer,
 				 const gchar	*module_name);

@@ -1,5 +1,24 @@
 2009-02-06  Carlos Garnacho  <carlos@imendio.com>
 
+	Pass also the amount of processed items over to trackerd, use this
+	number in the IndexProgress DBus signal to improve feedback, this also
+	fixes the bug where the total items was being reduced down to 0.
+
+	* data/dbus/tracker-indexer.xml: Include processed items count in both
+	Status and Finished signals.
+	* src/tracker-indexer/tracker-marshal.list:
+	* src/tracker-indexer/tracker-indexer.[ch]: include processed items
+	count in ::status and ::finished. Also increase the processed items
+	count when an item is being skipped.
+
+	* src/trackerd/tracker-marshal.list:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/tracker-processor.c:
+	* src/trackerd/tracker-xesam-manager.c: Adapt to tracker-indexers DBus
+	API change. Report processed items count in IndexProgress.
+
+2009-02-06  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c (item_remove): Add a boolean
 	param to specify whether we should recurse when deleting or not. Also
 	make it delete content from the database again, since this is still

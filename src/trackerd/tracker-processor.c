@@ -116,12 +116,14 @@ static void process_module_next		    (TrackerProcessor *processor);
 static void indexer_status_cb		    (DBusGProxy       *proxy,
 					     gdouble	       seconds_elapsed,
 					     const gchar      *current_module_name,
-					     guint	       items_done,
+					     guint             items_processed,
+					     guint	       items_indexed,
 					     guint	       items_remaining,
 					     gpointer	       user_data);
 static void indexer_finished_cb		    (DBusGProxy       *proxy,
 					     gdouble	       seconds_elapsed,
-					     guint	       items_done,
+					     guint             items_processed,
+					     guint	       items_indexed,
 					     gboolean	       interrupted,
 					     gpointer	       user_data);
 static void monitor_item_created_cb	    (TrackerMonitor   *monitor,
@@ -1074,7 +1076,8 @@ static void
 indexer_status_cb (DBusGProxy  *proxy,
 		   gdouble	seconds_elapsed,
 		   const gchar *current_module_name,
-		   guint	items_done,
+		   guint        items_processed,
+		   guint	items_indexed,
 		   guint	items_remaining,
 		   gpointer	user_data)
 {
@@ -1089,7 +1092,7 @@ indexer_status_cb (DBusGProxy  *proxy,
 	processor = user_data;
 
 	/* Update our local copy */
-	processor->private->items_done = items_done;
+	processor->private->items_done = items_processed;
 	processor->private->items_remaining = items_remaining;
 	processor->private->seconds_elapsed = seconds_elapsed;
 
@@ -1110,9 +1113,9 @@ indexer_status_cb (DBusGProxy  *proxy,
 			       "index-progress",
 			       tracker_module_config_get_index_service (current_module_name),
 			       path ? path : "",
-			       items_done,
+			       items_processed,
 			       items_remaining,
-			       items_done + items_remaining,
+			       items_processed + items_remaining,
 			       seconds_elapsed);
 	g_free (path);
 
@@ -1129,13 +1132,14 @@ indexer_status_cb (DBusGProxy  *proxy,
 	/* Message to the console about state */
 	str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
 						   TRUE,
-						   items_done,
+						   items_processed,
 						   items_remaining);
 	str2 = tracker_seconds_to_string (seconds_elapsed, TRUE);
 
-	g_message ("Indexed %d/%d, module:'%s', %s left, %s elapsed",
-		   items_done,
-		   items_done + items_remaining,
+	g_message ("Processed %d/%d, indexed %d, module:'%s', %s left, %s elapsed",
+		   items_processed,
+		   items_processed + items_remaining,
+		   items_indexed,
 		   current_module_name,
 		   str1,
 		   str2);
@@ -1147,7 +1151,8 @@ indexer_status_cb (DBusGProxy  *proxy,
 static void
 indexer_finished_cb (DBusGProxy  *proxy,
 		     gdouble	  seconds_elapsed,
-		     guint	  items_done,
+		     guint        items_processed,
+		     guint	  items_indexed,
 		     gboolean	  interrupted,
 		     gpointer	  user_data)
 {
@@ -1159,7 +1164,7 @@ indexer_finished_cb (DBusGProxy  *proxy,
 	processor = user_data;
 	object = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 
-	processor->private->items_done = items_done;
+	processor->private->items_done = items_processed;
 	processor->private->items_remaining = 0;
 	processor->private->seconds_elapsed = seconds_elapsed;
 
@@ -1168,9 +1173,9 @@ indexer_finished_cb (DBusGProxy  *proxy,
 			       "index-progress",
 			       "", /* Service */
 			       "", /* Path */
-			       items_done,
+			       items_processed,
 			       0,
-			       items_done,
+			       items_processed,
 			       seconds_elapsed);
 
 	/* Tell the index that it can reload, really we should do
@@ -1186,9 +1191,10 @@ indexer_finished_cb (DBusGProxy  *proxy,
 	/* Message to the console about state */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
 
-	g_message ("Indexer finished in %s, %d items indexed in total",
+	g_message ("Indexer finished in %s, %d items processed in total (%d indexed)",
 		   str,
-		   items_done);
+		   items_processed,
+		   items_indexed);
 	g_free (str);
 
 	/* Do we even need this step Optimizing ? */

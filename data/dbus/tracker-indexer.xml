@@ -83,7 +83,8 @@
     <signal name="Status">
       <arg type="d" name="elapsed_time" />
       <arg type="s" name="current_module_name" />
-      <arg type="u" name="items_done" />
+      <arg type="u" name="items_processed" />
+      <arg type="u" name="items_indexed" />
       <arg type="u" name="items_remaining" />
     </signal>
     <signal name="Started" />
@@ -93,7 +94,8 @@
     <signal name="Continued" />
     <signal name="Finished">
       <arg type="d" name="elapsed_time" />
-      <arg type="u" name="items_done" />
+      <arg type="u" name="items_processed" />
+      <arg type="u" name="items_indexed" />
       <arg type="b" name="interrupted" />
     </signal>
     <signal name="ModuleStarted">

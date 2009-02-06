@@ -463,16 +463,18 @@ tracker_dbus_indexer_get_proxy (void)
 		}
 
 		/* Add marshallers */
-		dbus_g_object_register_marshaller (tracker_marshal_VOID__DOUBLE_STRING_UINT_UINT,
+		dbus_g_object_register_marshaller (tracker_marshal_VOID__DOUBLE_STRING_UINT_UINT_UINT,
 						   G_TYPE_NONE,
 						   G_TYPE_DOUBLE,
 						   G_TYPE_STRING,
 						   G_TYPE_UINT,
 						   G_TYPE_UINT,
+						   G_TYPE_UINT,
 						   G_TYPE_INVALID);
-		dbus_g_object_register_marshaller (tracker_marshal_VOID__DOUBLE_UINT_BOOL,
+		dbus_g_object_register_marshaller (tracker_marshal_VOID__DOUBLE_UINT_UINT_BOOL,
 						   G_TYPE_NONE,
 						   G_TYPE_DOUBLE,
+						   G_TYPE_UINT,
 						   G_TYPE_UINT,
 						   G_TYPE_BOOLEAN,
 						   G_TYPE_INVALID);
@@ -482,6 +484,7 @@ tracker_dbus_indexer_get_proxy (void)
 					 "Status",
 					 G_TYPE_DOUBLE,
 					 G_TYPE_STRING,
+					 G_TYPE_UINT,
 					 G_TYPE_UINT,
 					 G_TYPE_UINT,
 					 G_TYPE_INVALID);
@@ -498,6 +501,7 @@ tracker_dbus_indexer_get_proxy (void)
 		dbus_g_proxy_add_signal (proxy_for_indexer,
 					 "Finished",
 					 G_TYPE_DOUBLE,
+					 G_TYPE_UINT,
 					 G_TYPE_UINT,
 					 G_TYPE_BOOLEAN,
 					 G_TYPE_INVALID);
