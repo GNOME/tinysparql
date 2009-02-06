@@ -69,7 +69,7 @@ static void extract_gstreamer_audio (const gchar *uri, GHashTable *metadata);
 static void extract_gstreamer_video (const gchar *uri, GHashTable *metadata);
 static void extract_gstreamer_image (const gchar *uri, GHashTable *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "audiotag/*", extract_gstreamer_audio },
 	{ "videotag/*", extract_gstreamer_video },
 	{ "imagetag/*", extract_gstreamer_image },
@@ -468,8 +468,8 @@ extract_gstreamer_image (const gchar *uri, GHashTable *metadata)
 	tracker_extract_gstreamer (uri, metadata, EXTRACT_MIME_IMAGE);
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

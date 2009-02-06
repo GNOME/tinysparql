@@ -39,7 +39,7 @@ static void extract_dummy (const gchar *filename,
 /*
  * Link between mimetype and parsing function
  */
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "mimetype/x-dummy", extract_dummy },
 	{ NULL, NULL }
 };
@@ -67,8 +67,8 @@ extract_function (const gchar *filename,
  * Dont touch this function! Keep it in your module with this exact name.
  * It is the "public" function used to load the module.
  */
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

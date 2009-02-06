@@ -35,7 +35,7 @@
 static void extract_imagemagick (const gchar *filename, 
 				 GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "image/*", extract_imagemagick },
 	{ NULL, NULL }
 };
@@ -109,8 +109,8 @@ extract_imagemagick (const gchar *filename,
 #endif /* HAVE_EXEMPI */
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

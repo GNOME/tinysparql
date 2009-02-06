@@ -254,15 +254,15 @@ tracker_extract_xine (gchar *uri, GHashTable *metadata)
 }
 
 
-TrackerExtractorData data[] = {
+TrackerExtractData data[] = {
 	{ "audio/*", tracker_extract_xine },
 	{ "video/*", tracker_extract_xine },
 	{ NULL, NULL }
 };
 
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

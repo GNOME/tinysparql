@@ -71,7 +71,7 @@ typedef struct {
 static void extract_gstreamer_helix_audio (const gchar *uri, GHashTable *metadata);
 static void extract_gstreamer_helix_video (const gchar *uri, GHashTable *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "audio/vnd.rn-realaudio", extract_gstreamer_helix_audio },
 	{ "audio/x-pn-realaudio", extract_gstreamer_helix_audio },
 	{ "audio/x-pn-realaudio-plugin",  extract_gstreamer_helix_audio },
@@ -881,8 +881,8 @@ extract_gstreamer_helix_video (const gchar *uri, GHashTable *metadata)
 	tracker_extract_gstreamer_helix (uri, metadata, EXTRACT_MIME_VIDEO);
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

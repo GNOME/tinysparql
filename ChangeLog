@@ -1,5 +1,17 @@
 2009-02-06  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/dummy.c:
+	* src/tracker-extract/tracker-extract-exif.c:
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c:
+	* src/tracker-extract/tracker-extract-gstreamer-tagreadbin.c:
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-extract-imagemagick.c:
+	* src/tracker-extract/tracker-extract-libxine.c: Fixed broken
+	names after renaming TrackerExtractor to TrackerExtract to be
+	consistent with the namespace.
+
+2009-02-06  Martyn Russell  <martyn@imendio.com>
+
 	* docs/reference/libtracker-common/Makefile.am: Fixed make
 	distcheck issues.
 

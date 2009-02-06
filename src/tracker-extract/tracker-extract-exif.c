@@ -75,7 +75,7 @@ static TagType tags[] = {
 	{ -1, NULL, NULL }
 };
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "image/jpeg", extract_exif },
 	{ NULL, NULL }
 };
@@ -171,8 +171,8 @@ extract_exif (const gchar *filename,
 /* FIXME: Note, tracker-extract-exif is completely unused right now so
  * any changes to this code are uncompiled, -mr.
  */
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }
