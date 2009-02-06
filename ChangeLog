@@ -1,3 +1,10 @@
+2009-02-06  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	Do not give images Video:Framerate value.
+
+	Fixes NB #100816.
+
 2009-02-06  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-indexer/tracker-indexer.c

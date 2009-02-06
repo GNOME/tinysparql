@@ -617,12 +617,6 @@ extract_metadata (MetadataExtractor *extractor,
 		}
 	}
 
-	if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
-		add_uint_info (metadata,
-			       g_strdup ("Video:FrameRate"),
-			       ((extractor->video_fps_n + extractor->video_fps_d / 2) / extractor->video_fps_d));
-	}
-
 	if (extractor->tagcache) {
 		gint64 duration;
 
@@ -675,6 +669,13 @@ extract_metadata (MetadataExtractor *extractor,
 			add_string_gst_tag (metadata, "File:Copyright", extractor->tagcache, GST_TAG_COPYRIGHT);
 			add_string_gst_tag (metadata, "Video:Source", extractor->tagcache, GST_TAG_CLASSIFICATION);
 
+			if (extractor->video_fps_n >= 0 && extractor->video_fps_d >= 0) {
+				add_uint_info (metadata,
+					       g_strdup ("Video:FrameRate"),
+					       ((extractor->video_fps_n + extractor->video_fps_d / 2) / 
+						extractor->video_fps_d));
+			}
+			
 			if (duration >= 0) {
 				add_int64_info (metadata, g_strdup ("Video:Duration"), duration);
 			}
