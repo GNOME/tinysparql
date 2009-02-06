@@ -1835,8 +1835,10 @@ item_remove (TrackerIndexer *indexer,
 {
 	TrackerService *service;
 	TrackerDataMetadata *data_metadata;
+#if 0
 	gchar *content;
 	gchar *metadata;
+#endif
 	gchar *path;
 	gchar *mount_point = NULL;
 	const gchar *service_type;
@@ -1894,6 +1896,7 @@ item_remove (TrackerIndexer *indexer,
 			   path);
 	}
 
+#if 0
 	/* Get content, unindex the words and delete the contents */
 	content = tracker_data_query_content (service, service_id);
 	if (content) {
@@ -1927,6 +1930,7 @@ item_remove (TrackerIndexer *indexer,
 				   metadata,
 				   1000);
 	g_free (metadata);
+#endif
 
 	/* Delete service */
 	tracker_data_update_delete_service (service, service_id);

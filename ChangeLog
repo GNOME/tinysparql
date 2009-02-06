@@ -1,5 +1,11 @@
 2009-02-06  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c (item_remove): #ifdef out the
+	code that removed metadata from the index. No longer existing items
+	will be removed at query time.
+
+2009-02-06  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Fixed
 	yet another glitch in the binary search... the right pivot was being
 	set past the last element in the array.
