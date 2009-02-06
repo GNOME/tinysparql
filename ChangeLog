@@ -1,3 +1,22 @@
+2009-02-06  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-indexer/tracker-indexer.c
+	* src/trackerd/tracker-metadata.c:
+	Removed asserts disabling the set of embedded properties.
+	Now tracker will accept it and it is a responsability of the
+	application developers to use carefully this.
+	
+	* src/tracker-extract/tracker-extract-playlist.c:
+	Added new default value for the property ValidDuration
+	
+	* data/services/playlist.metadata
+	* data/services/default.service
+	Renamed TotalLength to Duration
+	Added ValidDuration property. When tracker is unable to calculate
+	the duration of a playlist, the applications can try to calculate
+	it and write the value. Then they will set this property to
+	something != 0.
+
 2009-02-06  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-indexer/tracker-module-metadata-utils.c

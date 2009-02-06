@@ -2000,15 +2000,6 @@ handle_metadata_add (TrackerIndexer *indexer,
 		return FALSE;
 	}
 
-	if (tracker_field_get_embedded (field)) {
-		g_set_error (error,
-			     g_quark_from_string (TRACKER_INDEXER_ERROR),
-			     TRACKER_INDEXER_ERROR_CODE,
-			     "Field type: '%s' is embedded and not writable",
-			     property);
-		return FALSE;
-	}
-
 	len = g_strv_length (values);
 
 	if (!tracker_field_get_multiple_values (field) && len > 1) {

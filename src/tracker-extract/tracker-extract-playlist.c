@@ -35,7 +35,11 @@
 #include <totem-pl-parser.h>
 
 #define PLAYLIST_PROPERTY_NO_TRACKS "Playlist:Songs"
-#define PLAYLIST_PROPERTY_DURATION  "Playlist:TotalLength"
+#define PLAYLIST_PROPERTY_DURATION  "Playlist:Duration"
+#define PLAYLIST_PROPERTY_CALCULATED "Playlist:ValidDuration"
+
+#define PLAYLIST_DEFAULT_NO_TRACKS 0
+#define PLAYLIST_DEFAULT_DURATION 0 
 
 typedef struct {
 	gint        track_counter;
@@ -112,8 +116,8 @@ extract_playlist (const gchar *filename,
         case TOTEM_PL_PARSER_RESULT_IGNORED:
         case TOTEM_PL_PARSER_RESULT_ERROR:
         case TOTEM_PL_PARSER_RESULT_UNHANDLED:
-		data.total_time = 0;
-		data.track_counter = 0;
+		data.total_time = PLAYLIST_DEFAULT_NO_TRACKS;
+		data.track_counter = PLAYLIST_DEFAULT_DURATION;
                 break;
         default:
                 g_warning ("Undefined result in totem-plparser");
@@ -126,7 +130,9 @@ extract_playlist (const gchar *filename,
 	g_hash_table_insert (metadata, 
 			     g_strdup (PLAYLIST_PROPERTY_NO_TRACKS), 
 			     tracker_escape_metadata_printf ("%d", data.track_counter));
-
+	g_hash_table_insert (metadata,
+			     g_strdup (PLAYLIST_PROPERTY_CALCULATED),
+			     g_strdup (data.total_time == 0 ? "0" : "1"));
 	g_free (proper_filename);
         g_object_unref (pl);
 }

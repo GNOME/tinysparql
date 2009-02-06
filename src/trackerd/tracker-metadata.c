@@ -291,16 +291,6 @@ tracker_metadata_set (TrackerMetadata	     *object,
 			return;
 		}
 
-		if (tracker_field_get_embedded (field_def)) {
-			tracker_dbus_request_failed (request_id,
-						     &actual_error,
-						     "Metadata field '%s' cannot be overwritten (is embedded)",
-						     keys[i]);
-			dbus_g_method_return_error (context, actual_error);
-			g_error_free (actual_error);
-			return;
-		}
-
 		tmp_values = tracker_string_to_string_list (values[i]);
 		len = g_strv_length (tmp_values);
 		g_strfreev (tmp_values);
