@@ -207,7 +207,8 @@ static void	state_check	       (TrackerIndexer	    *indexer);
 static void     item_remove            (TrackerIndexer      *indexer,
 					PathInfo	    *info,
 					const gchar         *dirname,
-					const gchar         *basename);
+					const gchar         *basename,
+					gboolean             recurse);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -1768,7 +1769,7 @@ item_move (TrackerIndexer  *indexer,
 		g_message ("Destination file '%s' already existed in database, removing", path);
 
 		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
-		item_remove (indexer, info, dest_dirname, dest_basename);
+		item_remove (indexer, info, dest_dirname, dest_basename, TRUE);
 
 		g_free (dest_dirname);
 		g_free (dest_basename);
@@ -1831,7 +1832,8 @@ static void
 item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
 	     const gchar    *dirname,
-	     const gchar    *basename)
+	     const gchar    *basename,
+	     gboolean        recurse)
 {
 	TrackerService *service;
 	TrackerDataMetadata *data_metadata;
@@ -1896,6 +1898,8 @@ item_remove (TrackerIndexer *indexer,
 			   path);
 	}
 
+	tracker_data_update_delete_content (service, service_id);
+
 #if 0
 	/* Get content, unindex the words and delete the contents */
 	content = tracker_data_query_content (service, service_id);
@@ -1936,7 +1940,7 @@ item_remove (TrackerIndexer *indexer,
 	tracker_data_update_delete_service (service, service_id);
 	tracker_data_update_delete_all_metadata (service, service_id);
 
-	if (strcmp (service_type, "Folders") == 0) {
+	if (recurse && strcmp (service_type, "Folders") == 0) {
 		tracker_data_update_delete_service_recursively (service, path);
 	}
 
@@ -2354,7 +2358,11 @@ process_file (TrackerIndexer *indexer,
 			item_add_or_update (indexer, info, dirname, basename, metadata);
 			g_object_unref (metadata);
 		} else {
-			item_remove (indexer, info, dirname, basename);
+			/* Delete events are not atomic, so we don't recurse
+			 * here, since we'll have probably got already events
+			 * from children
+			 */
+			item_remove (indexer, info, dirname, basename, FALSE);
 		}
 	}
 

@@ -1,3 +1,11 @@
+2009-02-06  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (item_remove): Add a boolean
+	param to specify whether we should recurse when deleting or not. Also
+	make it delete content from the database again, since this is still
+	needed.
+	(item_move) (process_file): Update callers as appropriate.
+
 2009-02-06  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer.c:
