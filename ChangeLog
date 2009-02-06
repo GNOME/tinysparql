@@ -1,3 +1,8 @@
+2009-02-05  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-search.c
+	* data/services/default.service: Some query speed improvements
+	
 2009-02-05  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-applet/tracker-applet.c: (set_status_hint),
