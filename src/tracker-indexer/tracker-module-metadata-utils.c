@@ -130,7 +130,7 @@ process_context_create (const gchar **argv,
 	GPid pid;
 
 	if (!tracker_spawn_async_with_channels (argv,
-						10,
+						0,
 						&pid,
 						&stdin_channel,
 						&stdout_channel,

@@ -1,3 +1,9 @@
+2009-02-06  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	* src/libtracker-common/tracker-os-dependant-unix.c: Removed a
+	timeout from the tracker-extractor spawning.
+
 2009-02-06  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (item_remove): #ifdef out the

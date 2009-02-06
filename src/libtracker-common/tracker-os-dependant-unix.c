@@ -45,7 +45,7 @@ tracker_spawn (gchar **argv,
 
 	g_return_val_if_fail (argv != NULL, FALSE);
 	g_return_val_if_fail (argv[0] != NULL, FALSE);
-	g_return_val_if_fail (timeout > 0, FALSE);
+	g_return_val_if_fail (timeout >= 0, FALSE);
 
 	flags = G_SPAWN_SEARCH_PATH |
 		G_SPAWN_STDERR_TO_DEV_NULL;
@@ -89,7 +89,7 @@ tracker_spawn_async_with_channels (const gchar **argv,
 
 	g_return_val_if_fail (argv != NULL, FALSE);
 	g_return_val_if_fail (argv[0] != NULL, FALSE);
-	g_return_val_if_fail (timeout > 0, FALSE);
+	g_return_val_if_fail (timeout >= 0, FALSE);
 	g_return_val_if_fail (pid != NULL, FALSE);
 
 	result = g_spawn_async_with_pipes (NULL,
@@ -132,13 +132,20 @@ tracker_spawn_child_func (gpointer user_data)
 	struct rlimit cpu_limit;
 	gint	      timeout = GPOINTER_TO_INT (user_data);
 
-	/* set cpu limit */
-	getrlimit (RLIMIT_CPU, &cpu_limit);
-	cpu_limit.rlim_cur = timeout;
-	cpu_limit.rlim_max = timeout + 1;
+	if (timeout > 0) {
+		/* set cpu limit */
+		getrlimit (RLIMIT_CPU, &cpu_limit);
+		cpu_limit.rlim_cur = timeout;
+		cpu_limit.rlim_max = timeout + 1;
+		
+		if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
+			g_critical ("Failed to set resource limit for CPU");
+		}
 
-	if (setrlimit (RLIMIT_CPU, &cpu_limit) != 0) {
-		g_critical ("Failed to set resource limit for CPU");
+		/* Have this as a precaution in cases where cpu limit has not
+		 * been reached due to spawned app sleeping.
+		 */
+		alarm (timeout + 2);
 	}
 
 	tracker_memory_setrlimits ();
@@ -154,11 +161,6 @@ tracker_spawn_child_func (gpointer user_data)
 	if (nice (19) == -1 && errno) {
 		g_warning ("Failed to set nice value");
 	}
-
-	/* Have this as a precaution in cases where cpu limit has not
-	 * been reached due to spawned app sleeping.
-	 */
-	alarm (timeout + 2);
 }
 
 gchar *
