@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-01-16 12:03+0000\n"
-"PO-Revision-Date: 2009-01-18 18:43+0100\n"
+"POT-Creation-Date: 2009-02-05 17:37+0000\n"
+"PO-Revision-Date: 2009-02-06 20:02+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 
 #: ../data/trackerd.desktop.in.in.h:1
-#: ../src/tracker-applet/tracker-applet.c:2221
+#: ../src/tracker-applet/tracker-applet.c:2224
 msgid "Tracker"
 msgstr "Tracker"
 
@@ -185,13 +185,13 @@ msgstr "Buscar con Tracker, al escribir"
 msgid "No error given"
 msgstr "No se proporcionó ningún error"
 
-#: ../src/libtracker-common/tracker-utils.c:130
-#: ../src/libtracker-common/tracker-utils.c:137
+#: ../src/libtracker-common/tracker-utils.c:134
+#: ../src/libtracker-common/tracker-utils.c:141
 msgid "unknown time"
 msgstr "hora desconocida"
 
-#: ../src/libtracker-common/tracker-utils.c:155
-#: ../src/libtracker-common/tracker-utils.c:214
+#: ../src/libtracker-common/tracker-utils.c:159
+#: ../src/libtracker-common/tracker-utils.c:218
 msgid "less than one second"
 msgstr "menos de un segundo"
 
@@ -455,21 +455,29 @@ msgstr "Miniaplicación Tracker"
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing
 #.
-#: ../src/tracker-applet/tracker-applet.c:276
+#: ../src/tracker-applet/tracker-applet.c:277
 msgid "Initializing"
 msgstr "Inicializando"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Idle
 #.
-#: ../src/tracker-applet/tracker-applet.c:282
+#: ../src/tracker-applet/tracker-applet.c:283
 msgid "Idle"
 msgstr "Ocioso"
 
 #. Translators: this will be a status hint like:
+#. * Tracker: Idle
+#.
+#: ../src/tracker-applet/tracker-applet.c:289
+#| msgid "Elapsed"
+msgid "Paused"
+msgstr "Pausado"
+
+#. Translators: this will be a status hint like:
 #. * Tracker: Indexing
 #.
-#: ../src/tracker-applet/tracker-applet.c:288
+#: ../src/tracker-applet/tracker-applet.c:295
 #: ../src/tracker-search-tool/tracker-search-tool.c:1820
 msgid "Indexing"
 msgstr "Indexando"
@@ -477,24 +485,32 @@ msgstr "Indexando"
 #. Translators: this will be a status hint like:
 #. * Tracker: Merging
 #.
-#: ../src/tracker-applet/tracker-applet.c:294
+#: ../src/tracker-applet/tracker-applet.c:301
 msgid "Merging"
 msgstr "Mezclando"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
 #.
-#: ../src/tracker-applet/tracker-applet.c:304
-msgid "paused by user"
-msgstr "pausado por el usuario"
+#: ../src/tracker-applet/tracker-applet.c:309
+#| msgid "paused by user"
+msgid "by user"
+msgstr "por el usuario"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:309
-#: ../src/tracker-applet/tracker-applet.c:316
-msgid "paused by system"
-msgstr "pausado por el sistema"
+#: ../src/tracker-applet/tracker-applet.c:314
+#| msgid "paused by system"
+msgid "by system"
+msgstr "por el sistema"
+
+#. Translators: this will be a status hint like:
+#. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
+#.
+#: ../src/tracker-applet/tracker-applet.c:321
+msgid "low disk space or heavy disk use"
+msgstr "poco espacio en disco o gran uso del disco "
 
 #. FIXME: We need to check if we are on the
 #. * battery first, this state purely means we
@@ -503,29 +519,27 @@ msgstr "pausado por el sistema"
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
 #.
-#: ../src/tracker-applet/tracker-applet.c:327
-msgid "paused by battery"
-msgstr "pausado por la batería"
+#: ../src/tracker-applet/tracker-applet.c:331
+msgid "low battery"
+msgstr "batería baja"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:341
+#: ../src/tracker-applet/tracker-applet.c:344
 #, c-format
-#| msgid "Tracker : "
 msgid "Tracker: %s (%s)"
 msgstr "Tracker: %s (%s)"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing
 #.
-#: ../src/tracker-applet/tracker-applet.c:346
+#: ../src/tracker-applet/tracker-applet.c:349
 #, c-format
-#| msgid "Tracker : "
 msgid "Tracker: %s"
 msgstr "Tracker: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:369
+#: ../src/tracker-applet/tracker-applet.c:372
 #, c-format
 msgid ""
 "Done: %d of %d\n"
@@ -540,7 +554,7 @@ msgstr ""
 #. * Tracker: Merging\n
 #. *  %d/%d indexes being merged
 #.
-#: ../src/tracker-applet/tracker-applet.c:384
+#: ../src/tracker-applet/tracker-applet.c:387
 #, c-format
 msgid ""
 "\n"
@@ -549,25 +563,25 @@ msgstr ""
 "\n"
 "%d/%d los índices se están mezclando"
 
-#: ../src/tracker-applet/tracker-applet.c:1107
+#: ../src/tracker-applet/tracker-applet.c:1108
 msgid "Re-index your system?"
 msgstr "¿Reindexar su sistema?"
 
-#: ../src/tracker-applet/tracker-applet.c:1109
+#: ../src/tracker-applet/tracker-applet.c:1110
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
 msgstr ""
 "El indexado puede llevar un largo tiempo. ¿Está seguro de que quiere "
 "reindexar?"
 
-#: ../src/tracker-applet/tracker-applet.c:1283
+#: ../src/tracker-applet/tracker-applet.c:1284
 msgid "Statistics"
 msgstr "Estadísticas"
 
-#: ../src/tracker-applet/tracker-applet.c:1306
+#: ../src/tracker-applet/tracker-applet.c:1307
 msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
 msgstr "<span weight=\"bold\" size=\"larger\">Estadísticas del indexado</span>"
 
-#: ../src/tracker-applet/tracker-applet.c:1435
+#: ../src/tracker-applet/tracker-applet.c:1436
 msgid ""
 "Tracker is free software; you can redistribute it and/or modify it under the "
 "terms of the GNU General Public License as published by the Free Software "
@@ -579,7 +593,7 @@ msgstr ""
 "Software Foundation; ya sea la versión 2 de la Licencia, o (a su elección) "
 "cualquier versión posterior."
 
-#: ../src/tracker-applet/tracker-applet.c:1436
+#: ../src/tracker-applet/tracker-applet.c:1437
 msgid ""
 "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
 "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
@@ -591,7 +605,7 @@ msgstr ""
 "PARA UN PROPÓSITO PARTICULAR. Vea la Licencia Pública General GNU para más "
 "detalles."
 
-#: ../src/tracker-applet/tracker-applet.c:1437
+#: ../src/tracker-applet/tracker-applet.c:1438
 msgid ""
 "You should have received a copy of the GNU General Public License along with "
 "Tracker; if not, write to the Free Software Foundation, Inc., 51 Franklin "
@@ -601,7 +615,7 @@ msgstr ""
 "con Tracker; si no es el caso, escriba a la Free Software Foundation, Inc., "
 "51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, EE. UU."
 
-#: ../src/tracker-applet/tracker-applet.c:1453
+#: ../src/tracker-applet/tracker-applet.c:1454
 msgid ""
 "Tracker is a tool designed to extract info and metadata about your personal "
 "data so that it can be searched easily and quickly"
@@ -610,7 +624,7 @@ msgstr ""
 "sus archivos personales, de tal forma que pueda ser fácil y rápidamente "
 "buscada."
 
-#: ../src/tracker-applet/tracker-applet.c:1455
+#: ../src/tracker-applet/tracker-applet.c:1456
 msgid "Copyright © 2005-2008 The Tracker authors"
 msgstr "Copyright © 2005-2008 Los autores de Tracker"
 
@@ -618,55 +632,55 @@ msgstr "Copyright © 2005-2008 Los autores de Tracker"
 #. * which will be displayed at the bottom of the about
 #. * box to give credit to the translator(s).
 #.
-#: ../src/tracker-applet/tracker-applet.c:1463
+#: ../src/tracker-applet/tracker-applet.c:1464
 msgid "translator-credits"
 msgstr "Jorge González <jorgegonz@svn.gnome.org>, 2007-2009"
 
-#: ../src/tracker-applet/tracker-applet.c:1466
+#: ../src/tracker-applet/tracker-applet.c:1467
 msgid "Tracker Web Site"
 msgstr "Página web de Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:1487
+#: ../src/tracker-applet/tracker-applet.c:1488
 msgid "_Pause All Indexing"
 msgstr "_Pausar todos los indexados"
 
-#: ../src/tracker-applet/tracker-applet.c:1497
+#: ../src/tracker-applet/tracker-applet.c:1498
 msgid "_Search"
 msgstr "_Buscar"
 
-#: ../src/tracker-applet/tracker-applet.c:1506
+#: ../src/tracker-applet/tracker-applet.c:1507
 msgid "_Re-index"
 msgstr "_Reindexar"
 
-#: ../src/tracker-applet/tracker-applet.c:1514
+#: ../src/tracker-applet/tracker-applet.c:1515
 msgid "_Preferences"
 msgstr "_Preferencias"
 
-#: ../src/tracker-applet/tracker-applet.c:1523
+#: ../src/tracker-applet/tracker-applet.c:1524
 msgid "_Indexer Preferences"
 msgstr "Preferencias del _indexado"
 
-#: ../src/tracker-applet/tracker-applet.c:1531
+#: ../src/tracker-applet/tracker-applet.c:1532
 msgid "S_tatistics"
 msgstr "Es_tadísticas"
 
-#: ../src/tracker-applet/tracker-applet.c:1539
+#: ../src/tracker-applet/tracker-applet.c:1540
 msgid "_About"
 msgstr "Acerca _de"
 
-#: ../src/tracker-applet/tracker-applet.c:1550
+#: ../src/tracker-applet/tracker-applet.c:1551
 msgid "_Quit"
 msgstr "_Salir"
 
-#: ../src/tracker-applet/tracker-applet.c:1591
+#: ../src/tracker-applet/tracker-applet.c:1592
 msgid "Tracker has finished indexing your system"
 msgstr "Tracker ha terminado de indexar su sistema"
 
-#: ../src/tracker-applet/tracker-applet.c:1593
+#: ../src/tracker-applet/tracker-applet.c:1594
 msgid "You can now perform searches by clicking here"
 msgstr "Ahora puede realizar búsquedas pulsando aquí"
 
-#: ../src/tracker-applet/tracker-applet.c:1650
+#: ../src/tracker-applet/tracker-applet.c:1651
 msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
@@ -674,7 +688,7 @@ msgstr ""
 "Su equipo está a punto de ser indexado para que pueda realizar búsquedas "
 "rápidas de sus archivos y correos"
 
-#: ../src/tracker-applet/tracker-applet.c:1653
+#: ../src/tracker-applet/tracker-applet.c:1654
 msgid ""
 "You can pause indexing at any time and configure index settings by right "
 "clicking here"
@@ -682,57 +696,57 @@ msgstr ""
 "Puede pausar el indexado en cualquier momento y configurar los ajustes de "
 "indexado pulsando con el botón derecho del ratón aquí"
 
-#: ../src/tracker-applet/tracker-applet.c:2198
+#: ../src/tracker-applet/tracker-applet.c:2201
 msgid "- Tracker applet for quick control of your desktop search tools"
 msgstr ""
 "- Miniaplicación Tracker para controlar rápidamente sus herramientas de "
 "búsqueda del escritorio"
 
-#: ../src/tracker-applet/tracker-applet.c:2223
+#: ../src/tracker-applet/tracker-applet.c:2226
 msgid "Files:"
 msgstr "Archivos:"
 
-#: ../src/tracker-applet/tracker-applet.c:2224
+#: ../src/tracker-applet/tracker-applet.c:2227
 msgid "    Folders:"
 msgstr "    Carpetas:"
 
-#: ../src/tracker-applet/tracker-applet.c:2225
+#: ../src/tracker-applet/tracker-applet.c:2228
 msgid "    Documents:"
 msgstr "    Documentos:"
 
-#: ../src/tracker-applet/tracker-applet.c:2226
+#: ../src/tracker-applet/tracker-applet.c:2229
 msgid "    Images:"
 msgstr "    Imágenes:"
 
-#: ../src/tracker-applet/tracker-applet.c:2227
+#: ../src/tracker-applet/tracker-applet.c:2230
 msgid "    Music:"
 msgstr "    Música:"
 
-#: ../src/tracker-applet/tracker-applet.c:2228
+#: ../src/tracker-applet/tracker-applet.c:2231
 msgid "    Videos:"
 msgstr "    Vídeos:"
 
-#: ../src/tracker-applet/tracker-applet.c:2229
+#: ../src/tracker-applet/tracker-applet.c:2232
 msgid "    Text:"
 msgstr "    Texto:"
 
-#: ../src/tracker-applet/tracker-applet.c:2230
+#: ../src/tracker-applet/tracker-applet.c:2233
 msgid "    Development:"
 msgstr "    Desarrollo:"
 
-#: ../src/tracker-applet/tracker-applet.c:2231
+#: ../src/tracker-applet/tracker-applet.c:2234
 msgid "    Other:"
 msgstr "    Otros:"
 
-#: ../src/tracker-applet/tracker-applet.c:2232
+#: ../src/tracker-applet/tracker-applet.c:2235
 msgid "Applications:"
 msgstr "Aplicaciones:"
 
-#: ../src/tracker-applet/tracker-applet.c:2233
+#: ../src/tracker-applet/tracker-applet.c:2236
 msgid "Conversations:"
 msgstr "Conversaciones:"
 
-#: ../src/tracker-applet/tracker-applet.c:2234
+#: ../src/tracker-applet/tracker-applet.c:2237
 msgid "Emails:"
 msgstr "Correos-e:"
 
@@ -958,7 +972,6 @@ msgid "Ignored Files"
 msgstr "Archivos ignorados"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
-#| msgid "Index _delay: "
 msgid "Index _delay:"
 msgstr "_Retardo de indexado: "
 
@@ -1356,7 +1369,6 @@ msgstr ""
 "Tracker"
 
 #: ../src/tracker-utils/tracker-files.c:41
-#| msgid "Search for a specific service"
 msgid "Search for specified service"
 msgstr "Buscar un servicio específico"
 
@@ -1382,7 +1394,6 @@ msgstr ""
 "Establecer el desplazamiento para los resultados mostrados (predeterminado 0)"
 
 #: ../src/tracker-utils/tracker-files.c:56
-#| msgid "MIME types (can be used multiple times)"
 msgid "Search for specified MIME type (can be used multiple times)"
 msgstr "Buscar por tipos MIME específicos (se puede usar varias veces)"
 
@@ -1919,34 +1930,34 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:913
+#: ../src/trackerd/tracker-main.c:905
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
-#: ../src/trackerd/tracker-main.c:917
+#: ../src/trackerd/tracker-main.c:909
 msgid "Daemon Options"
 msgstr "Opciones del demonio"
 
-#: ../src/trackerd/tracker-main.c:918
+#: ../src/trackerd/tracker-main.c:910
 msgid "Show daemon options"
 msgstr "Mostrar las opciones del demonio"
 
-#: ../src/trackerd/tracker-main.c:926
+#: ../src/trackerd/tracker-main.c:918
 msgid "Indexer Options"
 msgstr "Opciones del indexador"
 
-#: ../src/trackerd/tracker-main.c:927
+#: ../src/trackerd/tracker-main.c:919
 msgid "Show indexer options"
 msgstr "Mostrar las opciones del indexador"
+
+#~ msgid "paused by battery"
+#~ msgstr "pausado por la batería"
 
 #~ msgid "Done"
 #~ msgstr "Hecho"
 
 #~ msgid "Estimated"
 #~ msgstr "Estimado"
-
-#~ msgid "Elapsed"
-#~ msgstr "Transcurrido"
 
 #~ msgid "Given the following format (without quotes):"
 #~ msgstr "Dado el siguiente formato (sin comillas):"
