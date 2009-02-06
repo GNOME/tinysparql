@@ -1,5 +1,10 @@
 2009-02-06  Martyn Russell  <martyn@imendio.com>
 
+	* docs/reference/libtracker-common/Makefile.am: Fixed make
+	distcheck issues.
+
+2009-02-06  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/tracker-escape.c: Make sure we check for
 	UTF8 validation before sending over dbus.
 	

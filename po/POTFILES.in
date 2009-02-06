@@ -15,6 +15,7 @@ src/tracker-applet/tracker-applet-prefs.glade
 src/tracker-applet/tracker-applet.c
 src/tracker-applet/tracker-applet.desktop.in.in
 src/tracker-extract/tracker-extract.c
+src/tracker-extract/tracker-main.c
 src/tracker-indexer/tracker-main.c
 src/tracker-preferences/tracker-preferences.c
 src/tracker-preferences/tracker-preferences.desktop.in.in

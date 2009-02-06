@@ -37,7 +37,6 @@ INCLUDES = 						\
 	$(GLIB2_CFLAGS)
 
 GTKDOC_LIBS =						\
-	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(HAL_LIBS)					\
 	$(DBUS_LIBS)					\
