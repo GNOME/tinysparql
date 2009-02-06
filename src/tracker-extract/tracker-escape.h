@@ -25,9 +25,9 @@
 
 G_BEGIN_DECLS
 
-gchar *tracker_escape_metadata        (const gchar *str);
-gchar *tracker_escape_metadata_printf (const gchar *format,
-                                       ...);
+/* We used to escape strings before we used DBus */
+#define tracker_escape_metadata        g_strdup
+#define tracker_escape_metadata_printf g_strdup_printf
 
 G_END_DECLS
 

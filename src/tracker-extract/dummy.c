@@ -28,7 +28,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 
 /*
  * Prototype of the parsing function. 

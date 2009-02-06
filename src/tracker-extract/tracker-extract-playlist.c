@@ -31,8 +31,9 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include "tracker-extract.h"
 #include <totem-pl-parser.h>
+
+#include "tracker-main.h"
 
 #define PLAYLIST_PROPERTY_NO_TRACKS "Playlist:Songs"
 #define PLAYLIST_PROPERTY_DURATION  "Playlist:Duration"
@@ -50,7 +51,7 @@ static void extract_playlist (const gchar *filename,
 			      GHashTable  *metadata);
 
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "audio/x-mpegurl", extract_playlist },
 	{ "audio/mpegurl", extract_playlist },
 	{ "audio/x-scpls", extract_playlist },
@@ -137,8 +138,8 @@ extract_playlist (const gchar *filename,
         g_object_unref (pl);
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

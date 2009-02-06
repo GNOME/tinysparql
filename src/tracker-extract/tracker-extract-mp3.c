@@ -39,7 +39,7 @@
 #include <sys/mman.h>
 #endif /* G_OS_WIN32 */
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-albumart.h"
 #include "tracker-escape.h"
 
@@ -276,7 +276,7 @@ static gint freq_table[4][3] = {
 	{32000, 16000, 8000}
 };
 
-static TrackerExtractorData extractor_data[] = {
+static TrackerExtractData extract_data[] = {
 	{ "audio/mpeg", extract_mp3 },
 	{ "audio/x-mp3", extract_mp3 },
 	{ NULL, NULL }
@@ -1531,8 +1531,8 @@ extract_mp3 (const gchar *filename,
 	close(file);
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
-	return extractor_data;
+	return extract_data;
 }

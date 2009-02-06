@@ -50,7 +50,7 @@ static const ExtractData data_xmp_exif_orientation[] = {
 
 void test_tracker_extract_png_basic_size(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_basic_size[i].filename; i++) {
@@ -62,7 +62,7 @@ void test_tracker_extract_png_basic_size(gconstpointer data)
 
 void test_tracker_extract_png_xmp_exif_orientation(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_xmp_exif_orientation[i].filename; i++) {
@@ -74,7 +74,7 @@ void test_tracker_extract_png_xmp_exif_orientation(gconstpointer data)
 
 void performance_tracker_extract_png(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	
 	performance_extract_files (data, "/png/perf_png_%d.png", 1000);
 }

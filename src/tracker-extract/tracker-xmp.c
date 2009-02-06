@@ -26,7 +26,7 @@
 #include <glib.h>
 
 #include "tracker-xmp.h"
-#include "tracker-escape.h"
+#include "tracker-main.h"
 
 #ifdef HAVE_EXEMPI
 

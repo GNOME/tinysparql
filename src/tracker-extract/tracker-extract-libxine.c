@@ -17,11 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <xine.h>
 #include <glib.h>
 
-#include "tracker-extract.h"
-
+#include "tracker-main.h"
 
 static void
 add_uint32_info (GHashTable *metadata, char *key, uint32_t info)

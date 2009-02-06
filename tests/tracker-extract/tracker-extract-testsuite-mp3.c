@@ -104,14 +104,14 @@ static const ExtractData data_header_sampling[] = {
 
 void access_tracker_extract_mp3(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	
 	access_extract_files (data, "/mp3/access_%d.mp3", 4);
 }
 
 void test_tracker_extract_mp3_id3v1_basic(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_id3v1_basic[i].filename; i++) {
@@ -123,7 +123,7 @@ void test_tracker_extract_mp3_id3v1_basic(gconstpointer data)
 
 void test_tracker_extract_mp3_id3v23_basic(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_id3v23_basic[i].filename; i++) {
@@ -135,7 +135,7 @@ void test_tracker_extract_mp3_id3v23_basic(gconstpointer data)
 
 void test_tracker_extract_mp3_id3v23_tags(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_id3v23_tags[i].filename; i++) {
@@ -147,7 +147,7 @@ void test_tracker_extract_mp3_id3v23_tags(gconstpointer data)
 
 void test_tracker_extract_mp3_id3v23_tcon(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_id3v23_tcon[i].filename; i++) {
@@ -159,7 +159,7 @@ void test_tracker_extract_mp3_id3v23_tcon(gconstpointer data)
 
 void test_tracker_extract_mp3_header_bitrate(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_header_bitrate[i].filename; i++) {
@@ -171,7 +171,7 @@ void test_tracker_extract_mp3_header_bitrate(gconstpointer data)
 
 void test_tracker_extract_mp3_header_bitrate_vbr(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_header_bitrate_vbr[i].filename; i++) {
@@ -183,7 +183,7 @@ void test_tracker_extract_mp3_header_bitrate_vbr(gconstpointer data)
 
 void test_tracker_extract_mp3_header_sampling(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_header_sampling[i].filename; i++) {
@@ -197,7 +197,7 @@ void test_tracker_extract_mp3_header_sampling(gconstpointer data)
 
 void performance_tracker_extract_mp3(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	
 	performance_extract_files (data, "/mp3/perf_cbr_id3v1_%d.mp3", 1000);
 }

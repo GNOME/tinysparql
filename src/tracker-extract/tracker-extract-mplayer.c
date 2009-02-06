@@ -28,13 +28,13 @@
 
 #include <libtracker-common/tracker-os-dependant.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-escape.h"
 
 static void extract_mplayer (const gchar *filename,
 			     GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "audio/*", extract_mplayer },
 	{ "video/*", extract_mplayer },
 	{ NULL, NULL }
@@ -247,8 +247,8 @@ extract_mplayer (const gchar *filename,
 	}
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

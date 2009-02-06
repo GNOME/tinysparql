@@ -64,7 +64,7 @@
 
 #include <libtracker-common/tracker-type-utils.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-albumart.h"
 
 /*

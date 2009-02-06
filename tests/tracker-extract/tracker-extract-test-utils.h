@@ -27,16 +27,16 @@
 
 #include <glib.h>
 
-#include <tracker-extract/tracker-extract.h>
+#include <tracker-extract/tracker-main.h>
 
-TrackerExtractorData *  tracker_test_extract_get_extractor (const gchar *mime);
-void              extract_file (const TrackerExtractorData *data, 
+TrackerExtractData *  tracker_test_extract_get_extract (const gchar *mime);
+void              extract_file (const TrackerExtractData *data, 
 				const gchar *file, 
 				const gchar *testdatafile);
-void              performance_extract_files (const TrackerExtractorData *data, 
+void              performance_extract_files (const TrackerExtractData *data, 
 					     const gchar *filematch, 
 					     guint filecount);
-void              access_extract_files (const TrackerExtractorData *data, 
+void              access_extract_files (const TrackerExtractData *data, 
 					const gchar *filematch, 
 					guint filecount);
 

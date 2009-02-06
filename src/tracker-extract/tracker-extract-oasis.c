@@ -26,7 +26,7 @@
 
 #include <libtracker-common/tracker-os-dependant.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-escape.h"
 
 typedef enum {
@@ -63,7 +63,7 @@ static void text_handler	  (GMarkupParseContext	*context,
 static void extract_oasis	  (const gchar		*filename,
 				   GHashTable		*metadata);
 
-static TrackerExtractorData extractor_data[] = {
+static TrackerExtractData extract_data[] = {
 	{ "application/vnd.oasis.opendocument.*", extract_oasis },
 	{ NULL, NULL }
 };
@@ -243,8 +243,8 @@ text_handler (GMarkupParseContext  *context,
 	}
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
-	return extractor_data;
+	return extract_data;
 }

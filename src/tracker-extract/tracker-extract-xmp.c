@@ -21,31 +21,33 @@
 
 #include <glib.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-xmp.h"
 #include "tracker-escape.h"
 
+static void extract_xmp (const gchar *filename, 
+                         GHashTable  *metadata);
+
+static TrackerExtractData data[] = {
+	{ "application/rdf+xml", extract_xmp },
+	{ NULL, NULL }
+};
 
 static void
-tracker_extract_xmp (const gchar* filename, GHashTable *metadata)
+extract_xmp (const gchar *filename, 
+             GHashTable  *metadata)
 {
 	gchar *contents;
 	gsize length;
 	GError *error;
 
-	if ( g_file_get_contents ( filename, &contents, &length, &error ) )
+	if (g_file_get_contents (filename, &contents, &length, &error)) {
 		tracker_read_xmp (contents, length, metadata);
+        }
 }
 
-
-TrackerExtractorData data[] = {
-	{ "application/rdf+xml", tracker_extract_xmp },
-	{ NULL, NULL }
-};
-
-
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

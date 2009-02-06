@@ -26,7 +26,7 @@
 
 #include <glib.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-xmp.h"
 
 #include <libtracker-common/tracker-utils.h>
@@ -34,7 +34,7 @@
 static void extract_pdf (const gchar *filename,
 			 GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "application/pdf", extract_pdf },
 	{ NULL, NULL }
 };
@@ -114,8 +114,8 @@ extract_pdf (const gchar *filename,
 	g_object_unref (document);
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

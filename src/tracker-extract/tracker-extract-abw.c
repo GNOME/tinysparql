@@ -34,13 +34,13 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-escape.h"
 
 static void extract_abw (const gchar *filename,
 			 GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "application/x-abiword", extract_abw },
 	{ NULL, NULL }
 };
@@ -113,8 +113,8 @@ extract_abw (const gchar *filename,
 	}
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

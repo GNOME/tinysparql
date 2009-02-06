@@ -6,6 +6,7 @@ modulesdir = $(libdir)/tracker/extract-modules
 INCLUDES = 								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMODULESDIR=\"$(modulesdir)\"					\
+	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src 						\
 	$(EXEMPI_CFLAGS) 						\
@@ -225,7 +226,7 @@ tracker_extract_LDADD = 						\
 	$(GLIB2_LIBS)
 
 dbus_sources = 								\
-	tracker-extractor-glue.h
+	tracker-extract-glue.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^

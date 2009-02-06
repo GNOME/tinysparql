@@ -32,20 +32,19 @@
 int
 main (int argc, char **argv) {
 
+	TrackerExtractData *data;
 	gint result;
 
 	g_type_init ();
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
-
-	TrackerExtractorData *data;
-
-	g_test_message ("Testing extractor functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-jpeg/check-extractor-data",
-			 test_tracker_extract_check_extractor_data);
+ 
+	g_test_message ("Testing extract functionality");
+	g_test_add_func ("/tracker-extract/tracker-extract-jpeg/check-extract-data",
+			 test_tracker_extract_check_extract_data);
 
 #if 0
-	data = tracker_test_extract_get_extractor ("image/jpeg");
+	data = tracker_test_extract_get_extract ("image/jpeg");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-jpeg/basic_size",
 			      data, test_tracker_extract_jpeg_basic_size);

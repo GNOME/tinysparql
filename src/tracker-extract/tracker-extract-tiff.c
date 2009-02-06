@@ -29,7 +29,7 @@
 
 #include <libtracker-common/tracker-type-utils.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-xmp.h"
 
 #define XMP_NAMESPACE_LENGTH 29
@@ -57,7 +57,7 @@ static void   extract_tiff    (const gchar *filename,
 			       GHashTable  *metadata);
 static gchar *date_to_iso8601 (gchar       *date);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "image/tiff", extract_tiff },
 	{ NULL, NULL }
 };
@@ -269,8 +269,8 @@ extract_tiff (const gchar *filename,
 	TIFFClose (image);
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

@@ -25,7 +25,7 @@
 
 #include <libtracker-common/tracker-os-dependant.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-escape.h"
 
 static gchar *tags[][2] = {
@@ -46,7 +46,7 @@ static gchar *tags[][2] = {
 static void extract_totem (const gchar *filename,
 			   GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "audio/*", extract_totem },
 	{ "video/*", extract_totem },
 	{ NULL, NULL }
@@ -83,8 +83,8 @@ extract_totem (const gchar *filename,
 	}
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

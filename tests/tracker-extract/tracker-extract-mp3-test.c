@@ -33,18 +33,18 @@
 int
 main (int argc, char **argv) {
 
-	TrackerExtractorData *data;
+	TrackerExtractData *data;
 	gint result;
 
 	g_type_init ();
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_message ("Testing extractor functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-mp3/check-extractor-data",
-			 test_tracker_extract_check_extractor_data);
+	g_test_message ("Testing extract functionality");
+	g_test_add_func ("/tracker-extract/tracker-extract-mp3/check-extract-data",
+			 test_tracker_extract_check_extract_data);
 
-	data = tracker_test_extract_get_extractor ("audio/mpeg");
+	data = tracker_test_extract_get_extract ("audio/mpeg");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/access",
 			      data, access_tracker_extract_mp3);

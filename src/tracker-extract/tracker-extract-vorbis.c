@@ -26,9 +26,7 @@
 #include <glib.h>
 #include <vorbis/vorbisfile.h>
 
-#include "tracker-extract.h"
-
-/*#include "tracker-utils.h"*/
+#include "tracker-main.h"
 
 static struct {
 	char * name;

@@ -29,7 +29,7 @@
 
 #include <libtracker-common/tracker-os-dependant.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-xmp.h"
 
 static void extract_imagemagick (const gchar *filename, 

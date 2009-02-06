@@ -26,7 +26,7 @@
 
 #include <libxml/HTMLparser.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-escape.h"
 
 typedef enum {
@@ -41,7 +41,7 @@ typedef struct {
 static void extract_html (const gchar *filename,
 			  GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "text/html",		   extract_html },
 	{ "application/xhtml+xml", extract_html },
 	{ NULL, NULL }
@@ -222,8 +222,8 @@ extract_html (const gchar *filename,
 	}
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

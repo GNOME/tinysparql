@@ -36,12 +36,12 @@
 
 #include <libtracker-common/tracker-utils.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 
 static void extract_msoffice (const gchar *filename,
 			      GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "application/msword",	  extract_msoffice },
 	{ "application/vnd.ms-*", extract_msoffice },
 	{ NULL, NULL }
@@ -222,8 +222,8 @@ extract_msoffice (const gchar *filename,
 	gsf_shutdown ();
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

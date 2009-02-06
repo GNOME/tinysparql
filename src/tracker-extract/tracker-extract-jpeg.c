@@ -40,7 +40,7 @@
 
 #include <libtracker-common/tracker-type-utils.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-xmp.h"
 
 #ifdef HAVE_EXEMPI
@@ -56,7 +56,7 @@
 static void extract_jpeg (const gchar *filename,
 			  GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "image/jpeg", extract_jpeg },
 	{ NULL, NULL }
 };
@@ -356,8 +356,8 @@ extract_jpeg (const gchar *filename,
 	}
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

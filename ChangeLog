@@ -1,3 +1,62 @@
+2009-02-06  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/tracker-escape.[ch]: Make the escape
+	functions simply duplicate the functions with g_strdup() and
+	g_strdup_printf().
+	
+	* src/tracker-extract/dummy.c:
+	* src/tracker-extract/tracker-extract-abw.c:
+	* src/tracker-extract/tracker-extract-exif.c:
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c:
+	* src/tracker-extract/tracker-extract-gstreamer-tagreadbin.c:
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-extract-html.c:
+	* src/tracker-extract/tracker-extract-imagemagick.c:
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-extract-libxine.c:
+	* src/tracker-extract/tracker-extract-mp3.c: 
+	* src/tracker-extract/tracker-extract-mplayer.c:
+	* src/tracker-extract/tracker-extract-msoffice.c:
+	* src/tracker-extract/tracker-extract-oasis.c: 
+	* src/tracker-extract/tracker-extract-pdf.c: 
+	* src/tracker-extract/tracker-extract-playlist.c:
+	* src/tracker-extract/tracker-extract-png.c:
+	* src/tracker-extract/tracker-extract-ps.c:
+	* src/tracker-extract/tracker-extract-tiff.c:
+	* src/tracker-extract/tracker-extract-totem.c:
+	* src/tracker-extract/tracker-extract-vorbis.c:
+	* src/tracker-extract/tracker-extract-xmp.c: 
+	* src/tracker-extract/tracker-xmp.c: Renamed 'Extractor' to 'Extract' 
+
+	* data/dbus/Makefile.am:
+	* data/dbus/org.freedesktop.Tracker.Extract.service.in:
+	* data/dbus/tracker-extract.xml:
+	* src/tracker-extract/Makefile.am:
+	* src/tracker-extract/tracker-extract.[ch]: New DBus object with
+	introspection to request metadata for a file and mime type.
+	
+	* src/tracker-extract/tracker-main.[ch]: Use logging and now log
+	all messages to tracker-extract.log.
+
+	* src/tracker-indexer/Makefile.am:
+	* src/tracker-indexer/tracker-dbus.h:
+	* src/tracker-indexer/tracker-module-metadata-utils.c: Call the
+	new extracter over DBus.
+	
+	* tests/tracker-extract/tracker-extract-jpeg-test.c:
+	* tests/tracker-extract/tracker-extract-mp3-test.c:
+	* tests/tracker-extract/tracker-extract-png-test.c:
+	* tests/tracker-extract/tracker-extract-test-utils.c:
+	* tests/tracker-extract/tracker-extract-test-utils.h:
+	* tests/tracker-extract/tracker-extract-testsuite-avi.c:
+	* tests/tracker-extract/tracker-extract-testsuite-generic.[ch]:
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.c:
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.c:
+	* tests/tracker-extract/tracker-extract-testsuite-png.c:
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.c:
+	* tests/tracker-extract/tracker-extract-tiff-test.c: Updated tests
+	accordingly.
+
 2009-02-06  Carlos Garnacho  <carlos@imendio.com>
 
 	Pass also the amount of processed items over to trackerd, use this

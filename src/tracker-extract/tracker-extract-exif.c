@@ -28,7 +28,7 @@
 
 #include <libtracker-common/tracker-type-utils.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 
 #define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
 

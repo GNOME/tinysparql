@@ -39,7 +39,7 @@
 
 #include <libtracker-common/tracker-type-utils.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-xmp.h"
 #include "tracker-escape.h"
 
@@ -70,7 +70,7 @@ static TagProcessors tag_processors[] = {
 	{ NULL,			NULL,		      NULL},
 };
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "image/png", extract_png },
 	{ NULL, NULL }
 };
@@ -267,8 +267,8 @@ extract_png (const gchar *filename,
 	}
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

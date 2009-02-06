@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+<busconfig>
+    <policy context="default">
+      <deny send_interface="org.freedesktop.Tracker.Indexer"/>
+      <allow send_destination="org.freedesktop.Tracker"/>
+    </policy>
+</busconfig>
+-->
+
+<node name="/">
+  <interface name="org.freedesktop.Tracker.Extract">  
+    <method name="GetMetadata">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="path" direction="in" />
+      <arg type="s" name="mime" direction="in" />
+      <arg type="a{ss}" name="values" direction="out" />
+    </method>
+  </interface>
+</node>

@@ -55,7 +55,7 @@ static const ExtractData data_exif_orientation[] = {
 
 void test_tracker_extract_tiff_basic_size(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_basic_size[i].filename; i++) {
@@ -67,7 +67,7 @@ void test_tracker_extract_tiff_basic_size(gconstpointer data)
 
 void test_tracker_extract_tiff_exif_size(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_exif_size[i].filename; i++) {
@@ -81,7 +81,7 @@ void test_tracker_extract_tiff_exif_size(gconstpointer data)
 
 void test_tracker_extract_tiff_exif_orientation(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_exif_orientation[i].filename; i++) {
@@ -93,7 +93,7 @@ void test_tracker_extract_tiff_exif_orientation(gconstpointer data)
 
 void performance_tracker_extract_tiff(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	
 	performance_extract_files (data, "/tiff/perf_tiff_%d.tif", 1000);
 }

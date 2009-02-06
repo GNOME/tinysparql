@@ -108,7 +108,7 @@ static const ExtractData data_xmp_dc[] = {
 
 void test_tracker_extract_jpeg_basic_size(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_basic_size[i].filename; i++) {
@@ -120,7 +120,7 @@ void test_tracker_extract_jpeg_basic_size(gconstpointer data)
 
 void test_tracker_extract_jpeg_exif_size(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_exif_size[i].filename; i++) {
@@ -132,7 +132,7 @@ void test_tracker_extract_jpeg_exif_size(gconstpointer data)
 
 void test_tracker_extract_jpeg_exif_orientation(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_exif_orientation[i].filename; i++) {
@@ -144,7 +144,7 @@ void test_tracker_extract_jpeg_exif_orientation(gconstpointer data)
 
 void test_tracker_extract_jpeg_exif_flash(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_exif_flash[i].filename; i++) {
@@ -156,7 +156,7 @@ void test_tracker_extract_jpeg_exif_flash(gconstpointer data)
 
 void test_tracker_extract_jpeg_exif_tags(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_exif_tags[i].filename; i++) {
@@ -168,7 +168,7 @@ void test_tracker_extract_jpeg_exif_tags(gconstpointer data)
 
 void performance_tracker_extract_jpeg(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	
 	performance_extract_files (data, "/jpeg/perf_jpeg_%d.jpg", 1000);
 }

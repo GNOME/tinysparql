@@ -32,6 +32,8 @@
 #include <libtracker-common/tracker-thumbnailer.h>
 
 #include "tracker-module-metadata-utils.h"
+#include "tracker-extract-client.h"
+#include "tracker-dbus.h"
 
 #define METADATA_FILE_NAME_DELIMITED "File:NameDelimited"
 #define METADATA_FILE_EXT	     "File:Ext"
@@ -57,6 +59,40 @@ typedef struct {
 } ProcessContext;
 
 static ProcessContext *metadata_context = NULL;
+
+static DBusGProxy *
+get_dbus_extract_proxy (void)
+{
+	static DBusGProxy *proxy = NULL;
+	DBusGConnection *connection;
+	GError *error = NULL;
+
+	/* FIXME: Not perfect, we leak */
+	if (G_LIKELY (proxy)) {
+		return proxy;
+	}
+
+	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
+
+	if (!connection) {
+		g_critical ("Could not connect to the DBus session bus, %s",
+			    error ? error->message : "no error given.");
+		g_clear_error (&error);
+		return FALSE;
+	}
+
+	/* Get proxy for Service / Path / Interface of the indexer */
+	proxy = dbus_g_proxy_new_for_name (connection,
+					   "org.freedesktop.Tracker.Extract",
+					   "/org/freedesktop/Tracker/Extract",
+					   "org.freedesktop.Tracker.Extract");
+	
+	if (!proxy) {
+		g_critical ("Couldn't create a DBusGProxy to the extract service");
+	}
+
+	return proxy;
+}
 
 static void
 process_context_invalidate (ProcessContext *context)
@@ -162,168 +198,6 @@ process_context_create (const gchar **argv,
 	return context;
 }
 
-static gboolean
-metadata_read_cb (GIOChannel   *channel,
-		  GIOCondition	condition,
-		  gpointer	user_data)
-{
-	GPtrArray *array;
-	GIOStatus status;
-	gchar *line;
-
-	if (!metadata_context) {
-		return FALSE;
-	}
-
-	if ((condition & G_IO_HUP) || (condition & G_IO_ERR)) {
-		return FALSE;
-	}
-
-	array = metadata_context->data;
-	status = G_IO_STATUS_NORMAL;
-	line = NULL;
-
-	if (!array) {
-		/* FIXME: What do we do here? This has happened to me
-		 * before and we get warnings when we try to add to
-		 * the empty array later.
-		 */
-		g_message ("EEEEEK!!!\n"
-			   "\n"
-			   "Expected metadata array to be non-NULL!\n"
-			   "\n"
-			   "This usually means we probably got '\\n' too many times "
-			   "and closed the pipe when there is more content available "
-			   "to read\n"
-			   "\n"
-			   "Stopping main loop and this callback");
-
-		g_main_loop_quit (metadata_context->data_incoming_loop);
-
-		return FALSE;
-	}
-
-	if ((condition & G_IO_IN) || (condition & G_IO_PRI)) {
-		do {
-			status = g_io_channel_read_line (metadata_context->stdout_channel,
-							 &line,
-							 NULL,
-							 NULL,
-							 NULL);
-
-			if (status == G_IO_STATUS_NORMAL && line && *line) {
-				g_strstrip (line);
-				g_strdelimit (line, ";", '\0');
-				g_ptr_array_add (array, line);
-			}
-		} while (status == G_IO_STATUS_NORMAL && line && *line);
-
-		if (status == G_IO_STATUS_EOF ||
-		    status == G_IO_STATUS_ERROR ||
-		    (status == G_IO_STATUS_NORMAL && !*line)) {
-			/* All extractor output has been processed */
-			g_main_loop_quit (metadata_context->data_incoming_loop);
-		}
-	}
-
-	return TRUE;
-}
-
-static gboolean
-metadata_setup (void)
-{
-	const gchar *argv[2] = {
-		LIBEXEC_PATH G_DIR_SEPARATOR_S "tracker-extract",
-		NULL
-	};
-
-	if (metadata_context) {
-		process_context_invalidate (metadata_context);
-		metadata_context = NULL;
-	}
-
-	metadata_context = process_context_create (argv,
-						   metadata_read_cb);
-	if (!metadata_context) {
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static gchar **
-metadata_query_file (const gchar *path,
-		     const gchar *mimetype)
-{
-	gchar *utf_path, *str;
-	GPtrArray *array;
-	GIOStatus status;
-	GError *error = NULL;
-
-	if (!path || !mimetype) {
-		return NULL;
-	}
-
-	if (!metadata_context && !metadata_setup ()) {
-		return NULL;
-	}
-
-	utf_path = g_filename_from_utf8 (path, -1, NULL, NULL, NULL);
-
-	if (!utf_path) {
-		return NULL;
-	}
-
-	array = g_ptr_array_sized_new (10);
-	metadata_context->data = array;
-
-	str = g_strdup_printf ("%s\n%s\n", utf_path, mimetype);
-	g_free (utf_path);
-
-	/* Write path and mimetype */
-	g_io_channel_write_chars (metadata_context->stdin_channel, str, -1, NULL, NULL);
-	status = g_io_channel_flush (metadata_context->stdin_channel, &error);
-
-	if (status == G_IO_STATUS_ERROR &&
-	    error &&
-	    g_error_matches (error, G_IO_CHANNEL_ERROR, G_IO_CHANNEL_ERROR_PIPE)) {
-		/* Looks like the external extractor
-		 * process has died before the child watch
-		 * could handle it, try respawning.
-		 */
-		g_error_free (error);
-
-		metadata_setup ();
-		metadata_context->data = array;
-
-		g_io_channel_write_chars (metadata_context->stdin_channel, str, -1, NULL, NULL);
-		status = g_io_channel_flush (metadata_context->stdin_channel, NULL);
-
-		if (status == G_IO_STATUS_ERROR) {
-			/* No point in trying again */
-			process_context_invalidate (metadata_context);
-			metadata_context = NULL;
-			g_free (str);
-			return NULL;
-		}
-	}
-
-	/* It will block here until all incoming
-	 * metadata has been processed
-	 */
-	g_main_loop_run (metadata_context->data_incoming_loop);
-
-	g_ptr_array_add (array, NULL);
-
-	if (metadata_context) {
-		metadata_context->data = NULL;
-	}
-
-	g_free (str);
-
-	return (gchar **) g_ptr_array_free (array, FALSE);
-}
-
 static void
 metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
 				  TrackerField          *field,
@@ -358,14 +232,53 @@ metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
 }
 
 static void
+metadata_utils_get_embedded_foreach (gpointer key,
+				     gpointer value,
+				     gpointer user_data)
+{
+	TrackerModuleMetadata *metadata;
+	TrackerField *field;
+	gchar *key_str;
+	gchar *value_str;
+
+	metadata = user_data;
+	key_str = key;
+	value_str = value;
+	
+	if (!key || !value) {
+		return;
+	}
+	
+	field = tracker_ontology_get_field_by_name (key_str);
+	if (!field) {
+		g_warning ("Field name '%s' isn't described in the ontology", key_str);
+		return;
+	}
+	
+	if (tracker_field_get_multiple_values (field)) {
+		GStrv strv;
+		guint i;
+		
+		strv = g_strsplit (value_str, "|", -1);
+		
+		for (i = 0; strv[i]; i++) {
+			metadata_utils_add_embedded_data (metadata, field, strv[i]);
+		}
+		
+		g_strfreev (strv);
+	} else {
+		metadata_utils_add_embedded_data (metadata, field, value_str);
+	}
+}
+
+static void
 metadata_utils_get_embedded (const char            *path,
 			     const char            *mime_type,
 			     TrackerModuleMetadata *metadata)
 {
-	gchar **values;
+	GHashTable *values = NULL;
+	GError *error = NULL;
 	const gchar *service_type;
-	gint i;
-	TrackerField *field;
 
 	service_type = tracker_ontology_get_service_by_mime (mime_type);
 	if (!service_type) {
@@ -376,63 +289,29 @@ metadata_utils_get_embedded (const char            *path,
 		return;
 	}
 
-	values = metadata_query_file (path, mime_type);
+	/* Call extractor to get data here */
+	if (!org_freedesktop_Tracker_Extract_get_metadata (get_dbus_extract_proxy (),
+							   path, 
+							   mime_type, 
+							   &values, 
+							   &error)) {
+		g_message ("Couldn't extract metadata for path:'%s' and mime:'%s', %s",
+			   path,
+			   mime_type,
+			   error ? error->message : "no error given");
+		g_clear_error (&error);
+		return;
+	}
 
 	if (!values) {
 		return;
 	}
 
-	/* parse returned values and extract keys and associated metadata */
-	for (i = 0; values[i]; i++) {
-		gchar *meta_data, *sep;
-		const gchar *name;
-		gchar *value;
+	g_hash_table_foreach (values, 
+			      metadata_utils_get_embedded_foreach, 
+			      metadata);
 
-		meta_data = values[i];
-		sep = strchr (meta_data, '=');
-
-		if (!sep)
-			continue;
-
-		/* zero out the separator, so we get
-		 * NULL-terminated name and value
-		 */
-		sep[0] = '\0';
-		name = meta_data;
-		value = g_strcompress (sep + 1);
-
-		if (!name || !value) {
-			g_free (value);
-			continue;
-		}
-
-		field = tracker_ontology_get_field_by_name (name);
-
-		if (!field) {
-			g_warning ("Field name '%s' isn't described in the ontology", name);
-			g_free (value);
-			continue;
-		}
-
-		if (tracker_field_get_multiple_values (field)) {
-			GStrv arr;
-			guint t;
-
-			arr = g_strsplit (value, "|",-1);
-
-			for (t = 0; arr[t]; t++) {
-				metadata_utils_add_embedded_data (metadata, field, arr[t]);
-			}
-
-			g_strfreev (arr);
-		} else {
-			metadata_utils_add_embedded_data (metadata, field, value);
-		}
-
-		g_free (value);
-	}
-
-	g_strfreev (values);
+	/* Do we free this hash table? */
 }
 
 static gboolean

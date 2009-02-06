@@ -9,13 +9,15 @@ config_DATA =						\
 	tracker-metadata.xml				\
 	tracker-search.xml				\
 	tracker-xesam.xml				\
-	tracker-indexer.xml
+	tracker-indexer.xml				\
+	tracker-extract.xml
 
 # Services
 servicedir = $(DBUS_SERVICES_DIR)
 service_in_files =					\
 	org.freedesktop.Tracker.service.in		\
-	org.freedesktop.Tracker.Indexer.service.in
+	org.freedesktop.Tracker.Indexer.service.in	\
+	org.freedesktop.Tracker.Extract.service.in
 service_DATA = $(service_in_files:.service.in=.service)
 
 %.service: %.service.in

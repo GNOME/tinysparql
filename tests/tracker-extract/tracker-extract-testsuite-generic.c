@@ -24,15 +24,15 @@
 #include "tracker-extract-testsuite-generic.h"
 
 void
-test_tracker_extract_check_extractor_data (void)
+test_tracker_extract_check_extract_data (void)
 {
-	TrackerExtractorData *data;
+	TrackerExtractData *data;
 	guint extractors = 0;
 
-	data = tracker_get_extractor_data ();
+	data = tracker_get_extract_data ();
 
 	while (data->mime) {
-		if (data->extractor == NULL) {
+		if (data->extract == NULL) {
 			g_error ("Extractor for mime '%s' declared NULL", data->mime);
 		}
 

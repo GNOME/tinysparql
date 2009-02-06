@@ -33,7 +33,7 @@
 #include <gst/tag/tag.h>
 #include <gst/interfaces/tagreader.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-albumart.h"
 
 typedef enum {

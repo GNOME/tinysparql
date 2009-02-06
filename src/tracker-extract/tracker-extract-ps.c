@@ -37,7 +37,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
 
-#include "tracker-extract.h"
+#include "tracker-main.h"
 #include "tracker-escape.h"
 
 #ifndef HAVE_GETLINE
@@ -59,7 +59,7 @@ static void extract_ps_gz (const gchar *filename,
 static void extract_ps	  (const gchar *filename,
 			   GHashTable  *metadata);
 
-static TrackerExtractorData data[] = {
+static TrackerExtractData data[] = {
 	{ "application/x-gzpostscript",	extract_ps_gz },
 	{ "application/postscript",	extract_ps    },
 	{ NULL, NULL }
@@ -354,8 +354,8 @@ extract_ps_gz (const gchar *filename,
 	g_unlink (gunzipped);
 }
 
-TrackerExtractorData *
-tracker_get_extractor_data (void)
+TrackerExtractData *
+tracker_get_extract_data (void)
 {
 	return data;
 }

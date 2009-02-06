@@ -20,13 +20,13 @@
 
 #include "tracker-extract-test-utils.h"
 
-TrackerExtractorData *
-tracker_test_extract_get_extractor (const gchar *mime)
+TrackerExtractData *
+tracker_test_extract_get_extract (const gchar *mime)
 {
-	TrackerExtractorData *data;
+	TrackerExtractData *data;
 	
 	/* Search for exact match first */
-	data = tracker_get_extractor_data ();	
+	data = tracker_get_extract_data ();	
 	while (data->mime) {
 		if (strcmp (data->mime, mime) == 0) {
 			return data;
@@ -35,7 +35,7 @@ tracker_test_extract_get_extractor (const gchar *mime)
 	}
 
 	/* Search for generic */
-	data = tracker_get_extractor_data ();
+	data = tracker_get_extract_data ();
 	while (data->mime) {
 		if (g_pattern_match_simple (data->mime, mime)) {
 			return data;
@@ -46,7 +46,7 @@ tracker_test_extract_get_extractor (const gchar *mime)
 }
 
 void
-extract_file (const TrackerExtractorData *data, const gchar *file, const gchar *testdatafile)
+extract_file (const TrackerExtractData *data, const gchar *file, const gchar *testdatafile)
 {
 	GHashTable *metadata;
 	GHashTable *testdata;
@@ -69,7 +69,7 @@ extract_file (const TrackerExtractorData *data, const gchar *file, const gchar *
 					  g_free,
 					  g_free);
 
-	(*data->extractor) (filename, metadata);
+	(*data->extract) (filename, metadata);
 
 	testdata = parse_testdata_file (testdata_filename);
 
@@ -86,7 +86,7 @@ extract_file (const TrackerExtractorData *data, const gchar *file, const gchar *
 }
 
 void
-performance_extract_files (const TrackerExtractorData *data, const gchar *filematch, guint filecount)
+performance_extract_files (const TrackerExtractData *data, const gchar *filematch, guint filecount)
 {
 	double perftime;
 	guint i;
@@ -117,7 +117,7 @@ performance_extract_files (const TrackerExtractorData *data, const gchar *filema
 			g_assert_not_reached();
 		}
 
-		(*data->extractor) (filename, metadata);
+		(*data->extract) (filename, metadata);
 
 		g_assert (g_hash_table_size (metadata) > 0);
 
@@ -132,7 +132,7 @@ performance_extract_files (const TrackerExtractorData *data, const gchar *filema
 }
 
 void
-access_extract_files (const TrackerExtractorData *data, const gchar *filematch, guint filecount)
+access_extract_files (const TrackerExtractData *data, const gchar *filematch, guint filecount)
 {
 	double perftime;
 	guint i;
@@ -161,7 +161,7 @@ access_extract_files (const TrackerExtractorData *data, const gchar *filematch, 
 			g_assert_not_reached();
 		}
 
-		(*data->extractor) (filename, metadata);
+		(*data->extract) (filename, metadata);
 
 		g_assert (g_hash_table_size (metadata) > 0);
 
@@ -169,12 +169,12 @@ access_extract_files (const TrackerExtractorData *data, const gchar *filematch, 
 	}		
 }
 
-TrackerExtractorData *
-search_mime_extractor (const gchar *mime)
+TrackerExtractData *
+search_mime_extract (const gchar *mime)
 {
-	TrackerExtractorData *data;
+	TrackerExtractData *data;
 
-	data = tracker_get_extractor_data ();	
+	data = tracker_get_extract_data ();	
 
 	while (data->mime) {
 		if (strcmp (data->mime,mime) == 0) {

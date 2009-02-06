@@ -34,7 +34,7 @@ static const ExtractData data_basic_tags[] = {
 
 void test_tracker_extract_avi_basic_tags(gconstpointer data)
 {
-	const TrackerExtractorData *extractor = data;
+	const TrackerExtractData *extract = data;
 	guint i;
 
 	for (i=0; data_basic_tags[i].filename; i++) {

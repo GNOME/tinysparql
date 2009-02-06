@@ -32,23 +32,27 @@ G_BEGIN_DECLS
  * for this keyword. This is bad because it means we have to string
  * check every value returned in clients that use the Tracker API.
  * This will be fixed in due course after January some time, -mr.
- *
- * 
  */
 #define METADATA_UNKNOWN ""
 
-typedef struct TrackerExtractorData TrackerExtractorData;
+typedef struct TrackerExtractData TrackerExtractData;
 
-typedef TrackerExtractorData * (*TrackerExtractorDataFunc)(void);
+typedef TrackerExtractData * (*TrackerExtractDataFunc)(void);
 
-struct TrackerExtractorData {
+struct TrackerExtractData {
 	const gchar *mime;
 
-	void (* extractor) (const gchar *filename,
-			    GHashTable	*metadata);
+	void (* extract) (const gchar *path,
+			  GHashTable  *metadata);
 };
 
-TrackerExtractorData *tracker_get_extractor_data (void);
+/* This is defined in each extract */
+TrackerExtractData *tracker_get_extract_data            (void);
+
+/* This is used to not shutdown after the default of 30 seconds if we
+ * get more work to do.
+ */
+void                tracker_main_shutdown_timeout_reset (void);
 
 G_END_DECLS
 
