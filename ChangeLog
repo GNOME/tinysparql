@@ -1,5 +1,13 @@
 2009-02-06  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-escape.c: Make sure we check for
+	UTF8 validation before sending over dbus.
+	
+	* src/tracker-extract/tracker-extract.c: Fixed some warnings
+	related to NULL hash tables.
+
+2009-02-06  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/tracker-escape.[ch]: Make the escape
 	functions simply duplicate the functions with g_strdup() and
 	g_strdup_printf().

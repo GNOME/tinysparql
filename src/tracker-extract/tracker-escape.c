@@ -25,3 +25,32 @@
 #include <glib.h>
 
 #include "tracker-escape.h"
+
+gchar *
+tracker_escape_metadata (const gchar *str)
+{
+	const gchar *end;
+
+	if (g_utf8_validate (str, -1, &end)) {
+		return g_strdup (str);
+	}
+
+	return g_strndup (str, end - str);
+}
+
+gchar *
+tracker_escape_metadata_printf (const gchar *format,
+				...)
+{
+ 	va_list args;
+ 	gchar *str, *escaped;
+ 	
+ 	va_start (args, format);
+ 	str = g_strdup_vprintf (format, args);
+ 	va_end (args);
+ 	
+ 	escaped = tracker_escape_metadata (str);
+ 	g_free (str);
+ 	
+ 	return escaped;
+}

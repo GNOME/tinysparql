@@ -309,7 +309,7 @@ get_file_metadata (TrackerExtract *extract,
 	g_free (path_in_locale);
 	g_free (path_used);
 
-	return NULL;
+	return values;
 }
 
 void
@@ -355,21 +355,28 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 				  path,
 				  mime);
 
+	tracker_dbus_request_comment (request_id,
+				      "  Resetting shutdown timeout");
+
 	tracker_main_shutdown_timeout_reset ();
 
 	values = get_file_metadata (object, request_id, path, mime);
-
 	if (values) {
 		g_hash_table_foreach (values, 
 				      print_file_metadata_item, 
 				      GUINT_TO_POINTER (request_id));
-	}
-
-	dbus_g_method_return (context, values);
-
-	if (values) {
+		dbus_g_method_return (context, values);
 		g_hash_table_destroy (values);
-	}
+		tracker_dbus_request_success (request_id);
+	} else {
+		GError *actual_error = NULL;
 
-	tracker_dbus_request_success (request_id);
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     "Could not get any metadata for path:'%s' and mime:'%s'",
+					     path, 
+					     mime);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+	}
 }
