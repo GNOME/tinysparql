@@ -1,5 +1,9 @@
 2009-02-09  Martyn Russell  <martyn@imendio.com>
 
+	* Release 0.6.90.
+
+2009-02-09  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-db/tracker-db-manager.c: (db_set_params): Revert
 	Jamie's change to use FULL synchronicity with SQLite. There was a
 	speed issue with it.
@@ -1694,7 +1698,7 @@
 
 2008-12-09  Martyn Russell  <martyn@imendio.com>
 
-	* src/libtracker/tracker.[ch]: Fixes bug #563706
+	* src/libtracker/tracker.[ch]: Fixes bug #563706.
 
 	* src/trackerd/tracker-dbus.c: Include config.h.
 
@@ -1705,7 +1709,7 @@
 	* tracker-info.c
 	* tracker-meta-folder.c:
 	Allow this tools to receive relative paths as parameters.
-	Fixes #563666.
+	Fixes bug #563666.
 	
 2008-12-08  Ivan Frade  <ivan.frade@nokia.com>
 
@@ -1723,7 +1727,7 @@
 
 	* src/tracker-applet/tracker-applet.c:
 	Applied patch from Wendy Hu preventing the raise of a second
-	preferences window from the applet. This fixes bug #528684.
+	preferences window from the applet. This fixes bug #528684 (Wendy Hu).
 	
 2008-12-05  Jürg Billeter  <j@bitron.ch>
 
@@ -3066,9 +3070,8 @@
 2008-10-31  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-applet/tracker-applet.c
-	Added translation domain loading the glade file.
-
-	Patch committed from Gabor Kelemen. Fixes bug #558613.
+	Added translation domain loading the glade file. Fixes bug #558613
+	(Gabor Kelemen). 
 	
 2008-10-30  Philip Van Hoof  <philip@codeminded.be>
 
@@ -3472,12 +3475,12 @@
 	* COPYING
 
 	Updated Free Software Foundation address. 
-	This fixes bug #518265
+	This fixes bug #518265.
 	
 2008-10-13  Ivan Frade  <ivan.frade@nokia.com>
 
 	* docs/manpages/trackerd.1
-	Fixed typo. Close bug #548561.
+	Fixed typo, this fixes bug #548561.
 	
 2008-10-13  Martyn Russell  <martyn@imendio.com>
 
@@ -12249,7 +12252,7 @@
 
 2008-04-08  Ivan Frade  <ivan.frade@nokia.com>
 
-	Hide indexer struct to improve modularity. Bug #525403
+	Hide indexer struct to improve modularity. Fixes bug #525403.
 
 	* src/trackerd/tracker-utils.h: WordDetails moved to the indexer.
 
@@ -12275,7 +12278,7 @@
 
 	Service type information encapsulated in TrackerService GObject.
 	Service-type/mime/mime prefixes relations in tracker_service_manager.
-	Bug #523200
+	Fixes bug #523200.
 
 	* data/services/default.service: Add HasFulltext, HasMetadata,
 	HasThumbs properties with proper values.
@@ -12332,7 +12335,7 @@
 
 2008-04-07  Ivan Frade  <ivan.frade@nokia.com>
 
-	Using standard C functions to parse dates. Bug #526727
+	Using standard C functions to parse dates. Fixes bug #526727.
 	Replaced iso8160 with iso8601
 
 	* tracker-extract.[ch]: Replaced tracker_generic_data_extractor
@@ -12345,7 +12348,7 @@
 
 2008-04-07  Carlos Garnacho  <carlos@imendio.com>
 
-	Make Mail indexing modular. Bug #526761.
+	Make Mail indexing modular. Fixes bug #526761.
 
 	* src/libtracker-common/tracker-config.[ch]: Add a string
 	configuration parameter instead of a boolean value for each mail
@@ -12667,44 +12670,45 @@
 2008-02-14  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc): Store directly
-	results in a GPtrArray. Bug #513691.
+	results in a GPtrArray. Fixes bug #513691.
 
 2008-02-14  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.h:
 	* src/trackerd/tracker-utils.h: Pack booleans in guints to make most
-	used structs smaller. Bug #513692.
+	used structs smaller. Fixes bug #513692.
 
 2008-02-08  Rich Burridge <rich.burridge@sun.com>
 
 	* src/libtracker-gtk/tracker-utils.h:
 	* src/libtracker-gtk/tracker-utils.c:
 	* src/libtracker-gtk/tracker-tag-bar.c:
-        Fix for bug #494892 - Label for/labeled by relation missing for
+        Fix for Fixes bug #494892 - Label for/labeled by relation missing for
         add tag button.
 
 	* src/libtracker-gtk/tracker-metadata-tile.c:
 	From Wendy Hu <Huiwe.Hu@sun.com>
-	Fix for bug #494907 – Labels should be set as focusable.
+	Fixes bug #494907 – Labels should be set as focusable.
 
         * src/tracker-search-tool/tracker-search-tool.c:
         From Patrick Wade <patrick.wade@sun.com>
-        Fix for bug #495205 – Warning message label should be accessible
+        Fixes bug #495205 – Warning message label should be accessible
         to at-tools.
 
         * src/tracker-search-tool/tracker-search-tool-support.c:
         * src/tracker-search-tool/tracker-search-tool-support.h:
         * src/tracker-search-tool/tracker-search-tool.c:
-        Fix for bug #494878 – Search hit number can not be reported by Orca.
+        Fixes bug #494878 – Search hit number can not be reported by Orca.
 
 2008-02-05  Rich Burridge <rich.burridge@sun.com>
 
         * src/tracker-preferences/tracker-preferences.glade:
-          Fix for bug #503215 – The time unit is not reported by default.
+          Fixes bug #503215 – The time unit is not reported by default.
 
-2008-02-03 Patch from Carlos Garnacho  <carlos@imendio.com>
+2008-02-03 Carlos Garnacho  <carlos@imendio.com>
 
-	* GNOME Bug #509601: make tracker-extract more modular using dynamically loaded libraries
+	* Fixes bug #509601.  Make tracker-extract more modular using
+	dynamically loaded libraries.
 
 2008-01-30 Luca Ferretti  <elle.uca@libero.it>
 
@@ -12721,13 +12725,13 @@
 2008-01-29 Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.c (tracker_db_search_text): Avoid
-	doing too many relocations of data in memory. Bug #511781.
+	doing too many relocations of data in memory. Fixes bug #511781.
 	* src/trackerd/tracker-utils.c (array_to_list): Same here.
 
 2008-01-28  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-db-sqlite.c (tracker_exec_proc_ignore_nulls):
-	Store directly results in a GPtrArray. Bug #511788
+	Store directly results in a GPtrArray. Fixes bug #511788.
 
 2008-01-27 Patches from from Thiago Marcos P. Santos <tmpsantos@gmail.com>
 
@@ -12808,13 +12812,13 @@
 
 	* python/deskbar-handler/tracer-module.py
 	  Even more defensively programmed add_all_actions () to get
-	  around *older* deskbar releases (prior rev 1701). Another
-	  fix to gnome bug #474131
+	  around *older* deskbar releases (prior rev 1701). Fixes bug
+	  #474131. 
 
 2007-11-30 Jerry Tan <jerry.tan@sun.com>
         
-        * src/tracker-search-tool/tracker-search-tool.c: fix gnome bug
-	495528, disable Save Result As when search type like email,
+        * src/tracker-search-tool/tracker-search-tool.c: Fixes bug
+	#495528. Disable Save Result As when search type like email,
 	applications.
 
 2007-11-28 Jerry Tan <jerry.tan@sun.com>
@@ -12864,9 +12868,10 @@
 2007-11-23  Saleem Abdulrasool  <compnerd@compnerd.org>
 
 	* src/tracker-preferences/tracker-preferences.glade:
-	Add accessibility tags for lists in tracker-preferences (bug #495201).  Patch
-	from Patrick Wade.  Also add accessibility tags for throttling (bug #195188),
-	patch again by Patrick Wade.
+	Add accessibility tags for lists in tracker-preferences. Fixes bug
+	#495201 (Patrick Wade). Patch from Patrick Wade. Also add
+	accessibility tags for throttling. Fixes bug #195188 (Patrick
+	Wade). 
 
 2007-11-19 Marcus Fritzsch <m at fritschy dot de>
 
@@ -12894,10 +12899,11 @@
 
 2007-11-16 Marcus Fritzsch <m at fritschy dot de>
 
-	* python/deskbar-handler/tracker-module.py
-	  fixed URI quoting issues reported as bug #495512
-	* src/trackerd/tracker-dbus-search.c
-	  additional error check, fixes bug #495810
+	* python/deskbar-handler/tracker-module.py: Fixed URI quoting
+	issues. Fixes bug #495512. 
+
+	* src/trackerd/tracker-dbus-search.c: Additional error check,
+	fixes bug #495810.
 
 2007-11-13 Jamie McCracken <jamiemcc at gnome org>
 
@@ -12990,7 +12996,7 @@
 	* src/tracker-search-tool/tracker-search-tool.c:
 	(display_error_dialog): Patch from Bruce Cowan
 	<bugs@bcowan.fastmail.co.uk> Fix spelling error 'occured' ->
-	'occurred'.  Bug #481651. 
+	'occurred'.  Fixes bug #481651. 
 
 2007-10-31 Michael Biebl <mbiebl at gmail com>
 
@@ -13036,7 +13042,7 @@
 
 2007-10-19  Marcus Fritzsch <m at fritschy dot de>
 
-	* deskbar handlers, Fixed gnome bugs #487444, #486733
+	* deskbar handlers, Fixed gnome bug #487444. Fixes bug #486733.
 	* added some more exception catchers, in general where actions
 	  are executed
 
