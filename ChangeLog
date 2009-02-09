@@ -1,5 +1,11 @@
 2009-02-09  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-db/tracker-db-manager.c: (db_set_params): Revert
+	Jamie's change to use FULL synchronicity with SQLite. There was a
+	speed issue with it.
+
+2009-02-09  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-common/tracker-dbus.[ch]: Added a debug function
 	which uses g_debug() instead of g_message().
 	
