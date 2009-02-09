@@ -1612,7 +1612,7 @@ db_set_params (TrackerDBInterface *iface,
 	       gint		   page_size,
 	       gboolean		   add_functions)
 {
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL;");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = FULL;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA count_changes = 0;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = FILE;");
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
