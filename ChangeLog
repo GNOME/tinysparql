@@ -1,9 +1,12 @@
+2008-02-09  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (item_remove): Add back once
+	again deleting content from removed services.
+
 2009-02-08 Jamie McCracken <jamiemcc at gnome org>
 
 	* src/libtracker-db/tracker-db-manager.c:
 	Use full synchronous in sqlite to minimize corruption
-
-
 
 2009-02-06  Martyn Russell  <martyn@imendio.com>
 

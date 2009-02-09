@@ -1903,6 +1903,8 @@ item_remove (TrackerIndexer *indexer,
 			   path);
 	}
 
+	tracker_data_update_delete_content (service, service_id);
+
 #if 0
 	/* Get content, unindex the words and delete the contents */
 	content = tracker_data_query_content (service, service_id);
