@@ -1,3 +1,15 @@
+2009-02-09  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-dbus.[ch]: Added a debug function
+	which uses g_debug() instead of g_message().
+	
+	* src/tracker-extract/tracker-escape.[ch]: Make it possible to UTF8
+	validate all strings escaped. For now we are turning this off.
+	
+	* src/tracker-extract/tracker-extract.c: Use the new DBus debug
+	function so we don't spam the logs in EVERY log verbosity mode.
+	This makes quite an impact on indexing time with verbosity set to 3.
+
 2008-02-09  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (item_remove): Add back once

@@ -117,6 +117,9 @@ void		 tracker_dbus_request_failed	     (gint			  request_id,
 void		 tracker_dbus_request_comment	     (gint			  request_id,
 						      const gchar		 *format,
 						      ...);
+void		 tracker_dbus_request_debug	     (gint			  request_id,
+						      const gchar		 *format,
+						      ...);
 
 G_END_DECLS
 

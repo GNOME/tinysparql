@@ -180,10 +180,10 @@ print_file_metadata_item (gpointer key,
 
 	if (value_utf8) {
 		value_utf8 = g_strstrip (value_utf8);
-		tracker_dbus_request_comment (GPOINTER_TO_UINT (user_data),
-					      "  Found '%s'='%s'",
-					      key,
-					      value_utf8);
+		tracker_dbus_request_debug (GPOINTER_TO_UINT (user_data),
+					    "  Found '%s'='%s'",
+					    key,
+					    value_utf8);
 		g_free (value_utf8);
 	}
 }
@@ -355,9 +355,9 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 				  path,
 				  mime);
 
-	tracker_dbus_request_comment (request_id,
-				      "  Resetting shutdown timeout");
-
+	tracker_dbus_request_debug (request_id,
+				    "  Resetting shutdown timeout");
+	
 	tracker_main_shutdown_timeout_reset ();
 
 	values = get_file_metadata (object, request_id, path, mime);

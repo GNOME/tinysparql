@@ -330,3 +330,21 @@ tracker_dbus_request_comment (gint	   request_id,
 		   str);
 	g_free (str);
 }
+
+void
+tracker_dbus_request_debug (gint	 request_id,
+			    const gchar *format,
+			    ...)
+{
+	gchar	*str;
+	va_list  args;
+
+	va_start (args, format);
+	str = g_strdup_vprintf (format, args);
+	va_end (args);
+
+	g_debug ("---- [%d] %s",
+		 request_id,
+		 str);
+	g_free (str);
+}

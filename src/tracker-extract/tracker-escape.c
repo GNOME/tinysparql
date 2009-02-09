@@ -26,6 +26,8 @@
 
 #include "tracker-escape.h"
 
+#ifdef SHOULD_VALIDATE_UTF8
+
 gchar *
 tracker_escape_metadata (const gchar *str)
 {
@@ -54,3 +56,5 @@ tracker_escape_metadata_printf (const gchar *format,
  	
  	return escaped;
 }
+
+#endif /* SHOULD_VALIDATE_UTF8 */

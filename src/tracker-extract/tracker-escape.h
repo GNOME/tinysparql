@@ -23,11 +23,23 @@
 
 #include <glib.h>
 
+#undef SHOULD_VALIDATE_UTF8
+
 G_BEGIN_DECLS
+
+#ifdef SHOULD_VALIDATE_UTF8
+
+gchar *tracker_escape_metadata        (const gchar *str);
+gchar *tracker_escape_metadata_printf (const gchar *format,
+				       ...);
+
+#else  /* SHOULD_VALIDATE_UTF8 */
 
 /* We used to escape strings before we used DBus */
 #define tracker_escape_metadata        g_strdup
 #define tracker_escape_metadata_printf g_strdup_printf
+
+#endif /* SHOULD_VALIDATE_UTF8 */
 
 G_END_DECLS
 
