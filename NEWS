@@ -1,67 +1,163 @@
-Tracker 0.6.90
+NEW in 0.6.90:
 ==============
 
-  What's Changed?
-  * Major re-factoring over the last 12 months for cleaner code.
-  * Modular approach with:
-     - libtracker-common 
-       (common functions shared across all binaries)
-     - libtracker-db     
-       (database abstraction and manipulation API)
-     - libtracker-data   
-       (a higher level data get/set API)
-     - libtracker-module
-       (an API used by 3rd parties to index their content)
-  * DBus re-factoring and use of GLib bindings (for maintainability).
-    (The method names haven't changed, but the objects have, so the
-     client applications will need to be updated).
-  * Extractors are now run as an external process detached from the
-    indexer to not crash the indexer for problematic files.
-  * The utility applications have all been improved and use GOption
-    for argument parsing.
-  * Configuration is now more centralised and used by applications as
-    well as the daemon/indexer.
-  * File monitoring has been rewritten using GIO and libinotify:
-  * GnomeVFS support dropped from the project.
+Features:
+- Major re-factoring over the last 12 months for cleaner code.
+- Modular approach with:
+  - libtracker-common 
+    (common functions shared across all binaries)
+  - libtracker-db     
+    (database abstraction and manipulation API)
+  - libtracker-data   
+    (a higher level data get/set API)
+  - libtracker-module
+    (an API used by 3rd parties to index their content)
+- DBus re-factoring and use of GLib bindings (for maintainability).
+  (The method names haven't changed, but the objects have, so the
+  client applications will need to be updated).
+- Extractors are now run as an external process detached from the
+  indexer to not crash the indexer for problematic files.
+- The utility applications have all been improved and use GOption
+  for argument parsing.
+- Configuration is now more centralised and used by applications as
+  well as the daemon/indexer.
+- File monitoring has been rewritten using GIO and libinotify:
+- GnomeVFS support dropped from the project.
+- Requirement for GLib 2.16.x.
+- Imported libinotify (for use in the daemon for file monitoring).
+  (due to lack of MOVE event information from GIO).
+- Support for DBus introspection.
+- Support for removable media indexing (MMC, USB sticks).
+- Support for meta-data caching on removable devices
+  (see http://live.gnome.org/MetadataOnRemovableDevices)
+- Support for searching with OR operations.
+- Support for XESAM (initial support only).
+- Added application dedicated to indexing (tracker-indexer).
+- Added estimated time remaining while indexing.
+- Added module API and framework for applications to add support for
+  their media files to be indexed. 
+- Added utility applications:
+  - tracker-unique   
+    (searches for unique values with option RDF filters)
+  - tracker-services 
+    (lists all ontology services/properties)
+  - tracker-info     
+    (lists details known to tracker about a particular file)
+- Added unit tests for:
+  - trackerd
+  - tracker-indexer
+  - tracker-extract
+  - libtracker-common
+  - libtracker-db
+- Added documentation for:
+  - daemon/indexer design
+  - libtracker-common
+  - libtracker-module
 
-  What's New?
-  * Requirement for GLib 2.16.x.
-  * Imported libinotify (for use in the daemon for file monitoring).
-    (due to lack of MOVE event information from GIO).
-  * Support for DBus introspection.
-  * Support for removable media indexing (MMC, USB sticks).
-  * Support for meta-data caching on removable devices
-    (see http://live.gnome.org/MetadataOnRemovableDevices)
-  * Support for searching with OR operations.
-  * Support for XESAM (initial support only).
-  * Added application dedicated to indexing (tracker-indexer).
-  * Added estimated time remaining while indexing.
-  * Added module API and framework for applications to add support for
-    their media files to be indexed. 
-  * Added utility applications:
-    - tracker-unique   
-      (searches for unique values with option RDF filters)
-    - tracker-services 
-      (lists all ontology services/properties)
-    - tracker-info     
-      (lists details known to tracker about a particular file)
-  * Added unit tests for:
-    - trackerd
-    - tracker-indexer
-    - tracker-extract
-    - libtracker-common
-    - libtracker-db
-  * Added documentation for:
-    - daemon/indexer design
-    - libtracker-common
-    - libtracker-module
+Missing Support:
+- Index merging has been removed in this release due to lack of
+  time to implementing it and with plans to redesign. SQLite FTS has
+  the feature internally and will be used in future releases. This
+  is noticeable only for very large data sets where a slowdown can be
+  observed. 
 
-  Missing Support
-  * Index merging has been removed in this release due to lack of
-    time to implementing it and with plans to redesign. SQLite FTS has
-    the feature internally and will be used in future releases. This
-    is noticeable only for very large data sets where a slowdown can be
-    observed. 
+Bugs:
+- Fixed #486733, crash in Deskbar: Trying to launch the Tra... (Carlos Garnacho)
+- Fixed #474131, crash in Deskbar: Deskbar search applet --... (Carlos Garnacho)
+- Fixed #97029, Typos in the italian translation of the About box (Mikael Ottela)
+- Fixed #97765, GFlare: switchng between circle/poly doesn't work (Ivan Frade)
+- Fixed #93935, line object connects to self (Ivan Frade)
+- Fixed #90700, "View as EOG Image" (Martyn Russell)
+- Fixed #90138, no way to cleanly unset a message's message_id header (Mikael Ottela)
+- Fixed #96999, Right-click context menu should contain copy entry (even on webpages without input fields) (Mikael Ottela)
+- Fixed #100816, [ui-review] Edit menu usability (Mikael Ottela)
+- Fixed #90374, help crashes (Mikael Ottela)
+- Fixed #93962, gtkspinbutton wants to own its adjustment (Philip Van Hoof)
+- Fixed #97125, missing dot between two sentences in docs for gtk_icon_size_lookup_for_settings () (Mikael Ottela)
+- Fixed #89254, Documentation updates and corrections for GtkTreeModel (Mikael Ottela)
+- Fixed #99281, acme should use an event filter (Mikael Ottela)
+- Fixed #92788, add fcpackage to bootstrap (Martyn Russell)
+- Fixed #402054, Should not allow duplicate keywords to be assigned to a file (Ivan Frade)
+- Fixed #402063, Empty space is not a valid keyword (Ivan Frade)
+- Fixed #441739, Hit count not updated after deleting files (item_remove)
+- Fixed #481651, Minor spelling issue (Carlos Garnacho)
+- Fixed #493049, Trailing space in an original message in the message catalog (Ivan Frade)
+- Fixed #494878, Search hit number can not be reported by orca. (Saleem Abdulrasool)
+- Fixed #494907, Labels should be set as focusable. (Saleem Abdulrasool)
+- Fixed #495810, Executing a wrong RDF query makes tracker unresponsive and unstable (Carlos Garnacho)
+- Fixed #509601, Make metadata extractors modular (Carlos Garnacho)
+- Fixed #509607, Make Search support logical operators besides 'And' (Carlos Garnacho)
+- Fixed #511781, Patch to avoid excesive relocations (array_to_list)
+- Fixed #511788, Patch to simplify tracker_exec_proc_ignore_nulls() (Carlos Garnacho)
+- Fixed #513486, TrackerConfig implementation (Martyn Russell)
+- Fixed #513691, simplify tracker_exec_proc() (Saleem Abdulrasool)
+- Fixed #513692, Pack booleans in guints (Saleem Abdulrasool)
+- Fixed #514553, Implementing GetTextContents method (Martyn Russell)
+- Fixed #518265, Bad FSF address (Ivan Frade)
+- Fixed #523200, Refactoring Service type "cache" (Ivan Frade)
+- Fixed #525403, [Refactor] Isolating indexer (Ivan Frade)
+- Fixed #526727, Parsing dates in extractors (Ivan Frade)
+- Fixed #526761, Make mail indexing modular (Carlos Garnacho)
+- Fixed #528684, [Tracker] The second Applet Preferences window can not be closed (Wendy Hu)
+- Fixed #529373, Use logging infrastructure from GLib (Carlos Garnacho, Martyn Russell)
+- Fixed #548561, Typo in trackerd man page (Ivan Frade)
+- Fixed #557979, tracker-preferences.desktop categories (Ivan Frade)
+- Fixed #558613, Applet preferences do not show up localized (Gabor Kelemen)
+- Fixed #560581, [l10n] Typo in Tracker message (Ivan Frade)
+- Fixed #563666, All tracker utils programs require absolute paths (Ivan Frade)
+- Fixed #563909, Canonicalize command line options (Ivan Frade)
+- Fixed #565218, GNOME Goal: Clean up GLib and GTK+ includes (Ivan Frade)
+- Fixed #565725, Please refactor set_status_hint in tracker-applet.c (Ivan Frade)
+- Fixed #565928, tracker-applet --help does not show up translated (Ivan Frade)
+- Fixed #565932, Some strings are not marked for translation (Ivan Frade)
+- Fixed #566221, nautilus python extension tracker-tags-tab.py does not work in trunk anymore (Ivan Frade)
+- Fixed #556196, Include <sys/inotify.h>, not <linux/inotify.h> (John Millikin)
+- Fixed #495512, Tracker Deskbar Applets crashes (Carlos Garnacho)
+- Fixed #511752, Build fixes for Maemo platform (Martyn Russell)
+- Fixed #520789, Build compiler warnings (Martyn Russell)
+- Fixed #521803, Refactor request and file processing (Martyn Russell)
+- Fixed #95754, v1.03 Compilation impossible avec bison 1.50 (Ivan Frade)
+- Fixed #95151, Keybinding reported for a button should include the modifer. (Ivan Frade)
+- Fixed #90455,  (Mikael Ottela)
+- Fixed #494892, Label for/labeled by relation missing for add tag button. (Saleem Abdulrasool)
+- Fixed #495201, Tables are not labeled. (Patrick Wade)
+- Fixed #495205, Warning message label should be accessible to at-tools. (Saleem Abdulrasool)
+- Fixed #503215, The time unit is not reported by default. (Saleem Abdulrasool)
+- Fixed #563706, Tracker plugin fails to build against trunk (Martyn Russell)
+- Fixed #570209, tracker_data_manager_set_db_option_int() uses incorrect parameter order for SetOption (TJ)
+- Fixed #495528, "Save Results As" doesn't work for Email results (Carlos Garnacho)
+- Fixed #503725, check/uncheck "Index mounted directories" needs trackerd reindex (Martyn Russell)
+- Fixed #98896, ru.po still in KOI8 (Martyn Russell)
+
+Translations:
+- Updated ar: Khaled Hosny
+- Updated be: Alexander Nyakhaychyk
+- Updated be@latin: Ihar Hrachyshka
+- Updated ca: Gil Forcada
+- Updated cs: Petr Kovar, Kamil Paral
+- Updated da: Mads Lundby
+- Updated el: Simos Xenitellis
+- Updated en_GB: Philip Withnall, David Lodge
+- Updated es: Jorge González, Jorge Gonzalez
+- Updated fi: Timo Jyrinki, Ilkka Tuohela
+- Updated fr: Marc Veillet, Robert-André Mauchin and Stéphane Raimbault
+- Updated hu: Gabor Kelemen
+- Updated it: Luca Ferretti
+- Updated ja: Takao Fujiwara, Takao Fujiwara <takao
+- Updated lt: Žygimantas Beručka, Gintautas Miliauskas
+- Updated nb: Kjartan Maraas
+- Updated nl: Roel Huybrechts
+- Updated oc: Yannig Marchegay (Kokoyaya)
+- Updated pl: Tomasz Dominikowski, Wadim Dziedzic
+- Updated pt: Nicolau Gonçalves, Nicolau Gonçalves <excentriko@gmail
+- Updated pt_BR: Henrique P Machado, Henrique Machado and Fábio Nogueira
+- Updated sk: Pavol Klačanský
+- Updated sv: Daniel Nylander
+- Updated th: Manatsawin Hanmongkolchai, Isriya Paireepairit
+- Updated zh_CN: Martyn Russell, YangZhang
+
+Help Manual Translations:
+None
 
 
 
