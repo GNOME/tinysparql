@@ -1,3 +1,13 @@
+2009-02-10  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/tracker-extract.c: Check file size is
+	non-zero before trying to extract metadata from it. This saves us
+	time and warnings in the log.
+	
+	* src/tracker-extract/tracker-main.c: Added GOption based command
+	line argument handling. Also added -m for mime -f for filename and
+	-v to set the verbosity to something other than the default config.
+
 2009-02-09  Martyn Russell  <martyn@imendio.com>
 
 	* Release 0.6.90.

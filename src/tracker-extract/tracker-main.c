@@ -41,28 +41,63 @@
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
 
+#define ABOUT								  \
+	"Tracker " PACKAGE_VERSION "\n"					  \
+	"Copyright (c) 2005-2008 Jamie McCracken (jamiemcc@gnome.org)\n"
+
+#define LICENSE								  \
+	"This program is free software and comes without any warranty.\n" \
+	"It is licensed under version 2 or later of the General Public "  \
+	"License which can be viewed at:\n"				  \
+	"\n"								  \
+	"  http://www.gnu.org/licenses/gpl.txt\n"
+
+#define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
+
 static GMainLoop *main_loop;
-static guint      shutdown_timeout_id;
+static guint      quit_timeout_id;
+
+static gint       verbosity = -1;
+static gchar     *filename;
+static gchar     *mime_type;
+
+static GOptionEntry  entries[] = {
+	{ "verbosity", 'v', 0,
+	  G_OPTION_ARG_INT, &verbosity,
+	  N_("Logging, 0 = errors only, "
+	     "1 = minimal, 2 = detailed and 3 = debug (default = 0)"),
+	  NULL },
+	{ "file", 'f', 0,
+	  G_OPTION_ARG_STRING, &filename,
+	  N_("File to extract metadata for"),
+	  N_("FILE") },
+	{ "file", 'm', 0,
+	  G_OPTION_ARG_STRING, &mime_type,
+	  N_("MIME type for file (if not provided, this will be guessed)"),
+	  N_("MIME") },
+
+	{ NULL }
+};
 
 static gboolean
-shutdown_timeout_cb (gpointer user_data)
+quit_timeout_cb (gpointer user_data)
 {
-	shutdown_timeout_id = 0;
+	quit_timeout_id = 0;
 	g_main_loop_quit (main_loop);
 
 	return FALSE;
 }
 
 void
-tracker_main_shutdown_timeout_reset (void)
+tracker_main_quit_timeout_reset (void)
 {
-	if (shutdown_timeout_id != 0) {
-		g_source_remove (shutdown_timeout_id);
+	if (quit_timeout_id != 0) {
+		g_source_remove (quit_timeout_id);
 	}
 
-	shutdown_timeout_id = g_timeout_add_seconds (30, 
-						     shutdown_timeout_cb, 
-						     NULL);
+	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT, 
+						 quit_timeout_cb, 
+						 NULL);
 }
 
 static void
@@ -88,6 +123,7 @@ int
 main (int argc, char *argv[])
 {
 	GOptionContext *context;
+	GError         *error = NULL;
 	gchar          *summary;
 	TrackerConfig  *config;
 	gchar          *log_filename;
@@ -100,23 +136,26 @@ main (int argc, char *argv[])
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
 	context = g_option_context_new (_("- Extract file meta data"));
 
-	/* Translators: this message will appear after the usage string */
-	/* and before the list of options.				*/
-	summary = g_strconcat (_("This command works two ways:"),
-			       "\n",
-			       "\n",
-			       _(" - Calling the DBus API once running"),
-			       "\n",
-			       _(" - Passing arguments:"),
-			       "\n",
-			       "     tracker-extract [filename] [mime-type]\n",
-			       NULL);
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_parse (context, &argc, &argv, &error);
 
-	g_option_context_set_summary (context, summary);
-	g_option_context_parse (context, &argc, &argv, NULL);
+	if (!filename && mime_type) {
+		gchar *help;
+
+		g_printerr ("%s\n\n",
+			    _("Filename and mime type must be provided together"));
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return EXIT_FAILURE;
+	}
+
 	g_option_context_free (context);
 
-	g_free (summary);
+	g_print ("\n" ABOUT "\n" LICENSE "\n");
 
 	tracker_memory_setrlimits ();
 
@@ -132,7 +171,7 @@ main (int argc, char *argv[])
 
 	setlocale (LC_ALL, "");
 
-	if (argc >= 2) {
+	if (filename) {
 		TrackerExtract *object;
 
 		object = tracker_extract_new ();
@@ -140,11 +179,7 @@ main (int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 
-		if (argc >= 3) {
-			tracker_extract_get_metadata_by_cmdline (object, argv[1], argv[2]);
-		} else {
-			tracker_extract_get_metadata_by_cmdline (object, argv[1], NULL);
-		}
+		tracker_extract_get_metadata_by_cmdline (object, filename, mime_type);
 
 		g_object_unref (object);
 
@@ -158,6 +193,11 @@ main (int argc, char *argv[])
 				  "tracker",
 				  "tracker-extract.log",
 				  NULL);
+
+	/* Extractor command line arguments */
+	if (verbosity > -1) {
+		tracker_config_set_verbosity (config, verbosity);
+	}
 
 	/* Initialize subsystems */
 	initialize_directories ();
@@ -178,7 +218,7 @@ main (int argc, char *argv[])
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
-	tracker_main_shutdown_timeout_reset ();
+	tracker_main_quit_timeout_reset ();
 	g_main_loop_run (main_loop);
 	g_main_loop_unref (main_loop);
 
