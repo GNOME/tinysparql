@@ -81,6 +81,7 @@ parse_month (const gchar *month)
 }
 
 /* Determine date format and convert to ISO 8601 format */
+/* FIXME We should handle all the fractions here (see ISO 8601), as well as YYYY:DDD etc */
 gchar *
 tracker_date_format (const gchar *date_string)
 {
@@ -302,6 +303,37 @@ tracker_date_format (const gchar *date_string)
 		buf[19] = '\0';
 
 		return g_strdup (buf);
+	} else if ((len == 28) && (date_string[4] == '-') && (date_string[10] == 'T') 
+		   && (date_string[19] == '.') ) {
+		/* The fraction of seconds ISO 8601 "YYYY-MM-DDThh:mm:ss.ff+zz:zz" */
+		buf[0] = date_string[0];
+		buf[1] = date_string[1];
+		buf[2] = date_string[2];
+		buf[3] = date_string[3];
+		buf[4] = '-';
+		buf[5] = date_string[5];
+		buf[6] = date_string[6];
+		buf[7] = '-';
+		buf[8] = date_string[8];
+		buf[9] = date_string[9];
+		buf[10] = 'T';
+		buf[11] = date_string[11];
+		buf[12] = date_string[12];
+		buf[13] = ':';
+		buf[14] = date_string[14];
+		buf[15] = date_string[15];
+		buf[16] = ':';
+		buf[17] = date_string[17];
+		buf[18] = date_string[18];
+		buf[19] = date_string[22];
+		buf[20] = date_string[23];
+		buf[21] = date_string[24];
+		buf[22] = ':';
+		buf[23] = date_string[26];
+		buf[24] = date_string[27];
+		buf[25] = '\0';
+
+		return g_strdup (buf);
 	}
 
 	return g_strdup (date_string);
@@ -339,6 +371,7 @@ tracker_date_to_time_string (const gchar *date_string)
 		time_t t;
 
 		t = tracker_string_to_date (str);
+
 		g_free (str);
 
 		if (t != -1) {
@@ -419,7 +452,8 @@ is_valid_8601_datetime (const gchar *date_string)
 	} else {
 		if (len > 20) {
 			/* Format must be YYYY-MM-DDThh:mm:ss+xx  or
-			 * YYYY-MM-DDThh:mm:ss+xx:yy
+			 * YYYY-MM-DDThh:mm:ss+xx:yy or
+			 * YYYY-MM-DDThh:mm:ss+xxyy
 			 */
 			if (len < 22 || len > 25) {
 				return FALSE;

@@ -1,3 +1,10 @@
+2009-02-10  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-common/tracker-type-utils.c: Handle ISO 8601 that
+	has fractions of a second.
+
+	Fixes NB #100123
+
 2009-02-10  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-extract/tracker-extract.c: Check file size is
