@@ -695,15 +695,16 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
  * Saving the last backup file to help with debugging.
  */
 static void
-crawling_finished_cb (TrackerProcessor *processor, gpointer user_data)
+crawling_finished_cb (TrackerProcessor *processor, 
+		      gpointer          user_data)
 {
-	gulong *callback_id = user_data;
-	GError *error;
+	GError *error = NULL;
+	gulong *callback_id;
 	static gint counter = 0;
 	
-	counter += 1;
+	callback_id = user_data;
 
-	if (counter >= 2) {
+	if (++counter >= 2) {
 		gchar *rebackup;
 
 		g_debug ("Uninstalling initial crawling callback");
@@ -714,6 +715,13 @@ crawling_finished_cb (TrackerProcessor *processor, gpointer user_data)
 									get_ttl_backup_filename (),
 									&error);
 		
+			if (error) {
+				g_message ("Could not restore backup, %s", 
+					   error->message);
+				g_free (error);
+				return;
+			}
+
 			rebackup = g_strdup_printf ("%s.old",
 						    get_ttl_backup_filename ());
 			g_rename (get_ttl_backup_filename (), rebackup);

@@ -1,3 +1,10 @@
+2009-02-10  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-main.c: (crawling_finished_cb): Make sure
+	we initialise GError to NULL. Also use the error in the print
+	statement if it is set and make sure we also free it. If we do
+	fail (i.e. error != NULL) we now don't try to rename the ttl file. 
+
 2009-02-10  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-common/tracker-type-utils.c: Handle ISO 8601 that
