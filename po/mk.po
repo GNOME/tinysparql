@@ -648,7 +648,7 @@ msgstr ""
 "Ја минимизира употребата на меморијата, но може да го направи системот бавен"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:42
-msgid "_Use additonal memory for faster indexing"
+msgid "_Use additional memory for faster indexing"
 msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:43

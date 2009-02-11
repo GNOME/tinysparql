@@ -645,7 +645,7 @@ msgstr ""
 "དྲན་ཚད་ཀྱི་ལག་ལེན་འདི་ཕབ་ལེན་འབདཝ་ཨིན་  དེ་འབདཝ་ད་ ཟུར་ཐོ་ནང་བཀོད་ནི་ཡང་མར་ཕབ་འབད་འོང་"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:42
-msgid "_Use additonal memory for faster indexing"
+msgid "_Use additional memory for faster indexing"
 msgstr ""
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:43

@@ -1020,7 +1020,7 @@ msgid "_Minimize memory usage (slower indexing)"
 msgstr "메모리 사용량 최소화 (인덱싱이 느려짐)(_M)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:57
-msgid "_Use additonal memory for faster indexing"
+msgid "_Use additional memory for faster indexing"
 msgstr "빠른 인덱싱을 위해 추가적인 메모리 사용(_U)"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:58
