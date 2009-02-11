@@ -1,3 +1,9 @@
+2009-02-11  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (item_move): And add back that
+	recurse boolean parameter to the function, looks like commit r2892 to
+	tracker-indexer.c wiped out the previous commit.
+
 2009-02-11 Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* data/services/default.service
