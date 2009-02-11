@@ -718,7 +718,7 @@ crawling_finished_cb (TrackerProcessor *processor,
 			if (error) {
 				g_message ("Could not restore backup, %s", 
 					   error->message);
-				g_free (error);
+				g_error_free (error);
 				return;
 			}
 

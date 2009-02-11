@@ -1,3 +1,7 @@
+2009-02-11  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/trackerd/tracker-main.c: Crash fix for error freeing.
+
 2009-02-10  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-main.c: (crawling_finished_cb): Make sure
