@@ -46,6 +46,7 @@ struct _TrackerFieldDataPriv {
 	gboolean	  is_select;
 	gboolean	  is_condition;
 	gboolean	  needs_join;
+	gboolean          needs_null;
 };
 
 static void field_data_finalize     (GObject	  *object);
@@ -70,7 +71,8 @@ enum {
 	PROP_MULTIPLE_VALUES,
 	PROP_IS_SELECT,
 	PROP_IS_CONDITION,
-	PROP_NEEDS_JOIN
+	PROP_NEEDS_JOIN,
+	PROP_NEEDS_NULL
 };
 
 G_DEFINE_TYPE (TrackerFieldData, tracker_field_data, G_TYPE_OBJECT);
@@ -162,7 +164,13 @@ tracker_field_data_class_init (TrackerFieldDataClass *klass)
 							       "Needs join",
 							       FALSE,
 							       G_PARAM_READWRITE));
-
+	g_object_class_install_property (object_class,
+					 PROP_NEEDS_JOIN,
+					 g_param_spec_boolean ("needs-null",
+							       "Needs null",
+							       "Needs null",
+							       FALSE,
+							       G_PARAM_READWRITE));
 	g_type_class_add_private (object_class, sizeof (TrackerFieldDataPriv));
 }
 
@@ -234,6 +242,9 @@ field_data_get_property (GObject    *object,
 	case PROP_NEEDS_JOIN:
 		g_value_set_boolean (value, priv->needs_join);
 		break;
+	case PROP_NEEDS_NULL:
+		g_value_set_boolean (value, priv->needs_null);
+		break;		
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -289,6 +300,10 @@ field_data_set_property (GObject      *object,
 		break;
 	case PROP_NEEDS_JOIN:
 		tracker_field_data_set_needs_join (TRACKER_FIELD_DATA (object),
+						   g_value_get_boolean (value));
+		break;
+	case PROP_NEEDS_NULL:
+		tracker_field_data_set_needs_null (TRACKER_FIELD_DATA (object),
 						   g_value_get_boolean (value));
 		break;
 	default:
@@ -438,6 +453,18 @@ tracker_field_data_get_needs_join (TrackerFieldData *field_data)
 	priv = GET_PRIV (field_data);
 
 	return priv->needs_join;
+}
+
+gboolean
+tracker_field_data_get_needs_null (TrackerFieldData *field_data)
+{
+	TrackerFieldDataPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_FIELD_DATA (field_data), FALSE);
+
+	priv = GET_PRIV (field_data);
+
+	return priv->needs_null;
 }
 
 void
@@ -634,4 +661,18 @@ tracker_field_data_set_needs_join (TrackerFieldData *field_data,
 
 	priv->needs_join = value;
 	g_object_notify (G_OBJECT (field_data), "needs-join");
+}
+
+void
+tracker_field_data_set_needs_null (TrackerFieldData *field_data,
+				   gboolean	     value)
+{
+	TrackerFieldDataPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_FIELD_DATA (field_data));
+
+	priv = GET_PRIV (field_data);
+
+	priv->needs_null = value;
+	g_object_notify (G_OBJECT (field_data), "needs-null");
 }

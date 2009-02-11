@@ -61,6 +61,7 @@ gboolean	  tracker_field_data_get_multiple_values (TrackerFieldData *field_data)
 gboolean	  tracker_field_data_get_is_select	 (TrackerFieldData *field_data);
 gboolean	  tracker_field_data_get_is_condition	 (TrackerFieldData *field_data);
 gboolean	  tracker_field_data_get_needs_join	 (TrackerFieldData *field_data);
+gboolean          tracker_field_data_get_needs_null      (TrackerFieldData *field_data);
 
 void		  tracker_field_data_set_alias		 (TrackerFieldData *field_data,
 							  const gchar	   *value);
@@ -84,7 +85,8 @@ void		  tracker_field_data_set_is_condition	 (TrackerFieldData *field_data,
 							  gboolean	    value);
 void		  tracker_field_data_set_needs_join	 (TrackerFieldData *field_data,
 							  gboolean	    value);
-
+void		  tracker_field_data_set_needs_null	 (TrackerFieldData *field_data,
+							  gboolean	    value);
 G_END_DECLS
 
 #endif /* __TRACKERD_FIELD_DATA_H__ */

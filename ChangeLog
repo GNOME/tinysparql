@@ -1,3 +1,11 @@
+2009-02-11  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-schema.c
+	* src/libtracker-data/tracker-rdf-query.c
+	* src/libtracker-data/tracker-field-data.c
+	* src/libtracker-data/tracker-field-data.h: For equality condition
+	against an empty string in queries use outer join to include nulls.
+	
 2009-02-11  Carlos Garnacho  <carlos@imendio.com>
 
 	Add option for modules to discard a directory based on its contents.

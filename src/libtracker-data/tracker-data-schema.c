@@ -273,6 +273,7 @@ tracker_data_schema_get_metadata_field (TrackerDBInterface *iface,
 		}
 
 		tracker_field_data_set_where_field (field_data, where_field);
+		tracker_field_data_set_needs_null (field_data, FALSE);
 		g_free (where_field);
 		g_free (alias);
 	}

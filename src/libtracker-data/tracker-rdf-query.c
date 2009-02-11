@@ -810,13 +810,16 @@ build_sql (ParserData *data)
 						where_field,
 						data->current_value);
 		} else {
-			TrackerFieldType data_type;
-
-			data_type = tracker_field_data_get_data_type (field_data);
-
-			g_string_append_printf (str, " (%s = %s) ",
-						where_field,
-						value);
+			if (strcmp(value, " '' ") == 0) {
+				tracker_field_data_set_needs_null (field_data, TRUE);
+				g_string_append_printf (str, " ((%s = '') OR %s IS NULL) ",
+							where_field,
+							where_field);
+			} else {
+				g_string_append_printf (str, " (%s = %s) ",
+							where_field,
+							value);
+			}
 		}
 		break;
 
@@ -1388,13 +1391,23 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 				related_metadata = tracker_data_schema_metadata_field_get_related_names (iface,
                                                                                                          tracker_field_data_get_field_name (l->data));
-				g_string_append_printf (data.sql_from,
-							"\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
-							tracker_field_data_get_table_name (l->data),
-							tracker_field_data_get_alias (l->data),
-							tracker_field_data_get_alias (l->data),
-							tracker_field_data_get_alias (l->data),
-							related_metadata);
+				if (tracker_field_data_get_needs_null (l->data)) {
+					g_string_append_printf (data.sql_from,
+								"\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
+								tracker_field_data_get_table_name (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								related_metadata);
+				} else {
+					g_string_append_printf (data.sql_from,
+								"\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
+								tracker_field_data_get_table_name (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								related_metadata);
+				}
 				g_free (related_metadata);
 			}
 		}
@@ -1515,14 +1528,25 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 				gchar *related_metadata;
 
 				related_metadata = tracker_data_schema_metadata_field_get_related_names (iface,
-                                                                                                         tracker_field_data_get_field_name (l->data));
-				g_string_append_printf (data.sql_from,
-							"\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
-							tracker_field_data_get_table_name (l->data),
-							tracker_field_data_get_alias (l->data),
-							tracker_field_data_get_alias (l->data),
-							tracker_field_data_get_alias (l->data),
-							related_metadata);
+                                                                        tracker_field_data_get_field_name (l->data));
+				if (tracker_field_data_get_needs_null (l->data)) {
+					g_string_append_printf (data.sql_from,
+								"\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
+								tracker_field_data_get_table_name (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								related_metadata);
+				} else {
+					g_string_append_printf (data.sql_from,
+								"\n INNER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID in (%s)) ",
+								tracker_field_data_get_table_name (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								related_metadata);
+				}
+
 				g_free (related_metadata);
 			}
 		}
