@@ -34,7 +34,7 @@
 #include <gst/tag/tag.h>
 
 #include "tracker-main.h"
-#include "tracker-albumart.h"
+#include "tracker-extract-albumart.h"
 
 typedef enum {
 	EXTRACT_MIME_UNDEFINED=0,

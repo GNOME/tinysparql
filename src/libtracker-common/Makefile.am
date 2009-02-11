@@ -5,13 +5,14 @@ INCLUDES =						\
 	-DG_LOG_DOMAIN=\"Tracker\"			\
 	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
-	$(WARN_CFLAGS)							\
+	$(WARN_CFLAGS)					\
 	$(HAL_CFLAGS)					\
 	$(DBUS_CFLAGS)					\
 	$(UNAC_CFLAGS)					\
 	$(PANGO_CFLAGS)					\
 	$(GIO_CFLAGS)					\
-	$(GLIB2_CFLAGS)
+	$(GLIB2_CFLAGS)					\
+	$(GDKPIXBUF_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker
 libtracker_commonincludedir=$(includedir)/tracker-1.0/libtracker-common/
@@ -48,7 +49,8 @@ libtracker_common_la_SOURCES =	 			\
 	tracker-service.c				\
 	tracker-type-utils.c				\
 	tracker-utils.c					\
-	tracker-thumbnailer.c
+	tracker-thumbnailer.c				\
+	tracker-albumart.c
 
 noinst_HEADERS =					\
 	$(hal_headers)					\
@@ -57,7 +59,8 @@ noinst_HEADERS =					\
 	tracker-log.h					\
 	tracker-nfs-lock.h				\
 	tracker-os-dependant.h				\
-	tracker-thumbnailer.h
+	tracker-thumbnailer.h				\
+	tracker-albumart.h
 
 libtracker_commoninclude_HEADERS =			\
 	tracker-common.h				\
@@ -80,7 +83,8 @@ libtracker_common_la_LIBADD = 				\
 	$(UNAC_LIBS)					\
 	$(PANGO_LIBS)					\
 	$(GIO_LIBS)					\
-	$(GLIB2_LIBS)
+	$(GLIB2_LIBS)					\
+	$(GDKPIXBUF_LIBS)
 
 
 tracker-marshal.h: tracker-marshal.list

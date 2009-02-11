@@ -1,3 +1,20 @@
+2009-02-11  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-extract-mp3.c
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c
+	* src/tracker-extract/tracker-extract-gstreamer.c
+	* src/tracker-extract/Makefile.am
+	* src/libtracker-common/Makefile.am
+	* src/tracker-extract/tracker-extract-albumart.c
+	* src/tracker-extract/tracker-extract-albumart.h
+	* src/libtracker-common/tracker-albumart.c
+	* src/libtracker-common/tracker-albumart.h
+	* src/tracker-extract/tracker-albumart.c
+	* src/tracker-extract/tracker-albumart.h: Made a library for the album-art
+	code, because other processes (tracker-indexer and trackerd) will soon
+	have to perform album-art use-cases and requests too (not only the 
+	tracker-extract will have to do it anymore)
+
 2009-02-11  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/trackerd/tracker-main.c: Crash fix for error freeing.

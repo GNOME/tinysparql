@@ -40,7 +40,7 @@
 #endif /* G_OS_WIN32 */
 
 #include "tracker-main.h"
-#include "tracker-albumart.h"
+#include "tracker-extract-albumart.h"
 #include "tracker-escape.h"
 
 /* FIXME The max file read is not a good idea as basic 

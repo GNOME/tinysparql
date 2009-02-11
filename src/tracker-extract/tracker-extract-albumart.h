@@ -22,6 +22,8 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-albumart.h>
+
 G_BEGIN_DECLS
 
 gboolean tracker_process_albumart (const unsigned char *buffer,

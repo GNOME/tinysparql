@@ -65,7 +65,7 @@
 #include <libtracker-common/tracker-type-utils.h>
 
 #include "tracker-main.h"
-#include "tracker-albumart.h"
+#include "tracker-extract-albumart.h"
 
 /*
  * Some fluendo plugins use non-standard tag names currently which cause

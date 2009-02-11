@@ -96,8 +96,8 @@ xmp_sources = 								\
 albumart_libs = 
 albumart_flags = 
 albumart_sources =							\
-	tracker-albumart.c						\
-	tracker-albumart.h
+	tracker-extract-albumart.c						\
+	tracker-extract-albumart.h
 
 if HAVE_GDKPIXBUF
 albumart_flags += $(DBUS_CFLAGS)
