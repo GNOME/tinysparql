@@ -1,24 +1,20 @@
 #!/bin/sh
 
-tmpdir=${TMPDIR-/tmp}
-tmpdir="$tmpdir"/tmpdir.$$
-
-tmptxtfile=`mktemp`
-
-(umask 077 && mkdir "$tmpdir") || exit 1
-
-tmpfile="$tmpdir"/tmpfile.$$
+tmpdir=`mktemp -td tracker.msword_filter.XXXXXXXXXX` || exit 1
+tmpfile="$tmpdir"/tmpfile
+tmptxtfile="$tmpdir"/tmptxtfile
 
 cp "$1" "$tmpfile"
 
-# Change the working directory to $tmpdir which we can safely deleter later.
+# Change the working directory to $tmpdir which we can safely delete later.
 # Some distributions ship a version of wvText which extracts the image files
 # from the word document and places them in the current working directory.
 
 cd "$tmpdir"
 
-nice -n19 wvText "$tmpfile" "$tmptxtfile"
+nice -n19 wvText "$tmpfile" "$tmptxtfile" > /dev/null 2>&1
+
+cat "$tmptxtfile"
 
 rm -rf "$tmpdir"
-rm "$tmptxtfile"
 
