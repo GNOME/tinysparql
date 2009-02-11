@@ -88,6 +88,7 @@ struct _TrackerCrawlerPrivate {
 	GList	       *ignored_directory_patterns;
 	GList	       *ignored_file_patterns;
 	GList	       *index_file_patterns;
+	GList          *ignored_directories_with_content;
 
 	/* Legacy NoWatchDirectoryRoots */
 	GSList	       *no_watch_directory_roots;
@@ -116,8 +117,14 @@ enum {
 };
 
 typedef struct {
+	GFile *child;
+	gboolean is_dir;
+} EnumeratorChildData;
+
+typedef struct {
 	TrackerCrawler *crawler;
 	GFile	       *parent;
+	GHashTable     *children;
 } EnumeratorData;
 
 static void tracker_crawler_finalize (GObject	      *object);
@@ -224,6 +231,10 @@ tracker_crawler_finalize (GObject *object)
 		g_list_free (priv->ignored_file_patterns);
 	}
 
+	if (priv->ignored_directories_with_content) {
+		g_list_free (priv->ignored_directories_with_content);
+	}
+
 	/* Don't free the 'current_' variant of these, they are just
 	 * place holders so we know our status.
 	 */
@@ -275,6 +286,8 @@ tracker_crawler_new (TrackerConfig *config,
 		tracker_module_config_get_ignored_file_patterns (module_name);
 	crawler->private->index_file_patterns =
 		tracker_module_config_get_index_file_patterns (module_name);
+	crawler->private->ignored_directories_with_content =
+		tracker_module_config_get_ignored_directories_with_content (module_name);
 
 	/* Should we use module config paths? If true, when we
 	 * _start() the module config paths are used to import paths
@@ -444,8 +457,6 @@ add_directory (TrackerCrawler *crawler,
 			 path,
 			 crawler->private->enumerations);
 	} else {
-		crawler->private->directories_found++;
-
 		g_debug ("Found  :'%s' (%d)",
 			 path,
 			 crawler->private->enumerations);
@@ -458,19 +469,16 @@ add_directory (TrackerCrawler *crawler,
 
 static void
 process_file (TrackerCrawler *crawler,
-	      const gchar    *module_name,
 	      GFile	     *file)
 {
-	g_signal_emit (crawler, signals[PROCESSING_FILE], 0, module_name, file);
+	g_signal_emit (crawler, signals[PROCESSING_FILE], 0,
+		       crawler->private->module_name, file);
 }
 
 static void
 process_directory (TrackerCrawler *crawler,
-		   const gchar	  *module_name,
 		   GFile	  *file)
 {
-	g_signal_emit (crawler, signals[PROCESSING_DIRECTORY], 0, module_name, file);
-
 	file_enumerate_children (crawler, file);
 }
 
@@ -500,7 +508,7 @@ process_func (gpointer data)
 	file = g_queue_pop_head (priv->files);
 
 	if (file) {
-		process_file (crawler, priv->module_name, file);
+		process_file (crawler, file);
 		g_object_unref (file);
 
 		return TRUE;
@@ -510,7 +518,7 @@ process_func (gpointer data)
 	file = g_queue_pop_head (priv->directories);
 
 	if (file) {
-		process_directory (crawler, priv->module_name, file);
+		process_directory (crawler, file);
 		g_object_unref (file);
 
 		return TRUE;
@@ -612,6 +620,27 @@ process_func (gpointer data)
 	return FALSE;
 }
 
+static EnumeratorChildData *
+enumerator_child_data_new (GFile    *child,
+			   gboolean  is_dir)
+{
+	EnumeratorChildData *cd;
+
+	cd = g_slice_new (EnumeratorChildData);
+
+	cd->child = g_object_ref (child);
+	cd->is_dir = is_dir;
+
+	return cd;
+}
+
+static void
+enumerator_child_data_free (EnumeratorChildData *cd)
+{
+	g_object_unref (cd->child);
+	g_slice_free (EnumeratorChildData, cd);
+}
+
 static EnumeratorData *
 enumerator_data_new (TrackerCrawler *crawler,
 		     GFile	    *parent)
@@ -619,10 +648,72 @@ enumerator_data_new (TrackerCrawler *crawler,
 	EnumeratorData *ed;
 
 	ed = g_slice_new0 (EnumeratorData);
+
 	ed->crawler = g_object_ref (crawler);
 	ed->parent = g_object_ref (parent);
-
+	ed->children = g_hash_table_new_full (g_str_hash,
+					      g_str_equal,
+					      (GDestroyNotify) g_free,
+					      (GDestroyNotify) enumerator_child_data_free);
 	return ed;
+}
+
+static void
+enumerator_data_add_child (EnumeratorData *ed,
+			   const gchar    *name,
+			   GFile          *file,
+			   gboolean        is_dir)
+{
+	g_hash_table_insert (ed->children,
+			     g_strdup (name),
+			     enumerator_child_data_new (file, is_dir));
+}
+
+static void
+enumerator_data_process (EnumeratorData *ed)
+{
+	TrackerCrawler *crawler;
+	GHashTableIter iter;
+	EnumeratorChildData *cd;
+	GList *l;
+
+	crawler = ed->crawler;
+
+	/* Ignore directory if its contents match something we should ignore */
+	for (l = crawler->private->ignored_directories_with_content; l; l = l->next) {
+		if (g_hash_table_lookup (ed->children, l->data)) {
+			gchar *path;
+
+			path = g_file_get_path (ed->parent);
+
+			crawler->private->directories_ignored++;
+			g_debug ("Ignoring directory '%s' since it contains a file named '%s'", path, (gchar *) l->data);
+			g_free (path);
+
+			return;
+		}
+	}
+
+	crawler->private->directories_found++;
+	g_signal_emit (crawler, signals[PROCESSING_DIRECTORY], 0,
+		       crawler->private->module_name, ed->parent);
+
+	g_hash_table_iter_init (&iter, ed->children);
+
+	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cd)) {
+		if (cd->is_dir) {
+			/* This is a bit of a hack, but we assume this is a
+			 * recursive lookup because the current non-recursive
+			 * path is NULL, meaning they have all been traversed
+			 * already.
+			 */
+			if (crawler->private->paths_are_done) {
+				add_directory (crawler, cd->child);
+			}
+		} else {
+			add_file (crawler, cd->child);
+		}
+	}
 }
 
 static void
@@ -630,6 +721,7 @@ enumerator_data_free (EnumeratorData *ed)
 {
 	g_object_unref (ed->parent);
 	g_object_unref (ed->crawler);
+	g_hash_table_destroy (ed->children);
 	g_slice_free (EnumeratorData, ed);
 }
 
@@ -681,6 +773,7 @@ file_enumerate_next_cb (GObject      *object,
 			g_list_free (files);
 		}
 
+		enumerator_data_process (ed);
 		enumerator_data_free (ed);
 		g_file_enumerator_close_async (enumerator,
 					       G_PRIORITY_DEFAULT,
@@ -693,21 +786,16 @@ file_enumerate_next_cb (GObject      *object,
 	}
 
 	for (l = files; l; l = l->next) {
-		info = l->data;
-		child = g_file_get_child (parent, g_file_info_get_name (info));
+		const gchar *child_name;
+		gboolean is_dir;
 
-		if (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY) {
-			/* This is a bit of a hack, but we assume this is a
-			 * recursive lookup because the current non-recursive
-			 * path is NULL, meaning they have all been traversed
-			 * already.
-			 */
-			if (crawler->private->paths_are_done) {
-				add_directory (crawler, child);
-			}
-		} else {
-			add_file (crawler, child);
-		}
+		info = l->data;
+
+		child_name = g_file_info_get_name (info);
+		child = g_file_get_child (parent, child_name);
+		is_dir = (g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY);
+
+		enumerator_data_add_child (ed, child_name, child, is_dir);
 
 		g_object_unref (child);
 		g_object_unref (info);
@@ -742,15 +830,14 @@ file_enumerate_children_cb (GObject	 *file,
 	GFile		*parent;
 
 	parent = G_FILE (file);
-	crawler = TRACKER_CRAWLER (user_data);
+	ed = (EnumeratorData *) user_data;
+	crawler = ed->crawler;
 	enumerator = g_file_enumerate_children_finish (parent, result, NULL);
 
 	if (!enumerator) {
 		crawler->private->enumerations--;
 		return;
 	}
-
-	ed = enumerator_data_new (crawler, parent);
 
 	/* Start traversing the directory's files */
 	file_enumerate_next (enumerator, ed);
@@ -760,7 +847,11 @@ static void
 file_enumerate_children (TrackerCrawler *crawler,
 			 GFile		*file)
 {
+	EnumeratorData *ed;
+
 	crawler->private->enumerations++;
+
+	ed = enumerator_data_new (crawler, file);
 
 	g_file_enumerate_children_async (file,
 					 FILE_ATTRIBUTES,
@@ -768,7 +859,7 @@ file_enumerate_children (TrackerCrawler *crawler,
 					 G_PRIORITY_DEFAULT,
 					 NULL,
 					 file_enumerate_children_cb,
-					 crawler);
+					 ed);
 }
 
 static GSList *

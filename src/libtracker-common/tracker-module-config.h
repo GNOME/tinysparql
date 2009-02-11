@@ -42,6 +42,7 @@ GList *      tracker_module_config_get_monitor_recurse_directories (const gchar 
 
 GList *      tracker_module_config_get_ignored_directories	   (const gchar *name);
 GList *      tracker_module_config_get_ignored_files		   (const gchar *name);
+GList *      tracker_module_config_get_ignored_directories_with_content (const gchar *name);
 
 const gchar *tracker_module_config_get_index_service		   (const gchar *name);
 GList *      tracker_module_config_get_index_mime_types		   (const gchar *name);

@@ -9,6 +9,7 @@ RecurseDirectories=/usr/share/applications;
 [Ignored]
 Directories=
 Files=
+DirectoriesWithContent=
 
 [Index]
 Service=Applications

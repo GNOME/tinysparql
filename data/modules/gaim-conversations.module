@@ -9,6 +9,7 @@ RecurseDirectories=$HOME/.gaim/logs;$HOME/.purple/logs;
 [Ignored]
 Directories=
 Files=
+DirectoriesWithContent=
 
 [Index]
 Service=GaimConversations

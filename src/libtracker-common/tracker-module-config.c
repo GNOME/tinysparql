@@ -48,6 +48,7 @@ typedef struct {
 	/* Ignored */
 	GHashTable *ignored_directories;
 	GHashTable *ignored_files;
+	GHashTable *ignored_directories_with_content;
 
 	GList	   *ignored_directory_patterns;
 	GList	   *ignored_file_patterns;
@@ -96,6 +97,7 @@ module_destroy_notify (gpointer data)
 
 	g_hash_table_unref (mc->ignored_files);
 	g_hash_table_unref (mc->ignored_directories);
+	g_hash_table_unref (mc->ignored_directories_with_content);
 
 	g_hash_table_unref (mc->monitor_recurse_directories);
 	g_hash_table_unref (mc->monitor_directories);
@@ -461,6 +463,10 @@ load_file (const gchar *filename)
 					      "Files",
 					      FALSE,
 					      FALSE);
+	mc->ignored_directories_with_content = load_string_list (key_file,
+								 GROUP_IGNORED,
+								 "DirectoriesWithContent",
+								 FALSE, FALSE);
 
 	/* Index */
 	mc->index_service = load_string (key_file,
@@ -767,6 +773,19 @@ tracker_module_config_get_ignored_files (const gchar *name)
 	g_return_val_if_fail (mc, NULL);
 
 	return g_hash_table_get_keys (mc->ignored_files);
+}
+
+GList *
+tracker_module_config_get_ignored_directories_with_content (const gchar *name)
+{
+	ModuleConfig *mc;
+
+	g_return_val_if_fail (name != NULL, NULL);
+
+	mc = g_hash_table_lookup (modules, name);
+	g_return_val_if_fail (mc, NULL);
+
+	return g_hash_table_get_keys (mc->ignored_directories_with_content);
 }
 
 const gchar *

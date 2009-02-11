@@ -9,6 +9,7 @@ RecurseDirectories=$HOME/.evolution/mail/local/;$HOME/.evolution/mail/imap/
 [Ignored]
 Directories=
 Files=
+DirectoriesWithContent=
 
 [Index]
 Service=EvolutionEmails

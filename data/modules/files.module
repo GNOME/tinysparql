@@ -9,6 +9,7 @@ RecurseDirectories=
 [Ignored]
 Directories=po;CVS;.svn;.git;core-dumps;
 Files=*~;*.o;*.la;*.lo;*.loT;*.in;*.csproj;*.m4;*.rej;*.gmo;*.orig;*.pc;*.omf;*.aux;*.tmp;*.po;*.vmdk;*.vm*;*.nvram;*.part;*.rcore.lzo;autom4te;conftest;confstat;Makefile;SCCS;litmain.sh;libtool;config.status;confdefs.h;
+DirectoriesWithContent=backup.metadata;
 
 [Index]
 Service=Files
