@@ -128,7 +128,7 @@ set_io_priority_best_effort (int ioprio_val)
 void
 tracker_ioprio_init (void)
 {
-	g_message ("Setting IO priority...");
+	g_message ("Setting IO priority");
 
 	if (set_io_priority_idle () == -1) {
 		g_message ("Could not set idle IO priority, attempting best effort of 7");

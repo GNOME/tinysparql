@@ -26,6 +26,8 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <linux/sched.h>
+#include <sched.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -202,6 +204,53 @@ initialize_signal_handler (void)
 #endif
 }
 
+static void
+initialize_priority (void)
+{
+	struct sched_param sp;
+
+	/* Set disk IO priority and scheduling */
+	tracker_ioprio_init ();
+
+	/* Set process priority:
+	 * The nice() function uses attribute "warn_unused_result" and
+	 * so complains if we do not check its returned value. But it
+	 * seems that since glibc 2.2.4, nice() can return -1 on a
+	 * successful call so we have to check value of errno too.
+	 * Stupid... 
+	 */
+	g_message ("Setting process priority");
+
+	if (nice (19) == -1) {
+		const gchar *str = g_strerror (errno);
+
+		g_message ("Couldn't set nice value to 19, %s",
+			   str ? str : "no error given");
+	}
+
+	/* Set process scheduling parameters:
+	 * This is used so we don't steal scheduling priority from
+	 * the most important applications - like the phone
+	 * application which has a real time requirement here. This
+	 * is detailed in Nokia bug #95573 
+	 */
+	g_message ("Setting scheduling priority");
+
+	if (sched_getparam (0, &sp) == 0) {
+		if (sched_setscheduler (0, SCHED_IDLE, &sp) != 0) {
+			const gchar *str = g_strerror (errno);
+			
+			g_message ("Couldn't set scheduler priority, %s",
+				   str ? str : "no error given");
+		}
+	} else {
+		const gchar *str = g_strerror (errno);
+
+		g_message ("Couldn't get scheduler priority, %s",
+			   str ? str : "no error given");
+	}
+}
+
 static gboolean
 quit_timeout_cb (gpointer user_data)
 {
@@ -299,6 +348,9 @@ main (gint argc, gchar *argv[])
 	if (!tracker_env_check_xdg_dirs ()) {
 		return EXIT_FAILURE;
 	}
+
+	/* This makes sure we don't steal all the system's resources */
+	initialize_priority ();
 
 	/* Initialize logging */
 	config = tracker_config_new ();
