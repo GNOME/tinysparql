@@ -72,6 +72,7 @@ static TagProcessors tag_processors[] = {
 
 static TrackerExtractData data[] = {
 	{ "image/png", extract_png },
+	{ "sketch/png", extract_png },
 	{ NULL, NULL }
 };
 

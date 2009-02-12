@@ -1,3 +1,11 @@
+2009-02-12  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	src/tracker-extract/tracker-extract-png.c:
+	data/services/default.service: Handle also sketch/png mime
+	correctly.
+
+	Fixes NB #101593 
+
 2009-02-12  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/plugins/evolution/tracker-evolution-indexer.h
