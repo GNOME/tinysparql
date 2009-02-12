@@ -1,3 +1,12 @@
+2009-02-12  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-main.c
+	* src/tracker-extract/tracker-extract-jpeg.c
+	* src/tracker-extract/tracker-extract-png.c: Added checks for
+	minimum file size and access.
+
+	Fixes NB #101096.
+
 2009-02-11  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-schema.c

@@ -132,7 +132,7 @@ main (int argc, char *argv[])
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	/* Translators: this messagge will apper immediately after the	*/
+	/* Translators: this message will appear immediately after the	*/
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
 	context = g_option_context_new (_("- Extract file meta data"));
 

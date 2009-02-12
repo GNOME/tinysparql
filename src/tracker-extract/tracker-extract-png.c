@@ -141,6 +141,9 @@ static void
 extract_png (const gchar *filename,
 	     GHashTable  *metadata)
 {
+	struct stat  fstatbuf;
+	size_t	     size;
+
 	gint	     fd_png;
 	FILE	    *png;
 	png_structp  png_ptr;
@@ -154,10 +157,23 @@ extract_png (const gchar *filename,
 	gint	     interlace_type, compression_type, filter_type;
 
 #if defined(__linux__)
-	if ((fd_png = g_open (filename, (O_RDONLY | O_NOATIME))) == -1) {
+	if (((fd_png = g_open (filename, (O_RDONLY | O_NOATIME))) == -1) &&
+	    ((fd_png = g_open (filename, (O_RDONLY))) == -1 ) ) {
 #else
 	if ((fd_png = g_open (filename, O_RDONLY)) == -1) {
 #endif
+		return;
+	}
+
+	if (stat (filename, &fstatbuf) == -1) {
+		close(fd_png);
+		return;
+	}
+
+	/* Check for minimum header size */
+	size = fstatbuf.st_size;
+	if (size < 64) {
+		close (fd_png);
 		return;
 	}
 

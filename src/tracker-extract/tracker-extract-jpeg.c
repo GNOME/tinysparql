@@ -20,7 +20,7 @@
  */
 
 /*
- * FIXME: Use EXIF_DATA_OPTION_FOLLOW_SPECIFICATION for libexif to get raw data.
+ * FIXME: We should try to get raw data (from libexif) to avoid processing.
  */
 
 #include "config.h"
@@ -247,6 +247,9 @@ static void
 extract_jpeg (const gchar *filename,
 	      GHashTable  *metadata)
 {
+	struct stat  fstatbuf;
+	size_t	     size;
+
 	struct jpeg_decompress_struct  cinfo;
 	struct jpeg_error_mgr	       jerr;
 	struct jpeg_marker_struct     *marker;
@@ -254,6 +257,18 @@ extract_jpeg (const gchar *filename,
 	gint			       fd_jpeg;
 
 	if ((fd_jpeg = g_open (filename, O_RDONLY)) == -1) {
+		return;
+	}
+
+	if (stat (filename, &fstatbuf) == -1) {
+		close(fd_jpeg);
+		return;
+	}
+
+	/* Check size at least SOI+JFIF without thumb */
+	size = fstatbuf.st_size;
+	if (size < 18) {
+		close (fd_jpeg);
 		return;
 	}
 
