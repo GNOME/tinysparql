@@ -58,7 +58,7 @@
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-turtle.h>
 
-#include <plugins/evolution/tracker-evolution.h>
+#include <tracker-push.h>
 
 #include "tracker-crawler.h"
 #include "tracker-dbus.h"
@@ -1171,9 +1171,7 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-#ifdef HAVE_EVOLUTION_PLUGIN
-	tracker_evolution_init (config);
-#endif
+	tracker_push_init (config);
 
 	g_message ("Waiting for DBus requests...");
 
@@ -1245,10 +1243,8 @@ main (gint argc, gchar *argv[])
 	shutdown_directories ();
 
 	/* Shutdown major subsystems */
-	
-#ifdef HAVE_EVOLUTION_PLUGIN
-	tracker_evolution_shutdown ();
-#endif
+
+	tracker_push_shutdown ();
 
 	tracker_cleanup_shutdown ();
 	tracker_xesam_manager_shutdown ();

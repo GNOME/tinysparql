@@ -9,7 +9,8 @@ insert Into Options (OptionKey, OptionValue) values ('Sequence', '1');
 insert Into Options (OptionKey, OptionValue) values ('EventSequence', '1');
 insert Into Options (OptionKey, OptionValue) values ('UpdateCount', '0');
 insert Into Options (OptionKey, OptionValue) values ('EvolutionLastModseq', '0');
-
+insert Into Options (OptionKey, OptionValue) values ('KMailLastModseq', '0');
+insert Into Options (OptionKey, OptionValue) values ('RssLastModseq', '0');
 
 /* store volume and HAL info here for files */
 CREATE TABLE  Volumes

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <node name="/">
-  <interface name="org.freedesktop.email.metadata.Registrar">
+  <interface name="my.rss.metadata.Registrar">
 
   <method name="Set">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>

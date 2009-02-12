@@ -96,10 +96,6 @@ void  tracker_evolution_indexer_cleanup     (TrackerEvolutionIndexer *object,
 					     DBusGMethodInvocation *context,
 					     GError *derror);
 
-void  tracker_evolution_storer_init        (TrackerConfig *config, 
-					    TrackerIndexer *indexer);
-void  tracker_evolution_storer_shutdown    (void);
-
 G_END_DECLS
 
 #endif /* __LIBTRACKER_EVOLUTION_H__ */

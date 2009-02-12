@@ -210,6 +210,33 @@ fi
 DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
+####################################################################
+# Push modules
+####################################################################
+
+# In vstore we want to make these mandatory, please remove these
+# (as) options when merging to vstore. Thanks!
+
+AC_ARG_ENABLE([evolution_push_module],
+              AS_HELP_STRING([--enable-evolution-push-module=ARG],
+                             [enable support for Evolution push mechanism]),,
+              [enable_evolution_push_module=no])
+
+AM_CONDITIONAL(USING_EVOLUTION_PUSH_MODULE, test "x$enable_evolution_push_module" = "xyes")
+
+AC_ARG_ENABLE([kmail_push_module],
+              AS_HELP_STRING([--enable-kmail-push-module=ARG],
+                             [enable support for KMail push mechanism]),,
+              [enable_kmail_push_module=no])
+
+AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
+
+AC_ARG_ENABLE([rss_push_module],
+              AS_HELP_STRING([--enable-rss-push-module=ARG],
+                             [enable support for RSS push mechanism]),,
+              [enable_rss_push_module=no])
+
+AM_CONDITIONAL(USING_RSS_PUSH_MODULE, test "x$enable_rss_push_module" = "xyes")
 
 ####################################################################
 # Deskbar Applet Handler/Module
@@ -1083,12 +1110,7 @@ AM_CONDITIONAL(HAVE_TOTEM_PL_PARSER, test "x$have_playlist" = "xyes")
 # Enable Evolution plugin support?
 ##################################################################
 
-AC_ARG_ENABLE(evolution-plugin, 
-	      AS_HELP_STRING([--disable-evolution-plugin],
-			     [disable evolution plugin support]),,
-	      [enable_evolution_plugin=no])
-
-if test "x$enable_evolution_plugin" != "xno" ; then
+if test "x$enable_evolution_push_module" != "xno" ; then
    PKG_CHECK_MODULES(EVOLUTION_PLUGIN, [
    		     evolution-plugin >= $EVO_REQUIRED
 		     evolution-data-server-1.2 >= $EDS_REQUIRED], 
@@ -1242,6 +1264,8 @@ AC_CONFIG_FILES([
 	src/tracker-utils/Makefile
 	src/plugins/Makefile
 	src/plugins/evolution/Makefile
+	src/plugins/kmail/Makefile
+	src/plugins/rss/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
 	tests/libtracker-db/Makefile

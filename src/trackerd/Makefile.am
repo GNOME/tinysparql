@@ -5,6 +5,7 @@ INCLUDES =								\
 	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker/mail-modules\"         \
+	-DPUSH_MODULES_DIR=\""$(libdir)/tracker/push-modules/daemon"\"	\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
@@ -18,7 +19,7 @@ INCLUDES =								\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
 	$(RAPTOR_CFLAGS)						\
-	$(GLIB2_CFLAGS)
+	$(GLIB2_CFLAGS)							
 
 if HAVE_INOTIFY
 inotify_libs = $(top_builddir)/src/libinotify/libinotify.la
@@ -66,15 +67,14 @@ trackerd_SOURCES =							\
 	tracker-xesam-live-search.c					\
 	tracker-xesam-live-search.h					\
 	tracker-cleanup.c						\
-	tracker-cleanup.h
+	tracker-cleanup.h						\
+	tracker-push.c							\
+	tracker-push.h							\
+	tracker-push-registrar.c					\
+	tracker-push-registrar.h
 
 if OS_WIN32
 trackerd_win_libs = -lws2_32 -lkernel32
-endif
-
-if HAVE_EVOLUTION_PLUGIN
-plugin_libs =								\
-	$(top_builddir)/src/plugins/evolution/libtracker-evolution.la
 endif
 
 trackerd_LDADD =							\

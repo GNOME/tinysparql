@@ -40,6 +40,7 @@
 
 /* This is okay, we run in-process of the indexer: we can access its symbols */
 #include <tracker-indexer/tracker-module.h>
+#include <tracker-indexer/tracker-push.h>
 #include <tracker-indexer/tracker-module-metadata-private.h>
 
 #include "tracker-evolution-indexer.h"
@@ -65,31 +66,19 @@
 #define METADATA_EMAIL_TEXT	     "Email:Body"
 #define METADATA_EMAIL_TAG	     "User:Keywords"
 
-#define TRACKER_EVOLUTION_INDEXER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EVOLUTION_INDEXER, TrackerEvolutionIndexerPrivate))
-
 G_DEFINE_TYPE (TrackerEvolutionIndexer, tracker_evolution_indexer, G_TYPE_OBJECT)
 
 /* This runs in-process of tracker-indexer */
 
 static GObject *idx_indexer = NULL;
 
-typedef struct {
-	TrackerIndexer *indexer;
-} TrackerEvolutionIndexerPrivate;
-
 enum {
 	PROP_0,
-	PROP_INDEXER
 };
 
 static void
 tracker_evolution_indexer_finalize (GObject *object)
 {
-	TrackerEvolutionIndexerPrivate *priv = TRACKER_EVOLUTION_INDEXER_GET_PRIVATE (object);
-
-	if (priv->indexer)
-		g_object_unref (priv->indexer);
-
 	G_OBJECT_CLASS (tracker_evolution_indexer_parent_class)->finalize (object);
 }
 
@@ -99,18 +88,7 @@ tracker_evolution_indexer_set_property (GObject      *object,
 					const GValue *value,
 					GParamSpec   *pspec)
 {
-	TrackerEvolutionIndexerPrivate *priv = TRACKER_EVOLUTION_INDEXER_GET_PRIVATE (object);
-
 	switch (prop_id) {
-
-	case PROP_INDEXER:
-
-		if (priv->indexer)
-			g_object_unref (priv->indexer);
-
-		priv->indexer = g_value_dup_object (value);
-		break;
-
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -123,14 +101,7 @@ tracker_evolution_indexer_get_property (GObject    *object,
 					GValue     *value,
 					GParamSpec *pspec)
 {
-	TrackerEvolutionIndexerPrivate *priv;
-
-	priv = TRACKER_EVOLUTION_INDEXER_GET_PRIVATE (object);
-
 	switch (prop_id) {
-	case PROP_INDEXER:
-		g_value_set_object (value, priv->indexer);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -145,24 +116,11 @@ tracker_evolution_indexer_class_init (TrackerEvolutionIndexerClass *klass)
 	object_class->finalize = tracker_evolution_indexer_finalize;
 	object_class->set_property = tracker_evolution_indexer_set_property;
 	object_class->get_property = tracker_evolution_indexer_get_property;
-
-	g_object_class_install_property (object_class,
-					 PROP_INDEXER,
-					 g_param_spec_object ("indexer",
-							      "Indexer",
-							      "Indexer",
-							      tracker_indexer_get_type (),
-							      G_PARAM_READWRITE |
-							      G_PARAM_CONSTRUCT));
-
-	g_type_class_add_private (object_class, sizeof (TrackerEvolutionIndexerPrivate));
 }
 
 static void
 tracker_evolution_indexer_init (TrackerEvolutionIndexer *object)
 {
-	TrackerEvolutionIndexerPrivate *priv = TRACKER_EVOLUTION_INDEXER_GET_PRIVATE (object);
-	priv->indexer = NULL;
 }
 
 
@@ -297,8 +255,7 @@ perform_set (TrackerEvolutionIndexer *object,
 
 	while (predicates [i] != NULL && values[i] != NULL) {
 
-		/* TODO: TRACKER_EVOLUTION_PREDICATE_SEEN (!)
-		 *       TRACKER_EVOLUTION_PREDICATE_JUNK (!)
+		/* TODO: TRACKER_EVOLUTION_PREDICATE_JUNK (!)
 		 *       TRACKER_EVOLUTION_PREDICATE_ANSWERED
 		 *       TRACKER_EVOLUTION_PREDICATE_FLAGGED
 		 *       TRACKER_EVOLUTION_PREDICATE_FORWARDED
@@ -432,7 +389,7 @@ perform_set (TrackerEvolutionIndexer *object,
 							    values[i]);
 		}
 
-		if (g_strcmp0 (predicates[i], METADATA_EMAIL_SENDER) == 0) {
+		if (g_strcmp0 (predicates[i], TRACKER_EVOLUTION_PREDICATE_FROM) == 0) {
 			tracker_module_metadata_add_string (metadata, 
 							    METADATA_EMAIL_SENDER, 
 							    values[i]);
@@ -479,7 +436,7 @@ perform_cleanup (TrackerEvolutionIndexer *object)
 static void
 set_stored_last_modseq (guint last_modseq)
 {
-	tracker_data_manager_set_db_option_int ("EvolutionLastCheckout", (gint) last_modseq);
+	tracker_data_manager_set_db_option_int ("EvolutionLastModseq", (gint) last_modseq);
 }
 
 void
@@ -592,8 +549,7 @@ tracker_evolution_indexer_cleanup (TrackerEvolutionIndexer *object,
 }
 
 void
-tracker_evolution_storer_init (TrackerConfig *config, 
-			       TrackerIndexer *indexer)
+tracker_push_module_init (TrackerConfig *config)
 {
 	GError *error = NULL;
 	DBusGConnection *connection;
@@ -601,8 +557,7 @@ tracker_evolution_storer_init (TrackerConfig *config,
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
 	if (!error) {
-		idx_indexer = g_object_new (TRACKER_TYPE_EVOLUTION_INDEXER, 
-					    "indexer", indexer, NULL);
+		idx_indexer = g_object_new (TRACKER_TYPE_EVOLUTION_INDEXER, NULL);
 
 		dbus_g_object_type_install_info (G_OBJECT_TYPE (idx_indexer), 
 						 &dbus_glib_tracker_evolution_indexer_object_info);
@@ -619,7 +574,7 @@ tracker_evolution_storer_init (TrackerConfig *config,
 }
 
 void
-tracker_evolution_storer_shutdown (void)
+tracker_push_module_shutdown (void)
 {
 	if (idx_indexer)
 		g_object_unref (idx_indexer);

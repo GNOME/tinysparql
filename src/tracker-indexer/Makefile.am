@@ -8,6 +8,7 @@ INCLUDES =								\
 	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"	\
+	-DPUSH_MODULES_DIR=\""$(libdir)/tracker/push-modules/indexer"\" \
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
@@ -48,12 +49,9 @@ tracker_indexer_SOURCES =						\
 	tracker-module-metadata-private.h				\
 	tracker-marshal-main.c						\
 	tracker-removable-device.c					\
-	tracker-removable-device.h					
-
-if HAVE_EVOLUTION_PLUGIN
-plugin_libs =								\
-	$(top_builddir)/src/plugins/evolution/libtracker-evolution-indexer.la
-endif
+	tracker-removable-device.h					\
+	tracker-push.c							\
+	tracker-push.h
 
 tracker_indexer_LDADD =							\
 	$(plugin_libs)							\

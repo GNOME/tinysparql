@@ -31,24 +31,24 @@
 
 #include <trackerd/tracker-push-registrar.h>
 
-#define __TRACKER_EVOLUTION_REGISTRAR_C__
+#define __TRACKER_RSS_REGISTRAR_C__
 
-#include "tracker-evolution-registrar.h"
-#include "tracker-evolution-registrar-glue.h"
+#include "tracker-rss-registrar.h"
+#include "tracker-rss-registrar-glue.h"
 
-#define TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EVOLUTION_REGISTRAR, TrackerEvolutionRegistrarPrivate))
+#define TRACKER_RSS_REGISTRAR_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_RSS_REGISTRAR, TrackerRssRegistrarPrivate))
 
-#define TRACKER_TYPE_EVOLUTION_PUSH_REGISTRAR    (tracker_evolution_push_registrar_get_type ())
-#define TRACKER_EVOLUTION_PUSH_REGISTRAR(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_EVOLUTION_PUSH_REGISTRAR, TrackerEvolutionPushRegistrar))
+#define TRACKER_TYPE_RSS_PUSH_REGISTRAR    (tracker_rss_push_registrar_get_type ())
+#define TRACKER_RSS_PUSH_REGISTRAR(module) (G_TYPE_CHECK_INSTANCE_CAST ((module), TRACKER_TYPE_RSS_PUSH_REGISTRAR, TrackerRssPushRegistrar))
 
-typedef struct TrackerEvolutionPushRegistrar TrackerEvolutionPushRegistrar;
-typedef struct TrackerEvolutionPushRegistrarClass TrackerEvolutionPushRegistrarClass;
+typedef struct TrackerRssPushRegistrar TrackerRssPushRegistrar;
+typedef struct TrackerRssPushRegistrarClass TrackerRssPushRegistrarClass;
 
-struct TrackerEvolutionPushRegistrar {
+struct TrackerRssPushRegistrar {
 	TrackerPushRegistrar parent_instance;
 };
 
-struct TrackerEvolutionPushRegistrarClass {
+struct TrackerRssPushRegistrarClass {
 	TrackerPushRegistrarClass parent_class;
 };
 
@@ -56,56 +56,56 @@ struct TrackerEvolutionPushRegistrarClass {
 typedef struct {
 	DBusGProxy *idx_proxy;
 	DBusGConnection *connection;
-} TrackerEvolutionRegistrarPrivate;
+} TrackerRssRegistrarPrivate;
 
 enum {
 	PROP_0,
 	PROP_CONNECTION
 };
 
-static GType tracker_evolution_push_registrar_get_type (void) G_GNUC_CONST;
+static GType tracker_rss_push_registrar_get_type (void) G_GNUC_CONST;
 
-G_DEFINE_TYPE (TrackerEvolutionRegistrar, tracker_evolution_registrar, G_TYPE_OBJECT)
-G_DEFINE_TYPE (TrackerEvolutionPushRegistrar, tracker_evolution_push_registrar, TRACKER_TYPE_PUSH_REGISTRAR);
+G_DEFINE_TYPE (TrackerRssRegistrar, tracker_rss_registrar, G_TYPE_OBJECT)
+G_DEFINE_TYPE (TrackerRssPushRegistrar, tracker_rss_push_registrar, TRACKER_TYPE_PUSH_REGISTRAR);
 
 /* This runs in-process of trackerd. It simply proxies everything to the indexer
  * who wont always be running. Which is why this is needed (trackerd is always
- * running, so it's more suitable to respond to Evolution's requests). */
+ * running, so it's more suitable to respond to Rss's requests). */
 
 static void
-tracker_evolution_registrar_finalize (GObject *object)
+tracker_rss_registrar_finalize (GObject *object)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 
 	if (priv->idx_proxy)
 		g_object_unref (priv->idx_proxy);
 
-	G_OBJECT_CLASS (tracker_evolution_registrar_parent_class)->finalize (object);
+	G_OBJECT_CLASS (tracker_rss_registrar_parent_class)->finalize (object);
 }
 
 static void 
-tracker_evolution_registrar_set_connection (TrackerEvolutionRegistrar *object, 
+tracker_rss_registrar_set_connection (TrackerRssRegistrar *object, 
 					    DBusGConnection *connection)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 
 	priv->connection = connection; /* weak */
 
 	priv->idx_proxy = dbus_g_proxy_new_for_name (priv->connection, 
 						     "org.freedesktop.Tracker.Indexer",
-						     TRACKER_EVOLUTION_INDEXER_PATH,
-						     TRACKER_EVOLUTION_REGISTRAR_INTERFACE);
+						     TRACKER_RSS_INDEXER_PATH,
+						     TRACKER_RSS_REGISTRAR_INTERFACE);
 }
 
 static void
-tracker_evolution_registrar_set_property (GObject      *object,
+tracker_rss_registrar_set_property (GObject      *object,
 					  guint         prop_id,
 					  const GValue *value,
 					  GParamSpec   *pspec)
 {
 	switch (prop_id) {
 	case PROP_CONNECTION:
-		tracker_evolution_registrar_set_connection (TRACKER_EVOLUTION_REGISTRAR (object),
+		tracker_rss_registrar_set_connection (TRACKER_RSS_REGISTRAR (object),
 							    g_value_get_pointer (value));
 		break;
 	default:
@@ -114,12 +114,12 @@ tracker_evolution_registrar_set_property (GObject      *object,
 }
 
 static void
-tracker_evolution_registrar_get_property (GObject    *object,
+tracker_rss_registrar_get_property (GObject    *object,
 					  guint       prop_id,
 					  GValue     *value,
 					  GParamSpec *pspec)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 
 	switch (prop_id) {
 	case PROP_CONNECTION:
@@ -131,13 +131,13 @@ tracker_evolution_registrar_get_property (GObject    *object,
 }
 
 static void
-tracker_evolution_registrar_class_init (TrackerEvolutionRegistrarClass *klass)
+tracker_rss_registrar_class_init (TrackerRssRegistrarClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize = tracker_evolution_registrar_finalize;
-	object_class->set_property = tracker_evolution_registrar_set_property;
-	object_class->get_property = tracker_evolution_registrar_get_property;
+	object_class->finalize = tracker_rss_registrar_finalize;
+	object_class->set_property = tracker_rss_registrar_set_property;
+	object_class->get_property = tracker_rss_registrar_get_property;
 
 	g_object_class_install_property (object_class,
 					 PROP_CONNECTION,
@@ -147,24 +147,24 @@ tracker_evolution_registrar_class_init (TrackerEvolutionRegistrarClass *klass)
 							       G_PARAM_READWRITE |
 							       G_PARAM_CONSTRUCT));
 
-	g_type_class_add_private (object_class, sizeof (TrackerEvolutionRegistrarPrivate));
+	g_type_class_add_private (object_class, sizeof (TrackerRssRegistrarPrivate));
 }
 
 static void
-tracker_evolution_registrar_init (TrackerEvolutionRegistrar *object)
+tracker_rss_registrar_init (TrackerRssRegistrar *object)
 {
 }
 
 void
-tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object, 
-				 const gchar *subject, 
-				 const GStrv predicates,
-				 const GStrv values,
-				 const guint modseq,
-				 DBusGMethodInvocation *context,
-				 GError *derror)
+tracker_rss_registrar_set (TrackerRssRegistrar *object, 
+			   const gchar *subject, 
+			   const GStrv predicates,
+			   const GStrv values,
+			   const guint modseq,
+			   DBusGMethodInvocation *context,
+			   GError *derror)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
@@ -187,15 +187,15 @@ tracker_evolution_registrar_set (TrackerEvolutionRegistrar *object,
 }
 
 void
-tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object, 
-				      const GStrv subjects, 
-				      const GPtrArray *predicates,
-				      const GPtrArray *values,
-				      const guint modseq,
-				      DBusGMethodInvocation *context,
-				      GError *derror)
+tracker_rss_registrar_set_many (TrackerRssRegistrar *object, 
+				const GStrv subjects, 
+				const GPtrArray *predicates,
+				const GPtrArray *values,
+				const guint modseq,
+				DBusGMethodInvocation *context,
+				GError *derror)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 	guint len;
 
 	dbus_async_return_if_fail (subjects != NULL, context);
@@ -220,13 +220,13 @@ tracker_evolution_registrar_set_many (TrackerEvolutionRegistrar *object,
 }
 
 void
-tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object, 
-					const GStrv subjects, 
-					const guint modseq,
-					DBusGMethodInvocation *context,
-					GError *derror)
+tracker_rss_registrar_unset_many (TrackerRssRegistrar *object, 
+				  const GStrv subjects, 
+				  const guint modseq,
+				  DBusGMethodInvocation *context,
+				  GError *derror)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 
 	dbus_async_return_if_fail (subjects != NULL, context);
 
@@ -241,13 +241,13 @@ tracker_evolution_registrar_unset_many (TrackerEvolutionRegistrar *object,
 }
 
 void
-tracker_evolution_registrar_unset (TrackerEvolutionRegistrar *object, 
+tracker_rss_registrar_unset (TrackerRssRegistrar *object, 
 				   const gchar *subject, 
 				   const guint modseq,
 				   DBusGMethodInvocation *context,
 				   GError *derror)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 
 	dbus_async_return_if_fail (subject != NULL, context);
 
@@ -262,12 +262,12 @@ tracker_evolution_registrar_unset (TrackerEvolutionRegistrar *object,
 }
 
 void
-tracker_evolution_registrar_cleanup (TrackerEvolutionRegistrar *object, 
+tracker_rss_registrar_cleanup (TrackerRssRegistrar *object, 
 				     const guint modseq,
 				     DBusGMethodInvocation *context,
 				     GError *derror)
 {
-	TrackerEvolutionRegistrarPrivate *priv = TRACKER_EVOLUTION_REGISTRAR_GET_PRIVATE (object);
+	TrackerRssRegistrarPrivate *priv = TRACKER_RSS_REGISTRAR_GET_PRIVATE (object);
 
 	dbus_g_proxy_call_no_reply (priv->idx_proxy,
 				    "Cleanup",
@@ -286,7 +286,7 @@ on_manager_destroy (DBusGProxy *proxy, gpointer user_data)
 }
 
 static void
-tracker_evolution_push_registrar_enable (TrackerPushRegistrar *registrar, 
+tracker_rss_push_registrar_enable (TrackerPushRegistrar *registrar, 
 					 DBusGConnection      *connection,
 					 DBusGProxy           *dbus_proxy, 
 					 GError              **error)
@@ -300,18 +300,18 @@ tracker_evolution_push_registrar_enable (TrackerPushRegistrar *registrar,
 	tracker_push_registrar_set_manager (registrar, NULL);
 
 	manager_proxy = dbus_g_proxy_new_for_name (connection,
-						   TRACKER_EVOLUTION_MANAGER_SERVICE,
-						   TRACKER_EVOLUTION_MANAGER_PATH,
-						   TRACKER_EVOLUTION_MANAGER_INTERFACE);
+						   TRACKER_RSS_MANAGER_SERVICE,
+						   TRACKER_RSS_MANAGER_PATH,
+						   TRACKER_RSS_MANAGER_INTERFACE);
 
 	/* Creation of the registrar */
 	if (!org_freedesktop_DBus_request_name (dbus_proxy, 
-						TRACKER_EVOLUTION_REGISTRAR_SERVICE,
+						TRACKER_RSS_REGISTRAR_SERVICE,
 						DBUS_NAME_FLAG_DO_NOT_QUEUE,
 						&result, &nerror)) {
 
 		g_critical ("Could not setup DBus, %s in use\n", 
-			    TRACKER_EVOLUTION_REGISTRAR_SERVICE);
+			    TRACKER_RSS_REGISTRAR_SERVICE);
 
 		if (nerror) {
 			g_propagate_error (error, nerror);
@@ -324,20 +324,20 @@ tracker_evolution_push_registrar_enable (TrackerPushRegistrar *registrar,
 		return;
 	}
 
-	object = g_object_new (TRACKER_TYPE_EVOLUTION_REGISTRAR, 
+	object = g_object_new (TRACKER_TYPE_RSS_REGISTRAR, 
 			       "connection", connection, NULL);
 
 	dbus_g_object_type_install_info (G_OBJECT_TYPE (object), 
-					 &dbus_glib_tracker_evolution_registrar_object_info);
+					 &dbus_glib_tracker_rss_registrar_object_info);
 
 	dbus_g_connection_register_g_object (connection, 
-					     TRACKER_EVOLUTION_REGISTRAR_PATH, 
+					     TRACKER_RSS_REGISTRAR_PATH, 
 					     object);
 
 	/* Registration of the registrar to the manager */
 	dbus_g_proxy_call_no_reply (manager_proxy, "Register",
 				    G_TYPE_OBJECT, object, 
-				    G_TYPE_UINT, (guint) tracker_data_manager_get_db_option_int ("EvolutionLastModseq"),
+				    G_TYPE_UINT, (guint) tracker_data_manager_get_db_option_int ("RssLastModseq"),
 				    G_TYPE_INVALID,
 				    G_TYPE_INVALID);
 
@@ -355,23 +355,23 @@ tracker_evolution_push_registrar_enable (TrackerPushRegistrar *registrar,
 }
 
 static void
-tracker_evolution_push_registrar_disable (TrackerPushRegistrar *registrar)
+tracker_rss_push_registrar_disable (TrackerPushRegistrar *registrar)
 {
 	tracker_push_registrar_set_object (registrar, NULL);
 	tracker_push_registrar_set_manager (registrar, NULL);
 }
 
 static void
-tracker_evolution_push_registrar_class_init (TrackerEvolutionPushRegistrarClass *klass)
+tracker_rss_push_registrar_class_init (TrackerRssPushRegistrarClass *klass)
 {
 	TrackerPushRegistrarClass *p_class = TRACKER_PUSH_REGISTRAR_CLASS (klass);
 
-	p_class->enable = tracker_evolution_push_registrar_enable;
-	p_class->disable = tracker_evolution_push_registrar_disable;
+	p_class->enable = tracker_rss_push_registrar_enable;
+	p_class->disable = tracker_rss_push_registrar_disable;
 }
 
 static void
-tracker_evolution_push_registrar_init (TrackerEvolutionPushRegistrar *registrar)
+tracker_rss_push_registrar_init (TrackerRssPushRegistrar *registrar)
 {
 	return;
 }
@@ -381,10 +381,10 @@ tracker_push_module_init (void)
 {
 	GObject *object;
 
-	object = g_object_new (TRACKER_TYPE_EVOLUTION_PUSH_REGISTRAR, NULL);
+	object = g_object_new (TRACKER_TYPE_RSS_PUSH_REGISTRAR, NULL);
 
 	tracker_push_registrar_set_service (TRACKER_PUSH_REGISTRAR (object),
-					    TRACKER_EVOLUTION_MANAGER_SERVICE);
+					    TRACKER_RSS_MANAGER_SERVICE);
 
 	return TRACKER_PUSH_REGISTRAR (object);
 }
@@ -392,5 +392,5 @@ tracker_push_module_init (void)
 void
 tracker_push_module_shutdown (TrackerPushRegistrar *registrar)
 {
-	tracker_evolution_push_registrar_disable (registrar);
+	tracker_rss_push_registrar_disable (registrar);
 }

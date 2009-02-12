@@ -1,11 +1,54 @@
 2009-02-12  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/plugins/evolution/tracker-evolution-indexer.h
+	* src/plugins/evolution/tracker-evolution-registrar.h
+	* src/plugins/evolution/tracker-evolution-plugin.xml
+	* src/plugins/evolution/Makefile.am
+	* src/plugins/evolution/tracker-evolution-indexer.c
+	* src/plugins/evolution/tracker-evolution-registrar.xml
+	* src/plugins/evolution/tracker-evolution-registrar.c
+	* src/plugins/Makefile.am
+	* src/tracker-indexer/tracker-main.c
+	* src/tracker-indexer/Makefile.am
+	* src/trackerd/tracker-main.c
+	* src/trackerd/Makefile.am
+	* configure.ac
+	* data/db/sqlite-tracker.sql
+	* src/plugins/rss
+	* src/plugins/rss/tracker-rss-registrar.xml
+	* src/plugins/rss/tracker-rss-registrar.c
+	* src/plugins/rss/tracker-rss-indexer.h
+	* src/plugins/rss/tracker-rss-registrar.h
+	* src/plugins/rss/Makefile.am
+	* src/plugins/rss/tracker-rss-common.h
+	* src/plugins/rss/tracker-rss-indexer.c
+	* src/plugins/kmail
+	* src/plugins/kmail/tracker-kmail-common.h
+	* src/plugins/kmail/tracker-kmail-indexer.c
+	* src/plugins/kmail/tracker-kmail-registrar.xml
+	* src/plugins/kmail/tracker-kmail-registrar.c
+	* src/plugins/kmail/tracker-kmail-indexer.h
+	* src/plugins/kmail/Makefile.am
+	* src/plugins/kmail/tracker-kmail-registrar.h
+	* src/tracker-indexer/tracker-push.c
+	* src/tracker-indexer/tracker-push.h
+	* src/trackerd/tracker-push-registrar.c
+	* src/trackerd/tracker-push.c
+	* src/trackerd/tracker-push-registrar.h
+	* src/trackerd/tracker-push.h
+	* src/plugins/evolution/tracker-evolution.h
+	* src/plugins/evolution/tracker-evolution.c: New infrastructure for 
+	so-called Push modules, these include the new support for Evolution
+
+2009-02-12  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/libtracker-common/tracker-albumart.c: Bugfix for local mediaart
 
 2009-02-12  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-ioprio.c:
-	* src/tracker-indexer/tracker-main.c: 
+	* src/tracker-indexer
+/tracker-main.c: 
 	* src/trackerd/tracker-main.c: Use SCHED_IDLE for the process
 	scheduling to improve responsiveness of phone calls and other real
 	time applications. Fixes NB#95573.

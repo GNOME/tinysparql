@@ -30,6 +30,7 @@
 
 #include <dbus/dbus-glib-bindings.h>
 
+#include <trackerd/tracker-push.h>
 #include "tracker-evolution-common.h"
 
 G_BEGIN_DECLS

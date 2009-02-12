@@ -48,10 +48,10 @@
 #include <libtracker-data/tracker-turtle.h>
 #include <libtracker-data/tracker-data-manager.h>
 
-#include <plugins/evolution/tracker-evolution-indexer.h>
 
 #include "tracker-dbus.h"
 #include "tracker-indexer.h"
+#include "tracker-push.h"
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"					  \
@@ -435,9 +435,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_data_manager_init (config, language, file_index, email_index);
 
-#ifdef HAVE_EVOLUTION_PLUGIN
-	tracker_evolution_storer_init (config, indexer);
-#endif
+	tracker_push_init (config, indexer);
 
 	tracker_turtle_init ();
 
@@ -464,9 +462,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_data_manager_shutdown ();
 
-#ifdef HAVE_EVOLUTION_PLUGIN
-	tracker_evolution_storer_shutdown ();
-#endif
+	tracker_push_shutdown ();
 
 	tracker_thumbnailer_shutdown ();
 	tracker_dbus_shutdown ();
