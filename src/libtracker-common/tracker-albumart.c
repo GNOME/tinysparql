@@ -34,6 +34,7 @@
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
+
 #ifdef HAVE_GDKPIXBUF
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #endif
@@ -565,7 +566,7 @@ tracker_albumart_get_path (const gchar  *a,
 			   const gchar  *prefix, 
 			   const gchar  *uri,
 			   gchar       **path,
-			   gchar       **local)
+			   gchar       **local_uri)
 {
 	gchar *art_filename;
 	gchar *dir;
@@ -612,6 +613,26 @@ tracker_albumart_get_path (const gchar  *a,
 	art_filename = g_strdup_printf ("%s-%s-%s.jpeg", prefix?prefix:"album", str1, str2);
 
 	*path = g_build_filename (dir, art_filename, NULL);
+
+	if (local_uri) {
+		gchar *local_dir;
+		GFile *file, *parent;
+
+		if (strchr (uri, ':')) 
+			file = g_file_new_for_uri (uri);
+		else
+			file = g_file_new_for_path (uri);
+
+		parent = g_file_get_parent (file);
+		local_dir = g_file_get_uri (parent);
+
+		*local_uri = g_strdup_printf ("%s/%s", local_dir, art_filename);
+
+		g_free (local_dir);
+		g_object_unref (file);
+		g_object_unref (parent);
+	}
+
 	g_free (dir);
 	g_free (art_filename);
 	g_free (str1);

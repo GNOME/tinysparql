@@ -1,3 +1,7 @@
+2009-02-12  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-common/tracker-albumart.c: Bugfix for local mediaart
+
 2009-02-12  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-ioprio.c:

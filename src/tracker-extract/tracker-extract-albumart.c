@@ -176,7 +176,10 @@ tracker_process_albumart (const unsigned char *buffer,
 			g_free (asuri);
 		}
 
-		if (!lcopied && g_file_test (art_path, G_FILE_TEST_EXISTS))
+	}
+
+	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
+		if (g_file_test (art_path, G_FILE_TEST_EXISTS))
 			tracker_albumart_copy_to_local (art_path, local_uri);
 	}
 
