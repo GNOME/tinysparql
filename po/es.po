@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-02-05 17:37+0000\n"
-"PO-Revision-Date: 2009-02-06 20:02+0100\n"
+"POT-Creation-Date: 2009-02-10 14:10+0000\n"
+"PO-Revision-Date: 2009-02-13 21:38+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -470,7 +470,6 @@ msgstr "Ocioso"
 #. * Tracker: Idle
 #.
 #: ../src/tracker-applet/tracker-applet.c:289
-#| msgid "Elapsed"
 msgid "Paused"
 msgstr "Pausado"
 
@@ -493,7 +492,6 @@ msgstr "Mezclando"
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
 #.
 #: ../src/tracker-applet/tracker-applet.c:309
-#| msgid "paused by user"
 msgid "by user"
 msgstr "por el usuario"
 
@@ -501,7 +499,6 @@ msgstr "por el usuario"
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
 #.
 #: ../src/tracker-applet/tracker-applet.c:314
-#| msgid "paused by system"
 msgid "by system"
 msgstr "por el sistema"
 
@@ -754,27 +751,7 @@ msgstr "Correos-e:"
 msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-extract.c:372
-msgid "- Extract file meta data"
-msgstr "- Extraer los metadatos del archivo"
-
-#. Translators: this message will appear after the usage string
-#. and before the list of options.
-#: ../src/tracker-extract/tracker-extract.c:376
-msgid "This command works two ways:"
-msgstr "Este comando funciona de dos formas:"
-
-#: ../src/tracker-extract/tracker-extract.c:379
-msgid " - Passing arguments:"
-msgstr " - Pasándole argumentos:"
-
-#: ../src/tracker-extract/tracker-extract.c:383
-msgid " - Reading filename/mime-type pairs from STDIN"
-msgstr ""
-" - Leyendo el nombre de archivo y/o los pares del tipo MIME desde STDIN"
-
+#: ../src/tracker-extract/tracker-main.c:67
 #: ../src/tracker-indexer/tracker-main.c:78 ../src/trackerd/tracker-main.c:132
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -782,6 +759,35 @@ msgid ""
 msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = 0)"
+
+#: ../src/tracker-extract/tracker-main.c:72
+#| msgid "- Extract file meta data"
+msgid "File to extract metadata for"
+msgstr "Archivo del que extraer los metadatos"
+
+#: ../src/tracker-extract/tracker-main.c:73
+#: ../src/tracker-utils/tracker-info.c:46
+msgid "FILE"
+msgstr "ARCHIVO"
+
+#: ../src/tracker-extract/tracker-main.c:76
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr "Tipo MIME para el archivo (si no se proporciona se intentará adivinar)"
+
+#: ../src/tracker-extract/tracker-main.c:77
+#| msgid "MIME-type"
+msgid "MIME"
+msgstr "MIME"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-extract/tracker-main.c:137
+msgid "- Extract file meta data"
+msgstr "- Extraer los metadatos del archivo"
+
+#: ../src/tracker-extract/tracker-main.c:146
+msgid "Filename and mime type must be provided together"
+msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
 #: ../src/tracker-indexer/tracker-main.c:83
 msgid "Whether to process data from all configured modules to be indexed"
@@ -1454,10 +1460,6 @@ msgstr "Tipo de servicio del archivo"
 msgid "FILE..."
 msgstr "ARCHIVO..."
 
-#: ../src/tracker-utils/tracker-info.c:46
-msgid "FILE"
-msgstr "ARCHIVO"
-
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
 #: ../src/tracker-utils/tracker-info.c:79
@@ -1949,6 +1951,16 @@ msgstr "Opciones del indexador"
 #: ../src/trackerd/tracker-main.c:919
 msgid "Show indexer options"
 msgstr "Mostrar las opciones del indexador"
+
+#~ msgid "This command works two ways:"
+#~ msgstr "Este comando funciona de dos formas:"
+
+#~ msgid " - Passing arguments:"
+#~ msgstr " - Pasándole argumentos:"
+
+#~ msgid " - Reading filename/mime-type pairs from STDIN"
+#~ msgstr ""
+#~ " - Leyendo el nombre de archivo y/o los pares del tipo MIME desde STDIN"
 
 #~ msgid "paused by battery"
 #~ msgstr "pausado por la batería"
