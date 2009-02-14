@@ -1,14 +1,15 @@
 # Italian translation of Tracker
 # Copyright (C) 2006-2008, Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
-# Luca Ferretti <elle.uca@libero.it>, 2006-2008.
 #
+# Luca Ferretti <elle.uca@libero.it>, 2006-2008, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-16 21:47+0100\n"
-"PO-Revision-Date: 2009-01-16 21:57+0100\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&component=general\n"
+"POT-Creation-Date: 2009-01-21 12:49+0000\n"
+"PO-Revision-Date: 2009-02-02 22:22+0100\n"
 "Last-Translator: Luca Ferretti <elle.uca@libero.it>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +24,7 @@ msgstr "Tracker"
 
 #: ../data/trackerd.desktop.in.in.h:2
 msgid "Tracker search and indexing service"
-msgstr "Servizio di ricerca e indicizzazione di Tracker"
+msgstr "Servizio di ricerca e indicizzazione Tracker"
 
 #: ../python/deskbar-handler/tracker-handler-static.py:37
 #: ../python/deskbar-handler/tracker-module.py:65
@@ -185,13 +186,13 @@ msgid "No error given"
 msgstr "Nessun errore dato"
 
 # non sono sicuro sia <tempo>, potrebbe anche essere <ora>
-#: ../src/libtracker-common/tracker-utils.c:130
-#: ../src/libtracker-common/tracker-utils.c:137
+#: ../src/libtracker-common/tracker-utils.c:134
+#: ../src/libtracker-common/tracker-utils.c:141
 msgid "unknown time"
 msgstr "tempo sconosciuto"
 
-#: ../src/libtracker-common/tracker-utils.c:155
-#: ../src/libtracker-common/tracker-utils.c:214
+#: ../src/libtracker-common/tracker-utils.c:159
+#: ../src/libtracker-common/tracker-utils.c:218
 msgid "less than one second"
 msgstr "meno di un secondo"
 
@@ -448,7 +449,7 @@ msgstr ""
 
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
 msgid "_Hide Icon (except when displaying messages to user)"
-msgstr "N_ascondere l'icona (tranne che per mostrare messaggi all'utente)"
+msgstr "Na_scondere l'icona (tranne che per mostrare messaggi all'utente)"
 
 #: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
 msgid "_Off"
@@ -501,7 +502,7 @@ msgstr "messo in pausa dall'utente"
 #: ../src/tracker-applet/tracker-applet.c:309
 #: ../src/tracker-applet/tracker-applet.c:316
 msgid "paused by system"
-msgstr "messo in pausa dal sistema"
+msgstr "messo in pausa per sistema"
 
 #. FIXME: We need to check if we are on the
 #. * battery first, this state purely means we
@@ -512,7 +513,7 @@ msgstr "messo in pausa dal sistema"
 #.
 #: ../src/tracker-applet/tracker-applet.c:327
 msgid "paused by battery"
-msgstr "messo in pausa dalla batteria"
+msgstr "messo in pausa per batteria"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing (paused by system)
@@ -551,7 +552,9 @@ msgstr ""
 msgid ""
 "\n"
 "%d/%d indexes being merged"
-msgstr "\n%d/%d indici in corso di unione"
+msgstr ""
+"\n"
+"%d/%d indici in corso di unione"
 
 #: ../src/tracker-applet/tracker-applet.c:1107
 msgid "Re-index your system?"
@@ -677,7 +680,7 @@ msgid ""
 "Your computer is about to be indexed so you can perform fast searches of "
 "your files and emails"
 msgstr ""
-"Sta per essere eseguita l'indicizzazione del computer, in modo da poter "
+"Sta per essere avviata l'indicizzazione del computer, in modo da poter "
 "compiere ricerche rapide nei propri file ed email"
 
 #: ../src/tracker-applet/tracker-applet.c:1653
@@ -803,7 +806,7 @@ msgid ""
 "Click the Reindex button to start reindexing now, otherwise this action will "
 "be performed the next time the Tracker daemon is restarted."
 msgstr ""
-"Affiché i cambiamenti apportati abbiano effetti, è necessario che Tracker "
+"Affinché i cambiamenti apportati abbiano effetti, è necessario che Tracker "
 "reindicizzi i propri file. Fare clic sul pulsante «Reindicizza» per avviare "
 "adesso la reindicizzazione, altrimenti tale azione sarà compiuta al prossimo "
 "avvio del demone Tracker."
@@ -1095,7 +1098,7 @@ msgstr "Impossibile spostare «%s» nel cestino."
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:852
 #, c-format
 msgid "Moving \"%s\" failed: %s."
-msgstr "Spostamento di «%s» fallito: %s."
+msgstr "Spostamento di «%s» non riuscito: %s."
 
 #: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1133
 msgid "Activate to view this email"
@@ -1146,7 +1149,7 @@ msgid ""
 "GConf error:\n"
 "  %s"
 msgstr ""
-"Errore di GConf:\n"
+"Errore GConf:\n"
 "  %s"
 
 #. Translators:  Below are the strings displayed in the 'Date Modified'
@@ -1160,12 +1163,12 @@ msgstr "oggi alle %-H.%M"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:673
 msgid "yesterday at %-I:%M %p"
-msgstr "ieri alle %k.%M"
+msgstr "ieri alle %-H.%M"
 
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:675
 #: ../src/tracker-search-tool/tracker-search-tool-support.c:677
 msgid "%A, %B %-d %Y at %-I:%M:%S %p"
-msgstr "%A, %-d %B %Y alle %k.%M.%S"
+msgstr "%A, %-d %B %Y alle %-H.%M.%S"
 
 #: ../src/tracker-search-tool/tracker-search-tool.c:63
 #: ../src/tracker-utils/tracker-query.c:53
@@ -1797,7 +1800,9 @@ msgstr "Non è stato specificato alcun file"
 
 #: ../src/tracker-utils/tracker-tag.c:148
 msgid "Add and delete actions can not be used with remove all actions"
-msgstr "Le azioni \"aggiungi\" ed \"elimina\" non possono essere usate assieme alle azioni \"rimuovi tutto\""
+msgstr ""
+"Le azioni \"aggiungi\" ed \"elimina\" non possono essere usate assieme alle "
+"azioni \"rimuovi tutto\""
 
 #: ../src/tracker-utils/tracker-tag.c:150
 msgid "Files are not needed with searching"
