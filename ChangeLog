@@ -1,3 +1,19 @@
+2009-02-16  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-utils/tracker-services.c: Also sorted all properties
+	returned by tracker-services. 
+
+	* src/tracker-utils/tracker-files.c: 
+	* src/tracker-utils/tracker-info.c: 
+	* src/tracker-utils/tracker-meta-folder.c:
+	* src/tracker-utils/tracker-query.c: 
+	* src/tracker-utils/tracker-search.c: 
+	* src/tracker-utils/tracker-tag.c: 
+	* src/tracker-utils/tracker-unique.c: Added extra warning to all
+	utils which have a --limit option so the user knows that there are
+	more results if the limit is reached and not listed to stdout.
+	Fixed the singular/plural issues with "Results".
+
 2009-02-16  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-extract-ps.c
@@ -7,7 +23,7 @@
 2009-02-12  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-png.c:
-	data/services/default.service: Handle also sketch/png mime 
+	data/services/default.service: Handle also sketch/png mime
 	correctly.
 
 	Fixes NB #101593 
@@ -61,8 +77,7 @@
 2009-02-12  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-ioprio.c:
-	* src/tracker-indexer
-/tracker-main.c: 
+	* src/tracker-indexer/tracker-main.c: 
 	* src/trackerd/tracker-main.c: Use SCHED_IDLE for the process
 	scheduling to improve responsiveness of phone calls and other real
 	time applications. Fixes NB#95573.

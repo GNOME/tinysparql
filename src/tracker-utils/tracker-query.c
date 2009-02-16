@@ -240,8 +240,33 @@ main (int argc, char **argv)
 		g_print ("%s\n",
 			 _("No results found matching your query"));
 	} else {
+		gint length;
+
+		length = array->len;
+
+		g_print (g_dngettext (NULL,
+				      _("Result: %d"), 
+				      _("Results: %d"),
+				      length),
+			 length);
+		g_print ("\n");
+
 		g_ptr_array_foreach (array, (GFunc) get_meta_table_data, NULL);
 		g_ptr_array_free (array, TRUE);
+
+		if (length >= limit) {
+			/* Display '...' so the user thinks there is
+			 * more items.
+			 */
+			g_print ("  ...\n");
+
+			/* Display warning so the user knows this is
+			 * not the WHOLE data set.
+			 */
+			g_printerr ("\n"
+				    "%s\n",
+				    _("NOTE: Limit was reached, there are more items in the database not listed here"));
+		}
 	}
 
 	tracker_disconnect (client);

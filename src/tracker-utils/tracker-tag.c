@@ -307,8 +307,7 @@ main (int argc, char **argv)
 
 	if ((files && list) ||
 	    (files && (!add && !remove && !remove_all))) {
-		g_print ("%s:\n",
-			 _("Tags found"));
+		g_print ("%s:\n", _("Found"));
 
 		for (i = 0, j = 0; files_resolved[i] != NULL; i++) {
 			gchar **tags;
@@ -374,12 +373,37 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 				 _("No tags found"));
 		} else {
+			gint length;
+
+			length = g_strv_length (results);
+			
+			g_print (g_dngettext (NULL,
+					      _("Result: %d"), 
+					      _("Results: %d"),
+					      length),
+				 length);
+			g_print ("\n");
+			
 			for (i = 0; results[i] != NULL; i++) {
 				g_print ("  %s\n", results[i]);
 			}
-		}
 
-		g_strfreev (results);
+			if (length >= limit) {
+				/* Display '...' so the user thinks there is
+				 * more items.
+				 */
+				g_print ("  ...\n");
+				
+				/* Display warning so the user knows this is
+				 * not the WHOLE data set.
+				 */
+				g_printerr ("\n"
+					    "%s\n",
+					    _("NOTE: Limit was reached, there are more items in the database not listed here"));
+			}
+			
+			g_strfreev (results);
+		}
 	}
 
 finish:

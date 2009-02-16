@@ -167,7 +167,7 @@ main (int argc, char **argv)
 	summary = g_strconcat (_("To use multiple meta-data types simply list them, for example:"),
 			       "\n"
 			       "\n"
-			       "  -p ", _("PATH"), " File:Size File:Type",
+			       "  -p ", _("PATH"), " File:Size",
 			       NULL);
 
 	g_option_context_set_summary (context, summary);
@@ -259,9 +259,17 @@ main (int argc, char **argv)
 		g_print ("%s\n",
 			 _("No meta-data found for files in that directory"));
 	} else {
-		g_print ("%s:\n",
-			 _("Results"));
+		gint length;
 
+		length = array->len;
+
+		g_print (g_dngettext (NULL,
+				      _("Result: %d"), 
+				      _("Results: %d"),
+				      length),
+			 length);
+		g_print ("\n");
+		
 		print_header (fields_resolved);
 
 		g_ptr_array_foreach (array,

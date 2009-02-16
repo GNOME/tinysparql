@@ -101,7 +101,8 @@ main (int argc, char **argv)
 
 	if (service) {
 		gchar **array;
-		gchar **p_strarray;
+		gchar **p;
+		gint    length;
 
 		type = tracker_service_name_to_type (service);
 
@@ -133,11 +134,31 @@ main (int argc, char **argv)
 			return EXIT_FAILURE;
 		}
 
-		g_print ("%s:\n",
-			 _("Results"));
+		length = g_strv_length (array);
 
-		for (p_strarray = array; *p_strarray; p_strarray++) {
-			g_print ("  %s\n", *p_strarray);
+		g_print (g_dngettext (NULL,
+				      _("Result: %d"), 
+				      _("Results: %d"),
+				      length),
+			 length);
+		g_print ("\n");
+		
+		for (p = array; *p; p++) {
+			g_print ("  %s\n", *p);
+		}
+
+		if (length >= limit) {
+			/* Display '...' so the user thinks there is
+			 * more items.
+			 */
+			g_print ("  ...\n");
+
+			/* Display warning so the user knows this is
+			 * not the WHOLE data set.
+			 */
+			g_printerr ("\n"
+				    "%s\n",
+				    _("NOTE: Limit was reached, there are more items in the database not listed here"));
 		}
 
 		g_strfreev (array);
@@ -146,6 +167,7 @@ main (int argc, char **argv)
 	if (mimes) {
 		gchar **array;
 		gchar **p;
+		gint    length;
 
 		array = tracker_files_get_by_mime_type (client,
 							time (NULL),
@@ -170,11 +192,31 @@ main (int argc, char **argv)
 			return EXIT_FAILURE;
 		}
 
-		g_print ("%s:\n",
-			 _("Results"));
+		length = g_strv_length (array);
 
+		g_print (g_dngettext (NULL,
+				      _("Result: %d"), 
+				      _("Results: %d"),
+				      length),
+			 length);
+		g_print ("\n");
+		
 		for (p = array; *p; p++) {
 			g_print ("  %s\n", *p);
+		}
+
+		if (length >= limit) {
+			/* Display '...' so the user thinks there is
+			 * more items.
+			 */
+			g_print ("  ...\n");
+
+			/* Display warning so the user knows this is
+			 * not the WHOLE data set.
+			 */
+			g_printerr ("\n"
+				    "%s\n",
+				    _("NOTE: Limit was reached, there are more items in the database not listed here"));
 		}
 
 		g_strfreev (array);

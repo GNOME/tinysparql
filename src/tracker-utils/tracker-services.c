@@ -46,19 +46,6 @@ static GOptionEntry entries[] = {
 	{ NULL }
 };
 
-
-static void
-print_strv (gchar **values)
-{
-	guint i;
-
-	for (i = 0; values[i] != NULL; i++) {
-		g_print (" - %s\n", values[i]);
-	}
-
-	g_print ("\n");
-}
-
 int
 main (int argc, char **argv)
 {
@@ -89,6 +76,7 @@ main (int argc, char **argv)
 		
 		return EXIT_FAILURE;
 	}
+
 	g_option_context_free (context);
 
 	client = tracker_connect (FALSE);
@@ -115,16 +103,20 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 				 _("No services available"));
 		} else {
-			g_print ("%s\n\n",
-				 _("Service types available in Tracker:"));
+			gchar **p;
+
+			g_print ("%s:\n",
+				 _("Service types available in Tracker"));
 			
-			print_strv (array);
+			for (p = array; *p; p++) {
+				g_print ("  %s\n", *p);
+			}
+
 			g_strfreev (array);
 		}
 	}
 
 	if (properties) {
-
 		array = tracker_metadata_get_registered_types (client, "*", &error);
 		
 		if (error) {
@@ -140,14 +132,28 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 				 _("No properties available"));
 		} else {
-			g_print ("%s\n\n",
-				 _("Properties available in Tracker:"));
+			GList  *sorted, *l;
+			gchar **p;
+
+			g_print ("%s:\n",
+				 _("Properties available in Tracker"));
+
+			for (p = array; *p; p++) {
+				sorted = g_list_insert_sorted (sorted, 
+							       *p,
+							       (GCompareFunc) strcmp);
+			}
 			
-			print_strv (array);
+			for (l = sorted; l; l = g_list_next (l)) {
+				g_print ("  %s\n", (const gchar*) l->data);
+			}
+
+			g_list_free (sorted);
 			g_strfreev (array);
 		}
 		
 	}
+
 	tracker_disconnect (client);
 
 	return EXIT_SUCCESS;
