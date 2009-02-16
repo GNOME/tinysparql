@@ -54,13 +54,18 @@
 
 #endif /* HAVE_GETLINE */
 
+#ifdef USING_UNZIPPSFILES
 static void extract_ps_gz (const gchar *filename,
 			   GHashTable  *metadata);
+#endif
+
 static void extract_ps	  (const gchar *filename,
 			   GHashTable  *metadata);
 
 static TrackerExtractData data[] = {
+#ifdef USING_UNZIPPSFILES
 	{ "application/x-gzpostscript",	extract_ps_gz },
+#endif
 	{ "application/postscript",	extract_ps    },
 	{ NULL, NULL }
 };
@@ -283,6 +288,7 @@ extract_ps (const gchar *filename,
 	}
 }
 
+#ifdef USING_UNZIPPSFILES
 static void
 extract_ps_gz (const gchar *filename,
 	       GHashTable  *metadata)
@@ -353,6 +359,7 @@ extract_ps_gz (const gchar *filename,
 	extract_ps (gunzipped, metadata);
 	g_unlink (gunzipped);
 }
+#endif
 
 TrackerExtractData *
 tracker_get_extract_data (void)

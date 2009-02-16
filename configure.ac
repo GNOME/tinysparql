@@ -211,6 +211,20 @@ DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
 ####################################################################
+# PS extractor option
+####################################################################
+
+AC_ARG_ENABLE([unzip_psgz_files],
+              AS_HELP_STRING([--enable-unzip-ps-gz-files=ARG],
+                             [enable gunzipping ps.gz files]),,
+              [enable_unzip_psgz_files=yes])
+
+if test x$enable_unzip_psgz_files == "xyes"; then
+  AC_DEFINE(USING_UNZIPPSFILES, 1, [Unzip ps.gz files])
+fi
+
+
+####################################################################
 # Push modules
 ####################################################################
 

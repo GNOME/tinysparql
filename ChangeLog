@@ -1,3 +1,9 @@
+2009-02-16  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-extract/tracker-extract-ps.c
+	* configure.ac: Added option to disable uncompressing ps.gz files to
+	/tmp, which is a bad idea on certain mobile devices
+
 2009-02-12  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-png.c:
