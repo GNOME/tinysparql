@@ -108,7 +108,8 @@ indexer_recheck (gboolean should_inform_indexer)
 		/* We are paused, but our status is NOT paused? */
 		if (private->status != TRACKER_STATUS_PAUSED) {
 			private->status_before_paused = private->status;
-			private->status = TRACKER_STATUS_PAUSED;
+
+			tracker_status_set (TRACKER_STATUS_PAUSED);
 
 			if (G_LIKELY (should_inform_indexer)) {
 				indexer_pause ();
@@ -117,7 +118,7 @@ indexer_recheck (gboolean should_inform_indexer)
 	} else {
 		/* We are not paused, but our status is paused */
 		if (private->status == TRACKER_STATUS_PAUSED) {
-			private->status = private->status_before_paused;
+			tracker_status_set (private->status_before_paused);
 
 			if (G_LIKELY (should_inform_indexer)) {
 				indexer_continue (0);
@@ -188,14 +189,11 @@ indexer_continued_cb (DBusGProxy *proxy,
 	private->is_paused_for_space = FALSE;
 	private->is_paused_for_unknown = FALSE;
 
-	/* Set state to what it was before the pause. */
-	private->status = private->status_before_paused;
-
 	/* We signal this to listening apps, but we don't call
 	 * indexer_recheck() because we don't want to tell the indexer
 	 * what it just told us :)
 	 */
-	tracker_status_set_and_signal (private->status);
+	tracker_status_set_and_signal (private->status_before_paused);
 }
 
 static void
@@ -456,6 +454,10 @@ tracker_status_set (TrackerStatus new_status)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
+	g_message ("State change from '%s' --> '%s'",
+		   tracker_status_to_string (private->status),
+		   tracker_status_to_string (new_status));
+
 	private->status = new_status;
 }
 
@@ -512,10 +514,6 @@ tracker_status_set_and_signal (TrackerStatus new_status)
 	if (!emit) {
 		return;
 	}
-
-	g_message ("State change from '%s' --> '%s'",
-		   tracker_status_to_string (private->status),
-		   tracker_status_to_string (new_status));
 
 	tracker_status_set (new_status);
 	tracker_status_signal ();

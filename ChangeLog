@@ -1,5 +1,10 @@
 2009-02-16  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-status.c: Make sure we *ALWAYS* log state
+	changes. The recent status code updates broke that.
+	
+2009-02-16  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-utils/tracker-services.c: Also sorted all properties
 	returned by tracker-services. 
 
