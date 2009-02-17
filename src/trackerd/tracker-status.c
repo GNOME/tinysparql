@@ -21,18 +21,28 @@
 
 #include "config.h"
 
+#include <sys/statvfs.h>
+
 #include "tracker-status.h"
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
 #include "tracker-main.h"
 #include "tracker-indexer-client.h"
 
+#define DISK_SPACE_CHECK_FREQUENCY 10
+
+#define THROTTLE_DEFAULT	    0
+#define THROTTLE_DEFAULT_ON_BATTERY 5
+
 typedef struct {
 	TrackerStatus  status;
 	TrackerStatus  status_before_paused;
 	gpointer       type_class;
 
+	guint          disk_space_check_id;
+
 	TrackerConfig *config;
+	TrackerHal    *hal;
 
 	DBusGProxy    *indexer_proxy;
 
@@ -44,17 +54,24 @@ typedef struct {
 	gboolean       is_paused_for_batt;
 	gboolean       is_paused_for_io;
 	gboolean       is_paused_for_space;
+	gboolean       is_paused_for_dbus;
 	gboolean       is_paused_for_unknown;
 	gboolean       in_merge;
 } TrackerStatusPrivate;
 
-static void indexer_continued_cb (DBusGProxy  *proxy,
-				  gpointer     user_data);
-static void indexer_paused_cb    (DBusGProxy  *proxy,
-				  const gchar *reason,
-				  gpointer     user_data);
-static void indexer_continue     (guint        seconds);
-static void indexer_pause        (void);
+static void indexer_continued_cb  (DBusGProxy  *proxy,
+				   gpointer     user_data);
+static void indexer_paused_cb     (DBusGProxy  *proxy,
+				   const gchar *reason,
+				   gpointer     user_data);
+static void indexer_continue      (gboolean     should_block);
+static void indexer_pause         (gboolean     should_block);
+static void battery_in_use_cb     (GObject     *gobject,
+				   GParamSpec  *arg1,
+				   gpointer     user_data);
+static void battery_percentage_cb (GObject     *object,
+				   GParamSpec  *pspec,
+				   gpointer     user_data);
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
@@ -65,9 +82,22 @@ private_free (gpointer data)
 
 	private = data;
 
-	if (private->config) {
-		g_object_unref (private->config);
+	if (private->disk_space_check_id) {
+		g_source_remove (private->disk_space_check_id);
 	}
+
+	g_object_unref (private->config);
+
+#ifdef HAVE_HAL
+	g_signal_handlers_disconnect_by_func (private->hal,
+					      battery_in_use_cb,
+					      NULL);
+	g_signal_handlers_disconnect_by_func (private->hal,
+					      battery_percentage_cb,
+					      NULL);
+
+	g_object_unref (private->hal);
+#endif
 
 	if (private->type_class) {
 		g_type_class_unref (private->type_class);
@@ -93,7 +123,9 @@ private_free (gpointer data)
  */
 
 static void
-indexer_recheck (gboolean should_inform_indexer)
+indexer_recheck (gboolean should_inform_indexer,
+		 gboolean should_block,
+		 gboolean should_signal_small_changes)
 {
 	TrackerStatusPrivate *private;
 
@@ -104,26 +136,39 @@ indexer_recheck (gboolean should_inform_indexer)
 	if (private->is_paused_manually ||
 	    private->is_paused_for_batt || 
 	    private->is_paused_for_io ||
-	    private->is_paused_for_space) {
+	    private->is_paused_for_space ||
+	    private->is_paused_for_dbus ||
+	    private->is_paused_for_unknown) {
 		/* We are paused, but our status is NOT paused? */
 		if (private->status != TRACKER_STATUS_PAUSED) {
-			private->status_before_paused = private->status;
-
-			tracker_status_set (TRACKER_STATUS_PAUSED);
-
 			if (G_LIKELY (should_inform_indexer)) {
-				indexer_pause ();
+				/* We set state after confirmation*/
+				indexer_pause (should_block);
+			} else {
+				tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
 			}
+			
+			return;
 		}
 	} else {
 		/* We are not paused, but our status is paused */
 		if (private->status == TRACKER_STATUS_PAUSED) {
-			tracker_status_set (private->status_before_paused);
-
 			if (G_LIKELY (should_inform_indexer)) {
-				indexer_continue (0);
+				/* We set state after confirmation*/
+				indexer_continue (should_block);
+			} else {
+				tracker_status_set_and_signal (private->status_before_paused);
 			}
+
+			return;
 		}
+	}
+
+	/* Simply signal because in this case, state hasn't changed
+	 * but one of the reasons for being paused has changed. 
+	 */
+	if (should_signal_small_changes) {
+		tracker_status_signal ();
 	}
 }
 
@@ -132,68 +177,14 @@ indexer_paused_cb (DBusGProxy  *proxy,
 		   const gchar *reason,
 		   gpointer     user_data)
 {
-	TrackerStatusPrivate *private;
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	/* NOTE: This is when we are told by the indexer, so we don't
-	 * know without checking with the status module if we sent
-	 * this or not - we certainly should not inform the indexer
-	 * again.
-	 */
-	g_message ("The indexer has paused (Reason: %s)", 
-		   reason ? reason : "None");
-
-	if (reason) {
-		if (strcmp (reason, "Disk full") == 0) {
-			private->is_paused_for_space = TRUE;
-			indexer_recheck (FALSE);
-			tracker_status_signal ();
-		} else if (strcmp (reason, "Battery low") == 0) {
-			private->is_paused_for_batt = TRUE;
-		} else {
-			private->is_paused_for_unknown = TRUE;
-		}
-	} else {
-		private->is_paused_for_unknown = TRUE;
-	}
-
-	indexer_recheck (FALSE);
-	tracker_status_signal ();
+	g_message ("The indexer has paused");
 }
 
 static void
 indexer_continued_cb (DBusGProxy *proxy,
 		      gpointer	  user_data)
 {
-	TrackerStatusPrivate *private;
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	/* NOTE: This is when we are told by the indexer, so we don't
-	 * know without checking with the status module if we sent
-	 * this or not - we certainly should not inform the indexer
-	 * again.
-	 */
-	
 	g_message ("The indexer has continued");
-
-	/* So now the indexer has told us it has continued, we make
-	 * sure that none of the pause states are TRUE.
-	 */
-	private->is_paused_manually = FALSE;
-	private->is_paused_for_batt = FALSE;
-	private->is_paused_for_io = FALSE;
-	private->is_paused_for_space = FALSE;
-	private->is_paused_for_unknown = FALSE;
-
-	/* We signal this to listening apps, but we don't call
-	 * indexer_recheck() because we don't want to tell the indexer
-	 * what it just told us :)
-	 */
-	tracker_status_set_and_signal (private->status_before_paused);
 }
 
 static void
@@ -201,27 +192,22 @@ indexer_continue_cb (DBusGProxy *proxy,
 		     GError     *error,
 		     gpointer    user_data)
 {
-	if (error) {
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (G_UNLIKELY (error)) {
 		g_message ("Could not continue the indexer, %s",
 			   error->message);
-
-		/* Return state to paused */
-		tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
-
-		/* FIXME: Should we set some sort of boolean here for:
-		 * [I couldn't resume because the indexer b0rked]? 
-		 * 
-		 * This is a potential deadlock, since we won't check
-		 * again until we get another dbus request or
-		 * something else sets this off. 
-		 *
-		 * -mr
-		 */
+		return;
 	}
+
+	tracker_status_set_and_signal (private->status_before_paused);
 }
 
 static void
-indexer_continue (guint seconds)
+indexer_continue (gboolean should_block)
 {
 	TrackerStatusPrivate *private;
 
@@ -231,12 +217,14 @@ indexer_continue (guint seconds)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	if (seconds < 1) {
+	if (G_LIKELY (!should_block)) {
 		org_freedesktop_Tracker_Indexer_continue_async (private->indexer_proxy,
 								indexer_continue_cb,
 								NULL);
 	} else {
-		/* FIXME: Finish */
+		org_freedesktop_Tracker_Indexer_continue (private->indexer_proxy, 
+							  NULL);
+		tracker_status_set_and_signal (private->status_before_paused);
 	}
 }
 
@@ -245,32 +233,17 @@ indexer_pause_cb (DBusGProxy *proxy,
 		  GError     *error,
 		  gpointer    user_data)
 {
-	if (error) {
-		TrackerStatusPrivate *private;
-		
-		private = g_static_private_get (&private_key);
-		g_return_if_fail (private != NULL);
-
+	if (G_UNLIKELY (error)) {
 		g_message ("Could not pause the indexer, %s",
 			   error->message);
-
-		/* Return state to before paused */
-		tracker_status_set_and_signal (private->status_before_paused);
-
-		/* FIXME: Should we set some sort of boolean here for:
-		 * [I couldn't resume because the indexer b0rked]? 
-		 * 
-		 * This is a potential deadlock, since we won't check
-		 * again until we get another dbus request or
-		 * something else sets this off. 
-		 *
-		 * -mr
-		 */
+		return;
 	}
+	
+	tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
 }
 
 static void
-indexer_pause (void)
+indexer_pause (gboolean should_block)
 {
 	TrackerStatusPrivate *private;
 
@@ -280,13 +253,197 @@ indexer_pause (void)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	org_freedesktop_Tracker_Indexer_pause_async (private->indexer_proxy,
-						     indexer_pause_cb,
-						     NULL);
+	if (G_LIKELY (!should_block)) {
+		org_freedesktop_Tracker_Indexer_pause_async (private->indexer_proxy,
+							     indexer_pause_cb,
+							     NULL);
+	} else {
+		org_freedesktop_Tracker_Indexer_pause (private->indexer_proxy, 
+						       NULL);
+		tracker_status_set_and_signal (TRACKER_STATUS_PAUSED);
+	}
 }
 
+
+static gboolean
+disk_space_check (void)
+{
+	TrackerStatusPrivate *private;
+	struct statvfs        st;
+	gint                  limit;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	limit = tracker_config_get_low_disk_space_limit (private->config);
+
+	if (limit < 1) {
+		return FALSE;
+	}
+
+	if (statvfs (tracker_get_data_dir (), &st) == -1) {
+		g_warning ("Could not statvfs() '%s'", tracker_get_data_dir ());
+		return FALSE;
+	}
+
+	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
+		g_message ("Disk space is low");
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+disk_space_check_cb (gpointer user_data)
+{
+	if (disk_space_check ()) {
+		tracker_status_set_is_paused_for_space (TRUE);
+	} else {
+		tracker_status_set_is_paused_for_space (FALSE);
+	}
+
+	return TRUE;
+}
+
+static void
+disk_space_check_start (void)
+{
+	TrackerStatusPrivate *private;
+	gint limit;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (private->disk_space_check_id != 0) {
+		return;
+	}
+
+	limit = tracker_config_get_low_disk_space_limit (private->config);
+
+	if (limit != -1) {
+		g_message ("Setting disk space check for every %d seconds",
+			   DISK_SPACE_CHECK_FREQUENCY);
+		private->disk_space_check_id = 
+			g_timeout_add_seconds (DISK_SPACE_CHECK_FREQUENCY,
+					       disk_space_check_cb,
+					       NULL);
+
+		/* Call the function now too to make sure we have an
+		 * initial value too!
+		 */
+		disk_space_check_cb (NULL);
+	} else {
+		g_message ("Not setting disk space, configuration is set to -1 (disabled)");
+	}
+}
+
+static void
+disk_space_check_stop (void)
+{
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	if (private->disk_space_check_id != 0) {
+		g_source_remove (private->disk_space_check_id);
+		private->disk_space_check_id = 0;
+	}
+}
+
+#ifdef HAVE_HAL
+
+static void
+set_up_throttle (void)
+{
+	TrackerStatusPrivate *private;
+	gint                  throttle;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	/* If on a laptop battery and the throttling is default (i.e.
+	 * 0), then set the throttle to be higher so we don't kill
+	 * the laptop battery.
+	 */
+	throttle = tracker_config_get_throttle (private->config);
+
+	if (tracker_hal_get_battery_in_use (private->hal)) {
+		g_message ("We are running on battery");
+
+		if (throttle == THROTTLE_DEFAULT) {
+			tracker_config_set_throttle (private->config,
+						     THROTTLE_DEFAULT_ON_BATTERY);
+			g_message ("Setting throttle from %d to %d",
+				   throttle,
+				   THROTTLE_DEFAULT_ON_BATTERY);
+		} else {
+			g_message ("Not setting throttle, it is currently set to %d",
+				   throttle);
+		}
+	} else {
+		g_message ("We are not running on battery");
+
+		if (throttle == THROTTLE_DEFAULT_ON_BATTERY) {
+			tracker_config_set_throttle (private->config,
+						     THROTTLE_DEFAULT);
+			g_message ("Setting throttle from %d to %d",
+				   throttle,
+				   THROTTLE_DEFAULT);
+		} else {
+			g_message ("Not setting throttle, it is currently set to %d",
+				   throttle);
+		}
+	}
+}
+
+static void
+battery_in_use_cb (GObject *gobject,
+		   GParamSpec *arg1,
+		   gpointer user_data)
+{
+	set_up_throttle ();
+}
+
+static void
+battery_percentage_cb (GObject    *object,
+		       GParamSpec *pspec,
+		       gpointer    user_data)
+{
+	TrackerStatusPrivate *private;
+	gdouble               percentage;
+	gboolean              battery_in_use;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	percentage = tracker_hal_get_battery_percentage (private->hal);
+	battery_in_use = tracker_hal_get_battery_in_use (private->hal);
+
+	/* FIXME: This could be a configuration option */
+	if (battery_in_use) {
+		g_message ("Battery percentage is now %d%%",
+			   (gint) percentage * 100);
+		
+		if (percentage <= 0.05) {
+			/* Running on low batteries, stop indexing for now */
+			tracker_status_set_is_paused_for_batt (TRUE);
+		} else {
+			tracker_status_set_is_paused_for_batt (FALSE);
+		}
+	} else {
+		tracker_status_set_is_paused_for_batt (FALSE);
+	}
+
+	set_up_throttle ();
+}
+
+#endif /* HAVE_HAL */
+
 gboolean
-tracker_status_init (TrackerConfig *config)
+tracker_status_init (TrackerConfig *config,
+		     TrackerHal    *hal)
 {
 	GType		      type;
 	DBusGProxy           *proxy;
@@ -320,6 +477,15 @@ tracker_status_init (TrackerConfig *config)
 
 	private->config = g_object_ref (config);
 
+#ifdef HAVE_HAL 
+	private->hal = g_object_ref (hal);
+
+	g_message ("Setting battery percentage checking");
+	g_signal_connect (private->hal, "notify::battery-percentage",
+			  G_CALLBACK (battery_percentage_cb),
+			  NULL);
+#endif
+
 	private->is_readonly = FALSE;
 	private->is_ready = FALSE;
 	private->is_running = FALSE;
@@ -328,6 +494,7 @@ tracker_status_init (TrackerConfig *config)
 	private->is_paused_for_batt = FALSE;
 	private->is_paused_for_io = FALSE;
 	private->is_paused_for_space = FALSE;
+	private->is_paused_for_dbus = FALSE;
 	private->is_paused_for_unknown = FALSE;
 	private->in_merge = FALSE;
 
@@ -348,6 +515,11 @@ tracker_status_init (TrackerConfig *config)
 				     NULL,
 				     NULL);
 	
+	/* Start monitoring system for low disk space, low battery
+	 * power, etc. 
+	 */
+	disk_space_check_start ();
+
 	return TRUE;
 }
 
@@ -458,6 +630,14 @@ tracker_status_set (TrackerStatus new_status)
 		   tracker_status_to_string (private->status),
 		   tracker_status_to_string (new_status));
 
+	/* Don't set previous status to the same as we are now,
+	 * otherwise we could end up setting PAUSED and our old state
+	 * to return to is also PAUSED.
+	 */
+	if (private->status_before_paused != new_status) {
+		private->status_before_paused = private->status;
+	}
+
 	private->status = new_status;
 }
 
@@ -487,6 +667,7 @@ tracker_status_signal (void)
 	pause_for_io = 
 		private->is_paused_for_io || 
 		private->is_paused_for_space || 
+		private->is_paused_for_dbus ||
 		private->is_paused_for_unknown;
 	
 	g_signal_emit_by_name (object,
@@ -699,24 +880,17 @@ void
 tracker_status_set_is_paused_manually (gboolean value)
 {
 	TrackerStatusPrivate *private;
-	gboolean	      emit;
+	gboolean              emit;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	emit  = TRUE;
-	emit |= private->is_paused_manually != value;
-	emit |= private->status != TRACKER_STATUS_PAUSED;
-
 	/* Set value */
+	emit = private->is_paused_manually != value;
 	private->is_paused_manually = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE);
-
-	if (emit) {
-		tracker_status_signal ();
-	}
+	indexer_recheck (TRUE, FALSE, emit);
 }
 
 gboolean
@@ -734,24 +908,17 @@ void
 tracker_status_set_is_paused_for_batt (gboolean value)
 {
 	TrackerStatusPrivate *private;
-	gboolean	      emit;
+	gboolean              emit;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	emit  = TRUE;
-	emit |= private->is_paused_for_batt != value;
-	emit |= private->status != TRACKER_STATUS_PAUSED;
-
 	/* Set value */
+	emit = private->is_paused_for_batt != value;
 	private->is_paused_for_batt = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE);
-
-	if (emit) {
-		tracker_status_signal ();
-	}
+	indexer_recheck (TRUE, FALSE, emit);
 }
 
 gboolean
@@ -774,22 +941,12 @@ tracker_status_set_is_paused_for_io (gboolean value)
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	emit = private->is_paused_for_io != value;
-
-	emit  = TRUE;
-	emit |= private->is_paused_for_batt != value;
-	emit |= private->status != TRACKER_STATUS_PAUSED;
-
 	/* Set value */
+	emit = private->is_paused_for_io != value;
 	private->is_paused_for_io = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE);
-
-	/* Tell the world */
-	if (emit) {
-		tracker_status_signal ();
-	}
+	indexer_recheck (TRUE, FALSE, emit);
 }
 
 gboolean
@@ -807,25 +964,44 @@ void
 tracker_status_set_is_paused_for_space (gboolean value)
 {
 	TrackerStatusPrivate *private;
-	gboolean	      emit;
+	gboolean              emit;
 
 	private = g_static_private_get (&private_key);
 	g_return_if_fail (private != NULL);
 
-	emit = private->is_paused_for_space != value;
-
-	emit  = TRUE;
-	emit |= private->is_paused_for_batt != value;
-	emit |= private->status != TRACKER_STATUS_PAUSED;
-
 	/* Set value */
+	emit = private->is_paused_for_space != value;
 	private->is_paused_for_space = value;
 
 	/* Set indexer state and our state to paused or not */ 
-	indexer_recheck (TRUE);
+	indexer_recheck (TRUE, FALSE, emit);
+}
 
-	if (emit) {
-		tracker_status_signal ();
-	}
+gboolean
+tracker_status_get_is_paused_for_dbus (void)
+{
+	TrackerStatusPrivate *private;
+
+	private = g_static_private_get (&private_key);
+	g_return_val_if_fail (private != NULL, FALSE);
+
+	return private->is_paused_for_space;
+}
+
+void
+tracker_status_set_is_paused_for_dbus (gboolean value)
+{
+	TrackerStatusPrivate *private;
+	gboolean              emit;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	/* Set value */
+	emit = private->is_paused_for_dbus != value;
+	private->is_paused_for_dbus = value;
+
+	/* Set indexer state and our state to paused or not */ 
+	indexer_recheck (TRUE, TRUE, emit);
 }
 

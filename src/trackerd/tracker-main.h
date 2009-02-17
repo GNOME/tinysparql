@@ -29,6 +29,7 @@ G_BEGIN_DECLS
 
 void	     tracker_shutdown		     (void);
 
+const gchar *tracker_get_data_dir	     (void);
 const gchar *tracker_get_sys_tmp_dir	     (void);
 
 void	     tracker_set_reindex_on_shutdown (gboolean value);

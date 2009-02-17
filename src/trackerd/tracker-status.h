@@ -25,6 +25,7 @@
 #include <glib-object.h>
 
 #include <libtracker-common/tracker-config.h>
+#include <libtracker-common/tracker-hal.h>
 
 G_BEGIN_DECLS
 
@@ -42,7 +43,8 @@ typedef enum {
 } TrackerStatus;
 
 
-gboolean      tracker_status_init		     (TrackerConfig *config);
+gboolean      tracker_status_init		     (TrackerConfig *config,
+						      TrackerHal    *hal);
 void	      tracker_status_shutdown		     (void);
 
 GType	      tracker_status_get_type		     (void) G_GNUC_CONST;
@@ -79,6 +81,9 @@ void	      tracker_status_set_is_paused_for_io    (gboolean	     value);
 
 gboolean      tracker_status_get_is_paused_for_space (void);
 void	      tracker_status_set_is_paused_for_space (gboolean	     value);
+
+gboolean      tracker_status_get_is_paused_for_dbus  (void);
+void	      tracker_status_set_is_paused_for_dbus  (gboolean	     value);
 
 G_END_DECLS
 

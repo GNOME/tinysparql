@@ -48,7 +48,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/statvfs.h>
 
 #include <glib/gstdio.h>
 #include <gio/gio.h>
@@ -85,14 +84,13 @@
 /* Flush every 'x' seconds */
 #define FLUSH_FREQUENCY		    60
 
-#define LOW_DISK_CHECK_FREQUENCY    10
 #define SIGNAL_STATUS_FREQUENCY     10
 
 /* Throttle defaults */
 #define THROTTLE_DEFAULT	    0
 #define THROTTLE_DEFAULT_ON_BATTERY 5
 
-#define TRACKER_INDEXER_ERROR	   "tracker-indexer-error-domain"
+#define TRACKER_INDEXER_ERROR	    "tracker-indexer-error-domain"
 #define TRACKER_INDEXER_ERROR_CODE  0
 
 /* Properties that change in move event */
@@ -137,7 +135,6 @@ struct TrackerIndexerPrivate {
 
 	guint idle_id;
 	guint pause_for_duration_id;
-	guint disk_space_check_id;
 	guint signal_status_id;
 	guint flush_id;
 
@@ -176,9 +173,7 @@ struct UpdateWordsForeachData {
 enum TrackerIndexerState {
 	TRACKER_INDEXER_STATE_FLUSHING	= 1 << 0,
 	TRACKER_INDEXER_STATE_PAUSED	= 1 << 1,
-	TRACKER_INDEXER_STATE_DISK_FULL = 1 << 2,
-	TRACKER_INDEXER_STATE_STOPPED	= 1 << 3,
-	TRACKER_INDEXER_STATE_LOW_BATT  = 1 << 4
+	TRACKER_INDEXER_STATE_STOPPED	= 1 << 2,
 };
 
 enum {
@@ -198,7 +193,6 @@ enum {
 };
 
 static gboolean process_func	       (gpointer	     data);
-static void	check_disk_space_start (TrackerIndexer	    *indexer);
 static void	state_set_flags        (TrackerIndexer	    *indexer,
 					TrackerIndexerState  state);
 static void	state_unset_flags      (TrackerIndexer	    *indexer,
@@ -457,8 +451,6 @@ set_up_throttle (TrackerIndexer *indexer)
 			g_message ("Not setting throttle, it is currently set to %d",
 				   throttle);
 		}
-
-		state_unset_flags (indexer, TRACKER_INDEXER_STATE_LOW_BATT);
 	}
 }
 
@@ -467,31 +459,6 @@ notify_battery_in_use_cb (GObject *gobject,
 			  GParamSpec *arg1,
 			  gpointer user_data)
 {
-	set_up_throttle (TRACKER_INDEXER (user_data));
-}
-
-static void
-notify_battery_percentage_cb (GObject    *object,
-			      GParamSpec *pspec,
-			      gpointer    user_data)
-{
-	TrackerIndexer *indexer;
-	gdouble percentage;
-	gboolean battery_in_use;
-
-	indexer = user_data;
-
-	percentage = tracker_hal_get_battery_percentage (TRACKER_HAL (object));
-	battery_in_use = tracker_hal_get_battery_in_use (TRACKER_HAL (object));
-
-	/* FIXME: This could be a configuration option */
-	if (battery_in_use && percentage <= 0.05) {
-		/* Running on low batteries, stop indexing for now */
-		state_set_flags (indexer, TRACKER_INDEXER_STATE_LOW_BATT);
-	} else {
-		state_unset_flags (indexer, TRACKER_INDEXER_STATE_LOW_BATT);
-	}
-
 	set_up_throttle (TRACKER_INDEXER (user_data));
 }
 
@@ -517,10 +484,6 @@ tracker_indexer_finalize (GObject *object)
 		g_source_remove (priv->idle_id);
 	}
 
-	if (priv->disk_space_check_id) {
-		g_source_remove (priv->disk_space_check_id);
-	}
-
 	if (priv->signal_status_id) {
 		g_source_remove (priv->signal_status_id);
 	}
@@ -532,9 +495,6 @@ tracker_indexer_finalize (GObject *object)
 #ifdef HAVE_HAL
 	g_signal_handlers_disconnect_by_func (priv->hal,
 					      notify_battery_in_use_cb,
-					      TRACKER_INDEXER (object));
-	g_signal_handlers_disconnect_by_func (priv->hal,
-					      notify_battery_percentage_cb,
 					      TRACKER_INDEXER (object));
 
 	g_object_unref (priv->hal);
@@ -624,7 +584,7 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 			      NULL, NULL,
 			      g_cclosure_marshal_VOID__STRING,
 			      G_TYPE_NONE,
-			      1, G_TYPE_STRING);
+			      0);
 	signals[CONTINUED] =
 		g_signal_new ("continued",
 			      G_OBJECT_CLASS_TYPE (object_class),
@@ -740,83 +700,6 @@ check_stopped (TrackerIndexer *indexer,
 }
 
 static gboolean
-check_is_disk_space_low (TrackerIndexer *indexer)
-{
-	const gchar *path;
-	struct statvfs st;
-	gint limit;
-
-	limit = tracker_config_get_low_disk_space_limit (indexer->private->config);
-	path = indexer->private->db_dir;
-
-	if (limit < 1) {
-		return FALSE;
-	}
-
-	if (statvfs (path, &st) == -1) {
-		g_warning ("Could not statvfs '%s'", path);
-		return FALSE;
-	}
-
-	if (((long long) st.f_bavail * 100 / st.f_blocks) <= limit) {
-		g_message ("Disk space is low");
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-static gboolean
-check_disk_space_cb (TrackerIndexer *indexer)
-{
-	gboolean disk_space_low;
-
-	disk_space_low = check_is_disk_space_low (indexer);
-
-	if (disk_space_low) {
-		state_set_flags (indexer, TRACKER_INDEXER_STATE_DISK_FULL);
-	} else {
-		state_unset_flags (indexer, TRACKER_INDEXER_STATE_DISK_FULL);
-	}
-
-	return TRUE;
-}
-
-static void
-check_disk_space_start (TrackerIndexer *indexer)
-{
-	TrackerIndexerPrivate *priv;
-	gint low_disk_space_limit;
-
-	priv = indexer->private;
-
-	if (priv->disk_space_check_id != 0) {
-		return;
-	}
-
-	low_disk_space_limit = tracker_config_get_low_disk_space_limit (priv->config);
-
-	if (low_disk_space_limit != -1) {
-		priv->disk_space_check_id = g_timeout_add_seconds (LOW_DISK_CHECK_FREQUENCY,
-								   (GSourceFunc) check_disk_space_cb,
-								   indexer);
-	}
-}
-
-static void
-check_disk_space_stop (TrackerIndexer *indexer)
-{
-	TrackerIndexerPrivate *priv;
-
-	priv = indexer->private;
-
-	if (priv->disk_space_check_id != 0) {
-		g_source_remove (priv->disk_space_check_id);
-		priv->disk_space_check_id = 0;
-	}
-}
-
-static gboolean
 signal_status_cb (TrackerIndexer *indexer)
 {
 	signal_status (indexer, "status update");
@@ -919,9 +802,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 
 	g_signal_connect (priv->hal, "notify::battery-in-use",
 			  G_CALLBACK (notify_battery_in_use_cb),
-			  indexer);
-	g_signal_connect (priv->hal, "notify::battery-percentage",
-			  G_CALLBACK (notify_battery_percentage_cb),
 			  indexer);
 
 	set_up_throttle (indexer);
@@ -2543,7 +2423,6 @@ process_func (gpointer data)
 
 			/* Signal stopped and clean up */
 			check_stopped (indexer, FALSE);
-			check_disk_space_stop (indexer);
 			
 			return FALSE;
 		}
@@ -2610,7 +2489,6 @@ state_check (TrackerIndexer *indexer)
 			indexer->private->idle_id = 0;
 		}
 	} else {
-		check_disk_space_start (indexer);
 		signal_status_timeout_start (indexer);
 
 		if (indexer->private->idle_id == 0) {
@@ -2632,14 +2510,8 @@ state_to_string (TrackerIndexerState state)
 	if (state & TRACKER_INDEXER_STATE_PAUSED) {
 		s = g_string_append (s, "PAUSED | ");
 	}
-	if (state & TRACKER_INDEXER_STATE_DISK_FULL) {
-		s = g_string_append (s, "DISK FULL | ");
-	}
 	if (state & TRACKER_INDEXER_STATE_STOPPED) {
 		s = g_string_append (s, "STOPPED | ");
-	}
-	if (state & TRACKER_INDEXER_STATE_LOW_BATT) {
-		s = g_string_append (s, "LOW BATTERY | ");
 	}
 
 	s->str[s->len - 3] = '\0';
@@ -2661,35 +2533,21 @@ state_set_flags (TrackerIndexer      *indexer,
 	 * could be relevant outside the indexer
 	 */
 	if ((! (old_state & TRACKER_INDEXER_STATE_PAUSED)) &&
-	    (! (old_state & TRACKER_INDEXER_STATE_DISK_FULL)) &&
-	    (! (old_state & TRACKER_INDEXER_STATE_LOW_BATT)) &&
-	    (state & TRACKER_INDEXER_STATE_PAUSED ||
-	     state & TRACKER_INDEXER_STATE_DISK_FULL ||
-	     state & TRACKER_INDEXER_STATE_LOW_BATT)) {
-		const gchar *reason;
+	    (state & TRACKER_INDEXER_STATE_PAUSED)) {
 		gchar *old_state_str;
 		gchar *state_str;
-
-		if (state & TRACKER_INDEXER_STATE_DISK_FULL) {
-			reason = "Disk full";
-		} else if (state & TRACKER_INDEXER_STATE_LOW_BATT) {
-			reason = "Battery low";
-		} else {
-			reason = NULL;
-		}
 
 		old_state_str = state_to_string (old_state);
 		state_str = state_to_string (indexer->private->state);
 
-		g_message ("State change from '%s' --> '%s' (reason:'%s')",
+		g_message ("State change from '%s' --> '%s'",
 			   old_state_str,
-			   state_str,
-			   reason ? reason : "None");
+			   state_str);
 
 		g_free (state_str);
 		g_free (old_state_str);
 
-		g_signal_emit (indexer, signals[PAUSED], 0, reason);
+		g_signal_emit (indexer, signals[PAUSED], 0);
 	}
 }
 
@@ -2704,12 +2562,8 @@ state_unset_flags (TrackerIndexer      *indexer,
 	new_state = indexer->private->state;
 	state_check (indexer);
 
-	if ((old_state & TRACKER_INDEXER_STATE_PAUSED ||
-	     old_state & TRACKER_INDEXER_STATE_DISK_FULL ||
-	     old_state & TRACKER_INDEXER_STATE_LOW_BATT) &&
-	    (! (new_state & TRACKER_INDEXER_STATE_PAUSED)) &&
-	    (! (new_state & TRACKER_INDEXER_STATE_DISK_FULL)) &&
-	    (! (new_state & TRACKER_INDEXER_STATE_LOW_BATT))) {
+	if ((old_state & TRACKER_INDEXER_STATE_PAUSED) &&
+	    (! (new_state & TRACKER_INDEXER_STATE_PAUSED))) {
 		gchar *old_state_str;
 		gchar *state_str;
 

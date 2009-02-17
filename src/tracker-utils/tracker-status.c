@@ -38,6 +38,12 @@
 
 static GMainLoop *main_loop;
 static gchar     *last_state;   
+static gboolean   last_initial_index;
+static gboolean   last_in_merge;
+static gboolean   last_is_paused_manually;
+static gboolean   last_is_paused_for_bat;
+static gboolean   last_is_paused_for_io;
+static gboolean   last_is_indexing_enabled;
 
 static gboolean   follow;
 static gboolean   detailed;
@@ -59,14 +65,15 @@ index_state_changed (DBusGProxy  *proxy,
 		     const gchar *state,
 		     gboolean	  initial_index,
 		     gboolean	  in_merge,
-		     gboolean	  is_manual_paused,
-		     gboolean	  is_battery_paused,
-		     gboolean	  is_io_paused,
+		     gboolean	  is_paused_manually,
+		     gboolean	  is_paused_for_bat,
+		     gboolean	  is_paused_for_io,
 		     gboolean	  is_indexing_enabled,
 		     gpointer     user_data)
 {
+	static gboolean first_change = TRUE;
 	gchar *str;
-
+	
 	str = g_strdup_printf (_( "Tracker status changed from '%s' --> '%s'"), 
 			       last_state ? last_state : _("None"), 
 			       state);
@@ -74,36 +81,63 @@ index_state_changed (DBusGProxy  *proxy,
 	g_free (str);
 
 	if (detailed) {
-		g_print ("  %-*.*s: %s\n"
-			 "  %-*.*s: %s\n"
-			 "  %-*.*s: %s\n"
-			 "  %-*.*s: %s\n"
-			 "  %-*.*s: %s\n"
-			 "  %-*.*s: %s\n"
-			 "\n",
-			 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
-			 _("Initial index"),
-			 initial_index ? _("yes") : _("no"),
-			 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
-			 _("In merge"),
-			 in_merge ? _("yes") : _("no"),
-			 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
-			 _("Is paused manually"),
-			 is_manual_paused ? _("yes") : _("no"),
-			 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
-			 _("Is paused for low battery"),
-			 is_battery_paused ? _("yes") : _("no"),
-			 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
-			 _("Is paused for IO"),
-			 is_io_paused ? _("yes") : _("no"),
-			 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
-			 _("Is indexing enabled"),
-			 is_indexing_enabled ? _("yes") : _("no"));
+		if (first_change || last_initial_index != initial_index) {
+			g_print ("  %-*.*s: %s\n",
+				 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
+				 _("Initial index"),
+				 initial_index ? _("yes") : _("no"));			
+		}
+		
+		if (first_change || last_in_merge != in_merge) {
+			g_print ("  %-*.*s: %s\n",
+				 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
+				 _("In merge"),
+				 in_merge ? _("yes") : _("no"));
+		}
+
+		if (first_change || last_is_paused_manually != is_paused_manually) {
+			g_print ("  %-*.*s: %s\n",
+				 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
+				 _("Is paused manually"),
+				 is_paused_manually ? _("yes") : _("no"));
+		}
+
+		if (first_change || last_is_paused_for_bat != is_paused_for_bat) {
+			g_print ("  %-*.*s: %s\n",
+				 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
+				 _("Is paused for low battery"),
+				 is_paused_for_bat ? _("yes") : _("no"));
+		}
+
+		if (first_change || last_is_paused_for_io != is_paused_for_io) {
+			g_print ("  %-*.*s: %s\n",
+				 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
+				 _("Is paused for IO"),
+				 is_paused_for_io ? _("yes") : _("no"));
+		}
+
+		if (first_change || last_is_indexing_enabled != is_indexing_enabled) {
+			g_print ("  %-*.*s: %s\n",
+				 DETAIL_MAX_WIDTH, DETAIL_MAX_WIDTH,
+				 _("Is indexing enabled"),
+				 is_indexing_enabled ? _("yes") : _("no"));
+		}
 	}
 
-	/* Remember last state */
+	/* Remember last details so we don't spam the same crap each
+	 * time to console, only updates.
+	 */
 	g_free (last_state);
 	last_state = g_strdup (state);
+
+	last_initial_index = initial_index;
+	last_in_merge = in_merge;
+	last_is_paused_manually = is_paused_manually;
+	last_is_paused_for_bat = is_paused_for_bat;
+	last_is_paused_for_io = is_paused_for_io;
+	last_is_indexing_enabled = is_indexing_enabled;
+	
+	first_change = FALSE;
 }
 
 /* Taken from tracker-applet */

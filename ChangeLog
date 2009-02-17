@@ -1,5 +1,30 @@
 2009-02-17  Martyn Russell  <martyn@imendio.com>
 
+	* data/dbus/tracker-indexer.xml: 
+	* src/tracker-indexer/tracker-indexer.c: Removed the "Reason" from
+	the Paused signal since we don't have a reason any more. We are
+	paused when we are told. All battery monitoring and disk space
+	monitoring has been moved to the daemon status module and removed
+	from the indexer so state is more centrally observed.
+	
+	* src/tracker-utils/tracker-status.c: Added a couple of command
+	line options to "follow" the status of Tracker using --follow
+	(instead of just returning to the command line after the initial
+	query) and also to get more details using --detailed.
+	
+	* src/trackerd/tracker-main.[ch]: Added API to get data dir for
+	the disk space monitoring which uses the database directory
+	location for disk space checking. 
+	
+	* src/trackerd/tracker-dbus.c: 
+	* src/trackerd/tracker-status.[ch]:  Added APIs to deal with
+	pausing during DBus calls. Fixed a bunch of issues found here
+	where we just weren't returning to the correct state after being
+	paused due to DBus requests from apps or pausing manually from the
+	user. 
+
+2009-02-17  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-utils/tracker-status.c: Handle Ctrl+C more
 	gracefully.
 

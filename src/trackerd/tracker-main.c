@@ -846,56 +846,6 @@ set_up_mount_points (TrackerHal *hal)
 								  hal);
 }
 
-static void
-set_up_throttle (TrackerHal    *hal,
-		 TrackerConfig *config)
-{
-	gint throttle;
-
-	/* If on a laptop battery and the throttling is default (i.e.
-	 * 0), then set the throttle to be higher so we don't kill
-	 * the laptop battery.
-	 */
-	throttle = tracker_config_get_throttle (config);
-
-	if (tracker_hal_get_battery_in_use (hal)) {
-		g_message ("We are running on battery");
-
-		if (throttle == THROTTLE_DEFAULT) {
-			tracker_config_set_throttle (config,
-						     THROTTLE_DEFAULT_ON_BATTERY);
-			g_message ("Setting throttle from %d to %d",
-				   throttle,
-				   THROTTLE_DEFAULT_ON_BATTERY);
-		} else {
-			g_message ("Not setting throttle, it is currently set to %d",
-				   throttle);
-		}
-	} else {
-		g_message ("We are not running on battery");
-
-		if (throttle == THROTTLE_DEFAULT_ON_BATTERY) {
-			tracker_config_set_throttle (config,
-						     THROTTLE_DEFAULT);
-			g_message ("Setting throttle from %d to %d",
-				   throttle,
-				   THROTTLE_DEFAULT);
-		} else {
-			g_message ("Not setting throttle, it is currently set to %d",
-				   throttle);
-		}
-	}
-}
-
-static void
-notify_battery_in_use_cb (GObject    *gobject,
-			  GParamSpec *arg1,
-			  gpointer    user_data)
-{
-	set_up_throttle (TRACKER_HAL (gobject),
-			 TRACKER_CONFIG (user_data));
-}
-
 #endif /* HAVE_HAL */
 
 static gboolean
@@ -1067,7 +1017,18 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	tracker_status_init (config);
+#ifdef HAVE_HAL
+	hal = tracker_hal_new ();
+
+	g_signal_connect (hal, "mount-point-added",
+			  G_CALLBACK (mount_point_added_cb),
+			  NULL);
+	g_signal_connect (hal, "mount-point-removed",
+			  G_CALLBACK (mount_point_removed_cb),
+			  NULL);
+#endif /* HAVE_HAL */
+
+	tracker_status_init (config, hal);
 
 	tracker_module_config_init ();
 
@@ -1096,20 +1057,6 @@ main (gint argc, gchar *argv[])
 					    tracker_config_get_max_bucket_count (config))) {
 		return EXIT_FAILURE;
 	}
-
-#ifdef HAVE_HAL
-	hal = tracker_hal_new ();
-
-	g_signal_connect (hal, "notify::battery-in-use",
-			  G_CALLBACK (notify_battery_in_use_cb),
-			  config);
-	g_signal_connect (hal, "mount-point-added",
-			  G_CALLBACK (mount_point_added_cb),
-			  NULL);
-	g_signal_connect (hal, "mount-point-removed",
-			  G_CALLBACK (mount_point_removed_cb),
-			  NULL);
-#endif /* HAVE_HAL */
 
 	/*
 	 * Check instances running
@@ -1156,7 +1103,6 @@ main (gint argc, gchar *argv[])
 	 * we have to have already initialised the databases if we
 	 * are going to do that.
 	 */
-	set_up_throttle (hal, config);
 	set_up_mount_points (hal);
 #endif /* HAVE_HAL */
 
@@ -1261,9 +1207,6 @@ main (gint argc, gchar *argv[])
 
 #ifdef HAVE_HAL
 	g_signal_handlers_disconnect_by_func (hal,
-					      notify_battery_in_use_cb,
-					      config);
-	g_signal_handlers_disconnect_by_func (hal,
 					      mount_point_added_cb,
 					      NULL);
 	g_signal_handlers_disconnect_by_func (hal,
@@ -1295,6 +1238,16 @@ tracker_shutdown (void)
 	tracker_processor_stop (private->processor);
 
 	g_main_loop_quit (private->main_loop);
+}
+
+const gchar *
+tracker_get_data_dir (void)
+{
+	TrackerMainPrivate *private;
+
+	private = g_static_private_get (&private_key);
+
+	return private->data_dir;
 }
 
 const gchar *

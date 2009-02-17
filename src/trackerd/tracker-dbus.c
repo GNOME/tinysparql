@@ -175,18 +175,7 @@ indexer_continue_async_cb (DBusGProxy *proxy,
 static gboolean
 indexer_resume_cb (gpointer user_data)
 {
-	DBusGProxy *proxy;
-
-	proxy = user_data;
-
-	if (!tracker_status_get_is_paused_manually () &&
-	    !tracker_status_get_is_paused_for_batt () && 
-	    !tracker_status_get_is_paused_for_io () && 
-	    !tracker_status_get_is_paused_for_space ()) {
-		org_freedesktop_Tracker_Indexer_continue_async (g_object_ref (proxy),
-								indexer_continue_async_cb,
-								NULL);
-	}
+	tracker_status_set_is_paused_for_dbus (FALSE);
 
 	return FALSE;
 }
@@ -208,31 +197,42 @@ dbus_request_new_cb (guint    request_id,
 	TrackerStatus  status;
 
 	status = tracker_status_get ();
+	proxy = tracker_dbus_indexer_get_proxy ();
 
 	/* Don't pause if already paused */
 	if (status == TRACKER_STATUS_PAUSED) {
+		g_message ("New DBus request, not pausing indexer, already in paused state");
+
+		/* Just check if we already have a timeout, to reset it */
+		if (indexer_resume_timeout_id != 0) {
+			g_source_remove (indexer_resume_timeout_id);
+			indexer_resume_timeout_id =
+				g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
+							    INDEXER_PAUSE_TIME_FOR_REQUESTS,
+							    indexer_resume_cb,
+							    g_object_ref (proxy),
+							    indexer_resume_destroy_notify_cb);
+		}
+
 		return;
 	}
 
 	/* Don't try to pause unless we are in particular states */
 	if (status != TRACKER_STATUS_INDEXING) {
+		g_message ("New DBus request, not pausing indexer, not in indexing state");
 		return;
 	}
-
-	g_message ("New DBus request, checking indexer is paused...");
 
 	/* First remove the timeout */
 	if (indexer_resume_timeout_id != 0) {
 		set_paused = FALSE;
 
 		g_source_remove (indexer_resume_timeout_id);
-		indexer_resume_timeout_id = 0;
 	}
 
 	/* Second reset it so we have another 10 seconds before
 	 * continuing.
 	 */
-	proxy = tracker_dbus_indexer_get_proxy ();
 	indexer_resume_timeout_id =
 		g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
 					    INDEXER_PAUSE_TIME_FOR_REQUESTS,
@@ -246,21 +246,12 @@ dbus_request_new_cb (guint    request_id,
 	 * tracker_get_is_paused_manually() returns TRUE.
 	 */
 	if (!set_paused) {
+		g_message ("New DBus request, not pausing indexer, already requested a pause");
 		return;
 	}
 
-	/* We use the blocking call here because this function
-	 * proceeds a call which needs the database to be available.
-	 * Therefore the indexer must reply to tell us it has paused
-	 * so we can actually use the database.
-	 */
-	org_freedesktop_Tracker_Indexer_pause (proxy, &error);
-
-	if (error) {
-		g_message ("Couldn't pause the indexer, "
-			   "we may have to wait for it to finish");
-		g_error_free (error);
-	}
+	g_message ("New DBus request, pausing indexer");
+	tracker_status_set_is_paused_for_dbus (TRUE);
 }
 
 gboolean

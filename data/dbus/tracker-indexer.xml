@@ -88,9 +88,7 @@
       <arg type="u" name="items_remaining" />
     </signal>
     <signal name="Started" />
-    <signal name="Paused">
-      <arg type="s" name="reason" />
-    </signal>
+    <signal name="Paused" />
     <signal name="Continued" />
     <signal name="Finished">
       <arg type="d" name="elapsed_time" />
