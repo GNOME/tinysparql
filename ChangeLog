@@ -1,3 +1,8 @@
+2009-02-17  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-utils/tracker-status.c: Add options to track changes
+	in real time instead of repeatedly asking the daemon.
+
 2009-02-17  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-extract/tracker-extract-mp3.c
