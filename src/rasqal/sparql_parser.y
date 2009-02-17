@@ -194,7 +194,7 @@ static void sparql_query_error_full(rasqal_query *rq, const char *message, ...) 
 %token <name> IDENTIFIER "identifier"
 
 
-%type <seq> SelectQuery ConstructQuery DescribeQuery
+%type <seq> SelectQuery ConstructQuery DescribeQuery DeleteQuery InsertQuery
 %type <seq> SelectExpressionList VarOrIRIrefList ArgList ConstructTriplesOpt
 %type <seq> ConstructTemplate OrderConditionList
 %type <seq> GraphNodeListNotEmpty SelectExpressionListTail
@@ -369,10 +369,12 @@ ReportFormat: SelectQuery
 }
 | DeleteQuery
 {
+  ((rasqal_query*)rq)->constructs=$1;
   ((rasqal_query*)rq)->verb=RASQAL_QUERY_VERB_DELETE;
 }
 | InsertQuery
 {
+  ((rasqal_query*)rq)->constructs=$1;
   ((rasqal_query*)rq)->verb=RASQAL_QUERY_VERB_INSERT;
 }
 ;
@@ -737,25 +739,29 @@ AskQuery: ASK
 
 
 /* LAQRS */
-DeleteQuery: DELETE
+DeleteQuery: DELETE ConstructTemplate
         DatasetClauseListOpt WhereClauseOpt
 {
   rasqal_sparql_query_language* sparql=(rasqal_sparql_query_language*)(((rasqal_query*)rq)->context);
 
   if(!sparql->extended)
     sparql_syntax_error((rasqal_query*)rq, "DELETE cannot be used with SPARQL");
+
+  $$=$2;
 }
 ;
 
 
 /* LAQRS */
-InsertQuery: INSERT
+InsertQuery: INSERT ConstructTemplate
         DatasetClauseListOpt WhereClauseOpt
 {
   rasqal_sparql_query_language* sparql=(rasqal_sparql_query_language*)(((rasqal_query*)rq)->context);
 
   if(!sparql->extended)
     sparql_syntax_error((rasqal_query*)rq, "INSERT cannot be used with SPARQL");
+
+  $$=$2;
 }
 ;
 
