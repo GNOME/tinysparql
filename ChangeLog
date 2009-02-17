@@ -1,5 +1,9 @@
 2009-02-17  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-utils/tracker-status.c: Fixed missing include.
+
+2009-02-17  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c: Make timeout for flushing
 	data to the database 30 seconds instead of 60 seconds to try and
 	improve responsiveness for new data.
