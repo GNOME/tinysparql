@@ -1,5 +1,10 @@
 2009-02-17  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-utils/tracker-status.c: Handle Ctrl+C more
+	gracefully.
+
+2009-02-17  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-utils/tracker-status.c: Add options to track changes
 	in real time instead of repeatedly asking the daemon.
 

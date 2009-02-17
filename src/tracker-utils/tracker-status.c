@@ -36,9 +36,11 @@
 #define g_marshal_value_peek_boolean(v)  g_value_get_boolean (v)
 #define g_marshal_value_peek_string(v)	 (char*) g_value_get_string (v)
 
-static gchar    *last_state;   
-static gboolean  follow;
-static gboolean  detailed;
+static GMainLoop *main_loop;
+static gchar     *last_state;   
+
+static gboolean   follow;
+static gboolean   detailed;
 
 static GOptionEntry entries[] = {
 	{ "follow", 'f', 0, G_OPTION_ARG_NONE, &follow,
@@ -66,7 +68,7 @@ index_state_changed (DBusGProxy  *proxy,
 	gchar *str;
 
 	str = g_strdup_printf (_( "Tracker status changed from '%s' --> '%s'"), 
-			       last_state, 
+			       last_state ? last_state : _("None"), 
 			       state);
 	g_print ("%s\n", str);
 	g_free (str);
@@ -151,13 +153,71 @@ tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN (GClosure	   *closu
 		  data2);
 }
 
+static void
+signal_handler (gint signo)
+{
+	static gboolean in_loop = FALSE;
+
+	/* Die if we get re-entrant signals handler calls */
+	if (in_loop) {
+		exit (EXIT_FAILURE);
+	}
+
+	switch (signo) {
+	case SIGSEGV:
+		/* We are screwed if we get this so exit immediately! */
+		exit (EXIT_FAILURE);
+
+	case SIGBUS:
+	case SIGILL:
+	case SIGFPE:
+	case SIGPIPE:
+	case SIGABRT:
+	case SIGTERM:
+	case SIGINT:
+		in_loop = TRUE;
+		g_main_loop_quit (main_loop);
+
+	default:
+		if (g_strsignal (signo)) {
+			g_print ("\n");
+			g_print ("Received signal:%d->'%s'\n",
+				 signo,
+				 g_strsignal (signo));
+		}
+		break;
+	}
+}
+
+static void
+initialize_signal_handler (void)
+{
+#ifndef G_OS_WIN32
+	struct sigaction   act;
+	sigset_t	   empty_mask;
+
+	sigemptyset (&empty_mask);
+	act.sa_handler = signal_handler;
+	act.sa_mask    = empty_mask;
+	act.sa_flags   = 0;
+
+	sigaction (SIGTERM, &act, NULL);
+	sigaction (SIGILL,  &act, NULL);
+	sigaction (SIGBUS,  &act, NULL);
+	sigaction (SIGFPE,  &act, NULL);
+	sigaction (SIGHUP,  &act, NULL);
+	sigaction (SIGSEGV, &act, NULL);
+	sigaction (SIGABRT, &act, NULL);
+	sigaction (SIGUSR1, &act, NULL);
+	sigaction (SIGINT,  &act, NULL);
+#endif /* G_OS_WIN32 */
+}
+
 gint
 main (gint argc, gchar *argv[])
 {
 	GOptionContext *context;
-	GError	       *error = NULL;
 	TrackerClient  *client;
-	gchar 	       *state;
 
 	setlocale (LC_ALL, "");
 
@@ -179,33 +239,35 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	state = tracker_get_status (client, &error);
+	if (!follow) {
+		GError *error = NULL;
+		gchar *state;
 
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Could not get Tracker status"),
-			    error->message);
-		g_error_free (error);
+		state = tracker_get_status (client, &error);
+		
+		if (error) {
+			g_printerr ("%s, %s\n",
+				    _("Could not get Tracker status"),
+				    error->message);
+			g_error_free (error);
+			
+			return EXIT_FAILURE;
+		}
 
-		return EXIT_FAILURE;
-	}
 
-	if (state) {
-		gchar *str;
-
-		str = g_strdup_printf (_("Tracker status is '%s'"), state);
-		g_print ("%s\n", str);
-		g_free (str);
-	}
-
-	if (follow) {
-		GMainLoop *main_loop;
+		if (state) {
+			gchar *str;
+			
+			str = g_strdup_printf (_("Tracker status is '%s'"), state);
+			g_print ("%s\n", str);
+			g_free (str);
+		}
+	} else {
 		DBusGProxy *proxy;
 
-		proxy = client->proxy;
+		g_print ("Press Ctrl+C to end follow of Tracker state\n");
 
-		/* Remember */
-		last_state = g_strdup (state);
+		proxy = client->proxy;
 
 		/* Set signal handlers */
 		dbus_g_object_register_marshaller (tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN,
@@ -235,10 +297,12 @@ main (gint argc, gchar *argv[])
 					     G_CALLBACK (index_state_changed),
 					     NULL,
 					     NULL);
+
+		initialize_signal_handler ();
 			
 		main_loop = g_main_loop_new (NULL, FALSE);
 		g_main_loop_run (main_loop);
-		g_object_unref (main_loop);
+		g_main_loop_unref (main_loop);
 
 		g_free (last_state);
 	}
