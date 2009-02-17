@@ -82,7 +82,7 @@
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
 /* Flush every 'x' seconds */
-#define FLUSH_FREQUENCY		    60
+#define FLUSH_FREQUENCY		    30
 
 #define SIGNAL_STATUS_FREQUENCY     10
 

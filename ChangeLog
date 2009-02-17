@@ -1,5 +1,15 @@
 2009-02-17  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c: Make timeout for flushing
+	data to the database 30 seconds instead of 60 seconds to try and
+	improve responsiveness for new data.
+
+	* src/trackerd/tracker-dbus.c: Make timeout between receiving a
+	DBus request from the user and continuing to index data 5 seconds
+	instead of 10 seconds.
+
+2009-02-17  Martyn Russell  <martyn@imendio.com>
+
 	* data/dbus/tracker-indexer.xml: 
 	* src/tracker-indexer/tracker-indexer.c: Removed the "Reason" from
 	the Paused signal since we don't have a reason any more. We are

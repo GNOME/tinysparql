@@ -49,7 +49,7 @@
 #include "tracker-status.h"
 #include "tracker-main.h"
 
-#define INDEXER_PAUSE_TIME_FOR_REQUESTS 10 /* seconds */
+#define INDEXER_PAUSE_TIME_FOR_REQUESTS 5 /* seconds */
 
 static DBusGConnection *connection;
 static DBusGProxy      *gproxy;
