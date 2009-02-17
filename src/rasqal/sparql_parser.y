@@ -1808,14 +1808,6 @@ ObjectList: Object ObjectTail
     YYERROR_MSG("ObjectList: cannot create triple");
   }
 
-  if(raptor_sequence_push(formula->triples, triple)) {
-    rasqal_free_formula(formula);
-    rasqal_free_formula($1);
-    if($2)
-      rasqal_free_formula($2);
-    YYERROR_MSG("ObjectList: sequence push failed");
-  }
-
   $$=rasqal_formula_join(formula, $1);
   if(!$$) {
     if($2)
@@ -1826,6 +1818,14 @@ ObjectList: Object ObjectTail
   $$=rasqal_formula_join($$, $2);
   if(!$$)
     YYERROR_MSG("ObjectList: formula join $2 failed");
+
+  if(raptor_sequence_push(formula->triples, triple)) {
+    rasqal_free_formula(formula);
+    rasqal_free_formula($1);
+    if($2)
+      rasqal_free_formula($2);
+    YYERROR_MSG("ObjectList: sequence push failed");
+  }
 
 #if RASQAL_DEBUG > 1  
   fprintf(DEBUG_FH, "  objectList is now ");
