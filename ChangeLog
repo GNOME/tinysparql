@@ -1,3 +1,8 @@
+2009-02-17  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-main.c (indexer_finished_cb): Fix
+	callback signature so we receive the correct parameters.
+
 2009-02-17  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-utils/tracker-status.c: Fixed missing include.
