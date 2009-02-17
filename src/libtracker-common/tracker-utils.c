@@ -20,6 +20,7 @@
  */
 
 #include <string.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -241,4 +242,66 @@ tracker_throttle (TrackerConfig *config,
 	if (throttle > 0) {
 		g_usleep (throttle);
 	}
+}
+
+/* Temporary: Just here until we upgrade to GLib 2.18. */
+static gboolean
+tracker_dgettext_should_translate (void)
+{
+  static gsize translate = 0;
+  enum {
+    SHOULD_TRANSLATE = 1,
+    SHOULD_NOT_TRANSLATE = 2
+  };
+
+  if (G_UNLIKELY (g_once_init_enter (&translate)))
+    {
+      gboolean should_translate = TRUE;
+
+      const char *default_domain     = textdomain (NULL);
+      const char *translator_comment = gettext ("");
+#ifndef G_OS_WIN32
+      const char *translate_locale   = setlocale (LC_MESSAGES, NULL);
+#else
+      const char *translate_locale   = g_win32_getlocale ();
+#endif
+      /* We should NOT translate only if all the following hold:
+       *   - user has called textdomain() and set textdomain to non-default
+       *   - default domain has no translations
+       *   - locale does not start with "en_" and is not "C"
+       *
+       * Rationale:
+       *   - If text domain is still the default domain, maybe user calls
+       *     it later. Continue with old behavior of translating.
+       *   - If locale starts with "en_", we can continue using the
+       *     translations even if the app doesn't have translations for
+       *     this locale.  That is, en_UK and en_CA for example.
+       *   - If locale is "C", maybe user calls setlocale(LC_ALL,"") later.
+       *     Continue with old behavior of translating.
+       */
+      if (0 != strcmp (default_domain, "messages") &&
+          '\0' == *translator_comment &&
+          0 != strncmp (translate_locale, "en_", 3) &&
+          0 != strcmp (translate_locale, "C"))
+        should_translate = FALSE;
+
+      g_once_init_leave (&translate,
+                         should_translate ?
+                         SHOULD_TRANSLATE :
+                         SHOULD_NOT_TRANSLATE);
+    }
+
+  return translate == SHOULD_TRANSLATE;
+}
+
+G_CONST_RETURN gchar *
+tracker_dngettext (const gchar *domain,
+		   const gchar *msgid,
+		   const gchar *msgid_plural,
+		   gulong       n)
+{
+  if (domain && G_UNLIKELY (!tracker_dgettext_should_translate ()))
+    return n == 1 ? msgid : msgid_plural;
+
+  return dngettext (domain, msgid, msgid_plural, n);
 }

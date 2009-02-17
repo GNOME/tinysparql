@@ -45,4 +45,10 @@ gchar *  tracker_seconds_to_string	    (gdouble	    seconds_elapsed,
 void	 tracker_throttle		    (TrackerConfig *config,
 					     gint	    multiplier);
 
+/* Temporary: Just here until we upgrade to GLib 2.18. */
+G_CONST_RETURN gchar *tracker_dngettext     (const gchar *domain,
+					     const gchar *msgid,
+					     const gchar *msgid_plural,
+					     gulong       n);
+
 #endif /* __LIBTRACKER_COMMON_UTILS_H__ */

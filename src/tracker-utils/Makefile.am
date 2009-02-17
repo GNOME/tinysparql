@@ -1,28 +1,30 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES =							\
-	-DLOCALEDIR=\""$(localedir)"\" 				\
-	-DG_LOG_DOMAIN=\"Tracker\"				\
-	-I$(top_srcdir)/src					\
-	$(DBUS_CFLAGS)						\
-	$(GIO_CFLAGS)						\
+INCLUDES =								\
+	-DLOCALEDIR=\""$(localedir)"\" 					\
+	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DTRACKER_COMPILATION						\
+	-I$(top_srcdir)/src						\
+	$(DBUS_CFLAGS)							\
+	$(GIO_CFLAGS)							\
 	$(GLIB2_CFLAGS)
 
-libs = 								\
-	$(top_builddir)/src/libtracker/libtrackerclient.la	\
-	$(GIO_LIBS)						\
+libs = 									\
+	$(top_builddir)/src/libtracker/libtrackerclient.la		\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
 
-bin_PROGRAMS = 							\
-	tracker-search 						\
-	tracker-query 						\
-	tracker-meta-folder					\
-	tracker-stats						\
-	tracker-tag						\
-	tracker-files						\
-	tracker-status						\
-	tracker-unique						\
-	tracker-info						\
+bin_PROGRAMS = 								\
+	tracker-search 							\
+	tracker-query 							\
+	tracker-meta-folder						\
+	tracker-stats							\
+	tracker-tag							\
+	tracker-files							\
+	tracker-status							\
+	tracker-unique							\
+	tracker-info							\
 	tracker-services
 
 tracker_search_SOURCES = tracker-search.c

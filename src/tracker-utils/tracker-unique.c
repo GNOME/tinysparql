@@ -29,6 +29,7 @@
 #include <glib/gi18n.h>
 
 #include <libtracker/tracker.h>
+#include <libtracker-common/tracker-common.h>
 
 #ifdef G_OS_WIN32
 #include <trackerd/mingw-compat.h>
@@ -220,10 +221,10 @@ main (int argc, char **argv)
 
 		length = array->len;
 		
-		g_print (g_dngettext (NULL,
-				      _("Result: %d"), 
-				      _("Results: %d"),
-				      length),
+		g_print (tracker_dngettext (NULL,
+					    _("Result: %d"), 
+					    _("Results: %d"),
+					    length),
 			 length);
 		g_print ("\n");
 

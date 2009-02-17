@@ -31,6 +31,7 @@
 #include <gio/gio.h>
 
 #include <libtracker/tracker.h>
+#include <libtracker-common/tracker-common.h>
 
 static gchar	     *service;
 static gchar        **uri = NULL;
@@ -150,10 +151,10 @@ main (int argc, char **argv)
 
 		length = results->len;
 
-		g_print (g_dngettext (NULL,
-				      _("Result: %d"), 
-				      _("Results: %d"),
-				      length),
+		g_print (tracker_dngettext (NULL,
+					    _("Result: %d"), 
+					    _("Results: %d"),
+					    length),
 			 length);
 		g_print ("\n");
 		

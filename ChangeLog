@@ -1,3 +1,23 @@
+2009-02-17  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-albumart.c:
+	(tracker_albumart_queue_cb): Fixed warning from missing include.
+	
+	* src/libtracker-common/tracker-utils.[ch]: Added g_dngettext()
+	which is in GLib 2.18 but we don't depend on it. Now all the utils
+	use tracker_dngettext() instead.
+	
+	* src/tracker-utils/Makefile.am:
+	* src/tracker-utils/tracker-files.c: 
+	* src/tracker-utils/tracker-info.c: 
+	* src/tracker-utils/tracker-meta-folder.c:
+	* src/tracker-utils/tracker-query.c: 
+	* src/tracker-utils/tracker-search.c:
+	* src/tracker-utils/tracker-tag.c: 
+	* src/tracker-utils/tracker-unique.c: Include libtracker-common
+	and use new function for translations with plural entities using
+	imported function g_dngettext() from Glib 2.18.
+
 2009-02-16  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-status.c: Make sure we *ALWAYS* log state

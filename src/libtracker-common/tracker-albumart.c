@@ -44,6 +44,7 @@
 
 
 #include "tracker-albumart.h"
+#include "tracker-thumbnailer.h"
 
 #define ALBUMARTER_SERVICE      "com.nokia.albumart"
 #define ALBUMARTER_PATH         "/com/nokia/albumart/Requester"
@@ -530,21 +531,29 @@ get_albumart_requester (void)
 static void
 tracker_albumart_queue_cb (DBusGProxy     *proxy,
 			   DBusGProxyCall *call,
-			   gpointer	    user_data)
+			   gpointer	   user_data)
 {
 	GError      *error = NULL;
 	guint        handle;
-	GetFileInfo *info = user_data;
+	GetFileInfo *info;
+
+	info = user_data;
 
 	dbus_g_proxy_end_call (proxy, call, &error,
 			       G_TYPE_UINT, &handle,
 			       G_TYPE_INVALID);
 
-	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
+	if (error) {
+		g_warning ("%s", error->message);
+		g_clear_error (&error);
+	}
 
-		gchar * asuri = g_filename_to_uri (info->art_path, NULL, NULL);
-		tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
-		g_free (asuri);
+	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
+		gchar *uri;
+		
+		uri = g_filename_to_uri (info->art_path, NULL, NULL);
+		tracker_thumbnailer_get_file_thumbnail (uri, "image/jpeg");
+		g_free (uri);
 
 		tracker_albumart_copy_to_local (info->art_path, info->local_uri);
 	}
@@ -553,11 +562,6 @@ tracker_albumart_queue_cb (DBusGProxy     *proxy,
 	g_free (info->local_uri);
 
 	g_slice_free (GetFileInfo, info);
-
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
-	}
 }
 
 void

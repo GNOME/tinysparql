@@ -30,6 +30,7 @@
 #include <gio/gio.h>
 
 #include <libtracker/tracker.h>
+#include <libtracker-common/tracker-common.h>
 
 #define MAX_FILENAME_WIDTH 35
 
@@ -263,10 +264,10 @@ main (int argc, char **argv)
 
 		length = array->len;
 
-		g_print (g_dngettext (NULL,
-				      _("Result: %d"), 
-				      _("Results: %d"),
-				      length),
+		g_print (tracker_dngettext (NULL,
+					    _("Result: %d"), 
+					    _("Results: %d"),
+					    length),
 			 length);
 		g_print ("\n");
 		

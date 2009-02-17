@@ -30,6 +30,7 @@
 #include <glib/gi18n.h>
 
 #include <libtracker/tracker.h>
+#include <libtracker-common/tracker-common.h>
 
 static gchar	   *service;
 static gchar	  **mimes;
@@ -136,10 +137,10 @@ main (int argc, char **argv)
 
 		length = g_strv_length (array);
 
-		g_print (g_dngettext (NULL,
-				      _("Result: %d"), 
-				      _("Results: %d"),
-				      length),
+		g_print (tracker_dngettext (NULL,
+					    _("Result: %d"), 
+					    _("Results: %d"),
+					    length),
 			 length);
 		g_print ("\n");
 		
@@ -194,10 +195,10 @@ main (int argc, char **argv)
 
 		length = g_strv_length (array);
 
-		g_print (g_dngettext (NULL,
-				      _("Result: %d"), 
-				      _("Results: %d"),
-				      length),
+		g_print (tracker_dngettext (NULL,
+					    _("Result: %d"), 
+					    _("Results: %d"),
+					    length),
 			 length);
 		g_print ("\n");
 		
