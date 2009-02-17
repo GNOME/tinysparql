@@ -148,7 +148,11 @@ tracker_process_albumart (const unsigned char *buffer,
 
 			/* If not, we perform a heuristic on the dir */
 
-			if (!tracker_albumart_heuristic (artist, album, trackercnt_str, filename, local_uri, &lcopied)) {
+			if (!tracker_albumart_heuristic (artist, album, 
+			                                 trackercnt_str, 
+			                                 filename, 
+			                                 local_uri, 
+			                                 &lcopied)) {
 
 				/* If the heuristic failed, we request the download 
 				 * of the media-art to the media-art downloaders */

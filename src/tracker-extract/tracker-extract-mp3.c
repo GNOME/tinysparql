@@ -1462,13 +1462,13 @@ extract_mp3 (const gchar *filename,
 #ifdef HAVE_GDKPIXBUF
 
 	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize,
-				  g_hash_table_lookup (metadata, "Audio:Artist"),
+				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
 				  g_hash_table_lookup (metadata, "Audio:Album"),
 				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
 				  filename);
 #else
 	tracker_process_albumart (NULL, 0,
-				  g_hash_table_lookup (metadata, "Audio:Artist"),
+				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
 				  g_hash_table_lookup (metadata, "Audio:Album"),
 				  g_hash_table_lookup (metadata, "Audio:AlbumTrackCount"),
 				  filename);

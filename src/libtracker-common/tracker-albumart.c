@@ -630,7 +630,8 @@ tracker_albumart_get_path (const gchar  *a,
 		parent = g_file_get_parent (file);
 		local_dir = g_file_get_uri (parent);
 
-		*local_uri = g_strdup_printf ("%s/%s", local_dir, art_filename);
+		/* This is a URI, don't use g_build_filename here */
+		*local_uri = g_strdup_printf ("%s/.mediaartlocal/%s", local_dir, art_filename);
 
 		g_free (local_dir);
 		g_object_unref (file);
