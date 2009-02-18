@@ -1,7 +1,8 @@
-2009-02-17  Carlos Garnacho  <carlos@imendio.com>
+2009-02-18  Martyn Russell  <martyn@imendio.com>
 
-	* src/tracker-indexer/tracker-main.c (indexer_finished_cb): Fix
-	callback signature so we receive the correct parameters.
+	* src/libtracker-common/tracker-config.c:
+	(config_create_with_defaults): Use g_strv_length() to make the
+	patching here easier for Maemo.
 
 2009-02-17  Martyn Russell  <martyn@imendio.com>
 

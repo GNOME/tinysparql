@@ -815,10 +815,10 @@ config_create_with_defaults (const gchar *filename,
 				" Set to TRUE when the home directory is in a NFS filesystem",
 				NULL);
 
-
 	/* Watches */
 	g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
-				    watch_directory_roots, 1);
+				    watch_directory_roots, 
+				    g_strv_length (watch_directory_roots));
 	g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
 				" List of directory roots to index and watch (separator=;)",
 				NULL);
