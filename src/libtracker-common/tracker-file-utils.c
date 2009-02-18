@@ -70,20 +70,6 @@ tracker_file_open (const gchar *uri,
 	return fd;
 }
 
-void
-tracker_file_close (gint     fd,
-		    gboolean no_longer_needed)
-{
-
-#ifdef HAVE_POSIX_FADVISE
-	if (no_longer_needed) {
-		posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
-	}
-#endif
-
-	close (fd);
-}
-
 gboolean
 tracker_file_unlink (const gchar *uri)
 {
@@ -97,166 +83,90 @@ tracker_file_unlink (const gchar *uri)
 	return result;
 }
 
-guint32
+goffset
 tracker_file_get_size (const gchar *uri)
 {
-	struct stat finfo;
+	GFileInfo *info;
+	GFile	  *file;
+	GError	  *error = NULL;
+	goffset    size;
 
-	if (g_lstat (uri, &finfo) == -1) {
-		return 0;
-	} else {
-		return (guint32) finfo.st_size;
-	}
-}
+	g_return_val_if_fail (uri != NULL, 0);
 
-static inline gboolean
-is_utf8 (const gchar *buffer,
-	 gint	      buffer_length)
-{
-	gchar *end;
-
-	/* Code in this function modified from gnome-vfs */
-	if (g_utf8_validate ((gchar*) buffer,
-			     buffer_length,
-			     (const gchar**) &end)) {
-		return TRUE;
-	} else {
-		/* Check whether the string was truncated in the middle of
-		 * a valid UTF8 char, or if we really have an invalid
-		 * UTF8 string.
-		 */
-		gunichar validated;
-		gint	 remaining_bytes;
-
-		remaining_bytes  = buffer_length;
-		remaining_bytes -= end - ((gchar *) buffer);
-
-		if (remaining_bytes > 4) {
-			return FALSE;
-		}
-
-		validated = g_utf8_get_char_validated (end, (gsize) remaining_bytes);
-
-		if (validated == (gunichar) - 2) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-gboolean
-tracker_file_is_valid (const gchar *uri)
-{
-	gchar	 *str;
-	gboolean  is_valid = TRUE;
-
-	str = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-
-	if (!str) {
-		g_warning ("URI:'%s' could not be converted to locale format",
-			   uri);
-		return FALSE;
-	}
-
-	/* g_file_test (file,G_FILE_TEST_EXISTS) uses the access ()
-	 * system call and so needs locale filenames.
+	/* NOTE: We will need to fix this in Jurg's branch and call
+	 * the _for_uri() variant.
 	 */
-	is_valid &= uri != NULL;
-	is_valid &= g_file_test (str,
-				 G_FILE_TEST_IS_REGULAR |
-				 G_FILE_TEST_IS_DIR |
-				 G_FILE_TEST_IS_SYMLINK);
+	file = g_file_new_for_path (uri);
+	info = g_file_query_info (file,
+				  G_FILE_ATTRIBUTE_STANDARD_SIZE,
+				  G_FILE_QUERY_INFO_NONE,
+				  NULL,
+				  &error);
 
-	g_free (str);
-
-	return is_valid;
-}
-
-gboolean
-tracker_file_is_directory (const gchar *uri)
-{
-	gchar	 *str;
-	gboolean  is_directory;
-
-	str = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-
-	if (!str) {
-		g_warning ("URI:'%s' could not be converted to locale format",
-			   str);
-		return FALSE;
+	if (G_UNLIKELY (error)) {
+		g_message ("Could not get size for '%s', %s",
+			   uri,
+			   error->message);
+		g_error_free (error);
+		size = 0;
+	} else {
+		size = g_file_info_get_size (info);
+		g_object_unref (info);
 	}
 
-	is_directory = g_file_test (str, G_FILE_TEST_IS_DIR);
-	g_free (str);
+	g_object_unref (file);
 
-	return is_directory;
+	return size;
 }
 
-gboolean
-tracker_file_is_indexable (const gchar *uri)
-{
-	gchar	    *str;
-	struct stat  finfo;
-	gboolean     is_indexable;
-
-	g_return_val_if_fail (uri != NULL, FALSE);
-
-	str = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
-
-	if (!str) {
-		g_warning ("URI:'%s' could not be converted to locale format",
-			   str);
-		return FALSE;
-	}
-
-	g_lstat (str, &finfo);
-	g_free (str);
-
-	is_indexable  = TRUE;
-	is_indexable &= !S_ISDIR (finfo.st_mode);
-	is_indexable &= S_ISREG (finfo.st_mode);
-
-	g_debug ("URI:'%s' %s indexable",
-		 uri,
-		 is_indexable ? "is" : "is not");
-
-	return is_indexable;
-}
-
-gint32
+guint64
 tracker_file_get_mtime (const gchar *uri)
 {
-	struct stat  finfo;
-	gchar	    *str;
+	GFileInfo *info;
+	GFile	  *file;
+	GError	  *error = NULL;
+	guint64    mtime;
 
-	str = g_filename_from_utf8 (uri, -1, NULL, NULL, NULL);
+	g_return_val_if_fail (uri != NULL, 0);
 
-	if (str) {
-		if (g_lstat (str, &finfo) == -1) {
-			g_free (str);
-			return 0;
-		}
+	/* NOTE: We will need to fix this in Jurg's branch and call
+	 * the _for_uri() variant.
+	 */
+	file = g_file_new_for_path (uri);
+	info = g_file_query_info (file,
+				  G_FILE_ATTRIBUTE_TIME_MODIFIED,
+				  G_FILE_QUERY_INFO_NONE,
+				  NULL,
+				  &error);
+
+	if (G_UNLIKELY (error)) {
+		g_message ("Could not get mtime for '%s', %s",
+			   uri,
+			   error->message);
+		g_error_free (error);
+		mtime = 0;
 	} else {
-		g_warning ("URI:'%s' could not be converted to locale format",
-			   uri);
-		return 0;
+		mtime = g_file_info_get_attribute_uint64 (info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+		g_object_unref (info);
 	}
 
-	g_free (str);
+	g_object_unref (file);
 
-	return (gint32) finfo.st_mtime;
+	return mtime;
 }
 
 gchar *
-tracker_file_get_mime_type (const gchar *path)
+tracker_file_get_mime_type (const gchar *uri)
 {
 	GFileInfo *info;
 	GFile	  *file;
 	GError	  *error = NULL;
 	gchar	  *content_type;
 
-	file = g_file_new_for_path (path);
+	/* NOTE: We will need to fix this in Jurg's branch and call
+	 * the _for_uri() variant.
+	 */
+	file = g_file_new_for_path (uri);
 	info = g_file_query_info (file,
 				  G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
 				  G_FILE_QUERY_INFO_NONE,
@@ -264,7 +174,7 @@ tracker_file_get_mime_type (const gchar *path)
 				  &error);
 
 	if (G_UNLIKELY (error)) {
-		g_message ("Could not guess mimetype, %s\n",
+		g_message ("Could not guess mimetype, %s",
 			   error->message);
 		g_error_free (error);
 		content_type = NULL;
@@ -393,8 +303,6 @@ tracker_file_get_path_and_name (const gchar *uri,
 	}
 
 }
-
-
 
 void
 tracker_path_remove (const gchar *uri)

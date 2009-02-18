@@ -1,5 +1,18 @@
 2009-02-18  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-common/tracker-file-utils.[ch]: Removed unused
+	functions. 
+
+	* src/libtracker-db/tracker-db-file-info.c:
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-extract-png.c:
+	* src/tracker-extract/tracker-extract-tiff.c:
+	* src/tracker-indexer/tracker-indexer.c: Use
+	tracker_file_get_mtime() instead of using g_lstat() everywhere.
+
+2009-02-18  Martyn Russell  <martyn@imendio.com>
+
 	* docs/reference/libtracker-common/Makefile.am:
 	* docs/reference/libtracker-module/Makefile.am:
 	* src/libinotify/Makefile.am:

@@ -2110,8 +2110,8 @@ should_index_file (TrackerIndexer *indexer,
 {
 	TrackerService *service;
 	gchar *path;
-	struct stat st;
-	time_t mtime;
+	guint64 current_mtime;
+	time_t db_mtime;
 
 	service = get_service_for_file (info->module_file, info->module);
 
@@ -2123,10 +2123,10 @@ should_index_file (TrackerIndexer *indexer,
 	 * definitely want to index it.
 	 */
 	if (!tracker_data_query_service_exists (service,
-				       dirname,
-				       basename,
-				       NULL,
-				       &mtime)) {
+						dirname,
+						basename,
+						NULL,
+						&db_mtime)) {
 		return TRUE;
 	}
 
@@ -2137,13 +2137,17 @@ should_index_file (TrackerIndexer *indexer,
 	 * immediately in this parent directory.
 	 */
 	path = g_file_get_path (info->file);
+	current_mtime = tracker_file_get_mtime (path);
 
-	if (g_lstat (path, &st) == -1) {
+	/* Don't attempt to index the file if we couldn't even get the
+	 * current mtime for it.
+	 */
+	if (current_mtime == 0) {
 		g_free (path);
-		return TRUE;
+		return FALSE;
 	}
 
-	if (st.st_mtime <= mtime) {
+	if (current_mtime <= db_mtime) {
 		g_debug ("'%s' has indifferent mtime and should not be indexed", path);
 		g_free (path);
 

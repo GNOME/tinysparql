@@ -268,25 +268,32 @@ db_file_info_get_pending (guint32	   file_id,
 TrackerDBFileInfo *
 tracker_db_file_info_get (TrackerDBFileInfo *info)
 {
-	struct stat  finfo;
+	GError      *error = NULL;
 	gchar	    *str, *uri_in_locale;
+	struct stat  finfo;
 
 	if (!info || !info->uri) {
 		return info;
 	}
 
-	uri_in_locale = g_filename_from_utf8 (info->uri, -1, NULL, NULL, NULL);
+	uri_in_locale = g_filename_from_utf8 (info->uri, 
+					      -1, 
+					      NULL, 
+					      NULL, 
+					      &error);
 
-	if (uri_in_locale) {
+	if (G_LIKELY (!error)) {
 		if (g_lstat (uri_in_locale, &finfo) == -1) {
 			g_free (uri_in_locale);
 
 			return info;
 		}
-
 	} else {
-		g_warning ("URI:'%s' could not be converted to locale format",
-			   info->uri);
+		g_message ("Could not convert URI:'%s' to locale format, %s",
+			   info->uri,
+			   error->message);
+		g_error_free (error);
+
 		return NULL;
 	}
 
@@ -297,7 +304,7 @@ tracker_db_file_info_get (TrackerDBFileInfo *info)
 		str = g_file_read_link (uri_in_locale, NULL);
 
 		if (str) {
-			char *link_uri;
+			gchar *link_uri;
 
 			link_uri = g_filename_to_utf8 (str, -1, NULL, NULL, NULL);
 			info->link_name = g_path_get_basename (link_uri);
@@ -320,8 +327,8 @@ tracker_db_file_info_get (TrackerDBFileInfo *info)
 	g_free (info->permissions);
 	info->permissions = tracker_create_permission_string (finfo);
 
-	info->mtime =  finfo.st_mtime;
-	info->atime =  finfo.st_atime;
+	info->mtime = finfo.st_mtime;
+	info->atime = finfo.st_atime;
 
 	return info;
 }

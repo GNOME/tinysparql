@@ -986,18 +986,16 @@ tracker_extract_gstreamer (const gchar *uri,
 		}
 	} else if (type == EXTRACT_MIME_IMAGE) {
 		if (!g_hash_table_lookup (metadata, "Image:Date")) {
-			struct stat st;
-			
-			if (g_lstat (uri, &st) >= 0) {
-				gchar *date;
+			gchar *date;
+			guint64 mtime;
+
+			mtime = tracker_file_get_mtime (uri);
+			date = tracker_date_to_string ((time_t) mtime);
 				
-				date = tracker_date_to_string (st.st_mtime);
-				
-				g_hash_table_insert (metadata,
-						     g_strdup ("Image:Date"),
-						     tracker_escape_metadata (date));
-				g_free (date);
-			}
+			g_hash_table_insert (metadata,
+					     g_strdup ("Image:Date"),
+					     tracker_escape_metadata (date));
+			g_free (date);
 		}
 	}
 

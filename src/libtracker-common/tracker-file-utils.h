@@ -30,14 +30,9 @@
 
 gint	 tracker_file_open			   (const gchar *uri,
 						    gboolean	 readahead);
-void	 tracker_file_close			   (gint	 fd,
-						    gboolean	 no_longer_needed);
 gboolean tracker_file_unlink			   (const gchar *uri);
-gboolean tracker_file_is_valid			   (const gchar *uri);
-gboolean tracker_file_is_directory		   (const gchar *uri);
-gboolean tracker_file_is_indexable		   (const gchar *uri);
-guint32  tracker_file_get_size			   (const gchar *uri);
-gint32	 tracker_file_get_mtime			   (const gchar *uri);
+goffset  tracker_file_get_size			   (const gchar *uri);
+guint64  tracker_file_get_mtime                    (const gchar *uri);
 gchar *  tracker_file_get_mime_type		   (const gchar *uri);
 void	 tracker_file_get_path_and_name		   (const gchar *uri,
 						    gchar **path,

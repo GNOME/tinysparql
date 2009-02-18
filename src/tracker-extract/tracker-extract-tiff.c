@@ -28,6 +28,7 @@
 #include <tiffio.h>
 
 #include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
@@ -252,18 +253,16 @@ extract_tiff (const gchar *filename,
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	
 	if (!g_hash_table_lookup (metadata, "Image:Date")) {
-		struct stat st;
+		gchar *date;
+		guint64 mtime;
 		
-		if (g_lstat(filename, &st) >= 0) {
-			gchar *date;
-
-			date = tracker_date_to_string (st.st_mtime);
-
-			g_hash_table_insert (metadata,
-					     g_strdup ("Image:Date"),
-					     tracker_escape_metadata (date));
-			g_free (date);
-		}
+		mtime = tracker_file_get_mtime (filename);
+		date = tracker_date_to_string ((time_t) mtime);
+		
+		g_hash_table_insert (metadata,
+				     g_strdup ("Image:Date"),
+				     tracker_escape_metadata (date));
+		g_free (date);
 	}
 
 	TIFFClose (image);
