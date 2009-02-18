@@ -26,23 +26,23 @@ IGNORE_HFILES=
 
 # CFLAGS and LDFLAGS for compiling scan program. Only needed
 # if $(DOC_MODULE).types is non-empty.
-INCLUDES = 						\
-	-DTRACKER_COMPILATION				\
-	-I$(top_srcdir)/src				\
-	$(HAL_CFLAGS)					\
-	$(DBUS_CFLAGS)					\
-	$(UNAC_CFLAGS)					\
-	$(PANGO_CFLAGS)					\
-	$(GIO_CFLAGS)					\
-	$(GLIB2_CFLAGS)
+INCLUDES = 								\
+	-DTRACKER_COMPILATION						\
+	-I$(top_srcdir)/src						\
+	$(GLIB2_CFLAGS)							\
+	$(GIO_CFLAGS)							\
+	$(PANGO_CFLAGS)							\
+	$(HAL_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
+	$(UNAC_CFLAGS)
 
-GTKDOC_LIBS =						\
+GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
-	$(HAL_LIBS)					\
-	$(DBUS_LIBS)					\
-	$(UNAC_LIBS)					\
-	$(PANGO_LIBS)					\
-	$(GIO_LIBS)					\
+	$(HAL_LIBS)							\
+	$(DBUS_LIBS)							\
+	$(UNAC_LIBS)							\
+	$(PANGO_LIBS)							\
+	$(GIO_LIBS)							\
 	$(GLIB2_LIBS)
 
 

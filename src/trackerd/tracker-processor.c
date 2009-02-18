@@ -1478,7 +1478,6 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		     gpointer	     user_data)
 {
 	TrackerProcessor *processor;
-	GList            *l;
 
 	processor = user_data;
 

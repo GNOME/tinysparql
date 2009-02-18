@@ -21,8 +21,8 @@
  * Authors: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __TRACKER_ALBUMART_H__
-#define __TRACKER_ALBUMART_H__
+#ifndef __LIBTRACKER_COMMON_ALBUMART_H__
+#define __LIBTRACKER_COMMON_ALBUMART_H__
 
 G_BEGIN_DECLS
 
@@ -40,11 +40,11 @@ void     tracker_albumart_get_path         (const gchar  *a,
 					    const gchar  *uri,
 					    gchar       **path,
 					    gchar       **local);
-void     tracker_albumart_request_download (gchar *album, 
-					    gchar *artist, 
-					    gchar *local_uri, 
-					    gchar *art_path);
+void     tracker_albumart_request_download (const gchar *album, 
+					    const gchar *artist, 
+					    const gchar *local_uri, 
+					    const gchar *art_path);
 
 G_END_DECLS
 
-#endif /* __TRACKER_THUMBNAILER_H__ */
+#endif /* __LIBTRACKER_COMMON_THUMBNAILER_H__ */

@@ -18,10 +18,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-extract-testsuite-mp3.h"
-
 #include <glib.h>
 
+#include "tracker-extract-testsuite-jpeg.h"
 #include "tracker-extract-test-utils.h"
 
 typedef struct {
@@ -106,69 +105,68 @@ static const ExtractData data_xmp_dc[] = {
 	{ NULL, NULL }
 };
 
-void test_tracker_extract_jpeg_basic_size(gconstpointer data)
+void 
+test_tracker_extract_jpeg_basic_size (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_basic_size[i].filename; i++) {
+	for (i = 0; data_basic_size[i].filename; i++) {
 		extract_file (data,
 			      data_basic_size[i].filename,
 			      data_basic_size[i].testdata);		
 	}
 }
 
-void test_tracker_extract_jpeg_exif_size(gconstpointer data)
+void 
+test_tracker_extract_jpeg_exif_size (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_exif_size[i].filename; i++) {
+	for (i = 0; data_exif_size[i].filename; i++) {
 		extract_file (data,
 			      data_exif_size[i].filename,
 			      data_exif_size[i].testdata);		
 	}
 }
 
-void test_tracker_extract_jpeg_exif_orientation(gconstpointer data)
+void 
+test_tracker_extract_jpeg_exif_orientation (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_exif_orientation[i].filename; i++) {
+	for (i = 0; data_exif_orientation[i].filename; i++) {
 		extract_file (data,
 			      data_exif_orientation[i].filename,
 			      data_exif_orientation[i].testdata);		
 	}
 }
 
-void test_tracker_extract_jpeg_exif_flash(gconstpointer data)
+void 
+test_tracker_extract_jpeg_exif_flash (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_exif_flash[i].filename; i++) {
+	for (i = 0; data_exif_flash[i].filename; i++) {
 		extract_file (data,
 			      data_exif_flash[i].filename,
 			      data_exif_flash[i].testdata);		
 	}
 }
 
-void test_tracker_extract_jpeg_exif_tags(gconstpointer data)
+void 
+test_tracker_extract_jpeg_exif_tags (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_exif_tags[i].filename; i++) {
+	for (i = 0; data_exif_tags[i].filename; i++) {
 		extract_file (data,
 			      data_exif_tags[i].filename,
 			      data_exif_tags[i].testdata);		
 	}
 }
 
-void performance_tracker_extract_jpeg(gconstpointer data)
+void
+test_tracker_extract_jpeg_performance (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
-	
 	performance_extract_files (data, "/jpeg/perf_jpeg_%d.jpg", 1000);
 }

@@ -25,12 +25,13 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
-	$(DBUS_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
-	$(QDBM_CFLAGS)							\
+	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
-	$(GLIB2_CFLAGS)
+	$(DBUS_CFLAGS)							\
+	$(SQLITE3_CFLAGS)						\
+	$(QDBM_CFLAGS)
 
 # TEST_PROGS +=								\
 #	union-performance						\

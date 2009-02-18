@@ -159,19 +159,6 @@ dbus_register_names (TrackerConfig *config)
 	return TRUE;
 }
 
-static void
-indexer_continue_async_cb (DBusGProxy *proxy,
-			   GError     *error,
-			   gpointer    user_data)
-{
-	if (error) {
-		g_message ("Couldn't resume the indexer: %s", error->message);
-		g_error_free (error);
-	}
-
-	g_object_unref (proxy);
-}
-
 static gboolean
 indexer_resume_cb (gpointer user_data)
 {
@@ -192,7 +179,6 @@ dbus_request_new_cb (guint    request_id,
 		     gpointer user_data)
 {
 	DBusGProxy    *proxy;
-	GError	      *error = NULL;
 	gboolean       set_paused = TRUE;
 	TrackerStatus  status;
 

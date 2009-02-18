@@ -14,12 +14,13 @@ INCLUDES = 									\
 	-I$(top_srcdir)/src							\
 	-I$(top_srcdir)/tests/common						\
 	-I$(top_builddir)/src/tracker-indexer					\
-	$(DBUS_CFLAGS)								\
-	$(PANGO_CFLAGS)								\
+	$(WARN_CFLAGS)								\
+	$(GLIB2_CFLAGS)								\
 	$(GMODULE_CFLAGS)							\
 	$(GTHREAD_CFLAGS)							\
-	$(RAPTOR_CFLAGS)							\
-	$(GLIB2_CFLAGS)
+	$(PANGO_CFLAGS)								\
+	$(DBUS_CFLAGS)								\
+	$(RAPTOR_CFLAGS)
 
 tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-indexer/tracker-dbus.c			\

@@ -1,21 +1,22 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES =						\
-	-I$(top_srcdir)/src				\
-	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""	\
-	-DLOCALEDIR="\"$(LOCALEDIR)\""			\
-	-DTRACKER_COMPILATION				\
-	$(DBUS_CFLAGS)					\
-	$(GMIME_CFLAGS)					\
+INCLUDES =								\
+	-I$(top_srcdir)/src						\
+	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""			\
+	-DLOCALEDIR="\"$(LOCALEDIR)\""					\
+	-DTRACKER_COMPILATION						\
+	$(WARN_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
+	$(GMIME_CFLAGS)							\
 	$(EVOLUTION_PLUGIN_CFLAGS)
 
 %.eplug.in: %.eplug.xml
 	LC_ALL=C $(INTLTOOL_MERGE) -x -u /tmp $< $@
 
 %.eplug: %.eplug.in
-	sed -e "s%+PLUGIN_INSTALL_DIR+%$(EVOLUTION_PLUGIN_INSTALL_DIR)%" \
-	-e "s%+GETTEXT_PACKAGE+%$(GETTEXT_PACKAGE)%" \
-	-e "s%+LOCALEDIR+%$(LOCALEDIR)%" \
+	sed -e "s%+PLUGIN_INSTALL_DIR+%$(EVOLUTION_PLUGIN_INSTALL_DIR)%"\
+	-e "s%+GETTEXT_PACKAGE+%$(GETTEXT_PACKAGE)%" 			\
+	-e "s%+LOCALEDIR+%$(LOCALEDIR)%"				\
 	$< > $@
 
 eplugindir = $(EVOLUTION_PLUGIN_INSTALL_DIR)
@@ -93,7 +94,8 @@ BUILT_SOURCES = 							\
 	$(dbus_sources)							\
 	$(eplugin_DATA)
 
-CLEANFILES = $(BUILT_SOURCES) \
+CLEANFILES = 								\
+	$(BUILT_SOURCES) 						\
 	org-freedesktop-Tracker-evolution-plugin.eplug
 
 EXTRA_DIST = 								\

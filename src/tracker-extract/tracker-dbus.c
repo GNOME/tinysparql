@@ -79,13 +79,6 @@ dbus_register_object (DBusGConnection	    *lconnection,
 	dbus_g_connection_register_g_object (lconnection, path, object);
 }
 
-static void
-dbus_name_owner_changed (gpointer  data,
-			 GClosure *closure)
-{
-	g_object_unref (data);
-}
-
 static gboolean
 dbus_register_names (void)
 {

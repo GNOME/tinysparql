@@ -6,9 +6,9 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
-	$(RAPTOR_CFLAGS)                                                \
-	$(GLIB2_CFLAGS)
+	$(RAPTOR_CFLAGS)
 
 libtracker_datadir = $(libdir)/tracker
 libtracker_data_LTLIBRARIES = libtracker-data.la

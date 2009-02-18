@@ -6,8 +6,8 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
-	$(TRACKER_APPLET_CFLAGS)					\
-	$(LIBGLADE_CFLAGS)
+	$(LIBGLADE_CFLAGS)						\
+	$(TRACKER_APPLET_CFLAGS)
 
 bin_PROGRAMS = tracker-applet
 

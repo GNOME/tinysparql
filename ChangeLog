@@ -1,5 +1,68 @@
 2009-02-18  Martyn Russell  <martyn@imendio.com>
 
+	* docs/reference/libtracker-common/Makefile.am:
+	* docs/reference/libtracker-module/Makefile.am:
+	* src/libinotify/Makefile.am:
+	* src/libstemmer/Makefile.am:
+	* src/libtracker-common/Makefile.am:
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-db/Makefile.am:
+	* src/libtracker-gtk/Makefile.am:
+	* src/plugins/evolution/Makefile.am:
+	* src/plugins/kmail/Makefile.am:
+	* src/plugins/rss/Makefile.am:
+	* src/tracker-applet/Makefile.am:
+	* src/tracker-extract/Makefile.am:
+	* src/tracker-fts/Makefile.am:
+	* src/tracker-indexer/Makefile.am:
+	* src/tracker-indexer/modules/Makefile.am:
+	* src/tracker-preferences/Makefile.am:
+	* src/tracker-search-tool/Makefile.am:
+	* src/tracker-utils/Makefile.am:
+	* src/trackerd/Makefile.am:
+	* tests/common/Makefile.am:
+	* tests/libtracker-common/Makefile.am:
+	* tests/libtracker-db/Makefile.am:
+	* tests/tracker-extract/Makefile.am:
+	* tests/tracker-indexer/Makefile.am:
+	* tests/trackerd/Makefile.am:
+	* tests/trackerd/xesam/Makefile.am:
+	* utils/qdbm/Makefile.am:
+	* utils/tracker-fts/Makefile.am: Fixed Makefiles so we include
+	WARN_CFLAGS in all files. Some files were missing this.
+
+	* src/libtracker-common/tracker-albumart.[ch]: 
+	* src/libtracker-common/tracker-thumbnailer.h: Fixed #define
+	statements so they are not the same as the extractor header files.
+	
+	* src/libtracker-common/tracker-config.c:
+	* src/tracker-extract/tracker-dbus.[ch]: 
+	* src/tracker-extract/tracker-extract-albumart.c:
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-main.[ch]: 
+	* src/trackerd/tracker-cleanup.c:
+	* src/trackerd/tracker-dbus.c: 
+	* src/trackerd/tracker-processor.c: 
+	* src/trackerd/tracker-status.c: 
+	* tests/tracker-extract/tracker-extract-gstreamer-test.c: 
+	* tests/tracker-extract/tracker-extract-jpeg-test.c:
+	* tests/tracker-extract/tracker-extract-mp3-test.c: 
+	* tests/tracker-extract/tracker-extract-png-test.c: 
+	* tests/tracker-extract/tracker-extract-test-utils.c:
+	* tests/tracker-extract/tracker-extract-testsuite-avi.c:
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.c:
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.h:
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.c:
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.h:
+	* tests/tracker-extract/tracker-extract-testsuite-png.c:
+	* tests/tracker-extract/tracker-extract-testsuite-png.h:
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.c:
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.h:
+	* tests/tracker-extract/tracker-extract-tiff-test.c: Fixed all the
+	warnings produced by adding WARN_CFLAGS to the Makefile.am files.
+
+2009-02-18  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-common/tracker-config.c:
 	(config_create_with_defaults): Use g_strv_length() to make the
 	patching here easier for Maemo.

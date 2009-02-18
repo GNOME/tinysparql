@@ -1,10 +1,11 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES = -I$(top_srcdir)/src				\
-	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""	\
-	-DLOCALEDIR="\"$(LOCALEDIR)\""			\
-	-DTRACKER_COMPILATION				\
-	$(DBUS_CFLAGS)					\
+INCLUDES = -I$(top_srcdir)/src						\
+	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""			\
+	-DLOCALEDIR="\"$(LOCALEDIR)\""					\
+	-DTRACKER_COMPILATION						\
+	$(WARN_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
 	$(GMIME_CFLAGS)
 
 module_flags = -module -avoid-version -no-undefined
@@ -15,16 +16,16 @@ pushi_modulesdir = $(libdir)/tracker/push-modules/indexer
 pushd_modules_LTLIBRARIES = libtracker-module-rss-daemon-module.la
 pushi_modules_LTLIBRARIES = libtracker-module-rss-indexer-module.la
 
-libtracker_module_rss_indexer_module_la_SOURCES =		\
-	tracker-rss-indexer.c					\
-	tracker-rss-indexer.h					\
-	tracker-rss-registrar-glue.h				\
+libtracker_module_rss_indexer_module_la_SOURCES =			\
+	tracker-rss-indexer.c						\
+	tracker-rss-indexer.h						\
+	tracker-rss-registrar-glue.h					\
 	tracker-rss-common.h
 
-libtracker_module_rss_daemon_module_la_SOURCES =	\
-	tracker-rss-registrar.c				\
-	tracker-rss-registrar.h				\
-	tracker-rss-common.h				\
+libtracker_module_rss_daemon_module_la_SOURCES =			\
+	tracker-rss-registrar.c						\
+	tracker-rss-registrar.h						\
+	tracker-rss-common.h						\
 	tracker-rss-registrar-glue.h
 
 libtracker_module_rss_daemon_module_la_LDFLAGS = $(module_flags)
@@ -60,6 +61,8 @@ dbus_sources = tracker-rss-registrar-glue.h
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = $(dbus_sources)
+
 CLEANFILES = $(BUILT_SOURCES)
+
 EXTRA_DIST = $(BUILT_SOURCES)
 

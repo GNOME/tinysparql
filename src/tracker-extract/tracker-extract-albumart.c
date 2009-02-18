@@ -42,8 +42,6 @@
 
 #include "tracker-extract-albumart.h"
 
-
-
 #ifdef HAVE_GDKPIXBUF
 
 static gboolean
@@ -121,22 +119,25 @@ tracker_process_albumart (const unsigned char *buffer,
 	gchar *filename_uri;
 	gboolean lcopied = FALSE;
 
-	if (strchr (filename, ':'))
+	if (strchr (filename, ':')) {
 		filename_uri = g_strdup (filename);
-	else
+	} else {
 		filename_uri = g_filename_to_uri (filename, NULL, NULL);
+	}
 
-	tracker_albumart_get_path (artist, album, "album", filename_uri, 
-				   &art_path, &local_uri);
+	tracker_albumart_get_path (artist, 
+				   album, 
+				   "album", 
+				   filename_uri, 
+				   &art_path, 
+				   &local_uri);
 
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-
 #ifdef HAVE_GDKPIXBUF
-
 		/* If we have embedded album art */
-
 		if (buffer && len) {
-			retval = set_albumart (buffer, len,
+			retval = set_albumart (buffer, 
+					       len,
 					       artist,
 					       album,
 					       filename);
@@ -145,9 +146,7 @@ tracker_process_albumart (const unsigned char *buffer,
 
 		} else {
 #endif /* HAVE_GDK_PIXBUF */
-
 			/* If not, we perform a heuristic on the dir */
-
 			if (!tracker_albumart_heuristic (artist, album, 
 			                                 trackercnt_str, 
 			                                 filename, 
@@ -156,7 +155,6 @@ tracker_process_albumart (const unsigned char *buffer,
 
 				/* If the heuristic failed, we request the download 
 				 * of the media-art to the media-art downloaders */
-
 				lcopied = TRUE;
 				tracker_albumart_request_download (artist,
 								   album,
@@ -164,9 +162,7 @@ tracker_process_albumart (const unsigned char *buffer,
 								   art_path);
 			}
 #ifdef HAVE_GDKPIXBUF
-
 		}
-
 #endif /* HAVE_GDKPIXBUF */
 
 		/* If the heuristic didn't copy from the .mediaartlocal, then 

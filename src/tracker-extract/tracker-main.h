@@ -47,12 +47,12 @@ struct TrackerExtractData {
 };
 
 /* This is defined in each extract */
-TrackerExtractData *tracker_get_extract_data            (void);
+TrackerExtractData *tracker_get_extract_data        (void);
 
 /* This is used to not shutdown after the default of 30 seconds if we
  * get more work to do.
  */
-void                tracker_main_shutdown_timeout_reset (void);
+void                tracker_main_quit_timeout_reset (void);
 
 G_END_DECLS
 

@@ -39,8 +39,6 @@ main (int argc, char **argv) {
 	g_thread_init (NULL);
 	g_test_init (&argc, &argv, NULL);
 
-	TrackerExtractData *data;
-
 	g_test_message ("Testing extract functionality");
 	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extract-data",
 			 test_tracker_extract_check_extract_data);

@@ -42,9 +42,9 @@ IGNORE_HFILES=								\
 # if $(DOC_MODULE).types is non-empty.
 INCLUDES = 								\
 	-I$(top_srcdir)/src						\
-	$(DBUS_CFLAGS)							\
+	$(GMODULE_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
-	$(GMODULE_CFLAGS)						
+	$(DBUS_CFLAGS)
 
 GTKDOC_LIBS =								\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la 		\

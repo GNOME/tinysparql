@@ -9,6 +9,11 @@ INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src 						\
+	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
+	$(GDKPIXBUF_CFLAGS)						\
+	$(GMODULE_CFLAGS) 						\
+	$(DBUS_CFLAGS)							\
 	$(EXEMPI_CFLAGS) 						\
 	$(LIBJPEG_CFLAGS) 						\
 	$(LIBTIFF_CFLAGS) 						\
@@ -19,10 +24,6 @@ INCLUDES = 								\
 	$(POPPLER_GLIB_CFLAGS) 						\
 	$(GSTREAMER_CFLAGS) 						\
 	$(XINE_CFLAGS) 							\
-	$(GDKPIXBUF_CFLAGS)						\
-	$(GMODULE_CFLAGS) 						\
-	$(DBUS_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
 	$(TOTEM_PL_PARSER_CFLAGS)
 
 modules_LTLIBRARIES = 							\
@@ -96,7 +97,7 @@ xmp_sources = 								\
 albumart_libs = 
 albumart_flags = 
 albumart_sources =							\
-	tracker-extract-albumart.c						\
+	tracker-extract-albumart.c					\
 	tracker-extract-albumart.h
 
 if HAVE_GDKPIXBUF

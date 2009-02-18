@@ -27,11 +27,12 @@ INCLUDES = 								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	-I$(top_srcdir)/tests/common					\
-	$(DBUS_CFLAGS)							\
+	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
-	$(GLIB2_CFLAGS)
+	$(DBUS_CFLAGS)
 
 TEST_UTILS_SOURCES = 							\
 	tracker-extract-test-utils.c					\

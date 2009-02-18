@@ -5,11 +5,11 @@ noinst_PROGRAMS = tracker-fts-test
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-I$(top_srcdir)/src						\
-	$(SQLITE3_CFLAGS)						\
+	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
 	$(GTHREAD_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
-	$(GLIB2_CFLAGS)
-
+	$(SQLITE3_CFLAGS)
 
 tracker_fts_test_SOURCES =						\
 	tracker-fts-test.c
@@ -21,4 +21,3 @@ tracker_fts_test_LDADD =						\
 	$(PANGO_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(top_builddir)/src/libstemmer/libstemmer.la	 		
-	

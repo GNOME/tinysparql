@@ -1,10 +1,11 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES = -I$(top_srcdir)/src				\
-	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""	\
-	-DLOCALEDIR="\"$(LOCALEDIR)\""			\
-	-DTRACKER_COMPILATION				\
-	$(DBUS_CFLAGS)					\
+INCLUDES = -I$(top_srcdir)/src						\
+	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""			\
+	-DLOCALEDIR="\"$(LOCALEDIR)\""					\
+	-DTRACKER_COMPILATION						\
+	$(WARN_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
 	$(GMIME_CFLAGS)
 
 module_flags = -module -avoid-version -no-undefined
@@ -15,16 +16,16 @@ pushi_modulesdir = $(libdir)/tracker/push-modules/indexer
 pushd_modules_LTLIBRARIES = libtracker-module_kmail-daemon-module.la
 pushi_modules_LTLIBRARIES = libtracker-module_kmail-indexer-module.la
 
-libtracker_module_kmail_indexer_module_la_SOURCES =		\
-	tracker-kmail-indexer.c					\
-	tracker-kmail-indexer.h					\
-	tracker-kmail-registrar-glue.h				\
+libtracker_module_kmail_indexer_module_la_SOURCES =			\
+	tracker-kmail-indexer.c						\
+	tracker-kmail-indexer.h						\
+	tracker-kmail-registrar-glue.h					\
 	tracker-kmail-common.h
 
-libtracker_module_kmail_daemon_module_la_SOURCES =	 	\
-	tracker-kmail-registrar.c				\
-	tracker-kmail-registrar.h				\
-	tracker-kmail-common.h					\
+libtracker_module_kmail_daemon_module_la_SOURCES =		 	\
+	tracker-kmail-registrar.c					\
+	tracker-kmail-registrar.h					\
+	tracker-kmail-common.h						\
 	tracker-kmail-registrar-glue.h
 
 libtracker_module_kmail_daemon_module_la_LDFLAGS = $(module_flags)

@@ -20,6 +20,7 @@
 
 #include <glib.h>
 
+#include "tracker-extract-testsuite-tiff.h"
 #include "tracker-extract-test-utils.h"
 
 typedef struct {
@@ -53,24 +54,24 @@ static const ExtractData data_exif_orientation[] = {
 	{ NULL, NULL }
 };
 
-void test_tracker_extract_tiff_basic_size(gconstpointer data)
+void
+test_tracker_extract_tiff_basic_size (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_basic_size[i].filename; i++) {
+	for (i = 0; data_basic_size[i].filename; i++) {
 		extract_file (data,
 			      data_basic_size[i].filename,
 			      data_basic_size[i].testdata);		
 	}
 }
 
-void test_tracker_extract_tiff_exif_size(gconstpointer data)
+void 
+test_tracker_extract_tiff_exif_size (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_exif_size[i].filename; i++) {
+	for (i = 0; data_exif_size[i].filename; i++) {
 		g_debug ("Filename: %s", data_basic_size[i].filename);
 
 		extract_file (data,
@@ -79,21 +80,20 @@ void test_tracker_extract_tiff_exif_size(gconstpointer data)
 	}
 }
 
-void test_tracker_extract_tiff_exif_orientation(gconstpointer data)
+void 
+test_tracker_extract_tiff_exif_orientation (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_exif_orientation[i].filename; i++) {
+	for (i = 0; data_exif_orientation[i].filename; i++) {
 		extract_file (data,
 			      data_exif_orientation[i].filename,
 			      data_exif_orientation[i].testdata);		
 	}
 }
 
-void performance_tracker_extract_tiff(gconstpointer data)
+void 
+test_tracker_extract_tiff_performance (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
-	
 	performance_extract_files (data, "/tiff/perf_tiff_%d.tif", 1000);
 }

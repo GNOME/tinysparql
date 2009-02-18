@@ -30,6 +30,6 @@ void test_tracker_extract_jpeg_exif_flash       (gconstpointer data);
 
 void test_tracker_extract_jpeg_exif_tags        (gconstpointer data);
 
-void performance_tracker_extract_jpeg           (gconstpointer data);
+void test_tracker_extract_jpeg_performance      (gconstpointer data);
 
 #endif

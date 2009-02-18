@@ -9,12 +9,13 @@ INCLUDES = 							\
 	-I$(top_srcdir)/src 					\
 	-I$(top_srcdir)/src/trackerd 				\
 	-I$(top_srcdir)/tests/common				\
+	$(WARN_CFLAGS)						\
+	$(GLIB2_CFLAGS) 					\
 	$(GMODULE_CFLAGS) 					\
 	$(GTHREAD_CFLAGS) 					\
-	$(GLIB2_CFLAGS) 					\
-	$(QDBM_CFLAGS) 						\
 	$(GIO_GFLAGS) 						\
-	$(DBUS_CFLAGS)
+	$(DBUS_CFLAGS)						\
+	$(QDBM_CFLAGS)
 
 if HAVE_XESAM_GLIB
 

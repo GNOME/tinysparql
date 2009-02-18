@@ -59,6 +59,8 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
+
 #include <gst/gst.h>
 #include <gst/tag/tag.h>
 
@@ -986,7 +988,7 @@ tracker_extract_gstreamer (const gchar *uri,
 		if (!g_hash_table_lookup (metadata, "Image:Date")) {
 			struct stat st;
 			
-			if (g_lstat(uri, &st) >= 0) {
+			if (g_lstat (uri, &st) >= 0) {
 				gchar *date;
 				
 				date = tracker_date_to_string (st.st_mtime);

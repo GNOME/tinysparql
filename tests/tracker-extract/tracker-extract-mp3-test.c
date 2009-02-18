@@ -47,7 +47,8 @@ main (int argc, char **argv) {
 	data = tracker_test_extract_get_extract ("audio/mpeg");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/access",
-			      data, access_tracker_extract_mp3);
+			      data, 
+			      test_tracker_extract_mp3_access);
 
 #if 0
 

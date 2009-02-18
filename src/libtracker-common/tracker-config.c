@@ -818,7 +818,7 @@ config_create_with_defaults (const gchar *filename,
 	/* Watches */
 	g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
 				    watch_directory_roots, 
-				    g_strv_length (watch_directory_roots));
+				    g_strv_length ((gchar**) watch_directory_roots));
 	g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
 				" List of directory roots to index and watch (separator=;)",
 				NULL);

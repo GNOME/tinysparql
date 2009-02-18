@@ -18,6 +18,10 @@
  * Boston, MA  02110-1301, USA.
  */
 
+#include <unistd.h>
+
+#include <glib/gstdio.h>
+
 #include "tracker-extract-test-utils.h"
 
 TrackerExtractData *
@@ -132,18 +136,19 @@ performance_extract_files (const TrackerExtractData *data, const gchar *filematc
 }
 
 void
-access_extract_files (const TrackerExtractData *data, const gchar *filematch, guint filecount)
+access_extract_files (const TrackerExtractData *data, 
+		      const gchar              *filematch, 
+		      guint                     filecount)
 {
-	double perftime;
 	guint i;
 
 	g_assert (data != NULL);
 	g_assert (filematch != NULL);
-	g_assert (filecount >0 );
+	g_assert (filecount > 0);
 	
 	for (i=1;i<=filecount;i++) {
-		char filename[256];
-		char tmp[256];
+		gchar filename[256];
+		gchar tmp[256];
 		GHashTable *metadata;
 
 		metadata = g_hash_table_new_full (g_str_hash,
@@ -168,24 +173,6 @@ access_extract_files (const TrackerExtractData *data, const gchar *filematch, gu
 		g_hash_table_destroy (metadata);
 	}		
 }
-
-TrackerExtractData *
-search_mime_extract (const gchar *mime)
-{
-	TrackerExtractData *data;
-
-	data = tracker_get_extract_data ();	
-
-	while (data->mime) {
-		if (strcmp (data->mime,mime) == 0) {
-			return data;
-		}
-		data++;
-	}	
-
-	return NULL;
-}
-
 
 GHashTable *
 parse_testdata_file (const gchar *filename)
@@ -239,8 +226,9 @@ parse_testdata_file (const gchar *filename)
 	for (ttype = g_scanner_get_next_token(scanner);
 	     ttype != G_TOKEN_EOF;
 	     ttype = g_scanner_get_next_token (scanner)) {
-		if (ttype = G_TOKEN_IDENTIFIER) {
+		if (ttype == G_TOKEN_IDENTIFIER) {
 			gchar key[256];
+
 			strcpy (key, scanner->value.v_identifier);
 			
 			ttype = g_scanner_get_next_token(scanner);

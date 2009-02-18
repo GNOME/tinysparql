@@ -25,7 +25,6 @@
 
 void test_tracker_extract_png_basic_size           (gconstpointer data);
 void test_tracker_extract_png_xmp_exif_orientation (gconstpointer data);
-
-void performance_tracker_extract_png               (gconstpointer data);
+void test_tracker_extract_png_performance          (gconstpointer data);
 
 #endif

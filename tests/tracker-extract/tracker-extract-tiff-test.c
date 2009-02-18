@@ -32,7 +32,6 @@
 int
 main (int argc, char **argv) {
 
-	TrackerExtractData *data;
 	gint result;
 
 	g_type_init ();

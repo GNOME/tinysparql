@@ -6,10 +6,10 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
-	$(SQLITE3_CFLAGS)						\
-	$(QDBM_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
-	$(GLIB2_CFLAGS)
+	$(SQLITE3_CFLAGS)						\
+	$(QDBM_CFLAGS)
 
 libtracker_dbdir = $(libdir)/tracker
 libtracker_db_LTLIBRARIES = libtracker-db.la

@@ -13,9 +13,9 @@ INCLUDES =								\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GIO_CFLAGS)							\
-	$(GLIB2_CFLAGS)							\
 	$(GCONF_CFLAGS)							\
 	$(GMIME_CFLAGS)							\
 	$(SQLITE3_CFLAGS)

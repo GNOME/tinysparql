@@ -23,16 +23,14 @@
 
 #include <tracker-extract/tracker-extract.h>
 
-void access_tracker_extract_mp3                 (gconstpointer data);
-
-void test_tracker_extract_mp3_id3v1_basic       (gconstpointer data);
-void test_tracker_extract_mp3_id3v23_basic      (gconstpointer data);
-void test_tracker_extract_mp3_id3v23_tcon       (gconstpointer data);
-void test_tracker_extract_mp3_id3v23_tags       (gconstpointer data);
-void test_tracker_extract_mp3_header_bitrate    (gconstpointer data);
-void test_tracker_extract_mp3_header_bitrate_vbr(gconstpointer data);
-void test_tracker_extract_mp3_header_sampling   (gconstpointer data);
-
-void performance_tracker_extract_mp3            (gconstpointer data);
+void test_tracker_extract_mp3_access             (gconstpointer data);
+void test_tracker_extract_mp3_id3v1_basic        (gconstpointer data);
+void test_tracker_extract_mp3_id3v23_basic       (gconstpointer data);
+void test_tracker_extract_mp3_id3v23_tcon        (gconstpointer data);
+void test_tracker_extract_mp3_id3v23_tags        (gconstpointer data);
+void test_tracker_extract_mp3_header_bitrate     (gconstpointer data);
+void test_tracker_extract_mp3_header_bitrate_vbr (gconstpointer data);
+void test_tracker_extract_mp3_header_sampling    (gconstpointer data);
+void test_tracker_extract_mp3_performance        (gconstpointer data);
 
 #endif

@@ -18,10 +18,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-extract-testsuite-mp3.h"
-
 #include <glib.h>
 
+#include "tracker-extract-testsuite-mp3.h"
 #include "tracker-extract-test-utils.h"
 
 typedef struct {
@@ -88,7 +87,6 @@ static const ExtractData data_header_bitrate_vbr[] = {
 	{ NULL, NULL }
 };
 
-
 static const ExtractData data_header_sampling[] = { 
 	{ "/mp3/header_sampling_mpeg1_1.mp3", "/mp3/header_sampling_mpeg1_1.data" },
 	{ "/mp3/header_sampling_mpeg1_2.mp3", "/mp3/header_sampling_mpeg1_2.data" },
@@ -102,103 +100,99 @@ static const ExtractData data_header_sampling[] = {
 	{ NULL, NULL }
 };
 
-void access_tracker_extract_mp3(gconstpointer data)
+void 
+test_tracker_extract_mp3_access (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
-	
 	access_extract_files (data, "/mp3/access_%d.mp3", 4);
 }
 
-void test_tracker_extract_mp3_id3v1_basic(gconstpointer data)
+void 
+test_tracker_extract_mp3_id3v1_basic (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_id3v1_basic[i].filename; i++) {
+	for (i = 0; data_id3v1_basic[i].filename; i++) {
 		extract_file (data,
 			      data_id3v1_basic[i].filename,
 			      data_id3v1_basic[i].testdata);		
 	}
 }
 
-void test_tracker_extract_mp3_id3v23_basic(gconstpointer data)
+void
+test_tracker_extract_mp3_id3v23_basic (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_id3v23_basic[i].filename; i++) {
+	for (i = 0; data_id3v23_basic[i].filename; i++) {
 		extract_file (data,
 			      data_id3v23_basic[i].filename,
 			      data_id3v23_basic[i].testdata);		
 	}
 }
 
-void test_tracker_extract_mp3_id3v23_tags(gconstpointer data)
+void 
+test_tracker_extract_mp3_id3v23_tags (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_id3v23_tags[i].filename; i++) {
+	for (i = 0; data_id3v23_tags[i].filename; i++) {
 		extract_file (data,
 			      data_id3v23_tags[i].filename,
 			      data_id3v23_tags[i].testdata);		
 	}
 }
 
-void test_tracker_extract_mp3_id3v23_tcon(gconstpointer data)
+void 
+test_tracker_extract_mp3_id3v23_tcon(gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_id3v23_tcon[i].filename; i++) {
+	for (i = 0; data_id3v23_tcon[i].filename; i++) {
 		extract_file (data,
 			      data_id3v23_tcon[i].filename,
 			      data_id3v23_tcon[i].testdata);		
 	}
 }
 
-void test_tracker_extract_mp3_header_bitrate(gconstpointer data)
+void 
+test_tracker_extract_mp3_header_bitrate(gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_header_bitrate[i].filename; i++) {
+	for (i = 0; data_header_bitrate[i].filename; i++) {
 		extract_file (data,
 			      data_header_bitrate[i].filename,
 			      data_header_bitrate[i].testdata);		
 	}
 }
 
-void test_tracker_extract_mp3_header_bitrate_vbr(gconstpointer data)
+void
+test_tracker_extract_mp3_header_bitrate_vbr (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_header_bitrate_vbr[i].filename; i++) {
+	for (i = 0; data_header_bitrate_vbr[i].filename; i++) {
 		extract_file (data,
 			      data_header_bitrate_vbr[i].filename,
 			      data_header_bitrate_vbr[i].testdata);		
 	}
 }
 
-void test_tracker_extract_mp3_header_sampling(gconstpointer data)
+void 
+test_tracker_extract_mp3_header_sampling (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_header_sampling[i].filename; i++) {
+	for (i = 0; data_header_sampling[i].filename; i++) {
 		extract_file (data,
 			      data_header_sampling[i].filename,
 			      data_header_sampling[i].testdata);		
 	}
 }
 
-
-
-void performance_tracker_extract_mp3(gconstpointer data)
+void 
+test_tracker_extract_mp3_performance (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
-	
 	performance_extract_files (data, "/mp3/perf_cbr_id3v1_%d.mp3", 1000);
 }
 

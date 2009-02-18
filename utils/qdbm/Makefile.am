@@ -5,8 +5,9 @@ noinst_PROGRAMS = print search
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-I$(top_srcdir)/src						\
-	$(QDBM_CFLAGS) 							\
-	$(GLIB2_CFLAGS)
+	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
+	$(QDBM_CFLAGS)
 
 print_SOURCES = 							\
 	print-words.c

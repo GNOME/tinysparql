@@ -20,6 +20,7 @@
 
 #include <glib.h>
 
+#include "tracker-extract-testsuite-png.h"
 #include "tracker-extract-test-utils.h"
 
 typedef struct {
@@ -48,33 +49,32 @@ static const ExtractData data_xmp_exif_orientation[] = {
 	{ NULL, NULL }
 };
 
-void test_tracker_extract_png_basic_size(gconstpointer data)
+void 
+test_tracker_extract_png_basic_size (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_basic_size[i].filename; i++) {
+	for (i = 0; data_basic_size[i].filename; i++) {
 		extract_file (data,
 			      data_basic_size[i].filename,
 			      data_basic_size[i].testdata);		
 	}
 }
 
-void test_tracker_extract_png_xmp_exif_orientation(gconstpointer data)
+void 
+test_tracker_extract_png_xmp_exif_orientation (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
 	guint i;
 
-	for (i=0; data_xmp_exif_orientation[i].filename; i++) {
+	for (i = 0; data_xmp_exif_orientation[i].filename; i++) {
 		extract_file (data,
 			      data_xmp_exif_orientation[i].filename,
 			      data_xmp_exif_orientation[i].testdata);		
 	}
 }
 
-void performance_tracker_extract_png(gconstpointer data)
+void 
+test_tracker_extract_png_performance (gconstpointer data)
 {
-	const TrackerExtractData *extract = data;
-	
 	performance_extract_files (data, "/png/perf_png_%d.png", 1000);
 }

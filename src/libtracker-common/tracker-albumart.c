@@ -645,10 +645,10 @@ tracker_albumart_get_path (const gchar  *a,
 }
 
 void
-tracker_albumart_request_download (gchar *album, 
-				   gchar *artist, 
-				   gchar *local_uri, 
-				   gchar *art_path)
+tracker_albumart_request_download (const gchar *album, 
+				   const gchar *artist, 
+				   const gchar *local_uri, 
+				   const gchar *art_path)
 {
 	GetFileInfo *info;
 

@@ -6,13 +6,13 @@ INCLUDES =						\
 	-DTRACKER_COMPILATION				\
 	-I$(top_srcdir)/src				\
 	$(WARN_CFLAGS)					\
+	$(GLIB2_CFLAGS)					\
+	$(GDKPIXBUF_CFLAGS)				\
+	$(GIO_CFLAGS)					\
+	$(PANGO_CFLAGS)					\
 	$(HAL_CFLAGS)					\
 	$(DBUS_CFLAGS)					\
-	$(UNAC_CFLAGS)					\
-	$(PANGO_CFLAGS)					\
-	$(GIO_CFLAGS)					\
-	$(GLIB2_CFLAGS)					\
-	$(GDKPIXBUF_CFLAGS)
+	$(UNAC_CFLAGS)
 
 libtracker_commondir = $(libdir)/tracker
 libtracker_commonincludedir=$(includedir)/tracker-1.0/libtracker-common/

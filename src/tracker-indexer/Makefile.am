@@ -13,11 +13,11 @@ INCLUDES =								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
-	$(DBUS_CFLAGS)							\
+	$(WARN_CFLAGS)							\
+	$(GMODULE_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
-	$(RAPTOR_CFLAGS)						\
-	$(GMODULE_CFLAGS)
-
+	$(DBUS_CFLAGS)							\
+	$(RAPTOR_CFLAGS)
 
 libtracker_moduledir = $(libdir)/tracker
 libtracker_moduleincludedir=$(includedir)/tracker-1.0/libtracker-module/

@@ -273,7 +273,7 @@ disk_space_check (void)
 	gint                  limit;
 
 	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
+	g_return_val_if_fail (private != NULL, FALSE);
 
 	limit = tracker_config_get_low_disk_space_limit (private->config);
 
@@ -335,20 +335,6 @@ disk_space_check_start (void)
 		disk_space_check_cb (NULL);
 	} else {
 		g_message ("Not setting disk space, configuration is set to -1 (disabled)");
-	}
-}
-
-static void
-disk_space_check_stop (void)
-{
-	TrackerStatusPrivate *private;
-
-	private = g_static_private_get (&private_key);
-	g_return_if_fail (private != NULL);
-
-	if (private->disk_space_check_id != 0) {
-		g_source_remove (private->disk_space_check_id);
-		private->disk_space_check_id = 0;
 	}
 }
 

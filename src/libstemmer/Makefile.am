@@ -1,9 +1,10 @@
 include $(top_srcdir)/Makefile.decl
 
-INCLUDES =						\
-	-DSHAREDIR=\""$(datadir)"\"			\
-	-DG_LOG_DOMAIN=\"Tracker\"			\
-	-I$(top_srcdir)/src
+INCLUDES =				\
+	-DSHAREDIR=\""$(datadir)"\"	\
+	-DG_LOG_DOMAIN=\"Tracker\"	\
+	-I$(top_srcdir)/src		\
+	$(WARN_CFLAGS)
 
 libstemmerdir = $(libdir)/tracker
 libstemmer_LTLIBRARIES = libstemmer.la

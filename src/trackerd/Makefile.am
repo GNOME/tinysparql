@@ -9,17 +9,18 @@ INCLUDES =								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
+	$(WARN_CFLAGS)							\
+	$(GLIB2_CFLAGS)							\
+	$(GTHREAD_CFLAGS)						\
+	$(GMODULE_CFLAGS)						\
+	$(GIO_CFLAGS)							\
+	$(DBUS_CFLAGS)							\
+	$(PANGO_CFLAGS)							\
 	$(GMIME_CFLAGS)							\
 	$(FAM_CFLAGS)							\
 	$(SQLITE3_CFLAGS)						\
 	$(QDBM_CFLAGS)							\
-	$(DBUS_CFLAGS)							\
-	$(PANGO_CFLAGS)							\
-	$(GIO_CFLAGS)							\
-	$(GMODULE_CFLAGS)						\
-	$(GTHREAD_CFLAGS)						\
-	$(RAPTOR_CFLAGS)						\
-	$(GLIB2_CFLAGS)							
+	$(RAPTOR_CFLAGS)
 
 if HAVE_INOTIFY
 inotify_libs = $(top_builddir)/src/libinotify/libinotify.la
