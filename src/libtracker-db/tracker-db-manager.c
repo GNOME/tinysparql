@@ -75,6 +75,7 @@ typedef struct {
 	gboolean	    add_functions;
 	gboolean	    attached;
 	gboolean	    is_index;
+	guint64             mtime;
 } TrackerDBDefinition;
 
 static TrackerDBDefinition dbs[] = {
@@ -88,7 +89,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  FALSE,
 	  FALSE,
-	  FALSE },
+	  FALSE,
+ 	  0 },
 	{ TRACKER_DB_COMMON,
 	  TRACKER_DB_LOCATION_USER_DATA_DIR,
 	  NULL,
@@ -99,7 +101,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  FALSE,
 	  FALSE,
-	  FALSE },
+	  FALSE,
+ 	  0 },
 	{ TRACKER_DB_CACHE,
 	  TRACKER_DB_LOCATION_SYS_TMP_DIR,
 	  NULL,
@@ -110,7 +113,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
 	  FALSE,
-	  FALSE },
+	  FALSE,
+ 	  0 },
 	{ TRACKER_DB_FILE_METADATA,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -121,7 +125,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
 	  FALSE,
-	  FALSE },
+	  FALSE,
+ 	  0 },
 	{ TRACKER_DB_FILE_FULLTEXT,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -132,7 +137,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
 	  FALSE,
-	  TRUE },  
+	  TRUE,
+ 	  0 },
 	{ TRACKER_DB_FILE_CONTENTS,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -143,7 +149,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  FALSE,
 	  FALSE,
-	  FALSE },
+	  FALSE,
+ 	  0 },
 	{ TRACKER_DB_EMAIL_METADATA,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -153,7 +160,8 @@ static TrackerDBDefinition dbs[] = {
 	  512,
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
-	  FALSE},
+	  FALSE,
+ 	  0 },
 	{ TRACKER_DB_EMAIL_FULLTEXT,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -164,7 +172,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
 	  FALSE,
-	  TRUE},
+	  TRUE,
+ 	  0 },
 	{ TRACKER_DB_EMAIL_CONTENTS,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -175,7 +184,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  FALSE,
 	  FALSE,
-	  FALSE },
+	  FALSE,
+ 	  0 },
 	{ TRACKER_DB_XESAM,
 	  TRACKER_DB_LOCATION_DATA_DIR,
 	  NULL,
@@ -186,7 +196,8 @@ static TrackerDBDefinition dbs[] = {
 	  TRACKER_DB_PAGE_SIZE_DEFAULT,
 	  TRUE,
 	  FALSE,
-	  FALSE },
+	  FALSE,
+ 	  0 },
 };
 
 static gboolean		   db_exec_no_reply    (TrackerDBInterface *iface,
@@ -1924,7 +1935,6 @@ db_interface_get_common (void)
 	iface = db_interface_get (TRACKER_DB_COMMON, &create);
 
 	if (create) {
-
 		GDir        *services;
 		const gchar *conf_file;
 
@@ -1948,7 +1958,6 @@ db_interface_get_common (void)
 		conf_file = g_dir_read_name (services);
 
 		while (conf_file) {
-
 			if (!strcmp (conf_file, "default.service") ||
 			    !strcmp (conf_file, "default.metadata") || 
 			    g_str_has_prefix (conf_file, "xesam")) {
@@ -2394,7 +2403,6 @@ db_interface_create (TrackerDB db)
 			    db_type_to_string (db));
 		return NULL;
 	}
-
 }
 
 static void
@@ -2473,6 +2481,26 @@ db_set_version (void)
 	g_free (filename);
 }
 
+static void
+db_manager_analyze (TrackerDB db)
+{
+	TrackerDBInterface *iface;
+	guint64             current_mtime;
+
+	current_mtime = tracker_file_get_mtime (dbs[db].abs_filename);
+
+	if (current_mtime > dbs[db].mtime) {
+		g_message ("  Analyzing DB:'%s'", dbs[db].name);
+		iface = tracker_db_manager_get_db_interface (db);
+		db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
+
+		/* Remember current mtime for future */
+		dbs[db].mtime = current_mtime;
+	} else {
+		g_message ("  Not updating DB:'%s', no changes since last optimize", dbs[db].name);
+	}
+}
+
 GType
 tracker_db_get_type (void)
 {
@@ -2529,9 +2557,6 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 	if (initialized) {
 		return;
 	}
-
-	if (shared_cache)
-		tracker_db_interface_sqlite_enable_shared_cache ();
 
 	need_reindex = FALSE;
 
@@ -2625,6 +2650,12 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		}
 	}
 
+	/* Set general database options */
+	if (shared_cache) {
+		g_message ("Enabling database shared cache");
+		tracker_db_interface_sqlite_enable_shared_cache ();
+	}
+
 	/* Add prepared queries */
 	prepared_queries = g_hash_table_new_full (g_str_hash,
 						  g_str_equal,
@@ -2693,6 +2724,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
 		dbs[i].iface = db_interface_create (i);
+		dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
 	}
 
 	initialized = TRUE;
@@ -2773,10 +2805,8 @@ tracker_db_manager_remove_all (void)
 void
 tracker_db_manager_optimize (void)
 {
-	TrackerDBInterface *iface;
-	TrackerDB           db;
-	gboolean            dbs_are_open = FALSE;
-	guint               i;
+	gboolean dbs_are_open = FALSE;
+	guint    i;
 
 	g_return_if_fail (initialized != FALSE);
 
@@ -2800,19 +2830,9 @@ tracker_db_manager_optimize (void)
 		return;
 	}
 
-	/* Optimize the file content database first */
-	db = TRACKER_DB_FILE_METADATA;
-
-	g_message ("  Analyzing DB:'%s'", dbs[db].name);
-	iface = tracker_db_manager_get_db_interface (db);
-	db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
-
-	/* Optimize the email contents database second */
-	db = TRACKER_DB_EMAIL_METADATA;
-
-	g_message ("  Analyzing DB:'%s'", dbs[db].name);
-	iface = tracker_db_manager_get_db_interface (db);
-	db_exec_no_reply (iface, "ANALYZE %s.Services", dbs[db].name);
+	/* Optimize the file/email content databases */
+	db_manager_analyze (TRACKER_DB_FILE_METADATA);
+	db_manager_analyze (TRACKER_DB_EMAIL_METADATA);
 }
 
 const gchar *
@@ -2947,7 +2967,6 @@ tracker_db_manager_get_db_interface_by_service (const gchar *service)
 
 	switch (type) {
 	case TRACKER_DB_TYPE_EMAIL:
-
 		if (!email_iface) {
 			email_iface = tracker_db_manager_get_db_interfaces (4,
 									    TRACKER_DB_COMMON,
@@ -2981,8 +3000,9 @@ tracker_db_manager_get_db_interface_by_service (const gchar *service)
 	case TRACKER_DB_TYPE_CONTENT:
 	case TRACKER_DB_TYPE_CACHE:
 	case TRACKER_DB_TYPE_USER:
-		g_warning ("Defaulting to Files DB. Strange DB Type for service %s", 
+		g_warning ("Defaulting to Files DB. Strange DB Type for service '%s'", 
 			   service);
+
 	case TRACKER_DB_TYPE_FILES:
 	default:
 		if (!file_iface) {
@@ -3019,16 +3039,16 @@ tracker_db_manager_get_db_interface_by_type (const gchar	  *service,
 		} else {
 			db = TRACKER_DB_EMAIL_CONTENTS;
 		}
-
 		break;
+
 	case TRACKER_DB_TYPE_FILES:
 		if (content_type == TRACKER_DB_CONTENT_TYPE_METADATA) {
 			db = TRACKER_DB_FILE_METADATA;
 		} else {
 			db = TRACKER_DB_FILE_CONTENTS;
 		}
-
 		break;
+
 	case TRACKER_DB_TYPE_UNKNOWN:
 	case TRACKER_DB_TYPE_DATA:
 	case TRACKER_DB_TYPE_INDEX:

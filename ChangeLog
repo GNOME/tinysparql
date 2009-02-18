@@ -1,5 +1,11 @@
 2009-02-18  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-db/tracker-db-manager.c: Don't optimize the
+	database(s) unless there have been changes committed to them. This
+	fixes NB#101296.
+
+2009-02-18  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c: Reset stats after we issue
 	finished signal.
 	
