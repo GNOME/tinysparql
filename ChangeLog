@@ -1,5 +1,12 @@
 2009-02-18  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c: Reset stats after we issue
+	finished signal.
+	
+	* src/trackerd/tracker-processor.c: Small code cleanup.
+
+2009-02-18  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-common/tracker-file-utils.[ch]: Removed unused
 	functions. 
 

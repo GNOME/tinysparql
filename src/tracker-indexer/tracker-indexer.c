@@ -697,6 +697,12 @@ check_stopped (TrackerIndexer *indexer,
 		       indexer->private->items_processed,
 		       indexer->private->items_indexed,
 		       interrupted);
+
+	/* Reset stats */
+	indexer->private->items_processed = 0;
+	indexer->private->items_indexed = 0;
+	indexer->private->items_to_index = 0;
+	indexer->private->subelements_processed = 0;
 }
 
 static gboolean

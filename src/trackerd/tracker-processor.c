@@ -1082,7 +1082,7 @@ indexer_status_cb (DBusGProxy  *proxy,
 		   gpointer	user_data)
 {
 	TrackerProcessor *processor;
-	TrackerDBIndex	 *lindex;
+	TrackerDBIndex	 *index;
 	GQueue		 *queue;
 	GFile		 *file;
 	gchar		 *path = NULL;
@@ -1123,11 +1123,11 @@ indexer_status_cb (DBusGProxy  *proxy,
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
-	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	tracker_db_index_set_reload (lindex, TRUE);
+	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
+	tracker_db_index_set_reload (index, TRUE);
 
-	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-	tracker_db_index_set_reload (lindex, TRUE);
+	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	tracker_db_index_set_reload (index, TRUE);
 
 	/* Message to the console about state */
 	str1 = tracker_seconds_estimate_to_string (seconds_elapsed,
@@ -1157,7 +1157,7 @@ indexer_finished_cb (DBusGProxy  *proxy,
 		     gpointer	  user_data)
 {
 	TrackerProcessor *processor;
-	TrackerDBIndex	 *lindex;
+	TrackerDBIndex	 *index;
 	GObject		 *object;
 	gchar		 *str;
 
@@ -1182,11 +1182,11 @@ indexer_finished_cb (DBusGProxy  *proxy,
 	 * module_name->index type so we don't do this for both
 	 * every time:
 	 */
-	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	tracker_db_index_set_reload (lindex, TRUE);
+	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
+	tracker_db_index_set_reload (index, TRUE);
 
-	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-	tracker_db_index_set_reload (lindex, TRUE);
+	index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
+	tracker_db_index_set_reload (index, TRUE);
 
 	/* Message to the console about state */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
