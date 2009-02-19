@@ -42,7 +42,9 @@ main (int argc, char **argv) {
 	g_test_message ("Testing extract functionality");
 	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extract-data",
 			 test_tracker_extract_check_extract_data);
-#if 0
+#if 1
+	TrackerExtractData *data;
+
 	data = tracker_test_extract_get_extract ("audio/mpeg");
 
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v1_basic",
@@ -63,7 +65,7 @@ main (int argc, char **argv) {
 
 	if (g_test_perf()) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/performance_cbr",
-				      data, performance_tracker_extract_mp3);	
+				      data, test_tracker_extract_mp3_performance);	
 	}
 #endif
 

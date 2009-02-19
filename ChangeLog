@@ -1,5 +1,10 @@
 2009-02-19  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-jpeg.c: Error handling
+	changed not to abort anymore in jpeg extraction in case of failures.
+
+2009-02-19  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-gstreamer-playbin.c
 	* src/tracker-extract/tracker-extract-gstreamer-tagreadbin.c
 	* src/tracker-extract/tracker-extract-gstreamer.c: Switched

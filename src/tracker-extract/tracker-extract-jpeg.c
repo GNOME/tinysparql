@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <setjmp.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -106,6 +107,19 @@ static TagType tags[] = {
 	{ EXIF_TAG_COPYRIGHT, "File:Copyright", NULL },
 	{ -1, NULL, NULL }
 };
+
+struct tej_error_mgr 
+{
+	struct jpeg_error_mgr jpeg;
+	jmp_buf setjmp_buffer;
+};
+
+static void tracker_extract_jpeg_error_exit (j_common_ptr cinfo)
+{
+    struct tej_error_mgr *h = (struct tej_error_mgr *)cinfo->err;
+    (*cinfo->err->output_message)(cinfo);
+    longjmp(h->setjmp_buffer, 1);
+}
 
 static gchar *
 date_to_iso8601 (const gchar *date)
@@ -252,7 +266,7 @@ extract_jpeg (const gchar *filename,
 	size_t	     size;
 
 	struct jpeg_decompress_struct  cinfo;
-	struct jpeg_error_mgr	       jerr;
+	struct tej_error_mgr	       tejerr;
 	struct jpeg_marker_struct     *marker;
 	FILE			      *jpeg;
 	gint			       fd_jpeg;
@@ -277,16 +291,21 @@ extract_jpeg (const gchar *filename,
 		gchar *str;
 		gsize  len;
 
-		cinfo.err = jpeg_std_error (&jerr);
-		jpeg_create_decompress (&cinfo);
+		cinfo.err = jpeg_std_error (&tejerr.jpeg);
+		tejerr.jpeg.error_exit = tracker_extract_jpeg_error_exit;
+		if (setjmp(tejerr.setjmp_buffer)) {
+			goto fail;
+		}
 
+		jpeg_create_decompress (&cinfo);
+		
 		jpeg_save_markers (&cinfo, JPEG_COM, 0xFFFF);
 		jpeg_save_markers (&cinfo, JPEG_APP0 + 1, 0xFFFF);
-
+		
 		jpeg_stdio_src (&cinfo, jpeg);
-
+		
 		jpeg_read_header (&cinfo, TRUE);
-
+		
 		/* FIXME? It is possible that there are markers after SOS,
 		 * but there shouldn't be. Should we decompress the whole file?
 		 *
@@ -294,22 +313,22 @@ extract_jpeg (const gchar *filename,
 		 * jpeg_finish_decompress(&cinfo);
 		 *
 		 * jpeg_calc_output_dimensions(&cinfo);
-		*/
-
+		 */
+		
 		marker = (struct jpeg_marker_struct *) &cinfo.marker_list;
-
+		
 		while (marker) {
 			switch (marker->marker) {
 			case JPEG_COM:
 				len = marker->data_length;
 				str = g_strndup ((gchar*) marker->data, len);
-
+				
 				g_hash_table_insert (metadata,
 						     g_strdup ("Image:Comments"),
 						     tracker_escape_metadata (str));
 				g_free (str);
 				break;
-
+				
 			case JPEG_APP0+1:
 #ifdef HAVE_LIBEXIF
 				if (strncmp ("Exif", (gchar*) (marker->data), 5) == 0) {
@@ -363,7 +382,7 @@ extract_jpeg (const gchar *filename,
 		}
 
 		jpeg_destroy_decompress (&cinfo);
-
+	fail:
 		fclose (jpeg);
 	} else {
 		close (fd_jpeg);
