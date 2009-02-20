@@ -57,8 +57,8 @@ CREATE TABLE  ServiceMetaData
 	ServiceID		Integer not null,
 	MetaDataID 		Integer  not null,
 	MetaDataValue     	Text,
-	MetaDataDisplay		Text
-
+	MetaDataDisplay		Text,
+	MetaDataCollation	Text
 );
 
 CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceID, MetaDataID, MetaDataDisplay);
