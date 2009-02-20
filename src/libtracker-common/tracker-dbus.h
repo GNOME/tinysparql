@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DBUS_H__
-#define __LIBTRACKER_DBUS_H__
+#ifndef __LIBTRACKER_COMMON_DBUS_H__
+#define __LIBTRACKER_COMMON_DBUS_H__
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
@@ -123,4 +123,4 @@ void		 tracker_dbus_request_debug	     (gint			  request_id,
 
 G_END_DECLS
 
-#endif /* __LIBTRACKER_DBUS_H__ */
+#endif /* __LIBTRACKER_COMMON_DBUS_H__ */

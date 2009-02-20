@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_FIELD_H__
-#define __TRACKERD_FIELD_H__
+#ifndef __LIBTRACKER_COMMON_FIELD_H__
+#define __LIBTRACKER_COMMON_FIELD_H__
 
 #include <glib-object.h>
 
@@ -112,5 +112,5 @@ void		 tracker_field_append_child_id	   (TrackerField     *field,
 
 G_END_DECLS
 
-#endif /* __TRACKERD_FIELD_H__ */
+#endif /* __LIBTRACKER_COMMON_FIELD_H__ */
 

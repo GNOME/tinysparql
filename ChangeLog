@@ -1,3 +1,13 @@
+2009-02-20  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-dbus.[ch]:
+	* src/libtracker-common/tracker-field.h:
+	* src/libtracker-common/tracker-ontology.h:
+	* src/libtracker-common/tracker-parser.h:
+	* src/libtracker-common/tracker-service.h: Fixed the #defines for
+	these headers so they don't possibly conflict with same name
+	headers in the future.
+
 2009-02-19  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-jpeg.c: Error handling

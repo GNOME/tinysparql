@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_ONTOLOGY_H__
-#define __TRACKERD_ONTOLOGY_H__
+#ifndef __LIBTRACKER_COMMON_ONTOLOGY_H__
+#define __LIBTRACKER_COMMON_ONTOLOGY_H__
 
 #include <glib-object.h>
 
@@ -81,5 +81,5 @@ gboolean	tracker_ontology_field_is_child_of		(const gchar	*child,
 
 G_END_DECLS
 
-#endif /* __TRACKERD_ONTOLOGY_H__ */
+#endif /* __LIBTRACKER_COMMON_ONTOLOGY_H__ */
 

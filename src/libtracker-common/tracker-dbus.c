@@ -19,9 +19,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "tracker-dbus.h"
-
 #include <gio/gio.h>
+
+#include "tracker-dbus.h"
 
 struct TrackerDBusRequestHandler {
 	TrackerDBusRequestFunc new;

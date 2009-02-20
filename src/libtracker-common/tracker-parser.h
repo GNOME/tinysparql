@@ -19,8 +19,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKERD_PARSER_H__
-#define __TRACKERD_PARSER_H__
+#ifndef __LIBTRACKER_TRACKER_COMMON_PARSER_H__
+#define __LIBTRACKER_TRACKER_COMMON_PARSER_H__
 
 #include <glib.h>
 
