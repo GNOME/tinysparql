@@ -44,6 +44,7 @@
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
+#include "tracker-iptc.h"
 
 #ifdef HAVE_EXEMPI
 #define XMP_NAMESPACE	     "http://ns.adobe.com/xap/1.0/\x00"
@@ -55,6 +56,12 @@
 #define EXIF_DATE_FORMAT "%Y:%m:%d %H:%M:%S"
 #endif /* HAVE_LIBEXIF */
 
+#ifdef HAVE_LIBIPTCDATA
+#define PS3_NAMESPACE	     "Photoshop 3.0\0"
+#define PS3_NAMESPACE_LENGTH 14
+#include <libiptcdata/iptc-jpeg.h>
+#endif /* HAVE_LIBIPTCDATA */
+
 static void extract_jpeg (const gchar *filename,
 			  GHashTable  *metadata);
 
@@ -62,6 +69,19 @@ static TrackerExtractData data[] = {
 	{ "image/jpeg", extract_jpeg },
 	{ NULL, NULL }
 };
+
+struct tej_error_mgr 
+{
+	struct jpeg_error_mgr jpeg;
+	jmp_buf setjmp_buffer;
+};
+
+static void tracker_extract_jpeg_error_exit (j_common_ptr cinfo)
+{
+    struct tej_error_mgr *h = (struct tej_error_mgr *)cinfo->err;
+    (*cinfo->err->output_message)(cinfo);
+    longjmp(h->setjmp_buffer, 1);
+}
 
 #ifdef HAVE_LIBEXIF
 
@@ -108,18 +128,9 @@ static TagType tags[] = {
 	{ -1, NULL, NULL }
 };
 
-struct tej_error_mgr 
-{
-	struct jpeg_error_mgr jpeg;
-	jmp_buf setjmp_buffer;
-};
+#endif /* HAVE_EXIF */
 
-static void tracker_extract_jpeg_error_exit (j_common_ptr cinfo)
-{
-    struct tej_error_mgr *h = (struct tej_error_mgr *)cinfo->err;
-    (*cinfo->err->output_message)(cinfo);
-    longjmp(h->setjmp_buffer, 1);
-}
+#ifdef HAVE_LIBEXIF
 
 static gchar *
 date_to_iso8601 (const gchar *date)
@@ -258,6 +269,7 @@ read_exif (const unsigned char *buffer,
 
 #endif /* HAVE_LIBEXIF */
 
+
 static void
 extract_jpeg (const gchar *filename,
 	      GHashTable  *metadata)
@@ -290,6 +302,8 @@ extract_jpeg (const gchar *filename,
 	if ((jpeg = fdopen (fd_jpeg, "rb"))) {
 		gchar *str;
 		gsize  len;
+		gsize  offset;
+		gsize  sublen;
 
 		cinfo.err = jpeg_std_error (&tejerr.jpeg);
 		tejerr.jpeg.error_exit = tracker_extract_jpeg_error_exit;
@@ -301,6 +315,7 @@ extract_jpeg (const gchar *filename,
 		
 		jpeg_save_markers (&cinfo, JPEG_COM, 0xFFFF);
 		jpeg_save_markers (&cinfo, JPEG_APP0 + 1, 0xFFFF);
+		jpeg_save_markers (&cinfo, JPEG_APP0 + 13, 0xFFFF);
 		
 		jpeg_stdio_src (&cinfo, jpeg);
 		
@@ -330,6 +345,9 @@ extract_jpeg (const gchar *filename,
 				break;
 				
 			case JPEG_APP0+1:
+				str = (gchar*) marker->data;
+				len = marker->data_length;
+
 #ifdef HAVE_LIBEXIF
 				if (strncmp ("Exif", (gchar*) (marker->data), 5) == 0) {
 					read_exif ((unsigned char*) marker->data,
@@ -339,8 +357,6 @@ extract_jpeg (const gchar *filename,
 #endif /* HAVE_LIBEXIF */
 
 #ifdef HAVE_EXEMPI
-				str = (gchar*) marker->data;
-				len = marker->data_length;
 
 				if (strncmp (XMP_NAMESPACE, str, XMP_NAMESPACE_LENGTH) == 0) {
 					tracker_read_xmp (str + XMP_NAMESPACE_LENGTH,
@@ -349,7 +365,20 @@ extract_jpeg (const gchar *filename,
 				}
 #endif /* HAVE_EXEMPI */
 				break;
-
+			case JPEG_APP0+13:
+				str = (gchar*) marker->data;
+				len = marker->data_length;
+#ifdef HAVE_LIBIPTCDATA
+				if (strncmp (PS3_NAMESPACE, str, PS3_NAMESPACE_LENGTH) == 0) {
+					offset = iptc_jpeg_ps3_find_iptc (str, len, &sublen);
+					if (offset>0) {
+						tracker_read_iptc (str + offset,
+								   sublen,
+								   metadata);
+					}
+				}
+#endif /* HAVE_LIBIPTCDATA */
+				break;
 			default:
 				marker = marker->next;
 				continue;

@@ -32,8 +32,8 @@
 
 #include "tracker-main.h"
 #include "tracker-xmp.h"
+#include "tracker-iptc.h"
 
-#define XMP_NAMESPACE_LENGTH 29
 #define EXIF_DATE_FORMAT     "%Y:%m:%d %H:%M:%S"
 
 typedef gchar * (*PostProcessor) (gchar *);
@@ -123,6 +123,11 @@ extract_tiff (const gchar *filename,
 
 	gfloat vardouble;
 
+#ifdef HAVE_LIBIPTCDATA
+	gchar   *iptcOffset;
+	guint32  iptcSize;
+#endif
+
 #ifdef HAVE_EXEMPI
 	gchar *xmpOffset;
 	guint32 size;
@@ -133,9 +138,18 @@ extract_tiff (const gchar *filename,
 		return;
 	}
 
+#ifdef HAVE_LIBIPTCDATA
+	if (TIFFGetField (image, TIFFTAG_RICHTIFFIPTC, &iptcSize, &iptcOffset)) {
+		if (TIFFIsByteSwapped(image) != 0) 
+			TIFFSwabArrayOfLong((uint32 *) iptcOffset,(unsigned long) iptcSize);
+		tracker_read_iptc (iptcOffset,
+				   4*iptcSize,
+				   metadata);
+	}
+#endif /* HAVE_LIBIPTCDATA */
+
 	/* FIXME There are problems between XMP data embedded with different tools
 	   due to bugs in the original spec (type) */
-
 #ifdef HAVE_EXEMPI
 	if (TIFFGetField (image, TIFFTAG_XMLPACKET, &size, &xmpOffset)) {
 		tracker_read_xmp (xmpOffset,

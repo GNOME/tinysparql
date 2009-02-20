@@ -894,6 +894,39 @@ fi
 AM_CONDITIONAL(HAVE_EXIF, test "x$have_libexif" = "xyes")
 
 ##################################################################
+# Check for libiptcdata
+##################################################################
+
+AC_ARG_ENABLE(libiptcdata, 
+              AS_HELP_STRING([--disable-libiptcdata],
+		             [disable extractor for iptc data]),,
+	      [enable_libiptcdata=auto])
+
+if test "x$enable_libiptcdata" != "xno" ; then
+   PKG_CHECK_MODULES(LIBIPTCDATA, 
+	             [libiptcdata],
+		     [have_libiptcdata=yes],
+		     [have_libiptcdata=no])
+
+   AC_SUBST(LIBIPTCDATA_CFLAGS)
+   AC_SUBST(LIBIPTCDATA_LIBS)
+
+   if test "x$have_libiptcdata" = "xyes"; then
+      AC_DEFINE(HAVE_LIBIPTCDATA, [], [Define if we have libiptcdata])
+   fi
+else
+   have_libiptcdata="no  (disabled)"
+fi
+
+if test "x$enable_libiptcdata" = "xyes"; then
+   if test "x$have_libiptcdata" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libiptcdata.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_IPTC, test "x$have_libiptcdata" = "xyes")
+
+##################################################################
 # Check for libgsf
 ##################################################################
 
@@ -1329,8 +1362,8 @@ Metadata Extractors:
 
 	Support PNG:				yes
 	Support PDF:				$have_poppler_glib
-	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif)
-	Support TIFF:				$have_libtiff (xmp: $have_exempi, exif: yes)
+	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
+	Support TIFF:				$have_libtiff (xmp: $have_exempi, exif: yes, iptc: $have_libiptcdata)
 	Support MS & Open Office (gsf):	        $have_libgsf
 	Support XML / HTML formats:		$have_libxml2
 	Support embedded / sidecar XMP:		$have_exempi
