@@ -1,11 +1,11 @@
 2009-02-20  Mikael Ottela  <mikael.ottela@ixonos.com>
 
-	configure.ac
-	src/tracker-extract/tracker-extract-jpeg.c  
-	src/tracker-extract/tracker-iptc.c          
-	src/tracker-extract/Makefile.am             
-	src/tracker-extract/tracker-extract-tiff.c  
-	src/tracker-extract/tracker-iptc.h: Added iptc support for tiff
+	* configure.ac:
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-iptc.c:
+	* src/tracker-extract/Makefile.am:
+	* src/tracker-extract/tracker-extract-tiff.c:
+	* src/tracker-extract/tracker-iptc.h: Added iptc support for tiff
 	and jpeg.
 	
 2009-02-20  Martyn Russell  <martyn@imendio.com>
