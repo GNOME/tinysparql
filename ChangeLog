@@ -1,4 +1,11 @@
 2009-02-20  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-schema.c                                         
+	* src/libtracker-data/tracker-field-data.c                                          
+	* src/libtracker-data/tracker-field-data.h: Added support for
+	order-fields.
+
+2009-02-20  Mikael Ottela  <mikael.ottela@ixonos.com>
 	
 	* data/db/sqlite-stored-procs.sql: 
 	* data/db/sqlite-service.sql: Added collation column to

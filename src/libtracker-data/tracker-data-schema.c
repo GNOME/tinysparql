@@ -221,6 +221,7 @@ tracker_data_schema_get_metadata_field (TrackerDBInterface *iface,
 		const gchar *table_name;
 		gchar	    *this_field_name;
 		gchar	    *where_field;
+		gchar       *order_field;
 
 		field_data = g_object_new (TRACKER_TYPE_FIELD_DATA,
 					   "is-select", is_select,
@@ -273,6 +274,18 @@ tracker_data_schema_get_metadata_field (TrackerDBInterface *iface,
 		}
 
 		tracker_field_data_set_where_field (field_data, where_field);
+
+		if ((tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_DOUBLE) ||
+		    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_INDEX)  ||
+		    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_STRING)) {
+			order_field = g_strdup_printf ("M%d.MetaDataCollation", field_count);
+			tracker_field_data_set_needs_join (field_data, TRUE);			
+		} else {
+			order_field = g_strdup_printf ("M%d.MetaDataValue", field_count);
+		}
+		
+		tracker_field_data_set_order_field (field_data, order_field);
+		
 		tracker_field_data_set_needs_null (field_data, FALSE);
 		g_free (where_field);
 		g_free (alias);

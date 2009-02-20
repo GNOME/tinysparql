@@ -55,6 +55,7 @@ const gchar *	  tracker_field_data_get_table_name	 (TrackerFieldData *field_data
 const gchar *	  tracker_field_data_get_field_name	 (TrackerFieldData *field_data);
 const gchar *	  tracker_field_data_get_select_field	 (TrackerFieldData *field_data);
 const gchar *	  tracker_field_data_get_where_field	 (TrackerFieldData *field_data);
+const gchar *     tracker_field_data_get_order_field     (TrackerFieldData *field_data);
 const gchar *	  tracker_field_data_get_id_field	 (TrackerFieldData *field_data);
 TrackerFieldType  tracker_field_data_get_data_type	 (TrackerFieldData *field_data);
 gboolean	  tracker_field_data_get_multiple_values (TrackerFieldData *field_data);
@@ -72,6 +73,8 @@ void		  tracker_field_data_set_field_name	 (TrackerFieldData *field_data,
 void		  tracker_field_data_set_select_field	 (TrackerFieldData *field_data,
 							  const gchar	   *value);
 void		  tracker_field_data_set_where_field	 (TrackerFieldData *field_data,
+							  const gchar	   *value);
+void		  tracker_field_data_set_order_field	 (TrackerFieldData *field_data,
 							  const gchar	   *value);
 void		  tracker_field_data_set_id_field	 (TrackerFieldData *field_data,
 							  const gchar	   *value);
