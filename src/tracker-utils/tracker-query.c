@@ -42,6 +42,7 @@ static gchar	     *search;
 static gchar	    **fields;
 static gchar	     *service;
 static gchar	    **keywords;
+static gchar        **order;
 static gint	      limit = 512;
 static gint	      offset;
 
@@ -68,6 +69,10 @@ static GOptionEntry   entries[] = {
 	},
 	{ "keyword", 'k', 0, G_OPTION_ARG_STRING_ARRAY, &keywords,
 	  N_("Adds a keyword filter"),
+	  NULL
+	},
+	{ "order", 'r', 0, G_OPTION_ARG_STRING_ARRAY, &order,
+	  N_("Adds an order field"),
 	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 0,
@@ -223,7 +228,7 @@ main (int argc, char **argv)
 				      offset,
 				      limit,
 				      FALSE,
-				      NULL,
+				      order,
 				      FALSE,
 				      &error);
 	g_free (buffer);

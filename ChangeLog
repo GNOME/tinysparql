@@ -1,3 +1,10 @@
+2009-02-23  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-utils/tracker-query.c
+	* src/libtracker-data/tracker-data-search.c
+	* src/libtracker-data/tracker-rdf-query.c: Use the
+	MetadataCollation for sorting rather than the display field.
+
 2009-02-23  Martyn Russell  <martyn@imendio.com>
 
 	* python/deskbar-handler/README: Removed. Was 0 bytes.

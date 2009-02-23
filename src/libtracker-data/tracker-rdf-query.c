@@ -1338,7 +1338,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			}
 
 			g_string_append_printf (data.sql_order, "%s %s",
-						tracker_field_data_get_select_field (field_data),
+						tracker_field_data_get_order_field (field_data),
 						sort_desc ? "DESC" : "ASC");
 		}
 	}

@@ -788,7 +788,7 @@ tracker_data_search_get_unique_values (const gchar  *service_type,
 
 		g_string_append_printf (sql_select, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 		g_string_append_printf (sql_order, " %s %s",
-					tracker_field_data_get_select_field (fd),
+					tracker_field_data_get_order_field (fd),
 					order_desc ? "DESC" : "ASC" );
 	}
 
@@ -914,7 +914,7 @@ tracker_data_search_get_unique_values_with_count (const gchar  *service_type,
 
 		g_string_append_printf (sql_select, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 		g_string_append_printf (sql_order, " %s %s",
-					tracker_field_data_get_select_field (fd),
+					tracker_field_data_get_order_field (fd),
 					order_desc ? "DESC" : "ASC" );
 		g_string_append_printf (sql_group, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 
@@ -1074,7 +1074,7 @@ tracker_data_search_get_unique_values_with_count_and_sum (const gchar	      *ser
 
 		g_string_append_printf (sql_select, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 		g_string_append_printf (sql_order, " %s %s",
-					tracker_field_data_get_select_field (fd),
+					tracker_field_data_get_order_field (fd),
 					order_desc ? "DESC" : "ASC" );
 		g_string_append_printf (sql_group, "COALESCE(%s,'')", tracker_field_data_get_select_field (fd));
 
