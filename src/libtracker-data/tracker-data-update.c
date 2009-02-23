@@ -359,8 +359,11 @@ tracker_data_update_set_metadata (TrackerService *service,
 	TrackerDBInterface *iface;
 	gint metadata_key;
 	gchar *id_str;
+	gchar *collation_key;
 
 	id_str = tracker_guint32_to_string (service_id);
+	collation_key = g_utf8_collate_key (value, -1);
+
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);
 
@@ -383,6 +386,7 @@ tracker_data_update_set_metadata (TrackerService *service,
 							tracker_field_get_id (field),
 							parsed_value,
 							value,
+							collation_key,
 							NULL);
 		break;
 
@@ -430,6 +434,7 @@ tracker_data_update_set_metadata (TrackerService *service,
 						    service_id);
 	}
 
+	g_free (collation_key);
 	g_free (id_str);
 }
 

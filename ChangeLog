@@ -1,5 +1,13 @@
 2009-02-23  Martyn Russell  <martyn@imendio.com>
 
+	* data/db/sqlite-stored-procs.sql: Updated ServiceMetadata queries
+	to use "Display" field instead of "Value" field where it makes sense.
+	
+	* src/libtracker-data/tracker-data-update.c: Write ServiceMetadata
+	collation data to the table.
+
+2009-02-23  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac:
 	* data/Makefile.am:
 	* docs/manpages/Makefile.am:

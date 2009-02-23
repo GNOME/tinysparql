@@ -63,8 +63,8 @@ SaveServiceContents            REPLACE INTO ServiceContents (ServiceID, Metadata
 /*
  * Metadata/MIME queries
  */
-GetUserMetadataBackup          SELECT S.Path || '/' || S.Name, T.TypeName, M.MetadataID, M.MetadataDisplay From Services S, ServiceMetadata M, ServiceTypes T WHERE (S.ID == M.ServiceID) AND (S.ServiceTypeID == T.TypeID) AND (M.MetadataID IN (SELECT ID From MetadataTypes WHERE Embedded = 0)) UNION SELECT S.Path || '/' || S.Name, T.TypeName, M.MetadataID, upper(M.MetadataValue) From Services S, ServiceNumericMetadata M, ServiceTypes T WHERE (S.ID == M.ServiceID) AND (S.ServiceTypeID == T.TypeID) AND (M.MetadataID IN (SELECT ID From MetadataTypes WHERE Embedded = 0)) UNION SELECT S.Path || '/' || S.Name, T.Typename, M.MetadataID, M.MetadataValue From Services S, ServiceKeywordMetadata M, ServiceTypes T WHERE (S.ID == M.ServiceID) AND (S.ServiceTypeID == T.TypeID) AND (M.MetadataID IN (SELECT ID From MetadataTypes WHERE Embedded = 0));
-GetAllMetadata                 SELECT MetadataID, MetadataDisplay FROM ServiceMetadata WHERE ServiceID = ? UNION SELECT MetadataID, MetadataValue FROM ServiceKeywordMetadata WHERE ServiceID = ? UNION SELECT MetadataID, upper(MetadataValue) FROM ServiceNumericMetadata WHERE ServiceID = ?;
+GetUserMetadataBackup          SELECT S.Path || '/' || S.Name, T.TypeName, M.MetadataID, M.MetadataDisplay FROM Services S, ServiceMetadata M, ServiceTypes T WHERE (S.ID == M.ServiceID) AND (S.ServiceTypeID == T.TypeID) AND (M.MetadataID IN (SELECT ID From MetadataTypes WHERE Embedded = 0)) UNION SELECT S.Path || '/' || S.Name, T.TypeName, M.MetadataID, M.MetadataValue FROM Services S, ServiceNumericMetadata M, ServiceTypes T WHERE (S.ID == M.ServiceID) AND (S.ServiceTypeID == T.TypeID) AND (M.MetadataID IN (SELECT ID From MetadataTypes WHERE Embedded = 0)) UNION SELECT S.Path || '/' || S.Name, T.Typename, M.MetadataID, M.MetadataValue FROM Services S, ServiceKeywordMetadata M, ServiceTypes T WHERE (S.ID == M.ServiceID) AND (S.ServiceTypeID == T.TypeID) AND (M.MetadataID IN (SELECT ID From MetadataTypes WHERE Embedded = 0));
+GetAllMetadata                 SELECT MetadataID, MetadataDisplay FROM ServiceMetadata WHERE ServiceID = ? UNION SELECT MetadataID, MetadataValue FROM ServiceKeywordMetadata WHERE ServiceID = ? UNION SELECT MetadataID, MetadataValue FROM ServiceNumericMetadata WHERE ServiceID = ?;
 GetMetadata                    SELECT MetaDataDisplay FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 GetMetadataAliases             SELECT DISTINCT M.MetaName, M.ID FROM MetaDataTypes AS M, MetaDataChildren AS C WHERE M.ID = C.ChildID AND C.MetaDataID = ?; 
 GetMetadataAliasesForName      SELECT DISTINCT M.MetaName, M.ID FROM MetaDataTypes AS M, MetaDataChildren AS C WHERE M.ID = C.ChildID AND C.MetaDataID = (SELECT ID FROM MetaDataTypes WHERE MetaName = ?) UNION SELECT M.MetaName, M.ID FROM MetaDataTypes AS M WHERE M.MetaName = ?; 
@@ -72,7 +72,7 @@ GetMetadataKeyword             SELECT MetaDataValue FROM ServiceKeywordMetaData 
 GetMetadataNumeric             SELECT MetaDataValue FROM ServiceNumericMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 GetMetadataTypes               SELECT ID, MetaName, DataTypeID, FieldName, Weight, Embedded, MultipleValues, Delimited, Filtered, Abstract FROM MetaDataTypes;
 
-SetMetadata                    INSERT INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue, MetaDataDisplay, MetaDataCollation) VALUES (?,?,?,?,'');
+SetMetadata                    INSERT INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue, MetaDataDisplay, MetaDataCollation) VALUES (?,?,?,?,?);
 SetMetadataKeyword             INSERT INTO ServiceKeywordMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
 SetMetadataNumeric             INSERT INTO ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
 
