@@ -1,3 +1,7 @@
+2009-02-23  Martyn Russell  <martyn@imendio.com>
+
+	* python/deskbar-handler/README: Removed. Was 0 bytes.
+
 2009-02-20  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-schema.c                                         
