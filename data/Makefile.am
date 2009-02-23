@@ -18,7 +18,7 @@ pkgconfig_DATA = 			\
 	tracker.pc			\
 	tracker-module-1.0.pc
 
-if ENABLE_LIBTRACKERGTK
+if HAVE_LIBTRACKERGTK
 pkgconfig_DATA += libtracker-gtk.pc
 endif
 

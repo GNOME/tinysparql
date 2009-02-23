@@ -1,14 +1,14 @@
 include $(top_srcdir)/Makefile.decl
 
-if HAVE_GNOME
+if HAVE_TRACKER_SEARCH_TOOL
 tst = tracker-search-tool.1
 endif
 
-if ENABLE_TRACKER_APPLET
+if HAVE_TRACKER_APPLET
 ta = tracker-applet.1
 endif
 
-if ENABLE_TRACKER_PREFERENCES
+if HAVE_TRACKER_PREFERENCES
 tp = tracker-preferences.1
 endif
 
@@ -31,5 +31,4 @@ man_MANS = 			\
 	$(ta)			\
 	$(tp)
 
-EXTRA_DIST = $(man_MANS)
-	
+EXTRA_DIST = $(man_MANS)	

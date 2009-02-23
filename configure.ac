@@ -107,9 +107,12 @@ fi
 DBUS_REQUIRED=0.60
 GLIB_REQUIRED=2.16.0
 PANGO_REQUIRED=1.0.0
+GTK_REQUIRED=2.8.0
+GLADE_REQUIRED=2.5
 QDBM_REQUIRED=1.8
 GMIME_REQUIRED=2.1.0
 LIBXML2_REQUIRED=0.6
+LIBNOTIFY_REQUIRED=0.4.3
 HAL_REQUIRED=0.5
 GDKPIXBUF_REQUIRED=2.12.0
 UNAC_REQUIRED=1.0.0
@@ -122,6 +125,9 @@ EXEMPI_REQUIRED=1.99.2
 HILDON_THUMBNAIL_REQUIRED=3.0.10
 EVO_REQUIRED=2.25.5
 EDS_REQUIRED=2.25.5
+LIBGNOME_DESKTOP_REQUIRED=2.9.91
+LIBGNOME_REQUIRED=2.13.2
+LIBGNOMEUI_REQUIRED=2.13.7
 
 # Library Checks
 PKG_CHECK_MODULES(GLIB2, [glib-2.0 >= $GLIB_REQUIRED])
@@ -232,21 +238,21 @@ fi
 # (as) options when merging to vstore. Thanks!
 
 AC_ARG_ENABLE([evolution_push_module],
-              AS_HELP_STRING([--enable-evolution-push-module=ARG],
+              AS_HELP_STRING([--enable-evolution-push-module=@<:@no/yes/auto@:>@],
                              [enable support for Evolution push mechanism]),,
               [enable_evolution_push_module=no])
 
 AM_CONDITIONAL(USING_EVOLUTION_PUSH_MODULE, test "x$enable_evolution_push_module" = "xyes")
 
 AC_ARG_ENABLE([kmail_push_module],
-              AS_HELP_STRING([--enable-kmail-push-module=ARG],
+              AS_HELP_STRING([--enable-kmail-push-module=@<:@no/yes/auto@:>@],
                              [enable support for KMail push mechanism]),,
               [enable_kmail_push_module=no])
 
 AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
 
 AC_ARG_ENABLE([rss_push_module],
-              AS_HELP_STRING([--enable-rss-push-module=ARG],
+              AS_HELP_STRING([--enable-rss-push-module=@<:@no/yes/auto@:>@],
                              [enable support for RSS push mechanism]),,
               [enable_rss_push_module=no])
 
@@ -257,56 +263,59 @@ AM_CONDITIONAL(USING_RSS_PUSH_MODULE, test "x$enable_rss_push_module" = "xyes")
 ####################################################################
 
 AC_ARG_ENABLE([deskbar_applet],
-              AS_HELP_STRING([--enable-deskbar-applet=ARG], 
+              AS_HELP_STRING([--enable-deskbar-applet=@<:@no/yes/auto@:>@], 
 	      		     [enable support for Deskbar applet]),,
               [enable_deskbar_applet=auto])
 
-if test "x$enable_deskbar_applet" = "xauto" ; then
+if test "x$enable_deskbar_applet" != "xno" ; then
    if pkg-config --atleast-version=2.19 deskbar-applet ; then
-      enable_deskbar_applet="module"
+      have_deskbar_applet="module"
    elif pkg-config --atleast-version=2.16 deskbar-applet ; then
-      enable_deskbar_applet="handler"
+      have_deskbar_applet="handler"
    else
-      enable_deskbar_applet="no"
+      have_deskbar_applet="no"
    fi
 fi
 
-AM_CONDITIONAL(USING_DESKBAR_HANDLER, test "x$enable_deskbar_applet" = "xhandler")
-AM_CONDITIONAL(USING_DESKBAR_MODULE, test "x$enable_deskbar_applet" = "xmodule")
+if test "x$enable_deskbar_applet" = "xyes"; then
+   if test "x$have_deskbar_applet" = "xno"; then
+      AC_MSG_ERROR([Couldn't find deskbar-applet >= 2.16.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_DESKBAR_APPLET_HANDLER, test "x$have_deskbar_applet" = "xhandler")
+AM_CONDITIONAL(HAVE_DESKBAR_APPLET_MODULE, test "x$have_deskbar_applet" = "xmodule")
 
 AC_ARG_WITH([deskbar_applet_dir],
             AS_HELP_STRING([--with-deskbar-applet-dir], 
 	    		   [Path to Deskbar handler/module directory]))
 
-if test "x$enable_deskbar_applet" = "xhandler" ; then
-   if test "x$with_deskbar_applet_dir" = "x" ; then
-      handler_dir="`pkg-config --variable handlersdir deskbar-applet`"
+if test "x$have_deskbar_applet" = "xhandler"; then
+   if test -z "x$with_deskbar_applet_dir"; then
+      deskbar_applet_dir="`pkg-config --variable handlersdir deskbar-applet`"
    else
-      handler_dir="$with_deskbar_applet_dir"
+      deskbar_applet_dir="$with_deskbar_applet_dir"
    fi
 
-   if test "x$handler_dir" = "x" ; then
-      handler_dir="\$(exec_prefix)/lib/deskbar-applet/handlers"
+   if test -z "$deskbar_applet_dir"; then
+      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/handlers"
    fi
 fi
 
-DESKBAR_HANDLER_DIR="$handler_dir"
-AC_SUBST(DESKBAR_HANDLER_DIR)
-
-if test "x$enable_deskbar_applet" = "xmodule" ; then
-   if test "x$with_deskbar_applet_dir" = "x" ; then
-       module_dir="`pkg-config --variable modulesdir deskbar-applet`"
+if test "x$have_deskbar_applet" = "xmodule"; then
+   if test -z "$with_deskbar_applet_dir"; then
+       deskbar_applet_dir="`pkg-config --variable modulesdir deskbar-applet`"
    else
-       module_dir="$with_deskbar_applet_dir"
+       deskbar_applet_dir="$with_deskbar_applet_dir"
    fi
 
-   if test "x$module_dir" = "x" ; then
-      module_dir="\$(exec_prefix)/lib/deskbar-applet/modules-2.20-compatible"
+   if test -z "$module_dir"; then
+      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/modules-2.20-compatible"
    fi
 fi
 
-DESKBAR_MODULE_DIR="$module_dir"
-AC_SUBST(DESKBAR_MODULE_DIR)
+DESKBAR_APPLET_DIR="$deskbar_applet_dir"
+AC_SUBST(DESKBAR_APPLET_DIR)
 
 ####################################################################
 # gettext/intltool support
@@ -669,40 +678,37 @@ AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
 # Enable building libtracker-gtk?
 ##################################################################
 
-LIBTRACKERGTK_GTK_REQUIRED=2.8.20
-
 AC_ARG_ENABLE([libtrackergtk], 
               AS_HELP_STRING([--disable-libtrackergtk], 
 	      		     [disable libtrackergtk]),,
 	      [enable_libtrackergtk=yes])
 
 if test "x$enable_libtrackergtk" != "xno" ; then
-   libtrackergtk_modules="\
-        	glib-2.0    >=  $GLIB_REQUIRED, \
-        	gtk+-2.0    >=  $LIBTRACKERGTK_GTK_REQUIRED, \
-        	dbus-1      >=  $DBUS_REQUIRED, \
-        	dbus-glib-1 >=  $DBUS_REQUIRED"
-
-   PKG_CHECK_MODULES(LIBTRACKERGTK, 
-		     [$libtrackergtk_modules],
-		     [enable_libtrackergtk=yes], 
-		     [enable_libtrackergtk=no])
+   PKG_CHECK_MODULES(LIBTRACKERGTK, [
+		     glib-2.0    >= $GLIB_REQUIRED
+		     gtk+-2.0    >= $GTK_REQUIRED
+        	     dbus-1      >= $DBUS_REQUIRED
+        	     dbus-glib-1 >= $DBUS_REQUIRED],
+		     [have_libtrackergtk=yes], 
+   		     [have_libtrackergtk=no])
 
    AC_SUBST([LIBTRACKERGTK_CFLAGS])
    AC_SUBST([LIBTRACKERGTK_LIBS])
 else
-   enable_libtrackergtk="no  (disabled)"
+   have_libtrackergtk="no  (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_LIBTRACKERGTK, test "$enable_libtrackergtk" = "yes")
+if test "x$enable_libtrackergtk" = "xyes"; then
+   if test "x$have_libtrackergtk" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libtracker_gtk dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED).])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
 
 ##################################################################
 # Enable building tracker-applet notification icon?
 ##################################################################
-
-LIBNOTIFY_GTK2_REQUIRED=2.10
-LIBNOTIFY_GLIB_REQUIRED=2.10
-LIBNOTIFY_REQUIRED=0.4.3
 
 AC_ARG_ENABLE([tracker-applet], 
 	      AS_HELP_STRING([--disable-tracker-applet], 
@@ -710,81 +716,84 @@ AC_ARG_ENABLE([tracker-applet],
 	      [enable_tracker_applet=yes])
 
 if test "x$enable_tracker_applet" != "xno" ; then
-   tracker_applet_modules="\
-        	glib-2.0    >=  $LIBNOTIFY_GLIB_REQUIRED, \
-        	gtk+-2.0    >=  $LIBNOTIFY_GTK2_REQUIRED, \
-        	dbus-1      >=  $DBUS_REQUIRED, \
-        	dbus-glib-1 >=  $DBUS_REQUIRED, \
-		libnotify   >=  $LIBNOTIFY_REQUIRED"
-
-   PKG_CHECK_MODULES(TRACKER_APPLET, 
-   		     [$tracker_applet_modules],
-		     [enable_tracker_applet=yes], 
-   		     [enable_tracker_applet=no])
+   PKG_CHECK_MODULES(TRACKER_APPLET, [
+		     glib-2.0    >= $GLIB_REQUIRED
+		     gtk+-2.0    >= $GTK_REQUIRED
+        	     dbus-1      >= $DBUS_REQUIRED
+        	     dbus-glib-1 >= $DBUS_REQUIRED
+		     libnotify   >= $LIBNOTIFY_REQUIRED],
+		     [have_tracker_applet=yes], 
+   		     [have_tracker_applet=no])
 
    AC_SUBST([TRACKER_APPLET_CFLAGS])
    AC_SUBST([TRACKER_APPLET_LIBS])
 else
-   enable_tracker_applet="no  (disabled)"
+   have_tracker_applet="no  (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_TRACKER_APPLET, test "$enable_tracker_applet" = "yes")
+if test "x$enable_tracker_applet" = "xyes"; then
+   if test "x$have_tracker_applet" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-applet dependencies (glib-2.0 >= $GLIB_REQUIRED, gtk+-2.0 >= $GTK_REQUIRED, dbus-1 >= $DBUS_REQUIRED, dbus-glib-1 >= $DBUS_REQUIRED, libnotify >= $LIBNOTIFY_REQUIRED).])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_APPLET, test "$have_tracker_applet" = "yes")
 
 ##################################################################
 # Check for GNOME/GTK dependencies to build tracker search tool
 ##################################################################
 
-GTK_REQUIRED=2.8.0
-LIBGNOME_DESKTOP_REQUIRED=2.9.91
-LIBGNOME_REQUIRED=2.13.2
-LIBGNOMEUI_REQUIRED=2.13.7
-
 AC_ARG_ENABLE(tracker-search-tool, 
               AS_HELP_STRING([--disable-tracker-search-tool], 
 	      		     [disable tracker-search-tool]),,
-	      [enable_tracker_search_tool=yes])
+	      [enable_tracker_search_tool=auto])
 
-if test "x$enable_tracker_search_tool" = "xyes"; then
+if test "x$enable_tracker_search_tool" != "xno"; then
    PKG_CHECK_MODULES(GNOME_UTILS, 
-		     [gtk+-2.0 >= $GTK_REQUIRED
-	              libgnome-2.0 >= $LIBGNOME_REQUIRED
+		     [libgnome-2.0 >= $LIBGNOME_REQUIRED
 		      libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED],
-	             [have_gnome=yes], 
-		     [have_gnome=no])
-
-   if test "$have_gnome" = "yes"; then
-      PKG_CHECK_MODULES(GNOMEDESKTOP, 
-			[gnome-desktop-2.0 >= $LIBGNOME_DESKTOP_REQUIRED],
-        		[have_gnome=yes], 
-			[have_gnome=no])
-   fi
+	             [have_gnome_libs=yes], 
+		     [have_gnome_libs=no])
 
    AC_SUBST(GNOME_UTILS_CFLAGS)
    AC_SUBST(GNOME_UTILS_LIBS)
 
+   PKG_CHECK_MODULES(GNOMEDESKTOP, 
+  		     [gnome-desktop-2.0 >= $LIBGNOME_DESKTOP_REQUIRED],
+        	     [have_gnome_desktop=yes], 
+	 	     [have_gnome_desktop=no])
+
    AC_SUBST(GNOMEDESKTOP_CFLAGS)
    AC_SUBST(GNOMEDESKTOP_LIBS)
+
+   if test "x$have_gnome_libs" != "xyes"; then
+      tracker_search_tool_error="Couldn't find GNOME library dependencies (libgnome-2.0 >= $LIBGNOME_REQUIRED, libgnomeui-2.0 >= $LIBGNOMEUI_REQUIRED)."
+      have_tracker_search_tool="no"
+   elif test "x$have_gnome_desktop" != "xyes"; then
+      tracker_search_tool_error="Couldn't find GNOME desktop dependencies (gnome-desktop-2.0 >= $LIBGNOME_DESKTOP_REQUIRED)."
+      have_tracker_search_tool="no"
+   elif test "x$have_libtrackergtk" != "xyes"; then
+      tracker_search_tool_error="Not building tracker-search-tool because libtracker-gtk is disabled or missing dependencies."
+      have_tracker_search_tool="no"
+   else 
+      have_tracker_search_tool="yes"
+      GNOME_COMMON_INIT
+   fi
 else
-   have_gnome="no  (disabled)"
+   have_tracker_search_tool="no  (disabled)"
 fi
 
-# Do not build if libtracker-gtk is not being built
-if test "x$enable_libtrackergtk" != "xyes"; then
-   have_gnome="no  (disabled as libtracker-gtk is not being built)"
+if test "x$enable_tracker_search_tool" = "xyes"; then
+   if test "x$have_tracker_search_tool" != "xyes"; then
+      AC_MSG_ERROR([$tracker_search_tool_error])
+   fi
 fi
 
-AM_CONDITIONAL(HAVE_GNOME, test "$have_gnome" = "yes")
-
-if test "$have_gnome" = "yes"; then
-   GNOME_COMMON_INIT
-fi
+AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes")
 
 ##################################################################
 # Checks for tracker-preferences
 ##################################################################
-
-PREFERENCES_GLADE_REQUIRED=2.5
-PREFERENCES_GTK_REQUIRED=2.8.0
 
 AC_ARG_ENABLE([tracker-preferences],
               AS_HELP_STRING([--disable-tracker-preferences], 
@@ -793,37 +802,43 @@ AC_ARG_ENABLE([tracker-preferences],
 
 if test "x$enable_tracker_preferences" != "xno" ; then
    PKG_CHECK_MODULES(GLIB2, 
-   	             [glib-2.0 >= $PREFERENCES_GLIB_REQUIRED],
-		     [enable_preference=yes], 
-		     [enable_preference=no])
+   	             [glib-2.0 >= $GLIB_REQUIRED],
+		     [have_tracker_preferences=yes], 
+		     [have_tracker_preferences=no])
 
    AC_SUBST([GLIB2_CFLAGS])
    AC_SUBST([GLIB2_LIBS])
 
-   if test "$enable_tracker_preferences" = "yes"; then
+   if test "$have_tracker_preferences" = "yes"; then
       PKG_CHECK_MODULES(GTK2, 
-      			[gtk+-2.0 >= $PREFERENCES_GTK_REQUIRED],
-			[enable_preference=yes], 
-			[enable_preference=no])
+      			[gtk+-2.0 >= $GTK_REQUIRED],
+			[have_tracker_preferences=yes], 
+			[have_tracker_preferences=no])
 
       AC_SUBST([GTK2_CFLAGS])
       AC_SUBST([GTK2_LIBS])
    fi
 
-   if test "$enable_tracker_preferences" = "yes"; then
+   if test "$have_tracker_preferences" = "yes"; then
       PKG_CHECK_MODULES(LIBGLADE,  
-      		        [libglade-2.0 >= $PREFERENCES_GLADE_REQUIRED], 
-			[enable_tracker_preferences=yes], 
-			[enable_tracker_preferences=no])
+      		        [libglade-2.0 >= $GLADE_REQUIRED], 
+			[have_tracker_preferences=yes], 
+			[have_tracker_preferences=no])
 
       AC_SUBST([LIBGLADE_CFLAGS])
       AC_SUBST([LIBGLADE_LIBS])
    fi
 else
-   enable_tracker_preferences="no  (disabled)"
+   have_tracker_preferences="no  (disabled)"
 fi
 
-AM_CONDITIONAL(ENABLE_TRACKER_PREFERENCES, test "$enable_tracker_preferences" = "yes")
+if test "x$enable_tracker_preferences" = "xyes"; then
+   if test "x$have_tracker_preferences" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find tracker-preferences dependencies (GLib >= $GLIB_REQUIRED, GTK+ >= $GTK_REQUIRED, Libglade >= $GLADE_REQUIRED).])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
 
 ##################################################################
 # Check for poppler's glib bingings
@@ -1342,7 +1357,7 @@ Build Configuration:
 	Win32:					$native_win32
 
 	Enable unit tests:			$have_unit_tests
-	Enable unac accent stripper:	  	$enable_unac
+	Enable unac accent stripper:	  	$have_unac
 
 	Support for file monitoring:           	gio (w/ libinotify: $have_inotify)
 	Support for ioprio:			$have_ioprio
@@ -1352,11 +1367,11 @@ Applications:
 
 	Build with SQLite FTS support:		$enable_sqlite_fts
 
-	Build deskbar-applet:			$enable_deskbar_applet
-	Build tracker-search-tool:	        $have_gnome
-	Build tracker-preferences:		$enable_tracker_preferences
-	Build tracker-applet:	                $enable_tracker_applet
-	Build libtracker-gtk:			$enable_libtrackergtk
+	Build deskbar-applet:			$have_deskbar_applet
+	Build tracker-search-tool:	        $have_tracker_search_tool
+	Build tracker-preferences:		$have_tracker_preferences
+	Build tracker-applet:	                $have_tracker_applet
+	Build libtracker-gtk:			$have_libtrackergtk
 
 Metadata Extractors:
 

@@ -1,9 +1,5 @@
 include $(top_srcdir)/Makefile.decl
 
-if HAVE_GNOME
-build_tracker_search_tool = tracker-search-tool
-endif
-
 if HAVE_INOTIFY
 build_libinotify = libinotify
 endif
@@ -16,16 +12,20 @@ if ENABLE_SQLITE_FTS
 build_sqlite_fts = tracker-fts
 endif
 
-if ENABLE_TRACKER_PREFERENCES
+if HAVE_TRACKER_PREFERENCES
 build_tracker_preferences = tracker-preferences
 endif
 
-if ENABLE_TRACKER_APPLET
+if HAVE_TRACKER_APPLET
 build_tracker_applet = tracker-applet
 endif
 
-if ENABLE_LIBTRACKERGTK
+if HAVE_LIBTRACKERGTK
 build_libtrackergtk = libtracker-gtk
+endif
+
+if HAVE_TRACKER_SEARCH_TOOL
+build_tracker_search_tool = tracker-search-tool
 endif
 
 SUBDIRS = 					\

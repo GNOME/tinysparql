@@ -1,3 +1,16 @@
+2009-02-23  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* data/Makefile.am:
+	* docs/manpages/Makefile.am:
+	* python/deskbar-handler/Makefile.am:
+	* python/deskbar-handler/tracker-module.py:
+	* src/Makefile.am: Fixed tracker-search-tool, tracker-preferences,
+	tracker-applet and the deskbar-applet enable/disable switches in
+	configure. Also fixed the deskbar-applet so it actually errors
+	when using --enable-deskbar-applet instead of doing nothing when
+	we don't have it available.
+
 2009-02-23  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-utils/tracker-query.c
