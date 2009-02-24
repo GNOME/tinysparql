@@ -217,107 +217,6 @@ DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
 ####################################################################
-# PS extractor option
-####################################################################
-
-AC_ARG_ENABLE([unzip_psgz_files],
-              AS_HELP_STRING([--enable-unzip-ps-gz-files=ARG],
-                             [enable gunzipping ps.gz files]),,
-              [enable_unzip_psgz_files=yes])
-
-if test x$enable_unzip_psgz_files == "xyes"; then
-  AC_DEFINE(USING_UNZIPPSFILES, 1, [Unzip ps.gz files])
-fi
-
-
-####################################################################
-# Push modules
-####################################################################
-
-# In vstore we want to make these mandatory, please remove these
-# (as) options when merging to vstore. Thanks!
-
-AC_ARG_ENABLE([evolution_push_module],
-              AS_HELP_STRING([--enable-evolution-push-module=@<:@no/yes/auto@:>@],
-                             [enable support for Evolution push mechanism]),,
-              [enable_evolution_push_module=no])
-
-AM_CONDITIONAL(USING_EVOLUTION_PUSH_MODULE, test "x$enable_evolution_push_module" = "xyes")
-
-AC_ARG_ENABLE([kmail_push_module],
-              AS_HELP_STRING([--enable-kmail-push-module=@<:@no/yes/auto@:>@],
-                             [enable support for KMail push mechanism]),,
-              [enable_kmail_push_module=no])
-
-AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
-
-AC_ARG_ENABLE([rss_push_module],
-              AS_HELP_STRING([--enable-rss-push-module=@<:@no/yes/auto@:>@],
-                             [enable support for RSS push mechanism]),,
-              [enable_rss_push_module=no])
-
-AM_CONDITIONAL(USING_RSS_PUSH_MODULE, test "x$enable_rss_push_module" = "xyes")
-
-####################################################################
-# Deskbar Applet Handler/Module
-####################################################################
-
-AC_ARG_ENABLE([deskbar_applet],
-              AS_HELP_STRING([--enable-deskbar-applet=@<:@no/yes/auto@:>@], 
-	      		     [enable support for Deskbar applet]),,
-              [enable_deskbar_applet=auto])
-
-if test "x$enable_deskbar_applet" != "xno" ; then
-   if pkg-config --atleast-version=2.19 deskbar-applet ; then
-      have_deskbar_applet="module"
-   elif pkg-config --atleast-version=2.16 deskbar-applet ; then
-      have_deskbar_applet="handler"
-   else
-      have_deskbar_applet="no"
-   fi
-fi
-
-if test "x$enable_deskbar_applet" = "xyes"; then
-   if test "x$have_deskbar_applet" = "xno"; then
-      AC_MSG_ERROR([Couldn't find deskbar-applet >= 2.16.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_DESKBAR_APPLET_HANDLER, test "x$have_deskbar_applet" = "xhandler")
-AM_CONDITIONAL(HAVE_DESKBAR_APPLET_MODULE, test "x$have_deskbar_applet" = "xmodule")
-
-AC_ARG_WITH([deskbar_applet_dir],
-            AS_HELP_STRING([--with-deskbar-applet-dir], 
-	    		   [Path to Deskbar handler/module directory]))
-
-if test "x$have_deskbar_applet" = "xhandler"; then
-   if test -z "x$with_deskbar_applet_dir"; then
-      deskbar_applet_dir="`pkg-config --variable handlersdir deskbar-applet`"
-   else
-      deskbar_applet_dir="$with_deskbar_applet_dir"
-   fi
-
-   if test -z "$deskbar_applet_dir"; then
-      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/handlers"
-   fi
-fi
-
-if test "x$have_deskbar_applet" = "xmodule"; then
-   if test -z "$with_deskbar_applet_dir"; then
-       deskbar_applet_dir="`pkg-config --variable modulesdir deskbar-applet`"
-   else
-       deskbar_applet_dir="$with_deskbar_applet_dir"
-   fi
-
-   if test -z "$module_dir"; then
-      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/modules-2.20-compatible"
-   fi
-fi
-
-DESKBAR_APPLET_DIR="$deskbar_applet_dir"
-AC_SUBST(DESKBAR_APPLET_DIR)
-
-####################################################################
 # gettext/intltool support
 ####################################################################
 
@@ -333,8 +232,8 @@ IT_PROG_INTLTOOL([0.35.0])
 ####################################################################
 
 AC_ARG_ENABLE(unit_tests,
-	      AS_HELP_STRING([--enable-unit-tests=@<:@no/yes/auto@:>@],
-			     [enable unit tests]), ,
+	      AS_HELP_STRING([--enable-unit-tests],
+			     [enable unit tests (default=no)]), ,
 	      [enable_unit_tests=no])
 
 if test "x$enable_unit_tests" != "xno" ; then
@@ -371,7 +270,7 @@ AM_CONDITIONAL(HAVE_XESAM_GLIB, test "x$have_xesam_glib" = "xyes")
 
 AC_ARG_ENABLE(external-qdbm, 
 	      AS_HELP_STRING([--enable-external-qdbm],
-			     [enable external QDBM, not our imported version]),,
+			     [enable external QDBM, not our imported version (default=no)]),,
               [enable_external_qdbm=no])
 
 if test "x$enable_external_qdbm" != "xno"; then
@@ -401,38 +300,6 @@ AC_SUBST(QDBM_LIBS)
 AM_CONDITIONAL(HAVE_EXTERNAL_QDBM, test "x$have_external_qdbm" = "xyes")
 
 ##################################################################
-# Check for libxml2
-##################################################################
-
-AC_ARG_ENABLE(libxml2, 
-	      AS_HELP_STRING([--disable-libxml2],
-			     [disable HTML/XML extractors (full-text will still be available)]),,
-	      [enable_libxml2=yes])
-
-if test "x$enable_libxml2" = "xyes"; then
-   PKG_CHECK_MODULES(LIBXML2, 
-	 	    [libxml-2.0 >= $LIBXML2_REQUIRED],
-		    [have_libxml2=yes],
-		    [have_libxml2=no])
-   AC_SUBST(LIBXML2_CFLAGS)
-   AC_SUBST(LIBXML2_LIBS)
-
-   if test "x$have_libxml2" = "xyes"; then
-      AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
-   fi
-else
-   have_libxml2="no  (disabled)"
-fi
-
-if test "x$enable_libxml2" = "xyes"; then
-   if test "x$have_libxml2" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find libxml2 >= $LIBXML2_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
-
-##################################################################
 # Check for HAL
 ##################################################################
 
@@ -441,7 +308,7 @@ AC_ARG_ENABLE(hal,
 			     [disable HAL support for AC power detection]),,
 	      [enable_hal=yes])
 
-if test "x$enable_hal" = "xyes"; then
+if test "x$enable_hal" != "xno"; then
    PKG_CHECK_MODULES(HAL, 
     	  	     [hal >= $HAL_REQUIRED hal-storage], 
 		     [have_hal=yes] , 
@@ -465,12 +332,44 @@ fi
 AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
 
 ##################################################################
+# Check for libxml2
+##################################################################
+
+AC_ARG_ENABLE(libxml2, 
+	      AS_HELP_STRING([--disable-libxml2],
+			     [disable HTML/XML extractors]),,
+	      [enable_libxml2=yes])
+
+if test "x$enable_libxml2" != "xno"; then
+   PKG_CHECK_MODULES(LIBXML2, 
+	 	    [libxml-2.0 >= $LIBXML2_REQUIRED],
+		    [have_libxml2=yes],
+		    [have_libxml2=no])
+   AC_SUBST(LIBXML2_CFLAGS)
+   AC_SUBST(LIBXML2_LIBS)
+
+   if test "x$have_libxml2" = "xyes"; then
+      AC_DEFINE(HAVE_LIBXML2, [], [Define if we have libxml2])
+   fi
+else
+   have_libxml2="no  (disabled)"
+fi
+
+if test "x$enable_libxml2" = "xyes"; then
+   if test "x$have_libxml2" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libxml2 >= $LIBXML2_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBXML2, test "x$have_libxml2" = "xyes")
+
+##################################################################
 # Check for GdkPixbuf, needed for the MP3 album art extractor
 ##################################################################
 
 AC_ARG_ENABLE(gdkpixbuf, 
-	      AS_HELP_STRING([--disable-gdkpixbuf],
-			     [disable GdkPixbuf support, (MP3 album art)]),,
+	      AS_HELP_STRING([--enable-gdkpixbuf],
+			     [enable GdkPixbuf support, (MP3 album art)]),,
 	      [enable_gdkpixbuf=auto])
 
 if test "x$enable_gdkpixbuf" != "xno"; then
@@ -575,7 +474,7 @@ fi
 
 AC_ARG_ENABLE(gstreamer-helix, 
 	      AS_HELP_STRING([--enable-gstreamer-helix],
-			     [enable GStreamer helixbin extractor (Real Media)]),,
+			     [enable GStreamer helix extractor for Real Media (default=no)]),,
 	      [enable_gst_helix=no])
 
 if test "x$enable_gst_helix" != "xno"; then
@@ -647,8 +546,8 @@ AC_SUBST(SQLITE3_LIBS)
 ##################################################################
 
 AC_ARG_ENABLE(unac, 
-	      AS_HELP_STRING([--disable-unac],
-			     [disable UNAC support, required for stripping accents]),,
+	      AS_HELP_STRING([--enable-unac],
+			     [enable UNAC support, required for stripping accents]),,
 	      [enable_unac=auto])
 
 if test "x$enable_unac" != "xno"; then
@@ -674,12 +573,99 @@ fi
 
 AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
 
+####################################################################
+# Push modules
+####################################################################
+
+# In vstore we want to make these mandatory, please remove these
+# (as) options when merging to vstore. Thanks!
+
+AC_ARG_ENABLE([evolution_push_module],
+              AS_HELP_STRING([--enable-evolution-push-module],
+                             [enable support for Evolution push mechanism (default=no)]),,
+              [enable_evolution_push_module=no])
+
+AM_CONDITIONAL(USING_EVOLUTION_PUSH_MODULE, test "x$enable_evolution_push_module" = "xyes")
+
+AC_ARG_ENABLE([kmail_push_module],
+              AS_HELP_STRING([--enable-kmail-push-module],
+                             [enable support for KMail push mechanism (default=no)]),,
+              [enable_kmail_push_module=no])
+
+AM_CONDITIONAL(USING_KMAIL_PUSH_MODULE, test "x$enable_kmail_push_module" = "xyes")
+
+AC_ARG_ENABLE([rss_push_module],
+              AS_HELP_STRING([--enable-rss-push-module],
+                             [enable support for RSS push mechanism (default=no)]),,
+              [enable_rss_push_module=no])
+
+AM_CONDITIONAL(USING_RSS_PUSH_MODULE, test "x$enable_rss_push_module" = "xyes")
+
+####################################################################
+# Deskbar Applet Handler/Module
+####################################################################
+
+AC_ARG_ENABLE([deskbar_applet],
+              AS_HELP_STRING([--enable-deskbar-applet], 
+	      		     [enable support for Deskbar applet]),,
+              [enable_deskbar_applet=auto])
+
+if test "x$enable_deskbar_applet" != "xno" ; then
+   if pkg-config --atleast-version=2.19 deskbar-applet ; then
+      have_deskbar_applet="module"
+   elif pkg-config --atleast-version=2.16 deskbar-applet ; then
+      have_deskbar_applet="handler"
+   else
+      have_deskbar_applet="no"
+   fi
+fi
+
+if test "x$enable_deskbar_applet" = "xyes"; then
+   if test "x$have_deskbar_applet" = "xno"; then
+      AC_MSG_ERROR([Couldn't find deskbar-applet >= 2.16.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_DESKBAR_APPLET_HANDLER, test "x$have_deskbar_applet" = "xhandler")
+AM_CONDITIONAL(HAVE_DESKBAR_APPLET_MODULE, test "x$have_deskbar_applet" = "xmodule")
+
+AC_ARG_WITH([deskbar_applet_dir],
+            AS_HELP_STRING([--with-deskbar-applet-dir], 
+	    		   [Path to Deskbar handler/module directory]))
+
+if test "x$have_deskbar_applet" = "xhandler"; then
+   if test -z "x$with_deskbar_applet_dir"; then
+      deskbar_applet_dir="`pkg-config --variable handlersdir deskbar-applet`"
+   else
+      deskbar_applet_dir="$with_deskbar_applet_dir"
+   fi
+
+   if test -z "$deskbar_applet_dir"; then
+      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/handlers"
+   fi
+fi
+
+if test "x$have_deskbar_applet" = "xmodule"; then
+   if test -z "$with_deskbar_applet_dir"; then
+       deskbar_applet_dir="`pkg-config --variable modulesdir deskbar-applet`"
+   else
+       deskbar_applet_dir="$with_deskbar_applet_dir"
+   fi
+
+   if test -z "$module_dir"; then
+      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/modules-2.20-compatible"
+   fi
+fi
+
+DESKBAR_APPLET_DIR="$deskbar_applet_dir"
+AC_SUBST(DESKBAR_APPLET_DIR)
+
 ##################################################################
 # Enable building libtracker-gtk?
 ##################################################################
 
 AC_ARG_ENABLE([libtrackergtk], 
-              AS_HELP_STRING([--enable-libtrackergtk=@<:@no/yes/auto@:>@], 
+              AS_HELP_STRING([--enable-libtrackergtk], 
 	      		     [enable libtrackergtk]),,
 	      [enable_libtrackergtk=auto])
 
@@ -711,7 +697,7 @@ AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
 ##################################################################
 
 AC_ARG_ENABLE([tracker-applet], 
-	      AS_HELP_STRING([--enable-tracker-applet=@<:@no/yes/auto@:>@], 
+	      AS_HELP_STRING([--enable-tracker-applet], 
 	                     [enable tracker-applet]),,
 	      [enable_tracker_applet=auto])
 
@@ -744,7 +730,7 @@ AM_CONDITIONAL(HAVE_TRACKER_APPLET, test "$have_tracker_applet" = "yes")
 ##################################################################
 
 AC_ARG_ENABLE(tracker-search-tool, 
-              AS_HELP_STRING([--enable-tracker-search-tool=@<:@no/yes/auto@:>@], 
+              AS_HELP_STRING([--enable-tracker-search-tool], 
 	      		     [enable tracker-search-tool]),,
 	      [enable_tracker_search_tool=auto])
 
@@ -796,7 +782,7 @@ AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes
 ##################################################################
 
 AC_ARG_ENABLE([tracker-preferences],
-              AS_HELP_STRING([--enable-tracker-preferences=@<:@no/yes/auto@:>@], 
+              AS_HELP_STRING([--enable-tracker-preferences], 
 	                     [enable the tracker preferences dialog]),,
               [enable_tracker_preferences=auto])
 
@@ -840,13 +826,26 @@ fi
 
 AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
 
+####################################################################
+# PS extractor option
+####################################################################
+
+AC_ARG_ENABLE([unzip_psgz_files],
+              AS_HELP_STRING([--disable-unzip-ps-gz-files],
+                             [disable unzipping ps.gz files]),,
+              [enable_unzip_psgz_files=yes])
+
+if test x$enable_unzip_psgz_files != "xno"; then
+  AC_DEFINE(USING_UNZIPPSFILES, 1, [Unzip ps.gz files])
+fi
+
 ##################################################################
 # Check for poppler's glib bingings
 ##################################################################
 
 AC_ARG_ENABLE(poppler-glib, 
-	      AS_HELP_STRING([--disable-poppler-glib], 
-	      		     [disable extractor for PDF data]),,
+	      AS_HELP_STRING([--enable-poppler-glib], 
+	      		     [enable extractor for PDF data]),,
 	      [enable_poppler_glib=auto])
 
 if test "x$enable_poppler_glib" != "xno" ; then
@@ -880,8 +879,8 @@ AM_CONDITIONAL(HAVE_POPPLER_GLIB, test "x$have_poppler_glib" = "xyes")
 ##################################################################
 
 AC_ARG_ENABLE(libexif, 
-              AS_HELP_STRING([--disable-libexif],
-		             [disable extractor for exif data]),,
+              AS_HELP_STRING([--enable-libexif],
+		             [enable extractor for exif data]),,
 	      [enable_libexif=auto])
 
 if test "x$enable_libexif" != "xno" ; then
@@ -913,8 +912,8 @@ AM_CONDITIONAL(HAVE_EXIF, test "x$have_libexif" = "xyes")
 ##################################################################
 
 AC_ARG_ENABLE(libiptcdata, 
-              AS_HELP_STRING([--disable-libiptcdata],
-		             [disable extractor for iptc data]),,
+              AS_HELP_STRING([--enable-libiptcdata],
+		             [enable extractor for iptc data]),,
 	      [enable_libiptcdata=auto])
 
 if test "x$enable_libiptcdata" != "xno" ; then
@@ -946,8 +945,8 @@ AM_CONDITIONAL(HAVE_IPTC, test "x$have_libiptcdata" = "xyes")
 ##################################################################
 
 AC_ARG_ENABLE(libgsf, 
-              AS_HELP_STRING([--disable-libgsf], 
-	                     [disable extractor for GSF data]),,
+              AS_HELP_STRING([--enable-libgsf], 
+	                     [enable extractor for GSF data]),,
 	      [enable_libgsf=auto])
 
 if test "x$enable_libgsf" != "xno" ; then
@@ -987,8 +986,8 @@ CFLAGS=""
 LIBS=""
 
 AC_ARG_ENABLE(libjpeg, 
-	      AS_HELP_STRING([--disable-libjpeg], 
-	                     [disable extractor for JPEG data]),,
+	      AS_HELP_STRING([--enable-libjpeg], 
+	                     [enable extractor for JPEG data]),,
 	      [enable_libjpeg=auto])
 
 if test "x$enable_libjpeg" != "xno" ; then
@@ -1034,8 +1033,8 @@ CFLAGS=""
 LIBS=""
 
 AC_ARG_ENABLE(libtiff, 
-              AS_HELP_STRING([--disable-libtiff], 
-     	                     [disable extractor for TIFF data]),,
+              AS_HELP_STRING([--enable-libtiff], 
+     	                     [enable extractor for TIFF data]),,
 	      [enable_libtiff=auto])
 
 if test "x$enable_libtiff" != "xno" ; then
@@ -1107,8 +1106,8 @@ AC_MSG_RESULT([$have_ioprio])
 ##################################################################
 
 AC_ARG_ENABLE(exempi, 
-              AS_HELP_STRING([--disable-exempi], 
-	                     [disable extractor for XMP data]),,
+              AS_HELP_STRING([--enable-exempi], 
+	                     [enable extractor for XMP data]),,
 	      [enable_exempi=auto])
 
 if test "x$enable_exempi" != "xno" ; then
@@ -1140,8 +1139,8 @@ AM_CONDITIONAL(HAVE_EXEMPI, test "x$have_exempi" = "xyes")
 ####################################################################
 
 AC_ARG_ENABLE(playlist, 
-	      AS_HELP_STRING([--disable-playlist],
-			     [disable playlist support]),,
+	      AS_HELP_STRING([--enable-playlist],
+			     [enable playlist support]),,
 	      [enable_playlist=auto])
 
 if test "x$enable_playlist" != "xno" ; then
@@ -1211,10 +1210,10 @@ AM_CONDITIONAL(HAVE_EVOLUTION_PLUGIN, test "$have_evolution_plugin" = "yes")
 
 AC_ARG_ENABLE([sqlite_fts],
               AS_HELP_STRING([--enable-sqlite-fts], 
-	                     [enable SQLite FTS support]),,
+	                     [enable SQLite FTS support (default=no)]),,
               [enable_sqlite_fts=no])
 
-if test "x$enable_sqlite_fts" == "xno" ; then
+if test "x$enable_sqlite_fts" != "xyes" ; then
    enable_sqlite_fts="no  (disabled)"
 fi
 

@@ -1,3 +1,7 @@
+2009-02-24  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac: Improve configure switch help.
+
 2009-02-24  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Handle id3v2 tags
