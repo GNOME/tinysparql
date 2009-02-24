@@ -425,7 +425,7 @@ shutdown_timeout_cb (gpointer user_data)
 }
 
 static void
-signal_handler (gint signo)
+signal_handler (int signo)
 {
 	static gboolean in_loop = FALSE;
 
@@ -435,15 +435,6 @@ signal_handler (gint signo)
 	}
 
 	switch (signo) {
-	case SIGSEGV:
-		/* We are screwed if we get this so exit immediately! */
-		exit (EXIT_FAILURE);
-
-	case SIGBUS:
-	case SIGILL:
-	case SIGFPE:
-	case SIGPIPE:
-	case SIGABRT:
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
@@ -451,9 +442,10 @@ signal_handler (gint signo)
 
 	default:
 		if (g_strsignal (signo)) {
-			g_message ("Received signal:%d->'%s'",
-				   signo,
-				   g_strsignal (signo));
+			g_print ("\n");
+			g_print ("Received signal:%d->'%s'",
+				 signo,
+				 g_strsignal (signo));
 		}
 		break;
 	}
@@ -463,8 +455,8 @@ static void
 initialize_signal_handler (void)
 {
 #ifndef G_OS_WIN32
-	struct sigaction   act;
-	sigset_t	   empty_mask;
+	struct sigaction act;
+	sigset_t	 empty_mask;
 
 	sigemptyset (&empty_mask);
 	act.sa_handler = signal_handler;
@@ -472,14 +464,8 @@ initialize_signal_handler (void)
 	act.sa_flags   = 0;
 
 	sigaction (SIGTERM, &act, NULL);
-	sigaction (SIGILL,  &act, NULL);
-	sigaction (SIGBUS,  &act, NULL);
-	sigaction (SIGFPE,  &act, NULL);
-	sigaction (SIGHUP,  &act, NULL);
-	sigaction (SIGSEGV, &act, NULL);
-	sigaction (SIGABRT, &act, NULL);
-	sigaction (SIGUSR1, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
+	sigaction (SIGHUP,  &act, NULL);
 #endif /* G_OS_WIN32 */
 }
 

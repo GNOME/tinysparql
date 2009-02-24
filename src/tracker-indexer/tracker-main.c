@@ -144,24 +144,16 @@ sanity_check_option_values (TrackerConfig *config)
 }
 
 static void
-signal_handler (gint signo)
+signal_handler (int signo)
 {
 	static gboolean in_loop = FALSE;
 
-	/* die if we get re-entrant signals handler calls */
+	/* Die if we get re-entrant signals handler calls */
 	if (in_loop) {
 		exit (EXIT_FAILURE);
 	}
 
 	switch (signo) {
-	case SIGSEGV:
-		/* we are screwed if we get this so exit immediately! */
-		exit (EXIT_FAILURE);
-
-	case SIGBUS:
-	case SIGILL:
-	case SIGFPE:
-	case SIGABRT:
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
@@ -169,7 +161,10 @@ signal_handler (gint signo)
 
 	default:
 		if (g_strsignal (signo)) {
-			g_warning ("Received signal: %s", g_strsignal (signo));
+			g_print ("\n");
+			g_print ("Received signal:%d->'%s'",
+                                 signo,
+                                 g_strsignal (signo));
 		}
 		break;
 	}
@@ -179,7 +174,7 @@ static void
 initialize_signal_handler (void)
 {
 #ifndef G_OS_WIN32
-	struct sigaction act, ign_act;
+	struct sigaction act;
 	sigset_t	 empty_mask;
 
 	sigemptyset (&empty_mask);
@@ -187,21 +182,10 @@ initialize_signal_handler (void)
 	act.sa_mask    = empty_mask;
 	act.sa_flags   = 0;
 
-	ign_act.sa_handler = SIG_IGN;
-	ign_act.sa_mask = empty_mask;
-	ign_act.sa_flags = 0;
-
 	sigaction (SIGTERM, &act, NULL);
-	sigaction (SIGILL,  &act, NULL);
-	sigaction (SIGBUS,  &act, NULL);
-	sigaction (SIGFPE,  &act, NULL);
-	sigaction (SIGHUP,  &act, NULL);
-	sigaction (SIGSEGV, &act, NULL);
-	sigaction (SIGABRT, &act, NULL);
-	sigaction (SIGUSR1, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
-	sigaction (SIGPIPE, &ign_act, NULL);
-#endif
+	sigaction (SIGHUP,  &act, NULL);
+#endif /* G_OS_WIN32 */
 }
 
 static void
@@ -442,14 +426,12 @@ main (gint argc, gchar *argv[])
 
 	g_message ("Starting...");
 
-
 	main_loop = g_main_loop_new (NULL, FALSE);
 	g_main_loop_run (main_loop);
 
 	g_message ("Shutdown started");
 
 	tracker_turtle_shutdown ();
-
 
 	if (quit_timeout_id) {
 		g_source_remove (quit_timeout_id);

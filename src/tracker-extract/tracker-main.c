@@ -25,6 +25,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <signal.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -122,6 +123,51 @@ initialize_directories (void)
 	g_free (user_data_dir);
 }
 
+static void
+signal_handler (int signo)
+{
+	static gboolean in_loop = FALSE;
+
+	/* Die if we get re-entrant signals handler calls */
+	if (in_loop) {
+		exit (EXIT_FAILURE);
+	}
+
+	switch (signo) {
+	case SIGTERM:
+	case SIGINT:
+		in_loop = TRUE;
+		quit_timeout_cb (NULL);
+
+	default:
+		if (g_strsignal (signo)) {
+			g_print ("\n");
+			g_print ("Received signal:%d->'%s'",
+				 signo,
+				 g_strsignal (signo));
+		}
+		break;
+	}
+}
+
+static void
+initialize_signal_handler (void)
+{
+#ifndef G_OS_WIN32
+	struct sigaction act;
+	sigset_t	 empty_mask;
+
+	sigemptyset (&empty_mask);
+	act.sa_handler = signal_handler;
+	act.sa_mask    = empty_mask;
+	act.sa_flags   = 0;
+
+	sigaction (SIGTERM, &act, NULL);
+	sigaction (SIGINT,  &act, NULL);
+	sigaction (SIGHUP,  &act, NULL);
+#endif /* G_OS_WIN32 */
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -158,6 +204,8 @@ main (int argc, char *argv[])
 	g_option_context_free (context);
 
 	g_print ("\n" ABOUT "\n" LICENSE "\n");
+
+	initialize_signal_handler ();
 
 	tracker_memory_setrlimits ();
 

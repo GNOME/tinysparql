@@ -1,5 +1,15 @@
 2009-02-24  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-main.c:
+	* src/tracker-indexer/tracker-main.c: 
+	* src/tracker-utils/tracker-status.c:
+	* src/trackerd/tracker-main.c: Don't handle signals SIGSEGV,
+	SIGBUS, SIGILL, SIGFPE, SIGABRT, instead let a core file be
+	generated for those. We only handle SIGINT, SIGTERM and SIGHUP.
+	Fixes NB#102800.
+
+2009-02-24  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac: Make tracker-preferences, tracker-applet,
 	tracker-search-tool and libtrackergtk all "auto" so we don't error
 	for people that just want Tracker without a user interface.
