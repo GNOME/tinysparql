@@ -1071,25 +1071,15 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 		current = &g_array_index (array, TrackerDBIndexItem, i);
 
 		if (current->id == service_id) {
+			guint32 serv_type;
+
 			/* The word was already found in the same
-			 * service_id (file), increase score
+			 * service_id (file), modify score
 			 */
 			new_score = tracker_db_index_item_get_score (current) + weight;
-			if (new_score < 1) {
-				array = g_array_remove_index (array, i);
-				if (array->len == 0) {
-					g_hash_table_remove (priv->cache, word);
-				}
-			} else {
-				guint32 serv_type;
 
-				serv_type =
-					tracker_db_index_item_get_service_type (current);
-				current->amalgamated =
-					tracker_db_index_item_calc_amalgamated (serv_type,
-										new_score);
-			}
-
+			serv_type = tracker_db_index_item_get_service_type (current);
+			current->amalgamated = tracker_db_index_item_calc_amalgamated (serv_type, new_score);
 
 			return;
 		}
@@ -1097,7 +1087,6 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 
 	/* First time in the file */
 	g_array_append_val (array, elem);
-
 }
 
 /*
