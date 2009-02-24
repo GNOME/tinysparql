@@ -107,7 +107,7 @@ fi
 DBUS_REQUIRED=0.60
 GLIB_REQUIRED=2.16.0
 PANGO_REQUIRED=1.0.0
-GTK_REQUIRED=2.8.0
+GTK_REQUIRED=2.20.0
 GLADE_REQUIRED=2.5
 QDBM_REQUIRED=1.8
 GMIME_REQUIRED=2.1.0
@@ -679,9 +679,9 @@ AM_CONDITIONAL(HAVE_UNAC, test "x$have_unac" = "xyes")
 ##################################################################
 
 AC_ARG_ENABLE([libtrackergtk], 
-              AS_HELP_STRING([--disable-libtrackergtk], 
-	      		     [disable libtrackergtk]),,
-	      [enable_libtrackergtk=yes])
+              AS_HELP_STRING([--enable-libtrackergtk=@<:@no/yes/auto@:>@], 
+	      		     [enable libtrackergtk]),,
+	      [enable_libtrackergtk=auto])
 
 if test "x$enable_libtrackergtk" != "xno" ; then
    PKG_CHECK_MODULES(LIBTRACKERGTK, [
@@ -711,9 +711,9 @@ AM_CONDITIONAL(HAVE_LIBTRACKERGTK, test "$have_libtrackergtk" = "yes")
 ##################################################################
 
 AC_ARG_ENABLE([tracker-applet], 
-	      AS_HELP_STRING([--disable-tracker-applet], 
-	                     [disable tracker-applet]),,
-	      [enable_tracker_applet=yes])
+	      AS_HELP_STRING([--enable-tracker-applet=@<:@no/yes/auto@:>@], 
+	                     [enable tracker-applet]),,
+	      [enable_tracker_applet=auto])
 
 if test "x$enable_tracker_applet" != "xno" ; then
    PKG_CHECK_MODULES(TRACKER_APPLET, [
@@ -744,8 +744,8 @@ AM_CONDITIONAL(HAVE_TRACKER_APPLET, test "$have_tracker_applet" = "yes")
 ##################################################################
 
 AC_ARG_ENABLE(tracker-search-tool, 
-              AS_HELP_STRING([--disable-tracker-search-tool], 
-	      		     [disable tracker-search-tool]),,
+              AS_HELP_STRING([--enable-tracker-search-tool=@<:@no/yes/auto@:>@], 
+	      		     [enable tracker-search-tool]),,
 	      [enable_tracker_search_tool=auto])
 
 if test "x$enable_tracker_search_tool" != "xno"; then
@@ -796,9 +796,9 @@ AM_CONDITIONAL(HAVE_TRACKER_SEARCH_TOOL, test "$have_tracker_search_tool" = "yes
 ##################################################################
 
 AC_ARG_ENABLE([tracker-preferences],
-              AS_HELP_STRING([--disable-tracker-preferences], 
-	                     [disable the tracker preferences dialog]),,
-              [enable_tracker_preferences=yes])
+              AS_HELP_STRING([--enable-tracker-preferences=@<:@no/yes/auto@:>@], 
+	                     [enable the tracker preferences dialog]),,
+              [enable_tracker_preferences=auto])
 
 if test "x$enable_tracker_preferences" != "xno" ; then
    PKG_CHECK_MODULES(GLIB2, 

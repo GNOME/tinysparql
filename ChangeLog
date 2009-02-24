@@ -1,3 +1,9 @@
+2009-02-24  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac: Make tracker-preferences, tracker-applet,
+	tracker-search-tool and libtrackergtk all "auto" so we don't error
+	for people that just want Tracker without a user interface.
+
 2009-02-23  Martyn Russell  <martyn@imendio.com>
 
 	* data/db/sqlite-stored-procs.sql: Updated ServiceMetadata queries
