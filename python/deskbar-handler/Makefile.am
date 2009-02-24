@@ -15,5 +15,4 @@ endif
 EXTRA_DIST = 				\
 	tracker-handler.py 		\
 	tracker-handler-static.py 	\
-	tracker-module.py 		\
-	README
+	tracker-module.py
