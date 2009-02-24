@@ -212,8 +212,6 @@ get_file_metadata (TrackerExtract *extract,
 	path_in_locale = g_filename_from_utf8 (path_used, -1, NULL, NULL, NULL);
 	g_free (path_used);
 
-	while (TRUE);
-
 	if (!path_in_locale) {
 		g_warning ("Could not convert path from UTF-8 to locale");
 		g_free (path_used);
