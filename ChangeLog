@@ -1,5 +1,13 @@
 2009-02-24  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c: If we don't get an mtime
+	for a file, don't then just return, make sure it is removed from
+	the DB. Reduced debugging so we don't print twice that we aren't
+	changing the DB for each file. Improved function names and
+	debugging to make more sense. Fixes NB#98297 too.
+
+2009-02-24  Martyn Russell  <martyn@imendio.com>
+
 	* data/db/sqlite-stored-procs.sql:
 	* data/db/sqlite-tracker.sql: 
 	* src/libtracker-data/tracker-data-update.[ch]:

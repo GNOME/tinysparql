@@ -2106,10 +2106,10 @@ handle_metadata_remove (TrackerIndexer *indexer,
 }
 
 static gboolean
-should_index_file (TrackerIndexer *indexer,
-		   PathInfo	  *info,
-		   const gchar	  *dirname,
-		   const gchar	  *basename)
+should_change_index_for_file (TrackerIndexer *indexer,
+			      PathInfo	  *info,
+			      const gchar	  *dirname,
+			      const gchar	  *basename)
 {
 	TrackerService *service;
 	gchar *path;
@@ -2142,16 +2142,16 @@ should_index_file (TrackerIndexer *indexer,
 	path = g_file_get_path (info->file);
 	current_mtime = tracker_file_get_mtime (path);
 
-	/* Don't attempt to index the file if we couldn't even get the
-	 * current mtime for it.
+	/* NOTE: We return TRUE here because we want to update the DB
+	 * about this file, not because we want to index it.
 	 */
 	if (current_mtime == 0) {
 		g_free (path);
-		return FALSE;
+		return TRUE;
 	}
 
 	if (current_mtime <= db_mtime) {
-		g_debug ("'%s' has indifferent mtime and should not be indexed", path);
+		g_debug ("'%s' is already up to date in DB, not (re)indexing", path);
 		g_free (path);
 
 		return FALSE;
@@ -2221,19 +2221,16 @@ process_file (TrackerIndexer *indexer,
 	 * email based dirname.
 	 */
 	if (G_LIKELY (!info->source_file) && dirname[0] == G_DIR_SEPARATOR) {
-		if (!should_index_file (indexer, info, dirname, basename)) {
+		if (!should_change_index_for_file (indexer, info, dirname, basename)) {
 			gchar *path;
 
 			indexer->private->items_processed++;
 
 			path = g_file_get_path (info->file);
 
-			g_debug ("File is already up to date: '%s'", path);
-
 			g_free (dirname);
 			g_free (basename);
 			g_free (path);
-
 
 			return TRUE;
 		}
