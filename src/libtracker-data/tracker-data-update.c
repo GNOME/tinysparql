@@ -90,54 +90,6 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 }
 
 void
-tracker_data_update_increment_stats (TrackerDBInterface *iface,
-				     TrackerService     *service)
-{
-	const gchar *service_type, *parent;
-
-	service_type = tracker_service_get_name (service);
-	parent = tracker_service_get_parent (service);
-
-	tracker_db_interface_execute_procedure (iface,
-						NULL,
-						"IncStat",
-						service_type,
-						NULL);
-
-	if (parent) {
-		tracker_db_interface_execute_procedure (iface,
-							NULL,
-							"IncStat",
-							parent,
-							NULL);
-	}
-}
-
-void
-tracker_data_update_decrement_stats (TrackerDBInterface *iface,
-				     TrackerService     *service)
-{
-	const gchar *service_type, *parent;
-
-	service_type = tracker_service_get_name (service);
-	parent = tracker_service_get_parent (service);
-
-	tracker_db_interface_execute_procedure (iface,
-						NULL,
-						"DecStat",
-						service_type,
-						NULL);
-
-	if (parent) {
-		tracker_db_interface_execute_procedure (iface,
-							NULL,
-							"DecStat",
-							parent,
-							NULL);
-	}
-}
-
-void
 tracker_data_update_create_event (TrackerDBInterface *iface,
 				  guint32 service_id,
 				  const gchar *type)
@@ -163,7 +115,7 @@ tracker_data_update_create_service (TrackerService *service,
 {
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
-	guint32	volume_id = 0;
+	guint32	volume_id = 1;
 	gchar *id_str, *service_type_id_str, *path, *volume_id_str;
 	gboolean is_dir, is_symlink;
 

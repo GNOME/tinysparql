@@ -15,7 +15,7 @@ insert Into Options (OptionKey, OptionValue) values ('RssLastModseq', '0');
 /* store volume and HAL info here for files */
 CREATE TABLE  Volumes
 (
-	VolumeID 	Integer primary key AUTOINCREMENT not null,
+	VolumeID 	Integer primary key AUTOINCREMENT,
 	UDI		Text,
 	VolumeName	Text,
 	MountPath	Text,
@@ -23,6 +23,7 @@ CREATE TABLE  Volumes
 	DisabledDate	Text
 );
 
+INSERT INTO Volumes (Enabled) VALUES ('1');
 
 /* provides links from one service entity to another (entities can be in different databases) */
 CREATE TABLE  ServiceLinks

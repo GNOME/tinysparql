@@ -1410,7 +1410,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 						    data);
 
 		tracker_data_update_create_event (indexer->private->cache, id, "Create");
-		tracker_data_update_increment_stats (indexer->private->common, service);
 
 		index_metadata (indexer, id, service, metadata);
 
@@ -1846,8 +1845,6 @@ item_remove (TrackerIndexer *indexer,
 						      path,
 						      tracker_service_get_name (service));
 	}
-
-	tracker_data_update_decrement_stats (indexer->private->common, service);
 
 	g_free (mount_point);
 	g_free (path);

@@ -122,10 +122,7 @@ DeleteSearchResults1           DELETE FROM SearchResults1;
 /*
  * Statistics queries
  */
-IncStat                        UPDATE ServiceTypes SET TypeCount = (TypeCount + 1) WHERE TypeName = ?;
-DecStat                        UPDATE ServiceTypes SET TypeCount = (TypeCount - 1) WHERE TypeName = ?;
-GetStats                       SELECT TypeName, TypeCount FROM ServiceTypes GROUP BY TypeName ORDER BY TypeID ASC;
-
+GetStats                       SELECT COUNT(1), T.TypeName FROM Services S, ServiceTypes T WHERE S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1) AND S.Enabled = 1 AND T.TypeID=S.ServiceTypeID GROUP BY ServiceTypeID ORDER BY T.TypeName;
 GetHitDetails                  SELECT ROWID, HitCount, HitArraySize FROM HitIndex WHERE word = ?;
 
 /*
@@ -138,7 +135,7 @@ GetVolumesToClean              SELECT VolumeID FROM Volumes WHERE DisabledDate <
 InsertVolume                   INSERT INTO Volumes (MountPath, UDI, Enabled, DisabledDate) VALUES (?, ?, 1, date('now'));
 EnableVolume                   UPDATE Volumes SET MountPath = ?, Enabled = 1 WHERE UDI = ?;
 DisableVolume                  UPDATE Volumes SET Enabled = 0, DisabledDate = date ('now') WHERE UDI = ?;
-DisableAllVolumes              UPDATE Volumes SET Enabled = 0;
+DisableAllVolumes              UPDATE Volumes SET Enabled = 0 WHERE VolumeID > 1;
 
 /*
  * XESAM queries

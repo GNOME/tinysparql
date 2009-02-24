@@ -1,5 +1,18 @@
 2009-02-24  Martyn Russell  <martyn@imendio.com>
 
+	* data/db/sqlite-stored-procs.sql:
+	* data/db/sqlite-tracker.sql: 
+	* src/libtracker-data/tracker-data-update.[ch]:
+	* src/tracker-indexer/tracker-indexer.c:  Add $home as the first
+	volume in the Volumes table with an id of 1 (has to be non-zero)
+	and make sure all new items not related to a volume that are
+	indexed use a default id of 1 instead of 0. Removed incstat and
+	decstat stored procedures, they are not needed now. Updated the
+	GetStats function call to get a real time count of the data, not a
+	pre-calculated number from a table. Fixes NB#98297.
+
+2009-02-24  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/tracker-main.c:
 	* src/tracker-indexer/tracker-main.c: 
 	* src/tracker-utils/tracker-status.c:

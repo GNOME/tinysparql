@@ -33,10 +33,6 @@
 G_BEGIN_DECLS
 
 guint32  tracker_data_update_get_new_service_id         (TrackerDBInterface  *iface);
-void     tracker_data_update_increment_stats            (TrackerDBInterface  *iface,
-							 TrackerService      *service);
-void     tracker_data_update_decrement_stats            (TrackerDBInterface  *iface,
-							 TrackerService      *service);
 
 /* Services  */
 gboolean tracker_data_update_create_service             (TrackerService      *service,
