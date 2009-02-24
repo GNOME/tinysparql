@@ -505,7 +505,7 @@ mp3_parse_header (const gchar *data,
 	}
 
 	if (!layer_ver || !mpeg_ver) {
-		//g_debug ("Unknown mpeg type: %d, %d", mpeg_ver, layer_ver);
+		/* g_debug ("Unknown mpeg type: %d, %d", mpeg_ver, layer_ver); */
 		/* Unknown mpeg type */
 		return FALSE;
 	}
@@ -632,7 +632,8 @@ static void
 get_id3v24_tags (const gchar *data,
 		 size_t       size,
 		 GHashTable  *metadata,
-		 file_data   *filedata)
+		 file_data   *filedata,
+		 size_t      *offset_delta)
 {
 	gint	unsync;
 	gint	extendedHdr;
@@ -698,7 +699,7 @@ get_id3v24_tags (const gchar *data,
 		pos += ehdrSize;
 	}
 
-	filedata->audio_offset = tsize + 10;
+	*offset_delta = tsize + 10;
 
 	while (pos < tsize) {
 		size_t csize;
@@ -912,7 +913,8 @@ static void
 get_id3v23_tags (const gchar *data,
 		 size_t       size,
 		 GHashTable  *metadata,
-		 file_data   *filedata)
+		 file_data   *filedata,
+		 size_t      *offset_delta)
 {
 	gint	unsync;
 	gint	extendedHdr;
@@ -987,7 +989,7 @@ get_id3v23_tags (const gchar *data,
 		}
 	}
 
-	filedata->audio_offset = tsize + 10;
+	*offset_delta = tsize + 10;
 
 	while (pos < tsize) {
 		size_t csize;
@@ -1179,10 +1181,11 @@ get_id3v23_tags (const gchar *data,
 }
 
 static void
-get_id3v2_tags (const gchar *data,
-		size_t	     size,
-		GHashTable  *metadata,
-		file_data   *filedata)
+get_id3v20_tags (const gchar *data,
+		 size_t	      size,
+		 GHashTable  *metadata,
+		 file_data   *filedata,
+		 size_t      *offset_delta)
 {
 	gint	unsync;
 	guint	tsize;
@@ -1236,7 +1239,7 @@ get_id3v2_tags (const gchar *data,
 
 	pos = 10;
 
-	filedata->audio_offset = tsize + 10;
+	*offset_delta = tsize + 10;
 
 	while (pos < tsize) {
 		size_t csize;
@@ -1341,6 +1344,30 @@ get_id3v2_tags (const gchar *data,
 	}
 }
 
+static void
+get_id3v2_tags (const gchar *data,
+		size_t	     size,
+		GHashTable  *metadata,
+		file_data   *filedata)
+{
+	gboolean done = FALSE;
+	size_t   offset = 0;
+
+	do {
+		size_t offset_delta = 0;
+		get_id3v24_tags(data+offset, size-offset, metadata, filedata, &offset_delta);
+		get_id3v23_tags(data+offset, size-offset, metadata, filedata, &offset_delta);
+		get_id3v20_tags(data+offset, size-offset, metadata, filedata, &offset_delta);		
+
+		if (offset_delta == 0) {
+			done = TRUE;
+			filedata->audio_offset = offset;
+		} else {
+			offset += offset_delta;
+		}
+
+	} while (!done);
+}
 
 static void
 extract_mp3 (const gchar *filename,
@@ -1453,8 +1480,6 @@ extract_mp3 (const gchar *filename,
 
 	/* Get other embedded tags */
 	get_id3v2_tags (buffer, size, metadata, &filedata);
-	get_id3v23_tags (buffer, size, metadata, &filedata);
-	get_id3v24_tags (buffer, size, metadata, &filedata);
 
 	/* Get mp3 stream info */
 	mp3_parse (buffer, size, metadata, &filedata);

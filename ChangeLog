@@ -1,3 +1,12 @@
+2009-02-24  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Handle id3v2 tags
+	split into several frames.	
+	* tests/tracker-extract/tracker-extract-mp3-test.c: Fix the
+	test-cases.	
+
+	Fixes NB#102606
+
 2009-02-24  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-extract.c:

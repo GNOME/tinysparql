@@ -68,7 +68,7 @@ main (int argc, char **argv) {
 
 	if (g_test_perf()) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-mp3/performance_cbr",
-				      data, performance_tracker_extract_mp3);	
+				      data, test_tracker_extract_mp3_performance);	
 	}
 
 #endif
