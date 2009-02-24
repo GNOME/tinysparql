@@ -1,5 +1,11 @@
 2009-02-24  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-extract/tracker-extract.c:
+	* src/tracker-extract/tracker-main.c: call alarm() prior to processing
+	a file, so the extractor dies if it gets stuck.
+
+2009-02-24  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-db/tracker-db-index.c (tracker_db_index_add_word): Do
 	not remove words with negative weight from the cache, so they make it
 	to the actual index.

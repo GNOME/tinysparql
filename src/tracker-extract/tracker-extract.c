@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <unistd.h>
 
 #include <gmodule.h>
 #include <gio/gio.h>
@@ -31,6 +32,7 @@
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
 
+#define MAX_EXTRACT_TIME 5
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
 typedef struct {
@@ -209,6 +211,8 @@ get_file_metadata (TrackerExtract *extract,
 
 	path_in_locale = g_filename_from_utf8 (path_used, -1, NULL, NULL, NULL);
 	g_free (path_used);
+
+	while (TRUE);
 
 	if (!path_in_locale) {
 		g_warning ("Could not convert path from UTF-8 to locale");
@@ -390,8 +394,10 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 				    "  Resetting shutdown timeout");
 	
 	tracker_main_quit_timeout_reset ();
+	alarm (MAX_EXTRACT_TIME);
 
 	values = get_file_metadata (object, request_id, path, mime);
+
 	if (values) {
 		g_hash_table_foreach (values, 
 				      print_file_metadata_item, 
@@ -410,4 +416,7 @@ tracker_extract_get_metadata (TrackerExtract	     *object,
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 	}
+
+	/* Unset alarm so the extractor doesn't die when it's idle */
+	alarm (0);
 }

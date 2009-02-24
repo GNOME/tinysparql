@@ -134,11 +134,13 @@ signal_handler (int signo)
 	}
 
 	switch (signo) {
+	case SIGALRM:
+		exit (EXIT_FAILURE);
+		break;
 	case SIGTERM:
 	case SIGINT:
 		in_loop = TRUE;
 		quit_timeout_cb (NULL);
-
 	default:
 		if (g_strsignal (signo)) {
 			g_print ("\n");
@@ -165,6 +167,7 @@ initialize_signal_handler (void)
 	sigaction (SIGTERM, &act, NULL);
 	sigaction (SIGINT,  &act, NULL);
 	sigaction (SIGHUP,  &act, NULL);
+	sigaction (SIGALRM,  &act, NULL);
 #endif /* G_OS_WIN32 */
 }
 
