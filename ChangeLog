@@ -110,6 +110,8 @@
 	* src/tracker-extract/tracker-extract-tiff.c:
 	* src/tracker-extract/tracker-iptc.h: Added iptc support for tiff
 	and jpeg.
+
+	Fixes NB#101954
 	
 2009-02-20  Martyn Russell  <martyn@imendio.com>
 
