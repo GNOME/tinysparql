@@ -1,3 +1,14 @@
+2009-02-25  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (struct PathInfo)
+	(path_info_new): Contain info about whether it should recurse or not, 
+	instead of passing specific parameters in the affected functions.
+	(item_move) (item_remove) (process_directory) (process_module)
+	(process_func) (tracker_indexer_files_check)
+	(tracker_indexer_file_move): Update all callers accordingly.
+	(remove_stale_children): Recurse explicitly when deleting stale items
+	in DB that were deleted between executions. Fixes NB#99827.
+
 2009-02-25  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker/Makefile.am

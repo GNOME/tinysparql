@@ -155,6 +155,7 @@ struct PathInfo {
 	GFile *source_file;
 	TrackerModuleFile *module_file;
 	TrackerModuleFile *source_module_file;
+	gboolean recurse;
 };
 
 struct MetadataForeachData {
@@ -202,8 +203,7 @@ static void	state_check	       (TrackerIndexer	    *indexer);
 static void     item_remove            (TrackerIndexer      *indexer,
 					PathInfo	    *info,
 					const gchar         *dirname,
-					const gchar         *basename,
-					gboolean             recurse);
+					const gchar         *basename);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -213,7 +213,8 @@ G_DEFINE_TYPE (TrackerIndexer, tracker_indexer, G_TYPE_OBJECT)
 static PathInfo *
 path_info_new (TrackerIndexerModule *module,
 	       GFile                *file,
-	       GFile                *source_file)
+	       GFile                *source_file,
+	       gboolean              recurse)
 {
 	PathInfo *info;
 
@@ -230,6 +231,8 @@ path_info_new (TrackerIndexerModule *module,
 		info->source_file = NULL;
 		info->source_module_file = NULL;
 	}
+
+	info->recurse = recurse;
 
 	return info;
 }
@@ -1300,7 +1303,7 @@ remove_stale_children (TrackerIndexer *indexer,
 
 		if (!g_file_query_exists (file, NULL)) {
 			/* File doesn't exist, check for deletion */
-			info = path_info_new (parent_info->module, file, NULL);
+			info = path_info_new (parent_info->module, file, NULL, TRUE);
 			add_file (indexer, info);
 		}
 
@@ -1643,7 +1646,7 @@ item_move (TrackerIndexer  *indexer,
 		return;
 	}
 
-	if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
+	if (info->recurse && strcmp (tracker_service_get_name (service), "Folders") == 0) {
 		children = tracker_data_query_service_children (service, source_path);
 	}
 
@@ -1661,7 +1664,7 @@ item_move (TrackerIndexer  *indexer,
 		g_message ("Destination file '%s' already existed in database, removing", path);
 
 		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
-		item_remove (indexer, info, dest_dirname, dest_basename, TRUE);
+		item_remove (indexer, info, dest_dirname, dest_basename);
 
 		g_free (dest_dirname);
 		g_free (dest_basename);
@@ -1701,7 +1704,7 @@ item_move (TrackerIndexer  *indexer,
 			child_file = g_file_get_child (info->file, child_name);
 			child_source_file = g_file_get_child (info->source_file, child_name);
 
-			child_info = path_info_new (info->module, child_file, child_source_file);
+			child_info = path_info_new (info->module, child_file, child_source_file, TRUE);
 			add_file (indexer, child_info);
 
 			g_object_unref (child_file);
@@ -1724,8 +1727,7 @@ static void
 item_remove (TrackerIndexer *indexer,
 	     PathInfo	    *info,
 	     const gchar    *dirname,
-	     const gchar    *basename,
-	     gboolean        recurse)
+	     const gchar    *basename)
 {
 	TrackerService *service;
 	TrackerDataMetadata *data_metadata;
@@ -1832,7 +1834,7 @@ item_remove (TrackerIndexer *indexer,
 	tracker_data_update_delete_service (service, service_id);
 	tracker_data_update_delete_all_metadata (service, service_id);
 
-	if (recurse && strcmp (service_type, "Folders") == 0) {
+	if (info->recurse && strcmp (service_type, "Folders") == 0) {
 		tracker_data_update_delete_service_recursively (service, path);
 	}
 
@@ -2252,11 +2254,7 @@ process_file (TrackerIndexer *indexer,
 			item_add_or_update (indexer, info, dirname, basename, metadata);
 			g_object_unref (metadata);
 		} else {
-			/* Delete events are not atomic, so we don't recurse
-			 * here, since we'll have probably got already events
-			 * from children
-			 */
-			item_remove (indexer, info, dirname, basename, FALSE);
+			item_remove (indexer, info, dirname, basename);
 		}
 	}
 
@@ -2276,8 +2274,7 @@ process_file (TrackerIndexer *indexer,
 
 static void
 process_directory (TrackerIndexer *indexer,
-		   PathInfo *info,
-		   gboolean recurse)
+		   PathInfo       *info)
 {
 	gchar *path;
 	const gchar *name;
@@ -2307,11 +2304,11 @@ process_directory (TrackerIndexer *indexer,
 		child = g_file_get_child (info->file, name);
 		child_path = g_file_get_path (child);
 
-		new_info = path_info_new (info->module, child, NULL);
+		new_info = path_info_new (info->module, child, NULL, FALSE);
 		add_file (indexer, new_info);
 
-		if (recurse && g_file_test (child_path, G_FILE_TEST_IS_DIR)) {
-			new_info = path_info_new (info->module, child, NULL);
+		if (info->recurse && g_file_test (child_path, G_FILE_TEST_IS_DIR)) {
+			new_info = path_info_new (info->module, child, NULL, TRUE);
 			add_directory (indexer, new_info);
 		}
 
@@ -2374,7 +2371,7 @@ process_module (TrackerIndexer *indexer,
 		GFile *file;
 
 		file = g_file_new_for_path (d->data);
-		info = path_info_new (module, file, NULL);
+		info = path_info_new (module, file, NULL, TRUE);
 		add_directory (indexer, info);
 
 		g_object_unref (file);
@@ -2406,7 +2403,7 @@ process_func (gpointer data)
 		}
 	} else if ((path = g_queue_pop_head (indexer->private->dir_queue)) != NULL) {
 		/* Process directory contents */
-		process_directory (indexer, path, TRUE);
+		process_directory (indexer, path);
 		path_info_free (path);
 	} else {
 		gchar *module_name;
@@ -2784,7 +2781,7 @@ tracker_indexer_files_check (TrackerIndexer *indexer,
 		GFile *file;
 
 		file = g_file_new_for_path (files[i]);
-		info = path_info_new (module, file, NULL);
+		info = path_info_new (module, file, NULL, FALSE);
 		add_file (indexer, info);
 
 		g_object_unref (file);
@@ -2858,7 +2855,7 @@ tracker_indexer_file_move (TrackerIndexer	  *indexer,
 	file_to = g_file_new_for_path (to);
 
 	/* Add files to the queue */
-	info = path_info_new (module, file_to, file_from);
+	info = path_info_new (module, file_to, file_from, TRUE);
 	add_file (indexer, info);
 
 	dbus_g_method_return (context);
