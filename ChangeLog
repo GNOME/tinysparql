@@ -12,7 +12,7 @@
 	metadata dbus API to get concatenated group fields.
 	
 	* data/db/sqlite-service.sql:
-     	* src/libtracker-data/tracker-data-schema.c:
+	* src/libtracker-data/tracker-data-schema.c:
 	* src/libtracker-data/tracker-data-search.c:
 	* src/libtracker-data/tracker-rdf-query.c: Fixed problems in
 	joining of order fields.
