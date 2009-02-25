@@ -38,6 +38,7 @@
 static gchar	    **fields;
 static gchar	     *service;
 static gchar	     *path;
+static gchar         *concat;
 static gchar	     *count;
 static gchar         *sum;
 static gboolean       descending;
@@ -50,6 +51,10 @@ static GOptionEntry   entries[] = {
 	{ "service", 's', 0, G_OPTION_ARG_STRING, &service,
 	  N_("Search from a specific service"),
 	  NULL
+	},
+	{ "concat", 'n', 0, G_OPTION_ARG_STRING, &concat,
+	  N_("Concatenate different values of this field"),
+	  "e.g. File:Mime"
 	},
 	{ "count", 'c', 0, G_OPTION_ARG_STRING, &count,
 	  N_("Count instances of unique fields of this type"),
@@ -192,16 +197,17 @@ main (int argc, char **argv)
 		}
 	}
 
-	array = tracker_metadata_get_unique_values_with_count_and_sum (client,
-								       type,
-								       fields,
-								       buffer,
-								       count,
-								       sum,
-								       descending,
-								       0,
-								       512,
-								       &error);
+	array = tracker_metadata_get_unique_values_with_concat_count_and_sum (client,
+									      type,
+									      fields,
+									      buffer,
+									      concat,
+									      count,
+									      sum,
+									      descending,
+									      0,
+									      512,
+									      &error);
 	g_free (buffer);
 
 	if (error) {

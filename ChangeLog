@@ -1,3 +1,22 @@
+2009-02-25  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* data/dbus/tracker-metadata.xml
+	* src/libtracker/tracker.h         
+	* src/libtracker/tracker.c         
+	* src/tracker-utils/tracker-unique.c          
+	* src/libtracker-data/tracker-data-search.c   
+	* src/libtracker-data/tracker-rdf-query.c     
+	* src/libtracker-data/tracker-data-search.h   
+	* src/trackerd/tracker-metadata.c             
+	* src/trackerd/tracker-metadata.h: Added a new function to
+	metadata dbus API to get concatenated group fields.
+	
+	* data/db/sqlite-service.sql
+     	* src/libtracker-data/tracker-data-schema.c   
+	* src/libtracker-data/tracker-data-search.c   
+	* src/libtracker-data/tracker-rdf-query.c: Fixed problems in
+	joining of order fields.
+
 2009-02-25  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (struct PathInfo)

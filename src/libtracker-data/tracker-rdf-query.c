@@ -1191,7 +1191,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 					     tracker_rdf_error_quark (),
 					     PARSE_ERROR,
 					     "RDF Query failed, field:'%s' not found",
-					     sort_fields[i]);
+					     fields[i]);
 
 				g_slist_foreach (data.fields,
 						 (GFunc) g_object_unref,
@@ -1315,6 +1315,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 			TrackerFieldData *field_data;
 
 			field_data = add_metadata_field (&data, sort_fields[i], FALSE, FALSE);
+			tracker_field_data_set_needs_join (field_data, TRUE);
 
 			if (!field_data) {
 				g_set_error (error,

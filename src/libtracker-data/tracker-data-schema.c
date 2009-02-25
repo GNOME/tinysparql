@@ -279,7 +279,6 @@ tracker_data_schema_get_metadata_field (TrackerDBInterface *iface,
 		    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_INDEX)  ||
 		    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_STRING)) {
 			order_field = g_strdup_printf ("M%d.MetaDataCollation", field_count);
-			tracker_field_data_set_needs_join (field_data, TRUE);			
 		} else {
 			order_field = g_strdup_printf ("M%d.MetaDataValue", field_count);
 		}

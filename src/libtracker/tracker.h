@@ -131,7 +131,7 @@ int		tracker_metadata_get_sum			(TrackerClient *client, ServiceType service, cha
 int		tracker_metadata_get_count			(TrackerClient *client, ServiceType service, char *field, char *query, GError **error);
 GPtrArray *	tracker_metadata_get_unique_values_with_count	(TrackerClient *client, ServiceType service, char **meta_types, char *query, char *count, gboolean descending, int offset, int max_hits, GError **error);
 GPtrArray *	tracker_metadata_get_unique_values_with_count_and_sum   (TrackerClient *client, ServiceType service, char **meta_types, char *query, char *count, char *sum, gboolean descending, int offset, int max_hits, GError **error);
-
+GPtrArray *	tracker_metadata_get_unique_values_with_concat_count_and_sum   (TrackerClient *client, ServiceType service, char **meta_types, char *query, char *concat, char *count, char *sum, gboolean descending, int offset, int max_hits, GError **error);
 
 GPtrArray *	tracker_keywords_get_list			(TrackerClient *client, ServiceType service, GError **error);
 char **		tracker_keywords_get				(TrackerClient *client, ServiceType service, const char *id, GError **error);
@@ -195,6 +195,7 @@ void		tracker_metadata_get_sum_async				(TrackerClient *client, ServiceType serv
 void		tracker_metadata_get_count_async			(TrackerClient *client, ServiceType service, char *field, char *query, TrackerIntReply callback, gpointer user_data);
 void		tracker_metadata_get_unique_values_with_count_async	(TrackerClient *client, ServiceType service, char **meta_types, const char *query, char *count, gboolean descending, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data);
 void	   tracker_metadata_get_unique_values_with_count_and_sum_async	(TrackerClient *client, ServiceType service, char **meta_types, const char *query, char *count, char *sum, gboolean descending, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data);
+void	   tracker_metadata_get_unique_values_with_concat_count_and_sum_async	(TrackerClient *client, ServiceType service, char **meta_types, const char *query, char *concat, char *count, char *sum, gboolean descending, int offset, int max_hits, TrackerGPtrArrayReply callback, gpointer user_data);
 
 void		tracker_keywords_get_list_async				(TrackerClient *client, ServiceType service, TrackerGPtrArrayReply callback, gpointer user_data);
 void		tracker_keywords_get_async				(TrackerClient *client, ServiceType service, const char *id, TrackerArrayReply callback, gpointer user_data);

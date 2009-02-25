@@ -126,6 +126,19 @@ void tracker_metadata_get_unique_values_with_count_and_sum (TrackerMetadata     
 							    DBusGMethodInvocation  *context,
 							    GError		  **error);
 
+void tracker_metadata_get_unique_values_with_concat_count_and_sum (TrackerMetadata        *object,
+								   const gchar	           *service_type,
+								   gchar		  **fields,
+								   const gchar	           *query_condition,
+								   const gchar             *concat,
+								   const gchar	           *count,
+								   const gchar            *sum,
+								   gboolean		    order_desc,
+								   gint		    offset,
+								   gint		    max_hits,
+								   DBusGMethodInvocation  *context,
+								   GError		  **error);
+
 G_END_DECLS
 
 #endif /* __TRACKERD_METADATA_H__ */

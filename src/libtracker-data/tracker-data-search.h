@@ -110,6 +110,17 @@ TrackerDBResultSet *tracker_data_search_get_unique_values_with_count_and_sum	(co
 										 gint		    max_hits,
 										 GError		  **error);
 
+TrackerDBResultSet *tracker_data_search_get_unique_values_with_concat_count_and_sum	(const gchar	   *service_type,
+											 gchar		  **fields,
+											 const gchar	   *query_condition,
+											 const gchar       *concat_field,
+											 const gchar	   *count,
+											 const gchar       *sum,
+											 gboolean	    order_desc,
+											 gint		    offset,
+											 gint		    max_hits,
+											 GError		  **error);
+
 TrackerDBResultSet *tracker_data_search_metadata_in_path			(const gchar	   *path,
 										 gchar		  **fields,
 										 GError		  **error);
