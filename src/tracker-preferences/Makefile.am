@@ -18,6 +18,7 @@ INCLUDES = 								\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB_CFLAGS) 							\
+	$(GCOV_CFLAGS) 							\
 	$(GTK2_CFLAGS) 							\
 	$(DBUS_CFLAGS) 							\
 	$(LIBGLADE_CFLAGS)
@@ -37,6 +38,7 @@ tracker_preferences_LDADD = 						\
 	$(LIBGLADE_LIBS)						\
 	$(GTK2_LIBS) 							\
 	$(DBUS_LIBS) 							\
+	$(GCOV_LIBS) 							\
 	$(GLIB_LIBS)
 
 EXTRA_DIST = $(pkgdata_DATA)

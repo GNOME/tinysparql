@@ -7,6 +7,7 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(SQLITE3_CFLAGS)						\
 	$(QDBM_CFLAGS)
@@ -42,5 +43,6 @@ libtracker_db_la_LIBADD = 						\
 	$(SQLITE3_LIBS)							\
 	$(QDBM_LIBS)							\
 	$(DBUS_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)							\
 	-lz

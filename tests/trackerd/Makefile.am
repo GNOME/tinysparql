@@ -14,6 +14,7 @@ INCLUDES = 							\
 	$(GMODULE_CFLAGS) 					\
 	$(GTHREAD_CFLAGS) 					\
 	$(GIO_GFLAGS) 						\
+	$(GCOV_GFLAGS) 						\
 	$(DBUS_CFLAGS)						\
 	$(QDBM_CFLAGS)
 
@@ -39,6 +40,7 @@ tracker_xesam_LDADD = 						\
 	$(GMODULE_LIBS) 					\
 	$(GTHREAD_LIBS) 					\
 	$(GLIB2_LIBS) 						\
+	$(GCOV_LIBS) 						\
 	$(DBUS_LIBS)
 
 endif

@@ -6,6 +6,7 @@ INCLUDES = 					\
 	-I$(top_srcdir)/src			\
 	$(WARN_CFLAGS)				\
 	$(GLIB2_CFLAGS)				\
+	$(GCOV_CFLAGS)				\
 	$(DBUS_CFLAGS)			
 
 lib_LTLIBRARIES = libtrackerclient.la
@@ -15,6 +16,7 @@ libtrackerclient_la_LDFLAGS = -version-info 0:0:0
 libtrackerclient_la_LIBADD = 			\
 	$(GLIB2_LIBS) 				\
 	$(DBUS_LIBS)				\
+	$(GCOV_LIBS)				\
 	$(GOBJECT_LIBS)
 	
 include_HEADERS = 				\

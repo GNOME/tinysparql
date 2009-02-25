@@ -7,6 +7,7 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
 	$(GIO_CFLAGS)							\
 	$(DBUS_CFLAGS)
 
@@ -14,6 +15,7 @@ libs = 									\
 	$(top_builddir)/src/libtracker/libtrackerclient.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(GIO_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
 
 bin_PROGRAMS = 								\

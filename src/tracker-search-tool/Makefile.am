@@ -10,6 +10,7 @@ INCLUDES = 	\
 	-I$(top_srcdir)/src/libtracker				\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
+	$(GCOV_CFLAGS)						\
 	$(GIO_CFLAGS)						\
 	$(DBUS_CFLAGS)						\
 	$(GNOME_UTILS_CFLAGS)					\
@@ -32,6 +33,7 @@ tracker_search_tool_LDADD =   					\
 	$(GLIB2_LIBS) 						\
 	$(GNOME_UTILS_LIBS) 					\
 	$(GIO_LIBS)    						\
+	$(GCOV_LIBS)    						\
 	$(GNOMEDESKTOP_LIBS) 					\
 	$(DBUS_LIBS)						\
         $(top_builddir)/src/libtracker-gtk/libtracker-gtk.la 	\

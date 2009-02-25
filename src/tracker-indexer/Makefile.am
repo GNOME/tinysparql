@@ -17,6 +17,7 @@ INCLUDES =								\
 	$(GMODULE_CFLAGS)						\
 	$(PANGO_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
 	$(RAPTOR_CFLAGS)
 
 libtracker_moduledir = $(libdir)/tracker
@@ -35,6 +36,8 @@ libtracker_moduleinclude_HEADERS =					\
 	tracker-module-iteratable.h					\
 	tracker-module-metadata-utils.h					\
 	tracker-module-metadata.h
+
+libtracker_module_la_LIBADD = $(GCOV_LIBS) $(GCOV_LIBS)
 
 libexec_PROGRAMS = tracker-indexer
 
@@ -66,6 +69,7 @@ tracker_indexer_LDADD =							\
 	$(GTHREAD_LIBS)							\
 	$(PANGO_LIBS)							\
 	$(GIO_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(RAPTOR_LIBS)							\
 	-lz								\

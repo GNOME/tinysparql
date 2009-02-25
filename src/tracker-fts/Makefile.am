@@ -4,6 +4,7 @@ INCLUDES =							\
 	-I$(top_srcdir)/src					\
 	$(WARN_CFLAGS)						\
 	$(GLIB2_CFLAGS)						\
+	$(GCOV_CFLAGS)						\
 	$(PANGO_CFLAGS)						\
 	$(SQLITE3_CFLAGS)					\
 	-DSTORE_CATEGORY=1			
@@ -23,5 +24,6 @@ tracker_fts_la_LIBADD =						\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la	\
 	$(SQLITE3_LIBS)						\
 	$(GTHREAD_LIBS)						\
+	$(GCOV_LIBS)						\
 	$(PANGO_LIBS)						\
 	$(GLIB2_LIBS)							

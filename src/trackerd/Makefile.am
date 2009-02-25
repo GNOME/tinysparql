@@ -14,6 +14,7 @@ INCLUDES =								\
 	$(GTHREAD_CFLAGS)						\
 	$(GMODULE_CFLAGS)						\
 	$(GIO_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(PANGO_CFLAGS)							\
 	$(GMIME_CFLAGS)							\
@@ -96,6 +97,7 @@ trackerd_LDADD =							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							\
 	$(RAPTOR_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(trackerd_win_libs)						\
 	-lz								\
 	-lm

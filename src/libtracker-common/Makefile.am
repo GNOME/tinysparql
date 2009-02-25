@@ -7,6 +7,7 @@ INCLUDES =						\
 	-I$(top_srcdir)/src				\
 	$(WARN_CFLAGS)					\
 	$(GLIB2_CFLAGS)					\
+	$(GCOV_CFLAGS)					\
 	$(GDKPIXBUF_CFLAGS)				\
 	$(GIO_CFLAGS)					\
 	$(PANGO_CFLAGS)					\
@@ -83,6 +84,7 @@ libtracker_common_la_LIBADD = 				\
 	$(UNAC_LIBS)					\
 	$(PANGO_LIBS)					\
 	$(GIO_LIBS)					\
+	$(GCOV_LIBS)					\
 	$(GLIB2_LIBS)					\
 	$(GDKPIXBUF_LIBS)
 

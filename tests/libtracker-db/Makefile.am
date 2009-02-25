@@ -27,6 +27,7 @@ INCLUDES = 								\
 	-I$(top_srcdir)/tests/common					\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GTHREAD_CFLAGS)						\
 	$(DBUS_CFLAGS)							\
@@ -141,6 +142,7 @@ tracker_index_writer_LDADD =						\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la	 	\
 	$(top_builddir)/tests/common/libtracker-testcommon.la 		\
 	$(QDBM_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GLIB2_LIBS)							

@@ -48,5 +48,7 @@ noinst_HEADERS =			\
 	stem_UTF_8_spanish.h		\
 	stem_UTF_8_swedish.h
 
+
+libstemmer_la_LIBADD = $(GCOV_LIBS)
 libstemmer_la_LDFLAGS = -version-info 0:0:0
 

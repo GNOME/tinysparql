@@ -14,6 +14,7 @@ INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
 	$(GLIB2_CFLAGS)							\
+	$(GCOV_CFLAGS)							\
 	$(GMODULE_CFLAGS)						\
 	$(GIO_CFLAGS)							\
 	$(GCONF_CFLAGS)							\
@@ -31,6 +32,7 @@ libtracker_module_applications_la_LDFLAGS = $(module_flags)
 libtracker_module_applications_la_LIBADD = 				\
 	$(GMODULE_LIBS)							\
 	$(GIO_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
 
 # Files module
@@ -39,6 +41,7 @@ libtracker_module_files_la_LDFLAGS = $(module_flags)
 libtracker_module_files_la_LIBADD = 					\
 	$(GMODULE_LIBS)							\
 	$(GIO_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
 
 # Instant messaging module
@@ -47,6 +50,7 @@ libtracker_module_gaim_conversations_la_LDFLAGS = $(module_flags)
 libtracker_module_gaim_conversations_la_LIBADD = 			\
 	$(GMODULE_LIBS)							\
 	$(GIO_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
 
 if HAVE_GCONF
@@ -72,6 +76,7 @@ libtracker_module_evolution_la_LIBADD = 				\
 	$(GLIB2_LIBS)							\
 	$(GCONF_LIBS)							\
 	$(GMIME_LIBS)							\
+	$(GCOV_LIBS)							\
 	$(SQLITE3_LIBS)
 
 endif

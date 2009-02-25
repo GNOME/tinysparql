@@ -16,6 +16,7 @@ INCLUDES = 									\
 	-I$(top_builddir)/src/tracker-indexer					\
 	$(WARN_CFLAGS)								\
 	$(GLIB2_CFLAGS)								\
+	$(GCOV_CFLAGS)								\
 	$(GMODULE_CFLAGS)							\
 	$(GTHREAD_CFLAGS)							\
 	$(PANGO_CFLAGS)								\
@@ -45,5 +46,6 @@ tracker_metadata_utils_LDADD =	                                        	\
 	$(GMODULE_LIBS)								\
 	$(GTHREAD_LIBS)								\
 	$(GIO_LIBS)								\
+	$(GCOV_LIBS)								\
 	$(RAPTOR_LIBS)								\
 	$(GLIB2_LIBS)							

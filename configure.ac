@@ -228,6 +228,27 @@ AM_GLIB_GNU_GETTEXT
 IT_PROG_INTLTOOL([0.35.0])
 
 ####################################################################
+# Enable GCOV coverage reporting support
+####################################################################
+
+AC_ARG_ENABLE(gcov,
+              AS_HELP_STRING([--enable-gcov],
+                             [enable coverage reporting support (default=no)]), ,
+              [enable_gcov=no])
+
+if test "x$enable_gcov" != "xno" ; then
+  GCOV_CFLAGS="-ftest-coverage -fprofile-arcs"
+  GCOV_LIBS="-lgcov"
+else
+  GCOV_CFLAGS=
+  GCOV_LIBS=
+fi
+
+AC_SUBST(GCOV_CFLAGS)
+AC_SUBST(GCOV_LIBS)
+
+
+####################################################################
 # Should we build GLib based unit tests
 ####################################################################
 

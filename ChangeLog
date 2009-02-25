@@ -1,8 +1,31 @@
 2009-02-25  Philip Van Hoof  <philip@codeminded.be>
 
-        * src/trackerd/tracker-daemon.c
-        * src/trackerd/tracker-daemon.h
-        *  data/dbus/tracker-daemon.xml: Added a Backup method
+	* src/libtracker/Makefile.am
+	* src/tracker-fts/Makefile.am
+	* src/tracker-indexer/modules/Makefile.am
+	* src/tracker-indexer/Makefile.am
+	* src/tracker-utils/Makefile.am
+	* src/tracker-preferences/Makefile.am
+	* src/trackerd/Makefile.am
+	* src/tracker-extract/Makefile.am
+	* src/libstemmer/Makefile.am
+	* src/libtracker-db/Makefile.am
+	* src/libtracker-common/Makefile.am
+	* src/libinotify/Makefile.am
+	* src/tracker-search-tool/Makefile.am
+	* tests/trackerd/Makefile.am
+	* tests/tracker-extract/Makefile.am
+	* tests/libtracker-db/Makefile.am
+	* tests/tracker-indexer/Makefile.am
+	* tests/common/Makefile.am
+	* tests/libtracker-common/Makefile.am
+	* configure.ac: Added support for coverage reporting
+
+2009-02-25  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/trackerd/tracker-daemon.c
+	* src/trackerd/tracker-daemon.h
+	* data/dbus/tracker-daemon.xml: Added a Backup method
 	to the Daemon object on DBus
 
 2009-02-24  Mikael Ottela  <mikael.ottela@ixonos.com>
