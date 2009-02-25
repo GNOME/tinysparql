@@ -1,3 +1,8 @@
+2009-02-24  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* data/db/sqlite-stored-procs.sql: Fixed an issue with integer to
+	string conversion.
+
 2009-02-24  Martyn Russell  <martyn@imendio.com>
 
 	* python/deskbar-handler/Makefile.am: Fixed make distcheck issue.
