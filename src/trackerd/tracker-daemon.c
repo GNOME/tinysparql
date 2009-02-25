@@ -35,6 +35,7 @@
 
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
+#include "tracker-backup.h"
 #include <libtracker-data/tracker-data-manager.h>
 #include "tracker-indexer-client.h"
 #include "tracker-main.h"
@@ -570,6 +571,30 @@ tracker_daemon_set_int_option (TrackerDaemon	      *object,
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
 	}
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_daemon_backup (TrackerDaemon *object,
+                       const gchar *path,
+                       DBusGMethodInvocation *context,
+                       GError **error)
+{
+	guint request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to backup, "
+				  "reindex:%s", path);
+
+
+	tracker_backup_save (path);
+
+	g_message ("Tracker daemon making a backup");
+
+	dbus_g_method_return (context);
 
 	tracker_dbus_request_success (request_id);
 }

@@ -85,6 +85,10 @@ void	       tracker_daemon_shutdown		   (TrackerDaemon	  *object,
 void	       tracker_daemon_prompt_index_signals (TrackerDaemon	  *object,
 						    DBusGMethodInvocation *context,
 						    GError **error);
+void	       tracker_daemon_backup		   (TrackerDaemon	  *object,
+						    const gchar           *path,
+						    DBusGMethodInvocation *context,
+						    GError **error);
 
 
 G_END_DECLS
