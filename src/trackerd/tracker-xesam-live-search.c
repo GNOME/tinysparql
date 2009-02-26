@@ -703,8 +703,7 @@ get_hit_data (TrackerXesamLiveSearch  *self,
 											  G_TYPE_STRING));
 
 						my_array = g_ptr_array_new ();
-						g_value_set_boxed_take_ownership (variant,
-										  my_array);
+						g_value_take_boxed (variant, my_array);
 
 						g_ptr_array_add (row, variant);
 
@@ -733,7 +732,7 @@ get_hit_data (TrackerXesamLiveSearch  *self,
 						my_array = g_array_new (FALSE,
 									 TRUE,
 									 sizeof (gfloat));
-						g_value_set_boxed_take_ownership (variant, my_array);
+						g_value_take_boxed (variant, my_array);
 
 						g_ptr_array_add (row, variant);
 					} else {
@@ -761,7 +760,7 @@ get_hit_data (TrackerXesamLiveSearch  *self,
 						my_array = g_array_new (FALSE,
 									 TRUE,
 									 sizeof (gboolean));
-						g_value_set_boxed_take_ownership (variant, my_array);
+						g_value_take_boxed (variant, my_array);
 
 						g_ptr_array_add (row, variant);
 					} else {

@@ -1,3 +1,8 @@
+2009-02-26  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/trackerd/tracker-xesam-live-search.c (get_hit_data): Do not use
+	deprecated functions. Fixes #572237.
+
 2009-02-26  Andre Klapper  <a9016009@gmx.de>
 
 	* src/tracker-search-tool/tracker-search-tool-support.c:
