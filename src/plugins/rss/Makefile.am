@@ -6,7 +6,8 @@ INCLUDES = -I$(top_srcdir)/src						\
 	-DTRACKER_COMPILATION						\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
-	$(GMIME_CFLAGS)
+	$(GMIME_CFLAGS)							\
+	$(GCOV_CFLAGS)
 
 module_flags = -module -avoid-version -no-undefined
 
@@ -39,7 +40,8 @@ libtracker_module_rss_daemon_module_la_LIBADD = 			\
 	$(GTHREAD_LIBS)                                                 \
 	$(GIO_LIBS)                                                     \
 	$(GLIB2_LIBS)                                                   \
-	$(RAPTOR_LIBS)
+	$(RAPTOR_LIBS)							\
+	$(GCOV_LIBS)
 
 libtracker_module_rss_indexer_module_la_LDFLAGS = $(module_flags)
 
@@ -53,7 +55,8 @@ libtracker_module_rss_indexer_module_la_LIBADD = 			\
 	$(GIO_LIBS)                                                     \
 	$(GLIB2_LIBS)                                                   \
 	$(RAPTOR_LIBS)							\
-	$(GMIME_LIBS)
+	$(GMIME_LIBS)							\
+	$(GCOV_LIBS)
 
 dbus_sources = tracker-rss-registrar-glue.h
 

@@ -1,3 +1,14 @@
+2009-02-26  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/plugins/evolution/Makefile.am
+	* src/plugins/rss/Makefile.am
+	* src/plugins/kmail/Makefile.am
+	* src/qdbm/Makefile.am
+	* src/libtracker-data/Makefile.am
+	* src/libtracker-gtk/Makefile.am
+	* src/tracker-applet/Makefile.am: Added support for coverage reporting
+	to targets that I missed last commit for this feature
+
 2009-02-25  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* data/dbus/tracker-metadata.xml:

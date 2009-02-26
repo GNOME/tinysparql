@@ -11,7 +11,8 @@ INCLUDES = 				\
 	-D_THREAD_SAFE=1 		\
 	-D_REENTRANT=1 			\
 	-DNDEBUG 			\
-	-DMYNOMMAP 
+	-DMYNOMMAP 			\
+	$(GCOV_CFLAGS)
 
 noinst_LTLIBRARIES = libqdbm-private.la
 

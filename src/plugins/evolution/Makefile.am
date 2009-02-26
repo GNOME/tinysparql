@@ -8,7 +8,8 @@ INCLUDES =								\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
 	$(GMIME_CFLAGS)							\
-	$(EVOLUTION_PLUGIN_CFLAGS)
+	$(EVOLUTION_PLUGIN_CFLAGS)					\
+	$(GCOV_CFLAGS)
 
 %.eplug.in: %.eplug.xml
 	LC_ALL=C $(INTLTOOL_MERGE) -x -u /tmp $< $@
@@ -56,7 +57,8 @@ libtracker_module_evolution_daemon_module_la_LIBADD = 			\
 	$(GTHREAD_LIBS)                                                 \
 	$(GIO_LIBS)                                                     \
 	$(GLIB2_LIBS)                                                   \
-	$(RAPTOR_LIBS)
+	$(RAPTOR_LIBS)							\
+	$(GCOV_LIBS)
 
 libtracker_module_evolution_indexer_module_la_LDFLAGS = $(module_flags)
 
@@ -70,7 +72,8 @@ libtracker_module_evolution_indexer_module_la_LIBADD = 			\
 	$(GIO_LIBS)                                                     \
 	$(GLIB2_LIBS)                                                   \
 	$(RAPTOR_LIBS)							\
-	$(GMIME_LIBS)
+	$(GMIME_LIBS)							\
+	$(GCOV_LIBS)
 
 liborg_freedesktop_Tracker_evolution_plugin_la_SOURCES = 		\
 	tracker-evolution-plugin.c 			 		\
@@ -81,7 +84,8 @@ liborg_freedesktop_Tracker_evolution_plugin_la_SOURCES = 		\
 liborg_freedesktop_Tracker_evolution_plugin_la_LDFLAGS = -module -avoid-version
 liborg_freedesktop_Tracker_evolution_plugin_la_LDLIBS = 		\
 	$(EVOLUTION_PLUGIN_LIBS)					\
-	$(DBUS_LIBS)
+	$(DBUS_LIBS)							\
+	$(GCOV_LIBS)
 
 dbus_sources = 								\
 	tracker-evolution-plugin-glue.h					\
