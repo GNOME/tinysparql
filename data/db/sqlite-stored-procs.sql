@@ -34,6 +34,9 @@ LiveSearchStopSearch           DELETE FROM cache.LiveSearches WHERE SearchID = ?
 GetOption                      SELECT OptionValue FROM Options WHERE OptionKey = ?;
 SetOption                      REPLACE INTO Options (OptionKey, OptionValue) VALUES (?,?);
 
+GetCollationLocale             SELECT OptionValue FROM Options WHERE OptionKey = 'CollationLocale';
+SetCollationLocale             UPDATE Options SET OptionValue = ? WHERE OptionKey = 'CollationLocale';
+
 /*
  * File queries
  */
@@ -72,7 +75,7 @@ GetMetadataKeyword             SELECT MetaDataValue FROM ServiceKeywordMetaData 
 GetMetadataNumeric             SELECT MetaDataValue FROM ServiceNumericMetaData WHERE ServiceID = ? AND MetaDataID = ?;
 GetMetadataTypes               SELECT ID, MetaName, DataTypeID, FieldName, Weight, Embedded, MultipleValues, Delimited, Filtered, Abstract FROM MetaDataTypes;
 
-SetMetadata                    INSERT INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue, MetaDataDisplay, MetaDataCollation) VALUES (?,?,?,?,?);
+SetMetadata                    INSERT INTO ServiceMetaData (ServiceID, MetaDataID, MetaDataValue, MetaDataDisplay, MetaDataCollation) VALUES (?,?,?,?,CollateKey(?));
 SetMetadataKeyword             INSERT INTO ServiceKeywordMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
 SetMetadataNumeric             INSERT INTO ServiceNumericMetaData (ServiceID, MetaDataID, MetaDataValue) VALUES (?,?,?);
 
@@ -81,6 +84,8 @@ DeleteMetadataKeyword          DELETE FROM ServiceKeywordMetaData WHERE ServiceI
 DeleteMetadataKeywordValue     DELETE FROM ServiceKeywordMetaData WHERE ServiceID = ? AND MetaDataID = ? AND MetaDataValue = ?;
 DeleteMetadataValue            DELETE FROM ServiceMetaData WHERE ServiceID = ? AND MetaDataID = ? AND MetaDataDisplay = ?;
 DeleteMetadataNumeric          DELETE FROM ServiceNumericMetaData WHERE ServiceID = ? AND MetaDataID = ?;
+
+UpdateMetadataCollation        UPDATE ServiceMetadata SET MetadataCollation=CollateKey(MetadataDisplay);
 
 InsertMetaDataChildren         INSERT INTO MetaDataChildren (ChildID,MetadataID) VALUES (?,(SELECT ID FROM MetaDataTypes WHERE MetaName = ?));
 InsertMetadataType             INSERT INTO MetaDataTypes (MetaName) VALUES (?);

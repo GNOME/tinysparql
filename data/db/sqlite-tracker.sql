@@ -11,6 +11,7 @@ insert Into Options (OptionKey, OptionValue) values ('UpdateCount', '0');
 insert Into Options (OptionKey, OptionValue) values ('EvolutionLastModseq', '0');
 insert Into Options (OptionKey, OptionValue) values ('KMailLastModseq', '0');
 insert Into Options (OptionKey, OptionValue) values ('RssLastModseq', '0');
+insert Into Options (OptionKey, OptionValue) values ('CollationLocale', '');
 
 /* store volume and HAL info here for files */
 CREATE TABLE  Volumes

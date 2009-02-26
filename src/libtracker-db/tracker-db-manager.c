@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <regex.h>
 #include <zlib.h>
+#include <locale.h>
 
 #include <glib/gstdio.h>
 
@@ -1617,6 +1618,22 @@ function_replace (TrackerDBInterface *interface,
 	return result;
 }
 
+static GValue
+function_collate_key (TrackerDBInterface *interface,
+		      gint                argc,
+		      GValue              values[])
+{
+	GValue result = { 0 };
+	gchar *collate_key;
+
+	collate_key = g_utf8_collate_key (g_value_get_string (&values[0]), -1);
+
+	g_value_init (&result, G_TYPE_STRING);
+	g_value_take_string (&result, collate_key);
+
+	return result;
+}
+
 static void
 db_set_params (TrackerDBInterface *iface,
 	       gint		   cache_size,
@@ -1680,6 +1697,10 @@ db_set_params (TrackerDBInterface *iface,
 							     "replace",
 							     function_replace,
 							     3);
+		tracker_db_interface_sqlite_create_function (iface,
+							     "CollateKey",
+							     function_collate_key,
+							     1);
 	}
 }
 
@@ -2538,6 +2559,40 @@ tracker_db_get_type (void)
 	return etype;
 }
 
+static void
+tracker_db_manager_ensure_locale (void)
+{
+	TrackerDBInterface *common, *iface;
+	TrackerDBResultSet *result_set;
+	const gchar *current_locale;
+	gchar *stored_locale = NULL;
+
+	current_locale = setlocale (LC_COLLATE, NULL);
+
+	common = dbs[TRACKER_DB_COMMON].iface;
+	result_set = tracker_db_interface_execute_procedure (common, NULL, "GetCollationLocale", NULL);
+
+	if (result_set) {
+		tracker_db_result_set_get (result_set, 0, &stored_locale, -1);
+		g_object_unref (result_set);
+	}
+
+	if (g_strcmp0 (current_locale, stored_locale) != 0) {
+		/* Locales differ, update collate keys */
+		g_debug ("Updating DB locale dependent data to: %s\n", current_locale);
+
+		iface = dbs[TRACKER_DB_FILE_METADATA].iface;
+		tracker_db_interface_execute_procedure (iface, NULL, "UpdateMetadataCollation", NULL);
+
+		iface = dbs[TRACKER_DB_EMAIL_METADATA].iface;
+		tracker_db_interface_execute_procedure (iface, NULL, "UpdateMetadataCollation", NULL);
+
+		tracker_db_interface_execute_procedure (common, NULL, "SetCollationLocale", current_locale, NULL);
+	}
+
+	g_free (stored_locale);
+}
+
 void
 tracker_db_manager_init (TrackerDBManagerFlags	flags,
 			 gboolean	       *first_time,
@@ -2726,6 +2781,8 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		dbs[i].iface = db_interface_create (i);
 		dbs[i].mtime = tracker_file_get_mtime (dbs[i].abs_filename);
 	}
+
+	tracker_db_manager_ensure_locale ();
 
 	initialized = TRUE;
 }

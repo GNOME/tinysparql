@@ -1,3 +1,14 @@
+2009-02-26  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-db/tracker-db-manager.c: Added CollateKey sqlite
+	function to let it handle collate key changes. Check locale on startup
+	and regenerate collate keys if necessary.
+	* src/libtracker-data/tracker-data-update.c: Remove collate key
+	generation from code, since now it will be handled by the database.
+	* data/db/sqlite-stored-procs.sql: Updated to use the CollateKey
+	function, added getter/setter for locale config option, stored in
+	Options (common.db)
+
 2009-02-26  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/plugins/evolution/Makefile.am
