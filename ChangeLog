@@ -1,5 +1,11 @@
 2009-02-26  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-daemon.c (tracker_daemon_get_status): Do not
+	use all the tracker_dbus_request machinery, so asking for the status
+	doesn't actually change it.
+
+2009-02-26  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/trackerd/tracker-xesam-live-search.c (get_hit_data): Do not use
 	deprecated functions. Fixes #572237.
 

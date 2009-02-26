@@ -332,22 +332,16 @@ tracker_daemon_get_status (TrackerDaemon	  *object,
 {
 	TrackerDaemonPrivate *priv;
 	gchar		     *status;
-	guint		      request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
 
-	tracker_dbus_request_new (request_id,
-				  "DBus request to get daemon status");
+	g_debug ("DBus request to get daemon status");
 
 	status = g_strdup (tracker_status_get_as_string ());
 
 	dbus_g_method_return (context, status);
 
 	g_free (status);
-
-	tracker_dbus_request_success (request_id);
 }
 
 void
