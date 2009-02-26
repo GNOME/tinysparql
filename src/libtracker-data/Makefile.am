@@ -15,6 +15,7 @@ libtracker_datadir = $(libdir)/tracker
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
 libtracker_data_la_SOURCES = 						\
+	tracker-data-backup.c						\
 	tracker-data-live-search.c					\
 	tracker-data-manager.c						\
 	tracker-data-metadata.c						\
@@ -29,6 +30,7 @@ libtracker_data_la_SOURCES = 						\
 	tracker-xesam-query.c
 
 noinst_HEADERS =							\
+	tracker-data-backup.h						\
 	tracker-data-live-search.h					\
 	tracker-data-manager.h						\
 	tracker-data-metadata.h						\

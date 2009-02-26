@@ -57,6 +57,7 @@
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-turtle.h>
+#include <libtracker-data/tracker-data-backup.h>
 
 #include <tracker-push.h>
 
@@ -646,7 +647,7 @@ shutdown_databases (void)
 
 	/* If we are reindexing, save the user metadata  */
 	if (private->reindex_on_shutdown) {
-		tracker_backup_save (private->ttl_backup_file);
+		tracker_data_backup_save (private->ttl_backup_file, NULL);
 	}
 	/* Reset integrity status as threads have closed cleanly */
 	tracker_data_manager_set_db_option_int ("IntegrityCheck", 0);
@@ -674,7 +675,6 @@ shutdown_directories (void)
 static const gchar *
 get_ttl_backup_filename (void) 
 {
-
 	TrackerMainPrivate *private;
 
 	private = g_static_private_get (&private_key);
@@ -715,7 +715,7 @@ backup_user_metadata (TrackerConfig *config, TrackerLanguage *language)
 	tracker_data_manager_init (config, language, file_index, email_index);
 	
 	/* Actual save of the metadata */
-	tracker_backup_save (get_ttl_backup_filename ());
+	tracker_data_backup_save (get_ttl_backup_filename (), NULL);
 	
 	/* Shutdown the DB stack */
 	tracker_data_manager_shutdown ();
@@ -746,12 +746,12 @@ crawling_finished_cb (TrackerProcessor *processor,
 		g_signal_handler_disconnect (processor, *callback_id);
 
 		if (g_file_test (get_ttl_backup_filename (), G_FILE_TEST_EXISTS)) {
-			org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (), 
+			org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
 									get_ttl_backup_filename (),
 									&error);
-		
+
 			if (error) {
-				g_message ("Could not restore backup, %s", 
+				g_message ("Could not restore backup, %s",
 					   error->message);
 				g_error_free (error);
 				return;

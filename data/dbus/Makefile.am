@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 configdir = $(datadir)/tracker
 
 config_DATA =						\
+	tracker-backup.xml				\
 	tracker-daemon.xml				\
 	tracker-files.xml				\
 	tracker-keywords.xml				\

@@ -1,5 +1,31 @@
 2009-02-26  Carlos Garnacho  <carlos@imendio.com>
 
+        Refactor Backups to turtle files support out to a
+        org.freedesktop.Tracker.Backup interface.
+
+        * data/dbus/tracker-backup.xml: Definition for the new interface.
+        * data/dbus/tracker-daemon.xml: Remove Backup method.
+
+        * src/libtracker-data/Makefile.am:
+        * src/libtracker-data/tracker-data-backup.[ch]: New files, contain
+        the actual saving/restoring to/from turtle files, this was spread
+        before in tracker-indexer and trackerd.
+
+        * src/tracker-indexer/tracker-indexer.c
+        (tracker_indexer_restore_backup) (restore_backup_cb): Use new
+        functions in libtracker-data.
+
+        * src/trackerd/tracker-backup.[ch]: Now they contain TrackerBackup,
+        the object that's going to handle petitions from DBus.
+        * src/trackerd/tracker-dbus.c: Hook the new object into trackerd.
+        * src/trackerd/tracker-daemon.c: Remove implementation for Backup
+        method.
+
+        * src/trackerd/tracker-main.c:
+	* src/trackerd/Makefile.am: Miscellaneous changes.
+
+2009-02-26  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-db/tracker-db-manager.c: Added CollateKey sqlite
 	function to let it handle collate key changes. Check locale on startup
 	and regenerate collate keys if necessary.

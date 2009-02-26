@@ -18,11 +18,49 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_BACKUP_H__
-#define __TRACKER_BACKUP_H__
 
-#include <glib.h>
+#ifndef __TRACKERD_BACKUP_H__
+#define __TRACKERD_BACKUP_H__
 
-void tracker_backup_save (const gchar *turtle_filename);
+#include <glib-object.h>
 
-#endif /* __TRACKER_BACKUP_H__ */
+#define TRACKER_BACKUP_SERVICE	       "org.freedesktop.Tracker"
+#define TRACKER_BACKUP_PATH	       "/org/freedesktop/Tracker/Backup"
+#define TRACKER_BACKUP_INTERFACE       "org.freedesktop.Tracker.Backup"
+
+G_BEGIN_DECLS
+
+#define TRACKER_TYPE_BACKUP	       (tracker_backup_get_type ())
+#define TRACKER_BACKUP(object)	       (G_TYPE_CHECK_INSTANCE_CAST ((object), TRACKER_TYPE_BACKUP, TrackerBackup))
+#define TRACKER_BACKUP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), TRACKER_TYPE_DBUS_BACKUP, TrackerBackupClass))
+#define TRACKER_IS_BACKUP(object)      (G_TYPE_CHECK_INSTANCE_TYPE ((object), TRACKER_TYPE_BACKUP))
+#define TRACKER_IS_BACKUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), TRACKER_TYPE_BACKUP))
+#define TRACKER_BACKUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), TRACKER_TYPE_BACKUP, TrackerBackupClass))
+
+typedef struct TrackerBackup	  TrackerBackup;
+typedef struct TrackerBackupClass TrackerBackupClass;
+
+struct TrackerBackup {
+	GObject parent;
+};
+
+struct TrackerBackupClass {
+	GObjectClass parent;
+};
+
+GType	       tracker_backup_get_type		   (void) G_GNUC_CONST;
+
+TrackerBackup *tracker_backup_new		   (void);
+
+void           tracker_backup_save                 (TrackerBackup         *object,
+						    const gchar           *path,
+						    DBusGMethodInvocation *context,
+						    GError **error);
+void           tracker_backup_restore              (TrackerBackup         *object,
+						    const gchar           *path,
+						    DBusGMethodInvocation *context,
+						    GError **error);
+
+G_END_DECLS
+
+#endif /* __TRACKERD_BACKUP_H__ */

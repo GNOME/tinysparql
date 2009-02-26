@@ -136,12 +136,6 @@
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
 
-    <!-- Makes a backup). -->
-    <method name="Backup">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="path" direction="in" />
-    </method>
-
     <!-- Signal change in index status - states are:
 	 "Initializing", "Watching", "Indexing", "Pending",
 	 "Optimizing", "Idle", "Shutdown".

@@ -115,6 +115,7 @@ marshal_sources =                                         		\
         tracker-marshal.c
 
 dbus_sources = 								\
+	tracker-backup-glue.h						\
 	tracker-daemon-glue.h						\
 	tracker-files-glue.h						\
 	tracker-keywords-glue.h						\

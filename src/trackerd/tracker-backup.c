@@ -20,89 +20,100 @@
  */
 #include "config.h"
 
-#include <glib.h>
+#include <glib-object.h>
 #include <glib/gstdio.h>
+#include <libtracker-common/tracker-dbus.h>
+#include <libtracker-data/tracker-data-backup.h>
 
-#ifdef HAVE_RAPTOR
-#include <raptor.h>
-#endif
-
-#include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-turtle.h>
-
+#include "tracker-dbus.h"
+#include "tracker-indexer-client.h"
 #include "tracker-backup.h"
 
-/*
- * (uri, metadataid, value)
- */
+
+G_DEFINE_TYPE (TrackerBackup, tracker_backup, G_TYPE_OBJECT)
+
 static void
-extended_result_set_to_turtle (TrackerDBResultSet  *result_set, TurtleFile *turtle_file)
+tracker_backup_class_init (TrackerBackupClass *klass)
 {
-	TrackerField        *field;
-	gint	             metadata_id;
-	gboolean             valid = TRUE;
-
-	while (valid) {
-		GValue transform = {0, };
-		gchar *str = NULL;
-		gchar *uri;
-		gchar *service_type;
-
-		g_value_init (&transform, G_TYPE_STRING);
-
-		tracker_db_result_set_get (result_set, 0, &uri, -1);
-		tracker_db_result_set_get (result_set, 1, &service_type, -1);
-		tracker_db_result_set_get (result_set, 2, &metadata_id, -1);
-		tracker_db_result_set_get (result_set, 3, &str, -1);
-
-		field = tracker_ontology_get_field_by_id (metadata_id);
-		if (!field) {
-			g_critical ("Field id %d in database but not in tracker-ontology",
-				    metadata_id);
-			g_free (str);
-			g_free (service_type);
-			g_free (uri);
-			return;
-		}
-
-		g_debug ("Insertion in turtle <%s, %s, %s>",
-			 uri, tracker_field_get_name (field), str);
-		tracker_turtle_add_triple (turtle_file, uri, field, str);
-
-		g_free (str);
-		g_free (service_type);
-		g_free (uri);
-
-		valid = tracker_db_result_set_iter_next (result_set);
-	}
-
 }
 
-
-void 
-tracker_backup_save (const gchar *turtle_filename)
+static void
+tracker_backup_init (TrackerBackup *backup)
 {
-	TrackerDBResultSet *data;
-	TrackerService     *service;
-	TurtleFile          *turtle_file;
-
-	/* TODO: temporary location */
-	if (g_file_test (turtle_filename, G_FILE_TEST_EXISTS)) {
-		g_unlink (turtle_filename);
-	}
-
-	turtle_file = tracker_turtle_open (turtle_filename);
-
-	g_message ("***** tracker_backup: Saving metadata in turtle file *****");
-
-	service = tracker_ontology_get_service_by_name ("Files");
-	data = tracker_data_query_backup_metadata (service);
-
-	if (data) {
-		extended_result_set_to_turtle (data, turtle_file);
-		g_object_unref (data);
-	}
-
-	tracker_turtle_close (turtle_file);
 }
 
+TrackerBackup *
+tracker_backup_new (void)
+{
+	return g_object_new (TRACKER_TYPE_BACKUP, NULL);
+}
+
+void
+tracker_backup_save (TrackerBackup          *object,
+		     const gchar            *path,
+		     DBusGMethodInvocation  *context,
+		     GError                **error)
+{
+	guint request_id;
+	GError *err = NULL;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to save backup into '%s'",
+				  path);
+
+	g_message ("Backing up metadata");
+	tracker_data_backup_save (path, &err);
+
+	if (err) {
+		GError *actual_error = NULL;
+
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     err->message);
+
+		dbus_g_method_return_error (context, actual_error);
+
+		g_error_free (actual_error);
+		g_error_free (err);
+	} else {
+		dbus_g_method_return (context);
+		tracker_dbus_request_success (request_id);
+	}
+}
+
+void
+tracker_backup_restore (TrackerBackup          *object,
+			const gchar            *path,
+			DBusGMethodInvocation  *context,
+			GError                **error)
+{
+	guint request_id;
+	GError *err = NULL;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to restore backup from '%s'",
+				  path);
+
+	org_freedesktop_Tracker_Indexer_restore_backup (tracker_dbus_indexer_get_proxy (),
+							path, &err);
+
+	if (err) {
+		GError *actual_error = NULL;
+
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     err->message);
+
+		dbus_g_method_return_error (context, actual_error);
+
+		g_error_free (actual_error);
+		g_error_free (err);
+	} else {
+		dbus_g_method_return (context);
+		tracker_dbus_request_success (request_id);
+	}
+}

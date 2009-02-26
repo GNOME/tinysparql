@@ -41,6 +41,8 @@
 #include "tracker-metadata-glue.h"
 #include "tracker-search.h"
 #include "tracker-search-glue.h"
+#include "tracker-backup.h"
+#include "tracker-backup-glue.h"
 #include "tracker-xesam.h"
 #include "tracker-xesam-glue.h"
 #include "tracker-indexer-client.h"
@@ -372,6 +374,20 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_search_object_info,
 			      TRACKER_SEARCH_PATH);
+	objects = g_slist_prepend (objects, object);
+
+	/* Add org.freedesktop.Tracker.Backup */
+	object = tracker_backup_new ();
+	if (!object) {
+		g_critical ("Could not create TrackerBackup object to register");
+		return FALSE;
+	}
+
+	dbus_register_object (connection,
+			      gproxy,
+			      G_OBJECT (object),
+			      &dbus_glib_tracker_backup_object_info,
+			      TRACKER_BACKUP_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	/* Register the XESAM object if enabled */

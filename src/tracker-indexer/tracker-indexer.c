@@ -72,6 +72,7 @@
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data-search.h>
 #include <libtracker-data/tracker-turtle.h>
+#include <libtracker-data/tracker-data-backup.h>
 
 #include "tracker-indexer.h"
 #include "tracker-indexer-module.h"
@@ -3017,34 +3018,26 @@ tracker_indexer_property_remove (TrackerIndexer		*indexer,
 }
 
 static void
-restore_backup_triple (void *user_data, const TrackerRaptorStatement *triple) {
-
-	const gchar    *values[2];
+restore_backup_cb (const gchar *subject,
+		   const gchar *predicate,
+		   const gchar *object,
+		   gpointer     user_data)
+{
+	const gchar *values[2] = { object, NULL };
 	TrackerIndexer *indexer = user_data;
-	GError         *error = NULL;
+	GError *error = NULL;
 
-	g_return_if_fail (TRACKER_IS_INDEXER (indexer));
-
-	g_debug ("Turtle loading <%s, %s, %s>",
-		 (gchar *)triple->subject, 
-		 (gchar *)triple->predicate, 
-		 (gchar *)triple->object);
-
-	values[0] = triple->object;
-	values[1] = NULL;
-
-	handle_metadata_add (indexer, 
-			     "Files", 
-			     triple->subject, 
-			     triple->predicate, 
-			     (GStrv) values, 
+	handle_metadata_add (indexer,
+			     "Files",
+			     subject,
+			     predicate,
+			     (GStrv) values,
 			     &error);
 
 	if (error) {
 		g_warning ("Restoring backup: %s", error->message);
 		g_error_free (error);
 	}
-
 }
 
 void
@@ -3054,6 +3047,7 @@ tracker_indexer_restore_backup (TrackerIndexer         *indexer,
 				GError                **error)
 {
 	guint request_id;
+	GError *err = NULL;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
@@ -3062,14 +3056,27 @@ tracker_indexer_restore_backup (TrackerIndexer         *indexer,
 	tracker_dbus_request_new (request_id,
 				  "DBus request to restore backup data from '%s'",
 				  backup_file);
-	
-	tracker_turtle_process (backup_file, 
-				"/", 
-				(TurtleTripleCallback) restore_backup_triple, 
-				indexer);
 
-	dbus_g_method_return (context);
-	tracker_dbus_request_success (request_id);
+	tracker_data_backup_restore (backup_file,
+				     restore_backup_cb,
+				     indexer,
+				     &err);
+
+	if (err) {
+		GError *actual_error = NULL;
+
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     err->message);
+
+		dbus_g_method_return_error (context, actual_error);
+
+		g_error_free (actual_error);
+		g_error_free (err);
+	} else {
+		dbus_g_method_return (context);
+		tracker_dbus_request_success (request_id);
+	}
 }
 
 
