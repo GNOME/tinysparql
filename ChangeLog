@@ -1,3 +1,10 @@
+2009-02-26  Andre Klapper  <a9016009@gmx.de>
+
+	* src/tracker-search-tool/tracker-search-tool-support.c:
+	Replace a call to libart with a GDK equivalent. Patch by Cosimo
+	Cecchi copied from gnome-utils.
+	Fixes GNOME bug 571736.
+
 2009-02-26  Carlos Garnacho  <carlos@imendio.com>
 
         Refactor Backups to turtle files support out to a
