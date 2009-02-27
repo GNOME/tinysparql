@@ -132,7 +132,7 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 				 _("No properties available"));
 		} else {
-			GList  *sorted, *l;
+			GList *l, *sorted = NULL;
 			gchar **p;
 
 			g_print ("%s:\n",

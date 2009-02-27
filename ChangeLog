@@ -1,3 +1,10 @@
+2009-02-27  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-extract-jpeg.c (extract_jpeg):
+	* src/tracker-extract/tracker-extract-ps.c (extract_ps_gz):
+	* src/tracker-utils/tracker-search.c (main):
+	* src/tracker-utils/tracker-services.c (main): Fix compiler warnings.
+
 2009-02-26  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-backup.c: Fixed some compilation

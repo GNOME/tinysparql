@@ -217,15 +217,11 @@ main (int argc, char **argv)
 			g_print ("%s\n",
 				 _("No results found matching your query"));
 		} else {
-			gint length;
-
-			length = g_strv_length (strv);
-
 			g_print (tracker_dngettext (NULL,
 						    _("Result: %d"), 
 						    _("Results: %d"),
-						    length),
-				 length);
+						    array->len),
+				 array->len);
 			g_print ("\n");
 
 			g_ptr_array_foreach (array, (GFunc) get_meta_table_data, NULL);

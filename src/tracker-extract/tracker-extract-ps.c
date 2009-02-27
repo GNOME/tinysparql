@@ -338,7 +338,7 @@ extract_ps_gz (const gchar *filename,
 
 		if ((f = fdopen (fd, "w"))) {
 			unsigned char buf[8192];
-			size_t b, accum;
+			size_t w, b, accum;
 			size_t max;
 
 			/* 20 MiB should be enough! */
@@ -347,7 +347,11 @@ extract_ps_gz (const gchar *filename,
 
 			while ((b = fread (buf, 1, 8192, fz)) && accum <= max) {
 				accum += b;
-				fwrite (buf, 1, b, f);
+				w = 0;
+
+				while (w < b) {
+					w += fwrite (buf, 1, b, f);
+				}
 			}
 
 			fclose (f);
