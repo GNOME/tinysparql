@@ -670,12 +670,17 @@ static void
 check_stopped (TrackerIndexer *indexer,
 	       gboolean        interrupted)
 {
-	gchar	*str;
-	gdouble  seconds_elapsed;
+	TrackerIndexerState state;
+	gdouble seconds_elapsed = 0;
+	gchar *str;
+
+	state = indexer->private->state;
 
 	/* No more modules to query, we're done */
-	g_timer_stop (indexer->private->timer);
-	seconds_elapsed = g_timer_elapsed (indexer->private->timer, NULL);
+	if ((state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
+		g_timer_stop (indexer->private->timer);
+		seconds_elapsed = g_timer_elapsed (indexer->private->timer, NULL);
+	}
 
 	/* Flush remaining items */
 	schedule_flush (indexer, TRUE);

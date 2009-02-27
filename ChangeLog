@@ -1,5 +1,11 @@
 2009-02-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c (check_stopped): Do not report
+	spurious elapsed times if check_stopped is called when the indexer is
+	in stopped state.
+
+2009-02-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-extract/tracker-extract-jpeg.c (extract_jpeg):
 	* src/tracker-extract/tracker-extract-ps.c (extract_ps_gz):
 	* src/tracker-utils/tracker-search.c (main):
