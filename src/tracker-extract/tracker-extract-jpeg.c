@@ -302,6 +302,10 @@ extract_jpeg (const gchar *filename,
 	if ((jpeg = fdopen (fd_jpeg, "rb"))) {
 		gchar *str;
 		gsize  len;
+#ifdef HAVE_LIBEXIF
+		gsize  offset;
+		gsize  sublen;
+#endif /* HAVE_LIBEXIF */
 
 		cinfo.err = jpeg_std_error (&tejerr.jpeg);
 		tejerr.jpeg.error_exit = tracker_extract_jpeg_error_exit;

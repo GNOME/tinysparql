@@ -1,3 +1,8 @@
+2009-02-27  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-jpeg.c: Put back variables
+	needed for exif extraction.
+
 2009-02-27  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-module-metadata-utils.c
