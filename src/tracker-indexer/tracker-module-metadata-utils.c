@@ -307,11 +307,11 @@ metadata_utils_get_embedded (const char            *path,
 		return;
 	}
 
-	g_hash_table_foreach (values, 
-			      metadata_utils_get_embedded_foreach, 
+	g_hash_table_foreach (values,
+			      metadata_utils_get_embedded_foreach,
 			      metadata);
 
-	/* Do we free this hash table? */
+	g_hash_table_destroy (values);
 }
 
 static gboolean

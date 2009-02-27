@@ -1,5 +1,10 @@
 2009-02-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	(metadata_utils_get_embedded): Plug a leak.
+
+2009-02-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/trackerd/tracker-main.c (shutdown_indexer) (main): Do not
 	explicitly shutdown the indexer, it will shutdown by itself then
 	trackerd disappears from the session bus, and it could respawn a
