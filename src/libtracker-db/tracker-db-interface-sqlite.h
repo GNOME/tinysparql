@@ -42,6 +42,14 @@ typedef GValue (* TrackerDBFunc) (TrackerDBInterface *interface,
 				  gint		      argc,
 				  GValue	      argv[]);
 
+typedef void (* TrackerDBFuncStep) (TrackerDBInterface *interface,
+				    void               *aggregate_context,
+				    gint		  argc,
+				    GValue	          argv[]);
+
+typedef GValue (* TrackerDBFuncFinal) (TrackerDBInterface *interface,
+				       void               *aggregate_context);
+
 struct TrackerDBInterfaceSqlite {
 	GObject parent_instance;
 };
@@ -59,6 +67,12 @@ void		     tracker_db_interface_sqlite_create_function	(TrackerDBInterface	  *in
 									 const gchar		  *name,
 									 TrackerDBFunc		   func,
 									 gint			   n_args);
+void                 tracker_db_interface_sqlite_create_aggregate       (TrackerDBInterface       *interface,
+									 const gchar	          *name,
+									 TrackerDBFuncStep         step,
+									 gint		           n_args,
+									 TrackerDBFuncFinal        final,
+									 guint                     context_size);
 gboolean	     tracker_db_interface_sqlite_set_collation_function (TrackerDBInterfaceSqlite *interface,
 									 const gchar		  *name,
 									 TrackerDBCollationFunc    func);

@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /* Tracker - Sqlite implementation
  * Copyright (C) 2008 Nokia
  *
@@ -24,6 +25,7 @@
 
 typedef struct TrackerDBInterfaceSqlitePrivate TrackerDBInterfaceSqlitePrivate;
 typedef struct SqliteFunctionData SqliteFunctionData;
+typedef struct SqliteAggregateData SqliteAggregateData;
 
 struct TrackerDBInterfaceSqlitePrivate {
 	gchar *filename;
@@ -33,6 +35,7 @@ struct TrackerDBInterfaceSqlitePrivate {
 	GHashTable *procedures;
 
 	GSList *function_data;
+	GSList *aggregate_data;
 
 	guint in_transaction : 1;
 	guint ro : 1;
@@ -41,6 +44,14 @@ struct TrackerDBInterfaceSqlitePrivate {
 struct SqliteFunctionData {
 	TrackerDBInterface *interface;
 	TrackerDBFunc func;
+};
+
+struct SqliteAggregateData {
+	TrackerDBInterface *interface;
+	guint               context_size;
+	TrackerDBFuncStep   step;
+	TrackerDBFuncFinal  final;
+	
 };
 
 static void tracker_db_interface_sqlite_iface_init (TrackerDBInterfaceIface *iface);
@@ -59,7 +70,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDBInterfaceSqlite, tracker_db_interface_sqlite, 
 void 
 tracker_db_interface_sqlite_enable_shared_cache (void) 
 {
-	sqlite3_enable_shared_cache (1);
+  sqlite3_enable_shared_cache (1);
 }
 
 static GObject *
@@ -161,6 +172,9 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 
 	g_slist_foreach (priv->function_data, (GFunc) g_free, NULL);
 	g_slist_free (priv->function_data);
+
+	g_slist_foreach (priv->aggregate_data, (GFunc) g_free, NULL);
+	g_slist_free (priv->aggregate_data);
 
 	sqlite3_close (priv->db);
 	g_message ("Closed sqlite3 database:'%s'", priv->filename);
@@ -344,6 +358,114 @@ internal_sqlite3_function (sqlite3_context *context,
 	}
 
 	g_free (values);
+}
+
+static void
+internal_sqlite3_aggregate_step (sqlite3_context *context,
+				 int		    argc,
+				 sqlite3_value   *argv[])
+{
+	SqliteAggregateData *data;
+	void *aggregate_context;
+	GValue *values;
+	GByteArray *blob_array;
+	gint i;
+
+	data = (SqliteAggregateData *) sqlite3_user_data (context);
+	values = g_new0 (GValue, argc);
+
+	/* Transform the arguments */
+	for (i = 0; i < argc; i++) {
+		switch (sqlite3_value_type (argv[i])) {
+		case SQLITE_TEXT:
+			g_value_init (&values[i], G_TYPE_STRING);
+			g_value_set_string (&values[i], (gchar *) sqlite3_value_text (argv[i]));
+			break;
+		case SQLITE_INTEGER:
+			g_value_init (&values[i], G_TYPE_INT);
+			g_value_set_int (&values[i], sqlite3_value_int (argv[i]));
+			break;
+		case SQLITE_FLOAT:
+			g_value_init (&values[i], G_TYPE_DOUBLE);
+			g_value_set_double (&values[i], sqlite3_value_double (argv[i]));
+			break;
+		case SQLITE_BLOB: {
+			gconstpointer blob;
+			gint size;
+
+			blob = sqlite3_value_blob (argv[i]);
+			size = sqlite3_value_bytes (argv[i]);
+
+			blob_array = g_byte_array_sized_new (size);
+			g_byte_array_append (blob_array, blob, size);
+
+			g_value_init (&values[i], TRACKER_TYPE_DB_BLOB);
+			g_value_take_boxed (&values[i], blob_array);
+
+			break;
+		}
+		default:
+			g_critical ("Unknown sqlite3 database value type:%d",
+				    sqlite3_value_type (argv[i]));
+		}
+	}
+
+	aggregate_context = sqlite3_aggregate_context(context, data->context_size);
+
+	/* Call the function */
+	data->step (data->interface, aggregate_context, argc, values);
+
+	/* Now free all this mess */
+	for (i = 0; i < argc; i++) {
+		g_value_unset (&values[i]);
+	}
+
+	g_free (values);
+}
+
+static void
+internal_sqlite3_aggregate_final (sqlite3_context *context)
+{
+	SqliteAggregateData *data;
+	void *aggregate_context;
+	GValue result;
+	GByteArray *blob_array;
+
+	data = (SqliteAggregateData *) sqlite3_user_data (context);
+
+	aggregate_context = sqlite3_aggregate_context(context, 0);	
+
+	/* Call the function */
+	result = data->final (data->interface, aggregate_context);
+
+	/* And return something appropriate to the context */
+	if (G_VALUE_HOLDS_INT (&result)) {
+		sqlite3_result_int (context, g_value_get_int (&result));
+	} else if (G_VALUE_HOLDS_DOUBLE (&result)) {
+		sqlite3_result_double (context, g_value_get_double (&result));
+	} else if (G_VALUE_HOLDS_STRING (&result)) {
+		sqlite3_result_text (context,
+				     g_value_dup_string (&result),
+				     -1, g_free);
+	} else if (G_VALUE_HOLDS (&result, TRACKER_TYPE_DB_BLOB)) {
+		blob_array = g_value_get_boxed (&result);
+		sqlite3_result_blob (context,
+				     g_memdup (blob_array->data, blob_array->len),
+				     blob_array->len,
+				     g_free);
+	} else if (G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
+		sqlite3_result_null (context);
+	} else {
+		g_critical ("Sqlite3 returned type not managed:'%s'",
+			    G_VALUE_TYPE_NAME (&result));
+		sqlite3_result_null (context);
+	}
+
+	/* Now free all this mess */
+
+	if (! G_VALUE_HOLDS (&result, G_TYPE_INVALID)) {
+		g_value_unset (&result);
+	}
 }
 
 static void
@@ -640,6 +762,32 @@ tracker_db_interface_sqlite_create_function (TrackerDBInterface *interface,
 	priv->function_data = g_slist_prepend (priv->function_data, data);
 
 	sqlite3_create_function (priv->db, name, n_args, SQLITE_ANY, data, &internal_sqlite3_function, NULL, NULL);
+}
+
+void
+tracker_db_interface_sqlite_create_aggregate (TrackerDBInterface *interface,
+					      const gchar	 *name,
+					      TrackerDBFuncStep   step,
+					      gint		  n_args,
+					      TrackerDBFuncFinal  final,
+					      guint               context_size)
+{
+	SqliteAggregateData *data;
+	TrackerDBInterfaceSqlitePrivate *priv;
+
+	priv = TRACKER_DB_INTERFACE_SQLITE_GET_PRIVATE (interface);
+
+	data = g_new0 (SqliteAggregateData, 1);
+	data->interface = interface;
+	data->context_size = context_size;
+	data->step = step;
+	data->final = final;
+
+	priv->aggregate_data = g_slist_prepend (priv->aggregate_data, data);
+
+	sqlite3_create_function (priv->db, name, n_args, SQLITE_ANY, data, NULL, 
+				 &internal_sqlite3_aggregate_step, 
+				 &internal_sqlite3_aggregate_final);
 }
 
 gboolean

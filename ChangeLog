@@ -1,3 +1,15 @@
+2009-02-26  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-backup.c: Fixed some compilation
+	errors.
+	* src/libtracker-data/tracker-data-search.c: Minor fix to
+	concatenation dbus method.
+	* src/libtracker-db/tracker-db-interface-sqlite.c
+	* src/libtracker-db/tracker-db-interface-sqlite.h: Added
+	abstraction layer to sqlite aggregate function creation.
+	* src/libtracker-db/tracker-db-manager.c: Added a redefined version of
+	GROUP_CONCAT aggregate function.	
+
 2009-02-26  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-daemon.c (tracker_daemon_get_status): Do not

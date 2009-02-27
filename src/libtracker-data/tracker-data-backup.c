@@ -98,10 +98,10 @@ restore_backup_triple (gpointer                user_data,
 		 (gchar *)triple->predicate,
 		 (gchar *)triple->object);
 
-	(data.func) ((const gchar *) triple->subject,
-		     (const gchar *) triple->predicate,
-		     (const gchar *) triple->object,
-		     data->user_data);
+	(data->func) ((const gchar *) triple->subject,
+		      (const gchar *) triple->predicate,
+		      (const gchar *) triple->object,
+		      data->user_data);
 }
 
 #endif /* HAVE_RAPTOR */
@@ -160,10 +160,10 @@ tracker_data_backup_restore (const gchar                   *turtle_filename,
 	if (!g_file_test (turtle_filename, G_FILE_TEST_EXISTS)) {
 		g_set_error (error, 0, 0,
 			     "Turtle file does not exist");
-		return;
+		return FALSE;
 	}
 
-	tracker_turtle_process (backup_file,
+	tracker_turtle_process (turtle_filename,
 				"/",
 				(TurtleTripleCallback) restore_backup_triple,
 				&data);

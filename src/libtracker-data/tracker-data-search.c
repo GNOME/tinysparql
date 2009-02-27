@@ -1315,7 +1315,7 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 			g_string_free (sql_group, TRUE);
 
 			g_set_error (error, TRACKER_DBUS_ERROR, 0,
-				     "Cannot sum '%s': this metadata type is not text",
+				     "Cannot concatenate '%s': this metadata type is not text",
 				     sum_field);
 			return NULL;
 		}

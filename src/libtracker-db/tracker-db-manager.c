@@ -79,6 +79,10 @@ typedef struct {
 	guint64             mtime;
 } TrackerDBDefinition;
 
+typedef struct {
+	GString *string;     /* The string we are accumulating */
+} AggregateData;
+
 static TrackerDBDefinition dbs[] = {
 	{ TRACKER_DB_UNKNOWN,
 	  TRACKER_DB_LOCATION_USER_DATA_DIR,
@@ -1325,6 +1329,41 @@ function_regexp (TrackerDBInterface *interface,
 	return result;
 }
 
+static void
+function_group_concat_step (TrackerDBInterface *interface,
+			    void               *aggregate_context,
+			    gint		argc,
+			    GValue		values[])
+{
+	AggregateData *p = (AggregateData *)aggregate_context;
+	
+	g_assert (argc==1);
+
+	if (!p->string) {
+		p->string = g_string_new ("");
+	} else {
+		p->string = g_string_append (p->string, "|");
+	}
+
+	p->string = g_string_append (p->string, g_value_get_string (&values[0]));
+}
+
+static GValue
+function_group_concat_final (TrackerDBInterface *interface,
+			     void               *aggregate_context)
+{
+	GValue result = { 0, };
+	AggregateData *p = (AggregateData *)aggregate_context;
+
+	g_value_init (&result, G_TYPE_STRING);
+	g_value_set_string (&result, p->string->str);
+
+	g_string_free (p->string, TRUE);
+
+	return result;
+}
+
+
 static GValue
 function_get_service_name (TrackerDBInterface *interface,
 			   gint		       argc,
@@ -1697,6 +1736,14 @@ db_set_params (TrackerDBInterface *iface,
 							     "replace",
 							     function_replace,
 							     3);
+		
+		tracker_db_interface_sqlite_create_aggregate (iface,
+							      "group_concat",
+							      function_group_concat_step,
+							      1,
+							      function_group_concat_final,
+							      sizeof(AggregateData));
+
 		tracker_db_interface_sqlite_create_function (iface,
 							     "CollateKey",
 							     function_collate_key,
