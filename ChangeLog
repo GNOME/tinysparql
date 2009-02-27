@@ -1,5 +1,12 @@
 2009-02-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/trackerd/tracker-main.c (shutdown_indexer) (main): Do not
+	explicitly shutdown the indexer, it will shutdown by itself then
+	trackerd disappears from the session bus, and it could respawn a
+	indexer instance if it wasn't there.
+
+2009-02-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c (check_stopped): Do not report
 	spurious elapsed times if check_stopped is called when the indexer is
 	in stopped state.

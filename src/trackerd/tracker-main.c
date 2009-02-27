@@ -632,12 +632,6 @@ initialize_databases (void)
 	return TRUE;
 }
 
-
-static void
-shutdown_indexer (void)
-{
-}
-
 static void
 shutdown_databases (void)
 {
@@ -1151,15 +1145,6 @@ main (gint argc, gchar *argv[])
 
 	g_timeout_add_full (G_PRIORITY_LOW, 5000, shutdown_timeout_cb, NULL, NULL);
 
-	g_message ("Waiting for indexer to finish");
-	org_freedesktop_Tracker_Indexer_shutdown (tracker_dbus_indexer_get_proxy (), &error);
-
-	if (error) {
-		g_message ("Could not shutdown the indexer, %s", error->message);
-		g_message ("Continuing anyway...");
-		g_error_free (error);
-	}
-
 	g_message ("Cleaning up");
 	if (private->processor) {
 		/* We do this instead of let the private data free
@@ -1170,7 +1155,6 @@ main (gint argc, gchar *argv[])
 		private->processor = NULL;
 	}
 
-	shutdown_indexer ();
 	shutdown_databases ();
 	shutdown_directories ();
 
