@@ -1800,7 +1800,9 @@ name_owner_changed (DBusGProxy	*proxy,
 
 		if (priv->reindex) {
 			GError *error = NULL;
-			const gchar *command = "trackerd";
+			const gchar *command;
+
+			command = g_build_filename (TRACKER_LIBEXECDIR, "trackerd", NULL);
 
 			priv->reindex = FALSE;
 

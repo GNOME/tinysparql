@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.decl
 INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
+	-DTRACKER_LIBEXECDIR=\""$(libexecdir)"\" 			\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
 	$(WARN_CFLAGS)							\
