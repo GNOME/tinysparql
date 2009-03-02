@@ -1,3 +1,11 @@
+2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/trackerd/tracker-search.c
+	* src/libtracker-data/tracker-rdf-query.c: Use group_concat for
+	multivalued queries instead of combining entries in code.
+
+	Fixes NB#102210.
+
 2009-03-02  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-extract-jpeg.c (extract_jpeg): Use

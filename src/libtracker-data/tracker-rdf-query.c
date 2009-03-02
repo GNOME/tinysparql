@@ -167,6 +167,7 @@ typedef struct {
 	GString		    *sql_select;
 	GString		    *sql_from;
 	GString		    *sql_where;
+	GString             *sql_group;
 	GString		    *sql_order;
 	gchar		    *service;
 } ParserData;
@@ -390,8 +391,13 @@ add_metadata_field (ParserData	*data,
 			if (is_select) {
 				if (!tracker_field_data_get_is_select (field_data)) {
 					tracker_field_data_set_is_select (field_data, TRUE);
-					g_string_append_printf (data->sql_select, ", %s",
-								tracker_field_data_get_select_field (field_data));
+					if(tracker_field_data_get_multiple_values(field_data)) {
+						g_string_append_printf (data->sql_select, ", GROUP_CONCAT (%s)",
+									tracker_field_data_get_select_field (field_data));
+					} else {
+						g_string_append_printf (data->sql_select, ", %s",
+									tracker_field_data_get_select_field (field_data));
+					}
 				}
 			}
 
@@ -409,8 +415,13 @@ add_metadata_field (ParserData	*data,
 		if (field_data) {
 			data->fields = g_slist_prepend (data->fields, field_data);
 			if (is_select) {
-				g_string_append_printf (data->sql_select, ", %s",
-							tracker_field_data_get_select_field (field_data));
+				if(tracker_field_data_get_multiple_values(field_data)) {
+					g_string_append_printf (data->sql_select, ", GROUP_CONCAT (%s)",
+								tracker_field_data_get_select_field (field_data));
+				} else {
+					g_string_append_printf (data->sql_select, ", %s",
+								tracker_field_data_get_select_field (field_data));
+				}
 			}
 		}
 	}
@@ -1125,11 +1136,11 @@ get_select_header (const char *service)
         case 6:
         case 7:
         case 8:
-                g_string_append_printf (result, " Select DISTINCT S.ID, (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
+                g_string_append_printf (result, " Select DISTINCT (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
                 break;
 
         default :
-                g_string_append_printf (result, " Select DISTINCT S.ID, (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
+                g_string_append_printf (result, " Select DISTINCT (S.Path || '%s' || S.Name) as uri, GetServiceName(S.ServiceTypeID) as stype ", G_DIR_SEPARATOR_S);
                 break;
 	}
 
@@ -1287,6 +1298,8 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 		g_string_append_printf (data.sql_where, "AND ");
 	}
 
+	data.sql_group = g_string_new (" GROUP BY S.ID ");
+
 	if (limit < 1) {
 		limit = 1024;
 	}
@@ -1329,6 +1342,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 				g_slist_free (data.fields);
 				g_string_free (data.sql_select, TRUE);
 				g_string_free (data.sql_where, TRUE);
+				g_string_free (data.sql_group, TRUE);
 				g_string_free (data.sql_order, TRUE);
 
 				return NULL;
@@ -1372,6 +1386,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 		g_string_free (data.sql_select, TRUE);
 		g_string_free (data.sql_from, TRUE);
 		g_string_free (data.sql_where, TRUE);
+		g_string_free (data.sql_group, TRUE);
 		g_string_free (data.sql_order, TRUE);
 	} else {
 		GSList *l;
@@ -1419,12 +1434,15 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 				      " ",
 				      data.sql_where->str,
 				      " ",
+				      data.sql_group->str,
+				      " ",
 				      data.sql_order->str,
 				      NULL);
 
 		g_string_free (data.sql_select, TRUE);
 		g_string_free (data.sql_from, TRUE);
 		g_string_free (data.sql_where, TRUE);
+		g_string_free (data.sql_group, TRUE);
 		g_string_free (data.sql_order, TRUE);
 	}
 
