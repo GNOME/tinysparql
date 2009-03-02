@@ -1344,8 +1344,10 @@ function_group_concat_step (TrackerDBInterface *interface,
 	} else {
 		p->string = g_string_append (p->string, "|");
 	}
-
-	p->string = g_string_append (p->string, g_value_get_string (&values[0]));
+	
+	if (G_VALUE_HOLDS_STRING (&values[0])) {
+		p->string = g_string_append (p->string, g_value_get_string (&values[0]));
+	}
 }
 
 static GValue

@@ -404,6 +404,10 @@ internal_sqlite3_aggregate_step (sqlite3_context *context,
 
 			break;
 		}
+		case SQLITE_NULL: {
+			/* Ignore NULLs and let the function handle missing values */
+			break;
+		}
 		default:
 			g_critical ("Unknown sqlite3 database value type:%d",
 				    sqlite3_value_type (argv[i]));
@@ -417,7 +421,10 @@ internal_sqlite3_aggregate_step (sqlite3_context *context,
 
 	/* Now free all this mess */
 	for (i = 0; i < argc; i++) {
-		g_value_unset (&values[i]);
+		/* Don't free NULLs */
+		if (G_VALUE_TYPE (&values[i]) != G_TYPE_INVALID) {
+			g_value_unset (&values[i]);
+		}
 	}
 
 	g_free (values);

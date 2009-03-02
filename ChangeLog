@@ -1,5 +1,11 @@
 2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/libtracker-db/tracker-db-interface-sqlite.c
+	* src/libtracker-db/tracker-db-manager.c: More proper handling of
+	NULLs in aggregates.
+
+2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/trackerd/tracker-search.c
 	* src/libtracker-data/tracker-rdf-query.c: Use group_concat for
 	multivalued queries instead of combining entries in code.
