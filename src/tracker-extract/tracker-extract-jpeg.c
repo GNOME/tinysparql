@@ -302,7 +302,7 @@ extract_jpeg (const gchar *filename,
 	if ((jpeg = fdopen (fd_jpeg, "rb"))) {
 		gchar *str;
 		gsize  len;
-#ifdef HAVE_LIBEXIF
+#ifdef HAVE_LIBIPTCDATA
 		gsize  offset;
 		gsize  sublen;
 #endif /* HAVE_LIBEXIF */
