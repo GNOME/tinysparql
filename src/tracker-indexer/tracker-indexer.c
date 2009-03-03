@@ -82,8 +82,9 @@
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
-/* Flush every 'x' seconds */
-#define FLUSH_FREQUENCY		    30
+#define FILES_REMAINING_THRESHOLD   10000
+#define MAX_FLUSH_FREQUENCY         60
+#define MIN_FLUSH_FREQUENCY         1
 
 #define SIGNAL_STATUS_FREQUENCY     10
 
@@ -373,6 +374,18 @@ stop_scheduled_flush (TrackerIndexer *indexer)
 	}
 }
 
+static guint
+get_flush_time (TrackerIndexer *indexer)
+{
+	guint seconds, remaining_files;
+
+	remaining_files = g_queue_get_length (indexer->private->file_queue);
+
+	seconds = (remaining_files * MAX_FLUSH_FREQUENCY) / FILES_REMAINING_THRESHOLD;
+
+	return CLAMP (seconds, MIN_FLUSH_FREQUENCY, MAX_FLUSH_FREQUENCY);
+}
+
 static void
 schedule_flush (TrackerIndexer *indexer,
 		gboolean	immediately)
@@ -393,7 +406,7 @@ schedule_flush (TrackerIndexer *indexer,
 		return;
 	}
 
-	indexer->private->flush_id = g_timeout_add_seconds (FLUSH_FREQUENCY,
+	indexer->private->flush_id = g_timeout_add_seconds (get_flush_time (indexer),
 							    (GSourceFunc) flush_data,
 							    indexer);
 }

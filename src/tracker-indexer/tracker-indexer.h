@@ -31,7 +31,7 @@
 #define TRACKER_INDEXER_INTERFACE    "org.freedesktop.Tracker.Indexer"
 
 /* Transaction every 'x' items */
-#define TRACKER_INDEXER_TRANSACTION_MAX	2000
+#define TRACKER_INDEXER_TRANSACTION_MAX	4000
 
 G_BEGIN_DECLS
 

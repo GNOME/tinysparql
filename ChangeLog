@@ -1,5 +1,10 @@
 2009-03-03  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.[ch]: Make the indexer decide
+	the flush timeout dynamically based on the number of elements left.
+
+2009-03-03  Carlos Garnacho  <carlos@imendio.com>
+
 	Make flushing to index asynchronous.
 
 	* src/libtracker-db/tracker-db-index.[ch]: Make asynchronous, so the
