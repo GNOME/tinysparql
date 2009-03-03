@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 INCLUDES =								\
 	-I$(top_srcdir)/src						\
 	-DGETTEXT_PACKAGE="\"$(GETTEXT_PACKAGE)\""			\
-	-DLOCALEDIR="\"$(LOCALEDIR)\""					\
+	-DLOCALEDIR="\"$(localedir)\""					\
 	-DTRACKER_COMPILATION						\
 	$(WARN_CFLAGS)							\
 	$(DBUS_CFLAGS)							\
@@ -15,10 +15,10 @@ INCLUDES =								\
 	LC_ALL=C $(INTLTOOL_MERGE) -x -u /tmp $< $@
 
 %.eplug: %.eplug.in
-	sed -e "s%+PLUGIN_INSTALL_DIR+%$(EVOLUTION_PLUGIN_INSTALL_DIR)%"\
-	-e "s%+GETTEXT_PACKAGE+%$(GETTEXT_PACKAGE)%" 			\
-	-e "s%+LOCALEDIR+%$(LOCALEDIR)%"				\
-	$< > $@
+	sed -e "s|+PLUGIN_INSTALL_DIR+|$(EVOLUTION_PLUGIN_INSTALL_DIR)|"	\
+	    -e "s|+GETTEXT_PACKAGE+|$(GETTEXT_PACKAGE)|"			\
+	    -e "s|+LOCALEDIR+|$(localedir)|"					\
+	    $< > $@
 
 eplugindir = $(EVOLUTION_PLUGIN_INSTALL_DIR)
 
