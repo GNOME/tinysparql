@@ -3043,6 +3043,8 @@ restore_backup_cb (const gchar *subject,
 		g_warning ("Restoring backup: %s", error->message);
 		g_error_free (error);
 	}
+
+	g_main_context_iteration (NULL, FALSE);
 }
 
 void

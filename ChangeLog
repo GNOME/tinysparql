@@ -1,3 +1,8 @@
+2009-03-03  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (restore_backup_cb): Iterate
+	the main loop while processing the turtle records to restore.
+
 2009-03-03  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-db/tracker-db-manager.c: Removed
