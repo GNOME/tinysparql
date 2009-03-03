@@ -1258,28 +1258,6 @@ db_get_xesam_mime_prefixes_for_service_id (TrackerDBInterface *iface,
 	return db_mime_query (iface, "GetXesamMimePrefixForServiceId", service_id);
 }
 
-/* Sqlite utf-8 user defined collation sequence */
-static gint
-utf8_collation_func (gchar *str1,
-		     gint   len1,
-		     gchar *str2,
-		     int    len2)
-{
-	gchar *word1, *word2;
-	gint   result;
-
-	/* Collate words */
-	word1 = g_utf8_collate_key_for_filename (str1, len1);
-	word2 = g_utf8_collate_key_for_filename (str2, len2);
-
-	result = strcmp (word1, word2);
-
-	g_free (word1);
-	g_free (word2);
-
-	return result;
-}
-
 /* Converts date/time in UTC format to ISO 8160 standardised format for display */
 static GValue
 function_date_to_str (TrackerDBInterface *interface,
@@ -1702,12 +1680,6 @@ db_set_params (TrackerDBInterface *iface,
 
 	if (add_functions) {
 		g_message ("  Adding functions (FormatDate, etc)");
-
-		if (!tracker_db_interface_sqlite_set_collation_function (TRACKER_DB_INTERFACE_SQLITE (iface),
-									 "UTF8",
-									 utf8_collation_func)) {
-			g_critical ("Collation sequence failed");
-		}
 
 		/* Create user defined functions that can be used in sql */
 		tracker_db_interface_sqlite_create_function (iface,

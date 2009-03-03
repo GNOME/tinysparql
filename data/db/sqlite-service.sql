@@ -3,8 +3,8 @@ CREATE TABLE  Services
 (
 	ID            		Integer primary key not null,
 	ServiceTypeID		Integer  default 0, /* see ServiceTypes table above for ID values. A value of 0 indicates a group resource rather than a service */
-	Path 			Text  not null  COLLATE UTF8, /* non-file objects should use service name here */
-	Name	 		Text default ' ' COLLATE UTF8, /* name of file or object - the combination path and name must be unique for all objects */
+	Path 			Text not null,      /* non-file objects should use service name here */
+	Name	 		Text default ' ',   /* name of file or object - the combination path and name must be unique for all objects */
 	Enabled			Integer default 1,
 	Mime			Text default ' ',
 	Size			Integer default 0,

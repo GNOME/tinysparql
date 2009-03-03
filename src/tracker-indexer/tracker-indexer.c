@@ -1428,13 +1428,13 @@ item_add_or_update (TrackerIndexer        *indexer,
 			 dirname, 
 			 basename);
 
-		/*
-		 * "metadata" (new metadata) contains embedded props and can contain
+		/* "metadata" (new metadata) contains embedded props and can contain
 		 * non-embedded properties with default values! Dont overwrite those 
 		 * in the DB if they already has a value.
 		 * 
 		 * 1) Remove all old embedded metadata from index and DB
-		 * 2) Remove from new metadata all non embedded properties that already have value.
+		 * 2) Remove from new metadata all non embedded
+		 *    properties that already have value.
 		 * 3) Save the remain new metadata.
 		 */
 		old_metadata_emb = tracker_data_query_metadata (service, id, TRUE);

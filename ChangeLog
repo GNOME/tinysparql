@@ -1,3 +1,9 @@
+2009-03-03  Martyn Russell  <martyn@imendio.com>
+
+	* data/db/sqlite-service.sql:
+	* src/libtracker-db/tracker-db-manager.c: Remove collation from
+	Services table.
+
 2009-03-03  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.[ch]: Make the indexer decide
