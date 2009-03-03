@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-module_flags = -modu
+module_flags = -module -avoid-version -no-undefined
 modulesdir = $(libdir)/tracker/extract-modules
 
 INCLUDES = 								\
