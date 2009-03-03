@@ -412,10 +412,11 @@ get_id3 (const gchar *data,
 	}
 
 	pos += 30;
-	id3->genre = (char *) "";
 
 	if ((guint) pos[0] < G_N_ELEMENTS (genre_names)) {
 		id3->genre = g_strdup (genre_names[(unsigned) pos[0]]);
+	} else {
+		id3->genre = g_strdup ("");
 	}
 
 	return TRUE;

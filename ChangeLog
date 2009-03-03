@@ -1,5 +1,13 @@
 2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-mp3.c   
+	* src/tracker-extract/tracker-extract-gstreamer.c: Treat the
+	Unknown genre like other unknown/missing values.
+
+	Fixes NB#103198
+
+2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/libtracker-db/tracker-db-interface-sqlite.c
 	* src/libtracker-db/tracker-db-manager.c: More proper handling of
 	NULLs in aggregates.

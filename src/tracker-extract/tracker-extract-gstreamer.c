@@ -239,6 +239,7 @@ static void
 extract_metadata (MetadataExtractor *extractor,
 		  GHashTable        *metadata)
 {
+	gchar *value;
 	g_return_if_fail (extractor);
 	g_return_if_fail (metadata);
 
@@ -340,6 +341,15 @@ extract_metadata (MetadataExtractor *extractor,
 	if (extractor->videotags) {
 		add_uint_gst_tag (metadata, "Video:Bitrate", extractor->videotags, GST_TAG_BITRATE);
 	}
+
+	/* Do some postprocessing (FIXME, or fix gstreamer) */
+	if ( (value = g_hash_table_lookup (metadata, "Audio:Genre")) ) {
+		if (strcmp(value, "Unknown") == 0) {
+			g_hash_table_remove (metadata,
+					     "Audio:Genre");
+		}
+	}
+
 }
 
 static void
