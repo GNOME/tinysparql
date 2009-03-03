@@ -1,5 +1,13 @@
 2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-escape.c
+	* src/tracker-extract/tracker-escape.h: Strip the whitespaces from
+	extracted metadata.
+
+	Fixes NB#102246, NB#103260
+
+2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c   
 	* src/tracker-extract/tracker-extract-gstreamer.c: Treat the
 	Unknown genre like other unknown/missing values.

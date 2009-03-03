@@ -23,7 +23,7 @@
 
 #include <glib.h>
 
-#undef SHOULD_VALIDATE_UTF8
+#define SHOULD_VALIDATE_UTF8
 
 G_BEGIN_DECLS
 
