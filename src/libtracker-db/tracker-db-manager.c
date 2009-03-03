@@ -42,7 +42,6 @@
 #define ZLIB_BUF_SIZE		      8192
 
 /* Default memory settings for databases */
-#define TRACKER_DB_PAGE_SIZE_DEFAULT  4096
 #define TRACKER_DB_PAGE_SIZE_DONT_SET -1
 
 /* Size is in bytes and is currently 2Gb */
@@ -93,7 +92,7 @@ static TrackerDBDefinition dbs[] = {
 	  NULL,
 	  NULL,
 	  32,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
 	  FALSE,
 	  FALSE,
@@ -105,7 +104,7 @@ static TrackerDBDefinition dbs[] = {
 	  "common",
 	  NULL,
 	  32,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
 	  FALSE,
 	  FALSE,
@@ -129,7 +128,7 @@ static TrackerDBDefinition dbs[] = {
 	  "file-meta",
 	  NULL,
 	  512,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  TRUE,
 	  FALSE,
 	  FALSE,
@@ -141,7 +140,7 @@ static TrackerDBDefinition dbs[] = {
 	  "file-fulltext",
 	  NULL,
 	  512,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  TRUE,
 	  FALSE,
 	  TRUE,
@@ -153,7 +152,7 @@ static TrackerDBDefinition dbs[] = {
 	  "file-contents",
 	  NULL,
 	  1024,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
 	  FALSE,
 	  FALSE,
@@ -165,7 +164,7 @@ static TrackerDBDefinition dbs[] = {
 	  "email-meta",
 	  NULL,
 	  512,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  TRUE,
 	  FALSE,
  	  0 },
@@ -176,7 +175,7 @@ static TrackerDBDefinition dbs[] = {
 	  "email-fulltext",
 	  NULL,
 	  512,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  TRUE,
 	  FALSE,
 	  TRUE,
@@ -188,7 +187,7 @@ static TrackerDBDefinition dbs[] = {
 	  "email-contents",
 	  NULL,
 	  512,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  FALSE,
 	  FALSE,
 	  FALSE,
@@ -200,7 +199,7 @@ static TrackerDBDefinition dbs[] = {
 	  "xesam",
 	  NULL,
 	  512,
-	  TRACKER_DB_PAGE_SIZE_DEFAULT,
+	  TRACKER_DB_PAGE_SIZE_DONT_SET,
 	  TRUE,
 	  FALSE,
 	  FALSE,
@@ -1337,9 +1336,11 @@ function_group_concat_step (TrackerDBInterface *interface,
 			    gint		argc,
 			    GValue		values[])
 {
-	AggregateData *p = (AggregateData *)aggregate_context;
-	
-	g_assert (argc==1);
+	AggregateData *p;
+
+	g_return_if_fail (argc != 1);
+
+	p = aggregate_context;
 
 	if (!p->string) {
 		p->string = g_string_new ("");
@@ -1357,7 +1358,9 @@ function_group_concat_final (TrackerDBInterface *interface,
 			     void               *aggregate_context)
 {
 	GValue result = { 0, };
-	AggregateData *p = (AggregateData *)aggregate_context;
+	AggregateData *p;
+
+	p = aggregate_context;
 
 	g_value_init (&result, G_TYPE_STRING);
 	g_value_set_string (&result, p->string->str);
@@ -1373,8 +1376,8 @@ function_get_service_name (TrackerDBInterface *interface,
 			   gint		       argc,
 			   GValue	       values[])
 {
-	GValue	result = { 0, };
-	const gchar  *str;
+	GValue result = { 0, };
+	const gchar *str;
 
 	str = tracker_ontology_get_service_by_id (g_value_get_int (&values[0]));
 	g_value_init (&result, G_TYPE_STRING);

@@ -1,5 +1,13 @@
 2009-03-03  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-db/tracker-db-manager.c: Removed
+	TRACKER_DB_PAGE_SIZE_DEFAULT, use TRACKER_DB_PAGE_SIZE_DONT_SET
+	instead because this allows SQLite to decide what to use based on
+	the file system block size. Tests with 40k items show a 2 minute
+	speed improvement (was 13.5 minutes in total).
+
+2009-03-03  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-db/tracker-db-manager.c:
 	(tracker_db_manager_init): Add new DB versions so users are forced
 	to reindex when updating from svn or to the next version 0.6.91
