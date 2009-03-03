@@ -1,3 +1,8 @@
+2009-03-03  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Fixed frame size
+	calculation. 
+
 2009-03-03  Martyn Russell  <martyn@imendio.com>
 
 	* data/db/sqlite-service.sql:

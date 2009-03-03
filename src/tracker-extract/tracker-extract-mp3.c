@@ -722,7 +722,8 @@ get_id3v24_tags (const gchar *data,
 			break;
 		}
 
-		flags = (data[pos + 8] << 8) + data[pos + 9];
+		flags = ( ((unsigned char)(data[pos + 8]) << 8) + 
+			  ((unsigned char)(data[pos + 9]) ) );
 		if (((flags & 0x80) > 0) ||
 		    ((flags & 0x40) > 0)) {
 			pos += 10 + csize;
@@ -971,15 +972,15 @@ get_id3v23_tags (const gchar *data,
 	padding = 0;
 
 	if (extendedHdr) {
-		ehdrSize = (((data[10]) << 24) |
-			    ((data[11]) << 16) |
-			    ((data[12]) << 8) |
-			    ((data[12]) << 0));
+		ehdrSize = (((unsigned char)(data[10]) << 24) |
+			    ((unsigned char)(data[11]) << 16) |
+			    ((unsigned char)(data[12]) << 8) |
+			    ((unsigned char)(data[12]) << 0));
 
-		padding	= (((data[15]) << 24) |
-			   ((data[16]) << 16) |
-			   ((data[17]) << 8) |
-			   ((data[18]) << 0));
+		padding	= (((unsigned char)(data[15]) << 24) |
+			   ((unsigned char)(data[16]) << 16) |
+			   ((unsigned char)(data[17]) << 8) |
+			   ((unsigned char)(data[18]) << 0));
 
 		pos += 4 + ehdrSize;
 
@@ -1001,10 +1002,10 @@ get_id3v23_tags (const gchar *data,
 			return;
 		}
 
-		csize = (data[pos + 4] << 24) +
-			(data[pos + 5] << 16) +
-			(data[pos + 6] << 8) +
-			data[pos + 7];
+		csize = (((unsigned char)(data[pos + 4]) << 24) |
+			 ((unsigned char)(data[pos + 5]) << 16) |
+			 ((unsigned char)(data[pos + 6]) << 8)  |
+			 ((unsigned char)(data[pos + 7]) << 0) );
 
 		if ((pos + 10 + csize > tsize) ||
 		    (csize > tsize) ||
@@ -1012,7 +1013,8 @@ get_id3v23_tags (const gchar *data,
 			break;
 		}
 
-		flags = (data[pos + 8] << 8) + data[pos + 9];
+		flags = ( ((unsigned char)(data[pos + 8]) << 8) + 
+			  ((unsigned char)(data[pos + 9])) );
 
 		if (((flags & 0x80) > 0) || ((flags & 0x40) > 0)) {
 			pos += 10 + csize;
@@ -1250,7 +1252,9 @@ get_id3v20_tags (const gchar *data,
 			return;
 		}
 
-		csize = (data[pos+3] << 16) + (data[pos + 4] << 8) + data[pos + 5];
+		csize = (((unsigned char)(data[pos + 3]) << 16) + 
+			 ((unsigned char)(data[pos + 4]) << 8) + 
+			 ((unsigned char)(data[pos + 5]) ) );
 		if ((pos + 6 + csize > tsize) ||
 		    (csize > tsize) ||
 		    (csize == 0)) {
