@@ -1,5 +1,16 @@
 2009-03-03  Carlos Garnacho  <carlos@imendio.com>
 
+	Do not wipe out/overwrite existing logs if there's a running instance.
+
+	* src/libtracker-common/tracker-log.c (tracker_log_init): Remove old
+	log file here, prior to creating the new one.
+	* src/trackerd/tracker-main.c (initialize_directories): Do not remove
+	the old log file here.
+	(main): Check whether there's a running instance before initializing
+	the logs subsystem.
+
+2009-03-03  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c (restore_backup_cb): Iterate
 	the main loop while processing the turtle records to restore.
 

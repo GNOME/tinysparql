@@ -34,6 +34,7 @@
 #include <glib/gstdio.h>
 
 #include "tracker-log.h"
+#include "tracker-file-utils.h"
 
 static gboolean  initialized;
 static GMutex	*mutex;
@@ -147,6 +148,9 @@ tracker_log_init (const gchar *filename,
 	if (initialized) {
 		return TRUE;
 	}
+
+	/* Remove previous log */
+	tracker_file_unlink (filename);
 
 	/* Open file */
 	fd = g_fopen (filename, "a");

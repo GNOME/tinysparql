@@ -588,9 +588,6 @@ initialize_directories (void)
 	filename = g_build_filename (private->sys_tmp_dir, "Attachments", NULL);
 	g_mkdir_with_parents (filename, 00700);
 	g_free (filename);
-
-	/* Remove existing log files */
-	tracker_file_unlink (private->log_filename);
 }
 
 static gboolean
@@ -985,6 +982,10 @@ main (gint argc, gchar *argv[])
 
 	initialize_directories ();
 
+	if (!tracker_dbus_init (config)) {
+		return EXIT_FAILURE;
+	}
+
 	/* Initialize other subsystems */
 	tracker_log_init (private->log_filename, tracker_config_get_verbosity (config));
 	g_print ("Starting log:\n  File:'%s'\n", private->log_filename);
@@ -992,10 +993,6 @@ main (gint argc, gchar *argv[])
 	sanity_check_option_values (config);
 
 	tracker_nfs_lock_init (tracker_config_get_nfs_locking (config));
-
-	if (!tracker_dbus_init (config)) {
-		return EXIT_FAILURE;
-	}
 
 #ifdef HAVE_HAL
 	hal = tracker_hal_new ();
