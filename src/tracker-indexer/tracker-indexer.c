@@ -144,8 +144,9 @@ struct TrackerIndexerPrivate {
 	guint items_to_index;
 	guint subelements_processed;
 
-	gboolean in_transaction;
-	gboolean in_process;
+	guint in_transaction : 1;
+	guint in_process : 1;
+	guint interrupted : 1;
 
 	guint state;
 };
@@ -173,7 +174,7 @@ struct UpdateWordsForeachData {
 };
 
 enum TrackerIndexerState {
-	TRACKER_INDEXER_STATE_FLUSHING	= 1 << 0,
+	TRACKER_INDEXER_STATE_INDEX_OVERLOADED = 1 << 0,
 	TRACKER_INDEXER_STATE_PAUSED	= 1 << 1,
 	TRACKER_INDEXER_STATE_STOPPED	= 1 << 2,
 };
@@ -205,6 +206,7 @@ static void     item_remove            (TrackerIndexer      *indexer,
 					PathInfo	    *info,
 					const gchar         *dirname,
 					const gchar         *basename);
+static void     check_finished         (TrackerIndexer      *indexer);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -348,8 +350,6 @@ flush_data (TrackerIndexer *indexer)
 {
 	indexer->private->flush_id = 0;
 
-	state_set_flags (indexer, TRACKER_INDEXER_STATE_FLUSHING);
-
 	if (indexer->private->in_transaction) {
 		stop_transaction (indexer);
 	}
@@ -360,8 +360,6 @@ flush_data (TrackerIndexer *indexer)
 
 	indexer->private->items_indexed += indexer->private->items_to_index;
 	indexer->private->items_to_index = 0;
-
-	state_unset_flags (indexer, TRACKER_INDEXER_STATE_FLUSHING);
 
 	return FALSE;
 }
@@ -469,6 +467,38 @@ notify_battery_in_use_cb (GObject *gobject,
 #endif /* HAVE_HAL */
 
 static void
+index_flushing_notify_cb (GObject        *object,
+			  GParamSpec     *pspec,
+			  TrackerIndexer *indexer)
+{
+	TrackerIndexerState state;
+
+	state = indexer->private->state;
+
+	if ((state & TRACKER_INDEXER_STATE_STOPPED) != 0 &&
+	    !tracker_db_index_get_flushing (indexer->private->file_index) &&
+	    !tracker_db_index_get_flushing (indexer->private->email_index)) {
+		/* The indexer has been already stopped and all indices are flushed */
+		check_finished (indexer);
+	}
+}
+
+static void
+index_overloaded_notify_cb (GObject        *object,
+			    GParamSpec     *pspec,
+			    TrackerIndexer *indexer)
+{
+	if (tracker_db_index_get_overloaded (indexer->private->file_index) ||
+	    tracker_db_index_get_overloaded (indexer->private->email_index)) {
+		g_debug ("Index overloaded, stopping indexer to let it process items");
+		state_set_flags (indexer, TRACKER_INDEXER_STATE_INDEX_OVERLOADED);
+	} else {
+		g_debug ("Index no longer overloaded, resuming data harvesting");
+		state_unset_flags (indexer, TRACKER_INDEXER_STATE_INDEX_OVERLOADED);
+	}
+}
+
+static void
 tracker_indexer_finalize (GObject *object)
 {
 	TrackerIndexerPrivate *priv;
@@ -507,7 +537,20 @@ tracker_indexer_finalize (GObject *object)
 	g_object_unref (priv->language);
 	g_object_unref (priv->config);
 
+	g_signal_handlers_disconnect_by_func (priv->file_index,
+					      index_flushing_notify_cb,
+					      object);
+	g_signal_handlers_disconnect_by_func (priv->file_index,
+					      index_overloaded_notify_cb,
+					      object);
 	g_object_unref (priv->file_index);
+
+	g_signal_handlers_disconnect_by_func (priv->email_index,
+					      index_flushing_notify_cb,
+					      object);
+	g_signal_handlers_disconnect_by_func (priv->email_index,
+					      index_overloaded_notify_cb,
+					      object);
 	g_object_unref (priv->email_index);
 
 	g_free (priv->db_dir);
@@ -654,9 +697,13 @@ check_started (TrackerIndexer *indexer)
 		return;
 	}
 
+	indexer->private->interrupted = FALSE;
 	state_unset_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
 
-	g_timer_destroy (indexer->private->timer);
+	if (indexer->private->timer) {
+		g_timer_destroy (indexer->private->timer);
+	}
+
 	indexer->private->timer = g_timer_new ();
 
 	/* Open indexes */
@@ -667,8 +714,7 @@ check_started (TrackerIndexer *indexer)
 }
 
 static void
-check_stopped (TrackerIndexer *indexer,
-	       gboolean        interrupted)
+check_finished (TrackerIndexer *indexer)
 {
 	TrackerIndexerState state;
 	gdouble seconds_elapsed = 0;
@@ -676,20 +722,17 @@ check_stopped (TrackerIndexer *indexer,
 
 	state = indexer->private->state;
 
-	/* No more modules to query, we're done */
-	if ((state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
+	if (indexer->private->timer) {
 		g_timer_stop (indexer->private->timer);
 		seconds_elapsed = g_timer_elapsed (indexer->private->timer, NULL);
-	}
 
-	/* Flush remaining items */
-	schedule_flush (indexer, TRUE);
+		g_timer_destroy (indexer->private->timer);
+		indexer->private->timer = NULL;
+	}
 
 	/* Close indexes */
 	tracker_db_index_close (indexer->private->file_index);
 	tracker_db_index_close (indexer->private->email_index);
-
-	state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
 
 	/* Print out how long it took us */
 	str = tracker_seconds_to_string (seconds_elapsed, FALSE);
@@ -705,13 +748,22 @@ check_stopped (TrackerIndexer *indexer,
 		       seconds_elapsed,
 		       indexer->private->items_processed,
 		       indexer->private->items_indexed,
-		       interrupted);
+		       indexer->private->interrupted);
 
 	/* Reset stats */
 	indexer->private->items_processed = 0;
 	indexer->private->items_indexed = 0;
 	indexer->private->items_to_index = 0;
 	indexer->private->subelements_processed = 0;
+}
+
+static void
+check_stopped (TrackerIndexer *indexer,
+	       gboolean        interrupted)
+{
+	schedule_flush (indexer, TRUE);
+	state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
+	indexer->private->interrupted = (interrupted != FALSE);
 }
 
 static gboolean
@@ -834,8 +886,18 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
 	priv->file_index = g_object_ref (lindex);
 
+	g_signal_connect (priv->file_index, "notify::flushing",
+			  G_CALLBACK (index_flushing_notify_cb), indexer);
+	g_signal_connect (priv->file_index, "notify::overloaded",
+			  G_CALLBACK (index_overloaded_notify_cb), indexer);
+
 	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
 	priv->email_index = g_object_ref (lindex);
+
+	g_signal_connect (priv->email_index, "notify::flushing",
+			  G_CALLBACK (index_flushing_notify_cb), indexer);
+	g_signal_connect (priv->email_index, "notify::overloaded",
+			  G_CALLBACK (index_overloaded_notify_cb), indexer);
 
 	/* Set up databases, these pointers are mostly used to
 	 * start/stop transactions, since TrackerDBManager treats
@@ -848,9 +910,6 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->file_contents = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_CONTENTS);
 	priv->email_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_METADATA);
 	priv->email_contents = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_CONTENTS);
-
-	/* Set up timer to know how long the process will take and took */
-	priv->timer = g_timer_new ();
 
 	/* Set up idle handler to process files/directories */
 	state_check (indexer);
@@ -2511,8 +2570,8 @@ state_to_string (TrackerIndexerState state)
 
 	s = g_string_new ("");
 	
-	if (state & TRACKER_INDEXER_STATE_FLUSHING) {
-		s = g_string_append (s, "FLUSHING | ");
+	if (state & TRACKER_INDEXER_STATE_INDEX_OVERLOADED) {
+		s = g_string_append (s, "INDEX_OVERLOADED | ");
 	}
 	if (state & TRACKER_INDEXER_STATE_PAUSED) {
 		s = g_string_append (s, "PAUSED | ");

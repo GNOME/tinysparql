@@ -72,7 +72,8 @@ void		    tracker_db_index_set_paused      (TrackerDBIndex *index,
 /* Open/Close/Flush */
 gboolean	    tracker_db_index_open	     (TrackerDBIndex *index);
 gboolean	    tracker_db_index_close	     (TrackerDBIndex *index);
-guint		    tracker_db_index_flush	     (TrackerDBIndex *index);
+void		    tracker_db_index_flush	     (TrackerDBIndex *index);
+void		    tracker_db_index_flush_sync	     (TrackerDBIndex *index);
 
 /* Using the index */
 guint32		    tracker_db_index_get_size	     (TrackerDBIndex *index);
@@ -87,6 +88,8 @@ void		    tracker_db_index_add_word	     (TrackerDBIndex *index,
 						      guint32	      service_id,
 						      gint	      service_type,
 						      gint	      weight);
+gboolean            tracker_db_index_get_flushing    (TrackerDBIndex *indez);
+gboolean            tracker_db_index_get_overloaded  (TrackerDBIndex *indez);
 gboolean	    tracker_db_index_remove_dud_hits (TrackerDBIndex *index,
 						      const gchar    *word,
 						      GSList	     *dud_list);

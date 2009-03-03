@@ -1,5 +1,17 @@
 2009-03-03  Carlos Garnacho  <carlos@imendio.com>
 
+	Make flushing to index asynchronous.
+
+	* src/libtracker-db/tracker-db-index.[ch]: Make asynchronous, so the
+	information is committed in batches, and the cache is layered. Add
+	boolean properties to indicate whether it's currently flushing or
+	saturated (i.e.: too many cache layers left to flush)
+	* src/tracker-indexer/tracker-indexer.c: Update to these changes.
+	Listen for changes in these new properties in order to pause the
+	indexer or waiting for the index to be flushed before finishing.
+
+2009-03-03  Carlos Garnacho  <carlos@imendio.com>
+
 	Do not wipe out/overwrite existing logs if there's a running instance.
 
 	* src/libtracker-common/tracker-log.c (tracker_log_init): Remove old
