@@ -49,7 +49,7 @@
 #define TRACKER_DB_MAX_FILE_SIZE      2000000000 
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_2
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 
 typedef enum {
@@ -60,8 +60,10 @@ typedef enum {
 
 typedef enum {
 	TRACKER_DB_VERSION_UNKNOWN, /* Unknown */
-	TRACKER_DB_VERSION_1,       /* TRUNK before indexer-split */
-	TRACKER_DB_VERSION_2        /* The indexer-split branch */
+	TRACKER_DB_VERSION_1,       /* Version 0.6.6  (before indexer-split) */
+	TRACKER_DB_VERSION_2,       /* Version 0.6.90 (after  indexer-split) */
+	TRACKER_DB_VERSION_3,       /* Version 0.6.91 (current TRUNK) */
+	TRACKER_DB_VERSION_4        /* Version 0.7    (vstore branch) */
 } TrackerDBVersion;
 
 typedef struct {
@@ -2503,7 +2505,6 @@ db_get_version (void)
 		/* Check version is correct */
 		if (G_LIKELY (g_file_get_contents (filename, &contents, NULL, NULL))) {
 			if (contents && strlen (contents) <= 2) {
-
 				version = atoi (contents);
 			} else {
 				g_message ("  Version file content size is either 0 or bigger than expected");
@@ -2711,8 +2712,7 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 
 	version = db_get_version ();
 
-	if (version == TRACKER_DB_VERSION_UNKNOWN ||
-	    version == TRACKER_DB_VERSION_1) {
+	if (version < TRACKER_DB_VERSION_NOW) {
 		g_message ("  A reindex will be forced");
 		need_reindex = TRUE;
 	}

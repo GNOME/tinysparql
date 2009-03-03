@@ -1,5 +1,13 @@
 2009-03-03  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-db/tracker-db-manager.c:
+	(tracker_db_manager_init): Add new DB versions so users are forced
+	to reindex when updating from svn or to the next version 0.6.91
+	planned for next week. NOTE: Updating to this version *WILL*
+	require you reindex your data.
+
+2009-03-03  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/tracker-escape.c: 
 	* src/tracker-extract/tracker-extract-gstreamer-playbin.c:
 	* src/tracker-extract/tracker-extract-gstreamer.c:
