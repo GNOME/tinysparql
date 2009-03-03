@@ -174,7 +174,7 @@ fix_fnumber (const gchar *fn)
 		new_fn[0] = new_fn[1] = ' ';
 	}
 
-	return g_strstrip(new_fn);
+	return g_strstrip (new_fn);
 }
 
 static gchar *

@@ -1,3 +1,15 @@
+2009-03-03  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/tracker-escape.c: 
+	* src/tracker-extract/tracker-extract-gstreamer-playbin.c:
+	* src/tracker-extract/tracker-extract-gstreamer.c:
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-extract-mp3.c: 
+	* src/tracker-extract/tracker-extract.c:
+	* tests/tracker-extract/tracker-extract-test-utils.c: Don't use
+	g_strstrip() before calling tracker_escape_metadata() which calls
+	g_strstrip() for us.
+
 2009-03-02  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-escape.c

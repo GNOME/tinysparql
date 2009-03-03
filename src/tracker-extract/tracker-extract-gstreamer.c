@@ -702,7 +702,6 @@ tracker_extract_gstreamer (const gchar *uri,
 			g_free (basename);
 
 			title = g_strdelimit (title, "_", ' ');
-			title = g_strstrip (title);
 			
 			g_hash_table_insert (metadata,
 					     g_strdup ("Video:Title"),
@@ -719,7 +718,6 @@ tracker_extract_gstreamer (const gchar *uri,
 			g_free (basename);
 			
 			title = g_strdelimit (title, "_", ' ');
-			title = g_strstrip (title);
 			
 			g_hash_table_insert (metadata,
 					     g_strdup ("Audio:Title"),
