@@ -37,7 +37,7 @@ AC_INIT([tracker], [tracker_version],
 
 AC_CONFIG_SRCDIR([src/trackerd/tracker-main.c])
 
-AM_INIT_AUTOMAKE(no-define)
+AM_INIT_AUTOMAKE([no-define tar-ustar])
 AM_CONFIG_HEADER(config.h)
 
 IDT_COMPILE_WARNINGS
