@@ -232,6 +232,11 @@ tracker_monitor_init (TrackerMonitor *object)
 				       g_direct_equal,
 				       NULL,
 				       event_data_free);
+
+	/* We have a hash table for events so we don't flood the
+	 * indexer with the same events too frequently, we also
+	 * concatenate some events with this like CREATED+UPDATED.
+	 */
 	priv->cached_events =
 		g_hash_table_new_full (g_file_hash,
 				       (GEqualFunc) g_file_equal,
@@ -851,6 +856,7 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		glong	     last_event_seconds;
 		glong        start_event_seconds;
 		gint         cache_timeout;
+		gint         scan_timeout;
 		const gchar *module_name;
 		gboolean     is_directory;
 		gboolean     force_emit = FALSE;
@@ -873,7 +879,9 @@ libinotify_cached_events_timeout_cb (gpointer data)
 							  &is_directory);
 
 		if (!module_name) {
-			/* File was deleted before we could check its cached events, just discard it */
+			/* File was deleted before we could check its
+			 * cached events, just discard it  
+			 */
 			g_hash_table_iter_remove (&iter);
 			continue;
 		}
@@ -885,12 +893,13 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		 * changing.
 		 */
 		cache_timeout = tracker_module_config_get_cache_timeout (module_name);
+		scan_timeout = tracker_module_config_get_scan_timeout (module_name);
 
 		if (cache_timeout > 0) {
 			force_emit = start_event_seconds > cache_timeout;
 		}
 
-		timed_out = last_event_seconds >= MAX (2, tracker_module_config_get_scan_timeout (module_name));
+		timed_out = last_event_seconds >= MAX (2, scan_timeout);
 
 		/* Make sure the item is in the cache for at least 2
 		 * seconds OR the time as stated by the module config
@@ -929,7 +938,9 @@ libinotify_cached_events_timeout_cb (gpointer data)
 		} else {
 			if (event->event_type == IN_CREATE) {
 				/* The file has been already created,
-				 * We want any further events to be IN_MODIFY */
+				 * We want any further events to be
+				 * IN_MODIFY.
+				 */
 				event->event_type = IN_MODIFY;
 			}
 		}
@@ -942,6 +953,20 @@ libinotify_cached_events_timeout_cb (gpointer data)
 	}
 
 	return TRUE;
+}
+
+static gboolean
+libinotify_cached_event_delete_children_func (gpointer key,
+					      gpointer value,
+					      gpointer user_data)
+{
+	EventData *data;
+
+	data = user_data;
+
+	return (data->event_type == IN_DELETE ||
+		data->event_type == IN_DELETE_SELF) && 
+		g_file_has_prefix (key, data->file);
 }
 
 static void
@@ -1131,27 +1156,66 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		 * handle that cache first. Otherwise we have
 		 * disparity when the cache expires.
 		 */
-		libinotify_monitor_force_emission (monitor, file, event_type,
-						   module_name, is_directory);
-		/* fall through */
+		libinotify_monitor_force_emission (monitor, 
+						   file, 
+						   event_type,
+						   module_name, 
+						   is_directory);
+
+		/* Fall through */
 	case IN_DELETE:
 	case IN_DELETE_SELF:
 	case IN_UNMOUNT:
-		if (cookie == 0 ||
-		    event_type == IN_UNMOUNT) {
-			g_hash_table_remove (monitor->private->cached_events, file);
+		if (cookie == 0 || event_type == IN_UNMOUNT) {
+			/* This is how things generally work with
+			 * deleted items: 
+			 *
+			 * 1. Check if we have a child file already in
+			 *    the deleted hash table AND this is a
+			 *    directory. If so, we delete all child
+			 *    items.
+			 * 2. Add the file to the deleted hash table
+			 *    but only if we don't have a higher level
+			 *    directory in the hash table already.
+			 * 3. Make sure we have the timeout set up to
+			 *    handle deleted items after n seconds.
+			 * 4. When we handle deleted items, only emit
+			 *    those which were deleted in the last 2
+			 *    seconds. 
+			 */
 
+			data = event_data_new (file, event_type);
+
+			/* Stage 1: */
 			if (is_directory) {
+				gint count;
+
 				tracker_monitor_remove (monitor,
 							module_name,
 							file);
+
+				count =	g_hash_table_foreach_remove (monitor->private->cached_events,
+								     libinotify_cached_event_delete_children_func,
+								     data);
+
+				g_debug ("Removed %d child items in recently deleted cache", count);
 			}
 
-			g_signal_emit (monitor,
-				       signals[ITEM_DELETED], 0,
-				       module_name,
-				       file,
-				       is_directory);
+			/* Stage 2: */
+			g_hash_table_insert (monitor->private->cached_events,
+					     g_object_ref (data->file),
+					     data);
+
+			/* Stage 3: */
+			set_up_cache_timeout = TRUE;
+
+			/* FIXME: How do we handle the deleted items
+			 * cache for other events, i.e. we should
+			 * have something like
+			 * libinotify_monitor_force_emission() for
+			 * deleted items if we get CREATED before we
+			 * emit the DELETE event.
+			 */
 		} else if (other_file) {
 			g_signal_emit (monitor,
 				       signals[ITEM_MOVED], 0,
@@ -1228,12 +1292,13 @@ libinotify_monitor_event_cb (INotifyHandle *handle,
 		}
 
 		break;
+
 	case IN_MOVE_SELF:
 		/* We ignore this one because it is a
 		 * convenience state and we handle the
 		 * MOVE_TO and MOVE_FROM already.
 		 */
-		break;
+
 	default:
 		break;
 	}

@@ -1,3 +1,10 @@
+2009-03-04  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-monitor.c: Now we cache DELETE events. This
+	way, when recursively deleting a directory, we ONLY send the
+	top level directory that was removed to the indexer instead of
+	EVERY file and subdirectory under it.
+
 2009-03-04  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-db/tracker-db-index.c (index_flush_item)
