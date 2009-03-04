@@ -1,3 +1,12 @@
+2009-03-04  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-db/tracker-db-index.c (index_flush_item)
+	(tracker_db_index_flush): Prevent against cur_cache being possibly
+	NULL.
+	* src/tracker-indexer/tracker-indexer.c (check_finished)
+	(check_stopped): Call check_finished() in any case, not just after the
+	cache has been flushed.
+
 2009-03-03  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: Fixed frame size

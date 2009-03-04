@@ -784,7 +784,7 @@ index_flush_item (gpointer user_data)
 		return FALSE;
 	}
 
-	if (g_hash_table_size (priv->cache_layers->data) > 0) {
+	if (priv->cache_layers && g_hash_table_size (priv->cache_layers->data) > 0) {
 		GTimer *timer;
 
 		timer = g_timer_new ();
@@ -807,13 +807,15 @@ index_flush_item (gpointer user_data)
 	} else {
 		GList *link;
 
-		/* Current cache being flushed is already empty, proceed with the next one */
-		link = priv->cache_layers;
-		priv->cache_layers = g_list_remove_link (priv->cache_layers, link);
-		g_hash_table_destroy (link->data);
-		g_list_free_1 (link);
+		if (priv->cache_layers) {
+			/* Current cache being flushed is already empty, proceed with the next one */
+			link = priv->cache_layers;
+			priv->cache_layers = g_list_remove_link (priv->cache_layers, link);
+			g_hash_table_destroy (link->data);
+			g_list_free_1 (link);
 
-		update_overloaded_status (indez);
+			update_overloaded_status (indez);
+		}
 
 		if (priv->cache_layers) {
 			g_debug ("Flushing next batch (%d words) to index...",
@@ -984,28 +986,24 @@ tracker_db_index_flush (TrackerDBIndex *indez)
 
 	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
 
-#if 0
-	if (!priv->cur_cache || g_hash_table_size (priv->cur_cache) == 0) {
-		/* Nothing to flush */
-		return;
-	}
-#endif
-
 	if (!priv->in_flush) {
 		set_in_flush (indez, TRUE);
 	}
 
-	g_debug ("Pushing a new batch (%d words) to be flushed to index...",
-		 g_hash_table_size (priv->cur_cache));
+	if (priv->cur_cache && g_hash_table_size (priv->cur_cache) > 0) {
+		g_debug ("Pushing a new batch (%d words) to be flushed to index...",
+			 g_hash_table_size (priv->cur_cache));
 
-	/* Put current cache into the queue and create a
-	 * new one for keeping appending words
-	 */
-	priv->cache_layers = g_list_append (priv->cache_layers, priv->cur_cache);
-	priv->cur_cache = index_cache_new ();
+		/* Put current cache into the queue and create a
+		 * new one for keeping appending words
+		 */
+		priv->cache_layers = g_list_append (priv->cache_layers, priv->cur_cache);
+		priv->cur_cache = index_cache_new ();
+
+		update_overloaded_status (indez);
+	}
 
 	init_flush (indez);
-	update_overloaded_status (indez);
 }
 
 void

@@ -207,7 +207,8 @@ static void     item_remove            (TrackerIndexer      *indexer,
 					PathInfo	    *info,
 					const gchar         *dirname,
 					const gchar         *basename);
-static void     check_finished         (TrackerIndexer      *indexer);
+static void     check_finished         (TrackerIndexer      *indexer,
+					gboolean             interrupted);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -492,7 +493,7 @@ index_flushing_notify_cb (GObject        *object,
 	    !tracker_db_index_get_flushing (indexer->private->file_index) &&
 	    !tracker_db_index_get_flushing (indexer->private->email_index)) {
 		/* The indexer has been already stopped and all indices are flushed */
-		check_finished (indexer);
+		check_finished (indexer, indexer->private->interrupted);
 	}
 }
 
@@ -727,7 +728,8 @@ check_started (TrackerIndexer *indexer)
 }
 
 static void
-check_finished (TrackerIndexer *indexer)
+check_finished (TrackerIndexer *indexer,
+		gboolean        interrupted)
 {
 	TrackerIndexerState state;
 	gdouble seconds_elapsed = 0;
@@ -761,7 +763,7 @@ check_finished (TrackerIndexer *indexer)
 		       seconds_elapsed,
 		       indexer->private->items_processed,
 		       indexer->private->items_indexed,
-		       indexer->private->interrupted);
+		       interrupted);
 
 	/* Reset stats */
 	indexer->private->items_processed = 0;
@@ -774,9 +776,19 @@ static void
 check_stopped (TrackerIndexer *indexer,
 	       gboolean        interrupted)
 {
-	schedule_flush (indexer, TRUE);
-	state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
-	indexer->private->interrupted = (interrupted != FALSE);
+	if ((indexer->private->state & TRACKER_INDEXER_STATE_STOPPED) == 0) {
+		schedule_flush (indexer, TRUE);
+		state_set_flags (indexer, TRACKER_INDEXER_STATE_STOPPED);
+		indexer->private->interrupted = (interrupted != FALSE);
+	} else {
+		/* If the indexer is stopped and the indices aren't
+		 * being flushed, then it's ready for finishing right away
+		 */
+		if (!tracker_db_index_get_flushing (indexer->private->file_index) &&
+		    !tracker_db_index_get_flushing (indexer->private->email_index)) {
+			check_finished (indexer, interrupted);
+		}
+	}
 }
 
 static gboolean
