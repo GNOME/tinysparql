@@ -1151,7 +1151,6 @@ tracker_db_index_get_word_hits (TrackerDBIndex *indez,
 		return NULL;
 	}
 
-
 	details = NULL;
 
 	if (count) {
@@ -1159,7 +1158,7 @@ tracker_db_index_get_word_hits (TrackerDBIndex *indez,
 	}
 
 	if ((tmp = dpget (priv->index, word, -1, 0, MAX_HIT_BUFFER, &tsiz)) != NULL) {
-		if (tsiz >= (gint) sizeof (TrackerDBIndexItem)) {
+		if (tsiz >= sizeof (TrackerDBIndexItem)) {
 			details = (TrackerDBIndexItem *) tmp;
 
 			if (count) {
@@ -1167,7 +1166,6 @@ tracker_db_index_get_word_hits (TrackerDBIndex *indez,
 			}
 		}
 	}
-
 
 	return details;
 }
@@ -1189,6 +1187,8 @@ tracker_db_index_add_word (TrackerDBIndex *indez,
 	g_return_if_fail (word != NULL);
 
 	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
+
+	g_return_if_fail (priv->readonly == FALSE);
 
 	if (G_UNLIKELY (!priv->cur_cache)) {
 		priv->cur_cache = index_cache_new ();
@@ -1273,9 +1273,9 @@ tracker_db_index_remove_dud_hits (TrackerDBIndex *indez,
 	gint		       tsiz;
 	gboolean	       retval = FALSE;
 
-	g_return_val_if_fail (indez, FALSE);
-	g_return_val_if_fail (word, FALSE);
-	g_return_val_if_fail (dud_list, FALSE);
+	g_return_val_if_fail (indez != NULL, FALSE);
+	g_return_val_if_fail (word != NULL, FALSE);
+	g_return_val_if_fail (dud_list != NULL, FALSE);
 
 	if (!check_index_is_up_to_date (indez)) {
 		return TRUE;
@@ -1283,8 +1283,8 @@ tracker_db_index_remove_dud_hits (TrackerDBIndex *indez,
 
 	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
 
-	g_return_val_if_fail (priv->index, FALSE);
-
+	g_return_val_if_fail (priv->readonly == FALSE, FALSE);
+	g_return_val_if_fail (priv->index != NULL, FALSE);
 
 	/* Check if existing record is there  */
 	tmp = dpget (priv->index,

@@ -1,5 +1,17 @@
 2009-03-04  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-db/tracker-db-index.c:
+	(tracker_db_index_get_word_hits), (tracker_db_index_add_word),
+	(tracker_db_index_remove_dud_hits): Make sure we check the
+	priv->readonly property before trying to add or remove words from
+	the QDBM index. As you may see from now on, this indicates that
+	the only time we remove duds and words from the index is when the
+	trackerd process finds them and it *ONLY* opens the index as
+	readonly. We need to fix this removing dud issue ASAP - bring on
+	FTS support!
+
+2009-03-04  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-monitor.c: Now we cache DELETE events. This
 	way, when recursively deleting a directory, we ONLY send the
 	top level directory that was removed to the indexer instead of
