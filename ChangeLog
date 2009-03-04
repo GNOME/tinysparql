@@ -1,3 +1,9 @@
+2009-03-04  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/tracker-extract-exif.c:
+	* src/tracker-extract/tracker-extract-gstreamer-playbin.c: Removed
+	no longer used extractors. 
+
 2009-03-04  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-iptc.c: Fixed a memory leak.
