@@ -1,5 +1,12 @@
 2009-03-04  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c:
+	(tracker_indexer_files_check): Added indexer fix using Carlos'
+	patch now that we only send top level directories which are
+	deleted from the daemon not all files.
+
+2009-03-04  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/tracker-extract-exif.c:
 	* src/tracker-extract/tracker-extract-gstreamer-playbin.c: Removed
 	no longer used extractors. 

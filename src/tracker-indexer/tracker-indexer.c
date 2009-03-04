@@ -2871,7 +2871,7 @@ tracker_indexer_files_check (TrackerIndexer *indexer,
 		GFile *file;
 
 		file = g_file_new_for_path (files[i]);
-		info = path_info_new (module, file, NULL, FALSE);
+		info = path_info_new (module, file, NULL, TRUE);
 		add_file (indexer, info);
 
 		g_object_unref (file);
