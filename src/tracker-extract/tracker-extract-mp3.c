@@ -352,6 +352,35 @@ get_genre_number (const char *str, guint *genre)
 	return FALSE;
 }
 
+static void
+un_unsync (const unsigned char *source,
+	   size_t               size,
+	   unsigned char      **destination,
+	   size_t              *dest_size)
+{
+	size_t   offset  = 0;
+	gchar   *dest;
+	size_t   new_size;
+
+	*destination = g_malloc0 (size);
+	dest         = *destination;
+	new_size   = size;
+
+	while (offset < size) {
+		*dest = source[offset];
+
+		if ( (source[offset] == 0xFF) && 
+		     (source[offset+1] == 0x00) ) {
+			offset++;
+			new_size--;
+		}
+		dest++;
+		offset++;
+	}
+	
+	*dest_size = new_size;
+}
+
 static gboolean
 get_id3 (const gchar *data,
 	 size_t       size,
@@ -629,21 +658,14 @@ mp3_parse (const gchar *data,
 	} while (counter < MAX_MP3_SCAN_DEEP);
 }
 
+
 static void
 get_id3v24_tags (const gchar *data,
 		 size_t       size,
 		 GHashTable  *metadata,
-		 file_data   *filedata,
-		 size_t      *offset_delta)
+		 file_data   *filedata)
 {
-	gint	unsync;
-	gint	extendedHdr;
-	gint	experimental;
-	gint	footer;
-	guint	tsize;
-	guint	pos;
-	guint	ehdrSize;
-	guint	padding;
+	guint pos = 0;
 	Matches tmap[] = {
 		{"TCOP", "File:Copyright"},
 		{"TDRC", "Audio:ReleaseDate"},
@@ -667,47 +689,12 @@ get_id3v24_tags (const gchar *data,
 		{NULL, 0},
 	};
 
-	if ((size < 16) ||
-	    (data[0] != 0x49) ||
-	    (data[1] != 0x44) ||
-	    (data[2] != 0x33) ||
-	    (data[3] != 0x04) ||
-	    (data[4] != 0x00) ) {
-		return;
-	}
-
-	unsync = (data[5] & 0x80) > 0;
-	extendedHdr = (data[5] & 0x40) > 0;
-	experimental = (data[5] & 0x20) > 0;
-	footer = (data[5] & 0x10) > 0;
-	tsize = (((data[6] & 0x7F) << 21) |
-		 ((data[7] & 0x7F) << 14) |
-		 ((data[8] & 0x7F) << 7) |
-		 ((data[9] & 0x7F) << 0));
-
-	if ((tsize + 10 > size) || (experimental)) {
-		return;
-	}
-
-	pos = 10;
-	padding = 0;
-
-	if (extendedHdr) {
-		ehdrSize = (((data[10] & 0x7F) << 21) |
-			    ((data[11] & 0x7F) << 14) |
-			    ((data[12] & 0x7F) << 7) |
-			    ((data[13] & 0x7F) << 0));
-		pos += ehdrSize;
-	}
-
-	*offset_delta = tsize + 10;
-
-	while (pos < tsize) {
+	while (pos < size) {
 		size_t csize;
 		gint i;
 		unsigned short flags;
 
-		if (pos + 10 > tsize) {
+		if (pos + 10 > size) {
 			return;
 		}
 
@@ -716,8 +703,8 @@ get_id3v24_tags (const gchar *data,
 			 ((data[pos+6] & 0x7F) << 7) |
 			 ((data[pos+7] & 0x7F) << 0));
 
-		if ((pos + 10 + csize > tsize) ||
-		    (csize > tsize) ||
+		if ((pos + 10 + csize > size) ||
+		    (csize > size) ||
 		    (csize == 0)) {
 			break;
 		}
@@ -902,7 +889,8 @@ get_id3v24_tags (const gchar *data,
 
 				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
 
-				filedata->albumartdata = (unsigned char *)&data[offset];
+				filedata->albumartdata = g_malloc0 (csize);
+				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
 		}
@@ -915,16 +903,9 @@ static void
 get_id3v23_tags (const gchar *data,
 		 size_t       size,
 		 GHashTable  *metadata,
-		 file_data   *filedata,
-		 size_t      *offset_delta)
+		 file_data   *filedata)
 {
-	gint	unsync;
-	gint	extendedHdr;
-	gint	experimental;
-	guint	tsize;
-	guint	pos;
-	guint	ehdrSize;
-	guint	padding;
+	guint	pos = 0;
 	Matches tmap[] = {
 		{"TCOP", "File:Copyright"},
 		{"TDAT", "Audio:ReleaseDate"},
@@ -947,58 +928,12 @@ get_id3v23_tags (const gchar *data,
 		{NULL, 0},
 	};
 
-	if ((size < 16) ||
-	    (data[0] != 0x49) ||
-	    (data[1] != 0x44) ||
-	    (data[2] != 0x33) ||
-	    (data[3] != 0x03) ||
-	    (data[4] != 0x00)) {
-		return;
-	}
-
-	unsync = (data[5] & 0x80) > 0;
-	extendedHdr = (data[5] & 0x40) > 0;
-	experimental = (data[5] & 0x20) > 0;
-	tsize = (((data[6] & 0x7F) << 21) |
-		 ((data[7] & 0x7F) << 14) |
-		 ((data[8] & 0x7F) << 7) |
-		 ((data[9] & 0x7F) << 0));
-
-	if ((tsize + 10 > size) || (experimental)) {
-		return;
-	}
-
-	pos = 10;
-	padding = 0;
-
-	if (extendedHdr) {
-		ehdrSize = (((unsigned char)(data[10]) << 24) |
-			    ((unsigned char)(data[11]) << 16) |
-			    ((unsigned char)(data[12]) << 8) |
-			    ((unsigned char)(data[12]) << 0));
-
-		padding	= (((unsigned char)(data[15]) << 24) |
-			   ((unsigned char)(data[16]) << 16) |
-			   ((unsigned char)(data[17]) << 8) |
-			   ((unsigned char)(data[18]) << 0));
-
-		pos += 4 + ehdrSize;
-
-		if (padding < tsize)
-			tsize -= padding;
-		else {
-			return;
-		}
-	}
-
-	*offset_delta = tsize + 10;
-
-	while (pos < tsize) {
+	while (pos < size) {
 		size_t csize;
 		gint i;
 		unsigned short flags;
 
-		if (pos + 10 > tsize) {
+		if (pos + 10 > size) {
 			return;
 		}
 
@@ -1007,8 +942,8 @@ get_id3v23_tags (const gchar *data,
 			 ((unsigned char)(data[pos + 6]) << 8)  |
 			 ((unsigned char)(data[pos + 7]) << 0) );
 
-		if ((pos + 10 + csize > tsize) ||
-		    (csize > tsize) ||
+		if ((pos + 10 + csize > size) ||
+		    (csize > size) ||
 		    (csize == 0)) {
 			break;
 		}
@@ -1173,8 +1108,9 @@ get_id3v23_tags (const gchar *data,
 			if ((pic_type == 3)||((pic_type == 0)&&(filedata->albumartsize == 0))) {
 
 				offset = pos+11+strlen(mime)+2+strlen(desc)+1;
-
-				filedata->albumartdata = (unsigned char *)&data[offset];
+				
+				filedata->albumartdata = g_malloc0 (csize);
+				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
 			}
 		}
@@ -1187,12 +1123,9 @@ static void
 get_id3v20_tags (const gchar *data,
 		 size_t	      size,
 		 GHashTable  *metadata,
-		 file_data   *filedata,
-		 size_t      *offset_delta)
+		 file_data   *filedata)
 {
-	gint	unsync;
-	guint	tsize;
-	guint	pos;
+	guint	pos = 0;
 	Matches tmap[] = {
 		{"TAL", "Audio:Title"},
 		{"TT1", "Audio:Artist"},
@@ -1221,42 +1154,19 @@ get_id3v20_tags (const gchar *data,
 		{ NULL, 0},
 	};
 
-	if ((size < 16) ||
-	    (data[0] != 0x49) ||
-	    (data[1] != 0x44) ||
-	    (data[2] != 0x33) ||
-	    (data[3] != 0x02) ||
-	    (data[4] != 0x00)) {
-		return;
-	}
-
-	unsync = (data[5] & 0x80) > 0;
-	tsize = (((data[6] & 0x7F) << 21) |
-		 ((data[7] & 0x7F) << 14) |
-		 ((data[8] & 0x7F) << 07) |
-		 ((data[9] & 0x7F) << 00));
-
-	if (tsize + 10 > size)	{
-		return;
-	}
-
-	pos = 10;
-
-	*offset_delta = tsize + 10;
-
-	while (pos < tsize) {
+	while (pos < size) {
 		size_t csize;
 		gint i;
 
-		if (pos + 6 > tsize)  {
+		if (pos + 6 > size)  {
 			return;
 		}
 
 		csize = (((unsigned char)(data[pos + 3]) << 16) + 
 			 ((unsigned char)(data[pos + 4]) << 8) + 
 			 ((unsigned char)(data[pos + 5]) ) );
-		if ((pos + 6 + csize > tsize) ||
-		    (csize > tsize) ||
+		if ((pos + 6 + csize > size) ||
+		    (csize > size) ||
 		    (csize == 0)) {
 			break;
 		}
@@ -1339,30 +1249,212 @@ get_id3v20_tags (const gchar *data,
 
 				offset = pos+6+3+1+3+1+strlen(desc)+1;
 
-				filedata->albumartdata = (unsigned char *)&data[offset];
+				filedata->albumartdata = g_malloc0 (csize);
+				memcpy (filedata->albumartdata, &data[offset], csize);
 				filedata->albumartsize = csize;
+			     
 			}
 		}
-
 
 		pos += 6 + csize;
 	}
 }
 
 static void
-get_id3v2_tags (const gchar *data,
-		size_t	     size,
-		GHashTable  *metadata,
-		file_data   *filedata)
+parse_id3v24 (const gchar *data,
+	      size_t       size,
+	      GHashTable  *metadata,
+	      file_data   *filedata,
+	      size_t      *offset_delta)
+{
+	gint	unsync;
+	gint	extendedHdr;
+	gint	experimental;
+	gint	footer;
+	guint	tsize;
+	guint	pos;
+	guint	ehdrSize;
+	guint	padding;
+
+	if ((size < 16) ||
+	    (data[0] != 0x49) ||
+	    (data[1] != 0x44) ||
+	    (data[2] != 0x33) ||
+	    (data[3] != 0x04) ||
+	    (data[4] != 0x00) ) {
+		return;
+	}
+
+	unsync = (data[5] & 0x80) > 0;
+	extendedHdr = (data[5] & 0x40) > 0;
+	experimental = (data[5] & 0x20) > 0;
+	footer = (data[5] & 0x10) > 0;
+	tsize = (((data[6] & 0x7F) << 21) |
+		 ((data[7] & 0x7F) << 14) |
+		 ((data[8] & 0x7F) << 7) |
+		 ((data[9] & 0x7F) << 0));
+
+	if ((tsize + 10 > size) || (experimental)) {
+		return;
+	}
+
+	pos = 10;
+	padding = 0;
+
+	if (extendedHdr) {
+		ehdrSize = (((data[10] & 0x7F) << 21) |
+			    ((data[11] & 0x7F) << 14) |
+			    ((data[12] & 0x7F) << 7) |
+			    ((data[13] & 0x7F) << 0));
+		pos += ehdrSize;
+	}
+
+	if (unsync) {
+		size_t  unsync_size;
+		gchar  *body;
+
+		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
+		get_id3v24_tags (body, unsync_size, metadata, filedata);
+		g_free (body);
+	} else {
+		get_id3v24_tags (&data[pos], tsize, metadata, filedata);
+	}
+
+	*offset_delta = tsize + 10;
+}
+
+static void
+parse_id3v23 (const gchar *data,
+	      size_t       size,
+	      GHashTable  *metadata,
+	      file_data   *filedata,
+	      size_t      *offset_delta)
+{
+	gint	unsync;
+	gint	extendedHdr;
+	gint	experimental;
+	guint	tsize;
+	guint	pos;
+	guint	ehdrSize;
+	guint	padding;
+
+	if ((size < 16) ||
+	    (data[0] != 0x49) ||
+	    (data[1] != 0x44) ||
+	    (data[2] != 0x33) ||
+	    (data[3] != 0x03) ||
+	    (data[4] != 0x00)) {
+		return;
+	}
+
+	unsync = (data[5] & 0x80) > 0;
+	extendedHdr = (data[5] & 0x40) > 0;
+	experimental = (data[5] & 0x20) > 0;
+	tsize = (((data[6] & 0x7F) << 21) |
+		 ((data[7] & 0x7F) << 14) |
+		 ((data[8] & 0x7F) << 7) |
+		 ((data[9] & 0x7F) << 0));
+
+	if ((tsize + 10 > size) || (experimental)) {
+		return;
+	}
+
+	pos = 10;
+	padding = 0;
+
+	if (extendedHdr) {
+		ehdrSize = (((unsigned char)(data[10]) << 24) |
+			    ((unsigned char)(data[11]) << 16) |
+			    ((unsigned char)(data[12]) << 8) |
+			    ((unsigned char)(data[12]) << 0));
+
+		padding	= (((unsigned char)(data[15]) << 24) |
+			   ((unsigned char)(data[16]) << 16) |
+			   ((unsigned char)(data[17]) << 8) |
+			   ((unsigned char)(data[18]) << 0));
+
+		pos += 4 + ehdrSize;
+
+		if (padding < tsize)
+			tsize -= padding;
+		else {
+			return;
+		}
+	}
+
+	if (unsync) {
+		size_t  unsync_size;
+		gchar  *body;
+
+		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
+		get_id3v23_tags (body, unsync_size, metadata, filedata);
+		g_free (body);
+	} else {
+		get_id3v23_tags (&data[pos], tsize, metadata, filedata);
+	}
+
+	*offset_delta = tsize + 10;
+}
+
+static void
+parse_id3v20 (const gchar *data,
+	      size_t	      size,
+	      GHashTable  *metadata,
+	      file_data   *filedata,
+	      size_t      *offset_delta)
+{
+	gint	unsync;
+	guint	tsize;
+	guint	pos;
+
+	if ((size < 16) ||
+	    (data[0] != 0x49) ||
+	    (data[1] != 0x44) ||
+	    (data[2] != 0x33) ||
+	    (data[3] != 0x02) ||
+	    (data[4] != 0x00)) {
+		return;
+	}
+
+	unsync = (data[5] & 0x80) > 0;
+	tsize = (((data[6] & 0x7F) << 21) |
+		 ((data[7] & 0x7F) << 14) |
+		 ((data[8] & 0x7F) << 07) |
+		 ((data[9] & 0x7F) << 00));
+
+	if (tsize + 10 > size)	{
+		return;
+	}
+	pos = 10;
+
+	if (unsync) {
+		size_t  unsync_size;
+		gchar  *body;
+
+		un_unsync (&data[pos], tsize, (unsigned char **)&body, &unsync_size);
+		get_id3v20_tags (body, unsync_size, metadata, filedata);
+		g_free (body);
+	} else {
+		get_id3v20_tags (&data[pos], tsize, metadata, filedata);
+	}
+
+	*offset_delta = tsize + 10;
+}
+
+static void
+parse_id3v2 (const gchar *data,
+	     size_t	     size,
+	     GHashTable  *metadata,
+	     file_data   *filedata)
 {
 	gboolean done = FALSE;
 	size_t   offset = 0;
 
 	do {
 		size_t offset_delta = 0;
-		get_id3v24_tags(data+offset, size-offset, metadata, filedata, &offset_delta);
-		get_id3v23_tags(data+offset, size-offset, metadata, filedata, &offset_delta);
-		get_id3v20_tags(data+offset, size-offset, metadata, filedata, &offset_delta);		
+		parse_id3v24 (data+offset, size-offset, metadata, filedata, &offset_delta);
+		parse_id3v23 (data+offset, size-offset, metadata, filedata, &offset_delta);
+		parse_id3v20 (data+offset, size-offset, metadata, filedata, &offset_delta);		
 
 		if (offset_delta == 0) {
 			done = TRUE;
@@ -1484,7 +1576,7 @@ extract_mp3 (const gchar *filename,
 	free (info.comment);
 
 	/* Get other embedded tags */
-	get_id3v2_tags (buffer, size, metadata, &filedata);
+	parse_id3v2 (buffer, size, metadata, &filedata);
 
 	/* Get mp3 stream info */
 	mp3_parse (buffer, size, metadata, &filedata);
@@ -1504,6 +1596,10 @@ extract_mp3 (const gchar *filename,
 				  filename);
 
 #endif /* HAVE_GDKPIXBUF */
+
+	if (filedata.albumartdata) {
+		g_free (filedata.albumartdata);
+	}
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 	if (!g_hash_table_lookup (metadata, "Audio:Title")) {

@@ -79,10 +79,10 @@ static gchar *
 fix_iptc_orientation (const gchar *orientation)
 {
 	if (strcmp(orientation, "P")==0) {
-		return g_strdup ("3");
+		return "3";
 	}
 	
-	return g_strdup("1"); /* We take this as default */
+	return "1"; /* We take this as default */
 }
 
 #endif

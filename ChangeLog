@@ -1,3 +1,11 @@
+2009-03-04  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-iptc.c: Fixed a memory leak.
+	* src/tracker-extract/tracker-extract-mp3.c: Added un-unsynch
+	support to mp3 extractor.
+
+	Fixes NB#99823
+
 2009-03-04  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-db/tracker-db-index.c:
