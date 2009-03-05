@@ -1,3 +1,14 @@
+2009-03-05  Carlos Garnacho  <carlos@imendio.com>
+
+	Merge together the GetFileChildren and SelectFileChild stored
+	procedures.
+
+	* data/db/sqlite-stored-procs.sql: Only one can stand.
+	* src/libtracker-data/tracker-data-query.c
+	(tracker_data_query_service_children):
+	* src/libtracker-data/tracker-data-search.c
+	(tracker_data_search_files_get): Adapt to stored procedures change.
+
 2009-03-04  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c:

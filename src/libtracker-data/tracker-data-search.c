@@ -509,9 +509,9 @@ tracker_data_search_files_get (TrackerDBInterface *iface,
 	g_return_val_if_fail (folder_path != NULL, NULL);
 
 	result_set = tracker_data_manager_exec_proc (iface,
-					   "SelectFileChild",
-					   folder_path,
-					   NULL);
+						     "GetFileChildren",
+						     folder_path,
+						     NULL);
 	array = g_ptr_array_new ();
 
 	if (result_set) {

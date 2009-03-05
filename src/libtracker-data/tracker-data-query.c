@@ -394,7 +394,6 @@ tracker_data_query_service_children (TrackerService *service,
 	result_set = tracker_db_interface_execute_procedure (iface, NULL,
 							     "GetFileChildren",
 							     dirname,
-							     dirname,
 							     NULL);
 
 	if (!result_set) {
@@ -408,14 +407,14 @@ tracker_data_query_service_children (TrackerService *service,
 
 	while (valid) {
 		guint32 id;
-		gchar *child_path;
+		gchar *child_name;
 
 		tracker_db_result_set_get (result_set,
 					   0, &id,
-					   1, &child_path,
+					   2, &child_name,
 					   -1);
 
-		g_hash_table_insert (children, GUINT_TO_POINTER (id), child_path);
+		g_hash_table_insert (children, GUINT_TO_POINTER (id), child_name);
 
 		valid = tracker_db_result_set_iter_next (result_set);
 	}
