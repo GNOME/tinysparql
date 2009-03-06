@@ -1316,7 +1316,7 @@ function_group_concat_step (TrackerDBInterface *interface,
 {
 	AggregateData *p;
 
-	g_return_if_fail (argc != 1);
+	g_return_if_fail (argc == 1);
 
 	p = aggregate_context;
 
@@ -1347,7 +1347,6 @@ function_group_concat_final (TrackerDBInterface *interface,
 
 	return result;
 }
-
 
 static GValue
 function_get_service_name (TrackerDBInterface *interface,
@@ -1729,7 +1728,6 @@ db_set_params (TrackerDBInterface *iface,
 							     1);
 	}
 }
-
 
 static void
 db_get_static_data (TrackerDBInterface *iface)

@@ -1,3 +1,19 @@
+2009-03-06  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-dbus.[ch]: Added
+	tracker_dbus_str_to_strv() since it is pretty common.
+
+	* src/libtracker-db/tracker-db-dbus.c: Some code clean ups.
+
+	* src/libtracker-common/tracker-thumbnailer.c: When we get an
+	error from the thumbnailer, include the context so we know where
+	the error came from.
+	
+	* src/libtracker-db/tracker-db-manager.c:
+	(function_group_concat_step): Fixed my g_return_if_fail()
+	change for the g_assert() which ottela added initially, logic was
+	wrong way round.
+
 2009-03-06  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-main.c:

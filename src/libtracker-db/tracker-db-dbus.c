@@ -35,10 +35,14 @@ typedef struct {
 } OneElem;
 
 static inline void
-row_add (GPtrArray *row, gchar *value)
+row_add (GPtrArray *row, 
+	 gchar     *value)
 {
-	OneElem *elem = g_slice_new (OneElem);
+	OneElem *elem;
 	GSList  *list = NULL;
+
+	elem = g_slice_new (OneElem);
+	list = NULL;
 
 	list = g_slist_prepend (list, value);
 	elem->value = list;
@@ -46,17 +50,21 @@ row_add (GPtrArray *row, gchar *value)
 }
 
 static inline void
-row_insert (GPtrArray *row, gchar *value, guint lindex)
+row_insert (GPtrArray *row, 
+	    gchar     *value, 
+	    guint      lindex)
 {
-	OneElem *elem = g_ptr_array_index (row, lindex);
-	GSList  *list = elem->value;
+	OneElem *elem;
+	GSList  *list;
 	GSList  *iter;
+
+	elem = g_ptr_array_index (row, lindex);
+	list = elem->value;
 
 	/* We check for duplicate values here so that
 	 * we can have several multivalued fields in
 	 * the same query.
 	 */
-
 	for (iter = list; iter; iter=iter->next) {
 		if (strcmp (iter->data, value) == 0) {
 			return;
@@ -74,7 +82,7 @@ row_destroy (GPtrArray *row)
 
 	for (i = 0; i < row->len; i++) {
 		OneElem *elem;
-		GSList *list;
+		GSList  *list;
 
 		elem = g_ptr_array_index (row, i);
 		list = elem->value;
@@ -89,13 +97,17 @@ row_destroy (GPtrArray *row)
 }
 
 static inline gpointer
-rows_lookup (GPtrArray *rows, gint key)
+rows_lookup (GPtrArray *rows,
+	     gint       key)
 {
 	guint	 i;
 	gpointer value = NULL;
 
 	for (i = 0; i < rows->len; i++) {
-		OneRow *row = g_ptr_array_index (rows, i);
+		OneRow *row;
+
+		row = g_ptr_array_index (rows, i);
+
 		if (row->key == key) {
 			value = row->value;
 			break;
@@ -121,9 +133,13 @@ rows_destroy (GPtrArray *rows)
 }
 
 static inline void
-rows_add (GPtrArray *rows, gint key, gpointer value)
+rows_add (GPtrArray *rows, 
+	  gint       key, 
+	  gpointer   value)
 {
-	OneRow *row = g_slice_new (OneRow);
+	OneRow *row;
+
+	row = g_slice_new (OneRow);
 
 	row->key = key;
 	row->value = value;
@@ -132,15 +148,16 @@ rows_add (GPtrArray *rows, gint key, gpointer value)
 }
 
 static inline void
-rows_migrate (GPtrArray *rows, GPtrArray *result)
+rows_migrate (GPtrArray *rows,
+	      GPtrArray *result)
 {
-	guint i,j;
+	guint i, j;
 
 	/* Go thought the lists and join with | separator */
 	for (i = 0; i < rows->len; i++) {
-		OneRow      *row;
-		GPtrArray   *array;
-		gchar      **strv;
+		OneRow     *row;
+		GPtrArray  *array;
+		gchar     **strv;
 
 		row   = g_ptr_array_index (rows, i);
 		array = row->value;
@@ -148,10 +165,10 @@ rows_migrate (GPtrArray *rows, GPtrArray *result)
 		strv = g_new0 (gchar*, array->len + 1);
 
 		for (j = 0; j < array->len; j++) {
-			OneElem   *elem;
-			GSList    *list;
-			GSList    *iter;
-			GString   *string;
+			OneElem *elem;
+			GSList  *list;
+			GSList  *iter;
+			GString *string;
 
 			elem   = g_ptr_array_index (array, j);
 			list   = elem->value;
@@ -171,7 +188,6 @@ rows_migrate (GPtrArray *rows, GPtrArray *result)
 		g_ptr_array_add (result, strv);
 	}
 }
-
 
 static gchar **
 dbus_query_result_to_strv (TrackerDBResultSet *result_set,
@@ -246,15 +262,15 @@ tracker_dbus_query_result_numeric_to_strv (TrackerDBResultSet *result_set,
 
 gchar **
 tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
-					   gint offset_column,
-					   gint until_column,
-					   gboolean rewind)
+					   gint                offset_column,
+					   gint                until_column,
+					   gboolean            rewind)
 {
-	gchar   **strv = NULL;
-	gint	  i = 0;
-	gint	  columns;
-	gint      row_counter = 0;
-	gboolean  valid = TRUE;
+	gchar    **strv = NULL;
+	gint	   i = 0;
+	gint	   columns;
+	gint       row_counter = 0;
+	gboolean   valid = TRUE;
 
 	if (result_set) {
 		columns = tracker_db_result_set_get_n_columns (result_set);
@@ -268,11 +284,13 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 		strv = g_new (gchar*, 1);
 		strv[0] = NULL;
 		return strv;
-	} else if (offset_column == -1)
+	} else if (offset_column == -1) {
 		offset_column = 0;
+	}
 
-	if (until_column == -1)
+	if (until_column == -1) {
 		until_column = columns;
+	}
 
 	strv = g_new (gchar*, until_column + 1);
 
@@ -280,7 +298,7 @@ tracker_dbus_query_result_columns_to_strv (TrackerDBResultSet *result_set,
 
 		for (i = offset_column ; i < until_column; i++) {
 			GValue value = {0, };
-			GValue	transform = {0, };
+			GValue transform = {0, };
 			
 			g_value_init (&transform, G_TYPE_STRING);
 			
@@ -408,12 +426,12 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 	}
 
 	while (valid) {
-		GSList	              *list = NULL;
-		gchar                **p;
+		GSList  *list = NULL;
+		gchar  **p;
 
 		/* Append fields to the array */
 		for (i = 0; i < columns; i++) {
-			GValue	 transform = { 0, };
+			GValue	transform = { 0, };
 			GValue	value = { 0, };
 			gchar  *str;
 
@@ -458,10 +476,10 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 GPtrArray *
 tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 {
-	GPtrArray  *result;
-	GPtrArray  *rows;
-	gboolean    valid = FALSE;
-	gint	    columns;
+	GPtrArray *result;
+	GPtrArray *rows;
+	gboolean   valid = FALSE;
+	gint	   columns;
 
 	rows = g_ptr_array_new ();
 
@@ -476,12 +494,11 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 	}
 
 	while (valid) {
-		gint		       key;		
-		GPtrArray             *row;
-
-		gint	               column;
-		gboolean	       add = FALSE;
-		GValue		       value_in = {0, };
+		GPtrArray *row;
+		GValue	   value_in = {0, };
+		gint	   key;		
+		gint       column;
+		gboolean   add = FALSE;
 
 		/* Get the key and the matching row if exists */
 		_tracker_db_result_set_get_value (result_set, 0, &value_in);
@@ -494,9 +511,9 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 
 		/* Append fields or values to the array */
 		for (column = 1; column < columns; column++) {
-			GValue	   transform = { 0, };
-			GValue	   value = { 0, };
-			gchar     *str;
+			GValue  transform = { 0, };
+			GValue  value = { 0, };
+			gchar  *str;
 
 			g_value_init (&transform, G_TYPE_STRING);
 
