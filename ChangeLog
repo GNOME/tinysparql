@@ -1,3 +1,10 @@
+2009-03-06  Ivan Frade  <ivan.frade@nokia.com>
+
+	* python/deskbar-handler/tracker-module.py:
+	Update import to use gnomedesktop instead of
+	deskbar.code.gnomedesktop. Patch by Michel Alexandre Salim. 
+	Fixes #571573
+	
 2009-03-06  Michael Biebl  <mbiebl@gmail.com>
 
 	* python/deskbar-handler/tracker-module.py: Update deskbar module to

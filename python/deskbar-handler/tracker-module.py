@@ -9,9 +9,9 @@ import string
 import time
 import cgi
 import os.path
+import gnomedesktop
 import deskbar
 import deskbar.core.Utils
-import deskbar.core.gnomedesktop
 import deskbar.interfaces.Module
 import deskbar.interfaces.Match
 import deskbar.interfaces.Action
