@@ -59,7 +59,6 @@ tracker_data_search_text (TrackerDBInterface *iface,
 	gint		     count;
 	const gchar	    *procedure;
 	GArray		    *services = NULL;
-	GSList		    *duds = NULL;
 	guint		     i = 0;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
@@ -159,37 +158,11 @@ tracker_data_search_text (TrackerDBInterface *iface,
 
 			g_free (path);
 			g_object_unref (result_set);
-		} else {
-			g_message ("Dud hit for search detected");
-			duds = g_slist_prepend (duds, &rank);
 		}
 	}
 
 	if (save_results) {
 		tracker_db_interface_end_transaction (iface);
-	}
-
-	/* Delete duds */
-	if (duds) {
-		TrackerDBIndex *file_index;
-		TrackerDBIndex *email_index;
-		GSList	       *words, *w;
-
-		words = tracker_query_tree_get_words (tree);
-		file_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-		email_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
-
-		for (w = words; w; w = w->next) {
-			tracker_db_index_remove_dud_hits (file_index,
-							  (const gchar *) w->data,
-							  duds);
-			tracker_db_index_remove_dud_hits (email_index,
-							  (const gchar *) w->data,
-							  duds);
-		}
-
-		g_slist_free (words);
-		g_slist_free (duds);
 	}
 
 	g_object_unref (tree);

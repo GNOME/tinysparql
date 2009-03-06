@@ -1,3 +1,64 @@
+2009-03-06  Carlos Garnacho  <carlos@imendio.com>
+
+	Clean up deleted elements from dbs/index on tracker-indexer idle time.
+	This is the equivalent to dud hits removal, which trackerd can't
+	perform since it opens the index files as readonly. Now services are
+	just marked as disabled on deletion. So the indexer cleans them up
+	slowly, after all elements have been processed, and before it shuts 
+	down.
+
+	* data/db/sqlite-service.sql: Create the new table for deleted
+	elements.
+	* data/db/sqlite-stored-procs.sql: Add stored procedures for disabling
+	services and dealing with the DeletedServices table.
+
+	* src/libtracker-data/tracker-data-query.[ch]
+	(tracker_data_query_metadata_fields): Do not have service ID as a
+	string argument.
+	(tracker_data_query_first_removed_service): New function to retrieve a
+	deleted file.
+
+	* src/trackerd/tracker-metadata.c (tracker_metadata_get): Adapt to API
+	change in tracker-data-query.[ch]
+
+	* src/libtracker-data/tracker-data-search.c
+	(tracker_data_search_text): Remove code to clean up dud hits.
+
+	* src/libtracker-data/tracker-data-update.[ch]
+	(tracker_data_update_disable_service): Add function to disable a
+	service.
+	(tracker_data_update_delete_service): Also remove the service from the
+	DeletedServices table.
+
+	* src/libtracker-db/tracker-db-index.[ch] (tracker_db_index_finalize):
+	Ensure the index is opened before flushing.
+	(tracker_db_index_remove_dud_hits): Removed.
+
+	* src/tracker-indexer/tracker-indexer.[ch] (cleanup_task_func)
+	(cleanup_task_start) (cleanup_task_stop) (state_check): Add "cleanup"
+	state
+	(check_started): Also ensure the cleanup task is stopped.
+	(check_finished): Launch the cleanup task from here.
+	(item_remove): Renamed to item_mark_for_removal(). No longer delete 
+	things from the databases, just mark them as disabled. Queue children
+	to be removed in the file queue.
+	(item_erase): Added, actually delete the item from databases and
+	index.
+	(item_move): Erase immediately in case the dest path already exists.
+	(tracker_indexer_get_running) (tracker_indexer_get_stoppable):
+	Separate these a bit since the indexer now also must be paused during
+	cleanup.
+
+	* src/tracker-indexer/tracker-main.c (quit_timeout_cb): Use
+	tracker_indexer_get_stoppable() to get to know whether the indexer
+	should be stopped.
+
+	* src/trackerd/tracker-dbus.c (indexer_name_owner_changed)
+	(initialize_indexer_presence) (dbus_register_names): Listen for
+	changes in the tracker-indexer presence...
+	(dbus_request_new_cb): ... in order to pause it here if necessary,
+	since now it should always be paused.
+
 2009-03-06  Ivan Frade  <ivan.frade@nokia.com>
 
 	* python/deskbar-handler/tracker-module.py:

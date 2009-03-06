@@ -73,10 +73,15 @@ guint                tracker_data_query_service_type_id       (const gchar      
 GHashTable *         tracker_data_query_service_children      (TrackerService      *service,
 							       const gchar         *dirname);
 
+/* Deleted files */
+gboolean             tracker_data_query_first_removed_service (TrackerDBInterface  *iface,
+							       guint32             *service_id);
+
+
 /* Service API */
 G_CONST_RETURN gchar *
                      tracker_data_query_service_type_by_id    (TrackerDBInterface  *iface,
-							       const gchar         *service_id);
+							       guint32              service_id);
 
 /* Files API */
 guint32              tracker_data_query_file_id               (const gchar         *service_type,

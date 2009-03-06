@@ -81,6 +81,8 @@ TrackerIndexer *tracker_indexer_new                 (void);
 gboolean        tracker_indexer_get_running         (TrackerIndexer         *indexer);
 void            tracker_indexer_set_running         (TrackerIndexer         *indexer,
 						     gboolean                running);
+gboolean        tracker_indexer_get_stoppable       (TrackerIndexer         *indexer);
+
 void            tracker_indexer_stop                (TrackerIndexer         *indexer);
 void            tracker_indexer_process_all         (TrackerIndexer         *indexer);
 void            tracker_indexer_process_modules     (TrackerIndexer         *indexer,

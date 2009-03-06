@@ -90,9 +90,7 @@ void		    tracker_db_index_add_word	     (TrackerDBIndex *index,
 						      gint	      weight);
 gboolean            tracker_db_index_get_flushing    (TrackerDBIndex *indez);
 gboolean            tracker_db_index_get_overloaded  (TrackerDBIndex *indez);
-gboolean	    tracker_db_index_remove_dud_hits (TrackerDBIndex *index,
-						      const gchar    *word,
-						      GSList	     *dud_list);
+
 
 G_END_DECLS
 

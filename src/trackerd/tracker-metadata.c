@@ -77,7 +77,8 @@ tracker_metadata_get (TrackerMetadata	     *object,
 	TrackerDBResultSet  *result_set;
 	guint		     request_id;
 	const gchar         *service_result;
-	gchar		    *service_id;
+	guint32              service_id;
+	gchar		    *service_id_str;
 	guint		     i;
 	gchar		   **values;
 	GError		    *actual_error = NULL;
@@ -104,8 +105,9 @@ tracker_metadata_get (TrackerMetadata	     *object,
 		return;
 	}
 
-	service_id = tracker_data_query_file_id_as_string (service_type, uri);
-	if (!service_id) {
+	service_id = tracker_data_query_file_id (service_type, uri);
+
+	if (service_id <= 0) {
 		tracker_dbus_request_failed (request_id,
 					     &actual_error,
 					     "Service URI '%s' not found",
@@ -138,7 +140,6 @@ tracker_metadata_get (TrackerMetadata	     *object,
 
 	service_result = tracker_data_query_service_type_by_id (iface, service_id);
 	if (!service_result) {
-	       g_free (service_id);
 	       tracker_dbus_request_failed (request_id,
 					    &actual_error,
 					    "Service type can not be found for entity '%s'",
@@ -148,7 +149,10 @@ tracker_metadata_get (TrackerMetadata	     *object,
 	       return;
 	}
 
-	result_set = tracker_data_query_metadata_fields (iface, service_result, service_id, keys);
+	service_id_str = tracker_guint_to_string (service_id);
+	result_set = tracker_data_query_metadata_fields (iface, service_result, service_id_str, keys);
+	g_free (service_id_str);
+
 	if (result_set) {
 		values = tracker_dbus_query_result_columns_to_strv (result_set, -1, -1, TRUE);
 		g_object_unref (result_set);
@@ -166,7 +170,6 @@ tracker_metadata_get (TrackerMetadata	     *object,
 
 	dbus_g_method_return (context, values);
 	g_strfreev (values);
-	g_free (service_id);
 
 	tracker_dbus_request_success (request_id);
 }

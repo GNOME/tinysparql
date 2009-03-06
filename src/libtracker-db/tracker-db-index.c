@@ -192,8 +192,11 @@ tracker_db_index_finalize (GObject *object)
 	indez = TRACKER_DB_INDEX (object);
 	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
 
-	tracker_db_index_flush_sync (indez);
-	tracker_db_index_close (indez);
+	if (!priv->readonly) {
+		tracker_db_index_open (indez);
+		tracker_db_index_flush_sync (indez);
+		tracker_db_index_close (indez);
+	}
 
 	if (priv->idle_flush_id) {
 		g_source_remove (priv->idle_flush_id);
@@ -1255,96 +1258,4 @@ tracker_db_index_get_overloaded (TrackerDBIndex *indez)
 	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
 
 	return priv->overloaded;
-}
-
-/*
- * UNUSED
- *
- *  Use to delete dud hits for a word - dud_list is a list of
- * TrackerSearchHit structs.
- */
-gboolean
-tracker_db_index_remove_dud_hits (TrackerDBIndex *indez,
-				  const gchar	 *word,
-				  GSList	 *dud_list)
-{
-	TrackerDBIndexPrivate *priv;
-	gchar		      *tmp;
-	gint		       tsiz;
-	gboolean	       retval = FALSE;
-
-	g_return_val_if_fail (indez != NULL, FALSE);
-	g_return_val_if_fail (word != NULL, FALSE);
-	g_return_val_if_fail (dud_list != NULL, FALSE);
-
-	if (!check_index_is_up_to_date (indez)) {
-		return TRUE;
-	}
-
-	priv = TRACKER_DB_INDEX_GET_PRIVATE (indez);
-
-	g_return_val_if_fail (priv->readonly == FALSE, FALSE);
-	g_return_val_if_fail (priv->index != NULL, FALSE);
-
-	/* Check if existing record is there  */
-	tmp = dpget (priv->index,
-		     word,
-		     -1,
-		     0,
-		     MAX_HIT_BUFFER,
-		     &tsiz);
-
-	if (!tmp) {
-		return FALSE;
-	}
-
-	if (tsiz >= (int) sizeof (TrackerDBIndexItem)) {
-		TrackerDBIndexItem *details;
-		gint		    wi, i, pnum;
-
-		details = (TrackerDBIndexItem *) tmp;
-		pnum = tsiz / sizeof (TrackerDBIndexItem);
-		wi = 0;
-
-		for (i = 0; i < pnum; i++) {
-			GSList *lst;
-
-			for (lst = dud_list; lst; lst = lst->next) {
-				TrackerDBIndexItemRank *rank = lst->data;
-
-				if (!rank) {
-					continue;
-				}
-
-				if (details[i].id == rank->service_id) {
-					gint k;
-
-					/* Shift all subsequent
-					 * records in array down one
-					 * place.
-					 */
-					for (k = i + 1; k < pnum; k++) {
-						details[k - 1] = details[k];
-					}
-
-					/* Make size of array one size
-					 * smaller.
-					 */
-					tsiz -= sizeof (TrackerDBIndexItem);
-					pnum--;
-
-					break;
-				}
-			}
-		}
-
-		dpput (priv->index, word, -1, (gchar *) details, tsiz, DP_DOVER);
-
-		retval = TRUE;
-	}
-
-	g_free (tmp);
-
-
-	return retval;
 }

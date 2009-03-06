@@ -230,19 +230,24 @@ tracker_data_query_metadata_fields (TrackerDBInterface *iface,
  */
 G_CONST_RETURN gchar *
 tracker_data_query_service_type_by_id (TrackerDBInterface *iface,
-				       const gchar	  *service_id)
+				       guint32             service_id)
 {
 	TrackerDBResultSet *result_set;
 	gint		    service_type_id;
+	gchar              *service_id_str;
 	const gchar	   *result = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (service_id != NULL, NULL);
+	g_return_val_if_fail (service_id > 0, NULL);
+
+	service_id_str = tracker_guint32_to_string (service_id);
 
 	result_set = tracker_data_manager_exec_proc (iface,
 					   "GetFileByID",
-					   service_id,
+					   service_id_str,
 					   NULL);
+
+	g_free (service_id_str);
 
 	if (result_set) {
 		tracker_db_result_set_get (result_set, 3, &service_type_id, -1);
@@ -729,3 +734,28 @@ tracker_data_query_content (TrackerService *service,
 	return contents;
 }
 
+gboolean
+tracker_data_query_first_removed_service (TrackerDBInterface *iface,
+					  guint32            *service_id)
+{
+	TrackerDBResultSet *result_set;
+
+	result_set = tracker_db_interface_execute_procedure (iface, NULL,
+							     "GetFirstRemovedFile",
+							     NULL);
+
+	if (result_set) {
+		guint32 id;
+
+		tracker_db_result_set_get (result_set, 0, &id, -1);
+		g_object_unref (result_set);
+
+		if (service_id) {
+			*service_id = id;
+		}
+
+		return TRUE;
+	}
+
+	return FALSE;
+}

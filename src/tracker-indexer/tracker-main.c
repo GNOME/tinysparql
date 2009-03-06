@@ -242,7 +242,7 @@ quit_timeout_cb (gpointer user_data)
 
 	indexer = TRACKER_INDEXER (user_data);
 
-	if (!tracker_indexer_get_running (indexer)) {
+	if (tracker_indexer_get_stoppable (indexer)) {
 		g_message ("Indexer is still not running after %d seconds, quitting...",
 			   QUIT_TIMEOUT);
 		g_main_loop_quit (main_loop);

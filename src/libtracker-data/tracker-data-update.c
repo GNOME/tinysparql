@@ -170,6 +170,34 @@ tracker_data_update_create_service (TrackerService *service,
 }
 
 void
+tracker_data_update_disable_service (TrackerService *service,
+				     guint32         service_id)
+{
+	TrackerDBInterface *iface;
+	gchar *service_id_str;
+
+	g_return_if_fail (TRACKER_IS_SERVICE (service));
+	g_return_if_fail (service_id >= 1);
+
+	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
+							     TRACKER_DB_CONTENT_TYPE_METADATA);
+
+	service_id_str = tracker_guint32_to_string (service_id);
+
+	tracker_db_interface_execute_procedure (iface,
+						NULL,
+						"DisableService",
+						service_id_str,
+						NULL);
+	tracker_db_interface_execute_procedure (iface,
+						NULL,
+						"MarkServiceForRemoval",
+						service_id_str,
+						NULL);
+	g_free (service_id_str);
+}
+
+void
 tracker_data_update_delete_service (TrackerService *service,
 				    guint32	    service_id)
 {
@@ -192,6 +220,12 @@ tracker_data_update_delete_service (TrackerService *service,
 						service_id_str,
 						NULL);
 
+	/* Delete from cleanup maintenance table */
+	tracker_db_interface_execute_procedure (iface,
+						NULL,
+						"UnmarkServiceForRemoval",
+						service_id_str,
+						NULL);
 	g_free (service_id_str);
 }
 
