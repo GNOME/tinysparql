@@ -21,12 +21,13 @@ import time
 import urllib
 import string
 import gnome
+import gnomedesktop
 import gobject
 
 import gettext
 gettext.install('tracker')
 
-import deskbar, deskbar.Utils, deskbar.gnomedesktop
+import deskbar, deskbar.Utils
 import deskbar.Handler
 import deskbar.Match
 
@@ -345,13 +346,13 @@ class TrackerLiveSearchHandler(deskbar.Handler.SignallingHandler):
 # this code is stolen from the programs handler of deskbar
 def parse_desktop_file(desktop, only_if_visible=False):
 	try:
-		desktop = deskbar.gnomedesktop.item_new_from_file(desktop, deskbar.gnomedesktop.LOAD_ONLY_IF_EXISTS)
+		desktop = gnomedesktop.item_new_from_file(desktop, gnomedesktop.LOAD_ONLY_IF_EXISTS)
 	except Exception, e:
 		print 'Couldn\'t read desktop file:%s:%s' % (desktop, e)
 		return None
-	if desktop == None or desktop.get_entry_type() != deskbar.gnomedesktop.TYPE_APPLICATION:
+	if desktop == None or desktop.get_entry_type() != gnomedesktop.TYPE_APPLICATION:
 		return None
-	if only_if_visible and desktop.get_boolean(deskbar.gnomedesktop.KEY_NO_DISPLAY):
+	if only_if_visible and desktop.get_boolean(gnomedesktop.KEY_NO_DISPLAY):
 		return None
 	return desktop
 

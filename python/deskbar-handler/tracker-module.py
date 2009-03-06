@@ -1,6 +1,7 @@
 # This deskbar module was ported from deskbar <= 2.18 handler by Marcus Fritzsch
 
 import gnome
+import gnomedesktop
 import gobject
 import re
 import sys
@@ -9,7 +10,6 @@ import string
 import time
 import cgi
 import os.path
-import gnomedesktop
 import deskbar
 import deskbar.core.Utils
 import deskbar.interfaces.Module
@@ -470,13 +470,13 @@ class TrackerLiveSearchHandler(deskbar.interfaces.Module):
 # this code is stolen from the programs handler of deskbar
 def parse_desktop_file(desktop, only_if_visible=False):
 	try:
-		desktop = deskbar.core.gnomedesktop.item_new_from_file(desktop, deskbar.core.gnomedesktop.LOAD_ONLY_IF_EXISTS)
+		desktop = gnomedesktop.item_new_from_file(desktop, gnomedesktop.LOAD_ONLY_IF_EXISTS)
 	except Exception, e:
 		print 'Couldn\'t read desktop file:%s:%s' % (desktop, e)
 		return None
-	if desktop == None or desktop.get_entry_type() != deskbar.core.gnomedesktop.TYPE_APPLICATION:
+	if desktop == None or desktop.get_entry_type() != gnomedesktop.TYPE_APPLICATION:
 		return None
-	if only_if_visible and desktop.get_boolean(deskbar.core.gnomedesktop.KEY_NO_DISPLAY):
+	if only_if_visible and desktop.get_boolean(gnomedesktop.KEY_NO_DISPLAY):
 		return None
 	return desktop
 
