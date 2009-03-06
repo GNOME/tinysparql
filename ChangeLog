@@ -1,3 +1,8 @@
+2009-03-06  Michael Biebl  <mbiebl@gmail.com>
+
+	* python/deskbar-handler/tracker-module.py: Update deskbar module to
+	the new D-Bus API, fix a small typo (recieve->receive) while at it.
+
 2009-03-06  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-fts/tracker-fts.c: Merged some of the non-code
