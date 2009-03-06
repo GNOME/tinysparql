@@ -81,49 +81,62 @@ static void
 commit_turtle_parse_info_storer (TurtleStorerInfo *info, gboolean may_flush, StorerTask task, gchar *destination)
 {
 	if (info->last_subject) {
-
 		GHashTable *data;
+		GFile *file, *dest_file = NULL;
+		gchar *path, *dest_path = NULL;
 
 		/* We have it as a URI, database api wants Paths. Update this when
-		 * the database api becomes sane and uses URIs everywhere, the
-		 * '+ 7' means that we cut away the 'file://' prefix. */
+		 * the database api becomes sane and uses URIs everywhere
+		 */
+		file = g_file_new_for_uri (info->last_subject);
+		path = g_file_get_path (file);
+
+		if (destination) {
+			dest_file = g_file_new_for_uri (destination);
+			dest_path = g_file_get_path (dest_file);
+		}
 
 		if (info->rdf_type) {
-
-		  /* We ignore records that didn't have an <rdf:type> 
-		   * predicate. Those are just wrong anyway. */
-
-		  switch (task) {
-		    case REMOVAL:
-			tracker_data_update_delete_service_by_path (info->last_subject + 7, 
-								    info->rdf_type);
-		    break;
-		    case MOVE:
-			data = tracker_module_metadata_get_hash_table (info->metadata);
-			tracker_data_update_delete_service_by_path (info->last_subject + 7, 
-								    info->rdf_type);
-			tracker_data_update_replace_service (destination + 7, 
-							     info->rdf_type, 
-							     data);
-			g_hash_table_destroy (data);
-		    break;
-		    default:
-		    case REPLACE:
-			data = tracker_module_metadata_get_hash_table (info->metadata);
-			tracker_data_update_replace_service (info->last_subject + 7, 
-							     info->rdf_type, 
-							     data);
-			g_hash_table_destroy (data);
-		    break;
-		  }
+			/* We ignore records that didn't have an <rdf:type> 
+			 * predicate. Those are just wrong anyway.
+			 */
+			switch (task) {
+			case REMOVAL:
+				tracker_data_update_delete_service_by_path (path, info->rdf_type);
+				break;
+			case MOVE:
+				data = tracker_module_metadata_get_hash_table (info->metadata);
+				tracker_data_update_delete_service_by_path (path, info->rdf_type);
+				tracker_data_update_replace_service (dest_path,
+								     info->rdf_type,
+								     data);
+				g_hash_table_destroy (data);
+				break;
+			case REPLACE:
+			default:
+				data = tracker_module_metadata_get_hash_table (info->metadata);
+				tracker_data_update_replace_service (path,
+								     info->rdf_type,
+								     data);
+				g_hash_table_destroy (data);
+				break;
+			}
 		}
 
 		info->amount++;
 
 		g_object_unref (info->metadata);
+		g_object_unref (file);
 
+		if (dest_file) {
+			g_object_unref (dest_file);
+		}
+
+		g_free (path);
+		g_free (dest_path);
 		g_free (info->last_subject);
 		g_free (info->rdf_type);
+
 		info->last_subject = NULL;
 		info->metadata = NULL;
 		info->rdf_type = NULL;
@@ -180,24 +193,24 @@ consume_triple_storer (void* user_data, const raptor_statement* triple)
 		}
 
 	} else if (triple->object_type == RAPTOR_IDENTIFIER_TYPE_RESOURCE) {
-		gchar *key = g_strdup_printf ("file://%s/", info->base);
+		GFile *file;
+		gchar *key;
 
-		if (g_strcmp0 (key, triple->object) == 0 && 
-		    g_strcmp0 (key, triple->predicate) == 0) 
-		   {
+		file = g_file_new_for_path (info->base);
+		key = g_file_get_uri (file);
+
+		if (g_strcmp0 (key, triple->object) == 0 &&
+		    g_strcmp0 (key, triple->predicate) == 0) {
 			/* <URI> <rdf:type> "Type" ;                    *
 			 *       <> <>  -  is a removal of the resource */
-			   
+
 			/* We commit this subject as a removal, the last_subject
 			 * field will be cleared for the next subject to be set
 			 * ready first next process loop. */
 
 			commit_turtle_parse_info_storer (info, FALSE, REMOVAL, NULL);
-		   } 
-		else 
-		if (g_strcmp0 (key, triple->object) == 0 && 
-		    g_strcmp0 (key, triple->predicate) != 0) 
-		   {
+		} else if (g_strcmp0 (key, triple->object) == 0 &&
+			   g_strcmp0 (key, triple->predicate) != 0) {
 			gchar        *predicate;
 
 			/* <URI> <rdf:type> "Type" ;                             *
@@ -213,18 +226,17 @@ consume_triple_storer (void* user_data, const raptor_statement* triple)
 							    predicate,
 							    NULL);
 
-		   }
-		else
-		if (g_strcmp0 (key, triple->object) != 0 && 
-		    g_strcmp0 (key, triple->predicate) == 0) 
-		   {
+		} else if (g_strcmp0 (key, triple->object) != 0 &&
+			   g_strcmp0 (key, triple->predicate) == 0) {
 			gchar        *object;
 			/* <URI> <> <to-URI>  -  is a move of the subject */
 			object = (gchar *) raptor_uri_as_string ((raptor_uri *) triple->object);
 			commit_turtle_parse_info_storer (info, FALSE, MOVE, object);
 
-		   }
+		}
+
 		g_free (key);
+		g_object_unref (file);
 	}
 
 }
@@ -248,18 +260,19 @@ void
 tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point)
 {
 #ifdef HAVE_RAPTOR
-	gchar           *file;
+	gchar *filename;
 
-	file = g_build_filename (mount_point, ".cache", 
-				 "metadata", "metadata.ttl", NULL);
+	filename = g_build_filename (mount_point, ".cache", 
+				     "metadata", "metadata.ttl", NULL);
 
-	if (g_file_test (file, G_FILE_TEST_EXISTS)) {
+	if (g_file_test (filename, G_FILE_TEST_EXISTS)) {
 		TurtleStorerInfo *info;
+		GFile            *file;
 		gchar            *base_uri;
 
 		info = g_slice_new0 (TurtleStorerInfo);
 
-		info->ttl_file = file;
+		info->ttl_file = filename;
 		info->indexer = g_object_ref (indexer);
 		info->amount = 0;
 
@@ -270,8 +283,12 @@ tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point
 
 		tracker_indexer_transaction_open (info->indexer);
 
-		base_uri = g_strdup_printf ("file://%s/", mount_point);
-		tracker_turtle_process (file, base_uri, consume_triple_storer, info);
+		file = g_file_new_for_path (mount_point);
+		base_uri = g_file_get_uri (file);
+
+		tracker_turtle_process (filename, base_uri, consume_triple_storer, info);
+
+		g_object_unref (file);
 		g_free (base_uri);
 
 		/* Commit final subject (our loop doesn't handle the very last) 
@@ -290,10 +307,9 @@ tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point
 		g_slice_free (TurtleStorerInfo, info);
 	}
 
-	g_free (file);
+	g_free (filename);
 
 #endif /* HAVE_RAPTOR */
-
 }
 
 #ifdef HAVE_RAPTOR
@@ -362,26 +378,27 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 {
 #ifdef HAVE_RAPTOR
 	AddMetadataInfo *info = g_slice_new (AddMetadataInfo);
-	gchar           *file, *muri;
+	gchar           *filename, *muri;
 	FILE            *target_file;
 	raptor_uri      *suri;
+	GFile           *file;
 
-	file = g_build_filename (mount_point, ".cache", 
-				 "metadata", NULL);
-	g_mkdir_with_parents (file, 0700);
-	g_free (file);
+	filename = g_build_filename (mount_point, ".cache",
+				     "metadata", NULL);
+	g_mkdir_with_parents (filename, 0700);
+	g_free (filename);
 
-	file = g_build_filename (mount_point, ".cache", 
-				 "metadata", "metadata.ttl", NULL);
+	filename = g_build_filename (mount_point, ".cache",
+				     "metadata", "metadata.ttl", NULL);
 
-	target_file = fopen (file, "a");
+	target_file = fopen (filename, "a");
 	/* Similar to a+ */
-	if (!target_file) 
-		target_file = fopen (file, "w");
+	if (!target_file)
+		target_file = fopen (filename, "w");
+
+	g_free (filename);
 
 	if (!target_file) {
-		g_free (target_file);
-		g_free (file);
 		return;
 	}
 
@@ -397,8 +414,12 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 	raptor_serializer_set_feature (info->serializer, 
 				       RAPTOR_FEATURE_ALLOW_NON_NS_ATTRIBUTES, 1);
 
-	muri = g_strdup_printf ("file://%s/base", mount_point);
+	file = g_file_new_for_path (mount_point);
+	muri = g_file_get_uri (file);
+
 	suri = raptor_new_uri ((const unsigned char *) muri);
+
+	g_object_unref (file);
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (info->serializer, 
@@ -429,28 +450,29 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar *rdf_type)
 {
 #ifdef HAVE_RAPTOR
-	gchar               *file, *about_uri, *muri;
+	gchar               *filename, *about_uri, *muri;
 	FILE                *target_file;
 	raptor_uri          *suri = NULL;
 	raptor_serializer   *serializer;
 	AddMetadataInfo     *info;
+	GFile               *file, *base_file;
 
-	file = g_build_filename (mount_point, ".cache", 
-				 "metadata", NULL);
-	g_mkdir_with_parents (file, 0700);
-	g_free (file);
+	filename = g_build_filename (mount_point, ".cache",
+				     "metadata", NULL);
+	g_mkdir_with_parents (filename, 0700);
+	g_free (filename);
 
-	file = g_build_filename (mount_point, ".cache", 
-				 "metadata", "metadata.ttl", NULL);
+	filename = g_build_filename (mount_point, ".cache",
+				     "metadata", "metadata.ttl", NULL);
 
-	target_file = fopen (file, "a");
+	target_file = fopen (filename, "a");
 	/* Similar to a+ */
 	if (!target_file) 
-		target_file = fopen (file, "w");
+		target_file = fopen (filename, "w");
+
+	g_free (filename);
 
 	if (!target_file) {
-		g_free (target_file);
-		g_free (file);
 		return;
 	}
 
@@ -460,8 +482,14 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	raptor_serializer_set_feature (serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
 
-	muri = g_strdup_printf ("file://%s/base", mount_point);
+	file = g_file_new_for_path (mount_point);
+	base_file = g_file_get_child (file, "base");
+	g_object_unref (file);
+
+	muri = g_file_get_uri (base_file);
 	suri = raptor_new_uri ((const unsigned char *) muri);
+
+	g_object_unref (base_file);
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (serializer, 
@@ -495,28 +523,29 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 				   const gchar *rdf_type)
 {
 #ifdef HAVE_RAPTOR
-	gchar               *file, *about_uri, *to_uri, *muri;
+	gchar               *filename, *about_uri, *to_uri, *muri;
 	FILE                *target_file;
 	raptor_uri          *suri;
 	raptor_serializer   *serializer;
 	AddMetadataInfo     *info;
+	GFile               *file;
 
-	file = g_build_filename (mount_point, ".cache", 
-				 "metadata", NULL);
-	g_mkdir_with_parents (file, 0700);
-	g_free (file);
+	filename = g_build_filename (mount_point, ".cache",
+				     "metadata", NULL);
+	g_mkdir_with_parents (filename, 0700);
+	g_free (filename);
 
-	file = g_build_filename (mount_point, ".cache", 
-				 "metadata", "metadata.ttl", NULL);
+	filename = g_build_filename (mount_point, ".cache",
+				     "metadata", "metadata.ttl", NULL);
 
-	target_file = fopen (file, "a");
+	target_file = fopen (filename, "a");
 	/* Similar to a+ */
-	if (!target_file) 
-		target_file = fopen (file, "w");
+	if (!target_file)
+		target_file = fopen (filename, "w");
+
+	g_free (filename);
 
 	if (!target_file) {
-		g_free (target_file);
-		g_free (file);
 		return;
 	}
 
@@ -528,8 +557,11 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	about_uri = g_strdup (from_path+strlen (mount_point)+1);
 	to_uri = g_strdup (to_path+strlen (mount_point)+1);
 
-	muri = g_strdup_printf ("file://%s/", mount_point);
+	file = g_file_new_for_path (mount_point);
+	muri = g_file_get_uri (file);
 	suri = raptor_new_uri ((const unsigned char *) muri);
+
+	g_object_unref (file);
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (serializer, 
