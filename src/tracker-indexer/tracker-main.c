@@ -344,6 +344,12 @@ main (gint argc, gchar *argv[])
 	if (verbosity > -1) {
 		tracker_config_set_verbosity (config, verbosity);
 	}
+	/* Make sure we initialize DBus, this shows we are started
+	 * successfully when called upon from the daemon.
+	 */
+	if (!tracker_dbus_init ()) {
+		return EXIT_FAILURE;
+	}
 
 	filename = g_build_filename (g_get_user_data_dir (),
 				     "tracker",
@@ -353,13 +359,6 @@ main (gint argc, gchar *argv[])
 	tracker_log_init (filename, tracker_config_get_verbosity (config));
 	g_print ("Starting log:\n  File:'%s'\n", filename);
 	g_free (filename);
-
-	/* Make sure we initialize DBus, this shows we are started
-	 * successfully when called upon from the daemon.
-	 */
-	if (!tracker_dbus_init ()) {
-		return EXIT_FAILURE;
-	}
 
 	sanity_check_option_values (config);
 

@@ -1,3 +1,10 @@
+2009-03-06  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-main.c:
+	* src/tracker-extract/tracker-main.c: Initialize DBus before log
+	subsystem, so a second instance being run doesn't wipe the current
+	instance logs.
+
 2009-03-06  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-push.c:

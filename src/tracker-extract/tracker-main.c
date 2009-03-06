@@ -252,6 +252,8 @@ main (int argc, char *argv[])
 		tracker_config_set_verbosity (config, verbosity);
 	}
 
+	tracker_dbus_init ();
+
 	/* Initialize subsystems */
 	initialize_directories ();
 
@@ -259,7 +261,6 @@ main (int argc, char *argv[])
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 
 	tracker_thumbnailer_init (config, 0);
-	tracker_dbus_init ();
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects ()) {
