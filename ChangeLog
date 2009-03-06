@@ -1,3 +1,9 @@
+2009-03-06  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/tracker-push.c:
+	* src/trackerd/tracker-push.c: These directories not existing ain't
+	real errors that are worth reporting
+
 2009-03-06  Carlos Garnacho  <carlos@imendio.com>
 
 	Clean up deleted elements from dbs/index on tracker-indexer idle time.

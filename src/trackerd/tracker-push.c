@@ -58,7 +58,6 @@ load_modules (PushSupportPrivate *private)
 
 
 	if (error) {
-		g_debug ("%s\n", error->message);
 		g_error_free (error);
 		return;
 	}

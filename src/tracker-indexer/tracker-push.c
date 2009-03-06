@@ -71,7 +71,6 @@ load_modules (PushSupportPrivate *private)
 	const gchar *name;
 
 	if (error) {
-		g_debug ("%s\n", error->message);
 		g_error_free (error);
 		return;
 	}
