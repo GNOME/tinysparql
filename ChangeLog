@@ -7,6 +7,7 @@
 	Not only fix the imports but also the code, so the desktop file support keeps
 	working.
 	Patch pulled from Ubuntu.
+	* python/deskbar-handler/tracker-module.py: Bump version to 0.6.90.
 
 2009-03-06  Martyn Russell  <martyn@imendio.com>
 
