@@ -1,3 +1,10 @@
+2009-03-06  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-fts/tracker-fts.c: Merged some of the non-code
+	changes (i.e. alignments, comment updates) back into our FTS
+	version from upstream to make comparing easier with future
+	changes in SQLite.
+
 2009-03-06  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-removable-device.c: Do not use string

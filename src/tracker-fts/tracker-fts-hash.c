@@ -1,7 +1,7 @@
 /*
 ** 2001 September 22
 **
-** The author disclaims copyright to this source code.	In place of
+** The author disclaims copyright to this source code.  In place of
 ** a legal notice, here is a blessing:
 **
 **    May you do good and not evil.
@@ -18,10 +18,10 @@
 ** The code in this file is only compiled if:
 **
 **     * The FTS3 module is being built as an extension
-**	 (in which case SQLITE_CORE is not defined), or
+**       (in which case SQLITE_CORE is not defined), or
 **
 **     * The FTS3 module is being built into the core of
-**	 SQLite (in which case SQLITE_ENABLE_FTS3 is defined).
+**       SQLite (in which case SQLITE_ENABLE_FTS3 is defined).
 */
 
 #include <assert.h>
@@ -49,8 +49,8 @@ static void fts3HashFree(void *p){
 ** fields of the Hash structure.
 **
 ** "pNew" is a pointer to the hash table that is to be initialized.
-** keyClass is one of the constants
-** FTS3_HASH_BINARY or FTS3_HASH_STRING.  The value of keyClass
+** keyClass is one of the constants 
+** FTS3_HASH_BINARY or FTS3_HASH_STRING.  The value of keyClass 
 ** determines what kind of key the hash table will use.  "copyKey" is
 ** true if the hash table should make its own private copy of keys and
 ** false if it should just use the supplied pointer.
@@ -71,7 +71,7 @@ void sqlite3Fts3HashInit(fts3Hash *pNew, int keyClass, int copyKey){
 ** to the empty state.
 */
 void sqlite3Fts3HashClear(fts3Hash *pH){
-  fts3HashElem *elem;	      /* For looping over all elements of the table */
+  fts3HashElem *elem;         /* For looping over all elements of the table */
 
   assert( pH!=0 );
   elem = pH->first;
@@ -127,7 +127,7 @@ static int fts3BinCompare(const void *pKey1, int n1, const void *pKey2, int n2){
 /*
 ** Return a pointer to the appropriate hash function given the key class.
 **
-** The C syntax in this function definition may be unfamilar to some
+** The C syntax in this function definition may be unfamilar to some 
 ** programmers, so we provide the following additional explanation:
 **
 ** The name of the function is "ftsHashFunction".  The function takes a
@@ -163,17 +163,17 @@ static int (*ftsCompareFunction(int keyClass))(const void*,int,const void*,int){
 /* Link an element into the hash table
 */
 static void fts3HashInsertElement(
-  fts3Hash *pH,		   /* The complete hash table */
+  fts3Hash *pH,            /* The complete hash table */
   struct _fts3ht *pEntry,  /* The entry into which pNew is inserted */
-  fts3HashElem *pNew	   /* The element to be inserted */
+  fts3HashElem *pNew       /* The element to be inserted */
 ){
-  fts3HashElem *pHead;	   /* First element already in pEntry */
+  fts3HashElem *pHead;     /* First element already in pEntry */
   pHead = pEntry->chain;
   if( pHead ){
     pNew->next = pHead;
     pNew->prev = pHead->prev;
     if( pHead->prev ){ pHead->prev->next = pNew; }
-    else	     { pH->first = pNew; }
+    else             { pH->first = pNew; }
     pHead->prev = pNew;
   }else{
     pNew->next = pH->first;
@@ -187,11 +187,11 @@ static void fts3HashInsertElement(
 
 
 /* Resize the hash table so that it cantains "new_size" buckets.
-** "new_size" must be a power of 2.  The hash table might fail
+** "new_size" must be a power of 2.  The hash table might fail 
 ** to resize if sqliteMalloc() fails.
 */
 static void fts3Rehash(fts3Hash *pH, int new_size){
-  struct _fts3ht *new_ht;	   /* The new hash table */
+  struct _fts3ht *new_ht;          /* The new hash table */
   fts3HashElem *elem, *next_elem;  /* For looping over existing elements */
   int (*xHash)(const void*,int);   /* The hash function */
 
@@ -217,10 +217,10 @@ static fts3HashElem *fts3FindElementByHash(
   const fts3Hash *pH, /* The pH to be searched */
   const void *pKey,   /* The key we are searching for */
   int nKey,
-  int h		      /* The hash for this key. */
+  int h               /* The hash for this key. */
 ){
-  fts3HashElem *elem;		 /* Used to loop thru the element list */
-  int count;			 /* Number of elements left to test */
+  fts3HashElem *elem;            /* Used to loop thru the element list */
+  int count;                     /* Number of elements left to test */
   int (*xCompare)(const void*,int,const void*,int);  /* comparison function */
 
   if( pH->ht ){
@@ -229,8 +229,8 @@ static fts3HashElem *fts3FindElementByHash(
     count = pEntry->count;
     xCompare = ftsCompareFunction(pH->keyClass);
     while( count-- && elem ){
-      if( (*xCompare)(elem->pKey,elem->nKey,pKey,nKey)==0 ){
-	return elem;
+      if( (*xCompare)(elem->pKey,elem->nKey,pKey,nKey)==0 ){ 
+        return elem;
       }
       elem = elem->next;
     }
@@ -242,13 +242,13 @@ static fts3HashElem *fts3FindElementByHash(
 ** element and a hash on the element's key.
 */
 static void fts3RemoveElementByHash(
-  fts3Hash *pH,		/* The pH containing "elem" */
-  fts3HashElem* elem,	/* The element to be removed from the pH */
-  int h			/* Hash value for the element */
+  fts3Hash *pH,         /* The pH containing "elem" */
+  fts3HashElem* elem,   /* The element to be removed from the pH */
+  int h                 /* Hash value for the element */
 ){
   struct _fts3ht *pEntry;
   if( elem->prev ){
-    elem->prev->next = elem->next;
+    elem->prev->next = elem->next; 
   }else{
     pH->first = elem->next;
   }
@@ -280,8 +280,8 @@ static void fts3RemoveElementByHash(
 ** found, or NULL if there is no match.
 */
 void *sqlite3Fts3HashFind(const fts3Hash *pH, const void *pKey, int nKey){
-  int h;		 /* A hash on key */
-  fts3HashElem *elem;	 /* The element that matches key */
+  int h;                 /* A hash on key */
+  fts3HashElem *elem;    /* The element that matches key */
   int (*xHash)(const void*,int);  /* The hash function */
 
   if( pH==0 || pH->ht==0 ) return 0;
@@ -297,7 +297,7 @@ void *sqlite3Fts3HashFind(const fts3Hash *pH, const void *pKey, int nKey){
 ** and the data is "data".
 **
 ** If no element exists with a matching key, then a new
-** element is created.	A copy of the key is made if the copyKey
+** element is created.  A copy of the key is made if the copyKey
 ** flag is set.  NULL is returned.
 **
 ** If another element already exists with the same key, then the
@@ -311,12 +311,12 @@ void *sqlite3Fts3HashFind(const fts3Hash *pH, const void *pKey, int nKey){
 void *sqlite3Fts3HashInsert(
   fts3Hash *pH,        /* The hash table to insert into */
   const void *pKey,    /* The key */
-  int nKey,	       /* Number of bytes in the key */
-  void *data	       /* The data */
+  int nKey,            /* Number of bytes in the key */
+  void *data           /* The data */
 ){
-  int hraw;		    /* Raw hash value of the key */
-  int h;		    /* the hash of the key modulo hash table size */
-  fts3HashElem *elem;	    /* Used to loop thru the element list */
+  int hraw;                 /* Raw hash value of the key */
+  int h;                    /* the hash of the key modulo hash table size */
+  fts3HashElem *elem;       /* Used to loop thru the element list */
   fts3HashElem *new_elem;   /* New element added to the pH */
   int (*xHash)(const void*,int);  /* The hash function */
 
