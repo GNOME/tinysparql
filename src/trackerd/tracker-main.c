@@ -79,8 +79,7 @@
 #endif
 
 #define ABOUT								  \
-	"Tracker " PACKAGE_VERSION "\n"					  \
-	"Copyright (c) 2005-2008 Jamie McCracken (jamiemcc@gnome.org)\n"
+	"Tracker " PACKAGE_VERSION "\n"
 
 #define LICENSE								  \
 	"This program is free software and comes without any warranty.\n" \
@@ -114,9 +113,10 @@ typedef struct {
 } TrackerMainPrivate;
 
 /* Private */
-static GStaticPrivate	private_key = G_STATIC_PRIVATE_INIT;
+static GStaticPrivate	     private_key = G_STATIC_PRIVATE_INIT;
 
 /* Private command line parameters */
+static gboolean		     version;
 static gint		     verbosity = -1;
 static gint		     initial_sleep = -1;
 static gboolean		     low_memory;
@@ -129,7 +129,12 @@ static gboolean		     force_reindex;
 static gboolean		     disable_indexing;
 static gchar	            *language_code;
 
-static GOptionEntry	entries_daemon[] = {
+static GOptionEntry	     entries[] = {
+	/* Daemon options */
+	{ "version", 'V', 0,
+	  G_OPTION_ARG_NONE, &version,
+	  N_("Displays version information"),
+	  NULL },
 	{ "verbosity", 'v', 0,
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
@@ -159,10 +164,8 @@ static GOptionEntry	entries_daemon[] = {
 	  G_OPTION_ARG_STRING_ARRAY, &disable_modules,
 	  N_("Disable modules from being processed (you can do -d <module> -d <module>)"),
 	  NULL },
-	{ NULL }
-};
 
-static GOptionEntry   entries_indexer[] = {
+	/* Indexer options */
 	{ "force-reindex", 'r', 0,
 	  G_OPTION_ARG_NONE, &force_reindex,
 	  N_("Force a re-index of all content"),
@@ -847,7 +850,6 @@ gint
 main (gint argc, gchar *argv[])
 {
 	GOptionContext		   *context = NULL;
-	GOptionGroup		   *group;
 	GError			   *error = NULL;
 	TrackerMainPrivate	   *private;
 	TrackerConfig		   *config;
@@ -887,25 +889,7 @@ main (gint argc, gchar *argv[])
 	 * usage string - Usage: COMMAND <THIS_MESSAGE>
 	 */
 	context = g_option_context_new (_("- start the tracker daemon"));
-
-	/* Daemon group */
-	group = g_option_group_new ("daemon",
-				    _("Daemon Options"),
-				    _("Show daemon options"),
-				    NULL,
-				    NULL);
-	g_option_group_add_entries (group, entries_daemon);
-	g_option_context_add_group (context, group);
-
-	/* Indexer group */
-	group = g_option_group_new ("indexer",
-				    _("Indexer Options"),
-				    _("Show indexer options"),
-				    NULL,
-				    NULL);
-	g_option_group_add_entries (group, entries_indexer);
-	g_option_context_add_group (context, group);
-
+	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
 	g_option_context_free (context);
 
@@ -915,8 +899,12 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	/* Print information */
-	g_print ("\n" ABOUT "\n" LICENSE "\n");
+	if (version) {
+		/* Print information */
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
+		return EXIT_SUCCESS;
+	}
+
 	g_print ("Initializing trackerd...\n");
 
 	initialize_signal_handler ();

@@ -46,8 +46,7 @@
 #include "tracker-extract.h"
 
 #define ABOUT								  \
-	"Tracker " PACKAGE_VERSION "\n"					  \
-	"Copyright (c) 2005-2008 Jamie McCracken (jamiemcc@gnome.org)\n"
+	"Tracker " PACKAGE_VERSION "\n"
 
 #define LICENSE								  \
 	"This program is free software and comes without any warranty.\n" \
@@ -61,11 +60,16 @@
 static GMainLoop *main_loop;
 static guint      quit_timeout_id;
 
+static gboolean   version;
 static gint       verbosity = -1;
 static gchar     *filename;
 static gchar     *mime_type;
 
 static GOptionEntry  entries[] = {
+	{ "version", 'V', 0,
+	  G_OPTION_ARG_NONE, &version,
+	  N_("Displays version information"),
+	  NULL },
 	{ "verbosity", 'v', 0,
 	  G_OPTION_ARG_INT, &verbosity,
 	  N_("Logging, 0 = errors only, "
@@ -206,7 +210,12 @@ main (int argc, char *argv[])
 
 	g_option_context_free (context);
 
-	g_print ("\n" ABOUT "\n" LICENSE "\n");
+	if (version) {
+		g_print ("\n" ABOUT "\n" LICENSE "\n");
+		return EXIT_SUCCESS;
+	}
+
+	g_print ("Initializing tracker-extract...\n");
 
 	initialize_signal_handler ();
 

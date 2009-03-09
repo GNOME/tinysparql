@@ -1,5 +1,15 @@
 2009-03-09  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-main.c: 
+	* src/tracker-indexer/tracker-main.c: 
+	* src/trackerd/tracker-main.c: Remove copyright and version
+	information on startup. There were reports of .xsession-errors
+	being populated with this information. Now version information is
+	available with -V. Removed copyright because it was solely to
+	Jamie which it no longer is.
+
+2009-03-09  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-indexer/tracker-module-metadata-utils.c:
 	(get_file_content): Fixed potential buffer overflow. Reported in
 	https://bugs.launchpad.net/ubuntu/+source/tracker/+bug/339560.
