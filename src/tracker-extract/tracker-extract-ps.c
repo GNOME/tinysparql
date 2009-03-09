@@ -330,34 +330,48 @@ extract_ps_gz (const gchar *filename,
 	if (!ptat) {
 		g_unlink (gunzipped);
 		g_clear_error (&error);
+		close (fd);
 		return;
 	}
 
-	if ((fz = fdopen (fdz, "r"))) {
-		FILE *f;
+	fz = fdopen (fdz, "r");
 
-		if ((f = fdopen (fd, "w"))) {
-			unsigned char buf[8192];
-			size_t w, b, accum;
-			size_t max;
+	if (!fz) {
+		g_unlink (gunzipped);
+		close (fdz);
+		close (fd);
+		return;
+	}
 
-			/* 20 MiB should be enough! */
-			accum = 0;
-			max = 20u << 20;
+	f = fdopen (fd, "w");
 
-			while ((b = fread (buf, 1, 8192, fz)) && accum <= max) {
-				accum += b;
-				w = 0;
+	if (!f) {
+		g_unlink (gunzipped);
+		fclose (fz);
+		close (fd);
+		return;
+	}
 
-				while (w < b) {
-					w += fwrite (buf, 1, b, f);
-				}
+	if (f && fz) {
+		unsigned char buf[8192];
+		size_t w, b, accum;
+		size_t max;
+
+		/* 20 MiB should be enough! */
+		accum = 0;
+		max = 20u << 20;
+
+		while ((b = fread (buf, 1, 8192, fz)) && accum <= max) {
+			accum += b;
+			w = 0;
+
+			while (w < b) {
+				w += fwrite (buf, 1, b, f);
 			}
-
-			fclose (f);
 		}
 
 		fclose (fz);
+		fclose (f);
 	}
 
 	extract_ps (gunzipped, metadata);

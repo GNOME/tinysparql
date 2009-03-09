@@ -1,3 +1,9 @@
+2009-03-09  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-extract-ps.c (extract_ps_gz):
+	* src/trackerd/tracker-main.c (check_runtime_level): Do not leak file
+	descriptors.
+
 2009-03-09  Martyn Russell  <martyn@imendio.com>
 
 	* TODO:

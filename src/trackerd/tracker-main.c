@@ -301,6 +301,8 @@ check_runtime_level (TrackerConfig *config,
 #endif /* HAVE_HAL */
 	}
 
+	close (fd);
+
 	return runlevel;
 }
 
