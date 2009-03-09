@@ -293,7 +293,7 @@ static void
 extract_ps_gz (const gchar *filename,
 	       GHashTable  *metadata)
 {
-	FILE	    *fz;
+	FILE	    *fz, *f;
 	GError	    *error = NULL;
 	gchar	    *gunzipped;
 	gint	     fdz;
