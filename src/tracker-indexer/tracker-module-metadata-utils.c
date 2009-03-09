@@ -481,7 +481,7 @@ get_file_content (const gchar *path)
 		}
 
 		/* Set the NULL termination after the last byte read */
-		buf[TEXT_CHECK_SIZE - bytes_remaining] = '\0';
+		buf[buf_size - bytes_remaining] = '\0';
 
 		/* First of all, check if this is the first time we
 		 * have tried to read the file up to the TEXT_CHECK_SIZE
