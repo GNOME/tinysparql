@@ -108,17 +108,32 @@ tracker_append_string_to_hash_table (GHashTable  *metadata,
 		gchar *orig;
 
 		if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer) &orig)) {
-			gchar *escaped;
+			gchar   *escaped;
+			gchar  **list;
+			gboolean found = FALSE;
+			guint    i;
 
-			escaped = tracker_escape_metadata (value);
-			new_value = g_strconcat (orig, "|", escaped, NULL);
+			escaped = tracker_escape_metadata (value);			
+			/* Don't add duplicates. FIXME This is inefficient */
+			list = g_strsplit (orig, "|", -1);			
+			for (i=0; list[i]; i++) {
+				if (strcmp (list[i], escaped) == 0) {
+					found = TRUE;
+					break;
+				}
+			}			
+			g_strfreev(list);
+			
+			if(!found) {
+				new_value = g_strconcat (orig, "|", escaped, NULL);
+				g_hash_table_insert (metadata, g_strdup (key), new_value);						
+			}
 
 			g_free (escaped);
 		} else {
 			new_value = tracker_escape_metadata (value);
+			g_hash_table_insert (metadata, g_strdup (key), new_value);
 		}
-		g_hash_table_insert (metadata, g_strdup (key), new_value);
-
 	} else {
 		if (!(g_hash_table_lookup(metadata, key) && !prio)) {
 			new_value = tracker_escape_metadata (value);

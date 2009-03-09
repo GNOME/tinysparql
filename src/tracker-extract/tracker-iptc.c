@@ -59,20 +59,36 @@ static IptcTagType iptctags[] = {
 static void
 metadata_append (GHashTable *metadata, gchar *key, gchar *value)
 {
-	gchar *new_value;
-	gchar *orig;
-	
+	gchar   *new_value;
+	gchar   *orig;
+	gchar  **list;
+	gboolean found = FALSE;
+	guint    i;
+
 	if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer) &orig)) {
 		gchar *escaped;
 		
 		escaped = tracker_escape_metadata (value);
-		new_value = g_strconcat (orig, "|", escaped, NULL);
-		
-		g_free (escaped);
+
+		list = g_strsplit (orig, "|", -1);			
+		for (i=0; list[i]; i++) {
+			if (strcmp (list[i], escaped) == 0) {
+				found = TRUE;
+				break;
+			}
+		}			
+		g_strfreev(list);
+
+		if (!found) {
+			new_value = g_strconcat (orig, "|", escaped, NULL);
+			g_hash_table_insert (metadata, g_strdup (key), new_value);
+		}
+
+		g_free (escaped);		
 	} else {
 		new_value = tracker_escape_metadata (value);
+		g_hash_table_insert (metadata, g_strdup (key), new_value);
 	}
-	g_hash_table_insert (metadata, g_strdup (key), new_value);
 }
 
 static gchar *
