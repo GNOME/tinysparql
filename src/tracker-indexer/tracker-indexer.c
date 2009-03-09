@@ -1798,6 +1798,8 @@ item_erase (TrackerIndexer *indexer,
 	/* Delete service */
 	tracker_data_update_delete_all_metadata (service, service_id);
 	tracker_data_update_delete_service (service, service_id);
+
+	schedule_flush (indexer, FALSE);
 }
 
 static void

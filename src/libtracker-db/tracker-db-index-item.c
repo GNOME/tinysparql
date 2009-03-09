@@ -28,11 +28,8 @@ tracker_db_index_item_calc_amalgamated (gint service_type,
 	gint16	      score16;
 	guint8	      service_type_8;
 
-	if (score > 30000) {
-		score16 = 30000;
-	} else {
-		score16 = (gint16) score;
-	}
+	score = CLAMP (score, G_MININT16, G_MAXINT16);
+	score16 = (gint16) score;
 
 	service_type_8 = (guint8) service_type;
 

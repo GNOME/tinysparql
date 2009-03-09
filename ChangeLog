@@ -1,3 +1,11 @@
+2009-03-09  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-db/tracker-db-index-item.c
+	(tracker_db_index_item_calc_amalgamated): Also clamp big negative
+	values to fit into a gint16, so we don't possibly underflow.
+	* src/tracker-indexer/tracker-indexer.c (item_erase): Schedule a flush
+	after an item has been removed.
+
 2009-03-09  Martyn Russell  <martyn@imendio.com>
 
 	* MAINTAINERS: Updated to reflect the current offenders :)
