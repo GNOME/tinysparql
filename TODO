@@ -35,17 +35,7 @@ Internal:
 2007 Tracker SoC project ideas:
 ===============================
 
-1. HAL integration into Tracker
-
-    * We need to be able to handle files in removable media
-    * Database already includes support for removable volumes and all file
-      services have an enable flag which can be used for this
-    * Needs to be able to auto-index files when a usb drive is plugged in
-    * Needs to be able to update URIs for all affected files when a usb drive
-      is mounted (paths of a previously indexed mount might be different when
-      remounted)
-    * Need to be able to hide files and exclude from search when a usb drive is
-      unmounted 
+1. HAL integration into Tracker, for handling removable media (done)
 
 2. Linux kernel watchless file notification system for Tracker
 

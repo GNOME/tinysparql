@@ -1,3 +1,9 @@
+2009-03-09  Martyn Russell  <martyn@imendio.com>
+
+	* TODO:
+	* docs/manpages/trackerd.1: Fixed documentation, patch from
+	Tshepang Lekhonkhobe.
+
 2009-03-09  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-iptc.c
