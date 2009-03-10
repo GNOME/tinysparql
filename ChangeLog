@@ -1,5 +1,10 @@
 2009-03-10  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c: Removed
+	the reference to images that broke build.
+
+2009-03-10  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-main.h
 	* src/tracker-extract/tracker-extract-gstreamer-helix.c
 	* src/tracker-extract/tracker-extract-mp3.c: Remove the last dummy

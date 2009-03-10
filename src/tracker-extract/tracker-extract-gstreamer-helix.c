@@ -827,22 +827,7 @@ tracker_extract_gstreamer_helix (const gchar *uri,
 
 	/* Check that we have the minimum data. FIXME We should not need to do this */
 
-	if (type == EXTRACT_MIME_IMAGE) {
-		if (!g_hash_table_lookup (metadata, "Image:Date")) {
-			struct stat st;
-			
-			if (g_lstat (uri, &st) >= 0) {
-				gchar *date;
-				
-				date = tracker_date_to_string (st.st_mtime);
-				
-				g_hash_table_insert (metadata,
-						     g_strdup ("Image:Date"),
-						     tracker_escape_metadata (date));
-				g_free (date);
-			}
-		}
-	} else if (type == EXTRACT_MIME_VIDEO) {
+	if (type == EXTRACT_MIME_VIDEO) {
 		if (!g_hash_table_lookup (metadata, "Video:Title")) {
 			gchar  *basename = g_filename_display_basename (uri);
 			gchar **parts    = g_strsplit (basename, ".", -1);
