@@ -1,5 +1,12 @@
 2009-03-10  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-main.c:
+	* src/tracker-indexer/tracker-main.c:
+	* src/trackerd/tracker-main.c: Use SCHED_IDLE and define it if it
+	isn't defined (in older kernels).
+
+2009-03-10  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-preferences/tracker-preferences.c: 
 	* src/tracker-preferences/tracker-preferences.glade: Removed
 	deprecated widgets. Used "+" and "-" buttons without text so there

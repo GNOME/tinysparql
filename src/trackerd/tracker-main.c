@@ -78,6 +78,13 @@
 #include "mingw-compat.h"
 #endif
 
+/* Temporary hack for out of date kernels, also, this value may not be
+ * the same on all architectures, but it is for x86.
+ */
+#ifndef SCHED_IDLE
+#define SCHED_IDLE 5
+#endif
+
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
 
