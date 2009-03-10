@@ -1,5 +1,16 @@
 2009-03-10  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-preferences/tracker-preferences.c: 
+	* src/tracker-preferences/tracker-preferences.glade: Removed
+	deprecated widgets. Used "+" and "-" buttons without text so there
+	is more space for paths, etc. Fixed spin button warnings in the
+	terminal due to deprecated glade calls. Make step increment for
+	maximum bytes to index in text files increments of 1024. Fixed
+	throttle range to be 0->20 not 0->99 which is not valid. Removed
+	email options which have no effect. Fixes bug #571331.
+	
+2009-03-10  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-common/tracker-config.c: Make sure once we have
 	loaded the config, we check there are no fundamental keys missing
 	and make sure any new keys added which didn't exist before have

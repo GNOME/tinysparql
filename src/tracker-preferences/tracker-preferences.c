@@ -423,18 +423,6 @@ cmd_apply (GtkWidget *widget,
                 tracker_config_set_initial_sleep (priv->config, ivalue);
         }
 
-#ifdef ENABLE_DEPRECATED
-	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
-	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-	bvalue_old = tracker_config_get_enable_watching (priv->config);
-
-	if (bvalue != bvalue_old) {
-		priv->should_restart = TRUE;
-		set_bool_option (priv, "EnableWatching", bvalue);
-		tracker_config_set_enable_watching (priv->config, bvalue);
-	}
-#endif
-
 	widget = glade_xml_get_widget (priv->gxml, "chkEnableIndexing");
 	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 	bvalue_old = tracker_config_get_enable_indexing (priv->config);
@@ -567,35 +555,6 @@ cmd_apply (GtkWidget *widget,
 	g_slist_free (list);
 
 	/* Email settings */
-#ifdef ENABLE_DEPRECATED
-	widget = glade_xml_get_widget (priv->gxml, "chkEnableEvolutionIndexing");
-	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-	bvalue_old = tracker_configuration_get_boolean ("/Emails/IndexEvolutionEmails",
-							NULL);
-	if (bvalue != bvalue_old) {
-		set_bool_option (priv, "EnableEvolution", bvalue);
-		tracker_configuration_set_boolean ("/Emails/IndexEvolutionEmails", bvalue);
-	}
-
-
-	widget = glade_xml_get_widget (priv->gxml, "chkEnableModestIndexing");
-	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-	bvalue_old = tracker_configuration_get_boolean ("/Emails/IndexModestEmails",
-							NULL);
-	if (bvalue != bvalue_old) {
-		set_bool_option (priv, "EnableModest", bvalue);
-		tracker_configuration_set_boolean ("/Emails/IndexModestEmails", bvalue);
-	}
-
-	widget = glade_xml_get_widget (priv->gxml, "chkEnableThunderbirdIndexing");
-	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
-	bvalue_old = tracker_configuration_get_boolean ("/Emails/IndexThunderbirdEmails",
-							NULL);
-	if (bvalue != bvalue_old) {
-		set_bool_option (priv, "EnableThunderbird", bvalue);
-		tracker_configuration_set_boolean ("/Emails/IndexThunderbirdEmails", bvalue);
-	}
-#else
 	widget = glade_xml_get_widget (priv->gxml, "chkEnableEvolutionIndexing");
 	bvalue = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget));
 
@@ -622,8 +581,6 @@ cmd_apply (GtkWidget *widget,
                         tracker_config_set_disabled_modules (priv->config, list);
                 }
 	}
-
-#endif
 
 	/* Performance settings */
 	widget = glade_xml_get_widget (priv->gxml, "scaThrottle");
@@ -911,15 +868,6 @@ setup_page_general (TrackerPreferences *preferences)
 	value = tracker_config_get_enable_indexing (priv->config);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
 
-#ifdef ENABLE_DEPRECATED
-	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
-	value = tracker_configuration_get_boolean ("/Watches/EnableWatching", NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-#else
-	widget = glade_xml_get_widget (priv->gxml, "chkEnableWatching");
-        gtk_widget_set_sensitive (widget, FALSE);
-#endif
-
 	widget = glade_xml_get_widget (priv->gxml, "comLanguage");
         language_model = gtk_tree_store_new (2, 
                                              G_TYPE_STRING, 
@@ -1088,43 +1036,13 @@ setup_page_emails (TrackerPreferences *preferences)
 
         priv = TRACKER_PREFERENCES_GET_PRIVATE (preferences);
 
-#ifdef ENABLE_DEPRECATED 
 	widget = glade_xml_get_widget (priv->gxml,
 				       "chkEnableEvolutionIndexing");
-	value = tracker_configuration_get_boolean ("/Emails/IndexEvolutionEmails",
-						   NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-
-	widget = glade_xml_get_widget (priv->gxml,
-				       "chkEnableModestIndexing");
-	value = tracker_configuration_get_boolean ("/Emails/IndexModestEmails",
-						   NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-
-
-	widget = glade_xml_get_widget (priv->gxml,
-				       "chkEnableThunderbirdIndexing");
-	value = tracker_configuration_get_boolean ("/Emails/IndexThunderbirdEmails",
-						   NULL);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), value);
-#else 
-	widget = glade_xml_get_widget (priv->gxml,
-				       "chkEnableEvolutionIndexing");
-        gtk_widget_set_sensitive (widget, TRUE);
 
         disabled_mods = tracker_config_get_disabled_modules (priv->config);
         no_evo = tracker_string_in_gslist ("evolution", disabled_mods);
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), 
                                       !no_evo);
-
-	widget = glade_xml_get_widget (priv->gxml,
-				       "chkEnableModestIndexing");
-        gtk_widget_set_sensitive (widget, FALSE);
-
-	widget = glade_xml_get_widget (priv->gxml,
-				       "chkEnableThunderbirdIndexing");
-        gtk_widget_set_sensitive (widget, FALSE);
-#endif
 }
 
 static void
