@@ -1,5 +1,12 @@
 2009-03-10  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-main.h
+	* src/tracker-extract/tracker-extract-gstreamer-helix.c
+	* src/tracker-extract/tracker-extract-mp3.c: Remove the last dummy
+	empty strings as they are no longer needed.
+
+2009-03-10  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* data/services/default.service
 	* data/services/image.metadata: Add Image:HasKeywords field for
 	performance reasons.

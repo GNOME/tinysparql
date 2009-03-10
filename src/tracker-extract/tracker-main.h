@@ -28,13 +28,6 @@
 
 G_BEGIN_DECLS
 
-/* FIXME: We use this to say that we don't actually have any metadata
- * for this keyword. This is bad because it means we have to string
- * check every value returned in clients that use the Tracker API.
- * This will be fixed in due course after January some time, -mr.
- */
-#define METADATA_UNKNOWN ""
-
 typedef struct TrackerExtractData TrackerExtractData;
 
 typedef TrackerExtractData * (*TrackerExtractDataFunc)(void);

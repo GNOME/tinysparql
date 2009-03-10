@@ -1619,37 +1619,6 @@ extract_mp3 (const gchar *filename,
 		g_free (title);
 	}
 
-	if (!g_hash_table_lookup (metadata, "Audio:Album")) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Album"),
-				     g_strdup (METADATA_UNKNOWN));
-	}
-
-	if (!g_hash_table_lookup (metadata, "Audio:Artist")) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Artist"),
-				     g_strdup (METADATA_UNKNOWN));
-	}
-
-	if (!g_hash_table_lookup (metadata, "Audio:Genre")) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Genre"),
-				     g_strdup (METADATA_UNKNOWN));
-	}
-
-	if (!g_hash_table_lookup (metadata, "Audio:PlayCount")) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:PlayCount"),
-				     g_strdup ("0"));
-	}	
-
-	if (!g_hash_table_lookup (metadata, "Audio:Duration")) {
-		g_hash_table_insert (metadata,
-				     g_strdup ("Audio:Duration"),
-				     g_strdup ("0"));
-	}	
-
-
 #ifndef G_OS_WIN32
 	munmap (buffer, size);
 #endif
