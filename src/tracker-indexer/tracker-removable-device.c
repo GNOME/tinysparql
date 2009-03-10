@@ -154,6 +154,18 @@ commit_turtle_parse_info_storer (TurtleStorerInfo *info, gboolean may_flush, Sto
 	}
 }
 
+static gchar *
+get_uri_with_trailing_slash (GFile *file)
+{
+	gchar *uri, *str;
+
+	uri = g_file_get_uri (file);
+	str = g_strdup_printf ("%s/", uri);
+	g_free (uri);
+
+	return str;
+}
+
 static void
 consume_triple_storer (void* user_data, const raptor_statement* triple) 
 {
@@ -197,7 +209,7 @@ consume_triple_storer (void* user_data, const raptor_statement* triple)
 		gchar *key;
 
 		file = g_file_new_for_path (info->base);
-		key = g_file_get_uri (file);
+		key = get_uri_with_trailing_slash (file);
 
 		if (g_strcmp0 (key, triple->object) == 0 &&
 		    g_strcmp0 (key, triple->predicate) == 0) {
@@ -284,7 +296,7 @@ tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point
 		tracker_indexer_transaction_open (info->indexer);
 
 		file = g_file_new_for_path (mount_point);
-		base_uri = g_file_get_uri (file);
+		base_uri = get_uri_with_trailing_slash (file);
 
 		tracker_turtle_process (filename, base_uri, consume_triple_storer, info);
 
@@ -381,7 +393,7 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 	gchar           *filename, *muri;
 	FILE            *target_file;
 	raptor_uri      *suri;
-	GFile           *file;
+	GFile           *file, *base_file;
 
 	filename = g_build_filename (mount_point, ".cache",
 				     "metadata", NULL);
@@ -415,11 +427,13 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       RAPTOR_FEATURE_ALLOW_NON_NS_ATTRIBUTES, 1);
 
 	file = g_file_new_for_path (mount_point);
-	muri = g_file_get_uri (file);
+	base_file = g_file_get_child (file, "base");
+	muri = g_file_get_uri (base_file);
 
 	suri = raptor_new_uri ((const unsigned char *) muri);
 
 	g_object_unref (file);
+	g_object_unref (base_file);
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (info->serializer, 
@@ -484,12 +498,12 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 
 	file = g_file_new_for_path (mount_point);
 	base_file = g_file_get_child (file, "base");
-	g_object_unref (file);
 
 	muri = g_file_get_uri (base_file);
 	suri = raptor_new_uri ((const unsigned char *) muri);
 
 	g_object_unref (base_file);
+	g_object_unref (file);
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (serializer, 
@@ -558,7 +572,7 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	to_uri = g_strdup (to_path+strlen (mount_point)+1);
 
 	file = g_file_new_for_path (mount_point);
-	muri = g_file_get_uri (file);
+	muri = get_uri_with_trailing_slash (file);
 	suri = raptor_new_uri ((const unsigned char *) muri);
 
 	g_object_unref (file);

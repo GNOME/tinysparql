@@ -1,3 +1,13 @@
+2009-03-10  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-removable-device.c
+	(get_uri_with_trailing_slash) (consume_triple_storer)
+	(tracker_removable_device_load)
+	(tracker_removable_device_add_metadata)
+	(tracker_removable_device_add_removal)
+	(tracker_removable_device_add_move): Generate URIs with trailing slash
+	where appropriate, since raptor likes them.
+
 2009-03-09  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-extract-ps.c (extract_ps_gz):
