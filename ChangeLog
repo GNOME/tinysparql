@@ -1,3 +1,8 @@
+2009-03-10  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-common/tracker-thumbnailer.c: Using no_reply calls
+	for the DBus methods
+
 2009-03-10  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-removable-device.c
