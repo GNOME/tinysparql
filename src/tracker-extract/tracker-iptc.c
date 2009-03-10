@@ -88,6 +88,13 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value)
 	} else {
 		new_value = tracker_escape_metadata (value);
 		g_hash_table_insert (metadata, g_strdup (key), new_value);
+
+		/* FIXME Postprocessing is evil and should be elsewhere */
+		if (strcmp (key, "Image:Keywords") == 0) {
+			g_hash_table_insert (metadata,
+					     g_strdup ("Image:HasKeywords"),
+					     tracker_escape_metadata ("1"));
+		}
 	}
 }
 
@@ -131,5 +138,6 @@ tracker_read_iptc (const unsigned char *buffer,
 		}
 	}
 	iptc_data_unref (iptc);
+
 #endif
 }
