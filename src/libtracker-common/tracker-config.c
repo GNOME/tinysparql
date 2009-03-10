@@ -147,17 +147,19 @@ struct _TrackerConfigPrivate {
 	gboolean      enable_xesam;
 };
 
-static void     config_finalize     (GObject       *object);
-static void     config_get_property (GObject       *object,
-				     guint          param_id,
-				     GValue        *value,
-				     GParamSpec    *pspec);
-static void     config_set_property (GObject       *object,
-				     guint          param_id,
-				     const GValue  *value,
-				     GParamSpec    *pspec);
-static void     config_load         (TrackerConfig *config);
-static gboolean config_save         (TrackerConfig *config);
+static void     config_finalize             (GObject       *object);
+static void     config_get_property         (GObject       *object,
+					     guint          param_id,
+					     GValue        *value,
+					     GParamSpec    *pspec);
+static void     config_set_property         (GObject       *object,
+					     guint          param_id,
+					     const GValue  *value,
+					     GParamSpec    *pspec);
+static void     config_load                 (TrackerConfig *config);
+static gboolean config_save                 (TrackerConfig *config);
+static void     config_create_with_defaults (GKeyFile      *key_file,
+					     gboolean       overwrite);
 
 enum {
 	PROP_0,
@@ -782,12 +784,10 @@ config_dir_ensure_exists_and_return (void)
 	return directory;
 }
 
-static gboolean
-config_create_with_defaults (const gchar *filename,
-			     GKeyFile	 *key_file)
+static void
+config_create_with_defaults (GKeyFile *key_file, 
+			     gboolean  overwrite)
 {
-	GError	     *error = NULL;
-	gchar	     *content = NULL;
 	gchar	     *language;
 	const gchar  *watch_directory_roots[2] = { NULL, NULL };
 	const gchar  *empty_string_list[] = { NULL };
@@ -797,153 +797,270 @@ config_create_with_defaults (const gchar *filename,
 
 	watch_directory_roots[0] = g_get_home_dir ();
 
+	g_message ("Loading defaults into GKeyFile...");
+
 	/* General */
-	g_key_file_set_integer (key_file, GROUP_GENERAL, KEY_VERBOSITY, DEFAULT_VERBOSITY);
-	g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_VERBOSITY,
-				" Log Verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
-				NULL);
-	g_key_file_set_integer (key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP, DEFAULT_INITIAL_SLEEP);
-	g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP,
-				" Initial sleep time in seconds (0->1000)",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE, DEFAULT_LOW_MEMORY_MODE);
-	g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE,
-				" Minimizes memory use at the expense of indexing speed",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_GENERAL, KEY_NFS_LOCKING, DEFAULT_NFS_LOCKING);
-	g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_NFS_LOCKING,
-				" Set to TRUE when the home directory is in a NFS filesystem",
-				NULL);
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_GENERAL, KEY_VERBOSITY, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_GENERAL, KEY_VERBOSITY, 
+					DEFAULT_VERBOSITY);
+		g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_VERBOSITY,
+					" Log Verbosity (0=errors, 1=minimal, 2=detailed, 3=debug)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP, 
+					DEFAULT_INITIAL_SLEEP);
+		g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_INITIAL_SLEEP,
+					" Initial sleep time in seconds (0->1000)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE, 
+					DEFAULT_LOW_MEMORY_MODE);
+		g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_LOW_MEMORY_MODE,
+					" Minimizes memory use at the expense of indexing speed",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_GENERAL, KEY_NFS_LOCKING, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_GENERAL, KEY_NFS_LOCKING, 
+					DEFAULT_NFS_LOCKING);
+		g_key_file_set_comment (key_file, GROUP_GENERAL, KEY_NFS_LOCKING,
+					" Set to TRUE when the home directory is in a NFS filesystem",
+					NULL);
+	}
 
 	/* Watches */
-	g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
-				    watch_directory_roots, 
-				    g_strv_length ((gchar**) watch_directory_roots));
-	g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
-				" List of directory roots to index and watch (separator=;)",
-				NULL);
-	g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS,
-				    empty_string_list, 0);
-	g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS,
-				" List of directory roots to index but NOT watch (separator=;)",
-				NULL);
-	g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS,
-				    empty_string_list, 0);
-	g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS,
-				" List of directory roots NOT to index and NOT to watch (separator=;)",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES, DEFAULT_ENABLE_WATCHES);
-	g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES,
-				" Set to false to completely disable any watching",
-				NULL);
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
+					    watch_directory_roots, 
+					    g_strv_length ((gchar**) watch_directory_roots));
+		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_WATCH_DIRECTORY_ROOTS,
+					" List of directory roots to index and watch (separator=;)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS,
+					    empty_string_list, 0);
+		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_CRAWL_DIRECTORY_ROOTS,
+					" List of directory roots to index but NOT watch (separator=;)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS,
+					    empty_string_list, 0);
+		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_NO_WATCH_DIRECTORY_ROOTS,
+					" List of directory roots NOT to index and NOT to watch (separator=;)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES, 
+					DEFAULT_ENABLE_WATCHES);
+		g_key_file_set_comment (key_file, GROUP_WATCHES, KEY_ENABLE_WATCHES,
+					" Set to false to completely disable any watching",
+					NULL);
+	}
 
 	/* Indexing */
-	g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_THROTTLE, DEFAULT_THROTTLE);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_THROTTLE,
-				" Sets the indexing speed (0->20, where 20=slowest speed)",
-				NULL);
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_THROTTLE, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_THROTTLE, 
+					DEFAULT_THROTTLE);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_THROTTLE,
+					" Sets the indexing speed (0->20, where 20=slowest speed)",
+					NULL);
+	}
 
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING, DEFAULT_ENABLE_INDEXING);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING,
-				" Set to false to completely disable any indexing",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING, DEFAULT_ENABLE_CONTENT_INDEXING);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING,
-				" Set to false to completely disable file content indexing",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS, DEFAULT_ENABLE_THUMBNAILS);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS,
-				" Set to false to completely disable thumbnail generation",
-				NULL);
-	g_key_file_set_string_list (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
-				    empty_string_list, 0);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
-				" List of disabled modules (separator=;)\n"
-				" The modules that are indexed are kept in $prefix/lib/tracker/indexer-modules",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_FAST_MERGES, DEFAULT_FAST_MERGES);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_FAST_MERGES,
-				" Set to false to NOT hog the disk for extended periods",
-				NULL);
-	g_key_file_set_string_list (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES,
-				    empty_string_list, 0);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES,
-				" List of partial file pattern globs (separator=;)\n"
-				" This is for files to NOT index\n"
-				" (basic stat info is only extended for files that match the patterns)",
-				NULL);
-	g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH, DEFAULT_MIN_WORD_LENGTH);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH,
-				" Set the minimum length of words to index (0->30, default=3)",
-				NULL);
-	g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH, DEFAULT_MAX_WORD_LENGTH);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH,
-				" Set the maximum length of words to index (0->200, default=30)",
-				NULL);
-	g_key_file_set_string (key_file, GROUP_INDEXING, KEY_LANGUAGE, language);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_LANGUAGE,
-				" Set the language specific stemmer and stopword list to use\n"
-				" Values include:\n"
-				" - en (English)\n"
-				" - da (Danish)\n"
-				" - nl (Dutch)\n"
-				" - fi (Finish)\n"
-				" - fr (French)\n"
-				" - de (German)\n"
-				" - it (Italian)\n"
-				" - nb (Norwegian)\n"
-				" - pt (Portugese)\n"
-				" - ru (Russian)\n"
-				" - es (Spanish)\n"
-				" - sv (Swedish)",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER, DEFAULT_ENABLE_STEMMER);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER,
-				" Set to false to disable language specific stemmer",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY, DEFAULT_DISABLE_INDEXING_ON_BATTERY);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY,
-				" Set to true to disable indexing when running on battery",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT, DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT,
-				" Set to true to disable initial indexing when running on battery",
-				NULL);
-	g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT, DEFAULT_LOW_DISK_SPACE_LIMIT);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT,
-				" Pause indexer when disk space is <= this value\n"
-				" (0->100, value is in % of $HOME file system, -1=disable pausing)",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES, DEFAULT_INDEX_MOUNTED_DIRECTORIES);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES,
-				" Set to true to enable traversing mounted directories on other file systems\n"
-				" (this excludes removable devices)",
-				NULL);
-	g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES, DEFAULT_INDEX_REMOVABLE_DEVICES);
-	g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES,
-				" Set to true to enable traversing mounted directories for removable devices",
-				NULL);
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING, 
+					DEFAULT_ENABLE_INDEXING);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_INDEXING,
+					" Set to false to completely disable any indexing",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING, 
+					DEFAULT_ENABLE_CONTENT_INDEXING);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_CONTENT_INDEXING,
+					" Set to false to completely disable file content indexing",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS, 
+					DEFAULT_ENABLE_THUMBNAILS);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_THUMBNAILS,
+					" Set to false to completely disable thumbnail generation",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
+					    empty_string_list, 0);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLED_MODULES,
+					" List of disabled modules (separator=;)\n"
+					" The modules that are indexed are kept in $prefix/lib/tracker/indexer-modules",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_FAST_MERGES, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_FAST_MERGES,
+					DEFAULT_FAST_MERGES);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_FAST_MERGES,
+					" Set to false to NOT hog the disk for extended periods",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES, NULL)) {
+		g_key_file_set_string_list (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES,
+					    empty_string_list, 0);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_NO_INDEX_FILE_TYPES,
+					" List of partial file pattern globs (separator=;)\n"
+					" This is for files to NOT index\n"
+					" (basic stat info is only extended for files that match the patterns)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH,
+					DEFAULT_MIN_WORD_LENGTH);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_MIN_WORD_LENGTH,
+					" Set the minimum length of words to index (0->30, default=3)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH,
+					DEFAULT_MAX_WORD_LENGTH);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_MAX_WORD_LENGTH,
+					" Set the maximum length of words to index (0->200, default=30)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_LANGUAGE, NULL)) {
+		g_key_file_set_string (key_file, GROUP_INDEXING, KEY_LANGUAGE, 
+				       language);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_LANGUAGE,
+					" Set the language specific stemmer and stopword list to use\n"
+					" Values include:\n"
+					" - en (English)\n"
+					" - da (Danish)\n"
+					" - nl (Dutch)\n"
+					" - fi (Finish)\n"
+					" - fr (French)\n"
+					" - de (German)\n"
+					" - it (Italian)\n"
+					" - nb (Norwegian)\n"
+					" - pt (Portugese)\n"
+					" - ru (Russian)\n"
+					" - es (Spanish)\n"
+					" - sv (Swedish)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER, 
+					DEFAULT_ENABLE_STEMMER);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_ENABLE_STEMMER,
+					" Set to false to disable language specific stemmer",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY,
+					DEFAULT_DISABLE_INDEXING_ON_BATTERY);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY,
+					" Set to true to disable indexing when running on battery",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT,
+					DEFAULT_DISABLE_INDEXING_ON_BATTERY_INIT);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_DISABLE_INDEXING_ON_BATTERY_INIT,
+					" Set to true to disable initial indexing when running on battery",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT, 
+					DEFAULT_LOW_DISK_SPACE_LIMIT);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_LOW_DISK_SPACE_LIMIT,
+					" Pause indexer when disk space is <= this value\n"
+					" (0->100, value is in % of $HOME file system, -1=disable pausing)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES,
+					DEFAULT_INDEX_MOUNTED_DIRECTORIES);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_INDEX_MOUNTED_DIRECTORIES,
+					" Set to true to enable traversing mounted directories on other file systems\n"
+					" (this excludes removable devices)",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES, 
+					DEFAULT_INDEX_REMOVABLE_DEVICES);
+		g_key_file_set_comment (key_file, GROUP_INDEXING, KEY_INDEX_REMOVABLE_DEVICES,
+					" Set to true to enable traversing mounted directories for removable devices",
+					NULL);
+	}
 
 	/* Performance */
-	g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX, DEFAULT_MAX_TEXT_TO_INDEX);
-	g_key_file_set_comment (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX,
-				" Maximum text size in bytes to index from a file's content",
-				NULL);
-	g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX, DEFAULT_MAX_WORDS_TO_INDEX);
-	g_key_file_set_comment (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX,
-				" Maximum unique words to index from a file's content",
-				NULL);
-	g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT, DEFAULT_MAX_BUCKET_COUNT);
-	g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT, DEFAULT_MIN_BUCKET_COUNT);
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX, 
+					DEFAULT_MAX_TEXT_TO_INDEX);
+		g_key_file_set_comment (key_file, GROUP_PERFORMANCE, KEY_MAX_TEXT_TO_INDEX,
+					" Maximum text size in bytes to index from a file's content",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX, 
+					DEFAULT_MAX_WORDS_TO_INDEX);
+		g_key_file_set_comment (key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX,
+					" Maximum unique words to index from a file's content",
+					NULL);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT,
+					DEFAULT_MIN_BUCKET_COUNT);
+	}
+
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT, NULL)) {
+		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT, 
+					DEFAULT_MAX_BUCKET_COUNT);
+	}
 
 	/* Services */
-	g_key_file_set_boolean (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM, DEFAULT_ENABLE_XESAM);
-	g_key_file_set_comment (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM,
-				" Xesam DBus service.\n",
-				NULL);
+	if (overwrite || !g_key_file_has_key (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM, NULL)) {
+		g_key_file_set_boolean (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM,
+					DEFAULT_ENABLE_XESAM);
+		g_key_file_set_comment (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM,
+					" Xesam DBus service.\n",
+					NULL);
+	}
 
-	content = g_key_file_to_data (key_file, NULL, &error);
 	g_free (language);
+}
+
+static gboolean
+config_save_with_defaults (const gchar *filename,
+			   GKeyFile    *key_file)
+{
+	GError *error = NULL;
+	gchar  *content = NULL;
+
+	/* Save to file */
+	content = g_key_file_to_data (key_file, NULL, &error);
 
 	if (error) {
 		g_warning ("Couldn't produce default configuration, %s", error->message);
@@ -1278,8 +1395,11 @@ config_load (TrackerConfig *config)
 				   filename, 
 				   G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
 				   &error);
+
+	config_create_with_defaults (priv->key_file, FALSE);
+
 	if (error) {
-		config_create_with_defaults (filename, priv->key_file);
+		config_save_with_defaults (filename, priv->key_file);
 		g_clear_error (&error);
 	}
 

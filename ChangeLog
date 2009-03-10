@@ -1,3 +1,10 @@
+2009-03-10  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-config.c: Make sure once we have
+	loaded the config, we check there are no fundamental keys missing
+	and make sure any new keys added which didn't exist before have
+	comments too.
+
 2009-03-10  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-common/tracker-thumbnailer.c: Using no_reply calls
