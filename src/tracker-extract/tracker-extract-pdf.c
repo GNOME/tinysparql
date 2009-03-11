@@ -97,6 +97,12 @@ extract_pdf (const gchar *filename,
 				     tracker_escape_metadata (keywords));
 	}
 
+	if (creation_date > 0) {
+		g_hash_table_insert (metadata,
+				     g_strdup ("Doc:Created"),
+				     tracker_date_to_string ((time_t) creation_date));
+	}
+
 	g_hash_table_insert (metadata,
 			     g_strdup ("Doc:PageCount"),
 			     tracker_escape_metadata_printf ("%d", poppler_document_get_n_pages (document)));

@@ -1,3 +1,8 @@
+2009-03-11  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-extract-pdf.c (extract_pdf): Also
+	include Doc:Created in the metadata. Fixes #489876.
+
 2009-03-11  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-hal.c: Reduce the amount of
