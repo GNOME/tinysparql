@@ -1,5 +1,10 @@
 2009-03-11  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Ensure
+	weights are correct before inserting hits for a new word.
+
+2009-03-11  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-hal.c (tracker_hal_init): Ensure
 	daemons do not exit if the system bus is shut down. Partly fixes
 	#519222.

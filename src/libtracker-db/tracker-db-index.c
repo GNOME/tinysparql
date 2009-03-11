@@ -634,18 +634,34 @@ indexer_update_word (const gchar *word,
 
 	/* New word in the index */
 	if (previous_hits == NULL) {
-		result = dpput (indez,
-				word, -1,
-				(char *) new_hits->data,
-				new_hits->len * sizeof (TrackerDBIndexItem),
-				DP_DOVER);
+		pending_hits = g_array_new (FALSE, TRUE, sizeof (TrackerDBIndexItem));
+		result = TRUE;
 
-		if (!result) {
-			g_warning ("Could not store word '%s': %s", word, dperrmsg (dpecode));
-			return FALSE;
+		/* Ensure weights are correct before inserting */
+		for (j = 0; j < new_hits->len; j++) {
+			new_hit = &g_array_index (new_hits, TrackerDBIndexItem, j);
+			score = tracker_db_index_item_get_score (new_hit);
+
+			if (score > 0) {
+				g_array_append_val (pending_hits, *new_hit);
+			}
 		}
 
-		return TRUE;
+		if (pending_hits->len > 0) {
+			result = dpput (indez,
+					word, -1,
+					(char *) pending_hits->data,
+					pending_hits->len * sizeof (TrackerDBIndexItem),
+					DP_DOVER);
+
+			if (!result) {
+				g_warning ("Could not store word '%s': %s", word, dperrmsg (dpecode));
+			}
+		}
+
+		g_array_free (pending_hits, TRUE);
+
+		return result;
 	}
 
 	/* Word already exists */
