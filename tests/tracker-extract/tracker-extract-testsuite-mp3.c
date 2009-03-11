@@ -103,7 +103,7 @@ static const ExtractData data_header_sampling[] = {
 void 
 test_tracker_extract_mp3_access (gconstpointer data)
 {
-	access_extract_files (data, "/mp3/access_%d.mp3", 4);
+	tracker_test_extract_file_access (data, "/mp3/access_%d.mp3", 4);
 }
 
 void 
@@ -112,9 +112,9 @@ test_tracker_extract_mp3_id3v1_basic (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_id3v1_basic[i].filename; i++) {
-		extract_file (data,
-			      data_id3v1_basic[i].filename,
-			      data_id3v1_basic[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_id3v1_basic[i].filename,
+					   data_id3v1_basic[i].testdata);		
 	}
 }
 
@@ -124,9 +124,9 @@ test_tracker_extract_mp3_id3v23_basic (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_id3v23_basic[i].filename; i++) {
-		extract_file (data,
-			      data_id3v23_basic[i].filename,
-			      data_id3v23_basic[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_id3v23_basic[i].filename,
+					   data_id3v23_basic[i].testdata);		
 	}
 }
 
@@ -136,9 +136,9 @@ test_tracker_extract_mp3_id3v23_tags (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_id3v23_tags[i].filename; i++) {
-		extract_file (data,
-			      data_id3v23_tags[i].filename,
-			      data_id3v23_tags[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_id3v23_tags[i].filename,
+					   data_id3v23_tags[i].testdata);		
 	}
 }
 
@@ -148,21 +148,21 @@ test_tracker_extract_mp3_id3v23_tcon(gconstpointer data)
 	guint i;
 
 	for (i = 0; data_id3v23_tcon[i].filename; i++) {
-		extract_file (data,
-			      data_id3v23_tcon[i].filename,
-			      data_id3v23_tcon[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_id3v23_tcon[i].filename,
+					   data_id3v23_tcon[i].testdata);		
 	}
 }
 
 void 
-test_tracker_extract_mp3_header_bitrate(gconstpointer data)
+test_tracker_extract_mp3_header_bitrate (gconstpointer data)
 {
 	guint i;
 
 	for (i = 0; data_header_bitrate[i].filename; i++) {
-		extract_file (data,
-			      data_header_bitrate[i].filename,
-			      data_header_bitrate[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_header_bitrate[i].filename,
+					   data_header_bitrate[i].testdata);		
 	}
 }
 
@@ -172,9 +172,9 @@ test_tracker_extract_mp3_header_bitrate_vbr (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_header_bitrate_vbr[i].filename; i++) {
-		extract_file (data,
-			      data_header_bitrate_vbr[i].filename,
-			      data_header_bitrate_vbr[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_header_bitrate_vbr[i].filename,
+					   data_header_bitrate_vbr[i].testdata);		
 	}
 }
 
@@ -184,15 +184,15 @@ test_tracker_extract_mp3_header_sampling (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_header_sampling[i].filename; i++) {
-		extract_file (data,
-			      data_header_sampling[i].filename,
-			      data_header_sampling[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_header_sampling[i].filename,
+					   data_header_sampling[i].testdata);		
 	}
 }
 
 void 
 test_tracker_extract_mp3_performance (gconstpointer data)
 {
-	performance_extract_files (data, "/mp3/perf_cbr_id3v1_%d.mp3", 1000);
+	tracker_test_extract_file_performance (data, "/mp3/perf_cbr_id3v1_%d.mp3", 1000);
 }
 

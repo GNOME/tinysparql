@@ -55,9 +55,9 @@ test_tracker_extract_png_basic_size (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_basic_size[i].filename; i++) {
-		extract_file (data,
-			      data_basic_size[i].filename,
-			      data_basic_size[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_basic_size[i].filename,
+					   data_basic_size[i].testdata);		
 	}
 }
 
@@ -67,14 +67,14 @@ test_tracker_extract_png_xmp_exif_orientation (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_xmp_exif_orientation[i].filename; i++) {
-		extract_file (data,
-			      data_xmp_exif_orientation[i].filename,
-			      data_xmp_exif_orientation[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_xmp_exif_orientation[i].filename,
+					   data_xmp_exif_orientation[i].testdata);		
 	}
 }
 
 void 
 test_tracker_extract_png_performance (gconstpointer data)
 {
-	performance_extract_files (data, "/png/perf_png_%d.png", 1000);
+	tracker_test_extract_file_performance (data, "/png/perf_png_%d.png", 1000);
 }

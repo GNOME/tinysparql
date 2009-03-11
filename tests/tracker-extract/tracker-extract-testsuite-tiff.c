@@ -60,9 +60,9 @@ test_tracker_extract_tiff_basic_size (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_basic_size[i].filename; i++) {
-		extract_file (data,
-			      data_basic_size[i].filename,
-			      data_basic_size[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_basic_size[i].filename,
+					   data_basic_size[i].testdata);		
 	}
 }
 
@@ -74,9 +74,9 @@ test_tracker_extract_tiff_exif_size (gconstpointer data)
 	for (i = 0; data_exif_size[i].filename; i++) {
 		g_debug ("Filename: %s", data_basic_size[i].filename);
 
-		extract_file (data,
-			      data_exif_size[i].filename,
-			      data_exif_size[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_exif_size[i].filename,
+					   data_exif_size[i].testdata);		
 	}
 }
 
@@ -86,14 +86,14 @@ test_tracker_extract_tiff_exif_orientation (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_exif_orientation[i].filename; i++) {
-		extract_file (data,
-			      data_exif_orientation[i].filename,
-			      data_exif_orientation[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_exif_orientation[i].filename,
+					   data_exif_orientation[i].testdata);		
 	}
 }
 
 void 
 test_tracker_extract_tiff_performance (gconstpointer data)
 {
-	performance_extract_files (data, "/tiff/perf_tiff_%d.tif", 1000);
+	tracker_test_extract_file_performance (data, "/tiff/perf_tiff_%d.tif", 1000);
 }

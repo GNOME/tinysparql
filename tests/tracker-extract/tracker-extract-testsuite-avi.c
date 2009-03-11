@@ -39,9 +39,9 @@ test_tracker_extract_avi_basic_tags (gconstpointer data)
 	guint i;
 
 	for (i = 0; data_basic_tags[i].filename; i++) {
-		extract_file (data,
-			      data_basic_tags[i].filename,
-			      data_basic_tags[i].testdata);		
+		tracker_test_extract_file (data,
+					   data_basic_tags[i].filename,
+					   data_basic_tags[i].testdata);		
 	}
 }
 

@@ -1,3 +1,14 @@
+2009-03-11  Martyn Russell  <martyn@imendio.com>
+
+	* tests/tracker-extract/tracker-extract-test-utils.[ch]: 
+	* tests/tracker-extract/tracker-extract-testsuite-avi.c:
+	* tests/tracker-extract/tracker-extract-testsuite-jpeg.c:
+	* tests/tracker-extract/tracker-extract-testsuite-mp3.c:
+	* tests/tracker-extract/tracker-extract-testsuite-png.c:
+	* tests/tracker-extract/tracker-extract-testsuite-tiff.c: Use
+	proper name spacing for public functions and cleaned up the code a
+	little. Also added test mp3s so make check doesn't fail.
+
 2009-03-11  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Ensure

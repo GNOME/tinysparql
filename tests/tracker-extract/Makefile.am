@@ -76,7 +76,6 @@ test_tracker_extract_gstreamer_LDADD =					\
 	$(GLIB2_LIBS)							\
 	$(GSTREAMER_LIBS)
 
-
 test_tracker_extract_jpeg_SOURCES = 					\
 	tracker-extract-jpeg-test.c					\
 	$(TEST_UTILS_SOURCES)

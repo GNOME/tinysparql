@@ -29,21 +29,15 @@
 
 #include <tracker-extract/tracker-main.h>
 
-TrackerExtractData *  tracker_test_extract_get_extract (const gchar *mime);
-void              extract_file (const TrackerExtractData *data, 
-				const gchar *file, 
-				const gchar *testdatafile);
-void              performance_extract_files (const TrackerExtractData *data, 
-					     const gchar *filematch, 
-					     guint filecount);
-void              access_extract_files (const TrackerExtractData *data, 
-					const gchar *filematch, 
-					guint filecount);
-
-GHashTable *            parse_testdata_file        (const gchar *filename);
-void                    dump_metadata              (GHashTable *metadata);
-void                    check_metadata             (GHashTable *metadata,
-						    gchar *key,
-						    gchar *value);
+TrackerExtractData *tracker_test_extract_get_extract      (const gchar              *mime);
+void                tracker_test_extract_file             (const TrackerExtractData *data,
+							   const gchar              *file,
+							   const gchar              *testdatafile);
+void                tracker_test_extract_file_performance (const TrackerExtractData *data,
+							   const gchar              *file_match,
+							   guint                     file_count);
+void                tracker_test_extract_file_access      (const TrackerExtractData *data,
+							   const gchar              *file_match,
+							   guint                     file_count);
 
 #endif
