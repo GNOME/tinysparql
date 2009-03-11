@@ -1,3 +1,8 @@
+2009-03-11  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-common/tracker-albumart.c: Don't continue trying to
+	request album art if no service provides album-art downloading
+
 2009-03-10  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer-helix.c: Removed

@@ -59,6 +59,8 @@ typedef struct {
 	gchar *local_uri;
 } GetFileInfo;
 
+static gboolean no_more_requesting = FALSE;
+
 static gchar *
 my_compute_checksum_for_data (GChecksumType  checksum_type,
                               const guchar  *data,
@@ -544,7 +546,10 @@ tracker_albumart_queue_cb (DBusGProxy     *proxy,
 			       G_TYPE_INVALID);
 
 	if (error) {
-		g_warning ("%s", error->message);
+		if (g_strcmp0 (error->message, "The name " ALBUMARTER_SERVICE " was not provided by any .service files") == 0)
+			no_more_requesting = TRUE;
+		else
+			g_warning ("%s", error->message);
 		g_clear_error (&error);
 	}
 
@@ -651,6 +656,9 @@ tracker_albumart_request_download (const gchar *album,
 				   const gchar *art_path)
 {
 	GetFileInfo *info;
+
+	if (no_more_requesting)
+		return;
 
 	info = g_slice_new (GetFileInfo);
 
