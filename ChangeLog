@@ -1,3 +1,7 @@
+2009-03-11  Martyn Russell  <martyn@imendio.com>
+
+	* tests/libtracker-db/tracker-index-writer-test.c: Code clean ups.
+
 2009-03-11  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-indexer.c:

@@ -30,12 +30,49 @@
 #define MIN_BUCKET_COUNT 1
 #define MAX_BUCKET_COUNT 100
 
+static gint
+insert_in_index (TrackerDBIndex *index, 
+		 const gchar    *text)
+{
+	gchar **pieces;
+	gint i;
+	static gint service_id = 0;
+
+	service_id += 1;
+	pieces = g_strsplit (text, " ", -1);
+
+	for (i = 0; pieces[i] != NULL; i++) {
+		tracker_db_index_add_word (index, pieces[i], service_id, 1, 1);
+	}
+
+	g_strfreev (pieces);
+
+	return service_id;
+}
+
+static void
+remove_in_index (TrackerDBIndex *index,
+		 const gchar    *text, 
+		 gint            service_id)
+{
+	gchar **pieces;
+	gint i;
+
+	pieces = g_strsplit (text, " ", -1);
+
+	for (i = 0; pieces[i] != NULL; i++) {
+		tracker_db_index_add_word (index, pieces[i], service_id, 1, -1);
+	}
+
+	g_strfreev (pieces);
+}
+
 /* Helper functions to read the index */
 static gint
 get_number_words_in_index (const gchar *index_file)
 {
 	DEPOT *index;
-	gint   words;
+	gint words;
 
 	index = dpopen (index_file, DP_OREADER, MAX_BUCKET_COUNT);
 
@@ -47,7 +84,8 @@ get_number_words_in_index (const gchar *index_file)
 }
 
 static gint
-get_results_for_word (const gchar *index_file, const gchar *word)
+get_results_for_word (const gchar *index_file,
+		      const gchar *word)
 {
 	DEPOT *index;
 	gint result;
@@ -62,16 +100,17 @@ get_results_for_word (const gchar *index_file, const gchar *word)
 }
 
 static gint
-get_score_for_word (const gchar *index_file, const gchar *word)
+get_score_for_word (const gchar *index_file,
+		    const gchar *word)
 {
+	TrackerDBIndexItem *results;
 	DEPOT *index;
 	gint tsiz;
-	TrackerDBIndexItem *results;
 	gint score;
 
 	index = dpopen (index_file, DP_OREADER, MAX_BUCKET_COUNT);
 
-	results = (TrackerDBIndexItem *)dpget (index, word, -1, 0, -1, &tsiz);
+	results = (TrackerDBIndexItem *) dpget (index, word, -1, 0, -1, &tsiz);
 
 	dpclose (index);
 
@@ -103,16 +142,13 @@ test_add_one_word (void)
 	g_remove (indexname);
 }
 
-
 static void
-test_add_n_words ()
+test_add_n_words (void)
 {
 	TrackerDBIndex *index;
-	const gchar  *indexname = "test-add-n-words.index";
-	gint i;
+	const gchar *indexname = "test-add-n-words.index";
 	gchar *word;
-
-	g_remove (indexname);
+	gint i;
 
 	g_remove (indexname);
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
@@ -132,11 +168,11 @@ test_add_n_words ()
 }
 
 static void
-test_add_word_n_times ()
+test_add_word_n_times (void)
 {
 	TrackerDBIndex *index;
-	gint i;
 	const gchar *indexname = "test-add-word-n-times.index";
+	gint i;
 
 	g_remove (indexname);
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
@@ -155,11 +191,11 @@ test_add_word_n_times ()
 }
 
 static void
-test_add_word_multiple_occurrences ()
+test_add_word_multiple_occurrences (void)
 {
 	TrackerDBIndex *index;
-	gint i;
 	const gchar *indexname = "test-word-multiple-ocurrences.index";
+	gint i;
 
 	g_remove (indexname);
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
@@ -178,34 +214,14 @@ test_add_word_multiple_occurrences ()
 	g_assert_cmpint (get_score_for_word (indexname, "test-word"), ==, 20);
 
 	g_remove (indexname);
-
-}
-
-static gint
-insert_in_index (TrackerDBIndex *index, const gchar *text)
-{
-	gchar **pieces;
-	gint i;
-	static gint doc = 0;
-
-	doc += 1;
-
-	pieces = g_strsplit (text, " ", -1);
-	for (i = 0; pieces[i] != NULL; i++) {
-		tracker_db_index_add_word (index, pieces[i], doc, 1, 1);
-	}
-	g_strfreev (pieces);
-
-	return doc;
 }
 
 static void
-test_add_with_flushs ()
+test_add_with_flushs (void)
 {
 
 	TrackerDBIndex *index;
 	const gchar *indexname = "test-add-with-flush.index";
-
 	const gchar *text1 = "this is a text to try a kind of real use case of the indexer";
 	const gchar *text2 = "this is another text with some common words";
 
@@ -227,23 +243,6 @@ test_add_with_flushs ()
 	g_assert_cmpint (get_results_for_word (indexname, "common"), ==, 1);
 	g_assert_cmpint (get_score_for_word (indexname, "a"), ==, 2);
 	g_remove (indexname);
-
-}
-
-static void
-remove_in_index (TrackerDBIndex *index, const gchar *text, gint docid)
-{
-	gchar **pieces;
-	gint i;
-	static gint doc = 1;
-
-	pieces = g_strsplit (text, " ", -1);
-	for (i = 0; pieces[i] != NULL; i++) {
-		tracker_db_index_add_word (index, pieces[i], docid, 1, -1);
-	}
-	g_strfreev (pieces);
-
-	doc += 1;
 }
 
 static void
@@ -251,21 +250,19 @@ test_remove_document (void)
 {
 	TrackerDBIndex *index;
 	const gchar *indexname = "test-remove-document.index";
-	gint id1, id2;
-
-	const gchar *doc1 = "this is a text to try a kind of real use case of the indexer";
-	const gchar *doc2 = "this is another text with some common words";
+	const gchar *text1 = "this is a text to try a kind of real use case of the indexer";
+	const gchar *text2 = "this is another text with some common words";
+	gint service_id1, service_id2;
 
 	g_remove (indexname);
-
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
 
-	/* Doc 1 */
-	id1 = insert_in_index (index, doc1);
+	/* Text 1 */
+	service_id1 = insert_in_index (index, text1);
 	tracker_db_index_flush (index);
 
-	/* Doc 2 */
-	id2 = insert_in_index (index, doc2);
+	/* Text 2 */
+	service_id2 = insert_in_index (index, text2);
 	tracker_db_index_flush (index);
 
 	g_object_unref (index);
@@ -274,8 +271,8 @@ test_remove_document (void)
 
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
 
-	/* Remove doc1 */
-	remove_in_index (index, doc1, id1);
+	/* Remove Text1 */
+	remove_in_index (index, text1, service_id1);
 	tracker_db_index_flush (index);
 
 	g_object_unref (index);
@@ -290,19 +287,18 @@ test_remove_before_flush (void)
 {
 	TrackerDBIndex *index;
 	const gchar *indexname = "test-remove-before-flush.index";
-	gint id1;
-
-	const gchar *doc1 = "this is a text";
+	const gchar *text = "this is a text";
+	gint service_id1;
 
 	g_remove (indexname);
 
 	index = tracker_db_index_new (indexname, MIN_BUCKET_COUNT, MAX_BUCKET_COUNT, FALSE);
 
-	/* Doc 1 */
-	id1 = insert_in_index (index, doc1);
+	/* Text 1 */
+	service_id1 = insert_in_index (index, text);
 
 	/* Remove before flush */
-	remove_in_index (index, doc1, id1);
+	remove_in_index (index, text, service_id1);
 
 	tracker_db_index_flush (index);
 
