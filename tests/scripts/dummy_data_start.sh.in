@@ -41,14 +41,6 @@ echo -n email-contents.db,
 
 $SQLITE_EXEC $XDG_CACHE_HOME/tracker/email-contents.db < $SCRIPTS_DIR/data/email-contents.sql
 
-#
-## xesam.db
-#
-
-echo -n xesam.db, 
-
-$SQLITE_EXEC $XDG_CACHE_HOME/tracker/xesam.db < $SCRIPTS_DIR/data/xesam.sql
-
 
 mkdir -p $XDG_DATA_HOME/tracker/data
 

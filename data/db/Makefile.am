@@ -14,7 +14,6 @@ config_DATA =				\
 	sqlite-stored-procs.sql 	\
 	sqlite-tracker.sql 		\
 	sqlite-tracker-triggers.sql 	\
-	sqlite-user-data.sql 		\
-	sqlite-xesam.sql
+	sqlite-user-data.sql 		
 
 EXTRA_DIST = $(config_DATA)

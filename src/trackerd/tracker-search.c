@@ -1333,14 +1333,13 @@ tracker_search_sql_query (TrackerSearch		*object,
 
 	if (priv->sql_query_iface == NULL) {
 		priv->sql_query_iface = 
-			tracker_db_manager_get_db_interfaces_ro (7,
+			tracker_db_manager_get_db_interfaces_ro (6,
 								 TRACKER_DB_CACHE,
 								 TRACKER_DB_COMMON,
 								 TRACKER_DB_FILE_CONTENTS,
 								 TRACKER_DB_FILE_METADATA,
 								 TRACKER_DB_EMAIL_CONTENTS,
-								 TRACKER_DB_EMAIL_METADATA,
-								 TRACKER_DB_XESAM);
+								 TRACKER_DB_EMAIL_METADATA);
 	}
 
 	result_set = tracker_db_interface_execute_query (priv->sql_query_iface,

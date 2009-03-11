@@ -44,18 +44,6 @@ test_custom_common_filemeta_filecontents ()
 }
 
 
-static void
-test_custom_xesam_no_common ()
-{
-	TrackerDBInterface *iface;
-
-	iface = tracker_db_manager_get_db_interfaces (1,
-						      TRACKER_DB_XESAM);
-
-	test_assert_tables_in_db (iface, "SELECT * FROM XesamMetaDataTypes");
-}
-
-
 
 int
 main (int argc, char **argv) {
@@ -73,9 +61,6 @@ main (int argc, char **argv) {
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/custom/common_filemeta_filecontents",
 			test_custom_common_filemeta_filecontents);
-
-	g_test_add_func ("/libtracker-db/tracker-db-manager/custom/xesam_no_common",
-			 test_custom_xesam_no_common);
 
 	result = g_test_run ();
 

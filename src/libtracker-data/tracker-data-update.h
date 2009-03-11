@@ -84,7 +84,6 @@ void     tracker_data_update_create_event               (TrackerDBInterface  *if
 							 guint32              service_id,
 							 const gchar         *type);
 
-/* XESAM API */
 void     tracker_data_update_delete_handled_events      (TrackerDBInterface  *iface);
 
 /* Volume handling */

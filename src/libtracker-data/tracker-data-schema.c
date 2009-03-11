@@ -122,54 +122,6 @@ tracker_data_schema_metadata_field_get_related_names (TrackerDBInterface *iface,
 	return NULL;
 }
 
-TrackerDBResultSet *
-tracker_data_schema_xesam_get_metadata_names (TrackerDBInterface *iface,
-					      const gchar	 *name)
-{
-	TrackerDBResultSet *result_set;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (name != NULL, NULL);
-
-	result_set = tracker_data_manager_exec_proc (iface,
-					   "GetXesamMetaDataLookups",
-					   name,
-					   NULL);
-
-	return result_set;
-}
-
-TrackerDBResultSet *
-tracker_data_schema_xesam_get_text_metadata_names (TrackerDBInterface *iface)
-{
-	TrackerDBResultSet *result_set;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-
-	result_set = tracker_data_manager_exec_proc (iface,
-					   "GetXesamMetaDataTextLookups",
-					   NULL);
-
-	return result_set;
-}
-
-TrackerDBResultSet *
-tracker_data_schema_xesam_get_service_names (TrackerDBInterface *iface,
-					     const gchar        *name)
-{
-	TrackerDBResultSet *result_set;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (name != NULL, NULL);
-
-	result_set = tracker_data_manager_exec_proc (iface,
-					   "GetXesamServiceLookups",
-					   name,
-					   NULL);
-
-	return result_set;
-}
-
 const gchar *
 tracker_data_schema_metadata_field_get_db_table (TrackerFieldType type)
 {

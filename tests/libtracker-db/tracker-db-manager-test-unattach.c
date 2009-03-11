@@ -82,7 +82,6 @@ main (int argc, char **argv) {
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/common_db_tables",
 			test_creation_common_db);
 
-	// XESAM is not available
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/unattach/cache_db_tables",
 			test_creation_cache_db);

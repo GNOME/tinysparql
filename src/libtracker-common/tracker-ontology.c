@@ -383,8 +383,6 @@ tracker_ontology_get_service_db_by_name (const gchar *service_str)
 		type = TRACKER_DB_TYPE_EMAIL;
 	} else if (g_str_has_prefix (str, "files")) {
 		type = TRACKER_DB_TYPE_FILES;
-	} else if (g_str_has_prefix (str, "xesam")) {
-		type = TRACKER_DB_TYPE_XESAM;
 	} else {
 		type = TRACKER_DB_TYPE_FILES;
 	}

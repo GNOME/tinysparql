@@ -259,7 +259,6 @@ AC_ARG_ENABLE(unit_tests,
 
 if test "x$enable_unit_tests" != "xno" ; then
    have_unit_tests=yes
-   have_xesam_glib=no
 
    AC_DEFINE(HAVE_UNIT_TEST, 1, [Define if we have GLib unit test framework])
 
@@ -271,19 +270,12 @@ if test "x$enable_unit_tests" != "xno" ; then
    AC_PATH_PROG(gtester, gtester)
    if test -z $gtester; then
       AC_MSG_ERROR([Could not find 'gtester'])
-   else
-      PKG_CHECK_MODULES(XESAM_GLIB, 
-                        xesam-glib, 
-			[have_xesam_glib=yes], 
-			[have_xesam_glib=no])
    fi
 else
    have_unit_tests=no
-   have_xesam_glib=no
 fi
 
 AM_CONDITIONAL(HAVE_UNIT_TESTS, test "x$have_unit_tests" = "xyes")
-AM_CONDITIONAL(HAVE_XESAM_GLIB, test "x$have_xesam_glib" = "xyes")
 
 ####################################################################
 # QDBM check
@@ -1355,8 +1347,6 @@ AC_CONFIG_FILES([
 	tests/scripts/dummy_data_start.sh
 	tests/scripts/dummy_data_stop.sh
 	tests/scripts/Makefile
-	tests/trackerd/Makefile
-	tests/trackerd/xesam/Makefile
 	tests/tracker-indexer/Makefile
 	tests/tracker-extract/Makefile
 	utils/Makefile

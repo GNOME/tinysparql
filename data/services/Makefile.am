@@ -13,13 +13,6 @@ config_DATA = 				\
 	file.metadata 			\
 	image.metadata 			\
 	video.metadata 			\
-	playlist.metadata		\
-	xesam-convenience.metadata 	\
-	xesam-convenience.service 	\
-	xesam.metadata 			\
-	xesam.service 			\
-	xesam-virtual.metadata 		\
-	xesam-service.smapping 		\
-	xesam-metadata.mmapping
+	playlist.metadata		
 
 EXTRA_DIST = $(config_DATA)

@@ -57,13 +57,6 @@ TrackerFieldData *  tracker_data_schema_get_metadata_field               (Tracke
 									  gboolean            is_select,
 									  gboolean            is_condition);
 
-/* XESAM API */
-TrackerDBResultSet *tracker_data_schema_xesam_get_metadata_names         (TrackerDBInterface *iface,
-									  const char         *name);
-TrackerDBResultSet *tracker_data_schema_xesam_get_text_metadata_names    (TrackerDBInterface *iface);
-TrackerDBResultSet *tracker_data_schema_xesam_get_service_names          (TrackerDBInterface *iface,
-									  const char         *name);
-
 G_END_DECLS
 
 #endif /* __TRACKER_DATA_SCHEMA_H__ */

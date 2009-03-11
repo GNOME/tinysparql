@@ -71,9 +71,6 @@
 #define KEY_MAX_BUCKET_COUNT			 "MaxBucketCount"
 #define KEY_MIN_BUCKET_COUNT			 "MinBucketCount"
 
-#define GROUP_SERVICES				 "Services"
-#define KEY_ENABLE_XESAM			 "EnableXesam"
-
 /* Default values */
 #define DEFAULT_VERBOSITY			 0
 #define DEFAULT_INITIAL_SLEEP			 45	  /* 0->1000 */
@@ -82,7 +79,6 @@
 #define DEFAULT_ENABLE_WATCHES			 TRUE
 #define DEFAULT_THROTTLE			 0	  /* 0->20 */
 #define DEFAULT_ENABLE_INDEXING			 TRUE
-#define DEFAULT_ENABLE_XESAM			 FALSE
 #define DEFAULT_ENABLE_CONTENT_INDEXING		 TRUE
 #define DEFAULT_ENABLE_THUMBNAILS		 TRUE
 #define DEFAULT_FAST_MERGES			 FALSE
@@ -142,9 +138,6 @@ struct _TrackerConfigPrivate {
 	gint	      max_words_to_index;
 	gint	      max_bucket_count;
 	gint	      min_bucket_count;
-
-	/* Services*/
-	gboolean      enable_xesam;
 };
 
 static void     config_finalize             (GObject       *object);
@@ -199,9 +192,6 @@ enum {
 	PROP_MAX_WORDS_TO_INDEX,
 	PROP_MAX_BUCKET_COUNT,
 	PROP_MIN_BUCKET_COUNT,
-
-	/* Services*/
-	PROP_ENABLE_XESAM
 };
 
 G_DEFINE_TYPE (TrackerConfig, tracker_config, G_TYPE_OBJECT);
@@ -454,15 +444,6 @@ tracker_config_class_init (TrackerConfigClass *klass)
 							   DEFAULT_MIN_BUCKET_COUNT,
 							   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
-	/* Services */
-	g_object_class_install_property (object_class,
-					 PROP_ENABLE_XESAM,
-					 g_param_spec_boolean ("enable-xesam",
-							       "Enable Xesam",
-							       "Xesam DBus service",
-							       DEFAULT_ENABLE_XESAM,
-							       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-
 	g_type_class_add_private (object_class, sizeof (TrackerConfigPrivate));
 }
 
@@ -618,11 +599,6 @@ config_get_property (GObject	*object,
 		g_value_set_int (value, priv->min_bucket_count);
 		break;
 
-	/* Services */
-	case PROP_ENABLE_XESAM:
-		g_value_set_boolean (value, priv->enable_xesam);
-		break;
-
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -748,12 +724,6 @@ config_set_property (GObject	  *object,
 	case PROP_MIN_BUCKET_COUNT:
 		tracker_config_set_min_bucket_count (TRACKER_CONFIG (object),
 						     g_value_get_int (value));
-		break;
-
-	/* Services */
-	case PROP_ENABLE_XESAM:
-		tracker_config_set_enable_xesam (TRACKER_CONFIG (object),
-						    g_value_get_boolean (value));
 		break;
 
 	default:
@@ -1038,15 +1008,6 @@ config_create_with_defaults (GKeyFile *key_file,
 	if (overwrite || !g_key_file_has_key (key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT, NULL)) {
 		g_key_file_set_integer (key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT, 
 					DEFAULT_MAX_BUCKET_COUNT);
-	}
-
-	/* Services */
-	if (overwrite || !g_key_file_has_key (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM, NULL)) {
-		g_key_file_set_boolean (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM,
-					DEFAULT_ENABLE_XESAM);
-		g_key_file_set_comment (key_file, GROUP_SERVICES, KEY_ENABLE_XESAM,
-					" Xesam DBus service.\n",
-					NULL);
 	}
 
 	g_free (language);
@@ -1441,9 +1402,6 @@ config_load (TrackerConfig *config)
 	config_load_int (config, "max-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT);
 	config_load_int (config, "min-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT);
 
-	/* Services */
-	config_load_boolean (config, "enable-xesam", priv->key_file, GROUP_SERVICES, KEY_ENABLE_XESAM);
-
 	/*
 	 * Legacy options no longer supported:
 	 */
@@ -1537,9 +1495,6 @@ config_save (TrackerConfig *config)
 	config_save_int (config, "max-words-to-index", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_WORDS_TO_INDEX);
 	config_save_int (config, "max-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MAX_BUCKET_COUNT);
 	config_save_int (config, "min-bucket-count", priv->key_file, GROUP_PERFORMANCE, KEY_MIN_BUCKET_COUNT);
-
-	/* Services */
-	config_save_boolean (config, "enable-xesam", priv->key_file, GROUP_SERVICES, KEY_ENABLE_XESAM);
 
 	g_message ("Saving config to disk...");
 
@@ -1774,18 +1729,6 @@ tracker_config_get_enable_indexing (TrackerConfig *config)
 	priv = TRACKER_CONFIG_GET_PRIVATE (config);
 
 	return priv->enable_indexing;
-}
-
-gboolean
-tracker_config_get_enable_xesam (TrackerConfig *config)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CONFIG (config), DEFAULT_ENABLE_XESAM);
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	return priv->enable_xesam;
 }
 
 gboolean
@@ -2113,20 +2056,6 @@ tracker_config_set_enable_indexing (TrackerConfig *config,
 
 	priv->enable_indexing = value;
 	g_object_notify (G_OBJECT (config), "enable-indexing");
-}
-
-void
-tracker_config_set_enable_xesam (TrackerConfig *config,
-				 gboolean	   value)
-{
-	TrackerConfigPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CONFIG (config));
-
-	priv = TRACKER_CONFIG_GET_PRIVATE (config);
-
-	priv->enable_xesam = value;
-	g_object_notify (G_OBJECT (config), "enable-xesam");
 }
 
 void

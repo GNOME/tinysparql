@@ -9,7 +9,6 @@ config_DATA =						\
 	tracker-keywords.xml				\
 	tracker-metadata.xml				\
 	tracker-search.xml				\
-	tracker-xesam.xml				\
 	tracker-indexer.xml				\
 	tracker-extract.xml
 

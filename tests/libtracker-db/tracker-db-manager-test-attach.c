@@ -87,27 +87,6 @@ test_creation_common_db_no_reindex ()
 }
 
 
-static void
-test_creation_xesam_db_no_reindex_multiple_interfaces ()
-{
-	TrackerDBInterface *iface;
-
-	ensure_db_manager_is_reindex (FALSE);
-
-	iface = tracker_db_manager_get_db_interfaces (2,
-												  TRACKER_DB_XESAM,
-												  TRACKER_DB_COMMON);
-
-	test_assert_query_run_on_iface (iface, "SELECT * FROM XesamServiceTypes");
-}
-
-
-static void
-test_creation_xesam_db_no_reindex ()
-{
-	ensure_db_manager_is_reindex (FALSE);
-	test_assert_tables_in_db (TRACKER_DB_XESAM, "SELECT * FROM XesamServiceTypes");
-}
 
 static void
 test_creation_file_meta_db_no_reindex ()
@@ -137,12 +116,6 @@ main (int argc, char **argv) {
 	// Tests with attach and no-reindex
 	g_test_add_func ("/libtracker-db/tracker-db-manager/attach/no-reindex/common_db_tables",
 			test_creation_common_db_no_reindex);
-
-	g_test_add_func ("/libtracker-db/tracker-db-manager/attach/no-reindex/xesam_db_tables",
-			 test_creation_xesam_db_no_reindex);
-
-	g_test_add_func ("/libtracker-db/tracker-db-manager/attach/no-reindex/xesam_db_tables/multiple_interfaces",
-			 test_creation_xesam_db_no_reindex_multiple_interfaces);
 
 	g_test_add_func ("/libtracker-db/tracker-db-manager/attach/no-reindex/file_meta_db_tables",
 			 test_creation_file_meta_db_no_reindex);

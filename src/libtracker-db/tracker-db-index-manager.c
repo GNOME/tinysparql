@@ -295,11 +295,9 @@ tracker_db_index_manager_get_index_by_service (const gchar *service)
 	case TRACKER_DB_TYPE_INDEX:
 	case TRACKER_DB_TYPE_CONTENT:
 	case TRACKER_DB_TYPE_COMMON:
-	case TRACKER_DB_TYPE_XESAM:
 	case TRACKER_DB_TYPE_CACHE:
 	case TRACKER_DB_TYPE_USER:
 	default:
-		/* How do we handle XESAM? and others? default to files? */
 		index_type = TRACKER_DB_INDEX_UNKNOWN;
 		break;
 	}
@@ -335,11 +333,9 @@ tracker_db_index_manager_get_index_by_service_id (gint id)
 	case TRACKER_DB_TYPE_INDEX:
 	case TRACKER_DB_TYPE_CONTENT:
 	case TRACKER_DB_TYPE_COMMON:
-	case TRACKER_DB_TYPE_XESAM:
 	case TRACKER_DB_TYPE_CACHE:
 	case TRACKER_DB_TYPE_USER:
 	default:
-		/* How do we handle XESAM? and others? default to files? */
 		index_type = TRACKER_DB_INDEX_UNKNOWN;
 		break;
 	}

@@ -16,7 +16,6 @@ libtracker_data_LTLIBRARIES = libtracker-data.la
 
 libtracker_data_la_SOURCES = 						\
 	tracker-data-backup.c						\
-	tracker-data-live-search.c					\
 	tracker-data-manager.c						\
 	tracker-data-metadata.c						\
 	tracker-data-query.c						\
@@ -26,12 +25,10 @@ libtracker_data_la_SOURCES = 						\
 	tracker-field-data.c						\
 	tracker-query-tree.c						\
 	tracker-rdf-query.c						\
-	tracker-turtle.c						\
-	tracker-xesam-query.c
+	tracker-turtle.c						
 
 noinst_HEADERS =							\
 	tracker-data-backup.h						\
-	tracker-data-live-search.h					\
 	tracker-data-manager.h						\
 	tracker-data-metadata.h						\
 	tracker-data-query.h						\
@@ -41,8 +38,7 @@ noinst_HEADERS =							\
 	tracker-field-data.h						\
 	tracker-query-tree.h						\
 	tracker-rdf-query.h						\
-	tracker-turtle.h						\
-	tracker-xesam-query.h
+	tracker-turtle.h						
 
 libtracker_data_la_LDFLAGS = -version-info 0:0:0
 libtracker_data_la_LIBADD = 						\

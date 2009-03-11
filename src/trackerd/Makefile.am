@@ -60,14 +60,6 @@ trackerd_SOURCES =							\
 	tracker-status.h						\
 	tracker-utils.c							\
 	tracker-utils.h							\
-	tracker-xesam.c							\
-	tracker-xesam.h							\
-	tracker-xesam-manager.c						\
-	tracker-xesam-manager.h						\
-	tracker-xesam-session.c						\
-	tracker-xesam-session.h						\
-	tracker-xesam-live-search.c					\
-	tracker-xesam-live-search.h					\
 	tracker-cleanup.c						\
 	tracker-cleanup.h						\
 	tracker-push.c							\
@@ -121,7 +113,6 @@ dbus_sources = 								\
 	tracker-keywords-glue.h						\
 	tracker-metadata-glue.h						\
 	tracker-search-glue.h						\
-	tracker-xesam-glue.h						\
 	tracker-indexer-client.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml

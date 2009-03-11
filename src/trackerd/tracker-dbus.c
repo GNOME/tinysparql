@@ -43,8 +43,6 @@
 #include "tracker-search-glue.h"
 #include "tracker-backup.h"
 #include "tracker-backup-glue.h"
-#include "tracker-xesam.h"
-#include "tracker-xesam-glue.h"
 #include "tracker-indexer-client.h"
 #include "tracker-utils.h"
 #include "tracker-marshal.h"
@@ -117,7 +115,7 @@ indexer_name_owner_changed (DBusGProxy   *proxy,
 			    const char   *name,
 			    const char   *prev_owner,
 			    const char   *new_owner,
-			    TrackerXesam *self)
+			    gpointer     *user_data)
 {
 	if (strcmp (name, TRACKER_INDEXER_SERVICE) == 0) {
 		if (!new_owner || !*new_owner) {
@@ -189,13 +187,6 @@ dbus_register_names (TrackerConfig *config)
 	/* Register the service name for org.freedesktop.Tracker */
 	if (!dbus_register_service (gproxy, TRACKER_DAEMON_SERVICE)) {
 		return FALSE;
-	}
-
-	/* Register the service name for org.freedesktop.xesam if XESAM is enabled */
-	if (tracker_config_get_enable_xesam (config)) {
-		if (!dbus_register_service (gproxy, TRACKER_XESAM_SERVICE)) {
-			return FALSE;
-		}
 	}
 
 	return TRUE;
@@ -429,30 +420,6 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 			      TRACKER_BACKUP_PATH);
 	objects = g_slist_prepend (objects, object);
 
-	/* Register the XESAM object if enabled */
-	if (tracker_config_get_enable_xesam (config)) {
-		object = tracker_xesam_new ();
-		if (!object) {
-			g_critical ("Could not create TrackerXesam object to register");
-			return FALSE;
-		}
-
-		dbus_register_object (connection,
-				      gproxy,
-				      G_OBJECT (object),
-				      &dbus_glib_tracker_xesam_object_info,
-				      TRACKER_XESAM_PATH);
-		objects = g_slist_prepend (objects, object);
-
-		dbus_g_proxy_add_signal (gproxy, "NameOwnerChanged",
-					 G_TYPE_STRING, G_TYPE_STRING,
-					 G_TYPE_STRING, G_TYPE_INVALID);
-
-		dbus_g_proxy_connect_signal (gproxy, "NameOwnerChanged",
-					     G_CALLBACK (tracker_xesam_name_owner_changed),
-					     g_object_ref (G_OBJECT (object)),
-					     (GClosureNotify) g_object_unref);
-	}
 
 	/* Reverse list since we added objects at the top each time */
 	objects = g_slist_reverse (objects);

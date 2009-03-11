@@ -10,7 +10,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 # 
 #       These tests include:
 #
-#	  union-performance
 #         tracker-db-dbus
 #	  tracker-db-manager-unattach
 #	  tracker-db-manager-attach
@@ -35,28 +34,11 @@ INCLUDES = 								\
 	$(QDBM_CFLAGS)
 
 # TEST_PROGS +=								\
-#	union-performance						\
 #	tracker-index-reader						\
 # 	tracker-db-dbus							\
 # 	tracker-db-manager-unattach					\
 # 	tracker-db-manager-attach					\
 # 	tracker-db-manager-custom					\
-#
-# union_performance_SOURCES =						\
-# 	tracker-db-manager-common.h					\
-# 	tracker-db-manager-common.c					\
-# 	union-performance.c
-#
-# union_performance_LDADD =                                            	\
-# 	$(top_builddir)/src/libtracker-common/libtracker-common.la      \
-# 	$(top_builddir)/src/libtracker-db/libtracker-db.la              \
-# 	$(top_builddir)/tests/common/libtracker-testcommon.la           \
-# 	$(SQLITE3_LIBS)                                                 \
-# 	$(QDBM_LIBS)                                                    \
-# 	$(GMODULE_LIBS)                                                 \
-# 	$(GTHREAD_LIBS)                                                 \
-# 	$(GLIB2_LIBS)                                                   \
-# 	-lz
 #
 # tracker_db_manager_attach_SOURCES = 					\
 # 	tracker-db-manager-test-attach.c 				\

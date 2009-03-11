@@ -1,5 +1,90 @@
 2009-03-11  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/libtracker-data/tracker-data-schema.c:
+	* src/libtracker-data/tracker-data-live-search.c:
+	* src/libtracker-data/tracker-data-schema.h:
+	* src/libtracker-data/tracker-data-live-search.h:
+	* src/libtracker-data/tracker-xesam-query.c:
+	* src/libtracker-data/tracker-xesam-query.h:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/libtracker-data/Makefile.am:
+	* src/trackerd/tracker-search.c:
+	* src/trackerd/tracker-main.c:
+	* src/trackerd/tracker-xesam-session.c:
+	* src/trackerd/tracker-xesam-session.h:
+	* src/trackerd/tracker-xesam.c:
+	* src/trackerd/tracker-xesam-live-search.c:
+	* src/trackerd/tracker-xesam.h:
+	* src/trackerd/tracker-xesam-live-search.h:
+	* src/trackerd/tracker-xesam-manager.c:
+	* src/trackerd/tracker-xesam-manager.h:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/Makefile.am:
+	* src/trackerd/tracker-utils.c:
+	* src/libtracker-db/tracker-db-manager.c:
+	* src/libtracker-db/tracker-db-index-manager.c:
+	* src/libtracker-db/tracker-db-manager.h:
+	* src/libtracker-common/tracker-service.h:
+	* src/libtracker-common/tracker-config.c:
+	* src/libtracker-common/tracker-ontology.c:
+	* src/libtracker-common/tracker-config.h:
+	* src/libtracker-common/tracker-service.c:
+	* tests/trackerd:
+	* tests/trackerd/tracker-xesam-test.c:
+	* tests/trackerd/tracker-xesam-session-test.c:
+	* tests/trackerd/tracker-xesam-hit-test.c:
+	* tests/trackerd/Makefile.am:
+	* tests/trackerd/tracker-xesam-hits-test.c:
+	* tests/trackerd/tracker-xesam-test.h:
+	* tests/trackerd/tracker-xesam-session-test.h:
+	* tests/trackerd/tracker-xesam-hit-test.h:
+	* tests/trackerd/xesam:
+	* tests/trackerd/xesam/xesam-g-globals-private.h:
+	* tests/trackerd/xesam/xesam-g-testsearcher.h:
+	* tests/trackerd/xesam/xesam-g-debug-private.h:
+	* tests/trackerd/xesam/xesam-g-utils.h:
+	* tests/trackerd/xesam/xesam-g-test-query-builder.c:
+	* tests/trackerd/xesam/gtestextensions.c:
+	* tests/trackerd/xesam/Makefile.am:
+	* tests/trackerd/xesam/xesam-g-test-query-builder.h:
+	* tests/trackerd/xesam/gtestextensions.h:
+	* tests/trackerd/xesam/xesam-g-testsearcher.c:
+	* tests/trackerd/xesam/README:
+	* tests/trackerd/README:
+	* tests/trackerd/tracker-xesam-hits-test.h:
+	* tests/libtracker-db/tracker-db-manager-test-attach.c:
+	* tests/libtracker-db/union-performance.c:
+	* tests/libtracker-db/Makefile.am:
+	* tests/libtracker-db/tracker-db-manager-test-unattach.c:
+	* tests/libtracker-db/tracker-db-manager-test-custom.c:
+	* tests/scripts/dummy_data_start.sh.in:
+	* tests/Makefile.am:
+	* configure.ac:
+	* data/services/xesam-virtual.metadata:
+	* data/services/xesam-convenience.metadata:
+	* data/services/xesam-service.smapping:
+	* data/services/xesam.metadata:
+	* data/services/xesam-metadata.mmapping:
+	* data/services/xesam-convenience.service:
+	* data/services/Makefile.am:
+	* data/services/xesam.service:
+	* data/db/sqlite-stored-procs.sql:
+	* data/db/Makefile.am:
+	* data/db/sqlite-xesam.sql:
+	* data/dbus/tracker-xesam.xml:
+	* data/dbus/Makefile.am: 
+
+	Trivial mini commit that removes the Xesam support. We decided to remove
+	this because Xesam 1.0 was never fully supported, and Xesam 2.0 will most
+	like be a very different DBus API, will probably use SPARQL as query
+	language, and will probably use Nepomuk as ontology. Which means that none
+	of Xesam 1.0's support code will really be usable anymore.
+
+	Perhaps keep this revision number in mind so that we can bring the code
+	back to live later?
+
+2009-03-11  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/libtracker-common/tracker-albumart.c: Don't continue trying to
 	request album art if no service provides album-art downloading
 

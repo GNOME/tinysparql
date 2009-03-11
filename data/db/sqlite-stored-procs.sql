@@ -145,35 +145,6 @@ EnableVolume                   UPDATE Volumes SET MountPath = ?, Enabled = 1 WHE
 DisableVolume                  UPDATE Volumes SET Enabled = 0, DisabledDate = date ('now') WHERE UDI = ?;
 DisableAllVolumes              UPDATE Volumes SET Enabled = 0 WHERE VolumeID > 1;
 
-/*
- * XESAM queries
- */
-InsertXesamMetadataType        INSERT INTO XesamMetaDataTypes (MetaName) VALUES (?);
-InsertXesamServiceType         INSERT INTO XesamServiceTypes (TypeName) VALUES (?);
-InsertXesamMetaDataMapping     INSERT INTO XesamMetaDataMapping (XesamMetaName, MetaName) VALUES (?, ?);
-InsertXesamServiceMapping      INSERT INTO XesamServiceMapping (XesamTypeName, TypeName) VALUES (?, ?);
-InsertXesamServiceLookup       REPLACE INTO XesamServiceLookup (XesamTypeName, TypeName) VALUES (?, ?);
-InsertXesamMetaDataLookup      REPLACE INTO XesamMetaDataLookup (XesamMetaName, MetaName) VALUES (?, ?);
-
-GetXesamServiceParents         SELECT TypeName, Parents FROM XesamServiceTypes;
-GetXesamServiceChildren        SELECT Child FROM XesamServiceChildren WHERE Parent = ?;
-GetXesamServiceMappings        SELECT TypeName FROM XesamServiceMapping WHERE XesamTypeName = ?;
-GetXesamServiceLookups         SELECT DISTINCT TypeName FROM XesamServiceLookup WHERE XesamTypeName = ?;
-
-GetXesamMetaDataParents        SELECT MetaName, Parents FROM XesamMetaDataTypes;
-GetXesamMetaDataChildren       SELECT Child FROM XesamMetaDataChildren WHERE Parent = ?;
-GetXesamMetaDataMappings       SELECT MetaName FROM XesamMetaDataMapping WHERE XesamMetaName = ?;
-GetXesamMetaDataLookups        SELECT DISTINCT MetaName FROM XesamMetaDataLookup WHERE XesamMetaName = ?;
-GetXesamMetaDataTextLookups    SELECT DISTINCT L.MetaName FROM XesamMetaDataLookup AS L INNER JOIN XesamMetaDataTypes AS T ON (T.MetaName = L.XesamMetaName) WHERE T.DataTypeID = 3;
-
-GetXesamMetaDataTypes          SELECT ID, MetaName, DataTypeID, FieldName, Weight, Embedded, MultipleValues, Delimited, Filtered, Abstract FROM XesamMetaDataTypes;
-GetXesamServiceTypes           SELECT TypeID, TypeName, Parents, PropertyPrefix, Enabled, Embedded, HasMetadata, HasFullText, HasThumbs, ContentMetadata, Database, ShowServiceFiles, ShowServiceDirectories, KeyMetadata1, KeyMetadata2, KeyMetadata3, KeyMetadata4, KeyMetadata5, KeyMetadata6, KeyMetadata7, KeyMetadata8, KeyMetadata9, KeyMetadata10, KeyMetadata11 FROM XesamServiceTypes;
-
-InsertXesamMimes               REPLACE INTO XesamFileMimes (Mime) VALUES (?);
-InsertXesamMimePrefixes        REPLACE INTO XesamFileMimePrefixes (MimePrefix) VALUES (?);
-
-GetXesamMimeForServiceId       SELECT Mime FROM XesamFileMimes WHERE ServiceTypeId = ?;
-GetXesamMimePrefixForServiceId SELECT MimePrefix FROM XesamFileMimePrefixes WHERE ServiceTypeId = ?;
 
 /*
  * Turtle importing

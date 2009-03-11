@@ -28,7 +28,6 @@
 
 #include "tracker-utils.h"
 #include "tracker-main.h"
-#include "tracker-xesam-manager.h"
 
 gchar *
 tracker_get_radix_by_suffix (const gchar *str,
