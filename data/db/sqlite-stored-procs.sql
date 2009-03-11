@@ -15,18 +15,7 @@ GetFileMTime                   SELECT M.MetaDataValue FROM Services AS S INNER J
 GetServices                    SELECT TypeName, Description, Parent FROM ServiceTypes ORDER BY TypeID;
 GetFileChildren                SELECT ID, Path, Name, IsDirectory FROM Services WHERE Path = ?;
 
-/*
- * Live search queries
- */
-CreateEvent                    INSERT INTO Events (ServiceID, EventType) VALUES (?,?); 
 
-GetLiveSearchAllIDs            SELECT X.ServiceID FROM cache.LiveSearches AS X WHERE X.SearchID = ?
-GetLiveSearchDeletedIDs        SELECT E.ServiceID FROM Events AS E, cache.LiveSearches AS X WHERE E.ServiceID = X.ServiceID AND X.SearchID = ? AND E.EventType = 'Delete';
-GetLiveSearchHitCount          SELECT count(*) FROM cache.LiveSearches WHERE SearchID = ?;
-
-DeleteLiveSearchDeletedIDs     DELETE FROM cache.LiveSearches AS Y WHERE Y.ServiceID IN SELECT ServiceID FROM Events AS E, cache.LiveSearches AS X WHERE E.ServiceID = X.ServiceID AND X.SearchID = ? AND E.EventType = 'Delete'
-
-LiveSearchStopSearch           DELETE FROM cache.LiveSearches WHERE SearchID = ?
 
 /*
  * Option queries

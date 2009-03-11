@@ -1546,8 +1546,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 						    basename,
 						    data);
 
-		tracker_data_update_create_event (indexer->private->cache, id, "Create");
-
 		index_metadata (indexer, id, service, metadata);
 
 		text = tracker_module_file_get_text (info->module_file);

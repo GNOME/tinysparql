@@ -79,12 +79,6 @@ void     tracker_data_update_set_content                (TrackerService      *se
 void     tracker_data_update_delete_content             (TrackerService      *service,
 							 guint32              service_id);
 
-/* Events */
-void     tracker_data_update_create_event               (TrackerDBInterface  *iface,
-							 guint32              service_id,
-							 const gchar         *type);
-
-void     tracker_data_update_delete_handled_events      (TrackerDBInterface  *iface);
 
 /* Volume handling */
 void tracker_data_update_enable_volume                  (const gchar         *udi,

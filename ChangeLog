@@ -1,5 +1,15 @@
 2009-03-11  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+	* data/db/sqlite-cache.sql:
+	* data/db/sqlite-stored-procs.sql:
+	* tests/scripts/data/xesam.sql: Removed some more Xesam traces that
+	were burried deeper
+
+2009-03-11  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/libtracker-data/tracker-data-schema.c:
 	* src/libtracker-data/tracker-data-live-search.c:
 	* src/libtracker-data/tracker-data-schema.h:

@@ -89,23 +89,6 @@ tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
 	return ++max;
 }
 
-void
-tracker_data_update_create_event (TrackerDBInterface *iface,
-				  guint32 service_id,
-				  const gchar *type)
-{
-	gchar *service_id_str;
-
-	service_id_str = tracker_guint32_to_string (service_id);
-
-	tracker_db_interface_execute_procedure (iface, NULL, "CreateEvent",
-						service_id_str,
-						type,
-						NULL);
-
-	g_free (service_id_str);
-}
-
 gboolean
 tracker_data_update_create_service (TrackerService *service,
 				    guint32	    service_id,
@@ -540,14 +523,6 @@ tracker_data_update_delete_content (TrackerService *service,
 						NULL);
 
 	g_free (service_id_str);
-}
-
-void
-tracker_data_update_delete_handled_events (TrackerDBInterface *iface)
-{
-	g_return_if_fail (TRACKER_IS_DB_INTERFACE (iface));
-
-	tracker_data_manager_exec (iface, "DELETE FROM Events WHERE BeingHandled = 1");
 }
 
 void

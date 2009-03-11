@@ -68,19 +68,3 @@ CREATE TABLE  FileWatches
 	unique (URI)
 );
 
-
-CREATE TABLE Events
-(
-	ID		Integer primary key autoincrement,
-	ServiceID	Integer not null,
-	BeingHandled	Integer default 0,
-	EventType	Text
-);
-
-CREATE TABLE LiveSearches
-(
-	ServiceID	Integer not null,
-	SearchID	Text,
-
-	Unique (ServiceID, SearchID)
-);
