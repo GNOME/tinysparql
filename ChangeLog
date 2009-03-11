@@ -1,3 +1,12 @@
+2009-03-11  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	(process_context_invalidate) (process_context_destroy): Merged
+	together.
+	(process_context_child_watch_cb): Removed obsolete code.
+	(process_context_create): Set a 10 seconds timeout to extract text.
+	Fixes #455588.
+
 2009-03-11  Martyn Russell  <martyn@imendio.com>
 
 	* tests/libtracker-db/tracker-index-writer-test.c: Code clean ups.

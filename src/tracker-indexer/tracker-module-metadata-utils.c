@@ -49,6 +49,8 @@
 #define TEXT_MAX_SIZE		     1048576  /* bytes */
 #define TEXT_CHECK_SIZE		     65535    /* bytes */
 
+#define TEXT_EXTRACTION_TIMEOUT      10
+
 typedef struct {
 	GPid pid;
 	guint stdout_watch_id;
@@ -57,8 +59,6 @@ typedef struct {
 	GMainLoop  *data_incoming_loop;
 	gpointer data;
 } ProcessContext;
-
-static ProcessContext *metadata_context = NULL;
 
 static DBusGProxy *
 get_dbus_extract_proxy (void)
@@ -95,7 +95,7 @@ get_dbus_extract_proxy (void)
 }
 
 static void
-process_context_invalidate (ProcessContext *context)
+process_context_destroy (ProcessContext *context)
 {
 	if (context->stdin_channel) {
 		g_io_channel_shutdown (context->stdin_channel, FALSE, NULL);
@@ -127,12 +127,7 @@ process_context_invalidate (ProcessContext *context)
 		g_spawn_close_pid (context->pid);
 		context->pid = 0;
 	}
-}
 
-static void
-process_context_destroy (ProcessContext *context)
-{
-	process_context_invalidate (context);
 	g_free (context);
 }
 
@@ -148,11 +143,6 @@ process_context_child_watch_cb (GPid	 pid,
 		 status);
 
 	context = (ProcessContext *) user_data;
-
-	if (context == metadata_context) {
-		metadata_context = NULL;
-	}
-
 	process_context_destroy (context);
 }
 
@@ -166,7 +156,7 @@ process_context_create (const gchar **argv,
 	GPid pid;
 
 	if (!tracker_spawn_async_with_channels (argv,
-						0,
+						TEXT_EXTRACTION_TIMEOUT,
 						&pid,
 						&stdin_channel,
 						&stdout_channel,
