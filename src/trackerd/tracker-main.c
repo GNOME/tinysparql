@@ -410,7 +410,7 @@ sanity_check_option_values (TrackerConfig *config)
 	g_message ("Daemon options:");
 	g_message ("  Throttle level  .......................  %d",
 		   tracker_config_get_throttle (config));
-	g_message ("  Indexing enabled	.....................  %s",
+	g_message ("  Indexing enabled  .....................  %s",
 		   tracker_config_get_enable_indexing (config) ? "yes" : "no");
 	g_message ("  Monitoring enabled  ...................  %s",
 		   tracker_config_get_enable_watches (config) ? "yes" : "no");

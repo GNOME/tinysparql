@@ -1,5 +1,12 @@
 2009-03-11  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-common/tracker-hal.c: Reduce the amount of
+	debugging when starting up and detecting HAL devices.
+	
+	* src/trackerd/tracker-main.c: Fixed debugging.
+
+2009-03-11  Martyn Russell  <martyn@imendio.com>
+
 	* tests/tracker-extract/tracker-extract-test-utils.[ch]: 
 	* tests/tracker-extract/tracker-extract-testsuite-avi.c:
 	* tests/tracker-extract/tracker-extract-testsuite-jpeg.c:
