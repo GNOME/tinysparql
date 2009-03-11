@@ -1,5 +1,11 @@
 2009-03-11  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/tracker-hal.c (tracker_hal_init): Ensure
+	daemons do not exit if the system bus is shut down. Partly fixes
+	#519222.
+
+2009-03-11  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-module-metadata-utils.c
 	(process_context_invalidate) (process_context_destroy): Merged
 	together.

@@ -206,6 +206,7 @@ tracker_hal_init (TrackerHal *hal)
 		return;
 	}
 
+	dbus_connection_set_exit_on_disconnect (connection, FALSE);
 	dbus_connection_setup_with_g_main (connection, NULL);
 
 	priv->context = libhal_ctx_new ();
