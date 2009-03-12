@@ -359,7 +359,11 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 
 	raptor_free_uri ((raptor_uri *) statement->subject);
 	raptor_free_uri ((raptor_uri *) statement->predicate);
-	g_free ((unsigned char *) statement->object);
+
+	if (value)
+		g_free ((unsigned char *) statement->object);
+	else 
+		raptor_free_uri ((raptor_uri *) statement->object);
 
 	g_free (statement);
 }
