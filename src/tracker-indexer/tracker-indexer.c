@@ -100,6 +100,7 @@
 #define METADATA_FILE_EXT	     "File:Ext"
 #define METADATA_FILE_PATH	     "File:Path"
 #define METADATA_FILE_NAME	     "File:Name"
+#define METADATA_FILE_MIMETYPE       "File:Mime"
 
 typedef struct PathInfo PathInfo;
 typedef struct MetadataForeachData MetadataForeachData;
@@ -1448,6 +1449,32 @@ remove_stale_children (TrackerIndexer *indexer,
 }
 
 static void
+generate_item_thumbnail (TrackerIndexer        *indexer,
+			 const gchar           *dirname,
+			 const gchar           *basename,
+			 TrackerModuleMetadata *metadata)
+{
+	const gchar *path, *mime_type;
+
+	path = tracker_module_metadata_lookup (metadata, METADATA_FILE_NAME_DELIMITED, FALSE);
+	mime_type = tracker_module_metadata_lookup (metadata, METADATA_FILE_MIMETYPE, FALSE);
+
+	if (path && path[0] == G_DIR_SEPARATOR && mime_type &&
+	    tracker_config_get_enable_thumbnails (indexer->private->config)) {
+		GFile *file;
+		gchar *uri;
+
+		file = g_file_new_for_path (path);
+		uri = g_file_get_uri (file);
+
+		tracker_thumbnailer_get_file_thumbnail (uri, mime_type);
+
+		g_object_unref (file);
+		g_free (uri);
+	}
+}
+
+static void
 item_add_or_update (TrackerIndexer        *indexer,
 		    PathInfo              *info,
 		    const gchar           *dirname,
@@ -1566,6 +1593,8 @@ item_add_or_update (TrackerIndexer        *indexer,
 		g_hash_table_destroy (data);
 	}
 
+	generate_item_thumbnail (indexer, dirname, basename, metadata);
+
 	/* TODO: URI branch path -> uri */
 
 	service_path = g_build_path (G_DIR_SEPARATOR_S, 
@@ -1587,7 +1616,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 	g_free (mount_point);
 	g_free (service_path);
-
 }
 
 

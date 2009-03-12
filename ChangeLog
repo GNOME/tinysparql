@@ -1,3 +1,13 @@
+2009-03-12  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (generate_item_thumbnail)
+	(item_add_or_update): Generate thumbnails here, so we can access
+	configuration and actually respect the EnableThumbnails option. Fixes
+	#503595.
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	(tracker_module_metadata_utils_get_data): Remove thumbnail generation
+	from here.
+
 2009-03-12  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-removable-device.c: Fixed a crash when

@@ -715,14 +715,6 @@ tracker_module_metadata_utils_get_data (GFile *file)
 	g_free (basename);
 	g_free (dirname);
 
-	if (mime_type) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-		tracker_thumbnailer_get_file_thumbnail (uri, mime_type);
-		g_free (uri);
-	}
-
 	if (S_ISLNK (st.st_mode)) {
 		gchar *link_path;
 		gchar *link_path_delimited;
