@@ -359,7 +359,10 @@ flush_data (TrackerIndexer *indexer)
 
 	tracker_db_index_flush (indexer->private->file_index);
 	tracker_db_index_flush (indexer->private->email_index);
-	signal_status (indexer, "flush");
+
+	if ((indexer->private->state & TRACKER_INDEXER_STATE_STOPPED) != 0) {
+		signal_status (indexer, "flush");
+	}
 
 	indexer->private->items_indexed += indexer->private->items_to_index;
 	indexer->private->items_to_index = 0;

@@ -1,5 +1,10 @@
 2009-03-12  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c (flush_data): Do not emit
+	status if the indexer is not indexing.
+
+2009-03-12  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-module-metadata.c
 	(tracker_module_metadata_add_take_string): Be more permissive about
 	NULL metadata values.
