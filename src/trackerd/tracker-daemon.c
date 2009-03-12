@@ -271,7 +271,6 @@ tracker_daemon_init (TrackerDaemon *object)
 {
 	TrackerDaemonPrivate *priv;
 	TrackerDBInterface   *iface;
-	TrackerDBResultSet   *result_set;
 	DBusGProxy           *proxy;
 
 	priv = TRACKER_DAEMON_GET_PRIVATE (object);
@@ -290,10 +289,6 @@ tracker_daemon_init (TrackerDaemon *object)
 						  g_str_equal,
 						  g_free, 
 						  NULL);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
 }
 
 static void
