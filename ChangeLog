@@ -1,3 +1,12 @@
+2009-03-12  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-daemon.c: Fixed the
+	"ServiceStatisticsUpdated" signal we emit so we don't send empty
+	GStrvs over DBus. Now we accurately tell clients what service
+	types changed when we get the "Finished" signal from the indexer.
+	Also, we now don't get stats when initialising the daemon, only
+	when we get our first "Finished" signal. Fixes NB#105133.
+
 2009-03-12  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (generate_item_thumbnail)

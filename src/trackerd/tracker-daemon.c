@@ -47,7 +47,7 @@ typedef struct {
 	TrackerConfig	 *config;
 	TrackerProcessor *processor;
 	DBusGProxy	 *indexer_proxy;
-	GPtrArray	 *last_stats;
+	GHashTable       *last_stats;
 } TrackerDaemonPrivate;
 
 enum {
@@ -129,15 +129,6 @@ tracker_daemon_class_init (TrackerDaemonClass *klass)
 }
 
 static void
-clean_last_stats (TrackerDaemonPrivate *priv)
-{
-	if (priv->last_stats) {
-		g_ptr_array_foreach (priv->last_stats, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (priv->last_stats, TRUE);
-	}
-}
-
-static void
 indexer_finished_cb (DBusGProxy *proxy,
 		     gdouble	 seconds_elapsed,
 		     guint	 items_done,
@@ -148,10 +139,7 @@ indexer_finished_cb (DBusGProxy *proxy,
 	TrackerDaemonPrivate *priv;
 	TrackerDBInterface   *iface;
 	TrackerDBResultSet   *result_set;
-	GPtrArray	     *values = NULL;
 	GPtrArray	     *new_stats;
-	GStrv		      strv;
-	guint		      i;
 
 	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
@@ -168,59 +156,110 @@ indexer_finished_cb (DBusGProxy *proxy,
 		g_object_unref (result_set);
 	}
 
-	if (priv->last_stats && new_stats) {
-		for (i = 0; i < priv->last_stats->len && i < new_stats->len; i++) {
-			GStrv str1;
-			GStrv str2;
+	/* There are 3 situations here:
+	 *  - 1. No new stats
+	 *       Action: Do nothing
+	 *  - 2. No previous stats
+	 *       Action: Emit all new stats
+	 *  - 3. New stats and old stats
+	 *       Action: Check what has changed and emit new stats
+	 */
 
-			str1 = g_ptr_array_index (priv->last_stats, i);
-			str2 = g_ptr_array_index (new_stats, i);
+	g_message ("Checking for statistics changes and signalling clients...");
 
-			if (!str1[0] || !str1[1] || !str2[1]) {
-				continue;
-			}
+	/* Situation #1 */
+	if (!new_stats) {
+		g_message ("  No new statistics, doing nothing");
+		return;
+	}
 
-			if (strcmp (str1[1], str2[1]) != 0) {
-				if (!values) {
-					values = g_ptr_array_new ();
-				}
+	if (g_hash_table_size (priv->last_stats) < 1) {
+		GStrv strv;
+		gint i;
 
-				g_ptr_array_add (values, g_strdup (str1[0]));
-			}
-		}
-	} else if (new_stats) {
+		/* Situation #2 */
+		strv = g_new0 (gchar*, new_stats->len + 1);
+		strv[new_stats->len] = NULL;
+
+		g_message ("  No previous statistics");
+
 		for (i = 0; i < new_stats->len; i++) {
-			GStrv str;
+			const gchar **p;
+			const gchar  *service_type = NULL;
+			gint          new_count;
 
-			str = g_ptr_array_index (new_stats, i);
+			p = g_ptr_array_index (new_stats, i);
 
-			if (!str[0]) {
+			service_type = p[1];
+			new_count = atoi (p[0]);
+			
+			if (!service_type) {
 				continue;
 			}
 
-			g_ptr_array_add (values, g_strdup (str[0]));
-		}
-	}
+			g_hash_table_insert (priv->last_stats, 
+					     g_strdup (service_type), 
+					     GINT_TO_POINTER (new_count));
 
-	clean_last_stats (priv);
-	priv->last_stats = new_stats;
-
-	if (values && values->len > 0) {
-		strv = g_new0 (gchar*, values->len + 1);
-
-		for (i = 0 ; i < values->len; i++) {
-			strv[i] = g_ptr_array_index (values, i);
+			/* GStrv for signal emission */
+			g_message ("  Adding '%s' with count:%d", 
+				   service_type,
+				   new_count);
+			strv[i++] = g_strdup (service_type);
 		}
 
-		g_ptr_array_free (values, TRUE);
-		strv[i] = NULL;
+		/* Emit signal */
+		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
+		g_strfreev (strv);
 	} else {
-		strv = g_new0 (gchar*, 1);
-		strv[0] = NULL;
-	}
+		GStrv strv = NULL;
+		GSList *l = NULL;
+		gint i;
 
-	g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
-	g_strfreev (strv);
+		/* Situation #3 */
+		for (i = 0; i < new_stats->len; i++) {
+			const gchar **p;
+			const gchar  *service_type = NULL;
+			gpointer      data;
+			gint          old_count, new_count;
+
+			p = g_ptr_array_index (new_stats, i);
+			service_type = p[1];
+			new_count = atoi (p[0]);
+
+			if (!service_type) {
+				continue;
+			}
+
+			data = g_hash_table_lookup (priv->last_stats, service_type);
+			old_count = GPOINTER_TO_INT (data);
+
+			if (old_count != new_count) {
+				g_message ("  Updating '%s' with new count:%d, old count:%d, diff:%d", 
+					   service_type,
+					   new_count,
+					   old_count,
+					   new_count - old_count);
+
+				l = g_slist_prepend (l, (gpointer) service_type);
+
+				g_hash_table_replace (priv->last_stats, 
+						      g_strdup (service_type), 
+						      GINT_TO_POINTER (new_count));
+			}
+		}
+
+		if (l) {
+			l = g_slist_reverse (l);
+			strv = tracker_dbus_slist_to_strv (l);
+
+			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
+			g_strfreev (strv);
+		} else {
+			g_message ("  No changes in the statistics");
+
+		}
+	}
 }
 
 static void
@@ -243,8 +282,10 @@ tracker_daemon_init (TrackerDaemon *object)
 
 	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
 
-	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-	priv->last_stats = tracker_dbus_query_result_to_ptr_array (result_set);
+	priv->last_stats = g_hash_table_new_full (g_str_hash,
+						  g_str_equal,
+						  g_free, 
+						  NULL);
 
 	if (result_set) {
 		g_object_unref (result_set);
@@ -260,11 +301,13 @@ tracker_daemon_finalize (GObject *object)
 	daemon = TRACKER_DAEMON (object);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
 
-	clean_last_stats (priv);
-
 	dbus_g_proxy_disconnect_signal (priv->indexer_proxy, "Finished",
 					G_CALLBACK (indexer_finished_cb),
 					NULL);
+
+	if (priv->last_stats) {
+		g_hash_table_unref (priv->last_stats);
+	}
 
 	g_object_unref (priv->indexer_proxy);
 
