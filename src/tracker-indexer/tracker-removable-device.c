@@ -346,8 +346,7 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 	statement->predicate = (void *) raptor_new_uri ((const guchar *) (key?key:""));
 	statement->predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
-	/* Don't let g_strdup handle NULL, else it returns NULL. We need "" */
-	statement->object = (unsigned char *) g_strdup (value?value:"");
+	statement->object = (unsigned char *) g_strdup (value);
 	statement->object_type = RAPTOR_IDENTIFIER_TYPE_LITERAL;
 
 	raptor_serialize_statement (serializer, 
