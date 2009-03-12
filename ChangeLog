@@ -1,3 +1,9 @@
+2009-03-12  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-module-metadata.c
+	(tracker_module_metadata_add_take_string): Be more permissive about
+	NULL metadata values.
+
 2009-03-12  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-daemon.c: (tracker_daemon_init): Removed

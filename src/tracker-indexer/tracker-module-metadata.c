@@ -172,7 +172,10 @@ tracker_module_metadata_add_take_string (TrackerModuleMetadata *metadata,
 
 	g_return_val_if_fail (metadata != NULL, FALSE);
 	g_return_val_if_fail (field_name != NULL, FALSE);
-	g_return_val_if_fail (value != NULL, FALSE);
+
+	if (!value) {
+		return FALSE;
+	}
 
 	field = tracker_ontology_get_field_by_name (field_name);
 
