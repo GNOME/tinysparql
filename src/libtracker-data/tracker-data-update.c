@@ -690,7 +690,11 @@ tracker_data_update_replace_service (const gchar *path,
 	if (!rdf_type)
 		return;
 
-	service = tracker_ontology_get_service_by_name (rdf_type);
+	/*
+	service = tracker_ontology_get_service_by_name (rdf_type); */
+
+	/* The current ontology doesn't allow sanity like what above would be */
+	service = tracker_ontology_get_service_by_name ("Files");
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),
 							     TRACKER_DB_CONTENT_TYPE_METADATA);

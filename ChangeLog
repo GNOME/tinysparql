@@ -1,3 +1,8 @@
+2009-03-12  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-data/tracker-data-update.c: Cope with the insanity of
+	the current ontology
+
 2009-03-12  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-daemon.c: 
