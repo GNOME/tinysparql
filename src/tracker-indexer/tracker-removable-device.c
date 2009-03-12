@@ -346,8 +346,13 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 	statement->predicate = (void *) raptor_new_uri ((const guchar *) (key?key:""));
 	statement->predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
-	statement->object = (unsigned char *) g_strdup (value);
-	statement->object_type = RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	if (value) {
+		statement->object = (unsigned char *) g_strdup (value);
+		statement->object_type = RAPTOR_IDENTIFIER_TYPE_LITERAL;
+	} else {
+		statement->object = (void *) raptor_new_uri ((const guchar *) (""));
+		statement->object_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+	}
 
 	raptor_serialize_statement (serializer, 
 				    statement);
