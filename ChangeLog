@@ -1,3 +1,8 @@
+2009-03-12  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/tracker-removable-device.c: Fixed a crash when
+	removing a resource from a removable device
+
 2009-03-11  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-extract-pdf.c (extract_pdf): Also
