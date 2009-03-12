@@ -205,7 +205,7 @@ indexer_finished_cb (DBusGProxy *proxy,
 			g_message ("  Adding '%s' with count:%d", 
 				   service_type,
 				   new_count);
-			strv[i++] = g_strdup (service_type);
+			strv[i] = g_strdup (service_type);
 		}
 
 		/* Emit signal */
@@ -252,6 +252,7 @@ indexer_finished_cb (DBusGProxy *proxy,
 		if (l) {
 			l = g_slist_reverse (l);
 			strv = tracker_dbus_slist_to_strv (l);
+			g_slist_free (l);
 
 			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
 			g_strfreev (strv);
@@ -260,6 +261,9 @@ indexer_finished_cb (DBusGProxy *proxy,
 
 		}
 	}
+
+	g_ptr_array_foreach (new_stats, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (new_stats, TRUE);
 }
 
 static void

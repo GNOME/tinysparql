@@ -973,6 +973,9 @@ tracker_crawler_start (TrackerCrawler *crawler)
 		} else {
 			g_message ("  No directories from module config");
 		}
+
+		g_list_free (paths);
+		g_list_free (recurse_paths);
 	} else {
 		GSList *new_paths;
 

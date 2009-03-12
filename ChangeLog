@@ -1,5 +1,11 @@
 2009-03-12  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-crawler.c: (tracker_crawler_start):
+	* src/trackerd/tracker-daemon.c: (indexer_finished_cb): Fixed 3
+	memory leaks and a bug in the statistics signalling code rewrite. 
+
+2009-03-12  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-daemon.c: Fixed the
 	"ServiceStatisticsUpdated" signal we emit so we don't send empty
 	GStrvs over DBus. Now we accurately tell clients what service
