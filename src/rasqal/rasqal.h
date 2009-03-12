@@ -779,6 +779,8 @@ raptor_sequence* rasqal_query_get_prefix_sequence(rasqal_query* query);
 RASQAL_API
 rasqal_prefix* rasqal_query_get_prefix(rasqal_query* query, int idx);
 RASQAL_API
+int rasqal_query_declare_prefixes(rasqal_query* rq);
+RASQAL_API
 raptor_sequence* rasqal_query_get_order_conditions_sequence(rasqal_query* query);
 RASQAL_API
 rasqal_expression* rasqal_query_get_order_condition(rasqal_query* query, int idx);

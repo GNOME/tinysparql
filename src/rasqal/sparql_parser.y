@@ -403,33 +403,15 @@ BaseDeclOpt: BASE URI_LITERAL
 /* SPARQL Grammar: [4] PrefixDecl renamed to include optional list */
 PrefixDeclListOpt: PrefixDeclListOpt PREFIX IDENTIFIER URI_LITERAL
 {
-  raptor_sequence *seq=((rasqal_query*)rq)->prefixes;
   unsigned const char* prefix_string=$3;
-  size_t l=0;
 
-  if(prefix_string)
-    l=strlen((const char*)prefix_string);
-  
-  if(raptor_namespaces_find_namespace(((rasqal_query*)rq)->namespaces, prefix_string, l)) {
-    /* A prefix may be defined only once */
-    sparql_syntax_warning(((rasqal_query*)rq), 
-                          "PREFIX %s can be defined only once.",
-                          prefix_string ? (const char*)prefix_string : ":");
-    RASQAL_FREE(cstring, prefix_string);
-#ifdef RAPTOR_V2_AVAILABLE
-    raptor_free_uri_v2(((rasqal_query*)rq)->world->raptor_world_ptr, $4);
-#else
-    raptor_free_uri($4);
-#endif
-  } else {
-    rasqal_prefix *p=rasqal_new_prefix(((rasqal_query*)rq)->world, prefix_string, $4);
-    if(!p)
-      YYERROR_MSG("PrefixDeclOpt: failed to create new prefix");
-    if(raptor_sequence_push(seq, p))
-      YYERROR_MSG("PrefixDeclOpt: cannot push prefix to seq");
-    if(rasqal_query_declare_prefix(((rasqal_query*)rq), p)) {
-      YYERROR_MSG("PrefixDeclOpt: cannot declare prefix");
-    }
+  rasqal_prefix *p=rasqal_new_prefix(((rasqal_query*)rq)->world, prefix_string, $4);
+  if(!p)
+    YYERROR_MSG("PrefixDeclOpt: failed to create new prefix");
+  if(rasqal_query_add_prefix(((rasqal_query*)rq), p))
+    YYERROR_MSG("PrefixDeclOpt: cannot add prefix");
+  if(rasqal_query_declare_prefix(((rasqal_query*)rq), p)) {
+    YYERROR_MSG("PrefixDeclOpt: cannot declare prefix");
   }
 }
 | /* empty */

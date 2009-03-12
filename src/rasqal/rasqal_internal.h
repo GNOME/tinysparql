@@ -884,7 +884,6 @@ void rasqal_map_print(rasqal_map* map, FILE* fh);
 rasqal_query_results* rasqal_query_execute_with_engine(rasqal_query* query, const rasqal_query_execution_factory* engine);
 void rasqal_query_remove_query_result(rasqal_query* query, rasqal_query_results* query_results);
 int rasqal_query_declare_prefix(rasqal_query* rq, rasqal_prefix* prefix);
-int rasqal_query_declare_prefixes(rasqal_query* rq);
 unsigned char* rasqal_query_get_genid(rasqal_query* query, const unsigned char* base, int counter);
 void rasqal_query_set_base_uri(rasqal_query* rq, raptor_uri* base_uri);
 void rasqal_query_set_store_results(rasqal_query* query, int store_results);
