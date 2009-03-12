@@ -70,6 +70,7 @@
 #include "tracker-status.h"
 #include "tracker-cleanup.h"
 #include "tracker-backup.h"
+#include "tracker-daemon.h"
 
 #ifdef G_OS_WIN32
 #include <windows.h>
@@ -355,6 +356,33 @@ mount_point_added_cb (TrackerHal  *hal,
 }
 
 static void
+mount_point_set_and_signal_cb (DBusGProxy *proxy, 
+			       GError     *error, 
+			       gpointer    user_data)
+{
+	if (error) {
+		g_critical ("Couldn't set mount point state, %s", 
+			    error->message);
+		g_error_free (error);
+		g_free (user_data);
+		return;
+	}
+
+	g_message ("Indexer now knows about UDI state:");
+	g_message ("  %s", (gchar*) user_data);
+
+
+	/* This is a special case, because we don't get the
+	 * "Finished" signal from the indexer when we set something
+	 * in the volumes table, we have to signal all clients from
+	 * here that the statistics may have changed.
+	 */
+	tracker_daemon_signal_statistics ();
+
+	g_free (user_data);
+}
+
+static void
 mount_point_removed_cb (TrackerHal  *hal,
 			const gchar *udi,
 			const gchar *mount_point,
@@ -371,7 +399,7 @@ mount_point_removed_cb (TrackerHal  *hal,
 								   udi,
 								   mount_point,
 								   FALSE,
-								   mount_point_set_cb,
+								   mount_point_set_and_signal_cb,
 								   g_strdup (udi));
 }
 

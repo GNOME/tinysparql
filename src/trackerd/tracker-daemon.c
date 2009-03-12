@@ -135,135 +135,7 @@ indexer_finished_cb (DBusGProxy *proxy,
 		     gboolean	 interrupted,
 		     gpointer	 user_data)
 {
-	GObject		     *daemon;
-	TrackerDaemonPrivate *priv;
-	TrackerDBInterface   *iface;
-	TrackerDBResultSet   *result_set;
-	GPtrArray	     *new_stats;
-
-	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
-	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-
-	/* GetStats has asc in its query. Therefore we don't have to
-	 * lookup the in a to compare in b, just compare index based.
-	 * Maybe we want to change this nonetheless later?
-	 */
-	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-	new_stats = tracker_dbus_query_result_to_ptr_array (result_set);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
-
-	/* There are 3 situations here:
-	 *  - 1. No new stats
-	 *       Action: Do nothing
-	 *  - 2. No previous stats
-	 *       Action: Emit all new stats
-	 *  - 3. New stats and old stats
-	 *       Action: Check what has changed and emit new stats
-	 */
-
-	g_message ("Checking for statistics changes and signalling clients...");
-
-	/* Situation #1 */
-	if (!new_stats) {
-		g_message ("  No new statistics, doing nothing");
-		return;
-	}
-
-	if (g_hash_table_size (priv->last_stats) < 1) {
-		GStrv strv;
-		gint i;
-
-		/* Situation #2 */
-		strv = g_new0 (gchar*, new_stats->len + 1);
-		strv[new_stats->len] = NULL;
-
-		g_message ("  No previous statistics");
-
-		for (i = 0; i < new_stats->len; i++) {
-			const gchar **p;
-			const gchar  *service_type = NULL;
-			gint          new_count;
-
-			p = g_ptr_array_index (new_stats, i);
-
-			service_type = p[1];
-			new_count = atoi (p[0]);
-			
-			if (!service_type) {
-				continue;
-			}
-
-			g_hash_table_insert (priv->last_stats, 
-					     g_strdup (service_type), 
-					     GINT_TO_POINTER (new_count));
-
-			/* GStrv for signal emission */
-			g_message ("  Adding '%s' with count:%d", 
-				   service_type,
-				   new_count);
-			strv[i] = g_strdup (service_type);
-		}
-
-		/* Emit signal */
-		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
-		g_strfreev (strv);
-	} else {
-		GStrv strv = NULL;
-		GSList *l = NULL;
-		gint i;
-
-		/* Situation #3 */
-		for (i = 0; i < new_stats->len; i++) {
-			const gchar **p;
-			const gchar  *service_type = NULL;
-			gpointer      data;
-			gint          old_count, new_count;
-
-			p = g_ptr_array_index (new_stats, i);
-			service_type = p[1];
-			new_count = atoi (p[0]);
-
-			if (!service_type) {
-				continue;
-			}
-
-			data = g_hash_table_lookup (priv->last_stats, service_type);
-			old_count = GPOINTER_TO_INT (data);
-
-			if (old_count != new_count) {
-				g_message ("  Updating '%s' with new count:%d, old count:%d, diff:%d", 
-					   service_type,
-					   new_count,
-					   old_count,
-					   new_count - old_count);
-
-				l = g_slist_prepend (l, (gpointer) service_type);
-
-				g_hash_table_replace (priv->last_stats, 
-						      g_strdup (service_type), 
-						      GINT_TO_POINTER (new_count));
-			}
-		}
-
-		if (l) {
-			l = g_slist_reverse (l);
-			strv = tracker_dbus_slist_to_strv (l);
-			g_slist_free (l);
-
-			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
-			g_strfreev (strv);
-		} else {
-			g_message ("  No changes in the statistics");
-
-		}
-	}
-
-	g_ptr_array_foreach (new_stats, (GFunc) g_strfreev, NULL);
-	g_ptr_array_free (new_stats, TRUE);
+	tracker_daemon_signal_statistics ();
 }
 
 static void
@@ -684,4 +556,139 @@ tracker_daemon_prompt_index_signals (TrackerDaemon	    *object,
 	dbus_g_method_return (context);
 
 	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_daemon_signal_statistics (void)
+{
+	GObject		     *daemon;
+	TrackerDaemonPrivate *priv;
+	TrackerDBInterface   *iface;
+	TrackerDBResultSet   *result_set;
+	GPtrArray	     *new_stats;
+
+	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
+	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
+
+	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
+
+	/* GetStats has asc in its query. Therefore we don't have to
+	 * lookup the in a to compare in b, just compare index based.
+	 * Maybe we want to change this nonetheless later?
+	 */
+	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
+	new_stats = tracker_dbus_query_result_to_ptr_array (result_set);
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+
+	/* There are 3 situations here:
+	 *  - 1. No new stats
+	 *       Action: Do nothing
+	 *  - 2. No previous stats
+	 *       Action: Emit all new stats
+	 *  - 3. New stats and old stats
+	 *       Action: Check what has changed and emit new stats
+	 */
+
+	g_message ("Checking for statistics changes and signalling clients...");
+
+	/* Situation #1 */
+	if (!new_stats) {
+		g_message ("  No new statistics, doing nothing");
+		return;
+	}
+
+	if (g_hash_table_size (priv->last_stats) < 1) {
+		GStrv strv;
+		gint i;
+
+		/* Situation #2 */
+		strv = g_new0 (gchar*, new_stats->len + 1);
+		strv[new_stats->len] = NULL;
+
+		g_message ("  No previous statistics");
+
+		for (i = 0; i < new_stats->len; i++) {
+			const gchar **p;
+			const gchar  *service_type = NULL;
+			gint          new_count;
+
+			p = g_ptr_array_index (new_stats, i);
+
+			service_type = p[1];
+			new_count = atoi (p[0]);
+			
+			if (!service_type) {
+				continue;
+			}
+
+			g_hash_table_insert (priv->last_stats, 
+					     g_strdup (service_type), 
+					     GINT_TO_POINTER (new_count));
+
+			/* GStrv for signal emission */
+			g_message ("  Adding '%s' with count:%d", 
+				   service_type,
+				   new_count);
+			strv[i] = g_strdup (service_type);
+		}
+
+		/* Emit signal */
+		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
+		g_strfreev (strv);
+	} else {
+		GStrv strv = NULL;
+		GSList *l = NULL;
+		gint i;
+
+		/* Situation #3 */
+		for (i = 0; i < new_stats->len; i++) {
+			const gchar **p;
+			const gchar  *service_type = NULL;
+			gpointer      data;
+			gint          old_count, new_count;
+
+			p = g_ptr_array_index (new_stats, i);
+			service_type = p[1];
+			new_count = atoi (p[0]);
+
+			if (!service_type) {
+				continue;
+			}
+
+			data = g_hash_table_lookup (priv->last_stats, service_type);
+			old_count = GPOINTER_TO_INT (data);
+
+			if (old_count != new_count) {
+				g_message ("  Updating '%s' with new count:%d, old count:%d, diff:%d", 
+					   service_type,
+					   new_count,
+					   old_count,
+					   new_count - old_count);
+
+				l = g_slist_prepend (l, (gpointer) service_type);
+
+				g_hash_table_replace (priv->last_stats, 
+						      g_strdup (service_type), 
+						      GINT_TO_POINTER (new_count));
+			}
+		}
+
+		if (l) {
+			l = g_slist_reverse (l);
+			strv = tracker_dbus_slist_to_strv (l);
+			g_slist_free (l);
+
+			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
+			g_strfreev (strv);
+		} else {
+			g_message ("  No changes in the statistics");
+
+		}
+	}
+
+	g_ptr_array_foreach (new_stats, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (new_stats, TRUE);
 }

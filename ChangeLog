@@ -1,3 +1,14 @@
+2009-03-12  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-daemon.c: 
+	* src/trackerd/tracker-main.c: Put statistics update signal in a
+	separate public function. Fixed not signalling stats when we
+	remove a MMC. Now clients will get updates not only when an MMC is
+	inserted. 
+
+	* src/trackerd/tracker-daemon.h: Removed tracker_daemon_backup(),
+	function no longer exists.
+	
 2009-03-12  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (flush_data): Do not emit
