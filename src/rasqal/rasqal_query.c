@@ -963,7 +963,7 @@ rasqal_query_add_prefix(rasqal_query* query, rasqal_prefix* prefix)
     for(i = 0; i< raptor_sequence_size(query->prefixes); i++) {
       rasqal_prefix* p;
       p = (rasqal_prefix*)raptor_sequence_get_at(query->prefixes, i);
-      if(strcmp((const char*)p->prefix, (const char*)prefix->prefix)) {
+      if(!strcmp((const char*)p->prefix, (const char*)prefix->prefix)) {
         rasqal_query_undeclare_prefix(query, p);
         break;
       }
