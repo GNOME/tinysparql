@@ -1,3 +1,9 @@
+2009-03-13  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-volume-cleanup.c:
+	(check_for_volumes_to_cleanup): Fixed blunder on my part, reusing
+	variable name. Seems to work nicely.
+
 2009-03-13  Jürg Billeter  <j@bitron.ch>
 
 	* src/tracker-indexer/tracker-indexer.c: (process_file):

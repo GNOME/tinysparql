@@ -80,25 +80,25 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 		while (is_valid) {
 			GValue       value = { 0, };
-			const gchar *mount_point;
+			const gchar *mount_point_path;
 
 			_tracker_db_result_set_get_value (result_set, 0, &value);
 
-			mount_point = g_value_get_string (&value);
+			mount_point_path = g_value_get_string (&value);
 
 			/* Add cleanup items here */
-			if (mount_point) {
+			if (mount_point_path) {
 				GFile *file;
-				gchar *mount_point;
+				gchar *mount_point_uri;
 
-				file = g_file_new_for_path (mount_point);
-				mount_point = g_file_get_uri (file);
+				file = g_file_new_for_path (mount_point_path);
+				mount_point_uri = g_file_get_uri (file);
 
-				g_message ("  Requesting thumbnailer cleans up for volume with mount point:'%s'", 
-					   mount_point);
-				tracker_thumbnailer_cleanup (mount_point);
+				g_message ("  Cleaning up volumes with mount point:'%s'", 
+					   mount_point_uri);
+				tracker_thumbnailer_cleanup (mount_point_uri);
 
-				g_free (mount_point);
+				g_free (mount_point_uri);
 				g_object_unref (file);
 			}
 
