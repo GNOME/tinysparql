@@ -1,3 +1,19 @@
+2009-03-13  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/tracker-main.c:
+	* src/trackerd/tracker-main.c:
+	* src/tracker-extract/tracker-main.c: Reverting SCHED_IDLE and setting
+	the extractor to nice(). We don't want to go into SCHED_IDLE else will
+	any app with a bug like "while(1);" make us strave. This is really a
+	bad idea.
+
+	Apps that want to have a prio over tracker's processes should simply
+	use SCHED_FIFO themselves. Don't require apps to run at a lower prio,
+	run at a higher prio yourself if you are indeed realtime.
+
+	Keeping the nice() value so that for a normal desktop we run at a
+	level that is lower-than-everybody-else.
+
 2009-03-13  Martyn Russell  <martyn@imendio.com>
 
 	* Release 0.6.91.

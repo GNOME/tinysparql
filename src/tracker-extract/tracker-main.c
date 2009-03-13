@@ -26,6 +26,11 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <signal.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <linux/sched.h>
+#include <sched.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -40,17 +45,11 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-os-dependant.h>
 #include <libtracker-common/tracker-thumbnailer.h>
+#include <libtracker-common/tracker-ioprio.h>
 
 #include "tracker-main.h"
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
-
-/* Temporary hack for out of date kernels, also, this value may not be
- * the same on all architectures, but it is for x86.
- */
-#ifndef SCHED_IDLE
-#define SCHED_IDLE 5
-#endif
 
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
@@ -113,6 +112,30 @@ tracker_main_quit_timeout_reset (void)
 	quit_timeout_id = g_timeout_add_seconds (QUIT_TIMEOUT, 
 						 quit_timeout_cb, 
 						 NULL);
+}
+
+
+static void
+initialize_priority (void)
+{
+	/* Set disk IO priority and scheduling */
+	tracker_ioprio_init ();
+
+	/* Set process priority:
+	 * The nice() function uses attribute "warn_unused_result" and
+	 * so complains if we do not check its returned value. But it
+	 * seems that since glibc 2.2.4, nice() can return -1 on a
+	 * successful call so we have to check value of errno too.
+	 * Stupid... 
+	 */
+	g_message ("Setting process priority");
+
+	if (nice (19) == -1) {
+		const gchar *str = g_strerror (errno);
+
+		g_message ("Couldn't set nice value to 19, %s",
+			   str ? str : "no error given");
+	}
 }
 
 static void
@@ -200,6 +223,9 @@ main (int argc, char *argv[])
 
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, &error);
+
+	/* This makes sure we don't steal all the system's resources */
+	initialize_priority ();
 
 	if (!filename && mime_type) {
 		gchar *help;

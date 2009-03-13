@@ -52,13 +52,6 @@
 #include "tracker-indexer.h"
 #include "tracker-push.h"
 
-/* Temporary hack for out of date kernels, also, this value may not be
- * the same on all architectures, but it is for x86.
- */
-#ifndef SCHED_IDLE
-#define SCHED_IDLE 5
-#endif
-
 #define ABOUT								  \
 	"Tracker " PACKAGE_VERSION "\n"
 
@@ -201,8 +194,6 @@ initialize_signal_handler (void)
 static void
 initialize_priority (void)
 {
-	struct sched_param sp;
-
 	/* Set disk IO priority and scheduling */
 	tracker_ioprio_init ();
 
@@ -219,28 +210,6 @@ initialize_priority (void)
 		const gchar *str = g_strerror (errno);
 
 		g_message ("Couldn't set nice value to 19, %s",
-			   str ? str : "no error given");
-	}
-
-	/* Set process scheduling parameters:
-	 * This is used so we don't steal scheduling priority from
-	 * the most important applications - like the phone
-	 * application which has a real time requirement here. This
-	 * is detailed in Nokia bug #95573 
-	 */
-	g_message ("Setting scheduling priority");
-
-	if (sched_getparam (0, &sp) == 0) {
-		if (sched_setscheduler (0, SCHED_IDLE, &sp) != 0) {
-			const gchar *str = g_strerror (errno);
-			
-			g_message ("Couldn't set scheduler priority, %s",
-				   str ? str : "no error given");
-		}
-	} else {
-		const gchar *str = g_strerror (errno);
-
-		g_message ("Couldn't get scheduler priority, %s",
 			   str ? str : "no error given");
 	}
 }
