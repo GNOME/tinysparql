@@ -22,6 +22,8 @@
 
 #include <stdlib.h>
 
+#include <gio/gio.h>
+
 #include <libtracker-db/tracker-db-manager.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-common/tracker-thumbnailer.h>
@@ -59,18 +61,21 @@ check_for_volumes_to_cleanup (gpointer user_data)
 		gboolean is_valid = TRUE;
 
 		while (is_valid) {
-			GValue value = { 0, };
+			GValue       value = { 0, };
+			const gchar *mount_point;
 
 			_tracker_db_result_set_get_value (result_set, 0, &value);
 
-#if 0
 			mount_point = g_value_get_string (&value);
 
 			/* Add cleanup items here */
 			if (mount_point) {
-				tracker_thumbnailer_cleanup (mount_point);
+				GFile *dir_file = g_file_new_for_path (mount_point);
+				gchar *mntp_uri = g_file_get_uri (dir_file);
+				tracker_thumbnailer_cleanup (mntp_uri);
+				g_free (mntp_uri);
+				g_object_unref (dir_file);
 			}
-#endif
 
 			g_value_unset (&value);
 

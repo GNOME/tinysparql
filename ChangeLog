@@ -1,3 +1,9 @@
+2009-03-13  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/trackerd/tracker-cleanup.c:
+	* data/db/sqlite-stored-procs.sql: Cleaning up removable devices'
+	thumbnails after a long period of the device not having been mounted
+
 2009-03-12  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-data/tracker-data-update.c: Cope with the insanity of
