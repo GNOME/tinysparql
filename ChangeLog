@@ -1,5 +1,11 @@
 2009-03-13  Martyn Russell  <martyn@imendio.com>
 
+	* NEWS:
+	* configure.ac:
+	* python/deskbar-handler/tracker-module.py: Prepare for release 0.6.91.
+
+2009-03-13  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-data/tracker-data-update.c:
 	(tracker_data_update_reset_volume): Make sure we convert the
 	volume id into a string before using it in the stored procedure,
@@ -109,7 +115,7 @@
 	* src/tracker-indexer/tracker-indexer.c (generate_item_thumbnail)
 	(item_add_or_update): Generate thumbnails here, so we can access
 	configuration and actually respect the EnableThumbnails option. Fixes
-	#503595.
+	bug #503595.
 	* src/tracker-indexer/tracker-module-metadata-utils.c
 	(tracker_module_metadata_utils_get_data): Remove thumbnail generation
 	from here.
@@ -122,7 +128,7 @@
 2009-03-11  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-extract-pdf.c (extract_pdf): Also
-	include Doc:Created in the metadata. Fixes #489876.
+	include Doc:Created in the metadata. Fixes bug #489876.
 
 2009-03-11  Martyn Russell  <martyn@imendio.com>
 
@@ -151,7 +157,7 @@
 
 	* src/libtracker-common/tracker-hal.c (tracker_hal_init): Ensure
 	daemons do not exit if the system bus is shut down. Partly fixes
-	#519222.
+	bug #519222.
 
 2009-03-11  Carlos Garnacho  <carlos@imendio.com>
 
@@ -160,7 +166,7 @@
 	together.
 	(process_context_child_watch_cb): Removed obsolete code.
 	(process_context_create): Set a 10 seconds timeout to extract text.
-	Fixes #455588.
+	Fixes bug #455588.
 
 2009-03-11  Martyn Russell  <martyn@imendio.com>
 
@@ -481,7 +487,7 @@
 	* python/deskbar-handler/tracker-module.py:
 	Update import to use gnomedesktop instead of
 	deskbar.code.gnomedesktop. Patch by Michel Alexandre Salim. 
-	Fixes #571573
+	Fixes bug #571573 (Michel Alexandre Salim).
 	
 2009-03-06  Michael Biebl  <mbiebl@gmail.com>
 
@@ -719,14 +725,14 @@
 2009-02-26  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/trackerd/tracker-xesam-live-search.c (get_hit_data): Do not use
-	deprecated functions. Fixes #572237.
+	deprecated functions. Fixes bug #572237.
 
 2009-02-26  Andre Klapper  <a9016009@gmx.de>
 
 	* src/tracker-search-tool/tracker-search-tool-support.c:
 	Replace a call to libart with a GDK equivalent. Patch by Cosimo
 	Cecchi copied from gnome-utils.
-	Fixes GNOME bug 571736.
+	Fixes bug #571736.
 
 2009-02-26  Carlos Garnacho  <carlos@imendio.com>
 
@@ -2295,7 +2301,7 @@
 
 	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Perform
 	binary search correctly, so it's able to find all items in the array.
-	(Fixes #441739)
+	(Fixes bug #441739)
 	* src/tracker-indexer/tracker-indexer.c (item_remove): Pass big enough
 	weight to have elements removed from the index.
 
@@ -2474,14 +2480,14 @@
 	* src/tracker-utils/tracker-files.c:
 	Updated command line options help.
 
-	Applied patch by Luca Ferretti. Fixes #563909
+	Applied patch by Luca Ferretti. Fixes bug #563909 (Luca Ferretti).
 	
 2009-01-07  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-preferences/tracker-preferences.desktop:
 	Added X-GNOME-PersonalSettings category.
 
-	Fixes #557979
+	Fixes bug #557979.
 
 2009-01-05  Carlos Garnacho  <carlos@imendio.com>
 
@@ -2503,7 +2509,7 @@
 	* src/tracker-preferences/tracker-preferences.glade:
 	Removed white space at the end of "Index delay: " label.
 
-	Fixes #493049
+	Fixes bug #493049
 	
 2009-01-02  Ivan Frade  <ivan.frade@nokia.com>
 
@@ -2530,7 +2536,7 @@
 
 	* src/tracker-applet/tracker-applet.c:
 	(set_status_hint): Fixed string and added comments for
-	translators. Patch from Gabor Kelemen. Fixes #565725.
+	translators. Patch from Gabor Kelemen. Fixes bug #565725.
 
 	Compilation warning fixes.
 	
@@ -2539,7 +2545,7 @@
 	* python/nautilus/tracker-tags-tab.py:
 	Updated to use the new dbus namespaces.
 
-	Patch from Thomas. Fixes #566221.
+	Patch from Thomas. Fixes bug #566221 (Thomas).
 	
 2008-12-31  Philip Van Hoof  <philip@codeminded.be>
 
@@ -2677,7 +2683,7 @@
 	* tests/libtracker-common/tracker-field-test.c
 
 	Gnome Goal: Cleaned up gtk and glib includes.
-	Applied patch from Luis Menina. Fixes #565218.
+	Applied patch from Luis Menina. Fixes bug #565218 (Luis Menina).
 
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 	
@@ -2685,14 +2691,15 @@
 	Replaced g_basename with g_path_get_basename
 	
 	Gnome Goal: Remove deprecated glib symbols.
-	Code taken from patch provided by Luis Menina (#565218)
+	Code taken from patch provided by Luis Menina. Fixes bug #565218
+	(Luis Menina, Ivan Frade).
 	
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-search-tool/tracker-search-tool.c:
 	Marked some strings for translation.
 
-	Applied patch from Gabor Kelemen. Fixes #565932.
+	Applied patch from Gabor Kelemen. Fixes bug #565932.
 	
 2008-12-29  Ivan Frade  <ivan.frade@nokia.com>
 

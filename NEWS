@@ -1,3 +1,138 @@
+NEW in 0.6.91:
+==============
+
+Improvements:
+- Fixed trackerd 'ServiceStatisticsUpdated' signal.
+- Fixed a crash when removing a resource from a removable device.
+- Fixed test case failures for MP3 files.
+- Fixed subsequent album art requests trying if already downloading
+- Fixed support for SCHED_IDLE.
+- Fixed config so we make sure we load defaults for missing options.
+- Fixed warning in indexer about thumbnailer delete action reply.
+- Fixed regression, use "/" on end of generated URI paths for raptor.
+- Fixed leaking file descriptors thought to cause "too many open files".
+- Fixed negative underflow with gint16 value clamp in TrackerDBIndex.
+- Fixed indexer corner case to flush when an item has been removed.
+- Fixed .xsession-errors being populated with startup version info
+- Fixed small regression in group concatenation db function.
+- Fixed overwrite existing logs if already running (indexer/extractor).
+- Fixed QDBM statistics for deleted items.
+- Fixed deskbar so we find the right DBus service names.
+- Fixed URI creation in indexer removable device module.
+- Fixed leaks in indexer removable device module.
+- Fixed MP3 frame size calculation.
+- Fixed log handling, don't overwrite existing logs if already running.
+- Fixed indexer responsiveness for ttl restores by iterating main loop.
+- Fixed tracker-indexer reporting elapsed times suriously.
+- Fixed tracker-indexer memory leak when retrieving embedded metadata.
+- Fixed compiler warnings.
+- Fixed problems in joining of order fields.
+- Fixed issue with integer to string conversion in the database.
+- Fixed tracker-extract blocking indefinitely for buggy modules.
+- Fixed GetStats to check mounted volumes and to use SQL COUNT function.
+- Fixed TrackerDBIndex so words with negative weight are actually indexed. 
+- Fixed indexer not shutting down and stopping before it should.
+- Fixed indexer to reset indexed/processed stats after finishing.
+- Fixed standard monitored directory list to omit .games/
+- Fixed Makefiles which were missing WARN_CFLAGS.
+- Fixed daemon so it now monitors disk space (was in indexer).
+- Fixed daemon so it now monitors battery percentage (was in indexer).
+- Fixed daemon state machine so we ALWAYS log state changes.
+- Fixed daemon state machine so we don't return Initializing after index.
+- Fixed album art so we don't add the artist name to the request.
+- Fixed extractor messaging so we use debug statements for metadata.
+- Fixed indexer to delete content for removed services.
+- Fixed album art local URI not always being passed.
+- Added Image:HasKeywords field for performance.
+- Added warnings when we try to write to QDBM after opening as READONLY
+- Added DB versions for vstore and 0.6.91 which force reindex if different.
+- Added org.freedesktop.Tracker.Backup DBus interface.
+- Added collation locale startup check and regeneration on change.
+- Added GCC gcov support.
+- Added new DBus function to get concatenated metadata group fields.
+- Added new DBus function to Backup metadata to Turtle file.
+- Added support for coverage reporting with gcov.
+- Added IPTC support for TIFF and JPEG extractors
+- Added dependency for libiptcdata.
+- Added a configure switch to disable decompressing .ps.gz files to /tmp.
+- Added initial push plugin support for KMail and RSS.
+- Added NULL support to outer joins for conditions with empty strings.
+- Added ModuleConfig option to ignore directories based on contents.
+- Added album art code to libtracker-common for general use.
+- Removed XESAM support completely.
+- Removed all unused libtracker-common file functions.
+- Removed a lot of unused code after adding WARN_CFLAGS.
+- Removed duplicate calls to g_strstrip() for metadata in extractor.
+- Removed unused extractors exif and gstreamer-playbin.
+- Reduced the amount of debugging produced by HAL module.
+- Reworked the src/plugin infrastructure to be more generic.
+- Improved speed by using the cache for recursive deletes in the daemon.
+- Improved speed by not setting DB page sizes so SQLite decides for us.
+- Improved speed by removing UTF8 collation from Services table.
+- Improved speed by making indexer flushing work asynchronously.
+- Improved speed by making indexer flush frequency variable based on queue.
+- Improved database GROUP_CONCAT aggregate function.
+- Improved Backup/Turtle support.
+- Improved indexer flush time from 60 seconds to 30 seconds, seems faster.
+- Improved daemon dbus request pause time from 10 seconds to 5 seconds.
+- Improved tracker-status so we can now follow real time state updates.
+- Improved tracker utilities to g_print() a note if --limit is reached.
+- Improved tracker utilities to use plural based translations.
+- Improved tracker-services to sort properties listed.
+- Updated extractors to use decodebin not playbin for speed.
+- Updated project wide calls for mtime/size to use GIO not g_lstat().
+
+Bugs:
+- Fixed NB#105133, Mafw-tracker-source does not emit container-...
+- Fixed NB#94201, NP-Audio:Album art not displayed.
+- Fixed NB#96314, libexempi adds Creator in three different locations...
+- Fixed LP#339560, buffer overflow getting file content.
+- Fixed NB#102246, Container name is ‘blank’ within Artists/Albums...
+- Fixed NB#103260, Empty 'Unknown' containers under Artists and Album...
+- Fixed NB#103198, Unknown Category  displayed in Genre view
+- Fixed NB#102210, Number of images in tracker response depends on... 
+- Fixed NB#91158, Restore factory settings is not working.
+- Fixed NB#99823, Album art image gets corrupted if Artist and Album...
+- Fixed NB#99827, Tracker is listing the files from memory card even after...
+- Fixed NB#102800, Crash corruption code
+- Fixed NB#102606, Tracker doesn't get duration of some MP3 filex
+- Fixed NB#102167, ML: Songs deleted from MMC shown in Library
+- Fixed NB#98297, tracker-stats values are not changed even after deleting...
+- Fixed NB#101593, images created from sketch application are listed...
+- Fixed NB#101142, Sorting by Image:Date is incorrect	
+- Fixed NB#95573, Keep quiet, we're in a call
+- Fixed GB#102606, [patch] NetBSD: gconf-internals.c: `AF_INET' undeclared (Mikael Ottela)
+- Fixed GB#105133, With a 3-monitor xinerama, window placement bad (Martyn Russell)
+- Fixed GB#103260, Session script setup that works with multiple *dm and supports a switchdesk-type feature etc. (Mikael Ottela)
+- Fixed GB#101593, FSF copyright notice wrong in gnome-panel panel (Mikael Ottela)
+- Fixed GB#103198, gtk_tree_store_move_* doesn't work. (Mikael Ottela)
+- Fixed GB#455588, indexing of Abiword templates slow (Carlos Garnacho)
+- Fixed GB#489876, Unknown creation date for pdf files (Carlos Garnacho)
+- Fixed GB#503595, check/uncheck "Genertate thumbnails" doesn't work (Carlos Garnacho)
+- Fixed GB#101096, Save as Excel spreadsheet version 97 (Mikael Ottela)
+- Fixed GB#572237, Remove deprecated Glib symbols (Carlos Garnacho)
+- Fixed GB#571331, wrong range for throttling slider (Martyn Russell)
+- Fixed GB#571573, Tracker's deskbar module has incorrect import (Michel Alexandre Salim)
+- Fixed GB#101142, make breaks without xft (Mikael Ottela)
+- Fixed GB#101296, Cannot find pixmaps balsa_icon.png and attachment.png (Martyn Russell)
+- Fixed GB#102800, xlstproc 1.0.23 fails to create directories using -o (Martyn Russell)
+- Fixed GB#519222, trackerd crashes when system dbus is restarted/stopped (Carlos Garnacho)
+- Fixed GB#571736, Get rid of deprecated libart_lgpl
+
+
+Translations:
+- Updated da: Mads Lundby
+- Updated es: Jorge González, Jorge Gonzalez
+- Updated hu: Gabor Kelemen
+- Updated it: Luca Ferretti
+- Updated pt: Nicolau Gonçalves, Nicolau Gonçalves <excentriko@gmail
+- Updated sv: Daniel Nylander
+
+Help Manual Translations:
+None
+
+
+
 NEW in 0.6.90:
 ==============
 
@@ -62,72 +197,72 @@ Missing Support:
   observed. 
 
 Bugs:
-- Fixed #486733, crash in Deskbar: Trying to launch the Tra... (Carlos Garnacho)
-- Fixed #474131, crash in Deskbar: Deskbar search applet --... (Carlos Garnacho)
-- Fixed #97029, Typos in the italian translation of the About box (Mikael Ottela)
-- Fixed #97765, GFlare: switchng between circle/poly doesn't work (Ivan Frade)
-- Fixed #93935, line object connects to self (Ivan Frade)
-- Fixed #90700, "View as EOG Image" (Martyn Russell)
-- Fixed #90138, no way to cleanly unset a message's message_id header (Mikael Ottela)
-- Fixed #96999, Right-click context menu should contain copy entry (even on webpages without input fields) (Mikael Ottela)
-- Fixed #100816, [ui-review] Edit menu usability (Mikael Ottela)
-- Fixed #90374, help crashes (Mikael Ottela)
-- Fixed #93962, gtkspinbutton wants to own its adjustment (Philip Van Hoof)
-- Fixed #97125, missing dot between two sentences in docs for gtk_icon_size_lookup_for_settings () (Mikael Ottela)
-- Fixed #89254, Documentation updates and corrections for GtkTreeModel (Mikael Ottela)
-- Fixed #99281, acme should use an event filter (Mikael Ottela)
-- Fixed #92788, add fcpackage to bootstrap (Martyn Russell)
-- Fixed #402054, Should not allow duplicate keywords to be assigned to a file (Ivan Frade)
-- Fixed #402063, Empty space is not a valid keyword (Ivan Frade)
-- Fixed #441739, Hit count not updated after deleting files (item_remove)
-- Fixed #481651, Minor spelling issue (Carlos Garnacho)
-- Fixed #493049, Trailing space in an original message in the message catalog (Ivan Frade)
-- Fixed #494878, Search hit number can not be reported by orca. (Saleem Abdulrasool)
-- Fixed #494907, Labels should be set as focusable. (Saleem Abdulrasool)
-- Fixed #495810, Executing a wrong RDF query makes tracker unresponsive and unstable (Carlos Garnacho)
-- Fixed #509601, Make metadata extractors modular (Carlos Garnacho)
-- Fixed #509607, Make Search support logical operators besides 'And' (Carlos Garnacho)
-- Fixed #511781, Patch to avoid excesive relocations (array_to_list)
-- Fixed #511788, Patch to simplify tracker_exec_proc_ignore_nulls() (Carlos Garnacho)
-- Fixed #513486, TrackerConfig implementation (Martyn Russell)
-- Fixed #513691, simplify tracker_exec_proc() (Saleem Abdulrasool)
-- Fixed #513692, Pack booleans in guints (Saleem Abdulrasool)
-- Fixed #514553, Implementing GetTextContents method (Martyn Russell)
-- Fixed #518265, Bad FSF address (Ivan Frade)
-- Fixed #523200, Refactoring Service type "cache" (Ivan Frade)
-- Fixed #525403, [Refactor] Isolating indexer (Ivan Frade)
-- Fixed #526727, Parsing dates in extractors (Ivan Frade)
-- Fixed #526761, Make mail indexing modular (Carlos Garnacho)
-- Fixed #528684, [Tracker] The second Applet Preferences window can not be closed (Wendy Hu)
-- Fixed #529373, Use logging infrastructure from GLib (Carlos Garnacho, Martyn Russell)
-- Fixed #548561, Typo in trackerd man page (Ivan Frade)
-- Fixed #557979, tracker-preferences.desktop categories (Ivan Frade)
-- Fixed #558613, Applet preferences do not show up localized (Gabor Kelemen)
-- Fixed #560581, [l10n] Typo in Tracker message (Ivan Frade)
-- Fixed #563666, All tracker utils programs require absolute paths (Ivan Frade)
-- Fixed #563909, Canonicalize command line options (Ivan Frade)
-- Fixed #565218, GNOME Goal: Clean up GLib and GTK+ includes (Ivan Frade)
-- Fixed #565725, Please refactor set_status_hint in tracker-applet.c (Ivan Frade)
-- Fixed #565928, tracker-applet --help does not show up translated (Ivan Frade)
-- Fixed #565932, Some strings are not marked for translation (Ivan Frade)
-- Fixed #566221, nautilus python extension tracker-tags-tab.py does not work in trunk anymore (Ivan Frade)
-- Fixed #556196, Include <sys/inotify.h>, not <linux/inotify.h> (John Millikin)
-- Fixed #495512, Tracker Deskbar Applets crashes (Carlos Garnacho)
-- Fixed #511752, Build fixes for Maemo platform (Martyn Russell)
-- Fixed #520789, Build compiler warnings (Martyn Russell)
-- Fixed #521803, Refactor request and file processing (Martyn Russell)
-- Fixed #95754, v1.03 Compilation impossible avec bison 1.50 (Ivan Frade)
-- Fixed #95151, Keybinding reported for a button should include the modifer. (Ivan Frade)
-- Fixed #90455,  (Mikael Ottela)
-- Fixed #494892, Label for/labeled by relation missing for add tag button. (Saleem Abdulrasool)
-- Fixed #495201, Tables are not labeled. (Patrick Wade)
-- Fixed #495205, Warning message label should be accessible to at-tools. (Saleem Abdulrasool)
-- Fixed #503215, The time unit is not reported by default. (Saleem Abdulrasool)
-- Fixed #563706, Tracker plugin fails to build against trunk (Martyn Russell)
-- Fixed #570209, tracker_data_manager_set_db_option_int() uses incorrect parameter order for SetOption (TJ)
-- Fixed #495528, "Save Results As" doesn't work for Email results (Carlos Garnacho)
-- Fixed #503725, check/uncheck "Index mounted directories" needs trackerd reindex (Martyn Russell)
-- Fixed #98896, ru.po still in KOI8 (Martyn Russell)
+- Fixed GB#486733, crash in Deskbar: Trying to launch the Tra... (Carlos Garnacho)
+- Fixed GB#474131, crash in Deskbar: Deskbar search applet --... (Carlos Garnacho)
+- Fixed NB#97029, Typos in the italian translation of the About box (Mikael Ottela)
+- Fixed NB#97765, GFlare: switchng between circle/poly doesn't work (Ivan Frade)
+- Fixed NB#93935, line object connects to self (Ivan Frade)
+- Fixed NB#90700, "View as EOG Image" (Martyn Russell)
+- Fixed NB#90138, no way to cleanly unset a message's message_id header (Mikael Ottela)
+- Fixed NB#96999, Right-click context menu should contain copy entry (even on webpages without input fields) (Mikael Ottela)
+- Fixed GB#100816, [ui-review] Edit menu usability (Mikael Ottela)
+- Fixed NB#90374, help crashes (Mikael Ottela)
+- Fixed NB#93962, gtkspinbutton wants to own its adjustment (Philip Van Hoof)
+- Fixed NB#97125, missing dot between two sentences in docs for gtk_icon_size_lookup_for_settings () (Mikael Ottela)
+- Fixed NB#89254, Documentation updates and corrections for GtkTreeModel (Mikael Ottela)
+- Fixed NB#99281, acme should use an event filter (Mikael Ottela)
+- Fixed NB#92788, add fcpackage to bootstrap (Martyn Russell)
+- Fixed GB#402054, Should not allow duplicate keywords to be assigned to a file (Ivan Frade)
+- Fixed GB#402063, Empty space is not a valid keyword (Ivan Frade)
+- Fixed GB#441739, Hit count not updated after deleting files (item_remove)
+- Fixed GB#481651, Minor spelling issue (Carlos Garnacho)
+- Fixed GB#493049, Trailing space in an original message in the message catalog (Ivan Frade)
+- Fixed GB#494878, Search hit number can not be reported by orca. (Saleem Abdulrasool)
+- Fixed GB#494907, Labels should be set as focusable. (Saleem Abdulrasool)
+- Fixed GB#495810, Executing a wrong RDF query makes tracker unresponsive and unstable (Carlos Garnacho)
+- Fixed GB#509601, Make metadata extractors modular (Carlos Garnacho)
+- Fixed GB#509607, Make Search support logical operators besides 'And' (Carlos Garnacho)
+- Fixed GB#511781, Patch to avoid excesive relocations (array_to_list)
+- Fixed GB#511788, Patch to simplify tracker_exec_proc_ignore_nulls() (Carlos Garnacho)
+- Fixed GB#513486, TrackerConfig implementation (Martyn Russell)
+- Fixed GB#513691, simplify tracker_exec_proc() (Saleem Abdulrasool)
+- Fixed GB#513692, Pack booleans in guints (Saleem Abdulrasool)
+- Fixed GB#514553, Implementing GetTextContents method (Martyn Russell)
+- Fixed GB#518265, Bad FSF address (Ivan Frade)
+- Fixed GB#523200, Refactoring Service type "cache" (Ivan Frade)
+- Fixed GB#525403, [Refactor] Isolating indexer (Ivan Frade)
+- Fixed GB#526727, Parsing dates in extractors (Ivan Frade)
+- Fixed GB#526761, Make mail indexing modular (Carlos Garnacho)
+- Fixed GB#528684, [Tracker] The second Applet Preferences window can not be closed (Wendy Hu)
+- Fixed GB#529373, Use logging infrastructure from GLib (Carlos Garnacho, Martyn Russell)
+- Fixed GB#548561, Typo in trackerd man page (Ivan Frade)
+- Fixed GB#557979, tracker-preferences.desktop categories (Ivan Frade)
+- Fixed GB#558613, Applet preferences do not show up localized (Gabor Kelemen)
+- Fixed GB#560581, [l10n] Typo in Tracker message (Ivan Frade)
+- Fixed GB#563666, All tracker utils programs require absolute paths (Ivan Frade)
+- Fixed GB#563909, Canonicalize command line options (Luca Ferretti)
+- Fixed GB#565218, GNOME Goal: Clean up GLib and GTK+ includes (Luis Menina, Ivan Frade)
+- Fixed GB#565725, Please refactor set_status_hint in tracker-applet.c (Ivan Frade)
+- Fixed GB#565928, tracker-applet --help does not show up translated (Ivan Frade)
+- Fixed GB#565932, Some strings are not marked for translation (Ivan Frade)
+- Fixed GB#566221, nautilus python extension tracker-tags-tab.py does not work in trunk anymore (Thomas)
+- Fixed GB#556196, Include <sys/inotify.h>, not <linux/inotify.h> (John Millikin)
+- Fixed GB#495512, Tracker Deskbar Applets crashes (Carlos Garnacho)
+- Fixed GB#511752, Build fixes for Maemo platform (Martyn Russell)
+- Fixed GB#520789, Build compiler warnings (Martyn Russell)
+- Fixed GB#521803, Refactor request and file processing (Martyn Russell)
+- Fixed NB#95754, v1.03 Compilation impossible avec bison 1.50 (Ivan Frade)
+- Fixed NB#95151, Keybinding reported for a button should include the modifer. (Ivan Frade)
+- Fixed NB#90455,  (Mikael Ottela)
+- Fixed GB#494892, Label for/labeled by relation missing for add tag button. (Saleem Abdulrasool)
+- Fixed GB#495201, Tables are not labeled. (Patrick Wade)
+- Fixed GB#495205, Warning message label should be accessible to at-tools. (Saleem Abdulrasool)
+- Fixed GB#503215, The time unit is not reported by default. (Saleem Abdulrasool)
+- Fixed GB#563706, Tracker plugin fails to build against trunk (Martyn Russell)
+- Fixed GB#570209, tracker_data_manager_set_db_option_int() uses incorrect parameter order for SetOption (TJ)
+- Fixed GB#495528, "Save Results As" doesn't work for Email results (Carlos Garnacho)
+- Fixed GB#503725, check/uncheck "Index mounted directories" needs trackerd reindex (Martyn Russell)
+- Fixed NB#98896, ru.po still in KOI8 (Martyn Russell)
 
 Translations:
 - Updated ar: Khaled Hosny

@@ -78,7 +78,7 @@ class TrackerSearchToolHandler(deskbar.interfaces.Module):
 			'icon': deskbar.core.Utils.load_icon ('tracker'),
 			'name': _('Tracker Search'),
 			'description': _('Search with Tracker Search Tool'),
-			'version': '0.6.90',
+			'version': '0.6.91',
 	}
 
 	def __init__(self):
@@ -289,7 +289,7 @@ class TrackerLiveSearchHandler(deskbar.interfaces.Module):
 			'icon': deskbar.core.Utils.load_icon ('tracker'),
 			'name': _('Tracker Live Search'),
 			'description': _('Search with Tracker, as you type'),
-			'version': '0.6.90',
+			'version': '0.6.91',
 			'categories': {
 			'develop': {
 				'name': _('Development Files'),
