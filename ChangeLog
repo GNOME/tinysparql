@@ -1,5 +1,11 @@
 2009-03-13  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-volume-cleanup.c:
+	(check_for_volumes_to_cleanup), (tracker_volume_cleanup_init):
+	Added some messaging so we can see what is going on here.
+
+2009-03-13  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/Makefile.am:
 	* src/trackerd/tracker-cleanup.[ch]:
 	* src/trackerd/tracker-main.c:

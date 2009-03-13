@@ -61,6 +61,8 @@ check_for_volumes_to_cleanup (gpointer user_data)
 	TrackerDBInterface *iface;
 	TrackerDBResultSet *result_set;
 
+	g_message ("Checking for stale volumes in the database...");
+
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 
 	/* The stored statements of volume management have the "every
@@ -92,6 +94,8 @@ check_for_volumes_to_cleanup (gpointer user_data)
 				file = g_file_new_for_path (mount_point);
 				mount_point = g_file_get_uri (file);
 
+				g_message ("  Requesting thumbnailer cleans up for volume with mount point:'%s'", 
+					   mount_point);
 				tracker_thumbnailer_cleanup (mount_point);
 
 				g_free (mount_point);
@@ -104,6 +108,8 @@ check_for_volumes_to_cleanup (gpointer user_data)
 		}
 
 		g_object_unref (result_set);
+	} else {
+		g_message ("  No volumes to clean up");
 	}
 
 	return TRUE;
@@ -113,6 +119,7 @@ void
 tracker_volume_cleanup_init (void)
 {
 	TrackerCleanupPrivate *private;
+	gchar                 *str;
 
 	private = g_new0 (TrackerCleanupPrivate, 1);
 
@@ -126,6 +133,10 @@ tracker_volume_cleanup_init (void)
 	 * into the 4th day, not on the 3rd day. This guarantees at
 	 * least 3 days worth.
 	 */
+	str = tracker_seconds_to_string (SECONDS_PER_DAY + 1, FALSE);
+	g_message ("Scheduling volume check in %s", str);
+	g_free (str);
+
 	private->timeout_id =
 		g_timeout_add_seconds (SECONDS_PER_DAY + 1, 
 				       check_for_volumes_to_cleanup,
