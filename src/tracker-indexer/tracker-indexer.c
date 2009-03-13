@@ -2418,15 +2418,10 @@ process_file (TrackerIndexer *indexer,
 	 */
 	if (G_LIKELY (!info->source_file) && dirname[0] == G_DIR_SEPARATOR) {
 		if (!should_change_index_for_file (indexer, info, dirname, basename)) {
-			gchar *path;
-
 			indexer->private->items_processed++;
-
-			path = g_file_get_path (info->file);
 
 			g_free (dirname);
 			g_free (basename);
-			g_free (path);
 
 			return TRUE;
 		}
