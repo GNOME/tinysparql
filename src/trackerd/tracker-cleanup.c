@@ -39,6 +39,8 @@ typedef struct {
 	guint timeout_id;
 } TrackerCleanupPrivate;
 
+static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+
 static gboolean
 check_for_volumes_to_cleanup (gpointer user_data)
 {
@@ -70,11 +72,16 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 			/* Add cleanup items here */
 			if (mount_point) {
-				GFile *dir_file = g_file_new_for_path (mount_point);
-				gchar *mntp_uri = g_file_get_uri (dir_file);
-				tracker_thumbnailer_cleanup (mntp_uri);
-				g_free (mntp_uri);
-				g_object_unref (dir_file);
+				GFile *file;
+				gchar *mount_point;
+
+				file = g_file_new_for_path (mount_point);
+				mount_point = g_file_get_uri (file);
+
+				tracker_thumbnailer_cleanup (mount_point);
+
+				g_free (mount_point);
+				g_object_unref (file);
 			}
 
 			g_value_unset (&value);
@@ -87,8 +94,6 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 	return TRUE;
 }
-
-static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
 
 static void
 private_free (gpointer data)
@@ -127,7 +132,8 @@ tracker_cleanup_init (void)
 				       private);
 }
 
-void tracker_cleanup_shutdown (void)
+void 
+tracker_cleanup_shutdown (void)
 {
 	g_static_private_set (&private_key, NULL, NULL);
 }

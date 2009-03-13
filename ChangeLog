@@ -1,3 +1,8 @@
+2009-03-13  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-cleanup.c: (check_for_volumes_to_cleanup),
+	(tracker_cleanup_init): Code clean ups.
+
 2009-03-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/trackerd/tracker-cleanup.c:
