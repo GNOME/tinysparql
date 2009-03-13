@@ -736,7 +736,9 @@ tracker_data_update_replace_service (const gchar *path,
 		iis_value = g_value_get_int (&is_value);
 
 		if (iis_value) {
-			ForeachInMetadataInfo *info = g_slice_new (ForeachInMetadataInfo);
+			ForeachInMetadataInfo *info;
+
+			info = g_slice_new (ForeachInMetadataInfo);
 			info->service = service;
 			info->iid_value = iid_value;
 
@@ -755,7 +757,7 @@ tracker_data_update_replace_service (const gchar *path,
 
 		g_object_unref (result_set);
 	} else {
-		guint32     id;
+		guint32 id;
 
 		id = tracker_data_update_get_new_service_id (iface);
 
@@ -828,15 +830,20 @@ void
 tracker_data_update_reset_volume (guint32 volume_id)
 {
 	TrackerDBInterface *iface;
+	gchar *volume_id_str;
+
+	/* NOTE: The default volume id 0 is not to be changed */
+	g_return_if_fail (volume_id > 1);
 
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
 
+	volume_id_str = tracker_guint32_to_string (volume_id);
 	tracker_db_interface_execute_procedure (iface, NULL,
 						"UpdateVolumeDisabledDate",
-						volume_id,
+						volume_id_str,
 						NULL);
+	g_free (volume_id_str);
 }
-
 
 void
 tracker_data_update_disable_volume (const gchar *udi)

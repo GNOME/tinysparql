@@ -80,11 +80,10 @@ check_for_volumes_to_cleanup (gpointer user_data)
 
 		while (is_valid) {
 			GValue       value = { 0, };
-			GValue       idvalue = { 0, };
 			const gchar *mount_point_path;
+			gint         volume_id;
 
 			_tracker_db_result_set_get_value (result_set, 0, &value);
-			_tracker_db_result_set_get_value (result_set, 1, &idvalue);
 
 			mount_point_path = g_value_get_string (&value);
 
@@ -104,10 +103,15 @@ check_for_volumes_to_cleanup (gpointer user_data)
 				g_object_unref (file);
 			}
 
-			tracker_data_update_reset_volume ((guint32) g_value_get_int (&idvalue));
+			g_value_unset (&value);
+
+			/* Reset volume date */
+			_tracker_db_result_set_get_value (result_set, 1, &value);
+
+			volume_id = g_value_get_int (&value); 
+			tracker_data_update_reset_volume (volume_id);
 
 			g_value_unset (&value);
-			g_value_unset (&idvalue);
 
 			is_valid = tracker_db_result_set_iter_next (result_set);
 		}

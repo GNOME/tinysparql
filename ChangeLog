@@ -1,3 +1,14 @@
+2009-03-13  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-data/tracker-data-update.c:
+	(tracker_data_update_reset_volume): Make sure we convert the
+	volume id into a string before using it in the stored procedure,
+	was crashing.
+
+	* src/trackerd/tracker-volume-cleanup.c: 
+	(check_for_volumes_to_cleanup): Small clean ups trying to find a
+	crash. 
+
 2009-03-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/libtracker-data/tracker-data-update.c:
