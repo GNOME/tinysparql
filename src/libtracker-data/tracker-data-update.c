@@ -832,7 +832,7 @@ tracker_data_update_reset_volume (guint32 volume_id)
 	TrackerDBInterface *iface;
 	gchar *volume_id_str;
 
-	/* NOTE: The default volume id 0 is not to be changed */
+	/* NOTE: The default volume id 1 is not to be changed */
 	g_return_if_fail (volume_id > 1);
 
 	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
