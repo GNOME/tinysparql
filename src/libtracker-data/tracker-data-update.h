@@ -85,6 +85,7 @@ void tracker_data_update_enable_volume                  (const gchar         *ud
                                                          const gchar         *mount_path);
 void tracker_data_update_disable_volume                 (const gchar         *udi);
 void tracker_data_update_disable_all_volumes            (void);
+void tracker_data_update_reset_volume                   (guint32              volume_id);
 
 G_END_DECLS
 

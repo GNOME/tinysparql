@@ -1,5 +1,13 @@
 2009-03-13  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/libtracker-data/tracker-data-update.c:
+	* src/libtracker-data/tracker-data-update.h:
+	* src/trackerd/tracker-volume-cleanup.c:
+	* data/db/sqlite-stored-procs.sql: fixes a bug in cleaning up thumbnails
+	from removed devices
+
+2009-03-13  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/trackerd/tracker-main.c: Don't use SCHED_IDLE for the daemon
 
 2009-03-13  Martyn Russell  <martyn@imendio.com>

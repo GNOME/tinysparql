@@ -825,6 +825,20 @@ tracker_data_update_enable_volume (const gchar *udi,
 }
 
 void
+tracker_data_update_reset_volume (guint32 volume_id)
+{
+	TrackerDBInterface *iface;
+
+	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
+
+	tracker_db_interface_execute_procedure (iface, NULL,
+						"UpdateVolumeDisabledDate",
+						volume_id,
+						NULL);
+}
+
+
+void
 tracker_data_update_disable_volume (const gchar *udi)
 {
 	TrackerDBInterface *iface;
