@@ -1,3 +1,7 @@
+2009-03-13  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/trackerd/tracker-main.c: Don't use SCHED_IDLE for the daemon
+
 2009-03-13  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-volume-cleanup.c:
