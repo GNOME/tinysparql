@@ -1,3 +1,8 @@
+2009-03-13  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-rdf-query.c: Return undefined
+	integer values with empty field in rdf (as with strings)
+
 2009-03-13  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/tracker-main.c:
