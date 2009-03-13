@@ -104,7 +104,7 @@ check_for_volumes_to_cleanup (gpointer user_data)
 				g_object_unref (file);
 			}
 
-			tracker_data_update_reset_volume (g_value_get_uint (&idvalue));
+			tracker_data_update_reset_volume ((guint32) g_value_get_int (&idvalue));
 
 			g_value_unset (&value);
 			g_value_unset (&idvalue);
