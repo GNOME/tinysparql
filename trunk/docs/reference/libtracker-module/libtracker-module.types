@@ -1,0 +1,6 @@
+#include <tracker-indexer/tracker-module.h>
+
+tracker_module_file_get_type
+tracker_module_iteratable_get_type
+tracker_module_metadata_get_type
+

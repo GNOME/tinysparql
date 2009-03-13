@@ -1,0 +1,36 @@
+.TH tracker-query 1 "July 2007" GNU "User Commands"
+
+.SH NAME
+tracker-query \- command line tool to query tracker database 
+
+.SH SYNOPSIS
+.B tracker-query
+.I [OPTIONS] query-file.rdf [MetaDataFields...]
+
+.SH DESCRIPTION
+.B tracker-query
+Exectutes an RDF query and prints the result. Additionally the behavior
+can be customized using below described options.
+
+.SH OPTIONS
+.TP
+\-?, --help
+Show a brief help message.
+
+.TP
+\-s, --service=ServiceName
+Search for files from a specific service. ServiceName has to be one of
+trackers services.  For mor information on services, see
+.BR tracker-services (1).
+
+.TP
+\-t, --search-term=SerchTerm
+Adds a full text search filter to the query.
+
+.TP
+\-k, --keyword=Keyword
+Adds a keyword filter to the query.
+
+.SH SEE ALSO
+.BR trackerd (1),
+.BR tracker-services (1).

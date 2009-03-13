@@ -1,0 +1,117 @@
+<!-- ##### SECTION Title ##### -->
+Metadata Object
+
+<!-- ##### SECTION Short_Description ##### -->
+Object used to exchange metadata information between the modules and Tracker indexer
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+TrackerModuleMetadata is used by the modules to provide
+metadata information to Tracker indexer. Conceptually it's
+a hash table, where you can pile up metadata. Depending
+on the metadata type, it could store single (Email:Subject
+for example) or multiple values (like Email:CC)
+</para>
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+tracker_module_file_get_metadata()
+</para>
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### TYPEDEF TrackerModuleMetadata ##### -->
+<para>
+Metadata object
+</para>
+
+
+<!-- ##### FUNCTION tracker_module_metadata_new ##### -->
+<para>
+
+</para>
+
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_clear_field ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_add_take_string ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+@value: 
+@Returns: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_add_string ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+@value: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_add_int ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+@value: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_add_uint ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+@value: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_add_double ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+@value: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_add_float ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+@value: 
+
+
+<!-- ##### FUNCTION tracker_module_metadata_add_date ##### -->
+<para>
+
+</para>
+
+@metadata: 
+@field_name: 
+@value: 
+
+

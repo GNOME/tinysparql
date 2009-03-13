@@ -1,0 +1,22 @@
+[General]
+Description=Applications
+Enabled=true
+
+[Monitors]
+Directories=
+RecurseDirectories=/usr/share/applications;
+
+[Ignored]
+Directories=
+Files=
+DirectoriesWithContent=
+
+[Index]
+Service=Applications
+MimeTypes=
+Files=*.desktop
+ScanTimeout=0
+CacheTimeout=0
+
+[Specific]
+# Options specific to this module

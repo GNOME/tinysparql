@@ -1,0 +1,92 @@
+Ideas:
+======
+
+General:
+* Extended XESAM support
+* Automatic language detection
+
+Application Support:
+* Balsa mboxes
+* Brasero integration
+* Epiphany integration (bookmarks and history)
+* Rhythmbox integration
+* Tomboy notes indexing
+* Modest, a mobile email client (much work already exists in svn trunk)
+
+Search:
+* Search filtering (e.g. search within specific folders)
+* Search results that update in real time
+* Search within archives
+
+Internal:
+* Crawler to move to Indexer
+* FTS support (replacement of QDBM, the current index db)
+  * Enables "exact phrase" searches
+  * Enables wildcard searches
+  * Enables prefix searches (pre*)
+* Denormalised tables
+* Better libtracker support for Maemo platform applications?
+* Plugins
+  * For Evolution
+  * For KMail
+  * For Thunderbird
+
+
+2007 Tracker SoC project ideas:
+===============================
+
+1. HAL integration into Tracker, for handling removable media (done)
+
+2. Linux kernel watchless file notification system for Tracker
+
+    * Currently we are using inotify which is not optimal for watching entire
+      trees. (OSX has kernel file notifications by contrast)
+    * Implement a loadable module for the kernel which allows all file activity
+      to be passed to userspace Tracker
+    * Ideally should make use of netlink
+
+3. Extend the GTK Tracker Widget Library
+
+    * Include a generic search result widget
+          o A reusable widget which can show results from tracker
+          o widget should allow paging of results via scrolling instead of
+            buttons (downloading of all search results in one go is not allowed
+            so it needs to be smart)
+          o Widget should be able to seamlessly switch into multiple views
+            (icon, list, compact list)
+          o Add special view when all results are exclusively Music based.
+            View should show a sorted list of music metadata album, artist etc
+            (similar to rhythmbox music view)
+          o widget should offer basic file management including drag and drop,
+            deletes, renames via popup menu
+          o widget should allow watermarking of background (use cairo) with a
+            definable pixmap
+          o widget should allow an optional popup preview when moused over for
+            a few seconds (kind of like knoqueror does) 
+    * RDF Query widget
+          o mockup: http://bugzilla.gnome.org/attachment.cgi?id=80132&action=view
+          o The Rhythmbox automatic playlist may also serve useful as inspiration 
+
+4. Better KDE Integration
+
+    * Improve basic GUI with corresponding features from the GNOME GUI
+     (tags, metadata tile, thumbnails)
+    * add ability to index KContacts and KNotes 
+
+5. Add XMP Sidecar and IPTC support to tracker
+
+    * implement an XMP compatible parser (using glib xml parser)
+    * backup all user defined metadata into XMP sidecar format
+    * allow indexing of sidecar files when indexing a file so users can edit
+      these files to add metadata
+    * extract IPTC metadata embedded into images
+    * see GNOME bug #401664
+
+6. Networked Tracker
+
+    * Use avahi/dbus to locate remote tracker servers. Could make use of ssh
+      or as suggested use gabriel.
+    * Api would need to be added to add support for retrieving list of servers
+    * TST would need to be changed to list all available servers to use and
+      allow user to pick one
+    * If using DBus over ssh then could use seahorse for ssh key pairing

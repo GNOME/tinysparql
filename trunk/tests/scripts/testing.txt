@@ -1,0 +1,19 @@
+./dummy_data_stop.sh
+./dummy_data_start
+source xdg_dirs.source
+
+run trackerd
+run cd /tmp/Tracker-test/.cache/
+run sqlite3 xesam.db
+run pidof trackerd
+$PID appears
+
+sqlite3> prompt appears
+ATTACH './email-meta.db' as 'email-meta';
+ATTACH './file-meta.db' as 'file-meta';
+ATTACH '../../.local/share/tracker/data/common.db' as 'common';
+ATTACH '/tmp/Tracker-pvanhoof.$PID/cache.db' as 'cache';
+
+./dummy_data_stop.sh
+
+

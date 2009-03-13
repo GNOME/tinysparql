@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY tracker-module-file SYSTEM "xml/tracker-module-file.xml">
+<!ENTITY tracker-module-iteratable SYSTEM "xml/tracker-module-iteratable.xml">
+<!ENTITY tracker-module-metadata SYSTEM "xml/tracker-module-metadata.xml">
+<!ENTITY tracker-module-metadata-utils SYSTEM "xml/tracker-module-metadata-utils.xml">
+<!ENTITY adding-categories-and-properties SYSTEM "xml/adding-categories-and-properties.sgml">
+<!ENTITY writing-an-extractor SYSTEM "xml/writing-an-extractor.sgml">
+<!ENTITY writing-an-indexer-module SYSTEM "xml/writing-an-indexer-module.sgml">
+<!ENTITY version SYSTEM "version.xml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Tracker Indexer Reference Manual</title>
+    <releaseinfo>for tracker-indexer &version;</releaseinfo>
+  </bookinfo>
+
+  <part id="tracker-indexer">
+    <title>Overview</title>
+    <partintro>
+      <para>
+	The tracker-indexer is responsible for indexing all content it
+	is given. The indexer is completely modular, this means that
+	there are modules or 'backends' which are used for indexing
+	specific content types. This reference manual attempts to help
+	developers write 3rd party modules to extract content not
+	commonly supported by Tracker.
+      </para>
+    </partintro>
+  </part>
+
+    <chapter>
+      <title>Modules</title>
+      &tracker-module-file;
+      &tracker-module-iteratable;
+    </chapter>
+
+    <chapter>
+      <title>Metadata</title>
+      &tracker-module-metadata;
+      &tracker-module-metadata-utils;
+    </chapter>
+
+    <part id="integrating-applications">
+      <title>Integrating Applications</title>
+
+      <para>
+	This part describes how you can add your own application
+	categories and extractors to Tracker to be able to index (and
+	ultimately track) your content.
+      </para>
+
+      &adding-categories-and-properties;
+      &writing-an-extractor;
+      &writing-an-indexer-module;
+    </part>
+</book>

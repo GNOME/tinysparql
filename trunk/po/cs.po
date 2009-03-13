@@ -1,0 +1,1483 @@
+# Czech translation of tracker.
+# Copyright (C) 2008 the author(s) of tracker.
+# This file is distributed under the same license as the tracker package.
+# Kamil Páral <ripper42@gmail.com>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tracker\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-02 01:26+0200\n"
+"PO-Revision-Date: 2008-04-02 01:24+0100\n"
+"Last-Translator: Petr Kovar <pknbe@volny.cz>\n"
+"Language-Team: Czech <gnome-cs-list@gnome.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: ../python/deskbar-handler/tracker-handler.py:36
+#: ../python/deskbar-handler/tracker-module.py:100
+#, python-format
+msgid "Launch %s (%s)"
+msgstr "Spustit %s (%s)"
+
+#: ../python/deskbar-handler/tracker-handler.py:41
+#: ../python/deskbar-handler/tracker-module.py:105
+#, python-format
+msgid ""
+"See %s conversation\n"
+"%s %s\n"
+"from %s"
+msgstr ""
+"Zobrazit %s konverzaci\n"
+"%s %s\n"
+"od %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:47
+#: ../python/deskbar-handler/tracker-module.py:110
+#, python-format
+msgid "Email from %s"
+msgstr "E-mail od %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:59
+#: ../python/deskbar-handler/tracker-module.py:121
+#, python-format
+msgid ""
+"Listen to music %s\n"
+"in %s"
+msgstr ""
+"Poslouchat hudbu %s\n"
+"v %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:64
+#: ../python/deskbar-handler/tracker-module.py:127
+#, python-format
+msgid ""
+"See document %s\n"
+"in %s"
+msgstr ""
+"Zobrazit dokument %s\n"
+"v %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:69
+#: ../python/deskbar-handler/tracker-handler.py:86
+#: ../python/deskbar-handler/tracker-handler.py:123
+#: ../python/deskbar-handler/tracker-module.py:132
+#: ../python/deskbar-handler/tracker-module.py:154
+#: ../python/deskbar-handler/tracker-module.py:206
+#: ../python/deskbar-handler/tracker-module.py:242
+#, python-format
+msgid ""
+"Open file %s\n"
+"in %s"
+msgstr ""
+"Otevřít soubor %s\n"
+"v %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:74
+#: ../python/deskbar-handler/tracker-module.py:137
+#, python-format
+msgid ""
+"View image %s\n"
+"in %s"
+msgstr ""
+"Prohlédnout obrázek %s\n"
+"v %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:80
+#: ../python/deskbar-handler/tracker-module.py:143
+#, python-format
+msgid ""
+"Watch video  %s\n"
+"in %s"
+msgstr ""
+"Sledovat video  %s\n"
+"v %s"
+
+#: ../python/deskbar-handler/tracker-handler.py:91
+#: ../python/deskbar-handler/tracker-module.py:149
+#, python-format
+msgid ""
+"Open folder %s\n"
+"%s"
+msgstr ""
+"Otevřít složku %s\n"
+"%s"
+
+#: ../python/deskbar-handler/tracker-handler.py:209
+#: ../python/deskbar-handler/tracker-module.py:350
+msgid "with"
+msgstr "s"
+
+#: ../python/deskbar-handler/tracker-handler.py:217
+#: ../python/deskbar-handler/tracker-module.py:358
+msgid "in channel"
+msgstr "v kanálu"
+
+#: ../python/deskbar-handler/tracker-handler.py:384
+msgid "Search all of your documents, <b>as you type</b>"
+msgstr "Prohledávat všechny vaše dokumenty, <b>zatímco píšete</b>"
+
+#: ../python/deskbar-handler/tracker-handler.py:388
+#: ../python/deskbar-handler/tracker-module.py:294
+msgid "Development Files"
+msgstr "Vývojové soubory"
+
+#: ../python/deskbar-handler/tracker-handler.py:391
+#: ../python/deskbar-handler/tracker-module.py:297
+#: ../src/tracker-search-tool/tracker-search-tool.c:141
+msgid "Music"
+msgstr "Hudba"
+
+#: ../python/deskbar-handler/tracker-handler.py:394
+#: ../python/deskbar-handler/tracker-module.py:300
+#: ../src/tracker-search-tool/tracker-search-tool.c:140
+msgid "Images"
+msgstr "Obrázky"
+
+#: ../python/deskbar-handler/tracker-handler.py:397
+#: ../python/deskbar-handler/tracker-module.py:303
+#: ../src/tracker-search-tool/tracker-search-tool.c:142
+msgid "Videos"
+msgstr "Videa"
+
+#: ../python/deskbar-handler/tracker-handler-static.py:37
+#: ../python/deskbar-handler/tracker-module.py:65
+#: ../python/deskbar-handler/tracker-module.py:159
+#, python-format
+msgid "Search for %s with Tracker Search Tool"
+msgstr "Hledat %s s prohledávačem Tracker"
+
+#: ../python/deskbar-handler/tracker-handler-static.py:68
+msgid "Search all of your documents with Tracker Search Tool"
+msgstr "Prohledat všechny vaše dokumenty s prohledávačem Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:79
+msgid "Tracker Search"
+msgstr "Vyhledávání Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:80
+msgid "Search with Tracker Search Tool"
+msgstr "Hledat s prohledávačem Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:289
+msgid "Tracker Live Search"
+msgstr "Živé vyhledávání Tracker"
+
+#: ../python/deskbar-handler/tracker-module.py:290
+msgid "Search with Tracker, as you type"
+msgstr "Hledat s Trackerem, zatímco píšete"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:472
+#, c-format
+msgid "Path : <b>%s</b>"
+msgstr "Cesta : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:473
+#, c-format
+msgid "Modified : <b>%s</b>"
+msgstr "Změněno : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:474
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:660
+#, c-format
+msgid "Size : <b>%s</b>"
+msgstr "Velikost : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:475
+#, c-format
+msgid "Accessed : <b>%s</b>"
+msgstr "Přistoupeno : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:476
+#, c-format
+msgid "Mime : <b>%s</b>"
+msgstr "Mime : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:528
+#, c-format
+msgid "Sender : <b>%s</b>"
+msgstr "Odesilatel : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:529
+#, c-format
+msgid "Date : <b>%s</b>"
+msgstr "Datum : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:569
+#, c-format
+msgid "Comment : <b>%s</b>"
+msgstr "Komentář : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:570
+#, c-format
+msgid "Categories : <b>%s</b>"
+msgstr "Kategorie : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:656
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:761
+#, c-format
+msgid "Duration : <b>%s</b>"
+msgstr "Trvání : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:657
+#, c-format
+msgid "Genre : <b>%s</b>"
+msgstr "Žánr : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:658
+#, c-format
+msgid "Bitrate : <b>%s Kbs</b>"
+msgstr "Bitový tok : <b>%s Kb/s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:659
+#, c-format
+msgid "Year : <b>%s</b>"
+msgstr "Rok : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:661
+#, c-format
+msgid "Codec : <b>%s</b>"
+msgstr "Kodek : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:702
+#, c-format
+msgid " taken with a <span size='large'><i>%s</i></span>"
+msgstr " pořízeno s <span size='large'><i>%s</i></span>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:707
+#, c-format
+msgid " <span size='large'><i>%s</i></span>"
+msgstr " <span size='large'><i>%s</i></span>"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:727
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:759
+#, c-format
+msgid "Dimensions : <b>%d x %d</b>"
+msgstr "Rozměry : <b>%d x %d</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:728
+#, c-format
+msgid "Date Taken : <b>%s</b>"
+msgstr "Datum pořízení : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:729
+#, c-format
+msgid "Orientation : <b>%s</b>"
+msgstr "Orientace : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:730
+#, c-format
+msgid "Flash : <b>%s</b>"
+msgstr "Blesk : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:731
+#, c-format
+msgid "Focal Length : <b>%s</b>"
+msgstr "Ohnisková vzdálenost : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:732
+#, c-format
+msgid "Exposure Time : <b>%s</b>"
+msgstr "Doba expozice : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:760
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:793
+#, c-format
+msgid "Author : <b>%s</b>"
+msgstr "Autor : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:762
+#, c-format
+msgid "Bitrate : <b>%s</b>"
+msgstr "Bitová rychlost : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:763
+#, c-format
+msgid "Encoded In : <b>%s</b>"
+msgstr "Zakódováno v : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:764
+#, c-format
+msgid "Framerate : <b>%s</b>"
+msgstr "Snímková rychlost : <b>%s</b>"
+
+#. then set the remaining properties
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:792
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:824
+#, c-format
+msgid "Subject : <b>%s</b>"
+msgstr "Předmět : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:794
+#, c-format
+msgid "Page Count : <b>%s</b>"
+msgstr "Počet stránek : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:795
+#, c-format
+msgid "Word Count : <b>%s</b>"
+msgstr "Počet slov : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:796
+#, c-format
+msgid "Created : <b>%s</b>"
+msgstr "Vytvořeno : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:797
+#, c-format
+msgid "Comments : <b>%s</b>"
+msgstr "Komentáře : <b>%s</b>"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:917
+#, c-format
+msgid "%.1f KB"
+msgstr "%.1f KB"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:921
+#, c-format
+msgid "%.1f MB"
+msgstr "%.1f MB"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:925
+#, c-format
+msgid "%.1f GB"
+msgstr "%.1f GB"
+
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:964
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1004
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1027
+#: ../src/libtracker-gtk/tracker-metadata-tile.c:1049
+msgid "Unknown"
+msgstr "Neznámé"
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:250
+msgid "Type tags you want to add here, separated by commas"
+msgstr "Vepište sem značky, které chcete přidat, oddělené mezerami"
+
+#: ../src/libtracker-gtk/tracker-tag-bar.c:365
+msgid "Tags :"
+msgstr "Značky :"
+
+#. Search For Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:392
+msgid "_Search For Tag"
+msgstr "_Hledat značku"
+
+#. Remove Tag
+#: ../src/libtracker-gtk/tracker-tag-bar.c:404
+msgid "_Remove Tag"
+msgstr "Odst_ranit značku"
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "Limit the number of results showed to N"
+msgstr "Omezit množství zobrazených výsledků na N"
+
+#: ../src/libtracker/tracker-search.c:34
+msgid "N"
+msgstr "N"
+
+#: ../src/libtracker/tracker-search.c:35
+msgid "Search for a specific service"
+msgstr "Hledat určitou službu"
+
+#: ../src/libtracker/tracker-search.c:35
+#: ../src/tracker-search-tool/tracker-search-tool.c:65
+msgid "SERVICE"
+msgstr "SLUŽBA"
+
+#: ../src/libtracker/tracker-search.c:36
+msgid "Show more detailed results with service and mime type as well"
+msgstr "Zobrazit podrobnější výsledky zároveň se službou a typem mime"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-search.c:89
+msgid "TERM... - search files for certain terms"
+msgstr "VÝRAZ... - hledat soubory pro určité výrazy"
+
+#. Translators: this message will appear after the usage string
+#. and before the list of options.
+#: ../src/libtracker/tracker-search.c:93
+msgid ""
+"Specifying more then one term, will be showed items containing ALL the "
+"specified terms (term1 AND term2 - logical conjunction)"
+msgstr ""
+"Uvedením více než jednoho výrazu se zobrazí pouze položky obsahující VŠECHNY "
+"uvedené výrazy (výraz1 A ZÁROVEŇ výraz2 - logické spojení)"
+
+#: ../src/libtracker/tracker-search.c:97
+msgid "The list of recognized services is:"
+msgstr "Seznam rozpoznaných služeb je:"
+
+#: ../src/libtracker/tracker-search.c:114
+#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
+#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
+#, c-format
+msgid "Try \"%s --help\" for more information."
+msgstr "Zkuste \"%s --help\" pro více informací."
+
+#: ../src/libtracker/tracker-search.c:120
+#, c-format
+msgid "%s: missing search terms"
+msgstr "%s: chybí výrazy pro hledání"
+
+#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
+#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
+#, c-format
+msgid "%s: no connection to tracker daemon"
+msgstr "%s: žádné spojení s démonem trackeru"
+
+#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
+#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
+#, c-format
+msgid "Ensure \"trackerd\" is running before launch this command."
+msgstr "Před spuštěním tohoto příkazu se ujistěte, že \"trackerd\" běží."
+
+#: ../src/libtracker/tracker-search.c:147
+#, c-format
+msgid "Service not recognized, searching in Other Files...\n"
+msgstr "Služba nerozpoznána, hledám v Ostatních souborech...\n"
+
+#: ../src/libtracker/tracker-search.c:164
+#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
+#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
+#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
+#, c-format
+msgid "%s: internal tracker error: %s"
+msgstr "%s: vnitřní chyba trackeru: %s"
+
+#. FIXME!! coreutilus don't print anything on no-results
+#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
+#, c-format
+msgid "No results found matching your query"
+msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-stats.c:73
+msgid " - show number of indexed files for each service"
+msgstr " - zobrazit počet indexovaných souborů pro každou službu"
+
+#: ../src/libtracker/tracker-stats.c:108
+msgid "fetching index stats"
+msgstr "získávám indexovací statistiky"
+
+#: ../src/libtracker/tracker-tag.c:41
+msgid "Add specified tag to a file"
+msgstr "Přidat k souboru zvolenou značku"
+
+#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
+#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
+msgid "TAG"
+msgstr "ZNAČKA"
+
+#: ../src/libtracker/tracker-tag.c:42
+msgid "Remove specified tag from a file"
+msgstr "Odstranit ze souboru zvolenou značku"
+
+#: ../src/libtracker/tracker-tag.c:43
+msgid "Remove all tags from a file"
+msgstr "Odstranit ze souboru všechny značky"
+
+#: ../src/libtracker/tracker-tag.c:44
+msgid "List all defined tags"
+msgstr "Vypsat všechny definované značky"
+
+#: ../src/libtracker/tracker-tag.c:45
+msgid "Search for files with specified tag"
+msgstr "Hledat soubory s uvedenou značkou"
+
+#: ../src/libtracker/tracker-tag.c:46
+msgid "FILE..."
+msgstr "SOUBOR..."
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/libtracker/tracker-tag.c:90
+msgid "FILE... - manipulate tags on files"
+msgstr "SOUBOR... - spravovat značky na souborech"
+
+#: ../src/libtracker/tracker-tag.c:99
+msgid ""
+"To add, remove, or search for multiple tags at the same time, join multiple "
+"options like:"
+msgstr ""
+"K přidání, odstranění nebo vyhledání více značek najednou spojte více voleb "
+"takto:"
+
+#: ../src/libtracker/tracker-tag.c:121
+#, c-format
+msgid "%s: invalid arguments"
+msgstr "%s: neplatné parametry"
+
+#: ../src/libtracker/tracker-tag.c:148
+#, c-format
+msgid "%s: file %s not found"
+msgstr "%s: soubor %s nenalezen"
+
+#: ../src/trackerd/trackerd.c:127
+msgid "Directory to exclude from indexing"
+msgstr "Složka, kterou vyjmout z indexování"
+
+#: ../src/trackerd/trackerd.c:127 ../src/trackerd/trackerd.c:128
+#: ../src/trackerd/trackerd.c:129
+msgid "/PATH/DIR"
+msgstr "/CESTA/ADRESÁŘ"
+
+#: ../src/trackerd/trackerd.c:128
+msgid "Directory to include in indexing"
+msgstr "Složka, kterou zahrnout do indexování"
+
+#: ../src/trackerd/trackerd.c:129
+msgid "Directory to crawl for indexing at start up only"
+msgstr "Složka, kterou procházet pouze při spuštění"
+
+#: ../src/trackerd/trackerd.c:130
+msgid "Disable any indexing or watching taking place"
+msgstr "Zakázat jakékoliv probíhající indexování nebo sledování"
+
+#: ../src/trackerd/trackerd.c:131
+msgid ""
+"Value that controls the level of logging. Valid values are 0 (displays/logs "
+"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+msgstr ""
+"Hodnota, která ovládá úroveň protokolování. Platné hodnoty jsou 0 (zobrazit/"
+"zaznamenávat pouze chyby), 1 (minimální), 2 (podrobné) a 3 (ladění)"
+
+#: ../src/trackerd/trackerd.c:131 ../src/trackerd/trackerd.c:132
+msgid "VALUE"
+msgstr "HODNOTA"
+
+#: ../src/trackerd/trackerd.c:132
+msgid ""
+"Value to use for throttling indexing. Value must be in range 0-99 (default "
+"0) with lower values increasing indexing speed"
+msgstr ""
+"Hodnota pro zpomalování indexování. Hodnota musí být v rozsahu 0-99 (výchozí "
+"0) s tím, že nižší hodnoty zvyšují rychlost indexace"
+
+#: ../src/trackerd/trackerd.c:133
+msgid "Minimizes the use of memory but may slow indexing down"
+msgstr "Sníží využití paměti, ale může zpomalit indexování"
+
+#: ../src/trackerd/trackerd.c:134
+msgid "Initial sleep time, just before indexing, in seconds"
+msgstr "Výchozí pauza, před spuštěním indexování, v sekundách"
+
+#: ../src/trackerd/trackerd.c:135
+msgid ""
+"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+msgstr ""
+"Jazyk, který používat pro zjišťování slovních kořenů a seznamu stopslov "
+"(dvouznakový kód ISO 639-1)"
+
+#: ../src/trackerd/trackerd.c:135
+msgid "LANG"
+msgstr "JAZYK"
+
+#: ../src/trackerd/trackerd.c:136
+msgid "Force a re-index of all content"
+msgstr "Vynutit přeindexování všeho obsahu"
+
+#: ../src/trackerd/trackerd.c:137
+msgid "Make tracker errors fatal"
+msgstr "Označit chyby trackeru jako fatální"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND <THIS_MESSAGE>
+#: ../src/trackerd/trackerd.c:794
+msgid "- start the tracker daemon"
+msgstr "- spustit démona trackeru"
+
+#: ../src/trackerd/trackerd.c:795 ../src/trackerd/trackerd.c:796
+msgid "DIRECTORY"
+msgstr "ADRESÁŘ"
+
+#: ../src/trackerd/trackerd.c:803
+msgid ""
+"To include or exclude multiple directories at the same time, join multiple "
+"options like:"
+msgstr ""
+"Pro zahrnutí nebo vyjmutí více adresářů najednou spojte více voleb takto:"
+
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
+msgid "Control and monitor the Tracker search and indexing service"
+msgstr "Ovládat a sledovat vyhledávací a indexovací službu Tracker"
+
+#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
+#: ../src/tracker-applet/tracker-applet.c:54
+msgid "Tracker Applet"
+msgstr "Applet Trackeru"
+
+#. Translators: this will appear like "Tracker : Idle"
+#: ../src/tracker-applet/tracker-applet.c:238
+msgid "Tracker : "
+msgstr "Tracker : "
+
+#: ../src/tracker-applet/tracker-applet.c:243
+msgid "Idle"
+msgstr "Nečinný"
+
+#: ../src/tracker-applet/tracker-applet.c:247
+msgid "Indexing"
+msgstr "Indexování"
+
+#: ../src/tracker-applet/tracker-applet.c:251
+msgid "Merging"
+msgstr "Slévání"
+
+#: ../src/tracker-applet/tracker-applet.c:261
+msgid " (paused by user)"
+msgstr " (pozastaveno uživatelem)"
+
+#: ../src/tracker-applet/tracker-applet.c:263
+#: ../src/tracker-applet/tracker-applet.c:274
+msgid " (paused by system)"
+msgstr " (pozastaveno systémem)"
+
+#: ../src/tracker-applet/tracker-applet.c:278
+msgid " (paused by battery)"
+msgstr " (pozastaveno kvůli baterii)"
+
+#: ../src/tracker-applet/tracker-applet.c:291
+msgid "folders"
+msgstr "složky"
+
+#: ../src/tracker-applet/tracker-applet.c:293
+msgid "mailboxes"
+msgstr "e-mailové schránky"
+
+#: ../src/tracker-applet/tracker-applet.c:1021
+msgid "Re-index your system?"
+msgstr "Přeindexovat váš systém?"
+
+#: ../src/tracker-applet/tracker-applet.c:1024
+msgid "Indexing can take a long time. Are you sure you want to re-index?"
+msgstr "Indexace může trvat dlouho. Jste si jisti, že chcete přeindexovat?"
+
+#: ../src/tracker-applet/tracker-applet.c:1162
+msgid "Statistics"
+msgstr "Statistiky"
+
+#: ../src/tracker-applet/tracker-applet.c:1188
+msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+msgstr "<span weight=\"bold\" size=\"larger\">Statistiky indexování</span>"
+
+#: ../src/tracker-applet/tracker-applet.c:1313
+msgid ""
+"Tracker is free software; you can redistribute it and/or modify it under the "
+"terms of the GNU General Public License as published by the Free Software "
+"Foundation; either version 2 of the License, or (at your option) any later "
+"version."
+msgstr ""
+"Tracker je svobodný software; můžete jej redistribuovat a/nebo upravovat za "
+"podmínek GNU General Public License zveřejněné Free Software Foundation; buď "
+"verze 2 této licence, nebo (podle vašeho uvážení) libovolné pozdější verze."
+
+#: ../src/tracker-applet/tracker-applet.c:1314
+msgid ""
+"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
+"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
+"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
+"details."
+msgstr ""
+"Tracker je distribuován v naději, že bude užitečný, ale BEZ JAKÉKOLI ZÁRUKY; "
+"a to ani bez předpokládané záruky PRODEJNOSTI nebo VHODNOSTI PRO KONKRÉTNÍ "
+"ÚČEL. Pro další podrobnosti si přečtěte GNU General Public License."
+
+#: ../src/tracker-applet/tracker-applet.c:1315
+msgid ""
+"You should have received a copy of the GNU General Public License along with "
+"Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
+"Place, Suite 330, Boston, MA  02111-1307  USA"
+msgstr ""
+"Kopii GNU General Public License jste měli dostat spolu s Trackerem; pokud "
+"se tak nestalo, napište Free Software Foundation, Inc., 59 Temple Place, "
+"Suite 330, Boston, MA  02111-1307  USA"
+
+#: ../src/tracker-applet/tracker-applet.c:1330
+msgid ""
+"Tracker is a tool designed to extract info and metadata about your personal "
+"data so that it can be searched easily and quickly"
+msgstr ""
+"Tracker je nástroj určený pro extrakci informací a metadat o vašich osobních "
+"údajích, takže mohou být lehce a rychle prohledávána"
+
+#: ../src/tracker-applet/tracker-applet.c:1332
+msgid "Copyright © 2005-2008 The Tracker authors"
+msgstr "Copyright © 2005-2008 Autoři Trackeru"
+
+#. Translators should localize the following string
+#. * which will be displayed at the bottom of the about
+#. * box to give credit to the translator(s).
+#.
+#: ../src/tracker-applet/tracker-applet.c:1340
+msgid "translator-credits"
+msgstr "Kamil Páral <ripper42@gmail.com>"
+
+#: ../src/tracker-applet/tracker-applet.c:1343
+msgid "Tracker Web Site"
+msgstr "Webová stránka Trackeru"
+
+#: ../src/tracker-applet/tracker-applet.c:1363
+msgid "_Pause All Indexing"
+msgstr "_Pozastavit veškeré indexování"
+
+#: ../src/tracker-applet/tracker-applet.c:1374
+msgid "_Search"
+msgstr "_Hledat"
+
+#: ../src/tracker-applet/tracker-applet.c:1384
+msgid "_Re-index"
+msgstr "_Přeindexovat"
+
+#: ../src/tracker-applet/tracker-applet.c:1393
+msgid "_Preferences"
+msgstr "_Volby"
+
+#: ../src/tracker-applet/tracker-applet.c:1404
+msgid "_Indexer Preferences"
+msgstr "Volby _indexování"
+
+#: ../src/tracker-applet/tracker-applet.c:1413
+msgid "S_tatistics"
+msgstr "S_tatistiky"
+
+#: ../src/tracker-applet/tracker-applet.c:1422
+msgid "_About"
+msgstr "_O programu"
+
+#: ../src/tracker-applet/tracker-applet.c:1434
+msgid "_Quit"
+msgstr "_Ukončit"
+
+#: ../src/tracker-applet/tracker-applet.c:1997 ../trackerd.desktop.in.in.h:1
+msgid "Tracker"
+msgstr "Tracker"
+
+#: ../src/tracker-applet/tracker-applet.c:2004
+msgid ""
+"Your computer is about to be indexed so you can perform fast searches of "
+"your files and emails"
+msgstr ""
+"Váš počítač bude nyní indexován, abyste mohli provádět rychlé hledání ve "
+"svých souborech a e-mailech"
+
+#: ../src/tracker-applet/tracker-applet.c:2007
+msgid ""
+"You can pause indexing at any time and configure index settings by right "
+"clicking here"
+msgstr ""
+"Indexování můžete kdykoli pozastavit a nastavit volby indexování kliknutím "
+"pravým tlačítkem zde"
+
+#: ../src/tracker-applet/tracker-applet.c:2010
+msgid "Tracker has finished indexing your system"
+msgstr "Tracker dokončil indexaci vašeho systému"
+
+#: ../src/tracker-applet/tracker-applet.c:2011
+#, c-format
+msgid " in %d hours and %d minutes"
+msgstr " během %d hodin a %d minut"
+
+#: ../src/tracker-applet/tracker-applet.c:2012
+#, c-format
+msgid " in %d minutes and %d seconds"
+msgstr " během %d minut a %d sekund"
+
+#: ../src/tracker-applet/tracker-applet.c:2013
+#, c-format
+msgid " in %d seconds"
+msgstr " během %d sekund"
+
+#: ../src/tracker-applet/tracker-applet.c:2015
+msgid "You can now perform searches by clicking here"
+msgstr "Nyní můžete provádět hledání kliknutím zde"
+
+#: ../src/tracker-applet/tracker-applet.c:2018
+msgid "Files:"
+msgstr "Soubory:"
+
+#: ../src/tracker-applet/tracker-applet.c:2019
+msgid "    Folders:"
+msgstr "    Složky:"
+
+#: ../src/tracker-applet/tracker-applet.c:2020
+msgid "    Documents:"
+msgstr "    Dokumenty:"
+
+#: ../src/tracker-applet/tracker-applet.c:2021
+msgid "    Images:"
+msgstr "    Obrázky:"
+
+#: ../src/tracker-applet/tracker-applet.c:2022
+msgid "    Music:"
+msgstr "    Hudba:"
+
+#: ../src/tracker-applet/tracker-applet.c:2023
+msgid "    Videos:"
+msgstr "    Videa:"
+
+#: ../src/tracker-applet/tracker-applet.c:2024
+msgid "    Text:"
+msgstr "    Text:"
+
+#: ../src/tracker-applet/tracker-applet.c:2025
+msgid "    Development:"
+msgstr "    Vývoj:"
+
+#: ../src/tracker-applet/tracker-applet.c:2026
+msgid "    Other:"
+msgstr "    Ostatní:"
+
+#: ../src/tracker-applet/tracker-applet.c:2027
+msgid "Applications:"
+msgstr "Aplikace:"
+
+#: ../src/tracker-applet/tracker-applet.c:2028
+msgid "Conversations:"
+msgstr "Rozhovory:"
+
+#: ../src/tracker-applet/tracker-applet.c:2029
+msgid "Emails:"
+msgstr "E-maily:"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
+msgid "<b>Animation</b>"
+msgstr "<b>Animace</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
+msgid "<b>Smart Pausing</b>"
+msgstr "<b>Inteligentní pozastavování</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
+msgid "<b>Visibility</b>"
+msgstr "<b>Viditelnost</b>"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
+msgid "Animate _icon when indexing"
+msgstr "Během indexování animovat _ikonu"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
+msgid "Applet Preferences"
+msgstr "Volby apletu"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
+msgid ""
+"Automatically _pause if indexing may degrade performance of other "
+"applications in active use"
+msgstr ""
+"Automaticky _pozastavit, pokud by indexace mohla snížit výkon jiných právě "
+"využívaných aplikací"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
+msgid "_Automatically pause all indexing when computer is in active use"
+msgstr ""
+"_Automaticky pozastavit veškerou indexaci, pokud je počítač aktivně využíván"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
+msgid "_Hide Icon (except when displaying messages to user)"
+msgstr "_Skrýt ikonu (s výjimkou zobrazování zpráv uživateli)"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
+msgid "_Off"
+msgstr "Vypnut_o"
+
+#: ../src/tracker-applet/tracker-applet-prefs.glade.h:10
+msgid "gtk-close"
+msgstr "gtk-close"
+
+#: ../src/tracker-preferences/tracker-preferences.c:816
+msgid "Data must be reindexed"
+msgstr "Data musejí být přeindexována"
+
+#: ../src/tracker-preferences/tracker-preferences.c:817
+msgid ""
+"In order for your changes to take effect, Tracker must reindex your files. "
+"Click the Reindex button to start reindexing now, otherwise this action will "
+"be performed the next time the Tracker daemon is restarted."
+msgstr ""
+"Pro uplatnění vašich změn musí Tracker přeindexovat vaše soubory. Klikněte "
+"na tlačítko Přeindexovat pro spuštění přeindexování nyní, v opačném případě "
+"bude tato akce provedena při příštím restartu démona Trackeru."
+
+#: ../src/tracker-preferences/tracker-preferences.c:824
+msgid "_Reindex"
+msgstr "_Přeindexovat"
+
+#: ../src/tracker-preferences/tracker-preferences.c:827
+msgid "Tracker daemon must be restarted"
+msgstr "Démon Trackeru musí být restartován"
+
+#: ../src/tracker-preferences/tracker-preferences.c:829
+msgid ""
+"In order for your changes to take effect, the Tracker daemon has to be "
+"restarted. Click the Restart button to restart the daemon now."
+msgstr ""
+"Pro uplatnění vašich změn musí být démon Trackeru restartován. Klikněte na "
+"tlačítko Restart pro restartování démona nyní."
+
+#: ../src/tracker-preferences/tracker-preferences.c:834
+msgid "_Restart"
+msgstr "_Restartovat"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
+msgid "Configure file indexing with Tracker"
+msgstr "Nastavit indexování souborů Trackerem"
+
+#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
+msgid "Search and Indexing"
+msgstr "Hledání a indexování"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:1
+msgid "<b>Crawled Directories</b>"
+msgstr "<b>Procházené složky</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:2
+msgid "<b>Ignored File Patterns</b>"
+msgstr "<b>Vzorky ignorovaných souborů</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:3
+msgid "<b>Ignored Paths</b>"
+msgstr "<b>Ignorované cesty</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:4
+msgid "<b>Index Merging</b>"
+msgstr "<b>Slévání indexů</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:5
+msgid "<b>Indexing Limits (per file)</b>"
+msgstr "<b>Limity indexování (na soubor)</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:6
+msgid "<b>Indexing Options</b>"
+msgstr "<b>Nastavení indexace</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:7
+msgid "<b>Indexing</b>"
+msgstr "<b>Indexování</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:8
+msgid "<b>Power management</b>"
+msgstr "<b>Správa napájení</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:9
+msgid "<b>Resource Usage</b>"
+msgstr "<b>Využití zdrojů</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:10
+msgid "<b>Startup</b>"
+msgstr "<b>Spuštění</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:11
+msgid "<b>Stemming</b>"
+msgstr "<b>Slovní kořeny</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:12
+msgid "<b>Throttling</b>"
+msgstr "<b>Zpomalování</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:13
+msgid "<b>Watch Directories</b>"
+msgstr "<b>Sledované složky</b>"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:14
+msgid "Additional mbox style mailboxes to index:"
+msgstr "Dodatečné e-mailové schránky typu mbox pro indexování:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:15
+msgid "Additional paths to index and watch:"
+msgstr "Dodatečné cesty pro indexování a sledování:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:16
+msgid "Additional paths to index on startup (but not watch for updates):"
+msgstr ""
+"Dodatečné cesty pro indexování při spuštění (ale ne pro sledování změn):"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:17
+msgid ""
+"Danish\n"
+"Dutch\n"
+"English\n"
+"Finnish\n"
+"French\n"
+"German\n"
+"Italian\n"
+"Norwegian\n"
+"Portuguese\n"
+"Russian\n"
+"Spanish\n"
+"Swedish"
+msgstr ""
+"Dánština\n"
+"Nizozemština\n"
+"Angličtina\n"
+"Finština\n"
+"Francouzština\n"
+"Němčina\n"
+"Italština\n"
+"Norština\n"
+"Portugalština\n"
+"Ruština\n"
+"Španělština\n"
+"Švédština"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+msgid "Disable all Indexing when on battery"
+msgstr "Vypnout veškeré indexování při běhu na baterie"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+msgid "Disable initial index sweep when on battery"
+msgstr "Vypnout úvodní čištění indexů při běhu na baterii"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+msgid "Email"
+msgstr "E-mail"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Enable _Evolution email indexing"
+msgstr "Povolit indexování e-mailů v _Evolution"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+msgid "Enable _KMail email indexing"
+msgstr "Povolit indexování e-mailů v _KMail"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+msgid "Enable _Thunderbird email indexing"
+msgstr "Povolit indexování e-mailů v _Thunderbirdu"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+msgid "Enable _watching"
+msgstr "Povolit sledo_vání"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
+msgid "Enable i_ndexing"
+msgstr "Povolit i_ndexování"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+msgid "Faster"
+msgstr "Rychleji"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+msgid "File patterns to ignore during indexing:"
+msgstr "Vzorky souborů, které ignorovat během indexování:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+msgid "Files"
+msgstr "Soubory"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+msgid "General"
+msgstr "Obecné"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+msgid "Generate thum_bnails"
+msgstr "Generovat ná_hledy"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+msgid "Ignored Files"
+msgstr "Ignorované soubory"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+msgid "Index _delay: "
+msgstr "Zpož_dění indexování: "
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+msgid "Index _file contents"
+msgstr "Indexovat o_bsah souborů"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:45
+msgid "Index _mounted directories"
+msgstr "Indexovat _připojené složky"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:46
+msgid "Index and watch my home _directory"
+msgstr "Indexovat a sledovat moji _domovskou složku"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+msgid "Indexing speed:"
+msgstr "Rychlost indexace:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:48
+msgid "Maximum _amount of text to index:"
+msgstr "Maximální množství textů pro index_aci:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:49
+msgid "Maximum number of unique _words to index:"
+msgstr "Maximální množství _unikátních slov pro indexaci:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:50
+msgid "Path roots to be ignored during indexing:"
+msgstr "Kořenové cesty ignorované během indexování:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:51
+msgid "Perform fast index merges (may affect system performance)"
+msgstr "Provádět rychlé slévání indexů (může ovlivnit výkon systému)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:52
+msgid "Performance"
+msgstr "Výkon"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:53
+msgid "Slower"
+msgstr "Pomaleji"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:54
+msgid "Tracker Preferences"
+msgstr "Nastavení Trackeru"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:55
+msgid "_Language:"
+msgstr "_Jazyk:"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:56
+msgid "_Minimize memory usage (slower indexing)"
+msgstr "Snížit využití pa_měti (pomalejší indexování)"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:57
+msgid "_Use additional memory for faster indexing"
+msgstr "Po_užít dodatečnou paměť pro rychlejší indexování"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:58
+msgid "kB"
+msgstr "kB"
+
+#: ../src/tracker-preferences/tracker-preferences.glade.h:59
+msgid "seconds"
+msgstr "sekund"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:65
+msgid "Search from a specific service"
+msgstr "Hledat z určené služby"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:136
+msgid "Emails"
+msgstr "E-maily"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:137
+msgid "All Files"
+msgstr "Všechny soubory"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:138
+msgid "Folders"
+msgstr "Složky"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:139
+msgid "Documents"
+msgstr "Dokumenty"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:143
+#: ../src/tracker-search-tool/tracker-search-tool.c:1213
+msgid "Text"
+msgstr "Text"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:144
+msgid "Development"
+msgstr "Vývoj"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:145
+msgid "Chat Logs"
+msgstr "Záznamy konverzací"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:146
+msgid "Applications"
+msgstr "Aplikace"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:147
+msgid "WebHistory"
+msgstr "Webová historie"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:207
+msgid "_Open"
+msgstr "_Otevřít"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:208
+msgid "O_pen Folder"
+msgstr "O_tevřít složku"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:209
+msgid "Mo_ve to Trash"
+msgstr "Pře_sunout do koše"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:210
+msgid "_Save Results As..."
+msgstr "Uložit vý_sledky jako..."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:238
+#, c-format
+msgid "Character set conversion failed for \"%s\""
+msgstr "Převod znakové sady selhal pro \"%s\""
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:265
+msgid "The following error has occurred :"
+msgstr "Došlo k následující chybě :"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:269
+msgid "Error"
+msgstr "Chyba"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:644
+msgid "Did you mean"
+msgstr "Mysleli jste"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:675
+msgid "Your search returned no results."
+msgstr "Pro vaše hledání nebylo nic nalezeno."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:690
+msgid "Tracker Search Tool-"
+msgstr "Prohledávač Tracker-"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:851
+#: ../src/tracker-search-tool/tracker-search-tool.c:2221
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
+msgid "Tracker Search Tool"
+msgstr "Prohledávač Tracker"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1041
+msgid "Search _results: "
+msgstr "_Výsledky hledání: "
+
+#. Translators: this will appears as "Search results: no search performed"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1047
+msgid "no search performed"
+msgstr "neprovedeno žádné hledání"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1107
+#: ../src/tracker-search-tool/tracker-search-tool.c:1267
+msgid "List View"
+msgstr "Seznamový pohled"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1179
+msgid "Icon"
+msgstr "Ikona"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1191
+msgid "Name"
+msgstr "Název"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1285
+msgid "_Categories"
+msgstr "_Kategorie"
+
+#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1565
+#, c-format
+msgid "%d - %d of %d items"
+msgstr "%d - %d z %d položek"
+
+#. Translators: this will appear like "Search results: 7 items"
+#: ../src/tracker-search-tool/tracker-search-tool.c:1568
+#, c-format
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] "%d položka"
+msgstr[1] "%d položky"
+msgstr[2] "%d položek"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:1616
+#: ../src/tracker-search-tool/tracker-search-tool.c:1811
+msgid "Could not connect to search service as it may be busy"
+msgstr "Nelze se připojit k prohledávací službě, může být zaneprázdněna"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2012
+msgid "_Search:"
+msgstr "_Hledat:"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2026
+msgid "Tracker is still indexing so not all search results are available yet"
+msgstr ""
+"Tracker stále provádí indexaci, takže nemusí být dostupné všechny výsledky"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2040
+#: ../src/tracker-search-tool/tracker-search-tool.c:2041
+msgid "Enter a search term with multiple words seperated with spaces."
+msgstr "Zadejte hledaný výraz s více slovy oddělenými mezerami."
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2041
+msgid "search_entry"
+msgstr "položka_hledání"
+
+#: ../src/tracker-search-tool/tracker-search-tool.c:2087
+msgid "Click to perform a search."
+msgstr "Kliknutím začněte hledat."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
+msgid "Could not open help document."
+msgstr "Nemohu otevřít dokument nápovědy."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
+#, c-format
+msgid "Are you sure you want to open %d document?"
+msgid_plural "Are you sure you want to open %d documents?"
+msgstr[0] "Opravdu chcete otevřít %d dokument?"
+msgstr[1] "Opravdu chcete otevřít %d dokumenty?"
+msgstr[2] "Opravdu chcete otevřít %d dokumentů?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:687
+#, c-format
+msgid "This will open %d separate window."
+msgid_plural "This will open %d separate windows."
+msgstr[0] "Toto otevře %d samostatné okno."
+msgstr[1] "Toto otevře %d samostatná okna."
+msgstr[2] "Toto otevře %d samostatných oken."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
+#, c-format
+msgid "Could not open document \"%s\"."
+msgstr "Nemohu otevřít dokument \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
+#, c-format
+msgid "Could not open folder \"%s\"."
+msgstr "Nemohu otevřít složku \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
+msgid "The nautilus file manager is not running."
+msgstr "Správce souborů Nautilus neběží."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:626
+msgid "Application could not be opened"
+msgstr "Aplikaci nebylo možné otevřít"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:641
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:961
+msgid "The document does not exist."
+msgstr "Dokument neexistuje."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:657
+msgid "There is no installed viewer capable of displaying the document."
+msgstr "Není nainstalován žádný prohlížeč schopný zobrazit tento dokument."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:682
+#, c-format
+msgid "Are you sure you want to open %d folder?"
+msgid_plural "Are you sure you want to open %d folders?"
+msgstr[0] "Opravdu chcete otevřít %d složku?"
+msgstr[1] "Opravdu chcete otevřít %d složky?"
+msgstr[2] "Opravdu chcete otevřít %d složek?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:786
+#, c-format
+msgid "Could not move \"%s\" to trash."
+msgstr "Nemohu přesunout \"%s\" do koše."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:817
+#, c-format
+msgid "Do you want to delete \"%s\" permanently?"
+msgstr "Chcete trvale odstranit \"%s\"?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:820
+#, c-format
+msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+msgstr "Koš není k dispozici. Nemohu přesunout \"%s\" do koše."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:859
+#, c-format
+msgid "Could not delete \"%s\"."
+msgstr "Nemohu odstranit \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:983
+#, c-format
+msgid "Moving \"%s\" failed: %s."
+msgstr "Přesun \"%s\" selhal: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1017
+#, c-format
+msgid "Deleting \"%s\" failed: %s."
+msgstr "Odstraňování \"%s\" selhalo: %s."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1303
+msgid "Activate to view this email"
+msgstr "Spustit pro zobrazení tohoto e-mailu"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1479
+msgid "Save Search Results As..."
+msgstr "Uložit výsledky hledání jako..."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1514
+msgid "Could not save document."
+msgstr "Nemohu uložit dokument."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1515
+msgid "You did not select a document name."
+msgstr "Nevybrali jste název dokumentu."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1545
+#, c-format
+msgid "Could not save \"%s\" document to \"%s\"."
+msgstr "Nemohu uložit dokument \"%s\" do \"%s\"."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1579
+#, c-format
+msgid "The document \"%s\" already exists.  Would you like to replace it?"
+msgstr "Dokument \"%s\" již existuje. Chcete jej nahradit?"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1583
+msgid "If you replace an existing file, its contents will be overwritten."
+msgstr "Pokud nahradíte existující soubor, jeho obsah bude přepsán."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1598
+msgid "_Replace"
+msgstr "Nah_radit"
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1648
+msgid "The document name you selected is a folder."
+msgstr "Dokument, který jste vybrali, je složkou."
+
+#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1697
+msgid "You may not have write permissions to the document."
+msgstr "Možná nemáte oprávnění zápisu do dokumentu."
+
+#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
+msgid ""
+"Locate documents and folders on this computer by name or content using "
+"Tracker"
+msgstr ""
+"Nalézt dokumenty a složky na tomto počítači podle názvu nebo obsahu za "
+"pomoci Trackeru"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
+#, c-format
+msgid ""
+"GConf error:\n"
+"  %s"
+msgstr ""
+"Chyba GConf:\n"
+"  %s"
+
+#. Translators:  Below are the strings displayed in the 'Date Modified'
+#. column of the list view.  The format of this string can vary depending
+#. on age of a file.  Please modify the format of the timestamp to match
+#. your locale.  For example, to display 24 hour time replace the '%-I'
+#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
+msgid "today at %-I:%M %p"
+msgstr "dnes v %-H:%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
+msgid "yesterday at %-I:%M %p"
+msgstr "včera v %-H:%M"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
+msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+msgstr "%A, %-d. %B %Y v %-H:%M:%S"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
+msgid "link (broken)"
+msgstr "odkaz (neplatný)"
+
+#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
+#, c-format
+msgid "link to %s"
+msgstr "odkaz na %s"
+
+#: ../trackerd.desktop.in.in.h:2
+msgid "Tracker search and indexing service"
+msgstr "Prohledávací a indexovací služba Tracker"

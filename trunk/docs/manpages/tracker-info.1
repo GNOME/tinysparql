@@ -1,0 +1,33 @@
+.TH tracker-info 1 "Oct 2008" GNU "User Commands"
+
+.SH NAME
+tracker-info \- command line tool to retrieve all metadata available
+in tracker for a certain file.
+
+.SH SYNOPSIS
+\fBtracker-info\fR 
+-s ServiceType \fIFILE\fR
+
+.SH DESCRIPTION
+.B tracker-info
+asks tracker for all the known metadata available for the 
+\fIFILE\fR. The actual information is stored in the
+.B tracker
+database.
+
+.SH OPTIONS
+.TP
+.B \-?, \-\-help
+Show summary of options.
+.TP
+.B \-s, \-\-service=SERVICE
+Look for the file in this service type. For more information on
+tracker services, see 
+.BR tracker-services (1)
+
+.SH SEE ALSO
+.BR trackerd (1),
+.BR tracker-services (1).
+
+.SH AUTHOR
+tracker-info was written by Ivan Frade <ivan.frade@nokia.com>.

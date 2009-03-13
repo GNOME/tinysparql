@@ -1,0 +1,7 @@
+#include <libtracker-common/tracker-common.h>
+
+tracker_config_get_type
+tracker_field_get_type
+tracker_hal_get_type
+tracker_language_get_type
+tracker_service_get_type

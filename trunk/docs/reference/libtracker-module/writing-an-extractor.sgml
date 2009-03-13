@@ -1,0 +1,167 @@
+<chapter id="writing-an-extractor">
+  <chapterinfo>
+    <author>
+      <firstname>Ivan</firstname>
+      <surname>Frade</surname>
+      <affiliation>
+	<address>
+	  <email>ivan.frade@@nokia.com</email>
+	</address>
+      </affiliation>
+    </author>
+  </chapterinfo>
+
+  <title>Writing An Extractor</title>
+
+  <para>
+  </para>
+
+  <section id="How Extractors Work">
+    <title>How Extractors Work</title>
+
+    <para>
+      The API for the extractors is defined
+      in <filename>src/tracker-extract/tracker-extract.h</filename>.
+    </para>
+    <para>
+      The module must define a <structname>TrackerExtractorData</structname>
+      struct that links mime types with extraction functions. This is
+      returned in a function
+      called <function>tracker_get_extractor_data</function>.
+    </para>
+    
+    <para>
+      The extraction function has the following signature:
+      <programlisting>
+void name_of_the_function (const gchar *filename, 
+                           GHashTable  *metadata)
+      </programlisting>
+    </para>
+
+    <para>
+      ANY extracted meta-data MUST be added to the hash table.
+    </para>
+  </section>
+
+  <section id="how-to-add-an-extractor">
+    <title>How To Add An Extractor</title>
+
+    <para>
+      The extractors are typically named
+      as <filename>tracker-extractor-[document-extension].c</filename>
+      and placed in the <filename>src/tracker-extract/</filename>
+      directory.
+    </para>
+
+    <para>
+      A <filename>dummy.c</filename> extractor is provided
+      (<filename>src/tracker-extract/dummy.c</filename>) to use as
+      base to write new ones. Copy and complete the implementation of
+      this file to create your extractors. Don't forget to add them in
+      the <filename>Makefile.am</filename> file!
+    </para>
+
+    <para>
+      Your extractor can link with external libraries, but please be
+      careful adding new dependencies in tracker (this will be no
+      problem when the extractors are compiled and packaged out of
+      tracker).
+    </para>
+
+    <para>
+      For a play list, a <filename>tracker-extractor-m3u.c</filename>
+      file would be written. In the extraction function it would open
+      the file, count the lines containing a filename and if the line
+      starts with #EXTINF, the sum of the duration of the songs (the
+      #EXTINF line contains the duration and name of the song) would
+      be added.
+    </para>
+  </section>
+
+  <section id="installing-an-extractor">
+    <title>Installing An Extractor</title>
+
+    <para>
+      To install the extractor you need to run:
+      <programlisting>
+	(cd src/tracker-extract; sudo make install)
+      </programlisting>
+    </para>
+
+    <para>
+      You can then test the extract in a standalone fashion using:
+      <programlisting>
+	echo -e "filename\nmimetype" | tracker-extract 
+      </programlisting>
+    </para>
+      
+    <example>
+      <title>Testing Your Extractor</title>
+      <programlisting>
+	echo -e "/tmp/a.m3u\naudio/x-mpegurl" | tracker-extract
+      </programlisting>
+    </example>
+      
+    <para>
+      Once the extractor is working, install tracker (to put the
+      category and property descriptions in the right place).
+    </para>
+
+    <para>
+      Remove <filename>~/.local/share/tracker/data/common.db</filename>.
+      This database in the user home directory is the cache of
+      categories and properties. Right now we don't support automatic
+      upgrade, so you need to remove it by hand. This will be fixed in
+      future releases.
+    </para>
+  </section>
+
+  <section id="testing-an-extractor">
+    <title>Testing An Extractor</title>
+
+    <para>
+      Restart Tracker. We recommend to use the "-v 3" option to log
+      with maximum verbosity to know what is happening. The log is
+      printed on the console, but also in two files:
+      <simplelist>
+	<member><filename>~/.local/share/tracker/trackerd.log</filename></member>
+	<member><filename>~/.local/share/tracker/tracker-indexer.log</filename></member>
+      </simplelist>
+    </para>
+
+    <para>
+      Check these files. You may find messages like "Unrecognized
+      option 'X.Y'" and that can give you clues of what is happening,
+      specifically if something goes wrong (it should never happen if
+      you follow this tutorial).
+    </para>
+
+    <para>
+      You can check that tracker has read the .service and .metadata
+      files correctly using the <filename>tracker-services</filename>
+      utility. With -s flat, it asks to the daemon all available
+      categories. With -p it does the same with properties. Check that
+      your new categories are in that list.
+    </para>
+      
+    <para>
+      You should be able to use <filename>tracker-files</filename>
+      with -s [MyCategory] to check what files have been included in
+      your new category.
+    </para>
+
+    <para>
+      You can try to search with <filename>tracker-search</filename>
+      for some words you know are there (i.e. filename or words in the
+      extracted properties).  
+    </para>
+  </section>
+
+</chapter>
+
+<!--
+Local variables:
+mode: sgml
+sgml-parent-document: ("libtracker-module-docs.sgml" "book" "part" "chapter")
+End:
+-->

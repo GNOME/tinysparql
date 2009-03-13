@@ -1,0 +1,232 @@
+.TH tracker.cfg 5 "July 2007" GNU "Configuration Files"
+
+.SH NAME
+tracker.cfg \- configuration file for the trackerd search daemon
+
+.SH DESCRIPTION
+The tracker.cfg file resides in the $HOME/.config/tracker directory.
+.PP
+The file is organized in sections, each section having a number of
+related options.
+.SS Comments
+Empty lines and those starting with ; or # are ignored.
+.SS Value Types
+.TP
+VALUE
+Denotes a positive integer.
+.TP
+BOOLEAN
+Denotes either true or false.
+.TP
+Any other value
+Any special keyword is to be replaced by one of the documented valid
+values, e.g. pathnames or language codes.
+
+.SH EXAMPLE
+.PP
+[General]
+.PP
+Verbosity=0
+.PP
+LowMemoryMode=false
+
+.SH Sections
+.SS General
+This section may contain general settings for trackerd.
+.TP
+Verbosity=VALUE
+Specifies how verbose trackerd should be logging. VALUE can be one of
+0 through 3.
+.RS
+.TP
+0
+Show no but error and critical output, this is the default behavior.
+.TP
+1
+Show minimal output, i.e. not just errors.
+.TP
+2
+Show verbose output.
+.TP
+3
+Show debugging output, enable this only if you know what you are doing.
+.RE
+.TP
+LowMemoryMode=BOOLEAN
+Enables low memory mode. Tracker may be slightly less fast at
+indexing/search but also needs less system memory.
+.TP
+InitialSleep=VALUE
+Sets the initial sleep time for trackerd. This is a number of seconds
+that trackerd wait before indexing.
+.TP
+NFSLocking=BOOLEAN
+Set to TRUE when the home directory is in a NFS filesystem.
+
+.SS Watches
+.TP
+WatchDirectoryRoots=DIRECTORY[;MORE;DIRECTORIES]
+Sets the directories trackerd should watch and index. Defaults to the
+users home directory.
+.TP
+NoWatchDirectory=DIRECTORY[;MORE;DIRECTORIES]
+Sets directories trackerd should ignore, i.e. not index or watch.
+.TP
+CrawlDirectory=DIRECTORY[;MORE;DIRECTORIES]
+Sets directories trackerd should index once but not watch for changes.
+.TP
+EnableWatching=BOOLEAN
+Enables or disables watching of directories, i.e. re-index files when
+they change.
+
+.SS Indexing
+This section may contain indexing related options.
+.TP
+Throttle=VALUE
+Sets the throttling value for the Indexer. VALUE can be any number from
+0 to 20 whereas higher values decrease indexing speed.
+.TP
+EnableIndexing=BOOLEAN
+Enable or disable the indexer.
+.TP
+EnableFileContentIndexing=BOOLEAN
+Enable or disable indexing of files text contents.
+.TP
+EnableThumbnails=BOOLEAN
+Enable or disable the generation of thumbnails.
+.TP
+DisabledModules=MODULENAME[;MORE;MODULENAMES]
+List of disable modules (The modules are kept in $prefix/lib/tracker/indexer-modules)
+Current supported modules: evolution, applications, files, gaim-conversations
+.TP
+FastMerges=BOOLEAN
+(Deprecated) 
+.TP
+NoIndexFileTypes=FILEGLOB[;MORE;FILEGLOBS...]
+List of partial file patterns (glob) separated by semicolons that specify
+files not to index. Only basic metadata (i.e. information retrieved by
+stat(2)) is indexed.
+.TP
+MinWordLength=VALUE
+Sets the minimum word length to index. Words having less then VALUE
+characters will not be indexed.
+.TP
+MaxWordLength=VALUE
+Sets the maximum word length to index. Words having more then VALUE
+characters will not be indexed.
+.TP
+Language=LANGCODE
+Sets the language specific stemmer and stopword list to use. Valid
+values are:
+.RS
+.TP
+en
+English
+.TP
+da
+Danish
+.TP
+nl
+dutch
+.TP
+fi
+Finnish
+.TP
+fr
+French
+.TP
+de
+German
+.TP
+it
+Italian
+.TP
+nb
+Norwegian
+.TP
+pt
+Portuguese
+.TP
+ru
+Russian
+.TP
+es
+Spanish
+.TP
+sv
+Swedish
+.RE
+.TP
+EnableStemmer=BOOLEAN
+Enable or disable the stemmer.
+.TP
+BatteryIndex=BOOLEAN
+Enable or disable indexing when on battery power.
+.TP
+BatteryIndexInitial=BOOLEAN
+Enable or disable initial index sweep (i.e. the very first indexing)
+when on battery power.
+.TP
+IndexMountedDirectories=BOOLEAN
+Enable or disable traversing mounted directories on other file systems
+(this excludes removable devices)
+.TP
+IndexRemovableMedia=BOOLEAN
+Enable or disable traversing mounted directories for removable devices
+
+.SS Emails
+(Deprecated) This section may contain Email specific options.
+.TP
+IndexEvolutionEmails=BOOLEAN
+(Deprecated) Enable or disable indexing for Evolution emails. 
+Use DisableModules instead.
+.TP
+IndexModestEmails=BOOLEAN
+(Deprecated) Enable or disable indexing for Modest emails.
+Use DisableModules instead.
+.TP
+IndexThunderbirdEmails=BOOLEAN
+(Deprecated) Enable or disable indexing for Thunderbird emails.
+Use DisableModules instead.
+
+.SS Performance
+Trackerd performance related options.
+.TP
+MaxTextToIndex=VALUE
+Maximum size of text in bytes to index from a file's text contents.
+Defaults to 1048576.
+.TP
+MaxWordsToIndex=VALUE
+Maximum number of unique words to index from a file's text contents.
+Defaults to 10000.
+.TP
+OptimizationSweepCount=VALUE
+(Deprecated) Specifies the no of entities to index before determining whether to
+perform index optimization. Default to 10000.
+.TP
+MaxBucketCount=VALUE
+Sets the maximum bucket count for the indexer. Defaults to 524288.
+.TP
+MinBucketCount=VALUE
+Sets the minimum bucket count. Defaults to 65536
+.TP
+Divisions=VALUE
+(Deprecated) Sets no. of divisions of the index file. Default to 4.
+.TP
+BucketRatio=VALUE
+(Deprecated) Selects the desired ratio of used records to buckets to be used when
+optimizing index (should be a value between 0 and 4). Defaults to 1.
+.TP
+Padding=VALUE
+(Deprecated) Alters how much padding is used to prevent index relocations. Higher
+values improve indexing speed but waste more disk space. Value should
+be in range (1..8). Defaults to 2.
+
+.SS Services
+Extra services supported in tracker
+.TP
+EnableXesam=BOOLEAN
+Enable or disable XESAM support in tracker (still under development)
+
+.SH SEE ALSO
+.BR tracker(1)

@@ -1,0 +1,8 @@
+Makefile.in
+Makefile
+*.gmo
+*.pc
+*.desktop
+*.desktop.in
+.deps
+*-glue.h

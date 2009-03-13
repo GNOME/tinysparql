@@ -1,0 +1,111 @@
+.TH trackerd 1 "Jan 2008" GNU "User Commands"
+
+.SH NAME
+trackerd \- indexer daemon for tracker search tool
+
+.SH SYNOPSIS
+.B trackerd [OPTIONS]
+
+.SH DESCRIPTION
+.B Trackerd
+provides both a powerful indexer and an extensible metadata database. It
+indexes files including the text contents and any available metadata to
+provide fast search services.
+.PP
+By default, trackerd will index all files in a user's home directory (with
+the exception of hidden files). This can be overridden by specifying
+one or more directories to be indexed instead in the configuration file
+($HOME/.config/tracker/tracker.cfg) and/or by using the --include-dir
+option to specify other directories to be indexed.
+
+.SH OPTIONS
+.TP
+\-?, --help
+A brief help message including some examples.
+
+.TP
+\-e, --monitors-exclude-dir=/PATH/DIR
+Specifies a directory to be excluded from indexing (including all
+subdirectories). Can be repeated (-e <path> -e <path>) to exclude 
+more than one directory.
+
+.TP
+\-i, --monitors-include-dir=/PATH/DIR
+Specifies a directory to be included for indexing. All non-hidden
+subdirectories of the specified directory will also be indexed. If this
+param is set then the user's home directory is no longer indexed by
+default (you can still add the home directory with this option).
+
+.TP
+\-c, --crawler-include-dirs=/PATH/DIR
+Specify directories to crawl. Crawling of directories means index every
+indexable content but do not watch for directory or file changes.
+
+.TP
+\-n, --disable-indexing
+Prevent
+.B trackerd
+from indexing and watching. Searching is still
+possible.
+
+.TP
+\-v, --verbosity=value
+Makes trackerd log/print more information. Value can be one of 0 - show
+only errors, 1 - show only minimal output, 2 - show detailed output and
+3 - show debug output (don't do this, unless you know what you are doing).
+
+.TP
+\-m, --low-memory
+Minimise memory usage. Note that this may slow down indexing.
+
+.TP
+\-s, --initial-sleep=value
+Set the initial sleep time in seconds. This is the time
+.B trackerd
+waits at startup before indexing.
+
+.TP
+\-l, --language=value
+Language to use for stemmer and stop words list (ISO 639-1 2 characters
+code).
+
+.TP
+\-R, --force-reindex
+This forces trackerd to re-index all watched files and directories.
+Since every watched directory and any previously indexed file has to be
+read and processed again, this may degrade the whole system performance.
+
+.TP
+\-f, --fatal-errors
+Makes any errors fatal, i.e. forces abortion of
+.B trackerd.
+This switch is only useful for debugging.
+
+.SH FILES
+.I $HOME/.config/tracker/tracker.cfg
+.RS
+Trackerd user configuration file. See
+.BR tracker.cfg (5)
+and
+.BR tracker-preferences (1)
+for further details.
+
+.SH NOTES
+.B Trackerd
+needs a
+.BR dbus-daemon(1)
+to be running within your current session.
+
+.SH SEE ALSO
+.BR tracker-applet (1),
+.BR tracker-search-tool (1),
+.BR tracker-search (1),
+.BR tracker-tag (1),
+.BR tracker-stats (1),
+.BR tracker-query (1),
+.BR tracker-meta-folder (1),
+.BR tracker-files (1),
+.BR tracker-services (1),
+.BR tracker-info (1),
+.BR tracker-status (1),
+.BR tracker-services (1)

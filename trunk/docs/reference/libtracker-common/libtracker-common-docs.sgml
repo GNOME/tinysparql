@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY tracker-utils SYSTEM "xml/tracker-utils.xml">
+<!ENTITY tracker-type-utils SYSTEM "xml/tracker-type-utils.xml">
+<!ENTITY tracker-service SYSTEM "xml/tracker-service.xml">
+<!ENTITY tracker-parser SYSTEM "xml/tracker-parser.xml">
+<!ENTITY tracker-ontology SYSTEM "xml/tracker-ontology.xml">
+<!ENTITY tracker-nfs-lock SYSTEM "xml/tracker-nfs-lock.xml">
+<!ENTITY tracker-module-config SYSTEM "xml/tracker-module-config.xml">
+<!ENTITY tracker-log SYSTEM "xml/tracker-log.xml">
+<!ENTITY tracker-language SYSTEM "xml/tracker-language.xml">
+<!ENTITY tracker-ioprio SYSTEM "xml/tracker-ioprio.xml">
+<!ENTITY tracker-hal SYSTEM "xml/tracker-hal.xml">
+<!ENTITY tracker-file-utils SYSTEM "xml/tracker-file-utils.xml">
+<!ENTITY tracker-field SYSTEM "xml/tracker-field.xml">
+<!ENTITY tracker-dbus SYSTEM "xml/tracker-dbus.xml">
+<!ENTITY tracker-config SYSTEM "xml/tracker-config.xml">
+<!ENTITY version SYSTEM "version.xml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Tracker Common Library Reference Manual</title>
+    <releaseinfo>for libtracker-common &version;</releaseinfo>
+  </bookinfo>
+  
+  <part id="libtracker-common">
+    <title>Overview</title>
+    <partintro>
+      <para>
+	The libtracker-common library is the foundation for common procedures
+	used in the daemon and the indexer.
+      </para>
+      <para>
+      </para>
+    </partintro>
+  </part>
+
+    <chapter>
+      <title>Utilities</title>
+      &tracker-file-utils;
+      &tracker-ioprio;
+      &tracker-log;
+      &tracker-nfs-lock;
+      &tracker-type-utils;
+      &tracker-utils;
+    </chapter>
+
+    <chapter>
+      <title>Ontology</title>
+      &tracker-ontology;
+      &tracker-service;
+      &tracker-field;
+    </chapter>
+
+    <chapter>
+      <title>Configuration</title>
+      &tracker-config;
+      &tracker-hal;
+      &tracker-language;
+      &tracker-module-config;
+    </chapter>
+
+    <chapter>
+      <title>Indexing</title>
+      &tracker-parser;
+    </chapter>
+
+    <chapter>
+      <title>Communication</title>
+      &tracker-dbus;
+    </chapter>
+
+</book>

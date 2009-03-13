@@ -1,0 +1,332 @@
+<?xml version="1.0"?>
+
+<!--
+//
+// trackerPrefs.xul: Preference dialog
+//
+// Copyright (C) 2007 Pierre Östlund
+//
+
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+//
+-->
+
+<!DOCTYPE window SYSTEM "chrome://tracker/locale/tracker.dtd">
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<prefwindow id="preference-window"
+			title="&trackerprefs.title;"
+			style="width: 350px"
+			onload="load (); refreshStats ();"
+			xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<prefpane id="pref-indexing" 
+		label="&trackerprefs.indexing;" 
+		image="chrome://messenger/skin/preferences/advanced.png">
+		
+		<preferences>
+			<preference id="pref-enabled" name="tracker.enabled" type="bool"/>
+			<preference id="pref-batchcount" name="tracker.index.batch_count" type="int"/>
+			<preference id="pref-queuecount" name="tracker.index.queue_count" type="int"/>
+			<preference id="pref-delay" name="tracker.index.delay" type="int"/>
+		</preferences>
+		<checkbox label="&trackerprefs.enabled;" preference="pref-enabled"/>
+		<spacer height="5"/>
+		<groupbox flex="0">
+			<caption>
+				<label value="&trackerprefs.speedcaption;"/>
+			</caption>
+			<radiogroup id="speed-group">
+				<radio id="0" label="&trackerprefs.veryslow;" oncommand="onSpeedChange (this);"/>
+				<radio id="1" label="&trackerprefs.slow;" oncommand="onSpeedChange (this);"/>
+				<radio id="2" label="&trackerprefs.normal; &trackerprefs.recommended;" oncommand="onSpeedChange (this);"/>
+				<radio id="3" label="&trackerprefs.fast;" oncommand="onSpeedChange (this);"/>
+				<radio id="4" label="&trackerprefs.veryfast;" oncommand="onSpeedChange (this);"/>
+				<radio id="5" label="&trackerprefs.instant; &trackerprefs.notrecommended;" oncommand="onSpeedChange (this);"/>
+				<radio id="6" label="&trackerprefs.custom;" oncommand="onSpeedChange (this);"/>
+			</radiogroup>
+		</groupbox>
+		<groupbox id='custom-settings' flex="0" style="visibility: hidden;">
+			<caption>
+				<label value="&trackerprefs.customcaption;"/>
+			</caption>
+			<grid>
+				<columns>
+					<column flex="1"/>
+					<column flex="0"/>
+				</columns>
+				
+				<rows>
+					<row>
+						<label value="&trackerprefs.batchcount;"/>
+						<textbox preference="pref-batchcount"/>
+					</row>
+					<row>
+						<label value="&trackerprefs.queuecount;"/>
+						<textbox preference="pref-queuecount"/>
+					</row>
+					<row>
+						<label value="&trackerprefs.delay;"/>
+						<textbox preference="pref-delay"/>
+					</row>
+				</rows>
+			</grid>
+		</groupbox>
+	</prefpane>
+	<prefpane id="pref-privacy" 
+		label="&trackerprefs.privacy;"
+		image="chrome://messenger/skin/preferences/privacy.png">
+		
+		<preferences>
+			<preference id="pref-local" name="tracker.enable.local" type="bool"/>
+			<preference id="pref-imap" name="tracker.enable.imap" type="bool"/>
+			<preference id="pref-pop" name="tracker.enable.pop" type="bool"/>
+			<preference id="pref-mailspool" name="tracker.enable.mailspool" type="bool"/>
+			<preference id="pref-news" name="tracker.enable.news" type="bool"/>
+			<preference id="pref-rss" name="tracker.enable.rss" type="bool"/>
+		</preferences>
+		<groupbox flex="0">
+			<caption>
+				<label value="&trackerprefs.sourcescaption;"/>
+			</caption>
+			<vbox flex="1">
+				<checkbox label="&trackerprefs.local;" preference="pref-local"/>
+				<checkbox label="&trackerprefs.imap;" preference="pref-imap"/>
+				<checkbox label="&trackerprefs.pop;" preference="pref-pop"/>
+				<checkbox label="&trackerprefs.mailspool;" preference="pref-mailspool"/>
+				<checkbox label="&trackerprefs.news;" preference="pref-news"/>
+				<checkbox label="&trackerprefs.rss;" preference="pref-rss"/>
+			</vbox>
+		</groupbox>
+		<groupbox flex="0">
+			<caption>
+				<label value="&trackerprefs.contentcaption;"/>
+			</caption>
+			<vbox flex="1">
+				<button label="&trackerprefs.delindex;" oncommand="onDelIndex ();"/>
+				<button label="&trackerprefs.unindex;" oncommand="onUnindex ();"/>
+			</vbox>
+		</groupbox>
+	</prefpane>
+	<prefpane id="pref-stats" 
+		label="&trackerprefs.status;" 
+		image="chrome://messenger/skin/preferences/general.png">
+		<groupbox flex="0">
+			<caption>
+				<label value="&trackerprefs.stats;"/>
+			</caption>
+			<grid>
+				<columns>
+					<column flex="0"/>
+					<column flex="1"/>
+				</columns>
+				<rows>
+					<row>
+						<label value="&trackerprefs.indexingstatus;"/>
+						<vbox id="indexingstatus"/>
+					</row>
+					<row>
+						<label value="&trackerprefs.itemsadded;"/>
+						<label id="itemsadded"/>
+					</row>
+					<row>
+						<label value="&trackerprefs.itemsremoved;"/>
+						<label id="itemsremoved"/>
+					</row>
+					<row>
+						<label value="&trackerprefs.itemsqueued;"/>
+						<label id="itemsqueued"/>
+					</row>
+				</rows>
+			</grid>
+		</groupbox>
+		<hbox flex="0" pack="end">
+			<button label="&trackerprefs.refresh;" oncommand="refreshStats ();"/>
+		</hbox>
+	</prefpane>
+	
+	<stringbundleset id="stringbundleset">
+		<stringbundle id="bundle_tracker" src="chrome://tracker/locale/strings.properties"/>
+	</stringbundleset>
+	
+	<script src="trackerUtils.js"/>
+	<script src="trackerUnindex.js"/>
+	
+	<script type="application/x-javascript">
+	<![CDATA[
+		const Cc = Components.classes;
+		const Ci = Components.interfaces;
+
+		// These are arbitrary values. We should really tweak these values.
+		const TRACKER_INDEX_SPEED = new Array (
+			// [Batch count, index delay, queue count]
+			[1,			60,		10],	// Very slow 
+			[5,			30,		5],		// Slow
+			[10,		10,		10],	// Normal
+			[20,		5,		20],	// Fast
+			[100,		1,		100],	// Very fast
+			[9999999,	1,		1]		// Instant
+		);
+		
+		var settings = GetJsService ('@tracker-project.org/services/settings;1');
+		
+		function load ()
+		{
+			
+			var batch = settings.getIntPref ('IndexBatchCount');
+			var queue = settings.getIntPref ('IndexQueueCount');
+			var delay = settings.getIntPref ('IndexDelay');
+			var group = document.getElementById ('speed-group');
+
+			window.setTimeout ('autoUpdate ()', 1000);
+
+			for (var i = 0; i < TRACKER_INDEX_SPEED.length; i++) {
+				var speed = TRACKER_INDEX_SPEED [i];
+				
+				if (batch == speed [0] && delay == speed [1] && queue == speed [2]) {
+					group.selectedIndex = i;
+					return;
+				}
+			}
+			
+			group.selectedIndex = TRACKER_INDEX_SPEED.length;
+			var custom = document.getElementById ('custom-settings');
+			custom.setAttribute ('style', 'visibility: visible;');
+		}
+		
+		function autoUpdate ()
+		{
+			refreshStats ();
+			window.setTimeout ('autoUpdate ()', 1000);
+		}
+
+		function onSpeedChange (radio)
+		{
+			var element = document.getElementById ('custom-settings');
+			var pref = Cc ['@mozilla.org/preferences-service;1'].getService (Ci.nsIPrefBranch);
+			var batchCount = settings.getIntPref ('IndexBatchCount');
+			var queueCount = settings.getIntPref ('IndexQueueCount');
+			var delay = settings.getIntPref ('IndexDelay');
+			
+			if (parseInt (radio.id) >= 0 && parseInt (radio.id) <= 5) {
+				var speed = TRACKER_INDEX_SPEED [radio.id];
+				batchCount = speed [0];
+				delay = speed [1];
+				queueCount = speed [2];
+				element.setAttribute ('style', 'visibility: hidden;');
+			} else 
+				element.setAttribute ('style', 'visibility: visible;');
+			
+			// Update with new values
+			pref.setIntPref ('tracker.index.batch_count', batchCount);
+			pref.setIntPref ('tracker.index.queue_count', queueCount);
+			pref.setIntPref ('tracker.index.delay', delay);
+		}
+		
+		function onDelIndex ()
+		{
+			gTrackerUnindex.RemoveEverything (true);
+		}
+		
+		function onUnindex ()
+		{
+			gTrackerUnindex.UnindexEverything (true);
+		}
+		
+		function clearIndexingStatus ()
+		{
+			var elem = document.getElementById ('indexingstatus');
+			
+			while (elem.hasChildNodes ()) 
+				elem.removeChild (elem.firstChild);
+		}
+		
+		function createDescription (text)
+		{
+			var desc = document.createElement ('description');
+			var text = document.createTextNode (text);
+			desc.appendChild (text);
+			return desc;
+		}
+		
+		function refreshStats ()
+		{
+			var bundle = document.getElementById ('bundle_tracker');
+			var status = document.getElementById ('indexingstatus');
+			var added = document.getElementById ('itemsadded');
+			var removed = document.getElementById ('itemsremoved');
+			var queued = document.getElementById ('itemsqueued');
+			var trackerQueue = GetJsService ('@tracker-project.org/services/queue;1');
+			var remaining = new Array ();
+			
+			added.value = trackerQueue.totalAdded;
+			removed.value = trackerQueue.totalRemoved;
+			queued.value = trackerQueue.getQueueCount ();
+			
+			// Figure out if all mailboxes have been indexed
+			try {
+				var indexedFolders = 0;
+				var totalFolders = 0;
+				var indexer = GetJsService ('@tracker-project.org/services/indexer;1');
+				var accountmanager = Cc ['@mozilla.org/messenger/account-manager;1']
+					.getService (Ci.nsIMsgAccountManager);
+				var accounts = accountmanager.accounts;
+				
+				clearIndexingStatus ();
+				for (var i = 0; i < accounts.Count (); i++) {
+					var account = accounts.QueryElementAt (i, Ci.nsIMsgAccount);
+					var allFolders = Cc ['@mozilla.org/supports-array;1']
+						.createInstance (Ci.nsISupportsArray);
+					account.incomingServer.rootFolder.ListDescendents (allFolders);
+					
+					for (var j = 0; j < allFolders.Count (); j++) {
+						var folder = allFolders.QueryElementAt (j, Ci.nsIMsgFolder);
+						
+						if (indexer.isFolderIndexed (folder)
+							|| !indexer.shouldIndexFolder (folder) 
+							|| folder.getTotalMessages (false) == 0)
+							indexedFolders++;
+						else
+							remaining [remaining.length] = folder.prettyName;
+							
+						totalFolders++;
+					}
+				}
+				
+				if (indexedFolders == totalFolders)
+					status.appendChild (createDescription (bundle.getString ('indexIdle')));
+				else {
+					var status_str = bundle.getFormattedString 
+						('indexWorking', [ totalFolders - indexedFolders ]);
+					status.appendChild (createDescription (status_str));
+					
+					for (var i = 0; i < (remaining.length > 5 ? 5 : remaining.length); i++) 
+						status.appendChild (createDescription (remaining [i]));
+				}
+				
+			} catch (ex) {
+				status.value = bundle.getString ('failedGetStatus');
+			}
+		}
+	]]>
+	</script>
+</prefwindow>
+

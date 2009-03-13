@@ -1,0 +1,21 @@
+.TH tracker-extract 1 "July 2007" GNU "User Commands"
+
+.SH NAME
+tracker-extract \- extract metadata from file and display them.
+
+.SH SYNOPSYS
+.B tracker-extract
+
+.SH DESCRIPTION
+.B tracker-extract
+read the file and mimetype provided in stdin and extract the metadata from this
+file; then it displays the metadata on the standard output.
+
+.SH EXAMPLES
+.TP
+Using tracker-extract from command line to extract metadata from one file:
+.BR
+$ echo -e "/x/y/z.mp3\\naudio/mpeg" | tracker-extract
+
+.SH SEE ALSO
+.BR trackerd (1)

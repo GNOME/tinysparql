@@ -1,0 +1,43 @@
+.TH tracker-search 1 "July 2007" GNU "User Commands"
+
+.SH NAME
+tracker-search \- command line tool to search documents indexed by
+trackerd
+
+.SH SYNOPSIS
+.B tracker-search
+[OPTIONS]
+.I EXPRESION
+
+.SH DESCRIPTION
+.B tracker-search
+searches all by
+.BR trackerd(1)
+indexed content for
+.I expression.
+.I Expression
+can be any number of words to be searched for.
+
+.SH OPTIONS
+.TP
+\-?, --help
+Give a short help message.
+
+.TP
+\fIEXPRESSION\fR
+One or more terms to search. The default operation is a logical AND.
+
+.TP
+\-l, --limit=N
+Limit search to N results.
+
+.TP
+\-s, --service=SERVICE
+Search by a specific service. For more information on tracker services,
+see
+.BR tracker-services (1).
+
+.SH "SEE ALSO"
+.BR trackerd (1),
+.BR tracker-search-tool (1),
+.BR tracker-services (1).
