@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-02 23:58+0100\n"
-"PO-Revision-Date: 2009-02-26 16:33+0100\n"
+"POT-Creation-Date: 2009-03-13 21:51+0100\n"
+"PO-Revision-Date: 2009-03-11 10:07+0100\n"
 "Last-Translator: Mads Lundby <lundbymads@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
@@ -37,13 +37,13 @@ msgstr "Søg efter %s med Tracker søgeværktøj"
 msgid "Search all of your documents with Tracker Search Tool"
 msgstr "Søg i alle dine dokumenter med Tracker søgeværktøj"
 
-#: ../python/deskbar-handler/tracker-handler.py:36
+#: ../python/deskbar-handler/tracker-handler.py:37
 #: ../python/deskbar-handler/tracker-module.py:100
 #, python-format
 msgid "Launch %s (%s)"
 msgstr "Start %s (%s)"
 
-#: ../python/deskbar-handler/tracker-handler.py:41
+#: ../python/deskbar-handler/tracker-handler.py:42
 #: ../python/deskbar-handler/tracker-module.py:105
 #, python-format
 msgid ""
@@ -55,13 +55,13 @@ msgstr ""
 "%s %s\n"
 "fra %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:47
+#: ../python/deskbar-handler/tracker-handler.py:48
 #: ../python/deskbar-handler/tracker-module.py:110
 #, python-format
 msgid "Email from %s"
 msgstr "E-post fra %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:60
+#: ../python/deskbar-handler/tracker-handler.py:61
 #: ../python/deskbar-handler/tracker-module.py:122
 #, python-format
 msgid ""
@@ -71,7 +71,7 @@ msgstr ""
 "Lyt til musik %s\n"
 "i %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:65
+#: ../python/deskbar-handler/tracker-handler.py:66
 #: ../python/deskbar-handler/tracker-module.py:128
 #, python-format
 msgid ""
@@ -81,9 +81,9 @@ msgstr ""
 "Se dokument %s\n"
 "i %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:70
-#: ../python/deskbar-handler/tracker-handler.py:87
-#: ../python/deskbar-handler/tracker-handler.py:124
+#: ../python/deskbar-handler/tracker-handler.py:71
+#: ../python/deskbar-handler/tracker-handler.py:88
+#: ../python/deskbar-handler/tracker-handler.py:125
 #: ../python/deskbar-handler/tracker-module.py:133
 #: ../python/deskbar-handler/tracker-module.py:155
 #: ../python/deskbar-handler/tracker-module.py:207
@@ -96,7 +96,7 @@ msgstr ""
 "Åbn fil %s\n"
 "i %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:75
+#: ../python/deskbar-handler/tracker-handler.py:76
 #: ../python/deskbar-handler/tracker-module.py:138
 #, python-format
 msgid ""
@@ -106,7 +106,7 @@ msgstr ""
 "Vis billede %s\n"
 "i %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:81
+#: ../python/deskbar-handler/tracker-handler.py:82
 #: ../python/deskbar-handler/tracker-module.py:144
 #, python-format
 msgid ""
@@ -116,7 +116,7 @@ msgstr ""
 "Se video %s\n"
 "i %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:92
+#: ../python/deskbar-handler/tracker-handler.py:93
 #: ../python/deskbar-handler/tracker-module.py:150
 #, python-format
 msgid ""
@@ -126,38 +126,38 @@ msgstr ""
 "Åbn mappe %s\n"
 "%s"
 
-#: ../python/deskbar-handler/tracker-handler.py:210
+#: ../python/deskbar-handler/tracker-handler.py:211
 #: ../python/deskbar-handler/tracker-module.py:351
 msgid "with"
 msgstr "med"
 
-#: ../python/deskbar-handler/tracker-handler.py:218
+#: ../python/deskbar-handler/tracker-handler.py:219
 #: ../python/deskbar-handler/tracker-module.py:359
 msgid "in channel"
 msgstr "i kanal"
 
-#: ../python/deskbar-handler/tracker-handler.py:385
+#: ../python/deskbar-handler/tracker-handler.py:386
 msgid "Search all of your documents, <b>as you type</b>"
 msgstr "Søg i alle dine dokumenter, <b>mens du taster</b>"
 
-#: ../python/deskbar-handler/tracker-handler.py:389
+#: ../python/deskbar-handler/tracker-handler.py:390
 #: ../python/deskbar-handler/tracker-module.py:295
 msgid "Development Files"
 msgstr "Udviklingsfiler"
 
-#: ../python/deskbar-handler/tracker-handler.py:392
+#: ../python/deskbar-handler/tracker-handler.py:393
 #: ../python/deskbar-handler/tracker-module.py:298
 #: ../src/tracker-search-tool/tracker-search-tool.c:146
 msgid "Music"
 msgstr "Musik"
 
-#: ../python/deskbar-handler/tracker-handler.py:395
+#: ../python/deskbar-handler/tracker-handler.py:396
 #: ../python/deskbar-handler/tracker-module.py:301
 #: ../src/tracker-search-tool/tracker-search-tool.c:145
 msgid "Images"
 msgstr "Billeder"
 
-#: ../python/deskbar-handler/tracker-handler.py:398
+#: ../python/deskbar-handler/tracker-handler.py:399
 #: ../python/deskbar-handler/tracker-module.py:304
 #: ../src/tracker-search-tool/tracker-search-tool.c:148
 msgid "Videos"
@@ -179,7 +179,7 @@ msgstr "Tracker realtidssøgning"
 msgid "Search with Tracker, as you type"
 msgstr "Søg med Tracker mens du taster"
 
-#: ../src/libtracker-common/tracker-dbus.c:306
+#: ../src/libtracker-common/tracker-dbus.c:319
 msgid "No error given"
 msgstr "Ingen fejlbesked givet"
 
@@ -752,8 +752,13 @@ msgstr "E-post:"
 msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Kontrollér og overvåg Tracker søge- og indekseringstjeneste"
 
-#: ../src/tracker-extract/tracker-main.c:71
-#: ../src/tracker-indexer/tracker-main.c:80 ../src/trackerd/tracker-main.c:135
+#: ../src/tracker-extract/tracker-main.c:77
+#: ../src/tracker-indexer/tracker-main.c:79 ../src/trackerd/tracker-main.c:136
+msgid "Displays version information"
+msgstr "Viser versionsoplysninger"
+
+#: ../src/tracker-extract/tracker-main.c:81
+#: ../src/tracker-indexer/tracker-main.c:83 ../src/trackerd/tracker-main.c:140
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -761,58 +766,58 @@ msgstr ""
 "Logning, 0 = kun fejl, 1 = minimal, 2 = detaljeret og 3 = fejlsøgning "
 "(standard = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:76
+#: ../src/tracker-extract/tracker-main.c:86
 msgid "File to extract metadata for"
 msgstr "Fil der skal udtrækkes metadata for"
 
-#: ../src/tracker-extract/tracker-main.c:77
+#: ../src/tracker-extract/tracker-main.c:87
 #: ../src/tracker-utils/tracker-info.c:47
 msgid "FILE"
 msgstr "FIL"
 
-#: ../src/tracker-extract/tracker-main.c:80
+#: ../src/tracker-extract/tracker-main.c:90
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "MIME-type for fil (hvis ikke angivet, vil den blive gættet)"
 
-#: ../src/tracker-extract/tracker-main.c:81
+#: ../src/tracker-extract/tracker-main.c:91
 msgid "MIME"
 msgstr "MIME"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:188
+#: ../src/tracker-extract/tracker-main.c:222
 msgid "- Extract file meta data"
 msgstr "- Udtræk filmetadata"
 
-#: ../src/tracker-extract/tracker-main.c:197
+#: ../src/tracker-extract/tracker-main.c:234
 msgid "Filename and mime type must be provided together"
 msgstr "Filnavn og MIME-type skal angives sammen"
 
-#: ../src/tracker-indexer/tracker-main.c:85
+#: ../src/tracker-indexer/tracker-main.c:88
 msgid "Whether to process data from all configured modules to be indexed"
 msgstr ""
 "Hvorvidt data skal behandles fra alle konfigurerede moduler for indeksering"
 
-#: ../src/tracker-indexer/tracker-main.c:89
+#: ../src/tracker-indexer/tracker-main.c:92
 msgid "Run forever, only interesting for debugging purposes"
 msgstr "Kør for evigt, kun interessant til fejlsøgningsformål"
 
-#: ../src/tracker-indexer/tracker-main.c:93
+#: ../src/tracker-indexer/tracker-main.c:96
 msgid "Modules to be used when processing data"
 msgstr "Moduler der skal anvendes under databehandling"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-indexer/tracker-main.c:321
+#: ../src/tracker-indexer/tracker-main.c:300
 msgid "- start the tracker indexer"
 msgstr "- start tracker-indekseringen"
 
-#: ../src/tracker-preferences/tracker-preferences.c:684
+#: ../src/tracker-preferences/tracker-preferences.c:641
 msgid "Data must be reindexed"
 msgstr "Data skal genindekseres"
 
-#: ../src/tracker-preferences/tracker-preferences.c:685
+#: ../src/tracker-preferences/tracker-preferences.c:642
 msgid ""
 "In order for your changes to take effect, Tracker must reindex your files. "
 "Click the Reindex button to start reindexing now, otherwise this action will "
@@ -822,15 +827,15 @@ msgstr ""
 "Genindeksér-knappen for at starte genindeksering nu, ellers vil denne "
 "handling blive udført næste gang Tracker-dæmonen genstartes."
 
-#: ../src/tracker-preferences/tracker-preferences.c:692
+#: ../src/tracker-preferences/tracker-preferences.c:649
 msgid "_Reindex"
 msgstr "_Genindeksér"
 
-#: ../src/tracker-preferences/tracker-preferences.c:695
+#: ../src/tracker-preferences/tracker-preferences.c:652
 msgid "Tracker daemon must be restarted"
 msgstr "Tracker-dæmon skal genstartes"
 
-#: ../src/tracker-preferences/tracker-preferences.c:697
+#: ../src/tracker-preferences/tracker-preferences.c:654
 msgid ""
 "In order for your changes to take effect, the Tracker daemon has to be "
 "restarted. Click the Restart button to restart the daemon now."
@@ -838,7 +843,7 @@ msgstr ""
 "Tracker-dæmonen er nødt til at blive genstartet, for at dine ændringer "
 "bliver aktiveret. Klik på Genstart-knappen for at genstarte dæmonen nu."
 
-#: ../src/tracker-preferences/tracker-preferences.c:702
+#: ../src/tracker-preferences/tracker-preferences.c:659
 msgid "_Restart"
 msgstr "_Genstart"
 
@@ -933,114 +938,98 @@ msgid "Enable _Evolution email indexing"
 msgstr "Aktivér indeksering af _Evolution e-post"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:21
-msgid "Enable _KMail email indexing"
-msgstr "Aktivér indeksering af _Kmail e-post"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:22
-msgid "Enable _Modest email indexing"
-msgstr "Aktivér indeksering af _Modest e-post"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:23
-msgid "Enable _Thunderbird email indexing"
-msgstr "Aktivér indeksering af _Thunderbird e-post"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:24
-msgid "Enable _watching"
-msgstr "Aktivér _overvågning"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:25
 msgid "Enable i_ndexing"
 msgstr "Aktivér i_ndeksering"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:26
+#: ../src/tracker-preferences/tracker-preferences.glade.h:22
 msgid "Faster"
 msgstr "Hurtigere"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:27
+#: ../src/tracker-preferences/tracker-preferences.glade.h:23
 msgid "File patterns to ignore during indexing:"
 msgstr "Filmønstre som ignoreres under indeksering:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:28
+#: ../src/tracker-preferences/tracker-preferences.glade.h:24
 msgid "Files"
 msgstr "Filer"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
+#: ../src/tracker-preferences/tracker-preferences.glade.h:25
 msgid "General"
 msgstr "Generelt"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
+#: ../src/tracker-preferences/tracker-preferences.glade.h:26
 msgid "Generate thum_bnails"
 msgstr "Generér _miniaturer"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
+#: ../src/tracker-preferences/tracker-preferences.glade.h:27
 msgid "Ignored Files"
 msgstr "Ignorerede filer"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+#: ../src/tracker-preferences/tracker-preferences.glade.h:28
 msgid "Index _delay:"
 msgstr "Indekserings_forsinkelse:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
+#: ../src/tracker-preferences/tracker-preferences.glade.h:29
 msgid "Index _file contents"
 msgstr "Indeksér fil_indhold"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
+#: ../src/tracker-preferences/tracker-preferences.glade.h:30
 msgid "Index _mounted directories"
 msgstr "Indeksér _monterede mapper"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
+#: ../src/tracker-preferences/tracker-preferences.glade.h:31
 msgid "Index and watch my home _directory"
 msgstr "Indeksér og overvåg min _hjemmemappe"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "Indexing speed:"
+#: ../src/tracker-preferences/tracker-preferences.glade.h:32
+msgid "Indexing Speed:"
 msgstr "Indekseringshastighed:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
+#: ../src/tracker-preferences/tracker-preferences.glade.h:33
 msgid "Maximum _amount of text to index:"
 msgstr "Maksimal mængde _tekst at indeksere:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
+#: ../src/tracker-preferences/tracker-preferences.glade.h:34
 msgid "Maximum number of unique _words to index:"
 msgstr "Maksimalt antal unikke _ord at indeksere:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
+#: ../src/tracker-preferences/tracker-preferences.glade.h:35
 msgid "Path roots to be ignored during indexing:"
 msgstr "Rodstier som ignoreres under indeksering:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
+#: ../src/tracker-preferences/tracker-preferences.glade.h:36
 msgid "Perform fast index merges (may affect system performance)"
 msgstr "Foretag hurtige indeksfletninger (kan påvirke systemets ydelse)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
+#: ../src/tracker-preferences/tracker-preferences.glade.h:37
 msgid "Performance"
 msgstr "Ydelse"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
+#: ../src/tracker-preferences/tracker-preferences.glade.h:38
 msgid "Slower"
 msgstr "Langsommere"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
+#: ../src/tracker-preferences/tracker-preferences.glade.h:39
 msgid "Tracker Preferences"
 msgstr "Indstillinger for Tracker"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
+#: ../src/tracker-preferences/tracker-preferences.glade.h:40
 msgid "_Language:"
 msgstr "_Sprog:"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
+#: ../src/tracker-preferences/tracker-preferences.glade.h:41
 msgid "_Minimize memory usage (slower indexing)"
 msgstr "_Minimér hukommelsesforbrug (langsommere indeksering)"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
+#: ../src/tracker-preferences/tracker-preferences.glade.h:42
 msgid "_Use additional memory for faster indexing"
 msgstr "_Anvend mere hukommelse for hurtigere indeksering"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
+#: ../src/tracker-preferences/tracker-preferences.glade.h:43
 msgid "kB"
 msgstr "kB"
 
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
+#: ../src/tracker-preferences/tracker-preferences.glade.h:44
 msgid "seconds"
 msgstr "sekunder"
 
@@ -1972,17 +1961,17 @@ msgstr "Påkrævede felter"
 msgid "Fields are missing"
 msgstr "Felter mangler"
 
-#: ../src/trackerd/tracker-main.c:140
+#: ../src/trackerd/tracker-main.c:145
 msgid "Seconds to wait before starting any crawling or indexing (default = 45)"
 msgstr ""
 "Sekunders ventetid før påbegyndelse af gennemsøgning og indeksering "
 "(standard = 45)"
 
-#: ../src/trackerd/tracker-main.c:144
+#: ../src/trackerd/tracker-main.c:149
 msgid "Minimizes the use of memory but may slow indexing down"
 msgstr "Minimerer forbrug af hukommelse, men kan gøre indeksering langsommere"
 
-#: ../src/trackerd/tracker-main.c:148
+#: ../src/trackerd/tracker-main.c:153
 msgid ""
 "Directories to exclude for file change monitoring (you can do -e <path> -e "
 "<path>)"
@@ -1990,7 +1979,7 @@ msgstr ""
 "Mapper som skal udelukkes fra overvågning af filændringer (du kan anvende -e "
 "<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:152
+#: ../src/trackerd/tracker-main.c:157
 msgid ""
 "Directories to include for file change monitoring (you can do -i <path> -i "
 "<path>)"
@@ -1998,28 +1987,28 @@ msgstr ""
 "Mapper som skal inkluderes i overvågning af filændringer (du kan anvende -e "
 "<sti> -e <sti>)"
 
-#: ../src/trackerd/tracker-main.c:156
+#: ../src/trackerd/tracker-main.c:161
 msgid "Directories to crawl to index files (you can do -c <path> -c <path>)"
 msgstr ""
 "Mapper at gennemsøge for at indeksere filer (du kan anvende -c <sti> -c "
 "<sti>)"
 
-#: ../src/trackerd/tracker-main.c:160
+#: ../src/trackerd/tracker-main.c:165
 msgid ""
 "Disable modules from being processed (you can do -d <module> -d <module>)"
 msgstr ""
 "Deaktivér moduler fra at blive behandlet (du kan anvende -d <modul> -d "
 "<modul>)"
 
-#: ../src/trackerd/tracker-main.c:168
+#: ../src/trackerd/tracker-main.c:171
 msgid "Force a re-index of all content"
 msgstr "Gennemtving en genindeksering af alt indhold"
 
-#: ../src/trackerd/tracker-main.c:172
+#: ../src/trackerd/tracker-main.c:175
 msgid "Disable any indexing and monitoring"
 msgstr "Deaktivér enhver indeksering og overvågning"
 
-#: ../src/trackerd/tracker-main.c:175
+#: ../src/trackerd/tracker-main.c:178
 msgid ""
 "Language to use for stemmer and stop words (ISO 639-1 2 characters code)"
 msgstr ""
@@ -2029,25 +2018,33 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:892
+#: ../src/trackerd/tracker-main.c:896
 msgid "- start the tracker daemon"
 msgstr "- start tracker-dæmon"
 
-#: ../src/trackerd/tracker-main.c:896
-msgid "Daemon Options"
-msgstr "Dæmonindstillinger"
+#~ msgid "Enable _KMail email indexing"
+#~ msgstr "Aktivér indeksering af _Kmail e-post"
 
-#: ../src/trackerd/tracker-main.c:897
-msgid "Show daemon options"
-msgstr "Vis dæmonindstillinger"
+#~ msgid "Enable _Modest email indexing"
+#~ msgstr "Aktivér indeksering af _Modest e-post"
 
-#: ../src/trackerd/tracker-main.c:905
-msgid "Indexer Options"
-msgstr "Indekseringsindstillinger"
+#~ msgid "Enable _Thunderbird email indexing"
+#~ msgstr "Aktivér indeksering af _Thunderbird e-post"
 
-#: ../src/trackerd/tracker-main.c:906
-msgid "Show indexer options"
-msgstr "Vis indekseringsindstillinger"
+#~ msgid "Enable _watching"
+#~ msgstr "Aktivér _overvågning"
+
+#~ msgid "Daemon Options"
+#~ msgstr "Dæmonindstillinger"
+
+#~ msgid "Show daemon options"
+#~ msgstr "Vis dæmonindstillinger"
+
+#~ msgid "Indexer Options"
+#~ msgstr "Indekseringsindstillinger"
+
+#~ msgid "Show indexer options"
+#~ msgstr "Vis indekseringsindstillinger"
 
 #~ msgid "This command works two ways:"
 #~ msgstr "Denne kommando virker på to måder:"
