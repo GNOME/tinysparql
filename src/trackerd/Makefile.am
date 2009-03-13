@@ -60,8 +60,8 @@ trackerd_SOURCES =							\
 	tracker-status.h						\
 	tracker-utils.c							\
 	tracker-utils.h							\
-	tracker-cleanup.c						\
-	tracker-cleanup.h						\
+	tracker-volume-cleanup.c					\
+	tracker-volume-cleanup.h					\
 	tracker-push.c							\
 	tracker-push.h							\
 	tracker-push-registrar.c					\

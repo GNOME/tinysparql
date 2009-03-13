@@ -28,7 +28,7 @@
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
-#include "tracker-cleanup.h"
+#include "tracker-volume-cleanup.h"
 
 /* Deals with cleaning up resident data after longer timeouts (days,
  * sessions).
@@ -40,6 +40,20 @@ typedef struct {
 } TrackerCleanupPrivate;
 
 static GStaticPrivate private_key = G_STATIC_PRIVATE_INIT;
+
+static void
+private_free (gpointer data)
+{
+	TrackerCleanupPrivate *private;
+
+	private = data;
+
+	if (private->timeout_id) {
+		g_source_remove (private->timeout_id);
+	}
+
+	g_free (private);
+}
 
 static gboolean
 check_for_volumes_to_cleanup (gpointer user_data)
@@ -95,22 +109,8 @@ check_for_volumes_to_cleanup (gpointer user_data)
 	return TRUE;
 }
 
-static void
-private_free (gpointer data)
-{
-	TrackerCleanupPrivate *private;
-
-	private = data;
-
-	if (private->timeout_id) {
-		g_source_remove (private->timeout_id);
-	}
-
-	g_free (private);
-}
-
 void 
-tracker_cleanup_init (void)
+tracker_volume_cleanup_init (void)
 {
 	TrackerCleanupPrivate *private;
 
@@ -133,7 +133,7 @@ tracker_cleanup_init (void)
 }
 
 void 
-tracker_cleanup_shutdown (void)
+tracker_volume_cleanup_shutdown (void)
 {
 	g_static_private_set (&private_key, NULL, NULL);
 }

@@ -1,5 +1,13 @@
 2009-03-13  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/Makefile.am:
+	* src/trackerd/tracker-cleanup.[ch]:
+	* src/trackerd/tracker-main.c:
+	* src/trackerd/tracker-volume-cleanup.[ch]: Renamed
+	tracker-cleanup to tracker-volume-cleanup so the name makes more sense.
+
+2009-03-13  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-cleanup.c: (check_for_volumes_to_cleanup),
 	(tracker_cleanup_init): Code clean ups.
 

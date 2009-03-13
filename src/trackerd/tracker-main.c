@@ -68,7 +68,7 @@
 #include "tracker-monitor.h"
 #include "tracker-processor.h"
 #include "tracker-status.h"
-#include "tracker-cleanup.h"
+#include "tracker-volume-cleanup.h"
 #include "tracker-backup.h"
 #include "tracker-daemon.h"
 
@@ -1095,7 +1095,7 @@ main (gint argc, gchar *argv[])
 	}
 
 	tracker_data_manager_init (config, language, file_index, email_index);
-	tracker_cleanup_init ();
+	tracker_volume_cleanup_init ();
 
 #ifdef HAVE_HAL
 	/* We set up the throttle and mount points here. For the mount
@@ -1182,7 +1182,7 @@ main (gint argc, gchar *argv[])
 
 	tracker_push_shutdown ();
 
-	tracker_cleanup_shutdown ();
+	tracker_volume_cleanup_shutdown ();
 	tracker_dbus_shutdown ();
 	tracker_db_manager_shutdown ();
 	tracker_db_index_manager_shutdown ();
