@@ -529,24 +529,6 @@ load_service_file (TrackerDBInterface *iface,
 	g_free (service_file);
 }
 
-static TrackerDBResultSet *
-db_exec_proc (TrackerDBInterface *iface,
-	      const gchar	 *procedure,
-	      ...)
-{
-	TrackerDBResultSet *result_set;
-	va_list		    args;
-
-	va_start (args, procedure);
-	result_set = tracker_db_interface_execute_vprocedure (iface,
-							      NULL,
-							      procedure,
-							      args);
-	va_end (args);
-
-	return result_set;
-}
-
 static gboolean
 db_exec_no_reply (TrackerDBInterface *iface,
 		  const gchar	     *query,

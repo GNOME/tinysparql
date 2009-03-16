@@ -30,6 +30,7 @@
 #include "tracker-xmp.h"
 
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-type-utils.h>
 
 static void extract_pdf (const gchar *filename,
 			 GHashTable  *metadata);

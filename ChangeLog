@@ -1,5 +1,11 @@
 2009-03-16  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-db/tracker-db-manager.c (db_exec_proc): Removed dead
+	code.
+	* src/tracker-extract/tracker-extract-pdf.c: Added missing include.
+
+2009-03-16  Carlos Garnacho  <carlos@imendio.com>
+
 	* data/db/sqlite-tracker.sql: Set primary key on the Options table, so
 	the 'Replace' statement in the SetOption stored procedure actually
 	replaces the setting value. Fixes #570232
