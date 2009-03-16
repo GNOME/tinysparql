@@ -1,3 +1,9 @@
+2009-03-16  Carlos Garnacho  <carlos@imendio.com>
+
+	* data/db/sqlite-tracker.sql: Set primary key on the Options table, so
+	the 'Replace' statement in the SetOption stored procedure actually
+	replaces the setting value. Fixes #570232
+
 2009-03-13  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-rdf-query.c: Return undefined
