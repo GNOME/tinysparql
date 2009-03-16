@@ -762,7 +762,7 @@ filter_x_events (GdkXEvent *xevent,
 	case MotionNotify:
 		if (ev->xmotion.is_hint) {
 			/* need to respond to hints so we continue to get events */
-			g_timeout_add (1000,
+			g_timeout_add_seconds (1,
 				       (GSourceFunc) query_pointer_timeout,
 				       GINT_TO_POINTER (ev->xmotion.window));
 		}

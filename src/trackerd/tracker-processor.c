@@ -43,7 +43,7 @@
 
 #define TRACKER_PROCESSOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_PROCESSOR, TrackerProcessorPrivate))
 
-#define ITEMS_QUEUE_PROCESS_INTERVAL 2000
+#define ITEMS_QUEUE_PROCESS_INTERVAL 2
 #define ITEMS_QUEUE_PROCESS_MAX      1000
 
 #define ITEMS_SIGNAL_TO_DAEMON_RATIO 500
@@ -751,7 +751,7 @@ item_queue_handlers_set_up (TrackerProcessor *processor)
 	}
 
 	processor->private->item_queues_handler_id =
-		g_timeout_add (ITEMS_QUEUE_PROCESS_INTERVAL,
+		g_timeout_add_seconds (ITEMS_QUEUE_PROCESS_INTERVAL,
 			       item_queue_handlers_cb,
 			       processor);
 }

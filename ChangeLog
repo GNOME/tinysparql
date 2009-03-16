@@ -1,5 +1,13 @@
 2009-03-16  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-applet/tracker-applet.c: (filter_x_events):
+	* src/trackerd/tracker-main.c: (main):
+	* src/trackerd/tracker-processor.c: (item_queue_handlers_set_up):
+	Use g_timeout_add_seconds() in preference to g_timeout_add().
+	Fixes bug #573834 (Marcel Stimberg).
+
+2009-03-16  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac: Fix confusion and error with deskbar-applet module
 	dir detection. Fixes bug #575271 (Deji Akingunola).
 

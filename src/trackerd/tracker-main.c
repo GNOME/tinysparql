@@ -1103,7 +1103,7 @@ main (gint argc, gchar *argv[])
 		if (seconds > 0) {
 			g_message ("Waiting %d seconds before starting",
 				   seconds);
-			g_timeout_add (seconds * 1000, start_cb, NULL);
+			g_timeout_add_seconds (seconds, start_cb, NULL);
 		} else {
 			g_idle_add (start_cb, NULL);
 		}
