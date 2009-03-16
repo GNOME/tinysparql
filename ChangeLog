@@ -1,3 +1,17 @@
+2009-03-16  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-db/tracker-db-dbus.c: Don't check each string for
+	utf8 validity in tracker_dbus_query_result_to_ptr_array() since we
+	call tracker_dbus_slist_to_strv() which does this for us anyway.
+	
+	* src/tracker-applet/tracker-applet.c: Fixed crasher here and
+	added a refresh button so the user can request updates more
+	frequently than they are signalled to us.
+	
+	* src/trackerd/tracker-daemon.c: Fixed the
+	"service-statistics-updated" signal here so we actually send the
+	GType that is expected based on the dbus XML introspection file.
+
 2009-03-16  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-db/tracker-db-manager.c (db_exec_proc): Removed dead

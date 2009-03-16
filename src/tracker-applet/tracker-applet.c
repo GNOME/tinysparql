@@ -67,6 +67,8 @@
 #define DBUS_PATH_TRACKER	"/org/freedesktop/tracker"
 #define DBUS_INTERFACE_TRACKER	"org.freedesktop.Tracker"
 
+#define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
+
 #define DISABLE_DEBUG
 
 #ifdef G_HAVE_ISO_VARARGS
@@ -194,19 +196,21 @@ static const gchar *index_icons[4] = {
 };
 
 static Stat_Info stat_info[13] = {
-	{"Files", NULL, NULL},
-	{"Folders", NULL, NULL},
-	{"Documents", NULL, NULL},
-	{"Images", NULL, NULL},
-	{"Music", NULL, NULL},
-	{"Videos", NULL, NULL},
-	{"Text", NULL, NULL},
-	{"Development", NULL, NULL},
-	{"Other", NULL, NULL},
-	{"Applications", NULL, NULL},
-	{"Conversations", NULL, NULL},
-	{"Emails", NULL, NULL},
-	{NULL, NULL, NULL},
+	{ "Files", NULL, NULL },
+	{ "Folders", NULL, NULL },
+	{ "Documents", NULL, NULL },
+	{ "Images", NULL, NULL },
+	{ "Music", NULL, NULL},
+	{ "Videos", NULL, NULL },
+	{ "Text", NULL, NULL },
+	{ "Development", NULL, NULL },
+	{ "Other", NULL, NULL },
+	{ "Applications", NULL, NULL },
+
+        /* These are particular supported apps */
+	{ "GaimConversations", NULL, NULL },
+	{ "EvolutionEmails", NULL, NULL },
+	{ NULL, NULL, NULL },
 };
 
 static gboolean disable_daemon_start;
@@ -1131,7 +1135,6 @@ reindex (GtkMenuItem *item,
 	g_signal_connect (G_OBJECT (dialog), "response",
 			  G_CALLBACK (restart_tracker), icon);
 	gtk_widget_show (dialog);
-
 }
 
 static void
@@ -1167,83 +1170,52 @@ preferences_menu_activated (GtkMenuItem *item,
 }
 
 static void
-stat_window_free (GtkWidget *widget,
-		  gint	     arg,
-		  gpointer   data)
-{
-	TrayIcon *icon;
-	TrayIconPrivate *priv;
-
-	icon = data;
-	priv = TRAY_ICON_GET_PRIVATE (icon);
-
-	priv->stat_window_active = FALSE;
-
-	gtk_widget_destroy (widget);
-}
-
-static gchar *
-get_stat_value (gchar	    ***stat_array,
-		const gchar   *stat)
-{
-	gchar **array;
-	gint i = 0;
-
-	while (stat_array[i][0]) {
-		array = stat_array[i];
-
-		if (array[0] && strcasecmp (stat, array[0]) == 0) {
-			return array[1];
-		}
-
-		i++;
-	}
-
-	return NULL;
-}
-
-static void
-update_stats (GPtrArray *array,
+update_stats (GPtrArray *new_stats,
 	      GError	*error,
 	      gpointer	 data)
 {
 	TrayIcon *icon;
 	TrayIconPrivate *priv;
-	gchar ***pdata;
-	guint i;
+	gint i, j;
 
 	icon = data;
 	priv = TRAY_ICON_GET_PRIVATE (icon);
+
+        priv->stat_request_pending = FALSE;
 
 	if (error) {
 		g_warning ("Could not update statistics, %s",
 			   error->message);
 		g_error_free (error);
-		priv->stat_request_pending = FALSE;
 		return;
 	}
 
-	if (!array) {
-		return;
-	}
+        if (!new_stats) {
+                return;
+        }
 
-	i = array->len;
+        if (new_stats->len < 1 || !priv->stat_window_active) {
+                return;
+        }
 
-	if (i < 1 || !priv->stat_window_active) {
-		g_ptr_array_free (array, TRUE);
-		return;
-	}
+        for (i = 0; i < new_stats->len; i++) {
+                const gchar **p;
+                const gchar  *service_type = NULL;
+                
+                p = g_ptr_array_index (new_stats, i);
+                
+                service_type = p[1];
+		
+                if (!service_type) {
+                        continue;
+                }
 
-	pdata = (gchar ***) array->pdata;
-
-	for (i = 0; i < 12; i++) {
-		gtk_label_set_text (GTK_LABEL (stat_info[i].stat_label),
-				    get_stat_value (pdata, stat_info[i].name));
-	}
-
-	g_ptr_array_free (array, TRUE);
-
-	priv->stat_request_pending = FALSE;
+                for (j = 0; j < G_N_ELEMENTS (stat_info); j++) {
+                        if (g_strcmp0 (stat_info[j].name, service_type) == 0) {
+                                gtk_label_set_text (GTK_LABEL (stat_info[j].stat_label), p[0]);
+                        }
+                }
+        }
 }
 
 static void
@@ -1265,6 +1237,28 @@ refresh_stats (TrayIcon *icon)
 }
 
 static void
+statistics_dialog_response (GtkWidget *widget,
+                            gint       arg,
+                            gpointer   data)
+{
+	TrayIcon *icon;
+	TrayIconPrivate *priv;
+
+	icon = data;
+	priv = TRAY_ICON_GET_PRIVATE (icon);
+
+        /* Refresh stats */
+        if (arg == GTK_RESPONSE_APPLY) {
+                refresh_stats (icon);
+                return;
+        }
+
+	priv->stat_window_active = FALSE;
+
+	gtk_widget_destroy (widget);
+}
+
+static void
 statistics_menu_activated (GtkMenuItem *item,
 			   gpointer	data)
 {
@@ -1272,80 +1266,82 @@ statistics_menu_activated (GtkMenuItem *item,
 	TrayIconPrivate *priv;
 	GtkWidget *dialog;
 	GtkWidget *table;
-	GtkWidget *title_label;
-	GtkWidget *label_to_add;
-	GtkWidget *dialog_hbox;
-	GtkWidget *info_icon;
+	GtkWidget *hbox;
+	GtkWidget *image;
+	GtkWidget *label;
 	gint i;
 
 	icon = data;
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 
-	dialog = gtk_dialog_new_with_buttons (_("Statistics"),
+	dialog = gtk_dialog_new_with_buttons (_("Tracker Statistics"),
 					      NULL,
-					      GTK_DIALOG_NO_SEPARATOR
-					      |
+					      GTK_DIALOG_NO_SEPARATOR |
 					      GTK_DIALOG_DESTROY_WITH_PARENT,
+					      GTK_STOCK_REFRESH,
+					      GTK_RESPONSE_APPLY,
 					      GTK_STOCK_CLOSE,
 					      GTK_RESPONSE_CLOSE,
 					      NULL);
 
 	gtk_container_set_border_width (GTK_CONTAINER (dialog), 5);
+        gtk_box_set_spacing (GTK_BOX (GTK_DIALOG (dialog)->vbox), 18);
+
 	gtk_window_set_resizable (GTK_WINDOW (dialog), FALSE);
 	gtk_window_set_icon_name (GTK_WINDOW (dialog), "gtk-info");
-	gtk_window_set_type_hint (GTK_WINDOW (dialog),
-				  GDK_WINDOW_TYPE_HINT_DIALOG);
-	gtk_dialog_set_has_separator (GTK_DIALOG (dialog), FALSE);
-
-	table = gtk_table_new (13, 2, TRUE);
-	gtk_table_set_row_spacings (GTK_TABLE (table), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (table), 65);
-	gtk_container_set_border_width (GTK_CONTAINER (table), 8);
-
-	title_label = gtk_label_new (NULL);
-	gtk_label_set_markup (GTK_LABEL (title_label),
-			      _("<span weight=\"bold\" size=\"larger\">Index statistics</span>"));
-	gtk_misc_set_alignment (GTK_MISC (title_label), 0, 0);
-	gtk_table_attach_defaults (GTK_TABLE (table), title_label, 0, 2, 0,
-				   1);
-
-	for (i = 0; i < 12; i++) {
-		label_to_add = gtk_label_new (stat_info[i].label);
-
-		gtk_label_set_selectable (GTK_LABEL (label_to_add), TRUE);
-		gtk_misc_set_alignment (GTK_MISC (label_to_add), 0, 0);
-		gtk_table_attach_defaults (GTK_TABLE (table), label_to_add, 0,
-					   1, i + 1, i + 2);
-
-		stat_info[i].stat_label = gtk_label_new ("");
-
-		gtk_label_set_selectable (GTK_LABEL (stat_info[i].stat_label),
-					  TRUE);
-		gtk_misc_set_alignment (GTK_MISC (stat_info[i].stat_label), 0,
-					0);
-		gtk_table_attach_defaults (GTK_TABLE (table),
-					   stat_info[i].stat_label, 1, 2,
-					   i + 1, i + 2);
-	}
-
-	priv->stat_window_active = TRUE;
-
-	refresh_stats (icon);
-
-	dialog_hbox = gtk_hbox_new (FALSE, 12);
-	info_icon = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO,
-					      GTK_ICON_SIZE_DIALOG);
-	gtk_misc_set_alignment (GTK_MISC (info_icon), 0, 0);
-	gtk_container_add (GTK_CONTAINER (dialog_hbox), info_icon);
-	gtk_container_add (GTK_CONTAINER (dialog_hbox), table);
-
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox),
-			   dialog_hbox);
+	gtk_window_set_type_hint (GTK_WINDOW (dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
 	g_signal_connect (G_OBJECT (dialog), "response",
-			  G_CALLBACK (stat_window_free),
+			  G_CALLBACK (statistics_dialog_response),
 			  icon);
 
+        /* Containers */
+	hbox = gtk_hbox_new (FALSE, 12);
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG (dialog)->vbox), hbox);
+
+        /* Icon */
+	image = gtk_image_new_from_stock (GTK_STOCK_DIALOG_INFO,
+                                          GTK_ICON_SIZE_DIALOG);
+	gtk_misc_set_alignment (GTK_MISC (image), 0.5, 0.0);
+	gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, TRUE, 0);
+
+        /* Stats */
+	table = gtk_table_new (G_N_ELEMENTS (stat_info), 2, TRUE);
+	gtk_box_pack_start (GTK_BOX (hbox), table, FALSE, TRUE, 0);
+
+	gtk_table_set_row_spacings (GTK_TABLE (table), 6);
+	gtk_table_set_col_spacings (GTK_TABLE (table), 65);
+
+	for (i = 0; i < G_N_ELEMENTS (stat_info); i++) {
+                if (stat_info[i].label == NULL) {
+                        continue;
+                }
+                
+		label = gtk_label_new (stat_info[i].label);
+		gtk_label_set_selectable (GTK_LABEL (label), TRUE);
+
+		gtk_misc_set_alignment (GTK_MISC (label), 0, 0);
+		gtk_table_attach_defaults (GTK_TABLE (table), 
+                                           label, 
+                                           0, 1, i + 1, i + 2);
+
+                if (g_strcmp0 (stat_info[i].name, "Files") != 0) {
+                        stat_info[i].stat_label = gtk_label_new ("0");
+
+                        gtk_label_set_selectable (GTK_LABEL (stat_info[i].stat_label), TRUE);
+                        gtk_misc_set_alignment (GTK_MISC (stat_info[i].stat_label), 0, 0);
+                        gtk_table_attach_defaults (GTK_TABLE (table),
+                                                   stat_info[i].stat_label,
+                                                   1, 2,
+                                                   i + 1, i + 2);
+                }
+	}
+
+        /* Set flags and get stats */
+	priv->stat_window_active = TRUE;
+	refresh_stats (icon);
+
+        /* Show */
 	gtk_widget_show_all (dialog);
 }
 
@@ -1598,9 +1594,15 @@ index_finished (DBusGProxy *proxy,
 	set_icon (priv);
 	set_status_hint (icon);
 
-	refresh_stats (icon);
-
 	stop_watching_events (icon);
+}
+
+static void
+index_service_stats_updated (DBusGProxy *proxy,
+                             GPtrArray  *new_stats,
+                             TrayIcon   *icon)
+{
+        update_stats (new_stats, NULL, icon);
 }
 
 static void
@@ -1659,6 +1661,24 @@ index_state_changed (DBusGProxy  *proxy,
 					"%s\n",
 					initial_index_1,
 					initial_index_2);
+
+                /* Reset stats if shown */
+                if (priv->stat_window_active) {
+                        gint i;
+                        
+                        for (i = 0; i < G_N_ELEMENTS (stat_info); i++) {
+                                if (!stat_info[i].name ||
+                                    !stat_info[i].stat_label) {
+                                        continue;
+                                }
+                                
+                                if (g_strcmp0 (stat_info[i].name, "Files") == 0) {
+                                        continue;
+                                }
+                                
+                                gtk_label_set_text (GTK_LABEL (stat_info[i].stat_label), "0");
+                        }
+                }
 	}
 
 	priv->animated = FALSE;
@@ -1735,15 +1755,12 @@ index_progress_changed (DBusGProxy  *proxy,
 	priv->email_indexing = strcmp (service, "Emails") == 0;
 
 	debug ("Indexed %d/%d, seconds elapsed:%f\n",
-		 items_done,
-		 items_total,
-		 seconds_elapsed);
+               items_done,
+               items_total,
+               seconds_elapsed);
 
 	set_status_hint (icon);
 	set_icon (priv);
-
-	/* Update stat window if its active */
-	refresh_stats (icon);
 }
 
 static void
@@ -1796,7 +1813,7 @@ name_owner_changed (DBusGProxy	*proxy,
 		priv->indexer_stopped = TRUE;
 
 		debug ("The Tracker daemon has exited (%s)\n",
-			 priv->reindex ? "reindexing" : "not reindexing");
+                       priv->reindex ? "reindexing" : "not reindexing");
 
 		if (priv->reindex) {
 			GError *error = NULL;
@@ -1885,6 +1902,11 @@ setup_dbus_connection (TrayIcon *icon)
 				 G_TYPE_DOUBLE,
 				 G_TYPE_INVALID);
 
+	dbus_g_proxy_add_signal (priv->tracker->proxy,
+				 "ServiceStatisticsUpdated",
+				 TRACKER_TYPE_G_STRV_ARRAY,
+				 G_TYPE_INVALID);
+
 	dbus_g_proxy_connect_signal (priv->tracker->proxy,
 				     "IndexStateChange",
 				     G_CALLBACK (index_state_changed),
@@ -1900,6 +1922,12 @@ setup_dbus_connection (TrayIcon *icon)
 	dbus_g_proxy_connect_signal (priv->tracker->proxy,
 				     "IndexFinished",
 				     G_CALLBACK (index_finished),
+				     icon,
+				     NULL);
+
+	dbus_g_proxy_connect_signal (priv->tracker->proxy,
+				     "ServiceStatisticsUpdated",
+				     G_CALLBACK (index_service_stats_updated),
 				     icon,
 				     NULL);
 

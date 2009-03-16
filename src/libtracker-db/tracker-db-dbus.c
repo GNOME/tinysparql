@@ -433,7 +433,7 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 		for (i = 0; i < columns; i++) {
 			GValue	transform = { 0, };
 			GValue	value = { 0, };
-			gchar  *str;
+			gchar  *str = NULL;
 
 			g_value_init (&transform, G_TYPE_STRING);
 
@@ -441,15 +441,9 @@ tracker_dbus_query_result_to_ptr_array (TrackerDBResultSet *result_set)
 
 			if (g_value_transform (&value, &transform)) {
 				str = g_value_dup_string (&transform);
+			}
 
-				if (!str) {
-					str = g_strdup ("");
-				} else if (!g_utf8_validate (str, -1, NULL)) {
-					g_warning ("Could not add string:'%s' to GStrv, invalid UTF-8", str);
-					g_free (str);
-					str = g_strdup ("");
-				}
-			} else {
+			if (!str) {
 				str = g_strdup ("");
 			}
 
@@ -545,7 +539,6 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 			g_value_unset (&transform);
 		}
 
-
 		if (add) {
 			rows_add (rows, key, row);
 		}
@@ -553,7 +546,7 @@ tracker_dbus_query_result_multi_to_ptr_array (TrackerDBResultSet *result_set)
 		valid = tracker_db_result_set_iter_next (result_set);
 	}
 
-	result = g_ptr_array_new();
+	result = g_ptr_array_new ();
 
 	rows_migrate (rows, result);
 	rows_destroy (rows);

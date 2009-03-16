@@ -43,6 +43,8 @@
 
 #define TRACKER_DAEMON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_DAEMON, TrackerDaemonPrivate))
 
+#define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
+
 typedef struct {
 	TrackerConfig	 *config;
 	TrackerProcessor *processor;
@@ -58,7 +60,7 @@ enum {
 	LAST_SIGNAL
 };
 
-static void tracker_daemon_finalize (GObject	 *object);
+static void tracker_daemon_finalize (GObject *object);
 
 static guint signals[LAST_SIGNAL] = {0};
 
@@ -120,10 +122,10 @@ tracker_daemon_class_init (TrackerDaemonClass *klass)
 			      G_SIGNAL_RUN_LAST,
 			      0,
 			      NULL, NULL,
-			      tracker_marshal_VOID__BOXED,
+			      g_cclosure_marshal_VOID__POINTER,
 			      G_TYPE_NONE,
 			      1,
-			      G_TYPE_STRV);
+			      TRACKER_TYPE_G_STRV_ARRAY);
 
 	g_type_class_add_private (object_class, sizeof (TrackerDaemonPrivate));
 }
@@ -595,19 +597,15 @@ tracker_daemon_signal_statistics (void)
 	g_message ("Checking for statistics changes and signalling clients...");
 
 	/* Situation #1 */
-	if (!new_stats) {
+	if (!new_stats || new_stats->len < 1) {
 		g_message ("  No new statistics, doing nothing");
 		return;
 	}
 
 	if (g_hash_table_size (priv->last_stats) < 1) {
-		GStrv strv;
 		gint i;
 
 		/* Situation #2 */
-		strv = g_new0 (gchar*, new_stats->len + 1);
-		strv[new_stats->len] = NULL;
-
 		g_message ("  No previous statistics");
 
 		for (i = 0; i < new_stats->len; i++) {
@@ -624,28 +622,22 @@ tracker_daemon_signal_statistics (void)
 				continue;
 			}
 
-			g_hash_table_insert (priv->last_stats, 
-					     g_strdup (service_type), 
-					     GINT_TO_POINTER (new_count));
-
-			/* GStrv for signal emission */
 			g_message ("  Adding '%s' with count:%d", 
 				   service_type,
 				   new_count);
-			strv[i] = g_strdup (service_type);
+			g_hash_table_insert (priv->last_stats, 
+					     g_strdup (service_type), 
+					     GINT_TO_POINTER (new_count));
 		}
 
 		/* Emit signal */
-		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
-		g_strfreev (strv);
+		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, new_stats);
 	} else {
-		GStrv strv = NULL;
-		GSList *l = NULL;
 		gint i;
 
 		/* Situation #3 */
 		for (i = 0; i < new_stats->len; i++) {
-			const gchar **p;
+			gchar       **p;
 			const gchar  *service_type = NULL;
 			gpointer      data;
 			gint          old_count, new_count;
@@ -668,25 +660,22 @@ tracker_daemon_signal_statistics (void)
 					   old_count,
 					   new_count - old_count);
 
-				l = g_slist_prepend (l, (gpointer) service_type);
-
 				g_hash_table_replace (priv->last_stats, 
 						      g_strdup (service_type), 
 						      GINT_TO_POINTER (new_count));
+			} else {
+				/* Remove from new_stats since the value is the same */
+				g_strfreev (p);
+				g_ptr_array_remove (new_stats, p);
 			}
 		}
 
-		if (l) {
-			l = g_slist_reverse (l);
-			strv = tracker_dbus_slist_to_strv (l);
-			g_slist_free (l);
-
-			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, strv);
-			g_strfreev (strv);
+		if (new_stats->len > 0) {
+			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, new_stats);
 		} else {
 			g_message ("  No changes in the statistics");
-
 		}
+
 	}
 
 	g_ptr_array_foreach (new_stats, (GFunc) g_strfreev, NULL);
