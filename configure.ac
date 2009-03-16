@@ -654,7 +654,7 @@ if test "x$have_deskbar_applet" = "xhandler"; then
    fi
 
    if test -z "$deskbar_applet_dir"; then
-      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/handlers"
+      deskbar_applet_dir="\$(libdir)/deskbar-applet/handlers"
    fi
 fi
 
@@ -665,8 +665,8 @@ if test "x$have_deskbar_applet" = "xmodule"; then
        deskbar_applet_dir="$with_deskbar_applet_dir"
    fi
 
-   if test -z "$module_dir"; then
-      deskbar_applet_dir="\$(exec_prefix)/lib/deskbar-applet/modules-2.20-compatible"
+   if test -z "$deskbar_applet_dir"; then
+      deskbar_applet_dir="\$(libdir)/deskbar-applet/modules-2.20-compatible"
    fi
 fi
 

@@ -1,3 +1,8 @@
+2009-03-16  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac: Fix confusion and error with deskbar-applet module
+	dir detection. Fixes bug #575271 (Deji Akingunola).
+
 2009-03-16  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (handle_metadata_add): Make
