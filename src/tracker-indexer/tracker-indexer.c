@@ -2060,8 +2060,8 @@ handle_metadata_add (TrackerIndexer *indexer,
 {
 	TrackerService *service;
 	TrackerField   *field;
-	guint           service_id, i, j = 0;
-	gchar         **setted_values;
+	guint           service_id, i, j;
+	gchar         **set_values;
 	gchar          *joined, *dirname = NULL, *basename = NULL;
 	gchar         **old_contents;
 	gint            len;
@@ -2148,7 +2148,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 		}
 	}
 
-	setted_values = g_new0 (gchar *, g_strv_length (values));
+	set_values = g_new0 (gchar *, g_strv_length (values) + 1);
 
 	for (i = 0, j = 0; values[i] != NULL; i++) {
 		g_debug ("Setting metadata: service_type '%s' id '%d' field '%s' value '%s'",
@@ -2163,11 +2163,10 @@ handle_metadata_add (TrackerIndexer *indexer,
 		}
 
 		tracker_data_update_set_metadata (service, service_id, field, values[i], NULL);
-		setted_values [j++] = values[i];
+		set_values [++j] = values[i];
 	}
-	setted_values [j] = NULL;
-	
-	joined = g_strjoinv (" ", setted_values);
+
+	joined = g_strjoinv (" ", set_values);
 	if (tracker_field_get_filtered (field)) {
 		index_text_no_parsing (indexer,
 				       service_id,
@@ -2187,7 +2186,7 @@ handle_metadata_add (TrackerIndexer *indexer,
 	}
 
 	/* Not g_strfreev because. It contains the pointers of "values"! */
-	g_free (setted_values);
+	g_free (set_values);
 	g_free (joined);
 
 	return TRUE;

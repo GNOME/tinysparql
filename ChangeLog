@@ -1,3 +1,10 @@
+2009-03-16  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (handle_metadata_add): Make
+	sure that we allocate enough space for the tags that are going to be
+	set, and that no empty places are left in between. This fixes both
+	memory corruption and strange behavior when saving tags.
+
 2009-03-16  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-db/tracker-db-dbus.c: Don't check each string for
