@@ -13,7 +13,7 @@
 	
 	* src/tracker-applet/tracker-applet.c: Fixed crasher here and
 	added a refresh button so the user can request updates more
-	frequently than they are signalled to us.
+	frequently than they are signalled to us. Fixes bug #575332.
 	
 	* src/trackerd/tracker-daemon.c: Fixed the
 	"service-statistics-updated" signal here so we actually send the
