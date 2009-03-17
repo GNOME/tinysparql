@@ -1,5 +1,10 @@
 2009-03-17  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-extract/tracker-main.c: Transform filenames passed
+	through the -f parameter to full paths.
+
+2009-03-17  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-extract/tracker-escape.c (tracker_escape_metadata):
 	Handle NULL strings. Fixes NB#106201.
 

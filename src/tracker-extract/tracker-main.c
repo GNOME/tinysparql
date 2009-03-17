@@ -35,6 +35,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gi18n.h>
+#include <gio/gio.h>
 
 #ifndef G_OS_WIN32
 #include <sys/resource.h>
@@ -82,7 +83,7 @@ static GOptionEntry  entries[] = {
 	     "1 = minimal, 2 = detailed and 3 = debug (default = 0)"),
 	  NULL },
 	{ "file", 'f', 0,
-	  G_OPTION_ARG_STRING, &filename,
+	  G_OPTION_ARG_FILENAME, &filename,
 	  N_("File to extract metadata for"),
 	  N_("FILE") },
 	{ "file", 'm', 0,
@@ -268,15 +269,22 @@ main (int argc, char *argv[])
 
 	if (filename) {
 		TrackerExtract *object;
+		GFile *file;
+		gchar *full_path;
 
 		object = tracker_extract_new ();
 		if (!object) {
 			return EXIT_FAILURE;
 		}
 
-		tracker_extract_get_metadata_by_cmdline (object, filename, mime_type);
+		file = g_file_new_for_commandline_arg (filename);
+		full_path = g_file_get_path (file);
+
+		tracker_extract_get_metadata_by_cmdline (object, full_path, mime_type);
 
 		g_object_unref (object);
+		g_object_unref (file);
+		g_free (full_path);
 
 		return EXIT_SUCCESS;
 	}
