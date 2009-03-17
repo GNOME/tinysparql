@@ -1,5 +1,12 @@
 2009-03-17  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-indexer/tracker-indexer.c:
+	(should_change_index_for_file): Make sure we check the mtime in
+	the db and on the disk are the same here before returning, don't
+	assume if the file is older it means the same thing.
+
+2009-03-17  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac: Provide information about if GStreamer helix is
 	being built in the summary.
 
