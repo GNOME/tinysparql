@@ -1,3 +1,8 @@
+2009-03-17  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (flush_data): Fixed wrong
+	logic when signalling status.
+
 2009-03-17  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c:
