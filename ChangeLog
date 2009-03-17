@@ -1,5 +1,11 @@
 2009-03-17  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-data/tracker-data-update.c
+	(tracker_data_update_delete_service_by_path): Fail gracefully if the
+	rdf type doesn't exist in the ontology.
+
+2009-03-17  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/tracker-indexer/tracker-indexer.c (flush_data): Fixed wrong
 	logic when signalling status.
 

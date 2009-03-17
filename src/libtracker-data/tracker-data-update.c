@@ -539,6 +539,11 @@ tracker_data_update_delete_service_by_path (const gchar *path,
 		return;
 
 	service = tracker_ontology_get_service_by_name (rdf_type);
+
+	if (!service) {
+		return;
+	}
+
 	service_type = tracker_service_get_name (service);
 	service_id = tracker_data_query_file_id (service_type, path);
 
