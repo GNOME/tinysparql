@@ -1,3 +1,9 @@
+2009-03-17  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/tracker-extract/Makefile.am: Fixed GStreamer helix bin
+	checks in configure and renamed variables.
+
 2009-03-17  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-main.c: Transform filenames passed

@@ -488,26 +488,25 @@ fi
 AC_ARG_ENABLE(gstreamer-helix, 
 	      AS_HELP_STRING([--enable-gstreamer-helix],
 			     [enable GStreamer helix extractor for Real Media (default=no)]),,
-	      [enable_gst_helix=no])
+	      [enable_gstreamer_helix=no])
 
-if test "x$enable_gst_helix" != "xno"; then
+if test "x$enable_gstreamer_helix" != "xno"; then
    if test "x$have_libgstreamer" = "xyes"; then 
-      have_gst_helix="yes"
+      have_gstreamer_helix="yes"
+   else 
+      have_gstreamer_helix="no"
    fi
 else
-   have_gst_helix="no  (disabled)"
+   have_gstreamer_helix="no  (disabled)"
 fi
 
-if test "x$enable_gst_helix" = "xyes"; then
-   if test "x$have_gst_helix" != "xyes"; then
-      AC_MSG_ERROR([Couldn't find GStreamer Helix Bin])
-   fi
-   if test "x$have_libgstreamer" != "xyes"; then
-      AC_MSG_ERROR([GStreamer is not found/used but GStreamer Helix Bin requested])
+if test "x$enable_gstreamer_helix" = "xyes"; then
+   if test "x$have_gstreamer_helix" != "xyes"; then
+      AC_MSG_ERROR([GStreamer is not available or disabled but GStreamer Helix Bin requested])
    fi
 fi
 
-AM_CONDITIONAL(HAVE_GST_HELIX, test "x$have_gst_helix" = "xyes")
+AM_CONDITIONAL(HAVE_GSTREAMER_HELIX, test "x$have_gstreamer_helix" = "xyes")
 
 ####################################################################
 # Windows check

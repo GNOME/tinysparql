@@ -28,18 +28,12 @@ INCLUDES = 								\
 	$(XINE_CFLAGS) 							\
 	$(TOTEM_PL_PARSER_CFLAGS)
 
-
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\
 	libextract-mp3.la				 		\
 	libextract-oasis.la 						\
 	libextract-png.la 						\
 	libextract-ps.la 						
-
-
-# if HAVE_IMAGEMAGICK
-# modules_LTLIBRARIES += libextract-imagemagick.la
-# endif
 
 if HAVE_EXEMPI
 modules_LTLIBRARIES += libextract-xmp.la
@@ -69,11 +63,7 @@ if HAVE_GSTREAMER
 modules_LTLIBRARIES += libextract-gstreamer.la
 endif
 
-#if HAVE_GSTREAMER
-#modules_LTLIBRARIES += libextract-gstreamer-tagreadbin.la
-#endif
-
-if HAVE_GST_HELIX
+if HAVE_GSTREAMER_HELIX
 modules_LTLIBRARIES += libextract-gstreamer-helix.la
 endif 
 
@@ -122,11 +112,6 @@ escape_sources = 							\
 libextract_abw_la_SOURCES = tracker-extract-abw.c $(escape_sources)
 libextract_abw_la_LDFLAGS = $(module_flags)
 libextract_abw_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS)
-
-# Imagemagick
-# libextract_imagemagick_la_SOURCES = tracker-extract-imagemagick.c $(xmp_sources)
-# libextract_imagemagick_la_LDFLAGS = $(module_flags)
-# libextract_imagemagick_la_LIBADD = $(GLIB2_LIBS) $(EXEMPI_LIBS) $(GCOV_LIBS)
 
 # MP3
 libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources) $(escape_sources)
@@ -185,11 +170,6 @@ libextract_pdf_la_LIBADD = $(GLIB2_LIBS) $(POPPLER_GLIB_LIBS) $(EXEMPI_LIBS) $(G
 libextract_gstreamer_la_SOURCES = tracker-extract-gstreamer.c $(albumart_sources) $(escape_sources)
 libextract_gstreamer_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_gstreamer_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS) $(GCOV_LIBS)
-
-# GStreamer tagreadbin
-#libextract_gstreamer_tagreadbin_la_SOURCES = tracker-extract-gstreamer-tagreadbin.c $(albumart_sources) $(escape_sources)
-#libextract_gstreamer_tagreadbin_la_LDFLAGS = $(module_flags) $(albumart_flags)
-#libextract_gstreamer_tagreadbin_la_LIBADD = $(albumart_libs) $(GSTREAMER_LIBS) $(GLIB2_LIBS)
 
 # GStreamer helix
 libextract_gstreamer_helix_la_SOURCES = tracker-extract-gstreamer-helix.c $(albumart_sources) $(escape_sources)
