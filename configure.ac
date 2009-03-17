@@ -1388,12 +1388,13 @@ Metadata Extractors:
 	Support PDF:				$have_poppler_glib
 	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
 	Support TIFF:				$have_libtiff (xmp: $have_exempi, exif: yes, iptc: $have_libiptcdata)
-	Support MS & Open Office (gsf):	        $have_libgsf
-	Support XML / HTML formats:		$have_libxml2
+	Support MS & Open Office:	        $have_libgsf
+	Support XML / HTML:		        $have_libxml2
 	Support embedded / sidecar XMP:		$have_exempi
 	Support video formats:			$have_video_handler ($have_video_handler_app)
+	Support helix formats (RPM/RM/etc):     $have_gstreamer_helix
 	Support MP3 album art (w/ GdkPixbuf):	$have_gdkpixbuf
-	Support Playlists (w/ Totem):           $have_playlist
+	Support playlists (w/ Totem):           $have_playlist
 
 Plugins:
 

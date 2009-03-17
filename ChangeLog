@@ -1,5 +1,10 @@
 2009-03-17  Martyn Russell  <martyn@imendio.com>
 
+	* configure.ac: Provide information about if GStreamer helix is
+	being built in the summary.
+
+2009-03-17  Martyn Russell  <martyn@imendio.com>
+
 	* configure.ac:
 	* src/tracker-extract/Makefile.am: Fixed GStreamer helix bin
 	checks in configure and renamed variables.
