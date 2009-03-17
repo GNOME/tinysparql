@@ -33,6 +33,10 @@ tracker_escape_metadata (const gchar *str)
 {
 	const gchar *end;
 
+	if (!str) {
+		return NULL;
+	}
+
 	if (g_utf8_validate (str, -1, &end)) {
 		return g_strstrip (g_strdup (str));
 	}

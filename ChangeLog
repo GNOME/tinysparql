@@ -1,3 +1,8 @@
+2009-03-17  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-escape.c (tracker_escape_metadata):
+	Handle NULL strings. Fixes NB#106201.
+
 2009-03-16  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-applet/tracker-applet.c: (filter_x_events):
