@@ -288,11 +288,11 @@ ucs2_to_utf8(const gchar *data, guint len) {
         gchar   *encoding = NULL;
         guint16  c;
 	gboolean be;
-        gchar   *utf8;
+        gchar   *utf8 = NULL;
 
         memcpy(&c, data, 2);
 
-switch (c) {
+	switch (c) {
         case 0xfeff:
         case 0xfffe:
 		be = (G_BYTE_ORDER == G_BIG_ENDIAN);
@@ -307,6 +307,7 @@ switch (c) {
         }
 
         utf8 = g_convert(data, len, "UTF-8", encoding, NULL, NULL, NULL);
+
         return utf8;
 }
 
@@ -1127,7 +1128,7 @@ get_id3v20_tags (const gchar *data,
 {
 	guint	pos = 0;
 	Matches tmap[] = {
-		{"TAL", "Audio:Title"},
+		{"TAL", "Audio:Album"},
 		{"TT1", "Audio:Artist"},
 		{"TT2", "Audio:Title"},
 		{"TT3", "Audio:Title"},
@@ -1144,7 +1145,7 @@ get_id3v20_tags (const gchar *data,
 		{"TP2", "Audio:Artist"},
 		{"TP3", "Audio:Performer"},
 		{"TEN", "Audio:Performer"},
-		{"TCO", "Audio:Title"},
+		{"TCO", "Audio:Genre"},
 		{"TCR", "File:Copyright"},
 		{"SLT", "Audio:Lyrics"},
 		{"TOA", "Audio:Artist"},
@@ -1184,7 +1185,7 @@ get_id3v20_tags (const gchar *data,
 				switch (data[pos + 6]) {
 				case 0x00:
 					word = g_convert(&data[pos+7],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "ISO-8859-1",
 							 NULL, NULL, NULL);
@@ -1196,7 +1197,7 @@ get_id3v20_tags (const gchar *data,
 /* 							 "UCS-2", */
 /* 							 NULL, NULL, NULL); */
 					word = ucs2_to_utf8 (&data[pos+7],
-							     csize);
+							     csize-1);
 					break;
 				default:
 					/* Bad encoding byte,
@@ -1204,7 +1205,7 @@ get_id3v20_tags (const gchar *data,
 					 * iso-8859-1
 					 */
 					word = g_convert(&data[pos+7],
-							 csize,
+							 csize-1,
 							 "UTF-8",
 							 "ISO-8859-1",
 							 NULL, NULL, NULL);
@@ -1223,6 +1224,14 @@ get_id3v20_tags (const gchar *data,
 						word = s;
 					}
 
+					if (strcmp (tmap[i].text, "TCO") == 0) {
+						gint genre;
+						if (get_genre_number (word, &genre)) {
+							g_free (word);
+							word = g_strdup (genre_names[genre]);
+						}
+					}	
+					
 					g_hash_table_insert (metadata,
 							     g_strdup (tmap[i].type),
 							     tracker_escape_metadata (word));

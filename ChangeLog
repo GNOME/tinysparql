@@ -1,3 +1,10 @@
+2009-03-17  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c: Minor fixes to id3v2
+	extraction.
+
+	Fixes NB#106424.
+
 2009-03-17  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-data/tracker-data-update.c
