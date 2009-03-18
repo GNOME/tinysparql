@@ -396,6 +396,13 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
 			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
 		}
+		if (strcmp (name, "Sublocation") == 0) {
+		        tracker_append_string_to_hash_table (metadata, "Image:Sublocation", value, append, FALSE);
+			
+			/* Added to the valid keywords */
+		        tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, TRUE, FALSE);
+			tracker_append_string_to_hash_table (metadata, "Image:HasKeywords", "1", FALSE, FALSE);
+		}
 	}
 	/* Photoshop scheme */
 	else if (strcmp (schema,  NS_PHOTOSHOP) == 0) {

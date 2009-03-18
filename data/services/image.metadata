@@ -133,6 +133,11 @@ DisplayName=Location
 Description=Location where the image was taken or the location shown in the image.
 DataType=string
 
+[Image:Sublocation]
+DisplayName=Sublocation
+Description=Further detailed location where the image was taken or the
+location shown in the image.
+
 [Image:Country]
 DisplayName=Country
 Description=Country where the image was taken or the country shown in the image.

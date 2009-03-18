@@ -45,6 +45,7 @@ static gchar *fix_iptc_orientation (const gchar *orientation);
 static IptcTagType iptctags[] = {
         { 2, IPTC_TAG_KEYWORDS, "Image:Keywords", NULL },
 	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL },
+	{ 2, IPTC_TAG_SUBLOCATION, "Image:Sublocation", NULL },
         { 2, IPTC_TAG_DATE_CREATED, "Image:Date", NULL },
         { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", NULL },
         { 2, IPTC_TAG_BYLINE, "Image:Creator", NULL },
@@ -93,8 +94,16 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value)
 		if (strcmp (key, "Image:Keywords") == 0) {
 			g_hash_table_insert (metadata,
 					     g_strdup ("Image:HasKeywords"),
-					     tracker_escape_metadata ("1"));
-		}
+					     tracker_escape_metadata ("1"));			
+		}		
+	}
+
+	/* Adding certain fields also to keywords FIXME Postprocessing is evil */
+	if ((strcmp (key, "Image:Location") == 0) ||
+	    (strcmp (key, "Image:Sublocation") == 0) ||
+	    (strcmp (key, "Image:Country") == 0) ||
+	    (strcmp (key, "Image:City") == 0) ) {
+		metadata_append (metadata, "Image:Keywords", value);
 	}
 }
 

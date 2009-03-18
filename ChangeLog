@@ -1,5 +1,14 @@
 2009-03-17  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* data/services/image.metadata: Added sublocation property to images.
+	* src/tracker-extract/tracker-iptc.c:
+	* src/tracker-extract/tracker-xmp.c: Extract information for the
+	sublocation.
+
+	Fixes NB#90455.
+
+2009-03-17  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c: Minor fixes to id3v2
 	extraction.
 
