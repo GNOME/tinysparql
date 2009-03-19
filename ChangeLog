@@ -1,3 +1,13 @@
+2009-03-19  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* data/services/default.service
+	* data/db/sqlite-service.sql
+	* src/libtracker-data/tracker-data-search.c: Use the collation for
+	sorting correctly. First phase of improving the unique values
+	queries performance.
+	* src/libtracker-data/tracker-data-update.c: Make sure no empty
+	strings are added to the database.
+
 2009-03-19  Martyn Russell  <martyn@imendio.com>
 
 	* configure.ac:

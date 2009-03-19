@@ -329,6 +329,9 @@ tracker_data_update_set_metadata (TrackerService *service,
 	gint metadata_key;
 	gchar *id_str;
 
+	if(!strlen(value))
+		return;
+
 	id_str = tracker_guint32_to_string (service_id);
 
 	iface = tracker_db_manager_get_db_interface_by_type (tracker_service_get_name (service),

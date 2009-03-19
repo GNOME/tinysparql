@@ -37,8 +37,11 @@ CREATE TABLE  Services
 	MD5			Text,
 
     	unique (Path, Name)
-
 );
+
+CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceTypeID, Enabled, AuxiliaryID, KeyMetadata1);
+CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceTypeID, Enabled, AuxiliaryID, KeyMetadata2);
+CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceTypeID, Enabled, AuxiliaryID, KeyMetadata3);
 
 /* child service relationships for a specific group/struct metadata */
 CREATE TABLE ChildServices
