@@ -50,5 +50,6 @@ noinst_HEADERS =			\
 
 
 libstemmer_la_LIBADD = $(GCOV_LIBS)
-libstemmer_la_LDFLAGS = -version-info 0:0:0
+libstemmer_la_LDFLAGS = 		\
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 

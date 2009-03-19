@@ -40,7 +40,9 @@ noinst_HEADERS =							\
 	tracker-rdf-query.h						\
 	tracker-turtle.h						
 
-libtracker_data_la_LDFLAGS = -version-info 0:0:0
+libtracker_data_la_LDFLAGS =						\
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+
 libtracker_data_la_LIBADD = 						\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la		\

@@ -30,5 +30,5 @@ libtracker_gtk_la_LIBADD = 					\
 	$(LIBTRACKERGTK_LIBS) 					\
 	$(GCOV_LIBS)
 
-libtracker_gtk_la_LDFLAGS = -version-info 0:0:0
-
+libtracker_gtk_la_LDFLAGS = 					\
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)

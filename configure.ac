@@ -22,6 +22,15 @@ m4_define([tracker_version],
 # This is the X.Y used in -llibtracker-FOO-X.Y
 m4_define([tracker_api_version], [0.6])
 
+# libtool version related macros
+m4_define([tracker_lt_release], [tracker_major_version.tracker_minor_version])
+m4_define([tracker_lt_current],
+          [m4_eval(100 * tracker_minor_version + tracker_micro_version - tracker_interface_age)])
+m4_define([tracker_lt_revision], [tracker_interface_age])
+m4_define([tracker_lt_age], [m4_eval(tracker_binary_age - tracker_interface_age)])
+m4_define([tracker_lt_current_minus_age],
+          [m4_eval(tracker_lt_current - tracker_lt_age)])
+
 # Define a string for the earliest version that this release has
 # backwards binary compatibility with for all interfaces a module
 # might. Unless we add module-only API with lower stability
@@ -60,6 +69,18 @@ AC_SUBST(TRACKER_VERSION)
 AC_SUBST(TRACKER_BINARY_VERSION)
 
 AC_SUBST(PACKAGE_URL, [http://www.tracker-project.org])
+
+# libtool versioning
+LT_RELEASE=tracker_lt_release
+LT_CURRENT=tracker_lt_current
+LT_REVISION=tracker_lt_revision
+LT_AGE=tracker_lt_age
+LT_CURRENT_MINUS_AGE=tracker_lt_current_minus_age
+AC_SUBST(LT_RELEASE)
+AC_SUBST(LT_CURRENT)
+AC_SUBST(LT_REVISION)
+AC_SUBST(LT_AGE)
+AC_SUBST(LT_CURRENT_MINUS_AGE)
 
 # Checks for programs.
 AC_PROG_CC

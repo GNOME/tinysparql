@@ -76,7 +76,9 @@ libtracker_commoninclude_HEADERS =			\
 	tracker-type-utils.h				\
 	tracker-utils.h
 
-libtracker_common_la_LDFLAGS = -version-info 0:0:0
+libtracker_common_la_LDFLAGS = 				\
+	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+
 libtracker_common_la_LIBADD = 				\
 	$(top_builddir)/src/libstemmer/libstemmer.la	\
 	$(HAL_LIBS)					\

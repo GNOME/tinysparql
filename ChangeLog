@@ -1,3 +1,15 @@
+2009-03-19  Martyn Russell  <martyn@imendio.com>
+
+	* configure.ac:
+	* src/libinotify/Makefile.am:
+	* src/libstemmer/Makefile.am:
+	* src/libtracker-common/Makefile.am:
+	* src/libtracker-data/Makefile.am:
+	* src/libtracker-db/Makefile.am:
+	* src/libtracker-gtk/Makefile.am:
+	* src/libtracker/Makefile.am: Added libtool library versioning so
+	libraries are not all named .so.0.0.0. 
+
 2009-03-17  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* data/services/image.metadata: Added sublocation property to images.
