@@ -412,7 +412,7 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
 				    "Cleanup",
 				    G_TYPE_STRING, uri_prefix,
-				    G_TYPE_INT, 0,
+				    G_TYPE_UINT, 0,
 				    G_TYPE_INVALID,
 				    G_TYPE_INVALID);
 }
