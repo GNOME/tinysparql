@@ -22,8 +22,15 @@
 #include "config.h"
 
 #include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <errno.h>
 
 #include <gio/gio.h>
+
+#define DBUS_API_SUBJECT_TO_CHANGE
+#include <dbus/dbus-glib-lowlevel.h>
 
 #include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
@@ -86,9 +93,9 @@ get_dbus_extract_proxy (void)
 					   "org.freedesktop.Tracker.Extract",
 					   "/org/freedesktop/Tracker/Extract",
 					   "org.freedesktop.Tracker.Extract");
-	
+
 	if (!proxy) {
-		g_critical ("Couldn't create a DBusGProxy to the extract service");
+		g_critical ("Could not create a DBusGProxy to the extract service");
 	}
 
 	return proxy;
@@ -188,6 +195,42 @@ process_context_create (const gchar **argv,
 	return context;
 }
 
+static GSList *
+get_pids (void)
+{
+	GError *error = NULL;
+	GDir *dir;
+	GSList *pids = NULL;
+	const gchar *name;
+
+	dir = g_dir_open ("/proc", 0, &error);
+	if (error) {
+		g_warning ("Could not open /proc, %s\n",
+			   error ? error->message : "no error given");
+		g_clear_error (&error);
+		return NULL;
+	}
+
+	while ((name = g_dir_read_name (dir)) != NULL) { 
+		gchar c;
+		gboolean is_pid = TRUE;
+
+		for (c = *name; c && c != ':' && is_pid; c++) {		
+			is_pid &= g_ascii_isdigit (c);
+		}
+
+		if (!is_pid) {
+			continue;
+		}
+
+		pids = g_slist_prepend (pids, g_strdup (name));
+	}
+
+	g_dir_close (dir);
+
+	return g_slist_reverse (pids);
+}
+
 static void
 metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
 				  TrackerField          *field,
@@ -285,11 +328,104 @@ metadata_utils_get_embedded (const char            *path,
 							   mime_type, 
 							   &values, 
 							   &error)) {
+		GSList *pids, *l;
+		gboolean should_kill = TRUE;
+		gboolean was_killed;
+
+		if (G_LIKELY (error)) {
+			switch (error->code) {
+			case DBUS_GERROR_FAILED:
+			case DBUS_GERROR_NO_MEMORY:
+			case DBUS_GERROR_NO_REPLY:
+			case DBUS_GERROR_IO_ERROR:
+			case DBUS_GERROR_LIMITS_EXCEEDED:
+			case DBUS_GERROR_TIMEOUT:
+			case DBUS_GERROR_DISCONNECTED:
+			case DBUS_GERROR_TIMED_OUT:
+			case DBUS_GERROR_REMOTE_EXCEPTION:
+				break;
+
+			default:
+				should_kill = FALSE;
+				break;
+			}
+		}
+
 		g_message ("Couldn't extract metadata for path:'%s' and mime:'%s', %s",
 			   path,
 			   mime_type,
 			   error ? error->message : "no error given");
+
 		g_clear_error (&error);
+
+		if (!should_kill) {
+			return;
+		}
+
+		was_killed = FALSE;
+
+		/* Kill extractor, most likely it got stuck */
+		g_message ("Attempting to kill tracker-extract with SIGKILL");
+		
+		pids = get_pids ();
+		g_message ("  Found %d pids...", g_slist_length (pids));
+
+		for (l = pids; l; l = l->next) {
+			gchar *filename;
+			gchar *contents = NULL;
+			gchar **strv;
+
+			filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
+			g_file_get_contents (filename, &contents, NULL, &error);
+			
+			if (error) {
+				g_warning ("Could not open '%s', %s",
+					   filename,
+					   error ? error->message : "no error given");
+				g_clear_error (&error);
+				g_free (contents);
+				g_free (filename);
+				
+				continue;
+			}
+			
+			strv = g_strsplit (contents, "^@", 2);
+			if (strv && strv[0]) {
+				gchar *basename;
+				
+				basename = g_path_get_basename (strv[0]);
+				if (g_strcmp0 (basename, "tracker-extract") == 0) {
+					pid_t p;
+
+					p = atoi (l->data);
+					g_message ("  Found process ID:%d", p);
+
+					if (kill (p, SIGKILL) == -1) {
+						const gchar *str = g_strerror (errno);
+						
+						g_message ("Couldn't kill process %d, %s",
+							   p,
+							   str ? str : "no error given");
+					} else {
+						was_killed = TRUE;
+					}
+				}
+				
+				g_free (basename);
+			}
+			
+			g_strfreev (strv);
+			g_free (contents);
+			g_free (filename);
+		}
+
+		if (!was_killed) {
+			g_message ("  No process was found to kill");
+		}
+		
+		g_slist_foreach (pids, (GFunc) g_free, NULL);
+		g_slist_free (pids);
+
 		return;
 	}
 

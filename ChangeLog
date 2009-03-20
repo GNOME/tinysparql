@@ -1,15 +1,30 @@
 2009-03-20  Martyn Russell  <martyn@imendio.com>
 
-	* data/db/sqlite-service-types.sql:
+	* src/tracker-indexer/tracker-module-metadata-utils.c: Used code
+	from tracker-processes utility to find tracker-extract when we get
+	a dbus timed out (and other type) messages and kill it with
+	SIGKILL. This should fix the problems we were seeing with the
+	extractor locking up for long periods of time on the device.
+
+	* src/tracker-utils/Makefile.am:
+	* src/tracker-utils/tracker-processes.c: Added utility to get all
+	tracker processes running on the system.
+
+2009-03-20  Martyn Russell  <martyn@imendio.com>
+
+	* data/db/sqlite-service-types.sql: 
 	* data/db/sqlite-service.sql:
 	* data/db/sqlite-stored-procs.sql:
 	* src/libtracker-db/tracker-db-manager.c: 
-	* src/trackerd/tracker-daemon.c: 
+	* src/trackerd/tracker-daemon.c: Added ParentID and 2 indexes
+	to improve GetStats performance. Removed erroneous indexes which
+	were creating warnings when creating the databases. Added stored
+	proc to get all parent service type statistics (like Files,
+	Emails, Conversations, etc).
 
 	* src/tracker-applet/tracker-applet.c: Fixed stats order. This was
 	broken recently with the change to the stored procs.
 	
-	* src/tracker-indexer/tracker-module-metadata-utils.c:
 	* src/trackerd/tracker-main.c: Don't try to reset the stats in the
 	database when we reindex, we don't hold stats in the same place in
 	the same way now.
