@@ -137,6 +137,7 @@ DataType=string
 DisplayName=Sublocation
 Description=Further detailed location where the image was taken or the
 location shown in the image.
+DataType=string
 
 [Image:Country]
 DisplayName=Country

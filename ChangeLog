@@ -1,5 +1,10 @@
 2009-03-19  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* data/services/image.metadata: Added missing field type
+	definition.
+	
+2009-03-19  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* data/services/default.service
 	* data/db/sqlite-service.sql
 	* src/libtracker-data/tracker-data-search.c: Use the collation for
