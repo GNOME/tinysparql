@@ -1,3 +1,8 @@
+2009-03-20  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/libtracker-common/tracker-thumbnailer.c: Using an int instead of
+	an int64 for this dbus call
+
 2009-03-20  Martyn Russell  <martyn@imendio.com>
 
 	* data/services/image.metadata: Fixed errors stopping file from
