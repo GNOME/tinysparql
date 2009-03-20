@@ -139,7 +139,6 @@ tracker_dbus_str_to_strv (const gchar *str)
 	return strv;
 }
 
-
 gchar **
 tracker_dbus_queue_str_to_strv (GQueue *queue,
 				gint	max)

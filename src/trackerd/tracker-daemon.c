@@ -49,6 +49,8 @@ typedef struct {
 	TrackerConfig	 *config;
 	TrackerProcessor *processor;
 	DBusGProxy	 *indexer_proxy;
+
+	GTimeVal          last_stats_time;
 	GHashTable       *last_stats;
 } TrackerDaemonPrivate;
 
@@ -307,31 +309,115 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 			  DBusGMethodInvocation  *context,
 			  GError		**error)
 {
-	TrackerDBInterface *iface;
-	TrackerDBResultSet *result_set;
-	guint		    request_id;
-	GPtrArray	   *values = NULL;
+	TrackerDaemonPrivate *priv;
+	TrackerDBInterface   *iface;
+	TrackerDBResultSet   *result_set;
+	guint		      request_id;
+	GPtrArray            *values;
+	GTimeVal	      now;
+	gboolean              use_cache;
 
 	request_id = tracker_dbus_get_next_request_id ();
 
 	tracker_dbus_request_new (request_id,
 				  "DBus request to get daemon service stats");
 
-	/* Here it doesn't matter which one we ask, as long as it has common.db
-	 * attached. The service ones are cached connections, so we can use
-	 * those instead of asking for an individual-file connection (like what
-	 * the original code had)
-	 */
+	priv = TRACKER_DAEMON_GET_PRIVATE (object);
 
-	/* iface = tracker_db_manager_get_db_interfaceX (TRACKER_DB_COMMON); */
+	values = g_ptr_array_new ();
 
-	iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
+	/* Use the cache if we have requests stats recently. */
+	g_get_current_time (&now);
 
-	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-	values = tracker_dbus_query_result_to_ptr_array (result_set);
+	if (priv->last_stats_time.tv_sec == 0) {
+		use_cache = FALSE;
+	} else {
+		use_cache = now.tv_sec - priv->last_stats_time.tv_sec < 60;
+	}
 
-	if (result_set) {
-		g_object_unref (result_set);
+	if (use_cache) {
+		GHashTableIter iter;
+		gpointer key, value;
+
+		g_message ("Using cache for stats");
+		
+		g_hash_table_iter_init (&iter, priv->last_stats);
+		while (g_hash_table_iter_next (&iter, &key, &value)) {
+			GStrv         strv;
+			const gchar  *service_type;
+			gint          count;
+			
+			service_type = key;
+			count = GPOINTER_TO_INT (value);
+
+			strv = g_new (gchar*, 3);
+			strv[0] = g_strdup (service_type);
+			strv[1] = g_strdup_printf ("%d", count);
+			strv[2] = NULL;
+
+			g_ptr_array_add (values, strv);
+		}
+	} else {
+		GPtrArray *stats, *parent_stats;
+		gint i;
+
+		g_message ("Using database for stats (cache is %ld seconds old)",
+			   now.tv_sec - priv->last_stats_time.tv_sec);
+
+		/* Here it doesn't matter which one we ask, as long as
+		 * it has common.db attached. The service ones are
+		 * cached connections, so we can use those instead of
+		 * asking for an individual-file connection (like what
+		 * the original code had).
+		 */
+		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
+		
+		result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
+		stats = tracker_dbus_query_result_to_ptr_array (result_set);
+		
+		if (result_set) {
+			g_object_unref (result_set);
+		}
+		
+		result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
+		parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
+		
+		if (result_set) {
+			g_object_unref (result_set);
+		}
+
+		/* Concatenate stats */
+		for (i = 0; i < stats->len; i++) {
+			g_ptr_array_add (values, g_ptr_array_index (stats, i));
+		}
+		
+		for (i = 0; i < parent_stats->len; i++) {
+			g_ptr_array_add (values, g_ptr_array_index (parent_stats, i));
+		}
+
+		/* Update local cache */
+		for (i = 0; i < values->len; i++) {
+			gchar       **p;
+			const gchar  *service_type = NULL;
+			gint          old_count, new_count;
+
+			p = g_ptr_array_index (values, i);
+			service_type = p[0];
+			new_count = atoi (p[1]);
+
+			if (old_count != new_count) {
+				g_hash_table_replace (priv->last_stats, 
+						      g_strdup (service_type), 
+						      GINT_TO_POINTER (new_count));
+			}
+		}
+
+		g_ptr_array_free (parent_stats, TRUE);
+		g_ptr_array_free (stats, TRUE);
+
+		priv->last_stats_time = now;
+
+		g_message ("Updated stats cache time to now");
 	}
 
 	dbus_g_method_return (context, values);
@@ -567,7 +653,10 @@ tracker_daemon_signal_statistics (void)
 	TrackerDaemonPrivate *priv;
 	TrackerDBInterface   *iface;
 	TrackerDBResultSet   *result_set;
-	GPtrArray	     *new_stats;
+	GPtrArray	     *stats, *parent_stats;
+	GPtrArray            *values;
+	GTimeVal              now;
+	gint                  i;
 
 	daemon = tracker_dbus_get_object (TRACKER_TYPE_DAEMON);
 	priv = TRACKER_DAEMON_GET_PRIVATE (daemon);
@@ -578,12 +667,35 @@ tracker_daemon_signal_statistics (void)
 	 * lookup the in a to compare in b, just compare index based.
 	 * Maybe we want to change this nonetheless later?
 	 */
+	g_message ("Using database for stats for accurate signal");
+
 	result_set = tracker_data_manager_exec_proc (iface, "GetStats", 0);
-	new_stats = tracker_dbus_query_result_to_ptr_array (result_set);
+	stats = tracker_dbus_query_result_to_ptr_array (result_set);
 
 	if (result_set) {
 		g_object_unref (result_set);
 	}
+
+	result_set = tracker_data_manager_exec_proc (iface, "GetStatsForParents", 0);
+	parent_stats = tracker_dbus_query_result_to_ptr_array (result_set);
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+	
+	/* Concatenate stats */
+	values = g_ptr_array_new ();
+	
+	for (i = 0; i < stats->len; i++) {
+		g_ptr_array_add (values, g_ptr_array_index (stats, i));
+	}
+
+	for (i = 0; i < parent_stats->len; i++) {
+		g_ptr_array_add (values, g_ptr_array_index (parent_stats, i));
+	}
+
+	g_ptr_array_free (parent_stats, TRUE);
+	g_ptr_array_free (stats, TRUE);
 
 	/* There are 3 situations here:
 	 *  - 1. No new stats
@@ -597,7 +709,7 @@ tracker_daemon_signal_statistics (void)
 	g_message ("Checking for statistics changes and signalling clients...");
 
 	/* Situation #1 */
-	if (!new_stats || new_stats->len < 1) {
+	if (!values || values->len < 1) {
 		g_message ("  No new statistics, doing nothing");
 		return;
 	}
@@ -608,15 +720,15 @@ tracker_daemon_signal_statistics (void)
 		/* Situation #2 */
 		g_message ("  No previous statistics");
 
-		for (i = 0; i < new_stats->len; i++) {
+		for (i = 0; i < values->len; i++) {
 			const gchar **p;
 			const gchar  *service_type = NULL;
 			gint          new_count;
 
-			p = g_ptr_array_index (new_stats, i);
+			p = g_ptr_array_index (values, i);
 
-			service_type = p[1];
-			new_count = atoi (p[0]);
+			service_type = p[0];
+			new_count = atoi (p[1]);
 			
 			if (!service_type) {
 				continue;
@@ -631,20 +743,20 @@ tracker_daemon_signal_statistics (void)
 		}
 
 		/* Emit signal */
-		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, new_stats);
+		g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, values);
 	} else {
 		gint i;
 
 		/* Situation #3 */
-		for (i = 0; i < new_stats->len; i++) {
+		for (i = 0; i < values->len; i++) {
 			gchar       **p;
 			const gchar  *service_type = NULL;
 			gpointer      data;
 			gint          old_count, new_count;
 
-			p = g_ptr_array_index (new_stats, i);
-			service_type = p[1];
-			new_count = atoi (p[0]);
+			p = g_ptr_array_index (values, i);
+			service_type = p[0];
+			new_count = atoi (p[1]);
 
 			if (!service_type) {
 				continue;
@@ -664,20 +776,31 @@ tracker_daemon_signal_statistics (void)
 						      g_strdup (service_type), 
 						      GINT_TO_POINTER (new_count));
 			} else {
-				/* Remove from new_stats since the value is the same */
+				/* Remove from values since the value is the same */
 				g_strfreev (p);
-				g_ptr_array_remove (new_stats, p);
+				g_ptr_array_remove (values, p);
+
+				/* Decrement i since we are about to
+				 * increment it and we just removed
+				 * an item. Otherwise we miss items.
+				 */
+				i--;
 			}
 		}
 
-		if (new_stats->len > 0) {
-			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, new_stats);
+		if (values->len > 0) {
+			g_signal_emit (daemon, signals[SERVICE_STATISTICS_UPDATED], 0, values);
 		} else {
 			g_message ("  No changes in the statistics");
 		}
-
 	}
 
-	g_ptr_array_foreach (new_stats, (GFunc) g_strfreev, NULL);
-	g_ptr_array_free (new_stats, TRUE);
+	/* Update time for last stats */
+	g_get_current_time (&now);
+	priv->last_stats_time = now;
+
+	g_message ("Updated stats cache time to now");
+
+	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (values, TRUE);
 }

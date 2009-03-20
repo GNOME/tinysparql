@@ -119,7 +119,9 @@ DeleteSearchResults1           DELETE FROM SearchResults1;
 /*
  * Statistics queries
  */
-GetStats                       SELECT COUNT(1), T.TypeName FROM Services S, ServiceTypes T WHERE S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1) AND S.Enabled = 1 AND T.TypeID=S.ServiceTypeID GROUP BY ServiceTypeID ORDER BY T.TypeName;
+GetStats                       SELECT T.TypeName, COUNT(1) FROM Services S, ServiceTypes T WHERE S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1) AND S.Enabled = 1 AND T.TypeID=S.ServiceTypeID GROUP BY ServiceTypeID ORDER BY T.TypeName;
+GetStatsForParents	       SELECT T.Parent, COUNT(1) FROM ServiceTypes AS T JOIN Services AS S ON S.ServiceTypeID=T.TypeID WHERE S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1) AND S.Enabled = 1 AND S.ServiceTypeID IN (SELECT TypeID FROM ServiceTypes WHERE ParentID > 0) GROUP BY T.ParentID ORDER BY T.Parent;
+
 GetHitDetails                  SELECT ROWID, HitCount, HitArraySize FROM HitIndex WHERE word = ?;
 
 /*

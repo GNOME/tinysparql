@@ -7,6 +7,7 @@ CREATE TABLE  ServiceTypes
 	TypeCount		Integer default 0,
 
 	DisplayName		Text default ' ',
+	ParentID		Integer default 0,
 	Parent			Text default ' ',
 	PropertyPrefix		Text default ' ',
 	Enabled			Integer default 1, 
@@ -64,6 +65,9 @@ CREATE TABLE  ServiceTypes
 
 	unique (TypeName)
 );
+
+CREATE INDEX ServiceTypesStats ON ServiceTypes (TypeName, TypeID);
+CREATE INDEX ServiceTypesParentStats ON ServiceTypes (Parent, TypeID, ParentID);
 
 insert into ServiceTypes (TypeName) values ('default');
 

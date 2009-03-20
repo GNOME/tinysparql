@@ -605,25 +605,7 @@ initialize_databases (void)
 	 * Create SQLite databases
 	 */
 	if (!tracker_status_get_is_readonly () && force_reindex) {
-		TrackerDBInterface *iface;
-
 		tracker_status_set_is_first_time_index (TRUE);
-
-		/* Reset stats for embedded services if they are being reindexed */
-
-		/* Here it doesn't matter which one we ask, as long as it has common.db
-		 * attached. The service ones are cached connections, so we can use
-		 * those instead of asking for an individual-file connection (like what
-		 * the original code had) */
-
-		/* iface = tracker_db_manager_get_db_interfaceX (TRACKER_DB_COMMON); */
-
-		iface = tracker_db_manager_get_db_interface_by_service (TRACKER_DB_FOR_FILE_SERVICE);
-
-		g_message ("*** DELETING STATS *** ");
-		tracker_data_manager_exec_no_reply (iface,
-					  "update ServiceTypes set TypeCount = 0 where Embedded = 1");
-
 	}
 
 	/* Check db integrity if not previously shut down cleanly */

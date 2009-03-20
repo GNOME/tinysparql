@@ -1204,7 +1204,7 @@ update_stats (GPtrArray *new_stats,
                 
                 p = g_ptr_array_index (new_stats, i);
                 
-                service_type = p[1];
+                service_type = p[0];
 		
                 if (!service_type) {
                         continue;
@@ -1212,7 +1212,7 @@ update_stats (GPtrArray *new_stats,
 
                 for (j = 0; j < G_N_ELEMENTS (stat_info); j++) {
                         if (g_strcmp0 (stat_info[j].name, service_type) == 0) {
-                                gtk_label_set_text (GTK_LABEL (stat_info[j].stat_label), p[0]);
+                                gtk_label_set_text (GTK_LABEL (stat_info[j].stat_label), p[1]);
                         }
                 }
         }
@@ -1325,16 +1325,14 @@ statistics_menu_activated (GtkMenuItem *item,
                                            label, 
                                            0, 1, i + 1, i + 2);
 
-                if (g_strcmp0 (stat_info[i].name, "Files") != 0) {
-                        stat_info[i].stat_label = gtk_label_new ("0");
-
-                        gtk_label_set_selectable (GTK_LABEL (stat_info[i].stat_label), TRUE);
-                        gtk_misc_set_alignment (GTK_MISC (stat_info[i].stat_label), 0, 0);
-                        gtk_table_attach_defaults (GTK_TABLE (table),
-                                                   stat_info[i].stat_label,
-                                                   1, 2,
-                                                   i + 1, i + 2);
-                }
+                stat_info[i].stat_label = gtk_label_new ("0");
+                
+                gtk_label_set_selectable (GTK_LABEL (stat_info[i].stat_label), TRUE);
+                gtk_misc_set_alignment (GTK_MISC (stat_info[i].stat_label), 0, 0);
+                gtk_table_attach_defaults (GTK_TABLE (table),
+                                           stat_info[i].stat_label,
+                                           1, 2,
+                                           i + 1, i + 2);
 	}
 
         /* Set flags and get stats */

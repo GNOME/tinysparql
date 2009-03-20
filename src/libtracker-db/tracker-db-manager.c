@@ -48,7 +48,7 @@
 #define TRACKER_DB_MAX_FILE_SIZE      2000000000 
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_4
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 
 typedef enum {
@@ -61,8 +61,9 @@ typedef enum {
 	TRACKER_DB_VERSION_UNKNOWN, /* Unknown */
 	TRACKER_DB_VERSION_1,       /* Version 0.6.6  (before indexer-split) */
 	TRACKER_DB_VERSION_2,       /* Version 0.6.90 (after  indexer-split) */
-	TRACKER_DB_VERSION_3,       /* Version 0.6.91 (current TRUNK) */
-	TRACKER_DB_VERSION_4        /* Version 0.7    (vstore branch) */
+	TRACKER_DB_VERSION_3,       /* Version 0.6.91 (stable release) */
+	TRACKER_DB_VERSION_4,       /* Version 0.6.92 (current TRUNK) */
+	TRACKER_DB_VERSION_5        /* Version 0.7    (vstore branch) */
 } TrackerDBVersion;
 
 typedef struct {
@@ -520,9 +521,41 @@ load_service_file (TrackerDBInterface *iface,
 				new_value = tracker_string_boolean_to_string_gint (value);
 				esc_value = tracker_escape_string (new_value);
 
+				/* Special case "Parent */
+				if (g_ascii_strcasecmp (keys[j], "parent") == 0) {
+					TrackerDBResultSet *result_set;
+					gchar *query;
+
+					query = g_strdup_printf ("SELECT TypeId FROM ServiceTypes WHERE TypeName = '%s'",
+								 esc_value);
+					result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
+					g_free (query);
+
+					if (result_set) {
+						GValue value = {0, };
+						GValue transform = {0, };
+
+						g_value_init (&transform, G_TYPE_STRING);
+						
+						_tracker_db_result_set_get_value (result_set, 0, &value);
+						if (g_value_transform (&value, &transform)) {
+							tracker_db_interface_execute_query (iface,
+											    NULL,
+											    "UPDATE ServiceTypes SET ParentId = '%s' WHERE TypeID = %s",
+											    g_value_get_string (&transform),
+											    str_id);
+
+						}
+						
+						g_value_unset (&value);
+						g_value_unset (&transform);
+						g_object_unref (result_set);
+					}
+				}
+				
 				tracker_db_interface_execute_query (iface,
 								    NULL,
-								    "update ServiceTypes set  %s = '%s' where TypeID = %s",
+								    "UPDATE ServiceTypes SET %s = '%s' WHERE TypeID = %s",
 								    keys[j],
 								    esc_value,
 								    str_id);
@@ -685,11 +718,11 @@ load_prepared_queries (void)
 				continue;
 			}
 
-			g_message ("  Loading query:'%s'", details[0]);
+			g_message ("  Adding query:'%s'", g_strstrip (details[0]));
 
 			g_hash_table_insert (prepared_queries,
-					     g_strdup (details[0]),
-					     g_strdup (details[1]));
+					     g_strdup (g_strstrip (details[0])),
+					     g_strdup (g_strstrip (details[1])));
 			g_strfreev (details);
 		}
 

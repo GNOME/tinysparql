@@ -1,3 +1,19 @@
+2009-03-20  Martyn Russell  <martyn@imendio.com>
+
+	* data/db/sqlite-service-types.sql:
+	* data/db/sqlite-service.sql:
+	* data/db/sqlite-stored-procs.sql:
+	* src/libtracker-db/tracker-db-manager.c: 
+	* src/trackerd/tracker-daemon.c: 
+
+	* src/tracker-applet/tracker-applet.c: Fixed stats order. This was
+	broken recently with the change to the stored procs.
+	
+	* src/tracker-indexer/tracker-module-metadata-utils.c:
+	* src/trackerd/tracker-main.c: Don't try to reset the stats in the
+	database when we reindex, we don't hold stats in the same place in
+	the same way now.
+
 2009-03-20  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/modules/evolution.c:
@@ -47,7 +63,7 @@
 
 2009-03-19  Martyn Russell  <martyn@imendio.com>
 
-	* configure.ac:
+ 	* configure.ac:
 	* src/libinotify/Makefile.am:
 	* src/libstemmer/Makefile.am:
 	* src/libtracker-common/Makefile.am:

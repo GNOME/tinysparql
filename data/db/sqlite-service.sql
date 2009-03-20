@@ -39,9 +39,7 @@ CREATE TABLE  Services
     	unique (Path, Name)
 );
 
-CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceTypeID, Enabled, AuxiliaryID, KeyMetadata1);
-CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceTypeID, Enabled, AuxiliaryID, KeyMetadata2);
-CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceTypeID, Enabled, AuxiliaryID, KeyMetadata3);
+CREATE INDEX ServiceTypeIDIndex1 ON Services (ServiceTypeID);
 
 /* child service relationships for a specific group/struct metadata */
 CREATE TABLE ChildServices
@@ -58,13 +56,13 @@ CREATE TABLE  ServiceMetaData
 (
 	ID			Integer primary key AUTOINCREMENT not null,
 	ServiceID		Integer not null,
-	MetaDataID 		Integer  not null,
+	MetaDataID 		Integer not null,
 	MetaDataValue     	Text,
 	MetaDataDisplay		Text,
 	MetaDataCollation	Text
 );
 
-CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceID, MetaDataID, MetaDataDisplay, MetaDataCollation);
+CREATE INDEX ServiceMetaDataCompoundIndex4 ON ServiceMetaData (ServiceID, MetaDataID, MetaDataDisplay, MetaDataCollation);
 
 /* metadata for all keyword types - keywords are db indexed for fast searching - they are also not processed like other metadata. */
 CREATE TABLE  ServiceKeywordMetaData 
