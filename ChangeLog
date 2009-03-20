@@ -1,5 +1,22 @@
 2009-03-20  Philip Van Hoof  <philip@codeminded.be>
 
+	* src/tracker-indexer/modules/evolution.c:
+	* src/tracker-indexer/modules/Makefile.am:
+	* configure.ac:
+	* src/tracker-indexer/modules/evolution-imap-db.h:
+	* src/tracker-indexer/modules/evolution-imap-db.c:
+
+
+	Removed support for the sqlite based pull indexer module for
+	Evolution
+
+	Enabled by defualt the support for the push indexing module for
+	Evolution (Evolution pushes data into Tracker's storage)
+
+	This fixes https://qa.mandriva.com/show_bug.cgi?id=48977
+
+2009-03-20  Philip Van Hoof  <philip@codeminded.be>
+
 	* src/libtracker-common/tracker-thumbnailer.c: Using an int instead of
 	an int64 for this dbus call
 

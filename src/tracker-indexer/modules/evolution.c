@@ -27,19 +27,12 @@
 #include "evolution-pop.h"
 #include "evolution-imap.h"
 
-#ifndef HAVE_EVOLUTION_PLUGIN
-#include "evolution-imap-db.h"
-#endif
-
 typedef enum MailStorageType MailStorageType;
 
 enum MailStorageType {
 	MAIL_STORAGE_NONE,
 	MAIL_STORAGE_LOCAL,
 	MAIL_STORAGE_IMAP,
-#ifndef HAVE_EVOLUTION_PLUGIN
-	MAIL_STORAGE_IMAP_DB
-#endif
 };
 
 static gchar *local_dir = NULL;
@@ -82,11 +75,6 @@ get_mail_storage_type_from_path (const gchar *path)
 		if (strcmp (basenam, "summary") == 0) {
 			type = MAIL_STORAGE_IMAP;
 		}
-#ifndef HAVE_EVOLUTION_PLUGIN
-		else if (strcmp (basenam, "folders.db") == 0) {
-			type = MAIL_STORAGE_IMAP_DB;
-		}
-#endif
 	}
 
 	/* Exclude non wanted folders */
@@ -119,11 +107,6 @@ indexer_module_create_file (GFile *file)
         } else if (type == MAIL_STORAGE_IMAP) {
                 return tracker_evolution_imap_file_new (file);
         }
-#ifndef HAVE_EVOLUTION_PLUGIN
-	else if (type == MAIL_STORAGE_IMAP_DB) {
-		return tracker_evolution_imap_db_file_new (file);
-	}
-#endif
 
         return NULL;
 }

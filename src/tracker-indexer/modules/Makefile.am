@@ -62,8 +62,6 @@ indexer_modules_LTLIBRARIES += 						\
 libtracker_module_evolution_la_SOURCES =				\
 	evolution-common.c						\
 	evolution-common.h						\
-	evolution-imap-db.c						\
-	evolution-imap-db.h						\
 	evolution-imap.c						\
 	evolution-imap.h						\
 	evolution-pop.c							\
