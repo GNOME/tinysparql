@@ -222,7 +222,6 @@ tracker_ontology_service_add (TrackerService *service,
 	name = tracker_service_get_name (service);
 
 	g_hash_table_insert (service_names,
-			     /* g_utf8_collate_key (name, -1),	*/
 			     g_strdup (name),
 			     g_object_ref (service));
 	g_hash_table_insert (service_ids,

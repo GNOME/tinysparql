@@ -282,15 +282,21 @@ load_metadata_file (TrackerDBInterface *iface,
 		    const gchar        *filename)
 {
 	GKeyFile      *key_file = NULL;
+	GError        *error = NULL;
 	gchar	      *service_file, *str_id;
 	gchar	     **groups, **keys;
 	TrackerField  *def;
 	gint	       id, i, j;
 
+	g_message ("Loading metadata file '%s'", filename);
+
 	key_file = g_key_file_new ();
 	service_file = g_build_filename (services_dir, filename, NULL);
 
-	if (!g_key_file_load_from_file (key_file, service_file, G_KEY_FILE_NONE, NULL)) {
+	if (!g_key_file_load_from_file (key_file, service_file, G_KEY_FILE_NONE, &error)) {
+		g_critical ("Couldn't load service file, %s", 
+			    error ? error->message : "no error given");
+		g_clear_error (&error);
 		g_free (service_file);
 		g_key_file_free (key_file);
 		return;
@@ -302,6 +308,7 @@ load_metadata_file (TrackerDBInterface *iface,
 		def = tracker_ontology_get_field_by_name (groups[i]);
 
 		if (!def) {
+			g_message ("  Adding ontology metadata:'%s'", groups[i]);
 			tracker_db_interface_execute_procedure (iface,
 								NULL,
 								"InsertMetadataType",
@@ -377,15 +384,21 @@ load_service_file (TrackerDBInterface *iface,
 {
 	TrackerService	*service;
 	GKeyFile	*key_file = NULL;
+	GError          *error = NULL;
 	gchar		*service_file, *str_id;
 	gchar	       **groups, **keys;
 	gint		 i, j, id;
+
+	g_message ("Loading service file '%s'", filename);
 
 	service_file = g_build_filename (services_dir, filename, NULL);
 
 	key_file = g_key_file_new ();
 
-	if (!g_key_file_load_from_file (key_file, service_file, G_KEY_FILE_NONE, NULL)) {
+	if (!g_key_file_load_from_file (key_file, service_file, G_KEY_FILE_NONE, &error)) {
+		g_critical ("Couldn't load service file, %s", 
+			    error ? error->message : "no error given");
+		g_clear_error (&error);
 		g_free (service_file);
 		g_key_file_free (key_file);
 		return;
@@ -394,10 +407,10 @@ load_service_file (TrackerDBInterface *iface,
 	groups = g_key_file_get_groups (key_file, NULL);
 
 	for (i = 0; groups[i]; i++) {
-		g_message ("Trying to obtain service:'%s' in cache", groups[i]);
 		service = tracker_ontology_get_service_by_name (groups[i]);
 
 		if (!service) {
+			g_message ("Adding ontology service type:'%s'", groups[i]);
 			tracker_db_interface_execute_procedure (iface,
 								NULL,
 								"InsertServiceType",
@@ -672,7 +685,7 @@ load_prepared_queries (void)
 				continue;
 			}
 
-			g_message ("  Adding query:'%s'", details[0]);
+			g_message ("  Loading query:'%s'", details[0]);
 
 			g_hash_table_insert (prepared_queries,
 					     g_strdup (details[0]),
@@ -1386,10 +1399,6 @@ db_get_static_data (TrackerDBInterface *iface)
 				g_slist_free (child_ids);
 			}
 
-			g_message ("Loading metadata def:'%s' with weight:%d",
-				   tracker_field_get_name (def),
-				   tracker_field_get_weight (def));
-
 			tracker_ontology_field_add (def);
 			g_object_unref (def);
 
@@ -1426,14 +1435,14 @@ db_get_static_data (TrackerDBInterface *iface)
 			mimes = db_get_mimes_for_service_id (iface, id);
 			mime_prefixes = db_get_mime_prefixes_for_service_id (iface, id);
 
-			g_message ("Adding service:'%s' with id:%d and mimes:%d",
+			g_message ("Loading ontology service:'%s' with id:%d and mimes:%d",
 				   name,
 				   id,
 				   g_slist_length (mimes));
 
 			tracker_ontology_service_add (service,
-							   mimes,
-							   mime_prefixes);
+						      mimes,
+						      mime_prefixes);
 
 			g_slist_free (mimes);
 			g_slist_free (mime_prefixes);
@@ -1445,7 +1454,6 @@ db_get_static_data (TrackerDBInterface *iface)
 		g_object_unref (result_set);
 	}
 }
-
 
 static const gchar *
 db_type_to_string (TrackerDB db)
@@ -1511,6 +1519,7 @@ db_interface_get_common (void)
 		const gchar *conf_file;
 
 		tracker_db_interface_start_transaction (iface);
+
 		/* Create tables */
 		load_sql_file (iface, "sqlite-tracker.sql", NULL);
 		load_sql_file (iface, "sqlite-metadata.sql", NULL);
@@ -1535,12 +1544,10 @@ db_interface_get_common (void)
 			}
 
 			if (g_str_has_suffix (conf_file, ".service")) {
-				g_debug ("Loading service file %s", conf_file);
 				load_service_file (iface, conf_file);
 			}
 
 			if (g_str_has_suffix (conf_file, ".metadata")) {
-				g_debug ("Loading metadata file %s", conf_file);
 				load_metadata_file (iface, conf_file);
 			}
 
@@ -1889,7 +1896,7 @@ tracker_db_manager_ensure_locale (void)
 
 	if (g_strcmp0 (current_locale, stored_locale) != 0) {
 		/* Locales differ, update collate keys */
-		g_debug ("Updating DB locale dependent data to: %s\n", current_locale);
+		g_message ("Updating DB locale dependent data to: %s\n", current_locale);
 
 		iface = dbs[TRACKER_DB_FILE_METADATA].iface;
 		tracker_db_interface_execute_procedure (iface, NULL, "UpdateMetadataCollation", NULL);

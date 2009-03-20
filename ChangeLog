@@ -1,3 +1,13 @@
+2009-03-20  Martyn Russell  <martyn@imendio.com>
+
+	* data/services/image.metadata: Fixed errors stopping file from
+	being loaded.
+	
+	* src/libtracker-db/tracker-db-manager.c: Improve debugging so we
+	see exactly what each .metadata file loads and also added GError
+	to g_key_file_load* functions for metadata and service files so if
+	they don't load we know why in the logs.
+
 2009-03-19  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* data/services/image.metadata: Added missing field type
