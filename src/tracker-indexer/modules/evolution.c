@@ -48,7 +48,6 @@ indexer_module_initialize (GTypeModule *module)
 
         tracker_evolution_pop_file_register (module);
         tracker_evolution_imap_file_register (module);
-	tracker_evolution_imap_db_file_register (module);
 }
 
 void

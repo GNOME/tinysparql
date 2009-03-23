@@ -1,3 +1,8 @@
+2009-03-23  Philip Van Hoof  <philip@codeminded.be>
+
+	* src/tracker-indexer/modules/evolution.c: fixed undefined symbol
+	compilation error
+
 2009-03-23  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-applet/tracker-applet.c: Revert turning on debugging.
