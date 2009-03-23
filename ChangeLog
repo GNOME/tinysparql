@@ -1,5 +1,9 @@
 2009-03-23  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-applet/tracker-applet.c: Revert turning on debugging.
+
+2009-03-23  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-status.c: Make sure we change the
 	throttling when the battery is in use or not. Changed battery
 	charge debugging to show even when it is charging, not just

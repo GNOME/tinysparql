@@ -69,7 +69,7 @@
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
-#undef DISABLE_DEBUG
+#define DISABLE_DEBUG
 
 #ifdef G_HAVE_ISO_VARARGS
 #  ifdef DISABLE_DEBUG
