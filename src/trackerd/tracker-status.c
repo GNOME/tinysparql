@@ -341,7 +341,7 @@ disk_space_check_start (void)
 #ifdef HAVE_HAL
 
 static void
-set_up_throttle (void)
+set_up_throttle (gboolean debugging)
 {
 	TrackerStatusPrivate *private;
 	gint                  throttle;
@@ -356,30 +356,44 @@ set_up_throttle (void)
 	throttle = tracker_config_get_throttle (private->config);
 
 	if (tracker_hal_get_battery_in_use (private->hal)) {
-		g_message ("We are running on battery");
+		if (debugging) {
+			g_message ("We are running on battery");
+		}
 
 		if (throttle == THROTTLE_DEFAULT) {
 			tracker_config_set_throttle (private->config,
 						     THROTTLE_DEFAULT_ON_BATTERY);
-			g_message ("Setting throttle from %d to %d",
-				   throttle,
-				   THROTTLE_DEFAULT_ON_BATTERY);
+
+			if (debugging) {
+				g_message ("Setting throttle from %d to %d",
+					   throttle,
+					   THROTTLE_DEFAULT_ON_BATTERY);
+			}
 		} else {
-			g_message ("Not setting throttle, it is currently set to %d",
-				   throttle);
+			if (debugging) {
+				g_message ("Not setting throttle, it is currently set to %d",
+					   throttle);
+			}
 		}
 	} else {
-		g_message ("We are not running on battery");
+		if (debugging) {
+			g_message ("We are not running on battery");
+		}
 
 		if (throttle == THROTTLE_DEFAULT_ON_BATTERY) {
 			tracker_config_set_throttle (private->config,
 						     THROTTLE_DEFAULT);
-			g_message ("Setting throttle from %d to %d",
-				   throttle,
-				   THROTTLE_DEFAULT);
+
+			if (debugging) {
+				g_message ("Setting throttle from %d to %d",
+					   throttle,
+					   THROTTLE_DEFAULT);
+			}
 		} else {
-			g_message ("Not setting throttle, it is currently set to %d",
-				   throttle);
+			if (debugging) {
+				g_message ("Not setting throttle, it is currently set to %d",
+					   throttle);
+			}
 		}
 	}
 }
@@ -389,7 +403,7 @@ battery_in_use_cb (GObject *gobject,
 		   GParamSpec *arg1,
 		   gpointer user_data)
 {
-	set_up_throttle ();
+	set_up_throttle (TRUE);
 }
 
 static void
@@ -407,11 +421,11 @@ battery_percentage_cb (GObject    *object,
 	percentage = tracker_hal_get_battery_percentage (private->hal);
 	battery_in_use = tracker_hal_get_battery_in_use (private->hal);
 
+	g_message ("Battery percentage is now %.0f%%",
+		   percentage * 100);
+
 	/* FIXME: This could be a configuration option */
 	if (battery_in_use) {
-		g_message ("Battery percentage is now %.0f%%",
-			   percentage * 100);
-		
 		if (percentage <= 0.05) {
 			/* Running on low batteries, stop indexing for now */
 			tracker_status_set_is_paused_for_batt (TRUE);
@@ -422,7 +436,7 @@ battery_percentage_cb (GObject    *object,
 		tracker_status_set_is_paused_for_batt (FALSE);
 	}
 
-	set_up_throttle ();
+	set_up_throttle (FALSE);
 }
 
 #endif /* HAVE_HAL */
@@ -469,6 +483,9 @@ tracker_status_init (TrackerConfig *config,
 	g_message ("Setting battery percentage checking");
 	g_signal_connect (private->hal, "notify::battery-percentage",
 			  G_CALLBACK (battery_percentage_cb),
+			  NULL);
+	g_signal_connect (private->hal, "notify::battery-in-use",
+			  G_CALLBACK (battery_in_use_cb),
 			  NULL);
 #endif
 

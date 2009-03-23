@@ -69,7 +69,7 @@
 
 #define TRACKER_TYPE_G_STRV_ARRAY  (dbus_g_type_get_collection ("GPtrArray", G_TYPE_STRV))
 
-#define DISABLE_DEBUG
+#undef DISABLE_DEBUG
 
 #ifdef G_HAVE_ISO_VARARGS
 #  ifdef DISABLE_DEBUG
@@ -224,6 +224,8 @@ static GOptionEntry entries[] = {
 };
 
 #ifndef DISABLE_DEBUG
+
+#include <glib/gprintf.h>
 
 static void
 debug_impl (const gchar *msg, ...)
