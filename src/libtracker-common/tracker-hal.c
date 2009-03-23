@@ -353,20 +353,20 @@ hal_setup_devices (TrackerHal *hal)
 			continue;
 		}
 
-		g_debug ("HAL device:'%s' found:\n"
-			 " - udi        : %s\n"
-			 " - mount point: %s\n"
-			 " - uuid       : %s\n"
-			 " - mounted    : %s\n"
-			 " - file system: %s\n"
-			 " - label      : %s",
-			 libhal_volume_get_device_file (volume),
-			 libhal_volume_get_udi (volume),
-			 libhal_volume_get_mount_point (volume),
-			 libhal_volume_get_uuid (volume),
-			 libhal_volume_is_mounted (volume) ? "yes" : "no",
-			 libhal_volume_get_fstype (volume),
-			 libhal_volume_get_label (volume));
+		g_debug ("HAL device:'%s' found:",
+			   libhal_volume_get_device_file (volume));
+		g_debug ("  UDI	 : %s",
+			   libhal_volume_get_udi (volume));
+		g_debug ("  Mount point: %s",
+			   libhal_volume_get_mount_point (volume));
+ 		g_debug ("  UUID	 : %s",
+			   libhal_volume_get_uuid (volume));
+		g_debug ("  Mounted    : %s",
+			   libhal_volume_is_mounted (volume) ? "yes" : "no");
+		g_debug ("  File system: %s",
+			   libhal_volume_get_fstype (volume));
+		g_debug ("  Label	 : %s",
+			   libhal_volume_get_label (volume));
 
 		hal_device_add (hal, volume);
 		libhal_volume_free (volume);
@@ -421,9 +421,9 @@ hal_setup_ac_adapters (TrackerHal *hal)
 			priv->ac_adapter_udi = g_strdup (*p);
 			g_object_notify (G_OBJECT (hal), "battery-exists");
 
-			g_message (" - Device '%s' (default)", *p);
+			g_message ("  Device '%s' (default)", *p);
 		} else {
-			g_message (" - Device '%s'", *p);
+			g_message ("  Device '%s'", *p);
 		}
 	}
 
@@ -487,7 +487,7 @@ hal_setup_batteries (TrackerHal *hal)
 	}
 
 	for (p = devices; *p; p++) {
-		g_message (" - Device '%s'", *p);
+		g_message ("  Device '%s'", *p);
 
 		hal_battery_modify (hal, *p);
 		libhal_device_add_property_watch (priv->context, *p, &error);
@@ -822,19 +822,19 @@ hal_device_added_cb (LibHalContext *context,
 			return;
 		}
 
-		g_message ("HAL device:'%s' added:\n"
-			   " - udi	  : %s\n"
-			   " - mount point: %s\n"
-			   " - uuid	  : %s\n"
-			   " - mounted    : %s\n"
-			   " - file system: %s\n"
-			   " - label	  : %s",
-			   libhal_volume_get_device_file (volume),
-			   udi,
-			   libhal_volume_get_mount_point (volume),
-			   libhal_volume_get_uuid (volume),
-			   libhal_volume_is_mounted (volume) ? "yes" : "no",
-			   libhal_volume_get_fstype (volume),
+		g_message ("HAL device:'%s' added:",
+			   libhal_volume_get_device_file (volume));
+		g_message ("  UDI	 : %s",
+			   udi);
+		g_message ("  Mount point: %s",
+			   libhal_volume_get_mount_point (volume));
+ 		g_message ("  UUID	 : %s",
+			   libhal_volume_get_uuid (volume));
+		g_message ("  Mounted    : %s",
+			   libhal_volume_is_mounted (volume) ? "yes" : "no");
+		g_message ("  File system: %s",
+			   libhal_volume_get_fstype (volume));
+		g_message ("  Label	 : %s",
 			   libhal_volume_get_label (volume));
 
 		hal_device_add (hal, volume);
@@ -866,11 +866,11 @@ hal_device_removed_cb (LibHalContext *context,
 
 		mount_point = g_hash_table_lookup (priv->mounted_devices, udi);
 
-		g_message ("HAL device:'%s' removed:\n"
-			   " - udi        : %s\n"
-			   " - mount point: %s\n",
-			   device_file,
-			   udi,
+		g_message ("HAL device:'%s' removed:",
+			   device_file);
+		g_message ("  UDI	 : %s",
+			   udi);
+		g_message ("  Mount point: %s",
 			   mount_point);
 
 		g_hash_table_remove (priv->all_devices, udi);

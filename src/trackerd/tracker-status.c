@@ -409,8 +409,8 @@ battery_percentage_cb (GObject    *object,
 
 	/* FIXME: This could be a configuration option */
 	if (battery_in_use) {
-		g_message ("Battery percentage is now %d%%",
-			   (gint) percentage * 100);
+		g_message ("Battery percentage is now %.0f%%",
+			   percentage * 100);
 		
 		if (percentage <= 0.05) {
 			/* Running on low batteries, stop indexing for now */
