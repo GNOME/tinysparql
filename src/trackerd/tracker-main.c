@@ -464,7 +464,7 @@ signal_handler (int signo)
 
 	/* Die if we get re-entrant signals handler calls */
 	if (in_loop) {
-		exit (EXIT_FAILURE);
+		_exit (EXIT_FAILURE);
 	}
 
 	switch (signo) {

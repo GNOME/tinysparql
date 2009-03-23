@@ -1,3 +1,11 @@
+2009-03-23  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/tracker-main.c: (signal_handler):
+	* src/tracker-indexer/tracker-main.c: (signal_handler):
+	* src/trackerd/tracker-main.c: (signal_handler): Fixes NB#102800,
+	uses _exit() instead of exit() when receiving termination signals
+	more than once (like Ctrl+C).
+
 2009-03-20  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-indexer/tracker-module-metadata-utils.c: Used code
