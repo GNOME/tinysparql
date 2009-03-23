@@ -1,5 +1,19 @@
 2009-03-23  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-db/tracker-db-index-manager.[ch]:
+	* src/libtracker-db/tracker-db-manager.[ch]: Make it possible to
+	initialise these managers JUST for removing databases and
+	resetting.
+	
+	* src/tracker-utils/Makefile.am:
+	* src/tracker-utils/tracker-processes.c: Added options
+	--hard-reset to kill all processes AND remove all databases. Also
+	updated all output messages so they are translated. Added
+	--terminate to use SIGTERM on all tracker processes and added
+	--kill to use SIGKILL on all tracker processes.
+
+2009-03-23  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-utils/tracker-processes.c: Only include basename in
 	list and exclude ourselves from the list of running processes.
 	Also remove the ":" between the "PID" and value for mouse copy and

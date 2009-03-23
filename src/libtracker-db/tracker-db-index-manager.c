@@ -138,9 +138,9 @@ has_tmp_merge_files (TrackerDBIndexType type)
 }
 
 gboolean
-tracker_db_index_manager_init (TrackerDBIndexManagerFlags  flags,
-			       gint			   min_bucket,
-			       gint			   max_bucket)
+tracker_db_index_manager_init (TrackerDBIndexManagerFlags flags,
+			       gint			  min_bucket,
+			       gint			  max_bucket)
 {
 	gchar	 *final_index_filename;
 	gchar	 *name;
@@ -178,6 +178,14 @@ tracker_db_index_manager_init (TrackerDBIndexManagerFlags  flags,
 		if (!g_file_test (indexes[i].abs_filename, G_FILE_TEST_EXISTS)) {
 			g_message ("Could not find index file:'%s'", indexes[i].abs_filename);
 		}
+	}
+
+	/* If we are just initializing to remove the databases,
+	 * return here. 
+	 */
+	if ((flags & TRACKER_DB_INDEX_MANAGER_REMOVE_ALL) != 0) {
+		initialized = TRUE;
+		return TRUE;
 	}
 
 	g_message ("Merging old temporary indexes");
@@ -254,8 +262,10 @@ tracker_db_index_manager_shutdown (void)
 	}
 
 	for (i = 1; i < G_N_ELEMENTS (indexes); i++) {
-		g_object_unref (indexes[i].index);
-		indexes[i].index = NULL;
+		if (indexes[i].index) {
+			g_object_unref (indexes[i].index);
+			indexes[i].index = NULL;
+		}
 
 		g_free (indexes[i].abs_filename);
 		indexes[i].abs_filename = NULL;
@@ -264,6 +274,23 @@ tracker_db_index_manager_shutdown (void)
 	g_free (data_dir);
 
 	initialized = FALSE;
+}
+
+void
+tracker_db_index_manager_remove_all (void)
+{
+	guint i;
+
+	g_message ("Removing all database index files");
+
+	/* NOTE: We don't have to be initialized for this so we
+	 * calculate the absolute directories here. 
+	 */
+	for (i = 1; i < G_N_ELEMENTS (indexes); i++) {
+		g_message ("  Removing database index:'%s'",
+			   indexes[i].abs_filename);
+		g_unlink (indexes[i].abs_filename);
+	}
 }
 
 TrackerDBIndex *

@@ -1787,8 +1787,11 @@ db_manager_remove_all (void)
 
 	g_message ("Removing all database files");
 
+	/* NOTE: We don't have to be initialized for this so we
+	 * calculate the absolute directories here. 
+	 */
 	for (i = 1; i < G_N_ELEMENTS (dbs); i++) {
-		g_message ("Removing database:'%s'",
+		g_message ("  Removing database:'%s'",
 			   dbs[i].abs_filename);
 		g_unlink (dbs[i].abs_filename);
 	}
@@ -2054,6 +2057,14 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		}
 	}
 
+	/* If we are just initializing to remove the databases,
+	 * return here. 
+	 */
+	if ((flags & TRACKER_DB_MANAGER_REMOVE_ALL) != 0) {
+		initialized = TRUE;
+		return;
+	}
+
 	/* Set general database options */
 	if (shared_cache) {
 		g_message ("Enabling database shared cache");
@@ -2157,8 +2168,10 @@ tracker_db_manager_shutdown (void)
 		}
 	}
 
-	g_hash_table_unref (prepared_queries);
-	prepared_queries = NULL;
+	if (prepared_queries) {
+		g_hash_table_unref (prepared_queries);
+		prepared_queries = NULL;
+	}
 
 	g_free (data_dir);
 	g_free (user_data_dir);
@@ -2199,7 +2212,7 @@ void
 tracker_db_manager_remove_all (void)
 {
 	g_return_if_fail (initialized != FALSE);
-
+	
 	db_manager_remove_all ();
 }
 
