@@ -195,42 +195,6 @@ process_context_create (const gchar **argv,
 	return context;
 }
 
-static GSList *
-get_pids (void)
-{
-	GError *error = NULL;
-	GDir *dir;
-	GSList *pids = NULL;
-	const gchar *name;
-
-	dir = g_dir_open ("/proc", 0, &error);
-	if (error) {
-		g_warning ("Could not open /proc, %s\n",
-			   error ? error->message : "no error given");
-		g_clear_error (&error);
-		return NULL;
-	}
-
-	while ((name = g_dir_read_name (dir)) != NULL) { 
-		gchar c;
-		gboolean is_pid = TRUE;
-
-		for (c = *name; c && c != ':' && is_pid; c++) {		
-			is_pid &= g_ascii_isdigit (c);
-		}
-
-		if (!is_pid) {
-			continue;
-		}
-
-		pids = g_slist_prepend (pids, g_strdup (name));
-	}
-
-	g_dir_close (dir);
-
-	return g_slist_reverse (pids);
-}
-
 static void
 metadata_utils_add_embedded_data (TrackerModuleMetadata *metadata,
 				  TrackerField          *field,
@@ -312,6 +276,7 @@ metadata_utils_get_embedded (const char            *path,
 	GHashTable *values = NULL;
 	GError *error = NULL;
 	const gchar *service_type;
+	pid_t pid;
 
 	service_type = tracker_ontology_get_service_by_mime (mime_type);
 	if (!service_type) {
@@ -322,15 +287,23 @@ metadata_utils_get_embedded (const char            *path,
 		return;
 	}
 
+	/* Call extractor to get PID so we can kill it if anything goes wrong. */
+	if (!org_freedesktop_Tracker_Extract_get_pid (get_dbus_extract_proxy (),
+						      &pid, 
+						      &error)) {
+		g_message ("Couldn't get PID from tracker-extract, %s",
+			   error ? error->message : "no error given");
+		g_clear_error (&error);
+		return;
+	}
+
 	/* Call extractor to get data here */
 	if (!org_freedesktop_Tracker_Extract_get_metadata (get_dbus_extract_proxy (),
 							   path, 
 							   mime_type, 
 							   &values, 
 							   &error)) {
-		GSList *pids, *l;
 		gboolean should_kill = TRUE;
-		gboolean was_killed;
 
 		if (G_LIKELY (error)) {
 			switch (error->code) {
@@ -362,70 +335,19 @@ metadata_utils_get_embedded (const char            *path,
 			return;
 		}
 
-		was_killed = FALSE;
-
 		/* Kill extractor, most likely it got stuck */
 		g_message ("Attempting to kill tracker-extract with SIGKILL");
-		
-		pids = get_pids ();
-		g_message ("  Found %d pids...", g_slist_length (pids));
 
-		for (l = pids; l; l = l->next) {
-			gchar *filename;
-			gchar *contents = NULL;
-			gchar **strv;
-
-			filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
-			g_file_get_contents (filename, &contents, NULL, &error);
+		if (kill (pid, SIGKILL) == -1) {
+			const gchar *str = g_strerror (errno);
 			
-			if (error) {
-				g_warning ("Could not open '%s', %s",
-					   filename,
-					   error ? error->message : "no error given");
-				g_clear_error (&error);
-				g_free (contents);
-				g_free (filename);
-				
-				continue;
-			}
-			
-			strv = g_strsplit (contents, "^@", 2);
-			if (strv && strv[0]) {
-				gchar *basename;
-				
-				basename = g_path_get_basename (strv[0]);
-				if (g_strcmp0 (basename, "tracker-extract") == 0) {
-					pid_t p;
-
-					p = atoi (l->data);
-					g_message ("  Found process ID:%d", p);
-
-					if (kill (p, SIGKILL) == -1) {
-						const gchar *str = g_strerror (errno);
-						
-						g_message ("Couldn't kill process %d, %s",
-							   p,
-							   str ? str : "no error given");
-					} else {
-						was_killed = TRUE;
-					}
-				}
-				
-				g_free (basename);
-			}
-			
-			g_strfreev (strv);
-			g_free (contents);
-			g_free (filename);
-		}
-
-		if (!was_killed) {
-			g_message ("  No process was found to kill");
+			g_message ("  Could not kill process %d, %s",
+				   pid,
+				   str ? str : "no error given");
+		} else {
+			g_message ("  Killed process %d", pid);
 		}
 		
-		g_slist_foreach (pids, (GFunc) g_free, NULL);
-		g_slist_free (pids);
-
 		return;
 	}
 

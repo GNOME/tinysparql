@@ -51,6 +51,9 @@ struct TrackerExtractClass {
 
 GType           tracker_extract_get_type                (void);
 TrackerExtract *tracker_extract_new                     (void);
+void            tracker_extract_get_pid                 (TrackerExtract         *object,
+							 DBusGMethodInvocation  *context,
+							 GError                **error);
 void            tracker_extract_get_metadata            (TrackerExtract         *object,
 							 const gchar            *path,
 							 const gchar            *mime,

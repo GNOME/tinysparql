@@ -2346,7 +2346,7 @@ should_change_index_for_file (TrackerIndexer *indexer,
 	}
 
 	if (current_mtime == db_mtime) {
-		g_debug ("'%s' is already up to date in DB, not (re)indexing", path);
+		g_message ("'%s' is already up to date in DB, not (re)indexing", path);
 		g_free (path);
 
 		return FALSE;

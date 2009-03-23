@@ -368,6 +368,28 @@ tracker_extract_get_metadata_by_cmdline (TrackerExtract *object,
 }
 
 void
+tracker_extract_get_pid (TrackerExtract	        *object,
+			 DBusGMethodInvocation  *context,
+			 GError		       **error)
+{
+	guint request_id;
+	pid_t value;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to get PID");
+	
+	value = getpid ();
+	tracker_dbus_request_debug (request_id,
+				    "PID is %d", value);
+
+	dbus_g_method_return (context, value);
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
 tracker_extract_get_metadata (TrackerExtract	     *object,
 			      const gchar            *path,
 			      const gchar            *mime,

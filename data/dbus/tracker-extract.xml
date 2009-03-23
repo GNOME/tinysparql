@@ -11,6 +11,10 @@
 
 <node name="/">
   <interface name="org.freedesktop.Tracker.Extract">  
+    <method name="GetPid">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="i" name="value" direction="out" />
+    </method>
     <method name="GetMetadata">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
       <arg type="s" name="path" direction="in" />

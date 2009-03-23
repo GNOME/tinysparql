@@ -1,3 +1,16 @@
+2009-03-23  Martyn Russell  <martyn@imendio.com>
+
+	* data/dbus/tracker-extract.xml:
+	* src/tracker-extract/tracker-extract.[ch]:
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/tracker-indexer/tracker-module-metadata-utils.c: Added
+	GetPid API call to extractor. We now call this furst so we know
+	what process to kill when the extractor misbehaves. The old
+	solution would kill EVERY tracker-extract process on the system
+	which (if the user has permissions) is potentially quite bad for
+	multiple users using Tracker. This should be quicker than the old
+	solution too.
+
 2009-03-23  Philip Van Hoof  <philip@codeminded.be>
 
 	* src/tracker-indexer/modules/evolution.c: fixed undefined symbol
