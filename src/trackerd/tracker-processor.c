@@ -379,7 +379,7 @@ get_remote_roots (TrackerProcessor  *processor,
 		GList *list = NULL;
 
 		for (l = l1; l; l = l->next) {
-			if (g_list_find_custom (l2, l->data, (GCompareFunc) strcmp)) {
+			if (g_list_find_custom (l2, l->data, (GCompareFunc) g_strcmp0)) {
 				continue;
 			}
 
@@ -835,7 +835,7 @@ process_module_files_add_removable_media (TrackerProcessor *processor)
 		/* Don't iterate a device we have already crawled. */
 		if (g_list_find_custom (processor->private->removable_devices_completed, 
 					root, 
-					(GCompareFunc) strcmp)) {
+					(GCompareFunc) g_strcmp0)) {
 			continue;
 		}
 
@@ -1505,7 +1505,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		 */
 		if (!g_list_find_custom (processor->private->removable_devices_completed, 
 					 root, 
-					 (GCompareFunc) strcmp)) {
+					 (GCompareFunc) g_strcmp0)) {
 			processor->private->removable_devices_completed = 
 				g_list_append (processor->private->removable_devices_completed, 
 					       g_strdup (root));
@@ -1541,7 +1541,7 @@ mount_point_added_cb (TrackerHal  *hal,
 	/* Remove from completed list so we don't ignore it */
 	l = g_list_find_custom (priv->removable_devices_completed, 
 				mount_point,
-				(GCompareFunc) strcmp);
+				(GCompareFunc) g_strcmp0);
 
 	if (l) {
 		g_free (l->data);
@@ -1585,7 +1585,7 @@ mount_point_removed_cb (TrackerHal  *hal,
 	 */
 	l = g_list_find_custom (priv->removable_devices, 
 				mount_point,
-				(GCompareFunc) strcmp);
+				(GCompareFunc) g_strcmp0);
 
 	if (l) {
 		g_free (l->data);
@@ -1595,7 +1595,7 @@ mount_point_removed_cb (TrackerHal  *hal,
 
 	l = g_list_find_custom (priv->removable_devices_completed, 
 				mount_point,
-				(GCompareFunc) strcmp);
+				(GCompareFunc) g_strcmp0);
 
 	if (l) {
 		g_free (l->data);

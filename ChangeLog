@@ -1,5 +1,13 @@
 2009-03-23  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-processor.c: (get_remote_roots),
+	(process_module_files_add_removable_media), (crawler_finished_cb),
+	(mount_point_added_cb), (mount_point_removed_cb): Make use of
+	g_strcmp0() so we don't crash with NULL strings as reported in
+	LP#347352. 
+
+2009-03-23  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-db/tracker-db-index-manager.[ch]:
 	* src/libtracker-db/tracker-db-manager.[ch]: Make it possible to
 	initialise these managers JUST for removing databases and
