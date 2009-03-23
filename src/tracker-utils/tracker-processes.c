@@ -25,9 +25,32 @@
 #include <string.h>
 #include <time.h>
 #include <locale.h>
+#include <errno.h>
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <glib/gprintf.h>
+
+#include <libtracker-db/tracker-db-manager.h>
+#include <libtracker-db/tracker-db-index-manager.h>
+
+static gboolean     should_kill;
+static gboolean     should_terminate;
+static gboolean     hard_reset;
+
+static GOptionEntry entries[] = {
+	{ "kill", 'k', 0, G_OPTION_ARG_NONE, &should_kill,
+	  N_("Use SIGKILL to stop all tracker processes found - guarantees death :)"),
+	  NULL },
+	{ "terminate", 't', 0, G_OPTION_ARG_NONE, &should_terminate,
+	  N_("Use SIGTERM to stop all tracker processes found"),
+	  NULL 
+	},
+	{ "hard-reset", 'r', 0, G_OPTION_ARG_NONE, &hard_reset,
+	  N_("This will kill all Tracker processes and remove all databases"),
+	  NULL },
+	{ NULL }
+};
 
 static GSList *
 get_pids (void)
@@ -39,8 +62,9 @@ get_pids (void)
 
 	dir = g_dir_open ("/proc", 0, &error);
 	if (error) {
-		g_printerr ("Could not open /proc, %s\n",
-			    error ? error->message : "no error given");
+		g_printerr ("%s, %s\n",
+			    _("Could not open /proc"),
+			    error ? error->message : _("no error given"));
 		g_clear_error (&error);
 		return NULL;
 	}
@@ -65,13 +89,39 @@ get_pids (void)
 	return g_slist_reverse (pids);
 }
 
+static void
+log_handler (const gchar    *domain,
+	     GLogLevelFlags  log_level,
+	     const gchar    *message,
+	     gpointer	     user_data)
+{
+	switch (log_level) {
+	case G_LOG_LEVEL_WARNING:
+	case G_LOG_LEVEL_CRITICAL:
+	case G_LOG_LEVEL_ERROR:
+	case G_LOG_FLAG_RECURSION:
+	case G_LOG_FLAG_FATAL:
+		g_fprintf (stderr, "%s\n", message);
+		fflush (stderr);
+		break;
+	case G_LOG_LEVEL_MESSAGE:
+	case G_LOG_LEVEL_INFO:
+	case G_LOG_LEVEL_DEBUG:
+	case G_LOG_LEVEL_MASK:
+		g_fprintf (stdout, "%s\n", message);
+		fflush (stdout);
+		break;
+	}	
+}
+
 int
 main (int argc, char **argv)
 {
 	GOptionContext *context;
-	GError	       *error = NULL;
-	GSList         *pids;
-	GSList         *l;
+	GError *error = NULL;
+	GSList *pids;
+	GSList *l;
+	gchar  *str;
 
 	setlocale (LC_ALL, "");
 
@@ -79,14 +129,34 @@ main (int argc, char **argv)
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
+	g_type_init ();
+
 	/* Translators: this messagge will apper immediately after the	*/
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
-	context = g_option_context_new (_(" - Show the processes the tracker project is using"));
+	context = g_option_context_new (_(" - Manage Tracker processes and data"));
+	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 	g_option_context_free (context);
 
+	if (should_kill && should_terminate) {
+		g_printerr ("%s\n",
+			    _("You can not use the --kill and --terminate arguments together"));
+		return EXIT_FAILURE;
+	} else if (hard_reset && should_terminate) {
+		g_printerr ("%s\n",
+			    _("You can not use the --terminate with --hard-reset, --kill is implied"));
+		return EXIT_FAILURE;
+	}
+
+	if (hard_reset) {
+		/* Imply --kill */
+		should_kill = TRUE;
+	}
+
 	pids = get_pids ();
-	g_print ("Found %d pids...\n", g_slist_length (pids));
+	str = g_strdup_printf (_("Found %d pids..."), g_slist_length (pids));
+	g_print ("%s\n", str);
+	g_free (str);
 
 	for (l = pids; l; l = l->next) {
 		gchar *filename;
@@ -96,10 +166,12 @@ main (int argc, char **argv)
 		filename = g_build_filename ("/proc", l->data, "cmdline", NULL);
 		g_file_get_contents (filename, &contents, NULL, &error);
 
-		if (error) {
-			g_printerr ("Could not open '%s', %s\n",
-				    filename,
-				    error ? error->message : "no error given");
+		if (error) {	
+			str = g_strdup_printf (_("Could not open '%s'"), filename);
+			g_printerr ("%s, %s\n", 
+				    str,
+				    error ? error->message : _("no error given"));
+			g_free (str);
 			g_clear_error (&error);
 			g_free (contents);
 			g_free (filename);
@@ -114,9 +186,42 @@ main (int argc, char **argv)
 			basename = g_path_get_basename (strv[0]);
 			if (g_str_has_prefix (basename, "tracker") == TRUE &&
 			    g_str_has_suffix (basename, "-processes") == FALSE) {
-				g_print ("Found process ID %s for '%s'\n",
-					 (gchar*) l->data,
-					 basename);
+				pid_t pid;
+
+				pid = atoi (l->data);
+				str = g_strdup_printf (_("Found process ID %d for '%s'"), pid, basename);
+				g_print ("%s\n", str);
+				g_free (str);
+
+				if (should_terminate) {
+					if (kill (pid, SIGTERM) == -1) {
+						const gchar *errstr = g_strerror (errno);
+						
+						str = g_strdup_printf (_("Could not terminate process %d"), pid);
+						g_printerr ("  %s, %s\n", 
+							    str,
+							    errstr ? errstr : _("no error given"));
+						g_free (str);
+					} else {
+						str = g_strdup_printf (_("Terminated process %d"), pid);
+						g_print ("  %s\n", str);
+						g_free (str);
+					}
+				} else if (should_kill) {
+					if (kill (pid, SIGKILL) == -1) {
+						const gchar *errstr = g_strerror (errno);
+						
+						str = g_strdup_printf (_("Could not kill process %d"), pid);
+						g_printerr ("  %s, %s\n", 
+							    str,
+							    errstr ? errstr : _("no error given"));
+						g_free (str);
+					} else {
+						str = g_strdup_printf (_("Killed process %d"), pid);
+						g_print ("  %s\n", str);
+						g_free (str);
+					}
+				}
 			}
 
 			g_free (basename);
@@ -129,6 +234,30 @@ main (int argc, char **argv)
 
 	g_slist_foreach (pids, (GFunc) g_free, NULL);
 	g_slist_free (pids);
+
+	if (hard_reset) {
+		guint log_handler_id;
+
+		/* Set log handler for library messages */
+		log_handler_id = g_log_set_handler (NULL,
+						    G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL,
+						    log_handler,
+						    NULL);
+		
+		g_log_set_default_handler (log_handler, NULL);
+
+		/* Clean up */
+		tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL, NULL, FALSE);
+		tracker_db_manager_remove_all ();
+		tracker_db_manager_shutdown ();
+
+		tracker_db_index_manager_init (TRACKER_DB_INDEX_MANAGER_REMOVE_ALL, 0, 0);
+		tracker_db_index_manager_remove_all ();
+		tracker_db_index_manager_shutdown ();
+
+		/* Unset log handler */
+		g_log_remove_handler (NULL, log_handler_id);
+	}
 
 	return EXIT_SUCCESS;
 }

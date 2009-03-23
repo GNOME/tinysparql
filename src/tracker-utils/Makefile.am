@@ -14,6 +14,7 @@ INCLUDES =								\
 libs = 									\
 	$(top_builddir)/src/libtracker/libtrackerclient.la		\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
+	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
 	$(GIO_LIBS)							\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)
