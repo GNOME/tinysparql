@@ -112,10 +112,11 @@ main (int argc, char **argv)
 			gchar *basename;
 
 			basename = g_path_get_basename (strv[0]);
-			if (g_str_has_prefix (basename, "tracker")) {
-				g_print ("Found process ID:%s for '%s'\n",
+			if (g_str_has_prefix (basename, "tracker") == TRUE &&
+			    g_str_has_suffix (basename, "-processes") == FALSE) {
+				g_print ("Found process ID %s for '%s'\n",
 					 (gchar*) l->data,
-					 strv[0]);
+					 basename);
 			}
 
 			g_free (basename);

@@ -1,5 +1,12 @@
 2009-03-23  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-utils/tracker-processes.c: Only include basename in
+	list and exclude ourselves from the list of running processes.
+	Also remove the ":" between the "PID" and value for mouse copy and
+	paste ease.
+
+2009-03-23  Martyn Russell  <martyn@imendio.com>
+
 	* data/dbus/tracker-extract.xml:
 	* src/tracker-extract/tracker-extract.[ch]:
 	* src/tracker-indexer/tracker-indexer.c:
