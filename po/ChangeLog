@@ -1,3 +1,7 @@
+2009-03-23  Martyn Russell  <martyn@imendio.com>
+
+	* POTFILES.in: Fixed make distcheck.
+
 2009-03-18  Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
 	* es.po: Updated Spanish translation
