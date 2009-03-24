@@ -15,11 +15,17 @@ autostart_DATA = trackerd.desktop
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = 			\
-	tracker.pc			\
+	tracker-$(TRACKER_API_VERSION).pc	\
 	tracker-module-1.0.pc
 
+tracker-$(TRACKER_API_VERSION).pc: tracker.pc
+	cp $< $@
+
 if HAVE_LIBTRACKERGTK
-pkgconfig_DATA += libtracker-gtk.pc
+pkgconfig_DATA += libtracker-gtk-$(TRACKER_API_VERSION).pc
+
+libtracker-gtk-$(TRACKER_API_VERSION).pc: libtracker-gtk.pc
+	cp $< $@
 endif
 
 CLEANFILES = $(autostart_DATA) $(autostart_in_files)
