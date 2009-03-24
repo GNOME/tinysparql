@@ -99,30 +99,32 @@ typedef enum {
 } IndexIcon;
 
 typedef enum {
-	INDEX_INITIALIZING,
-	INDEX_IDLE,
-	INDEX_PAUSED,
-	INDEX_BUSY,
-	INDEX_MERGING
-} IndexStateEnum;
+	STATE_INITIALIZING,
+        STATE_WATCHING,
+        STATE_INDEXING,
+        STATE_PAUSED,
+        STATE_PENDING,
+        STATE_OPTIMIZING,
+        STATE_IDLE,
+        STATE_SHUTDOWN,
+} State;
 
 typedef enum {
-	PAUSE_NONE,
-	PAUSE_INTERNAL,
-	PAUSE_BATTERY
-} PauseStateEnum;
+	PAUSE_REASON_NONE,
+	PAUSE_REASON_IO,
+	PAUSE_REASON_BATTERY
+} PauseReason;
 
 typedef enum {
 	AUTO_PAUSE_NONE,
 	AUTO_PAUSE_INDEXING,
-	AUTO_PAUSE_MERGING
-} AutoPauseEnum;
+} AutoPause;
 
 typedef struct {
 	const gchar *name;
 	gchar *label;
 	GtkWidget *stat_label;
-} Stat_Info;
+} StatInfo;
 
 typedef struct _TrayIconPrivate {
 	GtkStatusIcon *icon;
@@ -131,10 +133,10 @@ typedef struct _TrayIconPrivate {
 
 	/* Settings */
 	gboolean auto_hide;
-	gboolean disabled;
+	gboolean indexing_disabled;
 	gboolean show_animation;
 	gboolean reindex;
-	AutoPauseEnum auto_pause_setting;
+	AutoPause auto_pause_setting;
 
 	/* Auto pause vars */
 	gboolean auto_pause_timer_active;
@@ -144,8 +146,8 @@ typedef struct _TrayIconPrivate {
 	gboolean auto_pause;
 
 	/* States */
-	IndexStateEnum index_state;
-	PauseStateEnum pause_state;
+	State state;
+	PauseReason pause_reason;
 	IndexIcon index_icon;
         gboolean initial_index;
 	gboolean animated;
@@ -179,7 +181,6 @@ typedef struct _TrayIconPrivate {
 	GtkWidget *chk_show_icon;
 	GtkWidget *opt_pause_off;
 	GtkWidget *opt_pause_index;
-	GtkWidget *opt_pause_merge;
 	GtkWidget *btn_close;
 } TrayIconPrivate;
 
@@ -195,7 +196,7 @@ static const gchar *index_icons[4] = {
 	"tracker-applet-indexing2.png"
 };
 
-static Stat_Info stat_info[13] = {
+static StatInfo stat_info[13] = {
 	{ "Files", NULL, NULL },
 	{ "Folders", NULL, NULL },
 	{ "Documents", NULL, NULL },
@@ -275,36 +276,55 @@ set_status_hint (TrayIcon *icon)
 
 	hint = g_string_new (NULL);
 
-	switch (priv->index_state) {
-	case INDEX_INITIALIZING:
+	switch (priv->state) {
+	case STATE_INITIALIZING:
 		/* Translators: this will be a status hint like: 
                  * Tracker: Initializing 
                  */
 		index_status = _("Initializing");
 		break;
-	case INDEX_IDLE:
+	case STATE_WATCHING:
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Adding File System Monitors
+                 */
+		index_status = _("Adding File System Monitors");
+		break;
+	case STATE_INDEXING:
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Indexing
+                 */
+		index_status = _("Indexing");
+		break;
+	case STATE_PAUSED:
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Paused 
+                 */
+		index_status = _("Paused");
+		break;
+	case STATE_PENDING:
+		/* Translators: this will be a status hint like: 
+                 * Tracker: Crawling File System
+                 *  e.g. to crawl the file system for changes
+                 */
+		index_status = _("Crawling File System");
+		break;
+	case STATE_IDLE:
 		/* Translators: this will be a status hint like: 
                  * Tracker: Idle 
                  */
 		index_status = _("Idle");
 		break;
-	case INDEX_PAUSED:
+	case STATE_OPTIMIZING:
 		/* Translators: this will be a status hint like: 
-                 * Tracker: Idle 
+                 * Tracker: Optimizing Databases 
                  */
-		index_status = _("Paused");
+		index_status = _("Optimizing Databases");
 		break;
-	case INDEX_BUSY:
+	case STATE_SHUTDOWN:
 		/* Translators: this will be a status hint like: 
-                 * Tracker: Indexing 
+                 * Tracker: Shutting Down
                  */
-		index_status = _("Indexing");
-		break;
-	case INDEX_MERGING:
-		/* Translators: this will be a status hint like: 
-                 * Tracker: Merging 
-                 */
-		index_status = _("Merging");
+		index_status = _("Shutting Down");
 		break;
 	}
 
@@ -319,14 +339,14 @@ set_status_hint (TrayIcon *icon)
                  */
 		pause_status = _("by system");
 	} else {
-		switch (priv->pause_state) {
-		case PAUSE_INTERNAL:
+		switch (priv->pause_reason) {
+		case PAUSE_REASON_IO:
                         /* Translators: this will be a status hint like: 
                          * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
                          */
 			pause_status = _("low disk space or heavy disk use");
 			break;
-		case PAUSE_BATTERY:
+		case PAUSE_REASON_BATTERY:
 			/* FIXME: We need to check if we are on the
 			 * battery first, this state purely means we
 			 * WILL pause on battery.
@@ -337,7 +357,7 @@ set_status_hint (TrayIcon *icon)
 			pause_status = _("low battery");
 			break;
 		default:
-		case PAUSE_NONE:
+		case PAUSE_REASON_NONE:
 			pause_status = NULL;
 			break;
 		}
@@ -355,7 +375,7 @@ set_status_hint (TrayIcon *icon)
 		g_string_printf (hint, _("Tracker: %s"), index_status);
 	}
 
-	if (priv->index_state == INDEX_BUSY) {
+	if (priv->state == STATE_INDEXING) {
 		gchar *str1;
 		gchar *str2;
 
@@ -385,16 +405,6 @@ set_status_hint (TrayIcon *icon)
 		g_free (str1);
 	}
 
-	if (priv->index_state == INDEX_MERGING) {
-		/* Translators: this will be a status hint like: 
-                 * Tracker: Merging\n
-                 *  %d/%d indexes being merged 
-                 */
-		g_string_append_printf (hint, _("\n%d/%d indexes being merged"),
-					priv->items_done,
-					priv->items_total);
-	}
-
 	tray_icon_set_tooltip (icon, hint->str);
 
 	g_string_free (hint, TRUE);
@@ -408,8 +418,8 @@ can_auto_pause (TrayIcon *icon)
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 
 	if (priv->user_pause ||
-	    priv->pause_state == PAUSE_BATTERY ||
-	    priv->disabled ||
+	    priv->pause_reason == PAUSE_REASON_BATTERY ||
+	    priv->indexing_disabled ||
 	    priv->indexer_stopped) {
 		return FALSE;
 	}
@@ -418,9 +428,7 @@ can_auto_pause (TrayIcon *icon)
 	case AUTO_PAUSE_NONE:
 		return FALSE;
 	case AUTO_PAUSE_INDEXING:
-		return priv->index_state != INDEX_IDLE;
-	case AUTO_PAUSE_MERGING:
-		return priv->index_state == INDEX_MERGING;
+		return priv->state != STATE_IDLE;
 	}
 
 	return TRUE;
@@ -448,27 +456,26 @@ set_tracker_icon (TrayIconPrivate *priv)
 	g_free (path);
 }
 
-static gboolean
+static void
 set_icon (TrayIconPrivate *priv)
 {
-	if (!priv->user_pause) {
-		if (priv->index_state == INDEX_INITIALIZING ||
-		    priv->index_state == INDEX_IDLE) {
-			priv->animated = FALSE;
-			priv->animated_timer_active = FALSE;
-
-			if (priv->index_icon != ICON_DEFAULT) {
-				priv->index_icon = ICON_DEFAULT;
-				set_tracker_icon (priv);
-			}
-
-			return FALSE;
-		}
+	if (!priv->user_pause && 
+            (priv->state == STATE_INITIALIZING ||
+             priv->state == STATE_IDLE)) {
+                priv->animated = FALSE;
+                priv->animated_timer_active = FALSE;
+                
+                if (priv->index_icon != ICON_DEFAULT) {
+                        priv->index_icon = ICON_DEFAULT;
+                        set_tracker_icon (priv);
+                }
+                
+                return;
 	}
 
 	if (priv->user_pause ||
 	    priv->auto_pause ||
-	    priv->pause_state != PAUSE_NONE) {
+	    priv->pause_reason != PAUSE_REASON_NONE) {
 		if (priv->index_icon != ICON_PAUSED) {
 			priv->index_icon = ICON_PAUSED;
 			set_tracker_icon (priv);
@@ -477,11 +484,11 @@ set_icon (TrayIconPrivate *priv)
 		priv->animated = FALSE;
 		priv->animated_timer_active = FALSE;
 
-		return FALSE;
+		return;
 	}
 
-	if (priv->index_state != INDEX_INITIALIZING &&
-	    priv->index_state != INDEX_IDLE) {
+	if (priv->state != STATE_INITIALIZING &&
+	    priv->state != STATE_IDLE) {
 		if (priv->index_icon == ICON_INDEX2 || !priv->show_animation) {
 			priv->index_icon = ICON_DEFAULT;
 		} else if (priv->index_icon != ICON_INDEX1) {
@@ -491,11 +498,7 @@ set_icon (TrayIconPrivate *priv)
 		}
 
 		set_tracker_icon (priv);
-
-		return TRUE;
 	}
-
-	return FALSE;
 }
 
 static gboolean
@@ -860,8 +863,8 @@ pause_menu_toggled (GtkCheckMenuItem *item,
 }
 
 static inline void
-set_auto_pause_setting (TrayIcon      *icon,
-			AutoPauseEnum  auto_pause)
+set_auto_pause_setting (TrayIcon  *icon,
+			AutoPause  auto_pause)
 {
 	TrayIconPrivate *priv;
 
@@ -950,18 +953,6 @@ opt_pause_off_group_changed_cb (GtkToggleButton *check_button,
 
 		return;
 	}
-
-	if (g_str_equal (name, "opt_pause_merge")) {
-		priv->auto_pause_setting = AUTO_PAUSE_MERGING;
-
-		if (can_auto_pause (icon)) {
-			start_watching_events (icon);
-		} else {
-			stop_watching_events (icon);
-		}
-
-		return;
-	}
 }
 
 static void
@@ -992,7 +983,7 @@ chk_show_icon_toggled_cb (GtkToggleButton *check_button,
 		gtk_status_icon_set_visible (priv->icon, FALSE);
 	} else {
 		priv->auto_hide = FALSE;
-		if (!priv->disabled) {
+		if (!priv->indexing_disabled) {
 			gtk_status_icon_set_visible (priv->icon, TRUE);
 		}
 	}
@@ -1030,8 +1021,6 @@ create_prefs (TrayIcon *icon)
 	priv->opt_pause_off = glade_xml_get_widget (glade, "opt_pause_off");
 	priv->opt_pause_index =
 		glade_xml_get_widget (glade, "opt_pause_index");
-	priv->opt_pause_merge =
-		glade_xml_get_widget (glade, "opt_pause_merge");
 	priv->btn_close = glade_xml_get_widget (glade, "btn_close");
 
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->chk_animate),
@@ -1050,10 +1039,6 @@ create_prefs (TrayIcon *icon)
 					      (priv->opt_pause_index), TRUE);
 		break;
 
-	case AUTO_PAUSE_MERGING:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON
-					      (priv->opt_pause_merge), TRUE);
-		break;
         default:
                 g_critical ("Unreachable state in auto pause.");
 	}
@@ -1067,10 +1052,6 @@ create_prefs (TrayIcon *icon)
 			  G_CALLBACK (opt_pause_off_group_changed_cb),
 			  main_icon);
 	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_index),
-			  "toggled",
-			  G_CALLBACK (opt_pause_off_group_changed_cb),
-			  main_icon);
-	g_signal_connect (GTK_TOGGLE_BUTTON (priv->opt_pause_merge),
 			  "toggled",
 			  G_CALLBACK (opt_pause_off_group_changed_cb),
 			  main_icon);
@@ -1569,8 +1550,8 @@ index_finished (DBusGProxy *proxy,
 
 	priv->indexer_stopped = FALSE;
 
-        priv->index_state = INDEX_IDLE;
-	priv->pause_state = PAUSE_NONE;
+        priv->state = STATE_IDLE;
+	priv->pause_reason = PAUSE_REASON_NONE;
 
 	priv->user_pause = FALSE;
 	priv->auto_pause = FALSE;
@@ -1617,7 +1598,6 @@ index_state_changed (DBusGProxy  *proxy,
 		     TrayIcon	 *icon)
 {
 	TrayIconPrivate *priv;
-	gboolean paused;
 
 	if (!state) {
 		return;
@@ -1628,14 +1608,12 @@ index_state_changed (DBusGProxy  *proxy,
 	priv->indexer_stopped = FALSE;
         priv->initial_index = initial_index;
 
-	paused = FALSE;
-
 	if (!is_indexing_enabled) {
-		priv->disabled = TRUE;
+		priv->indexing_disabled = TRUE;
 		gtk_status_icon_set_visible (priv->icon, FALSE);
 		return;
 	} else {
-		priv->disabled = FALSE;
+		priv->indexing_disabled = FALSE;
 		if (!priv->auto_hide) {
 			gtk_status_icon_set_visible (priv->icon, TRUE);
 		}
@@ -1681,47 +1659,59 @@ index_state_changed (DBusGProxy  *proxy,
                 }
 	}
 
-	priv->animated = FALSE;
-	priv->pause_state = PAUSE_NONE;
-
 	/* Set pause states if applicable */
 	if (is_manual_paused) {
-		stop_watching_events (icon);
+                priv->pause_reason = PAUSE_REASON_NONE;
 
-		paused = TRUE;
+		stop_watching_events (icon);
 
 		if (!priv->auto_pause) {
 			priv->user_pause = TRUE;
 		}
 	} else if (is_battery_paused) {
-		paused = TRUE;
-		priv->pause_state = PAUSE_BATTERY;
+		priv->pause_reason = PAUSE_REASON_BATTERY;
 	} else if (is_io_paused) {
-		paused = TRUE;
-		priv->pause_state = PAUSE_INTERNAL;
-	}
-
-	if (in_merge) {
-		priv->index_state = INDEX_MERGING;
-		priv->animated = TRUE;
-	} else if (g_ascii_strcasecmp (state, "Initializing") == 0) {
-		priv->index_state = INDEX_INITIALIZING;
-	} else if (g_ascii_strcasecmp (state, "Idle") == 0) {
-		priv->index_state = INDEX_IDLE;
-	} else if (g_ascii_strcasecmp (state, "Paused") == 0) {
-		priv->index_state = INDEX_PAUSED;
+		priv->pause_reason = PAUSE_REASON_IO;
 	} else {
-		priv->index_state = INDEX_BUSY;
+                priv->pause_reason = PAUSE_REASON_NONE;
+        }
+
+	if (g_ascii_strcasecmp (state, "Initializing") == 0) {
+		priv->state = STATE_INITIALIZING;
+		priv->animated = FALSE;
+	} else if (g_ascii_strcasecmp (state, "Watching") == 0) {
+		priv->state = STATE_WATCHING;
 		priv->animated = TRUE;
+	} else if (g_ascii_strcasecmp (state, "Indexing") == 0) {
+		priv->state = STATE_INDEXING;
+		priv->animated = TRUE;
+	} else if (g_ascii_strcasecmp (state, "Paused") == 0) {
+		priv->state = STATE_PAUSED;
+		priv->animated = FALSE;
+	} else if (g_ascii_strcasecmp (state, "Pending") == 0) {
+		priv->state = STATE_PENDING;
+		priv->animated = TRUE;
+	} else if (g_ascii_strcasecmp (state, "Optimizing") == 0) {
+		priv->state = STATE_OPTIMIZING;
+		priv->animated = TRUE;
+	} else if (g_ascii_strcasecmp (state, "Idle") == 0) {
+		priv->state = STATE_IDLE;
+		priv->animated = FALSE;
+	} else if (g_ascii_strcasecmp (state, "Shutdown") == 0) {
+		priv->state = STATE_SHUTDOWN;
+		priv->animated = TRUE;
+        } else {
+                g_critical ("Unknown state '%s'", state);
 	}
 
 	set_icon (priv);
 
 	/* Should we animate? */
-	if (!paused && priv->animated && priv->show_animation) {
-		if (!priv->animated_timer_active) {
-			priv->animated_timer_active = TRUE;
-		}
+	if (priv->state != STATE_PAUSED && 
+            priv->show_animation && 
+            priv->animated && 
+            !priv->animated_timer_active) {
+                priv->animated_timer_active = TRUE;
 	}
 
 	set_status_hint (icon);
@@ -1770,9 +1760,9 @@ init_settings (TrayIcon *icon)
 
 	priv = TRAY_ICON_GET_PRIVATE (icon);
 
-	priv->index_state = INDEX_INITIALIZING;
-	priv->pause_state = PAUSE_NONE;
-	priv->auto_pause_setting = AUTO_PAUSE_MERGING;
+	priv->state = STATE_INITIALIZING;
+	priv->pause_reason = PAUSE_REASON_NONE;
+	priv->auto_pause_setting = AUTO_PAUSE_NONE;
 	priv->index_icon = ICON_DEFAULT;
 	priv->show_animation = TRUE;
 
@@ -2046,7 +2036,7 @@ tray_icon_show_message (TrayIcon    *icon,
 	msg = g_strdup_vprintf (message, args);
 	va_end (args);
 
-	if (priv->disabled) {
+	if (priv->indexing_disabled) {
 		return;
 	}
 
@@ -2148,7 +2138,7 @@ load_options (TrayIcon *icon)
 
 		priv->show_animation = TRUE;
 		priv->auto_hide = FALSE;
-		priv->auto_pause_setting = AUTO_PAUSE_MERGING;
+		priv->auto_pause_setting = AUTO_PAUSE_NONE;
 
 		return FALSE;
 	}
@@ -2186,10 +2176,11 @@ load_options (TrayIcon *icon)
 								   "SmartPause",
 								   NULL);
 	} else {
-		priv->auto_pause_setting = AUTO_PAUSE_MERGING;
+		priv->auto_pause_setting = AUTO_PAUSE_NONE;
 	}
 
 	switch (priv->auto_pause_setting) {
+        default:
 	case AUTO_PAUSE_NONE:
 		priv->auto_pause_setting = AUTO_PAUSE_NONE;
 		priv->auto_pause = FALSE;
@@ -2202,15 +2193,6 @@ load_options (TrayIcon *icon)
 			stop_watching_events (icon);
 		}
 		break;
-	case AUTO_PAUSE_MERGING:
-		if (can_auto_pause (icon)) {
-			start_watching_events (icon);
-		} else {
-			stop_watching_events (icon);
-		}
-		break;
-        default:
-                g_critical ("Unreachable state in auto pause.");
 	}
 
 	return TRUE;

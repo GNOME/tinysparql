@@ -1,5 +1,13 @@
 2009-03-24  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-applet/tracker-applet-prefs.glade:
+	* src/tracker-applet/tracker-applet.c: Removed all "merge" options
+	since they no longer apply. Added more state information so the
+	user isn't left wondering what is going on. Now we report states:
+	watching, crawling, optimising and shutting down.
+
+2009-03-24  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-utils/tracker-processes.c: Fixed build warnings.
 
 2009-03-23  Martyn Russell  <martyn@imendio.com>
