@@ -1,3 +1,7 @@
+2009-03-24  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-utils/tracker-processes.c: Fixed build warnings.
+
 2009-03-23  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-processor.c: (get_remote_roots),
