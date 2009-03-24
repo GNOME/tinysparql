@@ -26,6 +26,7 @@
 #include <time.h>
 #include <locale.h>
 #include <errno.h>
+#include <sys/types.h>
 #include <signal.h>
 
 #include <glib.h>
