@@ -5,7 +5,6 @@ indexer_modulesdir = $(libdir)/tracker/indexer-modules
 
 INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
-	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DINDEXER_MODULES_DIR=\"$(indexer_modulesdir)\"			\
 	-DG_LOG_DOMAIN=\"Tracker\"					\

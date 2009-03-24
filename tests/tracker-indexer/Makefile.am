@@ -8,7 +8,7 @@ INCLUDES = 									\
 	-DTEST									\
 	-DG_LOG_DOMAIN=\"Tracker\"						\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"		\
-	-DLIBDIR=\""$(libdir)"\"						\
+	-DPKGLIBDIR=\""$(libdir)/tracker"\"					\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
 	-DTRACKER_COMPILATION							\
 	-I$(top_srcdir)/src							\

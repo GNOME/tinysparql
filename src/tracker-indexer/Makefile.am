@@ -5,7 +5,7 @@ SUBDIRS = modules
 INCLUDES =								\
 	-Wall								\
 	-DSHAREDIR=\""$(datadir)"\"					\
-	-DLIBDIR=\""$(libdir)"\"					\
+	-DPKGLIBDIR=\""$(libdir)/tracker"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"	\
 	-DPUSH_MODULES_DIR=\""$(libdir)/tracker/push-modules/indexer"\" \

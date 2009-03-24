@@ -714,8 +714,7 @@ get_file_content_by_filter (GFile       *file,
 	str = g_strconcat (mime, "_filter", NULL);
 #endif
 
-	text_filter_file = g_build_filename (LIBDIR,
-					     "tracker",
+	text_filter_file = g_build_filename (PKGLIBDIR,
 					     "filters",
 					     str,
 					     NULL);

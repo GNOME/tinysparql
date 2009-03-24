@@ -2,7 +2,6 @@ include $(top_srcdir)/Makefile.decl
 
 INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
-	-DLIBDIR=\""$(libdir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
 	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker/mail-modules\"         \
 	-DPUSH_MODULES_DIR=\""$(libdir)/tracker/push-modules/daemon"\"	\
