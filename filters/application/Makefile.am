@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-thumbappbindir = $(libdir)/tracker/filters/application
+thumbappbindir = $(libdir)/tracker-$(TRACKER_API_VERSION)/filters/application
 
 thumbappbin_SCRIPTS = 						\
 	pdf_filter 						\

@@ -3,8 +3,8 @@ include $(top_srcdir)/Makefile.decl
 INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
-	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker/mail-modules\"         \
-	-DPUSH_MODULES_DIR=\""$(libdir)/tracker/push-modules/daemon"\"	\
+	-DMAIL_MODULES_DIR=\""$(libdir)"/tracker-$(TRACKER_API_VERSION)/mail-modules\"         \
+	-DPUSH_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/daemon"\"	\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\

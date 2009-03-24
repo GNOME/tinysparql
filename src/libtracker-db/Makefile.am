@@ -12,7 +12,7 @@ INCLUDES =								\
 	$(SQLITE3_CFLAGS)						\
 	$(QDBM_CFLAGS)
 
-libtracker_dbdir = $(libdir)/tracker
+libtracker_dbdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_db_LTLIBRARIES = libtracker-db.la
 
 libtracker_db_la_SOURCES = 						\

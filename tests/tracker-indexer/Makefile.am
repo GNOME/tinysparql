@@ -7,8 +7,8 @@ TEST_PROGS += tracker-metadata-utils
 INCLUDES = 									\
 	-DTEST									\
 	-DG_LOG_DOMAIN=\"Tracker\"						\
-	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"		\
-	-DPKGLIBDIR=\""$(libdir)/tracker"\"					\
+	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/indexer-modules"\"	\
+	-DPKGLIBDIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)"\"		\
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"					\
 	-DTRACKER_COMPILATION							\
 	-I$(top_srcdir)/src							\

@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 module_flags = -module -avoid-version -no-undefined
-modulesdir = $(libdir)/tracker/extract-modules
+modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/extract-modules
 
 INCLUDES = 								\
 	-DLOCALEDIR=\""$(localedir)"\" 					\

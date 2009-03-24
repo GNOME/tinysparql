@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
 module_flags = -module -avoid-version -no-undefined
-indexer_modulesdir = $(libdir)/tracker/indexer-modules
+indexer_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/indexer-modules
 
 INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\

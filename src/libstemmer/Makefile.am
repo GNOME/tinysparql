@@ -6,7 +6,7 @@ INCLUDES =				\
 	-I$(top_srcdir)/src		\
 	$(WARN_CFLAGS)
 
-libstemmerdir = $(libdir)/tracker
+libstemmerdir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libstemmer_LTLIBRARIES = libstemmer.la
 
 libstemmer_la_SOURCES = 		\

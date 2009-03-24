@@ -15,7 +15,7 @@ INCLUDES =						\
 	$(DBUS_CFLAGS)					\
 	$(UNAC_CFLAGS)
 
-libtracker_commondir = $(libdir)/tracker
+libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_commonincludedir=$(includedir)/tracker-1.0/libtracker-common/
 libtracker_common_LTLIBRARIES = libtracker-common.la
 

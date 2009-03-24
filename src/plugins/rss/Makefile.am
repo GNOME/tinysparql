@@ -11,8 +11,8 @@ INCLUDES = -I$(top_srcdir)/src						\
 
 module_flags = -module -avoid-version -no-undefined
 
-pushd_modulesdir = $(libdir)/tracker/push-modules/daemon
-pushi_modulesdir = $(libdir)/tracker/push-modules/indexer
+pushd_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/daemon
+pushi_modulesdir = $(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/indexer
 
 pushd_modules_LTLIBRARIES = libtracker-module-rss-daemon-module.la
 pushi_modules_LTLIBRARIES = libtracker-module-rss-indexer-module.la

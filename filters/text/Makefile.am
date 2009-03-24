@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-filterbindir = $(libdir)/tracker/filters/text
+filterbindir = $(libdir)/tracker-$(TRACKER_API_VERSION)/filters/text
 
 filterbin_SCRIPTS = 			\
 	html_filter 			\

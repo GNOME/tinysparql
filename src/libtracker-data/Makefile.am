@@ -11,7 +11,7 @@ INCLUDES =								\
 	$(RAPTOR_CFLAGS)						\
 	$(GCOV_CFLAGS)
 
-libtracker_datadir = $(libdir)/tracker
+libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
 libtracker_data_la_SOURCES = 						\

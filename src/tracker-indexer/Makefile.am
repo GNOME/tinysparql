@@ -7,8 +7,8 @@ INCLUDES =								\
 	-DSHAREDIR=\""$(datadir)"\"					\
 	-DPKGLIBDIR=\""$(libdir)/tracker"\"					\
 	-DLOCALEDIR=\""$(localedir)"\" 					\
-	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker/indexer-modules"\"	\
-	-DPUSH_MODULES_DIR=\""$(libdir)/tracker/push-modules/indexer"\" \
+	-DINDEXER_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/indexer-modules"\"	\
+	-DPUSH_MODULES_DIR=\""$(libdir)/tracker-$(TRACKER_API_VERSION)/push-modules/indexer"\" \
 	-DLIBEXEC_PATH=\""$(libexecdir)"\"				\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
 	-DTRACKER_COMPILATION						\
@@ -20,7 +20,7 @@ INCLUDES =								\
 	$(GCOV_CFLAGS)							\
 	$(RAPTOR_CFLAGS)
 
-libtracker_moduledir = $(libdir)/tracker
+libtracker_moduledir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_moduleincludedir=$(includedir)/tracker-1.0/libtracker-module/
 libtracker_module_LTLIBRARIES = libtracker-module.la
 
