@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-03-16 16:41+0000\n"
-"PO-Revision-Date: 2009-03-18 11:42+0100\n"
+"POT-Creation-Date: 2009-03-23 17:16+0000\n"
+"PO-Revision-Date: 2009-03-24 10:50+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -182,7 +182,7 @@ msgstr "Herramienta de búsqueda en vivo Tracker"
 msgid "Search with Tracker, as you type"
 msgstr "Buscar con Tracker, al escribir"
 
-#: ../src/libtracker-common/tracker-dbus.c:319
+#: ../src/libtracker-common/tracker-dbus.c:318
 msgid "No error given"
 msgstr "No se proporcionó ningún error"
 
@@ -456,28 +456,28 @@ msgstr "Miniaplicación Tracker"
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing
 #.
-#: ../src/tracker-applet/tracker-applet.c:281
+#: ../src/tracker-applet/tracker-applet.c:283
 msgid "Initializing"
 msgstr "Inicializando"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Idle
 #.
-#: ../src/tracker-applet/tracker-applet.c:287
+#: ../src/tracker-applet/tracker-applet.c:289
 msgid "Idle"
 msgstr "Ocioso"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Idle
 #.
-#: ../src/tracker-applet/tracker-applet.c:293
+#: ../src/tracker-applet/tracker-applet.c:295
 msgid "Paused"
 msgstr "Pausado"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing
 #.
-#: ../src/tracker-applet/tracker-applet.c:299
+#: ../src/tracker-applet/tracker-applet.c:301
 #: ../src/tracker-search-tool/tracker-search-tool.c:1820
 msgid "Indexing"
 msgstr "Indexando"
@@ -485,28 +485,28 @@ msgstr "Indexando"
 #. Translators: this will be a status hint like:
 #. * Tracker: Merging
 #.
-#: ../src/tracker-applet/tracker-applet.c:305
+#: ../src/tracker-applet/tracker-applet.c:307
 msgid "Merging"
 msgstr "Mezclando"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by user)
 #.
-#: ../src/tracker-applet/tracker-applet.c:313
+#: ../src/tracker-applet/tracker-applet.c:315
 msgid "by user"
 msgstr "por el usuario"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:318
+#: ../src/tracker-applet/tracker-applet.c:320
 msgid "by system"
 msgstr "por el sistema"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:325
+#: ../src/tracker-applet/tracker-applet.c:327
 msgid "low disk space or heavy disk use"
 msgstr "poco espacio en disco o gran uso del disco "
 
@@ -517,14 +517,14 @@ msgstr "poco espacio en disco o gran uso del disco "
 #. Translators: this will be a status hint like:
 #. * Tracker: Initializing/Idle/Indexing/Merging (paused by battery)
 #.
-#: ../src/tracker-applet/tracker-applet.c:335
+#: ../src/tracker-applet/tracker-applet.c:337
 msgid "low battery"
 msgstr "batería baja"
 
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing (paused by system)
 #.
-#: ../src/tracker-applet/tracker-applet.c:348
+#: ../src/tracker-applet/tracker-applet.c:350
 #, c-format
 msgid "Tracker: %s (%s)"
 msgstr "Tracker: %s (%s)"
@@ -532,12 +532,12 @@ msgstr "Tracker: %s (%s)"
 #. Translators: this will be a status hint like:
 #. * Tracker: Indexing
 #.
-#: ../src/tracker-applet/tracker-applet.c:353
+#: ../src/tracker-applet/tracker-applet.c:355
 #, c-format
 msgid "Tracker: %s"
 msgstr "Tracker: %s"
 
-#: ../src/tracker-applet/tracker-applet.c:376
+#: ../src/tracker-applet/tracker-applet.c:378
 #, c-format
 msgid ""
 "Done: %d of %d\n"
@@ -552,7 +552,7 @@ msgstr ""
 #. * Tracker: Merging\n
 #. *  %d/%d indexes being merged
 #.
-#: ../src/tracker-applet/tracker-applet.c:391
+#: ../src/tracker-applet/tracker-applet.c:393
 #, c-format
 msgid ""
 "\n"
@@ -561,18 +561,17 @@ msgstr ""
 "\n"
 "%d/%d los índices se están mezclando"
 
-#: ../src/tracker-applet/tracker-applet.c:1112
+#: ../src/tracker-applet/tracker-applet.c:1114
 msgid "Re-index your system?"
 msgstr "¿Reindexar su sistema?"
 
-#: ../src/tracker-applet/tracker-applet.c:1114
+#: ../src/tracker-applet/tracker-applet.c:1116
 msgid "Indexing can take a long time. Are you sure you want to re-index?"
 msgstr ""
 "El indexado puede llevar un largo tiempo. ¿Está seguro de que quiere "
 "reindexar?"
 
-#: ../src/tracker-applet/tracker-applet.c:1277
-#| msgid "Statistics"
+#: ../src/tracker-applet/tracker-applet.c:1279
 msgid "Tracker Statistics"
 msgstr "Estadísticas de Tracker"
 
@@ -749,12 +748,12 @@ msgstr "Correos-e:"
 msgid "Control and monitor the Tracker search and indexing service"
 msgstr "Controle y monitorice el servicio de búsqueda e indexado Tracker"
 
-#: ../src/tracker-extract/tracker-main.c:77
+#: ../src/tracker-extract/tracker-main.c:78
 #: ../src/tracker-indexer/tracker-main.c:79 ../src/trackerd/tracker-main.c:136
 msgid "Displays version information"
 msgstr "Muestra información de la versión"
 
-#: ../src/tracker-extract/tracker-main.c:81
+#: ../src/tracker-extract/tracker-main.c:82
 #: ../src/tracker-indexer/tracker-main.c:83 ../src/trackerd/tracker-main.c:140
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -763,30 +762,30 @@ msgstr ""
 "Registro, 0 = sólo errores, 1 = mínimo, 2 = detallado y 3 = depuración "
 "(predeterminado = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:86
+#: ../src/tracker-extract/tracker-main.c:87
 msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
-#: ../src/tracker-extract/tracker-main.c:87
+#: ../src/tracker-extract/tracker-main.c:88
 #: ../src/tracker-utils/tracker-info.c:47
 msgid "FILE"
 msgstr "ARCHIVO"
 
-#: ../src/tracker-extract/tracker-main.c:90
+#: ../src/tracker-extract/tracker-main.c:91
 msgid "MIME type for file (if not provided, this will be guessed)"
 msgstr "Tipo MIME para el archivo (si no se proporciona se intentará adivinar)"
 
-#: ../src/tracker-extract/tracker-main.c:91
+#: ../src/tracker-extract/tracker-main.c:92
 msgid "MIME"
 msgstr "MIME"
 
 #. Translators: this message will appear immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:222
+#: ../src/tracker-extract/tracker-main.c:223
 msgid "- Extract file meta data"
 msgstr "- Extraer los metadatos del archivo"
 
-#: ../src/tracker-extract/tracker-main.c:234
+#: ../src/tracker-extract/tracker-main.c:235
 msgid "Filename and mime type must be provided together"
 msgstr "Se debe proporcionar tanto el nombre como el tipo MIME"
 
@@ -979,7 +978,6 @@ msgid "Index and watch my home _directory"
 msgstr "Indexar y vigilar mi ca_rpeta personal"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:32
-#| msgid "Indexing speed:"
 msgid "Indexing Speed:"
 msgstr "Velocidad de indexado:"
 
@@ -1563,6 +1561,86 @@ msgstr ""
 msgid "No meta-data found for files in that directory"
 msgstr "No se encontró ningún metadato para los archivos en ese directorio"
 
+#: ../src/tracker-utils/tracker-processes.c:43
+msgid "Use SIGKILL to stop all tracker processes found - guarantees death :)"
+msgstr ""
+"Use SIGKILL para parar todos los procesos de tracker encontrados; garantiza "
+"su muerte"
+
+#: ../src/tracker-utils/tracker-processes.c:46
+msgid "Use SIGTERM to stop all tracker processes found"
+msgstr "Use SIGTERM para parar todos los procesos de tracker encontrados"
+
+#: ../src/tracker-utils/tracker-processes.c:50
+msgid "This will kill all Tracker processes and remove all databases"
+msgstr ""
+"Esto matará todos los procesos de Tracker y borrará todas las bases de datos"
+
+#: ../src/tracker-utils/tracker-processes.c:66
+#| msgid "Could not open help document."
+msgid "Could not open /proc"
+msgstr "No se pudo abrir /proc"
+
+#: ../src/tracker-utils/tracker-processes.c:67
+#: ../src/tracker-utils/tracker-processes.c:173
+#: ../src/tracker-utils/tracker-processes.c:203
+#: ../src/tracker-utils/tracker-processes.c:217
+#| msgid "No error given"
+msgid "no error given"
+msgstr "no se proporcionó ningún error"
+
+#. Translators: this messagge will apper immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-utils/tracker-processes.c:136
+msgid " - Manage Tracker processes and data"
+msgstr " - Gestionar los procesos y datos de Tracker"
+
+#: ../src/tracker-utils/tracker-processes.c:143
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr "No puede usar los argumentos --kill y --terminate juntos"
+
+#: ../src/tracker-utils/tracker-processes.c:147
+msgid "You can not use the --terminate with --hard-reset, --kill is implied"
+msgstr "No puede usar --terminate con --hard-reset, --kill está implicado"
+
+#: ../src/tracker-utils/tracker-processes.c:157
+#, c-format
+msgid "Found %d pids..."
+msgstr "Encontrados %d pids..."
+
+#: ../src/tracker-utils/tracker-processes.c:170
+#, c-format
+#| msgid "Could not open folder \"%s\"."
+msgid "Could not open '%s'"
+msgstr "No se pudo abrir «%s»"
+
+#: ../src/tracker-utils/tracker-processes.c:192
+#, c-format
+msgid "Found process ID %d for '%s'"
+msgstr "Se encontró el ID de proceso %d para «%s»"
+
+#: ../src/tracker-utils/tracker-processes.c:200
+#, c-format
+#| msgid "Could not get Tracker properties"
+msgid "Could not terminate process %d"
+msgstr "No se pudo terminar el proceso %d"
+
+#: ../src/tracker-utils/tracker-processes.c:206
+#, c-format
+msgid "Terminated process %d"
+msgstr "Proceso %d terminado"
+
+#: ../src/tracker-utils/tracker-processes.c:214
+#, c-format
+#| msgid "Could not get Tracker status"
+msgid "Could not kill process %d"
+msgstr "No se pudo matar el proceso %d"
+
+#: ../src/tracker-utils/tracker-processes.c:220
+#, c-format
+msgid "Killed process %d"
+msgstr "Proceso %d matado"
+
 #: ../src/tracker-utils/tracker-query.c:51
 #: ../src/tracker-utils/tracker-unique.c:48
 msgid "Path to use in query"
@@ -2015,7 +2093,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:896
+#: ../src/trackerd/tracker-main.c:878
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
