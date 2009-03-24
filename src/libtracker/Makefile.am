@@ -9,14 +9,14 @@ INCLUDES = 					\
 	$(GCOV_CFLAGS)				\
 	$(DBUS_CFLAGS)			
 
-lib_LTLIBRARIES = libtrackerclient.la
+lib_LTLIBRARIES = libtrackerclient-@TRACKER_API_VERSION@.la
 
-libtrackerclient_la_SOURCES = tracker.c
+libtrackerclient_@TRACKER_API_VERSION@_la_SOURCES = tracker.c
 
-libtrackerclient_la_LDFLAGS = 			\
+libtrackerclient_@TRACKER_API_VERSION@_la_LDFLAGS = 			\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-libtrackerclient_la_LIBADD = 			\
+libtrackerclient_@TRACKER_API_VERSION@_la_LIBADD = 			\
 	$(GLIB2_LIBS) 				\
 	$(DBUS_LIBS)				\
 	$(GCOV_LIBS)				\

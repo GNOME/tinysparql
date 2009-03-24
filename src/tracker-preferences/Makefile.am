@@ -33,7 +33,7 @@ tracker_preferences_SOURCES = 						\
 	tracker-preferences-utils.h
 
 tracker_preferences_LDADD = 						\
-	$(top_builddir)/src/libtracker/libtrackerclient.la		\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(LIBGLADE_LIBS)						\
 	$(GTK2_LIBS) 							\

@@ -14,7 +14,7 @@ INCLUDES =								\
 bin_PROGRAMS = tracker-applet
 
 tracker_applet_LDADD = 							\
-	$(top_builddir)/src/libtracker/libtrackerclient.la 		\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la 	\
 	$(TRACKER_APPLET_LIBS)						\
 	$(LIBGLADE_LIBS)						\

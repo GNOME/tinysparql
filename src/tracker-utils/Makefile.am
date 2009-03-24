@@ -12,7 +12,7 @@ INCLUDES =								\
 	$(DBUS_CFLAGS)
 
 libs = 									\
-	$(top_builddir)/src/libtracker/libtrackerclient.la		\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(top_builddir)/src/libtracker-db/libtracker-db.la		\
 	$(GIO_LIBS)							\

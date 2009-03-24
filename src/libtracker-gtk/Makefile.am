@@ -8,7 +8,7 @@ INCLUDES = 							\
 
 libtracker_gtkincdir = $(includedir)/libtracker-gtk
 
-lib_LTLIBRARIES = libtracker-gtk.la
+lib_LTLIBRARIES = libtracker-gtk-@TRACKER_API_VERSION@.la
 
 libtracker_gtkinc_HEADERS =					\
 	tracker-gtk.h						\
@@ -18,17 +18,17 @@ libtracker_gtkinc_HEADERS =					\
 	tracker-tag-bar.h					\
 	tracker-keyword-store.h
 
-libtracker_gtk_la_SOURCES =					\
+libtracker_gtk_@TRACKER_API_VERSION@_la_SOURCES =					\
 	tracker-utils.c						\
 	tracker-ui.c 						\
 	tracker-metadata-tile.c					\
 	tracker-tag-bar.c					\
 	tracker-keyword-store.c
 
-libtracker_gtk_la_LIBADD = 					\
-	$(top_builddir)/src/libtracker/libtrackerclient.la 	\
+libtracker_gtk_@TRACKER_API_VERSION@_la_LIBADD = 					\
+	$(top_builddir)/src/libtracker/libtrackerclient-@TRACKER_API_VERSION@.la 	\
 	$(LIBTRACKERGTK_LIBS) 					\
 	$(GCOV_LIBS)
 
-libtracker_gtk_la_LDFLAGS = 					\
+libtracker_gtk_@TRACKER_API_VERSION@_la_LDFLAGS = 					\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
