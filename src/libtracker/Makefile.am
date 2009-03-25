@@ -23,8 +23,7 @@ libtrackerclient_la_LIBADD = 			\
 	$(GOBJECT_LIBS)
 
 include_HEADERS = 				\
-	tracker.h				\
-	$(BUILT_SOURCES)		
+	tracker.h
 
 # Generate DBus files from XML data.
 dbus_sources = 					\
