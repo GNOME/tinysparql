@@ -60,6 +60,7 @@ struct TrackerModuleFileClass {
         gchar * (* get_text) (TrackerModuleFile *file);
         TrackerModuleMetadata * (* get_metadata) (TrackerModuleFile *file);
         TrackerModuleFlags (* get_flags) (TrackerModuleFile *file);
+        void (* cancel) (TrackerModuleFile *file);
 };
 
 GType tracker_module_flags_get_type (void) G_GNUC_CONST;
@@ -71,6 +72,9 @@ gchar *                 tracker_module_file_get_uri          (TrackerModuleFile 
 gchar *                 tracker_module_file_get_text         (TrackerModuleFile *file);
 TrackerModuleMetadata * tracker_module_file_get_metadata     (TrackerModuleFile *file);
 TrackerModuleFlags      tracker_module_file_get_flags        (TrackerModuleFile *file);
+
+void                    tracker_module_file_cancel           (TrackerModuleFile *file);
+gboolean                tracker_module_file_is_cancelled     (TrackerModuleFile *file);
 
 
 G_END_DECLS

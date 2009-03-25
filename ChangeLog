@@ -1,3 +1,29 @@
+2009-03-25  Carlos Garnacho  <carlos@imendio.com>
+
+	Make GVolumeMonitor::mount-pre-unmount cancel any ongoing operation in
+	the indexer on the removable media. This isn't available yet due to
+	GLib not emitting such signal, but it will soon.
+
+	* src/tracker-indexer/tracker-module-file.[ch]
+	(tracker_module_file_cancel) (tracker_module_file_is_cancelled): Added
+	new API.
+
+	* src/tracker-indexer/tracker-module-metadata-utils.[ch]: Reworked to
+	have child processes async+killable.
+	(tracker_module_metadata_utils_cancel): New function to kill all
+	external processes on a GFile.
+
+	* src/tracker-indexer/modules/files.c: Use new metadata utils function
+	to immediately cancel an operation.
+
+	* src/tracker-indexer/tracker-indexer.c (check_mount_removal)
+	(mount_pre_unmount_cb) (tracker_indexer_finalize)
+	(tracker_indexer_init): Hook to GVolumeMonitor::mount-pre-unmount, so
+	any ongoing+future operations on the removable media are cancelled.
+
+	(item_add_or_update) (item_move) (item_process) (process_file):
+	Reworked to have a single point of cancellation.
+
 2009-03-25  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-schema.c:

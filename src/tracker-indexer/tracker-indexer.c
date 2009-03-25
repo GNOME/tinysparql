@@ -136,6 +136,8 @@ struct TrackerIndexerPrivate {
 
 	GTimer *timer;
 
+	GVolumeMonitor *volume_monitor;
+
 	guint idle_id;
 	guint pause_for_duration_id;
 	guint signal_status_id;
@@ -210,6 +212,11 @@ static void	state_check	       (TrackerIndexer	    *indexer);
 
 static void     check_finished         (TrackerIndexer      *indexer,
 					gboolean             interrupted);
+
+static gboolean item_process           (TrackerIndexer      *indexer,
+					PathInfo            *info,
+					const gchar         *dirname,
+					const gchar         *basename);
 
 
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -519,6 +526,66 @@ index_overloaded_notify_cb (GObject        *object,
 }
 
 static void
+check_mount_removal (GQueue   *queue,
+		     GFile    *mount_root,
+		     gboolean  remove_first)
+{
+	GList *list, *next;
+	PathInfo *info;
+
+	if (!queue->head) {
+		/* No elements here */
+		return;
+	}
+
+	list = (remove_first) ? queue->head : queue->head->next;
+
+	while (list) {
+		next = list->next;
+		info = list->data;
+
+		if (g_file_has_prefix (info->file, mount_root) ||
+		    (info->source_file && g_file_has_prefix (info->source_file, mount_root))) {
+			g_queue_delete_link (queue, list);
+			path_info_free (info);
+		}
+
+		list = next;
+	}
+}
+
+static void
+mount_pre_unmount_cb (GVolumeMonitor *volume_monitor,
+		      GMount         *mount,
+		      TrackerIndexer *indexer)
+{
+	TrackerIndexerPrivate *priv;
+	GFile *mount_root;
+	PathInfo *current_info;
+	gchar *uri;
+
+	mount_root = g_mount_get_root (mount);
+	priv = indexer->private;
+
+	uri = g_file_get_uri (mount_root);
+	g_debug ("Pre-unmount event for '%s', removing all child elements to be processed", uri);
+	g_free (uri);
+
+	/* Cancel any future elements in the mount */
+	check_mount_removal (priv->dir_queue, mount_root, TRUE);
+	check_mount_removal (priv->file_queue, mount_root, FALSE);
+
+	/* Now cancel current element if it's also in the mount */
+	current_info = g_queue_peek_head (indexer->private->file_queue);
+
+	if (g_file_has_prefix (current_info->file, mount_root)) {
+		tracker_module_file_cancel (current_info->module_file);
+	}
+
+	g_object_unref (mount_root);
+}
+
+static void
 tracker_indexer_finalize (GObject *object)
 {
 	TrackerIndexerPrivate *priv;
@@ -592,6 +659,13 @@ tracker_indexer_finalize (GObject *object)
 
 	g_queue_foreach (priv->file_queue, (GFunc) path_info_free, NULL);
 	g_queue_free (priv->file_queue);
+
+	if (priv->volume_monitor) {
+		g_signal_handlers_disconnect_by_func (priv->volume_monitor,
+						      mount_pre_unmount_cb,
+						      object);
+		g_object_unref (priv->volume_monitor);
+	}
 
 	G_OBJECT_CLASS (tracker_indexer_parent_class)->finalize (object);
 }
@@ -983,6 +1057,11 @@ tracker_indexer_init (TrackerIndexer *indexer)
 	priv->file_contents = tracker_db_manager_get_db_interface (TRACKER_DB_FILE_CONTENTS);
 	priv->email_metadata = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_METADATA);
 	priv->email_contents = tracker_db_manager_get_db_interface (TRACKER_DB_EMAIL_CONTENTS);
+
+	/* Set up volume monitor */
+	priv->volume_monitor = g_volume_monitor_get ();
+	g_signal_connect (priv->volume_monitor, "mount-pre-unmount",
+			  G_CALLBACK (mount_pre_unmount_cb), indexer);
 
 	/* Set up idle handler to process files/directories */
 	state_check (indexer);
@@ -1482,10 +1561,10 @@ item_add_or_update (TrackerIndexer        *indexer,
 		    PathInfo              *info,
 		    const gchar           *dirname,
 		    const gchar           *basename,
-		    TrackerModuleMetadata *metadata)
+		    TrackerModuleMetadata *metadata,
+		    const gchar           *text)
 {
 	TrackerService *service;
-	gchar *text;
 	guint32 id;
 	gchar *mount_point = NULL;
 	gchar *service_path;
@@ -1499,7 +1578,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 	if (tracker_data_query_service_exists (service, dirname, basename, &id, NULL)) {
 		TrackerDataMetadata *old_metadata_emb, *old_metadata_non_emb;
 		gchar *old_text;
-		gchar *new_text;
 
 		if (tracker_module_file_get_flags (info->module_file) & TRACKER_FILE_CONTENTS_STATIC) {
 			/* According to the module, the metadata can't change for this item */
@@ -1538,9 +1616,8 @@ item_add_or_update (TrackerIndexer        *indexer,
 		 * difference and add the words.
 		 */
 		old_text = tracker_data_query_content (service, id);
-		new_text = tracker_module_file_get_text (info->module_file);
 
-		item_update_content (indexer, service, id, old_text, new_text);
+		item_update_content (indexer, service, id, old_text, text);
 
 		if (strcmp (tracker_service_get_name (service), "Folders") == 0) {
 			gchar *path;
@@ -1556,7 +1633,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 		}
 
 		g_free (old_text);
-		g_free (new_text);
 		tracker_data_metadata_free (old_metadata_emb);
 		tracker_data_metadata_free (old_metadata_non_emb);
 	} else {
@@ -1578,8 +1654,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 		index_metadata (indexer, id, service, metadata);
 
-		text = tracker_module_file_get_text (info->module_file);
-
 		if (text) {
 			/* Save in the index */
 			index_text_with_parsing (indexer,
@@ -1590,7 +1664,6 @@ item_add_or_update (TrackerIndexer        *indexer,
 
 			/* Save in the DB */
 			tracker_data_update_set_content (service, id, text);
-			g_free (text);
 		}
 
 		g_hash_table_destroy (data);
@@ -1831,7 +1904,7 @@ item_erase (TrackerIndexer *indexer,
 	schedule_flush (indexer, FALSE);
 }
 
-static void
+static gboolean
 item_move (TrackerIndexer  *indexer,
 	   PathInfo	   *info,
 	   const gchar	   *dirname,
@@ -1847,7 +1920,7 @@ item_move (TrackerIndexer  *indexer,
 	service = get_service_for_file (info->module_file, info->module);
 
 	if (!service) {
-		return;
+		return FALSE;
 	}
 
 	path = g_file_get_path (info->file);
@@ -1861,25 +1934,20 @@ item_move (TrackerIndexer  *indexer,
 						basename,
 						&service_id,
 						NULL)) {
-		TrackerModuleMetadata *metadata;
 		gchar *dest_dirname, *dest_basename;
+		gboolean res;
 
 		g_message ("Source file '%s' not found in database to move, indexing '%s' from scratch", source_path, path);
 
-		metadata = tracker_module_file_get_metadata (info->module_file);
 		tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
-
-		if (metadata) {
-			item_add_or_update (indexer, info, dest_dirname, dest_basename, metadata);
-			g_object_unref (metadata);
-		}
+		res = item_process (indexer, info, dest_dirname, dest_basename);
 
 		g_free (dest_dirname);
 		g_free (dest_basename);
 		g_free (path);
 		g_free (source_path);
 
-		return;
+		return res;
 	}
 
 	tracker_file_get_path_and_name (path, &dest_dirname, &dest_basename);
@@ -1916,7 +1984,7 @@ item_move (TrackerIndexer  *indexer,
 			tracker_data_metadata_free (old_metadata);
 		}
 
-		return;
+		return FALSE;
 	}
 
 	/* Update item being moved */
@@ -1957,6 +2025,8 @@ item_move (TrackerIndexer  *indexer,
 
 	g_free (source_path);
 	g_free (path);
+
+	return TRUE;
 }
 
 
@@ -2044,6 +2114,46 @@ item_mark_for_removal (TrackerIndexer *indexer,
 
 	g_free (mount_point);
 	g_free (path);
+}
+
+static gboolean
+item_process (TrackerIndexer *indexer,
+	      PathInfo       *info,
+	      const gchar    *dirname,
+	      const gchar    *basename)
+{
+	TrackerModuleMetadata *metadata;
+	gchar *text;
+
+	metadata = tracker_module_file_get_metadata (info->module_file);
+
+	if (tracker_module_file_is_cancelled (info->module_file)) {
+		if (metadata) {
+			g_object_unref (metadata);
+		}
+
+		return FALSE;
+	}
+
+	if (metadata) {
+		text = tracker_module_file_get_text (info->module_file);
+
+		if (tracker_module_file_is_cancelled (info->module_file)) {
+			g_object_unref (metadata);
+			g_free (text);
+
+			return FALSE;
+		}
+
+		item_add_or_update (indexer, info, dirname, basename, metadata, text);
+
+		g_object_unref (metadata);
+		g_free (text);
+	} else {
+		item_mark_for_removal (indexer, info, dirname, basename);
+	}
+
+	return TRUE;
 }
 
 /*
@@ -2361,8 +2471,8 @@ static gboolean
 process_file (TrackerIndexer *indexer,
 	      PathInfo	     *info)
 {
-	TrackerModuleMetadata *metadata;
 	gchar *uri, *dirname, *basename;
+	gboolean inc_counters = FALSE;
 
 	/* Note: If info->source_file is set, the PathInfo is for a
 	 * MOVE event not for normal file event.
@@ -2434,26 +2544,26 @@ process_file (TrackerIndexer *indexer,
 	 * a service and set the metadata.
 	 */
 	if (G_UNLIKELY (info->source_file)) {
-		item_move (indexer, info, dirname, basename);
+		if (item_move (indexer, info, dirname, basename)) {
+			inc_counters = TRUE;
+		}
 	} else {
-		metadata = tracker_module_file_get_metadata (info->module_file);
-
-		if (metadata) {
-			item_add_or_update (indexer, info, dirname, basename, metadata);
-			g_object_unref (metadata);
-		} else {
-			item_mark_for_removal (indexer, info, dirname, basename);
+		if (item_process (indexer, info, dirname, basename)) {
+			inc_counters = TRUE;
 		}
 	}
 
-	indexer->private->subelements_processed++;
-	indexer->private->items_processed++;
-	indexer->private->items_to_index++;
+	if (inc_counters) {
+		indexer->private->subelements_processed++;
+		indexer->private->items_processed++;
+		indexer->private->items_to_index++;
+	}
 
 	g_free (dirname);
 	g_free (basename);
 
-	if (TRACKER_IS_MODULE_ITERATABLE (info->module_file)) {
+	if (!tracker_module_file_is_cancelled (info->module_file) &&
+	    TRACKER_IS_MODULE_ITERATABLE (info->module_file)) {
 		return !tracker_module_iteratable_iter_contents (TRACKER_MODULE_ITERATABLE (info->module_file));
 	}
 

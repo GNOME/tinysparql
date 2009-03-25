@@ -34,6 +34,7 @@ G_BEGIN_DECLS
 
 TrackerModuleMetadata *tracker_module_metadata_utils_get_data (GFile *file);
 gchar *		       tracker_module_metadata_utils_get_text (GFile *file);
+void                   tracker_module_metadata_utils_cancel   (GFile *file);
 
 G_END_DECLS
 

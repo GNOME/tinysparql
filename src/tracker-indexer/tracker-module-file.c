@@ -31,11 +31,13 @@ typedef struct TrackerModuleFilePrivate TrackerModuleFilePrivate;
 
 struct TrackerModuleFilePrivate {
         GFile *file;
+        guint cancelled : 1;
 };
 
 enum {
         PROP_0,
-        PROP_FILE
+        PROP_FILE,
+        PROP_CANCELLED
 };
 
 
@@ -88,6 +90,13 @@ tracker_module_file_class_init (TrackerModuleFileClass *klass)
                                                               "File corresponding to the TrackerModuleFile",
                                                               G_TYPE_FILE,
                                                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+        g_object_class_install_property (object_class,
+					 PROP_CANCELLED,
+					 g_param_spec_boolean ("cancelled",
+                                                               "Cancelled",
+                                                               "Whether operations on this file were cancelled",
+                                                               FALSE,
+                                                               G_PARAM_READWRITE));
 
         g_type_class_add_private (object_class, sizeof (TrackerModuleFilePrivate));
 }
@@ -157,6 +166,9 @@ tracker_module_file_get_property (GObject    *object,
         switch (prop_id) {
         case PROP_FILE:
                 g_value_set_object (value, priv->file);
+                break;
+        case PROP_CANCELLED:
+                g_value_set_boolean (value, priv->cancelled);
                 break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -313,4 +325,30 @@ tracker_module_file_get_flags (TrackerModuleFile *file)
         }
 
         return 0;
+}
+
+void
+tracker_module_file_cancel (TrackerModuleFile *file)
+{
+        TrackerModuleFilePrivate *priv;
+
+        priv = TRACKER_MODULE_FILE_GET_PRIVATE (file);
+
+        if (!priv->cancelled) {
+                priv->cancelled = TRUE;
+
+                if (TRACKER_MODULE_FILE_GET_CLASS (file)->cancel != NULL) {
+                        TRACKER_MODULE_FILE_GET_CLASS (file)->cancel (file);
+                }
+        }
+}
+
+gboolean
+tracker_module_file_is_cancelled (TrackerModuleFile *file)
+{
+        TrackerModuleFilePrivate *priv;
+
+        priv = TRACKER_MODULE_FILE_GET_PRIVATE (file);
+
+        return priv->cancelled;
 }

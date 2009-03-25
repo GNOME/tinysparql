@@ -60,6 +60,7 @@ static GType                   tracker_regular_file_get_type         (void) G_GN
 static const gchar *           tracker_regular_file_get_service_type (TrackerModuleFile *file);
 static gchar *                 tracker_regular_file_get_text         (TrackerModuleFile *file);
 static TrackerModuleMetadata * tracker_regular_file_get_metadata     (TrackerModuleFile *file);
+static void                    tracker_regular_file_cancel           (TrackerModuleFile *file);
 
 
 G_DEFINE_DYNAMIC_TYPE (TrackerRegularFile, tracker_regular_file, TRACKER_TYPE_MODULE_FILE);
@@ -73,6 +74,7 @@ tracker_regular_file_class_init (TrackerRegularFileClass *klass)
         file_class->get_service_type = tracker_regular_file_get_service_type;
         file_class->get_text = tracker_regular_file_get_text;
         file_class->get_metadata = tracker_regular_file_get_metadata;
+	file_class->cancel = tracker_regular_file_cancel;
 }
 
 static void
@@ -203,6 +205,15 @@ tracker_regular_file_get_text (TrackerModuleFile *file)
 	return tracker_module_metadata_utils_get_text (tracker_module_file_get_file (file));
 }
 
+static void
+tracker_regular_file_cancel (TrackerModuleFile *file)
+{
+        GFile *f;
+
+        f = tracker_module_file_get_file (file);
+
+	tracker_module_metadata_utils_cancel (f);
+}
 
 void
 indexer_module_initialize (GTypeModule *module)
