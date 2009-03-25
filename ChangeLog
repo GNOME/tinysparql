@@ -1,3 +1,8 @@
+2009-03-25  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-daemon.c: (tracker_daemon_get_stats): Fixed
+	comparison with unset variable.
+
 2009-03-25  Jürg Billeter  <j@bitron.ch>
 
 	* configure.ac: Disable static libraries by default.

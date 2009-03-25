@@ -399,17 +399,15 @@ tracker_daemon_get_stats (TrackerDaemon		 *object,
 		for (i = 0; i < values->len; i++) {
 			gchar       **p;
 			const gchar  *service_type = NULL;
-			gint          old_count, new_count;
+			gint          new_count;
 
 			p = g_ptr_array_index (values, i);
 			service_type = p[0];
 			new_count = atoi (p[1]);
 
-			if (old_count != new_count) {
-				g_hash_table_replace (priv->last_stats, 
-						      g_strdup (service_type), 
-						      GINT_TO_POINTER (new_count));
-			}
+			g_hash_table_replace (priv->last_stats, 
+					      g_strdup (service_type), 
+					      GINT_TO_POINTER (new_count));
 		}
 
 		g_ptr_array_free (parent_stats, TRUE);
