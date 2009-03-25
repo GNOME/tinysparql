@@ -361,7 +361,8 @@ static TrackerFieldData *
 add_metadata_field (ParserData	*data,
 		    const gchar *field_name,
 		    gboolean	 is_select,
-		    gboolean	 is_condition)
+		    gboolean	 is_condition,
+		    gboolean     is_order)
 {
 	TrackerFieldData *field_data;
 	gboolean	  field_exists;
@@ -399,6 +400,10 @@ add_metadata_field (ParserData	*data,
 									tracker_field_data_get_select_field (field_data));
 					}
 				}
+			}
+
+			if (is_order) {
+				tracker_field_data_set_is_order (field_data, TRUE);
 			}
 
 			break;
@@ -776,7 +781,7 @@ build_sql (ParserData *data)
 						  state != STATE_END_INTEGER &&
 						  state != STATE_END_FLOAT));
 
-	field_data = add_metadata_field (data, data->current_field, FALSE, TRUE);
+	field_data = add_metadata_field (data, data->current_field, FALSE, TRUE, FALSE);
 
 	if (!field_data) {
 		g_free (avalue);
@@ -1148,6 +1153,31 @@ get_select_header (const char *service)
 
 }
 
+static void
+append_where_header (GString *string, const char *service)
+{
+	int type;
+	
+	type = tracker_ontology_get_service_id_by_name (service);
+
+	/* Sqlite is currently unable to perform any ORDER or GROUP BY on split index, so we try not to split
+	   unless necessary on ServiceType FIXME remove when not needed anymore (ie. fixed in sqlite) */
+
+	switch (type) {
+	case 2:
+		/* FILES */
+	case 12:
+		/* EMAILS */
+		g_string_append_printf (string, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
+		break;
+	default:
+		g_string_append_printf (string, " (S.ServiceTypeID=%d) ", type);
+	}
+
+	/* only search for items on enabled volumes */
+	g_string_append_printf (string, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
+}
+
 GQuark
 tracker_rdf_error_quark (void)
 {
@@ -1195,7 +1225,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 		for (i = 0; i < field_count; i++) {
 			TrackerFieldData *field_data;
 
-			field_data = add_metadata_field (&data, fields[i], TRUE, FALSE);
+			field_data = add_metadata_field (&data, fields[i], TRUE, FALSE, FALSE);
 
 			if (!field_data) {
 				g_set_error (error,
@@ -1230,12 +1260,9 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 					table_name);
 	}
 
-	data.sql_where = g_string_new ("");
+	data.sql_where = g_string_new ("\nWHERE ");
 
-	g_string_append_printf (data.sql_where, "\n WHERE (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
-
-	/* only search for items on enabled volumes */
-	g_string_append_printf (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
+	append_where_header(data.sql_where, service);
 
 	if (keyword_count > 0) {
 		guint keyword;
@@ -1327,8 +1354,7 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 		for (i = 0; i < sort_field_count; i++) {
 			TrackerFieldData *field_data;
 
-			field_data = add_metadata_field (&data, sort_fields[i], FALSE, FALSE);
-			tracker_field_data_set_needs_join (field_data, TRUE);
+			field_data = add_metadata_field (&data, sort_fields[i], FALSE, FALSE, TRUE);
 
 			if (!field_data) {
 				g_set_error (error,
@@ -1393,7 +1419,17 @@ tracker_rdf_query_to_sql (TrackerDBInterface  *iface,
 
 		for (l = data.fields; l; l = l->next) {
 			if (!tracker_field_data_get_is_condition (l->data)) {
-				if (tracker_field_data_get_needs_join (l->data)) {
+				if (tracker_field_data_get_is_select (l->data) &&
+				    tracker_field_data_get_needs_join (l->data)) {
+					g_string_append_printf (data.sql_from,
+								"\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ",
+								tracker_field_data_get_table_name (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_id_field (l->data));
+				} else if (tracker_field_data_get_is_order (l->data) &&
+					   tracker_field_data_get_needs_collate (l->data)) {
 					g_string_append_printf (data.sql_from,
 								"\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ",
 								tracker_field_data_get_table_name (l->data),
@@ -1495,13 +1531,9 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 
 	data.sql_from = g_string_new ("");
 	data.sql_where = g_string_new ("");
+	append_where_header (data.sql_where, service);
 
 	data.fields = *fields;
-
-	g_string_append_printf (data.sql_where, " (S.ServiceTypeID in (select TypeId from ServiceTypes where TypeName = '%s' or Parent = '%s')) ", service, service);
-
-	/* only search for items on enabled volumes */
-	g_string_append (data.sql_where, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
 
 	if (strlen (query) >= 10) {
 		g_string_append (data.sql_where, "AND ");
@@ -1534,7 +1566,17 @@ tracker_rdf_filter_to_sql (TrackerDBInterface *iface,
 
 		for (l = data.fields; l; l = l->next) {
 			if (!tracker_field_data_get_is_condition (l->data)) {
-				if (tracker_field_data_get_needs_join (l->data)) {
+				if (tracker_field_data_get_is_select (l->data) &&
+				    tracker_field_data_get_needs_join (l->data)) {
+					g_string_append_printf (data.sql_from,
+								"\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ",
+								tracker_field_data_get_table_name (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_alias (l->data),
+								tracker_field_data_get_id_field (l->data));
+				} else if (tracker_field_data_get_is_order (l->data) &&
+					   tracker_field_data_get_needs_collate (l->data)) {
 					g_string_append_printf (data.sql_from,
 								"\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ",
 								tracker_field_data_get_table_name (l->data),

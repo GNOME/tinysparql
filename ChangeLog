@@ -1,3 +1,19 @@
+2009-03-25  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* data/db/sqlite-service.sql: Added key collations to Services
+	table. Additional indices.
+	* data/services/default.service:
+	* src/libtracker-db/tracker-db-manager.c
+	* src/libtracker-common/tracker-ontology.c
+	* src/libtracker-common/tracker-ontology.h
+	* src/libtracker-data/tracker-data-schema.c
+	* src/libtracker-data/tracker-data-search.c
+	* src/libtracker-data/tracker-rdf-query.c
+	* src/libtracker-data/tracker-data-update.c
+	* src/libtracker-data/tracker-field-data.c
+	* src/libtracker-data/tracker-field-data.h: Use key collations in
+	queries and updates. Performance improvements to the queries.
+	
 2009-03-25  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-data/tracker-data-update.c

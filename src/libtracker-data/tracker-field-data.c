@@ -46,7 +46,9 @@ struct _TrackerFieldDataPriv {
 	gboolean	  multiple_values;
 	gboolean	  is_select;
 	gboolean	  is_condition;
+	gboolean          is_order;
 	gboolean	  needs_join;
+	gboolean          needs_collate;
 	gboolean          needs_null;
 };
 
@@ -73,7 +75,9 @@ enum {
 	PROP_MULTIPLE_VALUES,
 	PROP_IS_SELECT,
 	PROP_IS_CONDITION,
+	PROP_IS_ORDER,
 	PROP_NEEDS_JOIN,
+	PROP_NEEDS_COLLATE,
 	PROP_NEEDS_NULL
 };
 
@@ -167,6 +171,13 @@ tracker_field_data_class_init (TrackerFieldDataClass *klass)
 							       FALSE,
 							       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
+					 PROP_IS_ORDER,
+					 g_param_spec_boolean ("is-order",
+							       "Is order",
+							       "Is order",
+							       FALSE,
+							       G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
 					 PROP_NEEDS_JOIN,
 					 g_param_spec_boolean ("needs-join",
 							       "Needs join",
@@ -174,7 +185,14 @@ tracker_field_data_class_init (TrackerFieldDataClass *klass)
 							       FALSE,
 							       G_PARAM_READWRITE));
 	g_object_class_install_property (object_class,
-					 PROP_NEEDS_JOIN,
+					 PROP_NEEDS_COLLATE,
+					 g_param_spec_boolean ("needs-collate",
+							       "Needs collate",
+							       "Needs collate",
+							       FALSE,
+							       G_PARAM_READWRITE));
+	g_object_class_install_property (object_class,
+					 PROP_NEEDS_NULL,
 					 g_param_spec_boolean ("needs-null",
 							       "Needs null",
 							       "Needs null",
@@ -251,8 +269,14 @@ field_data_get_property (GObject    *object,
 	case PROP_IS_CONDITION:
 		g_value_set_boolean (value, priv->is_condition);
 		break;
+	case PROP_IS_ORDER:
+		g_value_set_boolean (value, priv->is_order);
+		break;
 	case PROP_NEEDS_JOIN:
 		g_value_set_boolean (value, priv->needs_join);
+		break;
+	case PROP_NEEDS_COLLATE:
+		g_value_set_boolean (value, priv->needs_collate);
 		break;
 	case PROP_NEEDS_NULL:
 		g_value_set_boolean (value, priv->needs_null);
@@ -314,9 +338,17 @@ field_data_set_property (GObject      *object,
 		tracker_field_data_set_is_condition (TRACKER_FIELD_DATA (object),
 						     g_value_get_boolean (value));
 		break;
+	case PROP_IS_ORDER:
+		tracker_field_data_set_is_order (TRACKER_FIELD_DATA (object),
+						 g_value_get_boolean (value));
+		break;
 	case PROP_NEEDS_JOIN:
 		tracker_field_data_set_needs_join (TRACKER_FIELD_DATA (object),
 						   g_value_get_boolean (value));
+		break;
+	case PROP_NEEDS_COLLATE:
+		tracker_field_data_set_needs_collate (TRACKER_FIELD_DATA (object),
+						      g_value_get_boolean (value));
 		break;
 	case PROP_NEEDS_NULL:
 		tracker_field_data_set_needs_null (TRACKER_FIELD_DATA (object),
@@ -472,6 +504,18 @@ tracker_field_data_get_is_condition (TrackerFieldData *field_data)
 }
 
 gboolean
+tracker_field_data_get_is_order (TrackerFieldData *field_data)
+{
+	TrackerFieldDataPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_FIELD_DATA (field_data), FALSE);
+
+	priv = GET_PRIV (field_data);
+
+	return priv->is_order;
+}
+
+gboolean
 tracker_field_data_get_needs_join (TrackerFieldData *field_data)
 {
 	TrackerFieldDataPriv *priv;
@@ -481,6 +525,18 @@ tracker_field_data_get_needs_join (TrackerFieldData *field_data)
 	priv = GET_PRIV (field_data);
 
 	return priv->needs_join;
+}
+
+gboolean
+tracker_field_data_get_needs_collate (TrackerFieldData *field_data)
+{
+	TrackerFieldDataPriv *priv;
+
+	g_return_val_if_fail (TRACKER_IS_FIELD_DATA (field_data), FALSE);
+
+	priv = GET_PRIV (field_data);
+
+	return priv->needs_collate;
 }
 
 gboolean
@@ -699,6 +755,20 @@ tracker_field_data_set_is_condition (TrackerFieldData *field_data,
 }
 
 void
+tracker_field_data_set_is_order (TrackerFieldData *field_data,
+				 gboolean	       value)
+{
+	TrackerFieldDataPriv *priv;
+	
+	g_return_if_fail (TRACKER_IS_FIELD_DATA (field_data));
+	
+	priv = GET_PRIV (field_data);
+	
+	priv->is_order = value;
+	g_object_notify (G_OBJECT (field_data), "is-order");
+}
+
+void
 tracker_field_data_set_needs_join (TrackerFieldData *field_data,
 				   gboolean	     value)
 {
@@ -710,6 +780,20 @@ tracker_field_data_set_needs_join (TrackerFieldData *field_data,
 
 	priv->needs_join = value;
 	g_object_notify (G_OBJECT (field_data), "needs-join");
+}
+
+void
+tracker_field_data_set_needs_collate (TrackerFieldData *field_data,
+				   gboolean	     value)
+{
+	TrackerFieldDataPriv *priv;
+
+	g_return_if_fail (TRACKER_IS_FIELD_DATA (field_data));
+
+	priv = GET_PRIV (field_data);
+
+	priv->needs_collate = value;
+	g_object_notify (G_OBJECT (field_data), "needs-collate");
 }
 
 void

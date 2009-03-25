@@ -62,6 +62,8 @@ gboolean	tracker_ontology_service_has_thumbnails		(const gchar	*service_str);
 gboolean	tracker_ontology_service_has_text		(const gchar	*service_str);
 gint		tracker_ontology_service_get_key_metadata	(const gchar	*service_str,
 								 const gchar	*meta_name);
+gint		tracker_ontology_service_get_key_collate	(const gchar	*service_str,
+								 const gchar	*meta_name);
 gboolean	tracker_ontology_service_get_show_directories	(const gchar	*service_str);
 gboolean	tracker_ontology_service_get_show_files		(const gchar	*service_str);
 const gchar *	tracker_ontology_get_field_name_by_id 	        (gint id);

@@ -174,6 +174,7 @@ tracker_data_schema_get_metadata_field (TrackerDBInterface *iface,
 		gchar	    *this_field_name;
 		gchar	    *where_field;
 		gchar       *order_field;
+		gint         key_collate;
 
 		field_data = g_object_new (TRACKER_TYPE_FIELD_DATA,
 					   "is-select", is_select,
@@ -227,15 +228,34 @@ tracker_data_schema_get_metadata_field (TrackerDBInterface *iface,
 
 		tracker_field_data_set_where_field (field_data, where_field);
 
-		if ((tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_DOUBLE) ||
-		    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_INDEX)  ||
-		    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_STRING)) {
-			order_field = g_strdup_printf ("M%d.MetaDataCollation", field_count);
+		key_collate = tracker_ontology_service_get_key_metadata (service, field_name);
+
+		if (key_collate > 0 && key_collate < 6) {
+			gchar *str;
+
+			str = g_strdup_printf (" S.KeyMetadataCollation%d", key_collate);
+			tracker_field_data_set_order_field (field_data, str);
+			tracker_field_data_set_needs_collate (field_data, FALSE);
+			g_free (str);
+		} else if (key_collate > 5 && key_collate < 9) {
+			gchar *str;
+			
+			str = g_strdup_printf (" S.KeyMetadata%d", key_collate);
+			tracker_field_data_set_order_field (field_data, str);
+			tracker_field_data_set_needs_collate (field_data, FALSE);
+			g_free (str);
 		} else {
-			order_field = g_strdup_printf ("M%d.MetaDataValue", field_count);
+			if ((tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_DOUBLE) ||
+			    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_INDEX)  ||
+			    (tracker_field_get_data_type (def) == TRACKER_FIELD_TYPE_STRING)) {
+				order_field = g_strdup_printf ("M%d.MetaDataCollation", field_count);
+			} else {
+				order_field = g_strdup_printf ("M%d.MetaDataValue", field_count);
+			}
+			tracker_field_data_set_needs_collate (field_data, TRUE);
+			tracker_field_data_set_order_field (field_data, order_field);
+			g_free (order_field);
 		}
-		
-		tracker_field_data_set_order_field (field_data, order_field);
 		
 		tracker_field_data_set_needs_null (field_data, FALSE);
 		g_free (where_field);

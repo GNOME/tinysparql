@@ -23,6 +23,12 @@ CREATE TABLE  Services
 	KeyMetadata10		Text,
 	KeyMetadata11		Text,
 
+	KeyMetadataCollation1   Text,
+	KeyMetadataCollation2   Text,
+	KeyMetadataCollation3   Text,
+	KeyMetadataCollation4   Text,
+	KeyMetadataCollation5   Text,
+
 	Icon			Text,
 	CanWrite		Integer default 1,
 	CanExecute		Integer default 1,
@@ -39,7 +45,19 @@ CREATE TABLE  Services
     	unique (Path, Name)
 );
 
-CREATE INDEX ServiceTypeIDIndex1 ON Services (ServiceTypeID);
+CREATE INDEX ServiceTypeIDIndex ON Services (ServiceTypeID);
+
+/* It would seem that sqlite is unable to use split indices for GROUP or ORDER, thus we end up
+   with this scheme where AuxilaryID is dropped from the index and ServiceType requires additional logic */
+CREATE INDEX ServicesCompoundIndex1 ON Services (ServiceTypeID, KeyMetadataCollation1, KeyMetadataCollation2);
+CREATE INDEX ServicesCompoundIndex2 ON Services (ServiceTypeID, KeyMetadataCollation2);
+CREATE INDEX ServicesCompoundIndex3 ON Services (ServiceTypeID, KeyMetadataCollation3);
+CREATE INDEX ServicesCompoundIndex4 ON Services (ServiceTypeID, KeyMetadataCollation4);
+CREATE INDEX ServicesCompoundIndex5 ON Services (ServiceTypeID, KeyMetadataCollation5);
+CREATE INDEX ServicesCompoundIndex6 ON Services (ServiceTypeID, KeyMetadata6);
+CREATE INDEX ServicesCompoundIndex7 ON Services (ServiceTypeID, KeyMetadata7);
+CREATE INDEX ServicesCompoundIndex8 ON Services (ServiceTypeID, KeyMetadata8);
+CREATE INDEX ServicesCompoundIndexAux ON Services (ServiceTypeID, AuxilaryID);
 
 /* child service relationships for a specific group/struct metadata */
 CREATE TABLE ChildServices
@@ -62,7 +80,7 @@ CREATE TABLE  ServiceMetaData
 	MetaDataCollation	Text
 );
 
-CREATE INDEX ServiceMetaDataCompoundIndex4 ON ServiceMetaData (ServiceID, MetaDataID, MetaDataDisplay, MetaDataCollation);
+CREATE INDEX ServiceMetaDataCompoundIndex ON ServiceMetaData (ServiceID, MetaDataID, MetaDataDisplay, MetaDataCollation);
 
 /* metadata for all keyword types - keywords are db indexed for fast searching - they are also not processed like other metadata. */
 CREATE TABLE  ServiceKeywordMetaData 

@@ -651,7 +651,8 @@ tracker_metadata_add_metadata_field (TrackerDBInterface *iface,
 				     GSList	       **fields,
 				     const gchar        *field_name,
 				     gboolean		 is_select,
-				     gboolean		 is_condition)
+				     gboolean		 is_condition,
+				     gboolean            is_order)
 {
 	TrackerFieldData *field_data;
 	gboolean	  field_exists;
@@ -813,15 +814,14 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 	sql_select = g_string_new ("SELECT DISTINCT ");
 	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
-	sql_order  = g_string_new ("\nORDER BY ");
+	sql_order  = g_string_new ("");
 	sql_group  = g_string_new ("\nGROUP BY ");
 
 
 	for (i = 0; i < g_strv_length (fields); i++) {
 		TrackerFieldData *fd;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], FALSE, FALSE);
-		tracker_field_data_set_needs_join (fd, TRUE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, fields[i], TRUE, FALSE, TRUE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -838,15 +838,18 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 
 		if (i) {
 			g_string_append_printf (sql_select, ",");
-			g_string_append_printf (sql_order, ",");
 			g_string_append_printf (sql_group, ",");
 		}
 
 		g_string_append_printf (sql_select, "%s", tracker_field_data_get_select_field (fd));
-		g_string_append_printf (sql_order, " %s %s",
-					tracker_field_data_get_order_field (fd),
-					order_desc ? "DESC" : "ASC" );
-		g_string_append_printf (sql_group, "%s", tracker_field_data_get_select_field (fd));
+		if (order_desc) {
+			if (i) {
+				g_string_append_printf (sql_order, ",");
+			}
+			g_string_append_printf (sql_order, "\nORDER BY %s DESC ",
+						tracker_field_data_get_order_field (fd));
+		}
+		g_string_append_printf (sql_group, "%s", tracker_field_data_get_order_field (fd));
 
 	}
 
@@ -854,7 +857,7 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 		TrackerFieldData *fd;
 		TrackerFieldType  data_type;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, concat_field, TRUE, FALSE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, concat_field, TRUE, FALSE, FALSE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -891,7 +894,8 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 		TrackerFieldData *fd;
 
 		if (strcmp (count_field, "*")) {
-			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field, TRUE, FALSE);
+			fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, count_field,
+								  TRUE, FALSE, FALSE);
 			
 			if (!fd) {
 				g_string_free (sql_select, TRUE);
@@ -916,7 +920,7 @@ tracker_data_search_get_unique_values_with_concat_count_and_sum (const gchar	   
 		TrackerFieldData *fd;
 		TrackerFieldType  data_type;
 
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, sum_field, TRUE, FALSE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &field_list, sum_field, TRUE, FALSE, FALSE);
 
 		if (!fd) {
 			g_string_free (sql_select, TRUE);
@@ -1041,7 +1045,7 @@ tracker_data_search_get_sum (const gchar	 *service_type,
 	sql_from   = g_string_new ("\nFROM Services AS S ");
 	sql_where  = g_string_new ("\nWHERE ");
 
-	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, FALSE);
+	fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, FALSE, FALSE);
 
 	if (!fd) {
 		g_string_free (sql_select, TRUE);
@@ -1151,7 +1155,7 @@ tracker_data_search_get_count (const gchar	   *service_type,
 	sql_where  = g_string_new ("\nWHERE ");
 
 	if (strcmp (field, "*")) {
-		fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, FALSE);
+		fd = tracker_metadata_add_metadata_field (iface, service_type, &fields, field, TRUE, FALSE, FALSE);
 		
 		if (!fd) {
 			g_string_free (sql_select, TRUE);

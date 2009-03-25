@@ -1931,11 +1931,18 @@ tracker_db_manager_ensure_locale (void)
 	}
 
 	if (g_strcmp0 (current_locale, stored_locale) != 0) {
+		guint collate_key;
 		/* Locales differ, update collate keys */
 		g_message ("Updating DB locale dependent data to: %s\n", current_locale);
 
 		iface = dbs[TRACKER_DB_FILE_METADATA].iface;
 		tracker_db_interface_execute_procedure (iface, NULL, "UpdateMetadataCollation", NULL);
+
+		for (collate_key = 1; collate_key<6; collate_key++) {
+			tracker_db_interface_execute_query (iface, NULL,
+			   		    "UPDATE Services SET KeyMetadataCollation%d=CollateKey(KeyMetadata%d)",
+					    collate_key, collate_key);
+		} 
 
 		iface = dbs[TRACKER_DB_EMAIL_METADATA].iface;
 		tracker_db_interface_execute_procedure (iface, NULL, "UpdateMetadataCollation", NULL);

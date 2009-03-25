@@ -622,6 +622,20 @@ tracker_ontology_service_get_key_metadata (const gchar *service_str,
 	return 0;
 }
 
+gint
+tracker_ontology_service_get_key_collate (const gchar *service_str,
+					  const gchar *meta_name)
+{
+	gint		i;
+
+	g_return_val_if_fail (service_str != NULL, 0);
+	g_return_val_if_fail (meta_name != NULL, 0);
+
+	i = tracker_ontology_service_get_key_metadata (service_str, meta_name);
+
+	return ((i < 6) ? i : 0);
+}
+
 gboolean
 tracker_ontology_service_get_show_directories (const gchar *service_str)
 {

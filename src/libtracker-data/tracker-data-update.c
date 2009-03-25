@@ -327,6 +327,7 @@ tracker_data_update_set_metadata (TrackerService *service,
 {
 	TrackerDBInterface *iface;
 	gint metadata_key;
+	gint collate_key;
 	gchar *id_str;
 
 	if(!strlen(value))
@@ -402,6 +403,22 @@ tracker_data_update_set_metadata (TrackerService *service,
 						    "update Services set IndexTime = '%s' where ID = %d",
 						    value,
 						    service_id);
+	}
+
+	collate_key = tracker_ontology_service_get_key_collate (tracker_service_get_name (service),
+								tracker_field_get_name (field));
+	if (collate_key > 0) {
+		gchar *val;
+		
+		val = tracker_escape_string (value);
+		
+		tracker_db_interface_execute_query (iface, NULL,
+			       "update Services set KeyMetadataCollation%d = CollateKey('%s') where id = %d",
+			       collate_key,
+			       val,
+			       service_id);
+
+		g_free (val);
 	}
 
 	g_free (id_str);
