@@ -1,3 +1,9 @@
+2009-03-25  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/libtracker-data/tracker-data-schema.c:
+	* src/libtracker-data/tracker-rdf-query.c: Fixed a missing
+	condition for join.
+
 2009-03-25  Martyn Russell  <martyn@imendio.com>
 
 	* src/trackerd/tracker-daemon.c: (tracker_daemon_get_stats): Fixed

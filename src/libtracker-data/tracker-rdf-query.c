@@ -428,6 +428,10 @@ add_metadata_field (ParserData	*data,
 								tracker_field_data_get_select_field (field_data));
 				}
 			}
+
+			if (is_order) {
+				tracker_field_data_set_is_order (field_data, TRUE);
+			}
 		}
 	}
 
