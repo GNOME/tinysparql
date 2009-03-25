@@ -1,5 +1,9 @@
 2009-03-25  Jürg Billeter  <j@bitron.ch>
 
+	* configure.ac: Disable static libraries by default.
+
+2009-03-25  Jürg Billeter  <j@bitron.ch>
+
 	* configure.ac: Update help strings for the configure options of
 	the mail push modules.
 
