@@ -1,3 +1,11 @@
+2009-03-25  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-data/tracker-data-update.c
+	(tracker_data_update_replace_service): Refactored not to have
+	duplicated code, do not compare file mtimes with the Accessed column in
+	the Services table, instead use the GetServiceID stored procedure
+	and compare against the IndexTime column.
+
 2009-03-24  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-applet/tracker-applet-prefs.glade:
