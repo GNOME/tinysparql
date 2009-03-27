@@ -700,7 +700,7 @@ indexer_update_word (const gchar *word,
 				if (score < 1) {
 					/* Shift all subsequent records in array down one place */
 					g_memmove (&previous_hits[center], &previous_hits[center + 1],
-						   (old_hit_count - center) * sizeof (TrackerDBIndexItem));
+						   (old_hit_count - center - 1) * sizeof (TrackerDBIndexItem));
 					old_hit_count--;
 				} else {
 					guint32 service_type;

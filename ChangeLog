@@ -1,5 +1,10 @@
 2009-03-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Do not
+	try to memmove() past array boundaries when removing an element.
+
+2009-03-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-data/tracker-data-query.c (result_set_to_metadata):
 	Do not leak GValues contents.
 
