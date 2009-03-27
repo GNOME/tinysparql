@@ -1,3 +1,7 @@
+2009-03-27  Martyn Russell  <martyn@imendio.com>
+
+	* Release 0.6.92.
+
 2009-03-27  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-push.c (load_modules): Close the dir.
@@ -712,7 +716,7 @@
 	terminal due to deprecated glade calls. Make step increment for
 	maximum bytes to index in text files increments of 1024. Fixed
 	throttle range to be 0->20 not 0->99 which is not valid. Removed
-	email options which have no effect. Fixes bug #571331.
+	email options which have no effect. Fixes bug #571331 .
 	
 2009-03-10  Martyn Russell  <martyn@imendio.com>
 
