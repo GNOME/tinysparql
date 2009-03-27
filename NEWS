@@ -1,3 +1,59 @@
+NEW in 0.6.92:
+==============
+Improvements:
+- Fixed memmove error in QDBM when updating a word
+- Fixed GValues leak in _result_set_to_metadata()
+- Fixed small ontology error for image extractors
+- Fixed trackerd not changing throttling when switching between charging/discharging states
+- Fixed battery remaining percentage in logs, was always 0%
+- Fixed crasher when calling thumbnailer with older versions of DBus, use int instead of int64
+- Fixed logic for signalling status in tracker-indexer
+- Fixed mtime checking in tracker-indexer, only reindex if file mtime is different, not just newer
+- Fixed tracker-extract -f command to transform filenames to full paths
+- Fixed setting tags in tracker-indexer
+- Improve tracker-dbus_query_result_to_ptrarry(), don't recheck UTF8 validity of strings
+- Improve failure conditions if RDF type doesn't exist in ontology
+- Added GStreamer helix bin information to configure statement
+- Added libtool library versioning so they are not all named .so.0.0.0.
+- Added GError handling to database manager so we know why ontology files fail to load
+- Added initial code to use GVolumeMonitor::monitor-pre-unmount, GIO patch is pending, was not implemented
+- Added collations to Services table and other indices
+- Added more states to tracker-applet to give more feedback, now we have watching, crawling, optimising and shutting down
+- Added tracker-processes utility to list and kill tracker processes, this also has a --hard-reset option to remove all databases too
+- Added a GetPid API to tracker-extract so we request the PID before doing anything
+- Added kill() call to tracker-indexer when tracker-extract doesn't respond to the DBus request for metadata
+- Added cache to trackerd for GetStats calls to be more responsive when indexing and if recently requested
+- Removed call to set SCHED_IDLE, performance was way to bad to use it
+- Removed Merge options from tracker-applet, not longer used
+- Disabled static libraries by default
+- Disabled evolution module since it is problematic and lots of Evolution issues were reported
+- Enabled evolution push plugin (different to the Evolution module), non-intrusive, Evolution sends us the data
+- Updated help strings for configure options of mail push modules
+- Updated GetStats SQL stored procedure call to also include super classes like "Files"
+
+Bugs:
+- Fixed NB#106201, tracker-extract is crashing when extracting the details of a mp3 file (Mikael Ottela)
+- Fixed NB#105133, Mafw-tracker-source does not emit container-changed signal (Martyn Russell)
+- Fixed NB#90455,  Tracker doesn't index Geotags metadata Iptc4xmpCore:Location, photoshop:Country, photoshop:City of JPEG and PNG pictures (Mikael Ottela)
+- Fixed NB#96314,  libexempi adds Creator in three different locations on ARM platform (Mikael Ottela)
+- Fixed NB#99823,  Album art image gets corrupted if Artist and Album have characters other than alphabets (Mikael Ottela)
+- Fixed NB#102800, Crash corruption code (Martyn Russell)
+- Fixed LP#347352, Use g_strcmp0() to fix g_list_find_custom() crashing with NULLs (Martyn Russell)
+- Fixed GB#106424, Crash when themes are deleted while running (Mikael Ottela)
+- Fixed GB#575332, crashes when showing statistics (Martyn Russell)
+- Fixed GB#570232, SetOption uses sqlite REPLACE which *doesn't* replace, it INSERTs (Carlos Garnacho)
+- Fixed GB#573834, g_timeout_add_seconds should be preferred to g_timeout_add (Marcel Stimberg)
+- Fixed GB#575271, Confusion and error with deskbar-applet module dir detection (Deji Akingunola)
+
+Translations:
+- Updated da: Mads Lundby
+- Updated es: Jorge González, Jorge Gonzalez
+- Updated gl: Suso Baleato
+- Updated sv: Daniel Nylander
+
+Help Manual Translations:
+None
+
 NEW in 0.6.91:
 ==============
 
