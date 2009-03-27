@@ -1,5 +1,10 @@
 2009-03-26  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/libtracker-data/tracker-data-search.c: Added the missing
+	order-type join conditions.
+
+2009-03-26  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-gstreamer.c
 	* src/tracker-extract/tracker-iptc.c: Fixed a small ontology
 	mistake in the image extractors.

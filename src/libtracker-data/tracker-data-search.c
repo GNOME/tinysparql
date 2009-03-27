@@ -682,7 +682,11 @@ tracker_metadata_add_metadata_field (TrackerDBInterface *iface,
 				tracker_field_data_set_is_select (field_data, TRUE);
 			}
 
-			break;
+			if (is_order) {
+				tracker_field_data_set_is_order (field_data, TRUE);
+			}
+			
+			break;			
 		}
 	}
 
@@ -695,6 +699,10 @@ tracker_metadata_add_metadata_field (TrackerDBInterface *iface,
 								     is_condition);
 		if (field_data) {
 			*fields = g_slist_prepend (*fields, field_data);
+		}
+
+		if (is_order) {
+			tracker_field_data_set_is_order (field_data, TRUE);
 		}
 	}
 
