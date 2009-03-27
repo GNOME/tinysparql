@@ -145,7 +145,7 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 				     const GList	 *list)
 {
 	TrackerField *field;
-	GList        *old_values;
+	GList        *old_values, *copy;
 
 	g_return_if_fail (metadata != NULL);
 	g_return_if_fail (field_name != NULL);
@@ -164,6 +164,8 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 	g_return_if_fail (TRACKER_IS_FIELD (field));
 	g_return_if_fail (tracker_field_get_multiple_values (field) == TRUE);
 
+	copy = tracker_glist_copy_with_string_data ((GList *)list);
+
 	old_values = g_hash_table_lookup (metadata->table, field);
 
 	if (old_values) {
@@ -173,7 +175,7 @@ tracker_data_metadata_insert_values (TrackerDataMetadata *metadata,
 
 	g_hash_table_replace (metadata->table,
 			      g_object_ref (field),
-			      tracker_glist_copy_with_string_data ((GList *)list));
+			      copy);
 }
 
 /**

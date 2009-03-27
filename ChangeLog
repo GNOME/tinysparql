@@ -1,3 +1,10 @@
+2009-03-27  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-data/tracker-data-metadata.c
+	(tracker_data_metadata_insert_values): Create a copy of the list
+	before freeing the old values, since the new list could be constructed
+	from these old values. Fixes NB#100642.
+
 2009-03-26  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/libtracker-data/tracker-data-search.c: Added the missing
