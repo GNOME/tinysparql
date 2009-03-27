@@ -269,7 +269,7 @@ extract_metadata (MetadataExtractor *extractor,
 		if (extractor->mime == EXTRACT_MIME_IMAGE) {
 			add_string_gst_tag (metadata, "Image:Title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, "Image:Comments", extractor->tagcache, GST_TAG_COMMENT);
-			add_string_gst_tag (metadata, "Image:Author", extractor->tagcache, GST_TAG_ARTIST);
+			add_string_gst_tag (metadata, "Image:Creator", extractor->tagcache, GST_TAG_ARTIST);
 		} else if (extractor->mime == EXTRACT_MIME_VIDEO) {
 			add_string_gst_tag (metadata, "Video:Title", extractor->tagcache, GST_TAG_TITLE);
 			add_string_gst_tag (metadata, "Video:Comments", extractor->tagcache, GST_TAG_COMMENT);

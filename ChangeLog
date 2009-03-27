@@ -1,3 +1,9 @@
+2009-03-26  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-gstreamer.c
+	* src/tracker-extract/tracker-iptc.c: Fixed a small ontology
+	mistake in the image extractors.
+
 2009-03-25  Carlos Garnacho  <carlos@imendio.com>
 
 	Make GVolumeMonitor::mount-pre-unmount cancel any ongoing operation in

@@ -51,7 +51,7 @@ static IptcTagType iptctags[] = {
         { 2, IPTC_TAG_BYLINE, "Image:Creator", NULL },
         { 2, IPTC_TAG_CITY, "Image:City", NULL },
         { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", NULL },
-        { 2, IPTC_TAG_CREDIT, "Image:Author", NULL },
+        { 2, IPTC_TAG_CREDIT, "Image:Creator", NULL },
         { 2, IPTC_TAG_COPYRIGHT_NOTICE, "File:Copyright", NULL },
         { 2, IPTC_TAG_IMAGE_ORIENTATION, "Image:Orientation", fix_iptc_orientation },
 	{ -1, -1, NULL, NULL }
