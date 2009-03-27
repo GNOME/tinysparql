@@ -1,5 +1,9 @@
 2009-03-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-indexer/tracker-push.c (load_modules): Close the dir.
+
+2009-03-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-db/tracker-db-index.c (indexer_update_word): Do not
 	try to memmove() past array boundaries when removing an element.
 

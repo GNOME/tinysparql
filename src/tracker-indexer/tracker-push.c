@@ -105,6 +105,8 @@ load_modules (PushSupportPrivate *private)
 			g_free (path);
 		}
 	}
+
+	g_dir_close (dir);
 }
 
 static void
