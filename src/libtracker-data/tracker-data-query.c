@@ -460,10 +460,13 @@ result_set_to_metadata (TrackerDBResultSet  *result_set,
 				g_free (str);
 				str = g_strdup ("");
 			}
+
+			g_value_unset (&transform);
 		} else {
 			str = g_strdup ("");
 		}
 
+		g_value_unset (&value);
 		field = tracker_ontology_get_field_by_id (metadata_id);
 		if (!field) {
 			g_critical ("Field id %d in database but not in tracker-ontology",

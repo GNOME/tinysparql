@@ -1,5 +1,10 @@
 2009-03-27  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-data/tracker-data-query.c (result_set_to_metadata):
+	Do not leak GValues contents.
+
+2009-03-27  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-data/tracker-data-metadata.c
 	(tracker_data_metadata_insert_values): Create a copy of the list
 	before freeing the old values, since the new list could be constructed
