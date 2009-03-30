@@ -1,5 +1,12 @@
 2009-03-30  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-indexer/tracker-removable-device.c: Code clean up.
+	Don't allocate memory for AddMetadataInfo and then return on some
+	failure without cleaning it up. Use tracker_file_() APIs so we use
+	posix_fadvise(). 
+
+2009-03-30  Martyn Russell  <martyn@imendio.com>
+
 	* utils/tracker-fts/tracker-fts-test.c: Fixed missing include warning.
 
 2009-03-30  Martyn Russell  <martyn@imendio.com>

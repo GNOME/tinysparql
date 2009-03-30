@@ -62,7 +62,6 @@
 #include "tracker-module-metadata-private.h"
 
 typedef struct {
-	const gchar *ttl_file;
 	gchar *last_subject;
 	gchar *base;
 	guint amount;
@@ -71,6 +70,11 @@ typedef struct {
 	gchar *rdf_type;
 } TurtleStorerInfo;
 
+typedef struct {
+	raptor_serializer *serializer;
+	gchar *about_uri;
+} AddMetadataInfo;
+
 typedef enum {
 	REMOVAL,
 	REPLACE,
@@ -78,7 +82,10 @@ typedef enum {
 } StorerTask;
 
 static void
-commit_turtle_parse_info_storer (TurtleStorerInfo *info, gboolean may_flush, StorerTask task, gchar *destination)
+commit_turtle_parse_info_storer (TurtleStorerInfo *info, 
+				 gboolean          may_flush, 
+				 StorerTask        task,
+				 const gchar      *destination)
 {
 	if (info->last_subject) {
 		GHashTable *data;
@@ -167,7 +174,8 @@ get_uri_with_trailing_slash (GFile *file)
 }
 
 static void
-consume_triple_storer (void* user_data, const raptor_statement* triple) 
+consume_triple_storer (void                   *user_data, 
+		       const raptor_statement *triple) 
 {
 	TurtleStorerInfo *info = user_data;
 	gchar            *subject;
@@ -250,16 +258,21 @@ consume_triple_storer (void* user_data, const raptor_statement* triple)
 		g_free (key);
 		g_object_unref (file);
 	}
-
 }
 
 #endif /* HAVE_RAPTOR */
 
 void
-tracker_removable_device_optimize (TrackerIndexer *indexer, const gchar *mount_point)
+tracker_removable_device_optimize (TrackerIndexer *indexer,
+				   const gchar    *mount_point)
 {
-	gchar *file = g_build_filename (mount_point, ".cache", 
-					 "metadata", "metadata.ttl", NULL);
+	gchar *file;
+
+	file = g_build_filename (mount_point,
+				 ".cache", 
+				 "metadata",
+				 "metadata.ttl", 
+				 NULL);
 
 	if (g_file_test (file, G_FILE_TEST_EXISTS)) {
 		tracker_turtle_optimize (file);
@@ -269,13 +282,17 @@ tracker_removable_device_optimize (TrackerIndexer *indexer, const gchar *mount_p
 }
 
 void
-tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point)
+tracker_removable_device_load (TrackerIndexer *indexer,
+			       const gchar    *mount_point)
 {
 #ifdef HAVE_RAPTOR
 	gchar *filename;
 
-	filename = g_build_filename (mount_point, ".cache", 
-				     "metadata", "metadata.ttl", NULL);
+	filename = g_build_filename (mount_point,
+				     ".cache", 
+				     "metadata",
+				     "metadata.ttl", 
+				     NULL);
 
 	if (g_file_test (filename, G_FILE_TEST_EXISTS)) {
 		TurtleStorerInfo *info;
@@ -284,7 +301,6 @@ tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point
 
 		info = g_slice_new0 (TurtleStorerInfo);
 
-		info->ttl_file = filename;
 		info->indexer = g_object_ref (indexer);
 		info->amount = 0;
 
@@ -308,7 +324,6 @@ tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point
 
 		commit_turtle_parse_info_storer (info, FALSE, REPLACE, NULL);
 
-
 		/* We will (always) be left in open state, so we commit the 
 		 * last opened transaction */
 
@@ -320,18 +335,15 @@ tracker_removable_device_load (TrackerIndexer *indexer, const gchar *mount_point
 	}
 
 	g_free (filename);
-
 #endif /* HAVE_RAPTOR */
 }
 
 #ifdef HAVE_RAPTOR
-typedef struct {
-	raptor_serializer *serializer;
-	gchar *about_uri;
-} AddMetadataInfo;
 
 static void
-set_metadata (const gchar *key, const gchar *value, gpointer user_data)
+set_metadata (const gchar *key, 
+	      const gchar *value, 
+	      gpointer     user_data)
 {
 	raptor_statement    *statement;
 	AddMetadataInfo     *item = user_data;
@@ -343,7 +355,7 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 	statement->subject = (void *) raptor_new_uri ((const unsigned char *) about_uri);
 	statement->subject_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
-	statement->predicate = (void *) raptor_new_uri ((const guchar *) (key?key:""));
+	statement->predicate = (void *) raptor_new_uri ((const guchar *) (key ? key : ""));
 	statement->predicate_type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
 
 	if (value) {
@@ -360,10 +372,11 @@ set_metadata (const gchar *key, const gchar *value, gpointer user_data)
 	raptor_free_uri ((raptor_uri *) statement->subject);
 	raptor_free_uri ((raptor_uri *) statement->predicate);
 
-	if (value)
+	if (value) {
 		g_free ((unsigned char *) statement->object);
-	else 
+	} else {
 		raptor_free_uri ((raptor_uri *) statement->object);
+	}
 
 	g_free (statement);
 }
@@ -377,13 +390,10 @@ foreach_in_metadata_set_metadata (TrackerField *field,
 	if (!tracker_field_get_multiple_values (field)) {
 		set_metadata (tracker_field_get_name (field), value, user_data);
 	} else {
-		GList *list;
+		GList *l;
 
-		list = value;
-
-		while (list) {
-			set_metadata (tracker_field_get_name (field), list->data, user_data);
-			list = list->next;
+		for (l = value; l; l = l->next) {
+			set_metadata (tracker_field_get_name (field), l->data, user_data);
 		}
 	}
 
@@ -398,33 +408,36 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       TrackerModuleMetadata *metadata)
 {
 #ifdef HAVE_RAPTOR
-	AddMetadataInfo *info = g_slice_new (AddMetadataInfo);
+	AddMetadataInfo *info;
 	gchar           *filename, *muri;
 	FILE            *target_file;
 	raptor_uri      *suri;
 	GFile           *file, *base_file;
 
-	filename = g_build_filename (mount_point, ".cache",
-				     "metadata", NULL);
+	filename = g_build_filename (mount_point, 
+				     ".cache",
+				     "metadata",
+				     NULL);
 	g_mkdir_with_parents (filename, 0700);
 	g_free (filename);
 
-	filename = g_build_filename (mount_point, ".cache",
-				     "metadata", "metadata.ttl", NULL);
+	filename = g_build_filename (mount_point, 
+				     ".cache",
+				     "metadata", 
+				     "metadata.ttl", 
+				     NULL);
 
-	target_file = fopen (filename, "a");
-	/* Similar to a+ */
-	if (!target_file)
-		target_file = fopen (filename, "w");
-
+	target_file = tracker_file_open (filename, "a+", FALSE);
 	g_free (filename);
 
 	if (!target_file) {
 		return;
 	}
 
+	info = g_slice_new (AddMetadataInfo);
+
 	info->serializer = raptor_new_serializer ("turtle");
-	info->about_uri = g_strdup (path+strlen (mount_point)+1);
+	info->about_uri = g_strdup (path + strlen (mount_point) + 1);
 
 	raptor_serializer_set_feature (info->serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
@@ -446,7 +459,8 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (info->serializer, 
-					       suri, target_file);
+					       suri, 
+					       target_file);
 
 	set_metadata ("rdf:type", rdf_type, info);
 
@@ -455,12 +469,14 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 					 info);
 
 	g_free (info->about_uri);
+
 	raptor_serialize_end (info->serializer);
 	raptor_free_serializer (info->serializer);
-	fclose (target_file);
 	raptor_free_uri (suri);
 
 	g_slice_free (AddMetadataInfo, info);
+
+	tracker_file_close (target_file, FALSE);
 #endif /* HAVE_RAPTOR */
 }
 
@@ -468,31 +484,31 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 
 void
 tracker_removable_device_add_removal (TrackerIndexer *indexer, 
-				      const gchar *mount_point, 
-				      const gchar *path,
-				      const gchar *rdf_type)
+				      const gchar    *mount_point, 
+				      const gchar    *path,
+				      const gchar    *rdf_type)
 {
 #ifdef HAVE_RAPTOR
 	gchar               *filename, *about_uri, *muri;
 	FILE                *target_file;
-	raptor_uri          *suri = NULL;
+	raptor_uri          *suri;
 	raptor_serializer   *serializer;
 	AddMetadataInfo     *info;
 	GFile               *file, *base_file;
 
-	filename = g_build_filename (mount_point, ".cache",
-				     "metadata", NULL);
+	filename = g_build_filename (mount_point,
+				     ".cache",
+				     "metadata",
+				     NULL);
 	g_mkdir_with_parents (filename, 0700);
 	g_free (filename);
 
 	filename = g_build_filename (mount_point, ".cache",
-				     "metadata", "metadata.ttl", NULL);
+				     "metadata",
+				     "metadata.ttl", 
+				     NULL);
 
-	target_file = fopen (filename, "a");
-	/* Similar to a+ */
-	if (!target_file) 
-		target_file = fopen (filename, "w");
-
+	target_file = tracker_file_open (filename, "a+", FALSE);
 	g_free (filename);
 
 	if (!target_file) {
@@ -500,10 +516,11 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	}
 
 	serializer = raptor_new_serializer ("turtle");
-	about_uri = g_strdup (path+strlen (mount_point)+1);
+	about_uri = g_strdup (path + strlen (mount_point) + 1);
 
 	raptor_serializer_set_feature (serializer, 
-				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
+				       RAPTOR_FEATURE_WRITE_BASE_URI,
+				       0);
 
 	file = g_file_new_for_path (mount_point);
 	base_file = g_file_get_child (file, "base");
@@ -516,7 +533,8 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (serializer, 
-					       suri, target_file);
+					       suri, 
+					       target_file);
 
 	info = g_slice_new (AddMetadataInfo);
 
@@ -527,12 +545,14 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	set_metadata (NULL, NULL, info);
 
 	raptor_free_uri (suri);
+
 	g_slice_free (AddMetadataInfo, info);
 	g_free (about_uri);
+
 	raptor_serialize_end (serializer);
 	raptor_free_serializer (serializer);
-	fclose (target_file);
 
+	tracker_file_close (target_file, FALSE);
 #endif /* HAVE_RAPTOR */
 }
 
@@ -540,10 +560,10 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 
 void
 tracker_removable_device_add_move (TrackerIndexer *indexer, 
-				   const gchar *mount_point, 
-				   const gchar *from_path, 
-				   const gchar *to_path,
-				   const gchar *rdf_type)
+				   const gchar    *mount_point, 
+				   const gchar    *from_path, 
+				   const gchar    *to_path,
+				   const gchar    *rdf_type)
 {
 #ifdef HAVE_RAPTOR
 	gchar               *filename, *about_uri, *to_uri, *muri;
@@ -553,19 +573,20 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	AddMetadataInfo     *info;
 	GFile               *file;
 
-	filename = g_build_filename (mount_point, ".cache",
-				     "metadata", NULL);
+	filename = g_build_filename (mount_point,
+				     ".cache",
+				     "metadata",
+				     NULL);
 	g_mkdir_with_parents (filename, 0700);
 	g_free (filename);
 
-	filename = g_build_filename (mount_point, ".cache",
-				     "metadata", "metadata.ttl", NULL);
+	filename = g_build_filename (mount_point, 
+				     ".cache",
+				     "metadata",
+				     "metadata.ttl", 
+				     NULL);
 
-	target_file = fopen (filename, "a");
-	/* Similar to a+ */
-	if (!target_file)
-		target_file = fopen (filename, "w");
-
+	target_file = tracker_file_open (filename, "a+", FALSE);
 	g_free (filename);
 
 	if (!target_file) {
@@ -577,8 +598,8 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	raptor_serializer_set_feature (serializer, 
 				       RAPTOR_FEATURE_WRITE_BASE_URI, 0);
 
-	about_uri = g_strdup (from_path+strlen (mount_point)+1);
-	to_uri = g_strdup (to_path+strlen (mount_point)+1);
+	about_uri = g_strdup (from_path + strlen (mount_point) + 1);
+	to_uri = g_strdup (to_path + strlen (mount_point) + 1);
 
 	file = g_file_new_for_path (mount_point);
 	muri = get_uri_with_trailing_slash (file);
@@ -588,7 +609,8 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	g_free (muri);
 
 	raptor_serialize_start_to_file_handle (serializer, 
-					       suri, target_file);
+					       suri,
+					       target_file);
 
 	info = g_slice_new (AddMetadataInfo);
 
@@ -603,12 +625,12 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 
 	g_free (about_uri);
 	g_free (to_uri);
+
 	raptor_serialize_end (serializer);
 	raptor_free_serializer (serializer);
-	fclose (target_file);
 	raptor_free_uri (suri);
 
-
+	tracker_file_close (target_file, FALSE);
 #endif /* HAVE_RAPTOR */
 }
 
