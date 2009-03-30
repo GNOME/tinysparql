@@ -843,7 +843,6 @@ main (gint argc, gchar *argv[])
 	TrackerLanguage		   *language;
 	TrackerHal		   *hal;
 	TrackerDBIndex		   *file_index;
-	TrackerDBIndex		   *file_update_index;
 	TrackerDBIndex		   *email_index;
 	TrackerRunningLevel	    runtime_level;
 	TrackerDBManagerFlags	    flags = 0;
@@ -1035,13 +1034,11 @@ main (gint argc, gchar *argv[])
 	}
 
 	file_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE);
-	file_update_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_FILE_UPDATE);
 	email_index = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
 
 	if (!TRACKER_IS_DB_INDEX (file_index) ||
-	    !TRACKER_IS_DB_INDEX (file_update_index) ||
 	    !TRACKER_IS_DB_INDEX (email_index)) {
-		g_critical ("Could not create indexer for all indexes (file, file-update, email)");
+		g_critical ("Could not create indexer for all indexes (file, email)");
 		return EXIT_FAILURE;
 	}
 

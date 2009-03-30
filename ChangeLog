@@ -1,3 +1,9 @@
+2009-03-30  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-db/tracker-db-index-manager.[ch]:
+	* src/trackerd/tracker-main.c: Remove all references to the old
+	file-index-update.db file, which isn't used anymore.
+
 2009-03-27  Martyn Russell  <martyn@imendio.com>
 
 	* Release 0.6.92.
