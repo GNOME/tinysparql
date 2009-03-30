@@ -25,6 +25,7 @@
 #include <sqlite3.h>
 
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <glib-object.h>
 
 static gint 
@@ -76,6 +77,7 @@ main (int argc, char **argv)
 		g_printerr ("EG: %s stew\n", argv[0]);
 		return EXIT_FAILURE;
 	}
+
 	g_unlink ("/tmp/test.db");
 	db_exists = g_file_test ("/tmp/test.db", G_FILE_TEST_EXISTS);
 	
