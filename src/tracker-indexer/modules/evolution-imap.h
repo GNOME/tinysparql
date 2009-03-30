@@ -48,7 +48,6 @@ struct TrackerEvolutionImapFile {
 
         gchar *imap_dir;
 
-        gint fd;
         FILE *summary;
         guint n_messages;
         guint cur_message;

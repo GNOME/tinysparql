@@ -274,32 +274,21 @@ static void
 extract_jpeg (const gchar *filename,
 	      GHashTable  *metadata)
 {
-	struct stat  fstatbuf;
-	size_t	     size;
-
 	struct jpeg_decompress_struct  cinfo;
 	struct tej_error_mgr	       tejerr;
 	struct jpeg_marker_struct     *marker;
-	FILE			      *jpeg;
-	gint			       fd_jpeg;
+	FILE			      *f;
+	goffset                        size;
 
-	if ((fd_jpeg = g_open (filename, O_RDONLY)) == -1) {
-		return;
-	}
+	size = tracker_file_get_size (filename);
 
-	if (stat (filename, &fstatbuf) == -1) {
-		close(fd_jpeg);
-		return;
-	}
-
-	/* Check size at least SOI+JFIF without thumb */
-	size = fstatbuf.st_size;
 	if (size < 18) {
-		close (fd_jpeg);
 		return;
 	}
 
-	if ((jpeg = fdopen (fd_jpeg, "rb"))) {
+	f = tracker_file_open (filename, "rb", FALSE);
+
+	if (f) {
 		gchar *str;
 		gsize  len;
 #ifdef HAVE_LIBIPTCDATA
@@ -319,7 +308,7 @@ extract_jpeg (const gchar *filename,
 		jpeg_save_markers (&cinfo, JPEG_APP0 + 1, 0xFFFF);
 		jpeg_save_markers (&cinfo, JPEG_APP0 + 13, 0xFFFF);
 		
-		jpeg_stdio_src (&cinfo, jpeg);
+		jpeg_stdio_src (&cinfo, f);
 		
 		jpeg_read_header (&cinfo, TRUE);
 		
@@ -414,9 +403,7 @@ extract_jpeg (const gchar *filename,
 
 		jpeg_destroy_decompress (&cinfo);
 	fail:
-		fclose (jpeg);
-	} else {
-		close (fd_jpeg);
+		tracker_file_close (f, FALSE);
 	}
 }
 

@@ -143,11 +143,8 @@ static void
 extract_png (const gchar *filename,
 	     GHashTable  *metadata)
 {
-	struct stat  fstatbuf;
-	size_t	     size;
-
-	gint	     fd_png;
-	FILE	    *png;
+	goffset      size;
+	FILE	    *f;
 	png_structp  png_ptr;
 	png_infop    info_ptr;
 	png_infop    end_ptr;
@@ -158,62 +155,47 @@ extract_png (const gchar *filename,
 	gint	     bit_depth, color_type;
 	gint	     interlace_type, compression_type, filter_type;
 
-#if defined(__linux__)
-	if (((fd_png = g_open (filename, (O_RDONLY | O_NOATIME))) == -1) &&
-	    ((fd_png = g_open (filename, (O_RDONLY))) == -1 ) ) {
-#else
-	if ((fd_png = g_open (filename, O_RDONLY)) == -1) {
-#endif
-		return;
-	}
+	size = tracker_file_get_size (filename);
 
-	if (stat (filename, &fstatbuf) == -1) {
-		close(fd_png);
-		return;
-	}
-
-	/* Check for minimum header size */
-	size = fstatbuf.st_size;
 	if (size < 64) {
-		close (fd_png);
 		return;
 	}
 
-	if ((png = fdopen (fd_png, "r"))) {
+	f = tracker_file_open (filename, "r", FALSE); 
+
+	if (f) {
 		png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING,
 						  NULL,
 						  NULL,
 						  NULL);
 		if (!png_ptr) {
-			fclose (png);
+			tracker_file_close (f, FALSE);
 			return;
 		}
 
 		info_ptr = png_create_info_struct (png_ptr);
 		if (!info_ptr) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-			fclose (png);
+			tracker_file_close (f, FALSE);
 			return;
 		}
 
 		end_ptr = png_create_info_struct (png_ptr);
-		if (!info_ptr) {
+		if (!end_ptr) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 			png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
-			fclose (png);
+			tracker_file_close (f, FALSE);
 			return;
 		}
 
-		if (setjmp(png_jmpbuf(png_ptr))) {
-			png_destroy_read_struct (&png_ptr, &info_ptr,
-						 (png_infopp)NULL);
-			png_destroy_read_struct (&png_ptr, &end_ptr,
-						 (png_infopp)NULL);
-			fclose (png);
+		if (setjmp (png_jmpbuf (png_ptr))) {
+			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
+			png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
+			tracker_file_close (f, FALSE);
 			return;
 		}
 
-		png_init_io (png_ptr, png);
+		png_init_io (png_ptr, f);
 		png_read_info (png_ptr, info_ptr);
 
 		if (!png_get_IHDR (png_ptr,
@@ -227,17 +209,18 @@ extract_png (const gchar *filename,
 				   &filter_type)) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
 			png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
-			fclose (png);
+			tracker_file_close (f, FALSE);
 			return;
 		}
 		
 		/* Read the image. FIXME We should be able to skip this step and
 		 * just get the info from the end. This causes some errors atm.
 		 */
-		row_pointers = (png_bytepp) malloc (height * sizeof (png_bytep));		
+		row_pointers = g_new0 (png_bytep, height);
+
 		for (row = 0; row < height; row++) {
 			row_pointers[row] = png_malloc (png_ptr,
-							png_get_rowbytes(png_ptr,info_ptr));
+							png_get_rowbytes (png_ptr,info_ptr));
 		}
 
 		png_read_image (png_ptr, row_pointers);
@@ -245,6 +228,7 @@ extract_png (const gchar *filename,
 		for (row = 0; row < height; row++) {
 			png_free (png_ptr, row_pointers[row]);
 		}
+
  		g_free (row_pointers);
 
 		png_read_end (png_ptr, end_ptr);
@@ -262,7 +246,6 @@ extract_png (const gchar *filename,
 				     tracker_escape_metadata_printf ("%ld", height));
 		
 		/* Check that we have the minimum data. FIXME We should not need to do this */
-
 		if (!g_hash_table_lookup (metadata, "Image:Date")) {
 			gchar *date;
 			guint64 mtime;
@@ -277,9 +260,8 @@ extract_png (const gchar *filename,
 		}
 
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-		fclose (png);
-	} else {
-		close (fd_png);
+		png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
+		tracker_file_close (f, FALSE);
 	}
 }
 

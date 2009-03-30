@@ -39,6 +39,8 @@
 #include <sys/mman.h>
 #endif /* G_OS_WIN32 */
 
+#include <libtracker-common/tracker-file-utils.h>
+
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
 #include "tracker-escape.h"
@@ -1479,10 +1481,9 @@ static void
 extract_mp3 (const gchar *filename,
 	     GHashTable  *metadata)
 {
-	gint	     file;
+	int	     fd;
 	void	    *buffer;
-	struct stat  fstatbuf;
-	size_t	     size;
+	goffset      size;
 	id3tag	     info;
 	file_data    filedata;
 
@@ -1498,37 +1499,46 @@ extract_mp3 (const gchar *filename,
 	filedata.albumartdata = NULL;
 	filedata.albumartsize = 0;
 
-#if defined(__linux__)
-	/* O_NOATIME fails for files we do not own (even if we can read) */
-	file = g_open (filename, (O_RDONLY | O_NOATIME), 0);
-	if (file == -1) {
-		file = g_open (filename, O_RDONLY, 0);
-	}
-#else
-	file = g_open (filename, O_RDONLY, 0);
-#endif
+	size = tracker_file_get_size (filename);
 
-	if (file == -1 || stat (filename, &fstatbuf) == -1) {
-		close (file);
-		return;
-	}
-
-	size = fstatbuf.st_size;
 	if (size == 0) {
-		close (file);
 		return;
 	}
 
-	if (size >  MAX_FILE_READ) {
-		size =	MAX_FILE_READ;
+	/* Can return -1 because of O_NOATIME, so we try again after
+	 * without as a last resort. This can happen due to
+	 * permissions.
+	 */
+	fd = open (filename, O_RDONLY | O_NOATIME);
+	if (fd == -1) {
+		fd = open (filename, O_RDONLY);
+		
+		if (fd == -1) {
+			return;
+		}
 	}
 
-#ifndef G_OS_WIN32
-	buffer = mmap (NULL, size, PROT_READ, MAP_PRIVATE, file, 0);
+#ifdef HAVE_POSIX_FADVISE
+	posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 #endif
+	
+#ifndef G_OS_WIN32
+	/* We don't use GLib's mmap because size can not be specified */
+	buffer = mmap (NULL, 
+		       MIN (size, MAX_FILE_READ), 
+		       PROT_READ, 
+		       MAP_PRIVATE, 
+		       fd, 
+		       0);
+#endif
+
+#ifdef HAVE_POSIX_FADVISE
+	posix_fadvise (fd, 0, 0, POSIX_FADV_DONTNEED);
+#endif
+
+	close (fd);
 
 	if (buffer == NULL || buffer == (void*) -1) {
-		close(file);
 		return;
 	}
 
@@ -1591,7 +1601,6 @@ extract_mp3 (const gchar *filename,
 	mp3_parse (buffer, size, metadata, &filedata);
 
 #ifdef HAVE_GDKPIXBUF
-
 	tracker_process_albumart (filedata.albumartdata, filedata.albumartsize,
 				  /* g_hash_table_lookup (metadata, "Audio:Artist") */ NULL,
 				  g_hash_table_lookup (metadata, "Audio:Album"),
@@ -1631,7 +1640,6 @@ extract_mp3 (const gchar *filename,
 #ifndef G_OS_WIN32
 	munmap (buffer, size);
 #endif
-	close(file);
 }
 
 TrackerExtractData *

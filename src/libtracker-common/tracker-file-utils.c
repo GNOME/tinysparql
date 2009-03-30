@@ -39,35 +39,63 @@
 
 #define TEXT_SNIFF_SIZE 4096
 
-gint
+FILE *
 tracker_file_open (const gchar *uri,
-		   gboolean	lreadahead)
+		   const gchar *how,
+		   gboolean	sequential)
 {
-	gint fd;
+ 	FILE     *file;
+	gboolean  readonly;
+	int       flags;
 
-#if defined(__linux__)
-	fd = open (uri, O_RDONLY | O_NOATIME);
+	g_return_val_if_fail (uri != NULL, NULL);
+	g_return_val_if_fail (how != NULL, NULL);
 
-	if (fd == -1) {
-		fd = open (uri, O_RDONLY);
+	file = fopen (uri, how);
+	if (!file) {
+		return NULL;
 	}
-#else
-	fd = open (uri, O_RDONLY);
-#endif
 
-	if (fd == -1) {
-		return -1;
-	}
+ 	/* Are we opening for readonly? */
+	readonly = !strstr (uri, "r+") && strchr (uri, 'r');
+
+	if (readonly) {
+		int fd;
+
+		fd = fileno (file);
+		
+		/* Make sure we set the NOATIME flag if we have permissions to */
+		if ((flags = fcntl (fd, F_GETFL, 0)) != -1) {
+			fcntl (fd, F_SETFL, flags | O_NOATIME);
+		}
 
 #ifdef HAVE_POSIX_FADVISE
-	if (lreadahead) {
-		posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
-	} else {
-		posix_fadvise (fd, 0, 0, POSIX_FADV_RANDOM);
+		if (sequential_access) {
+			posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+		} else {
+			posix_fadvise (fd, 0, 0, POSIX_FADV_RANDOM);
+		}
+#endif
+	}
+	
+	/* FIXME: Do nothing with posix_fadvise() for non-readonly operations */
+
+	return file;
+}
+
+void
+tracker_file_close (FILE     *file,
+		    gboolean  need_again_soon) 
+{
+	g_return_if_fail (file != NULL);
+
+#ifdef HAVE_POSIX_FADVISE
+	if (!need_again_soon) {
+		posix_fadvise (fileno (file), 0, 0, POSIX_FADV_DONTNEED);
 	}
 #endif
 
-	return fd;
+	fclose (file);
 }
 
 gboolean

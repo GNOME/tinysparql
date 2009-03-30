@@ -35,6 +35,10 @@ modules_LTLIBRARIES = 							\
 	libextract-png.la 						\
 	libextract-ps.la 						
 
+if HAVE_LIBVORBIS
+modules_LTLIBRARIES += libextract-vorbis.la
+endif
+
 if HAVE_EXEMPI
 modules_LTLIBRARIES += libextract-xmp.la
 endif
@@ -117,6 +121,11 @@ libextract_abw_la_LIBADD = $(GLIB2_LIBS) $(GCOV_LIBS)
 libextract_mp3_la_SOURCES = tracker-extract-mp3.c $(albumart_sources) $(escape_sources)
 libextract_mp3_la_LDFLAGS = $(module_flags) $(albumart_flags)
 libextract_mp3_la_LIBADD = $(albumart_libs) $(GLIB2_LIBS) $(GCOV_LIBS)
+
+# Vorbis (OGG)
+libextract_vorbis_la_SOURCES = tracker-extract-vorbis.c $(escape_sources)
+libextract_vorbis_la_LDFLAGS = $(module_flags)
+libextract_vorbis_la_LIBADD = $(GLIB2_LIBS) $(LIBVORBIS_LIBS) $(GCOV_LIBS)
 
 # MPlayer
 libextract_mplayer_la_SOURCES = tracker-extract-mplayer.c $(escape_sources)

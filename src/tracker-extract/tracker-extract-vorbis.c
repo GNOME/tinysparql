@@ -19,184 +19,174 @@
 
 #include "config.h"
 
-#ifdef HAVE_VORBIS
-
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
+
 #include <glib.h>
+
 #include <vorbis/vorbisfile.h>
+
+#include <libtracker-common/tracker-file-utils.h>
 
 #include "tracker-main.h"
 
+static void extract_vorbis (const char *filename, 
+                            GHashTable *metadata);
+
 static struct {
-	char * name;
-	char *meta_name;
+	gchar *name;
+	gchar *meta_name;
 	gboolean writable;
 } tags[] = {
-	 {"title", "Audio.Title", FALSE},
-	 {"artist", "Audio.Artist", FALSE},
-	 {"album", "Audio.Album", FALSE},
-	 {"albumartist", "Audio.AlbumArtist", FALSE},
-	 {"trackcount", "Audio.AlbumTrackCount", FALSE},
-	 {"tracknumber", "Audio.TrackNo", FALSE},
-	 {"DiscNo", "Audio.DiscNo", FALSE},
-	 {"Performer", "Audio.Performer", FALSE},
-	 {"TrackGain", "Audio.TrackGain", FALSE},
-	 {"TrackPeakGain", "Audio.TrackPeakGain", FALSE},
-	 {"AlbumGain", "Audio.AlbumGain", FALSE},
-	 {"AlbumPeakGain", "Audio.AlbumPeakGain", FALSE},
-	 {"date", "Audio.ReleaseDate", FALSE},
-	 {"comment", "Audio.Comment", FALSE},
-	 {"genre", "Audio.Genre", FALSE},
-	 {"Codec", "Audio.Codec", FALSE},
-	 {"CodecVersion", "Audio.CodecVersion", FALSE},
-	 {"Samplerate", "Audio.Samplerate", FALSE},
-	 {"Channels", "Audio.Channels", FALSE},
-	 {"MBAlbumID", "Audio.MBAlbumID", FALSE},
-	 {"MBArtistID", "Audio.MBArtistID", FALSE},
-	 {"MBAlbumArtistID", "Audio.MBAlbumArtistID", FALSE},
-	 {"MBTrackID", "Audio.MBTrackID", FALSE},
-	 {"Lyrics", "Audio.Lyrics", FALSE},
-	 {"Copyright", "File.Copyright", FALSE},
-	 {"License", "File.License", FALSE},
-	 {"Organization", "File.Organization", FALSE},
-	 {"Location", "File.Location", FALSE},
-	 {"Publisher", "File.Publisher", FALSE},
-	 {NULL, NULL, FALSE},
+	 { "title", "Audio.Title", FALSE },
+	 { "artist", "Audio.Artist", FALSE },
+	 { "album", "Audio.Album", FALSE },
+	 { "albumartist", "Audio.AlbumArtist", FALSE },
+	 { "trackcount", "Audio.AlbumTrackCount", FALSE },
+	 { "tracknumber", "Audio.TrackNo", FALSE },
+	 { "DiscNo", "Audio.DiscNo", FALSE },
+	 { "Performer", "Audio.Performer", FALSE },
+	 { "TrackGain", "Audio.TrackGain", FALSE },
+	 { "TrackPeakGain", "Audio.TrackPeakGain", FALSE },
+	 { "AlbumGain", "Audio.AlbumGain", FALSE },
+	 { "AlbumPeakGain", "Audio.AlbumPeakGain", FALSE },
+	 { "date", "Audio.ReleaseDate", FALSE },
+	 { "comment", "Audio.Comment", FALSE },
+	 { "genre", "Audio.Genre", FALSE },
+	 { "Codec", "Audio.Codec", FALSE },
+	 { "CodecVersion", "Audio.CodecVersion", FALSE },
+	 { "Samplerate", "Audio.Samplerate", FALSE },
+	 { "Channels", "Audio.Channels", FALSE },
+	 { "MBAlbumID", "Audio.MBAlbumID", FALSE },
+	 { "MBArtistID", "Audio.MBArtistID", FALSE },
+	 { "MBAlbumArtistID", "Audio.MBAlbumArtistID", FALSE },
+	 { "MBTrackID", "Audio.MBTrackID", FALSE },
+	 { "Lyrics", "Audio.Lyrics", FALSE },
+	 { "Copyright", "File.Copyright", FALSE },
+	 { "License", "File.License", FALSE },
+	 { "Organization", "File.Organization", FALSE },
+	 { "Location", "File.Location", FALSE },
+	 { "Publisher", "File.Publisher", FALSE },
+	 { NULL, NULL, FALSE },
 };
 
+static TrackerExtractData extract_data[] = {
+	{ "audio/x-vorbis+ogg", extract_vorbis },
+	{ "application/ogg", extract_vorbis },
+	{ NULL, NULL }
+};
 
-static char*
-get_comment (vorbis_comment *vc, char *label)
+static gchar *
+ogg_get_comment (vorbis_comment *vc, 
+                 gchar          *label)
 {
-	char *tag;
-	char *utf_tag;
+	gchar *tag;
+	gchar *utf_tag;
 
 	if (vc && (tag = vorbis_comment_query (vc, label, 0)) != NULL) {
-
 		utf_tag = g_locale_to_utf8 (tag, -1, NULL, NULL, NULL);
-
 		/*g_free (tag);*/
 
 		return utf_tag;
-
 	} else {
 		return NULL;
 	}
-
 }
 
+#if 0
 
-gboolean
-tracker_metadata_ogg_is_writable (const char *meta)
+static gboolean
+ogg_is_writable (const gchar *meta)
 {
-	int i;
+	gint i;
 
-	i = 0;
-	while (tags[i].name != NULL) {
-
-		if (strcmp (tags[i].meta_name, meta) == 0) {
+        for (i = 0; tags[i].name != NULL; i++) {
+		if (g_strcmp0 (tags[i].meta_name, meta) == 0) {
 			return tags[i].writable;
 		}
-
-		i++;
 	}
 
 	return FALSE;
-
 }
 
-
-gboolean
-tracker_metadata_ogg_write (const char *meta_name, const char *value)
+static gboolean
+ogg_write (const char *meta_name,
+           const char *value)
 {
 	/* to do */
 	return FALSE;
 }
 
-
-void
-tracker_extract_vorbis (const char *filename, GHashTable *metadata)
-{
-	gint	       fd;
-	FILE	       *oggFile;
-	OggVorbis_File vf;
-	gint	       i;
-
-#if defined(__linux__)
-	if ((fd = g_open (filename, (O_RDONLY | O_NOATIME))) == -1) {
-#else
-	if ((fd = g_open (filename, O_RDONLY)) == -1) {
 #endif
-		return;
-	}
 
-	oggFile = fdopen (fd, "r");
-
-	if (!oggFile) {
-		close (fd);
-		return;
-	}
-
-	if ( ov_open (oggFile, &vf, NULL, 0) < 0 ) {
-		fclose (oggFile);
-		return;
-	}
-
-	char *tmpComment;
-
+static void
+extract_vorbis (const char *filename, 
+                GHashTable *metadata)
+{
+	FILE	       *f;
+	OggVorbis_File  vf;
+	gint	        i;
 	vorbis_comment *comment;
+	vorbis_info    *vi;
+	unsigned int    bitrate;
+	gchar          *str_bitrate;
+	gint            time;
+	gchar          *str_time;
 
-	if ((comment  = ov_comment (&vf, -1)) == NULL) {
-		ov_clear (&vf);
+	f = tracker_file_open (filename, "r", FALSE);
+
+	if (!f) {
+                return;
+        }
+
+	if (ov_open (f, &vf, NULL, 0) < 0) {
+		tracker_file_close (f, FALSE);
 		return;
 	}
 
-	i = 0;
-	while (tags[i].name != NULL) {
-		tmpComment = get_comment (comment, tags[i].name);
+	if ((comment = ov_comment (&vf, -1)) != NULL) {
+                for (i = 0; tags[i].name != NULL; i++) {
+                        gchar *str;
+                        
+                        str = ogg_get_comment (comment, tags[i].name);
+                        
+                        if (str) {
+                                g_hash_table_insert (metadata, g_strdup (tags[i].meta_name), str);
+                        }
+                }
+                
+                vorbis_comment_clear (comment);
+                
+                if ((vi = ov_info (&vf, 0)) != NULL ) {
+                        bitrate = vi->bitrate_nominal / 1000;
+                        str_bitrate = g_strdup_printf ("%d", bitrate);
 
-		if (tmpComment) {
-			g_hash_table_insert (metadata, g_strdup (tags[i].meta_name), tmpComment);
-		}
+                        g_hash_table_insert (metadata, g_strdup ("Audio.Bitrate"), str_bitrate);
+                        g_hash_table_insert (metadata, g_strdup ("Audio.CodecVersion"), g_strdup_printf ("%d", vi->version));
+                        g_hash_table_insert (metadata, g_strdup ("Audio.Channels"), g_strdup_printf ("%d", vi->channels));
+                        g_hash_table_insert (metadata, g_strdup ("Audio.Samplerate"), g_strdup_printf ("%ld", vi->rate));
+                }
+                
+                /* Duration */
+                if ((time = ov_time_total (&vf, -1)) != OV_EINVAL) {
+                        str_time = g_strdup_printf ("%d", time);
+                        g_hash_table_insert (metadata, g_strdup ("Audio.Duration"), str_time);
+                }
+                
+                g_hash_table_insert (metadata, g_strdup ("Audio.Codec"), g_strdup ("vorbis"));
+        }
 
-		i++;
-	}
+#ifdef HAVE_POSIX_FADVISE
+        posix_fadvise (fileno (f), 0, 0, POSIX_FADV_DONTNEED);
+#endif
 
-	vorbis_comment_clear(comment);
-
-	/* Bitrate */
-
-	vorbis_info *vi;
-	unsigned int bitrate;
-	char *str_bitrate;
-
-	if ( ( vi = ov_info(&vf, 0)) != NULL ) {
-		bitrate = vi->bitrate_nominal/1000;
-		str_bitrate = g_strdup_printf ("%d", bitrate);
-		g_hash_table_insert (metadata, g_strdup ("Audio.Bitrate"), str_bitrate);
-		g_hash_table_insert (metadata, g_strdup ("Audio.CodecVersion"), g_strdup_printf ("%d", vi->version));
-		g_hash_table_insert (metadata, g_strdup ("Audio.Channels"), g_strdup_printf ("%d", vi->channels));
-		g_hash_table_insert (metadata, g_strdup ("Audio.Samplerate"), g_strdup_printf ("%ld", vi->rate));
-	}
-
-
-
-	/* Duration */
-
-	int time;
-	char *str_time;
-	if ( ( time = ov_time_total(&vf, -1) ) != OV_EINVAL ) {
-		str_time = g_strdup_printf ("%d", time);
-		g_hash_table_insert (metadata, g_strdup ("Audio.Duration"), str_time);
-	}
-
-	g_hash_table_insert (metadata, g_strdup ("Audio.Codec"), g_strdup ("vorbis"));
-
-	ov_clear(&vf);
-
+        /* NOTE: This calls fclose on the file */
+	ov_clear (&vf);
 }
 
-#else
-#warning "Not building ogg/vorbis metadata extractor"
-#endif	/* HAVE_VORBIS */
+TrackerExtractData *
+tracker_get_extract_data (void)
+{
+	return extract_data;
+}

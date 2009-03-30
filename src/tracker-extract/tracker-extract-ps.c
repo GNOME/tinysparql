@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
+#include <libtracker-common/tracker-file-utils.h>
 #include <libtracker-common/tracker-type-utils.h>
 #include <libtracker-common/tracker-os-dependant.h>
 
@@ -204,18 +205,11 @@ static void
 extract_ps (const gchar *filename,
 	    GHashTable	*metadata)
 {
-	gint fd;
 	FILE *f;
 
-#if defined(__linux__)
-	if ((fd = g_open (filename, (O_RDONLY | O_NOATIME))) == -1) {
-#else
-	if ((fd = g_open (filename, O_RDONLY)) == -1) {
-#endif
-		return;
-	}
+	f = tracker_file_open (filename, "r", TRUE);
 
-	if ((f = fdopen (fd, "r"))) {
+	if (f) {
 		gchar  *line;
 		gsize	length;
 		gssize	read_char;
@@ -256,7 +250,6 @@ extract_ps (const gchar *filename,
 
 					g_free (date);
 				}
-
 			} else if (strncmp (line, "%%Pages:", 8) == 0) {
 				if (strcmp (line + 9, "(atend)") == 0) {
 					pageno_atend = TRUE;
@@ -282,9 +275,7 @@ extract_ps (const gchar *filename,
 			g_free (line);
 		}
 
-		fclose (f);
-	} else {
-		close (fd);
+		tracker_file_close (f, FALSE);
 	}
 }
 

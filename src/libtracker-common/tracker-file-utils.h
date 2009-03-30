@@ -26,24 +26,28 @@
 #error "only <libtracker-common/tracker-common.h> must be included directly."
 #endif
 
+#include <stdio.h>
 #include <glib.h>
 
-gint	 tracker_file_open			   (const gchar *uri,
-						    gboolean	 readahead);
-gboolean tracker_file_unlink			   (const gchar *uri);
-goffset  tracker_file_get_size			   (const gchar *uri);
-guint64  tracker_file_get_mtime                    (const gchar *uri);
-gchar *  tracker_file_get_mime_type		   (const gchar *uri);
-void	 tracker_file_get_path_and_name		   (const gchar *uri,
-						    gchar **path,
-						    gchar **name);
-void	 tracker_path_remove			   (const gchar *uri);
-gboolean tracker_path_is_in_path		   (const gchar *path,
-						    const gchar *in_path);
-void	 tracker_path_hash_table_filter_duplicates (GHashTable	*roots);
-GSList * tracker_path_list_filter_duplicates	   (GSList	*roots,
-						    const gchar *basename_exception_prefix);
-gchar *  tracker_path_evaluate_name		   (const gchar *uri);
-gboolean tracker_env_check_xdg_dirs		   (void);
+FILE*    tracker_file_open                         (const gchar  *uri,
+						    const gchar  *how,
+						    gboolean      sequential);
+void     tracker_file_close                        (FILE         *file,
+						    gboolean      need_again_soon);
+gboolean tracker_file_unlink                       (const gchar  *uri);
+goffset  tracker_file_get_size                     (const gchar  *uri);
+guint64  tracker_file_get_mtime                    (const gchar  *uri);
+gchar *  tracker_file_get_mime_type                (const gchar  *uri);
+void     tracker_file_get_path_and_name            (const gchar  *uri,
+						    gchar       **path,
+						    gchar       **name);
+void     tracker_path_remove                       (const gchar  *uri);
+gboolean tracker_path_is_in_path                   (const gchar  *path,
+						    const gchar  *in_path);
+void     tracker_path_hash_table_filter_duplicates (GHashTable   *roots);
+GSList * tracker_path_list_filter_duplicates       (GSList       *roots,
+						    const gchar  *basename_exception_prefix);
+gchar *  tracker_path_evaluate_name                (const gchar  *uri);
+gboolean tracker_env_check_xdg_dirs                (void);
 
 #endif /* __LIBTRACKER_COMMON_FILE_UTILS_H__ */

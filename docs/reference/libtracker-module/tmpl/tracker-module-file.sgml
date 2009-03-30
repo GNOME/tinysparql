@@ -27,6 +27,11 @@ Representation of a given file, used by the Tracker indexer to index contents.
 </para>
 
 
+<!-- ##### ARG TrackerModuleFile:cancelled ##### -->
+<para>
+
+</para>
+
 <!-- ##### ARG TrackerModuleFile:file ##### -->
 <para>
 The GFile that corresponds to the TrackerModuleFile

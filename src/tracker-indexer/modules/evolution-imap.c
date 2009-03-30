@@ -131,8 +131,7 @@ tracker_evolution_imap_file_finalize (GObject *object)
         g_free (file->imap_dir);
         g_free (file->cur_message_uid);
 
-        fclose (file->summary);
-	close (file->fd);
+        tracker_file_close (file->summary, FALSE);
 
         G_OBJECT_CLASS (tracker_evolution_imap_file_parent_class)->finalize (object);
 }
@@ -493,18 +492,20 @@ tracker_evolution_imap_file_initialize (TrackerModuleFile *file)
         self = TRACKER_EVOLUTION_IMAP_FILE (file);
 
         self->imap_dir = g_build_filename (g_get_home_dir (),
-                                           ".evolution", "mail", "imap", G_DIR_SEPARATOR_S,
+                                           ".evolution", 
+					   "mail", 
+					   "imap", 
+					   G_DIR_SEPARATOR_S,
                                            NULL);
 
         path = g_file_get_path (tracker_module_file_get_file (file));
-        self->fd = tracker_file_open (path, TRUE);
+        self->summary = tracker_file_open (path, "r", TRUE);
         g_free (path);
 
-        if (self->fd == -1) {
+        if (!self->summary) {
                 return;
         }
 
-        self->summary = fdopen (self->fd, "r");
         self->n_messages = read_summary_header (self->summary);
         self->cur_message = 1;
 

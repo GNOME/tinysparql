@@ -1,5 +1,29 @@
 2009-03-30  Martyn Russell  <martyn@imendio.com>
 
+	* src/libtracker-common/tracker-file-utils.[ch]: Make
+	tracker_file_open() return a FILE*. Added tracker_file_close().
+	Don't use open() and fdopen() everywhere, just fopen() instead.
+	Add NOATIME retrspectively with fcntl().
+	
+	* configure.ac:
+	* src/tracker-extract/Makefile.am: 
+	* src/tracker-extract/tracker-extract-vorbis.c: Added vorbis
+	checks and cleaned up vorbis code. This is a backup, we use
+	GStreamer normally and this is disabled by default.
+	
+	* src/tracker-extract/tracker-extract-abw.c:
+	* src/tracker-extract/tracker-extract-jpeg.c:
+	* src/tracker-extract/tracker-extract-mp3.c:
+	* src/tracker-extract/tracker-extract-png.c:
+	* src/tracker-extract/tracker-extract-ps.c: 
+	* src/tracker-indexer/modules/evolution-imap.[ch]: Use
+	tracker_file_() functions to open/close files with
+	posix_fadvise(). 
+
+	* src/tracker-extract/tracker-extract.c: Fixed 2 memory leaks.
+	
+2009-03-30  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-indexer/tracker-removable-device.c: Code clean up.
 	Don't allocate memory for AddMetadataInfo and then return on some
 	failure without cleaning it up. Use tracker_file_() APIs so we use

@@ -141,6 +141,7 @@ UNAC_REQUIRED=1.0.0
 POPPLER_GLIB_REQUIRED=0.4.5
 CAIRO_REQUIRED=1.0
 GDK_REQUIRED=1.0
+LIBVORBIS_REQUIRED=0.22
 LIBEXIF_REQUIRED=0.6
 LIBGSF_REQUIRED=1.13
 EXEMPI_REQUIRED=1.99.2
@@ -1098,6 +1099,39 @@ AM_CONDITIONAL(HAVE_LIBTIFF, test "x$have_libtiff" = "xyes")
 CFLAGS="$OLD_CFLAGS"
 LIBS="$OLD_LIBS"
 
+##################################################################
+# Check for vorbis
+##################################################################
+
+AC_ARG_ENABLE(libvorbis, 
+              AS_HELP_STRING([--enable-libvorbis], 
+     	                     [enable extractor for vorbis data (ogg)]),,
+	      [enable_libvorbis=no])
+
+if test "x$enable_libvorbis" != "xno" ; then
+   PKG_CHECK_MODULES(LIBVORBIS,
+		     [vorbis >= $LIBVORBIS_REQUIRED],
+		     [have_libvorbis=yes], 
+		     [have_libvorbis=no])
+
+   AC_SUBST(LIBVORBIS_CFLAGS)
+   AC_SUBST(LIBVORBIS_LIBS)
+
+   if test "x$have_libvorbis" = "xyes"; then
+      AC_DEFINE(HAVE_LIBVORBIS, [], [Define if we have libvorbis])
+   fi
+else
+   have_libvorbis="no  (disabled)"
+fi
+
+if test "x$enable_libvorbis" = "xyes"; then
+   if test "x$have_libvorbis" != "xyes"; then
+      AC_MSG_ERROR([Couldn't find libvorbis >= $LIBVORBIS_REQUIRED.])
+   fi
+fi
+
+AM_CONDITIONAL(HAVE_LIBVORBIS, test "x$have_libvorbis" = "xyes")
+
 ####################################################################
 # Check ioprio support
 ####################################################################
@@ -1407,6 +1441,7 @@ Metadata Extractors:
 	Support PDF:				$have_poppler_glib
 	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
 	Support TIFF:				$have_libtiff (xmp: $have_exempi, exif: yes, iptc: $have_libiptcdata)
+	Support Vorbis (ogg/etc):		$have_libvorbis
 	Support MS & Open Office:	        $have_libgsf
 	Support XML / HTML:		        $have_libxml2
 	Support embedded / sidecar XMP:		$have_exempi
