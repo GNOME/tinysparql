@@ -1,3 +1,9 @@
+2009-03-30  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-utils/tracker-tag.c: (main): Fixed remove sys
+	function confusion with static variable, was stopping tracker-tag
+	from building. Not sure why this has started happening now?
+
 2009-03-30  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-db/tracker-db-index-manager.[ch]:

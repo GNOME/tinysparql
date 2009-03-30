@@ -39,10 +39,10 @@
 static gint	     limit = 512;
 static gint	     offset;
 static gchar	   **add;
-static gchar	   **remove;
+static gchar	   **rm;
 static gchar	   **search;
 static gchar	   **files;
-static gboolean      remove_all;
+static gboolean      rm_all;
 static gboolean      list;
 
 static GOptionEntry entries[] = {
@@ -50,11 +50,11 @@ static GOptionEntry entries[] = {
 	  N_("Add specified tag to a file"),
 	  N_("TAG")
 	},
-	{ "remove", 'r', 0, G_OPTION_ARG_STRING_ARRAY, &remove,
+	{ "remove", 'r', 0, G_OPTION_ARG_STRING_ARRAY, &rm,
 	  N_("Remove specified tag from a file"),
 	  N_("TAG")
 	},
-	{ "remove-all", 'R', 0, G_OPTION_ARG_NONE, &remove_all,
+	{ "remove-all", 'R', 0, G_OPTION_ARG_NONE, &rm_all,
 	  N_("Remove all tags from a file"),
 	  NULL
 	},
@@ -143,13 +143,13 @@ main (int argc, char **argv)
 	g_free (summary);
 
 	/* Check arguments */
-	if ((add || remove || remove_all) && !files) {
+	if ((add || rm || rm_all) && !files) {
 		failed = _("No files were specified");
-	} else if ((add || remove) && remove_all) {
+	} else if ((add || rm) && rm_all) {
 		failed = _("Add and delete actions can not be used with remove all actions");
 	} else if (search && files) {
 		failed = _("Files are not needed with searching");
-	} else if (!add && !remove && !remove_all && !files && !search && !list) {
+	} else if (!add && !rm && !rm_all && !files && !search && !list) {
 		failed = _("No arguments were provided");
 	}
 
@@ -192,7 +192,7 @@ main (int argc, char **argv)
 		files_resolved[j] = NULL;
 	}
 
-	if (add || remove || remove_all) {
+	if (add || rm || rm_all) {
 		if (add) {
 			tags_to_add = g_new0 (gchar*, g_strv_length (add) + 1);
 
@@ -206,13 +206,13 @@ main (int argc, char **argv)
 			}
 		}
 
-		if (remove) {
-			tags_to_remove = g_new0 (gchar*, g_strv_length (remove) + 1);
+		if (rm) {
+			tags_to_remove = g_new0 (gchar*, g_strv_length (rm) + 1);
 
-			for (i = 0, j = 0; remove[i] != NULL; i++) {
+			for (i = 0, j = 0; rm[i] != NULL; i++) {
 				gchar *path;
 
-				path = g_locale_to_utf8 (remove[i], -1, NULL, NULL, NULL);
+				path = g_locale_to_utf8 (rm[i], -1, NULL, NULL, NULL);
 				if (path) {
 					tags_to_remove[j++] = path;
 				}
@@ -220,7 +220,7 @@ main (int argc, char **argv)
 		}
 
 		for (i = 0; files_resolved[i] != NULL; i++) {
-			if (remove_all) {
+			if (rm_all) {
 				tracker_keywords_remove_all (client,
 							     SERVICE_FILES,
 							     files_resolved[i],
@@ -282,7 +282,7 @@ main (int argc, char **argv)
 	}
 
 	if (((!files && list) ||
-	     (!files && (!add && !remove && !remove_all))) && !search) {
+	     (!files && (!add && !rm && !rm_all))) && !search) {
 		GPtrArray *array;
 
 		array = tracker_keywords_get_list (client,
@@ -307,7 +307,7 @@ main (int argc, char **argv)
 	}
 
 	if ((files && list) ||
-	    (files && (!add && !remove && !remove_all))) {
+	    (files && (!add && !rm && !rm_all))) {
 		g_print ("%s:\n", _("Found"));
 
 		for (i = 0, j = 0; files_resolved[i] != NULL; i++) {
