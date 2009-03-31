@@ -44,8 +44,8 @@ static gchar *fix_iptc_orientation (const gchar *orientation);
 
 static IptcTagType iptctags[] = {
         { 2, IPTC_TAG_KEYWORDS, "Image:Keywords", NULL },
-	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL },
-	{ 2, IPTC_TAG_SUBLOCATION, "Image:Sublocation", NULL },
+	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL }, */
+	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", NULL },
         { 2, IPTC_TAG_DATE_CREATED, "Image:Date", NULL },
         { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", NULL },
         { 2, IPTC_TAG_BYLINE, "Image:Creator", NULL },

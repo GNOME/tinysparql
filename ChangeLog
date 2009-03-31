@@ -1,5 +1,13 @@
 2009-03-31  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c: Fixed a memory leak
+	* src/tracker-extract/tracker-iptc.c: Use location instead of
+	sublocation for iptc-sublocation.
+
+	Fixes NB#108331.
+
+2009-03-31  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-mp3.c
 	* src/tracker-extract/tracker-extract-jpeg.c
 	* src/tracker-extract/tracker-extract.c

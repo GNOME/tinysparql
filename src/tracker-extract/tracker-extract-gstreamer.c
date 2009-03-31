@@ -657,6 +657,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 	gst_object_unref (extractor->bus);
 	gst_object_unref (GST_OBJECT (extractor->pipeline));
+	g_main_loop_unref (extractor->loop);
 	g_slice_free (MetadataExtractor, extractor);
 
 	/* Save embedded art */
