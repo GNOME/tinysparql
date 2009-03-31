@@ -1,3 +1,8 @@
+2009-03-31  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-data/tracker-rdf-query.c (append_where_header):
+	Filter out disabled elements in the Services table. Fixes NB#106085.
+
 2009-03-30  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-file-utils.[ch]: Make

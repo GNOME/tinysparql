@@ -1178,6 +1178,9 @@ append_where_header (GString *string, const char *service)
 		g_string_append_printf (string, " (S.ServiceTypeID=%d) ", type);
 	}
 
+	/* only search for enabled items */
+	g_string_append_printf (string, "AND (S.Enabled = 1) ");
+
 	/* only search for items on enabled volumes */
 	g_string_append_printf (string, "AND (S.AuxilaryID = 0 OR S.AuxilaryID IN (SELECT VolumeID FROM Volumes WHERE Enabled = 1)) ");
 }
