@@ -1,3 +1,11 @@
+2009-03-31  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-module-metadata-utils.c
+	(metadata_utils_get_embedded): Check for NULL context, since it can
+	potentially happen, noticed by Philip Van Hoof. Prevents Bug
+	NB#108819.
+	(extractor_context_create): Raise severity of error message.
+
 2009-03-31  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer.c: Fixed a memory leak

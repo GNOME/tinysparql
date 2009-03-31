@@ -228,8 +228,8 @@ extractor_context_create (TrackerModuleMetadata *metadata)
         if (!org_freedesktop_Tracker_Extract_get_pid (get_dbus_extract_proxy (),
                                                       &pid,
                                                       &error)) {
-                g_message ("Couldn't get PID from tracker-extract, %s",
-                           error ? error->message : "no error given");
+                g_critical ("Couldn't get PID from tracker-extract, %s",
+			    error ? error->message : "no error given");
                 g_clear_error (&error);
                 return NULL;
         }
@@ -406,7 +406,12 @@ metadata_utils_get_embedded (GFile                 *file,
         }
 
         context = extractor_context_create (metadata);
-        g_object_set_data (G_OBJECT (file), "extractor-context", context);
+
+	if (!context) {
+		return;
+	}
+
+	g_object_set_data (G_OBJECT (file), "extractor-context", context);
         path = g_file_get_path (file);
 
         org_freedesktop_Tracker_Extract_get_metadata_async (get_dbus_extract_proxy (),
