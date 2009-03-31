@@ -265,6 +265,8 @@ read_exif (const unsigned char *buffer,
 			}
 		}
 	}
+	
+	exif_data_free (exif);
 }
 
 #endif /* HAVE_LIBEXIF */

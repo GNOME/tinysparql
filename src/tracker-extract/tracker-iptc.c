@@ -129,7 +129,14 @@ tracker_read_iptc (const unsigned char *buffer,
 	IptcData     *iptc = NULL;
 	IptcTagType  *p = NULL;
 
-	iptc = iptc_data_new_from_data ((unsigned char *) buffer, len);
+	/* FIXME According to valgrind this is leaking (together with the unref). Problem in libiptc */
+	iptc = iptc_data_new ();
+       	if (!iptc)
+		return;
+	if (iptc_data_load (iptc, buffer, len) < 0) {
+		iptc_data_unref (iptc);
+		return;
+	}
 
 	for (p = iptctags; p->name; ++p) {
 		IptcDataSet *dataset = NULL;

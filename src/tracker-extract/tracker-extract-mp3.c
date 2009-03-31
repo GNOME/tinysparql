@@ -1593,6 +1593,8 @@ extract_mp3 (const gchar *filename,
 	free (info.album);
 	free (info.artist);
 	free (info.comment);
+	free (info.trackno);
+	free (info.genre);
 
 	/* Get other embedded tags */
 	parse_id3v2 (buffer, size, metadata, &filedata);

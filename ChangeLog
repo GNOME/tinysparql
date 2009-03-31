@@ -1,3 +1,10 @@
+2009-03-31  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-extract-mp3.c
+	* src/tracker-extract/tracker-extract-jpeg.c
+	* src/tracker-extract/tracker-extract.c
+	* src/tracker-extract/tracker-iptc.c: Some minor leak and other fixes
+
 2009-03-31  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/libtracker-data/tracker-rdf-query.c (append_where_header):

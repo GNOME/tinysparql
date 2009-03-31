@@ -299,6 +299,7 @@ get_file_metadata (TrackerExtract *extract,
 					      path_in_locale);
 	}
 
+	g_object_unref (info);
 	g_object_unref (file);
 
 
