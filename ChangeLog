@@ -1,3 +1,10 @@
+2009-04-01  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-xmp.c: Handle existance of invalid dates
+	correctly.
+
+	Fixes NB#108793.
+
 2009-04-01  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-utils/tracker-info.c: Added command line switches to

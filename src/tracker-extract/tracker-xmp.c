@@ -107,13 +107,14 @@ tracker_append_string_to_hash_table (GHashTable  *metadata,
 	if (append) {
 		gchar *orig;
 
-		if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer) &orig)) {
+		if ( (orig = g_hash_table_lookup (metadata, key)) ) {
 			gchar   *escaped;
 			gchar  **list;
 			gboolean found = FALSE;
 			guint    i;
 
-			escaped = tracker_escape_metadata (value);			
+			escaped = tracker_escape_metadata (value);
+
 			/* Don't add duplicates. FIXME This is inefficient */
 			list = g_strsplit (orig, "|", -1);			
 			for (i=0; list[i]; i++) {
@@ -121,9 +122,10 @@ tracker_append_string_to_hash_table (GHashTable  *metadata,
 					found = TRUE;
 					break;
 				}
-			}			
+			}
+
 			g_strfreev(list);
-			
+
 			if(!found) {
 				new_value = g_strconcat (orig, "|", escaped, NULL);
 				g_hash_table_insert (metadata, g_strdup (key), new_value);						
