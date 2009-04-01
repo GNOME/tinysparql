@@ -1,3 +1,9 @@
+2009-04-01  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer/tracker-indexer.c (mount_pre_unmount_cb): Check
+	that there's actually a current item before checking whether it's
+	inside the mount.
+
 2009-03-31  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-module-metadata-utils.c

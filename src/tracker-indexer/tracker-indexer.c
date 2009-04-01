@@ -578,7 +578,8 @@ mount_pre_unmount_cb (GVolumeMonitor *volume_monitor,
 	/* Now cancel current element if it's also in the mount */
 	current_info = g_queue_peek_head (indexer->private->file_queue);
 
-	if (g_file_has_prefix (current_info->file, mount_root)) {
+	if (current_info &&
+	    g_file_has_prefix (current_info->file, mount_root)) {
 		tracker_module_file_cancel (current_info->module_file);
 	}
 
