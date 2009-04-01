@@ -442,6 +442,19 @@ tracker_metadata_get (TrackerClient *client, ServiceType service, const char *id
 }
 
 GPtrArray *
+tracker_metadata_get_multiple (TrackerClient *client, ServiceType service, const char **ids, const char **keys, GError **error)
+{
+	GPtrArray *array = NULL;
+	const char *service_str = tracker_service_types[service];
+
+        if (!org_freedesktop_Tracker_Metadata_get_multiple (client->proxy_metadata, service_str, ids, keys, &array, error)) {
+                return NULL;
+        }
+
+	return array;
+}
+
+GPtrArray *
 tracker_metadata_get_all (TrackerClient *client, ServiceType service, const gchar *uri, GError **error)
 {
         const gchar *service_str = tracker_service_types[service];
@@ -1092,6 +1105,23 @@ tracker_metadata_get_async (TrackerClient *client, ServiceType service, const ch
 	service_str = tracker_service_types[service];
 
 	client->last_pending_call = org_freedesktop_Tracker_Metadata_get_async (client->proxy_metadata, service_str, id, keys, tracker_array_reply, callback_struct);
+
+}
+
+
+void
+tracker_metadata_get_multiple_async (TrackerClient *client, ServiceType service, const char **ids, const char **keys, TrackerGPtrArrayReply callback, gpointer user_data)
+{
+	GPtrArrayCallBackStruct *callback_struct;
+	const char *service_str;
+
+	callback_struct = g_new (GPtrArrayCallBackStruct, 1);
+	callback_struct->callback = callback;
+	callback_struct->data = user_data;
+
+	service_str = tracker_service_types[service];
+
+	client->last_pending_call = org_freedesktop_Tracker_Metadata_get_multiple_async (client->proxy_metadata, service_str, ids, keys, tracker_GPtrArray_reply, callback_struct);
 
 }
 

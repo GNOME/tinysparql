@@ -1,3 +1,18 @@
+2009-04-01  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-utils/tracker-info.c: Added command line switches to
+	faciliate the _get() and _get_multiple() APIs for Metadata. Now we
+	can request multiple specific metadata types for multiple files
+	using tracker-info.
+
+	* data/dbus/tracker-metadata.xml:
+	* src/libtracker/tracker.[ch]: 
+	* src/trackerd/tracker-metadata.[ch]: Added
+	tracker_metadata_get_multiple() so we can get multiple metadata
+	types for multiple files. This is quite a bit faster than
+	requesting multiple metadata types for one file at a time. Fixes
+	NB#108543.
+
 2009-04-01  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer/tracker-indexer.c (mount_pre_unmount_cb): Check

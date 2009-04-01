@@ -65,88 +65,62 @@ tracker_metadata_new (void)
  * Functions
  */
 
-void
-tracker_metadata_get (TrackerMetadata	     *object,
-		      const gchar	     *service_type,
-		      const gchar	     *uri,
-		      gchar		    **keys,
-		      DBusGMethodInvocation  *context,
-		      GError		    **error)
+static gchar **
+tracker_metadata_get_internal (TrackerMetadata  *object,
+			       guint		 request_id,
+			       const gchar	*service_type,
+			       const gchar	*uri,
+			       gchar	       **keys,
+			       GError	       **error)
 {
 	TrackerDBInterface  *iface;
 	TrackerDBResultSet  *result_set;
-	guint		     request_id;
 	const gchar         *service_result;
 	guint32              service_id;
 	gchar		    *service_id_str;
 	guint		     i;
 	gchar		   **values;
-	GError		    *actual_error = NULL;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (service_type != NULL, context);
-	tracker_dbus_async_return_if_fail (uri != NULL, context);
-	tracker_dbus_async_return_if_fail (keys != NULL, context);
-	tracker_dbus_async_return_if_fail (g_strv_length (keys) > 0, context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to get metadata values, "
-				  "service type:'%s'",
-				  service_type);
 
 	if (!tracker_ontology_service_is_valid (service_type)) {
 		tracker_dbus_request_failed (request_id,
-					     &actual_error,
+					     error,
 					     "Service '%s' is invalid or has not been implemented yet",
 					     service_type);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
+		return NULL;
 	}
 
 	service_id = tracker_data_query_file_id (service_type, uri);
 
 	if (service_id <= 0) {
 		tracker_dbus_request_failed (request_id,
-					     &actual_error,
+					     error,
 					     "Service URI '%s' not found",
 					     uri);
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-		return;
+		return NULL;
 	}
 
 	/* Checking keys */
 	for (i = 0; i < g_strv_length (keys); i++) {
-
 		if (tracker_ontology_get_field_by_name (keys[i]) == NULL) {
 			tracker_dbus_request_failed (request_id,
-						     &actual_error,
+						     error,
 						     "Metadata field '%s' not registered in the system",
 						     keys[i]);
-			dbus_g_method_return_error (context, actual_error);
-			g_error_free (actual_error);
-			return;
+			return NULL;
 		}
 	}
 
-	/* The parameter service_type can be "Files"
-	 * and the actual service type of the uri "Video"
-	 *
-	 * Note: Does this matter?
-	 */
+	/* Get database interface */
 	iface = tracker_db_manager_get_db_interface_by_service (service_type);
 
+	/* Check we have a file in the database before looking up the metadata. */
 	service_result = tracker_data_query_service_type_by_id (iface, service_id);
 	if (!service_result) {
 	       tracker_dbus_request_failed (request_id,
-					    &actual_error,
+					    error,
 					    "Service type can not be found for entity '%s'",
 					    uri);
-	       dbus_g_method_return_error (context, actual_error);
-	       g_error_free (actual_error);
-	       return;
+	       return NULL;
 	}
 
 	service_id_str = tracker_guint_to_string (service_id);
@@ -162,10 +136,49 @@ tracker_metadata_get (TrackerMetadata	     *object,
 
 	if (!values) {
 		tracker_dbus_request_failed (request_id,
-					     &actual_error,
+					     error,
 					     "No metadata information was available");
+		return NULL;
+	}
+
+	return values;
+}
+
+void
+tracker_metadata_get (TrackerMetadata	     *object,
+		      const gchar	     *service_type,
+		      const gchar	     *uri,
+		      gchar		    **keys,
+		      DBusGMethodInvocation  *context,
+		      GError		    **error)
+{
+	guint    request_id;
+	gchar  **values;
+	GError  *actual_error = NULL;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (service_type != NULL, context);
+	tracker_dbus_async_return_if_fail (uri != NULL, context);
+	tracker_dbus_async_return_if_fail (keys != NULL, context);
+	tracker_dbus_async_return_if_fail (g_strv_length (keys) > 0, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to get metadata values, "
+				  "service type:'%s'",
+				  service_type);
+
+	values = tracker_metadata_get_internal (object, 
+						request_id,
+						service_type,
+						uri, 
+						keys,
+						&actual_error);
+
+	if (!values) {
 		dbus_g_method_return_error (context, actual_error);
 		g_error_free (actual_error);
+		return;
 	}
 
 	dbus_g_method_return (context, values);
@@ -175,11 +188,66 @@ tracker_metadata_get (TrackerMetadata	     *object,
 }
 
 void
-tracker_metadata_get_all (TrackerMetadata	     *object,
-			  const gchar	             *service_type,
-			  const gchar	             *uri,
-			  DBusGMethodInvocation      *context,
-			  GError		    **error)
+tracker_metadata_get_multiple (TrackerMetadata	      *object,
+			       const gchar	      *service_type,
+			       const gchar	     **uris,
+			       gchar		     **keys,
+			       DBusGMethodInvocation  *context,
+			       GError		     **error)
+{
+	guint	   request_id;
+	guint	   count;
+	gint	   i;
+	GPtrArray *values;
+	GError	  *actual_error = NULL;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (service_type != NULL, context);
+	tracker_dbus_async_return_if_fail (uris != NULL, context);
+	tracker_dbus_async_return_if_fail (keys != NULL, context);
+	tracker_dbus_async_return_if_fail (g_strv_length (keys) > 0, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request to get multiple metadata values, "
+				  "service type:'%s'",
+				  service_type);
+
+	count = g_strv_length ((GStrv) uris);
+	values = g_ptr_array_sized_new (count);
+
+	for (i = 0; i < count && !actual_error; i++) {
+		GStrv strv;
+
+		strv = tracker_metadata_get_internal (object, 
+						      request_id, 
+						      service_type, 
+						      uris[i], 
+						      keys,
+						      &actual_error);
+
+		/* Don't allow errors, but allow NULLs */
+		g_ptr_array_add (values, strv);
+	}
+
+	if (G_UNLIKELY (actual_error)) {
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+	} else {
+		dbus_g_method_return (context, values);
+		tracker_dbus_request_success (request_id);
+	}
+
+	g_ptr_array_foreach (values, (GFunc) g_strfreev, NULL);
+	g_ptr_array_free (values, TRUE);
+}
+
+void
+tracker_metadata_get_all (TrackerMetadata	 *object,
+			  const gchar	         *service_type,
+			  const gchar	         *uri,
+			  DBusGMethodInvocation  *context,
+			  GError		**error)
 {
 	guint		     request_id;
 	gchar		    *service_id;

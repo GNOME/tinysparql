@@ -24,6 +24,17 @@
       <arg type="aas" name="metadata" direction="out" />
     </method>
 
+    <!-- Retrieves an array of metadata values for the specified array
+	 of metadata keys for services and id pair.
+      --> 
+    <method name="GetMultiple">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/> 
+      <arg type="s" name="service_type" direction="in" />
+      <arg type="as" name="uris" direction="in" />
+      <arg type="as" name="keys" direction="in" />
+      <arg type="aas" name="metadata" direction="out" />
+    </method>
+    
     <!-- Sets specified metadata keys to the specified metadata values
 	 for a service and id pair.
       -->

@@ -34,28 +34,55 @@
 #include <libtracker-common/tracker-common.h>
 
 static gchar	     *service;
-static gchar        **uri = NULL;
+static gchar        **metadata;
+static gchar        **uris;
 
 static GOptionEntry   entries[] = {
 	{ "service", 's', 0, G_OPTION_ARG_STRING, &service,
 	  N_("Service type of the file"),
-	  NULL
+	  N_("Files")
 	},
-	{ G_OPTION_REMAINING, 0,
-	  G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING_ARRAY, &uri,
+	{ "metadata", 'm', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_STRING_ARRAY, &metadata,
+	  N_("Metadata to request (optional, multiple calls allowed)"),
+	  N_("File:Size")
+	},
+	{ G_OPTION_REMAINING, 0, G_OPTION_FLAG_FILENAME, G_OPTION_ARG_FILENAME_ARRAY, &uris,
 	  N_("FILE..."),
-	  N_("FILE")},
+	  N_("FILE")
+	},
 	{ NULL }
 };
 
 static void
-print_property_value (gpointer value)
+print_property_value (gpointer data,
+		      gpointer user_data)
 {
-	gchar **pair;
+	GStrv results;
+	GStrv uris_used;
 
-	pair = value;
+	results = data;
+	uris_used = user_data;
+	
+	if (uris_used) { 
+		static gint uri_id = 0;
+		GStrv p;
+		gint i;
 
-	g_print ("  '%s' = '%s'\n", pair[0], pair[1]);
+		g_print ("%s\n", uris_used[uri_id]);
+		
+		if (!results) {
+			g_print ("  %s\n", _("No metadata available"));
+			return;
+		}
+
+		for (p = results, i = 0; *p; p++, i++) {
+			g_print ("  '%s' = '%s'\n", metadata[i], *p);
+		}
+
+		uri_id++;
+	} else {
+		g_print ("  '%s' = '%s'\n", results[0], results[1]);
+	}
 }
 
 int
@@ -64,10 +91,13 @@ main (int argc, char **argv)
 	TrackerClient	*client;
 	ServiceType	 type;
 	GFile           *file;
-	gchar           *abs_path;
+	gchar           *summary;
+	gchar           *path;
 	GOptionContext	*context;
 	GError		*error = NULL;
-	GPtrArray	*results;
+	guint            count;
+	gint             i;
+	gint             exit_result = EXIT_SUCCESS;
 
 	setlocale (LC_ALL, "");
 
@@ -81,14 +111,34 @@ main (int argc, char **argv)
 
 	/* Translators: this message will appear after the usage string */
 	/* and before the list of options.				*/
+	summary = g_strconcat (_("For a list of services and metadata that "
+				 "can be used here, see tracker-services."),
+			       NULL);
+
+	g_option_context_set_summary (context, summary);
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
+	g_free (summary);
 
-	if (!uri) {
+	if (!uris) {
 		gchar *help;
 
-		g_printerr ("%s\n\n",
-			    _("Uri missing"));
+		g_printerr (_("URI missing"));
+		g_printerr ("\n\n");
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return EXIT_FAILURE;
+	}
+
+	if (!metadata && g_strv_length (uris) > 1) {
+		gchar *help;
+
+		g_printerr (_("Requesting ALL information about multiple files is not supported"));
+		g_printerr ("\n\n");
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -103,67 +153,154 @@ main (int argc, char **argv)
 	client = tracker_connect (FALSE);
 
 	if (!client) {
-		g_printerr ("%s\n",
-			    _("Could not establish a DBus connection to Tracker"));
+		g_printerr (_("Could not establish a DBus connection to Tracker"));
+		g_printerr ("\n");
+
 		return EXIT_FAILURE;
 	}
 
 	if (!service) {
-		g_print ("%s\n",
-			 _("Defaulting to 'files' service"));
+		g_print (_("Defaulting to 'files' service"));
+		g_print ("\n");
 
 		type = SERVICE_FILES;
 	} else {
 		type = tracker_service_name_to_type (service);
 
 		if (type == SERVICE_OTHER_FILES && g_ascii_strcasecmp (service, "Other")) {
-			g_printerr ("%s\n",
-				    _("Service type not recognized, using 'Other' ..."));
+			g_printerr (_("Service type not recognized, using 'Other' ..."));
+			g_printerr ("\n");
 		}
 	}
 
-	file = g_file_new_for_commandline_arg (uri[0]);
-	abs_path = g_file_get_path (file);
+	count = g_strv_length (uris);
 
-	results = tracker_metadata_get_all (client,
-					    type,
-					    abs_path,
-					    &error);
-	g_free (abs_path);
-	g_object_unref (file);
-	
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Unable to retrieve data for uri"),
-			    error->message);
-		
-		g_error_free (error);
-		tracker_disconnect (client);
-		
-		return EXIT_FAILURE;
-	}
+	if (count > 1 && metadata != NULL) {
+		gchar     **strv;
+		GPtrArray  *results;
 
-	if (!results) {
-		g_print ("%s\n",
-			 _("No metadata available for that uri"));
+		strv = g_new (gchar*, count + 1);
+
+		/* Convert all files to real paths */
+		for (i = 0; i < count; i++) {
+			file = g_file_new_for_commandline_arg (uris[i]);
+			path = g_file_get_path (file);
+			g_object_unref (file);
+		
+			strv[i] = path;
+		}
+
+		strv[i] = NULL;
+		
+		results = tracker_metadata_get_multiple (client,
+							 type,
+							 (const gchar **) strv,
+							 (const gchar **) metadata,
+							 &error);
+
+		if (error) {
+			g_printerr (_("Unable to retrieve data for %d uris"),
+				    count);
+			g_printerr (", %s\n",
+				    error->message);
+			
+			g_error_free (error);
+			
+			exit_result = EXIT_FAILURE;
+		} else if (!results) {
+			g_print (_("No metadata available for all %d uris"),
+				 count);
+			g_print ("\n");
+		} else {
+			g_print (_("Results:"));
+			g_print ("\n");
+			
+			g_ptr_array_foreach (results, print_property_value, strv);
+			g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+			g_ptr_array_free (results, TRUE);
+		}
+
+		g_strfreev (strv);
 	} else {
-		gint length;
+		GPtrArray *results;
 
-		length = results->len;
-
-		g_print (tracker_dngettext (NULL,
-					    _("Result: %d"), 
-					    _("Results: %d"),
-					    length),
-			 length);
-		g_print ("\n");
+		file = g_file_new_for_commandline_arg (uris[0]);
+		path = g_file_get_path (file);
 		
-		g_ptr_array_foreach (results, (GFunc) print_property_value, NULL);
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+		if (G_LIKELY (!metadata)) {
+			results = tracker_metadata_get_all (client,
+							    type,
+							    path,
+							    &error);
+
+			if (error) {
+				g_printerr ("%s, %s\n",
+					    _("Unable to retrieve data for uri"),
+					    error->message);
+
+				g_error_free (error);
+				exit_result = EXIT_FAILURE;
+			} else if (!results) {
+				g_print (_("No metadata available for that uri"));
+				g_print ("\n");
+			} else {
+				gint length;
+				
+				length = results->len;
+				
+				g_print (tracker_dngettext (NULL,
+							    _("Result: %d for '%s'"), 
+							    _("Results: %d for '%s'"),
+							    length),
+					 length,
+					 path);
+				g_print ("\n");
+				
+				g_ptr_array_foreach (results, print_property_value, NULL);
+				g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
+				g_ptr_array_free (results, TRUE);
+			}		
+		} else {
+			GStrv results;
+
+			results = tracker_metadata_get (client,
+							type,
+							path,
+							(const gchar **) metadata,
+							&error);
+			if (error) {
+				g_printerr ("%s, %s\n",
+					    _("Unable to retrieve data for uri"),
+					    error->message);
+
+				g_error_free (error);
+				exit_result = EXIT_FAILURE;
+			} else if (!results) {
+				g_print (_("No metadata available for that uri"));
+				g_print ("\n");
+			} else {
+				gint length;
+				gint i;
+				
+				length = g_strv_length (results);
+				
+				g_print (_("Results:")); 
+				g_print ("\n");
+
+				for (i = 0; i < length; i++) {
+					g_print ("  '%s' = '%s'\n",
+						 metadata[i], results[i]);
+				}
+				
+				g_strfreev (results);
+			}		
+		}
+
+		g_object_unref (file);
+		g_free (path);
 	}
 
 	tracker_disconnect (client);
 
-	return EXIT_SUCCESS;
+	return exit_result;
 }

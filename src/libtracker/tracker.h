@@ -119,6 +119,7 @@ void		tracker_shutdown				(TrackerClient *client, gboolean reindex, GError **err
 void		tracker_prompt_index_signals			(TrackerClient *client, GError **error);
 
 char **			tracker_metadata_get				(TrackerClient *client, ServiceType service, const char *id, const char **keys, GError **error);
+GPtrArray *			tracker_metadata_get_multiple			(TrackerClient *client, ServiceType service, const char **ids, const char **keys, GError **error);
 GPtrArray *             tracker_metadata_get_all                        (TrackerClient *client, ServiceType service, const gchar *uri, GError **error);
 void			tracker_metadata_set				(TrackerClient *client, ServiceType service, const char *id, const char **keys, char **values, GError **error);
 void			tracker_metadata_register_type			(TrackerClient *client, const char *name, MetadataTypes type, GError **error);
@@ -185,6 +186,7 @@ void		tracker_shutdown_async					(TrackerClient *client, gboolean reindex, Track
 void		tracker_prompt_index_signals_async			(TrackerClient *client, TrackerVoidReply callback, gpointer user_data);
 
 void		tracker_metadata_get_async				(TrackerClient *client, ServiceType service, const char *id, const char **keys, TrackerArrayReply callback, gpointer user_data);
+void		tracker_metadata_get_multiple_async				(TrackerClient *client, ServiceType service, const char **ids, const char **keys, TrackerGPtrArrayReply callback, gpointer user_data);
 void		tracker_metadata_set_async				(TrackerClient *client, ServiceType service, const char *id, const char **keys, char **values, TrackerVoidReply callback, gpointer user_data);
 void		tracker_metadata_register_type_async			(TrackerClient *client, const char *name, MetadataTypes type, TrackerVoidReply callback, gpointer user_data);
 void		tracker_metadata_get_registered_types_async		(TrackerClient *client, const char *classname, TrackerArrayReply callback, gpointer user_data);
