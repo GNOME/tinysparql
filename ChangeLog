@@ -1,3 +1,18 @@
+2009-04-02  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-extract/tracker-extract-gstreamer.c
+	(tracker_extract_gstreamer): Fix a leak and a possible memory
+	corruption.
+	* src/tracker-extract/tracker-extract-mp3.c (extract_mp3): Do not make
+	id3 tags parsers read invalid memory if file size is above
+	MAX_FILE_READ.
+	* src/tracker-extract/tracker-extract-png.c (extract_png): Free
+	correctly the ending info pointer.
+	* src/tracker-extract/tracker-extract.c (get_file_metadata): Plug a
+	leak, caused when no extractor was found.
+	* src/tracker-extract/tracker-main.c: Initialize the quit timeout ID
+	to 0, so we don't try to remove nonexistent sources.
+
 2009-04-02  Michael Biebl  <mbiebl@gmail.com>
 
 	* src/plugins/evolution/Makefile.am, src/plugins/kmail/Makefile.am,

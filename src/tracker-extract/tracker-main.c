@@ -65,7 +65,7 @@
 #define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
 
 static GMainLoop *main_loop;
-static guint      quit_timeout_id;
+static guint      quit_timeout_id = 0;
 
 static gboolean   version;
 static gint       verbosity = -1;

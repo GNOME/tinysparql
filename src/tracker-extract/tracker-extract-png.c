@@ -183,14 +183,12 @@ extract_png (const gchar *filename,
 		end_ptr = png_create_info_struct (png_ptr);
 		if (!end_ptr) {
 			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-			png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
 			tracker_file_close (f, FALSE);
 			return;
 		}
 
 		if (setjmp (png_jmpbuf (png_ptr))) {
-			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-			png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
+			png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 			tracker_file_close (f, FALSE);
 			return;
 		}
@@ -207,8 +205,7 @@ extract_png (const gchar *filename,
 				   &interlace_type,
 				   &compression_type,
 				   &filter_type)) {
-			png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-			png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
+			png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 			tracker_file_close (f, FALSE);
 			return;
 		}
@@ -259,8 +256,7 @@ extract_png (const gchar *filename,
 			g_free (date);
 		}
 
-		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-		png_destroy_read_struct (&png_ptr, &end_ptr, NULL);
+		png_destroy_read_struct (&png_ptr, &info_ptr, &end_ptr);
 		tracker_file_close (f, FALSE);
 	}
 }

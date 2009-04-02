@@ -639,7 +639,6 @@ tracker_extract_gstreamer (const gchar *uri,
 			   ExtractMime	type)
 {
 	MetadataExtractor *extractor;
-	gchar		  *mrl;
 
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
@@ -732,7 +731,6 @@ tracker_extract_gstreamer (const gchar *uri,
 	extractor->bus = gst_pipeline_get_bus (GST_PIPELINE (extractor->pipeline));
 	gst_bus_add_watch (extractor->bus, metadata_bus_async_cb, extractor);
 
-	mrl = g_strconcat ("file://", uri, NULL);
 	g_object_set (G_OBJECT (extractor->filesrc), "location", uri, NULL);
 
 	gst_element_set_state (extractor->pipeline, GST_STATE_PAUSED);
@@ -740,12 +738,6 @@ tracker_extract_gstreamer (const gchar *uri,
 	g_main_loop_run (extractor->loop);
 
 	extract_metadata (extractor, metadata);
-
-	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
-	gst_object_unref (extractor->bus);
-	gst_object_unref (GST_OBJECT (extractor->pipeline));
-	g_main_loop_unref (extractor->loop);
-	g_slice_free (MetadataExtractor, extractor);
 
 	/* Save embedded art */
 	if (extractor->album_art_data && extractor->album_art_size) {
@@ -764,6 +756,12 @@ tracker_extract_gstreamer (const gchar *uri,
 		
 #endif /* HAVE_GDKPIXBUF */
 	}
+
+	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
+	gst_object_unref (extractor->bus);
+	gst_object_unref (GST_OBJECT (extractor->pipeline));
+	g_main_loop_unref (extractor->loop);
+	g_slice_free (MetadataExtractor, extractor);
 
 	if (type == EXTRACT_MIME_IMAGE) {
 		if (!g_hash_table_lookup (metadata, "Image:Date")) {

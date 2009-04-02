@@ -1513,7 +1513,7 @@ extract_mp3 (const gchar *filename,
 
 	size = tracker_file_get_size (filename);
 
-	if (size == 0) {
+	if (size == 0 || size > MAX_FILE_READ) {
 		return;
 	}
 

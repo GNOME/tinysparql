@@ -326,13 +326,15 @@ get_file_metadata (TrackerExtract *extract,
 				tracker_dbus_request_comment (request_id,
 							      "  Found %d metadata items",
 							      g_hash_table_size (values));
-				
+
 				g_free (path_in_locale);
 				g_free (mime_used);
-				
+
 				return values;
 			}
 		}
+
+		g_free (mime_used);
 
 		tracker_dbus_request_comment (request_id,
 					      "  Could not find any extractors to handle metadata type");
