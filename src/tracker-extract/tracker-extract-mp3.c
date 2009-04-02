@@ -794,6 +794,10 @@ get_id3v24_tags (const gchar *data,
 							g_free (word);
 							word = g_strdup (genre_names[genre]);
 						}
+
+						if (strcasecmp (word, "unknown")==0) {
+							break;
+						}
 					}					
 
 					g_hash_table_insert (metadata,
@@ -1024,6 +1028,10 @@ get_id3v23_tags (const gchar *data,
 							g_free (word);
 							word = g_strdup (genre_names[genre]);
 						}
+						
+						if (strcasecmp (word, "unknown")==0) {
+							break;
+						}
 					}
 
 					g_hash_table_insert (metadata,
@@ -1231,6 +1239,10 @@ get_id3v20_tags (const gchar *data,
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
 							word = g_strdup (genre_names[genre]);
+						}
+						
+						if (strcasecmp (word, "unknown")==0) {
+							break;
 						}
 					}	
 					

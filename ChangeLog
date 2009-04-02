@@ -1,5 +1,12 @@
 2009-04-01  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-mp3.c: More checks for
+	unknown genre values.
+
+	Fixes NB#106639.
+
+2009-04-01  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-extract-gstreamer.c: Improvements to
 	the stream info extraction using gstreamer.
 
