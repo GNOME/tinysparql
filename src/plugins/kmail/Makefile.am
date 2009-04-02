@@ -64,6 +64,6 @@ dbus_sources = tracker-kmail-registrar-glue.h
 	$(DBUSBINDINGTOOL) --mode=glib-server --output=$@ --prefix=$(subst -,_,$*) $^
 
 BUILT_SOURCES = $(dbus_sources)
+
 CLEANFILES = $(BUILT_SOURCES)
-EXTRA_DIST = $(BUILT_SOURCES)
 

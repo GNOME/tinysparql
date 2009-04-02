@@ -103,5 +103,4 @@ CLEANFILES = 								\
 	org-freedesktop-Tracker-evolution-plugin.eplug
 
 EXTRA_DIST = 								\
-	$(BUILT_SOURCES)						\
 	org-freedesktop-Tracker-evolution-plugin.eplug.xml

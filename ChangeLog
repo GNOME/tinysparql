@@ -1,3 +1,9 @@
+2009-04-02  Michael Biebl  <mbiebl@gmail.com>
+
+	* src/plugins/evolution/Makefile.am, src/plugins/kmail/Makefile.am,
+	src/plugins/rss/Makefile.am: Do not include BUILT_SOURCES in
+	EXTRA_DIST.
+
 2009-04-02  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-utils/tracker-info.c: (main): Fixed translations to
