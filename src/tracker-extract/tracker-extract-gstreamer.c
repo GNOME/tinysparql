@@ -20,10 +20,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-/* This extractor is still unfinished as required support from
- * tagreadbin for streaminfo elements is missing
- */
-
 #include "config.h"
 
 #include <string.h>
@@ -369,9 +365,17 @@ dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data)
 	MetadataExtractor *extractor = (MetadataExtractor *)data;
 	GstElement        *fsink;
 	GstPad            *fsinkpad;
-	
+	GValue             val = {0, };
+
 	fsink = gst_element_factory_make ("fakesink", NULL);
 	
+	g_value_init (&val, G_TYPE_INT);
+	g_value_set_int (&val, 15);
+
+	g_object_set_property (G_OBJECT (fsink), "preroll-queue-len", &val);
+
+	g_value_unset (&val);
+
 	extractor->fsinks = g_list_append (extractor->fsinks, fsink);
 	
 	gst_element_set_state (fsink, GST_STATE_PAUSED);
@@ -382,8 +386,10 @@ dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data)
 	gst_object_unref (fsinkpad);
 }
 
+
+
 static void
-add_stream_tags (MetadataExtractor *extractor)
+add_stream_tags_tagreadbin_for_element (MetadataExtractor *extractor, GstElement *elem)
 {
 	GstStructure      *s         = NULL;
 	GstCaps	          *caps      = NULL;
@@ -391,16 +397,15 @@ add_stream_tags (MetadataExtractor *extractor)
 	gboolean           done      = FALSE;
 	gpointer           item;
 
-	iter = gst_element_iterate_src_pads (extractor->bin);
+	iter = gst_element_iterate_sink_pads (elem);
 
-	extractor->duration = get_media_duration(extractor);
-	
 	while (!done) {
 		switch (gst_iterator_next (iter, &item)) {
 		case GST_ITERATOR_OK:
-			if ((caps = gst_pad_get_negotiated_caps (GST_PAD(item)))) {
+			
+			if ((caps = GST_PAD_CAPS (item))) {
 				s = gst_caps_get_structure (caps, 0);
-				
+
 				if (s) {
 					if (g_strrstr (gst_structure_get_name (s), "audio")) {
 						if ( ( (extractor->audio_channels != -1) &&
@@ -426,8 +431,6 @@ add_stream_tags (MetadataExtractor *extractor)
 							(gst_structure_get_int (s, "height", &extractor->video_height)))) {
 							return;
 						}
-					} else {
-						g_assert_not_reached ();
 					}
 				}
 			}
@@ -443,6 +446,90 @@ add_stream_tags (MetadataExtractor *extractor)
 		}
 	}
 	gst_iterator_free (iter);
+}
+
+/* FIXME This is a temporary solution while tagreadbin does not support pad signals */
+
+static void
+add_stream_tags_tagreadbin (MetadataExtractor *extractor)
+{
+	GstIterator       *iter      = NULL;
+	gboolean           done      = FALSE;
+	gpointer           item;
+
+	iter = gst_bin_iterate_elements (GST_BIN(extractor->bin));
+	
+	while (!done) {
+		switch (gst_iterator_next (iter, &item)) {
+		case GST_ITERATOR_OK:
+			add_stream_tags_tagreadbin_for_element (extractor, item);
+			g_object_unref (item);
+			break;
+		case GST_ITERATOR_RESYNC:
+			gst_iterator_resync (iter);
+			break;
+		case GST_ITERATOR_ERROR:
+		case GST_ITERATOR_DONE:
+			done = TRUE;
+			break;
+		}
+	}
+
+	gst_iterator_free (iter);
+}
+
+static void
+add_stream_tag (void *obj, void *data)
+{
+	MetadataExtractor *extractor = (MetadataExtractor *)data;
+	GstElement        *fsink     = (GstElement *) obj;
+
+	GstStructure      *s         = NULL;
+	GstCaps	          *caps      = NULL;
+
+	if ((caps = GST_PAD_CAPS (fsink))) {
+		s = gst_caps_get_structure (caps, 0);
+		
+		if (s) {
+			if (g_strrstr (gst_structure_get_name (s), "audio")) {
+				if ( ( (extractor->audio_channels != -1) &&
+				       (extractor->audio_samplerate != -1) ) ||
+				     !( (gst_structure_get_int (s,
+								"channels",
+								&extractor->audio_channels) ) &&
+					(gst_structure_get_int (s,
+								"rate",
+								&extractor->audio_samplerate)) ) ) {
+					return;
+				}
+			} else if (g_strrstr (gst_structure_get_name (s), "video")) {
+				if ( ( (extractor->video_fps_n != -1) &&
+				       (extractor->video_fps_d != -1) &&
+				       (extractor->video_width != -1) &&
+				       (extractor->video_height != -1) ) ||
+				     !( (gst_structure_get_fraction (s,
+								     "framerate",
+								     &extractor->video_fps_n,
+								     &extractor->video_fps_d) ) &&
+					(gst_structure_get_int (s, "width", &extractor->video_width)) &&
+					(gst_structure_get_int (s, "height", &extractor->video_height)))) {
+					return;
+				}
+			}
+		}
+	}
+}
+
+static void
+add_stream_tags (MetadataExtractor *extractor)
+{
+	extractor->duration = get_media_duration (extractor);
+
+	if (use_dbin) {
+		g_list_foreach (extractor->fsinks, add_stream_tag, extractor);
+	} else {
+		add_stream_tags_tagreadbin (extractor);
+	}
 }
 
 static void
@@ -511,7 +598,7 @@ metadata_bus_async_cb (GstBus *bus, GstMessage *msg, gpointer data)
 		g_error_free (error);
 		stop = TRUE;
 		break;
-        case GST_MESSAGE_TAG:		
+        case GST_MESSAGE_TAG:
 		add_tags (msg, extractor);
 		break;
         case GST_MESSAGE_EOS:
@@ -520,12 +607,11 @@ metadata_bus_async_cb (GstBus *bus, GstMessage *msg, gpointer data)
         case GST_MESSAGE_STATE_CHANGED:
 		{
 			GstElement *sender = (GstElement *) GST_MESSAGE_SRC (msg);
-			if (use_dbin && sender == extractor->pipeline) {
+			if (sender == extractor->pipeline) {
 				GstState newstate;
 				GstState oldstate;
 				gst_message_parse_state_changed (msg, &oldstate, &newstate, NULL);
 				if ((oldstate == GST_STATE_READY) && (newstate == GST_STATE_PAUSED)) {
-					add_stream_tags(extractor);
 					stop = TRUE;
 				}
 			}
@@ -535,6 +621,7 @@ metadata_bus_async_cb (GstBus *bus, GstMessage *msg, gpointer data)
 	}
 	
 	if (stop) {
+		add_stream_tags(extractor);
 		gst_element_set_state (extractor->pipeline, GST_STATE_READY);
 		gst_element_get_state (extractor->pipeline, NULL, NULL, 5 * GST_SECOND);
 		g_list_foreach (extractor->fsinks, unlink_fsink, extractor);
@@ -553,7 +640,7 @@ tracker_extract_gstreamer (const gchar *uri,
 {
 	MetadataExtractor *extractor;
 	gchar		  *mrl;
-	
+
 	g_return_if_fail (uri);
 	g_return_if_fail (metadata);
 	
@@ -605,7 +692,7 @@ tracker_extract_gstreamer (const gchar *uri,
 	}
 
 	if (use_dbin) {
-		extractor->bin = gst_element_factory_make ("decodebin", "decodebin");
+		extractor->bin = gst_element_factory_make ("decodebin2", "decodebin2");
 		if (!extractor->bin) {
 			g_error ("Failed to create decodebin");
 			return;

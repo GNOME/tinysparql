@@ -1,5 +1,12 @@
 2009-04-01  Mikael Ottela  <mikael.ottela@ixonos.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c: Improvements to
+	the stream info extraction using gstreamer.
+
+	Fixes NB#107122.
+
+2009-04-01  Mikael Ottela  <mikael.ottela@ixonos.com>
+
 	* src/tracker-extract/tracker-xmp.c: Handle existance of invalid dates
 	correctly.
 
