@@ -199,7 +199,10 @@ main (int argc, char **argv)
 							 &error);
 
 		if (error) {
-			g_printerr (_("Unable to retrieve data for %d uris"),
+			g_printerr (tracker_dngettext (NULL,
+						       _("Unable to retrieve data for %d uri"), 
+						       _("Unable to retrieve data for %d uris"), 
+						       count),
 				    count);
 			g_printerr (", %s\n",
 				    error->message);
@@ -208,11 +211,21 @@ main (int argc, char **argv)
 			
 			exit_result = EXIT_FAILURE;
 		} else if (!results) {
-			g_print (_("No metadata available for all %d uris"),
-				 count);
+			g_printerr (tracker_dngettext (NULL,
+						       _("No metadata available for all %d uri"),
+						       _("No metadata available for all %d uris"),
+						       count),
+				    count);
 			g_print ("\n");
 		} else {
-			g_print (_("Results:"));
+			/* NOTE: This should be the same as count was before */
+			count = g_strv_length ((gchar**) results);
+
+			g_print (tracker_dngettext (NULL,
+						    _("Result:"),
+						    _("Results:"),
+						    count),
+				 count);
 			g_print ("\n");
 			
 			g_ptr_array_foreach (results, print_property_value, strv);
@@ -279,15 +292,18 @@ main (int argc, char **argv)
 				g_print (_("No metadata available for that uri"));
 				g_print ("\n");
 			} else {
-				gint length;
 				gint i;
 				
-				length = g_strv_length (results);
+				count = g_strv_length (results);
 				
-				g_print (_("Results:")); 
+				g_print (tracker_dngettext (NULL,
+							    _("Result:"),
+							    _("Results:"),
+							    count),
+					 count);
 				g_print ("\n");
 
-				for (i = 0; i < length; i++) {
+				for (i = 0; i < count; i++) {
 					g_print ("  '%s' = '%s'\n",
 						 metadata[i], results[i]);
 				}
