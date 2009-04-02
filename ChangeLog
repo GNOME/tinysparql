@@ -1,3 +1,10 @@
+2009-04-02  Martyn Russell  <martyn@imendio.com>
+
+	* src/trackerd/tracker-monitor.c: (get_queue_from_gfile): Improve
+	performance here, don't create/free a new list and iterate the
+	hash table twice. This operation should be faster. Patch from
+	Philip Van Hoof.
+
 2009-04-01  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-mp3.c: More checks for

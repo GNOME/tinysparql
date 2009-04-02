@@ -492,23 +492,22 @@ static const gchar *
 get_queue_from_gfile (GHashTable *modules,
 		      GFile	 *file)
 {
-	GHashTable  *hash_table;
-	GList	    *all_modules, *l;
-	const gchar *module_name = NULL;
+	GHashTableIter iter;
+	gpointer       key, value;
 
-	all_modules = g_hash_table_get_keys (modules);
+	g_hash_table_iter_init (&iter, modules);
 
-	for (l = all_modules; l && !module_name; l = l->next) {
-		hash_table = g_hash_table_lookup (modules, l->data);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		GHashTable *hash_table;
+
+		hash_table = value;
 
 		if (g_hash_table_lookup (hash_table, file)) {
-			module_name = l->data;
+			return key;
 		}
 	}
 
-	g_list_free (all_modules);
-
-	return module_name;
+	return NULL;
 }
 
 static const gchar *
