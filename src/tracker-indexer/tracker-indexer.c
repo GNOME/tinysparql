@@ -928,6 +928,9 @@ cleanup_task_start (TrackerIndexer *indexer)
 		/* Open indexes */
 		tracker_db_index_open (indexer->private->file_index);
 		tracker_db_index_open (indexer->private->email_index);
+
+		/* Push all items in thumbnail queue to the thumbnailer */
+		tracker_thumbnailer_queue_send ();
 	}
 }
 
@@ -1550,7 +1553,7 @@ generate_item_thumbnail (TrackerIndexer        *indexer,
 		file = g_file_new_for_path (path);
 		uri = g_file_get_uri (file);
 
-		tracker_thumbnailer_get_file_thumbnail (uri, mime_type);
+		tracker_thumbnailer_queue_file (uri, mime_type);
 
 		g_object_unref (file);
 		g_free (uri);

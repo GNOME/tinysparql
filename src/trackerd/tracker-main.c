@@ -984,7 +984,7 @@ main (gint argc, gchar *argv[])
 	tracker_module_config_init ();
 
 	tracker_turtle_init ();
-	tracker_thumbnailer_init (config, 30);
+	tracker_thumbnailer_init (config);
 
 	flags |= TRACKER_DB_MANAGER_REMOVE_CACHE;
 	index_flags |= TRACKER_DB_INDEX_MANAGER_READONLY;

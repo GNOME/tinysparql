@@ -558,7 +558,7 @@ tracker_albumart_queue_cb (DBusGProxy     *proxy,
 		gchar *uri;
 		
 		uri = g_filename_to_uri (info->art_path, NULL, NULL);
-		tracker_thumbnailer_get_file_thumbnail (uri, "image/jpeg");
+		tracker_thumbnailer_queue_file (uri, "image/jpeg");
 		g_free (uri);
 
 		tracker_albumart_copy_to_local (info->art_path, info->local_uri);

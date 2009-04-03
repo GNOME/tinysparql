@@ -26,18 +26,18 @@
 
 G_BEGIN_DECLS
 
-void tracker_thumbnailer_init               (TrackerConfig *config,
-					     guint timeout_seconds);
-void tracker_thumbnailer_shutdown           (void);
+void tracker_thumbnailer_init       (TrackerConfig *config);
+void tracker_thumbnailer_shutdown   (void);
+void tracker_thumbnailer_queue_file (const gchar   *path,
+				     const gchar   *mime);
+void tracker_thumbnailer_queue_send (void);
+void tracker_thumbnailer_move       (const gchar   *from_uri,
+				     const gchar   *mime_type,
+				     const gchar   *to_uri);
+void tracker_thumbnailer_remove     (const gchar   *uri,
+				     const gchar   *mime_type);
+void tracker_thumbnailer_cleanup    (const gchar   *uri_prefix);
 
-void tracker_thumbnailer_get_file_thumbnail (const gchar   *path,
-					     const gchar   *mime);
-void tracker_thumbnailer_move               (const gchar   *from_uri,
-					     const gchar   *mime_type,
-					     const gchar   *to_uri);
-void tracker_thumbnailer_remove             (const gchar   *uri,
-					     const gchar   *mime_type);
-void tracker_thumbnailer_cleanup            (const gchar   *uri_prefix);
 
 G_END_DECLS
 

@@ -49,13 +49,10 @@ typedef struct {
 
 	GStrv supported_mime_types;
 
-	gchar *uris[THUMBNAIL_REQUEST_LIMIT + 1];
-	gchar *mime_types[THUMBNAIL_REQUEST_LIMIT + 1];
+	GSList *uris;
+	GSList *mime_types;
 
 	guint request_id;
-	guint timeout_id;
-	guint count;
-	guint timeout_seconds;
 
 	gboolean service_is_available;
 	gboolean service_is_enabled;
@@ -71,7 +68,6 @@ static void
 private_free (gpointer data)
 {
 	TrackerThumbnailerPrivate *private;
-	guint i;
 
 	private = data;
 
@@ -93,15 +89,12 @@ private_free (gpointer data)
 
 	g_strfreev (private->supported_mime_types);
 
-	for (i = 0; i <= private->count; i++) {
-		g_free (private->uris[i]);
-		g_free (private->mime_types[i]);
-	}
+	g_slist_foreach (private->uris, (GFunc) g_free, NULL);
+	g_slist_free (private->uris);
 
-	if (private->timeout_id) {
-		g_source_remove (private->timeout_id);
-	}
-
+	g_slist_foreach (private->mime_types, (GFunc) g_free, NULL);
+	g_slist_free (private->mime_types);
+	
 	g_free (private);
 }
 
@@ -139,52 +132,12 @@ thumbnailer_enabled_cb (GObject    *pspec,
 
 	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
 
-	g_debug ("Thumbnailer service %s", 
-		 private->service_is_enabled ? "enabled" : "disabled");
-}
-
-
-static gboolean
-thumbnailer_request_timeout_cb (gpointer data)
-{
-	TrackerThumbnailerPrivate *private;
-	guint i;
-
-	private = g_static_private_get (&private_key);
-	g_return_val_if_fail (private != NULL, FALSE);
-
-	private->request_id++;
-
-	private->uris[private->count] = NULL;
-	private->mime_types[private->count] = NULL;
-	
-	g_debug ("Sending request to thumbnailer to queue %d files, request ID:%d...", 
-		 private->count,
-		 private->request_id);
-	
-	dbus_g_proxy_call_no_reply (private->requester_proxy,
-				    "Queue",
-				    G_TYPE_STRV, private->uris,
-				    G_TYPE_STRV, private->mime_types,
-				    G_TYPE_UINT, 0,
-				    G_TYPE_INVALID,
-				    G_TYPE_INVALID);
-	
-	for (i = 0; i <= private->count; i++) {
-		g_free (private->uris[i]);
-		g_free (private->mime_types[i]);
-		private->uris[i] = NULL;
-		private->mime_types[i] = NULL;
-	}
-	
-	private->count = 0;
-	private->timeout_id = 0;
-
-	return FALSE;
+	g_message ("Thumbnailer service %s", 
+		   private->service_is_enabled ? "enabled" : "disabled");
 }
 
 void
-tracker_thumbnailer_init (TrackerConfig *config, guint timeout_seconds)
+tracker_thumbnailer_init (TrackerConfig *config)
 {
 	TrackerThumbnailerPrivate *private;
 	DBusGConnection *connection;
@@ -197,7 +150,6 @@ tracker_thumbnailer_init (TrackerConfig *config, guint timeout_seconds)
 
 	private->config = g_object_ref (config);
 	private->service_is_enabled = tracker_config_get_enable_thumbnails (private->config);
-	private->timeout_seconds = timeout_seconds;
 
 	g_signal_connect (private->config, "notify::enable-thumbnails",
 			  G_CALLBACK (thumbnailer_enabled_cb), 
@@ -207,7 +159,7 @@ tracker_thumbnailer_init (TrackerConfig *config, guint timeout_seconds)
 			      private,
 			      private_free);
 
-	g_debug ("Thumbnailer connections being set up...");
+	g_message ("Thumbnailer connections being set up...");
 
 	connection = dbus_g_bus_get (DBUS_BUS_SESSION, &error);
 
@@ -249,8 +201,6 @@ tracker_thumbnailer_init (TrackerConfig *config, guint timeout_seconds)
 	 * priority now, though (therefore, is this a TODO). 
 	 */
 
-	g_debug ("Thumbnailer supported mime types requested...");
-
 	dbus_g_proxy_call (private->manager_proxy,
 			   "GetSupported", &error, 
 			   G_TYPE_INVALID,
@@ -258,13 +208,13 @@ tracker_thumbnailer_init (TrackerConfig *config, guint timeout_seconds)
 			   G_TYPE_INVALID);
 	
 	if (error) {
-		g_debug ("Thumbnailer service did not return supported mime types, %s",
-			 error->message);
+		g_message ("Thumbnailer service did not return supported mime types, %s",
+			   error->message);
 
 		g_error_free (error);
 	} else if (mime_types) {
-		g_debug ("Thumbnailer supports %d mime types", 
-			 g_strv_length (mime_types));
+		g_message ("Thumbnailer supports %d mime types", 
+			   g_strv_length (mime_types));
 
 		private->supported_mime_types = mime_types;
 		private->service_is_available = TRUE;
@@ -309,10 +259,10 @@ tracker_thumbnailer_move (const gchar *from_uri,
 
 	private->request_id++;
 
-	g_debug ("Requesting thumbnailer moves URI from:'%s' to:'%s', request_id:%d...",
-		 from_uri,
-		 to_uri,
-		 private->request_id); 
+	g_message ("Thumbnailer request to move uri from:'%s' to:'%s', request_id:%d...",
+		   from_uri,
+		   to_uri,
+		   private->request_id); 
 
 	if (!strstr (to_uri, ":/")) {
 		to[0] = g_filename_to_uri (to_uri, NULL, NULL);
@@ -360,9 +310,9 @@ tracker_thumbnailer_remove (const gchar *uri,
 	}
 
 	if (mime_type && !should_be_thumbnailed (private->supported_mime_types, mime_type)) {
-		g_debug ("Thumbnailer ignoring mime type:'%s' and uri:'%s'",
-			 mime_type,
-			 uri);
+		g_debug ("Thumbnailer ignoring uri:'%s', mime type:'%s'",
+			 uri,
+			 mime_type);
 		return;
 	}
 
@@ -374,9 +324,9 @@ tracker_thumbnailer_remove (const gchar *uri,
 		uris[0] = g_strdup (uri);
 	}
 
-	g_debug ("Requesting thumbnailer removes URI:'%s', request_id:%d...",
-		 uri,
-		 private->request_id); 
+	g_message ("Thumbnailer request to remove uri:'%s', request_id:%d...",
+		   uri,
+		   private->request_id); 
 	
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
 				    "Delete",
@@ -405,9 +355,9 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 
 	private->request_id++;
 
-	g_debug ("Requesting thumbnailer cleanup URI:'%s', request_id:%d...",
-		 uri_prefix,
-		 private->request_id); 
+	g_message ("Thumbnailer cleaning up uri:'%s', request_id:%d...",
+		   uri_prefix,
+		   private->request_id); 
 
 	dbus_g_proxy_call_no_reply (private->requester_proxy,
 				    "Cleanup",
@@ -418,10 +368,12 @@ tracker_thumbnailer_cleanup (const gchar *uri_prefix)
 }
 
 void
-tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
-					const gchar *mime_type)
+tracker_thumbnailer_queue_file (const gchar *uri,
+				const gchar *mime_type)
 {
 	TrackerThumbnailerPrivate *private;
+	gchar *used_uri;
+	gchar *used_mime_type;
 
 	g_return_if_fail (uri != NULL);
 	g_return_if_fail (mime_type != NULL);
@@ -435,54 +387,71 @@ tracker_thumbnailer_get_file_thumbnail (const gchar *uri,
 	}
 
 	if (!should_be_thumbnailed (private->supported_mime_types, mime_type)) {
-		g_debug ("Thumbnailer ignoring mime type:'%s' and uri:'%s'",
-			 mime_type,
-			 uri);
+		g_debug ("Thumbnailer ignoring uri:'%s', mime type:'%s'",
+			 uri,
+			 mime_type);
 		return;
 	}
 
 	private->request_id++;
 
-	g_debug ("Requesting thumbnailer to get thumbnail for URI:'%s', request_id:%d...",
-		 uri,
-		 private->request_id); 
-
-	/* We want to deal with the current list first if it is
-	 * already at the limit.
-	 */
-	if (private->count == THUMBNAIL_REQUEST_LIMIT) {
-		g_debug ("Already have %d thumbnails queued, forcing thumbnailer request", 
-			 THUMBNAIL_REQUEST_LIMIT);
-
-		g_source_remove (private->timeout_id);
-		private->timeout_id = 0;
-
-		thumbnailer_request_timeout_cb (NULL);
-	}
-
 	/* Add new URI (detect if we got passed a path) */
 	if (!strstr (uri, ":/")) {
-		private->uris[private->count] = g_filename_to_uri (uri, NULL, NULL);
+		used_uri = g_filename_to_uri (uri, NULL, NULL);
 	} else {
-		private->uris[private->count] = g_strdup (uri);
+		used_uri = g_strdup (uri);
 	}
 
 	if (mime_type) {
-		private->mime_types[private->count] = g_strdup (mime_type);
-	} else if (g_strv_length (private->mime_types) > 0) {
-		private->mime_types[private->count] = g_strdup ("unknown/unknown");
-	}
-	
-	private->count++;
-	
-	if (private->timeout_seconds != 0) {
-		if (private->timeout_id == 0) {
-			private->timeout_id = 
-				g_timeout_add_seconds (private->timeout_seconds, 
-						       thumbnailer_request_timeout_cb, 
-						       NULL);
-		}
+		used_mime_type = g_strdup (mime_type);
 	} else {
-		thumbnailer_request_timeout_cb (NULL);
+		used_mime_type = g_strdup ("unknown/unknown");
 	}
+
+	private->uris = g_slist_append (private->uris, used_uri);
+	private->mime_types = g_slist_append (private->mime_types, used_mime_type);
+
+	g_message ("Thumbnailer queue appended with uri:'%s', mime type:'%s', request_id:%d...",
+		   used_uri,
+		   used_mime_type,
+		   private->request_id); 
+}
+
+void
+tracker_thumbnailer_queue_send (void)
+{
+	TrackerThumbnailerPrivate *private;
+	GStrv uri_strv;
+	GStrv mime_type_strv;
+
+	private = g_static_private_get (&private_key);
+	g_return_if_fail (private != NULL);
+
+	uri_strv = tracker_dbus_slist_to_strv (private->uris);
+	mime_type_strv = tracker_dbus_slist_to_strv (private->mime_types);
+
+	dbus_g_proxy_call_no_reply (private->requester_proxy,
+				    "Queue",
+				    G_TYPE_STRV, uri_strv,
+				    G_TYPE_STRV, mime_type_strv,
+				    G_TYPE_UINT, 0,
+				    G_TYPE_INVALID,
+				    G_TYPE_INVALID);
+
+	g_message ("Thumbnailer queue sent with %d items to thumbnailer daemon, request ID:%d...", 
+		   g_slist_length (private->uris),
+		   private->request_id);
+
+	/* Clean up newly created GStrv */
+	g_strfreev (uri_strv);
+	g_strfreev (mime_type_strv);
+
+	/* Clean up privately held data */
+	g_slist_foreach (private->uris, (GFunc) g_free, NULL);
+	g_slist_free (private->uris);
+	private->uris = NULL;
+
+	g_slist_foreach (private->mime_types, (GFunc) g_free, NULL);
+	g_slist_free (private->mime_types);
+	private->mime_types = NULL;
 }

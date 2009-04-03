@@ -310,7 +310,7 @@ main (int argc, char *argv[])
 	tracker_log_init (log_filename, tracker_config_get_verbosity (config));
 	g_print ("Starting log:\n  File:'%s'\n", log_filename);
 
-	tracker_thumbnailer_init (config, 0);
+	tracker_thumbnailer_init (config);
 
 	/* Make Tracker available for introspection */
 	if (!tracker_dbus_register_objects ()) {

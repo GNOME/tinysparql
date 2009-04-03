@@ -97,7 +97,7 @@ set_albumart (const unsigned char *buffer,
 		g_error_free (error);
 	}
 
-	tracker_thumbnailer_get_file_thumbnail (filename, "image/jpeg");
+	tracker_thumbnailer_queue_file (filename, "image/jpeg");
 	g_free (filename);
 
 	return TRUE;
@@ -178,9 +178,11 @@ tracker_process_albumart (const unsigned char *buffer,
 		 * device */
 
 		if (g_file_test (art_path, G_FILE_TEST_EXISTS)) {
-			gchar *asuri = g_filename_to_uri (art_path, NULL, NULL);
-			tracker_thumbnailer_get_file_thumbnail (asuri, "image/jpeg");
-			g_free (asuri);
+			gchar *as_uri;
+
+			as_uri = g_filename_to_uri (art_path, NULL, NULL);
+			tracker_thumbnailer_queue_file (as_uri, "image/jpeg");
+			g_free (as_uri);
 		}
 
 	}

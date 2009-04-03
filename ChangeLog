@@ -1,3 +1,15 @@
+2009-04-03  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-albumart.c:
+	* src/libtracker-common/tracker-thumbnailer.[ch]:
+	* src/tracker-extract/tracker-extract-albumart.c:
+	* src/tracker-extract/tracker-main.c: 
+	* src/tracker-indexer/tracker-indexer.c:
+	* src/tracker-indexer/tracker-main.c:
+	* src/trackerd/tracker-main.c: Updated thumbnailer code so we only
+	send thumbnails to the thumbnailer daemon AFTER we have finished
+	indexing to improve performance.
+
 2009-04-03  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer.c (add_tags)
