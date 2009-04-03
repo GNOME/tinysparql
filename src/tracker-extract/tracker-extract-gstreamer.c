@@ -370,7 +370,7 @@ dbin_dpad_cb (GstElement* e, GstPad* pad, gboolean cont, gpointer data)
 	fsink = gst_element_factory_make ("fakesink", NULL);
 	
 	g_value_init (&val, G_TYPE_INT);
-	g_value_set_int (&val, 15);
+	g_value_set_int (&val, 50);
 
 	g_object_set_property (G_OBJECT (fsink), "preroll-queue-len", &val);
 
@@ -616,6 +616,12 @@ metadata_bus_async_cb (GstBus *bus, GstMessage *msg, gpointer data)
 				}
 			}
 		}
+		break;
+	case GST_MESSAGE_DURATION:
+		/* The reasoning here is that if we already got duration we should have also
+		   all the other data we need since getting the duration should take the longest */
+		stop = TRUE;
+		break;
         default:
 		break;
 	}
@@ -759,6 +765,15 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 	gst_object_unref (extractor->bus);
+
+	if (extractor->audiotags) {
+		gst_tag_list_free (extractor->audiotags);
+	}
+
+	if (extractor->videotags) {
+		gst_tag_list_free (extractor->videotags);
+	}
+
 	gst_object_unref (GST_OBJECT (extractor->pipeline));
 	g_main_loop_unref (extractor->loop);
 	g_slice_free (MetadataExtractor, extractor);
