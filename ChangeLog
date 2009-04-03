@@ -1,5 +1,12 @@
 2009-04-03  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/libtracker-common/tracker-hal.c (tracker_hal_init)
+	(tracker_hal_finalize): Keep a pointer to the DBusConnection in order
+	to unref it. Also, shut the libhal context down before destroying it,
+	Fixes NB#107570.
+
+2009-04-03  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-albumart.c
 	(tracker_albumart_queue_cb): do not strcmp the GError message, use
 	error->code instead. Do not access() NULL paths.

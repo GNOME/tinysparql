@@ -47,6 +47,7 @@
 
 typedef struct {
 	LibHalContext *context;
+	DBusConnection *connection;
 
 	GHashTable    *all_devices;
 	GHashTable    *mounted_devices;
@@ -171,7 +172,6 @@ tracker_hal_init (TrackerHal *hal)
 {
 	TrackerHalPriv *priv;
 	DBusError	error;
-	DBusConnection *connection;
 
 	g_message ("Initializing HAL...");
 
@@ -198,7 +198,7 @@ tracker_hal_init (TrackerHal *hal)
 
 	dbus_error_init (&error);
 
-	connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
+	priv->connection = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
 	if (dbus_error_is_set (&error)) {
 		g_critical ("Could not get the system DBus connection, %s",
 			    error.message);
@@ -206,8 +206,8 @@ tracker_hal_init (TrackerHal *hal)
 		return;
 	}
 
-	dbus_connection_set_exit_on_disconnect (connection, FALSE);
-	dbus_connection_setup_with_g_main (connection, NULL);
+	dbus_connection_set_exit_on_disconnect (priv->connection, FALSE);
+	dbus_connection_setup_with_g_main (priv->connection, NULL);
 
 	priv->context = libhal_ctx_new ();
 
@@ -217,7 +217,7 @@ tracker_hal_init (TrackerHal *hal)
 	}
 
 	libhal_ctx_set_user_data (priv->context, hal);
-	libhal_ctx_set_dbus_connection (priv->context, connection);
+	libhal_ctx_set_dbus_connection (priv->context, priv->connection);
 
 	if (!libhal_ctx_init (priv->context, &error)) {
 		if (dbus_error_is_set (&error)) {
@@ -283,8 +283,13 @@ tracker_hal_finalize (GObject *object)
 	g_free (priv->ac_adapter_udi);
 
 	if (priv->context) {
+		libhal_ctx_shutdown (priv->context, NULL);
 		libhal_ctx_set_user_data (priv->context, NULL);
 		libhal_ctx_free (priv->context);
+	}
+
+	if (priv->connection) {
+		dbus_connection_unref (priv->connection);
 	}
 
 	(G_OBJECT_CLASS (tracker_hal_parent_class)->finalize) (object);
