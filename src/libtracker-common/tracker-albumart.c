@@ -546,14 +546,15 @@ tracker_albumart_queue_cb (DBusGProxy     *proxy,
 			       G_TYPE_INVALID);
 
 	if (error) {
-		if (g_strcmp0 (error->message, "The name " ALBUMARTER_SERVICE " was not provided by any .service files") == 0)
+		if (error->code == DBUS_GERROR_SERVICE_UNKNOWN)
 			no_more_requesting = TRUE;
 		else
 			g_warning ("%s", error->message);
 		g_clear_error (&error);
 	}
 
-	if (g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
+	if (info->art_path &&
+	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
 		gchar *uri;
 		
 		uri = g_filename_to_uri (info->art_path, NULL, NULL);
@@ -585,7 +586,13 @@ tracker_albumart_get_path (const gchar  *a,
 
 	/* http://live.gnome.org/MediaArtStorageSpec */
 
-	*path = NULL;
+	if (path) {
+		*path = NULL;
+	}
+
+	if (local_uri) {
+		*local_uri = NULL;
+	}
 
 	if (!a && !b) {
 		return;

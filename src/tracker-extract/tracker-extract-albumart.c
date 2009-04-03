@@ -132,6 +132,13 @@ tracker_process_albumart (const unsigned char *buffer,
 				   &art_path, 
 				   &local_uri);
 
+	if (!art_path) {
+		g_free (filename_uri);
+		g_free (local_uri);
+
+		return FALSE;
+	}
+
 	if (!g_file_test (art_path, G_FILE_TEST_EXISTS)) {
 #ifdef HAVE_GDKPIXBUF
 		/* If we have embedded album art */

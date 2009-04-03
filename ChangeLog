@@ -1,3 +1,13 @@
+2009-04-03  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-albumart.c
+	(tracker_albumart_queue_cb): do not strcmp the GError message, use
+	error->code instead. Do not access() NULL paths.
+	(tracker_albumart_get_path): Improve memory management if the function
+	exits prematurely.
+	* src/tracker-extract/tracker-extract-albumart.c
+	(tracker_process_albumart): bail out if it couldn't get art_path.
+
 2009-04-02  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* src/tracker-extract/tracker-extract-gstreamer.c: Watch for
