@@ -579,6 +579,8 @@ add_tags (GstMessage *msg, MetadataExtractor *extractor)
 			
 			*cache = result;
 		}
+
+		gst_caps_unref (caps);
 	}
 	
 	gst_tag_list_free (new_tags);
@@ -765,6 +767,10 @@ tracker_extract_gstreamer (const gchar *uri,
 
 	gst_element_set_state (extractor->pipeline, GST_STATE_NULL);
 	gst_object_unref (extractor->bus);
+
+	if (extractor->tagcache) {
+		gst_tag_list_free (extractor->tagcache);
+	}
 
 	if (extractor->audiotags) {
 		gst_tag_list_free (extractor->audiotags);

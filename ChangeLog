@@ -1,5 +1,10 @@
 2009-04-03  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-extract/tracker-extract-gstreamer.c (add_tags)
+	(tracker_extract_gstreamer): Plug more leaks.
+
+2009-04-03  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-hal.c (tracker_hal_init)
 	(tracker_hal_finalize): Keep a pointer to the DBusConnection in order
 	to unref it. Also, shut the libhal context down before destroying it,
