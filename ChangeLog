@@ -1,3 +1,9 @@
+2009-04-04  Ivan Frade  <ivan.frade@nokia.com>
+
+	* configure.ac: raptor >= 1.4.17. Tracker uses in the code
+	RAPTOR_FEATURE_WRITE_BASE_URI that is available only since that
+	version.
+	
 2009-04-03  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-common/tracker-albumart.c:

@@ -204,7 +204,7 @@ AC_SUBST(GCONF_LIBS)
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
 # Check for Raptor
-PKG_CHECK_MODULES(RAPTOR, [raptor], have_raptor=yes, have_raptor=no)
+PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.17], have_raptor=yes, have_raptor=no)
 AC_SUBST(RAPTOR_CFLAGS)
 AC_SUBST(RAPTOR_LIBS)
 
