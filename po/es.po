@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: tracker.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&component=general\n"
-"POT-Creation-Date: 2009-03-24 18:40+0000\n"
-"PO-Revision-Date: 2009-03-25 18:54+0100\n"
+"POT-Creation-Date: 2009-04-02 13:03+0000\n"
+"PO-Revision-Date: 2009-04-04 13:45+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -768,7 +768,7 @@ msgid "File to extract metadata for"
 msgstr "Archivo del que extraer los metadatos"
 
 #: ../src/tracker-extract/tracker-main.c:88
-#: ../src/tracker-utils/tracker-info.c:47
+#: ../src/tracker-utils/tracker-info.c:51
 msgid "FILE"
 msgstr "ARCHIVO"
 
@@ -947,6 +947,7 @@ msgid "File patterns to ignore during indexing:"
 msgstr "Patrones de archivo que ignorar durante el indexado:"
 
 #: ../src/tracker-preferences/tracker-preferences.glade.h:24
+#: ../src/tracker-utils/tracker-info.c:43
 msgid "Files"
 msgstr "Archivos"
 
@@ -1393,7 +1394,7 @@ msgid "- Search for files by service or by MIME type"
 msgstr "- Buscar archivos por servicio o tipo MIME"
 
 #: ../src/tracker-utils/tracker-files.c:99
-#: ../src/tracker-utils/tracker-info.c:107
+#: ../src/tracker-utils/tracker-info.c:156
 #: ../src/tracker-utils/tracker-meta-folder.c:204
 #: ../src/tracker-utils/tracker-query.c:152
 #: ../src/tracker-utils/tracker-search.c:171
@@ -1402,6 +1403,7 @@ msgstr "- Buscar archivos por servicio o tipo MIME"
 #: ../src/tracker-utils/tracker-status.c:257
 #: ../src/tracker-utils/tracker-tag.c:175
 #: ../src/tracker-utils/tracker-unique.c:138
+#, c-format
 msgid "Could not establish a DBus connection to Tracker"
 msgstr "No se pudo establecer una conexión de DBus a Tracker"
 
@@ -1422,7 +1424,6 @@ msgstr "No se encontró ningún archivo por ese tipo de servicio"
 
 #: ../src/tracker-utils/tracker-files.c:141
 #: ../src/tracker-utils/tracker-files.c:199
-#: ../src/tracker-utils/tracker-info.c:155
 #: ../src/tracker-utils/tracker-meta-folder.c:268
 #: ../src/tracker-utils/tracker-query.c:254
 #: ../src/tracker-utils/tracker-search.c:221
@@ -1435,7 +1436,6 @@ msgstr "Resultado: %d"
 
 #: ../src/tracker-utils/tracker-files.c:142
 #: ../src/tracker-utils/tracker-files.c:200
-#: ../src/tracker-utils/tracker-info.c:156
 #: ../src/tracker-utils/tracker-meta-folder.c:269
 #: ../src/tracker-utils/tracker-query.c:255
 #: ../src/tracker-utils/tracker-search.c:222
@@ -1465,43 +1465,128 @@ msgstr "No se pudieron obtener archivos por su tipo MIME"
 msgid "No files found by those MIME types"
 msgstr "No se encontró ningún archivo por esos tipos MIME"
 
-#: ../src/tracker-utils/tracker-info.c:41
+#: ../src/tracker-utils/tracker-info.c:42
 msgid "Service type of the file"
 msgstr "Tipo de servicio del archivo"
 
 #: ../src/tracker-utils/tracker-info.c:46
+msgid "Metadata to request (optional, multiple calls allowed)"
+msgstr "Metadatos que pedir (opcional, se permiten llamadas múltiples)"
+
+#: ../src/tracker-utils/tracker-info.c:47
+#| msgid "Files:"
+msgid "File:Size"
+msgstr "Archivo:Tamaño"
+
+#: ../src/tracker-utils/tracker-info.c:50
 #: ../src/tracker-utils/tracker-tag.c:79
 msgid "FILE..."
 msgstr "ARCHIVO..."
 
+#: ../src/tracker-utils/tracker-info.c:74
+#| msgid "No metadata available for that uri"
+msgid "No metadata available"
+msgstr "No existen metadatos disponibles"
+
 #. Translators: this messagge will apper immediately after the
 #. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:80
+#: ../src/tracker-utils/tracker-info.c:110
 msgid "- Get all information from a certain file"
 msgstr "- Obtener toda la información de un determinado archivo"
 
-#: ../src/tracker-utils/tracker-info.c:91
-msgid "Uri missing"
+#. Translators: this message will appear after the usage string
+#. and before the list of options.
+#: ../src/tracker-utils/tracker-info.c:114
+msgid ""
+"For a list of services and metadata that can be used here, see tracker-"
+"services."
+msgstr ""
+"Para una lista de servicios y metadatos que se pueden usar aquí, consulte "
+"los servicios de Tracker."
+
+#: ../src/tracker-utils/tracker-info.c:126
+#, c-format
+#| msgid "Uri missing"
+msgid "URI missing"
 msgstr "Falta el URI"
 
-#: ../src/tracker-utils/tracker-info.c:113
+#: ../src/tracker-utils/tracker-info.c:140
+#, c-format
+msgid "Requesting ALL information about multiple files is not supported"
+msgstr ""
+"No se soporta la petición de TODA la información acerca de múltiples archivos"
+
+#: ../src/tracker-utils/tracker-info.c:163
 #: ../src/tracker-utils/tracker-query.c:162
 #: ../src/tracker-utils/tracker-search.c:181
 #: ../src/tracker-utils/tracker-unique.c:144
+#, c-format
 msgid "Defaulting to 'files' service"
 msgstr "Usando el servicio «archivos» predeterminado"
 
-#: ../src/tracker-utils/tracker-info.c:121
+#: ../src/tracker-utils/tracker-info.c:171
+#, c-format
 msgid "Service type not recognized, using 'Other' ..."
 msgstr "Tipo de servicio no reconocido, usando «Otro» ..."
 
-#: ../src/tracker-utils/tracker-info.c:137
+#: ../src/tracker-utils/tracker-info.c:203
+#, c-format
+#| msgid "Unable to retrieve data for uri"
+msgid "Unable to retrieve data for %d uri"
+msgstr "No se pudieron obtener datos para %d URI"
+
+#: ../src/tracker-utils/tracker-info.c:204
+#, c-format
+#| msgid "Unable to retrieve data for uri"
+msgid "Unable to retrieve data for %d uris"
+msgstr "No se pudieron obtener datos para %d URI"
+
+#: ../src/tracker-utils/tracker-info.c:215
+#, c-format
+#| msgid "No metadata available for that uri"
+msgid "No metadata available for all %d uri"
+msgstr "No existen metadatos disponibles para %d URI"
+
+#: ../src/tracker-utils/tracker-info.c:216
+#, c-format
+#| msgid "No metadata available for that uri"
+msgid "No metadata available for all %d uris"
+msgstr "No existen metadatos disponibles para ninguno de los %d URI"
+
+#: ../src/tracker-utils/tracker-info.c:225
+#: ../src/tracker-utils/tracker-info.c:300
+#| msgid "Results"
+msgid "Result:"
+msgstr "Resultado:"
+
+#: ../src/tracker-utils/tracker-info.c:226
+#: ../src/tracker-utils/tracker-info.c:301
+#| msgid "Results"
+msgid "Results:"
+msgstr "Resultados:"
+
+#: ../src/tracker-utils/tracker-info.c:251
+#: ../src/tracker-utils/tracker-info.c:286
 msgid "Unable to retrieve data for uri"
 msgstr "No se pudieron obtener datos para el URI"
 
-#: ../src/tracker-utils/tracker-info.c:148
+#: ../src/tracker-utils/tracker-info.c:257
+#: ../src/tracker-utils/tracker-info.c:292
+#, c-format
 msgid "No metadata available for that uri"
 msgstr "No existen metadatos disponibles para ese URI"
+
+#: ../src/tracker-utils/tracker-info.c:265
+#, c-format
+#| msgid "Result: %d"
+msgid "Result: %d for '%s'"
+msgstr "Resultado: %d para «%s»"
+
+#: ../src/tracker-utils/tracker-info.c:266
+#, c-format
+#| msgid "Results: %d"
+msgid "Results: %d for '%s'"
+msgstr "Resultados: %d para «%s»"
 
 #: ../src/tracker-utils/tracker-meta-folder.c:42
 msgid "Path to use for directory to get metadata information about"
@@ -2089,7 +2174,7 @@ msgstr ""
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/trackerd/tracker-main.c:878
+#: ../src/trackerd/tracker-main.c:877
 msgid "- start the tracker daemon"
 msgstr "iniciar el demonio de tracker"
 
@@ -2137,9 +2222,6 @@ msgstr "iniciar el demonio de tracker"
 
 #~ msgid "Show indexer options"
 #~ msgstr "Mostrar las opciones del indexador"
-
-#~ msgid "Results"
-#~ msgstr "Resultados"
 
 #~ msgid "Tags found"
 #~ msgstr "Etiquetas encontradas"
