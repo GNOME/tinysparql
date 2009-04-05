@@ -1,3 +1,10 @@
+2009-04-05  Ivan Frade  <ivan.frade@nokia.com>
+
+	* src/tracker-indexer/tracker-indexer.c: Surround hal code
+	with ifdefs to fix compilation without hal.
+
+	Fixes bug #577655.
+	
 2009-04-04  Ivan Frade  <ivan.frade@nokia.com>
 
 	* configure.ac: raptor >= 1.4.17. Tracker uses in the code

@@ -1682,6 +1682,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 				     basename, 
 				     NULL);
 
+#ifdef HAVE_HAL
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     service_path, 
 						     &mount_point,
@@ -1693,7 +1694,7 @@ item_add_or_update (TrackerIndexer        *indexer,
 						       tracker_service_get_name (service),
 						       metadata);
 	}
-
+#endif
 	g_free (mount_point);
 	g_free (service_path);
 }
@@ -1762,6 +1763,7 @@ update_moved_item_removable_device (TrackerIndexer *indexer,
 	path = g_file_get_path (file);
 	source_path = g_file_get_path (source_file);
 
+#ifdef HAVE_HAL
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     source_path,
 						     &mount_point,
@@ -1785,7 +1787,7 @@ update_moved_item_removable_device (TrackerIndexer *indexer,
 							      service_name);
 		}
 	}
-
+#endif
 	g_free (mount_point);
 	g_free (source_path);
 	g_free (path);
@@ -2105,7 +2107,7 @@ item_mark_for_removal (TrackerIndexer *indexer,
 
 		g_hash_table_destroy (children);
 	}
-
+#ifdef HAVE_HAL
 	if (tracker_hal_path_is_on_removable_device (indexer->private->hal,
 						     path, 
 						     &mount_point,
@@ -2115,7 +2117,7 @@ item_mark_for_removal (TrackerIndexer *indexer,
 						      path,
 						      tracker_service_get_name (service));
 	}
-
+#endif
 	g_free (mount_point);
 	g_free (path);
 }
