@@ -33,6 +33,8 @@
 #define MAX_MEM       128
 #define MAX_MEM_AMD64 512
 
+#define DISABLE_MEM_LIMITS
+
 gboolean
 tracker_spawn (gchar **argv,
 	       gint    timeout,
@@ -209,6 +211,7 @@ tracker_create_permission_string (struct stat finfo)
 gboolean
 tracker_memory_setrlimits (void)
 {
+#ifndef DISABLE_MEM_LIMITS
 	struct rlimit rl;
 	gboolean      fail = FALSE;
 
@@ -241,4 +244,7 @@ tracker_memory_setrlimits (void)
 	}
 
 	return !fail;
+#else  /* DISABLE_MEM_LIMITS */
+	return TRUE;
+#endif /* DISABLE_MEM_LIMITS */
 }
