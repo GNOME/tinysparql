@@ -71,12 +71,12 @@ tracker_turtle_shutdown (void)
 	}
 }
 
-
 #ifdef HAVE_RAPTOR
 
-
 static void
-foreach_in_hash (gpointer key, gpointer value, gpointer user_data)
+foreach_in_hash (gpointer key,
+		 gpointer value, 
+		 gpointer user_data)
 {
 	raptor_statement    *statement;
 	TurtleOptimizerInfo *item = user_data;
@@ -104,12 +104,10 @@ foreach_in_hash (gpointer key, gpointer value, gpointer user_data)
 	g_free (statement);
 }
 
-
 static void
 commit_turtle_parse_info_optimizer (TurtleOptimizerInfo *info)
 {
 	if (info->last_subject) {
-
 		g_hash_table_foreach (info->hash, 
 				      foreach_in_hash,
 				      info);
@@ -121,9 +119,9 @@ commit_turtle_parse_info_optimizer (TurtleOptimizerInfo *info)
 	}
 }
 
-
 static void
-consume_triple_optimizer (void* user_data, const raptor_statement* triple) 
+consume_triple_optimizer (void                   *user_data, 
+			  const raptor_statement *triple) 
 {
 	TurtleOptimizerInfo *info = user_data;
 	gchar               *subject;
@@ -142,10 +140,8 @@ consume_triple_optimizer (void* user_data, const raptor_statement* triple)
 	}
 
 	if (triple->object_type == RAPTOR_IDENTIFIER_TYPE_RESOURCE) {
-
 		/* TODO: these checks for removals of resources and predicates 
 		 * are incorrect atm */
-
 		if (g_str_has_suffix (predicate, ":")) {
 			/* <URI> <> <> */
 			g_hash_table_destroy (info->hash);
@@ -157,18 +153,17 @@ consume_triple_optimizer (void* user_data, const raptor_statement* triple)
 			g_hash_table_remove (info->hash, predicate);
 		}
 	} else {
-
 		/* TODO: Add conflict resolution here (if any is needed) */
-
 		g_hash_table_replace (info->hash,
 				      g_strdup (predicate),
 				      g_strdup (triple->object));
 	}
-
 }
 
 static void
-foreach_in_metadata (TrackerField *field, gpointer value, gpointer user_data)
+foreach_in_metadata (TrackerField *field, 
+		     gpointer      value, 
+		     gpointer      user_data)
 {
 	raptor_statement          *statement;
 	TrackerTurtleMetadataItem *item = user_data;
@@ -207,9 +202,6 @@ foreach_in_metadata (TrackerField *field, gpointer value, gpointer user_data)
 }
 #endif /* HAVE_RAPTOR */
 
-
-
-
 TurtleFile *
 tracker_turtle_open (const gchar *turtle_file)
 {
@@ -220,15 +212,16 @@ tracker_turtle_open (const gchar *turtle_file)
 
 	turtle = g_new0 (TurtleFile, 1);
 
-	turtle->file = g_fopen (turtle_file, "a");
-	/* Similar to a+ */
-	if (!turtle->file) 
-		turtle->file = g_fopen (turtle_file, "w");
+	turtle->file = tracker_file_open (turtle_file, "a+",  TRUE);
+	if (!turtle->file) {
+		return NULL;
+	}
 
 	turtle->serializer = raptor_new_serializer ("turtle");
 	turtle->uri = raptor_new_uri ((unsigned char *) "/");
 	raptor_serialize_start_to_file_handle (turtle->serializer, 
-					       turtle->uri, turtle->file);
+					       turtle->uri, 
+					       turtle->file);
 
 	return turtle;
 #else 
@@ -259,8 +252,8 @@ tracker_turtle_add_metadata (TurtleFile          *turtle,
 }
 
 void 
-tracker_turtle_add_metadatas (TurtleFile          *turtle,
-			      GPtrArray           *metadata_items)
+tracker_turtle_add_metadatas (TurtleFile *turtle,
+			      GPtrArray  *metadata_items)
 {
 #ifdef HAVE_RAPTOR
 	guint count;
@@ -276,7 +269,6 @@ tracker_turtle_add_metadatas (TurtleFile          *turtle,
 	}
 #endif /* HAVE_RAPTOR */
 }
-
 
 void
 tracker_turtle_add_triple (TurtleFile   *turtle,
@@ -301,14 +293,20 @@ tracker_turtle_close (TurtleFile *turtle)
 	raptor_free_uri (turtle->uri);
 	raptor_serialize_end (turtle->serializer);
 	raptor_free_serializer(turtle->serializer);
-	fclose (turtle->file);
+
+	if (turtle->file) {
+		tracker_file_close (turtle->file, FALSE);
+	}
+
 	g_free (turtle);
 #endif
 }
 
 #ifdef HAVE_RAPTOR
 static void 
-raptor_error (void *user_data, raptor_locator* locator, const char *message)
+raptor_error (void           *user_data, 
+	      raptor_locator *locator, 
+	      const gchar    *message)
 {
 	g_message ("RAPTOR parse error: %s for %s\n", 
 		   message, 
@@ -351,10 +349,8 @@ tracker_turtle_process (const gchar          *turtle_file,
 	raptor_free_uri (buri);
 
 	raptor_free_parser (parser);
-
 #endif 	
 }
-
 
 void
 tracker_turtle_optimize (const gchar *turtle_file)
@@ -414,6 +410,5 @@ tracker_turtle_optimize (const gchar *turtle_file)
 	g_rename (tmp_file, turtle_file);
 
 	g_free (tmp_file);
-
 #endif /* HAVE_RAPTOR */
 }

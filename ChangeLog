@@ -1,3 +1,10 @@
+2009-04-06  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-data/tracker-turtle.[ch]: Fixed crasher in
+	tracker_turtle_close() by checking if ->file is set before doing
+	anything with it. Also now use tracker_file_{open|close} instead
+	so we use posix_fadvise(). Fixes LP#355982.
+
 2009-04-05  Ivan Frade  <ivan.frade@nokia.com>
 
 	* src/tracker-indexer/tracker-indexer.c: Surround hal code

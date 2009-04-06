@@ -52,11 +52,10 @@ typedef struct {
 
 G_BEGIN_DECLS
 
-typedef void (* TurtleTripleCallback) (void *user_data, const TrackerRaptorStatement *triple);
+typedef void (* TurtleTripleCallback) (void                         *user_data, 
+				       const TrackerRaptorStatement *triple);
 
 typedef struct TurtleFile TurtleFile;
-
-
 
 typedef struct {
 	gchar                *about_uri;
@@ -65,33 +64,32 @@ typedef struct {
 } TrackerTurtleMetadataItem;
 
 /* Initialization (use in both cases) */
-void        tracker_turtle_init            (void);
-void        tracker_turtle_shutdown        (void);
+void        tracker_turtle_init          (void);
+void        tracker_turtle_shutdown      (void);
 
 /* Transactions style */
-TurtleFile *tracker_turtle_open            (const gchar         *turtle_file);
-void        tracker_turtle_add_triple      (TurtleFile          *turtle,
-					    const gchar         *uri,
-					    TrackerField        *property,
-					    const gchar         *value);
-void        tracker_turtle_add_metadata    (TurtleFile          *turtle,
-					    const gchar         *uri,
-					    TrackerDataMetadata *metadata);
+TurtleFile *tracker_turtle_open          (const gchar          *turtle_file);
+void        tracker_turtle_add_triple    (TurtleFile           *turtle,
+					  const gchar          *uri,
+					  TrackerField         *property,
+					  const gchar          *value);
+void        tracker_turtle_add_metadata  (TurtleFile           *turtle,
+					  const gchar          *uri,
+					  TrackerDataMetadata  *metadata);
 
 /* @metadata_items contains TrackerTurtleMetadataItem instances */
-void        tracker_turtle_add_metadatas   (TurtleFile          *turtle,
-					    GPtrArray           *metadata_items);
-void        tracker_turtle_close           (TurtleFile          *turtle);
+void        tracker_turtle_add_metadatas (TurtleFile           *turtle,
+					  GPtrArray            *metadata_items);
+void        tracker_turtle_close         (TurtleFile           *turtle);
 
 /* Reading functions */
-void        tracker_turtle_process         (const gchar          *turtle_file,
-					    const gchar          *base_uri,
-					    TurtleTripleCallback  callback,
-					    void                 *user_data);
-					    
+void        tracker_turtle_process       (const gchar          *turtle_file,
+					  const gchar          *base_uri,
+					  TurtleTripleCallback  callback,
+					  void                 *user_data);
 
 /* Optimizer, reparser */
-void        tracker_turtle_optimize        (const gchar          *turtle_file);
+void        tracker_turtle_optimize      (const gchar          *turtle_file);
 
 G_END_DECLS
 
