@@ -1845,7 +1845,7 @@ setup_dbus_connection (TrayIcon *icon)
 	}
 
 	/* Set signal handlers */
-	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN,
+	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN,
 					   G_TYPE_NONE,
 					   G_TYPE_STRING,
 					   G_TYPE_BOOLEAN,
