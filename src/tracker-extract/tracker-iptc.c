@@ -37,28 +37,29 @@ typedef struct {
 	IptcRecord        record;
 	IptcTag           tag;
 	gchar	         *name;
+	gboolean          multi; /* Does the field have multiple values */
 	IptcPostProcessor post;
 } IptcTagType;
 
 static gchar *fix_iptc_orientation (const gchar *orientation);
 
 static IptcTagType iptctags[] = {
-        { 2, IPTC_TAG_KEYWORDS, "Image:Keywords", NULL },
+        { 2, IPTC_TAG_KEYWORDS, "Image:Keywords", TRUE, NULL },
 	/*	{ 2, IPTC_TAG_CONTENT_LOC_NAME, "Image:Location", NULL }, */
-	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", NULL },
-        { 2, IPTC_TAG_DATE_CREATED, "Image:Date", NULL },
-        { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", NULL },
-        { 2, IPTC_TAG_BYLINE, "Image:Creator", NULL },
-        { 2, IPTC_TAG_CITY, "Image:City", NULL },
-        { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", NULL },
-        { 2, IPTC_TAG_CREDIT, "Image:Creator", NULL },
-        { 2, IPTC_TAG_COPYRIGHT_NOTICE, "File:Copyright", NULL },
-        { 2, IPTC_TAG_IMAGE_ORIENTATION, "Image:Orientation", fix_iptc_orientation },
-	{ -1, -1, NULL, NULL }
+	{ 2, IPTC_TAG_SUBLOCATION, "Image:Location", FALSE, NULL },
+        { 2, IPTC_TAG_DATE_CREATED, "Image:Date", FALSE, NULL },
+        { 2, IPTC_TAG_ORIGINATING_PROGRAM, "Image:Software", FALSE, NULL },
+        { 2, IPTC_TAG_BYLINE, "Image:Creator", FALSE, NULL },
+        { 2, IPTC_TAG_CITY, "Image:City", FALSE, NULL },
+        { 2, IPTC_TAG_COUNTRY_NAME, "Image:Country", FALSE, NULL },
+        { 2, IPTC_TAG_CREDIT, "Image:Creator", FALSE, NULL },
+        { 2, IPTC_TAG_COPYRIGHT_NOTICE, "File:Copyright", FALSE, NULL },
+        { 2, IPTC_TAG_IMAGE_ORIENTATION, "Image:Orientation", FALSE, fix_iptc_orientation },
+	{ -1, -1, NULL, FALSE, NULL }
 };
 
 static void
-metadata_append (GHashTable *metadata, gchar *key, gchar *value)
+metadata_append (GHashTable *metadata, gchar *key, gchar *value, gboolean append)
 {
 	gchar   *new_value;
 	gchar   *orig;
@@ -66,7 +67,7 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value)
 	gboolean found = FALSE;
 	guint    i;
 
-	if (g_hash_table_lookup_extended (metadata, key, NULL, (gpointer) &orig)) {
+	if (append && (orig = g_hash_table_lookup (metadata, key))) {
 		gchar *escaped;
 		
 		escaped = tracker_escape_metadata (value);
@@ -103,7 +104,10 @@ metadata_append (GHashTable *metadata, gchar *key, gchar *value)
 	    (strcmp (key, "Image:Sublocation") == 0) ||
 	    (strcmp (key, "Image:Country") == 0) ||
 	    (strcmp (key, "Image:City") == 0) ) {
-		metadata_append (metadata, "Image:Keywords", value);
+		metadata_append (metadata, "Image:Keywords", value, TRUE);
+		g_hash_table_insert (metadata,
+				     g_strdup ("Image:HasKeywords"),
+				     tracker_escape_metadata ("1"));
 	}
 }
 
@@ -147,10 +151,10 @@ tracker_read_iptc (const unsigned char *buffer,
 			iptc_dataset_get_as_str (dataset, buffer, 1024);
 			
 			if (p->post) {
-				metadata_append (metadata,p->name,(*p->post) (buffer));
+				metadata_append (metadata,p->name,(*p->post) (buffer), p->multi);
 			} else {
-				metadata_append (metadata, p->name, buffer);
-			}			
+				metadata_append (metadata, p->name, buffer, p->multi);
+			}
 		}
 	}
 	iptc_data_unref (iptc);

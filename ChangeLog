@@ -1,3 +1,11 @@
+2009-04-06  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* src/tracker-extract/tracker-iptc.c
+	* src/tracker-extract/tracker-xmp.c: Fixes to the way multiple
+	values are handled in some special cases in extraction.
+
+	Fixes NB#108793.
+	
 2009-04-06  Martyn Russell  <martyn@imendio.com>
 
 	* src/libtracker-data/tracker-turtle.[ch]: Fixed crasher in

@@ -271,7 +271,8 @@ tracker_xmp_iter_simple (GHashTable  *metadata,
 			tracker_append_string_to_hash_table (metadata, "Image:Description", value, append, FALSE);
 		}
 		else if (strcmp (name, "date") == 0) {
-			tracker_append_string_to_hash_table (metadata, "Image:Date", value, append, FALSE);
+			/* exempi considers this an array while we want a single value */
+			tracker_append_string_to_hash_table (metadata, "Image:Date", value, FALSE, FALSE);
 		}
 		else if (strcmp (name, "keywords") == 0) {
 			tracker_append_string_to_hash_table (metadata, "Image:Keywords", value, append, FALSE);
