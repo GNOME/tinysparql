@@ -53,7 +53,7 @@
 #include <libtracker-common/tracker-utils.h>
 
 #include "tracker-applet.h"
-#include "tracker-applet-marshallers.h"
+#include "tracker-marshal.h"
 
 #define TRAY_ICON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), TYPE_TRAY_ICON, TrayIconPrivate))
 
@@ -1845,7 +1845,7 @@ setup_dbus_connection (TrayIcon *icon)
 	}
 
 	/* Set signal handlers */
-	dbus_g_object_register_marshaller (tracker_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN,
+	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN_BOOLEAN,
 					   G_TYPE_NONE,
 					   G_TYPE_STRING,
 					   G_TYPE_BOOLEAN,
@@ -1856,7 +1856,7 @@ setup_dbus_connection (TrayIcon *icon)
 					   G_TYPE_BOOLEAN,
 					   G_TYPE_INVALID);
 
-	dbus_g_object_register_marshaller (tracker_VOID__STRING_STRING_INT_INT_INT_DOUBLE,
+	dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_STRING_INT_INT_INT_DOUBLE,
 					   G_TYPE_NONE,
 					   G_TYPE_STRING,
 					   G_TYPE_STRING,

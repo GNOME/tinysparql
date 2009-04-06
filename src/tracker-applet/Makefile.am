@@ -20,11 +20,23 @@ tracker_applet_LDADD = 							\
 	$(LIBGLADE_LIBS)						\
 	$(GCOV_LIBS)
 
+tracker-marshal.h: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --header > $@
+
+tracker-marshal.c: tracker-marshal.list
+	$(GLIB_GENMARSHAL) $< --prefix=tracker_marshal --body > $@
+
+marshal_sources =                                         		\
+        tracker-marshal.h                             			\
+        tracker-marshal.c
+
+BUILT_SOURCES = 							\
+	$(marshal_sources)
+
 tracker_applet_SOURCES = 						\
 	tracker-applet.c 						\
-	tracker-applet.h 						\
-	tracker-applet-marshallers.c 					\
-	tracker-applet-marshallers.h
+	tracker-applet.h						\
+	tracker-marshal-main.c
 
 icondir = $(datadir)/tracker/icons
 
@@ -42,6 +54,6 @@ autostart_DATA = tracker-applet.desktop
 pkgdata_DATA = tracker-applet-prefs.glade
 
 
-EXTRA_DIST = $(icon_DATA) $(pkgdata_DATA)
+EXTRA_DIST = $(icon_DATA) $(pkgdata_DATA) tracker-marshal.list
 
-CLEANFILES = $(autostart_DATA)
+CLEANFILES = $(autostart_DATA) $(BUILT_SOURCES)

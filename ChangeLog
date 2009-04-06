@@ -1,3 +1,12 @@
+2009-04-06  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-applet/tracker-applet-marshallers.[ch]: Do not keep
+	generated code.
+	* src/tracker-applet/tracker-marshal.list:
+	* src/tracker-applet/tracker-marshal-main.c:
+	* src/tracker-applet/Makefile.am: Instead use the right tools.
+	* src/tracker-applet/tracker-applet.c: Adapt to name changes.
+
 2009-04-06  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-extract/tracker-main.c:
