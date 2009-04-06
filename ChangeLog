@@ -1,5 +1,13 @@
 2009-04-06  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-main.c:
+	* src/tracker-indexer/tracker-main.c:
+	* src/trackerd/tracker-main.c: Use #ifdef __linux__ before
+	including /usr/include/linux/ files. Fixes bug #577656 (Jasper
+	Lievisse Adriaanse).
+
+2009-04-06  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-common/tracker-os-dependant-unix.c:
 	(tracker_memory_setrlimits): Disabled by default to stop us
 	getting SIGSEGV just because we reach the memory limits (which are

@@ -29,7 +29,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#if defined(__linux__)
 #include <linux/sched.h>
+#endif
 #include <sched.h>
 
 #include <glib.h>

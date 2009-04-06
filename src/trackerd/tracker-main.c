@@ -33,7 +33,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
+#if defined(__linux__)
 #include <linux/sched.h>
+#endif
 #include <sched.h>
 
 #include <glib.h>
