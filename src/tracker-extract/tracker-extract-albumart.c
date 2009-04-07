@@ -40,6 +40,7 @@
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-common/tracker-thumbnailer.h>
 
+#include "tracker-main.h"
 #include "tracker-extract-albumart.h"
 
 #ifdef HAVE_GDKPIXBUF
@@ -163,7 +164,8 @@ tracker_process_albumart (const unsigned char *buffer,
 				/* If the heuristic failed, we request the download 
 				 * of the media-art to the media-art downloaders */
 				lcopied = TRUE;
-				tracker_albumart_request_download (artist,
+				tracker_albumart_request_download (tracker_main_get_hal (), 
+								   artist,
 								   album,
 								   local_uri,
 								   art_path);
@@ -189,7 +191,9 @@ tracker_process_albumart (const unsigned char *buffer,
 
 	if (local_uri && !g_file_test (local_uri, G_FILE_TEST_EXISTS)) {
 		if (g_file_test (art_path, G_FILE_TEST_EXISTS))
-			tracker_albumart_copy_to_local (art_path, local_uri);
+			tracker_albumart_copy_to_local (tracker_main_get_hal (),
+							art_path, 
+							local_uri);
 	}
 
 	g_free (art_path);

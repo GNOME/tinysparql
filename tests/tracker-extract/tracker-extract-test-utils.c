@@ -326,3 +326,12 @@ tracker_test_extract_file_access (const TrackerExtractData *data,
 		g_hash_table_destroy (metadata);
 	}		
 }
+
+/* This is added because tracker-main.c includes this file and so
+ * should we otherwise it is missing when we try to build the tests.
+ */
+TrackerHal *
+tracker_main_get_hal (void)
+{
+	return NULL;
+}

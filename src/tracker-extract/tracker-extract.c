@@ -302,7 +302,6 @@ get_file_metadata (TrackerExtract *extract,
 	g_object_unref (info);
 	g_object_unref (file);
 
-
 	/* Now we have sanity checked everything, actually get the
 	 * data we need from the extractors.
 	 */

@@ -55,8 +55,9 @@
 #define THUMBNAILER_INTERFACE    "org.freedesktop.thumbnailer.Generic"
 
 typedef struct {
-	gchar *art_path;
-	gchar *local_uri;
+	TrackerHal *hal;
+	gchar      *art_path;
+	gchar      *local_uri;
 } GetFileInfo;
 
 static gboolean no_more_requesting = FALSE;
@@ -66,18 +67,18 @@ my_compute_checksum_for_data (GChecksumType  checksum_type,
                               const guchar  *data,
                               gsize          length)
 {
-  GChecksum *checksum;
-  gchar *retval;
-
-  checksum = g_checksum_new (checksum_type);
-  if (!checksum)
-    return NULL;
-
-  g_checksum_update (checksum, data, length);
-  retval = g_strdup (g_checksum_get_string (checksum));
-  g_checksum_free (checksum);
-
-  return retval;
+	GChecksum *checksum;
+	gchar *retval;
+	
+	checksum = g_checksum_new (checksum_type);
+	if (!checksum)
+		return NULL;
+	
+	g_checksum_update (checksum, data, length);
+	retval = g_strdup (g_checksum_get_string (checksum));
+	g_checksum_free (checksum);
+	
+	return retval;
 }
 
 #ifndef HAVE_STRCASESTR
@@ -174,8 +175,6 @@ make_directory_with_parents (GFile         *file,
   return g_file_make_directory (file, cancellable, error);
 }
 
-
-
 static gchar*
 strip_characters (const gchar *original)
 {
@@ -185,9 +184,7 @@ strip_characters (const gchar *original)
 	guint i = 0, y = 0;
 
 	while (i < osize) {
-
 		/* Remove (anything) */
-
 		if (original[i] == '(') {
 			gchar *loc = strchr (original+i, ')');
 			if (loc) {
@@ -197,7 +194,6 @@ strip_characters (const gchar *original)
 		}
 
 		/* Remove [anything] */
-
 		if (original[i] == '[') {
 			gchar *loc = strchr (original+i, ']');
 			if (loc) {
@@ -207,7 +203,6 @@ strip_characters (const gchar *original)
 		}
 
 		/* Remove {anything} */
-
 		if (original[i] == '{') {
 			gchar *loc = strchr (original+i, '}');
 			if (loc) {
@@ -217,7 +212,6 @@ strip_characters (const gchar *original)
 		}
 
 		/* Remove <anything> */
-
 		if (original[i] == '<') {
 			gchar *loc = strchr (original+i, '>');
 			if (loc) {
@@ -227,7 +221,6 @@ strip_characters (const gchar *original)
 		}
 
 		/* Remove double whitespaces */
-
 		if ((y > 0) &&
 		    (original[i] == ' ' || original[i] == '\t') &&
 		    (retval[y-1] == ' ' || retval[y-1] == '\t')) {
@@ -236,7 +229,6 @@ strip_characters (const gchar *original)
 		}
 
 		/* Remove strange characters */
-
 		if (!strchr (foo, original[i])) {
 			retval[y] = original[i]!='\t'?original[i]:' ';
 			y++;
@@ -250,31 +242,25 @@ strip_characters (const gchar *original)
 	return retval;
 }
 
-
 void
-tracker_albumart_copy_to_local (const gchar *filename, const gchar *local_uri)
+tracker_albumart_copy_to_local (TrackerHal  *hal,
+				const gchar *filename, 
+				const gchar *local_uri)
 {
-#ifdef HAVE_HAL
-	TrackerHal *hal;
-#endif
 	GList *removable_roots, *l;
 	gboolean on_removable_device = FALSE;
 	guint flen;
 
-	if (!filename)
-		return;
-
-	if (!local_uri)
-		return;
+	g_return_if_fail (filename != NULL);
+	g_return_if_fail (local_uri != NULL);
 
 	flen = strlen (filename);
 
 	/* Determining if we are on a removable device */
-
 #ifdef HAVE_HAL
-	hal = tracker_hal_new ();
+	g_return_if_fail (hal != NULL);
+
 	removable_roots = tracker_hal_get_removable_device_roots (hal);
-	g_object_unref (hal);
 #else
 	removable_roots = g_list_append (removable_roots, "/media");
 	removable_roots = g_list_append (removable_roots, "/mnt");
@@ -344,32 +330,31 @@ tracker_albumart_heuristic (const gchar *artist_,
 	gchar *album = NULL;
 
 	/* Copy from local album art (.mediaartlocal) to spec */
-
 	if (local_uri) {
-	  GFile *local_file;
-
-	  local_file = g_file_new_for_uri (local_uri);
-
-	  if (g_file_query_exists (local_file, NULL)) {
-
-		tracker_albumart_get_path (artist, album, 
-					   "album", NULL, 
-					   &target, NULL);
-
-		file = g_file_new_for_path (target);
-
-		g_file_copy_async (local_file, file, 0, 0, 
-				   NULL, NULL, NULL, NULL, NULL);
-
-		g_object_unref (file);
+		GFile *local_file;
+		
+		local_file = g_file_new_for_uri (local_uri);
+		
+		if (g_file_query_exists (local_file, NULL)) {
+			tracker_albumart_get_path (artist, album, 
+						   "album", NULL, 
+						   &target, NULL);
+			
+			file = g_file_new_for_path (target);
+			
+			g_file_copy_async (local_file, file, 0, 0, 
+					   NULL, NULL, NULL, NULL, NULL);
+			
+			g_object_unref (file);
+			g_object_unref (local_file);
+			
+			*copied = TRUE;
+			g_free (target);
+			
+			return TRUE;
+		}
+		
 		g_object_unref (local_file);
-
-		*copied = TRUE;
-		g_free (target);
-
-		return TRUE;
-	  }
-	  g_object_unref (local_file);
 	}
 
 	*copied = FALSE;
@@ -401,10 +386,13 @@ tracker_albumart_heuristic (const gchar *artist_,
 		tracks = -1;
 	}
 
-	if (artist_)
+	if (artist_) {
 		artist = strip_characters (artist_);
-	if (album_)
+	}
+
+	if (album_) {
 		album = strip_characters (album_);
+	}
 
 	/* If amount of files and amount of tracks in the album somewhat match */
 
@@ -413,7 +401,6 @@ tracker_albumart_heuristic (const gchar *artist_,
 		gchar *found = NULL;
 
 		/* Try to find cover art in the directory */
-
 		for (name = g_dir_read_name (dir); name; name = g_dir_read_name (dir)) {
 			if ((artist && strcasestr (name, artist)) || 
 			    (album && strcasestr (name, album))   || 
@@ -484,8 +471,9 @@ tracker_albumart_heuristic (const gchar *artist_,
 #endif /* HAVE_GDKPIXBUF */
 				}
 
-				if (retval)
+				if (retval) {
 					break;
+				}
 			}
 		}
 		
@@ -529,7 +517,6 @@ get_albumart_requester (void)
 	return albart_proxy;
 }
 
-
 static void
 tracker_albumart_queue_cb (DBusGProxy     *proxy,
 			   DBusGProxyCall *call,
@@ -561,11 +548,17 @@ tracker_albumart_queue_cb (DBusGProxy     *proxy,
 		tracker_thumbnailer_queue_file (uri, "image/jpeg");
 		g_free (uri);
 
-		tracker_albumart_copy_to_local (info->art_path, info->local_uri);
+		tracker_albumart_copy_to_local (info->hal,
+						info->art_path, 
+						info->local_uri);
 	}
 
 	g_free (info->art_path);
 	g_free (info->local_uri);
+
+	if (info->hal) {
+		g_object_unref (info->hal);
+	}
 
 	g_slice_free (GetFileInfo, info);
 }
@@ -598,15 +591,17 @@ tracker_albumart_get_path (const gchar  *a,
 		return;
 	}
 
-	if (!a) 
+	if (!a) {
 		f_a = g_strdup (" ");
-	else
+	} else {
 		f_a = strip_characters (a);
+	}
 
-	if (!b)
+	if (!b) {
 		f_b = g_strdup (" ");
-	else
-		f_b = strip_characters (b);
+	} else {
+		f_b = strip_characters (b); 
+	}
 
 	down1 = g_utf8_strdown (f_a, -1);
 	down2 = g_utf8_strdown (f_b, -1);
@@ -626,7 +621,10 @@ tracker_albumart_get_path (const gchar  *a,
 	g_free (down1);
 	g_free (down2);
 
-	art_filename = g_strdup_printf ("%s-%s-%s.jpeg", prefix?prefix:"album", str1, str2);
+	art_filename = g_strdup_printf ("%s-%s-%s.jpeg", 
+					prefix ? prefix : "album", 
+					str1, 
+					str2);
 
 	*path = g_build_filename (dir, art_filename, NULL);
 
@@ -634,10 +632,11 @@ tracker_albumart_get_path (const gchar  *a,
 		gchar *local_dir;
 		GFile *file, *parent;
 
-		if (strchr (uri, ':')) 
+		if (strchr (uri, ':')) {
 			file = g_file_new_for_uri (uri);
-		else
-			file = g_file_new_for_path (uri);
+		} else {
+			file = g_file_new_for_path (uri); 
+		}
 
 		parent = g_file_get_parent (file);
 		local_dir = g_file_get_uri (parent);
@@ -657,17 +656,27 @@ tracker_albumart_get_path (const gchar  *a,
 }
 
 void
-tracker_albumart_request_download (const gchar *album, 
+tracker_albumart_request_download (TrackerHal  *hal,
+				   const gchar *album, 
 				   const gchar *artist, 
 				   const gchar *local_uri, 
 				   const gchar *art_path)
 {
 	GetFileInfo *info;
 
-	if (no_more_requesting)
+	g_return_if_fail (hal != NULL);
+
+	if (no_more_requesting) {
 		return;
+	}
 
 	info = g_slice_new (GetFileInfo);
+
+#ifdef HAVE_HAL
+	info->hal = g_object_ref (hal);
+#else 
+	info->hal = NULL;
+#endif
 
 	info->local_uri = g_strdup (local_uri);
 	info->art_path = g_strdup (art_path);

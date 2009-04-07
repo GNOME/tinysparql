@@ -66,13 +66,14 @@
 
 #define QUIT_TIMEOUT 30 /* 1/2 minutes worth of seconds */
 
-static GMainLoop *main_loop;
-static guint      quit_timeout_id = 0;
+static GMainLoop  *main_loop;
+static guint       quit_timeout_id = 0;
+static TrackerHal *hal;
 
-static gboolean   version;
-static gint       verbosity = -1;
-static gchar     *filename;
-static gchar     *mime_type;
+static gboolean    version;
+static gint        verbosity = -1;
+static gchar      *filename;
+static gchar      *mime_type;
 
 static GOptionEntry  entries[] = {
 	{ "version", 'V', 0,
@@ -117,6 +118,19 @@ tracker_main_quit_timeout_reset (void)
 						 NULL);
 }
 
+TrackerHal *
+tracker_main_get_hal (void)
+{
+	if (!hal) {
+#ifdef HAVE_HAL
+		hal = tracker_hal_new ();
+#else 
+		hal = NULL;
+#endif
+	}
+
+	return hal;
+}
 
 static void
 initialize_priority (void)
@@ -328,10 +342,16 @@ main (int argc, char *argv[])
 	g_main_loop_run (main_loop);
 	g_main_loop_unref (main_loop);
 
+	g_message ("Shutdown started");
+
 	/* Shutdown subsystems */
 	tracker_dbus_shutdown ();
 	tracker_thumbnailer_shutdown ();
 	tracker_log_shutdown ();
+
+	if (hal) {
+		g_object_unref (hal);
+	}
 
 	g_free (log_filename);
 	g_object_unref (config);

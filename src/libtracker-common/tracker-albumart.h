@@ -26,13 +26,20 @@
 
 G_BEGIN_DECLS
 
+#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <libtracker-common/tracker-common.h> must be included directly."
+#endif
+
+#include "tracker-hal.h"
+
 gboolean tracker_albumart_heuristic        (const gchar *artist_,  
 					    const gchar *album_, 
 					    const gchar *tracks_str, 
 					    const gchar *filename,
 					    const gchar *local_uri,
 					    gboolean    *copied);
-void     tracker_albumart_copy_to_local    (const gchar *filename, 
+void     tracker_albumart_copy_to_local    (TrackerHal  *hal,
+					    const gchar *filename, 
 					    const gchar *local_uri);
 void     tracker_albumart_get_path         (const gchar  *a, 
 					    const gchar  *b, 
@@ -40,7 +47,8 @@ void     tracker_albumart_get_path         (const gchar  *a,
 					    const gchar  *uri,
 					    gchar       **path,
 					    gchar       **local);
-void     tracker_albumart_request_download (const gchar *album, 
+void     tracker_albumart_request_download (TrackerHal  *hal,
+					    const gchar *album, 
 					    const gchar *artist, 
 					    const gchar *local_uri, 
 					    const gchar *art_path);

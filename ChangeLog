@@ -1,3 +1,29 @@
+2009-04-07  Martyn Russell  <martyn@imendio.com>
+
+	* src/libtracker-common/tracker-thumbnailer.h:
+	* src/libtracker-common/tracker-albumart.h: Added preprocessor
+	checks for __LIBTRACKER_COMMON_INSIDE__ which were missing.
+	
+	* src/libtracker-common/tracker-albumart.[ch]: 
+	* src/tracker-extract/tracker-extract-mp3.c: Fixed coding style
+	issues.
+	
+	* src/libtracker-common/tracker-albumart.[ch]: 
+	* src/tracker-extract/tracker-extract-albumart.c:
+	* src/tracker-extract/tracker-main.[ch]: Only create one
+	TrackerHal object during the life time of tracker-extract instead
+	of for EVERY file which has album art (which is quite a lot). This
+	seems to be showing an increase of 2x the speed now for
+	tracker-extract. 
+	
+	* src/tracker-indexer/tracker-main.c: (main): Added print
+	statement like we have in the daemon so we know when the process
+	is finished and returning to the cmd line.
+	
+	* tests/tracker-extract/tracker-extract-test-utils.c:
+	(tracker_test_extract_file_access): Added tracker_main_get_hal()
+	fixes to ensure the tests build.
+
 2009-04-07  Carlos Garnacho  <carlos@imendio.com>
 
 	Propagate index errors up to the GUI, so the user has the opportunity

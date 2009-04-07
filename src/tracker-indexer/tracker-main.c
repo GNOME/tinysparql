@@ -438,5 +438,7 @@ main (gint argc, gchar *argv[])
 	tracker_module_config_shutdown ();
 	tracker_log_shutdown ();
 
+	g_print ("\nOK\n\n");
+
 	return EXIT_SUCCESS;
 }

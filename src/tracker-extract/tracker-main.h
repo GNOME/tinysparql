@@ -24,6 +24,8 @@
 
 #include <glib.h>
 
+#include <libtracker-common/tracker-hal.h>
+
 #include "tracker-escape.h"
 
 G_BEGIN_DECLS
@@ -41,6 +43,12 @@ struct TrackerExtractData {
 
 /* This is defined in each extract */
 TrackerExtractData *tracker_get_extract_data        (void);
+
+/* Some modules need to use the albumart API which requires HAL. To
+ * avoid creating new HAL objects constantly, we initialize it once
+ * and it is available using this API.
+ */
+TrackerHal *        tracker_main_get_hal            (void);
 
 /* This is used to not shutdown after the default of 30 seconds if we
  * get more work to do.
