@@ -1,5 +1,13 @@
 2009-04-07  Martyn Russell  <martyn@imendio.com>
 
+	* src/trackerd/tracker-main.c: 
+	* src/trackerd/tracker-status.c: Only set nice() to 19 when
+	crawling the file system, for all other times, we use the value as
+	set when the process is started (which is controlled by outside
+	influence of course). 
+
+2009-04-07  Martyn Russell  <martyn@imendio.com>
+
 	* src/libtracker-common/tracker-thumbnailer.h:
 	* src/libtracker-common/tracker-albumart.h: Added preprocessor
 	checks for __LIBTRACKER_COMMON_INSIDE__ which were missing.

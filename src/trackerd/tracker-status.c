@@ -22,6 +22,10 @@
 #include "config.h"
 
 #include <sys/statvfs.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <errno.h>
+#include <unistd.h>
 
 #include "tracker-status.h"
 #include "tracker-dbus.h"
@@ -34,6 +38,8 @@
 #define THROTTLE_DEFAULT	    0
 #define THROTTLE_DEFAULT_ON_BATTERY 5
 
+#define PROCESS_PRIORITY_FOR_BUSY   19
+
 typedef struct {
 	TrackerStatus  status;
 	TrackerStatus  status_before_paused;
@@ -41,8 +47,11 @@ typedef struct {
 
 	guint          disk_space_check_id;
 
+	gint           cpu_priority;
+
 	TrackerConfig *config;
 	TrackerHal    *hal;
+
 
 	DBusGProxy    *indexer_proxy;
 
@@ -501,6 +510,30 @@ tracker_status_init (TrackerConfig *config,
 	private->is_paused_for_unknown = FALSE;
 	private->in_merge = FALSE;
 
+	/* Get process priority on start up:
+	 * We use nice() when crawling so we don't steal all
+	 * the processor time, for all other states, we return the
+	 * nice() value to what it was.
+	 *
+	 * NOTE: We set errno first because -1 is a valid priority and
+	 * we need to check it isn't an error.
+	 */
+	errno = 0;
+	private->cpu_priority = getpriority (PRIO_PROCESS, 0);
+
+	if ((private->cpu_priority < 0) && errno) {
+		const gchar *str = g_strerror (errno);
+
+		g_message ("Couldn't get nice value, %s", 
+			   str ? str : "no error given");
+
+		/* Default to 0 */
+		private->cpu_priority = 0;
+	}
+
+	g_message ("Current process priority is set to %d, this will be used for all non-crawling states",
+		   private->cpu_priority);
+
 	g_static_private_set (&private_key,
 			      private,
 			      private_free);
@@ -638,7 +671,37 @@ tracker_status_set (TrackerStatus new_status)
 	 * to return to is also PAUSED.
 	 */
 	if (private->status_before_paused != new_status) {
+		/* ALWAYS only set this after checking against the
+		 * previous value 
+		 */
 		private->status_before_paused = private->status;
+	}
+
+	if (private->status != new_status) {
+		/* Note, we can't use -1 here, so we use a value
+		 * outside the nice values from -20->19 
+		 */
+		gint new_priority = 100;
+
+		if (new_status == TRACKER_STATUS_PENDING) {
+			new_priority = PROCESS_PRIORITY_FOR_BUSY;
+		} else if (private->status == TRACKER_STATUS_PENDING) {
+			new_priority = private->cpu_priority;
+		}
+
+		if (new_priority != 100) {
+			g_message ("Setting process priority to %d", 
+				   new_priority);
+			
+			if (nice (new_priority) == -1) {
+				const gchar *str = g_strerror (errno);
+				
+				g_message ("Couldn't set nice value to %d, %s",
+					   new_priority,
+					   str ? str : "no error given");
+			}
+		}
+
 	}
 
 	private->status = new_status;
