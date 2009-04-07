@@ -24,12 +24,10 @@
 #include "tracker-extract-testsuite-generic.h"
 
 void
-test_tracker_extract_check_extract_data (void)
+test_tracker_extract_check_extract_data (gconstpointer extract)
 {
-	TrackerExtractData *data;
+	const TrackerExtractData *data = extract;
 	guint extractors = 0;
-
-	data = tracker_get_extract_data ();
 
 	while (data->mime) {
 		if (data->extract == NULL) {

@@ -32,6 +32,8 @@
 int
 main (int argc, char **argv) {
 
+	TrackerExtractData *data;
+	gchar *path;
 	gint result;
 
 	g_type_init ();
@@ -39,12 +41,15 @@ main (int argc, char **argv) {
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_message ("Testing extract functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-png/check-extract-data",
-			 test_tracker_extract_check_extract_data);
+
+	path = g_build_filename (MODULESDIR, "libextract-png", NULL);
+	data = tracker_test_extract_get_extract (path, "image/png");
+	g_free (path);
+
+	g_test_add_data_func ("/tracker-extract/tracker-extract-png/check-extract-data",
+			      data, test_tracker_extract_check_extract_data);
 
 #if 0
-	data = tracker_test_extract_get_extract ("image/png");
-
 	g_test_add_data_func ("/tracker-extract/tracker-extract-png/basic_size",
 			      data, test_tracker_extract_png_basic_size);
 

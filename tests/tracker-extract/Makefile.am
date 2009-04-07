@@ -1,5 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
+modulesdir = $(libdir)/tracker/extract-modules
+
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += 								\
@@ -23,6 +25,7 @@ endif
 
 INCLUDES = 								\
 	-DG_LOG_DOMAIN=\"Tracker\"					\
+	-DMODULESDIR=\"$(modulesdir)\"					\
 	-DTEST_DATA_DIR=\""$(abs_top_builddir)/tests/tracker-extract/data"\"\
 	-DTRACKER_COMPILATION						\
 	-I$(top_srcdir)/src						\
@@ -56,7 +59,6 @@ test_tracker_extract_mp3_SOURCES = 					\
 	$(TEST_UTILS_SOURCES)
 
 test_tracker_extract_mp3_LDADD =					\
-	$(top_builddir)/src/tracker-extract/libextract-mp3.la   	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(GMODULE_LIBS)							\
 	$(GCOV_LIBS)							\
@@ -68,7 +70,6 @@ test_tracker_extract_gstreamer_SOURCES = 				\
 	$(TEST_UTILS_SOURCES)
 
 test_tracker_extract_gstreamer_LDADD =					\
-	$(top_builddir)/src/tracker-extract/libextract-gstreamer.la   	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(GMODULE_LIBS)							\
 	$(GCOV_LIBS)							\
@@ -81,7 +82,6 @@ test_tracker_extract_jpeg_SOURCES = 					\
 	$(TEST_UTILS_SOURCES)
 
 test_tracker_extract_jpeg_LDADD =					\
-	$(top_builddir)/src/tracker-extract/libextract-jpeg.la   	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
@@ -96,7 +96,6 @@ test_tracker_extract_tiff_SOURCES = 					\
 	$(TEST_UTILS_SOURCES)
 
 test_tracker_extract_tiff_LDADD =					\
-	$(top_builddir)/src/tracker-extract/libextract-tiff.la   	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
@@ -110,7 +109,6 @@ test_tracker_extract_png_SOURCES = 					\
 	$(TEST_UTILS_SOURCES)
 
 test_tracker_extract_png_LDADD =					\
-	$(top_builddir)/src/tracker-extract/libextract-png.la   	\
 	$(top_builddir)/src/libtracker-common/libtracker-common.la	\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\

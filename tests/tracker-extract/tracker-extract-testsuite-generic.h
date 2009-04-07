@@ -23,6 +23,6 @@
 
 #include <tracker-extract/tracker-extract.h>
 
-void test_tracker_extract_check_extract_data  (void);
+void test_tracker_extract_check_extract_data  (gconstpointer data);
 
 #endif

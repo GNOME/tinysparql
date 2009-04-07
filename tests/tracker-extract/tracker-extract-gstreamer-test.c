@@ -33,6 +33,8 @@
 int
 main (int argc, char **argv) {
 
+	TrackerExtractData *data;
+	gchar *path;
 	gint result;
 
 	g_type_init ();
@@ -40,13 +42,15 @@ main (int argc, char **argv) {
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_message ("Testing extract functionality");
-	g_test_add_func ("/tracker-extract/tracker-extract-gstreamer/check-extract-data",
-			 test_tracker_extract_check_extract_data);
+
+	path = g_build_filename (MODULESDIR, "libextract-gstreamer", NULL);
+	data = tracker_test_extract_get_extract (path, "audio/mpeg");
+	g_free (path);
+
+	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/check-extract-data",
+			      data, test_tracker_extract_check_extract_data);
+	
 #if 1
-	TrackerExtractData *data;
-
-	data = tracker_test_extract_get_extract ("audio/mpeg");
-
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v1_basic",
 			      data, test_tracker_extract_mp3_id3v1_basic);
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/id3v23_basic",
@@ -58,15 +62,18 @@ main (int argc, char **argv) {
 	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/header_sampling",
 			      data, test_tracker_extract_mp3_header_sampling);
 
-	data = tracker_test_extract_get_extract ("video/avi");
-
-	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/avi/basic_tags",
-			      data, test_tracker_extract_avi_basic_tags);
-
 	if (g_test_perf()) {
 		g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/mp3/performance_cbr",
 				      data, test_tracker_extract_mp3_performance);	
 	}
+
+	path = g_build_filename (MODULESDIR, "libextract-gstreamer", NULL);
+	data = tracker_test_extract_get_extract (path, "video/avi");
+	g_free (path);
+
+	g_test_add_data_func ("/tracker-extract/tracker-extract-gstreamer/avi/basic_tags",
+			      data, test_tracker_extract_avi_basic_tags);
+
 #endif
 
 

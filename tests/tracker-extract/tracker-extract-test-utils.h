@@ -29,7 +29,8 @@
 
 #include <tracker-extract/tracker-main.h>
 
-TrackerExtractData *tracker_test_extract_get_extract      (const gchar              *mime);
+TrackerExtractData *tracker_test_extract_get_extract      (const gchar              *path,
+							   const gchar              *mime);
 void                tracker_test_extract_file             (const TrackerExtractData *data,
 							   const gchar              *file,
 							   const gchar              *testdatafile);

@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include <glib/gstdio.h>
+#include <gmodule.h>
 
 #include "tracker-extract-test-utils.h"
 
@@ -148,26 +149,52 @@ check_metadata (GHashTable  *metadata,
 }
 
 TrackerExtractData *
-tracker_test_extract_get_extract (const gchar *mime)
+tracker_test_extract_get_extract (const gchar *path, const gchar *mime)
 {
 	TrackerExtractData *data;
-	
+	TrackerExtractData *data_iter;
+	GModule *module;
+	TrackerExtractDataFunc func;
+	GError *error;
+
+	if (!g_module_supported ()) {
+		g_error ("Modules are not supported for this platform");
+		return NULL;
+	}
+
+	error = NULL;
+
+	module = g_module_open (path, G_MODULE_BIND_LOCAL);
+	if (!module) {
+		g_error ("Could not load module '%s': %s", path, g_module_error ());
+		return NULL;
+	}
+
+	g_module_make_resident (module);
+
+	if (g_module_symbol (module, "tracker_get_extract_data", (gpointer *) &func)) {
+		data = (func) ();
+	} else {
+		g_error ("Could not get accesspoint to the module");
+		return;
+	}	
+
 	/* Search for exact match first */
-	data = tracker_get_extract_data ();	
-	while (data->mime) {
-		if (strcmp (data->mime, mime) == 0) {
-			return data;
+	data_iter = data;
+	while (data_iter->mime) {
+		if (strcmp (data_iter->mime, mime) == 0) {
+			return data_iter;
 		}
-		data++;
+		data_iter++;
 	}
 
 	/* Search for generic */
-	data = tracker_get_extract_data ();
-	while (data->mime) {
-		if (g_pattern_match_simple (data->mime, mime)) {
-			return data;
+	data_iter = data;
+	while (data_iter->mime) {
+		if (g_pattern_match_simple (data_iter->mime, mime)) {
+			return data_iter;
 		}
-		data++;
+		data_iter++;
 	}
 
 	return NULL;

@@ -1,3 +1,17 @@
+2009-04-07  Mikael Ottela  <mikael.ottela@ixonos.com>
+
+	* tests/tracker-extract/tracker-extract-png-test.c
+	* tests/tracker-extract/tracker-extract-jpeg-test.c
+	* tests/tracker-extract/tracker-extract-testsuite-generic.c
+	* tests/tracker-extract/tracker-extract-tiff-test.c
+	* tests/tracker-extract/tracker-extract-gstreamer-test.c
+	* tests/tracker-extract/tracker-extract-testsuite-generic.h
+	* tests/tracker-extract/tracker-extract-mp3-test.c
+	* tests/tracker-extract/tracker-extract-test-utils.c
+	* tests/tracker-extract/tracker-extract-test-utils.h
+	* tests/tracker-extract/Makefile.am: Load the extractors
+	modules for tests instead of directly linking as before.
+
 2009-04-06  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-applet/tracker-marshal.list:
