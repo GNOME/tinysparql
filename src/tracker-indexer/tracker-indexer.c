@@ -503,6 +503,10 @@ index_flushing_notify_cb (GObject        *object,
 
 	state = indexer->private->state;
 
+	if ((state & TRACKER_INDEXER_STATE_CLEANUP) != 0) {
+		return;
+	}
+
 	if ((state & TRACKER_INDEXER_STATE_STOPPED) != 0 &&
 	    !tracker_db_index_get_flushing (indexer->private->file_index) &&
 	    !tracker_db_index_get_flushing (indexer->private->email_index)) {

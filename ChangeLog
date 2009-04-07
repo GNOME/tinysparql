@@ -1,3 +1,9 @@
+2009-04-07  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/tracker-indexer.c (index_flushing_notify_cb): Do not try to
+	enter into finished state after flushing in the cleanup task, since it
+	closes the indexes.
+
 2009-04-07  Martyn Russell  <martyn@imendio.com>
 
 	* src/tracker-extract/tracker-main.c: (main): Make sure we send
