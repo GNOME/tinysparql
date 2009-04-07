@@ -66,6 +66,10 @@ Table of Contents
 
         http://tracker-project.org.
 
+  Repository
+
+	git://git.gnome.org/tracker
+
 2 Use Cases
 
   Tracker is the most powerful open source metadata database and
