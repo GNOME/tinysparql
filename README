@@ -66,9 +66,10 @@ Table of Contents
 
         http://tracker-project.org.
 
-  Repository
+  Repository (first is readonly, second is write access)
 
 	git://git.gnome.org/tracker
+	ssh://<user>@git.gnome.org/git/tracker
 
 2 Use Cases
 
