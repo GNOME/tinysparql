@@ -1,5 +1,11 @@
 2009-04-07  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-extract/tracker-main.c: (main): Make sure we send
+	the thumbnailer queue to the thumbnailer daemon when we shutdown
+	after 30 seconds of inactivity in the extractor.
+
+2009-04-07  Martyn Russell  <martyn@imendio.com>
+
 	* src/trackerd/tracker-main.c: 
 	* src/trackerd/tracker-status.c: Only set nice() to 19 when
 	crawling the file system, for all other times, we use the value as

@@ -344,6 +344,9 @@ main (int argc, char *argv[])
 
 	g_message ("Shutdown started");
 
+	/* Push all items in thumbnail queue to the thumbnailer */
+	tracker_thumbnailer_queue_send ();
+
 	/* Shutdown subsystems */
 	tracker_dbus_shutdown ();
 	tracker_thumbnailer_shutdown ();
