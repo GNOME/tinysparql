@@ -1,3 +1,26 @@
+2009-04-07  Carlos Garnacho  <carlos@imendio.com>
+
+	Propagate index errors up to the GUI, so the user has the opportunity
+	to trigger a reindex.
+
+	* src/libtracker-db/tracker-db-index.[ch]: Add an "error-received"
+	signal. Emit it when QDBM fails to store a word.
+	
+	* data/dbus/tracker-indexer.xml:
+	* src/tracker-indexer/tracker-marshal.list:
+	* src/tracker-indexer/tracker-indexer.[ch]: Add an "IndexingError"
+	DBus signal. Propagate up index errors.
+	
+	* data/dbus/tracker-daemon.xml:
+	* src/trackerd/tracker-dbus.c:
+	* src/trackerd/tracker-daemon.c:
+	* src/trackerd/tracker-marshal.list: Add an "IndexingError" signal.
+	Listen to that signal from the indexer in order to propagate it up the
+	stack.
+
+	src/tracker-applet/tracker-applet.[ch]: Listen for the new signal, and
+	display an error notification with an option to reindex from scratch.
+
 2009-04-07  Mikael Ottela  <mikael.ottela@ixonos.com>
 
 	* tests/tracker-extract/tracker-extract-png-test.c

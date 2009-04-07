@@ -26,6 +26,7 @@
 #include <depot.h>
 
 #include <glib.h>
+#include <glib/gi18n.h>
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-log.h>
@@ -39,6 +40,8 @@
 #define MAX_HIT_BUFFER 480000
 #define MAX_CACHE_DEPTH 2
 #define MAX_FLUSH_TIME 0.5 /* In fractions of a second */
+
+#define TRACKER_DB_INDEX_ERROR_DOMAIN "TrackerDBIndex"
 
 #define TRACKER_DB_INDEX_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DB_INDEX, TrackerDBIndexPrivate))
 
@@ -89,6 +92,13 @@ enum {
 	PROP_FLUSHING,
 	PROP_OVERLOADED
 };
+
+enum {
+	ERROR_RECEIVED,
+	LAST_SIGNAL
+};
+
+static guint signals [LAST_SIGNAL] = { 0, };
 
 G_DEFINE_TYPE (TrackerDBIndex, tracker_db_index, G_TYPE_OBJECT)
 
@@ -160,6 +170,15 @@ tracker_db_index_class_init (TrackerDBIndexClass *klass)
 							       "Whether the index cache is overloaded",
 							       FALSE,
 							       G_PARAM_READABLE));
+	signals[ERROR_RECEIVED] =
+		g_signal_new ("error-received",
+			      G_TYPE_FROM_CLASS (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerDBIndexClass, error_received),
+			      NULL, NULL,
+			      g_cclosure_marshal_VOID__POINTER,
+			      G_TYPE_NONE, 1,
+			      G_TYPE_POINTER);
 
 	g_type_class_add_private (object_class, sizeof (TrackerDBIndexPrivate));
 }
@@ -597,6 +616,20 @@ update_overloaded_status (TrackerDBIndex *indez)
 	}
 }
 
+static void
+emit_error_received (TrackerDBIndex *indez,
+		     const gchar    *error_str)
+{
+	GQuark domain;
+	GError *error;
+
+	domain = g_quark_from_static_string (TRACKER_DB_INDEX_ERROR_DOMAIN);
+
+	error = g_error_new_literal (domain, 0, error_str);
+	g_signal_emit (indez, signals[ERROR_RECEIVED], 0, error);
+	g_error_free (error);
+}
+
 /* Use for deletes or updates of multiple entities when they are not
  * new.
  */
@@ -813,6 +846,9 @@ index_flush_item (gpointer user_data)
 			/* Process words from cache */
 			if (indexer_update_word (key, value, priv->index)) {
 				g_hash_table_iter_remove (&iter);
+			} else {
+				emit_error_received (indez, _("Index corrupted"));
+				break;
 			}
 
 			if (g_timer_elapsed (timer, NULL) > MAX_FLUSH_TIME) {

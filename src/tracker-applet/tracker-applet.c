@@ -188,6 +188,7 @@ static void set_auto_pause (TrayIcon *icon,
 			    gboolean  pause);
 
 static TrayIcon *main_icon;
+static NotifyNotification *error_notification = NULL;
 
 static const gchar *index_icons[4] = {
 	"tracker-applet-default.png",
@@ -1579,6 +1580,18 @@ index_finished (DBusGProxy *proxy,
 }
 
 static void
+index_error (DBusGProxy  *proxy,
+             const gchar *reason,
+             gboolean     requires_reindex,
+             TrayIcon    *icon)
+{
+        tray_icon_show_error (icon, requires_reindex,
+                              "%s\n\n%s",
+                              _("There was an error while performing indexing:"),
+                              reason);
+}
+
+static void
 index_service_stats_updated (DBusGProxy *proxy,
                              GPtrArray  *new_stats,
                              TrayIcon   *icon)
@@ -1865,6 +1878,11 @@ setup_dbus_connection (TrayIcon *icon)
 					   G_TYPE_INT,
 					   G_TYPE_DOUBLE,
 					   G_TYPE_INVALID);
+        dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_BOOLEAN,
+                                           G_TYPE_NONE,
+                                           G_TYPE_STRING,
+                                           G_TYPE_BOOLEAN,
+                                           G_TYPE_INVALID);
 
 	dbus_g_proxy_add_signal (priv->tracker->proxy,
 				 "IndexStateChange",
@@ -1897,6 +1915,12 @@ setup_dbus_connection (TrayIcon *icon)
 				 TRACKER_TYPE_G_STRV_ARRAY,
 				 G_TYPE_INVALID);
 
+        dbus_g_proxy_add_signal (priv->tracker->proxy,
+                                 "IndexingError",
+                                 G_TYPE_STRING,
+                                 G_TYPE_BOOLEAN,
+                                 G_TYPE_INVALID);
+
 	dbus_g_proxy_connect_signal (priv->tracker->proxy,
 				     "IndexStateChange",
 				     G_CALLBACK (index_state_changed),
@@ -1914,6 +1938,11 @@ setup_dbus_connection (TrayIcon *icon)
 				     G_CALLBACK (index_finished),
 				     icon,
 				     NULL);
+        dbus_g_proxy_connect_signal (priv->tracker->proxy,
+                                     "IndexingError",
+                                     G_CALLBACK (index_error),
+                                     icon,
+                                     NULL);
 
 	dbus_g_proxy_connect_signal (priv->tracker->proxy,
 				     "ServiceStatisticsUpdated",
@@ -2054,6 +2083,68 @@ tray_icon_show_message (TrayIcon    *icon,
 	notify_notification_show (notification, NULL);
 
 	g_object_unref (notification);
+
+	g_free (msg);
+}
+
+static void
+error_notification_reindex_cb (NotifyNotification *notification,
+                               const gchar        *action,
+                               gpointer            user_data)
+{
+        reindex (NULL, user_data);
+}
+
+static void
+error_notification_closed_cb (NotifyNotification *notification,
+                              gpointer            user_data)
+{
+        g_object_unref (error_notification);
+        error_notification = NULL;
+}
+
+void
+tray_icon_show_error (TrayIcon    *icon,
+                      gboolean     requires_reindex,
+                      const gchar *message,
+                      ...)
+{
+	TrayIconPrivate *priv;
+	gchar *msg = NULL;
+	va_list args;
+
+        if (error_notification) {
+                /* There's already an error being displayed */
+                return;
+        }
+
+	priv = TRAY_ICON_GET_PRIVATE (icon);
+
+	va_start (args, message);
+	msg = g_strdup_vprintf (message, args);
+	va_end (args);
+
+	error_notification =
+		notify_notification_new_with_status_icon ("Tracker",
+							  msg,
+							  NULL,
+							  priv->icon);
+
+        notify_notification_set_timeout (error_notification, NOTIFY_EXPIRES_NEVER);
+	notify_notification_set_urgency (error_notification, NOTIFY_URGENCY_CRITICAL);
+
+        g_signal_connect (error_notification, "closed",
+                          G_CALLBACK (error_notification_closed_cb), NULL);
+
+        if (requires_reindex) {
+                notify_notification_add_action (error_notification,
+                                                "reindex",
+                                                _("Reindex all contents"),
+                                                NOTIFY_ACTION_CALLBACK (error_notification_reindex_cb),
+                                                icon, NULL);
+        }
+
+	notify_notification_show (error_notification, NULL);
 
 	g_free (msg);
 }

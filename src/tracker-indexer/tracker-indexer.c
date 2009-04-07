@@ -82,7 +82,7 @@
 
 #define TRACKER_INDEXER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_INDEXER, TrackerIndexerPrivate))
 
-#define FILES_REMAINING_THRESHOLD   10000
+#define FILES_REMAINING_THRESHOLD   1000
 #define MAX_FLUSH_FREQUENCY         60
 #define MIN_FLUSH_FREQUENCY         1
 
@@ -198,6 +198,7 @@ enum {
 	MODULE_FINISHED,
 	PAUSED,
 	CONTINUED,
+	INDEXING_ERROR,
 	LAST_SIGNAL
 };
 
@@ -526,6 +527,15 @@ index_overloaded_notify_cb (GObject        *object,
 }
 
 static void
+index_error_received_cb (TrackerDBIndex *index,
+			 const GError   *error,
+			 TrackerIndexer *indexer)
+{
+	g_signal_emit (indexer, signals[INDEXING_ERROR], 0,
+		       error->message, TRUE);
+}
+
+static void
 check_mount_removal (GQueue   *queue,
 		     GFile    *mount_root,
 		     gboolean  remove_first)
@@ -773,6 +783,15 @@ tracker_indexer_class_init (TrackerIndexerClass *class)
 			      G_TYPE_NONE,
 			      1,
 			      G_TYPE_STRING);
+	signals[INDEXING_ERROR] =
+		g_signal_new ("indexing-error",
+			      G_OBJECT_CLASS_TYPE (object_class),
+			      G_SIGNAL_RUN_LAST,
+			      G_STRUCT_OFFSET (TrackerIndexerClass, indexing_error),
+			      NULL, NULL,
+			      tracker_marshal_VOID__STRING_BOOL,
+			      G_TYPE_NONE,
+			      2, G_TYPE_STRING, G_TYPE_BOOLEAN);
 
 	g_object_class_install_property (object_class,
 					 PROP_RUNNING,
@@ -1041,6 +1060,8 @@ tracker_indexer_init (TrackerIndexer *indexer)
 			  G_CALLBACK (index_flushing_notify_cb), indexer);
 	g_signal_connect (priv->file_index, "notify::overloaded",
 			  G_CALLBACK (index_overloaded_notify_cb), indexer);
+	g_signal_connect (priv->file_index, "error-received",
+			  G_CALLBACK (index_error_received_cb), indexer);
 
 	lindex = tracker_db_index_manager_get_index (TRACKER_DB_INDEX_EMAIL);
 	priv->email_index = g_object_ref (lindex);
@@ -1049,6 +1070,8 @@ tracker_indexer_init (TrackerIndexer *indexer)
 			  G_CALLBACK (index_flushing_notify_cb), indexer);
 	g_signal_connect (priv->email_index, "notify::overloaded",
 			  G_CALLBACK (index_overloaded_notify_cb), indexer);
+	g_signal_connect (priv->email_index, "error-received",
+			  G_CALLBACK (index_error_received_cb), indexer);
 
 	/* Set up databases, these pointers are mostly used to
 	 * start/stop transactions, since TrackerDBManager treats

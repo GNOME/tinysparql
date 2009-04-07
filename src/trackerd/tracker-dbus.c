@@ -477,6 +477,11 @@ tracker_dbus_indexer_get_proxy (void)
 						   G_TYPE_UINT,
 						   G_TYPE_BOOLEAN,
 						   G_TYPE_INVALID);
+		dbus_g_object_register_marshaller (tracker_marshal_VOID__STRING_BOOLEAN,
+						   G_TYPE_NONE,
+						   G_TYPE_STRING,
+						   G_TYPE_BOOLEAN,
+						   G_TYPE_INVALID);
 
 		/* Add signals, why can't we use introspection for this? */
 		dbus_g_proxy_add_signal (proxy_for_indexer,
@@ -511,6 +516,11 @@ tracker_dbus_indexer_get_proxy (void)
 		dbus_g_proxy_add_signal (proxy_for_indexer,
 					 "ModuleFinished",
 					 G_TYPE_STRING,
+					 G_TYPE_INVALID);
+		dbus_g_proxy_add_signal (proxy_for_indexer,
+					 "IndexingError",
+					 G_TYPE_STRING,
+					 G_TYPE_BOOLEAN,
 					 G_TYPE_INVALID);
 	}
 

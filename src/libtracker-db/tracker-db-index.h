@@ -46,6 +46,9 @@ struct TrackerDBIndex {
 
 struct TrackerDBIndexClass {
 	GObjectClass parent_class;
+
+	void (* error_received) (TrackerDBIndex *indez,
+				 GError         *error);
 };
 
 GType		    tracker_db_index_get_type	     (void);

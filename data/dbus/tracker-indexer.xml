@@ -102,5 +102,9 @@
     <signal name="ModuleFinished">
       <arg type="s" name="module_name" />
     </signal>
+    <signal name="IndexingError">
+      <arg type="s" name="reason" />
+      <arg type="b" name="requires_reindexing" />
+    </signal>
   </interface>
 </node>

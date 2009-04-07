@@ -58,6 +58,7 @@ enum {
 	INDEX_STATE_CHANGE,
 	INDEX_FINISHED,
 	INDEX_PROGRESS,
+	INDEXING_ERROR,
 	SERVICE_STATISTICS_UPDATED,
 	LAST_SIGNAL
 };
@@ -118,6 +119,14 @@ tracker_daemon_class_init (TrackerDaemonClass *klass)
 			      G_TYPE_INT,
 			      G_TYPE_INT,
 			      G_TYPE_DOUBLE);
+	signals[INDEXING_ERROR] =
+		g_signal_new ("indexing-error",
+			      G_TYPE_FROM_CLASS (klass),
+			      G_SIGNAL_RUN_LAST,
+			      0, NULL, NULL,
+			      tracker_marshal_VOID__STRING_BOOLEAN,
+			      G_TYPE_NONE,
+			      2, G_TYPE_STRING, G_TYPE_BOOLEAN);
 	signals[SERVICE_STATISTICS_UPDATED] =
 		g_signal_new ("service-statistics-updated",
 			      G_TYPE_FROM_CLASS (klass),
@@ -143,6 +152,16 @@ indexer_finished_cb (DBusGProxy *proxy,
 }
 
 static void
+indexing_error_cb (DBusGProxy    *proxy,
+		   const gchar   *reason,
+		   gboolean       requires_reindex,
+		   TrackerDaemon *daemon)
+{
+	g_signal_emit (daemon, signals[INDEXING_ERROR], 0,
+		       reason, requires_reindex);
+}
+
+static void
 tracker_daemon_init (TrackerDaemon *object)
 {
 	TrackerDaemonPrivate *priv;
@@ -156,6 +175,10 @@ tracker_daemon_init (TrackerDaemon *object)
 
 	dbus_g_proxy_connect_signal (proxy, "Finished",
 				     G_CALLBACK (indexer_finished_cb),
+				     object,
+				     NULL);
+	dbus_g_proxy_connect_signal (proxy, "IndexingError",
+				     G_CALLBACK (indexing_error_cb),
 				     object,
 				     NULL);
 

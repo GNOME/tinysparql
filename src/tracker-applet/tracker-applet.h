@@ -51,5 +51,9 @@ tray_icon_set_tooltip (TrayIcon *icon, const gchar *format, ...);
 void
 tray_icon_show_message (TrayIcon *icon, const gchar *message, ...);
 
+void
+tray_icon_show_error (TrayIcon *icon, gboolean requires_reindex, const gchar *message, ...);
+
+
 #endif
 

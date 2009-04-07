@@ -73,6 +73,9 @@ struct TrackerIndexerClass {
 				 const gchar	*module_name);
 	void (*module_finished) (TrackerIndexer *indexer,
 				 const gchar	*module_name);
+	void (*indexing_error)  (TrackerIndexer *indexer,
+				 const gchar    *reason,
+				 gboolean        requires_reindex);
 };
 
 GType		tracker_indexer_get_type	    (void) G_GNUC_CONST;

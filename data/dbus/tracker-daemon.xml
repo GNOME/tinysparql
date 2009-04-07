@@ -180,6 +180,11 @@
       <arg type="d" name="seconds_elapsed"/>
     </signal>
 
+    <signal name="IndexingError">
+      <arg type="s" name="reason" />
+      <arg type="b" name="requires_reindex" />
+    </signal>
+
     <!-- Signal whenever the count of a category changed. Look at GetStats for
 	 the format of service_stats. 
       -->
