@@ -49,16 +49,12 @@
 #define TRACKER_SEARCH_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_SEARCH, TrackerSearchPrivate))
 
 #define DEFAULT_SEARCH_MAX_HITS      1024
-#define KEEPALIVE_TIME_FOR_SQL_QUERY 600
 
 typedef struct {
 	TrackerConfig	   *config;
 	TrackerLanguage    *language;
 	TrackerDBIndex	   *file_index;
 	TrackerDBIndex	   *email_index;
-
-	TrackerDBInterface *sql_query_iface;
-	guint               sql_query_timeout_id;
 } TrackerSearchPrivate;
 
 static void tracker_search_finalize (GObject *object);
@@ -88,14 +84,6 @@ tracker_search_finalize (GObject *object)
 	TrackerSearchPrivate *priv;
 
 	priv = TRACKER_SEARCH_GET_PRIVATE (object);
-
-	if (priv->sql_query_timeout_id != 0) {
-		g_source_remove (priv->sql_query_timeout_id);
-	}
-
-	if (priv->sql_query_iface) {
-		g_object_unref (priv->sql_query_iface);
-	}
 
 	g_object_unref (priv->email_index);
 	g_object_unref (priv->file_index);
@@ -1290,80 +1278,3 @@ tracker_search_suggest (TrackerSearch	       *object,
 	tracker_dbus_request_success (request_id);
 }
 
-static gboolean 
-search_sql_iface_cleanup_cb (gpointer user_data)
-{
-	TrackerSearchPrivate *priv;
-
-	priv = TRACKER_SEARCH_GET_PRIVATE (user_data);
-
-	g_object_unref (priv->sql_query_iface);
-	priv->sql_query_iface = NULL;
-	priv->sql_query_timeout_id = 0;
-
-	return FALSE;
-}
-
-void
-tracker_search_sql_query (TrackerSearch		*object,
-			  gchar 		*query,
-			  DBusGMethodInvocation	*context,
-			  GError		**error)
-{
-	TrackerSearchPrivate *priv;
-	TrackerDBResultSet   *result_set;
-	GError 		     *actual_error = NULL;
-	guint		      request_id;
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_async_return_if_fail (query != NULL, context);
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request for SQL Query, "
-				  "query:'%s'",
-				  query);
-
-	priv = TRACKER_SEARCH_GET_PRIVATE (object);
-
-	if (priv->sql_query_timeout_id != 0) {
-		g_source_remove (priv->sql_query_timeout_id);
-		priv->sql_query_timeout_id = 0;
-	}
-
-	if (priv->sql_query_iface == NULL) {
-		priv->sql_query_iface = 
-			tracker_db_manager_get_db_interfaces_ro (6,
-								 TRACKER_DB_CACHE,
-								 TRACKER_DB_COMMON,
-								 TRACKER_DB_FILE_CONTENTS,
-								 TRACKER_DB_FILE_METADATA,
-								 TRACKER_DB_EMAIL_CONTENTS,
-								 TRACKER_DB_EMAIL_METADATA);
-	}
-
-	result_set = tracker_db_interface_execute_query (priv->sql_query_iface,
-							 &actual_error,
-							 "%s",
-							 query);
-
-	if (!result_set) {
-		dbus_g_method_return_error (context, actual_error);
-		g_error_free (actual_error);
-	} else {
-		GPtrArray *values;
-
-		values = tracker_dbus_query_result_to_ptr_array (result_set);
-		dbus_g_method_return (context, values);
-		tracker_dbus_results_ptr_array_free (&values);
-		g_object_unref (result_set);
-	}
-
-	priv->sql_query_timeout_id = 
-		g_timeout_add_seconds (KEEPALIVE_TIME_FOR_SQL_QUERY, 
-				       search_sql_iface_cleanup_cb, 
-				       object);
-
-
-	tracker_dbus_request_success (request_id);
-}

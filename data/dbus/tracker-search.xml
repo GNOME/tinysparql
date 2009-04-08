@@ -120,19 +120,5 @@
       <arg type="s" name="result" direction="out" />
     </method>
 
-    <!-- This method is only to be used for prototyping and development
-	purposes. Please do not use it for actual applications as the
-	DB schema is not only not guaranteed not to change, it's also 
-	guaranteed to change indeed. -->
-
-    <!-- Please do not use this in your applictions. You have been warned
-	twice now. -->
-
-    <method name="SqlQuery">
-      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
-      <arg type="s" name="query" direction="in" />
-      <arg type="aas" name="result" direction="out" />
-    </method>
-
   </interface>
 </node>

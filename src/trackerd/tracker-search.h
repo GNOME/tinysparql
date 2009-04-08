@@ -129,10 +129,6 @@ void	       tracker_search_suggest		(TrackerSearch		*object,
 						 gint			 max_dist,
 						 DBusGMethodInvocation	*context,
 						 GError		       **error);
-void	       tracker_search_sql_query		(TrackerSearch		*object,
-						 gchar 			*query,
-						 DBusGMethodInvocation	*context,
-						 GError		       **error);
 
 G_END_DECLS
 
