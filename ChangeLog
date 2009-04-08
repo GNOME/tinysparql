@@ -1,3 +1,7 @@
+2009-04-08  Carlos Garnacho  <carlos@imendio.com>
+
+	* src/libtracker-common/tracker-config.c: Fix a typo.
+
 2009-04-07  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-indexer.c (index_flushing_notify_cb): Do not try to
