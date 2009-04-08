@@ -1,0 +1,13 @@
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix foaf:       <http://xmlns.com/foaf/0.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+_:a a owl:Thing .
+_:b a owl:Thing .
+_:c a owl:Thing .
+_:e a owl:Thing .
+
+_:a foaf:name "Eve".
+_:b foaf:name "Alice" .
+_:c foaf:name "Fred" .
+_:e foaf:name "Bob" .

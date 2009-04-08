@@ -1,0 +1,3 @@
+SELECT ?isRead
+WHERE { ?x nmo:isRead ?isRead }
+ORDER BY ?isRead

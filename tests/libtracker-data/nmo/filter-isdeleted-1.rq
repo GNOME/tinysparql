@@ -1,0 +1,3 @@
+SELECT ?isDeleted
+WHERE { ?x nmo:isDeleted ?isDeleted }
+ORDER BY ?isDeleted

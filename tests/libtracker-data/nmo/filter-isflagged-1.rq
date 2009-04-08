@@ -1,0 +1,3 @@
+SELECT ?isFlagged
+WHERE { ?x nmo:isFlagged ?isFlagged }
+ORDER BY ?isFlagged

@@ -1,0 +1,3 @@
+SELECT ?headerValue
+WHERE { ?x nmo:headerValue ?headerValue }
+ORDER BY ?headerValue

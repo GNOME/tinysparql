@@ -203,6 +203,14 @@ AC_SUBST(GCONF_LIBS)
 
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
+# Check for Streamanalyzer
+PKG_CHECK_MODULES(STREAMANALYZER, [libstreamanalyzer >= $STREAMANALYZER_REQUIRED],
+		  [have_streamanalyzer=yes], [have_streamanalyzer=no])
+AC_SUBST(STREAMANALYZER_CFLAGS)
+AC_SUBST(STREAMANALYZER_LIBS)
+
+AM_CONDITIONAL(HAVE_STREAMANALYZER, test "$have_streamanalyzer" = "yes")
+
 # Check for libuuid
 PKG_CHECK_MODULES(UUID, [uuid])
 AC_SUBST(UUID_CFLAGS)
@@ -1425,6 +1433,7 @@ AC_CONFIG_FILES([
 	src/plugins/rss/Makefile
 	tests/common/Makefile
 	tests/libtracker-common/Makefile
+	tests/libtracker-data/Makefile
 	tests/libtracker-db/Makefile
 	tests/Makefile
 	tests/tracker-indexer/Makefile

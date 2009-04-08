@@ -1,0 +1,3 @@
+SELECT ?comment
+WHERE { ?x nie:comment ?comment }
+ORDER BY ?comment

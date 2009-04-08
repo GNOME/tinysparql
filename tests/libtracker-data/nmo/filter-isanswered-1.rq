@@ -1,0 +1,3 @@
+SELECT ?isAnswered
+WHERE { ?x nmo:isAnswered ?isAnswered }
+ORDER BY ?isAnswered

@@ -1,0 +1,3 @@
+SELECT ?description
+WHERE { ?x nie:description ?description }
+ORDER BY ?description

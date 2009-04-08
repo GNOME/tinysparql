@@ -1,0 +1,3 @@
+SELECT ?mimeType
+WHERE { ?x nie:mimeType ?mimeType }
+ORDER BY ?mimeType

@@ -1,0 +1,3 @@
+SELECT ?charSet
+WHERE { ?x nmo:charSet ?charSet }
+ORDER BY ?charSet

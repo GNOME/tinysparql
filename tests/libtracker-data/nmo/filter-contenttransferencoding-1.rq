@@ -1,0 +1,3 @@
+SELECT ?contentTransferEncoding
+WHERE { ?x nmo:contentTransferEncoding ?contentTransferEncoding }
+ORDER BY ?contentTransferEncoding

@@ -1,0 +1,3 @@
+SELECT ?subject
+WHERE { ?x nie:subject ?subject }
+ORDER BY ?subject

@@ -1,0 +1,3 @@
+SELECT ?legal
+WHERE { ?x nie:legal ?legal }
+ORDER BY ?legal

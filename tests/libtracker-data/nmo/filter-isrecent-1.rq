@@ -1,0 +1,3 @@
+SELECT ?isRecent
+WHERE { ?x nmo:isRecent ?isRecent }
+ORDER BY ?isRecent
