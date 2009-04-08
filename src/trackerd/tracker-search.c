@@ -37,7 +37,6 @@
 
 #include <libtracker-data/tracker-data-manager.h>
 #include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-data-schema.h>
 #include <libtracker-data/tracker-data-search.h>
 #include <libtracker-data/tracker-query-tree.h>
 

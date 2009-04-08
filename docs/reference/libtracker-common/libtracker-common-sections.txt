@@ -177,44 +177,6 @@ TRACKER_TYPE_FIELD_TYPE
 tracker_field_type_get_type
 </SECTION>
 
-<INCLUDE>libtracker-common/tracker-field-data.h</INCLUDE>
-<SECTION>
-<FILE>tracker-field-data</FILE>
-<TITLE>Field Data</TITLE>
-TrackerFieldData
-tracker_field_data_new
-tracker_field_data_get_alias
-tracker_field_data_get_data_type
-tracker_field_data_get_field_name
-tracker_field_data_get_id_field
-tracker_field_data_get_is_condition
-tracker_field_data_get_is_select
-tracker_field_data_get_multiple_values
-tracker_field_data_get_needs_join
-tracker_field_data_get_select_field
-tracker_field_data_get_table_name
-tracker_field_data_get_where_field
-tracker_field_data_set_alias
-tracker_field_data_set_data_type
-tracker_field_data_set_field_name
-tracker_field_data_set_id_field
-tracker_field_data_set_is_condition
-tracker_field_data_set_is_select
-tracker_field_data_set_multiple_values
-tracker_field_data_set_needs_join
-tracker_field_data_set_select_field
-tracker_field_data_set_table_name
-tracker_field_data_set_where_field
-<SUBSECTION Standard>
-TRACKER_FIELD_DATA
-TRACKER_IS_FIELD_DATA
-TRACKER_TYPE_FIELD_DATA
-tracker_field_data_get_type
-TRACKER_FIELD_DATA_CLASS
-TRACKER_IS_FIELD_DATA_CLASS
-TRACKER_FIELD_DATA_GET_CLASS
-</SECTION>
-
 <INCLUDE>libtracker-common/tracker-type-utils.h</INCLUDE>
 <SECTION>
 <FILE>tracker-type-utils</FILE>

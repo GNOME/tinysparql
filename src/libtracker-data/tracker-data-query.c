@@ -40,62 +40,6 @@
 
 #include "tracker-data-manager.h"
 #include "tracker-data-query.h"
-#include "tracker-data-schema.h"
-
-TrackerDBResultSet *
-tracker_data_query_metadata_field (TrackerDBInterface *iface,
-				   const gchar	      *id,
-				   const gchar	      *field)
-{
-	TrackerField *def;
-	const gchar  *proc = NULL;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (id != NULL, NULL);
-	g_return_val_if_fail (field != NULL, NULL);
-
-	def = tracker_ontology_get_field_by_name (field);
-
-	if (!def) {
-		g_warning ("Metadata not found for id:'%s' and type:'%s'", id, field);
-		return NULL;
-	}
-
-	switch (tracker_field_get_data_type (def)) {
-	case TRACKER_FIELD_TYPE_INDEX:
-	case TRACKER_FIELD_TYPE_STRING:
-	case TRACKER_FIELD_TYPE_DOUBLE:
-		proc = "GetMetadata";
-		break;
-
-	case TRACKER_FIELD_TYPE_INTEGER:
-	case TRACKER_FIELD_TYPE_DATE:
-		proc = "GetMetadataNumeric";
-		break;
-
-	case TRACKER_FIELD_TYPE_FULLTEXT:
-		proc = "GetContents";
-		break;
-
-	case TRACKER_FIELD_TYPE_KEYWORD:
-		proc = "GetMetadataKeyword";
-		break;
-
-	default:
-	case TRACKER_FIELD_TYPE_BLOB:
-	case TRACKER_FIELD_TYPE_STRUCT:
-	case TRACKER_FIELD_TYPE_LINK:
-		g_warning ("Metadata could not be retrieved as type:%d is not supported",
-			   tracker_field_get_data_type (def));
-		return NULL;
-	}
-
-	return tracker_data_manager_exec_proc (iface,
-				     proc,
-				     id,
-				     tracker_field_get_id (def),
-				     NULL);
-}
 
 static void
 db_result_set_to_ptr_array (TrackerDBResultSet *result_set,
@@ -154,75 +98,6 @@ tracker_data_query_all_metadata (const gchar *service_type,
 
 	return result;
 
-}
-
-TrackerDBResultSet *
-tracker_data_query_metadata_fields (TrackerDBInterface *iface,
-				    const gchar	       *service_type,
-				    const gchar	       *service_id,
-				    gchar	      **fields)
-{
-	TrackerDBResultSet *result_set;
-	GString		   *sql, *sql_join;
-	gchar		   *query;
-	guint		    i;
-
-	/* Build SQL select clause */
-	sql = g_string_new (" SELECT DISTINCT ");
-	sql_join = g_string_new (" FROM Services S ");
-
-	for (i = 0; i < g_strv_length (fields); i++) {
-		TrackerFieldData *field_data;
-
-		field_data = tracker_data_schema_get_metadata_field (iface,
-							    service_type,
-							    fields[i],
-							    i,
-							    TRUE,
-							    FALSE);
-
-		if (!field_data) {
-			g_string_free (sql_join, TRUE);
-			g_string_free (sql, TRUE);
-			return NULL;
-		}
-
-		if (i == 0) {
-			g_string_append_printf (sql, " %s",
-						tracker_field_data_get_select_field (field_data));
-		} else {
-			g_string_append_printf (sql, ", %s",
-						tracker_field_data_get_select_field (field_data));
-		}
-
-		if (tracker_field_data_get_needs_join (field_data)) {
-			g_string_append_printf (sql_join,
-						"\n LEFT OUTER JOIN %s %s ON (S.ID = %s.ServiceID and %s.MetaDataID = %s) ",
-						tracker_field_data_get_table_name (field_data),
-						tracker_field_data_get_alias (field_data),
-						tracker_field_data_get_alias (field_data),
-						tracker_field_data_get_alias (field_data),
-						tracker_field_data_get_id_field (field_data));
-		}
-
-		g_object_unref (field_data);
-	}
-
-	g_string_append (sql, sql_join->str);
-	g_string_free (sql_join, TRUE);
-
-	/* Build SQL where clause */
-	g_string_append_printf (sql, " WHERE S.ID = %s", service_id);
-
-	query = g_string_free (sql, FALSE);
-
-	g_debug ("%s", query);
-
-	result_set = tracker_db_interface_execute_query (iface, NULL, "%s", query);
-
-	g_free (query);
-
-	return result_set;
 }
 
 /*

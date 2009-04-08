@@ -36,20 +36,12 @@
 #include <libtracker-db/tracker-db-index.h>
 
 #include "tracker-data-metadata.h"
-#include "tracker-field-data.h"
 
 G_BEGIN_DECLS
 
 /* Metadata API */
-TrackerDBResultSet * tracker_data_query_metadata_field        (TrackerDBInterface  *iface,
-							       const gchar         *service_id,
-							       const gchar         *field);
 GPtrArray *          tracker_data_query_all_metadata          (const gchar         *service_type,
 							       const gchar         *service_id);
-TrackerDBResultSet * tracker_data_query_metadata_fields       (TrackerDBInterface  *iface,
-							       const gchar         *service_type,
-							       const gchar         *service_id,
-							       gchar              **fields);
 TrackerDataMetadata *tracker_data_query_metadata              (TrackerService      *service,
 							       guint32              service_id,
 							       gboolean             embedded);
