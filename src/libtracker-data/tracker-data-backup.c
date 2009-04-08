@@ -23,16 +23,12 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#ifdef HAVE_RAPTOR
 #include <raptor.h>
-#endif
 
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-data-backup.h"
-
-#ifdef HAVE_RAPTOR
 
 typedef struct BackupRestoreData BackupRestoreData;
 
@@ -104,13 +100,10 @@ restore_backup_triple (gpointer                user_data,
 		      data->user_data);
 }
 
-#endif /* HAVE_RAPTOR */
-
 gboolean
 tracker_data_backup_save (const gchar  *turtle_filename,
 			  GError      **error)
 {
-#ifdef HAVE_RAPTOR
 	TrackerDBResultSet *data;
 	TrackerClass *service;
 	TurtleFile *turtle_file;
@@ -135,12 +128,6 @@ tracker_data_backup_save (const gchar  *turtle_filename,
 	tracker_turtle_close (turtle_file);
 
 	return TRUE;
-#else
-	g_set_error (error, 0, 0,
-		     "Turtle files are not supported, could not save backup");
-
-	return FALSE;
-#endif /* HAVE_RAPTOR */
 }
 
 gboolean
@@ -149,7 +136,6 @@ tracker_data_backup_restore (const gchar                   *turtle_filename,
 			     gpointer                       user_data,
 			     GError                       **error)
 {
-#ifdef HAVE_RAPTOR
 	BackupRestoreData data;
 
 	data.func = restore_func;
@@ -168,10 +154,4 @@ tracker_data_backup_restore (const gchar                   *turtle_filename,
 				(TurtleTripleCallback) restore_backup_triple,
 				&data);
 	return TRUE;
-#else
-	g_set_error (error, 0, 0,
-		     "Turtle files are not supported, could not restore backup");
-
-	return FALSE;
-#endif /* HAVE_RAPTOR */
 }

@@ -36,8 +36,6 @@
 #include "config.h"
 
 
-#ifdef HAVE_RAPTOR
-
 #include <stdlib.h>
 #include <string.h>
 #include <sys/statvfs.h>
@@ -52,13 +50,10 @@
 #include <libtracker-data/tracker-data-query.h>
 #include <libtracker-data/tracker-data-update.h>
 
-#endif
-
 #include <libtracker-data/tracker-turtle.h>
 
 #include "tracker-removable-device.h"
 
-#ifdef HAVE_RAPTOR
 #include "tracker-module-metadata-private.h"
 
 typedef struct {
@@ -260,8 +255,6 @@ consume_triple_storer (void                   *user_data,
 	}
 }
 
-#endif /* HAVE_RAPTOR */
-
 void
 tracker_removable_device_optimize (TrackerIndexer *indexer,
 				   const gchar    *mount_point)
@@ -285,7 +278,6 @@ void
 tracker_removable_device_load (TrackerIndexer *indexer,
 			       const gchar    *mount_point)
 {
-#ifdef HAVE_RAPTOR
 	gchar *filename;
 
 	filename = g_build_filename (mount_point,
@@ -335,10 +327,7 @@ tracker_removable_device_load (TrackerIndexer *indexer,
 	}
 
 	g_free (filename);
-#endif /* HAVE_RAPTOR */
 }
-
-#ifdef HAVE_RAPTOR
 
 static void
 set_metadata (const gchar *key, 
@@ -398,7 +387,6 @@ foreach_in_metadata_set_metadata (TrackerProperty *field,
 	}
 
 }
-#endif /* HAVE_RAPTOR */
 
 void
 tracker_removable_device_add_metadata (TrackerIndexer        *indexer, 
@@ -407,7 +395,6 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 				       const gchar           *rdf_type,
 				       TrackerModuleMetadata *metadata)
 {
-#ifdef HAVE_RAPTOR
 	AddMetadataInfo *info;
 	gchar           *filename, *muri;
 	FILE            *target_file;
@@ -477,7 +464,6 @@ tracker_removable_device_add_metadata (TrackerIndexer        *indexer,
 	g_slice_free (AddMetadataInfo, info);
 
 	tracker_file_close (target_file, FALSE);
-#endif /* HAVE_RAPTOR */
 }
 
 /* TODO URI branch: path -> uri */
@@ -488,7 +474,6 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 				      const gchar    *path,
 				      const gchar    *rdf_type)
 {
-#ifdef HAVE_RAPTOR
 	gchar               *filename, *about_uri, *muri;
 	FILE                *target_file;
 	raptor_uri          *suri;
@@ -553,7 +538,6 @@ tracker_removable_device_add_removal (TrackerIndexer *indexer,
 	raptor_free_serializer (serializer);
 
 	tracker_file_close (target_file, FALSE);
-#endif /* HAVE_RAPTOR */
 }
 
 /* TODO URI branch: path -> uri */
@@ -565,7 +549,6 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 				   const gchar    *to_path,
 				   const gchar    *rdf_type)
 {
-#ifdef HAVE_RAPTOR
 	gchar               *filename, *about_uri, *to_uri, *muri;
 	FILE                *target_file;
 	raptor_uri          *suri;
@@ -631,6 +614,5 @@ tracker_removable_device_add_move (TrackerIndexer *indexer,
 	raptor_free_uri (suri);
 
 	tracker_file_close (target_file, FALSE);
-#endif /* HAVE_RAPTOR */
 }
 

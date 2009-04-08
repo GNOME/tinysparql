@@ -204,13 +204,9 @@ AC_SUBST(GCONF_LIBS)
 AM_CONDITIONAL(HAVE_GCONF, test "$have_gconf" = "yes")
 
 # Check for Raptor
-PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.17], have_raptor=yes, have_raptor=no)
+PKG_CHECK_MODULES(RAPTOR, [raptor >= 1.4.17])
 AC_SUBST(RAPTOR_CFLAGS)
 AC_SUBST(RAPTOR_LIBS)
-
-if test x$have_raptor == "xyes"; then
-  AC_DEFINE(HAVE_RAPTOR, 1, [Raptor RDF parsers])
-fi
 
 # Check we have the DBUS binding tool we need
 AC_PATH_PROG(DBUSBINDINGTOOL, dbus-binding-tool)

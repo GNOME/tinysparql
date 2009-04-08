@@ -27,28 +27,13 @@
 
 #include <libtracker-data/tracker-data-metadata.h>
 
-#ifdef HAVE_RAPTOR
 #include <raptor.h>
-#endif
 
 /*
  * TODO: Is it possible to do this in the .c file? Dont expose raptor here. 
 */
 
-#ifdef HAVE_RAPTOR
 typedef raptor_statement TrackerRaptorStatement;
-#else
-typedef struct {
-  gconstpointer subject;
-  gint subject_type;
-  gconstpointer predicate;
-  gint predicate_type;
-  gconstpointer object;
-  gint object_type;
-  gpointer object_literal_datatype;
-  const guchar *object_literal_language;
-} TrackerRaptorStatement;
-#endif
 
 G_BEGIN_DECLS
 
