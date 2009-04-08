@@ -1,5 +1,10 @@
 2009-04-08  Carlos Garnacho  <carlos@imendio.com>
 
+	* src/tracker-preferences/tracker-preferences.c (cmd_apply): Make the
+	"Index mounted directories" option also manage removable devices.
+
+2009-04-08  Carlos Garnacho  <carlos@imendio.com>
+
 	* src/libtracker-common/tracker-config.c: Fix a typo.
 
 2009-04-07  Carlos Garnacho  <carlos@imendio.com>

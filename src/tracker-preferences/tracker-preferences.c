@@ -502,6 +502,7 @@ cmd_apply (GtkWidget *widget,
 		priv->should_restart = TRUE;
 		set_bool_option (priv, "SkipMountPoints", bvalue);
                 tracker_config_set_index_mounted_directories (priv->config, !bvalue);
+                tracker_config_set_index_removable_devices (priv->config, !bvalue);
 	}
 
 	widget = glade_xml_get_widget (priv->gxml, "lstAdditionalPathIndexes");
