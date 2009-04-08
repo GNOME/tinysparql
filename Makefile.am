@@ -6,7 +6,21 @@ if HAVE_UNIT_TESTS
 SUBDIRS += tests
 endif
 
+dist-hook: gen-ChangeLog
+
+gen_start_date = 2009-04-10
+.PHONY: gen-ChangeLog
+gen-ChangeLog:
+	if test -d .git; then						\
+	  $(top_srcdir)/gitlog-to-changelog				\
+	    --since=$(gen_start_date) > $(distdir)/cl-t;		\
+	  rm -f $(distdir)/ChangeLog;					\
+	  mv $(distdir)/cl-t $(distdir)/ChangeLog;			\
+	fi
+
 EXTRA_DIST = 					\
+	ChangeLog.pre-0-6-93			\
+	gitlog-to-changelog			\
 	rdf-query-examples/80s-music.rdf 	\
 	rdf-query-examples/90s-music.rdf 	\
 	rdf-query-examples/all-documents.rdf 	\

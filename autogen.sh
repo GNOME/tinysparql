@@ -14,6 +14,9 @@ REQUIRED_AUTOMAKE_VERSION=1.9
     exit 1
 }
 
+# Automake requires that ChangeLog exist.
+touch ChangeLog
+
 which gnome-autogen.sh || {
     echo "You need to install gnome-common from the GNOME CVS"
     exit 1
