@@ -948,6 +948,8 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 		gtk_widget_hide (priv->image);
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	/* call correct function according to service type */
 	switch (service_type) {
 
@@ -1027,7 +1029,7 @@ tracker_metadata_tile_set_uri (TrackerMetadataTile *tile, const gchar *uri,
 
 		break;
 	}
-
+#endif
 
 
 	if (uri) {

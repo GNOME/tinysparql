@@ -21,7 +21,6 @@ libs = 									\
 
 bin_PROGRAMS = 								\
 	tracker-search 							\
-	tracker-meta-folder						\
 	tracker-stats							\
 	tracker-tag							\
 	tracker-files							\
@@ -32,9 +31,6 @@ bin_PROGRAMS = 								\
 
 tracker_search_SOURCES = tracker-search.c
 tracker_search_LDADD = $(libs)
-
-tracker_meta_folder_SOURCES = tracker-meta-folder.c
-tracker_meta_folder_LDADD = $(libs)
 
 tracker_stats_SOURCES = tracker-stats.c
 tracker_stats_LDADD = $(libs)

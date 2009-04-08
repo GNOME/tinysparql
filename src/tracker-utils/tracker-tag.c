@@ -192,6 +192,8 @@ main (int argc, char **argv)
 		files_resolved[j] = NULL;
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (add || rm || rm_all) {
 		if (add) {
 			tags_to_add = g_new0 (gchar*, g_strv_length (add) + 1);
@@ -406,6 +408,7 @@ main (int argc, char **argv)
 			g_strfreev (results);
 		}
 	}
+#endif
 
 finish:
 	g_strfreev (tags_to_remove);

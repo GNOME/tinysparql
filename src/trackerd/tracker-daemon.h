@@ -61,10 +61,6 @@ void	       tracker_daemon_get_version	   (TrackerDaemon	  *object,
 void	       tracker_daemon_get_status	   (TrackerDaemon	  *object,
 						    DBusGMethodInvocation *context,
 						    GError **error);
-void	       tracker_daemon_get_services	   (TrackerDaemon	  *object,
-						    gboolean		   main_services_only,
-						    DBusGMethodInvocation *context,
-						    GError **error);
 void	       tracker_daemon_get_stats		   (TrackerDaemon	  *object,
 						    DBusGMethodInvocation *context,
 						    GError **error);

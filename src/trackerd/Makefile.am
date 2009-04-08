@@ -40,17 +40,11 @@ trackerd_SOURCES =							\
 	tracker-daemon.h						\
 	tracker-dbus.c							\
 	tracker-dbus.h							\
-	tracker-files.c							\
-	tracker-files.h							\
-	tracker-keywords.c						\
-	tracker-keywords.h						\
 	tracker-processor.c						\
 	tracker-processor.h						\
 	tracker-main.c							\
 	tracker-main.h							\
 	tracker-marshal-main.c						\
-	tracker-metadata.c						\
-	tracker-metadata.h						\
 	tracker-monitor.c						\
 	tracker-monitor.h						\
 	tracker-search.c						\
@@ -108,9 +102,6 @@ marshal_sources =                                         		\
 dbus_sources = 								\
 	tracker-backup-glue.h						\
 	tracker-daemon-glue.h						\
-	tracker-files-glue.h						\
-	tracker-keywords-glue.h						\
-	tracker-metadata-glue.h						\
 	tracker-search-glue.h						\
 	tracker-indexer-client.h
 

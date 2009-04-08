@@ -100,6 +100,8 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (service) {
 		gchar **array;
 		gchar **p;
@@ -222,6 +224,7 @@ main (int argc, char **argv)
 
 		g_strfreev (array);
 	}
+#endif
 
 	tracker_disconnect (client);
 

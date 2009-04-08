@@ -171,12 +171,15 @@ remove_tag_activate_cb(GtkMenuItem *menu_item, TrackerTagBar *bar)
 
 	args[0] = g_strdup (priv->active_tag);
 
+	/* TODO: Port to SPARQL */
+#if 0
 	tracker_keywords_remove(priv->client, priv->type, priv->uri,
 				 args, &error);
 	if (error) {
 		g_print ("Tag Removal Error : %s", error->message);
 		return;
 	}
+#endif
 	gchar *temp = g_strdup (priv->uri);
 	tracker_tag_bar_set_uri (bar, priv->type, temp);
 	g_free (temp);
@@ -211,12 +214,15 @@ _on_apply_add_tag (GtkButton *but, TrackerTagBar *bar)
 
 		tags = g_strsplit (text, ",", 0);
 
+	/* TODO: Port to SPARQL */
+#if 0
 		tracker_keywords_add(priv->client, priv->type, priv->uri,
 				 tags, &error);
 		if (error) {
 			g_print ("Tag Addition Error : %s", error->message);
 			return;
 		}
+#endif
 	}
 
 	_on_close_add_tag (but, bar);
@@ -326,9 +332,12 @@ tracker_tag_bar_set_uri (TrackerTagBar *bar, ServiceType type, const gchar *uri)
 	priv->uri = g_strdup (uri);
 	priv->type = type;
 
+	/* TODO: Port to SPARQL */
+#if 0
 	tracker_keywords_get_async (priv->client, priv->type, uri,
 				    (TrackerArrayReply)_keywords_reply,
 				    bar);
+#endif
 }
 
 /* TRACKER TAG BAR NEW */

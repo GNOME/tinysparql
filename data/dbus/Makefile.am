@@ -5,9 +5,6 @@ configdir = $(datadir)/tracker
 config_DATA =						\
 	tracker-backup.xml				\
 	tracker-daemon.xml				\
-	tracker-files.xml				\
-	tracker-keywords.xml				\
-	tracker-metadata.xml				\
 	tracker-search.xml				\
 	tracker-indexer.xml				\
 	tracker-extract.xml

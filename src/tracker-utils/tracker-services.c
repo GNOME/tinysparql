@@ -87,6 +87,8 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (services) {
 		array = tracker_metadata_get_registered_classes (client, &error);
 
@@ -153,6 +155,7 @@ main (int argc, char **argv)
 		}
 		
 	}
+#endif
 
 	tracker_disconnect (client);
 

@@ -33,12 +33,6 @@
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
 #include "tracker-daemon-glue.h"
-#include "tracker-files.h"
-#include "tracker-files-glue.h"
-#include "tracker-keywords.h"
-#include "tracker-keywords-glue.h"
-#include "tracker-metadata.h"
-#include "tracker-metadata-glue.h"
 #include "tracker-search.h"
 #include "tracker-search-glue.h"
 #include "tracker-backup.h"
@@ -288,48 +282,6 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 			      G_OBJECT (object),
 			      &dbus_glib_tracker_daemon_object_info,
 			      TRACKER_DAEMON_PATH);
-	objects = g_slist_prepend (objects, object);
-
-	/* Add org.freedesktop.Tracker.Files */
-	object = tracker_files_new (processor);
-	if (!object) {
-		g_critical ("Could not create TrackerFiles object to register");
-		return FALSE;
-	}
-
-	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_files_object_info,
-			      TRACKER_FILES_PATH);
-	objects = g_slist_prepend (objects, object);
-
-	/* Add org.freedesktop.Tracker.Keywords */
-	object = tracker_keywords_new ();
-	if (!object) {
-		g_critical ("Could not create TrackerKeywords object to register");
-		return FALSE;
-	}
-
-	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_keywords_object_info,
-			      TRACKER_KEYWORDS_PATH);
-	objects = g_slist_prepend (objects, object);
-
-	/* Add org.freedesktop.Tracker.Metadata */
-	object = tracker_metadata_new ();
-	if (!object) {
-		g_critical ("Could not create TrackerMetadata object to register");
-		return FALSE;
-	}
-
-	dbus_register_object (connection,
-			      gproxy,
-			      G_OBJECT (object),
-			      &dbus_glib_tracker_metadata_object_info,
-			      TRACKER_METADATA_PATH);
 	objects = g_slist_prepend (objects, object);
 
 	/* Add org.freedesktop.Tracker.Search */

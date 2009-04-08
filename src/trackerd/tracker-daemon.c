@@ -372,41 +372,6 @@ tracker_daemon_get_status (TrackerDaemon	  *object,
 	tracker_dbus_request_unblock_hooks ();
 }
 
-void
-tracker_daemon_get_services (TrackerDaemon	    *object,
-			     gboolean		     main_services_only,
-			     DBusGMethodInvocation  *context,
-			     GError		   **error)
-{
-	TrackerDBInterface *iface;
-	TrackerDBResultSet *result_set;
-	guint		    request_id;
-	GHashTable	   *values = NULL;
-
-	/* FIXME: Note, the main_services_only variable is redundant */
-
-	request_id = tracker_dbus_get_next_request_id ();
-
-	tracker_dbus_request_new (request_id,
-				  "DBus request to get daemon services");
-
-	iface = tracker_db_manager_get_db_interface (TRACKER_DB_COMMON);
-
-	result_set = tracker_data_manager_exec_proc (iface, "GetServices", 0);
-	values = tracker_dbus_query_result_to_hash_table (result_set);
-
-	if (result_set) {
-		g_object_unref (result_set);
-	}
-
-	dbus_g_method_return (context, values);
-
-	g_hash_table_destroy (values);
-
-	tracker_dbus_request_success (request_id);
-}
-
-
 static void
 stats_cache_update (TrackerDaemon *object)
 {

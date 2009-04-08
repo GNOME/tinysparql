@@ -66,11 +66,14 @@ tracker_keyword_store_init (TrackerKeywordStore *store)
 	store->keywords = g_hash_table_new (g_str_hash, g_str_equal);
 	store->tracker_client = tracker_connect (TRUE);
 
+	/* TODO: Port to SPARQL */
+#if 0
 	//populate the liststore asyncronously
 	tracker_keywords_get_list_async (store->tracker_client,
 					SERVICE_FILES,
 					tracker_keyword_store_populate_cb,
 					store);
+#endif
 }
 
 static gboolean

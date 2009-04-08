@@ -175,6 +175,8 @@ main (int argc, char **argv)
 
 	count = g_strv_length (uris);
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (count > 1 && metadata != NULL) {
 		gchar     **strv;
 		GPtrArray  *results;
@@ -315,6 +317,7 @@ main (int argc, char **argv)
 		g_object_unref (file);
 		g_free (path);
 	}
+#endif
 
 	tracker_disconnect (client);
 

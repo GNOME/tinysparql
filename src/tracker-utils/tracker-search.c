@@ -192,6 +192,8 @@ main (int argc, char **argv)
 
 	search = g_strjoinv (" ", terms);
 
+	/* TODO: Port to SPARQL */
+#if 0
 	if (detailed) {
 		array = tracker_search_text_detailed (client,
 						      time (NULL),
@@ -294,6 +296,7 @@ main (int argc, char **argv)
 			g_free (strv);
 		}
 	}
+#endif
 
 	tracker_disconnect (client);
 

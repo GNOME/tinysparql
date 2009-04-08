@@ -51,6 +51,8 @@ tracker_get_all_keywords (TrackerClient *tracker_client)
 	GList *list = NULL;
 	GError *error = NULL;
 
+	/* TODO: Port to SPARQL */
+#if 0
 	out_array = tracker_keywords_get_list (tracker_client, SERVICE_FILES, &error);
 
 	if (!error && out_array) {
@@ -66,6 +68,7 @@ tracker_get_all_keywords (TrackerClient *tracker_client)
 		}
 		g_ptr_array_free (out_array, TRUE);
 	}
+#endif
 
 	g_clear_error (&error);
 

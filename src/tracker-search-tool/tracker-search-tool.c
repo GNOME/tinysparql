@@ -1776,7 +1776,10 @@ start_new_search (GSearchWindow * gsearch,
 		gtk_list_store_clear (service->store);
 	}
 
+	/* TODO: Port to SPARQL */
+#if 0
 	tracker_search_text_get_hit_count_all_async (tracker_client, query, (TrackerGPtrArrayReply) get_hit_count, gsearch);
+#endif
 }
 
 static void
@@ -1834,11 +1837,13 @@ end_search (GPtrArray * out_array,
 
 		/* update hit count after search in case of dud hits */
 
+	/* TODO: Port to SPARQL */
+#if 0
 		tracker_search_text_get_hit_count_async	(tracker_client, gsearch->current_service->service_type,
 							 gsearch->search_term,
 							 (TrackerIntReply)end_refresh_count,
 							 gsearch);
-
+#endif
 
 
 		gsearch->search_results_list_store = gsearch->current_service->store;
@@ -1897,6 +1902,9 @@ do_search (GSearchWindow * gsearch,
 	}
 
 	gsearch->current_service->offset = search_offset;
+
+	/* TODO: Port to SPARQL */
+#if 0
 	tracker_search_text_detailed_async (tracker_client,
 					    -1,
 					    gsearch->current_service->service_type,
@@ -1904,6 +1912,7 @@ do_search (GSearchWindow * gsearch,
 					    search_offset, MAX_SEARCH_RESULTS,
 					    (TrackerGPtrArrayReply)end_search,
 					    gsearch);
+#endif
 }
 
 static GtkWidget *
