@@ -16,7 +16,6 @@ man_MANS = 			\
 	tracker-extract.1	\
 	tracker-files.1		\
 	tracker-meta-folder.1	\
-	tracker-query.1		\
 	tracker-search.1	\
 	tracker-stats.1		\
 	trackerd.1		\
@@ -26,7 +25,6 @@ man_MANS = 			\
 	tracker.cfg.5		\
 	tracker-services.1	\
 	tracker-info.1		\
-	tracker-unique.1	\
 	$(tst)			\
 	$(ta)			\
 	$(tp)

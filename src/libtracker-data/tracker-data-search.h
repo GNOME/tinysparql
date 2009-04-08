@@ -75,52 +75,6 @@ TrackerDBResultSet *tracker_data_search_files_get_by_mime	 (TrackerDBInterface  
 TrackerDBResultSet *tracker_data_search_keywords_get_list	 (TrackerDBInterface  *iface,
 								  const gchar	      *service);
 
-TrackerDBResultSet *tracker_data_search_get_unique_values			(const gchar	   *service_type,
-										 gchar		  **fields,
-										 const gchar	   *query_condition,
-										 gboolean	    order_desc,
-										 gint		    offset,
-										 gint		    max_hits,
-										 GError		  **error);
-gint		    tracker_data_search_get_sum					(const gchar	   *service_type,
-										 const gchar	   *field,
-										 const gchar	   *query_condition,
-										 GError		  **error);
-gint		    tracker_data_search_get_count				(const gchar	   *service_type,
-										 const gchar	   *field,
-										 const gchar	   *query_condition,
-										 GError		  **error);
-
-TrackerDBResultSet *tracker_data_search_get_unique_values_with_count		(const gchar	   *service_type,
-										 gchar		  **fields,
-										 const gchar	   *query_condition,
-										 const gchar	   *count,
-										 gboolean	    order_desc,
-										 gint		    offset,
-										 gint		    max_hits,
-										 GError		  **error);
-
-TrackerDBResultSet *tracker_data_search_get_unique_values_with_count_and_sum	(const gchar	   *service_type,
-										 gchar		  **fields,
-										 const gchar	   *query_condition,
-										 const gchar	   *count,
-										 const gchar       *sum,
-										 gboolean	    order_desc,
-										 gint		    offset,
-										 gint		    max_hits,
-										 GError		  **error);
-
-TrackerDBResultSet *tracker_data_search_get_unique_values_with_concat_count_and_sum	(const gchar	   *service_type,
-											 gchar		  **fields,
-											 const gchar	   *query_condition,
-											 const gchar       *concat_field,
-											 const gchar	   *count,
-											 const gchar       *sum,
-											 gboolean	    order_desc,
-											 gint		    offset,
-											 gint		    max_hits,
-											 GError		  **error);
-
 TrackerDBResultSet *tracker_data_search_metadata_in_path			(const gchar	   *path,
 										 gchar		  **fields,
 										 GError		  **error);

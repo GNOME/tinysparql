@@ -21,11 +21,6 @@ gen-ChangeLog:
 EXTRA_DIST = 					\
 	ChangeLog.pre-0-6-93			\
 	gitlog-to-changelog			\
-	rdf-query-examples/80s-music.rdf 	\
-	rdf-query-examples/90s-music.rdf 	\
-	rdf-query-examples/all-documents.rdf 	\
-	rdf-query-examples/big-documents.rdf 	\
-	rdf-query-examples/wallpapers.rdf 	\
 	intltool-extract.in 			\
 	intltool-merge.in 			\
 	intltool-update.in 

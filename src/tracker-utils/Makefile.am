@@ -21,22 +21,17 @@ libs = 									\
 
 bin_PROGRAMS = 								\
 	tracker-search 							\
-	tracker-query 							\
 	tracker-meta-folder						\
 	tracker-stats							\
 	tracker-tag							\
 	tracker-files							\
 	tracker-status							\
-	tracker-unique							\
 	tracker-info							\
 	tracker-processes						\
 	tracker-services
 
 tracker_search_SOURCES = tracker-search.c
 tracker_search_LDADD = $(libs)
-
-tracker_query_SOURCES = tracker-query.c
-tracker_query_LDADD = $(libs)
 
 tracker_meta_folder_SOURCES = tracker-meta-folder.c
 tracker_meta_folder_LDADD = $(libs)
@@ -52,9 +47,6 @@ tracker_files_LDADD = $(libs)
 
 tracker_status_SOURCES = tracker-status.c
 tracker_status_LDADD = $(libs)
-
-tracker_unique_SOURCES = tracker-unique.c
-tracker_unique_LDADD = $(libs)
 
 tracker_info_SOURCES = tracker-info.c
 tracker_info_LDADD = $(libs)
