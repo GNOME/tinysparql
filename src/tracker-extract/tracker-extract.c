@@ -32,6 +32,10 @@
 #include "tracker-dbus.h"
 #include "tracker-extract.h"
 
+#ifdef HAVE_STREAMANALYZER
+#include "tracker-topanalyzer.h"
+#endif
+
 #define MAX_EXTRACT_TIME 5
 #define TRACKER_EXTRACT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_EXTRACT, TrackerExtractPrivate))
 
@@ -58,6 +62,9 @@ tracker_extract_class_init (TrackerExtractClass *klass)
 static void
 tracker_extract_init (TrackerExtract *object)
 {
+#ifdef HAVE_STREAMANALYZER
+	tracker_topanalyzer_init ();
+#endif
 }
 
 static void
@@ -66,6 +73,10 @@ tracker_extract_finalize (GObject *object)
 	TrackerExtractPrivate *priv;
 
 	priv = TRACKER_EXTRACT_GET_PRIVATE (object);
+
+#ifdef HAVE_STREAMANALYZER
+	tracker_topanalyzer_shutdown ();
+#endif
 
 	g_array_free (priv->extractors, TRUE);
 
@@ -219,6 +230,10 @@ get_file_metadata (TrackerExtract *extract,
 
 	/* Create hash table to send back */
 	statements = g_ptr_array_new ();
+
+#ifdef HAVE_STREAMANALYZER
+	tracker_topanalyzer_extract (uri, statements, &content_type);
+#endif
 
 	if ((!mime || mime[0]=='\0') && content_type)
 		mime = content_type;

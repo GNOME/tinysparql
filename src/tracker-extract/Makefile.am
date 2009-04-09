@@ -28,6 +28,10 @@ INCLUDES = 								\
 	$(XINE_CFLAGS) 							\
 	$(TOTEM_PL_PARSER_CFLAGS)					
 
+if HAVE_STREAMANALYZER
+INCLUDES += $(STREAMANALYZER_CFLAGS) -DHAVE_STREAMANALYZER
+endif
+
 modules_LTLIBRARIES = 							\
 	libextract-abw.la 						\
 	libextract-mp3.la				 		\
@@ -236,7 +240,13 @@ tracker_extract_LDADD = 						\
 	$(GMODULE_LIBS)							\
 	$(GTHREAD_LIBS)							\
 	$(GCOV_LIBS)							\
-	$(GLIB2_LIBS)
+	$(GLIB2_LIBS)							\
+	$(STREAMANALYZER_LIBS)
+
+if HAVE_STREAMANALYZER
+tracker_extract_SOURCES += tracker-topanalyzer.cpp tracker-topanalyzer.h
+tracker_extract_LDADD += $(STREAMANALYZER_LIBS)
+endif
 
 dbus_sources = 								\
 	tracker-extract-glue.h

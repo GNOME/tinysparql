@@ -84,6 +84,7 @@ AC_SUBST(LT_CURRENT_MINUS_AGE)
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
@@ -148,6 +149,8 @@ EXEMPI_REQUIRED=1.99.2
 HILDON_THUMBNAIL_REQUIRED=3.0.10
 EVO_REQUIRED=2.25.5
 EDS_REQUIRED=2.25.5
+# Unlikely version for now, Nepomuk integration isn't finished in streamanalyzer atm
+STREAMANALYZER_REQUIRED=9.9.9
 LIBGNOME_DESKTOP_REQUIRED=2.9.91
 LIBGNOME_REQUIRED=2.13.2
 LIBGNOMEUI_REQUIRED=2.13.7
@@ -1475,6 +1478,7 @@ Applications:
 
 Metadata Extractors:
 
+	Support StreamAnalyzer:			$have_streamanalyzer
 	Support PNG:				yes
 	Support PDF:				$have_poppler_glib
 	Support JPEG:				$have_libjpeg (xmp: $have_exempi, exif: $have_libexif, iptc: $have_libiptcdata)
