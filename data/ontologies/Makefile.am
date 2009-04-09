@@ -11,7 +11,8 @@ config_DATA =			\
 	31-nao.ontology		\
 	32-nco.ontology		\
 	33-nfo.ontology		\
-	34-nmo.ontology
+	34-nmo.ontology		\
+	35-ncal.ontology
 
 EXTRA_DIST = $(config_DATA)
 
