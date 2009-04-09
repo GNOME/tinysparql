@@ -15,6 +15,7 @@ config_DATA =			\
 	35-ncal.ontology	\
 	37-nid3.ontology	\
 	38-nmm.ontology		\
+	39-mto.ontology		\
 	90-tracker.ontology	\
 	91-maemo.ontology
 
