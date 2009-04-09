@@ -1,0 +1,292 @@
+@prefix nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
+@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nmo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+nmo: a tracker:Namespace ;
+	tracker:prefix "nmo" .
+
+# FIXME Extension requested in Nepomuk 
+nmo:MimePartContainer a rdfs:Class ;
+	rdfs:subClassOf nfo:DataContainer .
+
+# FIXME Extension requested in Nepomuk 
+nmo:partBoundary a rdf:Property ;
+	rdfs:domain nmo:MimePartContainer ;
+	rdfs:range xsd:string .
+
+nmo:Message a rdfs:Class ;
+	rdfs:subClassOf nie:InformationElement ;
+	rdfs:subClassOf nfo:TextDocument .
+
+nmo:Email a rdfs:Class;
+	rdfs:subClassOf nmo:Message , nmo:MimePartContainer .
+
+# FIXME Extension requested in Nepomuk 
+nmo:MimePart a rdfs:Class ;
+	rdfs:subClassOf nfo:EmbeddedFileDataObject .
+
+# FIXME Extension requested in Nepomuk 
+nmo:Attachment a rdfs:Class ;
+	rdfs:subClassOf nmo:MimePart ;
+	rdfs:subClassOf nfo:Attachment .
+
+nmo:Mailbox a rdfs:Class ;
+	rdfs:subClassOf nie:InformationElement .
+
+nmo:MailboxDataObject a rdfs:Class ;
+	rdfs:subClassOf nie:DataObject .
+
+nmo:MessageHeader a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+nmo:IMMessage a rdfs:Class ;
+	rdfs:subClassOf nmo:Message .
+
+nmo:CommunicationChannel a rdfs:Class ;
+	rdfs:subClassOf nie:InformationElement .
+
+nmo:PermanentChannel a rdfs:Class ;
+	rdfs:subClassOf nmo:CommunicationChannel .
+
+nmo:TransientChannel a rdfs:Class ;
+	rdfs:subClassOf nmo:CommunicationChannel .
+
+nmo:FeedChannel a rdfs:Class ;
+	rdfs:subClassOf nmo:CommunicationChannel .
+
+nmo:FeedMessage a rdfs:Class ;
+	rdfs:subClassOf nmo:Message .
+
+nmo:VOIPCall a rdfs:Class ;
+	rdfs:subClassOf nmo:Message .
+
+nmo:MailFolder a rdfs:Class ;
+	rdfs:subClassOf nfo:Folder .
+
+nmo:recipient a rdf:Property ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nco:Contact .
+
+nmo:from a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nco:Contact .
+
+nmo:headerName a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MessageHeader ;
+	rdfs:range xsd:string .
+
+nmo:headerValue a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MessageHeader ;
+	rdfs:range xsd:string .
+
+nmo:isAnswered a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:boolean .
+
+nmo:isFlagged a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:boolean .
+
+nmo:isDeleted a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:boolean .
+
+nmo:isDraft a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:boolean .
+
+nmo:isRecent a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:boolean .
+
+nmo:isRead a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:boolean .
+
+nmo:plainTextMessageContent a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:string .
+
+nmo:htmlMessageContent a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:string .
+
+nmo:references a rdf:Property ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nmo:Message .
+
+nmo:inReplyTo a rdf:Property ;
+	rdfs:subPropertyOf nmo:references ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nmo:Message .
+
+nmo:charSet a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MimePart ;
+	rdfs:range xsd:string .
+
+
+nmo:contentId a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MimePart ;
+	rdfs:range xsd:string .
+
+nmo:contentTransferEncoding a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MimePart ;
+	rdfs:range xsd:string .
+
+nmo:contentDescription a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MimePart ;
+	rdfs:range xsd:string .
+
+nmo:contentDisposition a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MimePart ;
+	rdfs:range xsd:string .
+
+# FIXME Extension requested in Nepomuk 
+nmo:mimeHeader a rdf:Property ;
+	rdfs:domain nmo:MimePart ;
+	rdfs:range rdfs:Resource .
+
+nmo:messageHeader a rdf:Property ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nmo:MessageHeader .
+
+nmo:messageId a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:string .
+
+nmo:messageSubject a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true .
+
+nmo:receivedDate a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:dateTime .
+
+nmo:replyTo a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nco:Contact .
+
+nmo:sender a rdf:Property ;
+	rdfs:subPropertyOf nmo:recipient ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nco:Contact .
+
+nmo:sentDate a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range xsd:dateTime .
+
+nmo:to a rdf:Property ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nco:Contact .
+
+nmo:bcc a rdf:Property ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nco:Contact .
+
+nmo:cc a rdf:Property ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nco:Contact .
+
+nmo:communicationChannel a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nmo:CommunicationChannel .
+
+nmo:duration a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:VOIPCall ;
+	rdfs:range xsd:integer .
+
+nmo:feedChannelTitle a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:FeedChannel ;
+	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk (string... we dont want a resource)
+nmo:image a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:FeedChannel ;
+	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk 
+nmo:accountName a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Mailbox ;
+	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk 
+nmo:accountDisplayName a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Mailbox ;
+	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk 
+nmo:fromAddress a rdf:Property ;
+	rdfs:comment "From address of an account" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Mailbox ;
+	rdfs:range nco:EmailAddress .
+
+# FIXME Extension to nepomuk 
+nmo:signature a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Mailbox ;
+	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk 
+nmo:folderName a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:MailFolder ;
+	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk 
+nmo:status a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:string .
+
+# FIXME Extension to nepomuk 
+nmo:responseType a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:string .
+
+# Don't use this!! Only for compat with original Nepomuk NMO
+nmo:hasAttachment a rdf:Property ;
+	rdfs:domain nmo:Message ;
+	rdfs:range nfo:Attachment .
+
+# Don't use this!! Only for compat with original Nepomuk NMO
+nmo:contentMimeType a rdf:Property ;
+	rdfs:domain nmo:Email ;
+	rdfs:range xsd:string ;
+	rdfs:subPropertyOf nie:mimeType .
