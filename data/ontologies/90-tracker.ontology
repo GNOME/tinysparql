@@ -1,0 +1,36 @@
+@prefix fts: <http://www.tracker-project.org/ontologies/fts#> .
+@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+
+tracker:isDefaultTag a rdf:Property ;
+	rdfs:domain nao:Tag ;
+	rdfs:range xsd:boolean .
+
+tracker:tagRelatedTo a rdf:Property ;
+	rdfs:domain nao:Tag ;
+	rdfs:range rdfs:Class .
+
+tracker:Volume a rdfs:Class ;
+	rdfs:label "Storage media" ;
+	rdfs:subClassOf nie:DataSource .
+
+tracker:isMounted a rdf:Property ;
+	rdfs:domain tracker:Volume ;
+	rdfs:range xsd:boolean .
+
+tracker:unmountDate a rdf:Property ;
+	rdfs:domain tracker:Volume ;
+	rdfs:range xsd:dateTime .
+
+tracker:mountPoint a rdf:Property ;
+	rdfs:domain tracker:Volume ;
+	rdfs:range rdfs:Resource .
+
+fts: a tracker:Namespace ;
+	tracker:prefix "fts" .
+
+
