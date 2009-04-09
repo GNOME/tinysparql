@@ -70,6 +70,8 @@ void		tracker_shutdown				(TrackerClient *client, gboolean reindex, GError **err
 void		tracker_prompt_index_signals			(TrackerClient *client, GError **error);
 
 void		tracker_resources_load				(TrackerClient *client, const char *uri, GError **error);
+GPtrArray *	tracker_resources_sparql_query			(TrackerClient *client, const char *query, GError **error);
+void		tracker_resources_sparql_update			(TrackerClient *client, const char *query, GError **error);
 
 
 char *		tracker_search_get_snippet			(TrackerClient *client, const char *uri, const char *search_text, GError **error);
@@ -89,6 +91,8 @@ void		tracker_shutdown_async					(TrackerClient *client, gboolean reindex, Track
 void		tracker_prompt_index_signals_async			(TrackerClient *client, TrackerVoidReply callback, gpointer user_data);
 
 void		tracker_resources_load_async				(TrackerClient *client, const char *uri, TrackerVoidReply callback, gpointer user_data);
+void		tracker_resources_sparql_query_async			(TrackerClient *client, const char *query, TrackerGPtrArrayReply callback, gpointer user_data);
+void		tracker_resources_sparql_update_async			(TrackerClient *client, const char *query, TrackerVoidReply callback, gpointer user_data);
 
 void		tracker_search_get_snippet_async			(TrackerClient *client, const char *uri, const char *search_text, TrackerStringReply callback, gpointer user_data);
 void		tracker_search_suggest_async				(TrackerClient *client, const char *search_text, int maxdist, TrackerStringReply callback, gpointer user_data);

@@ -40,6 +40,7 @@
 
 #include "tracker-data-manager.h"
 #include "tracker-data-query.h"
+#include "tracker-sparql-query.h"
 
 static gchar *
 get_string_for_value (GValue *value)
@@ -429,10 +430,17 @@ TrackerDBResultSet *
 tracker_data_query_sparql (const gchar  *query,
 			   GError      **error)
 {
+	TrackerSparqlQuery *sparql_query;
+	TrackerDBResultSet *result_set;
+
 	g_return_val_if_fail (query != NULL, NULL);
 
-	/* TODO */
+	sparql_query = tracker_sparql_query_new (query);
 
-	return NULL;
+	result_set = tracker_sparql_query_execute (sparql_query, error);
+
+	g_object_unref (sparql_query);
+
+	return result_set;
 }
 

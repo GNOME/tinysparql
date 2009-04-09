@@ -10,10 +10,16 @@ INCLUDES =								\
 	$(DBUS_CFLAGS)							\
 	$(UUID_CFLAGS)							\
 	$(RAPTOR_CFLAGS)						\
+	-I$(top_srcdir)/src/rasqal					\
 	$(GCOV_CFLAGS)
+
+BUILT_SOURCES = libtracker-data.vala.stamp
 
 libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
+
+libtracker_data_la_VALASOURCES = 					\
+	tracker-sparql-query.vala
 
 libtracker_data_la_SOURCES = 						\
 	tracker-data-backup.c						\
@@ -22,7 +28,9 @@ libtracker_data_la_SOURCES = 						\
 	tracker-data-search.c						\
 	tracker-data-update.c						\
 	tracker-query-tree.c						\
-	tracker-turtle.c
+	libtracker-data.vala.stamp					\
+	tracker-turtle.c						\
+	$(libtracker_data_la_VALASOURCES:.vala=.c)
 
 noinst_HEADERS =							\
 	tracker-data-backup.h						\
@@ -31,7 +39,12 @@ noinst_HEADERS =							\
 	tracker-data-search.h						\
 	tracker-data-update.h						\
 	tracker-query-tree.h						\
+	tracker-sparql-query.h						\
 	tracker-turtle.h
+
+libtracker-data.vala.stamp: $(libtracker_data_la_VALASOURCES)
+	$(VALAC) -C -H tracker-sparql-query.h ../rasqal/rasqal.vapi ../libtracker-common/libtracker-common.vapi libtracker-data.vapi ../libtracker-db/libtracker-db.vapi $^
+	touch $@
 
 libtracker_data_la_LDFLAGS =						\
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
@@ -43,6 +56,11 @@ libtracker_data_la_LIBADD = 						\
 	$(GLIB2_LIBS)							\
 	$(UUID_LIBS)							\
 	$(RAPTOR_LIBS)							\
+	$(top_builddir)/src/rasqal/librasqal.la				\
 	$(GCOV_LIBS)							\
 	-lz
+
+EXTRA_DIST = $(libtracker_data_la_VALASOURCES)				\
+	libtracker-data.vala.stamp					\
+	libtracker-data.vapi
 

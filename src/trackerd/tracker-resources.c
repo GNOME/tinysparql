@@ -181,3 +181,83 @@ tracker_resources_load (TrackerResources	 *object,
 	tracker_dbus_request_success (request_id);
 }
 
+void
+tracker_resources_sparql_query (TrackerResources	 *self,
+				const gchar	         *query,
+				DBusGMethodInvocation	 *context,
+				GError			**error)
+{
+	TrackerDBResultSet   *result_set;
+	GError 		     *actual_error = NULL;
+	guint		      request_id;
+	GPtrArray            *values;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (query != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request for SPARQL Query, "
+				  "query:'%s'",
+				  query);
+
+	result_set = tracker_data_query_sparql (query, &actual_error);
+
+	if (actual_error) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
+
+	values = tracker_dbus_query_result_to_ptr_array (result_set);
+
+	dbus_g_method_return (context, values);
+
+	tracker_dbus_results_ptr_array_free (&values);
+
+	if (result_set) {
+		g_object_unref (result_set);
+	}
+
+	tracker_dbus_request_success (request_id);
+}
+
+void
+tracker_resources_sparql_update (TrackerResources	 *self,
+				 const gchar	         *update,
+				 DBusGMethodInvocation	 *context,
+				 GError			**error)
+{
+	GError 		     *actual_error = NULL;
+	guint		      request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (update != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request for SPARQL Update, "
+				  "update:'%s'",
+				  update);
+
+	org_freedesktop_Tracker_Indexer_sparql_update (tracker_dbus_indexer_get_proxy (),
+						       update,
+						       &actual_error);
+
+	if (actual_error) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
+}
+

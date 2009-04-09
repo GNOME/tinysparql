@@ -64,35 +64,26 @@ static GOptionEntry   entries[] = {
 };
 
 static void
-get_meta_table_data (gpointer value)
+get_meta_table_data (gpointer value, gpointer user_data)
 {
+	gboolean detailed = GPOINTER_TO_INT (user_data);
 	gchar **meta;
 	gchar **p;
-	gchar  *str;
 	gint	i;
 
 	meta = value;
 
 	for (p = meta, i = 0; *p; p++, i++) {
-		switch (i) {
-		case 0:
-			str = g_filename_from_utf8 (*p, -1, NULL, NULL, NULL);
-			g_print ("  %s:'%s'", _("Path"), str);
-			g_free (str);
-			break;
-		case 1:
-			g_print (", %s:'%s'", _("Service"), *p);
-			break;
-		case 2:
-			g_print (", %s:'%s'", _("MIME-type"), *p);
-			break;
-		default:
-			break;
+		if (i == 0) {
+			g_print ("  %s", *p);
+		} else if (detailed) {
+			g_print (", %s", *p);
 		}
 	}
 
 	g_print ("\n");
 }
+
 
 int
 main (int argc, char **argv)
@@ -100,10 +91,8 @@ main (int argc, char **argv)
 	TrackerClient	*client;
 	GOptionContext	*context;
 	GError		*error = NULL;
-	gchar		*search;
+	gchar		*search, *temp, *query;
 	gchar		*summary;
-	gchar	       **strv;
-	gchar	       **p;
 	GPtrArray	*array;
 
 	setlocale (LC_ALL, "");
@@ -175,129 +164,49 @@ main (int argc, char **argv)
 		limit = 512;
 	}
 
-	/* TODO: Port to SPARQL */
-#if 0
-	if (!service) {
-		g_print ("%s\n",
-			 _("Defaulting to 'files' service"));
-
-		type = SERVICE_FILES;
-	} else {
-		type = tracker_class_name_to_type (service);
-
-		if (type == SERVICE_OTHER_FILES && g_ascii_strcasecmp (service, "Other")) {
-			g_printerr ("%s\n",
-				    _("Service not recognized, searching in other files..."));
-		}
-	}
-
-	search = g_strjoinv (" ", terms);
+	temp = g_strjoinv (" ", terms);
+	search = g_strdup (temp); /* replace with escape function */
+	g_free (temp);
 
 	if (detailed) {
-		array = tracker_search_text_detailed (client,
-						      time (NULL),
-						      type,
-						      search,
-						      offset,
-						      limit,
-						      &error);
-		g_free (search);
-
-		if (error) {
-			g_printerr ("%s, %s\n",
-				    _("Could not get find detailed results by text"),
-				    error->message);
-
-			g_error_free (error);
-			tracker_disconnect (client);
-
-			return EXIT_FAILURE;
-		}
-
-		if (!array) {
-			g_print ("%s\n",
-				 _("No results found matching your query"));
-		} else {
-			g_print (tracker_dngettext (NULL,
-						    _("Result: %d"), 
-						    _("Results: %d"),
-						    array->len),
-				 array->len);
-			g_print ("\n");
-
-			g_ptr_array_foreach (array, (GFunc) get_meta_table_data, NULL);
-			g_ptr_array_free (array, TRUE);
-		}
+		query = g_strdup_printf ("SELECT ?s ?type ?mimeType WHERE { ?s fts:match \"%s\" ; rdf:type ?type . "
+					 "OPTIONAL { ?s nie:mimeType ?mimeType } } OFFSET %d LIMIT %d",
+					 search, offset, limit);
 	} else {
-		strv = tracker_search_text (client,
-					    time (NULL),
-					    type,
-					    search,
-					    offset,
-					    limit,
-					    &error);
-		g_free (search);
-
-		if (error) {
-			g_printerr ("%s, %s\n",
-				    _("Could not get find results by text"),
-				    error->message);
-
-			g_error_free (error);
-			tracker_disconnect (client);
-
-			return EXIT_FAILURE;
-		}
-
-		if (!strv) {
-			g_print ("%s\n",
-				 _("No results found matching your query"));
-		} else {
-			gint length;
-
-			length = g_strv_length (strv);
-			
-			g_print (tracker_dngettext (NULL,
-						    _("Result: %d"), 
-						    _("Results: %d"),
-						    length),
-				 length);
-			g_print ("\n");
-
-			for (p = strv; *p; p++) {
-				gchar *s;
-
-				s = g_locale_from_utf8 (*p, -1, NULL, NULL, NULL);
-
-				if (!s) {
-					continue;
-				}
-
-				g_print ("  %s\n", s);
-				g_free (s);
-			}
-
-
-			if (length >= limit) {
-				/* Display '...' so the user thinks there is
-				 * more items.
-				 */
-				g_print ("  ...\n");
-				
-				/* Display warning so the user knows this is
-				 * not the WHOLE data set.
-				 */
-				g_printerr ("\n"
-					    "%s\n",
-					    _("NOTE: Limit was reached, there are more items in the database not listed here"));
-			}
-			
-			g_free (strv);
-		}
+		query = g_strdup_printf ("SELECT ?s WHERE { ?s fts:match \"%s\" } OFFSET %d LIMIT %d",
+					 search, offset, limit);
 	}
-#endif
+
+	array = tracker_resources_sparql_query (client, query, &error);
+
+	g_free (search);
+
+	if (error) {
+		g_printerr ("%s, %s\n",
+			    _("Could not get find detailed results by text"),
+			    error->message);
+
+		g_error_free (error);
+		tracker_disconnect (client);
+
+		return EXIT_FAILURE;
+	}
+
+	if (!array) {
+		g_print ("%s\n",
+			 _("No results found matching your query"));
+	} else {
+		g_print (tracker_dngettext (NULL,
+					    _("Result: %d"), 
+					    _("Results: %d"),
+					    array->len),
+			 array->len);
+		g_print ("\n");
+			g_ptr_array_foreach (array, get_meta_table_data, 
+					     GINT_TO_POINTER (detailed));
+		g_ptr_array_free (array, TRUE);
+	}
 
 	tracker_disconnect (client);
-
 	return EXIT_SUCCESS;
 }

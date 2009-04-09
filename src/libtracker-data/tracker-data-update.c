@@ -37,6 +37,7 @@
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
 #include "tracker-data-query.h"
+#include "tracker-sparql-query.h"
 
 #define RDF_PREFIX TRACKER_RDF_PREFIX
 #define RDFS_PREFIX TRACKER_RDFS_PREFIX
@@ -1572,8 +1573,14 @@ void
 tracker_data_update_sparql (const gchar  *update,
 			    GError      **error)
 {
+	TrackerSparqlQuery *sparql_query;
+
 	g_return_if_fail (update != NULL);
 
-	/* TODO */
+	sparql_query = tracker_sparql_query_new_update (update);
+
+	tracker_sparql_query_execute (sparql_query, error);
+
+	g_object_unref (sparql_query);
 }
 

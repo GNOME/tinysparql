@@ -112,4 +112,7 @@ BUILT_SOURCES =						\
 
 CLEANFILES = $(BUILT_SOURCES)
 
-EXTRA_DIST = tracker-marshal.list
+EXTRA_DIST = 						\
+	tracker-marshal.list				\
+	libtracker-common.vapi
+

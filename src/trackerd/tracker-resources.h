@@ -68,6 +68,14 @@ void		 tracker_resources_load			 (TrackerResources	 *object,
 							  const gchar		 *uri,
 							  DBusGMethodInvocation  *context,
 							  GError		**error);
+void		 tracker_resources_sparql_query		 (TrackerResources       *object,
+							  const gchar		 *query,
+							  DBusGMethodInvocation  *context,
+							  GError		**error);
+void		 tracker_resources_sparql_update	 (TrackerResources       *object,
+							  const gchar		 *update,
+							  DBusGMethodInvocation  *context,
+							  GError		**error);
 
 G_END_DECLS
 

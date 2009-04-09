@@ -29,6 +29,7 @@ src/tracker-utils/tracker-info.c
 src/tracker-utils/tracker-meta-folder.c
 src/tracker-utils/tracker-processes.c
 src/tracker-utils/tracker-search.c
+src/tracker-utils/tracker-sparql.c
 src/tracker-utils/tracker-stats.c
 src/tracker-utils/tracker-status.c
 src/tracker-utils/tracker-tag.c

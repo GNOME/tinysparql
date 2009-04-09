@@ -149,6 +149,10 @@ void            tracker_indexer_delete_statement    (TrackerIndexer         *ind
 						     const gchar            *object,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
+void		tracker_indexer_sparql_update	    (TrackerIndexer         *indexer,
+						     const gchar	    *update,
+						     DBusGMethodInvocation  *context,
+						     GError		   **error);
 void            tracker_indexer_restore_backup      (TrackerIndexer         *indexer,
 						     const gchar            *backup_file,
 						     DBusGMethodInvocation  *context,

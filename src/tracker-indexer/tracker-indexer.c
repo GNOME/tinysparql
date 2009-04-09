@@ -2492,6 +2492,42 @@ tracker_indexer_delete_statement (TrackerIndexer	     *indexer,
 	tracker_dbus_request_success (request_id);
 }
 
+void
+tracker_indexer_sparql_update (TrackerIndexer	         *indexer,
+			       const gchar	         *update,
+			       DBusGMethodInvocation	 *context,
+			       GError			**error)
+{
+	GError 		     *actual_error = NULL;
+	guint		      request_id;
+
+	request_id = tracker_dbus_get_next_request_id ();
+
+	tracker_dbus_async_return_if_fail (update != NULL, context);
+
+	tracker_dbus_request_new (request_id,
+				  "DBus request for SPARQL Update, "
+				  "update:'%s'",
+				  update);
+
+	schedule_flush (indexer, TRUE);
+
+	tracker_data_update_sparql (update, &actual_error);
+
+	if (actual_error) {
+		tracker_dbus_request_failed (request_id,
+					     &actual_error,
+					     NULL);
+		dbus_g_method_return_error (context, actual_error);
+		g_error_free (actual_error);
+		return;
+	}
+
+	dbus_g_method_return (context);
+
+	tracker_dbus_request_success (request_id);
+}
+
 static void
 restore_backup_cb (const gchar *subject,
 		   const gchar *predicate,

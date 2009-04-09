@@ -48,3 +48,6 @@ libtracker_db_la_LIBADD = 						\
 	$(GCOV_LIBS)							\
 	$(GLIB2_LIBS)							\
 	-lz
+
+EXTRA_DIST = libtracker-db.vapi
+

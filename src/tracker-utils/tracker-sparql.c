@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Copyright (C) 2006, Mr Jamie McCracken (jamiemcc@gnome.org)
- * Copyright (C) 2008-2009, Nokia
+ * Copyright (C) 2008, Nokia
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -21,8 +21,8 @@
 
 #include "config.h"
 
+#include <sys/param.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 #include <locale.h>
 
@@ -30,54 +30,60 @@
 #include <glib/gi18n.h>
 
 #include <libtracker/tracker.h>
-#include <libtracker-common/tracker-common.h>
 
-static gchar        **filenames = NULL;
+#ifdef G_OS_WIN32
+#include <trackerd/mingw-compat.h>
+#endif /* G_OS_WIN32 */
+
+static gchar	     *path;
+static gchar	     *query;
+static gboolean	      update;
 
 static GOptionEntry   entries[] = {
-	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
-	  N_("FILE"),
-	  N_("FILE")},
+	{ "path", 'p', 0, G_OPTION_ARG_FILENAME, &path,
+	  N_("Path to use in query"),
+	  NULL,
+	},
+	{ "query", 'q', 0, G_OPTION_ARG_STRING, &query,
+	  N_("SPARQL query"),
+	  NULL
+	},
+	{ "update", 'u', 0, G_OPTION_ARG_NONE, &update,
+	  N_("SPARQL update extensions"),
+	  NULL
+	},
 	{ NULL }
 };
 
 static void
-print_property_value (gpointer value)
+get_meta_table_data (gpointer value)
 {
-	gchar **pair;
+	gchar **meta;
+	gchar **p;
+	gint	i;
 
-	pair = value;
+	meta = value;
 
-	g_print ("  '%s' = '%s'\n", pair[0], pair[1]);
-}
-
-static gboolean
-has_valid_uri_scheme (const gchar *uri)
-{
-	const gchar *s;
-
-	s = uri;
-
-	if (!g_ascii_isalpha (*s)) {
-		return FALSE;
+	for (p = meta, i = 0; *p; p++, i++) {
+		if (i == 0) {
+			g_print ("  %s", *p);
+		} else {
+			g_print (", %s", *p);
+		}
 	}
 
-	do {
-		s++;
-	} while (g_ascii_isalnum (*s) || *s == '+' || *s == '.' || *s == '-');
-
-	return (*s == ':');
+	g_print ("\n");
 }
 
 int
 main (int argc, char **argv)
 {
 	TrackerClient	*client;
-	gchar           *query;
 	GOptionContext	*context;
 	GError		*error = NULL;
-	GPtrArray	*results;
-	char		*uri;
+	gchar		*path_in_utf8;
+	gsize		 size;
+	GPtrArray	*array;
 
 	setlocale (LC_ALL, "");
 
@@ -85,20 +91,17 @@ main (int argc, char **argv)
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	/* Translators: this messagge will apper immediately after the	*/
-	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>	*/
-	context = g_option_context_new (_("- Get all information from a certain file"));
+	context = g_option_context_new (_("- Query using SPARQL"));
 
-	/* Translators: this message will appear after the usage string */
-	/* and before the list of options.				*/
 	g_option_context_add_main_entries (context, entries, NULL);
 	g_option_context_parse (context, &argc, &argv, NULL);
 
-	if (!filenames) {
+	if ((!path && !query)
+	    || (path && query)) {
 		gchar *help;
 
 		g_printerr ("%s\n\n",
-			    _("File missing"));
+			    _("Either path or query needs to be specified"));
 
 		help = g_option_context_get_help (context, TRUE, NULL);
 		g_option_context_free (context);
@@ -118,53 +121,58 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	/* support both, URIs and local file paths */
-	if (has_valid_uri_scheme (filenames[0])) {
-		uri = g_strdup (filenames[0]);
-	} else {
-		GFile *file;
+	if (path) {
+		path_in_utf8 = g_filename_to_utf8 (path, -1, NULL, NULL, &error);
+		if (error) {
+			g_printerr ("%s:'%s', %s\n",
+				    _("Could not get UTF-8 path from path"),
+				    path,
+				    error->message);
+			g_error_free (error);
+			tracker_disconnect (client);
 
-		file = g_file_new_for_commandline_arg (filenames[0]);
-		uri = g_file_get_uri (file);
-		g_object_unref (file);
+			return EXIT_FAILURE;
+		}
+
+		g_file_get_contents (path_in_utf8, &query, &size, &error);
+		if (error) {
+			g_printerr ("%s:'%s', %s\n",
+				    _("Could not read file"),
+				    path_in_utf8,
+				    error->message);
+			g_error_free (error);
+			g_free (path_in_utf8);
+			tracker_disconnect (client);
+
+			return EXIT_FAILURE;
+		}
+
+		g_free (path_in_utf8);
 	}
 
-	query = g_strdup_printf ("SELECT ?predicate ?object WHERE { <%s> ?predicate ?object }", uri);
-
-	results = tracker_resources_sparql_query (client, query, &error);
-
-	g_free (uri);
-	g_free (query);
+	if (!update) {
+		array = tracker_resources_sparql_query (client, query, &error);
+	} else {
+		tracker_resources_sparql_update (client, query, &error);
+	}
 
 	if (error) {
 		g_printerr ("%s, %s\n",
-			    _("Unable to retrieve data for uri"),
+			    _("Could not query search"),
 			    error->message);
-		
 		g_error_free (error);
-		tracker_disconnect (client);
-		
+
 		return EXIT_FAILURE;
 	}
 
-	if (!results) {
-		g_print ("%s\n",
-			 _("No metadata available for that uri"));
-	} else {
-		gint length;
-
-		length = results->len;
-
-		g_print (tracker_dngettext (NULL,
-					    _("Result: %d"), 
-					    _("Results: %d"),
-					    length),
-			 length);
-		g_print ("\n");
-		
-		g_ptr_array_foreach (results, (GFunc) print_property_value, NULL);
-		g_ptr_array_foreach (results, (GFunc) g_strfreev, NULL);
-		g_ptr_array_free (results, TRUE);
+	if (!update) {
+		if (!array) {
+			g_print ("%s\n",
+				 _("No results found matching your query"));
+		} else {
+			g_ptr_array_foreach (array, (GFunc) get_meta_table_data, NULL);
+			g_ptr_array_free (array, TRUE);
+		}
 	}
 
 	tracker_disconnect (client);

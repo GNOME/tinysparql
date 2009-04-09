@@ -65,6 +65,12 @@
       <arg type="s" name="object" direction="in" />
     </method>
 
+    <!-- SPARQL Update extensions, allows bulk insert and delete -->
+    <method name="SparqlUpdate">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="query" direction="in" />
+    </method>
+
     <method name="Pause">
       <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
     </method>
