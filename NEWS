@@ -1,3 +1,60 @@
+NEW in 0.6.93:
+==============
+Improvements:
+  * Fixes tracker-preferences so it mangages removable-devices option.
+  * Fixes tracker config typo.
+  * Fixes tracker-indexer to not enter finished state after flushing.
+  * Fixes tracker-extract not sending queued album art to thumbnailerd
+  * Fixes trackerd to call nice(19) for crawling ONLY else nice(default).
+  * Fixes libtracker-common preprocessor checks for thumbnailer/albumart.
+  * Fixes tracker-extract multiple TrackerHal instances, 2x faster now.
+  * Fixes tracker-extract tests by loading modules not directly linking.
+  * Fixes tracker-applet by adding proper marshal generation for signals.
+  * Fixes SIGSEGV for tracker-extract from exceeding setrlimit() mem.
+  * Fixes Raptor dependency to 1.4.17, need _FEATURE_WRITE_BASE_URI.
+  * Fixes indexer flush time to be optimized for Maemo platform, patch 09.
+  * Fixes gstreamer extractor memory leaks, a lot of leaks.
+  * Fixes gstreamer extractor memory corruption.
+  * Fixes gstreamer extractor by stopping extraction on DURATION messages
+  * Fixes album art memory management and access() to NULL paths.
+  * Fixes adding BUILT_SOURCES to EXTRA_DIST for many Makefile.ams
+  * Fixes not using plural translations in tracker-info.
+  * Fixes several memory leaks/corruptions in gstreamer/mp3/png extractors.
+  * Fixed memory leak in indexer's removable-device module.
+  * Fixed memory leak in indexer's push module, close the dir.
+  * Fixed TrackerDBIndex _update_word() memmove outside boundries.
+  * Added error handling for "Can't store word" to applet.
+  * Added new API tracker_metadata_get_multiple().
+  * Added pre-umount check there's an item before checking mount files.
+  * Updated tracker-info to use _metadata_{get|_multiple}() APIs.
+  * Updated extractors to use tracker_file_{open|close} with posix_fadvise
+  * Removed all references to file-index-update.db, no longer used.
+  * Improved performance by sending items to thumbailer AFTER indexing 
+  * Improves performance/mem of GFile->GQueue in tracker-monitor.c
+
+Bugs:
+  * Fixes GB#577656, tracker doesn't build on non-linux platforms
+  * Fixes GB#577655, tracker-indexer.c fails to compile when...
+  * Fixes LP#355982, crash in tracker-turtle.c with fclose() 
+  * Fixes NB#107570, tracker-extract crash just after device bootup
+  * Fixes NB#106639, Music-Unknown Category  displayed in Genre view
+  * Fixes NB#109172, Video Library: RM , RMJ files listed in Video Library.
+  * Fixes NB#107122, Video:Duration is shown as -:- in video library view
+  * Fixes NB#108793, Not able to filer images with XMP date
+  * Fixes NB#108819, tracker-indexer is crashing.
+  * Fixes NB#108331, Memory Leak found for tracker-extract command
+  * Fixes NB#106085, Tracked database is not updated when images were...
+  * Fixes NB#100642, tracker is still listing the removed tags.
+
+Translations:
+- Updated es: Jorge González, Jorge Gonzalez
+- Updated it: Milo Casagrande
+- Updated nl: Reinout van Schouwen
+
+Help Manual Translations:
+None
+
+
 NEW in 0.6.92:
 ==============
 Improvements:
