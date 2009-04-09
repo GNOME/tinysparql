@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<node name="/">
+  <interface name="org.freedesktop.Tracker.Resources.Class"> 
+
+    <!-- Signal for changed subjects -->
+
+    <signal name="SubjectsChanged">
+     <arg type="as" name="subject" />
+    </signal>
+
+    <!-- Signal for added subjects -->
+
+    <signal name="SubjectsAdded">
+      <arg type="as" name="subject" />
+    </signal>
+
+    <!-- Signal for removed subjects -->
+
+    <signal name="SubjectsRemoved">
+      <arg type="as" name="subject" />
+   </signal>
+
+  </interface>
+</node>

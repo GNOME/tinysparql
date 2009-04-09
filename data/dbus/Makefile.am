@@ -8,7 +8,8 @@ config_DATA =						\
 	tracker-resources.xml				\
 	tracker-search.xml				\
 	tracker-indexer.xml				\
-	tracker-extract.xml
+	tracker-extract.xml				\
+	tracker-resources-class.xml
 
 # Services
 servicedir = $(DBUS_SERVICES_DIR)

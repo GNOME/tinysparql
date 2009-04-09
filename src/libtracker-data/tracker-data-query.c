@@ -210,6 +210,48 @@ tracker_data_query_all_metadata (guint32 resource_id)
 
 }
 
+
+GPtrArray*
+tracker_data_query_rdf_type (guint32 id)
+{
+	TrackerDBResultSet *result_set;
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	GPtrArray *ret = NULL;
+
+	iface = tracker_db_manager_get_db_interface ();
+
+	stmt = tracker_db_interface_create_statement (iface,
+			"SELECT \"rdfs:Resource\".\"Uri\" "
+			"FROM \"rdfs:Resource_rdf:type\" "
+			"INNER JOIN \"rdfs:Resource\" "
+			"ON \"rdfs:Resource_rdf:type\".\"rdf:type\" = \"rdfs:Resource\".\"ID\" "
+			"WHERE \"rdfs:Resource_rdf:type\".\"ID\" = ?");
+
+	tracker_db_statement_bind_int (stmt, 0, id);
+	result_set = tracker_db_statement_execute (stmt, NULL);
+	g_object_unref (stmt);
+
+	if (result_set) {
+		guint rows;
+
+		rows = tracker_db_result_set_get_n_rows (result_set);
+		ret = g_ptr_array_sized_new (rows);
+		do {
+			gchar *uri;
+
+			tracker_db_result_set_get (result_set, 0, &uri, -1);
+
+			g_ptr_array_add (ret, uri);
+
+		} while (tracker_db_result_set_iter_next (result_set));
+
+		g_object_unref (result_set);
+	}
+
+	return ret;
+}
+
 guint32
 tracker_data_query_resource_id (const gchar	   *uri)
 {

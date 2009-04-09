@@ -72,6 +72,14 @@ G_BEGIN_DECLS
 		};							\
 	} G_STMT_END
 
+typedef enum {
+	TRACKER_DBUS_EVENTS_TYPE_ADD,
+	TRACKER_DBUS_EVENTS_TYPE_UPDATE,
+	TRACKER_DBUS_EVENTS_TYPE_DELETE
+} TrackerDBusEventsType;
+
+#define TRACKER_TYPE_EVENT_ARRAY	dbus_g_type_get_collection ("GPtrArray", dbus_g_type_get_struct ("GValueArray", G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INVALID))
+
 typedef struct TrackerDBusRequestHandler TrackerDBusRequestHandler;
 
 typedef void (*TrackerDBusRequestFunc)	 (guint    request_id,

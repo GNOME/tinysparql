@@ -54,7 +54,9 @@ tracker_indexer_SOURCES =						\
 	tracker-removable-device.c					\
 	tracker-removable-device.h					\
 	tracker-push.c							\
-	tracker-push.h
+	tracker-push.h							\
+	tracker-events.c						\
+	tracker-events.h
 
 tracker_indexer_LDADD =							\
 	$(plugin_libs)							\

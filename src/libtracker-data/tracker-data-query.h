@@ -60,6 +60,8 @@ guint32              tracker_data_query_resource_id           (const gchar      
 TrackerDBResultSet *tracker_data_query_sparql			(const gchar       *query,
 								 GError	          **error);
 
+GPtrArray*          tracker_data_query_rdf_type               (guint32              id);
+
 G_END_DECLS
 
 #endif /* __TRACKER_DATA_QUERY_H__ */

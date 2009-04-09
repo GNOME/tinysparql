@@ -61,6 +61,21 @@ void tracker_data_update_disable_volume                 (const gchar         *ud
 void tracker_data_update_disable_all_volumes            (void);
 void tracker_data_update_reset_volume                   (const gchar         *uri);
 
+/* Calling back */
+typedef void (*TrackerStatementCallback)                (const gchar *subject, 
+							 const gchar *predicate, 
+							 const gchar *object,
+							 GPtrArray   *rdf_types,
+							 gpointer user_data);
+typedef void (*TrackerCommitCallback)                   (gpointer user_data);
+
+void tracker_data_set_insert_statement_callback         (TrackerStatementCallback callback,
+							 gpointer                 user_data);
+void tracker_data_set_delete_statement_callback         (TrackerStatementCallback callback,
+							 gpointer                 user_data);
+void tracker_data_set_commit_statement_callback         (TrackerCommitCallback    callback,
+							 gpointer                 user_data);
+
 G_END_DECLS
 
 #endif /* __TRACKER_DATA_UPDATE_H__ */

@@ -76,6 +76,8 @@ struct TrackerIndexerClass {
 	void (*indexing_error)  (TrackerIndexer *indexer,
 				 const gchar    *reason,
 				 gboolean        requires_reindex);
+	void (*event_happened)	(TrackerIndexer *indexer,
+				 GPtrArray      *events);
 };
 
 GType		tracker_indexer_get_type	    (void) G_GNUC_CONST;
@@ -91,6 +93,8 @@ void            tracker_indexer_process_modules     (TrackerIndexer         *ind
 						     gchar                 **modules);
 void		tracker_indexer_transaction_commit  (TrackerIndexer         *indexer);
 void		tracker_indexer_transaction_open    (TrackerIndexer         *indexer);
+void		tracker_indexer_make_event_happen   (TrackerIndexer         *indexer,
+						     GPtrArray              *events);
 
 /* DBus methods */
 void            tracker_indexer_pause               (TrackerIndexer         *indexer,
@@ -160,6 +164,8 @@ void            tracker_indexer_restore_backup      (TrackerIndexer         *ind
 void            tracker_indexer_shutdown            (TrackerIndexer         *indexer,
 						     DBusGMethodInvocation  *context,
 						     GError                **error);
+
+GStrv           tracker_indexer_get_notifiable_classes  (void);
 
 G_END_DECLS
 

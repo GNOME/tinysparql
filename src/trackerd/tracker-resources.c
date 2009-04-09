@@ -38,17 +38,111 @@
 #include "tracker-dbus.h"
 #include "tracker-marshal.h"
 #include "tracker-resources.h"
+#include "tracker-resource-class.h"
 
 G_DEFINE_TYPE(TrackerResources, tracker_resources, G_TYPE_OBJECT)
+
+#define TRACKER_RESOURCES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_RESOURCES, TrackerResourcesPrivate))
+
+
+typedef struct {
+	GSList     *event_sources;
+	DBusGProxy *indexer_proxy;
+} TrackerResourcesPrivate;
+
+static void
+free_event_sources (TrackerResourcesPrivate *priv)
+{
+	if (priv->event_sources) {
+		g_slist_foreach (priv->event_sources, 
+				 (GFunc) g_object_unref, NULL);
+		g_slist_free (priv->event_sources);
+
+		priv->event_sources = NULL;
+	}
+}
+
+static void 
+tracker_resources_finalize (GObject	 *object)
+{
+	TrackerResourcesPrivate *priv;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
+
+	free_event_sources (priv);
+
+	g_object_unref (priv->indexer_proxy);
+
+	G_OBJECT_CLASS (tracker_resources_parent_class)->finalize (object);
+}
 
 static void
 tracker_resources_class_init (TrackerResourcesClass *klass)
 {
+	GObjectClass *object_class;
+
+	object_class = G_OBJECT_CLASS (klass);
+
+	object_class->finalize = tracker_resources_finalize;
+
+	g_type_class_add_private (object_class, sizeof (TrackerResourcesPrivate));
+}
+
+
+static void
+event_happened_cb (DBusGProxy *proxy,
+		   GPtrArray  *events,
+		   gpointer    user_data)
+{
+	TrackerResources        *object = user_data;
+	TrackerResourcesPrivate *priv;
+	GSList                  *event_sources, *l, *to_emit = NULL;
+	guint                    i;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
+
+	event_sources = priv->event_sources;
+
+	for (i = 0; i < events->len; i++) {
+		GValueArray *event = events->pdata[i];
+		const gchar *uri = g_value_get_string (g_value_array_get_nth (event, 0));
+		const gchar *rdf_class = g_value_get_string (g_value_array_get_nth (event, 1));
+		TrackerDBusEventsType type = g_value_get_int (g_value_array_get_nth (event, 2));
+
+		for (l = event_sources; l; l = l->next) {
+			TrackerResourceClass *class_ = l->data;
+			if (g_strcmp0 (rdf_class, tracker_resource_class_get_rdf_class (class_)) == 0) {
+				tracker_resource_class_add_event (class_, uri, type);
+				to_emit = g_slist_prepend (to_emit, class_);
+			}
+		}
+	}
+
+	if (to_emit) {
+		for (l = to_emit; l; l = l->next) {
+			TrackerResourceClass *class_ = l->data;
+			tracker_resource_class_emit_events (class_);
+		}
+
+		g_slist_free (to_emit);
+	}
 }
 
 static void
 tracker_resources_init (TrackerResources *object)
 {
+	TrackerResourcesPrivate *priv;
+	DBusGProxy *proxy = tracker_dbus_indexer_get_proxy ();
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
+
+	priv->indexer_proxy = g_object_ref (proxy);
+
+	dbus_g_proxy_connect_signal (proxy, "EventHappened",
+				     G_CALLBACK (event_happened_cb),
+				     object,
+				     NULL);
+
 }
 
 TrackerResources *
@@ -261,3 +355,15 @@ tracker_resources_sparql_update (TrackerResources	 *self,
 	tracker_dbus_request_success (request_id);
 }
 
+void 
+tracker_resources_set_event_sources (TrackerResources *object,
+				     GSList           *event_sources)
+{
+	TrackerResourcesPrivate *priv;
+
+	priv = TRACKER_RESOURCES_GET_PRIVATE (object);
+
+	free_event_sources (priv);
+
+	priv->event_sources = event_sources;
+}

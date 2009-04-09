@@ -117,5 +117,8 @@
       <arg type="s" name="reason" />
       <arg type="b" name="requires_reindexing" />
     </signal>
+    <signal name="EventHappened">
+      <arg type="a(ssi)" name="events" />
+    </signal>
   </interface>
 </node>

@@ -61,6 +61,7 @@ nmo:FeedChannel a rdfs:Class ;
 	rdfs:subClassOf nmo:CommunicationChannel .
 
 nmo:FeedMessage a rdfs:Class ;
+	tracker:notify true ;
 	rdfs:subClassOf nmo:Message .
 
 nmo:VOIPCall a rdfs:Class ;

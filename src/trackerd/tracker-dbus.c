@@ -25,16 +25,21 @@
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-log.h>
 #include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-ontology.h>
 
+#include <libtracker-db/tracker-db-dbus.h>
 #include <libtracker-db/tracker-db-manager.h>
 
 #include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-data/tracker-data-query.h>
 
 #include "tracker-dbus.h"
 #include "tracker-daemon.h"
 #include "tracker-daemon-glue.h"
 #include "tracker-resources.h"
 #include "tracker-resources-glue.h"
+#include "tracker-resource-class.h"
+#include "tracker-resources-class-glue.h"
 #include "tracker-search.h"
 #include "tracker-search-glue.h"
 #include "tracker-backup.h"
@@ -259,7 +264,9 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 			       TrackerDBIndex	*resources_index,
 			       TrackerProcessor *processor)
 {
-	gpointer object;
+	gpointer object, resources;
+	GSList *event_sources = NULL;
+	TrackerDBResultSet *result_set;
 
 	g_return_val_if_fail (TRACKER_IS_CONFIG (config), FALSE);
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
@@ -290,6 +297,7 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 		g_critical ("Could not create TrackerResources object to register");
 		return FALSE;
 	}
+	resources = object;
 
 	dbus_register_object (connection,
 			      gproxy,
@@ -328,6 +336,72 @@ tracker_dbus_register_objects (TrackerConfig	*config,
 
 	/* Reverse list since we added objects at the top each time */
 	objects = g_slist_reverse (objects);
+
+	result_set = tracker_data_query_sparql ("SELECT ?class WHERE { ?class tracker:notify true }", NULL);
+
+	if (result_set) {
+		GStrv classes_to_signal;
+		guint ui, count = 0;
+
+		classes_to_signal = tracker_dbus_query_result_to_strv (result_set, 0, &count);
+
+		for (ui = 0; ui < count; ui++) {
+			const gchar *rdf_class = classes_to_signal[ui];
+			gchar *replaced;
+			gchar *path, *uri, *hash;
+
+			uri = g_strdup (rdf_class);
+
+			hash = strrchr (uri, '#');
+			if (hash == NULL) {
+				/* support ontologies whose namespace uri does not end in a hash, e.g. dc */
+				hash = strrchr (uri, '/');
+			}
+			if (hash == NULL) {
+				g_critical ("Unknown namespace of property %s", uri);
+			} else {
+				gchar *namespace_uri = g_strndup (uri, hash - uri + 1);
+				TrackerNamespace *namespace;
+
+				namespace = tracker_ontology_get_namespace_by_uri (namespace_uri);
+				if (namespace == NULL) {
+					g_critical ("Unknown namespace %s of property %s", namespace_uri, uri);
+				} else {
+					replaced = g_strdup_printf ("%s/%s", tracker_namespace_get_prefix (namespace), hash + 1);
+				}
+				g_free (namespace_uri);
+			}
+
+			path = g_strdup_printf (TRACKER_RESOURCES_CLASS_PATH,
+						replaced);
+
+			g_free (replaced);
+
+			/* Add a org.freedesktop.Tracker.Resources.Class */
+			object = tracker_resource_class_new (rdf_class);
+			if (!object) {
+				g_critical ("Could not create TrackerResourcesClass object to register");
+				return FALSE;
+			}
+
+			dbus_register_object (connection,
+					      gproxy,
+					      G_OBJECT (object),
+					      &dbus_glib_tracker_resources_class_object_info,
+					      path);
+			g_free (path);
+
+			/* TrackerResources takes over ownership and unrefs the gobjects too */
+			event_sources = g_slist_prepend (event_sources, g_object_ref (object));
+			objects = g_slist_prepend (objects, object);
+		}
+
+		g_strfreev (classes_to_signal);
+		g_object_unref (result_set);
+	}
+
+
+	tracker_resources_set_event_sources (resources, event_sources);
 
 	return TRUE;
 }
@@ -491,6 +565,11 @@ tracker_dbus_indexer_get_proxy (void)
 					 G_TYPE_STRING,
 					 G_TYPE_BOOLEAN,
 					 G_TYPE_INVALID);
+		dbus_g_proxy_add_signal (proxy_for_indexer,
+					 "EventHappened",
+					 TRACKER_TYPE_EVENT_ARRAY,
+					 G_TYPE_INVALID);
+
 	}
 
 	return proxy_for_indexer;

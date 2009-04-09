@@ -39,6 +39,7 @@ nfo:Visual a rdfs:Class ;
 nfo:Image a rdfs:Class ;
 	rdfs:label "Image" ;
 	rdfs:comment "A file containing an image." ;
+	tracker:notify true ;
 	rdfs:subClassOf nfo:Visual .
 
 nfo:RasterImage a rdfs:Class ;
@@ -68,6 +69,7 @@ nfo:VectorImage a rdfs:Class ;
 nfo:Audio a rdfs:Class ;
 	rdfs:label "Audio" ;
 	rdfs:comment "A file containing audio content" ;
+	tracker:notify true ;
 	rdfs:subClassOf nfo:Media .
 
 nfo:CompressionType a rdfs:Class ;
@@ -233,6 +235,7 @@ nfo:Cursor a rdfs:Class ;
 nfo:Bookmark a rdfs:Class ;
 	rdfs:label "Bookmark" ;
 	rdfs:comment "['A bookmark of a webbrowser. Use nie:title for the name/label', 'nie:contentCreated to represent the date when the user added the bookmark', 'and nie:contentLastModified for modifications. nfo:bookmarks to store the link.']" ;
+	tracker:notify true ;
 	rdfs:subClassOf nie:InformationElement .
 
 nfo:DeletedResource a rdfs:Class ;
@@ -248,6 +251,7 @@ nfo:Website a rdfs:Class ;
 nfo:WebHistory a rdfs:Class ;
 	rdfs:label "Web History" ;
         rdfs:comment "A web history entry" ;
+	tracker:notify true ;
         rdfs:subClassOf nie:InformationElement .
 
 nfo:count a rdf:Property ;

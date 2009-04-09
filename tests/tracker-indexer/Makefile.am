@@ -2,7 +2,8 @@ include $(top_srcdir)/Makefile.decl
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-TEST_PROGS += tracker-metadata-utils
+TEST_PROGS += tracker-metadata-utils \
+	tracker-events
 
 INCLUDES = 									\
 	-DTEST									\
@@ -25,6 +26,7 @@ INCLUDES = 									\
 
 tracker_metadata_utils_SOURCES = 						\
 	$(top_srcdir)/src/tracker-indexer/tracker-dbus.c			\
+	$(top_srcdir)/src/tracker-indexer/tracker-events.c			\
 	$(top_srcdir)/src/tracker-indexer/tracker-indexer.c			\
 	$(top_srcdir)/src/tracker-indexer/tracker-indexer-module.c		\
 	$(top_srcdir)/src/tracker-indexer/tracker-marshal-main.c		\
@@ -48,4 +50,16 @@ tracker_metadata_utils_LDADD =	                                        	\
 	$(GIO_LIBS)								\
 	$(GCOV_LIBS)								\
 	$(RAPTOR_LIBS)								\
+	$(GLIB2_LIBS)							
+
+tracker_events_SOURCES = 							\
+	tracker-events-test.c							\
+	$(top_srcdir)/src/tracker-indexer/tracker-events.c
+
+tracker_events_LDADD = 								\
+	$(top_builddir)/src/libtracker-common/libtracker-common.la 		\
+	$(DBUS_LIBS)								\
+	$(GCOV_LIBS)								\
+	$(GMODULE_LIBS)								\
+	$(GTHREAD_LIBS)								\
 	$(GLIB2_LIBS)							

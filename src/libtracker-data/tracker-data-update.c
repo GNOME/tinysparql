@@ -52,6 +52,7 @@ struct _TrackerDataUpdateBuffer {
 	gchar *subject;
 	guint32 id;
 	GHashTable *tables;
+	GPtrArray *types;
 };
 
 struct _TrackerDataUpdateBufferProperty {
@@ -84,6 +85,37 @@ typedef struct {
 static gboolean auto_commit = TRUE;
 static TrackerDataUpdateBuffer update_buffer;
 static TrackerDataBlankBuffer blank_buffer;
+
+static TrackerStatementCallback insert_callback = NULL;
+static gpointer insert_data;
+static TrackerStatementCallback delete_callback = NULL;
+static gpointer delete_data;
+static TrackerCommitCallback commit_callback = NULL;
+static gpointer commit_data;
+
+void 
+tracker_data_set_commit_statement_callback (TrackerCommitCallback    callback,
+					    gpointer                 user_data)
+{
+	commit_callback = callback;
+	commit_data = user_data;
+}
+
+void
+tracker_data_set_insert_statement_callback (TrackerStatementCallback callback,
+					    gpointer                 user_data)
+{
+	insert_callback = callback;
+	insert_data = user_data;
+}
+
+void 
+tracker_data_set_delete_statement_callback (TrackerStatementCallback callback,
+					    gpointer                 user_data)
+{
+	delete_callback = callback;
+	delete_data = user_data;
+}
 
 static guint32
 tracker_data_update_get_new_service_id (TrackerDBInterface *iface)
@@ -348,6 +380,12 @@ tracker_data_update_buffer_flush (void)
 	g_hash_table_remove_all (update_buffer.tables);
 	g_free (update_buffer.subject);
 	update_buffer.subject = NULL;
+
+	if (update_buffer.types) {
+		g_ptr_array_foreach (update_buffer.types, (GFunc) g_free, NULL);
+		g_ptr_array_free (update_buffer.types, TRUE);
+		update_buffer.types = NULL;
+	}
 }
 
 static void
@@ -794,6 +832,7 @@ tracker_data_delete_statement (const gchar            *subject,
 	TrackerClass       *class;
 	TrackerProperty    *field;
 	gint		    subject_id;
+	GPtrArray          *types;
 
 	if (auto_commit) {
 		tracker_data_begin_implicit_transaction ();
@@ -810,6 +849,8 @@ tracker_data_delete_statement (const gchar            *subject,
 
 		return;
 	}
+
+	types = tracker_data_query_rdf_type (subject_id);
 
 	if (object && g_strcmp0 (predicate, RDF_PREFIX "type") == 0) {
 		class = tracker_ontology_get_class_by_uri (object);
@@ -910,6 +951,15 @@ tracker_data_delete_statement (const gchar            *subject,
 		}
 	}
 
+	if (delete_callback) {
+		delete_callback (subject, predicate, object, types, delete_data);
+	}
+
+	if (types) {
+		g_ptr_array_foreach (types, (GFunc) g_free, NULL);
+		g_ptr_array_free (types, TRUE);
+	}
+
 	if (auto_commit) {
 		tracker_data_commit_transaction ();
 	}
@@ -997,6 +1047,7 @@ tracker_data_insert_statement (const gchar            *subject,
 		/* subject not yet in cache, retrieve or create ID */
 		update_buffer.subject = g_strdup (subject);
 		update_buffer.id = ensure_resource_id (update_buffer.subject);
+		update_buffer.types = tracker_data_query_rdf_type (update_buffer.id);
 
 		g_value_set_int64 (&gvalue, (gint64) time (NULL));
 		cache_insert_value ("rdfs:Resource", "Modified", &gvalue, FALSE);
@@ -1008,6 +1059,11 @@ tracker_data_insert_statement (const gchar            *subject,
 		service = tracker_ontology_get_class_by_uri (object);
 		if (service != NULL) {
 			cache_create_service_decomposed (service);
+
+			if (!update_buffer.types)
+				update_buffer.types = g_ptr_array_new ();
+			g_ptr_array_add (update_buffer.types, g_strdup (object));
+
 		} else {
 			g_warning ("Class '%s' not found in the ontology", object);
 		}
@@ -1044,9 +1100,14 @@ tracker_data_insert_statement (const gchar            *subject,
 		}
 	}
 
+	if (insert_callback) {
+		insert_callback (subject, predicate, object, update_buffer.types, insert_data);
+	}
+
 	if (auto_commit) {
 		tracker_data_commit_transaction ();
 	}
+
 }
 
 void
@@ -1389,6 +1450,9 @@ tracker_data_commit_transaction (void)
 	tracker_db_interface_end_transaction (iface);
 
 	g_hash_table_unref (update_buffer.resource_cache);
+
+	if (commit_callback)
+		commit_callback (commit_data);
 
 	auto_commit = TRUE;
 }

@@ -60,7 +60,9 @@ trackerd_SOURCES =							\
 	tracker-push.c							\
 	tracker-push.h							\
 	tracker-push-registrar.c					\
-	tracker-push-registrar.h
+	tracker-push-registrar.h					\
+	tracker-resource-class.c					\
+	tracker-resource-class.h
 
 if OS_WIN32
 trackerd_win_libs = -lws2_32 -lkernel32
@@ -106,6 +108,7 @@ dbus_sources = 								\
 	tracker-daemon-glue.h						\
 	tracker-resources-glue.h					\
 	tracker-search-glue.h						\
+	tracker-resources-class-glue.h					\
 	tracker-indexer-client.h
 
 %-glue.h: $(top_srcdir)/data/dbus/%.xml
