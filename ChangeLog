@@ -1,5 +1,11 @@
 2009-04-09  Martyn Russell  <martyn@imendio.com>
 
+	* src/tracker-applet/tracker-applet.c:
+	(about_menu_activated): Updated Copyright years. Patch by Michele
+	Mattioni.
+
+2009-04-09  Martyn Russell  <martyn@imendio.com>
+
 	* src/tracker-extract/tracker-main.c:
 	(main): Don't keep the tracker-extract command running if DBus
 	says it is already running.

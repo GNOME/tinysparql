@@ -1431,7 +1431,7 @@ about_menu_activated (GtkMenuItem * item, gpointer data)
 			       _
 			       ("Tracker is a tool designed to extract info and metadata about your personal data so that it can be searched easily and quickly"),
 			       "copyright",
-			       _("Copyright \xC2\xA9 2005-2008 "
+			       _("Copyright \xC2\xA9 2005-2009 "
 				 "The Tracker authors"), "license",
 			       license_trans, "wrap-license", TRUE, "authors",
 			       authors, "documenters", documenters,
