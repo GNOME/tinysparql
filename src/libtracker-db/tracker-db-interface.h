@@ -30,6 +30,11 @@ G_BEGIN_DECLS
 #define TRACKER_IS_DB_INTERFACE(obj)	    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_DB_INTERFACE))
 #define TRACKER_DB_INTERFACE_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), TRACKER_TYPE_DB_INTERFACE, TrackerDBInterfaceIface))
 
+#define TRACKER_TYPE_DB_STATEMENT	    (tracker_db_statement_get_type ())
+#define TRACKER_DB_STATEMENT(obj)	    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_DB_STATEMENT, TrackerDBStatement))
+#define TRACKER_IS_DB_STATEMENT(obj)	    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TRACKER_TYPE_DB_STATEMENT))
+#define TRACKER_DB_STATEMENT_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), TRACKER_TYPE_DB_STATEMENT, TrackerDBStatementIface))
+
 #define TRACKER_TYPE_DB_RESULT_SET	    (tracker_db_result_set_get_type ())
 #define TRACKER_DB_RESULT_SET(o)	    (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DB_RESULT_SET, TrackerDbResultSet))
 #define TRACKER_DB_RESULT_SET_CLASS(c)	    (G_TYPE_CHECK_CLASS_CAST ((c),    TRACKER_TYPE_DB_RESULT_SET, TrackerDbResultSetClass))
@@ -48,6 +53,8 @@ typedef enum {
 
 typedef struct TrackerDBInterface TrackerDBInterface;
 typedef struct TrackerDBInterfaceIface TrackerDBInterfaceIface;
+typedef struct TrackerDBStatement TrackerDBStatement;
+typedef struct TrackerDBStatementIface TrackerDBStatementIface;
 typedef struct TrackerDBResultSet TrackerDBResultSet;
 typedef struct TrackerDBResultSetClass TrackerDBResultSetClass;
 
@@ -64,10 +71,31 @@ struct TrackerDBInterfaceIface {
 							GError		   **error,
 							const gchar	    *procedure,
 							va_list		     args);
+	TrackerDBStatement * (* create_statement)      (TrackerDBInterface  *interface,
+							const gchar	    *query);
 	TrackerDBResultSet * (* execute_query)	       (TrackerDBInterface  *interface,
 							GError		   **error,
 							const gchar	    *query);
 
+};
+
+struct TrackerDBStatementIface {
+	GTypeInterface iface;
+
+	void		     (* bind_double)	(TrackerDBStatement	 *stmt,
+						 int			  index,
+						 double			  value);
+	void		     (* bind_int)	(TrackerDBStatement	 *stmt,
+						 int			  index,
+						 int			  value);
+	void		     (* bind_text)	(TrackerDBStatement	 *stmt,
+						 int			  index,
+						 const gchar		 *value);
+	TrackerDBResultSet * (* execute)	(TrackerDBStatement	 *stmt,
+						 GError			**error);
+	void		     (* bind_int64)	(TrackerDBStatement	 *stmt,
+						 int			  index,
+						 gint64			  value);
 };
 
 struct TrackerDBResultSet {
@@ -82,11 +110,15 @@ struct TrackerDBResultSetClass {
 GQuark tracker_db_interface_error_quark (void);
 
 GType tracker_db_interface_get_type (void);
+GType tracker_db_statement_get_type (void);
 GType tracker_db_result_set_get_type (void);
 GType tracker_db_blob_get_type (void);
 
 
 /* Functions to create queries/procedures */
+TrackerDBStatement *	tracker_db_interface_create_statement	 (TrackerDBInterface   *interface,
+								  const gchar	       *query,
+								  ...) G_GNUC_PRINTF (2, 3);
 TrackerDBResultSet *	tracker_db_interface_execute_vquery	 (TrackerDBInterface   *interface,
 								  GError	     **error,
 								  const gchar	       *query,
@@ -118,6 +150,20 @@ TrackerDBResultSet *	tracker_db_interface_execute_procedure_len  (TrackerDBInter
 gboolean		tracker_db_interface_start_transaction	    (TrackerDBInterface   *interface);
 gboolean		tracker_db_interface_end_transaction	    (TrackerDBInterface   *interface);
 
+void			tracker_db_statement_bind_double	(TrackerDBStatement	 *stmt,
+								 int			  index,
+								 double			  value);
+void			tracker_db_statement_bind_int		(TrackerDBStatement	 *stmt,
+								 int			  index,
+								 int			  value);
+void			tracker_db_statement_bind_int64		(TrackerDBStatement	 *stmt,
+								 int			  index,
+								 gint64			  value);
+void			tracker_db_statement_bind_text		(TrackerDBStatement	 *stmt,
+								 int			  index,
+								 const gchar		 *value);
+TrackerDBResultSet *	tracker_db_statement_execute		(TrackerDBStatement	 *stmt,
+								 GError			**error);
 
 /* Semi private TrackerDBResultSet functions */
 TrackerDBResultSet *	  _tracker_db_result_set_new	       (guint		    cols);

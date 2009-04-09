@@ -77,6 +77,24 @@ tracker_db_interface_get_type (void)
 	return type;
 }
 
+GType
+tracker_db_statement_get_type (void)
+{
+	static GType type = 0;
+
+	if (G_UNLIKELY (type == 0)) {
+		type = g_type_register_static_simple (G_TYPE_INTERFACE,
+						      "TrackerDBStatement",
+						      sizeof (TrackerDBStatementIface),
+						      NULL,
+						      0, NULL, 0);
+
+		g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+	}
+
+	return type;
+}
+
 /* Boxed type for blobs */
 static gpointer
 blob_copy (gpointer boxed)
@@ -232,6 +250,26 @@ ensure_result_set_state (TrackerDBResultSet *result_set)
 
 	return result_set;
 }
+
+TrackerDBStatement *
+tracker_db_interface_create_statement (TrackerDBInterface  *interface,
+				       const gchar	   *query,
+				       ...)
+{
+	va_list args;
+	gchar *str;
+
+	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (interface), NULL);
+	g_return_val_if_fail (query != NULL, NULL);
+
+	va_start (args, query);
+	str = g_strdup_vprintf (query, args);
+	va_end (args);
+
+	return TRACKER_DB_INTERFACE_GET_IFACE (interface)->create_statement (interface,
+									     str);
+}
+
 
 TrackerDBResultSet *
 tracker_db_interface_execute_vquery (TrackerDBInterface  *interface,
@@ -437,6 +475,60 @@ tracker_db_interface_end_transaction (TrackerDBInterface *interface)
 	}
 
 	return TRUE;
+}
+
+void
+tracker_db_statement_bind_double (TrackerDBStatement	*stmt,
+				  int			 index,
+				  double		 value)
+{
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_double (stmt, index, value);
+}
+
+void
+tracker_db_statement_bind_int (TrackerDBStatement	*stmt,
+			       int			 index,
+			       int			 value)
+{
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int (stmt, index, value);
+}
+
+
+void
+tracker_db_statement_bind_int64 (TrackerDBStatement	*stmt,
+			         int			 index,
+			         gint64			 value)
+{
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_int64 (stmt, index, value);
+}
+
+void
+tracker_db_statement_bind_text (TrackerDBStatement	*stmt,
+				int			 index,
+				const gchar		*value)
+{
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+
+	TRACKER_DB_STATEMENT_GET_IFACE (stmt)->bind_text (stmt, index, value);
+}
+
+TrackerDBResultSet *
+tracker_db_statement_execute (TrackerDBStatement	 *stmt,
+			      GError			**error)
+{
+	TrackerDBResultSet *result_set;
+
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
+
+	result_set = TRACKER_DB_STATEMENT_GET_IFACE (stmt)->execute (stmt, error);
+
+	return ensure_result_set_state (result_set);
 }
 
 /* TrackerDBResultSet semiprivate API */
