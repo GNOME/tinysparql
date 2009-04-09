@@ -1,3 +1,9 @@
+2009-04-09  Martyn Russell  <martyn@imendio.com>
+
+	* src/tracker-extract/tracker-main.c:
+	(main): Don't keep the tracker-extract command running if DBus
+	says it is already running.
+
 2009-04-08  Carlos Garnacho  <carlos@imendio.com>
 
 	* src/tracker-preferences/tracker-preferences.c (cmd_apply): Make the

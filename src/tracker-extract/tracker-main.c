@@ -318,7 +318,9 @@ main (int argc, char *argv[])
 		tracker_config_set_verbosity (config, verbosity);
 	}
 
-	tracker_dbus_init ();
+	if (!tracker_dbus_init ()) {
+		return EXIT_FAILURE;
+	}
 
 	/* Initialize subsystems */
 	initialize_directories ();
