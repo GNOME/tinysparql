@@ -32,6 +32,7 @@ SUBDIRS = 					\
 	libstemmer				\
 	$(build_qdbm)				\
 	$(build_libinotify)			\
+	rasqal		 			\
 	libtracker-common 			\
 	libtracker-db				\
 	libtracker-data				\
@@ -51,6 +52,7 @@ DIST_SUBDIRS = 					\
 	libstemmer				\
 	qdbm					\
 	libinotify				\
+	rasqal		 			\
 	libtracker-common 			\
 	libtracker-db				\
 	libtracker-data				\
