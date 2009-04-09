@@ -1441,6 +1441,7 @@ AC_CONFIG_FILES([
 	utils/Makefile
 	utils/qdbm/Makefile
 	utils/tracker-fts/Makefile
+	utils/services/Makefile
 ])
 
 AC_OUTPUT

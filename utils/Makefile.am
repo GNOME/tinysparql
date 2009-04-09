@@ -5,5 +5,6 @@ build_sqlite_fts = tracker-fts
 endif
 
 SUBDIRS = 			\
+	services		\
 	$(build_sqlite_fts)	\
 	qdbm

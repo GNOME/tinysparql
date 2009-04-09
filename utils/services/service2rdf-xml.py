@@ -94,7 +94,7 @@ def main():
            if name == "weight":
             print "\t\t<rdfs:comment>Weight is " + value + "</rdfs:comment>"
 
-        print "\t</rdfs:Property>"
+        print "\t</rdf:Property>"
 
      print "</rdf:RDF>"
   except getopt.GetoptError, err:

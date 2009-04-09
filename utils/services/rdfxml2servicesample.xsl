@@ -41,39 +41,21 @@
  </xsl:choose>
 </xsl:template>
 
-<xsl:template name="convert-datatype-of">
- <xsl:param name="datatype"/>
- <xsl:choose>
-  <xsl:when test="substring-after($datatype, ':')">resource</xsl:when>
-  <xsl:when test="$datatype = 'float'">double</xsl:when>
-  <xsl:when test="$datatype = 'dateTime'">date</xsl:when>
-  <xsl:otherwise><xsl:value-of select="$datatype"/></xsl:otherwise>
- </xsl:choose>
-</xsl:template>
-
 <xsl:template match="rdf:RDF">
-<xsl:for-each select="rdf:Property">
+<xsl:for-each select="rdfs:Class">
 
-[<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>]<xsl:choose>
-<xsl:when test="rdfs:range">
-DataType=<xsl:call-template name="convert-datatype-of"><xsl:with-param name="datatype">
-<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:range/@rdf:resource"/></xsl:with-param></xsl:call-template></xsl:with-param></xsl:call-template>
-</xsl:when>
-<xsl:otherwise>Abstract=true
-DataType=string</xsl:otherwise>
-</xsl:choose>
-<xsl:if test="rdfs:label">
+[<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>]<xsl:if test="rdfs:label">
 DisplayName=<xsl:value-of select="rdfs:label"/>
 </xsl:if>
-
-<xsl:if test="rdfs:domain">
-Domain=<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="rdfs:domain/@rdf:resource"/></xsl:with-param></xsl:call-template></xsl:if>
-
-<xsl:if test="rdfs:subPropertyOf">
-SuperProperties=<xsl:for-each select="rdfs:subPropertyOf">
-<xsl:if test="@rdf:resource"><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:resource"/></xsl:with-param></xsl:call-template>;</xsl:if><xsl:for-each select="rdf:Property"><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>;</xsl:for-each></xsl:for-each></xsl:if>
+<xsl:if test="rdfs:subClassOf">
+SuperClasses=<xsl:for-each select="rdfs:subClassOf">
+<xsl:if test="@rdf:resource">
+<!-- xsl:if test="substring-after(@rdf:resource, '#') != 'Resource'" //-->
+<xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:resource"/></xsl:with-param></xsl:call-template>;</xsl:if><!-- /xsl:if //-->
+<xsl:for-each select="rdfs:Class"><xsl:call-template name="predicate-of"><xsl:with-param name="about"><xsl:value-of select="@rdf:about"/></xsl:with-param></xsl:call-template>;</xsl:for-each></xsl:for-each></xsl:if>
 <xsl:if test="rdfs:comment">
 Description=<xsl:value-of select="rdfs:comment"/></xsl:if>
 </xsl:for-each>
 </xsl:template>
 </xsl:stylesheet> 
+
