@@ -1,0 +1,241 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+nie: a tracker:Namespace ;
+	tracker:prefix "nie" .
+
+nie:DataObject a rdfs:Class ;
+	rdfs:label "Data Object" ;
+	rdfs:subClassOf rdfs:Resource .
+
+nie:DataSource a rdfs:Class ;
+	rdfs:label "Data Source" ;
+	rdfs:subClassOf rdfs:Resource .
+
+nie:InformationElement a rdfs:Class ;
+	rdfs:label "Information Element" ;
+	rdfs:subClassOf rdfs:Resource .
+
+nie:title a rdf:Property ;
+	rdfs:label "Title" ;
+	rdfs:comment "The title of the document" ;
+	rdfs:subPropertyOf dc:title ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true .
+
+nie:subject a rdf:Property ;
+	rdfs:label "Subject" ;
+	rdfs:comment "The subject or topic of the document" ;
+	rdfs:subPropertyOf dc:subject ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:mimeType a rdf:Property ;
+	rdfs:label "Mime Type" ;
+	rdfs:comment "File Mime Type" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:byteSize a rdf:Property ;
+	rdfs:label "Size" ;
+	rdfs:comment "File size in bytes" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:DataObject ;
+	rdfs:range xsd:integer .
+
+nie:language a rdf:Property ;
+	rdfs:label "Language" ;
+	rdfs:comment "File language" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:plainTextContent a rdf:Property ;
+	rdfs:label "Plain-text content" ;
+	rdfs:comment "Plain-text representation of the content" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true .
+
+nie:informationElementDate a rdf:Property ;
+	rdfs:subPropertyOf dc:date ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:dateTime .
+
+nie:legal a rdf:Property ;
+	rdfs:subPropertyOf dc:rights ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:relatedTo a rdf:Property ;
+	rdfs:subPropertyOf dc:relation ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:DataObject .
+
+nie:generator a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:description a rdf:Property ;
+	rdfs:subPropertyOf dc:description ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+# Bug in nepomuk specification. Taking domain from superproperty
+nie:disclaimer a rdf:Property ;
+	rdfs:subPropertyOf nie:legal ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:dataSource a rdf:Property ;
+	rdfs:subPropertyOf dc:source ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:DataObject ;
+	rdfs:range nie:DataSource .
+
+# Bug in nepomuk specification. Taking domain from superproperty
+nie:depends a rdf:Property ;
+	rdfs:subPropertyOf nie:relatedTo ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:DataObject .
+
+nie:links a rdf:Property ;
+	rdfs:subPropertyOf nie:relatedTo ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:DataObject .
+
+# Bug in nepomuk specification. Taking domain from superproperty
+nie:copyright a rdf:Property ;
+	rdfs:subPropertyOf dc:rights , nie:legal ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:comment a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:interpretedAs a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:DataObject ;
+	rdfs:range nie:InformationElement .
+
+nie:isStoredAs a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:DataObject .
+
+nie:contentLastModified a rdf:Property ;
+	rdfs:subPropertyOf nie:informationElementDate ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:dateTime .
+
+nie:version a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:contentCreated a rdf:Property ;
+	rdfs:subPropertyOf nie:informationElementDate ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:dateTime .
+
+nie:contentAccessed a rdf:Property ;
+        rdfs:subPropertyOf nie:informationElementDate ;
+        nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:dateTime .
+
+nie:lastRefreshed a rdf:Property ;
+	rdfs:subPropertyOf dc:date ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:DataObject ;
+	rdfs:range xsd:dateTime .
+
+# Bug in nepomuk specification. Taking domain from superproperty
+nie:license a rdf:Property ;
+	rdfs:subPropertyOf dc:rights , nie:legal ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:created a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:DataObject ;
+	rdfs:range xsd:dateTime .
+
+nie:identifier a rdf:Property ;
+	rdfs:subPropertyOf dc:identifier ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:keyword a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:hasLogicalPart a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:InformationElement .
+
+nie:hasPart a rdf:Property ;
+	rdfs:subPropertyOf nie:relatedTo ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:DataObject .
+
+nie:isPartOf a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:DataObject ;
+	rdfs:range nie:InformationElement .
+
+# Bug in nepomuk specification. Taking domain from superproperty
+nie:licenseType a rdf:Property ;
+	rdfs:subPropertyOf nie:legal ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:characterSet a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:string .
+
+nie:isLogicalPartOf a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:InformationElement .
+
+nie:contentSize a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:integer .
+
+nie:rootElementOf a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range nie:DataSource .
+
