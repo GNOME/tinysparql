@@ -1,0 +1,46 @@
+@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+nao: a tracker:Namespace ;
+	tracker:prefix "nao" .
+
+nao:Tag a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+nao:prefLabel a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nao:Tag ;
+	rdfs:range xsd:string .
+
+nao:hasTag a rdf:Property ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+nao:identifier a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain rdfs:Resource ;
+	rdfs:range xsd:string .
+
+# These are added and approval by Nepomuk-upstream is pending
+
+nao:Property a rdfs:Class ;
+	rdfs:label "Custom property to extend a class dynamically" ;
+	rdfs:comment "Dont use this without asking first your ontology doctor" .
+
+nao:propertyName a rdf:Property ;
+	rdfs:domain nao:Property ;
+	rdfs:range  xsd:string .
+
+nao:propertyValue a rdf:Property ;
+	rdfs:domain nao:Property ;
+	rdfs:range  xsd:string .
+
+nao:hasProperty a rdf:Property ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range  nao:Property .
+
