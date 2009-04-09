@@ -1,0 +1,256 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix nco: <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
+@prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nmm: <http://www.tracker-project.org/temp/nmm#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+nmm: a tracker:Namespace ;
+	tracker:prefix "nmm" .
+
+nmm:MusicPiece a rdfs:Class ;
+	rdfs:label "Music" ;
+	rdfs:subClassOf nfo:Media .
+
+nmm:SynchronizedText a rdfs:Class ;
+	rdfs:label "Synchronized text" ;
+	rdfs:subClassOf nfo:PlainTextDocument .
+
+nmm:MusicAlbum a rdfs:Class ;
+	rdfs:label "Music album" ;
+	rdfs:subClassOf nfo:MediaList .
+
+nmm:Video a rdfs:Class ;
+	rdfs:label "Video" ;
+	rdfs:subClassOf nfo:Video .
+
+nmm:Artist a rdfs:Class ;
+	rdfs:label "Artist" ;
+	rdfs:comment "An artist." ;
+	rdfs:subClassOf nie:InformationElement , nco:Role .
+
+nmm:artistName a rdf:Property ;
+	rdfs:label "fullname" ;
+	rdfs:comment "Name of the artist" ;
+	rdfs:subPropertyOf dc:title ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Artist ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true .
+
+nmm:musicAlbum a rdf:Property ;
+	rdfs:label "album" ;
+	rdfs:comment "album the music belongs to" ;
+	rdfs:subPropertyOf nie:isLogicalPartOf ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range nmm:MusicAlbum .
+
+nmm:beatsPerMinute a rdf:Property ;
+	rdfs:label "Beats per minute" ;
+	rdfs:comment "beats per minute" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range xsd:integer .
+
+nmm:performer a rdf:Property ;
+	rdfs:label "Performer" ;
+	rdfs:comment "Performer" ;
+	rdfs:subPropertyOf nco:contributor ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range nmm:Artist .
+
+nmm:length a rdf:Property ;
+	rdfs:label "Length" ;
+	rdfs:comment "Length or duration" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range xsd:integer .
+
+nmm:composer a rdf:Property ;
+	rdfs:label "Composer" ;
+	rdfs:comment "Composer" ;
+	rdfs:subPropertyOf nco:contributor ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range nmm:Artist .
+
+nmm:lyricist a rdf:Property ;
+	rdfs:label "Lyricist" ;
+	rdfs:comment "Lyricist" ;
+	rdfs:subPropertyOf nco:contributor ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range nmm:Artist .
+
+nmm:trackNumber a rdf:Property ;
+	rdfs:label "Track number" ;
+	rdfs:comment "Track number of the music in its album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicPiece ;
+	rdfs:range xsd:integer .
+
+nfo:isContentEncrypted a rdf:Property ;
+	rdfs:label "Is content encrypted" ;
+	rdfs:comment "Might change" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nie:InformationElement ;
+	rdfs:range xsd:boolean .
+
+nmm:isForHearingImpaired a rdf:Property ;
+	rdfs:label "Is for hearing-impaired" ;
+	rdfs:comment "Does text stream contain helper tags for hearing-impaired such as <steps in hallway>" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:SynchronizedText ;
+	rdfs:range xsd:boolean .
+
+nmm:musicCDIdentifier a rdf:Property ;
+	rdfs:label "Music CD identifier" ;
+	rdfs:comment "['Music CD identifier to for databases like FreeDB.org. This frame is intended for music that comes from a CD', 'so that the CD can be identified in databases such as the CDDB. The frame consists of a binary dump of the Table Of Contents', 'TOC', 'from the CD', 'which is a header of 4 bytes and then 8 bytes/track on the CD plus 8 bytes for the 'lead out' making a maximum of 804 bytes. The offset to the beginning of every track on the CD should be described with a four bytes absolute CD-frame address per track', 'and not with absolute time.']" ;
+	rdfs:subPropertyOf nie:identifier ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:string .
+
+nmm:internationalStandardRecordingCode a rdf:Property ;
+	rdfs:label "International Standard Recording Code" ;
+	rdfs:comment "ISRC ID. Format: 'CC-XXX-YY-NNNNN'" ;
+	rdfs:subPropertyOf nie:identifier ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:string .
+
+nmm:albumTrackCount a rdf:Property ;
+	rdfs:label "Track count" ;
+	rdfs:comment "Track count of album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:integer .
+
+nmm:albumTitle a rdf:Property ;
+	rdfs:label "Title" ;
+	rdfs:comment "The title of the document" ;
+	rdfs:subPropertyOf nie:title ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:string ;
+	tracker:fulltextIndexed true .
+
+nmm:albumDuration a rdf:Property ;
+	rdfs:label "Album duration" ;
+	rdfs:comment "Duration of the album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:integer .
+
+nmm:albumGain a rdf:Property ;
+	rdfs:label "Gain" ;
+	rdfs:comment "Gain of album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:integer .
+
+nmm:albumPeakGain a rdf:Property ;
+	rdfs:label "Peak Gain" ;
+	rdfs:comment "Peak Gain of album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:integer .
+
+nmm:setNumber a rdf:Property ;
+	rdfs:label "Disk number" ;
+	rdfs:comment "Disk number of album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:MusicAlbum ;
+	rdfs:range xsd:integer .
+
+# At the moment resource until clarify how to handle video Albums
+nmm:album a rdf:Property ;
+	rdfs:label "Album" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range rdfs:Resource .
+
+nmm:isSeries a rdf:Property ;
+	rdfs:label "Is series" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:boolean .
+
+nmm:season a rdf:Property ;
+	rdfs:label "Season" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:integer .
+
+nmm:episodeNumber a rdf:Property ;
+	rdfs:label "Episode number" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:integer .
+
+nmm:runTime a rdf:Property ;
+	rdfs:label "Run time" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:integer .
+
+nmm:synopsis a rdf:Property ;
+	rdfs:label "Synopsis" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:string .
+
+nmm:MPAARating a rdf:Property ;
+	rdfs:label "MPAA Rating" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:string .
+
+nmm:category a rdf:Property ;
+	rdfs:label "Category" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:string .
+
+nmm:genre a rdf:Property ;
+	rdfs:label "Genre" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nfo:Media ;
+	rdfs:range xsd:string .
+
+nmm:director a rdf:Property ;
+	rdfs:label "Director" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range nmm:Artist .
+
+nmm:producedBy a rdf:Property ;
+	rdfs:label "Produced by" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range nmm:Artist .
+
+nmm:leadActor a rdf:Property ;
+	rdfs:label "Lead actor" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range nmm:Artist .
+
+nmm:hasSubtitle a rdf:Property ;
+	rdfs:label "Has subtitle" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:boolean .
+
+nmm:isContentEncrypted a rdf:Property ;
+	rdfs:label "Is content encrypted" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain nmm:Video ;
+	rdfs:range xsd:boolean .
+

@@ -13,7 +13,8 @@ config_DATA =			\
 	33-nfo.ontology		\
 	34-nmo.ontology		\
 	35-ncal.ontology	\
-	37-nid3.ontology
+	37-nid3.ontology	\
+	38-nmm.ontology
 
 EXTRA_DIST = $(config_DATA)
 
