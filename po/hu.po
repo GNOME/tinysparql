@@ -2,7 +2,6 @@
 # Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the tracker package.
 #
-#: ../src/libtracker-common/tracker-utils.c:262
 # Gabor Kelemen <kelemeng@gnome.hu>, 2007, 2008, 2009.
 msgid ""
 msgstr ""
