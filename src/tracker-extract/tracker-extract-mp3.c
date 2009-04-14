@@ -40,6 +40,7 @@
 #endif /* G_OS_WIN32 */
 
 #include <libtracker-common/tracker-file-utils.h>
+#include <libtracker-common/tracker-utils.h>
 
 #include "tracker-main.h"
 #include "tracker-extract-albumart.h"
@@ -254,22 +255,22 @@ static const guint ch_mask = 0xC0000000;
 static const guint pad_mask = 0x20000;
 
 static guint bitrate_table[16][6] = {
-	{ 0 ,  0 ,  0 ,  0 ,  0 , 0},
-	{32 , 32 , 32 , 32 , 32 , 8},
-	{64 , 48 , 40 , 64 , 48 , 16},
-	{96 , 56 , 48 , 96 , 56 , 24},
-	{128, 64 , 56 , 128, 64 , 32},
-	{160, 80 , 64 , 160, 80 , 64},
-	{192, 96 , 80 , 192, 96 , 80},
-	{224, 112, 96 , 224, 112, 56},
-	{256, 128, 112, 256, 128, 64},
-	{288, 160, 128, 288, 160, 128},
-	{320, 192, 160, 320, 192, 160},
-	{352, 224, 192, 352, 224, 112},
-	{384, 256, 224, 384, 256, 128},
-	{416, 320, 256, 416, 320, 256},
-	{448, 384, 320, 448, 384, 320},
-	{-1,  -1,  -1,	-1,  -1,  -1}
+	{   0,   0,   0,   0,   0,   0 },
+	{  32,  32,  32,  32,  32,   8 },
+	{  64,  48,  40,  64,  48,  16 },
+	{  96,  56,  48,  96,  56,  24 },
+	{ 128,  64,  56, 128,  64,  32 },
+	{ 160,  80,  64, 160,  80,  64 },
+	{ 192,  96,  80, 192,  96,  80 },
+	{ 224, 112,  96, 224, 112,  56 },
+	{ 256, 128, 112, 256, 128,  64 },
+	{ 288, 160, 128, 288, 160, 128 },
+	{ 320, 192, 160, 320, 192, 160 },
+	{ 352, 224, 192, 352, 224, 112 },
+	{ 384, 256, 224, 384, 256, 128 },
+	{ 416, 320, 256, 416, 320, 256 },
+	{ 448, 384, 320, 448, 384, 320 },
+	{  -1,  -1,  -1,  -1,  -1,  -1 }
 };
 
 static gint freq_table[4][3] = {
@@ -778,10 +779,10 @@ get_id3v24_tags (const gchar *data,
 				pos++;
 				csize--;
 
-				if (word != NULL && strlen (word) > 0) {       
-					
+				if (!tracker_is_empty_string (word)) {       
 					if (strcmp (tmap[i].text, "TRCK") == 0) {
 						gchar **parts;
+
 						parts = g_strsplit (word, "/", 2);
 						g_free (word);
 						word = g_strdup (parts[0]);
@@ -790,12 +791,13 @@ get_id3v24_tags (const gchar *data,
 
 					if (strcmp (tmap[i].text, "TCON") == 0) {
 						gint genre;
+
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
 							word = g_strdup (genre_names[genre]);
 						}
 
-						if (strcasecmp (word, "unknown")==0) {
+						if (strcasecmp (word, "unknown") == 0) {
 							break;
 						}
 					}					
@@ -814,32 +816,33 @@ get_id3v24_tags (const gchar *data,
 		}
 
 		if (strncmp (&data[pos], "COMM", 4) == 0) {
-			gchar * word;
-							
-			gchar          text_encode;
-			const gchar   *text_language;
-			const gchar   *text_desc;
-			const gchar   *text;
-			guint          offset;
+			gchar       *word;
+			gchar        text_encode;
+			const gchar *text_language;
+			const gchar *text_desc;
+			const gchar *text;
+			guint        offset;
+			gint         text_desc_len;
 
-			text_encode   =  data[pos+10]; /* $xx */
-			text_language = &data[pos+11]; /* $xx xx xx */
-			text_desc     = &data[pos+14]; /* <text string according to encoding> $00 (00) */
-			text          = &data[pos+14+strlen(text_desc)+1]; /* <full text string according to encoding> */
+			text_encode   =  data[pos + 10]; /* $xx */
+			text_language = &data[pos + 11]; /* $xx xx xx */
+			text_desc     = &data[pos + 14]; /* <text string according to encoding> $00 (00) */
+			text_desc_len = strlen (text_desc);
+			text          = &data[pos + 14 + text_desc_len + 1]; /* <full text string according to encoding> */
 			
-			offset = 4+strlen(text_desc)+1;
+			offset = 4 + text_desc_len + 1;
 
 			switch (text_encode) {
 			case 0x00:
 				word = g_convert (text,
-						  csize-offset,
+						  csize - offset,
 						  "UTF-8",
 						  "ISO-8859-1",
 						  NULL, NULL, NULL);
 				break;
 			case 0x01 :
 				word = g_convert (text,
-						  csize-offset,
+						  csize - offset,
 						  "UTF-8",
 						  "UTF-16",
 						  NULL, NULL, NULL);
@@ -852,7 +855,7 @@ get_id3v24_tags (const gchar *data,
 						  NULL, NULL, NULL);
 				break;
 			case 0x03 :
-				word = strndup (text, csize-offset);
+				word = strndup (text, csize - offset);
 				break;
 				
 			default:
@@ -861,14 +864,14 @@ get_id3v24_tags (const gchar *data,
 				 * iso-8859-1
 				 */
 				word = g_convert (text,
-						  csize-offset,
+						  csize - offset,
 						  "UTF-8",
 						  "ISO-8859-1",
 						  NULL, NULL, NULL);
 				break;
 			}
 
-			if (word != NULL && strlen (word) > 0) {
+			if (!tracker_is_empty_string (word)) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
 						     tracker_escape_metadata (word));
@@ -880,21 +883,21 @@ get_id3v24_tags (const gchar *data,
 
 		/* Check for embedded images */
 		if (strncmp (&data[pos], "APIC", 4) == 0) {
-			gchar          text_type;
-			const gchar   *mime;
-			gchar          pic_type;
-			const gchar   *desc;
-			guint          offset;
+			gchar        text_type;
+			const gchar *mime;
+			gchar        pic_type;
+			const gchar *desc;
+			guint        offset;
+			gint         mime_len;
 
+			text_type =  data[pos + 10];
+			mime      = &data[pos + 11];
+			mime_len  = strlen (mime);
+			pic_type  =  data[pos + 11 + mime_len + 1];
+			desc      = &data[pos + 11 + mime_len + 1 + 1];
 
-			text_type =  data[pos+10];
-			mime      = &data[pos+11];
-			pic_type  =  data[pos+11+strlen(mime)+1];
-			desc      = &data[pos+11+strlen(mime)+1+1];
-
-			if ((pic_type == 3) || ((pic_type == 0) && (filedata->albumartsize == 0))) {
-
-				offset = pos + 11 + strlen(mime) + 2 + strlen(desc) + 1;
+			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
+				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
 
 				filedata->albumartdata = g_malloc0 (csize);
 				memcpy (filedata->albumartdata, &data[offset], csize);
@@ -1012,10 +1015,10 @@ get_id3v23_tags (const gchar *data,
 				pos++;
 				csize--;
 
-				if (word != NULL && strlen (word) > 0) {
-
+				if (!tracker_is_empty_string (word)) {
 					if (strcmp (tmap[i].text, "TRCK") == 0) {
 						gchar **parts;
+
 						parts = g_strsplit (word, "/", 2);
 						g_free (word);
 						word = g_strdup (parts[0]);
@@ -1024,12 +1027,13 @@ get_id3v23_tags (const gchar *data,
 
 					if (strcmp (tmap[i].text, "TCON") == 0) {
 						gint genre;
+
 						if (get_genre_number (word, &genre)) {
 							g_free (word);
 							word = g_strdup (genre_names[genre]);
 						}
 						
-						if (strcasecmp (word, "unknown")==0) {
+						if (strcasecmp (word, "unknown") == 0) {
 							break;
 						}
 					}
@@ -1048,25 +1052,26 @@ get_id3v23_tags (const gchar *data,
 		}
 
 		if (strncmp (&data[pos], "COMM", 4) == 0) {
-			gchar * word;
-							
-			gchar          text_encode;
-			const gchar   *text_language;
-			const gchar   *text_desc;
-			const gchar   *text;
-			guint          offset;
-
-			text_encode   =  data[pos+10]; /* $xx */
-			text_language = &data[pos+11]; /* $xx xx xx */
-			text_desc     = &data[pos+14]; /* <text string according to encoding> $00 (00) */
-			text          = &data[pos+14+strlen(text_desc)+1]; /* <full text string according to encoding> */
+			gchar       *word;
+			gchar        text_encode;
+			const gchar *text_language;
+			const gchar *text_desc;
+			const gchar *text;
+			guint        offset;
+			gint         text_desc_len;
 			
-			offset = 4+strlen(text_desc)+1;
+			text_encode   =  data[pos + 10]; /* $xx */
+			text_language = &data[pos + 11]; /* $xx xx xx */
+			text_desc     = &data[pos + 14]; /* <text string according to encoding> $00 (00) */
+			text_desc_len = strlen (text_desc);
+			text          = &data[pos + 14 + text_desc_len + 1]; /* <full text string according to encoding> */
+			
+			offset = 4 + text_desc_len + 1;
 
 			switch (text_encode) {
 			case 0x00:
 				word = g_convert (text,
-						  csize-offset,
+						  csize - offset,
 						  "UTF-8",
 						  "ISO-8859-1",
 						  NULL, NULL, NULL);
@@ -1077,23 +1082,23 @@ get_id3v23_tags (const gchar *data,
 /* 						  "UTF-8", */
 /* 						  "UCS-2", */
 /* 						  NULL, NULL, NULL); */
-				word = ucs2_to_utf8 (&data[pos+11],
-						     csize-offset);
+				word = ucs2_to_utf8 (&data[pos + 11],
+						     csize - offset);
 				break;
 			default:
 				/* Bad encoding byte,
 				 * try to convert from
 				 * iso-8859-1
 				 */
-				word = g_convert(text,
-						 csize-offset,
-						 "UTF-8",
-						 "ISO-8859-1",
-						 NULL, NULL, NULL);
+				word = g_convert (text,
+						  csize - offset,
+						  "UTF-8",
+						  "ISO-8859-1",
+						  NULL, NULL, NULL);
 				break;
 			}
 
-			if (word != NULL && strlen (word) > 0) {
+			if (!tracker_is_empty_string (word)) {
 				g_hash_table_insert (metadata,
 						     g_strdup ("Audio:Comment"),
 						     tracker_escape_metadata (word));
@@ -1104,19 +1109,21 @@ get_id3v23_tags (const gchar *data,
 
 		/* Check for embedded images */
 		if (strncmp (&data[pos], "APIC", 4) == 0) {
-			gchar          text_type;
-			const gchar   *mime;
-			gchar          pic_type;
-			const gchar   *desc;
-			guint          offset;
+			gchar        text_type;
+			const gchar *mime;
+			gchar        pic_type;
+			const gchar *desc;
+			guint        offset;
+			gint         mime_len;
 
-			text_type =  data[pos+10];
-			mime      = &data[pos+11];
-			pic_type  =  data[pos+11+strlen(mime)+1];
-			desc      = &data[pos+11+strlen(mime)+1+1];
+			text_type =  data[pos +10];
+			mime      = &data[pos +11];
+			mime_len  = strlen (mime);
+			pic_type  =  data[pos +11 + mime_len + 1];
+			desc      = &data[pos +11 + mime_len + 1 + 1];
 			
-			if ((pic_type == 3) || ((pic_type == 0) && (filedata->albumartsize == 0))) {
-				offset = pos + 11 + strlen (mime) + 2 + strlen (desc) + 1;
+			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
+				offset = pos + 11 + mime_len + 2 + strlen (desc) + 1;
 				
 				filedata->albumartdata = g_malloc0 (csize);
 				memcpy (filedata->albumartdata, &data[offset], csize);
@@ -1223,11 +1230,11 @@ get_id3v20_tags (const gchar *data,
 				pos++;
 				csize--;
 
-				if (word != NULL && strlen (word) > 0) {
+				if (!tracker_is_empty_string (word)) {
 					if (strcmp (tmap[i].text, "COM") == 0) {
 						gchar *s;
 
-						s = g_strdup (word + strlen(word) + 1);
+						s = g_strdup (word + strlen (word) + 1);
 						g_free (word);
 						word = s;
 					}
@@ -1266,7 +1273,7 @@ get_id3v20_tags (const gchar *data,
 			pic_type  =  data[pos + 6 + 3 + 1 + 3];
 			desc      = &data[pos + 6 + 3 + 1 + 3 + 1];
 
-			if ((pic_type == 3) || ((pic_type == 0) && (filedata->albumartsize == 0))) {
+			if (pic_type == 3 || (pic_type == 0 && filedata->albumartsize == 0)) {
 				offset = pos + 6 + 3 + 1 + 3  + 1 + strlen (desc) + 1;
 
 				filedata->albumartdata = g_malloc0 (csize);
@@ -1561,55 +1568,55 @@ extract_mp3 (const gchar *filename,
 		/* Do nothing? */
 	}
 
-	if (info.title && strlen (info.title) > 0) {
+	if (!tracker_is_empty_string (info.title)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Title"),
 				     tracker_escape_metadata (info.title));
 	}
 
-	if (info.artist && strlen (info.artist) > 0) {
+	if (!tracker_is_empty_string (info.artist)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Artist"),
 				     tracker_escape_metadata (info.artist));
 	}
 
-	if (info.album && strlen (info.album) > 0) {
+	if (!tracker_is_empty_string (info.album)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Album"),
 				     tracker_escape_metadata (info.album));
 	}
 
-	if (info.year && strlen (info.year) > 0) {
+	if (!tracker_is_empty_string (info.year)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:ReleaseDate"),
 				     tracker_escape_metadata (info.year));
 	}
 
-	if (info.genre && strlen (info.genre) > 0) {
+	if (!tracker_is_empty_string (info.genre)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Genre"),
 				     tracker_escape_metadata (info.genre));
 	}
 
-	if (info.comment && strlen (info.comment) > 0) {
+	if (!tracker_is_empty_string (info.comment)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:Comment"),
 				     tracker_escape_metadata (info.comment));
 	}
 
-	if (info.trackno && strlen (info.trackno) > 0) {
+	if (!tracker_is_empty_string (info.trackno)) {
 		g_hash_table_insert (metadata,
 				     g_strdup ("Audio:TrackNo"),
 				     tracker_escape_metadata (info.trackno));		
 	}
 
-	free (info.title);
-	free (info.year);
-	free (info.album);
-	free (info.artist);
-	free (info.comment);
-	free (info.trackno);
-	free (info.genre);
+	g_free (info.title);
+	g_free (info.year);
+	g_free (info.album);
+	g_free (info.artist);
+	g_free (info.comment);
+	g_free (info.trackno);
+	g_free (info.genre);
 
 	/* Get other embedded tags */
 	parse_id3v2 (buffer, size, metadata, &filedata);
