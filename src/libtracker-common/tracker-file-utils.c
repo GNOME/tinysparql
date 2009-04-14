@@ -64,10 +64,12 @@ tracker_file_open (const gchar *uri,
 
 		fd = fileno (file);
 		
+#if defined(__linux__)
 		/* Make sure we set the NOATIME flag if we have permissions to */
 		if ((flags = fcntl (fd, F_GETFL, 0)) != -1) {
 			fcntl (fd, F_SETFL, flags | O_NOATIME);
 		}
+#endif
 
 #ifdef HAVE_POSIX_FADVISE
 		if (sequential_access) {

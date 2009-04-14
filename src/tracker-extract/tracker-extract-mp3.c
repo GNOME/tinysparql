@@ -1513,6 +1513,7 @@ extract_mp3 (const gchar *filename,
 		return;
 	}
 
+#if defined(__linux__)
 	/* Can return -1 because of O_NOATIME, so we try again after
 	 * without as a last resort. This can happen due to
 	 * permissions.
@@ -1525,6 +1526,12 @@ extract_mp3 (const gchar *filename,
 			return;
 		}
 	}
+#else
+	fd = open (filename, O_RDONLY);
+	if (fd == -1) {
+		return;
+	}
+#endif
 
 #ifdef HAVE_POSIX_FADVISE
 	posix_fadvise (fd, 0, 0, POSIX_FADV_SEQUENTIAL);
