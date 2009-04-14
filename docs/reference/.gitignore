@@ -1,0 +1,14 @@
+*-decl-list.txt
+*-decl.txt
+*-overrides.txt
+*-undeclared.txt
+*-undocumented.txt
+*-unused.txt
+*.args
+*.hierarchy
+*.interfaces
+*.prerequisites
+*.signals
+html
+version.xml
+xml
