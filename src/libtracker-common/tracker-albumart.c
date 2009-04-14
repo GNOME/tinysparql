@@ -540,7 +540,7 @@ tracker_albumart_queue_cb (DBusGProxy     *proxy,
 		g_clear_error (&error);
 	}
 
-	if (info->art_path &&
+	if (info->hal && info->art_path &&
 	    g_file_test (info->art_path, G_FILE_TEST_EXISTS)) {
 		gchar *uri;
 		
@@ -664,8 +664,6 @@ tracker_albumart_request_download (TrackerHal  *hal,
 {
 	GetFileInfo *info;
 
-	g_return_if_fail (hal != NULL);
-
 	if (no_more_requesting) {
 		return;
 	}
@@ -673,7 +671,7 @@ tracker_albumart_request_download (TrackerHal  *hal,
 	info = g_slice_new (GetFileInfo);
 
 #ifdef HAVE_HAL
-	info->hal = g_object_ref (hal);
+	info->hal = hal?g_object_ref (hal):NULL;
 #else 
 	info->hal = NULL;
 #endif
