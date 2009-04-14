@@ -4,7 +4,7 @@ Enabled=true
 
 [Monitors]
 Directories=
-RecurseDirectories=/usr/share/applications;
+RecurseDirectories=/usr/share/desktop-directories;/usr/share/applications;
 
 [Ignored]
 Directories=
@@ -14,7 +14,7 @@ DirectoriesWithContent=
 [Index]
 Service=Applications
 MimeTypes=
-Files=*.desktop
+Files=
 ScanTimeout=0
 CacheTimeout=0
 

@@ -133,7 +133,8 @@ tracker_application_file_get_metadata (TrackerModuleFile *file)
 	path = g_file_get_path (f);
 
 	/* Check we're dealing with a desktop file */
-	if (!g_str_has_suffix (path, ".desktop")) {
+	if (!g_str_has_suffix (path, ".desktop") &&
+	    !g_str_has_suffix (path, ".directory")) {
 		g_free (path);
 		return NULL;
 	}
