@@ -87,7 +87,7 @@ static GOptionEntry  entries[] = {
 	  NULL },
 	{ "process-all", 'p', 0,
 	  G_OPTION_ARG_NONE, &process_all,
-	  N_("Whether to process data from all configured modules to be indexed"),
+	  N_("Index data from all enabled modules"),
 	  NULL },
 	{ "run-forever", 'f', 0,
 	  G_OPTION_ARG_NONE, &run_forever,
