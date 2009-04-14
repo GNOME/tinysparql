@@ -61,16 +61,6 @@ typedef struct TrackerDBResultSetClass TrackerDBResultSetClass;
 struct TrackerDBInterfaceIface {
 	GTypeInterface iface;
 
-	void		     (* set_procedure_table)   (TrackerDBInterface  *interface,
-							GHashTable	    *procedure_table);
-	TrackerDBResultSet * (* execute_procedure)     (TrackerDBInterface  *interface,
-							GError		   **error,
-							const gchar	    *procedure,
-							va_list		     args);
-	TrackerDBResultSet * (* execute_procedure_len) (TrackerDBInterface  *interface,
-							GError		   **error,
-							const gchar	    *procedure,
-							va_list		     args);
 	TrackerDBStatement * (* create_statement)      (TrackerDBInterface  *interface,
 							const gchar	    *query);
 	TrackerDBResultSet * (* execute_query)	       (TrackerDBInterface  *interface,
@@ -127,25 +117,6 @@ TrackerDBResultSet *	tracker_db_interface_execute_query	 (TrackerDBInterface   *
 								  GError	     **error,
 								  const gchar	       *query,
 								  ...) G_GNUC_PRINTF (3, 4);
-void			tracker_db_interface_set_procedure_table (TrackerDBInterface   *interface,
-								  GHashTable	       *procedure_table);
-TrackerDBResultSet *	tracker_db_interface_execute_vprocedure  (TrackerDBInterface   *interface,
-								  GError	     **error,
-								  const gchar	       *procedure,
-								  va_list		args);
-TrackerDBResultSet *	tracker_db_interface_execute_procedure	 (TrackerDBInterface   *interface,
-								  GError	     **error,
-								  const gchar	       *procedure,
-								  ...) G_GNUC_NULL_TERMINATED;
-
-TrackerDBResultSet *	tracker_db_interface_execute_vprocedure_len (TrackerDBInterface   *interface,
-								     GError		**error,
-								     const gchar	  *procedure,
-								     va_list		   args);
-TrackerDBResultSet *	tracker_db_interface_execute_procedure_len  (TrackerDBInterface   *interface,
-								     GError		**error,
-								     const gchar	  *procedure,
-								     ...) G_GNUC_NULL_TERMINATED;
 
 gboolean		tracker_db_interface_start_transaction	    (TrackerDBInterface   *interface);
 gboolean		tracker_db_interface_end_transaction	    (TrackerDBInterface   *interface);

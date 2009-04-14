@@ -155,7 +155,6 @@ static gboolean		   db_exec_no_reply    (TrackerDBInterface *iface,
 static TrackerDBInterface *db_interface_create (TrackerDB	    db);
 
 static gboolean		   initialized;
-static GHashTable	  *prepared_queries;
 static gchar		  *sql_dir;
 static gchar		  *data_dir;
 static gchar		  *user_data_dir;
@@ -249,147 +248,6 @@ db_exec_no_reply (TrackerDBInterface *iface,
 	}
 
 	tracker_nfs_lock_release ();
-
-	return TRUE;
-}
-
-static gboolean
-load_prepared_queries (void)
-{
-	GTimer	    *t;
-	GError	    *error = NULL;
-	GMappedFile *mapped_file;
-	GStrv	     queries;
-	gchar	    *filename;
-	gdouble      secs;
-
-	g_message ("Loading prepared queries...");
-
-	filename = g_build_filename (sql_dir, "sqlite-stored-procs.sql", NULL);
-
-	t = g_timer_new ();
-
-	mapped_file = g_mapped_file_new (filename, FALSE, &error);
-
-	if (error || !mapped_file) {
-		g_warning ("Could not get contents of SQL file:'%s', %s",
-			   filename,
-			   error ? error->message : "no error given");
-
-		if (mapped_file) {
-			g_mapped_file_free (mapped_file);
-		}
-
-		g_timer_destroy (t);
-		g_free (filename);
-
-		return FALSE;
-	}
-
-	g_message ("Loaded prepared queries file:'%s' size:%" G_GSIZE_FORMAT " bytes",
-		   filename,
-		   g_mapped_file_get_length (mapped_file));
-
-	queries = g_strsplit (g_mapped_file_get_contents (mapped_file), "\n", -1);
-	g_free (filename);
-
-	if (queries) {
-		GStrv p;
-		gchar *start;
-		gchar *end;
-
-		start = NULL;
-		end = NULL;
-
-		for (p = queries; *p; p++) {
-			GStrv        details;
-			gchar       *line;
-			const gchar *str;
-
-			line = NULL;
-
-			/* Check for comments */
-			if (start) {
-				if ((str = strstr (*p, "*/")) != NULL) {
-					str += 2;
-					end = g_strndup (str, strlen (*p) - strlen (str));
-				} else {
-					continue;
-				}
-			} else {
-				if ((str = strstr (*p, "/*")) != NULL) {
-					start = g_strndup (*p, str - *p);
-
-					if ((str = strstr (*p, "*/")) != NULL) {
-						str += 2;
-						end = g_strndup (str, strlen (*p) - strlen (str));
-					} else {
-						continue;
-					}
-				} 			
-			}
-
-			/* Remove comments */
-			if (start && end) {
-				if (start[0] != '\0' && end[0] != '\0') {
-					line = g_strconcat (start, end, NULL);
-				}
-
-				g_free (start);
-				g_free (end);
-
-				start = NULL;
-				end = NULL;
-
-				if (!line) {
-					continue;
-				}
-			} else {
-				line = *p;
-			}
-
-			/* Check for comments and empty lines */
-			if (line[0] == '#' || line[0] == '\0') {
-				if (line != *p) {
-					g_free (line);
-				}
-
-				continue;
-			}
-
-			/* Continue processing */
-			details = g_strsplit (line, " ", 2);
-
-			if (line != *p) {
-				g_free (line);
-			}
-
-			if (!details) {
-				continue;
-			} 
-			else if (!details[0] || !details[1]) {
-				g_strfreev (details);
-				continue;
-			}
-
-			g_message ("  Adding query:'%s'", g_strstrip (details[0]));
-
-			g_hash_table_insert (prepared_queries,
-					     g_strdup (g_strstrip (details[0])),
-					     g_strdup (g_strstrip (details[1])));
-			g_strfreev (details);
-		}
-
-		g_strfreev (queries);
-	}
-
-	secs = g_timer_elapsed (t, NULL);
-	g_timer_destroy (t);
-	g_mapped_file_free (mapped_file);
-
-	g_message ("Found %d prepared queries in %4.4f seconds",
-		   g_hash_table_size (prepared_queries),
-		   secs);
 
 	return TRUE;
 }
@@ -902,9 +760,6 @@ db_interface_get (TrackerDB  type,
 
 	iface = tracker_db_interface_sqlite_new (path);
 
-	tracker_db_interface_set_procedure_table (iface,
-						  prepared_queries);
-
 	db_set_params (iface,
 		       dbs[type].cache_size,
 		       dbs[type].page_size,
@@ -1302,14 +1157,6 @@ tracker_db_manager_init (TrackerDBManagerFlags	flags,
 		tracker_db_interface_sqlite_enable_shared_cache ();
 	}
 
-	/* Add prepared queries */
-	prepared_queries = g_hash_table_new_full (g_str_hash,
-						  g_str_equal,
-						  g_free,
-						  g_free);
-
-	load_prepared_queries ();
-
 	/* Should we reindex? If so, just remove all databases files,
 	 * NOT the paths, note, that these paths are also used for
 	 * other things like the nfs lock file.
@@ -1392,11 +1239,6 @@ tracker_db_manager_shutdown (void)
 				dbs[i].iface = NULL;
 			}
 		}
-	}
-
-	if (prepared_queries) {
-		g_hash_table_unref (prepared_queries);
-		prepared_queries = NULL;
 	}
 
 	g_free (data_dir);
@@ -1503,8 +1345,6 @@ tracker_db_manager_get_db_interfaces (gint num, ...)
 
 		if (!connection) {
 			connection = tracker_db_interface_sqlite_new (dbs[db].abs_filename);
-			tracker_db_interface_set_procedure_table (connection,
-								  prepared_queries);
 
 			db_set_params (connection,
 				       dbs[db].cache_size,
@@ -1539,8 +1379,6 @@ tracker_db_manager_get_db_interfaces_ro (gint num, ...)
 
 		if (!connection) {
 			connection = tracker_db_interface_sqlite_new_ro (dbs[db].abs_filename);
-			tracker_db_interface_set_procedure_table (connection,
-								  prepared_queries);
 			db_set_params (connection,
 				       dbs[db].cache_size,
 				       dbs[db].page_size,

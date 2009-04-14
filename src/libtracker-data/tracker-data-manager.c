@@ -826,27 +826,6 @@ tracker_data_manager_get_language (void)
 	return private->language;
 }
 
-TrackerDBResultSet *
-tracker_data_manager_exec_proc (TrackerDBInterface *iface,
-			        const gchar	   *procedure,
-				...)
-{
-	TrackerDBResultSet *result_set;
-	va_list		    args;
-
-	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (iface), NULL);
-	g_return_val_if_fail (procedure != NULL, NULL);
-
-	va_start (args, procedure);
-	result_set = tracker_db_interface_execute_vprocedure (iface,
-							      NULL,
-							      procedure,
-							      args);
-	va_end (args);
-
-	return result_set;
-}
-
 gint
 tracker_data_manager_get_db_option_int (const gchar *option)
 {
@@ -885,7 +864,6 @@ tracker_data_manager_set_db_option_int (const gchar *option,
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBResultSet *result_set;
 	gchar		   *str;
 
 	g_return_if_fail (option != NULL);

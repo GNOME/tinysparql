@@ -48,10 +48,6 @@ void                tracker_data_manager_shutdown          (void);
 TrackerConfig *     tracker_data_manager_get_config        (void);
 TrackerLanguage *   tracker_data_manager_get_language      (void);
 
-/* Operations for TrackerDBInterface */
-TrackerDBResultSet *tracker_data_manager_exec_proc         (TrackerDBInterface *iface,
-							    const gchar        *procedure,
-							    ...);
 gint                tracker_data_manager_get_db_option_int (const gchar        *option);
 void                tracker_data_manager_set_db_option_int (const gchar        *option,
 							    gint                value);
