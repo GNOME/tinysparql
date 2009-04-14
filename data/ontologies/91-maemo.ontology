@@ -5,6 +5,8 @@
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
 @prefix nfo: <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix maemo: <http://maemo.org/ontologies/tracker#> .
 
 maemo: a tracker:Namespace ;
@@ -19,3 +21,17 @@ maemo:SoftwareApplet a rdfs:Class ;
 	rdfs:label "Widget" ;
 	rdfs:comment "A widget" ;
 	rdfs:subClassOf nfo:Software .
+
+maemo:DesktopBookmark a rdfs:Class ;
+	rdfs:label "Desktop bookmark" ;
+	rdfs:subClassOf nie:InformationElement .
+
+# Instances for Web and Desktop bookmarks
+maemo:DesktopBookmarkFolder a nfo:BookmarkFolder .
+maemo:BrowserBookmarkFolder a nfo:BookmarkFolder .
+
+# Property to support thumbnails of the bookmarks
+# It is not nfo:Image to avoid unnecessary resources in the DB
+maemo:bookmarkThumbnail a rdf:Property ;
+   rdfs:domain nfo:Bookmark ;
+   rdfs:range  xsd:string .
