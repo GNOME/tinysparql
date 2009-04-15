@@ -855,7 +855,7 @@ get_id3v24_tags (const gchar *data,
 						  NULL, NULL, NULL);
 				break;
 			case 0x03 :
-				word = strndup (text, csize - offset);
+				word = g_strndup (text, csize - offset);
 				break;
 				
 			default:
