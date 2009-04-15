@@ -632,7 +632,7 @@ tracker_albumart_get_path (const gchar  *a,
 		gchar *local_dir;
 		GFile *file, *parent;
 
-		if (strchr (uri, ':')) {
+		if (strstr (uri, "://")) {
 			file = g_file_new_for_uri (uri);
 		} else {
 			file = g_file_new_for_path (uri); 
