@@ -29,12 +29,17 @@ struct TrackerDBusRequestHandler {
 	gpointer	       user_data;
 };
 
-static GSList *hooks;
+static GSList   *hooks;
+static gboolean  block_hooks;
 
 static void
 request_handler_call_for_new (guint request_id)
 {
 	GSList *l;
+
+	if (block_hooks) {
+		return;
+	}
 
 	for (l = hooks; l; l = l->next) {
 		TrackerDBusRequestHandler *handler;
@@ -51,6 +56,10 @@ static void
 request_handler_call_for_done (guint request_id)
 {
 	GSList *l;
+
+	if (block_hooks) {
+		return;
+	}
 
 	for (l = hooks; l; l = l->next) {
 		TrackerDBusRequestHandler *handler;
@@ -359,4 +368,16 @@ tracker_dbus_request_debug (gint	 request_id,
 		 request_id,
 		 str);
 	g_free (str);
+}
+
+void
+tracker_dbus_request_block_hooks (void)
+{
+	block_hooks = TRUE;
+}
+
+void
+tracker_dbus_request_unblock_hooks (void)
+{
+	block_hooks = FALSE;
 }
