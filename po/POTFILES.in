@@ -25,6 +25,7 @@ src/tracker-search-tool/tracker-search-tool-callbacks.c
 src/tracker-search-tool/tracker-search-tool-support.c
 src/tracker-search-tool/tracker-search-tool.c
 src/tracker-search-tool/tracker-search-tool.desktop.in.in
+src/tracker-utils/tracker-import.c
 src/tracker-utils/tracker-info.c
 src/tracker-utils/tracker-meta-folder.c
 src/tracker-utils/tracker-processes.c
